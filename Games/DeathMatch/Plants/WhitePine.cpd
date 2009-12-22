@@ -1,0 +1,85 @@
+// In SpeedTree: 258 branch polygons, 116 leaf polygons, 374 polygons total
+
+
+// ********
+//  Global
+// ********
+
+RandomSeed  0
+Size        36.576
+SizeV       4.0
+BarkTexName Plants/Trees/WhitePineBark
+
+
+// **********
+//  Branches
+// **********
+
+// Trunk
+DescribeBranchLevel 0
+
+Length0       1.00
+Length1       0.0                             // Fuer den Stamm irrelevant
+LengthV       0.05
+LengthProfile Linear 0.0      // Fuer den Stamm irrelevant (muss aber 'Linear' sein)
+
+StartAngle0       90.0
+StartAngle1        0.0                        // Fuer den Stamm irrelevant
+StartAngleV        0.0
+StartAngleProfile Linear 0.0  // Fuer den Stamm irrelevant (muss aber 'Linear' sein)
+
+Radius0       0.015
+Radius1       0.0                             // Fuer den Stamm irrelevant
+RadiusV       0.001
+RadiusProfile Linear 0.0      // Fuer den Stamm irrelevant (muss aber 'Linear' sein)
+
+NrOfSegments            3
+CrossSectionsResolution 5
+AngleProfile_Segments   ConstantAvg 0.498
+RadiusProfile_Segments  Linear 0.0
+
+FirstChild   0.50
+LastChild    1.00
+NrOfChildren 20.0
+
+// Main branches
+DescribeBranchLevel 1
+
+Length0       0.05
+Length1       0.25
+LengthV       0.03
+LengthProfile Linear 0.0
+
+StartAngle0       90.0
+StartAngle1       10.0
+StartAngleV       10.0
+StartAngleProfile Linear 0.0
+
+Radius0       0.0055
+Radius1       0.0010
+RadiusV       0.0
+RadiusProfile Linear 0.0
+
+NrOfSegments            2
+CrossSectionsResolution 3
+AngleProfile_Segments   ConstantAvg 0.499
+RadiusProfile_Segments  Linear 0.0
+
+FirstChild   0.00
+LastChild    1.00
+NrOfChildren 100.0
+
+
+// ********
+//  Leaves
+// ********
+
+Distance0       0.00
+Distance1       0.10
+DistanceV       0.005
+DistanceProfile Round 0.0
+
+LeafTexName Plants/Trees/WhitePineNeedles_GD_1
+LeafTexName Plants/Trees/WhitePineNeedles_GD_2
+
+LeafSize 0.17

@@ -1,0 +1,12 @@
+<GRAMMAR LANGID="409">
+    <DEFINE>
+        <ID NAME="VID_Yes"    VAL="1"/>
+        <ID NAME="VID_No"     VAL="2"/>
+    </DEFINE>
+    <RULE ID="VID_Yes" TOPLEVEL="ACTIVE">
+        <P>yes</P>
+    </RULE>
+    <RULE ID="VID_No" TOPLEVEL="ACTIVE">
+        <P>no</P>
+    </RULE>
+</GRAMMAR>

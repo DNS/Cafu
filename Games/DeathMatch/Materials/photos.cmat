@@ -1,0 +1,35 @@
+Textures/photos/carsten
+{
+    diffusemap  Textures/photos/carsten_diff.png
+    lightmap    $lightmap
+
+    meta_radiantExitance  80  80 100     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/photos/photo1a
+{
+    diffusemap  Textures/photos/photo1a_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/photos/photo1b
+{
+    diffusemap  Textures/photos/photo1b_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/photos/photo1c
+{
+    diffusemap  Textures/photos/photo1c_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/photos/photo1d
+{
+    diffusemap  Textures/photos/photo1d_diff.png
+    lightmap    $lightmap
+}

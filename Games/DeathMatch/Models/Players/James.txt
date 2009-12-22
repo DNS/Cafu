@@ -1,0 +1,31 @@
+James Bond Model for Half-Life
+
+Author:       	Matt 'Scorchin' Smith -- All modeling and textures
+
+Model Name:   	James Bond (Sean Connery)
+Version:       	1.0
+Relaese Date:  	06/04/99
+Total Size:  	320kB
+Polygons:     	573
+Vertices:     	301
+Texture Size:  	66KB ()
+Team Colors:   	No he's Bond He only fights for one side
+Animations:   	Standard DM Player Animations -- changed one just as a test he now looks at his watch when idle
+Build Time:    	A week on and off - may spend more time on him in the future
+Programs Used:	3D Studio MAX R2.5,Photoshop 5
+
+Known bugs:     Not completely happy with shoulders but it is no worse than half-life's basic models.
+
+Description:
+This is my first model for any game and is more a result of my experimenting with techniques in 3d max.
+I know people have asked for a bond model hope this will fill their needs for a while.
+
+I chose Connery from Dr. No and Thunderball as these are my personal Favorites and this man was the first
+to sport the double '0' tag. Maybe one day all the bond actors will grace our half-life or maybe a bond mod
+will become a reality.
+
+Enjoy! and remember you have a license to kill! not be Killed!
+
+Installation:
+Put all files (james.mdl, james.bmp) in half-life\valve\models\player\james directory
+To use the 007 spray paint logo place the file 007.bmp in half-life\logos directory

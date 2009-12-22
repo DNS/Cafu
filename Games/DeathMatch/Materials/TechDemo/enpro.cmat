@@ -1,0 +1,51 @@
+// ****************************************************************
+// *** The textures used in the materials below are by Charles. ***
+// ****************************************************************
+
+TechDemo/enpro/enwall-7
+{
+    diffusemap  Textures/TechDemo/enpro/enwall-7_diff.png
+    normalmap   Textures/TechDemo/enpro/enwall-7_norm.png
+    specularmap Textures/TechDemo/enpro/enwall-7_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/enpro/enwall-13
+{
+    diffusemap  Textures/TechDemo/enpro/enwall-13_diff.png
+    normalmap   Textures/TechDemo/enpro/enwall-13_norm.png
+    specularmap Textures/TechDemo/enpro/enwall-13_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/enpro/enwall-14
+{
+    diffusemap  Textures/TechDemo/enpro/enwall-14_diff.png
+    normalmap   Textures/TechDemo/enpro/enwall-14_norm.png
+    specularmap Textures/TechDemo/enpro/enwall-14_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/enpro/enwall-21
+{
+    diffusemap  Textures/TechDemo/enpro/enwall-21_diff.png
+    normalmap   Textures/TechDemo/enpro/enwall-21_norm.png
+    specularmap Textures/TechDemo/enpro/enwall-21_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/enpro/enwall-22
+{
+    diffusemap  Textures/TechDemo/enpro/enwall-22_diff.png
+    normalmap   Textures/TechDemo/enpro/enwall-22_norm.png
+    specularmap Textures/TechDemo/enpro/enwall-22_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/enpro/minpanel
+{
+    diffusemap  Textures/TechDemo/enpro/minpanel_diff.png
+    normalmap   Textures/TechDemo/enpro/minpanel_norm.png
+    specularmap Textures/TechDemo/enpro/minpanel_spec.png
+    lightmap    $lightmap
+}

@@ -1,0 +1,25 @@
+3 3 z   #  0     Start      Start
+4 4 z   #  0     Right60    Right60
+4 5 z   #  0     Forward    Left60
+3 5 z   #  0     Left60     Left60
+2 4 z   #  0     Left120    Left60
+2 3 z   #  0     Back       Left60
+3 3 z   #  1     Right120   Left60
+
+
+// 3 3 3     #      absolute moves:  from center of 7x7x7 cube   relative moves:
+// 3 3 4     #   1. forward                                      forward
+// 2 3 4     #   2. left                                         left
+// 2 3 5     #   3. forward                                      forward
+// 2 3 4     #   4. back (node revisited after 180 degree turn)  back
+// 1 3 4     #   5. left                                         left
+// 1 2 4     #   6. down (changing planes)                       down
+// 1 1 4     #   7. down                                         forward
+// 1 1 3     #   8. back                                         down
+// 1 1 1     #   9. back2 (now multiple steps)                   forward2
+// 1 1 -1    #  10. back2 (and expanding)                        forward2
+// 1 -1 -1   #  11. down2                                        backward2
+// -1 -1 -1  #  12. left2                                        backward2
+// -2 -2 -2  #  13. combined backward                            backward zigzag...
+// 0 0 0     #  14. combined forward                             forward zigzag...
+// 9 9 9     #  15. combined (expanding on other end)            forward zigzag...

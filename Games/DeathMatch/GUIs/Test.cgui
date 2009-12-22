@@ -1,0 +1,178 @@
+TestGUI=gui:new("WindowT");
+gui:SetRootWindow(TestGUI);
+
+function TestGUI:OnInit()
+    self:set("rect", 0, 0, 640, 480);
+    self:set("text", "T.W.Lewis");
+    self:set("textScale", 1.2);
+    self:set("textAlignHor", 0);
+
+    gui:activate(false);
+    gui:setInteractive(true);
+    gui:showMouse(true);
+end
+
+
+SomeImage=gui:new("WindowT");
+TestGUI:AddChild(SomeImage);
+
+function SomeImage:OnInit()
+    self:set("rect", 30, 130, 200, 200);
+    self:set("backMaterial", "Models/Weapons/9mmAR_v/arm");
+    self:set("backColor", 1, 1, 1, 1);
+end
+
+function SomeImage:OnFrame()
+    self:set("rotAngle", self:get("time")*50);
+end
+
+
+ButtonToggleHor=gui:new("WindowT");
+TestGUI:AddChild(ButtonToggleHor);
+
+function ButtonToggleHor:OnInit()
+    self:set("rect", 10, 380, 140, 80);
+    self:set("borderWidth", 5);
+    self:set("text", "Toggle hor.\nalignment");
+    self:set("textScale", 0.5);
+end
+
+function ButtonToggleHor:OnMouseButtonDown()
+    local newAlign=TestGUI:get("textAlignHor")+1;
+    if (newAlign>2) then newAlign=0; end
+
+    TestGUI:set("textAlignHor", newAlign);
+    self:set("textAlignHor", newAlign);
+
+    self:interpolate("rotAngle", 0, 360, 250);
+    return true;
+end
+
+
+ButtonToggleVer=gui:new("WindowT");
+TestGUI:AddChild(ButtonToggleVer);
+
+function ButtonToggleVer:OnInit()
+    self:set("rect", 170, 380, 140, 80);
+    self:set("borderWidth", 5);
+    self:set("text", "Toggle ver.\nalignment");
+    self:set("textScale", 0.5);
+end
+
+function ButtonToggleVer:OnMouseButtonDown()
+    local newAlign=TestGUI:get("textAlignVer")+1;
+    if (newAlign>2) then newAlign=0; end
+
+    TestGUI:set("textAlignVer", newAlign);
+    ButtonQuit:set("textAlignVer", newAlign);
+    self:set("textAlignVer", newAlign);
+
+    self:interpolate("pos.y", 380, 300, 500);
+    self:interpolate("pos.y", 300, 380, 500);
+    return true;
+end
+
+
+ButtonQuit=gui:new("WindowT");
+TestGUI:AddChild(ButtonQuit);
+
+function ButtonQuit:OnInit()
+    self:set("rect", 400, 380, 160, 80);
+    self:set("text", "Quit");
+    self:set("textScale", 1.0);
+    self:set("borderWidth", 10.0);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+    self:set("font", "Fonts/Impact");
+end
+
+function ButtonQuit:OnMouseEnter()
+    self:set("textScale", 0.55);
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+end
+
+function ButtonQuit:OnMouseLeave()
+    self:set("textScale", 1.0);
+    self:set("borderColor", 1.0, 1.0, 1.0, 1.0);
+end
+
+function ButtonQuit:OnMouseButtonDown()
+    -- Add a nice shutdown effect.
+    TestGUI:set("rotAngle", -10);
+    TestGUI:interpolate("pos.y", 30, 30, 300);
+    TestGUI:interpolate("pos.y", 30, 610, 700);
+
+    -- Now somehow quit the game.
+    ci.RunCommand("list();");
+    return true;
+end
+
+
+Counter=gui:new("WindowT");
+TestGUI:AddChild(Counter);
+
+Counter.count=0;
+
+function Counter:OnInit()
+    self:set("rect", 400, 20, 120, 100);
+    self:set("borderWidth", 5);
+    self:set("text", "Counter\n" .. self.count);
+    self:set("textScale", 0.6);
+end
+
+function Counter:OnMouseEnter()
+    self:interpolate("textScale", 0.6, 0.7, 250);
+    self:interpolate("textScale", 0.7, 0.6, 250);
+end
+
+function Counter:OnMouseButtonDown()
+    self.count=self.count+1;
+    self:set("text", "Counter\n" .. self.count);
+
+    -- IMPORTANT INFORMATION:
+    --
+    -- As this GUI is a 3D world GUI, it is "operated" from within the HumanPlayerT::Think() code,
+    -- which in turn is run on server thinking, client prediction and client reprediction.
+    -- Therefore, we can easily get here a lot more often than expected:
+    -- Once or more on the client side during (re-)prediction, then again on the server side during thinking.
+    -- (If we're running a local single player game, then even all of these occur.)
+    --
+    -- *** Therefore, anything we do here must have side-effects *ONLY* on the server! ***
+    -- The game.runMapCmd() fulfils this requirement, because it actively checks and does nothing when being run on the client.
+    -- However, a call to ci.RunCommand("xy();"); *will* run xy() multiple times in the above outlined cases.
+
+    -- Call the MyFirstLift:OnTrigger() method.
+ -- ci.RunCommand("runMapCmd('MyFirstLift:OnTrigger();');");
+    game.runMapCmd("MyFirstLift:OnTrigger();");
+
+ -- game.runMapCmd("MyLight:SetColor(255, 0, 0);");
+    game.runMapCmd("MyLight:OnTrigger();");
+    return true;
+end
+
+
+FPS=gui:new("WindowT");
+TestGUI:AddChild(FPS);
+
+FPS.oldTime=FPS:get("time");
+
+function FPS:OnInit()
+    self:set("rect", 400, 150, 220, 160);
+    self:set("borderWidth", 5);
+    self:set("text", "FPS\n");
+    self:set("textScale", 0.8);
+    self:set("font", "Fonts/Impact");
+end
+
+function FPS:OnFrame()
+    local newTime=FPS:get("time");
+    local deltaTime=newTime-self.oldTime;
+
+    if (deltaTime<0.000000001) then
+        self:set("text", string.format(" FPS\n INF\n (%.4f sec)", deltaTime));
+    else
+        self:set("text", string.format(" FPS\n %.2f\n (%.4f sec)", 1/deltaTime, deltaTime));
+    end
+
+    FPS.oldTime=newTime;
+end

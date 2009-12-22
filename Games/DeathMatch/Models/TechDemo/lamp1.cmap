@@ -1,0 +1,54 @@
+// Ca3D-Engine Map File
+// Written by CaWE, the Ca3DE World Editor.
+
+
+{ // Entity 0 (the world)
+  classname "worldspawn"
+  lightmap_patchsize "200.0"
+  shlmap_patchsize "200.0"
+  wind_velocity "0.0"
+  wind_velocity_var "0.0"
+  precipitation_intensity "3"
+  fog_density "0.0025"
+  fog_start "0.0"
+  fog_end "1.0"
+  fog_color "0 0 0"
+  mapfile_version "11"
+
+  { // Brush 0
+    ( 49 1 28 ) ( 51 1 28 ) ( 51 -1 28 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 512 0 0 ) ( 0 -512 0 ) )
+    ( 49 -1 5 ) ( 51 -1 5 ) ( 51 1 5 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 512 0 0 ) ( 0 -512 0 ) )
+    ( 49 1 28 ) ( 49 -1 28 ) ( 49 -1 5 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 0 512 0 ) ( 0 0 -512 ) )
+    ( 51 1 5 ) ( 51 -1 5 ) ( 51 -1 28 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 0 512 0 ) ( 0 0 -512 ) )
+    ( 51 1 28 ) ( 49 1 28 ) ( 49 1 5 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 512 0 0 ) ( 0 0 -512 ) )
+    ( 51 -1 5 ) ( 49 -1 5 ) ( 49 -1 28 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 512 0 0 ) ( 0 0 -512 ) )
+  }
+
+  {
+    ( -37 1 28 ) ( -35 1 28 ) ( -35 -1 28 ) "Textures/meta/collisionmodel" ( 2 0.16796875 0 0 ( 512 0 0 ) ( 0 -512 0 ) )
+    ( -37 -1 5 ) ( -35 -1 5 ) ( -35 1 5 ) "Textures/meta/collisionmodel" ( 2 0.16796875 0 0 ( 512 0 0 ) ( 0 -512 0 ) )
+    ( -37 1 28 ) ( -37 -1 28 ) ( -37 -1 5 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 0 512 0 ) ( 0 0 -512 ) )
+    ( -35 1 5 ) ( -35 -1 5 ) ( -35 -1 28 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 0 512 0 ) ( 0 0 -512 ) )
+    ( -35 1 28 ) ( -37 1 28 ) ( -37 1 5 ) "Textures/meta/collisionmodel" ( 2 0.16796875 0 0 ( 512 0 0 ) ( 0 0 -512 ) )
+    ( -35 -1 5 ) ( -37 -1 5 ) ( -37 -1 28 ) "Textures/meta/collisionmodel" ( 2 0.16796875 0 0 ( 512 0 0 ) ( 0 0 -512 ) )
+  }
+
+  {
+    ( -0 0 5 ) ( 8.742277714191e-005 -1000 5 ) ( -1000 -8.742277714191e-005 5.00004386901855 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( -0 4.31034517288208 1.72413790225983 ) ( -1000 4.31030130386353 1.72413790225983 ) ( -1.62340020324336e-005 375.700988769531 -926.752563476563 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( -34.5588264465332 0 20.7352962493896 ) ( -34.5587387084961 -1000 20.7352962493896 ) ( -549.054626464844 -4.49786530225538e-005 -836.757629394531 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( 44.8529472351074 0 26.9117679595947 ) ( 44.8529472351074 1000 26.9117679595947 ) ( 559.348754882813 0 -830.581176757813 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( -0 -5.04587173461914 1.51376140117645 ) ( 1000 -5.0459156036377 1.51376140117645 ) ( -1.25603746710112e-005 -292.393737792969 -956.312561035156 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( 0 0 -5 ) ( 0 1000 -5 ) ( -1000 0 -4.99995613098145 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
+  }
+}
+
+{ // Entity 1
+  classname "static_detail_model"
+  angles "-0 90 -0"
+  rendertranslucency "255"
+  rendercolor "0 0 0"
+  scale "1.0"
+  model "Models\TechDemo\lamp1.ase"
+  origin "0 0 0"
+}

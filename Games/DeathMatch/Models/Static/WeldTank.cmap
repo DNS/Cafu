@@ -1,0 +1,36 @@
+// Ca3D-Engine Map File
+// Written by CaWE, the Ca3DE World Editor.
+
+
+{ // Entity 0 (the world)
+  classname "worldspawn"
+  lightmap_patchsize "200.0"
+  shlmap_patchsize "200.0"
+  wind_velocity "0.0"
+  wind_velocity_var "0.0"
+  precipitation_intensity "3"
+  fog_density "0.0025"
+  fog_start "0.0"
+  fog_end "1.0"
+  fog_color "0 0 0"
+  mapfile_version "11"
+
+  { // Brush 0
+    ( -5 4 61 ) ( 4 4 61 ) ( 4 -5 61 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 512 0 0 ) ( 0 -512 0 ) )
+    ( -5 -5 0 ) ( 4 -5 0 ) ( 4 4 0 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 512 0 0 ) ( 0 -512 0 ) )
+    ( -5 4 61 ) ( -5 -5 61 ) ( -5 -5 0 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 0 512 0 ) ( 0 0 -512 ) )
+    ( 4 4 0 ) ( 4 -5 0 ) ( 4 -5 61 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 0 512 0 ) ( 0 0 -512 ) )
+    ( 4 4 61 ) ( -5 4 61 ) ( -5 4 0 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 512 0 0 ) ( 0 0 -512 ) )
+    ( 4 -5 0 ) ( -5 -5 0 ) ( -5 -5 61 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 512 0 0 ) ( 0 0 -512 ) )
+  }
+}
+
+{ // Entity 1
+  classname "static_detail_model"
+  angles "-0 90 -0"
+  rendertranslucency "255"
+  rendercolor "0 0 0"
+  scale "1.0"
+  model "Models/Static/WeldTank_blue.mdl"
+  origin "0 0 0"
+}

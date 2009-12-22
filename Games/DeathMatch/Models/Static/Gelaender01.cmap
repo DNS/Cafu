@@ -1,0 +1,81 @@
+// Ca3D-Engine Map File
+// Written by CaWE, the Ca3DE World Editor.
+
+
+{ // Entity 0 (the world)
+  classname "worldspawn"
+  lightmap_patchsize "200.0"
+  shlmap_patchsize "200.0"
+  wind_velocity "0.0"
+  wind_velocity_var "0.0"
+  precipitation_intensity "3"
+  fog_density "0.0025"
+  fog_start "0.0"
+  fog_end "1.0"
+  fog_color "0 0 0"
+  mapfile_version "11"
+
+  { // Brush 0
+    ( -29.9999980926514 -1 39 ) ( 30 -1 39 ) ( 30 -1 37 ) "Textures/meta/collisionmodel" ( 2 0 0.59375 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( -29.9999980926514 1 37 ) ( 30 1 37 ) ( 30 1 39 ) "Textures/meta/collisionmodel" ( 2 0 0.59375 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( -29.9999980926514 -1 39 ) ( -29.9999980926514 -1 37 ) ( -29.9999980926514 1 37 ) "Textures/meta/collisionmodel" ( 2 -0.59375 -0.59375 0 ( 0 0 64 ) ( 0 64 0 ) )
+    ( 30 1 39 ) ( 30 1 37 ) ( 30 -1 37 ) "Textures/meta/collisionmodel" ( 2 -0.59375 -0.59375 0 ( 0 0 64 ) ( 0 64 0 ) )
+    ( 30 -1 39 ) ( -29.9999980926514 -1 39 ) ( -29.9999980926514 1 39 ) "Textures/meta/collisionmodel" ( 2 0 -0.59375 0 ( 64 0 0 ) ( 0 64 0 ) )
+    ( 30 1 37 ) ( -29.9999980926514 1 37 ) ( -29.9999980926514 -1 37 ) "Textures/meta/collisionmodel" ( 2 0 -0.59375 0 ( 64 0 0 ) ( 0 64 0 ) )
+  }
+
+  {
+    ( -32 1 39 ) ( -30 1 39 ) ( -30 -1 39 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( -32 -1 0 ) ( -30 -1 0 ) ( -30 1 0 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( -32 1 39 ) ( -32 -1 39 ) ( -32 -1 0 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( -30 1 0 ) ( -30 -1 0 ) ( -30 -1 39 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( -30 1 39 ) ( -32 1 39 ) ( -32 1 0 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( -30 -1 0 ) ( -32 -1 0 ) ( -32 -1 39 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+  }
+
+  {
+    ( -1 1 37 ) ( 1 1 37 ) ( 1 -1 37 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( -1 -1 0 ) ( 1 -1 0 ) ( 1 1 0 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( -1 1 37 ) ( -1 -1 37 ) ( -1 -1 0 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( 1 1 0 ) ( 1 -1 0 ) ( 1 -1 37 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( 1 1 37 ) ( -1 1 37 ) ( -1 1 0 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( 1 -1 0 ) ( -1 -1 0 ) ( -1 -1 37 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+  }
+
+  {
+    ( 30 1 39 ) ( 32 1 39 ) ( 32 -1 39 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( 30 -1 0 ) ( 32 -1 0 ) ( 32 1 0 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( 30 1 39 ) ( 30 -1 39 ) ( 30 -1 0 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( 32 1 0 ) ( 32 -1 0 ) ( 32 -1 39 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( 32 1 39 ) ( 30 1 39 ) ( 30 1 0 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( 32 -1 0 ) ( 30 -1 0 ) ( 30 -1 39 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+  }
+
+  {
+    ( -30 -1 20 ) ( -1 -1 20 ) ( -1 -1 18 ) "Textures/meta/collisionmodel" ( 2 0 0.296875 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( -30 1 18 ) ( -1 1 18 ) ( -1 1 20 ) "Textures/meta/collisionmodel" ( 2 0 0.296875 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( -30 -1 20 ) ( -30 -1 18 ) ( -30 1 18 ) "Textures/meta/collisionmodel" ( 2 -0.296875 -0.296875 0 ( 0 0 64 ) ( 0 64 0 ) )
+    ( -1 1 20 ) ( -1 1 18 ) ( -1 -1 18 ) "Textures/meta/collisionmodel" ( 2 -0.296875 -0.296875 0 ( 0 0 64 ) ( 0 64 0 ) )
+    ( -1 -1 20 ) ( -30 -1 20 ) ( -30 1 20 ) "Textures/meta/collisionmodel" ( 2 0 -0.296875 0 ( 64 0 0 ) ( 0 64 0 ) )
+    ( -1 1 18 ) ( -30 1 18 ) ( -30 -1 18 ) "Textures/meta/collisionmodel" ( 2 0 -0.296875 0 ( 64 0 0 ) ( 0 64 0 ) )
+  }
+
+  {
+    ( 1 -1 20 ) ( 30 -1 20 ) ( 30 -1 18 ) "Textures/meta/collisionmodel" ( 2 0 0.296875 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( 1 1 18 ) ( 30 1 18 ) ( 30 1 20 ) "Textures/meta/collisionmodel" ( 2 0 0.296875 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( 1 -1 20 ) ( 1 -1 18 ) ( 1 1 18 ) "Textures/meta/collisionmodel" ( 2 -0.296875 -0.296875 0 ( 0 0 64 ) ( 0 64 0 ) )
+    ( 30 1 20 ) ( 30 1 18 ) ( 30 -1 18 ) "Textures/meta/collisionmodel" ( 2 -0.296875 -0.296875 0 ( 0 0 64 ) ( 0 64 0 ) )
+    ( 30 -1 20 ) ( 1 -1 20 ) ( 1 1 20 ) "Textures/meta/collisionmodel" ( 2 0 -0.296875 0 ( 64 0 0 ) ( 0 64 0 ) )
+    ( 30 1 18 ) ( 1 1 18 ) ( 1 -1 18 ) "Textures/meta/collisionmodel" ( 2 0 -0.296875 0 ( 64 0 0 ) ( 0 64 0 ) )
+  }
+}
+
+{ // Entity 1
+  classname "static_detail_model"
+  angles "-0 90 -0"
+  rendertranslucency "255"
+  rendercolor "0 0 0"
+  scale "1.0"
+  model "Models\Static\Gelaender01.mdl"
+  origin "0 -0 0"
+}

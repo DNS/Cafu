@@ -1,0 +1,236 @@
+import os, sys, platform
+
+Import('env')
+
+
+env.StaticLibrary(
+    target="cfsLib",
+    source=Split("""ConsoleCommands/ConVar.cpp ConsoleCommands/ConFunc.cpp
+                    ConsoleCommands/ConsoleInterpreter_LuaBinding.cpp
+                    ConsoleCommands/Console.cpp ConsoleCommands/ConsoleStdout.cpp ConsoleCommands/ConsoleStringBuffer.cpp ConsoleCommands/ConsoleWarningsOnly.cpp ConsoleCommands/ConsoleFile.cpp
+                    Fonts/Font.cpp Fonts/FontTT.cpp
+                    MapFile.cpp
+                    Math3D/Angles.cpp Math3D/BezierPatch.cpp Math3D/BoundingBox.cpp Math3D/Brush.cpp Math3D/Matrix.cpp Math3D/Matrix3x3.cpp Math3D/Misc.cpp Math3D/Plane3.cpp Math3D/Pluecker.cpp Math3D/Polygon.cpp Math3D/Rotation.cpp
+                    Models/Model_ase.cpp Models/Model_cmdl.cpp Models/Model_dlod.cpp Models/Model_dummy.cpp Models/Model_lwo.cpp Models/Model_md5.cpp Models/Model_mdl.cpp Models/Model_proxy.cpp
+                    Network/Network.cpp ParticleEngine/ParticleEngineMS.cpp PlatformAux.cpp Terrain/Terrain.cpp
+                    TextParser/TextParser.cpp
+                    Plants/Tree.cpp Plants/PlantDescription.cpp Plants/PlantDescrMan.cpp
+                    Util/Util.cpp
+                    Win32/Win32PrintHelp.cpp
+                    DebugLog.cpp TypeSys.cpp""") +
+           env.Object(["Bitmap/Bitmap.cpp", "Bitmap/jdatasrc.cpp"], CPPPATH=env['CPPPATH']+["#/ExtLibs/jpeg", "#/ExtLibs/libpng", "#/ExtLibs/zlib"]),
+    CPPPATH=env['CPPPATH']+["#/ExtLibs/lua/src", "#/ExtLibs/lwo",
+                            "#/ExtLibs/Collada-DOM-2.1/dom/include", "#/ExtLibs/Collada-DOM-2.1/dom/include/1.4"])
+
+
+
+if sys.platform=="win32":
+    Win32Objects=env.Object("DirectX/DirectInput.cpp", CPPPATH=env['CPPPATH']+["#/ExtLibs/DirectX7/include"])
+else:
+    Win32Objects=[]
+
+env.StaticLibrary(
+    target="cfsCoreLib",
+    source=Split("""ClipSys/CollisionModel_static.cpp ClipSys/CollisionModel_static_BulletAdapter.cpp ClipSys/CollisionModelMan_impl.cpp
+                    ConsoleCommands/ConsoleInterpreterImpl.cpp
+                    GuiSys/ConsoleByWindow.cpp GuiSys/Coroutines.cpp GuiSys/InitWindowTypes.cpp GuiSys/GuiImpl.cpp GuiSys/GuiManImpl.cpp
+                    GuiSys/Window.cpp GuiSys/WindowCreateParams.cpp GuiSys/WindowChoice.cpp GuiSys/WindowEdit.cpp GuiSys/WindowListBox.cpp GuiSys/WindowModel.cpp GuiSys/WindowPtr.cpp GuiSys/EditorData.cpp
+                    FileSys/FileManImpl.cpp FileSys/FileSys_LocalPath.cpp FileSys/FileSys_ZipArchive_GV.cpp FileSys/File_local.cpp FileSys/File_memory.cpp FileSys/Password.cpp""") +
+           env.Object("OpenGL/OpenGLWindow.cpp", CPPPATH=env['CPPPATH']+["#/ExtLibs/DirectX7/include"]) +
+           Win32Objects,
+    CPPPATH=env['CPPPATH']+["#/ExtLibs/bullet/src",    # For the BulletAdapterT classes.
+                            "#/ExtLibs/lua/src", "#/ExtLibs/zlib"])
+
+
+
+env.StaticLibrary(
+    target="GuiSysNullEditor",
+    source=Split("""GuiSys/Window_NullEditor.cpp GuiSys/WindowChoice_NullEditor.cpp GuiSys/WindowEdit_NullEditor.cpp
+                    GuiSys/WindowModel_NullEditor.cpp GuiSys/WindowListBox_NullEditor.cpp"""))
+
+
+
+env.StaticLibrary(
+    target="ClipSys",
+    source=Split("""ClipSys/ClipModel.cpp ClipSys/ClipWorld.cpp ClipSys/TraceSolid.cpp"""))
+
+
+
+env.StaticLibrary(
+    target="MatSys",
+    source=Split("""MaterialSystem/Expression.cpp MaterialSystem/MapComposition.cpp MaterialSystem/Material.cpp MaterialSystem/MaterialManager.cpp
+                    MaterialSystem/MaterialManagerImpl.cpp MaterialSystem/Renderer.cpp MaterialSystem/TextureMap.cpp"""))
+
+
+
+env.StaticLibrary(
+    target="SoundSys",
+    source=Split("""SoundSystem/SoundShaderManager.cpp SoundSystem/SoundShaderManagerImpl.cpp SoundSystem/SoundShader.cpp"""))
+
+
+
+env.StaticLibrary(
+    target="SceneGraph",
+    source=Split("""SceneGraph/_aux.cpp SceneGraph/BezierPatchNode.cpp SceneGraph/BspTreeNode.cpp SceneGraph/FaceNode.cpp
+                    SceneGraph/LightMapMan.cpp SceneGraph/Node.cpp SceneGraph/SHLMapMan.cpp SceneGraph/TerrainNode.cpp
+                    SceneGraph/PlantNode.cpp SceneGraph/ModelNode.cpp"""))
+
+
+
+envRenderers = env.Clone()
+
+MatSys_CommonObjectsList = envRenderers.SharedObject(["MaterialSystem/Common/DepRelMatrix.cpp", "MaterialSystem/Common/OpenGLState.cpp", "MaterialSystem/Common/OpenGLEx.cpp"])
+
+if sys.platform=="linux2":
+    envRenderers.Append(LINKFLAGS=["Libs/MaterialSystem/Common/linker-script"])
+
+
+
+if sys.platform=="win32":
+    LibList=Split("cfsLib cfs_png cfs_jpeg z MatSys opengl32.lib glu32.lib")
+else:
+    LibList=[]
+
+envRenderers.SharedLibrary(
+    target="MaterialSystem/RendererARBprogs",
+    source=[os.path.join("MaterialSystem/RendererARBprogs", x) for x in Split("""
+               RendererARBprogs.cpp RendererImpl.cpp RenderMaterial.cpp Shader.cpp TextureMapImpl.cpp
+
+               Shaders/A_Terrain.cpp Shaders/A_Diff.cpp Shaders/A_Diff_Luma.cpp Shaders/A_Diff_Norm.cpp Shaders/A_Diff_Norm_Luma.cpp
+               Shaders/A_Diff_Light.cpp Shaders/A_Diff_Light_Luma.cpp Shaders/A_Diff_Light_Norm.cpp Shaders/A_Diff_Light_Norm_Spec.cpp
+               Shaders/A_Diff_Light_Norm_Luma.cpp Shaders/A_Diff_Light_Norm_Luma_Spec.cpp
+               Shaders/A_SkyDome.cpp Shaders/A_Solid.cpp Shaders/A_WaterCubeReflect.cpp
+               Shaders/L_Diff.cpp Shaders/L_Diff_Spec.cpp Shaders/L_Diff_Norm.cpp Shaders/L_Diff_Norm_Spec.cpp
+               Shaders/StencilShadowVolumes.cpp
+               Shaders/_CommonHelpers.cpp""")] +
+           MatSys_CommonObjectsList,
+    LIBS=LibList)
+
+
+
+if sys.platform=="win32":
+    LibList=Split("cfsLib cfs_png cfs_jpeg z MatSys opengl32.lib glu32.lib cg cgGL")
+elif sys.platform=="linux2":
+    LibList=Split("Cg CgGL")
+else:
+    LibList=[]
+
+if sys.platform!="linux2" or platform.machine()!="x86_64":      # We don't have the NVidia Cg libraries for x86_64 platforms...
+    envRenderers.SharedLibrary(
+        target="MaterialSystem/RendererCgARB1",
+        source=[os.path.join("MaterialSystem/RendererCgARB1", x) for x in Split("""
+                   RendererCgARB1.cpp RendererImpl.cpp RenderMaterial.cpp Shader.cpp TextureMapImpl.cpp
+
+                   Shaders/A_Terrain.cpp Shaders/A_Diff.cpp Shaders/A_Diff_Luma.cpp Shaders/A_Diff_Norm.cpp Shaders/A_Diff_Norm_Luma.cpp
+                   Shaders/A_Diff_Light.cpp Shaders/A_Diff_Light_Luma.cpp Shaders/A_Diff_Light_Norm.cpp Shaders/A_Diff_Light_Norm_Luma.cpp
+                   Shaders/A_SkyDome.cpp Shaders/A_Solid.cpp Shaders/A_WaterCubeReflect.cpp Shaders/L_Diff.cpp Shaders/L_Diff_Spec.cpp
+                   Shaders/L_Diff_Norm.cpp Shaders/L_Diff_Norm_Spec.cpp Shaders/StencilShadowVolumes.cpp Shaders/_CommonCgHelpers.cpp""")] +
+               MatSys_CommonObjectsList,
+        CPPPATH=env['CPPPATH']+["#/ExtLibs/Cg/include"],
+        LIBPATH=env['LIBPATH']+["#/ExtLibs/Cg/lib"],
+        LIBS=LibList)
+
+
+
+if sys.platform=="win32":
+    LibList=Split("cfsLib cfs_png cfs_jpeg z MatSys opengl32.lib glu32.lib cg cgGL")
+elif sys.platform=="linux2":
+    LibList=Split("Cg CgGL")
+else:
+    LibList=[]
+
+if sys.platform!="linux2" or platform.machine()!="x86_64":      # We don't have the NVidia Cg libraries for x86_64 platforms...
+    envRenderers.SharedLibrary(
+        target="MaterialSystem/RendererCgNV2X",
+        source=[os.path.join("MaterialSystem/RendererCgNV2X", x) for x in Split("""
+                   RendererCgNV2X.cpp RendererImpl.cpp RenderMaterial.cpp Shader.cpp TextureMapImpl.cpp
+
+                   Shaders/A_Terrain.cpp Shaders/A_Diff.cpp Shaders/A_Diff_Luma.cpp Shaders/A_Diff_Norm.cpp Shaders/A_Diff_Norm_Luma.cpp
+                   Shaders/A_Diff_Light.cpp Shaders/A_Diff_Light_Luma.cpp Shaders/A_Diff_Light_Norm.cpp Shaders/A_Diff_Light_Norm_Luma.cpp
+                   Shaders/A_SkyDome.cpp Shaders/A_Solid.cpp Shaders/A_WaterCubeReflect.cpp Shaders/L_Diff.cpp Shaders/L_Diff_Spec.cpp
+                   Shaders/L_Diff_Norm_oSpec.cpp Shaders/StencilShadowVolumes.cpp Shaders/_CommonCgHelpers.cpp""")] +
+               MatSys_CommonObjectsList,
+        CPPPATH=env['CPPPATH']+["#/ExtLibs/Cg/include"],
+        LIBPATH=env['LIBPATH']+["#/ExtLibs/Cg/lib"],
+        LIBS=LibList)
+
+
+
+if sys.platform=="win32":
+    LibList=Split("cfsLib MatSys")
+else:
+    LibList=[]
+
+envRenderers.SharedLibrary(
+    target="MaterialSystem/RendererNull",
+    source=[os.path.join("MaterialSystem/RendererNull", x) for x in Split("""RendererNull.cpp RendererImpl.cpp TextureMapImpl.cpp""")],
+    LIBS=LibList)
+
+
+
+if sys.platform=="win32":
+    LibList=Split("cfsLib cfs_png cfs_jpeg z MatSys opengl32.lib glu32.lib")
+else:
+    LibList=[]
+
+envRenderers.SharedLibrary(
+    target="MaterialSystem/RendererOpenGL12",
+    source=[os.path.join("MaterialSystem/RendererOpenGL12", x) for x in Split("""
+               RendererImpl.cpp RendererOpenGL12.cpp RenderMaterial.cpp Shader.cpp TextureMapImpl.cpp
+
+               Shaders/A_Diff_Light_Fog.cpp Shaders/A_Diff_Light_oLuma.cpp Shaders/A_Diff_nLight_oLuma.cpp Shaders/A_SkyDome.cpp
+               Shaders/A_Solid.cpp Shaders/A_Terrain.cpp Shaders/A_WaterCubeReflect.cpp Shaders/L_Diff_oSpec.cpp Shaders/StencilShadowVolumes.cpp""")] +
+           MatSys_CommonObjectsList,
+    LIBS=LibList)
+
+
+
+envSoundSys = env.Clone()
+
+if sys.platform=="linux2":
+    envSoundSys.Append(LINKFLAGS=["Libs/SoundSystem/Common/linker-script"])
+
+envSoundSys.SharedLibrary(
+    target="SoundSystem/SoundSysNull",
+    source=[os.path.join("SoundSystem/SoundSysNull", x) for x in Split("SoundSysImpl.cpp DllInterface.cpp")],
+    LIBS="SoundSys")
+
+
+
+envSoundSys = env.Clone()
+envSoundSys.Append(CPPPATH=['#/ExtLibs/fmod/api/inc'])
+
+if sys.platform=="win32":
+    envSoundSys.Append(LIBPATH=['#/ExtLibs/fmod/api/lib'])
+    envSoundSys.Append(LIBS=Split("cfsLib SoundSys fmodvc"))
+elif sys.platform=="linux2":
+    envSoundSys.Append(LINKFLAGS=["Libs/SoundSystem/Common/linker-script"])
+    envSoundSys.Append(LIBPATH=['#/ExtLibs/fmod/api'])
+    envSoundSys.Append(LIBS=["SoundSys", "fmod"])
+
+if sys.platform!="linux2" or platform.machine()!="x86_64":      # We don't have the FMod libraries for x86_64 platforms...
+    envSoundSys.SharedLibrary(
+        target="SoundSystem/SoundSysFMOD3",
+        source=[os.path.join("SoundSystem/SoundSysFMOD3", x) for x in Split("""
+                   SoundSysImpl.cpp DllInterface.cpp SoundImpl.cpp BufferManager.cpp
+                   StaticBuffer.cpp StreamingBuffer.cpp Channel.cpp""")])
+
+
+
+envSoundSys = env.Clone()
+envSoundSys.Append(CPPPATH=['#/ExtLibs/freealut/include', '#/ExtLibs/mpg123/src/libmpg123', '#/ExtLibs/libvorbis/include', '#/ExtLibs/libogg/include'])
+
+if sys.platform=="win32":
+    envSoundSys.Append(CPPPATH=['#/ExtLibs/openal-win/include'])
+    envSoundSys.Append(LIBPATH=['#/ExtLibs/openal-win/libs/Win32'])
+    envSoundSys.Append(LIBS=Split("cfsLib SoundSys OpenAL32 alut mpg123 ogg vorbis vorbisfile"))
+elif sys.platform=="linux2":
+    envSoundSys.Append(CPPPATH=['#/ExtLibs/openal-soft/include'])
+    envSoundSys.Append(LINKFLAGS=["Libs/SoundSystem/Common/linker-script"])
+
+envSoundSys.SharedLibrary(
+    target="SoundSystem/SoundSysOpenAL",
+    source=[os.path.join("SoundSystem/SoundSysOpenAL", x) for x in Split("""
+               SoundSysImpl.cpp DllInterface.cpp SoundImpl.cpp BufferManager.cpp StaticBuffer.cpp
+               StreamingBuffer.cpp Buffer.cpp MixerTrackMan.cpp MixerTrack.cpp""")]+
+           [os.path.join("SoundSystem/Common", x) for x in Split("SoundStream.cpp MP3Stream.cpp OggVorbisStream.cpp")])

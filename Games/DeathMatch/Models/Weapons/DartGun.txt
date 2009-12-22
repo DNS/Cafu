@@ -1,0 +1,22 @@
+HK30 DartGun- Crossbow Replacement.
+------------------------------------------------------
+Author: Dr.Nick
+E-Mail: benwarrington@hotmail.com
+------------------------------------------------------
+
+This HK30 DartGun was used in the Half-Life Mod- Chemical Existence.
+In this zip there is new sounds and models.
+If you haven't guessed this is a replacement for the crossbow.
+It's short and packs a punch.
+ENJOY!!!!!
+------------------------------------------------------
+Installation.
+
+Place the *.mdl files in the root directory  Half-Life\valve\models
+Place the *.wav files in the root directory  Half-Life\valve\sounds\weapons
+-----------------------------------------------------
+Copyright
+
+The files included in the *.zip file may be distributed free of charge to anyone via the internet.  If you wish to distribute the file on CD, disk or over a LAN, WAN or Intranet then you must as my permission before you do so.  Thank You.
+---------------------------------------------------
+© 2000 Dr.Nick

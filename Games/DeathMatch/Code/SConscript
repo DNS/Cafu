@@ -1,0 +1,18 @@
+import os, sys
+
+Import('env', 'buildMode')
+
+gameEnv = env.Clone()
+
+gameEnv.Append(CPPPATH=['#/ExtLibs/bullet/src'])
+gameEnv.Append(CPPPATH=['#/ExtLibs/lua/src'])
+
+if sys.platform=="win32":
+    gameEnv.Append(LIBS=["ClipSys"])   # UHHHHHHH... this should be in cfsLib!!!
+    gameEnv.Append(LIBS=Split("MatSys SoundSys cfsLib bulletdynamics bulletcollision bulletmath lua lightwave z"))
+elif sys.platform=="linux2":
+    # The LinkerScript is required to make sure that the game DLL only exports the GetGame() symbol (like a Windows DLL),
+    # rather than *all* sorts of symbols whose name strings don't need to appear in the final DSO.
+    gameEnv.Append(LINKFLAGS = ["-Wl,--version-script=Games/DeathMatch/Code/LinkerScript"])
+
+gameEnv.SharedLibrary("DeathMatch", Glob("*.cpp")+Split("Libs/LookupTables.cpp Libs/Physics.cpp"))

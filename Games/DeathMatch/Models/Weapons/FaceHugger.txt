@@ -1,0 +1,86 @@
+        
+            Face-Hugger (Snark replacement) Version 2
+
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I thought it was about time that the snarks were replaced, Face-Huggers from the "Alien" movies being the perfect replacements.
+I've tried to animate the models as best I could but trying to animate 8 legs and a tail with Milkshape is not the easiest thing to do!
+I tried to keep the poly count as low as I could get, but I had to make the "W_sqeak" model 189 polys so I could make 8 legs and a tail that could be animated.
+The model work's best when used with Scarecrow's M41-A Pulse Rifle and Steve Gehrke's Colonial Marine.
+Hope ya like it, It may cause more people to use the snarks........
+
+Version 2
+~~~~~~~~~~
+In this new version I have updated the Egg model (w_sqknest.mdl) as It has been causing sound problems with many maps.
+I decompiled the original model and there was the problem, in it's full QC glory....
+
+$sequence idle "idle" loop fps 10 { event 5004 0 "ambience/flies.wav" } 
+
+When I originally made the model I must have tried to get the sound of flies around the egg!
+It didn't work at the time so I just left the line in there!.....the new patch must have activated the sound.....
+The new version has a few extra animations that level-maker maybe able to use; Egg opening and egg open.
+
+Sorry if this has caused any problems, but be thankful that [ALIEN] ZenMaster was around to make me aware of it....cheers mate!
+
+
+ -author: Mark "Marquis" Haly
+
+ -e-mail: m.haly@cwcom.net - m.haly@btopenworld.com
+
+ -homepage: http://www.hlskins.free-online.co.uk/
+
+ -release date: 15-09-2000
+ -release date: 04-06-2002 Version 2
+ 
+ -included files: 
+
+
+  -v_squeak.mdl  (587 polys) \
+  -p_squeak.mdl  (97 polys)   \ 
+  -w_squeak.mdl  (189 polys)   > Put these Model files in Half-Life\valve\models
+  -w_squeakT.mdl              /
+  -w_sqknest.mdl (212 polys) /
+  -w_squeakT.mdl            /
+
+
+
+  -sqk_blast1.wav \
+  -sqk_deploy1.wav \    
+  -sqk_die1.wav     > Put these sound files in Half-Life\valve\Sound\squeek
+  -sqk_hunt1.wav   /
+  -sqk_hunt2.wav  /
+  -sqk_hunt3.wav /
+
+       
+  -320hud1.spr  \ 
+  -320hud2.spr   \
+  -640hud1.spr    >  Put these sprite files in Half-Life\valve\sprites
+  -640hud3.spr   /
+  -640hud6.spr  /
+  -640hud7.spr /
+
+  -programs used:
+
+  -Milkshape 3D by Mete Ciragan of chUmbaLum sOft (http://www.swissquake.ch/chumbalum-soft/)
+  -Paint Shop Pro 6.1
+  -Sprite Wizard 1.1 from Wavelength (http://www.planethalflife.com/wavelength/)
+
+  -Contruction time: about 3 weeks
+
+
+V2 -Special thanks to [ALIEN] ZenMaster for making me aware of the sound problem and for the making of excellent maps in which to use my hugger model.
+ 
+     http://www.clanalien.com/index.asp
+
+
+Special thanks to Tim "undeadroadkill" Bernett for help with the sound files.
+
+
+
+
+                  *Copyright-Permissions*
+
+ If you wish to use this model in a MOD, please contact me first!
+ You are NOT authorized to put these files an on any CD for commercial 
+ purposes or distribute it in any way without my permission.
+ 
+Marquis

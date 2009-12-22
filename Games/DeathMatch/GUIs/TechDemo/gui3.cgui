@@ -1,0 +1,78 @@
+EmgTunnelBeachGUI=gui:new("WindowT");
+gui:SetRootWindow(EmgTunnelBeachGUI);
+
+function EmgTunnelBeachGUI:OnInit()
+    self:set("rect", 0, 0, 640, 480);
+ -- self:set("backColor", 0, 0, 0.3, 1);
+    self:set("backColor", 0.0, 0.25, 0.7, 1*0.4);
+    -- self:set("text", "Emergency beacon has been activated.");
+    -- self:set("textScale", 1.0);
+
+    gui:activate(false);
+    gui:setInteractive(false);
+    gui:showMouse(false);
+end
+
+
+Heading=gui:new("WindowT");
+EmgTunnelBeachGUI:AddChild(Heading);
+
+function Heading:OnInit()
+    self:set("rect", 50, 30, 540, 120);
+    self:set("backColor", 1, 1, 1, 0);      -- Set alpha value to zero!
+    self:set("borderWidth", 5.0);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:set("text", "Evacuation Tunnel\n\"November 2\"");
+    self:set("textColor", 0.51, 0.8, 1.0, 1.0);
+    self:set("textScale", 0.7);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+    self:set("font", "Fonts/Impact");
+end
+
+
+TunnelLocation=gui:new("WindowT");
+EmgTunnelBeachGUI:AddChild(TunnelLocation);
+
+function TunnelLocation:OnInit()
+    self:set("rect", 50, 180, 540, 120);
+    self:set("backColor", 1, 1, 1, 0);      -- Set alpha value to zero!
+    self:set("borderWidth", 5.0);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:set("text", "Checkpoint: Beach\n"..">>>> Escape Route >>>>\n");
+    self:set("textColor", 0.51, 0.8, 1.0, 1.0);
+    self:set("textScale", 0.6);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+
+ThirdMsg=gui:new("WindowT");
+EmgTunnelBeachGUI:AddChild(ThirdMsg);
+
+function ThirdMsg:OnInit()
+    self:set("rect", 50, 330, 390, 120);
+    self:set("backColor", 1, 1, 1, 0);      -- Set alpha value to zero!
+    self:set("borderWidth", 5.0);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:set("text", "Alertion Level:\nINCERFA");
+    self:set("textColor", 1, 0, 0, 1.0);
+    self:set("textScale", 0.6);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+    self:set("font", "Fonts/Impact");
+end
+
+
+EngineLogo=gui:new("WindowT");
+EmgTunnelBeachGUI:AddChild(EngineLogo);
+
+function EngineLogo:OnInit()
+    self:set("rect", 470, 358, 128, 64);
+    self:set("backMaterial", "Gui/SmallLogo");
+    self:set("backColor", 1, 1, 1, 1);
+end
+
+function EngineLogo:OnFrame()
+    self:set("rotAngle", self:get("time")*50);
+end

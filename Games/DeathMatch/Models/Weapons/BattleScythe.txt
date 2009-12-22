@@ -1,0 +1,46 @@
+[=================================================]
+[Battle Scythe -Crowbar Replacement- for Half Life]
+[=================================================]
+[INFO]
+
+Model Name              : Battle Scythe
+
+Installation 		: Unzip the files as following.
+v_crowbar.mdl, p_crowbar.mdl, w_crowbar.mdl  ..\half-life\valve\models\
+
+Author                  : David "DEfusion" Spurr
+
+Email Address           : dave@daspurr.sofnet.co.uk
+			  or 
+			  DEfusion@planetquake.com
+
+Web Page URL	     	: http://www.daspurr.freeserve.co.uk/
+
+Time taken		: 7-ish (can't remember) hours
+Date			: 10th December 1999
+
+v_crowbar Polygons	: 235 (502 including player arms)
+w_crowbar Polygons	: 92
+p_crowbar Polygons	: 92 
+
+[===============================================================]
+[Description]
+
+  This is my fifth attempt at modelling for any game and my 4th weapon. ( I think it's time to stop telling you that)
+
+  It is a Battle Scythe...
+
+  You want more?? Ok..  I was looking for something I could make quickly as I am now the main weapon modeller for a Half Life Mod called 'Critical Mass' so most of my time is taken up with that and I have had some University work to do these past few weeks.
+
+  Anyway the obvious answer was a crowbar replacement (sorry I know we don't need anymore but it was something quick to make and practice my modelling techniques on),  so anyway I was playing Unreal Tournament and while it was loading I noticed how the L in Unreal if it were upside down would look kinda like a small scythe.  So I did some sketches and it changed quite a bit, but it gave me the idea in the first place.
+
+  So thats what it is, a futuristic small Battle Scythe. The animations are all new, but not brilliant, there are no idle animations included (just static frames) as they don't work in the game anyway, so if you've got a custom *.dll file that enables the idle animations you'll have to see the weapon as everyone else will =)
+
+  If you want more technical info view the battle_scythe.html file (although I think it may mess up in Netscape (well it does in my version) but I ain't a html expert so I don't know whats wrong,  it works alright in IE so there.
+
+
+[================================================================]
+[Legal Info]
+
+   Please do not use this model for purposes other than as a weapon-model (ie. for conversions, whatever) or alter the model and textures without writtern permission of me.
+   Do not distribute the zip file without all the files there and fully intact.

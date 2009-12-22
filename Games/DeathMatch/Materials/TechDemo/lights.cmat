@@ -1,0 +1,119 @@
+table blampTable1 { { .9, 1, .86, .95, .87, 1 } }
+table blampTable2 { { .8, 1, .72, .9,  .74, 1 } }     // Verdoppelter Helligkeitsabfall.
+
+
+// ****************************************************************
+// *** The textures used in the materials below are by Charles. ***
+// ****************************************************************
+
+TechDemo/lights/lighttrim
+{
+    diffusemap  Textures/TechDemo/lights/lighttrim_diff.png
+    normalmap   Textures/TechDemo/lights/lighttrim_norm.png
+    specularmap Textures/TechDemo/lights/lighttrim_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/lights/reactor-light1
+{
+    diffusemap  Textures/TechDemo/lights/reactor-light1_diff.png
+    lumamap     Textures/TechDemo/lights/reactor-light1_luma.png
+    normalmap   Textures/TechDemo/lights/reactor-light1_norm.png
+    specularmap Textures/TechDemo/lights/reactor-light1_spec.png
+    lightmap    $lightmap
+
+    rgb blampTable2[mul(time, 1)]
+
+    meta_radiantExitance  45 30 0    1        // Unit is W/m^2, format is: r g b scale
+}
+
+TechDemo/lights/reactor-trimlight1
+{
+    diffusemap  Textures/TechDemo/lights/reactor-trimlight1_diff.png
+    lumamap     Textures/TechDemo/lights/reactor-trimlight1_luma.png
+    normalmap   Textures/TechDemo/lights/reactor-trimlight1_norm.png
+    specularmap Textures/TechDemo/lights/reactor-trimlight1_spec.png
+    lightmap    $lightmap
+
+    // rgb div(add(sinTable[mul(time, 1)], 1), 2)
+    rgb blampTable1[mul(time, 1)]
+
+    // TODO 1: Only a small part of this material actually emits light! Implement meta_radiantExitance_byImage!
+    // TODO 2: For now I've worked-around this problem by special-case code in CaLight (for this material only)...
+ // meta_radiantExitance_byImage Textures/TechDemo/lights/reactor-trimlight1_luma.png 10    // Pixel values in range 0..1, the number is the scale.
+    meta_radiantExitance  16 9 4    1        // Unit is W/m^2, format is: r g b scale
+}
+
+TechDemo/lights/ste-halllight
+{
+    diffusemap  Textures/TechDemo/lights/ste-halllight_diff.png
+    lumamap     Textures/TechDemo/lights/ste-halllight_luma.png
+    normalmap   Textures/TechDemo/lights/ste-halllight_norm.png
+    specularmap Textures/TechDemo/lights/ste-halllight_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/lights/ste-light1
+{
+    diffusemap  Textures/TechDemo/lights/ste-light1_diff.png
+    normalmap   Textures/TechDemo/lights/ste-light1_norm.png
+    specularmap Textures/TechDemo/lights/ste-light1_spec.png
+ // lumamap     ......?
+    lightmap    $lightmap
+
+    alphaTest 0.95
+    noShadows
+
+    meta_radiantExitance  100 10 10    1        // Unit is W/m^2, format is: r g b scale
+    clip nothing    // clip radiance, sight     // Well, this is an opaque decal, but with alphaTest enabled, it should not block radiance or sight.
+}
+
+TechDemo/lights/ste-light1-off
+{
+    diffusemap  Textures/TechDemo/lights/ste-light1_diff.png
+    normalmap   Textures/TechDemo/lights/ste-light1_norm.png
+    specularmap Textures/TechDemo/lights/ste-light1_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.95
+    noShadows
+
+    clip nothing    // clip radiance, sight     // Well, this is an opaque decal, but with alphaTest enabled, it should not block radiance or sight.
+}
+
+TechDemo/lights/striplight1
+{
+    diffusemap  Textures/TechDemo/lights/striplight1_diff.png
+    lumamap     Textures/TechDemo/lights/striplight1_luma.png
+    normalmap   Textures/TechDemo/lights/striplight1_norm.png
+    specularmap Textures/TechDemo/lights/striplight1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/lights/striplight1-noflare
+{
+    diffusemap  Textures/TechDemo/lights/striplight1_diff.png
+    lumamap     Textures/TechDemo/lights/striplight1_luma.png
+    normalmap   Textures/TechDemo/lights/striplight1_norm.png
+    specularmap Textures/TechDemo/lights/striplight1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/lights/striplight2
+{
+    diffusemap  Textures/TechDemo/lights/striplight2_diff.png
+ // lumamap     Textures/TechDemo/lights/striplight2_luma.png
+    normalmap   Textures/TechDemo/lights/striplight2_norm.png
+    specularmap Textures/TechDemo/lights/striplight2_spec.png
+    lightmap    $lightmap
+
+    meta_radiantExitance  70 100 130     1       // Unit is W/m^2, format is: r g b scale
+}
+
+TechDemo/lights/striplight2-broken
+{
+    diffusemap  Textures/TechDemo/lights/striplight2-broken_diff.png
+    normalmap   Textures/TechDemo/lights/striplight2-broken_norm.png
+    specularmap Textures/TechDemo/lights/striplight2-broken_spec.png
+    lightmap    $lightmap
+}

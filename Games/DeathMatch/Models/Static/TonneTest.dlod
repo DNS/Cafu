@@ -1,0 +1,26 @@
+// The file format for dlod files is very simple, but a few notes are probably helpful:
+//
+// - The file names below are relative to the path of the parent (dlod) file.
+//   Valid examples include a/x.mdl and ..\y.ase, whereas c:\z.mdl is invalid.
+//
+// - The numbers specify the distance range (from - to) for which the given model should be rendered.
+//
+// - The numbers are given in Ca3DE world units
+//   (which are currently NOT the same as CaWE world units: they are only 1/25.4 of the Ca3DE units!).
+//   In Ca3DE, each unit is 1 millimeter. 1000 units are one meter or 3.2808 feet.
+//
+// - For rendering, the model list is searched from top to bottom, and the first model whose LoD range
+//   matches the distance to the viewer is taken for rendering.
+//   If no match is found, nothing is rendered. This is an intentional feature.   ;)
+//   Use a very large number for the end of the last range (e.g. 999999) to make sure that the model
+//   is rendered even from a very far distance.
+//
+// - In many ways, the first model in the list is "responsible" for the collective.
+//   The engine gets the bounding boxes, number of animation sequences etc. all from the first model.
+//   Ideally though, all models should have the same BB, same (logical) animation sequences, etc.
+
+TonneTest_LoD1.ase       0    10000
+TonneTest_LoD2.ase   10000    20000
+TonneTest_LoD3.ase   20000    40000
+TonneTest_LoD4.ase   40000    80000
+TonneTest_LoD5.ase   80000   160000

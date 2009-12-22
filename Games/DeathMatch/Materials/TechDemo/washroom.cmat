@@ -1,0 +1,49 @@
+// ***************************************************************
+// *** The textures used in the materials below are by Thrawn. ***
+// ***************************************************************
+
+TechDemo/washroom/tile1
+{
+    diffusemap  Textures/TechDemo/washroom/tile1_diff.png
+    normalmap   Textures/TechDemo/washroom/tile1_norm.png
+    specularmap Textures/TechDemo/washroom/tile1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/washroom/tile2
+{
+    diffusemap  Textures/TechDemo/washroom/tile2_diff.png
+    normalmap   Textures/TechDemo/washroom/tile1_norm.png
+    specularmap Textures/TechDemo/washroom/tile1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/washroom/beam1
+{
+    diffusemap  Textures/TechDemo/washroom/rfthinbeam01_diff.png
+    normalmap   Textures/TechDemo/washroom/rfthinbeam01_norm.png
+    specularmap Textures/TechDemo/washroom/rfthinbeam01_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/washroom/trim1
+{
+    diffusemap  Textures/TechDemo/washroom/rftrim01_diff.png
+    normalmap   Textures/TechDemo/washroom/rftrim01_norm.png
+    specularmap Textures/TechDemo/washroom/rftrim01_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/washroom/panel1
+{
+    diffusemap  Textures/TechDemo/washroom/rfwallpanel01_diff.png
+    normalmap   Textures/TechDemo/washroom/rfwallpanel01_norm.png
+    lightmap    $lightmap
+}
+
+TechDemo/washroom/sign1
+{
+    diffusemap  Textures/TechDemo/washroom/sign1_diff.png
+    specularmap Textures/TechDemo/washroom/sign1_spec.png
+    lightmap    $lightmap
+}

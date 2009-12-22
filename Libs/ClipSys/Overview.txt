@@ -1,0 +1,82 @@
+#########################################################################
+###
+###    TODO, 2008-11-13
+### ======================
+### 
+### The only really important and open TODO item as of 2008-11-13 is to fix the strange problem in the sewage system in BPRockB map,
+### and then to remove the invariant of the BrushT class with the precomputed bevel planes again, see (log of) revision 769 for details.
+###
+#########################################################################
+
+
+TODO: Review ob wir World/ModelContents der ClipSectorT Klasse richtig und *überall* eingesetzt haben (war am Anfang weggelassen worden).
+TODO: Delete all TODO lines!  ;-)
+
+TODO und IDEE:
+Wir wollen bzw. müssen in der Lage sein, dass CollisionModel einer World nicht nur (wie z.Zt.) als einen Octree darzustellen,
+sondern hierarchisch aus mehreren CollisionModels.
+Grund: Die Worlds können zwischenzeitlich nicht mehr nur aus Brush- und Bezier-Patch Primitives bestehen, sondern auch aus Models, Plants usw.
+       Dabei sind diese Models und Plants "statisch" in die World integriert (im Ggs. zu Entities),
+       *ABER* sollen weiterhin einzeln "ansprechbar bleiben.
+Beispiel: In einer Map werden dutzende/hunderte Straßenschilder oder Pflanzen aufgestellt, vielleicht auch Ventilatoren, Maschinen o.ä..
+       ES soll mgl. sein, bei Models individuell die Animation zu ändern (z.B. aus dem Game Code), bei Pflanzen z.B. Wind o.ä.
+       Wenn z.B. ein Panzer über die Straßenschilder oder Planzen gefahren ist, soll deren Collision-Model deaktiviert werden.
+==> Führe das Composite Pattern für CollisionModels ein! z.B. zunächst Ultra-Simpel als einfaches Array von CollisionModelT*'s,
+       später ggf. mit Octree, wie die CollisionWorldT.
+Hmmm. Brauche auch hier zusätzl. Origin, Angles etc., wie bei ClipModelT -- ein Widerspruch??
+Oder besser gesagt: Ist das gut und richitg??
+==> Wäre es nicht stattdessen viel naheliegender, die *ClipModelTs* hierarchisch kombinierbar zu machen???
+==> Ja, das sieht besser aus!! Logischer bzgl. räumlicher Hierarchy! Ein ClipModel hat Origin, Angles usw.,
+    die Sub-Clipmodels eines composite Clip-Models haben - relativ zum Parent-Clipmodel - diese Daten ebenfalls!!
+==> World und Entities (müssen) bestehen aus ClipModels, nicht aus CollisionModels...!
+==> Die CollisionWorld bleibt die eine einzige oberste Instanz, die Menge aller ClipModels in der gesamt-Welt.
+    Dass ein Composite-Clipmodel ebenfalls gut einen Octree brauchen könnte bleibt Zufall,
+    bzw. wäre eine Implementierung des Composite-Clipmodels mit einer ClipWorld zwar kurios, aber zumindest theororetisch denkbar.
+
+
+
+Namespace is cf::ClipSys
+
+
+CollisionModelManT
+    - Verwaltet CollisionModelTs ("erzeugt" und löscht Instanzen, führt dabei Ref-Counting wg. Duplikaten).
+    - Genauer: Die Methoden dieser Klasse replizieren die Ctors der CollisionModelT Klasse.
+    - Eingehende Prüfung hat ergeben, dass das Proxy-Pattern hier nicht gewinnbringend anstelle des CollisionModelManTs eingesetzt werden kann.
+
+CollisionModelT
+    - Die Basis des ClipSys. Hat einen Octree zur Grundlage, der Polygone und Brushes enthält.
+    - Polygone und Brushes haben "user data", idR gibt der User Code hier Material und Volume Properties an.
+    - Mit einem TraceModelT können direkt Traces gegen ein CollisionModelT durchgeführt werden.
+    - IdR. ref-counted vom CollisionModelManT, d.h. viele Entities bzw. ClipModelTs können sich eine Instanz teilen.
+    - Viele ctors: from brushes/patches (for use with entities in CaBSP, for saving in .cw), from cf::FileSys::InFileT
+      (for loading from .cw, just like cf::SceneGraph::BspTreeTs), from model name (special collision model ".cm" a la D3,
+      maybe small ".cmap" files (same intention as .cm), render models (ModelT)), from default figures (cube, cylinder, pyramid, ...),
+      from terrain/heightmap, generic from list of triangles.
+
+TraceSolidT
+    - Ein einfaches geometrisches Modell (convexes Polyhedron), für das festgestellt werden kann, ob und ggf. "wie" es während einer
+      Bewegung entlang einer Geraden oder eines Kreisbogens zu einer Kollision mit einem CollisionModelT kommt (ein "Trace").
+      Das TraceModel kann dabei auch um seine Achsen (bzw. relativ zum CollisionModelT) verdreht sein.
+
+ClipModelT
+    - Hat als Member ein CollisionModelT (bzw. Zeiger darauf, die Instanz wird vom CollisionModelManT verwaltet).
+    - Hat darüber hinaus Members wie Position, Angles, MyEntity-Ptr...
+    - Ist selbst Member von Entities, idR. gibt es genau einen ClipModelT Member pro Entity (oder keinen wenn der Entity nicht solid ist).
+    - Hat alternativ (oder zusätzlich?!?) zum CollisionModelT Member oft auch ein TraceModelT Member,
+      entsprechend der zwei Rollen, in denen es auftreten kann: Als bewegtes Objekt (aktiv, eigener Trace gegen andere ClipModels),
+      oder passiv, als ClipModel in einem Trace eines anderen Objekts.
+    - Der Entity, dem dieses ClipModelT "gehört", fügt es in die ClipWorld ein und updated es dort bei Positions- und BB-Änderungen.
+
+ClipWorldT
+    - Verwaltet die Summe/Vereinigungsmenge der ClipModelTs.
+    - Wird auf dem Cl und auf dem Sv benötigt. Anfangs am besten als Member der Ca3DEWorldT führen, später sollten die "World" Klassen sowieso alle in die Game-DLL verschoben werden.
+    - Hat in etwa folgende Methoden:
+        - Register Clipmodel ("insert into")
+        - Update Clipmodel (translation and rotation only)
+        - Update Clipmodel (clip geometry, eigentl. nur notw. wenn BB sich geändert hat)
+        - Trace TraceModelT through clip world
+        - Unregister Clipmodel ("remove from")
+
+
+Offene Fragen:
+    1) Was machen wir mit *animierten* Models? Subclass von CollisionModelT...(?)

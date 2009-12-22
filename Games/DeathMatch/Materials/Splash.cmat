@@ -1,0 +1,57 @@
+MainSplashLogo
+{
+    diffusemap ../../Misc/Logo.png, minFilter nearest, magFilter nearest, noScaleDown     // The params are mostly prophylactic...
+
+    noDynLight
+    ambientMask d               // Don't write into the depth buffer!
+
+    meta_editorImage noEditor
+}
+
+
+LoadingBar_Left
+{
+    diffusemap ../../Misc/LoadingBar_left.png, minFilter nearest, magFilter nearest, noScaleDown     // The params are mostly prophylactic...
+
+    blendFunc src_alpha one_minus_src_alpha
+    noDynLight
+    ambientMask d               // Don't write into the depth buffer!
+
+    meta_editorImage noEditor
+}
+
+
+LoadingBar_Right
+{
+    diffusemap ../../Misc/LoadingBar_right.png, minFilter nearest, magFilter nearest, noScaleDown     // The params are mostly prophylactic...
+
+    blendFunc src_alpha one_minus_src_alpha
+    noDynLight
+    ambientMask d               // Don't write into the depth buffer!
+
+    meta_editorImage noEditor
+}
+
+
+LoadingBar_Center0
+{
+    diffusemap ../../Misc/LoadingBar_center0.png, minFilter nearest, magFilter nearest, noScaleDown     // The params are mostly prophylactic...
+
+    blendFunc src_alpha one_minus_src_alpha
+    noDynLight
+    ambientMask d               // Don't write into the depth buffer!
+
+    meta_editorImage noEditor
+}
+
+
+LoadingBar_Center1
+{
+    diffusemap ../../Misc/LoadingBar_center1.png, minFilter nearest, magFilter nearest, noScaleDown     // The params are mostly prophylactic...
+
+    blendFunc src_alpha one_minus_src_alpha
+    noDynLight
+    ambientMask d               // Don't write into the depth buffer!
+
+    meta_editorImage noEditor
+}

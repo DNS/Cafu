@@ -1,0 +1,49 @@
++++++++++++++++++++++++++++++++++++++
+
+Armat M41-A Pulse Rifle for Half Life
+
++++++++++++++++++++++++++++++++++++++
+
+10mm air-cooled automatic assault rifle featuring an integral, underslung 30mm grenade launcher. 
+It needs very little introduction, since it first appeared in the mid-eightees in the movie ALIENS it has been the basis for almost every sci-fi weapon design since and goes down in history as one of the best scifi-weapon designs ever. We all know it. We all love it.
+
++++++++++++++++++++++++++++++++++++++
+
+This model replaces the MP5 in the standard Half Life single player and Deathmatch games.
+It should also replace the MP5 in Opposing Forces but I haven't tested it.
+It goes particularly well with Hoffa's Colonial Marine 'USCM' on page 6 of the Player pages on Cold Fusion
+
+http://www.planethalflife.com/coldfusion
+
+This model was made in four days using Studio MAX 2.5 and Photoshop 5
+The V_Model has 892 triangles and a single 256x256 skin accompanied by the usual HEV hand skins.
+The P and W models have 170 triangles and have the same, single 128x128 skin texture each.
+Tha animations are all completely new but don't vary terribly much from the MP5 standards.
+
+++++++++++++ To install +++++++++++++++++++++++++++
+
+Unzip this zipfile in to the path:
+
+SIERRA/Half-Life/Valve/Models/
+
+Start the game and the MP5 should now be a Pulse Rifle.
+
++++++++++++++ Known errors: ++++++++++
+
+On the P_Weapon the stock clips in to the chest. It was either this or have it not sit properly in either of the two hands. I settled for what I consider to be the lesser of the two evils.
+
+Also on the P_Model, the Player model's left hand cuts through the magazine. Again, totally unavoidable without either changing the shape of the gun or changing all the Half-Life player models in the whole world.
+Both of these problems are totally unavoidable. Deal with it.
+
+The third error again is with the P_Weapon. The muzzle flash attachment is half way through the gun. I've tried absolutely everything I can think of to move it and it simply won't budge. If anyone has any ideas, I'd love to hear them.
+
+Other than that I'm happy with it.
+
+One special note:
+On the V weapon I switched the ammo counter and the grenade launcher ejection port to the left side to add interest. Please don't mail me telling me I got it wrong, I did it deliberatley and I don't care. 
+
++++++++++ THANKS ++++++++++++++++++++
+
+My special thanks go out to Greg Hertager for sending me the photos of his replica prop which were invaluable.
+I also used the Colonial Marines Technical Manual by Lee Brimmicombe-Wood and published by Boxtree. ISBN 0-7522-0844-6
++++++++++++++++++++++++++++++++++++++++++++++++++++

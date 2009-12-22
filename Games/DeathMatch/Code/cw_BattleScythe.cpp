@@ -1,0 +1,182 @@
+/*
+=================================================================================
+This file is part of Cafu, the open-source game and graphics engine for
+multiplayer, cross-platform, real-time 3D action.
+$Id$
+
+Copyright (C) 2002-2010 Carsten Fuchs Software.
+
+Cafu is free software: you can redistribute it and/or modify it under the terms
+of the GNU General Public License as published by the Free Software Foundation,
+either version 3 of the License, or (at your option) any later version.
+
+Cafu is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Cafu. If not, see <http://www.gnu.org/licenses/>.
+
+For support and more information about Cafu, visit us at <http://www.cafu.de>.
+=================================================================================
+*/
+
+/*************************************/
+/*** Carried Weapon - BattleScythe ***/
+/*************************************/
+
+#include "cw_BattleScythe.hpp"
+#include "HumanPlayer.hpp"
+#include "Constants_WeaponSlots.hpp"
+#include "Libs/LookupTables.hpp"
+#include "Models/Model_proxy.hpp"
+
+
+ModelProxyT& CarriedWeaponBattleScytheT::GetViewWeaponModel  () const { static ModelProxyT M("Games/DeathMatch/Models/Weapons/BattleScythe_v.mdl"); return M; }
+ModelProxyT& CarriedWeaponBattleScytheT::GetPlayerWeaponModel() const { static ModelProxyT M("Games/DeathMatch/Models/Weapons/BattleScythe_p.mdl"); return M; }
+
+
+bool CarriedWeaponBattleScytheT::ServerSide_PickedUpByEntity(BaseEntityT* Entity) const
+{
+    // If the touching entity already has a BattleScythe, ignore the touch.
+    if (Entity->State.HaveWeapons & (1 << WEAPON_SLOT_BATTLESCYTHE)) return false;
+
+    // Otherwise, give the touching entity this weapon.
+    Entity->State.HaveWeapons|=1 << WEAPON_SLOT_BATTLESCYTHE;
+    Entity->State.ActiveWeaponSlot   =WEAPON_SLOT_BATTLESCYTHE;
+    Entity->State.ActiveWeaponSequNr =1;    // Draw
+    Entity->State.ActiveWeaponFrameNr=0.0;
+
+    return true;
+}
+
+
+void CarriedWeaponBattleScytheT::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool /*ThinkingOnServerSide*/, unsigned long /*ServerFrameNr*/, bool AnimSequenceWrap) const
+{
+    EntityStateT& State=Player->State;
+
+    switch (State.ActiveWeaponSequNr)
+    {
+        case 1: // Draw
+            if (AnimSequenceWrap)
+            {
+                // Back to idle.
+                State.ActiveWeaponSequNr =0;
+                State.ActiveWeaponFrameNr=0.0;
+            }
+            break;
+
+        case 2: // Holster
+            break;
+
+        case 3: // Attack 1 (hit)
+            break;
+
+        case 4: // Attack 1 (miss)
+            // TODO: Reconsider if it will be a hit or miss!
+            if (AnimSequenceWrap)
+            {
+                if (PlayerCommand.Keys & PCK_Fire1)
+                {
+                    State.Events^=(1 << EntHumanPlayerT::EventID_PrimaryFire);   // Flip event flag.
+                }
+                else
+                {
+                    State.ActiveWeaponSequNr =0;
+                 // State.ActiveWeaponFrameNr=0.0;
+                }
+            }
+            break;
+
+        case 5: // Attack 2 (miss)
+            // TODO: Reconsider if it will be a hit or miss!
+            if (AnimSequenceWrap)
+            {
+                if (PlayerCommand.Keys & PCK_Fire2)
+                {
+                    State.Events^=(1 << EntHumanPlayerT::EventID_SecondaryFire);     // Flip event flag.
+                }
+                else
+                {
+                    State.ActiveWeaponSequNr =0;
+                 // State.ActiveWeaponFrameNr=0.0;
+                }
+            }
+            break;
+
+        case 6: // Attack 2 (hit)
+            break;
+
+        case 7: // Attack 3 (miss)
+            break;
+
+        case 8: // Attack 3 (hit)
+            break;
+
+        case  0: // Idle
+        case  9: // Idle 2
+        case 10: // Idle 3
+        default:
+            if (PlayerCommand.Keys & PCK_Fire1)
+            {
+                // TODO: Determine if this attack was a hit or miss.
+                // TODO: Alternate randomly with Attack 3.
+                State.ActiveWeaponSequNr =4;    // Attack 1 (miss)
+                State.ActiveWeaponFrameNr=0.0;
+                State.Events^=(1 << EntHumanPlayerT::EventID_PrimaryFire);   // Flip event flag.
+                break;
+            }
+
+            if (PlayerCommand.Keys & PCK_Fire2)
+            {
+                // TODO: Determine if this attack was a hit or miss.
+                State.ActiveWeaponSequNr =5;    // Attack 2 (miss)
+                State.ActiveWeaponFrameNr=0.0;
+                State.Events^=(1 << EntHumanPlayerT::EventID_SecondaryFire);   // Flip event flag.
+                break;
+            }
+
+            // if (AnimSequenceWrap)
+            // {
+            //     // No need to alternate randomly among 'Idle', 'Idle 2' and 'Idle 3'.
+            //     // They are all identical anyway.
+            // }
+            break;
+    }
+}
+
+
+void CarriedWeaponBattleScytheT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* Player, const VectorT& /*LastSeenAmbientColor*/) const
+{
+    const EntityStateT& State=Player->State;
+
+    const float ViewDirZ=-LookupTables::Angle16ToSin[State.Pitch];
+    const float ViewDirY= LookupTables::Angle16ToCos[State.Pitch];
+
+    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[State.Heading], ViewDirY*LookupTables::Angle16ToCos[State.Heading], ViewDirZ);
+
+    // Update sound position and velocity.
+    FireSound->SetPosition(State.Origin+scale(ViewDir, 300.0));
+    FireSound->SetVelocity(State.Velocity);
+
+    // Play the fire sound.
+    FireSound->Play();
+}
+
+
+void CarriedWeaponBattleScytheT::ClientSide_HandleSecondaryFireEvent(const EntHumanPlayerT* Player, const VectorT& /*LastSeenAmbientColor*/) const
+{
+    const EntityStateT& State=Player->State;
+
+    const float ViewDirZ=-LookupTables::Angle16ToSin[State.Pitch];
+    const float ViewDirY= LookupTables::Angle16ToCos[State.Pitch];
+
+    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[State.Heading], ViewDirY*LookupTables::Angle16ToCos[State.Heading], ViewDirZ);
+
+    // Update sound position and velocity.
+    FireSound->SetPosition(State.Origin+scale(ViewDir, 300.0));
+    FireSound->SetVelocity(State.Velocity);
+
+    // Play the fire sound.
+    FireSound->Play();
+}

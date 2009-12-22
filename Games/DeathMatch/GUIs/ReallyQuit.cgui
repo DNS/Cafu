@@ -1,0 +1,126 @@
+Background=gui:new("WindowT");
+gui:SetRootWindow(Background);
+
+function Background:OnInit()
+    self:set("rect", 0, 0, 640, 480);
+    self:set("backColor", 0.0, 0.0, 0.0, 0.7);
+
+    gui:setFocus(ButtonYes);
+end
+
+function Background:OnFrame()
+    self:set("backColor.r", 0.07+0.07*math.sin(self:get("time")));
+end
+
+function Background:OnKeyPress(Key)
+    if (Key==1) then    -- Key number 1 is the ESC key (see CaKeyboardEventT struct for details).
+        gui:close();
+        return true;    -- Return true to indicate that we processed this key press.
+    end
+
+    return false;       -- Return false to indicate that we did not process this key press.
+end
+
+
+ReallyQuit=gui:new("WindowT");
+Background:AddChild(ReallyQuit);
+
+function ReallyQuit:OnInit()
+    self:set("rect", 120, 90, 400, 300);
+    self:set("backColor", 0.0, 0.25, 0.7, 0.4);
+    self:set("borderWidth", 0.7);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:set("text", "Really Quit?");
+    self:set("textColor", 0.51, 0.8, 1.0, 1.0);
+    self:set("textScale", 0.7);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+    self:set("font", "Fonts/Impact");
+end
+
+
+ButtonYes=gui:new("WindowT");
+ReallyQuit:AddChild(ButtonYes);
+
+function ButtonYes:OnInit()
+    self:set("rect", 53, 250, 120, 40);
+    self:set("backColor", 0.0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.5);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:set("text", "Yes (OK)");
+    self:set("textColor", 0.02, 0.36, 1.0, 1.0);
+    self:set("textScale", 0.4);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function ButtonYes:OnMouseEnter()
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:interpolate("textScale", 0.4, 0.45, 500);
+end
+
+function ButtonYes:OnMouseLeave()
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:interpolate("textScale", 0.45, 0.4, 500);
+end
+
+function ButtonYes:OnMouseButtonDown()
+    -- Add a nice shutdown effect.
+    Background:interpolate("backColor.a", 0.7, 1.0, 700);
+    ReallyQuit:interpolate("rotAngle", 0, 70, 700);
+    ReallyQuit:interpolate("pos.y", 90, 600, 700);
+    gui:showMouse(false);
+
+    -- Now somehow quit the game.
+    -- ci.RunCommand("quit=true;");    -- Doesnt wait for the end of the interpolations...
+
+    return true;
+end
+
+function ButtonYes:OnFrame()
+    if (ReallyQuit:get("pos.y")>=595) then
+        -- Work around the limitation above (we have not yet   onTime xy   functions as Doom3 has).
+        ci.RunCommand("quit=true;");
+    end
+end
+
+function ButtonYes:OnKeyRelease(Key)
+    if (Key==28 or Key==156) then   -- RETURN on the main keyboard or the numpad.
+        self:OnMouseButtonDown(0);
+        return true;                -- Return true to indicate that we processed this key press.
+    end
+
+    return false;                   -- Return false to indicate that we did not process this key press.
+end
+
+
+ButtonNo=gui:new("WindowT");
+ReallyQuit:AddChild(ButtonNo);
+
+function ButtonNo:OnInit()
+    self:set("rect", 227, 250, 120, 40);
+    self:set("backColor", 0.0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.5);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:set("text", "No (Cancel)");
+    self:set("textColor", 0.02, 0.36, 1.0, 1.0);
+    self:set("textScale", 0.4);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function ButtonNo:OnMouseEnter()
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:interpolate("textScale", 0.4, 0.45, 500);
+end
+
+function ButtonNo:OnMouseLeave()
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:interpolate("textScale", 0.45, 0.4, 500);
+end
+
+function ButtonNo:OnMouseButtonDown()
+    -- Close this GUI.
+    gui:close();    -- same as  gui:activate(false);
+    return true;
+end

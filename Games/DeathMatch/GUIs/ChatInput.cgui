@@ -1,0 +1,125 @@
+Background=gui:new("WindowT");
+gui:SetRootWindow(Background);
+
+function Background:OnInit()
+    self:set("rect", 0, 100, 640, 50);
+    self:set("backColor", 0.0, 0.0, 0.0, 0.7);
+
+    gui:activate(false);
+    gui:setFocus(ChatInput);
+end
+
+function Background:OnKeyPress(Key)
+    if (Key==1) then    -- Key number 1 is the ESC key (see CaKeyboardEventT struct for details).
+        gui:close();
+        return true;    -- Return true to indicate that we processed this key press.
+    end
+
+    return false;       -- Return false to indicate that we did not process this key press.
+end
+
+
+ChatInputFrame=gui:new("WindowT");
+Background:AddChild(ChatInputFrame);
+
+function ChatInputFrame:OnInit()
+    self:set("rect", 5, 5, 630, 40);
+    self:set("backColor", 0.0, 0.25, 0.7, 0.4);
+    self:set("borderWidth", 0.7);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:set("text", " Say:");
+    self:set("textScale", 0.25);
+    self:set("textColor", 0.02, 0.36, 1.0, 1.0);
+    self:set("textAlignVer", 2);
+end
+
+
+ChatInput=gui:new("EditWindowT");
+ChatInputFrame:AddChild(ChatInput);
+ChatInput:SetTextCursorColor(0.02, 0.36, 1.0, 1.0);
+
+function ChatInput:OnInit()
+    self:set("rect", 30, 10, 520, 20);
+    self:set("backColor", 0.0, 0.0, 0.0, 0.0);
+    self:set("borderWidth", 0.5);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:set("text", "");
+    self:set("textColor", 0.51, 0.8, 1.0, 1.0);
+    self:set("textScale", 0.25);
+    self:set("textAlignVer", 2);
+end
+
+function ChatInput:OnKeyPress(Key)
+    Command=self:get("text");
+
+    if (Key==1) then   -- ESC.
+        if (#Command>0) then
+            -- Clear whatever the user entered as the chat text so far.
+            self:set("text", "");
+        else
+            -- The ESC key has an ASCII representation, and is therefore never passed to the parent windows of an "editClass".
+            -- Therefore, we cannot rely on Background:OnKeyPress() but have to close the GUI ourselves here.
+            gui:close();
+        end
+    elseif (Key==28 or Key==156) then   -- RETURN or numpad-ENTER.
+        if (#Command>0) then
+            Command=string.gsub(Command, "'", "\\'");   -- Must escape single-quote characters.
+            ci.RunCommand("say('" .. Command .. "');");
+
+            --[[ Run a scripted chat dialog, useful for recording demo videos.
+            if (Command=="Hello, how are you?") then
+                gui:thread(function()   -- Start a thread here, as the main OnKeyPress() code must continue!
+                    wait(2.3);
+                    ci.RunCommand("chatPrint('John: Thanks, great!');");
+                    wait(1.5);
+                    ci.RunCommand("chatPrint('Peter: Hi, Carsten, nice to meet you  :-)');");
+                    wait(2.8);
+                    ci.RunCommand("chatPrint('M_Curie: Hey boys, what\\'s up?');");
+                end);
+            end
+            --]]
+        end
+
+        -- Clear the input buffer so that the user can enter the next command.
+        self:set("text", "");
+        gui:close();
+    else
+        -- Return false to indicate that we did not process this key press.
+        -- (The C++ code for this editClass will deal with it next.)
+        return false;
+    end
+
+    return true;
+end
+
+
+ButtonCancel=gui:new("WindowT");
+ChatInputFrame:AddChild(ButtonCancel);
+
+function ButtonCancel:OnInit()
+    self:set("rect", 560, 10, 60, 20);
+    self:set("backColor", 0.0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.5);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:set("text", "Cancel");
+    self:set("textColor", 0.02, 0.36, 1.0, 1.0);
+    self:set("textScale", 0.25);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function ButtonCancel:OnMouseEnter()
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:interpolate("textScale", 0.25, 0.3, 500);
+end
+
+function ButtonCancel:OnMouseLeave()
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:interpolate("textScale", 0.3, 0.25, 500);
+end
+
+function ButtonCancel:OnMouseButtonUp()
+    -- Close this GUI.
+    gui:close();    -- same as  gui:activate(false);
+    return true;
+end

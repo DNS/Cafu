@@ -1,0 +1,29 @@
+
+SPAS12
+
+This is a spas 12 (with folded stock) replacement for the shotgun in Halflife.  Its a brand ne model meant for Counterstrike, but i adapted it and i don't think you will notice
+It has new sounds, which i think makes it a little more authentic.
+
+
+-----IMPORTANT---------
+------CREDITS----------
+Brand New Model
+Original Model by Vassago
+HUD Sprite by AlienFreak (a while ago)
+Reanimated by Hot_Nikks
+
+Reanimated it with Gooseman's new anims.  
+
+Hot_Nikks
+
+Origional Sound by
+[Kor]MolSal_Yoon
+http://Korclan.oo.co.kr/
+
+Adapted for standard Halflife by
+Phil Evans
+ebanov@hotmail.com
+---------END----------
+
+Hope you enjoy it!
+Phil Evans

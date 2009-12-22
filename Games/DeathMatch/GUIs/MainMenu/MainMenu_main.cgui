@@ -1,0 +1,1497 @@
+dofile("Games/DeathMatch/GUIs/MainMenu/MainMenu_init.cgui");
+
+
+
+-- If FileName is the name of a model file, returns the name with the suffix removed, or "" otherwise.
+function GetModelName(FileName)
+    if (FileName:sub(-4, -1)==".ase" or
+        FileName:sub(-4, -1)==".dae" or
+        FileName:sub(-4, -1)==".mdl" or
+        FileName:sub(-4, -1)==".md5" or
+        FileName:sub(-4, -1)==".lwo") then return FileName:sub(1, -5); end
+
+    if (FileName:sub(-5, -1)==".cmdl" or
+        FileName:sub(-5, -1)==".dlod") then return FileName:sub(1, -6); end
+
+    if (FileName:sub(-8, -1)==".collada" or
+        FileName:sub(-8, -1)==".md5anim" or
+        FileName:sub(-8, -1)==".md5mesh") then return FileName:sub(1, -9); end
+
+    return "";
+end
+
+
+
+function MainMenu:OnKeyPress(Key)
+    if (Key==1) then    -- Key number 1 is the ESC key.
+        if (self.ClientState=="ingame") then
+            -- Pressing ESC while we're "in-game" just returns us to the game.
+            gui:close();
+        else
+            -- Bring up "Really Quit?" dialog here.
+            NormalControls:set("show", false);
+            ReallyQuitDialog:set("show", true);
+
+            gui:setFocus(ReallyQuitDialog);
+         -- gui:setFocus(ReallyQuitDialog.ReallyQuit.ButtonYes);    -- This would probably be better placed in a "ReallyQuitDialog:OnShow()" method!
+        end
+        return true;    -- Return true to indicate that we processed this key press.
+    end
+
+    return false;       -- Return false to indicate that we did not process this key press.
+end
+
+-- This method is called both by OnClientStateChanged() and OnServerStateChanged() global functions.
+-- @param WhoChangedState   "cl" when this method is called because the client changed its state, "sv" respectively for the server.
+function MainMenu:UpdateUI(WhoChangedState)
+    -- Note that early during initialization, self.ClientState and self.ServerState can be nil.
+    if (self.ClientState==nil) then self.ClientState="idle"; end
+    if (self.ServerState==nil) then self.ServerState="idle"; end
+
+    -- Set the button visibility according to the game state.
+    NormalControls.ButtonNewGame        :set("show", self.ClientState=="idle" and self.ServerState=="idle");
+    NormalControls.ButtonLoadGame       :set("show", self.ClientState=="idle" and self.ServerState=="idle");
+    NormalControls.ButtonSaveGame       :set("show", self.ClientState=="ingame" and self.ServerState=="maploaded");    -- Cannot save "client-only" games.
+    NormalControls.ButtonQuitCurrentGame:set("show", self.ClientState~="idle" or self.ServerState~="idle");            -- Whenever something is not idle, we can stop it.
+    NormalControls.ButtonReturnToGame   :set("show", self.ClientState=="ingame");
+    NormalControls.ButtonMultiplayer    :set("show", self.ClientState=="idle" and self.ServerState=="idle");
+    NormalControls.ButtonOptions        :set("show", true);
+    NormalControls.ButtonCredits        :set("show", true);
+    NormalControls.ButtonQuit           :set("show", true);
+    NormalControls.FPS                  :set("show", false);
+
+    -- Set the visibility of other elements according to the game state.
+    PulsatingBackImage:set("show", self.ClientState~="ingame");
+    NormalControls:set("backColor", 0, 0, 0, self.ClientState=="ingame" and 0.7 or 0.2);    -- "a and b or c" in Lua is equivalent to "a ? b:c" in C (at least almost, see PiL2 for details).
+
+    -- Special case: Set the label (text) of the ButtonQuitCurrentGame button.
+    if (self.ClientState=="idle") then
+        if (self.ServerState=="idle") then
+            NormalControls.ButtonQuitCurrentGame:set("text", "Nothing to stop.");
+        else
+            NormalControls.ButtonQuitCurrentGame:set("text", "Stop\nServer...");
+        end
+    elseif (self.ClientState=="connecting") then
+        if (self.ServerState=="idle") then
+            NormalControls.ButtonQuitCurrentGame:set("text", "Abort\nconnecting...");
+        else
+            NormalControls.ButtonQuitCurrentGame:set("text", "Quit Current\nGame");
+        end
+    else
+        if (self.ServerState=="idle") then
+            NormalControls.ButtonQuitCurrentGame:set("text", "Disconnect...");
+        else
+            NormalControls.ButtonQuitCurrentGame:set("text", "Quit Current\nGame");
+        end
+    end
+
+    -- Should we also force-close some dialogs here (e.g. "New Game", "Load Game", "Options", "Really Quit?", ...)?
+    ;
+
+    -- Other actions.
+    if (WhoChangedState=="cl" and self.ClientState=="ingame") then
+        -- The client just changed into the "ingame" state,
+        -- which is a good occasion to hide the main menu.
+        gui:close();
+    end
+
+    if (self.ClientState=="idle" and self.ServerState=="idle") then
+        -- We just got (initially or back) into "everyone is idle" state,
+        -- so if no music is playing, play some menu background music.
+        ci.RunCommand([[
+            if (not MusicIsPlaying()) then
+                -- print("Starting new Main Menu Background Music...");
+                MusicLoad("Games/DeathMatch/Music/Franka Jones, Track3.mp3");
+                MusicSetVolume(0.2);
+                MusicPlay();
+            end
+        ]]);
+    end
+end
+
+
+
+function PulsatingBackImage:OnFrame()
+    -- self:set("rotAngle", self:get("time")*50);
+
+    local sin01 =0.5 * (-math.cos(self:get("time")/3.0)+1);   -- The sin wave, slowly oscillating between 0 and 1.
+    local amount=20.0*sin01;
+
+    self:set("pos.x", 0-amount*4/3);
+    self:set("pos.y", 0-amount);
+
+    self:set("size.x", 640+2*amount*4/3);
+    self:set("size.y", 480+2*amount);
+end
+
+
+
+function NormalControls.Headline:OnMouseEnter()
+    self:interpolate("textScale", 0.8, 0.85, 500);
+end
+
+function NormalControls.Headline:OnMouseLeave()
+    self:interpolate("textScale", 0.85, 0.8, 500);
+end
+
+
+
+function NormalControls.ButtonNewGame:OnMouseEnter()
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:interpolate("textScale", 0.4, 0.45, 500);
+end
+
+function NormalControls.ButtonNewGame:OnMouseLeave()
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:interpolate("textScale", 0.45, 0.4, 500);
+end
+
+function NormalControls.ButtonNewGame:OnMouseButtonUp()
+    -- self:interpolate("rotAngle", 0, 360, 250);
+    NewGameDialog.Frame.MapList:Clear();
+    local Files=Console.GetDir("Games/DeathMatch/Worlds", "f");
+    table.sort(Files);
+
+    for FileNum, FileName in ipairs(Files) do
+        if (FileName:sub(-3, -1)==".cw") then
+            NewGameDialog.Frame.MapList:Append(" "..FileName:sub(1, -4));
+
+            if (FileName:sub(1, -4)==ci.GetValue("dlg_svWorldName")) then
+                local SelNr=NewGameDialog.Frame.MapList:GetNumRows()-1;
+
+                -- SetSelection() doesn't automatically trigger a call to our OnSelectionChanged() handler, so it's done manually below.
+                NewGameDialog.Frame.MapList:SetSelection(SelNr);
+                NewGameDialog.Frame.MapList:OnSelectionChanged(SelNr);
+            end
+        end
+    end
+
+
+    NewGameDialog:set("show", true);
+    gui:setFocus(NewGameDialog.Frame.MapList);
+    return true;
+end
+
+
+
+function NormalControls.ButtonQuitCurrentGame:OnMouseEnter()
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:interpolate("textScale", 0.4, 0.45, 500);
+end
+
+function NormalControls.ButtonQuitCurrentGame:OnMouseLeave()
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:interpolate("textScale", 0.45, 0.4, 500);
+end
+
+function NormalControls.ButtonQuitCurrentGame:OnMouseButtonUp()
+    -- self:interpolate("rotAngle", 0, 360, 250);
+    if (MainMenu.ClientState~="idle") then ci.RunCommand("disconnect();"); end
+    if (MainMenu.ServerState~="idle") then ci.RunCommand("changeLevel();"); end
+    return true;
+end
+
+
+
+function NormalControls.ButtonReturnToGame:OnMouseEnter()
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:interpolate("textScale", 0.4, 0.45, 500);
+end
+
+function NormalControls.ButtonReturnToGame:OnMouseLeave()
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:interpolate("textScale", 0.45, 0.4, 500);
+end
+
+function NormalControls.ButtonReturnToGame:OnMouseButtonUp()
+    gui:close();
+    return true;
+end
+
+
+
+function NormalControls.ButtonMultiplayer:OnMouseEnter()
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:interpolate("textScale", 0.4, 0.45, 500);
+end
+
+function NormalControls.ButtonMultiplayer:OnMouseLeave()
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:interpolate("textScale", 0.45, 0.4, 500);
+end
+
+function NormalControls.ButtonMultiplayer:OnMouseButtonUp()
+    MultiplayerContextMenu:set("show", true);
+    gui:setFocus(MultiplayerContextMenu);
+    return true;
+end
+
+
+
+function NormalControls.ButtonOptions:OnMouseEnter()
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:interpolate("textScale", 0.4, 0.45, 500);
+end
+
+function NormalControls.ButtonOptions:OnMouseLeave()
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:interpolate("textScale", 0.45, 0.4, 500);
+end
+
+function NormalControls.ButtonOptions:OnMouseButtonUp()
+    OptionsContextMenu:set("show", true);
+    gui:setFocus(OptionsContextMenu);
+    return true;
+end
+
+
+
+function NormalControls.ButtonCredits:OnMouseEnter()
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:interpolate("textScale", 0.4, 0.45, 500);
+end
+
+function NormalControls.ButtonCredits:OnMouseLeave()
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:interpolate("textScale", 0.45, 0.4, 500);
+end
+
+function NormalControls.ButtonCredits:OnMouseButtonUp()
+    NormalControls:set("show", false);
+    CreditsDialog:set("show", true);
+    gui:setFocus(CreditsDialog);
+    return true;
+end
+
+
+
+function NormalControls.ButtonQuit:OnMouseEnter()
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:interpolate("textScale", 0.4, 0.45, 500);
+end
+
+function NormalControls.ButtonQuit:OnMouseLeave()
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:interpolate("textScale", 0.45, 0.4, 500);
+end
+
+function NormalControls.ButtonQuit:OnMouseButtonUp()
+    NormalControls:set("show", false);
+    ReallyQuitDialog:set("show", true);
+
+    gui:setFocus(ReallyQuitDialog);
+ -- gui:setFocus(ReallyQuitDialog.ReallyQuit.ButtonYes);    -- This would probably be better placed in a "ReallyQuitDialog:OnShow()" method!
+    return true;
+end
+
+
+
+NormalControls.FPS.oldTime=NormalControls.FPS:get("time");
+
+function NormalControls.FPS:OnFrame()
+    local newTime=NormalControls.FPS:get("time");
+    local deltaTime=newTime-self.oldTime;
+
+    if (deltaTime<0.000000001) then
+        self:set("text", string.format(" FPS INF\n (%.4f sec)", deltaTime));
+    else
+        self:set("text", string.format(" FPS %.2f\n (%.4f sec)", 1/deltaTime, deltaTime));
+    end
+
+    NormalControls.FPS.oldTime=newTime;
+end
+
+
+
+function MultiplayerContextMenu:OnKeyPress(Key)
+    if (Key==1) then    -- ESC.
+        self:OnMouseButtonUp();
+        return true;
+    end
+
+    return false;   -- Return false to indicate that we did not process this key press.
+end
+
+function MultiplayerContextMenu:OnMouseButtonUp()
+    MultiplayerContextMenu:set("show", false);
+    gui:setFocus(NormalControls);
+    return true;
+end
+
+
+
+function MultiplayerContextMenu.Frame.JoinGame:OnMouseEnter()
+ -- self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+
+    self:interpolate("backColor.r", 0.00, 0.5, 250);
+    self:interpolate("backColor.g", 0.25, 0.5, 250);
+    self:interpolate("backColor.b", 0.70, 1.0, 250);
+
+    self:interpolate("textColor.r", 0.02, 0.40, 250);
+    self:interpolate("textColor.g", 0.36, 0.72, 250);
+ -- self:interpolate("textColor.b", 1.00, 0.70, 250);
+end
+
+function MultiplayerContextMenu.Frame.JoinGame:OnMouseLeave()
+ -- self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+
+    self:interpolate("backColor.r", 0.5, 0.00, 250);
+    self:interpolate("backColor.g", 0.5, 0.25, 250);
+    self:interpolate("backColor.b", 1.0, 0.70, 250);
+
+    self:interpolate("textColor.r", 0.40, 0.02, 250);
+    self:interpolate("textColor.g", 0.72, 0.36, 250);
+ -- self:interpolate("textColor.b", 0.70, 1.00, 250);
+end
+
+function MultiplayerContextMenu.Frame.JoinGame:OnMouseButtonUp()
+    JoinGameDialog.Frame.PlayerNameEdit:set("text", ci.GetValue("dlg_dmPlayerName"));
+    JoinGameDialog.Frame.RemoteHostEdit:set("text", ci.GetValue("dlg_clRemoteName"));
+    JoinGameDialog.Frame.RemotePortEdit:set("text", ci.GetValue("dlg_clRemotePort"));
+
+
+    JoinGameDialog.Frame.ModelNameChoice:Clear();
+    JoinGameDialog.Frame.ModelList={};      -- Matches names in choice to file names, e.g. ModelList["Alien"] yields "Alien.mdl".
+
+    local Files=Console.GetDir("Games/DeathMatch/Models/Players", "f");
+    table.sort(Files);
+
+    for FileNum, FileName in ipairs(Files) do
+        local ModelName=GetModelName(FileName);
+
+        if (ModelName~="") then
+            JoinGameDialog.Frame.ModelNameChoice:Append(" "..ModelName);
+            JoinGameDialog.Frame.ModelList[ModelName]=FileName;
+
+            if (ModelName==ci.GetValue("dlg_dmModelName")) then
+                local SelNr=JoinGameDialog.Frame.ModelNameChoice:GetNumChoices()-1;
+
+                -- SetSelection() doesn't automatically trigger a call to our OnSelectionChanged() handler, so it's done manually below.
+                JoinGameDialog.Frame.ModelNameChoice:SetSelection(SelNr);
+                JoinGameDialog.Frame.ModelNameChoice:OnSelectionChanged(SelNr);
+            end
+        end
+    end
+
+
+    MultiplayerContextMenu:set("show", false);
+    JoinGameDialog:set("show", true);
+    gui:setFocus(JoinGameDialog);
+    return true;
+end
+
+
+
+-- For "HostGame", use the same OnMouseEnter() and OnMouseLeave() methods as for "JoinGame".
+-- This avoids code duplication and reduces unintentional inconsistency and error.
+MultiplayerContextMenu.Frame.HostGame.OnMouseEnter=MultiplayerContextMenu.Frame.JoinGame.OnMouseEnter;
+MultiplayerContextMenu.Frame.HostGame.OnMouseLeave=MultiplayerContextMenu.Frame.JoinGame.OnMouseLeave;
+
+function MultiplayerContextMenu.Frame.HostGame:OnMouseButtonUp()
+    HostGameDialog.Frame.LocalSvPortEdit:set("text", ci.GetValue("dlg_svPortNr"));
+    HostGameDialog.Frame.PlayerNameEdit:set("text", ci.GetValue("dlg_dmPlayerName"));
+
+
+    HostGameDialog.Frame.WorldNameChoice:Clear();
+    local Files=Console.GetDir("Games/DeathMatch/Worlds", "f");
+    table.sort(Files);
+
+    for FileNum, FileName in ipairs(Files) do
+        if (FileName:sub(-3, -1)==".cw") then
+            HostGameDialog.Frame.WorldNameChoice:Append(" "..FileName:sub(1, -4));
+
+            if (FileName:sub(1, -4)==ci.GetValue("dlg_svWorldName")) then
+                local SelNr=HostGameDialog.Frame.WorldNameChoice:GetNumChoices()-1;
+
+                -- SetSelection() doesn't automatically trigger a call to our OnSelectionChanged() handler, so it's done manually below.
+                HostGameDialog.Frame.WorldNameChoice:SetSelection(SelNr);
+                HostGameDialog.Frame.WorldNameChoice:OnSelectionChanged(SelNr);
+            end
+        end
+    end
+
+
+    -- Call OnSelectionChanged() for proper initialization.
+    local SelNr=HostGameDialog.Frame.ListenSvChoice:GetSelection();
+    HostGameDialog.Frame.ListenSvChoice:OnSelectionChanged(SelNr);
+
+
+    HostGameDialog.Frame.ModelNameChoice:Clear();
+    HostGameDialog.Frame.ModelList={};      -- Matches names in choice to file names, e.g. ModelList["Alien"] yields "Alien.mdl".
+
+    local Files=Console.GetDir("Games/DeathMatch/Models/Players", "f");
+    table.sort(Files);
+
+    for FileNum, FileName in ipairs(Files) do
+        local ModelName=GetModelName(FileName);
+
+        if (ModelName~="") then
+            HostGameDialog.Frame.ModelNameChoice:Append(" "..ModelName);
+            HostGameDialog.Frame.ModelList[ModelName]=FileName;
+
+            if (ModelName==ci.GetValue("dlg_dmModelName")) then
+                local SelNr=HostGameDialog.Frame.ModelNameChoice:GetNumChoices()-1;
+
+                -- SetSelection() doesn't automatically trigger a call to our OnSelectionChanged() handler, so it's done manually below.
+                HostGameDialog.Frame.ModelNameChoice:SetSelection(SelNr);
+                HostGameDialog.Frame.ModelNameChoice:OnSelectionChanged(SelNr);
+            end
+        end
+    end
+
+
+    MultiplayerContextMenu:set("show", false);
+    HostGameDialog:set("show", true);
+    gui:setFocus(HostGameDialog);
+    return true;
+end
+
+
+
+function OptionsContextMenu:OnKeyPress(Key)
+    if (Key==1) then    -- ESC.
+        self:OnMouseButtonUp();
+        return true;
+    end
+
+    return false;   -- Return false to indicate that we did not process this key press.
+end
+
+function OptionsContextMenu:OnMouseButtonUp()
+    OptionsContextMenu:set("show", false);
+    gui:setFocus(NormalControls);
+    return true;
+end
+
+
+
+function OptionsContextMenu.Frame.Controls:OnMouseEnter()
+ -- self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+
+    self:interpolate("backColor.r", 0.00, 0.5, 250);
+    self:interpolate("backColor.g", 0.25, 0.5, 250);
+    self:interpolate("backColor.b", 0.70, 1.0, 250);
+
+    self:interpolate("textColor.r", 0.02, 0.40, 250);
+    self:interpolate("textColor.g", 0.36, 0.72, 250);
+ -- self:interpolate("textColor.b", 1.00, 0.70, 250);
+end
+
+function OptionsContextMenu.Frame.Controls:OnMouseLeave()
+ -- self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+
+    self:interpolate("backColor.r", 0.5, 0.00, 250);
+    self:interpolate("backColor.g", 0.5, 0.25, 250);
+    self:interpolate("backColor.b", 1.0, 0.70, 250);
+
+    self:interpolate("textColor.r", 0.40, 0.02, 250);
+    self:interpolate("textColor.g", 0.72, 0.36, 250);
+ -- self:interpolate("textColor.b", 0.70, 1.00, 250);
+end
+
+function OptionsContextMenu.Frame.Controls:OnMouseButtonUp()
+    InputOptionsDialog.Frame.ReverseMouseYAxisChoice:SetSelection(ci.GetValue("mouseRevY") and 1 or 0); -- "a and b or c" in Lua is equivalent to "a ? b:c" in C (at least almost, see PiL2 for details).
+
+    OptionsContextMenu:set("show", false);
+    InputOptionsDialog:set("show", true);
+    gui:setFocus(InputOptionsDialog);
+    return true;
+end
+
+
+
+OptionsContextMenu.Frame.Player.OnMouseEnter=OptionsContextMenu.Frame.Controls.OnMouseEnter;
+OptionsContextMenu.Frame.Player.OnMouseLeave=OptionsContextMenu.Frame.Controls.OnMouseLeave;
+
+function OptionsContextMenu.Frame.Player:OnMouseButtonUp()
+    PlayerOptionsDialog.Frame.PlayerNameEdit:set("text", ci.GetValue("dlg_dmPlayerName"));
+
+
+    PlayerOptionsDialog.Frame.ModelNameChoice:Clear();
+    PlayerOptionsDialog.Frame.ModelList={};      -- Matches names in choice to file names, e.g. ModelList["Alien"] yields "Alien.mdl".
+
+    local Files=Console.GetDir("Games/DeathMatch/Models/Players", "f");
+    table.sort(Files);
+
+    for FileNum, FileName in ipairs(Files) do
+        local ModelName=GetModelName(FileName);
+
+        if (ModelName~="") then
+            PlayerOptionsDialog.Frame.ModelNameChoice:Append(" "..ModelName);
+            PlayerOptionsDialog.Frame.ModelList[ModelName]=FileName;
+
+            if (ModelName==ci.GetValue("dlg_dmModelName")) then
+                local SelNr=PlayerOptionsDialog.Frame.ModelNameChoice:GetNumChoices()-1;
+
+                -- SetSelection() doesn't automatically trigger a call to our OnSelectionChanged() handler, so it's done manually below.
+                PlayerOptionsDialog.Frame.ModelNameChoice:SetSelection(SelNr);
+                PlayerOptionsDialog.Frame.ModelNameChoice:OnSelectionChanged(SelNr);
+            end
+        end
+    end
+
+
+    OptionsContextMenu:set("show", false);
+    PlayerOptionsDialog:set("show", true);
+    gui:setFocus(PlayerOptionsDialog);
+    return true;
+end
+
+
+
+OptionsContextMenu.Frame.Video.OnMouseEnter=OptionsContextMenu.Frame.Controls.OnMouseEnter;
+OptionsContextMenu.Frame.Video.OnMouseLeave=OptionsContextMenu.Frame.Controls.OnMouseLeave;
+
+function OptionsContextMenu.Frame.Video:OnMouseButtonUp()
+    -- Select the first screen resolution that is at least as wide as "dlg_clWindowSizeX" (1024*768 is used as a fall-back).
+    VideoOptionsDialog.Frame.ScreenResChoice:SetSelection(2);   -- Safety if the loop below fails for some reason.
+
+    for ModeNr=0, VideoOptionsDialog.Frame.ScreenResChoice:GetNumChoices()-1 do
+        local ResX=tonumber(VideoOptionsDialog.Frame.ScreenResChoice:GetChoice(ModeNr):match("%d+"));
+
+        if (ResX>=ci.GetValue("dlg_clWindowSizeX")) then
+            VideoOptionsDialog.Frame.ScreenResChoice:SetSelection(ModeNr);
+            break;
+        end
+    end
+
+    VideoOptionsDialog.Frame.FullScreenChoice:SetSelection(ci.GetValue("dlg_clFullScreen") and 1 or 0); -- "a and b or c" in Lua is equivalent to "a ? b:c" in C (at least almost, see PiL2 for details).
+    VideoOptionsDialog.Frame.TextureDetailChoice:SetSelection(ci.GetValue("dlg_clTextureDetail"));
+
+    OptionsContextMenu:set("show", false);
+    VideoOptionsDialog:set("show", true);
+    gui:setFocus(VideoOptionsDialog);
+    return true;
+end
+
+
+
+OptionsContextMenu.Frame.Audio.OnMouseEnter=OptionsContextMenu.Frame.Controls.OnMouseEnter;
+OptionsContextMenu.Frame.Audio.OnMouseLeave=OptionsContextMenu.Frame.Controls.OnMouseLeave;
+
+function OptionsContextMenu.Frame.Audio:OnMouseButtonUp()
+    local Vol=ci.GetValue("snd_InitialMasterVolume");
+
+    if (Vol<0) then Vol=0; end
+    if (Vol>1) then Vol=1; end
+
+    -- Convert the relative volume (float from 0...1) into the right number for our volume choice (int from 0 to 10).
+    Vol=math.floor(Vol*10+0.5);
+
+    if (Vol< 0) then Vol= 0; end
+    if (Vol>10) then Vol=10; end
+
+    AudioOptionsDialog.Frame.VolumeChoice:SetSelection(Vol);
+
+    OptionsContextMenu:set("show", false);
+    AudioOptionsDialog:set("show", true);
+    gui:setFocus(AudioOptionsDialog);
+    return true;
+end
+
+
+
+function NewGameDialog:OnKeyPress(Key)
+    if (Key==28 or Key==156) then   -- RETURN on the main keyboard or the numpad.
+        NewGameDialog.Frame.ButtonOK:OnMouseButtonUp();
+        return true;                -- Return true to indicate that we processed this key press.
+    elseif (Key==1) then            -- ESC.
+        NewGameDialog.Frame.ButtonCancel:OnMouseButtonUp();
+        return true;
+    end
+
+    return false;                   -- Return false to indicate that we did not process this key press.
+end
+
+
+
+function NewGameDialog.Frame.MapList:OnSelectionChanged(SelNum)
+    local WorldName=NewGameDialog.Frame.MapList:GetRowText(SelNum);
+
+    -- Remove leading or trailing whitespace (but leave file names with spaces intact).
+    WorldName=WorldName:match("^%s*(.*)%s*$");
+
+ -- NewGameDialog.Frame.MapPreview:set("text", WorldName);
+    NewGameDialog.Frame.MapPreview:set("backMaterial", "Games/DeathMatch/Worlds/"..WorldName..".jpg");
+end
+
+
+
+function NewGameDialog.Frame.ButtonOK:OnMouseEnter()
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:interpolate("textScale", 0.4, 0.45, 500);
+end
+
+function NewGameDialog.Frame.ButtonOK:OnMouseLeave()
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:interpolate("textScale", 0.45, 0.4, 500);
+end
+
+-- Starting the new game via a thread (function StartNewGame) is necessary because we have to wait a
+-- frame or two until the effect from hiding the New Game dialog and showing the "Initializing Server..."
+-- info is rendered.
+-- We could also have implemented this without a thread by just calling waitFrame() once or twice in
+-- NewGameDialog.Frame.ButtonOK:OnMouseButtonUp(). It would work without problems, but currently we'd
+-- get a warning because the function expected a return value which would not be provided by waitFrame().
+function StartNewGame(WorldName)
+    waitFrame();
+
+    -- Start the server.
+    -- Also stop any background music - the client will start new music once the level has been loaded
+    -- by calling the function StartLevelIntroMusic() in the console, which is defined in "config.lua".
+    ci.RunCommand("MusicStop();");
+    ci.RunCommand("changeLevel('"..WorldName.."');");
+
+    -- Undo showing the "Initializing Server..." and hiding the New Game dialog.
+    NewGameDialog:set("show", true);
+    InitServerInfoPanel:set("show", false);
+
+    if (MainMenu.ServerState~="maploaded") then return; end  -- TODO: Output error message!
+
+
+    -- Connect the client, but not to "clRemoteName:clRemotePort", but to "localhost:svPortNr"!
+    -- This is the same as connecting the client to a listen server game.
+    ci.RunCommand("connect('localhost', "..ci.GetValue("dlg_svPortNr")..");");  -- How do and can we deal with failure here??
+
+    NewGameDialog:set("show", false);
+    gui:setFocus(NormalControls);
+end
+
+function NewGameDialog.Frame.ButtonOK:OnMouseButtonUp()
+    local SelRowNr =NewGameDialog.Frame.MapList:GetSelection();
+    local WorldName=NewGameDialog.Frame.MapList:GetRowText(SelRowNr);
+
+    -- Remove leading or trailing whitespace (but leave file names with spaces intact).
+    WorldName=WorldName:match("^%s*(.*)%s*$");
+
+    -- Copy the contents of the edit fields back into the related convars.
+    ci.SetValue("dlg_svWorldName", WorldName);  -- TODO: Do we really need the dlg_svWorldName convar after all??
+
+
+    -- Start the server, then the client.
+    if (MainMenu.ServerState~="idle") then return true; end       -- TODO: Output error message!
+
+    NewGameDialog:set("show", false);
+    InitServerInfoPanel:set("show", true);
+    gui:thread(StartNewGame, WorldName);
+    return true;
+end
+
+
+
+function NewGameDialog.Frame.ButtonCancel:OnMouseEnter()
+ -- self:set("borderColor", 0.5, 0.5, 0.5, 1.0);
+
+    self:interpolate("textColor.r", 0.02, 0.80, 500);
+    self:interpolate("textColor.g", 0.36, 0.00, 500);
+    self:interpolate("textColor.b", 1.00, 0.00, 500);
+end
+
+function NewGameDialog.Frame.ButtonCancel:OnMouseLeave()
+ -- self:set("borderColor", 0.7/2, 0.8/2, 0.9/2, 1.0);
+
+    self:interpolate("textColor.r", 0.8, 0.02, 750);
+    self:interpolate("textColor.g", 0.0, 0.36, 750);
+    self:interpolate("textColor.b", 0.0, 1.00, 750);
+end
+
+function NewGameDialog.Frame.ButtonCancel:OnMouseButtonUp()
+    NewGameDialog:set("show", false);
+    gui:setFocus(NormalControls);
+    return true;
+end
+
+
+
+function JoinGameDialog:OnKeyPress(Key)
+    if (Key==28 or Key==156) then   -- RETURN on the main keyboard or the numpad.
+        JoinGameDialog.Frame.ButtonOK:OnMouseButtonUp();
+        return true;                -- Return true to indicate that we processed this key press.
+    elseif (Key==1) then            -- ESC.
+        JoinGameDialog.Frame.ButtonCancel:OnMouseButtonUp();
+        return true;
+    end
+
+    return false;                   -- Return false to indicate that we did not process this key press.
+end
+
+
+
+JoinGameDialog.Frame.ModelPreview.SequNr=0;
+
+function JoinGameDialog.Frame.ModelNameChoice:OnSelectionChanged(SelNum)
+    -- Set model in model preview window.
+    local ModelName=self:GetChoice(SelNum);
+
+    -- Remove leading or trailing whitespace (but leave file names with spaces intact),
+    -- then look up the full file name (with suffix) in ModelList.
+    ModelName=ModelName:match("^%s*(.*)%s*$");
+    ModelName=JoinGameDialog.Frame.ModelList[ModelName];
+
+    -- JoinGameDialog.Frame.ModelPreview:set("textScale", 0.2);
+    -- JoinGameDialog.Frame.ModelPreview:set("text", ModelName);
+    JoinGameDialog.Frame.ModelPreview:SetModel("Games/DeathMatch/Models/Players/"..ModelName);
+    JoinGameDialog.Frame.ModelPreview:SetModelSequNr(JoinGameDialog.Frame.ModelPreview.SequNr);
+    JoinGameDialog.Frame.ModelPreview:SetModelPos(72.5, 0, 13);
+    JoinGameDialog.Frame.ModelPreview:SetModelScale(1.0);
+    JoinGameDialog.Frame.ModelPreview:SetModelAngles(0, 0, -130);
+end
+
+
+
+function JoinGameDialog.Frame.ModelPreview:OnChar(ch)
+    if (ch==string.byte("+") and self.SequNr<self:GetModelNrOfSqs()-1) then
+        self.SequNr=self.SequNr+1;
+        self:SetModelSequNr(self.SequNr);
+    elseif (ch==string.byte("-") and self.SequNr>0) then
+        self.SequNr=self.SequNr-1;
+        self:SetModelSequNr(self.SequNr);
+    end
+end
+
+
+
+function JoinGameDialog.Frame.ButtonOK:OnMouseEnter()
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:interpolate("textScale", 0.4, 0.45, 500);
+end
+
+function JoinGameDialog.Frame.ButtonOK:OnMouseLeave()
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:interpolate("textScale", 0.45, 0.4, 500);
+end
+
+function JoinGameDialog.Frame.ButtonOK:OnMouseButtonUp()
+    ci.SetValue("dlg_dmPlayerName", JoinGameDialog.Frame.PlayerNameEdit:get("text"));
+    ci.SetValue("dlg_dmModelName",  JoinGameDialog.Frame.ModelNameChoice:get("text"):match("^%s*(.*)%s*$"));    -- Remove leading or trailing whitespace (but leave file names with spaces intact).
+    ci.SetValue("dlg_clRemoteName", JoinGameDialog.Frame.RemoteHostEdit:get("text"));
+    ci.SetValue("dlg_clRemotePort", JoinGameDialog.Frame.RemotePortEdit:get("text"));
+
+    if (MainMenu.ServerState~="idle") then return true; end     -- TODO: Output error message!
+
+    local SvName=ci.GetValue("dlg_clRemoteName");
+    local SvPort=ci.GetValue("dlg_clRemotePort");
+
+    ci.RunCommand("connect('"..SvName.."', "..SvPort..");");    -- How do and can we deal with failure here??
+
+    JoinGameDialog:set("show", false);
+    gui:setFocus(NormalControls);
+    return true;
+end
+
+
+
+function JoinGameDialog.Frame.ButtonCancel:OnMouseEnter()
+ -- self:set("borderColor", 0.5, 0.5, 0.5, 1.0);
+
+    self:interpolate("textColor.r", 0.02, 0.80, 500);
+    self:interpolate("textColor.g", 0.36, 0.00, 500);
+    self:interpolate("textColor.b", 1.00, 0.00, 500);
+end
+
+function JoinGameDialog.Frame.ButtonCancel:OnMouseLeave()
+ -- self:set("borderColor", 0.7/2, 0.8/2, 0.9/2, 1.0);
+
+    self:interpolate("textColor.r", 0.8, 0.02, 750);
+    self:interpolate("textColor.g", 0.0, 0.36, 750);
+    self:interpolate("textColor.b", 0.0, 1.00, 750);
+end
+
+function JoinGameDialog.Frame.ButtonCancel:OnMouseButtonUp()
+    JoinGameDialog:set("show", false);
+    gui:setFocus(NormalControls);
+    return true;
+end
+
+
+
+function HostGameDialog:OnKeyPress(Key)
+    if (Key==28 or Key==156) then   -- RETURN on the main keyboard or the numpad.
+        HostGameDialog.Frame.ButtonOK:OnMouseButtonUp();
+        return true;                -- Return true to indicate that we processed this key press.
+    elseif (Key==1) then            -- ESC.
+        HostGameDialog.Frame.ButtonCancel:OnMouseButtonUp();
+        return true;
+    end
+
+    return false;                   -- Return false to indicate that we did not process this key press.
+end
+
+
+
+function HostGameDialog.Frame.WorldNameChoice:OnSelectionChanged(SelNum)
+    -- Set image in world preview window.
+    local WorldName=HostGameDialog.Frame.WorldNameChoice:GetChoice(SelNum);
+
+    -- Remove leading or trailing whitespace (but leave file names with spaces intact).
+    WorldName=WorldName:match("^%s*(.*)%s*$");
+
+    HostGameDialog.Frame.MapPreview:set("backMaterial", "Games/DeathMatch/Worlds/"..WorldName..".jpg");
+end
+
+
+
+-- One-time init for setting the values.
+-- Move into OnInit()?
+HostGameDialog.Frame.ListenSvChoice:Clear();
+HostGameDialog.Frame.ListenSvChoice:Append(" no");
+HostGameDialog.Frame.ListenSvChoice:Append(" yes");
+HostGameDialog.Frame.ListenSvChoice:SetSelection(1);
+
+function HostGameDialog.Frame.ListenSvChoice:OnSelectionChanged(SelNum)
+    -- Enable/disable (show/hide) player name and model controls.
+    HostGameDialog.Frame.PlayerNameText:set("show", SelNum==1);
+    HostGameDialog.Frame.PlayerNameEdit:set("show", SelNum==1);
+
+    HostGameDialog.Frame.ModelNameText  :set("show", SelNum==1);
+    HostGameDialog.Frame.ModelNameChoice:set("show", SelNum==1);
+end
+
+
+
+HostGameDialog.Frame.ModelPreview.SequNr=0;
+
+function HostGameDialog.Frame.ModelNameChoice:OnSelectionChanged(SelNum)
+    -- Set model in model preview window.
+    local ModelName=self:GetChoice(SelNum);
+
+    -- Remove leading or trailing whitespace (but leave file names with spaces intact),
+    -- then look up the full file name (with suffix) in ModelList.
+    ModelName=ModelName:match("^%s*(.*)%s*$");
+    ModelName=HostGameDialog.Frame.ModelList[ModelName];
+
+    -- HostGameDialog.Frame.ModelPreview:set("textScale", 0.2);
+    -- HostGameDialog.Frame.ModelPreview:set("text", ModelName);
+    HostGameDialog.Frame.ModelPreview:SetModel("Games/DeathMatch/Models/Players/"..ModelName);
+    HostGameDialog.Frame.ModelPreview:SetModelSequNr(HostGameDialog.Frame.ModelPreview.SequNr);
+    HostGameDialog.Frame.ModelPreview:SetModelPos(75, 0, -20);
+    HostGameDialog.Frame.ModelPreview:SetModelScale(0.7);
+    HostGameDialog.Frame.ModelPreview:SetModelAngles(0, 0, -130);
+end
+
+
+
+function HostGameDialog.Frame.ModelPreview:OnChar(ch)
+    if (ch==string.byte("+") and self.SequNr<self:GetModelNrOfSqs()-1) then
+        self.SequNr=self.SequNr+1;
+        self:SetModelSequNr(self.SequNr);
+    elseif (ch==string.byte("-") and self.SequNr>0) then
+        self.SequNr=self.SequNr-1;
+        self:SetModelSequNr(self.SequNr);
+    end
+end
+
+
+
+function HostGameDialog.Frame.ButtonOK:OnMouseEnter()
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:interpolate("textScale", 0.4, 0.45, 500);
+end
+
+function HostGameDialog.Frame.ButtonOK:OnMouseLeave()
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:interpolate("textScale", 0.45, 0.4, 500);
+end
+
+-- This is analogous to the StartNewGame thread function, see there for more details.
+function StartNewServer(WorldName, IsListen)
+    waitFrame();
+
+    -- Start the server.
+    if (IsListen) then
+        -- Also stop any background music - the client will start new music once the level has been loaded
+        -- by calling the function StartLevelIntroMusic() in the console, which is defined in "config.lua".
+        ci.RunCommand("MusicStop();");
+    end
+    ci.RunCommand("changeLevel('"..WorldName.."');");
+
+    -- Undo showing the "Initializing Server..." and hiding the Host Game dialog.
+    HostGameDialog:set("show", true);
+    InitServerInfoPanel:set("show", false);
+
+    if (MainMenu.ServerState~="maploaded") then return; end  -- TODO: Output error message!
+
+    -- If a listen server, also start the client, connecting it to the local server.
+    -- This is the same as connecting the client to a single-player game.
+    if (IsListen) then
+        ci.RunCommand("connect('localhost', "..ci.GetValue("dlg_svPortNr")..");");  -- How do and can we deal with failure here??
+    end
+
+    HostGameDialog:set("show", false);
+    gui:setFocus(NormalControls);
+end
+
+function HostGameDialog.Frame.ButtonOK:OnMouseButtonUp()
+    local SelChNr  =HostGameDialog.Frame.WorldNameChoice:GetSelection();
+    local WorldName=HostGameDialog.Frame.WorldNameChoice:GetChoice(SelChNr);
+
+    -- Remove leading or trailing whitespace (but leave file names with spaces intact).
+    WorldName=WorldName:match("^%s*(.*)%s*$");
+
+    -- Copy the contents of the edit fields back into the related convars.
+    ci.SetValue("dlg_svWorldName",  WorldName);     -- TODO: Do we really need the dlg_svWorldName convar after all??
+    ci.SetValue("dlg_svPortNr",     HostGameDialog.Frame.LocalSvPortEdit:get("text"));
+    ci.SetValue("dlg_dmPlayerName", HostGameDialog.Frame.PlayerNameEdit:get("text"));
+    ci.SetValue("dlg_dmModelName",  HostGameDialog.Frame.ModelNameChoice:get("text"):match("^%s*(.*)%s*$"));    -- Remove leading or trailing whitespace (but leave file names with spaces intact).
+
+
+    -- Start the server, then optionally (if listen server) the client.
+    if (MainMenu.ServerState~="idle") then return true; end       -- TODO: Output error message!
+
+    HostGameDialog:set("show", false);
+    InitServerInfoPanel:set("show", true);
+    gui:thread(StartNewServer, WorldName, HostGameDialog.Frame.ListenSvChoice:GetSelection()==1);   -- "no" is as position 0, "yes" is at position 1.
+    return true;
+end
+
+
+
+function HostGameDialog.Frame.ButtonCancel:OnMouseEnter()
+ -- self:set("borderColor", 0.5, 0.5, 0.5, 1.0);
+
+    self:interpolate("textColor.r", 0.02, 0.80, 500);
+    self:interpolate("textColor.g", 0.36, 0.00, 500);
+    self:interpolate("textColor.b", 1.00, 0.00, 500);
+end
+
+function HostGameDialog.Frame.ButtonCancel:OnMouseLeave()
+ -- self:set("borderColor", 0.7/2, 0.8/2, 0.9/2, 1.0);
+
+    self:interpolate("textColor.r", 0.8, 0.02, 750);
+    self:interpolate("textColor.g", 0.0, 0.36, 750);
+    self:interpolate("textColor.b", 0.0, 1.00, 750);
+end
+
+function HostGameDialog.Frame.ButtonCancel:OnMouseButtonUp()
+    HostGameDialog:set("show", false);
+    gui:setFocus(NormalControls);
+    return true;
+end
+
+
+
+function InputOptionsDialog:OnKeyPress(Key)
+    if (Key==28 or Key==156) then   -- RETURN on the main keyboard or the numpad.
+        InputOptionsDialog.Frame.ButtonOK:OnMouseButtonUp();
+        return true;                -- Return true to indicate that we processed this key press.
+    elseif (Key==1) then            -- ESC.
+        InputOptionsDialog.Frame.ButtonCancel:OnMouseButtonUp();
+        return true;
+    end
+
+    return false;                   -- Return false to indicate that we did not process this key press.
+end
+
+
+
+-- One-time init for setting the values.
+-- Move into OnInit()?
+InputOptionsDialog.Frame.ReverseMouseYAxisChoice:Clear();
+InputOptionsDialog.Frame.ReverseMouseYAxisChoice:Append(" no (normal)");
+InputOptionsDialog.Frame.ReverseMouseYAxisChoice:Append(" yes (aircraft-style)");
+InputOptionsDialog.Frame.ReverseMouseYAxisChoice:SetSelection(0);      -- Set again when the dialog is shown.
+
+function InputOptionsDialog.Frame.ReverseMouseYAxisChoice:OnSelectionChanged(SelNum)
+    -- Update related ConVar.  <-- Wrong: Do it only in ButtonOK:OnMouseButtonUp() below!
+end
+
+
+
+function InputOptionsDialog.Frame.ButtonOK:OnMouseEnter()
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:interpolate("textScale", 0.4, 0.45, 500);
+end
+
+function InputOptionsDialog.Frame.ButtonOK:OnMouseLeave()
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:interpolate("textScale", 0.45, 0.4, 500);
+end
+
+function InputOptionsDialog.Frame.ButtonOK:OnMouseButtonUp()
+    ci.SetValue("mouseRevY", InputOptionsDialog.Frame.ReverseMouseYAxisChoice:GetSelection()==1);
+
+    InputOptionsDialog:set("show", false);
+    gui:setFocus(NormalControls);
+    return true;
+end
+
+
+
+function InputOptionsDialog.Frame.ButtonCancel:OnMouseEnter()
+ -- self:set("borderColor", 0.5, 0.5, 0.5, 1.0);
+
+    self:interpolate("textColor.r", 0.02, 0.80, 500);
+    self:interpolate("textColor.g", 0.36, 0.00, 500);
+    self:interpolate("textColor.b", 1.00, 0.00, 500);
+end
+
+function InputOptionsDialog.Frame.ButtonCancel:OnMouseLeave()
+ -- self:set("borderColor", 0.7/2, 0.8/2, 0.9/2, 1.0);
+
+    self:interpolate("textColor.r", 0.8, 0.02, 750);
+    self:interpolate("textColor.g", 0.0, 0.36, 750);
+    self:interpolate("textColor.b", 0.0, 1.00, 750);
+end
+
+function InputOptionsDialog.Frame.ButtonCancel:OnMouseButtonUp()
+    InputOptionsDialog:set("show", false);
+    gui:setFocus(NormalControls);
+    return true;
+end
+
+
+
+function PlayerOptionsDialog:OnKeyPress(Key)
+    if (Key==28 or Key==156) then   -- RETURN on the main keyboard or the numpad.
+        PlayerOptionsDialog.Frame.ButtonOK:OnMouseButtonUp();
+        return true;                -- Return true to indicate that we processed this key press.
+    elseif (Key==1) then            -- ESC.
+        PlayerOptionsDialog.Frame.ButtonCancel:OnMouseButtonUp();
+        return true;
+    end
+
+    return false;                   -- Return false to indicate that we did not process this key press.
+end
+
+
+
+PlayerOptionsDialog.Frame.ModelPreview.SequNr=0;
+
+function PlayerOptionsDialog.Frame.ModelNameChoice:OnSelectionChanged(SelNum)
+    -- Set model in model preview window.
+    local ModelName=self:GetChoice(SelNum);
+
+    -- Remove leading or trailing whitespace (but leave file names with spaces intact),
+    -- then look up the full file name (with suffix) in ModelList.
+    ModelName=ModelName:match("^%s*(.*)%s*$");
+    ModelName=PlayerOptionsDialog.Frame.ModelList[ModelName];
+
+    -- PlayerOptionsDialog.Frame.ModelPreview:set("textScale", 0.2);
+    -- PlayerOptionsDialog.Frame.ModelPreview:set("text", ModelName);
+    PlayerOptionsDialog.Frame.ModelPreview:SetModel("Games/DeathMatch/Models/Players/"..ModelName);
+    PlayerOptionsDialog.Frame.ModelPreview:SetModelSequNr(PlayerOptionsDialog.Frame.ModelPreview.SequNr);
+    PlayerOptionsDialog.Frame.ModelPreview:SetModelPos(68, 0, 0);
+    PlayerOptionsDialog.Frame.ModelPreview:SetModelScale(1.2);
+    PlayerOptionsDialog.Frame.ModelPreview:SetModelAngles(0, 0, -130);
+end
+
+
+
+function PlayerOptionsDialog.Frame.ModelPreview:OnChar(ch)
+    if (ch==string.byte("+") and self.SequNr<self:GetModelNrOfSqs()-1) then
+        self.SequNr=self.SequNr+1;
+        self:SetModelSequNr(self.SequNr);
+    elseif (ch==string.byte("-") and self.SequNr>0) then
+        self.SequNr=self.SequNr-1;
+        self:SetModelSequNr(self.SequNr);
+    end
+end
+
+
+
+-- One-time init for setting the values.
+-- Move into OnInit()?
+PlayerOptionsDialog.Frame.ShowHUDChoice:Clear();
+PlayerOptionsDialog.Frame.ShowHUDChoice:Append(" yes");     -- Turning the HUD off is currently not supported.
+PlayerOptionsDialog.Frame.ShowHUDChoice:SetSelection(0);
+
+
+
+function PlayerOptionsDialog.Frame.ButtonOK:OnMouseEnter()
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:interpolate("textScale", 0.4, 0.45, 500);
+end
+
+function PlayerOptionsDialog.Frame.ButtonOK:OnMouseLeave()
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:interpolate("textScale", 0.45, 0.4, 500);
+end
+
+function PlayerOptionsDialog.Frame.ButtonOK:OnMouseButtonUp()
+    ci.SetValue("dlg_dmPlayerName", PlayerOptionsDialog.Frame.PlayerNameEdit:get("text"));
+    ci.SetValue("dlg_dmModelName",  PlayerOptionsDialog.Frame.ModelNameChoice:get("text"):match("^%s*(.*)%s*$"));   -- Remove leading or trailing whitespace (but leave file names with spaces intact).
+
+    PlayerOptionsDialog:set("show", false);
+    gui:setFocus(NormalControls);
+    return true;
+end
+
+
+
+function PlayerOptionsDialog.Frame.ButtonCancel:OnMouseEnter()
+ -- self:set("borderColor", 0.5, 0.5, 0.5, 1.0);
+
+    self:interpolate("textColor.r", 0.02, 0.80, 500);
+    self:interpolate("textColor.g", 0.36, 0.00, 500);
+    self:interpolate("textColor.b", 1.00, 0.00, 500);
+end
+
+function PlayerOptionsDialog.Frame.ButtonCancel:OnMouseLeave()
+ -- self:set("borderColor", 0.7/2, 0.8/2, 0.9/2, 1.0);
+
+    self:interpolate("textColor.r", 0.8, 0.02, 750);
+    self:interpolate("textColor.g", 0.0, 0.36, 750);
+    self:interpolate("textColor.b", 0.0, 1.00, 750);
+end
+
+function PlayerOptionsDialog.Frame.ButtonCancel:OnMouseButtonUp()
+    PlayerOptionsDialog:set("show", false);
+    gui:setFocus(NormalControls);
+    return true;
+end
+
+
+
+function VideoOptionsDialog:OnKeyPress(Key)
+    if (Key==28 or Key==156) then   -- RETURN on the main keyboard or the numpad.
+        VideoOptionsDialog.Frame.ButtonOK:OnMouseButtonUp();
+        return true;                -- Return true to indicate that we processed this key press.
+    elseif (Key==1) then            -- ESC.
+        VideoOptionsDialog.Frame.ButtonCancel:OnMouseButtonUp();
+        return true;
+    end
+
+    return false;                   -- Return false to indicate that we did not process this key press.
+end
+
+
+
+-- One-time init for setting the values.
+-- Move into OnInit()?
+VideoOptionsDialog.Frame.ScreenResChoice:Clear();
+VideoOptionsDialog.Frame.ScreenResChoice:Append(" 640 x 480");
+VideoOptionsDialog.Frame.ScreenResChoice:Append(" 800 x 600");
+VideoOptionsDialog.Frame.ScreenResChoice:Append(" 1024 x 768");
+VideoOptionsDialog.Frame.ScreenResChoice:Append(" 1152 x 864");
+VideoOptionsDialog.Frame.ScreenResChoice:Append(" 1280 x 1024");
+VideoOptionsDialog.Frame.ScreenResChoice:Append(" 1600 x 1200");
+VideoOptionsDialog.Frame.ScreenResChoice:SetSelection(2);   -- Set again when the dialog is shown.
+
+function VideoOptionsDialog.Frame.ScreenResChoice:OnSelectionChanged(SelNum)
+    -- Update related ConVar.  <-- Wrong: Do it only in ButtonOK:OnMouseButtonUp() below!
+end
+
+
+
+-- One-time init for setting the values.
+-- Move into OnInit()?
+VideoOptionsDialog.Frame.FullScreenChoice:Clear();
+VideoOptionsDialog.Frame.FullScreenChoice:Append(" no (window)");
+VideoOptionsDialog.Frame.FullScreenChoice:Append(" yes");
+VideoOptionsDialog.Frame.FullScreenChoice:SetSelection(1);   -- Set again when the dialog is shown.
+
+function VideoOptionsDialog.Frame.FullScreenChoice:OnSelectionChanged(SelNum)
+    -- Update related ConVar.  <-- Wrong: Do it only in ButtonOK:OnMouseButtonUp() below!
+end
+
+
+
+-- One-time init for setting the values.
+-- Move into OnInit()?
+VideoOptionsDialog.Frame.TextureDetailChoice:Clear();
+VideoOptionsDialog.Frame.TextureDetailChoice:Append(" high (best quality)");
+VideoOptionsDialog.Frame.TextureDetailChoice:Append(" medium (faster)");
+VideoOptionsDialog.Frame.TextureDetailChoice:Append(" low (fastest)");
+VideoOptionsDialog.Frame.TextureDetailChoice:SetSelection(0);   -- Set again when the dialog is shown.
+
+function VideoOptionsDialog.Frame.TextureDetailChoice:OnSelectionChanged(SelNum)
+    -- Update related ConVar.  <-- Wrong: Do it only in ButtonOK:OnMouseButtonUp() below!
+end
+
+
+
+function VideoOptionsDialog.Frame.ButtonOK:OnMouseEnter()
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:interpolate("textScale", 0.4, 0.45, 500);
+end
+
+function VideoOptionsDialog.Frame.ButtonOK:OnMouseLeave()
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:interpolate("textScale", 0.45, 0.4, 500);
+end
+
+function VideoOptionsDialog.Frame.ButtonOK:OnMouseButtonUp()
+    local ModeNr =VideoOptionsDialog.Frame.ScreenResChoice:GetSelection();
+    local ModeStr=VideoOptionsDialog.Frame.ScreenResChoice:GetChoice(ModeNr);
+
+    local ResX, ResY=ModeStr:match("(%d+)%s*x%s*(%d+)");
+
+    ci.SetValue("dlg_clWindowSizeX",   ResX);
+    ci.SetValue("dlg_clWindowSizeY",   ResY);
+    ci.SetValue("dlg_clFullScreen",    VideoOptionsDialog.Frame.FullScreenChoice:GetSelection()==1);
+    ci.SetValue("dlg_clTextureDetail", VideoOptionsDialog.Frame.TextureDetailChoice:GetSelection());
+
+    VideoOptionsDialog:set("show", false);
+    gui:setFocus(NormalControls);
+    return true;
+end
+
+
+
+function VideoOptionsDialog.Frame.ButtonCancel:OnMouseEnter()
+ -- self:set("borderColor", 0.5, 0.5, 0.5, 1.0);
+
+    self:interpolate("textColor.r", 0.02, 0.80, 500);
+    self:interpolate("textColor.g", 0.36, 0.00, 500);
+    self:interpolate("textColor.b", 1.00, 0.00, 500);
+end
+
+function VideoOptionsDialog.Frame.ButtonCancel:OnMouseLeave()
+ -- self:set("borderColor", 0.7/2, 0.8/2, 0.9/2, 1.0);
+
+    self:interpolate("textColor.r", 0.8, 0.02, 750);
+    self:interpolate("textColor.g", 0.0, 0.36, 750);
+    self:interpolate("textColor.b", 0.0, 1.00, 750);
+end
+
+function VideoOptionsDialog.Frame.ButtonCancel:OnMouseButtonUp()
+    VideoOptionsDialog:set("show", false);
+    gui:setFocus(NormalControls);
+    return true;
+end
+
+
+
+function AudioOptionsDialog:OnKeyPress(Key)
+    if (Key==28 or Key==156) then   -- RETURN on the main keyboard or the numpad.
+        AudioOptionsDialog.Frame.ButtonOK:OnMouseButtonUp();
+        return true;                -- Return true to indicate that we processed this key press.
+    elseif (Key==1) then            -- ESC.
+        AudioOptionsDialog.Frame.ButtonCancel:OnMouseButtonUp();
+        return true;
+    end
+
+    return false;                   -- Return false to indicate that we did not process this key press.
+end
+
+
+
+-- One-time init for setting the values.
+-- Move into OnInit()?
+AudioOptionsDialog.Frame.VolumeChoice:Clear();
+AudioOptionsDialog.Frame.VolumeChoice:Append(" 0% (mute)");
+AudioOptionsDialog.Frame.VolumeChoice:Append(" 10%");
+AudioOptionsDialog.Frame.VolumeChoice:Append(" 20%");
+AudioOptionsDialog.Frame.VolumeChoice:Append(" 30%");
+AudioOptionsDialog.Frame.VolumeChoice:Append(" 40%");
+AudioOptionsDialog.Frame.VolumeChoice:Append(" 50%");
+AudioOptionsDialog.Frame.VolumeChoice:Append(" 60%");
+AudioOptionsDialog.Frame.VolumeChoice:Append(" 70%");
+AudioOptionsDialog.Frame.VolumeChoice:Append(" 80%");
+AudioOptionsDialog.Frame.VolumeChoice:Append(" 90%");
+AudioOptionsDialog.Frame.VolumeChoice:Append(" 100%");
+AudioOptionsDialog.Frame.VolumeChoice:SetSelection(10);
+
+function AudioOptionsDialog.Frame.VolumeChoice:OnSelectionChanged(SelNum)
+    -- Update related ConVar (this is contrary to other options, which update
+    -- the ConVar only in the related ButtonOK:OnMouseButtonUp() below)!
+    ci.SetValue("snd_InitialMasterVolume", SelNum/10);
+    ci.RunCommand("SetMasterVolume("..(SelNum/10)..");");
+end
+
+
+
+function AudioOptionsDialog.Frame.ButtonOK:OnMouseEnter()
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:interpolate("textScale", 0.4, 0.45, 500);
+end
+
+function AudioOptionsDialog.Frame.ButtonOK:OnMouseLeave()
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:interpolate("textScale", 0.45, 0.4, 500);
+end
+
+function AudioOptionsDialog.Frame.ButtonOK:OnMouseButtonUp()
+    -- Contrary to most other options, the volume is not finally copied into the convar here,
+    -- but directly in the related OnSelectionChanged() method above.
+    -- ci.SetValue("snd_InitialMasterVolume", AudioOptionsDialog.Frame.VolumeChoice:GetSelection()/10.0);
+
+    AudioOptionsDialog:set("show", false);
+    gui:setFocus(NormalControls);
+    return true;
+end
+
+
+
+function AudioOptionsDialog.Frame.ButtonCancel:OnMouseEnter()
+ -- self:set("borderColor", 0.5, 0.5, 0.5, 1.0);
+
+    self:interpolate("textColor.r", 0.02, 0.80, 500);
+    self:interpolate("textColor.g", 0.36, 0.00, 500);
+    self:interpolate("textColor.b", 1.00, 0.00, 500);
+end
+
+function AudioOptionsDialog.Frame.ButtonCancel:OnMouseLeave()
+ -- self:set("borderColor", 0.7/2, 0.8/2, 0.9/2, 1.0);
+
+    self:interpolate("textColor.r", 0.8, 0.02, 750);
+    self:interpolate("textColor.g", 0.0, 0.36, 750);
+    self:interpolate("textColor.b", 0.0, 1.00, 750);
+end
+
+function AudioOptionsDialog.Frame.ButtonCancel:OnMouseButtonUp()
+    AudioOptionsDialog:set("show", false);
+    gui:setFocus(NormalControls);
+    return true;
+end
+
+
+
+function CreditsDialog:OnKeyPress(Key)
+    if (Key==28 or Key==156) then   -- RETURN on the main keyboard or the numpad.
+        CreditsDialog.Frame.ButtonOK:OnMouseButtonUp();
+        return true;                -- Return true to indicate that we processed this key press.
+    elseif (Key==1) then            -- ESC.
+        CreditsDialog.Frame.ButtonCancel:OnMouseButtonUp();
+        return true;
+    end
+
+    return false;                   -- Return false to indicate that we did not process this key press.
+end
+
+
+
+function CreditsDialog.Frame.ButtonOK:OnMouseEnter()
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:interpolate("textScale", 0.4, 0.45, 500);
+end
+
+function CreditsDialog.Frame.ButtonOK:OnMouseLeave()
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:interpolate("textScale", 0.45, 0.4, 500);
+end
+
+function CreditsDialog.Frame.ButtonOK:OnMouseButtonUp()
+    NormalControls:set("show", true);
+    CreditsDialog:set("show", false);
+    gui:setFocus(NormalControls);
+    return true;
+end
+
+
+
+function CreditsDialog.Frame.ButtonCancel:OnMouseEnter()
+ -- self:set("borderColor", 0.5, 0.5, 0.5, 1.0);
+
+    self:interpolate("textColor.r", 0.02, 0.80, 500);
+    self:interpolate("textColor.g", 0.36, 0.00, 500);
+    self:interpolate("textColor.b", 1.00, 0.00, 500);
+end
+
+function CreditsDialog.Frame.ButtonCancel:OnMouseLeave()
+ -- self:set("borderColor", 0.7/2, 0.8/2, 0.9/2, 1.0);
+
+    self:interpolate("textColor.r", 0.8, 0.02, 750);
+    self:interpolate("textColor.g", 0.0, 0.36, 750);
+    self:interpolate("textColor.b", 0.0, 1.00, 750);
+end
+
+function CreditsDialog.Frame.ButtonCancel:OnMouseButtonUp()
+    NormalControls:set("show", true);
+    CreditsDialog:set("show", false);
+    gui:setFocus(NormalControls);
+    return true;
+end
+
+
+
+function ReallyQuitDialog:OnFrame()
+    if (ReallyQuitDialog.QuitHeadline:get("pos.y")<11.0) then
+        -- Only do this while the QuitHeadline is still in its place (i.e. the final shutdown sequence has not begun).
+        self:set("backColor.r", 0.05+0.05*math.sin(self:get("time")));
+    end
+end
+
+function ReallyQuitDialog:OnKeyPress(Key)
+    if (Key==28 or Key==156) then   -- RETURN on the main keyboard or the numpad.
+        ReallyQuitDialog.ReallyQuit.ButtonYes:OnMouseButtonUp();
+        return true;                -- Return true to indicate that we processed this key press.
+    elseif (Key==1) then            -- ESC.
+        ReallyQuitDialog.ReallyQuit.ButtonNo:OnMouseButtonUp();
+        return true;
+    end
+
+    return false;                   -- Return false to indicate that we did not process this key press.
+end
+
+
+
+function ReallyQuitDialog.QuitHeadline:OnMouseEnter()
+    self:interpolate("textScale", 0.8, 0.85, 500);
+end
+
+function ReallyQuitDialog.QuitHeadline:OnMouseLeave()
+    self:interpolate("textScale", 0.85, 0.8, 500);
+end
+
+
+
+function ReallyQuitDialog.ReallyQuit.ButtonYes:OnMouseEnter()
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:interpolate("textScale", 0.4, 0.45, 500);
+end
+
+function ReallyQuitDialog.ReallyQuit.ButtonYes:OnMouseLeave()
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:interpolate("textScale", 0.45, 0.4, 500);
+end
+
+function ReallyQuitDialog.ReallyQuit.ButtonYes:OnMouseButtonUp()
+    -- Avoid that this function is called again (re-entrancy) during its wait() below.
+    if (self.IsShuttingDown) then return true; end;
+    self.IsShuttingDown=true;
+
+    -- Add a nice shutdown effect.
+    gui:showMouse(false);
+    ReallyQuitDialog:interpolate("backColor.a", 0.7, 1.0, 700);
+    ReallyQuitDialog:interpolate("backColor.r", ReallyQuitDialog:get("backColor.r"), 0.0, 700);
+    ReallyQuitDialog.ReallyQuit:interpolate("rotAngle", 0, 70, 700);
+    ReallyQuitDialog.ReallyQuit:interpolate("pos.y",  90, 600, 700);
+
+    ReallyQuitDialog.QuitHeadline:interpolate("pos.y", 10, 220, 700);
+    ReallyQuitDialog.QuitHeadline:interpolate("backColor.a", 0.5, 0, 700);
+
+    wait(0.7+0.25);
+    ci.RunCommand("quit=true;");
+    return true;
+end
+
+
+
+function ReallyQuitDialog.ReallyQuit.ButtonNo:OnMouseEnter()
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:interpolate("textScale", 0.4, 0.45, 500);
+end
+
+function ReallyQuitDialog.ReallyQuit.ButtonNo:OnMouseLeave()
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:interpolate("textScale", 0.45, 0.4, 500);
+end
+
+function ReallyQuitDialog.ReallyQuit.ButtonNo:OnMouseButtonUp()
+    NormalControls:set("show", true);
+    ReallyQuitDialog:set("show", false);
+
+    gui:setFocus(NormalControls);
+ -- gui:setFocus(xyz);    -- This would probably be better placed in a "NormalControls:OnShow()" method!
+    return true;
+end
+
+
+
+
+-- This function is called by the client whenever its state changed.
+function OnClientStateChanged(NewState)
+    -- print("Cl State: " .. NewState);
+    MainMenu.ClientState=NewState;
+
+    MainMenu:UpdateUI("cl");
+end
+
+-- This function is called by the server whenever its state changed.
+function OnServerStateChanged(NewState)
+    -- print("Sv State: " .. NewState);
+    MainMenu.ServerState=NewState;
+
+    MainMenu:UpdateUI("sv");
+end

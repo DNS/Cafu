@@ -1,0 +1,52 @@
+Textures/misc/e6basicstrip_bl
+{
+    diffusemap  Textures/misc/e6basicstrip_bl_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/misc/e6basicstrip_gr
+{
+    diffusemap  Textures/misc/e6basicstrip_gr_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/misc/e6basicstrip_or
+{
+    diffusemap  Textures/misc/e6basicstrip_or_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/misc/e6basicstrip_ye
+{
+    diffusemap  Textures/misc/e6basicstrip_ye_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/misc/floor_met1
+{
+    diffusemap  Textures/misc/floor_met1_diff.png
+    normalmap   Textures/misc/floor_met1_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/misc/grate1
+{
+    diffusemap  Textures/misc/grate1_diff.png
+    normalmap   Textures/misc/grate1_norm.png
+    specularmap Textures/misc/grate1_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/misc/portal2a
+{
+    diffusemap  Textures/misc/portal2a_diff.png
+    lightmap    $lightmap
+
+    meta_radiantExitance  10  20  40     1       // Unit is W/m^2, format is: r g b scale
+}

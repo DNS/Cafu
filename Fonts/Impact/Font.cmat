@@ -1,0 +1,78 @@
+Fonts/Impact_12_0
+{
+    diffusemap FontImage_12_0.png, minFilter linear, noScaleDown
+
+    noDynLight    // Should be replaced e.g. by "LightShader none"...
+
+    blendFunc src_alpha one_minus_src_alpha
+    red   ambientLightRed       // Hmmm. Maybe we should rather use fParam0...fParam2 here.
+    green ambientLightGreen
+    blue  ambientLightBlue
+    ambientMask d               // Don't write into the depth buffer!
+}
+
+Fonts/Impact_24_0
+{
+    diffusemap FontImage_24_0.png, minFilter linear, noScaleDown
+
+    noDynLight    // Should be replaced e.g. by "LightShader none"...
+
+    blendFunc src_alpha one_minus_src_alpha
+    red   ambientLightRed       // Hmmm. Maybe we should rather use fParam0...fParam2 here.
+    green ambientLightGreen
+    blue  ambientLightBlue
+    ambientMask d               // Don't write into the depth buffer!
+}
+
+Fonts/Impact_48_0
+{
+    diffusemap FontImage_48_0.png, minFilter linear, noScaleDown
+
+    noDynLight    // Should be replaced e.g. by "LightShader none"...
+
+    blendFunc src_alpha one_minus_src_alpha
+    red   ambientLightRed       // Hmmm. Maybe we should rather use fParam0...fParam2 here.
+    green ambientLightGreen
+    blue  ambientLightBlue
+    ambientMask d               // Don't write into the depth buffer!
+}
+
+Fonts/Impact_48_1
+{
+    diffusemap FontImage_48_1.png, minFilter linear, noScaleDown
+
+    noDynLight    // Should be replaced e.g. by "LightShader none"...
+
+    blendFunc src_alpha one_minus_src_alpha
+    red   ambientLightRed       // Hmmm. Maybe we should rather use fParam0...fParam2 here.
+    green ambientLightGreen
+    blue  ambientLightBlue
+    ambientMask d               // Don't write into the depth buffer!
+}
+
+Fonts/Impact_48_2
+{
+    diffusemap FontImage_48_2.png, minFilter linear, noScaleDown
+
+    noDynLight    // Should be replaced e.g. by "LightShader none"...
+
+    blendFunc src_alpha one_minus_src_alpha
+    red   ambientLightRed       // Hmmm. Maybe we should rather use fParam0...fParam2 here.
+    green ambientLightGreen
+    blue  ambientLightBlue
+    ambientMask d               // Don't write into the depth buffer!
+}
+
+Fonts/Impact_48_3
+{
+    diffusemap FontImage_48_3.png, minFilter linear, noScaleDown
+
+    noDynLight    // Should be replaced e.g. by "LightShader none"...
+
+    blendFunc src_alpha one_minus_src_alpha
+    red   ambientLightRed       // Hmmm. Maybe we should rather use fParam0...fParam2 here.
+    green ambientLightGreen
+    blue  ambientLightBlue
+    ambientMask d               // Don't write into the depth buffer!
+}
+

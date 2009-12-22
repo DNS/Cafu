@@ -1,0 +1,36 @@
+// Ca3D-Engine Map File
+// Written by CaWE, the Ca3DE World Editor.
+
+
+{ // Entity 0 (the world)
+  classname "worldspawn"
+  lightmap_patchsize "200.0"
+  shlmap_patchsize "200.0"
+  wind_velocity "0.0"
+  wind_velocity_var "0.0"
+  precipitation_intensity "3"
+  fog_density "0.0025"
+  fog_start "0.0"
+  fog_end "1.0"
+  fog_color "0 0 0"
+  mapfile_version "11"
+
+  { // Brush 0
+    ( -10 -1 60 ) ( 6 -1 60 ) ( 6 -1 40 ) "Textures/meta/collisionmodel" ( 2 0 0.7421875 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( -10 6 40 ) ( 6 6 40 ) ( 6 6 60 ) "Textures/meta/collisionmodel" ( 2 0 0.7421875 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( -10 -1 60 ) ( -10 -1 40 ) ( -10 6 40 ) "Textures/meta/collisionmodel" ( 2 -0.7421875 -0.8203125 0 ( 0 0 64 ) ( 0 64 0 ) )
+    ( 6 6 60 ) ( 6 6 40 ) ( 6 -1 40 ) "Textures/meta/collisionmodel" ( 2 -0.7421875 -0.8203125 0 ( 0 0 64 ) ( 0 64 0 ) )
+    ( 6 -1 60 ) ( -10 -1 60 ) ( -10 6 60 ) "Textures/meta/collisionmodel" ( 2 0 -0.8203125 0 ( 64 0 0 ) ( 0 64 0 ) )
+    ( 6 6 40 ) ( -10 6 40 ) ( -10 -1 40 ) "Textures/meta/collisionmodel" ( 2 0 -0.8203125 0 ( 64 0 0 ) ( 0 64 0 ) )
+  }
+}
+
+{ // Entity 1
+  classname "static_detail_model"
+  angles "-0 90 -0"
+  rendertranslucency "255"
+  rendercolor "0 0 0"
+  scale "1.0"
+  model "Models\Static\MediBox01.mdl"
+  origin "0 0 0"
+}

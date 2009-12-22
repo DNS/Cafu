@@ -1,0 +1,54 @@
+Weapon/DesertEagle_Shot1
+{
+    AudioFile   Sounds/DesertEagle_Shot1.wav
+    MinDistance 3.0
+    InnerVolume 0.9
+}
+
+
+Weapon/9mmAR_GLauncher
+{
+    AudioFile   Sounds/9mmAR_GLauncher.wav
+    MinDistance 3.0
+    InnerVolume 1.0
+}
+
+
+Weapon/9mmAR_Shot1
+{
+    AudioFile   Sounds/9mmAR_Shot1.wav
+    MinDistance 3.0
+    InnerVolume 0.9
+}
+
+
+Weapon/BattleScythe
+{
+    AudioFile   Sounds/BattleScythe.wav
+    MinDistance 1.5
+    InnerVolume 0.8
+}
+
+
+Weapon/FaceHugger_Throw
+{
+    AudioFile   Sounds/FaceHugger_Throw.wav
+    MinDistance 1.5
+    InnerVolume 0.6
+}
+
+
+Weapon/Shotgun_sBarrel
+{
+    AudioFile   Sounds/Shotgun_sBarrel.wav
+    MinDistance 5.0
+    InnerVolume 1.0
+}
+
+
+Weapon/Shotgun_dBarrel
+{
+    AudioFile   Sounds/Shotgun_dBarrel.wav
+    MinDistance 6.0
+    InnerVolume 1.0
+}

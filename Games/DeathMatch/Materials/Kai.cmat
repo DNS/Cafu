@@ -1,0 +1,694 @@
+Textures/Kai/3r_metpan01
+{
+    diffusemap  Textures/Kai/3r_metpan01_diff.png
+    normalmap   Textures/Kai/3r_metpan01_norm.png
+    specularmap Textures/Kai/3r_metpan01_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/babtech
+{
+    diffusemap  Textures/Kai/babtech_diff.png
+    normalmap   Textures/Kai/babtech_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/barrel_rst
+{
+    diffusemap  Textures/Kai/barrel_rst_diff.png
+    normalmap   Textures/Kai/barrel_rst_norm.png
+    specularmap Textures/Kai/barrel_rst_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/bars1
+{
+    diffusemap  blue2alpha(Textures/Kai/bars1_diff.png)
+    normalmap   Textures/Kai/bars1_norm.png
+    specularmap Textures/Kai/bars1_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    clip players, monsters, moveables, ik, projectiles   // ... but not sight, bspPortals or radiance.
+}
+
+
+Textures/Kai/basetrim
+{
+    diffusemap  Textures/Kai/basetrim_diff.png
+    normalmap   Textures/Kai/basetrim_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/c1a4_pow
+{
+    diffusemap  Textures/Kai/c1a4_pow_diff.png
+    normalmap   Textures/Kai/c1a4_pow_norm.png
+    specularmap Textures/Kai/c1a4_pow_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/ceiling05
+{
+    diffusemap  Textures/Kai/ceiling05_diff.png
+    normalmap   Textures/Kai/ceiling05_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/cem09
+{
+    diffusemap  Textures/Kai/cem09_diff.png
+    normalmap   Textures/Kai/cem09_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/cemento16
+{
+    diffusemap  Textures/Kai/cemento16_diff.png
+    normalmap   Textures/Kai/cemento16_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/con02
+{
+    diffusemap  Textures/Kai/con02_diff.png
+    normalmap   Textures/Kai/con02_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/conc03
+{
+    diffusemap  Textures/Kai/conc03_diff.png
+    normalmap   Textures/Kai/conc03_norm.png
+    specularmap Textures/Kai/conc03_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/conc08
+{
+    diffusemap  Textures/Kai/conc08_diff.png
+    normalmap   Textures/Kai/conc08_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/construct2b
+{
+    diffusemap  Textures/Kai/construct2b_diff.png
+    normalmap   Textures/Kai/construct2b_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/construct2c
+{
+    diffusemap  Textures/Kai/construct2c_diff.png
+    normalmap   Textures/Kai/construct2c_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/crossport
+{
+    diffusemap  blue2alpha(Textures/Kai/crossport_diff.png)
+    normalmap   Textures/Kai/crossport_norm.png
+    specularmap Textures/Kai/crossport_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    clip players, monsters, moveables, ik, projectiles   // ... but not sight, bspPortals or radiance.
+}
+
+
+Textures/Kai/d6_pipes
+{
+    diffusemap  Textures/Kai/d6_pipes_diff.png
+    normalmap   Textures/Kai/d6_pipes_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/dc_cage_front
+{
+    diffusemap  Textures/Kai/dc_cage_front_diff.png
+    normalmap   Textures/Kai/dc_cage_front_norm.png
+    specularmap Textures/Kai/dc_cage_front_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/dc_cage_side
+{
+    diffusemap  Textures/Kai/dc_cage_side_diff.png
+    normalmap   Textures/Kai/dc_cage_side_norm.png
+    specularmap Textures/Kai/dc_cage_side_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/dc_cage_top
+{
+    diffusemap  Textures/Kai/dc_cage_top_diff.png
+    normalmap   Textures/Kai/dc_cage_top_norm.png
+    specularmap Textures/Kai/dc_cage_top_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/dirtybrick
+{
+    diffusemap  Textures/Kai/dirtybrick_diff.png
+    normalmap   Textures/Kai/dirtybrick_norm.png
+    specularmap Textures/Kai/dirtybrick_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/door1
+{
+    diffusemap  Textures/Kai/door1_diff.png
+    normalmap   Textures/Kai/door1_norm.png
+    specularmap Textures/Kai/door1_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/drymud
+{
+    diffusemap  Textures/Kai/drymud_diff.png
+    normalmap   Textures/Kai/drymud_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/echoroad
+{
+    diffusemap  Textures/Kai/echoroad_diff.png
+    normalmap   Textures/Kai/echoroad_norm.png
+    specularmap Textures/Kai/echoroad_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/echosign
+{
+    diffusemap  blue2alpha(Textures/Kai/echosign_diff.png)
+    normalmap   Textures/Kai/echosign_norm.png
+    specularmap Textures/Kai/echosign_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    clip players, monsters, moveables, ik, projectiles   // ... but not sight, bspPortals or radiance.
+}
+
+
+Textures/Kai/fireescape
+{
+    diffusemap  blue2alpha(Textures/Kai/fireescape_diff.png)
+    normalmap   Textures/Kai/fireescape_norm.png
+    specularmap Textures/Kai/fireescape_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    clip players, monsters, moveables, ik, projectiles   // ... but not sight, bspPortals or radiance.
+}
+
+
+Textures/Kai/flr_grt
+{
+    diffusemap  Textures/Kai/flr_grt_diff.png
+    normalmap   Textures/Kai/flr_grt_norm.png
+    specularmap Textures/Kai/flr_grt_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/generic01
+{
+    diffusemap  Textures/Kai/generic01_diff.png
+    normalmap   Textures/Kai/generic01_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/grate03
+{
+    diffusemap  blue2alpha(Textures/Kai/grate03_diff.png)
+    normalmap   Textures/Kai/grate03_norm.png
+    specularmap Textures/Kai/grate03_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    clip players, monsters, moveables, ik, projectiles   // ... but not sight, bspPortals or radiance.
+}
+
+
+Textures/Kai/grid
+{
+    diffusemap  blue2alpha(Textures/Kai/grid_diff.png)
+    normalmap   Textures/Kai/grid_norm.png
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    clip players, monsters, moveables, ik, projectiles   // ... but not sight, bspPortals or radiance.
+}
+
+
+Textures/Kai/helipad
+{
+    diffusemap  Textures/Kai/helipad_diff.png
+    normalmap   Textures/Kai/helipad_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/hev
+{
+    diffusemap  Textures/Kai/hev_diff.png
+    normalmap   Textures/Kai/hev_norm.png
+    specularmap Textures/Kai/hev_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/hexgreen
+{
+    diffusemap  Textures/Kai/hexgreen_diff.png
+    normalmap   Textures/Kai/hexgreen_norm.png
+    specularmap Textures/Kai/hexgreen_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/i_trim2
+{
+    diffusemap  Textures/Kai/i_trim2_diff.png
+    normalmap   Textures/Kai/i_trim2_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/kacheln
+{
+    diffusemap  Textures/Kai/kacheln_diff.png
+    normalmap   Textures/Kai/kacheln_norm.png
+    specularmap Textures/Kai/kacheln_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/lab1_trim
+{
+    diffusemap  Textures/Kai/lab1_trim_diff.png
+    normalmap   Textures/Kai/lab1_trim_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/lab5
+{
+    diffusemap  Textures/Kai/lab5_diff.png
+    normalmap   Textures/Kai/lab5_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/ladder_chrm
+{
+    diffusemap  blue2alpha(Textures/Kai/ladder_chrm_diff.png)
+    normalmap   Textures/Kai/ladder_chrm_norm.png
+    specularmap Textures/Kai/ladder_chrm_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    clip players, monsters, moveables, ik   // ... but not projectiles, sight, bspPortals and radiance.
+}
+
+
+Textures/Kai/ladder_red
+{
+    diffusemap  blue2alpha(Textures/Kai/ladder_red_diff.png)
+    normalmap   Textures/Kai/ladder_red_norm.png
+    specularmap Textures/Kai/ladder_red_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    clip players, monsters, moveables, ik   // ... but not projectiles, sight, bspPortals and radiance.
+}
+
+
+Textures/Kai/lightsmall1aoff
+{
+    diffusemap  Textures/Kai/lightsmall1aoff_diff.png
+    normalmap   Textures/Kai/lightsmall1aoff_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/lightsmall1aon
+{
+    diffusemap  Textures/Kai/lightsmall1aon_diff.png
+    normalmap   Textures/Kai/lightsmall1aon_norm.png
+    lightmap    $lightmap
+
+    meta_radiantExitance  40 100 160     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/Kai/lightsmall1doff
+{
+    diffusemap  Textures/Kai/lightsmall1doff_diff.png
+    normalmap   Textures/Kai/lightsmall1doff_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/lightsmall1don
+{
+    diffusemap  Textures/Kai/lightsmall1don_diff.png
+    normalmap   Textures/Kai/lightsmall1don_norm.png
+    lightmap    $lightmap
+
+    meta_radiantExitance 200  50  50     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/Kai/met2
+{
+    diffusemap  Textures/Kai/met2_diff.png
+    normalmap   Textures/Kai/met2_norm.png
+    specularmap Textures/Kai/met2_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/metal_bord2d
+{
+    diffusemap  Textures/Kai/metal_bord2d_diff.png
+    normalmap   Textures/Kai/metal_bord2d_norm.png
+    specularmap Textures/Kai/metal_bord2d_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/metal_bord3a
+{
+    diffusemap  Textures/Kai/metal_bord3a_diff.png
+    normalmap   Textures/Kai/metal_bord3a_norm.png
+    specularmap Textures/Kai/metal_bord3a_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/metal_bord3b
+{
+    diffusemap  Textures/Kai/metal_bord3b_diff.png
+    normalmap   Textures/Kai/metal_bord3b_norm.png
+    specularmap Textures/Kai/metal_bord3b_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/mtlgratetiny
+{
+    diffusemap  blue2alpha(Textures/Kai/mtlgratetiny_diff.png)
+    normalmap   Textures/Kai/mtlgratetiny_norm.png
+    specularmap Textures/Kai/mtlgratetiny_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    clip players, monsters, moveables, ik, projectiles   // ... but not sight, bspPortals or radiance.
+}
+
+
+Textures/Kai/mtlholes
+{
+    diffusemap  blue2alpha(Textures/Kai/mtlholes_diff.png)
+    normalmap   Textures/Kai/mtlholes_norm.png
+    specularmap Textures/Kai/mtlholes_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    clip players, monsters, moveables, ik, projectiles, sight, radiance   // ... but not bspPortals.
+}
+
+
+Textures/Kai/mtlplate1
+{
+    diffusemap  Textures/Kai/mtlplate1_diff.png
+    normalmap   Textures/Kai/mtlplate1_norm.png
+    specularmap Textures/Kai/mtlplate1_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/mtlplate2
+{
+    diffusemap  Textures/Kai/mtlplate2_diff.png
+    normalmap   Textures/Kai/mtlplate2_norm.png
+    specularmap Textures/Kai/mtlplate2_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/mtlrail
+{
+    diffusemap  blue2alpha(Textures/Kai/mtlrail_diff.png)
+    normalmap   Textures/Kai/mtlrail_norm.png
+    specularmap Textures/Kai/mtlrail_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    clip players, monsters, moveables, ik, projectiles   // ... but not sight, bspPortals or radiance.
+}
+
+
+Textures/Kai/mtlstruct
+{
+    diffusemap  blue2alpha(Textures/Kai/mtlstruct_diff.png)
+    normalmap   Textures/Kai/mtlstruct_norm.png
+    specularmap Textures/Kai/mtlstruct_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    clip players, monsters, moveables, ik, projectiles   // ... but not sight, bspPortals or radiance.
+}
+
+
+Textures/Kai/pared2
+{
+    diffusemap  Textures/Kai/pared2_diff.png
+    normalmap   Textures/Kai/pared2_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/pared
+{
+    diffusemap  Textures/Kai/pared_diff.png
+    normalmap   Textures/Kai/pared_norm.png
+    specularmap Textures/Kai/pared_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/parking
+{
+    diffusemap  Textures/Kai/parking_diff.png
+    normalmap   Textures/Kai/parking_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/pipes
+{
+    diffusemap  Textures/Kai/pipes_diff.png
+    normalmap   Textures/Kai/pipes_norm.png
+    specularmap Textures/Kai/pipes_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/po_concwall1a
+{
+    diffusemap  Textures/Kai/po_concwall1a_diff.png
+    normalmap   Textures/Kai/po_concwall1a_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/po_concwall1b
+{
+    diffusemap  Textures/Kai/po_concwall1b_diff.png
+    normalmap   Textures/Kai/po_concwall1b_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/rock2_nogoop
+{
+    diffusemap  Textures/Kai/rock2_nogoop_diff.png
+    normalmap   Textures/Kai/rock2_nogoop_norm.png
+    specularmap Textures/Kai/rock2_nogoop_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/rtmg
+{
+    diffusemap  Textures/Kai/rtmg_diff.png
+    normalmap   Textures/Kai/rtmg_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/rustpipe
+{
+    diffusemap  Textures/Kai/rustpipe_diff.png
+    normalmap   Textures/Kai/rustpipe_norm.png
+    specularmap Textures/Kai/rustpipe_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/sand
+{
+    diffusemap  Textures/Kai/sand_diff.png
+    normalmap   Textures/Kai/sand_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/steelrope
+{
+    diffusemap  Textures/Kai/steelrope_diff.png
+    normalmap   Textures/Kai/steelrope_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/stone
+{
+    diffusemap  Textures/Kai/stone_diff.png
+    normalmap   Textures/Kai/stone_norm.png
+    specularmap Textures/Kai/stone_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/stripes2a
+{
+    diffusemap  Textures/Kai/stripes2a_diff.png
+    normalmap   Textures/Kai/stripes2a_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/subway_lights
+{
+    diffusemap  Textures/Kai/subway_lights_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/suelo
+{
+    diffusemap  Textures/Kai/suelo_diff.png
+    normalmap   Textures/Kai/suelo_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/trimwarning
+{
+    diffusemap  Textures/Kai/trimwarning_diff.png
+    normalmap   Textures/Kai/trimwarning_norm.png
+    specularmap Textures/Kai/trimwarning_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/trosse
+{
+    diffusemap  blue2alpha(Textures/Kai/trosse_diff.png)
+    normalmap   Textures/Kai/trosse_norm.png
+    specularmap Textures/Kai/trosse_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    clip players, monsters, moveables, ik   // ... but not projectiles, sight, bspPortals or radiance.
+}
+
+
+Textures/Kai/vent_front
+{
+    diffusemap  blue2alpha(Textures/Kai/vent_front_diff.png)
+    normalmap   Textures/Kai/vent_front_norm.png
+    specularmap Textures/Kai/vent_front_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    clip players, monsters, moveables, ik, projectiles, sight   // ... but not bspPortals or radiance.
+}
+
+
+Textures/Kai/vent_side
+{
+    diffusemap  Textures/Kai/vent_side_diff.png
+    normalmap   Textures/Kai/vent_side_norm.png
+    specularmap Textures/Kai/vent_side_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/wall1
+{
+    diffusemap  Textures/Kai/wall1_diff.png
+    normalmap   Textures/Kai/wall1_norm.png
+    specularmap Textures/Kai/wall1_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/wallmarble
+{
+    diffusemap  Textures/Kai/wallmarble_diff.png
+    normalmap   Textures/Kai/wallmarble_norm.png
+    specularmap Textures/Kai/wallmarble_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/window1a
+{
+    diffusemap  Textures/Kai/window1a_diff.png
+    normalmap   Textures/Kai/window1a_norm.png
+    specularmap Textures/Kai/window1a_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/window1b
+{
+    diffusemap  Textures/Kai/window1b_diff.png
+    normalmap   Textures/Kai/window1b_norm.png
+    specularmap Textures/Kai/window1b_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Kai/window2a
+{
+    diffusemap  Textures/Kai/window2a_diff.png
+    lightmap    $lightmap
+}

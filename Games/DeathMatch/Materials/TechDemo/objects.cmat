@@ -1,0 +1,32 @@
+TechDemo/objects/diamondbox-green
+{
+    diffusemap  Textures/TechDemo/objects/diamondbox-green_diff.png
+    normalmap   combineNMs(Textures/TechDemo/objects/diamondbox_norm.png, hm2nm(Textures/TechDemo/objects/diamondbox_bump.png, 4))
+    specularmap Textures/TechDemo/objects/diamondbox_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/objects/diamondbox-aux
+{
+    diffusemap  Textures/TechDemo/objects/diamondbox-aux_diff.png
+ // normalmap   Textures/TechDemo/objects/diamondbox-aux_norm.png
+    specularmap Textures/TechDemo/objects/diamondbox-aux_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/objects/elec-control-panel1
+{
+    diffusemap  Textures/TechDemo/objects/elec-control-panel1_diff.png
+    normalmap   hm2nm(Textures/TechDemo/objects/elec-control-panel1_bump.png, 4)
+    specularmap Textures/TechDemo/objects/elec-control-panel1_spec.png
+    lumamap     Textures/TechDemo/objects/elec-control-panel1_luma.png
+    lightmap    $lightmap
+}
+
+TechDemo/objects/elec-control-panel1-side
+{
+    diffusemap  Textures/TechDemo/objects/elec-control-panel1-side_diff.png
+    normalmap   hm2nm(Textures/TechDemo/objects/elec-control-panel1-side_bump.png, 4)
+    specularmap Textures/TechDemo/objects/elec-control-panel1-side_spec.png
+    lightmap    $lightmap
+}

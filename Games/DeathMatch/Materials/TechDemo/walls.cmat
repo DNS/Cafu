@@ -1,0 +1,541 @@
+table flickerblinkTable { { 0, .3, .1, .5, .3, .8, .9, .5, .2, .1, .7, .4, 1, .2, .5, 0, .2, .7, .5 } }
+table sosTable { snap { 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0 } }
+
+
+// ****************************************************************
+// *** The textures used in the materials below are by Charles. ***
+// ****************************************************************
+
+TechDemo/walls/a_bluetex1
+{
+    diffusemap  Textures/TechDemo/walls/a_bluetex1e2_03_diff.png
+    normalmap   Textures/TechDemo/walls/a_bluetex1e2_03_norm.png
+    specularmap Textures/TechDemo/walls/a_bluetex1e2_03_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/a_factoutwall1
+{
+    diffusemap  Textures/TechDemo/walls/a_factoutwall1_02b_fin_diff.png
+    normalmap   Textures/TechDemo/walls/a_factoutwall1_02b_fin_norm.png
+    specularmap Textures/TechDemo/walls/a_factoutwall1_02b_fin_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/a_r2panel2_02
+{
+    diffusemap  Textures/TechDemo/walls/a_r2panel2_02_diff.png
+    normalmap   Textures/TechDemo/walls/a_r2panel2_02_norm.png
+    specularmap Textures/TechDemo/walls/a_r2panel2_02_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/a_r2panel2_03
+{
+    diffusemap  Textures/TechDemo/walls/a_r2panel2_03_diff.png
+    normalmap   Textures/TechDemo/walls/a_r2panel2_03_norm.png
+    specularmap Textures/TechDemo/walls/a_r2panel2_03_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/a_r2panel2_04
+{
+    diffusemap  Textures/TechDemo/walls/a_r2panel2_04_diff.png
+    normalmap   Textures/TechDemo/walls/a_r2panel2_04_norm.png
+    specularmap Textures/TechDemo/walls/a_r2panel2_04_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/a_rib_panel_04
+{
+    diffusemap  Textures/TechDemo/walls/a_rib_panel_04_fin_diff.png
+    normalmap   Textures/TechDemo/walls/a_rib_panel_04_fin_norm.png
+    specularmap Textures/TechDemo/walls/a_rib_panel_04_fin_spec.png
+    lightmap    $lightmap
+}
+
+
+// *****************************
+// *** Materials in "Set 2". ***
+// *****************************
+
+// Es gab hier ursprünglich drei wesentliche Gruppen von Texturen: gotbwall*, minwall* und stewall*.
+// Diese waren schon im Original einander recht ähnlich, und Charles hat sie so gemacht,
+// daß sie alle als einer einzigen Gruppe zugehörig betrachtet werden können.
+// Ich habe daher die Namensgebung durch Anpassung der Prefixe angepaßt, und das ursprüngliche
+// Präfix weiter hinten eingebaut.
+// Später sollten aber alle Namen mal neu sortiert und vereinfacht werden!!
+
+TechDemo/walls/stewall_gotb4
+{
+    diffusemap  Textures/TechDemo/walls/stewall_gotb4_diff.png
+    normalmap   Textures/TechDemo/walls/stewall_gotb4_norm.png
+    specularmap Textures/TechDemo/walls/stewall_gotb4_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/stewall_gotb4b
+{
+    diffusemap  Textures/TechDemo/walls/stewall_gotb4b_diff.png
+    normalmap   Textures/TechDemo/walls/stewall_gotb4_norm.png
+    specularmap Textures/TechDemo/walls/stewall_gotb4_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/stewall_gotb5
+{
+    diffusemap  Textures/TechDemo/walls/stewall_gotb5_diff.png
+    normalmap   Textures/TechDemo/walls/stewall_gotb5_norm.png
+    specularmap Textures/TechDemo/walls/stewall_gotb5_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/stepanel_min11blu
+{
+    diffusemap  Textures/TechDemo/walls/stepanel_min1blu_diff.png
+    normalmap   Textures/TechDemo/walls/stepanel_min1blu_norm.png
+    specularmap Textures/TechDemo/walls/stepanel_min1blu_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/stewall_min11blu
+{
+    diffusemap  Textures/TechDemo/walls/stewall_min11blu_diff.png
+    normalmap   Textures/TechDemo/walls/stewall_min11blu_norm.png
+    specularmap Textures/TechDemo/walls/stewall_min11blu_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/stewall_min8blu
+{
+    diffusemap  Textures/TechDemo/walls/stewall_min8blu_diff.png
+    normalmap   Textures/TechDemo/walls/stewall_min8blu_norm.png
+    specularmap Textures/TechDemo/walls/stewall_min8blu_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/stecolumn1
+{
+    diffusemap  Textures/TechDemo/walls/stecolumn1_diff.png
+    normalmap   Textures/TechDemo/walls/stecolumn1_norm.png
+    specularmap Textures/TechDemo/walls/stecolumn1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/stecolumn1blu
+{
+    diffusemap  Textures/TechDemo/walls/stecolumn1blu_diff.png
+    normalmap   Textures/TechDemo/walls/stecolumn1_norm.png
+    specularmap Textures/TechDemo/walls/stecolumn1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/steribpanel6
+{
+    diffusemap  Textures/TechDemo/walls/steribpanel6_diff.png
+    normalmap   Textures/TechDemo/walls/steribpanel6_norm.png
+    specularmap Textures/TechDemo/walls/steribpanel6_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/stewall2a_blu
+{
+    diffusemap  Textures/TechDemo/walls/stewall2a_blu_diff.png
+    normalmap   Textures/TechDemo/walls/stewall2a_blu_norm.png
+    specularmap Textures/TechDemo/walls/stewall2a_blu_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/stewall6blu
+{
+    diffusemap  Textures/TechDemo/walls/stewall6blu_diff.png
+    normalmap   Textures/TechDemo/walls/stewall6blu_norm.png
+    specularmap Textures/TechDemo/walls/stewall6blu_spec.png
+    lightmap    $lightmap
+}
+
+
+// *****************************
+// *** Materials in "Set 3". ***
+// *****************************
+
+// Kann man als einer Gruppe zugehörig betrachten, dies waren die "lfwall*" Texturen,
+// es wurde lediglich "lfwall" mit "wall-" ersetzt.
+
+TechDemo/walls/wall-10
+{
+    diffusemap  Textures/TechDemo/walls/wall-10_diff.png
+    normalmap   Textures/TechDemo/walls/wall-10_norm.png
+    specularmap Textures/TechDemo/walls/wall-10_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/wall-13a
+{
+    diffusemap  Textures/TechDemo/walls/wall-13a_diff.png
+    normalmap   Textures/TechDemo/walls/wall-13a_norm.png
+    specularmap Textures/TechDemo/walls/wall-13a_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/wall-13b
+{
+    diffusemap  Textures/TechDemo/walls/wall-13b_diff.png
+    normalmap   Textures/TechDemo/walls/wall-13b_norm.png
+    specularmap Textures/TechDemo/walls/wall-13b_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/wall-13c
+{
+    diffusemap  Textures/TechDemo/walls/wall-13c_diff.png
+    normalmap   Textures/TechDemo/walls/wall-13c_norm.png
+    specularmap Textures/TechDemo/walls/wall-13c_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/wall-13d
+{
+    diffusemap  Textures/TechDemo/walls/wall-13d_diff.png
+    normalmap   Textures/TechDemo/walls/wall-13d_norm.png
+    specularmap Textures/TechDemo/walls/wall-13d_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/wall-13e
+{
+    diffusemap  Textures/TechDemo/walls/wall-13e_diff.png
+    normalmap   Textures/TechDemo/walls/wall-13e_norm.png
+    specularmap Textures/TechDemo/walls/wall-13e_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/wall-13f
+{
+    diffusemap  Textures/TechDemo/walls/wall-13f_diff.png
+    normalmap   Textures/TechDemo/walls/wall-13f_norm.png
+    specularmap Textures/TechDemo/walls/wall-13f_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/wall-14e
+{
+    diffusemap  Textures/TechDemo/walls/wall-14e_diff.png
+    normalmap   Textures/TechDemo/walls/wall-14e_norm.png
+    specularmap Textures/TechDemo/walls/wall-14e_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/wall-14g-trim
+{
+    diffusemap  Textures/TechDemo/walls/wall-14g-trim_diff.png
+    normalmap   Textures/TechDemo/walls/wall-14g-trim_norm.png
+    specularmap Textures/TechDemo/walls/wall-14g-trim_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/wall-14g
+{
+    diffusemap  Textures/TechDemo/walls/wall-14g_diff.png
+    normalmap   Textures/TechDemo/walls/wall-14g_norm.png
+    specularmap Textures/TechDemo/walls/wall-14g_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/wall-15
+{
+    diffusemap  Textures/TechDemo/walls/wall-15-alpha_diff.png
+    normalmap   Textures/TechDemo/walls/wall-15-alpha_norm.png
+    specularmap Textures/TechDemo/walls/wall-15-alpha_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.8
+    noShadows
+
+    clip players, monsters, moveables, ik, projectiles   // ... but not sight, bspPortals or radiance.
+}
+
+TechDemo/walls/wall-16
+{
+    diffusemap  Textures/TechDemo/walls/wall-16_diff.png
+    normalmap   Textures/TechDemo/walls/wall-16_norm.png
+    specularmap Textures/TechDemo/walls/wall-16_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/wall-17
+{
+    diffusemap  Textures/TechDemo/walls/wall-17_diff.png
+    normalmap   Textures/TechDemo/walls/wall-17_norm.png
+    specularmap Textures/TechDemo/walls/wall-17_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/wall-18
+{
+    diffusemap  Textures/TechDemo/walls/wall-18_diff.png
+    normalmap   Textures/TechDemo/walls/wall-18_norm.png
+    specularmap Textures/TechDemo/walls/wall-18_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/wall-21
+{
+    diffusemap  Textures/TechDemo/walls/wall-21_diff.png
+    normalmap   Textures/TechDemo/walls/wall-21_norm.png
+    specularmap Textures/TechDemo/walls/wall-21_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/wall-25
+{
+    diffusemap  Textures/TechDemo/walls/wall-25_diff.png
+    normalmap   Textures/TechDemo/walls/wall-25_norm.png
+    specularmap Textures/TechDemo/walls/wall-25_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/wall-2-dirt
+{
+    diffusemap  Textures/TechDemo/walls/wall-2-dirt_diff.png
+    normalmap   Textures/TechDemo/walls/wall-2-dirt_norm.png
+    specularmap Textures/TechDemo/walls/wall-2-dirt_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/wall-swatch
+{
+    diffusemap  Textures/TechDemo/walls/wall-swatch_diff.png
+    normalmap   Textures/TechDemo/walls/wall-swatch_norm.png
+    specularmap Textures/TechDemo/walls/wall-swatch_spec.png
+    lightmap    $lightmap
+}
+
+
+// *****************************
+// *** Materials in "Set 5". ***
+// *****************************
+
+TechDemo/walls/controls-1
+{
+    diffusemap  Textures/TechDemo/walls/controls-1_diff.png
+    normalmap   Textures/TechDemo/walls/controls-1_norm.png
+    specularmap Textures/TechDemo/walls/controls-1_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.98
+    noShadows
+
+    clip nothing
+}
+
+TechDemo/walls/gate1
+{
+    diffusemap  Textures/TechDemo/walls/gate1_diff.png
+    normalmap   Textures/TechDemo/walls/gate1_norm.png
+    specularmap Textures/TechDemo/walls/gate1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/gate2
+{
+    diffusemap  Textures/TechDemo/walls/gate2_diff.png
+    normalmap   Textures/TechDemo/walls/gate2_norm.png
+    specularmap Textures/TechDemo/walls/gate2_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/labwafer1
+{
+    diffusemap  Textures/TechDemo/walls/labwafer1_diff.png
+    normalmap   Textures/TechDemo/walls/labwafer1_norm.png
+    specularmap Textures/TechDemo/walls/labwafer1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/lift
+{
+    diffusemap  Textures/TechDemo/walls/lift_diff.png
+    normalmap   Textures/TechDemo/walls/lift_norm.png
+    specularmap Textures/TechDemo/walls/lift_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/panel-13
+{
+    diffusemap  Textures/TechDemo/walls/panel-13_diff.png
+    normalmap   Textures/TechDemo/walls/panel-13_norm.png
+    specularmap Textures/TechDemo/walls/panel-13_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/panel-3a
+{
+    diffusemap  Textures/TechDemo/walls/panel-3a_diff.png
+    lumamap     Textures/TechDemo/walls/panel-3_luma1.png
+    normalmap   Textures/TechDemo/walls/panel-3a_norm.png
+    specularmap Textures/TechDemo/walls/panel-3a_spec.png
+    lightmap    $lightmap
+
+    green div(add(flickerblinkTable[time], 1), 2)
+    blue  div(add(flickerblinkTable[time], 1), 2)
+}
+
+TechDemo/walls/panel-3a-alarm
+{
+    diffusemap  Textures/TechDemo/walls/panel-3a_diff.png
+    lumamap     Textures/TechDemo/walls/panel-3_luma2.png
+    normalmap   Textures/TechDemo/walls/panel-3a_norm.png
+    specularmap Textures/TechDemo/walls/panel-3a_spec.png
+    lightmap    $lightmap
+
+    red sosTable[mul(time, 0.2)]
+}
+
+TechDemo/walls/panel-3b
+{
+    diffusemap  Textures/TechDemo/walls/panel-3b_diff.png
+    lumamap     Textures/TechDemo/walls/panel-3_luma3.png
+    normalmap   Textures/TechDemo/walls/panel-3b_norm.png
+    specularmap Textures/TechDemo/walls/panel-3b_spec.png
+    lightmap    $lightmap
+
+    green div(add(flickerblinkTable[mul(time, 3)], 1), 2)
+}
+
+TechDemo/walls/panel-3c
+{
+    diffusemap  Textures/TechDemo/walls/panel-3c_diff.png
+    lumamap     Textures/TechDemo/walls/panel-3_luma3.png
+    normalmap   Textures/TechDemo/walls/panel-3a_norm.png
+    specularmap Textures/TechDemo/walls/panel-3c_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/panel-7
+{
+    diffusemap  Textures/TechDemo/walls/panel-7_diff.png
+    lumamap     Textures/TechDemo/walls/panel-7_luma.png
+    normalmap   Textures/TechDemo/walls/panel-7_norm.png
+    specularmap Textures/TechDemo/walls/panel-7_spec.png
+    lightmap    $lightmap
+
+    rgb div(add(sinTable[mul(time, 0.30)], 1), 2)
+}
+
+TechDemo/walls/panel-8
+{
+    diffusemap  Textures/TechDemo/walls/panel-8_diff.png
+    normalmap   Textures/TechDemo/walls/panel-8_norm.png
+    specularmap Textures/TechDemo/walls/panel-8_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/panel-trim1
+{
+    diffusemap  Textures/TechDemo/walls/panel-trim1_diff.png
+    normalmap   Textures/TechDemo/walls/panel-trim1_norm.png
+    specularmap Textures/TechDemo/walls/panel-trim1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/panel-trim2
+{
+    diffusemap  Textures/TechDemo/walls/panel-trim2_diff.png
+    normalmap   Textures/TechDemo/walls/panel-trim2_norm.png
+    specularmap Textures/TechDemo/walls/panel-trim2_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/pipes-1
+{
+    diffusemap  Textures/TechDemo/walls/pipes-1_diff.png
+    normalmap   Textures/TechDemo/walls/pipes-1_norm.png
+    specularmap Textures/TechDemo/walls/pipes-1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/sopanel-1a
+{
+    diffusemap  Textures/TechDemo/walls/sopanel-1a_diff.png
+    normalmap   Textures/TechDemo/walls/sopanel-1a_norm.png
+    specularmap Textures/TechDemo/walls/sopanel-1a_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/sopanel-1b
+{
+    diffusemap  Textures/TechDemo/walls/sopanel-1b_diff.png
+    normalmap   Textures/TechDemo/walls/sopanel-1b_norm.png
+    specularmap Textures/TechDemo/walls/sopanel-1b_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/sopanel-2
+{
+    diffusemap  Textures/TechDemo/walls/sopanel-2_diff.png
+    normalmap   Textures/TechDemo/walls/sopanel-2_norm.png
+    specularmap Textures/TechDemo/walls/sopanel-2_spec.png
+    lightmap    $lightmap
+}
+
+
+// ************************************************************
+// *** The textures used in the materials below are by Kai. ***
+// ************************************************************
+
+TechDemo/walls/lfwall13a
+{
+    diffusemap  Textures/TechDemo/walls/Kai_lfwall13a_diff.png
+    normalmap   Textures/TechDemo/walls/Kai_lfwall13a_norm.png
+    specularmap Textures/TechDemo/walls/Kai_lfwall13a_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/lfwall13b
+{
+    diffusemap  Textures/TechDemo/walls/Kai_lfwall13b_diff.png
+    normalmap   Textures/TechDemo/walls/Kai_lfwall13b_norm.png
+    specularmap Textures/TechDemo/walls/Kai_lfwall13b_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/lfwall13c_
+{
+    diffusemap  Textures/TechDemo/walls/Kai_lfwall13c_diff.png
+    normalmap   Textures/TechDemo/walls/Kai_lfwall13c_norm.png
+    specularmap Textures/TechDemo/walls/Kai_lfwall13c_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/lfwall13d
+{
+    diffusemap  Textures/TechDemo/walls/Kai_lfwall13d_diff.png
+    normalmap   Textures/TechDemo/walls/Kai_lfwall13d_norm.png
+    specularmap Textures/TechDemo/walls/Kai_lfwall13d_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/lfwall13e
+{
+    diffusemap  Textures/TechDemo/walls/Kai_lfwall13e_diff.png
+    normalmap   Textures/TechDemo/walls/Kai_lfwall13e_norm.png
+    specularmap Textures/TechDemo/walls/Kai_lfwall13e_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/lfwall13f
+{
+    diffusemap  Textures/TechDemo/walls/Kai_lfwall13f_diff.png
+    normalmap   Textures/TechDemo/walls/Kai_lfwall13f_norm.png
+    specularmap Textures/TechDemo/walls/Kai_lfwall13f_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/walls/lfwall13f2
+{
+    diffusemap  Textures/TechDemo/walls/Kai_lfwall13f2_diff.png
+    normalmap   Textures/TechDemo/walls/Kai_lfwall13f2_norm.png
+    specularmap Textures/TechDemo/walls/Kai_lfwall13f2_spec.png
+    lightmap    $lightmap
+}

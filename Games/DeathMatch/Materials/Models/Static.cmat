@@ -1,0 +1,322 @@
+Models/Static/Gelaender01/Gelaender01
+{
+    diffusemap Models/Static/Gelaender01_Gelaender01_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+
+
+
+Models/Static/Lampe01/Lamp_R01_blue
+{
+    diffusemap Models/Static/Lampe01_Lamp_R01_blue_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+
+
+
+"Models/Static/MediBox01/Medibox Final"
+{
+    diffusemap  Models/Static/MediBox01_diff.png
+    normalmap   Models/Static/MediBox01_norm.png
+    specularmap Models/Static/MediBox01_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+
+
+
+Models/Static/Palette01/Palette01
+{
+    diffusemap Models/Static/Palette01_Palette01_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+
+
+
+Models/Static/Pipe01_Bend/Pipe
+{
+    diffusemap  Models/Static/Pipe01_BaseTex_diff.png
+    normalmap   Models/Static/Pipe01_BaseTex_norm.png
+    specularmap Models/Static/Pipe01_BaseTex_spec.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+
+
+
+Models/Static/Pipe01_Clamp/Pipe
+{
+    diffusemap Models/Static/Pipe01_BaseTex_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+
+
+
+Models/Static/Pipe01_Handle/Pipe
+{
+    diffusemap Models/Static/Pipe01_BaseTex_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+
+
+
+Models/Static/Pipe01_Pipe_long/Pipe
+{
+    diffusemap  Models/Static/Pipe01_BaseTex_diff.png
+    normalmap   Models/Static/Pipe01_BaseTex_norm.png
+    specularmap Models/Static/Pipe01_BaseTex_spec.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+
+
+
+Models/Static/Pipe01_Pipe_medium/Pipe
+{
+    diffusemap  Models/Static/Pipe01_BaseTex_diff.png
+    normalmap   Models/Static/Pipe01_BaseTex_norm.png
+    specularmap Models/Static/Pipe01_BaseTex_spec.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+
+
+
+Models/Static/Pipe01_Pipe_short/Pipe
+{
+    diffusemap  Models/Static/Pipe01_BaseTex_diff.png
+    normalmap   Models/Static/Pipe01_BaseTex_norm.png
+    specularmap Models/Static/Pipe01_BaseTex_spec.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+
+
+
+Models/Static/Pipe01_Scene/pipesscene
+{
+    diffusemap  Models/Static/Pipe01_Scene_pipesscene_diff.png
+    normalmap   Models/Static/Pipe01_BaseTex_norm.png
+    specularmap Models/Static/Pipe01_Scene_01_spec.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+
+
+
+Models/Static/Pipe01_T-Junction/Pipe
+{
+    diffusemap  Models/Static/Pipe01_BaseTex_diff.png
+    normalmap   Models/Static/Pipe01_BaseTex_norm.png
+    specularmap Models/Static/Pipe01_BaseTex_spec.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+
+
+
+Models/Static/Pipe02_big1/Hotmetal_256
+{
+    diffusemap Models/Static/Pipe02_big1_diff.png
+    normalmap  Models/Static/Pipe02_big_norm.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+
+
+
+Models/Static/Pipe02_big2/Hotmetal_256
+{
+    diffusemap Models/Static/Pipe02_big2_diff.png
+    normalmap  Models/Static/Pipe02_big_norm.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+
+
+
+Models/Static/Rocks01/stone01_d
+{
+    diffusemap Models/Static/Rocks01_stone01_d_diff.png
+    normalmap  Models/Static/Rocks01_01_norm.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+
+
+
+Models/Static/Tonne01/Rusty
+{
+    diffusemap Models/Static/Tonne01_Rusty_diff.png
+    normalmap  Models/Static/Tonne01_01_norm.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Static/Tonne01/Rustydown
+{
+    diffusemap Models/Static/Tonne01_Rustydown_diff.png
+    normalmap  Models/Static/Tonne01_02_norm.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Static/Tonne01/Rustytop
+{
+    diffusemap Models/Static/Tonne01_Rustytop_diff.png
+    normalmap  Models/Static/Tonne01_03_norm.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+
+
+
+Models/Static/Tonne02/Barrel_blue_big
+{
+    diffusemap Models/Static/Tonne02_Barrel_blue_big_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+
+
+
+Models/Static/WeldTank_blue/Weldtk_blue
+{
+    diffusemap  Models/Static/WeldTank_blue_Weldtk_blue_diff.png
+    normalmap   Models/Static/WeldTank_norm.png
+    specularmap Models/Static/WeldTank_blue_01_spec.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+
+
+
+Models/Static/WeldTank_red/Weldtk_red
+{
+    diffusemap  Models/Static/WeldTank_red_Weldtk_red_diff.png
+    normalmap   Models/Static/WeldTank_norm.png
+    specularmap Models/Static/WeldTank_red_01_spec.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+
+
+
+Models/Static/WoodBox_large01/wood_box_01
+{
+    diffusemap Models/Static/WoodBox_large01_wood_box_01_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}

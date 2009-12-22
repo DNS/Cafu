@@ -1,0 +1,213 @@
+Background=gui:new("WindowT");
+gui:SetRootWindow(Background);
+
+function Background:OnInit()
+    self:set("rect", 0, 0, 640, 480);
+    self:set("backColor", 0.0, 0.0, 0.0, 0.85);
+
+    gui:activate(false);
+    gui:setFocus(ConsoleInput);
+end
+
+function Background:OnKeyPress(Key)
+    if (Key==1 or Key==59) then    -- Key number 1 is the ESC key, Key number 59 [41] is the F1 [accent grave] key (see CaKeyboardEventT struct for details).
+        gui:close();
+        return true;    -- Return true to indicate that we processed this key press.
+    end
+
+    return false;       -- Return false to indicate that we did not process this key press.
+end
+
+
+ConsoleFrame=gui:new("WindowT");
+Background:AddChild(ConsoleFrame);
+
+function ConsoleFrame:OnInit()
+    self:set("rect", 20, 20, 600, 440);
+    self:set("backColor", 0.82, 0.49, 0.17, 0.2);
+    self:set("borderWidth", 0.7);
+    self:set("borderColor", 0.82, 0.49, 0.17, 1.0);
+    self:set("text", "");
+end
+
+
+ConsoleOutput=gui:new("WindowT");
+ConsoleFrame:AddChild(ConsoleOutput);
+
+-- The Ca3D-Engine searches for a window named "ConsoleOutput" for directing its
+-- console output to, so we explicitly have to set the name of this window here.
+ConsoleOutput:SetName("ConsoleOutput");
+
+function ConsoleOutput:OnInit()
+    self:set("rect", 10, 10, 580, 390);
+    self:set("backColor", 0.0, 0.0, 0.0, 0.0);
+    self:set("borderWidth", 0.5);
+    self:set("borderColor", 0.82, 0.49, 0.17, 1.0);
+    self:set("textColor", 0.82, 0.49, 0.17, 1.0);
+    self:set("textScale", 0.2);
+    self:set("textAlignVer", 1);
+end
+
+
+ConsoleInput=gui:new("EditWindowT");
+ConsoleFrame:AddChild(ConsoleInput);
+ConsoleInput:SetTextCursorColor(0.02, 0.36, 1.0, 1.0);
+
+commandHistory={};
+commandHistory.Size=0;
+commandHistory.Pos =0;
+
+function ConsoleInput:OnInit()
+    self:set("rect", 10, 410, 400, 20);
+    self:set("backColor", 0.0, 0.0, 0.0, 0.0);
+    self:set("borderWidth", 0.5);
+    self:set("borderColor", 0.82, 0.49, 0.17, 1.0);
+    self:set("textColor", 0.82, 0.49, 0.17, 1.0);
+    self:set("textScale", 0.2);
+    self:set("textAlignVer", 2);
+end
+
+function ConsoleInput:OnKeyPress(Key)
+    Command=self:get("text");
+
+    if (Key==15) then   -- TAB (tabulator key).
+        -- Note that I'm *not* writing "if (Key==15 and #Command>0) then ..." above,
+        -- because then the TAB key would wrongly be treated as "not handled here" if Command was empty.
+        if (#Command>0) then
+            local Expansion, Completions=ci.LineCompletion(Command);
+
+            if (#Expansion>0) then
+                self:set("text", Command .. Expansion);
+            elseif (#Completions>0) then
+                for Nr=1,#Completions do
+                    if (Nr>1 and ((Nr-1) % 5)==0) then Console.Print("\n"); end
+                    Console.Print(Completions[Nr] .. "   ");
+                end
+
+                Console.Print("\n");
+            end
+        end
+    elseif (Key==1 or Key==59) then     -- ESC or F1.
+        if (Key==1 and #Command>0) then
+            self:set("text", "");
+        else
+            gui:close();
+        end
+    elseif (Key==28 or Key==156) then   -- RETURN or numpad-ENTER.
+        -- Echo the command to the console and execute it.
+        Console.Print("> " .. Command .. "\n");    -- No need to modify the ConsoleOutput window directly...
+        if (not ci.RunCommand(Command)) then
+            -- Running the command failed for some reason.
+            -- Now flash the border color for a moment, just for fun.  :-)
+            local r, g, b, a=ConsoleOutput:get("borderColor");
+
+            ConsoleOutput:interpolate("borderColor.r", 1, r, 800);
+            ConsoleOutput:interpolate("borderColor.g", 0, g, 800);
+            ConsoleOutput:interpolate("borderColor.b", 0, b, 800);
+            ConsoleOutput:interpolate("borderColor.a", 1, a, 800);
+         -- ConsoleOutput:interpolate("backColor.a",   1, 0, 800);
+        end
+
+        -- Add the command to the command history (unless it is empty).
+        if (#Command>0) then
+            commandHistory[commandHistory.Size]=Command;
+            commandHistory.Size=commandHistory.Size+1;
+        end
+
+        -- After the execution of a command, we are not scrolled into the history any more.
+        commandHistory.Pos=commandHistory.Size;
+
+        -- Clear the command buffer so that the user can enter the next command.
+        self:set("text", "");
+    elseif (Key==200 and commandHistory.Pos>0) then     -- ARROW-UP.
+        -- If we are just starting to scroll into the history,
+        -- save the currently typed (temporary) command at the top of the history.
+        if (commandHistory.Pos==commandHistory.Size) then
+            commandHistory[commandHistory.Size]=Command;
+        end
+
+        commandHistory.Pos=commandHistory.Pos-1;
+        self:set("text", commandHistory[commandHistory.Pos]);
+    elseif (Key==208 and commandHistory.Pos<commandHistory.Size) then   -- ARROW-DOWN.
+        commandHistory.Pos=commandHistory.Pos+1;
+        self:set("text", commandHistory[commandHistory.Pos]);
+    else
+        -- Return false to indicate that we did not process this key press.
+        -- (The C++ code for this editClass will deal with it next.)
+        return false;
+    end
+
+    return true;
+end
+
+
+ButtonClear=gui:new("WindowT");
+ConsoleFrame:AddChild(ButtonClear);
+
+function ButtonClear:OnInit()
+    self:set("rect", 420, 410, 80, 20);
+    self:set("backColor", 0.0, 0.0, 0.0, 0.0);
+    self:set("borderWidth", 0.5);
+    self:set("borderColor", 0.82, 0.49, 0.17, 1.0);
+    self:set("text", "Clear");
+    self:set("textColor", 0.82, 0.49, 0.17, 1.0);
+    self:set("textScale", 0.2);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function ButtonClear:OnMouseEnter()
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:interpolate("textScale", 0.2, 0.25, 500);
+end
+
+function ButtonClear:OnMouseLeave()
+    self:set("borderColor", 0.82, 0.49, 0.17, 1.0);
+    self:interpolate("textScale", 0.25, 0.2, 500);
+end
+
+function ButtonClear:OnMouseButtonUp(ButtonNr)
+    if (ButtonNr==0) then
+        ConsoleOutput:set("text", "");
+        gui:setFocus(ConsoleInput);
+        return true;
+    end
+
+    return false;
+end
+
+
+ButtonClose=gui:new("WindowT");
+ConsoleFrame:AddChild(ButtonClose);
+
+function ButtonClose:OnInit()
+    self:set("rect", 510, 410, 80, 20);
+    self:set("backColor", 0.0, 0.0, 0.0, 0.0);
+    self:set("borderWidth", 0.5);
+    self:set("borderColor", 0.82, 0.49, 0.17, 1.0);
+    self:set("text", "Close");
+    self:set("textColor", 0.82, 0.49, 0.17, 1.0);
+    self:set("textScale", 0.2);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function ButtonClose:OnMouseEnter()
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:interpolate("textScale", 0.2, 0.25, 500);
+end
+
+function ButtonClose:OnMouseLeave()
+    self:set("borderColor", 0.82, 0.49, 0.17, 1.0);
+    self:interpolate("textScale", 0.25, 0.2, 500);
+end
+
+function ButtonClose:OnMouseButtonUp(ButtonNr)
+    if (ButtonNr==0) then
+        -- Close this GUI.
+        gui:close();    -- same as  gui:activate(false);
+        return true;
+    end
+
+    return false;
+end

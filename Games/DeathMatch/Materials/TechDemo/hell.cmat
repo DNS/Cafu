@@ -1,0 +1,26 @@
+// Most diffuse textures for these materials are from
+// http://lemog.free.fr/lemog_v5/thumbnails.php?album=28
+
+TechDemo/hell/organic1
+{
+    diffusemap  Textures/TechDemo/hell/anustubescroll_diff.png
+    normalmap   Textures/TechDemo/hell/anustubescroll_norm.png
+    specularmap Textures/TechDemo/hell/anustubescroll_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/hell/organic2
+{
+    diffusemap  Textures/TechDemo/hell/bacteria_4_diff.png
+    normalmap   Textures/TechDemo/hell/bacteria_4_norm.png
+    specularmap Textures/TechDemo/hell/bacteria_4_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/hell/wrinklewall
+{
+    diffusemap  Textures/TechDemo/hell/wrinklewall_diff.png
+    normalmap   Textures/TechDemo/hell/wrinklewall_norm.png
+    specularmap Textures/TechDemo/hell/wrinklewall_spec.png
+    lightmap    $lightmap
+}

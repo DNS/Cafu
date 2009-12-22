@@ -1,0 +1,27 @@
+Star Trek: The Next Generation Phaser Mk II 'DustBuster' 
+to replace the Egon(gluon) energy weapon 
+by Scarecrow
+
+This Zip File contains:
+
+v_egon.mdl - the phaser you see in front of you when playing.
+w_egon.mdl - the phaser you see lying around on the ground
+p_egon.mdl - the phaser your opponent holds.
+
+To install, unzip this zipfile into the path Sierra/Half-Life/Valve/models
+
+The three MDL files will then sit loose in the Models folder.
+
+Details
+
+W_egon 68 triangles 1 skin 128x128
+p_egon 68 triangles 1 skin 128x128
+v_egon 837 triangles and loads of skins =(  - 6 new skins plus 4 original glove skins of varying sizes.
+
+Sorry there are no sound effects, I couldn't find a decent clean ST:TNG phaser wav.
+
+Do have fun...
+
+'Beam me up, O'brien!'
+
+Scarecrow

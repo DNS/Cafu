@@ -1,0 +1,230 @@
+==========================================================================
+Cafu Game and Graphics Engine                           http://www.cafu.de
+License Information                                           info@cafu.de
+==========================================================================
+
+  This document lists all the licenses that affect the Cafu engine.
+
+  Contents:
+
+    1. The Cafu License (GPL and commercial)
+    2. Assets License
+    3. The External Libraries
+    4. FAQs
+
+
+  We've taken great care to present all details in this document as
+  complete and accurate as possible. If you think that something is
+  missing or wrong, please let us know: We will get things right
+  immediately. You can contact us at info@cafu.de, or find our
+  contact details at http://www.cafu.de/contact
+
+
+
+==========================================================================
+1. The Cafu License (GPL and commercial)
+==========================================================================
+
+  Cafu is a collection of software components, consisting of executables,
+  tools, libraries, source-code and scripts.
+  Cafu is copyright (c) 2002-2010 Carsten Fuchs Software.
+
+  Cafu is free software: you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free
+  Software Foundation, either version 3 of the License, or (at your
+  option) any later version.
+
+  Cafu is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License along
+  with Cafu. If not, see <http://www.gnu.org/licenses/>.
+
+
+  You can also obtain Cafu under an alternative, custom license that is
+  tailored to your needs! Contact us at info@cafu.de for more details.
+
+
+
+==========================================================================
+2. Assets Licenses
+==========================================================================
+
+  All assets that ship with Cafu (texture images, models, fonts, sounds,
+  maps, music files, etc.) are copyrighted by their respective author.
+
+  If you wish to re-use the assets that ship with Cafu in your own
+  products developed with Cafu, please contact us: Carsten Fuchs Software
+  owns and holds the copyright of most of the assets that ship with Cafu,
+  and we're happy to send you a detailed list and a grant of permission.
+
+
+
+==========================================================================
+3. The External Libraries
+==========================================================================
+
+  Cafu employs several external libraries that are copyrighted by their
+  respective authors.
+
+  Each of these libraries is compatible both with the GPL as well as with
+  the custom licenses by Carsten Fuchs Software for closed-source
+  commercial use.
+
+      Boost C++ Libraries, http://www.boost.org
+
+      Bullet Continuous Collision Detection and Physics Library,
+      copyright (c) 2003-2006 Erwin Coumans,
+      http://continuousphysics.com/Bullet
+
+      NVidia "Cg - C for graphics",
+      http://developer.nvidia.com/object/cg_toolkit.html
+
+      Collada DOM, copyright (c) 2005 Sony Computer Entertainment Inc.,
+      http://www.collada.org
+
+      FMOD, copyright (c) 1994-2004 Firelight Technologies Pty, Ltd.,
+      http://www.fmod.org
+
+      freealut, http://connect.creativelabs.com/openal/default.aspx
+
+      FreeType Library, copyright (c) 2009 The FreeType Project,
+      http://www.freetype.org
+
+      libjpeg, copyright (c) 1991-1998 Independent JPEG Group,
+      http://www.ijg.org
+
+      libnoise, copyright (c) 2003-2007 Jason Bevins,
+      http://libnoise.sourceforge.net
+
+      libogg and libvorbis, copyright (c) 2002 Xiph.org Foundation,
+      http://www.xiph.org
+
+      libpng, copyright (c) 2004 Glenn Randers-Pehrson,
+      http://www.libpng.org/pub/png/libpng.html
+
+      libxml2, copyright (c) 1998-2003 Daniel Veillard,
+      http://xmlsoft.org
+
+      lightwave-8, http://www.newtek.com/lightwave/developers.php
+
+      Lua, copyright (c) 1994-2006 Lua.org, PUC-Rio,
+      http://www.lua.org
+
+      mpg123, copyright (c) Michael Hipp, http://www.mpg123.de
+
+      OpenAL (for Windows),
+      http://connect.creativelabs.com/openal/default.aspx
+
+      openal-soft (for Linux),
+      http://kcat.strangesoft.net/openal.html
+
+      PCRE, copyright (c) 1997-2007 University of Cambridge,
+      copyright (c) 2007, Google Inc. (C++ wrappers),
+      http://www.pcre.org
+
+      wxWidgets cross-platform GUI library,
+      copyright (c) 1998-2005 Julian Smart, Robert Roebling et al,
+      http://www.wxwidgets.org
+
+      zlib, copyright (c) 1995-2004 Jean-loup Gailly and Mark Adler,
+      http://www.zlib.net
+
+  We ship the original license texts of each library with Cafu.
+  Refer to each libraries individual license text for full details.
+
+  The additional requirements that some of the licenses of these libraries
+  impose on software products developed with Cafu are explained in the
+  next section (FAQs).
+
+
+
+==========================================================================
+4. FAQs - Frequently Asked Questions
+==========================================================================
+
+  ---------------------------------------------------------------------
+  a) How do all the external libraries affect or restrict me when I
+     develop a (commercial) product with the Cafu engine?
+  ---------------------------------------------------------------------
+
+  When you develop your own product, you have obtained Cafu either under
+  the GNU General Public License (GPL), or directly from Carsten Fuchs
+  Software under a custom license that is tailored to your needs.
+  Therefore, we have been careful to only employ external libraries that
+  are compatible with both cases.
+
+  When your product is under the GPL (which is must when you obtained Cafu
+  under the GPL), your honoring of the terms of the GPL will cover the
+  requirements of the external libraries automatically, as the
+  requirements of the external libraries are a subset of the requirements
+  of the GPL.
+
+  But when you obtain a custom license for the Cafu core code, how will
+  the external libraries still affect you?
+  Well, you still have to meet the requirements of the external libraries,
+  but meeting these requirements is fortunately very easy!
+
+  Roughly spoken, all external libraries from the above list fall into
+  one of two categories: Either they come under an MIT, BSD or similarly
+  liberal license that usually contains an "advertisement clause"; or
+  they come under the LGPL.
+
+  Libraries whose license contains an advertisement clause are easily
+  dealt with: Just mention somewhere in your product documentation or
+  About or Credits dialogs that you use them. For the Cafu binaries, the
+  world editor CaWE, and the Cafu documentation (both online and in this
+  file), we have already implemented these requirements.
+
+  As the LGPL contains a similar requirement as well, just augment the
+  above mentioned dialogs and documentation by listing the copyrights and
+  credits for the LGPL'ed libraries also. For Cafu, we just made lists of
+  *all* employed libraries in order to make sure that we cover all
+  licenses of all libraries.
+
+  With libraries under the LGPL there is usually the additional question
+  whether we can link to them statically without providing our application
+  source code (when linking dynamically, that is not a problem). The
+  answer is: Yes, we can! It is perfectly legal and covered by the terms
+  of the LGPL to do so. The details are very well described at
+  http://teem.sourceforge.net/lgpl.html. Moreover, in order to further
+  increase the legal safety and practical simplicity, most external
+  libraries that are under the LGPL are linked to the Cafu executables
+  only dynamically.
+
+  In summary, using the external libraries with your own (custom licensed)
+  product is very easy: As we have already prepared all about dialogs and
+  texts in Cafu accordingly, you just have to add a copy of the libraries
+  list in section 3 to the documentation of your program. Done.
+
+
+  ---------------------------------------------------------------------
+  b) Are the external libraries are optional?
+     Can they be replaced or omitted?
+  ---------------------------------------------------------------------
+
+  Yes, most of the external libraries are optional, and (thanks to the
+  modular design of Cafu) it is easy to omit many of them entirely or to
+  replace them with alternatives.
+
+  Some of the most important examples are listed below. Replacing other
+  libraries that are not mentioned here is possible, too, please contact
+  us for details.
+
+  "NVidia Cg" - replaced by renderers based on pure OpenGL. Replacement is
+  very easy, because OpenGL-only renderers already ship with Cafu, ready
+  out-of-the-box.
+
+  "FMOD" - replaced by sound systems based on pure OpenAL. Replacement is
+  very easy, because OpenAL-only sound system implementations already ship
+  with Cafu, ready out-of-the-box (in fact, our OpenAL SoundSys
+  implementations are now the default).
+
+  "Bullet Physics" - can be replaced against any other physics library,
+  e.g. Havok or PhysX. Replacement requires some coding (easy).
+
+  "mpg123" - used for .mp3 music file playback. Easily omitted, because
+  Cafu already ships with the Ogg Vorbis alternative, ready out-of-the-
+  box.

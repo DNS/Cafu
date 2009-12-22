@@ -1,0 +1,208 @@
+// This material is a good example for how a cmat material definition sits "in the middle" between the entity onto which it will be applied,
+// and the shader that renders the material.
+//
+// Whether the entity got its data from map file settings (as set by the user in CaWE), from an entity script or from C++ entity code is irrelevant,
+// but it *IS* important that it sets the general-purpose fParam* and iParam* variables in an entity-specific way:
+// If you want to know what the value in e.g. fParam4 means, you'll have to ask the person that is responsible for the entity
+// onto which this material will be used.
+// In this example, fParam4 to fParam7 specify the four coefficients of a plane that is needed for automatic texture coordinate generation
+// in the shader. fParam8 to fParam11 specify another plane, but not for the s- but the t-coordinate component.
+// Speaking from "sitting in between", this is the side where this material script "gets its input from".
+//
+// The other side is the output side: The person who writes the shader for this material may offer to control its behaviour through several
+// parameters. Again, the meaning of these parameters and how they will be used only depends on the specification by that person.
+// Here, we set the first four shader parameters to fParam4 to fParam7, the second quadruple of shader parameters to fParam7 to fParam11,
+// and the ninth shader parameter to a constant value.
+//
+// In summary, the meaning of the fParam* and iParam* "entity input" variables as well as the "shader output" variables set with
+// shaderParamExpr and shaderParamMapComp depend entirely on the entity and the shader, and thus on that agreement with the responsible person.
+Textures/Terrains/Lindstrom
+{
+    AmbientShader A_Terrain             // Override the automatic shader selection.
+    LightShader   none1234              // Override the automatic shader selection - make sure no light shader is selected.
+ // noDynLight                          // Same effect as the previous line.
+
+    diffusemap Textures/Terrains/ps_Texture_1k_a.png, wrapS clampToEdge, wrapT clampToEdge
+    lightmap   $lightmap                                // Ambient shader "A_Terrain" requires a lightmap.
+    lumamap    Textures/Terrains/CommonDetail1.png      // "A_Terrain" takes the Luma-map as Detail-map (optional).
+
+    shaderParamExpr fParam4             // The first eight shader parameters are taken from fParam4 to fParam11
+    shaderParamExpr fParam5             // and specify the coefficients of two planes for automatic tex-coord generation.
+    shaderParamExpr fParam6
+    shaderParamExpr fParam7
+    shaderParamExpr fParam8
+    shaderParamExpr fParam9
+    shaderParamExpr fParam10
+    shaderParamExpr fParam11
+    shaderParamExpr 100                 // Scale / Repetitions of the Detail-map.
+
+    twoSided                            // "twosided" is required for the SOAR terrain algorithm.
+}
+
+
+Terrains/BPRockB_tx1.png
+{
+    AmbientShader A_Terrain             // Override the automatic shader selection.
+    LightShader   none1234              // Override the automatic shader selection - make sure no light shader is selected.
+ // noDynLight                          // Same effect as the previous line.
+
+    diffusemap Textures/Terrains/BPRockB_tx1.png, wrapS clampToEdge, wrapT clampToEdge
+    lightmap   $lightmap                                // Ambient shader "A_Terrain" requires a lightmap.
+    lumamap    Textures/Terrains/CommonDetail1.png      // "A_Terrain" takes the Luma-map as Detail-map (optional).
+
+    shaderParamExpr fParam4             // The first eight shader parameters are taken from fParam4 to fParam11
+    shaderParamExpr fParam5             // and specify the coefficients of two planes for automatic tex-coord generation.
+    shaderParamExpr fParam6
+    shaderParamExpr fParam7
+    shaderParamExpr fParam8
+    shaderParamExpr fParam9
+    shaderParamExpr fParam10
+    shaderParamExpr fParam11
+    shaderParamExpr 21.3                // Scale / Repetitions of the Detail-map.
+
+    twoSided                            // "twosided" is required for the SOAR terrain algorithm.
+}
+
+
+Terrains/TechDemo/Island
+{
+    AmbientShader A_Terrain             // Override the automatic shader selection.
+    LightShader   none1234              // Override the automatic shader selection - make sure no light shader is selected.
+ // noDynLight                          // Same effect as the previous line.
+
+    diffusemap Terrains/TechDemo/Island-BaseTex.jpg, wrapS clampToEdge, wrapT clampToEdge
+    lightmap   $lightmap                                // Ambient shader "A_Terrain" requires a lightmap.
+    lumamap    Textures/Terrains/CommonDetail1.png      // "A_Terrain" takes the Luma-map as Detail-map (optional).
+
+    shaderParamExpr fParam4             // The first eight shader parameters are taken from fParam4 to fParam11
+    shaderParamExpr fParam5             // and specify the coefficients of two planes for automatic tex-coord generation.
+    shaderParamExpr fParam6
+    shaderParamExpr fParam7
+    shaderParamExpr fParam8
+    shaderParamExpr fParam9
+    shaderParamExpr fParam10
+    shaderParamExpr fParam11
+    shaderParamExpr 300                 // Scale / Repetitions of the Detail-map.
+
+    twoSided                            // "twosided" is required for the SOAR terrain algorithm.
+}
+
+
+Terrains/Checkerboard
+{
+    AmbientShader A_Terrain             // Override the automatic shader selection.
+    LightShader   none1234              // Override the automatic shader selection - make sure no light shader is selected.
+ // noDynLight                          // Same effect as the previous line.
+
+    diffusemap Textures/Terrains/Checkerboard.png, wrapS clampToEdge, wrapT clampToEdge
+    lightmap   $lightmap                                // Ambient shader "A_Terrain" requires a lightmap.
+ // lumamap    Textures/Terrains/CommonDetail1.png      // "A_Terrain" takes the Luma-map as Detail-map (optional).
+
+    shaderParamExpr fParam4             // The first eight shader parameters are taken from fParam4 to fParam11
+    shaderParamExpr fParam5             // and specify the coefficients of two planes for automatic tex-coord generation.
+    shaderParamExpr fParam6
+    shaderParamExpr fParam7
+    shaderParamExpr fParam8
+    shaderParamExpr fParam9
+    shaderParamExpr fParam10
+    shaderParamExpr fParam11
+    shaderParamExpr 300                 // Scale / Repetitions of the Detail-map.
+
+    twoSided                            // "twosided" is required for the SOAR terrain algorithm.
+}
+
+
+Terrains/Grass
+{
+    AmbientShader A_Terrain             // Override the automatic shader selection.
+    LightShader   none1234              // Override the automatic shader selection - make sure no light shader is selected.
+ // noDynLight                          // Same effect as the previous line.
+
+    diffusemap Textures/Terrains/Grass.png, wrapS clampToEdge, wrapT clampToEdge
+    lightmap   $lightmap                                // Ambient shader "A_Terrain" requires a lightmap.
+    lumamap    Textures/Terrains/CommonDetail1.png      // "A_Terrain" takes the Luma-map as Detail-map (optional).
+
+    shaderParamExpr fParam4             // The first eight shader parameters are taken from fParam4 to fParam11
+    shaderParamExpr fParam5             // and specify the coefficients of two planes for automatic tex-coord generation.
+    shaderParamExpr fParam6
+    shaderParamExpr fParam7
+    shaderParamExpr fParam8
+    shaderParamExpr fParam9
+    shaderParamExpr fParam10
+    shaderParamExpr fParam11
+    shaderParamExpr 300                 // Scale / Repetitions of the Detail-map.
+
+    twoSided                            // "twosided" is required for the SOAR terrain algorithm.
+}
+
+
+Terrains/Grass2
+{
+    AmbientShader A_Terrain             // Override the automatic shader selection.
+    LightShader   none1234              // Override the automatic shader selection - make sure no light shader is selected.
+ // noDynLight                          // Same effect as the previous line.
+
+    diffusemap Textures/Terrains/Grass2.png, wrapS clampToEdge, wrapT clampToEdge
+    lightmap   $lightmap                                // Ambient shader "A_Terrain" requires a lightmap.
+    lumamap    Textures/Terrains/CommonDetail1.png      // "A_Terrain" takes the Luma-map as Detail-map (optional).
+
+    shaderParamExpr fParam4             // The first eight shader parameters are taken from fParam4 to fParam11
+    shaderParamExpr fParam5             // and specify the coefficients of two planes for automatic tex-coord generation.
+    shaderParamExpr fParam6
+    shaderParamExpr fParam7
+    shaderParamExpr fParam8
+    shaderParamExpr fParam9
+    shaderParamExpr fParam10
+    shaderParamExpr fParam11
+    shaderParamExpr 300                 // Scale / Repetitions of the Detail-map.
+
+    twoSided                            // "twosided" is required for the SOAR terrain algorithm.
+}
+
+
+Terrains/Rock
+{
+    AmbientShader A_Terrain             // Override the automatic shader selection.
+    LightShader   none1234              // Override the automatic shader selection - make sure no light shader is selected.
+ // noDynLight                          // Same effect as the previous line.
+
+    diffusemap Textures/Terrains/Rock.png, wrapS clampToEdge, wrapT clampToEdge
+    lightmap   $lightmap                                // Ambient shader "A_Terrain" requires a lightmap.
+    lumamap    Textures/Terrains/CommonDetail1.png      // "A_Terrain" takes the Luma-map as Detail-map (optional).
+
+    shaderParamExpr fParam4             // The first eight shader parameters are taken from fParam4 to fParam11
+    shaderParamExpr fParam5             // and specify the coefficients of two planes for automatic tex-coord generation.
+    shaderParamExpr fParam6
+    shaderParamExpr fParam7
+    shaderParamExpr fParam8
+    shaderParamExpr fParam9
+    shaderParamExpr fParam10
+    shaderParamExpr fParam11
+    shaderParamExpr 300                 // Scale / Repetitions of the Detail-map.
+
+    twoSided                            // "twosided" is required for the SOAR terrain algorithm.
+}
+
+
+Terrains/Sand
+{
+    AmbientShader A_Terrain             // Override the automatic shader selection.
+    LightShader   none1234              // Override the automatic shader selection - make sure no light shader is selected.
+ // noDynLight                          // Same effect as the previous line.
+
+    diffusemap Textures/Terrains/Sand.png, wrapS clampToEdge, wrapT clampToEdge
+    lightmap   $lightmap                                // Ambient shader "A_Terrain" requires a lightmap.
+    lumamap    Textures/Terrains/CommonDetail1.png      // "A_Terrain" takes the Luma-map as Detail-map (optional).
+
+    shaderParamExpr fParam4             // The first eight shader parameters are taken from fParam4 to fParam11
+    shaderParamExpr fParam5             // and specify the coefficients of two planes for automatic tex-coord generation.
+    shaderParamExpr fParam6
+    shaderParamExpr fParam7
+    shaderParamExpr fParam8
+    shaderParamExpr fParam9
+    shaderParamExpr fParam10
+    shaderParamExpr fParam11
+    shaderParamExpr 300                 // Scale / Repetitions of the Detail-map.
+
+    twoSided                            // "twosided" is required for the SOAR terrain algorithm.
+}

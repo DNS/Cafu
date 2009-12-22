@@ -1,0 +1,217 @@
+// ****************************************************************
+// *** The textures used in the materials below are by Charles. ***
+// ****************************************************************
+
+TechDemo/caves/bricks1
+{
+    diffusemap  Textures/TechDemo/caves/bricks1_diff.png
+    normalmap   Textures/TechDemo/caves/bricks1_norm.png
+    lightmap    $lightmap
+}
+
+TechDemo/caves/bricks2
+{
+    diffusemap  Textures/TechDemo/caves/bricks2_diff.png
+    normalmap   Textures/TechDemo/caves/bricks2_norm.png
+    specularmap Textures/TechDemo/caves/bricks2_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/caves/cav-fgirder1
+{
+    diffusemap  Textures/TechDemo/caves/cav-fgirder1_diff.png
+    normalmap   Textures/TechDemo/caves/cav-fgirder1_norm.png
+    specularmap Textures/TechDemo/caves/cav-fgirder1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/caves/cav-fgirder2
+{
+    diffusemap  Textures/TechDemo/caves/cav-fgirder2_diff.png
+    normalmap   Textures/TechDemo/caves/cav-fgirder2_norm.png
+    specularmap Textures/TechDemo/caves/cav-fgirder2_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/caves/cav-floor2
+{
+    diffusemap  Textures/TechDemo/caves/cav-floor2_diff.png
+    normalmap   Textures/TechDemo/caves/cav-floor2_norm.png
+    specularmap Textures/TechDemo/caves/cav-floor2_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/caves/cav-floorflat1yel
+{
+    diffusemap  Textures/TechDemo/caves/cav-floorflat1yel_diff.png
+    normalmap   Textures/TechDemo/caves/cav-floorflat1yel_norm.png
+    specularmap Textures/TechDemo/caves/cav-floorflat1yel_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/caves/cav-flpanel1
+{
+    diffusemap  Textures/TechDemo/caves/cav-flpanel1_diff.png
+    normalmap   Textures/TechDemo/caves/cav-flpanel1_norm.png
+    specularmap Textures/TechDemo/caves/cav-flpanel1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/caves/cav-grate1
+{
+    diffusemap  Textures/TechDemo/caves/cav-grate1dust_diff.png
+    normalmap   Textures/TechDemo/caves/cav-grate1dust_norm.png
+    specularmap Textures/TechDemo/caves/cav-grate1dust_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/caves/cav-grate1_alpha
+{
+    diffusemap  Textures/TechDemo/caves/cav-grate1dust_trans_diff.png
+    normalmap   Textures/TechDemo/caves/cav-grate1dust_norm.png
+    specularmap Textures/TechDemo/caves/cav-grate1dust_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.98
+    clip players, monsters, moveables, ik, projectiles   // ... but not sight, bspPortals or radiance.
+}
+
+TechDemo/caves/cav-panel1
+{
+    diffusemap  Textures/TechDemo/caves/cav-panel1_diff.png
+    normalmap   Textures/TechDemo/caves/cav-panel1_norm.png
+    specularmap Textures/TechDemo/caves/cav-panel1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/caves/cav-slashtrim
+{
+    diffusemap  Textures/TechDemo/caves/cav-slashtrim_diff.png
+    normalmap   Textures/TechDemo/caves/cav-slashtrim_norm.png
+    specularmap Textures/TechDemo/caves/cav-slashtrim_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/caves/cav-vac1
+{
+    diffusemap  Textures/TechDemo/caves/cav-vac1_diff.png
+    normalmap   Textures/TechDemo/caves/cav-vac1_norm.png
+    specularmap Textures/TechDemo/caves/cav-vac1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/caves/cav-vac2
+{
+    diffusemap  Textures/TechDemo/caves/cav-vac2_diff.png
+    normalmap   Textures/TechDemo/caves/cav-vac2_norm.png
+    specularmap Textures/TechDemo/caves/cav-vac2_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/caves/cav-vac3
+{
+    diffusemap  Textures/TechDemo/caves/cav-vac3_diff.png
+    normalmap   Textures/TechDemo/caves/cav-vac3_norm.png
+    specularmap Textures/TechDemo/caves/cav-vac3_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/caves/cav-vac4
+{
+    diffusemap  Textures/TechDemo/caves/cav-vac4_diff.png
+    normalmap   Textures/TechDemo/caves/cav-vac4_norm.png
+    specularmap Textures/TechDemo/caves/cav-vac4_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/caves/cav-wafpanel1
+{
+    diffusemap  Textures/TechDemo/caves/cav-wafpanel1_diff.png
+    normalmap   Textures/TechDemo/caves/cav-wafpanel1_norm.png
+    specularmap Textures/TechDemo/caves/cav-wafpanel1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/caves/cav-wafpanel2
+{
+    diffusemap  Textures/TechDemo/caves/cav-wafpanel2_diff.png
+    normalmap   Textures/TechDemo/caves/cav-wafpanel2_norm.png
+    specularmap Textures/TechDemo/caves/cav-wafpanel2_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/caves/cav-wafpanel3
+{
+    diffusemap  Textures/TechDemo/caves/cav-wafpanel3_diff.png
+    normalmap   Textures/TechDemo/caves/cav-wafpanel3_norm.png
+    specularmap Textures/TechDemo/caves/cav-wafpanel3_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/caves/cav-wall2_yel
+{
+    diffusemap  Textures/TechDemo/caves/cav-wall2_yel_diff.png
+    normalmap   Textures/TechDemo/caves/cav-wall2_yel_norm.png
+    specularmap Textures/TechDemo/caves/cav-wall2_yel_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/caves/cav-warcol1
+{
+    diffusemap  Textures/TechDemo/caves/cav-warcol1_diff.png
+    normalmap   Textures/TechDemo/caves/cav-warcol1_norm.png
+    specularmap Textures/TechDemo/caves/cav-warcol1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/caves/cav-warhaz1
+{
+    diffusemap  Textures/TechDemo/caves/cav-warhaz1_diff.png
+    normalmap   Textures/TechDemo/caves/cav-warhaz1_norm.png
+    specularmap Textures/TechDemo/caves/cav-warhaz1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/caves/metalswatch
+{
+    diffusemap  Textures/TechDemo/caves/metalswatch_diff.png
+    normalmap   Textures/TechDemo/caves/metalswatch_norm.png
+    specularmap Textures/TechDemo/caves/metalswatch_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/caves/rubble3
+{
+    diffusemap  Textures/TechDemo/caves/rubble3_diff.png
+    normalmap   Textures/TechDemo/caves/rubble3_norm.png
+    lightmap    $lightmap
+}
+
+TechDemo/caves/wardoortrim
+{
+    diffusemap  Textures/TechDemo/caves/wardoortrim_diff.png
+    normalmap   Textures/TechDemo/caves/wardoortrim_norm.png
+    specularmap Textures/TechDemo/caves/wardoortrim_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/caves/warshutter
+{
+    diffusemap  Textures/TechDemo/caves/warshutter_diff.png
+    normalmap   Textures/TechDemo/caves/warshutter_norm.png
+    specularmap Textures/TechDemo/caves/warshutter_spec.png
+    lightmap    $lightmap
+}
+
+
+// ***************************************************************
+// *** The textures used in the materials below are by Thrawn. ***
+// ***************************************************************
+
+TechDemo/caves/cavwarhaz1
+{
+    diffusemap  Textures/TechDemo/caves/cavwarhaz1_diff.png
+    normalmap   Textures/TechDemo/caves/cavwarhaz1_norm.png
+    specularmap Textures/TechDemo/caves/cavwarhaz1_spec.png
+    lightmap    $lightmap
+}

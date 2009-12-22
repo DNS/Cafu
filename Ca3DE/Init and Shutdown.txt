@@ -1,0 +1,112 @@
+This document presents a callgraph about the Initialization and Shutdown of the Ca3D-Engine,
+plus one call to the servers "changeLevel()" console function in mid-game.
+
+Last updated: 2007-11-27
+
+
+
+// Init of global variables:
+Console=...;
+CollModelMan=...;
+
+main()
+    ConsoleInterpreter=...;
+    ConFuncT::RegisterStaticList();
+    ConVarT ::RegisterStaticList();
+
+    HandleButtonOK()
+        Init:
+            OldLib
+            FileSys
+            MaterialMan
+            MainWindow (OpenGL)
+            Renderer
+            TexMapManager
+            FMOD
+            GuiMan
+            Game (GameImpl in e.g. DeathMatch.dll)
+
+            Server (if in "run both" mode)
+                ConsoleInterpreter->RunCommand("changeLevel($WorldName)");
+                    [See below for details.]
+
+            Send CS0_Connect message to server.
+            Wait for SC0_ACK (server also sends SC1_WorldInfo to newly connected client).
+
+            Client
+                [No special init done or required here.]
+
+            ClientGui with 1 ClientWin
+            GuiConsole [...]
+
+        Master-Loop:
+            "Drive" the GuiMan by forwarding all events (time, mouse, keyboard) from the system (OpenGLWindow) to it.
+            Client->MainLoop();
+            Server->MainLoop();
+
+        Shutdown / Cleanup:
+            delete Client;
+            delete Server;
+
+            Game->Release();
+            delete GuiMan;
+            [...]
+
+
+
+Server runs the "changeLevel($WorldName)" console command:
+    NewWorld=new Ca3DEWorldT(PathName.c_str(), NULL);
+        WorldT wird aus .cw File geladen;
+        new ClipWorldT;
+        new EntityManagerT;
+    delete ServerPtr->World;
+        ~CaServerWorldT();
+            delete Ca3DEWorld;
+                delete EntityManager;
+                    delete EngineEntities[Nr];      <-- Called for all numbers.
+                        delete OldStates;
+                        Game->FreeBaseEntity(Entity);
+                            if (ScriptState) ScriptState->RemoveEntityInstance(Entity);
+                            delete Entity;
+                delete ClipWorld;
+            Game->Sv_UnloadMap();
+                delete ScriptState;
+    Sv->World=new CaServerWorldT(PathName.c_str(), NewWorld);
+        Game->Sv_PrepareNewMap();
+            ScriptState=new ScriptStateT;
+        EntityManager.CreateNewEntityFromBasicInfo(...);     <-- Called for all entities in the map.
+            NewBaseEntity=Game->CreateBaseEntityFromMapFile(...);
+                ScriptState->AddEntityInstance();
+            new EngineEntity(NewBaseEntity);
+        Game->Sv_FinishNewMap(FileName);
+            ScriptState->LoadMapScript(...);
+
+
+
+Client received a SC1_WorldInfo message:
+    delete World;
+        ~CaClientWorldT();
+            ~Ca3DEWorldT();
+                ~EntityManager();
+                    delete EngineEntities[EntityNr];    <-- Called for each entity.
+                        ~EngineEntityT()
+                            delete OldStates;
+                            Game->FreeBaseEntity(Entity);
+                                if (ScriptState) ScriptState->RemoveEntityInstance(Entity);
+                                delete Entity;
+
+    World=new CaClientWorldT(PathName, WorldLoadingProgressFunction, OurEntityID);
+        Ca3DEWorldT(PathName.c_str(), NULL);
+            WorldT wird aus .cw File geladen;
+            new ClipWorldT;
+            new EntityManagerT;
+
+    Reply with CS1_WorldInfoACK.
+
+
+
+Client received a SC1_EntityBaseLine message:
+    World->ReadEntityBaseLineMessage(InData);
+        EntityManager.CreateNewEntityFromEntityBaseLineMessage(InData);
+            NewBaseEntity=Game->CreateBaseEntityFromTypeNr(...);
+            EngineEntities.PushBack(new EngineEntityT(NewBaseEntity, ...));

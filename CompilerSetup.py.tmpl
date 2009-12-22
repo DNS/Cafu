@@ -1,0 +1,30 @@
+# Edit the settings and paths in this file as required for your system.
+#
+# The correct paths are easily determined by browsing your programs folder with
+# the Windows Explorer, by opening the Visual Studio Command Prompt and viewing
+# the environment variables (enter the SET command in order to output them all),
+# or by looking them up in the Visual Studio IDE.
+
+
+# The default compiler to be used for each platform.
+# Note that this can easily be overridden at the command-line
+# by the "cmp" parameter. Example: scons -Q cmp=vc9
+defaultCompilerWin32="vc8";     # Valid values are "vc8" and "vc9".
+defaultCompilerLinux="g++";     # Currently, only "g++" is a valid value.
+
+
+# This string describes all program variants that should be built:
+# Insert a "d" for having all code being built in the debug   variant.
+# Insert a "p" for having all code being built in the profile variant.
+# Insert a "r" for having all code being built in the release variant.
+# This can be overridden at the command line via the "bv" parameter.
+# Example: scons -Q bv=dpr
+buildVariants="dr";
+
+
+# These settings specify where the wxWidgets toolkit is found under Windows and
+# Linux. If you followed the instructions in the Cafu documentation at
+# http://www.cafu.de/wiki/, the given default value should be OK for both
+# wxMSW (Windows) and wxGTK (Linux), so there is no need to change it.
+wxMSW_Path="#/ExtLibs/wxWidgets";     # The given value should be OK.
+wxGTK_Path="#/ExtLibs/wxWidgets";     # The given value should be OK.

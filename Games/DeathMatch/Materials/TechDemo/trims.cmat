@@ -1,0 +1,128 @@
+// ****************************************************************
+// *** The textures used in the materials below are by Charles. ***
+// ****************************************************************
+
+TechDemo/trims/bluetex3
+{
+    diffusemap  Textures/TechDemo/trims/bluetex3_diff.png
+    normalmap   Textures/TechDemo/trims/bluetex3_norm.png
+    specularmap Textures/TechDemo/trims/bluetex3_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/trims/bluetex4
+{
+    diffusemap  Textures/TechDemo/trims/bluetex4_diff.png
+    normalmap   Textures/TechDemo/trims/bluetex4_norm.png
+    specularmap Textures/TechDemo/trims/bluetex4_spec.png
+    lightmap    $lightmap
+}
+
+// hazard-strips1, hazard-strips1-ed and bluetex4-danger are all identical to each other...
+TechDemo/trims/bluetex4-danger
+{
+    diffusemap  Textures/TechDemo/trims/bluetex4-danger_diff.png
+    normalmap   Textures/TechDemo/trims/bluetex4-danger_norm.png
+    specularmap Textures/TechDemo/trims/bluetex4-danger_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/trims/got-column-rust
+{
+    diffusemap  Textures/TechDemo/trims/gotsilvercol1_diff.png
+    normalmap   Textures/TechDemo/trims/gotsilvercol1_norm.png
+    specularmap Textures/TechDemo/trims/gotsilvercol1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/trims/got-column-silver
+{
+    diffusemap  Textures/TechDemo/trims/gotsilvercol1_diff.png
+    normalmap   Textures/TechDemo/trims/gotsilvercol1_norm.png
+    specularmap Textures/TechDemo/trims/gotsilvercol1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/trims/grate1
+{
+    diffusemap  Textures/TechDemo/trims/grate1_diff.png
+    normalmap   Textures/TechDemo/trims/grate1_norm.png
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    noShadows
+    twoSided
+
+    clip players, monsters, moveables, ik   // ... but not projectiles, sight, bspPortals or radiance.
+}
+
+TechDemo/trims/ridbeam
+{
+    diffusemap  Textures/TechDemo/trims/ridbeam_diff.png
+    normalmap   Textures/TechDemo/trims/ridbeam_norm.png
+    specularmap Textures/TechDemo/trims/ridbeam_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/trims/rusttrim
+{
+    diffusemap  Textures/TechDemo/trims/rustrim_diff.png
+    normalmap   Textures/TechDemo/trims/rustrim_norm.png
+    specularmap Textures/TechDemo/trims/rustrim_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/trims/girder1
+{
+    diffusemap  Textures/TechDemo/trims/girder1_diff.png
+    normalmap   Textures/TechDemo/trims/girder1_norm.png
+    specularmap Textures/TechDemo/trims/girder1_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.9
+    twoSided
+    noShadows
+    clip players, monsters, moveables, ik, projectiles   // ... but not sight, bspPortals or radiance.
+}
+
+TechDemo/trims/ste-metal-trim
+{
+    diffusemap  Textures/TechDemo/trims/stemettrim_diff.png
+    normalmap   Textures/TechDemo/trims/stemettrim_norm.png
+    specularmap Textures/TechDemo/trims/stemettrim_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/trims/ste-silver-swatch
+{
+    // Maybe replace later against something that is a bit brighter.
+    // The original diff-map used to be as bright as that of ste-metal-trim.
+    diffusemap  Textures/TechDemo/trims/strim_diff.png
+    specularmap Textures/TechDemo/trims/strim_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/trims/strim
+{
+    diffusemap  Textures/TechDemo/trims/strim_diff.png
+    specularmap Textures/TechDemo/trims/strim_spec.png
+    lightmap    $lightmap
+}
+
+// hazard-strips1, hazard-strips1-ed and bluetex4-danger are all identical to each other...
+TechDemo/trims/hazard-strips1
+{
+    diffusemap  Textures/TechDemo/trims/bluetex4-danger_diff.png
+    normalmap   Textures/TechDemo/trims/bluetex4-danger_norm.png
+    specularmap Textures/TechDemo/trims/bluetex4-danger_spec.png
+    lightmap    $lightmap
+}
+
+// hazard-strips1, hazard-strips1-ed and bluetex4-danger are all identical to each other...
+TechDemo/trims/hazard-strips1-ed
+{
+    diffusemap  Textures/TechDemo/trims/bluetex4-danger_diff.png
+    normalmap   Textures/TechDemo/trims/bluetex4-danger_norm.png
+    specularmap Textures/TechDemo/trims/bluetex4-danger_spec.png
+    lightmap    $lightmap
+}

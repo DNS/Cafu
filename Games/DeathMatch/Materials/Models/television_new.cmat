@@ -1,0 +1,25 @@
+Models/TechDemo/ldisplay/ldisplay_1
+{
+    diffusemap  Models/Static/ldisplay_1_diff.png
+
+    twoSided
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/TechDemo/ldisplay/ldisplay_2
+{
+    diffusemap  Models/Static/ldisplay_2_diff.png
+
+    twoSided
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}

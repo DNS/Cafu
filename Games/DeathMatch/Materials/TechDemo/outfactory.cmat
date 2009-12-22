@@ -1,0 +1,19 @@
+// ****************************************************************
+// *** The textures used in the materials below are by Charles. ***
+// ****************************************************************
+
+TechDemo/outfactory/recycfloor1_1_fin
+{
+    diffusemap  Textures/TechDemo/outfactory/recycfloor1_1_fin_diff.png
+    normalmap   Textures/TechDemo/outfactory/recycfloor1_1_fin_norm.png
+    specularmap Textures/TechDemo/outfactory/recycfloor1_1_fin_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/outfactory/corrugated-1
+{
+    diffusemap  Textures/TechDemo/outfactory/corrugated-1_diff.png
+    normalmap   Textures/TechDemo/outfactory/corrugated-1_norm.png
+    specularmap Textures/TechDemo/outfactory/corrugated-1_spec.png
+    lightmap    $lightmap
+}

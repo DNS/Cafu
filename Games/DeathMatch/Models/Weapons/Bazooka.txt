@@ -1,0 +1,42 @@
+[===================================================]
+[Bazooka -Rocket Launcher Replacement- for Half Life]
+[===================================================]
+[INFO]
+
+Model Name              : Bazooka
+
+Installation 		: Unzip the files as following.
+v_rpg.mdl, p_rpg.mdl, w_rpg.mdl  ..\half-life\valve\models\
+
+Author                  : David "DEfusion" Spurr
+
+Email Address           : dave@daspurr.sofnet.co.uk
+			  or 
+			  DEfusion@planetquake.com
+
+Web Page URL	     	: http://www.daspurr.freeserve.co.uk/
+
+Time taken		: ?? (can't remember) hours
+Date			: 20th November 1999
+
+v_crowbar Polygons	: 452 (890 including player arms)
+w_crowbar Polygons	: 174
+p_crowbar Polygons	: 174 
+
+[===============================================================]
+[Description]
+
+  This is my third attempt at modelling for any game and my second ever weapon.
+
+  It is a Bazooka, built from scratch, the shape is based roughly from the shape of the one from Kingpin and seen as I couldn't find any information on the internet (I never knew finding for information about Bazooka's or Rocket Launchers online would be so hard) so the textures and the most of it I made up myself.
+
+  I have animated all the animations for the View weapon myself from scratch, my only problem is with the reload animation as it doesn't look quite as I wanted it, and I couldn't get it to look like I wanted either...
+
+  Also the texture colours may be slightly off, as I'm colourblind and once I'd completed the texture I was told what I thought was Green, was actually Grey (I did try to change it, but I think changing it to 8-Bit made the Green more Greyish- but I'm not sure)
+
+
+[================================================================]
+[Legal Info]
+
+   Please do not use this model for purposes other than as a player-model (ie. for conversions, whatever) or alter the model and textures without writtern permission of me.
+   Do not distribute the zip file without all the files there and fully intact.

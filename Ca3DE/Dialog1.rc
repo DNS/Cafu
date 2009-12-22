@@ -1,0 +1,53 @@
+#include <windows.h>
+#include "Dialog1.h"
+
+
+
+MainDialog DIALOG DISCARDABLE 207, 46, 287, 329
+STYLE DS_MODALFRAME | DS_CENTER | WS_CAPTION | WS_VISIBLE | WS_POPUPWINDOW
+CAPTION "Ca3D-Engine"
+FONT 8, "Helv"
+
+BEGIN
+    CONTROL "Welcome!\nIn most cases, you can leave these settings as they are and just press the OK button.\nFor further information or help, please refer to the user manual.", DLG1_WELCOME, "STATIC", SS_LEFT | WS_CHILD | WS_VISIBLE, 5, 5, 320, 25
+
+    CONTROL "Please select a runmode",                                                           DLG1_RUNMODE,              "BUTTON",   BS_GROUPBOX | WS_CHILD | WS_VISIBLE, 5, 35, 276, 50
+    CONTROL "Client only",                                                                       DLG1_RM_CLIENTONLY,        "BUTTON",   BS_AUTORADIOBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 15, 47, 260, 10
+    CONTROL "Server only",                                                                       DLG1_RM_SERVERONLY,        "BUTTON",   BS_AUTORADIOBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 15, 58, 260, 10
+    CONTROL "Both Client and Server (for single player mode, client joins server on localhost)", DLG1_RM_CLIENTANDSERVER,   "BUTTON",   BS_AUTORADIOBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 15, 69, 260, 10
+
+    CONTROL "Client options",                                                                    DLG1_CL_OPTIONS,           "BUTTON",   BS_GROUPBOX | WS_CHILD | WS_VISIBLE, 5, 90, 276, 128
+    CONTROL "DeathMatch player name",                                                            DLG1_CL_PLAYERNAME,        "STATIC",   SS_LEFT | WS_CHILD | WS_VISIBLE, 10, 102, 85, 10
+    CONTROL "",                                                                                  DLG1_CL_PLAYERNAME_IN,     "EDIT",     ES_LEFT | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 100, 100, 130, 12
+    CONTROL "Configure",                                                                         DLG1_CL_CONFIGURE,         "BUTTON",   BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 234, 100, 40, 12
+    CONTROL "DeathMatch model name",                                                             DLG1_CL_MODELNAME,         "STATIC",   SS_LEFT | WS_CHILD | WS_VISIBLE, 10, 116, 85, 10
+    CONTROL "",                                                                                  DLG1_CL_MODELNAME_IN,      "COMBOBOX", CBS_DROPDOWNLIST | CBS_SORT | CBS_HASSTRINGS | WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_TABSTOP, 100, 114, 175, 100
+    CONTROL "Client port number",                                                                DLG1_CL_PORT,              "STATIC",   SS_LEFT | WS_CHILD | WS_VISIBLE, 10, 130, 85, 10
+    CONTROL "",                                                                                  DLG1_CL_PORT_IN,           "EDIT",     ES_LEFT | ES_NUMBER | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 100, 128, 40, 12
+    CONTROL "Remote hostname or IP",                                                             DLG1_CL_SV_NAME,           "STATIC",   SS_LEFT | WS_CHILD | WS_VISIBLE, 10, 144, 85, 10
+    CONTROL "",                                                                                  DLG1_CL_SV_NAME_IN,        "EDIT",     ES_LEFT | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 100, 142, 174, 12
+    CONTROL "Remote port number",                                                                DLG1_CL_SV_PORT,           "STATIC",   SS_LEFT | WS_CHILD | WS_VISIBLE, 10, 158, 85, 10
+    CONTROL "",                                                                                  DLG1_CL_SV_PORT_IN,        "EDIT",     ES_LEFT | ES_NUMBER | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 100, 156, 40, 12
+    CONTROL "Get Sv Info",                                                                       DLG1_CL_GETSVINFO,         "BUTTON",   BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 145, 156, 40, 12
+    CONTROL "Ping Server",                                                                       DLG1_CL_PINGSV,            "BUTTON",   BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 190, 156, 40, 12
+    CONTROL "Send NOP",                                                                          DLG1_CL_SENDNOP,           "BUTTON",   BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 234, 156, 40, 12
+    CONTROL "Display resolution",                                                                DLG1_CL_DISPLAY_RES,       "STATIC",   SS_LEFT | WS_CHILD | WS_VISIBLE, 10, 172, 85, 10
+    CONTROL "",                                                                                  DLG1_CL_DISPLAY_RES_IN,    "COMBOBOX", CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_TABSTOP, 100, 170, 175, 100
+    CONTROL "Display color depth",                                                               DLG1_CL_DISPLAY_BPP,       "STATIC",   SS_LEFT | WS_CHILD | WS_VISIBLE, 10, 186, 85, 10
+    CONTROL "",                                                                                  DLG1_CL_DISPLAY_BPP_IN,    "COMBOBOX", CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_TABSTOP, 100, 184, 175, 100
+    CONTROL "Texture detail",                                                                    DLG1_CL_TEXTURE_DETAIL,    "STATIC",   SS_LEFT | WS_CHILD | WS_VISIBLE, 10, 200, 85, 10
+    CONTROL "",                                                                                  DLG1_CL_TEXTURE_DETAIL_IN, "COMBOBOX", CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_TABSTOP, 100, 198, 175, 100
+
+    CONTROL "Server options",                                                                    DLG1_SV_OPTIONS,           "BUTTON",   BS_GROUPBOX | WS_CHILD | WS_VISIBLE, 5, 223, 276, 57
+    CONTROL "Game",                                                                              DLG1_SV_GAME,              "STATIC",   SS_LEFT | WS_CHILD | WS_VISIBLE, 10, 235, 85, 10
+    CONTROL "",                                                                                  DLG1_SV_GAME_IN,           "COMBOBOX", CBS_DROPDOWNLIST | CBS_SORT | CBS_HASSTRINGS | WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_TABSTOP, 100, 233, 175, 100
+    CONTROL "World name",                                                                        DLG1_SV_WORLDNAME,         "STATIC",   SS_LEFT | WS_CHILD | WS_VISIBLE, 10, 249, 85, 10
+    CONTROL "",                                                                                  DLG1_SV_WORLDNAME_IN,      "COMBOBOX", CBS_DROPDOWNLIST | CBS_SORT | CBS_HASSTRINGS | WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_TABSTOP, 100, 247, 175, 100
+    CONTROL "Server port number",                                                                DLG1_SV_PORT,              "STATIC",   SS_LEFT | WS_CHILD | WS_VISIBLE, 10, 263, 85, 10
+    CONTROL "",                                                                                  DLG1_SV_PORT_IN,           "EDIT",     ES_LEFT | ES_NUMBER | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 100, 261, 40, 12
+
+    CONTROL "Status -- OK",                                                                      DLG1_STATUSBAR,            "STATIC",   SS_CENTER | SS_SUNKEN | WS_CHILD | WS_VISIBLE, 5, 288, 276, 10
+
+    CONTROL "OK",                                                                                IDOK,                      "BUTTON",   BS_DEFPUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 75, 307, 40, 14
+    CONTROL "Cancel",                                                                            IDCANCEL,                  "BUTTON",   BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 172, 307, 40, 14
+END

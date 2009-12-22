@@ -1,0 +1,10 @@
+import os, sys
+
+Import('env', 'buildMode')
+
+gameEnv = env.Clone()
+
+if sys.platform=="win32":
+    gameEnv.Append(LIBS=Split("MatSys cfsLib ClipSys cfs_png cfs_jpeg z lua"))
+
+gameEnv.SharedLibrary("VSWM", Glob("*.cpp")+Split("Libs/IntMatrix.cpp Libs/LookupTables.cpp"))

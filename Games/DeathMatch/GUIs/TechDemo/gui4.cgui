@@ -1,0 +1,71 @@
+ElevatorMalfunctionGUI=gui:new("WindowT");
+gui:SetRootWindow(ElevatorMalfunctionGUI);
+
+function ElevatorMalfunctionGUI:OnInit()
+    self:set("rect", 0, 0, 640, 480);
+    self:set("backMaterial", "Gui/Background1");
+    self:set("backColor", 1, 0, 0, 1);
+
+    gui:activate(false);
+    gui:setInteractive(false);
+    gui:showMouse(false);
+end
+
+
+Heading=gui:new("WindowT");
+ElevatorMalfunctionGUI:AddChild(Heading);
+
+function Heading:OnInit()
+    self:set("rect", 43, 45, 558, 28);
+    self:set("backColor", 1, 1, 1, 0);      -- Set alpha value to zero!
+    self:set("text", "System Failure #473 at 0xE782CF36");
+    self:set("textScale", 0.6);
+    self:set("textColor", 1, 0, 0, 1);
+end
+
+
+TextArea=gui:new("WindowT");
+ElevatorMalfunctionGUI:AddChild(TextArea);
+
+function TextArea:OnInit()
+    self:set("rect", 43, 91, 558, 324);
+    self:set("backColor", 1, 1, 1, 0);      -- Set alpha value to zero!
+    self:set("text", "Service elevator malfunction detected.\nBasement reactor core access\nmay be compromised.\n\n"..
+             "\n\n\n"..
+             "Please contact administration immediately.");
+    self:set("textScale", 0.55);
+    self:set("textColor", 1, 1, 0, 1);
+end
+
+
+TextArea2=gui:new("WindowT");
+ElevatorMalfunctionGUI:AddChild(TextArea2);
+
+function TextArea2:OnInit()
+    self:set("rect", 43, 91, 558, 324);
+    self:set("backColor", 1, 1, 1, 0);      -- Set alpha value to zero!
+    self:set("text", "\n\n\n\n"..
+             "Beware! Stay clear of elevator shaft!\nDanger of deadly fall!");
+    self:set("textScale", 0.55);
+    self:set("textColor", 1, 1, 0, 1);
+end
+
+function TextArea2:OnFrame()
+    self:set("textColor.b", (math.sin( self:get("time")*8 )+1) / 2);
+end
+
+
+--[[
+EngineLogo=gui:new("WindowT");
+ElevatorMalfunctionGUI:AddChild(EngineLogo);
+
+function EngineLogo:OnInit()
+    self:set("rect", 480, 350, 128, 64);
+    self:set("backMaterial", "Gui/SmallLogo");
+    self:set("backColor", 1, 1, 1, 1);
+end
+
+function EngineLogo:OnFrame()
+    self:set("rotAngle", self:get("time")*50);
+end
+--]]

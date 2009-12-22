@@ -1,0 +1,84 @@
+// In SpeedTree: 198 branch polygons, 728 leaf polygons, 926 polygons total
+
+
+// ********
+//  Global
+// ********
+
+RandomSeed  0
+Size        32.31
+SizeV       4.0
+BarkTexName Plants/Trees/EnglishOakBark
+
+
+// **********
+//  Branches
+// **********
+
+// Trunk
+DescribeBranchLevel 0
+
+Length0       0.75
+Length1       0.0                             // Fuer den Stamm irrelevant
+LengthV       0.0
+LengthProfile Linear 0.0      // Fuer den Stamm irrelevant (muss aber 'Linear' sein)
+
+StartAngle0       90.0
+StartAngle1        0.0                        // Fuer den Stamm irrelevant
+StartAngleV        0.0
+StartAngleProfile Linear 0.0  // Fuer den Stamm irrelevant (muss aber 'Linear' sein)
+
+Radius0       0.05
+Radius1       0.0                             // Fuer den Stamm irrelevant
+RadiusV       0.005
+RadiusProfile Linear 0.0      // Fuer den Stamm irrelevant (muss aber 'Linear' sein)
+
+NrOfSegments            3
+CrossSectionsResolution 5
+AngleProfile_Segments   ConstantAvg 0.498
+RadiusProfile_Segments  Linear 0.0
+
+FirstChild   0.17
+LastChild    1.00
+NrOfChildren 20.0
+
+// Main branches
+DescribeBranchLevel 1
+
+Length0       0.10
+Length1       0.64
+LengthV       0.0
+LengthProfile Round 0.0
+
+StartAngle0       160.0
+StartAngle1        0.0
+StartAngleV        5.0
+StartAngleProfile LinearDroop 0.0
+
+Radius0       0.016
+Radius1       0.001
+RadiusV       0.0
+RadiusProfile Linear 0.0
+
+NrOfSegments            2
+CrossSectionsResolution 3
+AngleProfile_Segments   ConstantAvg 0.53
+RadiusProfile_Segments  Linear 0.0
+
+FirstChild   0.10
+LastChild    1.00
+NrOfChildren 180.0
+
+
+// ********
+//  Leaves
+// ********
+
+Distance0       0.00
+Distance1       0.15
+DistanceV       0.07
+DistanceProfile Round 0.0
+
+LeafTexName Plants/Trees/EnglishOakLeaves_LD_1
+
+LeafSize 0.12

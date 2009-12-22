@@ -1,0 +1,67 @@
+/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
+Beretta 92FS (modified) for Half-Life (Glock replacement)
+/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
+
+ -author: TriggaHappy (Tim van Dijk)
+
+ -e-mail: triggahappy@gmx.net (or tim.dijk@wxs.nl)
+
+ -homepage: http://wreckless.webjump.com (not HL related, i made it in my "need for speed
+  period")
+
+ -release date: 29-04-2000 (or 04-29-2000 in that stupid American system :)
+
+ -included files: 
+
+   -v_9mmhandgun.mdl (860 polys) - the model you see in front of you when holding the weapon
+  
+   -p_9mmhandgun.mdl (133 polys) - the model you see in multiplayer when other people have it in their 
+                      hands
+  
+   -w_9mmhandgun.mdl (133 polys) - the model you see lying on the ground (so pick it up!)     
+  
+   -320hud1.spr - sprite file, replacing the glock selection portraits on resolutions lower 
+                 than 640X480 (shame on you!)         
+  
+   -640hud1.spr \
+   -640hud1.spr / sprite files, replacing the glock selection portraits on resolutions of 
+                 640X480 and higher
+  
+   -crosshairs.spr - sprite file, replacing the glock crosshair
+  
+   -beretta_readme.txt - you're looking at it
+
+ -programs used:
+
+  -3D Studio MAX R3.1
+  -Milkshape 3D by Mete Ciragan of chUmbaLum sOft (http://www.swissquake.ch/chumbalum-soft/)
+  -Paint Shop Pro 6
+  -Sprite Wizard 1.1 from Wavelength (http://www.planethalflife.com/wavelength/)
+
+ -thanks to:
+
+  -the guys at Cold Fusion (http://www.planethalflife.com/coldfusion/), for supplying those great tutorials
+  -GriffonUK
+
+
+This weapon was originally meant to go in a single player mod called Half-Life:Recoil,
+which was going to be a sequel to the Half-Life story. Sadly, that mod never became reality.
+I was almost finished with the Beretta and since it doesn't really require any custom code, 
+i decided to release it as a Glock replacement. The only problem is that the beretta should
+have 15 rounds a clip instead of 17.
+
+Note: i didn't release any custom sounds, because that is not my field of expertise, but the
+normal Glock sounds work fine too. You can also use the sounds from the beretta in the 
+"Action Half-Life" mod. I'll keep that to your discretion, because i don't want trouble with
+the AHL team.
+
+Installation:
+Just unzip the files in the archive into your "Half-Life" folder, making sure that the "use 
+folder names" option is checked. All files will automatically be placed in the correct sub-
+folders. This readme file will be placed in the "Half-Life" folder.
+
+Feel free to contact me with comments (positive or negative). You can also contact me if you 
+are interested in hiring me as a (weapons) modeler for a mod.
+
+Enjoy!!!
+

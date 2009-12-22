@@ -1,0 +1,33 @@
+Alien Half Life Model by Oliver
+
+This is Giger's Alien, featured in one of the scariest, most thrilling films ever made
+
+Info:
+
+Files included:
+Alien.mdl - The alien model file
+Alien.bmp - The picture you see when selecting the model in the game
+Alien.txt - This text file
+Alien_logo.bmp - A spraypaint logo for use in the game
+
+Place Alien.mdl, Alien.bmp and Alien.txt in a new folder called Alien, in valve\models\player folder in your
+Half Life directory. To use the spraypaint place in the logos folder inside your Half Life directory.
+(The logo works best with darker colours, eg dark blue, black)
+
+Model by Oliver (me)
+Original Skins by Rebellion, taken from Aliens Vs Predator
+and converted and optimized for half life by Oliver
+Hit box for the head has been lengthened to better fit elongated head
+
+#vertices:    404
+#triangles:   758
+#groups:      1
+#bones:       40
+#materials:   1
+#sgroups:     1 
+Texture Value:  66Kb
+
+
+(Copyright stuff)
+This is not an original design and is based on H.R Giger's Alien, as featured in the film Alien.
+Alien is Copyright of Twentieth Century Fox Film Corporation. 

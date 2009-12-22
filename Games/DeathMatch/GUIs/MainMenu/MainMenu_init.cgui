@@ -1,0 +1,1344 @@
+-- This is a Ca3D-Engine GUI script file, written by CaWE, the Ca3DE World Editor.
+-- You CAN edit this file manually, but note that CaWE may overwrite your changes.
+-- It is recommended that you place all your customizations like method overrides
+-- and effects into a separate .cgui file that calls dofile() for including this.
+
+
+-- Instantiation of all windows.
+-- *****************************
+
+MainMenu=gui:new("WindowT", "MainMenu");
+
+PulsatingBackImage=gui:new("WindowT", "PulsatingBackImage");
+
+NormalControls=gui:new("WindowT", "NormalControls");
+NormalControls.Headline=gui:new("WindowT", "Headline");
+NormalControls.ButtonNewGame=gui:new("WindowT", "ButtonNewGame");
+NormalControls.ButtonLoadGame=gui:new("WindowT", "ButtonLoadGame");
+NormalControls.ButtonSaveGame=gui:new("WindowT", "ButtonSaveGame");
+NormalControls.ButtonQuitCurrentGame=gui:new("WindowT", "ButtonQuitCurrentGame");
+NormalControls.ButtonReturnToGame=gui:new("WindowT", "ButtonReturnToGame");
+NormalControls.ButtonMultiplayer=gui:new("WindowT", "ButtonMultiplayer");
+NormalControls.ButtonOptions=gui:new("WindowT", "ButtonOptions");
+NormalControls.ButtonCredits=gui:new("WindowT", "ButtonCredits");
+NormalControls.ButtonQuit=gui:new("WindowT", "ButtonQuit");
+NormalControls.FPS=gui:new("WindowT", "FPS");
+
+NewGameDialog=gui:new("WindowT", "NewGameDialog");
+NewGameDialog.Frame=gui:new("WindowT", "Frame");
+NewGameDialog.Frame.MapList=gui:new("ListBoxT", "MapList");
+NewGameDialog.Frame.MapPreview=gui:new("WindowT", "MapPreview");
+NewGameDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
+NewGameDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
+
+MultiplayerContextMenu=gui:new("WindowT", "MultiplayerContextMenu");
+MultiplayerContextMenu.Frame=gui:new("WindowT", "Frame");
+MultiplayerContextMenu.Frame.JoinGame=gui:new("WindowT", "JoinGame");
+MultiplayerContextMenu.Frame.HostGame=gui:new("WindowT", "HostGame");
+
+OptionsContextMenu=gui:new("WindowT", "OptionsContextMenu");
+OptionsContextMenu.Frame=gui:new("WindowT", "Frame");
+OptionsContextMenu.Frame.Controls=gui:new("WindowT", "Controls");
+OptionsContextMenu.Frame.Player=gui:new("WindowT", "Player");
+OptionsContextMenu.Frame.Video=gui:new("WindowT", "Video");
+OptionsContextMenu.Frame.Audio=gui:new("WindowT", "Audio");
+
+JoinGameDialog=gui:new("WindowT", "JoinGameDialog");
+JoinGameDialog.Frame=gui:new("WindowT", "Frame");
+JoinGameDialog.Frame.PlayerNameText=gui:new("WindowT", "PlayerNameText");
+JoinGameDialog.Frame.PlayerNameEdit=gui:new("EditWindowT", "PlayerNameEdit");
+JoinGameDialog.Frame.ModelNameText=gui:new("WindowT", "ModelNameText");
+JoinGameDialog.Frame.ModelNameChoice=gui:new("ChoiceT", "ModelNameChoice");
+JoinGameDialog.Frame.RemoteHostText=gui:new("WindowT", "RemoteHostText");
+JoinGameDialog.Frame.RemoteHostEdit=gui:new("EditWindowT", "RemoteHostEdit");
+JoinGameDialog.Frame.RemotePortText=gui:new("WindowT", "RemotePortText");
+JoinGameDialog.Frame.RemotePortEdit=gui:new("EditWindowT", "RemotePortEdit");
+JoinGameDialog.Frame.ModelPreview=gui:new("ModelWindowT", "ModelPreview");
+JoinGameDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
+JoinGameDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
+
+HostGameDialog=gui:new("WindowT", "HostGameDialog");
+HostGameDialog.Frame=gui:new("WindowT", "Frame");
+HostGameDialog.Frame.WorldNameText=gui:new("WindowT", "WorldNameText");
+HostGameDialog.Frame.WorldNameChoice=gui:new("ChoiceT", "WorldNameChoice");
+HostGameDialog.Frame.LocalSvPortText=gui:new("WindowT", "LocalSvPortText");
+HostGameDialog.Frame.LocalSvPortEdit=gui:new("EditWindowT", "LocalSvPortEdit");
+HostGameDialog.Frame.ListenSvText=gui:new("WindowT", "ListenSvText");
+HostGameDialog.Frame.ListenSvChoice=gui:new("ChoiceT", "ListenSvChoice");
+HostGameDialog.Frame.PlayerNameText=gui:new("WindowT", "PlayerNameText");
+HostGameDialog.Frame.PlayerNameEdit=gui:new("EditWindowT", "PlayerNameEdit");
+HostGameDialog.Frame.ModelNameText=gui:new("WindowT", "ModelNameText");
+HostGameDialog.Frame.ModelNameChoice=gui:new("ChoiceT", "ModelNameChoice");
+HostGameDialog.Frame.MapPreview=gui:new("WindowT", "MapPreview");
+HostGameDialog.Frame.ModelPreview=gui:new("ModelWindowT", "ModelPreview");
+HostGameDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
+HostGameDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
+
+InitServerInfoPanel=gui:new("WindowT", "InitServerInfoPanel");
+InitServerInfoPanel.Frame=gui:new("WindowT", "Frame");
+
+InputOptionsDialog=gui:new("WindowT", "InputOptionsDialog");
+InputOptionsDialog.Frame=gui:new("WindowT", "Frame");
+InputOptionsDialog.Frame.ReverseMouseYAxisText=gui:new("WindowT", "ReverseMouseYAxisText");
+InputOptionsDialog.Frame.ReverseMouseYAxisChoice=gui:new("ChoiceT", "ReverseMouseYAxisChoice");
+InputOptionsDialog.Frame.InfoKeyboardText=gui:new("WindowT", "InfoKeyboardText");
+InputOptionsDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
+InputOptionsDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
+
+PlayerOptionsDialog=gui:new("WindowT", "PlayerOptionsDialog");
+PlayerOptionsDialog.Frame=gui:new("WindowT", "Frame");
+PlayerOptionsDialog.Frame.PlayerNameText=gui:new("WindowT", "PlayerNameText");
+PlayerOptionsDialog.Frame.PlayerNameEdit=gui:new("EditWindowT", "PlayerNameEdit");
+PlayerOptionsDialog.Frame.ModelNameText=gui:new("WindowT", "ModelNameText");
+PlayerOptionsDialog.Frame.ModelNameChoice=gui:new("ChoiceT", "ModelNameChoice");
+PlayerOptionsDialog.Frame.ModelPreview=gui:new("ModelWindowT", "ModelPreview");
+PlayerOptionsDialog.Frame.ShowHUDText=gui:new("WindowT", "ShowHUDText");
+PlayerOptionsDialog.Frame.ShowHUDChoice=gui:new("ChoiceT", "ShowHUDChoice");
+PlayerOptionsDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
+PlayerOptionsDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
+
+VideoOptionsDialog=gui:new("WindowT", "VideoOptionsDialog");
+VideoOptionsDialog.Frame=gui:new("WindowT", "Frame");
+VideoOptionsDialog.Frame.ScreenResText=gui:new("WindowT", "ScreenResText");
+VideoOptionsDialog.Frame.ScreenResChoice=gui:new("ChoiceT", "ScreenResChoice");
+VideoOptionsDialog.Frame.FullScreenText=gui:new("WindowT", "FullScreenText");
+VideoOptionsDialog.Frame.FullScreenChoice=gui:new("ChoiceT", "FullScreenChoice");
+VideoOptionsDialog.Frame.TextureDetailText=gui:new("WindowT", "TextureDetailText");
+VideoOptionsDialog.Frame.TextureDetailChoice=gui:new("ChoiceT", "TextureDetailChoice");
+VideoOptionsDialog.Frame.InfoRestartText=gui:new("WindowT", "InfoRestartText");
+VideoOptionsDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
+VideoOptionsDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
+
+AudioOptionsDialog=gui:new("WindowT", "AudioOptionsDialog");
+AudioOptionsDialog.Frame=gui:new("WindowT", "Frame");
+AudioOptionsDialog.Frame.VolumeText=gui:new("WindowT", "VolumeText");
+AudioOptionsDialog.Frame.VolumeChoice=gui:new("ChoiceT", "VolumeChoice");
+AudioOptionsDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
+AudioOptionsDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
+
+CreditsDialog=gui:new("WindowT", "CreditsDialog");
+CreditsDialog.Frame=gui:new("WindowT", "Frame");
+CreditsDialog.Frame.CreditsText=gui:new("WindowT", "CreditsText");
+CreditsDialog.Frame.ExtLibsText=gui:new("WindowT", "ExtLibsText");
+CreditsDialog.Frame.CopyrightText=gui:new("WindowT", "CopyrightText");
+CreditsDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
+CreditsDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
+
+ReallyQuitDialog=gui:new("WindowT", "ReallyQuitDialog");
+ReallyQuitDialog.QuitHeadline=gui:new("WindowT", "QuitHeadline");
+ReallyQuitDialog.ReallyQuit=gui:new("WindowT", "ReallyQuit");
+ReallyQuitDialog.ReallyQuit.ButtonYes=gui:new("WindowT", "ButtonYes");
+ReallyQuitDialog.ReallyQuit.ButtonNo=gui:new("WindowT", "ButtonNo");
+
+
+-- Set the GUIs root window.
+-- *************************
+
+gui:SetRootWindow(MainMenu);
+
+
+-- Setup the window hierarchy.
+-- ***************************
+
+MainMenu:AddChild(PulsatingBackImage);
+
+MainMenu:AddChild(NormalControls);
+NormalControls:AddChild(NormalControls.Headline);
+NormalControls:AddChild(NormalControls.ButtonNewGame);
+NormalControls:AddChild(NormalControls.ButtonLoadGame);
+NormalControls:AddChild(NormalControls.ButtonSaveGame);
+NormalControls:AddChild(NormalControls.ButtonQuitCurrentGame);
+NormalControls:AddChild(NormalControls.ButtonReturnToGame);
+NormalControls:AddChild(NormalControls.ButtonMultiplayer);
+NormalControls:AddChild(NormalControls.ButtonOptions);
+NormalControls:AddChild(NormalControls.ButtonCredits);
+NormalControls:AddChild(NormalControls.ButtonQuit);
+NormalControls:AddChild(NormalControls.FPS);
+
+MainMenu:AddChild(NewGameDialog);
+NewGameDialog:AddChild(NewGameDialog.Frame);
+NewGameDialog.Frame:AddChild(NewGameDialog.Frame.MapList);
+NewGameDialog.Frame:AddChild(NewGameDialog.Frame.MapPreview);
+NewGameDialog.Frame:AddChild(NewGameDialog.Frame.ButtonOK);
+NewGameDialog.Frame:AddChild(NewGameDialog.Frame.ButtonCancel);
+
+MainMenu:AddChild(MultiplayerContextMenu);
+MultiplayerContextMenu:AddChild(MultiplayerContextMenu.Frame);
+MultiplayerContextMenu.Frame:AddChild(MultiplayerContextMenu.Frame.JoinGame);
+MultiplayerContextMenu.Frame:AddChild(MultiplayerContextMenu.Frame.HostGame);
+
+MainMenu:AddChild(OptionsContextMenu);
+OptionsContextMenu:AddChild(OptionsContextMenu.Frame);
+OptionsContextMenu.Frame:AddChild(OptionsContextMenu.Frame.Controls);
+OptionsContextMenu.Frame:AddChild(OptionsContextMenu.Frame.Player);
+OptionsContextMenu.Frame:AddChild(OptionsContextMenu.Frame.Video);
+OptionsContextMenu.Frame:AddChild(OptionsContextMenu.Frame.Audio);
+
+MainMenu:AddChild(JoinGameDialog);
+JoinGameDialog:AddChild(JoinGameDialog.Frame);
+JoinGameDialog.Frame:AddChild(JoinGameDialog.Frame.PlayerNameText);
+JoinGameDialog.Frame:AddChild(JoinGameDialog.Frame.PlayerNameEdit);
+JoinGameDialog.Frame:AddChild(JoinGameDialog.Frame.ModelNameText);
+JoinGameDialog.Frame:AddChild(JoinGameDialog.Frame.ModelNameChoice);
+JoinGameDialog.Frame:AddChild(JoinGameDialog.Frame.RemoteHostText);
+JoinGameDialog.Frame:AddChild(JoinGameDialog.Frame.RemoteHostEdit);
+JoinGameDialog.Frame:AddChild(JoinGameDialog.Frame.RemotePortText);
+JoinGameDialog.Frame:AddChild(JoinGameDialog.Frame.RemotePortEdit);
+JoinGameDialog.Frame:AddChild(JoinGameDialog.Frame.ModelPreview);
+JoinGameDialog.Frame:AddChild(JoinGameDialog.Frame.ButtonOK);
+JoinGameDialog.Frame:AddChild(JoinGameDialog.Frame.ButtonCancel);
+
+MainMenu:AddChild(HostGameDialog);
+HostGameDialog:AddChild(HostGameDialog.Frame);
+HostGameDialog.Frame:AddChild(HostGameDialog.Frame.WorldNameText);
+HostGameDialog.Frame:AddChild(HostGameDialog.Frame.WorldNameChoice);
+HostGameDialog.Frame:AddChild(HostGameDialog.Frame.LocalSvPortText);
+HostGameDialog.Frame:AddChild(HostGameDialog.Frame.LocalSvPortEdit);
+HostGameDialog.Frame:AddChild(HostGameDialog.Frame.ListenSvText);
+HostGameDialog.Frame:AddChild(HostGameDialog.Frame.ListenSvChoice);
+HostGameDialog.Frame:AddChild(HostGameDialog.Frame.PlayerNameText);
+HostGameDialog.Frame:AddChild(HostGameDialog.Frame.PlayerNameEdit);
+HostGameDialog.Frame:AddChild(HostGameDialog.Frame.ModelNameText);
+HostGameDialog.Frame:AddChild(HostGameDialog.Frame.ModelNameChoice);
+HostGameDialog.Frame:AddChild(HostGameDialog.Frame.MapPreview);
+HostGameDialog.Frame:AddChild(HostGameDialog.Frame.ModelPreview);
+HostGameDialog.Frame:AddChild(HostGameDialog.Frame.ButtonOK);
+HostGameDialog.Frame:AddChild(HostGameDialog.Frame.ButtonCancel);
+
+MainMenu:AddChild(InitServerInfoPanel);
+InitServerInfoPanel:AddChild(InitServerInfoPanel.Frame);
+
+MainMenu:AddChild(InputOptionsDialog);
+InputOptionsDialog:AddChild(InputOptionsDialog.Frame);
+InputOptionsDialog.Frame:AddChild(InputOptionsDialog.Frame.ReverseMouseYAxisText);
+InputOptionsDialog.Frame:AddChild(InputOptionsDialog.Frame.ReverseMouseYAxisChoice);
+InputOptionsDialog.Frame:AddChild(InputOptionsDialog.Frame.InfoKeyboardText);
+InputOptionsDialog.Frame:AddChild(InputOptionsDialog.Frame.ButtonOK);
+InputOptionsDialog.Frame:AddChild(InputOptionsDialog.Frame.ButtonCancel);
+
+MainMenu:AddChild(PlayerOptionsDialog);
+PlayerOptionsDialog:AddChild(PlayerOptionsDialog.Frame);
+PlayerOptionsDialog.Frame:AddChild(PlayerOptionsDialog.Frame.PlayerNameText);
+PlayerOptionsDialog.Frame:AddChild(PlayerOptionsDialog.Frame.PlayerNameEdit);
+PlayerOptionsDialog.Frame:AddChild(PlayerOptionsDialog.Frame.ModelNameText);
+PlayerOptionsDialog.Frame:AddChild(PlayerOptionsDialog.Frame.ModelNameChoice);
+PlayerOptionsDialog.Frame:AddChild(PlayerOptionsDialog.Frame.ModelPreview);
+PlayerOptionsDialog.Frame:AddChild(PlayerOptionsDialog.Frame.ShowHUDText);
+PlayerOptionsDialog.Frame:AddChild(PlayerOptionsDialog.Frame.ShowHUDChoice);
+PlayerOptionsDialog.Frame:AddChild(PlayerOptionsDialog.Frame.ButtonOK);
+PlayerOptionsDialog.Frame:AddChild(PlayerOptionsDialog.Frame.ButtonCancel);
+
+MainMenu:AddChild(VideoOptionsDialog);
+VideoOptionsDialog:AddChild(VideoOptionsDialog.Frame);
+VideoOptionsDialog.Frame:AddChild(VideoOptionsDialog.Frame.ScreenResText);
+VideoOptionsDialog.Frame:AddChild(VideoOptionsDialog.Frame.ScreenResChoice);
+VideoOptionsDialog.Frame:AddChild(VideoOptionsDialog.Frame.FullScreenText);
+VideoOptionsDialog.Frame:AddChild(VideoOptionsDialog.Frame.FullScreenChoice);
+VideoOptionsDialog.Frame:AddChild(VideoOptionsDialog.Frame.TextureDetailText);
+VideoOptionsDialog.Frame:AddChild(VideoOptionsDialog.Frame.TextureDetailChoice);
+VideoOptionsDialog.Frame:AddChild(VideoOptionsDialog.Frame.InfoRestartText);
+VideoOptionsDialog.Frame:AddChild(VideoOptionsDialog.Frame.ButtonOK);
+VideoOptionsDialog.Frame:AddChild(VideoOptionsDialog.Frame.ButtonCancel);
+
+MainMenu:AddChild(AudioOptionsDialog);
+AudioOptionsDialog:AddChild(AudioOptionsDialog.Frame);
+AudioOptionsDialog.Frame:AddChild(AudioOptionsDialog.Frame.VolumeText);
+AudioOptionsDialog.Frame:AddChild(AudioOptionsDialog.Frame.VolumeChoice);
+AudioOptionsDialog.Frame:AddChild(AudioOptionsDialog.Frame.ButtonOK);
+AudioOptionsDialog.Frame:AddChild(AudioOptionsDialog.Frame.ButtonCancel);
+
+MainMenu:AddChild(CreditsDialog);
+CreditsDialog:AddChild(CreditsDialog.Frame);
+CreditsDialog.Frame:AddChild(CreditsDialog.Frame.CreditsText);
+CreditsDialog.Frame:AddChild(CreditsDialog.Frame.ExtLibsText);
+CreditsDialog.Frame:AddChild(CreditsDialog.Frame.CopyrightText);
+CreditsDialog.Frame:AddChild(CreditsDialog.Frame.ButtonOK);
+CreditsDialog.Frame:AddChild(CreditsDialog.Frame.ButtonCancel);
+
+MainMenu:AddChild(ReallyQuitDialog);
+ReallyQuitDialog:AddChild(ReallyQuitDialog.QuitHeadline);
+ReallyQuitDialog:AddChild(ReallyQuitDialog.ReallyQuit);
+ReallyQuitDialog.ReallyQuit:AddChild(ReallyQuitDialog.ReallyQuit.ButtonYes);
+ReallyQuitDialog.ReallyQuit:AddChild(ReallyQuitDialog.ReallyQuit.ButtonNo);
+
+
+-- Initialization of the window contents ("constructor code").
+-- ***********************************************************
+
+function MainMenu:OnInit()
+    self:set("backColor", 1, 1, 0, 1);
+
+    gui:activate      (true);
+    gui:setInteractive(true);
+    gui:showMouse     (true);
+    gui:setFocus      (NormalControls);
+end
+
+function PulsatingBackImage:OnInit()
+    self:set("rect", 0, 0, 640, 480);
+    self:set("backMaterial", "Gui/MainMenu/Background1");
+    self:set("backColor", 1, 1, 1, 1);
+end
+
+function NormalControls:OnInit()
+    self:set("rect", 0, 0, 640, 480);
+    self:set("backColor", 0, 0, 0, 0.2);
+end
+
+function NormalControls.Headline:OnInit()
+    self:set("rect", 0, 10, 640, 45);
+    self:set("backColor", 0, 0, 0, 0.5);
+    self:set("font", "Fonts/Impact");
+    self:set("text", "Ca3D-Engine");
+    self:set("textScale", 0.8);
+    self:set("textColor", 0.466667, 0.00784314, 0, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function NormalControls.ButtonNewGame:OnInit()
+    self:set("rect", 30, 420, 130, 40);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "New Game");
+    self:set("textScale", 0.4);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function NormalControls.ButtonLoadGame:OnInit()
+    self:set("rect", 190, 420, 130, 40);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "Load Game");
+    self:set("textScale", 0.4);
+    self:set("textColor", 0.36, 0.36, 0.36, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function NormalControls.ButtonSaveGame:OnInit()
+    self:set("rect", 30, 420, 130, 40);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "Save Game");
+    self:set("textScale", 0.4);
+    self:set("textColor", 0.36, 0.36, 0.36, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function NormalControls.ButtonQuitCurrentGame:OnInit()
+    self:set("rect", 30, 340, 130, 60);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "Quit Current\nGame");
+    self:set("textScale", 0.4);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function NormalControls.ButtonReturnToGame:OnInit()
+    self:set("rect", 30, 260, 130, 60);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "Return to\nGame");
+    self:set("textScale", 0.4);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function NormalControls.ButtonMultiplayer:OnInit()
+    self:set("rect", 350, 420, 130, 40);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "Multiplayer");
+    self:set("textScale", 0.4);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function NormalControls.ButtonOptions:OnInit()
+    self:set("rect", 520, 300, 90, 40);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "Options");
+    self:set("textScale", 0.4);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function NormalControls.ButtonCredits:OnInit()
+    self:set("rect", 520, 360, 90, 40);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "Credits");
+    self:set("textScale", 0.4);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function NormalControls.ButtonQuit:OnInit()
+    self:set("rect", 520, 420, 90, 40);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "Quit");
+    self:set("textScale", 0.4);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function NormalControls.FPS:OnInit()
+    self:set("show", false);
+    self:set("rect", 510, 20, 100, 45);
+    self:set("borderWidth", 3);
+    self:set("font", "Fonts/Impact");
+    self:set("text", "FPS\n");
+    self:set("textScale", 0.3);
+end
+
+function NewGameDialog:OnInit()
+    self:set("show", false);
+    self:set("rect", 0, 0, 640, 480);
+    self:set("backColor", 0, 0, 0, 0);
+end
+
+function NewGameDialog.Frame:OnInit()
+    self:set("rect", 120, 90, 380, 300);
+    self:set("backColor", 0, 0.25, 0.7, 0.4);
+    self:set("borderWidth", 0.7);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("font", "Fonts/Impact");
+    self:set("text", "Choose a map:");
+    self:set("textScale", 0.5);
+    self:set("textColor", 0.51, 0.8, 1, 1);
+    self:set("textAlignHor", 2);
+end
+
+function NewGameDialog.Frame.MapList:OnInit()
+    self:set("rect", 10, 40, 175, 250);
+    self:set("backColor", 0, 0, 0, 0);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("textScale", 0.3);
+    self:SetOddRowBgColor(0, 0, 0, 0.3);
+    self:SetEvenRowBgColor(0, 0, 0, 0.4);
+    self:SetRowTextColor(0.5, 0.7, 1, 1);
+    self:SetSelRowBgColor(1, 1, 1, 0.4);
+    self:SetSelRowTextColor(0, 0.2, 0.5, 1);
+end
+
+function NewGameDialog.Frame.MapPreview:OnInit()
+    self:set("rect", 195, 40, 175, 175);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+end
+
+function NewGameDialog.Frame.ButtonOK:OnInit()
+    self:set("rect", 290, 260, 80, 30);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "Go!");
+    self:set("textScale", 0.4);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function NewGameDialog.Frame.ButtonCancel:OnInit()
+    self:set("rect", 357, 8, 13, 13);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.02, 0.36, 1, 1);
+    self:set("font", "Fonts/Impact");
+    self:set("text", "X");
+    self:set("textScale", 0.31);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 1);
+end
+
+function MultiplayerContextMenu:OnInit()
+    self:set("show", false);
+    self:set("rect", 0, 0, 640, 480);
+    self:set("backColor", 0, 0, 0, 0);
+end
+
+function MultiplayerContextMenu.Frame:OnInit()
+    self:set("rect", 330, 338, 150, 80);
+    self:set("backColor", 0, 0.25, 0.7, 0.4);
+    self:set("borderWidth", 0.7);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+end
+
+function MultiplayerContextMenu.Frame.JoinGame:OnInit()
+    self:set("rect", 10, 10, 130, 29);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", " Join Online Game");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignVer", 2);
+end
+
+function MultiplayerContextMenu.Frame.HostGame:OnInit()
+    self:set("rect", 10, 41, 130, 29);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", " Host Game Server");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignVer", 2);
+end
+
+function OptionsContextMenu:OnInit()
+    self:set("show", false);
+    self:set("rect", 0, 0, 640, 480);
+    self:set("backColor", 0, 0, 0, 0);
+end
+
+function OptionsContextMenu.Frame:OnInit()
+    self:set("rect", 368, 225, 150, 142);
+    self:set("backColor", 0, 0.25, 0.7, 0.4);
+    self:set("borderWidth", 0.7);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+end
+
+function OptionsContextMenu.Frame.Controls:OnInit()
+    self:set("rect", 10, 10, 130, 29);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", " Input Controls");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignVer", 2);
+end
+
+function OptionsContextMenu.Frame.Player:OnInit()
+    self:set("rect", 10, 41, 130, 29);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", " Player Settings");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignVer", 2);
+end
+
+function OptionsContextMenu.Frame.Video:OnInit()
+    self:set("rect", 10, 72, 130, 29);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", " Video Settings");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignVer", 2);
+end
+
+function OptionsContextMenu.Frame.Audio:OnInit()
+    self:set("rect", 10, 103, 130, 29);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", " Audio Settings");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignVer", 2);
+end
+
+function JoinGameDialog:OnInit()
+    self:set("show", false);
+    self:set("rect", 0, 0, 640, 480);
+    self:set("backColor", 0, 0, 0, 0);
+end
+
+function JoinGameDialog.Frame:OnInit()
+    self:set("rect", 110, 90, 390, 300);
+    self:set("backColor", 0, 0.25, 0.7, 0.4);
+    self:set("borderWidth", 0.7);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("font", "Fonts/Impact");
+    self:set("text", "Join Online Game");
+    self:set("textScale", 0.5);
+    self:set("textColor", 0.51, 0.8, 1, 1);
+    self:set("textAlignHor", 2);
+end
+
+function JoinGameDialog.Frame.PlayerNameText:OnInit()
+    self:set("rect", 10, 50, 190, 30);
+    self:set("backColor", 0, 0, 0, 0);
+    self:set("text", "Player Name");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0.5, 0.7, 1, 1);
+    self:set("textAlignVer", 2);
+end
+
+function JoinGameDialog.Frame.PlayerNameEdit:OnInit()
+    self:set("rect", 150, 50, 140, 30);
+    self:set("backColor", 1, 1, 1, 0.4);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "Carsten");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0, 0.2, 0.5, 1);
+    self:set("textAlignVer", 2);
+    self:SetTextCursorColor(0.02, 0.36, 1, 1);
+end
+
+function JoinGameDialog.Frame.ModelNameText:OnInit()
+    self:set("rect", 10, 90, 190, 30);
+    self:set("backColor", 0, 0, 0, 0);
+    self:set("text", "Model");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0.5, 0.7, 1, 1);
+    self:set("textAlignVer", 2);
+end
+
+function JoinGameDialog.Frame.ModelNameChoice:OnInit()
+    self:set("rect", 150, 90, 140, 30);
+    self:set("backColor", 1, 1, 1, 0.4);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("textScale", 0.3);
+    self:set("textColor", 0, 0.2, 0.5, 1);
+    self:set("textAlignVer", 2);
+end
+
+function JoinGameDialog.Frame.RemoteHostText:OnInit()
+    self:set("rect", 10, 130, 190, 30);
+    self:set("backColor", 0, 0, 0, 0);
+    self:set("text", "Remote Host Name");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0.5, 0.7, 1, 1);
+    self:set("textAlignVer", 2);
+end
+
+function JoinGameDialog.Frame.RemoteHostEdit:OnInit()
+    self:set("rect", 150, 130, 140, 30);
+    self:set("backColor", 1, 1, 1, 0.4);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "www.xyz.cf");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0, 0.2, 0.5, 1);
+    self:set("textAlignVer", 2);
+    self:SetTextCursorColor(0.02, 0.36, 1, 1);
+end
+
+function JoinGameDialog.Frame.RemotePortText:OnInit()
+    self:set("rect", 10, 170, 190, 30);
+    self:set("backColor", 0, 0, 0, 0);
+    self:set("text", "Remote Port");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0.5, 0.7, 1, 1);
+    self:set("textAlignVer", 2);
+end
+
+function JoinGameDialog.Frame.RemotePortEdit:OnInit()
+    self:set("rect", 150, 170, 140, 30);
+    self:set("backColor", 1, 1, 1, 0.4);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "12345");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0, 0.2, 0.5, 1);
+    self:set("textAlignVer", 2);
+    self:SetTextCursorColor(0.02, 0.36, 1, 1);
+end
+
+function JoinGameDialog.Frame.ModelPreview:OnInit()
+    self:set("rect", 300, 50, 80, 150);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+end
+
+function JoinGameDialog.Frame.ButtonOK:OnInit()
+    self:set("rect", 260, 260, 120, 30);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "Connect...");
+    self:set("textScale", 0.4);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function JoinGameDialog.Frame.ButtonCancel:OnInit()
+    self:set("rect", 367, 8, 13, 13);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.02, 0.36, 1, 1);
+    self:set("font", "Fonts/Impact");
+    self:set("text", "X");
+    self:set("textScale", 0.31);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 1);
+end
+
+function HostGameDialog:OnInit()
+    self:set("show", false);
+    self:set("rect", 0, 0, 640, 480);
+    self:set("backColor", 0, 0, 0, 0);
+end
+
+function HostGameDialog.Frame:OnInit()
+    self:set("rect", 110, 90, 390, 300);
+    self:set("backColor", 0, 0.25, 0.7, 0.4);
+    self:set("borderWidth", 0.7);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("font", "Fonts/Impact");
+    self:set("text", "Host Game Server");
+    self:set("textScale", 0.5);
+    self:set("textColor", 0.51, 0.8, 1, 1);
+    self:set("textAlignHor", 2);
+end
+
+function HostGameDialog.Frame.WorldNameText:OnInit()
+    self:set("rect", 10, 50, 190, 30);
+    self:set("backColor", 0, 0, 0, 0);
+    self:set("text", "Map Name");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0.5, 0.7, 1, 1);
+    self:set("textAlignVer", 2);
+end
+
+function HostGameDialog.Frame.WorldNameChoice:OnInit()
+    self:set("rect", 160, 50, 140, 30);
+    self:set("backColor", 1, 1, 1, 0.4);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("textScale", 0.3);
+    self:set("textColor", 0, 0.2, 0.5, 1);
+    self:set("textAlignVer", 2);
+end
+
+function HostGameDialog.Frame.LocalSvPortText:OnInit()
+    self:set("rect", 10, 90, 190, 30);
+    self:set("backColor", 0, 0, 0, 0);
+    self:set("text", "Local Server Port");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0.5, 0.7, 1, 1);
+    self:set("textAlignVer", 2);
+end
+
+function HostGameDialog.Frame.LocalSvPortEdit:OnInit()
+    self:set("rect", 160, 90, 140, 30);
+    self:set("backColor", 1, 1, 1, 0.4);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "23456");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0, 0.2, 0.5, 1);
+    self:set("textAlignVer", 2);
+    self:SetTextCursorColor(0.02, 0.36, 1, 1);
+end
+
+function HostGameDialog.Frame.ListenSvText:OnInit()
+    self:set("rect", 10, 130, 190, 30);
+    self:set("backColor", 0, 0, 0, 0);
+    self:set("text", "Play on this machine");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0.5, 0.7, 1, 1);
+    self:set("textAlignVer", 2);
+end
+
+function HostGameDialog.Frame.ListenSvChoice:OnInit()
+    self:set("rect", 160, 130, 140, 30);
+    self:set("backColor", 1, 1, 1, 0.4);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("textScale", 0.3);
+    self:set("textColor", 0, 0.2, 0.5, 1);
+    self:set("textAlignVer", 2);
+end
+
+function HostGameDialog.Frame.PlayerNameText:OnInit()
+    self:set("rect", 10, 170, 190, 30);
+    self:set("backColor", 0, 0, 0, 0);
+    self:set("text", "Player Name");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0.5, 0.7, 1, 1);
+    self:set("textAlignVer", 2);
+end
+
+function HostGameDialog.Frame.PlayerNameEdit:OnInit()
+    self:set("rect", 160, 170, 140, 30);
+    self:set("backColor", 1, 1, 1, 0.4);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "Carsten");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0, 0.2, 0.5, 1);
+    self:set("textAlignVer", 2);
+    self:SetTextCursorColor(0.02, 0.36, 1, 1);
+end
+
+function HostGameDialog.Frame.ModelNameText:OnInit()
+    self:set("rect", 10, 210, 190, 30);
+    self:set("backColor", 0, 0, 0, 0);
+    self:set("text", "Model");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0.5, 0.7, 1, 1);
+    self:set("textAlignVer", 2);
+end
+
+function HostGameDialog.Frame.ModelNameChoice:OnInit()
+    self:set("rect", 160, 210, 140, 30);
+    self:set("backColor", 1, 1, 1, 0.4);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("textScale", 0.3);
+    self:set("textColor", 0, 0.2, 0.5, 1);
+    self:set("textAlignVer", 2);
+end
+
+function HostGameDialog.Frame.MapPreview:OnInit()
+    self:set("rect", 310, 50, 70, 70);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+end
+
+function HostGameDialog.Frame.ModelPreview:OnInit()
+    self:set("rect", 310, 130, 70, 110);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+end
+
+function HostGameDialog.Frame.ButtonOK:OnInit()
+    self:set("rect", 300, 260, 80, 30);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "Go!");
+    self:set("textScale", 0.4);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function HostGameDialog.Frame.ButtonCancel:OnInit()
+    self:set("rect", 367, 8, 13, 13);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.02, 0.36, 1, 1);
+    self:set("font", "Fonts/Impact");
+    self:set("text", "X");
+    self:set("textScale", 0.31);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 1);
+end
+
+function InitServerInfoPanel:OnInit()
+    self:set("show", false);
+    self:set("rect", 0, 0, 640, 480);
+    self:set("backColor", 0, 0, 0, 0);
+end
+
+function InitServerInfoPanel.Frame:OnInit()
+    self:set("rect", 120, 150, 380, 180);
+    self:set("backColor", 0, 0.25, 0.7, 0.4);
+    self:set("borderWidth", 0.7);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("font", "Fonts/Impact");
+    self:set("text", "Initializing Server...");
+    self:set("textScale", 0.5);
+    self:set("textColor", 0.51, 0.8, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function InputOptionsDialog:OnInit()
+    self:set("show", false);
+    self:set("rect", 0, 0, 640, 480);
+    self:set("backColor", 0, 0, 0, 0);
+end
+
+function InputOptionsDialog.Frame:OnInit()
+    self:set("rect", 150, 90, 310, 300);
+    self:set("backColor", 0, 0.25, 0.7, 0.4);
+    self:set("borderWidth", 0.7);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("font", "Fonts/Impact");
+    self:set("text", "Input Controls");
+    self:set("textScale", 0.5);
+    self:set("textColor", 0.51, 0.8, 1, 1);
+    self:set("textAlignHor", 2);
+end
+
+function InputOptionsDialog.Frame.ReverseMouseYAxisText:OnInit()
+    self:set("rect", 10, 50, 190, 30);
+    self:set("backColor", 0, 0, 0, 0);
+    self:set("text", "Invert Mouse Y-Axis");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0.5, 0.7, 1, 1);
+    self:set("textAlignVer", 2);
+end
+
+function InputOptionsDialog.Frame.ReverseMouseYAxisChoice:OnInit()
+    self:set("rect", 160, 50, 140, 30);
+    self:set("backColor", 1, 1, 1, 0.4);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("textScale", 0.3);
+    self:set("textColor", 0, 0.2, 0.5, 1);
+    self:set("textAlignVer", 2);
+end
+
+function InputOptionsDialog.Frame.InfoKeyboardText:OnInit()
+end
+
+function InputOptionsDialog.Frame.ButtonOK:OnInit()
+    self:set("rect", 200, 260, 100, 30);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "Apply");
+    self:set("textScale", 0.4);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function InputOptionsDialog.Frame.ButtonCancel:OnInit()
+    self:set("rect", 287, 8, 13, 13);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.02, 0.36, 1, 1);
+    self:set("font", "Fonts/Impact");
+    self:set("text", "X");
+    self:set("textScale", 0.31);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 1);
+end
+
+function PlayerOptionsDialog:OnInit()
+    self:set("show", false);
+    self:set("rect", 0, 0, 640, 480);
+    self:set("backColor", 0, 0, 0, 0);
+end
+
+function PlayerOptionsDialog.Frame:OnInit()
+    self:set("rect", 110, 90, 390, 300);
+    self:set("backColor", 0, 0.25, 0.7, 0.4);
+    self:set("borderWidth", 0.7);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("font", "Fonts/Impact");
+    self:set("text", "Player Settings");
+    self:set("textScale", 0.5);
+    self:set("textColor", 0.51, 0.8, 1, 1);
+    self:set("textAlignHor", 2);
+end
+
+function PlayerOptionsDialog.Frame.PlayerNameText:OnInit()
+    self:set("rect", 10, 50, 190, 30);
+    self:set("backColor", 0, 0, 0, 0);
+    self:set("text", "Player Name");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0.5, 0.7, 1, 1);
+    self:set("textAlignVer", 2);
+end
+
+function PlayerOptionsDialog.Frame.PlayerNameEdit:OnInit()
+    self:set("rect", 130, 50, 140, 30);
+    self:set("backColor", 1, 1, 1, 0.4);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "Carsten");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0, 0.2, 0.5, 1);
+    self:set("textAlignVer", 2);
+    self:SetTextCursorColor(0.02, 0.36, 1, 1);
+end
+
+function PlayerOptionsDialog.Frame.ModelNameText:OnInit()
+    self:set("rect", 10, 90, 190, 30);
+    self:set("backColor", 0, 0, 0, 0);
+    self:set("text", "Model");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0.5, 0.7, 1, 1);
+    self:set("textAlignVer", 2);
+end
+
+function PlayerOptionsDialog.Frame.ModelNameChoice:OnInit()
+    self:set("rect", 130, 90, 140, 30);
+    self:set("backColor", 1, 1, 1, 0.4);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("textScale", 0.3);
+    self:set("textColor", 0, 0.2, 0.5, 1);
+    self:set("textAlignVer", 2);
+end
+
+function PlayerOptionsDialog.Frame.ModelPreview:OnInit()
+    self:set("rect", 280, 50, 100, 200);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+end
+
+function PlayerOptionsDialog.Frame.ShowHUDText:OnInit()
+    self:set("rect", 10, 130, 190, 30);
+    self:set("backColor", 0, 0, 0, 0);
+    self:set("text", "Show HUD");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0.5, 0.7, 1, 1);
+    self:set("textAlignVer", 2);
+end
+
+function PlayerOptionsDialog.Frame.ShowHUDChoice:OnInit()
+    self:set("rect", 130, 130, 140, 30);
+    self:set("backColor", 1, 1, 1, 0.4);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("textScale", 0.3);
+    self:set("textColor", 0.36, 0.36, 0.36, 1);
+    self:set("textAlignVer", 2);
+end
+
+function PlayerOptionsDialog.Frame.ButtonOK:OnInit()
+    self:set("rect", 280, 260, 100, 30);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "Apply");
+    self:set("textScale", 0.4);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function PlayerOptionsDialog.Frame.ButtonCancel:OnInit()
+    self:set("rect", 367, 8, 13, 13);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.02, 0.36, 1, 1);
+    self:set("font", "Fonts/Impact");
+    self:set("text", "X");
+    self:set("textScale", 0.31);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 1);
+end
+
+function VideoOptionsDialog:OnInit()
+    self:set("show", false);
+    self:set("rect", 0, 0, 640, 480);
+    self:set("backColor", 0, 0, 0, 0);
+end
+
+function VideoOptionsDialog.Frame:OnInit()
+    self:set("rect", 110, 90, 390, 300);
+    self:set("backColor", 0, 0.25, 0.7, 0.4);
+    self:set("borderWidth", 0.7);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("font", "Fonts/Impact");
+    self:set("text", "Video Settings");
+    self:set("textScale", 0.5);
+    self:set("textColor", 0.51, 0.8, 1, 1);
+    self:set("textAlignHor", 2);
+end
+
+function VideoOptionsDialog.Frame.ScreenResText:OnInit()
+    self:set("rect", 10, 50, 190, 30);
+    self:set("backColor", 0, 0, 0, 0);
+    self:set("text", "Screen Resolution");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0.5, 0.7, 1, 1);
+    self:set("textAlignVer", 2);
+end
+
+function VideoOptionsDialog.Frame.ScreenResChoice:OnInit()
+    self:set("rect", 160, 50, 220, 30);
+    self:set("backColor", 1, 1, 1, 0.4);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("textScale", 0.3);
+    self:set("textColor", 0, 0.2, 0.5, 1);
+    self:set("textAlignVer", 2);
+end
+
+function VideoOptionsDialog.Frame.FullScreenText:OnInit()
+    self:set("rect", 10, 90, 190, 30);
+    self:set("backColor", 0, 0, 0, 0);
+    self:set("text", "Full-Screen");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0.5, 0.7, 1, 1);
+    self:set("textAlignVer", 2);
+end
+
+function VideoOptionsDialog.Frame.FullScreenChoice:OnInit()
+    self:set("rect", 160, 90, 220, 30);
+    self:set("backColor", 1, 1, 1, 0.4);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("textScale", 0.3);
+    self:set("textColor", 0, 0.2, 0.5, 1);
+    self:set("textAlignVer", 2);
+end
+
+function VideoOptionsDialog.Frame.TextureDetailText:OnInit()
+    self:set("rect", 10, 130, 190, 30);
+    self:set("backColor", 0, 0, 0, 0);
+    self:set("text", "Texture Detail");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0.5, 0.7, 1, 1);
+    self:set("textAlignVer", 2);
+end
+
+function VideoOptionsDialog.Frame.TextureDetailChoice:OnInit()
+    self:set("rect", 160, 130, 220, 30);
+    self:set("backColor", 1, 1, 1, 0.4);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("textScale", 0.3);
+    self:set("textColor", 0, 0.2, 0.5, 1);
+    self:set("textAlignVer", 2);
+end
+
+function VideoOptionsDialog.Frame.InfoRestartText:OnInit()
+    self:set("rect", 10, 220, 370, 30);
+    self:set("backColor", 0, 0, 0, 0);
+    self:set("text", "Changes to these settings will take effect the next time you start Ca3DE.\nSetting the Texture Detail to \"high\" requires 256+ MB video RAM.");
+    self:set("textScale", 0.2);
+    self:set("textColor", 0.5, 0.7, 1, 1);
+    self:set("textAlignHor", 1);
+end
+
+function VideoOptionsDialog.Frame.ButtonOK:OnInit()
+    self:set("rect", 280, 260, 100, 30);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "Apply");
+    self:set("textScale", 0.4);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function VideoOptionsDialog.Frame.ButtonCancel:OnInit()
+    self:set("rect", 367, 8, 13, 13);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.02, 0.36, 1, 1);
+    self:set("font", "Fonts/Impact");
+    self:set("text", "X");
+    self:set("textScale", 0.31);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 1);
+end
+
+function AudioOptionsDialog:OnInit()
+    self:set("show", false);
+    self:set("rect", 0, 0, 640, 480);
+    self:set("backColor", 0, 0, 0, 0);
+end
+
+function AudioOptionsDialog.Frame:OnInit()
+    self:set("rect", 160, 90, 290, 300);
+    self:set("backColor", 0, 0.25, 0.7, 0.4);
+    self:set("borderWidth", 0.7);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("font", "Fonts/Impact");
+    self:set("text", "Audio Settings");
+    self:set("textScale", 0.5);
+    self:set("textColor", 0.51, 0.8, 1, 1);
+    self:set("textAlignHor", 2);
+end
+
+function AudioOptionsDialog.Frame.VolumeText:OnInit()
+    self:set("rect", 10, 50, 190, 30);
+    self:set("backColor", 0, 0, 0, 0);
+    self:set("text", "Volume");
+    self:set("textScale", 0.3);
+    self:set("textColor", 0.5, 0.7, 1, 1);
+    self:set("textAlignVer", 2);
+end
+
+function AudioOptionsDialog.Frame.VolumeChoice:OnInit()
+    self:set("rect", 160, 50, 120, 30);
+    self:set("backColor", 1, 1, 1, 0.4);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("textScale", 0.3);
+    self:set("textColor", 0, 0.2, 0.5, 1);
+    self:set("textAlignVer", 2);
+end
+
+function AudioOptionsDialog.Frame.ButtonOK:OnInit()
+    self:set("rect", 180, 260, 100, 30);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "Apply");
+    self:set("textScale", 0.4);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function AudioOptionsDialog.Frame.ButtonCancel:OnInit()
+    self:set("rect", 267, 8, 13, 13);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.02, 0.36, 1, 1);
+    self:set("font", "Fonts/Impact");
+    self:set("text", "X");
+    self:set("textScale", 0.31);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 1);
+end
+
+function CreditsDialog:OnInit()
+    self:set("show", false);
+    self:set("rect", 0, 0, 640, 480);
+    self:set("backColor", 0, 0, 0, 0);
+end
+
+function CreditsDialog.Frame:OnInit()
+    self:set("rect", 110, 10, 420, 460);
+    self:set("backColor", 0, 0.25, 0.7, 0.4);
+    self:set("borderWidth", 0.7);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("font", "Fonts/Impact");
+    self:set("text", "Credits");
+    self:set("textScale", 0.5);
+    self:set("textColor", 0.466667, 0.00784314, 0, 0.4);
+    self:set("textAlignHor", 2);
+end
+
+function CreditsDialog.Frame.CreditsText:OnInit()
+    self:set("rect", 10, 40, 400, 140);
+    self:set("backColor", 0, 0, 0, 0);
+    self:set("text", "The Ca3D-Engine is developed by\nCarsten Fuchs Software.\n\nProgramming:\nCarsten Fuchs,\nJörn Koch,\nJohn Swartz");
+    self:set("textScale", 0.27);
+    self:set("textColor", 0.51, 0.8, 1, 1);
+    self:set("textAlignHor", 2);
+end
+
+function CreditsDialog.Frame.ExtLibsText:OnInit()
+    self:set("rect", 10, 160, 400, 250);
+    self:set("backColor", 0, 0.25098, 0.501961, 0);
+    self:set("borderColor", 0, 0.247059, 0.698039, 0.313726);
+    self:set("text", "The Ca3D-Engine employs several external libraries that are copyrighted by their respective authors:\n\n      Boost C++ Libraries, http://www.boost.org\n      Bullet Physics Library, © 2003-2006 Erwin Coumans, http://continuousphysics.com/Bullet\n      NVidia \"Cg - C for graphics\", http://developer.nvidia.com/object/cg_toolkit.html\n      Collada DOM, © 2005 Sony Computer Entertainment Inc., http://www.collada.org\n      FMOD, © 1994-2004 Firelight Technologies Pty, Ltd., http://www.fmod.org\n      freealut, http://connect.creativelabs.com/openal/default.aspx\n      FreeType Library, © 2009 The FreeType Project, http://www.freetype.org\n      libjpeg, © 1991-1998 Independent JPEG Group, http://www.ijg.org\n      libnoise, © 2003-2007 Jason Bevins, http://libnoise.sourceforge.net\n      libogg and libvorbis, © 2002 Xiph.org Foundation, http://www.xiph.org\n      libpng, © 2004 Glenn Randers-Pehrson, http://www.libpng.org/pub/png/libpng.html\n      libxml2, © 1998-2003 Daniel Veillard, http://xmlsoft.org\n      lightwave-8, http://www.newtek.com/lightwave/developers.php\n      Lua, © 1994-2006 Lua.org, PUC-Rio, http://www.lua.org\n      mpg123, © Michael Hipp, http://www.mpg123.de\n      OpenAL (for Windows), http://connect.creativelabs.com/openal/default.aspx\n      openal-soft (for Linux), http://kcat.strangesoft.net/openal.html\n      PCRE, © 1997-2007 University of Cambridge, © 2007 Google Inc. (C++ wrappers), http://www.pcre.org\n      wxWidgets cross-platform GUI library, © 1998-2005 J. Smart, R. Roebling et al, http://www.wxwidgets.org\n      zlib, © 1995-2004 Jean-loup Gailly and Mark Adler, http://www.zlib.net\n\nFor more information, please refer to file LICENSE.txt in the Ca3D-Engine/License folder.\n\n");
+    self:set("textScale", 0.175);
+    self:set("textColor", 0.168627, 0.666667, 1, 0);
+    self:set("textAlignHor", 1);
+    self:set("textAlignVer", 1);
+end
+
+function CreditsDialog.Frame.CopyrightText:OnInit()
+    self:set("rect", 10, 420, 310, 30);
+    self:set("backColor", 0, 0, 0, 0);
+    self:set("font", "Fonts/Impact");
+    self:set("text", "The Ca3D-Engine is copyright © 2001-2009 Carsten Fuchs Software.\nAll rights reserved.                       http://www.ca3d-engine.de");
+    self:set("textScale", 0.22);
+    self:set("textColor", 0.5, 0.5, 0.5, 1);
+    self:set("textAlignVer", 2);
+end
+
+function CreditsDialog.Frame.ButtonOK:OnInit()
+    self:set("rect", 330, 420, 80, 30);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "Back");
+    self:set("textScale", 0.4);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function CreditsDialog.Frame.ButtonCancel:OnInit()
+    self:set("rect", 397, 8, 13, 13);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.02, 0.36, 1, 1);
+    self:set("font", "Fonts/Impact");
+    self:set("text", "X");
+    self:set("textScale", 0.31);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 1);
+end
+
+function ReallyQuitDialog:OnInit()
+    self:set("show", false);
+    self:set("rect", 0, 0, 640, 480);
+    self:set("backColor", 0, 0, 0, 0.7);
+end
+
+function ReallyQuitDialog.QuitHeadline:OnInit()
+    self:set("rect", 0, 10, 640, 45);
+    self:set("backColor", 0, 0, 0, 0.5);
+    self:set("font", "Fonts/Impact");
+    self:set("text", "Ca3D-Engine");
+    self:set("textScale", 0.8);
+    self:set("textColor", 0.466667, 0.00784314, 0, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function ReallyQuitDialog.ReallyQuit:OnInit()
+    self:set("rect", 120, 90, 400, 300);
+    self:set("backColor", 0, 0.25, 0.7, 0.4);
+    self:set("borderWidth", 0.7);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("font", "Fonts/Impact");
+    self:set("text", "Really Quit?");
+    self:set("textScale", 0.7);
+    self:set("textColor", 0.51, 0.8, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function ReallyQuitDialog.ReallyQuit.ButtonYes:OnInit()
+    self:set("rect", 53, 250, 120, 40);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "Yes (OK)");
+    self:set("textScale", 0.4);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function ReallyQuitDialog.ReallyQuit.ButtonNo:OnInit()
+    self:set("rect", 227, 250, 120, 40);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
+    self:set("borderWidth", 0.6);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "No (Cancel)");
+    self:set("textScale", 0.4);
+    self:set("textColor", 0.02, 0.36, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+

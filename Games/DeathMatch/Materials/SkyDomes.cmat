@@ -1,0 +1,177 @@
+Textures/SkyDomes/PK_Autumn
+{
+    AmbientShader A_SkyDome
+    LightShader   none      // == noDynLight
+
+    // The '#' in the next line is auto-replaced with the relevant suffixes (_px, _ny, ...).
+    cubeMap Textures/SkyDomes/PK_Autumn#.png, wrapS clampToEdge, wrapT clampToEdge
+
+    ambientMask d           // Don't write into the z-Buffer, so that entities (like missiles) outside of the map can still be drawn.
+    noShadows               // This material does not cast dynamic shadows.
+    meta_sunlight           // This keyword states that this material casts sunlight.
+        (220  180  100)     // The irradiance of the sunlight in Watt/m^2 that comes (or shines) through this material. Values (100  90  80) might work, too.
+        (-17 -699 -715)     // The direction of the incoming sunlight rays. The z-component should be negative. These values match the actual position of the sun in the cube-maps.
+
+    meta_editorImage Textures/SkyDomes/PK_Autumn_px.png
+}
+
+
+Textures/SkyDomes/PK_BrightDay1
+{
+    AmbientShader A_SkyDome
+    LightShader   none      // == noDynLight
+
+    // The '#' in the next line is auto-replaced with the relevant suffixes (_px, _ny, ...).
+    cubeMap Textures/SkyDomes/PK_BrightDay1#.png, wrapS clampToEdge, wrapT clampToEdge
+
+    ambientMask d           // Don't write into the z-Buffer, so that entities (like missiles) outside of the map can still be drawn.
+    noShadows               // This material does not cast dynamic shadows.
+    meta_sunlight           // This keyword states that this material casts sunlight.
+        (220  180  100)     // The irradiance of the sunlight in Watt/m^2 that comes (or shines) through this material. Values (100  90  80) might work, too.
+        (-17 -699 -715)     // The direction of the incoming sunlight rays. The z-component should be negative. These values match the actual position of the sun in the cube-maps.
+
+    meta_editorImage Textures/SkyDomes/PK_BrightDay1_nz.png
+}
+
+
+Textures/SkyDomes/PK_BrightDay2
+{
+    AmbientShader A_SkyDome
+    LightShader   none      // == noDynLight
+
+    // The '#' in the next line is auto-replaced with the relevant suffixes (_px, _ny, ...).
+    cubeMap Textures/SkyDomes/PK_BrightDay2#.png, wrapS clampToEdge, wrapT clampToEdge
+
+    ambientMask d           // Don't write into the z-Buffer, so that entities (like missiles) outside of the map can still be drawn.
+    noShadows               // This material does not cast dynamic shadows.
+    meta_sunlight           // This keyword states that this material casts sunlight.
+        (220  180  100)     // The irradiance of the sunlight in Watt/m^2 that comes (or shines) through this material. Values (100  90  80) might work, too.
+     // (-17 -699 -715)     // [The real values that match the sun in the sky images.]  The direction of the incoming sunlight rays. The z-component should be negative. These values match the actual position of the sun in the cube-maps.
+        (100 -699 -1715)    // [Values that look better in the TechDemo map.]  The direction of the incoming sunlight rays. The z-component should be negative. These values match the actual position of the sun in the cube-maps.
+
+    meta_editorImage Textures/SkyDomes/PK_BrightDay2_pz.png
+}
+
+
+Textures/SkyDomes/PK_Night
+{
+    AmbientShader A_SkyDome
+    LightShader   none      // == noDynLight
+
+    // The '#' in the next line is auto-replaced with the relevant suffixes (_px, _ny, ...).
+    cubeMap Textures/SkyDomes/PK_Night#.png, wrapS clampToEdge, wrapT clampToEdge
+
+    ambientMask d           // Don't write into the z-Buffer, so that entities (like missiles) outside of the map can still be drawn.
+    noShadows               // This material does not cast dynamic shadows.
+    meta_sunlight           // This keyword states that this material casts sunlight.
+        (  0    1    3)     // The irradiance of the sunlight in Watt/m^2 that comes (or shines) through this material. Values (100  90  80) might work, too.
+        (-16 -853 -521)     // The direction of the incoming sunlight rays. The z-component should be negative. These values match the actual position of the sun in the cube-maps.
+
+    meta_editorImage Textures/SkyDomes/PK_Night_px.png
+}
+
+
+Textures/SkyDomes/PK_Sunset
+{
+    AmbientShader A_SkyDome
+    LightShader   none      // == noDynLight
+
+    // The '#' in the next line is auto-replaced with the relevant suffixes (_px, _ny, ...).
+    cubeMap Textures/SkyDomes/PK_Sunset#.png, wrapS clampToEdge, wrapT clampToEdge
+
+    ambientMask d           // Don't write into the z-Buffer, so that entities (like missiles) outside of the map can still be drawn.
+    noShadows               // This material does not cast dynamic shadows.
+    meta_sunlight           // This keyword states that this material casts sunlight.
+        (100  63   30)      // The irradiance of the sunlight in Watt/m^2 that comes (or shines) through this material. Values (100  90  80) might work, too.
+        ( 52 922 -383)      // The direction of the incoming sunlight rays. The z-component should be negative. These values match the actual position of the sun in the cube-maps.
+
+    meta_editorImage Textures/SkyDomes/PK_Sunset_nz.png
+}
+
+
+Textures/SkyDomes/PK_Sunset2
+{
+    AmbientShader A_SkyDome
+    LightShader   none      // == noDynLight
+
+    // The '#' in the next line is auto-replaced with the relevant suffixes (_px, _ny, ...).
+    cubeMap Textures/SkyDomes/PK_Sunset2#.png, wrapS clampToEdge, wrapT clampToEdge
+
+    ambientMask d           // Don't write into the z-Buffer, so that entities (like missiles) outside of the map can still be drawn.
+    noShadows               // This material does not cast dynamic shadows.
+    meta_sunlight           // This keyword states that this material casts sunlight.
+        ( 20    6    3)     // The irradiance of the sunlight in Watt/m^2 that comes (or shines) through this material. Values (100  90  80) might work, too.
+        (803 -583 -124)     // The direction of the incoming sunlight rays. The z-component should be negative. These values match the actual position of the sun in the cube-maps.
+
+    meta_editorImage Textures/SkyDomes/PK_Sunset2_nx.png
+}
+
+
+Textures/SkyDomes/PK_Winter
+{
+    AmbientShader A_SkyDome
+    LightShader   none      // == noDynLight
+
+    // The '#' in the next line is auto-replaced with the relevant suffixes (_px, _ny, ...).
+    cubeMap Textures/SkyDomes/PK_Winter#.png, wrapS clampToEdge, wrapT clampToEdge
+
+    ambientMask d           // Don't write into the z-Buffer, so that entities (like missiles) outside of the map can still be drawn.
+    noShadows               // This material does not cast dynamic shadows.
+    meta_sunlight           // This keyword states that this material casts sunlight.
+        ( 20    6    3)     // The irradiance of the sunlight in Watt/m^2 that comes (or shines) through this material. Values (100  90  80) might work, too.
+        (803 -583 -124)     // The direction of the incoming sunlight rays. The z-component should be negative. These values match the actual position of the sun in the cube-maps.
+
+    meta_editorImage Textures/SkyDomes/PK_Winter_pz.png
+}
+
+
+Textures/SkyDomes/Snow2
+{
+    AmbientShader A_SkyDome
+    LightShader   none      // == noDynLight
+
+    // The '#' in the next line is auto-replaced with the relevant suffixes (_px, _ny, ...).
+    cubeMap Textures/SkyDomes/Snow2#.png, wrapS clampToEdge, wrapT clampToEdge
+
+    ambientMask d           // Don't write into the z-Buffer, so that entities (like missiles) outside of the map can still be drawn.
+    noShadows               // This material does not cast dynamic shadows.
+    meta_sunlight           // This keyword states that this material casts sunlight.
+        ( 2  4  6)          // The irradiance of the sunlight in Watt/m^2 that comes (or shines) through this material. Values (100  90  80) might work, too.
+        (-2 -5 -9)          // The direction of the incoming sunlight rays. The z-component should be negative. These values match the actual position of the sun in the cube-maps.
+
+    meta_editorImage Textures/SkyDomes/Snow2_px.png
+}
+
+
+Textures/SkyDomes/Space1
+{
+    AmbientShader A_SkyDome
+    LightShader   none      // == noDynLight
+
+    // The '#' in the next line is auto-replaced with the relevant suffixes (_px, _ny, ...).
+    cubeMap Textures/SkyDomes/TS_Space1#.png, wrapS clampToEdge, wrapT clampToEdge
+
+    ambientMask d           // Don't write into the z-Buffer, so that entities (like missiles) outside of the map can still be drawn.
+    noShadows               // This material does not cast dynamic shadows.
+
+    meta_editorImage Textures/SkyDomes/TS_Space1_pz.png
+}
+
+
+Textures/SkyDomes/Thrawn1       // Uses the same sunlight settings as PK_BrightDay2, the other candidate for the TechDemo.cmap.
+{
+    AmbientShader A_SkyDome
+    LightShader   none      // == noDynLight
+
+    // The '#' in the next line is auto-replaced with the relevant suffixes (_px, _ny, ...).
+    cubeMap Textures/SkyDomes/Thrawn1#.png, wrapS clampToEdge, wrapT clampToEdge
+
+    ambientMask d           // Don't write into the z-Buffer, so that entities (like missiles) outside of the map can still be drawn.
+    noShadows               // This material does not cast dynamic shadows.
+    meta_sunlight           // This keyword states that this material casts sunlight.
+        (220  180  100)     // The irradiance of the sunlight in Watt/m^2 that comes (or shines) through this material. Values (100  90  80) might work, too.
+     // (-17 -699 -715)     // [The real values that match the sun in the sky images.]  The direction of the incoming sunlight rays. The z-component should be negative. These values match the actual position of the sun in the cube-maps.
+        (100 -699 -1715)    // [Values that look better in the TechDemo map.]  The direction of the incoming sunlight rays. The z-component should be negative. These values match the actual position of the sun in the cube-maps.
+
+    meta_editorImage Textures/SkyDomes/Thrawn1_pz.png
+}

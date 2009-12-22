@@ -1,0 +1,55 @@
+Models/vegetation/bush1/strauch1
+{
+    diffusemap  Models/Vegetation/bush1_diff.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    alphaTest 0.5
+    noShadows
+    noDynLight
+    twoSided
+
+    meta_editorImage noEditor
+}
+
+Models/vegetation/bush2/strauch2
+{
+    diffusemap  Models/Vegetation/bush2_diff.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    alphaTest 0.5
+    noShadows
+    noDynLight
+    twoSided
+
+    meta_editorImage noEditor
+}
+
+Models/vegetation/bush3/strauch3
+{
+    diffusemap  Models/Vegetation/bush3_diff.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    alphaTest 0.5
+    noShadows
+    noDynLight
+    twoSided
+
+    meta_editorImage noEditor
+}
+
+Models/vegetation/farn/farn1
+{
+    diffusemap  Models/Vegetation/farn.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    alphaTest 0.5
+    noShadows
+    noDynLight
+    twoSided 
+
+    meta_editorImage noEditor
+}

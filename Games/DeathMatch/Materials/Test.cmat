@@ -1,0 +1,407 @@
+table sosTable { snap { 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0 } }
+
+
+D3imp
+{
+    diffusemap  Textures/D3Test/imp_d.tga
+
+    //normalmap   Textures/D3Test/imp_local.tga
+    //normalmap   hm2nm(Textures/D3Test/imp_bmp.tga, 6)
+    normalmap   combineNMs(Textures/D3Test/imp_local.tga, hm2nm(Textures/D3Test/imp_bmp.tga, 6))
+
+    specularmap Textures/D3Test/imp_s.tga
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+
+KaisHandTest
+{
+    diffusemap  Models/Hand_diff.png
+    normalmap   Models/Hand_norm.png
+    specularmap Models/Hand_spec.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+
+// ********************************** Betruger Head (START) ***************************************************
+
+D3/Test/models/characters/common/tongue
+{
+    diffusemap  Textures/D3Test/tongue.tga
+    normalmap   combineNMs(Textures/D3Test/tongue_local.tga, hm2nm(Textures/D3Test/tongue_h.tga, 6))
+    specularmap Textures/D3Test/tongue_s.tga
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+D3/Test/models/characters/common/teethbet
+{
+    diffusemap  Textures/D3Test/teeth.tga
+    normalmap   Textures/D3Test/teeth_local.tga
+    specularmap Textures/D3Test/teeth_s.tga
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+D3/Test/models/characters/common/rightbet
+{
+    diffusemap  Textures/D3Test/bet.tga
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+D3/Test/models/characters/common/leftbet
+{
+    diffusemap  Textures/D3Test/bet2.tga
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+D3/Test/models/characters/betruger/betruger
+{
+    diffusemap  Textures/D3Test/betruger.tga
+    normalmap   combineNMs(Textures/D3Test/betruger_local.tga, hm2nm(Textures/D3Test/betruger_h.tga, 6))
+    specularmap Textures/D3Test/betruger_s.tga
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+// ********************************** Betruger Head (END) ***************************************************
+
+
+wireframeTest
+{
+    polygonMode wireframe
+    useMeshColors
+    twoSided
+
+    meta_editorImage noEditor
+}
+
+
+meshColorsTest
+{
+    useMeshColors
+
+    meta_editorImage noEditor
+}
+
+
+blueMaskedTest
+{
+    // diffusemap  blue2alpha(Textures/Kai/crossport_diff.png)
+    diffusemap  blue2alpha(Textures/Kai/dc_cage_side_diff_masked.png)
+    // diffusemap  blue2alpha(Textures/Kai/ladder_red_diff.png)
+
+    lightmap    $lightmap
+    twoSided
+    alphaTest 0.5
+    // blendFunc one one
+    // red div(add(sinTable[mul(time, 0.25)], 1), 2)
+
+    meta_editorImage noEditor
+}
+
+D3Test1a
+{
+    diffusemap  Textures/D3Test/lfwall2.png
+    normalmap   Textures/D3Test/lfwall2_local.png
+    specularmap Textures/D3Test/lfwall2_s.png
+    lumamap     Textures/D3Test/lfwall2_add.png
+    lightmap    $lightmap
+
+    rgb div(add(sinTable[mul(time, 0.5)], 1), 2)
+
+    meta_editorImage noEditor
+}
+
+
+D3Test1b
+{
+    diffusemap  Textures/D3Test/lfwall2.png
+    normalmap   Textures/D3Test/lfwall2_local.png
+    specularmap Textures/D3Test/lfwall2_s.png
+    lumamap     Textures/D3Test/lfwall2_add2.png
+    lightmap    $lightmap
+
+    rgb div(add(sinTable[mul(time, 0.2)], 1), 2)
+
+    meta_editorImage noEditor
+}
+
+
+D3Test2
+{
+    diffusemap  Textures/D3Test/lfwall15.png
+    normalmap   Textures/D3Test/lfwall15_local.png
+    specularmap Textures/D3Test/lfwall15_s.png
+    lumamap     Textures/D3Test/lfwall15_add.png
+    lightmap    $lightmap
+
+    rgb div(add(sinTable[mul(time, 0.4)], 1), 2)
+
+    meta_editorImage noEditor
+}
+
+
+D3Test3
+{
+    diffusemap  Textures/D3Test/lfwall15a.tga
+    normalmap   Textures/D3Test/lfwall15_local.png
+    specularmap Textures/D3Test/lfwall15_s.png
+    lumamap     Textures/D3Test/lfwall15_add.png
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    twoSided
+    rgb div(add(sinTable[mul(time, 0.4)], 1), 2)
+
+    meta_editorImage noEditor
+}
+
+
+D3Test4
+{
+    diffusemap  Textures/D3Test/elec_box3_d.png
+    normalmap   hm2nm(Textures/D3Test/elec_box3_bmp.png, 2)
+    specularmap Textures/D3Test/elec_box3a_s.png
+    lumamap     Textures/D3Test/elec_box3_add.png
+    lightmap    $lightmap
+
+    red   sosTable[mul(time, 0.2)]
+    green div(add(sinTable[mul(time, 0.3)], 1), 2)
+    blue  div(add(sinTable[mul(time, 0.3)], 1), 2)
+
+    meta_editorImage noEditor
+}
+
+
+// ******************************************************************
+// ******************************************************************
+// ******************************************************************
+
+
+testASEmat1
+{
+    diffusemap  Textures/WilliH/dmet01_diff.png
+    normalmap   flipNMyAxis(Textures/WilliH/dmet01_norm.png)
+    specularmap Textures/WilliH/dmet01_spec.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+//    diffusemap  Textures/D3Test/lfwall2.png
+//    normalmap   Textures/D3Test/lfwall2_local.png
+//    specularmap Textures/D3Test/lfwall2_s.png
+//    lumamap     Textures/D3Test/lfwall2_add.png
+//    lightmap    $lightmap
+//
+//    rgb div(add(sinTable[mul(time, 0.5)], 1), 2)
+
+    meta_editorImage noEditor
+}
+
+
+testASEmat2
+{
+    diffusemap  Textures/WilliH/fmet01_diff.png
+    normalmap   flipNMyAxis(Textures/WilliH/fmet01_norm.png)
+    specularmap Textures/WilliH/fmet01_spec.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+//    diffusemap  Textures/D3Test/lfwall2.png
+//    normalmap   Textures/D3Test/lfwall2_local.png
+//    specularmap Textures/D3Test/lfwall2_s.png
+//    lumamap     Textures/D3Test/lfwall2_add2.png
+//    lightmap    $lightmap
+//
+//    rgb div(add(sinTable[mul(time, 0.2)], 1), 2)
+
+    meta_editorImage noEditor
+}
+
+
+testASEmat3
+{
+    diffusemap  Textures/D3Test/lfwall15.png
+    normalmap   Textures/D3Test/lfwall15_local.png
+    specularmap Textures/D3Test/lfwall15_s.png
+    lumamap     Textures/D3Test/lfwall15_add.png
+    lightmap    $lightmap
+
+    rgb div(add(sinTable[mul(time, 0.4)], 1), 2)
+
+    meta_editorImage noEditor
+}
+
+
+testASEmat4
+{
+    diffusemap  Textures/D3Test/lfwall15a.tga
+    normalmap   Textures/D3Test/lfwall15_local.png
+    specularmap Textures/D3Test/lfwall15_s.png
+    lumamap     Textures/D3Test/lfwall15_add.png
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    twoSided
+    rgb div(add(sinTable[mul(time, 0.4)], 1), 2)
+
+    meta_editorImage noEditor
+}
+
+
+testASEmat5
+{
+    diffusemap  Textures/D3Test/elec_box3_d.png
+    normalmap   hm2nm(Textures/D3Test/elec_box3_bmp.png, 2)
+    specularmap Textures/D3Test/elec_box3a_s.png
+    lumamap     Textures/D3Test/elec_box3_add.png
+    lightmap    $lightmap
+
+    red   sosTable[mul(time, 0.2)]
+    green div(add(sinTable[mul(time, 0.3)], 1), 2)
+    blue  div(add(sinTable[mul(time, 0.3)], 1), 2)
+
+    meta_editorImage noEditor
+}
+
+
+testASEKai1
+{
+    diffusemap  Textures/D3Test/Box01CompleteMap.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+
+// ******************************************************************
+// ******************************************************************
+// ******************************************************************
+
+
+H/dmet01
+{
+    diffusemap  Textures/WilliH/dmet01_diff.png
+    normalmap   flipNMyAxis(Textures/WilliH/dmet01_norm.png)
+    specularmap Textures/WilliH/dmet01_spec.png
+    lightmap    $lightmap
+
+    meta_editorImage noEditor
+}
+
+
+H/fmet01
+{
+    diffusemap  Textures/WilliH/fmet01_diff.png
+    normalmap   flipNMyAxis(Textures/WilliH/fmet01_norm.png)
+    specularmap Textures/WilliH/fmet01_spec.png
+    lightmap    $lightmap
+
+    meta_editorImage noEditor
+}
+
+
+H/gmet01
+{
+    diffusemap  Textures/WilliH/gmet01_diff.png
+    normalmap   Textures/WilliH/gmet01_norm.png
+    specularmap Textures/WilliH/gmet01_spec.png
+    lumamap     Textures/WilliH/gmet01_luma.png
+    lightmap    $lightmap
+
+    meta_editorImage noEditor
+}
+
+
+H/pmet01
+{
+    diffusemap  Textures/WilliH/pmet01_diff.png
+    normalmap   flipNMyAxis(Textures/WilliH/pmet01_norm.png)
+    specularmap Textures/WilliH/pmet01_spec.png
+    lightmap    $lightmap
+
+    meta_editorImage noEditor
+}
+
+
+H/pmet02
+{
+    diffusemap  Textures/WilliH/pmet02_diff.png
+    normalmap   Textures/WilliH/pmet02_norm.png
+    specularmap Textures/WilliH/pmet02_spec.png
+    lightmap    $lightmap
+
+    meta_editorImage noEditor
+}
+
+
+H/rock01b
+{
+    diffusemap  Textures/WilliH/rock01b_diff.png
+    normalmap   flipNMyAxis(Textures/WilliH/rock01b_norm.png)
+    specularmap Textures/WilliH/rock01b_spec.png
+    lightmap    $lightmap
+
+    meta_editorImage noEditor
+}
+
+
+H/tmet04
+{
+    diffusemap  Textures/WilliH/tmet04_diff.png
+    normalmap   flipNMyAxis(Textures/WilliH/tmet04_norm.png)
+    specularmap Textures/WilliH/tmet04_spec.png
+    lightmap    $lightmap
+
+    meta_editorImage noEditor
+}
+
+
+H/wmet02
+{
+    diffusemap  Textures/WilliH/wmet02_diff.png
+    normalmap   Textures/WilliH/wmet02_norm.png
+    specularmap Textures/WilliH/wmet02_spec.png
+    lightmap    $lightmap
+
+    meta_editorImage noEditor
+}

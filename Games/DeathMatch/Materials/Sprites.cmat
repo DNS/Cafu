@@ -1,0 +1,248 @@
+Sprites/Generic1
+{
+    diffusemap Textures/Sprites/Generic1.png
+
+    noDynLight          // Should this keyword be removed???   LightShader none12345   does the same...
+
+    blendFunc one one
+ // blendFunc src_alpha one_minus_src_alpha
+
+    red   fParam0
+    green fParam1
+    blue  fParam2
+    alpha fParam3
+
+    ambientMask d       // Don't write into the depth buffer!
+    meta_editorImage noEditor
+}
+
+
+Sprites/flare11_SHL_Sun
+{
+    diffusemap Textures/Sprites/flare11.png
+
+    noDynLight
+
+    blendFunc one one
+
+    red   fParam0
+    green fParam1
+    blue  fParam2
+    alpha fParam3
+
+    ambientMask d
+    meta_editorImage noEditor
+}
+
+
+Sprites/expl1/expl_01 { diffusemap Textures/Sprites/expl1_alpha/expl_01.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl1/expl_02 { diffusemap Textures/Sprites/expl1_alpha/expl_02.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl1/expl_03 { diffusemap Textures/Sprites/expl1_alpha/expl_03.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl1/expl_04 { diffusemap Textures/Sprites/expl1_alpha/expl_04.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl1/expl_05 { diffusemap Textures/Sprites/expl1_alpha/expl_05.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl1/expl_06 { diffusemap Textures/Sprites/expl1_alpha/expl_06.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl1/expl_07 { diffusemap Textures/Sprites/expl1_alpha/expl_07.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl1/expl_08 { diffusemap Textures/Sprites/expl1_alpha/expl_08.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl1/expl_09 { diffusemap Textures/Sprites/expl1_alpha/expl_09.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl1/expl_10 { diffusemap Textures/Sprites/expl1_alpha/expl_10.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl1/expl_11 { diffusemap Textures/Sprites/expl1_alpha/expl_11.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl1/expl_12 { diffusemap Textures/Sprites/expl1_alpha/expl_12.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl1/expl_13 { diffusemap Textures/Sprites/expl1_alpha/expl_13.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl1/expl_14 { diffusemap Textures/Sprites/expl1_alpha/expl_14.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl1/expl_15 { diffusemap Textures/Sprites/expl1_alpha/expl_15.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl1/expl_16 { diffusemap Textures/Sprites/expl1_alpha/expl_16.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl1/expl_17 { diffusemap Textures/Sprites/expl1_alpha/expl_17.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl1/expl_18 { diffusemap Textures/Sprites/expl1_alpha/expl_18.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl1/expl_19 { diffusemap Textures/Sprites/expl1_alpha/expl_19.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl1/expl_20 { diffusemap Textures/Sprites/expl1_alpha/expl_20.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl1/expl_21 { diffusemap Textures/Sprites/expl1_alpha/expl_21.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl1/expl_22 { diffusemap Textures/Sprites/expl1_alpha/expl_22.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl1/expl_23 { diffusemap Textures/Sprites/expl1_alpha/expl_23.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl1/expl_24 { diffusemap Textures/Sprites/expl1_alpha/expl_24.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl1/expl_25 { diffusemap Textures/Sprites/expl1_alpha/expl_25.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl1/expl_26 { diffusemap Textures/Sprites/expl1_alpha/expl_26.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+
+
+Sprites/expl2/expl_01 { diffusemap Textures/Sprites/expl2_add/expl_01.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl2/expl_02 { diffusemap Textures/Sprites/expl2_add/expl_02.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl2/expl_03 { diffusemap Textures/Sprites/expl2_add/expl_03.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl2/expl_04 { diffusemap Textures/Sprites/expl2_add/expl_04.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl2/expl_05 { diffusemap Textures/Sprites/expl2_add/expl_05.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl2/expl_06 { diffusemap Textures/Sprites/expl2_add/expl_06.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl2/expl_07 { diffusemap Textures/Sprites/expl2_add/expl_07.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl2/expl_08 { diffusemap Textures/Sprites/expl2_add/expl_08.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl2/expl_09 { diffusemap Textures/Sprites/expl2_add/expl_09.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl2/expl_10 { diffusemap Textures/Sprites/expl2_add/expl_10.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl2/expl_11 { diffusemap Textures/Sprites/expl2_add/expl_11.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl2/expl_12 { diffusemap Textures/Sprites/expl2_add/expl_12.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl2/expl_13 { diffusemap Textures/Sprites/expl2_add/expl_13.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl2/expl_14 { diffusemap Textures/Sprites/expl2_add/expl_14.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl2/expl_15 { diffusemap Textures/Sprites/expl2_add/expl_15.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl2/expl_16 { diffusemap Textures/Sprites/expl2_add/expl_16.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl2/expl_17 { diffusemap Textures/Sprites/expl2_add/expl_17.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl2/expl_18 { diffusemap Textures/Sprites/expl2_add/expl_18.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+
+
+Sprites/expl3/expl_01 { diffusemap Textures/Sprites/expl3_add/expl_01.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_02 { diffusemap Textures/Sprites/expl3_add/expl_02.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_03 { diffusemap Textures/Sprites/expl3_add/expl_03.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_04 { diffusemap Textures/Sprites/expl3_add/expl_04.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_05 { diffusemap Textures/Sprites/expl3_add/expl_05.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_06 { diffusemap Textures/Sprites/expl3_add/expl_06.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_07 { diffusemap Textures/Sprites/expl3_add/expl_07.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_08 { diffusemap Textures/Sprites/expl3_add/expl_08.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_09 { diffusemap Textures/Sprites/expl3_add/expl_09.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_10 { diffusemap Textures/Sprites/expl3_add/expl_10.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_11 { diffusemap Textures/Sprites/expl3_add/expl_11.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_12 { diffusemap Textures/Sprites/expl3_add/expl_12.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_13 { diffusemap Textures/Sprites/expl3_add/expl_13.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_14 { diffusemap Textures/Sprites/expl3_add/expl_14.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_15 { diffusemap Textures/Sprites/expl3_add/expl_15.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_16 { diffusemap Textures/Sprites/expl3_add/expl_16.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_17 { diffusemap Textures/Sprites/expl3_add/expl_17.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_18 { diffusemap Textures/Sprites/expl3_add/expl_18.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_19 { diffusemap Textures/Sprites/expl3_add/expl_19.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_20 { diffusemap Textures/Sprites/expl3_add/expl_20.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_21 { diffusemap Textures/Sprites/expl3_add/expl_21.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_22 { diffusemap Textures/Sprites/expl3_add/expl_22.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_23 { diffusemap Textures/Sprites/expl3_add/expl_23.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_24 { diffusemap Textures/Sprites/expl3_add/expl_24.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_25 { diffusemap Textures/Sprites/expl3_add/expl_25.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_26 { diffusemap Textures/Sprites/expl3_add/expl_26.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl3/expl_27 { diffusemap Textures/Sprites/expl3_add/expl_27.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+
+
+Sprites/expl4/expl_01 { diffusemap Textures/Sprites/expl4_alpha/expl_01.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_02 { diffusemap Textures/Sprites/expl4_alpha/expl_02.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_03 { diffusemap Textures/Sprites/expl4_alpha/expl_03.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_04 { diffusemap Textures/Sprites/expl4_alpha/expl_04.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_05 { diffusemap Textures/Sprites/expl4_alpha/expl_05.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_06 { diffusemap Textures/Sprites/expl4_alpha/expl_06.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_07 { diffusemap Textures/Sprites/expl4_alpha/expl_07.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_08 { diffusemap Textures/Sprites/expl4_alpha/expl_08.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_09 { diffusemap Textures/Sprites/expl4_alpha/expl_09.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_10 { diffusemap Textures/Sprites/expl4_alpha/expl_10.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_11 { diffusemap Textures/Sprites/expl4_alpha/expl_11.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_12 { diffusemap Textures/Sprites/expl4_alpha/expl_12.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_13 { diffusemap Textures/Sprites/expl4_alpha/expl_13.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_14 { diffusemap Textures/Sprites/expl4_alpha/expl_14.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_15 { diffusemap Textures/Sprites/expl4_alpha/expl_15.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_16 { diffusemap Textures/Sprites/expl4_alpha/expl_16.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_17 { diffusemap Textures/Sprites/expl4_alpha/expl_17.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_18 { diffusemap Textures/Sprites/expl4_alpha/expl_18.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_19 { diffusemap Textures/Sprites/expl4_alpha/expl_19.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_20 { diffusemap Textures/Sprites/expl4_alpha/expl_20.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_21 { diffusemap Textures/Sprites/expl4_alpha/expl_21.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_22 { diffusemap Textures/Sprites/expl4_alpha/expl_22.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_23 { diffusemap Textures/Sprites/expl4_alpha/expl_23.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_24 { diffusemap Textures/Sprites/expl4_alpha/expl_24.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_25 { diffusemap Textures/Sprites/expl4_alpha/expl_25.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_26 { diffusemap Textures/Sprites/expl4_alpha/expl_26.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_27 { diffusemap Textures/Sprites/expl4_alpha/expl_27.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_28 { diffusemap Textures/Sprites/expl4_alpha/expl_28.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_29 { diffusemap Textures/Sprites/expl4_alpha/expl_29.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_30 { diffusemap Textures/Sprites/expl4_alpha/expl_30.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_31 { diffusemap Textures/Sprites/expl4_alpha/expl_31.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_32 { diffusemap Textures/Sprites/expl4_alpha/expl_32.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_33 { diffusemap Textures/Sprites/expl4_alpha/expl_33.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_34 { diffusemap Textures/Sprites/expl4_alpha/expl_34.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_35 { diffusemap Textures/Sprites/expl4_alpha/expl_35.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_36 { diffusemap Textures/Sprites/expl4_alpha/expl_36.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_37 { diffusemap Textures/Sprites/expl4_alpha/expl_37.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_38 { diffusemap Textures/Sprites/expl4_alpha/expl_38.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_39 { diffusemap Textures/Sprites/expl4_alpha/expl_39.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_40 { diffusemap Textures/Sprites/expl4_alpha/expl_40.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_41 { diffusemap Textures/Sprites/expl4_alpha/expl_41.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_42 { diffusemap Textures/Sprites/expl4_alpha/expl_42.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_43 { diffusemap Textures/Sprites/expl4_alpha/expl_43.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_44 { diffusemap Textures/Sprites/expl4_alpha/expl_44.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_45 { diffusemap Textures/Sprites/expl4_alpha/expl_45.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_46 { diffusemap Textures/Sprites/expl4_alpha/expl_46.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_47 { diffusemap Textures/Sprites/expl4_alpha/expl_47.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_48 { diffusemap Textures/Sprites/expl4_alpha/expl_48.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_49 { diffusemap Textures/Sprites/expl4_alpha/expl_49.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_50 { diffusemap Textures/Sprites/expl4_alpha/expl_50.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_51 { diffusemap Textures/Sprites/expl4_alpha/expl_51.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_52 { diffusemap Textures/Sprites/expl4_alpha/expl_52.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_53 { diffusemap Textures/Sprites/expl4_alpha/expl_53.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_54 { diffusemap Textures/Sprites/expl4_alpha/expl_54.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/expl4/expl_55 { diffusemap Textures/Sprites/expl4_alpha/expl_55.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+
+
+Sprites/plasma1/plasma_01 { diffusemap Textures/Sprites/plasma1_add/plasma_01.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/plasma1/plasma_02 { diffusemap Textures/Sprites/plasma1_add/plasma_02.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/plasma1/plasma_03 { diffusemap Textures/Sprites/plasma1_add/plasma_03.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/plasma1/plasma_04 { diffusemap Textures/Sprites/plasma1_add/plasma_04.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/plasma1/plasma_05 { diffusemap Textures/Sprites/plasma1_add/plasma_05.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/plasma1/plasma_06 { diffusemap Textures/Sprites/plasma1_add/plasma_06.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/plasma1/plasma_07 { diffusemap Textures/Sprites/plasma1_add/plasma_07.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/plasma1/plasma_08 { diffusemap Textures/Sprites/plasma1_add/plasma_08.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/plasma1/plasma_09 { diffusemap Textures/Sprites/plasma1_add/plasma_09.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/plasma1/plasma_10 { diffusemap Textures/Sprites/plasma1_add/plasma_10.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/plasma1/plasma_11 { diffusemap Textures/Sprites/plasma1_add/plasma_11.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/plasma1/plasma_12 { diffusemap Textures/Sprites/plasma1_add/plasma_12.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/plasma1/plasma_13 { diffusemap Textures/Sprites/plasma1_add/plasma_13.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/plasma1/plasma_14 { diffusemap Textures/Sprites/plasma1_add/plasma_14.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/plasma1/plasma_15 { diffusemap Textures/Sprites/plasma1_add/plasma_15.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/plasma1/plasma_16 { diffusemap Textures/Sprites/plasma1_add/plasma_16.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/plasma1/plasma_17 { diffusemap Textures/Sprites/plasma1_add/plasma_17.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/plasma1/plasma_18 { diffusemap Textures/Sprites/plasma1_add/plasma_18.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/plasma1/plasma_19 { diffusemap Textures/Sprites/plasma1_add/plasma_19.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/plasma1/plasma_20 { diffusemap Textures/Sprites/plasma1_add/plasma_20.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+
+
+Sprites/smoke1/smoke_01 { diffusemap Textures/Sprites/smoke1_alpha/smoke_01.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_02 { diffusemap Textures/Sprites/smoke1_alpha/smoke_02.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_03 { diffusemap Textures/Sprites/smoke1_alpha/smoke_03.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_04 { diffusemap Textures/Sprites/smoke1_alpha/smoke_04.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_05 { diffusemap Textures/Sprites/smoke1_alpha/smoke_05.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_06 { diffusemap Textures/Sprites/smoke1_alpha/smoke_06.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_07 { diffusemap Textures/Sprites/smoke1_alpha/smoke_07.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_08 { diffusemap Textures/Sprites/smoke1_alpha/smoke_08.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_09 { diffusemap Textures/Sprites/smoke1_alpha/smoke_09.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_10 { diffusemap Textures/Sprites/smoke1_alpha/smoke_10.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_11 { diffusemap Textures/Sprites/smoke1_alpha/smoke_11.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_12 { diffusemap Textures/Sprites/smoke1_alpha/smoke_12.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_13 { diffusemap Textures/Sprites/smoke1_alpha/smoke_13.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_14 { diffusemap Textures/Sprites/smoke1_alpha/smoke_14.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_15 { diffusemap Textures/Sprites/smoke1_alpha/smoke_15.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_16 { diffusemap Textures/Sprites/smoke1_alpha/smoke_16.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_17 { diffusemap Textures/Sprites/smoke1_alpha/smoke_17.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_18 { diffusemap Textures/Sprites/smoke1_alpha/smoke_18.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_19 { diffusemap Textures/Sprites/smoke1_alpha/smoke_19.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_20 { diffusemap Textures/Sprites/smoke1_alpha/smoke_20.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_21 { diffusemap Textures/Sprites/smoke1_alpha/smoke_21.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_22 { diffusemap Textures/Sprites/smoke1_alpha/smoke_22.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_23 { diffusemap Textures/Sprites/smoke1_alpha/smoke_23.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_24 { diffusemap Textures/Sprites/smoke1_alpha/smoke_24.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_25 { diffusemap Textures/Sprites/smoke1_alpha/smoke_25.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_26 { diffusemap Textures/Sprites/smoke1_alpha/smoke_26.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_27 { diffusemap Textures/Sprites/smoke1_alpha/smoke_27.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_28 { diffusemap Textures/Sprites/smoke1_alpha/smoke_28.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_29 { diffusemap Textures/Sprites/smoke1_alpha/smoke_29.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_30 { diffusemap Textures/Sprites/smoke1_alpha/smoke_30.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_31 { diffusemap Textures/Sprites/smoke1_alpha/smoke_31.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/smoke1/smoke_32 { diffusemap Textures/Sprites/smoke1_alpha/smoke_32.png   noDynLight   blendFunc src_alpha one_minus_src_alpha   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+
+
+Sprites/star1/star_01 { diffusemap Textures/Sprites/star1_add/star_01.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/star1/star_02 { diffusemap Textures/Sprites/star1_add/star_02.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/star1/star_03 { diffusemap Textures/Sprites/star1_add/star_03.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/star1/star_04 { diffusemap Textures/Sprites/star1_add/star_04.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/star1/star_05 { diffusemap Textures/Sprites/star1_add/star_05.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/star1/star_06 { diffusemap Textures/Sprites/star1_add/star_06.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/star1/star_07 { diffusemap Textures/Sprites/star1_add/star_07.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/star1/star_08 { diffusemap Textures/Sprites/star1_add/star_08.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/star1/star_09 { diffusemap Textures/Sprites/star1_add/star_09.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/star1/star_10 { diffusemap Textures/Sprites/star1_add/star_10.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/star1/star_11 { diffusemap Textures/Sprites/star1_add/star_11.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/star1/star_12 { diffusemap Textures/Sprites/star1_add/star_12.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/star1/star_13 { diffusemap Textures/Sprites/star1_add/star_13.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/star1/star_14 { diffusemap Textures/Sprites/star1_add/star_14.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/star1/star_15 { diffusemap Textures/Sprites/star1_add/star_15.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/star1/star_16 { diffusemap Textures/Sprites/star1_add/star_16.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/star1/star_17 { diffusemap Textures/Sprites/star1_add/star_17.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/star1/star_18 { diffusemap Textures/Sprites/star1_add/star_18.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/star1/star_19 { diffusemap Textures/Sprites/star1_add/star_19.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/star1/star_20 { diffusemap Textures/Sprites/star1_add/star_20.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }
+Sprites/star1/star_21 { diffusemap Textures/Sprites/star1_add/star_21.png   noDynLight   blendFunc one one   red fParam0   green fParam1   blue fParam2   alpha fParam3   ambientMask d   meta_editorImage noEditor }

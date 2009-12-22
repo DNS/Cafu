@@ -1,0 +1,135 @@
+EmgTunnelStorageRoomGUI=gui:new("WindowT");
+gui:SetRootWindow(EmgTunnelStorageRoomGUI);
+
+function EmgTunnelStorageRoomGUI:OnInit()
+    self:set("rect", 0, 0, 640, 480);
+ -- self:set("backColor", 0, 0, 0.3, 1);
+    self:set("backColor", 0.0, 0.25*0.4, 0.7*0.4, 1);
+    -- self:set("text", "ERR: No connection to rescue service.");
+    -- self:set("textScale", 1.0);
+
+    gui:activate(false);
+    gui:setInteractive(true);
+    gui:showMouse(true);
+end
+
+
+Heading=gui:new("WindowT");
+EmgTunnelStorageRoomGUI:AddChild(Heading);
+
+function Heading:OnInit()
+    self:set("rect", 50, 30, 540, 120);
+    self:set("backColor", 1, 1, 1, 0);      -- Set alpha value to zero!
+    self:set("borderWidth", 5.0);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:set("text", "Evacuation Tunnel\n\"November 1\"");
+    self:set("textColor", 0.51, 0.8, 1.0, 1.0);
+    self:set("textScale", 0.7);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+    self:set("font", "Fonts/Impact");
+end
+
+
+TunnelLocation=gui:new("WindowT");
+EmgTunnelStorageRoomGUI:AddChild(TunnelLocation);
+
+function TunnelLocation:OnInit()
+    self:set("rect", 50, 180, 540, 120);
+    self:set("backColor", 1, 1, 1, 0);      -- Set alpha value to zero!
+    self:set("borderWidth", 5.0);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:set("text", "Checkpoint: Storage Room\n"..">>>> Escape Route >>>>\n");
+    self:set("textColor", 0.51, 0.8, 1.0, 1.0);
+    self:set("textScale", 0.6);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+
+CallRescueText=gui:new("WindowT");
+EmgTunnelStorageRoomGUI:AddChild(CallRescueText);
+
+function CallRescueText:OnInit()
+    self:set("rect", 50, 330, 410, 120);
+    self:set("backColor", 1, 1, 1, 0);      -- Set alpha value to zero!
+    self:set("borderWidth", 5.0);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:set("text", "Activate button to call \nrescue service! ");
+    self:set("textColor", 0.51, 0.8, 1.0, 1.0);
+    self:set("textScale", 0.6);
+    self:set("textAlignHor", 1);
+    self:set("textAlignVer", 0);
+end
+
+
+HelpText=gui:new("WindowT");
+CallRescueText:AddChild(HelpText);
+
+function HelpText:OnInit()
+    self:set("rect", 0+7, 0, 410, 120-9);
+    self:set("backColor", 1, 1, 1, 0);      -- Set alpha value to zero!
+    self:set("text", "You can move the red crosshair cursor with the mouse and\nuse the \"0\" (zero) key on your keyboard to \"click\" the button.");
+    self:set("textColor", 0.8, 0.8, 0.8, 1.0);
+    self:set("textScale", 0.3);
+    self:set("textAlignHor", 0);
+    self:set("textAlignVer", 1);
+end
+
+
+CallRescueButton=gui:new("WindowT");
+EmgTunnelStorageRoomGUI:AddChild(CallRescueButton);
+
+function CallRescueButton:OnInit()
+    self:set("rect", 50+410+15, 330, 115, 120);
+    self:set("backColor", 0.5, 0, 0, 1);      -- Set alpha value to zero!
+    self:set("borderWidth", 5.0);
+    self:set("borderColor", 0.8, 0.8, 0.8, 1.0);
+    self:set("text", "CALL\nRESCUE");
+    self:set("textColor", 1.0, 1.0, 1.0, 1.0);
+    self:set("textScale", 0.6);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+    self:set("font", "Fonts/Impact");
+end
+
+function CallRescueButton:OnMouseEnter()
+    self:interpolate("backColor.r", 0.5, 1.0, 500);
+    self:interpolate("textScale", 0.6, 0.7, 500);
+end
+
+function CallRescueButton:OnMouseLeave()
+    self:interpolate("backColor.r", 1.0, 0.5, 500);
+    self:interpolate("textScale", 0.7, 0.6, 500);
+end
+
+function CallRescueButton:OnMouseButtonDown()
+    EmgTunnelStorageRoomGUI:interpolate("backColor.g", 0.25*0.4, 0.70*0.4, 500);
+    EmgTunnelStorageRoomGUI:interpolate("backColor.b", 0.70*0.4, 0.25*0.4, 500);
+
+    Heading:set("borderColor", 0.7, 0.9, 0.8, 1.0);
+    Heading:set("textColor", 0.51, 1.0, 0.8, 1.0);
+    TunnelLocation:set("borderColor", 0.7, 0.9, 0.8, 1.0);
+    TunnelLocation:set("textColor", 0.51, 1.0, 0.8, 1.0);
+
+    self:set("text", "OK");
+    self:interpolate("rotAngle", 0, 360, 500);
+    self:interpolate("backColor.r", 1, 0, 500);
+    self:interpolate("backColor.g", 0, 0.8, 500);
+
+    CallRescueText:set("text", "Opening connection to\nSAR center...");
+    CallRescueText:set("textAlignHor", 2);
+    CallRescueText:set("borderColor", 0.7, 0.9, 0.8, 1.0);
+    CallRescueText:set("textColor", 0.51, 1.0, 0.8, 1.0);
+
+    HelpText:set("textColor", 0.0, 0.7*0.4, 0.25*0.4, 0.0);
+    HelpText:interpolate("textColor.r", 0, 0, 3000);
+    HelpText:interpolate("textColor.r", 0, 1, 50);
+    HelpText:set("text", "ERROR: Invalid socket handle at port 7.");
+
+    game.runMapCmd("OnGui_CallRescueButtonPressed();");
+
+    gui:setInteractive(false);
+    gui:showMouse(false);
+    return true;
+end

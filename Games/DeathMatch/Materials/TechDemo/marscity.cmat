@@ -1,0 +1,40 @@
+// ***************************************************************
+// *** The textures used in the materials below are by Thrawn. ***
+// ***************************************************************
+
+TechDemo/marscity/trim1
+{
+    diffusemap  Textures/TechDemo/marscity/mcity15_diff.png
+    normalmap   Textures/TechDemo/marscity/mcity15_norm.png
+    specularmap Textures/TechDemo/marscity/mcity15_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/marscity/trim2
+{
+    diffusemap  Textures/TechDemo/marscity/mcity18_diff.png
+    normalmap   Textures/TechDemo/marscity/mcity18_norm.png
+    specularmap Textures/TechDemo/marscity/mcity18_spec.png
+    lightmap    $lightmap
+}
+
+
+// ****************************************************************
+// *** The textures used in the materials below are by Charles. ***
+// ****************************************************************
+
+TechDemo/marscity/trim3
+{
+    diffusemap  Textures/TechDemo/marscity/mcity11_diff.png
+    normalmap   Textures/TechDemo/marscity/mcity11_norm.png
+    specularmap Textures/TechDemo/marscity/mcity11_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/marscity/trim4
+{
+    diffusemap  Textures/TechDemo/marscity/mcity13_diff.png
+    normalmap   Textures/TechDemo/marscity/mcity13_norm.png
+    specularmap Textures/TechDemo/marscity/mcity13_spec.png
+    lightmap    $lightmap
+}

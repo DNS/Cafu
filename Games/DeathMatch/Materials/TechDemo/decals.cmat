@@ -1,0 +1,302 @@
+// ********************************************************************************************
+// *** The textures used in the materials below are by partly by Charles, partly by Thrawn. ***
+// *** (  And a few are even by me. ;)  )                                                   ***
+// ********************************************************************************************
+
+TechDemo/decals/alphabet1
+{
+    //D3  DECAL_MACRO
+    //D3  nonsolid
+    //D3  noimpact
+    //D3  translucent
+
+    diffusemap Textures/TechDemo/decals/alphabet1_diff.png
+
+    blendFunc src_color one_minus_src_color
+    noShadows
+    twoSided
+
+    clip nothing
+}
+
+TechDemo/decals/camera-base
+{
+    diffusemap  Textures/TechDemo/decals/camera-base_diff.png
+    normalmap   Textures/TechDemo/decals/camera-base_norm.png
+    specularmap Textures/TechDemo/decals/camera-base_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.9
+    noShadows
+
+    clip nothing    // clip radiance, sight     // Well, this is an opaque decal, but with alphaTest enabled, it should not block radiance or sight.
+}
+
+TechDemo/decals/fan-6-blades
+{
+    diffusemap  Textures/TechDemo/decals/fan-6-blades_diff.png
+    normalmap   Textures/TechDemo/decals/fan-6-blades_norm.png
+    specularmap Textures/TechDemo/decals/fan-6-blades_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.9
+    twoSided
+    noShadows
+
+    clip players, monsters, moveables, ik, projectiles   // ... but not sight, bspPortals or radiance.
+}
+
+TechDemo/decals/hangingwires
+{
+    diffusemap  Textures/TechDemo/decals/hangingwires_diff.png
+    normalmap   Textures/TechDemo/decals/hangingwires_norm.png
+    specularmap Textures/TechDemo/decals/hangingwires_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.9
+    twoSided
+    noShadows
+
+    clip nothing
+}
+
+TechDemo/decals/hangingwires2
+{
+    diffusemap  Textures/TechDemo/decals/hangingwires2_diff.png
+    normalmap   Textures/TechDemo/decals/hangingwires2_norm.png
+    specularmap Textures/TechDemo/decals/hangingwires2_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.9
+    twoSided
+    noShadows
+
+    clip nothing
+}
+
+TechDemo/decals/RauchenVerboten
+{
+    //D3 nonsolid
+    //D3 noimpact
+    //D3 noshadows
+
+    diffusemap  Textures/TechDemo/decals/RauchenVerboten_diff.tga
+ // normalmap   hm2nm(Textures/TechDemo/decals/RauchenVerboten_bump.tga, 3)
+ // specularmap Textures/TechDemo/decals/RauchenVerboten_spec.tga
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    noShadows
+
+    // clip bspPortals, radiance, sight    // Well, this is (almost) an opaque decal...
+    clip all
+}
+
+TechDemo/decals/pressurepanel
+{
+    diffusemap  Textures/TechDemo/decals/pressurepanel_diff.png
+    normalmap   Textures/TechDemo/decals/pressurepanel_norm.png
+    specularmap Textures/TechDemo/decals/pressurepanel_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.95
+    noShadows
+
+    // clip bspPortals, radiance, sight    // Well, this is an opaque decal...
+    clip all
+}
+
+TechDemo/decals/wirejumble
+{
+    diffusemap  Textures/TechDemo/decals/wirejumble_diff.png
+    normalmap   Textures/TechDemo/decals/wirejumble_norm.png
+    specularmap Textures/TechDemo/decals/wirejumble_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.95
+    twoSided
+    noShadows
+
+    clip nothing
+}
+
+
+
+TechDemo/decals/blood/drip1
+{
+    //D3   qer_editorimage      textures/decals/blood_drip1
+    //D3   translucent
+    //D3   decal_macro
+    LightShader   none1234    noDynLight
+
+    diffusemap  Textures/TechDemo/decals/blood/blood_drip1.png
+
+    blendFunc dst_color zero
+    ambientMask d       // Make sure that overlapping (blood-)decals work without z-fighting.
+    noShadows
+
+    clip nothing
+}
+
+TechDemo/decals/blood/splat4
+{
+    //D3 DECAL_MACRO
+    //D3 blood
+    //D3 colored
+
+    LightShader   none1234    noDynLight
+
+    diffusemap  Textures/TechDemo/decals/blood/splat4.png
+
+    blendFunc   zero  one_minus_src_color
+    ambientMask d       // Make sure that overlapping (blood-)decals work without z-fighting.
+    noShadows
+
+    clip nothing
+}
+
+TechDemo/decals/blood/splat5
+{
+    //D3 DECAL_MACRO
+    //D3 blood
+    //D3 colored
+
+    LightShader   none1234    noDynLight
+
+    diffusemap  Textures/TechDemo/decals/blood/splat5.png
+
+    blendFunc   zero  one_minus_src_color
+    ambientMask d       // Make sure that overlapping (blood-)decals work without z-fighting.
+    noShadows
+
+    clip nothing
+}
+
+TechDemo/decals/blood/splat6
+{
+    //D3 DECAL_MACRO
+    //D3 blood
+    //D3 colored
+
+    LightShader   none1234    noDynLight
+
+    diffusemap  Textures/TechDemo/decals/blood/splat6.png
+
+    blendFunc   zero  one_minus_src_color
+    ambientMask d       // Make sure that overlapping (blood-)decals work without z-fighting.
+    noShadows
+
+    clip nothing
+}
+
+TechDemo/decals/blood/splat7
+{
+    //D3 DECAL_MACRO
+    //D3 blood
+    //D3 colored
+
+    LightShader   none1234    noDynLight
+
+    diffusemap  Textures/TechDemo/decals/blood/splat7.png
+
+    blendFunc   zero  one_minus_src_color
+    ambientMask d       // Make sure that overlapping (blood-)decals work without z-fighting.
+    noShadows
+
+    clip nothing
+}
+
+TechDemo/decals/blood/splat14
+{
+    //D3 DECAL_MACRO
+    //D3 blood
+    //D3 colored
+
+    LightShader   none1234    noDynLight
+
+    diffusemap  Textures/TechDemo/decals/blood/splat14.png
+
+    blendFunc   zero  one_minus_src_color
+    ambientMask d       // Make sure that overlapping (blood-)decals work without z-fighting.
+    noShadows
+
+    clip nothing
+}
+
+TechDemo/decals/blood/splat16
+{
+    //D3 DECAL_MACRO
+    //D3 blood
+    //D3 colored
+
+    LightShader   none1234    noDynLight
+
+    diffusemap  Textures/TechDemo/decals/blood/splat16.png
+
+    blendFunc   zero  one_minus_src_color
+    ambientMask d       // Make sure that overlapping (blood-)decals work without z-fighting.
+    noShadows
+
+    clip nothing
+}
+
+TechDemo/decals/dirt/floor1
+{
+    //D3 DECAL_MACRO
+    //D3 translucent
+    //D3 nonsolid
+    //D3 noimpact
+    //D3 noshadows
+    //D3 colored
+    LightShader   none1234    noDynLight
+
+    diffusemap  Textures/TechDemo/decals/dirt/floor1.png
+
+    blendFunc   zero  one_minus_src_color
+    ambientMask d       // Make sure that overlapping decals work without z-fighting.
+    noShadows
+
+    clip nothing
+}
+
+TechDemo/decals/dirt/floor1a
+{
+    //D3 ... as floor1
+    LightShader   none1234    noDynLight
+
+    diffusemap  Textures/TechDemo/decals/dirt/floor1a.png
+
+    blendFunc   zero  one_minus_src_color
+    ambientMask d       // Make sure that overlapping decals work without z-fighting.
+    noShadows
+
+    clip nothing
+}
+
+TechDemo/decals/dirt/wall-metal
+{
+    //D3 ... as floor1
+    LightShader   none1234    noDynLight
+
+    diffusemap  Textures/TechDemo/decals/dirt/wall-metal.png
+
+    blendFunc   zero  one_minus_src_color
+    ambientMask d       // Make sure that overlapping decals work without z-fighting.
+    noShadows
+
+    clip nothing
+}
+
+TechDemo/decals/dirt/wall-crete
+{
+    //D3 ... as floor1
+    LightShader   none1234    noDynLight
+
+    diffusemap  Textures/TechDemo/decals/dirt/wall-crete.png
+
+    blendFunc   zero  one_minus_src_color
+    ambientMask d       // Make sure that overlapping decals work without z-fighting.
+    noShadows
+
+    clip nothing
+}

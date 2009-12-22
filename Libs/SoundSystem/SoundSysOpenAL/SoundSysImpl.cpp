@@ -1,0 +1,300 @@
+/*
+=================================================================================
+This file is part of Cafu, the open-source game and graphics engine for
+multiplayer, cross-platform, real-time 3D action.
+$Id$
+
+Copyright (C) 2002-2010 Carsten Fuchs Software.
+
+Cafu is free software: you can redistribute it and/or modify it under the terms
+of the GNU General Public License as published by the Free Software Foundation,
+either version 3 of the License, or (at your option) any later version.
+
+Cafu is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Cafu. If not, see <http://www.gnu.org/licenses/>.
+
+For support and more information about Cafu, visit us at <http://www.cafu.de>.
+=================================================================================
+*/
+
+#include "SoundSysImpl.hpp"
+#include "SoundImpl.hpp"
+#include "Buffer.hpp"
+#include "BufferManager.hpp"
+#include "MixerTrack.hpp"
+#include "AL/alut.h"
+#include "../Common/SoundStream.hpp"
+#include "../SoundShader.hpp"
+
+#include <iostream>
+
+
+SoundSysImplT& SoundSysImplT::GetInstance()
+{
+    static SoundSysImplT SoundSys;
+
+    return SoundSys;
+}
+
+
+SoundSysImplT::SoundSysImplT()
+    : m_BufferManager(BufferManagerT::GetInstance()),
+      m_MixerTrackManager(MixerTrackManT::GetInstance()),
+      m_Device(NULL),
+      m_Context(NULL),
+      m_IsInitialized(false)
+{
+}
+
+
+SoundSysImplT::~SoundSysImplT()
+{
+    Release();
+}
+
+
+bool SoundSysImplT::Initialize()
+{
+    // Sound system is already initialized.
+    if (m_IsInitialized) return true;
+
+    // std::cout << "OpenAL: Initializing sound system\n";
+
+    // If enumeration extension is present print found devices.
+    if (alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT"))
+    {
+        std::cout << "Available OpenAL devices:\n";
+
+        // Make device enumeration.
+        const char* DeviceNames  =alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+        const char* DefaultDevice=alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
+
+        unsigned int Offset=0;
+        unsigned int DeviceNum=1;
+
+        // While there is a new device name in the list.
+        while (DeviceNames[Offset]!='\0')
+        {
+            std::string PrintName=&DeviceNames[Offset]; // Read device name.
+            Offset+=PrintName.length()+1; // Jump to next device name.
+            std::cout << "\t" << DeviceNum << ". " << PrintName << (PrintName==DefaultDevice ? " [default]" : "") << "\n"; // Print device name.
+            DeviceNum++;
+        }
+    }
+
+    if (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT"))
+    {
+        std::cout << "Detailed OpenAL device list:\n";
+
+        // Make device enumeration.
+        const char* DeviceNames  =alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
+        const char* DefaultDevice=alcGetString(NULL, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
+
+        unsigned int Offset=0;
+        unsigned int DeviceNum=1;
+
+        // While there is a new device name in the list.
+        while (DeviceNames[Offset]!='\0')
+        {
+            std::string PrintName=&DeviceNames[Offset]; // Read device name.
+            Offset+=PrintName.length()+1; // Jump to next device name.
+            std::cout << "\t" << DeviceNum << ". " << PrintName << (PrintName==DefaultDevice ? " [default]" : "") << "\n"; // Print device name.
+            DeviceNum++;
+        }
+    }
+
+    // Use default device.
+    m_Device=alcOpenDevice(NULL);
+
+    if (m_Device==NULL)
+    {
+        std::cout << "OpenAL: Couldn't open default device (Error: " << TranslateErrorCode(alGetError()) << ")\n";
+        return false;
+    }
+
+    // std::cout << "OpenAL: Opened default device.\n";
+
+    // const char* Extensions=alcGetString(m_Device, ALC_EXTENSIONS);
+
+    // std::cout << "OpenAL: Available extensions: " << (Extensions!=NULL ? Extensions : "no extensions found") << "\n";
+
+    m_Context=alcCreateContext(m_Device, NULL);
+
+    if (m_Context==NULL)
+    {
+        std::cout << "OpenAL: Couldn't open context on device (Error: " << TranslateErrorCode(alGetError()) << ")\n";
+        return false;
+    }
+
+    alcMakeContextCurrent(m_Context);
+
+    // Initialize ALUT.
+    if (!alutInitWithoutContext(NULL, NULL))
+    {
+        std::cout << "OpenAL: Couldn't initialize ALUT library\n";
+        alcMakeContextCurrent(NULL);
+        alcDestroyContext(m_Context);
+        alcCloseDevice(m_Device);
+        assert(alGetError()==AL_NO_ERROR);
+        return false;
+    }
+
+    // const char* SupportedBuffer=alutGetMIMETypes(ALUT_LOADER_BUFFER);
+    // const char* SupportedMemory=alutGetMIMETypes(ALUT_LOADER_MEMORY);
+
+    // std::cout << "OpenAL: Supported MIME types (Buffer): '" << (SupportedBuffer!=NULL ? SupportedBuffer : "none") << "'\n";
+    // std::cout << "OpenAL: Supported MIME types (Memory): '" << (SupportedMemory!=NULL ? SupportedMemory : "none") << "'\n";
+
+    assert(alGetError()==AL_NO_ERROR);
+
+    m_IsInitialized=true;
+
+    return true;
+}
+
+
+void SoundSysImplT::Release()
+{
+    // Sound system hasn't been initialized.
+    if (!m_IsInitialized) return;
+
+    // std::cout << "OpenAL: Releasing sound system\n";
+
+    m_MixerTrackManager->ReleaseAll();
+    m_BufferManager->ReleaseAll();
+
+    alcMakeContextCurrent(NULL);
+    alcDestroyContext(m_Context);
+    alcCloseDevice(m_Device);
+    // assert(alGetError()==AL_NO_ERROR);   // Commented out because it causes me trouble in Linux right now. TODO/FIXME!
+    alutExit();
+
+    m_IsInitialized=false;
+}
+
+
+bool SoundSysImplT::IsSupported()
+{
+    // Open default device to check if OpenAL is supported.
+    m_Device=alcOpenDevice(NULL);
+
+    if (m_Device==NULL) return false;
+
+    alcCloseDevice(m_Device);
+    m_Device=NULL;
+
+    return true;
+}
+
+
+int SoundSysImplT::GetPreferenceNr()
+{
+    return 1500;
+}
+
+
+SoundI* SoundSysImplT::CreateSound2D(const SoundShaderT* SoundShader)
+{
+    // Create "empty" sound object if no sound shader is passed.
+    // This is often the case if the game code doesn't check if a sound shader is registered and simply passes the result of
+    // SoundShaderManager->GetSoundShader("xxx") to this method.
+    if (SoundShader==NULL) return new SoundImplT(this, false);
+
+    BufferT* Buffer=m_BufferManager->GetBuffer(SoundShader->AudioFile, SoundShader->LoadType, false);
+
+    if (Buffer==NULL) return NULL;
+
+    return new SoundImplT(this, false, SoundShader, Buffer);
+}
+
+
+SoundI* SoundSysImplT::CreateSound3D(const SoundShaderT* SoundShader)
+{
+    // Create "empty" sound object if no sound shader is passed.
+    // This is often the case if the game code doesn't check if a sound shader is registered and simply passes the result of
+    // SoundShaderManager->GetSoundShader("xxx") to this method.
+    if (SoundShader==NULL) return new SoundImplT(this, true);
+
+    BufferT* Buffer=m_BufferManager->GetBuffer(SoundShader->AudioFile, SoundShader->LoadType, true);
+
+    if (Buffer==NULL) return NULL;
+
+    return new SoundImplT(this, true, SoundShader, Buffer);
+}
+
+
+void SoundSysImplT::DeleteSound(SoundI* Sound)
+{
+    delete Sound;
+}
+
+
+bool SoundSysImplT::PlaySound(const SoundI* Sound)
+{
+    // We can safely cast SoundI to SoundT, since we have created it ourselves.
+    SoundImplT* SoundTmp=(SoundImplT*)Sound;
+
+    // Only play valid sounds.
+    if (SoundTmp->Buffer==NULL) return false;
+
+    MixerTrackT* MixerTrack=m_MixerTrackManager->GetMixerTrack();
+
+    if (MixerTrack==NULL) return false;
+
+    return MixerTrack->PlaySound(SoundTmp);
+}
+
+
+void SoundSysImplT::SetMasterVolume(float Volume)
+{
+    if (Volume>1.0f) Volume=1.0f;
+    if (Volume<0.0f) Volume=0.0f;
+
+    alListenerf(AL_GAIN, Volume);
+
+    assert(alGetError()==AL_NO_ERROR);
+}
+
+
+float SoundSysImplT::GetMasterVolume()
+{
+    float MasterVolume=0.0f;
+
+    alGetListenerf(AL_GAIN, &MasterVolume);
+
+    return MasterVolume;
+}
+
+
+void SoundSysImplT::Update()
+{
+    m_MixerTrackManager->UpdateAll();
+}
+
+
+void SoundSysImplT::UpdateListener(const Vector3dT& Position, const Vector3dT& Velocity, const Vector3fT& OrientationForward, const Vector3fT& OrientationUp)
+{
+    // Update 3D sound attributes.
+    float PositionTriplet[3]  ={ float(Position.x/1000.0f),
+                                 float(Position.y/1000.0f),
+                                 float(Position.z/1000.0f) };
+    float VelocityTriplet[3]  ={ float(Velocity.x/1000.0f),
+                                 float(Velocity.y/1000.0f),
+                                 float(Velocity.z/1000.0f) };
+    float OrientationSextet[6]={ OrientationForward.x,
+                                 OrientationForward.y,
+                                 OrientationForward.z,
+                                 OrientationUp.x,
+                                 OrientationUp.y,
+                                 OrientationUp.z };
+
+    alListenerfv(AL_POSITION,    PositionTriplet  );
+    alListenerfv(AL_VELOCITY,    VelocityTriplet  );
+    alListenerfv(AL_ORIENTATION, OrientationSextet);
+
+    assert(alGetError()==AL_NO_ERROR);
+}

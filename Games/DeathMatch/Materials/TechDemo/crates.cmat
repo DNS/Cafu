@@ -1,0 +1,44 @@
+TechDemo/crates/cage1
+{
+    // Texture are derived (using Gimp) from old ones by Kai...
+    diffusemap  Textures/TechDemo/crates/cage1_diff.png
+    normalmap   Textures/TechDemo/crates/cage1_norm.png
+    specularmap Textures/TechDemo/crates/cage1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/crates/crate1
+{
+    // Texture are derived (using Gimp) from bigger ones by Thrawn...
+    diffusemap  Textures/TechDemo/crates/crate1_2x2_diff.png
+    normalmap   Textures/TechDemo/crates/crate1_2x2_norm.png
+ // specularmap Textures/TechDemo/crates/crate1_2x2_spec.png    // Currently don't have/need this one.
+    lightmap    $lightmap
+}
+
+TechDemo/crates/crate2
+{
+    // Texture are derived (using Gimp) from old ones by Frank...
+    diffusemap  Textures/TechDemo/crates/crate2_diff.png
+    normalmap   Textures/TechDemo/crates/crate2_norm.png
+ // specularmap Textures/TechDemo/crates/crate2_spec.png    // Currently don't have/need this one.
+    lightmap    $lightmap
+}
+
+TechDemo/crates/karton1
+{
+    // Texture are derived (using Gimp) from old ones by Frank...
+    diffusemap  Textures/TechDemo/crates/karton1_diff.png
+    normalmap   Textures/TechDemo/crates/karton1_norm.png
+ // specularmap Textures/TechDemo/crates/karton1_spec.png    // Currently don't have/need this one.
+    lightmap    $lightmap
+}
+
+TechDemo/crates/sopbox2
+{
+    // A nice Pappebox by Thrawn.  ;)
+    diffusemap  Textures/TechDemo/crates/sopbox2_diff.png
+    normalmap   Textures/TechDemo/crates/sopbox2_norm.png
+    specularmap Textures/TechDemo/crates/sopbox2_spec.png
+    lightmap    $lightmap
+}

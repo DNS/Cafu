@@ -1,0 +1,71 @@
+The icons in CaWE were created and are copyrighted by:
+
+      Kai Schadwinkel, http://www.mdkai.de
+
+      Mark James, "Silk" icon set, CC Attribution 2.5 License,
+      http://www.famfamfam.com/lab/icons/silk/
+
+
+CaWE employs several external libraries that are copyrighted by their respective authors.
+Each of these libraries is compatible both with the GPL as well as with the custom licenses by Carsten Fuchs Software for closed-source commercial use.
+
+      Boost C++ Libraries, http://www.boost.org
+
+      Bullet Continuous Collision Detection and Physics Library,
+      copyright (c) 2003-2006 Erwin Coumans,
+      http://continuousphysics.com/Bullet
+
+      NVidia "Cg - C for graphics",
+      http://developer.nvidia.com/object/cg_toolkit.html
+
+      Collada DOM, copyright (c) 2005 Sony Computer Entertainment Inc.,
+      http://www.collada.org
+
+      FMOD, copyright (c) 1994-2004 Firelight Technologies Pty, Ltd.,
+      http://www.fmod.org
+
+      freealut, http://connect.creativelabs.com/openal/default.aspx
+
+      FreeType Library, copyright (c) 2009 The FreeType Project,
+      http://www.freetype.org
+
+      libjpeg, copyright (c) 1991-1998 Independent JPEG Group,
+      http://www.ijg.org
+
+      libnoise, copyright (c) 2003-2007 Jason Bevins,
+      http://libnoise.sourceforge.net
+
+      libogg and libvorbis, copyright (c) 2002 Xiph.org Foundation,
+      http://www.xiph.org
+
+      libpng, copyright (c) 2004 Glenn Randers-Pehrson,
+      http://www.libpng.org/pub/png/libpng.html
+
+      libxml2, copyright (c) 1998-2003 Daniel Veillard,
+      http://xmlsoft.org
+
+      lightwave-8, http://www.newtek.com/lightwave/developers.php
+
+      Lua, copyright (c) 1994-2006 Lua.org, PUC-Rio,
+      http://www.lua.org
+
+      mpg123, copyright (c) Michael Hipp, http://www.mpg123.de
+
+      OpenAL (for Windows),
+      http://connect.creativelabs.com/openal/default.aspx
+
+      openal-soft (for Linux),
+      http://kcat.strangesoft.net/openal.html
+
+      PCRE, copyright (c) 1997-2007 University of Cambridge,
+      copyright (c) 2007, Google Inc. (C++ wrappers),
+      http://www.pcre.org
+
+      wxWidgets cross-platform GUI library,
+      copyright (c) 1998-2005 Julian Smart, Robert Roebling et al,
+      http://www.wxwidgets.org
+
+      zlib, copyright (c) 1995-2004 Jean-loup Gailly and Mark Adler,
+      http://www.zlib.net
+
+For more information, please refer to file LICENSE.txt that you have received along with Cafu.

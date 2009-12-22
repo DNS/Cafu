@@ -1,0 +1,341 @@
+//alphaTest 0.1
+//blendFunc src_alpha one_minus_src_alpha
+
+Plants/Trees/AhornBark
+{
+    diffusemap  Plants/Ahorn/AhornBark.png
+
+    red   1.0
+    green 1.0
+    blue  1.0
+
+    meta_editorImage noEditor
+}
+
+
+Plants/Trees/AhornLeaves
+{
+    diffusemap  Plants/Ahorn/AhornLeaves.png
+
+    blendFunc src_alpha one_minus_src_alpha
+
+    red   1.0
+    green 1.0
+    blue  1.0
+
+    meta_editorImage noEditor
+}
+
+
+Plants/Trees/CrepeMyrtleBark
+{
+    diffusemap  Plants/CrepeMyrtle/CrepeMyrtleBark.png
+
+    red   1.0
+    green 1.0
+    blue  1.0
+
+    meta_editorImage noEditor
+}
+
+
+Plants/Trees/CrepeMyrtleBlossoms_MD_1
+{
+    diffusemap  Plants/CrepeMyrtle/CrepeMyrtleBlossoms_MD_1.png
+
+    blendFunc src_alpha one_minus_src_alpha
+
+    red   1.0
+    green 1.0
+    blue  1.0
+
+    meta_editorImage noEditor
+}
+
+
+Plants/Trees/CrepeMyrtleBlossoms_MD_2
+{
+    diffusemap  Plants/CrepeMyrtle/CrepeMyrtleBlossoms_MD_2.png
+
+    blendFunc src_alpha one_minus_src_alpha
+
+    red   1.0
+    green 1.0
+    blue  1.0
+
+    meta_editorImage noEditor
+}
+
+
+Plants/Trees/CrepeMyrtleLeaves_MD_1
+{
+    diffusemap  Plants/CrepeMyrtle/CrepeMyrtleLeaves_MD_1.png
+
+    blendFunc src_alpha one_minus_src_alpha
+
+    red   1.0
+    green 1.0
+    blue  1.0
+
+    meta_editorImage noEditor
+}
+
+
+Plants/Trees/CrepeMyrtleLeaves_MD_2
+{
+    diffusemap  Plants/CrepeMyrtle/CrepeMyrtleLeaves_MD_2.png
+
+    blendFunc src_alpha one_minus_src_alpha
+
+    red   1.0
+    green 1.0
+    blue  1.0
+
+    meta_editorImage noEditor
+}
+
+
+Plants/Trees/EnglishOakBark
+{
+    diffusemap  Plants/EnglishOak/EnglishOakBark.png
+
+    red   1.0
+    green 1.0
+    blue  1.0
+
+    meta_editorImage noEditor
+}
+
+
+Plants/Trees/EnglishOakLeaves_HD_1
+{
+    diffusemap  Plants/EnglishOak/EnglishOakLeaves_HD_1.png
+
+    blendFunc src_alpha one_minus_src_alpha
+
+    red   1.0
+    green 1.0
+    blue  1.0
+
+    meta_editorImage noEditor
+}
+
+
+Plants/Trees/EnglishOakLeaves_HD_2
+{
+    diffusemap  Plants/EnglishOak/EnglishOakLeaves_HD_2.png
+
+    blendFunc src_alpha one_minus_src_alpha
+
+    red   1.0
+    green 1.0
+    blue  1.0
+
+    meta_editorImage noEditor
+}
+
+
+Plants/Trees/EnglishOakLeaves_HD_3
+{
+    diffusemap  Plants/EnglishOak/EnglishOakLeaves_HD_3.png
+
+    blendFunc src_alpha one_minus_src_alpha
+
+    red   1.0
+    green 1.0
+    blue  1.0
+
+    meta_editorImage noEditor
+}
+
+
+Plants/Trees/EnglishOakLeaves_HD_4
+{
+    diffusemap  Plants/EnglishOak/EnglishOakLeaves_HD_4.png
+
+    blendFunc src_alpha one_minus_src_alpha
+
+    red   1.0
+    green 1.0
+    blue  1.0
+
+    meta_editorImage noEditor
+}
+
+
+Plants/Trees/EnglishOakLeaves_HD_5
+{
+    diffusemap  Plants/EnglishOak/EnglishOakLeaves_HD_5.png
+
+    blendFunc src_alpha one_minus_src_alpha
+
+    red   1.0
+    green 1.0
+    blue  1.0
+
+    meta_editorImage noEditor
+}
+
+
+Plants/Trees/EnglishOakLeaves_LD_1
+{
+    diffusemap  Plants/EnglishOak/EnglishOakLeaves_LD_1.png
+
+    blendFunc src_alpha one_minus_src_alpha
+
+    red   1.0
+    green 1.0
+    blue  1.0
+
+    meta_editorImage noEditor
+}
+
+
+Plants/Trees/EnglishOakLeaves_MD_1
+{
+    diffusemap  Plants/EnglishOak/EnglishOakLeaves_MD_1.png
+
+    blendFunc src_alpha one_minus_src_alpha
+
+    red   1.0
+    green 1.0
+    blue  1.0
+
+    meta_editorImage noEditor
+}
+
+
+Plants/Trees/EnglishOakLeaves_MD_2
+{
+    diffusemap  Plants/EnglishOak/EnglishOakLeaves_MD_2.png
+
+    blendFunc src_alpha one_minus_src_alpha
+
+    red   1.0
+    green 1.0
+    blue  1.0
+
+    meta_editorImage noEditor
+}
+
+
+Plants/Trees/EnglishOakLeaves_MD_3
+{
+    diffusemap  Plants/EnglishOak/EnglishOakLeaves_MD_3.png
+
+    blendFunc src_alpha one_minus_src_alpha
+
+    red   1.0
+    green 1.0
+    blue  1.0
+
+    meta_editorImage noEditor
+}
+
+
+Plants/Trees/FicasBark
+{
+    diffusemap  Plants/Ficus/FicasBark.png
+
+    red   1.0
+    green 1.0
+    blue  1.0
+
+    meta_editorImage noEditor
+}
+
+
+Plants/Trees/FicasLeaves_MD_1
+{
+    diffusemap  Plants/Ficus/FicasLeaves_MD_1.png
+
+    blendFunc src_alpha one_minus_src_alpha
+
+    red   1.0
+    green 1.0
+    blue  1.0
+
+    meta_editorImage noEditor
+}
+
+
+Plants/Trees/FicasLeaves_MD_2
+{
+    diffusemap  Plants/Ficus/FicasLeaves_MD_2.png
+
+    blendFunc src_alpha one_minus_src_alpha
+
+    red   1.0
+    green 1.0
+    blue  1.0
+
+    meta_editorImage noEditor
+}
+
+
+Plants/Trees/WhitePineBark
+{
+    diffusemap  Plants/WhitePine/WhitePineBark.png
+
+    red   1.0
+    green 1.0
+    blue  1.0
+    
+    meta_editorImage noEditor    
+}
+
+
+Plants/Trees/WhitePineNeedles_GD_1
+{
+    diffusemap  Plants/WhitePine/WhitePineNeedles_GD_1.png
+
+    blendFunc src_alpha one_minus_src_alpha
+
+    red   1.0
+    green 1.0
+    blue  1.0
+
+    meta_editorImage noEditor
+}
+
+
+Plants/Trees/WhitePineNeedles_GD_2
+{
+    diffusemap  Plants/WhitePine/WhitePineNeedles_GD_2.png
+
+    blendFunc src_alpha one_minus_src_alpha
+
+    red   1.0
+    green 1.0
+    blue  1.0
+
+    meta_editorImage noEditor
+}
+
+
+Plants/Trees/WhitePineNeedles_MD_1
+{
+    diffusemap  Plants/WhitePine/WhitePineNeedles_MD_1.png
+
+    blendFunc src_alpha one_minus_src_alpha
+
+    red   1.0
+    green 1.0
+    blue  1.0
+
+    meta_editorImage noEditor
+}
+
+
+Plants/Trees/WhitePineNeedles_MD_2
+{
+    diffusemap  Plants/WhitePine/WhitePineNeedles_MD_2.png
+
+    blendFunc src_alpha one_minus_src_alpha
+
+    red   1.0
+    green 1.0
+    blue  1.0
+
+    meta_editorImage noEditor
+}

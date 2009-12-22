@@ -1,0 +1,63 @@
+Textures/generic/_black
+{
+    diffusemap  Textures/generic/_black_diff.png
+ // lightmap    $lightmap
+
+    meta_editorImage Textures/generic/_black_editor.png
+}
+
+
+Textures/generic/_blue
+{
+    diffusemap  Textures/generic/_blue_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/generic/_cyan
+{
+    diffusemap  Textures/generic/_cyan_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/generic/_green
+{
+    diffusemap  Textures/generic/_green_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/generic/_magenta
+{
+    diffusemap  Textures/generic/_magenta_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/generic/_orange
+{
+    diffusemap  Textures/generic/_orange_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/generic/_red
+{
+    diffusemap  Textures/generic/_red_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/generic/_white
+{
+    diffusemap  Textures/generic/_white_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/generic/_yellow
+{
+    diffusemap  Textures/generic/_yellow_diff.png
+    lightmap    $lightmap
+}

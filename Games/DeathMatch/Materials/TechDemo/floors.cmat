@@ -1,0 +1,383 @@
+// ****************************************************************
+// *** The textures used in the materials below are by Charles. ***
+// ****************************************************************
+
+TechDemo/floors/gho_ceiling2
+{
+    diffusemap  Textures/TechDemo/floors/ghoceiling2_diff.png
+    normalmap   Textures/TechDemo/floors/ghoceiling2_norm.png
+    specularmap Textures/TechDemo/floors/ghoceiling2_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/gho_floor1a
+{
+    diffusemap  Textures/TechDemo/floors/ghofloor1a_diff.png
+    normalmap   Textures/TechDemo/floors/ghofloor1a_norm.png
+    specularmap Textures/TechDemo/floors/ghofloor1a_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/gho_floor1b
+{
+    diffusemap  Textures/TechDemo/floors/ghofloor1b_diff.png
+    normalmap   Textures/TechDemo/floors/ghofloor1b_norm.png
+    specularmap Textures/TechDemo/floors/ghofloor1b_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/got_hallpanel2
+{
+    diffusemap  Textures/TechDemo/floors/gothallpanel2_diff.png
+    normalmap   Textures/TechDemo/floors/gothallpanel2_norm.png
+    specularmap Textures/TechDemo/floors/gothallpanel2_spec.png
+    lightmap    $lightmap
+}
+
+
+// *****************************
+// *** Materials in "Set 5". ***
+// *****************************
+
+TechDemo/floors/diafloor
+{
+    diffusemap  Textures/TechDemo/floors/diafloor_1b_diff.png
+    normalmap   Textures/TechDemo/floors/diafloor_1b_norm.png
+    specularmap Textures/TechDemo/floors/diafloor_1b_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/floorvent
+{
+    diffusemap  Textures/TechDemo/floors/floorvent02_diff.png
+    normalmap   Textures/TechDemo/floors/floorvent02_norm.png
+    specularmap Textures/TechDemo/floors/floorvent02_spec.png
+    lightmap    $lightmap
+
+    // alphaTest is *intentionally* commented out here, because this material is used in
+    // the TechDemo.cmap as solid material for sealing the level.
+    // See TechDemo/floors/floorvent_alpha for the same material with alphaTest enabled.
+    // alphaTest 0.98
+}
+
+TechDemo/floors/floorvent_alpha
+{
+    diffusemap  Textures/TechDemo/floors/floorvent02_diff.png
+    normalmap   Textures/TechDemo/floors/floorvent02_norm.png
+    specularmap Textures/TechDemo/floors/floorvent02_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.98
+    clip players, monsters, moveables, ik, projectiles, sight   // ... but not bspPortals or radiance.
+}
+
+TechDemo/floors/ghoceiling1
+{
+    diffusemap  Textures/TechDemo/floors/ghoceiling1_diff.png
+    normalmap   Textures/TechDemo/floors/ghoceiling1_norm.png
+    specularmap Textures/TechDemo/floors/ghoceiling1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/reactorfloor2
+{
+    diffusemap  Textures/TechDemo/floors/reactorfloor2_diff.png
+    normalmap   Textures/TechDemo/floors/reactorfloor2_norm.png
+    specularmap Textures/TechDemo/floors/reactorfloor2_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/reactorwalk1
+{
+    diffusemap  Textures/TechDemo/floors/reactorwalk1_diff.png
+    normalmap   Textures/TechDemo/floors/reactorwalk1_norm.png
+    specularmap Textures/TechDemo/floors/reactorwalk1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/sflgrate-2
+{
+    diffusemap  Textures/TechDemo/floors/sflgrate2_diff.png
+    normalmap   Textures/TechDemo/floors/sflgrate2_norm.png
+    specularmap Textures/TechDemo/floors/sflgrate2_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/sflgrate-2adiag
+{
+    diffusemap  Textures/TechDemo/floors/sflgrate2adiag_diff.png
+    normalmap   Textures/TechDemo/floors/sflgrate2adiag_norm.png
+    specularmap Textures/TechDemo/floors/sflgrate2adiag_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/sflgrate-4
+{
+    diffusemap  Textures/TechDemo/floors/sflgrate4_diff.png
+    normalmap   Textures/TechDemo/floors/sflgrate4_norm.png
+    specularmap Textures/TechDemo/floors/sflgrate4_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/sflgrate-5
+{
+    diffusemap  Textures/TechDemo/floors/sflgrate5_diff.png
+    normalmap   Textures/TechDemo/floors/sflgrate5_norm.png
+    specularmap Textures/TechDemo/floors/sflgrate5_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/sfloor-4
+{
+    diffusemap  Textures/TechDemo/floors/sflooralph04_diff.png
+    normalmap   Textures/TechDemo/floors/sflooralph04_norm.png
+    specularmap Textures/TechDemo/floors/sflooralph04_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.99
+    noShadows
+    twoSided
+
+    clip players, monsters, moveables, ik, projectiles   // ... but not sight, bspPortals or radiance.
+}
+
+TechDemo/floors/sflpanel-1b
+{
+    diffusemap  Textures/TechDemo/floors/sflpanel1b_diff.png
+    normalmap   Textures/TechDemo/floors/sflpanel1b_norm.png
+    specularmap Textures/TechDemo/floors/sflpanel1b_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/sflpanel-4
+{
+    diffusemap  Textures/TechDemo/floors/sflpanel4_diff.png
+    normalmap   Textures/TechDemo/floors/sflpanel4_norm.png
+    specularmap Textures/TechDemo/floors/sflpanel4_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/sflpanel-6
+{
+    diffusemap  Textures/TechDemo/floors/sflpanel6_diff.png
+    normalmap   Textures/TechDemo/floors/sflpanel6_norm.png
+    specularmap Textures/TechDemo/floors/sflpanel6_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/sflpanel-7
+{
+    diffusemap  Textures/TechDemo/floors/sflpanel7_diff.png
+    normalmap   Textures/TechDemo/floors/sflpanel7_norm.png
+    specularmap Textures/TechDemo/floors/sflpanel7_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/skpanel-5
+{
+    diffusemap  Textures/TechDemo/floors/skpanel5_diff.png
+    normalmap   Textures/TechDemo/floors/skpanel5_norm.png
+    specularmap Textures/TechDemo/floors/skpanel5_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/sofloor-1
+{
+    diffusemap  Textures/TechDemo/floors/sofloor1_diff.png
+    normalmap   Textures/TechDemo/floors/sofloor1_norm.png
+    specularmap Textures/TechDemo/floors/sofloor1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/floormat1
+{
+    diffusemap  Textures/TechDemo/floors/stefloormat1_diff.png
+    normalmap   Textures/TechDemo/floors/stefloormat1_norm.png
+    specularmap Textures/TechDemo/floors/stefloormat1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/tecstairstep
+{
+    diffusemap  Textures/TechDemo/floors/tecstairstep_diff.png
+    normalmap   Textures/TechDemo/floors/tecstairstep_norm.png
+    specularmap Textures/TechDemo/floors/tecstairstep_spec.png
+    lightmap    $lightmap
+}
+
+
+// ***************************************************************
+// *** The textures used in the materials below are by Thrawn. ***
+// ***************************************************************
+
+TechDemo/floors/Thrawn/a_sofloor1_d01aclean
+{
+    diffusemap  Textures/TechDemo/floors/Thrawn/a_sofloor1_d01aclean_diff.png
+    normalmap   Textures/TechDemo/floors/Thrawn/a_sofloor1_d01aclean_norm.png
+    specularmap Textures/TechDemo/floors/Thrawn/a_sofloor1_d01aclean_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/Thrawn/sfloor
+{
+    diffusemap  Textures/TechDemo/floors/Thrawn/sfloor_diff.tga
+    normalmap   Textures/TechDemo/floors/Thrawn/sfloor_norm.png
+    specularmap Textures/TechDemo/floors/Thrawn/sfloor_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    twoSided
+    clip players, monsters, moveables, ik, projectiles, sight   // ... but not bspPortals or radiance.
+}
+
+TechDemo/floors/Thrawn/sflpanel1b
+{
+    diffusemap  Textures/TechDemo/floors/Thrawn/sflpanel1b_diff.png
+    normalmap   Textures/TechDemo/floors/Thrawn/sflpanel1b_norm.png
+    specularmap Textures/TechDemo/floors/Thrawn/sflpanel1b_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/Thrawn/sflpanel1d
+{
+    diffusemap  Textures/TechDemo/floors/Thrawn/sflpanel1d_diff.png
+    normalmap   Textures/TechDemo/floors/Thrawn/sflpanel1d_norm.png
+    specularmap Textures/TechDemo/floors/Thrawn/sflpanel1d_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/Thrawn/sflgrate2
+{
+    diffusemap  Textures/TechDemo/floors/Thrawn/sflgrate2_diff.png
+    normalmap   Textures/TechDemo/floors/Thrawn/sflgrate2_norm.png
+    specularmap Textures/TechDemo/floors/Thrawn/sflgrate2_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/Thrawn/sflgrate2a
+{
+    diffusemap  Textures/TechDemo/floors/Thrawn/sflgrate2a_diff.png
+    normalmap   Textures/TechDemo/floors/Thrawn/sflgrate2_norm.png
+    specularmap Textures/TechDemo/floors/Thrawn/sflgrate2a_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/Thrawn/sflgrate2adiag
+{
+    diffusemap  Textures/TechDemo/floors/Thrawn/sflgrate2adiag_diff.png
+    normalmap   Textures/TechDemo/floors/Thrawn/sflgrate2adiag_norm.png
+    specularmap Textures/TechDemo/floors/Thrawn/sflgrate2adiag_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/Thrawn/sflgrate2diag
+{
+    diffusemap  Textures/TechDemo/floors/Thrawn/sflgrate2diag_diff.png
+    normalmap   Textures/TechDemo/floors/Thrawn/sflgrate2adiag_norm.png
+    specularmap Textures/TechDemo/floors/Thrawn/sflgrate2adiag_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/Thrawn/sflgrate4
+{
+    diffusemap  Textures/TechDemo/floors/Thrawn/sflgrate4_diff.png
+    normalmap   Textures/TechDemo/floors/Thrawn/sflgrate4_norm.png
+    specularmap Textures/TechDemo/floors/Thrawn/sflgrate4_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/Thrawn/sflgrate5
+{
+    diffusemap  Textures/TechDemo/floors/Thrawn/sflgrate5_diff.png
+    normalmap   Textures/TechDemo/floors/Thrawn/sflgrate5_norm.png
+    specularmap Textures/TechDemo/floors/Thrawn/sflgrate5_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/Thrawn/sflpanel4
+{
+    diffusemap  Textures/TechDemo/floors/Thrawn/sflpanel4_diff.png
+    normalmap   Textures/TechDemo/floors/Thrawn/sflpanel4_norm.png
+    specularmap Textures/TechDemo/floors/Thrawn/sflpanel4_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/Thrawn/sflpanel4a
+{
+    diffusemap  Textures/TechDemo/floors/Thrawn/sflpanel4a_diff.png
+    normalmap   Textures/TechDemo/floors/Thrawn/sflpanel4a_norm.png
+    specularmap Textures/TechDemo/floors/Thrawn/sflpanel4a_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/Thrawn/sflpanel6
+{
+    diffusemap  Textures/TechDemo/floors/Thrawn/sflpanel6_diff.png
+    normalmap   Textures/TechDemo/floors/Thrawn/sflpanel6_norm.png
+    specularmap Textures/TechDemo/floors/Thrawn/sflpanel6_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/Thrawn/sflpanel7
+{
+    diffusemap  Textures/TechDemo/floors/Thrawn/sflpanel7_diff.png
+    normalmap   Textures/TechDemo/floors/Thrawn/sflpanel7_norm.png
+    specularmap Textures/TechDemo/floors/Thrawn/sflpanel7_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/Thrawn/floorvent02
+{
+    diffusemap  Textures/TechDemo/floors/Thrawn/floorvent02_diff.png
+    normalmap   Textures/TechDemo/floors/Thrawn/floorvent02_norm.png
+    specularmap Textures/TechDemo/floors/Thrawn/floorvent02_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/Thrawn/stefloormat1
+{
+    diffusemap  Textures/TechDemo/floors/Thrawn/stefloormat1_diff.png
+    normalmap   Textures/TechDemo/floors/Thrawn/stefloormat1_norm.png
+    specularmap Textures/TechDemo/floors/Thrawn/stefloormat1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/Thrawn/ghofloor1b
+{
+    diffusemap  Textures/TechDemo/floors/Thrawn/ghofloor1b_diff.png
+    normalmap   Textures/TechDemo/floors/Thrawn/ghofloor1b_norm.png
+    specularmap Textures/TechDemo/floors/Thrawn/ghofloor1b_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/Thrawn/ghofloor1a
+{
+    diffusemap  Textures/TechDemo/floors/Thrawn/ghofloor1a_diff.png
+    normalmap   Textures/TechDemo/floors/Thrawn/ghofloor1a_norm.png
+    specularmap Textures/TechDemo/floors/Thrawn/ghofloor1a_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/Thrawn/ghoceiling2
+{
+    diffusemap  Textures/TechDemo/floors/Thrawn/ghoceiling2_diff.png
+    normalmap   Textures/TechDemo/floors/Thrawn/ghoceiling2_norm.png
+    specularmap Textures/TechDemo/floors/Thrawn/ghoceiling2_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/Thrawn/reactorwalk1a
+{
+    diffusemap  Textures/TechDemo/floors/Thrawn/reactorwalk1a_diff.png
+    normalmap   Textures/TechDemo/floors/Thrawn/reactorwalk1a_norm.png
+    specularmap Textures/TechDemo/floors/Thrawn/reactorwalk1a_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/floors/Thrawn/gothallpanel2
+{
+    diffusemap  Textures/TechDemo/floors/Thrawn/gothallpanel2_diff.png
+    normalmap   Textures/TechDemo/floors/Thrawn/gothallpanel2_norm.png
+    specularmap Textures/TechDemo/floors/Thrawn/gothallpanel2_spec.png
+    lightmap    $lightmap
+}

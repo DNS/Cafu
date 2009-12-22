@@ -1,0 +1,35 @@
+Models/Static/barrel1/barrela
+{
+    diffusemap Models/TechDemo/Barrels/barrel1_a_diff.png
+    normalmap  Models/TechDemo/Barrels/barrel1_norm.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Static/barrel1/barrelb
+{
+    diffusemap Models/TechDemo/Barrels/barrel1_b_diff.png
+    normalmap  Models/TechDemo/Barrels/barrel1_norm.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Static/barrel1/barrelc
+{
+    diffusemap Models/TechDemo/Barrels/barrel1_c_diff.png
+    normalmap  Models/TechDemo/Barrels/barrel1_norm.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}

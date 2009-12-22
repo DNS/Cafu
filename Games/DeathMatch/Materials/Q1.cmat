@@ -1,0 +1,532 @@
+Textures/Q1/+0planet
+{
+    diffusemap  Textures/Q1/+0planet_diff.png
+    normalmap   Textures/Q1/+0planet_norm.png
+    specularmap Textures/Q1/+0planet_spec.png
+    lumamap     Textures/Q1/+0planet_luma.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/+0sliptop
+{
+    diffusemap  Textures/Q1/+0sliptop_diff.png
+    normalmap   Textures/Q1/+0sliptop_norm.png
+    specularmap Textures/Q1/+0sliptop_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/+2slip
+{
+    diffusemap  Textures/Q1/+2slip_diff.png
+    normalmap   Textures/Q1/+2slip_norm.png
+    specularmap Textures/Q1/+2slip_spec.png
+    lumamap     Textures/Q1/+2slip_luma.png
+    lightmap    $lightmap
+
+    meta_radiantExitance  40   0   0     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/Q1/basebutn3
+{
+    diffusemap  Textures/Q1/basebutn3_diff.png
+    normalmap   Textures/Q1/basebutn3_norm.png
+    specularmap Textures/Q1/basebutn3_spec.png
+    lumamap     Textures/Q1/basebutn3_luma.png
+    lightmap    $lightmap
+
+    meta_radiantExitance 100   0   0     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/Q1/comp1_1
+{
+    diffusemap  Textures/Q1/comp1_1_diff.png
+    normalmap   Textures/Q1/comp1_1_norm.png
+    specularmap Textures/Q1/comp1_1_spec.png
+    lumamap     Textures/Q1/comp1_1_luma.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/comp1_2
+{
+    diffusemap  Textures/Q1/comp1_2_diff.png
+    normalmap   Textures/Q1/comp1_2_norm.png
+    specularmap Textures/Q1/comp1_2_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/comp1_3
+{
+    diffusemap  Textures/Q1/comp1_3_diff.png
+    normalmap   Textures/Q1/comp1_3_norm.png
+    specularmap Textures/Q1/comp1_3_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/comp1_4
+{
+    diffusemap  Textures/Q1/comp1_4_diff.png
+    normalmap   Textures/Q1/comp1_4_norm.png
+    specularmap Textures/Q1/comp1_4_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/comp1_5
+{
+    diffusemap  Textures/Q1/comp1_5_diff.png
+    normalmap   Textures/Q1/comp1_5_norm.png
+    specularmap Textures/Q1/comp1_5_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/comp1_6
+{
+    diffusemap  Textures/Q1/comp1_6_diff.png
+    normalmap   Textures/Q1/comp1_6_norm.png
+    specularmap Textures/Q1/comp1_6_spec.png
+    lumamap     Textures/Q1/comp1_6_luma.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/ecop1_1
+{
+    diffusemap  Textures/Q1/ecop1_1_diff.png
+    normalmap   Textures/Q1/ecop1_1_norm.png
+    specularmap Textures/Q1/ecop1_1_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/ecop1_4
+{
+    diffusemap  Textures/Q1/ecop1_4_diff.png
+    normalmap   Textures/Q1/ecop1_4_norm.png
+    specularmap Textures/Q1/ecop1_4_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/ecop1_6
+{
+    diffusemap  Textures/Q1/ecop1_6_diff.png
+    normalmap   Textures/Q1/ecop1_6_norm.png
+    specularmap Textures/Q1/ecop1_6_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/ground1_2
+{
+    diffusemap  Textures/Q1/ground1_2_diff.png
+    normalmap   Textures/Q1/ground1_2_norm.png
+    specularmap Textures/Q1/ground1_2_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/metal1_7
+{
+    diffusemap  Textures/Q1/metal1_7_diff.png
+    normalmap   Textures/Q1/metal1_7_norm.png
+    specularmap Textures/Q1/metal1_7_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/metal2_2
+{
+    diffusemap  Textures/Q1/metal2_2_diff.png
+    normalmap   Textures/Q1/metal2_2_norm.png
+    specularmap Textures/Q1/metal2_2_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/metal5_1
+{
+    diffusemap  Textures/Q1/metal5_1_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/sfloor4_2
+{
+    diffusemap  Textures/Q1/sfloor4_2_diff.png
+    normalmap   Textures/Q1/sfloor4_2_norm.png
+    specularmap Textures/Q1/sfloor4_2_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/sfloor4_5
+{
+    diffusemap  Textures/Q1/sfloor4_5_diff.png
+    normalmap   Textures/Q1/sfloor4_5_norm.png
+    specularmap Textures/Q1/sfloor4_5_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/slip1
+{
+    diffusemap  Textures/Q1/slip1_diff.png
+    normalmap   Textures/Q1/slip1_norm.png
+    specularmap Textures/Q1/slip1_spec.png
+    lumamap     Textures/Q1/slip1_luma.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/slipbotsd
+{
+    diffusemap  Textures/Q1/slipbotsd_diff.png
+    normalmap   Textures/Q1/slipbotsd_norm.png
+    specularmap Textures/Q1/slipbotsd_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/sliplite
+{
+    diffusemap  Textures/Q1/sliplite_diff.png
+    normalmap   Textures/Q1/sliplite_norm.png
+    specularmap Textures/Q1/sliplite_spec.png
+    lumamap     Textures/Q1/sliplite_luma.png
+    lightmap    $lightmap
+
+    meta_radiantExitance 200   0   0     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/Q1/slipside
+{
+    diffusemap  Textures/Q1/slipside_diff.png
+    normalmap   Textures/Q1/slipside_norm.png
+    specularmap Textures/Q1/slipside_spec.png
+    lumamap     Textures/Q1/slipside_luma.png
+    lightmap    $lightmap
+
+    meta_radiantExitance  60   0   0     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/Q1/sliptopsd
+{
+    diffusemap  Textures/Q1/sliptopsd_diff.png
+    normalmap   Textures/Q1/sliptopsd_norm.png
+    specularmap Textures/Q1/sliptopsd_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/stone1_3
+{
+    diffusemap  Textures/Q1/stone1_3_diff.png
+    normalmap   Textures/Q1/stone1_3_norm.png
+    specularmap Textures/Q1/stone1_3_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/switch_1
+{
+    diffusemap  Textures/Q1/switch_1_diff.png
+    normalmap   Textures/Q1/switch_1_norm.png
+    specularmap Textures/Q1/switch_1_spec.png
+    lumamap     Textures/Q1/switch_1_luma.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/tech01_1
+{
+    diffusemap  Textures/Q1/tech01_1_diff.png
+    specularmap Textures/Q1/tech01_1_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/tech01_6
+{
+    diffusemap  Textures/Q1/tech01_6_diff.png
+    normalmap   Textures/Q1/tech01_6_norm.png
+    specularmap Textures/Q1/tech01_6_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/tech01_7
+{
+    diffusemap  Textures/Q1/tech01_7_diff.png
+    normalmap   Textures/Q1/tech01_7_norm.png
+    specularmap Textures/Q1/tech01_7_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/tech01_9
+{
+    diffusemap  Textures/Q1/tech01_9_diff.png
+    normalmap   Textures/Q1/tech01_9_norm.png
+    specularmap Textures/Q1/tech01_9_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/tech04_1
+{
+    diffusemap  Textures/Q1/tech04_1_diff.png
+    normalmap   Textures/Q1/tech04_1_norm.png
+    specularmap Textures/Q1/tech04_1_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/tech04_2
+{
+    diffusemap  Textures/Q1/tech04_2_diff.png
+    normalmap   Textures/Q1/tech04_2_norm.png
+    specularmap Textures/Q1/tech04_2_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/tech04_3
+{
+    diffusemap  Textures/Q1/tech04_3_diff.png
+    normalmap   Textures/Q1/tech04_3_norm.png
+    specularmap Textures/Q1/tech04_3_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/tech07_2
+{
+    diffusemap  Textures/Q1/tech07_2_diff.png
+    normalmap   Textures/Q1/tech07_2_norm.png
+    specularmap Textures/Q1/tech07_2_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/tech08_1
+{
+    diffusemap  Textures/Q1/tech08_1_diff.png
+    normalmap   Textures/Q1/tech08_1_norm.png
+    specularmap Textures/Q1/tech08_1_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/tech09_3
+{
+    diffusemap  Textures/Q1/tech09_3_diff.png
+    normalmap   Textures/Q1/tech09_3_norm.png
+    specularmap Textures/Q1/tech09_3_spec.png
+    lumamap     Textures/Q1/tech09_3_luma.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/tech10_1
+{
+    diffusemap  Textures/Q1/tech10_1_diff.png
+    normalmap   Textures/Q1/tech10_1_norm.png
+    specularmap Textures/Q1/tech10_1_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/tech10_3
+{
+    diffusemap  Textures/Q1/tech10_3_diff.png
+    normalmap   Textures/Q1/tech10_3_norm.png
+    specularmap Textures/Q1/tech10_3_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/tech11_2
+{
+    diffusemap  Textures/Q1/tech11_2_diff.png
+    normalmap   Textures/Q1/tech11_2_norm.png
+    specularmap Textures/Q1/tech11_2_spec.png
+    lumamap     Textures/Q1/tech11_2_luma.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/tlight01
+{
+    diffusemap  Textures/Q1/tlight01_diff.png
+    normalmap   Textures/Q1/tlight01_norm.png
+    specularmap Textures/Q1/tlight01_spec.png
+    lumamap     Textures/Q1/tlight01_luma.png
+    lightmap    $lightmap
+
+    meta_radiantExitance 250 225 200     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/Q1/tlight02
+{
+    diffusemap  Textures/Q1/tlight02_diff.png
+    normalmap   Textures/Q1/tlight02_norm.png
+    specularmap Textures/Q1/tlight02_spec.png
+    lumamap     Textures/Q1/tlight02_luma.png
+    lightmap    $lightmap
+
+    meta_radiantExitance 150 120  90     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/Q1/tlight07
+{
+    diffusemap  Textures/Q1/tlight07_diff.png
+    normalmap   Textures/Q1/tlight07_norm.png
+    specularmap Textures/Q1/tlight07_spec.png
+    lumamap     Textures/Q1/tlight07_luma.png
+    lightmap    $lightmap
+
+    meta_radiantExitance 250 225 200     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/Q1/tlight08
+{
+    diffusemap  Textures/Q1/tlight08_diff.png
+    normalmap   Textures/Q1/tlight08_norm.png
+    specularmap Textures/Q1/tlight08_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/tlight10
+{
+    diffusemap  Textures/Q1/tlight10_diff.png
+    normalmap   Textures/Q1/tlight10_norm.png
+    specularmap Textures/Q1/tlight10_spec.png
+    lumamap     Textures/Q1/tlight10_luma.png
+    lightmap    $lightmap
+
+    meta_radiantExitance 200 150   0     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/Q1/tlight11
+{
+    diffusemap  Textures/Q1/tlight11_diff.png
+    normalmap   Textures/Q1/tlight11_norm.png
+    specularmap Textures/Q1/tlight11_spec.png
+    lumamap     Textures/Q1/tlight11_luma.png
+    lightmap    $lightmap
+
+    meta_radiantExitance   0   0 150     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/Q1/twall1_1
+{
+    diffusemap  Textures/Q1/twall1_1_diff.png
+    normalmap   Textures/Q1/twall1_1_norm.png
+    specularmap Textures/Q1/twall1_1_spec.png
+    lumamap     Textures/Q1/twall1_1_luma.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/twall2_1
+{
+    diffusemap  Textures/Q1/twall2_1_diff.png
+    normalmap   Textures/Q1/twall2_1_norm.png
+    specularmap Textures/Q1/twall2_1_spec.png
+    lumamap     Textures/Q1/twall2_1_luma.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/twall2_2
+{
+    diffusemap  Textures/Q1/twall2_2_diff.png
+    normalmap   Textures/Q1/twall2_2_norm.png
+    specularmap Textures/Q1/twall2_2_spec.png
+    lumamap     Textures/Q1/twall2_2_luma.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/twall2_3
+{
+    diffusemap  Textures/Q1/twall2_3_diff.png
+    normalmap   Textures/Q1/twall2_3_norm.png
+    specularmap Textures/Q1/twall2_3_spec.png
+    lumamap     Textures/Q1/twall2_3_luma.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/twall2_5
+{
+    diffusemap  Textures/Q1/twall2_5_diff.png
+    normalmap   Textures/Q1/twall2_5_norm.png
+    specularmap Textures/Q1/twall2_5_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/twall2_6
+{
+    diffusemap  Textures/Q1/twall2_6_diff.png
+    normalmap   Textures/Q1/twall2_6_norm.png
+    specularmap Textures/Q1/twall2_6_spec.png
+    lumamap     Textures/Q1/twall2_6_luma.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/twall3_1
+{
+    diffusemap  Textures/Q1/twall3_1_diff.png
+    normalmap   Textures/Q1/twall3_1_norm.png
+    specularmap Textures/Q1/twall3_1_spec.png
+    lumamap     Textures/Q1/twall3_1_luma.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/twall5_3
+{
+    diffusemap  Textures/Q1/twall5_3_diff.png
+    normalmap   Textures/Q1/twall5_3_norm.png
+    specularmap Textures/Q1/twall5_3_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/uwall1_2
+{
+    diffusemap  Textures/Q1/uwall1_2_diff.png
+    normalmap   Textures/Q1/uwall1_2_norm.png
+    specularmap Textures/Q1/uwall1_2_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Q1/z_exit
+{
+    diffusemap  Textures/Q1/z_exit_diff.png
+    normalmap   Textures/Q1/z_exit_norm.png
+    specularmap Textures/Q1/z_exit_spec.png
+    lightmap    $lightmap
+
+    meta_radiantExitance 150   0   0     1       // Unit is W/m^2, format is: r g b scale
+}

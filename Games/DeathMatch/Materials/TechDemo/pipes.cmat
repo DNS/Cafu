@@ -1,0 +1,266 @@
+// ****************************************************************
+// *** The textures used in the materials below are by Charles. ***
+// ****************************************************************
+
+TechDemo/pipes/a_pipecap2a_d
+{
+    diffusemap  Textures/TechDemo/pipes/a_pipecap2a_d_diff.png
+    normalmap   Textures/TechDemo/pipes/a_pipecap2a_d_norm.png
+    specularmap Textures/TechDemo/pipes/a_pipecap2a_d_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.9
+    noShadows
+
+    clip nothing    // Normally this is an opaque decal (clip radiance, sight), but this one has alphaTest enabled!
+}
+
+TechDemo/pipes/pipecap2a
+{
+    diffusemap  Textures/TechDemo/pipes/pipecap2a_diff.png
+    normalmap   Textures/TechDemo/pipes/pipecap2a_norm.png
+    specularmap Textures/TechDemo/pipes/pipecap2a_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.95
+    noShadows
+
+    clip nothing    // Normally this is an opaque decal (clip radiance, sight), but this one has alphaTest enabled!
+}
+
+TechDemo/pipes/pipecap3
+{
+    diffusemap  Textures/TechDemo/pipes/pipecap3_diff.png
+    normalmap   Textures/TechDemo/pipes/pipecap3_norm.png
+    specularmap Textures/TechDemo/pipes/pipecap3_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.95
+    noShadows
+
+    clip nothing    // Normally this is an opaque decal (clip radiance, sight), but this one has alphaTest enabled!
+}
+
+TechDemo/pipes/pipecap4
+{
+    diffusemap  Textures/TechDemo/pipes/pipecap4_diff.png
+    normalmap   Textures/TechDemo/pipes/pipecap4_norm.png
+    specularmap Textures/TechDemo/pipes/pipecap4_spec.png
+    lightmap    $lightmap
+
+    alphaTest 0.95
+    noShadows
+
+    clip nothing    // Normally this is an opaque decal (clip radiance, sight), but this one has alphaTest enabled!
+}
+
+TechDemo/pipes/superpipes
+{
+    diffusemap  Textures/TechDemo/pipes/superpipes_diff.png
+    normalmap   Textures/TechDemo/pipes/superpipes_norm.png
+    specularmap Textures/TechDemo/pipes/superpipes_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/pipes/superpipes2
+{
+    diffusemap  Textures/TechDemo/pipes/superpipes2_diff.png
+    normalmap   Textures/TechDemo/pipes/superpipes_norm.png
+    specularmap Textures/TechDemo/pipes/superpipes2_spec.png
+    lightmap    $lightmap
+}
+
+
+// *****************************
+// *** Materials in "Set 6". ***
+// *****************************
+
+TechDemo/pipes/hoses
+{
+    diffusemap  Textures/TechDemo/pipes/hoses_diff.png
+    normalmap   Textures/TechDemo/pipes/hoses_norm.png
+    specularmap Textures/TechDemo/pipes/hoses_spec.png
+    lightmap    $lightmap
+}
+
+
+// ----- Braids Series -----
+TechDemo/pipes/braids/braid-1-gold
+{
+    diffusemap  Textures/TechDemo/pipes/braids/braid-1-gold_diff.png
+    normalmap   Textures/TechDemo/pipes/braids/braid-1_norm.png
+    specularmap Textures/TechDemo/pipes/braids/braid-1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/pipes/braids/braid-1-red
+{
+    diffusemap  Textures/TechDemo/pipes/braids/braid-1-red_diff.png
+    normalmap   Textures/TechDemo/pipes/braids/braid-1_norm.png
+    specularmap Textures/TechDemo/pipes/braids/braid-1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/pipes/braids/braid-1-silver
+{
+    diffusemap  Textures/TechDemo/pipes/braids/braid-1-silver_diff.png
+    normalmap   Textures/TechDemo/pipes/braids/braid-1_norm.png
+    specularmap Textures/TechDemo/pipes/braids/braid-1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/pipes/braids/braid-2-blue
+{
+    diffusemap  Textures/TechDemo/pipes/braids/braid-2-blue_diff.png
+    normalmap   Textures/TechDemo/pipes/braids/braid-2_norm.png
+    specularmap Textures/TechDemo/pipes/braids/braid-2_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/pipes/braids/braid-2-green
+{
+    diffusemap  Textures/TechDemo/pipes/braids/braid-2-green_diff.png
+    normalmap   Textures/TechDemo/pipes/braids/braid-2_norm.png
+    specularmap Textures/TechDemo/pipes/braids/braid-2_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/pipes/braids/braid-2-red
+{
+    diffusemap  Textures/TechDemo/pipes/braids/braid-2-red_diff.png
+    normalmap   Textures/TechDemo/pipes/braids/braid-2_norm.png
+    specularmap Textures/TechDemo/pipes/braids/braid-2_spec.png
+    lightmap    $lightmap
+}
+
+
+// ----- Reactorpipes Series -----
+TechDemo/pipes/reactorpipes/reactorpipe-1
+{
+    diffusemap  Textures/TechDemo/pipes/reactorpipes/reactorpipe-1_diff.png
+    normalmap   Textures/TechDemo/pipes/reactorpipes/reactorpipe_1245_norm.png
+    specularmap Textures/TechDemo/pipes/reactorpipes/reactorpipe_1234_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/pipes/reactorpipes/reactorpipe-2
+{
+    diffusemap  Textures/TechDemo/pipes/reactorpipes/reactorpipe-2_diff.png
+    normalmap   Textures/TechDemo/pipes/reactorpipes/reactorpipe_1245_norm.png
+    specularmap Textures/TechDemo/pipes/reactorpipes/reactorpipe_1234_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/pipes/reactorpipes/reactorpipe-3
+{
+    diffusemap  Textures/TechDemo/pipes/reactorpipes/reactorpipe-3_diff.png
+    normalmap   Textures/TechDemo/pipes/reactorpipes/reactorpipe-3_norm.png
+    specularmap Textures/TechDemo/pipes/reactorpipes/reactorpipe_1234_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/pipes/reactorpipes/reactorpipe-3b
+{
+    diffusemap  Textures/TechDemo/pipes/reactorpipes/reactorpipe-3b_diff.png
+    normalmap   Textures/TechDemo/pipes/reactorpipes/reactorpipe-3_norm.png
+    specularmap Textures/TechDemo/pipes/reactorpipes/reactorpipe_1234_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/pipes/reactorpipes/reactorpipe-4
+{
+    diffusemap  Textures/TechDemo/pipes/reactorpipes/reactorpipe-4_diff.png
+    normalmap   Textures/TechDemo/pipes/reactorpipes/reactorpipe_1245_norm.png
+    specularmap Textures/TechDemo/pipes/reactorpipes/reactorpipe_1234_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/pipes/reactorpipes/reactorpipe-5
+{
+    diffusemap  Textures/TechDemo/pipes/reactorpipes/reactorpipe-5_diff.png
+    normalmap   Textures/TechDemo/pipes/reactorpipes/reactorpipe_1245_norm.png
+    specularmap Textures/TechDemo/pipes/reactorpipes/reactorpipe-5_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/pipes/reactorpipes/reactorpipe-5b
+{
+    diffusemap  Textures/TechDemo/pipes/reactorpipes/reactorpipe-5b_diff.png
+    normalmap   Textures/TechDemo/pipes/reactorpipes/reactorpipe-5b_norm.png
+    specularmap Textures/TechDemo/pipes/reactorpipes/reactorpipe-5b_spec.png
+    lightmap    $lightmap
+}
+
+
+// ----- Techpipes Series -----
+TechDemo/pipes/techpipes/techpipe-1-black
+{
+    diffusemap  Textures/TechDemo/pipes/techpipes/techpipe-1-black_diff.png
+    normalmap   Textures/TechDemo/pipes/techpipes/techpipe-1_norm.png
+    specularmap Textures/TechDemo/pipes/techpipes/techpipe-1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/pipes/techpipes/techpipe-1-blackburn
+{
+    diffusemap  Textures/TechDemo/pipes/techpipes/techpipe-1-blackburn_diff.png
+    normalmap   Textures/TechDemo/pipes/techpipes/techpipe-1_burn_norm.png
+    specularmap Textures/TechDemo/pipes/techpipes/techpipe-1_burn_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/pipes/techpipes/techpipe-1-red
+{
+    diffusemap  Textures/TechDemo/pipes/techpipes/techpipe-1-red_diff.png
+    normalmap   Textures/TechDemo/pipes/techpipes/techpipe-1_norm.png
+    specularmap Textures/TechDemo/pipes/techpipes/techpipe-1_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/pipes/techpipes/techpipe-1-redburn
+{
+    diffusemap  Textures/TechDemo/pipes/techpipes/techpipe-1-redburn_diff.png
+    normalmap   Textures/TechDemo/pipes/techpipes/techpipe-1_burn_norm.png
+    specularmap Textures/TechDemo/pipes/techpipes/techpipe-1_burn_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/pipes/techpipes/techpipe-1-yellow
+{
+    diffusemap  Textures/TechDemo/pipes/techpipes/techpipe-1-yellow_diff.png
+    normalmap   Textures/TechDemo/pipes/techpipes/techpipe-1_norm.png
+    specularmap Textures/TechDemo/pipes/techpipes/techpipe_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/pipes/techpipes/techpipe-2-blue
+{
+    diffusemap  Textures/TechDemo/pipes/techpipes/techpipe-2-blue_diff.png
+    normalmap   Textures/TechDemo/pipes/techpipes/techpipe-2_norm.png
+    specularmap Textures/TechDemo/pipes/techpipes/techpipe_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/pipes/techpipes/techpipe-2-brass
+{
+    diffusemap  Textures/TechDemo/pipes/techpipes/techpipe-2-brass_diff.png
+    normalmap   Textures/TechDemo/pipes/techpipes/techpipe-2-brass_norm.png
+    specularmap Textures/TechDemo/pipes/techpipes/techpipe-2-brass_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/pipes/techpipes/techpipe-2-green
+{
+    diffusemap  Textures/TechDemo/pipes/techpipes/techpipe-2-green_diff.png
+    normalmap   Textures/TechDemo/pipes/techpipes/techpipe-2_norm.png
+    specularmap Textures/TechDemo/pipes/techpipes/techpipe_spec.png
+    lightmap    $lightmap
+}
+
+TechDemo/pipes/techpipes/techpipe-2-silver
+{
+    diffusemap  Textures/TechDemo/pipes/techpipes/techpipe-2-silver_diff.png
+    normalmap   Textures/TechDemo/pipes/techpipes/techpipe-2_norm.png
+    specularmap Textures/TechDemo/pipes/techpipes/techpipe_spec.png
+    lightmap    $lightmap
+}

@@ -1,0 +1,71 @@
+Textures/WilliH/dmet01
+{
+    diffusemap  Textures/WilliH/dmet01_diff.png
+    normalmap   flipNMyAxis(Textures/WilliH/dmet01_norm.png)
+    specularmap Textures/WilliH/dmet01_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/WilliH/fmet01
+{
+    diffusemap  Textures/WilliH/fmet01_diff.png
+    normalmap   flipNMyAxis(Textures/WilliH/fmet01_norm.png)
+    specularmap Textures/WilliH/fmet01_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/WilliH/gmet01
+{
+    diffusemap  Textures/WilliH/gmet01_diff.png
+    normalmap   Textures/WilliH/gmet01_norm.png
+    specularmap Textures/WilliH/gmet01_spec.png
+    lumamap     Textures/WilliH/gmet01_luma.png
+    lightmap    $lightmap
+}
+
+
+Textures/WilliH/pmet01
+{
+    diffusemap  Textures/WilliH/pmet01_diff.png
+    normalmap   flipNMyAxis(Textures/WilliH/pmet01_norm.png)
+    specularmap Textures/WilliH/pmet01_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/WilliH/pmet02
+{
+    diffusemap  Textures/WilliH/pmet02_diff.png
+    normalmap   Textures/WilliH/pmet02_norm.png
+    specularmap Textures/WilliH/pmet02_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/WilliH/rock01b
+{
+    diffusemap  Textures/WilliH/rock01b_diff.png
+    normalmap   flipNMyAxis(Textures/WilliH/rock01b_norm.png)
+    specularmap Textures/WilliH/rock01b_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/WilliH/tmet04
+{
+    diffusemap  Textures/WilliH/tmet04_diff.png
+    normalmap   flipNMyAxis(Textures/WilliH/tmet04_norm.png)
+    specularmap Textures/WilliH/tmet04_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/WilliH/wmet02
+{
+    diffusemap  Textures/WilliH/wmet02_diff.png
+    normalmap   Textures/WilliH/wmet02_norm.png
+    specularmap Textures/WilliH/wmet02_spec.png
+    lightmap    $lightmap
+}

@@ -1,0 +1,7 @@
+television.ase      100%
+television_m.ase     50%    1/2
+television_s.ase     25%    1/4
+television_xs.ase    17,5%  (70% von _s)
+television_xxs.ase   14%    (80% von _xs)
+
+All televisions are (c) and (tm) by Carsten <Thrawn> Crede.

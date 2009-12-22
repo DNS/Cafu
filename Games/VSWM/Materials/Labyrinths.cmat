@@ -1,0 +1,46 @@
+StatusFrameMaterial
+{
+    diffusemap Textures/generic/_white_diff.png
+
+    blendFunc  src_alpha one_minus_src_alpha
+    red        ambientLightRed
+    green      ambientLightGreen
+    blue       ambientLightBlue
+    alpha      0.5
+}
+
+
+Textures/laby_wall_01
+{
+    AmbientShader A_Diff_Light_Fog
+
+    diffusemap  Textures/Laby_Wall_01_diff.png
+    lightmap    $lightmap
+
+    shaderParamExpr 0.0         // Fog color (RGB).
+    shaderParamExpr 0.4
+    shaderParamExpr 1.0
+
+    shaderParamExpr 0.000066    // Fog density.
+
+ // shaderParamExpr 0.0         // Fog start (optional).
+ // shaderParamExpr 1.0         // Fog end   (optional).
+}
+
+
+Textures/laby_end_01
+{
+    AmbientShader A_Diff_Light_Fog
+
+    diffusemap  Textures/Laby_End_04_diff.png
+    lightmap    $lightmap
+
+    shaderParamExpr 0.0         // Fog color (RGB).
+    shaderParamExpr 0.4
+    shaderParamExpr 1.0
+
+    shaderParamExpr 0.000066    // Fog density.
+
+ // shaderParamExpr 0.0         // Fog start (optional).
+ // shaderParamExpr 1.0         // Fog end   (optional).
+}

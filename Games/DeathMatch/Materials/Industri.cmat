@@ -1,0 +1,148 @@
+Textures/Industri/big-blue-cement
+{
+    diffusemap  Textures/Industri/big-blue-cement_diff.png
+    normalmap   Textures/Industri/big-blue-cement_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Industri/cement_1_grimy
+{
+    diffusemap  Textures/Industri/cement_1_grimy_diff.png
+    normalmap   Textures/Industri/cement_1_grimy_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Industri/cement_1_gunky
+{
+    diffusemap  Textures/Industri/cement_1_gunky_diff.png
+    normalmap   Textures/Industri/cement_1_gunky_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Industri/flat_dk
+{
+    diffusemap  Textures/Industri/flat_dk_diff.png
+    normalmap   Textures/Industri/flat_dk_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Industri/flat_lt
+{
+    diffusemap  Textures/Industri/flat_lt_diff.png
+    normalmap   Textures/Industri/flat_lt_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Industri/metal_red
+{
+    diffusemap  Textures/Industri/metal_red_diff.png
+    normalmap   Textures/Industri/metal_red_norm.png
+    specularmap Textures/Industri/metal_red_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Industri/tig_bluholes
+{
+    diffusemap  Textures/Industri/tig_bluholes_diff.png
+    normalmap   Textures/Industri/tig_bluholes_norm.png
+    specularmap Textures/Industri/tig_bluholes_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Industri/tig_blupan2a
+{
+    diffusemap  Textures/Industri/tig_blupan2a_diff.png
+    normalmap   Textures/Industri/tig_blupan2a_norm.png
+    specularmap Textures/Industri/tig_blupan2a_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Industri/tig_blutrim
+{
+    diffusemap  Textures/Industri/tig_blutrim_diff.png
+    normalmap   Textures/Industri/tig_blutrim_norm.png
+    specularmap Textures/Industri/tig_blutrim_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Industri/tig_cmttile
+{
+    diffusemap  Textures/Industri/tig_cmttile_diff.png
+    normalmap   Textures/Industri/tig_cmttile_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Industri/tig_mouldy
+{
+    diffusemap  Textures/Industri/tig_mouldy_diff.png
+    normalmap   Textures/Industri/tig_mouldy_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Industri/tig_pinkmtl
+{
+    diffusemap  Textures/Industri/tig_pinkmtl_diff.png
+    normalmap   Textures/Industri/tig_pinkmtl_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Industri/tig_rustfloor
+{
+    diffusemap  Textures/Industri/tig_rustfloor_diff.png
+    normalmap   Textures/Industri/tig_rustfloor_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Industri/tig_sch_drtyflo
+{
+    diffusemap  Textures/Industri/tig_sch_drtyflo_diff.png
+    normalmap   Textures/Industri/tig_sch_drtyflo_norm.png
+    specularmap Textures/Industri/tig_sch_drtyflo_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Industri/und_alg-brick
+{
+    diffusemap  Textures/Industri/und_alg-brick_diff.png
+    normalmap   Textures/Industri/und_alg-brick_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Industri/und_mod-wood
+{
+    diffusemap  Textures/Industri/und_mod-wood_diff.png
+    normalmap   Textures/Industri/und_mod-wood_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Industri/und_rtconk_4
+{
+    diffusemap  Textures/Industri/und_rtconk_4_diff.png
+    normalmap   Textures/Industri/und_rtconk_4_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Industri/und_rustbase
+{
+    diffusemap  Textures/Industri/und_rustbase_diff.png
+    normalmap   Textures/Industri/und_rustbase_norm.png
+    specularmap Textures/Industri/und_rustbase_spec.png
+    lightmap    $lightmap
+}

@@ -1,0 +1,147 @@
+FarewellGUI=gui:new("WindowT");
+gui:SetRootWindow(FarewellGUI);
+
+function FarewellGUI:OnInit()
+    self:set("rect", 0, 0, 640, 480);
+    self:set("backMaterial", "Gui/Background1");
+    -- self:set("backColor", 1, 1, 1, 1);
+    -- self:set("textAlignHor", 0);
+
+    gui:activate(false);
+    gui:setInteractive(true);
+    gui:showMouse(true);
+end
+
+
+Heading1=gui:new("WindowT");
+FarewellGUI:AddChild(Heading1);
+
+function Heading1:OnInit()
+    self:set("rect", 43, 45, 558, 28);
+    self:set("backColor", 1, 1, 1, 0);      -- Set alpha value to zero!
+    self:set("text", "Dear Voyager!");
+    self:set("textScale", 0.6);
+    self:set("textColor", 1, 0.9, 0.8, 1);
+end
+
+
+TextArea1=gui:new("WindowT");
+FarewellGUI:AddChild(TextArea1);
+
+function TextArea1:OnInit()
+    self:set("rect", 43, 91, 558, 324);
+    self:set("backColor", 1, 1, 1, 0);      -- Set alpha value to zero!
+    self:set("text", "For now you have (almost) reached the end\nof the Ca3D-Engine demo.\n"..
+             "I hope that you enjoyed exploring it as much\nas I enjoyed making it.\n\n"..
+             "Please stop over at the Ca3DE forums at\nwww.Ca3D-Engine.de to provide your feed-back.\n\n"..
+             "Thank you very much!\nCarsten Fuchs");
+    self:set("textScale", 0.5);
+    self:set("textColor", 0.8, 0.9, 1, 1);
+end
+
+
+Heading2=gui:new("WindowT");
+FarewellGUI:AddChild(Heading2);
+
+function Heading2:OnInit()
+    self:set("rect", 43, 45, 558, 28);
+    self:set("backColor", 1, 1, 1, 0);      -- Set alpha value to zero!
+    self:set("text", "Additional information");
+    self:set("textScale", 0.6);
+    self:set("textColor", 1, 0.9, 0.8, 1);
+
+    self:set("show", false);
+end
+
+
+TextArea2=gui:new("WindowT");
+FarewellGUI:AddChild(TextArea2);
+
+function TextArea2:OnInit()
+    self:set("rect", 43, 91, 558, 324);
+    self:set("backColor", 1, 1, 1, 0);      -- Set alpha value to zero!
+    self:set("text", "Planned features for the next (autumn '08) release:\n"..
+             "    1) Vegetation for the island\n"..
+             "    2) better model support\n"..
+             "    3) many other improvements...\n\n"..
+             "Special thanks for help with this release to:\n    Charles Bradbury and Carsten Crede.\n\n"..
+             "Oh, and please don't fall from the walkway\ninto the open space behind you.\n"..
+             "There is no way back up.  ;-)");
+
+    self:set("textScale", 0.5);
+    self:set("textColor", 0.8, 0.9, 1, 1);
+
+    self:set("show", false);
+end
+
+
+EngineLogo=gui:new("WindowT");
+FarewellGUI:AddChild(EngineLogo);
+
+function EngineLogo:OnInit()
+    self:set("rect", 480, 325, 128, 64);
+    self:set("backMaterial", "Gui/SmallLogo");
+    -- self:set("backColor", 1, 1, 1, 1);
+end
+
+function EngineLogo:OnFrame()
+    self:set("rotAngle", self:get("time")*50);
+end
+
+
+LayDepthBuffer=gui:new("WindowT");
+FarewellGUI:AddChild(LayDepthBuffer);
+
+function LayDepthBuffer:OnInit()
+    self:set("rect", 0, 0, 640, 480);
+    self:set("backMaterial", "Gui/LayDepth");
+    self:set("backColor", 1, 1, 1, 0);
+end
+
+
+-- Be sure to have this *after* the LayDepthBuffer window, or else it cannot be used interactively!
+BottomLine=gui:new("WindowT");
+FarewellGUI:AddChild(BottomLine);
+
+BottomLine.PageNr=2;    -- Reset to 1 in OnInit() by call to OnMouseButtonDown().
+BottomLine.String1="Click here for next page.  >>|";
+BottomLine.String2="|<<  Click here for previous page.";
+
+function BottomLine:OnInit()
+    self:set("rect", 37, 428, 568, 21);
+    self:set("backColor", 1, 1, 1, 0);      -- Set alpha value to zero!
+    self:set("textScale", 0.3);
+    self:set("textColor", 0, 0, 0, 1);
+    self:set("font", "Fonts/Impact");
+
+    -- Initialize for page 1.
+    self:OnMouseButtonDown();
+end
+
+function BottomLine:OnMouseEnter()
+    self:interpolate("textColor.b", 0.0, 0.8, 500);
+    -- self:interpolate("textScale", 0.3, 0.4, 500);
+end
+
+function BottomLine:OnMouseLeave()
+    self:interpolate("textColor.b", 0.8, 0.0, 500);
+    -- self:interpolate("textScale", 0.4, 0.3, 500);
+end
+
+function BottomLine:OnMouseButtonDown()
+    if (self.PageNr==1) then self.PageNr=2; else self.PageNr=1; end
+
+    -- if (self.PageNr==1) then
+        Heading1:set("show", self.PageNr==1);
+        TextArea1:set("show", self.PageNr==1);
+
+        Heading2:set("show", self.PageNr==2);
+        TextArea2:set("show", self.PageNr==2);
+
+        if (self.PageNr==1) then BottomLine:set("text", BottomLine.String1); else BottomLine:set("text", BottomLine.String2); end
+        BottomLine:set("textAlignHor", 2-self.PageNr);
+    -- else
+
+    -- end
+    return true;
+end

@@ -1,0 +1,114 @@
+// In SpeedTree: 1516 branch polygons, 3252 leaf polygons, 4768 polygons total
+
+
+// ********
+//  Global
+// ********
+
+RandomSeed  0
+Size        6.0
+SizeV       2.0
+BarkTexName Plants/Trees/CrepeMyrtleBark
+
+
+// **********
+//  Branches
+// **********
+
+// Trunk
+DescribeBranchLevel 0
+
+Length0       0.05
+Length1       0.0                             // Fuer den Stamm irrelevant
+LengthV       0.0
+LengthProfile Linear 0.0      // Fuer den Stamm irrelevant (muss aber 'Linear' sein)
+
+StartAngle0       90.0
+StartAngle1        0.0                        // Fuer den Stamm irrelevant
+StartAngleV        0.0
+StartAngleProfile Linear 0.0  // Fuer den Stamm irrelevant (muss aber 'Linear' sein)
+
+Radius0       0.05
+Radius1       0.0                             // Fuer den Stamm irrelevant
+RadiusV       0.0
+RadiusProfile Linear 0.0      // Fuer den Stamm irrelevant (muss aber 'Linear' sein)
+
+NrOfSegments            1
+CrossSectionsResolution 5
+AngleProfile_Segments   ConstantAvg 0.498
+RadiusProfile_Segments  Linear 0.0
+
+FirstChild   0.00
+LastChild    0.10
+NrOfChildren 800.0
+
+// Main branches
+DescribeBranchLevel 1
+
+Length0       0.70
+Length1       0.70
+LengthV       0.10
+LengthProfile InvLinear 0.0
+
+StartAngle0        8.0
+StartAngle1        8.0
+StartAngleV        4.0
+StartAngleProfile Linear 0.0
+
+Radius0       0.015
+Radius1       0.015
+RadiusV       0.0
+RadiusProfile Linear 0.0
+
+NrOfSegments            2
+CrossSectionsResolution 4
+AngleProfile_Segments   ConstantAvg 0.49
+RadiusProfile_Segments  Linear 0.0
+
+FirstChild   0.25
+LastChild    1.00
+NrOfChildren 10.0
+
+// Sub branches
+DescribeBranchLevel 2
+
+Length0       0.20
+Length1       0.40
+LengthV       0.04
+LengthProfile Linear 0.0
+
+StartAngle0       40.0
+StartAngle1       30.0
+StartAngleV        5.0
+StartAngleProfile Linear 0.0
+
+Radius0       0.010
+Radius1       0.002
+RadiusV       0.0
+RadiusProfile Linear 0.0
+
+NrOfSegments            2
+CrossSectionsResolution 3
+AngleProfile_Segments   ConstantAvg 0.513
+RadiusProfile_Segments  Linear 0.0
+
+FirstChild   0.30
+LastChild    1.00
+NrOfChildren 200.0
+
+
+// ********
+//  Leaves
+// ********
+
+Distance0       0.00
+Distance1       0.06
+DistanceV       0.02
+DistanceProfile Round 0.0
+
+LeafTexName Plants/Trees/CrepeMyrtleBlossoms_MD_1
+LeafTexName Plants/Trees/CrepeMyrtleBlossoms_MD_2
+LeafTexName Plants/Trees/CrepeMyrtleLeaves_MD_1
+LeafTexName Plants/Trees/CrepeMyrtleLeaves_MD_2
+
+LeafSize 0.10

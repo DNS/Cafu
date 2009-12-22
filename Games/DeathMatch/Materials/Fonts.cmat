@@ -1,0 +1,34 @@
+Fonts/Arial
+{
+    diffusemap ../../Fonts/Arial.png, minFilter nearest, magFilter nearest, noScaleDown     // The params are mostly prophylactic...
+
+    // Should this keyword be removed???   LightShader none12345   does the same...
+    // However if in "LightShader xy" shader xy is not found, e.g. because it is a special effect that is
+    // only implemented for some renderers, we want to fall back to the auto-detected default shader!
+    // ==> We *need* "noDynLight". On the other hand, could introduce the special shader name "none"...
+    noDynLight
+
+    blendFunc src_alpha one_minus_src_alpha
+    red   ambientLightRed       // Hmmm. Maybe we should rather use fParam0...fParam2 here.
+    green ambientLightGreen
+    blue  ambientLightBlue
+    ambientMask d               // Don't write into the depth buffer!
+
+    meta_editorImage noEditor
+}
+
+
+Fonts/FixedWidth
+{
+    diffusemap ../../Fonts/FixedWidth.png, minFilter nearest, magFilter nearest, noScaleDown     // The params are mostly prophylactic...
+
+    noDynLight
+
+    blendFunc src_alpha one_minus_src_alpha
+    red   ambientLightRed       // Hmmm. Maybe we should rather use fParam0...fParam2 here.
+    green ambientLightGreen
+    blue  ambientLightBlue
+    ambientMask d               // Don't write into the depth buffer!
+
+    meta_editorImage noEditor
+}

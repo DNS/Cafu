@@ -1,0 +1,84 @@
+// In SpeedTree: 2176 branch polygons, 6314 leaf polygons, 8490 polygons total
+
+
+// ********
+//  Global
+// ********
+
+RandomSeed  0
+Size        15.24
+SizeV       4.0
+BarkTexName Plants/Trees/AhornBark
+
+
+// **********
+//  Branches
+// **********
+
+// Trunk
+DescribeBranchLevel 0
+
+Length0       0.40
+Length1       0.0                             // Fuer den Stamm irrelevant
+LengthV       0.0
+LengthProfile Linear 0.0      // Fuer den Stamm irrelevant (muss aber 'Linear' sein)
+
+StartAngle0       90.0
+StartAngle1        0.0                        // Fuer den Stamm irrelevant
+StartAngleV        0.0
+StartAngleProfile Linear 0.0  // Fuer den Stamm irrelevant (muss aber 'Linear' sein)
+
+Radius0       0.03
+Radius1       0.0                             // Fuer den Stamm irrelevant
+RadiusV       0.01
+RadiusProfile Linear 0.0      // Fuer den Stamm irrelevant (muss aber 'Linear' sein)
+
+NrOfSegments            8
+CrossSectionsResolution 8
+AngleProfile_Segments   ConstantAvg 0.498
+RadiusProfile_Segments  Linear 0.0
+
+FirstChild   0.45
+LastChild    0.90
+NrOfChildren 160.0
+
+// Main branches
+DescribeBranchLevel 1
+
+Length0       0.10
+Length1       0.30
+LengthV       0.03
+LengthProfile InvLinearRamp 0.0
+
+StartAngle0       220.0
+StartAngle1         0.0
+StartAngleV        15.0
+StartAngleProfile Linear 0.0
+
+Radius0       0.020
+Radius1       0.004
+RadiusV       0.0
+RadiusProfile Linear 0.0
+
+NrOfSegments            4
+CrossSectionsResolution 4
+AngleProfile_Segments   ConstantAvg 0.525
+RadiusProfile_Segments  Linear 0.0
+
+FirstChild   0.18
+LastChild    1.00
+NrOfChildren 100.0
+
+
+// ********
+//  Leaves
+// ********
+
+Distance0       0.00
+Distance1       0.07
+DistanceV       0.02
+DistanceProfile Round 0.0
+
+LeafTexName Plants/Trees/AhornLeaves
+
+LeafSize 0.07

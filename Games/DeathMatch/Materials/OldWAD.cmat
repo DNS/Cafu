@@ -1,0 +1,695 @@
+Textures/OldWAD/barrel_rst_top
+{
+    diffusemap  Textures/OldWAD/barrel_rst_top_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/brdmtl_rst
+{
+    diffusemap  Textures/OldWAD/brdmtl_rst_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/button1cr_0
+{
+    diffusemap  Textures/OldWAD/button1cr_0_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/button1cr_1
+{
+    diffusemap  Textures/OldWAD/button1cr_1_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/cargomover8
+{
+    diffusemap  Textures/OldWAD/cargomover8_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/controls1
+{
+    diffusemap  Textures/OldWAD/controls1_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/controls3
+{
+    diffusemap  Textures/OldWAD/controls3_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/controls4
+{
+    diffusemap  Textures/OldWAD/controls4_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Crates/caja06
+{
+    diffusemap  Textures/OldWAD/Crates/caja06_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Crates/ecrate_drty-fmt
+{
+    diffusemap  Textures/OldWAD/Crates/ecrate_drty-fmt_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Crates/ecrate_drty2
+{
+    diffusemap  Textures/OldWAD/Crates/ecrate_drty2_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Crates/ecrate_drty
+{
+    diffusemap  Textures/OldWAD/Crates/ecrate_drty_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Crates/ecrate_dunno
+{
+    diffusemap  Textures/OldWAD/Crates/ecrate_dunno_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Crates/sandcrete1
+{
+    diffusemap  Textures/OldWAD/Crates/sandcrete1_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/d6_tools
+{
+    diffusemap  Textures/OldWAD/d6_tools_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/d6_tools_glue
+{
+    diffusemap  Textures/OldWAD/d6_tools_glue_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/d6_tools_side
+{
+    diffusemap  Textures/OldWAD/d6_tools_side_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/firebutton1a
+{
+    diffusemap  Textures/OldWAD/firebutton1a_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/firebutton1b
+{
+    diffusemap  Textures/OldWAD/firebutton1b_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/fusebox1
+{
+    diffusemap  Textures/OldWAD/fusebox1_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/hev_edge
+{
+    diffusemap  Textures/OldWAD/HEV_edge_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Lights/light_3a_off
+{
+    diffusemap  Textures/OldWAD/Lights/light_3a_off_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Lights/light_3a_on
+{
+    diffusemap  Textures/OldWAD/Lights/light_3a_on_diff.png
+    lightmap    $lightmap
+
+    meta_radiantExitance  80  80  80     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/OldWAD/Lights/light_3b
+{
+    diffusemap  Textures/OldWAD/Lights/light_3b_diff.png
+    lightmap    $lightmap
+
+    meta_radiantExitance  80  80  60     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/OldWAD/Lights/lightneon2a
+{
+    diffusemap  Textures/OldWAD/Lights/lightneon2a_diff.png
+    lightmap    $lightmap
+
+    meta_radiantExitance 200  50  50     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/OldWAD/Lights/lightneon2b
+{
+    diffusemap  Textures/OldWAD/Lights/lightneon2b_diff.png
+    lightmap    $lightmap
+
+    meta_radiantExitance  50  50 200     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/OldWAD/Lights/lightneon2c
+{
+    diffusemap  Textures/OldWAD/Lights/lightneon2c_diff.png
+    lightmap    $lightmap
+
+    meta_radiantExitance 120 120  60     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/OldWAD/Lights/lightneon3aoff
+{
+    diffusemap  Textures/OldWAD/Lights/lightneon3aoff_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Lights/lightneon3aon
+{
+    diffusemap  Textures/OldWAD/Lights/lightneon3aon_diff.png
+    lightmap    $lightmap
+
+    meta_radiantExitance  75 110 130     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/OldWAD/Lights/lightneon3boff
+{
+    diffusemap  Textures/OldWAD/Lights/lightneon3boff_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Lights/lightneon3bon
+{
+    diffusemap  Textures/OldWAD/Lights/lightneon3bon_diff.png
+    lightmap    $lightmap
+
+    meta_radiantExitance 130 110  75     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/OldWAD/Lights/lightpanel1c
+{
+    diffusemap  Textures/OldWAD/Lights/lightpanel1c_diff.png
+    lightmap    $lightmap
+
+    meta_radiantExitance  40  40  30     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/OldWAD/Lights/lightpanel2a
+{
+    diffusemap  Textures/OldWAD/Lights/lightpanel2a_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Lights/lightpanel2b
+{
+    diffusemap  Textures/OldWAD/Lights/lightpanel2b_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Lights/lightpanel3a
+{
+    diffusemap  Textures/OldWAD/Lights/lightpanel3a_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Lights/lightsmall2aoff
+{
+    diffusemap  Textures/OldWAD/Lights/lightsmall2aoff_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Lights/lightsmall2aon
+{
+    diffusemap  Textures/OldWAD/Lights/lightsmall2aon_diff.png
+    lightmap    $lightmap
+
+    meta_radiantExitance 100 100 100     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/OldWAD/Lights/lightsmall2boff
+{
+    diffusemap  Textures/OldWAD/Lights/lightsmall2boff_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Lights/lightsmall2bon
+{
+    diffusemap  Textures/OldWAD/Lights/lightsmall2bon_diff.png
+    lightmap    $lightmap
+
+    meta_radiantExitance 120 120  60     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/OldWAD/Lights/lightsmall2con
+{
+    diffusemap  Textures/OldWAD/Lights/lightsmall2con_diff.png
+    lightmap    $lightmap
+
+    meta_radiantExitance  50  50 200     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/OldWAD/Lights/lightsmall2don
+{
+    diffusemap  Textures/OldWAD/Lights/lightsmall2don_diff.png
+    lightmap    $lightmap
+
+    meta_radiantExitance 200  50  50     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/OldWAD/Lights/lighttnnl1aoff
+{
+    diffusemap  Textures/OldWAD/Lights/lighttnnl1aoff_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Lights/lighttnnl1aon
+{
+    diffusemap  Textures/OldWAD/Lights/lighttnnl1aon_diff.png
+    lightmap    $lightmap
+
+    meta_radiantExitance  70 100  90     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/OldWAD/Lights/lighttnnl1boff
+{
+    diffusemap  Textures/OldWAD/Lights/lighttnnl1boff_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Lights/lighttnnl1bon
+{
+    diffusemap  Textures/OldWAD/Lights/lighttnnl1bon_diff.png
+    lightmap    $lightmap
+
+    meta_radiantExitance 170  90  40     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/OldWAD/Lights/lightwhite
+{
+    diffusemap  Textures/OldWAD/Lights/lightwhite_diff.png
+    lightmap    $lightmap
+
+    meta_radiantExitance 150 150 150     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/OldWAD/Lights/lite3box
+{
+    diffusemap  Textures/OldWAD/Lights/lite3box_diff.png
+    lightmap    $lightmap
+
+    meta_radiantExitance 128  68  30     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/OldWAD/mapspec12a
+{
+    diffusemap  Textures/OldWAD/mapspec12a_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/mapspec12b
+{
+    diffusemap  Textures/OldWAD/mapspec12b_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/mapspec12d
+{
+    diffusemap  Textures/OldWAD/mapspec12d_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/med_0
+{
+    diffusemap  Textures/OldWAD/med_0_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Med_edge
+{
+    diffusemap  Textures/OldWAD/Med_edge_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/metal_bord1c
+{
+    diffusemap  Textures/OldWAD/metal_bord1c_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/mtlrail_red
+{
+    diffusemap  blue2alpha(Textures/OldWAD/mtlrail_red_diff.png)
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    clip players, monsters, moveables, ik   // ... but not projectiles, sight, bspPortals or radiance.
+}
+
+
+Textures/OldWAD/po_glassdrkdrt
+{
+    diffusemap  Textures/OldWAD/po_glassdrkdrt_diff.png
+    normalmap   hm2nm(Textures/generic/_white_diff.png, 1.0)
+    specularmap Textures/generic/_white_diff.png
+    lightmap    $lightmap
+
+    blendFunc src_alpha one_minus_src_alpha
+    alpha     0.4
+    noShadows       // Cast no shadows, so that when this material is used e.g. in doorframes, light shines through.
+    clip players, monsters, moveables, ik, projectiles   // Don't clip bspPortals, radiance or sight.
+}
+
+
+Textures/OldWAD/po_rustmtltured
+{
+    diffusemap  Textures/OldWAD/po_rustmtltured_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/runner01
+{
+    diffusemap  Textures/OldWAD/runner01_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Signs/casign1a
+{
+    diffusemap  Textures/OldWAD/Signs/casign1a_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Signs/casign1b
+{
+    diffusemap  Textures/OldWAD/Signs/casign1b_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Signs/casign1c
+{
+    diffusemap  Textures/OldWAD/Signs/casign1c_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Signs/casign1d
+{
+    diffusemap  Textures/OldWAD/Signs/casign1d_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Signs/d6_sign1
+{
+    diffusemap  Textures/OldWAD/Signs/d6_sign1_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Signs/dngrunder2
+{
+    diffusemap  Textures/OldWAD/Signs/dngrunder2_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Signs/do-not-stand
+{
+    diffusemap  Textures/OldWAD/Signs/do-not-stand_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Signs/exit2
+{
+    diffusemap  Textures/OldWAD/Signs/exit2_diff.png
+    lightmap    $lightmap
+
+    meta_radiantExitance  10 120  20     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/OldWAD/Signs/nobike
+{
+    diffusemap  Textures/OldWAD/Signs/nobike_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Signs/opossum
+{
+    diffusemap  Textures/OldWAD/Signs/opossum_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Signs/rt_exit
+{
+    diffusemap  Textures/OldWAD/Signs/rt_exit_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Signs/sector6sign3
+{
+    diffusemap  Textures/OldWAD/Signs/sector6sign3_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Signs/sign01
+{
+    diffusemap  Textures/OldWAD/Signs/sign01_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Signs/sign2a_1
+{
+    diffusemap  Textures/OldWAD/Signs/sign2a_1_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Signs/sign2a_2
+{
+    diffusemap  Textures/OldWAD/Signs/sign2a_2_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Signs/sign2a_3
+{
+    diffusemap  Textures/OldWAD/Signs/sign2a_3_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Signs/sign3g
+{
+    diffusemap  Textures/OldWAD/Signs/sign3g_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Signs/signs1
+{
+    diffusemap  Textures/OldWAD/Signs/signs1_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/Signs/warning-contam
+{
+    diffusemap  Textures/OldWAD/Signs/warning-contam_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/statuslight
+{
+    diffusemap  Textures/OldWAD/statuslight_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/tnnl1a
+{
+    diffusemap  Textures/OldWAD/tnnl1a_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/tnnl1b
+{
+    diffusemap  Textures/OldWAD/tnnl1b_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/tnnl_brd1b
+{
+    diffusemap  Textures/OldWAD/tnnl_brd1b_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/tnnl_floor2a
+{
+    diffusemap  Textures/OldWAD/tnnl_floor2a_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/tnnl_glue1a
+{
+    diffusemap  Textures/OldWAD/tnnl_glue1a_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/OldWAD/tnnl_w1b
+{
+    diffusemap  Textures/OldWAD/tnnl_w1b_diff.png
+    lightmap    $lightmap
+}
+
+
+"Textures/OldWAD/{grate02"
+{
+    diffusemap  blue2alpha("Textures/OldWAD/{grate02_diff.png")
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    noShadows
+    clip players, monsters, moveables, ik, projectiles   // ... but not sight, bspPortals or radiance.
+}
+
+
+"Textures/OldWAD/{po_fencerst"
+{
+    diffusemap  blue2alpha("Textures/OldWAD/{po_fencerst_diff.png")
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    clip players, monsters, moveables, ik, projectiles   // ... but not sight, bspPortals or radiance.
+}
+
+
+"Textures/OldWAD/{po_plantbush"
+{
+    diffusemap  blue2alpha("Textures/OldWAD/{po_plantbush_diff.png")
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    noShadows
+    clip players, monsters, moveables, ik, projectiles   // ... but not sight, bspPortals or radiance.
+}
+
+
+"Textures/OldWAD/{po_rustygrt"
+{
+    diffusemap  blue2alpha("Textures/OldWAD/{po_rustygrt_diff.png")
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    clip players, monsters, moveables, ik, projectiles   // ... but not sight, bspPortals or radiance.
+}
+
+
+"Textures/OldWAD/{razor2"
+{
+    diffusemap  blue2alpha("Textures/OldWAD/{razor2_diff.png")
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    clip players, monsters, moveables, ik   // ... but not projectiles, sight, bspPortals or radiance.
+}
+
+
+"Textures/OldWAD/{rustyrail"
+{
+    diffusemap  blue2alpha("Textures/OldWAD/{rustyrail_diff.png")
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    clip players, monsters, moveables, ik, projectiles   // ... but not sight, bspPortals or radiance.
+}
+
+
+"Textures/OldWAD/{rustyrungs"
+{
+    diffusemap  blue2alpha("Textures/OldWAD/{rustyrungs_diff.png")
+    lightmap    $lightmap
+
+    alphaTest 0.5
+    clip players, monsters, moveables, ik, projectiles   // ... but not sight, bspPortals or radiance.
+}

@@ -1,0 +1,145 @@
+Textures/meta/clip
+{
+    AmbientShader none
+    LightShader   none
+
+    // Note that there used to be special-case code in the CaBSP cmap loader for this material (but is no more).
+    clip players, monsters, moveables, ik, projectiles
+
+    noShadows               // This material does not cast dynamic shadows.
+    meta_editorImage Textures/meta/clip_editor.png
+}
+
+
+Textures/meta/clip_all
+{
+    AmbientShader none
+    LightShader   none
+
+    // TODO: The fact that we have to enumerate all flags here in order to leave "sight", "bspPortals" and "radiance" out
+    // *might* indicate that these flags should be in a separate set of flags, independent of and orthogonal to the clip flags!?!
+    // (Or maybe not... because this material is only a special case when being compared to "true, normal walls"...?)
+    clip players, monsters, moveables, ik, projectiles
+
+    noShadows               // This material does not cast dynamic shadows.
+    meta_editorImage Textures/meta/clip_editor.png      // TODO: Need something else here.
+}
+
+
+// Note that there is special-case code somewhere in the engine to render true GUIs in place where this material is.
+Textures/meta/EntityGUI
+{
+    AmbientShader none
+    LightShader   none
+
+    // diffusemap  Textures/meta/entity_gui.png
+
+    noShadows
+    meta_editorImage Textures/meta/entity_gui.png
+}
+
+
+Textures/meta/ladder
+{
+    diffusemap  Textures/meta/ladder_editor.png
+    lightmap    $lightmap
+
+    noShadows
+    meta_editorImage Textures/meta/ladder_editor.png
+}
+
+
+Textures/meta/origin
+{
+    diffusemap  Textures/meta/origin_diff.png
+    lightmap    $lightmap
+}
+
+
+Textures/meta/trigger
+{
+    AmbientShader none
+    LightShader   none
+
+    clip trigger
+    noShadows               // This material does not cast dynamic shadows.
+    meta_editorImage Textures/meta/trigger_editor.png
+}
+
+
+// This material is like an "invisible wall":
+// - Although it is never drawn, it contributes to the draw hull as an opaque material, so that CaBSP knows where to stop the flood-fill.
+// - It contributes to the clip hull, i.e. is solid for everybody.
+Textures/meta/caulk
+{
+    AmbientShader none
+    LightShader   none
+
+    noShadows               // This material does not cast dynamic shadows.
+    meta_editorImage Textures/meta/caulk_editor.png
+}
+
+
+// This material is essentially removed/ignored/dropped by the engine or the compile tools.
+// It's never drawn, it's not opaque for the CaBSP flood-fill, and doesn't contribute to the clip hull (it is non-solid).
+// The only purpose of this material is to cover individual sides of brushes that are of no interest,
+// e.g. the five sides of a block brush whose sixth side covered with e.g. a grate material.
+Textures/meta/nonexistent
+{
+    AmbientShader none
+    LightShader   none
+
+    clip nothing
+    noShadows               // This material does not cast dynamic shadows.
+    meta_editorImage Textures/meta/nonexistent_editor.png
+}
+
+
+// This material exists to make the import of maps from other games easier.
+// It currently has no special meaning in Ca3DE.
+Textures/meta/flare
+{
+    AmbientShader none
+    LightShader   none
+
+    noShadows
+    meta_editorImage Textures/meta/flare.png
+
+    clip nothing
+}
+
+// This material exists to make the import of maps from other games easier.
+// It currently has no special meaning in Ca3DE.
+Textures/meta/flare_cv
+{
+    AmbientShader none
+    LightShader   none
+
+    noShadows
+    meta_editorImage Textures/meta/flare.png
+
+    clip nothing
+}
+
+
+Textures/meta/collisionmodel
+{
+    AmbientShader none
+    LightShader   none
+
+    noShadows               // This material does not cast dynamic shadows.
+    
+    meta_editorImage  Textures/meta/collisionmodel.png    
+}
+
+
+// This is a material for use with the "forceRM()" console function.
+wireframe
+{
+    diffusemap  Textures/generic/_white_diff.png
+    polygonMode wireframe
+    // useMeshColors
+    twoSided
+
+    meta_editorImage noEditor
+}

@@ -1,0 +1,271 @@
+Textures/Frank/an_back1
+{
+    diffusemap  Textures/Frank/an_back1_diff.png
+    normalmap   Textures/Frank/an_back1_norm.png
+    specularmap Textures/Frank/an_back1_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/an_side
+{
+    diffusemap  Textures/Frank/an_side_diff.png
+    normalmap   Textures/Frank/an_side_norm.png
+    specularmap Textures/Frank/an_side_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/an_top
+{
+    diffusemap  Textures/Frank/an_top_diff.png
+    normalmap   Textures/Frank/an_top_norm.png
+    specularmap Textures/Frank/an_top_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/c_box_front
+{
+    diffusemap  Textures/Frank/c_box_front_diff.png
+    normalmap   Textures/Frank/c_box_front_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/c_box_side
+{
+    diffusemap  Textures/Frank/c_box_side_diff.png
+    normalmap   Textures/Frank/c_box_side_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/c_box_top
+{
+    diffusemap  Textures/Frank/c_box_top_diff.png
+    normalmap   Textures/Frank/c_box_top_norm.png
+    specularmap Textures/Frank/c_box_top_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/caja05c1s
+{
+    diffusemap  Textures/Frank/caja05c1s_diff.png
+    normalmap   Textures/Frank/caja05c1s_norm.png
+    specularmap Textures/Frank/caja05c1s_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/caja05d1
+{
+    diffusemap  Textures/Frank/caja05d1_diff.png
+    normalmap   Textures/Frank/caja05d1_norm.png
+    specularmap Textures/Frank/caja05d1_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/crete33
+{
+    diffusemap  Textures/Frank/crete33_diff.png
+    normalmap   Textures/Frank/crete33_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/djcrate01
+{
+    diffusemap  Textures/Frank/djcrate01_diff.png
+    normalmap   Textures/Frank/djcrate01_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/djcrate02
+{
+    diffusemap  Textures/Frank/djcrate02_diff.png
+    normalmap   Textures/Frank/djcrate02_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/djcrate03
+{
+    diffusemap  Textures/Frank/djcrate03_diff.png
+    normalmap   Textures/Frank/djcrate03_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/djcratetop
+{
+    diffusemap  Textures/Frank/djcratetop_diff.png
+    normalmap   Textures/Frank/djcratetop_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/ground_dirt1_3
+{
+    diffusemap  Textures/Frank/ground_dirt1_3_diff.png
+    normalmap   Textures/Frank/ground_dirt1_3_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/light_9a
+{
+    diffusemap  Textures/Frank/light_9a_diff.png
+    normalmap   Textures/Frank/light_9a_norm.png
+    specularmap Textures/Frank/light_9a_spec.png
+    lightmap    $lightmap
+
+    meta_radiantExitance  40  40  20     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/Frank/lightsmall1bon
+{
+    diffusemap  Textures/Frank/lightsmall1bon_diff.png
+    normalmap   Textures/Frank/lightsmall1bon_norm.png
+    specularmap Textures/Frank/lightsmall1bon_spec.png
+    lightmap    $lightmap
+
+    meta_radiantExitance 120 120  60     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/Frank/lightsmall1con
+{
+    diffusemap  Textures/Frank/lightsmall1con_diff.png
+    normalmap   Textures/Frank/lightsmall1con_norm.png
+    specularmap Textures/Frank/lightsmall1con_spec.png
+    lightmap    $lightmap
+
+    meta_radiantExitance  50 200  50     1       // Unit is W/m^2, format is: r g b scale
+}
+
+
+Textures/Frank/marble
+{
+    diffusemap  Textures/Frank/marble_diff.png
+    normalmap   Textures/Frank/marble_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/metal_bord1a
+{
+    diffusemap  Textures/Frank/metal_bord1a_diff.png
+    normalmap   Textures/Frank/metal_bord1a_norm.png
+    specularmap Textures/Frank/metal_bord1a_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/metal_bord1b
+{
+    diffusemap  Textures/Frank/metal_bord1b_diff.png
+    normalmap   Textures/Frank/metal_bord1b_norm.png
+    specularmap Textures/Frank/metal_bord1b_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/metal_bord2a
+{
+    diffusemap  Textures/Frank/metal_bord2a_diff.png
+    normalmap   Textures/Frank/metal_bord2a_norm.png
+    specularmap Textures/Frank/metal_bord2a_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/metal_wall2_4
+{
+    diffusemap  Textures/Frank/metal_wall2_4_diff.png
+    normalmap   Textures/Frank/metal_wall2_4_norm.png
+    specularmap Textures/Frank/metal_wall2_4_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/metal_wall2_6
+{
+    diffusemap  Textures/Frank/metal_wall2_6_diff.png
+    normalmap   Textures/Frank/metal_wall2_6_norm.png
+    specularmap Textures/Frank/metal_wall2_6_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/metal_wall2
+{
+    diffusemap  Textures/Frank/metal_wall2_diff.png
+    normalmap   Textures/Frank/metal_wall2_norm.png
+    specularmap Textures/Frank/metal_wall2_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/pavement
+{
+    diffusemap  Textures/Frank/pavement_diff.png
+    normalmap   Textures/Frank/pavement_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/rock2
+{
+    diffusemap  Textures/Frank/rock2_diff.png
+    normalmap   Textures/Frank/rock2_norm.png
+    specularmap Textures/Frank/rock2_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/rtgara
+{
+    diffusemap  Textures/Frank/rtgara_diff.png
+    normalmap   Textures/Frank/rtgara_norm.png
+    specularmap Textures/Frank/rtgara_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/sandcrete2
+{
+    diffusemap  Textures/Frank/sandcrete2_diff.png
+    normalmap   Textures/Frank/sandcrete2_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/sandcrete
+{
+    diffusemap  Textures/Frank/sandcrete_diff.png
+    normalmap   Textures/Frank/sandcrete_norm.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/stripes1b
+{
+    diffusemap  Textures/Frank/stripes1b_diff.png
+    normalmap   Textures/Frank/stripes1b_norm.png
+    specularmap Textures/Frank/stripes1b_spec.png
+    lightmap    $lightmap
+}
+
+
+Textures/Frank/trimmtlpage02
+{
+    diffusemap  Textures/Frank/trimmtlpage02_diff.png
+    normalmap   Textures/Frank/trimmtlpage02_norm.png
+    specularmap Textures/Frank/trimmtlpage02_spec.png
+    lightmap    $lightmap
+}

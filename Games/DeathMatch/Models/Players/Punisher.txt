@@ -1,0 +1,23 @@
+7-21-99
+
+================================================================
+
+Model Name              : Punisher
+Author                  : Brian "EvilBastard" Collins
+Email Address           : Evilb@planetquake.com
+Website Address         : http://www.planetquake.com/q2pmp/hostings/EvilB
+Model description       : 
+	You all know him, and love him, now be him!
+
+================================================================
+
+
+* Construction *
+Poly Count              : 766 tris.md2 
+Skin Count              : 1 DM
+Editor used             : 
+		Modeling - lightwave	
+		Skining  - NST
+		Painting - Photoshop, NST
+Known Bugs              : None that i know of.
+

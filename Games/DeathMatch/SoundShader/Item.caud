@@ -1,0 +1,14 @@
+Item/PickUp
+{
+    AudioFile   Sounds/PickUp.wav
+    MinDistance 2.0
+    InnerVolume 0.8
+}
+
+
+Item/Respawn
+{
+    AudioFile   Sounds/WeaponRespawn.wav
+    MinDistance 2.0
+    InnerVolume 0.8
+}

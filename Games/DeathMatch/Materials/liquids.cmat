@@ -1,0 +1,101 @@
+Textures/liquids/lava2
+{
+    diffusemap  Textures/liquids/lava2_diff.png
+    lightmap    $lightmap
+
+    blendFunc src_alpha one_minus_src_alpha
+    alpha     0.85
+
+    meta_radiantExitance  50  10   0     1       // Unit is W/m^2, format is: r g b scale
+    clip projectiles
+}
+
+
+Textures/liquids/sewage
+{
+    diffusemap  Textures/liquids/sewage_diff.png
+    lightmap    $lightmap
+
+    blendFunc src_alpha one_minus_src_alpha
+    alpha     0.5
+
+    clip projectiles
+}
+
+
+Textures/liquids/water1a
+{
+    diffusemap  Textures/liquids/water1a_diff.png
+    lightmap    $lightmap
+
+    blendFunc src_alpha one_minus_src_alpha
+    alpha     0.4
+
+    clip projectiles
+}
+
+
+Textures/liquids/water1b
+{
+    diffusemap  Textures/liquids/water1b_diff.png
+    lightmap    $lightmap
+
+    blendFunc src_alpha one_minus_src_alpha
+    alpha     0.5
+
+    clip projectiles
+}
+
+
+Textures/liquids/water1c
+{
+    diffusemap  Textures/liquids/water1c_diff.png
+    lightmap    $lightmap
+
+    blendFunc src_alpha one_minus_src_alpha
+    alpha     0.6
+
+    clip projectiles
+}
+
+
+Textures/liquids/waterfall
+{
+    diffusemap  Textures/liquids/waterfall_diff.png
+    lightmap    $lightmap
+
+    blendFunc src_alpha one_minus_src_alpha
+    alpha     0.8
+
+    clip projectiles
+}
+
+
+TechDemo/Ocean1
+{
+    AmbientShader A_WaterCubeReflect
+    LightShader   none      // == noDynLight (<-- not really!!)
+    noDynLight
+
+ // diffusemap  Textures/liquids/waterfall_diff.png
+    diffusemap  Textures/liquids/water1a_diff.png
+
+    normalmap   hm2nm(Textures/liquids/WaterBumps1.png, 4.00)
+ // normalmap   Textures/Kai/sand_norm.png
+
+    // The '#' in the next line is auto-replaced with the relevant suffixes (_px, _ny, ...).
+    cubeMap Textures/SkyDomes/PK_BrightDay2#.png, wrapS clampToEdge, wrapT clampToEdge
+
+    blendFunc src_alpha one_minus_src_alpha
+    red       0.7
+    green     0.85
+    blue      1.0
+    alpha     0.5
+
+    noShadows               // This material does not cast dynamic shadows.
+
+    shaderParamExpr 60000.0             // This is the maximum distance from that you can see through the water surface.
+    shaderParamExpr mul(time, 0.1)      // This is how fast the waves move. Set to 0.0 to freeze them, set to 2.0*time to double their speed.
+
+    clip projectiles
+}

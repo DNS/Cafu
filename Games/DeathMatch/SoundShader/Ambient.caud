@@ -1,0 +1,6 @@
+Ambient/Jungle
+{
+    AudioFile   Sounds/jungle.wav
+    MinDistance 6.0
+    InnerVolume 0.8
+}

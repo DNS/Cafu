@@ -1,0 +1,99 @@
+// Ca3D-Engine Map File
+// Written by CaWE, the Ca3DE World Editor.
+
+
+{ // Entity 0 (the world)
+  classname "worldspawn"
+  lightmap_patchsize "200.0"
+  shlmap_patchsize "200.0"
+  wind_velocity "0.0"
+  wind_velocity_var "0.0"
+  precipitation_intensity "3"
+  fog_density "0.0025"
+  fog_start "0.0"
+  fog_end "1.0"
+  fog_color "0 0 0"
+  mapfile_version "11"
+
+  { // Brush 0
+    ( -18 23 34 ) ( -14 23 34 ) ( -14 19 34 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( -18 19 -53 ) ( -14 19 -53 ) ( -14 23 -53 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( -18 23 34 ) ( -18 19 34 ) ( -18 19 -53 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( -14 23 -53 ) ( -14 19 -53 ) ( -14 19 34 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( -14 23 34 ) ( -18 23 34 ) ( -18 23 -53 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( -14 19 -53 ) ( -18 19 -53 ) ( -18 19 34 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+  }
+
+  {
+    ( -18 -4 34 ) ( -14 -4 34 ) ( -14 -8 34 ) "Textures/meta/collisionmodel" ( 2 0 -0.421875 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( -18 -8 -53 ) ( -14 -8 -53 ) ( -14 -4 -53 ) "Textures/meta/collisionmodel" ( 2 0 -0.421875 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( -18 -4 34 ) ( -18 -8 34 ) ( -18 -8 -53 ) "Textures/meta/collisionmodel" ( 2 0.421875 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( -14 -4 -53 ) ( -14 -8 -53 ) ( -14 -8 34 ) "Textures/meta/collisionmodel" ( 2 0.421875 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( -14 -4 34 ) ( -18 -4 34 ) ( -18 -4 -53 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( -14 -8 -53 ) ( -18 -8 -53 ) ( -18 -8 34 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+  }
+
+  {
+    ( 53 -4 34 ) ( 57 -4 34 ) ( 57 -8 34 ) "Textures/meta/collisionmodel" ( 2 -0.109375 -0.421875 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( 53 -8 -53 ) ( 57 -8 -53 ) ( 57 -4 -53 ) "Textures/meta/collisionmodel" ( 2 -0.109375 -0.421875 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( 53 -4 34 ) ( 53 -8 34 ) ( 53 -8 -53 ) "Textures/meta/collisionmodel" ( 2 0.421875 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( 57 -4 -53 ) ( 57 -8 -53 ) ( 57 -8 34 ) "Textures/meta/collisionmodel" ( 2 0.421875 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( 57 -4 34 ) ( 53 -4 34 ) ( 53 -4 -53 ) "Textures/meta/collisionmodel" ( 2 -0.109375 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( 57 -8 -53 ) ( 53 -8 -53 ) ( 53 -8 34 ) "Textures/meta/collisionmodel" ( 2 -0.109375 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+  }
+
+  {
+    ( 53 23 34 ) ( 57 23 34 ) ( 57 19 34 ) "Textures/meta/collisionmodel" ( 2 -0.109375 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( 53 19 -53 ) ( 57 19 -53 ) ( 57 23 -53 ) "Textures/meta/collisionmodel" ( 2 -0.109375 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( 53 23 34 ) ( 53 19 34 ) ( 53 19 -53 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( 57 23 -53 ) ( 57 19 -53 ) ( 57 19 34 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( 57 23 34 ) ( 53 23 34 ) ( 53 23 -53 ) "Textures/meta/collisionmodel" ( 2 -0.109375 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( 57 19 -53 ) ( 53 19 -53 ) ( 53 19 34 ) "Textures/meta/collisionmodel" ( 2 -0.109375 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+  }
+
+  {
+    ( -18 19 26 ) ( 57 19 26 ) ( 57 -4 26 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( -18 -4 23 ) ( 57 -4 23 ) ( 57 19 23 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( -18 19 26 ) ( -18 -4 26 ) ( -18 -4 23 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( 57 19 23 ) ( 57 -4 23 ) ( 57 -4 26 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( 57 19 26 ) ( -18 19 26 ) ( -18 19 23 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( 57 -4 23 ) ( -18 -4 23 ) ( -18 -4 26 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+  }
+
+  {
+    ( -18 19 2 ) ( 57 19 2 ) ( 57 -4 2 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( -18 -4 -1 ) ( 57 -4 -1 ) ( 57 19 -1 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( -18 19 2 ) ( -18 -4 2 ) ( -18 -4 -1 ) "Textures/meta/collisionmodel" ( 2 0 -0.375 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( 57 19 -1 ) ( 57 -4 -1 ) ( 57 -4 2 ) "Textures/meta/collisionmodel" ( 2 0 -0.375 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( 57 19 2 ) ( -18 19 2 ) ( -18 19 -1 ) "Textures/meta/collisionmodel" ( 2 0 -0.375 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( 57 -4 -1 ) ( -18 -4 -1 ) ( -18 -4 2 ) "Textures/meta/collisionmodel" ( 2 0 -0.375 0 ( 64 0 0 ) ( 0 0 -64 ) )
+  }
+
+  {
+    ( -18 19 -21 ) ( 57 19 -21 ) ( 57 -4 -21 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( -18 -4 -24 ) ( 57 -4 -24 ) ( 57 19 -24 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( -18 19 -21 ) ( -18 -4 -21 ) ( -18 -4 -24 ) "Textures/meta/collisionmodel" ( 2 0 -0.734375 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( 57 19 -24 ) ( 57 -4 -24 ) ( 57 -4 -21 ) "Textures/meta/collisionmodel" ( 2 0 -0.734375 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( 57 19 -21 ) ( -18 19 -21 ) ( -18 19 -24 ) "Textures/meta/collisionmodel" ( 2 0 -0.734375 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( 57 -4 -24 ) ( -18 -4 -24 ) ( -18 -4 -21 ) "Textures/meta/collisionmodel" ( 2 0 -0.734375 0 ( 64 0 0 ) ( 0 0 -64 ) )
+  }
+
+  {
+    ( -18 19 -45 ) ( 57 19 -45 ) ( 57 -4 -45 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( -18 -4 -48 ) ( 57 -4 -48 ) ( 57 19 -48 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( -18 19 -45 ) ( -18 -4 -45 ) ( -18 -4 -48 ) "Textures/meta/collisionmodel" ( 2 0 -0.109375 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( 57 19 -48 ) ( 57 -4 -48 ) ( 57 -4 -45 ) "Textures/meta/collisionmodel" ( 2 0 -0.109375 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( 57 19 -45 ) ( -18 19 -45 ) ( -18 19 -48 ) "Textures/meta/collisionmodel" ( 2 0 -0.109375 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( 57 -4 -48 ) ( -18 -4 -48 ) ( -18 -4 -45 ) "Textures/meta/collisionmodel" ( 2 0 -0.109375 0 ( 64 0 0 ) ( 0 0 -64 ) )
+  }
+}
+
+{ // Entity 1
+  classname "static_detail_model"
+  angles "-0 90 -0"
+  rendertranslucency "255"
+  rendercolor "0 0 0"
+  scale "1.0"
+  model "Models\TechDemo\Regal\regal_dirt.ase"
+  origin "0 0 0"
+}

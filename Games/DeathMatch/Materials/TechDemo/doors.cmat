@@ -1,0 +1,15 @@
+Textures/TechDemo/doors/Heavy
+{
+    diffusemap  Textures/TechDemo/doors/Heavy_diff.png
+    normalmap   Textures/TechDemo/doors/Heavy_norm.png
+    specularmap Textures/TechDemo/doors/Heavy_spec.png
+    lightmap    $lightmap
+}
+
+Textures/TechDemo/doors/Light
+{
+    diffusemap  Textures/TechDemo/doors/Light_diff.png
+    normalmap   Textures/TechDemo/doors/Light_norm.png
+    specularmap Textures/TechDemo/doors/Light_spec.png
+    lightmap    $lightmap
+}
