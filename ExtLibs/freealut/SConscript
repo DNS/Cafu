@@ -1,0 +1,22 @@
+import os, sys
+
+Import('env')
+
+
+env_freealut = env.Clone()
+
+# CPPDEFINES created using VC++ project file as template (removed Windows specific DEFINES for Linux build).
+if sys.platform=="win32":
+    env_freealut.Append(CPPDEFINES=['_WINDOWS', '_USRDLL', 'ALUT_EXPORTS', 'WIN32', '_MBCS', 'ALUT_BUILD_LIBRARY', 'HAVE__STAT', 'HAVE_BASETSD_H', 'HAVE_SLEEP', 'HAVE_WINDOWS_H'])
+    env_freealut.Append(CPPPATH=['include', '#/ExtLibs/openal-win/include'])
+    env_freealut.Append(LIBPATH=['#/ExtLibs/openal-win/libs/Win32'])
+    env_freealut.Append(LIBS=Split("OpenAL32"))
+
+elif sys.platform=="linux2":
+    env_freealut.Append(CPPDEFINES=['HAVE_STDINT_H', 'ALUT_EXPORTS', '_MBCS', 'ALUT_BUILD_LIBRARY', 'HAVE_STAT', 'HAVE_UNISTD_H', 'HAVE_BASETSD_H', 'HAVE_NANOSLEEP', 'HAVE_TIME_H'])
+    env_freealut.Append(CPPPATH=['include', '#/ExtLibs/openal-soft/include'])
+
+env_freealut.SharedLibrary(
+    target="alut",
+    source=Split("""src/alutBufferData.c src/alutCodec.c src/alutError.c src/alutInit.c src/alutInputStream.c
+                    src/alutLoader.c src/alutOutputStream.c src/alutUtil.c src/alutVersion.c src/alutWaveform.c"""))

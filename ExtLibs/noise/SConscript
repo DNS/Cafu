@@ -1,0 +1,16 @@
+import os, sys
+
+Import('env')
+
+
+# if sys.platform=="win32":
+#     # These sources are only required when for building a DLL version of libnoise.
+#     Win32Sources=["src/win32/dllmain.cpp", "src/win32/libnoise.def"]
+# elif sys.platform=="linux2":
+#     Win32Sources=[]
+
+
+env.StaticLibrary("noise",
+    Glob("src/*.cpp")+
+    Glob("src/model/*.cpp")+
+    Glob("src/module/*.cpp"), CPPPATH="src")

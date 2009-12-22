@@ -1,0 +1,22 @@
+import os, sys
+
+Import('env')
+
+
+# I've taken the list of source files directly from the lua/INSTALL file.
+env.StaticLibrary("lua",
+    Split("""lapi.c lcode.c ldebug.c ldo.c ldump.c lfunc.c lgc.c llex.c
+             lmem.c lobject.c lopcodes.c lparser.c lstate.c lstring.c
+             ltable.c ltm.c lundump.c lvm.c lzio.c
+             lauxlib.c lbaselib.c ldblib.c liolib.c lmathlib.c loslib.c
+             ltablib.c lstrlib.c loadlib.c linit.c"""))
+
+
+# Also build the Lua stand-alone executable. Sometimes it's nice to have it.  ;-)
+if sys.platform=="win32":
+    env.Program("lua", "lua.c", LIBS=["lua"], LIBPATH=["."]);
+else:
+    # The explicit mentioning of "m" here is apparently required because the .c
+    # source file is compiled and linked with the gcc C compiler, which doesn't
+    # seem to imply "-lm" as g++ does.
+    env.Program("lua", "lua.c", LIBS=["lua", "m"], LIBPATH=["."]);

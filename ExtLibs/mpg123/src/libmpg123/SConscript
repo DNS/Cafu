@@ -1,0 +1,16 @@
+import os, sys
+
+Import('env')
+
+
+env_mpg123 = env.Clone()
+
+env_mpg123.Append(CPPDEFINES=["OPT_GENERIC"])
+
+if sys.platform=="win32":
+    env_mpg123.Append(CPPDEFINES=["BUILD_MPG123_DLL"])
+
+env_mpg123.SharedLibrary("mpg123",
+    Split("""compat.c dct64.c equalizer.c format.c frame.c icy.c icy2utf8.c
+             id3.c index.c layer1.c layer2.c layer3.c libmpg123.c ntom.c optimize.c
+             parse.c readers.c stringbuf.c synth.c synth_8bit.c synth_real.c synth_s32.c tabinit.c"""))

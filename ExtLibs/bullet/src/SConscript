@@ -1,0 +1,21 @@
+import os, sys
+
+Import('env')
+
+
+env.StaticLibrary("bulletmath",
+    Glob("LinearMath/*.cpp"), CPPPATH=["."])
+
+env.StaticLibrary("bulletcollision",
+    Glob("BulletCollision/BroadphaseCollision/*.cpp")+
+    Glob("BulletCollision/CollisionDispatch/*.cpp")+
+    Glob("BulletCollision/CollisionShapes/*.cpp")+
+    Glob("BulletCollision/NarrowPhaseCollision/*.cpp"), CPPPATH=["."])
+
+env.StaticLibrary("bulletdynamics",
+    Glob("BulletDynamics/ConstraintSolver/*.cpp")+
+    Glob("BulletDynamics/Dynamics/*.cpp")+
+    Glob("BulletDynamics/Vehicle/*.cpp"), CPPPATH=["."])
+
+env.StaticLibrary("bulletsoftbody",
+    Glob("BulletSoftBody/*.cpp"), CPPPATH=["."])

@@ -1,0 +1,8 @@
+import os, sys
+
+Import('env')
+
+
+env.StaticLibrary("lightwave",
+    Split("clip.c envelope.c list.c lwio.c lwo2.c lwob.c pntspols.c surface.c vecmath.c vmap.c"),
+    CPPPATH=["."])

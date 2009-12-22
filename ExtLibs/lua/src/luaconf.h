@@ -140,7 +140,12 @@
 ** CHANGE that if ptrdiff_t is not adequate on your machine. (On most
 ** machines, ptrdiff_t gives a good choice between int or long.)
 */
-#define LUA_INTEGER	ptrdiff_t
+/*
+ * For Cafu, we define LUA_INTEGER as int (not as ptrdiff_t) in order to
+ * achieve compatibility with our ConVarT class and to have it have 32 bits
+ * under all currently used data models (ILP32, LP64, LLP64).
+ */
+#define LUA_INTEGER	int
 
 
 /*

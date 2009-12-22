@@ -1,0 +1,8 @@
+import os, sys
+
+Import('env')
+
+
+env_ogg=env.Clone()
+
+env_ogg.StaticLibrary("ogg", Split("src/bitwise.c src/framing.c"), CPPPATH="include")

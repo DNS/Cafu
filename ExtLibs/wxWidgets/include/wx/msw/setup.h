@@ -45,7 +45,7 @@
 // in the version after it completely.
 //
 // Recommended setting: 0 (please update your code)
-#define WXWIN_COMPATIBILITY_2_8 1
+#define WXWIN_COMPATIBILITY_2_8 0
 
 // Use the 2.8-compatible events and Connect(): this is set to 0 by default as
 // the new events bring significant benefits in compile-time safety and
@@ -245,7 +245,7 @@
 // Default is 1
 //
 // Recommended setting: 0 unless you do plan to develop MT applications
-#define wxUSE_THREADS 1
+#define wxUSE_THREADS 0
 
 // If enabled, compiles wxWidgets streams classes
 //
@@ -1098,7 +1098,7 @@
 // Default is 0.
 //
 // Recommended setting: 1 if you intend to use OpenGL, 0 otherwise
-#define wxUSE_GLCANVAS       0
+#define wxUSE_GLCANVAS       1
 
 // wxRichTextCtrl allows editing of styled text.
 //
@@ -1245,7 +1245,7 @@
 #define wxUSE_LIBJPEG       1
 
 // Set to 1 for TIFF format support (requires libtiff)
-#define wxUSE_LIBTIFF       1
+#define wxUSE_LIBTIFF       0
 
 // Set to 1 for TGA format support (loading only)
 #define wxUSE_TGA           1
@@ -1257,7 +1257,7 @@
 #define wxUSE_PNM           1
 
 // Set to 1 for PCX format support
-#define wxUSE_PCX           1
+#define wxUSE_PCX           0
 
 // Set to 1 for IFF format support (Amiga format)
 #define wxUSE_IFF           0
