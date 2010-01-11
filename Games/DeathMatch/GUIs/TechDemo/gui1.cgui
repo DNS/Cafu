@@ -31,10 +31,10 @@ FarewellGUI:AddChild(TextArea1);
 function TextArea1:OnInit()
     self:set("rect", 43, 91, 558, 324);
     self:set("backColor", 1, 1, 1, 0);      -- Set alpha value to zero!
-    self:set("text", "For now you have (almost) reached the end\nof the Ca3D-Engine demo.\n"..
-             "I hope that you enjoyed exploring it as much\nas I enjoyed making it.\n\n"..
-             "Please stop over at the Ca3DE forums at\nwww.Ca3D-Engine.de to provide your feed-back.\n\n"..
-             "Thank you very much!\nCarsten Fuchs");
+    self:set("text", "For now you have (almost) reached the end\nof the Cafu Engine demo.\n"..
+             "We hope that you enjoyed exploring it as much\nas we enjoyed making it.\n\n"..
+             "Please stop over at the Cafu forums at\nwww.cafu.de to provide your feed-back.\n\n"..
+             "Thank you very much!\nThe Cafu Team");
     self:set("textScale", 0.5);
     self:set("textColor", 0.8, 0.9, 1, 1);
 end

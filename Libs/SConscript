@@ -206,7 +206,7 @@ if sys.platform=="win32":
 elif sys.platform=="linux2":
     envSoundSys.Append(LINKFLAGS=["Libs/SoundSystem/Common/linker-script"])
     envSoundSys.Append(LIBPATH=['#/ExtLibs/fmod/api'])
-    envSoundSys.Append(LIBS=["SoundSys", "fmod"])
+    envSoundSys.Append(LIBS=["SoundSys", "fmod-3.75"])
 
 if sys.platform!="linux2" or platform.machine()!="x86_64":      # We don't have the FMod libraries for x86_64 platforms...
     envSoundSys.SharedLibrary(
