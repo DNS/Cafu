@@ -28,6 +28,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/mdi.h"
 #include "Templates/Array.hpp"
 
+#if __linux__
+#define HMODULE void*
+#endif
+
 
 class wxGLCanvas;
 class wxGLContext;
@@ -109,9 +113,12 @@ class ParentFrameT : public wxMDIParentFrame
 #ifdef __WXGTK__
     void OnSize    (wxSizeEvent&    SE);
 #endif
+    void OnShow    (wxShowEvent&    SE);    ///< Event handler for "has been shown" events.
     void OnClose   (wxCloseEvent&   CE);    ///< Event handler for close events, e.g. after a system close button or command or a call to Close(). See wx Window Deletion Overview for more details.
     void OnMenuFile(wxCommandEvent& CE);    ///< Event handler for File menu events.
     void OnMenuHelp(wxCommandEvent& CE);    ///< Event handler for Help menu events.
+
+    HMODULE m_RendererDLL;
 
     DECLARE_EVENT_TABLE()
 };

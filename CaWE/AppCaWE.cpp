@@ -31,12 +31,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/splash.h"
 #include "wx/stdpaths.h"
 
-#if defined(_WIN32)
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <direct.h>
-#endif
-
 #include "AppCaWE.hpp"
 #include "ChildFrameViewWin2D.hpp"
 #include "ChildFrameViewWin3D.hpp"
@@ -50,6 +44,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ToolbarMaterials.hpp"
 #include "Tool.hpp"
 #include "ToolManager.hpp"
+
+#include "ClipSys/CollisionModelMan_impl.hpp"
 #include "ConsoleCommands/Console.hpp"
 #include "ConsoleCommands/ConsoleStdout.hpp"
 #include "ConsoleCommands/ConsoleInterpreter.hpp"
@@ -57,25 +53,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/ConVar.hpp"
 #include "ConsoleCommands/ConFunc.hpp"
 #include "FileSys/FileManImpl.hpp"
-#include "MaterialSystem/MapComposition.hpp"
-#include "MaterialSystem/MaterialManagerImpl.hpp"
-#include "MaterialSystem/Renderer.hpp"
-#include "MaterialSystem/TextureMap.hpp"
-#include "PlatformAux.hpp"
 #include "GuiSys/GuiMan.hpp"
-#include "GuiSys/GuiManImpl.hpp"
 #include "GuiSys/Window.hpp"
+#include "MaterialSystem/MaterialManagerImpl.hpp"
 #include "TypeSys.hpp"
-#include "ClipSys/CollisionModelMan_impl.hpp"
-
-#ifdef _WIN32
-#elif __linux__
-#include <dirent.h>
-#include <dlfcn.h>
-#define __stdcall
-#define GetProcAddress dlsym
-#define FreeLibrary dlclose
-#endif
 
 
 static cf::ConsoleStdoutT ConsoleStdout;
@@ -102,8 +83,7 @@ IMPLEMENT_APP(AppCaWE)
 AppCaWE::AppCaWE()
     : wxApp(),
       m_FileConfig(NULL),
-      m_ParentFrame(NULL),
-      m_RendererDLL(NULL)
+      m_ParentFrame(NULL)
 {
     static ConsoleInterpreterImplT ConInterpreterImpl;
     ConsoleInterpreter=&ConInterpreterImpl;
@@ -167,6 +147,16 @@ bool AppCaWE::OnInit()
     wxConfigBase::Set(m_FileConfig);
 
 
+    // Setup the global Material Manager pointer.
+    static MaterialManagerImplT MatManImpl;
+
+    MaterialManager=&MatManImpl;
+
+    // Register the material script with the CaWE materials definitions.
+    if (MaterialManager->RegisterMaterialScript(AppDir+"/res/CaWE.cmat", AppDir+"/res/").Size()==0)
+        wxMessageBox("CaWE.cmat not found in \""+AppDir+"\".", "WARNING");
+
+
     // Create the MDI parent frame.
     m_ParentFrame=new ParentFrameT();
 
@@ -227,120 +217,12 @@ bool AppCaWE::OnInit()
     /*** Load and init the Cafu Material System ***/
     /**********************************************/
 
-    // Setup the global Material Manager pointer.
-    static MaterialManagerImplT MatManImpl;
-
-    MaterialManager=&MatManImpl;
-
-
-    // Prepare the name strings.
-#ifdef SCONS_BUILD_DIR
-    #define QUOTE(str) QUOTE_HELPER(str)
-    #define QUOTE_HELPER(str) #str
-
-    #ifdef _WIN32
-    const wxString MatSysRendererDLLName=wxString("Libs/")+QUOTE(SCONS_BUILD_DIR)+"/MaterialSystem/RendererOpenGL12.dll";
-    #else
-    const wxString MatSysRendererDLLName=wxString("Libs/")+QUOTE(SCONS_BUILD_DIR)+"/MaterialSystem/libRendererOpenGL12.so";
-    #endif
-
-    #undef QUOTE
-    #undef QUOTE_HELPER
-#else
-    const wxString MatSysRendererDLLName=wxString("Renderers/RendererOpenGL12")+PlatformAux::GetEnvFileSuffix().c_str()+".dll";
-#endif
-
-
-    // Load the DLL.
-    #ifdef _WIN32
-        m_RendererDLL=LoadLibrary(L"./RendererOpenGL12.dll");
-
-        if (m_RendererDLL==NULL)
-            m_RendererDLL=LoadLibrary(MatSysRendererDLLName);
-    #else
-        // Note that RTLD_GLOBAL must *not* be passed-in here, or else we get in trouble with subsequently loaded libraries.
-        // (E.g. dlsym(RendererDLL, "GetRenderer") return identical results for different RendererDLLs.)
-        // Please refer to the man page of dlopen for more details.
-        m_RendererDLL=dlopen("./libRendererOpenGL12.so", RTLD_NOW);
-        if (!m_RendererDLL) m_RendererDLL=dlopen(MatSysRendererDLLName.c_str(), RTLD_NOW);
-
-        if (!m_RendererDLL) printf("%s\n", dlerror());
-    #endif
-
-    if (m_RendererDLL==NULL) { wxMessageBox("FAILED - could not load the library at "+MatSysRendererDLLName, "ERROR"); return false; }
-
-
-    // Get the renderer.
-    typedef MatSys::RendererI* (__stdcall *GetRendererT)(cf::ConsoleI* Console_, cf::FileSys::FileManI* FileMan_);
-
-    #ifdef _WIN32
-        GetRendererT GetRenderer=(GetRendererT)GetProcAddress(m_RendererDLL, "_GetRenderer@8");
-    #else
-        GetRendererT GetRenderer=(GetRendererT)GetProcAddress(m_RendererDLL, "GetRenderer");
-    #endif
-
-    if (!GetRenderer) { wxMessageBox("FAILED - could not get the address of the GetRenderer() function.", "ERROR"); FreeLibrary(m_RendererDLL); return false; }
-
-    // When we get here, the console and the file man must already have been initialized.
-    assert(Console!=NULL);
-    assert(cf::FileSys::FileMan!=NULL);
-    MatSys::Renderer=GetRenderer(Console, cf::FileSys::FileMan);
-
-    if (MatSys::Renderer==NULL) { wxMessageBox("FAILED - could not get the renderer.", "ERROR"); FreeLibrary(m_RendererDLL); return false; }
-
-
-    // Check if we already have OpenGL errors here.
-    // Shouldn't be the case though, because any errors here must have been caused by the ParentFrames wxCanvas ctor.
-    GLenum Error=glGetError();
-    if (Error!=GL_NO_ERROR) wxMessageBox(wxString::Format("glGetError() reported error %i!", Error));
-
-    if (!MatSys::Renderer->IsSupported())
-    {
-        wxMessageBox("Renderer "+MatSysRendererDLLName+" says that it's not supported.\n\n"
-                     "(This may be caused by your desktop being set to 16 BPP (or less).\n"
-                     "Please set your desktop bit-depth to 32 BPP (True Color), and try again.)");
-        FreeLibrary(m_RendererDLL);
-        return false;
-    }
-
-    MatSys::Renderer->Initialize();
-
-
-    // Get the texture manager.
-    typedef MatSys::TextureMapManagerI* (__stdcall *GetTMMT)();
-
-    #ifdef _WIN32
-        GetTMMT GetTMM=(GetTMMT)GetProcAddress(m_RendererDLL, "_GetTextureMapManager@0");
-    #else
-        GetTMMT GetTMM=(GetTMMT)GetProcAddress(m_RendererDLL, "GetTextureMapManager");
-    #endif
-
-    if (!GetTMM) { wxMessageBox("FAILED - could not get the address of the GetTextureMapManager() function.", "ERROR"); FreeLibrary(m_RendererDLL); return false; }
-    MatSys::TextureMapManager=GetTMM();
-    if (MatSys::TextureMapManager==NULL) { wxMessageBox("No TextureMapManager obtained.", "ERROR"); FreeLibrary(m_RendererDLL); return false; }
-
-    // Register the material script with the CaWE materials definitions.
-    if (MaterialManager->RegisterMaterialScript(AppDir+"/res/CaWE.cmat", AppDir+"/res/").Size()==0)
-        wxMessageBox("CaWE.cmat not found in \""+AppDir+"\".", "WARNING");
-
-    // Create a very simple lightmap for the materials that need one, and register it with the renderer.
-    char Data[]={ 255, 255, 255, 255, 255, 255, 0, 0,
-                  255, 255, 255, 255, 255, 255, 0, 0 };
-
-    MatSys::Renderer->SetCurrentLightMap(MatSys::TextureMapManager->GetTextureMap2D(Data, 2, 2, 3, true, MapCompositionT(MapCompositionT::Linear, MapCompositionT::Linear)));
-    MatSys::Renderer->SetCurrentLightDirMap(NULL);      // The MatSys provides a default for LightDirMaps when NULL is set.
-
-
     // Initialize the global options from the CaWE config files.
     Options.Init();
 
     // Initialize the global cursor manager instance.
     wxASSERT(CursorMan==NULL);
     CursorMan=new CursorManT;
-
-    // Initialize the GUI managager.
-    // This has to be done after all materials are loaded (during Options initialization) so the GuiManager finds its default material.
-    cf::GuiSys::GuiMan=new cf::GuiSys::GuiManImplT();
 
     return wxApp::OnInit();
 }
@@ -354,18 +236,6 @@ int AppCaWE::OnExit()
 
     delete m_FileConfig;
     m_FileConfig=NULL;
-
-    // Release the GuiManager BEFORE the renderer.
-    delete cf::GuiSys::GuiMan;
-    cf::GuiSys::GuiMan=NULL;
-
-    // Unload the Cafu Material System.
-    // Checks for NULL are required to gracefully handle (DLL loading, and other) failures in InitInstance().
-    if (MatSys::Renderer!=NULL && m_RendererDLL)
-    {
-        MatSys::Renderer->Release();
-        FreeLibrary(m_RendererDLL);
-    }
 
     // TODO: delete cf::FileSys::FileMan;   // Shoud have   cf::FileSys::FileMan=new cf::FileSys::FileManImplT;   in OnInit().
     cf::FileSys::FileMan=NULL;

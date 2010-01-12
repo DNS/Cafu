@@ -34,8 +34,15 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ModelEditor/ChildFrame.hpp"
 #include "ModelEditor/Document.hpp"
 
+#include "ConsoleCommands/Console.hpp"
+#include "FileSys/FileManImpl.hpp"
 #include "GuiSys/GuiImpl.hpp"   // Needed to catch InitErrorT if GUI document creation fails.
+#include "GuiSys/GuiManImpl.hpp"
+#include "MaterialSystem/MapComposition.hpp"
+#include "MaterialSystem/Renderer.hpp"
+#include "MaterialSystem/TextureMap.hpp"
 #include "TextParser/TextParser.hpp"
+#include "PlatformAux.hpp"
 
 #include "wx/wx.h"
 #include "wx/aboutdlg.h"
@@ -49,11 +56,24 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include <fstream>
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <direct.h>
+#elif __linux__
+#include <dirent.h>
+#include <dlfcn.h>
+#define __stdcall
+#define GetProcAddress dlsym
+#define FreeLibrary dlclose
+#endif
+
 
 BEGIN_EVENT_TABLE(ParentFrameT, wxMDIParentFrame)
 #ifdef __WXGTK__
     EVT_SIZE(ParentFrameT::OnSize)
 #endif
+    EVT_SHOW(ParentFrameT::OnShow)
     EVT_CLOSE(ParentFrameT::OnClose)
     EVT_MENU_RANGE(ID_MENU_FILE_NEW_MAP,  ID_MENU_FILE_EXIT,  ParentFrameT::OnMenuFile)
     EVT_MENU_RANGE(wxID_FILE1,            wxID_FILE9,         ParentFrameT::OnMenuFile)
@@ -84,7 +104,8 @@ ParentFrameT::ParentFrameT()
     : wxMDIParentFrame(NULL /*parent*/, -1 /*id*/, wxString("Cafu World Editor - ") + __DATE__, wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE | wxMAXIMIZE),
 #endif
       m_GLCanvas(NULL),
-      m_GLContext(NULL)
+      m_GLContext(NULL),
+      m_RendererDLL(NULL)
 {
     wxMenuBar *item0 = new wxMenuBar;
 
@@ -141,30 +162,47 @@ ParentFrameT::ParentFrameT()
 #endif
 
 
-    // Create the parent GL canvas.
-    m_GLCanvas=new wxGLCanvas(this, -1, OpenGLAttributeList, wxPoint(600, 5), wxSize(10, 10), 0, "ParentGLCanvas");
-
-
-    Centre(wxBOTH);
-    Maximize(true);             // The wxMAXIMIZE frame style does not seem to have any effect for this frame...(?)
-    Show(true);
+    // Create the parent GL canvas and a GL context.
+    m_GLCanvas =new wxGLCanvas(this, -1, OpenGLAttributeList, wxPoint(600, 5), wxSize(10, 10), 0, "ParentGLCanvas");
     m_GLContext=new wxGLContext(m_GLCanvas);
-    wxASSERT(m_GLContext);
-    m_GLCanvas->SetCurrent(*m_GLContext);   // Aha - under X11 this must be *after* Show(true), not before the window is opened!
 
-    // The above attribute list can certainly NOT be met on 16 BPP desktops.
-    // However, we do not check if the RC of the m_GLCanvas is valid here (it should),
-    // as the IsSupported() method of each MatSys Renderer does the same check, too,
-    // and I have adjusted the error message appropriately there (see AppCaWE.cpp,
-    // the user is told to check whether his desktop is set to 32 BPP if IsSupported() fails).
-    // const char* Version=(char const*)glGetString(GL_VERSION);     // Another way to see if the RC is valid: Version!=NULL <==> RC valid.
-    // printf("%s (%u): GL_VERSION string is \"%s\".\n", __FILE__, __LINE__, Version==NULL ? "NULL" : Version);
+    Maximize();     // Under wxGTK, the wxMAXIMIZE frame style does not seem to suffice...
+    Show();         // Without this, the parent frame is not shown...
+
+#ifdef __WXMSW__
+    // ARGH! See my message "wx 2.9.0, Showing parent frame during app init" to wx-users
+    // at http://article.gmane.org/gmane.comp.lib.wxwindows.general/68490 for details.
+    wxShowEvent SE(0, true);
+    OnShow(SE);
+#endif
 }
 
 
 ParentFrameT::~ParentFrameT()
 {
     m_FileHistory.Save(*wxConfigBase::Get());
+
+    // Release the GuiManager (BEFORE the renderer).
+    if (cf::GuiSys::GuiMan!=NULL)
+    {
+        delete cf::GuiSys::GuiMan;
+        cf::GuiSys::GuiMan=NULL;
+    }
+
+    // Release the Cafu Material System.
+    MatSys::TextureMapManager=NULL;
+
+    if (MatSys::Renderer!=NULL)
+    {
+        MatSys::Renderer->Release();
+        MatSys::Renderer=NULL;
+    }
+
+    if (m_RendererDLL!=NULL)
+    {
+        FreeLibrary(m_RendererDLL);
+        m_RendererDLL=NULL;
+    }
 }
 
 
@@ -203,6 +241,124 @@ void ParentFrameT::OnSize(wxSizeEvent& SE)
     }
 }
 #endif
+
+
+void ParentFrameT::OnShow(wxShowEvent& SE)
+{
+    if (SE.IsShown() && m_RendererDLL==NULL)
+    {
+        // Initialize the Material System.
+        // This code is in this place due to a few peculiarities of OpenGL under GTK that do not exist under MSW:
+        //   - First, an OpenGL context can only be made current with a canvas that is shown on the screen.
+        //   - Second, calling Show() in the ctor above doesn't show the frame immediately - that requires
+        //     getting back to the main event loop first.
+        // Consequently, the first and best opportunity for initializing the MatSys is here.
+        wxASSERT(m_GLCanvas->IsShownOnScreen());
+
+        // If this was in the ctor, it would trigger an assertion in debug build and yield an invalid (unusable)
+        // OpenGL context in release builds (the GL code in the MatSys::Renderer->IsSupported() methods would fail).
+        m_GLCanvas->SetCurrent(*m_GLContext);
+
+        // Prepare the name strings.
+        #ifdef SCONS_BUILD_DIR
+            #define QUOTE(str) QUOTE_HELPER(str)
+            #define QUOTE_HELPER(str) #str
+
+            #ifdef _WIN32
+            const wxString MatSysRendererDLLName=wxString("Libs/")+QUOTE(SCONS_BUILD_DIR)+"/MaterialSystem/RendererOpenGL12.dll";
+            #else
+            const wxString MatSysRendererDLLName=wxString("Libs/")+QUOTE(SCONS_BUILD_DIR)+"/MaterialSystem/libRendererOpenGL12.so";
+            #endif
+
+            #undef QUOTE
+            #undef QUOTE_HELPER
+        #else
+            const wxString MatSysRendererDLLName=wxString("Renderers/RendererOpenGL12")+PlatformAux::GetEnvFileSuffix().c_str()+".dll";
+        #endif
+
+
+        // Load the DLL.
+        #ifdef _WIN32
+            m_RendererDLL=LoadLibrary(L"./RendererOpenGL12.dll");
+
+            if (m_RendererDLL==NULL)
+                m_RendererDLL=LoadLibrary(MatSysRendererDLLName);
+        #else
+            // Note that RTLD_GLOBAL must *not* be passed-in here, or else we get in trouble with subsequently loaded libraries.
+            // (E.g. dlsym(RendererDLL, "GetRenderer") return identical results for different RendererDLLs.)
+            // Please refer to the man page of dlopen for more details.
+            m_RendererDLL=dlopen("./libRendererOpenGL12.so", RTLD_NOW);
+            if (!m_RendererDLL) m_RendererDLL=dlopen(MatSysRendererDLLName.c_str(), RTLD_NOW);
+
+            if (!m_RendererDLL) printf("%s\n", dlerror());
+        #endif
+
+        if (m_RendererDLL==NULL) { wxMessageBox("FAILED - could not load the library at "+MatSysRendererDLLName, "ERROR"); Destroy(); return; }
+
+
+        // Get the renderer.
+        typedef MatSys::RendererI* (__stdcall *GetRendererT)(cf::ConsoleI* Console_, cf::FileSys::FileManI* FileMan_);
+
+        #ifdef _WIN32
+            GetRendererT GetRenderer=(GetRendererT)GetProcAddress(m_RendererDLL, "_GetRenderer@8");
+        #else
+            GetRendererT GetRenderer=(GetRendererT)GetProcAddress(m_RendererDLL, "GetRenderer");
+        #endif
+
+        if (!GetRenderer) { wxMessageBox("FAILED - could not get the address of the GetRenderer() function.", "ERROR"); Destroy(); return; }
+
+        // When we get here, the console and the file man must already have been initialized.
+        wxASSERT(Console!=NULL);
+        wxASSERT(cf::FileSys::FileMan!=NULL);
+        MatSys::Renderer=GetRenderer(Console, cf::FileSys::FileMan);
+
+        if (MatSys::Renderer==NULL) { wxMessageBox("FAILED - could not get the renderer.", "ERROR"); Destroy(); return; }
+
+
+        // Check if we already have OpenGL errors here.
+        // Shouldn't be the case though, because any errors here must have been caused by the ParentFrames wxCanvas ctor.
+        GLenum Error=glGetError();
+        if (Error!=GL_NO_ERROR) wxMessageBox(wxString::Format("glGetError() reported error %i!", Error));
+
+        if (!MatSys::Renderer->IsSupported())
+        {
+            wxMessageBox("Renderer "+MatSysRendererDLLName+" says that it's not supported.\n\n"
+                         "This may be caused by your desktop being set to 16 BPP (or less).\n"
+                         "Please set your desktop bit-depth to 24 or 32 BPP (True Color), and try again.");
+            Destroy();
+            return;
+        }
+
+        MatSys::Renderer->Initialize();
+
+
+        // Get the texture manager.
+        typedef MatSys::TextureMapManagerI* (__stdcall *GetTMMT)();
+
+        #ifdef _WIN32
+            GetTMMT GetTMM=(GetTMMT)GetProcAddress(m_RendererDLL, "_GetTextureMapManager@0");
+        #else
+            GetTMMT GetTMM=(GetTMMT)GetProcAddress(m_RendererDLL, "GetTextureMapManager");
+        #endif
+
+        if (!GetTMM) { wxMessageBox("FAILED - could not get the address of the GetTextureMapManager() function.", "ERROR"); Destroy(); return; }
+        MatSys::TextureMapManager=GetTMM();
+        if (MatSys::TextureMapManager==NULL) { wxMessageBox("No TextureMapManager obtained.", "ERROR"); Destroy(); return; }
+
+        // Create a very simple lightmap for the materials that need one, and register it with the renderer.
+        char Data[]={ 255, 255, 255, 255, 255, 255, 0, 0,
+                      255, 255, 255, 255, 255, 255, 0, 0 };
+
+        MatSys::Renderer->SetCurrentLightMap(MatSys::TextureMapManager->GetTextureMap2D(Data, 2, 2, 3, true, MapCompositionT(MapCompositionT::Linear, MapCompositionT::Linear)));
+        MatSys::Renderer->SetCurrentLightDirMap(NULL);      // The MatSys provides a default for LightDirMaps when NULL is set.
+
+
+        // Initialize the GUI managager.
+        // This has to be done after all materials are loaded (AppCaWE::OnInit()) and after the MatSys::Renderer has been initialized,
+        // so that the GuiManager finds its default material and can register it for rendering.
+        cf::GuiSys::GuiMan=new cf::GuiSys::GuiManImplT();
+    }
+}
 
 
 void ParentFrameT::OnClose(wxCloseEvent& CE)
@@ -311,6 +467,8 @@ GameConfigT* ParentFrameT::AskUserForGameConfig(const wxFileName& DocumentPath)
 
 void ParentFrameT::OnMenuFile(wxCommandEvent& CE)
 {
+    wxASSERT(m_RendererDLL!=NULL && MatSys::Renderer!=NULL);
+
     switch (CE.GetId())
     {
         case ID_MENU_FILE_NEW_MAP:
@@ -669,6 +827,8 @@ static wxString ParseD3RenderStage(TextParserT& TP, char& MapID)
 
 void ParentFrameT::OnMenuHelp(wxCommandEvent& CE)
 {
+    wxASSERT(m_RendererDLL!=NULL && MatSys::Renderer!=NULL);
+
     switch (CE.GetId())
     {
         case ID_MENU_HELP_CONTENTS:

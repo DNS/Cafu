@@ -26,11 +26,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "wx/wx.h"
 
-#if __linux__
-#define HMODULE void*
-#endif
-
-
 class ParentFrameT;
 class wxFileConfig;
 
@@ -53,7 +48,6 @@ class AppCaWE : public wxApp
 
     wxFileConfig* m_FileConfig;
     ParentFrameT* m_ParentFrame;
-    HMODULE       m_RendererDLL;
 };
 
 
