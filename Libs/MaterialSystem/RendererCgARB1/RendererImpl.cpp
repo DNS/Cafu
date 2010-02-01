@@ -35,6 +35,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #endif
 
 #include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
