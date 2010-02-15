@@ -294,10 +294,12 @@ char *getS0( FILE *fp )
 
    if ( fseek( fp, pos, SEEK_SET )) {
       flen = FLEN_ERROR;
+      free(s);
       return NULL;
    }
    if ( 1 != fread( s, len, 1, fp )) {
       flen = FLEN_ERROR;
+      free(s);
       return NULL;
    }
 

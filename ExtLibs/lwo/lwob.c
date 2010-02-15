@@ -108,10 +108,25 @@ static int add_tvel( float pos[], float vel[], lwEnvelope **elist, int *nenvs )
    int i;
 
    for ( i = 0; i < 3; i++ ) {
+
       env = calloc( 1, sizeof( lwEnvelope ));
+      if(!env)
+         return 0;
+
       key0 = calloc( 1, sizeof( lwKey ));
+      if(!key0)
+      {
+         free(env);
+         return 0;
+      }
+
       key1 = calloc( 1, sizeof( lwKey ));
-      if ( !env || !key0 || !key1 ) return 0;
+      if (!key1)
+      {
+         free(env);
+         free(key0);
+         return 0;
+      }
 
       key0->next = key1;
       key0->value = pos[ i ];
