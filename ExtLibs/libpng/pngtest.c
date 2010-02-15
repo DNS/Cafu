@@ -42,7 +42,7 @@
 #  include <stdlib.h>
 #  define READFILE(file, data, length, check) \
      if (ReadFile(file, data, length, &check, NULL)) check = 0
-#  define WRITEFILE(file, data, length, check)) \
+#  define WRITEFILE(file, data, length, check) \
      if (WriteFile(file, data, length, &check, NULL)) check = 0
 #  define FCLOSE(file) CloseHandle(file)
 #else
