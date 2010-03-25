@@ -81,6 +81,11 @@ if sys.platform=="win32":
             CPPDEFINES = ["_CRT_SECURE_NO_DEPRECATE", "_CRT_NONSTDC_NO_DEPRECATE"],
             LINKFLAGS = Split("/nologo /incremental:no"))
 
+        # Explicitly instruct SCons to detect and use the Microsoft Platform SDK, as it is not among the default tools.
+        # See thread "Scons 2010/01/17 doesn't look for MS SDK?" at <http://scons.tigris.org/ds/viewMessage.do?dsForumId=1272&dsMessageId=2455554>
+        # for further information.
+        envCommon.Tool('mssdk')
+
         # Environment for debug builds:
         envDebug=envCommon.Clone();
         envDebug.Append(CCFLAGS=Split("/MTd /Od /Z7 /RTC1"));
@@ -108,6 +113,11 @@ if sys.platform=="win32":
             CCFLAGS = Split("/nologo /GR /EHsc"),   # CCFLAGS is also taken as the default value for CXXFLAGS.
             CPPDEFINES = ["_CRT_SECURE_NO_DEPRECATE", "_CRT_NONSTDC_NO_DEPRECATE"],
             LINKFLAGS = Split("/nologo /incremental:no"))
+
+        # Explicitly instruct SCons to detect and use the Microsoft Platform SDK, as it is not among the default tools.
+        # See thread "Scons 2010/01/17 doesn't look for MS SDK?" at <http://scons.tigris.org/ds/viewMessage.do?dsForumId=1272&dsMessageId=2455554>
+        # for further information.
+        envCommon.Tool('mssdk')
 
         # Environment for debug builds:
         envDebug=envCommon.Clone();
