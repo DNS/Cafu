@@ -136,16 +136,15 @@ void BspTreeBuilderT::LeakDetected(const VectorT& InfoPlayerStartOrigin, const s
 {
     Console->Print("\n### LEAK DETECTED! ###\n\n");
     Console->Print("A leak is a hole in the world, where the inside of it is exposed to the\n");
-    Console->Print("(unwanted) outside region. Thus, I generated a leak pointfile.\n");
-    Console->Print("Load this file into your world editor, and find the beginning of the line.\n");
+    Console->Print("(unwanted) outside region. Thus, a leak pointfile has been generated.\n");
+    Console->Print("Load this file into the world editor CaWE, and find the beginning of the line.\n");
     Console->Print("Hint: The beginning is always near one of the \"info_player_start\" entities.\n");
     Console->Print("Then find and fix the leak by tracing the line until you reach the outside.\n");
-    Console->Print("(I always take the shortest path, so this should be easy.)\n");
+    Console->Print("(The line always takes the shortest path, so this should be easy.)\n");
     Console->Print("\nNotes:\n");
     Console->Print("- Leaks can be *very* small. Use a close-up view, if necessary.\n");
     Console->Print("- Use the grid. The grid is useful to fix leaks + to avoid them from the start.\n");
     Console->Print("- Make sure that *all* \"info_player_start\" entities are inside the world!\n");
-    Console->Print("- The pointfile assumes that WcMap2Ca.exe scaled the world by factor 25.4.\n");
     Console->Print("- Be aware that both the clip hull and the draw hull must be sealed.\n");
     Console->Print("- Please refer to the documentation for additional information.\n");
 
@@ -153,53 +152,47 @@ void BspTreeBuilderT::LeakDetected(const VectorT& InfoPlayerStartOrigin, const s
     // Find path from 'InfoPlayerStartOrigin' to this leaf, and write it into the pointfile.
     ComputeLeakPathByBFS(InfoPlayerStartOrigin);
 
-    FILE* PointFile=fopen(PointFileName.c_str(), "w");
+    std::ofstream PointFile(PointFileName.c_str());
+    unsigned long PointCount=0;
+
     if (!PointFile) Error("Could not open pointfile \"%s\" for writing!", PointFileName.c_str());
 
-    // The following is also possible in a single big for-loop that does not require the 'Points' array.
-    // However, it would then be much more complicated to consider all the special cases when something goes wrong (see below).
-    // Thus, for clarity, I keep it simple, even at the cost of sub-optimal efficiency.
-    ArrayT<VectorT> Points;
+    PointFile << "Points=\n";
+    PointFile << "{\n";
 
     // Let "S" be the start leaf that contains the 'InfoPlayerStartOrigin'.
-    // The following loop puts all the path points into the 'Points' array, including the 'InfoPlayerStartOrigin' of leaf "S".
-    // Three cases are possible, and all of them are gracefully handled (that is much harder with a big loop!):
+    // The following loop writes all the path points, including the 'InfoPlayerStartOrigin' of leaf "S".
+    // Three cases are possible, and all of them are gracefully handled:
     // a) If "S" is NOT reachable from LeafNr, something is wrong (this is a bug!).
     //    The predecessor of LeafNr is -1, and therefore only a single point (0, 0, 0) gets written.
     // b) if "S"==LeafNr, something else is wrong, but not necessarily a bug.
     //    The predecessor is -1, and a single point 'InfoPlayerStartOrigin' gets written.
     // c) In the normal case, as least two points are written into the 'Points' array.
     for (unsigned long CurrentLeaf=LeafNr; CurrentLeaf!=(unsigned long)-1; CurrentLeaf=BFS_Tree[CurrentLeaf])
-        Points.PushBack(scale(BFS_TreePoints[CurrentLeaf], 1.0/25.4));
-
-    for (unsigned long PointNr=0; PointNr+1<Points.Size(); PointNr++)
     {
-        VectorT V1=Points[PointNr  ];
-        VectorT d =Points[PointNr+1]-V1;
-        double  l =length(d);
+        const Vector3dT Point=BFS_TreePoints[CurrentLeaf]/25.4;
 
-        // Console->Print(cf::va("%5u %5u    %f %f %f   -   %f %f %f\n", CurrentLeaf, NextLeaf, V1.x, V1.y, V1.z, V2.x, V2.y, V2.z));
-        if (l<1.0) continue;
-        d=scale(normalize(d, 0.0), 2.0);
+        PointFile << "  { ";
+        PointFile << PointCount << "; " << "  ";                    // Time
+        PointFile << Point.x    << ", ";
+        PointFile << Point.y    << ", ";
+        PointFile << Point.z    << "; " << "  ";
+        PointFile << 0          << "; ";                            // Heading
+        PointFile << "\"leaf " << int(CurrentLeaf) << "\" },\n";    // Comment
 
-        while (l>=0.0)
-        {
-            fprintf(PointFile, "%f %f %f\n", V1.x, V1.y, V1.z);
-            V1=V1+d;
-            l-=2.0;
-        }
+        PointCount++;
     }
 
-    fclose(PointFile);
+    PointFile << "}\n";
 
-    if (Points.Size()<2)
+    if (PointCount<2)
     {
         Console->Print("\nSorry, I have ANOTHER WARNING:\n");
         Console->Print("I was *not* able to generate a reasonable pointfile, and I'm not sure why.\n");
         Console->Print(">> Did you really place all your \"info_player_start\" entities INSIDE the world?\n");
         Console->Print("If you did, and you still see this message, please send an email to\n");
-        Console->Print("CarstenFuchs@T-Online.de\n");
-        Console->Print("Tell him about this message (best is to use copy & paste, or a screen-shot),\n");
+        Console->Print("info@cafu.de\n");
+        Console->Print("Tell them about this message (best is to use copy & paste, or a screen-shot),\n");
         Console->Print("and ideally, include this map as an attachment.\n");
     }
     else Console->Print("\nPointfile written to "+PointFileName+"\n");

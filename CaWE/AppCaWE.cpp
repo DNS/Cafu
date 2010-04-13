@@ -196,7 +196,7 @@ bool AppCaWE::OnInit()
     }
     else
     {
-        wxMessageBox(wxString("Could not open auto-save directory ")+UserDataDir, "WARNING", wxICON_ERROR);
+        wxMessageBox(wxString("Could not open auto-save directory ")+UserDataDir, "WARNING", wxOK | wxICON_ERROR);
     }
 
 

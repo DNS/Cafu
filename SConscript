@@ -123,8 +123,7 @@ elif sys.platform=="linux2":
 
 envCafu.Program('Ca3DE/Cafu',
     CafuMainObj + EngineCommonAndServerObjs + CommonWorldObject + ["Common/WorldMan.cpp"] + WinResource +
-    Split("""Ca3DE/Client/Client.cpp Ca3DE/Client/ClientStateConnecting.cpp Ca3DE/Client/ClientStateIdle.cpp Ca3DE/Client/ClientStateInGame.cpp
-             Ca3DE/Client/ClientWindow.cpp Ca3DE/Client/ClientWorld.cpp Ca3DE/Client/Graphs.cpp Ca3DE/Client/ScrlInfo.cpp"""))
+    Glob("Ca3DE/Client/*.cpp"))
 
 # Build an explicit dedicated server currently only under Linux.
 # Build it with env.Program() instead of envCafu.Program()?  I used env before, and lazily fixed link problems by switching to envCafu...

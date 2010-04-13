@@ -143,6 +143,6 @@ void ModelEditor::SceneSetupT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
     {
         // Don't uncomment this:
         // Changing child properties (e.g. "Pos.x" to "5") also generates events for the composite parent (e.g. "Pos" to "(5, 0, 0)")!
-        // wxMessageBox("Unknown property label \""+Name+"\".", "Warning", wxICON_ERROR);
+        // wxMessageBox("Unknown property label \""+Name+"\".", "Warning", wxOK | wxICON_ERROR);
     }
 }

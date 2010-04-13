@@ -138,7 +138,7 @@ void OptionsT::Init()
         {
             // Just do nothing but warn the user if there was an error initializing the game config,
             // that is, the game config will not be pushed back to the GameConfigs array.
-            wxMessageBox("Configuration for game \""+GameName+"\" could not be loaded!", "Warning", wxICON_EXCLAMATION);
+            wxMessageBox("Configuration for game \""+GameName+"\" could not be loaded!", "Warning", wxOK | wxICON_EXCLAMATION);
         }
 
         CfgFile.SetPath("..");
@@ -151,7 +151,7 @@ void OptionsT::Init()
                      "but didn't find any.\n"
                      "You need to have at least one game configuration inside your\n"
                      "Games directory for the editor to work.\n"
-                     "Please re-install Cafu or contact the Cafu forums for help.", "No game configurations found", wxICON_ERROR);
+                     "Please re-install Cafu or contact the Cafu forums for help.", "No game configurations found", wxOK | wxICON_ERROR);
     } */
 }
 

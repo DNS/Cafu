@@ -85,6 +85,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/filename.h"
 #include "wx/numdlg.h"
 
+extern "C"
+{
+    #include <lua.h>
+    #include <lualib.h>
+    #include <lauxlib.h>
+}
+
 
 #if defined(_WIN32) && defined(_MSC_VER)
     #if (_MSC_VER<1300)
@@ -524,7 +531,7 @@ bool MapDocumentT::OnSaveDocument(const wxString& FileName, bool IsAutoSave)
         {
             wxMessageBox("Sorry, creating the backup file \""+FileName+"_bak\" before saving the map to \""+FileName+"\" didn't work out.\n"
                          "Please check the path and file permissions, "
-                         "or use 'File -> Save As...' to save the current map elsewhere.", "File not saved!", wxICON_ERROR);
+                         "or use 'File -> Save As...' to save the current map elsewhere.", "File not saved!", wxOK | wxICON_ERROR);
             return false;
         }
 
@@ -535,7 +542,7 @@ bool MapDocumentT::OnSaveDocument(const wxString& FileName, bool IsAutoSave)
         if (!OutFile.is_open())
         {
             wxMessageBox("The file \""+FileName+"\" could not be opened for writing.\nPlease check the path and file permissions, "
-                         "or use 'File -> Save As...' to save the current map elsewhere.", "File not saved!", wxICON_ERROR);
+                         "or use 'File -> Save As...' to save the current map elsewhere.", "File not saved!", wxOK | wxICON_ERROR);
             return false;
         }
 
@@ -567,7 +574,7 @@ bool MapDocumentT::OnSaveDocument(const wxString& FileName, bool IsAutoSave)
 
         if (OutFile.fail())
         {
-            wxMessageBox("There was an error when saving the file. Please try again.", "File not saved!", wxICON_ERROR);
+            wxMessageBox("There was an error when saving the file. Please try again.", "File not saved!", wxOK | wxICON_ERROR);
             return false;
         }
 
@@ -1175,24 +1182,61 @@ void MapDocumentT::OnMapLoadPointFile(wxCommandEvent& CE)
         if (PointFileName.IsEmpty()) return;
     }
 
-    if (!wxFileExists(PointFileName))
+
+    // Create a new Lua state.
+    lua_State* LuaState=lua_open();
+
+    try
     {
-        wxMessageBox("Couldn't load the pointfile.");
-        return;
+        if (LuaState==NULL) throw wxString("Couldn't open Lua state.");
+        if (!wxFileExists(PointFileName)) throw wxString("The file does not exist.");
+
+        lua_pushcfunction(LuaState, luaopen_base);    lua_pushstring(LuaState, "");              lua_call(LuaState, 1, 0);  // Opens the basic library.
+        lua_pushcfunction(LuaState, luaopen_package); lua_pushstring(LuaState, LUA_LOADLIBNAME); lua_call(LuaState, 1, 0);  // Opens the package library.
+        lua_pushcfunction(LuaState, luaopen_table);   lua_pushstring(LuaState, LUA_TABLIBNAME);  lua_call(LuaState, 1, 0);  // Opens the table library.
+        lua_pushcfunction(LuaState, luaopen_io);      lua_pushstring(LuaState, LUA_IOLIBNAME);   lua_call(LuaState, 1, 0);  // Opens the I/O library.
+        lua_pushcfunction(LuaState, luaopen_os);      lua_pushstring(LuaState, LUA_OSLIBNAME);   lua_call(LuaState, 1, 0);  // Opens the OS library.
+        lua_pushcfunction(LuaState, luaopen_string);  lua_pushstring(LuaState, LUA_STRLIBNAME);  lua_call(LuaState, 1, 0);  // Opens the string lib.
+        lua_pushcfunction(LuaState, luaopen_math);    lua_pushstring(LuaState, LUA_MATHLIBNAME); lua_call(LuaState, 1, 0);  // Opens the math lib.
+
+        // Load and process the Lua script file with the entity class definitions.
+        if (luaL_loadfile(LuaState, PointFileName.c_str())!=0 || lua_pcall(LuaState, 0, 0, 0)!=0)
+            throw wxString("Couldn't load the file:\n")+lua_tostring(LuaState, -1);
+
+        wxASSERT(lua_gettop(LuaState)==0);
+        m_PointFilePoints.Clear();
+        lua_getglobal(LuaState, "Points");
+        const size_t NumPoints=lua_objlen(LuaState, 1);
+
+        for (size_t PointNr=1; PointNr<=NumPoints; PointNr++)
+        {
+            // Put that table of the current point onto the stack (at index 2).
+            lua_rawgeti(LuaState, 1, PointNr);
+            m_PointFilePoints.PushBackEmpty();
+
+            for (size_t i=2; i<=4; i++)
+            {
+                lua_rawgeti(LuaState, 2, i);
+                m_PointFilePoints[PointNr-1][i-2]=lua_tonumber(LuaState, 3);
+                lua_pop(LuaState, 1);
+            }
+
+            // Remove the processed points table from the stack again.
+            lua_pop(LuaState, 1);
+        }
+
+        wxASSERT(lua_gettop(LuaState)==1);
+        lua_pop(LuaState, 1);
+
+        UpdateAllObservers(UPDATE_POINTFILE);
+    }
+    catch (const wxString& msg)
+    {
+        wxMessageBox(msg, "Error loading "+PointFileName, wxOK | wxICON_ERROR);
     }
 
-    TextParserT TP(PointFileName);
-
-    while (!TP.IsAtEOF())
-    {
-        const float x=TP.GetNextTokenAsFloat(); if (TP.IsAtEOF()) break;
-        const float y=TP.GetNextTokenAsFloat(); if (TP.IsAtEOF()) break;
-        const float z=TP.GetNextTokenAsFloat(); if (TP.IsAtEOF()) break;
-
-        m_PointFilePoints.PushBack(Vector3fT(x, y, z));
-    }
-
-    UpdateAllObservers(UPDATE_POINTFILE);
+    // Close the Lua state.
+    if (LuaState) lua_close(LuaState);
 }
 
 

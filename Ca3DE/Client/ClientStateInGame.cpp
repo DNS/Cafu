@@ -24,6 +24,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClientStateInGame.hpp"
 #include "Client.hpp"
 #include "ClientWorld.hpp"
+#include "PathRecorder.hpp"
+
 #include "../NetConst.hpp"
 #include "GuiSys/Gui.hpp"
 #include "GuiSys/GuiMan.hpp"
@@ -115,6 +117,36 @@ int ClientStateInGameT::ConFunc_showPath_Callback(lua_State* LuaState)
 static ConFuncT ConFunc_showPath("showPath", ClientStateInGameT::ConFunc_showPath_Callback, ConFuncT::FLAG_MAIN_EXE, "Shows the \"shortest\" path from one point in space to another.");
 
 
+int ClientStateInGameT::ConFunc_recordPath_Callback(lua_State* LuaState)
+{
+    if (!ClientIGSPtr) return 0;
+
+    PathRecorderT*& Recorder=ClientIGSPtr->m_PathRecorder;
+    const char*     FileName=lua_tostring(LuaState, 1);
+
+    if (FileName)
+    {
+        // Already recording to the file with the given name? Continue recording.
+        // If we were not recording before, or are recording to a different file, start recording.
+        if (!Recorder || Recorder->GetFileName()!=FileName)
+        {
+            delete Recorder;
+            Recorder=new PathRecorderT(FileName);
+        }
+    }
+    else
+    {
+        // Stop recording.
+        delete Recorder;
+        Recorder=NULL;
+    }
+
+    return 0;
+}
+
+static ConFuncT ConFunc_recordPath("recordPath", ClientStateInGameT::ConFunc_recordPath_Callback, ConFuncT::FLAG_MAIN_EXE, "Records the players path into a pointfile (load into CaWE to view).");
+
+
 ClientStateInGameT::ClientStateInGameT(ClientT& Client_)
     : Client(Client_),
       Font_v("Fonts/Arial"),
@@ -122,7 +154,8 @@ ClientStateInGameT::ClientStateInGameT(ClientT& Client_)
       World(NULL),
       IsLoadingWorld(false),
       WasLMBOnceUp(false),
-      ClientFrameNr(0)
+      ClientFrameNr(0),
+      m_PathRecorder(NULL)
 {
     assert(Client.Socket!=INVALID_SOCKET);
 
@@ -133,6 +166,9 @@ ClientStateInGameT::ClientStateInGameT(ClientT& Client_)
 
 ClientStateInGameT::~ClientStateInGameT()
 {
+    delete m_PathRecorder;
+    m_PathRecorder=NULL;
+
     if (Client.MainMenuGui!=NULL)
     {
         Client.MainMenuGui->Activate();
@@ -822,6 +858,9 @@ void ClientStateInGameT::MainLoop(float FrameTime)
 
         // Führe für unseren Entity die Prediction durch
         World->OurEntity_Predict(PlayerCommand, PlayerCommand.Nr /* next outgoing sequence number */);
+
+        if (m_PathRecorder)
+            m_PathRecorder->WritePath(World->OurEntity_GetState(UsePrediction.GetValueBool()), FrameTime);
 
         PlayerCommand=PlayerCommandT();     // Clear the PlayerCommand.
     }

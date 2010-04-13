@@ -424,7 +424,7 @@ GameConfigT* ParentFrameT::AskUserForGameConfig(const wxFileName& DocumentPath)
                      "but didn't find any.\n"
                      "You need to have at least one game configuration inside your\n"
                      "Games directory for the editor to work.\n"
-                     "Please re-install Cafu or contact the Cafu forums for help.", "No game configurations found", wxICON_ERROR);
+                     "Please re-install Cafu or contact the Cafu forums for help.", "No game configurations found", wxOK | wxICON_ERROR);
 
         return NULL;
     }
@@ -655,7 +655,7 @@ void ParentFrameT::OnMenuFile(wxCommandEvent& CE)
                     else if (FileName.EndsWith(".cgui"))
                     {
                         if (FileName.EndsWith("_init.cgui")) new GuiEditor::ChildFrameT(this, FileName, new GuiEditor::GuiDocumentT(GameConfig, FileName));
-                                                        else wxMessageBox("Only GUI initialization scripts (_init.cgui extension) can be opened by CaWE", "Error", wxICON_ERROR);
+                                                        else wxMessageBox("Only GUI initialization scripts (_init.cgui extension) can be opened by CaWE", "Error", wxOK | wxICON_ERROR);
                     }
                     else
                     {

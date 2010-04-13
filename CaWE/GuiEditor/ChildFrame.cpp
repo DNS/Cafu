@@ -361,7 +361,7 @@ bool GuiEditor::ChildFrameT::Save(bool AskForFileName)
     {
         wxMessageBox(wxString("I was not able to backup file '")+FileName+"' to '"+FileName+"_bak"+"'.\n"
                      "Please make sure that there is enough disk space left and that the path still exists,\n"
-                     "or use 'File -> Save As...' to save the current GUI elsewhere.", "File not saved!", wxICON_ERROR);
+                     "or use 'File -> Save As...' to save the current GUI elsewhere.", "File not saved!", wxOK | wxICON_ERROR);
         return false;
     }
 
@@ -666,7 +666,7 @@ void GuiEditor::ChildFrameT::OnToolbar(wxCommandEvent& CE)
                                  Gui->GetScriptInitResult()+"\n\n"+
                                  "This is most likely a problem in your custom script code that you should look into.\n"+
                                  "We will proceed anyway, using the script portions that were loaded before the error occurred.",
-                                 MainScriptFileName, wxICON_EXCLAMATION);
+                                 MainScriptFileName, wxOK | wxICON_EXCLAMATION);
                 }
 
                 LivePreviewT* Preview=new LivePreviewT(this, Gui, MainScriptFileName);
@@ -675,7 +675,7 @@ void GuiEditor::ChildFrameT::OnToolbar(wxCommandEvent& CE)
             catch (const cf::GuiSys::GuiImplT::InitErrorT& /*InitError*/)
             {
                 // Getting here means the GUI has no root window set, but this should never happen within CaWE.
-                wxMessageBox("There was an error initializing the live preview from script\n"+MainScriptFileName, "Live Preview", wxICON_ERROR);
+                wxMessageBox("There was an error initializing the live preview from script\n"+MainScriptFileName, "Live Preview", wxOK | wxICON_ERROR);
             }
 
             break;

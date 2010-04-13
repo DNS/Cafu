@@ -743,7 +743,7 @@ void ChildFrameT::OnClose(wxCloseEvent& CE)
             {
                 // The save was successful, but maybe it was a map export rather than a native cmap save.
                 // In this case, also keep the window open.
-                wxMessageBox("The map was exported, not saved. Please save the map before leaving.", "Map not closed.", wxICON_INFORMATION);
+                wxMessageBox("The map was exported, not saved. Please save the map before leaving.", "Map not closed.", wxOK | wxICON_INFORMATION);
                 CE.Veto();
                 return;
             }

@@ -52,7 +52,7 @@ EditorMatManT::EditorMatManT(const GameConfigT& GameConfig)
     {
         wxMessageBox("WARNING: No materials found in directory\n"+GameConfig.ModDir+"/Materials\n"
                      "We can continue, but the materials will NOT work.\n"
-                     "Something is wrong that really should be fixed!", "Missing Materials", wxICON_ERROR);
+                     "Something is wrong that really should be fixed!", "Missing Materials", wxOK | wxICON_ERROR);
 
         m_Materials.PushBack(new DummyMaterialT("Error: Materials not loaded!"));
     }

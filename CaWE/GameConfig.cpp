@@ -80,7 +80,7 @@ GameConfigT::GameConfigT(wxFileConfig& CfgFile, const wxString& Name_, const wxS
         {
             wxMessageBox("Entity class definitions script could not be processed,\n"+
                          wxString(lua_tostring(LuaState, -1))+".\n",
-                         "Error while initializing game configuration \""+Name+"\"", wxICON_ERROR);
+                         "Error while initializing game configuration \""+Name+"\"", wxOK | wxICON_ERROR);
 
             lua_pop(LuaState, 1);
             throw InitErrorT();
@@ -128,7 +128,7 @@ GameConfigT::GameConfigT(wxFileConfig& CfgFile, const wxString& Name_, const wxS
             if (lua_type(LuaState, -2)!=LUA_TSTRING)
             {
                 wxMessageBox("Non-string entity class name in EntityClassDefs table.\n",
-                    "Error while initializing game configuration \""+Name+"\"", wxICON_ERROR);
+                    "Error while initializing game configuration \""+Name+"\"", wxOK | wxICON_ERROR);
                 throw InitErrorT();
             }
 
@@ -219,7 +219,7 @@ GameConfigT::GameConfigT(wxFileConfig& CfgFile, const wxString& Name_, const wxS
         out+="\n";
     }
 
-    // wxMessageBox(out, "Entity Classes Overview", wxICON_INFORMATION);
+    // wxMessageBox(out, "Entity Classes Overview", wxOK | wxICON_INFORMATION);
     wxLogDebug(out);
 #endif
 }

@@ -167,7 +167,7 @@ bool FontGeneratorT::GenerateFont(const wxString& FontFile, bool DebugPNGs)
     // Initialize free type if not yet done.
     if (!m_FTInited && FT_Init_FreeType(&m_FTLib)!=0)
     {
-        wxMessageBox("Could not init the FreeType library.", "Error", wxICON_ERROR);
+        wxMessageBox("Could not init the FreeType library.", "Error", wxOK | wxICON_ERROR);
         return false;
     }
 
@@ -180,7 +180,7 @@ bool FontGeneratorT::GenerateFont(const wxString& FontFile, bool DebugPNGs)
         // Load the font face.
         if (FT_New_Face(m_FTLib, FontFile.c_str(), 0, &m_FontData[SizeNr].FTFontFace)!=0)
         {
-            wxMessageBox("Could not load the font face from \""+FontFile+"\".", "Error", wxICON_ERROR);
+            wxMessageBox("Could not load the font face from \""+FontFile+"\".", "Error", wxOK | wxICON_ERROR);
             ClearFontData();
             return false;
         }
@@ -190,7 +190,7 @@ bool FontGeneratorT::GenerateFont(const wxString& FontFile, bool DebugPNGs)
         // Set the character size to SizeInPoints points at 72 DPI, which implies that the size in pixels is the same as SizeInPoints.
         if (FT_Set_Char_Size(m_FontData[SizeNr].FTFontFace, SizeInPoints*64, 0, 72, 72)!=0)
         {
-            wxMessageBox(wxString::Format("Error: Could not set the character size to %i pt.", SizeInPoints), "Error", wxICON_ERROR);
+            wxMessageBox(wxString::Format("Error: Could not set the character size to %i pt.", SizeInPoints), "Error", wxOK | wxICON_ERROR);
             continue;
         }
 
@@ -216,7 +216,7 @@ bool FontGeneratorT::GenerateFont(const wxString& FontFile, bool DebugPNGs)
             // Load the glyph at GlyphIndex into the glyph slot of FTFontFace (i.e. FTFontFace->glyph).
             if (FT_Load_Glyph(m_FontData[SizeNr].FTFontFace, GlyphIndex, FT_LOAD_RENDER)!=0)
             {
-                wxMessageBox(wxString::Format("Error: Could not obtain the glyph at index %lu.", GlyphIndex), "Error", wxICON_ERROR);
+                wxMessageBox(wxString::Format("Error: Could not obtain the glyph at index %lu.", GlyphIndex), "Error", wxOK | wxICON_ERROR);
                 continue;   // TODO: Is this proper error handling???
             }
 

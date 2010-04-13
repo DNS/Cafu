@@ -37,6 +37,7 @@ class  CaClientWorldT;
 struct CaKeyboardEventT;
 struct CaMouseEventT;
 class  ClientT;
+class  PathRecorderT;
 
 
 /// This class implements the state of the client when it is fully connected and thus "in-game".
@@ -59,6 +60,7 @@ class ClientStateInGameT : public ClientStateT
     static int ConFunc_say_Callback(lua_State* LuaState);
     static int ConFunc_chatPrint_Callback(lua_State* LuaState);
     static int ConFunc_showPath_Callback(lua_State* LuaState);
+    static int ConFunc_recordPath_Callback(lua_State* LuaState);
 
 
     private:
@@ -71,23 +73,24 @@ class ClientStateInGameT : public ClientStateT
     static void ParseServerPacketHelper(NetDataT& InData, unsigned long /*LastIncomingSequenceNr*/);
 
 
-    ClientT&                 Client;
+    ClientT&               Client;
 
-    GameProtocol1T           GameProtocol;
-    ArrayT< ArrayT<char> >   ReliableDatas;
-    NetDataT                 UnreliableData;
+    GameProtocol1T         GameProtocol;
+    ArrayT< ArrayT<char> > ReliableDatas;
+    NetDataT               UnreliableData;
 
-    FontT                    Font_v;
-    FontT                    Font_f;
-    CaClientWorldT*          World;
-    bool                     IsLoadingWorld;    ///< True while the world is loaded, false at all other times. This is relevant only because cf::GuiSys::GuiMan->Yield() is called while loading, which in turn calls our Render() method.
-    bool                     WasLMBOnceUp;      ///< The left mouse button must be in the released (non-pressed, up) state after the world has been loaded. This variable is false until this has been the case!
+    FontT                  Font_v;
+    FontT                  Font_f;
+    CaClientWorldT*        World;
+    bool                   IsLoadingWorld;      ///< True while the world is loaded, false at all other times. This is relevant only because cf::GuiSys::GuiMan->Yield() is called while loading, which in turn calls our Render() method.
+    bool                   WasLMBOnceUp;        ///< The left mouse button must be in the released (non-pressed, up) state after the world has been loaded. This variable is false until this has been the case!
 
-    ScrollInfoT              ChatScrollInfo;
-    ScrollInfoT              SystemScrollInfo;
-    GraphsT                  Graphs;
-    unsigned long            ClientFrameNr;
-    PlayerCommandT           PlayerCommand;     ///< The player command structure that collects the input until the next call to MainLoop().
+    ScrollInfoT            ChatScrollInfo;
+    ScrollInfoT            SystemScrollInfo;
+    GraphsT                Graphs;
+    unsigned long          ClientFrameNr;
+    PlayerCommandT         PlayerCommand;       ///< The player command structure that collects the input until the next call to MainLoop().
+    PathRecorderT*         m_PathRecorder;      ///< Records the path of this client in a pointfile that can be loaded into CaWE.
 };
 
 #endif
