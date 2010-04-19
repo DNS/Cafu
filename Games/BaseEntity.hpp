@@ -254,7 +254,7 @@ class BaseEntityT
     /// there is a call for the ambient contribution (everything that is independent of a lightsource) and for each light source there is
     /// a call for the shadows, followed by another call for adding the lightsource-dependent contribution (diffuse and specular terms etc.).
     ///
-    /// Also note that the calling code has properly set up the Ca3DE Material Systems global lighting parameters before calling.
+    /// Also note that the calling code has properly set up the Cafu Material Systems global lighting parameters before calling.
     /// That is, the ambient light color, light source position (in model space), radius, diff+spec color and the eye position (in model space) are set.
     /// However, normally only those parameters that are relevant for the current Material Systems rendering action are set:
     /// In the AMBIENT rendering action, only the ambient colors are set, in the STENCILSHADOW action only the light source position may be set,

@@ -21,14 +21,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/***********************************************/
-/***                                         ***/
-/*** Ca3DE Binary Space Partitioning Utility ***/
-/***                                         ***/
-/***     I think that I shall never see      ***/
-/***         a poem lovely as a tree         ***/
-/***                                         ***/
-/***********************************************/
+/**********************************************/
+/***                                        ***/
+/*** Cafu Binary Space Partitioning Utility ***/
+/***                                        ***/
+/***     I think that I shall never see     ***/
+/***         a poem lovely as a tree        ***/
+/***                                        ***/
+/**********************************************/
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -184,7 +184,7 @@ int main(int ArgC, const char* ArgV[])
     bool Option_MostSimpleTree    =false;
     bool Option_MinimizeFaceSplits=false;
 
-    Console->Print(cf::va("\n*** Ca3DE Binary Space Partitioning Utility, Version 10a (%s) ***\n\n", __DATE__));
+    Console->Print(cf::va("\n*** Cafu Binary Space Partitioning Utility, Version 10a (%s) ***\n\n", __DATE__));
 
 
     // Initialize the FileMan by mounting the default file system.

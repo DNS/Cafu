@@ -574,7 +574,7 @@ int main(int ArgC, char* ArgV[])
         printf("OK!\n");
 
         // Open OpenGL-Window.
-        const char* ErrorMsg=SingleOpenGLWindow->Open("Ca3DE Terrain Viewer 1.0", 800, 600, 32, false);
+        const char* ErrorMsg=SingleOpenGLWindow->Open("Cafu Terrain Viewer 1.0", 800, 600, 32, false);
 
         if (ErrorMsg)
         {

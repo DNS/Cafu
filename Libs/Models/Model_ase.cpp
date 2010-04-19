@@ -633,7 +633,7 @@ ModelAseT::ModelAseT(const std::string& FileName_) /*throw (ModelT::LoadError)*/
             if (!Material->LightMapComp.IsEmpty())
             {
                 printf("\nWARNING: Model \"%s\" uses material \"%s\", which in turn has lightmaps defined.\n", FileName.c_str(), MaterialNames[MaterialNr].c_str());
-                printf("It will work in the ModelViewer, but for other applications like Ca3DE itself you should use a material without lightmaps.\n");
+                printf("It will work in the ModelViewer, but for other applications like Cafu itself you should use a material without lightmaps.\n");
                 // It works in the ModelViewer because the ModelViewer is kind enough to provide a default lightmap...
             }
 
@@ -832,7 +832,7 @@ void ModelAseT::Draw(int /*SequenceNr*/, float /*FrameNr*/, float /*LodDist*/, c
                     const GeomObjectT::TriangleT& Tri      =GO.Triangles[TriNr];
                     const double                  LightDist=dot(LightPos-GO.Vertices[Tri.IndVertices[0]], Tri.Normal);
 
-                    TriangleIsFrontFacing[TriNr]=LightDist<0;   // Front-facing triangles are ordered CCW (contrary to Ca3DE)!
+                    TriangleIsFrontFacing[TriNr]=LightDist<0;   // Front-facing triangles are ordered CCW (contrary to Cafu)!
                 }
 
 

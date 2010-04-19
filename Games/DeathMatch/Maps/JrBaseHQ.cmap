@@ -5,7 +5,7 @@ Version 13
 
 { // Entity 0 (the world)
   classname "worldspawn"
-  message "JrBaseHQ for Ca3DE"
+  message "JrBaseHQ for Cafu"
   fog_color "0 0 0"
   lightmap_patchsize "200.0"
   wind_velocity "0.0"

@@ -110,7 +110,7 @@ void cf::SceneGraph::PlantNodeT::DrawTranslucentContrib(const Vector3dT& ViewerP
         MatSys::Renderer->RotateZ(MatSys::RendererI::MODEL_TO_WORLD, m_Angles.z);
         MatSys::Renderer->RotateY(MatSys::RendererI::MODEL_TO_WORLD, m_Angles.y);
         MatSys::Renderer->RotateX(MatSys::RendererI::MODEL_TO_WORLD, m_Angles.x);
-        MatSys::Renderer->Scale(MatSys::RendererI::MODEL_TO_WORLD, 1000.0f); // Scale tree units (meters) to Ca3DE units (mm).
+        MatSys::Renderer->Scale(MatSys::RendererI::MODEL_TO_WORLD, 1000.0f); // Scale tree units (meters) to Cafu units (mm).
 
         m_Tree.Draw();
 

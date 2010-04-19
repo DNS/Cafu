@@ -102,7 +102,7 @@ class Shader_A_WaterWithCubeReflection : public ShaderT
             "     OutPos           =mul(ModelViewProjMatrix, InPos);            \n"
             "     OutColor         =InColor;                                    \n"
             "     OutTexCoord_Water=InTexCoord+float2(0.6, 0.8)*Time;           \n"
-            "     OutTexCoord_Sky  =Reflect_w.xzy;                              \n" // The .xzy is required due to the special coord-system axes of cube-maps (Ca3DE and OpenGL are right-handed systems, cube-maps are left-handed).
+            "     OutTexCoord_Sky  =Reflect_w.xzy;                              \n" // The .xzy is required due to the special coord-system axes of cube-maps (Cafu and OpenGL are right-handed systems, cube-maps are left-handed).
             "     OutEyeToPos_w1   =EyeToPos_w;                                 \n"
          // "     OutEyeToPos_w2   =EyeToPos_w;                                 \n"
             " }                                                                 \n");

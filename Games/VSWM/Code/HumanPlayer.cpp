@@ -275,7 +275,7 @@ void EntHumanPlayerT::Init3DNodeSequence(const char* TrialFileName, const Vector
     // This code constructs a sequence from a list of absolute coordinates.
     // It does so by first constructing a list of absolute directions.
     // As above, the sequence ALWAYS starts in the center node at (0,0,0).
-    // NOTE: Ca3DE uses a right handed coordinate system, whereas the coords in Trial.dat
+    // NOTE: Cafu uses a right handed coordinate system, whereas the coords in Trial.dat
     //       are given in a left handed coordinate system. Thus the read order X, Z, Y!
     int OldX=atoi(TrialTP.GetNextToken().c_str());
     int OldZ=atoi(TrialTP.GetNextToken().c_str());

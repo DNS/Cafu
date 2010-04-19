@@ -21,8 +21,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CA3DE_CLIENT_STATE_INGAME_HPP_
-#define _CA3DE_CLIENT_STATE_INGAME_HPP_
+#ifndef _CAFU_CLIENT_STATE_INGAME_HPP_
+#define _CAFU_CLIENT_STATE_INGAME_HPP_
 
 #include "ClientState.hpp"
 #include "Graphs.hpp"

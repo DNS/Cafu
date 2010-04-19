@@ -21,9 +21,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/**************************/
-/*** Ca3DE Model Viewer ***/
-/**************************/
+/*************************/
+/*** Cafu Model Viewer ***/
+/*************************/
 
 #include "ConsoleCommands/Console.hpp"
 #include "ConsoleCommands/ConsoleStdout.hpp"
@@ -165,7 +165,7 @@ void DrawScene(const ArrayT<VectorT>& AmbientLightingInfo, const ArrayT<VectorT>
 {
  // MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
 
-    MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW, MatrixT::GetRotateXMatrix(-90.0f));   // Rotate coordinate system axes to Ca3DE standard.
+    MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW, MatrixT::GetRotateXMatrix(-90.0f));   // Rotate coordinate system axes to Cafu standard.
     MatSys::Renderer->Translate(MatSys::RendererI::WORLD_TO_VIEW, -(float)DynamicLightingInfo[3].x, -(float)DynamicLightingInfo[3].y, -(float)DynamicLightingInfo[3].z); // World to Camera space transform.
 
     // 1. Draw ambient pass.
@@ -488,7 +488,7 @@ int main(int ArgC, char* ArgV[])
 
 
     // Open an OpenGL window.
-    const char* ErrorMsg=SingleOpenGLWindow->Open("Ca3DE Model Viewer 1.2", DoBenchMark ? 1024 : 800, DoBenchMark ? 768 : 600, 32, DoBenchMark);
+    const char* ErrorMsg=SingleOpenGLWindow->Open("Cafu Model Viewer 1.2", DoBenchMark ? 1024 : 800, DoBenchMark ? 768 : 600, 32, DoBenchMark);
 
     if (ErrorMsg)
     {

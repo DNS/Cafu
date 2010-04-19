@@ -127,7 +127,7 @@ ModelProxyT::ModelProxyT(const std::string& FileName)
     try
     {
              if (cf::String::EndsWith(FileName, "ase"    )) NewModel=new ModelAseT     (FileName);
-        else if (cf::String::EndsWith(FileName, "cmdl"   )) NewModel=new ModelCaMdlT   (FileName);    // Ca3DE's very own model file format, very similar to md5.
+        else if (cf::String::EndsWith(FileName, "cmdl"   )) NewModel=new ModelCaMdlT   (FileName);    // Cafu's very own model file format, very similar to md5.
         else if (cf::String::EndsWith(FileName, "collada")) NewModel=new ModelCaMdlT   (FileName);    // Just like dae, only the file suffix is different.
         else if (cf::String::EndsWith(FileName, "dae"    )) NewModel=new ModelCaMdlT   (FileName);    // The results of reading a "dae" file are cached in a related cmdl file, thus the ModelCaMdlT ctor first updates the cmdl file if required, then loads the cmdl file normally.
         else if (cf::String::EndsWith(FileName, "dlod"   )) NewModel=new ModelDlodT    (FileName);

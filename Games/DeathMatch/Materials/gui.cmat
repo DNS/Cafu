@@ -21,7 +21,7 @@ Gui/CrossHair1
 
     // With this we can use e.g.   self:set("backColor", 1.0, 1.0, 0.0, 1.0);   in the Gui scripts to tint the crosshair.
     // ARGH!! Unfortunately, it isn't implemented in most shaders yet, so it currently doesn't work.
-    // See http://www.ca3d-engine.de/wiki/doku.php?id=matsys:cmat_manual:keywordreference for details.
+    // See http://www.cafu.de/wiki/doku.php?id=matsys:cmat_manual:keywordreference for details.
     // Work-around: Tint the crosshair here, in the cmat script, using red, green, blue, etc.
     //
     // useMeshColors
@@ -39,7 +39,7 @@ Gui/CrossHair2
 
     // With this we can use e.g.   self:set("backColor", 1.0, 1.0, 0.0, 1.0);   in the Gui scripts to tint the crosshair.
     // ARGH!! Unfortunately, it isn't implemented in most shaders yet, so it currently doesn't work.
-    // See http://www.ca3d-engine.de/wiki/doku.php?id=matsys:cmat_manual:keywordreference for details.
+    // See http://www.cafu.de/wiki/doku.php?id=matsys:cmat_manual:keywordreference for details.
     // Work-around: Tint the crosshair here, in the cmat script, using red, green, blue, etc.
     //
     // useMeshColors

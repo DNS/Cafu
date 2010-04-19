@@ -102,7 +102,7 @@ void OpenGLWindowT::Close()
     }
 
     // Fensterklasse abmelden. Dabei zurückgegebene Fehlercodes ignorieren.
-    UnregisterClass("Ca3DMain", pv->hInstance);
+    UnregisterClass("CafuMain", pv->hInstance);
 
     // Standard-Display wiederherstellen
     if (FullScreen)
@@ -229,7 +229,7 @@ OpenGLWindowT::OpenGLWindowT(const char* Title_, unsigned long Width_, unsigned 
     MainWindowClass.hCursor      =LoadCursor(NULL, IDC_ARROW);              // Cursor.
     MainWindowClass.hbrBackground=NULL;                                     // Hintergrund-Brush.
     MainWindowClass.lpszMenuName =NULL;                                     // Menü.
-    MainWindowClass.lpszClassName="Ca3DMain";                               // Name dieser Fensterklasse.
+    MainWindowClass.lpszClassName="CafuMain";                               // Name dieser Fensterklasse.
 
     if (!RegisterClassEx(&MainWindowClass)) throw Error("Unable to register the window class.");
 
@@ -251,7 +251,7 @@ OpenGLWindowT::OpenGLWindowT(const char* Title_, unsigned long Width_, unsigned 
         // CDS_FULLSCREEN gets rid of start bar.
         if (ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN)!=DISP_CHANGE_SUCCESSFUL)
         {
-            UnregisterClass("Ca3DMain", pv->hInstance);
+            UnregisterClass("CafuMain", pv->hInstance);
             throw Error("Unable to change display settings.");
         }
 
@@ -283,7 +283,7 @@ OpenGLWindowT::OpenGLWindowT(const char* Title_, unsigned long Width_, unsigned 
     // ******************
 
     pv->hWindow=CreateWindowEx(ExStyle,                                     // Fensterstil (erweitert)
-                               "Ca3DMain",                                  // Name der Fensterklasse
+                               "CafuMain",                                  // Name der Fensterklasse
                                Title,                                       // Fenstertitel
                                Style | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,   // Fensterstil
                                0, // FullScreen ? 0 : CW_USEDEFAULT,        // X-Position

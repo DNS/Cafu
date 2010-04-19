@@ -430,7 +430,7 @@ BitmapT* MapCompositionT::GetBitmap() const
                     y2=y2*2.0f-1.0f;
                     z2=z2*2.0f-1.0f;
 
-                    // See the Ca3DE Tech Archive ("Adding two normal-maps properly", 2004-06-19) for a detailed explanation!
+                    // See the Cafu Tech Archive ("Adding two normal-maps properly", 2004-06-19) for a detailed explanation!
                     float x_=x1*z2+x2*z1;
                     float y_=y1*z2+y2*z1;
                     float z_=z1*z2;

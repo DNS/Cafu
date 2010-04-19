@@ -35,7 +35,7 @@ class TextParserT;
 
 namespace cf
 {
-    /// A class for rendering fonts that have been created with the Ca3DE MakeFont tool.
+    /// A class for rendering fonts that have been created with the Cafu MakeFont tool.
     class TrueTypeFontT
     {
         public:

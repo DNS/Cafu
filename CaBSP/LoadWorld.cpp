@@ -336,7 +336,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, WorldT& W
     // *** HACK HACK HACK HACK ***   (In fact, two hacks total.)
     //
     // In TechDemo.cmap, "light" entities sometimes have Bezier Patches (and brushes?).
-    // However, Ca3DE can currently not render them as such, thus let's move them into the "worldspawn" entity.
+    // However, Cafu can currently not render them as such, thus let's move them into the "worldspawn" entity.
     for (unsigned long EntityNr=1; EntityNr<MFEntityList.Size(); EntityNr++)
     {
         MapFileEntityT& E=MFEntityList[EntityNr];

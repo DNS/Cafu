@@ -21,21 +21,21 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/****************************************/
-/***                                  ***/
-/*** Ca3DE Potentially Visibility Set ***/
-/***                                  ***/
-/*** To iterate is human.             ***/
-/*** To recurse, divine.              ***/
-/***   -- L. Peter Deutsch            ***/
-/***                                  ***/
-/*** Denn die einen sind im Dunkeln   ***/
-/*** und die andern sind im Licht     ***/
-/*** und man siehet die im Lichte     ***/
-/*** die im Dunkeln sieht man nicht.  ***/
-/***   -- Bertolt Brecht              ***/
-/***                                  ***/
-/****************************************/
+/***************************************/
+/***                                 ***/
+/*** Cafu Potentially Visibility Set ***/
+/***                                 ***/
+/*** To iterate is human.            ***/
+/*** To recurse, divine.             ***/
+/***   -- L. Peter Deutsch           ***/
+/***                                 ***/
+/*** Denn die einen sind im Dunkeln  ***/
+/*** und die andern sind im Licht    ***/
+/*** und man siehet die im Lichte    ***/
+/*** die im Dunkeln sieht man nicht. ***/
+/***   -- Bertolt Brecht             ***/
+/***                                 ***/
+/***************************************/
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -783,7 +783,7 @@ int main(int ArgC, const char* ArgV[])
     double        MinAreaSL      =0.0;
     bool          OnlySuperLeaves=false;
 
-    printf("\n*** Ca3DE Potentially Visibility Set Utility, Version 05 (%s) ***\n\n\n", __DATE__);
+    printf("\n*** Cafu Potentially Visibility Set Utility, Version 05 (%s) ***\n\n\n", __DATE__);
 
     if (ArgC<2) Usage();
 

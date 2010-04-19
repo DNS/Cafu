@@ -21,8 +21,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CA3DE_SERVER_HPP_
-#define _CA3DE_SERVER_HPP_
+#ifndef _CAFU_SERVER_HPP_
+#define _CAFU_SERVER_HPP_
 
 #include "Network/Network.hpp"
 #include "Util/Util.hpp"

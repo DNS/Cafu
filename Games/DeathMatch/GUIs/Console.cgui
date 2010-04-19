@@ -34,7 +34,7 @@ end
 ConsoleOutput=gui:new("WindowT");
 ConsoleFrame:AddChild(ConsoleOutput);
 
--- The Ca3D-Engine searches for a window named "ConsoleOutput" for directing its
+-- The Cafu engine searches for a window named "ConsoleOutput" for directing its
 -- console output to, so we explicitly have to set the name of this window here.
 ConsoleOutput:SetName("ConsoleOutput");
 

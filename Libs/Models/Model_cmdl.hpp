@@ -21,14 +21,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MODEL_CA3DE_NATIVE_HPP_
-#define _MODEL_CA3DE_NATIVE_HPP_
+#ifndef _MODEL_CAFU_NATIVE_HPP_
+#define _MODEL_CAFU_NATIVE_HPP_
 
 #include "Model.hpp"
 // #include "Model_md5.hpp"
 
 
-/// This class represents a model in .cmdl (Ca3DE's very own) file format.
+/// This class represents a model in .cmdl (Cafu's very own) file format.
 class ModelCaMdlT : public ModelT   // This is just for testing - derive from ModelMd5T instead!?!
 {
     public:

@@ -168,7 +168,7 @@ WorldT::WorldT(const char* FileName, ProgressFunctionT ProgressFunction) /*throw
     PlantDescrMan.SetModDir(GetModDir(FileName));
 
     std::ifstream InFile(FileName, std::ios::in | std::ios::binary);
-    if (InFile.bad()) throw LoadErrorT("Unable to open Ca3DE world file.");
+    if (InFile.bad()) throw LoadErrorT("Unable to open Cafu world file.");
 
     // Determine the size of the input file.
     InFile.seekg(0, std::ios::end);
@@ -178,7 +178,7 @@ WorldT::WorldT(const char* FileName, ProgressFunctionT ProgressFunction) /*throw
 
     char FileHeader[32];
     InFile.read(FileHeader, 32);
-    if (strcmp(FileHeader, "CARSTEN WORLD BSP FILE.")) throw LoadErrorT("Invalid file header. Not a Ca3DE world file.");
+    if (strcmp(FileHeader, "CARSTEN WORLD BSP FILE.")) throw LoadErrorT("Invalid file header. Not a Cafu world file.");
 
     unsigned short FileVersion;
     InFile.read((char*)&FileVersion, sizeof(FileVersion));

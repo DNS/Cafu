@@ -835,7 +835,7 @@ int WindowT::Interpolate(lua_State* LuaState)
             // Make sure that there are no more than MAX_INTERPOLATIONS interpolations pending for Var already.
             // If so, just delete the oldest ones, which effectively means to skip them (the next youngest interpolation will take over).
             // The purpose is of course to prevent anything from adding arbitrarily many interpolations, eating up memory,
-            // which could happen from bad user code (e.g. if the Ca3DE game code doesn't protect multiple human players from using
+            // which could happen from bad user code (e.g. if the Cafu game code doesn't protect multiple human players from using
             // a GUI simultaneously, mouse cursor "position flickering" might occur on the server, which in turn might trigger the
             // permanent addition of interpolations from OnFocusLose()/OnFocusGain() scripts).
             for (unsigned long INr=Win->PendingInterpolations.Size(); INr>0; INr--)

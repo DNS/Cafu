@@ -48,7 +48,7 @@ RenderMaterialT::RenderMaterialT(const MaterialT* Material_)
       UseDefaultLightMap(Material->LightMapComp.GetString()=="$lightmap"),
       UseDefaultSHLMap(Material->SHLMapComp.GetString()=="$shlmap")
 {
-    // Here comes one of the key concepts of the Ca3DE Material System:
+    // Here comes one of the key concepts of the Cafu Material System:
     // Materials get shaders assigned, which are chosen from the repository of all available shaders of this renderer.
     // Those shaders that best fulfil the rendering of the material are selected.
     // For rendering, the combination of the material and its shader (ambient or light) work together ie. to setup the OpenGL state machine.

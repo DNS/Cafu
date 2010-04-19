@@ -130,7 +130,7 @@ class Shader_A_WaterWithCubeReflection : public ShaderT
             "     const float3 Normal2     =tex2D(NormalMapSampler, InTexCoord_Wave2).xyz-0.5;              \n" // No *2 needed, because we re-normalize below anyway!
             "     const float3 Normal      =normalize(Normal1+Normal2);                                     \n"
             "     const float3 Reflect_w   =reflect(InEyeToPos_w, Normal);                                  \n"
-            "     const float4 SkyColor    =texCUBE(SkyDomeSampler, Reflect_w.xzy);                         \n" // The .xzy is required due to the special coord-system axes of cube-maps (Ca3DE and OpenGL are right-handed systems, cube-maps are left-handed).
+            "     const float4 SkyColor    =texCUBE(SkyDomeSampler, Reflect_w.xzy);                         \n" // The .xzy is required due to the special coord-system axes of cube-maps (Cafu and OpenGL are right-handed systems, cube-maps are left-handed).
             "     const float4 WaterColor  =tex2D(WaterSampler, InTexCoord+Normal.xy);                      \n"
             "                                                                                               \n"
             "     const float  Len         =length(InEyeToPos_w);                                           \n"

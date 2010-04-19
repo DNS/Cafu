@@ -21,16 +21,16 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*************************************************/
-/***                                           ***/
-/*** Ca3DE Spherical Harmonic Lighting Utility ***/
-/***                                           ***/
-/*** Der Herr sprach                           ***/
-/***   Es werde Licht!                         ***/
-/*** Und es wurde Licht.                       ***/
-/*** Genesis                                   ***/
-/***                                           ***/
-/*************************************************/
+/************************************************/
+/***                                          ***/
+/*** Cafu Spherical Harmonic Lighting Utility ***/
+/***                                          ***/
+/*** Der Herr sprach                          ***/
+/***   Es werde Licht!                        ***/
+/*** Und es wurde Licht.                      ***/
+/*** Genesis                                  ***/
+/***                                          ***/
+/************************************************/
 
 // ALLGEMEINE BEMERKUNGEN ZU FACES, SHLMAPS UND PATCHES:
 // Wir definieren eine SHLMap als ein Rechteck aus s*t quadratischen Patches, die jeweils eine Face "abdecken".
@@ -45,7 +45,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 // welches man mit PlaneT::GetSpanVectors() erhält) möglichst kleine s- und t-Abmessungen haben.
 // Außerdem ziehen wir noch einen 1 Patch breiten Rahmen drumherum. Damit soll dem OpenGL-Renderer Rechnung getragen werden,
 // der zu jeder (s,t)-Koordinate den Mittelwert des umliegenden 2x2-Quadrats bestimmt (bilinear Filtering).
-// Betrachte dazu auch die Darstellung im Ca3DE Tech-Archive vom 28. Oktober 2003.
+// Betrachte dazu auch die Darstellung im Cafu Tech-Archive vom 28. Oktober 2003.
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -776,7 +776,7 @@ void PostProcessBorders(const CaSHLWorldT& CaSHLWorld)
     //
     // Zuletzt ist noch zu beachten, daß das Ausschließen von Patches wg. Light Bleeding dazu führen kann, daß die Summe der Gewichte beim
     // weighted average < 1.0 wird. In diesen Fällen müssen die Gewichte "renormalisiert" werden.
-    // Zu diesen Ausführungen siehe auch die Skizze im Ca3DE Tech-Archive vom 10.12.2003!
+    // Zu diesen Ausführungen siehe auch die Skizze im Cafu Tech-Archive vom 10.12.2003!
     const double  PATCH_SIZE          =cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize;
     unsigned long PatchesWorkedOnCount=0;
 
@@ -1048,7 +1048,7 @@ void Usage()
     printf("    finally ask you what to do when the StopUT value has been reached.\n");
     printf("\n");
     printf("CaSHL WorldName -StopUT 0.1\n");
-    printf("    Most worlds of the Ca3DE demo release are lit with these switches.\n");
+    printf("    Most worlds of the Cafu demo release are lit with these switches.\n");
     printf("\n");
     printf("CaSHL WorldName -BlockSize 1 -StopUT 0.1\n");
     printf("    This is ideal for batch file processing: WorldName is lit without further\n");
@@ -1125,7 +1125,7 @@ int main(int ArgC, const char* ArgV[])
 
 
     // Init screen
-    printf("\n*** Ca3DE SHL Utility, Version 01 (%s) ***\n\n\n", __DATE__);
+    printf("\n*** Cafu SHL Utility, Version 01 (%s) ***\n\n\n", __DATE__);
 #if USE_NORMALMAPS
 #if !defined(_MSC_VER)
     printf("This version of CaSHL takes the normal-maps of surfaces into account!\n");

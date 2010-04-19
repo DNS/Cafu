@@ -54,7 +54,7 @@ void ChannelT::Update()
     // Only make 3D adjustments if the sound really is a 3D sound.
     if (!Sound->Is3D()) return;
 
-    // Note that y and z coordinate are swapped because FMOD uses another coordinate system than Ca3DE.
+    // Note that y and z coordinate are swapped because FMOD uses another coordinate system than Cafu.
 
     float Pos[3]={ float(Sound->Position.x/1000.0),
                    float(Sound->Position.z/1000.0),

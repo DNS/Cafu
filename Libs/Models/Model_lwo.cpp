@@ -217,10 +217,10 @@ static Vector3fT myNormalize(const Vector3fT& A)
 }
 
 
-// Note that the nomenclature in the LWO context is different from the usual (Ca3DE) language:
+// Note that the nomenclature in the LWO context is different from the usual (Cafu) language:
 // - An LWO "layer" corresponds to a ModelMd5T::MeshT (however, whenever multiple materials occur in an LWO layer,
 //   the current code models that layer with as many ModelMd5T::MeshTs as there are materials in the layer).
-// - An LWO "surface" corresponds to a Ca3DE MatSys "material" (MaterialT).
+// - An LWO "surface" corresponds to a Cafu MatSys "material" (MaterialT).
 // - An LWO "polygon" can also mean something more complex than a planar surface, there are several polygon types.
 // - LWOs store their vertex positions in "points", the ModelMd5T class in "weights" (ModelMd5T::MeshT::WeightT).
 // - LWOs store their texture-coordinates in "VMAPs" and "VMADs", the ModelMd5T class in "vertices" (ModelMd5T::MeshT::VertexT).
@@ -296,7 +296,7 @@ ModelLwoT::ModelLwoT(const std::string& FileName) /*throw (ModelT::LoadError)*/
             Console->Warning(cf::va("LWO layer uses %lu materials and thus has been duplicated into %lu meshes.\n", MatToMeshNr.size(), MatToMeshNr.size()));
 
 
-        // For each LWO surface (Ca3DE material), there is one mesh in m_Meshes.
+        // For each LWO surface (Cafu material), there is one mesh in m_Meshes.
         // So loop over the meshes, and for each mesh, loop over those polygons whose material matches that of the mesh (and skip the other polygons).
         // Then loop over the polygon vertices, in order to determine their uv-coordinates and eventually build the triangles list.
         for (std::map<lwSurface*, unsigned long>::const_iterator It=MatToMeshNr.begin(); It!=MatToMeshNr.end(); ++It)

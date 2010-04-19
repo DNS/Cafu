@@ -42,7 +42,7 @@ typedef bool (*ParticleMoveFunctionMST)(ParticleMST* Particle, float Time);
 /// This structure describes a single particle.
 struct ParticleMST
 {
-    float                    Origin[3];     ///< Origin of the particle in Ca3DE world coordinates.
+    float                    Origin[3];     ///< Origin of the particle in Cafu world coordinates.
     float                    Velocity[3];   ///< Velocity vector of the particle.
     float                    Age;           ///< Age of the particle, in seconds.
     unsigned char            Color[4];      ///< ?? REMOVE (MatSys respects ambient light color already) ??    The RGBA color with which this particles texture is modulated.

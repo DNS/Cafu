@@ -21,16 +21,16 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/******************************/
-/***                        ***/
-/*** Ca3DE Lighting Utility ***/
-/***                        ***/
-/*** Der Herr sprach        ***/
-/***   Es werde Licht!      ***/
-/*** Und es wurde Licht.    ***/
-/*** Genesis                ***/
-/***                        ***/
-/******************************/
+/*****************************/
+/***                       ***/
+/*** Cafu Lighting Utility ***/
+/***                       ***/
+/*** Der Herr sprach       ***/
+/***   Es werde Licht!     ***/
+/*** Und es wurde Licht.   ***/
+/*** Genesis               ***/
+/***                       ***/
+/*****************************/
 
 // ALLGEMEINE BEMERKUNGEN ZU FACES, LIGHTMAPS UND PATCHES:
 // Wir definieren eine LightMap als ein Rechteck aus s*t quadratischen Patches, die jeweils eine Face "abdecken".
@@ -617,7 +617,7 @@ void DirectLighting(const CaLightWorldT& CaLightWorld, const char BLOCK_SIZE)
                         // that if we choose r=1m, I/(r^2) yields the 'irradiance' in [W/m^2] for the surface of the sphere with radius r=1m.
                         // Note that 'irradiance' is a little misleading here, because we only deal with rays of light that meet at PL.Origin.
                         // The sphere is not considered and can not be treated as an area light source!
-                        // Now choose r=LightRayLength. Because r is now specified in millimeters, the base unit of Ca3DE, we need to express it in
+                        // Now choose r=LightRayLength. Because r is now specified in millimeters, the base unit of Cafu, we need to express it in
                         // meters first in order to obtain [W/m^2] (and not [W/mm^2]).
                         // Thus, I/((LightRayLength/1000)^2) gives us the 'irradiance' [W/m^2] for the surface of the sphere with radius LightRayLength.
                         // This is especially true for the point where LightRay ends. Therefore, because LightRay ends in the center of the patch we
@@ -1260,7 +1260,7 @@ void Usage()
     printf("    \"Games/DeathMatch\" is searched for this worlds game related stuff.\n");
     printf("\n");
     printf("CaLight WorldName -StopUE 0.1\n");
-    printf("    Most worlds of the Ca3DE demo release are lit with these switches.\n");
+    printf("    Most worlds of the Cafu demo release are lit with these switches.\n");
     printf("    \".\" (the default directory for -gd) is searched for game related stuff.\n");
     printf("\n");
     printf("CaLight WorldName -BlockSize 1 -StopUE 0.1\n");
@@ -1336,7 +1336,7 @@ int main(int ArgC, const char* ArgV[])
 
 
     // Init screen
-    printf("\n*** Ca3DE Lighting Utility, Version 3 (%s) ***\n\n\n", __DATE__);
+    printf("\n*** Cafu Lighting Utility, Version 3 (%s) ***\n\n\n", __DATE__);
 
 #ifndef _WIN32
     printf("Reminder:\n");

@@ -206,7 +206,7 @@ void SoundSysImplT::Update()
 
 void SoundSysImplT::UpdateListener(const Vector3dT& Position, const Vector3dT& Velocity, const Vector3fT& OrientationForward, const Vector3fT& OrientationUp)
 {
-    // Note that y and z coordinate are swapped because FMOD uses another coordinate system than Ca3DE.
+    // Note that y and z coordinate are swapped because FMOD uses another coordinate system than Cafu.
 
     // Update 3D sound attributes.
     float PositionTriplet[3]={ float(Position.x/1000.0),

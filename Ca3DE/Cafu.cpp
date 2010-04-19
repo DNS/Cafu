@@ -92,7 +92,7 @@ extern "C"
 #include "../Games/Game.hpp"
 
 #include "Network/Network.hpp"      // Header File für die Network-Library
-#ifdef CA3DE_DEDICATED_SERVER
+#ifdef CAFU_DEDICATED_SERVER
 SingleOpenGLWindowT* SingleOpenGLWindow=NULL;   // Dedicated servers don't link OpenGLWindow.cpp in.
 #else
 #include "Client/Client.hpp"        // Header File für die Client-Library
@@ -101,12 +101,12 @@ SingleOpenGLWindowT* SingleOpenGLWindow=NULL;   // Dedicated servers don't link 
 #include "Server/Server.hpp"        // Header File für die Server-Library
 
 
-// These convars replace the legacy "Ca3DE Options" that were kept in the Ca3DE_OptionsT struct, defined in "Dialog.cpp".
+// These convars replace the legacy "Cafu Options" that were kept in the Ca3DE_OptionsT struct, defined in "Dialog.cpp".
 // This is done so that these options are also available and accessible via the "config.lua" file.
 const int CLIENT_RUNMODE=1;
 const int SERVER_RUNMODE=2;
 
-#ifdef CA3DE_DEDICATED_SERVER
+#ifdef CAFU_DEDICATED_SERVER
     const int DefaultRunMode=SERVER_RUNMODE;
 #else
     const int DefaultRunMode=CLIENT_RUNMODE | SERVER_RUNMODE;
@@ -153,7 +153,7 @@ cf::ClipSys::CollModelManI* cf::ClipSys::CollModelMan=&CCM;
 cf::FileSys::FileManI* cf::FileSys::FileMan=NULL;   // Define the global FileMan pointer instance -- see FileMan.hpp for more details.
 cf::GuiSys::GuiManI*   cf::GuiSys::GuiMan  =NULL;   // Define the global GuiMan  pointer instance -- see GuiMan.hpp  for more details.
 
-// Provide a definition for Game, the global (Ca3DE.exe-wide) pointer to a GameI implementation.
+// Provide a definition for Game, the global (Cafu.exe-wide) pointer to a GameI implementation.
 // The implementation in turn will be provided by a dynamically loaded game DLL.
 // This is analogous to the Material System, where Renderer DLLs provide renderer and texture manager implementations.
 cf::GameSys::GameI* cf::GameSys::Game=NULL;
@@ -173,7 +173,7 @@ static std::string Usage()
 {
     std::string UsgStr;
 
-    UsgStr+=cf::va("Ca3DE command line overview:\n");
+    UsgStr+=cf::va("Cafu command line overview:\n");
     UsgStr+=cf::va("Default values are enclosed in [brackets].\n");
     UsgStr+=cf::va("  -help            Print this message, and quit.\n");
     UsgStr+=cf::va("  -con             Runs the given commands in the console.\n");
@@ -181,7 +181,7 @@ static std::string Usage()
     UsgStr+=cf::va("  -svGame          Name of the MOD / game the server should run [%s]. Case sensitive!\n", Options_ServerGameName.GetValueString().c_str());
     UsgStr+=cf::va("  -svWorld         Name of the world the server should run [%s]. Case sensitive!\n", Options_ServerWorldName.GetValueString().c_str());
     UsgStr+=cf::va("  -svPort          Server port number [%i].\n", Options_ServerPortNr.GetValueInt());
-#ifndef CA3DE_DEDICATED_SERVER
+#ifndef CAFU_DEDICATED_SERVER
     UsgStr+=cf::va("  -showDialog      Show the obsolete Options dialog.\n");
     UsgStr+=cf::va("  -runMode         1 is client-only, 2 is server-only, 3 is both [%i].\n", Options_RunMode.GetValueInt());
     UsgStr+=cf::va("  -noFS            Abbreviation for -clNoFullscreen.\n");
@@ -198,7 +198,7 @@ static std::string Usage()
 #endif
     UsgStr+=cf::va("\n");
     UsgStr+=cf::va("It is also legal to OMIT the \"-svWorld\" keyword for specifying a world name!\n");
-    UsgStr+=cf::va("That is, \"Ca3DE MyWorld\" instead of \"Ca3DE -svWorld MyWorld\" is fine.\n");
+    UsgStr+=cf::va("That is, \"Cafu MyWorld\" instead of \"Cafu -svWorld MyWorld\" is fine.\n");
 
     return UsgStr;
 }
@@ -211,12 +211,12 @@ static bool ParseCommandLine(const int ArgC, char* ArgV[], bool& SkipDialog)
     for (int ArgNr=1; ArgNr<ArgC; ArgNr++)
     {
              if (_stricmp(ArgV[ArgNr], "-help"          )==0) return false;
-        else if (_stricmp(ArgV[ArgNr], ""               )==0) { }    // The argument is "", the empty string. This can happen under Linux, when Ca3DE is called via wxExecute() with white-space trailing the command string.
+        else if (_stricmp(ArgV[ArgNr], ""               )==0) { }    // The argument is "", the empty string. This can happen under Linux, when Cafu is called via wxExecute() with white-space trailing the command string.
         else if (_stricmp(ArgV[ArgNr], "-con"           )==0) { ArgNr++; if (ArgNr>=ArgC) return false; ConsoleInterpreter->RunCommand(ArgV[ArgNr]); }
         else if (_stricmp(ArgV[ArgNr], "-svGame"        )==0) { ArgNr++; if (ArgNr>=ArgC) return false; Options_ServerGameName=std::string(ArgV[ArgNr]); }
         else if (_stricmp(ArgV[ArgNr], "-svWorld"       )==0) { ArgNr++; if (ArgNr>=ArgC) return false; Options_ServerWorldName=std::string(ArgV[ArgNr]); SvWorldNameHasBeenGiven=true; }
         else if (_stricmp(ArgV[ArgNr], "-svPort"        )==0) { ArgNr++; if (ArgNr>=ArgC) return false; Options_ServerPortNr=atoi(ArgV[ArgNr]); }
-#ifndef CA3DE_DEDICATED_SERVER
+#ifndef CAFU_DEDICATED_SERVER
         else if (_stricmp(ArgV[ArgNr], "-showDialog"    )==0) SkipDialog=false;
         else if (_stricmp(ArgV[ArgNr], "-runMode"       )==0) { ArgNr++; if (ArgNr>=ArgC) return false; Options_RunMode=((atoi(ArgV[ArgNr])-1) % 3)+1; }
         else if (_stricmp(ArgV[ArgNr], "-clNoFullscreen")==0) Options_ClientFullScreen=false;
@@ -568,7 +568,7 @@ int main(int, char*[])
         MSG Message;
 
         // Owner handle is set to NULL, which means that the dialog box has no owner.
-        switch (DialogBox(NULL, "MainDialog", NULL, (DLGPROC)Ca3DEMainDialogProcedure))
+        switch (DialogBox(NULL, "MainDialog", NULL, (DLGPROC)CafuMainDialogProcedure))
         {
             case -4: WinError("Could not fill list with world names!"); break;
             case -3: WinError("Could not fill list with game  names!"); break;
@@ -1026,7 +1026,7 @@ void HandleButton_OK()
     }
 
 
-#ifndef CA3DE_DEDICATED_SERVER
+#ifndef CAFU_DEDICATED_SERVER
     /******************/
     /*** Initialize ***/
     /******************/
@@ -1282,7 +1282,7 @@ void HandleButton_OK()
                         if (!InitialHelpMsgPrinted)
                         {
                             Console->Print("\n");
-                            Console->Print("Welcome to the Ca3DE console!\n");
+                            Console->Print("Welcome to the Cafu console!\n");
                             Console->Print("Enter   help()   to obtain more information.\n");
                             Console->Print("\n");
                             InitialHelpMsgPrinted=true;

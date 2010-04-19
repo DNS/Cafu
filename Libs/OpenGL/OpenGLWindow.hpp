@@ -49,7 +49,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 //    ugly, complex, and hard-to-maintain handler code.
 //    Note that these pointers frequently change, at least once for closing and re-opening a window,
 //    and each change must somehow be propagated to the user code.
-//    Also note that a Ca3DE game DLL needs access to the current OpenGL window, which in turn means that I even
+//    Also note that a Cafu game DLL needs access to the current OpenGL window, which in turn means that I even
 //    had to bloat the game DLL interface to account for all this gruesome complexity...
 // 2. First idea for improvement: Make everything OO, except one function like 'GetCurrentOpenGLWindow()'
 //    which returns a pointer to the current 'OpenGLWindowT' object.

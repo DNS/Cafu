@@ -242,7 +242,7 @@ unsigned long BaseEntityT::GetTypeNr() const
 // The fact that DLLs that are loaded multiple times cause only a reference counter to be increased rather than separate copies
 // of the DLL to be created (the global state exists only once), and the way how clients and servers change worlds (client deletes
 // the old world first, then loads the new, server loads new world first and only then deletes the old one), and the fact that in
-// a single Ca3DE.exe instance, the client only, the server only, or both can be running, means that a *single* instance of this
+// a single Cafu.exe instance, the client only, the server only, or both can be running, means that a *single* instance of this
 // DLL may live over several world changes of a client and server, because at least one of them keeps referring to it at all times.
 //
 // Therefore, it may happen that InitInterfaces() is called *many* times, namely on each world change once by the server and once

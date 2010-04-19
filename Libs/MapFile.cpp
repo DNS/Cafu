@@ -303,7 +303,7 @@ MapFileEntityT::MapFileEntityT(unsigned long Index, TextParserT& TP)
 
             if (Key=="light_radius")
             {
-                // Translate light radius to Ca3DE units.
+                // Translate light radius to Cafu units.
                 double LightRadius=atof(Value.c_str())*CA3DE_SCALE;
 
                 std::stringstream NewValue;

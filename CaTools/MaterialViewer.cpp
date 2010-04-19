@@ -373,7 +373,7 @@ int main(int ArgC, const char* ArgV[])
 
 
     // Open an OpenGL window.
-    const char* ErrorMsg=SingleOpenGLWindow->Open("Ca3DE Material Viewer 1.0", 1024, 768, 32, false);
+    const char* ErrorMsg=SingleOpenGLWindow->Open("Cafu Material Viewer 1.0", 1024, 768, 32, false);
 
     if (ErrorMsg)
     {
@@ -443,7 +443,7 @@ int main(int ArgC, const char* ArgV[])
 
         // Render the frame.
         MatSys::Renderer->BeginFrame(TotalTime);
-        MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW, MatrixT::GetRotateXMatrix(-90.0f));      // Rotate coordinate system axes to Ca3DE standard.
+        MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW, MatrixT::GetRotateXMatrix(-90.0f));      // Rotate coordinate system axes to Cafu standard.
         MatSys::Renderer->RotateZ  (MatSys::RendererI::WORLD_TO_VIEW, ViewerHeading);
         MatSys::Renderer->Translate(MatSys::RendererI::WORLD_TO_VIEW, -ViewerOrigin[0], -ViewerOrigin[1], -ViewerOrigin[2]);
         {

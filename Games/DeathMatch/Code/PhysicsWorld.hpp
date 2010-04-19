@@ -33,7 +33,7 @@ namespace cf { namespace ClipSys { class CollisionModelT; } }
 class BaseEntityT;
 
 
-// Auxiliary functions for making the conversion between Bullet and Ca3DE vectors easier.
+// Auxiliary functions for making the conversion between Bullet and Cafu vectors easier.
 inline btVector3 conv(const Vector3fT& v) { return btVector3(v.x, v.y, v.z); }
 inline btVector3 conv(const Vector3dT& v) { return btVector3(float(v.x), float(v.y), float(v.z)); }
 inline Vector3fT conv(const btVector3& v) { return Vector3fT(v.x(), v.y(), v.z()); }

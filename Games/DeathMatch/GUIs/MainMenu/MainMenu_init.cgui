@@ -1,4 +1,4 @@
--- This is a Ca3D-Engine GUI script file, written by CaWE, the Ca3DE World Editor.
+-- This is a Cafu engine GUI script file, written by CaWE, the Cafu World Editor.
 -- You CAN edit this file manually, but note that CaWE may overwrite your changes.
 -- It is recommended that you place all your customizations like method overrides
 -- and effects into a separate .cgui file that calls dofile() for including this.
@@ -289,7 +289,7 @@ function NormalControls.Headline:OnInit()
     self:set("rect", 0, 10, 640, 45);
     self:set("backColor", 0, 0, 0, 0.5);
     self:set("font", "Fonts/Impact");
-    self:set("text", "Ca3D-Engine");
+    self:set("text", "Cafu Engine");
     self:set("textScale", 0.8);
     self:set("textColor", 0.466667, 0.00784314, 0, 1);
     self:set("textAlignHor", 2);
@@ -1122,7 +1122,7 @@ end
 function VideoOptionsDialog.Frame.InfoRestartText:OnInit()
     self:set("rect", 10, 220, 370, 30);
     self:set("backColor", 0, 0, 0, 0);
-    self:set("text", "Changes to these settings will take effect the next time you start Ca3DE.\nSetting the Texture Detail to \"high\" requires 256+ MB video RAM.");
+    self:set("text", "Changes to these settings will take effect the next time you start Cafu.\nSetting the Texture Detail to \"high\" requires 256+ MB video RAM.");
     self:set("textScale", 0.2);
     self:set("textColor", 0.5, 0.7, 1, 1);
     self:set("textAlignHor", 1);
@@ -1236,7 +1236,7 @@ end
 function CreditsDialog.Frame.CreditsText:OnInit()
     self:set("rect", 10, 40, 400, 140);
     self:set("backColor", 0, 0, 0, 0);
-    self:set("text", "The Ca3D-Engine is developed by\nCarsten Fuchs Software.\n\nProgramming:\nCarsten Fuchs,\nJörn Koch,\nJohn Swartz");
+    self:set("text", "Cafu is developed by\nCarsten Fuchs Software\n\nwith major contributions by:\nJörn Koch, John Swartz\nKai Schadwinkel, Carsten Crede,\nand many more...");
     self:set("textScale", 0.27);
     self:set("textColor", 0.51, 0.8, 1, 1);
     self:set("textAlignHor", 2);
@@ -1246,7 +1246,7 @@ function CreditsDialog.Frame.ExtLibsText:OnInit()
     self:set("rect", 10, 160, 400, 250);
     self:set("backColor", 0, 0.25098, 0.501961, 0);
     self:set("borderColor", 0, 0.247059, 0.698039, 0.313726);
-    self:set("text", "The Ca3D-Engine employs several external libraries that are copyrighted by their respective authors:\n\n      Boost C++ Libraries, http://www.boost.org\n      Bullet Physics Library, © 2003-2006 Erwin Coumans, http://continuousphysics.com/Bullet\n      NVidia \"Cg - C for graphics\", http://developer.nvidia.com/object/cg_toolkit.html\n      Collada DOM, © 2005 Sony Computer Entertainment Inc., http://www.collada.org\n      FMOD, © 1994-2004 Firelight Technologies Pty, Ltd., http://www.fmod.org\n      freealut, http://connect.creativelabs.com/openal/default.aspx\n      FreeType Library, © 2009 The FreeType Project, http://www.freetype.org\n      libjpeg, © 1991-1998 Independent JPEG Group, http://www.ijg.org\n      libnoise, © 2003-2007 Jason Bevins, http://libnoise.sourceforge.net\n      libogg and libvorbis, © 2002 Xiph.org Foundation, http://www.xiph.org\n      libpng, © 2004 Glenn Randers-Pehrson, http://www.libpng.org/pub/png/libpng.html\n      libxml2, © 1998-2003 Daniel Veillard, http://xmlsoft.org\n      lightwave-8, http://www.newtek.com/lightwave/developers.php\n      Lua, © 1994-2006 Lua.org, PUC-Rio, http://www.lua.org\n      mpg123, © Michael Hipp, http://www.mpg123.de\n      OpenAL (for Windows), http://connect.creativelabs.com/openal/default.aspx\n      openal-soft (for Linux), http://kcat.strangesoft.net/openal.html\n      PCRE, © 1997-2007 University of Cambridge, © 2007 Google Inc. (C++ wrappers), http://www.pcre.org\n      wxWidgets cross-platform GUI library, © 1998-2005 J. Smart, R. Roebling et al, http://www.wxwidgets.org\n      zlib, © 1995-2004 Jean-loup Gailly and Mark Adler, http://www.zlib.net\n\nFor more information, please refer to file LICENSE.txt in the Ca3D-Engine/License folder.\n\n");
+    self:set("text", "The Cafu Engine employs several external libraries that are copyrighted by their respective authors:\n\n      Boost C++ Libraries, http://www.boost.org\n      Bullet Physics Library, © 2003-2006 Erwin Coumans, http://continuousphysics.com/Bullet\n      NVidia \"Cg - C for graphics\", http://developer.nvidia.com/object/cg_toolkit.html\n      Collada DOM, © 2005 Sony Computer Entertainment Inc., http://www.collada.org\n      FMOD, © 1994-2004 Firelight Technologies Pty, Ltd., http://www.fmod.org\n      freealut, http://connect.creativelabs.com/openal/default.aspx\n      FreeType Library, © 2009 The FreeType Project, http://www.freetype.org\n      libjpeg, © 1991-1998 Independent JPEG Group, http://www.ijg.org\n      libnoise, © 2003-2007 Jason Bevins, http://libnoise.sourceforge.net\n      libogg and libvorbis, © 2002 Xiph.org Foundation, http://www.xiph.org\n      libpng, © 2004 Glenn Randers-Pehrson, http://www.libpng.org/pub/png/libpng.html\n      libxml2, © 1998-2003 Daniel Veillard, http://xmlsoft.org\n      lightwave-8, http://www.newtek.com/lightwave/developers.php\n      Lua, © 1994-2006 Lua.org, PUC-Rio, http://www.lua.org\n      mpg123, © Michael Hipp, http://www.mpg123.de\n      OpenAL (for Windows), http://connect.creativelabs.com/openal/default.aspx\n      openal-soft (for Linux), http://kcat.strangesoft.net/openal.html\n      PCRE, © 1997-2007 University of Cambridge, © 2007 Google Inc. (C++ wrappers), http://www.pcre.org\n      wxWidgets cross-platform GUI library, © 1998-2005 J. Smart, R. Roebling et al, http://www.wxwidgets.org\n      zlib, © 1995-2004 Jean-loup Gailly and Mark Adler, http://www.zlib.net\n\nFor more information, refer to file LICENSE.txt\n\n");
     self:set("textScale", 0.175);
     self:set("textColor", 0.168627, 0.666667, 1, 0);
     self:set("textAlignHor", 1);
@@ -1257,7 +1257,7 @@ function CreditsDialog.Frame.CopyrightText:OnInit()
     self:set("rect", 10, 420, 310, 30);
     self:set("backColor", 0, 0, 0, 0);
     self:set("font", "Fonts/Impact");
-    self:set("text", "The Ca3D-Engine is copyright © 2001-2009 Carsten Fuchs Software.\nAll rights reserved.                       http://www.ca3d-engine.de");
+    self:set("text", "Cafu is copyright © 2001-2010 Carsten Fuchs Software.\nAll rights reserved.                       http://www.cafu.de");
     self:set("textScale", 0.22);
     self:set("textColor", 0.5, 0.5, 0.5, 1);
     self:set("textAlignVer", 2);
@@ -1298,7 +1298,7 @@ function ReallyQuitDialog.QuitHeadline:OnInit()
     self:set("rect", 0, 10, 640, 45);
     self:set("backColor", 0, 0, 0, 0.5);
     self:set("font", "Fonts/Impact");
-    self:set("text", "Ca3D-Engine");
+    self:set("text", "Cafu Engine");
     self:set("textScale", 0.8);
     self:set("textColor", 0.466667, 0.00784314, 0, 1);
     self:set("textAlignHor", 2);

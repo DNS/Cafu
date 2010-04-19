@@ -244,7 +244,7 @@ int Usage()
 int main(int ArgC, const char* ArgV[])
 {
     // Output header.
-    std::cout << "The Ca3DE Font Maker, version " << __DATE__ << ".\n\n";
+    std::cout << "The Cafu Font Maker, version " << __DATE__ << ".\n\n";
     std::cout << "Portions of this software are copyright (c) 2006 The FreeType Project\n(www.freetype.org). All rights reserved.\n\n";
 
     // Initialize the FileMan by mounting the default file system.

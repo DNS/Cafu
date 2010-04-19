@@ -1149,7 +1149,7 @@ void ModelMdlT::DoDraw(const int SequenceNr, const float FrameNr, const ModelMdl
                 const float  Normal  [3]={ Span02[1]*Span01[2]-Span02[2]*Span01[1], Span02[2]*Span01[0]-Span02[0]*Span01[2], Span02[0]*Span01[1]-Span02[1]*Span01[0] };
                 const float  LightDist  =(Light_Pos[0]-Vertices[0][0])*Normal[0] + (Light_Pos[1]-Vertices[0][1])*Normal[1] + (Light_Pos[2]-Vertices[0][2])*Normal[2];
 
-                TriangleIsFrontFacing[TriNr]=LightDist<0;   // Front-facing triangles in OpenGL are ordered CCW (contrary to Ca3DE)!
+                TriangleIsFrontFacing[TriNr]=LightDist<0;   // Front-facing triangles in OpenGL are ordered CCW (contrary to Cafu)!
             }
 
 

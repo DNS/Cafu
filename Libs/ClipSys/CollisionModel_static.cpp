@@ -1629,7 +1629,7 @@ CollisionModelStaticT::CollisionModelStaticT(const cf::MapFileEntityT& Entity, c
         // If this brush clips nothing, there is no need to keep it.
         if (!Brush.Contents) continue;
 
-        // Omit brushes that are solid only to the the CaBSP map compiler (radiance blockers for CaLight, triggers for Ca3DE, etc. are kept).
+        // Omit brushes that are solid only to the the CaBSP map compiler (radiance blockers for CaLight, triggers for Cafu, etc. are kept).
         if ((Brush.Contents & ~MaterialT::Clip_BspPortals)==0) continue;
 
 

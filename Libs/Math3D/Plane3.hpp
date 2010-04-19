@@ -141,7 +141,7 @@ class Plane3T
 
         // V=Vector3T<T>(0, 0, -1).GetRotY(RadToDeg(RotY)).GetRotZ(RadToDeg(RotZ));
         // We use the negative z-axis here, i.e. the V texture-coord axis is along -Z.
-        // WARNING: Don't change this! It must *always* be the *same* in all programs (CaWE, CaBSP, Ca3DE, ...).
+        // WARNING: Don't change this! It must *always* be the *same* in all programs (CaWE, CaBSP, Cafu, ...).
         // Removing the "-" signs below would also break the D3 map importer in CaWE.
         V.x=-sin(RotY)*cos(RotZ);
         V.y=-sin(RotY)*sin(RotZ);

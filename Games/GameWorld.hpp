@@ -46,7 +46,7 @@ namespace cf
             /// However, with GameWorldIs that's never supposed to happen, so this destructor only exists to silence the g++ compiler warning.
             virtual ~GameWorldI() { }
 
-            /// Returns the clip world for the Ca3DE world.
+            /// Returns the clip world for the Cafu world.
             virtual cf::ClipSys::ClipWorldT& GetClipWorld()=0;
 
             /// Returns a "good" ambient light color for an arbitrary object (i.e. a model) of size Dimensions at Origin.

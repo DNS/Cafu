@@ -32,7 +32,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /// The key idea is that the console program state is represented by a Lua program / Lua state.
 /// - Each ConFuncT that is registered with the interpreter is made available as a Lua function.
 ///   All these functions are grouped in a common table (used as a "namespace").
-///   The name of that table is defined by the implementation, it's normally either "c" (Ca3DE-
+///   The name of that table is defined by the implementation, it's normally either "c" (Cafu-
 ///   specific functions), or "_G" (the table of global variables, this is more convenient).
 ///   When a ConFuncT is unregistered, it is of course removed again from the table.
 /// - The ConVarTs also have a dedicated table that contains them, this is the same table as for

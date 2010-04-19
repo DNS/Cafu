@@ -88,7 +88,7 @@ class Shader_A_SkyDome : public ShaderT
             "      uniform float3 EyePos_w)                                 \n"
             " {                                                             \n"
             // The ModelWorldMatrix matrix is bound to the model-to-world matrix, properly transposed as required.
-            // The .xzy is required due to the special coord-system axes of cube-maps (Ca3DE and OpenGL are right-handed systems, cube-maps are left-handed).
+            // The .xzy is required due to the special coord-system axes of cube-maps (Cafu and OpenGL are right-handed systems, cube-maps are left-handed).
             "     const float3 InPos_w=mul(ModelWorldMatrix, InPos).xzy;    \n"
             "                                                               \n"
             "     OutPos     =mul(ModelViewProjMatrix, InPos);              \n"

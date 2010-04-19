@@ -45,7 +45,7 @@ using namespace cf::GameSys;
 // The constructor does four things to initialize the Script State:
 //   1. Open (create, init) a new LuaState.
 //   2. Open (load, init) the Lua standard libraries.
-//   3. Open (add) some "Ca3DE standard libaries" (e.g. the Console).
+//   3. Open (add) some "Cafu standard libaries" (e.g. the Console).
 //   4. Add a metatable for each possible entity type to the registry, taking class inheritance into account.
 ScriptStateT::ScriptStateT()
     : LuaState(NULL),

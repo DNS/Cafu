@@ -165,7 +165,7 @@ void InitializePatches(const CaLightWorldT& CaLightWorld)
     }
 
 // THIS WAS REMOVED, BECAUSE:
-// I'm in the progress to introduce a Scene Graph for Ca3DE.
+// I'm in the progress to introduce a Scene Graph for Cafu.
 // This means that the contents of BSP leaves will be described by an array of cf::SceneGraph::GenericNodeT* and terrains
 // are not explicitly mentioned anymore. Terrain support is temporarily removed, and will be implicitly added later again.
 #if 0

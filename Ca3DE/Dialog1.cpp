@@ -59,7 +59,7 @@ class Ca3DE_OptionsT
     // Constructor
     Ca3DE_OptionsT()
     {
-#ifdef CA3DE_DEDICATED_SERVER
+#ifdef CAFU_DEDICATED_SERVER
         RunMode=SERVER_RUNMODE;
 #else
         RunMode=CLIENT_RUNMODE | SERVER_RUNMODE;
@@ -211,7 +211,7 @@ bool ReadDialogSettings(HWND hDialog)
 }
 
 
-BOOL CALLBACK Ca3DEMainDialogProcedure(HWND hDialog, UINT MessageID, WPARAM wParam, LPARAM)
+BOOL CALLBACK CafuMainDialogProcedure(HWND hDialog, UINT MessageID, WPARAM wParam, LPARAM)
 {
     HANDLE          SearchHandle;
     WIN32_FIND_DATA FindFileData;
@@ -222,22 +222,22 @@ BOOL CALLBACK Ca3DEMainDialogProcedure(HWND hDialog, UINT MessageID, WPARAM wPar
             // 1. Button-Auswahl setzen und dementsprechend die anderen Felder enablen/disablen
             switch (Options_RunMode.GetValueInt())
             {
-                // Rufe hier Ca3DEOptionsDialogProcedure() rekursiv auf, um den gleichen Effekt zu erzielen,
+                // Rufe hier CafuMainDialogProcedure() rekursiv auf, um den gleichen Effekt zu erzielen,
                 // als ob schon eine Auswahl getroffen worden wäre. Auf CheckRadioButton() können wir dennoch nicht
                 // verzichten, da die automatische Knopfumschaltung bei dieser Rekursion nicht funktionieren kann!
                 case CLIENT_RUNMODE:
                     CheckRadioButton(hDialog, DLG1_RM_CLIENTONLY, DLG1_RM_CLIENTANDSERVER, DLG1_RM_CLIENTONLY     );
-                    Ca3DEMainDialogProcedure(hDialog, WM_COMMAND, DLG1_RM_CLIENTONLY, 0);
+                    CafuMainDialogProcedure(hDialog, WM_COMMAND, DLG1_RM_CLIENTONLY, 0);
                     break;
 
                 case SERVER_RUNMODE:
                     CheckRadioButton(hDialog, DLG1_RM_CLIENTONLY, DLG1_RM_CLIENTANDSERVER, DLG1_RM_SERVERONLY     );
-                    Ca3DEMainDialogProcedure(hDialog, WM_COMMAND, DLG1_RM_SERVERONLY, 0);
+                    CafuMainDialogProcedure(hDialog, WM_COMMAND, DLG1_RM_SERVERONLY, 0);
                     break;
 
                 default:
                     CheckRadioButton(hDialog, DLG1_RM_CLIENTONLY, DLG1_RM_CLIENTANDSERVER, DLG1_RM_CLIENTANDSERVER);
-                    Ca3DEMainDialogProcedure(hDialog, WM_COMMAND, DLG1_RM_CLIENTANDSERVER, 0);
+                    CafuMainDialogProcedure(hDialog, WM_COMMAND, DLG1_RM_CLIENTANDSERVER, 0);
                     break;
             }
 
@@ -297,11 +297,11 @@ BOOL CALLBACK Ca3DEMainDialogProcedure(HWND hDialog, UINT MessageID, WPARAM wPar
                 SendDlgItemMessage(hDialog, DLG1_SV_GAME_IN, CB_SETCURSEL, 0, 0);
 
             // 3.2. Server: Die ComboBox der World-Names wird in Abhängigkeit vom gewählten Game gefüllt. Dazu rufen wir die
-            //      Ca3DEMainDialogProcedure() rekursiv auf, um den gleichen Effekt zu erzielen, als ob vom User schon eine echte
+            //      CafuMainDialogProcedure() rekursiv auf, um den gleichen Effekt zu erzielen, als ob vom User schon eine echte
             //      neue Auswahl getroffen worden wäre!
             //      Vorher aber noch den Options_ServerGameName löschen, damit diese 'Selektion' tatsächlich als *neu* erkannt wird!
             Options_ServerGameName=std::string("");
-            Ca3DEMainDialogProcedure(hDialog, WM_COMMAND, MAKELONG(DLG1_SV_GAME_IN, CBN_SELENDOK), 0);
+            CafuMainDialogProcedure(hDialog, WM_COMMAND, MAKELONG(DLG1_SV_GAME_IN, CBN_SELENDOK), 0);
 
             // 3.3. Server: Rest (Server Port)
             SetDlgItemInt (hDialog, DLG1_SV_PORT_IN, Options_ServerPortNr.GetValueInt(), FALSE);
@@ -384,7 +384,7 @@ BOOL CALLBACK Ca3DEMainDialogProcedure(HWND hDialog, UINT MessageID, WPARAM wPar
                     // Falls die neue Auswahl sich nicht von der alten unterscheidet, brauchen wir nichts weiter zu unternehmen.
                     if (!strcmp(NewGameName, Options_ServerGameName.GetValueString().c_str())) return TRUE;
 
-                    // Es gab eine neue Auswahl: Setze die Namen der CW (Ca3DE World) Files im 'Games/NewGameName/Worlds' Verzeichnis in die 'World name'-ComboBox ein.
+                    // Es gab eine neue Auswahl: Setze die Namen der CW (Cafu World) Files im 'Games/NewGameName/Worlds' Verzeichnis in die 'World name'-ComboBox ein.
                     char TempWorldPath[160];
 
                     sprintf(TempWorldPath, "Games/%s/Worlds/*.cw", NewGameName);
@@ -392,7 +392,7 @@ BOOL CALLBACK Ca3DEMainDialogProcedure(HWND hDialog, UINT MessageID, WPARAM wPar
 
                     if (SearchHandle==INVALID_HANDLE_VALUE)
                     {
-                        // Updaten der CW (Ca3DE World) Files ('World name'-ComboBox) scheint nicht zu gehen.
+                        // Updaten der CW (Cafu World) Files ('World name'-ComboBox) scheint nicht zu gehen.
                         // Falls es vorher schon mal eine gültige Auswahl gab, selektiere wieder das alte Game. Andernfalls brechen wir ab.
                         // Wir erkennen die Gültigkeit der vorherigen Auswahl am ServerGameName, da wir diesen String beim Init selbst gelöscht haben!
                         if (Options_ServerGameName.GetValueString().length()>0)

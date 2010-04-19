@@ -80,7 +80,7 @@ void CloseInFile()
 int main(int ArgC, const char* ArgV[])
 {
     printf("ReadDump: Reads network dumps in libpcap format and\n");
-    printf("          decodes them with Ca3DE network protocol\n");
+    printf("          decodes them with Cafu network protocol\n");
     printf("\n");
 
     if (ArgC!=2)
@@ -240,7 +240,7 @@ int main(int ArgC, const char* ArgV[])
 
         if (SourcePort!=30000 && DestPort!=30000)
         {
-            printf("\nBAD: Neither source port nor destination port is Ca3DE default server port 30000\n");
+            printf("\nBAD: Neither source port nor destination port is Cafu default server port 30000\n");
             continue;
         }
 

@@ -118,7 +118,7 @@ void ModelWindowT::Render() const
     if (ModelAngles.y!=0) MatSys::Renderer->RotateY(MatSys::RendererI::MODEL_TO_WORLD, ModelAngles.y);
     if (ModelAngles.z!=0) MatSys::Renderer->RotateZ(MatSys::RendererI::MODEL_TO_WORLD, ModelAngles.z);
 
-    MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW, MatrixT::GetRotateXMatrix(-90.0f));   // Rotate coordinate system axes to Ca3DE standard.
+    MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW, MatrixT::GetRotateXMatrix(-90.0f));   // Rotate coordinate system axes to Cafu standard.
     MatSys::Renderer->Translate(MatSys::RendererI::WORLD_TO_VIEW, -CameraPos.x, -CameraPos.y, -CameraPos.z);
 
     const MatrixT ProjectionMatrix=MatrixT::GetProjPerspectiveMatrix(67.5f, 640.0f/480.0f, 10.0f, 10000.0f);

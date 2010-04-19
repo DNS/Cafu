@@ -21,9 +21,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/****************************/
-/*** Ca3DE Terrain Viewer ***/
-/****************************/
+/***************************/
+/*** Cafu Terrain Viewer ***/
+/***************************/
 
 #include <stdio.h>
 #include <float.h>
@@ -191,7 +191,7 @@ int main(int ArgC, char* ArgV[])
 
 
         // Open OpenGL-Window.
-        const char* ErrorMsg=SingleOpenGLWindow->Open("Ca3DE Terrain Viewer 1.2", BenchMarkMode ? 1280 : 800, BenchMarkMode ? 1024 : 600, 32, BenchMarkMode);
+        const char* ErrorMsg=SingleOpenGLWindow->Open("Cafu Terrain Viewer 1.2", BenchMarkMode ? 1280 : 800, BenchMarkMode ? 1024 : 600, 32, BenchMarkMode);
 
         if (ErrorMsg)
         {

@@ -96,7 +96,7 @@ Textures/meta/nonexistent
 
 
 // This material exists to make the import of maps from other games easier.
-// It currently has no special meaning in Ca3DE.
+// It currently has no special meaning in Cafu.
 Textures/meta/flare
 {
     AmbientShader none
@@ -109,7 +109,7 @@ Textures/meta/flare
 }
 
 // This material exists to make the import of maps from other games easier.
-// It currently has no special meaning in Ca3DE.
+// It currently has no special meaning in Cafu.
 Textures/meta/flare_cv
 {
     AmbientShader none

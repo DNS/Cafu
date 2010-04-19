@@ -23,7 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 /*************************************/
 /***                               ***/
-/***      Ca3DE Paranoia Tool      ***/
+/***    Cafu Map Debugging Tool    ***/
 /***                               ***/
 /*** Never touch a running system. ***/
 /*** Never change a winning  team. ***/
@@ -616,7 +616,7 @@ int main(int ArgC, char* ArgV[])
     }
 
     if (ArgC<2 || ArgC>3) Usage();
-    if (ArgC==2) printf("\nCa3DE Paranoia Tool, Version 02 (%s)\n\n", __DATE__);
+    if (ArgC==2) printf("\nCafu Map Debugging Tool, Version 02 (%s)\n\n", __DATE__);
 
     // Initialize the FileMan by mounting the default file system.
     // Note that specifying "./" (instead of "") as the file system description effectively prevents the use of

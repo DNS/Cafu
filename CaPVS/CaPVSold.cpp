@@ -21,11 +21,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/****************************************/
-/***                                  ***/
-/*** Ca3DE Potentially Visibility Set ***/
-/***                                  ***/
-/****************************************/
+/***************************************/
+/***                                 ***/
+/*** Cafu Potentially Visibility Set ***/
+/***                                 ***/
+/***************************************/
 
 #include <time.h>
 #include <stdio.h>
@@ -320,7 +320,7 @@ int main(int ArgC, const char* ArgV[])
     double        MinAreaSL      =0.0;
     bool          OnlySuperLeaves=false;
 
-    Win32Console.InitScreen("Ca3DE Potentially Visibility Set Utility, Version 04", __DATE__);
+    Win32Console.InitScreen("Cafu Potentially Visibility Set Utility, Version 04", __DATE__);
 
     if (ArgC<2) Usage();
 

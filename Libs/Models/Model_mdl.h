@@ -56,7 +56,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 WATCOM_PACKED struct StudioHeaderT
 {
-    int              ID;                    // 4 Byte File-ID, should be "Ca3D"
+    int              ID;                    // 4 Byte File-ID, should be "Cafu"
     int              Version;               // File-Version
 
     char             Name[64];              // Model name as given by author(?), with file-path(?)

@@ -47,15 +47,15 @@ ConsoleInterpreterI* ConsoleInterpreter=NULL;
 
 
 // The name of the Lua table we register all our ConVarTs and ConFuncTs in.
-// This is usually "c" (short for "Ca3DE" or "console") or "_G" (the table of global variables).
+// This is usually "c" (short for "Cafu" or "console") or "_G" (the table of global variables).
 // "_G" is less orderly, but a lot more convenient for users of course.  :-)
-static const char* CA3DE_TABLE="_G";
+static const char* CAFU_TABLE="_G";
 
 // This implementation of the ConsoleInterpreterImplT class maintains the invariant that
-// at the end of each method, the CA3DE_TABLE is left as the only element on the Lua stack.
+// at the end of each method, the CAFU_TABLE is left as the only element on the Lua stack.
 // This in turn makes the implementation of the methods a lot easier and more convenient,
 // because it makes the ongoing getting and verification of the table unnecessary.
-#define StackHasCa3DETable()    (lua_gettop(LuaState)==1 && lua_istable(LuaState, 1))
+#define StackHasCafuTable()    (lua_gettop(LuaState)==1 && lua_istable(LuaState, 1))
 
 
 ConsoleInterpreterImplT::ConsoleInterpreterImplT()
@@ -76,33 +76,33 @@ ConsoleInterpreterImplT::ConsoleInterpreterImplT()
     cf::ConsoleI::RegisterLua(LuaState);
 
 
-    // Make sure that the table with name CA3DE_TABLE exists.
+    // Make sure that the table with name CAFU_TABLE exists.
     // This table will be the "proxy" table for getting and setting the console variables,
     // see PiL2 chapter 13.4 for details about table access metamethods.
-    lua_getglobal(LuaState, CA3DE_TABLE);
+    lua_getglobal(LuaState, CAFU_TABLE);
 
     if (!lua_istable(LuaState, -1))
     {
         if (!lua_isnil(LuaState, -1))
         {
-            // No table at name CA3DE_TABLE, but something else??
+            // No table at name CAFU_TABLE, but something else??
             Console->Warning(cf::va("Global variable \"%s\" is not a table or nil, but a \"%s\" - overwriting with table.\n",
-                CA3DE_TABLE, lua_typename(LuaState, lua_type(LuaState, -1))));
+                CAFU_TABLE, lua_typename(LuaState, lua_type(LuaState, -1))));
         }
 
         lua_pop(LuaState, 1);                   // Pop whatever it was.
         lua_newtable(LuaState);                 // Create a new table.
         lua_pushvalue(LuaState, -1);            // Pushes/duplicates the new table on the stack.
-        lua_setglobal(LuaState, CA3DE_TABLE);   // Pop the copy and set it as a global variable with name CA3DE_TABLE.
+        lua_setglobal(LuaState, CAFU_TABLE);    // Pop the copy and set it as a global variable with name CAFU_TABLE.
     }
 
-    // This leaves the CA3DE_TABLE on the stack.
-    assert(StackHasCa3DETable());
+    // This leaves the CAFU_TABLE on the stack.
+    assert(StackHasCafuTable());
 
 
     // Create a new table T and add it into the registry table with "ConVars_Mediator" as the key and T as the value.
     // This also leaves T on top of the stack. See PiL2 chapter 28.2 for more details.
-    // T will be used as the metatable for the CA3DE_TABLE.
+    // T will be used as the metatable for the CAFU_TABLE.
     luaL_newmetatable(LuaState, "ConVars_Mediator");
 
     static const luaL_reg MediatorMethods[]=
@@ -116,13 +116,13 @@ ConsoleInterpreterImplT::ConsoleInterpreterImplT()
     // Insert the functions listed in MediatorMethods into T (the table on top of the stack).
     luaL_register(LuaState, NULL, MediatorMethods);
 
-    // Now set T as the metatable of CA3DE_TABLE, "CA3DE_TABLE.__metatable=T;".
-    // This removes T from the stack, leaving only the CA3DE_TABLE.
+    // Now set T as the metatable of CAFU_TABLE, "CAFU_TABLE.__metatable=T;".
+    // This removes T from the stack, leaving only the CAFU_TABLE.
     lua_setmetatable(LuaState, -2);
 
     // Note that "our" table is intentionally left on the stack, for convenient access by other methods below.
-    // See the comment for the StackHasCa3DETable() macro for more details.
-    assert(StackHasCa3DETable());
+    // See the comment for the StackHasCafuTable() macro for more details.
+    assert(StackHasCafuTable());
 }
 
 
@@ -157,13 +157,13 @@ void ConsoleInterpreterImplT::Register(ConVarT* ConVar)
     RegisteredConVars.PushBack(ConVar);
 
 
-    // Note that "our" CA3DE_TABLE should always be on the stack.
-    assert(StackHasCa3DETable());
+    // Note that "our" CAFU_TABLE should always be on the stack.
+    assert(StackHasCafuTable());
 
-    // See if there is already a value with this name in the table (raw access, no metamethod), that is, see if CA3DE_TABLE[ConVar->Name]!=nil.
-    // If so, consider this value as a default value, set it as the value of ConVar, then raw-set CA3DE_TABLE[ConVar->Name]=nil so that future
-    // accesses of CA3DE_TABLE[ConVar->Name] occur via the metamethods.
-    // In short, "move" a possibly preexisting value in CA3DE_TABLE from there into the ConVarT.
+    // See if there is already a value with this name in the table (raw access, no metamethod), that is, see if CAFU_TABLE[ConVar->Name]!=nil.
+    // If so, consider this value as a default value, set it as the value of ConVar, then raw-set CAFU_TABLE[ConVar->Name]=nil so that future
+    // accesses of CAFU_TABLE[ConVar->Name] occur via the metamethods.
+    // In short, "move" a possibly preexisting value in CAFU_TABLE from there into the ConVarT.
     lua_pushstring(LuaState, ConVar->Name.c_str());
     lua_rawget(LuaState, -2);
 
@@ -194,23 +194,23 @@ void ConsoleInterpreterImplT::Register(ConVarT* ConVar)
                 break;
         }
 
-        // Pop the old value of CA3DE_TABLE[ConVar->Name] from the stack. (This leaves only the CA3DE_TABLE.)
+        // Pop the old value of CAFU_TABLE[ConVar->Name] from the stack. (This leaves only the CAFU_TABLE.)
         lua_pop(LuaState, 1);
         assert(lua_gettop(LuaState)==1);
 
-        // "Delete" the ConVar->Name entry from the CA3DE_TABLE, that is, raw-set CA3DE_TABLE[ConVar->Name] to nil.
+        // "Delete" the ConVar->Name entry from the CAFU_TABLE, that is, raw-set CAFU_TABLE[ConVar->Name] to nil.
         lua_pushstring(LuaState, ConVar->Name.c_str());
         lua_pushnil(LuaState);
         lua_rawset(LuaState, -3);
     }
     else
     {
-        // There was no entry in CA3DE_TABLE for ConVar->Name, that is, the raw value of cv[ConVar->Name] was nil.
+        // There was no entry in CAFU_TABLE for ConVar->Name, that is, the raw value of cv[ConVar->Name] was nil.
         // So just pop the nil from the stack and be done.
         lua_pop(LuaState, 1);
     }
 
-    assert(StackHasCa3DETable());
+    assert(StackHasCafuTable());
 }
 
 
@@ -232,13 +232,13 @@ void ConsoleInterpreterImplT::Register(ConFuncT* ConFunc)
     RegisteredConFuncs.PushBack(ConFunc);
 
 
-    // Register the function with Lua in the CA3DE_TABLE.
+    // Register the function with Lua in the CAFU_TABLE.
     // Using luaL_register() is not possible here, because it uses metamethods.
     lua_pushstring(LuaState, ConFunc->GetName().c_str());
     lua_pushcfunction(LuaState, ConFunc->LuaCFunction);
     lua_rawset(LuaState, -3);
 
-    assert(StackHasCa3DETable());
+    assert(StackHasCafuTable());
 }
 
 
@@ -252,10 +252,10 @@ void ConsoleInterpreterImplT::Unregister(ConVarT* ConVar)
         }
 
 
-    // Save the value of ConVar by storing it in the CA3DE_TABLE, using raw-set.
+    // Save the value of ConVar by storing it in the CAFU_TABLE, using raw-set.
     // This keeps the variable available to the script even though the ConVarT has been unregistered.
     // Even better, if ConVar is registered again later (see Register() method), the value will then
-    // be "moved back" from the CA3DE_TABLE to the ConVarT as the default value!
+    // be "moved back" from the CAFU_TABLE to the ConVarT as the default value!
     lua_pushstring(LuaState, ConVar->Name.c_str());
 
     switch (ConVar->Type)
@@ -268,7 +268,7 @@ void ConsoleInterpreterImplT::Unregister(ConVarT* ConVar)
 
     lua_rawset(LuaState, -3);
 
-    assert(StackHasCa3DETable());
+    assert(StackHasCafuTable());
 }
 
 
@@ -282,12 +282,12 @@ void ConsoleInterpreterImplT::Unregister(ConFuncT* ConFunc)
         }
 
 
-    // Remove the console function from the CA3DE_TABLE by setting CA3DE_TABLE.FuncName to nil.
+    // Remove the console function from the CAFU_TABLE by setting CAFU_TABLE.FuncName to nil.
     lua_pushstring(LuaState, ConFunc->GetName().c_str());
     lua_pushnil(LuaState);
     lua_rawset(LuaState, -3);
 
-    assert(StackHasCa3DETable());
+    assert(StackHasCafuTable());
 }
 
 
@@ -342,7 +342,7 @@ std::string ConsoleInterpreterImplT::LineCompletion(const std::string& LineBegin
 
         if (!lua_isstring(LuaState, -1))
         {
-            Console->DevWarning(std::string("Skipped unexpected key type \"")+lua_typename(LuaState, lua_type(LuaState, -1))+"\" while traversing table \""+CA3DE_TABLE+"\".\n");
+            Console->DevWarning(std::string("Skipped unexpected key type \"")+lua_typename(LuaState, lua_type(LuaState, -1))+"\" while traversing table \""+CAFU_TABLE+"\".\n");
             continue;
         }
 
@@ -370,7 +370,7 @@ std::string ConsoleInterpreterImplT::LineCompletion(const std::string& LineBegin
         CommonPrefix=NewCP;
     }
 
-    assert(StackHasCa3DETable());
+    assert(StackHasCafuTable());
 
     // Of the CommonPrefix, return only the part that is right of the PartialToken.
     return std::string(CommonPrefix, PartialTokenLen);
@@ -399,22 +399,22 @@ bool ConsoleInterpreterImplT::RunCommand(const std::string& Input)
 #ifdef DEBUG
     ReentrancyCount--;
 #endif
-        assert(ReentrancyCount>0 || StackHasCa3DETable());
+        assert(ReentrancyCount>0 || StackHasCafuTable());
         return false;
     }
 
 #ifdef DEBUG
     ReentrancyCount--;
 #endif
-    assert(ReentrancyCount>0 || StackHasCa3DETable());
+    assert(ReentrancyCount>0 || StackHasCafuTable());
     return true;
 }
 
 
 int ConsoleInterpreterImplT::Lua_get_Callback(lua_State* LuaState)
 {
-    // This function serves as the __index metamethod of the CA3DE_TABLE.
-    // We are given the CA3DE_TABLE instance as the first and the key (name of the ConVar) as the second parameter.
+    // This function serves as the __index metamethod of the CAFU_TABLE.
+    // We are given the CAFU_TABLE instance as the first and the key (name of the ConVar) as the second parameter.
     const char* ConVarName=luaL_checkstring(LuaState, 2);
     ConVarT*    ConVar    =ConsoleInterpreter->FindVar(ConVarName);
 
@@ -434,16 +434,16 @@ int ConsoleInterpreterImplT::Lua_get_Callback(lua_State* LuaState)
 
 int ConsoleInterpreterImplT::Lua_set_Callback(lua_State* LuaState)
 {
-    // This function serves as the __newindex metamethod of the CA3DE_TABLE.
-    // We are given the CA3DE_TABLE instance as the first, the key (name of the ConVar) as the second, and the new value as the third parameter.
+    // This function serves as the __newindex metamethod of the CAFU_TABLE.
+    // We are given the CAFU_TABLE instance as the first, the key (name of the ConVar) as the second, and the new value as the third parameter.
     const char* ConVarName=luaL_checkstring(LuaState, 2);
     ConVarT*    ConVar    =ConsoleInterpreter->FindVar(ConVarName);
 
     if (ConVar==NULL)
     {
         // Okay, we have no registered ConVarT with this name,
-        // so simply raw-write the value into the CA3DE_TABLE instead!
-        // This is the key step that allows the user to work quasi normally with the CA3DE_TABLE.
+        // so simply raw-write the value into the CAFU_TABLE instead!
+        // This is the key step that allows the user to work quasi normally with the CAFU_TABLE.
         lua_rawset(LuaState, -3);
         return 0;
     }
@@ -478,7 +478,7 @@ int ConsoleInterpreterImplT::Lua_set_Callback(lua_State* LuaState)
 
 int ConsoleInterpreterImplT::ConFunc_Help_Callback(lua_State* LuaState)
 {
-    const std::string str_CA3DE_TABLE=CA3DE_TABLE;
+    const std::string str_CAFU_TABLE=CAFU_TABLE;
 
     if (lua_gettop(LuaState)==0)
     {
@@ -506,7 +506,7 @@ int ConsoleInterpreterImplT::ConFunc_Help_Callback(lua_State* LuaState)
 
         if (ConFunc!=NULL)
         {
-            if (str_CA3DE_TABLE!="_G") Console->Print(str_CA3DE_TABLE+".");
+            if (str_CAFU_TABLE!="_G") Console->Print(str_CAFU_TABLE+".");
 
             Console->Print(ConFunc->GetName()+"() is a console function.\n");
             Console->Print(cf::va("Flags: 0x%X\n", ConFunc->GetFlags()));
@@ -521,7 +521,7 @@ int ConsoleInterpreterImplT::ConFunc_Help_Callback(lua_State* LuaState)
 
         if (ConVar!=NULL)
         {
-            if (str_CA3DE_TABLE!="_G") Console->Print(str_CA3DE_TABLE+".");
+            if (str_CAFU_TABLE!="_G") Console->Print(str_CAFU_TABLE+".");
 
             Console->Print(ConVar->GetName()+" is a console variable.\n");
 
@@ -539,8 +539,8 @@ int ConsoleInterpreterImplT::ConFunc_Help_Callback(lua_State* LuaState)
         }
     }
 
-    // 3. VarName was neither a registered ConVarT nor a ConFuncT, now let's see if we find something in the CA3DE_TABLE.
-    lua_getglobal(LuaState, CA3DE_TABLE);
+    // 3. VarName was neither a registered ConVarT nor a ConFuncT, now let's see if we find something in the CAFU_TABLE.
+    lua_getglobal(LuaState, CAFU_TABLE);
     lua_pushstring(LuaState, VarName);
     lua_rawget(LuaState, -2);
 
@@ -548,7 +548,7 @@ int ConsoleInterpreterImplT::ConFunc_Help_Callback(lua_State* LuaState)
     {
         // Note that the value cannot be one of our C functions of the ConFuncTs,
         // because we already checked them above.
-        if (str_CA3DE_TABLE!="_G") Console->Print(str_CA3DE_TABLE+".");
+        if (str_CAFU_TABLE!="_G") Console->Print(str_CAFU_TABLE+".");
 
         Console->Print(cf::va("%s is a native Lua value of type \"%s\".\n", VarName, lua_typename(LuaState, lua_type(LuaState, -1))));
         return 0;
@@ -621,8 +621,8 @@ int ConsoleInterpreterImplT::ConFunc_List_Callback(lua_State* LuaState)
     if (OutCount>0)
         Console->Print("\n");
 
-    // 3. List the variables that are true (raw) members of the CA3DE_TABLE (no ConVarT is registered for them, they are not in the RegisteredConVars).
-    lua_getglobal(LuaState, CA3DE_TABLE);
+    // 3. List the variables that are true (raw) members of the CAFU_TABLE (no ConVarT is registered for them, they are not in the RegisteredConVars).
+    lua_getglobal(LuaState, CAFU_TABLE);
     OutCount=0;
 
     lua_pushnil(LuaState);  // Push the initial key.
@@ -631,7 +631,7 @@ int ConsoleInterpreterImplT::ConFunc_List_Callback(lua_State* LuaState)
         // The key is now at stack index -2, the value is at index -1.
         if (!lua_isstring(LuaState, -2))
         {
-            Console->Warning(std::string("Skipped unexpected key type \"")+lua_typename(LuaState, lua_type(LuaState, -2))+"\" while traversing table \""+CA3DE_TABLE+"\".\n");
+            Console->Warning(std::string("Skipped unexpected key type \"")+lua_typename(LuaState, lua_type(LuaState, -2))+"\" while traversing table \""+CAFU_TABLE+"\".\n");
 
             // Remove the value, but keep the key for the next iteration.
             lua_pop(LuaState, 1);

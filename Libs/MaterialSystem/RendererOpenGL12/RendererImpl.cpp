@@ -118,7 +118,7 @@ bool RendererImplT::IsSupported() const
 
     // This renderer uses cube-maps when available, but also works when the cube-map extension is not there.
     // Strictly requiring cube-maps would be easier, but then this was more of an OpenGL 1.3 rather than an
-    // OpenGL 1.2 renderer, and I really *want* to make the point that Ca3DE works also with APIs/hardware
+    // OpenGL 1.2 renderer, and I really *want* to make the point that Cafu works also with APIs/hardware
     // from the other end of the spectrum (i.e. not only on the hottest, biggest and latest, but also in
     // ancient, weak, almost-software-only environments).
  // Init_GL_ARB_texture_cube_map();

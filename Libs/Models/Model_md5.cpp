@@ -461,7 +461,7 @@ MaterialT* ModelMd5T::GetMaterialByName(const std::string& MaterialName) const
     if (Material!=NULL && !Material->LightMapComp.IsEmpty())
     {
         Console->Warning("Model \""+m_FileName+"\" uses material \""+MaterialName+"\", which in turn has lightmaps defined.\n"
-            "It will work in the ModelViewer, but for other applications like Ca3DE itself you should use a material without lightmaps.\n");
+            "It will work in the ModelViewer, but for other applications like Cafu itself you should use a material without lightmaps.\n");
             // It works in the ModelViewer because the ModelViewer is kind enough to provide a default lightmap...
     }
 
@@ -1246,7 +1246,7 @@ void ModelMd5T::Draw(int SequenceNr, float FrameNr, float /*LodDist*/, const Mod
     // 2. Now consider a scene with multiple animated models that are all rendered by this single instance.
     // Unfortunately, in this case our caching mechanism fails entirely: everything is recomputed on every call.
     // In this case, several instances of the model should be created (if speed is important and space is dispensable).
-    // The fact that the Ca3DE Material System automatically shares rendering resources makes having multiple instances viable.
+    // The fact that the Cafu Material System automatically shares rendering resources makes having multiple instances viable.
     //
     // 3. Finally, consider a scene with arbitrarily many non-animated models.
     // As in this case the frame and sequence numbers are always identical for each call, the caching mechanism has maximum efficiency.

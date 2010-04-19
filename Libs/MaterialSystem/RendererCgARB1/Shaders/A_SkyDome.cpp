@@ -84,7 +84,7 @@ class Shader_A_SkyDome : public ShaderT
             // The program[0] matrix is bound to the model-to-world matrix.
             // The transpose due to row-major vs. column-major issues (see the Red Book p. 106 and the example in the ARB_vertex_program spec)
             // is *not* required here, because OpenGLStateT::LoadMatrix() already uploaded the transpose.
-            // The .xzy is required due to the special coord-system axes of cube-maps (Ca3DE and OpenGL are right-handed systems, cube-maps are left-handed).
+            // The .xzy is required due to the special coord-system axes of cube-maps (Cafu and OpenGL are right-handed systems, cube-maps are left-handed).
             "     const float3 InPos_w=mul(glstate.matrix.program[0], InPos).xzy;   \n"
             "                                                                       \n"
             "     OutPos     =mul(glstate.matrix.mvp, InPos);                       \n"
