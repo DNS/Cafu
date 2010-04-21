@@ -46,13 +46,8 @@ class ModelMd5T : public ModelT
     public:
 
     /// Creates a new Cafu model from a file as directed by the given model loader.
+    /// @param Loader   The model loader that actually imports the file and fills in the model data.
     ModelMd5T(ModelLoaderT& Loader);
-
-    /// The constructor for creating an md5 model from a file.
-    /// @param FileName   The name of the file to load the md5 model from.
-    /// If FileName ends with "md5", it is assumed that the file has a white-space separated list of one md5mesh and arbitrarily many md5anim files.
-    /// If FileName ends with "md5mesh", this file is loaded without any animation information (e.g. for static detail models).
-    ModelMd5T(const std::string& FileName) /*throw (ModelT::LoadError)*/;
 
     /// The destructor.
     ~ModelMd5T();
@@ -71,6 +66,7 @@ class ModelMd5T : public ModelT
     protected:
 
     friend class LoaderLwoT;
+    friend class LoaderMd5T;
 
     MaterialT* GetMaterialByName(const std::string& MaterialName) const;    ///< An auxiliary method for the constructors.
     void InitMeshes();                                                      ///< An auxiliary method for the constructors.

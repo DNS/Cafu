@@ -232,13 +232,13 @@ LoaderLwoT::LoaderLwoT(const std::string& FileName) /*throw (ModelT::LoadError)*
 
 void LoaderLwoT::Load(ModelMd5T* Model)
 {
-    char*     fname=strdup(GetFileName().c_str());
+    char*     fname=strdup(m_FileName.c_str());
     lwObject* lwo=lwGetObject(fname, NULL, NULL);
 
     free(fname); fname=NULL;
     if (lwo==NULL)
     {
-        Console->Warning("Model \""+GetFileName()+"\" could not be loaded.\n");
+        Console->Warning("Model \""+m_FileName+"\" could not be loaded.\n");
         throw ModelT::LoadError();
     }
 
@@ -440,18 +440,6 @@ void LoaderLwoT::Load(ModelMd5T* Model)
 
 
     Model->InitMeshes();
-
-
-    // Allocate the cache space that is needed for drawing.
-    Model->m_Draw_JointMatrices.PushBackEmpty(Model->m_Joints.Size());
-    Model->m_Draw_Meshes.PushBackEmpty(Model->m_Meshes.Size());
-
-    for (unsigned long MeshNr=0; MeshNr<Model->m_Meshes.Size(); MeshNr++)
-    {
-        Model->m_Draw_Meshes[MeshNr].Type   =MatSys::MeshT::Triangles;
-     // Model->m_Draw_Meshes[MeshNr].Winding=MatSys::MeshT::CW;    // CW is the default.
-        Model->m_Draw_Meshes[MeshNr].Vertices.PushBackEmpty(Model->m_Meshes[MeshNr].Triangles.Size()*3);
-    }
 }
 
 

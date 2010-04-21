@@ -51,7 +51,7 @@ class ModelLoaderT
     virtual void Load(ModelMd5T* Model)=0;
 
 
-    private:
+    protected:
 
     const std::string m_FileName;
 };

@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*******************/
 
 #include "Loader_lwo.hpp"
+#include "Loader_md5.hpp"
 #include "Model_ase.hpp"
 #include "Model_cmdl.hpp"
 #include "Model_dlod.hpp"
@@ -132,9 +133,9 @@ ModelProxyT::ModelProxyT(const std::string& FileName)
         else if (cf::String::EndsWith(FileName, "dae"    )) NewModel=new ModelCaMdlT   (FileName);    // The results of reading a "dae" file are cached in a related cmdl file, thus the ModelCaMdlT ctor first updates the cmdl file if required, then loads the cmdl file normally.
         else if (cf::String::EndsWith(FileName, "dlod"   )) NewModel=new ModelDlodT    (FileName);
         else if (cf::String::EndsWith(FileName, "mdl"    )) NewModel=new ModelMdlT     (FileName);
-        else if (cf::String::EndsWith(FileName, "md5"    )) NewModel=new ModelMd5T     (FileName);
-        else if (cf::String::EndsWith(FileName, "md5mesh")) NewModel=new ModelMd5T     (FileName);
-        else if (cf::String::EndsWith(FileName, "md5anim")) NewModel=new ModelMd5T     (FileName);
+        else if (cf::String::EndsWith(FileName, "md5"    )) NewModel=new ModelMd5T(LoaderMd5T(FileName));
+        else if (cf::String::EndsWith(FileName, "md5mesh")) NewModel=new ModelMd5T(LoaderMd5T(FileName));
+        else if (cf::String::EndsWith(FileName, "md5anim")) NewModel=new ModelMd5T(LoaderMd5T(FileName));
         else if (cf::String::EndsWith(FileName, "lwo"    )) NewModel=new ModelMd5T(LoaderLwoT(FileName));
         else throw ModelT::LoadError();
     }
