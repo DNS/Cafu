@@ -37,12 +37,12 @@ class LoaderLwoT : public ModelLoaderT
     LoaderLwoT(const std::string& FileName) /*throw (ModelT::LoadError)*/;
 
     bool UseGivenTS() const { return true; }
-    void Load(ModelMd5T* Model);
+    void Load(CafuModelT* Model);
 
 
     private:
 
-    void ComputeTangents(const ModelMd5T::MeshT& Mesh, const unsigned long TriangleNr, Vector3fT& Tangent, Vector3fT& BiTangent) const;
+    void ComputeTangents(const CafuModelT::MeshT& Mesh, const unsigned long TriangleNr, Vector3fT& Tangent, Vector3fT& BiTangent) const;
 };
 
 #endif

@@ -35,13 +35,13 @@ LoaderMd5T::LoaderMd5T(const std::string& FileName) /*throw (ModelT::LoadError)*
 
 bool LoaderMd5T::UseGivenTS() const
 {
-    // For md5 models, the tangent space is not given by the model data from file.
-    // Tell the Cafu model instance to recompute it from spatial and texture coordinates.
+    // For md5 models, the tangent space vectors are not specified in the file.
+    // Tell the Cafu model to recompute them dynamically from spatial and texture coordinates instead.
     return false;
 }
 
 
-void LoaderMd5T::Load(ModelMd5T* Model)
+void LoaderMd5T::Load(CafuModelT* Model)
 {
     ArrayT<std::string> ComponentFiles;
 
@@ -95,7 +95,7 @@ void LoaderMd5T::Load(ModelMd5T* Model)
 
                 while (true)
                 {
-                    ModelMd5T::JointT Joint;
+                    CafuModelT::JointT Joint;
 
                     Joint.Name  =TP.GetNextToken(); if (Joint.Name=="}") break;
                     Joint.Parent=TP.GetNextTokenAsInt();
@@ -125,7 +125,7 @@ void LoaderMd5T::Load(ModelMd5T* Model)
             else if (Token=="mesh")
             {
                 Model->m_Meshes.PushBackEmpty();
-                ModelMd5T::MeshT& Mesh=Model->m_Meshes[Model->m_Meshes.Size()-1];
+                CafuModelT::MeshT& Mesh=Model->m_Meshes[Model->m_Meshes.Size()-1];
 
                 TP.AssertAndSkipToken("{");
 
@@ -211,7 +211,7 @@ void LoaderMd5T::Load(ModelMd5T* Model)
 
         try
         {
-            ModelMd5T::AnimT Anim;
+            CafuModelT::AnimT Anim;
 
             Anim.FPS=24.0f;
 
@@ -334,7 +334,7 @@ void LoaderMd5T::Load(ModelMd5T* Model)
         {
             // Loading this animation sequence failed, but as the base mesh (the md5mesh file)
             // loaded properly, that is not reason enough to abort loading the entire model.
-            ModelMd5T::AnimT InvalidAnim;
+            CafuModelT::AnimT InvalidAnim;
 
             InvalidAnim.FPS=-1.0f;                  // Use a negative FPS to flags this animation as invalid.
             Model->m_Anims.PushBack(InvalidAnim);   // Note that InvalidAnim.Frames.Size()==0, too.
@@ -345,7 +345,7 @@ void LoaderMd5T::Load(ModelMd5T* Model)
         {
             // Loading this animation sequence failed, but as the base mesh (the md5mesh file)
             // loaded properly, that is not reason enough to abort loading the entire model.
-            ModelMd5T::AnimT InvalidAnim;
+            CafuModelT::AnimT InvalidAnim;
 
             InvalidAnim.FPS=-1.0f;                  // Use a negative FPS to flags this animation as invalid.
             Model->m_Anims.PushBack(InvalidAnim);   // Note that InvalidAnim.Frames.Size()==0, too.

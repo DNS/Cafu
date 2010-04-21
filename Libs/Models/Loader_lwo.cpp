@@ -217,20 +217,20 @@ static Vector3fT myNormalize(const Vector3fT& A)
 }
 
 
-// Note that the nomenclature in the LWO context is different from the usual (Cafu) language:
-// - An LWO "layer" corresponds to a ModelMd5T::MeshT (however, whenever multiple materials occur in an LWO layer,
-//   the current code models that layer with as many ModelMd5T::MeshTs as there are materials in the layer).
+// Note that the nomenclature in the LWO context is different from the usual (Cafu) lingo:
+// - An LWO "layer" corresponds to a CafuModelT::MeshT (however, whenever multiple materials occur in an LWO layer,
+//   the current code models that layer with as many CafuModelT::MeshTs as there are materials in the layer).
 // - An LWO "surface" corresponds to a Cafu MatSys "material" (MaterialT).
 // - An LWO "polygon" can also mean something more complex than a planar surface, there are several polygon types.
-// - LWOs store their vertex positions in "points", the ModelMd5T class in "weights" (ModelMd5T::MeshT::WeightT).
-// - LWOs store their texture-coordinates in "VMAPs" and "VMADs", the ModelMd5T class in "vertices" (ModelMd5T::MeshT::VertexT).
+// - LWOs store their vertex positions in "points", the CafuModelT class in "weights" (CafuModelT::MeshT::WeightT).
+// - LWOs store their texture-coordinates in "VMAPs" and "VMADs", the CafuModelT class in "vertices" (CafuModelT::MeshT::VertexT).
 LoaderLwoT::LoaderLwoT(const std::string& FileName) /*throw (ModelT::LoadError)*/
     : ModelLoaderT(FileName)
 {
 }
 
 
-void LoaderLwoT::Load(ModelMd5T* Model)
+void LoaderLwoT::Load(CafuModelT* Model)
 {
     char*     fname=strdup(m_FileName.c_str());
     lwObject* lwo=lwGetObject(fname, NULL, NULL);
@@ -278,7 +278,7 @@ void LoaderLwoT::Load(ModelMd5T* Model)
 
             Model->m_Meshes.PushBackEmpty();
             MatToMeshNr[Poly.surf]=Model->m_Meshes.Size()-1;
-            ModelMd5T::MeshT& Mesh=Model->m_Meshes[Model->m_Meshes.Size()-1];
+            CafuModelT::MeshT& Mesh=Model->m_Meshes[Model->m_Meshes.Size()-1];
 
             Mesh.Material      =Model->GetMaterialByName(Poly.surf->name);
             Mesh.RenderMaterial=MatSys::Renderer!=NULL ? MatSys::Renderer->RegisterMaterial(Mesh.Material) :NULL;
@@ -306,7 +306,7 @@ void LoaderLwoT::Load(ModelMd5T* Model)
         // Then loop over the polygon vertices, in order to determine their uv-coordinates and eventually build the triangles list.
         for (std::map<lwSurface*, unsigned long>::const_iterator It=MatToMeshNr.begin(); It!=MatToMeshNr.end(); ++It)
         {
-            ModelMd5T::MeshT& Mesh=Model->m_Meshes[It->second];
+            CafuModelT::MeshT& Mesh=Model->m_Meshes[It->second];
 
             // For each weight in Mesh.Weights[], which corresponds to Layer->point.pt[], keep track of how many Mesh.Vertices[] refer to that weight.
             // This is done by keeping a Mesh.Vertices[] indices list in parallel to the Mesh.Weights[] array.
@@ -342,8 +342,8 @@ void LoaderLwoT::Load(ModelMd5T* Model)
 
                     for (Nr=0; Nr<WeightVerts[PolyVert.index].Size(); Nr++)
                     {
-                        const unsigned long              MeshVertexNr=WeightVerts[PolyVert.index][Nr];
-                        const ModelMd5T::MeshT::VertexT& MeshVertex  =Mesh.Vertices[MeshVertexNr];
+                        const unsigned long               MeshVertexNr=WeightVerts[PolyVert.index][Nr];
+                        const CafuModelT::MeshT::VertexT& MeshVertex  =Mesh.Vertices[MeshVertexNr];
 
                         assert(MeshVertex.FirstWeightIdx==PolyVert.index);
                         assert(MeshVertex.NumWeights==1);
@@ -359,8 +359,8 @@ void LoaderLwoT::Load(ModelMd5T* Model)
 
                     // No vertex for Mesh.Weights[PolyVert.index] was found that has the required uv-coordinates, so add a new one.
                     Mesh.Vertices.PushBackEmpty();
-                    unsigned long              MeshVertexNr=Mesh.Vertices.Size()-1;
-                    ModelMd5T::MeshT::VertexT& MeshVertex  =Mesh.Vertices[MeshVertexNr];
+                    unsigned long               MeshVertexNr=Mesh.Vertices.Size()-1;
+                    CafuModelT::MeshT::VertexT& MeshVertex  =Mesh.Vertices[MeshVertexNr];
 
                     MeshVertex.u             =TexCoord.x;
                     MeshVertex.v             =1.0f-TexCoord.y;      // LightWave seems to assume the texture image origin in a different place than we do...
@@ -386,8 +386,8 @@ void LoaderLwoT::Load(ModelMd5T* Model)
                 for (unsigned long VertexNr=0; VertexNr+2<PolygonMeshVertices.Size(); VertexNr++)
                 {
                     Mesh.Triangles.PushBackEmpty();
-                    unsigned long                TriangleNr=Mesh.Triangles.Size()-1;
-                    ModelMd5T::MeshT::TriangleT& Triangle  =Mesh.Triangles[TriangleNr];
+                    unsigned long                 TriangleNr=Mesh.Triangles.Size()-1;
+                    CafuModelT::MeshT::TriangleT& Triangle  =Mesh.Triangles[TriangleNr];
 
                     Triangle.VertexIdx[0]=PolygonMeshVertices[         0];
                     Triangle.VertexIdx[1]=PolygonMeshVertices[VertexNr+2];
@@ -409,7 +409,7 @@ void LoaderLwoT::Load(ModelMd5T* Model)
                 // All vertices of this polygon share the same averaged tangent and bi-tangent.
                 for (unsigned long VertexNr=0; VertexNr<PolygonMeshVertices.Size(); VertexNr++)
                 {
-                    ModelMd5T::MeshT::VertexT& Vertex=Mesh.Vertices[PolygonMeshVertices[VertexNr]];
+                    CafuModelT::MeshT::VertexT& Vertex=Mesh.Vertices[PolygonMeshVertices[VertexNr]];
 
                     // The vertex may be shared across multiple polygons, and we want to build the average over them.
                     // Therefore we only accumulate the tangents here, and normalize below.
@@ -422,7 +422,7 @@ void LoaderLwoT::Load(ModelMd5T* Model)
             // Normalize (average, possibly across polygons) the tangents of the vertices.
             for (unsigned long VertexNr=0; VertexNr<Mesh.Vertices.Size(); VertexNr++)
             {
-                ModelMd5T::MeshT::VertexT& Vertex=Mesh.Vertices[VertexNr];
+                CafuModelT::MeshT::VertexT& Vertex=Mesh.Vertices[VertexNr];
 
                 Vertex.Draw_Tangent =myNormalize(Vertex.Draw_Tangent );
                 Vertex.Draw_BiNormal=myNormalize(Vertex.Draw_BiNormal);
@@ -443,15 +443,15 @@ void LoaderLwoT::Load(ModelMd5T* Model)
 }
 
 
-void LoaderLwoT::ComputeTangents(const ModelMd5T::MeshT& Mesh, const unsigned long TriangleNr, Vector3fT& Tangent, Vector3fT& BiTangent) const
+void LoaderLwoT::ComputeTangents(const CafuModelT::MeshT& Mesh, const unsigned long TriangleNr, Vector3fT& Tangent, Vector3fT& BiTangent) const
 {
-    // This code is simply copied from "Model_md5.cpp", ModelMd5T::UpdateCachedDrawData().
-    const ModelMd5T::MeshT::TriangleT& Tri   =Mesh.Triangles[TriangleNr];
-    const ModelMd5T::MeshT::VertexT&   V_0   =Mesh.Vertices[Tri.VertexIdx[0]];
-    const ModelMd5T::MeshT::VertexT&   V_1   =Mesh.Vertices[Tri.VertexIdx[1]];
-    const ModelMd5T::MeshT::VertexT&   V_2   =Mesh.Vertices[Tri.VertexIdx[2]];
-    const Vector3fT                    Edge01=V_1.Draw_Pos-V_0.Draw_Pos;
-    const Vector3fT                    Edge02=V_2.Draw_Pos-V_0.Draw_Pos;
+    // This code is simply copied from "Model_cmdl.cpp", CafuModelT::UpdateCachedDrawData().
+    const CafuModelT::MeshT::TriangleT& Tri   =Mesh.Triangles[TriangleNr];
+    const CafuModelT::MeshT::VertexT&   V_0   =Mesh.Vertices[Tri.VertexIdx[0]];
+    const CafuModelT::MeshT::VertexT&   V_1   =Mesh.Vertices[Tri.VertexIdx[1]];
+    const CafuModelT::MeshT::VertexT&   V_2   =Mesh.Vertices[Tri.VertexIdx[2]];
+    const Vector3fT                     Edge01=V_1.Draw_Pos-V_0.Draw_Pos;
+    const Vector3fT                     Edge02=V_2.Draw_Pos-V_0.Draw_Pos;
 
     // Triangles are ordered CW for md5 models and CCW for ase models, so we write
     // Normal=VectorCross(Edge02, Edge01) for md5 models and Normal=VectorCross(Edge01, Edge02) for ase models.

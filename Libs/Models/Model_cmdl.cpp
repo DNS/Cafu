@@ -21,11 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/***********************/
-/*** Doom3 md5 Model ***/
-/***********************/
-
-#include "Model_md5.hpp"
+#include "Model_cmdl.hpp"
 #include "Loader.hpp"
 #include "ConsoleCommands/Console.hpp"
 #include "ConsoleCommands/ConVar.hpp"
@@ -44,7 +40,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #endif
 
 
-bool ModelMd5T::MeshT::AreGeoDups(int Vertex1Nr, int Vertex2Nr) const
+bool CafuModelT::MeshT::AreGeoDups(int Vertex1Nr, int Vertex2Nr) const
 {
     // A vertex is a geodup of itself!
     // (This explicit check is somewhat redundant, but I leave it in for clarity.)
@@ -73,7 +69,7 @@ bool ModelMd5T::MeshT::AreGeoDups(int Vertex1Nr, int Vertex2Nr) const
 }
 
 
-ModelMd5T::ModelMd5T(ModelLoaderT& Loader)
+CafuModelT::CafuModelT(ModelLoaderT& Loader)
     : m_FileName(Loader.GetFileName()),
       m_UseGivenTangentSpace(Loader.UseGivenTS()),  // Should we use the fixed, given tangent space, or recompute it ourselves here?
       m_Draw_CachedDataAtSequNr(-1234),             // Just a random number that is unlikely to occur normally.
@@ -95,7 +91,7 @@ ModelMd5T::ModelMd5T(ModelLoaderT& Loader)
 }
 
 
-MaterialT* ModelMd5T::GetMaterialByName(const std::string& MaterialName) const
+MaterialT* CafuModelT::GetMaterialByName(const std::string& MaterialName) const
 {
     MaterialT* Material=MaterialManager->GetMaterial(MaterialName);
 
@@ -125,7 +121,7 @@ MaterialT* ModelMd5T::GetMaterialByName(const std::string& MaterialName) const
 }
 
 
-void ModelMd5T::InitMeshes()
+void CafuModelT::InitMeshes()
 {
     // Compute the bounding box for the model in the md5mesh file (stored in m_BaseBB), just in case this model has no animations.
     {
@@ -473,7 +469,7 @@ void ModelMd5T::InitMeshes()
 }
 
 
-ModelMd5T::~ModelMd5T()
+CafuModelT::~CafuModelT()
 {
     if (MatSys::Renderer==NULL) return;
 
@@ -486,7 +482,7 @@ ModelMd5T::~ModelMd5T()
 /*** Implementation of the ModelT interface. ***/
 /***********************************************/
 
-const std::string& ModelMd5T::GetFileName() const
+const std::string& CafuModelT::GetFileName() const
 {
     return m_FileName;
 }
@@ -559,7 +555,7 @@ static Vector3fT myNormalize(const Vector3fT& A)
 }
 
 
-void ModelMd5T::UpdateCachedDrawData(int SequenceNr, float FrameNr) const
+void CafuModelT::UpdateCachedDrawData(int SequenceNr, float FrameNr) const
 {
     // **************************************************************************************************************
     //  Obtain a joints (bone) hierarchy for the desired frame FrameNr of the desired animation sequence SequenceNr.
@@ -843,7 +839,7 @@ void ModelMd5T::UpdateCachedDrawData(int SequenceNr, float FrameNr) const
 }
 
 
-void ModelMd5T::Draw(int SequenceNr, float FrameNr, float /*LodDist*/, const ModelT* /*SubModel*/) const
+void CafuModelT::Draw(int SequenceNr, float FrameNr, float /*LodDist*/, const ModelT* /*SubModel*/) const
 {
     // SequenceNr==-1 means "use the base pose from the md5mesh file only (no md5anim)".
     if (SequenceNr>=int(m_Anims.Size())) SequenceNr=-1;
@@ -1091,16 +1087,16 @@ void ModelMd5T::Draw(int SequenceNr, float FrameNr, float /*LodDist*/, const Mod
 }
 
 
-bool ModelMd5T::GetGuiPlane(int SequenceNr, float FrameNr, float LodDist, Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const
+bool CafuModelT::GetGuiPlane(int SequenceNr, float FrameNr, float LodDist, Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const
 {
     // To be implemented...
     return false;
 }
 
 
-void ModelMd5T::Print() const
+void CafuModelT::Print() const
 {
-    printf("\nThis is an md5 model. FileName: \"%s\"\n", m_FileName.c_str());
+    printf("\nThis is a cmdl Cafu model. FileName: \"%s\"\n", m_FileName.c_str());
 
     for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
     {
@@ -1139,13 +1135,13 @@ void ModelMd5T::Print() const
 }
 
 
-int ModelMd5T::GetNrOfSequences() const
+int CafuModelT::GetNrOfSequences() const
 {
     return m_Anims.Size();
 }
 
 
-const float* ModelMd5T::GetSequenceBB(int SequenceNr, float FrameNr) const
+const float* CafuModelT::GetSequenceBB(int SequenceNr, float FrameNr) const
 {
     if (SequenceNr==-1 || SequenceNr>=int(m_Anims.Size()) || m_Anims[SequenceNr].Frames.Size()==0 || m_Anims[SequenceNr].FPS<0.0)
         return m_BaseBB;
@@ -1157,13 +1153,13 @@ const float* ModelMd5T::GetSequenceBB(int SequenceNr, float FrameNr) const
 }
 
 
-// float ModelMd5T::GetNrOfFrames(int /*SequenceNr*/) const
+// float CafuModelT::GetNrOfFrames(int /*SequenceNr*/) const
 // {
 //     return 0.0;
 // }
 
 
-float ModelMd5T::AdvanceFrameNr(int SequenceNr, float FrameNr, float DeltaTime, bool Loop) const
+float CafuModelT::AdvanceFrameNr(int SequenceNr, float FrameNr, float DeltaTime, bool Loop) const
 {
     if (SequenceNr<0 || SequenceNr>=int(m_Anims.Size())) return 0.0f;
     const int NumFrames=m_Anims[SequenceNr].Frames.Size();

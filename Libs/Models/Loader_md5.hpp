@@ -39,7 +39,7 @@ class LoaderMd5T : public ModelLoaderT
     LoaderMd5T(const std::string& FileName) /*throw (ModelT::LoadError)*/;
 
     bool UseGivenTS() const;
-    void Load(ModelMd5T* Model);
+    void Load(CafuModelT* Model);
 };
 
 #endif

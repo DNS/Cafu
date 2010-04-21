@@ -21,12 +21,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/***********************/
-/*** Doom3 md5 Model ***/
-/***********************/
-
-#ifndef _MODEL_DOOM3_MD5_HPP_
-#define _MODEL_DOOM3_MD5_HPP_
+#ifndef _CAFU_MODEL_HPP_
+#define _CAFU_MODEL_HPP_
 
 #include "Templates/Array.hpp"
 #include "MaterialSystem/Mesh.hpp"
@@ -40,17 +36,17 @@ class ModelLoaderT;
 namespace MatSys { class RenderMaterialT; }
 
 
-/// This class implements a Doom3 md5 model.
-class ModelMd5T : public ModelT
+/// This class represents a native Cafu model.
+class CafuModelT : public ModelT
 {
     public:
 
     /// Creates a new Cafu model from a file as directed by the given model loader.
     /// @param Loader   The model loader that actually imports the file and fills in the model data.
-    ModelMd5T(ModelLoaderT& Loader);
+    CafuModelT(ModelLoaderT& Loader);
 
     /// The destructor.
-    ~ModelMd5T();
+    ~CafuModelT();
 
     // The ModelT interface.
     const std::string& GetFileName() const;
@@ -105,7 +101,7 @@ class ModelMd5T : public ModelT
             int         NumWeights;     ///< DOCTODO
 
             bool        Polarity;   ///< True if this vertex belongs to triangles with positive polarity, false if it belongs to triangles with negative polarity. Note that a single vertex cannot belong to triangles of both positive and negative polarity (but a GeoDup of this vertex can belong to the other polarity).
-            ArrayT<int> GeoDups;    ///< This array contains the indices of vertices that are geometrical duplicates of this vertex, see AreVerticesGeoDups() for more information. The indices are stored in increasing order, and do *not* include the index of "this" vertex. Note that from the presence of GeoDups in an md5 file we can *not* conclude that a break in the smoothing was intended by the modeller. Cylindrical wrapping seams are one counter-example.
+            ArrayT<int> GeoDups;    ///< This array contains the indices of vertices that are geometrical duplicates of this vertex, see AreVerticesGeoDups() for more information. The indices are stored in increasing order, and do *not* include the index of "this" vertex. Note that from the presence of GeoDups in a cmdl/md5 file we can *not* conclude that a break in the smoothing was intended by the modeller. Cylindrically wrapping seams are one counter-example.
 
             Vector3fT   Draw_Pos;      ///< Position of this vertex.
             Vector3fT   Draw_Normal;   ///< Vertex normal.

@@ -24,7 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef _MODEL_LOADER_HPP_
 #define _MODEL_LOADER_HPP_
 
-#include "Model_md5.hpp"
+#include "Model_cmdl.hpp"
 
 
 //XXX TODO: It should be ModelLoaderT::LoadErrorT, not ModelT::LoadError.
@@ -48,7 +48,7 @@ class ModelLoaderT
     virtual bool UseGivenTS() const=0;
 
     /// Actually loads the file into the given Cafu model.
-    virtual void Load(ModelMd5T* Model)=0;
+    virtual void Load(CafuModelT* Model)=0;
 
 
     protected:
