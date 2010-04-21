@@ -21,25 +21,28 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MODEL_LIGHTWAVE_OBJECT_HPP_
-#define _MODEL_LIGHTWAVE_OBJECT_HPP_
+#ifndef _LIGHTWAVE_OBJECT_LOADER_HPP_
+#define _LIGHTWAVE_OBJECT_LOADER_HPP_
 
-#include "Model_md5.hpp"
+#include "Loader.hpp"
 
 
-/// This class represents a model in .lwo (LightWave Object) file format.
-class ModelLwoT : public ModelMd5T
+/// This class imports a LightWave Object (.lwo) file into a new Cafu model.
+class LoaderLwoT : public ModelLoaderT
 {
     public:
 
-    /// The constructor for creating a .lwo model from a file.
-    /// @param FileName   The name of the file to load the .lwo model from.
-    ModelLwoT(const std::string& FileName) /*throw (ModelT::LoadError)*/;
+    /// The constructor for importing a LightWave Object (.lwo) file into a new Cafu model.
+    /// @param FileName   The name of the .lwo file to import.
+    LoaderLwoT(const std::string& FileName) /*throw (ModelT::LoadError)*/;
+
+    bool UseGivenTS() const { return true; }
+    void Load(ModelMd5T* Model);
 
 
     private:
 
-    void ComputeTangents(const MeshT& Mesh, const unsigned long TriangleNr, Vector3fT& Tangent, Vector3fT& BiTangent) const;
+    void ComputeTangents(const ModelMd5T::MeshT& Mesh, const unsigned long TriangleNr, Vector3fT& Tangent, Vector3fT& BiTangent) const;
 };
 
 #endif

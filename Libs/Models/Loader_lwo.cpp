@@ -21,7 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "Model_lwo.hpp"
+#include "Loader_lwo.hpp"
 #include "ConsoleCommands/Console.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
@@ -224,28 +224,33 @@ static Vector3fT myNormalize(const Vector3fT& A)
 // - An LWO "polygon" can also mean something more complex than a planar surface, there are several polygon types.
 // - LWOs store their vertex positions in "points", the ModelMd5T class in "weights" (ModelMd5T::MeshT::WeightT).
 // - LWOs store their texture-coordinates in "VMAPs" and "VMADs", the ModelMd5T class in "vertices" (ModelMd5T::MeshT::VertexT).
-ModelLwoT::ModelLwoT(const std::string& FileName) /*throw (ModelT::LoadError)*/
-    : ModelMd5T(FileName, true /* Yes, the base class should use the tangent-space given by us. */)
+LoaderLwoT::LoaderLwoT(const std::string& FileName) /*throw (ModelT::LoadError)*/
+    : ModelLoaderT(FileName)
 {
-    char*     fname=strdup(FileName.c_str());
+}
+
+
+void LoaderLwoT::Load(ModelMd5T* Model)
+{
+    char*     fname=strdup(GetFileName().c_str());
     lwObject* lwo=lwGetObject(fname, NULL, NULL);
 
     free(fname); fname=NULL;
     if (lwo==NULL)
     {
-        Console->Warning("Model \""+FileName+"\" could not be loaded.\n");
+        Console->Warning("Model \""+GetFileName()+"\" could not be loaded.\n");
         throw ModelT::LoadError();
     }
 
 
     // Create a default "identity" joint.
     // That single joint is used for (shared by) all weights of all meshes.
-    m_Joints.PushBackEmpty();
+    Model->m_Joints.PushBackEmpty();
 
-    m_Joints[0].Name  ="root";
-    m_Joints[0].Parent=-1;
- // m_Joints[0].Pos   =Vector3fT();
- // m_Joints[0].Qtr   =Vector3fT();     // Identity quaternion...
+    Model->m_Joints[0].Name  ="root";
+    Model->m_Joints[0].Parent=-1;
+ // Model->m_Joints[0].Pos   =Vector3fT();
+ // Model->m_Joints[0].Qtr   =Vector3fT();  // Identity quaternion...
 
     ArrayT<unsigned long> PolygonMeshVertices;   // An auxiliary array used below.
 
@@ -271,11 +276,11 @@ ModelLwoT::ModelLwoT(const std::string& FileName) /*throw (ModelT::LoadError)*/
             if (Poly.type!=ID_FACE) continue;   // Silently ignore non-face polygons here, an excplicit warning is issued below. Note: No m_Meshes entry is created for surfaces that only exist on non-face polygons!
             if (MatToMeshNr.find(Poly.surf)!=MatToMeshNr.end()) continue;
 
-            m_Meshes.PushBackEmpty();
-            MatToMeshNr[Poly.surf]=m_Meshes.Size()-1;
-            MeshT& Mesh=m_Meshes[m_Meshes.Size()-1];
+            Model->m_Meshes.PushBackEmpty();
+            MatToMeshNr[Poly.surf]=Model->m_Meshes.Size()-1;
+            ModelMd5T::MeshT& Mesh=Model->m_Meshes[Model->m_Meshes.Size()-1];
 
-            Mesh.Material      =GetMaterialByName(Poly.surf->name);
+            Mesh.Material      =Model->GetMaterialByName(Poly.surf->name);
             Mesh.RenderMaterial=MatSys::Renderer!=NULL ? MatSys::Renderer->RegisterMaterial(Mesh.Material) :NULL;
 
 
@@ -301,7 +306,7 @@ ModelLwoT::ModelLwoT(const std::string& FileName) /*throw (ModelT::LoadError)*/
         // Then loop over the polygon vertices, in order to determine their uv-coordinates and eventually build the triangles list.
         for (std::map<lwSurface*, unsigned long>::const_iterator It=MatToMeshNr.begin(); It!=MatToMeshNr.end(); ++It)
         {
-            MeshT& Mesh=m_Meshes[It->second];
+            ModelMd5T::MeshT& Mesh=Model->m_Meshes[It->second];
 
             // For each weight in Mesh.Weights[], which corresponds to Layer->point.pt[], keep track of how many Mesh.Vertices[] refer to that weight.
             // This is done by keeping a Mesh.Vertices[] indices list in parallel to the Mesh.Weights[] array.
@@ -337,8 +342,8 @@ ModelLwoT::ModelLwoT(const std::string& FileName) /*throw (ModelT::LoadError)*/
 
                     for (Nr=0; Nr<WeightVerts[PolyVert.index].Size(); Nr++)
                     {
-                        const unsigned long   MeshVertexNr=WeightVerts[PolyVert.index][Nr];
-                        const MeshT::VertexT& MeshVertex  =Mesh.Vertices[MeshVertexNr];
+                        const unsigned long              MeshVertexNr=WeightVerts[PolyVert.index][Nr];
+                        const ModelMd5T::MeshT::VertexT& MeshVertex  =Mesh.Vertices[MeshVertexNr];
 
                         assert(MeshVertex.FirstWeightIdx==PolyVert.index);
                         assert(MeshVertex.NumWeights==1);
@@ -354,8 +359,8 @@ ModelLwoT::ModelLwoT(const std::string& FileName) /*throw (ModelT::LoadError)*/
 
                     // No vertex for Mesh.Weights[PolyVert.index] was found that has the required uv-coordinates, so add a new one.
                     Mesh.Vertices.PushBackEmpty();
-                    unsigned long   MeshVertexNr=Mesh.Vertices.Size()-1;
-                    MeshT::VertexT& MeshVertex  =Mesh.Vertices[MeshVertexNr];
+                    unsigned long              MeshVertexNr=Mesh.Vertices.Size()-1;
+                    ModelMd5T::MeshT::VertexT& MeshVertex  =Mesh.Vertices[MeshVertexNr];
 
                     MeshVertex.u             =TexCoord.x;
                     MeshVertex.v             =1.0f-TexCoord.y;      // LightWave seems to assume the texture image origin in a different place than we do...
@@ -381,8 +386,8 @@ ModelLwoT::ModelLwoT(const std::string& FileName) /*throw (ModelT::LoadError)*/
                 for (unsigned long VertexNr=0; VertexNr+2<PolygonMeshVertices.Size(); VertexNr++)
                 {
                     Mesh.Triangles.PushBackEmpty();
-                    unsigned long     TriangleNr=Mesh.Triangles.Size()-1;
-                    MeshT::TriangleT& Triangle  =Mesh.Triangles[TriangleNr];
+                    unsigned long                TriangleNr=Mesh.Triangles.Size()-1;
+                    ModelMd5T::MeshT::TriangleT& Triangle  =Mesh.Triangles[TriangleNr];
 
                     Triangle.VertexIdx[0]=PolygonMeshVertices[         0];
                     Triangle.VertexIdx[1]=PolygonMeshVertices[VertexNr+2];
@@ -404,7 +409,7 @@ ModelLwoT::ModelLwoT(const std::string& FileName) /*throw (ModelT::LoadError)*/
                 // All vertices of this polygon share the same averaged tangent and bi-tangent.
                 for (unsigned long VertexNr=0; VertexNr<PolygonMeshVertices.Size(); VertexNr++)
                 {
-                    MeshT::VertexT& Vertex=Mesh.Vertices[PolygonMeshVertices[VertexNr]];
+                    ModelMd5T::MeshT::VertexT& Vertex=Mesh.Vertices[PolygonMeshVertices[VertexNr]];
 
                     // The vertex may be shared across multiple polygons, and we want to build the average over them.
                     // Therefore we only accumulate the tangents here, and normalize below.
@@ -417,7 +422,7 @@ ModelLwoT::ModelLwoT(const std::string& FileName) /*throw (ModelT::LoadError)*/
             // Normalize (average, possibly across polygons) the tangents of the vertices.
             for (unsigned long VertexNr=0; VertexNr<Mesh.Vertices.Size(); VertexNr++)
             {
-                MeshT::VertexT& Vertex=Mesh.Vertices[VertexNr];
+                ModelMd5T::MeshT::VertexT& Vertex=Mesh.Vertices[VertexNr];
 
                 Vertex.Draw_Tangent =myNormalize(Vertex.Draw_Tangent );
                 Vertex.Draw_BiNormal=myNormalize(Vertex.Draw_BiNormal);
@@ -427,38 +432,38 @@ ModelLwoT::ModelLwoT(const std::string& FileName) /*throw (ModelT::LoadError)*/
 
     lwFreeObject(lwo);
 
-    if (m_Joints.Size()==0) throw ModelT::LoadError();
-    if (m_Meshes.Size()==0) throw ModelT::LoadError();
+    if (Model->m_Joints.Size()==0) throw ModelT::LoadError();
+    if (Model->m_Meshes.Size()==0) throw ModelT::LoadError();
 
     // for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
     //     Console->Print(cf::va("Mesh %lu: %lu weights, %lu vertices, %lu triangles.\n", MeshNr, m_Meshes[MeshNr].Weights.Size(), m_Meshes[MeshNr].Vertices.Size(), m_Meshes[MeshNr].Triangles.Size()));
 
 
-    InitMeshes();
+    Model->InitMeshes();
 
 
     // Allocate the cache space that is needed for drawing.
-    m_Draw_JointMatrices.PushBackEmpty(m_Joints.Size());
-    m_Draw_Meshes.PushBackEmpty(m_Meshes.Size());
+    Model->m_Draw_JointMatrices.PushBackEmpty(Model->m_Joints.Size());
+    Model->m_Draw_Meshes.PushBackEmpty(Model->m_Meshes.Size());
 
-    for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
+    for (unsigned long MeshNr=0; MeshNr<Model->m_Meshes.Size(); MeshNr++)
     {
-        m_Draw_Meshes[MeshNr].Type   =MatSys::MeshT::Triangles;
-     // m_Draw_Meshes[MeshNr].Winding=MatSys::MeshT::CW;    // CW is the default.
-        m_Draw_Meshes[MeshNr].Vertices.PushBackEmpty(m_Meshes[MeshNr].Triangles.Size()*3);
+        Model->m_Draw_Meshes[MeshNr].Type   =MatSys::MeshT::Triangles;
+     // Model->m_Draw_Meshes[MeshNr].Winding=MatSys::MeshT::CW;    // CW is the default.
+        Model->m_Draw_Meshes[MeshNr].Vertices.PushBackEmpty(Model->m_Meshes[MeshNr].Triangles.Size()*3);
     }
 }
 
 
-void ModelLwoT::ComputeTangents(const MeshT& Mesh, const unsigned long TriangleNr, Vector3fT& Tangent, Vector3fT& BiTangent) const
+void LoaderLwoT::ComputeTangents(const ModelMd5T::MeshT& Mesh, const unsigned long TriangleNr, Vector3fT& Tangent, Vector3fT& BiTangent) const
 {
     // This code is simply copied from "Model_md5.cpp", ModelMd5T::UpdateCachedDrawData().
-    const MeshT::TriangleT& Tri   =Mesh.Triangles[TriangleNr];
-    const MeshT::VertexT&   V_0   =Mesh.Vertices[Tri.VertexIdx[0]];
-    const MeshT::VertexT&   V_1   =Mesh.Vertices[Tri.VertexIdx[1]];
-    const MeshT::VertexT&   V_2   =Mesh.Vertices[Tri.VertexIdx[2]];
-    const Vector3fT         Edge01=V_1.Draw_Pos-V_0.Draw_Pos;
-    const Vector3fT         Edge02=V_2.Draw_Pos-V_0.Draw_Pos;
+    const ModelMd5T::MeshT::TriangleT& Tri   =Mesh.Triangles[TriangleNr];
+    const ModelMd5T::MeshT::VertexT&   V_0   =Mesh.Vertices[Tri.VertexIdx[0]];
+    const ModelMd5T::MeshT::VertexT&   V_1   =Mesh.Vertices[Tri.VertexIdx[1]];
+    const ModelMd5T::MeshT::VertexT&   V_2   =Mesh.Vertices[Tri.VertexIdx[2]];
+    const Vector3fT                    Edge01=V_1.Draw_Pos-V_0.Draw_Pos;
+    const Vector3fT                    Edge02=V_2.Draw_Pos-V_0.Draw_Pos;
 
     // Triangles are ordered CW for md5 models and CCW for ase models, so we write
     // Normal=VectorCross(Edge02, Edge01) for md5 models and Normal=VectorCross(Edge01, Edge02) for ase models.

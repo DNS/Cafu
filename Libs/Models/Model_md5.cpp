@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /***********************/
 
 #include "Model_md5.hpp"
+#include "Loader.hpp"
 #include "ConsoleCommands/Console.hpp"
 #include "ConsoleCommands/ConVar.hpp"
 #include "MaterialSystem/Material.hpp"
@@ -94,6 +95,16 @@ bool ModelMd5T::MeshT::AreGeoDups(int Vertex1Nr, int Vertex2Nr) const
 
     // All weights were equal - the vertices are geodups of each other!
     return true;
+}
+
+
+ModelMd5T::ModelMd5T(ModelLoaderT& Loader)
+    : m_FileName(Loader.GetFileName()),
+      m_UseGivenTangentSpace(Loader.UseGivenTS()),  // Some (static, non-animated) model file formats may bring all their tangent space data with them, then there is no need to recompute it here. The if or if not depends on the details of the model loader code.
+      m_Draw_CachedDataAtSequNr(-1234),             // Just a random number that is unlikely to occur normally.
+      m_Draw_CachedDataAtFrameNr(-3.1415926f)       // Just a random number that is unlikely to occur normally.
+{
+    Loader.Load(this);
 }
 
 
@@ -425,17 +436,6 @@ ModelMd5T::ModelMd5T(const std::string& FileName) /*throw (ModelT::LoadError)*/
      // m_Draw_Meshes[MeshNr].Winding=MatSys::MeshT::CW;    // CW is the default.
         m_Draw_Meshes[MeshNr].Vertices.PushBackEmpty(m_Meshes[MeshNr].Triangles.Size()*3);
     }
-}
-
-
-ModelMd5T::ModelMd5T(const std::string& FileName, bool UseGivenTangentSpace)
-    : m_FileName(FileName),
-      m_UseGivenTangentSpace(UseGivenTangentSpace), // Some (static, non-animated) model file formats may bring all their tangent space data with them, then there is no need to recompute it here. The if or if not depends on the details of the derived class(es).
-      m_Draw_CachedDataAtSequNr(-1234),             // Just a random number that is unlikely to occur normally.
-      m_Draw_CachedDataAtFrameNr(-3.1415926f)       // Just a random number that is unlikely to occur normally.
-{
-    // This is a constructor for use by the derived classes.
-    // It intentionally does nothing but the most basic initialization.
 }
 
 

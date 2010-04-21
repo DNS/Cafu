@@ -25,11 +25,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Model Proxy ***/
 /*******************/
 
+#include "Loader_lwo.hpp"
 #include "Model_ase.hpp"
 #include "Model_cmdl.hpp"
 #include "Model_dlod.hpp"
 #include "Model_dummy.hpp"
-#include "Model_lwo.hpp"
 #include "Model_md5.hpp"
 #include "Model_mdl.hpp"
 #include "Model_proxy.hpp"
@@ -135,7 +135,7 @@ ModelProxyT::ModelProxyT(const std::string& FileName)
         else if (cf::String::EndsWith(FileName, "md5"    )) NewModel=new ModelMd5T     (FileName);
         else if (cf::String::EndsWith(FileName, "md5mesh")) NewModel=new ModelMd5T     (FileName);
         else if (cf::String::EndsWith(FileName, "md5anim")) NewModel=new ModelMd5T     (FileName);
-        else if (cf::String::EndsWith(FileName, "lwo"    )) NewModel=new ModelLwoT     (FileName);
+        else if (cf::String::EndsWith(FileName, "lwo"    )) NewModel=new ModelMd5T(LoaderLwoT(FileName));
         else throw ModelT::LoadError();
     }
     catch (const ModelT::LoadError&)

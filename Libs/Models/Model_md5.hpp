@@ -36,6 +36,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 class MaterialT;
+class ModelLoaderT;
 namespace MatSys { class RenderMaterialT; }
 
 
@@ -43,6 +44,9 @@ namespace MatSys { class RenderMaterialT; }
 class ModelMd5T : public ModelT
 {
     public:
+
+    /// Creates a new Cafu model from a file as directed by the given model loader.
+    ModelMd5T(ModelLoaderT& Loader);
 
     /// The constructor for creating an md5 model from a file.
     /// @param FileName   The name of the file to load the md5 model from.
@@ -66,7 +70,8 @@ class ModelMd5T : public ModelT
 
     protected:
 
-    ModelMd5T(const std::string& FileName, bool UseGivenTangentSpace);      ///< A constructor for use by the derived classes.
+    friend class LoaderLwoT;
+
     MaterialT* GetMaterialByName(const std::string& MaterialName) const;    ///< An auxiliary method for the constructors.
     void InitMeshes();                                                      ///< An auxiliary method for the constructors.
     void UpdateCachedDrawData(int SequenceNr, float FrameNr) const;         ///< A private auxiliary method.
@@ -166,7 +171,7 @@ class ModelMd5T : public ModelT
     };
 
 
-    const std::string     m_FileName;             ///< Filename of this model.
+    const std::string     m_FileName;             ///< File name of this model.
     const bool            m_UseGivenTangentSpace; ///< DOCTODO
     ArrayT<JointT>        m_Joints;               ///< Array of joints of this model.
     mutable ArrayT<MeshT> m_Meshes;               ///< Array of (sub)meshes of this model.
