@@ -41,7 +41,7 @@ bool LoaderMd5T::UseGivenTS() const
 }
 
 
-void LoaderMd5T::Load(CafuModelT* Model)
+void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims)
 {
     ArrayT<std::string> ComponentFiles;
 
@@ -113,19 +113,19 @@ void LoaderMd5T::Load(CafuModelT* Model)
                     // Make sure that all joints (bones) are declared in a proper hierarchical order.
                     // That is, if we traverse the m_Joints in increasing order 0, 1, 2, ..., then we are never faced with a
                     // parent that has not been seen earlier in the traversal sequence. (The -1 parent at index 0 is an exception.)
-                    if (Joint.Parent>=int(Model->m_Joints.Size()))
+                    if (Joint.Parent>=int(Joints.Size()))
                     {
-                        printf("WARNING: Bad bone order!  %lu bones read so far, and the next (name \"%s\") is referring to parent %i.\n", Model->m_Joints.Size(), Joint.Name.c_str(), Joint.Parent);
+                        printf("WARNING: Bad bone order!  %lu bones read so far, and the next (name \"%s\") is referring to parent %i.\n", Joints.Size(), Joint.Name.c_str(), Joint.Parent);
                         throw ModelT::LoadError();  // TODO: Fix this by re-sorting the joints rather than by abortion!
                     }
 
-                    Model->m_Joints.PushBack(Joint);
+                    Joints.PushBack(Joint);
                 }
             }
             else if (Token=="mesh")
             {
-                Model->m_Meshes.PushBackEmpty();
-                CafuModelT::MeshT& Mesh=Model->m_Meshes[Model->m_Meshes.Size()-1];
+                Meshes.PushBackEmpty();
+                CafuModelT::MeshT& Mesh=Meshes[Meshes.Size()-1];
 
                 TP.AssertAndSkipToken("{");
 
@@ -139,7 +139,7 @@ void LoaderMd5T::Load(CafuModelT* Model)
                     else if (Token=="numweights") { if (Mesh.Weights  .Size()>0) throw ModelT::LoadError(); Mesh.Weights  .PushBackEmpty(TP.GetNextTokenAsInt()); }
                     else if (Token=="shader")
                     {
-                        Mesh.Material      =Model->GetMaterialByName(TP.GetNextToken());
+                        Mesh.Material      =GetMaterialByName(TP.GetNextToken());
                         Mesh.RenderMaterial=MatSys::Renderer!=NULL ? MatSys::Renderer->RegisterMaterial(Mesh.Material) : NULL;
                     }
                     else if (Token=="tri")
@@ -191,17 +191,11 @@ void LoaderMd5T::Load(CafuModelT* Model)
                 if (TP.GetNextToken()=="{") TP.SkipBlock("{", "}", true);
             }
         }
-
-        if (Model->m_Joints.Size()==0) throw ModelT::LoadError();
-        if (Model->m_Meshes.Size()==0) throw ModelT::LoadError();
     }
     catch (const TextParserT::ParseError&)
     {
         throw ModelT::LoadError();
     }
-
-
-    Model->InitMeshes();
 
 
     // Read the individual animation sequence files.
@@ -235,7 +229,7 @@ void LoaderMd5T::Load(CafuModelT* Model)
                     // The numJoints here MUST match the numJoints in the md5mesh file!
                     const unsigned long numJoints=TP.GetNextTokenAsInt();
 
-                    if (numJoints!=Model->m_Joints.Size()) { printf("%lu joints in md5anim file, %lu joints in md5mesh.\n", numJoints, Model->m_Joints.Size()); throw ModelT::LoadError(); }
+                    if (numJoints!=Joints.Size()) { printf("%lu joints in md5anim file, %lu joints in md5mesh.\n", numJoints, Joints.Size()); throw ModelT::LoadError(); }
                     if (Anim.AnimJoints.Size()>0) { printf("Anim.AnimJoints.Size()==%lu\n", Anim.AnimJoints.Size()); throw ModelT::LoadError(); }
 
                     Anim.AnimJoints.PushBackEmpty(numJoints);
@@ -258,8 +252,8 @@ void LoaderMd5T::Load(CafuModelT* Model)
                     for (unsigned long JointNr=0; JointNr<Anim.AnimJoints.Size(); JointNr++)
                     {
                         // Make sure that the name and parent are identical with the joint from the md5mesh file.
-                        if (Model->m_Joints[JointNr].Name  !=TP.GetNextToken()) throw ModelT::LoadError();
-                        if (Model->m_Joints[JointNr].Parent!=TP.GetNextTokenAsInt()) throw ModelT::LoadError();
+                        if (Joints[JointNr].Name  !=TP.GetNextToken()) throw ModelT::LoadError();
+                        if (Joints[JointNr].Parent!=TP.GetNextTokenAsInt()) throw ModelT::LoadError();
 
                         Anim.AnimJoints[JointNr].Flags       =TP.GetNextTokenAsInt();
                         Anim.AnimJoints[JointNr].FirstDataIdx=TP.GetNextTokenAsInt();
@@ -328,7 +322,7 @@ void LoaderMd5T::Load(CafuModelT* Model)
                 }
             }
 
-            Model->m_Anims.PushBack(Anim);
+            Anims.PushBack(Anim);
         }
         catch (const TextParserT::ParseError&)
         {
@@ -336,8 +330,8 @@ void LoaderMd5T::Load(CafuModelT* Model)
             // loaded properly, that is not reason enough to abort loading the entire model.
             CafuModelT::AnimT InvalidAnim;
 
-            InvalidAnim.FPS=-1.0f;                  // Use a negative FPS to flags this animation as invalid.
-            Model->m_Anims.PushBack(InvalidAnim);   // Note that InvalidAnim.Frames.Size()==0, too.
+            InvalidAnim.FPS=-1.0f;          // Use a negative FPS to flags this animation as invalid.
+            Anims.PushBack(InvalidAnim);    // Note that InvalidAnim.Frames.Size()==0, too.
 
             printf("WARNING: Loading animation sequence file %s failed just before input byte %lu!\n", ComponentFiles[FileNr].c_str(), TP.GetReadPosByte());
         }
@@ -347,8 +341,8 @@ void LoaderMd5T::Load(CafuModelT* Model)
             // loaded properly, that is not reason enough to abort loading the entire model.
             CafuModelT::AnimT InvalidAnim;
 
-            InvalidAnim.FPS=-1.0f;                  // Use a negative FPS to flags this animation as invalid.
-            Model->m_Anims.PushBack(InvalidAnim);   // Note that InvalidAnim.Frames.Size()==0, too.
+            InvalidAnim.FPS=-1.0f;          // Use a negative FPS to flags this animation as invalid.
+            Anims.PushBack(InvalidAnim);    // Note that InvalidAnim.Frames.Size()==0, too.
 
             printf("WARNING: Loading animation sequence file %s failed just before input byte %lu!\n", ComponentFiles[FileNr].c_str(), TP.GetReadPosByte());
         }

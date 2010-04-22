@@ -23,10 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Model_cmdl.hpp"
 #include "Loader.hpp"
-#include "ConsoleCommands/Console.hpp"
-#include "ConsoleCommands/ConVar.hpp"
 #include "MaterialSystem/Material.hpp"
-#include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/BoundingBox.hpp"
 
@@ -75,7 +72,12 @@ CafuModelT::CafuModelT(ModelLoaderT& Loader)
       m_Draw_CachedDataAtSequNr(-1234),             // Just a random number that is unlikely to occur normally.
       m_Draw_CachedDataAtFrameNr(-3.1415926f)       // Just a random number that is unlikely to occur normally.
 {
-    Loader.Load(this);
+    Loader.Load(m_Joints, m_Meshes, m_Anims);
+
+    if (m_Joints.Size()==0) throw ModelT::LoadError();
+    if (m_Meshes.Size()==0) throw ModelT::LoadError();
+
+    InitMeshes();
 
 
     // Allocate the cache space that is needed for drawing.
@@ -88,36 +90,6 @@ CafuModelT::CafuModelT(ModelLoaderT& Loader)
      // m_Draw_Meshes[MeshNr].Winding=MatSys::MeshT::CW;    // CW is the default.
         m_Draw_Meshes[MeshNr].Vertices.PushBackEmpty(m_Meshes[MeshNr].Triangles.Size()*3);
     }
-}
-
-
-MaterialT* CafuModelT::GetMaterialByName(const std::string& MaterialName) const
-{
-    MaterialT* Material=MaterialManager->GetMaterial(MaterialName);
-
-    if (Material==NULL)
-    {
-        static ConVarT ModelReplacementMaterial("modelReplaceMat", "meta/model_replacement", 0, "Replacement for unknown materials of models.", NULL);
-
-        Console->Warning("Model \""+m_FileName+"\" refers to unknown material \""+MaterialName+"\". "
-            "Replacing the material with \""+ModelReplacementMaterial.GetValueString()+"\".\n");
-
-        Material=MaterialManager->GetMaterial(ModelReplacementMaterial.GetValueString());
-    }
-
-    if (Material==NULL)
-    {
-        Console->Warning("The replacement material is also unknown - the model will NOT render!\n");
-    }
-
-    if (Material!=NULL && !Material->LightMapComp.IsEmpty())
-    {
-        Console->Warning("Model \""+m_FileName+"\" uses material \""+MaterialName+"\", which in turn has lightmaps defined.\n"
-            "It will work in the ModelViewer, but for other applications like Cafu itself you should use a material without lightmaps.\n");
-            // It works in the ModelViewer because the ModelViewer is kind enough to provide a default lightmap...
-    }
-
-    return Material;
 }
 
 

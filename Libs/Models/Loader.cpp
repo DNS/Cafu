@@ -22,3 +22,43 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Loader.hpp"
+#include "ConsoleCommands/Console.hpp"
+#include "ConsoleCommands/ConVar.hpp"
+#include "MaterialSystem/Material.hpp"
+#include "MaterialSystem/MaterialManager.hpp"
+
+
+ModelLoaderT::ModelLoaderT(const std::string& FileName)
+    : m_FileName(FileName)
+{
+}
+
+
+MaterialT* ModelLoaderT::GetMaterialByName(const std::string& MaterialName) const
+{
+    MaterialT* Material=MaterialManager->GetMaterial(MaterialName);
+
+    if (Material==NULL)
+    {
+        static ConVarT ModelReplacementMaterial("modelReplaceMat", "meta/model_replacement", 0, "Replacement for unknown materials of models.", NULL);
+
+        Console->Warning("Model \""+m_FileName+"\" refers to unknown material \""+MaterialName+"\". "
+            "Replacing the material with \""+ModelReplacementMaterial.GetValueString()+"\".\n");
+
+        Material=MaterialManager->GetMaterial(ModelReplacementMaterial.GetValueString());
+    }
+
+    if (Material==NULL)
+    {
+        Console->Warning("The replacement material is also unknown - the model will NOT render!\n");
+    }
+
+    if (Material!=NULL && !Material->LightMapComp.IsEmpty())
+    {
+        Console->Warning("Model \""+m_FileName+"\" uses material \""+MaterialName+"\", which in turn has lightmaps defined.\n"
+            "It will work in the ModelViewer, but for other applications like Cafu itself you should use a material without lightmaps.\n");
+            // It works in the ModelViewer because the ModelViewer is kind enough to provide a default lightmap...
+    }
+
+    return Material;
+}

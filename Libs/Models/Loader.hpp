@@ -27,7 +27,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Model_cmdl.hpp"
 
 
-//XXX TODO: It should be ModelLoaderT::LoadErrorT, not ModelT::LoadError.
 /// The base class for importing arbitrary model files into Cafu models.
 /// The concrete derived classes determine which specific file format is imported.
 class ModelLoaderT
@@ -35,8 +34,7 @@ class ModelLoaderT
     public:
 
     /// The constructor.
-    ModelLoaderT(const std::string& FileName)
-        : m_FileName(FileName) { }
+    ModelLoaderT(const std::string& FileName);
 
     /// Returns the file name of the imported model.
     const std::string& GetFileName() const { return m_FileName; }
@@ -47,11 +45,13 @@ class ModelLoaderT
     /// or whether the Cafu model should recompute the tangent space (possibly after animation) itself.
     virtual bool UseGivenTS() const=0;
 
-    /// Actually loads the file into the given Cafu model.
-    virtual void Load(CafuModelT* Model)=0;
+    /// Actually loads the file data into the approproate parts of the Cafu model.
+    virtual void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims)=0;
 
 
     protected:
+
+    MaterialT* GetMaterialByName(const std::string& MaterialName) const;
 
     const std::string m_FileName;
 };

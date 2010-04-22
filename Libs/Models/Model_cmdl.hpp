@@ -41,42 +41,15 @@ class CafuModelT : public ModelT
 {
     public:
 
-    /// Creates a new Cafu model from a file as directed by the given model loader.
-    /// @param Loader   The model loader that actually imports the file and fills in the model data.
-    CafuModelT(ModelLoaderT& Loader);
-
-    /// The destructor.
-    ~CafuModelT();
-
-    // The ModelT interface.
-    const std::string& GetFileName() const;
-    void               Draw(int SequenceNr, float FrameNr, float LodDist, const ModelT* SubModel=NULL) const;
-    bool               GetGuiPlane(int SequenceNr, float FrameNr, float LodDist, Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const;
-    void               Print() const;
-    int                GetNrOfSequences() const;
-    const float*       GetSequenceBB(int SequenceNr, float FrameNr) const;
- // float              GetNrOfFrames(int SequenceNr) const;
-    float              AdvanceFrameNr(int SequenceNr, float FrameNr, float DeltaTime, bool Loop=true) const;
-
-
-    protected:
-
-    friend class LoaderLwoT;
-    friend class LoaderMd5T;
-
-    MaterialT* GetMaterialByName(const std::string& MaterialName) const;    ///< An auxiliary method for the constructors.
-    void InitMeshes();                                                      ///< An auxiliary method for the constructors.
-    void UpdateCachedDrawData(int SequenceNr, float FrameNr) const;         ///< A private auxiliary method.
-
-
-    /// DOCTODO
+    /// A joint is a bone in the hierarchical skeleton of the model.
     struct JointT
     {
-        std::string Name;   ///< DOCTODO
-        int         Parent; ///< DOCTODO
-        Vector3fT   Pos;    ///< DOCTODO
-        Vector3fT   Qtr;    ///< DOCTODO
+        std::string Name;
+        int         Parent;
+        Vector3fT   Pos;
+        Vector3fT   Qtr;
     };
+
 
     /// A mesh consisting of a material and a list of vertices.
     struct MeshT
@@ -84,12 +57,12 @@ class CafuModelT : public ModelT
         /// A single triangle.
         struct TriangleT
         {
-            int       VertexIdx[3]; ///< The indices to the three vertices that define this triangle.
+            int       VertexIdx[3];     ///< The indices to the three vertices that define this triangle.
 
-            int       NeighbIdx[3]; ///< The array indices of the three neighbouring triangles at the edges 01, 12 and 20. -1 indicates no neighbour, -2 indicates more than one neighbour.
-            bool      Polarity;     ///< True if this triangle has positive polarity (texture is not mirrored), or false if it has negative polarity (texture is mirrored, SxT points inward).
+            int       NeighbIdx[3];     ///< The array indices of the three neighbouring triangles at the edges 01, 12 and 20. -1 indicates no neighbour, -2 indicates more than one neighbour.
+            bool      Polarity;         ///< True if this triangle has positive polarity (texture is not mirrored), or false if it has negative polarity (texture is mirrored, SxT points inward).
 
-            Vector3fT Draw_Normal;  ///< The draw normal for this triangle, required for the shadow-silhouette determination.
+            Vector3fT Draw_Normal;      ///< The draw normal for this triangle, required for the shadow-silhouette determination.
         };
 
         /// A single vertex.
@@ -97,25 +70,25 @@ class CafuModelT : public ModelT
         {
             float       u;              ///< Texture coordinate u.
             float       v;              ///< Texture coordinate v.
-            int         FirstWeightIdx; ///< DOCTODO
-            int         NumWeights;     ///< DOCTODO
+            int         FirstWeightIdx;
+            int         NumWeights;
 
-            bool        Polarity;   ///< True if this vertex belongs to triangles with positive polarity, false if it belongs to triangles with negative polarity. Note that a single vertex cannot belong to triangles of both positive and negative polarity (but a GeoDup of this vertex can belong to the other polarity).
-            ArrayT<int> GeoDups;    ///< This array contains the indices of vertices that are geometrical duplicates of this vertex, see AreVerticesGeoDups() for more information. The indices are stored in increasing order, and do *not* include the index of "this" vertex. Note that from the presence of GeoDups in a cmdl/md5 file we can *not* conclude that a break in the smoothing was intended by the modeller. Cylindrically wrapping seams are one counter-example.
+            bool        Polarity;       ///< True if this vertex belongs to triangles with positive polarity, false if it belongs to triangles with negative polarity. Note that a single vertex cannot belong to triangles of both positive and negative polarity (but a GeoDup of this vertex can belong to the other polarity).
+            ArrayT<int> GeoDups;        ///< This array contains the indices of vertices that are geometrical duplicates of this vertex, see AreVerticesGeoDups() for more information. The indices are stored in increasing order, and do *not* include the index of "this" vertex. Note that from the presence of GeoDups in a cmdl/md5 file we can *not* conclude that a break in the smoothing was intended by the modeller. Cylindrically wrapping seams are one counter-example.
 
-            Vector3fT   Draw_Pos;      ///< Position of this vertex.
-            Vector3fT   Draw_Normal;   ///< Vertex normal.
-            Vector3fT   Draw_Tangent;  ///< Vertex tangent.
-            Vector3fT   Draw_BiNormal; ///< Vertex binormal.
+            Vector3fT   Draw_Pos;       ///< Position of this vertex.
+            Vector3fT   Draw_Normal;    ///< Vertex normal.
+            Vector3fT   Draw_Tangent;   ///< Vertex tangent.
+            Vector3fT   Draw_BiNormal;  ///< Vertex binormal.
         };
 
-        /// DOCTODO
         struct WeightT
         {
-            int       JointIdx; ///< DOCTODO
-            float     Weight;   ///< DOCTODO
-            Vector3fT Pos;      ///< DOCTODO
+            int       JointIdx;
+            float     Weight;
+            Vector3fT Pos;
         };
+
 
         /// Determines whether the two vertices with array indices Vertex1Nr and Vertex2Nr are geometrical duplicates of each other.
         /// Two distinct vertices are geometrical duplicates of each other if
@@ -135,46 +108,71 @@ class CafuModelT : public ModelT
         ArrayT<WeightT>          Weights;        ///< DOCTODO
     };
 
+
     /// There is one AnimT object per .md5anim file.
     /// With the help of one AnimT structure we can obtain an array of joints (ArrayT<JointT>, like m_Joints) for each frame of that animation sequence.
     struct AnimT
     {
-        /// DOCTODO
         struct AnimJointT
         {
-         // std::string   Name;             ///< Checked to be identical with the name  of the base mesh (from the md5mesh file) at load time.
-         // int           Parent;           ///< Checked to be identical with the value of the base mesh (from the md5mesh file) at load time.
+         // std::string   Name;             ///< Checked to be identical with the name  of the base mesh at load time.
+         // int           Parent;           ///< Checked to be identical with the value of the base mesh at load time.
             float         BaseValues[6];    ///< One position and one quaternion triple that define the common base frame that is shared across all frames.
-            unsigned long Flags;            ///< DOCTODO
+            unsigned long Flags;
             int           FirstDataIdx;     ///< If f is the current frame, this is the index into Frames[f].AnimData[...].
          // int           NumDatas;         ///< There are so many data values as there are bits set in Flags.
         };
 
-        /// One frame of an animation.
+        /// A keyframe in the animation.
         struct FrameT
         {
-            float         BB[6];    ///< The bounding box of the model in this frame.
-            ArrayT<float> AnimData; ///< DOCTODO
+            float         BB[6];            ///< The bounding box of the model in this frame.
+            ArrayT<float> AnimData;
         };
 
-        float              FPS;         ///< Framerate for this animation sequence.
-        ArrayT<AnimJointT> AnimJoints;  ///< Hierarchy.Size() == m_Joints.Size()
-        ArrayT<FrameT>     Frames;      ///< List of frames this animation consists of.
+
+        float              FPS;             ///< Framerate for this animation sequence.
+        ArrayT<AnimJointT> AnimJoints;      ///< AnimJoints.Size() == m_Joints.Size()
+        ArrayT<FrameT>     Frames;          ///< List of frames this animation consists of.
     };
 
 
+    /// The constructor. Creates a new Cafu model from a file as directed by the given model loader.
+    /// @param Loader   The model loader that actually imports the file and fills in the model data.
+    CafuModelT(ModelLoaderT& Loader);
+
+    /// The destructor.
+    ~CafuModelT();
+
+    // The ModelT interface.
+    const std::string& GetFileName() const;
+    void               Draw(int SequenceNr, float FrameNr, float LodDist, const ModelT* SubModel=NULL) const;
+    bool               GetGuiPlane(int SequenceNr, float FrameNr, float LodDist, Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const;
+    void               Print() const;
+    int                GetNrOfSequences() const;
+    const float*       GetSequenceBB(int SequenceNr, float FrameNr) const;
+ // float              GetNrOfFrames(int SequenceNr) const;
+    float              AdvanceFrameNr(int SequenceNr, float FrameNr, float DeltaTime, bool Loop=true) const;
+
+
+    private:
+
+    void InitMeshes();                                                      ///< An auxiliary method for the constructors.
+    void UpdateCachedDrawData(int SequenceNr, float FrameNr) const;         ///< A private auxiliary method.
+
+
     const std::string     m_FileName;             ///< File name of this model.
-    const bool            m_UseGivenTangentSpace; ///< DOCTODO
+    const bool            m_UseGivenTangentSpace;
     ArrayT<JointT>        m_Joints;               ///< Array of joints of this model.
     mutable ArrayT<MeshT> m_Meshes;               ///< Array of (sub)meshes of this model.
-    float                 m_BaseBB[6];            ///< DOCTODO
+    float                 m_BaseBB[6];
     ArrayT<AnimT>         m_Anims;                ///< Array of animations of this model.
 
-    mutable ArrayT<MatrixT>       m_Draw_JointMatrices; ///< DOCTODO
-    mutable ArrayT<MatSys::MeshT> m_Draw_Meshes; ///< DOCTODO
+    mutable ArrayT<MatrixT>       m_Draw_JointMatrices;
+    mutable ArrayT<MatSys::MeshT> m_Draw_Meshes;
 
-    mutable int   m_Draw_CachedDataAtSequNr; ///< DOCTODO
-    mutable float m_Draw_CachedDataAtFrameNr; ///< DOCTODO
+    mutable int   m_Draw_CachedDataAtSequNr;
+    mutable float m_Draw_CachedDataAtFrameNr;
 };
 
 #endif

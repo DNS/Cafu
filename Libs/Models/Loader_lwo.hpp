@@ -37,7 +37,7 @@ class LoaderLwoT : public ModelLoaderT
     LoaderLwoT(const std::string& FileName) /*throw (ModelT::LoadError)*/;
 
     bool UseGivenTS() const { return true; }
-    void Load(CafuModelT* Model);
+    void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims);
 
 
     private:

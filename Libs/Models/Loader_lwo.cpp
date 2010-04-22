@@ -230,7 +230,7 @@ LoaderLwoT::LoaderLwoT(const std::string& FileName) /*throw (ModelT::LoadError)*
 }
 
 
-void LoaderLwoT::Load(CafuModelT* Model)
+void LoaderLwoT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims)
 {
     char*     fname=strdup(m_FileName.c_str());
     lwObject* lwo=lwGetObject(fname, NULL, NULL);
@@ -245,12 +245,12 @@ void LoaderLwoT::Load(CafuModelT* Model)
 
     // Create a default "identity" joint.
     // That single joint is used for (shared by) all weights of all meshes.
-    Model->m_Joints.PushBackEmpty();
+    Joints.PushBackEmpty();
 
-    Model->m_Joints[0].Name  ="root";
-    Model->m_Joints[0].Parent=-1;
- // Model->m_Joints[0].Pos   =Vector3fT();
- // Model->m_Joints[0].Qtr   =Vector3fT();  // Identity quaternion...
+    Joints[0].Name  ="root";
+    Joints[0].Parent=-1;
+ // Joints[0].Pos   =Vector3fT();
+ // Joints[0].Qtr   =Vector3fT();   // Identity quaternion...
 
     ArrayT<unsigned long> PolygonMeshVertices;   // An auxiliary array used below.
 
@@ -259,28 +259,28 @@ void LoaderLwoT::Load(CafuModelT* Model)
     {
         // PrintLayerLWO(Layer);
 
-        // For each LWO layer, create a matching MeshT in m_Meshes.
+        // For each LWO layer, create a matching MeshT in Meshes.
         // LWO layers and MeshTs match nicely wrt. the vertices, but note that MeshTs can only have a single material for all triangles,
         // whereas with LWO layers, theoretically each *polygon* can have an individual material.
         // We solve/work-around the problem by creating one MeshT for each material used in the layer, duplicating the vertices.
         // TODO: Either "optimize" the meshes by removing vertices that are unused in each mesh
         //       OR (BETTER!) update the MeshTs so that they are able to share common vertices (and weights...) lists,
         //       OR (BETTER??) update the MeshT::TriangleTs to have an individual material pointer... (no... bad for large triangle batch sizes...).
-        std::map<lwSurface*, unsigned long> MatToMeshNr;     // Maps lwSurface pointers to indices into m_Meshes.
+        std::map<lwSurface*, unsigned long> MatToMeshNr;     // Maps lwSurface pointers to indices into Meshes.
 
         // This loop is only to create a separate mesh for each material in the layer.
         for (int PolyNr=0; PolyNr<Layer->polygon.count; PolyNr++)
         {
             const lwPolygon& Poly=Layer->polygon.pol[PolyNr];
 
-            if (Poly.type!=ID_FACE) continue;   // Silently ignore non-face polygons here, an excplicit warning is issued below. Note: No m_Meshes entry is created for surfaces that only exist on non-face polygons!
+            if (Poly.type!=ID_FACE) continue;   // Silently ignore non-face polygons here, an excplicit warning is issued below. Note: No Meshes entry is created for surfaces that only exist on non-face polygons!
             if (MatToMeshNr.find(Poly.surf)!=MatToMeshNr.end()) continue;
 
-            Model->m_Meshes.PushBackEmpty();
-            MatToMeshNr[Poly.surf]=Model->m_Meshes.Size()-1;
-            CafuModelT::MeshT& Mesh=Model->m_Meshes[Model->m_Meshes.Size()-1];
+            Meshes.PushBackEmpty();
+            MatToMeshNr[Poly.surf]=Meshes.Size()-1;
+            CafuModelT::MeshT& Mesh=Meshes[Meshes.Size()-1];
 
-            Mesh.Material      =Model->GetMaterialByName(Poly.surf->name);
+            Mesh.Material      =GetMaterialByName(Poly.surf->name);
             Mesh.RenderMaterial=MatSys::Renderer!=NULL ? MatSys::Renderer->RegisterMaterial(Mesh.Material) :NULL;
 
 
@@ -301,12 +301,12 @@ void LoaderLwoT::Load(CafuModelT* Model)
             Console->Warning(cf::va("LWO layer uses %lu materials and thus has been duplicated into %lu meshes.\n", MatToMeshNr.size(), MatToMeshNr.size()));
 
 
-        // For each LWO surface (Cafu material), there is one mesh in m_Meshes.
+        // For each LWO surface (Cafu material), there is one mesh in Meshes.
         // So loop over the meshes, and for each mesh, loop over those polygons whose material matches that of the mesh (and skip the other polygons).
         // Then loop over the polygon vertices, in order to determine their uv-coordinates and eventually build the triangles list.
         for (std::map<lwSurface*, unsigned long>::const_iterator It=MatToMeshNr.begin(); It!=MatToMeshNr.end(); ++It)
         {
-            CafuModelT::MeshT& Mesh=Model->m_Meshes[It->second];
+            CafuModelT::MeshT& Mesh=Meshes[It->second];
 
             // For each weight in Mesh.Weights[], which corresponds to Layer->point.pt[], keep track of how many Mesh.Vertices[] refer to that weight.
             // This is done by keeping a Mesh.Vertices[] indices list in parallel to the Mesh.Weights[] array.
@@ -432,14 +432,8 @@ void LoaderLwoT::Load(CafuModelT* Model)
 
     lwFreeObject(lwo);
 
-    if (Model->m_Joints.Size()==0) throw ModelT::LoadError();
-    if (Model->m_Meshes.Size()==0) throw ModelT::LoadError();
-
-    // for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
-    //     Console->Print(cf::va("Mesh %lu: %lu weights, %lu vertices, %lu triangles.\n", MeshNr, m_Meshes[MeshNr].Weights.Size(), m_Meshes[MeshNr].Vertices.Size(), m_Meshes[MeshNr].Triangles.Size()));
-
-
-    Model->InitMeshes();
+    // for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
+    //     Console->Print(cf::va("Mesh %lu: %lu weights, %lu vertices, %lu triangles.\n", MeshNr, Meshes[MeshNr].Weights.Size(), Meshes[MeshNr].Vertices.Size(), Meshes[MeshNr].Triangles.Size()));
 }
 
 
