@@ -41,54 +41,19 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #endif
 
 
-// Skips a { ... } block in TP. The block can contain nested blocks.
-// It can (and must) be stated if the caller has already read the opening brace.
-static void SkipBlock(TextParserT& TP, bool CallerAlreadyReadOpeningBrace)
-{
-    if (!CallerAlreadyReadOpeningBrace) TP.GetNextToken();
-
-    unsigned long NestedLevel=1;
-
-    while (true)
-    {
-        const std::string Token=TP.GetNextToken();
-
-        if (Token=="{") NestedLevel++;
-
-        if (Token=="}")
-        {
-            NestedLevel--;
-            if (NestedLevel==0) break;
-        }
-    }
-}
-
-
-static void AssertNextTokenIs(TextParserT& TP, const std::string& Ref)
-{
-    std::string Token=TP.GetNextToken();
-
-    if (Token!=Ref)
-    {
-        printf("Expected \"%s\", found \"%s\".\n", Ref.c_str(), Token.c_str());
-        throw TextParserT::ParseError();
-    }
-}
-
-
 void ModelAseT::ReadMaterials(TextParserT& TP)
 {
     // Last seen token was "*MATERIAL_LIST".
-    AssertNextTokenIs(TP, "{");
-    AssertNextTokenIs(TP, "*MATERIAL_COUNT");
+    TP.AssertAndSkipToken("{");
+    TP.AssertAndSkipToken("*MATERIAL_COUNT");
 
     const unsigned long ExpectedNrOfMaterials=strtoul(TP.GetNextToken().c_str(), NULL, 0);
 
     for (unsigned long MaterialNr=0; MaterialNr<ExpectedNrOfMaterials; MaterialNr++)
     {
-        AssertNextTokenIs(TP, "*MATERIAL");
+        TP.AssertAndSkipToken("*MATERIAL");
         if (strtoul(TP.GetNextToken().c_str(), NULL, 0)!=MaterialNr) throw TextParserT::ParseError();
-        AssertNextTokenIs(TP, "{");
+        TP.AssertAndSkipToken("{");
 
         // Now do just search for "*MATERIAL_NAME" in this material block.
         while (true)
@@ -99,13 +64,13 @@ void ModelAseT::ReadMaterials(TextParserT& TP)
             {
                 // Good, found the material name.
                 MaterialNames.PushBack(TP.GetNextToken());  // Store the material name.
-                SkipBlock(TP, true);                        // Skip the rest of this *MATERIAL block.
+                TP.SkipBlock("{", "}", true);               // Skip the rest of this *MATERIAL block.
                 break;                                      // Proceed with the next material.
             }
             else if (Token=="{")
             {
                 // Nested block found - skip it and continue the search.
-                SkipBlock(TP, true);
+                TP.SkipBlock("{", "}", true);
             }
             else if (Token=="}")
             {
@@ -122,19 +87,19 @@ void ModelAseT::ReadMaterials(TextParserT& TP)
         }
     }
 
-    AssertNextTokenIs(TP, "}");
+    TP.AssertAndSkipToken("}");
 }
 
 
 void ModelAseT::GeomObjectT::ReadMesh(TextParserT& TP)
 {
     // Last seen token was "*MESH".
-    AssertNextTokenIs(TP, "{");
+    TP.AssertAndSkipToken("{");
 
     if (Vertices.Size()>0 || TexCoords.Size()>0 || Triangles.Size()>0)
     {
         printf("Warning: More than one mesh per \"*GEOMOBJECT\"!? Skipping...\n");
-        SkipBlock(TP, true);
+        TP.SkipBlock("{", "}", true);
         return;
     }
 
@@ -150,11 +115,11 @@ void ModelAseT::GeomObjectT::ReadMesh(TextParserT& TP)
         else if (Token=="*MESH_NUMVERTEX"  ) ExpectedNrOfVertices =strtoul(TP.GetNextToken().c_str(), NULL, 0);
         else if (Token=="*MESH_VERTEX_LIST")
         {
-            AssertNextTokenIs(TP, "{");
+            TP.AssertAndSkipToken("{");
 
             for (unsigned long VertexNr=0; VertexNr<ExpectedNrOfVertices; VertexNr++)
             {
-                AssertNextTokenIs(TP, "*MESH_VERTEX");
+                TP.AssertAndSkipToken("*MESH_VERTEX");
                 if (strtoul(TP.GetNextToken().c_str(), NULL, 0)!=VertexNr) throw TextParserT::ParseError();
 
                 // This cannot be collapsed to VectorT(atof(...), atof(...), atof(...)), because
@@ -166,30 +131,30 @@ void ModelAseT::GeomObjectT::ReadMesh(TextParserT& TP)
                 Vertices.PushBack(Vert);
             }
 
-            AssertNextTokenIs(TP, "}");
+            TP.AssertAndSkipToken("}");
         }
         else if (Token=="*MESH_NUMFACES"   ) ExpectedNrOfFaces    =strtoul(TP.GetNextToken().c_str(), NULL, 0);
         else if (Token=="*MESH_FACE_LIST"  )
         {
-            AssertNextTokenIs(TP, "{");
+            TP.AssertAndSkipToken("{");
 
             Triangles.PushBackEmpty(ExpectedNrOfFaces-Triangles.Size());
 
             for (unsigned long FaceNr=0; FaceNr<ExpectedNrOfFaces; FaceNr++)
             {
-                AssertNextTokenIs(TP, "*MESH_FACE");
+                TP.AssertAndSkipToken("*MESH_FACE");
                 // The colon in the token (ex.: "0:") is ignored by strtoul().
                 if (strtoul(TP.GetNextToken().c_str(), NULL, 0)!=FaceNr) throw TextParserT::ParseError();
 
-                AssertNextTokenIs(TP, "A:"); Triangles[FaceNr].IndVertices[0]=strtoul(TP.GetNextToken().c_str(), NULL, 0);
-                AssertNextTokenIs(TP, "B:"); Triangles[FaceNr].IndVertices[1]=strtoul(TP.GetNextToken().c_str(), NULL, 0);
-                AssertNextTokenIs(TP, "C:"); Triangles[FaceNr].IndVertices[2]=strtoul(TP.GetNextToken().c_str(), NULL, 0);
+                TP.AssertAndSkipToken("A:"); Triangles[FaceNr].IndVertices[0]=strtoul(TP.GetNextToken().c_str(), NULL, 0);
+                TP.AssertAndSkipToken("B:"); Triangles[FaceNr].IndVertices[1]=strtoul(TP.GetNextToken().c_str(), NULL, 0);
+                TP.AssertAndSkipToken("C:"); Triangles[FaceNr].IndVertices[2]=strtoul(TP.GetNextToken().c_str(), NULL, 0);
 
-                AssertNextTokenIs(TP, "AB:"); TP.GetNextToken();    // Ignore this edge flag.
-                AssertNextTokenIs(TP, "BC:"); TP.GetNextToken();    // Ignore this edge flag.
-                AssertNextTokenIs(TP, "CA:"); TP.GetNextToken();    // Ignore this edge flag.
+                TP.AssertAndSkipToken("AB:"); TP.GetNextToken();    // Ignore this edge flag.
+                TP.AssertAndSkipToken("BC:"); TP.GetNextToken();    // Ignore this edge flag.
+                TP.AssertAndSkipToken("CA:"); TP.GetNextToken();    // Ignore this edge flag.
 
-                AssertNextTokenIs(TP, "*MESH_SMOOTHING");
+                TP.AssertAndSkipToken("*MESH_SMOOTHING");
                 while (true)
                 {
                     std::string SmoothGroupString=TP.GetNextToken();
@@ -209,16 +174,16 @@ void ModelAseT::GeomObjectT::ReadMesh(TextParserT& TP)
                 TP.GetNextToken();  // Right: Ignore the sub-material number.
             }
 
-            AssertNextTokenIs(TP, "}");
+            TP.AssertAndSkipToken("}");
         }
         else if (Token=="*MESH_NUMTVERTEX" ) ExpectedNrOfTexCoords=strtoul(TP.GetNextToken().c_str(), NULL, 0);
         else if (Token=="*MESH_TVERTLIST"  )
         {
-            AssertNextTokenIs(TP, "{");
+            TP.AssertAndSkipToken("{");
 
             for (unsigned long TexCoordNr=0; TexCoordNr<ExpectedNrOfTexCoords; TexCoordNr++)
             {
-                AssertNextTokenIs(TP, "*MESH_TVERT");
+                TP.AssertAndSkipToken("*MESH_TVERT");
                 if (strtoul(TP.GetNextToken().c_str(), NULL, 0)!=TexCoordNr) throw TextParserT::ParseError();
 
                 // This cannot be collapsed to VectorT(atof(...), atof(...), atof(...)), because
@@ -230,7 +195,7 @@ void ModelAseT::GeomObjectT::ReadMesh(TextParserT& TP)
                 TexCoords.PushBack(TexCoord);
             }
 
-            AssertNextTokenIs(TP, "}");
+            TP.AssertAndSkipToken("}");
         }
         else if (Token=="*MESH_NUMTVFACES" )
         {
@@ -241,13 +206,13 @@ void ModelAseT::GeomObjectT::ReadMesh(TextParserT& TP)
         }
         else if (Token=="*MESH_TFACELIST"  )
         {
-            AssertNextTokenIs(TP, "{");
+            TP.AssertAndSkipToken("{");
 
             Triangles.PushBackEmpty(ExpectedNrOfFaces-Triangles.Size());
 
             for (unsigned long FaceNr=0; FaceNr<ExpectedNrOfFaces; FaceNr++)
             {
-                AssertNextTokenIs(TP, "*MESH_TFACE");
+                TP.AssertAndSkipToken("*MESH_TFACE");
                 if (strtoul(TP.GetNextToken().c_str(), NULL, 0)!=FaceNr) throw TextParserT::ParseError();
 
                 Triangles[FaceNr].IndTexCoords[0]=strtoul(TP.GetNextToken().c_str(), NULL, 0);
@@ -255,27 +220,27 @@ void ModelAseT::GeomObjectT::ReadMesh(TextParserT& TP)
                 Triangles[FaceNr].IndTexCoords[2]=strtoul(TP.GetNextToken().c_str(), NULL, 0);
             }
 
-            AssertNextTokenIs(TP, "}");
+            TP.AssertAndSkipToken("}");
         }
         else if (Token=="*MESH_MAPPINGCHANNEL")
         {
             // Ignore additional sets of TexCoords. I may change my mind later, though!
             TP.GetNextToken();
-            SkipBlock(TP, false);
+            TP.SkipBlock("{", "}", false);
         }
-        else if (Token=="*MESH_NUMCVERTEX") TP.GetNextToken();      // Ignore the number of color vertices.
-        else if (Token=="*MESH_CVERTLIST" ) SkipBlock(TP, false);   // Ignore the per-vertex color list.
-        else if (Token=="*MESH_NUMCVFACES") TP.GetNextToken();      // Ignore the number of color faces.
-        else if (Token=="*MESH_CFACELIST" ) SkipBlock(TP, false);   // Ignore the per-face color specifications.
-        else if (Token=="*MESH_NORMALS"   ) SkipBlock(TP, false);   // Ignore the normals - we compute the entire tangent space ourselves!
-        else if (Token=="}"               ) break;                  // End of mesh.
+        else if (Token=="*MESH_NUMCVERTEX") TP.GetNextToken();              // Ignore the number of color vertices.
+        else if (Token=="*MESH_CVERTLIST" ) TP.SkipBlock("{", "}", false);  // Ignore the per-vertex color list.
+        else if (Token=="*MESH_NUMCVFACES") TP.GetNextToken();              // Ignore the number of color faces.
+        else if (Token=="*MESH_CFACELIST" ) TP.SkipBlock("{", "}", false);  // Ignore the per-face color specifications.
+        else if (Token=="*MESH_NORMALS"   ) TP.SkipBlock("{", "}", false);  // Ignore the normals - we compute the entire tangent space ourselves!
+        else if (Token=="}"               ) break;                          // End of mesh.
         else
         {
             // Unknown token!
             // If the next token is a block start, skip the block.
             // Otherwise it was something else that we just throw away.
             printf("Unknown token \"%s\", skipping...\n", Token.c_str());
-            if (TP.GetNextToken()=="{") SkipBlock(TP, true);
+            if (TP.GetNextToken()=="{") TP.SkipBlock("{", "}", true);
         }
     }
 
@@ -305,7 +270,7 @@ void ModelAseT::GeomObjectT::ReadMesh(TextParserT& TP)
 void ModelAseT::ReadGeometry(TextParserT& TP)
 {
     // Last seen token was "*GEOMOBJECT".
-    AssertNextTokenIs(TP, "{");
+    TP.AssertAndSkipToken("{");
 
     GeomObjects.PushBackEmpty();
     GeomObjectT& GO=GeomObjects[GeomObjects.Size()-1];
@@ -317,22 +282,22 @@ void ModelAseT::ReadGeometry(TextParserT& TP)
     {
         const std::string Token=TP.GetNextToken();
 
-             if (Token=="*NODE_NAME"      ) TP.GetNextToken();      // Ignore the name of this object.
-        else if (Token=="*NODE_TM"        ) SkipBlock(TP, false);   // Ignore the transformation matrix specification. May change my mind later, though!
+             if (Token=="*NODE_NAME"      ) TP.GetNextToken();              // Ignore the name of this object.
+        else if (Token=="*NODE_TM"        ) TP.SkipBlock("{", "}", false);  // Ignore the transformation matrix specification. May change my mind later, though!
         else if (Token=="*MESH"           ) GO.ReadMesh(TP);
-        else if (Token=="*PROP_MOTIONBLUR") TP.GetNextToken();      // Ignore the "motion blur" property.
-        else if (Token=="*PROP_CASTSHADOW") GO.CastShadows=TP.GetNextToken()!="0";
-        else if (Token=="*PROP_RECVSHADOW") TP.GetNextToken();      // Ignore the "receive shadow" property.
-        else if (Token=="*TM_ANIMATION"   ) SkipBlock(TP, false);   // Ignore the specification of the transformation matrix for animation.
+        else if (Token=="*PROP_MOTIONBLUR") TP.GetNextToken();              // Ignore the "motion blur" property.
+        else if (Token=="*PROP_CASTSHADOW") GO.CastShadows=(TP.GetNextToken()!="0");
+        else if (Token=="*PROP_RECVSHADOW") TP.GetNextToken();              // Ignore the "receive shadow" property.
+        else if (Token=="*TM_ANIMATION"   ) TP.SkipBlock("{", "}", false);  // Ignore the specification of the transformation matrix for animation.
         else if (Token=="*MATERIAL_REF"   ) GO.IndexMaterial=strtoul(TP.GetNextToken().c_str(), NULL, 0);
-        else if (Token=="}"               ) break;                  // End of object.
+        else if (Token=="}"               ) break;                          // End of object.
         else
         {
             // Unknown token!
             // If the next token is a block start, skip the block.
             // Otherwise it was something else that we just throw away.
             printf("Unknown token \"%s\", skipping...\n", Token.c_str());
-            if (TP.GetNextToken()=="{") SkipBlock(TP, true);
+            if (TP.GetNextToken()=="{") TP.SkipBlock("{", "}", true);
         }
     }
 }
@@ -359,20 +324,20 @@ ModelAseT::ModelAseT(const std::string& FileName_) /*throw (ModelT::LoadError)*/
         {
             const std::string Token=TP.GetNextToken();
 
-                 if (Token=="*3DSMAX_ASCIIEXPORT") TP.GetNextToken();       // Ignore the version.
-            else if (Token=="*COMMENT"           ) TP.GetNextToken();       // Ignore the comment.
-            else if (Token=="*SCENE"             ) SkipBlock(TP, false);    // Ignore the scene description.
+                 if (Token=="*3DSMAX_ASCIIEXPORT") TP.GetNextToken();               // Ignore the version.
+            else if (Token=="*COMMENT"           ) TP.GetNextToken();               // Ignore the comment.
+            else if (Token=="*SCENE"             ) TP.SkipBlock("{", "}", false);   // Ignore the scene description.
             else if (Token=="*MATERIAL_LIST"     ) ReadMaterials(TP);
             else if (Token=="*GEOMOBJECT"        ) ReadGeometry(TP);
-            else if (Token=="*LIGHTOBJECT"       ) SkipBlock(TP, false);
-            else if (Token=="*CAMERAOBJECT"      ) SkipBlock(TP, false);
+            else if (Token=="*LIGHTOBJECT"       ) TP.SkipBlock("{", "}", false);
+            else if (Token=="*CAMERAOBJECT"      ) TP.SkipBlock("{", "}", false);
             else
             {
                 // Unknown token!
                 // If the next token is a block start, skip the block.
                 // Otherwise it was something else that we just throw away.
                 printf("Unknown token \"%s\", skipping...\n", Token.c_str());
-                if (TP.GetNextToken()=="{") SkipBlock(TP, true);
+                if (TP.GetNextToken()=="{") TP.SkipBlock("{", "}", true);
             }
         }
 

@@ -64,7 +64,7 @@ class ModelAseT : public ModelT
 
     private:
 
-    /// A gemometric object.
+    /// A geometric object.
     struct GeomObjectT
     {
         /// A single triangle.

@@ -82,6 +82,7 @@ class CafuModelT : public ModelT
             Vector3fT   Draw_BiNormal;  ///< Vertex binormal.
         };
 
+        /// A weight is a fixed position in the coordinate system of a joint.
         struct WeightT
         {
             int       JointIdx;
@@ -105,7 +106,7 @@ class CafuModelT : public ModelT
         MatSys::RenderMaterialT* RenderMaterial; ///< The render material used to render this mesh.
         ArrayT<TriangleT>        Triangles;      ///< List of triangles this mesh consists of.
         ArrayT<VertexT>          Vertices;       ///< List of vertices this mesh consists of.
-        ArrayT<WeightT>          Weights;        ///< DOCTODO
+        ArrayT<WeightT>          Weights;        ///< List of weights that are attached to the skeleton (hierarchy of bones/joints).
     };
 
 
@@ -163,6 +164,7 @@ class CafuModelT : public ModelT
 
     const std::string     m_FileName;             ///< File name of this model.
     const bool            m_UseGivenTangentSpace;
+ // const bool            m_CastShadows;          ///< Should this model cast shadows?
     ArrayT<JointT>        m_Joints;               ///< Array of joints of this model.
     mutable ArrayT<MeshT> m_Meshes;               ///< Array of (sub)meshes of this model.
     float                 m_BaseBB[6];

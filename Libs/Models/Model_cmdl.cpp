@@ -93,6 +93,15 @@ CafuModelT::CafuModelT(ModelLoaderT& Loader)
 }
 
 
+CafuModelT::~CafuModelT()
+{
+    if (MatSys::Renderer==NULL) return;
+
+    for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
+        MatSys::Renderer->FreeMaterial(m_Meshes[MeshNr].RenderMaterial);
+}
+
+
 void CafuModelT::InitMeshes()
 {
     // Compute the bounding box for the model in the md5mesh file (stored in m_BaseBB), just in case this model has no animations.
@@ -438,15 +447,6 @@ void CafuModelT::InitMeshes()
         }
 #endif
     }
-}
-
-
-CafuModelT::~CafuModelT()
-{
-    if (MatSys::Renderer==NULL) return;
-
-    for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
-        MatSys::Renderer->FreeMaterial(m_Meshes[MeshNr].RenderMaterial);
 }
 
 
