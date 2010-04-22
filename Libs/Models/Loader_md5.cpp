@@ -26,6 +26,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "TextParser/TextParser.hpp"
 #include "String.hpp"
 
+#include <stdio.h>
+
 
 LoaderMd5T::LoaderMd5T(const std::string& FileName) /*throw (ModelT::LoadError)*/
     : ModelLoaderT(FileName)

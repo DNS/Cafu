@@ -129,10 +129,10 @@ ModelProxyT::ModelProxyT(const std::string& FileName)
              if (cf::String::EndsWith(FileName, "ase"    )) NewModel=new ModelAseT (FileName);
         else if (cf::String::EndsWith(FileName, "dlod"   )) NewModel=new ModelDlodT(FileName);
         else if (cf::String::EndsWith(FileName, "mdl"    )) NewModel=new ModelMdlT (FileName);
-        else if (cf::String::EndsWith(FileName, "md5"    )) NewModel=new CafuModelT(LoaderMd5T(FileName));
-        else if (cf::String::EndsWith(FileName, "md5mesh")) NewModel=new CafuModelT(LoaderMd5T(FileName));
-        else if (cf::String::EndsWith(FileName, "md5anim")) NewModel=new CafuModelT(LoaderMd5T(FileName));
-        else if (cf::String::EndsWith(FileName, "lwo"    )) NewModel=new CafuModelT(LoaderLwoT(FileName));
+        else if (cf::String::EndsWith(FileName, "md5"    )) { LoaderMd5T Loader(FileName); NewModel=new CafuModelT(Loader); }
+        else if (cf::String::EndsWith(FileName, "md5mesh")) { LoaderMd5T Loader(FileName); NewModel=new CafuModelT(Loader); }
+        else if (cf::String::EndsWith(FileName, "md5anim")) { LoaderMd5T Loader(FileName); NewModel=new CafuModelT(Loader); }
+        else if (cf::String::EndsWith(FileName, "lwo"    )) { LoaderLwoT Loader(FileName); NewModel=new CafuModelT(Loader); }
         else throw ModelT::LoadError();
     }
     catch (const ModelT::LoadError&)

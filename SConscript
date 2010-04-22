@@ -79,7 +79,7 @@ envCafu = env.Clone()
 envCafu.Append(CPPPATH=['ExtLibs/lua/src'])
 
 CafuMainObj     = envCafu.StaticObject("Ca3DE/Ca3DE",      "Ca3DE/Cafu.cpp")
-CafuMainDediObj = envCafu.StaticObject("Ca3DE/Ca3DE-dedi", "Ca3DE/Cafu.cpp", CPPDEFINES=env['CPPDEFINES']+['CA3DE_DEDICATED_SERVER'])
+CafuMainDediObj = envCafu.StaticObject("Ca3DE/Ca3DE-dedi", "Ca3DE/Cafu.cpp", CPPDEFINES=env['CPPDEFINES']+['CAFU_DEDICATED_SERVER'])
 
 EngineCommonAndServerObjs = envCafu.StaticObject(Split("""
     Ca3DE/Both/Ca3DEWorld.cpp Ca3DE/Both/EntityManager.cpp Ca3DE/Both/EngineEntity.cpp
