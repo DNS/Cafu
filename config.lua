@@ -73,5 +73,4 @@ sv_rc_password="ca3de";     -- Change this for your own (dedicated) servers!
 cl_rc_password="ca3de";
 
 
-print("Ca3DE got hotter: Renamed to Cafu Engine!");
 print("config.lua processed.");
