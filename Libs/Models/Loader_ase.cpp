@@ -21,27 +21,16 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*****************/
-/*** ase Model ***/
-/*****************/
-
-#include <stdio.h>
-#include <assert.h>
-
-#include "Model_ase.hpp"
-#include "MaterialSystem/Material.hpp"
-#include "MaterialSystem/MaterialManager.hpp"
+#include "Loader_ase.hpp"
 #include "MaterialSystem/Renderer.hpp"
+#include "Math3D/BoundingBox.hpp"
 #include "TextParser/TextParser.hpp"
 
-#if defined(_WIN32) && defined (_MSC_VER)
-    #if (_MSC_VER<1300)
-        #define for if (false) ; else for
-    #endif
-#endif
+#include <assert.h>
+#include <stdio.h>
 
 
-void ModelAseT::ReadMaterials(TextParserT& TP)
+void LoaderAseT::ReadMaterials(TextParserT& TP)
 {
     // Last seen token was "*MATERIAL_LIST".
     TP.AssertAndSkipToken("{");
@@ -63,9 +52,9 @@ void ModelAseT::ReadMaterials(TextParserT& TP)
             if (Token=="*MATERIAL_NAME")
             {
                 // Good, found the material name.
-                MaterialNames.PushBack(TP.GetNextToken());  // Store the material name.
-                TP.SkipBlock("{", "}", true);               // Skip the rest of this *MATERIAL block.
-                break;                                      // Proceed with the next material.
+                m_MaterialNames.PushBack(TP.GetNextToken());    // Store the material name.
+                TP.SkipBlock("{", "}", true);                   // Skip the rest of this *MATERIAL block.
+                break;                                          // Proceed with the next material.
             }
             else if (Token=="{")
             {
@@ -76,7 +65,7 @@ void ModelAseT::ReadMaterials(TextParserT& TP)
             {
                 // Bad - end of material found, but no material name.
                 printf("Missing \"*MATERIAL_NAME\" in material %lu.\n", MaterialNr);
-                MaterialNames.PushBack("NoMaterial");   // Store a dummy name.
+                m_MaterialNames.PushBack("NoMaterial"); // Store a dummy name.
                 break;                                  // Proceed with the next material.
             }
             else
@@ -91,7 +80,7 @@ void ModelAseT::ReadMaterials(TextParserT& TP)
 }
 
 
-void ModelAseT::GeomObjectT::ReadMesh(TextParserT& TP)
+void LoaderAseT::GeomObjectT::ReadMesh(TextParserT& TP)
 {
     // Last seen token was "*MESH".
     TP.AssertAndSkipToken("{");
@@ -267,13 +256,13 @@ void ModelAseT::GeomObjectT::ReadMesh(TextParserT& TP)
 }
 
 
-void ModelAseT::ReadGeometry(TextParserT& TP)
+void LoaderAseT::ReadGeometry(TextParserT& TP)
 {
     // Last seen token was "*GEOMOBJECT".
     TP.AssertAndSkipToken("{");
 
-    GeomObjects.PushBackEmpty();
-    GeomObjectT& GO=GeomObjects[GeomObjects.Size()-1];
+    m_GeomObjects.PushBackEmpty();
+    GeomObjectT& GO=m_GeomObjects[m_GeomObjects.Size()-1];
 
     GO.IndexMaterial=0;
     GO.CastShadows=false;
@@ -303,16 +292,8 @@ void ModelAseT::ReadGeometry(TextParserT& TP)
 }
 
 
-static bool CompareGOIDs(const unsigned long& Pair1, const unsigned long& Pair2)
-{
-    // Just compare the lower WORDs with the material index, the upper WORDs contain the GONr.
-    return (Pair1 & 0xFFFF)<(Pair2 & 0xFFFF);
-}
-
-
-ModelAseT::ModelAseT(const std::string& FileName_) /*throw (ModelT::LoadError)*/
-    : FileName(FileName_),
-      Gui_GeomObjNr(-1)
+LoaderAseT::LoaderAseT(const std::string& FileName) /*throw (ModelT::LoadError)*/
+    : ModelLoaderT(FileName)
 {
     TextParserT TP(FileName.c_str(), ",");  // The comma is required for SmoothGroups.
 
@@ -341,8 +322,8 @@ ModelAseT::ModelAseT(const std::string& FileName_) /*throw (ModelT::LoadError)*/
             }
         }
 
-        if (MaterialNames.Size()==0) throw TextParserT::ParseError();
-        if (GeomObjects  .Size()==0) throw TextParserT::ParseError();
+        if (m_MaterialNames.Size()==0) throw TextParserT::ParseError();
+        if (m_GeomObjects  .Size()==0) throw TextParserT::ParseError();
     }
     catch (const TextParserT::ParseError&)
     {
@@ -363,10 +344,10 @@ ModelAseT::ModelAseT(const std::string& FileName_) /*throw (ModelT::LoadError)*/
     // We need this below in order to be able to obtain more unique SmoothGroup IDs.
     unsigned long NextSmoothGroupID=0;
 
-    for (unsigned long GONr=0; GONr<GeomObjects.Size(); GONr++)
-        for (unsigned long TriangleNr=0; TriangleNr<GeomObjects[GONr].Triangles.Size(); TriangleNr++)
+    for (unsigned long GONr=0; GONr<m_GeomObjects.Size(); GONr++)
+        for (unsigned long TriangleNr=0; TriangleNr<m_GeomObjects[GONr].Triangles.Size(); TriangleNr++)
         {
-            const GeomObjectT::TriangleT& Tri=GeomObjects[GONr].Triangles[TriangleNr];
+            const GeomObjectT::TriangleT& Tri=m_GeomObjects[GONr].Triangles[TriangleNr];
 
             for (unsigned long SGNr=0; SGNr<Tri.SmoothGroups.Size(); SGNr++)
                 if (Tri.SmoothGroups[SGNr]>=NextSmoothGroupID)
@@ -375,19 +356,19 @@ ModelAseT::ModelAseT(const std::string& FileName_) /*throw (ModelT::LoadError)*/
 
     // Now assign each triangle that is in NO SmoothGroup an own, UNIQUE SmoothGroup.
     // This avoids special-case treatment below, and is intentionally done ACROSS GeomObjects (rather than per GeomObject).
-    for (unsigned long GONr=0; GONr<GeomObjects.Size(); GONr++)
-        for (unsigned long TriangleNr=0; TriangleNr<GeomObjects[GONr].Triangles.Size(); TriangleNr++)
+    for (unsigned long GONr=0; GONr<m_GeomObjects.Size(); GONr++)
+        for (unsigned long TriangleNr=0; TriangleNr<m_GeomObjects[GONr].Triangles.Size(); TriangleNr++)
         {
-            GeomObjectT::TriangleT& Tri=GeomObjects[GONr].Triangles[TriangleNr];
+            GeomObjectT::TriangleT& Tri=m_GeomObjects[GONr].Triangles[TriangleNr];
 
             if (Tri.SmoothGroups.Size()==0) Tri.SmoothGroups.PushBack(NextSmoothGroupID++);
         }
 
 
-    // Compute the tangent space and neighbourhood relationship.
-    for (unsigned long GONr=0; GONr<GeomObjects.Size(); GONr++)
+    // Compute the tangent space vectors.
+    for (unsigned long GONr=0; GONr<m_GeomObjects.Size(); GONr++)
     {
-        GeomObjectT& GO=GeomObjects[GONr];
+        GeomObjectT& GO=m_GeomObjects[GONr];
 
         // Precompute the tangent-space of each triangle. Needed below as sources for computing the averages (per-vertex).
      // ArrayT<VectorT> PerTriNormals;      // Stored with each triangle, as we need the info also for the stencil shadows.
@@ -488,199 +469,126 @@ ModelAseT::ModelAseT(const std::string& FileName_) /*throw (ModelT::LoadError)*/
                 Len=length(Tri.BiNormals[VNr]); Tri.BiNormals[VNr]=(Len>0.000001) ? scale(Tri.BiNormals[VNr], 1.0/Len) : PerTriBiNormals[TriangleNr];
             }
         }
-
-        // Pre-compute all neighbourhood relationships.
-        for (unsigned long TriangleNr=0; TriangleNr<GO.Triangles.Size(); TriangleNr++)
-        {
-            GeomObjectT::TriangleT& Tri=GO.Triangles[TriangleNr];
-
-            // Init with "no neighbours".
-            Tri.Neighbours[0]=-1;
-            Tri.Neighbours[1]=-1;
-            Tri.Neighbours[2]=-1;
-        }
-
-        // Important note: If three triangles share a common edge, the relevant edge of *all* three triangles must be flagged with -2
-        // (have multiple neighbours at this edge, treat like it was a free edge with no neighbour).
-        // However, the fact that the three triangles share a common edge IS TYPICALLY DETECTED FOR ONLY *ONE* OF THE THREE TRIANGLES,
-        // namely the one that has an orientation different from the two others.
-        // We therefore also have to modify other triangles except for Tri1 at iteration Tri1Nr in order to make sure that all
-        // triangle-edges at a triply-shared edge are set to -2 when such a case is detected.
-        for (unsigned long Tri1Nr=0; Tri1Nr<GO.Triangles.Size(); Tri1Nr++)
-        {
-            GeomObjectT::TriangleT& Tri1=GO.Triangles[Tri1Nr];
-
-            for (unsigned long v1=0; v1<3; v1++)
-            {
-                // Note that the neighbour of edge <v1, (v1+1) % 3> is contained in the set of triangles that refer to v1.
-                for (unsigned long RefNr=0; RefNr<TrianglesForVertex[Tri1.IndVertices[v1]].Size(); RefNr++)
-                {
-                    const unsigned long     Tri2Nr=TrianglesForVertex[Tri1.IndVertices[v1]][RefNr];
-                    GeomObjectT::TriangleT& Tri2  =GO.Triangles[Tri2Nr];
-
-                    if (Tri1Nr==Tri2Nr) continue;
-
-                    for (unsigned long v2=0; v2<3; v2++)
-                        if (Tri1.IndVertices[v1]==Tri2.IndVertices[(v2+1) % 3] && Tri1.IndVertices[(v1+1) % 3]==Tri2.IndVertices[v2])
-                        {
-                            // Tri1 and Tri2 are neighbours!
-                            if (Tri1.Neighbours[v1]==-1)
-                            {
-                                // Tri1 had no neighbour at this edge before, set it now.
-                                // This is the normal case.
-                                Tri1.Neighbours[v1]=Tri2Nr;
-                            }
-                            else if (Tri1.Neighbours[v1]>=0)
-                            {
-                                // Tri1 had a single valid neighbour at this edge before, but we just found a second.
-                                // That means that three triangles share a common edge!
-                                // printf("WARNING: Triangle %lu has two neighbours at edge %lu: triangles %lu and %lu.\n", Tri1Nr, v1, Tri1.Neighbours[v1], Tri2Nr);
-
-                                // Re-find the matching edge in the old neighbour.
-                                GeomObjectT::TriangleT& Tri3=GO.Triangles[Tri1.Neighbours[v1]];
-                                unsigned long           v3;
-
-                                for (v3=0; v3<2; v3++)      // The  v3<2  instead of  v3<3  is intentional, to be safe that v3 never gets 3 (out-of-range).
-                                    if (Tri1.IndVertices[v1]==Tri3.IndVertices[(v3+1) % 3] && Tri1.IndVertices[(v1+1) % 3]==Tri3.IndVertices[v3])
-                                        break;
-
-                                // Set the shared edge of ALL THREE triangles to -2 in order to indicate that this edge leads to more than one neighbour.
-                                Tri3.Neighbours[v3]=-2;
-                                Tri2.Neighbours[v2]=-2;
-                                Tri1.Neighbours[v1]=-2;
-                            }
-                            else /* (Tri1.Neighbours[v1]==-2) */
-                            {
-                                // This edge of Tri1 was either determined to be a triply-shared edge by some an earlier neighbour triangle,
-                                // or there are even more than two neighbours at this edge...
-                                // In any case, be sure to properly flag the relevant edge at the neighbour!
-                                Tri2.Neighbours[v2]=-2;
-                            }
-                            break;
-                        }
-                }
-            }
-        }
     }
 
 
-    // Register the render materials (but only those that are really needed by the GeomObjects).
-    ArrayT<bool> IsMatNeeded;
-
-    for (unsigned long MaterialNr=0; MaterialNr<MaterialNames.Size(); MaterialNr++) IsMatNeeded.PushBack(false);
-    for (unsigned long GONr=0; GONr<GeomObjects.Size(); GONr++)
+    // Check if the material indices are all within the allowed range.
+    for (unsigned long GONr=0; GONr<m_GeomObjects.Size(); GONr++)
     {
         // Ase files can come with too few materials specified.
         // Make sure that there are enough of them, or else we'll crash with array-index-out-of-bounds later.
-        if (GeomObjects[GONr].IndexMaterial>=MaterialNames.Size())
+        if (m_GeomObjects[GONr].IndexMaterial>=m_MaterialNames.Size())
         {
-            printf("ase model error (%s): GeomObject %lu refers to material index %lu, but there are only %lu materials total.\n", FileName.c_str(), GONr, GeomObjects[GONr].IndexMaterial, MaterialNames.Size());
+            printf("ase model error (%s): GeomObject %lu refers to material index %lu, but there are only %lu materials total.\n", FileName.c_str(), GONr, m_GeomObjects[GONr].IndexMaterial, m_MaterialNames.Size());
             throw ModelT::LoadError();
         }
-
-        IsMatNeeded[GeomObjects[GONr].IndexMaterial]=true;
     }
+}
 
-    for (unsigned long MaterialNr=0; MaterialNr<MaterialNames.Size(); MaterialNr++)
+
+void LoaderAseT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims)
+{
+    // Create a default "identity" joint.
+    // That single joint is used for (shared by) all weights of all meshes.
+    Joints.PushBackEmpty();
+
+    Joints[0].Name  ="root";
+    Joints[0].Parent=-1;
+ // Joints[0].Pos   =Vector3fT();
+ // Joints[0].Qtr   =Vector3fT();   // Identity quaternion...
+
+
+    for (unsigned long GONr=0; GONr<m_GeomObjects.Size(); GONr++)
     {
-        if (IsMatNeeded[MaterialNr])
-        {
-            MaterialT* Material=MaterialManager->GetMaterial(MaterialNames[MaterialNr]);
+        Meshes.PushBackEmpty();
 
-            if (Material==NULL)
+        const GeomObjectT& GO  =m_GeomObjects[GONr];
+        CafuModelT::MeshT& Mesh=Meshes[GONr];
+
+        for (unsigned long TriNr=0; TriNr<GO.Triangles.Size(); TriNr++)
+        {
+            Mesh.Triangles.PushBackEmpty();
+
+            const GeomObjectT::TriangleT& AseTri=GO.Triangles[TriNr];
+            CafuModelT::MeshT::TriangleT& CafuTri=Mesh.Triangles[TriNr];
+
+            for (unsigned long i=0; i<3; i++)
             {
-                printf("\nWARNING: Material '%s' not found!\n", MaterialNames[MaterialNr].c_str());
-                Materials.PushBack(NULL);
-                RenderMaterials.PushBack(NULL);
-                continue;
+                const Vector3fT AseVertexPos=GO.Vertices[AseTri.IndVertices[i]].AsVectorOfFloat();
+                unsigned long   CafuVertexNr=0;
+
+                // Try to find a suitable vertex in Mesh.Vertices[].
+                for (CafuVertexNr=0; CafuVertexNr<Mesh.Vertices.Size(); CafuVertexNr++)
+                {
+                    const CafuModelT::MeshT::VertexT& CafuVertex=Mesh.Vertices[CafuVertexNr];
+
+                    assert(CafuVertex.NumWeights==1);
+                    assert(Mesh.Weights[CafuVertex.FirstWeightIdx].Pos==CafuVertex.Draw_Pos);
+
+                    if (CafuVertex.Draw_Pos!=AseVertexPos) continue;
+                    if (CafuVertex.u!=GO.TexCoords[AseTri.IndTexCoords[i]].AsVectorOfFloat().x) continue;
+                    if (CafuVertex.v!=GO.TexCoords[AseTri.IndTexCoords[i]].AsVectorOfFloat().y) continue;
+
+                    if (CafuVertex.Draw_Normal!=AseTri.Normals[i].AsVectorOfFloat()) continue;
+                    if (CafuVertex.Draw_Tangent!=AseTri.Tangents[i].AsVectorOfFloat()) continue;
+                    if (CafuVertex.Draw_BiNormal!=AseTri.BiNormals[i].AsVectorOfFloat()) continue;
+
+                    // This vertex meets all criteria - take it.
+                    break;
+                }
+
+                // If no suitable vertex was found in Mesh.Vertices[], insert a new one.
+                if (CafuVertexNr>=Mesh.Vertices.Size())
+                {
+                    unsigned long WeightNr=0;
+
+                    for (WeightNr=0; WeightNr<Mesh.Weights.Size(); WeightNr++)
+                        if (Mesh.Weights[WeightNr].Pos==AseVertexPos) break;
+
+                    if (WeightNr>=Mesh.Weights.Size())
+                    {
+                        Mesh.Weights.PushBackEmpty();
+
+                        Mesh.Weights[WeightNr].JointIdx=0;
+                        Mesh.Weights[WeightNr].Weight  =1.0f;
+                        Mesh.Weights[WeightNr].Pos     =AseVertexPos;
+                    }
+
+                    Mesh.Vertices.PushBackEmpty();
+                    CafuModelT::MeshT::VertexT& CafuVertex=Mesh.Vertices[CafuVertexNr];
+
+                    CafuVertex.u             =GO.TexCoords[AseTri.IndTexCoords[i]].AsVectorOfFloat().x;
+                    CafuVertex.v             =GO.TexCoords[AseTri.IndTexCoords[i]].AsVectorOfFloat().y;
+                    CafuVertex.FirstWeightIdx=WeightNr;
+                    CafuVertex.NumWeights    =1;
+                    CafuVertex.Draw_Pos      =AseVertexPos;
+                    CafuVertex.Draw_Normal   =AseTri.Normals[i].AsVectorOfFloat();
+                    CafuVertex.Draw_Tangent  =AseTri.Tangents[i].AsVectorOfFloat();
+                    CafuVertex.Draw_BiNormal =AseTri.BiNormals[i].AsVectorOfFloat();
+                }
+
+                // Triangles are ordered CW for Cafu models and CCW for ase models,
+                // so we write [2-i] in order to record the vertices in the proper (reversed) order.
+                CafuTri.VertexIdx[2-i]=CafuVertexNr;
             }
 
-            if (!Material->LightMapComp.IsEmpty())
-            {
-                printf("\nWARNING: Model \"%s\" uses material \"%s\", which in turn has lightmaps defined.\n", FileName.c_str(), MaterialNames[MaterialNr].c_str());
-                printf("It will work in the ModelViewer, but for other applications like Cafu itself you should use a material without lightmaps.\n");
-                // It works in the ModelViewer because the ModelViewer is kind enough to provide a default lightmap...
-            }
-
-            Materials.PushBack(Material);
-            RenderMaterials.PushBack(MatSys::Renderer!=NULL ? MatSys::Renderer->RegisterMaterial(Material) : NULL);
+            CafuTri.Draw_Normal=AseTri.Normal.AsVectorOfFloat();
         }
-        else
-        {
-            Materials.PushBack(NULL);
-            RenderMaterials.PushBack(NULL);
-        }
+
+        Mesh.Material      =GetMaterialByName(m_MaterialNames[GO.IndexMaterial]);
+        Mesh.RenderMaterial=MatSys::Renderer!=NULL ? MatSys::Renderer->RegisterMaterial(Mesh.Material) : NULL;
     }
+}
 
 
-    // Pre-store the triangle-mesh for each GeomObject.
-    // This will not longer work once Multi/Sub-Objects are supported!
-    for (unsigned long GONr=0; GONr<GeomObjects.Size(); GONr++)
+void LoaderAseT::Load(ArrayT<CafuModelT::GuiLocT>& GuiLocs)
+{
+    // See if we have locations for attaching a GUI.
+    for (unsigned long GONr=0; GONr<m_GeomObjects.Size(); GONr++)
     {
-        GeomObjectT& GO=GeomObjects[GONr];
+        const GeomObjectT& GO=m_GeomObjects[GONr];
 
-        GO.TriangleMesh.Type   =MatSys::MeshT::Triangles;
-        GO.TriangleMesh.Winding=MatSys::MeshT::CCW;
-        GO.TriangleMesh.Vertices.PushBackEmpty(GO.Triangles.Size()*3);
-
-        for (unsigned long TriangleNr=0; TriangleNr<GO.Triangles.Size(); TriangleNr++)
-        {
-            const GeomObjectT::TriangleT& Tri=GO.Triangles[TriangleNr];
-
-            for (unsigned long VNr=0; VNr<3; VNr++)
-            {
-                MatSys::MeshT::VertexT& V=GO.TriangleMesh.Vertices[3*TriangleNr+VNr];
-
-                const VectorT& A  =GO.Vertices [Tri.IndVertices [VNr]];
-                const VectorT& tcA=GO.TexCoords[Tri.IndTexCoords[VNr]];
-
-                V.SetOrigin(A.AsVectorOfFloat());
-                V.SetTextureCoord(float(tcA.x), float(tcA.y));
-                V.SetNormal(Tri.Normals[VNr].AsVectorOfFloat());
-                V.SetTangent(Tri.Tangents[VNr].AsVectorOfFloat());
-                V.SetBiNormal(Tri.BiNormals[VNr].AsVectorOfFloat());
-            }
-        }
-    }
-
-
-    // Compute the bounding box of each GeomObject.
-    for (unsigned long GONr=0; GONr<GeomObjects.Size(); GONr++)
-    {
-        GeomObjectT& GO=GeomObjects[GONr];
-
-        GO.BB=BoundingBox3T<double>(GO.Vertices);
-    }
-
-
-    // Fill-in GOIndicesSortedByMat, the list of GeomObject-IDs, sorted by IndexMaterial.
-    if (GeomObjects.Size()<=0xFFFF && MaterialNames.Size()<=0xFFFF)
-    {
-        // Initialize with the GONr in the upper WORD, and the respective material index in the lower WORD.
-        for (unsigned long GONr=0; GONr<GeomObjects.Size(); GONr++)
-            GOIndicesSortedByMat.PushBack((GONr << 16) + GeomObjects[GONr].IndexMaterial);
-
-        GOIndicesSortedByMat.QuickSort(CompareGOIDs);
-
-        // Clear the contents - just leave the GONr in the DWORD.
-        for (unsigned long GONr=0; GONr<GeomObjects.Size(); GONr++)
-            GOIndicesSortedByMat[GONr]=GOIndicesSortedByMat[GONr] >> 16;
-    }
-    else
-    {
-        printf("WARNING: Could not sort GeomObjects by their material index.\n");
-
-        for (unsigned long GONr=0; GONr<GeomObjects.Size(); GONr++)
-            GOIndicesSortedByMat.PushBack(GONr);
-    }
-
-
-    // See if we have at least one GUI triangle, after all.
-    for (unsigned long GONr=0; GONr<GeomObjects.Size(); GONr++)
-    {
-        const GeomObjectT& GO=GeomObjects[GONr];
-
-        if (Materials[GO.IndexMaterial]!=NULL && Materials[GO.IndexMaterial]->Name=="Textures/meta/EntityGUI" && GO.Triangles.Size()>0)
+        if (m_MaterialNames[GO.IndexMaterial]=="Textures/meta/EntityGUI" && GO.Triangles.Size()>0)
         {
             const GeomObjectT::TriangleT& Tri0=GO.Triangles[0];
 
@@ -711,259 +619,31 @@ ModelAseT::ModelAseT(const std::string& FileName_) /*throw (ModelT::LoadError)*/
             const VectorT Gui_ul=Origin+AxisX*BB.Min.x+AxisY*BB.Min.y;  // The upper left  of the GUI panel in object space.
             const VectorT Gui_lr=Origin+AxisX*BB.Max.x+AxisY*BB.Max.y;  // The lower right of the GUI panel in object space.
 
-            Gui_Origin=Gui_ul.AsVectorOfFloat();
+            GuiLocs.PushBackEmpty();
+            GuiLocs[GuiLocs.Size()-1].Origin=Gui_ul.AsVectorOfFloat();
 
             // Project the "screen diagonal" (Gui_lr-Gui_ul) onto the AxisX and AxisY to find the proper lengths of the directional vectors.
-            Gui_AxisX=scale(AxisX, dot(AxisX, Gui_lr-Gui_ul)).AsVectorOfFloat();
-            Gui_AxisY=scale(AxisY, dot(AxisY, Gui_lr-Gui_ul)).AsVectorOfFloat();
-
-            Gui_GeomObjNr=GONr;
-            break;
+            GuiLocs[GuiLocs.Size()-1].AxisX=scale(AxisX, dot(AxisX, Gui_lr-Gui_ul)).AsVectorOfFloat();
+            GuiLocs[GuiLocs.Size()-1].AxisY=scale(AxisY, dot(AxisY, Gui_lr-Gui_ul)).AsVectorOfFloat();
         }
     }
 }
 
 
-ModelAseT::~ModelAseT()
+void LoaderAseT::Print() const
 {
-    if (MatSys::Renderer==NULL) return;
-
-    for (unsigned long RMNr=0; RMNr<RenderMaterials.Size(); RMNr++)
-        MatSys::Renderer->FreeMaterial(RenderMaterials[RMNr]);
-}
-
-
-/***********************************************/
-/*** Implementation of the ModelT interface. ***/
-/***********************************************/
-
-const std::string& ModelAseT::GetFileName() const
-{
-    return FileName;
-}
-
-
-void ModelAseT::Draw(int /*SequenceNr*/, float /*FrameNr*/, float /*LodDist*/, const ModelT* /*SubModel*/) const
-{
-    const float*                LightPos_=MatSys::Renderer->GetCurrentLightSourcePosition();
-    const VectorT               LightPos(LightPos_[0], LightPos_[1], LightPos_[2]);
-    const double                LightRadius=MatSys::Renderer->GetCurrentLightSourceRadius();
-    const VectorT               LightBox(LightRadius, LightRadius, LightRadius);
-    const BoundingBox3T<double> LightBB(LightPos+LightBox, LightPos-LightBox);
-
-
-    switch (MatSys::Renderer->GetCurrentRenderAction())
-    {
-        case MatSys::RendererI::AMBIENT:
-        {
-            for (unsigned long GONr=0; GONr<GeomObjects.Size(); GONr++)
-            {
-                const GeomObjectT& GO=GeomObjects[GOIndicesSortedByMat[GONr]];
-
-                MatSys::Renderer->SetCurrentMaterial(RenderMaterials[GO.IndexMaterial]);
-                MatSys::Renderer->RenderMesh(GO.TriangleMesh);
-            }
-            break;
-        }
-
-        case MatSys::RendererI::LIGHTING:
-        {
-            for (unsigned long GONr=0; GONr<GeomObjects.Size(); GONr++)
-            {
-                const GeomObjectT& GO=GeomObjects[GOIndicesSortedByMat[GONr]];
-
-                if (!LightBB.Intersects(GO.BB)) continue;
-
-                MatSys::Renderer->SetCurrentMaterial(RenderMaterials[GO.IndexMaterial]);
-                MatSys::Renderer->RenderMesh(GO.TriangleMesh);
-            }
-            break;
-        }
-
-        case MatSys::RendererI::STENCILSHADOW:
-        {
-            for (unsigned long GONr=0; GONr<GeomObjects.Size(); GONr++)
-            {
-                const GeomObjectT& GO=GeomObjects[GONr];
-
-                if (!LightBB.Intersects(GO.BB)) continue;
-                if (Materials[GO.IndexMaterial]==NULL || Materials[GO.IndexMaterial]->NoShadows) continue;
-
-                static ArrayT<bool> TriangleIsFrontFacing;
-                if (TriangleIsFrontFacing.Size()<GO.Triangles.Size()) TriangleIsFrontFacing.PushBackEmpty(GO.Triangles.Size()-TriangleIsFrontFacing.Size());
-
-                for (unsigned long TriNr=0; TriNr<GO.Triangles.Size(); TriNr++)
-                {
-                    const GeomObjectT::TriangleT& Tri      =GO.Triangles[TriNr];
-                    const double                  LightDist=dot(LightPos-GO.Vertices[Tri.IndVertices[0]], Tri.Normal);
-
-                    TriangleIsFrontFacing[TriNr]=LightDist<0;   // Front-facing triangles are ordered CCW (contrary to Cafu)!
-                }
-
-
-                // Note that we have to cull the following polygons wrt. the *VIEWER* (not the light source)!
-                static MatSys::MeshT MeshSilhouette(MatSys::MeshT::Quads);
-                MeshSilhouette.Vertices.Overwrite();
-
-                for (unsigned long TriNr=0; TriNr<GO.Triangles.Size(); TriNr++)
-                {
-                    if (!TriangleIsFrontFacing[TriNr]) continue;
-
-                    // This triangle is front-facing wrt. the light source.
-                    const GeomObjectT::TriangleT& Tri       =GO.Triangles[TriNr];
-                    const unsigned long           VertInd[3]={ Tri.IndVertices[0], Tri.IndVertices[1], Tri.IndVertices[2] };
-
-                    for (unsigned long EdgeNr=0; EdgeNr<3; EdgeNr++)
-                    {
-                        const bool IsSilhouetteEdge=(Tri.Neighbours[EdgeNr]<0) ? true : !TriangleIsFrontFacing[Tri.Neighbours[EdgeNr]];
-
-                        if (IsSilhouetteEdge)
-                        {
-                            // The neighbour at edge 'EdgeNr' is back-facing (or non-existant), so we have found a possible silhouette edge.
-                            const unsigned long v1=EdgeNr;
-                            const unsigned long v2=(EdgeNr+1) % 3;
-                            const VectorT       LA=GO.Vertices[VertInd[v1]]-LightPos;
-                            const VectorT       LB=GO.Vertices[VertInd[v2]]-LightPos;
-
-                            MeshSilhouette.Vertices.PushBackEmpty(4);
-
-                            const unsigned long MeshSize=MeshSilhouette.Vertices.Size();
-
-                            MeshSilhouette.Vertices[MeshSize-4].SetOrigin(GO.Vertices[VertInd[v2]].x, GO.Vertices[VertInd[v2]].y, GO.Vertices[VertInd[v2]].z);
-                            MeshSilhouette.Vertices[MeshSize-3].SetOrigin(GO.Vertices[VertInd[v1]].x, GO.Vertices[VertInd[v1]].y, GO.Vertices[VertInd[v1]].z);
-                            MeshSilhouette.Vertices[MeshSize-2].SetOrigin(LA.x, LA.y, LA.z, 0.0);
-                            MeshSilhouette.Vertices[MeshSize-1].SetOrigin(LB.x, LB.y, LB.z, 0.0);
-                        }
-                    }
-                }
-
-                MatSys::Renderer->RenderMesh(MeshSilhouette);
-
-
-                static MatSys::MeshT MeshCaps(MatSys::MeshT::Triangles);
-                MeshCaps.Vertices.Overwrite();
-
-                for (unsigned long TriNr=0; TriNr<GO.Triangles.Size(); TriNr++)
-                {
-                    if (!TriangleIsFrontFacing[TriNr]) continue;
-
-                    // This triangle is front-facing wrt. the light source.
-                    const GeomObjectT::TriangleT& Tri=GO.Triangles[TriNr];
-
-                    MeshCaps.Vertices.PushBackEmpty(6);
-
-                    const unsigned long MeshSize=MeshCaps.Vertices.Size();
-
-                    // Render the occluder (front-facing wrt. the light source).
-                    const VectorT& A=GO.Vertices[Tri.IndVertices[0]];
-                    const VectorT& B=GO.Vertices[Tri.IndVertices[1]];
-                    const VectorT& C=GO.Vertices[Tri.IndVertices[2]];
-
-                    MeshCaps.Vertices[MeshSize-6].SetOrigin(A.x, A.y, A.z);
-                    MeshCaps.Vertices[MeshSize-5].SetOrigin(B.x, B.y, B.z);
-                    MeshCaps.Vertices[MeshSize-4].SetOrigin(C.x, C.y, C.z);
-
-                    // Render the occluder (back-facing wrt. the light source).
-                    const VectorT LA=A-LightPos;
-                    const VectorT LB=B-LightPos;
-                    const VectorT LC=C-LightPos;
-
-                    MeshCaps.Vertices[MeshSize-3].SetOrigin(LC.x, LC.y, LC.z, 0.0);
-                    MeshCaps.Vertices[MeshSize-2].SetOrigin(LB.x, LB.y, LB.z, 0.0);
-                    MeshCaps.Vertices[MeshSize-1].SetOrigin(LA.x, LA.y, LA.z, 0.0);
-                }
-
-                MatSys::Renderer->RenderMesh(MeshCaps);
-            }
-            break;
-        }
-    }
-}
-
-
-bool ModelAseT::GetGuiPlane(int SequenceNr, float FrameNr, float LodDist, Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const
-{
-    if (Gui_GeomObjNr==-1) return false;
-
-#if 0
-    // Old, too simple code, just used for testing.
-    const GeomObjectT&            GO =GeomObjects[GuiGeomObjNr];
-    const GeomObjectT::TriangleT& Tri=GO.Triangles[0];
-
-    GuiOrigin=GO.Vertices[Tri.IndVertices[0]].AsVectorOfFloat();
-    GuiAxisX =GO.Vertices[Tri.IndVertices[1]].AsVectorOfFloat()-GuiOrigin;
-    GuiAxisY =GO.Vertices[Tri.IndVertices[2]].AsVectorOfFloat()-GuiOrigin;
-#else
-    GuiOrigin=Gui_Origin;
-    GuiAxisX =Gui_AxisX;
-    GuiAxisY =Gui_AxisY;
-#endif
-
-    return true;
-}
-
-
-void ModelAseT::Print() const
-{
-    printf("\nThis is an ase model. FileName: \"%s\"\n", FileName.c_str());
+    printf("\nThis is an ase model. FileName: \"%s\"\n", m_FileName.c_str());
     printf("Materials:\n");
-    for (unsigned long MaterialNr=0; MaterialNr<MaterialNames.Size(); MaterialNr++)
-        printf("    %2lu %s\n", MaterialNr, MaterialNames[MaterialNr].c_str());
+    for (unsigned long MaterialNr=0; MaterialNr<m_MaterialNames.Size(); MaterialNr++)
+        printf("    %2lu %s\n", MaterialNr, m_MaterialNames[MaterialNr].c_str());
     printf("\n");
 
     printf("GeomObjects:\n");
-    for (unsigned long GONr=0; GONr<GeomObjects.Size(); GONr++)
+    for (unsigned long GONr=0; GONr<m_GeomObjects.Size(); GONr++)
     {
-        const GeomObjectT& GO=GeomObjects[GONr];
+        const GeomObjectT& GO=m_GeomObjects[GONr];
 
         printf("    %2lu, using Mat %lu\n", GONr, GO.IndexMaterial);
     }
     printf("\n");
-
-    printf("GeomObject indices sorted by material index:\n");
-    for (unsigned long GONr=0; GONr<GOIndicesSortedByMat.Size(); GONr++)
-        printf("    GO index: %2lu    MatIndex: %2lu\n", GOIndicesSortedByMat[GONr], GeomObjects[GOIndicesSortedByMat[GONr]].IndexMaterial);
-    printf("\n");
-}
-
-
-int ModelAseT::GetNrOfSequences() const
-{
-    return 1;
-}
-
-
-const float* ModelAseT::GetSequenceBB(int /*SequenceNr*/, float /*FrameNr*/) const
-{
-    static float BB[6];
-
-    BoundingBox3T<double> TotalBB(GeomObjects[0].BB);
-
-    for (unsigned long GONr=0; GONr<GeomObjects.Size(); GONr++)
-    {
-        TotalBB.Insert(GeomObjects[GONr].BB.Min);
-        TotalBB.Insert(GeomObjects[GONr].BB.Max);
-    }
-
-    BB[0]=float(TotalBB.Min.x);
-    BB[1]=float(TotalBB.Min.y);
-    BB[2]=float(TotalBB.Min.z);
-
-    BB[3]=float(TotalBB.Max.x);
-    BB[4]=float(TotalBB.Max.y);
-    BB[5]=float(TotalBB.Max.z);
-
-    return BB;
-}
-
-
-// float ModelAseT::GetNrOfFrames(int /*SequenceNr*/) const
-// {
-//     return 0.0;
-// }
-
-
-float ModelAseT::AdvanceFrameNr(int /*SequenceNr*/, float /*FrameNr*/, float /*DeltaTime*/, bool /*Loop*/) const
-{
-    return 0.0;
 }

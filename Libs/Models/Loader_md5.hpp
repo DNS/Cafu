@@ -32,7 +32,7 @@ class LoaderMd5T : public ModelLoaderT
 {
     public:
 
-    /// The constructor for importing a Doom3 (.md5) file into a new Cafu model.
+    /// The constructor for importing a Doom3 (.md5) model file into a new Cafu model.
     /// @param FileName   The name of the .md5 file to import.
     /// If FileName ends with "md5", it is assumed that the file has a white-space separated list of one md5mesh and arbitrarily many md5anim files.
     /// If FileName ends with "md5mesh", this file is loaded without any animation information (e.g. for static detail models).
@@ -40,6 +40,7 @@ class LoaderMd5T : public ModelLoaderT
 
     bool UseGivenTS() const;
     void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims);
+    void Load(ArrayT<CafuModelT::GuiLocT>& GuiLocs) { }
 };
 
 #endif

@@ -73,6 +73,7 @@ CafuModelT::CafuModelT(ModelLoaderT& Loader)
       m_Draw_CachedDataAtFrameNr(-3.1415926f)       // Just a random number that is unlikely to occur normally.
 {
     Loader.Load(m_Joints, m_Meshes, m_Anims);
+    Loader.Load(m_GuiLocs);
 
     if (m_Joints.Size()==0) throw ModelT::LoadError();
     if (m_Meshes.Size()==0) throw ModelT::LoadError();
@@ -1061,8 +1062,13 @@ void CafuModelT::Draw(int SequenceNr, float FrameNr, float /*LodDist*/, const Mo
 
 bool CafuModelT::GetGuiPlane(int SequenceNr, float FrameNr, float LodDist, Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const
 {
-    // To be implemented...
-    return false;
+    if (m_GuiLocs.Size()==0) return false;
+
+    GuiOrigin=m_GuiLocs[0].Origin;
+    GuiAxisX =m_GuiLocs[0].AxisX;
+    GuiAxisY =m_GuiLocs[0].AxisY;
+
+    return true;
 }
 
 

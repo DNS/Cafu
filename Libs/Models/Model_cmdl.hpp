@@ -138,6 +138,17 @@ class CafuModelT : public ModelT
     };
 
 
+    /// This structure is used to describe the locations where GUIs can be attached to the model.
+    /// Note that the current static/fixed-position implementation (origin, x- and y-axis) is temporary though,
+    /// it should eventually be possible to attach GUIs even to animated models.
+    struct GuiLocT
+    {
+        Vector3fT Origin;
+        Vector3fT AxisX;
+        Vector3fT AxisY;
+    };
+
+
     /// The constructor. Creates a new Cafu model from a file as directed by the given model loader.
     /// @param Loader   The model loader that actually imports the file and fills in the model data.
     CafuModelT(ModelLoaderT& Loader);
@@ -158,17 +169,18 @@ class CafuModelT : public ModelT
 
     private:
 
-    void InitMeshes();                                                      ///< An auxiliary method for the constructors.
-    void UpdateCachedDrawData(int SequenceNr, float FrameNr) const;         ///< A private auxiliary method.
+    void InitMeshes();                                                  ///< An auxiliary method for the constructors.
+    void UpdateCachedDrawData(int SequenceNr, float FrameNr) const;     ///< A private auxiliary method.
 
 
-    const std::string     m_FileName;             ///< File name of this model.
+    const std::string     m_FileName;               ///< File name of this model.
     const bool            m_UseGivenTangentSpace;
- // const bool            m_CastShadows;          ///< Should this model cast shadows?
-    ArrayT<JointT>        m_Joints;               ///< Array of joints of this model.
-    mutable ArrayT<MeshT> m_Meshes;               ///< Array of (sub)meshes of this model.
+ // const bool            m_CastShadows;            ///< Should this model cast shadows?
+    ArrayT<JointT>        m_Joints;                 ///< Array of joints of this model.
+    mutable ArrayT<MeshT> m_Meshes;                 ///< Array of (sub)meshes of this model.
     float                 m_BaseBB[6];
-    ArrayT<AnimT>         m_Anims;                ///< Array of animations of this model.
+    ArrayT<AnimT>         m_Anims;                  ///< Array of animations of this model.
+    ArrayT<GuiLocT>       m_GuiLocs;                ///< Array of locations where GUIs can be attached to this model.
 
     mutable ArrayT<MatrixT>       m_Draw_JointMatrices;
     mutable ArrayT<MatSys::MeshT> m_Draw_Meshes;

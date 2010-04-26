@@ -38,6 +38,7 @@ class LoaderLwoT : public ModelLoaderT
 
     bool UseGivenTS() const { return true; }
     void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims);
+    void Load(ArrayT<CafuModelT::GuiLocT>& GuiLocs) { }
 
 
     private:
