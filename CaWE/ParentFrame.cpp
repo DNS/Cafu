@@ -357,6 +357,8 @@ void ParentFrameT::OnShow(wxShowEvent& SE)
         // This has to be done after all materials are loaded (AppCaWE::OnInit()) and after the MatSys::Renderer has been initialized,
         // so that the GuiManager finds its default material and can register it for rendering.
         cf::GuiSys::GuiMan=new cf::GuiSys::GuiManImplT();
+
+        wxASSERT(cf::GuiSys::GuiMan->GetDefaultRM()!=NULL);
     }
 }
 

@@ -131,21 +131,17 @@ bool AppCaWE::OnInit()
     // Activate a log console as the wx debug target.
     // wxLog::SetActiveTarget(new wxLogWindow(NULL, "wx Debug Console", true, false));
 
+    srand(time(NULL));          // Re-seed the random number generator.
     wxInitAllImageHandlers();   // Needed e.g. for cursor initialization under GTK.
+
+    // Initialize the global cursor manager instance.
+    wxASSERT(CursorMan==NULL);
+    CursorMan=new CursorManT;
 
 
     // Set the globally used configuration storage object for easy access via wxConfigBase::Get().
-    if (wxFileExists(UserDataDir+"/CaWE_2.config"))
-    {
-        if (wxRenameFile(UserDataDir+"/CaWE_2.config", UserDataDir+"/CaWE.config"))
-            wxMessageBox("Your old config file at\n"+UserDataDir+"/CaWE_2.config"+
-                         "\nwas successfully renamed to\n"+UserDataDir+"/CaWE.config"+"\n\nThis was a one-time update.\n :O)",
-                         "Config update successful");
-    }
-
     m_FileConfig=new wxFileConfig("CaWE", "Carsten Fuchs Software", UserDataDir+"/CaWE.config");
     wxConfigBase::Set(m_FileConfig);
-
 
     // Setup the global Material Manager pointer.
     static MaterialManagerImplT MatManImpl;
@@ -155,6 +151,12 @@ bool AppCaWE::OnInit()
     // Register the material script with the CaWE materials definitions.
     if (MaterialManager->RegisterMaterialScript(AppDir+"/res/CaWE.cmat", AppDir+"/res/").Size()==0)
         wxMessageBox("CaWE.cmat not found in \""+AppDir+"\".", "WARNING");
+
+    // Initialize the global options and game configs from the CaWE configuration files.
+    // This also registers additional material scripts with the MaterialManager that must be known before the ParentFrameT ctor is called,
+    // because under wxMSW, the ParentFrameT ctor calls the ParentFrameT::OnShow() method, where the global Gui Manager initialization
+    // expects the "Gui/Default" material to be known.
+    Options.Init();
 
 
     // Create the MDI parent frame.
@@ -198,31 +200,6 @@ bool AppCaWE::OnInit()
     {
         wxMessageBox(wxString("Could not open auto-save directory ")+UserDataDir, "WARNING", wxOK | wxICON_ERROR);
     }
-
-
-    // Show the splash screen.
-    // printf("%s   Before Splash\n", wxNow().c_str());
-    wxBusyCursor BusyCursor;
-#ifndef __WXGTK__
-    wxSplashScreen SplashScreen(wxBitmap(AppDir+"/res/CaWE-logo.png", wxBITMAP_TYPE_PNG),
-                                wxSPLASH_CENTRE_ON_PARENT | wxSPLASH_NO_TIMEOUT, 250, m_ParentFrame, -1);
-#endif
-    // printf("%s   After Splash\n", wxNow().c_str());
-
-
-    srand(time(NULL));
-
-
-    /**********************************************/
-    /*** Load and init the Cafu Material System ***/
-    /**********************************************/
-
-    // Initialize the global options from the CaWE config files.
-    Options.Init();
-
-    // Initialize the global cursor manager instance.
-    wxASSERT(CursorMan==NULL);
-    CursorMan=new CursorManT;
 
     return wxApp::OnInit();
 }
