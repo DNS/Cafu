@@ -39,15 +39,23 @@ const cf::TypeSys::TypeInfoT MapHelperT::TypeInfo(GetMapElemTIM(), "MapHelperT",
 /*** End of TypeSys related definitions for this class. ***/
 
 
-MapHelperT::MapHelperT()
-    : MapElementT(wxColour(128, 128, 128))
+MapHelperT::MapHelperT(const MapEntityT* ParentEntity)
+    : MapElementT(wxColour(128, 128, 128)),
+      m_ParentEntity(ParentEntity)
 {
 }
 
 
 MapHelperT::MapHelperT(const MapHelperT& Helper)
-    : MapElementT(Helper)
+    : MapElementT(Helper),
+      m_ParentEntity(Helper.m_ParentEntity)
 {
+}
+
+
+void MapHelperT::SetParentEntity(const MapEntityT* ParentEntity)
+{
+    m_ParentEntity=ParentEntity;
 }
 
 
@@ -57,7 +65,9 @@ void MapHelperT::Assign(const MapElementT* Elem)
 
     MapElementT::Assign(Elem);
 
-    // const MapHelperT* Helper=dynamic_cast<const MapHelperT*>(Elem);
-    // wxASSERT(Helper!=NULL);
-    // if (Helper==NULL) return;
+    const MapHelperT* Helper=dynamic_cast<const MapHelperT*>(Elem);
+    wxASSERT(Helper!=NULL);
+    if (Helper==NULL) return;
+
+    m_ParentEntity=Helper->m_ParentEntity;
 }

@@ -71,7 +71,6 @@ class MapHelperModelT : public MapHelperT
     void UpdateModelCache() const;
     int  GetSequenceNr() const;
 
-    const MapEntityT*   m_ParentEntity;     ///< Our parent entity that we are a helper for.
     const HelperInfoT*  m_HelperInfo;       ///< The HelperInfoT instance that caused the instantiation of this helper.
     mutable ModelProxyT m_ModelProxy;       ///< Our model (proxy).
     mutable float       m_ModelFrameNr;     ///< The frame number of the sequence to render this model in.

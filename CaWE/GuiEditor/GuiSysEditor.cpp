@@ -130,7 +130,7 @@ void WindowT::EditorFillInPG(wxPropertyGridManager* PropMan)
 
     PropMan->Append(new wxColourProperty("BackgroundColor", wxPG_LABEL, wxColour(BackColor[0]*255, BackColor[1]*255, BackColor[2]*255)));
 
-    PropMan->Append(new wxIntProperty("ColorAlpha", wxPG_LABEL, BackColor[3]*255));
+    PropMan->Append(new wxIntProperty("BackgroundAlpha", wxPG_LABEL, BackColor[3]*255));
 
     PropMan->Append(new wxFloatProperty("BorderWidth", wxPG_LABEL, BorderWidth));
 
@@ -265,7 +265,7 @@ bool WindowT::UpdateProperty(wxPGProperty* Property)
     else if (PropName=="Rotation")         Property->SetValue(RotAngle);
     else if (PropName=="BackMatName")      Property->SetValueFromString(BackRenderMatName);
     else if (PropName=="BackgroundColor")  Property->SetValueFromString(wxString::Format("(%i,%i,%i)", int(BackColor[0]*255.0f), int(BackColor[1]*255.0f), int(BackColor[2]*255.0f)));
-    else if (PropName=="ColorAlpha")       Property->SetValue(int(BackColor[3]*255.0f));
+    else if (PropName=="BackgroundAlpha")  Property->SetValue(int(BackColor[3]*255.0f));
     else if (PropName=="BorderWidth")      Property->SetValue(BorderWidth);
     else if (PropName=="BorderColor")      Property->SetValueFromString(wxString::Format("(%i,%i,%i)", int(BorderColor[0]*255.0f), int(BorderColor[1]*255.0f), int(BorderColor[2]*255.0f)));
     else if (PropName=="BorderColorAlpha") Property->SetValue(int(BorderColor[3]*255.0f));
@@ -436,7 +436,7 @@ bool WindowT::EditorHandlePGChange(wxPropertyGridEvent& Event, GuiEditor::ChildF
 
         ChildFrame->SubmitCommand(new CommandModifyWindowT(GuiDocument, this, PropName, MemberVars["backColor"], NewValue));
     }
-    else if (PropName=="ColorAlpha")
+    else if (PropName=="BackgroundAlpha")
     {
         wxASSERT(MemberVars.find("backColor.a")!=MemberVars.end());
 
@@ -455,7 +455,7 @@ bool WindowT::EditorHandlePGChange(wxPropertyGridEvent& Event, GuiEditor::ChildF
 
         wxColour NewColor(FromPGColorString(Prop->GetValueAsString()));
 
-        float NewValue[]={ NewColor.Red()/255.0f, NewColor.Green()/255.0f, NewColor.Blue()/255.0f, BackColor[3] };
+        float NewValue[]={ NewColor.Red()/255.0f, NewColor.Green()/255.0f, NewColor.Blue()/255.0f, BorderColor[3] };
 
         ChildFrame->SubmitCommand(new CommandModifyWindowT(GuiDocument, this, PropName, MemberVars["borderColor"], NewValue));
     }
@@ -492,7 +492,7 @@ bool WindowT::EditorHandlePGChange(wxPropertyGridEvent& Event, GuiEditor::ChildF
 
         wxColour NewColor(FromPGColorString(Prop->GetValueAsString()));
 
-        float NewValue[]={ NewColor.Red()/255.0f, NewColor.Green()/255.0f, NewColor.Blue()/255.0f, BackColor[3] };
+        float NewValue[]={ NewColor.Red()/255.0f, NewColor.Green()/255.0f, NewColor.Blue()/255.0f, TextColor[3] };
 
         ChildFrame->SubmitCommand(new CommandModifyWindowT(GuiDocument, this, PropName, MemberVars["textColor"], NewValue));
     }

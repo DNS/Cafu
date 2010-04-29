@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapElement.hpp"
 
 
+class MapEntityT;
 namespace cf { namespace TypeSys { class TypeInfoT; } }
 namespace cf { namespace TypeSys { class TypeInfoManT; } }
 
@@ -36,11 +37,15 @@ class MapHelperT : public MapElementT
     public:
 
     /// The default constructor.
-    MapHelperT();
+    MapHelperT(const MapEntityT* ParentEntity);
 
     /// The copy constructor for copying a helper.
     /// @param Helper   The helper to copy-construct this helper from.
     MapHelperT(const MapHelperT& Helper);
+
+    /// This method (re-)sets the parent entity that we are a helper for,
+    /// for use after an entity (with all its helpers) has been cloned.
+    void SetParentEntity(const MapEntityT* ParentEntity);
 
 
     // Implementations and overrides for base class methods.
@@ -52,6 +57,11 @@ class MapHelperT : public MapElementT
     virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
     static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
     static const cf::TypeSys::TypeInfoT TypeInfo;
+
+
+    protected:
+
+    const MapEntityT* m_ParentEntity;   ///< Our parent entity that we are a helper for.
 };
 
 #endif

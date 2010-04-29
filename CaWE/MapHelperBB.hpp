@@ -41,7 +41,7 @@ class MapHelperBoundingBoxT : public MapHelperT
     public:
 
     /// The constructor.
-    MapHelperBoundingBoxT(const MapEntityT* m_ParentEntity, const BoundingBox3fT& BB, bool Wireframe=false);
+    MapHelperBoundingBoxT(const MapEntityT* ParentEntity, const BoundingBox3fT& BB, bool Wireframe=false);
 
     /// The copy constructor for copying a box.
     /// @param Box   The box to copy-construct this box from.
@@ -68,9 +68,8 @@ class MapHelperBoundingBoxT : public MapHelperT
 
     private:
 
-    const MapEntityT* m_ParentEntity;   ///< Our parent entity that we are a helper for.
-    BoundingBox3fT    m_BB;             ///< The dimensions of this box, relative to m_Origin.
-    bool              m_Wireframe;      ///< Whether this box is rendered as wire-frame in the 3D views, or solid.
+    BoundingBox3fT m_BB;        ///< The dimensions of this box, relative to m_Origin.
+    bool           m_Wireframe; ///< Whether this box is rendered as wire-frame in the 3D views, or solid.
 };
 
 #endif

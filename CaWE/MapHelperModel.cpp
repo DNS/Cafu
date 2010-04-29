@@ -64,7 +64,7 @@ const cf::TypeSys::TypeInfoT MapHelperModelT::TypeInfo(GetMapElemTIM(), "MapHelp
 
 
 MapHelperModelT::MapHelperModelT(const MapEntityT* ParentEntity, const HelperInfoT* HelperInfo)
-    : m_ParentEntity(ParentEntity),
+    : MapHelperT(ParentEntity),
       m_HelperInfo(HelperInfo),
       m_ModelProxy(),
       m_ModelFrameNr(0.0f),
@@ -75,7 +75,6 @@ MapHelperModelT::MapHelperModelT(const MapEntityT* ParentEntity, const HelperInf
 
 MapHelperModelT::MapHelperModelT(const MapHelperModelT& Model)
     : MapHelperT(Model),
-      m_ParentEntity(Model.m_ParentEntity),
       m_HelperInfo(Model.m_HelperInfo),
       m_ModelProxy(Model.m_ModelProxy),
       m_ModelFrameNr(0.0f),

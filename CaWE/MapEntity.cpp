@@ -64,7 +64,10 @@ MapEntityT::MapEntityT(const MapEntityT& Entity)
       m_Helpers()
 {
     for (unsigned long HelperNr=0; HelperNr<Entity.m_Helpers.Size(); HelperNr++)
+    {
         m_Helpers.PushBack(Entity.m_Helpers[HelperNr]->Clone());
+        m_Helpers[HelperNr]->SetParentEntity(this);
+    }
 }
 
 

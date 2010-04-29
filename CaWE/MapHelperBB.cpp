@@ -41,8 +41,7 @@ const cf::TypeSys::TypeInfoT MapHelperBoundingBoxT::TypeInfo(GetMapElemTIM(), "M
 
 
 MapHelperBoundingBoxT::MapHelperBoundingBoxT(const MapEntityT* ParentEntity, const BoundingBox3fT& BB, bool Wireframe)
-    : MapHelperT(),
-      m_ParentEntity(ParentEntity),
+    : MapHelperT(ParentEntity),
       m_BB(BB),
       m_Wireframe(Wireframe)
 {
@@ -51,7 +50,6 @@ MapHelperBoundingBoxT::MapHelperBoundingBoxT(const MapEntityT* ParentEntity, con
 
 MapHelperBoundingBoxT::MapHelperBoundingBoxT(const MapHelperBoundingBoxT& Box)
     : MapHelperT(Box),
-      m_ParentEntity(Box.m_ParentEntity),
       m_BB(Box.m_BB),
       m_Wireframe(Box.m_Wireframe)
 {
