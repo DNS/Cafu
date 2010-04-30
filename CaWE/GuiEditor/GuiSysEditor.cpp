@@ -72,6 +72,24 @@ static wxColour FromPGColorString(wxString ColorString)
 }
 
 
+static unsigned char* cast(float* f)
+{
+    static unsigned char c[4];
+
+    for (int i=0; i<4; i++)
+    {
+        float g=f[i];
+
+        if (g<0.0f) g=0.0f;
+        if (g>1.0f) g=1.0f;
+
+        c[i]=(unsigned char)(g*255.0f + 0.5f);
+    }
+
+    return c;
+}
+
+
 /// Custom property to select materials for window backgrounds.
 class MaterialPropertyT : public wxLongStringProperty
 {
@@ -128,15 +146,15 @@ void WindowT::EditorFillInPG(wxPropertyGridManager* PropMan)
 
     PropMan->Append(new MaterialPropertyT("BackMatName", wxPG_LABEL, BackRenderMatName, ((EditorDataWindowT*)EditorData)->GetGuiDoc()));
 
-    PropMan->Append(new wxColourProperty("BackgroundColor", wxPG_LABEL, wxColour(BackColor[0]*255, BackColor[1]*255, BackColor[2]*255)));
-
-    PropMan->Append(new wxIntProperty("BackgroundAlpha", wxPG_LABEL, BackColor[3]*255));
+    unsigned char* Col=cast(BackColor);
+    PropMan->Append(new wxColourProperty("BackgroundColor", wxPG_LABEL, wxColour(Col[0], Col[1], Col[2])));
+    PropMan->Append(new wxIntProperty("BackgroundAlpha", wxPG_LABEL, Col[3]));
 
     PropMan->Append(new wxFloatProperty("BorderWidth", wxPG_LABEL, BorderWidth));
 
-    PropMan->Append(new wxColourProperty("BorderColor", wxPG_LABEL, wxColour(BorderColor[0]*255, BorderColor[1]*255, BorderColor[2]*255)));
-
-    PropMan->Append(new wxIntProperty("BorderColorAlpha", wxPG_LABEL, BorderColor[3]*255));
+    Col=cast(BorderColor);
+    PropMan->Append(new wxColourProperty("BorderColor", wxPG_LABEL, wxColour(Col[0], Col[1], Col[2])));
+    PropMan->Append(new wxIntProperty("BorderColorAlpha", wxPG_LABEL, Col[3]));
 
     PropMan->Append(new wxStringProperty("FontName", wxPG_LABEL, Font->GetName()));
 
@@ -144,9 +162,9 @@ void WindowT::EditorFillInPG(wxPropertyGridManager* PropMan)
 
     PropMan->Append(new wxFloatProperty("TextScale", wxPG_LABEL, TextScale));
 
-    PropMan->Append(new wxColourProperty("TextColor", wxPG_LABEL, wxColour(TextColor[0]*255, TextColor[1]*255, TextColor[2]*255)));
-
-    PropMan->Append(new wxIntProperty("TextColorAlpha", wxPG_LABEL, TextColor[3]*255));
+    Col=cast(TextColor);
+    PropMan->Append(new wxColourProperty("TextColor", wxPG_LABEL, wxColour(Col[0], Col[1], Col[2])));
+    PropMan->Append(new wxIntProperty("TextColorAlpha", wxPG_LABEL, Col[3]));
 
     wxPGChoices AlignHorChoices;
     wxPGChoices AlignVerChoices;
@@ -191,9 +209,9 @@ void EditWindowT::EditorFillInPG(wxPropertyGridManager* PropMan)
 
     PropMan->Append(new wxFloatProperty("TextCursorRate", wxPG_LABEL, TextCursorRate));
 
-    PropMan->Append(new wxColourProperty("TextCursorColor", wxPG_LABEL, wxColour(TextCursorColor[0]*255, TextCursorColor[1]*255, TextCursorColor[2]*255)));
-
-    PropMan->Append(new wxIntProperty("TextCursorColorAlpha", wxPG_LABEL, TextCursorColor[3]*255));
+    unsigned char* Col=cast(TextCursorColor);
+    PropMan->Append(new wxColourProperty("TextCursorColor", wxPG_LABEL, wxColour(Col[0], Col[1], Col[2])));
+    PropMan->Append(new wxIntProperty("TextCursorColorAlpha", wxPG_LABEL, Col[3]));
 }
 
 
@@ -203,25 +221,25 @@ void ListBoxT::EditorFillInPG(wxPropertyGridManager* PropMan)
 
     PropMan->Append(new wxFloatProperty("RowHeight", wxPG_LABEL, RowHeight));
 
-    PropMan->Append(new wxColourProperty("OddRowBgColor", wxPG_LABEL, wxColour(OddRowBgColor[0]*255, OddRowBgColor[1]*255, OddRowBgColor[2]*255)));
+    unsigned char* Col=cast(OddRowBgColor);
+    PropMan->Append(new wxColourProperty("OddRowBgColor", wxPG_LABEL, wxColour(Col[0], Col[1], Col[2])));
+    PropMan->Append(new wxIntProperty("OddRowBgColorAlpha", wxPG_LABEL, Col[3]));
 
-    PropMan->Append(new wxIntProperty("OddRowBgColorAlpha", wxPG_LABEL, OddRowBgColor[3]*255));
+    Col=cast(EvenRowBgColor);
+    PropMan->Append(new wxColourProperty("EvenRowBgColor", wxPG_LABEL, wxColour(Col[0], Col[1], Col[2])));
+    PropMan->Append(new wxIntProperty("EvenRowBgColorAlpha", wxPG_LABEL, Col[3]));
 
-    PropMan->Append(new wxColourProperty("EvenRowBgColor", wxPG_LABEL, wxColour(EvenRowBgColor[0]*255, EvenRowBgColor[1]*255, EvenRowBgColor[2]*255)));
+    Col=cast(RowTextColor);
+    PropMan->Append(new wxColourProperty("RowTextColor", wxPG_LABEL, wxColour(Col[0], Col[1], Col[2])));
+    PropMan->Append(new wxIntProperty("RowTextColorAlpha", wxPG_LABEL, Col[3]));
 
-    PropMan->Append(new wxIntProperty("EvenRowBgColorAlpha", wxPG_LABEL, EvenRowBgColor[3]*255));
+    Col=cast(SelectedRowBgColor);
+    PropMan->Append(new wxColourProperty("SelectedRowBgColor", wxPG_LABEL, wxColour(Col[0], Col[1], Col[2])));
+    PropMan->Append(new wxIntProperty("SelectedRowBgColorAlpha", wxPG_LABEL, Col[3]));
 
-    PropMan->Append(new wxColourProperty("RowTextColor", wxPG_LABEL, wxColour(RowTextColor[0]*255, RowTextColor[1]*255, RowTextColor[2]*255)));
-
-    PropMan->Append(new wxIntProperty("RowTextColorAlpha", wxPG_LABEL, RowTextColor[3]*255));
-
-    PropMan->Append(new wxColourProperty("SelectedRowBgColor", wxPG_LABEL, wxColour(SelectedRowBgColor[0]*255, SelectedRowBgColor[1]*255, SelectedRowBgColor[2]*255)));
-
-    PropMan->Append(new wxIntProperty("SelectedRowBgColorAlpha", wxPG_LABEL, SelectedRowBgColor[3]*255));
-
-    PropMan->Append(new wxColourProperty("SelectedRowTextColor", wxPG_LABEL, wxColour(SelectedRowTextColor[0]*255, SelectedRowTextColor[1]*255, SelectedRowTextColor[2]*255)));
-
-    PropMan->Append(new wxIntProperty("SelectedRowTextColorAlpha", wxPG_LABEL, SelectedRowTextColor[3]*255));
+    Col=cast(SelectedRowTextColor);
+    PropMan->Append(new wxColourProperty("SelectedRowTextColor", wxPG_LABEL, wxColour(Col[0], Col[1], Col[2])));
+    PropMan->Append(new wxIntProperty("SelectedRowTextColorAlpha", wxPG_LABEL, Col[3]));
 }
 
 
@@ -264,16 +282,16 @@ bool WindowT::UpdateProperty(wxPGProperty* Property)
     else if (PropName=="Size.Height")      Property->SetValue(Rect[3]);
     else if (PropName=="Rotation")         Property->SetValue(RotAngle);
     else if (PropName=="BackMatName")      Property->SetValueFromString(BackRenderMatName);
-    else if (PropName=="BackgroundColor")  Property->SetValueFromString(wxString::Format("(%i,%i,%i)", int(BackColor[0]*255.0f), int(BackColor[1]*255.0f), int(BackColor[2]*255.0f)));
-    else if (PropName=="BackgroundAlpha")  Property->SetValue(int(BackColor[3]*255.0f));
+    else if (PropName=="BackgroundColor")  { unsigned char* Col=cast(BackColor); Property->SetValueFromString(wxString::Format("(%i,%i,%i)", Col[0], Col[1], Col[2])); }
+    else if (PropName=="BackgroundAlpha")  { unsigned char* Col=cast(BackColor); Property->SetValue(Col[3]); }
     else if (PropName=="BorderWidth")      Property->SetValue(BorderWidth);
-    else if (PropName=="BorderColor")      Property->SetValueFromString(wxString::Format("(%i,%i,%i)", int(BorderColor[0]*255.0f), int(BorderColor[1]*255.0f), int(BorderColor[2]*255.0f)));
-    else if (PropName=="BorderColorAlpha") Property->SetValue(int(BorderColor[3]*255.0f));
+    else if (PropName=="BorderColor")      { unsigned char* Col=cast(BorderColor); Property->SetValueFromString(wxString::Format("(%i,%i,%i)", Col[0], Col[1], Col[2])); }
+    else if (PropName=="BorderColorAlpha") { unsigned char* Col=cast(BorderColor); Property->SetValue(Col[3]); }
     else if (PropName=="FontName")         Property->SetValueFromString(Font->GetName());
     else if (PropName=="Text")             Property->SetValueFromString(Text);
     else if (PropName=="TextScale")        Property->SetValue(TextScale);
-    else if (PropName=="TextColor")        Property->SetValueFromString(wxString::Format("(%i,%i,%i)", int(TextColor[0]*255.0f), int(TextColor[1]*255.0f), int(TextColor[2]*255.0f)));
-    else if (PropName=="TextColorAlpha")   Property->SetValue(int(TextColor[3]*255.0f));
+    else if (PropName=="TextColor")        { unsigned char* Col=cast(TextColor); Property->SetValueFromString(wxString::Format("(%i,%i,%i)", Col[0], Col[1], Col[2])); }
+    else if (PropName=="TextColorAlpha")   { unsigned char* Col=cast(TextColor); Property->SetValue(Col[3]); }
     else if (PropName=="HorizontalAlign")  Property->SetValue((int)TextAlignHor);
     else if (PropName=="VerticalAlign")    Property->SetValue((int)TextAlignVer);
     else                                   return false;
@@ -317,10 +335,10 @@ bool EditWindowT::UpdateProperty(wxPGProperty* Property)
 
         Property->SetValue(Selection);
     }
-    else if (PropName=="TextCursorRate")       Property->SetValue(TextCursorRate);
-    else if (PropName=="TextCursorColor")      Property->SetValueFromString(wxString::Format("(%i,%i,%i)", int(TextCursorColor[0]*255.0f), int(TextCursorColor[1]*255.0f), int(TextCursorColor[2]*255.0f)));
-    else if (PropName=="TextCursorColorAlhpa") Property->SetValue(int(TextCursorColor[3]*255.0f));
-    else                                       return false;
+    else if (PropName=="TextCursorRate")       { Property->SetValue(TextCursorRate); }
+    else if (PropName=="TextCursorColor")      { unsigned char* Col=cast(TextCursorColor); Property->SetValueFromString(wxString::Format("(%i,%i,%i)", Col[0], Col[1], Col[2])); }
+    else if (PropName=="TextCursorColorAlhpa") { unsigned char* Col=cast(TextCursorColor); Property->SetValue(Col[3]); }
+    else                                       { return false; }
 
     return true;
 }
@@ -332,18 +350,18 @@ bool ListBoxT::UpdateProperty(wxPGProperty* Property)
 
     wxString PropName=Property->GetName();
 
-         if (PropName=="RowHeight")                 Property->SetValue(RowHeight);
-    else if (PropName=="OddRowBgColor")             Property->SetValueFromString(wxString::Format("(%i,%i,%i)", int(OddRowBgColor[0]*255.0f), int(OddRowBgColor[1]*255.0f), int(OddRowBgColor[2]*255.0f)));
-    else if (PropName=="OddRowBgColorAlpha")        Property->SetValue(int(OddRowBgColor[3]*255.0f));
-    else if (PropName=="EvenRowBgColor")            Property->SetValueFromString(wxString::Format("(%i,%i,%i)", int(EvenRowBgColor[0]*255.0f), int(EvenRowBgColor[1]*255.0f), int(EvenRowBgColor[2]*255.0f)));
-    else if (PropName=="EvenRowBgColorAlpha")       Property->SetValue(int(EvenRowBgColor[3]*255.0f));
-    else if (PropName=="RowTextColor")              Property->SetValueFromString(wxString::Format("(%i,%i,%i)", int(RowTextColor[0]*255.0f), int(RowTextColor[1]*255.0f), int(RowTextColor[2]*255.0f)));
-    else if (PropName=="RowTextColorAlpha")         Property->SetValue(int(RowTextColor[3]*255.0f));
-    else if (PropName=="SelectedRowBgColor")        Property->SetValueFromString(wxString::Format("(%i,%i,%i)", int(SelectedRowBgColor[0]*255.0f), int(SelectedRowBgColor[1]*255.0f), int(SelectedRowBgColor[2]*255.0f)));
-    else if (PropName=="SelectedRowBgColorAlpha")   Property->SetValue(int(SelectedRowBgColor[3]*255.0f));
-    else if (PropName=="SelectedRowTextColor")      Property->SetValueFromString(wxString::Format("(%i,%i,%i)", int(SelectedRowTextColor[0]*255.0f), int(SelectedRowTextColor[1]*255.0f), int(SelectedRowTextColor[2]*255.0f)));
-    else if (PropName=="SelectedRowTextColorAlpha") Property->SetValue(int(SelectedRowTextColor[3]*255.0f));
-    else                                            return false;
+         if (PropName=="RowHeight")                 { Property->SetValue(RowHeight); }
+    else if (PropName=="OddRowBgColor")             { unsigned char* Col=cast(OddRowBgColor);        Property->SetValueFromString(wxString::Format("(%i,%i,%i)", Col[0], Col[1], Col[2])); }
+    else if (PropName=="OddRowBgColorAlpha")        { unsigned char* Col=cast(OddRowBgColor);        Property->SetValue(Col[3]); }
+    else if (PropName=="EvenRowBgColor")            { unsigned char* Col=cast(EvenRowBgColor);       Property->SetValueFromString(wxString::Format("(%i,%i,%i)", Col[0], Col[1], Col[2])); }
+    else if (PropName=="EvenRowBgColorAlpha")       { unsigned char* Col=cast(EvenRowBgColor);       Property->SetValue(Col[3]); }
+    else if (PropName=="RowTextColor")              { unsigned char* Col=cast(RowTextColor);         Property->SetValueFromString(wxString::Format("(%i,%i,%i)", Col[0], Col[1], Col[2])); }
+    else if (PropName=="RowTextColorAlpha")         { unsigned char* Col=cast(RowTextColor);         Property->SetValue(Col[3]); }
+    else if (PropName=="SelectedRowBgColor")        { unsigned char* Col=cast(SelectedRowBgColor);   Property->SetValueFromString(wxString::Format("(%i,%i,%i)", Col[0], Col[1], Col[2])); }
+    else if (PropName=="SelectedRowBgColorAlpha")   { unsigned char* Col=cast(SelectedRowBgColor);   Property->SetValue(Col[3]); }
+    else if (PropName=="SelectedRowTextColor")      { unsigned char* Col=cast(SelectedRowTextColor); Property->SetValueFromString(wxString::Format("(%i,%i,%i)", Col[0], Col[1], Col[2])); }
+    else if (PropName=="SelectedRowTextColorAlpha") { unsigned char* Col=cast(SelectedRowTextColor); Property->SetValue(Col[3]); }
+    else                                            { return false; }
 
     return true;
 }
@@ -431,6 +449,7 @@ bool WindowT::EditorHandlePGChange(wxPropertyGridEvent& Event, GuiEditor::ChildF
         wxASSERT(MemberVars.find("backColor")!=MemberVars.end());
 
         wxColour NewColor(FromPGColorString(Prop->GetValueAsString()));
+        wxMessageBox(Prop->GetValueAsString());
 
         float NewValue[]={ NewColor.Red()/255.0f, NewColor.Green()/255.0f, NewColor.Blue()/255.0f, BackColor[3] };
 
