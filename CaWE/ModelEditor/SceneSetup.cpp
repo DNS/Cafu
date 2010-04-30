@@ -119,7 +119,7 @@ void ModelEditor::SceneSetupT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
     double              PropValueD =0.0;
     const float         PropValueF =Prop->GetValue().Convert(&PropValueD) ? float(PropValueD) : 0.0f;
 
-         if (PropName=="Background Color")                m_BackgroundColor=wxColour("rgb"+Prop->GetValueAsString());
+         if (PropName=="Background Color")                m_BackgroundColor << Prop->GetValue();
     else if (PropName=="Show Origin")                     m_ShowOrigin=Prop->GetValue().GetBool();
     else if (PropName=="Camera.Pos.x")                    m_Camera.Pos.x=PropValueF;
     else if (PropName=="Camera.Pos.y")                    m_Camera.Pos.y=PropValueF;
@@ -138,7 +138,7 @@ void ModelEditor::SceneSetupT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
 
         if (NewMat) m_GroundPlane_Mat=NewMat;
     }
-    else if (PropName=="Ambient Light Color")             m_AmbientLightColor=wxColour("rgb"+Prop->GetValueAsString());
+    else if (PropName=="Ambient Light Color")             m_AmbientLightColor << Prop->GetValue();
     else
     {
         // Don't uncomment this:

@@ -66,12 +66,6 @@ static const float SelectionColor[]={ 1.0, 0.0, 0.0, 1.0 };
 static const float SelectionBorder =2;
 
 
-static wxColour FromPGColorString(wxString ColorString)
-{
-    return wxColour("RGB"+ColorString);
-}
-
-
 static unsigned char* cast(float* f)
 {
     static unsigned char c[4];
@@ -448,9 +442,7 @@ bool WindowT::EditorHandlePGChange(wxPropertyGridEvent& Event, GuiEditor::ChildF
     {
         wxASSERT(MemberVars.find("backColor")!=MemberVars.end());
 
-        wxColour NewColor(FromPGColorString(Prop->GetValueAsString()));
-        wxMessageBox(Prop->GetValueAsString());
-
+        wxColour NewColor; NewColor << Prop->GetValue();
         float NewValue[]={ NewColor.Red()/255.0f, NewColor.Green()/255.0f, NewColor.Blue()/255.0f, BackColor[3] };
 
         ChildFrame->SubmitCommand(new CommandModifyWindowT(GuiDocument, this, PropName, MemberVars["backColor"], NewValue));
@@ -472,8 +464,7 @@ bool WindowT::EditorHandlePGChange(wxPropertyGridEvent& Event, GuiEditor::ChildF
     {
         wxASSERT(MemberVars.find("borderColor")!=MemberVars.end());
 
-        wxColour NewColor(FromPGColorString(Prop->GetValueAsString()));
-
+        wxColour NewColor; NewColor << Prop->GetValue();
         float NewValue[]={ NewColor.Red()/255.0f, NewColor.Green()/255.0f, NewColor.Blue()/255.0f, BorderColor[3] };
 
         ChildFrame->SubmitCommand(new CommandModifyWindowT(GuiDocument, this, PropName, MemberVars["borderColor"], NewValue));
@@ -509,8 +500,7 @@ bool WindowT::EditorHandlePGChange(wxPropertyGridEvent& Event, GuiEditor::ChildF
     {
         wxASSERT(MemberVars.find("textColor")!=MemberVars.end());
 
-        wxColour NewColor(FromPGColorString(Prop->GetValueAsString()));
-
+        wxColour NewColor; NewColor << Prop->GetValue();
         float NewValue[]={ NewColor.Red()/255.0f, NewColor.Green()/255.0f, NewColor.Blue()/255.0f, TextColor[3] };
 
         ChildFrame->SubmitCommand(new CommandModifyWindowT(GuiDocument, this, PropName, MemberVars["textColor"], NewValue));
@@ -600,8 +590,7 @@ bool EditWindowT::EditorHandlePGChange(wxPropertyGridEvent& Event, GuiEditor::Ch
     {
         wxASSERT(MemberVars.find("textCursorColor")!=MemberVars.end());
 
-        wxColour NewColor(FromPGColorString(Prop->GetValueAsString()));
-
+        wxColour NewColor; NewColor << Prop->GetValue();
         float NewValue[]={ NewColor.Red()/255.0f, NewColor.Green()/255.0f, NewColor.Blue()/255.0f, TextCursorColor[3] };
 
         ChildFrame->SubmitCommand(new CommandModifyWindowT(GuiDocument, this, PropName, MemberVars["textCursorColor"], NewValue));
@@ -640,8 +629,7 @@ bool ListBoxT::EditorHandlePGChange(wxPropertyGridEvent& Event, GuiEditor::Child
     {
         wxASSERT(MemberVars.find("oddRowBgColor")!=MemberVars.end());
 
-        wxColour NewColor(FromPGColorString(Prop->GetValueAsString()));
-
+        wxColour NewColor; NewColor << Prop->GetValue();
         float NewValue[]={ NewColor.Red()/255.0f, NewColor.Green()/255.0f, NewColor.Blue()/255.0f, OddRowBgColor[3] };
 
         ChildFrame->SubmitCommand(new CommandModifyWindowT(GuiDocument, this, PropName, MemberVars["oddRowBgColor"], NewValue));
@@ -658,8 +646,7 @@ bool ListBoxT::EditorHandlePGChange(wxPropertyGridEvent& Event, GuiEditor::Child
     {
         wxASSERT(MemberVars.find("evenRowBgColor")!=MemberVars.end());
 
-        wxColour NewColor(FromPGColorString(Prop->GetValueAsString()));
-
+        wxColour NewColor; NewColor << Prop->GetValue();
         float NewValue[]={ NewColor.Red()/255.0f, NewColor.Green()/255.0f, NewColor.Blue()/255.0f, EvenRowBgColor[3] };
 
         ChildFrame->SubmitCommand(new CommandModifyWindowT(GuiDocument, this, PropName, MemberVars["evenRowBgColor"], NewValue));
@@ -676,8 +663,7 @@ bool ListBoxT::EditorHandlePGChange(wxPropertyGridEvent& Event, GuiEditor::Child
     {
         wxASSERT(MemberVars.find("rowTextColor")!=MemberVars.end());
 
-        wxColour NewColor(FromPGColorString(Prop->GetValueAsString()));
-
+        wxColour NewColor; NewColor << Prop->GetValue();
         float NewValue[]={ NewColor.Red()/255.0f, NewColor.Green()/255.0f, NewColor.Blue()/255.0f, RowTextColor[3] };
 
         ChildFrame->SubmitCommand(new CommandModifyWindowT(GuiDocument, this, PropName, MemberVars["rowTextColor"], NewValue));
@@ -694,8 +680,7 @@ bool ListBoxT::EditorHandlePGChange(wxPropertyGridEvent& Event, GuiEditor::Child
     {
         wxASSERT(MemberVars.find("selectedRowBgColor")!=MemberVars.end());
 
-        wxColour NewColor(FromPGColorString(Prop->GetValueAsString()));
-
+        wxColour NewColor; NewColor << Prop->GetValue();
         float NewValue[]={ NewColor.Red()/255.0f, NewColor.Green()/255.0f, NewColor.Blue()/255.0f, RowTextColor[3] };
 
         ChildFrame->SubmitCommand(new CommandModifyWindowT(GuiDocument, this, PropName, MemberVars["selectedRowBgColor"], NewValue));
@@ -712,8 +697,7 @@ bool ListBoxT::EditorHandlePGChange(wxPropertyGridEvent& Event, GuiEditor::Child
     {
         wxASSERT(MemberVars.find("selectedRowTextColor")!=MemberVars.end());
 
-        wxColour NewColor(FromPGColorString(Prop->GetValueAsString()));
-
+        wxColour NewColor; NewColor << Prop->GetValue();
         float NewValue[]={ NewColor.Red()/255.0f, NewColor.Green()/255.0f, NewColor.Blue()/255.0f, RowTextColor[3] };
 
         ChildFrame->SubmitCommand(new CommandModifyWindowT(GuiDocument, this, PropName, MemberVars["selectedRowTextColor"], NewValue));

@@ -849,6 +849,7 @@ void InspDlgEntityPropsT::OnPropertyGridChanged(wxPropertyGridEvent& event)
     // (as they are not editable and thus have been disabled for editing above).
     if (PropInfo==NULL || PropInfo->KeyState==MIXED) return;
 
+
     wxString NewValue=event.GetProperty()->GetValueAsString();
 
     // We need to translate the value here according to property type.
@@ -857,12 +858,19 @@ void InspDlgEntityPropsT::OnPropertyGridChanged(wxPropertyGridEvent& event)
     {
         NewValue=wxString::Format("%li", event.GetProperty()->GetValue().GetLong());
     }
+    else if (event.GetProperty()->GetValueType()=="wxColour")
+    {
+        wxColour NewColor; NewColor << event.GetProperty()->GetValue();
 
-    // FIXME We need an array of the currently selected map entities as MapElementT object so we have to cast it here...
-    // This should be no longer necessary after the revision of the current map elements hierarchy.
+        NewValue=wxString::Format("%i %i %i", NewColor.Red(), NewColor.Green(), NewColor.Blue());
+    }
+
+
+    // Have the selected entities available as a set of MapElementTs as well.
     ArrayT<MapElementT*> MapElements;
+
     for (unsigned long i=0; i<SelectedEntities.Size(); i++)
-        MapElements.PushBack(dynamic_cast<MapElementT*>(SelectedEntities[i]));
+        MapElements.PushBack(SelectedEntities[i]);
 
     CommandT* MacroCommand=NULL;
 
@@ -941,10 +949,10 @@ void InspDlgEntityPropsT::OnPropertyGridChanged(wxPropertyGridEvent& event)
 
         }
 
-        // Check LUA compatibility for entity names.
+        // Check Lua compatibility for entity names.
         if (Key=="name" && !CheckLuaVarCompat(NewValue))
         {
-            wxMessageBox("Entity names must be LUA compatible:\n-Must only consist of letters, digits and underscores\n-Must not begin with digits\n-Must not be a LUA keyword or LUA global variable", "Error: Entity name is not LUA compatible.", wxOK | wxICON_ERROR);
+            wxMessageBox("Entity names must be valid Lua identifiers: They can be any combination of letters, digits and underscores that does not begin with a digit and is not a reserved Lua keyword.", "Error: Entity name is not a Lua identifier.", wxOK | wxICON_ERROR);
             NotifySubjectChanged_Modified(MapDoc, MapElements, MEMD_ENTITY_PROPERTY_MODIFIED, ""); // Intentionally update also this dialog to restore previous property value.
             return;
         }
@@ -985,12 +993,7 @@ void InspDlgEntityPropsT::OnPropertyGridChanged(wxPropertyGridEvent& event)
             }
         }
 
-        // Translate color properties here.
-        if (event.GetProperty()->GetValueType()=="wxColour")
-        {
-            NewValue=TranslateColorString(NewValue);
-        }
-
+        // Set the property to its new value.
         ArrayT<CommandT*> Commands;
 
         for (unsigned long i=0; i<SelectedEntities.Size(); i++)
@@ -1025,10 +1028,8 @@ void InspDlgEntityPropsT::OnPropertyGridChanged(wxPropertyGridEvent& event)
         if (Insert!=NULL) PropMan->SetPropertyBackgroundColour(Insert, COLOR_WARNING);
     }
 
-    // Check if new set value is a DEFAULT value and update background color.
-    const wxString Val=event.GetProperty()->GetValueType()=="wxColour" ? TranslateColorString(event.GetProperty()->GetValueAsString()) : event.GetProperty()->GetValueAsString();
-
-    if ((PropInfo->KeyState & NORMAL) && Val==PropInfo->ClassVar->GetDefault())
+    // Check if newly set value is a DEFAULT value and update background color.
+    if ((PropInfo->KeyState & NORMAL) && NewValue==PropInfo->ClassVar->GetDefault())
     {
         PropMan->SetPropertyBackgroundColour(event.GetProperty(), COLOR_DEFAULT);
         PropInfo->ValueIsDefault=true;
