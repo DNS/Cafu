@@ -21,6 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
+#include "Camera.hpp"
 #include "CursorMan.hpp"
 #include "EntityClass.hpp"
 #include "EntityClassVar.hpp"
@@ -64,7 +65,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 //   - Remove view2d.SelectByHandles?    Select by: entire object / handle / part of object ?
 //   - Make sure that pressing SHIFT properly adds the small "+" to the "sizing" cursor.
 //   - Die m_TrafoBox mit den richtigen Werten initialisieren im LMB-*down* handler, obwohl es erstmal in den UNDECIDED state geht
-//   - CreatePrimitive() - either needs Position as a parameter, or better: Call NewEntity / NewBrush / NewModel / ... tool for doing the job!
 //   - Fix improperly invalidated drawing rect, see http://www.cafu.de/forum/viewtopic.php?p=3255#p3255 for details.
 //   - What do we do with   m_OptionsBar->IsIgnoreGroupsChecked() ?  It became unused in r969.
 
@@ -558,8 +558,19 @@ bool ToolSelectionT::OnContextMenu2D(ViewWindow2DT& ViewWindow, wxContextMenuEve
     {
         case SelectionContextMenuT::ID_MENU_CREATE_MODEL:
         case SelectionContextMenuT::ID_MENU_CREATE_PLANT:
-            CreatePrimitive(ContextMenu.GetClickedMenuItem());
+        {
+            wxPoint MousePosWin=ViewWindow.ScreenToClient(CE.GetPosition());
+
+            if (CE.GetPosition()==wxDefaultPosition)
+            {
+                MousePosWin=wxPoint(ViewWindow.GetClientSize().GetWidth()/2, ViewWindow.GetClientSize().GetHeight()/2);
+            }
+
+            const Vector3fT WorldPos=m_MapDoc.SnapToGrid(ViewWindow.WindowToWorld(MousePosWin, m_MapDoc.GetMostRecentSelBB().Min.z), false /*Toogle?*/, -1 /*Snap all axes.*/);
+
+            CreatePrimitive(WorldPos, ContextMenu.GetClickedMenuItem());
             break;
+        }
     }
 
     return true;
@@ -657,8 +668,23 @@ bool ToolSelectionT::OnContextMenu3D(ViewWindow3DT& ViewWindow, wxContextMenuEve
     {
         case SelectionContextMenuT::ID_MENU_CREATE_MODEL:
         case SelectionContextMenuT::ID_MENU_CREATE_PLANT:
-            CreatePrimitive(ContextMenu.GetClickedMenuItem());
+        {
+            wxPoint MousePosWin=ViewWindow.ScreenToClient(CE.GetPosition());
+
+            if (CE.GetPosition()==wxDefaultPosition)
+            {
+                MousePosWin=wxPoint(ViewWindow.GetClientSize().GetWidth()/2, ViewWindow.GetClientSize().GetHeight()/2);
+            }
+
+            const ArrayT<ViewWindow3DT::HitInfoT> Hits=ViewWindow.GetElementsAt(MousePosWin);
+
+            const Vector3fT ViewDir=ViewWindow.WindowToWorld(MousePosWin)-ViewWindow.GetCamera().Pos;
+            const float     Depth  =(Hits.Size()==0) ? 8.0f*length(ViewDir) : Hits[0].Depth;
+            const Vector3fT HitPos =ViewWindow.GetCamera().Pos + normalizeOr0(ViewDir)*Depth;
+
+            CreatePrimitive(HitPos, ContextMenu.GetClickedMenuItem());
             break;
+        }
     }
 
     return true;
@@ -887,16 +913,12 @@ void ToolSelectionT::UpdateTrafoBox()
 }
 
 
-void ToolSelectionT::CreatePrimitive(int ID)
+void ToolSelectionT::CreatePrimitive(const Vector3fT& WorldPos, int ID)
 {
-    Vector3fT Position=m_TrafoBox.GetBB().GetCenter();
-
     switch(ID)
     {
         case SelectionContextMenuT::ID_MENU_CREATE_PLANT:
         {
-            Position.z=m_TrafoBox.GetBB().Min.z;
-
             wxFileName PlantDescrFile(wxFileSelector("Select a plant description", m_MapDoc.GetGameConfig()->ModDir+"/Plants/", "", "", "Plant Descriptions (*.cpd)|*.cpd|All Files (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST));
 
             if (PlantDescrFile=="") return;
@@ -904,7 +926,7 @@ void ToolSelectionT::CreatePrimitive(int ID)
             PlantDescrFile.MakeRelativeTo(m_MapDoc.GetGameConfig()->ModDir);
 
             PlantDescriptionT* PlantDescr=m_MapDoc.GetPlantDescrMan().GetPlantDescription(std::string(PlantDescrFile.GetFullPath(wxPATH_UNIX)));
-            MapPlantT*         NewPlant  =new MapPlantT(PlantDescr, PlantDescr->RandomSeed, Position);
+            MapPlantT*         NewPlant  =new MapPlantT(PlantDescr, PlantDescr->RandomSeed, WorldPos);
 
             m_MapDoc.GetHistory().SubmitCommand(new CommandAddPrimT(m_MapDoc, NewPlant, m_MapDoc.GetEntities()[0], "new plant"));
             break;
@@ -918,7 +940,7 @@ void ToolSelectionT::CreatePrimitive(int ID)
             if (ModelFile=="") return;
 
             ModelFile.MakeRelativeTo(m_MapDoc.GetGameConfig()->ModDir);
-            MapModelT* NewModel=new MapModelT(m_MapDoc, ModelFile.GetFullPath(wxPATH_UNIX), Position);
+            MapModelT* NewModel=new MapModelT(m_MapDoc, ModelFile.GetFullPath(wxPATH_UNIX), WorldPos);
 
             m_MapDoc.GetHistory().SubmitCommand(new CommandAddPrimT(m_MapDoc, NewModel, m_MapDoc.GetEntities()[0], "new model"));
             break;

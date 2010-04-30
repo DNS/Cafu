@@ -66,7 +66,7 @@ class ViewWindow3DT : public wxGLCanvas, public ViewWindowT
         bool           m_IsLooking;
     };
 
-    /// This struct describes a hit (an intersection of a map element with a view ray through a given pixel) as returned by the ObjectsAt() method.
+    /// This struct describes a hit (an intersection of a map element with a view ray through a given pixel) as returned by the GetElementsAt() method.
     struct HitInfoT
     {
         MapElementT*  Object;   ///< Pointer to the intersected map element.

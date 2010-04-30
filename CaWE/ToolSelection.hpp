@@ -123,7 +123,7 @@ class ToolSelectionT : public ToolT, public ObserverT
 
     void OnEscape(ViewWindowT& ViewWindow);     ///< Handles the ESC key event in the 2D and 3D views.
     void UpdateTrafoBox();
-    void CreatePrimitive(int ID);
+    void CreatePrimitive(const Vector3fT& WorldPos, int ID);
     void NudgeSelection(const AxesInfoT& AxesInfo, const wxKeyEvent& KE);
     void GetToggleEffects(MapElementT* Elem, ArrayT<MapElementT*>& RemoveFromSel, ArrayT<MapElementT*>& AddToSel) const;
     void SetHitList(const ArrayT<MapElementT*>& NewHits, bool IsControlDown);
