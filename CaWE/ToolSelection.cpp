@@ -317,7 +317,7 @@ bool ToolSelectionT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
 
         case TS_UNDECIDED:
         {
-            if (m_TrafoBox.CheckForHandle(ViewWindow, ViewWindow.WindowToTool(ME.GetPosition()))==TrafoBoxT::TH_BODY)
+            if (m_TrafoBox.CheckForHandle(ViewWindow, ViewWindow.WindowToTool(m_LDownPosWin))==TrafoBoxT::TH_BODY)
             {
                 m_TrafoBox.SetNextTrafoMode();
             }
@@ -469,11 +469,12 @@ bool ToolSelectionT::OnMouseMove2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
         case TS_UNDECIDED:
         {
             // If the user dragged beyond the drag threshold, switch to the next state.
-            const wxPoint Drag=m_LDownPosWin-ME.GetPosition();
+            const wxPoint Drag      =m_LDownPosWin-ME.GetPosition();
+            const wxPoint LDownPosTS=ViewWindow.WindowToTool(m_LDownPosWin);
 
             if (abs(Drag.x)<4 && abs(Drag.y)<4) break;
 
-            if (m_TrafoBox.CheckForHandle(ViewWindow, MousePosTS)==TrafoBoxT::TH_BODY)
+            if (m_TrafoBox.CheckForHandle(ViewWindow, LDownPosTS)==TrafoBoxT::TH_BODY)
             {
                 // Start translating the selection.
                 Vector3fT        RefPoint;
@@ -492,7 +493,7 @@ bool ToolSelectionT::OnMouseMove2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
                     }
                 }
 
-                const bool Result=m_TrafoBox.BeginTrafo(ViewWindow, MousePosTS, RefPointPtr);
+                const bool Result=m_TrafoBox.BeginTrafo(ViewWindow, LDownPosTS, RefPointPtr);
 
                 wxASSERT(Result);
                 wxASSERT(m_TrafoBox.GetDragState()==TrafoBoxT::TH_BODY);

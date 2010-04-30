@@ -22,22 +22,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "WindowInspector.hpp"
-
 #include "Commands/ModifyWindow.hpp"
-
 #include "GuiSys/Window.hpp"
-
 #include "ChildFrame.hpp"
 #include "GuiDocument.hpp"
 
 
 using namespace GuiEditor;
-
-
-/* static wxColour FromPGColorString(wxString ColorString)
-{
-    return wxColour("RGB"+ColorString);
-} */
 
 
 BEGIN_EVENT_TABLE(WindowInspectorT, wxPropertyGridManager)
