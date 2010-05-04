@@ -222,7 +222,7 @@ GuiImplT::GuiImplT(const std::string& GuiScriptName, bool IsInlineCode)
     }
 
 
-    // Finally call the Lua OnInit() method of each window.
+    // Finally call the Lua OnInit() and OnInit2() methods of each window.
     ArrayT<WindowT*> AllChildren;
 
     AllChildren.PushBack(RootWindow.GetRaw());
@@ -230,7 +230,14 @@ GuiImplT::GuiImplT(const std::string& GuiScriptName, bool IsInlineCode)
 
     for (unsigned long ChildNr=0; ChildNr<AllChildren.Size(); ChildNr++)
     {
+        // The OnInit() methods are automatically written by the Cafu GUI editor (*_init.cgui files).
         AllChildren[ChildNr]->CallLuaMethod("OnInit");
+    }
+
+    for (unsigned long ChildNr=0; ChildNr<AllChildren.Size(); ChildNr++)
+    {
+        // The OnInit2() methods contain custom, hand-written code by the user (*_main.cgui files).
+        AllChildren[ChildNr]->CallLuaMethod("OnInit2");
     }
 
 

@@ -1,0 +1,131 @@
+-- This is a Cafu engine GUI script file, written by CaWE, the Cafu World Editor.
+-- You CAN edit this file manually, but note that CaWE may overwrite your changes.
+-- It is recommended that you place all your customizations like method overrides
+-- and effects into a separate .cgui file that calls dofile() for including this.
+
+
+-- Instantiation of all windows.
+-- *****************************
+
+Root=gui:new("WindowT", "Root");
+
+InfoStation=gui:new("WindowT", "InfoStation");
+
+InfoTextSelectNode=gui:new("WindowT", "InfoTextSelectNode");
+
+DestNode=gui:new("WindowT", "DestNode");
+
+ButtonMinus=gui:new("WindowT", "ButtonMinus");
+
+ButtonPlus=gui:new("WindowT", "ButtonPlus");
+
+ButtonGo=gui:new("WindowT", "ButtonGo");
+
+
+-- Set the GUIs root window.
+-- *************************
+
+gui:SetRootWindow(Root);
+
+
+-- Setup the window hierarchy.
+-- ***************************
+
+Root:AddChild(InfoStation);
+
+Root:AddChild(InfoTextSelectNode);
+
+Root:AddChild(DestNode);
+
+Root:AddChild(ButtonMinus);
+
+Root:AddChild(ButtonPlus);
+
+Root:AddChild(ButtonGo);
+
+
+-- Initialization of the window contents ("constructor code").
+-- ***********************************************************
+
+function Root:OnInit()
+    self:set("rect", 0, 0, 640, 480);
+    self:set("backColor", 0, 0.356863, 0.533333, 0.5);
+    self:set("font", "Fonts/Impact");
+    self:set("text", "Wormhole Teleportation Services Inc.\n\n");
+    self:set("textScale", 0.5);
+    self:set("textColor", 0, 0.243137, 0.356863, 0.5);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 1);
+
+    gui:activate      (false);
+    gui:setInteractive(true);
+    gui:showMouse     (true);
+    gui:setFocus      (Root);
+end
+
+function InfoStation:OnInit()
+    self:set("rect", 0, 10, 640, 30);
+    self:set("backColor", 0.5, 0.5, 0.5, 0);
+    self:set("text", "Station 1");
+    self:set("textScale", 0.5);
+    self:set("textColor", 0, 0.243137, 0.356863, 1);
+    self:set("textAlignHor", 2);
+end
+
+function InfoTextSelectNode:OnInit()
+    self:set("rect", 0, 60, 640, 80);
+    self:set("backColor", 0.5, 0.5, 0.5, 0);
+    self:set("text", "Select your destination node");
+    self:set("textColor", 0, 0.501961, 0.752941, 0.5);
+    self:set("textAlignHor", 2);
+end
+
+function DestNode:OnInit()
+    self:set("rect", 200, 150, 240, 120);
+    self:set("backColor", 0.5, 0.5, 0.5, 0);
+    self:set("font", "Fonts/Impact");
+    self:set("text", "1");
+    self:set("textScale", 2.5);
+    self:set("textColor", 0, 0.501961, 1, 0.5);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function ButtonMinus:OnInit()
+    self:set("rect", 100, 150, 100, 120);
+    self:set("backColor", 0, 0, 0, 0.117647);
+    self:set("borderWidth", 4);
+    self:set("borderColor", 0, 0.333333, 0.490196, 0.5);
+    self:set("font", "Fonts/Impact");
+    self:set("text", "<");
+    self:set("textScale", 2.2);
+    self:set("textColor", 0, 0.501961, 0.752941, 0.498039);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function ButtonPlus:OnInit()
+    self:set("rect", 440, 150, 100, 120);
+    self:set("backColor", 0, 0, 0, 0.117647);
+    self:set("borderWidth", 4);
+    self:set("borderColor", 0, 0.333333, 0.490196, 0.5);
+    self:set("font", "Fonts/Impact");
+    self:set("text", ">");
+    self:set("textScale", 2.2);
+    self:set("textColor", 0, 0.501961, 0.752941, 0.498039);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+
+function ButtonGo:OnInit()
+    self:set("rect", 20, 340, 600, 50);
+    self:set("backColor", 0, 0, 0, 0.117647);
+    self:set("borderWidth", 4);
+    self:set("borderColor", 0, 0.333333, 0.490196, 0.498039);
+    self:set("text", "Press button to activate teleportation");
+    self:set("textScale", 0.5);
+    self:set("textColor", 0, 0.501961, 0.752941, 0.5);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+end
+

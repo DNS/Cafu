@@ -212,6 +212,10 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
                            * cf::math::Matrix3x3T<double>::GetRotateYMatrix(     double(State.Bank   )/8192.0*45.0)
                            * cf::math::Matrix3x3T<double>::GetRotateXMatrix(    -double(State.Pitch  )/8192.0*45.0));
     ClipModel.Register();
+
+    // Let the GUI script know that its entity has now been fully initialized,
+    // it can take the opportunity for additional initializations.
+    Gui->CallLuaFunc("OnEntityInit");
 }
 
 

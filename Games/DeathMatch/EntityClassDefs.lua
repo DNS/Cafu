@@ -193,6 +193,21 @@ EntityClassDefs["func_wall"]=newEntClassDef(Common,
 })
 
 
+EntityClassDefs["info_generic"]=newEntClassDef(Common, Angles,
+{
+    isPoint    =true;
+    CppClass   ="EntInfoGenericT";
+    description="A generic entity that provides additional information at any given point in the map.\n" ..
+                "It's main purpose is to mark points in the map that the map scripts can refer to.";
+    size       ={ { -16, -16, -16 }, { 16, 16, 16 } };
+    color      ={ 255, 255, 200 };      -- Very bright yellow.
+
+    param1     ={ type="string"; description="A generic parameter for use by the map script."; };
+    param2     ={ type="string"; description="A generic parameter for use by the map script."; };
+    param3     ={ type="string"; description="A generic parameter for use by the map script."; };
+})
+
+
 EntityClassDefs["func_water"]=newEntClassDef(Common,
 {
     isSolid    =true;

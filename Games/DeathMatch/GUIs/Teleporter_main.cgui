@@ -1,0 +1,81 @@
+dofile("Games/DeathMatch/GUIs/Teleporter_init.cgui");
+
+
+
+function ButtonMinus:OnMouseEnter()
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:interpolate("textScale", 2.2, 2.4, 500);
+end
+
+function ButtonMinus:OnMouseLeave()
+    self:set("borderColor", 0, 0.333333, 0.490196, 0.5);
+    self:interpolate("textScale", 2.4, 2.2, 500);
+end
+
+function ButtonMinus:OnMouseButtonUp()
+    local NodeNr=tonumber(DestNode:get("text"));
+
+    if (NodeNr>1) then
+        DestNode:set("text", NodeNr-1);
+    end
+
+    return true;
+end
+
+
+
+function ButtonPlus:OnMouseEnter()
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:interpolate("textScale", 2.2, 2.4, 500);
+end
+
+function ButtonPlus:OnMouseLeave()
+    self:set("borderColor", 0, 0.333333, 0.490196, 0.5);
+    self:interpolate("textScale", 2.4, 2.2, 500);
+end
+
+function ButtonPlus:OnMouseButtonUp()
+    local NodeNr=tonumber(DestNode:get("text"));
+
+    if (NodeNr<MAX_NODES) then
+        DestNode:set("text", NodeNr+1);
+    end
+
+    return true;
+end
+
+
+
+function ButtonGo:OnMouseEnter()
+    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:interpolate("textScale", 0.5, 0.52, 500);
+end
+
+function ButtonGo:OnMouseLeave()
+    self:set("borderColor", 0, 0.333333, 0.490196, 0.498039);
+    self:interpolate("textScale", 0.52, 0.5, 500);
+end
+
+function ButtonGo:OnMouseButtonUp()
+    local origNr=OUR_NODE_NR;
+    local destNr=DestNode:get("text");
+
+    game.runMapCmd("teleport(" .. origNr .. ", " .. destNr .. ");");
+    return true;
+end
+
+
+
+-- This function is called as soon as the entity related to this GUI has been initialized.
+-- Note that our entities must have names like "teleporter_2_of_5" for this to work.
+function OnEntityInit()
+    -- Figure out the total size of the teleportation network (number of nodes)
+    -- that this station is in, and which number this node/station has.
+    OUR_NODE_NR, MAX_NODES=string.match(gui:getEntityName(), "(%d+)_of_(%d+)");
+
+    OUR_NODE_NR=tonumber(OUR_NODE_NR) or 1;
+    MAX_NODES  =tonumber(MAX_NODES) or 3;
+
+    InfoStation:set("text", "Station " .. OUR_NODE_NR);
+    DestNode:set("text", (OUR_NODE_NR % MAX_NODES)+1);
+end
