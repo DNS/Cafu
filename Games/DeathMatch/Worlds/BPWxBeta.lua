@@ -25,8 +25,8 @@ function teleport(origNr, destNr)
     local ox, oy, oz=_G["info_generic_" .. origNr]:GetOrigin();
     local dx, dy, dz=_G["info_generic_" .. destNr]:GetOrigin();
 
-    Console.Print("Teleporting from node " .. origNr .. " to node " .. destNr .. ", ");
-    Console.Print("which is at coordinate (" .. dx .. ", " .. dy .. ", " .. dz .. ").\n");
+    -- Console.Print("Teleporting from node " .. origNr .. " to node " .. destNr .. ", ");
+    -- Console.Print("which is at coordinate (" .. dx .. ", " .. dy .. ", " .. dz .. ").\n");
 
     -- Teleport all entities with name "Player*" to the destination node.
     for PlayerNr=1, 99 do

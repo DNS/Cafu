@@ -102,7 +102,10 @@ void MapEntityT::Assign(const MapElementT* Elem)
     m_Helpers.Overwrite();
 
     for (unsigned long HelperNr=0; HelperNr<Ent->m_Helpers.Size(); HelperNr++)
+    {
         m_Helpers.PushBack(Ent->m_Helpers[HelperNr]->Clone());
+        m_Helpers[HelperNr]->SetParentEntity(this);
+    }
 }
 
 
