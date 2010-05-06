@@ -215,7 +215,7 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
 
     // Let the GUI script know that its entity has now been fully initialized,
     // it can take the opportunity for additional initializations.
-    Gui->CallLuaFunc("OnEntityInit");
+    if (Gui) Gui->CallLuaFunc("OnEntityInit");
 }
 
 
