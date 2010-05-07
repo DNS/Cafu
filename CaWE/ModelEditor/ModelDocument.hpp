@@ -21,25 +21,41 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "Document.hpp"
-#include "../GameConfig.hpp"
+#ifndef _MODELEDITOR_MODEL_DOCUMENT_HPP_
+#define _MODELEDITOR_MODEL_DOCUMENT_HPP_
+
+#include "wx/wx.h"
 
 
-ModelEditor::ModelDocumentT::ModelDocumentT(GameConfigT* GameConfig, const wxString& ModelFileName)
-    : m_GameConfig(GameConfig)
+class CafuModelT;
+class GameConfigT;
+
+
+namespace ModelEditor
 {
-    if (ModelFileName!="")
+    class ModelDocumentT
     {
-        // ...
-    }
-    else
-    {
-        // ...
-    }
+        public:
+
+        /// The constructor.
+        /// @throws   ModelT::LoadError if the model could not be loaded or imported.
+        ModelDocumentT(GameConfigT* GameConfig, const wxString& ModelFileName="");
+
+        /// The destructor.
+        ~ModelDocumentT();
+
+        CafuModelT*  GetModel() const { return m_Model; }
+        GameConfigT* GetGameConfig() const { return m_GameConfig; }
+
+
+        private:
+
+        ModelDocumentT(const ModelDocumentT&);      ///< Use of the Copy    Constructor is not allowed.
+        void operator = (const ModelDocumentT&);    ///< Use of the Assignment Operator is not allowed.
+
+        CafuModelT*  m_Model;
+        GameConfigT* m_GameConfig;
+    };
 }
 
-
-ModelEditor::ModelDocumentT::~ModelDocumentT()
-{
-    // ... remove dtor?
-}
+#endif

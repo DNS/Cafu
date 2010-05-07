@@ -21,30 +21,48 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MODELEDITOR_GUI_DOCUMENT_HPP_
-#define _MODELEDITOR_GUI_DOCUMENT_HPP_
+#ifndef _MODELEDITOR_SCENE_PROPERTIES_HPP_
+#define _MODELEDITOR_SCENE_PROPERTIES_HPP_
 
+#include "../Camera.hpp"
 #include "wx/wx.h"
+#include "wx/propgrid/manager.h"
 
 
+class EditorMaterialI;
 class GameConfigT;
 
 
 namespace ModelEditor
 {
-    class ModelDocumentT
+    class ChildFrameT;
+
+
+    class ScenePropertiesT : public wxPropertyGridManager
     {
         public:
 
-        ModelDocumentT(GameConfigT* GameConfig, const wxString& ModelFileName="");
-        ~ModelDocumentT();
+        ScenePropertiesT(ChildFrameT* Parent, const wxSize& Size, GameConfigT* GameConfig);
 
-        GameConfigT* GetGameConfig() const { return m_GameConfig; }
+        void RefreshPropGrid();
+
+        CameraT          m_Camera;              ///< The camera description. For simplicity, we "borrow" the CameraT class from the map editor.
+        wxColour         m_BackgroundColor;
+        bool             m_ShowOrigin;
+        bool             m_GroundPlane_Show;
+        float            m_GroundPlane_zPos;
+        EditorMaterialI* m_GroundPlane_Mat;     ///< The material used for rendering the ground plane.
+        wxColour         m_AmbientLightColor;
 
 
         private:
 
+        ChildFrameT* m_Parent;
         GameConfigT* m_GameConfig;
+
+        void OnPropertyGridChanged(wxPropertyGridEvent& Event);
+
+        DECLARE_EVENT_TABLE()
     };
 }
 

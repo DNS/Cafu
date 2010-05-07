@@ -21,10 +21,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*******************/
-/*** Model Proxy ***/
-/*******************/
-
 #include "Loader_ase.hpp"
 #include "Loader_lwo.hpp"
 #include "Loader_md5.hpp"
@@ -98,7 +94,6 @@ static ArrayT<ModelT*>&       ModelPool      =ModelPoolManagerT::Get().ModelPool
 static ArrayT<unsigned long>& ModelPoolCounts=ModelPoolManagerT::Get().ModelPoolCounts;
 
 
-// The constructor.
 ModelProxyT::ModelProxyT()
 {
     // Assign index 0 to a model proxy that is contructed by the default contructor.
@@ -108,7 +103,6 @@ ModelProxyT::ModelProxyT()
 }
 
 
-// The constructor.
 ModelProxyT::ModelProxyT(const std::string& FileName)
 {
     // If there is already the appropriate model in the pool, this proxy becomes another reference to it.
@@ -126,6 +120,7 @@ ModelProxyT::ModelProxyT(const std::string& FileName)
 
     try
     {
+        // TODO: This duplicates the code in CaWE/ModelEditor/Document.cpp and should be combined elsewhere, e.g. into class ModelLoaderT.
              if (cf::String::EndsWith(FileName, "ase"    )) { LoaderAseT Loader(FileName); NewModel=new CafuModelT(Loader); }
         else if (cf::String::EndsWith(FileName, "dlod"   )) NewModel=new ModelDlodT(FileName);
         else if (cf::String::EndsWith(FileName, "mdl"    )) NewModel=new ModelMdlT (FileName);
@@ -161,7 +156,6 @@ ModelProxyT::ModelProxyT(const std::string& FileName)
 }
 
 
-// The destructor.
 ModelProxyT::~ModelProxyT()
 {
     ModelPoolCounts[PoolIndex]--;

@@ -21,8 +21,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MODELEDITOR_SCENE_VIEW_HPP_
-#define _MODELEDITOR_SCENE_VIEW_HPP_
+#ifndef _MODELEDITOR_SCENE_VIEW_3D_HPP_
+#define _MODELEDITOR_SCENE_VIEW_3D_HPP_
 
 #include "Math3D/Vector3.hpp"
 #include "wx/glcanvas.h"
@@ -38,12 +38,12 @@ namespace ModelEditor
 
 
     /// This class has many similarities with ViewWindow3DT from the map editor.
-    class SceneViewT : public wxGLCanvas
+    class SceneView3DT : public wxGLCanvas
     {
         public:
 
-        SceneViewT(ChildFrameT* Parent);
-        ~SceneViewT();
+        SceneView3DT(ChildFrameT* Parent);
+        ~SceneView3DT();
 
 
         private:

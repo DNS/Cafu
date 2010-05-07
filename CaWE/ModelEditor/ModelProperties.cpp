@@ -21,16 +21,16 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "ModelSetup.hpp"
+#include "ModelProperties.hpp"
 #include "ChildFrame.hpp"
 
 
-BEGIN_EVENT_TABLE(ModelEditor::ModelSetupT, wxPropertyGridManager)
-    EVT_PG_CHANGED(wxID_ANY, ModelEditor::ModelSetupT::OnPropertyGridChanged)
+BEGIN_EVENT_TABLE(ModelEditor::ModelPropertiesT, wxPropertyGridManager)
+    EVT_PG_CHANGED(wxID_ANY, ModelEditor::ModelPropertiesT::OnPropertyGridChanged)
 END_EVENT_TABLE()
 
 
-ModelEditor::ModelSetupT::ModelSetupT(ChildFrameT* Parent, const wxSize& Size)
+ModelEditor::ModelPropertiesT::ModelPropertiesT(ChildFrameT* Parent, const wxSize& Size)
     : wxPropertyGridManager(Parent, wxID_ANY, wxDefaultPosition, Size, wxPG_BOLD_MODIFIED | wxPG_SPLITTER_AUTO_CENTER), // | wxPG_DESCRIPTION
       m_Parent(Parent)
 {
@@ -39,7 +39,7 @@ ModelEditor::ModelSetupT::ModelSetupT(ChildFrameT* Parent, const wxSize& Size)
 }
 
 
-void ModelEditor::ModelSetupT::RefreshPropGrid()
+void ModelEditor::ModelPropertiesT::RefreshPropGrid()
 {
     // if (m_ModelDocument==NULL) return;
 
@@ -49,7 +49,7 @@ void ModelEditor::ModelSetupT::RefreshPropGrid()
 }
 
 
-void ModelEditor::ModelSetupT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
+void ModelEditor::ModelPropertiesT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
 {
  // if (m_SelectedWindow==NULL) return;
 

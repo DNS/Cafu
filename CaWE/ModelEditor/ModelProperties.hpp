@@ -21,16 +21,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MODELEDITOR_SCENE_SETUP_HPP_
-#define _MODELEDITOR_SCENE_SETUP_HPP_
+#ifndef _MODELEDITOR_MODEL_PROPERTIES_HPP_
+#define _MODELEDITOR_MODEL_PROPERTIES_HPP_
 
-#include "../Camera.hpp"
 #include "wx/wx.h"
 #include "wx/propgrid/manager.h"
-
-
-class EditorMaterialI;
-class GameConfigT;
 
 
 namespace ModelEditor
@@ -38,27 +33,18 @@ namespace ModelEditor
     class ChildFrameT;
 
 
-    class SceneSetupT : public wxPropertyGridManager
+    class ModelPropertiesT : public wxPropertyGridManager
     {
         public:
 
-        SceneSetupT(ChildFrameT* Parent, const wxSize& Size, GameConfigT* GameConfig);
+        ModelPropertiesT(ChildFrameT* Parent, const wxSize& Size);
 
         void RefreshPropGrid();
-
-        CameraT          m_Camera;              ///< The camera description. For simplicity, we "borrow" the CameraT class from the map editor.
-        wxColour         m_BackgroundColor;
-        bool             m_ShowOrigin;
-        bool             m_GroundPlane_Show;
-        float            m_GroundPlane_zPos;
-        EditorMaterialI* m_GroundPlane_Mat;     ///< The material used for rendering the ground plane.
-        wxColour         m_AmbientLightColor;
 
 
         private:
 
         ChildFrameT* m_Parent;
-        GameConfigT* m_GameConfig;
 
         void OnPropertyGridChanged(wxPropertyGridEvent& Event);
 

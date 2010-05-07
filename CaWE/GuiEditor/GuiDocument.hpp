@@ -73,6 +73,9 @@ namespace GuiEditor
 
         private:
 
+        GuiDocumentT(const GuiDocumentT&);          ///< Use of the Copy    Constructor is not allowed.
+        void operator = (const GuiDocumentT&);      ///< Use of the Assignment Operator is not allowed.
+
         cf::GuiSys::WindowT*         m_RootWindow;
         ArrayT<cf::GuiSys::WindowT*> m_Selection;
         GuiPropertiesT               m_GuiProperties;

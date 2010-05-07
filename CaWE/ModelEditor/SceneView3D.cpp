@@ -21,9 +21,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "SceneView.hpp"
+#include "SceneView3D.hpp"
 #include "ChildFrame.hpp"
-#include "SceneSetup.hpp"
+#include "ModelDocument.hpp"
+#include "SceneProperties.hpp"
 #include "../AppCaWE.hpp"
 #include "../EditorMaterial.hpp"
 #include "../Options.hpp"
@@ -32,27 +33,28 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/Mesh.hpp"
 #include "MaterialSystem/Renderer.hpp"
+#include "Models/Model_cmdl.hpp"
 
 
-BEGIN_EVENT_TABLE(ModelEditor::SceneViewT, wxGLCanvas)
-    EVT_PAINT     (ModelEditor::SceneViewT::OnPaint     )
-    EVT_IDLE      (ModelEditor::SceneViewT::OnIdle      )
-    EVT_MOUSEWHEEL(ModelEditor::SceneViewT::OnMouseWheel)
-    EVT_SIZE      (ModelEditor::SceneViewT::OnSize      )
-    EVT_MOTION    (ModelEditor::SceneViewT::OnMouseMove )
-    EVT_LEFT_DOWN (ModelEditor::SceneViewT::OnLMouseDown)
-    EVT_LEFT_UP   (ModelEditor::SceneViewT::OnLMouseUp  )
-    EVT_RIGHT_UP  (ModelEditor::SceneViewT::OnRMouseUp  )
-    EVT_KEY_DOWN  (ModelEditor::SceneViewT::OnKeyDown   )
+BEGIN_EVENT_TABLE(ModelEditor::SceneView3DT, wxGLCanvas)
+    EVT_PAINT     (ModelEditor::SceneView3DT::OnPaint     )
+    EVT_IDLE      (ModelEditor::SceneView3DT::OnIdle      )
+    EVT_MOUSEWHEEL(ModelEditor::SceneView3DT::OnMouseWheel)
+    EVT_SIZE      (ModelEditor::SceneView3DT::OnSize      )
+    EVT_MOTION    (ModelEditor::SceneView3DT::OnMouseMove )
+    EVT_LEFT_DOWN (ModelEditor::SceneView3DT::OnLMouseDown)
+    EVT_LEFT_UP   (ModelEditor::SceneView3DT::OnLMouseUp  )
+    EVT_RIGHT_UP  (ModelEditor::SceneView3DT::OnRMouseUp  )
+    EVT_KEY_DOWN  (ModelEditor::SceneView3DT::OnKeyDown   )
 END_EVENT_TABLE()
 
 
-ModelEditor::SceneViewT::SceneViewT(ChildFrameT* Parent)
+ModelEditor::SceneView3DT::SceneView3DT(ChildFrameT* Parent)
     : wxGLCanvas(Parent, -1, ParentFrameT::OpenGLAttributeList, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS, "SceneViewWindow"),
       m_Parent(Parent),
       m_TimeOfLastPaint(0),
    // m_CameraTool(static_cast<ToolCameraT*>(m_ChildFrame->GetToolManager().GetTool(ToolCameraT::TypeInfo))),
-      m_Camera(&Parent->GetSceneSetup()->m_Camera),
+      m_Camera(&Parent->GetSceneProperties()->m_Camera),
       m_CameraVel()
 {
     m_RMatWireframe  =MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/Wireframe"       ));
@@ -60,14 +62,14 @@ ModelEditor::SceneViewT::SceneViewT(ChildFrameT* Parent)
 }
 
 
-ModelEditor::SceneViewT::~SceneViewT()
+ModelEditor::SceneView3DT::~SceneView3DT()
 {
     MatSys::Renderer->FreeMaterial(m_RMatWireframe  );
     MatSys::Renderer->FreeMaterial(m_RMatWireframeOZ);
 }
 
 
-void ModelEditor::SceneViewT::OnPaint(wxPaintEvent& PE)
+void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
 {
     // Guard against accessing an already deleted MapDoc. This can otherwise happen when closing this window/view/document,
     // namely during the continued event processing between the call to Destroy() and our final deletion.
@@ -195,7 +197,7 @@ void ModelEditor::SceneViewT::OnPaint(wxPaintEvent& PE)
 
     wxPaintDC dc(this);     // It is VERY important not to omit this, or otherwise everything goes havoc.
 
-    const SceneSetupT* SceneSetup=m_Parent->GetSceneSetup();
+    const ScenePropertiesT* SceneProperties=m_Parent->GetSceneProperties();
 
     // We're drawing to this view now.
     SetCurrent(*wxGetApp().GetParentFrame()->m_GLContext);    // This is the method from the wxGLCanvas for activating the given RC with this window.
@@ -204,9 +206,9 @@ void ModelEditor::SceneViewT::OnPaint(wxPaintEvent& PE)
     MatSys::Renderer->SetViewport(0, 0, CanvasSize.GetWidth(), CanvasSize.GetHeight());
 
     // Clear the buffers.
-    MatSys::Renderer->ClearColor(SceneSetup->m_BackgroundColor.Red()/255.0f,
-                                 SceneSetup->m_BackgroundColor.Green()/255.0f,
-                                 SceneSetup->m_BackgroundColor.Blue()/255.0f, 0);
+    MatSys::Renderer->ClearColor(SceneProperties->m_BackgroundColor.Red()/255.0f,
+                                 SceneProperties->m_BackgroundColor.Green()/255.0f,
+                                 SceneProperties->m_BackgroundColor.Blue()/255.0f, 0);
 
     MatSys::Renderer->BeginFrame(TimeNow/1000.0);
 
@@ -232,7 +234,7 @@ void ModelEditor::SceneViewT::OnPaint(wxPaintEvent& PE)
 
 
     // Render the world axes. They're great for technical and emotional reassurance.
-    if (SceneSetup->m_ShowOrigin)
+    if (SceneProperties->m_ShowOrigin)
     {
         static MatSys::MeshT Mesh(MatSys::MeshT::Lines);
 
@@ -254,7 +256,7 @@ void ModelEditor::SceneViewT::OnPaint(wxPaintEvent& PE)
     }
 
     // Render the ground plane.
-    if (SceneSetup->m_GroundPlane_Show && SceneSetup->m_GroundPlane_Mat!=NULL)
+    if (SceneProperties->m_GroundPlane_Show && SceneProperties->m_GroundPlane_Mat!=NULL)
  // if (DrawGroundPlane && GroundPlane_Mat!=NULL && (MatSys::Renderer->GetCurrentRenderAction()==MatSys::RendererI::AMBIENT || MatSys::Renderer->GetCurrentRenderAction()==MatSys::RendererI::LIGHTING))
     {
         static MatSys::MeshT GroundPlaneMesh(MatSys::MeshT::TriangleFan);
@@ -270,14 +272,17 @@ void ModelEditor::SceneViewT::OnPaint(wxPaintEvent& PE)
         }
 
         const double r=400.0;
-        GroundPlaneMesh.Vertices[0].SetOrigin(-r, -r, SceneSetup->m_GroundPlane_zPos);
-        GroundPlaneMesh.Vertices[1].SetOrigin(-r,  r, SceneSetup->m_GroundPlane_zPos);
-        GroundPlaneMesh.Vertices[2].SetOrigin( r,  r, SceneSetup->m_GroundPlane_zPos);
-        GroundPlaneMesh.Vertices[3].SetOrigin( r, -r, SceneSetup->m_GroundPlane_zPos);
+        GroundPlaneMesh.Vertices[0].SetOrigin(-r, -r, SceneProperties->m_GroundPlane_zPos);
+        GroundPlaneMesh.Vertices[1].SetOrigin(-r,  r, SceneProperties->m_GroundPlane_zPos);
+        GroundPlaneMesh.Vertices[2].SetOrigin( r,  r, SceneProperties->m_GroundPlane_zPos);
+        GroundPlaneMesh.Vertices[3].SetOrigin( r, -r, SceneProperties->m_GroundPlane_zPos);
 
-        MatSys::Renderer->SetCurrentMaterial(SceneSetup->m_GroundPlane_Mat->GetRenderMaterial(true /*PreviewMode*/));
+        MatSys::Renderer->SetCurrentMaterial(SceneProperties->m_GroundPlane_Mat->GetRenderMaterial(true /*PreviewMode*/));
         MatSys::Renderer->RenderMesh(GroundPlaneMesh);
     }
+
+    // Render the model.
+    m_Parent->GetModelDoc()->GetModel()->Draw(0, 0.0f, 0.0f, NULL);
 
 
     MatSys::Renderer->EndFrame();
@@ -285,7 +290,7 @@ void ModelEditor::SceneViewT::OnPaint(wxPaintEvent& PE)
 }
 
 
-void ModelEditor::SceneViewT::OnIdle(wxIdleEvent& IE)
+void ModelEditor::SceneView3DT::OnIdle(wxIdleEvent& IE)
 {
     Refresh(false);
 
@@ -293,7 +298,7 @@ void ModelEditor::SceneViewT::OnIdle(wxIdleEvent& IE)
 }
 
 
-void ModelEditor::SceneViewT::OnMouseWheel(wxMouseEvent& ME)
+void ModelEditor::SceneView3DT::OnMouseWheel(wxMouseEvent& ME)
 {
  // // Guard against accessing an already deleted MapDoc. This can otherwise happen when closing this window/view/document,
  // // namely during the continued event processing between the call to Destroy() and our final deletion.
@@ -304,11 +309,11 @@ void ModelEditor::SceneViewT::OnMouseWheel(wxMouseEvent& ME)
  // if (Tool && Tool->OnMouseWheel3D(*this, ME)) return;
 
     m_Camera->Pos+=m_Camera->GetYAxis()*(ME.GetWheelRotation()/2);
-    m_Parent->GetSceneSetup()->RefreshPropGrid();
+    m_Parent->GetSceneProperties()->RefreshPropGrid();
 }
 
 
-void ModelEditor::SceneViewT::OnSize(wxSizeEvent& SE)
+void ModelEditor::SceneView3DT::OnSize(wxSizeEvent& SE)
 {
     // UpdateScrollbars();
     // CalcViewOffsets();
@@ -317,7 +322,7 @@ void ModelEditor::SceneViewT::OnSize(wxSizeEvent& SE)
 }
 
 
-void ModelEditor::SceneViewT::OnMouseMove(wxMouseEvent& ME)
+void ModelEditor::SceneView3DT::OnMouseMove(wxMouseEvent& ME)
 {
     // Reset focus on mouse move, so zooming and scrolling by cursor keys always works, when the mouse is over the window.
     if (FindFocus()!=this) SetFocus();
@@ -328,7 +333,7 @@ void ModelEditor::SceneViewT::OnMouseMove(wxMouseEvent& ME)
 }
 
 
-void ModelEditor::SceneViewT::OnLMouseDown(wxMouseEvent& ME)
+void ModelEditor::SceneView3DT::OnLMouseDown(wxMouseEvent& ME)
 {
     // ToolI* ActiveTool=m_Parent->GetToolManager()->GetActiveTool();
 
@@ -336,7 +341,7 @@ void ModelEditor::SceneViewT::OnLMouseDown(wxMouseEvent& ME)
 }
 
 
-void ModelEditor::SceneViewT::OnLMouseUp(wxMouseEvent& ME)
+void ModelEditor::SceneView3DT::OnLMouseUp(wxMouseEvent& ME)
 {
     // ToolI* ActiveTool=m_Parent->GetToolManager()->GetActiveTool();
 
@@ -344,7 +349,7 @@ void ModelEditor::SceneViewT::OnLMouseUp(wxMouseEvent& ME)
 }
 
 
-void ModelEditor::SceneViewT::OnRMouseUp(wxMouseEvent& ME)
+void ModelEditor::SceneView3DT::OnRMouseUp(wxMouseEvent& ME)
 {
     // ToolI* ActiveTool=m_Parent->GetToolManager()->GetActiveTool();
 
@@ -352,7 +357,7 @@ void ModelEditor::SceneViewT::OnRMouseUp(wxMouseEvent& ME)
 }
 
 
-void ModelEditor::SceneViewT::OnKeyDown(wxKeyEvent& KE)
+void ModelEditor::SceneView3DT::OnKeyDown(wxKeyEvent& KE)
 {
     // ToolI* ActiveTool=m_Parent->GetToolManager()->GetActiveTool();
 

@@ -34,9 +34,9 @@ class ParentFrameT;
 namespace ModelEditor
 {
     class ModelDocumentT;
-    class SceneViewT;
-    class ModelSetupT;
-    class SceneSetupT;
+    class SceneView3DT;
+    class ModelPropertiesT;
+    class ScenePropertiesT;
 
 
     class ChildFrameT : public wxMDIChildFrame
@@ -53,21 +53,21 @@ namespace ModelEditor
         /// The destructor.
         ~ChildFrameT();
 
-        ModelDocumentT* GetModelDoc() const { return m_ModelDoc; }
-        SceneSetupT* GetSceneSetup() const { return m_SceneSetup; }
+        ModelDocumentT*   GetModelDoc() const { return m_ModelDoc; }
+        ScenePropertiesT* GetSceneProperties() const { return m_SceneProperties; }
 
 
         private:
 
-        ParentFrameT*   m_Parent;
-        wxString        m_Title;
-        ModelDocumentT* m_ModelDoc;
+        ParentFrameT*     m_Parent;
+        wxString          m_Title;
+        ModelDocumentT*   m_ModelDoc;
 
-        wxMenu*         m_FileMenu;
-        wxAuiManager    m_AUIManager;
-        SceneViewT*     m_SceneView;
-        ModelSetupT*    m_ModelSetup;
-        SceneSetupT*    m_SceneSetup;
+        wxMenu*           m_FileMenu;
+        wxAuiManager      m_AUIManager;
+        SceneView3DT*     m_SceneView3D;
+        ModelPropertiesT* m_ModelProperties;
+        ScenePropertiesT* m_SceneProperties;
 
 
         enum

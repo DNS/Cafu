@@ -32,7 +32,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GuiEditor/GuiDocument.hpp"
 #include "FontWizard/FontWizard.hpp"
 #include "ModelEditor/ChildFrame.hpp"
-#include "ModelEditor/Document.hpp"
+#include "ModelEditor/ModelDocument.hpp"
 
 #include "ConsoleCommands/Console.hpp"
 #include "FileSys/FileManImpl.hpp"
@@ -41,6 +41,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/MapComposition.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "MaterialSystem/TextureMap.hpp"
+#include "Models/Model.hpp"     // Needed for the ModelT::LoadError exception that must be caught when model loading failed.
 #include "TextParser/TextParser.hpp"
 #include "PlatformAux.hpp"
 
@@ -488,17 +489,10 @@ void ParentFrameT::OnMenuFile(wxCommandEvent& CE)
 
         case ID_MENU_FILE_NEW_MODEL:
         {
-            GameConfigT* GameConfig=AskUserForGameConfig(wxFileName("the new model"));
-            if (GameConfig==NULL) break;
-
-            // try
-            // {
-                new ModelEditor::ChildFrameT(this, "New Model", new ModelEditor::ModelDocumentT(GameConfig));
-            // }
-            // catch (const ...& /*E*/)
-            // {
-            //     wxMessageBox(wxString("An error occured during model creation, no model has been created!", "Couldn't create model"));
-            // }
+            wxMessageBox("Sorry, but Cafu can currently not be used to create new models from scratch.\n\n"
+                         "Instead, please use menu item  File - Open  in order to load or import your model.\n"
+                         "You can then edit its properties and assign all Cafu specific features.",
+                         "Cannot create model from scratch", wxOK | wxICON_INFORMATION);
             break;
         }
 
@@ -614,6 +608,11 @@ void ParentFrameT::OnMenuFile(wxCommandEvent& CE)
             {
                 wxMessageBox("The document could not be loaded or imported!");
             }
+            catch (const ModelT::LoadError& /*E*/)
+            {
+                // TODO: We really should have more detailed information about what exactly went wrong when loading the model...
+                wxMessageBox(wxString("The model file \"")+FileDialog.GetPath()+"\" could not be loaded!", "Couldn't load or import model");
+            }
             catch (const cf::GuiSys::GuiImplT::InitErrorT& /*E*/)
             {
                 wxMessageBox(wxString("The GUI script \"")+FileDialog.GetPath()+"\" could not be loaded!", "Couldn't load GUI script");
@@ -671,6 +670,11 @@ void ParentFrameT::OnMenuFile(wxCommandEvent& CE)
                 catch (const MapDocumentT::LoadErrorT& /*E*/)
                 {
                     wxMessageBox(wxString("The map file \"")+FileName+"\" could not be loaded!", "Couldn't load the map");
+                }
+                catch (const ModelT::LoadError& /*E*/)
+                {
+                    // TODO: We really should have more detailed information about what exactly went wrong when loading the model...
+                    wxMessageBox(wxString("The model file \"")+FileName+"\" could not be loaded!", "Couldn't load or import model");
                 }
                 catch (const cf::GuiSys::GuiImplT::InitErrorT& /*E*/)
                 {
