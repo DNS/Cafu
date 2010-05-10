@@ -65,6 +65,27 @@ function StartLevelIntroMusic()
 end
 
 
+function pts2csv(fileName)
+    if fileName:sub(-4, -1):lower()==".pts" then
+        -- Strip the .pts suffix, if present.
+        fileName=fileName:sub(1, -5);
+    end
+
+    -- Load and run the point file in order to obtain the Points table.
+    dofile(fileName .. ".pts");
+
+    -- Write all points into a new csv file.
+    local csvFile=assert(io.open(fileName .. ".csv", "wt"));
+
+    csvFile:write('"time","x","y","z","heading","info"\n');
+    for i=1, #Points do
+        csvFile:write("\"", table.concat(Points[i], "\",\""), "\"\n");
+    end
+
+    csvFile:close();
+end
+
+
 -- sv_AutoAddCompanyBot=true;
 -- cl_maxLights=20;
 
