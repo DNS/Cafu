@@ -58,6 +58,15 @@ class IterationHandlerI
 };
 
 
+struct PtsPointT
+{
+    float          Time;
+    Vector3fT      Pos;
+    unsigned short Heading;
+    wxString       Info;
+};
+
+
 /// This class represents a CaWE "map" document.
 class MapDocumentT : public wxEvtHandler, public SubjectT
 {
@@ -144,7 +153,8 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     PlantDescrManT&                GetPlantDescrMan()    { return m_PlantDescrMan; }
 
     CommandHistoryT&         GetHistory()               { return m_History; }
-    const ArrayT<Vector3fT>& GetPointFilePoints() const { return m_PointFilePoints; }
+    const ArrayT<PtsPointT>& GetPointFilePoints() const { return m_PointFilePoints; }
+    const ArrayT<wxColour>&  GetPointFileColors() const { return m_PointFileColors; }
 
     bool      IsSnapEnabled() const   { return m_SnapToGrid; }      ///< Returns whether or not grid snap is enabled. Called by the tools and views to determine snap behavior.
     int       GetGridSpacing() const  { return m_GridSpacing>0 ? m_GridSpacing : 1; }
@@ -186,7 +196,8 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     ArrayT<MapElementT*>         m_Selection;           ///< The currently selected map elements.
     mutable BoundingBox3fT       m_SelectionBB;         ///< The bounding-box of the current selection, or if there is no selection, the bounding-box of the previous selection.
     ArrayT<GroupT*>              m_Groups;              ///< The list of groups in this document.
-    ArrayT<Vector3fT>            m_PointFilePoints;     ///< The points of the currently loaded point file.
+    ArrayT<PtsPointT>            m_PointFilePoints;     ///< The points of the currently loaded point file.
+    ArrayT<wxColour>             m_PointFileColors;     ///< The colors for items (columns) of a point in the pointfile. A color can be invalid if the associated column should not be visualized at all.
 
     bool                         m_SnapToGrid;          ///< Snap things to grid.      Kept here because the other two are kept here as well. ;-)
     int                          m_GridSpacing;         ///< The spacing of the grid.  Could also be kept in the related ChildFrameT, but as the observers depent on it, its properly stored here in the MapDocumentT.

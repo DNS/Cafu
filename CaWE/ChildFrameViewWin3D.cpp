@@ -975,24 +975,57 @@ void ViewWindow3DT::OnPaint(wxPaintEvent& PE)
         Tools[ToolNr]->RenderTool3D(m_Renderer);
 
 
-    // Render the trace line to the leak.
-    if (MapDoc.GetPointFilePoints().Size()>0)
+    // Render the "zigzag" line that has been loaded from a point file and usually leads from an entity to a leak
+    // or is the description of a players path through a game map as recorded with the recordPath() console function.
+    const ArrayT<PtsPointT>& Points=GetMapDoc().GetPointFilePoints();
+    const ArrayT<wxColour>&  Colors=GetMapDoc().GetPointFileColors();
+
+    if (Points.Size()>0 && Colors.Size()>=4)
     {
         MatSys::MeshT Mesh(MatSys::MeshT::LineStrip);
 
-        for (unsigned long i=0; i<MapDoc.GetPointFilePoints().Size(); i++)
+        if (Colors[1].IsOk())
         {
-            Mesh.Vertices.PushBackEmpty();
+            for (unsigned long PointNr=0; PointNr<Points.Size(); PointNr++)
+            {
+                Mesh.Vertices.PushBackEmpty();
 
-            const Vector3fT&        P=MapDoc.GetPointFilePoints()[i];
-            MatSys::MeshT::VertexT& V=Mesh.Vertices[Mesh.Vertices.Size()-1];
+                const Vector3fT&        Pos   =Points[PointNr].Pos;
+                MatSys::MeshT::VertexT& Vertex=Mesh.Vertices[Mesh.Vertices.Size()-1];
 
-            V.SetOrigin(P[0], P[1], P[2]);
-            V.SetColor(1.0, 0.0, 0.0);
+                Vertex.SetOrigin(Pos.x, Pos.y, Pos.z);
+                Vertex.SetColor(Colors[1].Red()/255.0f, Colors[1].Green()/255.0f, Colors[1].Blue()/255.0f);
+            }
+
+            MatSys::Renderer->SetCurrentMaterial(m_Renderer.GetRMatWireframe());
+            MatSys::Renderer->RenderMesh(Mesh);
         }
 
-        MatSys::Renderer->SetCurrentMaterial(m_Renderer.GetRMatWireframe());
-        MatSys::Renderer->RenderMesh(Mesh);
+        if (Colors[2].IsOk())
+        {
+            Mesh.Type=MatSys::MeshT::Lines;
+            Mesh.Vertices.Overwrite();
+
+            for (unsigned long PointNr=0; PointNr<Points.Size(); PointNr++)
+            {
+                Mesh.Vertices.PushBackEmpty(2);
+
+                const float             Hdg    =Points[PointNr].Heading/32768.0f*180.0f;
+                const Vector3fT&        Pos1   =Points[PointNr].Pos;
+                const Vector3fT         Pos2   =Points[PointNr].Pos+Vector3fT(0.0f, 8.0f, 0.0f).GetRotZ(-Hdg);
+                MatSys::MeshT::VertexT& Vertex1=Mesh.Vertices[Mesh.Vertices.Size()-2];
+                MatSys::MeshT::VertexT& Vertex2=Mesh.Vertices[Mesh.Vertices.Size()-1];
+
+                Vertex1.SetOrigin(Pos1.x, Pos1.y, Pos1.z);
+                Vertex1.SetColor(Colors[2].Red()/255.0f, Colors[2].Green()/255.0f, Colors[2].Blue()/255.0f);
+
+                Vertex2.SetOrigin(Pos2.x, Pos2.y, Pos2.z);
+                Vertex2.SetColor(Colors[2].Red()/255.0f, Colors[2].Green()/255.0f, Colors[2].Blue()/255.0f);
+            }
+
+            MatSys::Renderer->SetCurrentMaterial(m_Renderer.GetRMatWireframe());
+            MatSys::Renderer->RenderMesh(Mesh);
+        }
     }
 
 

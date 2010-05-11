@@ -215,6 +215,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
       m_Selection(),
       m_SelectionBB(Vector3fT(-64.0f, -64.0f, 0.0f), Vector3fT(64.0f, 64.0f, 64.0f)),
       m_PointFilePoints(),
+      m_PointFileColors(),
       m_SnapToGrid(true),
       m_GridSpacing(Options.Grid.InitialSpacing),
       m_ShowGrid(true)
@@ -240,6 +241,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
       m_Selection(),
       m_SelectionBB(Vector3fT(-64.0f, -64.0f, 0.0f), Vector3fT(64.0f, 64.0f, 64.0f)),
       m_PointFilePoints(),
+      m_PointFileColors(),
       m_SnapToGrid(true),
       m_GridSpacing(Options.Grid.InitialSpacing),
       m_ShowGrid(true)
@@ -1203,6 +1205,7 @@ void MapDocumentT::OnMapLoadPointFile(wxCommandEvent& CE)
         if (luaL_loadfile(LuaState, PointFileName.c_str())!=0 || lua_pcall(LuaState, 0, 0, 0)!=0)
             throw wxString("Couldn't load the file:\n")+lua_tostring(LuaState, -1);
 
+        // Read the points.
         wxASSERT(lua_gettop(LuaState)==0);
         m_PointFilePoints.Clear();
         lua_getglobal(LuaState, "Points");
@@ -1210,20 +1213,58 @@ void MapDocumentT::OnMapLoadPointFile(wxCommandEvent& CE)
 
         for (size_t PointNr=1; PointNr<=NumPoints; PointNr++)
         {
-            // Put that table of the current point onto the stack (at index 2).
+            // Put the table of the current point onto the stack (at index 2).
             lua_rawgeti(LuaState, 1, PointNr);
             m_PointFilePoints.PushBackEmpty();
+
+            lua_rawgeti(LuaState, 2, 1);
+            m_PointFilePoints[PointNr-1].Time=lua_tonumber(LuaState, 3);
+            lua_pop(LuaState, 1);
 
             for (size_t i=2; i<=4; i++)
             {
                 lua_rawgeti(LuaState, 2, i);
-                m_PointFilePoints[PointNr-1][i-2]=lua_tonumber(LuaState, 3);
+                m_PointFilePoints[PointNr-1].Pos[i-2]=lua_tonumber(LuaState, 3);
                 lua_pop(LuaState, 1);
             }
+
+            lua_rawgeti(LuaState, 2, 5);
+            m_PointFilePoints[PointNr-1].Heading=lua_tonumber(LuaState, 3);
+            lua_pop(LuaState, 1);
+
+            lua_rawgeti(LuaState, 2, 6);
+            const char* InfoStr=lua_tostring(LuaState, 3);
+            m_PointFilePoints[PointNr-1].Info=InfoStr ? InfoStr : "";
+            lua_pop(LuaState, 1);
 
             // Remove the processed points table from the stack again.
             lua_pop(LuaState, 1);
         }
+
+        wxASSERT(lua_gettop(LuaState)==1);
+        lua_pop(LuaState, 1);
+
+        // Read the colors.
+        wxASSERT(lua_gettop(LuaState)==0);
+        m_PointFileColors.Clear();
+        lua_getglobal(LuaState, "Colors");
+        const size_t NumColors=lua_objlen(LuaState, 1);
+
+        for (size_t ColorNr=1; ColorNr<=NumColors; ColorNr++)
+        {
+            // Put the string with the current color onto the stack (at index 2).
+            lua_rawgeti(LuaState, 1, ColorNr);
+
+            const char* ColorName=lua_tostring(LuaState, 2);
+            m_PointFileColors.PushBack(ColorName ? wxColour(ColorName) : wxNullColour);
+
+            // Remove the processed color from the stack again.
+            lua_pop(LuaState, 1);
+        }
+
+        // If there are profound problems with the colors, fix them.
+        while (m_PointFileColors.Size()<4) m_PointFileColors.PushBack(wxNullColour);
+        if (!m_PointFileColors[1].IsOk()) m_PointFileColors[1]=(*wxRED);
 
         wxASSERT(lua_gettop(LuaState)==1);
         lua_pop(LuaState, 1);
@@ -1243,6 +1284,7 @@ void MapDocumentT::OnMapLoadPointFile(wxCommandEvent& CE)
 void MapDocumentT::OnMapUnloadPointFile(wxCommandEvent& CE)
 {
     m_PointFilePoints.Clear();
+    m_PointFileColors.Clear();
 
     UpdateAllObservers(UPDATE_POINTFILE);
 }

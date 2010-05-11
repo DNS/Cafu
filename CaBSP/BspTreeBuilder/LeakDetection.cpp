@@ -184,6 +184,7 @@ void BspTreeBuilderT::LeakDetected(const VectorT& InfoPlayerStartOrigin, const s
     }
 
     PointFile << "}\n";
+    PointFile << "\nColors={ nil, \"Red\", nil, \"#AAAAAA\" }\n";
 
     if (PointCount<2)
     {

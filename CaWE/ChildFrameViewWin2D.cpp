@@ -735,12 +735,50 @@ void ViewWindow2DT::Render(const wxRect& UpdateRect)
             if (Elems[ElemNr]->IsSelected())
                 Elems[ElemNr]->Render2D(Renderer);
 
-        // Render the "zigzag" line that has been loaded from a point file and usually leads from an entity to a leak.
-        const ArrayT<Vector3fT>& Points=GetMapDoc().GetPointFilePoints();
+        // Render the "zigzag" line that has been loaded from a point file and usually leads from an entity to a leak
+        // or is the description of a players path through a game map as recorded with the recordPath() console function.
+        const ArrayT<PtsPointT>& Points=GetMapDoc().GetPointFilePoints();
+        const ArrayT<wxColour>&  Colors=GetMapDoc().GetPointFileColors();
 
-        Renderer.SetLineType(wxPENSTYLE_SOLID, 2, wxColour(255, 0, 0));
-        for (unsigned long PointNr=1; PointNr<Points.Size(); PointNr++)
-            Renderer.DrawLine(Points[PointNr-1], Points[PointNr]);
+        if (Points.Size()>0 && Colors.Size()>=4)
+        {
+            if (Colors[1].IsOk())
+            {
+                Renderer.SetLineType(wxPENSTYLE_SOLID, 2, Colors[1]);
+                for (unsigned long PointNr=1; PointNr<Points.Size(); PointNr++)
+                    Renderer.DrawLine(Points[PointNr-1].Pos, Points[PointNr].Pos);
+            }
+
+            if (Colors[2].IsOk())
+            {
+                Renderer.SetLineType(wxPENSTYLE_SOLID, 2, Colors[2]);
+                for (unsigned long PointNr=0; PointNr<Points.Size(); PointNr++)
+                {
+                    const Vector3fT& Pos=Points[PointNr].Pos;
+                    const float      Hdg=Points[PointNr].Heading/32768.0f*180.0f;
+
+                    Renderer.DrawLine(Pos, Pos+Vector3fT(0.0f, 8.0f, 0.0f).GetRotZ(-Hdg));
+                }
+            }
+
+            if (Colors[0].IsOk())
+            {
+                const wxPoint Offset(dc.GetCharHeight()/3, dc.GetCharHeight()/3);
+
+                dc.SetTextForeground(Colors[0]);
+                for (unsigned long PointNr=0; PointNr<Points.Size(); PointNr++)
+                    Renderer.DrawText(wxString::Format("%f", Points[PointNr].Time), WorldToTool(Points[PointNr].Pos)+Offset);
+            }
+
+            if (Colors[3].IsOk())
+            {
+                const wxPoint Offset(dc.GetCharHeight()/3, -dc.GetCharHeight());
+
+                dc.SetTextForeground(Colors[3]);
+                for (unsigned long PointNr=0; PointNr<Points.Size(); PointNr++)
+                    Renderer.DrawText(Points[PointNr].Info, WorldToTool(Points[PointNr].Pos)+Offset);
+            }
+        }
     }
 
     dc.SelectObject(wxNullBitmap);

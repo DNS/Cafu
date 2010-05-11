@@ -55,6 +55,7 @@ PathRecorderT::~PathRecorderT()
     if (m_OutStream)
     {
         m_OutStream << "}\n";
+        m_OutStream << "\nColors={ \"#888888\", \"Red\", \"Green\", \"#AAAAAA\" }\n";
 
         Console->Print(cf::va("Stopped recording path of %lu points to pointfile %s ...", m_LineCount, m_FileName.c_str()));
     }
