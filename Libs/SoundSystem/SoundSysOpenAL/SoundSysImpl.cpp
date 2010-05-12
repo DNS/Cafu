@@ -67,42 +67,58 @@ bool SoundSysImplT::Initialize()
     // If enumeration extension is present print found devices.
     if (alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT"))
     {
-        std::cout << "Available OpenAL devices:\n";
+        // Enumerate the available output (playback) devices.
+        std::cout << "Available OpenAL output devices:\n";
 
-        // Make device enumeration.
         const char* DeviceNames  =alcGetString(NULL, ALC_DEVICE_SPECIFIER);
         const char* DefaultDevice=alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
 
         unsigned int Offset=0;
         unsigned int DeviceNum=1;
 
-        // While there is a new device name in the list.
         while (DeviceNames[Offset]!='\0')
         {
-            std::string PrintName=&DeviceNames[Offset]; // Read device name.
-            Offset+=PrintName.length()+1; // Jump to next device name.
-            std::cout << "\t" << DeviceNum << ". " << PrintName << (PrintName==DefaultDevice ? " [default]" : "") << "\n"; // Print device name.
+            const std::string PrintName=&DeviceNames[Offset];
+            Offset+=PrintName.length()+1;   // Jump to next device name.
+            std::cout << "\t" << DeviceNum << ". " << PrintName << (PrintName==DefaultDevice ? " [default]" : "") << "\n";
+            DeviceNum++;
+        }
+
+
+        // Enumerate the available input (capture) devices.
+        std::cout << "Available OpenAL capture devices:\n";
+
+        DeviceNames  =alcGetString(NULL, ALC_CAPTURE_DEVICE_SPECIFIER);
+        DefaultDevice=alcGetString(NULL, ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER);
+
+        Offset=0;
+        DeviceNum=1;
+
+        while (DeviceNames[Offset]!='\0')
+        {
+            const std::string PrintName=&DeviceNames[Offset];
+            Offset+=PrintName.length()+1;   // Jump to next device name.
+            std::cout << "\t" << DeviceNum << ". " << PrintName << (PrintName==DefaultDevice ? " [default]" : "") << "\n";
             DeviceNum++;
         }
     }
 
     if (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT"))
     {
-        std::cout << "Detailed OpenAL device list:\n";
+        // Enumerate the available output (playback) devices with the ALC_ENUMERATE_ALL_EXT extension.
+        std::cout << "Available OpenAL output devices with the ALC_ENUMERATE_ALL_EXT extension:\n";
 
-        // Make device enumeration.
         const char* DeviceNames  =alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
         const char* DefaultDevice=alcGetString(NULL, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
 
         unsigned int Offset=0;
         unsigned int DeviceNum=1;
 
-        // While there is a new device name in the list.
         while (DeviceNames[Offset]!='\0')
         {
-            std::string PrintName=&DeviceNames[Offset]; // Read device name.
-            Offset+=PrintName.length()+1; // Jump to next device name.
-            std::cout << "\t" << DeviceNum << ". " << PrintName << (PrintName==DefaultDevice ? " [default]" : "") << "\n"; // Print device name.
+            const std::string PrintName=&DeviceNames[Offset];
+            Offset+=PrintName.length()+1;   // Jump to next device name.
+            std::cout << "\t" << DeviceNum << ". " << PrintName << (PrintName==DefaultDevice ? " [default]" : "") << "\n";
             DeviceNum++;
         }
     }
@@ -236,6 +252,7 @@ void SoundSysImplT::DeleteSound(SoundI* Sound)
 bool SoundSysImplT::PlaySound(const SoundI* Sound)
 {
     // We can safely cast SoundI to SoundT, since we have created it ourselves.
+    assert(dynamic_cast<const SoundImplT*>(Sound)!=NULL);
     SoundImplT* SoundTmp=(SoundImplT*)Sound;
 
     // Only play valid sounds.

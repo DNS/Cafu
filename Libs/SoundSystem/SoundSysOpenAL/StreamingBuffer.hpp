@@ -67,9 +67,8 @@ class StreamingBufferT : public BufferT
     ALenum         m_OutputFormat;   ///< OpenAL output format used for stream buffers.
     bool           m_EndReached;     ///< Stream has reached the end, don't update anymore.
 
-    // Don't allow use of copy and assignment constructor.
-    StreamingBufferT(StreamingBufferT&);
-    StreamingBufferT& operator=(const StreamingBufferT&);
+    StreamingBufferT(const StreamingBufferT&);  ///< Use of the Copy    Constructor is not allowed.
+    void operator = (const StreamingBufferT&);  ///< Use of the Assignment Operator is not allowed.
 };
 
 #endif

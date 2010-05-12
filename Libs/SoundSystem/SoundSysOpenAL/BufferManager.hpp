@@ -38,19 +38,19 @@ class StreamingBufferT;
 
 
 /// The buffer manager provides the means to create sound buffers from filenames.
-/// Sound buffers are managed in a way that they are reused if a buffer is needed multiple times.
+/// Buffers are reused and shared if the same filename is requested multiple times.
 class BufferManagerT
 {
     public:
 
-    /// Returns an instance to the global buffer manager.
+    /// Returns the BufferManagerTs singleton instance.
     static BufferManagerT* GetInstance();
 
-    /// Interface to get the sound buffer of a specific audio file.
-    /// If the buffer has not yet been created it is created in this method. Otherwise the already exisiting buffer is returned.
-    /// @param AudioFile Relative Path to the audio file from which the buffer should be created.
-    /// @param LoadType What kind of buffer should be created (see SoundShaderT for more details).
-    /// @param Is3DSound Whether the buffer is intended to be played as a 3 dimensional sound.
+    /// Interface to obtain a buffer for a specific audio file.
+    /// If the buffer has not been created before, it is created by this method. Otherwise the already exisiting buffer is returned.
+    /// @param AudioFile   Relative Path to the audio file from which the buffer should be created.
+    /// @param LoadType    What kind of buffer should be created (see SoundShaderT for more details).
+    /// @param Is3DSound   Whether the buffer is intended to be played as a 3 dimensional sound.
     /// @return The created buffer or NULL if no buffer could be created from the specified audio file.
     BufferT* GetBuffer(const std::string& AudioFile, SoundShaderT::LoadTypeE LoadType, bool Is3DSound);
 

@@ -61,9 +61,8 @@ class StaticBufferT : public BufferT
 
     ALuint m_Buffer;
 
-    // Don't allow use of copy and assignment constructor.
-    StaticBufferT(StaticBufferT&);
-    StaticBufferT& operator=(const StaticBufferT&);
+    StaticBufferT(const StaticBufferT&);        ///< Use of the Copy    Constructor is not allowed.
+    void operator = (const StaticBufferT&);     ///< Use of the Assignment Operator is not allowed.
 };
 
 #endif

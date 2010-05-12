@@ -230,7 +230,5 @@ elif sys.platform=="linux2":
 
 envSoundSys.SharedLibrary(
     target="SoundSystem/SoundSysOpenAL",
-    source=[os.path.join("SoundSystem/SoundSysOpenAL", x) for x in Split("""
-               SoundSysImpl.cpp DllInterface.cpp SoundImpl.cpp BufferManager.cpp StaticBuffer.cpp
-               StreamingBuffer.cpp Buffer.cpp MixerTrackMan.cpp MixerTrack.cpp""")]+
-           [os.path.join("SoundSystem/Common", x) for x in Split("SoundStream.cpp MP3Stream.cpp OggVorbisStream.cpp")])
+    source=Glob("SoundSystem/Common/*.cpp")+
+           Glob("SoundSystem/SoundSysOpenAL/*.cpp"))

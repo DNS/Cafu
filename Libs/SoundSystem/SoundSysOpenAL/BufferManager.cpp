@@ -60,7 +60,7 @@ BufferT* BufferManagerT::GetBuffer(const std::string& AudioFile, SoundShaderT::L
     std::string BufferName=AudioFile;
 
     if (Is3DSound) BufferName.append("3D");
-    else           BufferName.append("2D");
+              else BufferName.append("2D");
 
     switch (LoadType)
     {
@@ -82,7 +82,7 @@ BufferT* BufferManagerT::GetBuffer(const std::string& AudioFile, SoundShaderT::L
         }
 
         case SoundShaderT::STATIC:
-
+        {
             // If audio file has not yet been loaded into a buffer.
             if (StaticBuffers.find(BufferName)==StaticBuffers.end())
                 StaticBuffers[BufferName]=new StaticBufferT(AudioFile, Is3DSound);
@@ -90,7 +90,7 @@ BufferT* BufferManagerT::GetBuffer(const std::string& AudioFile, SoundShaderT::L
             StaticBuffers.find(BufferName)->second->References++;
 
             return StaticBuffers.find(BufferName)->second;
-
+        }
 
         case SoundShaderT::STREAM:
         {
@@ -109,8 +109,10 @@ BufferT* BufferManagerT::GetBuffer(const std::string& AudioFile, SoundShaderT::L
 
 
         case SoundShaderT::COMPRESSED:
+        {
             std::cout << "OpenAL: COMPRESSED creation is not yet supported, switching to AUTO\n";
             return GetBuffer(AudioFile, SoundShaderT::AUTO, Is3DSound);
+        }
     }
 
     return NULL;

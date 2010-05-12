@@ -27,12 +27,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/Vector3.hpp"
 
 
-/// Class representing a sound object that can be played.
-/// Sound objects are created using a sound system and are then controlled by the calling code that triggers
-/// playback, deletes them and adjusts its attributes like the current position, velocity and direction.
-/// Creating a sound object trough the sound system is done by passing a sound shader to it that is used as
-/// a template for the sound objects properties. These properties can be changed by the calling code at will.
-/// It is possible to change aspects of the sound such as the volume, the sound cone, etc.
+/// This class represents a sound.
+/// Sounds are created and destroyed via the appropriate methods in the sound system.
 class SoundI
 {
     public:
@@ -46,67 +42,67 @@ class SoundI
     /// Pauses the sound.
     virtual void Pause()=0;
 
-    /// Resumes a previously pasued sound.
+    /// Resumes a previously paused sound.
     virtual bool Resume()=0;
 
-    /// Checks if the sound object is currently playing.
+    /// Checks if the sound is currently playing.
     virtual bool IsPlaying() const=0;
 
-    /// Checks if the sound object is 3 dimensional. Otherwise it is 2 dimensional.
+    /// Checks if the sound is for 3D playback.
     virtual bool Is3D() const=0;
 
-    /// Resets the sound objects properties to those of the shader it was created from.
+    /// Resets the sound properties to those of the shader it was created from.
     virtual void ResetProperties()=0;
 
     /// Set the position from which the sound is emanating.
     virtual void SetPosition(const Vector3dT& Position_)=0;
 
-    /// Sets the velocity of the object that emits the sound.
+    /// Sets the velocity of the source that emits the sound.
     virtual void SetVelocity(const Vector3dT& Velocity_)=0;
 
-    /// Sets the direction to which the sound is emanating.
+    /// Sets the direction into which the sound source is moving.
     virtual void SetDirection(const Vector3dT& Direction_)=0;
 
-    /// Sets the priority for this sound object.
+    /// Sets the priority of this sound.
     virtual void SetPriority(unsigned int Priority_)=0;
 
-    /// Sets the volume for this sound object.
+    /// Sets the volume.
     virtual void SetInnerVolume(float InnerVolume_)=0;
 
-    /// Sets the minimal distance for this sound object.
+    /// Sets the minimal distance.
     virtual void SetMinDistance(float MinDist_)=0;
 
-    /// Sets the maximal distance for this sound object.
+    /// Sets the maximal distance.
     virtual void SetMaxDistance(float MaxDist_)=0;
 
-    /// Sets the angle of the inner sound cone for this sound object.
+    /// Sets the angle of the inner sound cone.
     virtual void SetInnerConeAngle(float InnerConeAngle_)=0;
 
-    /// Sets the angle of the outer sound cone for this sound object.
+    /// Sets the angle of the outer sound cone.
     virtual void SetOuterConeAngle(float OuterConeAngle_)=0;
 
-    /// Sets the volume inside the outer sound cone for this sound object.
+    /// Sets the volume inside the outer sound cone.
     virtual void SetOuterVolume(float OuterVolume_)=0;
 
-    /// Gets the priority of this sound object.
+    /// Gets the priority of this sound.
     virtual unsigned int GetPriority() const=0;
 
-    /// Gets the volume of this sound object.
+    /// Gets the volume.
     virtual float GetInnerVolume() const=0;
 
-    /// Gets the minimal distance of this sound object.
+    /// Gets the minimal distance.
     virtual float GetMinDistance() const=0;
 
-    /// Gets the maximal distance of this sound object.
+    /// Gets the maximal distance.
     virtual float GetMaxDistance() const=0;
 
-    /// Gets the angle of the inner sound cone of this sound object.
+    /// Gets the angle of the inner sound cone.
     virtual float GetInnerConeAngle() const=0;
 
-    /// Sets the angle of the outer sound cone of this sound object.
+    /// Sets the angle of the outer sound cone.
     virtual float GetOuterConeAngle() const=0;
 
-    /// Gets the volume inside the outer sound cone of this sound object.
+    /// Gets the volume inside the outer sound cone.
     virtual float GetOuterVolume() const=0;
 
     /// The virtual destructor makes sure that deleting derived classes via a SoundI pointer works properly.
