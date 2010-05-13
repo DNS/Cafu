@@ -48,12 +48,12 @@ class ReplaceMaterialsDialogT : public wxDialog
     public:
 
     /// Constructor.
-    ReplaceMaterialsDialogT(bool IsSomethingSelected, MapDocumentT* MapDoc, const wxString& InitialFindMatName="");
+    ReplaceMaterialsDialogT(bool IsSomethingSelected, MapDocumentT& MapDoc, const wxString& InitialFindMatName="");
 
 
     private:
 
-    MapDocumentT*   m_MapDoc;
+    MapDocumentT&   m_MapDoc;
 
     wxTextCtrl*     TextCtrlFindMatName;
     wxTextCtrl*     TextCtrlReplaceMatName;

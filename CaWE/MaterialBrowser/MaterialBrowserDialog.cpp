@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "MaterialBrowserDialog.hpp"
 
+#include "DocAccess.hpp"
 #include "ScrolledMaterialWin.hpp"
 #include "ControlsBar.hpp"
 #include "MaterialTree.hpp"
@@ -31,11 +32,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "../EditorMaterial.hpp"
 #include "../GameConfig.hpp"
-#include "../MapDocument.hpp"
-#include "../DialogReplaceMaterials.hpp"
-#include "../EditorMaterialManager.hpp"
-#include "../MapCommands/ReplaceMat.hpp"
-#include "../GuiEditor/GuiDocument.hpp"
 
 #include "wx/confbase.h"
 
@@ -132,10 +128,9 @@ void MaterialBrowserDialogT::Init(const ArrayT<EditorMaterialI*>& Materials, con
 }
 
 
-MaterialBrowserDialogT::MaterialBrowserDialogT(wxWindow* Parent, MapDocumentT* MapDoc, EditorMaterialI* InitialMaterial, const wxString& InitialNameFilter_, bool OnlyShowUsed_)
+MaterialBrowserDialogT::MaterialBrowserDialogT(wxWindow* Parent, const DocAccessI& DocAccess, EditorMaterialI* InitialMaterial, const wxString& InitialNameFilter_, bool OnlyShowUsed_)
     : wxDialog(Parent, -1, wxString("CaWE Material Browser"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxMAXIMIZE_BOX),
-      m_MapDoc(MapDoc),
-      m_GuiDoc(NULL),
+      m_DocAccess(DocAccess),
       m_ScrolledMatWin(NULL),
       m_ControlsBar(NULL),
       m_MaterialTree(NULL),
@@ -145,24 +140,7 @@ MaterialBrowserDialogT::MaterialBrowserDialogT(wxWindow* Parent, MapDocumentT* M
       m_CurrentMaterial(InitialMaterial),
       m_UsedMaterialsList(NULL)
 {
-    Init(m_MapDoc->GetGameConfig()->GetMatMan().GetMaterials(), InitialNameFilter_, OnlyShowUsed_);
-}
-
-
-MaterialBrowserDialogT::MaterialBrowserDialogT(wxWindow* Parent, GuiEditor::GuiDocumentT* GuiDoc, EditorMaterialI* InitialMaterial, const wxString& InitialNameFilter_, bool OnlyShowUsed_)
-    : wxDialog(Parent, -1, wxString("CaWE Material Browser"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxMAXIMIZE_BOX),
-      m_MapDoc(NULL),
-      m_GuiDoc(GuiDoc),
-      m_ScrolledMatWin(NULL),
-      m_ControlsBar(NULL),
-      m_MaterialTree(NULL),
-      m_MaterialProperties(NULL),
-      m_FilterSettings(NULL),
-      DisplaySize(0),
-      m_CurrentMaterial(InitialMaterial),
-      m_UsedMaterialsList(NULL)
-{
-    Init(m_GuiDoc->GetGameConfig()->GetMatMan().GetMaterials(), InitialNameFilter_, OnlyShowUsed_);
+    Init(m_DocAccess.GetGameConfig()->GetMatMan().GetMaterials(), InitialNameFilter_, OnlyShowUsed_);
 }
 
 
@@ -172,7 +150,7 @@ MaterialBrowserDialogT::~MaterialBrowserDialogT()
 }
 
 
-EditorMaterialI* MaterialBrowserDialogT::GetCurrentMaterial()
+EditorMaterialI* MaterialBrowserDialogT::GetCurrentMaterial() const
 {
     return m_CurrentMaterial;
 }
@@ -249,35 +227,18 @@ void MaterialBrowserDialogT::OnChoice_DisplaySize(wxCommandEvent& Event)
 
 void MaterialBrowserDialogT::OnButton_Mark(wxCommandEvent& Event)
 {
-    if (m_MapDoc==NULL) return;
     if (m_CurrentMaterial==NULL) { wxMessageBox("Please select a material first!", "Currently no material is selected."); return; }
 
-    CommandReplaceMatT* Command=new CommandReplaceMatT(
-        *m_MapDoc,
-        m_MapDoc->GetSelection(),
-        m_CurrentMaterial->GetName().c_str(),
-        "",
-        CommandReplaceMatT::ExactMatches,
-        true,   // Only mark found faces/brushes/patches.
-        false,  // Search whole world, not only in selection.
-        true,   // Include brushes in the search.
-        true,   // Include bezier patches in the search.
-        false); // Do not include hidden objects (makes no sense for marking anyway).
-
-    m_MapDoc->GetHistory().SubmitCommand(Command);
-    wxMessageBox(Command->GetResultString());
+    m_DocAccess.OnMarkMaterial(m_CurrentMaterial);
     SaveAndQuitDialog(wxID_OK);
 }
 
 
 void MaterialBrowserDialogT::OnButton_Replace(wxCommandEvent& Event)
 {
-    if (m_MapDoc==NULL) return;
     if (m_CurrentMaterial==NULL) { wxMessageBox("Please select a material first!", "Currently no material is selected."); return; }
 
-    ReplaceMaterialsDialogT ReplaceMatsDlg(m_MapDoc->GetSelection().Size()>0, m_MapDoc, m_CurrentMaterial->GetName());  //todo: Pass in m_MapDoc by reference rather than by pointer?
-    ReplaceMatsDlg.ShowModal();
-
+    m_DocAccess.OnReplaceMaterial(m_CurrentMaterial);
     if (m_FilterSettings->m_OnlyShowUsedCheckbox->IsChecked()) { wxCommandEvent CE; OnCheckbox_OnlyShowUsed(CE); }
 }
 
@@ -312,15 +273,11 @@ void MaterialBrowserDialogT::OnCombobox_NameFilterTextChange(wxCommandEvent& Eve
 
 void MaterialBrowserDialogT::OnCheckbox_OnlyShowUsed(wxCommandEvent& Event)
 {
-    if (m_MapDoc==NULL && m_GuiDoc==NULL) return;
-
     if (m_FilterSettings->m_OnlyShowUsedCheckbox->IsChecked())
     {
         static ArrayT<EditorMaterialI*> UsedMatList;
 
-        if (m_MapDoc) m_MapDoc->GetUsedMaterials(UsedMatList);
-                 else m_GuiDoc->GetUsedMaterials(UsedMatList);
-
+        m_DocAccess.GetUsedMaterials(UsedMatList);
         m_UsedMaterialsList=&UsedMatList;
     }
     else
@@ -336,8 +293,6 @@ void MaterialBrowserDialogT::OnCheckbox_OnlyShowUsed(wxCommandEvent& Event)
 
 void MaterialBrowserDialogT::OnCheckbox_OnlyShowEditor(wxCommandEvent& Event)
 {
-    if (m_MapDoc==NULL && m_GuiDoc==NULL) return;
-
     m_ScrolledMatWin->UpdateVirtualSize();
     m_ScrolledMatWin->SelectMaterial(m_CurrentMaterial);
     m_ScrolledMatWin->Refresh();      // If m_CurrentMaterial==NULL, m_ScrolledMatWin->SelectMaterial() doesn't refresh, so make sure it is done here.

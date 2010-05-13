@@ -1662,7 +1662,7 @@ void MapDocumentT::OnToolsAssignPrimToWorld(wxCommandEvent& CE)
 
 void MapDocumentT::OnToolsReplaceMaterials(wxCommandEvent& CE)
 {
-    ReplaceMaterialsDialogT ReplaceMatsDlg(GetSelection().Size()>0, this, m_GameConfig->GetMatMan().GetDefaultMaterial()->GetName());
+    ReplaceMaterialsDialogT ReplaceMatsDlg(GetSelection().Size()>0, *this, m_GameConfig->GetMatMan().GetDefaultMaterial()->GetName());
     ReplaceMatsDlg.ShowModal();
 }
 

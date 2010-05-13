@@ -30,6 +30,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Commands/ModifyWindow.hpp"
 
+#include "../MaterialBrowser/DocAccess.hpp"
 #include "../MaterialBrowser/MaterialBrowserDialog.hpp"
 #include "../EditorMaterial.hpp"
 #include "../EditorMaterialManager.hpp"
@@ -101,7 +102,9 @@ class MaterialPropertyT : public wxLongStringProperty
     // Shows the file selection dialog and makes the choosen file path relative.
     virtual bool OnButtonClick(wxPropertyGrid* propGrid, wxString& value)
     {
-        MaterialBrowserDialogT MatBrowser(GetGrid(), m_GuiDocument, m_GuiDocument->GetGameConfig()->GetMatMan().FindMaterial(GetValueAsString(), false), "", false);
+        MaterialBrowserDialogT MatBrowser(GetGrid(), MaterialBrowser::GuiDocAccessT(*m_GuiDocument),
+                                          m_GuiDocument->GetGameConfig()->GetMatMan().FindMaterial(GetValueAsString(), false), "", false);
+
         if (MatBrowser.ShowModal()!=wxID_OK) return false;
 
         EditorMaterialI* Mat=MatBrowser.GetCurrentMaterial();

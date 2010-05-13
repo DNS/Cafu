@@ -30,6 +30,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "DialogReplaceMaterials.hpp"
 #include "DialogEditSurfaceProps.hpp"
 #include "EditorMaterialManager.hpp"
+#include "MaterialBrowser/DocAccess.hpp"
 #include "MaterialBrowser/MaterialBrowserDialog.hpp"
 
 #include "wx/image.h"
@@ -231,7 +232,9 @@ void MaterialsToolbarT::OnButtonBrowse(wxCommandEvent& Event)
 {
     int Index=ChoiceCurrentMat->GetSelection();
 
-    MaterialBrowserDialogT MatBrowser(this, m_MapDoc, Index!=-1 ? (EditorMaterialI*)ChoiceCurrentMat->GetClientData(Index) : NULL, "", false);
+    MaterialBrowserDialogT MatBrowser(this, MaterialBrowser::MapDocAccessT(*m_MapDoc),
+                                      Index!=-1 ? (EditorMaterialI*)ChoiceCurrentMat->GetClientData(Index) : NULL, "", false);
+
     if (MatBrowser.ShowModal()!=wxID_OK) return;
 
     EditorMaterialI* Mat=MatBrowser.GetCurrentMaterial();
@@ -259,7 +262,7 @@ void MaterialsToolbarT::OnButtonReplace(wxCommandEvent& Event)
 {
     if (m_MapDoc)
     {
-        ReplaceMaterialsDialogT ReplaceMatsDlg(m_MapDoc->GetSelection().Size()>0, m_MapDoc, m_MatMan.GetDefaultMaterial()->GetName());
+        ReplaceMaterialsDialogT ReplaceMatsDlg(m_MapDoc->GetSelection().Size()>0, *m_MapDoc, m_MatMan.GetDefaultMaterial()->GetName());
         ReplaceMatsDlg.ShowModal();
     }
 }

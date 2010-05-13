@@ -156,6 +156,12 @@ class CafuModelT : public ModelT
     /// The destructor.
     ~CafuModelT();
 
+    // Inspector methods.
+    bool GetUseGivenTS() const { return m_UseGivenTangentSpace; }
+    const ArrayT<JointT>& GetJoints() const { return m_Joints; }
+    const ArrayT<MeshT>&  GetMeshes() const { return m_Meshes; }
+    const ArrayT<AnimT>&  GetAnims()  const { return m_Anims; }
+
     // The ModelT interface.
     const std::string& GetFileName() const;
     void               Draw(int SequenceNr, float FrameNr, float LodDist, const ModelT* SubModel=NULL) const;

@@ -27,9 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ObserverPattern.hpp"
 
 #include "wx/wx.h"
-#include "wx/propgrid/propgrid.h"
 #include "wx/propgrid/manager.h"
-#include "wx/propgrid/advprops.h"
 
 
 namespace cf { namespace GuiSys { class WindowT; } }

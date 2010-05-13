@@ -23,6 +23,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ModelProperties.hpp"
 #include "ChildFrame.hpp"
+#include "ModelDocument.hpp"
+
+#include "MaterialSystem/Material.hpp"
+#include "Models/Model_cmdl.hpp"
 
 
 BEGIN_EVENT_TABLE(ModelEditor::ModelPropertiesT, wxPropertyGridManager)
@@ -41,10 +45,71 @@ ModelEditor::ModelPropertiesT::ModelPropertiesT(ChildFrameT* Parent, const wxSiz
 
 void ModelEditor::ModelPropertiesT::RefreshPropGrid()
 {
-    // if (m_ModelDocument==NULL) return;
+    const CafuModelT* Model=m_Parent->GetModelDoc()->GetModel();
+
+    const ArrayT<CafuModelT::JointT>& Joints=Model->GetJoints();
+    const ArrayT<CafuModelT::MeshT>&  Meshes=Model->GetMeshes();
+    const ArrayT<CafuModelT::AnimT>&  Anims =Model->GetAnims();
 
     ClearPage(0);
-    Append(new wxStringProperty("Info", wxPG_LABEL, "Hello"));
+
+
+    // "General" category.
+    wxPGProperty* GeneralCat=Append(new wxPropertyCategory("General"));
+
+    AppendIn(GeneralCat, new wxStringProperty("File name", wxPG_LABEL, Model->GetFileName()));
+    AppendIn(GeneralCat, new wxBoolProperty("Use given TS", wxPG_LABEL, Model->GetUseGivenTS()));
+
+    // "Skeleton" category.
+    wxPGProperty* SkeletonCat=Append(new wxPropertyCategory("Skeleton"));
+
+    for (unsigned long JointNr=0; JointNr<Joints.Size(); JointNr++)
+    {
+        const CafuModelT::JointT& Joint=Joints[JointNr];
+        const wxString            NrStr=wxString::Format("%lu", JointNr);
+
+        wxPGProperty* JointProp=AppendIn(SkeletonCat, new wxStringProperty("Joint "+NrStr, "Skeleton.Joint"+NrStr, "<composed>"));
+
+        wxPGProperty* JointName  =AppendIn(JointProp, new wxStringProperty("Name", wxPG_LABEL, Joint.Name));
+        wxPGProperty* JointParent=AppendIn(JointProp, new wxIntProperty("Parent", wxPG_LABEL, Joint.Parent));
+
+        wxPGProperty* JointPos =AppendIn(JointProp, new wxStringProperty("Pos", "Joint.Pos", "<composed>"));
+        wxPGProperty* JointPosX=AppendIn(JointPos, new wxFloatProperty("x", wxPG_LABEL, Joint.Pos.x)); JointPosX->SetTextColour(wxColour(200, 0, 0));
+        wxPGProperty* JointPosY=AppendIn(JointPos, new wxFloatProperty("y", wxPG_LABEL, Joint.Pos.y)); JointPosY->SetTextColour(wxColour(0, 200, 0));
+        wxPGProperty* JointPosZ=AppendIn(JointPos, new wxFloatProperty("z", wxPG_LABEL, Joint.Pos.z)); JointPosZ->SetTextColour(wxColour(0, 0, 200));
+        Collapse(JointPos);
+
+        wxPGProperty* JointQtr =AppendIn(JointProp, new wxStringProperty("Qtr", "Camera.Qtr", "<composed>"));
+        wxPGProperty* JointQtrX=AppendIn(JointQtr, new wxFloatProperty("x", wxPG_LABEL, Joint.Qtr.x));
+        wxPGProperty* JointQtrY=AppendIn(JointQtr, new wxFloatProperty("y", wxPG_LABEL, Joint.Qtr.y));
+        wxPGProperty* JointQtrZ=AppendIn(JointQtr, new wxFloatProperty("z", wxPG_LABEL, Joint.Qtr.z));
+        Collapse(JointQtr);
+    }
+
+    // "Meshes" category.
+    wxPGProperty* MeshesCat=Append(new wxPropertyCategory("Meshes"));
+
+    for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
+    {
+        const CafuModelT::MeshT& Mesh=Meshes[MeshNr];
+        const wxString           NrStr=wxString::Format("%lu", MeshNr);
+
+        wxPGProperty* MeshProp=AppendIn(MeshesCat, new wxStringProperty("Mesh "+NrStr, "Meshes.Mesh"+NrStr, "<composed>"));
+
+        wxPGProperty* MeshMaterial=AppendIn(MeshProp, new wxStringProperty("Material", wxPG_LABEL, Mesh.Material->Name));
+    }
+
+    // "Animations" category.
+    wxPGProperty* AnimationsCat=Append(new wxPropertyCategory("Animations"));
+
+    for (unsigned long AnimNr=0; AnimNr<Anims.Size(); AnimNr++)
+    {
+        const CafuModelT::AnimT& Anim=Anims[AnimNr];
+        const wxString           NrStr=wxString::Format("%lu", AnimNr);
+
+        wxPGProperty* AnimProp=AppendIn(AnimationsCat, new wxStringProperty("Anim "+NrStr, "Anims.Anim"+NrStr, "<composed>"));
+    }
+
     RefreshGrid();
 }
 

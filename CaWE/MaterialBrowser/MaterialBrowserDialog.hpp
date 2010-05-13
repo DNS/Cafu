@@ -31,38 +31,34 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 class EditorMaterialI;
-class MapDocumentT;
 class ScrolledMaterialWindowT;
 class ControlsBarT;
 class MaterialTreeT;
 class MaterialPropertiesT;
 class FilterSettingsT;
 class wxWindow;
-namespace GuiEditor { class GuiDocumentT; }
+namespace MaterialBrowser { class DocAccessI; }
+
+using namespace MaterialBrowser;    // TODO: Should instead move other related classes (like MaterialBrowserDialogT) into this namespace as well!
 
 
 class MaterialBrowserDialogT : public wxDialog
 {
     public:
 
-    // Constructor for map editor.
-    MaterialBrowserDialogT(wxWindow* Parent, MapDocumentT* MapDoc, EditorMaterialI* InitialMaterial, const wxString& InitialNameFilter_, bool OnlyShowUsed_);
+    /// The constructor.
+    MaterialBrowserDialogT(wxWindow* Parent, const DocAccessI& DocAccess, EditorMaterialI* InitialMaterial, const wxString& InitialNameFilter_, bool OnlyShowUsed_);
 
-    // Constructor for GUI editor.
-    MaterialBrowserDialogT(wxWindow* Parent, GuiEditor::GuiDocumentT* GuiDoc, EditorMaterialI* InitialMaterial, const wxString& InitialNameFilter_, bool OnlyShowUsed_);
-
-    // Destructor.
+    /// The destructor.
     ~MaterialBrowserDialogT();
 
-    // Returns the currently selected material.
-    EditorMaterialI* GetCurrentMaterial();
+    /// Returns the currently selected material.
+    EditorMaterialI* GetCurrentMaterial() const;
 
 
     private:
 
-    MapDocumentT*             m_MapDoc;             ///< The map document that this dialog is for. Can be NULL if this is a material browser for the GUI editor.
-    GuiEditor::GuiDocumentT*  m_GuiDoc;             ///< The GUI document that this dialog is for. Can be NULL if this is a material browser for the map editor.
-
+    const DocAccessI&         m_DocAccess;          ///< The (access interface to the) document that this dialog is for.
     wxAuiManager              m_AUIManager;
 
     ScrolledMaterialWindowT*  m_ScrolledMatWin;

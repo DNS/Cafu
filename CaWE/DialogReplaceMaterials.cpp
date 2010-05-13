@@ -28,11 +28,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrame.hpp"
 #include "MapDocument.hpp"
 #include "CommandHistory.hpp"
-#include "MaterialBrowser/MaterialBrowserDialog.hpp"
 #include "EditorMaterial.hpp"
 #include "EditorMaterialManager.hpp"
-#include "MapCommands/ReplaceMat.hpp"
 
+#include "MaterialBrowser/DocAccess.hpp"
+#include "MaterialBrowser/MaterialBrowserDialog.hpp"
+#include "MapCommands/ReplaceMat.hpp"
 #include "MapCommands/Select.hpp"
 
 #include "wx/image.h"
@@ -75,7 +76,7 @@ BEGIN_EVENT_TABLE(ReplaceMaterialsDialogT, wxDialog)
 END_EVENT_TABLE()
 
 
-ReplaceMaterialsDialogT::ReplaceMaterialsDialogT(bool IsSomethingSelected, MapDocumentT* MapDoc, const wxString& InitialFindMatName)
+ReplaceMaterialsDialogT::ReplaceMaterialsDialogT(bool IsSomethingSelected, MapDocumentT& MapDoc, const wxString& InitialFindMatName)
     : wxDialog(NULL, -1, wxString("Replace Materials"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER),
       m_MapDoc(MapDoc),
       TextCtrlFindMatName(NULL),
@@ -229,13 +230,13 @@ ReplaceMaterialsDialogT::ReplaceMaterialsDialogT(bool IsSomethingSelected, MapDo
 void ReplaceMaterialsDialogT::OnOK(wxCommandEvent& Event)
 {
     // Clear selection before marking new stuff.
-    if (CheckBoxFindOnly->IsChecked()) m_MapDoc->GetHistory().SubmitCommand(CommandSelectT::Clear(m_MapDoc));
+    if (CheckBoxFindOnly->IsChecked()) m_MapDoc.GetHistory().SubmitCommand(CommandSelectT::Clear(&m_MapDoc));
 
     // CF: The big TODO question with this dialog is:
     // If I select something, and then hide it in a group, is it still selected?
     CommandReplaceMatT* Command=new CommandReplaceMatT(
-        *m_MapDoc,
-        m_MapDoc->GetSelection(),
+        m_MapDoc,
+        m_MapDoc.GetSelection(),
         TextCtrlFindMatName->GetValue(),
         TextCtrlReplaceMatName->GetValue(),
         CommandReplaceMatT::ReplaceActionT(RadioBoxSearchFor->GetSelection()),
@@ -245,7 +246,7 @@ void ReplaceMaterialsDialogT::OnOK(wxCommandEvent& Event)
         CheckBoxInclusiveBPs->IsChecked(),        // Include bezier patches?
         CheckBoxInclusiveHidden->IsChecked());    // Search for hidden if "all objects (inclusive hidden objects)" is selected.
 
-    m_MapDoc->GetHistory().SubmitCommand(Command);
+    m_MapDoc.GetHistory().SubmitCommand(Command);
     wxMessageBox(Command->GetResultString());
 
     // Tell wxWidgets to continue processing the default behavior for wxID_OK
@@ -256,7 +257,8 @@ void ReplaceMaterialsDialogT::OnOK(wxCommandEvent& Event)
 
 void ReplaceMaterialsDialogT::OnButtonBrowseFind(wxCommandEvent& Event)
 {
-    MaterialBrowserDialogT MatBrowser(this, m_MapDoc, m_MapDoc->GetGameConfig()->GetMatMan().FindMaterial(TextCtrlFindMatName->GetValue(), false), "", true);
+    MaterialBrowserDialogT MatBrowser(this, MaterialBrowser::MapDocAccessT(m_MapDoc),
+                                      m_MapDoc.GetGameConfig()->GetMatMan().FindMaterial(TextCtrlFindMatName->GetValue(), false), "", true);
 
     if (MatBrowser.ShowModal()==wxID_OK)
         TextCtrlFindMatName->SetValue(MatBrowser.GetCurrentMaterial()!=NULL ? MatBrowser.GetCurrentMaterial()->GetName() : "");
@@ -265,7 +267,8 @@ void ReplaceMaterialsDialogT::OnButtonBrowseFind(wxCommandEvent& Event)
 
 void ReplaceMaterialsDialogT::OnButtonBrowseReplace(wxCommandEvent& Event)
 {
-    MaterialBrowserDialogT MatBrowser(this, m_MapDoc, m_MapDoc->GetGameConfig()->GetMatMan().FindMaterial(TextCtrlReplaceMatName->GetValue(), false), "", false);
+    MaterialBrowserDialogT MatBrowser(this, MaterialBrowser::MapDocAccessT(m_MapDoc),
+                                      m_MapDoc.GetGameConfig()->GetMatMan().FindMaterial(TextCtrlReplaceMatName->GetValue(), false), "", false);
 
     if (MatBrowser.ShowModal()==wxID_OK)
         TextCtrlReplaceMatName->SetValue(MatBrowser.GetCurrentMaterial()!=NULL ? MatBrowser.GetCurrentMaterial()->GetName() : "");
@@ -305,13 +308,13 @@ void ReplaceMaterialsDialogT::OnRadioButtonSearchIn(wxCommandEvent& Event)
 
 void ReplaceMaterialsDialogT::OnTextUpdateFindMatName(wxCommandEvent& Event)
 {
-    BitmapFindMat->m_Bitmap=GetScaledBitmapFromMaterial(m_MapDoc->GetGameConfig()->GetMatMan().FindMaterial(TextCtrlFindMatName->GetValue(), false));
+    BitmapFindMat->m_Bitmap=GetScaledBitmapFromMaterial(m_MapDoc.GetGameConfig()->GetMatMan().FindMaterial(TextCtrlFindMatName->GetValue(), false));
     BitmapFindMat->Refresh();
 }
 
 
 void ReplaceMaterialsDialogT::OnTextUpdateReplaceMatName(wxCommandEvent& Event)
 {
-    BitmapReplaceMat->m_Bitmap=GetScaledBitmapFromMaterial(m_MapDoc->GetGameConfig()->GetMatMan().FindMaterial(TextCtrlReplaceMatName->GetValue(), false));
+    BitmapReplaceMat->m_Bitmap=GetScaledBitmapFromMaterial(m_MapDoc.GetGameConfig()->GetMatMan().FindMaterial(TextCtrlReplaceMatName->GetValue(), false));
     BitmapReplaceMat->Refresh();
 }
