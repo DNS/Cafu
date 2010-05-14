@@ -70,8 +70,8 @@ void ModelEditor::ModelPropertiesT::RefreshPropGrid()
 
         wxPGProperty* JointProp=AppendIn(SkeletonCat, new wxStringProperty("Joint "+NrStr, "Skeleton.Joint"+NrStr, "<composed>"));
 
-        wxPGProperty* JointName  =AppendIn(JointProp, new wxStringProperty("Name", wxPG_LABEL, Joint.Name));
-        wxPGProperty* JointParent=AppendIn(JointProp, new wxIntProperty("Parent", wxPG_LABEL, Joint.Parent));
+        AppendIn(JointProp, new wxStringProperty("Name", wxPG_LABEL, Joint.Name));
+        AppendIn(JointProp, new wxIntProperty("Parent", wxPG_LABEL, Joint.Parent));
 
         wxPGProperty* JointPos =AppendIn(JointProp, new wxStringProperty("Pos", "Joint.Pos", "<composed>"));
         wxPGProperty* JointPosX=AppendIn(JointPos, new wxFloatProperty("x", wxPG_LABEL, Joint.Pos.x)); JointPosX->SetTextColour(wxColour(200, 0, 0));
@@ -80,9 +80,9 @@ void ModelEditor::ModelPropertiesT::RefreshPropGrid()
         Collapse(JointPos);
 
         wxPGProperty* JointQtr =AppendIn(JointProp, new wxStringProperty("Qtr", "Camera.Qtr", "<composed>"));
-        wxPGProperty* JointQtrX=AppendIn(JointQtr, new wxFloatProperty("x", wxPG_LABEL, Joint.Qtr.x));
-        wxPGProperty* JointQtrY=AppendIn(JointQtr, new wxFloatProperty("y", wxPG_LABEL, Joint.Qtr.y));
-        wxPGProperty* JointQtrZ=AppendIn(JointQtr, new wxFloatProperty("z", wxPG_LABEL, Joint.Qtr.z));
+        AppendIn(JointQtr, new wxFloatProperty("x", wxPG_LABEL, Joint.Qtr.x));
+        AppendIn(JointQtr, new wxFloatProperty("y", wxPG_LABEL, Joint.Qtr.y));
+        AppendIn(JointQtr, new wxFloatProperty("z", wxPG_LABEL, Joint.Qtr.z));
         Collapse(JointQtr);
     }
 
@@ -96,7 +96,7 @@ void ModelEditor::ModelPropertiesT::RefreshPropGrid()
 
         wxPGProperty* MeshProp=AppendIn(MeshesCat, new wxStringProperty("Mesh "+NrStr, "Meshes.Mesh"+NrStr, "<composed>"));
 
-        wxPGProperty* MeshMaterial=AppendIn(MeshProp, new wxStringProperty("Material", wxPG_LABEL, Mesh.Material->Name));
+        AppendIn(MeshProp, new wxStringProperty("Material", wxPG_LABEL, Mesh.Material->Name));
     }
 
     // "Animations" category.
@@ -108,6 +108,8 @@ void ModelEditor::ModelPropertiesT::RefreshPropGrid()
         const wxString           NrStr=wxString::Format("%lu", AnimNr);
 
         wxPGProperty* AnimProp=AppendIn(AnimationsCat, new wxStringProperty("Anim "+NrStr, "Anims.Anim"+NrStr, "<composed>"));
+
+        AppendIn(AnimProp, new wxFloatProperty("FPS", wxPG_LABEL, Anim.FPS));
     }
 
     RefreshGrid();
