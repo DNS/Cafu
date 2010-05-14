@@ -160,7 +160,7 @@ void SurfaceInfoT::Save_cmap(std::ostream& OutFile) const
 static unsigned int GetMainAxis(const Vector3fT& PlaneNormal)
 {
     unsigned int MainAxis=0;
-    float        MaxVal  =PlaneNormal[0];
+    float        MaxVal  =fabs(PlaneNormal[0]);
 
     for (unsigned int AxisNr=1; AxisNr<3; AxisNr++)
     {
@@ -185,8 +185,8 @@ void SurfaceInfoT::ResetUVAxes(const Plane3fT& Plane, bool FaceAligned)
     UAxis=Vector3fT(1, 0,  0);
     VAxis=Vector3fT(0, 0, -1);
 
-    if (MainAxis==2) UAxis=Vector3fT(0,  1, 0);
-    if (MainAxis==0) VAxis=Vector3fT(0, -1, 0);
+    if (MainAxis==0) UAxis=Vector3fT(0,  1, 0);
+    if (MainAxis==2) VAxis=Vector3fT(0, -1, 0);
 
     // Now "modify" the world-aligned axes so that they become face-aligned.
     if (FaceAligned)
