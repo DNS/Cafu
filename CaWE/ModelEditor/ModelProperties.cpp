@@ -96,7 +96,8 @@ void ModelEditor::ModelPropertiesT::RefreshPropGrid()
 
         wxPGProperty* MeshProp=AppendIn(MeshesCat, new wxStringProperty("Mesh "+NrStr, "Meshes.Mesh"+NrStr, "<composed>"));
 
-        AppendIn(MeshProp, new wxStringProperty("Material", wxPG_LABEL, Mesh.Material->Name));
+        // Mesh.Material is NULL if the material is unknown to the MatSys.
+        AppendIn(MeshProp, new wxStringProperty("Material", wxPG_LABEL, Mesh.Material ? Mesh.Material->Name : "<NULL>"));
     }
 
     // "Animations" category.

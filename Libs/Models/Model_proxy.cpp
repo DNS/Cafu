@@ -120,13 +120,12 @@ ModelProxyT::ModelProxyT(const std::string& FileName)
 
     try
     {
-        // TODO: This duplicates the code in CaWE/ModelEditor/Document.cpp and should be combined elsewhere, e.g. into class ModelLoaderT.
+        // TODO: This duplicates the code in CaWE/ModelEditor/ModelDocument.cpp and should be combined elsewhere, e.g. into class ModelLoaderT.
              if (cf::String::EndsWith(FileName, "ase"    )) { LoaderAseT Loader(FileName); NewModel=new CafuModelT(Loader); }
         else if (cf::String::EndsWith(FileName, "dlod"   )) NewModel=new ModelDlodT(FileName);
         else if (cf::String::EndsWith(FileName, "mdl"    )) NewModel=new ModelMdlT (FileName);
         else if (cf::String::EndsWith(FileName, "md5"    )) { LoaderMd5T Loader(FileName); NewModel=new CafuModelT(Loader); }
         else if (cf::String::EndsWith(FileName, "md5mesh")) { LoaderMd5T Loader(FileName); NewModel=new CafuModelT(Loader); }
-        else if (cf::String::EndsWith(FileName, "md5anim")) { LoaderMd5T Loader(FileName); NewModel=new CafuModelT(Loader); }
         else if (cf::String::EndsWith(FileName, "lwo"    )) { LoaderLwoT Loader(FileName); NewModel=new CafuModelT(Loader); }
         else throw ModelT::LoadError();
     }

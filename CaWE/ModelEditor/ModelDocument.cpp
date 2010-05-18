@@ -42,7 +42,6 @@ ModelEditor::ModelDocumentT::ModelDocumentT(GameConfigT* GameConfig, const wxStr
  // else if (cf::String::EndsWith(FileName, "mdl"    )) m_Model=new ModelMdlT (FileName);
     else if (cf::String::EndsWith(FileName, "md5"    )) { LoaderMd5T Loader(FileName); m_Model=new CafuModelT(Loader); }
     else if (cf::String::EndsWith(FileName, "md5mesh")) { LoaderMd5T Loader(FileName); m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "md5anim")) { LoaderMd5T Loader(FileName); m_Model=new CafuModelT(Loader); }
     else if (cf::String::EndsWith(FileName, "lwo"    )) { LoaderLwoT Loader(FileName); m_Model=new CafuModelT(Loader); }
     else throw ModelT::LoadError();
 }
