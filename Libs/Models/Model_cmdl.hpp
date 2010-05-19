@@ -156,6 +156,9 @@ class CafuModelT : public ModelT
     /// The destructor.
     ~CafuModelT();
 
+    /// Saves the model into the given stream.
+    void Save(std::ostream& OutStream) const;
+
     // Inspector methods.
     bool GetUseGivenTS() const { return m_UseGivenTangentSpace; }
     const ArrayT<JointT>& GetJoints() const { return m_Joints; }
@@ -163,7 +166,7 @@ class CafuModelT : public ModelT
     const ArrayT<AnimT>&  GetAnims()  const { return m_Anims; }
 
     // The ModelT interface.
-    const std::string& GetFileName() const;
+    const std::string& GetFileName() const;     // TODO: Remove!?!
     void               Draw(int SequenceNr, float FrameNr, float LodDist, const ModelT* SubModel=NULL) const;
     bool               GetGuiPlane(int SequenceNr, float FrameNr, float LodDist, Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const;
     void               Print() const;
@@ -179,7 +182,7 @@ class CafuModelT : public ModelT
     void UpdateCachedDrawData(int SequenceNr, float FrameNr) const;     ///< A private auxiliary method.
 
 
-    const std::string     m_FileName;               ///< File name of this model.
+    const std::string     m_FileName;               ///< File name of this model.   TODO: Remove!?!
     const bool            m_UseGivenTangentSpace;
  // const bool            m_CastShadows;            ///< Should this model cast shadows?
     ArrayT<JointT>        m_Joints;                 ///< Array of joints of this model.

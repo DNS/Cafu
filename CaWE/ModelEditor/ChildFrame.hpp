@@ -43,15 +43,20 @@ namespace ModelEditor
     {
         public:
 
-        /// The constructor.
-        /// @param Parent     The parent frame.
-        /// @param Title      The title of the new child frame (i.e. the name of the document).
-        /// @param Document   This frames document. The frame becomes the owner of the document, i.e. it is responsible for destructing it.
+        /// The constructor for creating a new model editor child frame.
+        /// @param Parent     The applications parent frame.
+        /// @param FileName   The file name of the document being edited.
+        /// @param Document   This frames model document. The frame becomes the owner of the document, i.e. it is responsible for destructing it.
         ///                   (Document is created externally so that this constructor doesn't fail on doc creation failure.)
-        ChildFrameT(ParentFrameT* Parent, const wxString& Title, ModelDocumentT* ModelDoc);
+        ChildFrameT(ParentFrameT* Parent, const wxString& FileName, ModelDocumentT* ModelDoc);
 
         /// The destructor.
         ~ChildFrameT();
+
+        /// Saves the model under the known or a new file name.
+        /// @param AskForFileName   Whether the method should ask the user to enter a new file name, used for "Save as...".
+        /// @returns whether the file was successfully saved.
+        bool Save(bool AskForFileName=false);
 
         ModelDocumentT*   GetModelDoc() const { return m_ModelDoc; }
         ScenePropertiesT* GetSceneProperties() const { return m_SceneProperties; }
@@ -59,15 +64,16 @@ namespace ModelEditor
 
         private:
 
-        ParentFrameT*     m_Parent;
-        wxString          m_Title;
+        wxString          m_FileName;
         ModelDocumentT*   m_ModelDoc;
 
-        wxMenu*           m_FileMenu;
+        ParentFrameT*     m_Parent;
         wxAuiManager      m_AUIManager;
         SceneView3DT*     m_SceneView3D;
         ModelPropertiesT* m_ModelProperties;
         ScenePropertiesT* m_SceneProperties;
+
+        wxMenu*           m_FileMenu;
 
 
         enum

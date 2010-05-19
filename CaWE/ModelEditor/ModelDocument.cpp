@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../GameConfig.hpp"
 
 #include "Models/Loader_ase.hpp"
+#include "Models/Loader_cmdl.hpp"
 #include "Models/Loader_lwo.hpp"
 #include "Models/Loader_md5.hpp"
 #include "String.hpp"
@@ -37,12 +38,13 @@ ModelEditor::ModelDocumentT::ModelDocumentT(GameConfigT* GameConfig, const wxStr
     const std::string FileName=std::string(ModelFileName);  // Change to ModelFileName.ToStdString() with wx 2.9.1.
 
     // TODO: This duplicates the code in Model_proxy.cpp and should be combined elsewhere, e.g. into class ModelLoaderT.
-         if (cf::String::EndsWith(FileName, "ase"    )) { LoaderAseT Loader(FileName); m_Model=new CafuModelT(Loader); }
+         if (cf::String::EndsWith(FileName, "ase"    )) { LoaderAseT  Loader(FileName); m_Model=new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(FileName, "cmdl"   )) { LoaderCafuT Loader(FileName); m_Model=new CafuModelT(Loader); }
  // else if (cf::String::EndsWith(FileName, "dlod"   )) m_Model=new ModelDlodT(FileName);
  // else if (cf::String::EndsWith(FileName, "mdl"    )) m_Model=new ModelMdlT (FileName);
-    else if (cf::String::EndsWith(FileName, "md5"    )) { LoaderMd5T Loader(FileName); m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "md5mesh")) { LoaderMd5T Loader(FileName); m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "lwo"    )) { LoaderLwoT Loader(FileName); m_Model=new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(FileName, "md5"    )) { LoaderMd5T  Loader(FileName); m_Model=new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(FileName, "md5mesh")) { LoaderMd5T  Loader(FileName); m_Model=new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(FileName, "lwo"    )) { LoaderLwoT  Loader(FileName); m_Model=new CafuModelT(Loader); }
     else throw ModelT::LoadError();
 }
 

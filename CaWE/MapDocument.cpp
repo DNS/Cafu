@@ -1201,7 +1201,7 @@ void MapDocumentT::OnMapLoadPointFile(wxCommandEvent& CE)
         lua_pushcfunction(LuaState, luaopen_string);  lua_pushstring(LuaState, LUA_STRLIBNAME);  lua_call(LuaState, 1, 0);  // Opens the string lib.
         lua_pushcfunction(LuaState, luaopen_math);    lua_pushstring(LuaState, LUA_MATHLIBNAME); lua_call(LuaState, 1, 0);  // Opens the math lib.
 
-        // Load and process the Lua script file with the entity class definitions.
+        // Load and process the Lua program that defines the path.
         if (luaL_loadfile(LuaState, PointFileName.c_str())!=0 || lua_pcall(LuaState, 0, 0, 0)!=0)
             throw wxString("Couldn't load the file:\n")+lua_tostring(LuaState, -1);
 

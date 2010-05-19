@@ -28,6 +28,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/MaterialManager.hpp"
 
 
+ModelLoaderT::LoadErrorT::LoadErrorT(const std::string& Message)
+    : std::runtime_error(Message)
+{
+}
+
+
 ModelLoaderT::ModelLoaderT(const std::string& FileName)
     : m_FileName(FileName)
 {

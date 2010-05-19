@@ -33,6 +33,9 @@ class ModelLoaderT
 {
     public:
 
+    class LoadErrorT;
+
+
     /// The constructor.
     ModelLoaderT(const std::string& FileName);
 
@@ -57,6 +60,15 @@ class ModelLoaderT
     MaterialT* GetMaterialByName(const std::string& MaterialName) const;
 
     const std::string m_FileName;
+};
+
+
+/// A class that is thrown on model load errors.
+class ModelLoaderT::LoadErrorT : public std::runtime_error
+{
+    public:
+
+    LoadErrorT(const std::string& Message);
 };
 
 #endif

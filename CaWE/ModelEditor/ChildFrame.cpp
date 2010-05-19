@@ -26,10 +26,16 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ModelProperties.hpp"
 #include "SceneProperties.hpp"
 #include "SceneView3D.hpp"
+
+#include "../GameConfig.hpp"
 #include "../ParentFrame.hpp"
+
+#include "Models/Model_cmdl.hpp"
 
 #include "wx/wx.h"
 #include "wx/confbase.h"
+
+#include <fstream>
 
 
 namespace ModelEditor
@@ -45,14 +51,15 @@ BEGIN_EVENT_TABLE(ModelEditor::ChildFrameT, wxMDIChildFrame)
 END_EVENT_TABLE()
 
 
-ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, ModelDocumentT* ModelDoc)
-    : wxMDIChildFrame(Parent, wxID_ANY, Title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE | wxSUNKEN_BORDER | wxMAXIMIZE),
-      m_Parent(Parent),
-      m_Title(Title),
+ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileName, ModelDocumentT* ModelDoc)
+    : wxMDIChildFrame(Parent, wxID_ANY, FileName, wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE | wxSUNKEN_BORDER | wxMAXIMIZE),
+      m_FileName(FileName),
       m_ModelDoc(ModelDoc),
+      m_Parent(Parent),
       m_SceneView3D(NULL),
       m_ModelProperties(NULL),
-      m_SceneProperties(NULL)
+      m_SceneProperties(NULL),
+      m_FileMenu(NULL)
 {
     // Register us with the parents list of children.
     m_Parent->m_MdlChildFrames.PushBack(this);
@@ -157,8 +164,75 @@ ModelEditor::ChildFrameT::~ChildFrameT()
 }
 
 
+bool ModelEditor::ChildFrameT::Save(bool AskForFileName)
+{
+    wxString FileName=m_FileName;
+
+    if (AskForFileName || FileName=="" || FileName=="New Model" || !FileName.EndsWith(".cmdl") ||
+        !wxFileExists(FileName) || !wxFile::Access(FileName, wxFile::write))
+    {
+        static wxString  LastUsedDir=m_ModelDoc->GetGameConfig()->ModDir+"/Models";
+        const wxFileName FN(m_FileName);
+
+        wxFileDialog SaveFileDialog(NULL,                               // parent
+                                    "Save Cafu Model File",             // message
+                                    (FN.IsOk() && wxDirExists(FN.GetPath())) ? FN.GetPath() : LastUsedDir, // default dir
+                                    "",                                 // default file
+                                    "Cafu Model Files (*.cmdl)|*.cmdl"  // wildcard
+                                    "|All Files (*.*)|*.*",
+                                    wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+
+        if (SaveFileDialog.ShowModal()!=wxID_OK) return false;
+
+        LastUsedDir=SaveFileDialog.GetDirectory();
+        FileName=SaveFileDialog.GetPath();     // directory + filename
+    }
+
+    if (!FileName.EndsWith(".cmdl"))
+    {
+        // Remove extension from filename.
+        wxFileName Tmp=wxFileName(FileName);
+
+        Tmp.ClearExt();
+        FileName=Tmp.GetFullPath();
+        FileName=FileName+".cmdl";
+    }
+
+    // Backup the previous file before overwriting it.
+    if (wxFileExists(FileName) && !wxCopyFile(FileName, FileName+"_bak"))
+    {
+        wxMessageBox(wxString("Sorry, creating a backup of file '")+FileName+"' at '"+FileName+"_bak"+"' did not work out.\n"
+                     "Please make sure that there is enough disk space left and that the path still exists,\n"
+                     "or use 'File -> Save As...' to save the current model elsewhere.", "File not saved!", wxOK | wxICON_ERROR);
+        return false;
+    }
+
+    std::ofstream ModelFile(FileName.fn_str());
+
+    if (!ModelFile.is_open())
+    {
+        wxMessageBox(wxString("CaWE was unable to open the file \"")+FileName+"\" for writing. Please verify that the file is writable and that the path exists.");
+        return false;
+    }
+
+    // This sets the cursor to the busy cursor in its ctor, and back to the default cursor in the dtor.
+    wxBusyCursor BusyCursor;
+
+    m_ModelDoc->GetModel()->Save(ModelFile);
+
+    // Mark the document as "not modified" only if the save was successful.
+    // m_LastSavedAtCommandNr=m_History.GetLastSaveSuggestedCommandID();        // ------- TODO --- activate this ...
+    m_FileName=FileName;
+    SetTitle(m_FileName);
+
+    return true;
+}
+
+
 void ModelEditor::ChildFrameT::OnMenuFile(wxCommandEvent& CE)
 {
+    // The events for menu entries that are duplicated from the parents file menu are forwarded to the parent.
+    // All other events are child frame specific, and handled here.
     switch (CE.GetId())
     {
         case ID_MENU_FILE_CLOSE:
@@ -171,13 +245,13 @@ void ModelEditor::ChildFrameT::OnMenuFile(wxCommandEvent& CE)
 
         case ID_MENU_FILE_SAVE:
         {
-            // TODO: Save();
+            Save();
             break;
         }
 
         case ID_MENU_FILE_SAVEAS:
         {
-            // TODO: Save(true);
+            Save(true);
             break;
         }
     }

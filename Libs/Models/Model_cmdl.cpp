@@ -27,14 +27,49 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/BoundingBox.hpp"
 
-#include <cstdio>
 #include <iostream>
 
-#if defined(_WIN32) && defined (_MSC_VER)
-    #if (_MSC_VER<1300)
-        #define for if (false) ; else for
-    #endif
-#endif
+
+/// This function serializes a given float f1 to a string s, such that:
+///   - s is minimal (uses the least number of decimal digits required),
+///   - unserializing s back to a float f2 yields f1==f2.
+/// See my post "float to string to float, with first float == second float"
+/// to comp.lang.c++ on 2009-10-06 for additional details.
+static std::string serialize(float f1)
+{
+    // From MSDN documentation: "digits10 returns the number of decimal digits that the type can represent without loss of precision."
+    // For floats, that's usually 6, for doubles, that's usually 15. However, we want to use the number of *significant* decimal digits here,
+    // that is, max_digits10. See http://www.open-std.org/JTC1/sc22/wg21/docs/papers/2006/n2005.pdf for details.
+    const unsigned int DIGITS10    =std::numeric_limits<float>::digits10;
+    const unsigned int MAX_DIGITS10=DIGITS10+3;
+
+    std::string  s;
+    unsigned int prec;
+
+    for (prec=DIGITS10; prec<=MAX_DIGITS10; prec++)
+    {
+        std::stringstream ss;
+
+        ss.precision(prec);
+        ss << f1;
+
+        s=ss.str();
+
+        float f2;
+        ss >> f2;
+
+        if (f2==f1) break;
+    }
+
+    assert(prec<=MAX_DIGITS10);
+    return s;
+}
+
+
+static std::string serialize(const Vector3fT& v)
+{
+    return serialize(v.x)+", "+serialize(v.y)+", "+serialize(v.z);
+}
 
 
 bool CafuModelT::MeshT::AreGeoDups(int Vertex1Nr, int Vertex2Nr) const
@@ -448,6 +483,171 @@ void CafuModelT::InitMeshes()
         }
 #endif
     }
+}
+
+
+void CafuModelT::Save(std::ostream& OutStream) const
+{
+    OutStream << "-- Cafu Model File\n"
+              << "-- Written by CaWE, the Cafu World Editor.\n";
+
+
+    // *** Write the joints. ***
+    OutStream << "\nJoints=\n{\n";
+
+    for (unsigned long JointNr=0; JointNr<m_Joints.Size(); JointNr++)
+    {
+        const JointT& Joint=m_Joints[JointNr];
+
+        OutStream << "\t"
+                  << "{ "
+                  << "name=\"" << Joint.Name << "\"; "
+                  << "parent=" << Joint.Parent << "; "
+                  << "pos={ " << serialize(Joint.Pos) << " }; "
+                  << "qtr={ " << serialize(Joint.Qtr) << " }; "
+                  << "},\n";
+    }
+
+    OutStream << "}\n";
+
+
+    // *** Write the meshes. ***
+    OutStream << "\nMeshes=\n{\n";
+
+    for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
+    {
+        const MeshT& Mesh=m_Meshes[MeshNr];
+
+        OutStream << "\t-- Mesh " << MeshNr << "\n";
+        OutStream << "\t{\n";
+
+        // Write the mesh material.
+        OutStream << "\t\t" << "Material=\"" << (Mesh.Material ? Mesh.Material->Name : "") << "\";\n";
+
+        // Write the mesh weights.
+        OutStream << "\n\t\t" << "Weights=\n\t\t{\n";
+        for (unsigned long WeightNr=0; WeightNr<Mesh.Weights.Size(); WeightNr++)
+        {
+            const MeshT::WeightT& Weight=Mesh.Weights[WeightNr];
+
+            OutStream << "\t\t\t"
+                      << "{ "
+                      << "joint=" << Weight.JointIdx << "; "
+                      << "weight=" << Weight.Weight << "; "
+                      << "pos={ " << serialize(Weight.Pos) << " }; "
+                      << "},\n";
+        }
+        OutStream << "\t\t};\n";
+
+        // Write the mesh vertices.
+        OutStream << "\n\t\t" << "Vertices=\n\t\t{\n";
+        for (unsigned long VertexNr=0; VertexNr<Mesh.Vertices.Size(); VertexNr++)
+        {
+            const MeshT::VertexT& Vertex=Mesh.Vertices[VertexNr];
+
+            OutStream << "\t\t\t"
+                      << "{ "
+                      << "firstWeight=" << Vertex.FirstWeightIdx << "; "
+                      << "numWeights=" << Vertex.NumWeights << "; "
+                      << "uv={ " << serialize(Vertex.u) << ", " << serialize(Vertex.v) << " }; "
+                      << "},\n";
+        }
+        OutStream << "\t\t};\n";
+
+        // Write the mesh triangles.
+        OutStream << "\n\t\tTriangles=\n\t\t{\n";
+        for (unsigned long TriNr=0; TriNr<Mesh.Triangles.Size(); TriNr++)
+        {
+            const MeshT::TriangleT& Triangle=Mesh.Triangles[TriNr];
+
+            OutStream << "\t\t\t"
+                      << "{ "
+                      << Triangle.VertexIdx[0] << ", " << Triangle.VertexIdx[1] << ", " << Triangle.VertexIdx[2] << " "
+                      << "},\n";
+        }
+        OutStream << "\t\t};\n";
+
+        OutStream << "\t},\n";
+    }
+
+    OutStream << "}\n";
+
+
+    // *** Write the animations. ***
+    OutStream << "\nAnimations=\n{\n";
+
+    for (unsigned long AnimNr=0; AnimNr<m_Anims.Size(); AnimNr++)
+    {
+        const AnimT& Anim=m_Anims[AnimNr];
+
+        OutStream << "\t-- Animation " << AnimNr << "\n";
+        OutStream << "\t{\n";
+
+        // Write the anim FPS.
+        OutStream << "\t\tFPS=" << Anim.FPS << ";\n";
+
+        // Write the anim joints.
+        OutStream << "\n\t\tAnimJoints=\n\t\t{\n";
+        for (unsigned long JointNr=0; JointNr<Anim.AnimJoints.Size(); JointNr++)
+        {
+            const AnimT::AnimJointT& Joint=Anim.AnimJoints[JointNr];
+
+            OutStream << "\t\t\t"
+                      << "{ "
+                      << "pos={ " << serialize(Joint.BaseValues[0]) << ", " << serialize(Joint.BaseValues[1]) << ", " << serialize(Joint.BaseValues[2]) << " }; "
+                      << "qtr={ " << serialize(Joint.BaseValues[3]) << ", " << serialize(Joint.BaseValues[4]) << ", " << serialize(Joint.BaseValues[5]) << " }; "
+                      << "flags=" << Joint.Flags << "; "
+                      << "firstData=" << Joint.FirstDataIdx << "; "
+                      << "},\n";
+        }
+        OutStream << "\t\t};\n";
+
+        // Write the anim frames.
+        OutStream << "\n\t\tFrames=\n\t\t{\n";
+        for (unsigned long FrameNr=0; FrameNr<Anim.Frames.Size(); FrameNr++)
+        {
+            const AnimT::FrameT& Frame=Anim.Frames[FrameNr];
+
+            OutStream << "\t\t\t"
+                      << "{ "
+                      << "bb={";
+            for (unsigned long i=0; i<6; i++) OutStream << " " << serialize(Frame.BB[i]) << (i<5 ? ", " : " ");
+            OutStream << "};\ndata={";
+            for (unsigned long i=0; i<Frame.AnimData.Size(); i++) OutStream << " " << serialize(Frame.AnimData[i]) << (i+1<Frame.AnimData.Size() ? ", " : " ");
+            OutStream << "}; "
+                      << "},\n";
+        }
+        OutStream << "\t\t};\n";
+
+        OutStream << "\t},\n";
+    }
+
+    OutStream << "}\n";
+
+
+    // *** Write the GUI locations. ***
+    OutStream << "\nGuiLocs=\n{\n";
+
+    for (unsigned long GuiLocNr=0; GuiLocNr<m_GuiLocs.Size(); GuiLocNr++)
+    {
+        const GuiLocT& GuiLoc=m_GuiLocs[GuiLocNr];
+
+        OutStream << "\t"
+                  << "{ "
+                  << "Origin={ " << serialize(GuiLoc.Origin) << " }; "
+                  << "AxisX={ " << serialize(GuiLoc.AxisX) << " }; "
+                  << "AxisY={ " << serialize(GuiLoc.AxisY) << " }; "
+                  << "},\n";
+    }
+
+    OutStream << "}\n";
+
+
+    // *** Write the global properties. ***
+    OutStream << "\nProperties=\n{\n";
+    OutStream << "\t" << "useGivenTS=" << (m_UseGivenTangentSpace ? "true" : "false") << ";\n";   // Don't rely on the proper locale being set...
+ // OutStream << "\t" << "castShadows=" << m_CastShadows << ";\n";
+    OutStream << "}\n";
 }
 
 

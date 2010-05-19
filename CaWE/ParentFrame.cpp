@@ -41,6 +41,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/MapComposition.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "MaterialSystem/TextureMap.hpp"
+#include "Models/Loader.hpp"    // Needed for the ModelLoaderT::LoadErrorT exception that must be caught when model loading failed.
 #include "Models/Model.hpp"     // Needed for the ModelT::LoadError exception that must be caught when model loading failed.
 #include "TextParser/TextParser.hpp"
 #include "PlatformAux.hpp"
@@ -613,6 +614,11 @@ void ParentFrameT::OnMenuFile(wxCommandEvent& CE)
                 // TODO: We really should have more detailed information about what exactly went wrong when loading the model...
                 wxMessageBox(wxString("The model file \"")+FileDialog.GetPath()+"\" could not be loaded!", "Couldn't load or import model");
             }
+            catch (const ModelLoaderT::LoadErrorT& LE)
+            {
+                wxMessageBox(wxString("The model file \"")+FileDialog.GetPath()+"\" could not be loaded:\n"+LE.what(),
+                             "Couldn't load or import model");
+            }
             catch (const cf::GuiSys::GuiImplT::InitErrorT& /*E*/)
             {
                 wxMessageBox(wxString("The GUI script \"")+FileDialog.GetPath()+"\" could not be loaded!", "Couldn't load GUI script");
@@ -675,6 +681,11 @@ void ParentFrameT::OnMenuFile(wxCommandEvent& CE)
                 {
                     // TODO: We really should have more detailed information about what exactly went wrong when loading the model...
                     wxMessageBox(wxString("The model file \"")+FileName+"\" could not be loaded!", "Couldn't load or import model");
+                }
+                catch (const ModelLoaderT::LoadErrorT& LE)
+                {
+                    wxMessageBox(wxString("The model file \"")+FileName+"\" could not be loaded:\n"+LE.what(),
+                                 "Couldn't load or import model");
                 }
                 catch (const cf::GuiSys::GuiImplT::InitErrorT& /*E*/)
                 {
