@@ -328,18 +328,31 @@ elif sys.platform=="linux2":
 # with the proper calling conventions etc. Therefore, matching the precise DLL built variant
 # with that of the main Cafu executable is not necessary, and overwriting (some of) these
 # DLLs with their debug build variants for debugging should not be a problem.
+#
+# We use release builds whenever we can, and assume that if the user has disabled them,
+# debug builds are available (i.e. the code below fails if neither "d" nor "r" is in BVs).
 if sys.platform=="win32":
-    envRelease.Install(".", ["#/ExtLibs/freealut/"+my_build_dir_rel+"/alut.dll"]);
     envRelease.Install(".", ["#/ExtLibs/Cg/bin/cg.dll", "#/ExtLibs/Cg/bin/cgGL.dll"]);
     envRelease.Install(".", ["#/ExtLibs/fmod/api/fmod.dll"]);
-    envRelease.Install(".", ["#/ExtLibs/mpg123/"+my_build_dir_rel+"/mpg123.dll"]);
     envRelease.Install(".", ["#/ExtLibs/openal-win/OpenAL32.dll", "#/ExtLibs/openal-win/wrap_oal.dll"]);
+    if "r" in BVs:
+        envRelease.Install(".", ["#/ExtLibs/freealut/"+my_build_dir_rel+"/alut.dll"]);
+        envRelease.Install(".", ["#/ExtLibs/mpg123/"+my_build_dir_rel+"/mpg123.dll"]);
+    else:
+        envRelease.Install(".", ["#/ExtLibs/freealut/"+my_build_dir_dbg+"/alut.dll"]);
+        envRelease.Install(".", ["#/ExtLibs/mpg123/"+my_build_dir_dbg+"/mpg123.dll"]);
+
 elif sys.platform=="linux2":
-    envRelease.Install(".", ["#/ExtLibs/freealut/"+my_build_dir_rel+"/libalut.so"]);
     envRelease.Install(".", ["#/ExtLibs/Cg/lib/libCg.so", "#/ExtLibs/Cg/lib/libCgGL.so"]);
     envRelease.Install(".", ["#/ExtLibs/fmod/api/libfmod-3.75.so"]);
-    envRelease.Install(".", ["#/ExtLibs/mpg123/"+my_build_dir_rel+"/libmpg123.so"]);
-    envRelease.Install(".", ["#/ExtLibs/openal-soft/"+my_build_dir_rel+"/libopenal.so"]);
+    if "r" in BVs:
+        envRelease.Install(".", ["#/ExtLibs/freealut/"+my_build_dir_rel+"/libalut.so"]);
+        envRelease.Install(".", ["#/ExtLibs/mpg123/"+my_build_dir_rel+"/libmpg123.so"]);
+        envRelease.Install(".", ["#/ExtLibs/openal-soft/"+my_build_dir_rel+"/libopenal.so"]);
+    else:
+        envRelease.Install(".", ["#/ExtLibs/freealut/"+my_build_dir_dbg+"/libalut.so"]);
+        envRelease.Install(".", ["#/ExtLibs/mpg123/"+my_build_dir_dbg+"/libmpg123.so"]);
+        envRelease.Install(".", ["#/ExtLibs/openal-soft/"+my_build_dir_dbg+"/libopenal.so"]);
 
 
 ############################################
