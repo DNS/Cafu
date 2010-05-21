@@ -1274,15 +1274,15 @@ bool CafuModelT::GetGuiPlane(int SequenceNr, float FrameNr, float LodDist, Vecto
 
 void CafuModelT::Print() const
 {
-    printf("\nThis is a cmdl Cafu model. FileName: \"%s\"\n", m_FileName.c_str());
+    std::cout << "\nThis is a cmdl Cafu model. FileName: \"" << m_FileName << "\"\n";
 
     for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
     {
         const MeshT& Mesh=m_Meshes[MeshNr];
 
-        printf("\n### Mesh %lu ####\n", MeshNr);
+        std::cout << "\n### Mesh " << MeshNr << " ####\n";
 
-        printf("Triangles:\n");
+        std::cout << "Triangles:\n";
         for (unsigned long TriangleNr=0; TriangleNr<Mesh.Triangles.Size(); TriangleNr++)
         {
             const MeshT::TriangleT& Tri=Mesh.Triangles[TriangleNr];
@@ -1294,7 +1294,7 @@ void CafuModelT::Print() const
             std::cout << "\n";
         }
 
-        printf("Vertices:\n");
+        std::cout << "Vertices:\n";
         for (unsigned long VertexNr=0; VertexNr<Mesh.Vertices.Size(); VertexNr++)
         {
             const MeshT::VertexT& Vertex=Mesh.Vertices[VertexNr];
