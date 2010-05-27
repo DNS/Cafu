@@ -62,13 +62,17 @@ class StreamingBufferT : public BufferT
 
     private:
 
-    ArrayT<ALuint> m_CurrentBuffers; ///< Currently used buffers (needed in this array for deletion in stream destructor).
-    SoundStreamT*  m_Stream;         ///< Sound stream used for this buffer.
-    ALenum         m_OutputFormat;   ///< OpenAL output format used for stream buffers.
-    bool           m_EndReached;     ///< Stream has reached the end, don't update anymore.
-
     StreamingBufferT(const StreamingBufferT&);  ///< Use of the Copy    Constructor is not allowed.
     void operator = (const StreamingBufferT&);  ///< Use of the Assignment Operator is not allowed.
+
+    /// Fills the given buffers with new stream data and queues them on the mixer track (the OpenAL source).
+    /// If the stream has no more data, only the required buffers are processed and the m_EndReached flag is set.
+    void FillAndQueue(const ArrayT<ALuint>& Buffers);
+
+    SoundStreamT*  m_Stream;        ///< The stream that provides the PCM data for the buffers.
+    ArrayT<ALuint> m_Buffers;       ///< The buffers that are queued on the source and played alternately with current data from the stream.
+    ALenum         m_OutputFormat;  ///< OpenAL output format used for buffers.  TODO: Rename to m_BufferFormat ???
+    bool           m_EndReached;    ///< Stream has reached the end, don't update anymore.
 };
 
 #endif
