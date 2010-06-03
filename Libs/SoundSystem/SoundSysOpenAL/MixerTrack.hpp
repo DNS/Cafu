@@ -33,8 +33,8 @@ class SoundImplT;
 
 
 /// A mixer track to playback sound objects.
-/// Mixer tracks are used to playback sounds trough the sound system. A mixer track can only play one sound
-/// object at a time. Since mixer tracks are a limited resource they need to be reused (see MixerTrackManT).
+/// Mixer tracks are used to playback sounds through the sound system. A mixer track can only play one sound
+/// at a time. Since mixer tracks are a limited resource they need to be reused (see MixerTrackManT).
 /// This mixer track encapsulates an OpenAL source that is used for playback.
 class MixerTrackT
 {
@@ -55,7 +55,7 @@ class MixerTrackT
     /// Contructor. Generates an OpenAL source.
     MixerTrackT();
 
-    /// Destructor. Detaches the currently attached sound and detroys the OpenAL source.
+    /// Destructor. Detaches the currently attached sound and destroys the OpenAL source.
     ~MixerTrackT();
 
     /// Play the passed sound object on this mixer track.
@@ -97,19 +97,17 @@ class MixerTrackT
     /// the minimal distance, the volume, etc.
     void Update();
 
+    /// Returns the handle to the OpenAL "source" that is encapsulated by this mixer track.
+    ALuint GetOpenALSource() const { return m_SourceHandle; }
+
 
     private:
 
-    // These classes need direct access to the source handle.
-    friend class StaticBufferT;
-    friend class StreamingBufferT;
+    MixerTrackT(const MixerTrackT&);        ///< Use of the Copy    Constructor is not allowed.
+    void operator = (const MixerTrackT&);   ///< Use of the Assignment Operator is not allowed.
 
     SoundImplT* m_CurrentSound; ///< The sound that is currently attached (but not necessarily played) to the mixer track.
     ALuint      m_SourceHandle; ///< The OpenAL source handle encapsulated by this mixer track.
-
-    // Don't allow use of copy and assignment constructor.
-    MixerTrackT(MixerTrackT&);
-    MixerTrackT& operator=(const MixerTrackT&);
 };
 
 #endif

@@ -55,19 +55,19 @@ class StreamingBufferT : public BufferT
     // BufferT implementation.
     void Update();
     void Rewind();
-    bool IsStream();
+    bool IsStream() const;
     bool AttachToMixerTrack(MixerTrackT* MixerTrack);
     bool DetachFromMixerTrack(MixerTrackT* MixerTrack);
 
 
     private:
 
-    StreamingBufferT(const StreamingBufferT&);  ///< Use of the Copy    Constructor is not allowed.
-    void operator = (const StreamingBufferT&);  ///< Use of the Assignment Operator is not allowed.
-
     /// Fills the given buffers with new stream data and queues them on the mixer track (the OpenAL source).
     /// If the stream has no more data, only the required buffers are processed and the m_EndReached flag is set.
     void FillAndQueue(const ArrayT<ALuint>& Buffers);
+
+    StreamingBufferT(const StreamingBufferT&);  ///< Use of the Copy    Constructor is not allowed.
+    void operator = (const StreamingBufferT&);  ///< Use of the Assignment Operator is not allowed.
 
     SoundStreamT*  m_Stream;        ///< The stream that provides the PCM data for the buffers.
     ArrayT<ALuint> m_Buffers;       ///< The buffers that are queued on the source and played alternately with current data from the stream.

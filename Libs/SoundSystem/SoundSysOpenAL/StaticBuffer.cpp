@@ -134,7 +134,7 @@ void StaticBufferT::Rewind()
 }
 
 
-bool StaticBufferT::IsStream()
+bool StaticBufferT::IsStream() const
 {
     return false;
 }
@@ -147,16 +147,16 @@ bool StaticBufferT::AttachToMixerTrack(MixerTrackT* MixerTrack)
 
     if (!m_Is3DSound)
     {
-        alSourcei (MixerTrack->m_SourceHandle, AL_SOURCE_RELATIVE, AL_TRUE);
-        alSource3f(MixerTrack->m_SourceHandle, AL_POSITION, 0.0f, 0.0f, 0.0f);
+        alSourcei (MixerTrack->GetOpenALSource(), AL_SOURCE_RELATIVE, AL_TRUE);
+        alSource3f(MixerTrack->GetOpenALSource(), AL_POSITION, 0.0f, 0.0f, 0.0f);
     }
     else
     {
         // Explicitly reset to non-relative source positioning.
-        alSourcei (MixerTrack->m_SourceHandle, AL_SOURCE_RELATIVE, AL_FALSE);
+        alSourcei (MixerTrack->GetOpenALSource(), AL_SOURCE_RELATIVE, AL_FALSE);
     }
 
-    alSourcei(MixerTrack->m_SourceHandle, AL_BUFFER, m_Buffer); // Attach buffer to source.
+    alSourcei(MixerTrack->GetOpenALSource(), AL_BUFFER, m_Buffer); // Attach buffer to source.
 
     return true;
 }

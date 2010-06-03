@@ -78,13 +78,13 @@ void StreamingBufferT::FillAndQueue(const ArrayT<ALuint>& Buffers)
             break;
         }
 
-        if (m_Stream->GetChannels()>1 && m_Is3DSound)
+        if (m_Stream->GetChannels()>1 && m_OutputFormat==AL_FORMAT_MONO16)
             ReadBytes=ConvertToMono(RawPcmBuffer, ReadBytes);
 
         alBufferData(Buffers[BufNr], m_OutputFormat, RawPcmBuffer, ReadBytes, m_Stream->GetRate());
 
         // (Re-)Queue the filled buffers on the mixer track (the OpenAL source).
-        alSourceQueueBuffers(m_MixerTracks[0]->m_SourceHandle, 1, &Buffers[BufNr]);
+        alSourceQueueBuffers(m_MixerTracks[0]->GetOpenALSource(), 1, &Buffers[BufNr]);
     }
 }
 
@@ -98,7 +98,7 @@ void StreamingBufferT::Update()
 
     {
         int NumRecycle=0;
-        alGetSourcei(m_MixerTracks[0]->m_SourceHandle, AL_BUFFERS_PROCESSED, &NumRecycle);
+        alGetSourcei(m_MixerTracks[0]->GetOpenALSource(), AL_BUFFERS_PROCESSED, &NumRecycle);
 
         if (NumRecycle==0) return;
 
@@ -106,12 +106,12 @@ void StreamingBufferT::Update()
         RecycleBuffers.PushBackEmpty(NumRecycle);
     }
 
-    alSourceUnqueueBuffers(m_MixerTracks[0]->m_SourceHandle, RecycleBuffers.Size(), &RecycleBuffers[0]);
+    alSourceUnqueueBuffers(m_MixerTracks[0]->GetOpenALSource(), RecycleBuffers.Size(), &RecycleBuffers[0]);
     FillAndQueue(RecycleBuffers);
 
-    // If all bufferes were completely processed, the playback was finished and stopped, so restart it now.
+    // If all buffers were completely processed, the playback was finished and stopped; restart it now.
     if (RecycleBuffers.Size()==m_Buffers.Size())
-        alSourcePlay(m_MixerTracks[0]->m_SourceHandle);
+        alSourcePlay(m_MixerTracks[0]->GetOpenALSource());
 
     assert(alGetError()==AL_NO_ERROR);
 }
@@ -124,7 +124,7 @@ void StreamingBufferT::Rewind()
 }
 
 
-bool StreamingBufferT::IsStream()
+bool StreamingBufferT::IsStream() const
 {
     return true;
 }
@@ -138,13 +138,13 @@ bool StreamingBufferT::AttachToMixerTrack(MixerTrackT* MixerTrack)
 
     if (!m_Is3DSound)
     {
-        alSourcei (MixerTrack->m_SourceHandle, AL_SOURCE_RELATIVE, AL_TRUE);
-        alSource3f(MixerTrack->m_SourceHandle, AL_POSITION, 0.0f, 0.0f, 0.0f);
+        alSourcei (MixerTrack->GetOpenALSource(), AL_SOURCE_RELATIVE, AL_TRUE);
+        alSource3f(MixerTrack->GetOpenALSource(), AL_POSITION, 0.0f, 0.0f, 0.0f);
     }
     else
     {
         // Explicitly reset to non-relative source positioning.
-        alSourcei (MixerTrack->m_SourceHandle, AL_SOURCE_RELATIVE, AL_FALSE);
+        alSourcei (MixerTrack->GetOpenALSource(), AL_SOURCE_RELATIVE, AL_FALSE);
     }
 
     FillAndQueue(m_Buffers);

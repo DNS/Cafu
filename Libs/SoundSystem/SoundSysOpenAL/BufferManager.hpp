@@ -24,8 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef _SOUNDSYS_BUFFER_MANAGER_HPP_
 #define _SOUNDSYS_BUFFER_MANAGER_HPP_
 
-#include "../SoundShader.hpp" // For LoadTypeE.
-
+#include "../SoundShader.hpp"   // For LoadTypeE.
 #include "Templates/Array.hpp"
 
 #include <string>
@@ -33,12 +32,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 class BufferT;
-class StaticBufferT;
-class StreamingBufferT;
 
 
-/// The buffer manager provides the means to create sound buffers from filenames.
-/// Buffers are reused and shared if the same filename is requested multiple times.
+/// This class efficiently manages audio buffers by employing resource sharing whenever possible.
 class BufferManagerT
 {
     public:
@@ -46,20 +42,18 @@ class BufferManagerT
     /// Returns the BufferManagerTs singleton instance.
     static BufferManagerT* GetInstance();
 
-    /// Interface to obtain a buffer for a specific audio file.
-    /// If the buffer has not been created before, it is created by this method. Otherwise the already exisiting buffer is returned.
-    /// @param AudioFile   Relative Path to the audio file from which the buffer should be created.
-    /// @param LoadType    What kind of buffer should be created (see SoundShaderT for more details).
-    /// @param Is3DSound   Whether the buffer is intended to be played as a 3 dimensional sound.
-    /// @return The created buffer or NULL if no buffer could be created from the specified audio file.
+    /// Returns a buffer for the audio data in the specified file.
+    /// The method can return a newly created or a previously existing buffer for resource sharing,
+    /// and thus the buffer cannot directly be deleted by the user but must be released through ReleaseBuffer().
+    /// @param AudioFile   Path and name of the file to return a buffer for.
+    /// @param LoadType    The type of buffer that is to be returned (see SoundShaderT for more details).
+    /// @param Is3DSound   Whether the buffer is intended for use as a 3-dimensional sound.
+    /// @return The buffer for the specified file, or NULL if no such buffer could be created.
     BufferT* GetBuffer(const std::string& AudioFile, SoundShaderT::LoadTypeE LoadType, bool Is3DSound);
 
-    /// Deletes all buffers that are currently unused (have no references).
-    void CleanUp();
-
-    /// Release a buffer.
-    /// The buffer is also completely destroyed if there are no references on it after the release.
-    /// @param Buffer The buffer to release.
+    /// Releases a buffer.
+    /// Internally, the released buffer may or may not be completely deleted from memory, depending on its reference count.
+    /// @param Buffer   The buffer to release.
     void ReleaseBuffer(BufferT* Buffer);
 
     /// Releases all buffers.
@@ -68,14 +62,16 @@ class BufferManagerT
 
     private:
 
-    std::map<std::string, StaticBufferT*> StaticBuffers;    ///< Array of all static buffers that have been created.
-    ArrayT<StreamingBufferT*>             StreamingBuffers; ///< Array of all streaming buffers.
-
     /// Private constructor for singleton pattern.
     BufferManagerT();
 
     /// Destructor. Deletes all created buffers.
     ~BufferManagerT();
+
+    /// Deletes all buffers that have no references left and are thus unused.
+    void CleanUp();
+
+    ArrayT<BufferT*> m_Buffers;     ///< The set of buffers currently known to and managed by the buffer manager.
 };
 
 #endif

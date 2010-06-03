@@ -36,15 +36,25 @@ class MixerTrackT;
 /// This basic version contains all attributes that are common for both a static buffer and a streaming buffer
 /// and provides a general interface, so the calling code doesn't need to distinguish between different buffer
 /// types.
+//
+// TODO 1: Remove Is3DSound, instead use IsMono or ForceMono / MakeMono or even more flexibly, the number of channels.
+//         Maybe even better, have the AL_FORMAT_* that is also passed to alBufferData() as a ctor param and keep it as a class member.
+// TODO 2: Remove IsStream(), instead use something like "CanPlayOnMultipleMixerTracks" or something.
 class BufferT
 {
     public:
 
     /// Constructor.
-    BufferT(const std::string& FileName_="", bool Is3DSound=true) : References(0), m_FileName(FileName_), m_Is3DSound(Is3DSound) { }
+    BufferT(const std::string& FileName="", bool Is3DSound=true) : References(0), m_FileName(FileName), m_Is3DSound(Is3DSound) { }
 
     /// Virtual destructor so the proper destructor of the underlying buffer is called.
     virtual ~BufferT() { }
+
+    /// Returns the name of the resource underlying this buffer (usually a file name).
+    const std::string& GetName() const { return m_FileName; }
+
+    /// Returns whether this buffer is for 2D or 3D playback... but also see the TODO above.
+    bool Is3D() const { return m_Is3DSound; }
 
     /// Updates the buffer (this is only relevant for streaming buffers).
     virtual void Update()=0;
@@ -54,7 +64,7 @@ class BufferT
 
     /// Provides information if the underlying buffer is a streaming buffer.
     /// @return Whether the buffer is a stream.
-    virtual bool IsStream()=0;
+    virtual bool IsStream() const=0;
 
     /// Attaches the buffer to a mixer track, so the mixer track can play this buffer.
     /// Note that depending on the underlying buffer it is possible to attach one buffer to multiple mixer tracks.

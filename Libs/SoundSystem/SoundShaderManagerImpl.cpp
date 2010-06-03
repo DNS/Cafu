@@ -196,6 +196,24 @@ ArrayT<const SoundShaderT*> SoundShaderManagerImplT::RegisterSoundShaderScriptsI
 }
 
 
+static bool IsFile(const std::string& Name)
+{
+    cf::FileSys::InFileI* AudioFile=cf::FileSys::FileMan->OpenRead(Name);
+
+    if (AudioFile==NULL)
+        return false;
+
+    cf::FileSys::FileMan->Close(AudioFile);
+    return true;
+}
+
+
+static bool IsCapture(const std::string& Name)
+{
+    return Name.find("capture")==0 && Name.length()>8;
+}
+
+
 const SoundShaderT* SoundShaderManagerImplT::GetSoundShader(const std::string& Name)
 {
     // Ignore empty names and just return NULL.
@@ -207,23 +225,18 @@ const SoundShaderT* SoundShaderManagerImplT::GetSoundShader(const std::string& N
 
     if (It!=m_SoundShaders.end()) return It->second;
 
-    // Sound shader not found, try to interpret the name as filename.
-    cf::FileSys::InFileI* AudioFile=cf::FileSys::FileMan->OpenRead(Name);
-
-    // File not existent.
-    if (AudioFile==NULL)
+    // Sound shader not found, try to interpret the name as a filename or a "capture n" string.
+    if (IsFile(Name) || IsCapture(Name))
     {
-        std::cout << "Error auto creating sound shader: File '" << Name << "' not existent\n";
-        return NULL;
+        SoundShaderT* AutoShader=new SoundShaderT(Name);
+        AutoShader->AudioFile=Name;
+
+        // Add auto created shader to list of shaders.
+        m_SoundShaders[Name]=AutoShader;
+
+        return AutoShader;
     }
 
-    cf::FileSys::FileMan->Close(AudioFile);
-
-    SoundShaderT* AutoShader=new SoundShaderT(Name);
-    AutoShader->AudioFile=Name;
-
-    // Add auto created shader to list of shaders.
-    m_SoundShaders[Name]=AutoShader;
-
-    return AutoShader;
+    std::cout << "Error auto creating sound shader: File '" << Name << "' not doesn't exist.\n";
+    return NULL;
 }

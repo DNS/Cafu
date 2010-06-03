@@ -51,7 +51,7 @@ class StaticBufferT : public BufferT
     // BufferT implementation.
     void Update();
     void Rewind();
-    bool IsStream();
+    bool IsStream() const;
 
     bool AttachToMixerTrack(MixerTrackT* MixerTrack);
     bool DetachFromMixerTrack(MixerTrackT* MixerTrack);

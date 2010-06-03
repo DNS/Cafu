@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "BufferManager.hpp"
+#include "CaptureBuffer.hpp"
 #include "StaticBuffer.hpp"
 #include "StreamingBuffer.hpp"
 
@@ -44,6 +45,7 @@ BufferManagerT* BufferManagerT::GetInstance()
 
 
 BufferManagerT::BufferManagerT()
+    : m_Buffers()
 {
 }
 
@@ -56,57 +58,75 @@ BufferManagerT::~BufferManagerT()
 
 BufferT* BufferManagerT::GetBuffer(const std::string& AudioFile, SoundShaderT::LoadTypeE LoadType, bool Is3DSound)
 {
-    // We need to differentiate between 2D and 3D sounds since they are created differently (stereo sounds need to be converted to mono).
-    std::string BufferName=AudioFile;
+    if (AudioFile.find("capture")==0 && AudioFile.length()>8)
+    {
+        const unsigned int WantedDeviceNum=atoi(AudioFile.substr(8).c_str());
 
-    if (Is3DSound) BufferName.append("3D");
-              else BufferName.append("2D");
+        const char*  DeviceNames=alcGetString(NULL, ALC_CAPTURE_DEVICE_SPECIFIER);
+        unsigned int Offset     =0;
+        unsigned int DeviceNum  =0;
+        std::string  DeviceName ="";
+
+        while (DeviceNames[Offset]!='\0' && DeviceNum<=WantedDeviceNum)
+        {
+            DeviceName=&DeviceNames[Offset];
+
+            Offset+=DeviceName.length()+1;   // Jump to next device name.
+            DeviceNum++;
+        }
+
+        BufferT* Buf=new CaptureBufferT(DeviceName, Is3DSound);
+
+        Buf->References++;
+        m_Buffers.PushBack(Buf);
+
+        return Buf;
+    }
 
     switch (LoadType)
     {
         case SoundShaderT::AUTO:
         {
             if (cf::String::EndsWith(AudioFile, ".wav"))
-                return GetBuffer(AudioFile, SoundShaderT::STATIC, Is3DSound); // Always use static buffer for .wav files.
+                return GetBuffer(AudioFile, SoundShaderT::STATIC, Is3DSound);   // Always use a static buffer for .wav files.
 
             cf::FileSys::InFileI* FileHandle=cf::FileSys::FileMan->OpenRead(AudioFile);
-
             if (FileHandle!=NULL && FileHandle->GetSize()>StreamFileSize)
             {
                 cf::FileSys::FileMan->Close(FileHandle);
                 return GetBuffer(AudioFile, SoundShaderT::STREAM, Is3DSound);
             }
-
             cf::FileSys::FileMan->Close(FileHandle);
-            return GetBuffer(AudioFile, SoundShaderT::STATIC, Is3DSound); // Note: non existent files are handled in the StaticBufferT constructor.
+
+            return GetBuffer(AudioFile, SoundShaderT::STATIC, Is3DSound);   // Non-existent files are handled in the StaticBufferT constructor.
         }
 
-        case SoundShaderT::STATIC:
-        {
-            // If audio file has not yet been loaded into a buffer.
-            if (StaticBuffers.find(BufferName)==StaticBuffers.end())
-                StaticBuffers[BufferName]=new StaticBufferT(AudioFile, Is3DSound);
-
-            StaticBuffers.find(BufferName)->second->References++;
-
-            return StaticBuffers.find(BufferName)->second;
-        }
-
+        case SoundShaderT::STATIC:  // Intentional fall-through.
         case SoundShaderT::STREAM:
         {
-            // If audio file has already been loaded into a static buffer we don't need to create a
-            // streaming buffer anymore and just use the static one.
-            if (StaticBuffers.find(BufferName)!=StaticBuffers.end())
-                return StaticBuffers.find(BufferName)->second;
+            // If we have a static buffer with the same name and same number of channels already,
+            // just increase its reference count and return it.
+            for (unsigned long BufNr=0; BufNr<m_Buffers.Size(); BufNr++)
+            {
+                BufferT* Buf=m_Buffers[BufNr];
 
-            StreamingBufferT* NewBuffer=new StreamingBufferT(AudioFile, Is3DSound);
+                if (!Buf->IsStream() && Buf->GetName()==AudioFile && Buf->Is3D()==Is3DSound)
+                {
+                    Buf->References++;
+                    return Buf;
+                }
+            }
+
+            BufferT* NewBuffer=NULL;
+
+            if (LoadType==SoundShaderT::STATIC) NewBuffer=new StaticBufferT(AudioFile, Is3DSound);
+                                           else NewBuffer=new StreamingBufferT(AudioFile, Is3DSound);
+
             NewBuffer->References++;
-
-            StreamingBuffers.PushBack(NewBuffer);
+            m_Buffers.PushBack(NewBuffer);
 
             return NewBuffer;
         }
-
 
         case SoundShaderT::COMPRESSED:
         {
@@ -130,45 +150,22 @@ void BufferManagerT::ReleaseBuffer(BufferT* Buffer)
 
 void BufferManagerT::CleanUp()
 {
-    for (std::map<std::string, StaticBufferT*>::iterator It=StaticBuffers.begin(); It!=StaticBuffers.end();)
+    for (unsigned long BufNr=0; BufNr<m_Buffers.Size(); BufNr++)
     {
-        if (It->second->References<1)
+        if (m_Buffers[BufNr]->References<1)
         {
-            // Store current position and increment BEFORE reasing the iterator position.
-            std::map<std::string, StaticBufferT*>::iterator Current=It;
-            It++;
-
-            delete Current->second;
-            StaticBuffers.erase(Current);
-            continue;
+            delete m_Buffers[BufNr];
+            m_Buffers.RemoveAt(BufNr);
+            BufNr--;
         }
-
-        It++;
-    }
-
-    for (unsigned long i=0; i<StreamingBuffers.Size();)
-    {
-        if (StreamingBuffers[i]->References<1)
-        {
-            delete StreamingBuffers[i];
-            StreamingBuffers.RemoveAtAndKeepOrder(i);
-            continue;
-        }
-
-        i++;
     }
 }
 
 
 void BufferManagerT::ReleaseAll()
 {
-    for (std::map<std::string, StaticBufferT*>::iterator It=StaticBuffers.begin(); It!=StaticBuffers.end(); It++)
-        delete It->second;
+    for (unsigned long BufNr=0; BufNr<m_Buffers.Size(); BufNr++)
+        delete m_Buffers[BufNr];
 
-    StaticBuffers.clear();
-
-    for (unsigned long i=0; i<StreamingBuffers.Size(); i++)
-        delete StreamingBuffers[i];
-
-    StreamingBuffers.Clear();
+    m_Buffers.Overwrite();
 }
