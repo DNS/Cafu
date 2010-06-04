@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef _SOUNDSYS_BUFFER_HPP_
 #define _SOUNDSYS_BUFFER_HPP_
 
+#include "OpenALIncl.hpp"
 #include "Templates/Array.hpp"
 
 #include <string>
@@ -37,24 +38,27 @@ class MixerTrackT;
 /// and provides a general interface, so the calling code doesn't need to distinguish between different buffer
 /// types.
 //
-// TODO 1: Remove Is3DSound, instead use IsMono or ForceMono / MakeMono or even more flexibly, the number of channels.
-//         Maybe even better, have the AL_FORMAT_* that is also passed to alBufferData() as a ctor param and keep it as a class member.
-// TODO 2: Remove IsStream(), instead use something like "CanPlayOnMultipleMixerTracks" or something.
+// TODO: Remove IsStream(), instead use something like "CanPlayOnMultipleMixerTracks" or something.
 class BufferT
 {
     public:
 
-    /// Constructor.
-    BufferT(const std::string& FileName="", bool Is3DSound=true) : References(0), m_FileName(FileName), m_Is3DSound(Is3DSound) { }
+    /// The constructor.
+    /// @param ResName     The name of the resource (file or capture device) that this buffer is created from.
+    /// @param ForceMono   Whether the data from the resource should be reduced to a single channel before use (mono output).
+    BufferT(const std::string& ResName, bool ForceMono);
 
-    /// Virtual destructor so the proper destructor of the underlying buffer is called.
+    /// The virtual destructor, so that derived classes can safely be deleted via a BufferT (base class) pointer.
     virtual ~BufferT() { }
 
-    /// Returns the name of the resource underlying this buffer (usually a file name).
-    const std::string& GetName() const { return m_FileName; }
+    /// Returns the name of the resource (file or capture device) that this buffer was created from.
+    const std::string& GetName() const { return m_ResName; }
 
-    /// Returns whether this buffer is for 2D or 3D playback... but also see the TODO above.
-    bool Is3D() const { return m_Is3DSound; }
+    /// Returns whether the data from the resource is reduced to a single channel before use (mono output).
+    bool ForcesMono() const { return m_ForceMono; }
+
+    /// Returns the number of audio channels in this buffer (1 is mono, 2 is stereo).
+    virtual unsigned int GetChannels() const=0;
 
     /// Updates the buffer (this is only relevant for streaming buffers).
     virtual void Update()=0;
@@ -87,9 +91,7 @@ class BufferT
 
     protected:
 
-    std::string          m_FileName;    ///< Name of this file this buffer was created from.
     ArrayT<MixerTrackT*> m_MixerTracks; ///< Mixer tracks this buffer is currently attached to.
-    bool                 m_Is3DSound;   ///< Determines how the buffer is created and attached to a source.
 
     /// Converts signed 16 bit raw PCM data from stereo to mono.
     /// @param Buffer The PCM data to convert to mono.
@@ -100,9 +102,11 @@ class BufferT
 
     private:
 
-    // Don't allow use of copy and assignment constructor.
-    BufferT(BufferT&);
-    BufferT& operator=(const BufferT&);
+    BufferT(const BufferT&);            ///< Use of the Copy    Constructor is not allowed.
+    void operator = (const BufferT&);   ///< Use of the Assignment Operator is not allowed.
+
+    const std::string m_ResName;        ///< Name of the resource (file or capture device) that this buffer was created from.
+    const bool        m_ForceMono;      ///< Whether the data from the resource is reduced to a single channel before use (mono output).
 };
 
 #endif

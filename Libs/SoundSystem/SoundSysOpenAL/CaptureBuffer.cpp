@@ -34,19 +34,22 @@ static const unsigned int MAX_RAW_PCM_BUFFER_BYTES=65536;                   ///<
 static const unsigned int MAX_CAPTURE_SAMPLES=MAX_RAW_PCM_BUFFER_BYTES/4;   ///< Size of capture buffer in sample frames (16-bit stereo).
 
 
-CaptureBufferT::CaptureBufferT(const std::string& DeviceName, bool Is3DSound)
-    : BufferT(DeviceName, Is3DSound),
-      m_CaptureDevice(alcCaptureOpenDevice(DeviceName.empty() ? NULL : DeviceName.c_str(), SAMPLE_FRQ, AL_FORMAT_STEREO16, MAX_CAPTURE_SAMPLES)),
-      m_OutputFormat(AL_FORMAT_STEREO16)
+CaptureBufferT::CaptureBufferT(const std::string& DeviceName, bool ForceMono)
+    : BufferT(DeviceName, ForceMono),
+      m_Format(ForceMono ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16),
+      m_CaptureDevice(NULL)
 {
+    m_CaptureDevice=alcCaptureOpenDevice(
+        DeviceName.empty() ? NULL : DeviceName.c_str(),
+        SAMPLE_FRQ,
+        m_Format,
+        MAX_CAPTURE_SAMPLES);
+
     if (m_CaptureDevice==NULL) std::cout << "OpenAL: Error opening capture device '" << DeviceName << "'\n";
     assert(m_CaptureDevice!=NULL);
 
     m_OutputBuffers.PushBackEmptyExact(5);
     alGenBuffers(m_OutputBuffers.Size(), &m_OutputBuffers[0]);
-
-    // If the sound should be played 3D we have to set the output format to mono.
-    if (m_Is3DSound) m_OutputFormat=AL_FORMAT_MONO16;
 }
 
 
@@ -60,6 +63,12 @@ CaptureBufferT::~CaptureBufferT()
     if (m_CaptureDevice) alcCaptureCloseDevice(m_CaptureDevice);
 
     assert(alGetError()==AL_NO_ERROR);
+}
+
+
+unsigned int CaptureBufferT::GetChannels() const
+{
+    return m_Format==AL_FORMAT_MONO16 ? 1 : 2;
 }
 
 
@@ -104,12 +113,9 @@ void CaptureBufferT::Update()
 
     if (m_RecycleBuffers.Size()>0 && m_RawPcmOutputBuffer.Size()>4096)
     {
-        unsigned int NumOutBytes=m_RawPcmOutputBuffer.Size();
+        const unsigned int NumOutBytes=m_RawPcmOutputBuffer.Size();
 
-        if (m_OutputFormat==AL_FORMAT_MONO16)
-            NumOutBytes=ConvertToMono(&m_RawPcmOutputBuffer[0], NumOutBytes);
-
-        alBufferData(m_RecycleBuffers[0], m_OutputFormat, &m_RawPcmOutputBuffer[0], NumOutBytes, SAMPLE_FRQ);
+        alBufferData(m_RecycleBuffers[0], m_Format, &m_RawPcmOutputBuffer[0], NumOutBytes, SAMPLE_FRQ);
         m_RawPcmOutputBuffer.Overwrite();
 
         // (Re-)Queue the filled buffers on the mixer track (the OpenAL source).
@@ -145,17 +151,6 @@ bool CaptureBufferT::AttachToMixerTrack(MixerTrackT* MixerTrack)
     // Capture buffers are unique and can only be attached to one source.
     if (m_MixerTracks.Size()>0) return false;
     m_MixerTracks.PushBack(MixerTrack);
-
-    if (!m_Is3DSound)
-    {
-        alSourcei (MixerTrack->GetOpenALSource(), AL_SOURCE_RELATIVE, AL_TRUE);
-        alSource3f(MixerTrack->GetOpenALSource(), AL_POSITION, 0.0f, 0.0f, 0.0f);
-    }
-    else
-    {
-        // Explicitly reset to non-relative source positioning.
-        alSourcei (MixerTrack->GetOpenALSource(), AL_SOURCE_RELATIVE, AL_FALSE);
-    }
 
     std::cout << "OpenAL: Starting audio capture from device \"" << GetName() << "\".\n";
     alcCaptureStart(m_CaptureDevice);

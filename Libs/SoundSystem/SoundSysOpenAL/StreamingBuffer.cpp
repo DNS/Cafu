@@ -29,21 +29,17 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <iostream>
 
 
-StreamingBufferT::StreamingBufferT(const std::string& AudioFile, bool Is3DSound)
-    : BufferT(AudioFile, Is3DSound),
-      m_Stream(SoundStreamT::Create(AudioFile)),
+StreamingBufferT::StreamingBufferT(const std::string& FileName, bool ForceMono)
+    : BufferT(FileName, ForceMono),
+      m_Stream(SoundStreamT::Create(FileName)),
       m_Buffers(),
-      m_OutputFormat(AL_FORMAT_STEREO16),
       m_EndReached(false)
 {
-    if (m_Stream==NULL) std::cout << "OpenAL: Error creating streamed sound buffer '" << AudioFile << "'\n";
+    if (m_Stream==NULL) std::cout << "OpenAL: Error creating streamed sound buffer '" << FileName << "'\n";
     assert(m_Stream!=NULL);
 
     m_Buffers.PushBackEmptyExact(5);
     alGenBuffers(m_Buffers.Size(), &m_Buffers[0]);
-
-    // If the stream has only one channel or if the stream should be played 3D we have to set the output format to mono.
-    if (m_Stream->GetChannels()==1 || m_Is3DSound) m_OutputFormat=AL_FORMAT_MONO16;
 }
 
 
@@ -61,6 +57,12 @@ StreamingBufferT::~StreamingBufferT()
 }
 
 
+unsigned int StreamingBufferT::GetChannels() const
+{
+    return ForcesMono() ? 1 : m_Stream->GetChannels();
+}
+
+
 void StreamingBufferT::FillAndQueue(const ArrayT<ALuint>& Buffers)
 {
     static const unsigned int RAW_PCM_BUFFER_SIZE=65536;            ///< Size in bytes of raw PCM data exchange buffer.
@@ -68,20 +70,24 @@ void StreamingBufferT::FillAndQueue(const ArrayT<ALuint>& Buffers)
 
     for (unsigned long BufNr=0; BufNr<Buffers.Size(); BufNr++)
     {
-        int ReadBytes=m_Stream->Read(RawPcmBuffer, RAW_PCM_BUFFER_SIZE);
+        ALenum OutputFormat=(m_Stream->GetChannels()==1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+        int    ReadBytes   =m_Stream->Read(RawPcmBuffer, RAW_PCM_BUFFER_SIZE);
 
         if (ReadBytes<=0)
         {
-            if (ReadBytes<0) std::cout << __FUNCTION__ << ": Error reading stream " << m_FileName << ".\n";
+            if (ReadBytes<0) std::cout << __FUNCTION__ << ": Error reading stream " << GetName() << ".\n";
 
             m_EndReached=true;
             break;
         }
 
-        if (m_Stream->GetChannels()>1 && m_OutputFormat==AL_FORMAT_MONO16)
+        if (ForcesMono() && OutputFormat==AL_FORMAT_STEREO16)
+        {
+            OutputFormat  =AL_FORMAT_MONO16;
             ReadBytes=ConvertToMono(RawPcmBuffer, ReadBytes);
+        }
 
-        alBufferData(Buffers[BufNr], m_OutputFormat, RawPcmBuffer, ReadBytes, m_Stream->GetRate());
+        alBufferData(Buffers[BufNr], OutputFormat, RawPcmBuffer, ReadBytes, m_Stream->GetRate());
 
         // (Re-)Queue the filled buffers on the mixer track (the OpenAL source).
         alSourceQueueBuffers(m_MixerTracks[0]->GetOpenALSource(), 1, &Buffers[BufNr]);
@@ -94,17 +100,15 @@ void StreamingBufferT::Update()
     if (m_EndReached) return;
 
     assert(m_MixerTracks[0]!=NULL);
+
+    int NumRecycle=0;
+    alGetSourcei(m_MixerTracks[0]->GetOpenALSource(), AL_BUFFERS_PROCESSED, &NumRecycle);
+
+    if (NumRecycle==0) return;
+
     static ArrayT<ALuint> RecycleBuffers;
-
-    {
-        int NumRecycle=0;
-        alGetSourcei(m_MixerTracks[0]->GetOpenALSource(), AL_BUFFERS_PROCESSED, &NumRecycle);
-
-        if (NumRecycle==0) return;
-
-        RecycleBuffers.Overwrite();
-        RecycleBuffers.PushBackEmpty(NumRecycle);
-    }
+    RecycleBuffers.Overwrite();
+    RecycleBuffers.PushBackEmpty(NumRecycle);
 
     alSourceUnqueueBuffers(m_MixerTracks[0]->GetOpenALSource(), RecycleBuffers.Size(), &RecycleBuffers[0]);
     FillAndQueue(RecycleBuffers);
@@ -135,17 +139,6 @@ bool StreamingBufferT::AttachToMixerTrack(MixerTrackT* MixerTrack)
     // Stream buffers are unique and can only be attached to one source.
     if (m_MixerTracks.Size()>0) return false;
     m_MixerTracks.PushBack(MixerTrack);
-
-    if (!m_Is3DSound)
-    {
-        alSourcei (MixerTrack->GetOpenALSource(), AL_SOURCE_RELATIVE, AL_TRUE);
-        alSource3f(MixerTrack->GetOpenALSource(), AL_POSITION, 0.0f, 0.0f, 0.0f);
-    }
-    else
-    {
-        // Explicitly reset to non-relative source positioning.
-        alSourcei (MixerTrack->GetOpenALSource(), AL_SOURCE_RELATIVE, AL_FALSE);
-    }
 
     FillAndQueue(m_Buffers);
 

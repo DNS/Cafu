@@ -85,7 +85,7 @@ class MixerTrackT
     /// This is more general than IsPlaying() since it also returns mixer tracks as used if the
     /// sound attached to them is not playing but paused. Stopped sounds will result don't mark
     /// a mixer track as used.
-    /// @return Whether the mixe track is currently used.
+    /// @return Whether the mixer track is currently used.
     bool IsUsed();
 
     /// Returns information about the priority of the currently played sound object.

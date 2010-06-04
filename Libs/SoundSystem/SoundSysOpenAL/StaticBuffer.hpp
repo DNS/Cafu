@@ -25,7 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define _SOUNDSYS_STATIC_BUFFER_HPP_
 
 #include "Buffer.hpp"
-#include "OpenALIncl.hpp"
 
 
 /// A static buffer created from an audio file.
@@ -39,16 +38,16 @@ class StaticBufferT : public BufferT
 {
     public:
 
-    /// Constructor.
-    /// Creates a static buffer from an audio file.
-    /// @param AudioFile Path to the audio file from which the buffer should be created.
-    /// @param Is3DSound Whether the buffer is used as a 3D sound object (audio data has to be mono).
-    StaticBufferT(const std::string& AudioFile, bool Is3DSound);
+    /// The constructor.
+    /// @param FileName    The name of the audio file that this buffer is created from.
+    /// @param ForceMono   Whether the data from the resource should be reduced to a single channel before use (mono output).
+    StaticBufferT(const std::string& FileName, bool ForceMono);
 
-    /// Destructor.
+    /// The destructor.
     ~StaticBufferT();
 
     // BufferT implementation.
+    unsigned int GetChannels() const;
     void Update();
     void Rewind();
     bool IsStream() const;
@@ -60,9 +59,6 @@ class StaticBufferT : public BufferT
     private:
 
     ALuint m_Buffer;
-
-    StaticBufferT(const StaticBufferT&);        ///< Use of the Copy    Constructor is not allowed.
-    void operator = (const StaticBufferT&);     ///< Use of the Assignment Operator is not allowed.
 };
 
 #endif

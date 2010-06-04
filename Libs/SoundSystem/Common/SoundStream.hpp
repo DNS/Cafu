@@ -33,7 +33,7 @@ class SoundStreamT
     public:
 
     /// General sound stream exception described by an error message.
-    /// Thrown when the creation of a stream fails or any opration on
+    /// Thrown when the creation of a stream fails, or any operation on
     /// an existing stream (read etc.).
     class ExceptionT
     {

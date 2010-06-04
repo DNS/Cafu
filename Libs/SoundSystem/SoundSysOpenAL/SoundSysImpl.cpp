@@ -220,7 +220,7 @@ SoundI* SoundSysImplT::CreateSound2D(const SoundShaderT* SoundShader)
     // SoundShaderManager->GetSoundShader("xxx") to this method.
     if (SoundShader==NULL) return new SoundImplT(this, false);
 
-    BufferT* Buffer=m_BufferManager->GetBuffer(SoundShader->AudioFile, SoundShader->LoadType, false);
+    BufferT* Buffer=m_BufferManager->GetBuffer(SoundShader->AudioFile, false /*ForceMono*/, SoundShader->LoadType);
 
     if (Buffer==NULL) return NULL;
 
@@ -235,7 +235,7 @@ SoundI* SoundSysImplT::CreateSound3D(const SoundShaderT* SoundShader)
     // SoundShaderManager->GetSoundShader("xxx") to this method.
     if (SoundShader==NULL) return new SoundImplT(this, true);
 
-    BufferT* Buffer=m_BufferManager->GetBuffer(SoundShader->AudioFile, SoundShader->LoadType, true);
+    BufferT* Buffer=m_BufferManager->GetBuffer(SoundShader->AudioFile, true /*ForceMono*/, SoundShader->LoadType);
 
     if (Buffer==NULL) return NULL;
 

@@ -33,77 +33,58 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <iostream>
 
 
-static const unsigned int InitBufferSize=65536;
-
-
-StaticBufferT::StaticBufferT(const std::string& AudioFile, bool Is3DSound)
-    : BufferT(AudioFile, Is3DSound),
+StaticBufferT::StaticBufferT(const std::string& FileName, bool ForceMono)
+    : BufferT(FileName, ForceMono),
       m_Buffer(AL_NONE)
 {
-    // If the file ends on .ogg or .mp3 we use MP3StreamT or OggVorbisStreamT to read all PCM data of the file into a local buffer.
-    if (cf::String::EndsWith(AudioFile, ".mp3") || cf::String::EndsWith(AudioFile, ".ogg"))
+    // If the file name ends with .ogg or .mp3 we use MP3StreamT or OggVorbisStreamT to read all PCM data of the file into a local buffer.
+    if (cf::String::EndsWith(FileName, ".mp3") || cf::String::EndsWith(FileName, ".ogg"))
     {
-        // TODO Force mono stream if Is3DSound (stereo streams cannot be played 3 dimensional).
-        SoundStreamT* Stream=SoundStreamT::Create(AudioFile);
+        SoundStreamT* Stream=SoundStreamT::Create(FileName);
 
         if (Stream!=NULL)
         {
-            int FreeBytes     =InitBufferSize; // Bytes still free in this buffer.
-            int ReadBytes     =0;              // Number of bytes read from the input stream on last read.
-            int TotalReadBytes=0;              // Total number of bytes read from the input stream.
+            ArrayT<unsigned char> StreamBuffer;
 
-            ArrayT<unsigned char> LocalBuffer;
-
-            LocalBuffer.PushBackEmpty(InitBufferSize);
-
-            ReadBytes=Stream->Read(&LocalBuffer[0], FreeBytes);
-
-            while(ReadBytes>0)
+            while (true)
             {
-                assert(ReadBytes<=FreeBytes);
+                const int     MAX_READ_BYTES=65536;
+                unsigned char ReadBuffer[MAX_READ_BYTES];
+                const int     ReadBytes=Stream->Read(ReadBuffer, MAX_READ_BYTES);
 
-                if (ReadBytes==FreeBytes)
-                {
-                    LocalBuffer.PushBackEmpty(InitBufferSize);
-                    FreeBytes=InitBufferSize;
-                }
-                else
-                {
-                    FreeBytes-=ReadBytes;
-                }
+                if (ReadBytes<=0) break;
 
-                TotalReadBytes+=ReadBytes;
-                ReadBytes=Stream->Read(&LocalBuffer[TotalReadBytes], FreeBytes);
+                for (int i=0; i<ReadBytes; i++)
+                    StreamBuffer.PushBack(ReadBuffer[i]);
             }
 
-            // Reached end of stream, copy streamdata into OpenAL buffer.
-            if (ReadBytes==0)
+            // Finally copy the stream buffer into the OpenAL buffer.
+            ALenum OutputFormat=(Stream->GetChannels()==1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+            int    TotalReadBytes=StreamBuffer.Size();
+
+            if (ForceMono && OutputFormat==AL_FORMAT_STEREO16)
             {
-                ALenum OutputFormat=AL_FORMAT_STEREO16;
-
-                if (Stream->GetChannels()==1 || Is3DSound) OutputFormat=AL_FORMAT_MONO16;
-                if (Stream->GetChannels() >1 && Is3DSound) TotalReadBytes=ConvertToMono(&LocalBuffer[0], TotalReadBytes);
-
-                alGenBuffers(1, &m_Buffer);
-
-                alBufferData(m_Buffer, OutputFormat, &LocalBuffer[0], TotalReadBytes, Stream->GetRate());
+                OutputFormat  =AL_FORMAT_MONO16;
+                TotalReadBytes=ConvertToMono(&StreamBuffer[0], TotalReadBytes);
             }
 
-            delete   Stream;
-            LocalBuffer.Clear();
+            alGenBuffers(1, &m_Buffer);
+            alBufferData(m_Buffer, OutputFormat, &StreamBuffer[0], TotalReadBytes, Stream->GetRate());
+
+            delete Stream;
         }
         else
         {
-            std::cout << "OpenAL: Error creating static buffer from file '" << AudioFile << "' Error: Stream could not be opened\n";
+            std::cout << "OpenAL: Error creating static buffer from file '" << FileName << "' Error: Stream could not be opened\n";
         }
     }
     else
     {
         // Other files are handled by ALUT.
-        // TODO is it possible to let ALUT create mono PCM from stereo wavs?
-        m_Buffer=alutCreateBufferFromFile(AudioFile.c_str());
+        // TODO: Use alutLoadMemoryFromFile() instead, reduce to mono if necessary!
+        m_Buffer=alutCreateBufferFromFile(FileName.c_str());
 
-        if (m_Buffer==AL_NONE) std::cout << "OpenAL: Error creating static sound buffer '" << AudioFile << "'" << " Error: " << alutGetErrorString(alutGetError()) << "\n";
+        if (m_Buffer==AL_NONE) std::cout << "OpenAL: Error creating static sound buffer '" << FileName << "'" << " Error: " << alutGetErrorString(alutGetError()) << "\n";
     }
 
     assert(alGetError()==AL_NO_ERROR);
@@ -119,6 +100,15 @@ StaticBufferT::~StaticBufferT()
 
     int Error=alGetError();
     if (Error!=AL_NO_ERROR) std::cout << "OpenAL: Error deleting buffer: " << TranslateErrorCode(Error) << "\n";
+}
+
+
+unsigned int StaticBufferT::GetChannels() const
+{
+    ALint NumChannels;
+
+    alGetBufferi(m_Buffer, AL_CHANNELS, &NumChannels);
+    return NumChannels;
 }
 
 
@@ -145,19 +135,8 @@ bool StaticBufferT::AttachToMixerTrack(MixerTrackT* MixerTrack)
     // Only add mixer track if it is not yet in the array.
     if (m_MixerTracks.Find(MixerTrack)==-1) m_MixerTracks.PushBack(MixerTrack);
 
-    if (!m_Is3DSound)
-    {
-        alSourcei (MixerTrack->GetOpenALSource(), AL_SOURCE_RELATIVE, AL_TRUE);
-        alSource3f(MixerTrack->GetOpenALSource(), AL_POSITION, 0.0f, 0.0f, 0.0f);
-    }
-    else
-    {
-        // Explicitly reset to non-relative source positioning.
-        alSourcei (MixerTrack->GetOpenALSource(), AL_SOURCE_RELATIVE, AL_FALSE);
-    }
-
-    alSourcei(MixerTrack->GetOpenALSource(), AL_BUFFER, m_Buffer); // Attach buffer to source.
-
+    // Attach our buffer to the source.
+    alSourcei(MixerTrack->GetOpenALSource(), AL_BUFFER, m_Buffer);
     return true;
 }
 

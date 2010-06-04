@@ -25,7 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define _SOUNDSYS_STREAMING_BUFFER_HPP_
 
 #include "Buffer.hpp"
-#include "OpenALIncl.hpp"
 
 
 class SoundStreamT;
@@ -43,16 +42,16 @@ class StreamingBufferT : public BufferT
 {
     public:
 
-    /// Constructor.
-    /// Creates a streaming buffer from an audio file.
-    /// @param AudioFile Path to the audio file from which the buffer should be created.
-    /// @param Is3DSound Whether the buffer is used as a 3D sound object.
-    StreamingBufferT(const std::string& AudioFile, bool Is3DSound);
+    /// The constructor.
+    /// @param FileName    The name of the audio file that this buffer is created from.
+    /// @param ForceMono   Whether the data from the resource should be reduced to a single channel before use (mono output).
+    StreamingBufferT(const std::string& FileName, bool ForceMono);
 
-    /// Destructor.
+    /// The destructor.
     ~StreamingBufferT();
 
     // BufferT implementation.
+    unsigned int GetChannels() const;
     void Update();
     void Rewind();
     bool IsStream() const;
@@ -66,12 +65,8 @@ class StreamingBufferT : public BufferT
     /// If the stream has no more data, only the required buffers are processed and the m_EndReached flag is set.
     void FillAndQueue(const ArrayT<ALuint>& Buffers);
 
-    StreamingBufferT(const StreamingBufferT&);  ///< Use of the Copy    Constructor is not allowed.
-    void operator = (const StreamingBufferT&);  ///< Use of the Assignment Operator is not allowed.
-
     SoundStreamT*  m_Stream;        ///< The stream that provides the PCM data for the buffers.
     ArrayT<ALuint> m_Buffers;       ///< The buffers that are queued on the source and played alternately with current data from the stream.
-    ALenum         m_OutputFormat;  ///< OpenAL output format used for buffers.  TODO: Rename to m_BufferFormat ???
     bool           m_EndReached;    ///< Stream has reached the end, don't update anymore.
 };
 

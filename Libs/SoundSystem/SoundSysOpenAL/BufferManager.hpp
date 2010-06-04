@@ -28,7 +28,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Templates/Array.hpp"
 
 #include <string>
-#include <map>
 
 
 class BufferT;
@@ -42,14 +41,16 @@ class BufferManagerT
     /// Returns the BufferManagerTs singleton instance.
     static BufferManagerT* GetInstance();
 
-    /// Returns a buffer for the audio data in the specified file.
-    /// The method can return a newly created or a previously existing buffer for resource sharing,
-    /// and thus the buffer cannot directly be deleted by the user but must be released through ReleaseBuffer().
-    /// @param AudioFile   Path and name of the file to return a buffer for.
-    /// @param LoadType    The type of buffer that is to be returned (see SoundShaderT for more details).
-    /// @param Is3DSound   Whether the buffer is intended for use as a 3-dimensional sound.
-    /// @return The buffer for the specified file, or NULL if no such buffer could be created.
-    BufferT* GetBuffer(const std::string& AudioFile, SoundShaderT::LoadTypeE LoadType, bool Is3DSound);
+    /// This method obtains a BufferT instance for the specified resource (a file or a capture device).
+    /// When the user code is done with the returned buffer, it must call ReleaseBuffer() in order to release the buffer.
+    /// (The implementation can return a newly created or a reference-counted BufferT instance for resource sharing.)
+    ///
+    /// @param ResName     The name of the resource (file or capture device) that the requested buffer is for (i.e. created from).
+    /// @param ForceMono   Whether the data from the resource should be reduced to a single channel before use (mono output).
+    /// @param LoadType    The type of buffer that should handle the resource (see SoundShaderT for more details).
+    ///
+    /// @returns a BufferT instance for the specified resource, or NULL if no such buffer could be obtained.
+    BufferT* GetBuffer(const std::string& ResName, bool ForceMono, SoundShaderT::LoadTypeE LoadType);
 
     /// Releases a buffer.
     /// Internally, the released buffer may or may not be completely deleted from memory, depending on its reference count.
@@ -65,7 +66,7 @@ class BufferManagerT
     /// Private constructor for singleton pattern.
     BufferManagerT();
 
-    /// Destructor. Deletes all created buffers.
+    /// The destructor.
     ~BufferManagerT();
 
     /// Deletes all buffers that have no references left and are thus unused.

@@ -23,7 +23,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Buffer.hpp"
 
-#include <iostream>
+
+BufferT::BufferT(const std::string& ResName, bool ForceMono)
+    : References(0),
+      m_ResName(ResName),
+      m_ForceMono(ForceMono)
+{
+}
 
 
 unsigned int BufferT::ConvertToMono(unsigned char* Buffer, unsigned int Size)

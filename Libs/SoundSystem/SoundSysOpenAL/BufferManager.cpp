@@ -56,11 +56,11 @@ BufferManagerT::~BufferManagerT()
 }
 
 
-BufferT* BufferManagerT::GetBuffer(const std::string& AudioFile, SoundShaderT::LoadTypeE LoadType, bool Is3DSound)
+BufferT* BufferManagerT::GetBuffer(const std::string& ResName, bool ForceMono, SoundShaderT::LoadTypeE LoadType)
 {
-    if (AudioFile.find("capture")==0 && AudioFile.length()>8)
+    if (ResName.find("capture")==0 && ResName.length()>8)
     {
-        const unsigned int WantedDeviceNum=atoi(AudioFile.substr(8).c_str());
+        const unsigned int WantedDeviceNum=atoi(ResName.substr(8).c_str());
 
         const char*  DeviceNames=alcGetString(NULL, ALC_CAPTURE_DEVICE_SPECIFIER);
         unsigned int Offset     =0;
@@ -71,11 +71,11 @@ BufferT* BufferManagerT::GetBuffer(const std::string& AudioFile, SoundShaderT::L
         {
             DeviceName=&DeviceNames[Offset];
 
-            Offset+=DeviceName.length()+1;   // Jump to next device name.
+            Offset+=DeviceName.length()+1;  // Jump to next device name.
             DeviceNum++;
         }
 
-        BufferT* Buf=new CaptureBufferT(DeviceName, Is3DSound);
+        BufferT* Buf=new CaptureBufferT(DeviceName, ForceMono);
 
         Buf->References++;
         m_Buffers.PushBack(Buf);
@@ -87,30 +87,30 @@ BufferT* BufferManagerT::GetBuffer(const std::string& AudioFile, SoundShaderT::L
     {
         case SoundShaderT::AUTO:
         {
-            if (cf::String::EndsWith(AudioFile, ".wav"))
-                return GetBuffer(AudioFile, SoundShaderT::STATIC, Is3DSound);   // Always use a static buffer for .wav files.
+            if (cf::String::EndsWith(ResName, ".wav"))
+                return GetBuffer(ResName, ForceMono, SoundShaderT::STATIC);   // Always use a static buffer for .wav files.
 
-            cf::FileSys::InFileI* FileHandle=cf::FileSys::FileMan->OpenRead(AudioFile);
+            cf::FileSys::InFileI* FileHandle=cf::FileSys::FileMan->OpenRead(ResName);
             if (FileHandle!=NULL && FileHandle->GetSize()>StreamFileSize)
             {
                 cf::FileSys::FileMan->Close(FileHandle);
-                return GetBuffer(AudioFile, SoundShaderT::STREAM, Is3DSound);
+                return GetBuffer(ResName, ForceMono, SoundShaderT::STREAM);
             }
             cf::FileSys::FileMan->Close(FileHandle);
 
-            return GetBuffer(AudioFile, SoundShaderT::STATIC, Is3DSound);   // Non-existent files are handled in the StaticBufferT constructor.
+            return GetBuffer(ResName, ForceMono, SoundShaderT::STATIC);       // Non-existent files are handled in the StaticBufferT constructor.
         }
 
         case SoundShaderT::STATIC:  // Intentional fall-through.
         case SoundShaderT::STREAM:
         {
-            // If we have a static buffer with the same name and same number of channels already,
+            // If we have a static buffer with the same resource name and a suitable number of channels already,
             // just increase its reference count and return it.
             for (unsigned long BufNr=0; BufNr<m_Buffers.Size(); BufNr++)
             {
                 BufferT* Buf=m_Buffers[BufNr];
 
-                if (!Buf->IsStream() && Buf->GetName()==AudioFile && Buf->Is3D()==Is3DSound)
+                if (!Buf->IsStream() && Buf->GetName()==ResName && (!ForceMono || Buf->GetChannels()==1))
                 {
                     Buf->References++;
                     return Buf;
@@ -119,8 +119,8 @@ BufferT* BufferManagerT::GetBuffer(const std::string& AudioFile, SoundShaderT::L
 
             BufferT* NewBuffer=NULL;
 
-            if (LoadType==SoundShaderT::STATIC) NewBuffer=new StaticBufferT(AudioFile, Is3DSound);
-                                           else NewBuffer=new StreamingBufferT(AudioFile, Is3DSound);
+            if (LoadType==SoundShaderT::STATIC) NewBuffer=new StaticBufferT(ResName, ForceMono);
+                                           else NewBuffer=new StreamingBufferT(ResName, ForceMono);
 
             NewBuffer->References++;
             m_Buffers.PushBack(NewBuffer);
@@ -131,7 +131,7 @@ BufferT* BufferManagerT::GetBuffer(const std::string& AudioFile, SoundShaderT::L
         case SoundShaderT::COMPRESSED:
         {
             std::cout << "OpenAL: COMPRESSED creation is not yet supported, switching to AUTO\n";
-            return GetBuffer(AudioFile, SoundShaderT::AUTO, Is3DSound);
+            return GetBuffer(ResName, ForceMono, SoundShaderT::AUTO);
         }
     }
 

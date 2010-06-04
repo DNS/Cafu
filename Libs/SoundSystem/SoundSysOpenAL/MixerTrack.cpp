@@ -187,8 +187,6 @@ unsigned int MixerTrackT::GetPriority()
 }
 
 
-// TODO We should check if the sound object (m_CurrentSound) has changed and only update the source
-// attributes if this is the case. This way we would save OpenAL API calls.
 void MixerTrackT::Update()
 {
     // Update sound buffer if it is a stream.
@@ -207,6 +205,8 @@ void MixerTrackT::Update()
                    float(m_CurrentSound->Direction.y/1000.0f),
                    float(m_CurrentSound->Direction.z/1000.0f) };
 
+    // TODO: Only make alSource...() calls if m_CurrentSound indicates that it has changed? (E.g. have it have a "m_HasChanged" flag that is set whenever one of its attributes is set.)
+    alSourcei (m_SourceHandle, AL_SOURCE_RELATIVE,    m_CurrentSound->Is3D() ? AL_FALSE : AL_TRUE);
     alSourcefv(m_SourceHandle, AL_POSITION,           Pos);
     alSourcefv(m_SourceHandle, AL_VELOCITY,           Vel);
     alSourcefv(m_SourceHandle, AL_DIRECTION,          Dir);
