@@ -33,12 +33,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 class MixerTrackT;
 
 
-/// A sound buffer created from an audio file.
-/// This basic version contains all attributes that are common for both a static buffer and a streaming buffer
-/// and provides a general interface, so the calling code doesn't need to distinguish between different buffer
-/// types.
-//
-// TODO: Remove IsStream(), instead use something like "CanPlayOnMultipleMixerTracks" or something.
+/// A BufferT encapsulates an audio resource such as a file or a capture device.
+/// It is responsible for managing the OpenAL buffer(s) in an OpenAL source,
+/// such as creating and filling the buffer(s), assigning or queuing them to the source, etc.
 class BufferT
 {
     public:
@@ -60,15 +57,11 @@ class BufferT
     /// Returns the number of audio channels in this buffer (1 is mono, 2 is stereo).
     virtual unsigned int GetChannels() const=0;
 
-    /// Updates the buffer (this is only relevant for streaming buffers).
+    /// Returns whether this buffer can be attached to multiple mixer tracks (resource sharing).
+    virtual bool CanShare() const=0;
+
+    /// Updates the buffer.
     virtual void Update()=0;
-
-    /// Rewinds the buffer (this is only relevant for streaming buffers).
-    virtual void Rewind()=0;
-
-    /// Provides information if the underlying buffer is a streaming buffer.
-    /// @return Whether the buffer is a stream.
-    virtual bool IsStream() const=0;
 
     /// Attaches the buffer to a mixer track, so the mixer track can play this buffer.
     /// Note that depending on the underlying buffer it is possible to attach one buffer to multiple mixer tracks.

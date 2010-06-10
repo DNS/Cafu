@@ -27,12 +27,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Buffer.hpp"
 
 
-/// A buffer that is similar to a StreamingBufferT but that obtains its data by capturing
-/// input from an OpenAL capture device (rather than by decoding a file data stream).
-/// The captured input is streamed into a set of streaming buffers for playback.
-///
-/// Unlike streaming buffers (but very much like static buffers), capture buffers can be
-/// attached to several mixer tracks simultaneously (as they cannot be rewound).
+/// A CaptureBufferT is a BufferT specialization for audio data captured from an OpenAL capture device.
+/// The audio data is captured from the device and "streamed" (using buffer queuing) to the OpenAL source.
+/// CaptureBufferT instances cannot be shared, each instance can only be used on a single mixer track.
 class CaptureBufferT : public BufferT
 {
     public:
@@ -47,9 +44,8 @@ class CaptureBufferT : public BufferT
 
     // BufferT implementation.
     unsigned int GetChannels() const;
+    bool CanShare() const;
     void Update();
-    void Rewind();
-    bool IsStream() const;
     bool AttachToMixerTrack(MixerTrackT* MixerTrack);
     bool DetachFromMixerTrack(MixerTrackT* MixerTrack);
 

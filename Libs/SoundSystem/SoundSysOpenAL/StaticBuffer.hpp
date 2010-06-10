@@ -27,13 +27,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Buffer.hpp"
 
 
-/// A static buffer created from an audio file.
-/// Static buffers load the audio file completely into memory and can then be
-/// used for playback by multiple mixer tracks.
-/// This class is basically just a wrapper around the OpenAL buffer which is
-/// one buffer that is fully loaded into memory on creation.
-/// Additional code covers the creation of the OpenAL buffer from different file
-/// types by this classes constructor.
+/// A StaticBufferT is a BufferT specialization for audio data from a file whose contents fits entirely into memory.
+/// StaticBufferT instances can be shared and thus independently be used by multiple mixer tracks at the same time.
 class StaticBufferT : public BufferT
 {
     public:
@@ -48,10 +43,8 @@ class StaticBufferT : public BufferT
 
     // BufferT implementation.
     unsigned int GetChannels() const;
+    bool CanShare() const;
     void Update();
-    void Rewind();
-    bool IsStream() const;
-
     bool AttachToMixerTrack(MixerTrackT* MixerTrack);
     bool DetachFromMixerTrack(MixerTrackT* MixerTrack);
 

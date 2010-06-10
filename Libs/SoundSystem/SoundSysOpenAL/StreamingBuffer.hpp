@@ -30,14 +30,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 class SoundStreamT;
 
 
-/// A streaming buffer created from an audio file.
-/// Streaming buffers stream the audio data from a file instead of loading
-/// it completely into memory.
-/// Note that internally a streaming buffer consists of a number of OpenAL
-/// buffers that are created and deleted on demand.
-/// Also streaming buffers can only be attached to one mixer track at a time.
-/// This is due to the streaming nature of streaming buffers (one buffer cannot
-/// have different playback positions).
+/// A StreamingBufferT is a BufferT specialization for audio data from a file whose contents is not kept in memory all at once.
+/// Instead, the audio data is streamed from the file and piecewise queued on the OpenAL source.
+/// StreamingBufferT instances cannot be shared, each instance can only be used on a single mixer track.
 class StreamingBufferT : public BufferT
 {
     public:
@@ -52,9 +47,8 @@ class StreamingBufferT : public BufferT
 
     // BufferT implementation.
     unsigned int GetChannels() const;
+    bool CanShare() const;
     void Update();
-    void Rewind();
-    bool IsStream() const;
     bool AttachToMixerTrack(MixerTrackT* MixerTrack);
     bool DetachFromMixerTrack(MixerTrackT* MixerTrack);
 
@@ -63,11 +57,10 @@ class StreamingBufferT : public BufferT
 
     /// Fills the given buffers with new stream data and queues them on the mixer track (the OpenAL source).
     /// If the stream has no more data, only the required buffers are processed and the m_EndReached flag is set.
-    void FillAndQueue(const ArrayT<ALuint>& Buffers);
+    unsigned int FillAndQueue(const ArrayT<ALuint>& Buffers);
 
-    SoundStreamT*  m_Stream;        ///< The stream that provides the PCM data for the buffers.
-    ArrayT<ALuint> m_Buffers;       ///< The buffers that are queued on the source and played alternately with current data from the stream.
-    bool           m_EndReached;    ///< Stream has reached the end, don't update anymore.
+    SoundStreamT*  m_Stream;    ///< The stream that provides the PCM data for the buffers.
+    ArrayT<ALuint> m_Buffers;   ///< The buffers that are queued on the source and played alternately with current data from the stream.
 };
 
 #endif

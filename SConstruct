@@ -233,59 +233,59 @@ envProfile.Append(CPPDEFINES=["NDEBUG"]);   # Need NDEBUG to have the assert mac
 ### Build all external libraries ###
 ####################################
 
-if "d" in BVs: SConscript('ExtLibs/bullet/src/SConscript', exports={'env':envDebug},   build_dir="ExtLibs/bullet/"+my_build_dir_dbg, duplicate=0)
-if "r" in BVs: SConscript('ExtLibs/bullet/src/SConscript', exports={'env':envRelease}, build_dir="ExtLibs/bullet/"+my_build_dir_rel, duplicate=0)
-if "p" in BVs: SConscript('ExtLibs/bullet/src/SConscript', exports={'env':envProfile}, build_dir="ExtLibs/bullet/"+my_build_dir_prf, duplicate=0)
+if "d" in BVs: SConscript('ExtLibs/bullet/src/SConscript', exports={'env':envDebug},   variant_dir="ExtLibs/bullet/"+my_build_dir_dbg, duplicate=0)
+if "r" in BVs: SConscript('ExtLibs/bullet/src/SConscript', exports={'env':envRelease}, variant_dir="ExtLibs/bullet/"+my_build_dir_rel, duplicate=0)
+if "p" in BVs: SConscript('ExtLibs/bullet/src/SConscript', exports={'env':envProfile}, variant_dir="ExtLibs/bullet/"+my_build_dir_prf, duplicate=0)
 
-if "d" in BVs: SConscript('ExtLibs/freealut/SConscript', exports={'env':envDebug},   build_dir="ExtLibs/freealut/"+my_build_dir_dbg, duplicate=0)
-if "r" in BVs: SConscript('ExtLibs/freealut/SConscript', exports={'env':envRelease}, build_dir="ExtLibs/freealut/"+my_build_dir_rel, duplicate=0)
-if "p" in BVs: SConscript('ExtLibs/freealut/SConscript', exports={'env':envProfile}, build_dir="ExtLibs/freealut/"+my_build_dir_prf, duplicate=0)
+if "d" in BVs: SConscript('ExtLibs/freealut/SConscript', exports={'env':envDebug},   variant_dir="ExtLibs/freealut/"+my_build_dir_dbg, duplicate=0)
+if "r" in BVs: SConscript('ExtLibs/freealut/SConscript', exports={'env':envRelease}, variant_dir="ExtLibs/freealut/"+my_build_dir_rel, duplicate=0)
+if "p" in BVs: SConscript('ExtLibs/freealut/SConscript', exports={'env':envProfile}, variant_dir="ExtLibs/freealut/"+my_build_dir_prf, duplicate=0)
 
-if "d" in BVs: SConscript('ExtLibs/freetype/SConscript', exports={'env':envDebug},   build_dir="ExtLibs/freetype/"+my_build_dir_dbg, duplicate=0)
-if "r" in BVs: SConscript('ExtLibs/freetype/SConscript', exports={'env':envRelease}, build_dir="ExtLibs/freetype/"+my_build_dir_rel, duplicate=0)
-if "p" in BVs: SConscript('ExtLibs/freetype/SConscript', exports={'env':envProfile}, build_dir="ExtLibs/freetype/"+my_build_dir_prf, duplicate=0)
+if "d" in BVs: SConscript('ExtLibs/freetype/SConscript', exports={'env':envDebug},   variant_dir="ExtLibs/freetype/"+my_build_dir_dbg, duplicate=0)
+if "r" in BVs: SConscript('ExtLibs/freetype/SConscript', exports={'env':envRelease}, variant_dir="ExtLibs/freetype/"+my_build_dir_rel, duplicate=0)
+if "p" in BVs: SConscript('ExtLibs/freetype/SConscript', exports={'env':envProfile}, variant_dir="ExtLibs/freetype/"+my_build_dir_prf, duplicate=0)
 
-if "d" in BVs: SConscript('ExtLibs/jpeg/SConscript', exports={'env':envDebug},   build_dir="ExtLibs/jpeg/"+my_build_dir_dbg, duplicate=0)
-if "r" in BVs: SConscript('ExtLibs/jpeg/SConscript', exports={'env':envRelease}, build_dir="ExtLibs/jpeg/"+my_build_dir_rel, duplicate=0)
-if "p" in BVs: SConscript('ExtLibs/jpeg/SConscript', exports={'env':envProfile}, build_dir="ExtLibs/jpeg/"+my_build_dir_prf, duplicate=0)
+if "d" in BVs: SConscript('ExtLibs/jpeg/SConscript', exports={'env':envDebug},   variant_dir="ExtLibs/jpeg/"+my_build_dir_dbg, duplicate=0)
+if "r" in BVs: SConscript('ExtLibs/jpeg/SConscript', exports={'env':envRelease}, variant_dir="ExtLibs/jpeg/"+my_build_dir_rel, duplicate=0)
+if "p" in BVs: SConscript('ExtLibs/jpeg/SConscript', exports={'env':envProfile}, variant_dir="ExtLibs/jpeg/"+my_build_dir_prf, duplicate=0)
 
-if "d" in BVs: SConscript('ExtLibs/libogg/SConscript', exports={'env':envDebug},   build_dir="ExtLibs/libogg/"+my_build_dir_dbg, duplicate=0)
-if "r" in BVs: SConscript('ExtLibs/libogg/SConscript', exports={'env':envRelease}, build_dir="ExtLibs/libogg/"+my_build_dir_rel, duplicate=0)
-if "p" in BVs: SConscript('ExtLibs/libogg/SConscript', exports={'env':envProfile}, build_dir="ExtLibs/libogg/"+my_build_dir_prf, duplicate=0)
+if "d" in BVs: SConscript('ExtLibs/libogg/SConscript', exports={'env':envDebug},   variant_dir="ExtLibs/libogg/"+my_build_dir_dbg, duplicate=0)
+if "r" in BVs: SConscript('ExtLibs/libogg/SConscript', exports={'env':envRelease}, variant_dir="ExtLibs/libogg/"+my_build_dir_rel, duplicate=0)
+if "p" in BVs: SConscript('ExtLibs/libogg/SConscript', exports={'env':envProfile}, variant_dir="ExtLibs/libogg/"+my_build_dir_prf, duplicate=0)
 
-if "d" in BVs: SConscript('ExtLibs/libpng/SConscript', exports={'env':envDebug},   build_dir="ExtLibs/libpng/"+my_build_dir_dbg, duplicate=0)
-if "r" in BVs: SConscript('ExtLibs/libpng/SConscript', exports={'env':envRelease}, build_dir="ExtLibs/libpng/"+my_build_dir_rel, duplicate=0)
-if "p" in BVs: SConscript('ExtLibs/libpng/SConscript', exports={'env':envProfile}, build_dir="ExtLibs/libpng/"+my_build_dir_prf, duplicate=0)
+if "d" in BVs: SConscript('ExtLibs/libpng/SConscript', exports={'env':envDebug},   variant_dir="ExtLibs/libpng/"+my_build_dir_dbg, duplicate=0)
+if "r" in BVs: SConscript('ExtLibs/libpng/SConscript', exports={'env':envRelease}, variant_dir="ExtLibs/libpng/"+my_build_dir_rel, duplicate=0)
+if "p" in BVs: SConscript('ExtLibs/libpng/SConscript', exports={'env':envProfile}, variant_dir="ExtLibs/libpng/"+my_build_dir_prf, duplicate=0)
 
-if "d" in BVs: SConscript('ExtLibs/libvorbis/SConscript', exports={'env':envDebug},   build_dir="ExtLibs/libvorbis/"+my_build_dir_dbg, duplicate=0)
-if "r" in BVs: SConscript('ExtLibs/libvorbis/SConscript', exports={'env':envRelease}, build_dir="ExtLibs/libvorbis/"+my_build_dir_rel, duplicate=0)
-if "p" in BVs: SConscript('ExtLibs/libvorbis/SConscript', exports={'env':envProfile}, build_dir="ExtLibs/libvorbis/"+my_build_dir_prf, duplicate=0)
+if "d" in BVs: SConscript('ExtLibs/libvorbis/SConscript', exports={'env':envDebug},   variant_dir="ExtLibs/libvorbis/"+my_build_dir_dbg, duplicate=0)
+if "r" in BVs: SConscript('ExtLibs/libvorbis/SConscript', exports={'env':envRelease}, variant_dir="ExtLibs/libvorbis/"+my_build_dir_rel, duplicate=0)
+if "p" in BVs: SConscript('ExtLibs/libvorbis/SConscript', exports={'env':envProfile}, variant_dir="ExtLibs/libvorbis/"+my_build_dir_prf, duplicate=0)
 
-if "d" in BVs: SConscript('ExtLibs/lwo/SConscript', exports={'env':envDebug},   build_dir="ExtLibs/lwo/"+my_build_dir_dbg, duplicate=0)
-if "r" in BVs: SConscript('ExtLibs/lwo/SConscript', exports={'env':envRelease}, build_dir="ExtLibs/lwo/"+my_build_dir_rel, duplicate=0)
-if "p" in BVs: SConscript('ExtLibs/lwo/SConscript', exports={'env':envProfile}, build_dir="ExtLibs/lwo/"+my_build_dir_prf, duplicate=0)
+if "d" in BVs: SConscript('ExtLibs/lwo/SConscript', exports={'env':envDebug},   variant_dir="ExtLibs/lwo/"+my_build_dir_dbg, duplicate=0)
+if "r" in BVs: SConscript('ExtLibs/lwo/SConscript', exports={'env':envRelease}, variant_dir="ExtLibs/lwo/"+my_build_dir_rel, duplicate=0)
+if "p" in BVs: SConscript('ExtLibs/lwo/SConscript', exports={'env':envProfile}, variant_dir="ExtLibs/lwo/"+my_build_dir_prf, duplicate=0)
 
-if "d" in BVs: SConscript('ExtLibs/lua/src/SConscript', exports={'env':envDebug},   build_dir="ExtLibs/lua/"+my_build_dir_dbg, duplicate=0)
-if "r" in BVs: SConscript('ExtLibs/lua/src/SConscript', exports={'env':envRelease}, build_dir="ExtLibs/lua/"+my_build_dir_rel, duplicate=0)
-if "p" in BVs: SConscript('ExtLibs/lua/src/SConscript', exports={'env':envProfile}, build_dir="ExtLibs/lua/"+my_build_dir_prf, duplicate=0)
+if "d" in BVs: SConscript('ExtLibs/lua/src/SConscript', exports={'env':envDebug},   variant_dir="ExtLibs/lua/"+my_build_dir_dbg, duplicate=0)
+if "r" in BVs: SConscript('ExtLibs/lua/src/SConscript', exports={'env':envRelease}, variant_dir="ExtLibs/lua/"+my_build_dir_rel, duplicate=0)
+if "p" in BVs: SConscript('ExtLibs/lua/src/SConscript', exports={'env':envProfile}, variant_dir="ExtLibs/lua/"+my_build_dir_prf, duplicate=0)
 
-if "d" in BVs: SConscript('ExtLibs/mpg123/src/libmpg123/SConscript', exports={'env':envDebug},   build_dir="ExtLibs/mpg123/"+my_build_dir_dbg, duplicate=0)
-if "r" in BVs: SConscript('ExtLibs/mpg123/src/libmpg123/SConscript', exports={'env':envRelease}, build_dir="ExtLibs/mpg123/"+my_build_dir_rel, duplicate=0)
-if "p" in BVs: SConscript('ExtLibs/mpg123/src/libmpg123/SConscript', exports={'env':envProfile}, build_dir="ExtLibs/mpg123/"+my_build_dir_prf, duplicate=0)
+if "d" in BVs: SConscript('ExtLibs/mpg123/src/libmpg123/SConscript', exports={'env':envDebug},   variant_dir="ExtLibs/mpg123/"+my_build_dir_dbg, duplicate=0)
+if "r" in BVs: SConscript('ExtLibs/mpg123/src/libmpg123/SConscript', exports={'env':envRelease}, variant_dir="ExtLibs/mpg123/"+my_build_dir_rel, duplicate=0)
+if "p" in BVs: SConscript('ExtLibs/mpg123/src/libmpg123/SConscript', exports={'env':envProfile}, variant_dir="ExtLibs/mpg123/"+my_build_dir_prf, duplicate=0)
 
-if "d" in BVs: SConscript('ExtLibs/noise/SConscript', exports={'env':envDebug},   build_dir="ExtLibs/noise/"+my_build_dir_dbg, duplicate=0)
-if "r" in BVs: SConscript('ExtLibs/noise/SConscript', exports={'env':envRelease}, build_dir="ExtLibs/noise/"+my_build_dir_rel, duplicate=0)
-if "p" in BVs: SConscript('ExtLibs/noise/SConscript', exports={'env':envProfile}, build_dir="ExtLibs/noise/"+my_build_dir_prf, duplicate=0)
+if "d" in BVs: SConscript('ExtLibs/noise/SConscript', exports={'env':envDebug},   variant_dir="ExtLibs/noise/"+my_build_dir_dbg, duplicate=0)
+if "r" in BVs: SConscript('ExtLibs/noise/SConscript', exports={'env':envRelease}, variant_dir="ExtLibs/noise/"+my_build_dir_rel, duplicate=0)
+if "p" in BVs: SConscript('ExtLibs/noise/SConscript', exports={'env':envProfile}, variant_dir="ExtLibs/noise/"+my_build_dir_prf, duplicate=0)
 
 if sys.platform!="win32":
     # OpenAL-Soft is not built on Windows, use the OpenAL Windows SDK there.
-    if "d" in BVs: SConscript('ExtLibs/openal-soft/SConscript', exports={'env':envDebug},   build_dir="ExtLibs/openal-soft/"+my_build_dir_dbg, duplicate=0)
-    if "r" in BVs: SConscript('ExtLibs/openal-soft/SConscript', exports={'env':envRelease}, build_dir="ExtLibs/openal-soft/"+my_build_dir_rel, duplicate=0)
-    if "p" in BVs: SConscript('ExtLibs/openal-soft/SConscript', exports={'env':envProfile}, build_dir="ExtLibs/openal-soft/"+my_build_dir_prf, duplicate=0)
+    if "d" in BVs: SConscript('ExtLibs/openal-soft/SConscript', exports={'env':envDebug},   variant_dir="ExtLibs/openal-soft/"+my_build_dir_dbg, duplicate=0)
+    if "r" in BVs: SConscript('ExtLibs/openal-soft/SConscript', exports={'env':envRelease}, variant_dir="ExtLibs/openal-soft/"+my_build_dir_rel, duplicate=0)
+    if "p" in BVs: SConscript('ExtLibs/openal-soft/SConscript', exports={'env':envProfile}, variant_dir="ExtLibs/openal-soft/"+my_build_dir_prf, duplicate=0)
 
-if "d" in BVs: SConscript('ExtLibs/zlib/SConscript', exports={'env':envDebug},   build_dir="ExtLibs/zlib/"+my_build_dir_dbg, duplicate=0)
-if "r" in BVs: SConscript('ExtLibs/zlib/SConscript', exports={'env':envRelease}, build_dir="ExtLibs/zlib/"+my_build_dir_rel, duplicate=0)
-if "p" in BVs: SConscript('ExtLibs/zlib/SConscript', exports={'env':envProfile}, build_dir="ExtLibs/zlib/"+my_build_dir_prf, duplicate=0)
+if "d" in BVs: SConscript('ExtLibs/zlib/SConscript', exports={'env':envDebug},   variant_dir="ExtLibs/zlib/"+my_build_dir_dbg, duplicate=0)
+if "r" in BVs: SConscript('ExtLibs/zlib/SConscript', exports={'env':envRelease}, variant_dir="ExtLibs/zlib/"+my_build_dir_rel, duplicate=0)
+if "p" in BVs: SConscript('ExtLibs/zlib/SConscript', exports={'env':envProfile}, variant_dir="ExtLibs/zlib/"+my_build_dir_prf, duplicate=0)
 
 # Compile wxWidgets for the current platform.
 if sys.platform=="win32":
@@ -400,24 +400,24 @@ elif compiler=="g++":
 
 if os.path.exists("Libs/SConscript"):
     # Build everything in the Libs/ directory.
-    if "d" in BVs: buildMode = "dbg"; SConscript('Libs/SConscript', exports=[{'env':envDebug_Cafu},   'buildMode'], build_dir="Libs/"+my_build_dir_dbg, duplicate=0)
-    if "r" in BVs: buildMode = "rel"; SConscript('Libs/SConscript', exports=[{'env':envRelease_Cafu}, 'buildMode'], build_dir="Libs/"+my_build_dir_rel, duplicate=0)
-    if "p" in BVs: buildMode = "prf"; SConscript('Libs/SConscript', exports=[{'env':envProfile_Cafu}, 'buildMode'], build_dir="Libs/"+my_build_dir_prf, duplicate=0)
+    if "d" in BVs: buildMode = "dbg"; SConscript('Libs/SConscript', exports=[{'env':envDebug_Cafu},   'buildMode'], variant_dir="Libs/"+my_build_dir_dbg, duplicate=0)
+    if "r" in BVs: buildMode = "rel"; SConscript('Libs/SConscript', exports=[{'env':envRelease_Cafu}, 'buildMode'], variant_dir="Libs/"+my_build_dir_rel, duplicate=0)
+    if "p" in BVs: buildMode = "prf"; SConscript('Libs/SConscript', exports=[{'env':envProfile_Cafu}, 'buildMode'], variant_dir="Libs/"+my_build_dir_prf, duplicate=0)
 
 if os.path.exists("SConscript"):
     # Build the Cafu executables.
-    if "d" in BVs: buildMode = "dbg"; SConscript('SConscript', exports=[{'env':envDebug_Cafu},   'buildMode', 'compiler'], build_dir=""+my_build_dir_dbg, duplicate=0)
-    if "r" in BVs: buildMode = "rel"; SConscript('SConscript', exports=[{'env':envRelease_Cafu}, 'buildMode', 'compiler'], build_dir=""+my_build_dir_rel, duplicate=0)
-    if "p" in BVs: buildMode = "prf"; SConscript('SConscript', exports=[{'env':envProfile_Cafu}, 'buildMode', 'compiler'], build_dir=""+my_build_dir_prf, duplicate=0)
+    if "d" in BVs: buildMode = "dbg"; SConscript('SConscript', exports=[{'env':envDebug_Cafu},   'buildMode', 'compiler'], variant_dir=""+my_build_dir_dbg, duplicate=0)
+    if "r" in BVs: buildMode = "rel"; SConscript('SConscript', exports=[{'env':envRelease_Cafu}, 'buildMode', 'compiler'], variant_dir=""+my_build_dir_rel, duplicate=0)
+    if "p" in BVs: buildMode = "prf"; SConscript('SConscript', exports=[{'env':envProfile_Cafu}, 'buildMode', 'compiler'], variant_dir=""+my_build_dir_prf, duplicate=0)
 
 if os.path.exists("Games/DeathMatch/Code/SConscript"):
     # Build the DeathMatch DLL.
-    if "d" in BVs: buildMode = "dbg"; SConscript('Games/DeathMatch/Code/SConscript', exports=[{'env':envDebug_Cafu},   'buildMode'], build_dir="Games/DeathMatch/Code/"+my_build_dir_dbg, duplicate=0)
-    if "r" in BVs: buildMode = "rel"; SConscript('Games/DeathMatch/Code/SConscript', exports=[{'env':envRelease_Cafu}, 'buildMode'], build_dir="Games/DeathMatch/Code/"+my_build_dir_rel, duplicate=0)
-    if "p" in BVs: buildMode = "prf"; SConscript('Games/DeathMatch/Code/SConscript', exports=[{'env':envProfile_Cafu}, 'buildMode'], build_dir="Games/DeathMatch/Code/"+my_build_dir_prf, duplicate=0)
+    if "d" in BVs: buildMode = "dbg"; SConscript('Games/DeathMatch/Code/SConscript', exports=[{'env':envDebug_Cafu},   'buildMode'], variant_dir="Games/DeathMatch/Code/"+my_build_dir_dbg, duplicate=0)
+    if "r" in BVs: buildMode = "rel"; SConscript('Games/DeathMatch/Code/SConscript', exports=[{'env':envRelease_Cafu}, 'buildMode'], variant_dir="Games/DeathMatch/Code/"+my_build_dir_rel, duplicate=0)
+    if "p" in BVs: buildMode = "prf"; SConscript('Games/DeathMatch/Code/SConscript', exports=[{'env':envProfile_Cafu}, 'buildMode'], variant_dir="Games/DeathMatch/Code/"+my_build_dir_prf, duplicate=0)
 
 if os.path.exists("Games/VSWM/Code/SConscript"):
     # Build the VSWM DLL.
-    if "d" in BVs: buildMode = "dbg"; SConscript('Games/VSWM/Code/SConscript', exports=[{'env':envDebug_Cafu},   'buildMode'], build_dir="Games/VSWM/Code/"+my_build_dir_dbg, duplicate=0)
-    if "r" in BVs: buildMode = "rel"; SConscript('Games/VSWM/Code/SConscript', exports=[{'env':envRelease_Cafu}, 'buildMode'], build_dir="Games/VSWM/Code/"+my_build_dir_rel, duplicate=0)
-    if "p" in BVs: buildMode = "prf"; SConscript('Games/VSWM/Code/SConscript', exports=[{'env':envProfile_Cafu}, 'buildMode'], build_dir="Games/VSWM/Code/"+my_build_dir_prf, duplicate=0)
+    if "d" in BVs: buildMode = "dbg"; SConscript('Games/VSWM/Code/SConscript', exports=[{'env':envDebug_Cafu},   'buildMode'], variant_dir="Games/VSWM/Code/"+my_build_dir_dbg, duplicate=0)
+    if "r" in BVs: buildMode = "rel"; SConscript('Games/VSWM/Code/SConscript', exports=[{'env':envRelease_Cafu}, 'buildMode'], variant_dir="Games/VSWM/Code/"+my_build_dir_rel, duplicate=0)
+    if "p" in BVs: buildMode = "prf"; SConscript('Games/VSWM/Code/SConscript', exports=[{'env':envProfile_Cafu}, 'buildMode'], variant_dir="Games/VSWM/Code/"+my_build_dir_prf, duplicate=0)

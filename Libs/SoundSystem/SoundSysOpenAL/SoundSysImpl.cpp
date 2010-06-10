@@ -289,6 +289,7 @@ float SoundSysImplT::GetMasterVolume()
 
 void SoundSysImplT::Update()
 {
+    m_BufferManager->UpdateAll();
     m_MixerTrackManager->UpdateAll();
 }
 

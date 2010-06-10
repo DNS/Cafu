@@ -110,7 +110,7 @@ BufferT* BufferManagerT::GetBuffer(const std::string& ResName, bool ForceMono, S
             {
                 BufferT* Buf=m_Buffers[BufNr];
 
-                if (!Buf->IsStream() && Buf->GetName()==ResName && (!ForceMono || Buf->GetChannels()==1))
+                if (Buf->CanShare() && Buf->GetName()==ResName && (!ForceMono || Buf->GetChannels()==1))
                 {
                     Buf->References++;
                     return Buf;
@@ -145,6 +145,13 @@ void BufferManagerT::ReleaseBuffer(BufferT* Buffer)
 
     if (Buffer->References<1)
         CleanUp();
+}
+
+
+void BufferManagerT::UpdateAll()
+{
+    for (unsigned long BufNr=0; BufNr<m_Buffers.Size(); BufNr++)
+        m_Buffers[BufNr]->Update();
 }
 
 

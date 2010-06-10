@@ -57,53 +57,35 @@ MixerTrackT::~MixerTrackT()
 
 bool MixerTrackT::PlaySound(SoundImplT* Sound)
 {
-    // Only attach the "new" sound if it isn't already attached (Streams always need to be reattached).
-    if (m_CurrentSound!=Sound || m_CurrentSound->Buffer->IsStream())
-    {
-        assert(Sound!=NULL);
+    StopCurrent();
 
-        StopCurrent();
-        DetachCurrentSound();
+    // Attach the new sound to the mixer track.
+    assert(Sound!=NULL);
 
-        m_CurrentSound=Sound;
+    m_CurrentSound=Sound;
+    m_CurrentSound->Buffer->AttachToMixerTrack(this);
+    m_CurrentSound->MixerTrack=this;
 
-        m_CurrentSound->Buffer->AttachToMixerTrack(this);
-        m_CurrentSound->MixerTrack=this;
-    }
 
-    Update(); // Initial update for the new sound.
+    Update();   // Initial update for the new sound.
 
     alSourcePlay(m_SourceHandle);
 
-    int Error=alGetError();
+    const int Error=alGetError();
 
-    // If there was an error creating the new source.
     if (Error!=AL_NO_ERROR)
-    {
         std::cout << "OpenAL: Error playing sound in mixer track (Error: " << TranslateErrorCode(Error) << ")\n";
-        return false;
-    }
 
-    return true;
+    return Error==AL_NO_ERROR;
 }
 
 
 void MixerTrackT::StopCurrent()
 {
-    if (m_CurrentSound==NULL) return;
-
-    // Although the call to alSourceRewind() should suffice according to the OpenAL spec,
-    // it seems that some implementations (e.g. for the "Generic Hardware" on my Win2000)
-    // do not implement it right. Adding the call to alSourceStop() solves the problem.
-    alSourceStop(m_SourceHandle);
-    alSourceRewind(m_SourceHandle);
-
-    if (m_CurrentSound->Buffer->IsStream())
-    {
-        m_CurrentSound->Buffer->Rewind();
-    }
-
-    assert(alGetError()==AL_NO_ERROR);
+    // Release this mixer track (OpenAL source) for use by another sound.
+    // If we instead wanted to hold on to the sound, we should still detach, then re-attach it,
+    // or else the sounds buffer had to re-initialized explicitly, e.g. m_CurrentSound->Buffer->Init();
+    DetachCurrentSound();
 }
 
 
@@ -129,13 +111,16 @@ void MixerTrackT::DetachCurrentSound()
 {
     if (m_CurrentSound==NULL) return;
 
+    // Stop current sound from playing, so OpenAL wont get any errors.
+    alSourceStop(m_SourceHandle);
+    // alSourceRewind(m_SourceHandle); ?
+
     // Notify the buffer that it is no longer attached to this source.
-    if (m_CurrentSound->Buffer->DetachFromMixerTrack(this)==false)     std::cout << "Couldn't detach from buffer\n";
+    if (!m_CurrentSound->Buffer->DetachFromMixerTrack(this)) std::cout << "Couldn't detach from buffer\n";
+
     // Notify the sound object that it is no longer attached to this source.
     m_CurrentSound->MixerTrack=NULL;
 
-    // Stop current sound from playing, so OpenAL wont get any errors.
-    alSourceStop(m_SourceHandle);
     // Remove the OpenAL buffer from the source.
     alSourcei(m_SourceHandle, AL_BUFFER, 0);
 
@@ -148,34 +133,24 @@ void MixerTrackT::DetachCurrentSound()
 bool MixerTrackT::IsPlaying()
 {
     if (m_CurrentSound==NULL) return false;
-
-    int SourceState=0;
-
-    alGetSourcei(m_SourceHandle, AL_SOURCE_STATE, &SourceState);
-
-    // If the source is not playing but the buffers is a stream, update the stream to make sure it hasn't run out of
-    // data and check the playing state again.
-    if (SourceState!=AL_PLAYING && m_CurrentSound->Buffer->IsStream()) m_CurrentSound->Buffer->Update();
-
-    alGetSourcei(m_SourceHandle, AL_SOURCE_STATE, &SourceState);
-
     assert(alGetError()==AL_NO_ERROR);
 
-    return (SourceState==AL_PLAYING);
+    int SourceState=0;
+    alGetSourcei(m_SourceHandle, AL_SOURCE_STATE, &SourceState);
+
+    return SourceState==AL_PLAYING;
 }
 
 
 bool MixerTrackT::IsUsed()
 {
     if (m_CurrentSound==NULL) return false;
-
-    int SourceState=0;
-
-    alGetSourcei(m_SourceHandle, AL_SOURCE_STATE, &SourceState);
-
     assert(alGetError()==AL_NO_ERROR);
 
-    return (SourceState==AL_PLAYING || SourceState==AL_PAUSED);
+    int SourceState=0;
+    alGetSourcei(m_SourceHandle, AL_SOURCE_STATE, &SourceState);
+
+    return SourceState==AL_PLAYING || SourceState==AL_PAUSED;
 }
 
 
@@ -189,10 +164,11 @@ unsigned int MixerTrackT::GetPriority()
 
 void MixerTrackT::Update()
 {
-    // Update sound buffer if it is a stream.
-    if (m_CurrentSound->Buffer->IsStream()) m_CurrentSound->Buffer->Update();
+    if (m_CurrentSound==NULL) return;
 
-    // Set 3D attributes for the choosen source.
+    // Update the OpenAL source attributes.
+    // Note that this method MixerTrackT::Update() is always called, independent from the source state (AL_INITIAL, AL_PLAYING, AL_STOPPED, ...).
+    //DELETE // Note that the AL_LOOPING attribute is exempt from being set here as it is managed at the buffer level.
     float Pos[3]={ float(m_CurrentSound->Position.x/1000.0f),
                    float(m_CurrentSound->Position.y/1000.0f),
                    float(m_CurrentSound->Position.z/1000.0f) };

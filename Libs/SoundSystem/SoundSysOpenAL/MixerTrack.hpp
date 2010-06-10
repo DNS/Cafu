@@ -32,10 +32,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 class SoundImplT;
 
 
-/// A mixer track to playback sound objects.
-/// Mixer tracks are used to playback sounds through the sound system. A mixer track can only play one sound
-/// at a time. Since mixer tracks are a limited resource they need to be reused (see MixerTrackManT).
-/// This mixer track encapsulates an OpenAL source that is used for playback.
+/// A mixer track represents/encapsulates/abstracs an OpenAL sound source.
+/// Playing a sound assigns a mixer track to the sound (and the sounds buffer to the mixer track).
+/// A mixer track can only be assigned to and play back one sound at a time.
+/// Mixer tracks are a limited resource; they are reused and managed by the MixerTrackManT singleton.
 class MixerTrackT
 {
     public:
@@ -51,6 +51,7 @@ class MixerTrackT
 
         const std::string Message; ///< Information about the error.
     };
+
 
     /// Contructor. Generates an OpenAL source.
     MixerTrackT();

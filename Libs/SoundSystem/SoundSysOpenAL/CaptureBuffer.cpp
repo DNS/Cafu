@@ -26,12 +26,26 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "../Common/SoundStream.hpp"
 
+#include <cstring>
 #include <iostream>
 
 
 static const unsigned int SAMPLE_FRQ=44100;
-static const unsigned int MAX_RAW_PCM_BUFFER_BYTES=65536;                   ///< Size in bytes of raw PCM buffers (input and output).
-static const unsigned int MAX_CAPTURE_SAMPLES=MAX_RAW_PCM_BUFFER_BYTES/4;   ///< Size of capture buffer in sample frames (16-bit stereo).
+static const unsigned int MAX_RAW_PCM_BUFFER_BYTES=65536;   ///< Size in bytes of raw PCM buffers (input and output).
+
+
+static unsigned int BytesPerSample(ALenum Format)
+{
+    switch (Format)
+    {
+        case AL_FORMAT_MONO8:    return 1;
+        case AL_FORMAT_MONO16:   return 2;
+        case AL_FORMAT_STEREO8:  return 2;
+        case AL_FORMAT_STEREO16: return 4;
+    }
+
+    return 4;
+}
 
 
 CaptureBufferT::CaptureBufferT(const std::string& DeviceName, bool ForceMono)
@@ -43,7 +57,7 @@ CaptureBufferT::CaptureBufferT(const std::string& DeviceName, bool ForceMono)
         DeviceName.empty() ? NULL : DeviceName.c_str(),
         SAMPLE_FRQ,
         m_Format,
-        MAX_CAPTURE_SAMPLES);
+        MAX_RAW_PCM_BUFFER_BYTES/BytesPerSample(m_Format));
 
     if (m_CaptureDevice==NULL) std::cout << "OpenAL: Error opening capture device '" << DeviceName << "'\n";
     assert(m_CaptureDevice!=NULL);
@@ -72,13 +86,22 @@ unsigned int CaptureBufferT::GetChannels() const
 }
 
 
+bool CaptureBufferT::CanShare() const
+{
+    return false;
+}
+
+
 void CaptureBufferT::Update()
 {
     if (!m_CaptureDevice) return;
+    if (m_MixerTracks.Size()!=1 || m_MixerTracks[0]==NULL) return;
+
 
     int NumCaptureSamples=0;
     alcGetIntegerv(m_CaptureDevice, ALC_CAPTURE_SAMPLES, 1, &NumCaptureSamples);
 
+    // Read any available capture samples, optionally run DSP on them, and store them in our raw PCM output buffer.
     if (NumCaptureSamples>0)
     {
         static unsigned char RawPcmInputBuffer[MAX_RAW_PCM_BUFFER_BYTES];
@@ -86,61 +109,100 @@ void CaptureBufferT::Update()
         // TODO: Can implement this *without* the RawPcmInputBuffer, capture directly into m_RawPcmOutputBuffer instead!
         alcCaptureSamples(m_CaptureDevice, RawPcmInputBuffer, NumCaptureSamples);
 
-        // Later: Feed newly read samples through digital signal processor...
+        // Later: Feed newly read samples through the digital signal processor...
         ;
 
         // Append (processed samples/) newly read samples to output buffer.
         const unsigned long MAX_OUTPUT_BUFFER_BYTES=MAX_RAW_PCM_BUFFER_BYTES*2;
-        const unsigned long NumCopyBytes=std::min(NumCaptureSamples*4ul, MAX_OUTPUT_BUFFER_BYTES-m_RawPcmOutputBuffer.Size());
+        const unsigned long NumCopyBytes=std::min((unsigned long) NumCaptureSamples*BytesPerSample(m_Format),
+                                                  MAX_OUTPUT_BUFFER_BYTES-m_RawPcmOutputBuffer.Size());
 
-        m_RawPcmOutputBuffer.PushBackEmpty(NumCopyBytes);
-        memcpy(&m_RawPcmOutputBuffer[m_RawPcmOutputBuffer.Size()-NumCopyBytes], RawPcmInputBuffer, NumCopyBytes);
+        if (NumCopyBytes>0)   // Accessing m_RawPcmOutputBuffer at index m_RawPcmOutputBuffer.Size()-0 is the problem...
+        {
+            m_RawPcmOutputBuffer.PushBackEmpty(NumCopyBytes);
+            memcpy(&m_RawPcmOutputBuffer[m_RawPcmOutputBuffer.Size()-NumCopyBytes], RawPcmInputBuffer, NumCopyBytes);
+        }
+
     }
 
-    // ...
-    {
-        int NumRecycle=0;
-        alGetSourcei(m_MixerTracks[0]->GetOpenALSource(), AL_BUFFERS_PROCESSED, &NumRecycle);
+    // std::cout << "\n1. captured " << NumCaptureSamples << " new samples, m_RawPcmOutputBuffer size "
+    //           << m_RawPcmOutputBuffer.Size() << " / " << MAX_RAW_PCM_BUFFER_BYTES*2 << "\n";
 
+
+    // Add any processed buffers to those available for recycling.
+    //DELETE // Deactivate looping before the buffer queue is queried and manipulated.
+    //DELETE // If looping is active, the AL_BUFFERS_PROCESSED query below always returns 0.
+    //DELETE // Looping is re-activated below.
+    //DELETE alSourcei(m_MixerTracks[0]->GetOpenALSource(), AL_LOOPING, AL_FALSE);
+
+    int NumRecycle=0;
+    alGetSourcei(m_MixerTracks[0]->GetOpenALSource(), AL_BUFFERS_PROCESSED, &NumRecycle);
+
+    if (NumRecycle>0)
+    {
         assert(m_RecycleBuffers.Size()+NumRecycle <= m_OutputBuffers.Size());
 
-        if (NumRecycle>0)
+        m_RecycleBuffers.PushBackEmpty(NumRecycle);
+        alSourceUnqueueBuffers(m_MixerTracks[0]->GetOpenALSource(), NumRecycle, &m_RecycleBuffers[m_RecycleBuffers.Size()-NumRecycle]);
+    }
+
+    // std::cout << "2. buffers processed " << NumRecycle << ", m_RecycleBuffers.Size() " << m_RecycleBuffers.Size() << "\n";
+
+
+    // If enough data has been captured, enqueue it in one of the available buffers.
+    if (m_RecycleBuffers.Size()>0)
+    {
+        if (m_RawPcmOutputBuffer.Size()>4096)
         {
-            m_RecycleBuffers.PushBackEmpty(NumRecycle);
-            alSourceUnqueueBuffers(m_MixerTracks[0]->GetOpenALSource(), NumRecycle, &m_RecycleBuffers[m_RecycleBuffers.Size()-NumRecycle]);
+            alBufferData(m_RecycleBuffers[0], m_Format, &m_RawPcmOutputBuffer[0], m_RawPcmOutputBuffer.Size(), SAMPLE_FRQ);
+            m_RawPcmOutputBuffer.Overwrite();
+
+            // Enqueue the filled buffers on the mixer track (the OpenAL source).
+            alSourceQueueBuffers(m_MixerTracks[0]->GetOpenALSource(), 1, &m_RecycleBuffers[0]);
+            m_RecycleBuffers.RemoveAtAndKeepOrder(0);
+
+            // std::cout << "3. enqueued OpenAL buffer\n";
+        }
+        else
+        {
+            unsigned char ZerosBuffer[MAX_RAW_PCM_BUFFER_BYTES];
+
+            memset(ZerosBuffer, 0, MAX_RAW_PCM_BUFFER_BYTES);
+            for (unsigned long BufNr=0; BufNr<m_RecycleBuffers.Size(); BufNr++)
+                alBufferData(m_RecycleBuffers[BufNr], m_Format, ZerosBuffer, MAX_RAW_PCM_BUFFER_BYTES, SAMPLE_FRQ);
+
+            // Enqueue the filled buffers on the mixer track (the OpenAL source).
+            alSourceQueueBuffers(m_MixerTracks[0]->GetOpenALSource(), m_RecycleBuffers.Size(), &m_RecycleBuffers[0]);
+            m_RecycleBuffers.Overwrite();
+
+            // std::cout << "3. enqueued 0'ed OpenAL buffers.\n";
+        }
+
+        // When Update() is not called frequently enough, our buffer queue may run empty before the end of the stream has been reached.
+        // (Note that Update() is always called, independently from the state (AL_INITIAL, AL_PLAYING, AL_STOPPED, ...) the source is currently in!)
+        // Now automatically restart the playback if necessary:
+        // 1. Initially, before the captured data playback is started, we may or may not have buffers queued on the source,
+        //    but none of them has been processed yet: NumRecycle==0 above, the playback is not auto-restarted here.
+        // 2. When the capture data is playing, everything runs normally and from the fact that we have queued more buffers
+        //    with new data, we can auto-restart the playback if necessary.
+        // 3. Unlike a stream, capturing data from a device never reaches a natural end where it might stop all by itself.
+        // x. When playback is stopped in mid-play, the stopping code must also make sure that we are reinitialized,
+        //    reverting to case 1. The mixer tracks accomplish this by detaching and re-attaching us appropriately.
+        if (NumRecycle>0 /*&& NumNewBuffers>0*/)    // NumNewBuffers==1 in this context.
+        {
+            int SourceState=0;
+            alGetSourcei(m_MixerTracks[0]->GetOpenALSource(), AL_SOURCE_STATE, &SourceState);
+
+            if (SourceState==AL_STOPPED)
+                alSourcePlay(m_MixerTracks[0]->GetOpenALSource());
         }
     }
 
-    if (m_RecycleBuffers.Size()>0 && m_RawPcmOutputBuffer.Size()>4096)
-    {
-        const unsigned int NumOutBytes=m_RawPcmOutputBuffer.Size();
-
-        alBufferData(m_RecycleBuffers[0], m_Format, &m_RawPcmOutputBuffer[0], NumOutBytes, SAMPLE_FRQ);
-        m_RawPcmOutputBuffer.Overwrite();
-
-        // (Re-)Queue the filled buffers on the mixer track (the OpenAL source).
-        alSourceQueueBuffers(m_MixerTracks[0]->GetOpenALSource(), 1, &m_RecycleBuffers[0]);
-        m_RecycleBuffers.RemoveAtAndKeepOrder(0);
-
-        // If all buffers were completely processed, the playback was finished and stopped; restart it now.
-        int SourceState=0;
-        alGetSourcei(m_MixerTracks[0]->GetOpenALSource(), AL_SOURCE_STATE, &SourceState);
-        if (SourceState!=AL_PLAYING) alSourcePlay(m_MixerTracks[0]->GetOpenALSource());
-    }
-
+    //DELETE // When Update() is not called frequently enough, our buffer queue may run empty.
+    //DELETE // In order to prevent OpenAL from stopping the source (that is, putting it in state AL_STOPPED) in that case,
+    //DELETE // we activate looping. As such, looping acts as a safeguard against unintentional buffer underrun.
+    //DELETE alSourcei(m_MixerTracks[0]->GetOpenALSource(), AL_LOOPING, AL_TRUE);
     assert(alGetError()==AL_NO_ERROR);
-}
-
-
-void CaptureBufferT::Rewind()
-{
-    // Captured input cannot be rewound...
-}
-
-
-bool CaptureBufferT::IsStream() const
-{
-    return true;
 }
 
 
@@ -148,14 +210,17 @@ bool CaptureBufferT::AttachToMixerTrack(MixerTrackT* MixerTrack)
 {
     if (!m_CaptureDevice) return false;
 
-    // Capture buffers are unique and can only be attached to one source.
+    // Capture buffers cannot be shared - they can only be attached to a single source.
     if (m_MixerTracks.Size()>0) return false;
     m_MixerTracks.PushBack(MixerTrack);
 
+    alSourcei(MixerTrack->GetOpenALSource(), AL_BUFFER, 0);
+    m_RawPcmOutputBuffer.Overwrite();
+    m_RecycleBuffers=m_OutputBuffers;   // All output buffers are initially available for immediate (re-)use!
+    Update();
+
     std::cout << "OpenAL: Starting audio capture from device \"" << GetName() << "\".\n";
     alcCaptureStart(m_CaptureDevice);
-
-    m_RecycleBuffers=m_OutputBuffers;   // All output buffers are initially available for immediate (re-)use!
 
     assert(alGetError()==AL_NO_ERROR);
     return true;
@@ -164,11 +229,16 @@ bool CaptureBufferT::AttachToMixerTrack(MixerTrackT* MixerTrack)
 
 bool CaptureBufferT::DetachFromMixerTrack(MixerTrackT* MixerTrack)
 {
-    assert(m_MixerTracks.Size()==1);
-    if (m_MixerTracks[0]!=MixerTrack) return false;
+    if (m_MixerTracks.Size()!=1 || m_MixerTracks[0]!=MixerTrack) return false;
 
     std::cout << "OpenAL: Stopping audio capture.\n";
     alcCaptureStop(m_CaptureDevice);
+
+    //DELETE // Reset looping to the default setting (deactivated) again.
+    //DELETE alSourcei(MixerTrack->GetOpenALSource(), AL_LOOPING, AL_FALSE);
+
+    // Remove all our buffers from this source.
+    alSourcei(MixerTrack->GetOpenALSource(), AL_BUFFER, 0);
 
     m_MixerTracks.Overwrite();
     return true;

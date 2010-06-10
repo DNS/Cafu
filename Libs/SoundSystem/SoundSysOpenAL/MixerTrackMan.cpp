@@ -114,8 +114,7 @@ void MixerTrackManT::CleanUp()
 void MixerTrackManT::UpdateAll()
 {
     for (unsigned long i=0; i<MixerTracks.Size(); i++)
-        if (MixerTracks[i]->IsPlaying())
-            MixerTracks[i]->Update();
+        MixerTracks[i]->Update();
 }
 
 

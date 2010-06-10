@@ -52,6 +52,9 @@ class BufferManagerT
     /// @returns a BufferT instance for the specified resource, or NULL if no such buffer could be obtained.
     BufferT* GetBuffer(const std::string& ResName, bool ForceMono, SoundShaderT::LoadTypeE LoadType);
 
+    /// Updates all buffers.
+    void UpdateAll();
+
     /// Releases a buffer.
     /// Internally, the released buffer may or may not be completely deleted from memory, depending on its reference count.
     /// @param Buffer   The buffer to release.
