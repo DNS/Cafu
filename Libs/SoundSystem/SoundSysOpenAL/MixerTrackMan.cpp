@@ -56,7 +56,7 @@ MixerTrackT* MixerTrackManT::GetMixerTrack(unsigned int Priority)
         if (!MixerTracks[i]->IsUsed())
         {
             // Remove previous buffer from mixer track and return the mixer track.
-            MixerTracks[i]->DetachCurrentSound();
+            MixerTracks[i]->StopAndDetach();
 
             return MixerTracks[i];
         }
@@ -81,7 +81,7 @@ MixerTrackT* MixerTrackManT::GetMixerTrack(unsigned int Priority)
             if (MixerTracks[i]->GetPriority()<Priority)
             {
                 // Remove buffer with lower priority from mixer track and return the mixer track.
-                MixerTracks[i]->DetachCurrentSound();
+                MixerTracks[i]->StopAndDetach();
 
                 return MixerTracks[i];
             }

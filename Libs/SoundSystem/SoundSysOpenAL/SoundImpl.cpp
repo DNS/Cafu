@@ -56,20 +56,18 @@ SoundImplT::SoundImplT(SoundSysImplT* SoundSys, bool Is3D_, const SoundShaderT* 
 
 SoundImplT::~SoundImplT()
 {
-    if (Buffer!=NULL)
-    {
-        if (MixerTrack!=NULL)
-            MixerTrack->DetachCurrentSound();
+    if (MixerTrack!=NULL)
+        MixerTrack->StopAndDetach();
 
+    if (Buffer!=NULL)
         BufferManagerT::GetInstance()->ReleaseBuffer(Buffer);
-    }
 }
 
 
 bool SoundImplT::Play()
 {
     // If the sound is still attached to a mixer track, use this mixer track to play the sound.
-    if (MixerTrack) return MixerTrack->PlaySound(this);
+    if (MixerTrack) return MixerTrack->Play(this);
 
     // If the sound hasn't a mixer track yet, play it trough the sound system (which gets a free
     // mixer track from the mixer track manager).
@@ -79,13 +77,13 @@ bool SoundImplT::Play()
 
 void SoundImplT::Stop()
 {
-    if (MixerTrack) MixerTrack->StopCurrent();
+    if (MixerTrack) MixerTrack->StopAndDetach();
 }
 
 
 void SoundImplT::Pause()
 {
-    if (MixerTrack) MixerTrack->PauseCurrent();
+    if (MixerTrack) MixerTrack->Pause();
 }
 
 
@@ -93,7 +91,7 @@ bool SoundImplT::Resume()
 {
     if (MixerTrack)
     {
-        MixerTrack->ResumeCurrent();
+        MixerTrack->Resume();
         return true;
     }
 

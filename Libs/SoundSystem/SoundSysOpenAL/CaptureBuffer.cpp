@@ -130,11 +130,6 @@ void CaptureBufferT::Update()
 
 
     // Add any processed buffers to those available for recycling.
-    //DELETE // Deactivate looping before the buffer queue is queried and manipulated.
-    //DELETE // If looping is active, the AL_BUFFERS_PROCESSED query below always returns 0.
-    //DELETE // Looping is re-activated below.
-    //DELETE alSourcei(m_MixerTracks[0]->GetOpenALSource(), AL_LOOPING, AL_FALSE);
-
     int NumRecycle=0;
     alGetSourcei(m_MixerTracks[0]->GetOpenALSource(), AL_BUFFERS_PROCESSED, &NumRecycle);
 
@@ -198,10 +193,6 @@ void CaptureBufferT::Update()
         }
     }
 
-    //DELETE // When Update() is not called frequently enough, our buffer queue may run empty.
-    //DELETE // In order to prevent OpenAL from stopping the source (that is, putting it in state AL_STOPPED) in that case,
-    //DELETE // we activate looping. As such, looping acts as a safeguard against unintentional buffer underrun.
-    //DELETE alSourcei(m_MixerTracks[0]->GetOpenALSource(), AL_LOOPING, AL_TRUE);
     assert(alGetError()==AL_NO_ERROR);
 }
 
@@ -233,9 +224,6 @@ bool CaptureBufferT::DetachFromMixerTrack(MixerTrackT* MixerTrack)
 
     std::cout << "OpenAL: Stopping audio capture.\n";
     alcCaptureStop(m_CaptureDevice);
-
-    //DELETE // Reset looping to the default setting (deactivated) again.
-    //DELETE alSourcei(MixerTrack->GetOpenALSource(), AL_LOOPING, AL_FALSE);
 
     // Remove all our buffers from this source.
     alSourcei(MixerTrack->GetOpenALSource(), AL_BUFFER, 0);

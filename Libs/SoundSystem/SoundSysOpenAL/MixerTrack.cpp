@@ -30,7 +30,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 MixerTrackT::MixerTrackT()
-    : m_CurrentSound(NULL),
+    : m_Sound(NULL),
       m_SourceHandle(0)
 {
     alGenSources(1, &m_SourceHandle);
@@ -45,31 +45,24 @@ MixerTrackT::MixerTrackT()
 
 MixerTrackT::~MixerTrackT()
 {
-    // Detach the current sound if one is attached.
-    DetachCurrentSound();
-
-    // Delete source.
+    StopAndDetach();
     alDeleteSources(1, &m_SourceHandle);
 
     assert(alGetError()==AL_NO_ERROR);
 }
 
 
-bool MixerTrackT::PlaySound(SoundImplT* Sound)
+bool MixerTrackT::Play(SoundImplT* Sound)
 {
-    StopCurrent();
+    StopAndDetach();
+    if (Sound==NULL) return false;
 
-    // Attach the new sound to the mixer track.
-    assert(Sound!=NULL);
-
-    m_CurrentSound=Sound;
-    m_CurrentSound->Buffer->AttachToMixerTrack(this);
-    m_CurrentSound->MixerTrack=this;
-
-
-    Update();   // Initial update for the new sound.
+    m_Sound=Sound;
+    m_Sound->MixerTrack=this;
+    m_Sound->Buffer->AttachToMixerTrack(this);
 
     alSourcePlay(m_SourceHandle);
+
 
     const int Error=alGetError();
 
@@ -80,59 +73,43 @@ bool MixerTrackT::PlaySound(SoundImplT* Sound)
 }
 
 
-void MixerTrackT::StopCurrent()
+void MixerTrackT::Pause()
 {
-    // Release this mixer track (OpenAL source) for use by another sound.
-    // If we instead wanted to hold on to the sound, we should still detach, then re-attach it,
-    // or else the sounds buffer had to re-initialized explicitly, e.g. m_CurrentSound->Buffer->Init();
-    DetachCurrentSound();
-}
-
-
-void MixerTrackT::PauseCurrent()
-{
-    if (m_CurrentSound==NULL) return;
+    if (m_Sound==NULL) return;
 
     alSourcePause(m_SourceHandle);
     assert(alGetError()==AL_NO_ERROR);
 }
 
 
-void MixerTrackT::ResumeCurrent()
+void MixerTrackT::Resume()
 {
-    if (m_CurrentSound==NULL) return;
+    if (m_Sound==NULL) return;
 
     alSourcePlay(m_SourceHandle);
     assert(alGetError()==AL_NO_ERROR);
 }
 
 
-void MixerTrackT::DetachCurrentSound()
+void MixerTrackT::StopAndDetach()
 {
-    if (m_CurrentSound==NULL) return;
+    if (m_Sound==NULL) return;
 
-    // Stop current sound from playing, so OpenAL wont get any errors.
+    // Release this mixer track (OpenAL source) for use by another sound.
+    // If we instead wanted to hold on to the sound, we should still detach, then re-attach it,
+    // or else the sounds buffer had to re-initialized explicitly, e.g. m_Sound->Buffer->Init();
     alSourceStop(m_SourceHandle);
-    // alSourceRewind(m_SourceHandle); ?
+    // alSourceRewind(m_SourceHandle);
 
-    // Notify the buffer that it is no longer attached to this source.
-    if (!m_CurrentSound->Buffer->DetachFromMixerTrack(this)) std::cout << "Couldn't detach from buffer\n";
-
-    // Notify the sound object that it is no longer attached to this source.
-    m_CurrentSound->MixerTrack=NULL;
-
-    // Remove the OpenAL buffer from the source.
-    alSourcei(m_SourceHandle, AL_BUFFER, 0);
-
-    assert(alGetError()==AL_NO_ERROR);
-
-    m_CurrentSound=NULL;
+    if (!m_Sound->Buffer->DetachFromMixerTrack(this)) std::cout << "Couldn't detach from buffer.\n";
+    m_Sound->MixerTrack=NULL;
+    m_Sound=NULL;
 }
 
 
 bool MixerTrackT::IsPlaying()
 {
-    if (m_CurrentSound==NULL) return false;
+    if (m_Sound==NULL) return false;
     assert(alGetError()==AL_NO_ERROR);
 
     int SourceState=0;
@@ -144,8 +121,7 @@ bool MixerTrackT::IsPlaying()
 
 bool MixerTrackT::IsUsed()
 {
-    if (m_CurrentSound==NULL) return false;
-    assert(alGetError()==AL_NO_ERROR);
+    if (m_Sound==NULL) return false;
 
     int SourceState=0;
     alGetSourcei(m_SourceHandle, AL_SOURCE_STATE, &SourceState);
@@ -156,42 +132,41 @@ bool MixerTrackT::IsUsed()
 
 unsigned int MixerTrackT::GetPriority()
 {
-    if (m_CurrentSound==NULL) return 0;
+    if (m_Sound==NULL) return 0;
 
-    return m_CurrentSound->GetPriority();
+    return m_Sound->GetPriority();
 }
 
 
 void MixerTrackT::Update()
 {
-    if (m_CurrentSound==NULL) return;
+    if (m_Sound==NULL) return;
 
     // Update the OpenAL source attributes.
     // Note that this method MixerTrackT::Update() is always called, independent from the source state (AL_INITIAL, AL_PLAYING, AL_STOPPED, ...).
-    //DELETE // Note that the AL_LOOPING attribute is exempt from being set here as it is managed at the buffer level.
-    float Pos[3]={ float(m_CurrentSound->Position.x/1000.0f),
-                   float(m_CurrentSound->Position.y/1000.0f),
-                   float(m_CurrentSound->Position.z/1000.0f) };
+    float Pos[3]={ float(m_Sound->Position.x/1000.0f),
+                   float(m_Sound->Position.y/1000.0f),
+                   float(m_Sound->Position.z/1000.0f) };
 
-    float Vel[3]={ float(m_CurrentSound->Velocity.x/1000.0f),
-                   float(m_CurrentSound->Velocity.y/1000.0f),
-                   float(m_CurrentSound->Velocity.z/1000.0f) };
+    float Vel[3]={ float(m_Sound->Velocity.x/1000.0f),
+                   float(m_Sound->Velocity.y/1000.0f),
+                   float(m_Sound->Velocity.z/1000.0f) };
 
-    float Dir[3]={ float(m_CurrentSound->Direction.x/1000.0f),
-                   float(m_CurrentSound->Direction.y/1000.0f),
-                   float(m_CurrentSound->Direction.z/1000.0f) };
+    float Dir[3]={ float(m_Sound->Direction.x/1000.0f),
+                   float(m_Sound->Direction.y/1000.0f),
+                   float(m_Sound->Direction.z/1000.0f) };
 
-    // TODO: Only make alSource...() calls if m_CurrentSound indicates that it has changed? (E.g. have it have a "m_HasChanged" flag that is set whenever one of its attributes is set.)
-    alSourcei (m_SourceHandle, AL_SOURCE_RELATIVE,    m_CurrentSound->Is3D() ? AL_FALSE : AL_TRUE);
+    // TODO: Only make alSource...() calls if m_Sound indicates that it has changed? (E.g. have it have a "m_HasChanged" flag that is set whenever one of its attributes is set.)
+    alSourcei (m_SourceHandle, AL_SOURCE_RELATIVE,    m_Sound->Is3D() ? AL_FALSE : AL_TRUE);
     alSourcefv(m_SourceHandle, AL_POSITION,           Pos);
     alSourcefv(m_SourceHandle, AL_VELOCITY,           Vel);
     alSourcefv(m_SourceHandle, AL_DIRECTION,          Dir);
-    alSourcef (m_SourceHandle, AL_REFERENCE_DISTANCE, m_CurrentSound->MinDistance);
-    alSourcef (m_SourceHandle, AL_MAX_DISTANCE,       m_CurrentSound->MaxDistance);
-    alSourcef (m_SourceHandle, AL_GAIN,               m_CurrentSound->InnerVolume);
-    alSourcef (m_SourceHandle, AL_CONE_OUTER_GAIN,    m_CurrentSound->OuterVolume);
-    alSourcef (m_SourceHandle, AL_CONE_INNER_ANGLE,   m_CurrentSound->InnerConeAngle);
-    alSourcef (m_SourceHandle, AL_CONE_OUTER_ANGLE,   m_CurrentSound->OuterConeAngle);
+    alSourcef (m_SourceHandle, AL_REFERENCE_DISTANCE, m_Sound->MinDistance);
+    alSourcef (m_SourceHandle, AL_MAX_DISTANCE,       m_Sound->MaxDistance);
+    alSourcef (m_SourceHandle, AL_GAIN,               m_Sound->InnerVolume);
+    alSourcef (m_SourceHandle, AL_CONE_OUTER_GAIN,    m_Sound->OuterVolume);
+    alSourcef (m_SourceHandle, AL_CONE_INNER_ANGLE,   m_Sound->InnerConeAngle);
+    alSourcef (m_SourceHandle, AL_CONE_OUTER_ANGLE,   m_Sound->OuterConeAngle);
 
     assert(alGetError()==AL_NO_ERROR);
 }

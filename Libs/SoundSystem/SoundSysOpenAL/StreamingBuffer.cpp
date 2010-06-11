@@ -100,11 +100,6 @@ unsigned int StreamingBufferT::FillAndQueue(const ArrayT<ALuint>& Buffers)
         alSourceQueueBuffers(m_MixerTracks[0]->GetOpenALSource(), 1, &Buffers[BufNr]);
     }
 
-    //DELETE // When Update() is not called frequently enough, our buffer queue may run empty before the end of the stream has been reached.
-    //DELETE // In order to prevent OpenAL from stopping the source (that is, putting it in state AL_STOPPED) in that case,
-    //DELETE // we activate looping. As such, looping acts as a safeguard against unintentional buffer underrun.
-    //DELETE // Looping is deactivated when the end of the stream has been reached (and the shader specifies no looping, see above).
-    //DELETE alSourcei(m_MixerTracks[0]->GetOpenALSource(), AL_LOOPING, m_EndReached ? AL_FALSE : AL_TRUE);
     return BufNr;
 }
 
@@ -112,11 +107,6 @@ unsigned int StreamingBufferT::FillAndQueue(const ArrayT<ALuint>& Buffers)
 void StreamingBufferT::Update()
 {
     if (m_MixerTracks.Size()!=1 || m_MixerTracks[0]==NULL) return;
-
-    //DELETE // Deactivate looping before the buffer queue is queried and manipulated.
-    //DELETE // If looping is active, the AL_BUFFERS_PROCESSED query below always returns 0.
-    //DELETE // Looping is re-activated in FillAndQueue().
-    //DELETE alSourcei(m_MixerTracks[0]->GetOpenALSource(), AL_LOOPING, AL_FALSE);
 
     int NumRecycle=0;
     alGetSourcei(m_MixerTracks[0]->GetOpenALSource(), AL_BUFFERS_PROCESSED, &NumRecycle);
@@ -173,9 +163,6 @@ bool StreamingBufferT::AttachToMixerTrack(MixerTrackT* MixerTrack)
 bool StreamingBufferT::DetachFromMixerTrack(MixerTrackT* MixerTrack)
 {
     if (m_MixerTracks.Size()!=1 || m_MixerTracks[0]!=MixerTrack) return false;
-
-    //DELETE // Reset looping to the default setting (deactivated) again.
-    //DELETE alSourcei(MixerTrack->GetOpenALSource(), AL_LOOPING, AL_FALSE);
 
     // Remove all our buffers from this source.
     alSourcei(MixerTrack->GetOpenALSource(), AL_BUFFER, 0);

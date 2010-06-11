@@ -262,7 +262,7 @@ bool SoundSysImplT::PlaySound(const SoundI* Sound)
 
     if (MixerTrack==NULL) return false;
 
-    return MixerTrack->PlaySound(SoundTmp);
+    return MixerTrack->Play(SoundTmp);
 }
 
 

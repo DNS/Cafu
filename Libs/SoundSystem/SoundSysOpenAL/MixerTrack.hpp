@@ -53,30 +53,26 @@ class MixerTrackT
     };
 
 
-    /// Contructor. Generates an OpenAL source.
+    /// The contructor.
     MixerTrackT();
 
-    /// Destructor. Detaches the currently attached sound and destroys the OpenAL source.
+    /// The destructor. Stops the sound, detaches, and releases the OpenAL source.
     ~MixerTrackT();
 
-    /// Play the passed sound object on this mixer track.
-    /// If a sound is already attached to the mixer track it is detached before the new sound is played.
-    /// @param Sound The sound object to play.
-    /// @return Whether the attempt to playback the sound was succesfull.
-    bool PlaySound(SoundImplT* Sound);
-
-    /// Stops the currently played sound if any.
-    void StopCurrent();
+    /// Plays a sound.
+    /// The previously assigned sound is stopped and detached, the new sound is attached and played.
+    /// @param Sound   The sound to play.
+    /// @returns whether the attempt to play the sound was succesful.
+    bool Play(SoundImplT* Sound);
 
     /// Pauses the currently played sound.
-    void PauseCurrent();
+    void Pause();
 
-    /// Resumes the currently attached sound if it is paused.
-    void ResumeCurrent();
+    /// Resumes a previously paused sound.
+    void Resume();
 
-    /// Detaches the sound object currently attached to this mixer track.
-    /// This is done regardless if it is played (in this case the sound is stopped) or not.
-    void DetachCurrentSound();
+    /// Stops the currently played sound and detaches it from this mixer track.
+    void StopAndDetach();
 
     /// Checks if this mixer track is playing the sound currently attached to it.
     /// @return Whether the sound is currently playing.
@@ -93,9 +89,9 @@ class MixerTrackT
     /// @return Priority of the currently played sound object. Higher values mean higher priority.
     unsigned int GetPriority();
 
-    /// Updates the mixer track according to the information of the currently attached sound object.
-    /// Attributes that are update contain the position, velocity, direction as well as shader attributes like
-    /// the minimal distance, the volume, etc.
+    /// Updates the mixer track according to the attached sound.
+    /// Updated attributes include the position, velocity and direction, as well as shader attributes
+    /// like the minimal distance, the volume, etc.
     void Update();
 
     /// Returns the handle to the OpenAL "source" that is encapsulated by this mixer track.
@@ -107,7 +103,7 @@ class MixerTrackT
     MixerTrackT(const MixerTrackT&);        ///< Use of the Copy    Constructor is not allowed.
     void operator = (const MixerTrackT&);   ///< Use of the Assignment Operator is not allowed.
 
-    SoundImplT* m_CurrentSound; ///< The sound that is currently attached (but not necessarily played) to the mixer track.
+    SoundImplT* m_Sound;        ///< The sound that is currently attached (but not necessarily played) to the mixer track.
     ALuint      m_SourceHandle; ///< The OpenAL source handle encapsulated by this mixer track.
 };
 

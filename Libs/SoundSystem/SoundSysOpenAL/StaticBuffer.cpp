@@ -131,10 +131,6 @@ bool StaticBufferT::AttachToMixerTrack(MixerTrackT* MixerTrack)
 
     // Attach our buffer to the source.
     alSourcei(MixerTrack->GetOpenALSource(), AL_BUFFER, m_Buffer);
-
-    //DELETE // Other buffer types (streaming, capture) necessitate that the looping attribute
-    //DELETE // is controlled at buffer level rather than by the mixer track:
-    //DELETE // alSourcei(MixerTrack->GetOpenALSource(), AL_LOOPING, shader->loops ? AL_TRUE : AL_FALSE);
     return true;
 }
 
@@ -143,9 +139,6 @@ bool StaticBufferT::DetachFromMixerTrack(MixerTrackT* MixerTrack)
 {
     const int Position=m_MixerTracks.Find(MixerTrack);
     if (Position==-1) return false;
-
-    //DELETE // Reset looping to the default setting (deactivated) again.
-    //DELETE alSourcei(MixerTrack->GetOpenALSource(), AL_LOOPING, AL_FALSE);
 
     // Remove our buffer from this source.
     alSourcei(MixerTrack->GetOpenALSource(), AL_BUFFER, 0);
