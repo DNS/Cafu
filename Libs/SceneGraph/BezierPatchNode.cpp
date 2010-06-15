@@ -104,15 +104,15 @@ BezierPatchNodeT* BezierPatchNodeT::CreateFromFile_cw(std::istream& InFile, aux:
 {
     BezierPatchNodeT* BP=new BezierPatchNodeT(LMM);
 
-    InFile.read((char*)&BP->SizeX, sizeof(BP->SizeX));
-    InFile.read((char*)&BP->SizeY, sizeof(BP->SizeY));
+    BP->SizeX=aux::ReadUInt32(InFile);
+    BP->SizeY=aux::ReadUInt32(InFile);
 
-    InFile.read((char*)&BP->SubdivsHorz, sizeof(BP->SubdivsHorz));
-    InFile.read((char*)&BP->SubdivsVert, sizeof(BP->SubdivsVert));
- // InFile.read((char*)&BP->MaxError,    sizeof(BP->MaxError   ));
+    BP->SubdivsHorz=aux::ReadInt32(InFile);
+    BP->SubdivsVert=aux::ReadInt32(InFile);
+ // BP->MaxError   =aux::ReadFloat(InFile);
     assert(BP->MaxError==400.0f);
 
-    std::string MaterialName=Pool.ReadString(InFile);
+    const std::string MaterialName=Pool.ReadString(InFile);
     BP->Material=MaterialManager->GetMaterial(MaterialName);
  // BP->Material=MaterialManager->GetMaterial("wireframeTest");
     if (BP->Material==NULL)
@@ -191,12 +191,12 @@ void BezierPatchNodeT::WriteTo(std::ostream& OutFile, aux::PoolT& Pool) const
 {
     aux::Write(OutFile, "BP");
 
-    OutFile.write((char*)&SizeX, sizeof(SizeX));
-    OutFile.write((char*)&SizeY, sizeof(SizeY));
+    aux::Write(OutFile, aux::cnc32(SizeX));
+    aux::Write(OutFile, aux::cnc32(SizeY));
 
-    OutFile.write((char*)&SubdivsHorz, sizeof(SubdivsHorz));
-    OutFile.write((char*)&SubdivsVert, sizeof(SubdivsVert));
- // OutFile.write((char*)&MaxError,    sizeof(MaxError   ));
+    aux::Write(OutFile, SubdivsHorz);
+    aux::Write(OutFile, SubdivsVert);
+ // aux::Write(OutFile, MaxError);
     assert(MaxError==400.0f);
 
     Pool.Write(OutFile, Material->Name);
