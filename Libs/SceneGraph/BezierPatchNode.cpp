@@ -194,8 +194,8 @@ void BezierPatchNodeT::WriteTo(std::ostream& OutFile, aux::PoolT& Pool) const
     aux::Write(OutFile, aux::cnc32(SizeX));
     aux::Write(OutFile, aux::cnc32(SizeY));
 
-    aux::Write(OutFile, SubdivsHorz);
-    aux::Write(OutFile, SubdivsVert);
+    aux::Write(OutFile, (int32_t)SubdivsHorz);
+    aux::Write(OutFile, (int32_t)SubdivsVert);
  // aux::Write(OutFile, MaxError);
     assert(MaxError==400.0f);
 
