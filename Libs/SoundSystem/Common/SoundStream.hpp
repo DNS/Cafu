@@ -45,7 +45,7 @@ class SoundStreamT
 
         /// Get the error message associated with this exception.
         /// @return Error message.
-        std::string GetError() { return Error; }
+        const std::string& GetError() const { return Error; }
 
 
         private:
@@ -70,10 +70,10 @@ class SoundStreamT
     /// @return The sampling rate in Hz.
     virtual unsigned int GetRate()=0;
 
-    /// Creates a new sound stream of a defined type.
-    /// @param FileName Path to the file from which the stream should be created.
-    /// @return Created sound stream object or NULL if not successful.
-    static SoundStreamT* Create(const std::string& FileName);
+    /// Creates a new sound stream for the specified resource.
+    /// @param ResName   The name of the stream resource. ResName can be a file name or the name of an OpenAL capture device (as obtained from the ALC_CAPTURE_DEVICE_SPECIFIER list).
+    /// @returns the created sound stream instance, or NULL on error.
+    static SoundStreamT* Create(const std::string& ResName);
 
     /// Virtual destructor to make sure the destructor of the derived class is called.
     virtual ~SoundStreamT() { }

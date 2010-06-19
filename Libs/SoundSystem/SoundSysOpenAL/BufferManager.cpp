@@ -22,7 +22,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "BufferManager.hpp"
-#include "CaptureBuffer.hpp"
 #include "StaticBuffer.hpp"
 #include "StreamingBuffer.hpp"
 
@@ -75,7 +74,7 @@ BufferT* BufferManagerT::GetBuffer(const std::string& ResName, bool ForceMono, S
             DeviceNum++;
         }
 
-        BufferT* Buf=new CaptureBufferT(DeviceName, ForceMono);
+        BufferT* Buf=new StreamingBufferT(DeviceName, ForceMono);
 
         Buf->References++;
         m_Buffers.PushBack(Buf);

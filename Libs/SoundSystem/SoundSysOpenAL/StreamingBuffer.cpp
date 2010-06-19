@@ -29,12 +29,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <iostream>
 
 
-StreamingBufferT::StreamingBufferT(const std::string& FileName, bool ForceMono)
-    : BufferT(FileName, ForceMono),
-      m_Stream(SoundStreamT::Create(FileName)),
+StreamingBufferT::StreamingBufferT(const std::string& ResName, bool ForceMono)
+    : BufferT(ResName, ForceMono),
+      m_Stream(SoundStreamT::Create(ResName)),
       m_Buffers()
 {
-    if (m_Stream==NULL) std::cout << "OpenAL: Error creating streamed sound buffer '" << FileName << "'\n";
+    if (m_Stream==NULL) std::cout << "OpenAL: Error creating streamed sound buffer '" << ResName << "'\n";
     assert(m_Stream!=NULL);
 
     m_Buffers.PushBackEmptyExact(5);
@@ -93,6 +93,9 @@ unsigned int StreamingBufferT::FillAndQueue(const ArrayT<ALuint>& Buffers)
             OutputFormat=AL_FORMAT_MONO16;
             ReadBytes   =ConvertToMono(RawPcmBuffer, ReadBytes);
         }
+
+        // Later: Feed newly read samples through the digital signal processor...
+        ;
 
         alBufferData(Buffers[BufNr], OutputFormat, RawPcmBuffer, ReadBytes, m_Stream->GetRate());
 
@@ -163,6 +166,9 @@ bool StreamingBufferT::AttachToMixerTrack(MixerTrackT* MixerTrack)
 bool StreamingBufferT::DetachFromMixerTrack(MixerTrackT* MixerTrack)
 {
     if (m_MixerTracks.Size()!=1 || m_MixerTracks[0]!=MixerTrack) return false;
+
+    // Let the stream know that we're done for now with regular calls to Read().
+    m_Stream->Rewind();
 
     // Remove all our buffers from this source.
     alSourcei(MixerTrack->GetOpenALSource(), AL_BUFFER, 0);

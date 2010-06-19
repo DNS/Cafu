@@ -24,30 +24,26 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SoundStream.hpp"
 #include "MP3Stream.hpp"
 #include "OggVorbisStream.hpp"
+#include "../SoundSysOpenAL/CaptureStream.hpp"
 
 #include "String.hpp"
 
 #include <iostream>
-#include <cassert>
 
 
-SoundStreamT* SoundStreamT::Create(const std::string& FileName)
+SoundStreamT* SoundStreamT::Create(const std::string& ResName)
 {
-    SoundStreamT* ReturnValue=NULL;
-
     try
     {
-        if (cf::String::EndsWith(FileName, ".mp3"))
-            ReturnValue=new MP3StreamT(FileName);
-        else if (cf::String::EndsWith(FileName, ".ogg"))
-            ReturnValue=new OggVorbisStreamT(FileName);
-        else
-            std::cout << "Error: Unknown file format\n";
+        if (cf::String::EndsWith(ResName, ".mp3")) return new MP3StreamT(ResName);
+        if (cf::String::EndsWith(ResName, ".ogg")) return new OggVorbisStreamT(ResName);
+
+        return new CaptureStreamT(ResName);
     }
-    catch(ExceptionT Ex)
+    catch(const ExceptionT& Ex)
     {
         std::cout << Ex.GetError() << "\n";
     }
 
-    return ReturnValue;
+    return NULL;
 }

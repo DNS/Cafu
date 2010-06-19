@@ -30,17 +30,17 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 class SoundStreamT;
 
 
-/// A StreamingBufferT is a BufferT specialization for audio data from a file whose contents is not kept in memory all at once.
-/// Instead, the audio data is streamed from the file and piecewise queued on the OpenAL source.
+/// A StreamingBufferT is a BufferT specialization for audio data from a device or file whose contents is not kept in memory all at once.
+/// Instead, the audio data is streamed from the resource and piecewise queued on the OpenAL source.
 /// StreamingBufferT instances cannot be shared, each instance can only be used on a single mixer track.
 class StreamingBufferT : public BufferT
 {
     public:
 
     /// The constructor.
-    /// @param FileName    The name of the audio file that this buffer is created from.
+    /// @param ResName     The name of the audio resource that this buffer is created from. ResName can be a file name or the name of an OpenAL capture device (as obtained from the ALC_CAPTURE_DEVICE_SPECIFIER list).
     /// @param ForceMono   Whether the data from the resource should be reduced to a single channel before use (mono output).
-    StreamingBufferT(const std::string& FileName, bool ForceMono);
+    StreamingBufferT(const std::string& ResName, bool ForceMono);
 
     /// The destructor.
     ~StreamingBufferT();
