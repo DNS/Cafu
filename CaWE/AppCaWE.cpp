@@ -119,6 +119,7 @@ bool AppCaWE::OnInit()
     if (SIC.IsAnotherRunning())
     {
         wxMessageBox("An instance of CaWE is already running!");
+        OnExit();
         return false;
     }
 

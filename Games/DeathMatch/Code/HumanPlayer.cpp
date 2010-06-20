@@ -1041,7 +1041,7 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
 
         // This is a compromise for the not-so-great code in the constructor:
         // Obtain a pointer to our GUI if we haven't one already (so this is a one-time issue).
-        if (GuiHUD==NULL) GuiHUD=cf::GuiSys::GuiMan->Find("Games/DeathMatch/GUIs/HUD.cgui", true);
+        if (GuiHUD==NULL) GuiHUD=cf::GuiSys::GuiMan->Find("Games/DeathMatch/GUIs/HUD_main.cgui", true);
 
         // Decide whether the GuiHUD should be drawn at all.
         const bool ActivateHUD=State.StateOfExistance==StateOfExistance_Alive || State.StateOfExistance==StateOfExistance_Dead;

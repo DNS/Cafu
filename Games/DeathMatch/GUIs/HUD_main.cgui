@@ -1,0 +1,68 @@
+dofile("Games/DeathMatch/GUIs/HUD_init.cgui");
+
+
+InfoFrags.NumFrags=0;
+FPS.oldTime=FPS:get("time");
+CrossHair.RotateCrosshair=false;
+
+
+function FPS:OnFrame()
+    local newTime=FPS:get("time");
+    local deltaTime=newTime-self.oldTime;
+
+    if (deltaTime<0.000001) then
+        self:set("text", " FPS  +inf");
+    else
+        self:set("text", string.format(" FPS  %.2f", 1/deltaTime));
+    end
+
+    FPS.oldTime=newTime;
+end
+
+
+function CrossHair:OnFrame()
+    if (self.RotateCrosshair) then
+        self:set("rotAngle", self:get("time")*50.0);
+    else
+        self:set("rotAngle", 0);
+    end
+end
+
+
+-- This function is called from the Human Player entity code (currently once per frame).
+function UpdateHealthArmorFrags(Health, Armor, Frags)
+    InfoHealth:set("text", " Health  "..Health);
+    InfoArmor :set("text", " Armor  "..Armor);
+    InfoFrags :set("text", " Frags  "..Frags);
+
+    -- Trigger a 360 rotation of the Frags counter whenever it increases.
+    if (Frags~=InfoFrags.NumFrags) then InfoFrags:interpolate("rotAngle", 0, 360, 500); end
+    InfoFrags.NumFrags=Frags;
+
+    -- Set the text color of the Health counter linear to its value.
+    if (Health>100) then Health=100; end;
+    if (Health<  0) then Health=  0; end;
+    InfoHealth:set("textColor", 1.0, Health/100, Health/100, 1.0);
+end
+
+
+-- This function is called from the Human Player entity code (currently once per frame).
+function UpdateAmmoString(AmmoString)
+    if (#AmmoString==0) then
+        InfoAmmo:set("show", false);
+    else
+        InfoAmmo:set("show", true);
+        InfoAmmo:set("text", AmmoString);
+    end
+end
+
+
+-- This function is called from the Human Player entity code (currently once per frame).
+function UpdateCrosshairMaterial(MaterialName, Rotate)
+    -- Note that this function is currently called *every* frame by the "Human Player" entity code.
+    -- However, setting the backMaterial is implemented to be inexpensive when the material name doesn't change
+    -- (or else we had to have some code like "if (MaterialName!=OldName) ..." either here or in the entity code).
+    CrossHair:set("show", #MaterialName>0);
+    CrossHair:set("backMaterial", MaterialName);
+    CrossHair.RotateCrosshair=Rotate;
+end
