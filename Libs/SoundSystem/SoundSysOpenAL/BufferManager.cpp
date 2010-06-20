@@ -134,6 +134,7 @@ BufferT* BufferManagerT::GetBuffer(const std::string& ResName, bool ForceMono, S
         }
     }
 
+    throw std::runtime_error("Unknown LoadType.");
     return NULL;
 }
 

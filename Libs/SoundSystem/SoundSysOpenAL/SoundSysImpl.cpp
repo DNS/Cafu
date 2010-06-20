@@ -220,11 +220,17 @@ SoundI* SoundSysImplT::CreateSound2D(const SoundShaderT* SoundShader)
     // SoundShaderManager->GetSoundShader("xxx") to this method.
     if (SoundShader==NULL) return new SoundImplT(this, false);
 
-    BufferT* Buffer=m_BufferManager->GetBuffer(SoundShader->AudioFile, false /*ForceMono*/, SoundShader->LoadType);
+    try
+    {
+        return new SoundImplT(this, false, SoundShader,
+                              m_BufferManager->GetBuffer(SoundShader->AudioFile, false /*ForceMono*/, SoundShader->LoadType));
+    }
+    catch (const std::runtime_error& RE)
+    {
+        std::cout << __FUNCTION__ << ": " << RE.what();
+    }
 
-    if (Buffer==NULL) return NULL;
-
-    return new SoundImplT(this, false, SoundShader, Buffer);
+    return NULL;
 }
 
 
@@ -235,11 +241,17 @@ SoundI* SoundSysImplT::CreateSound3D(const SoundShaderT* SoundShader)
     // SoundShaderManager->GetSoundShader("xxx") to this method.
     if (SoundShader==NULL) return new SoundImplT(this, true);
 
-    BufferT* Buffer=m_BufferManager->GetBuffer(SoundShader->AudioFile, true /*ForceMono*/, SoundShader->LoadType);
+    try
+    {
+        return new SoundImplT(this, true, SoundShader,
+                              m_BufferManager->GetBuffer(SoundShader->AudioFile, true /*ForceMono*/, SoundShader->LoadType));
+    }
+    catch (const std::runtime_error& RE)
+    {
+        std::cout << __FUNCTION__ << ": " << RE.what();
+    }
 
-    if (Buffer==NULL) return NULL;
-
-    return new SoundImplT(this, true, SoundShader, Buffer);
+    return NULL;
 }
 
 

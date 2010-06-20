@@ -33,7 +33,7 @@ class CaptureStreamT : public SoundStreamT
 {
     public:
 
-    /// The constructor.
+    /// The constructor. Throws an exception of type std::runtime_error on failure.
     /// @param DeviceName   The name of the OpenAL device (as obtained from the ALC_CAPTURE_DEVICE_SPECIFIER list) that is used for capturing.
     /// @param Format       The data format in which the samples are captured, kept and returned). Must be AL_FORMAT_MONO16 or AL_FORMAT_STEREO16.
     /// @param SampleFrq    The frequency the device is sampled with.

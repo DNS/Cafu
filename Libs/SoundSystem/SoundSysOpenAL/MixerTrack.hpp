@@ -40,20 +40,7 @@ class MixerTrackT
 {
     public:
 
-    /// Error that is thrown when the creation of a mixer track fails.
-    class CreateErrorE
-    {
-        public:
-
-        /// Constructor.
-        /// @param ErrorMsg This errors information message.
-        CreateErrorE(std::string ErrorMsg) : Message(ErrorMsg) { }
-
-        const std::string Message; ///< Information about the error.
-    };
-
-
-    /// The contructor.
+    /// The constructor. Throws an exception of type std::runtime_error on failure.
     MixerTrackT();
 
     /// The destructor. Stops the sound, detaches, and releases the OpenAL source.

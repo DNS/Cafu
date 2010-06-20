@@ -49,7 +49,7 @@ class BufferManagerT
     /// @param ForceMono   Whether the data from the resource should be reduced to a single channel before use (mono output).
     /// @param LoadType    The type of buffer that should handle the resource (see SoundShaderT for more details).
     ///
-    /// @returns a BufferT instance for the specified resource, or NULL if no such buffer could be obtained.
+    /// @returns a BufferT instance for the specified resource. Throws an exception of type std::runtime_error on failure.
     BufferT* GetBuffer(const std::string& ResName, bool ForceMono, SoundShaderT::LoadTypeE LoadType);
 
     /// Updates all buffers.

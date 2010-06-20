@@ -39,7 +39,7 @@ MixerTrackT::MixerTrackT()
 
     // If there was an error creating the new source.
     if (Error!=AL_NO_ERROR)
-        throw new CreateErrorE("Error creating new mixer track (Error: "+TranslateErrorCode(Error)+")");
+        throw std::runtime_error("Error creating new mixer track: "+TranslateErrorCode(Error));
 }
 
 

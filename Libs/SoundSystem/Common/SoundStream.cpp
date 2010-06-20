@@ -28,22 +28,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "String.hpp"
 
-#include <iostream>
-
 
 SoundStreamT* SoundStreamT::Create(const std::string& ResName)
 {
-    try
-    {
-        if (cf::String::EndsWith(ResName, ".mp3")) return new MP3StreamT(ResName);
-        if (cf::String::EndsWith(ResName, ".ogg")) return new OggVorbisStreamT(ResName);
+    if (cf::String::EndsWith(ResName, ".mp3")) return new MP3StreamT(ResName);
+    if (cf::String::EndsWith(ResName, ".ogg")) return new OggVorbisStreamT(ResName);
 
-        return new CaptureStreamT(ResName);
-    }
-    catch(const ExceptionT& Ex)
-    {
-        std::cout << Ex.GetError() << "\n";
-    }
-
-    return NULL;
+    return new CaptureStreamT(ResName);
 }

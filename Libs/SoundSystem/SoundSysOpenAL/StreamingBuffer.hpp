@@ -37,7 +37,7 @@ class StreamingBufferT : public BufferT
 {
     public:
 
-    /// The constructor.
+    /// The constructor. Throws an exception of type std::runtime_error on failure.
     /// @param ResName     The name of the audio resource that this buffer is created from. ResName can be a file name or the name of an OpenAL capture device (as obtained from the ALC_CAPTURE_DEVICE_SPECIFIER list).
     /// @param ForceMono   Whether the data from the resource should be reduced to a single channel before use (mono output).
     StreamingBufferT(const std::string& ResName, bool ForceMono);

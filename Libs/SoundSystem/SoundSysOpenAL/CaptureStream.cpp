@@ -61,7 +61,7 @@ CaptureStreamT::CaptureStreamT(const std::string& DeviceName, ALenum Format, uns
         m_MAX_CAPTURE_BUFFER_SAMPLES);
 
     if (m_CaptureDevice==NULL)
-        throw SoundStreamT::ExceptionT("OpenAL: Error opening capture device '" + DeviceName + "'.");
+        throw std::runtime_error("Error opening capture device "+DeviceName);
 }
 
 

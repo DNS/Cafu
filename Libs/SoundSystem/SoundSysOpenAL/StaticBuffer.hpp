@@ -33,7 +33,7 @@ class StaticBufferT : public BufferT
 {
     public:
 
-    /// The constructor.
+    /// The constructor. Throws an exception of type std::runtime_error on failure.
     /// @param FileName    The name of the audio file that this buffer is created from.
     /// @param ForceMono   Whether the data from the resource should be reduced to a single channel before use (mono output).
     StaticBufferT(const std::string& FileName, bool ForceMono);

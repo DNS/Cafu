@@ -94,18 +94,18 @@ OggVorbisStreamT::OggVorbisStreamT(const std::string& FileName)
     int Result=ov_test_callbacks(StreamFile, &StreamHandle, NULL, 0, CallBacks);;
 
     if (Result!=0)
-        throw SoundStreamT::ExceptionT("OggVorbis: File doesn't seem to an OggVorbis file (Error: "+ErrorToStr(Result)+")");
+        throw std::runtime_error("OggVorbis: File is no OggVorbis file ("+ErrorToStr(Result)+")");
 
     Result=ov_test_open(&StreamHandle);
 
     if (Result!=0)
-        throw SoundStreamT::ExceptionT("OggVorbis: Couldn't open stream (Error: "+ErrorToStr(Result)+")");
+        throw std::runtime_error("OggVorbis: Couldn't open stream ("+ErrorToStr(Result)+")");
 
     // Read rate and channels from the current bitstream.
     StreamInfo=ov_info(&StreamHandle, BitStream);
 
     if (StreamInfo==NULL)
-        throw SoundStreamT::ExceptionT("OggVorbis: Couldn't access stream information");
+        throw std::runtime_error("OggVorbis: Couldn't access stream information");
 }
 
 

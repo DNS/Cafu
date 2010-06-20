@@ -75,12 +75,13 @@ class MPG123InstanceT
 
     MPG123InstanceT()
     {
-        int Result=mpg123_init();
+        const int Result=mpg123_init();
 
         if (Result!=MPG123_OK)
         {
             std::string ErrorStr=mpg123_plain_strerror(Result);
-            throw SoundStreamT::ExceptionT("MPG123: Couldn't initialize mpg123 (Error: "+ErrorStr+")");
+
+            throw std::runtime_error("MPG123: Couldn't initialize mpg123 ("+ErrorStr+")");
         }
     }
 
@@ -113,7 +114,7 @@ MP3StreamT::MP3StreamT(const std::string& FileName)
     if (StreamHandle==NULL)
     {
         std::string ErrorStr=mpg123_plain_strerror(Result);
-        throw SoundStreamT::ExceptionT("MPG123: Couldn't open stream handle (Error: "+ErrorStr+")");
+        throw std::runtime_error("MPG123: Couldn't open stream handle ("+ErrorStr+")");
     }
 
     Result=mpg123_param(StreamHandle, MPG123_RESYNC_LIMIT, ResyncLimit, 0);
@@ -121,7 +122,7 @@ MP3StreamT::MP3StreamT(const std::string& FileName)
     if (Result!=MPG123_OK)
     {
         std::string ErrorStr=mpg123_strerror(StreamHandle);
-        throw SoundStreamT::ExceptionT("MPG123: Couldn't adjust resync limit (Error: "+ErrorStr+")");
+        throw std::runtime_error("MPG123: Couldn't adjust resync limit ("+ErrorStr+")");
     }
 
     // Replace read and seek function used for filedescriptors, so they work with pointers to FileI objects from the cf::FileSys.
@@ -130,14 +131,14 @@ MP3StreamT::MP3StreamT(const std::string& FileName)
     if (Result!=MPG123_OK)
     {
         std::string ErrorStr=mpg123_strerror(StreamHandle);
-        throw SoundStreamT::ExceptionT("MPG123: Couldn't replace reader functions (Error: "+ErrorStr+")");
+        throw std::runtime_error("MPG123: Couldn't replace reader functions ("+ErrorStr+")");
     }
 
     StreamFile=cf::FileSys::FileMan->OpenRead(FileName);
 
     if (!StreamFile)
     {
-        throw SoundStreamT::ExceptionT("MPG123: Error opening file '"+FileName+"'");
+        throw std::runtime_error("MPG123: Error opening file "+FileName);
     }
 
     int Encoding=0;
@@ -147,7 +148,7 @@ MP3StreamT::MP3StreamT(const std::string& FileName)
     {
         OpenFiles.DeleteBack();
         std::string ErrorStr=mpg123_strerror(StreamHandle);
-        throw SoundStreamT::ExceptionT("MPG123: Error opening stream: "+ErrorStr);
+        throw std::runtime_error("MPG123: Error opening stream: "+ErrorStr);
     }
 
     // Signed 16 is the default output format anyways; it would actually be only different if we forced it.

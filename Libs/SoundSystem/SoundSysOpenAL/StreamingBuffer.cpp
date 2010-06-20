@@ -31,12 +31,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 StreamingBufferT::StreamingBufferT(const std::string& ResName, bool ForceMono)
     : BufferT(ResName, ForceMono),
-      m_Stream(SoundStreamT::Create(ResName)),
+      m_Stream(SoundStreamT::Create(ResName)),      // Throws an exception of type std::runtime_error on failure.
       m_Buffers()
 {
-    if (m_Stream==NULL) std::cout << "OpenAL: Error creating streamed sound buffer '" << ResName << "'\n";
-    assert(m_Stream!=NULL);
-
     m_Buffers.PushBackEmptyExact(5);
     alGenBuffers(m_Buffers.Size(), &m_Buffers[0]);
 }

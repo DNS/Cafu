@@ -39,7 +39,7 @@ class MP3StreamT : public SoundStreamT
 {
     public:
 
-    /// Constructor.
+    /// The constructor. Throws an exception of type std::runtime_error on failure.
     /// Creates an audio data stream from an MP3 file.
     /// @param FileName The path to the file from which the stream should be created.
     MP3StreamT(const std::string& FileName);

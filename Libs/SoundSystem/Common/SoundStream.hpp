@@ -32,26 +32,10 @@ class SoundStreamT
 {
     public:
 
-    /// General sound stream exception described by an error message.
-    /// Thrown when the creation of a stream fails, or any operation on
-    /// an existing stream (read etc.).
-    class ExceptionT
-    {
-        public:
-
-        /// Constructor.
-        /// @param Error_ This errors information message.
-        ExceptionT(const std::string& Error_) { Error=Error_; }
-
-        /// Get the error message associated with this exception.
-        /// @return Error message.
-        const std::string& GetError() const { return Error; }
-
-
-        private:
-
-        std::string Error;
-    };
+    /// Creates a new sound stream for the specified resource.
+    /// @param ResName   The name of the stream resource. ResName can be a file name or the name of an OpenAL capture device (as obtained from the ALC_CAPTURE_DEVICE_SPECIFIER list).
+    /// @returns the created sound stream instance. Throws an exception of type std::runtime_error on failure.
+    static SoundStreamT* Create(const std::string& ResName);
 
     /// Reads an amount of bytes from the stream and writes them into the buffer.
     /// @param Buffer Buffer to write the data into.
@@ -69,11 +53,6 @@ class SoundStreamT
     /// Get the sampling rate of this stream.
     /// @return The sampling rate in Hz.
     virtual unsigned int GetRate()=0;
-
-    /// Creates a new sound stream for the specified resource.
-    /// @param ResName   The name of the stream resource. ResName can be a file name or the name of an OpenAL capture device (as obtained from the ALC_CAPTURE_DEVICE_SPECIFIER list).
-    /// @returns the created sound stream instance, or NULL on error.
-    static SoundStreamT* Create(const std::string& ResName);
 
     /// Virtual destructor to make sure the destructor of the derived class is called.
     virtual ~SoundStreamT() { }

@@ -40,43 +40,35 @@ StaticBufferT::StaticBufferT(const std::string& FileName, bool ForceMono)
     // If the file name ends with .ogg or .mp3 we use MP3StreamT or OggVorbisStreamT to read all PCM data of the file into a local buffer.
     if (cf::String::EndsWith(FileName, ".mp3") || cf::String::EndsWith(FileName, ".ogg"))
     {
-        SoundStreamT* Stream=SoundStreamT::Create(FileName);
+        SoundStreamT* Stream=SoundStreamT::Create(FileName);    // Throws an exception of type std::runtime_error on failure.
+        ArrayT<unsigned char> StreamBuffer;
 
-        if (Stream!=NULL)
+        while (true)
         {
-            ArrayT<unsigned char> StreamBuffer;
+            const int     MAX_READ_BYTES=65536;
+            unsigned char ReadBuffer[MAX_READ_BYTES];
+            const int     ReadBytes=Stream->Read(ReadBuffer, MAX_READ_BYTES);
 
-            while (true)
-            {
-                const int     MAX_READ_BYTES=65536;
-                unsigned char ReadBuffer[MAX_READ_BYTES];
-                const int     ReadBytes=Stream->Read(ReadBuffer, MAX_READ_BYTES);
+            if (ReadBytes<=0) break;
 
-                if (ReadBytes<=0) break;
-
-                for (int i=0; i<ReadBytes; i++)
-                    StreamBuffer.PushBack(ReadBuffer[i]);
-            }
-
-            // Finally copy the stream buffer into the OpenAL buffer.
-            ALenum OutputFormat=(Stream->GetChannels()==1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
-            int    TotalReadBytes=StreamBuffer.Size();
-
-            if (ForceMono && OutputFormat==AL_FORMAT_STEREO16)
-            {
-                OutputFormat  =AL_FORMAT_MONO16;
-                TotalReadBytes=ConvertToMono(&StreamBuffer[0], TotalReadBytes);
-            }
-
-            alGenBuffers(1, &m_Buffer);
-            alBufferData(m_Buffer, OutputFormat, &StreamBuffer[0], TotalReadBytes, Stream->GetRate());
-
-            delete Stream;
+            for (int i=0; i<ReadBytes; i++)
+                StreamBuffer.PushBack(ReadBuffer[i]);
         }
-        else
+
+        // Finally copy the stream buffer into the OpenAL buffer.
+        ALenum OutputFormat=(Stream->GetChannels()==1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+        int    TotalReadBytes=StreamBuffer.Size();
+
+        if (ForceMono && OutputFormat==AL_FORMAT_STEREO16)
         {
-            std::cout << "OpenAL: Error creating static buffer from file '" << FileName << "' Error: Stream could not be opened\n";
+            OutputFormat  =AL_FORMAT_MONO16;
+            TotalReadBytes=ConvertToMono(&StreamBuffer[0], TotalReadBytes);
         }
+
+        alGenBuffers(1, &m_Buffer);
+        alBufferData(m_Buffer, OutputFormat, &StreamBuffer[0], TotalReadBytes, Stream->GetRate());
+
+        delete Stream;
     }
     else
     {
