@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <cassert>
 #include <cstring>
 #include <iostream>
+#include <stdexcept>
 
 
 static unsigned int BytesPerSample(ALenum Format)

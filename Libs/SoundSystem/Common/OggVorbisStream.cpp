@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include <cassert>
 #include <iostream>
+#include <stdexcept>
 
 
 // Static callback method for the IO read function used by libvorbis to read from ogg files.

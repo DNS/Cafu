@@ -30,6 +30,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "String.hpp"
 
 #include <iostream>
+#include <stdexcept>
 
 
 static const unsigned long StreamFileSize=50000; ///< Filesize (in bytes) at which GetBuffer uses streams instead of static files.

@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MixerTrack.hpp"
 
 #include <iostream>
+#include <stdexcept>
 
 
 MixerTrackManT* MixerTrackManT::GetInstance()
