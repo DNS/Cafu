@@ -89,7 +89,8 @@ BoundingBox3dT CollisionModelStaticT::PolygonT::GetBB() const
 void CollisionModelStaticT::PolygonT::TraceConvexSolid(
     const TraceSolidT& TraceSolid, const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const
 {
-    // If the clipflags of this polygon don't match the ContMask, it doesn't interfere with the trace.
+    // If the ClipFlags of this polygon don't match the ClipMask, it doesn't interfere with the trace.
+    if (!Material) return;
     if ((Material->ClipFlags & ClipMask)==0) return;
 
     // If the trace solid is empty, it cannot collide with the polygon.
@@ -195,7 +196,8 @@ void CollisionModelStaticT::PolygonT::TraceRay(
 {
     using namespace cf::math;
 
-    // If the ClipFlags don't match the ContMask, this polygon doesn't interfere with the trace.
+    // If the ClipFlags don't match the ClipMask, this polygon doesn't interfere with the trace.
+    if (!Material) return;
     if ((Material->ClipFlags & ClipMask)==0) return;
 
     const Vector3dT& A=Parent->m_Vertices[Vertices[0]];
@@ -832,9 +834,9 @@ unsigned long CollisionModelStaticT::NodeT::GetContents() const
 
     while (true)
     {
-        for (unsigned long PolyNr=0;    PolyNr   <Node->Polygons.Size(); PolyNr++   ) Contents|=Node->Polygons[PolyNr]->Material->ClipFlags;
+        for (unsigned long PolyNr=0;    PolyNr   <Node->Polygons.Size(); PolyNr++   ) if (Node->Polygons[PolyNr]->Material) Contents|=Node->Polygons[PolyNr]->Material->ClipFlags;
         for (unsigned long BrushNr=0;   BrushNr  <Node->Brushes.Size();  BrushNr++  ) Contents|=Node->Brushes[BrushNr]->Contents;
-        for (unsigned long TerrainNr=0; TerrainNr<Node->Terrains.Size(); TerrainNr++) Contents|=Node->Terrains[TerrainNr]->Material->ClipFlags;
+        for (unsigned long TerrainNr=0; TerrainNr<Node->Terrains.Size(); TerrainNr++) if (Node->Terrains[TerrainNr]->Material) Contents|=Node->Terrains[TerrainNr]->Material->ClipFlags;
 
         if (Node->PlaneType==NodeT::NONE) break;
 
@@ -1091,6 +1093,7 @@ void CollisionModelStaticT::NodeT::Trace(const Vector3dT& A, const Vector3dT& B,
             case TraceParamsT::POINT:
             {
                 // If the ClipFlags of this terrain don't match the ClipMask, it doesn't interfere with the trace.
+                if (!Terrain->Material) break;
                 if ((Terrain->Material->ClipFlags & Params.ClipMask)==0) break;
 
                 // TODO: Terrain->Terrain->TraceRay(Params.Start, Params.Ray, Params.Result);
@@ -1118,6 +1121,7 @@ void CollisionModelStaticT::NodeT::Trace(const Vector3dT& A, const Vector3dT& B,
             case TraceParamsT::SOLID:
             {
                 // If the ClipFlags of this terrain don't match the ClipMask, it doesn't interfere with the trace.
+                if (!Terrain->Material) break;
                 if ((Terrain->Material->ClipFlags & Params.ClipMask)==0) break;
 
                 const double       OldFrac=Params.Result.Fraction;
@@ -2125,7 +2129,7 @@ void CollisionModelStaticT::SaveToFile(std::ostream& OutFile, cf::SceneGraph::au
         for (unsigned long VertexNr=0; VertexNr<4; VertexNr++)
             aux::Write(OutFile, aux::cnc32(Polygon.Vertices[VertexNr]));
 
-        Pool.Write(OutFile, Polygon.Material->Name);
+        Pool.Write(OutFile, Polygon.Material ? Polygon.Material->Name : "");
     }
 
 

@@ -229,6 +229,7 @@ BoundingBox3fT MapEntityT::GetBB() const
     for (unsigned long HelperNr=0; HelperNr<m_Helpers.Size(); HelperNr++)
         BB+=m_Helpers[HelperNr]->GetBB();
 
+    if (!BB.IsInited()) BB+=m_Origin;
     return BB;
 }
 
@@ -444,7 +445,16 @@ ArrayT<EntPropertyT> MapEntityT::CheckUniqueValues(MapDocumentT& MapDoc, bool Re
 
 Vector3fT MapEntityT::GetOrigin() const
 {
-    return m_Class->IsSolidClass() ? GetBB().GetCenter() : m_Origin;
+    if (!m_Class->IsSolidClass()) return m_Origin;
+
+    // This is very similar to GetBB().GetCenter(), but without accounting for the helpers.
+    // The helpers GetBB() methods call m_ParentEntity->GetOrigin(), possibly creating an infinite recursion.
+    BoundingBox3fT BB;
+
+    for (unsigned long PrimNr=0; PrimNr<m_Primitives.Size(); PrimNr++)
+        BB+=m_Primitives[PrimNr]->GetBB();
+
+    return BB.IsInited() ? BB.GetCenter() : m_Origin;
 }
 
 

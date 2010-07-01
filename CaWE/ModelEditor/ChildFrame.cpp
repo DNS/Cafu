@@ -225,6 +225,7 @@ bool ModelEditor::ChildFrameT::Save(bool AskForFileName)
     m_FileName=FileName;
     SetTitle(m_FileName);
 
+    m_Parent->m_FileHistory.AddFileToHistory(m_FileName);
     return true;
 }
 

@@ -469,6 +469,113 @@ GameConfigT* ParentFrameT::AskUserForGameConfig(const wxFileName& DocumentPath)
 }
 
 
+static const char*         SPECIFIER_LIST_C[]={ "D3", "HL1", "HL2" };
+static const wxArrayString SPECIFIER_LIST(3, SPECIFIER_LIST_C);
+
+
+wxMDIChildFrame* ParentFrameT::OpenFile(GameConfigT* GameConfig, wxString FileName)
+{
+    // Don't attempt to open the file if the game config is not given.
+    if (GameConfig==NULL) return NULL;
+
+    // Separate the filename and the disambiguation specifier.
+    wxString Specifier="";
+
+    for (size_t i=0; i<SPECIFIER_LIST.GetCount(); i++)
+    {
+        wxString Rest;
+
+        if (FileName.EndsWith(" ("+SPECIFIER_LIST[i]+")", &Rest))
+        {
+            FileName =Rest;
+            Specifier=SPECIFIER_LIST[i];
+            break;
+        }
+    }
+
+    // Load the specified file.
+    try
+    {
+        if (FileName.EndsWith(".cmap"))
+        {
+            wxProgressDialog ProgressDialog("Loading Cafu Map File", "Almost done...", 100, this, wxPD_AUTO_HIDE | wxPD_APP_MODAL | wxPD_SMOOTH);
+
+            return new ChildFrameT(this, FileName, new MapDocumentT(GameConfig, &ProgressDialog, FileName));
+        }
+
+        if (FileName.EndsWith(".cmdl"))
+        {
+            return new ModelEditor::ChildFrameT(this, FileName, new ModelEditor::ModelDocumentT(GameConfig, FileName));
+        }
+
+        if (FileName.EndsWith(".cgui"))
+        {
+            if (FileName.EndsWith("_init.cgui"))
+            {
+                return new GuiEditor::ChildFrameT(this, FileName, new GuiEditor::GuiDocumentT(GameConfig, FileName));
+            }
+
+            wxMessageBox("In order to load this GUI, please open the related file whose name ends with _init.cgui"
+                         "(instead of "+FileName+").\n\n"
+                         "CaWE always deals with the *_init.cgui files, everything else is for your customizations"
+                         "(hand-written script code). This way the files never overwrite each other.", "*_init.gui file expected");
+        }
+
+        if (FileName.EndsWith(".map"))
+        {
+            if (Specifier=="")
+            {
+                const int Choice=wxGetSingleChoiceIndex("Please select this map files source format:", "Import map file", SPECIFIER_LIST);
+
+                if (Choice<0) return NULL;  // The user pressed Cancel.
+                Specifier=SPECIFIER_LIST[Choice];
+            }
+
+            wxProgressDialog ProgressDialog("Importing "+Specifier+" map file", "Almost done...", 100, this, wxPD_AUTO_HIDE | wxPD_APP_MODAL | wxPD_SMOOTH);
+
+            if (Specifier=="HL1")
+            {
+                return new ChildFrameT(this, FileName, MapDocumentT::ImportHalfLife1Map(GameConfig, &ProgressDialog, FileName));
+            }
+
+            if (Specifier=="D3")
+            {
+                return new ChildFrameT(this, FileName, MapDocumentT::ImportDoom3Map(GameConfig, &ProgressDialog, FileName));
+            }
+        }
+
+        if (FileName.EndsWith(".vmf"))
+        {
+            wxProgressDialog ProgressDialog("Importing HL2 vmf file", "Almost done...", 100, this, wxPD_AUTO_HIDE | wxPD_APP_MODAL | wxPD_SMOOTH);
+
+            return new ChildFrameT(this, FileName, MapDocumentT::ImportHalfLife2Vmf(GameConfig, &ProgressDialog, FileName));
+        }
+
+        // We've tried all known filename suffixes. Now assume that FileName specifies a model file and try that.
+        return new ModelEditor::ChildFrameT(this, FileName, new ModelEditor::ModelDocumentT(GameConfig, FileName));
+    }
+    catch (const MapDocumentT::LoadErrorT& /*E*/)
+    {
+        wxMessageBox(wxString("The map file \"")+FileName+"\" could not be loaded!", "Couldn't load the map");
+    }
+    catch (const ModelT::LoadError& /*E*/)
+    {
+        // TODO: We really should have more detailed information about what exactly went wrong when loading the model...
+        wxMessageBox(wxString("The model file \"")+FileName+"\" could not be loaded!", "Couldn't load or import model");
+    }
+    catch (const ModelLoaderT::LoadErrorT& LE)
+    {
+        wxMessageBox(wxString("The model file \"")+FileName+"\" could not be loaded:\n"+LE.what(), "Couldn't load or import model");
+    }
+    catch (const cf::GuiSys::GuiImplT::InitErrorT& /*E*/)
+    {
+        wxMessageBox(wxString("The GUI script \"")+FileName+"\" could not be loaded!", "Couldn't load GUI script");
+    }
+
+    return NULL;
+}
+
+
 void ParentFrameT::OnMenuFile(wxCommandEvent& CE)
 {
     wxASSERT(m_RendererDLL!=NULL && MatSys::Renderer!=NULL);
@@ -490,10 +597,18 @@ void ParentFrameT::OnMenuFile(wxCommandEvent& CE)
 
         case ID_MENU_FILE_NEW_MODEL:
         {
-            wxMessageBox("Sorry, but Cafu can currently not be used to create new models from scratch.\n\n"
-                         "Instead, please use menu item  File - Open  in order to load or import your model.\n"
-                         "You can then edit its properties and assign all Cafu specific features.",
-                         "Cannot create model from scratch", wxOK | wxICON_INFORMATION);
+            wxFileDialog FileDialog(this, "Open File", "", "", "Model files (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+            if (FileDialog.ShowModal()!=wxID_OK) break;
+
+            GameConfigT* GameConfig=AskUserForGameConfig(wxFileName(FileDialog.GetPath()));
+            wxString     FileName  =FileDialog.GetPath();
+
+            if (OpenFile(GameConfig, FileName))
+            {
+                // The file was successfully opened, now add it to the MRU list.
+                m_FileHistory.AddFileToHistory(FileName);
+            }
             break;
         }
 
@@ -524,104 +639,38 @@ void ParentFrameT::OnMenuFile(wxCommandEvent& CE)
 
         case ID_MENU_FILE_OPEN:
         {
-            // Ask user for file name.
-            wxFileDialog FileDialog(this,                                               // The window parent.
-                                    "Choose a map, model or gui to open or import.",    // Message.
-                                    "",                                                 // The default directory.
-                                    "",                                                 // The default file name.
-                                    "All Cafu files (*.cmap, *.cmdl, *.cgui)|*.cmap;*.cmdl;*.cgui"  // The wildcard.
-                                    "|Cafu map file (*.cmap)|*.cmap"
-                                    "|Cafu model file (*.cmdl)|*.cmdl"
-                                    "|Cafu GUI file (*.cgui)|*.cgui"
-                                    "|Import any model file (*.*)|*.*"
-                                    "|Import Doom3 map file (*.map)|*.map"
-                                    "|Import Hammer 3.x (HL1) map file (*.map)|*.map"
-                                    "|Import Hammer 4.0 (HL2) map file (*.vmf)|*.vmf",
+            wxFileDialog FileDialog(this,               // The window parent.
+                                    "Open File",        // Message.
+                                    "",                 // The default directory.
+                                    "",                 // The default file name.
+                                    "All files (*.*)|*.*"       // The wildcard.
+                                    "|Map files|*.cmap;*.map;*.vmf"
+                                    "|Model files|*.*"
+                                    "|GUI files|*.cgui"
+                                    "|-----------------|*.*"
+                                    "|Cafu map (*.cmap)|*.cmap"
+                                    "|Doom3 map (*.map)|*.map"
+                                    "|Hammer 3.x (HL1) map (*.map)|*.map"
+                                    "|Hammer 4.x (HL2) map (*.vmf)|*.vmf",
                                     wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
             if (FileDialog.ShowModal()!=wxID_OK) break;
 
             GameConfigT* GameConfig=AskUserForGameConfig(wxFileName(FileDialog.GetPath()));
+            wxString     FileName  =FileDialog.GetPath();
 
-            if (GameConfig==NULL) break;
-
-            try
+            switch (FileDialog.GetFilterIndex())
             {
-                if (FileDialog.GetPath().EndsWith(".cmap"))
-                {
-                    wxProgressDialog ProgressDialog("Loading Cafu Map File", "Almost done...", 100, this, wxPD_AUTO_HIDE | wxPD_APP_MODAL | wxPD_SMOOTH);
-
-                    new ChildFrameT(this, FileDialog.GetPath(), new MapDocumentT(GameConfig, &ProgressDialog, FileDialog.GetPath()));
-                    m_FileHistory.AddFileToHistory(FileDialog.GetPath());   // Native cmap files are added to the MRU list.
-                }
-                else if (FileDialog.GetPath().EndsWith(".cmdl"))
-                {
-                    new ModelEditor::ChildFrameT(this, FileDialog.GetPath(), new ModelEditor::ModelDocumentT(GameConfig, FileDialog.GetPath()));
-                    m_FileHistory.AddFileToHistory(FileDialog.GetPath());   // Native cmdl files are added to the MRU list.
-                }
-                else if (FileDialog.GetPath().EndsWith(".cgui"))
-                {
-                    if (FileDialog.GetPath().EndsWith("_init.cgui"))
-                    {
-                        new GuiEditor::ChildFrameT(this, FileDialog.GetPath(), new GuiEditor::GuiDocumentT(GameConfig, FileDialog.GetPath()));
-                        m_FileHistory.AddFileToHistory(FileDialog.GetPath());   // GUI files are added to the MRU list.
-                    }
-                    else wxMessageBox("In order to load this GUI, please open the related file whose name ends with _init.cgui\n"
-                                      "(instead of "+FileDialog.GetPath()+").\n\n"
-                                      "CaWE always deals with the *_init.cgui files, everything else is for your customizations\n"
-                                      "(hand-written script code). This way the files never overwrite each other.", "*_init.gui file expected");
-                }
-                else
-                {
-                    switch (FileDialog.GetFilterIndex())
-                    {
-                        case 4:
-                            new ModelEditor::ChildFrameT(this, FileDialog.GetPath(), new ModelEditor::ModelDocumentT(GameConfig, FileDialog.GetPath()));
-                            break;
-
-                        case 5:
-                        {
-                            wxProgressDialog ProgressDialog("Importing Doom3 map file", "Almost done...", 100, this, wxPD_AUTO_HIDE | wxPD_APP_MODAL | wxPD_SMOOTH);
-
-                            new ChildFrameT(this, FileDialog.GetPath(), MapDocumentT::ImportDoom3Map(GameConfig, &ProgressDialog, FileDialog.GetPath()));
-                            break;
-                        }
-
-                        case 6:
-                        {
-                            wxProgressDialog ProgressDialog("Importing HL1 map file", "Almost done...", 100, this, wxPD_AUTO_HIDE | wxPD_APP_MODAL | wxPD_SMOOTH);
-
-                            new ChildFrameT(this, FileDialog.GetPath(), MapDocumentT::ImportHalfLife1Map(GameConfig, &ProgressDialog, FileDialog.GetPath()));
-                            break;
-                        }
-
-                        case 7:
-                        {
-                            wxProgressDialog ProgressDialog("Importing HL2 vmf file", "Almost done...", 100, this, wxPD_AUTO_HIDE | wxPD_APP_MODAL | wxPD_SMOOTH);
-
-                            new ChildFrameT(this, FileDialog.GetPath(), MapDocumentT::ImportHalfLife2Vmf(GameConfig, &ProgressDialog, FileDialog.GetPath()));
-                            break;
-                        }
-                    }
-                }
+                case 6: FileName+=" (D3)"; break;
+                case 7: FileName+=" (HL1)"; break;
+                case 8: FileName+=" (HL2)"; break;
             }
-            catch (const MapDocumentT::LoadErrorT& /*E*/)
+
+            if (OpenFile(GameConfig, FileName))
             {
-                wxMessageBox("The document could not be loaded or imported!");
-            }
-            catch (const ModelT::LoadError& /*E*/)
-            {
-                // TODO: We really should have more detailed information about what exactly went wrong when loading the model...
-                wxMessageBox(wxString("The model file \"")+FileDialog.GetPath()+"\" could not be loaded!", "Couldn't load or import model");
-            }
-            catch (const ModelLoaderT::LoadErrorT& LE)
-            {
-                wxMessageBox(wxString("The model file \"")+FileDialog.GetPath()+"\" could not be loaded:\n"+LE.what(),
-                             "Couldn't load or import model");
-            }
-            catch (const cf::GuiSys::GuiImplT::InitErrorT& /*E*/)
-            {
-                wxMessageBox(wxString("The GUI script \"")+FileDialog.GetPath()+"\" could not be loaded!", "Couldn't load GUI script");
+                // The file was successfully opened, now add it to the MRU list (with the Specifier, if present).
+                // We do this both for "native" Cafu files as well as for "foreign" imported files - it's useful either way.
+                m_FileHistory.AddFileToHistory(FileName);
             }
             break;
         }
@@ -646,50 +695,18 @@ void ParentFrameT::OnMenuFile(wxCommandEvent& CE)
         {
             if (CE.GetId()>=wxID_FILE1 && CE.GetId()<=wxID_FILE9)
             {
-                // Handle the file history (MRU list).
+                // Handle a selection from the file history (MRU list).
                 wxString     FileName  =m_FileHistory.GetHistoryFile(CE.GetId()-wxID_FILE1);
                 GameConfigT* GameConfig=AskUserForGameConfig(wxFileName(FileName));
 
-                if (GameConfig==NULL) break;
+                // We remove the file from the file history beforehand.
+                // It is added back below when it could be successfully opened, and left out otherwise.
+                m_FileHistory.RemoveFileFromHistory(CE.GetId()-wxID_FILE1);
 
-                try
+                if (OpenFile(GameConfig, FileName))
                 {
-                    // Handle GUI files here.
-                    if (FileName.EndsWith(".cmdl"))
-                    {
-                        new ModelEditor::ChildFrameT(this, FileName, new ModelEditor::ModelDocumentT(GameConfig, FileName));
-                    }
-                    else if (FileName.EndsWith(".cgui"))
-                    {
-                        if (FileName.EndsWith("_init.cgui")) new GuiEditor::ChildFrameT(this, FileName, new GuiEditor::GuiDocumentT(GameConfig, FileName));
-                                                        else wxMessageBox("Only GUI initialization scripts (_init.cgui extension) can be opened by CaWE", "Error", wxOK | wxICON_ERROR);
-                    }
-                    else
-                    {
-                        wxProgressDialog ProgressDialog("Loading Cafu Map File", "Almost done...", 100, this, wxPD_AUTO_HIDE | wxPD_APP_MODAL | wxPD_SMOOTH);
-
-                        new ChildFrameT(this, FileName, new MapDocumentT(GameConfig, &ProgressDialog, FileName));
-                    }
-
-                    m_FileHistory.AddFileToHistory(FileName);   // All map, model and GUI files are added to the MRU list.
-                }
-                catch (const MapDocumentT::LoadErrorT& /*E*/)
-                {
-                    wxMessageBox(wxString("The map file \"")+FileName+"\" could not be loaded!", "Couldn't load the map");
-                }
-                catch (const ModelT::LoadError& /*E*/)
-                {
-                    // TODO: We really should have more detailed information about what exactly went wrong when loading the model...
-                    wxMessageBox(wxString("The model file \"")+FileName+"\" could not be loaded!", "Couldn't load or import model");
-                }
-                catch (const ModelLoaderT::LoadErrorT& LE)
-                {
-                    wxMessageBox(wxString("The model file \"")+FileName+"\" could not be loaded:\n"+LE.what(),
-                                 "Couldn't load or import model");
-                }
-                catch (const cf::GuiSys::GuiImplT::InitErrorT& /*E*/)
-                {
-                    wxMessageBox(wxString("The GUI script \"")+FileName+"\" could not be loaded!", "Couldn't load GUI script");
+                    // The file was successfully opened, now add it back to the MRU list.
+                    m_FileHistory.AddFileToHistory(FileName);
                 }
             }
 

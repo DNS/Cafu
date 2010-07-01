@@ -106,9 +106,17 @@ class ParentFrameT : public wxMDIParentFrame
 
     private:
 
-    /// A helper function for opening/creating maps/GUIs, for learning which game config should be used for this map or GUI
-    /// (first by extrapolating the config from the map/GUIs path or (if not succesfull) by querying it from the user).
+    /// A helper function for opening or creating Cafu documents (maps, models or GUIs), for learning which game config should be used
+    /// (first by extrapolating the config from the document path or (if unsuccessful) by querying it from the user).
     GameConfigT* AskUserForGameConfig(const wxFileName& DocumentPath);
+
+    /// Using the specified game config, this method opens the specified file in a new child frame:
+    /// It inspects the suffix of the given filename in order to determine the proper document type (map, model or GUI),
+    /// creates the document from the file, and finally creates a new child frame for the newly loaded document.
+    /// Files that have an ambiguous filename suffix (e.g. ".map") must have a type specifier appended to their filename.
+    /// Currently supported type specifiers are " (HL1)", " (HL2)" and " (D3)".
+    /// Errors on opening the file are gracefully handled and the user is informed.
+    wxMDIChildFrame* OpenFile(GameConfigT* GameConfig, wxString FileName);
 
 #ifdef __WXGTK__
     void OnSize    (wxSizeEvent&    SE);
