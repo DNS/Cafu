@@ -35,8 +35,8 @@ namespace ModelEditor
 {
     class ModelDocumentT;
     class SceneView3DT;
-    class ModelPropertiesT;
-    class ScenePropertiesT;
+    class ModelPropGridT;
+    class ScenePropGridT;
 
 
     class ChildFrameT : public wxMDIChildFrame
@@ -58,22 +58,22 @@ namespace ModelEditor
         /// @returns whether the file was successfully saved.
         bool Save(bool AskForFileName=false);
 
-        ModelDocumentT*   GetModelDoc() const { return m_ModelDoc; }
-        ScenePropertiesT* GetSceneProperties() const { return m_SceneProperties; }
+        ModelDocumentT* GetModelDoc() const { return m_ModelDoc; }
+        ScenePropGridT* GetScenePropGrid() const { return m_ScenePropGrid; }
 
 
         private:
 
-        wxString          m_FileName;
-        ModelDocumentT*   m_ModelDoc;
+        wxString        m_FileName;
+        ModelDocumentT* m_ModelDoc;
 
-        ParentFrameT*     m_Parent;
-        wxAuiManager      m_AUIManager;
-        SceneView3DT*     m_SceneView3D;
-        ModelPropertiesT* m_ModelProperties;
-        ScenePropertiesT* m_SceneProperties;
+        ParentFrameT*   m_Parent;
+        wxAuiManager    m_AUIManager;
+        SceneView3DT*   m_SceneView3D;
+        ModelPropGridT* m_ModelPropGrid;
+        ScenePropGridT* m_ScenePropGrid;
 
-        wxMenu*           m_FileMenu;
+        wxMenu*         m_FileMenu;
 
 
         enum

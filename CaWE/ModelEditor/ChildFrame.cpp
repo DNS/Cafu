@@ -23,9 +23,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ChildFrame.hpp"
 #include "ModelDocument.hpp"
-#include "ModelProperties.hpp"
-#include "SceneProperties.hpp"
+#include "ModelPropGrid.hpp"
 #include "SceneView3D.hpp"
+#include "ScenePropGrid.hpp"
 
 #include "../GameConfig.hpp"
 #include "../ParentFrame.hpp"
@@ -57,8 +57,8 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
       m_ModelDoc(ModelDoc),
       m_Parent(Parent),
       m_SceneView3D(NULL),
-      m_ModelProperties(NULL),
-      m_SceneProperties(NULL),
+      m_ModelPropGrid(NULL),
+      m_ScenePropGrid(NULL),
       m_FileMenu(NULL)
 {
     // Register us with the parents list of children.
@@ -104,20 +104,20 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     m_AUIManager.SetManagedWindow(this);
 
     // Create model editor panes.
-    m_ModelProperties=new ModelPropertiesT(this, wxSize(230, 500));
-    m_SceneProperties=new ScenePropertiesT(this, wxSize(230, 500), m_ModelDoc->GetGameConfig());
-    m_SceneView3D    =new SceneView3DT(this);   // Created after m_SceneProperties, so that its ctor can access the camera in m_SceneProperties.
+    m_ModelPropGrid=new ModelPropGridT(this, wxSize(230, 500));
+    m_ScenePropGrid=new ScenePropGridT(this, wxSize(230, 500), m_ModelDoc->GetGameConfig());
+    m_SceneView3D  =new SceneView3DT(this);   // Created after m_ScenePropGrid, so that its ctor can access the camera in m_ScenePropGrid.
 
     m_AUIManager.AddPane(m_SceneView3D, wxAuiPaneInfo().
                          Name("SceneView").Caption("Scene View").
                          CenterPane());
 
-    m_AUIManager.AddPane(m_ModelProperties, wxAuiPaneInfo().
-                         Name("ModelProperties").Caption("Model Properties").
+    m_AUIManager.AddPane(m_ModelPropGrid, wxAuiPaneInfo().
+                         Name("ModelPropGrid").Caption("Model Properties").
                          Left());
 
-    m_AUIManager.AddPane(m_SceneProperties, wxAuiPaneInfo().
-                         Name("SceneProperties").Caption("Scene Setup").
+    m_AUIManager.AddPane(m_ScenePropGrid, wxAuiPaneInfo().
+                         Name("ScenePropGrid").Caption("Scene Setup").
                          Right());
 
     // Create AUI toolbars.
@@ -145,8 +145,8 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
 
     // Initial update of the model editor panes.
     m_SceneView3D->Refresh(false);
-    m_ModelProperties->RefreshPropGrid();
-    m_SceneProperties->RefreshPropGrid();
+    m_ModelPropGrid->RefreshPropGrid();
+    m_ScenePropGrid->RefreshPropGrid();
 }
 
 

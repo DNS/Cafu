@@ -21,7 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "SceneProperties.hpp"
+#include "ScenePropGrid.hpp"
 #include "ChildFrame.hpp"
 #include "../EditorMaterial.hpp"
 #include "../GameConfig.hpp"
@@ -30,12 +30,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/propgrid/advprops.h"
 
 
-BEGIN_EVENT_TABLE(ModelEditor::ScenePropertiesT, wxPropertyGridManager)
-    EVT_PG_CHANGED(wxID_ANY, ModelEditor::ScenePropertiesT::OnPropertyGridChanged)
+BEGIN_EVENT_TABLE(ModelEditor::ScenePropGridT, wxPropertyGridManager)
+    EVT_PG_CHANGED(wxID_ANY, ModelEditor::ScenePropGridT::OnPropertyGridChanged)
 END_EVENT_TABLE()
 
 
-ModelEditor::ScenePropertiesT::ScenePropertiesT(ChildFrameT* Parent, const wxSize& Size, GameConfigT* GameConfig)
+ModelEditor::ScenePropGridT::ScenePropGridT(ChildFrameT* Parent, const wxSize& Size, GameConfigT* GameConfig)
     : wxPropertyGridManager(Parent, wxID_ANY, wxDefaultPosition, Size, wxPG_BOLD_MODIFIED | wxPG_SPLITTER_AUTO_CENTER), // | wxPG_DESCRIPTION
       m_Camera(),
       m_BackgroundColor(wxColour(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/BackgroundColor", "rgb(0, 128, 255)"))),
@@ -54,7 +54,7 @@ ModelEditor::ScenePropertiesT::ScenePropertiesT(ChildFrameT* Parent, const wxSiz
 }
 
 
-void ModelEditor::ScenePropertiesT::RefreshPropGrid()
+void ModelEditor::ScenePropGridT::RefreshPropGrid()
 {
     // if (m_GuiDocument==NULL) return;
 
@@ -107,7 +107,7 @@ void ModelEditor::ScenePropertiesT::RefreshPropGrid()
 }
 
 
-void ModelEditor::ScenePropertiesT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
+void ModelEditor::ScenePropGridT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
 {
     // Changing a property by pressing ENTER doesn't change the selection. In consequence the property refresh below does not result in
     // any change since selected properties are not updated (because the user could be in the process of editing a value).

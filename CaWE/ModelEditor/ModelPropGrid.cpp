@@ -21,7 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "ModelProperties.hpp"
+#include "ModelPropGrid.hpp"
 #include "ChildFrame.hpp"
 #include "ModelDocument.hpp"
 
@@ -29,12 +29,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Models/Model_cmdl.hpp"
 
 
-BEGIN_EVENT_TABLE(ModelEditor::ModelPropertiesT, wxPropertyGridManager)
-    EVT_PG_CHANGED(wxID_ANY, ModelEditor::ModelPropertiesT::OnPropertyGridChanged)
+BEGIN_EVENT_TABLE(ModelEditor::ModelPropGridT, wxPropertyGridManager)
+    EVT_PG_CHANGED(wxID_ANY, ModelEditor::ModelPropGridT::OnPropertyGridChanged)
 END_EVENT_TABLE()
 
 
-ModelEditor::ModelPropertiesT::ModelPropertiesT(ChildFrameT* Parent, const wxSize& Size)
+ModelEditor::ModelPropGridT::ModelPropGridT(ChildFrameT* Parent, const wxSize& Size)
     : wxPropertyGridManager(Parent, wxID_ANY, wxDefaultPosition, Size, wxPG_BOLD_MODIFIED | wxPG_SPLITTER_AUTO_CENTER), // | wxPG_DESCRIPTION
       m_Parent(Parent)
 {
@@ -43,7 +43,7 @@ ModelEditor::ModelPropertiesT::ModelPropertiesT(ChildFrameT* Parent, const wxSiz
 }
 
 
-void ModelEditor::ModelPropertiesT::RefreshPropGrid()
+void ModelEditor::ModelPropGridT::RefreshPropGrid()
 {
     const CafuModelT* Model=m_Parent->GetModelDoc()->GetModel();
 
@@ -117,7 +117,7 @@ void ModelEditor::ModelPropertiesT::RefreshPropGrid()
 }
 
 
-void ModelEditor::ModelPropertiesT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
+void ModelEditor::ModelPropGridT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
 {
  // if (m_SelectedWindow==NULL) return;
 

@@ -21,8 +21,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MODELEDITOR_MODEL_PROPERTIES_HPP_
-#define _MODELEDITOR_MODEL_PROPERTIES_HPP_
+#ifndef _MODELEDITOR_MODEL_PROPGRID_HPP_
+#define _MODELEDITOR_MODEL_PROPGRID_HPP_
 
 #include "wx/wx.h"
 #include "wx/propgrid/manager.h"
@@ -33,11 +33,11 @@ namespace ModelEditor
     class ChildFrameT;
 
 
-    class ModelPropertiesT : public wxPropertyGridManager
+    class ModelPropGridT : public wxPropertyGridManager
     {
         public:
 
-        ModelPropertiesT(ChildFrameT* Parent, const wxSize& Size);
+        ModelPropGridT(ChildFrameT* Parent, const wxSize& Size);
 
         void RefreshPropGrid();
 

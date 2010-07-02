@@ -24,7 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SceneView3D.hpp"
 #include "ChildFrame.hpp"
 #include "ModelDocument.hpp"
-#include "SceneProperties.hpp"
+#include "ScenePropGrid.hpp"
 #include "../AppCaWE.hpp"
 #include "../EditorMaterial.hpp"
 #include "../Options.hpp"
@@ -54,7 +54,7 @@ ModelEditor::SceneView3DT::SceneView3DT(ChildFrameT* Parent)
       m_Parent(Parent),
       m_TimeOfLastPaint(0),
    // m_CameraTool(static_cast<ToolCameraT*>(m_ChildFrame->GetToolManager().GetTool(ToolCameraT::TypeInfo))),
-      m_Camera(&Parent->GetSceneProperties()->m_Camera),
+      m_Camera(&Parent->GetScenePropGrid()->m_Camera),
       m_CameraVel()
 {
     m_RMatWireframe  =MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/Wireframe"       ));
@@ -197,7 +197,7 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
 
     wxPaintDC dc(this);     // It is VERY important not to omit this, or otherwise everything goes havoc.
 
-    const ScenePropertiesT* SceneProperties=m_Parent->GetSceneProperties();
+    const ScenePropGridT* ScenePropGrid=m_Parent->GetScenePropGrid();
 
     // We're drawing to this view now.
     SetCurrent(*wxGetApp().GetParentFrame()->m_GLContext);    // This is the method from the wxGLCanvas for activating the given RC with this window.
@@ -206,9 +206,9 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
     MatSys::Renderer->SetViewport(0, 0, CanvasSize.GetWidth(), CanvasSize.GetHeight());
 
     // Clear the buffers.
-    MatSys::Renderer->ClearColor(SceneProperties->m_BackgroundColor.Red()/255.0f,
-                                 SceneProperties->m_BackgroundColor.Green()/255.0f,
-                                 SceneProperties->m_BackgroundColor.Blue()/255.0f, 0);
+    MatSys::Renderer->ClearColor(ScenePropGrid->m_BackgroundColor.Red()/255.0f,
+                                 ScenePropGrid->m_BackgroundColor.Green()/255.0f,
+                                 ScenePropGrid->m_BackgroundColor.Blue()/255.0f, 0);
 
     MatSys::Renderer->BeginFrame(TimeNow/1000.0);
 
@@ -234,7 +234,7 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
 
 
     // Render the world axes. They're great for technical and emotional reassurance.
-    if (SceneProperties->m_ShowOrigin)
+    if (ScenePropGrid->m_ShowOrigin)
     {
         static MatSys::MeshT Mesh(MatSys::MeshT::Lines);
 
@@ -256,7 +256,7 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
     }
 
     // Render the ground plane.
-    if (SceneProperties->m_GroundPlane_Show && SceneProperties->m_GroundPlane_Mat!=NULL)
+    if (ScenePropGrid->m_GroundPlane_Show && ScenePropGrid->m_GroundPlane_Mat!=NULL)
  // if (DrawGroundPlane && GroundPlane_Mat!=NULL && (MatSys::Renderer->GetCurrentRenderAction()==MatSys::RendererI::AMBIENT || MatSys::Renderer->GetCurrentRenderAction()==MatSys::RendererI::LIGHTING))
     {
         static MatSys::MeshT GroundPlaneMesh(MatSys::MeshT::TriangleFan);
@@ -272,12 +272,12 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
         }
 
         const double r=400.0;
-        GroundPlaneMesh.Vertices[0].SetOrigin(-r, -r, SceneProperties->m_GroundPlane_zPos);
-        GroundPlaneMesh.Vertices[1].SetOrigin(-r,  r, SceneProperties->m_GroundPlane_zPos);
-        GroundPlaneMesh.Vertices[2].SetOrigin( r,  r, SceneProperties->m_GroundPlane_zPos);
-        GroundPlaneMesh.Vertices[3].SetOrigin( r, -r, SceneProperties->m_GroundPlane_zPos);
+        GroundPlaneMesh.Vertices[0].SetOrigin(-r, -r, ScenePropGrid->m_GroundPlane_zPos);
+        GroundPlaneMesh.Vertices[1].SetOrigin(-r,  r, ScenePropGrid->m_GroundPlane_zPos);
+        GroundPlaneMesh.Vertices[2].SetOrigin( r,  r, ScenePropGrid->m_GroundPlane_zPos);
+        GroundPlaneMesh.Vertices[3].SetOrigin( r, -r, ScenePropGrid->m_GroundPlane_zPos);
 
-        MatSys::Renderer->SetCurrentMaterial(SceneProperties->m_GroundPlane_Mat->GetRenderMaterial(true /*PreviewMode*/));
+        MatSys::Renderer->SetCurrentMaterial(ScenePropGrid->m_GroundPlane_Mat->GetRenderMaterial(true /*PreviewMode*/));
         MatSys::Renderer->RenderMesh(GroundPlaneMesh);
     }
 
@@ -309,7 +309,7 @@ void ModelEditor::SceneView3DT::OnMouseWheel(wxMouseEvent& ME)
  // if (Tool && Tool->OnMouseWheel3D(*this, ME)) return;
 
     m_Camera->Pos+=m_Camera->GetYAxis()*(ME.GetWheelRotation()/2);
-    m_Parent->GetSceneProperties()->RefreshPropGrid();
+    m_Parent->GetScenePropGrid()->RefreshPropGrid();
 }
 
 

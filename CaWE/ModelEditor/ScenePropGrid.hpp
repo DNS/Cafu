@@ -21,8 +21,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MODELEDITOR_SCENE_PROPERTIES_HPP_
-#define _MODELEDITOR_SCENE_PROPERTIES_HPP_
+#ifndef _MODELEDITOR_SCENE_PROPGRID_HPP_
+#define _MODELEDITOR_SCENE_PROPGRID_HPP_
 
 #include "../Camera.hpp"
 #include "wx/wx.h"
@@ -38,11 +38,11 @@ namespace ModelEditor
     class ChildFrameT;
 
 
-    class ScenePropertiesT : public wxPropertyGridManager
+    class ScenePropGridT : public wxPropertyGridManager
     {
         public:
 
-        ScenePropertiesT(ChildFrameT* Parent, const wxSize& Size, GameConfigT* GameConfig);
+        ScenePropGridT(ChildFrameT* Parent, const wxSize& Size, GameConfigT* GameConfig);
 
         void RefreshPropGrid();
 
