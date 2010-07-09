@@ -931,6 +931,7 @@ void ViewWindow3DT::OnPaint(wxPaintEvent& PE)
     MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
     MatSys::Renderer->SetCurrentLightMap(wxGetApp().GetParentFrame()->m_WhiteTexture);    // Set a proper default lightmap.
     MatSys::Renderer->SetCurrentLightDirMap(NULL);      // The MatSys provides a default for LightDirMaps when NULL is set.
+    MatSys::Renderer->ClearColor(0, 0, 0, 0);
     MatSys::Renderer->BeginFrame(TimeNow/1000.0);
 
 

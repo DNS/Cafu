@@ -300,6 +300,7 @@ void RenderWindowT::OnPaint(wxPaintEvent& PE)
     m_TimeLastFrame=TimeNow;
 
     // Clear the buffers.
+    MatSys::Renderer->ClearColor(0, 0, 0, 0);
     MatSys::Renderer->BeginFrame(TimeNow/1000.0);
 
     MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);

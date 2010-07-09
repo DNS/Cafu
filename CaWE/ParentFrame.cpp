@@ -263,72 +263,19 @@ void ParentFrameT::OnShow(wxShowEvent& SE)
         // OpenGL context in release builds (the GL code in the MatSys::Renderer->IsSupported() methods would fail).
         m_GLCanvas->SetCurrent(*m_GLContext);
 
-        // Prepare the name strings.
-        #ifdef SCONS_BUILD_DIR
-            #define QUOTE(str) QUOTE_HELPER(str)
-            #define QUOTE_HELPER(str) #str
 
-            #ifdef _WIN32
-            const wxString MatSysRendererDLLName=wxString("Libs/")+QUOTE(SCONS_BUILD_DIR)+"/MaterialSystem/RendererOpenGL12.dll";
-            #else
-            const wxString MatSysRendererDLLName=wxString("Libs/")+QUOTE(SCONS_BUILD_DIR)+"/MaterialSystem/libRendererOpenGL12.so";
-            #endif
+        // Obtain the specified MatSys renderer (or if none is specified, automatically find the "best").
+        const wxString RendererName=wxConfigBase::Get()->Read("Global/Renderer", "").Trim();
 
-            #undef QUOTE
-            #undef QUOTE_HELPER
-        #else
-            const wxString MatSysRendererDLLName=wxString("Renderers/RendererOpenGL12")+PlatformAux::GetEnvFileSuffix().c_str()+".dll";
-        #endif
+        if (RendererName!="" && !RendererName.StartsWith("#"))
+            MatSys::Renderer=PlatformAux::GetRenderer(std::string(RendererName), m_RendererDLL);
 
+        if (MatSys::Renderer==NULL || m_RendererDLL==NULL)
+            MatSys::Renderer=PlatformAux::GetBestRenderer(m_RendererDLL);
 
-        // Load the DLL.
-        #ifdef _WIN32
-            m_RendererDLL=LoadLibrary(L"./RendererOpenGL12.dll");
-
-            if (m_RendererDLL==NULL)
-                m_RendererDLL=LoadLibrary(MatSysRendererDLLName);
-        #else
-            // Note that RTLD_GLOBAL must *not* be passed-in here, or else we get in trouble with subsequently loaded libraries.
-            // (E.g. dlsym(RendererDLL, "GetRenderer") return identical results for different RendererDLLs.)
-            // Please refer to the man page of dlopen for more details.
-            m_RendererDLL=dlopen("./libRendererOpenGL12.so", RTLD_NOW);
-            if (!m_RendererDLL) m_RendererDLL=dlopen(MatSysRendererDLLName.c_str(), RTLD_NOW);
-
-            if (!m_RendererDLL) printf("%s\n", dlerror());
-        #endif
-
-        if (m_RendererDLL==NULL) { wxMessageBox("FAILED - could not load the library at "+MatSysRendererDLLName, "ERROR"); Destroy(); return; }
-
-
-        // Get the renderer.
-        typedef MatSys::RendererI* (__stdcall *GetRendererT)(cf::ConsoleI* Console_, cf::FileSys::FileManI* FileMan_);
-
-        #ifdef _WIN32
-            GetRendererT GetRenderer=(GetRendererT)GetProcAddress(m_RendererDLL, "_GetRenderer@8");
-        #else
-            GetRendererT GetRenderer=(GetRendererT)GetProcAddress(m_RendererDLL, "GetRenderer");
-        #endif
-
-        if (!GetRenderer) { wxMessageBox("FAILED - could not get the address of the GetRenderer() function.", "ERROR"); Destroy(); return; }
-
-        // When we get here, the console and the file man must already have been initialized.
-        wxASSERT(Console!=NULL);
-        wxASSERT(cf::FileSys::FileMan!=NULL);
-        MatSys::Renderer=GetRenderer(Console, cf::FileSys::FileMan);
-
-        if (MatSys::Renderer==NULL) { wxMessageBox("FAILED - could not get the renderer.", "ERROR"); Destroy(); return; }
-
-
-        // Check if we already have OpenGL errors here.
-        // Shouldn't be the case though, because any errors here must have been caused by the ParentFrames wxCanvas ctor.
-        GLenum Error=glGetError();
-        if (Error!=GL_NO_ERROR) wxMessageBox(wxString::Format("glGetError() reported error %i!", Error));
-
-        if (!MatSys::Renderer->IsSupported())
+        if (MatSys::Renderer==NULL || m_RendererDLL==NULL)
         {
-            wxMessageBox("Renderer "+MatSysRendererDLLName+" says that it's not supported.\n\n"
-                         "This may be caused by your desktop being set to 16 BPP (or less).\n"
-                         "Please set your desktop bit-depth to 24 or 32 BPP (True Color), and try again.");
+            wxMessageBox("Could not find a renderer that is supported on your system.", "Material System Error", wxOK | wxICON_ERROR);
             Destroy();
             return;
         }
@@ -336,18 +283,16 @@ void ParentFrameT::OnShow(wxShowEvent& SE)
         MatSys::Renderer->Initialize();
 
 
-        // Get the texture manager.
-        typedef MatSys::TextureMapManagerI* (__stdcall *GetTMMT)();
+        // Obtain the texture manager for the previously loaded renderer.
+        MatSys::TextureMapManager=PlatformAux::GetTextureMapManager(m_RendererDLL);
 
-        #ifdef _WIN32
-            GetTMMT GetTMM=(GetTMMT)GetProcAddress(m_RendererDLL, "_GetTextureMapManager@0");
-        #else
-            GetTMMT GetTMM=(GetTMMT)GetProcAddress(m_RendererDLL, "GetTextureMapManager");
-        #endif
+        if (MatSys::TextureMapManager==NULL)
+        {
+            wxMessageBox("No TextureMapManager obtained.", "ERROR");
+            Destroy();
+            return;
+        }
 
-        if (!GetTMM) { wxMessageBox("FAILED - could not get the address of the GetTextureMapManager() function.", "ERROR"); Destroy(); return; }
-        MatSys::TextureMapManager=GetTMM();
-        if (MatSys::TextureMapManager==NULL) { wxMessageBox("No TextureMapManager obtained.", "ERROR"); Destroy(); return; }
 
         // Create a very simple lightmap for the materials that need one, and register it with the renderer.
         char Data[]={ 255, 255, 255, 255, 255, 255, 0, 0,
