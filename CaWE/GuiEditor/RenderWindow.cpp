@@ -302,6 +302,10 @@ void RenderWindowT::OnPaint(wxPaintEvent& PE)
     // Clear the buffers.
     MatSys::Renderer->BeginFrame(TimeNow/1000.0);
 
+    MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
+    MatSys::Renderer->SetCurrentLightMap(wxGetApp().GetParentFrame()->m_WhiteTexture);    // Set a proper default lightmap.
+    MatSys::Renderer->SetCurrentLightDirMap(NULL);      // The MatSys provides a default for LightDirMaps when NULL is set.
+
     // Setup the matrices.
     MatSys::Renderer->PushMatrix(MatSys::RendererI::PROJECTION    );
     MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);

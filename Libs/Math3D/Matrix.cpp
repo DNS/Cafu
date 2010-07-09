@@ -46,12 +46,14 @@ MatrixT MatrixT::GetProjOrthoMatrix(float left, float right, float bottom, float
 
 MatrixT MatrixT::GetProjFrustumMatrix(float left, float right, float bottom, float top, float zNear, float zFar)
 {
-    const float x= (2.0f*zNear)/(right-left);
-    const float y= (2.0f*zNear)/(top-bottom);
-    const float a= (right+left)/(right-left);
-    const float b= (top+bottom)/(top-bottom);
-    const float c=-(zFar+zNear)/( zFar-zNear);
-    const float d=-(2.0f*zFar*zNear)/(zFar-zNear);
+    const float x=(2.0f*zNear)/(right-left);
+    const float y=(2.0f*zNear)/(top-bottom);
+    const float a=(right+left)/(right-left);
+    const float b=(top+bottom)/(top-bottom);
+
+    // If zFar <= zNear, the far plane is assumed to be at infinity (a useful special case for stencil shadow projections).
+    const float c=(zNear<zFar) ? -(zFar+zNear)/(zFar-zNear)      : -1.0f;
+    const float d=(zNear<zFar) ? -(2.0f*zFar*zNear)/(zFar-zNear) : -2.0f*zNear;
 
     return MatrixT(
         x,    0.0f, a,     0.0f,

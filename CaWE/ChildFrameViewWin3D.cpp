@@ -912,12 +912,12 @@ void ViewWindow3DT::OnPaint(wxPaintEvent& PE)
 
     MatSys::Renderer->SetViewport(0, 0, CanvasSize.GetWidth(), CanvasSize.GetHeight());
 
-    // Initialize the perspective projection.
+    // Initialize the perspective projection (view-to-clip) matrix.
     MatSys::Renderer->SetMatrix(MatSys::RendererI::PROJECTION,
         MatrixT::GetProjPerspectiveMatrix(m_Camera->VerticalFOV, (float)CanvasSize.GetWidth()/(float)CanvasSize.GetHeight(),
                                           m_Camera->NearPlaneDist, m_Camera->FarPlaneDist));
 
-    // Initialize the world-to-view matrix.
+    // Initialize the camera (world-to-view) matrix.
     MatrixT WorldToView=m_Camera->GetMatrix();
 
     // Rotate by 90 degrees around the x-axis in order to meet the MatSys's expectation of axes orientation.
@@ -929,6 +929,8 @@ void ViewWindow3DT::OnPaint(wxPaintEvent& PE)
 
     MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW, WorldToView);
     MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
+    MatSys::Renderer->SetCurrentLightMap(wxGetApp().GetParentFrame()->m_WhiteTexture);    // Set a proper default lightmap.
+    MatSys::Renderer->SetCurrentLightDirMap(NULL);      // The MatSys provides a default for LightDirMaps when NULL is set.
     MatSys::Renderer->BeginFrame(TimeNow/1000.0);
 
 

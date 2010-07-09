@@ -25,6 +25,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrame.hpp"
 #include "../EditorMaterial.hpp"
 #include "../GameConfig.hpp"
+#include "MaterialSystem/MapComposition.hpp"
+#include "MaterialSystem/TextureMap.hpp"
 
 #include "wx/confbase.h"
 #include "wx/propgrid/advprops.h"
@@ -44,13 +46,27 @@ ModelEditor::ScenePropGridT::ScenePropGridT(ChildFrameT* Parent, const wxSize& S
       m_GroundPlane_zPos(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/GroundPlane_zPos", 0.0)),
       m_GroundPlane_Mat(GameConfig->GetMatMan().FindMaterial(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/GroundPlane_Mat", "Textures/WilliH/rock01b"), true /*CreateDummy*/)),
       m_AmbientLightColor(wxColour(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/AmbientLightColor", "rgb(96, 96, 96)"))),
+      m_AmbientTexture(NULL),
+      m_Lights(),
       m_Parent(Parent),
       m_GameConfig(GameConfig)
 {
     m_Camera.Pos.y=-500.0f;
 
+    LightT Light1={ true,  true, Vector3fT(200.0f,   0.0f, 200.0f), 1500.0f, wxColour(255, 235, 215) }; m_Lights.PushBack(Light1);
+    LightT Light2={ false, true, Vector3fT(  0.0f, 200.0f, 200.0f), 1500.0f, wxColour(215, 235, 255) }; m_Lights.PushBack(Light2);
+    LightT Light3={ false, true, Vector3fT(200.0f, 200.0f, 200.0f), 1500.0f, wxColour(235, 255, 215) }; m_Lights.PushBack(Light3);
+
+    UpdateAmbientTexture();
+
     SetExtraStyle(wxPG_EX_HELP_AS_TOOLTIPS | wxPG_EX_MODE_BUTTONS);
     AddPage("Scene Setup");
+}
+
+
+ModelEditor::ScenePropGridT::~ScenePropGridT()
+{
+    MatSys::TextureMapManager->FreeTextureMap(m_AmbientTexture);
 }
 
 
@@ -98,7 +114,28 @@ void ModelEditor::ScenePropGridT::RefreshPropGrid()
 
     // "Light Sources" category.
     wxPGProperty* LightsCat=Append(new wxPropertyCategory("Light Sources"));
+
     AppendIn(LightsCat, new wxColourProperty("Ambient Light Color", wxPG_LABEL, m_AmbientLightColor));
+
+    for (unsigned long LightNr=0; LightNr<m_Lights.Size(); LightNr++)
+    {
+        wxString      LightStr=wxString::Format("Light %lu", LightNr+1);
+        wxPGProperty* Light   =AppendIn(LightsCat, new wxStringProperty(LightStr, wxPG_LABEL, "<composed>"));
+
+        AppendIn(Light, new wxBoolProperty("On", wxPG_LABEL, m_Lights[LightNr].IsOn));
+        AppendIn(Light, new wxBoolProperty("Cast Shadows", wxPG_LABEL, m_Lights[LightNr].CastShadows));
+
+        wxPGProperty* LightPos=AppendIn(Light, new wxStringProperty("Pos", wxPG_LABEL, "<composed>"));
+        wxPGProperty* LightPosX=AppendIn(LightPos, new wxFloatProperty("x", wxPG_LABEL, m_Lights[LightNr].Pos.x)); SetPropertyTextColour(LightPosX, wxColour(200, 0, 0)); // With wx2.9, change this into: LightPosX->SetTextColour(wxColour(255, 0, 0));
+        wxPGProperty* LightPosY=AppendIn(LightPos, new wxFloatProperty("y", wxPG_LABEL, m_Lights[LightNr].Pos.y)); SetPropertyTextColour(LightPosY, wxColour(0, 200, 0));
+        wxPGProperty* LightPosZ=AppendIn(LightPos, new wxFloatProperty("z", wxPG_LABEL, m_Lights[LightNr].Pos.z)); SetPropertyTextColour(LightPosZ, wxColour(0, 0, 200));
+        Collapse(LightPos);
+
+        AppendIn(Light, new wxFloatProperty("Radius", wxPG_LABEL, m_Lights[LightNr].Radius));
+        AppendIn(Light, new wxColourProperty("Color", wxPG_LABEL, m_Lights[LightNr].Color));
+
+        if (!m_Lights[LightNr].IsOn) Collapse(Light);
+    }
 
 
     SetPropertyAttributeAll(wxPG_BOOL_USE_CHECKBOX, true); // Use checkboxes instead of choice.
@@ -114,10 +151,10 @@ void ModelEditor::ScenePropGridT::OnPropertyGridChanged(wxPropertyGridEvent& Eve
     // Since the user is definitely finished editing this property we can safely clear the selection.
  // ClearSelection();
 
-    const wxPGProperty* Prop       =Event.GetProperty();
-    const wxString      PropName   =Prop->GetName();
-    double              PropValueD =0.0;
-    const float         PropValueF =Prop->GetValue().Convert(&PropValueD) ? float(PropValueD) : 0.0f;
+    const wxPGProperty* Prop      =Event.GetProperty();
+    const wxString      PropName  =Prop->GetName();
+    double              PropValueD=0.0;
+    const float         PropValueF=Prop->GetValue().Convert(&PropValueD) ? float(PropValueD) : 0.0f;
 
          if (PropName=="Background Color")                m_BackgroundColor << Prop->GetValue();
     else if (PropName=="Show Origin")                     m_ShowOrigin=Prop->GetValue().GetBool();
@@ -138,11 +175,47 @@ void ModelEditor::ScenePropGridT::OnPropertyGridChanged(wxPropertyGridEvent& Eve
 
         if (NewMat) m_GroundPlane_Mat=NewMat;
     }
-    else if (PropName=="Ambient Light Color")             m_AmbientLightColor << Prop->GetValue();
+    else if (PropName=="Ambient Light Color")
+    {
+        m_AmbientLightColor << Prop->GetValue();
+        UpdateAmbientTexture();
+    }
+    else if (PropName.StartsWith("Light "))
+    {
+        for (unsigned long LightNr=0; LightNr<m_Lights.Size(); LightNr++)
+        {
+            const wxString LightStr=wxString::Format("Light %lu", LightNr+1);
+            LightT&        Light   =m_Lights[LightNr];
+
+                 if (PropName==LightStr+".On")           Light.IsOn=Prop->GetValue().GetBool();
+            else if (PropName==LightStr+".Cast Shadows") Light.CastShadows=Prop->GetValue().GetBool();
+            else if (PropName==LightStr+".Pos.x")        Light.Pos.x=PropValueF;
+            else if (PropName==LightStr+".Pos.y")        Light.Pos.y=PropValueF;
+            else if (PropName==LightStr+".Pos.z")        Light.Pos.z=PropValueF;
+            else if (PropName==LightStr+".Radius")       Light.Radius=PropValueF;
+            else if (PropName==LightStr+".Color")        Light.Color << Prop->GetValue();
+        }
+    }
     else
     {
         // Don't uncomment this:
         // Changing child properties (e.g. "Pos.x" to "5") also generates events for the composite parent (e.g. "Pos" to "(5, 0, 0)")!
         // wxMessageBox("Unknown property label \""+Name+"\".", "Warning", wxOK | wxICON_ERROR);
     }
+}
+
+
+void ModelEditor::ScenePropGridT::UpdateAmbientTexture()
+{
+    MatSys::TextureMapManager->FreeTextureMap(m_AmbientTexture);
+    m_AmbientTexture=NULL;
+
+    const unsigned char r=m_AmbientLightColor.Red();
+    const unsigned char g=m_AmbientLightColor.Green();
+    const unsigned char b=m_AmbientLightColor.Blue();
+
+    char Data[]={ r, g, b, r, g, b, 0, 0,
+                  r, g, b, r, g, b, 0, 0 };
+
+    m_AmbientTexture=MatSys::TextureMapManager->GetTextureMap2D(Data, 2, 2, 3, true, MapCompositionT(MapCompositionT::Linear, MapCompositionT::Linear));
 }

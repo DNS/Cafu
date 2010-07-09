@@ -48,6 +48,9 @@ namespace ModelEditor
 
         private:
 
+        /// Renders a single pass of the scene.
+        void RenderPass() const;
+
         ChildFrameT*  m_Parent;
         unsigned long m_TimeOfLastPaint;    ///< The time at which the OnPaint() event handler was last called.
      // ToolCameraT*  m_CameraTool;         ///< [Not needed here - this is a single camera party.] The camera tool that manages all cameras. The camera of this 3D view is always among the cameras in the tool.

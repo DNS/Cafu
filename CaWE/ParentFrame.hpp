@@ -41,6 +41,7 @@ class GameConfigT;
 class MapDocumentT;
 namespace ModelEditor { class ChildFrameT; }
 namespace GuiEditor   { class ChildFrameT; }
+namespace MatSys { class TextureMapI; }
 
 
 /// This class represents the CaWE parent (main) frame.
@@ -95,6 +96,7 @@ class ParentFrameT : public wxMDIParentFrame
     // These member variables are public because they must be available to other code anyway.
     wxGLCanvas*                       m_GLCanvas;       ///< Our persistent "home" of the shared GL context. Used whenever there is no view.
     wxGLContext*                      m_GLContext;      ///< The OpenGL rendering context that represents our app-global OpenGL state.
+    MatSys::TextureMapI*              m_WhiteTexture;   ///< A white texture map that is set as default lightmap whenever nothing else is available.
     wxFileHistory                     m_FileHistory;    ///< The file history of our and all our childrens "File" menu.
     ArrayT<ChildFrameT*>              m_ChildFrames;    ///< The list where all map   child frames register themselves on construction and unregister on destruction.
     ArrayT<ModelEditor::ChildFrameT*> m_MdlChildFrames; ///< The list where all model child frames register themselves on construction and unregister on destruction.

@@ -69,6 +69,40 @@ ModelEditor::SceneView3DT::~SceneView3DT()
 }
 
 
+void ModelEditor::SceneView3DT::RenderPass() const
+{
+    const ScenePropGridT* ScenePropGrid=m_Parent->GetScenePropGrid();
+
+    // Render the ground plane.
+    if (ScenePropGrid->m_GroundPlane_Show && ScenePropGrid->m_GroundPlane_Mat!=NULL && MatSys::Renderer->GetCurrentRenderAction()!=MatSys::RendererI::STENCILSHADOW)
+    {
+        static MatSys::MeshT GroundPlaneMesh(MatSys::MeshT::TriangleFan);
+
+        if (GroundPlaneMesh.Vertices.Size()==0)
+        {
+            GroundPlaneMesh.Vertices.PushBackEmpty(4);
+
+            GroundPlaneMesh.Vertices[0].SetTextureCoord(0.0f, 1.0f); GroundPlaneMesh.Vertices[0].SetNormal(0.0f, 0.0f, 1.0f); GroundPlaneMesh.Vertices[0].SetTangent(1.0f, 0.0f, 0.0f); GroundPlaneMesh.Vertices[0].SetBiNormal(0.0f, -1.0f, 0.0f);
+            GroundPlaneMesh.Vertices[1].SetTextureCoord(0.0f, 0.0f); GroundPlaneMesh.Vertices[1].SetNormal(0.0f, 0.0f, 1.0f); GroundPlaneMesh.Vertices[1].SetTangent(1.0f, 0.0f, 0.0f); GroundPlaneMesh.Vertices[1].SetBiNormal(0.0f, -1.0f, 0.0f);
+            GroundPlaneMesh.Vertices[2].SetTextureCoord(1.0f, 0.0f); GroundPlaneMesh.Vertices[2].SetNormal(0.0f, 0.0f, 1.0f); GroundPlaneMesh.Vertices[2].SetTangent(1.0f, 0.0f, 0.0f); GroundPlaneMesh.Vertices[2].SetBiNormal(0.0f, -1.0f, 0.0f);
+            GroundPlaneMesh.Vertices[3].SetTextureCoord(1.0f, 1.0f); GroundPlaneMesh.Vertices[3].SetNormal(0.0f, 0.0f, 1.0f); GroundPlaneMesh.Vertices[3].SetTangent(1.0f, 0.0f, 0.0f); GroundPlaneMesh.Vertices[3].SetBiNormal(0.0f, -1.0f, 0.0f);
+        }
+
+        const double r=400.0;
+        GroundPlaneMesh.Vertices[0].SetOrigin(-r, -r, ScenePropGrid->m_GroundPlane_zPos);
+        GroundPlaneMesh.Vertices[1].SetOrigin(-r,  r, ScenePropGrid->m_GroundPlane_zPos);
+        GroundPlaneMesh.Vertices[2].SetOrigin( r,  r, ScenePropGrid->m_GroundPlane_zPos);
+        GroundPlaneMesh.Vertices[3].SetOrigin( r, -r, ScenePropGrid->m_GroundPlane_zPos);
+
+        MatSys::Renderer->SetCurrentMaterial(ScenePropGrid->m_GroundPlane_Mat->GetRenderMaterial(true /*PreviewMode*/));
+        MatSys::Renderer->RenderMesh(GroundPlaneMesh);
+    }
+
+    // Render the model.
+    m_Parent->GetModelDoc()->GetModel()->Draw(0, 0.0f, 0.0f, NULL);
+}
+
+
 void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
 {
     // Guard against accessing an already deleted MapDoc. This can otherwise happen when closing this window/view/document,
@@ -199,7 +233,7 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
 
     const ScenePropGridT* ScenePropGrid=m_Parent->GetScenePropGrid();
 
-    // We're drawing to this view now.
+    // Initialize the viewport.
     SetCurrent(*wxGetApp().GetParentFrame()->m_GLContext);    // This is the method from the wxGLCanvas for activating the given RC with this window.
     const wxSize CanvasSize=GetClientSize();
 
@@ -212,12 +246,14 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
 
     MatSys::Renderer->BeginFrame(TimeNow/1000.0);
 
-    // Setup the perspective projection (view-to-clip) matrix.
+
+    // Initialize the perspective projection (view-to-clip) matrix.
+    // Note that the far clip plane MUST be located at infinity for our stencil shadows implementation!
     MatSys::Renderer->SetMatrix(MatSys::RendererI::PROJECTION,
         MatrixT::GetProjPerspectiveMatrix(m_Camera->VerticalFOV, (float)CanvasSize.GetWidth()/(float)CanvasSize.GetHeight(),
-                                          m_Camera->NearPlaneDist, m_Camera->FarPlaneDist));
+                                          m_Camera->NearPlaneDist, -1.0f));   // The far plane must be at infinity, not m_Camera->FarPlaneDist!
 
-    // Setup the camera (world-to-view) matrix.
+    // Initialize the camera (world-to-view) matrix.
     MatrixT WorldToView=m_Camera->GetMatrix();
 
     // Rotate by 90 degrees around the x-axis in order to meet the MatSys's expectation of axes orientation.
@@ -229,9 +265,21 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
 
     MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW, WorldToView);
 
-    // Setup the model-to-world matrix.
+    // Initialize the model-to-world matrix.
     MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
 
+
+    // 1) Draw the ambient rendering pass.
+    MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
+
+    MatSys::Renderer->SetCurrentEyePosition(m_Camera->Pos.x, m_Camera->Pos.y, m_Camera->Pos.z);
+    MatSys::Renderer->SetCurrentAmbientLightColor(ScenePropGrid->m_AmbientLightColor.Red()/255.0f,
+                                                  ScenePropGrid->m_AmbientLightColor.Green()/255.0f,
+                                                  ScenePropGrid->m_AmbientLightColor.Blue()/255.0f);
+
+    // Set a proper lightmap for e.g. the ground plane. Model materials should not reference and thus not need a lightmap at all.
+    MatSys::Renderer->SetCurrentLightMap(ScenePropGrid->m_AmbientTexture);
+    MatSys::Renderer->SetCurrentLightDirMap(NULL);    // The MatSys provides a default for LightDirMaps when NULL is set.
 
     // Render the world axes. They're great for technical and emotional reassurance.
     if (ScenePropGrid->m_ShowOrigin)
@@ -255,36 +303,67 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
         MatSys::Renderer->RenderMesh(Mesh);
     }
 
-    // Render the ground plane.
-    if (ScenePropGrid->m_GroundPlane_Show && ScenePropGrid->m_GroundPlane_Mat!=NULL)
- // if (DrawGroundPlane && GroundPlane_Mat!=NULL && (MatSys::Renderer->GetCurrentRenderAction()==MatSys::RendererI::AMBIENT || MatSys::Renderer->GetCurrentRenderAction()==MatSys::RendererI::LIGHTING))
+    // Render a small cross at the (world-space) position of each active light source.
+    for (unsigned long LightNr=0; LightNr<ScenePropGrid->m_Lights.Size(); LightNr++)
     {
-        static MatSys::MeshT GroundPlaneMesh(MatSys::MeshT::TriangleFan);
+        const ScenePropGridT::LightT& Light=ScenePropGrid->m_Lights[LightNr];
 
-        if (GroundPlaneMesh.Vertices.Size()==0)
-        {
-            GroundPlaneMesh.Vertices.PushBackEmpty(4);
+        if (!Light.IsOn) continue;
 
-            GroundPlaneMesh.Vertices[0].SetTextureCoord(0.0f, 1.0f); GroundPlaneMesh.Vertices[0].SetNormal(0.0f, 0.0f, 1.0f); GroundPlaneMesh.Vertices[0].SetTangent(1.0f, 0.0f, 0.0f); GroundPlaneMesh.Vertices[0].SetBiNormal(0.0f, -1.0f, 0.0f);
-            GroundPlaneMesh.Vertices[1].SetTextureCoord(0.0f, 0.0f); GroundPlaneMesh.Vertices[1].SetNormal(0.0f, 0.0f, 1.0f); GroundPlaneMesh.Vertices[1].SetTangent(1.0f, 0.0f, 0.0f); GroundPlaneMesh.Vertices[1].SetBiNormal(0.0f, -1.0f, 0.0f);
-            GroundPlaneMesh.Vertices[2].SetTextureCoord(1.0f, 0.0f); GroundPlaneMesh.Vertices[2].SetNormal(0.0f, 0.0f, 1.0f); GroundPlaneMesh.Vertices[2].SetTangent(1.0f, 0.0f, 0.0f); GroundPlaneMesh.Vertices[2].SetBiNormal(0.0f, -1.0f, 0.0f);
-            GroundPlaneMesh.Vertices[3].SetTextureCoord(1.0f, 1.0f); GroundPlaneMesh.Vertices[3].SetNormal(0.0f, 0.0f, 1.0f); GroundPlaneMesh.Vertices[3].SetTangent(1.0f, 0.0f, 0.0f); GroundPlaneMesh.Vertices[3].SetBiNormal(0.0f, -1.0f, 0.0f);
-        }
+        const float r=Light.Color.Red()/255.0f;
+        const float g=Light.Color.Green()/255.0f;
+        const float b=Light.Color.Blue()/255.0f;
 
-        const double r=400.0;
-        GroundPlaneMesh.Vertices[0].SetOrigin(-r, -r, ScenePropGrid->m_GroundPlane_zPos);
-        GroundPlaneMesh.Vertices[1].SetOrigin(-r,  r, ScenePropGrid->m_GroundPlane_zPos);
-        GroundPlaneMesh.Vertices[2].SetOrigin( r,  r, ScenePropGrid->m_GroundPlane_zPos);
-        GroundPlaneMesh.Vertices[3].SetOrigin( r, -r, ScenePropGrid->m_GroundPlane_zPos);
+        static MatSys::MeshT LightSourceMesh(MatSys::MeshT::Lines);
+        if (LightSourceMesh.Vertices.Size()==0) LightSourceMesh.Vertices.PushBackEmpty(6);
 
-        MatSys::Renderer->SetCurrentMaterial(ScenePropGrid->m_GroundPlane_Mat->GetRenderMaterial(true /*PreviewMode*/));
-        MatSys::Renderer->RenderMesh(GroundPlaneMesh);
+        LightSourceMesh.Vertices[0].SetOrigin(Light.Pos.x+50.0f, Light.Pos.y, Light.Pos.z); LightSourceMesh.Vertices[0].SetColor(r, g, b);
+        LightSourceMesh.Vertices[1].SetOrigin(Light.Pos.x-50.0f, Light.Pos.y, Light.Pos.z); LightSourceMesh.Vertices[1].SetColor(r, g, b);
+
+        LightSourceMesh.Vertices[2].SetOrigin(Light.Pos.x, Light.Pos.y+50.0f, Light.Pos.z); LightSourceMesh.Vertices[2].SetColor(r, g, b);
+        LightSourceMesh.Vertices[3].SetOrigin(Light.Pos.x, Light.Pos.y-50.0f, Light.Pos.z); LightSourceMesh.Vertices[3].SetColor(r, g, b);
+
+        LightSourceMesh.Vertices[4].SetOrigin(Light.Pos.x, Light.Pos.y, Light.Pos.z+50.0f); LightSourceMesh.Vertices[4].SetColor(r, g, b);
+        LightSourceMesh.Vertices[5].SetOrigin(Light.Pos.x, Light.Pos.y, Light.Pos.z-50.0f); LightSourceMesh.Vertices[5].SetColor(r, g, b);
+
+        MatSys::Renderer->SetCurrentMaterial(m_RMatWireframe);
+        MatSys::Renderer->RenderMesh(LightSourceMesh);
     }
 
-    // Render the model.
-    m_Parent->GetModelDoc()->GetModel()->Draw(0, 0.0f, 0.0f, NULL);
+    RenderPass();
 
 
+    // 2) For each light source, draw the dynamic lighting passes.
+    for (unsigned long LightNr=0; LightNr<ScenePropGrid->m_Lights.Size(); LightNr++)
+    {
+        const ScenePropGridT::LightT& Light=ScenePropGrid->m_Lights[LightNr];
+
+        if (!Light.IsOn) continue;
+
+        const float r=Light.Color.Red()/255.0f;
+        const float g=Light.Color.Green()/255.0f;
+        const float b=Light.Color.Blue()/255.0f;
+
+        // World-space and model-space are identical here, so we can directly set the world-space light source parameters as model-space parameters.
+        MatSys::Renderer->SetCurrentLightSourcePosition(Light.Pos.x, Light.Pos.y, Light.Pos.z);
+        MatSys::Renderer->SetCurrentLightSourceRadius(Light.Radius);
+        MatSys::Renderer->SetCurrentLightSourceDiffuseColor (r, g, b);
+        MatSys::Renderer->SetCurrentLightSourceSpecularColor(r, g, b);
+
+        // 2a) Draw stencil shadow pass.
+        if (Light.CastShadows)
+        {
+            MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::STENCILSHADOW);
+            RenderPass();
+        }
+
+        // 2b) Draw dynamic lighting pass.
+        MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::LIGHTING);
+        RenderPass();
+    }
+
+
+    // Finish rendering.
     MatSys::Renderer->EndFrame();
     SwapBuffers();
 }

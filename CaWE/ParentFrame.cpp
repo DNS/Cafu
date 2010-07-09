@@ -107,6 +107,7 @@ ParentFrameT::ParentFrameT()
 #endif
       m_GLCanvas(NULL),
       m_GLContext(NULL),
+      m_WhiteTexture(NULL),
       m_RendererDLL(NULL)
 {
     wxMenuBar *item0 = new wxMenuBar;
@@ -192,6 +193,7 @@ ParentFrameT::~ParentFrameT()
     }
 
     // Release the Cafu Material System.
+    MatSys::TextureMapManager->FreeTextureMap(m_WhiteTexture);
     MatSys::TextureMapManager=NULL;
 
     if (MatSys::Renderer!=NULL)
@@ -351,8 +353,10 @@ void ParentFrameT::OnShow(wxShowEvent& SE)
         char Data[]={ 255, 255, 255, 255, 255, 255, 0, 0,
                       255, 255, 255, 255, 255, 255, 0, 0 };
 
-        MatSys::Renderer->SetCurrentLightMap(MatSys::TextureMapManager->GetTextureMap2D(Data, 2, 2, 3, true, MapCompositionT(MapCompositionT::Linear, MapCompositionT::Linear)));
-        MatSys::Renderer->SetCurrentLightDirMap(NULL);      // The MatSys provides a default for LightDirMaps when NULL is set.
+        m_WhiteTexture=MatSys::TextureMapManager->GetTextureMap2D(Data, 2, 2, 3, true, MapCompositionT(MapCompositionT::Linear, MapCompositionT::Linear));
+
+        MatSys::Renderer->SetCurrentLightMap(m_WhiteTexture);
+        MatSys::Renderer->SetCurrentLightDirMap(NULL);  // The MatSys provides a default for LightDirMaps when NULL is set.
 
 
         // Initialize the GUI managager.
@@ -515,10 +519,10 @@ wxMDIChildFrame* ParentFrameT::OpenFile(GameConfigT* GameConfig, wxString FileNa
                 return new GuiEditor::ChildFrameT(this, FileName, new GuiEditor::GuiDocumentT(GameConfig, FileName));
             }
 
-            wxMessageBox("In order to load this GUI, please open the related file whose name ends with _init.cgui"
+            wxMessageBox("In order to load this GUI, please open the related file whose name ends with _init.cgui\n"
                          "(instead of "+FileName+").\n\n"
-                         "CaWE always deals with the *_init.cgui files, everything else is for your customizations"
-                         "(hand-written script code). This way the files never overwrite each other.", "*_init.gui file expected");
+                         "CaWE always deals with the *_init.cgui files, everything else is for your customizations (hand-written script code).\n"
+                         "This way the files never overwrite each other.", "*_init.gui file expected");
         }
 
         if (FileName.EndsWith(".map"))

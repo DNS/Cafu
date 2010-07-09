@@ -78,8 +78,8 @@ class MatrixT
     /// \name Named constructors.
     //@{
     static MatrixT GetProjOrthoMatrix(float left, float right, float bottom, float top, float zNear, float zFar);   ///< Returns a matrix for orthographic projection.
-    static MatrixT GetProjFrustumMatrix(float left, float right, float bottom, float top, float zNear, float zFar); ///< Returns a matrix for perspective projection.
-    static MatrixT GetProjPerspectiveMatrix(float fovY, float aspect, float zNear, float zFar);                     ///< Returns a matrix for perspective projection.
+    static MatrixT GetProjFrustumMatrix(float left, float right, float bottom, float top, float zNear, float zFar); ///< Returns a matrix for perspective projection. If zFar <= zNear, the far plane is assumed to be at infinity (a useful special case for stencil shadow projections).
+    static MatrixT GetProjPerspectiveMatrix(float fovY, float aspect, float zNear, float zFar);                     ///< Returns a matrix for perspective projection. If zFar <= zNear, the far plane is assumed to be at infinity (a useful special case for stencil shadow projections).
     static MatrixT GetProjPickMatrix(float x, float y, float width, float height, int viewport[4]);                 ///< Returns a matrix for picking, i.e. the same matrix that gluPickMatrix() uses.
 
     static MatrixT GetTranslateMatrix(const Vector3fT& t);              ///< Returns a translate matrix about t.
