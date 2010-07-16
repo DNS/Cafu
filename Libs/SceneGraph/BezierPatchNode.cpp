@@ -191,8 +191,8 @@ void BezierPatchNodeT::WriteTo(std::ostream& OutFile, aux::PoolT& Pool) const
 {
     aux::Write(OutFile, "BP");
 
-    aux::Write(OutFile, aux::cnc32(SizeX));
-    aux::Write(OutFile, aux::cnc32(SizeY));
+    aux::Write(OutFile, aux::cnc_ui32(SizeX));
+    aux::Write(OutFile, aux::cnc_ui32(SizeY));
 
     aux::Write(OutFile, (int32_t)SubdivsHorz);
     aux::Write(OutFile, (int32_t)SubdivsVert);

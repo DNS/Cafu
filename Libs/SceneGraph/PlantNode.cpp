@@ -81,7 +81,7 @@ void cf::SceneGraph::PlantNodeT::WriteTo(std::ostream& OutFile, aux::PoolT& Pool
     aux::Write(OutFile, "Plant");
 
     Pool.Write(OutFile, m_DescrFileName);
-    aux::Write(OutFile, aux::cnc32(m_RandomSeed));
+    aux::Write(OutFile, aux::cnc_ui32(m_RandomSeed));
     aux::Write(OutFile, m_Position);
     Pool.Write(OutFile, m_Angles);
 }

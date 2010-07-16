@@ -116,13 +116,13 @@ void TerrainNodeT::WriteTo(std::ostream& OutFile, aux::PoolT& /*Pool*/) const
 
     aux::Write(OutFile, BB.Min);
     aux::Write(OutFile, BB.Max);
-    aux::Write(OutFile, aux::cnc32(TerrainShareID));
+    aux::Write(OutFile, aux::cnc_ui32(TerrainShareID));
     aux::Write(OutFile, MaterialName);
 
-    aux::Write(OutFile, aux::cnc32(LightMap.Size()));
+    aux::Write(OutFile, aux::cnc_ui32(LightMap.Size()));
     for (unsigned long c=0; c<LightMap.Size(); c++) OutFile.write(&LightMap[c], sizeof(char));
 
-    aux::Write(OutFile, aux::cnc32(SHLMap.Size()));
+    aux::Write(OutFile, aux::cnc_ui32(SHLMap.Size()));
     for (unsigned long c=0; c<SHLMap.Size(); c++) OutFile.write((char*)&SHLMap[c], sizeof(float));
 }
 

@@ -180,34 +180,6 @@ void aux::Write(std::ostream& OutFile, const Vector3fT& v)
 }
 
 
-int32_t aux::cnc32(ptrdiff_t d)
-{
-    const int32_t c=static_cast<int32_t>(d);
-
-    assert(c==d);
-    if (c!=d) throw std::overflow_error("The cast in aux::cnc32(ptrdiff_t) caused a loss of data.");
-
-    return c;
-}
-
-
-uint32_t aux::cnc32(unsigned long int ui)
-{
-#if (ULONG_MAX==UINT32_MAX)
-    return ui;
-#elif (ULONG_MAX>UINT32_MAX)
-    const uint32_t c=static_cast<uint32_t>(ui);
-
-    assert(c==ui);
-    if (c!=ui) throw std::overflow_error("The cast in aux::cnc32(unsigned long int) caused a loss of data.");
-
-    return c;
-#else
-    #error "Unknown data model."
-#endif
-}
-
-
 /*************/
 /*** PoolT ***/
 /*************/

@@ -2050,7 +2050,7 @@ void CollisionModelStaticT::SaveToFile(std::ostream& OutFile, cf::SceneGraph::au
 
 
     // Write the vertices.
-    aux::Write(OutFile, aux::cnc32(m_Vertices.Size()));
+    aux::Write(OutFile, aux::cnc_ui32(m_Vertices.Size()));
 
     for (unsigned long VertexNr=0; VertexNr<m_Vertices.Size(); VertexNr++)
     {
@@ -2061,16 +2061,16 @@ void CollisionModelStaticT::SaveToFile(std::ostream& OutFile, cf::SceneGraph::au
 
 
     // Write the brush side vertex indices.
-    aux::Write(OutFile, aux::cnc32(m_BrushSideVIs.Size()));
+    aux::Write(OutFile, aux::cnc_ui32(m_BrushSideVIs.Size()));
 
     for (unsigned long viNr=0; viNr<m_BrushSideVIs.Size(); viNr++)
     {
-        aux::Write(OutFile, aux::cnc32(m_BrushSideVIs[viNr]));
+        aux::Write(OutFile, aux::cnc_ui32(m_BrushSideVIs[viNr]));
     }
 
 
     // Write the brush sides.
-    aux::Write(OutFile, aux::cnc32(m_BrushSides.Size()));
+    aux::Write(OutFile, aux::cnc_ui32(m_BrushSides.Size()));
 
     for (unsigned long SideNr=0; SideNr<m_BrushSides.Size(); SideNr++)
     {
@@ -2079,8 +2079,8 @@ void CollisionModelStaticT::SaveToFile(std::ostream& OutFile, cf::SceneGraph::au
         Pool.Write(OutFile, Side.Plane.Normal);
         aux::Write(OutFile, Side.Plane.Dist);
 
-        aux::Write(OutFile, aux::cnc32(Side.Vertices-&m_BrushSideVIs[0]));  // Index of first vertex index in m_BrushSideVIs.
-        aux::Write(OutFile, aux::cnc32(Side.NrOfVertices));
+        aux::Write(OutFile, aux::cnc_i32(Side.Vertices-&m_BrushSideVIs[0]));    // Index of first vertex index in m_BrushSideVIs.
+        aux::Write(OutFile, aux::cnc_ui32(Side.NrOfVertices));
 
         Pool.Write(OutFile, Side.Material ? Side.Material->Name : "");  // Side.Material==NULL can occur when m_GenericBrushes==false.
     }
@@ -2088,14 +2088,14 @@ void CollisionModelStaticT::SaveToFile(std::ostream& OutFile, cf::SceneGraph::au
 
     // Write the brushes.
     aux::Write(OutFile, int32_t(m_GenericBrushes));
-    aux::Write(OutFile, aux::cnc32(m_Brushes.Size()));
+    aux::Write(OutFile, aux::cnc_ui32(m_Brushes.Size()));
 
     for (unsigned long BrushNr=0; BrushNr<m_Brushes.Size(); BrushNr++)
     {
         const BrushT& Brush=m_Brushes[BrushNr];
 
-        aux::Write(OutFile, aux::cnc32(Brush.Sides-&m_BrushSides[0]));  // Index of first side in m_BrushSides.
-        aux::Write(OutFile, aux::cnc32(Brush.NrOfSides));
+        aux::Write(OutFile, aux::cnc_i32(Brush.Sides-&m_BrushSides[0]));    // Index of first side in m_BrushSides.
+        aux::Write(OutFile, aux::cnc_ui32(Brush.NrOfSides));
 
 #if 0
         // Dependent information that is not saved to disk, but recomputed on demand.
@@ -2120,14 +2120,14 @@ void CollisionModelStaticT::SaveToFile(std::ostream& OutFile, cf::SceneGraph::au
 
 
     // Write the polygons.
-    aux::Write(OutFile, aux::cnc32(m_Polygons.Size()));
+    aux::Write(OutFile, aux::cnc_ui32(m_Polygons.Size()));
 
     for (unsigned long PolyNr=0; PolyNr<m_Polygons.Size(); PolyNr++)
     {
         const PolygonT& Polygon=m_Polygons[PolyNr];
 
         for (unsigned long VertexNr=0; VertexNr<4; VertexNr++)
-            aux::Write(OutFile, aux::cnc32(Polygon.Vertices[VertexNr]));
+            aux::Write(OutFile, aux::cnc_ui32(Polygon.Vertices[VertexNr]));
 
         Pool.Write(OutFile, Polygon.Material ? Polygon.Material->Name : "");
     }
@@ -2145,17 +2145,17 @@ void CollisionModelStaticT::SaveToFile(std::ostream& OutFile, cf::SceneGraph::au
         OutFile.write((char*)&CurrentNode->PlaneType, sizeof(CurrentNode->PlaneType));
         OutFile.write((char*)&CurrentNode->PlaneDist, sizeof(CurrentNode->PlaneDist));
 
-        aux::Write(OutFile, aux::cnc32(CurrentNode->Polygons.Size()));
+        aux::Write(OutFile, aux::cnc_ui32(CurrentNode->Polygons.Size()));
         for (unsigned long PolyNr=0; PolyNr<CurrentNode->Polygons.Size(); PolyNr++)
-            aux::Write(OutFile, aux::cnc32(CurrentNode->Polygons[PolyNr]-&m_Polygons[0]));      // Index of polygon in m_Polygons.
+            aux::Write(OutFile, aux::cnc_i32(CurrentNode->Polygons[PolyNr]-&m_Polygons[0]));    // Index of polygon in m_Polygons.
 
-        aux::Write(OutFile, aux::cnc32(CurrentNode->Brushes.Size()));
+        aux::Write(OutFile, aux::cnc_ui32(CurrentNode->Brushes.Size()));
         for (unsigned long BrushNr=0; BrushNr<CurrentNode->Brushes.Size(); BrushNr++)
-            aux::Write(OutFile, aux::cnc32(CurrentNode->Brushes[BrushNr]-&m_Brushes[0]));       // Index of brush in m_Brushes.
+            aux::Write(OutFile, aux::cnc_i32(CurrentNode->Brushes[BrushNr]-&m_Brushes[0]));     // Index of brush in m_Brushes.
 
-        aux::Write(OutFile, aux::cnc32(CurrentNode->Terrains.Size()));
+        aux::Write(OutFile, aux::cnc_ui32(CurrentNode->Terrains.Size()));
         for (unsigned long TerrainNr=0; TerrainNr<CurrentNode->Terrains.Size(); TerrainNr++)
-            aux::Write(OutFile, aux::cnc32(CurrentNode->Terrains[TerrainNr]-&m_Terrains[0]));   // Index of terrain in m_Terrains.
+            aux::Write(OutFile, aux::cnc_i32(CurrentNode->Terrains[TerrainNr]-&m_Terrains[0])); // Index of terrain in m_Terrains.
 
         if (CurrentNode->PlaneType!=NodeT::NONE)
         {

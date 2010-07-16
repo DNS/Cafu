@@ -213,54 +213,54 @@ void BspTreeNodeT::WriteTo(std::ostream& OutFile, aux::PoolT& Pool) const
     aux::Write(OutFile, "BspTree");
 
     // Write the FaceChildren.
-    aux::Write(OutFile, aux::cnc32(FaceChildren.Size()));
+    aux::Write(OutFile, aux::cnc_ui32(FaceChildren.Size()));
     for (unsigned long ChildNr=0; ChildNr<FaceChildren.Size(); ChildNr++)
         FaceChildren[ChildNr]->WriteTo(OutFile, Pool);
 
     // Write the OtherChildren.
-    aux::Write(OutFile, aux::cnc32(OtherChildren.Size()));
+    aux::Write(OutFile, aux::cnc_ui32(OtherChildren.Size()));
     for (unsigned long ChildNr=0; ChildNr<OtherChildren.Size(); ChildNr++)
         OtherChildren[ChildNr]->WriteTo(OutFile, Pool);
 
     // Write GlobalDrawVertices.
-    aux::Write(OutFile, aux::cnc32(GlobalDrawVertices.Size()));
+    aux::Write(OutFile, aux::cnc_ui32(GlobalDrawVertices.Size()));
     for (unsigned long VertexNr=0; VertexNr<GlobalDrawVertices.Size(); VertexNr++)
         Pool.Write(OutFile, GlobalDrawVertices[VertexNr]);
 
     // Write the BSP nodes.
-    aux::Write(OutFile, aux::cnc32(Nodes.Size()));
+    aux::Write(OutFile, aux::cnc_ui32(Nodes.Size()));
     for (unsigned long NodeNr=0; NodeNr<Nodes.Size(); NodeNr++)
     {
         Pool.Write(OutFile, Nodes[NodeNr].Plane.Normal);
         OutFile.write((char*)&Nodes[NodeNr].Plane.Dist, sizeof(Nodes[NodeNr].Plane.Dist));
 
-        aux::Write(OutFile, aux::cnc32(Nodes[NodeNr].FrontChild));
-        aux::Write(OutFile, aux::cnc32(Nodes[NodeNr]. BackChild));
+        aux::Write(OutFile, aux::cnc_ui32(Nodes[NodeNr].FrontChild));
+        aux::Write(OutFile, aux::cnc_ui32(Nodes[NodeNr]. BackChild));
         OutFile.write((char*)&Nodes[NodeNr].FrontIsLeaf, sizeof(Nodes[NodeNr].FrontIsLeaf));
         OutFile.write((char*)&Nodes[NodeNr]. BackIsLeaf, sizeof(Nodes[NodeNr]. BackIsLeaf));
     }
 
     // Write the BSP leaves.
-    aux::Write(OutFile, aux::cnc32(Leaves.Size()));
+    aux::Write(OutFile, aux::cnc_ui32(Leaves.Size()));
     for (unsigned long LeafNr=0; LeafNr<Leaves.Size(); LeafNr++)
     {
         const LeafT& L=Leaves[LeafNr];
 
-        aux::Write(OutFile, aux::cnc32(L.FaceChildrenSet.Size()));
+        aux::Write(OutFile, aux::cnc_ui32(L.FaceChildrenSet.Size()));
         for (unsigned long ChildNr=0; ChildNr<L.FaceChildrenSet.Size(); ChildNr++)
-            aux::Write(OutFile, aux::cnc32(L.FaceChildrenSet[ChildNr]));
+            aux::Write(OutFile, aux::cnc_ui32(L.FaceChildrenSet[ChildNr]));
 
-        aux::Write(OutFile, aux::cnc32(L.OtherChildrenSet.Size()));
+        aux::Write(OutFile, aux::cnc_ui32(L.OtherChildrenSet.Size()));
         for (unsigned long ChildNr=0; ChildNr<L.OtherChildrenSet.Size(); ChildNr++)
-            aux::Write(OutFile, aux::cnc32(L.OtherChildrenSet[ChildNr]));
+            aux::Write(OutFile, aux::cnc_ui32(L.OtherChildrenSet[ChildNr]));
 
-        aux::Write(OutFile, aux::cnc32(L.Portals.Size()));
+        aux::Write(OutFile, aux::cnc_ui32(L.Portals.Size()));
         for (unsigned long PortalNr=0; PortalNr<L.Portals.Size(); PortalNr++)
         {
             Pool.Write(OutFile, L.Portals[PortalNr].Plane.Normal);
             OutFile.write((char*)&L.Portals[PortalNr].Plane.Dist, sizeof(L.Portals[PortalNr].Plane.Dist));
 
-            aux::Write(OutFile, aux::cnc32(L.Portals[PortalNr].Vertices.Size()));
+            aux::Write(OutFile, aux::cnc_ui32(L.Portals[PortalNr].Vertices.Size()));
             for (unsigned long VertexNr=0; VertexNr<L.Portals[PortalNr].Vertices.Size(); VertexNr++)
                 Pool.Write(OutFile, L.Portals[PortalNr].Vertices[VertexNr]);
         }

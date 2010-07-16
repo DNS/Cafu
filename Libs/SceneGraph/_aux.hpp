@@ -94,15 +94,35 @@ namespace cf
             void Write(std::ostream& OutFile, const Vector3fT& v);
 
 
-            /// Converts the given ptrdiff_t to int32_t and checks for overflow caused by the conversion ("cnc" is short for "cast and check").
-            /// On ILP32 (and LLP64) systems, both ptrdiff_t and int32_t are int or long int. Thus we have sizeof(ptrdiff_t)==sizeof(int32_t)==4,
-            ///     so the conversion is trivial and overflow cannot occur.
-            /// On LP64 (quasi all 64-bit Unix and Linux) systems, sizeof(ptrdiff_t)==8 and sizeof(int32_t)==4, so the cast may lose data.
-            ///     On overflow, the function triggers an assertion in debug builds and then throws an std::overflow_error in all builds.
-            int32_t cnc32(ptrdiff_t d);
+            /// This function casts the given integer i to an int32_t, and checks that the returned int32_t has the same value as i.
+            /// If the check fails (the value of i overflows the int32_t), the function triggers an assertion in debug builds and
+            /// throws an std::overflow_error in all builds.
+            /// The function is intended for use in cross-platform (ILP32, LLP64, LP64) serialization code where sizeof(i) can be 4 or 8,
+            /// and i should be written as a 4-byte value in order to be readable on all platforms.
+            template<class T> int32_t cnc_i32(T i)
+            {
+                assert(sizeof(i)>=4);   // If this ever fails, it is more a curiosity than a real issue.
 
-            /// Just like cnc32(long int i), but for unsigned long ints.
-            uint32_t cnc32(unsigned long int ui);
+                const int32_t i32=static_cast<int32_t>(i);
+
+                assert(i32==i);
+                if (i32!=i) throw std::overflow_error("The cast in aux::cnc_i32() caused a loss of data.");
+
+                return i32;
+            }
+
+            /// Just like cnc_i32(), but for unsigned integers that are cast to uint32_t.
+            template<class T> uint32_t cnc_ui32(T ui)
+            {
+                assert(sizeof(ui)>=4);  // If this ever fails, it is more a curiosity than a real issue.
+
+                const uint32_t ui32=static_cast<uint32_t>(ui);
+
+                assert(ui32==ui);
+                if (ui32!=ui) throw std::overflow_error("The cast in aux::cnc_ui32() caused a loss of data.");
+
+                return ui32;
+            }
 
 
             class PoolT

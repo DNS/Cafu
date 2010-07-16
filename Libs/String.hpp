@@ -33,8 +33,8 @@ namespace cf
     {
         inline bool EndsWith(const std::string& String, const std::string& Suffix)
         {
-            const int StringLength=String.length();
-            const int SuffixLength=Suffix.length();
+            const size_t StringLength=String.length();
+            const size_t SuffixLength=Suffix.length();
 
             if (StringLength<SuffixLength) return false;
 

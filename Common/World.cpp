@@ -86,7 +86,7 @@ void SharedTerrainT::WriteTo(std::ostream& OutFile) const
 
     aux::Write(OutFile, BB.Min);
     aux::Write(OutFile, BB.Max);
-    aux::Write(OutFile, aux::cnc32(SideLength));
+    aux::Write(OutFile, aux::cnc_ui32(SideLength));
     aux::Write(OutFile, Material->Name);    // There are only few terrains, no need for the Pool here.
 
     for (unsigned long i=0; i<HeightData.Size(); i++)
@@ -172,7 +172,7 @@ WorldT::WorldT(const char* FileName, ProgressFunctionT ProgressFunction) /*throw
 
     // Determine the size of the input file.
     InFile.seekg(0, std::ios::end);
-    const unsigned long InFileSize=InFile.tellg();
+    const std::streampos InFileSize=InFile.tellg();
     InFile.seekg(0, std::ios::beg);
     if (ProgressFunction) ProgressFunction(float(InFile.tellg())/float(InFileSize), "Opening file.");
 
@@ -344,7 +344,7 @@ void WorldT::SaveToDisk(const char* FileName) const /*throw (SaveErrorT)*/
 
 
     // Write the shared terrain data.
-    cf::SceneGraph::aux::Write(OutFile, cf::SceneGraph::aux::cnc32(Terrains.Size()));
+    cf::SceneGraph::aux::Write(OutFile, cf::SceneGraph::aux::cnc_ui32(Terrains.Size()));
     for (unsigned long TerrainNr=0; TerrainNr<Terrains.Size(); TerrainNr++)
         Terrains[TerrainNr]->WriteTo(OutFile);
 
@@ -361,7 +361,7 @@ void WorldT::SaveToDisk(const char* FileName) const /*throw (SaveErrorT)*/
 
 
     // 3. Write InfoPlayerStarts
-    cf::SceneGraph::aux::Write(OutFile, cf::SceneGraph::aux::cnc32(InfoPlayerStarts.Size()));
+    cf::SceneGraph::aux::Write(OutFile, cf::SceneGraph::aux::cnc_ui32(InfoPlayerStarts.Size()));
     for (unsigned long IPSNr=0; IPSNr<InfoPlayerStarts.Size(); IPSNr++)
     {
         const InfoPlayerStartT& IPS=InfoPlayerStarts[IPSNr];
@@ -375,7 +375,7 @@ void WorldT::SaveToDisk(const char* FileName) const /*throw (SaveErrorT)*/
     }
 
     // Write Map PointLights
-    cf::SceneGraph::aux::Write(OutFile, cf::SceneGraph::aux::cnc32(PointLights.Size()));
+    cf::SceneGraph::aux::Write(OutFile, cf::SceneGraph::aux::cnc_ui32(PointLights.Size()));
     for (unsigned long PLNr=0; PLNr<PointLights.Size(); PLNr++)
     {
         const PointLightT& PL=PointLights[PLNr];
@@ -393,16 +393,16 @@ void WorldT::SaveToDisk(const char* FileName) const /*throw (SaveErrorT)*/
     }
 
     // 5. Write GameEntities
-    cf::SceneGraph::aux::Write(OutFile, cf::SceneGraph::aux::cnc32(GameEntities.Size()));
+    cf::SceneGraph::aux::Write(OutFile, cf::SceneGraph::aux::cnc_ui32(GameEntities.Size()));
     for (unsigned long GENr=0; GENr<GameEntities.Size(); GENr++)
     {
         const GameEntityT* GE=GameEntities[GENr];
 
         // Write the how many-th entity in the map file this game entity corresponds to.
-        cf::SceneGraph::aux::Write(OutFile, cf::SceneGraph::aux::cnc32(GE->MFIndex));
+        cf::SceneGraph::aux::Write(OutFile, cf::SceneGraph::aux::cnc_ui32(GE->MFIndex));
 
         // Write the shared terrain data.
-        cf::SceneGraph::aux::Write(OutFile, cf::SceneGraph::aux::cnc32(GE->Terrains.Size()));
+        cf::SceneGraph::aux::Write(OutFile, cf::SceneGraph::aux::cnc_ui32(GE->Terrains.Size()));
         for (unsigned long TerrainNr=0; TerrainNr<GE->Terrains.Size(); TerrainNr++)
             GE->Terrains[TerrainNr]->WriteTo(OutFile);
 
@@ -421,9 +421,7 @@ void WorldT::SaveToDisk(const char* FileName) const /*throw (SaveErrorT)*/
         OutFile.write((char*)&GE->Origin.z, sizeof(GE->Origin.z));
 
         // Write the property pairs.
-        const unsigned long PropsSize=GE->Properties.size();    // Cast needed to disambiguate the cnc32() call below when size_type is unsigned int.
-
-        cf::SceneGraph::aux::Write(OutFile, cf::SceneGraph::aux::cnc32(PropsSize));
+        cf::SceneGraph::aux::Write(OutFile, cf::SceneGraph::aux::cnc_ui32(GE->Properties.size()));
         for (std::map<std::string, std::string>::const_iterator It=GE->Properties.begin(); It!=GE->Properties.end(); ++It)
         {
             cf::SceneGraph::aux::Write(OutFile, It->first );

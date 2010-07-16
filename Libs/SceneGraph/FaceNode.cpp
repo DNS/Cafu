@@ -494,7 +494,7 @@ void FaceNodeT::WriteTo(std::ostream& OutFile, aux::PoolT& Pool) const
     Pool.Write(OutFile, Polygon.Plane.Normal);
     OutFile.write((char*)&Polygon.Plane.Dist, sizeof(Polygon.Plane.Dist));
 
-    aux::Write(OutFile, aux::cnc32(Polygon.Vertices.Size()));
+    aux::Write(OutFile, aux::cnc_ui32(Polygon.Vertices.Size()));
     for (unsigned long VertexNr=0; VertexNr<Polygon.Vertices.Size(); VertexNr++)
         Pool.Write(OutFile, Polygon.Vertices[VertexNr]);
 
@@ -565,9 +565,9 @@ void FaceNodeT::WriteTo(std::ostream& OutFile, aux::PoolT& Pool) const
     }
 
     // DrawIndices
-    aux::Write(OutFile, aux::cnc32(DrawIndices.Size()));
+    aux::Write(OutFile, aux::cnc_ui32(DrawIndices.Size()));
     for (unsigned long IndexNr=0; IndexNr<DrawIndices.Size(); IndexNr++)
-        aux::Write(OutFile, aux::cnc32(DrawIndices[IndexNr]));
+        aux::Write(OutFile, aux::cnc_ui32(DrawIndices[IndexNr]));
 }
 
 
