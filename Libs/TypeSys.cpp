@@ -77,6 +77,18 @@ void TypeInfoT::Print(bool Recurse, unsigned long RecDepth) const
 }
 
 
+bool TypeInfoT::HierarchyHas(const TypeInfoT* Other) const
+{
+    while (Other)
+    {
+        if (Other==this) return true;
+        Other=Other->Base;
+    }
+
+    return false;
+}
+
+
 const TypeInfoT* TypeInfoT::GetNext() const
 {
     if (Child) return Child;

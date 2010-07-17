@@ -88,6 +88,10 @@ namespace cf
             /// @param RecDepth   The current recursion depth. This is for the methods internal use - user code should never pass it.
             void Print(bool Recurse=true, unsigned long RecDepth=0) const;
 
+            /// Determines whether the other given type info is in the inheritance tree of this type
+            /// (this method roughly corresponds to dynamic_cast<>() in C++).
+            bool HierarchyHas(const TypeInfoT* Other) const;
+
             /// Returns the next type info in the hierarchy.
             const TypeInfoT* GetNext() const;
 

@@ -1531,11 +1531,11 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
     {
         MapElementT* Elem=m_Selection[SelNr];
 
-        if (Elem->GetType()==&MapEntityT::TypeInfo)
+        if (MapEntityT::TypeInfo.HierarchyHas(Elem->GetType()))
         {
             SelEntities.PushBack(static_cast<MapEntityT*>(Elem));
         }
-        else if (Elem->GetType()==&MapPrimitiveT::TypeInfo)
+        else if (MapPrimitiveT::TypeInfo.HierarchyHas(Elem->GetType()))
         {
             SelPrimitives.PushBack(static_cast<MapPrimitiveT*>(Elem));
         }
@@ -1604,7 +1604,7 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
         // 2. Assign the primitives to the new entity.
         CommandAssignPrimToEntT* CmdAssignToEnt=new CommandAssignPrimToEntT(*this, SelPrimitives, CmdNewEnt->GetEntity());
 
-        CmdNewEnt->Do();
+        CmdAssignToEnt->Do();
         SubCommands.PushBack(CmdAssignToEnt);
 
         // 3. Submit the composite macro command.

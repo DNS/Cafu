@@ -739,7 +739,7 @@ void ToolSelectionT::RenderTool2D(Renderer2DT& Renderer) const
 
                 for (unsigned long SelNr=0; SelNr<Selection.Size(); SelNr++)
                 {
-                    if (Selection[SelNr]->GetType()==&MapPrimitiveT::TypeInfo)
+                    if (MapPrimitiveT::TypeInfo.HierarchyHas(Selection[SelNr]->GetType()))
                     {
                         Count++;
                         continue;
@@ -973,8 +973,11 @@ void ToolSelectionT::GetToggleEffects(MapElementT* Elem, ArrayT<MapElementT*>& R
 {
     MapEntityT* Entity=NULL;
 
-         if (Elem->GetType()==&MapEntityT::TypeInfo) Entity=static_cast<MapEntityT*>(Elem);
-    else if (Elem->GetType()==&MapPrimitiveT::TypeInfo)
+    if (MapEntityT::TypeInfo.HierarchyHas(Elem->GetType()))
+    {
+        Entity=static_cast<MapEntityT*>(Elem);
+    }
+    else if (MapPrimitiveT::TypeInfo.HierarchyHas(Elem->GetType()))
     {
         MapPrimitiveT* Prim=static_cast<MapPrimitiveT*>(Elem);
 
