@@ -124,7 +124,7 @@ void FontT::AccPrint(int PosX, int PosY, unsigned long Color, const char* PrintS
 
     static MatSys::MeshT TextMesh(MatSys::MeshT::Quads);
     TextMesh.Vertices.Overwrite();
-    TextMesh.Vertices.PushBackEmpty(4*strlen(PrintBuffer));
+    TextMesh.Vertices.PushBackEmpty((unsigned long)(4*strlen(PrintBuffer)));
 
     for (unsigned long c=0; PrintBuffer[c]; c++)
     {

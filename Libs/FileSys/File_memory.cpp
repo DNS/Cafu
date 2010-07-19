@@ -52,7 +52,7 @@ const std::string& MemoryInFileT::GetFullName() const
 }
 
 
-unsigned long MemoryInFileT::GetPos() const
+size_t MemoryInFileT::GetPos() const
 {
     return ReadPos;
 }
@@ -90,7 +90,7 @@ bool MemoryInFileT::Seek(int Offset, SeekFromT SeekFrom)
 }
 
 
-unsigned long MemoryInFileT::Read(char* ToBuffer, unsigned long Size)
+size_t MemoryInFileT::Read(char* ToBuffer, size_t Size)
 {
     if (ReadPos>=Buffer.Size()) return 0;
 
@@ -99,13 +99,13 @@ unsigned long MemoryInFileT::Read(char* ToBuffer, unsigned long Size)
     if (Size>BytesLeft) Size=BytesLeft;
 
     memcpy(ToBuffer, &Buffer[ReadPos], Size);
-    ReadPos+=Size;
+    ReadPos+=(unsigned long)Size;
 
     return Size;
 }
 
 
-unsigned long MemoryInFileT::GetSize() const
+size_t MemoryInFileT::GetSize() const
 {
     return Buffer.Size();
 }

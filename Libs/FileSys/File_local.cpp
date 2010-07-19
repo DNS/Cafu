@@ -60,7 +60,7 @@ const std::string& LocalInFileT::GetFullName() const
 }
 
 
-unsigned long LocalInFileT::GetPos() const
+size_t LocalInFileT::GetPos() const
 {
     return ifs.tellg();
 }
@@ -84,7 +84,7 @@ bool LocalInFileT::Seek(int Offset, SeekFromT SeekFrom)
 }
 
 
-unsigned long LocalInFileT::Read(char* Buffer, unsigned long Size)
+size_t LocalInFileT::Read(char* Buffer, size_t Size)
 {
     ifs.read(Buffer, Size);
 
@@ -92,18 +92,15 @@ unsigned long LocalInFileT::Read(char* Buffer, unsigned long Size)
 }
 
 
-unsigned long LocalInFileT::GetSize() const
+size_t LocalInFileT::GetSize() const
 {
-    const int CurPos=ifs.tellg();
+    const size_t CurPos=ifs.tellg();
     ifs.seekg(0, std::ios::end);
-    const int EndPos=ifs.tellg();
+    const size_t EndPos=ifs.tellg();
     ifs.seekg(CurPos, std::ios::beg);
 
     return EndPos;
 }
-
-
-
 
 
 
@@ -142,7 +139,7 @@ const std::string& LocalOutFileT::GetFullName() const
 }
 
 
-unsigned long LocalOutFileT::GetPos() const
+size_t LocalOutFileT::GetPos() const
 {
     return ofs.tellp();
 }
@@ -161,7 +158,7 @@ bool LocalOutFileT::Seek(int Offset, SeekFromT SeekFrom)
 }
 
 
-void LocalOutFileT::Write(const char* Buffer, unsigned long Size)
+void LocalOutFileT::Write(const char* Buffer, size_t Size)
 {
     ofs.write(Buffer, Size);
 }

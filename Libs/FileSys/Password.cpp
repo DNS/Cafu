@@ -61,7 +61,7 @@ ArrayT<unsigned char> cf::Password::GenerateObfuscationString(unsigned long Leng
 
     while (Result.Size()<Length)
     {
-        unsigned char AsciiChar=(mtr.randInt(7)!=0) ? (unsigned char)mtr.randInt() : SomeString[mtr.randInt(SomeString.length()-1)];
+        unsigned char AsciiChar=(mtr.randInt(7)!=0) ? (unsigned char)mtr.randInt() : SomeString[mtr.randInt((MTRand::uint32)SomeString.length()-1)];
 
         Result.PushBack(AsciiChar);
     }

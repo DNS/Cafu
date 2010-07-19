@@ -48,7 +48,7 @@ void jpeg_FileSys_src(j_decompress_ptr cinfo, cf::FileSys::InFileI* JpegFile_);
 static void MyFileSysBasedPngReadFunction(png_structp png_ptr, png_bytep data, png_size_t length)
 {
     cf::FileSys::InFileI* PngFile  =static_cast<cf::FileSys::InFileI*>(png_get_io_ptr(png_ptr));
-    const unsigned long   BytesRead=PngFile->Read((char*)data, length);
+    const size_t          BytesRead=PngFile->Read((char*)data, length);
 
     if (BytesRead<length) png_error(png_ptr, "Read Error");
 }

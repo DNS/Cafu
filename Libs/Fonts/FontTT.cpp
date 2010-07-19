@@ -184,11 +184,11 @@ float TrueTypeFontT::GetWidth(const std::string& Text, float Scale) const
     const FontInfoT& fi=GetFontInfo(Scale);
 
     const float   s=Scale*DEFAULT_FONT_SCALE/fi.SizeInPixels;   // Compute the "total" scale.
-    const int     l=Text.length();
+    const size_t  l=Text.length();
     float         w=0.0f;
     unsigned long PrevGI=0;                                     // Glyph index of the previous character.
 
-    for (int i=0; i<l; i++)
+    for (size_t i=0; i<l; i++)
     {
         const unsigned long ThisGI=fi.CharToGlyphIndex[Text[i]];
 

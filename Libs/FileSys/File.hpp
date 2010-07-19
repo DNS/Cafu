@@ -53,7 +53,7 @@ namespace cf
             virtual const std::string& GetFullName() const=0;
 
             /// Returns the current read/write position in the file.
-            virtual unsigned long GetPos() const=0;
+            virtual size_t GetPos() const=0;
 
             /// Modifies the position of the read/write pointer in the file.
             /// @param Offset     How much to move the pointer.
@@ -69,10 +69,10 @@ namespace cf
 
             /// Reads Size bytes into the Buffer.
             /// @returns How many bytes have actually been read.
-            virtual unsigned long Read(char* Buffer, unsigned long Size)=0;
+            virtual size_t Read(char* Buffer, size_t Size)=0;
 
             /// Returns the size of the file.
-            virtual unsigned long GetSize() const=0;
+            virtual size_t GetSize() const=0;
         };
 
 
@@ -81,7 +81,7 @@ namespace cf
             public:
 
             /// Writes the contents of Buffer, which has size Size, into the file.
-            virtual void Write(const char* Buffer, unsigned long Size)=0;
+            virtual void Write(const char* Buffer, size_t Size)=0;
         };
     }
 }
