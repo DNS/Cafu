@@ -54,9 +54,9 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
         while (!TP.IsAtEOF()) ComponentFiles.PushBack(TP.GetNextToken());
         if (ComponentFiles.Size()<1) throw ModelT::LoadError();
 
-        int PrefixLength=m_FileName.length()-1;
-        while (PrefixLength>=0 && m_FileName[PrefixLength]!='/' && m_FileName[PrefixLength]!='\\') PrefixLength--;
-        const std::string Prefix=std::string(m_FileName, 0, PrefixLength+1);
+        size_t PrefixLength=m_FileName.length();
+        while (PrefixLength>0 && m_FileName[PrefixLength-1]!='/' && m_FileName[PrefixLength-1]!='\\') PrefixLength--;
+        const std::string Prefix=std::string(m_FileName, 0, PrefixLength);
 
         for (unsigned long FileNr=0; FileNr<ComponentFiles.Size(); FileNr++)
         {

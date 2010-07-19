@@ -218,7 +218,7 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT MessageID, WPARAM wParam, LPARAM lParam
             CaKeyboardEventT CKE;
 
             CKE.Type=CaKeyboardEventT::CKE_CHAR;
-            CKE.Key =wParam;
+            CKE.Key =int(wParam);
 
             // Store the event in the event queue.
             if (SingleWin.CKE_Queue_Size<CKE_QUEUE_MAX)

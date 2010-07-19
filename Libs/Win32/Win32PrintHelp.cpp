@@ -73,7 +73,7 @@ void EnqueueString(const char* String, ...)
     FullString[sizeof(FullString)-1]=0;
 
     QueueEnd.PushBackEmpty();
-    QueueEnd[QueueEnd.Size()-1].PushBackEmpty(strlen(FullString)+1);
+    QueueEnd[QueueEnd.Size()-1].PushBackEmpty((unsigned long)(strlen(FullString)+1));
     strcpy(&QueueEnd[QueueEnd.Size()-1][0], FullString);
 }
 

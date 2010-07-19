@@ -259,7 +259,7 @@ ModelMdlT::ModelMdlT(const std::string& FileName_) /*throw (ModelT::LoadError)*/
         for (unsigned long i=0; i<MaterialName.length(); i++) if (MaterialName.at(i)=='\\') MaterialName.at(i)='/';
 
         // Strip any extension.
-        for (unsigned long i=MaterialName.length(); i>0; i--)
+        for (size_t i=MaterialName.length(); i>0; i--)
         {
             if (MaterialName.at(i-1)=='/') break;
 

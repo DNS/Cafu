@@ -150,10 +150,10 @@ void aux::Write(std::ostream& OutFile, double d)
 
 void aux::Write(std::ostream& OutFile, const std::string& Str)
 {
-    unsigned long len=Str.length();
+    const size_t len=Str.length();
     char c;
 
-    for (unsigned long i=0; i<len; i++)
+    for (size_t i=0; i<len; i++)
     {
         c=Str[i];
         OutFile.write(&c, sizeof(c));
@@ -262,7 +262,7 @@ void aux::PoolT::Write(std::ostream& OutFile, const std::string& s)
     else
     {
         // s is not yet an element of WriteStrings.
-        uint32_t i=WriteStrings.size();
+        uint32_t i=aux::cnc_ui32(WriteStrings.size());
         OutFile.write((char*)&i, sizeof(i));
 
         // WARNING: Writing something like WriteStrings[s]=WriteStrings.size(); here would be a bad mistake!
@@ -286,7 +286,7 @@ void aux::PoolT::Write(std::ostream& OutFile, const Vector3T<double>& v)
     else
     {
         // v is not yet an element of WriteVectors3d.
-        uint32_t i=WriteVectors3d.size();
+        uint32_t i=aux::cnc_ui32(WriteVectors3d.size());
         OutFile.write((char*)&i, sizeof(i));
 
         // WARNING: Writing something like WriteVectors3d[v]=WriteVectors3d.size(); here would be a bad mistake!
@@ -313,7 +313,7 @@ void aux::PoolT::Write(std::ostream& OutFile, const Vector3T<float>& v)
     else
     {
         // v is not yet an element of WriteVectors3f.
-        uint32_t i=WriteVectors3f.size();
+        uint32_t i=aux::cnc_ui32(WriteVectors3f.size());
         OutFile.write((char*)&i, sizeof(i));
 
         // WARNING: Writing something like WriteVectors3f[v]=WriteVectors3f.size(); here would be a bad mistake!

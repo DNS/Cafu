@@ -58,11 +58,11 @@ ModelDlodT::ModelDlodT(const std::string& FileName_) /*throw (ModelT::LoadError)
     {
         // The LodModelNames are specified relative to the parent file name,
         // thus extract the path portion from FileName and prepend it to the LodModelNames.
-        int i=FileName.length()-1;
+        size_t i=FileName.length();
 
-        while (i>=0 && FileName[i]!='/' && FileName[i]!='\\') i--;
+        while (i>0 && FileName[i-1]!='/' && FileName[i-1]!='\\') i--;
 
-        LodModels.PushBack(ModelProxyT(std::string(FileName, 0, i+1)+LodModelNames[LodModelNr]));
+        LodModels.PushBack(ModelProxyT(std::string(FileName, 0, i)+LodModelNames[LodModelNr]));
     }
 }
 
