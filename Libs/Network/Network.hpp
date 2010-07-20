@@ -47,6 +47,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Templates/Array.hpp"
 
+#ifdef _WIN32
+#include "pstdint.h"            // Paul Hsieh's portable implementation of the stdint.h header.
+#else
+#include <stdint.h>
+#endif
+
 
 /// Network error (all other exceptions of this library derive from this one).
 struct NetworkError { };
@@ -266,25 +272,25 @@ class NetDataT
         return ntohs(w);
     }
 
-    /// Reads one LongWord (32 Bit) from the data buffer.
-    /// @return LongWord read.
-    unsigned long ReadLong()
+    /// Reads one uint32_t from the data buffer.
+    /// @return The read unsigned integer.
+    uint32_t ReadLong()
     {
         if (ReadPos+4>Data.Size()) { ReadOfl=true; return 0; }
 
-        unsigned long l=*(unsigned long*)&Data[ReadPos];
+        const uint32_t ui=*(uint32_t*)&Data[ReadPos];
 
         ReadPos+=4;
-        return ntohl(l);
+        return ntohl(ui);
     }
 
     /// Reads one Float (32 Bit) from the data buffer.
     /// @return Float value read.
     float ReadFloat()
     {
-        unsigned long l=ReadLong();
+        const uint32_t ui=ReadLong();
 
-        return *(float*)&l;
+        return *(float*)&ui;
     }
 
     /// Reads a String from the data buffer.
@@ -321,19 +327,19 @@ class NetDataT
         *(unsigned short*)&Data[Data.Size()-2]=htons(w);
     }
 
-    /// Writes one LongWord (32 Bit) into the data buffer.
-    /// @param l LongWord to write.
-    void WriteLong(unsigned long l)
+    /// Writes one uint32_t into the data buffer.
+    /// @param ui   The 32-bit unsigned integer to write.
+    void WriteLong(uint32_t ui)
     {
         Data.PushBackEmpty(4);
-        *(unsigned long*)&Data[Data.Size()-4]=htonl(l);
+        *(uint32_t*)&Data[Data.Size()-4]=htonl(ui);
     }
 
     /// Writes one float (32 Bit) into the data buffer.
     /// @param f Float to write.
     void WriteFloat(float f)
     {
-        WriteLong(*(unsigned long*)&f);
+        WriteLong(*(uint32_t*)&f);
     }
 
     /// Writes a String into the data buffer.
@@ -342,10 +348,11 @@ class NetDataT
     {
         if (!String) return;
 
-        unsigned long StringLength=strlen(String)+1;
+        const unsigned long Start =Data.Size();
+        const unsigned long Length=(unsigned long)strlen(String)+1;
 
-        Data.PushBackEmpty(StringLength);
-        memcpy(&Data[Data.Size()-StringLength], String, StringLength);
+        Data.PushBackEmpty(Length);
+        memcpy(&Data[Start], String, Length);
     }
 
     /// Writes a String into the data buffer.

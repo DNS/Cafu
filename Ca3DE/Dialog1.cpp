@@ -92,9 +92,11 @@ const char Ca3DE_OptionsT::SERVER_RUNMODE=2; */
 
 const char* StripExtension(char* PathName)
 {
-    int Length;
+    size_t Length=strlen(PathName);
 
-    for (Length=strlen(PathName)-1; Length>0 && PathName[Length]!='.'; Length--)
+    if (Length==0) return PathName;
+
+    for (Length=Length-1; Length>0 && PathName[Length]!='.'; Length--)
         if (PathName[Length]=='/' || PathName[Length]=='\\') return PathName;
 
     if (Length) PathName[Length]=0;
@@ -176,13 +178,13 @@ bool ReadDialogSettings(HWND hDialog)
     }
 
     // 2.6. Client: Display resolution, BPP, and texture detail.
-    int Result1=SendDlgItemMessage(hDialog, DLG1_CL_DISPLAY_RES_IN   , CB_GETCURSEL, 0, 0); if (Result1==CB_ERR) Result1=0;
-    int Result2=SendDlgItemMessage(hDialog, DLG1_CL_DISPLAY_BPP_IN   , CB_GETCURSEL, 0, 0); if (Result2==CB_ERR) Result2=0;
-    int Result3=SendDlgItemMessage(hDialog, DLG1_CL_TEXTURE_DETAIL_IN, CB_GETCURSEL, 0, 0); if (Result3==CB_ERR) Result3=0;
+    LRESULT Result1=SendDlgItemMessage(hDialog, DLG1_CL_DISPLAY_RES_IN   , CB_GETCURSEL, 0, 0); if (Result1==CB_ERR) Result1=0;
+    LRESULT Result2=SendDlgItemMessage(hDialog, DLG1_CL_DISPLAY_BPP_IN   , CB_GETCURSEL, 0, 0); if (Result2==CB_ERR) Result2=0;
+    LRESULT Result3=SendDlgItemMessage(hDialog, DLG1_CL_TEXTURE_DETAIL_IN, CB_GETCURSEL, 0, 0); if (Result3==CB_ERR) Result3=0;
 
- // Options_ClientDisplayRes   =Result1;
-    Options_ClientDisplayBPP   =Result2;
-    Options_ClientTextureDetail=Result3;
+ // Options_ClientDisplayRes   =int(Result1);
+    Options_ClientDisplayBPP   =int(Result2);
+    Options_ClientTextureDetail=int(Result3);
 
     // 3.1. Server: Game Name
     GetDlgItemText(hDialog, DLG1_SV_GAME_IN, ReadStr, sizeof(ReadStr)-1);

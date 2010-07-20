@@ -99,13 +99,21 @@ static Vector3fT ReadVector3f(lua_State* LuaState, int index)
 }
 
 
+static unsigned long lua_objlen_ul(lua_State* LuaState, int index)
+{
+    const size_t l=lua_objlen(LuaState, index);
+
+    return (unsigned long)l;
+}
+
+
 void LoaderCafuT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims)
 {
     // Read the joints.
     lua_getglobal(m_LuaState, "Joints");
     {
         Joints.Overwrite();
-        Joints.PushBackEmptyExact(lua_objlen(m_LuaState, -1));
+        Joints.PushBackEmptyExact(lua_objlen_ul(m_LuaState, -1));
     
         for (unsigned long JointNr=0; JointNr<Joints.Size(); JointNr++)
         {
@@ -140,7 +148,7 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Me
     lua_getglobal(m_LuaState, "Meshes");
     {
         Meshes.Overwrite();
-        Meshes.PushBackEmptyExact(lua_objlen(m_LuaState, -1));
+        Meshes.PushBackEmptyExact(lua_objlen_ul(m_LuaState, -1));
     
         for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
         {
@@ -156,7 +164,7 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Me
     
                 lua_getfield(m_LuaState, -1, "Weights");
                 {
-                    Mesh.Weights.PushBackEmptyExact(lua_objlen(m_LuaState, -1));
+                    Mesh.Weights.PushBackEmptyExact(lua_objlen_ul(m_LuaState, -1));
     
                     for (unsigned long WeightNr=0; WeightNr<Mesh.Weights.Size(); WeightNr++)
                     {
@@ -183,7 +191,7 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Me
     
                 lua_getfield(m_LuaState, -1, "Vertices");
                 {
-                    Mesh.Vertices.PushBackEmptyExact(lua_objlen(m_LuaState, -1));
+                    Mesh.Vertices.PushBackEmptyExact(lua_objlen_ul(m_LuaState, -1));
     
                     for (unsigned long VertexNr=0; VertexNr<Mesh.Vertices.Size(); VertexNr++)
                     {
@@ -212,7 +220,7 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Me
     
                 lua_getfield(m_LuaState, -1, "Triangles");
                 {
-                    Mesh.Triangles.PushBackEmptyExact(lua_objlen(m_LuaState, -1));
+                    Mesh.Triangles.PushBackEmptyExact(lua_objlen_ul(m_LuaState, -1));
     
                     for (unsigned long TriangleNr=0; TriangleNr<Mesh.Triangles.Size(); TriangleNr++)
                     {
@@ -242,7 +250,7 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Me
     lua_getglobal(m_LuaState, "Animations");
     {
         Anims.Overwrite();
-        Anims.PushBackEmptyExact(lua_objlen(m_LuaState, -1));
+        Anims.PushBackEmptyExact(lua_objlen_ul(m_LuaState, -1));
     
         for (unsigned long AnimNr=0; AnimNr<Anims.Size(); AnimNr++)
         {
@@ -256,7 +264,7 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Me
     
                 lua_getfield(m_LuaState, -1, "AnimJoints");
                 {
-                    Anim.AnimJoints.PushBackEmptyExact(lua_objlen(m_LuaState, -1));
+                    Anim.AnimJoints.PushBackEmptyExact(lua_objlen_ul(m_LuaState, -1));
     
                     for (unsigned long JointNr=0; JointNr<Anim.AnimJoints.Size(); JointNr++)
                     {
@@ -293,7 +301,7 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Me
     
                 lua_getfield(m_LuaState, -1, "Frames");
                 {
-                    Anim.Frames.PushBackEmptyExact(lua_objlen(m_LuaState, -1));
+                    Anim.Frames.PushBackEmptyExact(lua_objlen_ul(m_LuaState, -1));
     
                     for (unsigned long FrameNr=0; FrameNr<Anim.Frames.Size(); FrameNr++)
                     {
@@ -314,7 +322,7 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Me
     
                             lua_getfield(m_LuaState, -1, "data");
                             {
-                                Frame.AnimData.PushBackEmptyExact(lua_objlen(m_LuaState, -1));
+                                Frame.AnimData.PushBackEmptyExact(lua_objlen_ul(m_LuaState, -1));
     
                                 for (unsigned int c=0; c<Frame.AnimData.Size(); c++)
                                 {
@@ -343,7 +351,7 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::GuiLocT>& GuiLocs)
     lua_getglobal(m_LuaState, "GuiLocs");
     {
         GuiLocs.Overwrite();
-        GuiLocs.PushBackEmptyExact(lua_objlen(m_LuaState, -1));
+        GuiLocs.PushBackEmptyExact(lua_objlen_ul(m_LuaState, -1));
     
         for (unsigned long GuiLocNr=0; GuiLocNr<GuiLocs.Size(); GuiLocNr++)
         {

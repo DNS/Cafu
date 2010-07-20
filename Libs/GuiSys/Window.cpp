@@ -424,9 +424,9 @@ void WindowT::Render() const
     if (Font!=NULL)
     {
         int LineCount=1;
-        int TextLength=Text.length();
+        const size_t TextLength=Text.length();
 
-        for (int i=0; i+1<TextLength; i++)
+        for (size_t i=0; i+1<TextLength; i++)
             if (Text[i]=='\n')
                 LineCount++;
 

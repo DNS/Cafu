@@ -606,7 +606,7 @@ bool GuiImplT::StartNewCoroutine(int NumExtraArgs, const char* Signature, va_lis
         // as described at http://www.lua.org/manual/5.1/manual.html#lua_tolstring
     }
 
-    const int ResCount=strlen(Results);
+    const int ResCount=int(strlen(Results));
 
 
     // Do the actual function call.

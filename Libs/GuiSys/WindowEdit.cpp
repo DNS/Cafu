@@ -66,7 +66,7 @@ const cf::TypeSys::TypeInfoT EditWindowT::TypeInfo(GetWindowTIM(), "EditWindowT"
 
 EditWindowT::EditWindowT(const cf::GuiSys::WindowCreateParamsT& Params)
     : WindowT(Params),
-      TextCursorPos(Text.length()),
+      TextCursorPos((unsigned int)Text.length()),
       TextCursorType(0),
       TextCursorRate(1.0f),
       TextCursorTime(0)
@@ -136,10 +136,10 @@ void EditWindowT::Render() const
 
 
     // This is the actual rendering of the cursor.
-    int       LineCount=1;
-    const int TextLength=Text.length();
+    int          LineCount=1;
+    const size_t TextLength=Text.length();
 
-    for (int i=0; i+1<TextLength; i++)
+    for (size_t i=0; i+1<TextLength; i++)
         if (Text[i]=='\n')
             LineCount++;
 
@@ -255,7 +255,7 @@ bool EditWindowT::OnInputEvent(const CaKeyboardEventT& KE)
                 return true;
 
             case CaKeyboardEventT::CK_END:
-                TextCursorPos=Text.length();
+                TextCursorPos=(unsigned int)Text.length();
                 TextCursorTime=0;
                 return true;
         }
@@ -306,7 +306,7 @@ int EditWindowT::Set(lua_State* LuaState)
     std::string  VarName=luaL_checkstring(LuaState, 2);
 
     // If the text of this window was changed, set the text cursor position to its end.
-    if (VarName=="text") EditWin->TextCursorPos=EditWin->Text.length();
+    if (VarName=="text") EditWin->TextCursorPos=(unsigned int)EditWin->Text.length();
     return Result;
 }
 

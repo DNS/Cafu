@@ -241,7 +241,7 @@ void ServerT::MainLoop()
     #endif
 
     // select() bricht mit der Anzahl der lesbar gewordenen Sockets ab, 0 bei TimeOut oder SOCKET_ERROR im Fehlerfall.
-    int Result=select(ServerSocket+1, &ReadabilitySocketSet, NULL, NULL, &TimeOut);
+    const int Result=select(int(ServerSocket+1), &ReadabilitySocketSet, NULL, NULL, &TimeOut);
 
     if (Result==SOCKET_ERROR)
     {

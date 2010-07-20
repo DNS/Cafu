@@ -71,11 +71,11 @@ namespace cf
 
             private:
 
-            unsigned long TextCursorPos;        ///< The character position of the text cursor in the text. Valid values are 0 to Text.length().
-            unsigned long TextCursorType;       ///< The type of the text cursor. 0 is a vertical bar cursor '|', 1 is an underline cursor'_'. Any other types are not supported and default to the '|' cursor type.
-            float         TextCursorRate;       ///< The rate in seconds at which the text cursor completes one blink cycle (on/off).
-            float         TextCursorTime;       ///< The current time in the cursor blink cycle.
-            float         TextCursorColor[4];   ///< The color of the text cursor.
+            unsigned int TextCursorPos;       ///< The character position of the text cursor in the text. Valid values are 0 to Text.length().
+            unsigned int TextCursorType;      ///< The type of the text cursor. 0 is a vertical bar cursor '|', 1 is an underline cursor'_'. Any other types are not supported and default to the '|' cursor type.
+            float        TextCursorRate;      ///< The rate in seconds at which the text cursor completes one blink cycle (on/off).
+            float        TextCursorTime;      ///< The current time in the cursor blink cycle.
+            float        TextCursorColor[4];  ///< The color of the text cursor.
 
 
             // Lua script methods.
