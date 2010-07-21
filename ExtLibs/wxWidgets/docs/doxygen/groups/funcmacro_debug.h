@@ -3,12 +3,12 @@
 // Purpose:     Debugging function and macro group docs
 // Author:      wxWidgets team
 // RCS-ID:      $Id: funcmacro_gdi.h 52454 2008-03-12 19:08:48Z BP $
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 /**
 
-@defgroup group_funcmacro_debug Debugging
+@defgroup group_funcmacro_debug Debugging macros
 @ingroup group_funcmacro
 
 Useful macros and functions for error checking and defensive programming.

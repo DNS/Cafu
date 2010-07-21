@@ -4,7 +4,7 @@
 // Author:      Julian Smart, Ian Brown
 // Modified by:
 // Created:     01/02/03
-// RCS-ID:      $Id: combobox_native.cpp 57890 2009-01-07 17:29:38Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

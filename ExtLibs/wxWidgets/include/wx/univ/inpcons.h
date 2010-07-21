@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     14.08.00
-// RCS-ID:      $Id: inpcons.h 52834 2008-03-26 15:06:00Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,7 @@ typedef wxString wxControlAction;
 // the list of actions which apply to all controls (other actions are defined
 // in the controls headers)
 
-#define wxACTION_NONE    _T("")           // no action to perform
+#define wxACTION_NONE    wxT("")           // no action to perform
 
 // ----------------------------------------------------------------------------
 // wxInputConsumer: mix-in class for handling wxControlActions (used by

@@ -4,7 +4,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by: Wlodzimierz ABX Skiba - real functionality
 // Created:     10/13/04
-// RCS-ID:      $Id: utils.cpp 57023 2008-11-29 14:41:02Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne, Wlodzimierz Skiba
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -251,7 +251,7 @@ bool wxIsPlatform64Bit()
 
 wxString wxGetOsDescription()
 {
-    wxString strOS = _T("PalmOS");
+    wxString strOS = wxT("PalmOS");
 
     //err = FtrGet(sysFtrCreator, sysFtrNumROMVersion, &romVersion);
     //if (romVersion >= 0x02000000) v20 = true;

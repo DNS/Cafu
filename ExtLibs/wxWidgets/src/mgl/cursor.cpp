@@ -2,7 +2,7 @@
 // Name:        src/mgl/cursor.cpp
 // Purpose:
 // Author:      Vaclav Slavik
-// Id:          $Id: cursor.cpp 58227 2009-01-19 13:55:27Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -72,7 +72,7 @@ void wxCursor::InitFromStock(wxStockCursor cursorId)
 
     if ( gs_cursorsHash->find(cursorId) != gs_cursorsHash->end() )
     {
-        wxLogTrace(_T("mglcursor"), _T("cursor id %i fetched from cache"), cursorId);
+        wxLogTrace(wxT("mglcursor"), wxT("cursor id %i fetched from cache"), cursorId);
         *this = (*gs_cursorsHash)[cursorId];
         return;
     }
@@ -135,7 +135,7 @@ void wxCursor::InitFromStock(wxStockCursor cursorId)
     else
     {
         (*gs_cursorsHash)[cursorId] = *this;
-        wxLogTrace(_T("mglcursor"), _T("cursor id %i added to cache (%s)"),
+        wxLogTrace(wxT("mglcursor"), wxT("cursor id %i added to cache (%s)"),
                    cursorId, cursorname);
     }
 }

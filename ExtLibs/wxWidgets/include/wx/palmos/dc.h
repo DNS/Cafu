@@ -4,7 +4,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by:
 // Created:     10/13/04
-// RCS-ID:      $Id: dc.h 58757 2009-02-08 11:45:59Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -335,7 +335,7 @@ public:
     virtual void DoGetSize(int *w, int *h) const
     {
         wxASSERT_MSG( m_size.IsFullySpecified(),
-                      _T("size of this DC hadn't been set and is unknown") );
+                      wxT("size of this DC hadn't been set and is unknown") );
 
         if ( w )
             *w = m_size.x;

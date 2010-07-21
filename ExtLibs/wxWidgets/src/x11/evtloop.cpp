@@ -4,9 +4,9 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01.06.01
-// RCS-ID:      $Id: evtloop.cpp 58911 2009-02-15 14:25:08Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2002 Julian Smart
-// License:     wxWindows licence
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 // ============================================================================
@@ -122,13 +122,13 @@ bool wxEventLoopImpl::SendIdleEvent()
 
 wxGUIEventLoop::~wxGUIEventLoop()
 {
-    wxASSERT_MSG( !m_impl, _T("should have been deleted in Run()") );
+    wxASSERT_MSG( !m_impl, wxT("should have been deleted in Run()") );
 }
 
 int wxGUIEventLoop::Run()
 {
     // event loops are not recursive, you need to create another loop!
-    wxCHECK_MSG( !IsRunning(), -1, _T("can't reenter a message loop") );
+    wxCHECK_MSG( !IsRunning(), -1, wxT("can't reenter a message loop") );
 
     m_impl = new wxEventLoopImpl;
 
@@ -162,15 +162,14 @@ int wxGUIEventLoop::Run()
     OnExit();
 
     int exitcode = m_impl->GetExitCode();
-    delete m_impl;
-    m_impl = NULL;
+    wxDELETE(m_impl);
 
     return exitcode;
 }
 
 void wxGUIEventLoop::Exit(int rc)
 {
-    wxCHECK_RET( IsRunning(), _T("can't call Exit() if not running") );
+    wxCHECK_RET( IsRunning(), wxT("can't call Exit() if not running") );
 
     m_impl->SetExitCode(rc);
     m_impl->m_keepGoing = false;
@@ -188,6 +187,10 @@ bool wxGUIEventLoop::Pending() const
 
 bool wxGUIEventLoop::Dispatch()
 {
+    // see comment in wxEventLoopManual::ProcessEvents()
+    if ( wxTheApp )
+        wxTheApp->ProcessPendingEvents();
+
     XEvent event;
 
     // TODO allowing for threads, as per e.g. wxMSW

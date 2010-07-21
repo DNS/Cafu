@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     2005-09-30
-// RCS-ID:      $Id: richtextstyles.cpp 55176 2008-08-22 15:21:50Z JS $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -56,17 +56,35 @@ bool wxRichTextStyleDefinition::Eq(const wxRichTextStyleDefinition& def) const
 /// Gets the style combined with the base style
 wxTextAttr wxRichTextStyleDefinition::GetStyleMergedWithBase(const wxRichTextStyleSheet* sheet) const
 {
-    if (!m_baseStyle.IsEmpty())
+    if (m_baseStyle.IsEmpty())
+        return m_style;
+        
+    // Collect the styles, detecting loops
+    wxArrayString styleNames;
+    wxList styles;
+    const wxRichTextStyleDefinition* def = this;
+    while (def)
     {
-        wxRichTextStyleDefinition* baseStyle = sheet->FindStyle(m_baseStyle);
-        if (baseStyle)
-        {
-            wxTextAttr baseAttr = baseStyle->GetStyleMergedWithBase(sheet);
-            baseAttr.Apply(m_style, NULL);
-            return baseAttr;
-        }
+        styles.Insert((wxObject*) def);
+        styleNames.Add(def->GetName());
+        
+        wxString baseStyleName = def->GetBaseStyle();
+        if (!baseStyleName.IsEmpty() && styleNames.Index(baseStyleName) == wxNOT_FOUND)
+            def = sheet->FindStyle(baseStyleName);
+        else
+            def = NULL;
     }
-    return m_style;
+    
+    wxRichTextAttr attr;
+    wxList::compatibility_iterator node = styles.GetFirst();
+    while (node)
+    {
+        wxRichTextStyleDefinition* def = (wxRichTextStyleDefinition*) node->GetData();
+        attr.Apply(def->GetStyle(), NULL);
+        node = node->GetNext();
+    }
+    
+    return attr;
 }
 
 /*!
@@ -520,6 +538,8 @@ void wxRichTextStyleListBox::UpdateStyles()
 {
     if (GetStyleSheet())
     {
+        int oldSel = GetSelection();
+
         SetSelection(wxNOT_FOUND);
 
         m_styleNames.Clear();
@@ -546,9 +566,15 @@ void wxRichTextStyleListBox::UpdateStyles()
 
         Refresh();
 
-        if (GetItemCount() > 0)
+        int newSel = -1;
+        if (oldSel >= 0 && oldSel < (int) GetItemCount())
+            newSel = oldSel;
+        else if (GetItemCount() > 0)
+            newSel = 0;
+
+        if (newSel >= 0)
         {
-            SetSelection(0);
+            SetSelection(newSel);
             SendSelectedEvent();
         }
     }
@@ -619,7 +645,7 @@ wxString wxRichTextStyleListBox::CreateHTML(wxRichTextStyleDefinition* def) cons
     int size = 3;
 #endif
 
-	// Guess a standard font size
+    // Guess a standard font size
     int stdFontSize = 0;
 
     // First see if we have a default/normal style to base the size on
@@ -628,22 +654,22 @@ wxString wxRichTextStyleListBox::CreateHTML(wxRichTextStyleDefinition* def) cons
     size_t i;
     for (i = 0; i < m_styleNames.GetCount(); i++)
     {
-		wxString name = m_styleNames[i].Lower();
-		if (name.Find(wxT("normal")) != wxNOT_FOUND || name.Find(normalTranslated) != wxNOT_FOUND ||
-		    name.Find(wxT("default")) != wxNOT_FOUND || name.Find(defaultTranslated) != wxNOT_FOUND)
-		{
-    		wxRichTextStyleDefinition* d = GetStyleSheet()->FindStyle(m_styleNames[i]);
-    		if (d)
-    		{
-    			wxRichTextAttr attr2(d->GetStyleMergedWithBase(GetStyleSheet()));
-    			if (attr2.HasFontSize())
-    			{
-					stdFontSize = attr2.GetFontSize();
-					break;
-				}
-			}
-		}
-	}
+        wxString name = m_styleNames[i].Lower();
+        if (name.Find(wxT("normal")) != wxNOT_FOUND || name.Find(normalTranslated) != wxNOT_FOUND ||
+                name.Find(wxT("default")) != wxNOT_FOUND || name.Find(defaultTranslated) != wxNOT_FOUND)
+        {
+            wxRichTextStyleDefinition* d = GetStyleSheet()->FindStyle(m_styleNames[i]);
+            if (d)
+            {
+                wxRichTextAttr attr2(d->GetStyleMergedWithBase(GetStyleSheet()));
+                if (attr2.HasFontSize())
+                {
+                    stdFontSize = attr2.GetFontSize();
+                    break;
+                }
+            }
+        }
+    }
 
     if (stdFontSize == 0)
     {
@@ -670,13 +696,13 @@ wxString wxRichTextStyleListBox::CreateHTML(wxRichTextStyleDefinition* def) cons
         {
             if (sizes[i] > mostCommonSize)
                 mostCommonSize = i;
-		}
+        }
         if (mostCommonSize > 0)
             stdFontSize = mostCommonSize;
     }
 
     if (stdFontSize == 0)
-    	stdFontSize = 12;
+        stdFontSize = 12;
 
     int thisFontSize = ((attr.GetFlags() & wxTEXT_ATTR_FONT_SIZE) != 0) ? attr.GetFontSize() : stdFontSize;
 
@@ -753,7 +779,7 @@ void wxRichTextStyleListBox::OnLeftDown(wxMouseEvent& event)
 {
     wxVListBox::OnLeftDown(event);
 
-    int item = HitTest(event.GetPosition());
+    int item = VirtualHitTest(event.GetPosition().y);
     if (item != wxNOT_FOUND && GetApplyOnSelection())
         ApplyStyle(item);
 }
@@ -762,7 +788,7 @@ void wxRichTextStyleListBox::OnLeftDoubleClick(wxMouseEvent& event)
 {
     wxVListBox::OnLeftDown(event);
 
-    int item = HitTest(event.GetPosition());
+    int item = VirtualHitTest(event.GetPosition().y);
     if (item != wxNOT_FOUND && !GetApplyOnSelection())
         ApplyStyle(item);
 }
@@ -940,6 +966,7 @@ void wxRichTextStyleListCtrl::OnChooseType(wxCommandEvent& event)
             return;
 
         wxRichTextStyleListBox::wxRichTextStyleType styleType = StyleIndexToType(event.GetSelection());
+        m_styleListBox->SetSelection(-1);
         m_styleListBox->SetStyleType(styleType);
     }
 }
@@ -1099,7 +1126,7 @@ void wxRichTextStyleComboPopup::OnMouseMove(wxMouseEvent& event)
 {
     // Move selection to cursor if it is inside the popup
 
-    int itemHere = wxRichTextStyleListBox::HitTest(event.GetPosition());
+    int itemHere = wxRichTextStyleListBox::VirtualHitTest(event.GetPosition().y);
     if ( itemHere >= 0 )
     {
         wxRichTextStyleListBox::SetSelection(itemHere);

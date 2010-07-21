@@ -2,7 +2,7 @@
 // Name:      src/mgl/region.cpp
 // Purpose:   Region handling for wxWidgets/MGL
 // Author:    Vaclav Slavik
-// RCS-ID:    $Id: region.cpp 50727 2007-12-15 17:54:20Z VZ $
+// RCS-ID:    $Id$
 // Copyright: (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:   wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -147,7 +147,7 @@ void wxRegion::Clear()
 
 bool wxRegion::DoIsEqual(const wxRegion& WXUNUSED(region)) const
 {
-    wxFAIL_MSG( _T("not implemented") );
+    wxFAIL_MSG( wxT("not implemented") );
 
     return false;
 }

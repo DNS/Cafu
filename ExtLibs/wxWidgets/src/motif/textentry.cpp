@@ -3,7 +3,7 @@
 // Purpose:     implementation of wxTextEntry for wxMotif
 // Author:      Vadim Zeitlin
 // Created:     2007-11-05
-// RCS-ID:      $Id: textentry.cpp 59309 2009-03-04 07:42:42Z JJ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2007 Vadim Zeitlin <vadim@wxwindows.org>
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////

@@ -4,7 +4,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by: Wlodzimierz ABX Skiba - native implementation
 // Created:     10/13/04
-// RCS-ID:      $Id: slider.cpp 52227 2008-03-02 00:53:32Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne, Wlodzimierz Skiba
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -117,7 +117,7 @@ bool wxSlider::Create(wxWindow *parent, wxWindowID id,
     // wxSL_TOP is ignored - always off
     // wxSL_SELRANGE is ignored - always off
     // wxSL_VERTICAL is impossible in native form
-    wxCHECK_MSG(!(style & wxSL_VERTICAL), false, _T("non vertical slider on PalmOS"));
+    wxCHECK_MSG(!(style & wxSL_VERTICAL), false, wxT("non vertical slider on PalmOS"));
 
     if(!wxControl::Create(parent, id, pos, size, style, validator, name))
         return false;

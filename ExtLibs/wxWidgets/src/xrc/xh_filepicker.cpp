@@ -3,7 +3,7 @@
 // Purpose:     XML resource handler for wxFilePickerCtrl
 // Author:      Francesco Montorsi
 // Created:     2006-04-17
-// RCS-ID:      $Id: xh_filepicker.cpp 55530 2008-09-09 19:34:53Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2006 Francesco Montorsi
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ wxObject *wxFilePickerCtrlXmlHandler::DoCreateResource()
                   GetText(wxT("message")),
                   GetParamValue(wxT("wildcard")),
                   GetPosition(), GetSize(),
-                  GetStyle(_T("style"), wxFLP_DEFAULT_STYLE),
+                  GetStyle(wxT("style"), wxFLP_DEFAULT_STYLE),
                   wxDefaultValidator,
                   GetName());
 

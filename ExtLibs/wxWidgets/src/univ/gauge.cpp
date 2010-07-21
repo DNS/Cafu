@@ -4,9 +4,9 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     20.02.01
-// RCS-ID:      $Id: gauge.cpp 42816 2006-10-31 08:50:17Z RD $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2001 SciTech Software, Inc. (www.scitechsoft.com)
-// License:     wxWindows licence
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 // ============================================================================

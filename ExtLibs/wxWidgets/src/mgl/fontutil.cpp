@@ -3,7 +3,7 @@
 // Purpose:     Font helper functions for MGL
 // Author:      Vaclav Slavik
 // Created:     2001/04/29
-// RCS-ID:      $Id: fontutil.cpp 43550 2006-11-20 20:45:57Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@
 //      encoding[;facename]
 bool wxNativeEncodingInfo::FromString(const wxString& s)
 {
-    wxStringTokenizer tokenizer(s, _T(";"));
+    wxStringTokenizer tokenizer(s, wxT(";"));
 
     wxString encid = tokenizer.GetNextToken();
     long enc;
@@ -64,7 +64,7 @@ wxString wxNativeEncodingInfo::ToString() const
     s << (long)encoding;
     if ( !facename.empty() )
     {
-        s << _T(';') << facename;
+        s << wxT(';') << facename;
     }
 
     return s;
@@ -77,7 +77,7 @@ wxString wxNativeEncodingInfo::ToString() const
 bool wxGetNativeFontEncoding(wxFontEncoding encoding,
                              wxNativeEncodingInfo *info)
 {
-    wxCHECK_MSG( info, false, _T("bad pointer in wxGetNativeFontEncoding") );
+    wxCHECK_MSG( info, false, wxT("bad pointer in wxGetNativeFontEncoding") );
 
     if ( encoding == wxFONTENCODING_DEFAULT )
     {

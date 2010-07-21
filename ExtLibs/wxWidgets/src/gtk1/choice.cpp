@@ -2,7 +2,7 @@
 // Name:        src/gtk1/choice.cpp
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id: choice.cpp 58227 2009-01-19 13:55:27Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -228,7 +228,7 @@ void wxChoice::DoDeleteOneItem(unsigned int n)
 {
     wxCHECK_RET( m_widget != NULL, wxT("invalid choice") );
 
-    wxCHECK_RET( IsValid(n), _T("invalid index in wxChoice::Delete") );
+    wxCHECK_RET( IsValid(n), wxT("invalid index in wxChoice::Delete") );
 
     // if the item to delete is before the selection, and the selection is valid
     if (((int)n < m_selection_hack) && (m_selection_hack != wxNOT_FOUND))

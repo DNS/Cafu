@@ -2,7 +2,7 @@
 // Name:        dc.cpp
 // Purpose:
 // Author:      Robert Roebling
-// RCS-ID:      $Id: dc.cpp 50728 2007-12-15 18:20:59Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

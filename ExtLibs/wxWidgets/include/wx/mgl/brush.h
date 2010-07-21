@@ -2,7 +2,7 @@
 // Name:        wx/mgl/brush.h
 // Purpose:
 // Author:      Vaclav Slavik
-// Id:          $Id: brush.h 54273 2008-06-17 17:28:26Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

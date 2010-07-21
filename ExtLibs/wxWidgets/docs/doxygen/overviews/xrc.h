@@ -2,8 +2,8 @@
 // Name:        xrc.h
 // Purpose:     topic overview
 // Author:      wxWidgets team
-// RCS-ID:      $Id: xrc.h 59598 2009-03-18 09:29:05Z VZ $
-// Licence:     wxWindows license
+// RCS-ID:      $Id$
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -259,8 +259,8 @@ void MyFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 void MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
 {
     wxString msg;
-    msg.Printf( _T("This is the about dialog of XML resources demo.\n")
-                _T("Welcome to %s"), wxVERSION_STRING);
+    msg.Printf( wxT("This is the about dialog of XML resources demo.\n")
+                wxT("Welcome to %s"), wxVERSION_STRING);
 
     wxMessageBox(msg, "About XML resources demo",
                  wxOK | wxICON_INFORMATION, this);
@@ -384,6 +384,7 @@ This is the XML file (resource.xrc) for the XRC sample.
               </object>
             </object>
             <label>Page</label>
+            <image>0</image>
           </object>
           <object class="notebookpage">
             <object class="wxPanel">
@@ -397,8 +398,14 @@ This is the XML file (resource.xrc) for the XRC sample.
               </object>
             </object>
             <label>Page 2</label>
+            <image>1</image>
           </object>
           <usenotebooksizer>1</usenotebooksizer>
+        <imagelist>
+            <size>16,16</size>
+            <bitmap stock_id="wxART_QUESTION"/>
+            <bitmap stock_id="wxART_WARNING"/>
+        </imagelist>
         </object>
         <flag>wxEXPAND</flag>
       </object>

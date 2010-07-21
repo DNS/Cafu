@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     07.09.00
-// RCS-ID:      $Id: checkbox.h 52834 2008-03-26 15:06:00Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -18,9 +18,9 @@
 // the actions supported by wxCheckBox
 // ----------------------------------------------------------------------------
 
-#define wxACTION_CHECKBOX_CHECK   _T("check")   // SetValue(true)
-#define wxACTION_CHECKBOX_CLEAR   _T("clear")   // SetValue(false)
-#define wxACTION_CHECKBOX_TOGGLE  _T("toggle")  // toggle the check state
+#define wxACTION_CHECKBOX_CHECK   wxT("check")   // SetValue(true)
+#define wxACTION_CHECKBOX_CLEAR   wxT("clear")   // SetValue(false)
+#define wxACTION_CHECKBOX_TOGGLE  wxT("toggle")  // toggle the check state
 
 // additionally it accepts wxACTION_BUTTON_PRESS and RELEASE
 

@@ -3,7 +3,7 @@
 // Purpose:     XRC resource for wxTreeCtrl
 // Author:      Brian Gavin
 // Created:     2000/09/09
-// RCS-ID:      $Id: xh_tree.cpp 45089 2007-03-27 09:40:02Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 Brian Gavin
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -51,9 +51,13 @@ wxObject *wxTreeCtrlXmlHandler::DoCreateResource()
     tree->Create(m_parentAsWindow,
                 GetID(),
                 GetPosition(), GetSize(),
-                GetStyle(_T("style"), wxTR_DEFAULT_STYLE),
+                GetStyle(wxT("style"), wxTR_DEFAULT_STYLE),
                 wxDefaultValidator,
                 GetName());
+
+    wxImageList *imagelist = GetImageList();
+    if ( imagelist )
+        tree->AssignImageList(imagelist);
 
     SetupWindow(tree);
 

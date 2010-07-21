@@ -4,7 +4,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by: Wlodzimierz ABX Skiba - native wxRadioButton implementation
 // Created:     10/13/04
-// RCS-ID:      $Id: radiobut.cpp 39567 2006-06-05 16:46:15Z ABX $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne, Wlodzimierz Skiba
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

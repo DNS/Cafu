@@ -2,8 +2,8 @@
 // Name:        html.h
 // Purpose:     topic overview
 // Author:      wxWidgets team
-// RCS-ID:      $Id: html.h 59598 2009-03-18 09:29:05Z VZ $
-// Licence:     wxWindows license
+// RCS-ID:      $Id$
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -526,7 +526,7 @@ H5
 H6
 I
 IMG             SRC=[url]
-                WIDTH=[pixels]
+                WIDTH=[percent|pixels]
                 HEIGHT=[pixels]
                 ALIGN=TEXTTOP
                 ALIGN=CENTER
@@ -543,6 +543,7 @@ P               ALIGN=[alignment]
 PRE
 SAMP
 SMALL
+SPAN
 STRIKE
 STRONG
 SUB
@@ -575,6 +576,13 @@ TT
 U
 UL
 @endcode
+
+@subsection overview_html_suppstyles_list List of supported styles
+
+wxHTML doesn't really have CSS support but it does support a few simple styles:
+you can use @c "text-align", @c "width", @c "vertical-align" and @c
+"background" with all elements and for @c SPAN elements the @c "color", @c
+"font-size" and @c "font-weight" are additionally recognized.
 
 */
 

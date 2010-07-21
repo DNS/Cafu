@@ -2,8 +2,8 @@
 // Name:        introduction.h
 // Purpose:     Introduction page of the Doxygen manual
 // Author:      wxWidgets team
-// RCS-ID:      $Id: introduction.h 60399 2009-04-26 19:41:08Z VZ $
-// Licence:     wxWindows license
+// RCS-ID:      $Id$
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -38,7 +38,7 @@ This manual contains a class reference and topic overviews.
 For a selection of wxWidgets tutorials, please see the documentation page
 on the wxWidgets web site: http://www.wxwidgets.org.
 
-Please note that in the following, ``MS Windows" often refers to all
+Please note that in the following, "MS Windows" often refers to all
 platforms related to Microsoft Windows, including 32-bit and 64-bit
 variants, unless otherwise stated. All trademarks are acknowledged.
 

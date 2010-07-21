@@ -3,7 +3,7 @@
 // Purpose:     XRC resource for dialogs
 // Author:      Vaclav Slavik
 // Created:     2000/03/05
-// RCS-ID:      $Id: xh_dlg.cpp 59931 2009-03-29 21:25:23Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 Vaclav Slavik
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

@@ -4,7 +4,7 @@
 // Author:      Julian Smart, Robert Roebling
 // Modified by:
 // Created:     17/09/98
-// RCS-ID:      $Id: bitmap.h 59526 2009-03-14 13:57:51Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart, Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -68,7 +68,7 @@ public:
     wxBitmap() {}
     wxBitmap( int width, int height, int depth = -1 ) { Create( width, height, depth ); }
     wxBitmap( const wxSize& sz, int depth = -1 ) { Create( sz, depth ); }
-    
+
     wxBitmap( const char bits[], int width, int height, int depth = 1 );
     wxBitmap( const char* const* bits );
 #ifdef wxNEEDS_CHARPP

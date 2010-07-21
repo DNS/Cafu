@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     05.05.01
-// RCS-ID:      $Id: menuitem.h 58227 2009-01-19 13:55:27Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2001 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -72,14 +72,14 @@ public:
 
     wxCoord GetPosition() const
     {
-        wxASSERT_MSG( m_posY != wxDefaultCoord, _T("must call SetHeight first!") );
+        wxASSERT_MSG( m_posY != wxDefaultCoord, wxT("must call SetHeight first!") );
 
         return m_posY;
     }
 
     wxCoord GetHeight() const
     {
-        wxASSERT_MSG( m_height != wxDefaultCoord, _T("must call SetHeight first!") );
+        wxASSERT_MSG( m_height != wxDefaultCoord, wxT("must call SetHeight first!") );
 
         return m_height;
     }

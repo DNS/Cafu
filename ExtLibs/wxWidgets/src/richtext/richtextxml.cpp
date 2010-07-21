@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     2005-09-30
-// RCS-ID:      $Id: richtextxml.cpp 58159 2009-01-16 20:46:20Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -181,9 +181,13 @@ bool wxRichTextXMLHandler::ImportXML(wxRichTextBuffer* buffer, wxXmlNode* node)
 
                     // note: 0 == wxBITMAP_TYPE_INVALID
                     if (type <= 0 || type >= wxBITMAP_TYPE_MAX)
+                    {
                         wxLogWarning("Invalid bitmap type specified for <image> tag: %d", type);
+                    }
                     else
+                    {
                         imageType = (wxBitmapType)type;
+                    }
                 }
 
                 wxString data;
@@ -491,7 +495,11 @@ static void OutputStringEnt(wxOutputStream& stream, const wxString& str,
             OutputString(stream, str.Mid(last, i - last), convMem, convFile);
 
             wxString s(wxT("&#"));
+#if wxUSE_UNICODE
             s << (int) c;
+#else
+            s << (int) wxUChar(c);
+#endif
             s << wxT(";");
             OutputString(stream, s, NULL, NULL);
             last = i + 1;
@@ -543,7 +551,11 @@ static wxString AttributeToXML(const wxString& str)
             str1 += str.Mid(last, i - last);
 
             wxString s(wxT("&#"));
+#if wxUSE_UNICODE
             s << (int) c;
+#else
+            s << (int) wxUChar(c);
+#endif
             s << wxT(";");
             str1 += s;
             last = i + 1;
@@ -726,32 +738,39 @@ bool wxRichTextXMLHandler::ExportXML(wxOutputStream& stream, wxMBConv* convMem, 
         }
         else for (i = 0; i < len; i++)
         {
+#if wxUSE_UNICODE
             int c = (int) text[i];
-            if ((c < 32 || c == 34) && c != 9 && c != 10 && c != 13)
+#else
+            int c = (int) wxUChar(text[i]);
+#endif
+            if ((c < 32 || c == 34) && /* c != 9 && */ c != 10 && c != 13)
             {
                 if (i > 0)
                 {
-                    OutputIndentation(stream, indent);
-                    OutputString(stream, wxT("<") + objectName, convMem, convFile);
-
-                    OutputString(stream, style + wxT(">"), convMem, convFile);
-
                     wxString fragment(text.Mid(last, i-last));
-                    if (!fragment.empty() && (fragment[0] == wxT(' ') || fragment[fragment.length()-1] == wxT(' ')))
+                    if (!fragment.IsEmpty())
                     {
-                        OutputString(stream, wxT("\""), convMem, convFile);
-                        OutputStringEnt(stream, fragment, convMem, convFile);
-                        OutputString(stream, wxT("\""), convMem, convFile);
+                        OutputIndentation(stream, indent);
+                        OutputString(stream, wxT("<") + objectName, convMem, convFile);
+                        
+                        OutputString(stream, style + wxT(">"), convMem, convFile);
+                        
+                        if (!fragment.empty() && (fragment[0] == wxT(' ') || fragment[fragment.length()-1] == wxT(' ')))
+                        {
+                            OutputString(stream, wxT("\""), convMem, convFile);
+                            OutputStringEnt(stream, fragment, convMem, convFile);
+                            OutputString(stream, wxT("\""), convMem, convFile);
+                        }
+                        else
+                            OutputStringEnt(stream, fragment, convMem, convFile);
+                        
+                        OutputString(stream, wxT("</text>"), convMem, convFile);
                     }
-                    else
-                        OutputStringEnt(stream, fragment, convMem, convFile);
-
-                    OutputString(stream, wxT("</text>"), convMem, convFile);
                 }
 
 
                 // Output this character as a number in a separate tag, because XML can't cope
-                // with entities below 32 except for 9, 10 and 13
+                // with entities below 32 except for 10 and 13
                 last = i + 1;
                 OutputIndentation(stream, indent);
                 OutputString(stream, wxT("<symbol"), convMem, convFile);

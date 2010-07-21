@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     21.01.01
-// RCS-ID:      $Id: spinbutt.h 52834 2008-03-26 15:06:00Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2001 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,8 +19,8 @@
 // ----------------------------------------------------------------------------
 
 // actions supported by this control
-#define wxACTION_SPIN_INC    _T("inc")
-#define wxACTION_SPIN_DEC    _T("dec")
+#define wxACTION_SPIN_INC    wxT("inc")
+#define wxACTION_SPIN_DEC    wxT("dec")
 
 class WXDLLIMPEXP_CORE wxSpinButton : public wxSpinButtonBase,
                                  public wxControlWithArrows

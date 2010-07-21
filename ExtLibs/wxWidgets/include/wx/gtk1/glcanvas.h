@@ -4,7 +4,7 @@
 // Author:      Robert Roebling
 // Modified by:
 // Created:     17/8/98
-// RCS-ID:      $Id: glcanvas.h 50646 2007-12-12 01:35:53Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@ public:
     // ------------------
 
 #if WXWIN_COMPATIBILITY_2_8
-    wxDEPRECATED(
+    wxDEPRECATED_CONSTRUCTOR(
     wxGLCanvas(wxWindow *parent,
                wxWindowID id = wxID_ANY,
                const wxPoint& pos = wxDefaultPosition,
@@ -61,7 +61,7 @@ public:
                const wxPalette& palette = wxNullPalette)
     );
 
-    wxDEPRECATED(
+    wxDEPRECATED_CONSTRUCTOR(
     wxGLCanvas(wxWindow *parent,
                const wxGLContext *shared,
                wxWindowID id = wxID_ANY,
@@ -73,7 +73,7 @@ public:
                const wxPalette& palette = wxNullPalette)
     );
 
-    wxDEPRECATED(
+    wxDEPRECATED_CONSTRUCTOR(
     wxGLCanvas(wxWindow *parent,
                const wxGLCanvas *shared,
                wxWindowID id = wxID_ANY,

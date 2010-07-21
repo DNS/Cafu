@@ -3,7 +3,7 @@
 // Purpose:     XRC resource for wxStaticLine
 // Author:      Brian Gavin
 // Created:     2000/09/09
-// RCS-ID:      $Id: xh_stlin.cpp 35650 2005-09-23 12:56:45Z MR $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 Brian Gavin
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

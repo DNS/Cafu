@@ -3,9 +3,9 @@
 // Purpose:     overview of persistent objects
 // Author:      Vadim Zeitlin
 // Created:     2009-01-23
-// RCS-ID:      $Id: persistence.h 58559 2009-01-31 18:28:04Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2009 Vadim Zeitlin <vadim@wxwidgets.org>
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 /**

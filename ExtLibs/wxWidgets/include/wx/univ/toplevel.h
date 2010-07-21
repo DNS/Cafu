@@ -2,7 +2,7 @@
 // Name:        wx/toplevel.h
 // Purpose:     Top level window, abstraction of wxFrame and wxDialog
 // Author:      Vaclav Slavik
-// Id:          $Id: toplevel.h 56644 2008-11-02 02:39:52Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -77,12 +77,12 @@ enum
 // the actions supported by this control
 // ----------------------------------------------------------------------------
 
-#define wxACTION_TOPLEVEL_ACTIVATE       _T("activate")   // (de)activate the frame
-#define wxACTION_TOPLEVEL_BUTTON_PRESS   _T("pressbtn")   // press titlebar btn
-#define wxACTION_TOPLEVEL_BUTTON_RELEASE _T("releasebtn") // press titlebar btn
-#define wxACTION_TOPLEVEL_BUTTON_CLICK   _T("clickbtn")   // press titlebar btn
-#define wxACTION_TOPLEVEL_MOVE           _T("move")       // move the frame
-#define wxACTION_TOPLEVEL_RESIZE         _T("resize")     // resize the frame
+#define wxACTION_TOPLEVEL_ACTIVATE       wxT("activate")   // (de)activate the frame
+#define wxACTION_TOPLEVEL_BUTTON_PRESS   wxT("pressbtn")   // press titlebar btn
+#define wxACTION_TOPLEVEL_BUTTON_RELEASE wxT("releasebtn") // press titlebar btn
+#define wxACTION_TOPLEVEL_BUTTON_CLICK   wxT("clickbtn")   // press titlebar btn
+#define wxACTION_TOPLEVEL_MOVE           wxT("move")       // move the frame
+#define wxACTION_TOPLEVEL_RESIZE         wxT("resize")     // resize the frame
 
 //-----------------------------------------------------------------------------
 // wxTopLevelWindow

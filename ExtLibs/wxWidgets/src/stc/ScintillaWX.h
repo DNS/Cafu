@@ -9,9 +9,9 @@
 // Author:      Robin Dunn
 //
 // Created:     13-Jan-2000
-// RCS-ID:      $Id: ScintillaWX.h 60102 2009-04-12 03:01:49Z RD $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 by Total Control Software
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __ScintillaWX_h__
@@ -26,32 +26,35 @@
 #include <string.h>
 
 #include "Platform.h"
-
+#include "SplitVector.h"
+#include "Partitioning.h"
+#include "RunStyles.h"
 #include "Scintilla.h"
-#include "CharClassify.h"
-#include "XPM.h"
+#include "ScintillaWidget.h"
 #ifdef SCI_LEXER
 #include "SciLexer.h"
 #include "PropSet.h"
 #include "Accessor.h"
 #include "KeyWords.h"
 #endif
-#include "SplitVector.h"
-#include "Partitioning.h"
-#include "RunStyles.h"
 #include "ContractionState.h"
+#include "SVector.h"
 #include "CellBuffer.h"
 #include "CallTip.h"
 #include "KeyMap.h"
 #include "Indicator.h"
+#include "XPM.h"
 #include "LineMarker.h"
 #include "Style.h"
-#include "ViewStyle.h"
 #include "AutoComplete.h"
+#include "ViewStyle.h"
+#include "CharClassify.h"
 #include "Decoration.h"
 #include "Document.h"
+#include "Selection.h"
 #include "PositionCache.h"
 #include "Editor.h"
+#include "PropSetSimple.h"
 #include "ScintillaBase.h"
 
 #ifdef __WXMSW__
@@ -168,6 +171,8 @@ public:
     void DoScrollToLine(int line);
     void DoScrollToColumn(int column);
     void ClipChildren(wxDC& dc, PRectangle rect);
+    void SetUseAntiAliasing(bool useAA);
+    bool GetUseAntiAliasing();
 
 private:
     bool                capturedMouse;
@@ -191,7 +196,7 @@ private:
     int sysCaretHeight;
 #endif
    
-    friend class wxSTCCallTipContent;
+    friend class wxSTCCallTip;
 };
 
 //----------------------------------------------------------------------

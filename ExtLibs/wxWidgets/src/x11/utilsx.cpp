@@ -4,7 +4,7 @@
 // Author:      Mattia Barbon
 // Modified by:
 // Created:     05/04/03
-// RCS-ID:      $Id: utilsx.cpp 54096 2008-06-11 11:41:44Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Mattia Barbon
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,18 @@
 
     #include "wx/dcmemory.h"
 #endif
+
+#ifdef HAVE_X11_XKBLIB_H
+    /* under HP-UX and Solaris 2.6, at least, XKBlib.h defines structures with
+     * field named "explicit" - which is, of course, an error for a C++
+     * compiler. To be on the safe side, just redefine it everywhere. */
+    #define explicit __wx_explicit
+
+    #include "X11/XKBlib.h"
+
+    #undef explicit
+#endif // HAVE_X11_XKBLIB_H
+
 
 // ----------------------------------------------------------------------------
 // XShape code
@@ -236,3 +248,18 @@ void wxXVisualInfo::Init( Display* dpy, XVisualInfo* vi )
 }
 
 #endif // !wxUSE_NANOX
+
+/* Don't synthesize KeyUp events holding down a key and producing
+   KeyDown events with autorepeat. */
+bool wxSetDetectableAutoRepeat( bool flag )
+{
+#ifdef HAVE_X11_XKBLIB_H
+    Bool result;
+    XkbSetDetectableAutoRepeat( (Display *)wxGetDisplay(), flag, &result );
+    return result;       /* true if keyboard hardware supports this mode */
+#else
+    wxUnusedVar(flag);
+    return false;
+#endif
+}
+

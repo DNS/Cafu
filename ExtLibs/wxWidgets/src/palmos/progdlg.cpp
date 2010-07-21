@@ -4,9 +4,9 @@
 // Author:      Wlodzimierz ABX Skiba
 // Modified by:
 // Created:     29.12.2004
-// RCS-ID:      $Id: progdlg.cpp 52227 2008-03-02 00:53:32Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Wlodzimierz Skiba
-// License:     wxWindows licence
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 // For compilers that support precompilation, includes "wx.h".

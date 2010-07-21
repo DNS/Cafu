@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     17/09/98
-// RCS-ID:      $Id: scrolbar.cpp 50982 2008-01-01 20:38:33Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -125,7 +125,7 @@ static void wxScrollBarCallback(Widget widget, XtPointer clientData,
                                 XmScaleCallbackStruct *cbs)
 {
     wxScrollBar *scrollBar = (wxScrollBar*)wxGetWindowFromTable(widget);
-    wxCHECK_RET( scrollBar, _T("invalid widget in scrollbar callback") );
+    wxCHECK_RET( scrollBar, wxT("invalid widget in scrollbar callback") );
 
     wxOrientation orientation = (wxOrientation)wxPtrToUInt(clientData);
     wxEventType eventType = wxEVT_NULL;

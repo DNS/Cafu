@@ -4,7 +4,7 @@
 // Author:      Wlodzimierz ABX Skiba
 // Modified by:
 // Created:     02/14/05
-// RCS-ID:      $Id: datectrl.cpp 53052 2008-04-06 15:41:47Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Wlodzimierz Skiba
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -122,7 +122,7 @@ bool wxDatePickerCtrl::SendClickEvent()
     int16_t day = m_dt.GetDay();
     int16_t year = m_dt.GetYear();
 
-    //if(!SelectDay(selectDayByDay,&month,&day,&year,_T("Pick date")))
+    //if(!SelectDay(selectDayByDay,&month,&day,&year,wxT("Pick date")))
     if(!SelectDay(selectDayByDay,&month,&day,&year, "Pick date"))
         return false;
     wxDateTime dt(m_dt);

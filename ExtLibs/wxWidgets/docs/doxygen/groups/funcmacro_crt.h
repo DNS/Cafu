@@ -2,8 +2,8 @@
 // Name:        funcmacro_crt.h
 // Purpose:     wx wrappers for CRT functions
 // Author:      wxWidgets team
-// RCS-ID:      $Id: funcmacro_crt.h 59683 2009-03-21 00:40:12Z FM $
-// Licence:     wxWindows license
+// RCS-ID:      $Id$
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 /**

@@ -5,7 +5,7 @@
 // Author:      Vaclav Slavik, Julian Smart
 // Modified by:
 // Created:     2002-07-09
-// RCS-ID:      $Id: helpview.cpp 56081 2008-10-04 18:41:29Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2002 Vaclav Slavik, Julian Smart and others
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -265,7 +265,7 @@ bool hvApp::OpenBook(wxHtmlHelpController* controller)
     if ( !s.empty() )
     {
         wxString ext = s.Right(4).Lower();
-        if (ext == _T(".zip") || ext == _T(".htb") || ext == _T(".hhp"))
+        if (ext == wxT(".zip") || ext == wxT(".htb") || ext == wxT(".hhp"))
         {
             wxBusyCursor bcur;
             wxFileName fileName(s);
@@ -312,7 +312,7 @@ if ( id == artId ) return wxBitmap(xpmRc##_xpm);
 #else
 #define CREATE_STD_ICON(iconId, xpmRc) \
 { \
-    wxIcon icon(_T(iconId)); \
+    wxIcon icon(wxT(iconId)); \
     wxBitmap bmp; \
     bmp.CopyFromIcon(icon); \
     return bmp; \
@@ -407,14 +407,12 @@ hvConnection::~hvConnection()
     wxGetApp().GetConnections().DeleteObject(this);
 }
 
-bool hvConnection::OnExecute(const wxString& WXUNUSED(topic),
-                             wxChar *data,
-                             int WXUNUSED(size),
-                             wxIPCFormat WXUNUSED(format))
+bool hvConnection::OnExec(const wxString& WXUNUSED(topic),
+                          const wxString& data)
 {
     //    wxLogStatus("Execute command: %s", data);
 
-    if ( !wxStrncmp( data, wxT("--intstring"), 11 ) )
+    if ( data == "--intstring" )
     {
         long i;
         wxString argStr = data;
@@ -438,10 +436,12 @@ bool hvConnection::OnExecute(const wxString& WXUNUSED(topic),
 
 bool hvConnection::OnPoke(const wxString& WXUNUSED(topic),
                           const wxString& item,
-                          wxChar *data,
-                          int WXUNUSED(size),
-                          wxIPCFormat WXUNUSED(format))
+                          const void *buf,
+                          size_t size,
+                          wxIPCFormat format)
 {
+    const wxString data = GetTextFromData(buf, size, format);
+
     //    wxLogStatus("Poke command: %s = %s", item.c_str(), data);
     //topic is not tested
 
@@ -485,20 +485,6 @@ bool hvConnection::OnPoke(const wxString& WXUNUSED(topic),
         }
     }
 
-    return true;
-}
-
-wxChar *hvConnection::OnRequest(const wxString& WXUNUSED(topic),
-                                const wxString& WXUNUSED(item),
-                                int * WXUNUSED(size),
-                                wxIPCFormat WXUNUSED(format))
-{
-    return NULL;
-}
-
-bool hvConnection::OnStartAdvise(const wxString& WXUNUSED(topic),
-                                 const wxString& WXUNUSED(item))
-{
     return true;
 }
 

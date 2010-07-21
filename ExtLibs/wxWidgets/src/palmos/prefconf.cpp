@@ -4,9 +4,9 @@
 // Author:      Wlodzimierz ABX Skiba
 // Modified by:
 // Created:     28.12.2004
-// RCS-ID:      $Id: prefconf.cpp 50704 2007-12-15 01:25:56Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Wlodzimierz Skiba
-// License:     wxWindows licence
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 // For compilers that support precompilation, includes "wx.h".

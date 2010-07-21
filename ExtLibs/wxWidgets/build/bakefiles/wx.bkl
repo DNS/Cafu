@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<!-- $Id: wx.bkl 59561 2009-03-15 16:07:56Z KO $ -->
+<!-- $Id$ -->
 
 
 <!-- Master bakefile for wxWidgets -->
@@ -87,7 +87,7 @@
 
         <data-files>
             <srcdir>$(SRCDIR)/build/bakefiles/wxpresets/presets</srcdir>
-            <files>wx.bkl wx_unix.bkl wx_win32.bkl wx_xrc.bkl</files>
+            <files>wx.bkl wx_unix.bkl wx_win32.bkl wx_xrc.bkl wx_presets.py</files>
             <install-to>$(DATADIR)/bakefile/presets</install-to>
         </data-files>
 
@@ -254,7 +254,7 @@
 @echo " wxWidgets comes with no guarantees and doesn't claim"
 @echo " to be suitable for any purpose."
 @echo " "
-@echo " Read the wxWidgets Licence on licencing conditions."
+@echo " Read the wxWindows Licence on licencing conditions."
 @echo " "
 @echo " ------------------------------------------------------"
 @echo " "

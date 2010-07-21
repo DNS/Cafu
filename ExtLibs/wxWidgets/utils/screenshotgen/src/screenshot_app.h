@@ -2,8 +2,8 @@
 // Name:        screenshot_app.h
 // Purpose:     Defines the Application Class
 // Author:      Utensil Candel (UtensilCandel@@gmail.com)
-// RCS-ID:      $Id: screenshot_app.h 56343 2008-10-15 18:49:22Z BP $
-// Licence:     wxWindows license
+// RCS-ID:      $Id$
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _SCREENSHOT_APP_H_

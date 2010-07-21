@@ -2,7 +2,7 @@
 // Name:        cursor.h
 // Purpose:
 // Author:      Vaclav Slavik
-// Id:          $Id: cursor.h 55884 2008-09-25 17:56:07Z FM $
+// Id:          $Id$
 // Copyright:   (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

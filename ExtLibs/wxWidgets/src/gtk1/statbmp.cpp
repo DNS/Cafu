@@ -2,7 +2,7 @@
 // Name:        statbmp.cpp
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id: statbmp.cpp 58227 2009-01-19 13:55:27Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:           wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ wxStaticBitmap::wxStaticBitmap( wxWindow *parent, wxWindowID id, const wxBitmap 
 // empty bitmap, so that we can create GtkPixmap widget:
 static char * bogus_xpm[] = {
 "2 2 1 1",
-" 	c None",
+"  c None",
 "  ",
 "  "};
 

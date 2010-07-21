@@ -4,7 +4,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by: Wlodzimierz ABX Skiba - native wxRadioBox implementation
 // Created:     10/13/04
-// RCS-ID:      $Id: radiobox.cpp 39567 2006-06-05 16:46:15Z ABX $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne, Wlodzimierz Skiba
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -73,10 +73,7 @@ wxBEGIN_FLAGS( wxRadioBoxStyle )
     wxFLAGS_MEMBER(wxHSCROLL)
 
     wxFLAGS_MEMBER(wxRA_SPECIFY_COLS)
-    wxFLAGS_MEMBER(wxRA_HORIZONTAL)
     wxFLAGS_MEMBER(wxRA_SPECIFY_ROWS)
-    wxFLAGS_MEMBER(wxRA_VERTICAL)
-
 wxEND_FLAGS( wxRadioBoxStyle )
 
 IMPLEMENT_DYNAMIC_CLASS_XTI(wxRadioBox, wxControl,"wx/radiobox.h")

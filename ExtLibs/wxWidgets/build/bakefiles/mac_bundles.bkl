@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<!-- $Id: mac_bundles.bkl 60372 2009-04-26 02:47:45Z KO $ -->
+<!-- $Id$ -->
 
 <makefile>
 
@@ -62,7 +62,7 @@
                 echo -n "APPL????" >$(BUNDLE)/PkgInfo
 
                 <!-- move the binary: -->
-                cp $(ref("__targetdir",id))$(ref("__targetname",id)) $(BUNDLE)/MacOS/$(id)
+                ln -f $(ref("__targetdir",id))$(ref("__targetname",id)) $(BUNDLE)/MacOS/$(id)
 
                 <!-- copy the application icon: -->
                 cp -f $(BUNDLE_ICON) $(BUNDLE)/Resources/wxmac.icns

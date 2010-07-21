@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     17/09/98
-// RCS-ID:      $Id: dcprint.h 56783 2008-11-15 11:10:34Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@ public:
     wxPrinterDCImpl(const wxString& driver, const wxString& device,
                     const wxString& output,
                     bool interactive = true,
-                    int orientation = wxPORTRAIT);
+                    wxPrintOrientation orientation = wxPORTRAIT);
     virtual ~wxPrinterDC();
 
     wxRect GetPaperRect() const;

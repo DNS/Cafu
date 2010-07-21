@@ -2,7 +2,7 @@
 // Name:        src/gtk1/tooltip.cpp
 // Purpose:     wxToolTip implementation
 // Author:      Robert Roebling
-// Id:          $Id: tooltip.cpp 58227 2009-01-19 13:55:27Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

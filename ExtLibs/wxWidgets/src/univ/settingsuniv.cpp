@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     20.08.00
-// RCS-ID:      $Id: settingsuniv.cpp 53616 2008-05-17 09:41:25Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -75,7 +75,7 @@ wxColour wxSystemSettings::GetColour(wxSystemColour index)
     };
 
     wxCHECK_MSG( index < (int)WXSIZEOF(s_mapSysToThemeCol), wxNullColour,
-                 _T("invalid wxSystemColour") );
+                 wxT("invalid wxSystemColour") );
 
     wxColourScheme::StdColour col = s_mapSysToThemeCol[index];
     if ( col == wxColourScheme::MAX )

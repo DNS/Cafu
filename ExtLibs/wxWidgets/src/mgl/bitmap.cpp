@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // Name:        src/mgl/bitmap.cpp
 // Author:      Vaclav Slavik
-// RCS-ID:      $Id: bitmap.cpp 59526 2009-03-14 13:57:51Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -498,8 +498,7 @@ void wxBitmap::SetPalette(const wxPalette& palette)
     wxCHECK_RET( GetDepth() > 1 && GetDepth() <= 8, wxT("cannot set palette for bitmap of this depth") );
 
     AllocExclusive();
-    delete M_BMPDATA->m_palette;
-    M_BMPDATA->m_palette = NULL;
+    wxDELETE(M_BMPDATA->m_palette);
 
     if ( !palette.Ok() ) return;
 

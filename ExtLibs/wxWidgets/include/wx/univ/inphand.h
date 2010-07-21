@@ -5,7 +5,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     18.08.00
-// RCS-ID:      $Id: inphand.h 52834 2008-03-26 15:06:00Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -20,21 +20,21 @@
 // wxTheme::GetInputHandler()
 // ----------------------------------------------------------------------------
 
-#define wxINP_HANDLER_DEFAULT           _T("")
-#define wxINP_HANDLER_BUTTON            _T("button")
-#define wxINP_HANDLER_CHECKBOX          _T("checkbox")
-#define wxINP_HANDLER_CHECKLISTBOX      _T("checklistbox")
-#define wxINP_HANDLER_COMBOBOX          _T("combobox")
-#define wxINP_HANDLER_LISTBOX           _T("listbox")
-#define wxINP_HANDLER_NOTEBOOK          _T("notebook")
-#define wxINP_HANDLER_RADIOBTN          _T("radiobtn")
-#define wxINP_HANDLER_SCROLLBAR         _T("scrollbar")
-#define wxINP_HANDLER_SLIDER            _T("slider")
-#define wxINP_HANDLER_SPINBTN           _T("spinbtn")
-#define wxINP_HANDLER_STATUSBAR         _T("statusbar")
-#define wxINP_HANDLER_TEXTCTRL          _T("textctrl")
-#define wxINP_HANDLER_TOOLBAR           _T("toolbar")
-#define wxINP_HANDLER_TOPLEVEL          _T("toplevel")
+#define wxINP_HANDLER_DEFAULT           wxT("")
+#define wxINP_HANDLER_BUTTON            wxT("button")
+#define wxINP_HANDLER_CHECKBOX          wxT("checkbox")
+#define wxINP_HANDLER_CHECKLISTBOX      wxT("checklistbox")
+#define wxINP_HANDLER_COMBOBOX          wxT("combobox")
+#define wxINP_HANDLER_LISTBOX           wxT("listbox")
+#define wxINP_HANDLER_NOTEBOOK          wxT("notebook")
+#define wxINP_HANDLER_RADIOBTN          wxT("radiobtn")
+#define wxINP_HANDLER_SCROLLBAR         wxT("scrollbar")
+#define wxINP_HANDLER_SLIDER            wxT("slider")
+#define wxINP_HANDLER_SPINBTN           wxT("spinbtn")
+#define wxINP_HANDLER_STATUSBAR         wxT("statusbar")
+#define wxINP_HANDLER_TEXTCTRL          wxT("textctrl")
+#define wxINP_HANDLER_TOOLBAR           wxT("toolbar")
+#define wxINP_HANDLER_TOPLEVEL          wxT("toplevel")
 
 // ----------------------------------------------------------------------------
 // wxInputHandler: maps the events to the actions

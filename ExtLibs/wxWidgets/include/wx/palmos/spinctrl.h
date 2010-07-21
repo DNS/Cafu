@@ -4,7 +4,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by:
 // Created:     10/13/04
-// RCS-ID:      $Id: spinctrl.h 58757 2009-02-08 11:45:59Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ public:
                const wxSize& size = wxDefaultSize,
                long style = wxSP_ARROW_KEYS,
                int min = 0, int max = 100, int initial = 0,
-               const wxString& name = _T("wxSpinCtrl"))
+               const wxString& name = wxT("wxSpinCtrl"))
     {
         Create(parent, id, value, pos, size, style, min, max, initial, name);
     }
@@ -49,7 +49,7 @@ public:
                 const wxSize& size = wxDefaultSize,
                 long style = wxSP_ARROW_KEYS,
                 int min = 0, int max = 100, int initial = 0,
-                const wxString& name = _T("wxSpinCtrl"));
+                const wxString& name = wxT("wxSpinCtrl"));
 
     // a wxTextCtrl-like method (but we can't have GetValue returning wxString
     // because the base class already has one returning int!)

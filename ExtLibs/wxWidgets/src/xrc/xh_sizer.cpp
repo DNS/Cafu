@@ -3,7 +3,7 @@
 // Purpose:     XRC resource for wxBoxSizer
 // Author:      Vaclav Slavik
 // Created:     2000/03/21
-// RCS-ID:      $Id: xh_sizer.cpp 59572 2009-03-16 13:33:39Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 Vaclav Slavik
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

@@ -2,9 +2,9 @@
 // Name:        src/mgl/evtloop.cpp
 // Purpose:     implements wxEventLoop for MGL
 // Author:      Vaclav Slavik
-// RCS-ID:      $Id: evtloop.cpp 58911 2009-02-15 14:25:08Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
-// License:     wxWindows licence
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 // ----------------------------------------------------------------------------
@@ -109,13 +109,13 @@ bool wxEventLoopImpl::SendIdleEvent()
 
 wxGUIEventLoop::~wxGUIEventLoop()
 {
-    wxASSERT_MSG( !m_impl, _T("should have been deleted in Run()") );
+    wxASSERT_MSG( !m_impl, wxT("should have been deleted in Run()") );
 }
 
 int wxGUIEventLoop::Run()
 {
     // event loops are not recursive, you need to create another loop!
-    wxCHECK_MSG( !IsRunning(), -1, _T("can't reenter a message loop") );
+    wxCHECK_MSG( !IsRunning(), -1, wxT("can't reenter a message loop") );
 
     m_impl = new wxEventLoopImpl;
 
@@ -143,15 +143,14 @@ int wxGUIEventLoop::Run()
     OnExit();
 
     int exitcode = m_impl->GetExitCode();
-    delete m_impl;
-    m_impl = NULL;
+    wxDELETE(m_impl);
 
     return exitcode;
 }
 
 void wxGUIEventLoop::Exit(int rc)
 {
-    wxCHECK_RET( IsRunning(), _T("can't call Exit() if not running") );
+    wxCHECK_RET( IsRunning(), wxT("can't call Exit() if not running") );
 
     m_impl->SetExitCode(rc);
     m_impl->SetKeepLooping(false);
@@ -178,7 +177,7 @@ bool wxGUIEventLoop::Pending() const
 
 bool wxGUIEventLoop::Dispatch()
 {
-    wxCHECK_MSG( IsRunning(), false, _T("can't call Dispatch() if not running") );
+    wxCHECK_MSG( IsRunning(), false, wxT("can't call Dispatch() if not running") );
 
     m_impl->Dispatch();
     return m_impl->GetKeepLooping();

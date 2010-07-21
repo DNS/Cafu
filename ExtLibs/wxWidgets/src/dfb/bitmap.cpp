@@ -3,7 +3,7 @@
 // Purpose:     wxBitmap implementation
 // Author:      Vaclav Slavik
 // Created:     2006-08-04
-// RCS-ID:      $Id: bitmap.cpp 59526 2009-03-14 13:57:51Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2006 REA Elektronik GmbH
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -696,8 +696,7 @@ void wxBitmap::SetPalette(const wxPalette& palette)
     wxCHECK_RET( GetDepth() > 1 && GetDepth() <= 8, wxT("cannot set palette for bitmap of this depth") );
 
     AllocExclusive();
-    delete M_BITMAP->m_palette;
-    M_BITMAP->m_palette = NULL;
+    wxDELETE(M_BITMAP->m_palette);
 
     if ( !palette.Ok() ) return;
 

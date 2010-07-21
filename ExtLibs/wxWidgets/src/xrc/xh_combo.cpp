@@ -3,7 +3,7 @@
 // Purpose:     XRC resource for wxComboBox
 // Author:      Bob Mitchell
 // Created:     2000/03/21
-// RCS-ID:      $Id: xh_combo.cpp 51046 2008-01-06 19:00:52Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 Bob Mitchell and Verant Interactive
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

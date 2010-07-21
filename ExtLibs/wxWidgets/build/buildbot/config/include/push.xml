@@ -4,9 +4,9 @@
     Name:       include/push.xml
     Purpose:    Declarations for the push build slave
     Author:     Mike Wetherell
-    RCS-ID:     $Id: push.xml 53177 2008-04-15 12:16:40Z MW $
+    RCS-ID:     $Id$
     Copyright:  (c) 2007 Mike Wetherell
-    Licence:    wxWidgets licence
+    Licence:    wxWindows licence
 -->
 
 <bot xmlns:xsl="http://www.w3.org/1999/XSL/Transform"

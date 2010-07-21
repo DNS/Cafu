@@ -4,7 +4,7 @@
 // Author:      Vaclav Slavik
 //              (based on GTK, MSW, MGL implementations)
 // Created:     2006-80-10
-// RCS-ID:      $Id: window.cpp 58999 2009-02-18 17:15:40Z PC $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2006 REA Elektronik GmbH
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,15 @@ IMPLEMENT_ABSTRACT_CLASS(wxWindowDFB, wxWindowBase)
 
 BEGIN_EVENT_TABLE(wxWindowDFB, wxWindowBase)
 END_EVENT_TABLE()
+
+//-----------------------------------------------------------------------------
+// global functions
+//-----------------------------------------------------------------------------
+
+wxWindow *wxGetActiveWindow()
+{
+    return wxWindow::FindFocus();
+}
 
 // ----------------------------------------------------------------------------
 // constructors and such
@@ -548,10 +557,11 @@ int wxWindowDFB::GetCharWidth() const
     return dc.GetCharWidth();
 }
 
-void wxWindowDFB::GetTextExtent(const wxString& string,
-                             int *x, int *y,
-                             int *descent, int *externalLeading,
-                             const wxFont *theFont) const
+void wxWindowDFB::DoGetTextExtent(const wxString& string,
+                                  int *x, int *y,
+                                  int *descent,
+                                  int *externalLeading,
+                                  const wxFont *theFont) const
 {
     wxWindowDC dc((wxWindow*)this);
     dc.GetTextExtent(string, x, y, descent, externalLeading, (wxFont*)theFont);
@@ -791,7 +801,7 @@ void wxWindowDFB::RemoveOverlay(wxOverlayImpl *overlay)
 #define KEY(dfb, wx)                                                \
     case dfb:                                                       \
           wxLogTrace(TRACE_EVENTS,                                  \
-                     _T("key " #dfb " mapped to " #wx));            \
+                     wxT("key " #dfb " mapped to " #wx));            \
           return wx
 
 // returns translated keycode, i.e. the one for KEYUP/KEYDOWN where 'a'..'z' is
@@ -957,13 +967,11 @@ static long GetUntraslatedKeyCode(DFBInputDeviceKeyIdentifier key_id,
                 return key_symbol;
             else
             {
-#if wxUSE_WCHAR_T
                 wchar_t chr = key_symbol;
                 wxCharBuffer buf(wxConvUI->cWC2MB(&chr, 1, NULL));
                 if ( buf )
                     return *buf; // may be 0 if failed
                 else
-#endif // wxUSE_WCHAR_T
                     return 0;
             }
 #endif

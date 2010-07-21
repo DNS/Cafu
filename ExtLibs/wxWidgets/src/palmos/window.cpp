@@ -4,7 +4,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by: Wlodzimierz ABX Skiba - more than minimal functionality
 // Created:     10/13/04
-// RCS-ID:      $Id: window.cpp 52227 2008-03-02 00:53:32Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne, Wlodzimierz Skiba
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -610,10 +610,11 @@ int wxWindowPalm::GetCharWidth() const
     return 0;
 }
 
-void wxWindowPalm::GetTextExtent(const wxString& string,
-                             int *x, int *y,
-                             int *descent, int *externalLeading,
-                             const wxFont *theFont) const
+void wxWindowPalm::DoGetTextExtent(const wxString& string,
+                                   int *x, int *y,
+                                   int *descent,
+                                   int *externalLeading,
+                                   const wxFont *theFont) const
 {
 }
 

@@ -4,7 +4,7 @@
 // Author:      Julian Smart, Robert Roebling
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: dcclient.cpp 58227 2009-01-19 13:55:27Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart, Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -183,7 +183,7 @@ wxWindowDCImpl::wxWindowDCImpl( wxDC* owner, wxWindow *window )
 
     m_font = window->GetFont();
 
-    m_x11window = (WXWindow*) window->GetMainWindow();
+    m_x11window = (WXWindow*) window->X11GetMainWindow();
 
     // not realized ?
     if (!m_x11window)
@@ -345,7 +345,7 @@ void wxWindowDCImpl::SetUpDC()
 
 void wxWindowDCImpl::DoGetSize( int* width, int* height ) const
 {
-    wxCHECK_RET( m_window, _T("GetSize() doesn't work without window") );
+    wxCHECK_RET( m_window, wxT("GetSize() doesn't work without window") );
 
     m_window->GetSize(width, height);
 }
@@ -1291,7 +1291,7 @@ void wxWindowDCImpl::DoDrawBitmap( const wxBitmap &bitmap,
   // wxUSE_NANOX/!wxUSE_NANOX
 
 bool wxWindowDCImpl::DoBlit( wxCoord xdest, wxCoord ydest, wxCoord width, wxCoord height,
-                         wxDC *source, wxCoord xsrc, wxCoord ysrc, 
+                         wxDC *source, wxCoord xsrc, wxCoord ysrc,
                          wxRasterOperationMode logical_func, bool useMask,
                          wxCoord xsrcMask, wxCoord ysrcMask )
 {
@@ -2351,12 +2351,12 @@ IMPLEMENT_ABSTRACT_CLASS(wxClientDCImpl, wxWindowDCImpl)
 wxClientDCImpl::wxClientDCImpl( wxDC *owner, wxWindow *window )
           : wxWindowDCImpl( owner, window )
 {
-    wxCHECK_RET( window, _T("NULL window in wxClientDC::wxClientDC") );
+    wxCHECK_RET( window, wxT("NULL window in wxClientDC::wxClientDC") );
 
     m_x11window = (WXWindow*) window->GetClientAreaWindow();
 
     // Adjust the client area when the wxWindow is not using 2 X11 windows.
-    if (m_x11window == (WXWindow*) window->GetMainWindow())
+    if (m_x11window == (WXWindow*) window->X11GetMainWindow())
     {
         wxPoint ptOrigin = window->GetClientAreaOrigin();
         SetDeviceOrigin(ptOrigin.x, ptOrigin.y);
@@ -2367,7 +2367,7 @@ wxClientDCImpl::wxClientDCImpl( wxDC *owner, wxWindow *window )
 
 void wxClientDCImpl::DoGetSize(int *width, int *height) const
 {
-    wxCHECK_RET( m_window, _T("GetSize() doesn't work without window") );
+    wxCHECK_RET( m_window, wxT("GetSize() doesn't work without window") );
 
     m_window->GetClientSize( width, height );
 }
@@ -2410,7 +2410,7 @@ public:
     // display
     wxDCModule()
     {
-        AddDependency(wxClassInfo::FindClass(_T("wxX11DisplayModule")));
+        AddDependency(wxClassInfo::FindClass(wxT("wxX11DisplayModule")));
     }
 
     bool OnInit() { wxInitGCPool(); return true; }

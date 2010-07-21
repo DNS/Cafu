@@ -2,8 +2,8 @@
 // Name:        screenshot_main.h
 // Purpose:     Defines the Application Frame
 // Author:      Utensil Candel (UtensilCandel@@gmail.com)
-// RCS-ID:      $Id: screenshot_main.h 58091 2009-01-14 13:26:37Z FM $
-// Licence:     wxWindows license
+// RCS-ID:      $Id$
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _SCREENSHOT_MAIN_H_

@@ -4,7 +4,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by:
 // Created:     10/12/04
-// RCS-ID:      $Id: menu.cpp 52227 2008-03-02 00:53:32Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -217,7 +217,7 @@ void wxMenu::EndRadioGroup()
 
 wxMenuItem* wxMenu::DoAppend(wxMenuItem *item)
 {
-    wxCHECK_MSG( item, NULL, _T("NULL item in wxMenu::DoAppend") );
+    wxCHECK_MSG( item, NULL, wxT("NULL item in wxMenu::DoAppend") );
 
     if(!wxMenuBase::DoAppend(item) || !DoInsertOrAppend(item))
     {

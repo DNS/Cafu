@@ -4,7 +4,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by:
 // Created:     10/17/04
-// RCS-ID:      $Id: app.h 58911 2009-02-15 14:25:08Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -85,7 +85,7 @@ protected:
 
 extern WXDLLIMPEXP_CORE int wxEntry();
 
-#define IMPLEMENT_WXWIN_MAIN                                              \
+#define wxIMPLEMENT_WXWIN_MAIN                                            \
                                                                           \
     extern "C" {                                                          \
                                                                           \

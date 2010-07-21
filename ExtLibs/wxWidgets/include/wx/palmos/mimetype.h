@@ -4,7 +4,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by:
 // Created:     10/13/04
-// RCS-ID:      $Id: mimetype.h 35650 2005-09-23 12:56:45Z MR $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -101,12 +101,6 @@ public:
     wxFileType *GetFileTypeFromMimeType(const wxString& mimeType);
 
     size_t EnumAllFileTypes(wxArrayString& mimetypes);
-
-    // this are NOPs under Windows
-    bool ReadMailcap(const wxString& WXUNUSED(filename), bool WXUNUSED(fallback) = TRUE)
-        { return TRUE; }
-    bool ReadMimeTypes(const wxString& WXUNUSED(filename))
-        { return TRUE; }
 
     // create a new filetype association
     wxFileType *Associate(const wxFileTypeInfo& ftInfo);

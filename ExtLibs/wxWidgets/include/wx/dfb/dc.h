@@ -3,7 +3,7 @@
 // Purpose:     wxDC class
 // Author:      Vaclav Slavik
 // Created:     2006-08-07
-// RCS-ID:      $Id: dc.h 57907 2009-01-08 14:21:53Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2006 REA Elektronik GmbH
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     12.09.00
-// RCS-ID:      $Id: checklst.h 52834 2008-03-26 15:06:00Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) Vadim Zeitlin
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -16,7 +16,7 @@
 // actions
 // ----------------------------------------------------------------------------
 
-#define wxACTION_CHECKLISTBOX_TOGGLE _T("toggle")
+#define wxACTION_CHECKLISTBOX_TOGGLE wxT("toggle")
 
 // ----------------------------------------------------------------------------
 // wxCheckListBox

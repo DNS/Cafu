@@ -2,7 +2,7 @@
 // Name:        src/gtk1/clipbrd.cpp
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id: clipbrd.cpp 59745 2009-03-22 21:42:40Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -83,7 +83,7 @@ targets_selection_received( GtkWidget *WXUNUSED(widget),
             if ( strcmp(atom_name, "TARGETS") )
             {
                 wxLogTrace( TRACE_CLIPBOARD,
-                            _T("got unsupported clipboard target") );
+                            wxT("got unsupported clipboard target") );
 
                 clipboard->m_waiting = false;
                 g_free(atom_name);
@@ -216,8 +216,7 @@ selection_clear_clip( GtkWidget *WXUNUSED(widget), GdkEventSelection *event )
         {
             wxLogTrace(TRACE_CLIPBOARD, wxT("wxClipboard will get cleared" ));
 
-            delete wxTheClipboard->m_data;
-            wxTheClipboard->m_data = NULL;
+            wxDELETE(wxTheClipboard->m_data);
         }
     }
 
@@ -257,7 +256,7 @@ selection_handler( GtkWidget *WXUNUSED(widget),
                                (guchar*)&(timestamp),
                                sizeof(timestamp));
         wxLogTrace(TRACE_CLIPBOARD,
-                   _T("Clipboard TIMESTAMP requested, returning timestamp=%u"),
+                   wxT("Clipboard TIMESTAMP requested, returning timestamp=%u"),
                    timestamp);
         return;
     }
@@ -265,7 +264,7 @@ selection_handler( GtkWidget *WXUNUSED(widget),
     wxDataFormat format( selection_data->target );
 
     wxLogTrace(TRACE_CLIPBOARD,
-               _T("clipboard data in format %s, GtkSelectionData is target=%s type=%s selection=%s timestamp=%u"),
+               wxT("clipboard data in format %s, GtkSelectionData is target=%s type=%s selection=%s timestamp=%u"),
                format.GetId().c_str(),
                wxString::FromAscii(gdk_atom_name(selection_data->target)).c_str(),
                wxString::FromAscii(gdk_atom_name(selection_data->type)).c_str(),
@@ -383,11 +382,7 @@ void wxClipboard::Clear()
             while (m_waiting) gtk_main_iteration();
         }
 
-        if (m_data)
-        {
-            delete m_data;
-            m_data = NULL;
-        }
+        wxDELETE(m_data);
 
 #if wxUSE_THREADS
         /* re-enable GUI threads */

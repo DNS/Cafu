@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: dcmemory.cpp 50354 2007-11-30 15:26:05Z RR $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -26,14 +26,14 @@ IMPLEMENT_ABSTRACT_CLASS(wxMemoryDCImpl,wxWindowDCImpl)
 
 wxMemoryDCImpl::wxMemoryDCImpl( wxDC *owner )
   : wxWindowDCImpl( owner )
-{ 
+{
     Init();
 }
 
 wxMemoryDCImpl::wxMemoryDCImpl(  wxDC *owner, wxBitmap& bitmap )
   : wxWindowDCImpl( owner )
-{ 
-    Init(); 
+{
+    Init();
     DoSelect(bitmap);
 }
 

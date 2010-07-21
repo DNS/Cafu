@@ -3,7 +3,7 @@
 // Purpose:     XRC resource handler for wxTreebook
 // Author:      Evgeniy Tarassov
 // Created:     2005/09/28
-// RCS-ID:      $Id: xh_treebk.cpp 59556 2009-03-15 10:29:14Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2005 TT-Solutions <vadim@tt-solutions.com>
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -61,6 +61,10 @@ wxObject *wxTreebookXmlHandler::DoCreateResource()
                     GetStyle(wxT("style")),
                     GetName());
 
+        wxImageList *imagelist = GetImageList();
+        if ( imagelist )
+            tbk->AssignImageList(imagelist);
+
         wxTreebook * old_par = m_tbk;
         m_tbk = tbk;
 
@@ -116,6 +120,18 @@ wxObject *wxTreebookXmlHandler::DoCreateResource()
                 m_tbk->AssignImageList( imgList );
             }
             imgIndex = imgList->Add(bmp);
+        }
+        else if ( HasParam(wxT("image")) )
+        {
+            if ( m_tbk->GetImageList() )
+            {
+                imgIndex = GetLong(wxT("image"));
+            }
+            else // image without image list?
+            {
+                ReportError(n, "image can only be used in conjunction "
+                               "with imagelist");
+            }
         }
 
         // then add the page to the corresponding parent

@@ -2,8 +2,8 @@
 // Name:        eventhandling.h
 // Purpose:     topic overview
 // Author:      wxWidgets team
-// RCS-ID:      $Id: eventhandling.h 59952 2009-03-30 21:55:03Z VZ $
-// Licence:     wxWindows license
+// RCS-ID:      $Id$
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -110,7 +110,7 @@ return information is passed via the argument, which is why it is non-const).
 You also need to insert a macro
 
 @code
-DECLARE_EVENT_TABLE()
+wxDECLARE_EVENT_TABLE()
 @endcode
 
 somewhere in the class declaration. It doesn't matter where it appears but
@@ -150,12 +150,12 @@ placed in an implementation file. The event table tells wxWidgets how to map
 events to member functions and in our example it could look like this:
 
 @code
-BEGIN_EVENT_TABLE(MyFrame, wxFrame)
+wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
     EVT_MENU(wxID_EXIT, MyFrame::OnExit)
     EVT_MENU(DO_TEST, MyFrame::DoTest)
     EVT_SIZE(MyFrame::OnSize)
     EVT_BUTTON(BUTTON1, MyFrame::OnButton1)
-END_EVENT_TABLE()
+wxEND_EVENT_TABLE()
 @endcode
 
 Notice that you must mention a method you want to use for the event handling in
@@ -220,6 +220,8 @@ events.
 
 
 @subsection overview_events_bind Dynamic Event Handling
+
+@see @ref overview_cpp_rtti_disabled
 
 The possibilities of handling events in this way are rather different.
 Let us start by looking at the syntax: the first obvious difference is that you
@@ -428,7 +430,10 @@ in simple situations where this extra flexibility is not needed.
 
 The previous sections explain how to define event handlers but don't address
 the question of how exactly wxWidgets finds the handler to call for the
-given event. This section describes the algorithm used in detail.
+given event. This section describes the algorithm used in detail. Notice that
+you may want to run the @ref page_samples_event while reading this section and
+look at its code and the output when the button which can be used to test the
+event handlers execution order is clicked to understand it better.
 
 When an event is received from the windowing system, wxWidgets calls
 wxEvtHandler::ProcessEvent() on the first event handler object belonging to the
@@ -454,11 +459,11 @@ doesn't count as having handled the event and the search continues):
     </li>
 
     <li value="3">
-    The list of dynamically bind event handlers, i.e., those for which
+    The list of dynamically bound event handlers, i.e., those for which
     Bind<>() was called, is consulted. Notice that this is done before
     checking the static event table entries, so if both a dynamic and a static
     event handler match the same event, the static one is never going to be
-    used.
+    used unless wxEvent::Skip() is called in the dynamic one.
     </li>
 
     <li value="4">
@@ -470,21 +475,9 @@ doesn't count as having handled the event and the search continues):
 
     <li value="5">
     The event is passed to the next event handler, if any, in the event handler
-    chain, i.e., the steps (1) to (4) are done for it. This chain can be formed
-    using wxEvtHandler::SetNextHandler():
-        @image html overview_events_chain.png
-    (referring to the image, if @c A->ProcessEvent is called and it doesn't handle
-     the event, @c B->ProcessEvent will be called and so on...).
-    In the case of wxWindow you can build a stack (implemented using wxEvtHandler
-    double-linked list) using wxWindow::PushEventHandler():
-        @image html overview_events_winstack.png
-    (referring to the image, if @c W->ProcessEvent is called, it immediately calls
-     @c A->ProcessEvent; if nor @c A nor @c B handle the event, then the wxWindow
-     itself is used - i.e. the dynamically bind event handlers and static
-     event table entries of wxWindow are looked as the last possibility, after
-     all pushed event handlers were tested).
-    Note however that usually there are no wxEvtHandler chains nor wxWindows stacks
-    so this step will usually do anything.
+    chain, i.e., the steps (1) to (4) are done for it. Usually there is no next
+    event handler so the control passes to the next step but see @ref
+    overview_events_nexthandler for how the next handler may be defined.
     </li>
 
     <li value="6">
@@ -544,7 +537,7 @@ and their parent-child relation are well understood by the programmer while it
 may be difficult, if not impossible, to track down all the dialogs that
 may be popped up in a complex program (remember that some are created
 automatically by wxWidgets). If you need to specify a different behaviour for
-some reason, you can use wxWindow::SetExtraStyle(wxWS_EX_BLOCK_EVENTS)
+some reason, you can use <tt>wxWindow::SetExtraStyle(wxWS_EX_BLOCK_EVENTS)</tt>
 explicitly to prevent the events from being propagated beyond the given window
 or unset this flag for the dialogs that have it on by default.
 
@@ -563,6 +556,27 @@ will have to be written that will override ProcessEvent() in order to pass
 all events (or any selection of them) to the parent window.
 
 
+@subsection overview_events_nexthandler Event Handlers Chain
+
+The step 4 of the event propagation algorithm checks for the next handler in
+the event handler chain. This chain can be formed using
+wxEvtHandler::SetNextHandler():
+        @image html overview_events_chain.png
+(referring to the image, if @c A->ProcessEvent is called and it doesn't handle
+ the event, @c B->ProcessEvent will be called and so on...).
+
+Additionally, in the case of wxWindow you can build a stack (implemented using
+wxEvtHandler double-linked list) using wxWindow::PushEventHandler():
+        @image html overview_events_winstack.png
+(referring to the image, if @c W->ProcessEvent is called, it immediately calls
+ @c A->ProcessEvent; if nor @c A nor @c B handle the event, then the wxWindow
+itself is used -- i.e. the dynamically bind event handlers and static event
+table entries of wxWindow are looked as the last possibility, after all pushed
+event handlers were tested).
+
+By default the chain is empty, i.e. there is no next handler.
+
+
 @section overview_events_custom Custom Event Summary
 
 @subsection overview_events_custom_general General approach
@@ -579,6 +593,16 @@ either wxEvent (which doesn't provide any extra information) or wxCommandEvent
 Both strategies are described in details below. See also the @ref
 page_samples_event for a complete example of code defining and working with the
 custom event types.
+
+Finally, you will need to generate and post your custom events.
+Generation is as simple as instancing your custom event class and initializing
+its internal fields.
+For posting events to a certain event handler there are two possibilities: 
+using wxEvtHandler::AddPendingEvent or using wxEvtHandler::QueueEvent.
+Basically you will need to use the latter when doing inter-thread communication;
+when you use only the main thread you can also safely use the former.
+Last, note that there are also two simple global wrapper functions associated
+to the two wxEvtHandler mentioned functions: wxPostEvent() and wxQueueEvent().
 
 
 @subsection overview_events_custom_existing Using Existing Event Classes

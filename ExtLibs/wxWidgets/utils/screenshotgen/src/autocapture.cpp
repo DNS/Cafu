@@ -2,8 +2,8 @@
 // Name:        autocapture.cpp
 // Purpose:     Implement wxCtrlMaskOut class
 // Author:      Utensil Candel (UtensilCandel@@gmail.com)
-// RCS-ID:      $Id: autocapture.cpp 58201 2009-01-18 19:43:32Z FM $
-// Licence:     wxWindows license
+// RCS-ID:      $Id$
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 // For compilers that support precompilation, includes "wx/wx.h".
@@ -13,15 +13,17 @@
 #pragma hdrstop
 #endif
 
-// for all others, include the necessary headers wxWidgets headers)
+#include "autocapture.h"
+
 #ifndef WX_PRECOMP
 #include "wx/wx.h"
 #endif
 
-#include <ctime>
-#include <wx/notebook.h>
+#include "wx/bitmap.h"
+#include "wx/filename.h"
+#include "wx/notebook.h"
 
-#include "autocapture.h"
+#include <ctime>
 
 #ifdef __WXMAC__
 #include <cstring>
@@ -32,8 +34,17 @@
 // AutoCaptureMechanism
 // ----------------------------------------------------------------------------
 
+AutoCaptureMechanism::AutoCaptureMechanism(wxNotebook *notebook,
+                                           int flag, int margin)
+: m_notebook(notebook),
+  m_flag(flag),
+  m_margin(margin),
+  m_grid(NULL)
+{
+}
+
 /* static */
-wxString AutoCaptureMechanism::default_dir = _T("screenshots");
+wxString AutoCaptureMechanism::default_dir = wxT("screenshots");
 
 /* static */
 wxString AutoCaptureMechanism::GetDefaultDirectoryAbsPath()
@@ -46,42 +57,42 @@ wxString AutoCaptureMechanism::GetDefaultDirectoryAbsPath()
 /* static */
 void AutoCaptureMechanism::Delay(int seconds)
 {
-	// TODO: Switch this to use wxTimer.
+    // TODO: Switch this to use wxTimer.
 
     // Wait for 3 seconds
     clock_t start = clock();
-    while (clock() - start < CLOCKS_PER_SEC * seconds)
+    while ( clock() - start < (clock_t)CLOCKS_PER_SEC * seconds)
         wxYieldIfNeeded();
 }
 
 /* static */
-wxBitmap AutoCaptureMechanism::Capture(int x, int y, int width, int height, int delay)
+bool AutoCaptureMechanism::Capture(wxBitmap* bitmap, int x, int y,
+                                   int width, int height, int delay)
 {
     // Somehow wxScreenDC.Blit() doesn't work under Mac for now. Here is a trick.
 #ifdef __WXMAC__
 
-    // wxExecute(_T("screencapture -x ") + tempfile, wxEXEC_SYNC);
+    // wxExecute(wxT("screencapture -x ") + tempfile, wxEXEC_SYNC);
 
     char captureCommand[80] =""; // a reasonable max size is 80
-
     sprintf(captureCommand, "sleep %d;%s", delay, "screencapture -x /tmp/wx_screen_capture.png");
-
     system(captureCommand);
-
-    wxBitmap fullscreen;
 
     if(delay) Delay(delay);
 
+    wxBitmap fullscreen;
     do
     {
-        fullscreen = wxBitmap(_T("/tmp/wx_screen_capture.png"), wxBITMAP_TYPE_PNG);
+        fullscreen = wxBitmap(wxT("/tmp/wx_screen_capture.png"), wxBITMAP_TYPE_PNG);
     }
     while(!fullscreen.IsOk());
 
-    wxBitmap screenshot = fullscreen.GetSubBitmap(wxRect(x,y,width,height));
+    *bitmap = fullscreen.GetSubBitmap(wxRect(x, y, width, height));
 
     // to prevent loading the old screenshot next time
     system("rm /tmp/wx_screen_capture.png");
+
+    return true;
 
 #else // Under other paltforms, take a real screenshot
 
@@ -90,17 +101,12 @@ wxBitmap AutoCaptureMechanism::Capture(int x, int y, int width, int height, int 
     // Create a DC for the whole screen area
     wxScreenDC dcScreen;
 
-    // Create a Bitmap that will later on hold the screenshot image
-    // Note that the Bitmap must have a size big enough to hold the screenshot
-    // -1 means using the current default colour depth
-    wxBitmap screenshot(width, height, -1);
+    bitmap->Create(width, height);
 
     // Create a memory DC that will be used for actually taking the screenshot
     wxMemoryDC memDC;
-
-    // Tell the memory DC to use our Bitmap
-    // all drawing action on the memory DC will go to the Bitmap now
-    memDC.SelectObject(screenshot);
+    memDC.SelectObject((*bitmap));
+    memDC.Clear();
 
     // Blit (in this case copy) the actual screen on the memory DC
     // and thus the Bitmap
@@ -118,18 +124,18 @@ wxBitmap AutoCaptureMechanism::Capture(int x, int y, int width, int height, int 
     memDC.SelectObject(wxNullBitmap);
 #endif // #ifdef __WXMAC__
 
-    return screenshot;
+    return true;
 }
 
 /* static */
-wxBitmap AutoCaptureMechanism::Capture(wxRect rect, int delay)
+bool AutoCaptureMechanism::Capture(wxBitmap* bitmap, wxRect rect, int delay)
 {
     wxPoint origin = rect.GetPosition();
-    return Capture(origin.x, origin.y, rect.GetWidth(), rect.GetHeight(), delay);
+    return Capture(bitmap, origin.x, origin.y, rect.GetWidth(), rect.GetHeight(), delay);
 }
 
 /* static */
-void AutoCaptureMechanism::Save(wxBitmap screenshot, wxString fileName)
+void AutoCaptureMechanism::Save(wxBitmap* screenshot, const wxString& fileName)
 {
     // make sure default_dir exists
     if (!wxDirExists(default_dir))
@@ -142,7 +148,7 @@ void AutoCaptureMechanism::Save(wxBitmap screenshot, wxString fileName)
         fullFileName.SetName(fullFileName.GetName() + "_");
 
     // save the screenshot as a PNG
-    screenshot.SaveFile(fullFileName.GetFullPath(), wxBITMAP_TYPE_PNG);
+    screenshot->SaveFile(fullFileName.GetFullPath(), wxBITMAP_TYPE_PNG);
 }
 
 void AutoCaptureMechanism::CaptureAll()
@@ -165,7 +171,8 @@ void AutoCaptureMechanism::CaptureAll()
         }
 
         // create the screenshot
-        wxBitmap screenshot = Capture(ctrl);
+        wxBitmap screenshot(1, 1);
+        Capture(&screenshot, ctrl);
 
         if(ctrl.flag & AJ_Union)
         {
@@ -174,21 +181,25 @@ void AutoCaptureMechanism::CaptureAll()
             {
                 ++it;
                 it->name = ctrl.name; //preserving the name
-                screenshot = Union(screenshot, Capture(*it));
+                wxBitmap screenshot2(1, 1);
+                Capture(&screenshot2, *it);
+                wxBitmap combined(1, 1);
+                Union(&screenshot, &screenshot2, &combined);
+                screenshot = combined;
             }
             while(!(it->flag & AJ_UnionEnd));
         }
 
         // and save it
-        Save(screenshot, ctrl.name);
+        Save(&screenshot, ctrl.name);
     }
 }
 
-wxBitmap AutoCaptureMechanism::Capture(Control& ctrl)
+bool AutoCaptureMechanism::Capture(wxBitmap* bitmap, Control& ctrl)
 {
     // no manual specification for the control name
     // or name adjustment is disabled globally
-    if (ctrl.name == _T("") || m_flag & AJ_DisableNameAdjust)
+    if (ctrl.name == wxT("") || m_flag & AJ_DisableNameAdjust)
     {
         // Get its name from wxRTTI
         ctrl.name = ctrl.ctrl->GetClassInfo()->GetClassName();
@@ -223,52 +234,52 @@ wxBitmap AutoCaptureMechanism::Capture(Control& ctrl)
 
     // cut off "wx" and change the name into lowercase.
     // e.g. wxButton will have a name of "button" at the end
-    ctrl.name.StartsWith(_T("wx"), &(ctrl.name));
+    ctrl.name.StartsWith(wxT("wx"), &(ctrl.name));
     ctrl.name.MakeLower();
 
     // take the screenshot
-    wxBitmap screenshot = Capture(rect, (choice == wxYES)?5:0);
+    Capture(bitmap, rect, (choice == wxYES)?5:0);
 
     if (choice == wxYES) ctrl.ctrl->SetCursor(wxNullCursor);
 
     if (ctrl.flag & AJ_RegionAdjust)
         PutBack(ctrl.ctrl);
 
-    return screenshot;
+    return true;
 }
 
-wxBitmap AutoCaptureMechanism::Union(wxBitmap pic1, wxBitmap pic2)
+/* static */
+bool AutoCaptureMechanism::Union(wxBitmap* top, wxBitmap* bottom, wxBitmap* result)
 {
     int w1, w2, h1, h2, w, h;
-    w1 = pic1.GetWidth();
-    w2 = pic2.GetWidth();
-    h1 = pic1.GetHeight();
-    h2 = pic2.GetHeight();
+    w1 = top->GetWidth();
+    w2 = bottom->GetWidth();
+    h1 = top->GetHeight();
+    h2 = bottom->GetHeight();
 
     const int gap_between = 20;
 
     w = (w1 >= w2) ? w1 : w2;
     h = h1 + h2 + gap_between;
 
-    wxBitmap result(w, h, -1);
+    result->Create(w, h);
 
     wxMemoryDC dstDC;
-    dstDC.SelectObject(result);
+    dstDC.SelectObject((*result));
 
-    dstDC.SetPen(*wxTRANSPARENT_PEN);
     dstDC.SetBrush(*wxWHITE_BRUSH);
-    dstDC.DrawRectangle(-1, -1, w + 1, h + 1);
-    dstDC.DrawBitmap(pic1, 0, 0, false);
-    dstDC.DrawBitmap(pic2, 0, h1 + gap_between, false);
+    dstDC.Clear();
+    dstDC.DrawBitmap((*top), 0, 0);
+    dstDC.DrawBitmap((*bottom), 0, h1 + gap_between);
 
     dstDC.SelectObject(wxNullBitmap);
 
-    return result;
+    return true;
 }
 
 wxRect AutoCaptureMechanism::GetRect(wxWindow* ctrl, int flag)
 {
-    if( !(m_flag & AJ_DisableRegionAdjust) && (flag & AJ_RegionAdjust)
+    if( (!(m_flag & AJ_DisableRegionAdjust) && (flag & AJ_RegionAdjust))
         || (m_flag & AJ_AlwaysRegionAdjust) )
     {
         wxWindow * parent = ctrl->GetParent();
@@ -296,16 +307,16 @@ wxRect AutoCaptureMechanism::GetRect(wxWindow* ctrl, int flag)
         wxStaticText* l[4];
 
         for (int i = 0; i < 4; ++i)
-            l[i] = new wxStaticText(parent, wxID_ANY, _T(" "));
+            l[i] = new wxStaticText(parent, wxID_ANY, wxT(" "));
 
         m_grid->Add(l[0]);
-        m_grid->Add(new wxStaticText(parent, wxID_ANY, _T(" ")));
+        m_grid->Add(new wxStaticText(parent, wxID_ANY, wxT(" ")));
         m_grid->Add(l[1]);
-        m_grid->Add(new wxStaticText(parent, wxID_ANY, _T(" ")));
+        m_grid->Add(new wxStaticText(parent, wxID_ANY, wxT(" ")));
         m_grid->Add(ctrl, 1, wxEXPAND);
-        m_grid->Add(new wxStaticText(parent, wxID_ANY, _T(" ")));
+        m_grid->Add(new wxStaticText(parent, wxID_ANY, wxT(" ")));
         m_grid->Add(l[2]);
-        m_grid->Add(new wxStaticText(parent, wxID_ANY, _T(" ")));
+        m_grid->Add(new wxStaticText(parent, wxID_ANY, wxT(" ")));
         m_grid->Add(l[3]);
 
         sizer->Add(m_grid);

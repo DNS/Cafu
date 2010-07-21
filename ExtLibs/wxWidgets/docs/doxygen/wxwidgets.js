@@ -2,8 +2,8 @@
  ** Name:        wxwidgets.js
  ** Purpose:     The wxWidgets documentation javascript
  ** Author:      Doxygen team
- ** RCS-ID:      $Id: wxwidgets.js 58465 2009-01-27 18:40:23Z BP $
- ** Licence:     wxWindows license
+ ** RCS-ID:      $Id$
+ ** Licence:     wxWindows licence
  *****************************************************************************/
 
 // from w3schools

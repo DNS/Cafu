@@ -2,8 +2,8 @@
 // Name:        unicode.h
 // Purpose:     topic overview
 // Author:      wxWidgets team
-// RCS-ID:      $Id: unicode.h 59945 2009-03-30 18:28:42Z VS $
-// Licence:     wxWindows license
+// RCS-ID:      $Id$
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 /**

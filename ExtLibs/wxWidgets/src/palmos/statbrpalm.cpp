@@ -4,7 +4,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by: Wlodzimierz ABX Skiba - transition from faked drawing to native statusbar
 // Created:     10/13/04
-// RCS-ID:      $Id: statbrpalm.cpp 52227 2008-03-02 00:53:32Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne, Wlodzimierz Skiba
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -107,7 +107,7 @@ bool wxStatusBarPalm::Show( bool show )
 void wxStatusBarPalm::SetFieldsCount(int nFields, const int *widths)
 {
     // this is a Windows limitation
-    wxASSERT_MSG( (nFields > 0) && (nFields < 255), _T("too many fields") );
+    wxASSERT_MSG( (nFields > 0) && (nFields < 255), wxT("too many fields") );
 
     wxStatusBarBase::SetFieldsCount(nFields, widths);
 
@@ -127,22 +127,10 @@ void wxStatusBarPalm::SetFieldsWidth()
     DeleteStatusBuffer();
 }
 
-void wxStatusBarPalm::SetStatusText(const wxString& strText, int nField)
+void wxStatusBarPalm::DoUpdateStatusText(int nField)
 {
-    wxCHECK_RET( (nField >= 0) && (nField < m_nFields),
-                 _T("invalid statusbar field index") );
-
     SetStatusBufferText(strText,nField);
     DrawStatusBar();
-}
-
-wxString wxStatusBarPalm::GetStatusText(int nField) const
-{
-    wxCHECK_MSG( (nField >= 0) && (nField < m_nFields), wxEmptyString,
-                 _T("invalid statusbar field index") );
-
-    wxString text;
-    return text;
 }
 
 void wxStatusBarPalm::DrawStatusBar()

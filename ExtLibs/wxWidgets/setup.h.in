@@ -68,6 +68,9 @@
 /* Define this if your version of GTK+ is greater than 2.10 */
 #undef __WXGTK210__
 
+/* Define this if your version of GTK+ is greater than 2.18 */
+#undef __WXGTK218__
+
 /* Define this if you want to use GPE features */
 #undef __WXGPE__
 
@@ -94,6 +97,7 @@
 #undef __NETBSD__
 #undef __OPENBSD__
 #undef __OSF__
+#undef __QNX__
 #undef __SGI__
 #undef __SOLARIS__
 #undef __SUN__
@@ -152,9 +156,15 @@
 
 #define WXWIN_COMPATIBILITY_2_8 0
 
-#define wxEVENTS_COMPATIBILITY_2_8 0
-
 #define wxDIALOG_UNIT_COMPATIBILITY   0
+
+
+
+#define wxUSE_ON_FATAL_EXCEPTION 0
+
+#define wxUSE_STACKWALKER 0
+
+#define wxUSE_DEBUGREPORT 0
 
 
 
@@ -166,11 +176,6 @@
 
 #define wxUSE_DEBUG_NEW_ALWAYS 0
 
-#define wxUSE_ON_FATAL_EXCEPTION 0
-
-#define wxUSE_STACKWALKER 0
-
-#define wxUSE_DEBUGREPORT 0
 
 
 #ifndef wxUSE_UNICODE
@@ -241,6 +246,8 @@
 
 #define wxUSE_STOPWATCH     0
 
+#define wxUSE_FSWATCHER     0
+
 #define wxUSE_CONFIG        0
 
 #define wxUSE_CONFIG_NATIVE   0
@@ -293,6 +300,8 @@
 
 #define wxUSE_VARIANT 0
 
+#define wxUSE_ANY 0
+
 #define wxUSE_REGEX       0
 
 #define wxUSE_SYSTEM_OPTIONS 0
@@ -301,21 +310,37 @@
 
 #define wxUSE_MEDIACTRL     0
 
-#define wxUSE_GSTREAMER    0
-
 #define wxUSE_XRC       0
 
 #define wxUSE_XML       wxUSE_XRC
 
 #define wxUSE_AUI       0
 
+#define wxUSE_RIBBON    0
+
 #define wxUSE_PROPGRID  0
 
 #define wxUSE_STC 0
 
 
-#ifndef wxUSE_GRAPHICS_CONTEXT
+
+#ifdef _MSC_VER
+#   if _MSC_VER >= 1310
+
+
 #define wxUSE_GRAPHICS_CONTEXT 0
+#   else
+
+
+#       define wxUSE_GRAPHICS_CONTEXT 0
+#   endif
+#else
+
+
+
+
+
+#   define wxUSE_GRAPHICS_CONTEXT 0
 #endif
 
 
@@ -406,6 +431,8 @@
 
 #define wxUSE_IMAGLIST      0
 
+#define wxUSE_INFOBAR       0
+
 #define wxUSE_MENUS         0
 
 #define wxUSE_NOTIFICATION_MESSAGE 0
@@ -457,6 +484,8 @@
 #define wxUSE_WIZARDDLG 0
 
 #define wxUSE_ABOUTDLG 0
+
+#define wxUSE_FILE_HISTORY 0
 
 
 #define wxUSE_METAFILE              0
@@ -510,6 +539,8 @@
 
 #define wxUSE_MOUSEWHEEL        0
 
+
+#define wxUSE_UIACTIONSIMULATOR 0
 
 
 #define wxUSE_POSTSCRIPT  0
@@ -568,6 +599,16 @@
 
 #define wxUSE_UNICODE_UTF8 0
 #define wxUSE_UTF8_LOCALE_ONLY 0
+
+/*
+   Use GStreamer for Unix.
+
+   Default is 0 as this requires a lot of dependencies which might not be
+   available.
+
+   Recommended setting: 1 (wxMediaCtrl won't work by default without it).
+ */
+#define wxUSE_GSTREAMER 0
 
 /* --- start MSW options --- */
 
@@ -678,6 +719,16 @@
 #undef HAVE_TR1_UNORDERED_SET
 
 /*
+ * Define if your compiler has <tr1/type_traits>
+ */
+#undef HAVE_TR1_TYPE_TRAITS
+
+/*
+ * Define if your compiler has <type_traits>
+ */
+#undef HAVE_TYPE_TRAITS
+
+/*
  * Define if the compiler supports simple visibility declarations.
  */
 #undef HAVE_VISIBILITY
@@ -730,6 +781,10 @@
  */
 #define wxUSE_LIBHILDON 0
 /*
+ * Use the Hildon 2.0 framework
+ */
+#define wxUSE_LIBHILDON2 0
+/*
  * Have glibc2
  */
 #define wxHAVE_GLIBC2 0
@@ -745,8 +800,11 @@
  * Define if compiler has __thread keyword.
  */
 #undef HAVE___THREAD_KEYWORD
+/*
+ * Define if large (64 bit file offsets) files are supported.
+ */
+#undef HAVE_LARGEFILE_SUPPORT
 
-/* compatibility */
 /*
  * Use OpenGL
  */
@@ -1133,6 +1191,12 @@
 
 /* Define if locale_t is available */
 #undef HAVE_LOCALE_T
+
+/* Define if you have inotify_xxx() functions. */
+#undef wxHAS_INOTIFY
+
+/* Define if you have kqueu_xxx() functions. */
+#undef wxHAS_KQUEUE
 
 /* -------------------------------------------------------------------------
    Win32 adjustments section

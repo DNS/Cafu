@@ -4,7 +4,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by:
 // Created:     10/13/04
-// RCS-ID:      $Id: dcmemory.cpp 50704 2007-12-15 01:25:56Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -38,25 +38,25 @@
 
 IMPLEMENT_ABSTRACT_CLASS(wxMemoryDCImpl, wxPalmDCImpl)
 
-wxMemoryDCImpl::wxMemoryDCImpl( wxMemoryDC *owner ) 
+wxMemoryDCImpl::wxMemoryDCImpl( wxMemoryDC *owner )
         : wxPalmDCImpl( owner )
 {
-    CreateCompatible(NULL); 
-    Init(); 
+    CreateCompatible(NULL);
+    Init();
 }
 
-wxMemoryDCImpl::wxMemoryDCImpl( wxMemoryDC *owner, wxBitmap& bitmap ) 
-        : wxPalmDCImpl( owner ) 
-{ 
-    CreateCompatible(NULL); 
-    Init(); 
+wxMemoryDCImpl::wxMemoryDCImpl( wxMemoryDC *owner, wxBitmap& bitmap )
+        : wxPalmDCImpl( owner )
+{
+    CreateCompatible(NULL);
+    Init();
     DoSelect(bitmap);
 }
 
 wxMemoryDCImpl::wxMemoryDCImpl( wxMemoryDC *owner, wxDC *dc )
-        : wxPalmDCImpl( owner ) 
+        : wxPalmDCImpl( owner )
 {
-    wxCHECK_RET( dc, _T("NULL dc in wxMemoryDC ctor") );
+    wxCHECK_RET( dc, wxT("NULL dc in wxMemoryDC ctor") );
 
     CreateCompatible(dc);
 

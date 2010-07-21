@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     17/09/98
-// RCS-ID:      $Id: spinbutt.cpp 50329 2007-11-29 17:00:58Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -180,8 +180,7 @@ void wxArrowButton::StopTimerCallback( Widget w, XtPointer clientData,
         return;
 
     wxArrowButton* btn = (wxArrowButton*)clientData;
-    delete btn->m_timer;
-    btn->m_timer = 0;
+    wxDELETE(btn->m_timer);
 }
 
 bool wxArrowButton::Create( wxSpinButton* parent,
@@ -189,7 +188,7 @@ bool wxArrowButton::Create( wxSpinButton* parent,
                             ArrowDirection d,
                             const wxPoint& pos, const wxSize& size )
 {
-    wxCHECK_MSG( parent, false, _T("must have a valid parent") );
+    wxCHECK_MSG( parent, false, wxT("must have a valid parent") );
 
     int arrow_dir = XmARROW_UP;
 

@@ -2,8 +2,8 @@
 // Name:        nonenglish.h
 // Purpose:     topic overview
 // Author:      wxWidgets team
-// RCS-ID:      $Id: nonenglish.h 59598 2009-03-18 09:29:05Z VZ $
-// Licence:     wxWindows license
+// RCS-ID:      $Id$
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -102,9 +102,7 @@ Windows).
 How is this done? When you tell the wxLocale class to load a message catalog
 that contains a correct header, it checks the charset. The catalog is then
 converted to the charset used (see wxLocale::GetSystemEncoding and
-wxLocale::GetSystemEncodingName) by the user's operating system. This is the
-default behaviour of the wxLocale class; you can disable it by @b not passing
-@c wxLOCALE_CONV_ENCODING to wxLocale::Init.
+wxLocale::GetSystemEncodingName) by the user's operating system.
 
 
 @section overview_nonenglish_strings Non-English Strings or 8-bit Characters in Source
@@ -123,7 +121,7 @@ English using message catalogs:
 @li Specify the source code language and charset as arguments to
     wxLocale::AddCatalog. For example:
     @code
-    locale.AddCatalog(_T("myapp"), wxLANGUAGE_GERMAN, _T("iso-8859-1"));
+    locale.AddCatalog(wxT("myapp"), wxLANGUAGE_GERMAN, wxT("iso-8859-1"));
     @endcode
 
 

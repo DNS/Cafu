@@ -3,7 +3,7 @@
 // Purpose:     XRC resource for wxToolBar
 // Author:      Vaclav Slavik
 // Created:     2000/08/11
-// RCS-ID:      $Id: xh_toolb.cpp 59556 2009-03-15 10:29:14Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 Vaclav Slavik
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -78,7 +78,7 @@ wxObject *wxToolBarXmlHandler::DoCreateResource()
 
             kind = wxITEM_CHECK;
         }
-
+#if wxUSE_MENUS
         // check whether we have dropdown tag inside
         wxMenu *menu = NULL; // menu for drop down items
         wxXmlNode * const nodeDropdown = GetParamNode("dropdown");
@@ -122,36 +122,42 @@ wxObject *wxToolBarXmlHandler::DoCreateResource()
                 }
             }
         }
-
-        wxToolBarToolBase * const
-            tool = m_toolbar->AddTool
-                             (
-                                GetID(),
-                                GetText(wxT("label")),
-                                GetBitmap(wxT("bitmap"), wxART_TOOLBAR),
-                                GetBitmap(wxT("bitmap2"), wxART_TOOLBAR),
-                                kind,
-                                GetText(wxT("tooltip")),
-                                GetText(wxT("longhelp"))
-                             );
+#endif
+        wxToolBarToolBase * const tool =
+            m_toolbar->AddTool
+                       (
+                          GetID(),
+                          GetText(wxT("label")),
+                          GetBitmap(wxT("bitmap"), wxART_TOOLBAR, m_toolSize),
+                          GetBitmap(wxT("bitmap2"), wxART_TOOLBAR, m_toolSize),
+                          kind,
+                          GetText(wxT("tooltip")),
+                          GetText(wxT("longhelp"))
+                       );
 
         if ( GetBool(wxT("disabled")) )
             m_toolbar->EnableTool(GetID(), false);
-
+#if wxUSE_MENUS
         if ( menu )
             tool->SetDropdownMenu(menu);
-
+#endif
+        
         return m_toolbar; // must return non-NULL
     }
 
-    else if (m_class == wxT("separator"))
+    else if (m_class == wxT("separator") || m_class == wxT("space"))
     {
         if ( !m_toolbar )
         {
-            ReportError("separator only allowed inside wxToolBar");
+            ReportError("separators only allowed inside wxToolBar");
             return NULL;
         }
-        m_toolbar->AddSeparator();
+
+        if ( m_class == wxT("separator") )
+            m_toolbar->AddSeparator();
+        else
+            m_toolbar->AddStretchableSpace();
+
         return m_toolbar; // must return non-NULL
     }
 
@@ -172,9 +178,9 @@ wxObject *wxToolBarXmlHandler::DoCreateResource()
                          GetName());
         SetupWindow(toolbar);
 
-        wxSize bmpsize = GetSize(wxT("bitmapsize"));
-        if (!(bmpsize == wxDefaultSize))
-            toolbar->SetToolBitmapSize(bmpsize);
+        m_toolSize = GetSize(wxT("bitmapsize"));
+        if (!(m_toolSize == wxDefaultSize))
+            toolbar->SetToolBitmapSize(m_toolSize);
         wxSize margins = GetSize(wxT("margins"));
         if (!(margins == wxDefaultSize))
             toolbar->SetMargins(margins.x, margins.y);
@@ -205,6 +211,7 @@ wxObject *wxToolBarXmlHandler::DoCreateResource()
                 wxControl *control = wxDynamicCast(created, wxControl);
                 if (!IsOfClass(n, wxT("tool")) &&
                     !IsOfClass(n, wxT("separator")) &&
+                    !IsOfClass(n, wxT("space")) &&
                     control != NULL)
                     toolbar->AddControl(control);
             }
@@ -231,6 +238,7 @@ bool wxToolBarXmlHandler::CanHandle(wxXmlNode *node)
 {
     return ((!m_isInside && IsOfClass(node, wxT("wxToolBar"))) ||
             (m_isInside && IsOfClass(node, wxT("tool"))) ||
+            (m_isInside && IsOfClass(node, wxT("space"))) ||
             (m_isInside && IsOfClass(node, wxT("separator"))));
 }
 

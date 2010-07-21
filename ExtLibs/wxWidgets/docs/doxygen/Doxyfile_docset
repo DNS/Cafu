@@ -2,8 +2,8 @@
 ## Name:        Doxyfile_docset
 ## Purpose:     Doxygen configuration file for generating Apple DocSet
 ## Author:      Bryan Petty
-## RCS-ID:      $Id: Doxyfile_docset 57947 2009-01-09 15:42:26Z FM $
-## Licence:     wxWindows license
+## RCS-ID:      $Id$
+## Licence:     wxWindows licence
 #############################################################################
 
 @INCLUDE = Doxyfile_inc

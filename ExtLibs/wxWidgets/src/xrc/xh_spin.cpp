@@ -3,7 +3,7 @@
 // Purpose:     XRC resource for wxSpinButton
 // Author:      Bob Mitchell
 // Created:     2000/03/21
-// RCS-ID:      $Id: xh_spin.cpp 59722 2009-03-22 10:55:55Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 Bob Mitchell and Verant Interactive
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

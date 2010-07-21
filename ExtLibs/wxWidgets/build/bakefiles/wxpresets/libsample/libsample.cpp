@@ -4,7 +4,7 @@
 // Author:      Francesco Montorsi
 // Modified by:
 // Created:     26/11/06
-// RCS-ID:      $Id: libsample.cpp 44359 2007-02-05 01:15:02Z KO $
+// RCS-ID:      $Id$
 // Copyright:   (c) Francesco Montorsi
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     10/5/2006 12:05:31 PM
-// RCS-ID:      $Id: richtextstyledlg.cpp 54432 2008-06-30 09:42:41Z JS $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -705,6 +705,7 @@ void wxRichTextStyleOrganiserDialog::OnEditClick( wxCommandEvent& WXUNUSED(event
             }
 
             m_stylesListBox->UpdateStyles();
+            m_stylesListBox->GetStyleListBox()->SetSelection(sel);
             ShowPreview();
         }
     }

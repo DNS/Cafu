@@ -3,7 +3,7 @@
 // Purpose:     Top level window, abstraction of wxFrame and wxDialog
 // Author:      Vaclav Slavik
 // Created:     2006-08-10
-// RCS-ID:      $Id: toplevel.h 46207 2007-05-25 12:20:25Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2006 REA Elektronik GmbH
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

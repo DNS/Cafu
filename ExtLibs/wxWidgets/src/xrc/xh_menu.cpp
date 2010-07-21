@@ -3,7 +3,7 @@
 // Purpose:     XRC resource for menus and menubars
 // Author:      Vaclav Slavik
 // Created:     2000/03/05
-// RCS-ID:      $Id: xh_menu.cpp 59556 2009-03-15 10:29:14Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 Vaclav Slavik
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -148,7 +148,17 @@ wxMenuBarXmlHandler::wxMenuBarXmlHandler() : wxXmlResourceHandler()
 
 wxObject *wxMenuBarXmlHandler::DoCreateResource()
 {
-    wxMenuBar *menubar = new wxMenuBar(GetStyle());
+    wxMenuBar *menubar = NULL;
+
+    const int style = GetStyle();
+    wxASSERT_MSG(!style || !m_instance,
+                 "cannot use <style> with pre-created menubar");
+
+    if ( m_instance )
+        menubar = wxDynamicCast(m_instance, wxMenuBar);
+    if ( !menubar )
+        menubar = new wxMenuBar(style);
+
     CreateChildren(menubar);
 
     if (m_parentAsWindow)

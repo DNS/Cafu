@@ -3,7 +3,7 @@
 // Purpose:     XRC resource for wxChoice
 // Author:      Bob Mitchell
 // Created:     2000/03/21
-// RCS-ID:      $Id: xh_choic.cpp 42258 2006-10-22 22:12:32Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 Bob Mitchell and Verant Interactive
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

@@ -2,7 +2,7 @@
 // Name:        wx/gtk1/scrolbar.h
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id: scrolbar.h 58227 2009-01-19 13:55:27Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

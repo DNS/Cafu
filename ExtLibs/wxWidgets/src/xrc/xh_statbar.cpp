@@ -3,7 +3,7 @@
 // Purpose:     XRC resource for wxStatusBar
 // Author:      Brian Ravnsgaard Riis
 // Created:     2004/01/21
-// RCS-ID:      $Id: xh_statbar.cpp 59556 2009-03-15 10:29:14Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2004 Brian Ravnsgaard Riis
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,16 @@ IMPLEMENT_DYNAMIC_CLASS(wxStatusBarXmlHandler, wxXmlResourceHandler)
 wxStatusBarXmlHandler::wxStatusBarXmlHandler()
                       :wxXmlResourceHandler()
 {
+    XRC_ADD_STYLE(wxSTB_SIZEGRIP);
+    XRC_ADD_STYLE(wxSTB_SHOW_TIPS);
+    XRC_ADD_STYLE(wxSTB_ELLIPSIZE_START);
+    XRC_ADD_STYLE(wxSTB_ELLIPSIZE_MIDDLE);
+    XRC_ADD_STYLE(wxSTB_ELLIPSIZE_END);
+    XRC_ADD_STYLE(wxSTB_DEFAULT_STYLE);
+
+    // compat style name:
     XRC_ADD_STYLE(wxST_SIZEGRIP);
+
     AddWindowStyles();
 }
 

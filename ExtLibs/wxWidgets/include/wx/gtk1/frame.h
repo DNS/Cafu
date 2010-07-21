@@ -2,7 +2,7 @@
 // Name:        wx/gtk1/frame.h
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id: frame.h 47254 2007-07-09 10:09:52Z VS $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling, Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -57,7 +57,7 @@ public:
     virtual void PositionStatusBar();
 
     virtual wxStatusBar* CreateStatusBar(int number = 1,
-                                         long style = wxST_SIZEGRIP|wxFULL_REPAINT_ON_RESIZE,
+                                         long style = wxSTB_DEFAULT_STYLE,
                                          wxWindowID id = 0,
                                          const wxString& name = wxStatusLineNameStr);
 

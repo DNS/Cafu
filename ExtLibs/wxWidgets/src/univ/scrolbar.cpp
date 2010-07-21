@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     20.08.00
-// RCS-ID:      $Id: scrolbar.cpp 59725 2009-03-22 12:53:48Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -241,7 +241,7 @@ int wxScrollBar::GetRange() const
 
 void wxScrollBar::SetThumbPosition(int pos)
 {
-    wxCHECK_RET( pos >= 0 && pos <= m_range, _T("thumb position out of range") );
+    wxCHECK_RET( pos >= 0 && pos <= m_range, wxT("thumb position out of range") );
 
     DoSetThumb(pos);
 }
@@ -511,7 +511,7 @@ wxRect wxScrollBar::GetScrollbarRect(wxScrollBar::Element elem,
 
         case wxScrollBar::Element_Max:
         default:
-            wxFAIL_MSG( _T("unknown scrollbar element") );
+            wxFAIL_MSG( wxT("unknown scrollbar element") );
     }
 
     return rect;
@@ -933,11 +933,7 @@ void wxStdScrollBarInputHandler::StopScrolling(wxScrollBar *control)
 
     m_btnCapture = -1;
 
-    if ( m_timerScroll )
-    {
-        delete m_timerScroll;
-        m_timerScroll = NULL;
-    }
+    wxDELETE(m_timerScroll);
 
     // unpress the arrow and highlight the current element
     Press(control, false);
@@ -1088,7 +1084,7 @@ bool wxStdScrollBarInputHandler::HandleMouse(wxInputConsumer *consumer,
                 // this is not supposed to happen as the button can't go up
                 // without going down previously and then we'd have
                 // m_winCapture by now
-                wxFAIL_MSG( _T("logic error in mouse capturing code") );
+                wxFAIL_MSG( wxT("logic error in mouse capturing code") );
             }
         }
     }

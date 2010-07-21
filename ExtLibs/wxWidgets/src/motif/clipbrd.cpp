@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by: Mattia Barbon (added support for generic wxDataObjects)
 // Created:     17/09/98
-// RCS-ID:      $Id: clipbrd.cpp 58634 2009-02-03 12:01:46Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

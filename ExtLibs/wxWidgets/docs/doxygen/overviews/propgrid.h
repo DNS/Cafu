@@ -2,8 +2,8 @@
 // Name:        propgrid.h
 // Purpose:     topic overview
 // Author:      wxWidgets team
-// RCS-ID:      $Id: propgrid.h 60990 2009-06-10 20:50:45Z JMS $
-// Licence:     wxWindows license
+// RCS-ID:      $Id$
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -35,6 +35,7 @@ should carefully read final section in @ref propgrid_compat.
 @li @ref propgrid_processingvalues
 @li @ref propgrid_iterating
 @li @ref propgrid_events
+@li @ref propgrid_tooltipandhint
 @li @ref propgrid_validating
 @li @ref propgrid_populating
 @li @ref propgrid_cellrender
@@ -84,7 +85,7 @@ other wxWidgets controls:
   wxPropertyGrid is usually populated with lines like this:
 
 @code
-    pg->Append( new wxStringProperty(wxT("Label"),wxT("Name"),wxT("Initial Value")) );
+    pg->Append( new wxStringProperty("Label", "Name", "Initial Value") );
 @endcode
 
 Naturally, wxStringProperty is a property class. Only the first function argument (label)
@@ -99,34 +100,34 @@ To demonstrate other common property classes, here's another code snippet:
 @code
 
     // Add int property
-    pg->Append( new wxIntProperty(wxT("IntProperty"), wxPG_LABEL, 12345678) );
+    pg->Append( new wxIntProperty("IntProperty", wxPG_LABEL, 12345678) );
 
     // Add float property (value type is actually double)
-    pg->Append( new wxFloatProperty(wxT("FloatProperty"), wxPG_LABEL, 12345.678) );
+    pg->Append( new wxFloatProperty("FloatProperty", wxPG_LABEL, 12345.678) );
 
     // Add a bool property
-    pg->Append( new wxBoolProperty(wxT("BoolProperty"), wxPG_LABEL, false) );
+    pg->Append( new wxBoolProperty("BoolProperty", wxPG_LABEL, false) );
 
     // A string property that can be edited in a separate editor dialog.
-    pg->Append( new wxLongStringProperty(wxT("LongStringProperty"),
+    pg->Append( new wxLongStringProperty("LongStringProperty",
                                          wxPG_LABEL,
-                                         wxT("This is much longer string than the ")
-                                         wxT("first one. Edit it by clicking the button.")));
+                                         "This is much longer string than the "
+                                         "first one. Edit it by clicking the button."));
 
     // String editor with dir selector button.
-    pg->Append( new wxDirProperty(wxT("DirProperty"), wxPG_LABEL, ::wxGetUserHome()) );
+    pg->Append( new wxDirProperty("DirProperty", wxPG_LABEL, ::wxGetUserHome()) );
 
     // wxArrayStringProperty embeds a wxArrayString.
-    pg->Append( new wxArrayStringProperty(wxT("Label of ArrayStringProperty"),
-                                          wxT("NameOfArrayStringProp")));
+    pg->Append( new wxArrayStringProperty("Label of ArrayStringProperty",
+                                          "NameOfArrayStringProp"));
 
     // A file selector property.
-    pg->Append( new wxFileProperty(wxT("FileProperty"), wxPG_LABEL, wxEmptyString) );
+    pg->Append( new wxFileProperty("FileProperty", wxPG_LABEL, wxEmptyString) );
 
     // Extra: set wild card for file property (format same as in wxFileDialog).
-    pg->SetPropertyAttribute( wxT("FileProperty"),
+    pg->SetPropertyAttribute( "FileProperty",
                               wxPG_FILE_WILDCARD,
-                              wxT("All files (*.*)|*.*") );
+                              "All files (*.*)|*.*" );
 
 @endcode
 
@@ -143,19 +144,19 @@ argument, using which you can refer to properties either by their pointer
 
 @code
     // Add a file selector property.
-    wxPGPropety* prop = pg->Append( new wxFileProperty(wxT("FileProperty"),
+    wxPGPropety* prop = pg->Append( new wxFileProperty("FileProperty",
                                     wxPG_LABEL,
                                     wxEmptyString) );
 
     // Valid: Set wild card by name
-    pg->SetPropertyAttribute( wxT("FileProperty"),
+    pg->SetPropertyAttribute( "FileProperty",
                               wxPG_FILE_WILDCARD,
-                              wxT("All files (*.*)|*.*") );
+                              "All files (*.*)|*.*" );
 
     // Also Valid: Set wild card by property pointer
     pg->SetPropertyAttribute( prop,
                               wxPG_FILE_WILDCARD,
-                              wxT("All files (*.*)|*.*") );
+                              "All files (*.*)|*.*" );
 @endcode
 
   Using pointer is faster, since it doesn't require hash map lookup. Anyway,
@@ -185,21 +186,21 @@ or wxPropertyGridInterface::AppendIn.
 @code
 
     // One way to add category (similar to how other properties are added)
-    pg->Append( new wxPropertyCategory(wxT("Main")) );
+    pg->Append( new wxPropertyCategory("Main") );
 
     // All these are added to "Main" category
-    pg->Append( new wxStringProperty(wxT("Name")) );
-    pg->Append( new wxIntProperty(wxT("Age"),wxPG_LABEL,25) );
-    pg->Append( new wxIntProperty(wxT("Height"),wxPG_LABEL,180) );
-    pg->Append( new wxIntProperty(wxT("Weight")) );
+    pg->Append( new wxStringProperty("Name") );
+    pg->Append( new wxIntProperty("Age",wxPG_LABEL,25) );
+    pg->Append( new wxIntProperty("Height",wxPG_LABEL,180) );
+    pg->Append( new wxIntProperty("Weight") );
 
     // Another one
-    pg->Append( new wxPropertyCategory(wxT("Attributes")) );
+    pg->Append( new wxPropertyCategory("Attributes") );
 
     // All these are added to "Attributes" category
-    pg->Append( new wxIntProperty(wxT("Intelligence")) );
-    pg->Append( new wxIntProperty(wxT("Agility")) );
-    pg->Append( new wxIntProperty(wxT("Strength")) );
+    pg->Append( new wxIntProperty("Intelligence") );
+    pg->Append( new wxIntProperty("Agility") );
+    pg->Append( new wxIntProperty("Strength") );
 
 @endcode
 
@@ -223,34 +224,34 @@ or wxPropertyGridInterface::AppendIn.
 Sample:
 
 @code
-    wxPGProperty* carProp = pg->Append(new wxStringProperty(wxT("Car"),
+    wxPGProperty* carProp = pg->Append(new wxStringProperty("Car",
                                          wxPG_LABEL,
-                                         wxT("<composed>")));
+                                         "<composed>"));
 
-    pg->AppendIn(carProp, new wxStringProperty(wxT("Model"),
+    pg->AppendIn(carProp, new wxStringProperty("Model",
                                                 wxPG_LABEL,
-                                                wxT("Lamborghini Diablo SV")));
+                                                "Lamborghini Diablo SV"));
 
-    pg->AppendIn(carProp, new wxIntProperty(wxT("Engine Size (cc)"),
+    pg->AppendIn(carProp, new wxIntProperty("Engine Size (cc)",
                                             wxPG_LABEL,
                                             5707) );
 
     wxPGProperty* speedsProp = pg->AppendIn(carProp,
-                                            new wxStringProperty(wxT("Speeds"),
+                                            new wxStringProperty("Speeds",
                                               wxPG_LABEL,
-                                              wxT("<composed>")));
+                                              "<composed>"));
 
-    pg->AppendIn( speedsProp, new wxIntProperty(wxT("Max. Speed (mph)"),
+    pg->AppendIn( speedsProp, new wxIntProperty("Max. Speed (mph)",
                                                 wxPG_LABEL,290) );
-    pg->AppendIn( speedsProp, new wxFloatProperty(wxT("0-100 mph (sec)"),
+    pg->AppendIn( speedsProp, new wxFloatProperty("0-100 mph (sec)",
                                                   wxPG_LABEL,3.9) );
-    pg->AppendIn( speedsProp, new wxFloatProperty(wxT("1/4 mile (sec)"),
+    pg->AppendIn( speedsProp, new wxFloatProperty("1/4 mile (sec)",
                                                   wxPG_LABEL,8.6) );
 
     // This is how child property can be referred to by name
-    pg->SetPropertyValue( wxT("Car.Speeds.Max. Speed (mph)"), 300 );
+    pg->SetPropertyValue( "Car.Speeds.Max. Speed (mph)", 300 );
 
-    pg->AppendIn(carProp, new wxIntProperty(wxT("Price ($)"),
+    pg->AppendIn(carProp, new wxIntProperty("Price ($)",
                                             wxPG_LABEL,
                                             300000) );
 
@@ -281,11 +282,11 @@ A very simple example:
     // Using wxArrayString
     //
     wxArrayString arrDiet;
-    arr.Add(wxT("Herbivore"));
-    arr.Add(wxT("Carnivore"));
-    arr.Add(wxT("Omnivore"));
+    arr.Add("Herbivore");
+    arr.Add("Carnivore");
+    arr.Add("Omnivore");
 
-    pg->Append( new wxEnumProperty(wxT("Diet"),
+    pg->Append( new wxEnumProperty("Diet",
                                    wxPG_LABEL,
                                    arrDiet) );
 
@@ -295,7 +296,7 @@ A very simple example:
     const wxChar* arrayDiet[] =
     { wxT("Herbivore"), wxT("Carnivore"), wxT("Omnivore"), NULL };
 
-    pg->Append( new wxEnumProperty(wxT("Diet"),
+    pg->Append( new wxEnumProperty("Diet",
                                    wxPG_LABEL,
                                    arrayDiet) );
 
@@ -309,9 +310,9 @@ Here's extended example using values as well:
     // Using wxArrayString and wxArrayInt
     //
     wxArrayString arrDiet;
-    arr.Add(wxT("Herbivore"));
-    arr.Add(wxT("Carnivore"));
-    arr.Add(wxT("Omnivore"));
+    arr.Add("Herbivore");
+    arr.Add("Carnivore");
+    arr.Add("Omnivore");
 
     wxArrayInt arrIds;
     arrIds.Add(40);
@@ -320,7 +321,7 @@ Here's extended example using values as well:
 
     // Note that the initial value (the last argument) is the actual value,
     // not index or anything like that. Thus, our value selects "Omnivore".
-    pg->Append( new wxEnumProperty(wxT("Diet"),
+    pg->Append( new wxEnumProperty("Diet",
                                    wxPG_LABEL,
                                    arrDiet,
                                    arrIds,
@@ -340,20 +341,20 @@ Here's extended example using values as well:
 @code
 
     wxPGChoices chs;
-    chs.Add(wxT("Herbivore"), 40);
-    chs.Add(wxT("Carnivore"), 45);
-    chs.Add(wxT("Omnivore"), 50);
+    chs.Add("Herbivore", 40);
+    chs.Add("Carnivore", 45);
+    chs.Add("Omnivore", 50);
 
     // Let's add an item with bitmap, too
-    chs.Add(wxT("None of the above"), wxBitmap(), 60);
+    chs.Add("None of the above", wxBitmap(), 60);
 
-    pg->Append( new wxEnumProperty(wxT("Primary Diet"),
+    pg->Append( new wxEnumProperty("Primary Diet",
                                    wxPG_LABEL,
                                    chs) );
 
     // Add same choices to another property as well - this is efficient due
     // to reference counting
-    pg->Append( new wxEnumProperty(wxT("Secondary Diet"),
+    pg->Append( new wxEnumProperty("Secondary Diet",
                                    wxPG_LABEL,
                                    chs) );
 @endcode
@@ -377,7 +378,7 @@ wxFlagsProperty has similar construction:
     long flags_prop_values[] = { wxICONIZE, wxCAPTION, wxMINIMIZE_BOX,
         wxMAXIMIZE_BOX };
 
-    pg->Append( new wxFlagsProperty(wxT("Window Style"),
+    pg->Append( new wxFlagsProperty("Window Style",
                                     wxPG_LABEL,
                                     flags_prop_labels,
                                     flags_prop_values,
@@ -403,38 +404,38 @@ To use them, you have to include <wx/propgrid/advprops.h>.
 ...
 
     // Date property.
-    pg->Append( new wxDateProperty(wxT("MyDateProperty"),
+    pg->Append( new wxDateProperty("MyDateProperty",
                                    wxPG_LABEL,
                                    wxDateTime::Now()) );
 
     // Image file property. Wild card is auto-generated from available
     // image handlers, so it is not set this time.
-    pg->Append( new wxImageFileProperty(wxT("Label of ImageFileProperty"),
-                                        wxT("NameOfImageFileProp")) );
+    pg->Append( new wxImageFileProperty("Label of ImageFileProperty",
+                                        "NameOfImageFileProp") );
 
     // Font property has sub-properties. Note that we give window's font as
     // initial value.
-    pg->Append( new wxFontProperty(wxT("Font"),
+    pg->Append( new wxFontProperty("Font",
                                    wxPG_LABEL,
                                    GetFont()) );
 
     // Colour property with arbitrary colour.
-    pg->Append( new wxColourProperty(wxT("My Colour 1"),
+    pg->Append( new wxColourProperty("My Colour 1",
                                      wxPG_LABEL,
                                      wxColour(242,109,0) ) );
 
     // System colour property.
-    pg->Append( new wxSystemColourProperty(wxT("My SysColour 1"),
+    pg->Append( new wxSystemColourProperty("My SysColour 1",
                                            wxPG_LABEL,
                                            wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW)) );
 
     // System colour property with custom colour.
-    pg->Append( new wxSystemColourProperty(wxT("My SysColour 2"),
+    pg->Append( new wxSystemColourProperty("My SysColour 2",
                                            wxPG_LABEL,
                                            wxColour(0,200,160) ) );
 
     // Cursor property
-    pg->Append( new wxCursorProperty(wxT("My Cursor"),
+    pg->Append( new wxCursorProperty("My Cursor",
                                      wxPG_LABEL,
                                      wxCURSOR_ARROW));
 
@@ -443,30 +444,52 @@ To use them, you have to include <wx/propgrid/advprops.h>.
 
 @section propgrid_processingvalues Processing Property Values
 
-Properties store their values internally in wxVariant. You can obtain
-this value using wxPGProperty::GetValue() or wxPropertyGridInterface::
-GetPropertyValue().
+Properties store their values internally as wxVariant, but is also possible to
+obtain them as wxAny, using implicit conversion. You can get property
+values with wxPGProperty::GetValue() and
+wxPropertyGridInterface::GetPropertyValue().
 
-If you wish to obtain property value in specific data type, you can
-call various getter functions, such as wxPropertyGridInterface::
-GetPropertyValueAsString(), which, as name might say, returns property
-value's string representation. While this particular function is very
-safe to use for any kind of property, some might display error message
-if property value is not in compatible enough format. For instance,
-wxPropertyGridInterface::GetPropertyValueAsLongLong() will support
-long as well as wxLongLong, but GetPropertyValueAsArrayString() only
-supports wxArrayString and nothing else.
+Below is a code example which handles wxEVT_PG_CHANGED event:
 
-In any case, you will need to take extra care when dealing with
-raw wxVariant values. For instance, wxIntProperty and wxUIntProperty,
-store value internally as wx(U)LongLong when number doesn't fit into
-standard long type. Using << operator to get wx(U)LongLong from wxVariant
-is customized to work quite safely with various types of variant data.
+@code
 
-You may have noticed that properties store, in wxVariant, values of many
-types which are not natively supported by it. Custom wxVariantDatas
-are therefore implemented and << and >> operators implemented to
-convert data from and to wxVariant.
+void MyWindowClass::OnPropertyGridChanged(wxPropertyGridEvent& event)
+{
+    wxPGProperty* property = event.GetProperty();
+
+    // Do nothing if event did not have associated property
+    if ( !property )
+        return;
+
+    // GetValue() returns wxVariant, but it is converted transparently to
+    // wxAny
+    wxAny value = property->GetValue();
+
+    // Also, handle the case where property value is unspecified
+    if ( value.IsNull() )
+        return;
+
+    // Handle changes in values, as needed
+    if ( property.GetName() == "MyStringProperty" )
+        OnMyStringPropertyChanged(value.As<wxString>());
+    else if ( property.GetName() == "MyColourProperty" )
+        OnMyColourPropertyChanged(value.As<wxColour>());
+}
+
+@endcode
+
+You can get a string-representation of property's value using
+wxPGProperty::GetValueAsString() or
+wxPropertyGridInterface::GetPropertyValueAsString(). This particular function
+is very safe to use with any kind of property.
+
+@note There is a one case in which you may want to take extra care when
+      dealing with raw wxVariant values. That is, integer-type properties,
+      such as wxIntProperty and wxUIntProperty, store value internally as
+      wx(U)LongLong when number doesn't fit into standard long type. Using
+      << operator to get wx(U)LongLong from wxVariant is customized to work
+      quite safely with various types of variant data. However, you can also
+      bypass this problem by using wxAny in your code instead of wxVariant.
 
 Note that in some cases property value can be Null variant, which means
 that property value is unspecified. This usually occurs only when
@@ -532,8 +555,17 @@ This example reverse-iterates through all visible items:
 
 @endcode
 
-<b>wxPython Note:</b> Instead of ++ operator, use Next() method, and instead of
+@beginWxPythonOnly
+PropertyGridInterface has some useful pythonic iterators as attributes.
+@c Properties lets you iterate through all items that are not category
+captions or private children. @c Items lets you iterate through everything
+except private children. Also, there are GetPyIterator() and GetPyVIterator(),
+which return pythonic iterators instead of normal wxPropertyGridIterator.
+
+If you need to use C++ style iterators in wxPython code, note that
+Instead of ++ operator, use Next() method, and instead of
 * operator, use GetProperty() method.
+@endWxPythonOnly
 
 GetIterator() only works with wxPropertyGrid and the individual pages
 of wxPropertyGridManager. In order to iterate through an arbitrary
@@ -637,6 +669,19 @@ void MyForm::OnPropertyGridChanging( wxPropertyGridEvent& event )
   to obtain its topmost non-category parent (useful, if you have deeply nested
   properties).
 
+@section propgrid_tooltipandhint Help String, Hint and Tool Tips
+
+For each property you can specify two different types of help text. First,
+you can use wxPropertyGridInterface::SetPropertyHelpString() or
+wxPGProperty::SetHelpString() to set property's help text. Second, you
+can use wxPGProperty::SetAttribute() to set property's "Hint" attribute.
+
+Difference between hint and help string is that the hint is shown in an empty
+property value cell, while help string is shown either in the description text
+box, as a tool tip, or on the status bar, whichever of these is available.
+
+To enable display of help string as tool tips, you must explicitly use
+the wxPG_EX_HELP_AS_TOOLTIPS extra window style.
 
 @section propgrid_validating Validating Property Values
 
@@ -666,7 +711,7 @@ message.
         // the value to be validated.
         wxVariant pendingValue = event.GetValue();
 
-        if ( property->GetName() == wxT("Font") )
+        if ( property->GetName() == "Font" )
         {
             // Make sure value is not unspecified
             if ( !pendingValue.IsNull() )
@@ -675,12 +720,12 @@ message.
                 font << pendingValue;
 
                 // Let's just allow Arial font
-                if ( font.GetFaceName() != wxT("Arial") )
+                if ( font.GetFaceName() != "Arial" )
                 {
                     event.Veto();
                     event.SetValidationFailureBehavior(wxPG_VFB_STAY_IN_PROPERTY |
                                                        wxPG_VFB_BEEP |
-                                                       wxPG_VFB_SHOW_MESSAGE);
+                                                       wxPG_VFB_SHOW_MESSAGEBOX);
                 }
             }
         }
@@ -727,7 +772,7 @@ colour selection dialog.
 
 @code
 
-    wxPGProperty* colProp = new wxColourProperty(wxT("Text Colour"));
+    wxPGProperty* colProp = new wxColourProperty("Text Colour");
     pg->Append(colProp);
     pg->SetPropertyEditor(colProp, wxPGEditor_TextCtrlAndButton);
 
@@ -829,7 +874,7 @@ unique (base) name.
     For example, if you have a wxFlagsProperty, you can
     set its all items to use check box using the following:
     @code
-        pg->SetPropertyAttribute(wxT("MyFlagsProperty"),wxPG_BOOL_USE_CHECKBOX,true,wxPG_RECURSE);
+        pg->SetPropertyAttribute("MyFlagsProperty", wxPG_BOOL_USE_CHECKBOX, true, wxPG_RECURSE);
     @endcode
 
     Following will set all individual bool properties in your control to
@@ -863,6 +908,11 @@ then do <b>not</b> use the wxPG_SPLITTER_AUTO_CENTER window style, but the
 wxPropertyGrid::CenterSplitter() method. <b>However, be sure to call it after
 the sizer setup and SetSize calls!</b> (ie. usually at the end of the
 frame/dialog constructor)
+
+  Splitter centering behavior can be customized using
+wxPropertyGridInterface::SetColumnProportion(). Usually it is used to set
+non-equal column proportions, which in essence stops the splitter(s) from
+being 'centered' as such, and instead just auto-resized.
 
 @subsection propgrid_splittersetting Setting Splitter Position When Creating Property Grid
 
@@ -907,6 +957,10 @@ without warnings or errors.
     with keyboard. This change allowed fixing broken tab traversal on wxGTK
     (which is open issue in wxPropertyGrid 1.4).
 
+  - wxPG_EX_UNFOCUS_ON_ENTER style is removed and is now default behavior.
+    That is, when enter is pressed, editing is considered done and focus
+    moves back to the property grid from the editor control.
+
   - A few member functions were removed from wxPropertyGridInterface.
     Please use wxPGProperty's counterparts from now on.
 
@@ -923,13 +977,27 @@ without warnings or errors.
   - wxPropertyGridInterface::GetExpandedProperties() is removed. You should
     now use wxPropertyGridInterface::GetEditableState() instead.
 
+  - wxPG_EX_DISABLE_TLP_TRACKING is now enabled by default. To get the old
+    behavior (recommended if you don't use a system that reparents the grid
+    on its own), use the wxPG_EX_ENABLE_TLP_TRACKING extra style.
+
   - Extended window style wxPG_EX_LEGACY_VALIDATORS was removed.
+
+  - Default property validation failure behavior has been changed to
+    (wxPG_VFB_MARK_CELL | wxPG_VFB_SHOW_MESSAGEBOX), which means that the
+    cell is marked red and wxMessageBox is shown. This is more user-friendly
+    than the old behavior, which simply beeped and prevented leaving the
+    property editor until a valid value was entered.
 
   - wxPropertyGridManager now has same Get/SetSelection() semantics as
     wxPropertyGrid.
 
   - Various wxPropertyGridManager page-related functions now return pointer
     to the page object instead of index.
+
+  - wxArrayEditorDialog used by wxArrayStringProperty and some sample
+    properties has been renamed to wxPGArrayEditorDialog. Also, it now uses
+    wxEditableListBox for editing.
 
   - Instead of calling wxPropertyGrid::SetButtonShortcut(), use
     wxPropertyGrid::SetActionTrigger(wxPG_ACTION_PRESS_BUTTON).
@@ -942,11 +1010,19 @@ without warnings or errors.
   - wxPropertyGridEvent::HasProperty() is removed. You can use GetProperty()
     as immediate replacement when checking if event has a property.
 
+  - "InlineHelp" property has been replaced with "Hint".
+
+  - wxPropertyGrid::CanClose() has been removed. Call
+    wxPropertyGridInterface::EditorValidate() instead.
+
 @subsection propgrid_compat_propdev Property and Editor Sub-classing Changes
 
   - Confusing custom property macros have been eliminated.
 
   - Implement wxPGProperty::ValueToString() instead of GetValueAsString().
+
+  - wxPGProperty::ChildChanged() must now return the modified value of
+    whole property instead of writing it back into 'thisValue' argument.
 
   - Removed wxPropertyGrid::PrepareValueForDialogEditing(). Use
     wxPropertyGrid::GetPendingEditedValue() instead.

@@ -2,7 +2,7 @@
 // Name:        dcmemory.h
 // Purpose:
 // Author:      Vaclav Slavik
-// RCS-ID:      $Id: dcmemory.h 52834 2008-03-26 15:06:00Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@ public:
 
     // implementation
     wxBitmap  m_selected;
-    
+
     wxBitmap GetSelectedObject() const { return m_selected; }
 
 protected:

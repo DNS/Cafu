@@ -3,7 +3,7 @@
 // Purpose:     wxSystemSettings implementation
 // Author:      Vaclav Slavik
 // Created:     2006-08-08
-// RCS-ID:      $Id: settings.cpp 56860 2008-11-20 12:28:08Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2006 REA Elektronik GmbH
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

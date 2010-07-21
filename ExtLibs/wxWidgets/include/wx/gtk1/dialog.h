@@ -3,7 +3,7 @@
 // Purpose:
 // Author:      Robert Roebling
 // Created:
-// Id:          $Id: dialog.h 49873 2007-11-12 21:37:46Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:           wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

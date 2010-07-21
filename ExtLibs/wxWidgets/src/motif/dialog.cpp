@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     17/09/98
-// RCS-ID:      $Id: dialog.cpp 58246 2009-01-20 18:33:33Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -307,8 +307,7 @@ int wxDialog::ShowModal()
     // Now process all events in case they get sent to a destroyed dialog
     wxFlushEvents( display );
 
-    delete m_eventLoop;
-    m_eventLoop = NULL;
+    wxDELETE(m_eventLoop);
 
     // TODO: is it safe to call this, if the dialog may have been deleted
     // by now? Probably only if we're using delayed deletion of dialogs.

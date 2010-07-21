@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     17/09/98
-// RCS-ID:      $Id: private.h 59887 2009-03-27 15:33:55Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -141,7 +141,11 @@ class wxXmString
 {
     void Init(const char *str)
     {
-        m_string = XmStringCreateLtoR((char *)str, XmSTRING_DEFAULT_CHARSET);
+        m_string = XmStringCreateLtoR
+                   (
+                    const_cast<char *>(str),
+                    const_cast<char *>(XmSTRING_DEFAULT_CHARSET)
+                   );
     }
 
 public:

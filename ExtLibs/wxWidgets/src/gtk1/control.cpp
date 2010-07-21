@@ -2,7 +2,7 @@
 // Name:        src/gtk1/control.cpp
 // Purpose:     wxControl implementation for wxGTK
 // Author:      Robert Roebling
-// Id:          $Id: control.cpp 45033 2007-03-23 14:14:42Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling, Julian Smart and Vadim Zeitlin
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -134,7 +134,7 @@ wxString wxControl::GTKRemoveMnemonics(const wxString& label)
     {
         wxChar ch = label[i];
 
-        if ( ch == _T('&') )
+        if ( ch == wxT('&') )
         {
             if ( i == len - 1 )
             {
@@ -144,7 +144,7 @@ wxString wxControl::GTKRemoveMnemonics(const wxString& label)
             }
 
             ch = label[++i]; // skip '&' itself
-            if ( ch == _T('&') )
+            if ( ch == wxT('&') )
             {
                 // special case: "&&" is not a mnemonic at all but just an
                 // escaped "&"

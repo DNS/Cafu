@@ -2,13 +2,13 @@
 // Name:        utilities.h
 // Purpose:     Utilities page of the Doxygen manual
 // Author:      wxWidgets team
-// RCS-ID:      $Id: utilities.h 60399 2009-04-26 19:41:08Z VZ $
-// Licence:     wxWindows license
+// RCS-ID:      $Id$
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 /**
 
-@page page_utils Included Utilities
+@page page_utils Utilities Overview
 
 In addition to the wxWidgets libraries (see @ref page_libs), some utilities
 are available to the users in the @c utils hierarchy (even if some of them are

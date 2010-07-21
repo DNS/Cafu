@@ -4,7 +4,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by:
 // Created:     10/12/04
-// RCS-ID:      $Id: dialog.cpp 58634 2009-02-03 12:01:46Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -160,11 +160,6 @@ wxDialog::~wxDialog()
 // ----------------------------------------------------------------------------
 // showing the dialogs
 // ----------------------------------------------------------------------------
-
-wxWindow *wxDialog::FindSuitableParent() const
-{
-    return NULL;
-}
 
 bool wxDialog::Show(bool show)
 {

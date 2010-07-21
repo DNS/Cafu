@@ -6,7 +6,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     06.08.00
-// RCS-ID:      $Id: window.h 58227 2009-01-19 13:55:27Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -242,6 +242,9 @@ protected:
     // width to the result
     virtual wxSize DoGetBestClientSize() const;
     virtual wxSize DoGetBestSize() const;
+
+    // override the base class method to return the size of the window borders
+    virtual wxSize DoGetBorderSize() const;
 
     // adjust the size of the window to take into account its borders
     wxSize AdjustSize(const wxSize& size) const;

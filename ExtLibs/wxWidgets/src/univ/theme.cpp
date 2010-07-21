@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     06.08.00
-// RCS-ID:      $Id: theme.cpp 58227 2009-01-19 13:55:27Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -88,7 +88,7 @@ wxThemeInfo::wxThemeInfo(Constructor c,
     wxString nameDefTheme;
 
     // use the environment variable first
-    const wxChar *p = wxGetenv(_T("WXTHEME"));
+    const wxChar *p = wxGetenv(wxT("WXTHEME"));
     if ( p )
     {
         nameDefTheme = p;

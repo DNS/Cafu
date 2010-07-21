@@ -5,7 +5,7 @@ dnl Vadim Zeitlin and Ron Lee
 dnl
 dnl This script is under the wxWindows licence.
 dnl
-dnl Version: $Id: acinclude.m4 56641 2008-11-02 02:16:09Z VZ $
+dnl Version: $Id$
 dnl ---------------------------------------------------------------------------
 
 
@@ -247,7 +247,7 @@ AC_DEFUN([WX_CHECK_FUNCS],
 
     if eval test \$wx_cv_func_$wx_func = yes
     then
-      AC_DEFINE_UNQUOTED([AS_TR_CPP([HAVE_$wx_func])])
+      AC_DEFINE_UNQUOTED(AS_TR_CPP([HAVE_$wx_func]))
       $2
     else
       :
@@ -423,10 +423,10 @@ AC_DEFUN([WX_ARG_ENABLE],
           eval "$AS_TR_SH(wx_cv_use_$1)"
 
           if test x"$enablestring" = xdisable; then
-            if test $$3 = yes; then
-              result=no
-            else
+            if test $$3 = no; then
               result=yes
+            else
+              result=no
             fi
           else
             result=$$3

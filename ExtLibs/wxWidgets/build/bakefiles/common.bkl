@@ -1,9 +1,9 @@
 <?xml version="1.0" ?>
-<!-- $Id: common.bkl 59561 2009-03-15 16:07:56Z KO $ -->
+<!-- $Id$ -->
 
 <makefile>
 
-    <requires version="0.2.3"/>
+    <requires version="0.2.7"/>
 
     <!-- bakefile modules we need: -->
     <using module="datafiles"/>
@@ -61,16 +61,20 @@
         <if cond="PLATFORM_WIN32=='1' and OFFICIAL_BUILD=='0'">_$(VENDOR)</if>
     </set>
 
+    <!-- debug suffix used for Windows libraries which use debug CRT -->
     <set var="WXDEBUGFLAG">
-        <if cond="BUILD=='debug' and DEBUG_FLAG=='default'">d</if>
-        <if cond="DEBUG_FLAG=='1'">d</if>
+        <if cond="BUILD=='debug' and DEBUG_RUNTIME_LIBS=='default'">d</if>
+        <if cond="DEBUG_RUNTIME_LIBS=='1'">d</if>
     </set>
     <set var="WXUNICODEFLAG">
         <!-- WinCE is Unicode-only platform: -->
         <if cond="UNICODE=='1' and FORMAT!='msevc4prj'">u</if>
     </set>
+    <set var="WX_U_D_SUFFIX">
+        $(WXUNICODEFLAG)$(WXDEBUGFLAG)
+    </set>
     <set var="WXNAMESUFFIX">
-        $(WXUNICODEFLAG)$(WXDEBUGFLAG)$(WX_LIB_FLAVOUR)
+        $(WX_U_D_SUFFIX)$(WX_LIB_FLAVOUR)
     </set>
 
     <set var="WXUNIVNAME">
@@ -145,6 +149,9 @@
     <set var="WXLIB_AUI">
         <if cond="MONOLITHIC=='0'">$(mk.evalExpr(wxwin.mkLibName('aui')))</if>
     </set>
+    <set var="WXLIB_RIBBON">
+        <if cond="MONOLITHIC=='0'">$(mk.evalExpr(wxwin.mkLibName('ribbon')))</if>
+    </set>
     <set var="WXLIB_PROPGRID">
         <if cond="MONOLITHIC=='0'">$(mk.evalExpr(wxwin.mkLibName('propgrid')))</if>
     </set>
@@ -177,7 +184,7 @@
             <if cond="SHARED=='1'">dll</if>
         </set>
         <set var="CFG_NAME_PART">
-            $(PORTNAME)$(WXUNIVNAME)$(WXUNICODEFLAG)$(WXDEBUGFLAG)$(WXDLLFLAG)$(CFG)
+            $(PORTNAME)$(WXUNIVNAME)$(WX_U_D_SUFFIX)$(WXDLLFLAG)$(CFG)
         </set>
 
         <!-- NB: this is make_var so that it can be overriden on command line
@@ -207,7 +214,7 @@
 
     <if cond="FORMAT!='autoconf'">
         <set var="SETUPHDIR" make_var="1">
-            $(LIBDIRNAME)\$(PORTNAME)$(WXUNIVNAME)$(WXUNICODEFLAG)$(WXDEBUGFLAG)
+            $(LIBDIRNAME)\$(PORTNAME)$(WXUNIVNAME)$(WX_U_D_SUFFIX)
         </set>
     </if>
 
@@ -257,9 +264,13 @@
     </set>
 
     <set var="DEBUG_DEFINE">
-        <if cond="FORMAT!='autoconf' and BUILD=='debug' and DEBUG_FLAG=='default'">__WXDEBUG__</if>
-        <if cond="FORMAT!='autoconf' and DEBUG_FLAG=='1'">__WXDEBUG__</if>
+        <if cond="DEBUG_FLAG=='0'">wxDEBUG_LEVEL=0</if>
     </set>
+    <set var="NDEBUG_DEFINE">
+        <if cond="FORMAT!='autoconf' and DEBUG_RUNTIME_LIBS=='default' and BUILD=='release'">NDEBUG</if>
+        <if cond="FORMAT!='autoconf' and DEBUG_RUNTIME_LIBS=='0'">NDEBUG</if>
+    </set>
+
     <!-- does not cover all cases, but better than nothing -->
     <set var="NO_VC_CRTDBG">
         <if cond="FORMAT=='msvc' and BUILD=='debug' and DEBUG_RUNTIME_LIBS=='0'">__NO_VC_CRTDBG__</if>
@@ -281,19 +292,19 @@
     <set var="UNICOWS_LIB">
         <if cond="MSLU=='1'">unicows</if>
     </set>
-
-    <if cond="FORMAT!='autoconf'">
-        <set var="GDIPLUS_LIB">
-            <if cond="USE_GDIPLUS=='1'">gdiplus</if>
-        </set>
-        <set var="GFXCTX_DEFINE">
-            <if cond="USE_GDIPLUS=='1'">wxUSE_GRAPHICS_CONTEXT=1</if>
-        </set>
-    </if>
+    <set var="CAIRO_LIB">
+        <if cond="USE_CAIRO=='1'">cairo</if>
+    </set>
+    <set var="CAIRO_LIBDIR">
+        <if cond="USE_CAIRO=='1'">$(DOLLAR)(CAIRO_ROOT)/lib</if>
+    </set>
+    <set var="CAIRO_INCLUDEDIR">
+        <if cond="USE_CAIRO=='1'">$(DOLLAR)(CAIRO_ROOT)/include/cairo</if>
+    </set>
 
     <set var="LINK_TARGET_CPU">
-        <if cond="TARGET_CPU=='amd64'">/MACHINE:AMD64</if>
-        <if cond="TARGET_CPU=='AMD64'">/MACHINE:AMD64</if>
+        <if cond="TARGET_CPU=='amd64'">/MACHINE:X64</if>
+        <if cond="TARGET_CPU=='AMD64'">/MACHINE:X64</if>
         <if cond="TARGET_CPU=='ia64'">/MACHINE:IA64</if>
         <if cond="TARGET_CPU=='IA64'">/MACHINE:IA64</if>
     </set>
@@ -324,7 +335,7 @@
 
     <template id="3rdparty_lib" template="common_settings,anylib">
         <if cond="FORMAT=='autoconf'">
-            <libname>$(id)$(WXDEBUGFLAG)$(WX_LIB_FLAVOUR)-$(WX_RELEASE)$(HOST_SUFFIX)</libname>
+            <libname>$(id)$(WX_LIB_FLAVOUR)-$(WX_RELEASE)$(HOST_SUFFIX)</libname>
         </if>
         <if cond="FORMAT!='autoconf'">
             <libname>$(id)$(WXDEBUGFLAG)$(HOST_SUFFIX)</libname>
@@ -335,6 +346,22 @@
         -->
         <install-if>SHARED=='0'</install-if>
         <pic>$(substituteFromDict(SHARED, {'0':'off', '1':'on'}))</pic>
+
+        <!--
+            we don't want to have asserts in the 3rd party libraries code,
+            neither we nor wx users are interested in debugging them anyhow
+         -->
+        <define>NDEBUG</define>
+
+        <if cond="IS_MSVC">
+            <!--
+                we're not interested in deprecation warnings about the use of
+                standard C functions in the 3rd party libraries (these warnings
+                are only given by VC8+ but it's simpler to just always define
+                this symbol which disables them, even for previous VC versions)
+             -->
+            <define>_CRT_SECURE_NO_WARNINGS</define>
+        </if>
     </template>
 
 
@@ -466,14 +493,15 @@ $(TAB)$(VC_COMPILER) /EP /nologo "$(DOLLAR)(InputPath)" > "$(SETUPHDIR)\wx\msw\r
         <define>__WX$(TOOLKIT)__</define>
         <define>$(WXUNIV_DEFINE)</define>
         <define>$(DEBUG_DEFINE)</define>
+        <define>$(NDEBUG_DEFINE)</define>
         <define>$(EXCEPTIONS_DEFINE)</define>
         <define>$(RTTI_DEFINE)</define>
         <define>$(THREAD_DEFINE)</define>
         <define>$(UNICODE_DEFINE)</define>
         <define>$(MSLU_DEFINE)</define>
-        <if cond="FORMAT!='autoconf'"><define>$(GFXCTX_DEFINE)</define></if>
         <include cond="FORMAT!='autoconf'">$(SETUPHDIR)</include>
         <include cond="FORMAT!='autoconf'">$(TOP_SRCDIR)include</include>
+        <include cond="FORMAT!='autoconf'">$(CAIRO_INCLUDEDIR)</include>
         <lib-path>$(LIBDIRNAME)</lib-path>
         <if cond="TOOLKIT=='MGL' and FORMAT=='watcom'">
             <lib-path>$(MGLLIBPATH)</lib-path>
@@ -519,7 +547,8 @@ $(TAB)$(VC_COMPILER) /EP /nologo "$(DOLLAR)(InputPath)" > "$(SETUPHDIR)\wx\msw\r
         <!-- system libraries on windows: -->
         <if cond="FORMAT!='autoconf' and PLATFORM_WIN32=='1'">
             <sys-lib>$(UNICOWS_LIB)</sys-lib>
-            <sys-lib>$(GDIPLUS_LIB)</sys-lib>
+            <sys-lib>$(CAIRO_LIB)</sys-lib>
+            <lib-path>$(CAIRO_LIBDIR)</lib-path>
             <if cond="FORMAT=='borland'">
                 <sys-lib>ole2w32</sys-lib>
             </if>
@@ -712,13 +741,6 @@ $(TAB)$(VC_COMPILER) /EP /nologo "$(DOLLAR)(InputPath)" > "$(SETUPHDIR)\wx\msw\r
     </set>
     <set var="PLUGIN_VERSION">$(PLUGVERDELIM)$(PLUGIN_VERSION0)</set>
 
-    <set var="PLUGINSUFFIX">
-        <if cond="UNICODE=='0' and BUILD=='release'"></if>
-        <if cond="UNICODE=='0' and BUILD=='debug'">d</if>
-        <if cond="UNICODE=='1' and BUILD=='release'">u</if>
-        <if cond="UNICODE=='1' and BUILD=='debug'">ud</if>
-    </set>
-
     <set var="PLUGINS_INST_DIR" make_var="1">
         $(LIBDIR)/wx/$(PLUGIN_VERSION0)
     </set>
@@ -726,7 +748,7 @@ $(TAB)$(VC_COMPILER) /EP /nologo "$(DOLLAR)(InputPath)" > "$(SETUPHDIR)\wx\msw\r
     <define-rule name="wx-base-plugin" extends="module">
         <template>
             <dllname>
-                $(id)$(PLUGINSUFFIX)$(PLUGIN_VERSION)$(WXCOMPILER)
+                $(id)$(WX_U_D_SUFFIX)$(PLUGIN_VERSION)$(WXCOMPILER)
             </dllname>
             <define>WXUSINGDLL</define>
             <define>wxUSE_GUI=0</define>
@@ -737,7 +759,7 @@ $(TAB)$(VC_COMPILER) /EP /nologo "$(DOLLAR)(InputPath)" > "$(SETUPHDIR)\wx\msw\r
     <define-rule name="wx-gui-plugin" extends="module">
         <template template="wx">
             <dllname>
-                $(id)_$(PORTNAME)$(WXUNIVNAME)$(PLUGINSUFFIX)$(PLUGIN_VERSION)$(WXCOMPILER)
+                $(id)_$(PORTNAME)$(WXUNIVNAME)$(WX_U_D_SUFFIX)$(PLUGIN_VERSION)$(WXCOMPILER)
             </dllname>
             <define>WXUSINGDLL</define>
             <install-to>$(PLUGINS_INST_DIR)</install-to>

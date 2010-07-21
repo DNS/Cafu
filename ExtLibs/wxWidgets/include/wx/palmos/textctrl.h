@@ -4,7 +4,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by: Yunhui Fu
 // Created:     10/13/04
-// RCS-ID:      $Id: textctrl.h 52834 2008-03-26 15:06:00Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -138,7 +138,7 @@ public:
 
     // Implementation from now on
     // --------------------------
- 
+
 #if wxUSE_DRAG_AND_DROP && wxUSE_RICHEDIT
     virtual void SetDropTarget(wxDropTarget *dropTarget);
 #endif // wxUSE_DRAG_AND_DROP && wxUSE_RICHEDIT

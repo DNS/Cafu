@@ -4,7 +4,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by:
 // Created:     10/13/04
-// RCS-ID:      $Id: dcclient.cpp 59725 2009-03-22 12:53:48Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ wxWindowDCImpl::wxWindowDCImpl( wxDC *owner ) :
 wxWindowDCImpl::wxWindowDCImpl( wxDC *owner, wxWindow *window ) :
    wxPalmDCImpl( owner )
 {
-    wxCHECK_RET( window, _T("invalid window in wxWindowDCImpl") );
+    wxCHECK_RET( window, wxT("invalid window in wxWindowDCImpl") );
 }
 
 void wxWindowDCImpl::InitDC()
@@ -87,7 +87,7 @@ void wxWindowDCImpl::InitDC()
 
 void wxWindowDCImpl::DoGetSize(int *width, int *height) const
 {
-    wxCHECK_RET( m_window, _T("wxWindowDCImpl without a window?") );
+    wxCHECK_RET( m_window, wxT("wxWindowDCImpl without a window?") );
 
     m_window->GetSize(width, height);
 }
@@ -137,7 +137,7 @@ wxClientDCImpl::~wxClientDCImpl()
 
 void wxClientDCImpl::DoGetSize(int *width, int *height) const
 {
-    wxCHECK_RET( m_window, _T("wxClientDCImpl without a window?") );
+    wxCHECK_RET( m_window, wxT("wxClientDCImpl without a window?") );
 
     m_window->GetClientSize(width, height);
 }

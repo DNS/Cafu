@@ -3,7 +3,7 @@
 // Purpose:     wxChoice
 // Author:      William Osborne - minimal working wxPalmOS port
 // Created:     10/13/04
-// RCS-ID:      $Id: choice.cpp 58227 2009-01-19 13:55:27Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

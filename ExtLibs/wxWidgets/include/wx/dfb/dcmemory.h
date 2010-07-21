@@ -3,7 +3,7 @@
 // Purpose:     wxMemoryDC class declaration
 // Created:     2006-08-10
 // Author:      Vaclav Slavik
-// RCS-ID:      $Id: dcmemory.h 51445 2008-01-29 14:09:56Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2006 REA Elektronik GmbH
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

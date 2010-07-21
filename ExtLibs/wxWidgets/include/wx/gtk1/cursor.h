@@ -2,7 +2,7 @@
 // Name:        wx/gtk1/cursor.h
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id: cursor.h 55884 2008-09-25 17:56:07Z FM $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

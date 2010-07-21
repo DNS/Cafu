@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     2002-03-09
-// RCS-ID:      $Id: reparent.cpp 59725 2009-03-22 12:53:48Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -89,12 +89,12 @@ bool wxReparenter::Reparent(wxWindow* newParent, wxAdoptedWindow* toReparent)
 
     old = XSetErrorHandler(ErrorHandler);
     XReparentWindow( wxGlobalDisplay(),
-                     (Window) toReparent->GetMainWindow(),
-                     (Window) newParent->GetMainWindow(),
+                     (Window) toReparent->X11GetMainWindow(),
+                     (Window) newParent->X11GetMainWindow(),
                      0, 0);
 
     if (!XQueryTree( wxGlobalDisplay(),
-                     (Window) toReparent->GetMainWindow(),
+                     (Window) toReparent->X11GetMainWindow(),
                      &returnroot, &returnparent,
                      &children, &numchildren) || Xerror)
     {
@@ -123,7 +123,7 @@ bool wxReparenter::Reparent(wxWindow* newParent, wxAdoptedWindow* toReparent)
               "Reparenting child at offset %d and position %d, %d.\n",
                parentOffset, parentOffset+xwa.x, parentOffset+xwa.y);
             XReparentWindow( wxGlobalDisplay(),
-                             children[each], (Window) newParent->GetMainWindow(),
+                             children[each], (Window) newParent->X11GetMainWindow(),
                              xwa.x, xwa.y);
         }
     }
@@ -187,13 +187,13 @@ bool wxReparenter::ProcessXEvent(WXEvent* event)
     {
         if (xevent->type == MapNotify)
         {
-            wxLogDebug(_T("Window was mapped"));
+            wxLogDebug(wxT("Window was mapped"));
         }
 
         if (xevent->type == MapNotify && !xevent->xmap.override_redirect &&
             (client = (Window) FindAClientWindow((WXWindow) xevent->xmap.window, sm_name)))
         {
-            wxLogDebug(_T("Found a client window, about to reparent"));
+            wxLogDebug(wxT("Found a client window, about to reparent"));
             wxASSERT(sm_toReparent->GetParent() == NULL);
 
             sm_toReparent->SetHandle((WXWindow) client);
@@ -204,7 +204,7 @@ bool wxReparenter::ProcessXEvent(WXEvent* event)
                    xevent->xmap.override_redirect &&
                    xevent->xmap.window)
         {
-            wxLogDebug(_T("Found an override redirect window, about to reparent"));
+            wxLogDebug(wxT("Found an override redirect window, about to reparent"));
             sm_toReparent->SetHandle((WXWindow) xevent->xmap.window);
             sm_newParent->AddChild(sm_toReparent);
             wxASSERT(sm_toReparent->GetParent() == NULL);

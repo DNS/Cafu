@@ -4,9 +4,9 @@
     Name:       include/defs.xml
     Purpose:    Common declarations for buildbot
     Author:     Mike Wetherell
-    RCS-ID:     $Id: defs.xml 59693 2009-03-21 12:28:52Z FM $
+    RCS-ID:     $Id$
     Copyright:  (c) 2007 Mike Wetherell
-    Licence:    wxWidgets licence
+    Licence:    wxWindows licence
 -->
 
 <bot xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -22,6 +22,8 @@
 <xsl:template name="SVN_URL">http://svn.wxwidgets.org/svn/wx/wxWidgets/</xsl:template>
 <xsl:template name="STABLE_BRANCH">branches/WX_2_8_BRANCH</xsl:template>
 <xsl:variable name="STABLE_BRANCH"><STABLE_BRANCH/></xsl:variable>
+<xsl:template name="RELEASE_BRANCH">branches/WX_2_9_0_BRANCH</xsl:template>
+<xsl:variable name="RELEASE_BRANCH"><RELEASE_BRANCH/></xsl:variable>
 <xsl:template name="SNAPSHOT_URL">http://biolpc22.york.ac.uk/pub</xsl:template>
 
 <!--
@@ -333,7 +335,8 @@
 -->
 <xsl:template name="run-tests">
     <xsl:param name="content"/>
-    <xsl:param name="options"/>
+    <xsl:param name="options" select="'-t'"/>
+    <xsl:param name="guioptions" select="$options"/>
     <xsl:param name="msw"><is-msw/></xsl:param>
     <test>
         <defaults content="{$content}">
@@ -345,10 +348,10 @@
             <command>
                 <xsl:choose>
                     <xsl:when test="$msw = 'true'">
-                        <run-tests-win options="{$options}"/>
+                        <run-tests-win options="{$options}" guioptions="{$guioptions}"/>
                     </xsl:when>
                     <xsl:otherwise>
-                        <run-tests-unix options="{$options}"/>
+                        <run-tests-unix options="{$options}" guioptions="{$guioptions}"/>
                     </xsl:otherwise>
                 </xsl:choose>
             </command>
@@ -358,6 +361,7 @@
 
 <xsl:template name="run-tests-win">
     <xsl:param name="options"/>
+    <xsl:param name="guioptions"/>
 <normalize-space>
 cd tests &amp;&amp; runtests.bat
 </normalize-space>
@@ -365,11 +369,32 @@ cd tests &amp;&amp; runtests.bat
 
 <xsl:template name="run-tests-unix">
     <xsl:param name="options"/>
-<normalize-space>
-cd tests &amp;&amp;
-./test <xsl:value-of select="normalize-space($options)"/> &amp;&amp;
-if [ -n "$DISPLAY" -a -x test_gui ]; then ./test_gui; fi
-</normalize-space>
+    <xsl:param name="guioptions"/>
+ERR=0
+cd tests || exit 0
+ulimit -c unlimited
+
+try()
+{
+    rm -f core
+    echo Running: "$@"
+    "$@" || ERR=$?
+
+    if [ -f core -a -x "`which gdb`" ]; then
+        echo Crashed, attempting to display backtrace:
+        gdb -batch -c core -ex 'set pagination off' -ex bt "$1"
+    fi
+
+    echo
+}
+
+try ./test <xsl:value-of select="normalize-space($options)"/>
+
+if [ -n "$DISPLAY" -a -x test_gui ]; then
+    try ./test_gui <xsl:value-of select="normalize-space($guioptions)"/>
+fi
+
+exit $ERR
 </xsl:template>
 
 <!--

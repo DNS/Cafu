@@ -3,7 +3,7 @@
 // Purpose:     XML resource handler for wxSimpleHtmlListBox
 // Author:      Francesco Montorsi
 // Created:     2006/10/21
-// RCS-ID:      $Id: xh_htmllbox.cpp 42257 2006-10-22 22:09:16Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2006 Francesco Montorsi
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@ wxObject *wxSimpleHtmlListBoxXmlHandler::DoCreateResource()
                         GetID(),
                         GetPosition(), GetSize(),
                         strList,
-                        GetStyle(_T("style"), wxHLB_DEFAULT_STYLE),
+                        GetStyle(wxT("style"), wxHLB_DEFAULT_STYLE),
                         wxDefaultValidator,
                         GetName());
 

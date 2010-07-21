@@ -3,7 +3,7 @@
 // Purpose:     wxCursor declaration
 // Author:      Vaclav Slavik
 // Created:     2006-08-08
-// RCS-ID:      $Id: cursor.h 55884 2008-09-25 17:56:07Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2006 REA Elektronik GmbH
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

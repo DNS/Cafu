@@ -4,9 +4,9 @@
 // Author:      Wlodzimierz ABX Skiba
 // Modified by:
 // Created:     29.12.2004
-// RCS-ID:      $Id: progdlg.h 58757 2009-02-08 11:45:59Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Wlodzimierz Skiba
-// License:     wxWindows licence
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _PREFCONF_H_

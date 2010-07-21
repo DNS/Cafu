@@ -3,7 +3,7 @@
 // Purpose:     Classes-by-category page of the Doxygen manual
 // Author:      wxWidgets team
 // RCS-ID:      $Id: cat_classes.h 52468 2008-03-13 16:30:38Z FM $
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -239,6 +239,7 @@ The following are a variety of classes that are derived from wxWindow.
 @li wxHVScrolledWindow: As ::wxScrolledWindow but supports scroll units of
     variable sizes.
 @li wxGrid: A grid (table) window
+@li wxInfoBar: An information bar usually shown on top of the main window.
 @li wxSplitterWindow: Window which can be split vertically or horizontally
 @li wxStatusBar: Implements the status bar on a frame
 @li wxToolBar: Toolbar class
@@ -429,12 +430,14 @@ Related Overviews: @ref overview_events
 @li wxIdleEvent: An idle event
 @li wxInitDialogEvent: A dialog initialisation event
 @li wxJoystickEvent: A joystick event
+@li wxKeyboardState: State of the keyboard modifiers.
 @li wxListEvent: A list control event
 @li wxMaximizeEvent: A maximize event
 @li wxMenuEvent: A menu event
 @li wxMouseCaptureChangedEvent: A mouse capture changed event
 @li wxMouseCaptureLostEvent: A mouse capture lost event
 @li wxMouseEvent: A mouse event
+@li wxMouseState: State of the mouse
 @li wxMoveEvent: A move event
 @li wxNavigationKeyEvent: An event set by navigation keys such as tab
 @li wxNotebookEvent: A notebook control event
@@ -622,6 +625,7 @@ Related overview: @ref overview_log
 
 These are the data structure classes supported by wxWidgets.
 
+@li wxAny: A class for storing arbitrary types that may change at run-time
 @li wxCmdLineParser: Command line parser class
 @li wxDateSpan: A logical time interval.
 @li wxDateTime: A class for date/time manipulations
@@ -704,6 +708,7 @@ Related overview: @ref overview_file
 @li wxTextFile: Class for working with text files as with arrays of lines
 @li wxStandardPaths: Paths for standard directories
 @li wxPathList: A class to help search multiple paths
+@li wxFileSystemWatcher: Class providing notifications of file system changes
 
 
 

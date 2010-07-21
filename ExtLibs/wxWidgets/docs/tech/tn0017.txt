@@ -120,4 +120,4 @@ IV. Notes
 === EOF ===
 
 Author:  VZ & MW
-Version: $Id: tn0017.txt 33984 2005-05-08 16:16:34Z MW $
+Version: $Id$

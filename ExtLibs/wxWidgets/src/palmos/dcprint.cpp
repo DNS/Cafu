@@ -4,7 +4,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by:
 // Created:     10/13/04
-// RCS-ID:      $Id: dcprint.cpp 57907 2009-01-08 14:21:53Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -62,7 +62,7 @@ wxPrinterDC::wxPrinterDC(const wxString& driver_name,
                          const wxString& device_name,
                          const wxString& file,
                          bool interactive,
-                         int orientation)
+                         wxPrintOrientation orientation)
 {
 }
 

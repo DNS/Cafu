@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     06.08.00
-// RCS-ID:      $Id: gtk.cpp 48125 2007-08-16 12:15:15Z JS $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -328,7 +328,7 @@ protected:
                      wxCoord y1, wxCoord y2);
 
     // draw the radio button bitmap for the given state
-    void DrawRadioBitmap(wxDC& dc, const wxRect& rect, int flags);
+    void DrawRadioButtonBitmap(wxDC& dc, const wxRect& rect, int flags);
 
     // common part of DrawMenuItem() and DrawMenuBarItem()
     void DoDrawMenuItem(wxDC& dc,
@@ -716,7 +716,7 @@ wxColour wxGTKColourScheme::Get(wxGTKColourScheme::StdColour col) const
 
         case MAX:
         default:
-            wxFAIL_MSG(_T("invalid standard colour"));
+            wxFAIL_MSG(wxT("invalid standard colour"));
             return *wxBLACK;
     }
 }
@@ -772,7 +772,7 @@ void wxGTKRenderer::DrawAntiShadedRectSide(wxDC& dc,
             break;
 
         default:
-            wxFAIL_MSG(_T("unknown rectangle side"));
+            wxFAIL_MSG(wxT("unknown rectangle side"));
     }
 }
 
@@ -997,9 +997,9 @@ void wxGTKRenderer::DrawCheckBitmap(wxDC& dc, const wxRect& rectTotal)
     dc.DrawRectangle(rect);
 }
 
-void wxGTKRenderer::DrawRadioBitmap(wxDC& dc,
-                                    const wxRect& rect,
-                                    int flags)
+void wxGTKRenderer::DrawRadioButtonBitmap(wxDC& dc,
+                                          const wxRect& rect,
+                                          int flags)
 {
     wxCoord x = rect.x,
             y = rect.y,
@@ -1134,7 +1134,7 @@ wxBitmap wxGTKRenderer::GetRadioBitmap(int flags)
         bmp.Create(size.x, size.y);
         dc.SelectObject(bmp);
 
-        DrawRadioBitmap(dc, size, flags);
+        DrawRadioButtonBitmap(dc, size, flags);
     }
 
     return bmp;
@@ -1155,7 +1155,7 @@ wxBitmap wxGTKRenderer::GetLineWrapBitmap() const
         wxBitmap bmpLineWrap(line_wrap_bits, line_wrap_width, line_wrap_height);
         if ( !bmpLineWrap.Ok() )
         {
-            wxFAIL_MSG( _T("Failed to create line wrap XBM") );
+            wxFAIL_MSG( wxT("Failed to create line wrap XBM") );
         }
         else
         {
@@ -1303,7 +1303,7 @@ void wxGTKRenderer::DrawTab(wxDC& dc,
         switch ( dir )
         {
             default:
-                wxFAIL_MSG(_T("invaild notebook tab orientation"));
+                wxFAIL_MSG(wxT("invaild notebook tab orientation"));
                 // fall through
 
             case wxTOP:
@@ -1703,7 +1703,7 @@ void wxGTKRenderer::DoDrawMenuItem(wxDC& dc,
     if ( !accel.empty() )
     {
         // menubar items shouldn't have them
-        wxCHECK_RET( geometryInfo, _T("accel strings only valid for menus") );
+        wxCHECK_RET( geometryInfo, wxT("accel strings only valid for menus") );
 
         rect.x = geometryInfo->GetAccelOffset();
         rect.SetRight(geometryInfo->GetSize().x);
@@ -1715,7 +1715,7 @@ void wxGTKRenderer::DoDrawMenuItem(wxDC& dc,
     // draw the submenu indicator
     if ( flags & wxCONTROL_ISSUBMENU )
     {
-        wxCHECK_RET( geometryInfo, _T("wxCONTROL_ISSUBMENU only valid for menus") );
+        wxCHECK_RET( geometryInfo, wxT("wxCONTROL_ISSUBMENU only valid for menus") );
 
         rect.x = geometryInfo->GetSize().x - MENU_RIGHT_MARGIN;
         rect.width = MENU_RIGHT_MARGIN;
@@ -1950,7 +1950,7 @@ void wxGTKRenderer::DrawArrowBorder(wxDC& dc,
             break;
 
         default:
-            wxFAIL_MSG(_T("unknown arrow direction"));
+            wxFAIL_MSG(wxT("unknown arrow direction"));
             return;
     }
 
@@ -2085,7 +2085,7 @@ void wxGTKRenderer::DrawArrow(wxDC& dc,
             break;
 
         default:
-            wxFAIL_MSG(_T("unknown arrow direction"));
+            wxFAIL_MSG(wxT("unknown arrow direction"));
     }
 
     dc.DrawPolygon(WXSIZEOF(ptArrow), ptArrow);
@@ -2162,7 +2162,7 @@ void wxGTKRenderer::DrawArrow(wxDC& dc,
             break;
 
         default:
-            wxFAIL_MSG(_T("unknown arrow direction"));
+            wxFAIL_MSG(wxT("unknown arrow direction"));
             return;
     }
 }

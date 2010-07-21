@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     17/09/98
-// RCS-ID:      $Id: utils.cpp 59711 2009-03-21 23:36:37Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -377,7 +377,7 @@ wxString wxGetXEventName(XEvent& event)
     return str;
 #else
     int type = event.xany.type;
-    static char* event_name[] = {
+    static const char* event_name[] = {
         "", "unknown(-)",                                         // 0-1
         "KeyPress", "KeyRelease", "ButtonPress", "ButtonRelease", // 2-5
         "MotionNotify", "EnterNotify", "LeaveNotify", "FocusIn",  // 6-9

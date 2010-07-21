@@ -1,5 +1,5 @@
 %define pref /usr
-%define ver  2.9.0
+%define ver  2.9.1
 %define ver2 2.9
 %define rel  1
 
@@ -111,6 +111,7 @@ rm -rf $RPM_BUILD_ROOT
 # --- wxBase headers list begins here ---
 cat <<EOF >wxbase-headers.files
 wx/afterstd.h
+wx/any.h
 wx/anystr.h
 wx/app.h
 wx/apptrait.h
@@ -147,6 +148,7 @@ wx/dynlib.h
 wx/dynload.h
 wx/encconv.h
 wx/event.h
+wx/evtloop.h
 wx/except.h
 wx/features.h
 wx/flags.h
@@ -174,6 +176,7 @@ wx/ioswrap.h
 wx/ipc.h
 wx/ipcbase.h
 wx/kbdstate.h
+wx/language.h
 wx/link.h
 wx/list.h
 wx/listimpl.cpp
@@ -187,6 +190,7 @@ wx/mimetype.h
 wx/module.h
 wx/mousestate.h
 wx/msgout.h
+wx/msgqueue.h
 wx/mstream.h
 wx/object.h
 wx/platform.h
@@ -206,6 +210,7 @@ wx/sstream.h
 wx/stack.h
 wx/stackwalk.h
 wx/stdpaths.h
+wx/stdstream.h
 wx/stockitem.h
 wx/stopwatch.h
 wx/strconv.h
@@ -224,7 +229,9 @@ wx/timer.h
 wx/tls.h
 wx/tokenzr.h
 wx/tracker.h
+wx/translation.h
 wx/txtstrm.h
+wx/typeinfo.h
 wx/types.h
 wx/unichar.h
 wx/uri.h
@@ -251,17 +258,23 @@ wx/meta/convertible.h
 wx/meta/if.h
 wx/meta/int2type.h
 wx/meta/movable.h
+wx/meta/pod.h
+wx/fswatcher.h
+wx/generic/fswatcher.h
 wx/unix/app.h
 wx/unix/apptbase.h
 wx/unix/apptrait.h
 wx/unix/chkconf.h
 wx/unix/evtloop.h
+wx/unix/evtloopsrc.h
 wx/unix/pipe.h
 wx/unix/stdpaths.h
 wx/unix/stackwalk.h
 wx/unix/tls.h
+wx/unix/fswatcher_kqueue.h
 wx/unix/execute.h
 wx/unix/mimetype.h
+wx/unix/fswatcher_inotify.h
 wx/fs_inet.h
 wx/protocol/file.h
 wx/protocol/ftp.h

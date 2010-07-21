@@ -2,7 +2,7 @@
 // Name:        wx/gtk1/radiobut.h
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id: radiobut.h 37065 2006-01-23 02:28:01Z MR $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

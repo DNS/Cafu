@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by: 13.12.99 by VZ during toolbar classes reorganization
 // Created:     17/09/98
-// RCS-ID:      $Id: toolbar.h 52834 2008-03-26 15:06:00Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

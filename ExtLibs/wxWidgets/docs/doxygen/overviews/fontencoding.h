@@ -2,8 +2,8 @@
 // Name:        fontencoding.h
 // Purpose:     topic overview
 // Author:      wxWidgets team
-// RCS-ID:      $Id: fontencoding.h 59609 2009-03-18 15:30:06Z FM $
-// Licence:     wxWindows license
+// RCS-ID:      $Id$
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 /**

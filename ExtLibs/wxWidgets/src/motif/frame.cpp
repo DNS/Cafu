@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     17/09/98
-// RCS-ID:      $Id: frame.cpp 58246 2009-01-20 18:33:33Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -267,15 +267,10 @@ wxFrame::~wxFrame()
     if (m_frameMenuBar)
     {
         m_frameMenuBar->DestroyMenuBar();
-        delete m_frameMenuBar;
-        m_frameMenuBar = NULL;
+        wxDELETE(m_frameMenuBar);
     }
 
-    if (m_frameStatusBar)
-    {
-        delete m_frameStatusBar;
-        m_frameStatusBar = NULL;
-    }
+    wxDELETE(m_frameStatusBar);
 
     PreDestroy();
 

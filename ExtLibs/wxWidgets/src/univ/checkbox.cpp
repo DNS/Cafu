@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     25.08.00
-// RCS-ID:      $Id: checkbox.cpp 42816 2006-10-31 08:50:17Z RD $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -217,7 +217,7 @@ void wxCheckBox::DoSet3StateValue(wxCheckBoxState state)
     {
         case wxCHK_UNCHECKED:    status = Status_Unchecked;   break;
         case wxCHK_CHECKED:      status = Status_Checked; break;
-        default:                 wxFAIL_MSG(_T("Unknown checkbox state"));
+        default:                 wxFAIL_MSG(wxT("Unknown checkbox state"));
         case wxCHK_UNDETERMINED: status = Status_3rdState;  break;
     }
     if ( status != m_status )

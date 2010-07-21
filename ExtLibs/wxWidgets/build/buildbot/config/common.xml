@@ -4,9 +4,9 @@
     Name:       common.xml
     Purpose:    Schedulers and locks common to all slaves.
     Author:     Mike Wetherell
-    RCS-ID:     $Id: common.xml 57081 2008-12-02 22:37:50Z MW $
+    RCS-ID:     $Id$
     Copyright:  (c) 2007 Mike Wetherell
-    Licence:    wxWidgets licence
+    Licence:    wxWindows licence
 -->
 
 <bot xmlns:xi="http://www.w3.org/2001/XInclude">
@@ -27,6 +27,13 @@
 <scheduler>
     <name>trunk_quick</name>
     <branch>trunk</branch>
+    <treeStableTimer>900</treeStableTimer>
+    <fileNotImportant>docs/* interface/*</fileNotImportant>
+</scheduler>
+
+<scheduler>
+    <name>release_quick</name>
+    <branch><RELEASE_BRANCH/></branch>
     <treeStableTimer>900</treeStableTimer>
     <fileNotImportant>docs/* interface/*</fileNotImportant>
 </scheduler>
@@ -75,12 +82,26 @@
     <name><STABLE_BRANCH/></name>
 </slavelock>
 
+<slavelock>
+    <name><RELEASE_BRANCH/></name>
+</slavelock>
+
 <!--
     Map SVN user ids to email addresses.
+
+    The email address in wx-devs.xml can be overridden by adding a line like
+    this after the xi:include:
+
+        <email id="JMS">jaakko.salli -at- dnainternet.net</email>
+
+    or disabled using an empty tag:
+
+        <email id="JMS"/>
 -->
 
 <emaillookup name="wx-devs">
     <xi:include href="include/wx-devs.xml"/>
+    <!-- Overrides... -->
 </emaillookup>
 
 <!--
@@ -97,7 +118,7 @@
 -->
 
 <mailnotifier>
-    <extraRecipient>wx-buildbot -at- lists.wxwidgets.org</extraRecipient>
+    <extraRecipient>wx-buildbot -at- googlegroups.com</extraRecipient>
 </mailnotifier>
 
 <!--

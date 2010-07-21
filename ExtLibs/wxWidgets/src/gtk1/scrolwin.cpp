@@ -5,7 +5,7 @@
 // Modified by: Ron Lee
 //              Vadim Zeitlin: removed 90% of duplicated common code
 // Created:     01/02/97
-// RCS-ID:      $Id: scrolwin.cpp 57531 2008-12-24 16:43:30Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -171,7 +171,7 @@ void wxScrollHelper::DoScrollOneDir(int orient,
 
 void wxScrollHelper::DoScroll( int x_pos, int y_pos )
 {
-    wxCHECK_RET( m_targetWindow != 0, _T("No target window") );
+    wxCHECK_RET( m_targetWindow != 0, wxT("No target window") );
 
     DoScrollOneDir(wxHORIZONTAL, m_win->m_hAdjust, x_pos, m_xScrollPixelsPerLine,
                 &m_xScrollPosition);

@@ -2,7 +2,7 @@
 // Name:        wx/gtk1/app.h
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id: app.h 59711 2009-03-21 23:36:37Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling, Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

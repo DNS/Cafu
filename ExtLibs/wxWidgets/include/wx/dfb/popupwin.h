@@ -3,7 +3,7 @@
 // Purpose:     wxPopupWindow class for wxDFB
 // Author:      Vaclav Slavik
 // Created:     2006-12-24
-// RCS-ID:      $Id: popupwin.h 44289 2007-01-22 15:04:49Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2006 TT-Solutions
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////

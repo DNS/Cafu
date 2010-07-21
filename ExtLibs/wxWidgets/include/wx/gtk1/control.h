@@ -2,7 +2,7 @@
 // Name:        wx/gtk1/control.h
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id: control.h 47254 2007-07-09 10:09:52Z VS $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling, Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

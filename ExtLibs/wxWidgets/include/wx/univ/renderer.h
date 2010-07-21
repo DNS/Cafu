@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     06.08.00
-// RCS-ID:      $Id: renderer.h 58825 2009-02-12 01:06:53Z KO $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -207,13 +207,6 @@ public:
                                  int flags = 0,
                                  wxAlignment align = wxALIGN_LEFT,
                                  int indexAccel = -1) = 0;
-
-   // draw a radio button sans label or bitmap, for wxRenderer API compat.
-    virtual void DrawRadioButton(wxDC& dc,
-                                 const wxRect& rect,
-                                 int flags = 0,
-                                 wxAlignment align = wxALIGN_LEFT)
-     { DrawRadioButton(dc, wxEmptyString, wxNullBitmap, rect, flags, align); } 
 
 #if wxUSE_TOOLBAR
     // draw a toolbar button (label may be empty, bitmap may be invalid, if
@@ -877,8 +870,9 @@ public:
     wxControlRenderer(wxWindow *control, wxDC& dc, wxRenderer *renderer);
 
     // operations
-    void DrawLabel(const wxBitmap& bitmap = wxNullBitmap,
-                   wxCoord marginX = 0, wxCoord marginY = 0);
+    void DrawLabel();
+    void DrawButtonLabel(const wxBitmap& bitmap = wxNullBitmap,
+                         wxCoord marginX = 0, wxCoord marginY = 0);
 #if wxUSE_LISTBOX
     void DrawItems(const wxListBox *listbox,
                    size_t itemFirst, size_t itemLast);

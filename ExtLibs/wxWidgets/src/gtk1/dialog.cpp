@@ -2,7 +2,7 @@
 // Name:        src/gtk1/dialog.cpp
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id: dialog.cpp 50942 2007-12-29 16:35:39Z JS $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -192,14 +192,11 @@ int wxDialog::ShowModal()
 
     // use the apps top level window as parent if none given unless explicitly
     // forbidden
-    if ( !GetParent() && !(GetWindowStyleFlag() & wxDIALOG_NO_PARENT) )
+    wxWindow * const parent = GetParentForModalDialog();
+    if ( parent )
     {
-        wxWindow * const parent = GetParentForModalDialog();
-        if ( parent )
-        {
-            m_parent = parent;
-            gtk_window_set_transient_for( GTK_WINDOW(m_widget), GTK_WINDOW(parent->m_widget) );
-        }
+        m_parent = parent;
+        gtk_window_set_transient_for( GTK_WINDOW(m_widget), GTK_WINDOW(parent->m_widget) );
     }
 
     wxBusyCursorSuspender cs; // temporarily suppress the busy cursor

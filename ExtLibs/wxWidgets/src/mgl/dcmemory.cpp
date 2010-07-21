@@ -2,7 +2,7 @@
 // Name:        src/mgl/dcmemory.cpp
 // Purpose:
 // Author:      Robert Roebling, Vaclav Slavik
-// RCS-ID:      $Id: dcmemory.cpp 42755 2006-10-30 19:41:46Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 1998 Robert Roebling,
 //                  2001 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence

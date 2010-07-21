@@ -2,7 +2,7 @@
 // Name:        wx/gtk1/stattext.h
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id: stattext.h 45399 2007-04-11 12:13:36Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

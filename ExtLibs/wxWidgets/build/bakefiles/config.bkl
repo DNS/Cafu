@@ -1,11 +1,15 @@
 <?xml version="1.0" ?>
-<!-- $Id: config.bkl 59561 2009-03-15 16:07:56Z KO $ -->
+<!-- $Id$ -->
 
 <makefile>
 
     <set var="IS_MSVC_PRJ">
         $(FORMAT in ['msvc6prj','msevc4prj','msvs2003prj','msvs2005prj','msvs2008prj'])
     </set>
+    <set var="IS_MSVC">
+        $(IS_MSVC_PRJ=='1' or FORMAT=='msvc')
+    </set>
+
 
     <set var="BUILDING_LIB" overwrite="0">0</set>
 
@@ -107,9 +111,15 @@ Accepted values: AMD64, IA64.
         <set var="TARGET_CPU"/>
     </if>
 
+    <!--
+        For MSVC enable debug information in all builds: it is needed to be
+        able to debug the crash dumps produced by wxDebugReport and as it
+        generates it in separate PDB files it doesn't cost us much to enable it
+        (except for disk space...).
+     -->
     <set var="DEBUG_INFO_DEFAULT">
-        <if cond="IS_MSVC_PRJ=='1'">1</if>
-        <if cond="IS_MSVC_PRJ=='0'">default</if>
+        <if cond="IS_MSVC=='1'">1</if>
+        <if cond="IS_MSVC=='0'">default</if>
     </set>
 
     <option name="DEBUG_INFO">
@@ -124,10 +134,11 @@ and not included if BUILD=release.
 
     <option name="DEBUG_FLAG">
         <values>0,1,default</values>
-        <default-value>default</default-value>
+        <default-value>1</default-value>
         <description>
-Should __WXDEBUG__ be defined? The default value "default" means that it will
-be defined if BUILD=debug and not defined if BUILD=release.
+Value of wxDEBUG_LEVEL. The default value is the same as 1 and means that all
+but expensive assert checks are enabled, use 0 to completely remove debugging
+code.
         </description>
     </option>
 
@@ -136,8 +147,8 @@ be defined if BUILD=debug and not defined if BUILD=release.
             <values>0,1,default</values>
             <default-value>default</default-value>
             <description>
-Should link against debug RTL (msvcrtd.dll) or release (msvcrt.dll)?
-Acts according to BUILD by default.
+Link against debug (e.g. msvcrtd.dll) or release (msvcrt.dll) RTL?
+Default is to use debug CRT if and only if BUILD==debug.
             </description>
         </option>
     </if>
@@ -213,6 +224,14 @@ Acts according to BUILD by default.
         </description>
     </option>
 
+    <option name="USE_RIBBON">
+        <values>0,1</values>
+        <default-value>1</default-value>
+        <description>
+            Build wxRibbon library (USE_GUI must be 1)?
+        </description>
+    </option>
+
     <option name="USE_PROPGRID">
         <values>0,1</values>
         <default-value>1</default-value>
@@ -239,7 +258,7 @@ Acts according to BUILD by default.
 
     <option name="USE_OPENGL">
         <values>0,1</values>
-        <default-value>0</default-value>
+        <default-value>1</default-value>
         <description>
             Build OpenGL canvas library (USE_GUI must be 1)?
         </description>
@@ -282,15 +301,13 @@ Acts according to BUILD by default.
         </description>
     </option>
 
-    <if cond="FORMAT!='autoconf'">
-        <option name="USE_GDIPLUS">
-            <values>0,1</values>
-            <default-value>0</default-value>
-            <description>
-                Link with gdiplus.lib? (Needed for wxGraphicsContext, will also set wxUSE_GRAPHICS_CONTEXT)
-            </description>
-	</option>
-    </if>
+    <option name="USE_CAIRO">
+        <values>0,1</values>
+        <default-value>0</default-value>
+        <description>
+            Enable wxCairoContext for platforms other than Linux/GTK.
+        </description>
+    </option>
 
     <option name="OFFICIAL_BUILD">
         <values>0,1</values>
@@ -458,6 +475,7 @@ Set the version of your Mingw installation here.
         <set var="RUNTIME_LIBS">dynamic</set>
         <set var="OFFICIAL_BUILD">0</set>
         <set var="USE_AUI">1</set>
+        <set var="USE_RIBBON">1</set>
         <set var="USE_PROPGRID">1</set>
         <set var="USE_RICHTEXT">1</set>
         <set var="USE_STC">1</set>
@@ -471,7 +489,7 @@ Set the version of your Mingw installation here.
         <set var="USE_EXCEPTIONS">1</set>
         <set var="USE_RTTI">1</set>
         <set var="USE_THREADS">1</set>
-        <if cond="FORMAT!='autoconf'"><set var="USE_GDIPLUS">0</set></if>
+        <set var="USE_CAIRO">0</set>
         <set var="DEBUG_INFO">$(DEBUG_INFO_DEFAULT)</set>
         <set var="DEBUG_FLAG">default</set>
         <set var="MSLU">0</set>

@@ -4,7 +4,7 @@
 // Author:      Robert Roebling
 // Modified by:
 // Created:     10.09.00
-// RCS-ID:      $Id: toolbar.h 52834 2008-03-26 15:06:00Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) Robert Roebling
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -24,8 +24,8 @@ class WXDLLIMPEXP_FWD_CORE wxToolBarTool;
 #define wxACTION_TOOLBAR_PRESS   wxACTION_BUTTON_PRESS
 #define wxACTION_TOOLBAR_RELEASE wxACTION_BUTTON_RELEASE
 #define wxACTION_TOOLBAR_CLICK   wxACTION_BUTTON_CLICK
-#define wxACTION_TOOLBAR_ENTER   _T("enter")     // highlight the tool
-#define wxACTION_TOOLBAR_LEAVE   _T("leave")     // unhighlight the tool
+#define wxACTION_TOOLBAR_ENTER   wxT("enter")     // highlight the tool
+#define wxACTION_TOOLBAR_LEAVE   wxT("leave")     // unhighlight the tool
 
 // ----------------------------------------------------------------------------
 // wxToolBar

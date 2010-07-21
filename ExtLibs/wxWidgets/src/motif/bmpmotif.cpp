@@ -4,7 +4,7 @@
 // Author:      Julian Smart, originally in bitmap.cpp
 // Modified by:
 // Created:     25/03/2003
-// RCS-ID:      $Id: bmpmotif.cpp 58227 2009-01-19 13:55:27Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ Pixmap XCreateInsensitivePixmap( Display *display, Pixmap pixmap );
 
 static inline wxCharBuffer GetCacheImageName(WXImage image)
 {
-    return wxString::Format(_T("wxBitmap_%p"), image).ToAscii();
+    return wxString::Format(wxT("wxBitmap_%p"), image).ToAscii();
 }
 
 wxBitmapCache::~wxBitmapCache()
