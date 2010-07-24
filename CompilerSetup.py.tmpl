@@ -1,10 +1,45 @@
+# -*- coding: utf-8 -*-
+from SCons.Script import *
+
 # Edit the settings and paths in this file as required for your system.
 
-# The default compiler to be used for each platform.
-# Note that this can easily be overridden at the command-line
-# by the "cmp" parameter. Example: scons -Q cmp=vc8
-defaultCompilerWin32="vc9";     # Valid values are "vc8" and "vc9".
-defaultCompilerLinux="g++";     # Currently, only "g++" is a valid value.
+
+# envCommon is the common base environment for constructing all Cafu programs.
+# The base environment defines the target platform and architecture and the
+# compiler and other tools for the built. It is normally initialized without
+# any parameters, which means that the installed compiler and other details
+# are automatically detected.
+#
+# MSVC_VERSION sets the version of Visual C/C++ to use.
+#   Set it to an unexpected value (e.g. "XXX") to see the valid values for
+#   your system, such as "8.0", "8.0Exp", "9.0", "9.0Exp", "10.0", "10.0Exp".
+#   If not set, SCons will select the latest version of Visual C/C++ installed
+#   on your system.
+#
+# TARGET_ARCH sets the target architecture for the Visual C/C++ compiler.
+#   It it currently unused under Linux, where the host architecture determines
+#   the target architecture. Valid values are:
+#         "x86" or "i386" for 32 bit builds,
+#         "x86_64" or "amd64" for 64 bit builds,
+#         "ia64" for Itanium builds.
+#
+# Examples:
+#   # Print all valid values for MSVC_VERSION on your system.
+#   envCommon=Environment(MSVC_VERSION="XXX");
+#     
+#   # Use Visual C/C++ version 9 (2008), Express Edition.
+#   envCommon=Environment(MSVC_VERSION="9.0Exp");
+#     
+#   # Use the latest Visual C/C++ version for creating 32 bit binaries.
+#   envCommon=Environment(TARGET_ARCH="x86");
+#     
+#   # Use Visual C/C++ version 9 (2008) for creating 32 bit binaries.
+#   envCommon=Environment(MSVC_VERSION="9.0", TARGET_ARCH="x86");
+#
+# See the SCons man page at
+# <http://www.scons.org/doc/2.0.0.final.0/HTML/scons-man.html> for full
+# details about possible parameters to Environment().
+envCommon=Environment();
 
 
 # This string describes all program variants that should be built:

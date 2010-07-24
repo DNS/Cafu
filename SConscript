@@ -156,6 +156,10 @@ if sys.platform=="win32":
     #   BUT if this is moved into the SConstruct file, also the wx-version (wxPath above) must be fixed there.
     LibPath="/lib/"+compiler+"_lib"
 
+    # Append wxWidgets-specific suffixes matching the TARGET_CPU setting for the Makefiles.
+    if   wxEnv["TARGET_ARCH"] in ["x86_64", "amd64", "emt64"]: LibPath += "_amd64"
+    elif wxEnv["TARGET_ARCH"] in ["ia64"]:                     LibPath += "_ia64"
+
     wxEnv.Append(CPPPATH=['ExtLibs/freetype/include'])      # Linux builds (must) use the systems freetype library instead.
     wxEnv.Append(LIBPATH = [wxPath+LibPath])
     wxEnv.Append(LIBS = Split("SceneGraph MatSys cfsLib cfsCoreLib ClipSys cfs_png cfs_jpeg bulletcollision noise lua minizip lightwave z"))
