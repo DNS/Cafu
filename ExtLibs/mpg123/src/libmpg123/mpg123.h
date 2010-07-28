@@ -6,8 +6,12 @@
 
 #ifdef _WIN32
 typedef long ssize_t;
-typedef __int32 int32_t;
-typedef unsigned __int32 uint32_t;
+#endif
+
+#if defined(_WIN32) && _MSC_VER<1600
+#include "../../../pstdint.h"       // Paul Hsieh's portable implementation of the stdint.h header.
+#else
+#include <stdint.h>
 #endif
 
 #define MPG123_NO_CONFIGURE

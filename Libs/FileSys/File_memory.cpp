@@ -52,13 +52,13 @@ const std::string& MemoryInFileT::GetFullName() const
 }
 
 
-size_t MemoryInFileT::GetPos() const
+uint64_t MemoryInFileT::GetPos() const
 {
     return ReadPos;
 }
 
 
-bool MemoryInFileT::Seek(int Offset, SeekFromT SeekFrom)
+bool MemoryInFileT::Seek(int32_t Offset, SeekFromT SeekFrom)
 {
     switch (SeekFrom)
     {
@@ -71,7 +71,7 @@ bool MemoryInFileT::Seek(int Offset, SeekFromT SeekFrom)
 
         case FROM_CURRENT_POS:
         {
-            const int NewPos=ReadPos+Offset;
+            const long int NewPos=ReadPos+Offset;
             if (NewPos<0) return false;
             ReadPos=NewPos;
             break;
@@ -79,7 +79,7 @@ bool MemoryInFileT::Seek(int Offset, SeekFromT SeekFrom)
 
         case FROM_END:
         {
-            const int NewPos=Buffer.Size()+Offset;
+            const long int NewPos=Buffer.Size()+Offset;
             if (NewPos<0) return false;
             ReadPos=NewPos;
             break;
@@ -90,7 +90,7 @@ bool MemoryInFileT::Seek(int Offset, SeekFromT SeekFrom)
 }
 
 
-size_t MemoryInFileT::Read(char* ToBuffer, size_t Size)
+uint32_t MemoryInFileT::Read(char* ToBuffer, uint32_t Size)
 {
     if (ReadPos>=Buffer.Size()) return 0;
 
@@ -99,13 +99,13 @@ size_t MemoryInFileT::Read(char* ToBuffer, size_t Size)
     if (Size>BytesLeft) Size=BytesLeft;
 
     memcpy(ToBuffer, &Buffer[ReadPos], Size);
-    ReadPos+=(unsigned long)Size;
+    ReadPos+=Size;
 
     return Size;
 }
 
 
-size_t MemoryInFileT::GetSize() const
+uint64_t MemoryInFileT::GetSize() const
 {
     return Buffer.Size();
 }

@@ -64,7 +64,7 @@ static off_t FileSysSeek(int FileDesc, off_t Offset, int Whence)
     }
 
     if (StreamFile->Seek(Offset, SeekFrom))
-        return StreamFile->GetPos();
+        return off_t(StreamFile->GetPos());
 
     return -1;
 }

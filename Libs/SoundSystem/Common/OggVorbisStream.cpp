@@ -56,7 +56,7 @@ static int FileSysSeek(void* DataSource, ogg_int64_t Offset, int Whence)
     }
 
     if (StreamFile->Seek((int)Offset, SeekFrom))
-        return StreamFile->GetPos();
+        return int(StreamFile->GetPos());
 
     return -1;
 }
@@ -68,7 +68,7 @@ static long FileSysTell(void* DataSource)
 {
     cf::FileSys::InFileI* StreamFile=(cf::FileSys::InFileI*) DataSource;
 
-    return StreamFile->GetPos();
+    return long(StreamFile->GetPos());
 }
 
 

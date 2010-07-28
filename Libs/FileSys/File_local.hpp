@@ -44,10 +44,10 @@ namespace cf
             bool               IsOpen() const;
             const std::string& GetBaseName() const;
             const std::string& GetFullName() const;
-            size_t             GetPos() const;
-            bool               Seek(int Offset, SeekFromT SeekFrom);
-            size_t             Read(char* Buffer, size_t Size);
-            size_t             GetSize() const;
+            uint64_t           GetPos() const;
+            bool               Seek(int32_t Offset, SeekFromT SeekFrom);
+            uint32_t           Read(char* Buffer, uint32_t Size);
+            uint64_t           GetSize() const;
 
 
             private:
@@ -69,9 +69,9 @@ namespace cf
             bool               IsOpen() const;
             const std::string& GetBaseName() const;
             const std::string& GetFullName() const;
-            size_t             GetPos() const;
-            bool               Seek(int Offset, SeekFromT SeekFrom);
-            void               Write(const char* Buffer, size_t Size);
+            uint64_t           GetPos() const;
+            bool               Seek(int32_t Offset, SeekFromT SeekFrom);
+            void               Write(const char* Buffer, uint32_t Size);
 
 
             private:

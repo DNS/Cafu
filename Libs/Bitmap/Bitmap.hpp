@@ -26,7 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Templates/Array.hpp"
 
-#ifdef _WIN32
+#if defined(_WIN32) && _MSC_VER<1600
 #include "pstdint.h"            // Paul Hsieh's portable implementation of the stdint.h header.
 #else
 #include <stdint.h>

@@ -60,13 +60,13 @@ const std::string& LocalInFileT::GetFullName() const
 }
 
 
-size_t LocalInFileT::GetPos() const
+uint64_t LocalInFileT::GetPos() const
 {
     return ifs.tellg();
 }
 
 
-bool LocalInFileT::Seek(int Offset, SeekFromT SeekFrom)
+bool LocalInFileT::Seek(int32_t Offset, SeekFromT SeekFrom)
 {
     // Reason for call to ifs.clear(): If the end of a filestream is reached the eofbit is set and prevents further calls
     // to seek (e.g. to rewind the stream) to succeed. To make sure a call to seek doesn't fail becuase of the eofbit, we
@@ -84,19 +84,19 @@ bool LocalInFileT::Seek(int Offset, SeekFromT SeekFrom)
 }
 
 
-size_t LocalInFileT::Read(char* Buffer, size_t Size)
+uint32_t LocalInFileT::Read(char* Buffer, uint32_t Size)
 {
     ifs.read(Buffer, Size);
 
-    return ifs.gcount();
+    return uint32_t(ifs.gcount());
 }
 
 
-size_t LocalInFileT::GetSize() const
+uint64_t LocalInFileT::GetSize() const
 {
-    const size_t CurPos=ifs.tellg();
+    const std::streamoff CurPos=ifs.tellg();
     ifs.seekg(0, std::ios::end);
-    const size_t EndPos=ifs.tellg();
+    const std::streamoff EndPos=ifs.tellg();
     ifs.seekg(CurPos, std::ios::beg);
 
     return EndPos;
@@ -139,13 +139,13 @@ const std::string& LocalOutFileT::GetFullName() const
 }
 
 
-size_t LocalOutFileT::GetPos() const
+uint64_t LocalOutFileT::GetPos() const
 {
     return ofs.tellp();
 }
 
 
-bool LocalOutFileT::Seek(int Offset, SeekFromT SeekFrom)
+bool LocalOutFileT::Seek(int32_t Offset, SeekFromT SeekFrom)
 {
     switch (SeekFrom)
     {
@@ -158,7 +158,7 @@ bool LocalOutFileT::Seek(int Offset, SeekFromT SeekFrom)
 }
 
 
-void LocalOutFileT::Write(const char* Buffer, size_t Size)
+void LocalOutFileT::Write(const char* Buffer, uint32_t Size)
 {
     ofs.write(Buffer, Size);
 }
