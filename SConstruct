@@ -90,6 +90,12 @@ if sys.platform=="win32":
         # for further information.
         envCommon.Tool('mssdk')
 
+        # This is a temporary workaround for SCons bug <http://scons.tigris.org/issues/show_bug.cgi?id=2663>.
+        # It should be removed again as soon as the bug is fixed in SCons.
+        if envCommon["TARGET_ARCH"] in ["x86_64", "amd64", "emt64"]:
+            envCommon["ENV"]["LIB"] = envCommon["ENV"]["LIB"].replace("C:\\Program Files\\Microsoft SDKs\\Windows\\v7.0\\lib;", "C:\\Program Files\\Microsoft SDKs\\Windows\\v7.0\\lib\\x64;");
+            envCommon["ENV"]["LIBPATH"] = envCommon["ENV"]["LIBPATH"].replace("C:\\Program Files\\Microsoft SDKs\\Windows\\v7.0\\lib;", "C:\\Program Files\\Microsoft SDKs\\Windows\\v7.0\\lib\\x64;");
+
         # Environment for debug builds:
         envDebug=envCommon.Clone();
         envDebug.Append(CCFLAGS=Split("/MTd /Od /Z7 /RTC1"));

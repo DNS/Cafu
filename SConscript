@@ -154,11 +154,13 @@ if sys.platform=="win32":
     #   Note that we only (want to) determine the right library path matching the used compiler here.
     #   The specific wx-version used (e.g. latest stable vs. trunk) is still determined locally (here),
     #   BUT if this is moved into the SConstruct file, also the wx-version (wxPath above) must be fixed there.
-    LibPath="/lib/"+compiler+"_lib"
+    LibPath="/lib/"+compiler
 
     # Append wxWidgets-specific suffixes matching the TARGET_CPU setting for the Makefiles.
     if   wxEnv["TARGET_ARCH"] in ["x86_64", "amd64", "emt64"]: LibPath += "_amd64"
     elif wxEnv["TARGET_ARCH"] in ["ia64"]:                     LibPath += "_ia64"
+
+    LibPath += "_lib"
 
     wxEnv.Append(CPPPATH=['ExtLibs/freetype/include'])      # Linux builds (must) use the systems freetype library instead.
     wxEnv.Append(LIBPATH = [wxPath+LibPath])
