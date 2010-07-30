@@ -2,7 +2,7 @@
 // Name:        src/gtk1/utilsres.cpp
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id: utilsres.cpp 48936 2007-09-25 14:39:47Z JJ $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

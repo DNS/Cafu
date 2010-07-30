@@ -313,4 +313,4 @@ The following conventions are used in wxWidgets doxygen comments:
 === EOF ===
 
 Author: FM (along the lines of the previous technote about tex2rtf)
-Version: $Id: tn0003.txt 57845 2009-01-05 19:34:59Z BP $
+Version: $Id$

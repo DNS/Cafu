@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     30.08.00
-// RCS-ID:      $Id: combobox.h 59267 2009-03-02 13:58:42Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,9 +22,9 @@ class WXDLLIMPEXP_FWD_CORE wxListBox;
 // ----------------------------------------------------------------------------
 
 // choose the next/prev/specified (by numArg) item
-#define wxACTION_COMBOBOX_SELECT_NEXT _T("next")
-#define wxACTION_COMBOBOX_SELECT_PREV _T("prev")
-#define wxACTION_COMBOBOX_SELECT      _T("select")
+#define wxACTION_COMBOBOX_SELECT_NEXT wxT("next")
+#define wxACTION_COMBOBOX_SELECT_PREV wxT("prev")
+#define wxACTION_COMBOBOX_SELECT      wxT("select")
 
 
 // ----------------------------------------------------------------------------

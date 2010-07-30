@@ -2,8 +2,8 @@
 // Name:        const_wxusedef.h
 // Purpose:     wxUSE preprocessor symbols
 // Author:      Tim Stahlhut
-// RCS-ID:      $Id: const_wxusedef.h 60399 2009-04-26 19:41:08Z VZ $
-// Licence:     wxWindows license
+// RCS-ID:      $Id$
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -67,6 +67,7 @@ library:
 @itemdef{wxUSE_ACCEL, Use wxAcceleratorTable/Entry classes and support for them in wxMenu, wxMenuBar.}
 @itemdef{wxUSE_AFM_FOR_POSTSCRIPT, In wxPostScriptDC class use AFM (adobe font metrics) file for character widths.}
 @itemdef{wxUSE_ANIMATIONCTRL, Use wxAnimationCtrl class.}
+@itemdef{wxUSE_ANY, Use wxAny class.}
 @itemdef{wxUSE_APPLE_IEEE, IEEE Extended to/from double routines; see src/common/extended.c file.}
 @itemdef{wxUSE_ARCHIVE_STREAMS, Enable streams for archive formats.}
 @itemdef{wxUSE_AUI, Use AUI (dockable windows) library.}
@@ -295,9 +296,9 @@ library:
 @section page_wxusedef_mac wxUSE preprocessor symbols used only in wxMac port
 
 @beginDefList
-@itemdef{wxUSE_MAC_CRITICAL_REGION_MUTEX, See src/mac/carbon/thread.cpp file.}
-@itemdef{wxUSE_MAC_PTHREADS_MUTEX, See src/mac/carbon/thread.cpp file.}
-@itemdef{wxUSE_MAC_SEMAPHORE_MUTEX, See src/mac/carbon/thread.cpp file.}
+@itemdef{wxUSE_MAC_CRITICAL_REGION_MUTEX, See src/osx/carbon/thread.cpp file.}
+@itemdef{wxUSE_MAC_PTHREADS_MUTEX, See src/osx/carbon/thread.cpp file.}
+@itemdef{wxUSE_MAC_SEMAPHORE_MUTEX, See src/osx/carbon/thread.cpp file.}
 @itemdef{wxUSE_WEBKIT, Use wxWebKitCtrl class.}
 @endDefList
 

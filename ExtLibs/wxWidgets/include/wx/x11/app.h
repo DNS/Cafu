@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     17/09/98
-// RCS-ID:      $Id: app.h 59711 2009-03-21 23:36:37Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

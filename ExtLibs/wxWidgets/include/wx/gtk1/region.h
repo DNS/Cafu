@@ -2,7 +2,7 @@
 // Name:        wx/gtk1/region.h
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id: region.h 57915 2009-01-08 16:43:56Z FM $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

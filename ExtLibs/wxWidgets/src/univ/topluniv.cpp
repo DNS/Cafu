@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // Name:        src/univ/topluniv.cpp
 // Author:      Vaclav Slavik
-// Id:          $Id: topluniv.cpp 43616 2006-11-23 14:50:42Z VS $
+// Id:          $Id$
 // Copyright:   (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -163,7 +163,7 @@ void wxTopLevelWindow::UseNativeDecorationsByDefault(bool native)
 
 void wxTopLevelWindow::UseNativeDecorations(bool native)
 {
-    wxASSERT_MSG( !m_windowStyle, _T("must be called before Create()") );
+    wxASSERT_MSG( !m_windowStyle, wxT("must be called before Create()") );
 
     m_usingNativeDecorations = native;
 }

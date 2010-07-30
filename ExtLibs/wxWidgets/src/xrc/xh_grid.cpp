@@ -3,7 +3,7 @@
 // Purpose:     XML resource handler for the grid control
 // Author:      Agron Selimaj
 // Created:     2005/08/11
-// RCS-ID:      $Id: xh_grid.cpp 36278 2005-11-29 00:54:02Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2005 Agron Selimaj, Freepour Controls Inc.
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

@@ -2,7 +2,7 @@
 // Name:        wx/gtk1/filedlg.h
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id: filedlg.h 39402 2006-05-28 23:32:12Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

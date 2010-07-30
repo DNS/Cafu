@@ -2,7 +2,7 @@
 // Name:        gtk/statbox.cpp
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id: statbox.cpp 37063 2006-01-23 01:14:32Z MR $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

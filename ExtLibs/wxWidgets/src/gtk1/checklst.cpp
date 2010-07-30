@@ -2,7 +2,7 @@
 // Name:        src/gtk1/checklst.cpp
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id: checklst.cpp 38319 2006-03-23 22:05:23Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

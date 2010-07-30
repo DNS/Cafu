@@ -4,7 +4,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by:
 // Created:     10/13/04
-// RCS-ID:      $Id: menuitem.cpp 54092 2008-06-11 05:23:53Z PC $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////

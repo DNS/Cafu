@@ -4,7 +4,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by:
 // Created:     10/13/04
-// RCS-ID:      $Id: dialog.h 58757 2009-02-08 11:45:59Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -64,12 +64,6 @@ public:
     virtual void Raise();
 
 protected:
-    // find the window to use as parent for this dialog if none has been
-    // specified explicitly by the user
-    //
-    // may return NULL
-    wxWindow *FindSuitableParent() const;
-
     // common part of all ctors
     void Init();
 

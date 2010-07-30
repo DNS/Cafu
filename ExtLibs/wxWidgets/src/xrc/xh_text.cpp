@@ -3,7 +3,7 @@
 // Purpose:     XRC resource for wxTextCtrl
 // Author:      Aleksandras Gluchovas
 // Created:     2000/03/21
-// RCS-ID:      $Id: xh_text.cpp 54405 2008-06-28 18:18:54Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 Aleksandras Gluchovas
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ wxTextCtrlXmlHandler::wxTextCtrlXmlHandler() : wxXmlResourceHandler()
     // this style doesn't exist since wx 2.9.0 but we still support it (by
     // ignoring it silently) in XRC files to avoid unimportant warnings when
     // using XRC produced by old tools
-    AddStyle(_T("wxTE_AUTO_SCROLL"), 0);
+    AddStyle(wxT("wxTE_AUTO_SCROLL"), 0);
 
     AddWindowStyles();
 }

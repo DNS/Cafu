@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // Name:        bitmap.h
 // Author:      Vaclav Slavik
-// RCS-ID:      $Id: bitmap.h 59526 2009-03-14 13:57:51Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

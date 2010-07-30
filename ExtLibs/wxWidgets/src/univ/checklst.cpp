@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     12.09.00
-// RCS-ID:      $Id: checklst.cpp 47730 2007-07-26 13:54:14Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -122,7 +122,7 @@ bool wxCheckListBox::Create(wxWindow *parent,
 bool wxCheckListBox::IsChecked(unsigned int item) const
 {
     wxCHECK_MSG( IsValid(item), false,
-                 _T("invalid index in wxCheckListBox::IsChecked") );
+                 wxT("invalid index in wxCheckListBox::IsChecked") );
 
     return m_checks[item] != 0;
 }
@@ -130,7 +130,7 @@ bool wxCheckListBox::IsChecked(unsigned int item) const
 void wxCheckListBox::Check(unsigned int item, bool check)
 {
     wxCHECK_RET( IsValid(item),
-                 _T("invalid index in wxCheckListBox::Check") );
+                 wxT("invalid index in wxCheckListBox::Check") );
 
     // intermediate var is needed to avoid compiler warning with VC++
     bool isChecked = m_checks[item] != 0;

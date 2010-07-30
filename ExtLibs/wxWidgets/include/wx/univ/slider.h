@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     09.02.01
-// RCS-ID:      $Id: slider.h 52834 2008-03-26 15:06:00Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2001 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -20,17 +20,17 @@
 
 // our actions are the same as scrollbars
 
-#define wxACTION_SLIDER_START       _T("start")     // to the beginning
-#define wxACTION_SLIDER_END         _T("end")       // to the end
-#define wxACTION_SLIDER_LINE_UP     _T("lineup")    // one line up/left
-#define wxACTION_SLIDER_PAGE_UP     _T("pageup")    // one page up/left
-#define wxACTION_SLIDER_LINE_DOWN   _T("linedown")  // one line down/right
-#define wxACTION_SLIDER_PAGE_DOWN   _T("pagedown")  // one page down/right
-#define wxACTION_SLIDER_PAGE_CHANGE _T("pagechange")// change page by numArg
+#define wxACTION_SLIDER_START       wxT("start")     // to the beginning
+#define wxACTION_SLIDER_END         wxT("end")       // to the end
+#define wxACTION_SLIDER_LINE_UP     wxT("lineup")    // one line up/left
+#define wxACTION_SLIDER_PAGE_UP     wxT("pageup")    // one page up/left
+#define wxACTION_SLIDER_LINE_DOWN   wxT("linedown")  // one line down/right
+#define wxACTION_SLIDER_PAGE_DOWN   wxT("pagedown")  // one page down/right
+#define wxACTION_SLIDER_PAGE_CHANGE wxT("pagechange")// change page by numArg
 
-#define wxACTION_SLIDER_THUMB_DRAG      _T("thumbdrag")
-#define wxACTION_SLIDER_THUMB_MOVE      _T("thumbmove")
-#define wxACTION_SLIDER_THUMB_RELEASE   _T("thumbrelease")
+#define wxACTION_SLIDER_THUMB_DRAG      wxT("thumbdrag")
+#define wxACTION_SLIDER_THUMB_MOVE      wxT("thumbmove")
+#define wxACTION_SLIDER_THUMB_RELEASE   wxT("thumbrelease")
 
 // ----------------------------------------------------------------------------
 // wxSlider

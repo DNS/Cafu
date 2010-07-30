@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     17/09/98
-// RCS-ID:      $Id: filedlg.cpp 59725 2009-03-22 12:53:48Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -97,11 +97,11 @@ static wxString ParseWildCard( const wxString& wild )
     const size_t count = wxParseCommonDialogsFilter(wild,
                                                     wildDescriptions,
                                                     wildFilters);
-    wxCHECK_MSG( count, _T("*.*"), wxT("wxFileDialog: bad wildcard string") );
-    wxCHECK_MSG( count == 1, _T("*.*"), msg );
+    wxCHECK_MSG( count, wxT("*.*"), wxT("wxFileDialog: bad wildcard string") );
+    wxCHECK_MSG( count == 1, wxT("*.*"), msg );
 
     // check for *.txt;*.rtf
-    wxStringTokenizer tok2( wildFilters[0], _T(";") );
+    wxStringTokenizer tok2( wildFilters[0], wxT(";") );
     wxString wildcard = tok2.GetNextToken();
 
     wxCHECK_MSG( tok2.CountTokens() <= 1, wildcard, msg );

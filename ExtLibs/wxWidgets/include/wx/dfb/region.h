@@ -3,7 +3,7 @@
 // Purpose:     wxRegion class
 // Author:      Vaclav Slavik
 // Created:     2006-08-08
-// RCS-ID:      $Id: region.h 50727 2007-12-15 17:54:20Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2006 REA Elektronik GmbH
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

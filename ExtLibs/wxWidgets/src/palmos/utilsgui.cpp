@@ -4,7 +4,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by:
 // Created:     10/13/04
-// RCS-ID:      $Id: utilsgui.cpp 45280 2007-04-06 21:08:30Z RD $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////

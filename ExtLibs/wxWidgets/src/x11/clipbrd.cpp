@@ -3,7 +3,7 @@
 // Purpose:     Clipboard functionality
 // Author:      Robert Roebling
 // Created:
-// RCS-ID:      $Id: clipbrd.cpp 58227 2009-01-19 13:55:27Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ Atom  g_targetsAtom     = 0;
 // the trace mask we use with wxLogTrace() - call
 // wxLog::AddTraceMask(TRACE_CLIPBOARD) to enable the trace messages from here
 // (there will be a *lot* of them!)
-static const wxChar *TRACE_CLIPBOARD = _T("clipboard");
+static const wxChar *TRACE_CLIPBOARD = wxT("clipboard");
 
 #endif // __WXDEBUG__
 
@@ -91,7 +91,7 @@ targets_selection_received( GtkWidget *WXUNUSED(widget),
             if ( strcmp(gdk_atom_name(type), "TARGETS") )
             {
                 wxLogTrace( TRACE_CLIPBOARD,
-                            _T("got unsupported clipboard target") );
+                            wxT("got unsupported clipboard target") );
 
                 clipboard->m_waiting = false;
                 return;
@@ -215,8 +215,7 @@ selection_clear_clip( GtkWidget *WXUNUSED(widget), GdkEventSelection *event )
         {
             wxLogTrace(TRACE_CLIPBOARD, wxT("wxClipboard will get cleared" ));
 
-            delete wxTheClipboard->m_data;
-            wxTheClipboard->m_data = NULL;
+            wxDELETE(wxTheClipboard->m_data);
         }
     }
 
@@ -348,11 +347,7 @@ void wxClipboard::Clear()
         }
 #endif
 
-        if (m_data)
-        {
-            delete m_data;
-            m_data = NULL;
-        }
+        wxDELETE(m_data);
 
 #if wxUSE_THREADS
         /* re-enable GUI threads */

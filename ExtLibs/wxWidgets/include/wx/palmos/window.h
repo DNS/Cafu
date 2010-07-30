@@ -4,7 +4,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by: Wlodzimierz ABX Skiba - more than minimal functionality
 // Created:     10/13/04
-// RCS-ID:      $Id: window.h 58757 2009-02-08 11:45:59Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne, Wlodzimierz Skiba
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -79,12 +79,6 @@ public:
 
     virtual int GetCharHeight() const;
     virtual int GetCharWidth() const;
-    virtual void GetTextExtent(const wxString& string,
-                               int *x, int *y,
-                               int *descent = NULL,
-                               int *externalLeading = NULL,
-                               const wxFont *theFont = (const wxFont *) NULL)
-                               const;
 
 #if wxUSE_MENUS_NATIVE
     virtual bool DoPopupMenu( wxMenu *menu, int x, int y );
@@ -231,6 +225,11 @@ protected:
     WXHMENU               m_hMenu; // Menu, if any
 
     // implement the base class pure virtuals
+    virtual void DoGetTextExtent(const wxString& string,
+                                 int *x, int *y,
+                                 int *descent = NULL,
+                                 int *externalLeading = NULL,
+                                 const wxFont *font = NULL) const;
     virtual void DoClientToScreen( int *x, int *y ) const;
     virtual void DoScreenToClient( int *x, int *y ) const;
     virtual void DoGetPosition( int *x, int *y ) const;

@@ -4,7 +4,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by:
 // Created:     10/13/04
-// RCS-ID:      $Id: tooltip.cpp 48093 2007-08-15 12:57:36Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////

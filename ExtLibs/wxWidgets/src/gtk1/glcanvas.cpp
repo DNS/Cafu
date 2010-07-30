@@ -4,7 +4,7 @@
 // Author:      Robert Roebling
 // Modified by:
 // Created:     17/08/98
-// RCS-ID:      $Id: glcanvas.cpp 56644 2008-11-02 02:39:52Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

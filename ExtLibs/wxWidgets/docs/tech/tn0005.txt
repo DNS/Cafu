@@ -26,5 +26,5 @@ wxWidgets src, include, docs directories hierarchy.
 
 
 Author:  Julian Smart
-Version: $Id: tn0005.txt 52033 2008-02-24 14:15:11Z FM $
+Version: $Id$
 

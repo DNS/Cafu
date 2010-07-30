@@ -2,8 +2,8 @@
 // Name:        guiframe.h
 // Purpose:     Defines the window containing all controls.
 // Author:      Utensil Candel (UtensilCandel@@gmail.com)
-// RCS-ID:      $Id: guiframe.h 57945 2009-01-09 15:15:51Z FM $
-// Licence:     wxWindows license
+// RCS-ID:      $Id$
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _GUIFRAME_H_

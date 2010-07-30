@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# $Id: rungccxml.sh.in 59579 2009-03-16 17:52:18Z FM $
+# $Id$
 #
 # Runs gccxml on the wxWidgets include folder, in order to build the XML
 # file to fetch to ifacecheck to check the coherency of the wxWidgets

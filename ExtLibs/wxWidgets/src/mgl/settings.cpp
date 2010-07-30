@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // Name:        src/mgl/settings.cpp
 // Author:      Vaclav Slavik, Robert Roebling
-// Id:          $Id: settings.cpp 53616 2008-05-17 09:41:25Z VS $
+// Id:          $Id$
 // Copyright:   (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -34,8 +34,7 @@ public:
     virtual bool OnInit() { return true; }
     virtual void OnExit()
     {
-        delete gs_fontDefault;
-        gs_fontDefault = NULL;
+        wxDELETE(gs_fontDefault);
     }
 
 private:
@@ -109,7 +108,7 @@ bool wxSystemSettingsNative::HasFeature(wxSystemFeature index)
             return false;
 
         default:
-            wxFAIL_MSG( _T("unknown feature") );
+            wxFAIL_MSG( wxT("unknown feature") );
     }
 
     return false;

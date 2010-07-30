@@ -3,7 +3,7 @@
 // Purpose:     TDI-based MDI implementation for wxGTK1
 // Author:      Robert Roebling
 // Modified by: 2008-10-31 Vadim Zeitlin: derive from the base classes
-// Id:          $Id: mdi.h 56674 2008-11-04 02:46:19Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 //              (c) 2008 Vadim Zeitlin
 // Licence:     wxWindows licence

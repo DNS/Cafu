@@ -2,8 +2,8 @@
 // Name:        copyright.h
 // Purpose:     Copyright and license page of the Doxygen manual
 // Author:      wxWidgets team
-// RCS-ID:      $Id: copyright.h 60399 2009-04-26 19:41:08Z VZ $
-// Licence:     wxWindows license
+// RCS-ID:      $Id$
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -15,7 +15,7 @@ members of the wxWidgets team
 
 Portions (c) 1996 Artificial Intelligence Applications Institute
 
-Please also see the wxWindows license files (preamble.txt, lgpl.txt, gpl.txt,
+Please also see the wxWindows licence files (preamble.txt, lgpl.txt, gpl.txt,
 licence.txt, licendoc.txt) for conditions of software and documentation use.
 Note that we use the old name wxWindows in the license, pending
 recognition of the new name by OSI.

@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     10.09.00
-// RCS-ID:      $Id: radiobut.cpp 39567 2006-06-05 16:46:15Z ABX $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

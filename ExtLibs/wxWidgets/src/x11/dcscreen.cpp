@@ -4,7 +4,7 @@
 // Author:      Julian Smart, Robert Roebling
 // Modified by:
 // Created:     17/09/98
-// RCS-ID:      $Id: dcscreen.cpp 50721 2007-12-15 14:07:32Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart, Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

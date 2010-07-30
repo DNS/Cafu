@@ -3,7 +3,7 @@
 // Purpose:     Network, User and OS function and macro group docs
 // Author:      wxWidgets team
 // RCS-ID:      $Id: funcmacro_networkuseros.h 52454 2008-03-12 19:08:48Z BP $
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -14,7 +14,7 @@
 The functions in this section are used to retrieve information about the
 current computer and/or user characteristics.
 
-Related class group: @ref group_class_net.
+Related class group: @ref group_class_net, wxPlatformInfo.
 
 */
 

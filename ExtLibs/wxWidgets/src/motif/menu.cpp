@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     17/09/98
-// RCS-ID:      $Id: menu.cpp 58227 2009-01-19 13:55:27Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -364,8 +364,8 @@ bool wxMenuBar::CreateMenuBar(wxFrame* parent)
             Widget tearOff = XmGetTearOffControl(GetWidget(menu));
             wxDoChangeForegroundColour((Widget) tearOff, m_foregroundColour);
             wxDoChangeBackgroundColour((Widget) tearOff, m_backgroundColour, true);
-#endif
         }
+#endif
     }
 
     PostCreation();
@@ -446,7 +446,7 @@ void wxMenu::DestroyWidgetAndDetach()
 WXWidget wxMenu::CreateMenu (wxMenuBar * menuBar,
                              WXWidget parent,
                              wxMenu * topMenu,
-                             size_t WXUNUSED(index),
+                             size_t menuIndex,
                              const wxString& title,
                              bool pullDown)
 {
@@ -493,7 +493,7 @@ WXWidget wxMenu::CreateMenu (wxMenuBar * menuBar,
             XmNlabelString, label_str(),
             XmNsubMenuId, menu,
             (String)wxFont::GetFontTag(), m_font.GetFontTypeC(dpy),
-            XmNpositionIndex, index,
+            XmNpositionIndex, menuIndex,
             NULL);
 
         if (mnem != 0)

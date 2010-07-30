@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     15.08.00
-// RCS-ID:      $Id: button.h 52834 2008-03-26 15:06:00Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -20,10 +20,10 @@ class WXDLLIMPEXP_FWD_CORE wxInputHandler;
 // the actions supported by this control
 // ----------------------------------------------------------------------------
 
-#define wxACTION_BUTTON_TOGGLE  _T("toggle")    // press/release the button
-#define wxACTION_BUTTON_PRESS   _T("press")     // press the button
-#define wxACTION_BUTTON_RELEASE _T("release")   // release the button
-#define wxACTION_BUTTON_CLICK   _T("click")     // generate button click event
+#define wxACTION_BUTTON_TOGGLE  wxT("toggle")    // press/release the button
+#define wxACTION_BUTTON_PRESS   wxT("press")     // press the button
+#define wxACTION_BUTTON_RELEASE wxT("release")   // release the button
+#define wxACTION_BUTTON_CLICK   wxT("click")     // generate button click event
 
 // ----------------------------------------------------------------------------
 // wxButton: a push button
@@ -87,8 +87,6 @@ public:
 
     virtual ~wxButton();
 
-    virtual void SetImageLabel(const wxBitmap& bitmap);
-    virtual void SetImageMargins(wxCoord x, wxCoord y);
     virtual wxWindow *SetDefault();
 
     virtual bool IsPressed() const { return m_isPressed; }
@@ -118,6 +116,9 @@ protected:
 
     virtual bool DoDrawBackground(wxDC& dc);
     virtual void DoDraw(wxControlRenderer *renderer);
+
+    virtual void DoSetBitmap(const wxBitmap& bitmap, State which);
+    virtual void DoSetBitmapMargins(wxCoord x, wxCoord y);
 
     // common part of all ctors
     void Init();

@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     17/09/98
-// RCS-ID:      $Id: cursor.cpp 58938 2009-02-16 08:20:47Z JJ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -246,8 +246,8 @@ wxCursor::wxCursor(const char bits[], int width, int height,
     Create(bits, width, height, hotSpotX, hotSpotY, maskBits);
 }
 
-wxCursor::wxCursor(const wxString& name, wxBitmapType type, int hotSpotX,
-		   int hotSpotY )
+wxCursor::wxCursor(const wxString& name, wxBitmapType type,
+                   int hotSpotX, int hotSpotY)
 {
     // Must be an XBM file
     if (type != wxBITMAP_TYPE_XBM) {

@@ -2,7 +2,7 @@
 // Name:        dcscreen.h
 // Purpose:
 // Author:      Vaclav Slavik
-// Id:          $Id: dcscreen.h 52834 2008-03-26 15:06:00Z FM $
+// Id:          $Id$
 // Copyright:   (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ public:
     static bool StartDrawingOnTop(wxWindow *WXUNUSED(window)) { return TRUE; }
     static bool StartDrawingOnTop(wxRect *WXUNUSED(rect) = NULL) { return TRUE; }
     static bool EndDrawingOnTop() { return TRUE; }
-  
+
 private:
     DECLARE_DYNAMIC_CLASS(wxScreenDC)
 };

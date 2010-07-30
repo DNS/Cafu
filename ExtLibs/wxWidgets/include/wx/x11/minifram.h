@@ -6,7 +6,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     17/09/98
-// RCS-ID:      $Id: minifram.h 52834 2008-03-26 15:06:00Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ public:
         const wxString& title,
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
-        long style = wxDEFAULT_FRAME_STYLE|wxTINY_CAPTION_HORIZ,
+        long style = wxDEFAULT_FRAME_STYLE|wxTINY_CAPTION,
         const wxString& name = wxFrameNameStr)
     {
         // Use wxFrame constructor in absence of more specific code.

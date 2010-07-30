@@ -3,7 +3,7 @@
 // Purpose:     XML resource handler for wxDirPickerCtrl
 // Author:      Francesco Montorsi
 // Created:     2006-04-17
-// RCS-ID:      $Id: xh_dirpicker.cpp 55530 2008-09-09 19:34:53Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2006 Francesco Montorsi
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ wxObject *wxDirPickerCtrlXmlHandler::DoCreateResource()
                   GetParamValue(wxT("value")),
                   GetText(wxT("message")),
                   GetPosition(), GetSize(),
-                  GetStyle(_T("style"), wxDIRP_DEFAULT_STYLE),
+                  GetStyle(wxT("style"), wxDIRP_DEFAULT_STYLE),
                   wxDefaultValidator,
                   GetName());
 

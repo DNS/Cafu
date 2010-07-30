@@ -2,8 +2,8 @@
 // Name:        topics.h
 // Purpose:     Topic overviews page of the Doxygen manual
 // Author:      wxWidgets team
-// RCS-ID:      $Id: topics.h 60399 2009-04-26 19:41:08Z VZ $
-// Licence:     wxWindows license
+// RCS-ID:      $Id$
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -100,6 +100,7 @@ The following is a basic categorization of them:
 @li @subpage overview_backwardcompat
 @li @subpage overview_exceptions
 @li @subpage overview_rtti
+@li @subpage overview_cpp_rtti_disabled
 @li @subpage overview_refcount
 @li @subpage overview_mbconv
 @li @subpage overview_nonenglish

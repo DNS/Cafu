@@ -2,7 +2,7 @@
 // Name:        src/mgl/dcclient.cpp
 // Purpose:
 // Author:      Vaclav Slavik
-// RCS-ID:      $Id: dcclient.cpp 39085 2006-05-06 21:51:49Z ABX $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

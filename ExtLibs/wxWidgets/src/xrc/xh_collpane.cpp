@@ -3,7 +3,7 @@
 // Purpose:     XML resource handler for wxCollapsiblePane
 // Author:      Francesco Montorsi
 // Created:     2006-10-27
-// RCS-ID:      $Id: xh_collpane.cpp 59556 2009-03-15 10:29:14Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2006 Francesco Montorsi
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@
 
 IMPLEMENT_DYNAMIC_CLASS(wxCollapsiblePaneXmlHandler, wxXmlResourceHandler)
 
-wxCollapsiblePaneXmlHandler::wxCollapsiblePaneXmlHandler() 
+wxCollapsiblePaneXmlHandler::wxCollapsiblePaneXmlHandler()
 : wxXmlResourceHandler(), m_isInside(false)
 {
     XRC_ADD_STYLE(wxCP_NO_TLW_RESIZE);
@@ -73,11 +73,11 @@ wxObject *wxCollapsiblePaneXmlHandler::DoCreateResource()
                     GetID(),
                     label,
                     GetPosition(), GetSize(),
-                    GetStyle(_T("style"), wxCP_DEFAULT_STYLE),
+                    GetStyle(wxT("style"), wxCP_DEFAULT_STYLE),
                     wxDefaultValidator,
                     GetName());
 
-        ctrl->Collapse(GetBool(_T("collapsed")));
+        ctrl->Collapse(GetBool(wxT("collapsed")));
         SetupWindow(ctrl);
 
         wxCollapsiblePane *old_par = m_collpane;

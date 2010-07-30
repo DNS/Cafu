@@ -3,7 +3,7 @@
 // Purpose:     wxFont implementation
 // Author:      Vaclav Slavik
 // Created:     2006-08-08
-// RCS-ID:      $Id: font.cpp 56664 2008-11-03 17:02:25Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2006 REA Elektronik GmbH
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -148,13 +148,6 @@ const wxNativeFontInfo *wxFont::GetNativeFontInfo() const
     return M_FONTDATA->GetNativeFontInfo();
 }
 
-bool wxFont::GetNoAntiAliasing() const
-{
-    wxCHECK_MSG( Ok(), false, wxT("invalid font") );
-
-    return M_FONTDATA->GetNoAntiAliasing();
-}
-
 // ----------------------------------------------------------------------------
 // change font attributes
 // ----------------------------------------------------------------------------
@@ -202,8 +195,3 @@ void wxFont::SetEncoding(wxFontEncoding encoding)
     M_FONTDATA->SetEncoding(encoding);
 }
 
-void wxFont::SetNoAntiAliasing(bool no)
-{
-    AllocExclusive();
-    M_FONTDATA->SetNoAntiAliasing(no);
-}

@@ -3,7 +3,7 @@
 // Purpose:     Parser of the API/interface XML files
 // Author:      Francesco Montorsi
 // Created:     2008/03/17
-// RCS-ID:      $Id: xmlparser.h 56717 2008-11-09 15:36:36Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2008 Francesco Montorsi
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

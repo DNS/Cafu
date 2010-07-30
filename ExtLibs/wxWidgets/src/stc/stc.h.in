@@ -12,9 +12,9 @@
 // Author:      Robin Dunn
 //
 // Created:     13-Jan-2000
-// RCS-ID:      $Id: stc.h.in 60102 2009-04-12 03:01:49Z RD $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 by Total Control Software
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 /*
@@ -84,11 +84,12 @@ class  WXDLLIMPEXP_FWD_STC wxStyledTextEvent;
 
 //----------------------------------------------------------------------
 
-class WXDLLIMPEXP_STC wxStyledTextCtrl : public wxControl
-                                       , public wxTextEntryBase
+class WXDLLIMPEXP_STC wxStyledTextCtrl : public wxControl,
 #if wxUSE_TEXTCTRL
-                                       , public wxTextAreaBase
-#endif // wxUSE_TEXTCTRL
+                                         public wxTextCtrlIface
+#else // !wxUSE_TEXTCTRL
+                                         public wxTextEntryBase
+#endif // wxUSE_TEXTCTRL/!wxUSE_TEXTCTRL
 {
 public:
 
@@ -228,8 +229,13 @@ public:
     bool DoDropText(long x, long y, const wxString& data);
 #endif
 
-    void SetUseAntiAliasing(bool WXUNUSED(useAA)) { }
-    bool GetUseAntiAliasing() { return true; }
+    // Specify whether anti-aliased fonts should be used.  Will have no effect
+    // on some platforms, but on some (wxMac for example) can greatly improve
+    // performance.
+    void SetUseAntiAliasing(bool useAA);
+
+    // Returns the current UseAntiAliasing setting.
+    bool GetUseAntiAliasing();
 
 
 
@@ -618,6 +624,8 @@ wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_STC, wxEVT_STC_CALLTIP_CLICK, wxStyledText
 wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_STC, wxEVT_STC_AUTOCOMP_SELECTION, wxStyledTextEvent );
 wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_STC, wxEVT_STC_INDICATOR_CLICK, wxStyledTextEvent );
 wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_STC, wxEVT_STC_INDICATOR_RELEASE, wxStyledTextEvent );
+wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_STC, wxEVT_STC_AUTOCOMP_CANCELLED, wxStyledTextEvent );
+wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_STC, wxEVT_STC_AUTOCOMP_CHAR_DELETED, wxStyledTextEvent );
 #else
     enum {
         wxEVT_STC_CHANGE,
@@ -647,7 +655,9 @@ wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_STC, wxEVT_STC_INDICATOR_RELEASE, wxStyled
         wxEVT_STC_CALLTIP_CLICK,
         wxEVT_STC_AUTOCOMP_SELECTION,
         wxEVT_STC_INDICATOR_CLICK,
-        wxEVT_STC_INDICATOR_RELEASE
+        wxEVT_STC_INDICATOR_RELEASE,
+        wxEVT_STC_AUTOCOMP_CANCELLED,
+        wxEVT_STC_AUTOCOMP_CHAR_DELETED
     };
 #endif
 
@@ -683,10 +693,12 @@ typedef void (wxEvtHandler::*wxStyledTextEventFunction)(wxStyledTextEvent&);
 #define EVT_STC_ZOOM(id, fn)               DECLARE_EVENT_TABLE_ENTRY( wxEVT_STC_ZOOM,                  id, wxID_ANY, wxStyledTextEventHandler( fn ), (wxObject *) NULL ),
 #define EVT_STC_HOTSPOT_CLICK(id, fn)      DECLARE_EVENT_TABLE_ENTRY( wxEVT_STC_HOTSPOT_CLICK,         id, wxID_ANY, wxStyledTextEventHandler( fn ), (wxObject *) NULL ),
 #define EVT_STC_HOTSPOT_DCLICK(id, fn)     DECLARE_EVENT_TABLE_ENTRY( wxEVT_STC_HOTSPOT_DCLICK,        id, wxID_ANY, wxStyledTextEventHandler( fn ), (wxObject *) NULL ),
-#define EVT_STC_CALLTIP_CLICK(id, fn)      DECLARE_EVENT_TABLE_ENTRY( wxEVT_STC_CALLTIP_CLICK          id, wxID_ANY, wxStyledTextEventHandler( fn ), (wxObject *) NULL ),
-#define EVT_STC_AUTOCOMP_SELECTION(id, fn) DECLARE_EVENT_TABLE_ENTRY( wxEVT_STC_AUTOCOMP_SELECTION     id, wxID_ANY, wxStyledTextEventHandler( fn ), (wxObject *) NULL ),
-#define EVT_STC_INDICATOR_CLICK(id, fn)    DECLARE_EVENT_TABLE_ENTRY( wxEVT_STC_INDICATOR_CLICK        id, wxID_ANY, wxStyledTextEventHandler( fn ), (wxObject *) NULL ),
-#define EVT_STC_INDICATOR_RELEASE(id, fn)  DECLARE_EVENT_TABLE_ENTRY( wxEVT_STC_INDICATOR_RELEASE      id, wxID_ANY, wxStyledTextEventHandler( fn ), (wxObject *) NULL ),
+#define EVT_STC_CALLTIP_CLICK(id, fn)      DECLARE_EVENT_TABLE_ENTRY( wxEVT_STC_CALLTIP_CLICK,         id, wxID_ANY, wxStyledTextEventHandler( fn ), (wxObject *) NULL ),
+#define EVT_STC_AUTOCOMP_SELECTION(id, fn) DECLARE_EVENT_TABLE_ENTRY( wxEVT_STC_AUTOCOMP_SELECTION,    id, wxID_ANY, wxStyledTextEventHandler( fn ), (wxObject *) NULL ),
+#define EVT_STC_INDICATOR_CLICK(id, fn)    DECLARE_EVENT_TABLE_ENTRY( wxEVT_STC_INDICATOR_CLICK,       id, wxID_ANY, wxStyledTextEventHandler( fn ), (wxObject *) NULL ),
+#define EVT_STC_INDICATOR_RELEASE(id, fn)  DECLARE_EVENT_TABLE_ENTRY( wxEVT_STC_INDICATOR_RELEASE,     id, wxID_ANY, wxStyledTextEventHandler( fn ), (wxObject *) NULL ),
+#define EVT_STC_AUTOCOMP_CANCELLED(id, fn)    DECLARE_EVENT_TABLE_ENTRY( wxEVT_STC_AUTOCOMP_CANCELLED,    id, wxID_ANY, wxStyledTextEventHandler( fn ), (wxObject *) NULL ),
+#define EVT_STC_AUTOCOMP_CHAR_DELETED(id, fn) DECLARE_EVENT_TABLE_ENTRY( wxEVT_STC_AUTOCOMP_CHAR_DELETED, id, wxID_ANY, wxStyledTextEventHandler( fn ), (wxObject *) NULL ),
 
 #endif
 

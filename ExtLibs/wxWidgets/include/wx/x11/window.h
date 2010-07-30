@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     17/09/98
-// RCS-ID:      $Id: window.h 58757 2009-02-08 11:45:59Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -71,15 +71,8 @@ public:
 
     virtual int GetCharHeight() const;
     virtual int GetCharWidth() const;
-    virtual void GetTextExtent(const wxString& string,
-        int *x, int *y,
-        int *descent = NULL,
-        int *externalLeading = NULL,
-        const wxFont *theFont = (const wxFont *) NULL)
-        const;
 
-    virtual void ScrollWindow( int dx, int dy,
-        const wxRect* rect = NULL );
+    virtual void ScrollWindow( int dx, int dy, const wxRect* rect = NULL );
 
 #if wxUSE_DRAG_AND_DROP
     virtual void SetDropTarget( wxDropTarget *dropTarget );
@@ -89,7 +82,7 @@ public:
     virtual void DragAcceptFiles(bool accept);
 
     // Get the unique identifier of a window
-    virtual WXWindow GetHandle() const { return GetMainWindow(); }
+    virtual WXWindow GetHandle() const { return X11GetMainWindow(); }
 
     // implementation from now on
     // --------------------------
@@ -98,7 +91,7 @@ public:
     // ---------
 
     // Get main X11 window
-    virtual WXWindow GetMainWindow() const;
+    virtual WXWindow X11GetMainWindow() const;
 
     // Get X11 window representing the client area
     virtual WXWindow GetClientAreaWindow() const;
@@ -165,6 +158,11 @@ protected:
     bool                  m_needsInputFocus; // Input focus set in OnIdle
 
     // implement the base class pure virtuals
+    virtual void DoGetTextExtent(const wxString& string,
+                                 int *x, int *y,
+                                 int *descent = NULL,
+                                 int *externalLeading = NULL,
+                                 const wxFont *font = NULL) const;
     virtual void DoClientToScreen( int *x, int *y ) const;
     virtual void DoScreenToClient( int *x, int *y ) const;
     virtual void DoGetPosition( int *x, int *y ) const;

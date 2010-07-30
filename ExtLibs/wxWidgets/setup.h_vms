@@ -3,7 +3,7 @@
  * Template for the set.h file for VMS                                       *
  * Created from setup.h_in                                                   *
  * Author : J.Jansen (joukj@hrem.nano.tudelft.nl)                            *
- * Date : 23 March 2009                                                      *
+ * Date : 1 July 2010                                                        *
  *                                                                           *
  *****************************************************************************/
 
@@ -88,6 +88,9 @@
 /* Define this if your version of GTK+ is greater than 2.10 */
 #define __WXGTK210__ 1
 
+/* Define this if your version of GTK+ is greater than 2.18 */
+#undef __WXGTK218__
+
 #include <types.h>
 typedef pid_t GPid;
 
@@ -113,6 +116,7 @@ typedef pid_t GPid;
 #undef __NETBSD__
 #undef __OPENBSD__
 #undef __OSF__
+#undef __QNX__
 #undef __SGI__
 #undef __SOLARIS__
 #undef __SUN__
@@ -171,23 +175,23 @@ typedef pid_t GPid;
 
 #define wxDIALOG_UNIT_COMPATIBILITY   1
 
-#define wxUSE_DEBUG_CONTEXT 0
+#define wxUSE_DEBUG_CONTEXT 1
 
-#define wxUSE_DEBUGREPORT 0
+#define wxUSE_DEBUGREPORT 1
 
 #define wxUSE_MEMORY_TRACING 0
 
 #define wxUSE_GLOBAL_MEMORY_OPERATORS 0
 
-#define wxUSE_DEBUG_NEW_ALWAYS 0
+#define wxUSE_DEBUG_NEW_ALWAYS 1
 
-#define wxUSE_ON_FATAL_EXCEPTION 0
+#define wxUSE_ON_FATAL_EXCEPTION 1
 
 #define wxUSE_STACKWALKER 0
 
 
 #ifndef wxUSE_UNICODE
-#if defined( __WXX11__ ) || defined ( __WXMOTIF__ )
+#if defined( __WXX11__ )
     #define wxUSE_UNICODE 0
 #else
     #define wxUSE_UNICODE 1
@@ -250,7 +254,7 @@ typedef pid_t GPid;
 #define wxUSE_INTL          1
 #include <locale.h>
 
-#if defined (__WXMOTIF__) || defined( __WXX11__ )
+#if defined (__WXMOTIF__)
 #define wxUSE_XLOCALE 0
 #else
 #define wxUSE_XLOCALE 1
@@ -261,6 +265,8 @@ typedef pid_t GPid;
 #define wxUSE_TIMER         1
 
 #define wxUSE_STOPWATCH     1
+
+#define wxUSE_FSWATCHER     0
 
 #define wxUSE_CONFIG        1
 
@@ -315,7 +321,9 @@ typedef pid_t GPid;
 
 #define wxUSE_VARIANT 1
 
-#define wxUSE_REGEX       0
+#define wxUSE_ANY 1
+
+#define wxUSE_REGEX       1
 
 #define wxUSE_SYSTEM_OPTIONS 1
 
@@ -323,18 +331,33 @@ typedef pid_t GPid;
 
 #define wxUSE_MEDIACTRL     1
 
-#define wxUSE_GSTREAMER     0
-
 #define wxUSE_XRC       1
 
 #define wxUSE_XML       wxUSE_XRC
 
 #define wxUSE_AUI       1
 
+#define wxUSE_RIBBON  1
+
 #define wxUSE_PROPGRID  1
 
-#ifndef wxUSE_GRAPHICS_CONTEXT
+#ifdef _MSC_VER
+#   if _MSC_VER >= 1310
+
+
 #define wxUSE_GRAPHICS_CONTEXT 0
+#   else
+
+
+#       define wxUSE_GRAPHICS_CONTEXT 0
+#   endif
+#else
+
+
+
+
+
+#   define wxUSE_GRAPHICS_CONTEXT 0
 #endif
 
 #define wxUSE_CONTROLS     1
@@ -433,6 +456,8 @@ typedef pid_t GPid;
 
 #define wxUSE_IMAGLIST      1
 
+#define wxUSE_INFOBAR 1
+
 #define wxUSE_MENUS         1
 
 #define wxUSE_NOTIFICATION_MESSAGE 1
@@ -488,6 +513,8 @@ typedef pid_t GPid;
 
 #define wxUSE_ABOUTDLG 1
 
+#define wxUSE_FILE_HISTORY 1
+
 #define wxUSE_METAFILE              0
 #define wxUSE_ENH_METAFILE          0
 #define wxUSE_WIN_METAFILES_ALWAYS  0
@@ -540,7 +567,7 @@ typedef pid_t GPid;
 
 #define wxUSE_MOUSEWHEEL        1
 
-
+#define wxUSE_UIACTIONSIMULATOR 1
 
 #define wxUSE_POSTSCRIPT  1
 
@@ -595,6 +622,16 @@ typedef pid_t GPid;
 
 #define wxUSE_UNICODE_UTF8 0
 #define wxUSE_UTF8_LOCALE_ONLY 0
+
+/*
+   Use GStreamer for Unix.
+
+   Default is 0 as this requires a lot of dependencies which might not be
+   available.
+
+   Recommended setting: 1 (wxMediaCtrl won't work by default without it)
+ */
+#define wxUSE_GSTREAMER 0
 
 /* --- start MSW options --- */
 
@@ -718,6 +755,16 @@ typedef pid_t GPid;
 #undef HAVE_TR1_UNORDERED_SET
 
 /*
+ * Define if your compiler has <tr1/type_traits>
+ */
+#undef HAVE_TR1_TYPE_TRAITS
+
+/*
+ * Define if your compiler has <type_traits>
+ */
+#undef HAVE_TYPE_TRAITS
+
+/*
  * Define if the compiler supports simple visibility declarations.
  */
 #undef HAVE_VISIBILITY
@@ -768,6 +815,10 @@ typedef pid_t GPid;
  */
 #define wxUSE_LIBHILDON 0
 /*
+ * Use the Hildon 2.0 framework
+ */
+#define wxUSE_LIBHILDON2 0
+/*
  * Have glibc2
  */
 #define wxHAVE_GLIBC2 0
@@ -785,7 +836,11 @@ typedef pid_t GPid;
  */
 #undef HAVE___THREAD_KEYWORD
 
-/* compatibility */
+/*
+ * Define if large (64 bit file offsets) files are supported.
+ */
+#undef HAVE_LARGEFILE_SUPPORT
+
 /*
  * Use OpenGL
  */
@@ -853,7 +908,7 @@ typedef pid_t GPid;
 #undef WX_STATFS_T
 
 /* The signal handler prototype */
-#undef wxTYPE_SA_HANDLER
+#define wxTYPE_SA_HANDLER int
 
 /* gettimeofday() usually takes 2 arguments, but some really old systems might
  * have only one, in which case define WX_GETTIMEOFDAY_NO_TZ */
@@ -1229,6 +1284,12 @@ typedef pid_t GPid;
 /* Define if locale_t is available */
 #undef HAVE_LOCALE_T
 
+/* Define if you have inotify_xxx() functions. */
+#undef wxHAS_INOTIFY
+
+/* Define if you have kqueu_xxx() functions. */
+#undef wxHAS_KQUEUE
+
 /* ---------------------------------------------------------------------
    Win32 adjustments section
    ---------------------------------------------------------------------
@@ -1267,6 +1328,10 @@ typedef pid_t GPid;
 
 #if defined( __WXGTK__ ) && !defined( VMS_GTK2 )
 #define wxHAS_RAW_BITMAP 1
+#endif
+
+#ifdef VMS_GTK2
+#define GSEAL(x) x
 #endif
 
 #define __VMS_BROKEN_TEMPLATES

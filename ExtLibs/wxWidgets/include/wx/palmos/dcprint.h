@@ -4,7 +4,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by:
 // Created:     10/13/04
-// RCS-ID:      $Id: dcprint.h 57907 2009-01-08 14:21:53Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@ class WXDLLIMPEXP_CORE wxPrinterDC : public wxDC
 {
 public:
     // Create a printer DC (obsolete function: use wxPrintData version now)
-    wxPrinterDC(const wxString& driver, const wxString& device, const wxString& output, bool interactive = TRUE, int orientation = wxPORTRAIT);
+    wxPrinterDC(const wxString& driver, const wxString& device, const wxString& output, bool interactive = TRUE, wxPrintOrientation orientation = wxPORTRAIT);
 
     // Create from print data
     wxPrinterDC(const wxPrintData& data);

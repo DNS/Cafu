@@ -2,7 +2,7 @@
 // Name:        src/gtk1/checkbox.cpp
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id: checkbox.cpp 50329 2007-11-29 17:00:58Z VS $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     17/09/98
-// RCS-ID:      $Id: dcmemory.h 50354 2007-11-30 15:26:05Z RR $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@ public:
 
     virtual const wxBitmap& GetSelectedBitmap() const;
     virtual wxBitmap& GetSelectedBitmap();
-    
+
     // implementation
     wxBitmap  m_selected;
 

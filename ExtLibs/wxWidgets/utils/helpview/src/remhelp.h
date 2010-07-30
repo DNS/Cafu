@@ -4,7 +4,7 @@
 // Author:      Eric Dowty
 // Modified by:
 // Created:     2002-11-18
-// RCS-ID:      $Id: remhelp.h 50159 2007-11-22 15:13:27Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

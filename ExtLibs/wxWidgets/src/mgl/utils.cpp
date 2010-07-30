@@ -2,7 +2,7 @@
 // Name:        src/mgl/utils.cpp
 // Purpose:
 // Author:      Vaclav Slavik
-// Id:          $Id: utils.cpp 52667 2008-03-22 00:07:13Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

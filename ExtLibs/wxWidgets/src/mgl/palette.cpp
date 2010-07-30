@@ -2,7 +2,7 @@
 // Name:        src/mgl/palette.cpp
 // Author:      Vaclav Slavik
 // Created:     2001/03/11
-// Id:          $Id: palette.cpp 50727 2007-12-15 17:54:20Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

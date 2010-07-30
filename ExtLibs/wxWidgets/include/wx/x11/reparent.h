@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     2002-03-09
-// RCS-ID:      $Id: reparent.h 47254 2007-07-09 10:09:52Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ protected:
 
     bool ProcessXEvent(WXEvent* event);
     WXWindow FindAClientWindow(WXWindow window, const wxString& name);
-    
+
     static bool sm_done;
     static wxAdoptedWindow* sm_toReparent;
     static wxWindow* sm_newParent;
@@ -60,7 +60,7 @@ class WXDLLIMPEXP_CORE wxAdoptedWindow: public wxWindow
     virtual ~wxAdoptedWindow();
 
     void SetHandle(WXWindow window) { m_mainWindow = window; m_clientWindow = window; }
-    WXWindow GetHandle() const { return GetMainWindow(); }
+    WXWindow GetHandle() const { return X11GetMainWindow(); }
 };
 
 #endif

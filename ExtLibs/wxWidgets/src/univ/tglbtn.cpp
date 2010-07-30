@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by: David Bjorkevik
 // Created:     16.05.06
-// RCS-ID:      $Id: tglbtn.cpp 58718 2009-02-07 18:59:25Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

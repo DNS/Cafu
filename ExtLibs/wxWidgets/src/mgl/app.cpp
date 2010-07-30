@@ -2,7 +2,7 @@
 // Name:        src/mgl/app.cpp
 // Author:      Vaclav Slavik
 //              based on GTK and MSW implementations
-// Id:          $Id: app.cpp 59725 2009-03-22 12:53:48Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -120,8 +120,7 @@ static bool wxCreateMGL_WM(const wxVideoMode& displayMode)
     g_displayDC = new MGLDisplayDC(mode, 1, refresh);
     if ( !g_displayDC->isValid() )
     {
-        delete g_displayDC;
-        g_displayDC = NULL;
+        wxDELETE(g_displayDC);
         return false;
     }
 
@@ -139,11 +138,7 @@ static void wxDestroyMGL_WM()
         MGL_wmDestroy(g_winMng);
         g_winMng = NULL;
     }
-    if ( g_displayDC )
-    {
-        delete g_displayDC;
-        g_displayDC = NULL;
-    }
+    wxDELETE(g_displayDC);
 }
 
 //-----------------------------------------------------------------------------
@@ -166,7 +161,7 @@ wxVideoMode wxGetDefaultDisplayMode()
     unsigned w, h, bpp;
 
     if ( !wxGetEnv(wxT("WXMODE"), &mode) ||
-         (wxSscanf(mode.c_str(), _T("%ux%u-%u"), &w, &h, &bpp) != 3) )
+         (wxSscanf(mode.c_str(), wxT("%ux%u-%u"), &w, &h, &bpp) != 3) )
     {
         w = 640, h = 480, bpp = 16;
     }

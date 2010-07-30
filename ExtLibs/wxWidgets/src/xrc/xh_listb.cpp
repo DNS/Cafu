@@ -3,7 +3,7 @@
 // Purpose:     XRC resource for wxListBox
 // Author:      Bob Mitchell & Vaclav Slavik
 // Created:     2000/07/29
-// RCS-ID:      $Id: xh_listb.cpp 42258 2006-10-22 22:12:32Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 Bob Mitchell and Verant Interactive
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

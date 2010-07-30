@@ -4,9 +4,9 @@
 // Author:      Wlodzimierz ABX Skiba
 // Modified by:
 // Created:     28.12.2004
-// RCS-ID:      $Id: prefconf.h 59419 2009-03-07 15:49:57Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Wlodzimierz Skiba
-// License:     wxWindows licence
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _PREFCONF_H_

@@ -2,8 +2,8 @@
 // Name:        file.h
 // Purpose:     topic overview
 // Author:      wxWidgets team
-// RCS-ID:      $Id: file.h 59598 2009-03-18 09:29:05Z VZ $
-// Licence:     wxWindows license
+// RCS-ID:      $Id$
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 /**

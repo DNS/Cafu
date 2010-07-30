@@ -5,7 +5,7 @@
 # Author:      Ron <ron@debian.org>
 # Modified by:
 # Created:     8/9/2004
-# RCS-ID:      $Id: wx-config.in 58984 2009-02-18 10:42:19Z FM $
+# RCS-ID:      $Id$
 # Copyright:   (c) 2004 Ron <ron@debian.org>
 #              Essentially a fresh start this time around, but for maximum
 #              compatibility basic code was taken from, and heavy reference
@@ -45,23 +45,28 @@ usage()
 
  wx-config [--prefix[=DIR]] [--exec-prefix[=DIR]] [--release] [--version-full]
            [--list] [--selected-config] [--host=HOST] [--toolkit=TOOLKIT]
-           [--universal[=yes|no]] [--unicode[=yes|no]] [--debug[=yes|no]]
-           [--static[=yes|no]] [--version[=VERSION]] [--basename]
-           [--cc] [--cxx] [--cppflags [base]] [--cxxflags [base]] [--cflags]
+           [--universal[=yes|no]] [--unicode[=yes|no]] [--static[=yes|no]]
+           [--debug[=yes|no]] [--version[=VERSION]] [--basename] [--cc] [--cxx]
+           [--cppflags [base]] [--cxxflags [base]] [--cflags]
            [--rescomp] [--linkdeps] [--ld] [--utility=UTIL]
            [--libs [LIBS...]] [--optional-libs [LIBS...]]
 
     wx-config returns information about the wxWidgets libraries available on
   your system.  It may be used to retrieve the information required to build
   applications using these libraries using --cppflags, --cxxflags, --cflags,
-  and --libs options.
+  and --libs options. And you may query the properties of this configuration
+  using --query-{host,toolkit,widgetset,chartype,debugtype,version,linkage}.
+
+    NOTE:    Usage of --debug and --query-debugtype are only relevant if you
+  have any  versions prior to 2.9 installed  and use the --version option to
+  select an earlier version.
 
     If multiple builds of wxWidgets  are available,  you can use the options
-  --prefix, --host, --toolkit, --unicode, --debug, --static, --universal and
-  --version to select from them. The --selected-config option shows the name
-  of the current configuration and --list shows available alternatives which
-  match specified criteria. The --utility option returns the correct version
-  of UTIL to use with the selected build. The --linkdeps option returns only
+  --prefix, --host, --toolkit, --unicode, --static, --universal or --version
+  to select from them.  The  --selected-config  option shows the name of the
+  current configuration and --list  shows available alternatives which match
+  specified criteria.  The  --utility  option returns the correct version of
+  UTIL to use with the selected build.  The  --linkdeps  option returns only
   static libraries for your makefile link rule dependencies.
 
     The LIBS arguments (comma or space separated) may be used to specify the
@@ -134,6 +139,10 @@ wxconfig_output_options="prefix exec_prefix
 wxconfig_input_options="prefix exec_prefix utility $wxconfig_schema"
 
 # Input options that accept only a yes or no argument.
+#
+# Notice that this includes "debug" but it is done only for compatibility, this
+# options (i.e. --debug[=yes] or --debug=no) is completely ignored as there is
+# no distinction between debug and release builds in wx any more
 wxconfig_yesno_options="universal unicode debug static"
 
 # Boolean options that do something or not.
@@ -266,6 +275,15 @@ for arg do
         fi
         ;;
 
+    --query-*)
+        _name=`echo $arg | sed 's/^--query-//'`
+        if match_field "$_name" $wxconfig_schema
+        then
+            query_options="${query_options:+$query_options }$_name"
+            continue
+        fi
+        ;;
+
     --*)
         _name=`option_name $arg`
         if validate_arg wxconfig flag   "$_name" yes ||
@@ -307,8 +325,8 @@ done
 
 check_yesno_option universal widgetset univ
 check_yesno_option unicode chartype unicode ansi
+check_yesno_option static linkage static
 check_yesno_option debug debugtype debug release
-check_yesno_option static linkage '-static'
 
 # Dump everything we just read in debug mode.
 if [ -n "$WXDEBUG" ]; then
@@ -333,6 +351,7 @@ if [ -n "$WXDEBUG" ]; then
     for o in $output_options; do
         decho "    $o = `eval echo \"\\\$output_option_$o\"`"
     done
+    decho "  query options     = $query_options"
 
 fi
 
@@ -344,13 +363,34 @@ fi
 # --------------------------------------------------------------
 
 # get_mask [ _hash ]
-# Construct a config filename mask from a psuedo-hash of component variables.
+# Construct a config filename mask from a pseudo-hash of component variables.
 # The optional argument is the prefix of the hash to use.  If not specified
 # this will return a mask derived from the command line options that were used.
 get_mask()
 {
     [ $# -gt 0 ] || set m
-    eval echo "\${$1_host}\${$1_toolkit}\${$1_widgetset}-\${$1_chartype}-\${$1_debugtype}\${$1_linkage}-\${$1_version}\${$1_flavour}"
+
+    case "$m_ourversion" in
+        2.9)
+            is29orlater=1
+            ;;
+        2.*)
+            # there is no 2.10 so currently everything else is <= 2.8
+            is29orlater=0
+            ;;
+        *)
+            # 3.x and later "is29orlater" too
+            is29orlater=1
+            ;;
+    esac
+
+    # use 2.8 or 2.9 version of the mask: the difference is the presence of
+    # debug type in pre-2.9
+    if [ $is29orlater = 1 ]; then
+        eval echo "\${$1_host:+\$$1_host-}\${$1_toolkit}\${$1_widgetset}-\${$1_chartype}\${$1_linkage:+-\$$1_linkage}-\${$1_version}\${$1_flavour}"
+    else
+        eval echo "\${$1_host:+\$$1_host-}\${$1_toolkit}\${$1_widgetset}-\${$1_chartype}-\${$1_debugtype}\${$1_linkage:+-\$$1_linkage}-\${$1_version}\${$1_flavour}"
+    fi
 }
 
 # Returns true if this script is for a cross compiled config.
@@ -368,20 +408,19 @@ is_cross && target="@host_alias@"
 
 # Define a pseudo-hash to contain the specification of this wx-config
 # instance and its associated library.
-this_host="${target:+${target}-}"
+this_host="${target:+${target}}"
 this_toolkit="@TOOLKIT_DIR@@TOOLKIT_VERSION@"
 this_widgetset="@WIDGET_SET@"
 this_chartype="@WX_CHARTYPE@"
-this_debugtype="@WX_DEBUGTYPE@"
+this_debugtype="release"
 this_flavour="@WX_FLAVOUR@"
 this_version="@WX_RELEASE@"
-this_linkage=`[ "x@SHARED@" = "x1" ] || echo '-static'`
+this_linkage=`[ "x@SHARED@" = "x1" ] || echo 'static'`
 
-this_config=`get_mask this`
 
 # Extract the user specification from the options parsed.
 m_host=${input_option_host:+"${input_option_host}-?"}
-m_host=${m_host:-${input_option_host-$this_host}}
+m_host=${m_host:-$this_host}
 m_toolkit=${input_option_toolkit:-'[^-]+'}
 m_widgetset=${input_option_widgetset-'(univ)?'}
 m_chartype=${input_option_chartype:-'(unicode|ansi)'}
@@ -389,7 +428,20 @@ m_debugtype=${input_option_debugtype:-'(debug|release)'}
 m_flavour=${input_option_flavour:+-$input_option_flavour}
 m_flavour=${m_flavour:-${input_option_flavour-'(-[^-]+)?'}}
 m_version=${input_option_version:-'[0-9]+\.[0-9]+'}
-m_linkage=${input_option_linkage-'(-static)?'}
+m_linkage=${input_option_linkage-'?(static)?'}
+
+# Test whether or not --version has been specified
+#
+# This must be done after getting the input options so get_mask works correctly
+# since it is version-dependent
+
+if [ -z "$input_option_version" ]; then
+    m_ourversion="2.9"
+else
+    m_ourversion=$m_version
+fi
+
+this_config=`get_mask this`
 
 configmask="^`get_mask`$"
 
@@ -592,8 +644,7 @@ get_legacy_mask()
 {
     [ $# -gt 0 ] || set m
     eval [ "x\${$1_chartype}" != "xunicode" ] || _unicode_flag=u
-    eval [ "x\${$1_debugtype}" != "xdebug" ] || _debug_flag=d
-    eval echo "wx\${$1_toolkit}${_unicode_flag}${_debug_flag}-\${$1_version}\${$1_host}-config"
+    eval echo "wx\${$1_toolkit}${_unicode_flag}-\${$1_version}\${$1_host}-config"
 }
 
 # find_legacy_configs
@@ -900,6 +951,9 @@ bindir="@bindir@"
 [ -z "$output_option_ld"            ] || echo "@CXX@ -o"
 [ -z "$flag_option_selected_config" ] || echo "$this_config"
 
+for q in $query_options; do
+    eval echo "\$this_$q"
+done
 
 # --rezflags is deprecated and disabled (2005/11/29)
 if [ -n "$output_option_rezflags" ]; then
@@ -1211,7 +1265,7 @@ if [ -n "$output_option_libs" ]; then
 
     is_installed || [ -n "$flag_option_no_rpath" ] || _rpath="@WXCONFIG_RPATH@"
 
-    echo $_ldflags "@LDFLAGS@" $_rpath $wx_libs "@DMALLOC_LIBS@"
+    echo $_ldflags "@WXCONFIG_LDFLAGS@" $_rpath $wx_libs "@DMALLOC_LIBS@"
 
 elif [ -n "$output_option_optional_libs" ]; then
     # if only --optional-libs then output just the libs

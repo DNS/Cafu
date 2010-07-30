@@ -2,7 +2,7 @@
 // Name:        wx/gtk1/toplevel.h
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id: toplevel.h 45322 2007-04-07 23:40:55Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling, Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

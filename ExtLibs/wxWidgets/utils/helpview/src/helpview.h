@@ -4,7 +4,7 @@
 // Author:      Vaclav Slavik, Julian Smart
 // Modified by:
 // Created:     2002-07-09
-// RCS-ID:      $Id: helpview.h 41020 2006-09-05 20:47:48Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2002 Vaclav Slavik, Julian Smart and others
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -67,10 +67,9 @@ public:
     hvConnection();
     virtual ~hvConnection();
 
-    bool OnExecute(const wxString& topic, wxChar*data, int size, wxIPCFormat format);
-    wxChar *OnRequest(const wxString& topic, const wxString& item, int *size, wxIPCFormat format);
-    bool OnPoke(const wxString& topic, const wxString& item, wxChar *data, int size, wxIPCFormat format);
-    bool OnStartAdvise(const wxString& topic, const wxString& item);
+    bool OnExec(const wxString& topic, const wxString& data);
+    bool OnPoke(const wxString& topic, const wxString& item,
+                const void *data, size_t size, wxIPCFormat format);
 
 private:
 };

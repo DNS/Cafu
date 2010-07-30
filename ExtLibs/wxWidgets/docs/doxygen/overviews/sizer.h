@@ -2,8 +2,8 @@
 // Name:        sizer.h
 // Purpose:     topic overview
 // Author:      wxWidgets team
-// RCS-ID:      $Id: sizer.h 59769 2009-03-23 12:59:34Z VZ $
-// Licence:     wxWindows license
+// RCS-ID:      $Id$
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 /**

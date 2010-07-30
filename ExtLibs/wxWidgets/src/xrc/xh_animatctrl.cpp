@@ -3,7 +3,7 @@
 // Purpose:     XML resource handler for wxAnimationCtrl
 // Author:      Francesco Montorsi
 // Created:     2006-10-15
-// RCS-ID:      $Id: xh_animatctrl.cpp 42196 2006-10-21 13:59:25Z RR $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2006 Francesco Montorsi
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ wxObject *wxAnimationCtrlXmlHandler::DoCreateResource()
                   GetID(),
                   GetAnimation(wxT("animation")),
                   GetPosition(), GetSize(),
-                  GetStyle(_T("style"), wxAC_DEFAULT_STYLE),
+                  GetStyle(wxT("style"), wxAC_DEFAULT_STYLE),
                   GetName());
 
     // if no inactive-bitmap has been provided, GetBitmap() will return wxNullBitmap

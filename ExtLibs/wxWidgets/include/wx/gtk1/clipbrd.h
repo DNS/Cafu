@@ -2,7 +2,7 @@
 // Name:        wx/gtk1/clipboard.h
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id: clipbrd.h 45183 2007-03-31 02:57:55Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

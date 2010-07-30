@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     2006-10-02
-// RCS-ID:      $Id: richtextfontpage.cpp 58159 2009-01-16 20:46:20Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,7 @@ IMPLEMENT_DYNAMIC_CLASS( wxRichTextFontPage, wxPanel )
 BEGIN_EVENT_TABLE( wxRichTextFontPage, wxPanel )
     EVT_LISTBOX( ID_RICHTEXTFONTPAGE_FACELISTBOX, wxRichTextFontPage::OnFaceListBoxSelected )
     EVT_BUTTON( ID_RICHTEXTFONTPAGE_COLOURCTRL, wxRichTextFontPage::OnColourClicked )
+    EVT_BUTTON( ID_RICHTEXTFONTPAGE_BGCOLOURCTRL, wxRichTextFontPage::OnColourClicked )
 
 ////@begin wxRichTextFontPage event table entries
     EVT_TEXT( ID_RICHTEXTFONTPAGE_FACETEXTCTRL, wxRichTextFontPage::OnFaceTextCtrlUpdated )
@@ -73,6 +74,7 @@ void wxRichTextFontPage::Init()
 {
     m_dontUpdate = false;
     m_colourPresent = false;
+    m_bgColourPresent = false;
 
 ////@begin wxRichTextFontPage member initialisation
     m_faceTextCtrl = NULL;
@@ -83,6 +85,7 @@ void wxRichTextFontPage::Init()
     m_weightCtrl = NULL;
     m_underliningCtrl = NULL;
     m_colourCtrl = NULL;
+    m_bgColourCtrl = NULL;
     m_strikethroughCtrl = NULL;
     m_capitalsCtrl = NULL;
     m_superscriptCtrl = NULL;
@@ -134,7 +137,7 @@ void wxRichTextFontPage::CreateControls()
     wxStaticText* itemStaticText6 = new wxStaticText( itemPanel1, wxID_STATIC, _("&Font:"), wxDefaultPosition, wxDefaultSize, 0 );
     itemBoxSizer5->Add(itemStaticText6, 0, wxALIGN_LEFT|wxLEFT|wxRIGHT|wxTOP, 5);
 
-    m_faceTextCtrl = new wxTextCtrl( itemPanel1, ID_RICHTEXTFONTPAGE_FACETEXTCTRL, _T(""), wxDefaultPosition, wxDefaultSize, 0 );
+    m_faceTextCtrl = new wxTextCtrl( itemPanel1, ID_RICHTEXTFONTPAGE_FACETEXTCTRL, wxT(""), wxDefaultPosition, wxDefaultSize, 0 );
     m_faceTextCtrl->SetHelpText(_("Type a font name."));
     if (wxRichTextFontPage::ShowToolTips())
         m_faceTextCtrl->SetToolTip(_("Type a font name."));
@@ -152,7 +155,7 @@ void wxRichTextFontPage::CreateControls()
     wxStaticText* itemStaticText10 = new wxStaticText( itemPanel1, wxID_STATIC, _("&Size:"), wxDefaultPosition, wxDefaultSize, 0 );
     itemBoxSizer9->Add(itemStaticText10, 0, wxALIGN_LEFT|wxLEFT|wxRIGHT|wxTOP, 5);
 
-    m_sizeTextCtrl = new wxTextCtrl( itemPanel1, ID_RICHTEXTFONTPAGE_SIZETEXTCTRL, _T(""), wxDefaultPosition, wxSize(50, -1), 0 );
+    m_sizeTextCtrl = new wxTextCtrl( itemPanel1, ID_RICHTEXTFONTPAGE_SIZETEXTCTRL, wxT(""), wxDefaultPosition, wxSize(50, -1), 0 );
     m_sizeTextCtrl->SetHelpText(_("Type a size in points."));
     if (wxRichTextFontPage::ShowToolTips())
         m_sizeTextCtrl->SetToolTip(_("Type a size in points."));
@@ -169,86 +172,100 @@ void wxRichTextFontPage::CreateControls()
     itemBoxSizer3->Add(itemBoxSizer13, 0, wxGROW, 5);
 
     wxBoxSizer* itemBoxSizer14 = new wxBoxSizer(wxVERTICAL);
-    itemBoxSizer13->Add(itemBoxSizer14, 1, wxGROW, 5);
+    itemBoxSizer13->Add(itemBoxSizer14, 0, wxGROW, 5);
 
     wxStaticText* itemStaticText15 = new wxStaticText( itemPanel1, wxID_STATIC, _("Font st&yle:"), wxDefaultPosition, wxDefaultSize, 0 );
     itemBoxSizer14->Add(itemStaticText15, 0, wxALIGN_LEFT|wxLEFT|wxRIGHT|wxTOP, 5);
 
     wxArrayString m_styleCtrlStrings;
-    m_styleCtrl = new wxComboBox( itemPanel1, ID_RICHTEXTFONTPAGE_STYLECTRL, _T(""), wxDefaultPosition, wxDefaultSize, m_styleCtrlStrings, wxCB_READONLY );
+    m_styleCtrl = new wxComboBox( itemPanel1, ID_RICHTEXTFONTPAGE_STYLECTRL, wxT(""), wxDefaultPosition, wxSize(110, -1), m_styleCtrlStrings, wxCB_READONLY );
     m_styleCtrl->SetHelpText(_("Select regular or italic style."));
     if (wxRichTextFontPage::ShowToolTips())
         m_styleCtrl->SetToolTip(_("Select regular or italic style."));
     itemBoxSizer14->Add(m_styleCtrl, 0, wxGROW|wxALL, 5);
 
     wxBoxSizer* itemBoxSizer17 = new wxBoxSizer(wxVERTICAL);
-    itemBoxSizer13->Add(itemBoxSizer17, 1, wxGROW, 5);
+    itemBoxSizer13->Add(itemBoxSizer17, 0, wxGROW, 5);
 
     wxStaticText* itemStaticText18 = new wxStaticText( itemPanel1, wxID_STATIC, _("Font &weight:"), wxDefaultPosition, wxDefaultSize, 0 );
     itemBoxSizer17->Add(itemStaticText18, 0, wxALIGN_LEFT|wxLEFT|wxRIGHT|wxTOP, 5);
 
     wxArrayString m_weightCtrlStrings;
-    m_weightCtrl = new wxComboBox( itemPanel1, ID_RICHTEXTFONTPAGE_WEIGHTCTRL, _T(""), wxDefaultPosition, wxDefaultSize, m_weightCtrlStrings, wxCB_READONLY );
+    m_weightCtrl = new wxComboBox( itemPanel1, ID_RICHTEXTFONTPAGE_WEIGHTCTRL, wxT(""), wxDefaultPosition, wxSize(110, -1), m_weightCtrlStrings, wxCB_READONLY );
     m_weightCtrl->SetHelpText(_("Select regular or bold."));
     if (wxRichTextFontPage::ShowToolTips())
         m_weightCtrl->SetToolTip(_("Select regular or bold."));
     itemBoxSizer17->Add(m_weightCtrl, 0, wxGROW|wxALL, 5);
 
     wxBoxSizer* itemBoxSizer20 = new wxBoxSizer(wxVERTICAL);
-    itemBoxSizer13->Add(itemBoxSizer20, 1, wxGROW, 5);
+    itemBoxSizer13->Add(itemBoxSizer20, 0, wxGROW, 5);
 
     wxStaticText* itemStaticText21 = new wxStaticText( itemPanel1, wxID_STATIC, _("&Underlining:"), wxDefaultPosition, wxDefaultSize, 0 );
     itemBoxSizer20->Add(itemStaticText21, 0, wxALIGN_LEFT|wxLEFT|wxRIGHT|wxTOP, 5);
 
     wxArrayString m_underliningCtrlStrings;
-    m_underliningCtrl = new wxComboBox( itemPanel1, ID_RICHTEXTFONTPAGE_UNDERLINING_CTRL, _T(""), wxDefaultPosition, wxDefaultSize, m_underliningCtrlStrings, wxCB_READONLY );
+    m_underliningCtrl = new wxComboBox( itemPanel1, ID_RICHTEXTFONTPAGE_UNDERLINING_CTRL, wxT(""), wxDefaultPosition, wxSize(110, -1), m_underliningCtrlStrings, wxCB_READONLY );
     m_underliningCtrl->SetHelpText(_("Select underlining or no underlining."));
     if (wxRichTextFontPage::ShowToolTips())
         m_underliningCtrl->SetToolTip(_("Select underlining or no underlining."));
     itemBoxSizer20->Add(m_underliningCtrl, 0, wxGROW|wxALL, 5);
 
-    wxBoxSizer* itemBoxSizer23 = new wxBoxSizer(wxVERTICAL);
-    itemBoxSizer13->Add(itemBoxSizer23, 0, wxGROW, 5);
+    itemBoxSizer13->Add(0, 0, 1, wxALIGN_CENTER_VERTICAL|wxBOTTOM, 5);
 
-    wxStaticText* itemStaticText24 = new wxStaticText( itemPanel1, wxID_STATIC, _("&Colour:"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemBoxSizer23->Add(itemStaticText24, 0, wxALIGN_LEFT|wxLEFT|wxRIGHT|wxTOP, 5);
+    wxBoxSizer* itemBoxSizer24 = new wxBoxSizer(wxVERTICAL);
+    itemBoxSizer13->Add(itemBoxSizer24, 0, wxGROW, 5);
 
-    m_colourCtrl = new wxRichTextColourSwatchCtrl( itemPanel1, ID_RICHTEXTFONTPAGE_COLOURCTRL, wxDefaultPosition, wxSize(40, 20), wxSIMPLE_BORDER );
+    wxStaticText* itemStaticText25 = new wxStaticText( itemPanel1, wxID_STATIC, _("&Colour:"), wxDefaultPosition, wxDefaultSize, 0 );
+    itemBoxSizer24->Add(itemStaticText25, 0, wxALIGN_LEFT|wxLEFT|wxRIGHT|wxTOP, 5);
+
+    m_colourCtrl = new wxRichTextColourSwatchCtrl( itemPanel1, ID_RICHTEXTFONTPAGE_COLOURCTRL, wxDefaultPosition, wxSize(40, 20), 0 );
     m_colourCtrl->SetHelpText(_("Click to change the text colour."));
     if (wxRichTextFontPage::ShowToolTips())
         m_colourCtrl->SetToolTip(_("Click to change the text colour."));
-    itemBoxSizer23->Add(m_colourCtrl, 0, wxALIGN_LEFT|wxALL, 5);
+    itemBoxSizer24->Add(m_colourCtrl, 0, wxGROW|wxALL, 5);
 
-    wxBoxSizer* itemBoxSizer26 = new wxBoxSizer(wxHORIZONTAL);
-    itemBoxSizer3->Add(itemBoxSizer26, 0, wxGROW, 5);
+    wxBoxSizer* itemBoxSizer27 = new wxBoxSizer(wxVERTICAL);
+    itemBoxSizer13->Add(itemBoxSizer27, 0, wxGROW, 5);
+
+    wxStaticText* itemStaticText28 = new wxStaticText( itemPanel1, wxID_STATIC, _("&Bg colour:"), wxDefaultPosition, wxDefaultSize, 0 );
+    itemBoxSizer27->Add(itemStaticText28, 0, wxALIGN_LEFT|wxLEFT|wxRIGHT|wxTOP, 5);
+
+    m_bgColourCtrl = new wxRichTextColourSwatchCtrl( itemPanel1, ID_RICHTEXTFONTPAGE_BGCOLOURCTRL, wxDefaultPosition, wxSize(40, 20), 0 );
+    m_bgColourCtrl->SetHelpText(_("Click to change the text background colour."));
+    if (wxRichTextFontPage::ShowToolTips())
+        m_bgColourCtrl->SetToolTip(_("Click to change the text background colour."));
+    itemBoxSizer27->Add(m_bgColourCtrl, 0, wxGROW|wxALL, 5);
+
+    wxBoxSizer* itemBoxSizer30 = new wxBoxSizer(wxHORIZONTAL);
+    itemBoxSizer3->Add(itemBoxSizer30, 0, wxGROW, 5);
 
     m_strikethroughCtrl = new wxCheckBox( itemPanel1, ID_RICHTEXTFONTPAGE_STRIKETHROUGHCTRL, _("&Strikethrough"), wxDefaultPosition, wxDefaultSize, wxCHK_3STATE );
     m_strikethroughCtrl->SetValue(false);
     m_strikethroughCtrl->SetHelpText(_("Check to show a line through the text."));
     if (wxRichTextFontPage::ShowToolTips())
         m_strikethroughCtrl->SetToolTip(_("Check to show a line through the text."));
-    itemBoxSizer26->Add(m_strikethroughCtrl, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+    itemBoxSizer30->Add(m_strikethroughCtrl, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
     m_capitalsCtrl = new wxCheckBox( itemPanel1, ID_RICHTEXTFONTPAGE_CAPSCTRL, _("Ca&pitals"), wxDefaultPosition, wxDefaultSize, wxCHK_3STATE );
     m_capitalsCtrl->SetValue(false);
     m_capitalsCtrl->SetHelpText(_("Check to show the text in capitals."));
     if (wxRichTextFontPage::ShowToolTips())
         m_capitalsCtrl->SetToolTip(_("Check to show the text in capitals."));
-    itemBoxSizer26->Add(m_capitalsCtrl, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+    itemBoxSizer30->Add(m_capitalsCtrl, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
     m_superscriptCtrl = new wxCheckBox( itemPanel1, ID_RICHTEXTFONTPAGE_SUPERSCRIPT, _("Supe&rscript"), wxDefaultPosition, wxDefaultSize, wxCHK_3STATE );
     m_superscriptCtrl->SetValue(false);
     m_superscriptCtrl->SetHelpText(_("Check to show the text in superscript."));
     if (wxRichTextFontPage::ShowToolTips())
         m_superscriptCtrl->SetToolTip(_("Check to show the text in superscript."));
-    itemBoxSizer26->Add(m_superscriptCtrl, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+    itemBoxSizer30->Add(m_superscriptCtrl, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
     m_subscriptCtrl = new wxCheckBox( itemPanel1, ID_RICHTEXTFONTPAGE_SUBSCRIPT, _("Subscrip&t"), wxDefaultPosition, wxDefaultSize, wxCHK_3STATE );
     m_subscriptCtrl->SetValue(false);
     m_subscriptCtrl->SetHelpText(_("Check to show the text in subscript."));
     if (wxRichTextFontPage::ShowToolTips())
         m_subscriptCtrl->SetToolTip(_("Check to show the text in subscript."));
-    itemBoxSizer26->Add(m_subscriptCtrl, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+    itemBoxSizer30->Add(m_subscriptCtrl, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
     itemBoxSizer3->Add(5, 5, 0, wxALIGN_CENTER_HORIZONTAL, 5);
 
@@ -353,10 +370,17 @@ bool wxRichTextFontPage::TransferDataFromWindow()
 
     if (m_colourPresent)
     {
-        attr->SetTextColour(m_colourCtrl->GetBackgroundColour());
+        attr->SetTextColour(m_colourCtrl->GetColour());
     }
     else
         attr->SetFlags(attr->GetFlags() & (~ wxTEXT_ATTR_TEXT_COLOUR));
+
+    if (m_bgColourPresent)
+    {
+        attr->SetBackgroundColour(m_bgColourCtrl->GetColour());
+    }
+    else
+        attr->SetFlags(attr->GetFlags() & (~ wxTEXT_ATTR_BACKGROUND_COLOUR));
 
     if (m_strikethroughCtrl->Get3StateValue() != wxCHK_UNDETERMINED)
     {
@@ -473,6 +497,12 @@ bool wxRichTextFontPage::TransferDataToWindow()
         m_colourPresent = true;
     }
 
+    if (attr->HasBackgroundColour())
+    {
+        m_bgColourCtrl->SetColour(attr->GetBackgroundColour());
+        m_bgColourPresent = true;
+    }
+
     if (attr->HasTextEffects())
     {
         if (attr->GetTextEffectFlags() & wxTEXT_ATTR_EFFECT_STRIKETHROUGH)
@@ -542,15 +572,18 @@ wxTextAttr* wxRichTextFontPage::GetAttributes()
 /// Updates the font preview
 void wxRichTextFontPage::UpdatePreview()
 {
-    wxFont font(*wxNORMAL_FONT);
+    wxTextAttr attr;
 
     if (m_colourPresent)
         m_previewCtrl->SetForegroundColour(m_colourCtrl->GetBackgroundColour());
 
+    if (m_bgColourPresent)
+        m_previewCtrl->SetBackgroundColour(m_bgColourCtrl->GetBackgroundColour());
+
     if (m_faceListBox->GetSelection() != wxNOT_FOUND)
     {
         wxString faceName = m_faceListBox->GetFaceName(m_faceListBox->GetSelection());
-        font.SetFaceName(faceName);
+        attr.SetFontFaceName(faceName);
     }
 
     wxString strSize = m_sizeTextCtrl->GetValue();
@@ -558,29 +591,29 @@ void wxRichTextFontPage::UpdatePreview()
     {
         int sz = wxAtoi(strSize);
         if (sz > 0)
-            font.SetPointSize(sz);
+            attr.SetFontSize(sz);
     }
 
     if (m_styleCtrl->GetSelection() != wxNOT_FOUND)
     {
-        int style;
+        wxFontStyle style;
         if (m_styleCtrl->GetStringSelection() == _("Italic"))
-            style = wxITALIC;
+            style = wxFONTSTYLE_ITALIC;
         else
-            style = wxNORMAL;
+            style = wxFONTSTYLE_NORMAL;
 
-        font.SetStyle(style);
+        attr.SetFontStyle(style);
     }
 
     if (m_weightCtrl->GetSelection() != wxNOT_FOUND)
     {
-        int weight;
+        wxFontWeight weight;
         if (m_weightCtrl->GetStringSelection() == _("Bold"))
-            weight = wxBOLD;
+            weight = wxFONTWEIGHT_BOLD;
         else
-            weight = wxNORMAL;
+            weight = wxFONTWEIGHT_NORMAL;
 
-        font.SetWeight(weight);
+        attr.SetFontWeight(weight);
     }
 
     if (m_underliningCtrl->GetSelection() != wxNOT_FOUND)
@@ -591,7 +624,7 @@ void wxRichTextFontPage::UpdatePreview()
         else
             underlined = false;
 
-        font.SetUnderlined(underlined);
+        attr.SetFontUnderlined(underlined);
     }
 
     int textEffects = 0;
@@ -611,6 +644,7 @@ void wxRichTextFontPage::UpdatePreview()
     else if ( m_subscriptCtrl->Get3StateValue() == wxCHK_CHECKED )
         textEffects |= wxTEXT_ATTR_EFFECT_SUBSCRIPT;
 
+    wxFont font = attr.GetFont();
     m_previewCtrl->SetFont(font);
     m_previewCtrl->SetTextEffects(textEffects);
     m_previewCtrl->Refresh();
@@ -761,9 +795,12 @@ void wxRichTextFontPage::OnWeightCtrlSelected( wxCommandEvent& WXUNUSED(event) )
     UpdatePreview();
 }
 
-void wxRichTextFontPage::OnColourClicked( wxCommandEvent& WXUNUSED(event) )
+void wxRichTextFontPage::OnColourClicked( wxCommandEvent& event )
 {
-    m_colourPresent = true;
+    if (event.GetId() == m_colourCtrl->GetId())
+        m_colourPresent = true;
+    else if (event.GetId() == m_bgColourCtrl->GetId())
+        m_bgColourPresent = true;
 
     UpdatePreview();
 }

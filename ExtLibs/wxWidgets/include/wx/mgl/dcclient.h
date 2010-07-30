@@ -2,7 +2,7 @@
 // Name:        dcclient.h
 // Purpose:
 // Author:      Vaclav Slavik
-// Id:          $Id: dcclient.h 52834 2008-03-26 15:06:00Z FM $
+// Id:          $Id$
 // Copyright:   (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // Name:        src/univ/dialog.cpp
 // Author:      Robert Roebling, Vaclav Slavik
-// Id:          $Id: dialog.cpp 58246 2009-01-20 18:33:33Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 2001 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -143,11 +143,7 @@ bool wxDialog::Show(bool show)
         // if we had disabled other app windows, reenable them back now because
         // if they stay disabled Windows will activate another window (one
         // which is enabled, anyhow) and we will lose activation
-        if ( m_windowDisabler )
-        {
-            delete m_windowDisabler;
-            m_windowDisabler = NULL;
-        }
+        wxDELETE(m_windowDisabler);
 
         if ( IsModal() )
             EndModal(wxID_CANCEL);
@@ -179,20 +175,17 @@ int wxDialog::ShowModal()
 
     // use the apps top level window as parent if none given unless explicitly
     // forbidden
-    if ( !GetParent() && !(GetWindowStyleFlag() & wxDIALOG_NO_PARENT) )
+    wxWindow * const parent = GetParentForModalDialog();
+    if ( parent && parent != this )
     {
-        wxWindow * const parent = GetParentForModalDialog();
-        if ( parent && parent != this )
-        {
-            m_parent = parent;
-        }
+        m_parent = parent;
     }
 
     Show(true);
 
     m_isShowingModal = true;
 
-    wxASSERT_MSG( !m_windowDisabler, _T("disabling windows twice?") );
+    wxASSERT_MSG( !m_windowDisabler, wxT("disabling windows twice?") );
 
 #if defined(__WXGTK__) || defined(__WXMGL__)
     wxBusyCursorSuspender suspender;
@@ -210,7 +203,7 @@ int wxDialog::ShowModal()
 
 void wxDialog::EndModal(int retCode)
 {
-    wxASSERT_MSG( m_eventLoop, _T("wxDialog is not modal") );
+    wxASSERT_MSG( m_eventLoop, wxT("wxDialog is not modal") );
 
     SetReturnCode(retCode);
 

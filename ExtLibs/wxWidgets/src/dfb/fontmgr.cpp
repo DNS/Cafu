@@ -3,7 +3,7 @@
 // Purpose:     font management for wxDFB
 // Author:      Vaclav Slavik
 // Created:     2006-11-18
-// RCS-ID:      $Id: fontmgr.cpp 55803 2008-09-22 16:30:17Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
 //              (c) 2006 REA Elektronik GmbH
 // Licence:     wxWindows licence
@@ -143,7 +143,7 @@ void wxFontsManager::AddAllFonts()
 {
     wxString path;
     if ( !wxGetEnv("WXDFB_FONTPATH", &path) )
-        path = _T(wxINSTALL_PREFIX "/share/wx/fonts");
+        path = wxT(wxINSTALL_PREFIX "/share/wx/fonts");
 
     wxStringTokenizer tkn(path, wxPATH_SEP);
     while ( tkn.HasMoreTokens() )

@@ -2,8 +2,8 @@
 // Name:        screenshot_app.cpp
 // Purpose:     Implement Application Class
 // Author:      Utensil Candel (UtensilCandel@@gmail.com)
-// RCS-ID:      $Id: screenshot_app.cpp 56343 2008-10-15 18:49:22Z BP $
-// Licence:     wxWindows license
+// RCS-ID:      $Id$
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 // For compilers that support precompilation, includes "wx/wx.h".

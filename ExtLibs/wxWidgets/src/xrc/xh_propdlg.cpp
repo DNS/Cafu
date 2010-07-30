@@ -3,7 +3,7 @@
 // Purpose:     XRC resource handler for wxPropertySheetDialog
 // Author:      Sander Berents
 // Created:     2007/07/12
-// RCS-ID:      $Id: xh_propdlg.cpp 59931 2009-03-29 21:25:23Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2007 Sander Berents
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

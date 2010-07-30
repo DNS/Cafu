@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     10/5/2006 3:11:58 PM
-// RCS-ID:      $Id: richtextsymboldlg.cpp 52586 2008-03-17 18:26:00Z PC $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -296,6 +296,7 @@ BEGIN_EVENT_TABLE( wxSymbolPickerDialog, wxDialog )
 
 #if defined(__UNICODE__)
     EVT_COMBOBOX( ID_SYMBOLPICKERDIALOG_SUBSET, wxSymbolPickerDialog::OnSubsetSelected )
+    EVT_UPDATE_UI( ID_SYMBOLPICKERDIALOG_SUBSET, wxSymbolPickerDialog::OnSymbolpickerdialogSubsetUpdate )
 #endif
 
 #if defined(__UNICODE__)
@@ -394,7 +395,7 @@ void wxSymbolPickerDialog::CreateControls()
     itemBoxSizer5->Add(itemStaticText6, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
     wxArrayString m_fontCtrlStrings;
-    m_fontCtrl = new wxComboBox( itemDialog1, ID_SYMBOLPICKERDIALOG_FONT, _T(""), wxDefaultPosition, wxSize(240, -1), m_fontCtrlStrings, wxCB_READONLY );
+    m_fontCtrl = new wxComboBox( itemDialog1, ID_SYMBOLPICKERDIALOG_FONT, wxEmptyString, wxDefaultPosition, wxSize(240, -1), m_fontCtrlStrings, wxCB_READONLY );
     m_fontCtrl->SetHelpText(_("The font from which to take the symbol."));
     if (wxSymbolPickerDialog::ShowToolTips())
         m_fontCtrl->SetToolTip(_("The font from which to take the symbol."));
@@ -410,7 +411,7 @@ void wxSymbolPickerDialog::CreateControls()
 
 #if defined(__UNICODE__)
     wxArrayString m_subsetCtrlStrings;
-    m_subsetCtrl = new wxComboBox( itemDialog1, ID_SYMBOLPICKERDIALOG_SUBSET, _T(""), wxDefaultPosition, wxDefaultSize, m_subsetCtrlStrings, wxCB_READONLY );
+    m_subsetCtrl = new wxComboBox( itemDialog1, ID_SYMBOLPICKERDIALOG_SUBSET, wxEmptyString, wxDefaultPosition, wxDefaultSize, m_subsetCtrlStrings, wxCB_READONLY );
     m_subsetCtrl->SetHelpText(_("Shows a Unicode subset."));
     if (wxSymbolPickerDialog::ShowToolTips())
         m_subsetCtrl->SetToolTip(_("Shows a Unicode subset."));
@@ -432,7 +433,7 @@ void wxSymbolPickerDialog::CreateControls()
     wxStaticText* itemStaticText15 = new wxStaticText( itemDialog1, wxID_STATIC, _("&Character code:"), wxDefaultPosition, wxDefaultSize, 0 );
     itemBoxSizer12->Add(itemStaticText15, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
-    m_characterCodeCtrl = new wxTextCtrl( itemDialog1, ID_SYMBOLPICKERDIALOG_CHARACTERCODE, _T(""), wxDefaultPosition, wxSize(140, -1), wxTE_READONLY|wxTE_CENTRE );
+    m_characterCodeCtrl = new wxTextCtrl( itemDialog1, ID_SYMBOLPICKERDIALOG_CHARACTERCODE, wxEmptyString, wxDefaultPosition, wxSize(140, -1), wxTE_READONLY|wxTE_CENTRE );
     m_characterCodeCtrl->SetHelpText(_("The character code."));
     if (wxSymbolPickerDialog::ShowToolTips())
         m_characterCodeCtrl->SetToolTip(_("The character code."));
@@ -450,8 +451,8 @@ void wxSymbolPickerDialog::CreateControls()
     wxArrayString m_fromUnicodeCtrlStrings;
     m_fromUnicodeCtrlStrings.Add(_("ASCII"));
     m_fromUnicodeCtrlStrings.Add(_("Unicode"));
-    m_fromUnicodeCtrl = new wxComboBox( itemDialog1, ID_SYMBOLPICKERDIALOG_FROM, _("ASCII"), wxDefaultPosition, wxDefaultSize, m_fromUnicodeCtrlStrings, wxCB_READONLY );
-    m_fromUnicodeCtrl->SetStringSelection(_("ASCII"));
+    m_fromUnicodeCtrl = new wxComboBox( itemDialog1, ID_SYMBOLPICKERDIALOG_FROM, _("Unicode"), wxDefaultPosition, wxDefaultSize, m_fromUnicodeCtrlStrings, wxCB_READONLY );
+    m_fromUnicodeCtrl->SetStringSelection(_("Unicode"));
     m_fromUnicodeCtrl->SetHelpText(_("The range to show."));
     if (wxSymbolPickerDialog::ShowToolTips())
         m_fromUnicodeCtrl->SetToolTip(_("The range to show."));
@@ -504,24 +505,28 @@ bool wxSymbolPickerDialog::TransferDataToWindow()
             m_fontCtrl->SetSelection(0);
     }
 
-    if (!m_symbol.empty())
-    {
-        int sel = (int) m_symbol[0];
-        m_symbolsCtrl->SetSelection(sel);
-    }
-
 #if defined(__UNICODE__)
     if (m_subsetCtrl->GetCount() == 0)
     {
         // Insert items into subset combo
         int i;
-        for (i = 0; i < (int) (sizeof(g_UnicodeSubsetTable)/sizeof(g_UnicodeSubsetTable[0])); i++)
+        for (i = 0; i < (int) WXSIZEOF(g_UnicodeSubsetTable); i++)
         {
             m_subsetCtrl->Append(g_UnicodeSubsetTable[i].m_name);
         }
         m_subsetCtrl->SetSelection(0);
     }
 #endif
+
+#if defined(__UNICODE__)
+    m_symbolsCtrl->SetUnicodeMode(m_fromUnicode);
+#endif
+
+    if (!m_symbol.empty())
+    {
+        int sel = (int) m_symbol[0];
+        m_symbolsCtrl->SetSelection(sel);
+    }
 
     UpdateSymbolDisplay();
 
@@ -617,7 +622,7 @@ void wxSymbolPickerDialog::OnSymbolSelected( wxCommandEvent& event )
     {
         // Need to make the subset selection reflect the current symbol
         int i;
-        for (i = 0; i < (int) (sizeof(g_UnicodeSubsetTable)/sizeof(g_UnicodeSubsetTable[0])); i++)
+        for (i = 0; i < (int) WXSIZEOF(g_UnicodeSubsetTable); i++)
         {
             if (sel >= g_UnicodeSubsetTable[i].m_low && sel <= g_UnicodeSubsetTable[i].m_high)
             {
@@ -652,6 +657,18 @@ void wxSymbolPickerDialog::OnSubsetSelected( wxCommandEvent& WXUNUSED(event) )
         return;
 
     ShowAtSubset();
+}
+#endif
+
+#if defined(__UNICODE__)
+
+/*!
+ * wxEVT_UPDATE_UI event handler for ID_SYMBOLPICKERDIALOG_SUBSET
+ */
+
+void wxSymbolPickerDialog::OnSymbolpickerdialogSubsetUpdate( wxUpdateUIEvent& event )
+{
+    event.Enable(m_fromUnicode);
 }
 #endif
 
@@ -780,6 +797,8 @@ bool wxSymbolListCtrl::Create(wxWindow *parent,
 
     SetupCtrl();
 
+    SetInitialSize(size);
+
     return true;
 }
 
@@ -801,7 +820,7 @@ bool wxSymbolListCtrl::DoSetCurrent(int current)
 {
     wxASSERT_MSG( current == wxNOT_FOUND ||
                     (current >= m_minSymbolValue && current <= m_maxSymbolValue),
-                  _T("wxSymbolListCtrl::DoSetCurrent(): invalid symbol value") );
+                  wxT("wxSymbolListCtrl::DoSetCurrent(): invalid symbol value") );
 
     if ( current == m_current )
     {
@@ -854,7 +873,7 @@ void wxSymbolListCtrl::SetSelection(int selection)
 {
     wxCHECK_RET( selection == wxNOT_FOUND ||
                   (selection >= m_minSymbolValue && selection < m_maxSymbolValue),
-                  _T("wxSymbolListCtrl::SetSelection(): invalid symbol value") );
+                  wxT("wxSymbolListCtrl::SetSelection(): invalid symbol value") );
 
     DoSetCurrent(selection);
 }

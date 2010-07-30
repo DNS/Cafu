@@ -2,7 +2,7 @@
 // Name:        wx/gtk1/listbox.h
 // Purpose:     wxListBox class declaration
 // Author:      Robert Roebling
-// Id:          $Id: listbox.h 47730 2007-07-26 13:54:14Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

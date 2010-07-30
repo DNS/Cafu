@@ -2,7 +2,7 @@
 // Name:        wx/mgl/toplevel.h
 // Purpose:     Top level window, abstraction of wxFrame and wxDialog
 // Author:      Vaclav Slavik
-// Id:          $Id: toplevel.h 43901 2006-12-10 15:53:29Z VS $
+// Id:          $Id$
 // Copyright:   (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

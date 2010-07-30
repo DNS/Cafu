@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     17/09/98
-// RCS-ID:      $Id: accel.cpp 58227 2009-01-19 13:55:27Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -45,8 +45,7 @@ wxAcceleratorRefData::wxAcceleratorRefData()
 
 wxAcceleratorRefData::~wxAcceleratorRefData()
 {
-    delete[] m_entries;
-    m_entries = NULL;
+    wxDELETEA(m_entries);
     m_count = 0;
 }
 
@@ -108,8 +107,8 @@ bool wxAcceleratorEntry::MatchesEvent(const wxKeyEvent& event) const
     bool accShiftDown = ((GetFlags() & wxACCEL_SHIFT) == wxACCEL_SHIFT);
     int  accKeyCode = GetKeyCode();
     int  accKeyCode2 = GetKeyCode();
-    if (isascii(accKeyCode2))
-        accKeyCode2 = tolower(accKeyCode2);
+    if (wxIsascii(accKeyCode2))
+        accKeyCode2 = wxTolower(accKeyCode2);
 
     return ((eventAltDown == accAltDown) && (eventCtrlDown == accCtrlDown) &&
         (eventShiftDown == accShiftDown) &&

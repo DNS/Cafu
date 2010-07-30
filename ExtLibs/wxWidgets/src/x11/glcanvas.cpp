@@ -5,7 +5,7 @@
 // Author:      Julian Smart and Wolfram Gloger
 // Modified by: Vadim Zeitlin to update to new API
 // Created:     1995, 1999
-// RCS-ID:      $Id: glcanvas.cpp 56644 2008-11-02 02:39:52Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart, Wolfram Gloger
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -61,7 +61,7 @@ bool wxGLCanvas::Create(wxWindow *parent,
                         long style,
                         const wxString& name,
                         const int *attribList,
-                        const wxPalette& palette)
+                        const wxPalette& WXUNUSED(palette))
 {
     if ( !wxWindow::Create(parent, id, pos, size, style, name) )
         return false;

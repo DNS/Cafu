@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     17/09/98
-// RCS-ID:      $Id: window.cpp 58246 2009-01-20 18:33:33Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -1083,7 +1083,6 @@ bool wxWindow::DoPopupMenu(wxMenu *menu, int x, int y)
 
     menu->SetId(1); /* Mark as popped-up */
     menu->CreateMenu(NULL, widget, menu, 0);
-    menu->SetInvokingWindow(this);
 
     menu->UpdateUI();
 
@@ -1478,10 +1477,11 @@ int wxWindow::GetCharWidth() const
     return width;
 }
 
-void wxWindow::GetTextExtent(const wxString& string,
-                             int *x, int *y,
-                             int *descent, int *externalLeading,
-                             const wxFont *theFont) const
+void wxWindow::DoGetTextExtent(const wxString& string,
+                               int *x, int *y,
+                               int *descent,
+                               int *externalLeading,
+                               const wxFont *theFont) const
 {
     const wxFont *fontToUse = theFont ? theFont : &m_font;
 
@@ -2097,7 +2097,7 @@ static void wxScrollBarCallback(Widget scrollbar,
                                 XmScrollBarCallbackStruct *cbs)
 {
     wxWindow *win = wxGetWindowFromTable(scrollbar);
-    wxCHECK_RET( win, _T("invalid widget in scrollbar callback") );
+    wxCHECK_RET( win, wxT("invalid widget in scrollbar callback") );
 
     wxOrientation orientation = (wxOrientation)wxPtrToUInt(clientData);
 

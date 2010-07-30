@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     17/09/98
-// RCS-ID:      $Id: font.h 59564 2009-03-15 16:28:33Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ public:
     {
         Create(size, family, style, weight, underlined, face, encoding);
     }
-    
+
     wxFont(const wxSize& pixelSize,
            wxFontFamily family,
            wxFontStyle style,
@@ -65,7 +65,7 @@ public:
         Create(10, family, style, weight, underlined, face, encoding);
         SetPixelSize(pixelSize);
     }
-    
+
     bool Create(int size,
                 wxFontFamily family,
                 wxFontStyle style,
@@ -99,7 +99,7 @@ public:
     virtual void SetUnderlined(bool underlined);
     virtual void SetEncoding(wxFontEncoding encoding);
 
-    WXDECLARE_COMPAT_SETTERS
+    wxDECLARE_COMMON_FONT_METHODS();
 
     // Implementation
 

@@ -3,7 +3,7 @@
 // Purpose:     wxPen class declaration
 // Author:      Vaclav Slavik
 // Created:     2006-08-04
-// RCS-ID:      $Id: pen.h 54273 2008-06-17 17:28:26Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2006 REA Elektronik GmbH
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

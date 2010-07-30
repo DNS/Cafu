@@ -5,7 +5,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by: Wlodzimierz ABX Skiba - native implementation
 // Created:     10/13/04
-// RCS-ID:      $Id: tglbtn.cpp 58718 2009-02-07 18:59:25Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne, Wlodzimierz Skiba
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

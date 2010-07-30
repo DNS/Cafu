@@ -4,7 +4,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by:
 // Created:     10/13/04
-// RCS-ID:      $Id: apptbase.h 40599 2006-08-13 21:00:32Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -25,9 +25,6 @@ public:
     // called before starting to wait for the child termination, may return
     // some opaque data which will be passed later to AfterChildWaitLoop()
     virtual void *BeforeChildWaitLoop() = 0;
-
-    // process pending Windows messages, even in console app
-    virtual void AlwaysYield() = 0;
 
     // called after starting to wait for the child termination, the parameter
     // is the return value of BeforeChildWaitLoop()

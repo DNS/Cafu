@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: wxprec.h 44927 2007-03-19 14:45:38Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@
     defined(__MWERKS__)    || \
     defined(__WATCOMC__)   || \
     defined(__BORLANDC__)
-         
+
 
     // If user did not request NOCPH and we're not building using configure
     // then assume user wants precompiled headers.

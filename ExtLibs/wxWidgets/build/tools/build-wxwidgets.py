@@ -2,7 +2,7 @@
 
 ###################################
 # Author: Kevin Ollivier
-# License: wxWidgets License
+# Licence: wxWindows licence
 ###################################
 
 import os
@@ -22,7 +22,11 @@ wxBuilder = None
 # other globals
 scriptDir = None
 wxRootDir = None
+contribDir = None
+options = None
+configure_opts = None
 exitWithException = True
+
 
 def exitIfError(code, msg):
     if code != 0:
@@ -31,7 +35,8 @@ def exitIfError(code, msg):
             raise builder.BuildError, msg
         else:
             sys.exit(1)
-        
+     
+            
 def getWxRelease():
     global wxRootDir
     configureText = open(os.path.join(wxRootDir, "configure.in"), "r").read()
@@ -40,14 +45,21 @@ def getWxRelease():
     minorVersion = re.search("wx_minor_version_number=(\d+)", configureText).group(1)
     
     return "%s.%s" % (majorVersion, minorVersion)
-        
-def doMacLipoBuild(arch, buildDir, installDir, cxxcompiler="g++-4.0", cccompiler="gcc-4.0", target="10.4", flags=""):
-    # PPC build
+   
+
+
+def doMacLipoBuild(arch, buildDir, installDir,
+                   cxxcompiler="g++-4.0", cccompiler="gcc-4.0", target="10.4", flags=""):
     archInstallDir = installDir + "/" + arch
+    old_env = dict(CXX = os.environ.get('CXX'),
+                   CC = os.environ.get('CC'),
+                   MACOSX_DEPLOYMENT_TARGET = os.environ.get('MACOSX_DEPLOYMENT_TARGET'),
+                   )
+    
     os.environ["CXX"] = "%s -arch %s %s" % (cxxcompiler, arch, flags)
     os.environ["CC"] = "%s -arch %s %s" % (cccompiler, arch, flags)
     os.environ["MACOSX_DEPLOYMENT_TARGET"] = target
-    archArgs = ["prefix=" + archInstallDir]
+    archArgs = ["DESTDIR=" + archInstallDir]
     buildRoot = "bld-" + arch
     if buildDir:
         buildRoot = buildDir + "/" + buildRoot
@@ -59,26 +71,59 @@ def doMacLipoBuild(arch, buildDir, installDir, cxxcompiler="g++-4.0", cccompiler
     os.chdir(buildRoot)
     
     if not options.no_config:
-        exitIfError(wxBuilder.configure(dir=wxRootDir, options=configure_opts), "Error running configure")
-    exitIfError(wxBuilder.build(options=archArgs), "Error building")
-    exitIfError(wxBuilder.install(options=["prefix=" + archInstallDir]), "Error Installing")
+        exitIfError(wxBuilder.configure(dir=wxRootDir, options=configure_opts), "Error running configure for "+arch)
+    exitIfError(wxBuilder.build(options=archArgs), "Error building for "+arch)
+    exitIfError(wxBuilder.install(options=["DESTDIR=" + archInstallDir]), "Error Installing for "+arch)
     
     if options.wxpython and os.path.exists(os.path.join(wxRootDir, contribDir)):
-        exitIfError(wxBuilder.build(dir=os.path.join(contribDir, "gizmos"), options=archArgs), "Error building gizmos")
-        exitIfError(wxBuilder.install(os.path.join(contribDir, "gizmos"), options=["prefix=" + archInstallDir]), "Error Installing gizmos")
+        exitIfError(wxBuilder.build(dir=os.path.join(contribDir, "gizmos"), options=archArgs), 
+                    "Error building gizmos for "+arch)
+        exitIfError(wxBuilder.install(os.path.join(contribDir, "gizmos"), options=["DESTDIR=" + archInstallDir]), 
+                    "Error Installing gizmos for "+arch)
         
-        exitIfError(wxBuilder.build(dir=os.path.join(contribDir, "stc"),options=archArgs), "Error building stc")
-        exitIfError(wxBuilder.install(os.path.join(contribDir, "stc"),options=["prefix=" + archInstallDir]), "Error installing stc")
+        exitIfError(wxBuilder.build(dir=os.path.join(contribDir, "stc"),options=archArgs), 
+                    "Error building stc for "+arch)
+        exitIfError(wxBuilder.install(os.path.join(contribDir, "stc"),options=["DESTDIR=" + archInstallDir]), 
+                    "Error installing stc for "+arch)
 
     os.chdir(olddir)
-    
+    for key, val in old_env.items():
+        if val:
+            os.environ[key] = val
+        else:
+            del os.environ[key]
+
+
+def macFixupInstallNames(destdir, prefix):
+    # When an installdir is used then the install_names embedded in
+    # the dylibs are not correct.  Reset the IDs and the dependencies
+    # to use just the prefix.
+    pwd = os.getcwd()
+    os.chdir(destdir+prefix+'/lib')
+    dylibs = glob.glob('*.dylib')     # ('*[0-9].[0-9].[0-9].[0-9]*.dylib')
+    for lib in dylibs:
+        cmd = 'install_name_tool -id %s/lib/%s %s/lib/%s' % \
+              (prefix,lib,  destdir+prefix,lib)
+        print cmd
+        os.system(cmd)
+        for dep in dylibs:
+            cmd = 'install_name_tool -change %s/lib/%s %s/lib/%s %s/lib/%s' % \
+                  (destdir+prefix,dep,  prefix,dep,  destdir+prefix,lib)
+            print cmd
+            os.system(cmd)        
+    os.chdir(pwd)
 
 
 
 def main(scriptName, args):
     global scriptDir
-    scriptDir = os.path.dirname(os.path.abspath(scriptName))
     global wxRootDir
+    global contribDir
+    global options
+    global configure_opts
+    global wxBuilder
+    
+    scriptDir = os.path.dirname(os.path.abspath(scriptName))
     wxRootDir = os.path.abspath(os.path.join(scriptDir, "..", ".."))
     
     contribDir = os.path.join("contrib", "src")
@@ -97,8 +142,10 @@ def main(scriptName, args):
     option_dict = { 
         "clean"      : (False, "Clean all files from the build directory"),
         "debug"      : (False, "Build the library in debug symbols"),
+        "builddir"   : ("", "Directory where the build will be performed for autoconf builds."),
+        "prefix"     : ("", "Configured prefix to use for autoconf builds. Defaults to installdir if set."),
         "install"    : (False, "Install the toolkit to the installdir directory, or the default dir."),
-        "installdir" : (".", "Directory where built wxWidgets will be installed"),
+        "installdir" : ("", "Directory where built wxWidgets will be installed"),
         "mac_universal_binary" : (False, "Build Mac version as a universal binary"),
         "mac_lipo"   : (False, "EXPERIMENTAL: Create a universal binary by merging a PPC and Intel build together."),
         "mac_framework" : (False, "Install the Mac build as a framework"),
@@ -127,9 +174,10 @@ def main(scriptName, args):
     options, arguments = parser.parse_args(args=args)
     
     # compiler / build system specific args
-    buildDir = None
+    buildDir = options.builddir
     args = None
     installDir = options.installdir
+    prefixDir = options.prefix
     
     if toolkit == "autoconf":
         configure_opts = []
@@ -160,7 +208,8 @@ def main(scriptName, args):
                             "--enable-geometry",
                             "--enable-debug_flag",
                             "--enable-optimise",
-                            "--disable-debugreport",                            
+                            "--disable-debugreport",
+                            "--enable-uiactionsim",
                             ]
 
         if sys.platform.startswith("darwin"):
@@ -169,8 +218,11 @@ def main(scriptName, args):
             wxpy_configure_opts.append("--with-sdl")
             wxpy_configure_opts.append("--with-gnomeprint")
                                         
-        if not options.mac_framework and options.installdir != option_dict["installdir"][0]:
-            configure_opts.append("--prefix=" + installDir)
+        if not options.mac_framework:
+            if installDir and not prefixDir:
+                prefixDir = installDir
+            if prefixDir:
+                configure_opts.append("--prefix=" + prefixDir)
     
         if options.wxpython:
             configure_opts.extend(wxpy_configure_opts)
@@ -198,8 +250,12 @@ def main(scriptName, args):
         print "Configure options: " + `configure_opts`
         wxBuilder = builder.AutoconfBuilder()
         if not options.no_config and not options.clean and not options.mac_lipo:
+            olddir = os.getcwd()
+            if buildDir:
+                os.chdir(buildDir)
             exitIfError(wxBuilder.configure(dir=wxRootDir, options=configure_opts), 
                         "Error running configure")
+            os.chdir(olddir)
     
     elif toolkit in ["msvc", "msvcProject"]:
         flags = {}
@@ -228,6 +284,9 @@ def main(scriptName, args):
             if VERSION < (2,9):
                 flags["wxUSE_DIB_FOR_BITMAP"] = "1"
 
+            if VERSION >= (2,9):
+                flags["wxUSE_UIACTIONSIMULATOR"] = "1"
+                
             # setup the wxPython 'hybrid' build
             if not options.debug:
                 flags["wxUSE_MEMORY_TRACING"] = "0"
@@ -306,19 +365,25 @@ def main(scriptName, args):
             isLipo = True
             # TODO: Add 64-bit when we're building OS X Cocoa
             
-            # 2.8, use gcc 3.3 on PPC for 10.3 support...
+            # 2.8, use gcc 3.3 on PPC for 10.3 support, but only when building ...
             macVersion = platform.mac_ver()[0]
             isLeopard = macVersion.find("10.5") != -1
             
             if not isLeopard and os.path.exists(os.path.join(wxRootDir, contribDir)):
+                # Building wx 2.8 so make the ppc build compatible with Panther
                 doMacLipoBuild("ppc", buildDir, installDir, cxxcompiler="g++-3.3", cccompiler="gcc-3.3", 
                             target="10.3", flags="-DMAC_OS_X_VERSION_MAX_ALLOWED=1040")
             else:
                 doMacLipoBuild("ppc", buildDir, installDir)
     
             doMacLipoBuild("i386", buildDir, installDir)
-    
-            result = os.system("python %s/distrib/scripts/mac/lipo-dir.py %s %s %s" % (wxRootDir, installDir + "/ppc", installDir + "/i386", installDir))
+            
+            # Use lipo to merge together all binaries in the install dirs, and it
+            # also copies all other files and links it finds to the new destination.
+            result = os.system("python %s/distrib/scripts/mac/lipo-dir.py %s %s %s" %
+                               (wxRootDir, installDir+"/ppc", installDir+"/i386", installDir))
+
+            # tweak the wx-config script
             fname = os.path.abspath(installDir + '/bin/wx-config') 
             data = open(fname).read()
             data = data.replace('ppc/', '')
@@ -327,6 +392,8 @@ def main(scriptName, args):
             
             shutil.rmtree(installDir + "/ppc")
             shutil.rmtree(installDir + "/i386")
+
+                                
       
     if not isLipo:
         if options.extra_make:
@@ -338,11 +405,14 @@ def main(scriptName, args):
             exitIfError(wxBuilder.build(os.path.join(contribDir, "stc"),options=args), "Error building stc")
             
         if options.install:
-            wxBuilder.install()
+            extra=None
+            if installDir:
+                extra = ['DESTDIR='+installDir]
+            wxBuilder.install(options=extra) 
             
             if options.wxpython and os.path.exists(contribDir):
-                exitIfError(wxBuilder.install(os.path.join(contribDir, "gizmos")), "Error building gizmos")
-                exitIfError(wxBuilder.install(os.path.join(contribDir, "stc")), "Error building stc")
+                exitIfError(wxBuilder.install(os.path.join(contribDir, "gizmos"), options=extra), "Error building gizmos")
+                exitIfError(wxBuilder.install(os.path.join(contribDir, "stc"), options=extra), "Error building stc")
             
     if options.mac_framework:
     
@@ -421,6 +491,17 @@ def main(scriptName, args):
         os.system("ln -s -f Versions/Current/wx wx")
         
 
+    # adjust the install_name if needed  TODO: skip this for framework builds?
+    if sys.platform.startswith("darwin") and \
+           options.install and \
+           options.installdir and \
+           not options.wxpython:  # wxPython's build will do this later if needed
+        prefix = options.prefix
+        if not prefix:
+            prefix = '/usr/local'
+        macFixupInstallNames(options.installdir, prefix)
+
+        
         
 if __name__ == '__main__':
     exitWithException = False  # use sys.exit instead

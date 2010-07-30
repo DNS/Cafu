@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // Name:        src/mgl/font.cpp
 // Author:      Vaclav Slavik
-// Id:          $Id: font.cpp 56664 2008-11-03 17:02:25Z FM $
+// Id:          $Id$
 // Copyright:   (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -145,13 +145,6 @@ const wxNativeFontInfo *wxFont::GetNativeFontInfo() const
     return M_FONTDATA->GetNativeFontInfo();
 }
 
-bool wxFont::GetNoAntiAliasing() const
-{
-    wxCHECK_MSG( Ok(), false, wxT("invalid font") );
-
-    return M_FONTDATA->GetNoAntiAliasing();
-}
-
 // ----------------------------------------------------------------------------
 // change font attributes
 // ----------------------------------------------------------------------------
@@ -199,8 +192,3 @@ void wxFont::SetEncoding(wxFontEncoding encoding)
     M_FONTDATA->SetEncoding(encoding);
 }
 
-void wxFont::SetNoAntiAliasing(bool no)
-{
-    AllocExclusive();
-    M_FONTDATA->SetNoAntiAliasing(no);
-}

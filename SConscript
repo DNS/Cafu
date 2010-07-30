@@ -166,10 +166,9 @@ if sys.platform=="win32":
     wxEnv.Append(LIBPATH = [wxPath+LibPath])
     wxEnv.Append(LIBS = Split("SceneGraph MatSys cfsLib cfsCoreLib ClipSys cfs_png cfs_jpeg bulletcollision noise lua minizip lightwave z"))
     wxEnv.Append(LIBS = Split("freetype"))
-    wxEnv.Append(LIBS = Split("advapi32 comctl32 comdlg32 gdi32 ole32 oleaut32 opengl32 rpcrt4 shell32 user32 wsock32"))
+    wxEnv.Append(LIBS = Split("advapi32 comctl32 comdlg32 gdi32 ole32 oleaut32 opengl32 rpcrt4 shell32 user32 winspool wsock32"))
 
     if buildMode=="dbg":
-        wxEnv.Append(CPPDEFINES = ['__WXDEBUG__'])
         wxEnv.Append(CPPPATH = [wxPath+LibPath+"/mswud"])
         wxEnv.Append(LIBS = Split("wxbase29ud wxbase29ud_net wxjpegd wxmsw29ud_adv wxmsw29ud_core wxmsw29ud_gl wxmsw29ud_aui wxmsw29ud_propgrid wxregexud"))
     else:
@@ -185,12 +184,8 @@ elif sys.platform=="linux2":
     wxEnv.Append(LINKFLAGS = ['-Wl,--export-dynamic'])      # Need this so that the Renderer DLLs can have their unresolved symbols dynamically resolved at load time.
     wxEnv.Append(LIBS = Split("SceneGraph MatSys cfsCoreLib cfsLib ClipSys cfs_png cfs_jpeg bulletcollision noise lua minizip lightwave z"))
 
-    if buildMode=="dbg":
-        wxEnv.Append(LIBS = Split("wx_gtk2ud_gl-2.9 wx_gtk2ud_aui-2.9 wx_gtk2ud_propgrid-2.9 wx_gtk2ud_xrc-2.9 wx_gtk2ud_qa-2.9 wx_gtk2ud_html-2.9 wx_gtk2ud_adv-2.9 wx_gtk2ud_core-2.9 wx_baseud_xml-2.9 wx_baseud_net-2.9 wx_baseud-2.9"))
-        wxEnv.ParseConfig(wxPath + "/build-gtk_d/wx-config --cxxflags --libs std,gl")
-    else:
-        wxEnv.Append(LIBS = Split("wx_gtk2u_gl-2.9 wx_gtk2u_aui-2.9 wx_gtk2u_propgrid-2.9 wx_gtk2u_xrc-2.9 wx_gtk2u_qa-2.9 wx_gtk2u_html-2.9 wx_gtk2u_adv-2.9 wx_gtk2u_core-2.9 wx_baseu_xml-2.9 wx_baseu_net-2.9 wx_baseu-2.9"))
-        wxEnv.ParseConfig(wxPath + "/build-gtk_r/wx-config --cxxflags --libs std,gl")
+    wxEnv.Append(LIBS = Split("wx_gtk2u_gl-2.9 wx_gtk2u_aui-2.9 wx_gtk2u_propgrid-2.9 wx_gtk2u_xrc-2.9 wx_gtk2u_qa-2.9 wx_gtk2u_html-2.9 wx_gtk2u_adv-2.9 wx_gtk2u_core-2.9 wx_baseu_xml-2.9 wx_baseu_net-2.9 wx_baseu-2.9"))
+    wxEnv.ParseConfig(wxPath + "/build-gtk/wx-config --cxxflags --libs std,gl")
 
     WinResource=[]
 

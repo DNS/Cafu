@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     17/09/98
-// RCS-ID:      $Id: dcclient.h 57907 2009-01-08 14:21:53Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@ class WXDLLIMPEXP_CORE wxWindowDCImpl : public wxX11DCImpl
 public:
     wxWindowDCImpl( wxDC *owner );
     wxWindowDCImpl( wxDC *owner, wxWindow *win );
-        
+
     virtual ~wxWindowDCImpl();
 
     virtual bool CanDrawBitmap() const { return true; }
@@ -40,7 +40,7 @@ public:
 
 protected:
     virtual void DoGetSize(int *width, int *height) const;
-    virtual bool DoFloodFill( wxCoord x, wxCoord y, const wxColour& col, 
+    virtual bool DoFloodFill( wxCoord x, wxCoord y, const wxColour& col,
                               wxFloodFillStyle style = wxFLOOD_SURFACE );
     virtual bool DoGetPixel( wxCoord x, wxCoord y, wxColour *col ) const;
 
@@ -70,7 +70,7 @@ protected:
 
     virtual bool DoBlit(wxCoord xdest, wxCoord ydest, wxCoord width, wxCoord height,
         wxDC *source, wxCoord xsrc, wxCoord ysrc,
-        wxRasterOperationMode rop = wxCOPY, bool useMask = false, 
+        wxRasterOperationMode rop = wxCOPY, bool useMask = false,
         wxCoord xsrcMask = -1, wxCoord ysrcMask = -1);
 
     virtual void DoSetClippingRegion(wxCoord x, wxCoord y,

@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     20.08.00
-// RCS-ID:      $Id: scrolbar.h 52834 2008-03-26 15:06:00Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,17 +22,17 @@ class WXDLLIMPEXP_FWD_CORE wxScrollTimer;
 // ----------------------------------------------------------------------------
 
 // scroll the bar
-#define wxACTION_SCROLL_START       _T("start")     // to the beginning
-#define wxACTION_SCROLL_END         _T("end")       // to the end
-#define wxACTION_SCROLL_LINE_UP     _T("lineup")    // one line up/left
-#define wxACTION_SCROLL_PAGE_UP     _T("pageup")    // one page up/left
-#define wxACTION_SCROLL_LINE_DOWN   _T("linedown")  // one line down/right
-#define wxACTION_SCROLL_PAGE_DOWN   _T("pagedown")  // one page down/right
+#define wxACTION_SCROLL_START       wxT("start")     // to the beginning
+#define wxACTION_SCROLL_END         wxT("end")       // to the end
+#define wxACTION_SCROLL_LINE_UP     wxT("lineup")    // one line up/left
+#define wxACTION_SCROLL_PAGE_UP     wxT("pageup")    // one page up/left
+#define wxACTION_SCROLL_LINE_DOWN   wxT("linedown")  // one line down/right
+#define wxACTION_SCROLL_PAGE_DOWN   wxT("pagedown")  // one page down/right
 
 // the scrollbar thumb may be dragged
-#define wxACTION_SCROLL_THUMB_DRAG      _T("thumbdrag")
-#define wxACTION_SCROLL_THUMB_MOVE      _T("thumbmove")
-#define wxACTION_SCROLL_THUMB_RELEASE   _T("thumbrelease")
+#define wxACTION_SCROLL_THUMB_DRAG      wxT("thumbdrag")
+#define wxACTION_SCROLL_THUMB_MOVE      wxT("thumbmove")
+#define wxACTION_SCROLL_THUMB_RELEASE   wxT("thumbrelease")
 
 // ----------------------------------------------------------------------------
 // wxScrollBar

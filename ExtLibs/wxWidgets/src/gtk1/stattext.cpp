@@ -2,7 +2,7 @@
 // Name:        stattext.cpp
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id: stattext.cpp 37342 2006-02-05 23:02:47Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

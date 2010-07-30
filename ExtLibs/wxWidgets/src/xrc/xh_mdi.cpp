@@ -3,7 +3,7 @@
 // Purpose:     XRC resource for wxMDI
 // Author:      David M. Falkinder & Vaclav Slavik
 // Created:     14/02/2005
-// RCS-ID:      $Id: xh_mdi.cpp 59931 2009-03-29 21:25:23Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2005 Vaclav Slavik
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

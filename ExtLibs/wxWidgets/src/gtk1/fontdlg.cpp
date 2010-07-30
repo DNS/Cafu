@@ -2,7 +2,7 @@
 // Name:        src/gtk1/fontdlg.cpp
 // Purpose:     wxFontDialog
 // Author:      Robert Roebling
-// Id:          $Id: fontdlg.cpp 50329 2007-11-29 17:00:58Z VS $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -164,7 +164,7 @@ bool wxFontDialog::DoCreate(wxWindow *parent)
         else
         {
             // this is not supposed to happen!
-            wxFAIL_MSG(_T("font is ok but no native font info?"));
+            wxFAIL_MSG(wxT("font is ok but no native font info?"));
         }
     }
 

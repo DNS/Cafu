@@ -5,7 +5,7 @@ The 10-minute, do-it-yourself wx project baking guide (with free sample recipes!
 Status: DRAFT
 Author: Kevin Ollivier
 Date: 2/13/04
-License: wxWidgets License
+Licence: wxWindows Licence
 -----------------------------------------------------------------------
 
 Supporting many different platforms can be a difficult challenge. The
@@ -70,7 +70,7 @@ source tree. Here is the minimal.bkl Bakefile used in the sample:
 minimal.bkl
 -------------------------------------------------------------
 <?xml version="1.0" ?>
-<!-- $Id: bakefile_quickstart.txt 50677 2007-12-13 00:58:56Z VS $ -->
+<!-- $Id$ -->
 
 <makefile>
 

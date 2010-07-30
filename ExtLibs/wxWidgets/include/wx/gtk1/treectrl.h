@@ -4,7 +4,7 @@
 // Author:      Denis Pershin
 // Modified by:
 // Created:     08/08/98
-// RCS-ID:      $Id: treectrl.h 52834 2008-03-26 15:06:00Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) Denis Pershin
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -316,7 +316,7 @@ public:
         // been before. textCtrlClass parameter allows you to create an edit
         // control of arbitrary user-defined class deriving from wxTextCtrl.
     wxTextCtrl* EditLabel(const wxTreeItemId& item,
-                          wxClassInfo* textCtrlClass = CLASSINFO(wxTextCtrl));
+                          wxClassInfo* textCtrlClass = wxCLASSINFO(wxTextCtrl));
         // returns the same pointer as StartEdit() if the item is being edited,
         // NULL otherwise (it's assumed that no more than one item may be
         // edited simultaneously)

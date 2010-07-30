@@ -48,12 +48,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 // d) This is converted to world space by dividing by the zoom factor and inverting (mirroring) the two axes, if necessary or desired.
 
 
-wxPoint operator / (const wxPoint& P, int n)
-{
-    return wxPoint(P.x/n, P.y/n);
-}
-
-
 MouseDragTimerT::MouseDragTimerT(ViewWindow2DT& ViewWin2D)
     : m_ViewWin2D(ViewWin2D),
       m_MouseLeftDownPoint(0, 0),

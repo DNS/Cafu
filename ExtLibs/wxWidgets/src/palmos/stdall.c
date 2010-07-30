@@ -4,7 +4,7 @@
  * Author:      Yunhui Fu
  * Created:     2007-10-18
  * Modified by: 
- * RCS-ID:      $Id: stdall.c 53787 2008-05-27 16:26:11Z VZ $
+ * RCS-ID:      $Id$
  * Copyright:   (c) 2007 Yunhui Fu
  * Licence:     wxWindows licence
  ******************************************************************************/

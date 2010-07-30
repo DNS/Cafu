@@ -4,7 +4,7 @@
 // Author:      Vaclav Slavik
 // Modified by:
 // Created:     2003/02/28
-// RCS-ID:      $Id: msgdlg.h 52834 2008-03-26 15:06:00Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) Vaclav Slavik, 2003
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

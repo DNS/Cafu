@@ -6,7 +6,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     06.08.00
-// RCS-ID:      $Id: theme.h 52834 2008-03-26 15:06:00Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -83,7 +83,7 @@ private:
 // will be left to the original theme
 // ----------------------------------------------------------------------------
 
-class wxDelegateTheme : public wxTheme
+class WXDLLIMPEXP_CORE wxDelegateTheme : public wxTheme
 {
 public:
     wxDelegateTheme(const wxString& theme);

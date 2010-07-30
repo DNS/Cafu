@@ -4,7 +4,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by: Yunhui Fu
 // Created:     10/13/04
-// RCS-ID:      $Id: apptrait.h 52644 2008-03-21 14:21:52Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,6 @@ public:
     virtual wxEventLoopBase *CreateEventLoop();
 #endif // wxUSE_CONSOLE_EVENTLOOP
     virtual void *BeforeChildWaitLoop();
-    virtual void AlwaysYield();
     virtual void AfterChildWaitLoop(void *data);
 #if wxUSE_TIMER
     virtual wxTimerImpl *CreateTimerImpl(wxTimer *timer) { return new wxPalmOSTimerImpl(timer); }
@@ -43,7 +42,6 @@ class WXDLLIMPEXP_CORE wxGUIAppTraits : public wxGUIAppTraitsBase
 public:
     virtual wxEventLoopBase *CreateEventLoop();
     virtual void *BeforeChildWaitLoop();
-    virtual void AlwaysYield();
     virtual void AfterChildWaitLoop(void *data);
 #if wxUSE_TIMER
     // there is no wxTimer support yet

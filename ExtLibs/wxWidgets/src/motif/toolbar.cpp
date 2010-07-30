@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by: 13.12.99 by VZ during toolbar classes reorganization
 // Created:     04/01/98
-// RCS-ID:      $Id: toolbar.cpp 58227 2009-01-19 13:55:27Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -244,8 +244,7 @@ bool wxToolBar::Create(wxWindow *parent,
 
 wxToolBar::~wxToolBar()
 {
-    delete wxTheToolBarTimer;
-    wxTheToolBarTimer = NULL;
+    wxDELETE(wxTheToolBarTimer);
 }
 
 bool wxToolBar::Realize()
@@ -478,7 +477,7 @@ bool wxToolBar::Realize()
 wxToolBarToolBase *wxToolBar::FindToolForPosition(wxCoord WXUNUSED(x),
                                                   wxCoord WXUNUSED(y)) const
 {
-    wxFAIL_MSG( _T("TODO") );
+    wxFAIL_MSG( wxT("TODO") );
 
     return NULL;
 }

@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     2005-09-30
-// RCS-ID:      $Id: richtextctrl.cpp 61704 2009-08-18 18:07:12Z JS $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -60,6 +60,14 @@ wxDEFINE_EVENT( wxEVT_COMMAND_RICHTEXT_BUFFER_RESET, wxRichTextEvent );
 
 #if wxRICHTEXT_USE_OWN_CARET
 
+/*!
+ * wxRichTextCaret
+ *
+ * This implements a non-flashing cursor in case there
+ * are platform-specific problems with the generic caret.
+ * wxRICHTEXT_USE_OWN_CARET is set in richtextbuffer.h.
+ */
+
 class wxRichTextCaret;
 class wxRichTextCaretTimer: public wxTimer
 {
@@ -71,14 +79,6 @@ class wxRichTextCaretTimer: public wxTimer
     virtual void Notify();
     wxRichTextCaret* m_caret;
 };
-
-/*!
- * wxRichTextCaret
- *
- * This implements a non-flashing cursor in case there
- * are platform-specific problems with the generic caret.
- * wxRICHTEXT_USE_OWN_CARET is set in richtextbuffer.h.
- */
 
 class wxRichTextCaret: public wxCaret
 {
@@ -289,6 +289,17 @@ bool wxRichTextCtrl::Create( wxWindow* parent, wxWindowID id, const wxString& va
     wxAcceleratorTable accel(6, entries);
     SetAcceleratorTable(accel);
 
+    m_contextMenu = new wxMenu;
+    m_contextMenu->Append(wxID_UNDO, _("&Undo"));
+    m_contextMenu->Append(wxID_REDO, _("&Redo"));
+    m_contextMenu->AppendSeparator();
+    m_contextMenu->Append(wxID_CUT, _("Cu&t"));
+    m_contextMenu->Append(wxID_COPY, _("&Copy"));
+    m_contextMenu->Append(wxID_PASTE, _("&Paste"));
+    m_contextMenu->Append(wxID_CLEAR, _("&Delete"));
+    m_contextMenu->AppendSeparator();
+    m_contextMenu->Append(wxID_SELECTALL, _("Select &All"));
+
     return true;
 }
 
@@ -397,6 +408,9 @@ void wxRichTextCtrl::OnPaint(wxPaintEvent& WXUNUSED(event))
         GetBuffer().Draw(dc, GetBuffer().GetRange(), GetInternalSelectionRange(), drawingArea, 0 /* descent */, 0 /* flags */);
 
         dc.DestroyClippingRegion();
+
+        // Other user defined painting after everything else (i.e. all text) is painted
+        PaintAboveContent(dc);
 
 #if wxRICHTEXT_USE_OWN_CARET
         if (GetCaret()->IsVisible())
@@ -692,23 +706,7 @@ void wxRichTextCtrl::OnChar(wxKeyEvent& event)
 
     if (event.GetEventType() == wxEVT_KEY_DOWN)
     {
-        if (event.GetKeyCode() == WXK_LEFT ||
-            event.GetKeyCode() == WXK_RIGHT ||
-            event.GetKeyCode() == WXK_UP ||
-            event.GetKeyCode() == WXK_DOWN ||
-            event.GetKeyCode() == WXK_HOME ||
-            event.GetKeyCode() == WXK_PAGEUP ||
-            event.GetKeyCode() == WXK_PAGEDOWN ||
-            event.GetKeyCode() == WXK_END ||
-
-            event.GetKeyCode() == WXK_NUMPAD_LEFT ||
-            event.GetKeyCode() == WXK_NUMPAD_RIGHT ||
-            event.GetKeyCode() == WXK_NUMPAD_UP ||
-            event.GetKeyCode() == WXK_NUMPAD_DOWN ||
-            event.GetKeyCode() == WXK_NUMPAD_HOME ||
-            event.GetKeyCode() == WXK_NUMPAD_PAGEUP ||
-            event.GetKeyCode() == WXK_NUMPAD_PAGEDOWN ||
-            event.GetKeyCode() == WXK_NUMPAD_END)
+        if (event.IsKeyInCategory(WXK_CATEGORY_NAVIGATION))
         {
             KeyboardNavigate(event.GetKeyCode(), flags);
             return;
@@ -968,7 +966,7 @@ void wxRichTextCtrl::OnChar(wxKeyEvent& event)
                 }
             }
 
-            if (!processed)
+            if (!processed && newPos < (GetLastPosition()-1))
                 GetBuffer().DeleteRangeWithUndo(wxRichTextRange(newPos+1, newPos+1), this);
         }
 
@@ -1084,7 +1082,15 @@ bool wxRichTextCtrl::DeleteSelectedContent(long* newPos)
     if (HasSelection())
     {
         long pos = m_selectionRange.GetStart();
-        GetBuffer().DeleteRangeWithUndo(m_selectionRange, this);
+        wxRichTextRange range = m_selectionRange;
+
+        // SelectAll causes more to be selected than doing it interactively,
+        // and causes a new paragraph to be inserted. So for multiline buffers,
+        // don't delete the final position.
+        if (range.GetEnd() == GetLastPosition() && GetNumberOfLines() > 0)
+            range.SetEnd(range.GetEnd()-1);
+
+        GetBuffer().DeleteRangeWithUndo(range, this);
         m_selectionRange.SetRange(-2, -2);
 
         if (newPos)
@@ -2064,7 +2070,7 @@ void wxRichTextCtrl::SetupScrollbars(bool atTop)
         return;
 
     // Don't set scrollbars if there were none before, and there will be none now.
-    if (oldPPUY != 0 && (oldVirtualSizeY < clientSize.y) && (unitsY*pixelsPerUnit < clientSize.y))
+    if (oldPPUY != 0 && (oldVirtualSizeY*oldPPUY < clientSize.y) && (unitsY*pixelsPerUnit < clientSize.y))
         return;
 
     // Move to previous scroll position if
@@ -2179,8 +2185,7 @@ wxRichTextRange wxRichTextCtrl::AddImage(const wxImage& image)
 
 void wxRichTextCtrl::SelectAll()
 {
-    SetSelection(0, GetLastPosition()+1);
-    m_selectionAnchor = -1;
+    SetSelection(-1, -1);
 }
 
 /// Select none
@@ -2520,6 +2525,13 @@ bool wxRichTextCtrl::CanDeleteSelection() const
 // Accessors
 // ----------------------------------------------------------------------------
 
+void wxRichTextCtrl::SetContextMenu(wxMenu* menu)
+{
+    if (m_contextMenu && m_contextMenu != menu)
+        delete m_contextMenu;
+    m_contextMenu = menu;
+}
+
 void wxRichTextCtrl::SetEditable(bool editable)
 {
     m_editable = editable;
@@ -2532,6 +2544,8 @@ void wxRichTextCtrl::SetInsertionPoint(long pos)
     m_caretPosition = pos - 1;
 
     PositionCaret();
+
+    SetDefaultStyleToCursorStyle();
 }
 
 void wxRichTextCtrl::SetInsertionPointEnd()
@@ -2586,10 +2600,10 @@ void wxRichTextCtrl::SetSelection(long from, long to)
     else
     {
         wxRichTextRange oldSelection = m_selectionRange;
-        m_selectionAnchor = from;
+        m_selectionAnchor = from-1;
         m_selectionRange.SetRange(from, to-1);
-        if (from > -2)
-            m_caretPosition = from-1;
+
+        m_caretPosition = wxMax(-1, to-1);
 
         RefreshForSelectionChange(oldSelection, m_selectionRange);
         PositionCaret();
@@ -2801,7 +2815,8 @@ void wxRichTextCtrl::OnUpdateRedo(wxUpdateUIEvent& event)
 
 void wxRichTextCtrl::OnSelectAll(wxCommandEvent& WXUNUSED(event))
 {
-    SelectAll();
+    if (GetLastPosition() > 0)
+        SelectAll();
 }
 
 void wxRichTextCtrl::OnUpdateSelectAll(wxUpdateUIEvent& event)
@@ -2817,20 +2832,8 @@ void wxRichTextCtrl::OnContextMenu(wxContextMenuEvent& event)
         return;
     }
 
-    if (!m_contextMenu)
-    {
-        m_contextMenu = new wxMenu;
-        m_contextMenu->Append(wxID_UNDO, _("&Undo"));
-        m_contextMenu->Append(wxID_REDO, _("&Redo"));
-        m_contextMenu->AppendSeparator();
-        m_contextMenu->Append(wxID_CUT, _("Cu&t"));
-        m_contextMenu->Append(wxID_COPY, _("&Copy"));
-        m_contextMenu->Append(wxID_PASTE, _("&Paste"));
-        m_contextMenu->Append(wxID_CLEAR, _("&Delete"));
-        m_contextMenu->AppendSeparator();
-        m_contextMenu->Append(wxID_SELECTALL, _("Select &All"));
-    }
-    PopupMenu(m_contextMenu);
+    if (m_contextMenu)
+        PopupMenu(m_contextMenu);
     return;
 }
 
@@ -3352,13 +3355,7 @@ wxRichTextRange wxRichTextCtrl::GetSelectionRange() const
 
 void wxRichTextCtrl::SetSelectionRange(const wxRichTextRange& range)
 {
-    wxRichTextRange range1(range);
-    if (range1 != wxRichTextRange(-2,-2) && range1 != wxRichTextRange(-1,-1) )
-        range1.SetEnd(range1.GetEnd() - 1);
-
-    wxASSERT( range1.GetStart() > range1.GetEnd() );
-
-    SetInternalSelectionRange(range1);
+    SetSelection(range.GetStart(), range.GetEnd());
 }
 
 /// Set list style
@@ -3495,7 +3492,6 @@ void wxRichTextCaret::Init()
     m_yOld = -1;
     m_richTextCtrl = NULL;
     m_needsUpdate = false;
-    m_needsUpdate = false;
     m_flashOn = true;
 }
 
@@ -3620,7 +3616,6 @@ void wxRichTextCaretTimer::Notify()
 {
     m_caret->Notify();
 }
-
 #endif
     // wxRICHTEXT_USE_OWN_CARET
 

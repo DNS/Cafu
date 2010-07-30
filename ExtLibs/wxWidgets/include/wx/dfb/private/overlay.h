@@ -3,7 +3,7 @@
 // Purpose:     wxOverlayImpl declaration
 // Author:      Vaclav Slavik
 // Created:     2006-10-20
-// RCS-ID:      $Id: overlay.h 50886 2007-12-22 09:07:56Z SC $
+// RCS-ID:      $Id$
 // Copyright:   (c) wxWidgets team
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

@@ -2,7 +2,7 @@
 // Name:        src/motif/dnd.cpp
 // Purpose:     wxDropTarget, wxDropSource classes
 // Author:      Julian Smart
-// Id:          $Id: dnd.cpp 58227 2009-01-19 13:55:27Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 1998 Julian Smart
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////

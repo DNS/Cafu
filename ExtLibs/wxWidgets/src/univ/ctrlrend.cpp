@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     15.08.00
-// RCS-ID:      $Id: ctrlrend.cpp 42716 2006-10-30 12:33:25Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -67,8 +67,28 @@ wxControlRenderer::wxControlRenderer(wxWindow *window,
     m_rect.height = size.y;
 }
 
-void wxControlRenderer::DrawLabel(const wxBitmap& bitmap,
-                                  wxCoord marginX, wxCoord marginY)
+void wxControlRenderer::DrawLabel()
+{
+    m_dc.SetBackgroundMode(wxTRANSPARENT);
+    m_dc.SetFont(m_window->GetFont());
+    m_dc.SetTextForeground(m_window->GetForegroundColour());
+
+    wxString label = m_window->GetLabel();
+    if ( !label.empty() )
+    {
+        wxControl *ctrl = wxStaticCast(m_window, wxControl);
+
+        m_renderer->DrawLabel(m_dc,
+                              label,
+                              m_rect,
+                              m_window->GetStateFlags(),
+                              ctrl->GetAlignment(),
+                              ctrl->GetAccelIndex());
+    }
+}
+
+void wxControlRenderer::DrawButtonLabel(const wxBitmap& bitmap,
+                                        wxCoord marginX, wxCoord marginY)
 {
     m_dc.SetBackgroundMode(wxTRANSPARENT);
     m_dc.SetFont(m_window->GetFont());
@@ -208,9 +228,9 @@ void wxControlRenderer::DrawScrollbar(const wxScrollBar *scrollbar,
 
     {
         wxRect rectUpdate = rgnUpdate.GetBox();
-        wxLogTrace(_T("scrollbar"),
-                   _T("%s redraw: update box is (%d, %d)-(%d, %d)"),
-                   scrollbar->IsVertical() ? _T("vert") : _T("horz"),
+        wxLogTrace(wxT("scrollbar"),
+                   wxT("%s redraw: update box is (%d, %d)-(%d, %d)"),
+                   scrollbar->IsVertical() ? wxT("vert") : wxT("horz"),
                    rectUpdate.GetLeft(),
                    rectUpdate.GetTop(),
                    rectUpdate.GetRight(),
@@ -247,8 +267,8 @@ void wxControlRenderer::DrawScrollbar(const wxScrollBar *scrollbar,
 
         if ( rgnUpdate.Contains(rectBar) )
         {
-            wxLogTrace(_T("scrollbar"),
-                       _T("drawing bar part %d at (%d, %d)-(%d, %d)"),
+            wxLogTrace(wxT("scrollbar"),
+                       wxT("drawing bar part %d at (%d, %d)-(%d, %d)"),
                        nBar + 1,
                        rectBar.GetLeft(),
                        rectBar.GetTop(),
@@ -271,8 +291,8 @@ void wxControlRenderer::DrawScrollbar(const wxScrollBar *scrollbar,
         wxRect rectArrow = scrollbar->GetScrollbarRect(elem);
         if ( rgnUpdate.Contains(rectArrow) )
         {
-            wxLogTrace(_T("scrollbar"),
-                       _T("drawing arrow %d at (%d, %d)-(%d, %d)"),
+            wxLogTrace(wxT("scrollbar"),
+                       wxT("drawing arrow %d at (%d, %d)-(%d, %d)"),
                        nArrow + 1,
                        rectArrow.GetLeft(),
                        rectArrow.GetTop(),
@@ -296,8 +316,8 @@ void wxControlRenderer::DrawScrollbar(const wxScrollBar *scrollbar,
     wxRect rectThumb = scrollbar->GetScrollbarRect(elem);
     if ( rectThumb.width && rectThumb.height && rgnUpdate.Contains(rectThumb) )
     {
-        wxLogTrace(_T("scrollbar"),
-                   _T("drawing thumb at (%d, %d)-(%d, %d)"),
+        wxLogTrace(wxT("scrollbar"),
+                   wxT("drawing thumb at (%d, %d)-(%d, %d)"),
                    rectThumb.GetLeft(),
                    rectThumb.GetTop(),
                    rectThumb.GetRight(),
@@ -315,7 +335,7 @@ void wxControlRenderer::DrawScrollbar(const wxScrollBar *scrollbar,
 void wxControlRenderer::DrawLine(wxCoord x1, wxCoord y1, wxCoord x2, wxCoord y2)
 {
     wxASSERT_MSG( x1 == x2 || y1 == y2,
-                  _T("line must be either horizontal or vertical") );
+                  wxT("line must be either horizontal or vertical") );
 
     if ( x1 == x2 )
         m_renderer->DrawVerticalLine(m_dc, x1, y1, y2);
@@ -465,7 +485,7 @@ void wxControlRenderer::DrawProgressBar(const wxGauge *gauge)
         int step = gauge->IsVertical() ? sizeStep.y : sizeStep.x;
 
         // we divide by it below!
-        wxCHECK_RET( step, _T("invalid wxGauge step") );
+        wxCHECK_RET( step, wxT("invalid wxGauge step") );
 
         // round up to make the progress appear to start faster
         int lenTotal = gauge->IsVertical() ? rect.height : rect.width;

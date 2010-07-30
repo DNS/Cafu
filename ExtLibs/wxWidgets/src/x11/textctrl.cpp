@@ -2,7 +2,7 @@
 // Name:        src/x11/textctrl.cpp
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id: textctrl.cpp 51018 2008-01-05 00:21:31Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

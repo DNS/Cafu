@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // Name:        font.h
 // Author:      Vaclav Slavik
-// Id:          $Id: font.h 59564 2009-03-15 16:28:33Z FM $
+// Id:          $Id$
 // Copyright:   (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@ public:
     {
         Create(size, family, style, weight, underlined, face, encoding);
     }
-    
+
     wxFont(const wxSize& pixelSize,
            wxFontFamily family,
            wxFontStyle style,
@@ -72,7 +72,7 @@ public:
         Create(10, family, style, weight, underlined, face, encoding);
         SetPixelSize(pixelSize);
     }
-    
+
     bool Create(int size,
                 wxFontFamily family,
                 wxFontStyle style,
@@ -104,11 +104,7 @@ public:
     virtual void SetUnderlined(bool underlined);
     virtual void SetEncoding(wxFontEncoding encoding);
 
-    WXDECLARE_COMPAT_SETTERS
-
-    // Unofficial API, don't use
-    virtual void SetNoAntiAliasing(bool no = true);
-    virtual bool GetNoAntiAliasing() const;
+    wxDECLARE_COMMON_FONT_METHODS();
 
     struct font_t *GetMGLfont_t(float scale, bool antialiased);
 

@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     17/09/98
-// RCS-ID:      $Id: app.cpp 59725 2009-03-22 12:53:48Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -124,7 +124,7 @@ bool wxApp::Initialize(int& argc_, wxChar **argv_)
                 strcmp(loc, "POSIX") == 0 )
     {
         // we're using C locale, "fix" it
-        wxLogDebug(_T("HP-UX fontset hack: forcing locale to en_US.iso88591"));
+        wxLogDebug(wxT("HP-UX fontset hack: forcing locale to en_US.iso88591"));
         putenv(fixAll ? "LC_ALL=en_US.iso88591" : "LC_CTYPE=en_US.iso88591");
     }
 #endif // __HPUX__
@@ -162,10 +162,10 @@ bool wxApp::Initialize(int& argc_, wxChar **argv_)
     // immediate crash inside XOpenIM() (if XIM is used) under IRIX
     wxString appname = wxTheApp->GetAppName();
     if ( appname.empty() )
-        appname = _T("wxapp");
+        appname = wxT("wxapp");
     wxString clsname = wxTheApp->GetClassName();
     if ( clsname.empty() )
-        clsname = _T("wx");
+        clsname = wxT("wx");
 
     // FIXME-UTF8: This code is taken from wxGTK and duplicated here. This
     //             is just a temporary fix to make wxX11 compile in Unicode
@@ -269,8 +269,7 @@ void wxApp::CleanUp()
 {
     wxAppBase::CleanUp();
 
-    delete wxWidgetHashTable;
-    wxWidgetHashTable = NULL;
+    wxDELETE(wxWidgetHashTable);
 
     delete m_mainLoop;
 

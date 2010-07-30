@@ -2,8 +2,8 @@
 // Name:        const_cpp.h
 // Purpose:     Preprocessor symbols
 // Author:      Vadim Zeitlin
-// RCS-ID:      $Id: const_cpp.h 60399 2009-04-26 19:41:08Z VZ $
-// Licence:     wxWindows license
+// RCS-ID:      $Id$
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -103,6 +103,7 @@ symbols, although this has not always been followed.
 @itemdef{__LINUX__, Linux}
 @itemdef{__MACH__, Mach-O Architecture (Mac OS X only builds)}
 @itemdef{__OSF__, OSF/1}
+@itemdef{__QNX__, QNX Neutrino RTOS}
 @itemdef{__PALMOS__, PalmOS}
 @itemdef{__SGI__, IRIX}
 @itemdef{__SOLARIS__, Solaris}
@@ -116,6 +117,7 @@ symbols, although this has not always been followed.
 @itemdef{__VMS__, VMS}
 @itemdef{__WINDOWS__, any Windows}
 @itemdef{__WINE__, Wine}
+@itemdef{_WIN32_WCE, Windows CE version}
 @endDefList
 
 
@@ -155,6 +157,7 @@ compiler used.
                         to the compiler version: 500 is 5.0.}
 @itemdef{__DJGPP__, DJGPP}
 @itemdef{__DIGITALMARS__, Digital Mars}
+@itemdef{__EVC4__, Embedded Visual C++ 4 (can be only used for building wxWinCE)}
 @itemdef{__GNUG__, Gnu C++ on any platform, see also wxCHECK_GCC_VERSION}
 @itemdef{__GNUWIN32__, Gnu-Win32 compiler, see also wxCHECK_W32API_VERSION}
 @itemdef{__MINGW32__, MinGW}
@@ -162,17 +165,16 @@ compiler used.
 @itemdef{__SUNCC__, Sun CC, see also wxCHECK_SUNCC_VERSION}
 @itemdef{__SYMANTECC__, Symantec C++}
 @itemdef{__VISAGECPP__, IBM Visual Age (OS/2)}
-@itemdef{__VISUALC__, Microsoft Visual C++, see also wxCHECK_VISUALC_VERSION.
+@itemdef{__VISUALC__, Microsoft Visual C++, see also ::wxCHECK_VISUALC_VERSION.
                     The value of this macro corresponds to the compiler version:
                     @c 1020 for @c 4.2 (the first supported version), @c 1100 for
                     @c 5.0, @c 1200 for @c 6.0 and so on. For convenience, the symbols
                     __VISUALCn__ are also defined for each major compiler version from
-                    5 to 9, i.e. you can use tests such @ifdef_ __VISUALC7__ to test
+                    5 to 10, i.e. you can use tests such @ifdef_ __VISUALC7__ to test
                     for compiler version being precisely 7.}
 @itemdef{__XLC__, AIX compiler}
 @itemdef{__WATCOMC__, Watcom C++. The value of this macro corresponds to
                     the compiler version, @c 1100 is @c 11.0 and @c 1200 is OpenWatcom.}
-@itemdef{_WIN32_WCE, Windows CE version}
 @endDefList
 
 
@@ -196,8 +198,12 @@ Currently the following symbols exist:
     implemented in a generic way, using a critical section.}
 @itemdef{wxHAS_CONFIG_TEMPLATE_RW, Defined if the currently used compiler
     supports template Read() and Write() methods in wxConfig.}
-@itemdef{wxHAS_LARGE_FILES, Defined if wxFile supports files more than 4GB in size.}
-@itemdef{wxHAS_LARGE_FFILES, Defined if wxFFile supports files more than 4GB in size.}
+@itemdef{wxHAS_LARGE_FILES, Defined if wxFile supports files more than 4GB in
+    size (notice that you must include @c wx/filefn.h before testing for this
+    symbol).}
+@itemdef{wxHAS_LARGE_FFILES, Defined if wxFFile supports files more than 4GB in
+    size (notice that you must include @c wx/filefn.h before testing for this
+    symbol).}
 @itemdef{wxHAS_MULTIPLE_FILEDLG_FILTERS, Defined if wxFileDialog supports multiple ('|'-separated) filters.}
 @itemdef{wxHAS_POWER_EVENTS, Defined if wxPowerEvent are ever generated on the current platform.}
 @itemdef{wxHAS_RADIO_MENU_ITEMS,
@@ -245,7 +251,10 @@ for the GUI applications (i.e. those which don't define @c wxUSE_GUI as 0).
 @beginDefList
 @itemdef{__WXWINDOWS__,
         always defined in wxWidgets applications, see also wxCHECK_VERSION}
-@itemdef{__WXDEBUG__, defined in debug mode, undefined in release mode}
+@itemdef{wxDEBUG_LEVEL, defined as 1 by default, may be pre-defined as 0 before
+        including wxWidgets headers to disable generation of any code at all
+        for the assertion macros, see @ref overview_debugging}
+@itemdef{__WXDEBUG__, defined if wxDEBUG_LEVEL is 1 or more, undefined otherwise}
 @itemdef{wxUSE_XXX,
         if defined as 1, feature XXX is active, see the
         @ref page_wxusedef (the symbols of this form are always defined,
@@ -283,6 +292,8 @@ for the GUI applications (i.e. those which don't define @c wxUSE_GUI as 0).
         defined when compiling code which uses wxWidgets as a DLL/shared library}
 @itemdef{WXBUILDING,
         defined when building wxWidgets itself, whether as a static or shared library}
+@itemdef{wxNO_T,
+        may be predefined to prevent the library from defining _T() macro}
 @endDefList
 
 */

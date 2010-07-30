@@ -4,7 +4,7 @@
 // Author:      Wlodzimierz ABX Skiba
 // Modified by:
 // Created:     2005-02-25
-// RCS-ID:      $Id: stdpaths.h 43340 2006-11-12 12:58:10Z RR $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2005 Wlodzimierz Skiba
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////

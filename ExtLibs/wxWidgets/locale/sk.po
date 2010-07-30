@@ -7,7 +7,7 @@
 #: ../src/stc/scintilla/src/ScintillaBase.cxx:429
 msgid ""
 msgstr ""
-"Project-Id-Version: $Id: sk.po 53330 2008-04-24 07:36:18Z VS $\n"
+"Project-Id-Version: $Id$\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-04-24 09:31+0200\n"
 "PO-Revision-Date: 2007-05-09 20:02+0100\n"

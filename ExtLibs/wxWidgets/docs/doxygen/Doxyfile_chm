@@ -2,8 +2,8 @@
 ## Name:        Doxyfile.chm
 ## Purpose:     Doxygen configuration file for generating CHM only
 ## Author:      Francesco Montorsi
-## RCS-ID:      $Id: Doxyfile_chm 52595 2008-03-17 21:14:32Z BP $
-## Licence:     wxWindows license
+## RCS-ID:      $Id$
+## Licence:     wxWindows licence
 #############################################################################
 
 @INCLUDE = Doxyfile_inc

@@ -4,9 +4,9 @@
     Name:       embedded.xsl
     Purpose:    Used by check.sh for offline checking of the configuration.
     Author:     Mike Wetherell
-    RCS-ID:     $Id: embedded.xsl 51561 2008-02-05 18:10:14Z MW $
+    RCS-ID:     $Id$
     Copyright:  (c) 2007 Mike Wetherell
-    Licence:    wxWidgets licence
+    Licence:    wxWindows licence
 -->
 
 <transform xmlns="http://www.w3.org/1999/XSL/Transform"

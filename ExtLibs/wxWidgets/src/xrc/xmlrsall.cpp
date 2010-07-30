@@ -3,7 +3,7 @@
 // Purpose:     wxXmlResource::InitAllHandlers
 // Author:      Vaclav Slavik
 // Created:     2000/03/05
-// RCS-ID:      $Id: xmlrsall.cpp 58402 2009-01-25 16:00:32Z JMS $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2000 Vaclav Slavik
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -86,6 +86,12 @@ void wxXmlResource::InitAllHandlers()
 #endif
 #if wxUSE_DIRPICKERCTRL
     AddHandler(new wxDirPickerCtrlXmlHandler);
+#endif
+#if wxUSE_EDITABLELISTBOX
+    AddHandler(new wxEditableListBoxXmlHandler);
+#endif
+#if wxUSE_FILECTRL
+    AddHandler(new wxFileCtrlXmlHandler);
 #endif
 #if wxUSE_FILEPICKERCTRL
     AddHandler(new wxFilePickerCtrlXmlHandler);

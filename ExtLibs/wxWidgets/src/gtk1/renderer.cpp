@@ -4,9 +4,9 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     20.07.2003
-// RCS-ID:      $Id: renderer.cpp 59293 2009-03-03 09:24:20Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2003 Vadim Zeitlin <vadim@wxwindows.org>
-// License:     wxWindows licence
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 // ============================================================================

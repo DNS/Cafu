@@ -2,7 +2,7 @@
 // Name:        statline.cpp
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id: statline.cpp 35650 2005-09-23 12:56:45Z MR $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

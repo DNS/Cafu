@@ -2,7 +2,7 @@
 // Name:        src/gtk1/dcmemory.cpp
 // Purpose:
 // Author:      Robert Roebling
-// RCS-ID:      $Id: dcmemory.cpp 58227 2009-01-19 13:55:27Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

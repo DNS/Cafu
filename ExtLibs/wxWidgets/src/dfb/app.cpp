@@ -4,7 +4,7 @@
 // Author:      Vaclav Slavik
 //              based on MGL implementation
 // Created:     2006-08-16
-// RCS-ID:      $Id: app.cpp 58911 2009-02-15 14:25:08Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2006 REA Elektronik GmbH
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -148,17 +148,9 @@ bool wxApp::SetDisplayMode(const wxVideoMode& mode)
 
 void wxApp::WakeUpIdle()
 {
-#if wxUSE_THREADS
-    if (!wxThread::IsMain())
-        wxMutexGuiEnter();
-#endif
-
+    // we don't need a mutex here, since we use the wxConsoleEventLoop
+    // and wxConsoleEventLoop::WakeUp() is thread-safe
     wxEventLoopBase * const loop = wxEventLoop::GetActive();
     if ( loop )
         loop->WakeUp();
-
-#if wxUSE_THREADS
-    if (!wxThread::IsMain())
-        wxMutexGuiLeave();
-#endif
 }

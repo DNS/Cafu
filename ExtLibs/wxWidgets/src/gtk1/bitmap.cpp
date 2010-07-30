@@ -2,7 +2,7 @@
 // Name:        src/gtk1/bitmap.cpp
 // Purpose:
 // Author:      Robert Roebling
-// RCS-ID:      $Id: bitmap.cpp 59526 2009-03-14 13:57:51Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -267,7 +267,7 @@ wxBitmapRefData::wxBitmapRefData(const wxBitmapRefData& data)
 
 #if wxUSE_PALETTE
     wxASSERT_MSG( !data.m_palette,
-                  _T("copying bitmaps palette not implemented") );
+                  wxT("copying bitmaps palette not implemented") );
 #endif // wxUSE_PALETTE
 
 

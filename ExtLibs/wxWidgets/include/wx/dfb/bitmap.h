@@ -3,7 +3,7 @@
 // Purpose:     wxBitmap class
 // Author:      Vaclav Slavik
 // Created:     2006-08-04
-// RCS-ID:      $Id: bitmap.h 59526 2009-03-14 13:57:51Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2006 REA Elektronik GmbH
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

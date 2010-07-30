@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // Name:        src/mgl/dcscreen.cpp
 // Author:      Vaclav Slavik
-// Id:          $Id: dcscreen.cpp 39123 2006-05-09 13:55:29Z ABX $
+// Id:          $Id$
 // Copyright:   (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

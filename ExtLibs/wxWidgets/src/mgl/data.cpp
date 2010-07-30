@@ -2,7 +2,7 @@
 // Name:        src/mgl/data.cpp
 // Purpose:     wxMGL-specific global data
 // Author:      Robert Roebling
-// Id:          $Id: data.cpp 39264 2006-05-22 07:11:26Z ABX $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

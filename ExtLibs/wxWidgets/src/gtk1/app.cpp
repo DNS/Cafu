@@ -2,7 +2,7 @@
 // Name:        src/gtk1/app.cpp
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id: app.cpp 59711 2009-03-21 23:36:37Z VZ $
+// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling, Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -246,7 +246,7 @@ int wxPoll(wxPollFd *ufds, unsigned int nfds, int timeout)
     unsigned int i;
     for ( i = 0; i < nfds; i++ )
     {
-        wxASSERT_MSG( ufds[i].fd < FD_SETSIZE, _T("fd out of range") );
+        wxASSERT_MSG( ufds[i].fd < FD_SETSIZE, wxT("fd out of range") );
 
         if ( ufds[i].events & G_IO_IN )
             wxFD_SET(ufds[i].fd, &readfds);
@@ -531,7 +531,6 @@ bool wxApp::Initialize(int& argc, wxChar **argv)
 
     gtk_set_locale();
 
-    // We should have the wxUSE_WCHAR_T test on the _outside_
     if (!wxOKlibc())
         wxConvCurrent = &wxConvLocal;
 

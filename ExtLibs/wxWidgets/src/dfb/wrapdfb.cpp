@@ -3,7 +3,7 @@
 // Purpose:     wx wrappers for DirectFB interfaces
 // Author:      Vaclav Slavik
 // Created:     2006-09-04
-// RCS-ID:      $Id: wrapdfb.cpp 53788 2008-05-27 16:28:28Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2006 REA Elektronik GmbH
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ bool wxDfbCheckReturn(DFBResult code)
         // these are programming errors, assert:
         #define DFB_ASSERT(code)                                        \
             case code:                                                  \
-                wxFAIL_MSG( "DirectFB error: " _T(#code) );         \
+                wxFAIL_MSG( "DirectFB error: " wxT(#code) );         \
                 return false                                            \
 
         DFB_ASSERT(DFB_DEAD);

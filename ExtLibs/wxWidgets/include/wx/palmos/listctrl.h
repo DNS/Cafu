@@ -4,7 +4,7 @@
 // Author:      William Osborne - minimal working wxPalmOS port
 // Modified by: Yunhui Fu
 // Created:     10/13/04
-// RCS-ID:      $Id: listctrl.h 58757 2009-02-08 11:45:59Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) William Osborne
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -256,7 +256,7 @@ public:
     void ClearAll();
 
     // Edit the label
-    wxTextCtrl* EditLabel(long item, wxClassInfo* textControlClass = CLASSINFO(wxTextCtrl));
+    wxTextCtrl* EditLabel(long item, wxClassInfo* textControlClass = wxCLASSINFO(wxTextCtrl));
 
     // End label editing, optionally cancelling the edit
     bool EndEditLabel(bool cancel);
@@ -377,7 +377,7 @@ protected:
     virtual wxString OnGetItemText(long item, long column) const;
 
     // return the icon for the given item. In report view, OnGetItemImage will
-    // only be called for the first column. See OnGetItemColumnImage for 
+    // only be called for the first column. See OnGetItemColumnImage for
     // details.
     virtual int OnGetItemImage(long item) const;
 

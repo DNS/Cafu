@@ -230,9 +230,9 @@ if sys.platform=="win32":
         elif envCommon["TARGET_ARCH"] in ["ia64"]:                     target_cpu=" TARGET_CPU=IA64"
         else:                                                          target_cpu=""
 
-        result=envDebug.  Execute("nmake /nologo /f makefile.vc BUILD=debug   SHARED=0 USE_OPENGL=1 RUNTIME_LIBS=static COMPILER_PREFIX="+compiler+target_cpu, chdir="ExtLibs/wxWidgets/build/msw");
+        result=envDebug.  Execute("nmake /nologo /f makefile.vc BUILD=debug   SHARED=0 RUNTIME_LIBS=static COMPILER_PREFIX="+compiler+target_cpu, chdir="ExtLibs/wxWidgets/build/msw");
         if (result!=0): envDebug.  Exit(result);
-        result=envRelease.Execute("nmake /nologo /f makefile.vc BUILD=release SHARED=0 USE_OPENGL=1 RUNTIME_LIBS=static COMPILER_PREFIX="+compiler+target_cpu, chdir="ExtLibs/wxWidgets/build/msw");
+        result=envRelease.Execute("nmake /nologo /f makefile.vc BUILD=release SHARED=0 RUNTIME_LIBS=static COMPILER_PREFIX="+compiler+target_cpu, chdir="ExtLibs/wxWidgets/build/msw");
         if (result!=0): envRelease.Exit(result);
         print "";   # Print just another empty line for better visual separation.
 
@@ -240,18 +240,11 @@ elif sys.platform=="linux2":
     # This automatic compilation of wxGTK requires that some library packages have been installed already,
     # e.g. libgtk2.0-dev, libgl1-mesa-dev and libglu1-mesa-dev under Ubuntu 8.04.
     # See the documentation at http://www.cafu.de/wiki/ for more details!
-    if not os.path.exists("ExtLibs/wxWidgets/build-gtk_d"):
-        envDebug.Execute(Mkdir("ExtLibs/wxWidgets/build-gtk_d"));
-        result=envDebug.Execute("../configure --with-gtk --enable-debug --disable-shared --without-libtiff --disable-pnm --disable-pcx --disable-iff --with-opengl --with-regex=builtin --disable-compat26 --disable-compat28", chdir="ExtLibs/wxWidgets/build-gtk_d");
-        if (result!=0): envDebug.Exit(result);
-        result=envDebug.Execute("make", chdir="ExtLibs/wxWidgets/build-gtk_d");
-        if (result!=0): envDebug.Exit(result);
-
-    if not os.path.exists("ExtLibs/wxWidgets/build-gtk_r"):
-        envRelease.Execute(Mkdir("ExtLibs/wxWidgets/build-gtk_r"));
-        result=envRelease.Execute("../configure --with-gtk --disable-shared --without-libtiff --disable-pnm --disable-pcx --disable-iff --with-opengl --with-regex=builtin --disable-compat26 --disable-compat28", chdir="ExtLibs/wxWidgets/build-gtk_r");
+    if not os.path.exists("ExtLibs/wxWidgets/build-gtk"):
+        envRelease.Execute(Mkdir("ExtLibs/wxWidgets/build-gtk"));
+        result=envRelease.Execute("../configure --with-gtk --disable-shared --without-libtiff --disable-pnm --disable-pcx --disable-iff --with-opengl --with-regex=builtin --disable-compat26 --disable-compat28", chdir="ExtLibs/wxWidgets/build-gtk");
         if (result!=0): envRelease.Exit(result);
-        result=envRelease.Execute("make", chdir="ExtLibs/wxWidgets/build-gtk_r");
+        result=envRelease.Execute("make", chdir="ExtLibs/wxWidgets/build-gtk");
         if (result!=0): envRelease.Exit(result);
 
 

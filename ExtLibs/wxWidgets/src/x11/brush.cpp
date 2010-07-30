@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     17/09/98
-// RCS-ID:      $Id: brush.cpp 52901 2008-03-28 16:47:58Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -112,21 +112,21 @@ bool wxBrush::operator == ( const wxBrush& brush ) const
 
 wxBrushStyle wxBrush::GetStyle() const
 {
-    wxCHECK_MSG( Ok(), wxBRUSHSTYLE_INVALID, _T("invalid brush") );
+    wxCHECK_MSG( Ok(), wxBRUSHSTYLE_INVALID, wxT("invalid brush") );
 
     return M_BRUSHDATA->m_style;
 }
 
 wxColour wxBrush::GetColour() const
 {
-    wxCHECK_MSG( Ok(), wxNullColour, _T("invalid brush") );
+    wxCHECK_MSG( Ok(), wxNullColour, wxT("invalid brush") );
 
     return M_BRUSHDATA->m_colour;
 }
 
 wxBitmap *wxBrush::GetStipple() const
 {
-    wxCHECK_MSG( Ok(), NULL, _T("invalid brush") );
+    wxCHECK_MSG( Ok(), NULL, wxT("invalid brush") );
 
     return &M_BRUSHDATA->m_stipple;
 }

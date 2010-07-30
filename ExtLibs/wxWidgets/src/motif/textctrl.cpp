@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     17/09/98
-// RCS-ID:      $Id: textctrl.cpp 58227 2009-01-19 13:55:27Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -387,7 +387,7 @@ void wxTextCtrl::OnChar(wxKeyEvent& event)
         XmTextVerifyCallbackStruct *textStruct =
             (XmTextVerifyCallbackStruct *) m_tempCallbackStruct;
         textStruct->doit = True;
-        if (isascii(event.m_keyCode) && (textStruct->text->length == 1))
+        if (wxIsascii(event.m_keyCode) && (textStruct->text->length == 1))
         {
             textStruct->text->ptr[0] = (char)((event.m_keyCode == WXK_RETURN) ? 10 : event.m_keyCode);
         }

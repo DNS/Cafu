@@ -6,9 +6,9 @@
 # Author:       Robin Dunn
 #
 # Created:      5-Sept-2000
-# RCS-ID:       $Id: gen_iface.py 56772 2008-11-14 23:23:16Z VZ $
+# RCS-ID:       $Id$
 # Copyright:    (c) 2000 by Total Control Software
-# Licence:      wxWindows license
+# Licence:      wxWindows licence
 #----------------------------------------------------------------------------
 
 
@@ -21,7 +21,10 @@ H_TEMPLATE    = os.path.abspath('./stc.h.in')
 CPP_TEMPLATE  = os.path.abspath('./stc.cpp.in')
 H_DEST        = os.path.abspath('../../include/wx/stc/stc.h')
 CPP_DEST      = os.path.abspath('./stc.cpp')
-DOCSTR_DEST   = '/dev/null' #os.path.abspath('../../../wxPython/contrib/stc/_stc_gendocs.i')
+if len(sys.argv) > 1 and sys.argv[1] == '--wxpython':
+    DOCSTR_DEST   = os.path.abspath('../../../wxPython/src/_stc_gendocs.i')
+else:
+    DOCSTR_DEST   = '/dev/null'
 
 
 # Value prefixes to convert
@@ -29,6 +32,7 @@ valPrefixes = [('SCI_', ''),
                ('SC_',  ''),
                ('SCN_', None),  # just toss these out...
                ('SCEN_', None),
+               ('SC_EFF', None),
                ('SCE_', ''),
                ('SCLEX_', 'LEX_'),
                ('SCK_', 'KEY_'),
@@ -52,7 +56,7 @@ cmdValues = [ 2011,
 
 
 # Should a funciton be also generated for the CMDs?
-FUNC_FOR_CMD = True
+FUNC_FOR_CMD = 1
 
 
 # Map some generic typenames to wx types, using return value syntax
@@ -177,6 +181,8 @@ methodOverrideMap = {
     'MarkerSetFore' : ('MarkerSetForeground', 0, 0, 0),
     'MarkerSetBack' : ('MarkerSetBackground', 0, 0, 0),
 
+    'MarkerSymbolDefined' : ('GetMarkerSymbolDefined', 0, 0, 0),
+
     'MarkerDefine' :
     (0,
      '''void %s(int markerNumber, int markerSymbol,
@@ -226,6 +232,74 @@ methodOverrideMap = {
     'SetMarginSensitiveN' : ('SetMarginSensitive', 0, 0, 0),
     'GetMarginSensitiveN' : ('GetMarginSensitive', 0, 0, 0),
 
+    'MarginGetText' :
+    (0,
+    'wxString %s(int line) const;',
+
+     '''wxString %s(int line) const {
+         long msg = %s;
+         long len = SendMsg(msg, line, 0);
+
+         wxMemoryBuffer mbuf(len+1);
+         char* buf = (char*)mbuf.GetWriteBuf(len+1);
+         SendMsg(msg, line, (sptr_t)buf);
+         mbuf.UngetWriteBuf(len);
+         mbuf.AppendByte(0);
+         return stc2wx(buf);''',
+     0),
+     
+     'MarginGetStyles' :
+     (0,
+    'wxString %s(int line) const;',
+
+     '''wxString %s(int line) const {
+         long msg = %s;
+         long len = SendMsg(msg, line, 0);
+
+         wxMemoryBuffer mbuf(len+1);
+         char* buf = (char*)mbuf.GetWriteBuf(len+1);
+         SendMsg(msg, line, (sptr_t)buf);
+         mbuf.UngetWriteBuf(len);
+         mbuf.AppendByte(0);
+         return stc2wx(buf);''',
+     0),
+
+    'SetAdditionalSelFore' : ('SetAdditionalSelForeground', 0, 0, 0),
+    'SetAdditionalSelBack' : ('SetAdditionalSelBackground', 0, 0, 0),
+    'SetAdditionalCaretFore' : ('SetAdditionalCaretForeground', 0, 0, 0),
+    'GetAdditionalCaretFore' : ('GetAdditionalCaretForeground', 0, 0, 0),
+
+    'AnnotationGetText' :
+    (0,
+    'wxString %s(int line) const;',
+
+     '''wxString %s(int line) const {
+         long msg = %s;
+         long len = SendMsg(msg, line, 0);
+
+         wxMemoryBuffer mbuf(len+1);
+         char* buf = (char*)mbuf.GetWriteBuf(len+1);
+         SendMsg(msg, line, (sptr_t)buf);
+         mbuf.UngetWriteBuf(len);
+         mbuf.AppendByte(0);
+         return stc2wx(buf);''',
+     0),
+
+    'AnnotationGetStyles' :
+    (0,
+    'wxString %s(int line) const;',
+
+     '''wxString %s(int line) const {
+         long msg = %s;
+         long len = SendMsg(msg, line, 0);
+
+         wxMemoryBuffer mbuf(len+1);
+         char* buf = (char*)mbuf.GetWriteBuf(len+1);
+         SendMsg(msg, line, (sptr_t)buf);
+         mbuf.UngetWriteBuf(len);
+         mbuf.AppendByte(0);
+         return stc2wx(buf);''',
+     0),
 
     'StyleGetFore' : ('StyleGetForeground', 0, 0, 0),
     'StyleGetBack' : ('StyleGetBackground', 0, 0, 0),
@@ -279,6 +353,8 @@ methodOverrideMap = {
      0),
 
 
+    'IndicSetAlpha' : ('IndicatorSetAlpha', 0, 0, 0),
+    'IndicGetAlpha' : ('IndicatorGetAlpha', 0, 0, 0),
     'IndicSetStyle' : ('IndicatorSetStyle', 0, 0, 0),
     'IndicGetStyle' : ('IndicatorGetStyle', 0, 0, 0),
     'IndicSetFore' : ('IndicatorSetForeground', 0, 0, 0),
@@ -312,6 +388,7 @@ methodOverrideMap = {
     'AutoCGetTypeSeparator' : ('AutoCompGetTypeSeparator', 0, 0, 0),
     'AutoCSetTypeSeparator' : ('AutoCompSetTypeSeparator', 0, 0, 0),
     'AutoCGetCurrent'       : ('AutoCompGetCurrent', 0, 0, 0),
+    'AutoCGetCurrentText'   : (None, 0, 0, 0),
     'AutoCSetMaxWidth'      : ('AutoCompSetMaxWidth', 0, 0, 0),
     'AutoCGetMaxWidth'      : ('AutoCompGetMaxWidth', 0, 0, 0),
     'AutoCSetMaxHeight'     : ('AutoCompSetMaxHeight', 0, 0, 0),
@@ -650,6 +727,17 @@ methodOverrideMap = {
     'SetPositionCache' : ('SetPositionCacheSize', 0, 0, 0),
     'GetPositionCache' : ('GetPositionCacheSize', 0, 0, 0),
 
+    'GetLexerLanguage' : (None, 0, 0, 0),
+    'SetFontQuality' : (None, 0, 0, 0),
+    'GetFontQuality' : (None, 0, 0, 0),
+    'SetSelection' : (None, 0, 0, 0),
+
+    'GetCharacterPointer' : (0,
+                             'const char* %s();',
+                             'const char* %s() {\n'
+                             '    return (const char*)SendMsg(%s, 0, 0);',
+                             0),
+    
 
     '' : ('', 0, 0, 0),
 
@@ -659,14 +747,14 @@ methodOverrideMap = {
 # some non-getter methods are also logically const and this set contains their
 # names (notice that it's useless to include here methods manually overridden
 # above)
-constNonGetterMethods = set((
+constNonGetterMethods = (
     'LineFromPosition',
     'PositionFromLine',
     'LineLength',
     'CanPaste',
     'CanRedo',
     'CanUndo',
-))
+)
 
 #----------------------------------------------------------------------------
 
@@ -736,6 +824,9 @@ def processIface(iface, h_tmplt, cpp_tmplt, h_dest, cpp_dest, docstr_dest):
 
 
 
+def joinWithNewLines(values):
+    return string.join(values, '\n')
+
 #----------------------------------------------------------------------------
 
 def processVals(values):
@@ -746,7 +837,7 @@ def processVals(values):
             for x in docs:
                 text.append('// ' + x)
         text.append('#define %s %s' % (name, value))
-    return string.join(text, '\n')
+    return joinWithNewLines(text)
 
 #----------------------------------------------------------------------------
 
@@ -766,7 +857,7 @@ def processMethods(methods):
 
         # Build docstrings
         st = 'DocStr(wxStyledTextCtrl::%s,\n' \
-             '"%s", "");\n' % (name, '\n'.join(docs))
+             '"%s", "");\n' % (name, joinWithNewLines(docs))
         dstr.append(st)
 
         # Build the method definition for the .h file
@@ -807,7 +898,7 @@ def processMethods(methods):
         imps.append(theImp)
 
 
-    return '\n'.join(defs), '\n'.join(imps), '\n'.join(dstr)
+    return joinWithNewLines(defs), joinWithNewLines(imps), joinWithNewLines(dstr)
 
 
 #----------------------------------------------------------------------------
@@ -886,7 +977,7 @@ funregex = re.compile(r'\s*([a-zA-Z0-9_]+)'  # <ws>return type
                       '\s+([a-zA-Z0-9_]+)='  # <ws>name=
                       '([0-9]+)'             # number
                       '\(([ a-zA-Z0-9_]*),'  # (param,
-                      '([ a-zA-Z0-9_]*)\)')  # param)
+                      '([ a-zA-Z0-9_]*),*\)')  # param)
 
 def parseFun(line, methods, docs, values, is_const):
     def parseParam(param):

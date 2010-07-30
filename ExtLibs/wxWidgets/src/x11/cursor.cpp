@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     17/09/98
-// RCS-ID:      $Id: cursor.cpp 56644 2008-11-02 02:39:52Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -124,9 +124,9 @@ void wxCursor::InitFromStock( wxStockCursor cursorId )
 #endif
 }
 
-wxCursor::wxCursor(const wxString& name,
-                    wxBitmapType type,
-                    int hotSpotX, int hotSpotY)
+wxCursor::wxCursor(const wxString& WXUNUSED(name),
+                    wxBitmapType WXUNUSED(type),
+                    int WXUNUSED(hotSpotX), int WXUNUSED(hotSpotY))
 {
    wxFAIL_MSG( wxT("wxCursor creation from file not yet implemented") );
 }

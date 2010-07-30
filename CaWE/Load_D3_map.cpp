@@ -119,7 +119,7 @@ MapFaceT MapFaceT::Create_D3_map(TextParserT& TP, const Vector3fT& Origin, Edito
     }
 #endif
 
-#ifdef __WXDEBUG__
+#ifndef NDEBUG
     // Verify the correctness of the planepts!
     Plane3fT CheckPlane(Face.m_PlanePoints[0], Face.m_PlanePoints[1], Face.m_PlanePoints[2], 0.1f);
 

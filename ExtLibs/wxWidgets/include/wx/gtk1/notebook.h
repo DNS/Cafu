@@ -3,7 +3,7 @@
 // Purpose:     wxNotebook class
 // Author:      Robert Roebling
 // Modified by:
-// RCS-ID:      $Id: notebook.h 47254 2007-07-09 10:09:52Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart and Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

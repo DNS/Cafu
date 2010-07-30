@@ -2,7 +2,7 @@
 // Name:        wx/gtk1/bitmap.h
 // Purpose:
 // Author:      Robert Roebling
-// RCS-ID:      $Id: bitmap.h 59526 2009-03-14 13:57:51Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

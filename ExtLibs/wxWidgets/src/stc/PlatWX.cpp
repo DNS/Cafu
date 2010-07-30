@@ -35,12 +35,14 @@
 #ifdef wxHAS_RAW_BITMAP
 #include "wx/rawbmp.h"
 #endif
+#if wxUSE_GRAPHICS_CONTEXT
+#include "wx/dcgraph.h"
+#endif
 
 #include "Platform.h"
 #include "PlatWX.h"
 #include "wx/stc/stc.h"
 #include "wx/stc/private.h"
-
 
 
 Point Point::FromLong(long lpoint) {
@@ -65,6 +67,14 @@ wxColour wxColourFromCA(const ColourAllocated& ca) {
                     (unsigned char)cd.GetBlue());
 }
 
+wxColour wxColourFromCAandAlpha(const ColourAllocated& ca, int alpha) {
+    ColourDesired cd(ca.AsLong());
+    return wxColour((unsigned char)cd.GetRed(),
+                    (unsigned char)cd.GetGreen(),
+                    (unsigned char)cd.GetBlue(),
+                    (unsigned char)alpha);
+}
+
 //----------------------------------------------------------------------
 
 Palette::Palette() {
@@ -76,8 +86,7 @@ Palette::Palette() {
 
 Palette::~Palette() {
     Release();
-    delete [] entries;
-    entries = 0;
+    wxDELETEA(entries);
 }
 
 void Palette::Release() {
@@ -131,7 +140,7 @@ void Palette::Allocate(Window &) {
 //----------------------------------------------------------------------
 
 Font::Font() {
-    id = 0;
+    fid = 0;
     ascent = 0;
 }
 
@@ -140,7 +149,7 @@ Font::~Font() {
 
 void Font::Create(const char *faceName, int characterSet,
                   int size, bool bold, bool italic,
-                  bool extraFontFlag) {
+                  int WXUNUSED(extraFontFlag)) {
     Release();
 
     // The minus one is done because since Scintilla uses SC_SHARSET_DEFAULT
@@ -160,14 +169,14 @@ void Font::Create(const char *faceName, int characterSet,
                     false,
                     stc2wx(faceName),
                     encoding);
-    id = font;
+    fid = font;
 }
 
 
 void Font::Release() {
-    if (id)
-        delete (wxFont*)id;
-    id = 0;
+    if (fid)
+        delete (wxFont*)fid;
+    fid = 0;
 }
 
 //----------------------------------------------------------------------
@@ -367,6 +376,16 @@ void SurfaceImpl::AlphaRectangle(PRectangle rc, int cornerSize,
                                  ColourAllocated fill, int alphaFill,
                                  ColourAllocated outline, int alphaOutline,
                                  int /*flags*/) {
+#if wxUSE_GRAPHICS_CONTEXT
+    wxGCDC dc(*(wxMemoryDC*)hdc);
+    wxColour penColour(wxColourFromCAandAlpha(outline, alphaOutline));
+    wxColour brushColour(wxColourFromCAandAlpha(fill, alphaFill));
+    dc.SetPen(wxPen(penColour));
+    dc.SetBrush(wxBrush(brushColour));
+    dc.DrawRoundedRectangle(wxRectFromPRectangle(rc), cornerSize);
+    return;
+#else
+    
 #ifdef wxHAS_RAW_BITMAP
 
     // TODO:  do something with cornerSize
@@ -434,6 +453,7 @@ void SurfaceImpl::AlphaRectangle(PRectangle rc, int cornerSize,
     wxUnusedVar(alphaFill);
     wxUnusedVar(alphaOutline);
     RectangleDraw(rc, outline, fill);
+#endif
 #endif
 }
 
@@ -626,26 +646,26 @@ Window::~Window() {
 }
 
 void Window::Destroy() {
-    if (id) {
+    if (wid) {
         Show(false);
-        GETWIN(id)->Destroy();
+        GETWIN(wid)->Destroy();
     }
-    id = 0;
+    wid = 0;
 }
 
 bool Window::HasFocus() {
-    return wxWindow::FindFocus() == GETWIN(id);
+    return wxWindow::FindFocus() == GETWIN(wid);
 }
 
 PRectangle Window::GetPosition() {
-    if (! id) return PRectangle();
-    wxRect rc(GETWIN(id)->GetPosition(), GETWIN(id)->GetSize());
+    if (! wid) return PRectangle();
+    wxRect rc(GETWIN(wid)->GetPosition(), GETWIN(wid)->GetSize());
     return PRectangleFromwxRect(rc);
 }
 
 void Window::SetPosition(PRectangle rc) {
     wxRect r = wxRectFromPRectangle(rc);
-    GETWIN(id)->SetSize(r);
+    GETWIN(wid)->SetSize(r);
 }
 
 void Window::SetPositionRelative(PRectangle rc, Window) {
@@ -653,26 +673,26 @@ void Window::SetPositionRelative(PRectangle rc, Window) {
 }
 
 PRectangle Window::GetClientPosition() {
-    if (! id) return PRectangle();
-    wxSize sz = GETWIN(id)->GetClientSize();
+    if (! wid) return PRectangle();
+    wxSize sz = GETWIN(wid)->GetClientSize();
     return  PRectangle(0, 0, sz.x, sz.y);
 }
 
 void Window::Show(bool show) {
-    GETWIN(id)->Show(show);
+    GETWIN(wid)->Show(show);
 }
 
 void Window::InvalidateAll() {
-    GETWIN(id)->Refresh(false);
+    GETWIN(wid)->Refresh(false);
 }
 
 void Window::InvalidateRectangle(PRectangle rc) {
     wxRect r = wxRectFromPRectangle(rc);
-    GETWIN(id)->Refresh(false, &r);
+    GETWIN(wid)->Refresh(false, &r);
 }
 
 void Window::SetFont(Font &font) {
-    GETWIN(id)->SetFont(*((wxFont*)font.GetID()));
+    GETWIN(wid)->SetFont(*((wxFont*)font.GetID()));
 }
 
 void Window::SetCursor(Cursor curs) {
@@ -711,26 +731,28 @@ void Window::SetCursor(Cursor curs) {
     wxCursor wc = wxCursor(cursorId);
     if(curs != cursorLast)
     {
-        GETWIN(id)->SetCursor(wc);
+        GETWIN(wid)->SetCursor(wc);
         cursorLast = curs;
     }
 }
 
 
 void Window::SetTitle(const char *s) {
-    GETWIN(id)->SetLabel(stc2wx(s));
+    GETWIN(wid)->SetLabel(stc2wx(s));
 }
 
 
 // Returns rectangle of monitor pt is on
 PRectangle Window::GetMonitorRect(Point pt) {
     wxRect rect;
-    if (! id) return PRectangle();
+    if (! wid) return PRectangle();
 #if wxUSE_DISPLAY
     // Get the display the point is found on
     int n = wxDisplay::GetFromPoint(wxPoint(pt.x, pt.y));
     wxDisplay dpy(n == wxNOT_FOUND ? 0 : n);
     rect = dpy.GetGeometry();
+#else
+    wxUnusedVar(pt);
 #endif
     return PRectangleFromwxRect(rect);
 }
@@ -799,15 +821,6 @@ END_EVENT_TABLE()
 #if wxUSE_POPUPWIN //-----------------------------------
 #include "wx/popupwin.h"
 
-
-//
-// TODO: Refactor these two classes to have a common base (or a mix-in) to get
-// rid of the code duplication.  (Either that or convince somebody to
-// implement wxPopupWindow for the Mac!!)
-//
-// In the meantime, be careful to duplicate any changes as needed...
-//
-
 // A popup window to place the wxSTCListBox upon
 class wxSTCListBoxWin : public wxPopupWindow
 {
@@ -817,10 +830,8 @@ private:
     void*               doubleClickActionData;
 public:
     wxSTCListBoxWin(wxWindow* parent, wxWindowID id, Point WXUNUSED(location)) :
-        wxPopupWindow(parent, wxBORDER_NONE)
+        wxPopupWindow(parent, wxBORDER_SIMPLE)
     {
-
-        SetBackgroundColour(*wxBLACK);  // for our simple border
 
         lv = new wxSTCListBox(parent, id, wxPoint(-50,-50), wxDefaultSize,
                               wxLC_REPORT | wxLC_SINGLE_SEL | wxLC_NO_HEADER | wxBORDER_NONE);
@@ -895,11 +906,9 @@ public:
     }
 
     void OnSize(wxSizeEvent& event) {
-        // resize the child
-        wxSize sz = GetSize();
-        sz.x -= 2;
-        sz.y -= 2;
-        lv->SetSize(1, 1, sz.x, sz.y);
+        // resize the child to fill the popup
+        wxSize sz = GetClientSize();
+        lv->SetSize(0, 0, sz.x, sz.y);
         // reset the column widths
         lv->SetColumnWidth(0, IconWidth()+4);
         lv->SetColumnWidth(1, sz.x - 2 - lv->GetColumnWidth(0) -
@@ -1134,19 +1143,13 @@ ListBoxImpl::ListBoxImpl()
 }
 
 ListBoxImpl::~ListBoxImpl() {
-    if (imgList) {
-        delete imgList;
-        imgList = NULL;
-    }
-    if (imgTypeMap) {
-        delete imgTypeMap;
-        imgTypeMap = NULL;
-    }
+    wxDELETE(imgList);
+    wxDELETE(imgTypeMap);
 }
 
 
 void ListBoxImpl::SetFont(Font &font) {
-    GETLB(id)->SetFont(*((wxFont*)font.GetID()));
+    GETLB(wid)->SetFont(*((wxFont*)font.GetID()));
 }
 
 
@@ -1155,9 +1158,9 @@ void ListBoxImpl::Create(Window &parent, int ctrlID, Point location_, int lineHe
     lineHeight =  lineHeight_;
     unicodeMode = unicodeMode_;
     maxStrWidth = 0;
-    id = new wxSTCListBoxWin(GETWIN(parent.GetID()), ctrlID, location);
+    wid = new wxSTCListBoxWin(GETWIN(parent.GetID()), ctrlID, location);
     if (imgList != NULL)
-        GETLB(id)->SetImageList(imgList, wxIMAGE_LIST_SMALL);
+        GETLB(wid)->SetImageList(imgList, wxIMAGE_LIST_SMALL);
 }
 
 
@@ -1184,15 +1187,15 @@ PRectangle ListBoxImpl::GetDesiredRect() {
     // give it a default if there are no lines, and/or add a bit more
     if (maxw == 0) maxw = 100;
     maxw += aveCharWidth * 3 +
-            GETLBW(id)->IconWidth() + wxSystemSettings::GetMetric(wxSYS_VSCROLL_X);
+            GETLBW(wid)->IconWidth() + wxSystemSettings::GetMetric(wxSYS_VSCROLL_X);
     if (maxw > 350)
         maxw = 350;
 
     // estimate a desired height
-    int count = GETLB(id)->GetItemCount();
+    int count = GETLB(wid)->GetItemCount();
     if (count) {
         wxRect rect;
-        GETLB(id)->GetItemRect(0, rect);
+        GETLB(wid)->GetItemRect(0, rect);
         maxh = count * rect.GetHeight();
         if (maxh > 140)  // TODO:  Use desiredVisibleRows??
             maxh = 140;
@@ -1214,12 +1217,12 @@ PRectangle ListBoxImpl::GetDesiredRect() {
 
 
 int ListBoxImpl::CaretFromEdge() {
-    return 4 + GETLBW(id)->IconWidth();
+    return 4 + GETLBW(wid)->IconWidth();
 }
 
 
 void ListBoxImpl::Clear() {
-    GETLB(id)->DeleteAllItems();
+    GETLB(wid)->DeleteAllItems();
 }
 
 
@@ -1228,20 +1231,20 @@ void ListBoxImpl::Append(char *s, int type) {
 }
 
 void ListBoxImpl::Append(const wxString& text, int type) {
-    long count  = GETLB(id)->GetItemCount();
-    long itemID  = GETLB(id)->InsertItem(count, wxEmptyString);
+    long count  = GETLB(wid)->GetItemCount();
+    long itemID  = GETLB(wid)->InsertItem(count, wxEmptyString);
     long idx = -1;
-    GETLB(id)->SetItem(itemID, 1, text);
+    GETLB(wid)->SetItem(itemID, 1, text);
     maxStrWidth = wxMax(maxStrWidth, text.length());
     if (type != -1) {
         wxCHECK_RET(imgTypeMap, wxT("Unexpected NULL imgTypeMap"));
         idx = imgTypeMap->Item(type);
     }
-    GETLB(id)->SetItemImage(itemID, idx, idx);
+    GETLB(wid)->SetItemImage(itemID, idx, idx);
 }
 
 void ListBoxImpl::SetList(const char* list, char separator, char typesep) {
-    GETLB(id)->Freeze();
+    GETLB(wid)->Freeze();
     Clear();
     wxStringTokenizer tkzr(stc2wx(list), (wxChar)separator);
     while ( tkzr.HasMoreTokens() ) {
@@ -1254,12 +1257,12 @@ void ListBoxImpl::SetList(const char* list, char separator, char typesep) {
         }
         Append(token, (int)type);
     }
-    GETLB(id)->Thaw();
+    GETLB(wid)->Thaw();
 }
 
 
 int ListBoxImpl::Length() {
-    return GETLB(id)->GetItemCount();
+    return GETLB(wid)->GetItemCount();
 }
 
 
@@ -1269,13 +1272,13 @@ void ListBoxImpl::Select(int n) {
         n = 0;
         select = false;
     }
-    GETLB(id)->EnsureVisible(n);
-    GETLB(id)->Select(n, select);
+    GETLB(wid)->EnsureVisible(n);
+    GETLB(wid)->Select(n, select);
 }
 
 
 int ListBoxImpl::GetSelection() {
-    return GETLB(id)->GetFirstSelected();
+    return GETLB(wid)->GetFirstSelected();
 }
 
 
@@ -1290,7 +1293,7 @@ void ListBoxImpl::GetValue(int n, char *value, int len) {
     item.SetId(n);
     item.SetColumn(1);
     item.SetMask(wxLIST_MASK_TEXT);
-    GETLB(id)->GetItem(item);
+    GETLB(wid)->GetItem(item);
     strncpy(value, wx2stc(item.GetText()), len);
     value[len-1] = '\0';
 }
@@ -1319,21 +1322,15 @@ void ListBoxImpl::RegisterImage(int type, const char *xpm_data) {
 }
 
 void ListBoxImpl::ClearRegisteredImages() {
-    if (imgList) {
-        delete imgList;
-        imgList = NULL;
-    }
-    if (imgTypeMap) {
-        delete imgTypeMap;
-        imgTypeMap = NULL;
-    }
-    if (id)
-        GETLB(id)->SetImageList(NULL, wxIMAGE_LIST_SMALL);
+    wxDELETE(imgList);
+    wxDELETE(imgTypeMap);
+    if (wid)
+        GETLB(wid)->SetImageList(NULL, wxIMAGE_LIST_SMALL);
 }
 
 
 void ListBoxImpl::SetDoubleClickAction(CallBackAction action, void *data) {
-    GETLBW(id)->SetDoubleClickAction(action, data);
+    GETLBW(wid)->SetDoubleClickAction(action, data);
 }
 
 
@@ -1349,22 +1346,22 @@ ListBox *ListBox::Allocate() {
 
 //----------------------------------------------------------------------
 
-Menu::Menu() : id(0) {
+Menu::Menu() : mid(0) {
 }
 
 void Menu::CreatePopUp() {
     Destroy();
-    id = new wxMenu();
+    mid = new wxMenu();
 }
 
 void Menu::Destroy() {
-    if (id)
-        delete (wxMenu*)id;
-    id = 0;
+    if (mid)
+        delete (wxMenu*)mid;
+    mid = 0;
 }
 
 void Menu::Show(Point pt, Window &w) {
-    GETWIN(w.GetID())->PopupMenu((wxMenu*)id, pt.x - 4, pt.y);
+    GETWIN(w.GetID())->PopupMenu((wxMenu*)mid, pt.x - 4, pt.y);
     Destroy();
 }
 

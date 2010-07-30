@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     19.05.01
-// RCS-ID:      $Id: frame.h 54803 2008-07-29 12:32:47Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2001 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ public:
 
 #if wxUSE_STATUSBAR
     virtual wxStatusBar* CreateStatusBar(int number = 1,
-                                         long style = wxST_SIZEGRIP,
+                                         long style = wxSTB_DEFAULT_STYLE,
                                          wxWindowID id = 0,
                                          const wxString& name = wxStatusLineNameStr);
 #endif // wxUSE_STATUSBAR

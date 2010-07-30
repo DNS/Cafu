@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     17/09/98
-// RCS-ID:      $Id: window.cpp 58246 2009-01-20 18:33:33Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -148,7 +148,7 @@ bool wxWindowX11::Create(wxWindow *parent, wxWindowID id,
     if (parent->GetInsertIntoMain())
     {
         // wxLogDebug( "Inserted into main: %s", GetName().c_str() );
-        xparent = (Window) parent->GetMainWindow();
+        xparent = (Window) parent->X11GetMainWindow();
     }
 
     // Size (not including the border) must be nonzero (or a Value error results)!
@@ -397,7 +397,7 @@ void wxWindowX11::SetFocus()
 
     if (wxWindowIsVisible(xwindow))
     {
-        wxLogTrace( _T("focus"), _T("wxWindowX11::SetFocus: %s"), GetClassInfo()->GetClassName());
+        wxLogTrace( wxT("focus"), wxT("wxWindowX11::SetFocus: %s"), GetClassInfo()->GetClassName());
         //        XSetInputFocus( wxGlobalDisplay(), xwindow, RevertToParent, CurrentTime );
         XSetInputFocus( wxGlobalDisplay(), xwindow, RevertToNone, CurrentTime );
         m_needsInputFocus = false;
@@ -522,7 +522,9 @@ void wxWindowX11::DoCaptureMouse()
             msg.Printf(wxT("Failed to grab pointer for window %s"), this->GetClassInfo()->GetClassName());
             wxLogDebug(msg);
             if (res == GrabNotViewable)
+            {
                 wxLogDebug( wxT("This is not a viewable window - perhaps not shown yet?") );
+            }
 
             g_captureWindow = NULL;
             return;
@@ -1076,10 +1078,11 @@ int wxWindowX11::GetCharWidth() const
 #endif
 }
 
-void wxWindowX11::GetTextExtent(const wxString& string,
-                                int *x, int *y,
-                                int *descent, int *externalLeading,
-                                const wxFont *theFont) const
+void wxWindowX11::DoGetTextExtent(const wxString& string,
+                                  int *x, int *y,
+                                  int *descent,
+                                  int *externalLeading,
+                                  const wxFont *theFont) const
 {
     wxFont fontToUse = GetFont();
     if (theFont) fontToUse = *theFont;
@@ -1264,7 +1267,7 @@ void wxWindowX11::SendNcPaintEvents()
             x = sb->GetPosition().x;
 
             Display *xdisplay = wxGlobalDisplay();
-            Window xwindow = (Window) GetMainWindow();
+            Window xwindow = (Window) X11GetMainWindow();
             Colormap cm = (Colormap) wxTheApp->GetMainColormap( wxGetDisplay() );
             wxColour colour = wxSystemSettings::GetColour(wxSYS_COLOUR_APPWORKSPACE);
             colour.CalcPixel( (WXColormap) cm );
@@ -1405,7 +1408,7 @@ void wxDeleteClientWindowFromTable(Window w)
 // X11-specific accessors
 // ----------------------------------------------------------------------------
 
-WXWindow wxWindowX11::GetMainWindow() const
+WXWindow wxWindowX11::X11GetMainWindow() const
 {
     return m_mainWindow;
 }
@@ -1638,9 +1641,7 @@ bool wxWindowX11::SetForegroundColour(const wxColour& col)
 
 wxWindow *wxGetActiveWindow()
 {
-    // TODO
-    wxFAIL_MSG(wxT("Not implemented"));
-    return NULL;
+    return wxGetTopLevelParent(wxWindow::FindFocus());
 }
 
 /* static */
@@ -1729,7 +1730,7 @@ public:
     wxWinModule()
     {
         // we must be cleaned up before the display is closed
-        AddDependency(wxClassInfo::FindClass(_T("wxX11DisplayModule")));
+        AddDependency(wxClassInfo::FindClass(wxT("wxX11DisplayModule")));
     }
 
     virtual bool OnInit();

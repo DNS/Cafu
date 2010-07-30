@@ -2,8 +2,8 @@
 // Name:        custom_combo.h
 // Purpose:     Define some custom wxComboCtrls
 // Author:      Utensil Candel (UtensilCandel@@gmail.com)
-// RCS-ID:      $Id: customcombo.h 56121 2008-10-06 14:08:08Z FM $
-// Licence:     wxWindows license
+// RCS-ID:      $Id$
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef WX_CUSTOM_COMBO_H

@@ -3,7 +3,7 @@
 // Purpose:     wxEventLoop implementation
 // Author:      Vaclav Slavik
 // Created:     2006-08-16
-// RCS-ID:      $Id: evtloop.cpp 58952 2009-02-16 17:22:02Z PC $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2006 REA Elektronik GmbH
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

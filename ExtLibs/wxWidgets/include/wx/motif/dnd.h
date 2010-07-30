@@ -2,7 +2,7 @@
 // Name:        wx/motif/dnd.h
 // Purpose:     declaration of wxDropTarget, wxDropSource classes
 // Author:      Julian Smart
-// RCS-ID:      $Id: dnd.h 52834 2008-03-26 15:06:00Z FM $
+// RCS-ID:      $Id$
 // Copyright:   (c) 1998 Vadim Zeitlin, Robert Roebling, Julian Smart
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////

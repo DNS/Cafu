@@ -141,8 +141,8 @@ class GNUMakeBuilder(Builder):
         Builder.__init__(self, commandName=commandName, formatName=formatName)
 
 
-class XCodeBuilder(Builder):
-    def __init__(self, commandName="xcodebuild", formatName="XCode"):
+class XcodeBuilder(Builder):
+    def __init__(self, commandName="xcodebuild", formatName="Xcode"):
         Builder.__init__(self, commandName=commandName, formatName=formatName)
 
 
@@ -176,7 +176,9 @@ class AutoconfBuilder(GNUMakeBuilder):
             return 1
 
         optionsStr = string.join(options, " ") if options else ""
-        result = os.system("%s %s" % (configure_cmd, optionsStr))
+        command = "%s %s" % (configure_cmd, optionsStr)
+        print command
+        result = os.system(command)
         #os.chdir(olddir)
         return result
 
@@ -221,7 +223,7 @@ class MSVCProjectBuilder(Builder):
 
         return False
 
-builders = [GNUMakeBuilder, XCodeBuilder, AutoconfBuilder, MSVCBuilder, MSVCProjectBuilder]
+builders = [GNUMakeBuilder, XcodeBuilder, AutoconfBuilder, MSVCBuilder, MSVCProjectBuilder]
 
 def getAvailableBuilders():
     availableBuilders = {}

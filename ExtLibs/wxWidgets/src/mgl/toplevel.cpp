@@ -2,7 +2,7 @@
 // Name:        src/mgl/toplevel.cpp
 // Purpose:
 // Author:      Vaclav Slavik
-// Id:          $Id: toplevel.cpp 50329 2007-11-29 17:00:58Z VS $
+// Id:          $Id$
 // Copyright:   (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
