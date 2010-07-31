@@ -754,18 +754,21 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 // Now leave it only after we have come to a complete halt, and the death sequence is over.
                 if (OldOriginZ>=State.Origin.z && fabs(State.Velocity.x)<0.1 && fabs(State.Velocity.y)<0.1 && fabs(State.Velocity.z)<0.1 && OldModelFrameNr==State.ModelFrameNr)
                 {
-                    std::map<std::string, std::string> Props; Props["classname"]="corpse";
-
-                    // Create a new "corpse" entity in the place where we died, or else the model disappears.
-                    unsigned long CorpseID=GameWorld->CreateNewEntity(Props, ServerFrameNr, VectorT());
-
-                    if (CorpseID!=0xFFFFFFFF)
+                    if (ThinkingOnServerSide)
                     {
-                        BaseEntityT* Corpse=GameWorld->GetBaseEntityByID(CorpseID);
+                        std::map<std::string, std::string> Props; Props["classname"]="corpse";
 
-                        Corpse->State=EntityStateT(State.Origin+VectorT(0.0, 0.0, State.Dimensions.Min.z+1728.8), VectorT(), BoundingBox3T<double>(Vector3dT()), State.Heading,
-                                                   0, 0, 0, 0, State.ModelIndex, State.ModelSequNr, State.ModelFrameNr, 0, 0, 0, 0,
-                                                   State.ActiveWeaponSlot, 0, 0.0);
+                        // Create a new "corpse" entity in the place where we died, or else the model disappears.
+                        unsigned long CorpseID=GameWorld->CreateNewEntity(Props, ServerFrameNr, VectorT());
+
+                        if (CorpseID!=0xFFFFFFFF)
+                        {
+                            BaseEntityT* Corpse=GameWorld->GetBaseEntityByID(CorpseID);
+
+                            Corpse->State=EntityStateT(State.Origin+VectorT(0.0, 0.0, State.Dimensions.Min.z+1728.8), VectorT(), BoundingBox3T<double>(Vector3dT()), State.Heading,
+                                                       0, 0, 0, 0, State.ModelIndex, State.ModelSequNr, State.ModelFrameNr, 0, 0, 0, 0,
+                                                       State.ActiveWeaponSlot, 0, 0.0);
+                        }
                     }
 
                     State.Velocity.y=State.Heading;
