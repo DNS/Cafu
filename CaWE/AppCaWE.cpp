@@ -92,6 +92,10 @@ AppCaWE::AppCaWE()
     // Register them with the console interpreter now.
     ConFuncT::RegisterStaticList();
     ConVarT ::RegisterStaticList();
+
+    SetAppName("CaWE");
+    SetVendorName("Carsten Fuchs Software");
+    wxStandardPaths::Get().UseAppInfo(wxStandardPaths::AppInfo_VendorName | wxStandardPaths::AppInfo_AppName);
 }
 
 
@@ -141,7 +145,7 @@ bool AppCaWE::OnInit()
 
 
     // Set the globally used configuration storage object for easy access via wxConfigBase::Get().
-    m_FileConfig=new wxFileConfig("CaWE", "Carsten Fuchs Software", UserDataDir+"/CaWE.config");
+    m_FileConfig=new wxFileConfig(GetAppName(), GetVendorName(), UserDataDir+"/CaWE.config");
     wxConfigBase::Set(m_FileConfig);
 
     // Setup the global Material Manager pointer.

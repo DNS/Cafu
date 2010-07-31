@@ -118,7 +118,7 @@ void OptionsT::Init()
     colors.Entity       =wxColour(220, 30, 220);
 
 
-    wxFileConfig CfgFile("CaWE", "Carsten Fuchs Software", wxStandardPaths::Get().GetUserDataDir()+"/Games.config");
+    wxFileConfig CfgFile(wxTheApp->GetAppName(), wxTheApp->GetVendorName(), wxStandardPaths::Get().GetUserDataDir()+"/Games.config");
     wxDir        GamesDir("Games");     // Should also work under Linux, otherwise use "./Games".
     wxString     GameName;
 
@@ -202,7 +202,7 @@ void OptionsT::Write() const
     wxConfigBase::Get()->SetPath("..");
 
     // Write the game configs. This is in an external file so we can distribute it with CaWE as a set of defaults.
-    wxFileConfig CfgFile("CaWE", "Carsten Fuchs Software", wxStandardPaths::Get().GetUserDataDir()+"/Games.config");
+    wxFileConfig CfgFile(wxTheApp->GetAppName(), wxTheApp->GetVendorName(), wxStandardPaths::Get().GetUserDataDir()+"/Games.config");
 
     for (unsigned long ConfigNr=0; ConfigNr<GameConfigs.Size(); ConfigNr++)
     {
