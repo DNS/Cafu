@@ -122,7 +122,9 @@ MapBrushT* MapBrushT::Create_HL1_map(TextParserT& TP, unsigned long EntityNr, un
     Brush->CompleteFaceVertices();
 
     if (!Brush->IsValid())
+    {
         wxLogWarning("Entity %lu, primitive %lu: The brush could not be created from its planes.\n", EntityNr, BrushNr);
+    }
 
     wxASSERT(Brush->IsValid());
     return Brush;

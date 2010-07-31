@@ -806,7 +806,9 @@ void ChildFrameT::OnIdle(wxIdleEvent& IE)
         const unsigned long ElemsUpdated=m_Doc->GetBspTree()->Update();
 
         if (ElemsUpdated>0)
+        {
             wxLogDebug("OrthoBspTreeT::Update() updated %lu map elements.", ElemsUpdated);
+        }
 
         // Update all 3D views.
         for (unsigned long ViewWinNr=0; ViewWinNr<m_ViewWindows.Size(); ViewWinNr++)

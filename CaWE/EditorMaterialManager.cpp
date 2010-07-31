@@ -148,9 +148,9 @@ EditorMaterialI* EditorMatManT::FindMaterial(const wxString& MatName, bool Creat
 
 void EditorMatManT::LazilyUpdateProxies()
 {
-    if (m_LazyMatUpdateCount==0) wxLogDebug("Beginning to cache in materials.");
-    if ((m_LazyMatUpdateCount % 100)==0 && m_LazyMatUpdateCount<m_Materials.Size()) wxLogDebug("Caching in material number %lu of %lu materials.", m_LazyMatUpdateCount, m_Materials.Size());
-    if (m_LazyMatUpdateCount+1==m_Materials.Size()) wxLogDebug("Done caching in %lu materials.", m_Materials.Size());
+    if (m_LazyMatUpdateCount==0) { wxLogDebug("Beginning to cache in materials."); }
+    if ((m_LazyMatUpdateCount % 100)==0 && m_LazyMatUpdateCount<m_Materials.Size()) { wxLogDebug("Caching in material number %lu of %lu materials.", m_LazyMatUpdateCount, m_Materials.Size()); }
+    if (m_LazyMatUpdateCount+1==m_Materials.Size()) { wxLogDebug("Done caching in %lu materials.", m_Materials.Size()); }
 
     // Do nothing once we're done caching in.
     if (m_LazyMatUpdateCount>=m_Materials.Size()) return;

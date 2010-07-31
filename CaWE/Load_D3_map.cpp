@@ -58,7 +58,7 @@ MapFaceT MapFaceT::Create_D3_map(TextParserT& TP, const Vector3fT& Origin, Edito
     Face.m_SurfaceInfo.TexCoordGenMode=PlaneProj;
 
     // Translate the Face.m_Plane according to Origin.
-    // This is done by getting a point on the plane (e.g. the Stützvektor),
+    // This is done by getting a point on the plane (e.g. the Stuetzvektor),
     // offsetting it by Origin, and then recomputing the Face.m_Plane.Dist.
     Face.m_Plane.Dist=dot(Face.m_Plane.Normal*Face.m_Plane.Dist + Origin, Face.m_Plane.Normal);
 
@@ -208,7 +208,9 @@ MapBrushT* MapBrushT::Create_D3_map(TextParserT& TP, const Vector3fT& Origin, un
     Brush->CompleteFaceVertices();
 
     if (!Brush->IsValid())
+    {
         wxLogWarning("Entity %lu, primitive %lu: The brush could not be created from its planes.\n", EntityNr, PrimitiveNr);
+    }
 
     wxASSERT(Brush->IsValid());
     return Brush;

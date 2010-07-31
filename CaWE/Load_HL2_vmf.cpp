@@ -226,7 +226,9 @@ void MapEntityBaseT::Load_HL2_vmf(TextParserT& TP, MapDocumentT& MapDoc, wxProgr
                 TP.SkipBlock("{", "}", true);
 
                 if (SubChName!="editor" && SubChName!="group" && SubChName!="connections")
+                {
                     wxLogWarning(wxString("Unknown sub-chunk \"")+SubChName+"\" in entity %lu.\n", EntityNr);
+                }
             }
             else
             {

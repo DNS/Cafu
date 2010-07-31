@@ -270,7 +270,9 @@ MapBrushT* MapBrushT::Create_cmap(TextParserT& TP, MapDocumentT& MapDoc, unsigne
     Brush->CompleteFaceVertices();
 
     if (!Brush->IsValid())
+    {
         wxLogWarning("Entity %lu, primitive %lu: The brush could not be created from its planes.", EntityNr, BrushNr);
+    }
 
     wxASSERT(Brush->IsValid());
     return Brush;
