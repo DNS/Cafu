@@ -219,9 +219,6 @@ int AppCaWE::OnExit()
     delete m_FileConfig;
     m_FileConfig=NULL;
 
-    // TODO: delete cf::FileSys::FileMan;   // Shoud have   cf::FileSys::FileMan=new cf::FileSys::FileManImplT;   in OnInit().
-    cf::FileSys::FileMan=NULL;
-
     ConsoleInterpreter=NULL;     // This is very important, to make sure that no ConFuncT or ConVarT dtor accesses the ConsoleInterpreter that might already have been destroyed then.
 
     // Shutdown the global cursor manager instance.
