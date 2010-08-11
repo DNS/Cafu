@@ -67,9 +67,18 @@ namespace cf
 }
 
 
-/// Each module (the exe and each dll) needs a pointer to the application-wide global ConsoleI implementation.
-/// For the exe, which hosts the implementation of the ConsoleI, the pointer is defined and set by linking in e.g. the ConsoleStdout.cpp file.
-/// Each dll that uses the console has to provide a definition by itself, and initialize it to point to the exe's console instance.
+/// A global pointer to an implementation of the ConsoleI interface.
+///
+/// Each module (exe or dll) that uses this pointer must somewhere provide exactly one definition for it (none is provided by the Console library).
+/// That is, typically the main.cpp or similar file of each exe and dll must contain a line like
+///     cf::ConsoleI* Console=NULL;
+/// or else the module will not link successfully due to an undefined symbol.
+///
+/// Exe files will then want to reset this pointer to an instance of e.g. a ConsoleStdoutT during their initialization
+/// e.g. by code like:   Console=new cf::ConsoleStdoutT;
+///
+/// Dlls typically get one of their init functions called immediately after they have been loaded.
+/// By doing so, the exe passes a pointer to its above instance to the dll, which in turn copies it to its Console variable.
 extern cf::ConsoleI* Console;
 
 #endif

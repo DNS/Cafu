@@ -71,6 +71,8 @@ cf::FileSys::FileManI* cf::FileSys::FileMan=&FileManImpl;
 static cf::ClipSys::CollModelManImplT CCM;
 cf::ClipSys::CollModelManI* cf::ClipSys::CollModelMan=&CCM;
 
+ConsoleInterpreterI* ConsoleInterpreter=NULL;
+MaterialManagerI*    MaterialManager   =NULL;
 cf::GuiSys::GuiManI* cf::GuiSys::GuiMan=NULL;
 
 

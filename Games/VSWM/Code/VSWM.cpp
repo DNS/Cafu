@@ -250,6 +250,7 @@ unsigned long BaseEntityT::GetTypeNr() const
 // In future implementations I'll possibly change this and load and init the DLL only once, even before the client or server gets instantiated.
 SingleOpenGLWindowT*   SingleOpenGLWindow=NULL;
 cf::GuiSys::GuiManI*   cf::GuiSys::GuiMan=NULL;     // Define the global GuiMan pointer instance -- see GuiMan.hpp for more details.
+MaterialManagerI*      MaterialManager   =NULL;
 cf::ConsoleI*          Console=NULL;
 ConsoleInterpreterI*   ConsoleInterpreter=NULL;
 cf::FileSys::FileManI* cf::FileSys::FileMan=NULL;

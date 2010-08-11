@@ -93,11 +93,13 @@ class SoundSysI;
 // Under Linux (where DLLs are shared objects), these all resolve to their counterparts in the main executable.
 SingleOpenGLWindowT*   SingleOpenGLWindow=NULL;
 cf::GuiSys::GuiManI*   cf::GuiSys::GuiMan=NULL;     // Define the global GuiMan pointer instance -- see GuiMan.hpp for more details.
+MaterialManagerI*      MaterialManager   =NULL;
 cf::ConsoleI*          Console=NULL;
 ConsoleInterpreterI*   ConsoleInterpreter=NULL;
 cf::FileSys::FileManI* cf::FileSys::FileMan=NULL;
 cf::ClipSys::CollModelManI* cf::ClipSys::CollModelMan=NULL;
 SoundSysI*             SoundSystem=NULL;
+SoundShaderManagerI*   SoundShaderManager=NULL;
 #endif
 
 
