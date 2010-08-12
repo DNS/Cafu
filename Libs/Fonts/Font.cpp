@@ -35,7 +35,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Mesh.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"
-#include "OpenGL/OpenGLWindow.hpp"
 
 #if defined(_WIN32)
     #if defined(_MSC_VER)
@@ -75,7 +74,7 @@ FontT& FontT::operator = (const FontT& Other)
 }
 
 
-void FontT::Print(int PosX, int PosY, unsigned long Color, const char* PrintString, ...)
+void FontT::Print(int PosX, int PosY, float FrameWidth, float FrameHeight, unsigned long Color, const char* PrintString, ...)
 {
     if (!PrintString) return;
 
@@ -86,20 +85,20 @@ void FontT::Print(int PosX, int PosY, unsigned long Color, const char* PrintStri
         vsnprintf(PrintBuffer, 256, PrintString, ArgList);
     va_end(ArgList);
 
-    AccPrintBegin();
+    AccPrintBegin(FrameWidth, FrameHeight);
     AccPrint(PosX, PosY, Color, PrintBuffer);
     AccPrintEnd();
 }
 
 
-void FontT::AccPrintBegin()
+void FontT::AccPrintBegin(float FrameWidth, float FrameHeight)
 {
     // Save the current matrices.
     MatSys::Renderer->PushMatrix(MatSys::RendererI::PROJECTION    );
     MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
     MatSys::Renderer->PushMatrix(MatSys::RendererI::WORLD_TO_VIEW );
 
-    MatSys::Renderer->SetMatrix(MatSys::RendererI::PROJECTION,     MatrixT::GetProjOrthoMatrix(0.0f, float(SingleOpenGLWindow->GetWidth()), float(SingleOpenGLWindow->GetHeight()), 0.0f, -1.0f, 1.0f));
+    MatSys::Renderer->SetMatrix(MatSys::RendererI::PROJECTION,     MatrixT::GetProjOrthoMatrix(0.0f, FrameWidth, FrameHeight, 0.0f, -1.0f, 1.0f));
  // MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());      // Set below, in AccPrint().
     MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,  MatrixT());
 }

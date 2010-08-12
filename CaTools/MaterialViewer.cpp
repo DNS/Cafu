@@ -503,7 +503,7 @@ int main(int ArgC, const char* ArgV[])
             }
 
 
-            MyFont->Print(SingleOpenGLWindow->GetWidth()-100, SingleOpenGLWindow->GetHeight()-18, 0x00FFFFFF, "%5.1f FPS", 1.0/DeltaTime);
+            MyFont->Print(SingleOpenGLWindow->GetWidth()-100, SingleOpenGLWindow->GetHeight()-18, float(SingleOpenGLWindow->GetWidth()), float(SingleOpenGLWindow->GetHeight()), 0x00FFFFFF, "%5.1f FPS", 1.0/DeltaTime);
         }
         MatSys::Renderer->EndFrame();
         SingleOpenGLWindow->SwapBuffers();

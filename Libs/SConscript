@@ -24,22 +24,25 @@ env.StaticLibrary(
 
 
 
-if sys.platform=="win32":
-    Win32Objects=env.Object("DirectX/DirectInput.cpp", CPPPATH=env['CPPPATH']+["#/ExtLibs/DirectX7/include"])
-else:
-    Win32Objects=[]
-
 env.StaticLibrary(
     target="cfsCoreLib",
     source=Split("""ClipSys/CollisionModel_static.cpp ClipSys/CollisionModel_static_BulletAdapter.cpp ClipSys/CollisionModelMan_impl.cpp
                     ConsoleCommands/ConsoleInterpreterImpl.cpp
                     GuiSys/ConsoleByWindow.cpp GuiSys/Coroutines.cpp GuiSys/InitWindowTypes.cpp GuiSys/GuiImpl.cpp GuiSys/GuiManImpl.cpp
                     GuiSys/Window.cpp GuiSys/WindowCreateParams.cpp GuiSys/WindowChoice.cpp GuiSys/WindowEdit.cpp GuiSys/WindowListBox.cpp GuiSys/WindowModel.cpp GuiSys/WindowPtr.cpp GuiSys/EditorData.cpp
-                    FileSys/FileManImpl.cpp FileSys/FileSys_LocalPath.cpp FileSys/FileSys_ZipArchive_GV.cpp FileSys/File_local.cpp FileSys/File_memory.cpp FileSys/Password.cpp""") +
-           env.Object("OpenGL/OpenGLWindow.cpp", CPPPATH=env['CPPPATH']+["#/ExtLibs/DirectX7/include"]) +
-           Win32Objects,
+                    FileSys/FileManImpl.cpp FileSys/FileSys_LocalPath.cpp FileSys/FileSys_ZipArchive_GV.cpp FileSys/File_local.cpp FileSys/File_memory.cpp FileSys/Password.cpp"""),
     CPPPATH=env['CPPPATH']+["#/ExtLibs/bullet/src",    # For the BulletAdapterT classes.
                             "#/ExtLibs/lua/src", "#/ExtLibs/zlib"])
+
+
+
+# This library is obsolete, and only used for our legacy programs in CaTools.
+if sys.platform=="win32":
+    env.StaticLibrary(target="cfsOpenGL",
+        source=["OpenGL/OpenGLWindow.cpp", "DirectX/DirectInput.cpp"],
+        CPPPATH=env['CPPPATH']+["#/ExtLibs/DirectX7/include"])
+else:
+    env.StaticLibrary(target="cfsOpenGL", source="OpenGL/OpenGLWindow.cpp")
 
 
 

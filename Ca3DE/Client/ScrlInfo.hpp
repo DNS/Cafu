@@ -49,7 +49,7 @@ class ScrollInfoT
 
     ScrollInfoT();
     void Print(const char* PrintString, ...);
-    void Draw(FontT& Font, unsigned long PosX, unsigned long PosY) const;
+    void Draw(FontT& Font, unsigned long PosX, unsigned long PosY, float FrameWidth, float FrameHeight) const;
     void AdvanceTime(float FrameTime);
 };
 

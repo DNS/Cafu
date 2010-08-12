@@ -12,7 +12,6 @@
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "MaterialSystem/TextureMap.hpp"
-#include "OpenGL/OpenGLWindow.hpp"
 
 #include "EntityCreateParams.hpp"
 #include "TypeSys.hpp"
@@ -248,16 +247,14 @@ unsigned long BaseEntityT::GetTypeNr() const
 // Therefore, it may happen that InitInterfaces() is called *many* times, namely on each world change once by the server and once
 // by the client. The parameters to this function however are always non-volatile, they don't change over multiple calls.
 // In future implementations I'll possibly change this and load and init the DLL only once, even before the client or server gets instantiated.
-SingleOpenGLWindowT*   SingleOpenGLWindow=NULL;
 cf::GuiSys::GuiManI*   cf::GuiSys::GuiMan=NULL;     // Define the global GuiMan pointer instance -- see GuiMan.hpp for more details.
 MaterialManagerI*      MaterialManager   =NULL;
 cf::ConsoleI*          Console=NULL;
 ConsoleInterpreterI*   ConsoleInterpreter=NULL;
 cf::FileSys::FileManI* cf::FileSys::FileMan=NULL;
 
-DLL_EXPORT void __stdcall InitInterfaces(SingleOpenGLWindowT* SingleWin, MatSys::RendererI* Renderer, MatSys::TextureMapManagerI* TexMapMan, MaterialManagerI* MatMan, cf::GuiSys::GuiManI* GuiMan_, cf::ConsoleI* Console_, ConsoleInterpreterI* ConInterpreter_)
+DLL_EXPORT void __stdcall InitInterfaces(MatSys::RendererI* Renderer, MatSys::TextureMapManagerI* TexMapMan, MaterialManagerI* MatMan, cf::GuiSys::GuiManI* GuiMan_, cf::ConsoleI* Console_, ConsoleInterpreterI* ConInterpreter_)
 {
-    SingleOpenGLWindow       =SingleWin;
     MatSys::Renderer         =Renderer;
     MatSys::TextureMapManager=TexMapMan;
     MaterialManager          =MatMan;

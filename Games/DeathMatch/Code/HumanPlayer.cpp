@@ -1023,11 +1023,11 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
             switch (State.StateOfExistance)
             {
                 case StateOfExistance_Dead:
-                    HUD_Font1.Print(50, SingleOpenGLWindow->GetHeight()/2-4, 0x00FF0000, "You're dead.");
+                    HUD_Font1.Print(50, 1024/2-4, 800.0f, 600.0f, 0x00FF0000, "You're dead.");
                     break;
 
                 case StateOfExistance_FrozenSpectator:
-                    HUD_Font1.Print(50, SingleOpenGLWindow->GetHeight()/2+16, 0x00FF0000, "Press FIRE (left mouse button) to respawn!");
+                    HUD_Font1.Print(50, 1024/2+16, 800.0f, 600.0f, 0x00FF0000, "Press FIRE (left mouse button) to respawn!");
                     break;
             }
 
