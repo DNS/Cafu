@@ -26,13 +26,13 @@ from SCons.Script import *
 # Examples:
 #   # Print all valid values for MSVC_VERSION on your system.
 #   envCommon=Environment(MSVC_VERSION="XXX");
-#     
+#
 #   # Use Visual C/C++ version 9 (2008), Express Edition.
 #   envCommon=Environment(MSVC_VERSION="9.0Exp");
-#     
+#
 #   # Use the latest Visual C/C++ version for creating 32 bit binaries.
 #   envCommon=Environment(TARGET_ARCH="x86");
-#     
+#
 #   # Use Visual C/C++ version 9 (2008) for creating 32 bit binaries.
 #   envCommon=Environment(MSVC_VERSION="9.0", TARGET_ARCH="x86");
 #
@@ -49,11 +49,3 @@ envCommon=Environment();
 # This can be overridden at the command line via the "bv" parameter.
 # Example: scons -Q bv=dpr
 buildVariants="dr";
-
-
-# These settings specify where the wxWidgets toolkit is found under Windows and
-# Linux. If you followed the instructions in the Cafu documentation at
-# http://www.cafu.de/wiki/, the given default value should be OK for both
-# wxMSW (Windows) and wxGTK (Linux), so there is no need to change it.
-wxMSW_Path="#/ExtLibs/wxWidgets";     # The given value should be OK.
-wxGTK_Path="#/ExtLibs/wxWidgets";     # The given value should be OK.
