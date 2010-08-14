@@ -315,3 +315,41 @@ MapFileEntityT::MapFileEntityT(unsigned long Index, TextParserT& TP)
         }
     }
 }
+
+
+static void MapFileVersionError(const std::string& Msg)
+{
+    Console->Print("Bad map file version: Expected 13, "+Msg+".\n");
+    Console->Print("To fix this, you can load your cmap file into CaWE and re-save it.\n");
+    Console->Print("This will automatically update your file to the required version!\n");
+
+    Console->Warning("Bad map file version: Expected 13, "+Msg+".\n");
+    throw TextParserT::ParseError();
+}
+
+
+void cf::MapFileReadHeader(TextParserT& TP)
+{
+    if (TP.IsAtEOF())
+    {
+        Console->Warning("Unable to open map file.\n");
+        throw TextParserT::ParseError();
+    }
+
+    if (TP.PeekNextToken()!="Version")
+        MapFileVersionError("but could not find the \"Version\" keyword");
+
+    TP.AssertAndSkipToken("Version");
+    const std::string Version=TP.GetNextToken();
+
+    if (Version!="13")
+        MapFileVersionError("got "+Version);
+
+    // Skip any group definitions.
+    while (TP.PeekNextToken()=="GroupDef")
+    {
+        // Example line:
+        //   GroupDef 0 "control room" "rgb(189, 206, 184)" 1 1 0
+        for (unsigned int TokenNr=0; TokenNr<7; TokenNr++) TP.GetNextToken();
+    }
+}

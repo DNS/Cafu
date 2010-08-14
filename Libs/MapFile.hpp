@@ -178,6 +178,10 @@ namespace cf
         ArrayT<MapFileModelT>              MFModels;
         std::map<std::string, std::string> MFProperties;
     };
+
+
+    /// @throws TextParserT::ParseError on problems (and writes additional diagnostics to the console).
+    void MapFileReadHeader(TextParserT& TP);
 }
 
 #endif

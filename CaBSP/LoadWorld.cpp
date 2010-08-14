@@ -260,34 +260,11 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, WorldT& W
 
     // Parse all map entities into the MFEntityList.
     ArrayT<MapFileEntityT> MFEntityList;
-
-    // Should change set of delimiters to "({})" later, when textures don't contain '{' characters anymore, or are quoted.
-    TextParserT TP(LoadName, "()");
-
-    if (TP.IsAtEOF()) Error("Unable to open map file.");
+    TextParserT            TP(LoadName, "({})");
 
     try
     {
-        TP.AssertAndSkipToken("Version");
-        const std::string Version=TP.GetNextToken();
-
-        if (Version!="13")
-        {
-            Console->Print("Bad map file version: Expected 13, got "+Version+".\n");
-            Console->Print("To fix this, you can load your cmap file into CaWE and re-save it.\n");
-            Console->Print("This will automatically update your file to the required version!\n");
-
-            Console->Warning("Bad map file version: Expected 13, got "+Version+".\n");
-            throw TextParserT::ParseError();
-        }
-
-        // Skip any group definitions.
-        while (TP.PeekNextToken()=="GroupDef")
-        {
-            // Example line:
-            //   GroupDef 0 "control room" "rgb(189, 206, 184)" 1 1 0
-            for (unsigned int TokenNr=0; TokenNr<7; TokenNr++) TP.GetNextToken();
-        }
+        MapFileReadHeader(TP);
 
         while (!TP.IsAtEOF())
         {
