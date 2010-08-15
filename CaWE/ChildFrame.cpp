@@ -458,16 +458,16 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
 
     wxToolBar* ToolbarTools=new wxToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_FLAT | wxTB_NODIVIDER);
     ToolbarTools->SetToolBitmapSize(wxSize(21, 18));
+
+    // Note that we cannot have separators between these tools, because they must all be in the same radio group.
     ToolbarTools->AddRadioTool(ID_MENU_TOOLS_TOOL_SELECTION,             "Selection",               wxBitmap("CaWE/res/Tool_Selection.png", wxBITMAP_TYPE_PNG),      wxNullBitmap, "Selection",             "Selection" );
     ToolbarTools->AddRadioTool(ID_MENU_TOOLS_TOOL_CAMERA,                "Camera",                  wxBitmap("CaWE/res/Tool_Camera.png", wxBITMAP_TYPE_PNG),         wxNullBitmap, "Camera"                 );
-    ToolbarTools->AddSeparator();
     ToolbarTools->AddRadioTool(ID_MENU_TOOLS_TOOL_NEWBRUSH,              "New Brush",               wxBitmap("CaWE/res/Tool_NewBrush.png", wxBITMAP_TYPE_PNG),       wxNullBitmap, "New Brush"              );
     ToolbarTools->AddRadioTool(ID_MENU_TOOLS_TOOL_NEWENTITY,             "New Entity",              wxBitmap("CaWE/res/Tool_NewEntity.png", wxBITMAP_TYPE_PNG),      wxNullBitmap, "New Entity"             );
     ToolbarTools->AddRadioTool(ID_MENU_TOOLS_TOOL_NEWBEZIERPATCH,        "New Bezier Patch",        wxBitmap("CaWE/res/Tool_NewBezierPatch.png", wxBITMAP_TYPE_PNG), wxNullBitmap, "New Bezier Patch"       );
     ToolbarTools->AddRadioTool(ID_MENU_TOOLS_TOOL_NEWTERRAIN,            "New Terrain",             wxBitmap("CaWE/res/Tool_NewTerrain.png", wxBITMAP_TYPE_PNG),     wxNullBitmap, "New Terrain"            );
     ToolbarTools->AddRadioTool(ID_MENU_TOOLS_TOOL_NEWLIGHT,              "New Light",               wxBitmap("CaWE/res/Tool_NewLight.png", wxBITMAP_TYPE_PNG),       wxNullBitmap, "New Light"              );
     ToolbarTools->AddRadioTool(ID_MENU_TOOLS_TOOL_NEWDECAL,              "New Decal",               wxBitmap("CaWE/res/Tool_NewDecal.png", wxBITMAP_TYPE_PNG),       wxNullBitmap, "New Decal"              );
-    ToolbarTools->AddSeparator();
     ToolbarTools->AddRadioTool(ID_MENU_TOOLS_TOOL_EDITSURFACEPROPERTIES, "Edit Surface Properties", wxBitmap("CaWE/res/Tool_EditSurfProps.png", wxBITMAP_TYPE_PNG),  wxNullBitmap, "Edit Surface Properties");
     ToolbarTools->AddRadioTool(ID_MENU_TOOLS_TOOL_TERRAINEDITOR,         "Edit Terrain",            wxBitmap("CaWE/res/Tool_EditTerrain.png", wxBITMAP_TYPE_PNG),    wxNullBitmap, "Edit Terrain"           );
     ToolbarTools->AddRadioTool(ID_MENU_TOOLS_TOOL_CLIP,                  "Clip Brushes",            wxBitmap("CaWE/res/Tool_Clip.png", wxBITMAP_TYPE_PNG),           wxNullBitmap, "Clip Brushes"           );
@@ -1133,24 +1133,17 @@ void ChildFrameT::OnMenuViewUpdate(wxUpdateUIEvent& UE)
 
 void ChildFrameT::OnMenuTools(wxCommandEvent& CE)
 {
-    switch (CE.GetId())
+    // Find the tool whose wxWidgets event ID matches CE.GetId().
+    const ArrayT<ToolT*>& Tools=m_ToolManager->GetTools();
+
+    for (unsigned long ToolNr=0; ToolNr<Tools.Size(); ToolNr++)
     {
-        case 0:
-        default:
+        ToolT* Tool=Tools[ToolNr];
+
+        if (Tool->GetWxEventID()==CE.GetId())
         {
-            // Find the tool whose wxWidgets event ID matches CE.GetId().
-            const ArrayT<ToolT*>& Tools=m_ToolManager->GetTools();
-
-            for (unsigned long ToolNr=0; ToolNr<Tools.Size(); ToolNr++)
-            {
-                ToolT* Tool=Tools[ToolNr];
-
-                if (Tool->GetWxEventID()==CE.GetId())
-                {
-                    m_ToolManager->SetActiveTool(Tool->GetType());
-                    break;
-                }
-            }
+            m_ToolManager->SetActiveTool(Tool->GetType());
+            break;
         }
     }
 }
@@ -1158,26 +1151,10 @@ void ChildFrameT::OnMenuTools(wxCommandEvent& CE)
 
 void ChildFrameT::OnMenuToolsUpdate(wxUpdateUIEvent& UE)
 {
-    switch (UE.GetId())
-    {
-        case 0:
-        default:
-        {
-            // Find the tool whose wxWidgets event ID matches UE.GetId().
-            const ArrayT<ToolT*>& Tools=m_ToolManager->GetTools();
+    const ToolT* ActiveTool=m_ToolManager->GetActiveTool();
 
-            for (unsigned long ToolNr=0; ToolNr<Tools.Size(); ToolNr++)
-            {
-                ToolT* Tool=Tools[ToolNr];
-
-                if (Tool->GetWxEventID()==UE.GetId())
-                {
-                    UE.Check(Tool->IsActiveTool());
-                    break;
-                }
-            }
-        }
-    }
+    if (ActiveTool && ActiveTool->GetWxEventID()==UE.GetId())
+        UE.Check(true);
 }
 
 

@@ -58,7 +58,7 @@ class ToolSelectionT : public ToolT, public ObserverT
     ~ToolSelectionT();
 
     // Implementations/overrides of ToolT methods.
-    int       GetWxEventID() { return ChildFrameT::ID_MENU_TOOLS_TOOL_SELECTION; }
+    int       GetWxEventID() const { return ChildFrameT::ID_MENU_TOOLS_TOOL_SELECTION; }
     wxWindow* GetOptionsBar();
     void      OnActivate(ToolT* OldTool);
     void      OnDeactivate(ToolT* NewTool);

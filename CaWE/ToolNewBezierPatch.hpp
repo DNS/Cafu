@@ -43,7 +43,7 @@ class ToolNewBezierPatchT : public ToolT
     ~ToolNewBezierPatchT();
 
     // Implementations/overrides of ToolT methods.
-    int       GetWxEventID() { return ChildFrameT::ID_MENU_TOOLS_TOOL_NEWBEZIERPATCH; }
+    int       GetWxEventID() const { return ChildFrameT::ID_MENU_TOOLS_TOOL_NEWBEZIERPATCH; }
     wxWindow* GetOptionsBar();
 
     bool OnKeyDown2D    (ViewWindow2DT& ViewWindow, wxKeyEvent&         KE);

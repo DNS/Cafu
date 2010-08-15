@@ -110,7 +110,7 @@ class ToolTerrainEditorT : public ToolT, public ObserverT
     void UpdateGaussWeights();
 
     // Implementations/overrides of ToolT methods.
-    int       GetWxEventID() { return ChildFrameT::ID_MENU_TOOLS_TOOL_TERRAINEDITOR; }
+    int       GetWxEventID() const { return ChildFrameT::ID_MENU_TOOLS_TOOL_TERRAINEDITOR; }
     wxWindow* GetOptionsBar();
     void      OnActivate(ToolT* OldTool);
     void      OnDeactivate(ToolT* NewTool);

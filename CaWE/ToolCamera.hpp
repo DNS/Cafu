@@ -49,7 +49,7 @@ class ToolCameraT : public ToolT
 
 
     // Implementations/overrides of ToolT methods.
-    int       GetWxEventID() { return ChildFrameT::ID_MENU_TOOLS_TOOL_CAMERA; }
+    int       GetWxEventID() const { return ChildFrameT::ID_MENU_TOOLS_TOOL_CAMERA; }
     wxWindow* GetOptionsBar();
 
     bool OnKeyDown2D   (ViewWindow2DT& ViewWindow, wxKeyEvent&   KE);

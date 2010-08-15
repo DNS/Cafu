@@ -76,7 +76,7 @@ class ToolT
     virtual ~ToolT() { }
 
     /// Returns the ID of the wxWidgets event (menu selection or toolbar button click) that is associated with activating this tool.
-    virtual int GetWxEventID()=0;
+    virtual int GetWxEventID() const=0;
 
     /// Returns the options bar window associated with this tool. NULL if no options bar has been assigned.
     virtual wxWindow* GetOptionsBar() { return NULL; }

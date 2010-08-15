@@ -60,7 +60,7 @@ class ToolMorphT : public ToolT, public ObserverT
 
 
     // Implementations/overrides of ToolT methods.
-    int       GetWxEventID() { return ChildFrameT::ID_MENU_TOOLS_TOOL_EDITVERTICES; }
+    int       GetWxEventID() const { return ChildFrameT::ID_MENU_TOOLS_TOOL_EDITVERTICES; }
     wxWindow* GetOptionsBar();
     void      OnActivate(ToolT* OldTool);
     void      OnDeactivate(ToolT* NewTool);
