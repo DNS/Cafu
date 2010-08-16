@@ -173,33 +173,18 @@ void GuiManImplT::RenderAll()
         StartGuiNr--;
     }
 
-    // Render the GUIs in back-to-front order.
+    // We assume that the caller doesn't expect us to preserve (push/pop) the matrices...
+    const float zNear=0.0f;
+    const float zFar =1.0f;
+    MatSys::Renderer->SetMatrix(MatSys::RendererI::PROJECTION,     MatrixT::GetProjOrthoMatrix(0.0f, VIRTUAL_SCREEN_SIZE_X, VIRTUAL_SCREEN_SIZE_Y, 0.0f, zNear, zFar));
+    MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
+    MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,  MatrixT());
+
+    // Render the active GUIs in back-to-front order.
     for (unsigned long GuiNr=StartGuiNr; GuiNr<Guis.Size(); GuiNr++)
     {
-        // TODO:
-        // 1) Remove the next (no-comment-) line.
-        // 2) Move the matrix push, set and pop code out of this loop!
-        // 3) Fix the clients ClientWindowT::Render() method by fixing the matrix setup code inside it
-        //    (it probably belongs into the world rendering method anyway)!!
-        if (!Guis[GuiNr]->GetIsActive()) continue;
-
-        // Setup the matrices.
-        MatSys::Renderer->PushMatrix(MatSys::RendererI::PROJECTION    );
-        MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
-        MatSys::Renderer->PushMatrix(MatSys::RendererI::WORLD_TO_VIEW );
-
-        const float zNear=0.0f;
-        const float zFar =1.0f;
-        MatSys::Renderer->SetMatrix(MatSys::RendererI::PROJECTION,     MatrixT::GetProjOrthoMatrix(0.0f, VIRTUAL_SCREEN_SIZE_X, VIRTUAL_SCREEN_SIZE_Y, 0.0f, zNear, zFar));
-        MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
-        MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,  MatrixT());
-
-        if (Guis[GuiNr]->GetIsActive()) Guis[GuiNr]->Render();
-
-        // Restore the previously active matrices.
-        MatSys::Renderer->PopMatrix(MatSys::RendererI::PROJECTION    );
-        MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
-        MatSys::Renderer->PopMatrix(MatSys::RendererI::WORLD_TO_VIEW );
+        if (Guis[GuiNr]->GetIsActive())
+            Guis[GuiNr]->Render();
     }
 }
 

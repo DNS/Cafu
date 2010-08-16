@@ -58,11 +58,11 @@ class MainCanvasT : public wxGLCanvas
     enum InitStateT { INIT_REQUIRED, INIT_FAILED, INIT_SUCCESS };
 
     void Initialize();
+    void TakeScreenshot() const;
 
     void OnPaint(wxPaintEvent& PE);
     void OnSize(wxSizeEvent& SE);
     void OnIdle(wxIdleEvent& IE);   ///< The idle event handler runs one frame of the Cafu Engine (client and/or server).
- // void OnShow(wxShowEvent& SE);   ///< Event handler for "has been shown" events.
 
     void OnMouseMove (wxMouseEvent& ME);
     void OnMouseWheel(wxMouseEvent& ME);

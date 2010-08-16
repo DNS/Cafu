@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Client/ClientWindow.hpp"
 #include "Server/Server.hpp"
 
+#include "Bitmap/Bitmap.hpp"
 #include "ClipSys/CollisionModelMan.hpp"
 #include "ConsoleCommands/Console.hpp"
 #include "ConsoleCommands/ConsoleInterpreter.hpp"
@@ -69,7 +70,6 @@ BEGIN_EVENT_TABLE(MainCanvasT, wxGLCanvas)
     EVT_PAINT(MainCanvasT::OnPaint)
     EVT_IDLE(MainCanvasT::OnIdle)
     EVT_SIZE(MainCanvasT::OnSize)
-    // EVT_SHOW(MainCanvasT::OnShow)
 
     EVT_MOTION    (MainCanvasT::OnMouseMove )
     EVT_MOUSEWHEEL(MainCanvasT::OnMouseWheel)
@@ -432,11 +432,77 @@ void MainCanvasT::Initialize()
 }
 
 
+static const char* ScreenShotSuffixTypes[] = { "jpg", "png", "bmp", NULL };
+static ConVarT ScreenShotSuffix("screenSuffix", "jpg", ConVarT::FLAG_MAIN_EXE, "The suffix to be used for screen-shot image files. Only \"jpg\", \"png\" and \"bmp\" are allowed.", ScreenShotSuffixTypes);
+
+
+void MainCanvasT::TakeScreenshot() const
+{
+    const unsigned int      Width =GetClientSize().GetWidth();
+    const unsigned int      Height=GetClientSize().GetHeight();
+    static ArrayT<uint32_t> FrameBuffer;
+
+    FrameBuffer.Overwrite();
+    FrameBuffer.PushBackEmpty(Width*Height);
+
+    // Read the pixels fromt the OpenGL back buffer into FrameBuffer.
+    // Note that the first two parameters (0, 0) specify the left BOTTOM corner of the desired rectangle!
+    glReadPixels(0, 0, Width, Height, GL_RGBA, GL_UNSIGNED_BYTE, &FrameBuffer[0]);
+
+    // As mentioned above is the data in the FrameBuffer bottom-up.
+    // Thus now swap all lines (vertical mirroring).
+    for (unsigned int y=0; y<Height/2; y++)
+    {
+        uint32_t* UpperRow=&FrameBuffer[0]+        y   *Width;
+        uint32_t* LowerRow=&FrameBuffer[0]+(Height-y-1)*Width;
+
+        for (unsigned int x=0; x<Width; x++)
+        {
+            const uint32_t Swap=*UpperRow;
+
+            *UpperRow=*LowerRow;
+            *LowerRow=Swap;
+
+            UpperRow++;
+            LowerRow++;
+        }
+    }
+
+    // Find the next free image name and save the file.
+    for (unsigned int Nr=0; Nr<100000; Nr++)
+    {
+        const wxString FileName=wxString::Format("pic%04u", Nr) + "." + ScreenShotSuffix.GetValueString();
+
+        if (!wxFileExists(FileName))
+        {
+            if (BitmapT(Width, Height, &FrameBuffer[0]).SaveToDisk(FileName))
+            {
+                Console->Print(std::string("Screenshot \"")+FileName.ToStdString()+"\" saved.\n");
+            }
+            else
+            {
+                Console->Warning(std::string("Screenshot \"")+FileName.ToStdString()+"\" could not be saved.\n");
+            }
+            return;
+        }
+    }
+}
+
+
 void MainCanvasT::OnPaint(wxPaintEvent& PE)
 {
     wxPaintDC dc(this);     // It is VERY important not to omit this, or otherwise everything goes havoc.
 
-    if (m_InitState==INIT_REQUIRED) Initialize();
+    if (m_InitState==INIT_REQUIRED)
+    {
+        // This code is in this place due to a few peculiarities of OpenGL under GTK that do not exist under MSW:
+        //   - An OpenGL context can only be made current with a canvas that is shown on the screen.
+        //   - Relying on EVT_SHOW however is not a good approach, see the discussions at
+        //     <http://thread.gmane.org/gmane.comp.lib.wxwidgets.general/68490> and
+        //     <http://thread.gmane.org/gmane.comp.lib.wxwidgets.general/70607> for details.
+        // Consequently, the first and best opportunity for initialization is here.
+        Initialize();
+    }
 }
 
 
@@ -456,13 +522,13 @@ void MainCanvasT::OnIdle(wxIdleEvent& IE)
     IE.RequestMore();
 
     // Beende das Programm, wenn das letzte aktive GUI geschlossen wurde.
-    // if (cf::GuiSys::GuiMan->GetNumberOfActiveGUIs()==0) Close();
+    // if (cf::GuiSys::GuiMan->GetNumberOfActiveGUIs()==0) m_Parent->Close();
 
     static ConVarT quit("quit", false, ConVarT::FLAG_MAIN_EXE, "The program quits if this variable is set to 1 (true).");
     if (quit.GetValueBool())
     {
         quit.SetValue(false);   // Immediately reset the value, so that we're able to restart the game from a loop that governs the master loop...
-        Close();
+        m_Parent->Close();
     }
 
 
@@ -502,21 +568,6 @@ void MainCanvasT::OnIdle(wxIdleEvent& IE)
     m_Client->MainLoop(FrameTimeF);
     if (m_Server) m_Server->MainLoop();
 }
-
-
-// void MainCanvasT::OnShow(wxShowEvent& SE)
-// {
-//     wxMessageBox(wxString::Format("%i %i", SE.IsShown(), m_IsInited));
-//     if (SE.IsShown() && !m_IsInited)
-//     {
-//         // This code is in this place due to a few peculiarities of OpenGL under GTK that do not exist under MSW:
-//         //   - First, an OpenGL context can only be made current with a canvas that is shown on the screen.
-//         //   - Second, calling Show() in the ctor above doesn't show the frame immediately - that requires
-//         //     getting back to the main event loop first.
-//         // Consequently, the first and best opportunity for initializing the MatSys is here.
-//         Initialize();
-//     }
-// }
 
 
 void MainCanvasT::OnMouseMove(wxMouseEvent& ME)
@@ -744,6 +795,48 @@ static const KeyCodePairT KeyCodes[]=
 
 void MainCanvasT::OnKeyDown(wxKeyEvent& KE)
 {
+    if (m_InitState!=INIT_SUCCESS) return;
+
+    switch (KE.GetKeyCode())
+    {
+        case WXK_F1:
+        {
+            // Activate the in-game console GUI (it's "F1" now, not CK_GRAVE ("^", accent grave) any longer).
+            extern ConVarT    Options_ServerGameName;
+            cf::GuiSys::GuiI* ConsoleGui=cf::GuiSys::GuiMan->Find("Games/"+Options_ServerGameName.GetValueString()+"/GUIs/Console.cgui");
+
+            // ConsoleGui should be the same as in Initialize(), but could be NULL on file not found, parse error, etc.
+            if (ConsoleGui!=NULL && !ConsoleGui->GetIsActive())
+            {
+                ConsoleGui->Activate();
+                cf::GuiSys::GuiMan->BringToFront(ConsoleGui);
+
+                static bool InitialHelpMsgPrinted=false;
+
+                if (!InitialHelpMsgPrinted)
+                {
+                    Console->Print("\n");
+                    Console->Print("Welcome to the Cafu console!\n");
+                    Console->Print("Enter   help()   to obtain more information.\n");
+                    Console->Print("\n");
+                    InitialHelpMsgPrinted=true;
+                }
+
+                // Handled the key.
+                return;
+            }
+
+            // Let the active GUI handle the key below (e.g. for closing the console again).
+            break;
+        }
+
+        case WXK_F5:
+        {
+            TakeScreenshot();
+            return;
+        }
+    }
+
     // Look for the pressed keys keycode in the table and translate it to a CaKeyCode if found.
     for (int KeyCodeNr=0; KeyCodes[KeyCodeNr].wxKC!=0; KeyCodeNr++)
     {
@@ -755,7 +848,8 @@ void MainCanvasT::OnKeyDown(wxKeyEvent& KE)
             KeyboardEvent.Key =KeyCodes[KeyCodeNr].CaKC;
 
             cf::GuiSys::GuiMan->ProcessDeviceEvent(KeyboardEvent);
-            return;
+            // We should probably return here if the GuiMan handled the key, break (only when unhandled) for calling KE.Skip() otherwise.
+            break;
         }
     }
 
@@ -765,6 +859,8 @@ void MainCanvasT::OnKeyDown(wxKeyEvent& KE)
 
 void MainCanvasT::OnKeyUp(wxKeyEvent& KE)
 {
+    if (m_InitState!=INIT_SUCCESS) return;
+
     // Look for the released keys keycode in the table and translate it to a CaKeyCode if found.
     for (int KeyCodeNr=0; KeyCodes[KeyCodeNr].wxKC!=0; KeyCodeNr++)
     {
@@ -786,6 +882,8 @@ void MainCanvasT::OnKeyUp(wxKeyEvent& KE)
 
 void MainCanvasT::OnKeyChar(wxKeyEvent& KE)
 {
+    if (m_InitState!=INIT_SUCCESS) return;
+
     CaKeyboardEventT KeyboardEvent;
 
     KeyboardEvent.Type=CaKeyboardEventT::CKE_CHAR;

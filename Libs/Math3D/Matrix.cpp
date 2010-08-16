@@ -65,6 +65,19 @@ MatrixT MatrixT::GetProjFrustumMatrix(float left, float right, float bottom, flo
 
 MatrixT MatrixT::GetProjPerspectiveMatrix(float fovY, float aspect, float zNear, float zFar)
 {
+    if (zFar<=zNear)
+    {
+        // If zFar <= zNear, the far plane is assumed to be at infinity (a useful special case for stencil shadow projections).
+        // This code is also used in <http://trac.cafu.de/browser/cafu/trunk/Libs/OpenGL/OpenGLWindow.cpp?rev=100#L137>.
+        const float cotanFovY=1.0f/tan(fovY*3.14159265358979323846f/360.0f);
+
+        return MatrixT(
+            cotanFovY/aspect,      0.0f,  0.0f,        0.0f,
+                        0.0f, cotanFovY,  0.0f,        0.0f,
+                        0.0f,      0.0f, -1.0f, -2.0f*zNear,
+                        0.0f,      0.0f, -1.0f,        0.0f);
+    }
+
     const float ymax= zNear*float(tan(fovY*3.14159265358979323846f/360.0f));
     const float ymin=-ymax;
     const float xmin= ymin*aspect;

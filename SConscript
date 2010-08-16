@@ -50,7 +50,7 @@ if sys.platform=="win32":
     envTools.Append(LIBS=Split("SceneGraph MatSys cfsCoreLib cfsLib ClipSys cfs_png cfs_jpeg bulletcollision lua minizip lightwave z")
                        + Split("gdi32 glu32 opengl32 user32") + ['cfsOpenGL', 'dinput', 'dxguid'])
 elif sys.platform=="linux2":
-    # envTools.Append(LINKFLAGS = ['-Wl,--export-dynamic'])     # Not needed any more, .so libs now link to the required .a libs directly, just as under Windows.
+    # envTools.Append(LINKFLAGS=['-Wl,--export-dynamic'])       # Not needed any more, .so libs now link to the required .a libs directly, just as under Windows.
     # GLU is needed for the TerrainViewerOld *and* for e.g. gluBuild2DMipmaps() in the renderers...
     envTools.Append(CPPPATH=['/usr/include/freetype2'])         # As of 2009-09-10, this line is to become unnecessary in the future, see /usr/include/ftbuild.h for details.
     envTools.Append(LIBS=Split("SceneGraph MatSys cfsOpenGL cfsLib cfsCoreLib cfsLib ClipSys cfs_png cfs_jpeg bulletcollision lua minizip lightwave z")
@@ -81,7 +81,8 @@ wxEnv = env.Clone()
 if sys.platform=="win32":
     wxPath="#/ExtLibs/wxWidgets";
 
-    wxEnv.Append(CPPPATH = [wxPath+'/include'])
+    wxEnv.Append(CPPPATH=[wxPath+'/include'])
+    wxEnv.Append(LIBS=Split("advapi32 comctl32 comdlg32 gdi32 ole32 oleaut32 opengl32 rpcrt4 shell32 user32 winspool wsock32"))
 
     # TODO: Move this into the SConstruct file (including the wx include path above).
     #   Note that we only (want to) determine the right library path matching the used compiler here.
@@ -95,18 +96,18 @@ if sys.platform=="win32":
 
     LibPath += "_lib"
 
-    wxEnv.Append(LIBPATH = [wxPath+LibPath])
+    wxEnv.Append(LIBPATH=[wxPath+LibPath])
 
     if buildMode=="dbg":
-        wxEnv.Append(CPPPATH = [wxPath+LibPath+"/mswud"])
-        wxEnv.Append(LIBS = Split("wxbase29ud wxbase29ud_net wxjpegd wxmsw29ud_adv wxmsw29ud_core wxmsw29ud_gl wxmsw29ud_aui wxmsw29ud_propgrid wxregexud"))
+        wxEnv.Append(CPPPATH=[wxPath+LibPath+"/mswud"])
+        wxEnv.Append(LIBS=Split("wxbase29ud wxbase29ud_net wxjpegd wxmsw29ud_adv wxmsw29ud_core wxmsw29ud_gl wxmsw29ud_aui wxmsw29ud_propgrid wxregexud"))
     else:
-        wxEnv.Append(CPPPATH = [wxPath+LibPath+"/mswu"])
-        wxEnv.Append(LIBS = Split("wxbase29u wxbase29u_net wxjpeg wxmsw29u_adv wxmsw29u_core wxmsw29u_gl wxmsw29u_aui wxmsw29u_propgrid wxregexu"))
+        wxEnv.Append(CPPPATH=[wxPath+LibPath+"/mswu"])
+        wxEnv.Append(LIBS=Split("wxbase29u wxbase29u_net wxjpeg wxmsw29u_adv wxmsw29u_core wxmsw29u_gl wxmsw29u_aui wxmsw29u_propgrid wxregexu"))
 
 elif sys.platform=="linux2":
     # Geht es auch ohne die naechste Zeile? Woher weiss es, dass es freetype linken soll???
-    wxEnv.Append(LIBS = Split("wx_gtk2u_gl-2.9 wx_gtk2u_aui-2.9 wx_gtk2u_propgrid-2.9 wx_gtk2u_xrc-2.9 wx_gtk2u_qa-2.9 wx_gtk2u_html-2.9 wx_gtk2u_adv-2.9 wx_gtk2u_core-2.9 wx_baseu_xml-2.9 wx_baseu_net-2.9 wx_baseu-2.9"))
+    wxEnv.Append(LIBS=Split("wx_gtk2u_gl-2.9 wx_gtk2u_aui-2.9 wx_gtk2u_propgrid-2.9 wx_gtk2u_xrc-2.9 wx_gtk2u_qa-2.9 wx_gtk2u_html-2.9 wx_gtk2u_adv-2.9 wx_gtk2u_core-2.9 wx_baseu_xml-2.9 wx_baseu_net-2.9 wx_baseu-2.9"))
     wxEnv.ParseConfig(Dir("#/ExtLibs/wxWidgets").abspath + "/build-gtk/wx-config --cxxflags --libs std,gl")
 
 
@@ -116,15 +117,14 @@ envCafu.Append(CPPPATH=['ExtLibs/lua/src'])
 
 if sys.platform=="win32":
     envCafu.Append(LIBS=Split("SceneGraph MatSys SoundSys cfsLib cfsCoreLib cfs_png cfs_jpeg bulletcollision minizip z lua ClipSys GuiSysNullEditor"))
-    envCafu.Append(LIBS=Split("lightwave"))    # For the GuiSys::ModelWindowT class.
-    envCafu.Append(LIBS=Split("advapi32 comctl32 comdlg32 gdi32 ole32 oleaut32 opengl32 rpcrt4 shell32 user32 winspool wsock32"))
+    envCafu.Append(LIBS=Split("lightwave"))     # For the GuiSys::ModelWindowT class.
 
-    WinResource=envCafu.RES("Ca3DE/Cafu.rc")    # + envCafu.RES("Ca3DE/Dialog1.rc")
+    WinResource = envCafu.RES("Ca3DE/Cafu.rc")  # + envCafu.RES("Ca3DE/Dialog1.rc")
 
 elif sys.platform=="linux2":
     # -Wl,-rpath,.           is so that also the . directory is searched for dynamic libraries when they're opened.
     # -Wl,--export-dynamic   is so that the exe exports its symbols so that the MatSys, SoundSys and game .so libs can in turn resolve theirs.
-    envCafu.Append(LINKFLAGS = ['-Wl,-rpath,.', '-Wl,--export-dynamic'])
+    envCafu.Append(LINKFLAGS=['-Wl,-rpath,.', '-Wl,--export-dynamic'])
     envCafu.Append(LIBS=Split("MatSys SoundSys SceneGraph cfsLib cfsCoreLib cfs_png cfs_jpeg bulletdynamics bulletcollision bulletmath openal alut mpg123 ogg vorbis vorbisfile minizip z lua lightwave ClipSys GuiSysNullEditor"))
 
     # We need GLU for e.g. gluBuild2DMipmaps() in the renderers.
@@ -151,7 +151,7 @@ elif sys.platform=="linux2":
     # in order to make sure that the -fPIC can be handled correctly - otherwise we had to link .so libs with non-fPIC object files...
     envCafu.Append(LINKCOM=" -Wl,--allow-multiple-definition -Wl,--whole-archive -lcfsLib -lbulletdynamics -lbulletcollision -lbulletmath -lopenal -lalut -lmpg123 -logg -lvorbis -lvorbisfile -Wl,--no-whole-archive -llightwave -lz")
 
-    WinResource=[]
+    WinResource = []
 
 EngineCommonAndServerObjs = envCafu.StaticObject(Split("""Ca3DE/AppCafu.cpp Ca3DE/MainCanvas.cpp Ca3DE/MainFrame.cpp Ca3DE/ConDefs.cpp
     Ca3DE/Both/Ca3DEWorld.cpp Ca3DE/Both/EntityManager.cpp Ca3DE/Both/EngineEntity.cpp
@@ -165,22 +165,21 @@ envCafu.Program('Ca3DE/Cafu',
 
 envCaWE = wxEnv.Clone()
 envCaWE.Append(CPPPATH=['ExtLibs/lua/src', 'ExtLibs/noise/src'])
-envCaWE.Append(LIBS = Split("SceneGraph MatSys cfsCoreLib cfsLib ClipSys cfs_png cfs_jpeg bulletcollision noise lua minizip lightwave z"))
+envCaWE.Append(LIBS=Split("SceneGraph MatSys cfsCoreLib cfsLib ClipSys cfs_png cfs_jpeg bulletcollision noise lua minizip lightwave z"))
 
 if sys.platform=="win32":
     envCaWE.Append(CPPPATH=['ExtLibs/freetype/include'])    # Windows builds use our local copy, Linux builds (must) use the systems freetype library instead.
-    envCaWE.Append(LIBS = Split("freetype"))
-    envCaWE.Append(LIBS = Split("advapi32 comctl32 comdlg32 gdi32 ole32 oleaut32 opengl32 rpcrt4 shell32 user32 winspool wsock32"))
+    envCaWE.Append(LIBS=Split("freetype"))
 
-    WinResource=envCaWE.RES("CaWE/CaWE.rc")
+    WinResource = envCaWE.RES("CaWE/CaWE.rc")
 
 elif sys.platform=="linux2":
-    envCaWE.Append(CPPPATH=['/usr/include/freetype2'])      # As of 2009-09-10, this line is to become unnecessary in the future, see /usr/include/ftbuild.h for details.
-    envCaWE.Append(LINKFLAGS = ['-Wl,--export-dynamic'])    # Need this so that the Renderer DLLs can have their unresolved symbols dynamically resolved at load time.
+    envCaWE.Append(CPPPATH=['/usr/include/freetype2'])  # As of 2009-09-10, this line is to become unnecessary in the future, see /usr/include/ftbuild.h for details.
+    envCaWE.Append(LINKFLAGS=['-Wl,--export-dynamic'])  # Need this so that the Renderer DLLs can have their unresolved symbols dynamically resolved at load time.
 
-    WinResource=[]
+    WinResource = []
 
-SourceFilesList=(Glob("CaWE/*.cpp")
+SourceFilesList = (Glob("CaWE/*.cpp")
     +Glob("CaWE/FontWizard/*.cpp")
     +Glob("CaWE/GuiEditor/*.cpp")+Glob("CaWE/GuiEditor/Commands/*.cpp")+Glob("CaWE/GuiEditor/EditorData/*.cpp")
     +Glob("CaWE/MapCommands/*.cpp")
