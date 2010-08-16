@@ -45,6 +45,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../Games/Game.hpp"
 #include "PlatformAux.hpp"
 
+#ifndef _WIN32
+#include <dlfcn.h>
+#define __stdcall
+#define GetProcAddress dlsym
+#define FreeLibrary dlclose
+#endif
+
 
 class SvGuiCallbT : public ServerT::GuiCallbackI
 {
@@ -558,7 +565,7 @@ void MainCanvasT::OnIdle(wxIdleEvent& IE)
     else
     {
         // The main window is minimized - give other applications a chance to run.
-        Sleep(5);
+        wxMilliSleep(5);
     }
 
     // Update the sound system (Reposition sound sources, update streams).
