@@ -17,13 +17,16 @@ from SCons.Script import *
 #   on your system.
 #
 # TARGET_ARCH sets the target architecture for the Visual C/C++ compiler.
-#   It it currently unused under Linux, where the host architecture determines
+#   It is currently unused under Linux, where the host architecture determines
 #   the target architecture. Valid values are:
 #         "x86" or "i386" for 32 bit builds,
 #         "x86_64" or "amd64" for 64 bit builds,
 #         "ia64" for Itanium builds.
 #
 # Examples:
+#   # Auto-detect the latest installed compiler, tools, and target platform.
+#   envCommon=Environment();
+#
 #   # Print all valid values for MSVC_VERSION on your system.
 #   envCommon=Environment(MSVC_VERSION="XXX");
 #
