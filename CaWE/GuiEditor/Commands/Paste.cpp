@@ -22,11 +22,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Paste.hpp"
-
 #include "../GuiDocument.hpp"
-
 #include "../EditorData/Window.hpp"
-
 #include "GuiSys/Window.hpp"
 
 #include <sstream>
@@ -77,34 +74,20 @@ CommandPasteT::~CommandPasteT()
 bool CommandPasteT::Do()
 {
     wxASSERT(!m_Done);
-
     if (m_Done) return false;
 
     for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
     {
         m_Windows[WinNr]->Parent=m_NewParent;
-
         m_NewParent->Children.PushBack(m_Windows[WinNr]);
 
-        // If current window name is not unique within the window structure it was pasted into,
-        // create a new unique name.
-        wxString CurrentWindowName=m_Windows[WinNr]->Name;
-        unsigned long Counter=1;
-
-        while (!(((EditorDataWindowT*)m_Windows[WinNr]->EditorData)->CheckNameUniqueness(m_Windows[WinNr]->Name)))
-        {
-            std::ostringstream NameStream;
-            NameStream << CurrentWindowName << "_" << Counter;
-            Counter++;
-
-            m_Windows[WinNr]->Name=NameStream.str();
-        }
+        // If the name of the window is not unique among its siblings, find a new unique name.
+        ((EditorDataWindowT*)m_Windows[WinNr]->EditorData)->RepairNameUniqueness();
     }
 
     m_GuiDocument->UpdateAllObservers_Created(m_Windows);
 
     m_Done=true;
-
     return true;
 }
 
@@ -112,7 +95,6 @@ bool CommandPasteT::Do()
 void CommandPasteT::Undo()
 {
     wxASSERT(m_Done);
-
     if (!m_Done) return;
 
     for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)

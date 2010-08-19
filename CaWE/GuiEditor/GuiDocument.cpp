@@ -60,6 +60,17 @@ GuiDocumentT::GuiDocumentT(GameConfigT* GameConfig, const wxString& GuiInitFileN
         const std::string    gifn(GuiInitFileName);
         cf::GuiSys::GuiImplT Gui(gifn);
 
+        if (Gui.GetScriptInitResult()!="")
+        {
+            // GuiImplT::InitErrorT excecptions are caught in the caller code.
+            // Here we handle the case that initializing the GUI succeeded "halfway".
+            wxMessageBox("GUI file "+GuiInitFileName+" was loaded, but errors occurred:\n\n"+
+                         Gui.GetScriptInitResult()+"\n\n"+
+                         "You may choose to ignore this error and proceed,\n"+
+                         "but it is probably better to edit the file and manually fix the problem first.",
+                         "GUI initialization warning", wxOK | wxICON_EXCLAMATION);
+        }
+
         m_GuiProperties=GuiPropertiesT(Gui);
 
         // Clone root window and all of its children.
@@ -158,6 +169,24 @@ void GuiDocumentT::GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials)
 }
 
 
+// Recursively makes sure that the children of each window have unique names.
+// Normally the other GUI editor code should make sure that that is always true, but right now it
+// is possible to create violations of this constraint via drag-and-drop in the window hierarchy tree
+// (can drop a window as a child of another window that already has a child with the same name).
+static void CheckWindowNames(cf::GuiSys::WindowT* Window)
+{
+    const std::string OldName=Window->Name;
+
+    ((EditorDataWindowT*)Window->EditorData)->RepairNameUniqueness();
+
+    if (Window->Name!=OldName)
+        ((EditorDataWindowT*)Window->EditorData)->GetGuiDoc()->UpdateAllObservers_Modified(Window, WMD_PROPERTY_CHANGED, "Name");
+
+    for (unsigned long ChildNr=0; ChildNr<Window->Children.Size(); ChildNr++)
+        CheckWindowNames(Window->Children[ChildNr]);
+}
+
+
 // Recursively saves the window instantiation of the passed window and all of its children.
 static void SaveWindowInstantiation(std::ostream& OutFile, cf::GuiSys::WindowT* Window, const wxString& ParentName)
 {
@@ -238,6 +267,8 @@ static void SaveWindowInitialization(std::ostream& OutFile, cf::GuiSys::WindowT*
 
 bool GuiDocumentT::SaveInit_cgui(std::ostream& OutFile)
 {
+    CheckWindowNames(m_RootWindow);
+
     OutFile << "-- This is a Cafu engine GUI script file, written by CaWE, the Cafu World Editor.\n";
     OutFile << "-- You CAN edit this file manually, but note that CaWE may overwrite your changes.\n";
     OutFile << "-- It is recommended that you place all your customizations like method overrides\n";
@@ -261,7 +292,7 @@ bool GuiDocumentT::SaveInit_cgui(std::ostream& OutFile)
     OutFile << "-- ***************************\n";
     OutFile << "\n";
 
-    SaveWindowHierarchy   (OutFile, m_RootWindow, "");
+    SaveWindowHierarchy(OutFile, m_RootWindow, "");
 
     OutFile << "\n";
     OutFile << "-- Initialization of the window contents (\"constructor code\").\n";

@@ -55,6 +55,12 @@ extern "C"
 using namespace cf::GuiSys;
 
 
+GuiImplT::InitErrorT::InitErrorT(const std::string& Message)
+    : std::runtime_error(Message)
+{
+}
+
+
 GuiImplT::GuiImplT(const std::string& GuiScriptName, bool IsInlineCode)
     : ScriptName(IsInlineCode ? "" : GuiScriptName),
       LuaState(NULL),
@@ -218,7 +224,7 @@ GuiImplT::GuiImplT(const std::string& GuiScriptName, bool IsInlineCode)
         // this code is not guaranteed to be fail-safe and thus not guaranteed to fix the
         // problem. That is, there might still be a case left where we might want to throw.
         lua_close(LuaState);
-        throw InitErrorT(/*"No root window set. Probable cause:\n"+ScriptInitResult*/);
+        throw InitErrorT("No root window set. Probable cause:\n"+ScriptInitResult);
     }
 
 
