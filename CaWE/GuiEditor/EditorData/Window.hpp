@@ -49,9 +49,12 @@ namespace GuiEditor
         bool SetName(const wxString& NewName);
 
         /// Checks the name uniqueness of a new name string within the windows siblings.
-        /// @param Name Name to check for uniqueness.
+        /// @param Name    Name to check for uniqueness.
         /// @return Whether this name is unique.
-        bool CheckNameUniqueness(wxString Name);
+        bool CheckNameUniqueness(const wxString& Name) const;
+
+        /// Helper method to check and auto-repair the uniqueness of the name of this window.
+        void RepairNameUniqueness();
 
         GuiDocumentT* GetGuiDoc() { return m_GuiDocument; }
 
@@ -61,9 +64,7 @@ namespace GuiEditor
         private:
 
         GuiDocumentT* m_GuiDocument;
-
-        /// Helper method to check and repair the uniqueness of the name of this window.
-        void RepairNameUniqueness();
+        unsigned int  m_Counter;
     };
 }
 

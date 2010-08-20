@@ -49,7 +49,7 @@ class ToolClipT : public ToolT
 
 
     // Implementations/overrides of ToolT methods.
-    int       GetWxEventID() { return ChildFrameT::ID_MENU_TOOLS_TOOL_CLIP; }
+    int       GetWxEventID() const { return ChildFrameT::ID_MENU_TOOLS_TOOL_CLIP; }
     wxWindow* GetOptionsBar();
     void      OnActivate(ToolT* OldTool);
     void      OnDeactivate(ToolT* NewTool);

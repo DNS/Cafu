@@ -33,22 +33,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace GuiEditor;
 
 
-static unsigned int Counter=1;
-
-
 EditorDataWindowT::EditorDataWindowT(cf::GuiSys::WindowT* Window, GuiDocumentT* GuiDocument)
     : cf::GuiSys::EditorDataT(Window),
       Selected(false),
-      m_GuiDocument(GuiDocument)
+      m_GuiDocument(GuiDocument),
+      m_Counter(1)
 {
     // If window has no name, create default name.
-    if (Window->Name=="")
-    {
-        std::ostringstream NameStream;
-        NameStream << "Window" << "_" << Counter;
-        Counter++;
-        Window->Name=NameStream.str();
-    }
+    if (Window->Name=="") Window->Name="Window";
 
     // Check window name uniqueness and repair it.
     RepairNameUniqueness();
@@ -79,27 +71,7 @@ bool EditorDataWindowT::SetName(const wxString& NewName)
 }
 
 
-void EditorDataWindowT::RepairNameUniqueness()
-{
-    // Check if windows current name is unique.
-    std::string CurrentName=m_GuiWindow->Name;
-    std::string NewName    =CurrentName;
-
-    // While current window name is not unique.
-    while (!CheckNameUniqueness(NewName))
-    {
-        // Append continous number to name until the name is unique.
-        std::ostringstream NameStream;
-        NameStream << CurrentName << "_" << Counter;
-        NewName=NameStream.str();
-        Counter++;
-    }
-
-    m_GuiWindow->Name=NewName;
-}
-
-
-bool EditorDataWindowT::CheckNameUniqueness(wxString Name)
+bool EditorDataWindowT::CheckNameUniqueness(const wxString& Name) const
 {
     if (m_GuiWindow->GetRoot()==m_GuiWindow) return true; // Root window can have any name.
 
@@ -116,4 +88,34 @@ bool EditorDataWindowT::CheckNameUniqueness(wxString Name)
     }
 
     return true;
+}
+
+
+static wxString StripSuffix(const wxString& Str)
+{
+    const size_t Pos=Str.rfind("_");
+
+    if (Pos==std::string::npos) return Str;
+
+    for (size_t i=Pos+1; i<Str.length(); i++)
+        if (!wxIsdigit(Str[i])) return Str;
+
+    if (Pos==0) return "Window";
+
+    return Str.Left(Pos);
+}
+
+
+void EditorDataWindowT::RepairNameUniqueness()
+{
+    const wxString BaseName=StripSuffix(m_GuiWindow->Name);
+    wxString       NewName =m_GuiWindow->Name;
+
+    while (!CheckNameUniqueness(NewName))
+    {
+        NewName=BaseName+"_"+wxString::Format("%u", m_Counter);
+        m_Counter++;
+    }
+
+    m_GuiWindow->Name=NewName;
 }

@@ -1,9 +1,9 @@
 @REM Note that this script *must* be run from the Ca3D-Engine/ main directory,
 @REM not from Ca3D-Engine/Games/DeathMatch/, or else the tools cannot find e.g. the Textures/*.zip files.
 @
-build\win32\vc8\release\CaBSP\CaBSP.exe Games/DeathMatch/Maps/%1.cmap Games/DeathMatch/Worlds/%1.cw
-build\win32\vc8\release\CaPVS\CaPVS.exe Games/DeathMatch/Worlds/%1.cw
-build\win32\vc8\release\CaLight\CaLight.exe Games/DeathMatch/Worlds/%1.cw -gd=Games/DeathMatch
+build\win32\vc8\x86\release\CaBSP\CaBSP.exe Games/DeathMatch/Maps/%1.cmap Games/DeathMatch/Worlds/%1.cw
+build\win32\vc8\x86\release\CaPVS\CaPVS.exe Games/DeathMatch/Worlds/%1.cw
+build\win32\vc8\x86\release\CaLight\CaLight.exe Games/DeathMatch/Worlds/%1.cw -gd=Games/DeathMatch
 @
 @REM Anschlieﬂend den Compi herunterfahren.
 @REM -c   Allow the shutdown to be aborted by the interactive user.

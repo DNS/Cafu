@@ -39,7 +39,7 @@ class ToolNewLightT : public ToolNewEntityT
     ToolNewLightT(MapDocumentT& MapDoc, ToolManagerT& ToolMan, wxWindow* ParentOptionsBar);
 
     // Implementations/overrides of ToolT methods.
-    int       GetWxEventID() { return ChildFrameT::ID_MENU_TOOLS_TOOL_NEWLIGHT; }
+    int       GetWxEventID() const { return ChildFrameT::ID_MENU_TOOLS_TOOL_NEWLIGHT; }
     wxWindow* GetOptionsBar();
 
     // The TypeSys related declarations for this class.

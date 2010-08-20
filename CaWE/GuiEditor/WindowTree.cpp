@@ -280,8 +280,6 @@ void WindowTreeT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<
     {
         wxASSERT(Windows.Size()==1); // Can't set the name property for more windows since it must always be unique.
 
-        wxTreeItemId TreeItem=FindTreeItem(GetRootItem(), Windows[0]);
-
         SetItemText(FindTreeItem(GetRootItem(), Windows[0]), Windows[0]->Name);
     }
 
@@ -289,11 +287,7 @@ void WindowTreeT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<
     {
         for (unsigned long WindowNr=0; WindowNr<Windows.Size(); WindowNr++)
         {
-            int ImageNr=0;
-
-            if (!Windows[WindowNr]->ShowWindow) ImageNr=1;
-
-            SetItemImage(FindTreeItem(GetRootItem(), Windows[WindowNr]), ImageNr);
+            SetItemImage(FindTreeItem(GetRootItem(), Windows[WindowNr]), Windows[WindowNr]->ShowWindow ? 0 : 1);
         }
     }
 }
@@ -306,6 +300,8 @@ void WindowTreeT::RefreshTree()
     // Get all currently opened tree items and reopen them after the refresh.
     ArrayT<wxTreeItemId>         TreeItems;
     ArrayT<cf::GuiSys::WindowT*> ExpandedWindows;
+
+    // Note that this may well produce TreeItems whose windows have been deleted from the document already.
     GetTreeItems(GetRootItem(), TreeItems);
 
     for (unsigned long ItemNr=0; ItemNr<TreeItems.Size(); ItemNr++)
@@ -343,7 +339,7 @@ void WindowTreeT::RefreshTree()
             Expand(Result);
 
             // Make sure parents are also expanded.
-            while(GetItemParent(Result).IsOk())
+            while (GetItemParent(Result).IsOk())
             {
                 Result=GetItemParent(Result);
                 Expand(Result);
@@ -355,7 +351,12 @@ void WindowTreeT::RefreshTree()
 
     // Expand all previously expanded items.
     for (unsigned long ExWinNr=0; ExWinNr<ExpandedWindows.Size(); ExWinNr++)
-        Expand(FindTreeItem(GetRootItem(), ExpandedWindows[ExWinNr]));
+    {
+        wxTreeItemId Result=FindTreeItem(GetRootItem(), ExpandedWindows[ExWinNr]);
+
+        if (Result.IsOk())
+            Expand(Result);
+    }
 
     Thaw();
 }

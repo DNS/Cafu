@@ -496,7 +496,6 @@ void GuiEditor::ChildFrameT::OnMenuEditPaste(wxCommandEvent& CE)
 void GuiEditor::ChildFrameT::OnMenuEditDelete(wxCommandEvent& CE)
 {
     SubmitCommand(new CommandDeleteT(m_GuiDocument, m_GuiDocument->GetSelection()));
-    SubmitCommand(CommandSelectT::Clear(m_GuiDocument));
 }
 
 
@@ -518,15 +517,13 @@ void GuiEditor::ChildFrameT::OnMenuEditGrid(wxCommandEvent& CE)
 
 void GuiEditor::ChildFrameT::OnUpdateEditCutCopyDelete(wxUpdateUIEvent& UE)
 {
-    if (m_GuiDocument->GetSelection().Size()>0) UE.Enable(true);
-    else                                        UE.Enable(false);
+    UE.Enable(m_GuiDocument->GetSelection().Size()>0);
 }
 
 
 void GuiEditor::ChildFrameT::OnUpdateEditPaste(wxUpdateUIEvent& UE)
 {
-    if (ClipBoard.Size()>0 && m_GuiDocument->GetSelection().Size()==1) UE.Enable(true);
-    else                                                               UE.Enable(false);
+    UE.Enable(ClipBoard.Size()>0 && m_GuiDocument->GetSelection().Size()==1);
 }
 
 
@@ -701,7 +698,6 @@ void GuiEditor::ChildFrameT::OnToolbar(wxCommandEvent& CE)
 
         case ID_TOOLBAR_WINDOW_DELETE:
             SubmitCommand(new CommandDeleteT(m_GuiDocument, m_GuiDocument->GetSelection()));
-            SubmitCommand(CommandSelectT::Clear(m_GuiDocument));
             break;
 
         case ID_TOOLBAR_WINDOW_MOVE_UP:

@@ -81,6 +81,8 @@ const CollisionModelT* CollModelManImplT::GetCM(const std::string& FileName)
 
         try
         {
+            MapFileReadHeader(TP);
+
             // TODO: Account for the first map file entity to come with terrains! (Must keep the terrain instance in cmInfoT.)
             const ArrayT<CollisionModelStaticT::TerrainRefT> ShTe;
 

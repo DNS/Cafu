@@ -38,7 +38,7 @@ class ToolEditSurfaceT : public ToolT
     ToolEditSurfaceT(MapDocumentT& MapDoc, ToolManagerT& ToolMan, wxWindow* ParentOptionsBar);
 
     // Implementations/overrides of ToolT methods.
-    int       GetWxEventID() { return ChildFrameT::ID_MENU_TOOLS_TOOL_EDITSURFACEPROPERTIES; }
+    int       GetWxEventID() const { return ChildFrameT::ID_MENU_TOOLS_TOOL_EDITSURFACEPROPERTIES; }
     wxWindow* GetOptionsBar();
     void      OnActivate(ToolT* OldTool);
     void      OnDeactivate(ToolT* NewTool);

@@ -32,7 +32,9 @@ namespace cf { namespace GuiSys { class WindowT; } }
 
 namespace GuiEditor
 {
+    class CommandSelectT;
     class GuiDocumentT;
+
 
     class CommandDeleteT : public CommandT
     {
@@ -52,9 +54,9 @@ namespace GuiEditor
 
         GuiDocumentT* m_GuiDocument;
 
-        ArrayT<cf::GuiSys::WindowT*> m_Parents;
-        ArrayT<unsigned long >       m_Indexes;
-        ArrayT<cf::GuiSys::WindowT*> m_DeleteWindows;
+        ArrayT<cf::GuiSys::WindowT*> m_Windows;
+        ArrayT<unsigned long>        m_Indices;
+        CommandSelectT*              m_CommandSelect;   ///< The command that unselects all windows before they are deleted.
     };
 }
 

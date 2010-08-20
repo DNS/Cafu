@@ -42,7 +42,7 @@ class ToolNewTerrainT : public ToolT
     ~ToolNewTerrainT();
 
     // Implementations/overrides of ToolT methods.
-    int       GetWxEventID() { return ChildFrameT::ID_MENU_TOOLS_TOOL_NEWTERRAIN; }
+    int       GetWxEventID() const { return ChildFrameT::ID_MENU_TOOLS_TOOL_NEWTERRAIN; }
     wxWindow* GetOptionsBar();
 
     bool OnKeyDown2D    (ViewWindow2DT& ViewWindow, wxKeyEvent&         KE);

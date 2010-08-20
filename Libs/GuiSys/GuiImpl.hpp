@@ -48,8 +48,7 @@ namespace cf
         {
             public:
 
-            /// GUI initialization error.
-            class InitErrorT { };
+            class InitErrorT;
 
 
             /// Constructor for creating a window hierarchy (=="a GUI") from the GUI script file GuiScriptName.
@@ -156,5 +155,14 @@ namespace cf
         };
     }
 }
+
+
+/// A class that is thrown on GUI initialization errors.
+class cf::GuiSys::GuiImplT::InitErrorT : public std::runtime_error
+{
+    public:
+
+    InitErrorT(const std::string& Message);
+};
 
 #endif

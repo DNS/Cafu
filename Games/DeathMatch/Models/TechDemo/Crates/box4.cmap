@@ -1,11 +1,12 @@
 // Cafu Map File
 // Written by CaWE, the Cafu World Editor.
+Version 13
 
 
-{ // Entity 0 (the world)
+{
   classname "worldspawn"
-  lightmap_patchsize "200.0"
   shlmap_patchsize "200.0"
+  lightmap_patchsize "200.0"
   wind_velocity "0.0"
   wind_velocity_var "0.0"
   precipitation_intensity "3"
@@ -13,9 +14,9 @@
   fog_start "0.0"
   fog_end "1.0"
   fog_color "0 0 0"
-  mapfile_version "11"
+  mru_mat_0 "TechDemo/walls/wall-13b"
 
-  { // Brush 0
+  {
     ( -9 9 8 ) ( 9 9 8 ) ( 9 -9 8 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -9 -9 -9 ) ( 9 -9 -9 ) ( 9 9 -9 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -9 9 8 ) ( -9 -9 8 ) ( -9 -9 -9 ) "Textures/meta/collisionmodel" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
@@ -25,7 +26,7 @@
   }
 }
 
-{ // Entity 1
+{
   classname "static_detail_model"
   angles "-0 90 -0"
   rendertranslucency "255"
