@@ -75,6 +75,7 @@ namespace cf
             void SetInteractive(bool IsInteractive_=true);
             bool GetIsInteractive() const { return IsInteractive; }
             bool GetIsFullCover() const { return IsFullCover; }
+            void GetMousePos(float& MousePosX_, float& MousePosY_) const;
             void SetMousePos(float MousePosX_, float MousePosY_);
             void SetShowMouse(bool ShowMouse_);
             bool IsMouseShown() const { return MouseIsShown; }

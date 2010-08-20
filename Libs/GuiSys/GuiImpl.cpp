@@ -293,6 +293,13 @@ void GuiImplT::SetInteractive(bool IsInteractive_)
 }
 
 
+void GuiImplT::GetMousePos(float& MousePosX_, float& MousePosY_) const
+{
+    MousePosX_=MousePosX;
+    MousePosY_=MousePosY;
+}
+
+
 void GuiImplT::SetMousePos(float MousePosX_, float MousePosY_)
 {
     MousePosX=MousePosX_;

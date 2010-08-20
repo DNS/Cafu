@@ -56,6 +56,7 @@ class MainCanvasT : public wxGLCanvas
     private:
 
     enum InitStateT { INIT_REQUIRED, INIT_FAILED, INIT_SUCCESS };
+    enum LastMousePosT { IN_CLIENT_3D_GUI, IN_OTHER_2D_GUI };
 
     void Initialize();
     void TakeScreenshot() const;
@@ -88,6 +89,7 @@ class MainCanvasT : public wxGLCanvas
     cf::ConsoleI* m_ConByGuiWin;    ///< This points to an instance of cf::GuiSys::ConsoleByWindowT.
     TimerT        m_Timer;
     double        m_TotalTime;
+    LastMousePosT m_LastMousePos;   ///< Used to prevent unwanted changes to the players heading and pitch when we're switching back from a 2D GUI to the 3D client view.
 
     DECLARE_EVENT_TABLE()
 };

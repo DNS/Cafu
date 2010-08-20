@@ -119,7 +119,8 @@ MainCanvasT::MainCanvasT(MainFrameT* Parent)
       m_PrevConsole(NULL),
       m_ConByGuiWin(NULL),
       m_Timer(),
-      m_TotalTime(0.0)
+      m_TotalTime(0.0),
+      m_LastMousePos(IN_OTHER_2D_GUI)
 {
     m_GLContext=new wxGLContext(this);
 
@@ -552,6 +553,33 @@ void MainCanvasT::OnIdle(wxIdleEvent& IE)
 
     cf::GuiSys::GuiMan->DistributeClockTickEvents(FrameTimeF);
 
+    // If the active GUI is the client GUI, see how far the mouse cursor is off center,
+    // derive a mouse event from it, then recenter the mouse cursor.
+    cf::GuiSys::GuiI* ActiveGui=cf::GuiSys::GuiMan->GetTopmostActiveAndInteractive();
+
+    if (ActiveGui && ActiveGui->GetRootWindow()->Name=="Client")
+    {
+        const wxPoint MousePos  =ScreenToClient(wxGetMousePosition());  // Note: ScreenToClient() is a method of wxWindow.
+        const wxSize  WinCenter =GetClientSize()/2;
+        const wxPoint MouseDelta=MousePos-WinCenter;
+
+        if (m_LastMousePos==IN_CLIENT_3D_GUI)
+        {
+            CaMouseEventT ME;
+
+            ME.Type  =CaMouseEventT::CM_MOVE_X;
+            ME.Amount=MouseDelta.x;     // TODO: Factor out screen resolution...
+            if (ME.Amount!=0) ActiveGui->ProcessDeviceEvent(ME);
+
+            ME.Type  =CaMouseEventT::CM_MOVE_Y;
+            ME.Amount=MouseDelta.y;     // TODO: Factor out screen resolution...
+            if (ME.Amount!=0) ActiveGui->ProcessDeviceEvent(ME);
+        }
+
+        if (MouseDelta.x || MouseDelta.y) WarpPointer(WinCenter.x, WinCenter.y);
+        m_LastMousePos=IN_CLIENT_3D_GUI;
+    }
+
     if (!m_Parent->IsIconized())
     {
         // Render all the GUIs.
@@ -583,11 +611,32 @@ void MainCanvasT::OnMouseMove(wxMouseEvent& ME)
 
     cf::GuiSys::GuiI* Gui=cf::GuiSys::GuiMan->GetTopmostActiveAndInteractive();
 
-    // This is equivalent to (but much easier than) calling cf::GuiSys::GuiMan->ProcessDeviceEvent(MouseEvent).
-    if (Gui)
+    // This is equivalent to calling cf::GuiSys::GuiMan->ProcessDeviceEvent(MouseEvent),
+    // but computing the amount of mouse movement is much easier (and more precise) like this.
+    if (Gui && Gui->GetRootWindow()->Name!="Client")
     {
-        Gui->SetMousePos(ME.GetX()*(cf::GuiSys::VIRTUAL_SCREEN_SIZE_X/GetSize().x),
-                         ME.GetY()*(cf::GuiSys::VIRTUAL_SCREEN_SIZE_Y/GetSize().y));
+        float OldMousePosX;
+        float OldMousePosY;
+
+        Gui->GetMousePos(OldMousePosX, OldMousePosY);
+
+        const float NewMousePosX=ME.GetX()*(cf::GuiSys::VIRTUAL_SCREEN_SIZE_X/GetSize().x);
+        const float NewMousePosY=ME.GetY()*(cf::GuiSys::VIRTUAL_SCREEN_SIZE_Y/GetSize().y);
+
+        // This works, but doesn't forward the mouse event to the windows.
+        // Gui->SetMousePos(NewMousePosX, NewMousePosY);
+
+        CaMouseEventT ME;
+
+        ME.Type  =CaMouseEventT::CM_MOVE_X;
+        ME.Amount=NewMousePosX-OldMousePosX;
+        if (ME.Amount!=0) Gui->ProcessDeviceEvent(ME);
+
+        ME.Type  =CaMouseEventT::CM_MOVE_Y;
+        ME.Amount=NewMousePosY-OldMousePosY;
+        if (ME.Amount!=0) Gui->ProcessDeviceEvent(ME);
+
+        m_LastMousePos=IN_OTHER_2D_GUI;
     }
 }
 
