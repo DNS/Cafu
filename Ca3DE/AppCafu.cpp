@@ -39,6 +39,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "TypeSys.hpp"
 #include "../Games/Game.hpp"
 
+#include "wx/cmdline.h"
 #include "wx/filename.h"
 #include "wx/msgdlg.h"
 #include "wx/stdpaths.h"
@@ -84,6 +85,7 @@ IMPLEMENT_APP(AppCafu)
 
 AppCafu::AppCafu()
     : wxApp(),
+      m_IsFullScreen(false),
       m_MainFrame(NULL)
 {
     // All global convars and confuncs have registered themselves in linked lists.
@@ -117,6 +119,9 @@ bool AppCafu::OnInit()
 
     ConsoleInterpreter->RunCommand("dofile('config.lua');");
 
+    // Parse the command line.
+    if (!wxApp::OnInit()) return false;
+
     // Insert legacy dialog here...
 
     try
@@ -137,16 +142,63 @@ bool AppCafu::OnInit()
     MaterialManager->RegisterMaterialScriptsInDir("Games/"+GameName+"/Materials", "Games/"+GameName+"/");
     SoundShaderManager->RegisterSoundShaderScriptsInDir("Games/"+GameName+"/SoundShader", "Games/"+GameName+"/");
 
+    // Change display mode.
+    wxDisplay Display;
+
+    m_DesktopMode=Display.GetCurrentMode();
+
+    if (m_DesktopMode.w==0) m_DesktopMode.w=wxGetDisplaySize().x;
+    if (m_DesktopMode.h==0) m_DesktopMode.h=wxGetDisplaySize().y;
+
+    m_CurrentMode=m_DesktopMode;
+
+    extern ConVarT Options_ClientWindowSizeX;
+    extern ConVarT Options_ClientWindowSizeY;
+    extern ConVarT Options_ClientDisplayBPP;
+    extern ConVarT Options_ClientDisplayRefresh;
+    extern ConVarT Options_ClientFullScreen;
+
+    if (Options_ClientFullScreen.GetValueBool())
+    {
+        const wxVideoMode VideoMode(Options_ClientWindowSizeX.GetValueInt(),
+                                    Options_ClientWindowSizeY.GetValueInt(),
+                                    Options_ClientDisplayBPP.GetValueInt(),
+                                    Options_ClientDisplayRefresh.GetValueInt());
+
+        if (Display.ChangeMode(VideoMode))
+        {
+            m_CurrentMode=Display.GetCurrentMode();
+            m_IsFullScreen=true;
+        }
+        else
+        {
+            wxMessageBox("Cafu tried to change the video mode to\n"+
+                wxString::Format("        %i x %i, %i BPP at %i Hz,\n", VideoMode.w, VideoMode.h, VideoMode.bpp, VideoMode.refresh)+
+                "but it didn't work out (zero values mean system defaults).\n"+
+                "We will use the currently active video mode instead and continue.\n\n"+
+                "Alternatively, you can set a different video mode at the Options menu,\n"+
+                "or tweak the video mode details via the console variables.\n",
+                "Could not change the video mode", wxOK | wxICON_EXCLAMATION);
+        }
+    }
+
     // Create the main frame.
     m_MainFrame=new MainFrameT();
     SetTopWindow(m_MainFrame);
 
-    return wxApp::OnInit();
+    return true;
 }
 
 
 int AppCafu::OnExit()
 {
+    if (m_CurrentMode!=m_DesktopMode)
+    {
+        wxDisplay Display;
+
+        Display.ChangeMode(m_DesktopMode);
+    }
+
     delete g_WinSock;
     g_WinSock=NULL;
 
@@ -155,4 +207,77 @@ int AppCafu::OnExit()
     ConsoleInterpreter=NULL;
 
     return wxApp::OnExit();
+}
+
+
+extern ConVarT Options_ServerGameName;
+extern ConVarT Options_ServerWorldName;
+extern ConVarT Options_ServerPortNr;
+extern ConVarT Options_ClientPortNr;
+extern ConVarT Options_ClientRemoteName;
+extern ConVarT Options_ClientRemotePortNr;
+
+extern ConVarT Options_ClientWindowSizeX;
+extern ConVarT Options_ClientWindowSizeY;
+extern ConVarT Options_ClientDisplayBPP;        // TODO
+extern ConVarT Options_ClientDisplayRefresh;    // TODO
+extern ConVarT Options_ClientFullScreen;
+
+extern ConVarT Options_ClientDesiredRenderer;
+extern ConVarT Options_ClientDesiredSoundSystem;
+extern ConVarT Options_ClientTextureDetail;
+extern ConVarT Options_DeathMatchPlayerName;
+extern ConVarT Options_DeathMatchModelName;
+
+
+void AppCafu::OnInitCmdLine(wxCmdLineParser& Parser)
+{
+    Parser.AddOption("con",            "", "Runs the given commands in the console. -con \"x=3;\" is equivalent to appending x=3; to the end of the config.lua file.", wxCMD_LINE_VAL_STRING);
+    Parser.AddOption("svGame",         "", "Name of the MOD / game the server should run ["+Options_ServerGameName.GetValueString()+"]. Case sensitive!", wxCMD_LINE_VAL_STRING);
+    Parser.AddOption("svWorld",        "", "Name of the world the server should run ["+Options_ServerWorldName.GetValueString()+"]. Case sensitive!", wxCMD_LINE_VAL_STRING);
+    Parser.AddOption("svPort",         "", wxString::Format("Server port number [%i].", Options_ServerPortNr.GetValueInt()), wxCMD_LINE_VAL_NUMBER);
+    Parser.AddSwitch("noFS", "clNoFullscreen", "Don't run full-screen, but rather in a window.");
+    Parser.AddOption("clPort",         "", wxString::Format("Client port number [%i].", Options_ClientPortNr.GetValueInt()), wxCMD_LINE_VAL_NUMBER);
+    Parser.AddOption("clRemoteName",   "", "Name or IP of the server we connect to ["+Options_ClientRemoteName.GetValueString()+"].", wxCMD_LINE_VAL_STRING);
+    Parser.AddOption("clRemotePort",   "", wxString::Format("Port number of the remote server [%i].", Options_ClientRemotePortNr.GetValueInt()), wxCMD_LINE_VAL_NUMBER);
+    Parser.AddOption("clTexDetail",    "", wxString::Format("0 high detail, 1 medium detail, 2 low detail [%i].", Options_ClientTextureDetail.GetValueInt()), wxCMD_LINE_VAL_NUMBER);
+    Parser.AddOption("clWinSizeX",     "", wxString::Format("If not full-screen, this is the width  of the window [%i].", Options_ClientWindowSizeX.GetValueInt()), wxCMD_LINE_VAL_NUMBER);
+    Parser.AddOption("clWinSizeY",     "", wxString::Format("If not full-screen, this is the height of the window [%i].", Options_ClientWindowSizeY.GetValueInt()), wxCMD_LINE_VAL_NUMBER);
+    Parser.AddOption("clRenderer",     "", "Override the auto-selection of the best available renderer [auto].", wxCMD_LINE_VAL_STRING);
+    Parser.AddOption("clSoundSystem",  "", "Override the auto-selection of the best available sound system [auto].", wxCMD_LINE_VAL_STRING);
+    Parser.AddOption("clPlayerName",   "", "Player name ["+Options_DeathMatchPlayerName.GetValueString()+"].", wxCMD_LINE_VAL_STRING);
+    Parser.AddOption("clModelName",    "", "Name of the players model ["+Options_DeathMatchModelName.GetValueString()+"].", wxCMD_LINE_VAL_STRING);
+
+    wxApp::OnInitCmdLine(Parser);
+    Parser.AddUsageText("\nDefault values are enclosed in [brackets].");
+    Parser.AddUsageText("It is also ok to omit the \"-svWorld\" option for specifying a world name: \"Cafu MyWorld\" is the same as \"Cafu -svWorld MyWorld\".\n");
+    Parser.SetSwitchChars("-");
+}
+
+
+bool AppCafu::OnCmdLineParsed(wxCmdLineParser& Parser)
+{
+    long int i=0;
+    wxString s="";
+
+    if (Parser.Found("con",           &s)) ConsoleInterpreter->RunCommand(s.ToStdString());
+    if (Parser.Found("svGame",        &s)) Options_ServerGameName=s;
+    if (Parser.Found("svWorld",       &s)) Options_ServerWorldName=s;
+    if (Parser.Found("svPort",        &i)) Options_ServerPortNr=i;
+    if (Parser.Found("noFS")             ) Options_ClientFullScreen=false;
+    if (Parser.Found("clPort",        &i)) Options_ClientPortNr=i;
+    if (Parser.Found("clRemoteName",  &s)) Options_ClientRemoteName=s;
+    if (Parser.Found("clRemotePort",  &i)) Options_ClientRemotePortNr=i;
+    if (Parser.Found("clTexDetail",   &i)) Options_ClientTextureDetail=i % 3;
+    if (Parser.Found("clWinSizeX",    &i)) Options_ClientWindowSizeX=i;
+    if (Parser.Found("clWinSizeY",    &i)) Options_ClientWindowSizeY=i;
+    if (Parser.Found("clRenderer",    &s)) Options_ClientDesiredRenderer=s;
+    if (Parser.Found("clSoundSystem", &s)) Options_ClientDesiredSoundSystem=s;
+    if (Parser.Found("clPlayerName",  &s)) Options_DeathMatchPlayerName=s;
+    if (Parser.Found("clModelName",   &s)) Options_DeathMatchModelName=s;
+
+    if (!Parser.Found("svWorld") && Parser.GetParamCount()==1)
+        Options_ServerWorldName=Parser.GetParam(0);
+
+    return wxApp::OnCmdLineParsed(Parser);
 }

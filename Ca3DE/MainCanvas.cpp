@@ -124,6 +124,7 @@ MainCanvasT::MainCanvasT(MainFrameT* Parent)
 {
     m_GLContext=new wxGLContext(this);
 
+    SetCursor(wxCURSOR_BLANK);
     SetBackgroundStyle(wxBG_STYLE_PAINT);
 }
 
@@ -503,6 +504,12 @@ void MainCanvasT::OnPaint(wxPaintEvent& PE)
 
     if (m_InitState==INIT_REQUIRED)
     {
+        dc.SetBackground(*wxBLACK_BRUSH);
+        dc.Clear();
+        dc.SetBackgroundMode(wxTRANSPARENT);
+        dc.SetTextForeground(wxColour(255, 200, 0));
+        dc.DrawText("Initializing Cafu...", 10, 40);
+
         // This code is in this place due to a few peculiarities of OpenGL under GTK that do not exist under MSW:
         //   - An OpenGL context can only be made current with a canvas that is shown on the screen.
         //   - Relying on EVT_SHOW however is not a good approach, see the discussions at
@@ -889,6 +896,12 @@ void MainCanvasT::OnKeyDown(wxKeyEvent& KE)
         case WXK_F5:
         {
             TakeScreenshot();
+            return;
+        }
+
+        case WXK_F11:
+        {
+            m_Parent->ShowFullScreen(!m_Parent->IsFullScreen());
             return;
         }
     }
