@@ -28,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Coroutines.hpp"
 
 #include <cstdarg>
+#include <stdexcept>
 
 
 namespace cf { namespace TypeSys { class TypeInfoT; } }

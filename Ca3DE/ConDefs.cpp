@@ -76,89 +76,6 @@ static const int DefaultRunMode=CLIENT_RUNMODE | SERVER_RUNMODE;
 ConVarT GlobalTime("time", 0.0, ConVarT::FLAG_MAIN_EXE | ConVarT::FLAG_READ_ONLY, "The ever proceeding time, in seconds.");
 
 
-static bool CompareModes(const wxVideoMode& Mode1, const wxVideoMode& Mode2)
-{
-    // Compare the widths.
-    if (Mode1.w < Mode2.w) return true;
-    if (Mode1.w > Mode2.w) return false;
-
-    // The widths are equal, now compare the heights.
-    if (Mode1.h < Mode2.h) return true;
-    if (Mode1.h > Mode2.h) return false;
-
-    // The widths and heights are equal, now compare the BPP.
-    if (Mode1.bpp < Mode2.bpp) return true;
-    if (Mode1.bpp > Mode2.bpp) return false;
-
-    // The widths, heights and BPPs are equal, now compare the refresh rate.
-    if (Mode1.refresh < Mode2.refresh) return true;
-    if (Mode1.refresh > Mode2.refresh) return false;
-
-    // The modes are equal.
-    return false;
-}
-
-static std::string GetVideoModes()
-{
-    ArrayT<wxVideoMode> Modes;
-
-    {
-        wxDisplay         Display;
-        wxArrayVideoModes wxModes=Display.GetModes();
-
-        for (size_t ModeNr=0; ModeNr<wxModes.GetCount(); ModeNr++)
-            Modes.PushBack(wxModes[ModeNr]);
-    }
-
-    // Remove modes according to certain filter criteria, cutting excessively long mode lists.
-    for (unsigned long ModeNr=0; ModeNr<Modes.Size(); ModeNr++)
-    {
-        const wxVideoMode& Mode=Modes[ModeNr];
-
-        if (Mode.w==0 || Mode.h==0 || Mode.bpp<15)
-        {
-            Modes.RemoveAt(ModeNr);
-            ModeNr--;
-            continue;
-        }
-
-        for (unsigned long OtherNr=0; OtherNr<Modes.Size(); OtherNr++)
-        {
-            if (OtherNr==ModeNr) continue;
-
-            const wxVideoMode& Other=Modes[OtherNr];
-
-            if (Mode==Other || (Mode.w==Other.w && Mode.h==Other.h && Mode.bpp<32 && Mode.bpp<Other.bpp))
-            {
-                Modes.RemoveAt(ModeNr);
-                ModeNr--;
-                break;
-            }
-        }
-
-        // Note that the above loop is written in a way that allows no additional statements here.
-    }
-
-    // Sort the modes by increasing width, height, BPP and refresh rate.
-    Modes.QuickSort(CompareModes);
-
-    // Build the result string.
-    wxString List;
-
-    for (unsigned long ModeNr=0; ModeNr<Modes.Size(); ModeNr++)
-    {
-        const wxVideoMode& Mode=Modes[ModeNr];
-
-        List+=wxString::Format("%i x %i, %i bpp, %i Hz\n", Mode.w, Mode.h, Mode.bpp, Mode.refresh);
-    }
-
-    return List.ToStdString();
-}
-
-// Note that the format of the VideoModes string is fixed - it is parsed by the Main Menu GUI in order to populate the choice box.
-static ConVarT VideoModes("VideoModes", GetVideoModes(), ConVarT::FLAG_MAIN_EXE | ConVarT::FLAG_READ_ONLY, "The list of video modes that are available on your system.");
-
-
 static int ConFunc_CleanupPersistentConfig_Callback(lua_State* LuaState)
 {
     const char*                        CfgFileName=luaL_checkstring(LuaState, 1);
@@ -213,7 +130,7 @@ static ConFuncT ConFunc_CleanupPersistentConfig("CleanupPersistentConfig", ConFu
 
 static int ConFunc_VideoInfo_Callback(lua_State* LuaState)
 {
-    Console->Print(GetVideoModes());
+    // Console->Print(GetVideoModes());
     Console->Print(cf::va("Renderer Info: %s\n", MatSys::Renderer ? MatSys::Renderer->GetDescription() : "[No renderer active.]"));
     return 0;
 }

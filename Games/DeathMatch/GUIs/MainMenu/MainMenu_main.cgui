@@ -1199,7 +1199,7 @@ end
 -- The list of video modes above should never be totally empty,
 -- but still just handle the case here to be totally sure.
 if (VideoOptionsDialog.Frame.ScreenResChoice:GetNumChoices()==0) then
-    Console.Warning("Console variable VideoModes is empty!");
+    Console.Warning("Console variable VideoModes is empty!\n");
 
     VideoOptionsDialog.Frame.ScreenResChoice:Append(" 640 x 480");
     VideoOptionsDialog.Frame.ScreenResChoice:Append(" 800 x 600");

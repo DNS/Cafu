@@ -80,6 +80,87 @@ cf::GuiSys::GuiManI* cf::GuiSys::GuiMan=NULL;
 cf::GameSys::GameI* cf::GameSys::Game=NULL;
 
 
+static bool CompareModes(const wxVideoMode& Mode1, const wxVideoMode& Mode2)
+{
+    // Compare the widths.
+    if (Mode1.w < Mode2.w) return true;
+    if (Mode1.w > Mode2.w) return false;
+
+    // The widths are equal, now compare the heights.
+    if (Mode1.h < Mode2.h) return true;
+    if (Mode1.h > Mode2.h) return false;
+
+    // The widths and heights are equal, now compare the BPP.
+    if (Mode1.bpp < Mode2.bpp) return true;
+    if (Mode1.bpp > Mode2.bpp) return false;
+
+    // The widths, heights and BPPs are equal, now compare the refresh rate.
+    if (Mode1.refresh < Mode2.refresh) return true;
+    if (Mode1.refresh > Mode2.refresh) return false;
+
+    // The modes are equal.
+    return false;
+}
+
+
+static std::string GetVideoModes()
+{
+    ArrayT<wxVideoMode> Modes;
+
+    {
+        wxDisplay         Display;
+        wxArrayVideoModes wxModes=Display.GetModes();
+
+        for (size_t ModeNr=0; ModeNr<wxModes.GetCount(); ModeNr++)
+            Modes.PushBack(wxModes[ModeNr]);
+    }
+
+    // Remove modes according to certain filter criteria, cutting excessively long mode lists.
+    for (unsigned long ModeNr=0; ModeNr<Modes.Size(); ModeNr++)
+    {
+        const wxVideoMode& Mode=Modes[ModeNr];
+
+        if (Mode.w==0 || Mode.h==0 || Mode.bpp<15)
+        {
+            Modes.RemoveAt(ModeNr);
+            ModeNr--;
+            continue;
+        }
+
+        for (unsigned long OtherNr=0; OtherNr<Modes.Size(); OtherNr++)
+        {
+            if (OtherNr==ModeNr) continue;
+
+            const wxVideoMode& Other=Modes[OtherNr];
+
+            if (Mode==Other || (Mode.w==Other.w && Mode.h==Other.h && Mode.bpp<32 && Mode.bpp<Other.bpp))
+            {
+                Modes.RemoveAt(ModeNr);
+                ModeNr--;
+                break;
+            }
+        }
+
+        // Note that the above loop is written in a way that allows no additional statements here.
+    }
+
+    // Sort the modes by increasing width, height, BPP and refresh rate.
+    Modes.QuickSort(CompareModes);
+
+    // Build the result string.
+    wxString List;
+
+    for (unsigned long ModeNr=0; ModeNr<Modes.Size(); ModeNr++)
+    {
+        const wxVideoMode& Mode=Modes[ModeNr];
+
+        List+=wxString::Format("%i x %i, %i bpp, %i Hz\n", Mode.w, Mode.h, Mode.bpp, Mode.refresh);
+    }
+
+    return List.ToStdString();
+}
+
+
 IMPLEMENT_APP(AppCafuT)
 
 
@@ -120,7 +201,7 @@ bool AppCafuT::OnInit()
     ConsoleInterpreter->RunCommand("dofile('config.lua');");
 
     // Parse the command line.
-    if (!wxApp::OnInit()) return false;
+    if (!wxApp::OnInit()) { OnExit(); return false; }
 
     // Insert legacy dialog here...
 
@@ -141,6 +222,12 @@ bool AppCafuT::OnInit()
 
     MaterialManager->RegisterMaterialScriptsInDir("Games/"+GameName+"/Materials", "Games/"+GameName+"/");
     SoundShaderManager->RegisterSoundShaderScriptsInDir("Games/"+GameName+"/SoundShader", "Games/"+GameName+"/");
+
+
+    // The console variable VideoModes is initialized here, because under wxGTK, using wxDisplay requires
+    // that the wxWidgets library (and thus GTK) is initialized first.
+    // Note that the format of the VideoModes string is fixed - it is parsed by the Main Menu GUI in order to populate the choice box.
+    static ConVarT VideoModes("VideoModes", GetVideoModes(), ConVarT::FLAG_MAIN_EXE | ConVarT::FLAG_READ_ONLY, "The list of video modes that are available on your system.");
 
 
     // Change the video mode. Although the two actions
@@ -203,8 +290,7 @@ bool AppCafuT::OnInit()
                 wxString::Format("        %i x %i at any color depth and refresh rate,\n", VideoMode3.w, VideoMode3.h)+
                 "but it didn't work out (zero values mean system defaults).\n"+
                 "We will continue with the currently active video mode instead, where you can press F11 to toggle full-screen mode.\n\n"+
-                "Alternatively, you can set a different video mode at the Options menu,\n"+
-                "or tweak the video mode details via the console variables.\n",
+                "Alternatively, you can set a different video mode at the Options menu, or tweak the video mode details via the console variables.\n",
                 "Could not change the video mode", wxOK | wxICON_EXCLAMATION);
 
             Options_ClientFullScreen.SetValue(false);
@@ -300,23 +386,23 @@ bool AppCafuT::OnCmdLineParsed(wxCmdLineParser& Parser)
     wxString s="";
 
     if (Parser.Found("con",           &s)) ConsoleInterpreter->RunCommand(s.ToStdString());
-    if (Parser.Found("svGame",        &s)) Options_ServerGameName=s;
-    if (Parser.Found("svWorld",       &s)) Options_ServerWorldName=s;
-    if (Parser.Found("svPort",        &i)) Options_ServerPortNr=i;
+    if (Parser.Found("svGame",        &s)) Options_ServerGameName=s.ToStdString();
+    if (Parser.Found("svWorld",       &s)) Options_ServerWorldName=s.ToStdString();
+    if (Parser.Found("svPort",        &i)) Options_ServerPortNr=int(i);
     if (Parser.Found("noFS")             ) Options_ClientFullScreen=false;
-    if (Parser.Found("clPort",        &i)) Options_ClientPortNr=i;
-    if (Parser.Found("clRemoteName",  &s)) Options_ClientRemoteName=s;
-    if (Parser.Found("clRemotePort",  &i)) Options_ClientRemotePortNr=i;
-    if (Parser.Found("clTexDetail",   &i)) Options_ClientTextureDetail=i % 3;
-    if (Parser.Found("clWinSizeX",    &i)) Options_ClientWindowSizeX=i;
-    if (Parser.Found("clWinSizeY",    &i)) Options_ClientWindowSizeY=i;
-    if (Parser.Found("clRenderer",    &s)) Options_ClientDesiredRenderer=s;
-    if (Parser.Found("clSoundSystem", &s)) Options_ClientDesiredSoundSystem=s;
-    if (Parser.Found("clPlayerName",  &s)) Options_DeathMatchPlayerName=s;
-    if (Parser.Found("clModelName",   &s)) Options_DeathMatchModelName=s;
+    if (Parser.Found("clPort",        &i)) Options_ClientPortNr=int(i);
+    if (Parser.Found("clRemoteName",  &s)) Options_ClientRemoteName=s.ToStdString();
+    if (Parser.Found("clRemotePort",  &i)) Options_ClientRemotePortNr=int(i);
+    if (Parser.Found("clTexDetail",   &i)) Options_ClientTextureDetail=int(i % 3);
+    if (Parser.Found("clWinSizeX",    &i)) Options_ClientWindowSizeX=int(i);
+    if (Parser.Found("clWinSizeY",    &i)) Options_ClientWindowSizeY=int(i);
+    if (Parser.Found("clRenderer",    &s)) Options_ClientDesiredRenderer=s.ToStdString();
+    if (Parser.Found("clSoundSystem", &s)) Options_ClientDesiredSoundSystem=s.ToStdString();
+    if (Parser.Found("clPlayerName",  &s)) Options_DeathMatchPlayerName=s.ToStdString();
+    if (Parser.Found("clModelName",   &s)) Options_DeathMatchModelName=s.ToStdString();
 
     if (!Parser.Found("svWorld") && Parser.GetParamCount()==1)
-        Options_ServerWorldName=Parser.GetParam(0);
+        Options_ServerWorldName=Parser.GetParam(0).ToStdString();
 
     return wxApp::OnCmdLineParsed(Parser);
 }
