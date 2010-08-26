@@ -378,7 +378,7 @@ void MainCanvasT::Initialize()
 
 
     // Initialize the GUI systems GUI managager.
-    //   - This has to be done *after* all materials are loaded (AppCafu::OnInit()) and after the MatSys::Renderer
+    //   - This has to be done *after* all materials are loaded (AppCafuT::OnInit()) and after the MatSys::Renderer
     //     has been initialized, so that the GuiMan finds its default material and can register it for rendering.
     //   - It has to be done *before* the game is initialized, because even the server needs access to it
     //     when it loads static detail model entities that have world/entity-GUIs.

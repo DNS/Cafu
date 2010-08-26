@@ -80,10 +80,10 @@ cf::GuiSys::GuiManI* cf::GuiSys::GuiMan=NULL;
 cf::GameSys::GameI* cf::GameSys::Game=NULL;
 
 
-IMPLEMENT_APP(AppCafu)
+IMPLEMENT_APP(AppCafuT)
 
 
-AppCafu::AppCafu()
+AppCafuT::AppCafuT()
     : wxApp(),
       m_IsCustomVideoMode(false),
       m_MainFrame(NULL)
@@ -105,7 +105,7 @@ AppCafu::AppCafu()
 }
 
 
-bool AppCafu::OnInit()
+bool AppCafuT::OnInit()
 {
     const wxString UserDataDir=wxStandardPaths::Get().GetUserDataDir();
 
@@ -228,7 +228,7 @@ bool AppCafu::OnInit()
 }
 
 
-int AppCafu::OnExit()
+int AppCafuT::OnExit()
 {
     if (m_IsCustomVideoMode)
     {
@@ -269,7 +269,7 @@ extern ConVarT Options_DeathMatchPlayerName;
 extern ConVarT Options_DeathMatchModelName;
 
 
-void AppCafu::OnInitCmdLine(wxCmdLineParser& Parser)
+void AppCafuT::OnInitCmdLine(wxCmdLineParser& Parser)
 {
     Parser.AddOption("con",            "", "Runs the given commands in the console. -con \"x=3;\" is equivalent to appending x=3; to the end of the config.lua file.", wxCMD_LINE_VAL_STRING);
     Parser.AddOption("svGame",         "", "Name of the MOD / game the server should run ["+Options_ServerGameName.GetValueString()+"]. Case sensitive!", wxCMD_LINE_VAL_STRING);
@@ -294,7 +294,7 @@ void AppCafu::OnInitCmdLine(wxCmdLineParser& Parser)
 }
 
 
-bool AppCafu::OnCmdLineParsed(wxCmdLineParser& Parser)
+bool AppCafuT::OnCmdLineParsed(wxCmdLineParser& Parser)
 {
     long int i=0;
     wxString s="";

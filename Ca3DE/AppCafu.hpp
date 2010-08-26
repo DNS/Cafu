@@ -42,11 +42,11 @@ class MainFrameT;
 
 
 /// This class represents the Cafu Engine application.
-class AppCafu : public wxApp
+class AppCafuT : public wxApp
 {
     public:
 
-    AppCafu();
+    AppCafuT();
 
     /// Returns whether we successfully set a custom video mode (screen resolution) during initialization.
     bool IsCustomVideoMode() const { return m_IsCustomVideoMode; }
@@ -73,7 +73,7 @@ class AppCafu : public wxApp
 };
 
 
-/// This macro provides the wxGetApp() function, which returns a reference to AppCafu, for use in other files.
-DECLARE_APP(AppCafu)
+/// This macro provides the wxGetApp() function which returns a reference to our AppCafuT instance.
+DECLARE_APP(AppCafuT)
 
 #endif
