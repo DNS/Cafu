@@ -460,7 +460,7 @@ void MainCanvasT::TakeScreenshot() const
     FrameBuffer.Overwrite();
     FrameBuffer.PushBackEmpty(Width*Height);
 
-    // Read the pixels fromt the OpenGL back buffer into FrameBuffer.
+    // Read the pixels from the OpenGL back buffer into FrameBuffer.
     // Note that the first two parameters (0, 0) specify the left BOTTOM corner of the desired rectangle!
     glReadPixels(0, 0, Width, Height, GL_RGBA, GL_UNSIGNED_BYTE, &FrameBuffer[0]);
 
@@ -581,11 +581,11 @@ void MainCanvasT::OnIdle(wxIdleEvent& IE)
             CaMouseEventT ME;
 
             ME.Type  =CaMouseEventT::CM_MOVE_X;
-            ME.Amount=MouseDelta.x;     // TODO: Factor out screen resolution...
+            ME.Amount=MouseDelta.x;
             if (ME.Amount!=0) ActiveGui->ProcessDeviceEvent(ME);
 
             ME.Type  =CaMouseEventT::CM_MOVE_Y;
-            ME.Amount=MouseDelta.y;     // TODO: Factor out screen resolution...
+            ME.Amount=MouseDelta.y;
             if (ME.Amount!=0) ActiveGui->ProcessDeviceEvent(ME);
         }
 

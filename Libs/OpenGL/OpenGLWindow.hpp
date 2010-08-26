@@ -21,10 +21,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/******************************/
-/*** OpenGL Window (Header) ***/
-/******************************/
-
 #ifndef _OPENGL_WINDOW_HPP_
 #define _OPENGL_WINDOW_HPP_
 
@@ -35,36 +31,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #endif
 
 #include <string>
-
-// This comment is somewhat outdated...
-//
-// Damn. I already had some finished, fully object-oriented, extremely beautiful OpenGLWindowT and OpenGLWindowInputT
-// classes for all the stuff defined in here. Sadly, it didn't work. Several considerations:
-// 1. There is a lot of old code that relies on the below defined variables 'WindowIsOpen' and 'RenderingContextCounter'
-//    for its OpenGL resource management (e.g. texture objects recovery after a rendering context change).
-//    The otherwise beautiful OO approach of an 'OpenGLWindowT' class does not agree well with such variables.
-//    Rather, every piece of code that needs them had to be changed to receive a pointer to the current 'OpenGLWindowT' object!
-//    This is extremely ugly: The pointer must either be propagated across full function call depth, which will consume
-//    enormous amounts of stack space for its numerous copies alone. The pointer-passing can be reduced at the cost of extremely
-//    ugly, complex, and hard-to-maintain handler code.
-//    Note that these pointers frequently change, at least once for closing and re-opening a window,
-//    and each change must somehow be propagated to the user code.
-//    Also note that a Cafu game DLL needs access to the current OpenGL window, which in turn means that I even
-//    had to bloat the game DLL interface to account for all this gruesome complexity...
-// 2. First idea for improvement: Make everything OO, except one function like 'GetCurrentOpenGLWindow()'
-//    which returns a pointer to the current 'OpenGLWindowT' object.
-//    This function must answer the question which window is currently current (not necessarily the one that has focus),
-//    and therefore probably also requires a 'SetCurrentOpenGLWindow()' complement function.
-// 3. Somebody explained me some interesting things about 'wglCreateContext()' and 'wglMakeCurrent()' a while ago.
-//    Seems like rendering contexts (RCs) may survive their parent windows, and can be bound to future windows.
-//    This approach might solve ALL ABOVE MENTIONED PROBLEMS at once, because their proper use in an 'OpenGLWindowT'
-//    class and the proper use of 'glIsTexture()' (and related functions) in user code might make the need for
-//    'WindowIsOpen' and 'RenderingConextCounter' obsolete.
-//    Sounds very well, but I still consider an immediate change to be risky. Is it portable? What if incompatible
-//    pixel formats are desired between RC changes? Do we *really* get rid of demand for direct access to the 'OpenGLWindowT'?
-//    Best is probably to make a thorough back-up someday, and try it out.
-// 4. Except for 3., I'm still not sure for multi-window programs if and how we can answer the users code question
-//    if and when OpenGL resources are to be (re-)created. How do we manage multiple RCs? Do we have to, after all?
 
 
 struct CaKeyboardEventT

@@ -21,10 +21,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/********************************/
-/*** OpenGL Window (DLL Code) ***/
-/********************************/
-
 #define DLL_EXPORT_HEADER
 #include "OpenGLWindow.hpp"
 

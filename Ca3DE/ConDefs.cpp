@@ -211,39 +211,14 @@ static int ConFunc_CleanupPersistentConfig_Callback(lua_State* LuaState)
 static ConFuncT ConFunc_CleanupPersistentConfig("CleanupPersistentConfig", ConFunc_CleanupPersistentConfig_Callback, ConFuncT::FLAG_MAIN_EXE, "");
 
 
-static int ConFunc_VideoGetModes_Callback(lua_State* LuaState)
+static int ConFunc_VideoInfo_Callback(lua_State* LuaState)
 {
-    wxDisplay         Display;
-    wxArrayVideoModes Modes         =Display.GetModes();
-    const wxVideoMode CurrentMode   =Display.GetCurrentMode();
-    bool              Have32BPPModes=false;
-
-    for (size_t ModeNr=0; ModeNr<Modes.GetCount(); ModeNr++)
-    {
-        const wxVideoMode& Mode=Modes[ModeNr];
-
-        if (Mode.bpp>=32)
-        {
-            Have32BPPModes=true;
-            break;
-        }
-    }
-
-    for (size_t ModeNr=0; ModeNr<Modes.GetCount(); ModeNr++)
-    {
-        const wxVideoMode& Mode     =Modes[ModeNr];
-        const bool         IsCurrent=(Mode==CurrentMode);
-
-        if (Have32BPPModes && Mode.bpp<32 && !IsCurrent) continue;
-
-        Console->Print(cf::va("%3u,    %i x %i, %i BPP @ %i Hz%s\n", ModeNr, Mode.w, Mode.h, Mode.bpp, Mode.refresh, IsCurrent ? " (current)" : ""));
-    }
-
+    Console->Print(GetVideoModes());
     Console->Print(cf::va("Renderer Info: %s\n", MatSys::Renderer ? MatSys::Renderer->GetDescription() : "[No renderer active.]"));
     return 0;
 }
 
-static ConFuncT ConFunc_VideoGetModes("VideoGetModes", ConFunc_VideoGetModes_Callback, ConFuncT::FLAG_MAIN_EXE, "Prints some information about the OpenGL window and renderer.");
+static ConFuncT ConFunc_VideoInfo("VideoInfo", ConFunc_VideoInfo_Callback, ConFuncT::FLAG_MAIN_EXE, "Prints some information about the OpenGL window and renderer.");
 
 
 static int ConFunc_forceRM_Callback(lua_State* LuaState)
