@@ -26,7 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ClipSys/CollisionModelMan_impl.hpp"
 #include "ConsoleCommands/ConsoleInterpreterImpl.hpp"
-#include "ConsoleCommands/ConsoleStdout.hpp"
+#include "ConsoleCommands/ConsoleStringBuffer.hpp"
 #include "ConsoleCommands/ConVar.hpp"
 #include "ConsoleCommands/ConFunc.hpp"
 #include "FileSys/FileManImpl.hpp"
@@ -47,10 +47,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 // For each interface that is globally available to the application,
 // provide a definition for the pointer instance and have it point to an implementation.
-static cf::ConsoleStdoutT ConsoleStdout;
-cf::ConsoleI* Console=&ConsoleStdout;
+static cf::ConsoleStringBufferT ConsoleStringBuffer;
+cf::ConsoleI* Console=&ConsoleStringBuffer;
 
-// static cf::ConsoleFileT ConsoleFile("info.log");
+// static cf::ConsoleFileT ConsoleFile("console.log");
 // cf::ConsoleI* Console=&ConsoleFile;
 
 static cf::FileSys::FileManImplT FileManImpl;
@@ -202,7 +202,7 @@ bool AppCafuT::OnInit()
                 wxString::Format("        %i x %i, %i bpp at any refresh rate,\n", VideoMode2.w, VideoMode2.h, VideoMode2.bpp)+
                 wxString::Format("        %i x %i at any color depth and refresh rate,\n", VideoMode3.w, VideoMode3.h)+
                 "but it didn't work out (zero values mean system defaults).\n"+
-                "We will use the currently active video mode instead and continue.\n\n"+
+                "We will continue with the currently active video mode instead, where you can press F11 to toggle full-screen mode.\n\n"+
                 "Alternatively, you can set a different video mode at the Options menu,\n"+
                 "or tweak the video mode details via the console variables.\n",
                 "Could not change the video mode", wxOK | wxICON_EXCLAMATION);

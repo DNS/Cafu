@@ -20,6 +20,23 @@ function GetModelName(FileName)
     return "";
 end
 
+-- Parses a string that describes a video mode. It returns the width, height, colour depth and refresh rate.
+function ParseModeStr(ModeStr)
+    -- For case-insensitive matching, translate the entire string to lower case.
+    ModeStr=ModeStr:lower();
+
+    local width, height=ModeStr:match("(%d+)%s*x%s*(%d+)");
+    local bpp          =ModeStr:match("(%d+)%s*bpp");
+    local rate         =ModeStr:match("(%d+)%s*hz");
+
+    if width  then width =tonumber(width);  end
+    if height then height=tonumber(height); end
+    if bpp    then bpp   =tonumber(bpp);    end
+    if rate   then rate  =tonumber(rate);   end
+
+    return width, height, bpp, rate;
+end
+
 
 
 function MainMenu:OnKeyPress(Key)
@@ -543,15 +560,20 @@ OptionsContextMenu.Frame.Video.OnMouseEnter=OptionsContextMenu.Frame.Controls.On
 OptionsContextMenu.Frame.Video.OnMouseLeave=OptionsContextMenu.Frame.Controls.OnMouseLeave;
 
 function OptionsContextMenu.Frame.Video:OnMouseButtonUp()
-    -- Select the first screen resolution that is at least as wide as "dlg_clWindowSizeX" (1024*768 is used as a fall-back).
-    VideoOptionsDialog.Frame.ScreenResChoice:SetSelection(2);   -- Safety if the loop below fails for some reason.
+    -- Select the screen resolution that matches the one specified in the console variables.
+    VideoOptionsDialog.Frame.ScreenResChoice:SetSelection(0);   -- Safety if the loop below fails for some reason.
 
     for ModeNr=0, VideoOptionsDialog.Frame.ScreenResChoice:GetNumChoices()-1 do
-        local ResX=tonumber(VideoOptionsDialog.Frame.ScreenResChoice:GetChoice(ModeNr):match("%d+"));
+        local width, height, bpp, rate=ParseModeStr(VideoOptionsDialog.Frame.ScreenResChoice:GetChoice(ModeNr));
 
-        if (ResX>=ci.GetValue("dlg_clWindowSizeX")) then
+        if width==ci.GetValue("dlg_clWindowSizeX") and height==ci.GetValue("dlg_clWindowSizeY") then
+            -- The width and height match, select this mode.
             VideoOptionsDialog.Frame.ScreenResChoice:SetSelection(ModeNr);
-            break;
+
+            if bpp==ci.GetValue("dlg_clDisplayBPP") and rate==ci.GetValue("dlg_clDisplayRefresh") then
+                -- The color depth and refresh rate match, too - stop looking for a better match.
+                break;
+            end
         end
     end
 
@@ -1159,13 +1181,32 @@ end
 -- One-time init for setting the values.
 -- Move into OnInit()?
 VideoOptionsDialog.Frame.ScreenResChoice:Clear();
-VideoOptionsDialog.Frame.ScreenResChoice:Append(" 640 x 480");
-VideoOptionsDialog.Frame.ScreenResChoice:Append(" 800 x 600");
-VideoOptionsDialog.Frame.ScreenResChoice:Append(" 1024 x 768");
-VideoOptionsDialog.Frame.ScreenResChoice:Append(" 1152 x 864");
-VideoOptionsDialog.Frame.ScreenResChoice:Append(" 1280 x 1024");
-VideoOptionsDialog.Frame.ScreenResChoice:Append(" 1600 x 1200");
-VideoOptionsDialog.Frame.ScreenResChoice:SetSelection(2);   -- Set again when the dialog is shown.
+
+-- For each video mode in console variable "VideoModes" (a multi-line string with one
+-- video mode per line, separated by new-lines), append a choice to the choice window.
+for ModeStr in ci.GetValue("VideoModes"):gmatch("[^\n]+") do
+    VideoOptionsDialog.Frame.ScreenResChoice:Append(" "..ModeStr);
+end
+
+-- It is possible (though normally not necessary) to add custom video modes here,
+-- for example when your favorite video mode is not automatically detected and provided above.
+-- There is no guarantee though that the graphics driver can set any custom modes
+-- (or else the mode had been automatically included in the enumeration above).
+-- Examples:
+-- VideoOptionsDialog.Frame.ScreenResChoice:Append(" 1152 x 864");
+-- VideoOptionsDialog.Frame.ScreenResChoice:Append(" 1440 x 900, 32 bpp, 60 Hz");
+
+-- The list of video modes above should never be totally empty,
+-- but still just handle the case here to be totally sure.
+if (VideoOptionsDialog.Frame.ScreenResChoice:GetNumChoices()==0) then
+    Console.Warning("Console variable VideoModes is empty!");
+
+    VideoOptionsDialog.Frame.ScreenResChoice:Append(" 640 x 480");
+    VideoOptionsDialog.Frame.ScreenResChoice:Append(" 800 x 600");
+    VideoOptionsDialog.Frame.ScreenResChoice:Append(" 1024 x 768");
+end
+
+VideoOptionsDialog.Frame.ScreenResChoice:SetSelection(0);   -- Set again when the dialog is shown.
 
 function VideoOptionsDialog.Frame.ScreenResChoice:OnSelectionChanged(SelNum)
     -- Update related ConVar.  <-- Wrong: Do it only in ButtonOK:OnMouseButtonUp() below!
@@ -1214,10 +1255,13 @@ function VideoOptionsDialog.Frame.ButtonOK:OnMouseButtonUp()
     local ModeNr =VideoOptionsDialog.Frame.ScreenResChoice:GetSelection();
     local ModeStr=VideoOptionsDialog.Frame.ScreenResChoice:GetChoice(ModeNr);
 
-    local ResX, ResY=ModeStr:match("(%d+)%s*x%s*(%d+)");
+    local width, height, bpp, rate=ParseModeStr(ModeStr);
 
-    ci.SetValue("dlg_clWindowSizeX",   ResX);
-    ci.SetValue("dlg_clWindowSizeY",   ResY);
+    if width  then ci.SetValue("dlg_clWindowSizeX",    width ); end
+    if height then ci.SetValue("dlg_clWindowSizeY",    height); end
+    if bpp    then ci.SetValue("dlg_clDisplayBPP",     bpp   ); end
+    if rate   then ci.SetValue("dlg_clDisplayRefresh", rate  ); end
+
     ci.SetValue("dlg_clFullScreen",    VideoOptionsDialog.Frame.FullScreenChoice:GetSelection()==1);
     ci.SetValue("dlg_clTextureDetail", VideoOptionsDialog.Frame.TextureDetailChoice:GetSelection());
 

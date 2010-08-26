@@ -32,6 +32,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/CollisionModelMan.hpp"
 #include "ConsoleCommands/Console.hpp"
 #include "ConsoleCommands/ConsoleInterpreter.hpp"
+#include "ConsoleCommands/ConsoleStringBuffer.hpp"
 #include "ConsoleCommands/ConVar.hpp"
 #include "GuiSys/ConsoleByWindow.hpp"
 #include "GuiSys/GuiImpl.hpp"
@@ -437,6 +438,10 @@ void MainCanvasT::Initialize()
     m_ConByGuiWin=new cf::GuiSys::ConsoleByWindowT(ConsoleWindow);
     m_PrevConsole=Console;
     Console=m_ConByGuiWin;
+
+    // Copy the output to the previous console to the now current console.
+    cf::ConsoleStringBufferT* ConsoleSB=dynamic_cast<cf::ConsoleStringBufferT*>(m_PrevConsole);
+    if (ConsoleSB) Console->Print(ConsoleSB->GetBuffer());
 
     m_InitState=INIT_SUCCESS;
 }
