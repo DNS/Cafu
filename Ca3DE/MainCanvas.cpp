@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "MainCanvas.hpp"
+#include "AppCafu.hpp"
 #include "MainFrame.hpp"
 #include "Client/Client.hpp"
 #include "Client/ClientWindow.hpp"
@@ -901,7 +902,12 @@ void MainCanvasT::OnKeyDown(wxKeyEvent& KE)
 
         case WXK_F11:
         {
-            m_Parent->ShowFullScreen(!m_Parent->IsFullScreen());
+            if (!wxGetApp().IsCustomVideoMode())
+            {
+                // Switching full-screen mode with F11 only makes sense if we didn't set a custom video mode (screen resolution).
+                // See AppCafuT::OnInit() for more details.
+                m_Parent->ShowFullScreen(!m_Parent->IsFullScreen());
+            }
             return;
         }
     }

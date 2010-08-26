@@ -85,7 +85,7 @@ IMPLEMENT_APP(AppCafu)
 
 AppCafu::AppCafu()
     : wxApp(),
-      m_IsFullScreen(false),
+      m_IsCustomVideoMode(false),
       m_MainFrame(NULL)
 {
     // All global convars and confuncs have registered themselves in linked lists.
@@ -142,45 +142,83 @@ bool AppCafu::OnInit()
     MaterialManager->RegisterMaterialScriptsInDir("Games/"+GameName+"/Materials", "Games/"+GameName+"/");
     SoundShaderManager->RegisterSoundShaderScriptsInDir("Games/"+GameName+"/SoundShader", "Games/"+GameName+"/");
 
-    // Change display mode.
-    wxDisplay Display;
 
-    m_DesktopMode=Display.GetCurrentMode();
-
-    if (m_DesktopMode.w==0) m_DesktopMode.w=wxGetDisplaySize().x;
-    if (m_DesktopMode.h==0) m_DesktopMode.h=wxGetDisplaySize().y;
-
-    m_CurrentMode=m_DesktopMode;
-
-    extern ConVarT Options_ClientWindowSizeX;
-    extern ConVarT Options_ClientWindowSizeY;
-    extern ConVarT Options_ClientDisplayBPP;
-    extern ConVarT Options_ClientDisplayRefresh;
+    // Change the video mode. Although the two actions
+    //
+    //     (a) change the screen resolution (video mode) and
+    //     (b) show the Cafu window full-screen
+    //
+    // are theoretically independent of each other, case "(a) but not (b)" does not make sense at all;
+    // case "not (a) but (b)" makes more sense but is atypical as well, and is easily switched from case
+    // "neither (a) nor (b)" by pressing F11. Thus, we are effectively only concerned by two cases:
+    //
+    //     (1) windowed mode:    "neither (a) nor (b)"
+    //     (2) full-screen mode: "both (a) and (b)"
+    //
+    // For case (1), we simply open a normal application window with dimensions Options_ClientWindowSize[X/Y].
+    // For case (2), we change the video mode as specified by Options_Client* and show the application
+    // window full-screen.
+    wxDisplay      Display;
     extern ConVarT Options_ClientFullScreen;
 
     if (Options_ClientFullScreen.GetValueBool())
     {
-        const wxVideoMode VideoMode(Options_ClientWindowSizeX.GetValueInt(),
-                                    Options_ClientWindowSizeY.GetValueInt(),
-                                    Options_ClientDisplayBPP.GetValueInt(),
-                                    Options_ClientDisplayRefresh.GetValueInt());
+        extern ConVarT Options_ClientWindowSizeX;
+        extern ConVarT Options_ClientWindowSizeY;
+        extern ConVarT Options_ClientDisplayBPP;
+        extern ConVarT Options_ClientDisplayRefresh;
 
-        if (Display.ChangeMode(VideoMode))
+        const wxVideoMode VideoMode1(Options_ClientWindowSizeX.GetValueInt(),
+                                     Options_ClientWindowSizeY.GetValueInt(),
+                                     Options_ClientDisplayBPP.GetValueInt(),
+                                     Options_ClientDisplayRefresh.GetValueInt());
+
+        const wxVideoMode VideoMode2(Options_ClientWindowSizeX.GetValueInt(),
+                                     Options_ClientWindowSizeY.GetValueInt(),
+                                     Options_ClientDisplayBPP.GetValueInt(), 0);
+
+        const wxVideoMode VideoMode3(Options_ClientWindowSizeX.GetValueInt(),
+                                     Options_ClientWindowSizeY.GetValueInt(), 0, 0);
+
+        if (Display.ChangeMode(VideoMode1))
         {
-            m_CurrentMode=Display.GetCurrentMode();
-            m_IsFullScreen=true;
+            m_IsCustomVideoMode=true;
+        }
+        else if (Display.ChangeMode(VideoMode2))
+        {
+            Options_ClientDisplayRefresh.SetValue(Display.GetCurrentMode().refresh);
+            m_IsCustomVideoMode=true;
+        }
+        else if (Display.ChangeMode(VideoMode3))
+        {
+            Options_ClientDisplayBPP.SetValue(Display.GetCurrentMode().bpp);
+            Options_ClientDisplayRefresh.SetValue(Display.GetCurrentMode().refresh);
+            m_IsCustomVideoMode=true;
         }
         else
         {
             wxMessageBox("Cafu tried to change the video mode to\n"+
-                wxString::Format("        %i x %i, %i BPP at %i Hz,\n", VideoMode.w, VideoMode.h, VideoMode.bpp, VideoMode.refresh)+
+                wxString::Format("        %i x %i, %i bpp at %i Hz,\n", VideoMode1.w, VideoMode1.h, VideoMode1.bpp, VideoMode1.refresh)+
+                wxString::Format("        %i x %i, %i bpp at any refresh rate,\n", VideoMode2.w, VideoMode2.h, VideoMode2.bpp)+
+                wxString::Format("        %i x %i at any color depth and refresh rate,\n", VideoMode3.w, VideoMode3.h)+
                 "but it didn't work out (zero values mean system defaults).\n"+
                 "We will use the currently active video mode instead and continue.\n\n"+
                 "Alternatively, you can set a different video mode at the Options menu,\n"+
                 "or tweak the video mode details via the console variables.\n",
                 "Could not change the video mode", wxOK | wxICON_EXCLAMATION);
+
+            Options_ClientFullScreen.SetValue(false);
         }
     }
+
+    m_CurrentMode=Display.GetCurrentMode();
+
+    if (m_CurrentMode.w==0) { m_CurrentMode.w=wxGetDisplaySize().x; wxLogDebug("Set m_CurrentMode.w from 0 to %i", m_CurrentMode.w); }
+    if (m_CurrentMode.h==0) { m_CurrentMode.h=wxGetDisplaySize().y; wxLogDebug("Set m_CurrentMode.h from 0 to %i", m_CurrentMode.h); }
+
+    if (m_CurrentMode.w<200) { m_CurrentMode.w=1024; wxLogDebug("Set m_CurrentMode.w from <200 to %i", m_CurrentMode.w); }
+    if (m_CurrentMode.h<150) { m_CurrentMode.h= 768; wxLogDebug("Set m_CurrentMode.h from <150 to %i", m_CurrentMode.h); }
+
 
     // Create the main frame.
     m_MainFrame=new MainFrameT();
@@ -192,11 +230,12 @@ bool AppCafu::OnInit()
 
 int AppCafu::OnExit()
 {
-    if (m_CurrentMode!=m_DesktopMode)
+    if (m_IsCustomVideoMode)
     {
         wxDisplay Display;
 
-        Display.ChangeMode(m_DesktopMode);
+        // Reset the display to default (desktop) video mode.
+        Display.ChangeMode();
     }
 
     delete g_WinSock;

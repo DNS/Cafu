@@ -31,17 +31,8 @@ BEGIN_EVENT_TABLE(MainFrameT, wxFrame)
 END_EVENT_TABLE()
 
 
-static long int GetStyle()
-{
-    // This seems to be a limitation of Windows:
-    // Creating a frame with a border that is shown full-screen in a video mode
-    // other than the default (desktop) mode does not properly fill the screen...
-    return wxGetApp().IsFullScreen() ? 0 : wxDEFAULT_FRAME_STYLE;
-}
-
-
 MainFrameT::MainFrameT()
-    : wxFrame(NULL /*parent*/, wxID_ANY, wxString("Cafu Engine - ") + __DATE__, wxDefaultPosition, wxDefaultSize, GetStyle()),
+    : wxFrame(NULL /*parent*/, wxID_ANY, wxString("Cafu Engine - ") + __DATE__),
       m_MainCanvas(NULL)
 {
 #ifdef __WXMSW__
@@ -58,7 +49,7 @@ MainFrameT::MainFrameT()
     this->Layout();
 
     // Show the frame - it is not shown by default...
-    if (wxGetApp().IsFullScreen()) ShowFullScreen(true); else Show();
+    if (wxGetApp().IsCustomVideoMode()) ShowFullScreen(true); else Show();
 }
 
 
