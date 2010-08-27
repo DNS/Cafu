@@ -56,17 +56,15 @@ elif sys.platform=="linux2":
     envTools.Append(LIBS=Split("SceneGraph MatSys cfsOpenGL cfsLib cfsCoreLib cfsLib ClipSys cfs_png cfs_jpeg bulletcollision lua minizip lightwave z")
                        + Split("GL GLU"))
 
-envTools.Program('CaSanity', ['CaTools/CaSanity.cpp'] + CommonWorldObject)
-
 envTools.Program("MakeFont", "CaTools/MakeFont.cpp", LIBS=envTools["LIBS"]+["freetype"])
 
-envTools.Program('MaterialViewer', "CaTools/MaterialViewer.cpp")
-
-envTools.Program('ModelViewer', "CaTools/ModelViewer.cpp")
-
-envTools.Program('TerrainViewer', "CaTools/TerrainViewer.cpp", CPPPATH=envTools["CPPPATH"]+["ExtLibs/zlib"])
-
-envTools.Program('TerrainViewerOld', "CaTools/TerrainViewerOld.cpp")
+if sys.platform!="win32" or envTools["TARGET_ARCH"]=="x86":
+    # Don't build these programs under 64-bit Windows, as they still depend on our legacy 32-bit-only DirectInput code.
+    envTools.Program('CaSanity', ['CaTools/CaSanity.cpp'] + CommonWorldObject)
+    envTools.Program('MaterialViewer', "CaTools/MaterialViewer.cpp")
+    envTools.Program('ModelViewer', "CaTools/ModelViewer.cpp")
+    envTools.Program('TerrainViewer', "CaTools/TerrainViewer.cpp", CPPPATH=envTools["CPPPATH"]+["ExtLibs/zlib"])
+    envTools.Program('TerrainViewerOld', "CaTools/TerrainViewerOld.cpp")
 
 if sys.platform=="win32":
     env.Program('ReadDump', "CaTools/ReadDump.cpp", LIBS="wsock32")

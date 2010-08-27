@@ -102,17 +102,17 @@ void ExportLightMaps(const char* WorldPathName)
     if (WorldPathName)
     {
         // Dateinamen abtrennen (mit Extension).
-        int i=strlen(WorldPathName)-1;
+        size_t i=strlen(WorldPathName);
 
-        while (i>=0 && WorldPathName[i]!='/' && WorldPathName[i]!='\\') i--;
-        strncpy(WorldName, WorldPathName+i+1, 256);
+        while (i>0 && WorldPathName[i-1]!='/' && WorldPathName[i-1]!='\\') i--;
+        strncpy(WorldName, WorldPathName+i, 256);
         WorldName[255]=0;
 
         // Extension abtrennen.
-        i=strlen(WorldName)-1;
+        i=strlen(WorldName);
 
-        while (i>=0 && WorldName[i]!='.') i--;
-        if (i>=0) WorldName[i]=0;
+        while (i>0 && WorldName[i-1]!='.') i--;
+        if (i>0) WorldName[i-1]=0;
     }
 
     for (unsigned long LMNr=0; LMNr<World->LightMapMan.Bitmaps.Size(); LMNr++)

@@ -42,7 +42,7 @@ GLuint UploadProgram(GLenum ProgramTarget, const char* ProgramCode)
     cf::glBindProgramARB(ProgramTarget, ProgramName);
 
     // Upload the string (code) for this program.
-    cf::glProgramStringARB(ProgramTarget, GL_PROGRAM_FORMAT_ASCII_ARB, strlen(ProgramCode), ProgramCode);
+    cf::glProgramStringARB(ProgramTarget, GL_PROGRAM_FORMAT_ASCII_ARB, GLsizei(strlen(ProgramCode)), ProgramCode);
 
 
     // Error checking.
@@ -54,10 +54,10 @@ GLuint UploadProgram(GLenum ProgramTarget, const char* ProgramCode)
 
 #ifdef DEBUG
     // Want to see warning messages in debug builts.
-    const int ErrorStringLen=strlen(ErrorString);
+    const size_t ErrorStringLen=strlen(ErrorString);
 #else
     // ...and currently in release builts, too.
-    const int ErrorStringLen=strlen(ErrorString);
+    const size_t ErrorStringLen=strlen(ErrorString);
  // const int ErrorStringLen=0;
 #endif
 

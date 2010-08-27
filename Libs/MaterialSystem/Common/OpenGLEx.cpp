@@ -53,8 +53,8 @@ bool cf::GL_ARB_vertex_and_fragment_program_AVAIL=false;
 static bool IsExtensionAvailable(const char* ExtensionName)
 {
     // Dies ist im wesentlichen der Code aus dem "OpenGL Programming Guide", Seite 568.
-    int   LengthOfExtName=strlen(ExtensionName);
-    char* Extensions     =(char*)glGetString(GL_EXTENSIONS);
+    const size_t LengthOfExtName=strlen(ExtensionName);
+    char*        Extensions     =(char*)glGetString(GL_EXTENSIONS);
 
     if (Extensions==NULL) return false;
 
@@ -62,7 +62,7 @@ static bool IsExtensionAvailable(const char* ExtensionName)
 
     while (Extensions<End)
     {
-        const int n=strcspn(Extensions, " ");
+        const size_t n=strcspn(Extensions, " ");
 
         if (LengthOfExtName==n && strncmp(ExtensionName, Extensions, n)==0) return true;
 
