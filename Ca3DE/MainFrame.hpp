@@ -21,8 +21,34 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "SoundShaderManager.hpp"
+#ifndef _CAFU_MAIN_FRAME_HPP_
+#define _CAFU_MAIN_FRAME_HPP_
+
+#include "wx/wx.h"
 
 
-// A global pointer to the sound shader manager, for convenient access by all modules.
-SoundShaderManagerI* SoundShaderManager=0;
+class MainCanvasT;
+
+
+/// This class represents the Cafu main frame.
+class MainFrameT : public wxFrame
+{
+    public:
+
+    /// The constructor.
+    MainFrameT();
+
+    /// Returns the main OpenGL 3D canvas.
+    MainCanvasT* GetMainCanvas() { return m_MainCanvas; }
+
+
+    private:
+
+    void OnClose(wxCloseEvent& CE);     ///< Event handler for close events, e.g. after a system close button or command or a call to Close(). See wx Window Deletion Overview for more details.
+
+    MainCanvasT* m_MainCanvas;
+
+    DECLARE_EVENT_TABLE()
+};
+
+#endif

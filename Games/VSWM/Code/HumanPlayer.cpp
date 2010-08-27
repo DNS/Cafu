@@ -22,7 +22,6 @@
 #include "MaterialSystem/Mesh.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"
-#include "OpenGL/OpenGLWindow.hpp"
 #include "TextParser/TextParser.hpp"
 
 #ifndef _WIN32
@@ -857,7 +856,7 @@ void EntHumanPlayerT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
                     // Thus, simply call 'SingleOpenGLWindow->PostQuitMessage()', without caring if the call
                     // is made from a prediction Think()ing, or a real server-side Think()ing.
                     // In the worst case (with prediction), the quit message is posted multiple times.
-                    if (SingleOpenGLWindow) SingleOpenGLWindow->PostQuitMessage();
+                    // if (SingleOpenGLWindow) SingleOpenGLWindow->PostQuitMessage();   // FIXME: Set ConVar "quit" to true instead!
 
                     if (FrameTime>=0.0 && LogFile!=NULL)
                     {
@@ -946,7 +945,7 @@ void EntHumanPlayerT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
                     // Thus, simply call 'SingleOpenGLWindow->PostQuitMessage()', without caring if the call
                     // is made from a prediction Think()ing, or a real server-side Think()ing.
                     // In the worst case (with prediction), the quit message is posted multiple times.
-                    if (SingleOpenGLWindow) SingleOpenGLWindow->PostQuitMessage();
+                    // if (SingleOpenGLWindow) SingleOpenGLWindow->PostQuitMessage();   // FIXME: Set ConVar "quit" to true instead!
 
                     if (FrameTime>=0.0 && LogFile!=NULL)
                     {
@@ -1294,15 +1293,17 @@ void EntHumanPlayerT::PostDraw(float /*FrameTime*/, bool FirstPersonView)
             {
                 static FontT Font1("Fonts/Arial");
                 const float  TimeRemaining=3.0f-float(State.Velocity.x);
+                const int FrameWidth =1024;
+                const int FrameHeight= 786;
 
-                     if (TimeRemaining>=2.0) Font1.Print(SingleOpenGLWindow->GetWidth()/2-47, SingleOpenGLWindow->GetHeight()/2, 0x00FF0000, "   3   ");
-                else if (TimeRemaining>=1.0) Font1.Print(SingleOpenGLWindow->GetWidth()/2-47, SingleOpenGLWindow->GetHeight()/2, 0x00FF0000, "   2   ");
-                else if (TimeRemaining>=0.0) Font1.Print(SingleOpenGLWindow->GetWidth()/2-47, SingleOpenGLWindow->GetHeight()/2, 0x00FF0000, "   1   ");
-             // else if (TimeRemaining>=0.0) Font1.Print(SingleOpenGLWindow->GetWidth()/2-47, SingleOpenGLWindow->GetHeight()/2, 0x00FF0000, "  Go!  ");
+                     if (TimeRemaining>=2.0) Font1.Print(FrameWidth/2-47, FrameHeight/2, float(FrameWidth), float(FrameHeight), 0x00FF0000, "   3   ");
+                else if (TimeRemaining>=1.0) Font1.Print(FrameWidth/2-47, FrameHeight/2, float(FrameWidth), float(FrameHeight), 0x00FF0000, "   2   ");
+                else if (TimeRemaining>=0.0) Font1.Print(FrameWidth/2-47, FrameHeight/2, float(FrameWidth), float(FrameHeight), 0x00FF0000, "   1   ");
+             // else if (TimeRemaining>=0.0) Font1.Print(FrameWidth/2-47, FrameHeight/2, float(FrameWidth), float(FrameHeight), 0x00FF0000, "  Go!  ");
                 else
                 {
                     // OLD CODE (yes, it was only one line):
-                    // Font1.Print(SingleOpenGLWindow->GetWidth()/2-75, SingleOpenGLWindow->GetHeight()/2, 0x00FF0000, "Ready!");
+                    // Font1.Print(FrameWidth/2-75, FrameHeight/2, float(FrameWidth), float(FrameHeight), 0x00FF0000, "Ready!");
 
                     static const std::string        HudImgMatName="Hud/Ready";
                     static unsigned long            HudImgWidth  =MaterialManager->GetMaterial(HudImgMatName)->GetPixelSizeX();
@@ -1315,7 +1316,7 @@ void EntHumanPlayerT::PostDraw(float /*FrameTime*/, bool FirstPersonView)
 
                     MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
                     MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,  MatrixT());
-                    MatSys::Renderer->SetMatrix(MatSys::RendererI::PROJECTION,     MatrixT::GetProjOrthoMatrix(0.0f, float(SingleOpenGLWindow->GetWidth()), float(SingleOpenGLWindow->GetHeight()), 0.0f, -1.0f, 1.0f));
+                    MatSys::Renderer->SetMatrix(MatSys::RendererI::PROJECTION,     MatrixT::GetProjOrthoMatrix(0.0f, float(FrameWidth), float(FrameHeight), 0.0f, -1.0f, 1.0f));
 
                     static MatSys::MeshT TextMesh(MatSys::MeshT::Quads);
                     TextMesh.Vertices.Overwrite();
@@ -1324,10 +1325,10 @@ void EntHumanPlayerT::PostDraw(float /*FrameTime*/, bool FirstPersonView)
                     const unsigned long w=HudImgWidth /2;
                     const unsigned long h=HudImgHeight/2;
 
-                    TextMesh.Vertices[0].SetOrigin(SingleOpenGLWindow->GetWidth()/2-w, SingleOpenGLWindow->GetHeight()/2-h); TextMesh.Vertices[0].SetTextureCoord(0.0f, 0.0f);
-                    TextMesh.Vertices[1].SetOrigin(SingleOpenGLWindow->GetWidth()/2+w, SingleOpenGLWindow->GetHeight()/2-h); TextMesh.Vertices[1].SetTextureCoord(1.0f, 0.0f);
-                    TextMesh.Vertices[2].SetOrigin(SingleOpenGLWindow->GetWidth()/2+w, SingleOpenGLWindow->GetHeight()/2+h); TextMesh.Vertices[2].SetTextureCoord(1.0f, 1.0f);
-                    TextMesh.Vertices[3].SetOrigin(SingleOpenGLWindow->GetWidth()/2-w, SingleOpenGLWindow->GetHeight()/2+h); TextMesh.Vertices[3].SetTextureCoord(0.0f, 1.0f);
+                    TextMesh.Vertices[0].SetOrigin(FrameWidth/2-w, FrameHeight/2-h); TextMesh.Vertices[0].SetTextureCoord(0.0f, 0.0f);
+                    TextMesh.Vertices[1].SetOrigin(FrameWidth/2+w, FrameHeight/2-h); TextMesh.Vertices[1].SetTextureCoord(1.0f, 0.0f);
+                    TextMesh.Vertices[2].SetOrigin(FrameWidth/2+w, FrameHeight/2+h); TextMesh.Vertices[2].SetTextureCoord(1.0f, 1.0f);
+                    TextMesh.Vertices[3].SetOrigin(FrameWidth/2-w, FrameHeight/2+h); TextMesh.Vertices[3].SetTextureCoord(0.0f, 1.0f);
 
                     MatSys::Renderer->SetCurrentMaterial(HudImgRM);
                     MatSys::Renderer->RenderMesh(TextMesh);

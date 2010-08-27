@@ -43,14 +43,6 @@
 #include "wx/msw/missing.h"
 #include "wx/msw/private.h"
 
-// define this to use DirectDraw for display mode switching: this is disabled
-// by default because ddraw.h is now always available and also it's not really
-// clear what are the benefits of using DirectDraw compared to the standard API
-
-#if !defined(wxUSE_DIRECTDRAW)
-    #define wxUSE_DIRECTDRAW 0
-#endif
-
 #ifndef __WXWINCE__
     // Older versions of windef.h don't define HMONITOR.  Unfortunately, we
     // can't directly test whether HMONITOR is defined or not in windef.h as
@@ -78,15 +70,6 @@
     #endif
 #endif // !__WXWINCE__
 
-#if wxUSE_DIRECTDRAW
-    #include <ddraw.h>
-
-    // we don't want to link with ddraw.lib which contains the real
-    // IID_IDirectDraw2 definition
-    const GUID wxIID_IDirectDraw2 =
-     { 0xB3A6F3E0, 0x2B43, 0x11CF, { 0xA2,0xDE,0x00,0xAA,0x00,0xB9,0x33,0x56 } };
-#endif // wxUSE_DIRECTDRAW
-
 // display functions are found in different DLLs under WinCE and normal Win32
 #ifdef __WXWINCE__
 static const wxChar displayDllName[] = wxT("coredll.dll");
@@ -103,22 +86,6 @@ typedef LONG (WINAPI *ChangeDisplaySettingsEx_t)(LPCTSTR lpszDeviceName,
                                                  HWND hwnd,
                                                  DWORD dwFlags,
                                                  LPVOID lParam);
-
-#if wxUSE_DIRECTDRAW
-typedef BOOL (PASCAL *DDEnumExCallback_t)(GUID *pGuid,
-                                          LPTSTR driverDescription,
-                                          LPTSTR driverName,
-                                          LPVOID lpContext,
-                                          HMONITOR hmon);
-
-typedef HRESULT (WINAPI *DirectDrawEnumerateEx_t)(DDEnumExCallback_t lpCallback,
-                                                  LPVOID lpContext,
-                                                  DWORD dwFlags);
-
-typedef HRESULT (WINAPI *DirectDrawCreate_t)(GUID *lpGUID,
-                                             LPDIRECTDRAW *lplpDD,
-                                             IUnknown *pUnkOuter);
-#endif // wxUSE_DIRECTDRAW
 
 typedef BOOL (WINAPI *EnumDisplayMonitors_t)(HDC,LPCRECT,MONITORENUMPROC,LPARAM);
 typedef HMONITOR (WINAPI *MonitorFromPoint_t)(POINT,DWORD);
@@ -137,56 +104,17 @@ LONG WINAPI ChangeDisplaySettingsExForWin95(LPCTSTR WXUNUSED(lpszDeviceName),
 }
 #endif // !__WXWINCE__
 
-// ----------------------------------------------------------------------------
-// display information classes
-// ----------------------------------------------------------------------------
-
-struct wxDisplayInfo
-{
-    wxDisplayInfo(HMONITOR hmon = NULL)
-    {
-        m_hmon = hmon;
-        m_flags = (DWORD)-1;
-    }
-
-    virtual ~wxDisplayInfo() { }
-
-
-    // use GetMonitorInfo() to fill in all of our fields if needed (i.e. if it
-    // hadn't been done before)
-    void Initialize();
-
-
-    // handle of this monitor used by MonitorXXX() functions, never NULL
-    HMONITOR m_hmon;
-
-    // the entire area of this monitor in virtual screen coordinates
-    wxRect m_rect;
-
-    // the work or client area, i.e. the area available for the normal windows
-    wxRect m_rectClient;
-
-    // the display device name for this monitor, empty initially and retrieved
-    // on demand by DoGetName()
-    wxString m_devName;
-
-    // the flags of this monitor, also used as initialization marker: if this
-    // is -1, GetMonitorInfo() hadn't been called yet
-    DWORD m_flags;
-};
-
-WX_DEFINE_ARRAY_PTR(wxDisplayInfo *, wxDisplayInfoArray);
 
 // ----------------------------------------------------------------------------
-// common base class for all Win32 wxDisplayImpl versions
+// wxDisplayMSW declaration
 // ----------------------------------------------------------------------------
 
-class wxDisplayImplWin32Base : public wxDisplayImpl
+class wxDisplayMSW : public wxDisplayImpl
 {
 public:
-    wxDisplayImplWin32Base(unsigned n, wxDisplayInfo& info)
+    wxDisplayMSW(unsigned n, HMONITOR hmon)
         : wxDisplayImpl(n),
-          m_info(info)
+          m_hmon(hmon)
     {
     }
 
@@ -196,6 +124,8 @@ public:
     virtual bool IsPrimary() const;
 
     virtual wxVideoMode GetCurrentMode() const;
+    virtual wxArrayVideoModes GetModes(const wxVideoMode& mode) const;
+    virtual bool ChangeMode(const wxVideoMode& mode);
 
 protected:
     // convert a DEVMODE to our wxVideoMode
@@ -210,81 +140,39 @@ protected:
                            dm.dmDisplayFrequency > 1 ? dm.dmDisplayFrequency : 0);
     }
 
-    wxDisplayInfo& m_info;
+    HMONITOR m_hmon;
+
+private:
+    wxDECLARE_NO_COPY_CLASS(wxDisplayMSW);
 };
 
+
 // ----------------------------------------------------------------------------
-// common base class for all Win32 wxDisplayFactory versions
+// wxDisplayFactoryMSW declaration
 // ----------------------------------------------------------------------------
 
-// functions dynamically bound by wxDisplayFactoryWin32Base::Initialize()
+WX_DEFINE_ARRAY(HMONITOR, wxMonitorHandleArray);
+
+// functions dynamically bound by wxDisplayFactoryMSW ctor.
 static MonitorFromPoint_t gs_MonitorFromPoint = NULL;
 static MonitorFromWindow_t gs_MonitorFromWindow = NULL;
 static GetMonitorInfo_t gs_GetMonitorInfo = NULL;
+static EnumDisplayMonitors_t gs_EnumDisplayMonitors = NULL;
 
-class wxDisplayFactoryWin32Base : public wxDisplayFactory
+class wxDisplayFactoryMSW : public wxDisplayFactory
 {
 public:
-    virtual ~wxDisplayFactoryWin32Base();
+    // ctor checks if the current system supports multimon API and dynamically
+    // bind the functions we need if this is the case and fills the
+    // m_displays array if they're available
+    wxDisplayFactoryMSW();
 
     bool IsOk() const { return !m_displays.empty(); }
 
+    virtual wxDisplayImpl *CreateDisplay(unsigned n);
     virtual unsigned GetCount() { return unsigned(m_displays.size()); }
     virtual int GetFromPoint(const wxPoint& pt);
     virtual int GetFromWindow(const wxWindow *window);
-
-protected:
-    // ctor checks if the current system supports multimon API and dynamically
-    // bind the functions we need if this is the case and sets
-    // ms_supportsMultimon if they're available
-    wxDisplayFactoryWin32Base();
-
-    // delete all m_displays elements: can be called from the derived class
-    // dtor if it is important to do this before destroying it (as in
-    // wxDisplayFactoryDirectDraw case), otherwise will be done by our dtor
-    void Clear();
-
-    // find the monitor corresponding to the given handle, return wxNOT_FOUND
-    // if not found
-    int FindDisplayFromHMONITOR(HMONITOR hmon) const;
-
-
-    // flag indicating whether gs_MonitorXXX functions are available
-    static int ms_supportsMultimon;
-
-    // the array containing information about all available displays, should be
-    // filled by the derived class ctors
-    wxDisplayInfoArray m_displays;
-
-
-    wxDECLARE_NO_COPY_CLASS(wxDisplayFactoryWin32Base);
-};
-
-// ----------------------------------------------------------------------------
-// wxDisplay implementation using Windows multi-monitor support functions
-// ----------------------------------------------------------------------------
-
-class wxDisplayImplMultimon : public wxDisplayImplWin32Base
-{
-public:
-    wxDisplayImplMultimon(unsigned n, wxDisplayInfo& info)
-        : wxDisplayImplWin32Base(n, info)
-    {
-    }
-
-    virtual wxArrayVideoModes GetModes(const wxVideoMode& mode) const;
-    virtual bool ChangeMode(const wxVideoMode& mode);
-
-private:
-    wxDECLARE_NO_COPY_CLASS(wxDisplayImplMultimon);
-};
-
-class wxDisplayFactoryMultimon : public wxDisplayFactoryWin32Base
-{
-public:
-    wxDisplayFactoryMultimon();
-
-    virtual wxDisplayImpl *CreateDisplay(unsigned n);
 
 private:
     // EnumDisplayMonitors() callback
@@ -293,196 +181,99 @@ private:
                                           LPRECT lprcMonitor,
                                           LPARAM dwData);
 
+    // find the monitor corresponding to the given handle,
+    // return wxNOT_FOUND if not found
+    int FindDisplayFromHMONITOR(HMONITOR hmon) const;
 
-    // add a monitor description to m_displays array
-    void AddDisplay(HMONITOR hMonitor, LPRECT lprcMonitor);
+    // the array containing information about all available displays, should be
+    // filled by the derived class ctors
+    wxMonitorHandleArray m_displays;
+
+    wxDECLARE_NO_COPY_CLASS(wxDisplayFactoryMSW);
 };
+
 
 // ----------------------------------------------------------------------------
-// wxDisplay implementation using DirectDraw
-// ----------------------------------------------------------------------------
-
-#if wxUSE_DIRECTDRAW
-
-struct wxDisplayInfoDirectDraw : wxDisplayInfo
-{
-    wxDisplayInfoDirectDraw(const GUID& guid, HMONITOR hmon, LPTSTR name)
-        : wxDisplayInfo(hmon),
-          m_guid(guid)
-    {
-        m_pDD2 = NULL;
-        m_devName = name;
-    }
-
-    virtual ~wxDisplayInfoDirectDraw()
-    {
-        if ( m_pDD2 )
-            m_pDD2->Release();
-    }
-
-
-    // IDirectDraw object used to control this display, may be NULL
-    IDirectDraw2 *m_pDD2;
-
-    // DirectDraw GUID for this display, only valid when using DirectDraw
-    const GUID m_guid;
-
-
-    wxDECLARE_NO_COPY_CLASS(wxDisplayInfoDirectDraw);
-};
-
-class wxDisplayImplDirectDraw : public wxDisplayImplWin32Base
-{
-public:
-    wxDisplayImplDirectDraw(unsigned n, wxDisplayInfo& info, IDirectDraw2 *pDD2)
-        : wxDisplayImplWin32Base(n, info),
-          m_pDD2(pDD2)
-    {
-        m_pDD2->AddRef();
-    }
-
-    virtual ~wxDisplayImplDirectDraw()
-    {
-        m_pDD2->Release();
-    }
-
-    virtual wxArrayVideoModes GetModes(const wxVideoMode& mode) const;
-    virtual bool ChangeMode(const wxVideoMode& mode);
-
-private:
-    IDirectDraw2 *m_pDD2;
-
-    wxDECLARE_NO_COPY_CLASS(wxDisplayImplDirectDraw);
-};
-
-class wxDisplayFactoryDirectDraw : public wxDisplayFactoryWin32Base
-{
-public:
-    wxDisplayFactoryDirectDraw();
-    virtual ~wxDisplayFactoryDirectDraw();
-
-    virtual wxDisplayImpl *CreateDisplay(unsigned n);
-
-private:
-    // callback used with DirectDrawEnumerateEx()
-    static BOOL WINAPI DDEnumExCallback(GUID *pGuid,
-                                        LPTSTR driverDescription,
-                                        LPTSTR driverName,
-                                        LPVOID lpContext,
-                                        HMONITOR hmon);
-
-    // add a monitor description to m_displays array
-    void AddDisplay(const GUID& guid, HMONITOR hmon, LPTSTR name);
-
-
-    // ddraw.dll
-    wxDynamicLibrary m_dllDDraw;
-
-    // dynamically resolved DirectDrawCreate()
-    DirectDrawCreate_t m_pfnDirectDrawCreate;
-
-    wxDECLARE_NO_COPY_CLASS(wxDisplayFactoryDirectDraw);
-};
-
-#endif // wxUSE_DIRECTDRAW
-
-
-// ============================================================================
-// common classes implementation
-// ============================================================================
-
-// ----------------------------------------------------------------------------
-// wxDisplay
+// wxDisplay implementation
 // ----------------------------------------------------------------------------
 
 /* static */ wxDisplayFactory *wxDisplay::CreateFactory()
 {
-    // we have 2 implementations for modern Windows: one using standard Win32
-    // and another using DirectDraw, the choice between them is done using a
-    // system option
+    wxDisplayFactoryMSW *factoryMM = new wxDisplayFactoryMSW;
 
-#if wxUSE_DIRECTDRAW
-    if ( wxSystemOptions::GetOptionInt(wxT("msw.display.directdraw")) )
-    {
-        wxDisplayFactoryDirectDraw *factoryDD = new wxDisplayFactoryDirectDraw;
-        if ( factoryDD->IsOk() )
-            return factoryDD;
-
-        delete factoryDD;
-    }
-#endif // wxUSE_DIRECTDRAW
-
-    wxDisplayFactoryMultimon *factoryMM = new wxDisplayFactoryMultimon;
     if ( factoryMM->IsOk() )
         return factoryMM;
 
     delete factoryMM;
 
-
     // finally fall back to a stub implementation if all else failed (Win95?)
     return new wxDisplayFactorySingle;
 }
 
+
 // ----------------------------------------------------------------------------
-// wxDisplayInfo
+// wxDisplayMSW implementation
 // ----------------------------------------------------------------------------
 
-void wxDisplayInfo::Initialize()
+wxRect wxDisplayMSW::GetGeometry() const
 {
-    if ( m_flags == (DWORD)-1 )
+    WinStruct<MONITORINFOEX> monInfo;
+
+    if ( !gs_GetMonitorInfo(m_hmon, (LPMONITORINFO)&monInfo) )
     {
-        WinStruct<MONITORINFOEX> monInfo;
-        if ( !gs_GetMonitorInfo(m_hmon, (LPMONITORINFO)&monInfo) )
-        {
-            wxLogLastError(wxT("GetMonitorInfo"));
-            m_flags = 0;
-            return;
-        }
-
-        wxCopyRECTToRect(monInfo.rcMonitor, m_rect);
-        wxCopyRECTToRect(monInfo.rcWork, m_rectClient);
-        m_devName = monInfo.szDevice;
-        m_flags = monInfo.dwFlags;
+        wxLogLastError(wxT(__FUNCTION__));
+        return wxRect();
     }
+
+    wxRect rect;
+    wxCopyRECTToRect(monInfo.rcMonitor, rect);
+
+    return rect;
 }
 
-// ----------------------------------------------------------------------------
-// wxDisplayImplWin32Base
-// ----------------------------------------------------------------------------
-
-wxRect wxDisplayImplWin32Base::GetGeometry() const
+wxRect wxDisplayMSW::GetClientArea() const
 {
-    if ( m_info.m_rect.IsEmpty() )
-        m_info.Initialize();
+    WinStruct<MONITORINFOEX> monInfo;
 
-    return m_info.m_rect;
+    if ( !gs_GetMonitorInfo(m_hmon, (LPMONITORINFO)&monInfo) )
+    {
+        wxLogLastError(wxT(__FUNCTION__));
+        return wxRect();
+    }
+
+    wxRect rectClient;
+    wxCopyRECTToRect(monInfo.rcWork, rectClient);
+
+    return rectClient;
 }
 
-wxRect wxDisplayImplWin32Base::GetClientArea() const
+wxString wxDisplayMSW::GetName() const
 {
-    if ( m_info.m_rectClient.IsEmpty() )
-        m_info.Initialize();
+    WinStruct<MONITORINFOEX> monInfo;
 
-    return m_info.m_rectClient;
+    if ( !gs_GetMonitorInfo(m_hmon, (LPMONITORINFO)&monInfo) )
+    {
+        wxLogLastError(wxT(__FUNCTION__));
+        return "";
+    }
+
+    return monInfo.szDevice;
 }
 
-wxString wxDisplayImplWin32Base::GetName() const
+bool wxDisplayMSW::IsPrimary() const
 {
-    if ( m_info.m_devName.empty() )
-        m_info.Initialize();
+    WinStruct<MONITORINFOEX> monInfo;
 
-    return m_info.m_devName;
+    if ( !gs_GetMonitorInfo(m_hmon, (LPMONITORINFO)&monInfo) )
+    {
+        wxLogLastError(wxT(__FUNCTION__));
+        return false;
+    }
+
+    return (monInfo.dwFlags & MONITORINFOF_PRIMARY) != 0;
 }
 
-bool wxDisplayImplWin32Base::IsPrimary() const
-{
-    if ( m_info.m_flags == (DWORD)-1 )
-        m_info.Initialize();
-
-    return (m_info.m_flags & MONITORINFOF_PRIMARY) != 0;
-}
-
-wxVideoMode wxDisplayImplWin32Base::GetCurrentMode() const
+wxVideoMode wxDisplayMSW::GetCurrentMode() const
 {
     wxVideoMode mode;
 
@@ -497,6 +288,7 @@ wxVideoMode wxDisplayImplWin32Base::GetCurrentMode() const
     DEVMODE dm;
     dm.dmSize = sizeof(dm);
     dm.dmDriverExtra = 0;
+
     if ( !::EnumDisplaySettings(deviceName, ENUM_CURRENT_SETTINGS, &dm) )
     {
         wxLogLastError(wxT("EnumDisplaySettings(ENUM_CURRENT_SETTINGS)"));
@@ -509,153 +301,7 @@ wxVideoMode wxDisplayImplWin32Base::GetCurrentMode() const
     return mode;
 }
 
-// ----------------------------------------------------------------------------
-// wxDisplayFactoryWin32Base
-// ----------------------------------------------------------------------------
-
-int wxDisplayFactoryWin32Base::ms_supportsMultimon = -1;
-
-wxDisplayFactoryWin32Base::wxDisplayFactoryWin32Base()
-{
-    if ( ms_supportsMultimon == -1 )
-    {
-        ms_supportsMultimon = 0;
-
-        wxDynamicLibrary dllDisplay(displayDllName, wxDL_VERBATIM | wxDL_QUIET);
-
-        if ( (wxDL_INIT_FUNC(gs_, MonitorFromPoint, dllDisplay)) == NULL ||
-             (wxDL_INIT_FUNC(gs_, MonitorFromWindow, dllDisplay)) == NULL ||
-             (wxDL_INIT_FUNC_AW(gs_, GetMonitorInfo, dllDisplay)) == NULL )
-            return;
-
-        ms_supportsMultimon = 1;
-
-        // we can safely let dllDisplay go out of scope, the DLL itself will
-        // still remain loaded as all programs link to it statically anyhow
-    }
-}
-
-void wxDisplayFactoryWin32Base::Clear()
-{
-    WX_CLEAR_ARRAY(m_displays);
-}
-
-wxDisplayFactoryWin32Base::~wxDisplayFactoryWin32Base()
-{
-    Clear();
-}
-
-// helper for GetFromPoint() and GetFromWindow()
-int wxDisplayFactoryWin32Base::FindDisplayFromHMONITOR(HMONITOR hmon) const
-{
-    if ( hmon )
-    {
-        const size_t count = m_displays.size();
-        for ( size_t n = 0; n < count; n++ )
-        {
-            if ( hmon == m_displays[n]->m_hmon )
-                return n;
-        }
-    }
-
-    return wxNOT_FOUND;
-}
-
-int wxDisplayFactoryWin32Base::GetFromPoint(const wxPoint& pt)
-{
-    POINT pt2;
-    pt2.x = pt.x;
-    pt2.y = pt.y;
-
-    return FindDisplayFromHMONITOR(gs_MonitorFromPoint(pt2,
-                                                       MONITOR_DEFAULTTONULL));
-}
-
-int wxDisplayFactoryWin32Base::GetFromWindow(const wxWindow *window)
-{
-    return FindDisplayFromHMONITOR(gs_MonitorFromWindow(GetHwndOf(window),
-                                                        MONITOR_DEFAULTTONULL));
-}
-
-// ============================================================================
-// wxDisplay implementation using Win32 multimon API
-// ============================================================================
-
-// ----------------------------------------------------------------------------
-// wxDisplayFactoryMultimon initialization
-// ----------------------------------------------------------------------------
-
-wxDisplayFactoryMultimon::wxDisplayFactoryMultimon()
-{
-    if ( !ms_supportsMultimon )
-        return;
-
-    // look up EnumDisplayMonitors() which we don't need with DirectDraw
-    // implementation
-    EnumDisplayMonitors_t pfnEnumDisplayMonitors;
-    {
-        wxDynamicLibrary dllDisplay(displayDllName, wxDL_VERBATIM | wxDL_QUIET);
-        if ( (wxDL_INIT_FUNC(pfn, EnumDisplayMonitors, dllDisplay)) == NULL )
-            return;
-    }
-
-    // enumerate all displays
-    if ( !pfnEnumDisplayMonitors(NULL, NULL, MultimonEnumProc, (LPARAM)this) )
-    {
-        wxLogLastError(wxT("EnumDisplayMonitors"));
-    }
-}
-
-/* static */
-BOOL CALLBACK
-wxDisplayFactoryMultimon::MultimonEnumProc(
-  HMONITOR hMonitor,        // handle to display monitor
-  HDC WXUNUSED(hdcMonitor), // handle to monitor-appropriate device context
-  LPRECT lprcMonitor,       // pointer to monitor intersection rectangle
-  LPARAM dwData             // data passed from EnumDisplayMonitors (this)
-)
-{
-    wxDisplayFactoryMultimon *const self = (wxDisplayFactoryMultimon *)dwData;
-    self->AddDisplay(hMonitor, lprcMonitor);
-
-    // continue the enumeration
-    return TRUE;
-}
-
-// ----------------------------------------------------------------------------
-// wxDisplayFactoryMultimon helper functions
-// ----------------------------------------------------------------------------
-
-void wxDisplayFactoryMultimon::AddDisplay(HMONITOR hMonitor, LPRECT lprcMonitor)
-{
-    wxDisplayInfo *info = new wxDisplayInfo(hMonitor);
-
-    // we also store the display geometry
-    info->m_rect = wxRect(lprcMonitor->left, lprcMonitor->top,
-                          lprcMonitor->right - lprcMonitor->left,
-                          lprcMonitor->bottom - lprcMonitor->top);
-
-    // now add this monitor to the array
-    m_displays.Add(info);
-}
-
-// ----------------------------------------------------------------------------
-// wxDisplayFactoryMultimon inherited pure virtuals implementation
-// ----------------------------------------------------------------------------
-
-wxDisplayImpl *wxDisplayFactoryMultimon::CreateDisplay(unsigned n)
-{
-    wxCHECK_MSG( n < m_displays.size(), NULL, wxT("invalid display index") );
-
-    return new wxDisplayImplMultimon(n, *(m_displays[n]));
-}
-
-// ----------------------------------------------------------------------------
-// wxDisplayImplMultimon implementation
-// ----------------------------------------------------------------------------
-
-wxArrayVideoModes
-wxDisplayImplMultimon::GetModes(const wxVideoMode& modeMatch) const
+wxArrayVideoModes wxDisplayMSW::GetModes(const wxVideoMode& modeMatch) const
 {
     wxArrayVideoModes modes;
 
@@ -670,6 +316,7 @@ wxDisplayImplMultimon::GetModes(const wxVideoMode& modeMatch) const
     DEVMODE dm;
     dm.dmSize = sizeof(dm);
     dm.dmDriverExtra = 0;
+
     for ( int iModeNum = 0;
           ::EnumDisplaySettings(deviceName, iModeNum, &dm);
           iModeNum++ )
@@ -684,7 +331,7 @@ wxDisplayImplMultimon::GetModes(const wxVideoMode& modeMatch) const
     return modes;
 }
 
-bool wxDisplayImplMultimon::ChangeMode(const wxVideoMode& mode)
+bool wxDisplayMSW::ChangeMode(const wxVideoMode& mode)
 {
     // prepare ChangeDisplaySettingsEx() parameters
     DEVMODE dm;
@@ -794,234 +441,91 @@ bool wxDisplayImplMultimon::ChangeMode(const wxVideoMode& mode)
 }
 
 
-// ============================================================================
-// DirectDraw-based wxDisplay implementation
-// ============================================================================
-
-#if wxUSE_DIRECTDRAW
-
 // ----------------------------------------------------------------------------
-// wxDisplayFactoryDirectDraw initialization
+// wxDisplayFactoryMSW implementation
 // ----------------------------------------------------------------------------
 
-wxDisplayFactoryDirectDraw::wxDisplayFactoryDirectDraw()
+wxDisplayFactoryMSW::wxDisplayFactoryMSW()
 {
-    if ( !ms_supportsMultimon )
-        return;
-
-    m_dllDDraw.Load(wxT("ddraw.dll"), wxDL_VERBATIM | wxDL_QUIET);
-
-    if ( !m_dllDDraw.IsLoaded() )
-        return;
-
-    DirectDrawEnumerateEx_t
-        wxDL_INIT_FUNC_AW(pfn, DirectDrawEnumerateEx, m_dllDDraw);
-    if ( !pfnDirectDrawEnumerateEx )
-        return;
-
-    // we can't continue without DirectDrawCreate() later, so resolve it right
-    // now and fail the initialization if it's not available
-    if ( !wxDL_INIT_FUNC(m_pfn, DirectDrawCreate, m_dllDDraw) )
-        return;
-
-    if ( (*pfnDirectDrawEnumerateEx)(DDEnumExCallback,
-                                     this,
-                                     DDENUM_ATTACHEDSECONDARYDEVICES) != DD_OK )
+    if ( gs_MonitorFromPoint==NULL || gs_MonitorFromWindow==NULL
+         || gs_GetMonitorInfo==NULL || gs_EnumDisplayMonitors==NULL )
     {
-        wxLogLastError(wxT("DirectDrawEnumerateEx"));
+        // First initialization, or last initialization failed.
+        wxDynamicLibrary dllDisplay(displayDllName, wxDL_VERBATIM | wxDL_QUIET);
+
+        wxDL_INIT_FUNC(gs_, MonitorFromPoint, dllDisplay);
+        wxDL_INIT_FUNC(gs_, MonitorFromWindow, dllDisplay);
+        wxDL_INIT_FUNC_AW(gs_, GetMonitorInfo, dllDisplay);
+        wxDL_INIT_FUNC(gs_, EnumDisplayMonitors, dllDisplay);
+
+        // we can safely let dllDisplay go out of scope, the DLL itself will
+        // still remain loaded as all programs link to it statically anyhow
+    }
+
+    if ( gs_MonitorFromPoint==NULL || gs_MonitorFromWindow==NULL
+         || gs_GetMonitorInfo==NULL || gs_EnumDisplayMonitors==NULL )
+        return;
+
+    // enumerate all displays
+    if ( !gs_EnumDisplayMonitors(NULL, NULL, MultimonEnumProc, (LPARAM)this) )
+    {
+        wxLogLastError(wxT("EnumDisplayMonitors"));
     }
 }
 
-wxDisplayFactoryDirectDraw::~wxDisplayFactoryDirectDraw()
+/* static */
+BOOL CALLBACK
+wxDisplayFactoryMSW::MultimonEnumProc(
+    HMONITOR hMonitor,              // handle to display monitor
+    HDC WXUNUSED(hdcMonitor),       // handle to monitor-appropriate device context
+    LPRECT WXUNUSED(lprcMonitor),   // pointer to monitor intersection rectangle
+    LPARAM dwData)                  // data passed from EnumDisplayMonitors (this)
 {
-    // we must clear m_displays now, before m_dllDDraw is unloaded as otherwise
-    // calling m_pDD2->Release() later would crash
-    Clear();
-}
+    wxDisplayFactoryMSW *const self = (wxDisplayFactoryMSW *)dwData;
 
-// ----------------------------------------------------------------------------
-// callbacks for monitor/modes enumeration stuff
-// ----------------------------------------------------------------------------
-
-BOOL WINAPI
-wxDisplayFactoryDirectDraw::DDEnumExCallback(GUID *pGuid,
-                                             LPTSTR WXUNUSED(driverDescription),
-                                             LPTSTR driverName,
-                                             LPVOID lpContext,
-                                             HMONITOR hmon)
-{
-    if ( pGuid )
-    {
-        wxDisplayFactoryDirectDraw * self =
-            static_cast<wxDisplayFactoryDirectDraw *>(lpContext);
-        self->AddDisplay(*pGuid, hmon, driverName);
-    }
-    //else: we're called for the primary monitor, skip it
+    self->m_displays.Add(hMonitor);
 
     // continue the enumeration
     return TRUE;
 }
 
-// ----------------------------------------------------------------------------
-// wxDisplayFactoryDirectDraw helpers
-// ----------------------------------------------------------------------------
-
-void wxDisplayFactoryDirectDraw::AddDisplay(const GUID& guid,
-                                            HMONITOR hmon,
-                                            LPTSTR name)
+wxDisplayImpl *wxDisplayFactoryMSW::CreateDisplay(unsigned n)
 {
-    m_displays.Add(new wxDisplayInfoDirectDraw(guid, hmon, name));
+    wxCHECK_MSG( n < m_displays.size(), NULL, wxT("An invalid index was passed to wxDisplay") );
+
+    return new wxDisplayMSW(n, m_displays[n]);
 }
 
-// ----------------------------------------------------------------------------
-// wxDisplayFactoryDirectDraw inherited pure virtuals implementation
-// ----------------------------------------------------------------------------
-
-wxDisplayImpl *wxDisplayFactoryDirectDraw::CreateDisplay(unsigned n)
+// helper for GetFromPoint() and GetFromWindow()
+int wxDisplayFactoryMSW::FindDisplayFromHMONITOR(HMONITOR hmon) const
 {
-    wxCHECK_MSG( n < m_displays.size(), NULL, wxT("invalid display index") );
-
-    wxDisplayInfoDirectDraw *
-        info = static_cast<wxDisplayInfoDirectDraw *>(m_displays[n]);
-
-    if ( !info->m_pDD2 )
+    if ( hmon )
     {
-        IDirectDraw *pDD;
-        GUID guid(info->m_guid);
-        HRESULT hr = (*m_pfnDirectDrawCreate)(&guid, &pDD, NULL);
-
-        if ( FAILED(hr) || !pDD )
+        const size_t count = m_displays.size();
+        for ( size_t n = 0; n < count; n++ )
         {
-            // what to do??
-            wxLogApiError(wxT("DirectDrawCreate"), hr);
-            return NULL;
+            if ( hmon == m_displays[n] )
+                return n;
         }
-
-        // we got IDirectDraw, but we need IDirectDraw2
-        hr = pDD->QueryInterface(wxIID_IDirectDraw2, (void **)&info->m_pDD2);
-        pDD->Release();
-
-        if ( FAILED(hr) || !info->m_pDD2 )
-        {
-            wxLogApiError(wxT("IDirectDraw::QueryInterface(IDD2)"), hr);
-            return NULL;
-        }
-
-        // NB: m_pDD2 will now be only destroyed when m_displays is destroyed
-        //     which is ok as we don't want to recreate DD objects all the time
     }
-    //else: DirectDraw object corresponding to our display already exists
 
-    return new wxDisplayImplDirectDraw(n, *info, info->m_pDD2);
+    return wxNOT_FOUND;
 }
 
-// ============================================================================
-// wxDisplayImplDirectDraw
-// ============================================================================
-
-// ----------------------------------------------------------------------------
-// video modes enumeration
-// ----------------------------------------------------------------------------
-
-// tiny helper class used to pass information from GetModes() to
-// wxDDEnumModesCallback
-class wxDDVideoModesAdder
+int wxDisplayFactoryMSW::GetFromPoint(const wxPoint& pt)
 {
-public:
-    // our Add() method will add modes matching modeMatch to modes array
-    wxDDVideoModesAdder(wxArrayVideoModes& modes, const wxVideoMode& modeMatch)
-        : m_modes(modes),
-          m_modeMatch(modeMatch)
-    {
-    }
+    POINT pt2;
+    pt2.x = pt.x;
+    pt2.y = pt.y;
 
-    void Add(const wxVideoMode& mode)
-    {
-        if ( mode.Matches(m_modeMatch) )
-            m_modes.Add(mode);
-    }
-
-private:
-    wxArrayVideoModes& m_modes;
-    const wxVideoMode& m_modeMatch;
-
-    wxDECLARE_NO_COPY_CLASS(wxDDVideoModesAdder);
-};
-
-HRESULT WINAPI wxDDEnumModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc,
-                                     LPVOID lpContext)
-{
-    // we need at least the mode size
-    static const DWORD FLAGS_REQUIRED = DDSD_HEIGHT | DDSD_WIDTH;
-    if ( (lpDDSurfaceDesc->dwFlags & FLAGS_REQUIRED) == FLAGS_REQUIRED )
-    {
-        wxDDVideoModesAdder * const vmodes =
-            static_cast<wxDDVideoModesAdder *>(lpContext);
-
-        vmodes->Add(wxVideoMode(lpDDSurfaceDesc->dwWidth,
-                                lpDDSurfaceDesc->dwHeight,
-                                lpDDSurfaceDesc->ddpfPixelFormat.dwRGBBitCount,
-                                lpDDSurfaceDesc->dwRefreshRate));
-    }
-
-    // continue the enumeration
-    return DDENUMRET_OK;
+    return FindDisplayFromHMONITOR(gs_MonitorFromPoint(pt2,
+                                                       MONITOR_DEFAULTTONULL));
 }
 
-wxArrayVideoModes
-wxDisplayImplDirectDraw::GetModes(const wxVideoMode& modeMatch) const
+int wxDisplayFactoryMSW::GetFromWindow(const wxWindow *window)
 {
-    wxArrayVideoModes modes;
-    wxDDVideoModesAdder modesAdder(modes, modeMatch);
-
-    HRESULT hr = m_pDD2->EnumDisplayModes
-                         (
-                            DDEDM_REFRESHRATES,
-                            NULL,                   // all modes
-                            &modesAdder,            // callback parameter
-                            wxDDEnumModesCallback
-                         );
-
-    if ( FAILED(hr) )
-    {
-        wxLogApiError(wxT("IDirectDraw::EnumDisplayModes"), hr);
-    }
-
-    return modes;
+    return FindDisplayFromHMONITOR(gs_MonitorFromWindow(GetHwndOf(window),
+                                                        MONITOR_DEFAULTTONULL));
 }
-
-// ----------------------------------------------------------------------------
-// video mode switching
-// ----------------------------------------------------------------------------
-
-bool wxDisplayImplDirectDraw::ChangeMode(const wxVideoMode& mode)
-{
-    wxWindow *winTop = wxTheApp->GetTopWindow();
-    wxCHECK_MSG( winTop, false, wxT("top level window required for DirectX") );
-
-    HRESULT hr = m_pDD2->SetCooperativeLevel
-                         (
-                            GetHwndOf(winTop),
-                            DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN
-                         );
-    if ( FAILED(hr) )
-    {
-        wxLogApiError(wxT("IDirectDraw2::SetCooperativeLevel"), hr);
-
-        return false;
-    }
-
-    hr = m_pDD2->SetDisplayMode(mode.w, mode.h, mode.bpp, mode.refresh, 0);
-    if ( FAILED(hr) )
-    {
-        wxLogApiError(wxT("IDirectDraw2::SetDisplayMode"), hr);
-
-        return false;
-    }
-
-    return true;
-}
-
-#endif // wxUSE_DIRECTDRAW
 
 #endif // wxUSE_DISPLAY

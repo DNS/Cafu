@@ -69,6 +69,9 @@ namespace cf
             /// Returns whether this GUI is fullscreen and fully opaque, i.e. whether this GUI covers everything under it. If true, the GuiSys saves the rendering of the GUIs "below" this one. This can improve the GUI performance significantly if e.g. the player is at a point in the game where the world rendering FPS is low.
             virtual bool GetIsFullCover() const=0;
 
+            /// Returns the position of the mouse cursor.
+            virtual void GetMousePos(float& MousePosX, float& MousePosY) const=0;
+
             /// Sets the position of the mouse cursor.
             virtual void SetMousePos(float MousePosX_, float MousePosY_)=0;
 

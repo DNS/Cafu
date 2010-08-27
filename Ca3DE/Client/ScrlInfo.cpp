@@ -84,11 +84,11 @@ void ScrollInfoT::Print(const char* PrintString, ...)
 }
 
 
-void ScrollInfoT::Draw(FontT& Font, unsigned long PosX, unsigned long PosY) const
+void ScrollInfoT::Draw(FontT& Font, unsigned long PosX, unsigned long PosY, float FrameWidth, float FrameHeight) const
 {
     if (NrOfLines==0) return;
 
-    Font.AccPrintBegin();
+    Font.AccPrintBegin(FrameWidth, FrameHeight);
 
     for (char LineNr=0; LineNr<NrOfLines; LineNr++)
         Font.AccPrint(PosX, PosY+20*LineNr, 0x00BBDDFF, "%s", &InfoLine[(FirstLine+LineNr) % MAX_LINES][0]);

@@ -76,20 +76,7 @@ void ClientWindowT::SetClient(ClientT* Cl)
 void ClientWindowT::Render() const
 {
     // Call the clients render methods here.
-
-    // We don't want want ortho rendering here, so setup a perspective projection matrix.
-    // TODO 1: Move this into the world rendering code??
-    // TODO 2: Should actually *push* the matrices, properly *set* them and below *pop* them!!
-    //         Also see the TODO in GuiManImplT::RenderAll() for more details!!
-    MatSys::Renderer->PopMatrix(MatSys::RendererI::PROJECTION    );
-    MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
-    MatSys::Renderer->PopMatrix(MatSys::RendererI::WORLD_TO_VIEW );
-
     Client->Render(LastFrameTime);
-
-    MatSys::Renderer->PushMatrix(MatSys::RendererI::PROJECTION    );
-    MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
-    MatSys::Renderer->PushMatrix(MatSys::RendererI::WORLD_TO_VIEW );
 }
 
 

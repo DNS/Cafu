@@ -193,8 +193,11 @@ ParentFrameT::~ParentFrameT()
     }
 
     // Release the Cafu Material System.
-    MatSys::TextureMapManager->FreeTextureMap(m_WhiteTexture);
-    MatSys::TextureMapManager=NULL;
+    if (MatSys::TextureMapManager!=NULL)
+    {
+        MatSys::TextureMapManager->FreeTextureMap(m_WhiteTexture);
+        MatSys::TextureMapManager=NULL;
+    }
 
     if (MatSys::Renderer!=NULL)
     {

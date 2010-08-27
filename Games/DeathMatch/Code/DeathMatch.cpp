@@ -35,7 +35,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "MaterialSystem/TextureMap.hpp"
-#include "OpenGL/OpenGLWindow.hpp"
 #include "TypeSys.hpp"
 #include "SoundSystem/SoundShaderManager.hpp"
 
@@ -91,23 +90,23 @@ class SoundSysI;
 
 #ifdef _WIN32
 // Under Linux (where DLLs are shared objects), these all resolve to their counterparts in the main executable.
-SingleOpenGLWindowT*   SingleOpenGLWindow=NULL;
 cf::GuiSys::GuiManI*   cf::GuiSys::GuiMan=NULL;     // Define the global GuiMan pointer instance -- see GuiMan.hpp for more details.
+MaterialManagerI*      MaterialManager   =NULL;
 cf::ConsoleI*          Console=NULL;
 ConsoleInterpreterI*   ConsoleInterpreter=NULL;
 cf::FileSys::FileManI* cf::FileSys::FileMan=NULL;
 cf::ClipSys::CollModelManI* cf::ClipSys::CollModelMan=NULL;
 SoundSysI*             SoundSystem=NULL;
+SoundShaderManagerI*   SoundShaderManager=NULL;
 #endif
 
 
 // WARNING: When the signature of GetGame() is changed here (e.g. by adding more interface pointer parameters),
 // grep all C++ source code files for "GetGame@", because the number of parameter bytes must be updated there!
-DLL_EXPORT cf::GameSys::GameI* __stdcall GetGame(SingleOpenGLWindowT* SingleWin, MatSys::RendererI* Renderer, MatSys::TextureMapManagerI* TexMapMan, MaterialManagerI* MatMan, cf::GuiSys::GuiManI* GuiMan_, cf::ConsoleI* Console_, ConsoleInterpreterI* ConInterpreter_, cf::ClipSys::CollModelManI* CollModelMan_, SoundSysI* SoundSystem_, SoundShaderManagerI* SoundShaderManager_)
+DLL_EXPORT cf::GameSys::GameI* __stdcall GetGame(MatSys::RendererI* Renderer, MatSys::TextureMapManagerI* TexMapMan, MaterialManagerI* MatMan, cf::GuiSys::GuiManI* GuiMan_, cf::ConsoleI* Console_, ConsoleInterpreterI* ConInterpreter_, cf::ClipSys::CollModelManI* CollModelMan_, SoundSysI* SoundSystem_, SoundShaderManagerI* SoundShaderManager_)
 {
 #ifdef _WIN32
     // Under Linux (where DLLs are shared objects), these all resolve to their counterparts in the main executable.
-    SingleOpenGLWindow       =SingleWin;
     MatSys::Renderer         =Renderer;
     MatSys::TextureMapManager=TexMapMan;
     MaterialManager          =MatMan;

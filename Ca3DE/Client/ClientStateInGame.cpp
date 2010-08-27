@@ -21,12 +21,16 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
+#include "../AppCafu.hpp"
+#include "../MainCanvas.hpp"
+#include "../MainFrame.hpp"
+#include "../NetConst.hpp"
+
 #include "ClientStateInGame.hpp"
 #include "Client.hpp"
 #include "ClientWorld.hpp"
 #include "PathRecorder.hpp"
 
-#include "../NetConst.hpp"
 #include "GuiSys/Gui.hpp"
 #include "GuiSys/GuiMan.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
@@ -358,6 +362,8 @@ static ConVarT UsePrediction("usePrediction", true, ConVarT::FLAG_MAIN_EXE, "Tog
 
 void ClientStateInGameT::Render(float FrameTime)
 {
+    const wxSize FrameSize=wxGetApp().GetMainFrame()->GetClientSize();
+
     Graphs.ClearForFrame(ClientFrameNr);
 
     // Bestimme die FrameTime des letzten Frames
@@ -376,13 +382,29 @@ void ClientStateInGameT::Render(float FrameTime)
             Graphs.PosY   [ClientFrameNr & (512-1)]=((unsigned short)(OurEntityCurrentState->Origin.y/20.0)) & 511;
             Graphs.PosZ   [ClientFrameNr & (512-1)]=((unsigned short)(OurEntityCurrentState->Origin.z/20.0)) & 511;
 
+            MatSys::Renderer->PushMatrix(MatSys::RendererI::PROJECTION    );
+            MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
+            MatSys::Renderer->PushMatrix(MatSys::RendererI::WORLD_TO_VIEW );
+
+            MatSys::Renderer->SetMatrix(MatSys::RendererI::PROJECTION,
+                // Note that the far plane is located at infinity for our stencil shadows implementation!
+                // A fovY of 67.5 corresponds to a fovX of 90.0 when the aspect ratio is 4:3.
+                MatrixT::GetProjPerspectiveMatrix(67.5f, float(FrameSize.GetWidth())/float(FrameSize.GetHeight()), 100.0f, -1.0f));
+
+            MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
+            MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,  MatrixT());
+
             World->Draw(FrameTime, OurEntityCurrentState);
+
+            MatSys::Renderer->PopMatrix(MatSys::RendererI::PROJECTION    );
+            MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
+            MatSys::Renderer->PopMatrix(MatSys::RendererI::WORLD_TO_VIEW );
 
             // Die Framerate ist zwar World-unabhängig, ihre Anzeige hier aber besser aufgehoben (aus rein kosmetischen Gründen).
             static ConVarT ShowFrameRate("showFPS", false, ConVarT::FLAG_MAIN_EXE, "Toggles whether the frames-per-second number is shown.");
             static ConVarT ShowPosition("showPos", false, ConVarT::FLAG_MAIN_EXE, "Toggles whether the current players position is shown.");
 
-            if (ShowFrameRate.GetValueBool()) Font_f.Print(SingleOpenGLWindow->GetWidth()-100, SingleOpenGLWindow->GetHeight()-16, 0x00FFFFFF, "FPS %5.1f", 1.0f/FrameTime);
+            if (ShowFrameRate.GetValueBool()) Font_f.Print(FrameSize.GetWidth()-100, FrameSize.GetHeight()-16, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, "FPS %5.1f", 1.0f/FrameTime);
 
             if (ShowPosition.GetValueBool())
             {
@@ -392,11 +414,11 @@ void ClientStateInGameT::Render(float FrameTime)
                 // if (World->GetCa3DEWorldP()->Map.Leaves[LeafNr].IsInnerLeaf)
                 //     LeafContents=World->GetCa3DEWorldP()->Map.Leaves[LeafNr].IsWaterLeaf ? 'w' : 'i';
 
-                Font_f.Print(SingleOpenGLWindow->GetWidth()-130, 15, 0x00FFFFFF, "X %10.1f", OurEntityCurrentState->Origin.x);
-                Font_f.Print(SingleOpenGLWindow->GetWidth()-130, 35, 0x00FFFFFF, "Y %10.1f", OurEntityCurrentState->Origin.y);
-                Font_f.Print(SingleOpenGLWindow->GetWidth()-130, 55, 0x00FFFFFF, "Z %10.1f", OurEntityCurrentState->Origin.z);
-                Font_f.Print(SingleOpenGLWindow->GetWidth()-130, 75, 0x00FFFFFF, "Hdg %8u", OurEntityCurrentState->Heading);
-             // Font_f.Print(SingleOpenGLWindow->GetWidth()-100, SingleOpenGLWindow->GetHeight()-32, 0x00FFFFFF, "L %4u %c", LeafNr, LeafContents);
+                Font_f.Print(FrameSize.GetWidth()-130, 15, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, "X %10.1f", OurEntityCurrentState->Origin.x);
+                Font_f.Print(FrameSize.GetWidth()-130, 35, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, "Y %10.1f", OurEntityCurrentState->Origin.y);
+                Font_f.Print(FrameSize.GetWidth()-130, 55, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, "Z %10.1f", OurEntityCurrentState->Origin.z);
+                Font_f.Print(FrameSize.GetWidth()-130, 75, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, "Hdg %8u", OurEntityCurrentState->Heading);
+             // Font_f.Print(FrameSize.GetWidth()-100, FrameSize.GetHeight()-32, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, "L %4u %c", LeafNr, LeafContents);
             }
 
             /*if (ShowLeaf)
@@ -411,7 +433,7 @@ void ClientStateInGameT::Render(float FrameTime)
         }
         else
         {
-            Font_f.Print(30, SingleOpenGLWindow->GetHeight()*2/3, 0x00004080, "Receiving entity baselines...");
+            Font_f.Print(30, FrameSize.GetHeight()*2/3, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00004080, "Receiving entity baselines...");
         }
     }
     else
@@ -425,7 +447,7 @@ void ClientStateInGameT::Render(float FrameTime)
 
             MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
             MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,  MatrixT());
-            MatSys::Renderer->SetMatrix(MatSys::RendererI::PROJECTION,     MatrixT::GetProjOrthoMatrix(0.0f, float(SingleOpenGLWindow->GetWidth()), float(SingleOpenGLWindow->GetHeight()), 0.0f, -1.0f, 1.0f));
+            MatSys::Renderer->SetMatrix(MatSys::RendererI::PROJECTION,     MatrixT::GetProjOrthoMatrix(0.0f, float(FrameSize.GetWidth()), float(FrameSize.GetHeight()), 0.0f, -1.0f, 1.0f));
 
             MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
 
@@ -441,10 +463,10 @@ void ClientStateInGameT::Render(float FrameTime)
                 // Do floating-point (rather than unsigned long) math for the origin, or else we get into trouble with negative numbers.
                 // The coordinates have also been tested with a hor. and ver. stripe pattern texture for making sure that there is no
                 // inadvertent scaling by plus or minus one pixel.
-                M.Vertices[0].SetOrigin(SingleOpenGLWindow->GetWidth()/2.0f-512.0f, SingleOpenGLWindow->GetHeight()/2.0f-256.0f-20.0f); // links  oben
-                M.Vertices[1].SetOrigin(SingleOpenGLWindow->GetWidth()/2.0f+512.0f, SingleOpenGLWindow->GetHeight()/2.0f-256.0f-20.0f); // rechts oben
-                M.Vertices[2].SetOrigin(SingleOpenGLWindow->GetWidth()/2.0f+512.0f, SingleOpenGLWindow->GetHeight()/2.0f+256.0f-20.0f); // rechts unten
-                M.Vertices[3].SetOrigin(SingleOpenGLWindow->GetWidth()/2.0f-512.0f, SingleOpenGLWindow->GetHeight()/2.0f+256.0f-20.0f); // links  unten
+                M.Vertices[0].SetOrigin(FrameSize.GetWidth()/2.0f-512.0f, FrameSize.GetHeight()/2.0f-256.0f-20.0f); // links  oben
+                M.Vertices[1].SetOrigin(FrameSize.GetWidth()/2.0f+512.0f, FrameSize.GetHeight()/2.0f-256.0f-20.0f); // rechts oben
+                M.Vertices[2].SetOrigin(FrameSize.GetWidth()/2.0f+512.0f, FrameSize.GetHeight()/2.0f+256.0f-20.0f); // rechts unten
+                M.Vertices[3].SetOrigin(FrameSize.GetWidth()/2.0f-512.0f, FrameSize.GetHeight()/2.0f+256.0f-20.0f); // links  unten
 
                 MatSys::Renderer->SetCurrentMaterial(LogoRenderMat);
                 MatSys::Renderer->RenderMesh(M);
@@ -452,14 +474,14 @@ void ClientStateInGameT::Render(float FrameTime)
 
 
         #if 0
-            const unsigned long BarHalfWidth=SingleOpenGLWindow->GetWidth()/2-40;
+            const unsigned long BarHalfWidth=FrameSize.GetWidth()/2-40;
 
             // Render the left end of the loading bar.
             {
-                M.Vertices[0].SetOrigin(SingleOpenGLWindow->GetWidth()/2-BarHalfWidth-16, SingleOpenGLWindow->GetHeight()*9/10-20   );
-                M.Vertices[1].SetOrigin(SingleOpenGLWindow->GetWidth()/2-BarHalfWidth   , SingleOpenGLWindow->GetHeight()*9/10-20   );
-                M.Vertices[2].SetOrigin(SingleOpenGLWindow->GetWidth()/2-BarHalfWidth   , SingleOpenGLWindow->GetHeight()*9/10-20+32);
-                M.Vertices[3].SetOrigin(SingleOpenGLWindow->GetWidth()/2-BarHalfWidth-16, SingleOpenGLWindow->GetHeight()*9/10-20+32);
+                M.Vertices[0].SetOrigin(FrameSize.GetWidth()/2-BarHalfWidth-16, FrameSize.GetHeight()*9/10-20   );
+                M.Vertices[1].SetOrigin(FrameSize.GetWidth()/2-BarHalfWidth   , FrameSize.GetHeight()*9/10-20   );
+                M.Vertices[2].SetOrigin(FrameSize.GetWidth()/2-BarHalfWidth   , FrameSize.GetHeight()*9/10-20+32);
+                M.Vertices[3].SetOrigin(FrameSize.GetWidth()/2-BarHalfWidth-16, FrameSize.GetHeight()*9/10-20+32);
 
                 MatSys::Renderer->SetCurrentMaterial(LoadingBarLMat);
                 MatSys::Renderer->RenderMesh(M);
@@ -467,10 +489,10 @@ void ClientStateInGameT::Render(float FrameTime)
 
             // Render the center left (filled) part of the loading bar.
             {
-                M.Vertices[0].SetOrigin(SingleOpenGLWindow->GetWidth()/2-BarHalfWidth                               , SingleOpenGLWindow->GetHeight()*9/10-20   );
-                M.Vertices[1].SetOrigin(SingleOpenGLWindow->GetWidth()/2-BarHalfWidth+2*BarHalfWidth*ProgressPercent, SingleOpenGLWindow->GetHeight()*9/10-20   );
-                M.Vertices[2].SetOrigin(SingleOpenGLWindow->GetWidth()/2-BarHalfWidth+2*BarHalfWidth*ProgressPercent, SingleOpenGLWindow->GetHeight()*9/10-20+32);
-                M.Vertices[3].SetOrigin(SingleOpenGLWindow->GetWidth()/2-BarHalfWidth                               , SingleOpenGLWindow->GetHeight()*9/10-20+32);
+                M.Vertices[0].SetOrigin(FrameSize.GetWidth()/2-BarHalfWidth                               , FrameSize.GetHeight()*9/10-20   );
+                M.Vertices[1].SetOrigin(FrameSize.GetWidth()/2-BarHalfWidth+2*BarHalfWidth*ProgressPercent, FrameSize.GetHeight()*9/10-20   );
+                M.Vertices[2].SetOrigin(FrameSize.GetWidth()/2-BarHalfWidth+2*BarHalfWidth*ProgressPercent, FrameSize.GetHeight()*9/10-20+32);
+                M.Vertices[3].SetOrigin(FrameSize.GetWidth()/2-BarHalfWidth                               , FrameSize.GetHeight()*9/10-20+32);
 
                 MatSys::Renderer->SetCurrentMaterial(LoadingBar1Mat);
                 MatSys::Renderer->RenderMesh(M);
@@ -478,10 +500,10 @@ void ClientStateInGameT::Render(float FrameTime)
 
             // Render the center right (not yet filled) part of the loading bar.
             {
-                M.Vertices[0].SetOrigin(SingleOpenGLWindow->GetWidth()/2-BarHalfWidth+2*BarHalfWidth*ProgressPercent, SingleOpenGLWindow->GetHeight()*9/10-20   );
-                M.Vertices[1].SetOrigin(SingleOpenGLWindow->GetWidth()/2+BarHalfWidth                               , SingleOpenGLWindow->GetHeight()*9/10-20   );
-                M.Vertices[2].SetOrigin(SingleOpenGLWindow->GetWidth()/2+BarHalfWidth                               , SingleOpenGLWindow->GetHeight()*9/10-20+32);
-                M.Vertices[3].SetOrigin(SingleOpenGLWindow->GetWidth()/2-BarHalfWidth+2*BarHalfWidth*ProgressPercent, SingleOpenGLWindow->GetHeight()*9/10-20+32);
+                M.Vertices[0].SetOrigin(FrameSize.GetWidth()/2-BarHalfWidth+2*BarHalfWidth*ProgressPercent, FrameSize.GetHeight()*9/10-20   );
+                M.Vertices[1].SetOrigin(FrameSize.GetWidth()/2+BarHalfWidth                               , FrameSize.GetHeight()*9/10-20   );
+                M.Vertices[2].SetOrigin(FrameSize.GetWidth()/2+BarHalfWidth                               , FrameSize.GetHeight()*9/10-20+32);
+                M.Vertices[3].SetOrigin(FrameSize.GetWidth()/2-BarHalfWidth+2*BarHalfWidth*ProgressPercent, FrameSize.GetHeight()*9/10-20+32);
 
                 MatSys::Renderer->SetCurrentMaterial(LoadingBar0Mat);
                 MatSys::Renderer->RenderMesh(M);
@@ -489,10 +511,10 @@ void ClientStateInGameT::Render(float FrameTime)
 
             // Render the right end of the loading bar.
             {
-                M.Vertices[0].SetOrigin(SingleOpenGLWindow->GetWidth()/2+BarHalfWidth   , SingleOpenGLWindow->GetHeight()*9/10-20   );
-                M.Vertices[1].SetOrigin(SingleOpenGLWindow->GetWidth()/2+BarHalfWidth+16, SingleOpenGLWindow->GetHeight()*9/10-20   );
-                M.Vertices[2].SetOrigin(SingleOpenGLWindow->GetWidth()/2+BarHalfWidth+16, SingleOpenGLWindow->GetHeight()*9/10-20+32);
-                M.Vertices[3].SetOrigin(SingleOpenGLWindow->GetWidth()/2+BarHalfWidth   , SingleOpenGLWindow->GetHeight()*9/10-20+32);
+                M.Vertices[0].SetOrigin(FrameSize.GetWidth()/2+BarHalfWidth   , FrameSize.GetHeight()*9/10-20   );
+                M.Vertices[1].SetOrigin(FrameSize.GetWidth()/2+BarHalfWidth+16, FrameSize.GetHeight()*9/10-20   );
+                M.Vertices[2].SetOrigin(FrameSize.GetWidth()/2+BarHalfWidth+16, FrameSize.GetHeight()*9/10-20+32);
+                M.Vertices[3].SetOrigin(FrameSize.GetWidth()/2+BarHalfWidth   , FrameSize.GetHeight()*9/10-20+32);
 
                 MatSys::Renderer->SetCurrentMaterial(LoadingBarRMat);
                 MatSys::Renderer->RenderMesh(M);
@@ -506,21 +528,21 @@ void ClientStateInGameT::Render(float FrameTime)
             const unsigned long CharWidth=10;
 
             #ifdef DEBUG
-                LoadingFont->Print(SingleOpenGLWindow->GetWidth()/2-34*CharWidth/2, SingleOpenGLWindow->GetHeight()*9/10+12, 0x00800000, "Version: %s [Debug build], %s", __DATE__, LoadingProgressText.c_str());
+                LoadingFont->Print(FrameSize.GetWidth()/2-34*CharWidth/2, FrameSize.GetHeight()*9/10+12, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00800000, "Version: %s [Debug build], %s", __DATE__, LoadingProgressText.c_str());
             #else
-                LoadingFont->Print(SingleOpenGLWindow->GetWidth()/2-20*CharWidth/2, SingleOpenGLWindow->GetHeight()*9/10+12, 0x00800000, "Version: %s", __DATE__);
+                LoadingFont->Print(FrameSize.GetWidth()/2-20*CharWidth/2, FrameSize.GetHeight()*9/10+12, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00800000, "Version: %s", __DATE__);
             #endif
 
             if (LoadingProgressPercent>0)
-                LoadingFont->Print(SingleOpenGLWindow->GetWidth()/2-10*CharWidth/2, SingleOpenGLWindow->GetHeight()*9/10+30, 0x00800000, "Loading... %.0f%%", LoadingProgressPercent*100.0f);
+                LoadingFont->Print(FrameSize.GetWidth()/2-10*CharWidth/2, FrameSize.GetHeight()*9/10+30, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00800000, "Loading... %.0f%%", LoadingProgressPercent*100.0f);
             else
-                LoadingFont->Print(SingleOpenGLWindow->GetWidth()/2-10*CharWidth/2, SingleOpenGLWindow->GetHeight()*9/10+30, 0x00800000, "Loading...");
+                LoadingFont->Print(FrameSize.GetWidth()/2-10*CharWidth/2, FrameSize.GetHeight()*9/10+30, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00800000, "Loading...");
         }
         else
         {
             // We have no world yet, and are currently not loading one,
             // which means that we're still waiting for a SC1_WorldInfo message.
-            Font_f.Print(5, 200, 0x00DDFFBB, "Waiting for SC1_WorldInfo message...");
+            Font_f.Print(5, 200, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00DDFFBB, "Waiting for SC1_WorldInfo message...");
         }
     }
 
@@ -535,9 +557,9 @@ void ClientStateInGameT::Render(float FrameTime)
         SystemScrollInfo.Print(s);
     }
 
-    ChatScrollInfo  .Draw(Font_v, 5, SingleOpenGLWindow->GetHeight()-10-140);
+    ChatScrollInfo  .Draw(Font_v, 5, FrameSize.GetHeight()-10-140, FrameSize.GetWidth(), FrameSize.GetHeight());
     ChatScrollInfo  .AdvanceTime(FrameTime);
-    SystemScrollInfo.Draw(Font_v, 5, 15);
+    SystemScrollInfo.Draw(Font_v, 5, 15, FrameSize.GetWidth(), FrameSize.GetHeight());
     SystemScrollInfo.AdvanceTime(FrameTime);
 
 
@@ -588,7 +610,7 @@ static void WorldLoadingProgressFunction(float ProgressPercent, const char* Prog
     cf::GuiSys::GuiMan->RenderAll();
 
     MatSys::Renderer->EndFrame();
-    SingleOpenGLWindow->SwapBuffers();
+    wxGetApp().GetMainFrame()->GetMainCanvas()->SwapBuffers();
 
     SoundSystem->Update();
 }
@@ -804,43 +826,43 @@ void ClientStateInGameT::MainLoop(float FrameTime)
     // The contents of this if-block used to be in the (now obsolete) EventManager(float FrameTime) method.
     if (World)
     {
-        cf::GuiSys::GuiI* ActiveGui=cf::GuiSys::GuiMan->GetTopmostActiveAndInteractive();
+        cf::GuiSys::GuiI*  ActiveGui =cf::GuiSys::GuiMan->GetTopmostActiveAndInteractive();
+        const wxMouseState MouseState=wxGetMouseState();
         assert(ActiveGui!=NULL);    // The GUI of the client for the world output must always be there.
 
         // This is unfortunately needed, because the users last click (in the GUI) that brought us here may still have the "LMB up" event pending.
-        WasLMBOnceUp|=(SingleOpenGLWindow->GetMouseButtonState() & 0x1)==0;
+        WasLMBOnceUp=WasLMBOnceUp || !MouseState.LeftIsDown();
 
         // FIXME: Should test for ActiveGui==ClientGui instead of ActiveGui->GetScriptName()=="".
         if (ActiveGui->GetScriptName()=="" && WasLMBOnceUp)
         {
-            if (SingleOpenGLWindow->GetMouseButtonState() & 0x1) PlayerCommand.Keys|=PCK_Fire1;  // Button 0
-            if (SingleOpenGLWindow->GetMouseButtonState() & 0x6) PlayerCommand.Keys|=PCK_Fire2;  // Button 1 oder 2
+            if (MouseState.LeftIsDown())                               PlayerCommand.Keys|=PCK_Fire1;
+            if (MouseState.MiddleIsDown() || MouseState.RightIsDown()) PlayerCommand.Keys|=PCK_Fire2;
 
             // Alle anderen Keys via KeyboardState bestimmen und über die volle Frametime anwenden.
             // Später evtl. mal die echte Zeit vom Buffer einsetzen!
             // Mit anderen Worten: Diesen Kram mit in die obige Buffer-Schleife nehmen!
             // Player movement / state
-         // if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_RCONTROL   ]) ;                                       // R_Strg   Run
-            if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_RSHIFT     ] ||                                       // R_Shift  Stealth
-                SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_LSHIFT     ]) PlayerCommand.Keys|=PCK_Walk;           // L_Shift  Stealth
-            if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_UP         ] ||                                       // Up       Walk forward
-                SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_W          ]) PlayerCommand.Keys|=PCK_MoveForward;    // W        Walk forward
-            if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_DOWN       ] ||                                       // Down     Walk backward
-                SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_S          ]) PlayerCommand.Keys|=PCK_MoveBackward;   // S        Walk backward
-            if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_A          ] ||                                       // A        Strafe left
-                SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_COMMA      ]) PlayerCommand.Keys|=PCK_StrafeLeft;     // ,        Strafe left
-            if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_D          ] ||                                       // D        Strafe right
-                SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_PERIOD     ]) PlayerCommand.Keys|=PCK_StrafeRight;    // .        Strafe right
-            if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_R          ]) PlayerCommand.Keys|=PCK_Fire1;          // R        Fire/Respawn
-            if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_RETURN     ] ||                                       // RETURN   Use
-                SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_NUMPADENTER]) PlayerCommand.Keys|=PCK_Use;            // ENTER    Use
-            if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_LEFT       ]) PlayerCommand.Keys|=PCK_TurnLeft;       // Left     Turn left
-            if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_RIGHT      ]) PlayerCommand.Keys|=PCK_TurnRight;      // Right    Turn right
-            if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_PGDN       ]) PlayerCommand.Keys|=PCK_LookUp;         //          Look up
-            if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_PGUP       ]) PlayerCommand.Keys|=PCK_LookDown;       //          Look down
-         // if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_HOME       ]) PlayerCommand.Keys|=PCK_BankCW          //          Bank CW
-         // if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_INSERT     ]) PlayerCommand.Keys|=PCK_BankCCW;        //          Bank CCW
-            if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_END        ]) PlayerCommand.Keys|=PCK_CenterView;
+         // if (wxGetKeyState(WXK_CONTROL)     ) ;                                       // R_Strg   Run
+            if (wxGetKeyState(WXK_SHIFT)       ) PlayerCommand.Keys|=PCK_Walk;           // Shift  Stealth
+            if (wxGetKeyState(WXK_UP) ||                                                 // Up       Walk forward
+                wxGetKeyState(wxKeyCode('W'))  ) PlayerCommand.Keys|=PCK_MoveForward;    // W        Walk forward
+            if (wxGetKeyState(WXK_DOWN) ||                                               // Down     Walk backward
+                wxGetKeyState(wxKeyCode('S'))  ) PlayerCommand.Keys|=PCK_MoveBackward;   // S        Walk backward
+            if (wxGetKeyState(wxKeyCode('A')) ||                                         // A        Strafe left
+                wxGetKeyState(wxKeyCode(','))  ) PlayerCommand.Keys|=PCK_StrafeLeft;     // ,        Strafe left
+            if (wxGetKeyState(wxKeyCode('D')) ||                                         // D        Strafe right
+                wxGetKeyState(wxKeyCode('.'))  ) PlayerCommand.Keys|=PCK_StrafeRight;    // .        Strafe right
+            if (wxGetKeyState(wxKeyCode('R'))  ) PlayerCommand.Keys|=PCK_Fire1;          // R        Fire/Respawn
+            if (wxGetKeyState(WXK_RETURN) ||                                             // RETURN   Use
+                wxGetKeyState(WXK_NUMPAD_ENTER)) PlayerCommand.Keys|=PCK_Use;            // ENTER    Use
+            if (wxGetKeyState(WXK_LEFT        )) PlayerCommand.Keys|=PCK_TurnLeft;       // Left     Turn left
+            if (wxGetKeyState(WXK_RIGHT       )) PlayerCommand.Keys|=PCK_TurnRight;      // Right    Turn right
+            if (wxGetKeyState(WXK_PAGEDOWN    )) PlayerCommand.Keys|=PCK_LookUp;         //          Look up
+            if (wxGetKeyState(WXK_PAGEUP      )) PlayerCommand.Keys|=PCK_LookDown;       //          Look down
+         // if (wxGetKeyState(WXK_HOME        )) PlayerCommand.Keys|=PCK_BankCW          //          Bank CW
+         // if (wxGetKeyState(WXK_INSERT      )) PlayerCommand.Keys|=PCK_BankCCW;        //          Bank CCW
+            if (wxGetKeyState(WXK_END         )) PlayerCommand.Keys|=PCK_CenterView;
         }
 
 

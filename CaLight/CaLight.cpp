@@ -67,6 +67,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/Plane3.hpp"
 #include "Bitmap/Bitmap.hpp"
 #include "ConsoleCommands/Console.hpp"
+#include "ConsoleCommands/ConsoleInterpreter.hpp"
 #include "ConsoleCommands/ConsoleStdout.hpp"
 #include "FileSys/FileManImpl.hpp"
 #include "MaterialSystem/Material.hpp"
@@ -94,6 +95,9 @@ cf::FileSys::FileManI* cf::FileSys::FileMan=&FileManImpl;
 
 static cf::ClipSys::CollModelManImplT CCM;
 cf::ClipSys::CollModelManI* cf::ClipSys::CollModelMan=&CCM;
+
+ConsoleInterpreterI* ConsoleInterpreter=NULL;
+MaterialManagerI*    MaterialManager   =NULL;
 
 
 const time_t ProgramStartTime=time(NULL);

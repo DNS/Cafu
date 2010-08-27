@@ -45,6 +45,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #endif
 
 #include "ConsoleCommands/Console.hpp"
+#include "ConsoleCommands/ConsoleInterpreter.hpp"
 #include "ConsoleCommands/ConsoleStdout.hpp"
 #include "FileSys/FileManImpl.hpp"
 #include "Fonts/Font.hpp"
@@ -67,6 +68,9 @@ cf::ConsoleI* Console=&ConsoleStdout;
 
 static cf::FileSys::FileManImplT FileManImpl;
 cf::FileSys::FileManI* cf::FileSys::FileMan=&FileManImpl;
+
+ConsoleInterpreterI* ConsoleInterpreter=NULL;
+MaterialManagerI*    MaterialManager   =NULL;
 
 
 const char*         BaseDirectoryName="Games/DeathMatch";
@@ -499,7 +503,7 @@ int main(int ArgC, const char* ArgV[])
             }
 
 
-            MyFont->Print(SingleOpenGLWindow->GetWidth()-100, SingleOpenGLWindow->GetHeight()-18, 0x00FFFFFF, "%5.1f FPS", 1.0/DeltaTime);
+            MyFont->Print(SingleOpenGLWindow->GetWidth()-100, SingleOpenGLWindow->GetHeight()-18, float(SingleOpenGLWindow->GetWidth()), float(SingleOpenGLWindow->GetHeight()), 0x00FFFFFF, "%5.1f FPS", 1.0/DeltaTime);
         }
         MatSys::Renderer->EndFrame();
         SingleOpenGLWindow->SwapBuffers();

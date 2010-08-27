@@ -43,9 +43,6 @@ extern "C"
 #include <cassert>
 
 
-ConsoleInterpreterI* ConsoleInterpreter=NULL;
-
-
 // The name of the Lua table we register all our ConVarTs and ConFuncTs in.
 // This is usually "c" (short for "Cafu" or "console") or "_G" (the table of global variables).
 // "_G" is less orderly, but a lot more convenient for users of course.  :-)

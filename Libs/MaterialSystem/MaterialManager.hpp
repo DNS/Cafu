@@ -79,10 +79,19 @@ class MaterialManagerI
 };
 
 
-/// A global pointer to the material manager that currently defaults to &MaterialManagerI::Get().
-/// This pointer should be used by all code (e.g. models) that potentially is included in a DLL and should share the common Material Manager
-/// of another module (e.g. the main executable). As the DLL will during its initialization reset this pointer to the one provided by the
-/// executable, this goal is thus automatically achieved.
+/// A global pointer to an implementation of the MaterialManagerI interface.
+///
+/// Each module (exe or dll) that uses this pointer must somewhere provide exactly one definition for it (none is provided by the MatSys).
+/// That is, typically the main.cpp or similar file of each exe and dll must contain a line like
+///     MaterialManagerI* MaterialManager=NULL;
+/// or else the module will not link successfully due to an undefined symbol.
+///
+/// Exe files will then want to reset this pointer to an instance of a MaterialManagerImplT during their initialization
+/// e.g. by code like:   MaterialManager=new MaterialManagerImplT;
+/// Note that the MaterialManagerImplT ctor may require that other interfaces (e.g. the Console) have been inited first.
+///
+/// Dlls typically get one of their init functions called immediately after they have been loaded.
+/// By doing so, the exe passes a pointer to its above instance to the dll, which in turn copies it to its MaterialManager variable.
 extern MaterialManagerI* MaterialManager;
 
 #endif

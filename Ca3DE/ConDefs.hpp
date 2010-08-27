@@ -21,12 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/**********************************/
-/*** Material Manager Interface ***/
-/**********************************/
+#ifndef _CONSOLE_DEFINITIONS_HPP_
+#define _CONSOLE_DEFINITIONS_HPP_
 
-#include "MaterialManager.hpp"
-
-
-// A global pointer to material manager, for convenient access by all modules.
-MaterialManagerI* MaterialManager=0;
+#endif

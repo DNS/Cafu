@@ -21,36 +21,47 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*******************/
-/*** Scroll Info ***/
-/*******************/
-
-#ifndef _CLIENT_SCROLLINFO_HPP_
-#define _CLIENT_SCROLLINFO_HPP_
-
-#include "Templates/Array.hpp"
+#include "MainFrame.hpp"
+#include "AppCafu.hpp"
+#include "MainCanvas.hpp"
 
 
-class FontT;
+BEGIN_EVENT_TABLE(MainFrameT, wxFrame)
+    EVT_CLOSE(MainFrameT::OnClose)
+END_EVENT_TABLE()
 
 
-class ScrollInfoT
+MainFrameT::MainFrameT()
+    : wxFrame(NULL /*parent*/, wxID_ANY, wxString("Cafu Engine - ") + __DATE__),
+      m_MainCanvas(NULL)
 {
-    private:
-
-    char  MAX_LINES;
-    char  FirstLine;
-    char  NrOfLines;
-    float TimeLeft;
-    ArrayT< ArrayT<char> > InfoLine;
-
-
-    public:
-
-    ScrollInfoT();
-    void Print(const char* PrintString, ...);
-    void Draw(FontT& Font, unsigned long PosX, unsigned long PosY, float FrameWidth, float FrameHeight) const;
-    void AdvanceTime(float FrameTime);
-};
-
+#ifdef __WXMSW__
+    SetIcon(wxIcon("aaaa", wxBITMAP_TYPE_ICO_RESOURCE));
 #endif
+
+    // Create sizer and insert canvas.
+    wxBoxSizer* Sizer=new wxBoxSizer(wxHORIZONTAL);
+
+    m_MainCanvas=new MainCanvasT(this);
+    Sizer->Add(m_MainCanvas, 1, wxEXPAND, 0);
+
+    this->SetSizer(Sizer);
+    this->Layout();
+
+    // Show the frame - it is not shown by default...
+    if (wxGetApp().IsCustomVideoMode()) ShowFullScreen(true); else Show();
+}
+
+
+void MainFrameT::OnClose(wxCloseEvent& CE)
+{
+    if (!CE.CanVeto())
+    {
+        Destroy();
+        return;
+    }
+
+    // All child frames were successfully closed.
+    // It's safe now to also close this parent window, which will gracefully exit the application.
+    Destroy();
+}

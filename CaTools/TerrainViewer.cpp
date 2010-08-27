@@ -69,6 +69,8 @@ cf::ConsoleI* Console=&ConsoleStdout;
 static cf::FileSys::FileManImplT FileManImpl;
 cf::FileSys::FileManI* cf::FileSys::FileMan=&FileManImpl;
 
+MaterialManagerI* MaterialManager=NULL;
+
 
 #define DEG2RAD(x) ((3.1415927f / 180.0f) * (x))
 #define SQR(x)     ((x) * (x))

@@ -71,6 +71,8 @@ cf::FileSys::FileManI* cf::FileSys::FileMan=&FileManImpl;
 static cf::ClipSys::CollModelManImplT CCM;
 cf::ClipSys::CollModelManI* cf::ClipSys::CollModelMan=&CCM;
 
+ConsoleInterpreterI* ConsoleInterpreter=NULL;
+MaterialManagerI*    MaterialManager   =NULL;
 cf::GuiSys::GuiManI* cf::GuiSys::GuiMan=NULL;
 
 
@@ -218,9 +220,6 @@ int AppCaWE::OnExit()
 
     delete m_FileConfig;
     m_FileConfig=NULL;
-
-    // TODO: delete cf::FileSys::FileMan;   // Shoud have   cf::FileSys::FileMan=new cf::FileSys::FileManImplT;   in OnInit().
-    cf::FileSys::FileMan=NULL;
 
     ConsoleInterpreter=NULL;     // This is very important, to make sure that no ConFuncT or ConVarT dtor accesses the ConsoleInterpreter that might already have been destroyed then.
 

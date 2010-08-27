@@ -28,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Coroutines.hpp"
 
 #include <cstdarg>
+#include <stdexcept>
 
 
 namespace cf { namespace TypeSys { class TypeInfoT; } }
@@ -75,6 +76,7 @@ namespace cf
             void SetInteractive(bool IsInteractive_=true);
             bool GetIsInteractive() const { return IsInteractive; }
             bool GetIsFullCover() const { return IsFullCover; }
+            void GetMousePos(float& MousePosX_, float& MousePosY_) const;
             void SetMousePos(float MousePosX_, float MousePosY_);
             void SetShowMouse(bool ShowMouse_);
             bool IsMouseShown() const { return MouseIsShown; }

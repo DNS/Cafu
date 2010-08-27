@@ -25,12 +25,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Client Graphs (Code) ***/
 /****************************/
 
+#include "../AppCafu.hpp"
+#include "../MainFrame.hpp"
 #include "Graphs.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/Mesh.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"
-#include "OpenGL/OpenGLWindow.hpp"      // OpenGL Window
 
 
 GraphsT::GraphsT()
@@ -80,6 +81,7 @@ void GraphsT::ClearForFrame(unsigned long ClientFrameNr)
 
 void GraphsT::Draw(unsigned long ClientFrameNr)
 {
+    const wxSize  FrameSize=wxGetApp().GetMainFrame()->GetClientSize();
     unsigned long FrameNr=512;
 
     MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
@@ -88,7 +90,7 @@ void GraphsT::Draw(unsigned long ClientFrameNr)
 
     MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
     MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,  MatrixT());
-    MatSys::Renderer->SetMatrix(MatSys::RendererI::PROJECTION,     MatrixT::GetProjOrthoMatrix(0.0f, float(SingleOpenGLWindow->GetWidth()), float(SingleOpenGLWindow->GetHeight()), 0.0f, -1.0f, 1.0f));
+    MatSys::Renderer->SetMatrix(MatSys::RendererI::PROJECTION,     MatrixT::GetProjOrthoMatrix(0.0f, float(FrameSize.GetWidth()), float(FrameSize.GetHeight()), 0.0f, -1.0f, 1.0f));
 
     static MatSys::MeshT LinesMesh (MatSys::MeshT::Lines ); LinesMesh .Vertices.Overwrite();
     static MatSys::MeshT PointsMesh(MatSys::MeshT::Points); PointsMesh.Vertices.Overwrite();
@@ -99,24 +101,24 @@ void GraphsT::Draw(unsigned long ClientFrameNr)
 
         LinesMesh.Vertices.PushBackEmpty();
         LinesMesh.Vertices[LinesMesh.Vertices.Size()-1].SetColor(0.5, 0.5, 0.5);
-        LinesMesh.Vertices[LinesMesh.Vertices.Size()-1].SetOrigin((SingleOpenGLWindow->GetWidth()-512)/2+FrameNr, SingleOpenGLWindow->GetHeight()-10);
+        LinesMesh.Vertices[LinesMesh.Vertices.Size()-1].SetOrigin((FrameSize.GetWidth()-512)/2+FrameNr, FrameSize.GetHeight()-10);
 
         LinesMesh.Vertices.PushBackEmpty();
         LinesMesh.Vertices[LinesMesh.Vertices.Size()-1].SetColor(0.5, 0.5, 0.5);
-        LinesMesh.Vertices[LinesMesh.Vertices.Size()-1].SetOrigin((SingleOpenGLWindow->GetWidth()-512)/2+FrameNr, SingleOpenGLWindow->GetHeight()-10-FPS[FrameIndex]);
+        LinesMesh.Vertices[LinesMesh.Vertices.Size()-1].SetOrigin((FrameSize.GetWidth()-512)/2+FrameNr, FrameSize.GetHeight()-10-FPS[FrameIndex]);
 
 
         PointsMesh.Vertices.PushBackEmpty();
         PointsMesh.Vertices[PointsMesh.Vertices.Size()-1].SetColor(1.0, 0.0, 1.0);
-        PointsMesh.Vertices[PointsMesh.Vertices.Size()-1].SetOrigin((SingleOpenGLWindow->GetWidth()-512)/2+FrameNr, SingleOpenGLWindow->GetHeight()-10-Heading[FrameIndex]);
+        PointsMesh.Vertices[PointsMesh.Vertices.Size()-1].SetOrigin((FrameSize.GetWidth()-512)/2+FrameNr, FrameSize.GetHeight()-10-Heading[FrameIndex]);
 
         PointsMesh.Vertices.PushBackEmpty();
         PointsMesh.Vertices[PointsMesh.Vertices.Size()-1].SetColor(0.0, 1.0, 0.0);
-        PointsMesh.Vertices[PointsMesh.Vertices.Size()-1].SetOrigin((SingleOpenGLWindow->GetWidth()-512)/2+FrameNr, SingleOpenGLWindow->GetHeight()-10-PosY[FrameIndex]);
+        PointsMesh.Vertices[PointsMesh.Vertices.Size()-1].SetOrigin((FrameSize.GetWidth()-512)/2+FrameNr, FrameSize.GetHeight()-10-PosY[FrameIndex]);
 
         PointsMesh.Vertices.PushBackEmpty();
         PointsMesh.Vertices[PointsMesh.Vertices.Size()-1].SetColor(0.0, 0.0, 1.0);
-        PointsMesh.Vertices[PointsMesh.Vertices.Size()-1].SetOrigin((SingleOpenGLWindow->GetWidth()-512)/2+FrameNr, SingleOpenGLWindow->GetHeight()-10-PosZ[FrameIndex]);
+        PointsMesh.Vertices[PointsMesh.Vertices.Size()-1].SetOrigin((FrameSize.GetWidth()-512)/2+FrameNr, FrameSize.GetHeight()-10-PosZ[FrameIndex]);
 
         ClientFrameNr--;
     }
