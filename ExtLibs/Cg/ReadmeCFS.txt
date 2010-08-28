@@ -1,8 +1,5 @@
-For License and Copyright: Please see the Cg website for details
-(no informaton or details are provided with the library packages).
+Cg website: http://developer.nvidia.com/object/cg_toolkit.html
 
-Website: http://developer.nvidia.com/object/cg_toolkit.html
-
-The use of the Cg library in the Cafu is optional.
-It is used in some of the Cafu renderer systems, and can easily
-be replaced by other rendering technologies (e.g. pure OpenGL).
+The use of the Cg library in Cafu is optional.
+It is used in some of the Cafu renderer systems, and can be
+replaced by other rendering technologies (e.g. pure OpenGL).
