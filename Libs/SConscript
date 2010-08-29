@@ -111,8 +111,10 @@ envRenderers.SharedLibrary(
 
 
 
+LibPath="#/ExtLibs/Cg/lib"
 if sys.platform=="win32":
     LibList=Split("cfsLib cfs_png cfs_jpeg z MatSys opengl32.lib glu32.lib cg cgGL")
+    if envRenderers["TARGET_ARCH"]!="x86": LibPath += ".x64"
 elif sys.platform=="linux2":
     LibList=Split("Cg CgGL")
 else:
@@ -130,13 +132,15 @@ if sys.platform!="linux2" or platform.machine()!="x86_64":      # We don't have 
                    Shaders/L_Diff_Norm.cpp Shaders/L_Diff_Norm_Spec.cpp Shaders/StencilShadowVolumes.cpp Shaders/_CommonCgHelpers.cpp""")] +
                MatSys_CommonObjectsList,
         CPPPATH=env['CPPPATH']+["#/ExtLibs/Cg/include"],
-        LIBPATH=env['LIBPATH']+["#/ExtLibs/Cg/lib"],
+        LIBPATH=env['LIBPATH']+[LibPath],
         LIBS=LibList)
 
 
 
+LibPath="#/ExtLibs/Cg/lib"
 if sys.platform=="win32":
     LibList=Split("cfsLib cfs_png cfs_jpeg z MatSys opengl32.lib glu32.lib cg cgGL")
+    if envRenderers["TARGET_ARCH"]!="x86": LibPath += ".x64"
 elif sys.platform=="linux2":
     LibList=Split("Cg CgGL")
 else:
@@ -154,7 +158,7 @@ if sys.platform!="linux2" or platform.machine()!="x86_64":      # We don't have 
                    Shaders/L_Diff_Norm_oSpec.cpp Shaders/StencilShadowVolumes.cpp Shaders/_CommonCgHelpers.cpp""")] +
                MatSys_CommonObjectsList,
         CPPPATH=env['CPPPATH']+["#/ExtLibs/Cg/include"],
-        LIBPATH=env['LIBPATH']+["#/ExtLibs/Cg/lib"],
+        LIBPATH=env['LIBPATH']+[LibPath],
         LIBS=LibList)
 
 
@@ -211,7 +215,8 @@ elif sys.platform=="linux2":
     envSoundSys.Append(LIBPATH=['#/ExtLibs/fmod/api'])
     envSoundSys.Append(LIBS=["SoundSys", "fmod-3.75"])
 
-if sys.platform!="linux2" or platform.machine()!="x86_64":      # We don't have the FMod libraries for x86_64 platforms...
+# We have the FMod libraries only for 32-bit platforms...
+if (sys.platform=="win32" and envSoundSys["TARGET_ARCH"]=="x86") or (sys.platform=="linux2" and platform.machine()!="x86_64"):
     envSoundSys.SharedLibrary(
         target="SoundSystem/SoundSysFMOD3",
         source=[os.path.join("SoundSystem/SoundSysFMOD3", x) for x in Split("""
@@ -225,8 +230,11 @@ envSoundSys.Append(CPPPATH=['#/ExtLibs/freealut/include', '#/ExtLibs/mpg123/src/
 
 if sys.platform=="win32":
     envSoundSys.Append(CPPPATH=['#/ExtLibs/openal-win/include'])
-    envSoundSys.Append(LIBPATH=['#/ExtLibs/openal-win/libs/Win32'])
     envSoundSys.Append(LIBS=Split("cfsLib SoundSys OpenAL32 alut mpg123 ogg vorbis vorbisfile"))
+    if envSoundSys["TARGET_ARCH"]=="x86":
+        envSoundSys.Append(LIBPATH=['#/ExtLibs/openal-win/libs/Win32'])
+    else:
+        envSoundSys.Append(LIBPATH=['#/ExtLibs/openal-win/libs/Win64'])
 elif sys.platform=="linux2":
     envSoundSys.Append(CPPPATH=['#/ExtLibs/openal-soft/include'])
     envSoundSys.Append(LINKFLAGS=["Libs/SoundSystem/Common/linker-script"])

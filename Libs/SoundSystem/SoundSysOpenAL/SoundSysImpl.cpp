@@ -73,7 +73,7 @@ bool SoundSysImplT::Initialize()
         const char* DeviceNames  =alcGetString(NULL, ALC_DEVICE_SPECIFIER);
         const char* DefaultDevice=alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
 
-        unsigned int Offset=0;
+        size_t       Offset=0;
         unsigned int DeviceNum=1;
 
         while (DeviceNames[Offset]!='\0')
@@ -111,7 +111,7 @@ bool SoundSysImplT::Initialize()
         const char* DeviceNames  =alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
         const char* DefaultDevice=alcGetString(NULL, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
 
-        unsigned int Offset=0;
+        size_t       Offset=0;
         unsigned int DeviceNum=1;
 
         while (DeviceNames[Offset]!='\0')

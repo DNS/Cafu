@@ -63,7 +63,7 @@ BufferT* BufferManagerT::GetBuffer(const std::string& ResName, bool ForceMono, S
         const unsigned int WantedDeviceNum=atoi(ResName.substr(8).c_str());
 
         const char*  DeviceNames=alcGetString(NULL, ALC_CAPTURE_DEVICE_SPECIFIER);
-        unsigned int Offset     =0;
+        size_t       Offset     =0;
         unsigned int DeviceNum  =0;
         std::string  DeviceName ="";
 

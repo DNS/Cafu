@@ -38,7 +38,7 @@ static size_t FileSysRead(void* Buffer, size_t ElementSize, size_t NumRead, void
 {
     cf::FileSys::InFileI* StreamFile=(cf::FileSys::InFileI*) DataSource;
 
-    return StreamFile->Read((char*)Buffer, ElementSize*NumRead);
+    return StreamFile->Read((char*)Buffer, uint32_t(ElementSize*NumRead));
 }
 
 

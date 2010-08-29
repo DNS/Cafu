@@ -46,7 +46,7 @@ static ssize_t FileSysRead(int FileDesc, void* Buffer, size_t Count)
 {
     cf::FileSys::InFileI* StreamFile=OpenFiles[FileDesc];
 
-    return StreamFile->Read((char*)Buffer, Count);
+    return StreamFile->Read((char*)Buffer, uint32_t(Count));
 }
 
 
@@ -198,7 +198,7 @@ int MP3StreamT::Read(unsigned char* Buffer, unsigned int Size)
         std::cout << "MPG123: End of stream reached (Return '" << ReadBytes << "').\n";
     }
 
-    return ReadBytes;
+    return int(ReadBytes);
 }
 
 
