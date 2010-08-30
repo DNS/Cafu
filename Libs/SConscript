@@ -117,23 +117,23 @@ if sys.platform=="win32":
     if envRenderers["TARGET_ARCH"]!="x86": LibPath += ".x64"
 elif sys.platform=="linux2":
     LibList=Split("Cg CgGL")
+    if platform.machine()=="x86_64": LibPath += ".x64"
 else:
     LibList=[]
 
-if sys.platform!="linux2" or platform.machine()!="x86_64":      # We don't have the NVidia Cg libraries for x86_64 platforms...
-    envRenderers.SharedLibrary(
-        target="MaterialSystem/RendererCgARB1",
-        source=[os.path.join("MaterialSystem/RendererCgARB1", x) for x in Split("""
-                   RendererCgARB1.cpp RendererImpl.cpp RenderMaterial.cpp Shader.cpp TextureMapImpl.cpp
+envRenderers.SharedLibrary(
+    target="MaterialSystem/RendererCgARB1",
+    source=[os.path.join("MaterialSystem/RendererCgARB1", x) for x in Split("""
+               RendererCgARB1.cpp RendererImpl.cpp RenderMaterial.cpp Shader.cpp TextureMapImpl.cpp
 
-                   Shaders/A_Terrain.cpp Shaders/A_Diff.cpp Shaders/A_Diff_Luma.cpp Shaders/A_Diff_Norm.cpp Shaders/A_Diff_Norm_Luma.cpp
-                   Shaders/A_Diff_Light.cpp Shaders/A_Diff_Light_Luma.cpp Shaders/A_Diff_Light_Norm.cpp Shaders/A_Diff_Light_Norm_Luma.cpp
-                   Shaders/A_SkyDome.cpp Shaders/A_Solid.cpp Shaders/A_WaterCubeReflect.cpp Shaders/L_Diff.cpp Shaders/L_Diff_Spec.cpp
-                   Shaders/L_Diff_Norm.cpp Shaders/L_Diff_Norm_Spec.cpp Shaders/StencilShadowVolumes.cpp Shaders/_CommonCgHelpers.cpp""")] +
-               MatSys_CommonObjectsList,
-        CPPPATH=env['CPPPATH']+["#/ExtLibs/Cg/include"],
-        LIBPATH=env['LIBPATH']+[LibPath],
-        LIBS=LibList)
+               Shaders/A_Terrain.cpp Shaders/A_Diff.cpp Shaders/A_Diff_Luma.cpp Shaders/A_Diff_Norm.cpp Shaders/A_Diff_Norm_Luma.cpp
+               Shaders/A_Diff_Light.cpp Shaders/A_Diff_Light_Luma.cpp Shaders/A_Diff_Light_Norm.cpp Shaders/A_Diff_Light_Norm_Luma.cpp
+               Shaders/A_SkyDome.cpp Shaders/A_Solid.cpp Shaders/A_WaterCubeReflect.cpp Shaders/L_Diff.cpp Shaders/L_Diff_Spec.cpp
+               Shaders/L_Diff_Norm.cpp Shaders/L_Diff_Norm_Spec.cpp Shaders/StencilShadowVolumes.cpp Shaders/_CommonCgHelpers.cpp""")] +
+           MatSys_CommonObjectsList,
+    CPPPATH=env['CPPPATH']+["#/ExtLibs/Cg/include"],
+    LIBPATH=env['LIBPATH']+[LibPath],
+    LIBS=LibList)
 
 
 
@@ -143,23 +143,23 @@ if sys.platform=="win32":
     if envRenderers["TARGET_ARCH"]!="x86": LibPath += ".x64"
 elif sys.platform=="linux2":
     LibList=Split("Cg CgGL")
+    if platform.machine()=="x86_64": LibPath += ".x64"
 else:
     LibList=[]
 
-if sys.platform!="linux2" or platform.machine()!="x86_64":      # We don't have the NVidia Cg libraries for x86_64 platforms...
-    envRenderers.SharedLibrary(
-        target="MaterialSystem/RendererCgNV2X",
-        source=[os.path.join("MaterialSystem/RendererCgNV2X", x) for x in Split("""
-                   RendererCgNV2X.cpp RendererImpl.cpp RenderMaterial.cpp Shader.cpp TextureMapImpl.cpp
+envRenderers.SharedLibrary(
+    target="MaterialSystem/RendererCgNV2X",
+    source=[os.path.join("MaterialSystem/RendererCgNV2X", x) for x in Split("""
+               RendererCgNV2X.cpp RendererImpl.cpp RenderMaterial.cpp Shader.cpp TextureMapImpl.cpp
 
-                   Shaders/A_Terrain.cpp Shaders/A_Diff.cpp Shaders/A_Diff_Luma.cpp Shaders/A_Diff_Norm.cpp Shaders/A_Diff_Norm_Luma.cpp
-                   Shaders/A_Diff_Light.cpp Shaders/A_Diff_Light_Luma.cpp Shaders/A_Diff_Light_Norm.cpp Shaders/A_Diff_Light_Norm_Luma.cpp
-                   Shaders/A_SkyDome.cpp Shaders/A_Solid.cpp Shaders/A_WaterCubeReflect.cpp Shaders/L_Diff.cpp Shaders/L_Diff_Spec.cpp
-                   Shaders/L_Diff_Norm_oSpec.cpp Shaders/StencilShadowVolumes.cpp Shaders/_CommonCgHelpers.cpp""")] +
-               MatSys_CommonObjectsList,
-        CPPPATH=env['CPPPATH']+["#/ExtLibs/Cg/include"],
-        LIBPATH=env['LIBPATH']+[LibPath],
-        LIBS=LibList)
+               Shaders/A_Terrain.cpp Shaders/A_Diff.cpp Shaders/A_Diff_Luma.cpp Shaders/A_Diff_Norm.cpp Shaders/A_Diff_Norm_Luma.cpp
+               Shaders/A_Diff_Light.cpp Shaders/A_Diff_Light_Luma.cpp Shaders/A_Diff_Light_Norm.cpp Shaders/A_Diff_Light_Norm_Luma.cpp
+               Shaders/A_SkyDome.cpp Shaders/A_Solid.cpp Shaders/A_WaterCubeReflect.cpp Shaders/L_Diff.cpp Shaders/L_Diff_Spec.cpp
+               Shaders/L_Diff_Norm_oSpec.cpp Shaders/StencilShadowVolumes.cpp Shaders/_CommonCgHelpers.cpp""")] +
+           MatSys_CommonObjectsList,
+    CPPPATH=env['CPPPATH']+["#/ExtLibs/Cg/include"],
+    LIBPATH=env['LIBPATH']+[LibPath],
+    LIBS=LibList)
 
 
 
