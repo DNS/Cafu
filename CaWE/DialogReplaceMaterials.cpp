@@ -49,6 +49,7 @@ BitmapControlT::BitmapControlT(wxWindow* Parent, const wxPoint& Pos, const wxSiz
       m_Bitmap()
 {
     SetClientSize(Size);
+    SetMinSize(GetSize());
 }
 
 
