@@ -604,8 +604,8 @@ void ServerT::ProcessConnectionLessPacket(NetDataT& InData, const NetAddressT& S
             {
                 // See http://svn.icculus.org/quake3/trunk/code/server/sv_main.c?rev=2&view=markup
                 // (function SVC_RemoteCommand()) for how they did this in Quake3.
-                const char* Password=InData.ReadString();
-                const char* Command =InData.ReadString();
+                const char* Password=InData.ReadString(); if (!Password) break;
+                const char* Command =InData.ReadString(); if (!Command ) break;
 
                 // Make sure that at least 500ms pass between two successive remote commands.
                 ;
