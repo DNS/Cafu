@@ -21,14 +21,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*******************/
-/*** Scroll Info ***/
-/*******************/
-
 #ifndef _CLIENT_SCROLLINFO_HPP_
 #define _CLIENT_SCROLLINFO_HPP_
 
 #include "Templates/Array.hpp"
+#include <string>
 
 
 class FontT;
@@ -36,21 +33,20 @@ class FontT;
 
 class ScrollInfoT
 {
-    private:
-
-    char  MAX_LINES;
-    char  FirstLine;
-    char  NrOfLines;
-    float TimeLeft;
-    ArrayT< ArrayT<char> > InfoLine;
-
-
     public:
 
     ScrollInfoT();
-    void Print(const char* PrintString, ...);
+
+    void Print(const std::string& Line);
     void Draw(FontT& Font, unsigned long PosX, unsigned long PosY, float FrameWidth, float FrameHeight) const;
     void AdvanceTime(float FrameTime);
+
+
+    private:
+
+    const unsigned int  m_MAX_LINES;
+    float               m_TimeLeft;
+    ArrayT<std::string> m_InfoLines;
 };
 
 #endif

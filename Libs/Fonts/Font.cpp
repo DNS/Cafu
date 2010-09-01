@@ -21,26 +21,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/**************************/
-/*** MatSys Font (Code) ***/
-/**************************/
-
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
-
 #include "Font.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/Mesh.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"
-
-#if defined(_WIN32)
-    #if defined(_MSC_VER)
-        #define vsnprintf _vsnprintf
-    #endif
-#endif
 
 
 FontT::FontT(const std::string& MaterialName)
@@ -74,19 +60,10 @@ FontT& FontT::operator = (const FontT& Other)
 }
 
 
-void FontT::Print(int PosX, int PosY, float FrameWidth, float FrameHeight, unsigned long Color, const char* PrintString, ...)
+void FontT::Print(int PosX, int PosY, float FrameWidth, float FrameHeight, unsigned long Color, const std::string& PrintString)
 {
-    if (!PrintString) return;
-
-    va_list ArgList;
-    char    PrintBuffer[256];
-
-    va_start(ArgList, PrintString);
-        vsnprintf(PrintBuffer, 256, PrintString, ArgList);
-    va_end(ArgList);
-
     AccPrintBegin(FrameWidth, FrameHeight);
-    AccPrint(PosX, PosY, Color, PrintBuffer);
+    AccPrint(PosX, PosY, Color, PrintString);
     AccPrintEnd();
 }
 
@@ -104,31 +81,20 @@ void FontT::AccPrintBegin(float FrameWidth, float FrameHeight)
 }
 
 
-void FontT::AccPrint(int PosX, int PosY, unsigned long Color, const char* PrintString, ...)
+void FontT::AccPrint(int PosX, int PosY, unsigned long Color, const std::string& PrintString)
 {
-    if (!PrintString) return;
-
-    va_list ArgList;
-    char    PrintBuffer[256];
-
-    va_start(ArgList, PrintString);
-        vsnprintf(PrintBuffer, 256, PrintString, ArgList);
-    va_end(ArgList);
-
-
     MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT::GetTranslateMatrix(Vector3fT(float(PosX), float(PosY), 0.0f)));
     MatSys::Renderer->SetCurrentAmbientLightColor(char((Color >> 16) & 0xFF)/255.0f, char((Color >> 8) & 0xFF)/255.0f, char(Color & 0xFF)/255.0f);
     MatSys::Renderer->SetCurrentMaterial(RenderMaterial);
 
-
     static MatSys::MeshT TextMesh(MatSys::MeshT::Quads);
     TextMesh.Vertices.Overwrite();
-    TextMesh.Vertices.PushBackEmpty((unsigned long)(4*strlen(PrintBuffer)));
+    TextMesh.Vertices.PushBackEmpty((unsigned long)(4*PrintString.length()));
 
-    for (unsigned long c=0; PrintBuffer[c]; c++)
+    for (size_t c=0; c<PrintString.length(); c++)
     {
-        const float CoordX=float(PrintBuffer[c] &  0xF)/16.0f;      // PrintBuffer[c] % 16
-        const float CoordY=float(PrintBuffer[c] >>   4)/16.0f;      // PrintBuffer[c] / 16
+        const float CoordX=float(PrintString[c] &  0xF)/16.0f;      // PrintString[c] % 16
+        const float CoordY=float(PrintString[c] >>   4)/16.0f;      // PrintString[c] / 16
         const float Size  =16.0/256.0;
 
         TextMesh.Vertices[4*c+0].SetOrigin( 0+c*10,  0); TextMesh.Vertices[4*c+0].SetTextureCoord(CoordX     , CoordY     );

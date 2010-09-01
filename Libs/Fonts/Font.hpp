@@ -21,10 +21,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/****************************/
-/*** MatSys Font (Header) ***/
-/****************************/
-
 #ifndef _MATSYS_FONT_HPP_
 #define _MATSYS_FONT_HPP_
 
@@ -54,11 +50,11 @@ class FontT
     FontT& operator = (const FontT& Other);
 
     /// Prints PrintString at (PosX, PosY) in color Color.
-    void Print(int PosX, int PosY, float FrameWidth, float FrameHeight, unsigned long Color, const char* PrintString, ...);
+    void Print(int PosX, int PosY, float FrameWidth, float FrameHeight, unsigned long Color, const std::string& PrintString);
 
     /// Accumulative printing functions. Faster if you have to call Print() a lot.
     void AccPrintBegin(float FrameWidth, float FrameHeight);
-    void AccPrint(int PosX, int PosY, unsigned long Color, const char* PrintString, ...);
+    void AccPrint(int PosX, int PosY, unsigned long Color, const std::string& PrintString);
     void AccPrintEnd();
 
 

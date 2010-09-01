@@ -404,7 +404,7 @@ void ClientStateInGameT::Render(float FrameTime)
             static ConVarT ShowFrameRate("showFPS", false, ConVarT::FLAG_MAIN_EXE, "Toggles whether the frames-per-second number is shown.");
             static ConVarT ShowPosition("showPos", false, ConVarT::FLAG_MAIN_EXE, "Toggles whether the current players position is shown.");
 
-            if (ShowFrameRate.GetValueBool()) Font_f.Print(FrameSize.GetWidth()-100, FrameSize.GetHeight()-16, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, "FPS %5.1f", 1.0f/FrameTime);
+            if (ShowFrameRate.GetValueBool()) Font_f.Print(FrameSize.GetWidth()-100, FrameSize.GetHeight()-16, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("FPS %5.1f", 1.0f/FrameTime));
 
             if (ShowPosition.GetValueBool())
             {
@@ -414,11 +414,11 @@ void ClientStateInGameT::Render(float FrameTime)
                 // if (World->GetCa3DEWorldP()->Map.Leaves[LeafNr].IsInnerLeaf)
                 //     LeafContents=World->GetCa3DEWorldP()->Map.Leaves[LeafNr].IsWaterLeaf ? 'w' : 'i';
 
-                Font_f.Print(FrameSize.GetWidth()-130, 15, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, "X %10.1f", OurEntityCurrentState->Origin.x);
-                Font_f.Print(FrameSize.GetWidth()-130, 35, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, "Y %10.1f", OurEntityCurrentState->Origin.y);
-                Font_f.Print(FrameSize.GetWidth()-130, 55, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, "Z %10.1f", OurEntityCurrentState->Origin.z);
-                Font_f.Print(FrameSize.GetWidth()-130, 75, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, "Hdg %8u", OurEntityCurrentState->Heading);
-             // Font_f.Print(FrameSize.GetWidth()-100, FrameSize.GetHeight()-32, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, "L %4u %c", LeafNr, LeafContents);
+                Font_f.Print(FrameSize.GetWidth()-130, 15, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("X %10.1f", OurEntityCurrentState->Origin.x));
+                Font_f.Print(FrameSize.GetWidth()-130, 35, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("Y %10.1f", OurEntityCurrentState->Origin.y));
+                Font_f.Print(FrameSize.GetWidth()-130, 55, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("Z %10.1f", OurEntityCurrentState->Origin.z));
+                Font_f.Print(FrameSize.GetWidth()-130, 75, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("Hdg %8u", OurEntityCurrentState->Heading));
+             // Font_f.Print(FrameSize.GetWidth()-100, FrameSize.GetHeight()-32, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("L %4u %c", LeafNr, LeafContents));
             }
 
             /*if (ShowLeaf)
@@ -528,13 +528,13 @@ void ClientStateInGameT::Render(float FrameTime)
             const unsigned long CharWidth=10;
 
             #ifdef DEBUG
-                LoadingFont->Print(FrameSize.GetWidth()/2-34*CharWidth/2, FrameSize.GetHeight()*9/10+12, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00800000, "Version: %s [Debug build], %s", __DATE__, LoadingProgressText.c_str());
+                LoadingFont->Print(FrameSize.GetWidth()/2-34*CharWidth/2, FrameSize.GetHeight()*9/10+12, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00800000, "Version: "__DATE__" [Debug build], "+LoadingProgressText);
             #else
-                LoadingFont->Print(FrameSize.GetWidth()/2-20*CharWidth/2, FrameSize.GetHeight()*9/10+12, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00800000, "Version: %s", __DATE__);
+                LoadingFont->Print(FrameSize.GetWidth()/2-20*CharWidth/2, FrameSize.GetHeight()*9/10+12, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00800000, "Version: "__DATE__);
             #endif
 
             if (LoadingProgressPercent>0)
-                LoadingFont->Print(FrameSize.GetWidth()/2-10*CharWidth/2, FrameSize.GetHeight()*9/10+30, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00800000, "Loading... %.0f%%", LoadingProgressPercent*100.0f);
+                LoadingFont->Print(FrameSize.GetWidth()/2-10*CharWidth/2, FrameSize.GetHeight()*9/10+30, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00800000, cf::va("Loading... %.0f%%", LoadingProgressPercent*100.0f));
             else
                 LoadingFont->Print(FrameSize.GetWidth()/2-10*CharWidth/2, FrameSize.GetHeight()*9/10+30, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00800000, "Loading...");
         }
@@ -746,17 +746,24 @@ void ClientStateInGameT::ParseServerPacket(NetDataT& InData)
                     if (EntityID==World->GetOurEntityID())
                         Client.NextState=ClientT::IDLE;
 
-                Console->Print(cf::va("Client with EntityID %u has left the game. Reason: %s\n", EntityID, Reason));
-                SystemScrollInfo.Print("Client with EntityID %u has left the game. Reason: %s", EntityID, Reason);
+                const std::string msg=cf::va("Client with EntityID %u has left the game. Reason: ", EntityID)+Reason+"\n";
+
+                Console->Print(msg);
+                SystemScrollInfo.Print(msg);
                 break;
             }
 
             default:
+            {
                 // Alle SC1_EntityUpdate-Messages sollten nach SC1_FrameInfo schon gelesen worden sein!
                 cf::LogDebug(net, "SC1_???: WARNING: Unknown SC1_* in-game message type '%u' received!\n", MessageType);
-                Console->Print(cf::va("WARNING: Unknown in-game message type '%3u' received!\n", MessageType));
-                SystemScrollInfo.Print("WARNING: Unknown in-game message type '%3u' received!", MessageType);
+
+                const std::string msg=cf::va("WARNING: Unknown in-game message type '%3u' received!\n", MessageType);
+
+                Console->Print(msg);
+                SystemScrollInfo.Print(msg);
                 // assert(false);
+            }
         }
     }
 
