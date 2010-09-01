@@ -372,6 +372,7 @@ void AppCafuT::OnInitCmdLine(wxCmdLineParser& Parser)
     Parser.AddOption("clSoundSystem",  "", "Override the auto-selection of the best available sound system [auto].", wxCMD_LINE_VAL_STRING);
     Parser.AddOption("clPlayerName",   "", "Player name ["+Options_DeathMatchPlayerName.GetValueString()+"].", wxCMD_LINE_VAL_STRING);
     Parser.AddOption("clModelName",    "", "Name of the players model ["+Options_DeathMatchModelName.GetValueString()+"].", wxCMD_LINE_VAL_STRING);
+    Parser.AddParam("worldname", wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
 
     wxApp::OnInitCmdLine(Parser);
     Parser.AddUsageText("\nDefault values are enclosed in [brackets].");
