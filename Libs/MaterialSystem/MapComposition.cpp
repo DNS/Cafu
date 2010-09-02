@@ -26,7 +26,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /***********************/
 
 #include <math.h>
-#include <stdio.h>
 
 #include "MapComposition.hpp"
 #include "Bitmap/Bitmap.hpp"
@@ -747,12 +746,7 @@ std::string MapCompositionT::GetString() const
             return std::string("combineNMs(")+Child1->GetString()+", "+Child2->GetString()+")";
 
         case HeightMapToNormalMap:
-        {
-            char hmScaleString[32];
-
-            sprintf(hmScaleString, "%f", HeightScale);
-            return std::string("hm2nm(")+Child1->GetString()+", "+hmScaleString+")";
-        }
+            return std::string("hm2nm(")+Child1->GetString()+", "+cf::va("%f", HeightScale)+")";
 
         case FlipNormalMapYAxis:
             return std::string("flipNMyAxis(")+Child1->GetString()+")";

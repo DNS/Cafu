@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Window.hpp"
 #include "WindowCreateParams.hpp"
 #include "ConsoleCommands/Console.hpp"
+#include "ConsoleCommands/Console_Lua.hpp"
 #include "ConsoleCommands/ConsoleInterpreter.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "MaterialSystem/Mesh.hpp"
@@ -87,7 +88,7 @@ GuiImplT::GuiImplT(const std::string& GuiScriptName, bool IsInlineCode)
     lua_pushcfunction(LuaState, luaopen_math);    lua_pushstring(LuaState, LUA_MATHLIBNAME); lua_call(LuaState, 1, 0);  // Opens the math lib.
 
     // Load the console library. (Adds a global table with name "Console" to the LuaState with the functions of the ConsoleI interface.)
-    cf::ConsoleI::RegisterLua(LuaState);
+    cf::Console_RegisterLua(LuaState);
 
     // Load the "ci" (console interpreter) library. (Adds a global table with name "ci" to the LuaState with (some of) the functions of the ConsoleInterpreterI interface.)
     ConsoleInterpreterI::RegisterLua(LuaState);

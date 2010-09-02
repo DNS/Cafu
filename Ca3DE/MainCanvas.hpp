@@ -85,7 +85,6 @@ class MainCanvasT : public wxGLCanvas
     ClientT*      m_Client;
     ServerT*      m_Server;
     SvGuiCallbT*  m_SvGuiCallback;
-    cf::ConsoleI* m_PrevConsole;
     cf::ConsoleI* m_ConByGuiWin;    ///< This points to an instance of cf::GuiSys::ConsoleByWindowT.
     TimerT        m_Timer;
     double        m_TotalTime;

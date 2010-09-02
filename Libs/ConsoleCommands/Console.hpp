@@ -21,16 +21,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/***************/
-/*** Console ***/
-/***************/
-
 #ifndef _CF_CONSOLE_HPP_
 #define _CF_CONSOLE_HPP_
 
 #include <string>
-
-struct lua_State;
 
 
 namespace cf
@@ -46,19 +40,10 @@ namespace cf
         virtual ~ConsoleI() { }
 
         // Methods for console output.
-        // TODO: These methods could also have a signature like (const char* s="", ...) directly, see GuiSys/Gui.hpp for an example!!
-        //       Much better of course would be to implement operator <<, as with std::cout.
         virtual void Print(const std::string& s)=0;      ///< Print message to console.
         virtual void DevPrint(const std::string& s)=0;   ///< Print dev message to console.
         virtual void Warning(const std::string& s)=0;    ///< Print warning to console.
         virtual void DevWarning(const std::string& s)=0; ///< Print dev warning to console.
-
-
-        /// Registers the methods of this interface with LuaState as a Lua module as described in the PiL2 book, chapter 26.2.
-        /// The key idea is that all methods are called via the global Console variable defined below,
-        /// and therefore we may consider them as a collection of C-style functions (no OO involved),
-        /// so that putting them in a Lua table as described in chapter 26 of the PiL2 book is straightforward.
-        static void RegisterLua(lua_State* LuaState);
     };
 
 

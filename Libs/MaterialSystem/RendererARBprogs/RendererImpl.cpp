@@ -47,6 +47,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "TextureMapImpl.hpp"
 
 #include "../Common/OpenGLEx.hpp"
+#include "ConsoleCommands/Console.hpp"
 #include "Templates/Array.hpp"
 
 
@@ -114,7 +115,7 @@ bool RendererImplT::IsSupported() const
     if (LastError!=GL_NO_ERROR)
     {
 #ifdef DEBUG
-        printf("\n%s (%u): glGetError() returned error %lu (0x%X).\n", __FILE__, __LINE__, (unsigned long)LastError, LastError);
+        Console->Print(cf::va("\n%s (%u): glGetError() returned error %lu (0x%X).\n", __FILE__, __LINE__, (unsigned long)LastError, LastError));
 #endif
         return false;
     }
@@ -462,7 +463,7 @@ void RendererImplT::BeginFrame(double Time)
     GLenum Error=glGetError();
 
     if (Error!=GL_NO_ERROR)
-        printf("glGetError()==%i\n", Error);
+        Console->Print(cf::va("glGetError()==%i\n", Error));
 #endif
 }
 
@@ -471,10 +472,10 @@ void RendererImplT::BeginFrame(double Time)
 
 void RendererImplT::EndFrame()
 {
-    // printf("%4lu", ShaderChangeCounter);
+    // Console->Print(cf::va("%4lu", ShaderChangeCounter));
     // static int LineWrap=0;
     // LineWrap++;
-    // if (LineWrap==20) { printf("\n"); LineWrap=0; }
+    // if (LineWrap==20) { Console->Print("\n"); LineWrap=0; }
 }
 
 
@@ -548,7 +549,7 @@ void RendererImplT::PreCache()
         glEnd();
     }
 
-    // printf("%lu textures pre-cached.\n", TexMapRepository.Size());
+    // Console->Print(cf::va("%lu textures pre-cached.\n", TexMapRepository.Size()));
 }
 
 

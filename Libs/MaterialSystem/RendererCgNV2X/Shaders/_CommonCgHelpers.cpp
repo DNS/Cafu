@@ -26,6 +26,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*************************/
 
 #include "_CommonCgHelpers.hpp"
+#include "ConsoleCommands/Console.hpp"
+
 #include <stdio.h>
 
 
@@ -40,11 +42,11 @@ CGprogram UploadCgProgram(CGcontext CgContext, CGprofile Profile, const char* So
         FILE*   ErrorFile=fopen("CgError.txt", "a");
         CGerror err      =cgGetError();
 
-        printf("ERROR: Unable to create Cg program: %s\n", cgGetErrorString(err));
+        Console->Print(std::string("ERROR: Unable to create Cg program: ")+cgGetErrorString(err)+"\n");
         if (ErrorFile) fprintf(ErrorFile, "ERROR: Unable to create Cg program: %s\n", cgGetErrorString(err));
 
         const char* LastListing=cgGetLastListing(CgContext);
-        if (LastListing) printf("LAST LISTING:\n%s\n", LastListing);
+        if (LastListing) Console->Print(std::string("LAST LISTING:\n")+LastListing+"\n");
         if (LastListing && ErrorFile) fprintf(ErrorFile, "LAST LISTING:\n%s\n", LastListing);
 
         if (ErrorFile) fclose(ErrorFile);
@@ -57,7 +59,7 @@ CGprogram UploadCgProgram(CGcontext CgContext, CGprofile Profile, const char* So
     if (err!=CG_NO_ERROR)
     {
         // This should never happen, as we have already made sure elsewhere that the desired profile is supported!
-        printf("ERROR: Unable to load Cg program: %s\n", cgGetErrorString(err));
+        Console->Print(std::string("ERROR: Unable to load Cg program: ")+cgGetErrorString(err)+"\n");
         return NULL;
     }
 

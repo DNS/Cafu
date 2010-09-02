@@ -40,6 +40,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "TextureMapImpl.hpp"
 
 #include "../Common/OpenGLEx.hpp"
+#include "ConsoleCommands/Console.hpp"
 #include "Templates/Array.hpp"
 
 
@@ -88,13 +89,13 @@ bool RendererImplT::IsSupported() const
     // This ASSUMES that IF we have a valid rendering context, it has been left with the error flag cleared.
     // glGetError();   // Clear the error flag manually (will set error GL_INVALID_OPERATION on invalid RC).
 #ifdef DEBUG
-    printf("\n%s (%u): Entering RendererImplT::IsSupported().\n", __FILE__, __LINE__);
+    Console->Print(cf::va("\n%s (%u): Entering RendererImplT::IsSupported().\n", __FILE__, __LINE__));
 #endif
     GLenum LastError=glGetError();
     if (LastError!=GL_NO_ERROR)
     {
 #ifdef DEBUG
-        printf("%s (%u): glGetError() returned error %lu (0x%X).\n", __FILE__, __LINE__, (unsigned long)LastError, LastError);
+        Console->Print(cf::va("%s (%u): glGetError() returned error %lu (0x%X).\n", __FILE__, __LINE__, (unsigned long)LastError, LastError));
 #endif
         return false;
     }
@@ -104,7 +105,7 @@ bool RendererImplT::IsSupported() const
     const char* Version=(char const*)glGetString(GL_VERSION);
 
 #ifdef DEBUG
-    printf("%s (%u): GL_VERSION string is \"%s\".\n", __FILE__, __LINE__, Version==NULL ? "NULL" : Version);
+    Console->Print(cf::va("%s (%u): GL_VERSION string is \"%s\".\n", __FILE__, __LINE__, Version==NULL ? "NULL" : Version));
 #endif
     if (Version==NULL) return false;                    // This is another way to see if the RC is valid.
     if (atof(Version)<1.1) return false;                // Require 1.1 or higher (we don't need GL_CLAMP_TO_EDGE).
@@ -112,7 +113,7 @@ bool RendererImplT::IsSupported() const
 
     cf::Init_GL_ARB_multitexture();
 #ifdef DEBUG
-    printf("%s (%u): GL_ARB_multitexture_AVAIL==%u.\n", __FILE__, __LINE__, cf::GL_ARB_multitexture_AVAIL);
+    Console->Print(cf::va("%s (%u): GL_ARB_multitexture_AVAIL==%u.\n", __FILE__, __LINE__, cf::GL_ARB_multitexture_AVAIL));
 #endif
     if (!cf::GL_ARB_multitexture_AVAIL) return false;       // Require the GL_ARB_multitexture extension.
 

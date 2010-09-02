@@ -8,7 +8,7 @@ env.StaticLibrary(
     source=Split("""Bitmap/Bitmap.cpp Bitmap/jdatasrc.cpp
                     ConsoleCommands/ConVar.cpp ConsoleCommands/ConFunc.cpp
                     ConsoleCommands/ConsoleInterpreterImpl.cpp ConsoleCommands/ConsoleInterpreter_LuaBinding.cpp
-                    ConsoleCommands/Console.cpp ConsoleCommands/ConsoleStdout.cpp ConsoleCommands/ConsoleStringBuffer.cpp ConsoleCommands/ConsoleWarningsOnly.cpp ConsoleCommands/ConsoleFile.cpp
+                    ConsoleCommands/Console.cpp ConsoleCommands/Console_Lua.cpp ConsoleCommands/ConsoleComposite.cpp ConsoleCommands/ConsoleStdout.cpp ConsoleCommands/ConsoleStringBuffer.cpp ConsoleCommands/ConsoleWarningsOnly.cpp ConsoleCommands/ConsoleFile.cpp
                     Fonts/Font.cpp Fonts/FontTT.cpp
                     FileSys/FileManImpl.cpp FileSys/FileSys_LocalPath.cpp FileSys/FileSys_ZipArchive_GV.cpp FileSys/File_local.cpp FileSys/File_memory.cpp FileSys/Password.cpp
                     GuiSys/ConsoleByWindow.cpp GuiSys/Coroutines.cpp GuiSys/InitWindowTypes.cpp GuiSys/GuiImpl.cpp GuiSys/GuiManImpl.cpp

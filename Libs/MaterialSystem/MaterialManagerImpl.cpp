@@ -45,6 +45,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialManagerImpl.hpp"
 #include "Expression.hpp"
 #include "Material.hpp"
+#include "ConsoleCommands/Console.hpp"
 #include "TextParser/TextParser.hpp"
 
 
@@ -201,7 +202,7 @@ ArrayT<MaterialT*> MaterialManagerImplT::RegisterMaterialScript(const std::strin
                 // Even if it was, we cannot easily continue anyway.
                 if (!T)
                 {
-                    printf("Error parsing %s near %s at input byte %lu.\n", FileName.c_str(), Token.c_str(), TextParser.GetReadPosByte());
+                    Console->Print("Error parsing "+FileName+" near "+Token+cf::va(" at input byte %lu.\n", TextParser.GetReadPosByte()));
                     break;
                 }
 
@@ -225,7 +226,7 @@ ArrayT<MaterialT*> MaterialManagerImplT::RegisterMaterialScript(const std::strin
                 }
                 else
                 {
-                    printf("File %s, material \"%s\": duplicate definition (ignored).\n", FileName.c_str(), NewMat->Name.c_str());
+                    Console->Print("File " + FileName + ", material \"" + NewMat->Name + "\": duplicate definition (ignored).\n");
                     delete NewMat;
                 }
             }
@@ -233,7 +234,7 @@ ArrayT<MaterialT*> MaterialManagerImplT::RegisterMaterialScript(const std::strin
     }
     catch (const TextParserT::ParseError&)
     {
-        printf("Error parsing %s at input byte %lu.\n", FileName.c_str(), TextParser.GetReadPosByte());
+        Console->Print("Error parsing "+FileName+cf::va(" at input byte %lu.\n", TextParser.GetReadPosByte()));
     }
 
     return NewMaterials;
@@ -338,13 +339,13 @@ ArrayT<MaterialT*> MaterialManagerImplT::RegisterMaterialScriptsInDir(const std:
 
 MaterialT* MaterialManagerImplT::GetMaterial(const std::string& MaterialName)
 {
-    // Note that I'm *not* just writing   return Materials[MaterialName]   here, because that
+    // Note that we are *not* just writing   return Materials[MaterialName]   here, because that
     // would implicitly create a NULL entry for every MaterialName that does not actually exist.
     std::map<std::string, MaterialT*>::const_iterator It=Materials.find(MaterialName);
 
     if (It!=Materials.end()) return It->second;
 
-    printf("%s (%u): GetMaterial(\"%s\") returns NULL.\n", __FILE__, __LINE__, MaterialName.c_str());
+    Console->Print(cf::va("%s (%u): ", __FILE__, __LINE__)+"GetMaterial(\""+MaterialName+"\") returns NULL.\n");
     return NULL;
 }
 

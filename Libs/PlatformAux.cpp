@@ -21,10 +21,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/********************************/
-/*** Platform Auxiliary Stuff ***/
-/********************************/
-
 #include "PlatformAux.hpp"
 #include "Templates/Array.hpp"
 #include "ConsoleCommands/Console.hpp"
@@ -118,9 +114,9 @@ static void GetDLLs(const std::string& Path, const std::string& Prefix, ArrayT<s
 
             std::string DLLName=Path+"/"+FindFileData.cFileName;
 #ifdef SCONS_BUILD_DIR
-            const std::string Suffix =".dll";
+            const std::string Suffix=".dll";
 #else
-            const std::string Suffix =GetEnvFileSuffix()+".dll"; // printf("Suffix %s, DLLName %s\n", Suffix.c_str(), DLLName.c_str());
+            const std::string Suffix=GetEnvFileSuffix()+".dll"; // Console->Print("Suffix "+Suffix+", DLLName "+DLLName+"\n");
 #endif
 
             // If FindFileData.cFileName doesn't end with Suffix, continue.
@@ -177,10 +173,10 @@ MatSys::RendererI* PlatformAux::GetRenderer(const std::string& DLLName, HMODULE&
         // (E.g. it causes dlsym(OutRendererDLL, "GetRenderer") to return identical results for different OutRendererDLLs.)
         // Please refer to the man page of dlopen for more details.
         OutRendererDLL=dlopen(DLLName.c_str(), RTLD_NOW);
-        if (!OutRendererDLL) printf("\"%s\", ", dlerror());
+        if (!OutRendererDLL) Console->Print(std::string(dlerror()) + ", ");
     #endif
 
-    if (!OutRendererDLL) { printf("FAILED - could not load the library at %s.\n", DLLName.c_str()); return NULL; }
+    if (!OutRendererDLL) { Console->Print("FAILED - could not load the library at "+DLLName+".\n"); return NULL; }
 
 
     typedef MatSys::RendererI* (__stdcall *GetRendererT)(cf::ConsoleI* Console_, cf::FileSys::FileManI* FileMan_);
@@ -191,7 +187,7 @@ MatSys::RendererI* PlatformAux::GetRenderer(const std::string& DLLName, HMODULE&
         GetRendererT GetRendererFunc=(GetRendererT)GetProcAddress(OutRendererDLL, "GetRenderer");
     #endif
 
-    if (!GetRendererFunc) { printf("FAILED - could not get the address of the GetRenderer() function.\n"); FreeLibrary(OutRendererDLL); return NULL; }
+    if (!GetRendererFunc) { Console->Print("FAILED - could not get the address of the GetRenderer() function.\n"); FreeLibrary(OutRendererDLL); return NULL; }
 
 
     // When we get here, the console and the file man must already have been initialized.
@@ -200,8 +196,8 @@ MatSys::RendererI* PlatformAux::GetRenderer(const std::string& DLLName, HMODULE&
 
     MatSys::RendererI* Renderer=GetRendererFunc(Console, cf::FileSys::FileMan);
 
-    if (!Renderer) { printf("FAILED - could not get the renderer.\n"); FreeLibrary(OutRendererDLL); return NULL; }
-    if (!Renderer->IsSupported()) { printf("FAILED - renderer says it's not supported.\n"); FreeLibrary(OutRendererDLL); return NULL; }
+    if (!Renderer) { Console->Print("FAILED - could not get the renderer.\n"); FreeLibrary(OutRendererDLL); return NULL; }
+    if (!Renderer->IsSupported()) { Console->Print("FAILED - renderer says it's not supported.\n"); FreeLibrary(OutRendererDLL); return NULL; }
 
     return Renderer;
 }
@@ -220,13 +216,13 @@ MatSys::RendererI* PlatformAux::GetBestRenderer(HMODULE& OutRendererDLL)
 #endif
     ArrayT<std::string> DLLNames;
 
-    printf("\n");
-    printf("Scanning cwd for all available renderers...\n");
+    Console->Print("\n");
+    Console->Print("Scanning cwd for all available renderers...\n");
     GetDLLs(".", "Renderer", DLLNames);
 
     if (DLLNames.Size()==0)
     {
-        printf("Scanning %s for all available renderers...\n", Path.c_str());
+        Console->Print("Scanning "+Path+" for all available renderers...\n");
         GetDLLs(Path, "Renderer", DLLNames);
     }
 
@@ -236,7 +232,7 @@ MatSys::RendererI* PlatformAux::GetBestRenderer(HMODULE& OutRendererDLL)
 
     for (unsigned long DLLNr=0; DLLNr<DLLNames.Size(); DLLNr++)
     {
-        printf("%s ... ", DLLNames[DLLNr].c_str());
+        Console->Print(DLLNames[DLLNr]+" ... ");
 
         HMODULE RendererDLL;
         MatSys::RendererI* Renderer=GetRenderer(DLLNames[DLLNr], RendererDLL);
@@ -250,30 +246,30 @@ MatSys::RendererI* PlatformAux::GetBestRenderer(HMODULE& OutRendererDLL)
 
         if (PrefNr<10)
         {
-            // I don't want the Null renderer to be possibly selected for client rendering
+            // We don't want the Null renderer to be possibly selected for client rendering
             // (which can happen in the presence of other errors).
             // It would only confuse and worry users to sit in front of a black, apparently frozen screen.
-            printf("SUCCESS - but excluded from auto-selection (Pref# %i).\n", PrefNr);
+            Console->Print(cf::va("SUCCESS - but excluded from auto-selection (Pref# %i).\n", PrefNr));
             continue;
         }
 
         if (PrefNr>BestPrefNr)
         {
-            printf("SUCCESS - %s renderer (Pref# %i).\n", BestPrefNr<0 ? "first supported" : "higher preference", PrefNr);
+            Console->Print(cf::va("SUCCESS - %s renderer (Pref# %i).\n", BestPrefNr<0 ? "first supported" : "higher preference", PrefNr));
 
             BestDLLIndex=DLLNr;
             BestPrefNr  =PrefNr;
         }
-        else printf("SUCCESS - but no higher preference (Pref# %i).\n", PrefNr);
+        else Console->Print(cf::va("SUCCESS - but no higher preference (Pref# %i).\n", PrefNr));
     }
 
     if (BestPrefNr==-1)
     {
-        printf("No renderer qualified.\n");
+        Console->Print("No renderer qualified.\n");
         return NULL;
     }
 
-    printf("Reloading previously auto-selected renderer %s ... \n", DLLNames[BestDLLIndex].c_str());
+    Console->Print("Reloading previously auto-selected renderer "+DLLNames[BestDLLIndex]+" ...\n");
     return GetRenderer(DLLNames[BestDLLIndex], OutRendererDLL);
 }
 
@@ -288,7 +284,7 @@ MatSys::TextureMapManagerI* PlatformAux::GetTextureMapManager(HMODULE RendererDL
         GetTMMT GetTMM=(GetTMMT)GetProcAddress(RendererDLL, "GetTextureMapManager");
     #endif
 
-    if (!GetTMM) { printf("FAILED - could not get the address of the GetTextureMapManager() function.\n"); return NULL; }
+    if (!GetTMM) { Console->Print("FAILED - could not get the address of the GetTextureMapManager() function.\n"); return NULL; }
 
     return GetTMM();
 }
@@ -303,10 +299,10 @@ SoundSysI* PlatformAux::GetSoundSys(const std::string& DLLName, HMODULE& OutSoun
         // (E.g. it causes dlsym(OutSoundSysDLL, "GetSoundSys") to return identical results for different OutSoundSysDLLs.)
         // Please refer to the man page of dlopen for more details.
         OutSoundSysDLL=dlopen(DLLName.c_str(), RTLD_NOW);
-        if (!OutSoundSysDLL) printf("\"%s\", ", dlerror());
+        if (!OutSoundSysDLL) Console->Print(std::string(dlerror()) + ", ");
     #endif
 
-    if (!OutSoundSysDLL) { printf("FAILED - could not load the library at %s.\n", DLLName.c_str()); return NULL; }
+    if (!OutSoundSysDLL) { Console->Print("FAILED - could not load the library at "+DLLName+".\n"); return NULL; }
 
 
     typedef SoundSysI* (__stdcall *GetSoundSys)(cf::ConsoleI* Console_, cf::FileSys::FileManI* FileMan_);
@@ -317,7 +313,7 @@ SoundSysI* PlatformAux::GetSoundSys(const std::string& DLLName, HMODULE& OutSoun
         GetSoundSys GetSoundSysFunc=(GetSoundSys)GetProcAddress(OutSoundSysDLL, "GetSoundSys");
     #endif
 
-    if (!GetSoundSysFunc) { printf("FAILED - could not get the address of the GetSoundSys() function.\n"); FreeLibrary(OutSoundSysDLL); return NULL; }
+    if (!GetSoundSysFunc) { Console->Print("FAILED - could not get the address of the GetSoundSys() function.\n"); FreeLibrary(OutSoundSysDLL); return NULL; }
 
 
     // When we get here, the console and the file man must already have been initialized.
@@ -326,8 +322,8 @@ SoundSysI* PlatformAux::GetSoundSys(const std::string& DLLName, HMODULE& OutSoun
 
     SoundSysI* SoundSys=GetSoundSysFunc(Console, cf::FileSys::FileMan);
 
-    if (!SoundSys) { printf("FAILED - could not get the SoundSys.\n"); FreeLibrary(OutSoundSysDLL); return NULL; }
-    if (!SoundSys->IsSupported()) { printf("FAILED - SoundSys says it's not supported.\n"); FreeLibrary(OutSoundSysDLL); return NULL; }
+    if (!SoundSys) { Console->Print("FAILED - could not get the SoundSys.\n"); FreeLibrary(OutSoundSysDLL); return NULL; }
+    if (!SoundSys->IsSupported()) { Console->Print("FAILED - SoundSys says it's not supported.\n"); FreeLibrary(OutSoundSysDLL); return NULL; }
 
     return SoundSys;
 }
@@ -346,13 +342,13 @@ SoundSysI* PlatformAux::GetBestSoundSys(HMODULE& OutSoundSysDLL)
 #endif
     ArrayT<std::string> DLLNames;
 
-    printf("\n");
-    printf("Scanning cwd for all available sound systems...\n");
+    Console->Print("\n");
+    Console->Print("Scanning cwd for all available sound systems...\n");
     GetDLLs(".", "SoundSys", DLLNames);
 
     if (DLLNames.Size()==0)
     {
-        printf("Scanning %s for all available sound systems...\n", Path.c_str());
+        Console->Print("Scanning "+Path+" for all available sound systems...\n");
         GetDLLs(Path, "SoundSys", DLLNames);
     }
 
@@ -362,7 +358,7 @@ SoundSysI* PlatformAux::GetBestSoundSys(HMODULE& OutSoundSysDLL)
 
     for (unsigned long DLLNr=0; DLLNr<DLLNames.Size(); DLLNr++)
     {
-        printf("%s ... ", DLLNames[DLLNr].c_str());
+        Console->Print(DLLNames[DLLNr]+" ... ");
 
         HMODULE SoundSysDLL;
         SoundSysI* SoundSys=GetSoundSys(DLLNames[DLLNr], SoundSysDLL);
@@ -376,29 +372,29 @@ SoundSysI* PlatformAux::GetBestSoundSys(HMODULE& OutSoundSysDLL)
 
         if (PrefNr<10)
         {
-            // I don't want the Null sound system to be possibly selected for client
+            // We don't want the Null sound system to be possibly selected for client
             // (which can happen in the presence of other errors).
             // It would only confuse and worry users to sit in front of a black, apparently frozen screen.
-            printf("SUCCESS - but excluded from auto-selection (Pref# %i).\n", PrefNr);
+            Console->Print(cf::va("SUCCESS - but excluded from auto-selection (Pref# %i).\n", PrefNr));
             continue;
         }
 
         if (PrefNr>BestPrefNr)
         {
-            printf("SUCCESS - %s sound system (Pref# %i).\n", BestPrefNr<0 ? "first supported" : "higher preference", PrefNr);
+            Console->Print(cf::va("SUCCESS - %s sound system (Pref# %i).\n", BestPrefNr<0 ? "first supported" : "higher preference", PrefNr));
 
             BestDLLIndex=DLLNr;
             BestPrefNr  =PrefNr;
         }
-        else printf("SUCCESS - but no higher preference (Pref# %i).\n", PrefNr);
+        else Console->Print(cf::va("SUCCESS - but no higher preference (Pref# %i).\n", PrefNr));
     }
 
     if (BestPrefNr==-1)
     {
-        printf("No sound system qualified.\n");
+        Console->Print("No sound system qualified.\n");
         return NULL;
     }
 
-    printf("Reloading previously auto-selected sound system %s ... \n", DLLNames[BestDLLIndex].c_str());
+    Console->Print("Reloading previously auto-selected sound system "+DLLNames[BestDLLIndex]+" ...\n");
     return GetSoundSys(DLLNames[BestDLLIndex], OutSoundSysDLL);
 }

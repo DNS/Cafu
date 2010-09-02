@@ -26,6 +26,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ClipSys/CollisionModelMan_impl.hpp"
 #include "ConsoleCommands/ConsoleInterpreterImpl.hpp"
+#include "ConsoleCommands/ConsoleComposite.hpp"
+#include "ConsoleCommands/ConsoleFile.hpp"
 #include "ConsoleCommands/ConsoleStringBuffer.hpp"
 #include "ConsoleCommands/ConVar.hpp"
 #include "ConsoleCommands/ConFunc.hpp"
@@ -47,26 +49,23 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 // For each interface that is globally available to the application,
 // provide a definition for the pointer instance and have it point to an implementation.
-static cf::ConsoleStringBufferT ConsoleStringBuffer;
-cf::ConsoleI* Console=&ConsoleStringBuffer;
+static cf::CompositeConsoleT s_CompositeConsole;
+cf::ConsoleI* Console=&s_CompositeConsole;
 
-// static cf::ConsoleFileT ConsoleFile("console.log");
-// cf::ConsoleI* Console=&ConsoleFile;
+static cf::FileSys::FileManImplT s_FileManImpl;
+cf::FileSys::FileManI* cf::FileSys::FileMan=&s_FileManImpl;
 
-static cf::FileSys::FileManImplT FileManImpl;
-cf::FileSys::FileManI* cf::FileSys::FileMan=&FileManImpl;
+static cf::ClipSys::CollModelManImplT s_CCM;
+cf::ClipSys::CollModelManI* cf::ClipSys::CollModelMan=&s_CCM;
 
-static cf::ClipSys::CollModelManImplT CCM;
-cf::ClipSys::CollModelManI* cf::ClipSys::CollModelMan=&CCM;
+static ConsoleInterpreterImplT s_ConInterpreterImpl;
+ConsoleInterpreterI* ConsoleInterpreter=&s_ConInterpreterImpl;      // TODO: Put it into a proper namespace.
 
-static ConsoleInterpreterImplT ConInterpreterImpl;
-ConsoleInterpreterI* ConsoleInterpreter=&ConInterpreterImpl;        // TODO: Put it into a proper namespace.
+static MaterialManagerImplT s_MaterialManagerImpl;
+MaterialManagerI* MaterialManager=&s_MaterialManagerImpl;           // TODO: Put it into a proper namespace.
 
-static MaterialManagerImplT MaterialManagerImpl;
-MaterialManagerI* MaterialManager=&MaterialManagerImpl;             // TODO: Put it into a proper namespace.
-
-static SoundShaderManagerImplT SoundShaderManagerImpl;
-SoundShaderManagerI* SoundShaderManager=&SoundShaderManagerImpl;    // TODO: Put it into a proper namespace.
+static SoundShaderManagerImplT s_SoundShaderManagerImpl;
+SoundShaderManagerI* SoundShaderManager=&s_SoundShaderManagerImpl;  // TODO: Put it into a proper namespace.
 
 // static WinSockT WinSock;     // This unfortunately can throw.
 WinSockT* g_WinSock=NULL;
@@ -166,9 +165,13 @@ IMPLEMENT_APP(AppCafuT)
 
 AppCafuT::AppCafuT()
     : wxApp(),
+      m_ConBuffer(new cf::ConsoleStringBufferT()),
+      m_ConFile(NULL),
       m_IsCustomVideoMode(false),
       m_MainFrame(NULL)
 {
+    s_CompositeConsole.Attach(m_ConBuffer);
+
     // All global convars and confuncs have registered themselves in linked lists.
     // Register them with the console interpreter now.
     ConFuncT::RegisterStaticList();
@@ -183,6 +186,22 @@ AppCafuT::AppCafuT()
     wxStandardPaths::Get().UseAppInfo(wxStandardPaths::AppInfo_VendorName | wxStandardPaths::AppInfo_AppName);
 
     Console->Print("Cafu Engine, "__DATE__"\n");
+}
+
+
+AppCafuT::~AppCafuT()
+{
+    s_CompositeConsole.Detach(m_ConFile);
+    delete m_ConFile;
+
+    s_CompositeConsole.Detach(m_ConBuffer);
+    delete m_ConBuffer;
+}
+
+
+cf::CompositeConsoleT& AppCafuT::GetConComposite() const
+{
+    return s_CompositeConsole;
 }
 
 
@@ -372,6 +391,7 @@ void AppCafuT::OnInitCmdLine(wxCmdLineParser& Parser)
     Parser.AddOption("clSoundSystem",  "", "Override the auto-selection of the best available sound system [auto].", wxCMD_LINE_VAL_STRING);
     Parser.AddOption("clPlayerName",   "", "Player name ["+Options_DeathMatchPlayerName.GetValueString()+"].", wxCMD_LINE_VAL_STRING);
     Parser.AddOption("clModelName",    "", "Name of the players model ["+Options_DeathMatchModelName.GetValueString()+"].", wxCMD_LINE_VAL_STRING);
+    Parser.AddOption("log",            "", "Logs all console message into the specified file.");
     Parser.AddParam("worldname", wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
 
     wxApp::OnInitCmdLine(Parser);
@@ -401,6 +421,14 @@ bool AppCafuT::OnCmdLineParsed(wxCmdLineParser& Parser)
     if (Parser.Found("clSoundSystem", &s)) Options_ClientDesiredSoundSystem=s.ToStdString();
     if (Parser.Found("clPlayerName",  &s)) Options_DeathMatchPlayerName=s.ToStdString();
     if (Parser.Found("clModelName",   &s)) Options_DeathMatchModelName=s.ToStdString();
+
+    if (Parser.Found("log", &s) && m_ConFile==NULL)
+    {
+        m_ConFile=new cf::ConsoleFileT(s.ToStdString());
+        m_ConFile->Print(m_ConBuffer->GetBuffer());
+
+        s_CompositeConsole.Attach(m_ConFile);
+    }
 
     if (!Parser.Found("svWorld") && Parser.GetParamCount()==1)
         Options_ServerWorldName=Parser.GetParam(0).ToStdString();

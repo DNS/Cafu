@@ -21,10 +21,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/********************************/
-/*** Platform Auxiliary Stuff ***/
-/********************************/
-
 #ifndef _PLATFORM_AUX_HPP_
 #define _PLATFORM_AUX_HPP_
 

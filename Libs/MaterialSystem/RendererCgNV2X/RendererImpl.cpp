@@ -440,14 +440,12 @@ void RendererImplT::BeginFrame(double Time)
 }
 
 
-// #include <stdio.h>
-
 void RendererImplT::EndFrame()
 {
-    // printf("%4lu", ShaderChangeCounter);
+    // Console->Print(cf::va("%4lu", ShaderChangeCounter));
     // static int LineWrap=0;
     // LineWrap++;
-    // if (LineWrap==20) { printf("\n"); LineWrap=0; }
+    // if (LineWrap==20) { Console->Print("\n"); LineWrap=0; }
 }
 
 

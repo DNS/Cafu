@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "_CommonHelpers.hpp"
 #include "../../Common/OpenGLEx.hpp"
+#include "ConsoleCommands/Console.hpp"
 #include <stdio.h>
 #include <string.h>
 
@@ -63,7 +64,7 @@ GLuint UploadProgram(GLenum ProgramTarget, const char* ProgramCode)
 
     if (ErrorID!=GL_NO_ERROR || ErrorPos!=-1 || ErrorStringLen>0)
     {
-        printf("%s\n\nProblem detected:\nglGetError() == %i,\nerror position: %i,\nerror string: %s\n", ProgramCode, ErrorID, ErrorPos, ErrorString);
+        Console->Print(cf::va("%s\n\nProblem detected:\nglGetError() == %i,\nerror position: %i,\nerror string: %s\n", ProgramCode, ErrorID, ErrorPos, ErrorString));
 
         FILE* ErrorFile=fopen("ProgError.txt", "a");
 

@@ -21,28 +21,41 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
+#ifndef _CF_COMPOSITE_CONSOLE_HPP_
+#define _CF_COMPOSITE_CONSOLE_HPP_
+
 #include "Console.hpp"
-#include <stdarg.h>
-
-#if defined(_WIN32) && defined (_MSC_VER)
-    #if (_MSC_VER<1300)
-        #define vsnprintf _vsnprintf
-        #define for if (false) ; else for
-    #endif
-#endif
+#include "Templates/Array.hpp"
 
 
-std::string cf::va(const char* FormatString, ...)
+namespace cf
 {
-    va_list ArgList;
-    char    Buffer[1024];
+    /// This class implements the ConsoleI interface as a composite console
+    /// by sending all output to its attached sub-consoles.
+    class CompositeConsoleT : public ConsoleI
+    {
+        public:
 
-    if (!FormatString) return "";
+        /// Constructor for creating a composite console.
+        CompositeConsoleT();
 
-    va_start(ArgList, FormatString);
-    vsnprintf(Buffer, 1024-1, FormatString, ArgList);
-    Buffer[1024-1]=0;
-    va_end(ArgList);
+        /// Attaches the given console c to the set of sub-consoles.
+        bool Attach(ConsoleI* c);
 
-    return Buffer;
+        /// Removes the given console c from the set of sub-consoles.
+        bool Detach(ConsoleI* c);
+
+        // Methods of the ConsoleI interface.
+        void Print(const std::string& s);
+        void DevPrint(const std::string& s);
+        void Warning(const std::string& s);
+        void DevWarning(const std::string& s);
+
+
+        private:
+
+        ArrayT<ConsoleI*> m_Consoles;   ///< The filestream output is logged to.
+    };
 }
+
+#endif

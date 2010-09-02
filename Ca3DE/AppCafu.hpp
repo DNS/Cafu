@@ -38,6 +38,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/display.h"
 
 
+namespace cf { class CompositeConsoleT; }
+namespace cf { class ConsoleFileT; }
+namespace cf { class ConsoleStringBufferT; }
 class MainFrameT;
 
 
@@ -47,6 +50,16 @@ class AppCafuT : public wxApp
     public:
 
     AppCafuT();
+    ~AppCafuT();
+
+    /// Returns the composite console that is also available via the global Console pointer.
+    cf::CompositeConsoleT& GetConComposite() const;
+
+    /// Returns the console that buffers all output.
+    cf::ConsoleStringBufferT& GetConBuffer() const { return *m_ConBuffer; }
+
+    // /// Returns the console that logs all output into a file (can be NULL if not used).
+    // cf::ConsoleFileT& GetConFile() const { return *m_ConFile; }
 
     /// Returns whether we successfully set a custom video mode (screen resolution) during initialization.
     bool IsCustomVideoMode() const { return m_IsCustomVideoMode; }
@@ -67,9 +80,11 @@ class AppCafuT : public wxApp
     void OnInitCmdLine(wxCmdLineParser& Parser);
     bool OnCmdLineParsed(wxCmdLineParser& Parser);
 
-    bool        m_IsCustomVideoMode;  ///< Whether we successfully set a custom video mode (screen resolution) during initialization.
-    wxVideoMode m_CurrentMode;        ///< The video mode that we're currently using.
-    MainFrameT* m_MainFrame;          ///< The Cafu application main frame.
+    cf::ConsoleStringBufferT* m_ConBuffer;          ///< The console that buffers all output.
+    cf::ConsoleFileT*         m_ConFile;            ///< The console that logs all output into a file (can be NULL if not used).
+    bool                      m_IsCustomVideoMode;  ///< Whether we successfully set a custom video mode (screen resolution) during initialization.
+    wxVideoMode               m_CurrentMode;        ///< The video mode that we're currently using.
+    MainFrameT*               m_MainFrame;          ///< The Cafu application main frame.
 };
 
 

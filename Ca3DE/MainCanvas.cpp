@@ -32,6 +32,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/CollisionModelMan.hpp"
 #include "ConsoleCommands/Console.hpp"
 #include "ConsoleCommands/ConsoleInterpreter.hpp"
+#include "ConsoleCommands/ConsoleComposite.hpp"
 #include "ConsoleCommands/ConsoleStringBuffer.hpp"
 #include "ConsoleCommands/ConVar.hpp"
 #include "GuiSys/ConsoleByWindow.hpp"
@@ -118,7 +119,6 @@ MainCanvasT::MainCanvasT(MainFrameT* Parent)
       m_Client(NULL),
       m_Server(NULL),
       m_SvGuiCallback(NULL),
-      m_PrevConsole(NULL),
       m_ConByGuiWin(NULL),
       m_Timer(),
       m_TotalTime(0.0),
@@ -135,12 +135,7 @@ MainCanvasT::~MainCanvasT()
 {
     m_InitState=INIT_REQUIRED;
 
-    if (Console==m_ConByGuiWin)
-    {
-        Console=m_PrevConsole;
-        m_PrevConsole=NULL;
-    }
-
+    wxGetApp().GetConComposite().Detach(m_ConByGuiWin);
     delete m_ConByGuiWin;
     m_ConByGuiWin=NULL;
 
@@ -435,13 +430,10 @@ void MainCanvasT::Initialize()
     cf::GuiSys::GuiI*    ConsoleGui   =cf::GuiSys::GuiMan->Find("Games/"+Options_ServerGameName.GetValueString()+"/GUIs/Console.cgui", true);
     cf::GuiSys::WindowT* ConsoleWindow=ConsoleGui ? ConsoleGui->GetRootWindow()->Find("ConsoleOutput") : NULL;
 
+    // Copy the previously collected console output to the new graphical console.
     m_ConByGuiWin=new cf::GuiSys::ConsoleByWindowT(ConsoleWindow);
-    m_PrevConsole=Console;
-    Console=m_ConByGuiWin;
-
-    // Copy the output to the previous console to the now current console.
-    cf::ConsoleStringBufferT* ConsoleSB=dynamic_cast<cf::ConsoleStringBufferT*>(m_PrevConsole);
-    if (ConsoleSB) Console->Print(ConsoleSB->GetBuffer());
+    m_ConByGuiWin->Print(wxGetApp().GetConBuffer().GetBuffer());
+    wxGetApp().GetConComposite().Attach(m_ConByGuiWin);
 
     m_InitState=INIT_SUCCESS;
 }

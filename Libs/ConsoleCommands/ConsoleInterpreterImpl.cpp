@@ -31,6 +31,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConFunc.hpp"
 #include "ConVar.hpp"
 #include "Console.hpp"
+#include "Console_Lua.hpp"
 
 extern "C"
 {
@@ -70,7 +71,7 @@ ConsoleInterpreterImplT::ConsoleInterpreterImplT()
     lua_pushcfunction(LuaState, luaopen_math);    lua_pushstring(LuaState, LUA_MATHLIBNAME); lua_call(LuaState, 1, 0);  // Opens the math lib.
 
     // Load the console library. (Adds a global table with name "Console" to the LuaState with the functions of the ConsoleI interface.)
-    cf::ConsoleI::RegisterLua(LuaState);
+    cf::Console_RegisterLua(LuaState);
 
 
     // Make sure that the table with name CAFU_TABLE exists.
