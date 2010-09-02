@@ -5,10 +5,14 @@ Import('env')
 
 env.StaticLibrary(
     target="cfsLib",
-    source=Split("""ConsoleCommands/ConVar.cpp ConsoleCommands/ConFunc.cpp
-                    ConsoleCommands/ConsoleInterpreter_LuaBinding.cpp
+    source=Split("""Bitmap/Bitmap.cpp Bitmap/jdatasrc.cpp
+                    ConsoleCommands/ConVar.cpp ConsoleCommands/ConFunc.cpp
+                    ConsoleCommands/ConsoleInterpreterImpl.cpp ConsoleCommands/ConsoleInterpreter_LuaBinding.cpp
                     ConsoleCommands/Console.cpp ConsoleCommands/ConsoleStdout.cpp ConsoleCommands/ConsoleStringBuffer.cpp ConsoleCommands/ConsoleWarningsOnly.cpp ConsoleCommands/ConsoleFile.cpp
                     Fonts/Font.cpp Fonts/FontTT.cpp
+                    FileSys/FileManImpl.cpp FileSys/FileSys_LocalPath.cpp FileSys/FileSys_ZipArchive_GV.cpp FileSys/File_local.cpp FileSys/File_memory.cpp FileSys/Password.cpp
+                    GuiSys/ConsoleByWindow.cpp GuiSys/Coroutines.cpp GuiSys/InitWindowTypes.cpp GuiSys/GuiImpl.cpp GuiSys/GuiManImpl.cpp
+                    GuiSys/Window.cpp GuiSys/WindowCreateParams.cpp GuiSys/WindowChoice.cpp GuiSys/WindowEdit.cpp GuiSys/WindowListBox.cpp GuiSys/WindowModel.cpp GuiSys/WindowPtr.cpp GuiSys/EditorData.cpp
                     MapFile.cpp
                     Math3D/Angles.cpp Math3D/BezierPatch.cpp Math3D/BoundingBox.cpp Math3D/Brush.cpp Math3D/Matrix.cpp Math3D/Matrix3x3.cpp Math3D/Misc.cpp Math3D/Plane3.cpp Math3D/Pluecker.cpp Math3D/Polygon.cpp Math3D/Rotation.cpp
                     Models/Loader.cpp Models/Loader_ase.cpp Models/Loader_cmdl.cpp Models/Loader_lwo.cpp Models/Loader_md5.cpp Models/Model_cmdl.cpp Models/Model_dlod.cpp Models/Model_dummy.cpp Models/Model_mdl.cpp Models/Model_proxy.cpp
@@ -17,22 +21,8 @@ env.StaticLibrary(
                     Plants/Tree.cpp Plants/PlantDescription.cpp Plants/PlantDescrMan.cpp
                     Util/Util.cpp
                     Win32/Win32PrintHelp.cpp
-                    DebugLog.cpp TypeSys.cpp""") +
-           env.Object(["Bitmap/Bitmap.cpp", "Bitmap/jdatasrc.cpp"], CPPPATH=env['CPPPATH']+["#/ExtLibs/jpeg", "#/ExtLibs/libpng", "#/ExtLibs/zlib"]),
-    CPPPATH=env['CPPPATH']+["#/ExtLibs/lua/src", "#/ExtLibs/lwo",
-                            "#/ExtLibs/Collada-DOM-2.1/dom/include", "#/ExtLibs/Collada-DOM-2.1/dom/include/1.4"])
-
-
-
-env.StaticLibrary(
-    target="cfsCoreLib",
-    source=Split("""ClipSys/CollisionModel_static.cpp ClipSys/CollisionModel_static_BulletAdapter.cpp ClipSys/CollisionModelMan_impl.cpp
-                    ConsoleCommands/ConsoleInterpreterImpl.cpp
-                    GuiSys/ConsoleByWindow.cpp GuiSys/Coroutines.cpp GuiSys/InitWindowTypes.cpp GuiSys/GuiImpl.cpp GuiSys/GuiManImpl.cpp
-                    GuiSys/Window.cpp GuiSys/WindowCreateParams.cpp GuiSys/WindowChoice.cpp GuiSys/WindowEdit.cpp GuiSys/WindowListBox.cpp GuiSys/WindowModel.cpp GuiSys/WindowPtr.cpp GuiSys/EditorData.cpp
-                    FileSys/FileManImpl.cpp FileSys/FileSys_LocalPath.cpp FileSys/FileSys_ZipArchive_GV.cpp FileSys/File_local.cpp FileSys/File_memory.cpp FileSys/Password.cpp"""),
-    CPPPATH=env['CPPPATH']+["#/ExtLibs/bullet/src",    # For the BulletAdapterT classes.
-                            "#/ExtLibs/lua/src", "#/ExtLibs/zlib"])
+                    DebugLog.cpp TypeSys.cpp"""),
+    CPPPATH=env['CPPPATH'] + ["#/ExtLibs/lua/src", "#/ExtLibs/lwo"] + ["#/ExtLibs/jpeg", "#/ExtLibs/libpng", "#/ExtLibs/zlib"])
 
 
 
@@ -55,7 +45,9 @@ env.StaticLibrary(
 
 env.StaticLibrary(
     target="ClipSys",
-    source=Split("""ClipSys/ClipModel.cpp ClipSys/ClipWorld.cpp ClipSys/TraceSolid.cpp"""))
+    source=Split("""ClipSys/CollisionModel_static.cpp ClipSys/CollisionModel_static_BulletAdapter.cpp ClipSys/CollisionModelMan_impl.cpp
+                    ClipSys/ClipModel.cpp ClipSys/ClipWorld.cpp ClipSys/TraceSolid.cpp"""),
+    CPPPATH=env['CPPPATH']+["#/ExtLibs/bullet/src"])
 
 
 

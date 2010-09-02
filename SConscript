@@ -8,36 +8,19 @@ CommonWorldObject = env.StaticObject("Common/World.cpp")
 
 env.Program('CaBSP/CaBSP',   # I had preferred writing 'CaBSP' instead of 'CaBSP/CaBSP' here, but then under Linux we would get both a directory *and* an executeable with name 'CaBSP' in the build directory, which is not allowed/possible.
     Split("CaBSP/CaBSP.cpp CaBSP/BspTreeBuilder/BspTreeBuilder.cpp") + CommonWorldObject,
-    LIBS=Split("SceneGraph MatSys cfsLib cfsCoreLib cfsLib ClipSys cfs_png cfs_jpeg bulletcollision lua minizip lightwave z"))   # cfsCoreLib is because ConVarTs are used in the SceneGraph. lua is because...?
+    LIBS=Split("SceneGraph MatSys cfsLib ClipSys cfs_png cfs_jpeg bulletcollision lua minizip lightwave z"))
 
 env.Program('CaPVS/CaPVS',
     Split("CaPVS/CaPVS.cpp CaPVS/CaPVSWorld.cpp") + CommonWorldObject,
-    LIBS=Split("SceneGraph MatSys cfsLib cfsCoreLib cfsLib ClipSys cfs_png cfs_jpeg bulletcollision lua minizip lightwave z"))   # cfsCoreLib is because ConVarTs are used in the SceneGraph. lua is because...?
+    LIBS=Split("SceneGraph MatSys cfsLib ClipSys cfs_png cfs_jpeg bulletcollision lua minizip lightwave z"))
 
 env.Program('CaLight/CaLight',
     Split("CaLight/CaLight.cpp CaLight/CaLightWorld.cpp") + CommonWorldObject,
-    LIBS=Split("SceneGraph MatSys cfsLib cfsCoreLib cfsLib ClipSys cfs_png cfs_jpeg bulletcollision lua minizip lightwave z"))   # cfsCoreLib is because ConVarTs are used in the SceneGraph. lua is because...?
+    LIBS=Split("SceneGraph MatSys cfsLib ClipSys cfs_png cfs_jpeg bulletcollision lua minizip lightwave z"))
 
 env.Program('CaSHL/CaSHL',
     Split("CaSHL/CaSHL.cpp CaSHL/CaSHLWorld.cpp") + CommonWorldObject,
-    LIBS=Split("SceneGraph MatSys cfsLib cfsCoreLib cfsLib ClipSys cfs_png cfs_jpeg bulletcollision lua minizip lightwave z"))   # cfsCoreLib is because ConVarTs are used in the SceneGraph. lua is because...?
-
-# env.Program('CaCook/CaCook',
-#     Split("""CaCook/CaCook.cpp
-#              CaCook/NXU_Asc2Bin.cpp CaCook/NXU_ColladaExport.cpp CaCook/NXU_ColladaImport.cpp CaCook/NXU_cooking.cpp
-#              CaCook/NXU_customcopy.cpp CaCook/NXU_File.cpp CaCook/NXU_Geometry.cpp CaCook/NXU_GraphicsMesh.cpp
-#              CaCook/NXU_helper.cpp CaCook/NXU_hull.cpp CaCook/NXU_PhysicsExport.cpp CaCook/NXU_PhysicsInstantiator.cpp
-#              CaCook/NXU_ScaledCopy.cpp CaCook/NXU_schema.cpp CaCook/NXU_SchemaStream.cpp CaCook/NXU_Streaming.cpp
-#              CaCook/NXU_string.cpp CaCook/NXU_tinystr.cpp CaCook/NXU_tinyxml.cpp CaCook/NXU_tinyxmlerror.cpp
-#              CaCook/NXU_tinyxmlparser.cpp"""),
-#     CPPDEFINES=env["CPPDEFINES"]+["WIN32"],
-#     CPPPATH=env["CPPPATH"]+["C:\\Programme\\NVIDIA Corporation\\NVIDIA PhysX SDK\\v2.8.1\\SDKs\\Cooking\\include",
-#                             "C:\\Programme\\NVIDIA Corporation\\NVIDIA PhysX SDK\\v2.8.1\\SDKs\\Foundation\\include",
-#                             "C:\\Programme\\NVIDIA Corporation\\NVIDIA PhysX SDK\\v2.8.1\\SDKs\\Physics\\include",
-#                             "C:\\Programme\\NVIDIA Corporation\\NVIDIA PhysX SDK\\v2.8.1\\SDKs\\PhysXLoader\\include"],
-#     LIBPATH=env["LIBPATH"]+["C:\\Programme\\NVIDIA Corporation\\NVIDIA PhysX SDK\\v2.8.1\\SDKs\\lib\\Win32"],
-#     LIBS=Split("SceneGraph ClipSys MatSys cfsLib cfsCoreLib cfsLib cfs_png cfs_jpeg lua lightwave z")
-#         +Split("NxCooking PhysXLoader"))
+    LIBS=Split("SceneGraph MatSys cfsLib ClipSys cfs_png cfs_jpeg bulletcollision lua minizip lightwave z"))
 
 
 
@@ -47,13 +30,13 @@ if sys.platform=="win32":
     envTools.Append(CPPPATH=['ExtLibs/freetype/include'])       # Linux builds (must) use the systems freetype library instead.
     envTools.Append(LIBPATH=['ExtLibs/DirectX7/lib'])
     # glu32 is only needed for the TerrainViewerOld...
-    envTools.Append(LIBS=Split("SceneGraph MatSys cfsCoreLib cfsLib ClipSys cfs_png cfs_jpeg bulletcollision lua minizip lightwave z")
+    envTools.Append(LIBS=Split("SceneGraph MatSys cfsLib ClipSys cfs_png cfs_jpeg bulletcollision lua minizip lightwave z")
                        + Split("gdi32 glu32 opengl32 user32") + ['cfsOpenGL', 'dinput', 'dxguid'])
 elif sys.platform=="linux2":
     # envTools.Append(LINKFLAGS=['-Wl,--export-dynamic'])       # Not needed any more, .so libs now link to the required .a libs directly, just as under Windows.
     # GLU is needed for the TerrainViewerOld *and* for e.g. gluBuild2DMipmaps() in the renderers...
     envTools.Append(CPPPATH=['/usr/include/freetype2'])         # As of 2009-09-10, this line is to become unnecessary in the future, see /usr/include/ftbuild.h for details.
-    envTools.Append(LIBS=Split("SceneGraph MatSys cfsOpenGL cfsLib cfsCoreLib cfsLib ClipSys cfs_png cfs_jpeg bulletcollision lua minizip lightwave z")
+    envTools.Append(LIBS=Split("SceneGraph MatSys cfsOpenGL cfsLib ClipSys cfs_png cfs_jpeg bulletcollision lua minizip lightwave z")
                        + Split("GL GLU"))
 
 envTools.Program("MakeFont", "CaTools/MakeFont.cpp", LIBS=envTools["LIBS"]+["freetype"])
@@ -114,7 +97,7 @@ envCafu = wxEnv.Clone()
 envCafu.Append(CPPPATH=['ExtLibs/lua/src'])
 
 if sys.platform=="win32":
-    envCafu.Append(LIBS=Split("SceneGraph MatSys SoundSys cfsLib cfsCoreLib cfs_png cfs_jpeg bulletcollision minizip z lua ClipSys GuiSysNullEditor"))
+    envCafu.Append(LIBS=Split("SceneGraph MatSys SoundSys cfsLib cfs_png cfs_jpeg bulletcollision minizip z lua ClipSys GuiSysNullEditor"))
     envCafu.Append(LIBS=Split("lightwave"))     # For the GuiSys::ModelWindowT class.
 
     WinResource = envCafu.RES("Ca3DE/Cafu.rc")  # + envCafu.RES("Ca3DE/Dialog1.rc")
@@ -123,7 +106,7 @@ elif sys.platform=="linux2":
     # -Wl,-rpath,.           is so that also the . directory is searched for dynamic libraries when they're opened.
     # -Wl,--export-dynamic   is so that the exe exports its symbols so that the MatSys, SoundSys and game .so libs can in turn resolve theirs.
     envCafu.Append(LINKFLAGS=['-Wl,-rpath,.', '-Wl,--export-dynamic'])
-    envCafu.Append(LIBS=Split("MatSys SoundSys SceneGraph cfsLib cfsCoreLib cfs_png cfs_jpeg bulletdynamics bulletcollision bulletmath openal alut mpg123 ogg vorbis vorbisfile minizip z lua lightwave ClipSys GuiSysNullEditor"))
+    envCafu.Append(LIBS=Split("MatSys SoundSys SceneGraph cfsLib cfs_png cfs_jpeg bulletdynamics bulletcollision bulletmath openal alut mpg123 ogg vorbis vorbisfile minizip z lua lightwave ClipSys GuiSysNullEditor"))
 
     # We need GLU for e.g. gluBuild2DMipmaps() in the renderers.
     # pthread is needed because some libraries that we load (possibly indirectly), e.g. the libCg.so and libopenal.so, use functions
@@ -163,7 +146,7 @@ envCafu.Program('Ca3DE/Cafu',
 
 envCaWE = wxEnv.Clone()
 envCaWE.Append(CPPPATH=['ExtLibs/lua/src', 'ExtLibs/noise/src'])
-envCaWE.Append(LIBS=Split("SceneGraph MatSys cfsCoreLib cfsLib ClipSys cfs_png cfs_jpeg bulletcollision noise lua minizip lightwave z"))
+envCaWE.Append(LIBS=Split("SceneGraph MatSys cfsLib ClipSys cfs_png cfs_jpeg bulletcollision noise lua minizip lightwave z"))
 
 if sys.platform=="win32":
     envCaWE.Append(CPPPATH=['ExtLibs/freetype/include'])    # Windows builds use our local copy, Linux builds (must) use the systems freetype library instead.
