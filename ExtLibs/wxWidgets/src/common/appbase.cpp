@@ -370,6 +370,13 @@ bool wxAppConsoleBase::ProcessIdle()
     wxLog::FlushActive();
 #endif
 
+    // When user idle event handling code
+    //   - schedules an object for deletion, and
+    //   - continuously requests more idle events,
+    // then without this, the objects are collected in ProcessPendingEvents()
+    // only when the next *external* event occurs.
+    DeletePendingObjects();
+
     return event.MoreRequested();
 }
 
