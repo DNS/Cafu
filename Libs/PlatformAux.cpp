@@ -181,7 +181,7 @@ MatSys::RendererI* PlatformAux::GetRenderer(const std::string& DLLName, HMODULE&
 
     typedef MatSys::RendererI* (__stdcall *GetRendererT)(cf::ConsoleI* Console_, cf::FileSys::FileManI* FileMan_);
 
-    #ifdef _WIN32
+    #if defined(_WIN32) && !defined(_WIN64)
         GetRendererT GetRendererFunc=(GetRendererT)GetProcAddress(OutRendererDLL, "_GetRenderer@8");
     #else
         GetRendererT GetRendererFunc=(GetRendererT)GetProcAddress(OutRendererDLL, "GetRenderer");
@@ -278,7 +278,7 @@ MatSys::TextureMapManagerI* PlatformAux::GetTextureMapManager(HMODULE RendererDL
 {
     typedef MatSys::TextureMapManagerI* (__stdcall *GetTMMT)();
 
-    #ifdef _WIN32
+    #if defined(_WIN32) && !defined(_WIN64)
         GetTMMT GetTMM=(GetTMMT)GetProcAddress(RendererDLL, "_GetTextureMapManager@0");
     #else
         GetTMMT GetTMM=(GetTMMT)GetProcAddress(RendererDLL, "GetTextureMapManager");
@@ -307,7 +307,7 @@ SoundSysI* PlatformAux::GetSoundSys(const std::string& DLLName, HMODULE& OutSoun
 
     typedef SoundSysI* (__stdcall *GetSoundSys)(cf::ConsoleI* Console_, cf::FileSys::FileManI* FileMan_);
 
-    #ifdef _WIN32
+    #if defined(_WIN32) && !defined(_WIN64)
         GetSoundSys GetSoundSysFunc=(GetSoundSys)GetProcAddress(OutSoundSysDLL, "_GetSoundSys@8");
     #else
         GetSoundSys GetSoundSysFunc=(GetSoundSys)GetProcAddress(OutSoundSysDLL, "GetSoundSys");

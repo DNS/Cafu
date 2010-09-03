@@ -264,8 +264,12 @@ elif sys.platform=="linux2":
 # We use release builds whenever we can, and assume that if the user has disabled them,
 # debug builds are available (i.e. the code below fails if neither "d" nor "r" is in BVs).
 if sys.platform=="win32":
-    envRelease.Install(".", ["#/ExtLibs/Cg/bin/cg.dll", "#/ExtLibs/Cg/bin/cgGL.dll"]);
-    envRelease.Install(".", ["#/ExtLibs/fmod/api/fmod.dll"]);
+    if envCommon["TARGET_ARCH"]=="x86":
+        envRelease.Install(".", ["#/ExtLibs/Cg/bin/cg.dll", "#/ExtLibs/Cg/bin/cgGL.dll"]);
+        envRelease.Install(".", ["#/ExtLibs/fmod/api/fmod.dll"]);
+    else:
+        envRelease.Install(".", ["#/ExtLibs/Cg/bin.x64/cg.dll", "#/ExtLibs/Cg/bin.x64/cgGL.dll"]);
+
     envRelease.Install(".", ["#/ExtLibs/openal-win/OpenAL32.dll", "#/ExtLibs/openal-win/wrap_oal.dll"]);
 
     if "r" in BVs:

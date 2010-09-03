@@ -38,7 +38,7 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName", "Carsten Fuchs Software"
-            VALUE "FileDescription", "The Cafu World Editor application"
+            VALUE "FileDescription", "CaWE - Cafu World Editor"
             VALUE "FileVersion", "1.0.0.0"
             VALUE "InternalName", "CaWE"
             VALUE "LegalCopyright", "Copyright © 2002-2010 Carsten Fuchs Software"

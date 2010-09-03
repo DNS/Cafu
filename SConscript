@@ -62,9 +62,6 @@ wxEnv = env.Clone()
 if sys.platform=="win32":
     wxPath="#/ExtLibs/wxWidgets";
 
-    wxEnv.Append(CPPPATH=[wxPath+'/include'])
-    wxEnv.Append(LIBS=Split("advapi32 comctl32 comdlg32 gdi32 ole32 oleaut32 opengl32 rpcrt4 shell32 user32 winspool wsock32"))
-
     # TODO: Move this into the SConstruct file (including the wx include path above).
     #   Note that we only (want to) determine the right library path matching the used compiler here.
     #   The specific wx-version used (e.g. latest stable vs. trunk) is still determined locally (here),
@@ -85,6 +82,9 @@ if sys.platform=="win32":
     else:
         wxEnv.Append(CPPPATH=[wxPath+LibPath+"/mswu"])
         wxEnv.Append(LIBS=Split("wxbase29u wxbase29u_net wxjpeg wxmsw29u_adv wxmsw29u_core wxmsw29u_gl wxmsw29u_aui wxmsw29u_propgrid wxregexu"))
+
+    wxEnv.Append(CPPPATH=[wxPath+'/include'])   # This must be appended *after* the LibPath-specific paths.
+    wxEnv.Append(LIBS=Split("advapi32 comctl32 comdlg32 gdi32 ole32 oleaut32 opengl32 rpcrt4 shell32 user32 winspool wsock32"))
 
 elif sys.platform=="linux2":
     # Geht es auch ohne die naechste Zeile? Woher weiss es, dass es freetype linken soll???

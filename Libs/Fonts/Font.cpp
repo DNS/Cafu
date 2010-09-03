@@ -97,10 +97,14 @@ void FontT::AccPrint(int PosX, int PosY, unsigned long Color, const std::string&
         const float CoordY=float(PrintString[c] >>   4)/16.0f;      // PrintString[c] / 16
         const float Size  =16.0/256.0;
 
-        TextMesh.Vertices[4*c+0].SetOrigin( 0+c*10,  0); TextMesh.Vertices[4*c+0].SetTextureCoord(CoordX     , CoordY     );
-        TextMesh.Vertices[4*c+1].SetOrigin(16+c*10,  0); TextMesh.Vertices[4*c+1].SetTextureCoord(CoordX+Size, CoordY     );
-        TextMesh.Vertices[4*c+2].SetOrigin(16+c*10, 16); TextMesh.Vertices[4*c+2].SetTextureCoord(CoordX+Size, CoordY+Size);
-        TextMesh.Vertices[4*c+3].SetOrigin( 0+c*10, 16); TextMesh.Vertices[4*c+3].SetTextureCoord(CoordX     , CoordY+Size);
+        // Under the LLP64 data model, the 64-bit Windows compilers warn that the conversion from
+        // size_t to unsigned long and size_t to double loses data, thus cast c to unsigned int here.
+        const unsigned int i=(unsigned int)c;
+
+        TextMesh.Vertices[4*i+0].SetOrigin( 0+i*10,  0); TextMesh.Vertices[4*i+0].SetTextureCoord(CoordX     , CoordY     );
+        TextMesh.Vertices[4*i+1].SetOrigin(16+i*10,  0); TextMesh.Vertices[4*i+1].SetTextureCoord(CoordX+Size, CoordY     );
+        TextMesh.Vertices[4*i+2].SetOrigin(16+i*10, 16); TextMesh.Vertices[4*i+2].SetTextureCoord(CoordX+Size, CoordY+Size);
+        TextMesh.Vertices[4*i+3].SetOrigin( 0+i*10, 16); TextMesh.Vertices[4*i+3].SetTextureCoord(CoordX     , CoordY+Size);
     }
 
     MatSys::Renderer->RenderMesh(TextMesh);
