@@ -1,4 +1,4 @@
-import os, shutil, sys
+import os, platform, shutil, sys
 
 
 # See the SCons manual, http://www.scons.org/wiki/GoFastButton and the man page for more information about the next two lines.
@@ -281,8 +281,11 @@ if sys.platform=="win32":
         envRelease.Install(".", ["#/ExtLibs/mpg123/"+my_build_dir_dbg+"/mpg123.dll"]);
 
 elif sys.platform=="linux2":
-    envRelease.Install(".", ["#/ExtLibs/Cg/lib/libCg.so", "#/ExtLibs/Cg/lib/libCgGL.so"]);
-    envRelease.Install(".", ["#/ExtLibs/fmod/api/libfmod-3.75.so"]);
+    if platform.machine()!="x86_64":
+        envRelease.Install(".", ["#/ExtLibs/Cg/lib/libCg.so", "#/ExtLibs/Cg/lib/libCgGL.so"]);
+        envRelease.Install(".", ["#/ExtLibs/fmod/api/libfmod-3.75.so"]);
+    else:
+        envRelease.Install(".", ["#/ExtLibs/Cg/lib.x64/libCg.so", "#/ExtLibs/Cg/lib.x64/libCgGL.so"]);
 
     if "r" in BVs:
         envRelease.Install(".", ["#/ExtLibs/freealut/"+my_build_dir_rel+"/libalut.so"]);

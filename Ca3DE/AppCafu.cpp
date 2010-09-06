@@ -28,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/ConsoleInterpreterImpl.hpp"
 #include "ConsoleCommands/ConsoleComposite.hpp"
 #include "ConsoleCommands/ConsoleFile.hpp"
+#include "ConsoleCommands/ConsoleStdout.hpp"
 #include "ConsoleCommands/ConsoleStringBuffer.hpp"
 #include "ConsoleCommands/ConVar.hpp"
 #include "ConsoleCommands/ConFunc.hpp"
@@ -171,6 +172,13 @@ AppCafuT::AppCafuT()
       m_MainFrame(NULL)
 {
     s_CompositeConsole.Attach(m_ConBuffer);
+
+    #ifdef __WXGTK__
+    {
+        static cf::ConsoleStdoutT s_ConStdout;
+        s_CompositeConsole.Attach(&s_ConStdout);
+    }
+    #endif
 
     // All global convars and confuncs have registered themselves in linked lists.
     // Register them with the console interpreter now.

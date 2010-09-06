@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Console.hpp"
+#include <stdio.h>
 #include <stdarg.h>
 
 #if defined(_WIN32) && defined (_MSC_VER)
