@@ -266,11 +266,11 @@ elif sys.platform=="linux2":
 if sys.platform=="win32":
     if envCommon["TARGET_ARCH"]=="x86":
         envRelease.Install(".", ["#/ExtLibs/Cg/bin/cg.dll", "#/ExtLibs/Cg/bin/cgGL.dll"]);
+        envRelease.Install(".", ["#/ExtLibs/openal-win/libs/Win32/OpenAL32.dll", "#/ExtLibs/openal-win/libs/Win32/wrap_oal.dll"]);
         envRelease.Install(".", ["#/ExtLibs/fmod/api/fmod.dll"]);
     else:
         envRelease.Install(".", ["#/ExtLibs/Cg/bin.x64/cg.dll", "#/ExtLibs/Cg/bin.x64/cgGL.dll"]);
-
-    envRelease.Install(".", ["#/ExtLibs/openal-win/OpenAL32.dll", "#/ExtLibs/openal-win/wrap_oal.dll"]);
+        envRelease.Install(".", ["#/ExtLibs/openal-win/libs/Win64/OpenAL32.dll", "#/ExtLibs/openal-win/libs/Win64/wrap_oal.dll"]);
 
     if "r" in BVs:
         envRelease.Install(".", ["#/ExtLibs/freealut/"+my_build_dir_rel+"/alut.dll"]);
