@@ -246,7 +246,7 @@ static cf::GameSys::GameI* LoadGameDLL(const std::string& GameDllName, HMODULE& 
         ConsoleInterpreterI* ConInterpreter_, cf::ClipSys::CollModelManI* CollModelMan_, SoundSysI* SoundSystem_,
         SoundShaderManagerI* SoundShaderManager_);
 
-    #ifdef _WIN32
+    #if defined(_WIN32) && !defined(_WIN64)
         GetGameFuncT GetGameFunc=(GetGameFuncT)GetProcAddress(GameDLL, "_GetGame@36");
     #else
         GetGameFuncT GetGameFunc=(GetGameFuncT)GetProcAddress(GameDLL, "GetGame");
