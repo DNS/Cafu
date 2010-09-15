@@ -165,7 +165,8 @@ if sys.platform=="win32":
 
 elif sys.platform=="linux2":
     envCaWE.Append(CPPPATH=['/usr/include/freetype2'])  # As of 2009-09-10, this line is to become unnecessary in the future, see /usr/include/ftbuild.h for details.
-    envCaWE.Append(LINKFLAGS=['-Wl,--export-dynamic'])  # Need this so that the Renderer DLLs can have their unresolved symbols dynamically resolved at load time.
+    envCaWE.Append(LINKFLAGS=['-Wl,-rpath,.'])          # Have dlopen() consider "." when searching for SOs (e.g. libCg.so).
+    envCaWE.Append(LINKFLAGS=['-Wl,--export-dynamic'])  # Have our symbols available for dynamically loaded SOs (e.g. the renderer DLLs).
 
     WinResource = []
 
