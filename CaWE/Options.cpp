@@ -40,6 +40,12 @@ OptionsT::~OptionsT()
 }
 
 
+static bool CompareGameConfigs(GameConfigT* const& GC1, GameConfigT* const& GC2)
+{
+    return wxStricmp(GC1->Name, GC2->Name)<0;
+}
+
+
 void OptionsT::Init()
 {
     time_t Ticks=wxConfigBase::Get()->Read("Configured/Installed", 0L);
@@ -143,6 +149,8 @@ void OptionsT::Init()
 
         CfgFile.SetPath("..");
     }
+
+    GameConfigs.QuickSort(CompareGameConfigs);
 
     // If we couldn't load any game configurations, pop up the options screen.
     /* if (GameConfigs.Size()==0)

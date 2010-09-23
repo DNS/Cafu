@@ -85,8 +85,8 @@ END_EVENT_TABLE()
 
 
 GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileName, GuiDocumentT* GuiDocument)
-    : wxMDIChildFrame(Parent, wxID_ANY, FileName, wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE | wxSUNKEN_BORDER | wxMAXIMIZE),
-      m_GuiDocument(GuiDocument),
+    : wxMDIChildFrame(Parent, wxID_ANY, FileName, wxDefaultPosition, wxSize(800, 600), wxDEFAULT_FRAME_STYLE | wxMAXIMIZE),
+      m_GuiDocument(GuiDocument),   // Must use a fixed size in place of wxDefaultSize, see <http://trac.wxwidgets.org/ticket/12490> for details.
       m_FileName(FileName),
       m_GameConfig(GuiDocument->GetGameConfig()),
       m_LastSavedAtCommandNr(0),

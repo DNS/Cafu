@@ -53,7 +53,7 @@ MaterialsToolbarT::MaterialsToolbarT(wxWindow* Parent, MapDocumentT* MapDoc)
       m_MatMan(MapDoc->GetGameConfig()->GetMatMan()),
       ChoiceCurrentMat(NULL),
       StaticTextCurrentMatSize(NULL),
-      BitmapCurrentMat(NULL)
+      m_BitmapCurrentMat(NULL)
 {
     // As we are now a wxAUI pane rather than a wxDialog, explicitly set that events are not propagated to our parent.
     SetExtraStyle(wxWS_EX_BLOCK_EVENTS);
@@ -69,8 +69,8 @@ MaterialsToolbarT::MaterialsToolbarT(wxWindow* Parent, MapDocumentT* MapDoc)
     StaticTextCurrentMatSize=new wxStaticText(this, -1, wxT("Size: a x b"), wxDefaultPosition, wxDefaultSize, wxST_NO_AUTORESIZE );
     item0->Add(StaticTextCurrentMatSize, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT, 5 );
 
-    BitmapCurrentMat=new BitmapControlT(this, wxDefaultPosition, wxSize(PREVIEW_BITMAP_SIZE,PREVIEW_BITMAP_SIZE) );
-    item0->Add(BitmapCurrentMat, 0, wxALIGN_CENTER|wxBOTTOM|wxLEFT|wxRIGHT, 5 );
+    m_BitmapCurrentMat=new wxStaticBitmap(this, -1, wxBitmap(), wxDefaultPosition, wxSize(PREVIEW_BITMAP_SIZE, PREVIEW_BITMAP_SIZE), wxSUNKEN_BORDER);
+    item0->Add(m_BitmapCurrentMat, 0, wxALIGN_CENTER|wxBOTTOM|wxLEFT|wxRIGHT, 5 );
 
     wxBoxSizer *item7 = new wxBoxSizer( wxHORIZONTAL );
 
@@ -211,8 +211,8 @@ void MaterialsToolbarT::OnSelChangeCurrentMat(wxCommandEvent& Event)
 
         wxBitmap PreviewBitmap=Fit ? wxBitmap(CurrentMaterial->GetImage()) : wxBitmap(CurrentMaterial->GetImage().Scale(w*PREVIEW_BITMAP_SIZE/Max, h*PREVIEW_BITMAP_SIZE/Max));
 
-        BitmapCurrentMat->m_Bitmap=PreviewBitmap;
-        BitmapCurrentMat->Refresh();
+        m_BitmapCurrentMat->SetBitmap(PreviewBitmap);
+        m_BitmapCurrentMat->Refresh();
         StaticTextCurrentMatSize->SetLabel(wxString::Format("Size: %ix%i", CurrentMaterial->GetWidth(), CurrentMaterial->GetHeight()));
         m_MatMan.SetDefaultMaterial(CurrentMaterial);
     }

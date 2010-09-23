@@ -52,8 +52,8 @@ END_EVENT_TABLE()
 
 
 ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileName, ModelDocumentT* ModelDoc)
-    : wxMDIChildFrame(Parent, wxID_ANY, FileName, wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE | wxSUNKEN_BORDER | wxMAXIMIZE),
-      m_FileName(FileName),
+    : wxMDIChildFrame(Parent, wxID_ANY, FileName, wxDefaultPosition, wxSize(800, 600), wxDEFAULT_FRAME_STYLE | wxMAXIMIZE),
+      m_FileName(FileName),     // Must use a fixed size in place of wxDefaultSize, see <http://trac.wxwidgets.org/ticket/12490> for details.
       m_ModelDoc(ModelDoc),
       m_Parent(Parent),
       m_SceneView3D(NULL),

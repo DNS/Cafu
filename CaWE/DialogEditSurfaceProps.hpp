@@ -30,7 +30,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/Vector3.hpp"
 
 
-class BitmapControlT;
 class cfSpinControlT;
 class EditorMaterialI;
 class MapBrushT;
@@ -147,7 +146,7 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
 
     // "Material" section controls.
     wxChoice*       ChoiceCurrentMat;
-    BitmapControlT* BitmapCurrentMat;
+    wxStaticBitmap* m_BitmapCurrentMat;
     wxStaticText*   StaticTextCurrentMatSize;
 
     // "Tool Mode" section controls.

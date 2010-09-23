@@ -450,9 +450,16 @@ wxMDIChildFrame* ParentFrameT::OpenFile(GameConfigT* GameConfig, wxString FileNa
     {
         if (FileName.EndsWith(".cmap"))
         {
-            wxProgressDialog ProgressDialog("Loading Cafu Map File", "Almost done...", 100, this, wxPD_AUTO_HIDE | wxPD_APP_MODAL | wxPD_SMOOTH);
+            #ifdef __WXGTK__
+                // We cannot use the progress dialog under wxGTK, see <http://trac.wxwidgets.org/ticket/12500> for details.
+                wxProgressDialog* ProgDlgPtr=NULL;
+                wxBusyCursor      BusyCursor;
+            #else
+                wxProgressDialog  ProgressDialog("Loading Cafu Map File", "Almost done...", 100, this, wxPD_AUTO_HIDE | wxPD_APP_MODAL | wxPD_SMOOTH);
+                wxProgressDialog* ProgDlgPtr=&ProgressDialog;
+            #endif
 
-            return new ChildFrameT(this, FileName, new MapDocumentT(GameConfig, &ProgressDialog, FileName));
+            return new ChildFrameT(this, FileName, new MapDocumentT(GameConfig, ProgDlgPtr, FileName));
         }
 
         if (FileName.EndsWith(".cmdl"))
@@ -483,24 +490,38 @@ wxMDIChildFrame* ParentFrameT::OpenFile(GameConfigT* GameConfig, wxString FileNa
                 Specifier=SPECIFIER_LIST[Choice];
             }
 
-            wxProgressDialog ProgressDialog("Importing "+Specifier+" map file", "Almost done...", 100, this, wxPD_AUTO_HIDE | wxPD_APP_MODAL | wxPD_SMOOTH);
+            #ifdef __WXGTK__
+                // We cannot use the progress dialog under wxGTK, see <http://trac.wxwidgets.org/ticket/12500> for details.
+                wxProgressDialog* ProgDlgPtr=NULL;
+                wxBusyCursor      BusyCursor;
+            #else
+                wxProgressDialog  ProgressDialog("Importing "+Specifier+" map file", "Almost done...", 100, this, wxPD_AUTO_HIDE | wxPD_APP_MODAL | wxPD_SMOOTH);
+                wxProgressDialog* ProgDlgPtr=&ProgressDialog;
+            #endif
 
             if (Specifier=="HL1")
             {
-                return new ChildFrameT(this, FileName, MapDocumentT::ImportHalfLife1Map(GameConfig, &ProgressDialog, FileName));
+                return new ChildFrameT(this, FileName, MapDocumentT::ImportHalfLife1Map(GameConfig, ProgDlgPtr, FileName));
             }
 
             if (Specifier=="D3")
             {
-                return new ChildFrameT(this, FileName, MapDocumentT::ImportDoom3Map(GameConfig, &ProgressDialog, FileName));
+                return new ChildFrameT(this, FileName, MapDocumentT::ImportDoom3Map(GameConfig, ProgDlgPtr, FileName));
             }
         }
 
         if (FileName.EndsWith(".vmf"))
         {
-            wxProgressDialog ProgressDialog("Importing HL2 vmf file", "Almost done...", 100, this, wxPD_AUTO_HIDE | wxPD_APP_MODAL | wxPD_SMOOTH);
+            #ifdef __WXGTK__
+                // We cannot use the progress dialog under wxGTK, see <http://trac.wxwidgets.org/ticket/12500> for details.
+                wxProgressDialog* ProgDlgPtr=NULL;
+                wxBusyCursor      BusyCursor;
+            #else
+                wxProgressDialog  ProgressDialog("Importing HL2 vmf file", "Almost done...", 100, this, wxPD_AUTO_HIDE | wxPD_APP_MODAL | wxPD_SMOOTH);
+                wxProgressDialog* ProgDlgPtr=&ProgressDialog;
+            #endif
 
-            return new ChildFrameT(this, FileName, MapDocumentT::ImportHalfLife2Vmf(GameConfig, &ProgressDialog, FileName));
+            return new ChildFrameT(this, FileName, MapDocumentT::ImportHalfLife2Vmf(GameConfig, ProgDlgPtr, FileName));
         }
 
         // We've tried all known filename suffixes. Now assume that FileName specifies a model file and try that.

@@ -98,7 +98,7 @@ EditSurfacePropsDialogT::EditSurfacePropsDialogT(wxWindow* Parent, MapDocumentT*
       CheckBoxAlignWrtFace(NULL),
       CheckBoxTreatMultipleAsOne(NULL),
       ChoiceCurrentMat(NULL),
-      BitmapCurrentMat(NULL),
+      m_BitmapCurrentMat(NULL),
       StaticTextCurrentMatSize(NULL),
       CheckBoxHideSelMask(NULL),
       ChoiceRightMBMode(NULL)
@@ -206,8 +206,8 @@ EditSurfacePropsDialogT::EditSurfacePropsDialogT(wxWindow* Parent, MapDocumentT*
 
     wxBoxSizer *item37 = new wxBoxSizer( wxHORIZONTAL );
 
-    BitmapCurrentMat=new BitmapControlT(this, wxDefaultPosition, wxSize(PREVIEW_BITMAP_SIZE, PREVIEW_BITMAP_SIZE));
-    item37->Add(BitmapCurrentMat, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
+    m_BitmapCurrentMat=new wxStaticBitmap(this, -1, wxBitmap(), wxDefaultPosition, wxSize(PREVIEW_BITMAP_SIZE, PREVIEW_BITMAP_SIZE), wxSUNKEN_BORDER);
+    item37->Add(m_BitmapCurrentMat, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
 
     wxBoxSizer *item39 = new wxBoxSizer( wxVERTICAL );
 
@@ -322,9 +322,6 @@ EditSurfacePropsDialogT::EditSurfacePropsDialogT(wxWindow* Parent, MapDocumentT*
     wxCommandEvent CE;
     CE.SetExtraLong(-1);    // Don't try to apply the material to the selection.
     OnSelChangeCurrentMat(CE);
-
-    // Center the dialog, since default positioning will always hide some parts of it.
-    Centre();
 
     m_MapDoc->RegisterObserver(this);
 }
@@ -1055,8 +1052,8 @@ void EditSurfacePropsDialogT::OnSelChangeCurrentMat(wxCommandEvent& Event)
 
         wxBitmap PreviewBitmap=Fit ? wxBitmap(CurrentMaterial->GetImage()) : wxBitmap(CurrentMaterial->GetImage().Scale(w*PREVIEW_BITMAP_SIZE/Max, h*PREVIEW_BITMAP_SIZE/Max));
 
-        BitmapCurrentMat->m_Bitmap=PreviewBitmap;
-        BitmapCurrentMat->Refresh();
+        m_BitmapCurrentMat->SetBitmap(PreviewBitmap);
+        m_BitmapCurrentMat->Refresh();
         StaticTextCurrentMatSize->SetLabel(wxString::Format("Size: %ix%i", CurrentMaterial->GetWidth(), CurrentMaterial->GetHeight()));
         m_MapDoc->GetGameConfig()->GetMatMan().SetDefaultMaterial(CurrentMaterial);
 

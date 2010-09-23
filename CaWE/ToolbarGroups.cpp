@@ -312,6 +312,8 @@ void GroupsListViewT::OnSize(wxSizeEvent& SE)
     SetColumnWidth(0, Size.x-16-16);
     SetColumnWidth(1, 16);
     SetColumnWidth(2, 16);
+
+    SE.Skip();
 }
 
 

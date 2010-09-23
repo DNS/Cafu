@@ -129,8 +129,8 @@ void MaterialBrowserDialogT::Init(const ArrayT<EditorMaterialI*>& Materials, con
 
 
 MaterialBrowserDialogT::MaterialBrowserDialogT(wxWindow* Parent, const DocAccessI& DocAccess, EditorMaterialI* InitialMaterial, const wxString& InitialNameFilter_, bool OnlyShowUsed_)
-    : wxDialog(Parent, -1, wxString("CaWE Material Browser"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxMAXIMIZE_BOX),
-      m_DocAccess(DocAccess),
+    : wxDialog(Parent, -1, wxString("CaWE Material Browser"), wxDefaultPosition, wxSize(800, 600), wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxMAXIMIZE_BOX),
+      m_DocAccess(DocAccess),       // Must use a fixed size in place of wxDefaultSize, see <http://trac.wxwidgets.org/ticket/12490> for details.
       m_ScrolledMatWin(NULL),
       m_ControlsBar(NULL),
       m_MaterialTree(NULL),

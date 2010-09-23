@@ -30,19 +30,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 class MapDocumentT;
 
 
-class BitmapControlT : public wxWindow
-{
-    public:
-
-    BitmapControlT(wxWindow* Parent, const wxPoint& Pos=wxDefaultPosition, const wxSize& Size=wxDefaultSize);
-    void OnPaint(wxPaintEvent& PE);
-
-    wxBitmap m_Bitmap;
-
-    DECLARE_EVENT_TABLE()
-};
-
-
 class ReplaceMaterialsDialogT : public wxDialog
 {
     public:
@@ -65,8 +52,8 @@ class ReplaceMaterialsDialogT : public wxDialog
     wxRadioBox*     RadioBoxSearchFor;
     wxRadioBox*     RadioBoxReplaceRescaleMode;
     wxCheckBox*     CheckBoxFindOnly;
-    BitmapControlT* BitmapFindMat;
-    BitmapControlT* BitmapReplaceMat;
+    wxStaticBitmap* m_BitmapFindMat;
+    wxStaticBitmap* m_BitmapReplaceMat;
     wxStaticBox*    StaticBoxReplace;
     wxButton*       ButtonBrowseReplace;
 

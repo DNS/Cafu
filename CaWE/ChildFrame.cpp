@@ -236,8 +236,8 @@ END_EVENT_TABLE()
 // it is fine to pass the MDI parent window itself (rather than its client window) here. See wxMDIChildFrame documentation.
 // Contrary to wx docs, the wxDocMDIChildFrame even *requires* a pointer to wxMDIParentFrame here (not just to a wxFrame, as the docs say)!
 ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumentT* Document)
-    : wxMDIChildFrame(Parent, -1 /*ID*/, Title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE | wxMAXIMIZE),
-      m_Parent(Parent),
+    : wxMDIChildFrame(Parent, wxID_ANY, Title, wxDefaultPosition, wxSize(800, 600), wxDEFAULT_FRAME_STYLE | wxMAXIMIZE),
+      m_Parent(Parent),      // Must use a fixed size in place of wxDefaultSize, see <http://trac.wxwidgets.org/ticket/12490> for details.
       m_AUIManager(this),
       m_AUIDefaultPerspective(""),
       m_Doc(Document),
@@ -433,6 +433,7 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item0->Append(item12, wxT("&Help") );
 
     SetMenuBar(item0);
+    SetMinSize(wxSize(400,300));
 
 
     // Create the status bar at the bottom of the frame.
@@ -701,6 +702,10 @@ void ChildFrameT::ShowPane(wxWindow* Pane, bool DoShow)
     if (!PaneInfo.IsOk()) return;
 
     PaneInfo.Show(DoShow);
+
+    if (PaneInfo.floating_pos==wxDefaultPosition)
+        PaneInfo.FloatingPosition(ClientToScreen(wxPoint(20, 20)));
+
     m_AUIManager.Update();
 }
 

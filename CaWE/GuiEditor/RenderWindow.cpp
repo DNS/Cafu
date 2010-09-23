@@ -62,7 +62,7 @@ END_EVENT_TABLE()
 
 
 RenderWindowT::RenderWindowT(GuiEditor::ChildFrameT* Parent)
-    : wxGLCanvas(Parent, -1, ParentFrameT::OpenGLAttributeList, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS, "GuiRenderWindow"),
+    : wxGLCanvas(Parent, -1, ParentFrameT::OpenGLAttributeList, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS | wxHSCROLL | wxVSCROLL, "GuiRenderWindow"),
       m_GuiDocument(Parent->GetGuiDoc()),
       m_Parent(Parent),
       m_TimeLastFrame(0),

@@ -39,29 +39,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/image.h"
 
 
-BEGIN_EVENT_TABLE(BitmapControlT, wxWindow)
-    EVT_PAINT(BitmapControlT::OnPaint)
-END_EVENT_TABLE()
-
-
-BitmapControlT::BitmapControlT(wxWindow* Parent, const wxPoint& Pos, const wxSize& Size)
-    : wxWindow(Parent, -1, Pos, wxDefaultSize, wxSUNKEN_BORDER),
-      m_Bitmap()
-{
-    SetClientSize(Size);
-    SetMinSize(GetSize());
-}
-
-
-void BitmapControlT::OnPaint(wxPaintEvent& PE)
-{
-    wxPaintDC dc(this);
-
-    if (m_Bitmap.GetWidth()>0 && m_Bitmap.GetHeight()>0)
-        dc.DrawBitmap(m_Bitmap, 0, 0, false);
-}
-
-
 static const int PREVIEW_BITMAP_SIZE=128;
 
 
@@ -90,8 +67,8 @@ ReplaceMaterialsDialogT::ReplaceMaterialsDialogT(bool IsSomethingSelected, MapDo
       RadioBoxSearchFor(NULL),
       RadioBoxReplaceRescaleMode(NULL),
       CheckBoxFindOnly(NULL),
-      BitmapFindMat(NULL),
-      BitmapReplaceMat(NULL),
+      m_BitmapFindMat(NULL),
+      m_BitmapReplaceMat(NULL),
       StaticBoxReplace(NULL),
       ButtonBrowseReplace(NULL)
 {
@@ -107,15 +84,15 @@ ReplaceMaterialsDialogT::ReplaceMaterialsDialogT(bool IsSomethingSelected, MapDo
     TextCtrlFindMatName=new wxTextCtrl(this, ID_TEXTCTRL_FINDMATNAME, wxT(""), wxDefaultPosition, wxSize(80,-1), 0 );
     item3->Add(TextCtrlFindMatName, 1, wxALIGN_CENTER|wxALL, 5 );
 
-    wxButton *item5 = new wxButton(this, ID_BUTTON_BROWSE_FIND, wxT("Browse"), wxDefaultPosition, wxSize(50,-1), 0 );
+    wxButton *item5 = new wxButton(this, ID_BUTTON_BROWSE_FIND, wxT("Browse"));
     item3->Add( item5, 0, wxALIGN_CENTER|wxALL, 5 );
 
     item1->Add( item3, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
     wxBoxSizer *item6 = new wxBoxSizer( wxHORIZONTAL );
 
-    BitmapFindMat=new BitmapControlT(this, wxDefaultPosition, wxSize(PREVIEW_BITMAP_SIZE, PREVIEW_BITMAP_SIZE));
-    item6->Add(BitmapFindMat, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
+    m_BitmapFindMat=new wxStaticBitmap(this, -1, wxBitmap(), wxDefaultPosition, wxSize(PREVIEW_BITMAP_SIZE, PREVIEW_BITMAP_SIZE), wxSUNKEN_BORDER);
+    item6->Add(m_BitmapFindMat, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
 
     wxBoxSizer *item8 = new wxBoxSizer( wxVERTICAL );
 
@@ -178,15 +155,15 @@ ReplaceMaterialsDialogT::ReplaceMaterialsDialogT(bool IsSomethingSelected, MapDo
     TextCtrlReplaceMatName= new wxTextCtrl(this, ID_TEXTCTRL_REPLACEMATNAME, wxT(""), wxDefaultPosition, wxSize(80,-1), 0 );
     item21->Add(TextCtrlReplaceMatName, 1, wxALIGN_CENTER|wxALL, 5 );
 
-    ButtonBrowseReplace= new wxButton(this, ID_BUTTON_BROWSE_REPLACE, wxT("Browse"), wxDefaultPosition, wxSize(50,-1), 0 );
+    ButtonBrowseReplace= new wxButton(this, ID_BUTTON_BROWSE_REPLACE, wxT("Browse"));
     item21->Add(ButtonBrowseReplace, 0, wxALIGN_CENTER|wxALL, 5 );
 
     item19->Add( item21, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
     wxBoxSizer *item24 = new wxBoxSizer( wxHORIZONTAL );
 
-    BitmapReplaceMat=new BitmapControlT(this, wxDefaultPosition, wxSize(PREVIEW_BITMAP_SIZE, PREVIEW_BITMAP_SIZE));
-    item24->Add(BitmapReplaceMat, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
+    m_BitmapReplaceMat=new wxStaticBitmap(this, -1, wxBitmap(), wxDefaultPosition, wxSize(PREVIEW_BITMAP_SIZE, PREVIEW_BITMAP_SIZE), wxSUNKEN_BORDER);
+    item24->Add(m_BitmapReplaceMat, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
 
     wxString strs26[] =
     {
@@ -309,13 +286,13 @@ void ReplaceMaterialsDialogT::OnRadioButtonSearchIn(wxCommandEvent& Event)
 
 void ReplaceMaterialsDialogT::OnTextUpdateFindMatName(wxCommandEvent& Event)
 {
-    BitmapFindMat->m_Bitmap=GetScaledBitmapFromMaterial(m_MapDoc.GetGameConfig()->GetMatMan().FindMaterial(TextCtrlFindMatName->GetValue(), false));
-    BitmapFindMat->Refresh();
+    m_BitmapFindMat->SetBitmap(GetScaledBitmapFromMaterial(m_MapDoc.GetGameConfig()->GetMatMan().FindMaterial(TextCtrlFindMatName->GetValue(), false)));
+    m_BitmapFindMat->Refresh();
 }
 
 
 void ReplaceMaterialsDialogT::OnTextUpdateReplaceMatName(wxCommandEvent& Event)
 {
-    BitmapReplaceMat->m_Bitmap=GetScaledBitmapFromMaterial(m_MapDoc.GetGameConfig()->GetMatMan().FindMaterial(TextCtrlReplaceMatName->GetValue(), false));
-    BitmapReplaceMat->Refresh();
+    m_BitmapReplaceMat->SetBitmap(GetScaledBitmapFromMaterial(m_MapDoc.GetGameConfig()->GetMatMan().FindMaterial(TextCtrlReplaceMatName->GetValue(), false)));
+    m_BitmapReplaceMat->Refresh();
 }

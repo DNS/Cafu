@@ -29,7 +29,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/wx.h"
 
 
-class BitmapControlT;
 class MapDocumentT;
 class EditorMaterialI;
 class EditorMatManT;
@@ -62,7 +61,7 @@ class MaterialsToolbarT : public wxPanel, public ObserverT
     /// The controls.
     wxChoice*       ChoiceCurrentMat;
     wxStaticText*   StaticTextCurrentMatSize;
-    BitmapControlT* BitmapCurrentMat;
+    wxStaticBitmap* m_BitmapCurrentMat;
 
     /// The event handlers.
     void OnSelChangeCurrentMat(wxCommandEvent&  Event);
