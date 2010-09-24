@@ -31,6 +31,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "DialogEditSurfaceProps.hpp"
 #include "MapDocument.hpp"
 #include "MapFace.hpp"
+#include "MapBezierPatch.hpp"
 #include "MapBrush.hpp"
 #include "MapTerrain.hpp"
 #include "EditorMaterial.hpp"
@@ -42,9 +43,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapCommands/UpdateSurface.hpp"
 #include "MaterialBrowser/DocAccess.hpp"
 #include "MaterialBrowser/MaterialBrowserDialog.hpp"
-#include "wxExt/cfSpinControl.hpp"
 
-#include "wx/wx.h"
 #include "wx/image.h"
 #include "wx/confbase.h"
 
@@ -60,26 +59,26 @@ static const int PREVIEW_BITMAP_SIZE=128;
 
 
 BEGIN_EVENT_TABLE(EditSurfacePropsDialogT, wxPanel)
-    EVT_COMMAND (EditSurfacePropsDialogT::ID_SPINCTRL_SCALE_X,  EVT_CF_SPINCONTROL, EditSurfacePropsDialogT::OnSpinCtrlValueChanged)
-    EVT_COMMAND (EditSurfacePropsDialogT::ID_SPINCTRL_SCALE_Y,  EVT_CF_SPINCONTROL, EditSurfacePropsDialogT::OnSpinCtrlValueChanged)
-    EVT_COMMAND (EditSurfacePropsDialogT::ID_SPINCTRL_SHIFT_X,  EVT_CF_SPINCONTROL, EditSurfacePropsDialogT::OnSpinCtrlValueChanged)
-    EVT_COMMAND (EditSurfacePropsDialogT::ID_SPINCTRL_SHIFT_Y,  EVT_CF_SPINCONTROL, EditSurfacePropsDialogT::OnSpinCtrlValueChanged)
-    EVT_COMMAND (EditSurfacePropsDialogT::ID_SPINCTRL_ROTATION, EVT_CF_SPINCONTROL, EditSurfacePropsDialogT::OnSpinCtrlValueChanged)
-    EVT_BUTTON  (EditSurfacePropsDialogT::ID_BUTTON_ALIGN2FITFACE,                  EditSurfacePropsDialogT::OnButtonAlign)
-    EVT_BUTTON  (EditSurfacePropsDialogT::ID_BUTTON_ALIGN2TOP,                      EditSurfacePropsDialogT::OnButtonAlign)
-    EVT_BUTTON  (EditSurfacePropsDialogT::ID_BUTTON_ALIGN2LEFT,                     EditSurfacePropsDialogT::OnButtonAlign)
-    EVT_BUTTON  (EditSurfacePropsDialogT::ID_BUTTON_ALIGN2CENTER,                   EditSurfacePropsDialogT::OnButtonAlign)
-    EVT_BUTTON  (EditSurfacePropsDialogT::ID_BUTTON_ALIGN2RIGHT,                    EditSurfacePropsDialogT::OnButtonAlign)
-    EVT_BUTTON  (EditSurfacePropsDialogT::ID_BUTTON_ALIGN2BOTTOM,                   EditSurfacePropsDialogT::OnButtonAlign)
-    EVT_CHECKBOX(EditSurfacePropsDialogT::ID_CHECKBOX_ALIGN_WRT_WORLD,              EditSurfacePropsDialogT::OnCheckBoxAlignWorld)
-    EVT_CHECKBOX(EditSurfacePropsDialogT::ID_CHECKBOX_ALIGN_WRT_FACE,               EditSurfacePropsDialogT::OnCheckBoxAlignFace)
-    EVT_CHECKBOX(EditSurfacePropsDialogT::ID_CHECKBOX_TREAT_MULTIPLE_AS_ONE,        EditSurfacePropsDialogT::OnCheckBoxTreatMultipleAsOne)
-    EVT_CHOICE  (EditSurfacePropsDialogT::ID_CHOICE_CURRENT_MAT,                    EditSurfacePropsDialogT::OnSelChangeCurrentMat)
-    EVT_BUTTON  (EditSurfacePropsDialogT::ID_BUTTON_BROWSE_MATS,                    EditSurfacePropsDialogT::OnButtonBrowseMats)
-    EVT_BUTTON  (EditSurfacePropsDialogT::ID_BUTTON_REPLACE_MATS,                   EditSurfacePropsDialogT::OnButtonReplaceMats)
-    EVT_CHECKBOX(EditSurfacePropsDialogT::ID_CHECKBOX_HIDE_SEL_MASK,                EditSurfacePropsDialogT::OnCheckBoxHideSelMask)
-    EVT_CHOICE  (EditSurfacePropsDialogT::ID_CHOICE_RIGHT_MB_MODE,                  EditSurfacePropsDialogT::OnSelChangeRightMB)
-    EVT_BUTTON  (EditSurfacePropsDialogT::ID_BUTTON_APPLY_TO_ALL_SELECTED,          EditSurfacePropsDialogT::OnButtonApplyToAllSelected)
+    EVT_SPINCTRLDOUBLE(EditSurfacePropsDialogT::ID_SPINCTRL_SCALE_X,               EditSurfacePropsDialogT::OnSpinCtrlValueChanged)
+    EVT_SPINCTRLDOUBLE(EditSurfacePropsDialogT::ID_SPINCTRL_SCALE_Y,               EditSurfacePropsDialogT::OnSpinCtrlValueChanged)
+    EVT_SPINCTRLDOUBLE(EditSurfacePropsDialogT::ID_SPINCTRL_SHIFT_X,               EditSurfacePropsDialogT::OnSpinCtrlValueChanged)
+    EVT_SPINCTRLDOUBLE(EditSurfacePropsDialogT::ID_SPINCTRL_SHIFT_Y,               EditSurfacePropsDialogT::OnSpinCtrlValueChanged)
+    EVT_SPINCTRLDOUBLE(EditSurfacePropsDialogT::ID_SPINCTRL_ROTATION,              EditSurfacePropsDialogT::OnSpinCtrlValueChanged)
+    EVT_BUTTON        (EditSurfacePropsDialogT::ID_BUTTON_ALIGN2FITFACE,           EditSurfacePropsDialogT::OnButtonAlign)
+    EVT_BUTTON        (EditSurfacePropsDialogT::ID_BUTTON_ALIGN2TOP,               EditSurfacePropsDialogT::OnButtonAlign)
+    EVT_BUTTON        (EditSurfacePropsDialogT::ID_BUTTON_ALIGN2LEFT,              EditSurfacePropsDialogT::OnButtonAlign)
+    EVT_BUTTON        (EditSurfacePropsDialogT::ID_BUTTON_ALIGN2CENTER,            EditSurfacePropsDialogT::OnButtonAlign)
+    EVT_BUTTON        (EditSurfacePropsDialogT::ID_BUTTON_ALIGN2RIGHT,             EditSurfacePropsDialogT::OnButtonAlign)
+    EVT_BUTTON        (EditSurfacePropsDialogT::ID_BUTTON_ALIGN2BOTTOM,            EditSurfacePropsDialogT::OnButtonAlign)
+    EVT_CHECKBOX      (EditSurfacePropsDialogT::ID_CHECKBOX_ALIGN_WRT_WORLD,       EditSurfacePropsDialogT::OnCheckBoxAlignWorld)
+    EVT_CHECKBOX      (EditSurfacePropsDialogT::ID_CHECKBOX_ALIGN_WRT_FACE,        EditSurfacePropsDialogT::OnCheckBoxAlignFace)
+    EVT_CHECKBOX      (EditSurfacePropsDialogT::ID_CHECKBOX_TREAT_MULTIPLE_AS_ONE, EditSurfacePropsDialogT::OnCheckBoxTreatMultipleAsOne)
+    EVT_CHOICE        (EditSurfacePropsDialogT::ID_CHOICE_CURRENT_MAT,             EditSurfacePropsDialogT::OnSelChangeCurrentMat)
+    EVT_BUTTON        (EditSurfacePropsDialogT::ID_BUTTON_BROWSE_MATS,             EditSurfacePropsDialogT::OnButtonBrowseMats)
+    EVT_BUTTON        (EditSurfacePropsDialogT::ID_BUTTON_REPLACE_MATS,            EditSurfacePropsDialogT::OnButtonReplaceMats)
+    EVT_CHECKBOX      (EditSurfacePropsDialogT::ID_CHECKBOX_HIDE_SEL_MASK,         EditSurfacePropsDialogT::OnCheckBoxHideSelMask)
+    EVT_CHOICE        (EditSurfacePropsDialogT::ID_CHOICE_RIGHT_MB_MODE,           EditSurfacePropsDialogT::OnSelChangeRightMB)
+    EVT_BUTTON        (EditSurfacePropsDialogT::ID_BUTTON_APPLY_TO_ALL_SELECTED,   EditSurfacePropsDialogT::OnButtonApplyToAllSelected)
 END_EVENT_TABLE()
 
 
@@ -89,11 +88,12 @@ EditSurfacePropsDialogT::EditSurfacePropsDialogT(wxWindow* Parent, MapDocumentT*
       m_CurrentTexGenMode(PlaneProj),   // Per default use a texture generation mode that has no restrictions when applying.
       m_CurrentUAxis(1.0f, 0.0f, 0.0f),
       m_CurrentVAxis(0.0f, 1.0f, 0.0f),
-      SpinCtrlScaleX(NULL),
-      SpinCtrlScaleY(NULL),
-      SpinCtrlShiftX(NULL),
-      SpinCtrlShiftY(NULL),
-      SpinCtrlRotation(NULL),
+      m_SpinCtrlScaleX(NULL),
+      m_SpinCtrlScaleY(NULL),
+      m_SpinCtrlShiftX(NULL),
+      m_SpinCtrlShiftY(NULL),
+      m_SpinCtrlRotation(NULL),
+      m_TexGenModeInfo(NULL),
       CheckBoxAlignWrtWorld(NULL),
       CheckBoxAlignWrtFace(NULL),
       CheckBoxTreatMultipleAsOne(NULL),
@@ -132,30 +132,32 @@ EditSurfacePropsDialogT::EditSurfacePropsDialogT(wxWindow* Parent, MapDocumentT*
     wxStaticText *item7 = new wxStaticText(this, -1, wxT("X:"), wxDefaultPosition, wxDefaultSize, 0 );
     item3->Add( item7, 0, wxALIGN_CENTER|wxALL, 5 );
 
-    // cfSpinControlT ctor params are: parent, id, pos, size, default value, min, max, formatstring, increment, wrap=false.
-    SpinCtrlScaleX=new cfSpinControlT(this, ID_SPINCTRL_SCALE_X, wxDefaultPosition, wxDefaultSize, 1.0, -1000.0, 1000.0, "%.3f", 0.05, false, cfSpinControlT::EventTriggerE(cfSpinControlT::BUTTON | cfSpinControlT::ENTER));
-    item3->Add(SpinCtrlScaleX, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxRIGHT, 5 );
+    m_SpinCtrlScaleX=new wxSpinCtrlDouble(this, ID_SPINCTRL_SCALE_X, "1.0", wxDefaultPosition, wxSize(70-16, -1), wxSP_ARROW_KEYS, -1000.0, 1000.0, 1.0, 0.05);
+    item3->Add(m_SpinCtrlScaleX, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxRIGHT, 5 );
 
     wxStaticText *item9 = new wxStaticText(this, -1, wxT("X:"), wxDefaultPosition, wxDefaultSize, 0 );
     item3->Add( item9, 0, wxALIGN_CENTER|wxALL, 5 );
 
-    SpinCtrlShiftX=new cfSpinControlT(this, ID_SPINCTRL_SHIFT_X, wxDefaultPosition, wxDefaultSize, 0.0, -999999999.0, 999999999.0, "%.1f", 1.0, false, cfSpinControlT::EventTriggerE(cfSpinControlT::BUTTON | cfSpinControlT::ENTER));
-    item3->Add(SpinCtrlShiftX, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxRIGHT, 5 );
+    m_SpinCtrlShiftX=new wxSpinCtrlDouble(this, ID_SPINCTRL_SHIFT_X, "0.0", wxDefaultPosition, wxSize(70-16, -1), wxSP_ARROW_KEYS, -999999999.0, 999999999.0, 0.0, 1.0);
+    item3->Add(m_SpinCtrlShiftX, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxRIGHT, 5 );
 
-    SpinCtrlRotation=new cfSpinControlT(this, ID_SPINCTRL_ROTATION, wxDefaultPosition, wxDefaultSize, 0.0, 0.0, 360.0, "%.1f", 5.0, true, cfSpinControlT::EventTriggerE(cfSpinControlT::BUTTON | cfSpinControlT::ENTER));
-    item3->Add(SpinCtrlRotation, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
+    m_SpinCtrlRotation=new wxSpinCtrlDouble(this, ID_SPINCTRL_ROTATION, "0.0", wxDefaultPosition, wxSize(70-16, -1), wxSP_ARROW_KEYS | wxSP_WRAP, 0.0, 360.0, 0.0, 5.0);
+    item3->Add(m_SpinCtrlRotation, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
 
     wxStaticText *item12 = new wxStaticText(this, -1, wxT("Y:"), wxDefaultPosition, wxDefaultSize, 0 );
     item3->Add( item12, 0, wxALIGN_CENTER|wxALL, 5 );
 
-    SpinCtrlScaleY=new cfSpinControlT(this, ID_SPINCTRL_SCALE_Y, wxDefaultPosition, wxDefaultSize, 1.0, -1000.0, 1000.0, "%.3f", 0.05, false, cfSpinControlT::EventTriggerE(cfSpinControlT::BUTTON | cfSpinControlT::ENTER));
-    item3->Add(SpinCtrlScaleY, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxRIGHT|wxBOTTOM, 5 );
+    m_SpinCtrlScaleY=new wxSpinCtrlDouble(this, ID_SPINCTRL_SCALE_Y, "1.0", wxDefaultPosition, wxSize(70-16, -1), wxSP_ARROW_KEYS, -1000.0, 1000.0, 1.0, 0.05);
+    item3->Add(m_SpinCtrlScaleY, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxRIGHT|wxBOTTOM, 5 );
 
     wxStaticText *item14 = new wxStaticText(this, -1, wxT("Y:"), wxDefaultPosition, wxDefaultSize, 0 );
     item3->Add( item14, 0, wxALIGN_CENTER|wxALL, 5 );
 
-    SpinCtrlShiftY=new cfSpinControlT(this, ID_SPINCTRL_SHIFT_Y, wxDefaultPosition, wxDefaultSize, 0.0, -999999999.0, 999999999.0, "%.1f", 1.0, false, cfSpinControlT::EventTriggerE(cfSpinControlT::BUTTON | cfSpinControlT::ENTER));
-    item3->Add(SpinCtrlShiftY, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxRIGHT|wxBOTTOM, 5 );
+    m_SpinCtrlShiftY=new wxSpinCtrlDouble(this, ID_SPINCTRL_SHIFT_Y, "0.0", wxDefaultPosition, wxSize(70-16, -1), wxSP_ARROW_KEYS, -999999999.0, 999999999.0, 0.0, 1.0);
+    item3->Add(m_SpinCtrlShiftY, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxRIGHT|wxBOTTOM, 5 );
+
+    m_TexGenModeInfo=new wxStaticText(this, -1, "", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE | wxST_NO_AUTORESIZE);
+    item3->Add(m_TexGenModeInfo, 0, wxGROW|wxALL, 5 );
 
     item1->Add( item3, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
@@ -193,16 +195,8 @@ EditSurfacePropsDialogT::EditSurfacePropsDialogT(wxWindow* Parent, MapDocumentT*
     wxStaticBox *item30 = new wxStaticBox(this, -1, wxT("Material") );
     wxStaticBoxSizer *item29 = new wxStaticBoxSizer( item30, wxVERTICAL );
 
-    wxFlexGridSizer *item31 = new wxFlexGridSizer( 2, 0, 0 );
-    item31->AddGrowableCol( 1 );
-
-    wxStaticText *item34 = new wxStaticText(this, -1, wxT("Current:"), wxDefaultPosition, wxDefaultSize, 0 );
-    item31->Add( item34, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxBOTTOM, 5 );
-
     ChoiceCurrentMat= new wxChoice(this, ID_CHOICE_CURRENT_MAT, wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
-    item31->Add(ChoiceCurrentMat, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxBOTTOM, 5 );
-
-    item29->Add( item31, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+    item29->Add(ChoiceCurrentMat, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxBOTTOM, 5 );
 
     wxBoxSizer *item37 = new wxBoxSizer( wxHORIZONTAL );
 
@@ -481,7 +475,10 @@ void EditSurfacePropsDialogT::ApplyClick(ViewWindow3DT& ViewWin3D, MapElementT* 
 
     if (ApplyMode==ApplyProjective && m_CurrentTexGenMode!=PlaneProj)   // Only apply projective if there is a projection plane.
     {
-        wxMessageBox("No target plane for projective material application.");
+        wxMessageBox("When the texture-coordinate mode is Fit or Custom,\n"
+            "there is no reference plane for projective material application.\n\n"
+            "Please use another apply mode for the right mouse button,\n"
+            "or pick a regular brush face in order to apply its material projectively.");
         return;
     }
 
@@ -548,11 +545,12 @@ void EditSurfacePropsDialogT::EyeDropperClick(MapElementT* Object, unsigned long
         const MapFaceT*     Face=&Brush->GetFaces()[FaceIndex];
         const SurfaceInfoT& SI  =Face->GetSurfaceInfo();
 
-        SpinCtrlScaleX  ->SetValue(1.0/(SI.Scale[0]*Face->GetMaterial()->GetWidth()),  false);
-        SpinCtrlScaleY  ->SetValue(1.0/(SI.Scale[1]*Face->GetMaterial()->GetHeight()), false);
-        SpinCtrlShiftX  ->SetValue(SI.Trans[0]*Face->GetMaterial()->GetWidth(),        false);
-        SpinCtrlShiftY  ->SetValue(SI.Trans[1]*Face->GetMaterial()->GetHeight(),       false);
-        SpinCtrlRotation->SetValue(SI.Rotate,                                          false);
+        m_SpinCtrlScaleX  ->SetValue(1.0/(SI.Scale[0]*Face->GetMaterial()->GetWidth()));
+        m_SpinCtrlScaleY  ->SetValue(1.0/(SI.Scale[1]*Face->GetMaterial()->GetHeight()));
+        m_SpinCtrlShiftX  ->SetValue(SI.Trans[0]*Face->GetMaterial()->GetWidth());
+        m_SpinCtrlShiftY  ->SetValue(SI.Trans[1]*Face->GetMaterial()->GetHeight());
+        m_SpinCtrlRotation->SetValue(SI.Rotate);
+        m_TexGenModeInfo  ->SetLabel("");
 
         Material=Face->GetMaterial();
 
@@ -569,15 +567,17 @@ void EditSurfacePropsDialogT::EyeDropperClick(MapElementT* Object, unsigned long
 
         if (SI.TexCoordGenMode==Custom)
         {
-            wxMessageBox("Picking orientation values from objects with custom UVs is not possible.");
+            wxMessageBox("The texture information on this Bezier patch is in a custom format that cannot be picked for use in the dialog.\n"
+                "You can fix the problem by assigning new texture information (using the right mouse button) to the patch first.");
             return;
         }
 
-        SpinCtrlScaleX  ->SetValue((SI.TexCoordGenMode==MatFit) ? SI.Scale[0] : 1.0/SI.Scale[0]/Patch->GetMaterial()->GetWidth(),  false);
-        SpinCtrlScaleY  ->SetValue((SI.TexCoordGenMode==MatFit) ? SI.Scale[1] : 1.0/SI.Scale[1]/Patch->GetMaterial()->GetHeight(), false);
-        SpinCtrlShiftX  ->SetValue(SI.Trans[0]*Patch->GetMaterial()->GetWidth(),                                                   false);
-        SpinCtrlShiftY  ->SetValue(SI.Trans[1]*Patch->GetMaterial()->GetHeight(),                                                  false);
-        SpinCtrlRotation->SetValue(SI.Rotate,                                                                                           false);
+        m_SpinCtrlScaleX  ->SetValue((SI.TexCoordGenMode==MatFit) ? SI.Scale[0] : 1.0/SI.Scale[0]/Patch->GetMaterial()->GetWidth());
+        m_SpinCtrlScaleY  ->SetValue((SI.TexCoordGenMode==MatFit) ? SI.Scale[1] : 1.0/SI.Scale[1]/Patch->GetMaterial()->GetHeight());
+        m_SpinCtrlShiftX  ->SetValue(SI.Trans[0]*Patch->GetMaterial()->GetWidth());
+        m_SpinCtrlShiftY  ->SetValue(SI.Trans[1]*Patch->GetMaterial()->GetHeight());
+        m_SpinCtrlRotation->SetValue(SI.Rotate);
+        m_TexGenModeInfo  ->SetLabel("");   // The proper value is set below.
 
         Material=Patch->GetMaterial();
 
@@ -587,13 +587,11 @@ void EditSurfacePropsDialogT::EyeDropperClick(MapElementT* Object, unsigned long
 
         UpdateVectorInfo();
 
-        if (m_CurrentTexGenMode==MatFit)
+        switch (m_CurrentTexGenMode)
         {
-            SpinCtrlScaleX  ->SetBackgroundColor(wxColour(100, 100, 255));
-            SpinCtrlScaleY  ->SetBackgroundColor(wxColour(100, 100, 255));
-            SpinCtrlShiftX  ->SetBackgroundColor(wxColour(100, 100, 255));
-            SpinCtrlShiftY  ->SetBackgroundColor(wxColour(100, 100, 255));
-            SpinCtrlRotation->SetBackgroundColor(wxColour(100, 100, 255));
+            case Custom: m_TexGenModeInfo->SetLabel("Mode: Custom"); break;
+            case MatFit: m_TexGenModeInfo->SetLabel("Mode: Fit");    break;
+            default:     m_TexGenModeInfo->SetLabel("");             break;
         }
     }
 
@@ -649,8 +647,8 @@ void EditSurfacePropsDialogT::SetSurfaceInfo(const MapFaceT* Face, SurfaceInfoT&
                 *Material=(EditorMaterialI*)ChoiceCurrentMat->GetClientData(CurrentMatIndex);
 
     // Scale values currently stored in the dialog.
-    float DialogScaleX=SpinCtrlScaleX->GetValue();
-    float DialogScaleY=SpinCtrlScaleY->GetValue();
+    float DialogScaleX=m_SpinCtrlScaleX->GetValue();
+    float DialogScaleY=m_SpinCtrlScaleY->GetValue();
 
     // See that scale values are always 0.01 or greater if positive or -0.01 or smaller if negative.
     if(DialogScaleX>=0.0f && DialogScaleX < 0.01f) DialogScaleX= 0.01f;
@@ -665,12 +663,12 @@ void EditSurfacePropsDialogT::SetSurfaceInfo(const MapFaceT* Face, SurfaceInfoT&
             // Apply the normal "orientation" settings depending on the choosen ApplySetting.
             if (Setting & ApplyScaleX) SI.Scale[0]=1.0/(DialogScaleX * Face->GetMaterial()->GetWidth());
             if (Setting & ApplyScaleY) SI.Scale[1]=1.0/(DialogScaleY * Face->GetMaterial()->GetHeight());
-            if (Setting & ApplyShiftX) SI.Trans[0]=SpinCtrlShiftX->GetValue() / Face->GetMaterial()->GetWidth();
-            if (Setting & ApplyShiftY) SI.Trans[1]=SpinCtrlShiftY->GetValue() / Face->GetMaterial()->GetHeight();
+            if (Setting & ApplyShiftX) SI.Trans[0]=m_SpinCtrlShiftX->GetValue() / Face->GetMaterial()->GetWidth();
+            if (Setting & ApplyShiftY) SI.Trans[1]=m_SpinCtrlShiftY->GetValue() / Face->GetMaterial()->GetHeight();
             if (Setting & ApplyRotation)
             {
-                SI.RotateUVAxes(SpinCtrlRotation->GetValue() - Face->GetSurfaceInfo().Rotate);
-                SI.Rotate=SpinCtrlRotation->GetValue();
+                SI.RotateUVAxes(m_SpinCtrlRotation->GetValue() - Face->GetSurfaceInfo().Rotate);
+                SI.Rotate=m_SpinCtrlRotation->GetValue();
             }
 
             break;
@@ -768,8 +766,8 @@ void EditSurfacePropsDialogT::SetSurfaceInfo(const MapBezierPatchT* Patch, Surfa
             if (wxStricmp(Patch->GetMaterial()->GetName(), ((EditorMaterialI*)ChoiceCurrentMat->GetClientData(CurrentMatIndex))->GetName())!=0)
                 *Material=(EditorMaterialI*)ChoiceCurrentMat->GetClientData(CurrentMatIndex);
 
-    float DialogScaleX=SpinCtrlScaleX->GetValue();
-    float DialogScaleY=SpinCtrlScaleY->GetValue();
+    float DialogScaleX=m_SpinCtrlScaleX->GetValue();
+    float DialogScaleY=m_SpinCtrlScaleY->GetValue();
 
     // See that scale values are always 0.01 or greater if positive or -0.01 or smaller if negative.
     if(DialogScaleX>=0.0f && DialogScaleX < 0.01f) DialogScaleX= 0.01f;
@@ -784,12 +782,12 @@ void EditSurfacePropsDialogT::SetSurfaceInfo(const MapBezierPatchT* Patch, Surfa
             // Apply current orientation values to the patch.
             if (Setting & ApplyScaleX)   SI.Scale[0]=(SI.TexCoordGenMode==MatFit) ? DialogScaleX : 1.0/(DialogScaleX*Patch->GetMaterial()->GetWidth());
             if (Setting & ApplyScaleY)   SI.Scale[1]=(SI.TexCoordGenMode==MatFit) ? DialogScaleY : 1.0/(DialogScaleY*Patch->GetMaterial()->GetHeight());
-            if (Setting & ApplyShiftX)   SI.Trans[0]=SpinCtrlShiftX->GetValue()/Patch->GetMaterial()->GetWidth();
-            if (Setting & ApplyShiftY)   SI.Trans[1]=SpinCtrlShiftY->GetValue()/Patch->GetMaterial()->GetHeight();
+            if (Setting & ApplyShiftX)   SI.Trans[0]=m_SpinCtrlShiftX->GetValue()/Patch->GetMaterial()->GetWidth();
+            if (Setting & ApplyShiftY)   SI.Trans[1]=m_SpinCtrlShiftY->GetValue()/Patch->GetMaterial()->GetHeight();
             if (Setting & ApplyRotation)
             {
-                SI.RotateUVAxes(SpinCtrlRotation->GetValue()-SI.Rotate);
-                SI.Rotate=SpinCtrlRotation->GetValue();
+                SI.RotateUVAxes(m_SpinCtrlRotation->GetValue()-SI.Rotate);
+                SI.Rotate=m_SpinCtrlRotation->GetValue();
             }
 
             break;
@@ -847,7 +845,7 @@ void EditSurfacePropsDialogT::UpdateVectorInfo()
 /*** Event Handlers ***/
 /**********************/
 
-void EditSurfacePropsDialogT::OnSpinCtrlValueChanged(wxCommandEvent& Event)
+void EditSurfacePropsDialogT::OnSpinCtrlValueChanged(wxSpinDoubleEvent& Event)
 {
     ApplySettingT Setting=ApplyNone;
 
@@ -941,7 +939,7 @@ void EditSurfacePropsDialogT::OnButtonAlign(wxCommandEvent& Event)
     {
         if (Event.GetId()!=ID_BUTTON_ALIGN2FITFACE)
         {
-            wxMessageBox("Only FIT alignment is available for bezier patches.");
+            wxMessageBox("With Bezier patches, only the Fit button is available for material alignment.\n");
             return;
         }
 
@@ -1166,7 +1164,10 @@ void EditSurfacePropsDialogT::OnButtonApplyToAllSelected(wxCommandEvent& Event)
 
     if (ApplyMode==ApplyProjective && m_CurrentTexGenMode!=PlaneProj)   // Only apply projective, if there is an projection plane.
     {
-        wxMessageBox("No valid projection plane, to project material.");
+        wxMessageBox("When the texture-coordinate mode is Fit or Custom,\n"
+            "there is no reference plane for projective material application.\n\n"
+            "Please use another apply mode for the right mouse button,\n"
+            "or pick a regular brush face in order to apply its material projectively.");
         return;
     }
 

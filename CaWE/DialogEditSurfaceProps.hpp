@@ -24,14 +24,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef _DIALOG_EDIT_SURFACE_PROPS_HPP_
 #define _DIALOG_EDIT_SURFACE_PROPS_HPP_
 
-#include "MapBezierPatch.hpp"   // For TexCoordGenModeT.
+#include "SurfaceInfo.hpp"
 #include "ObserverPattern.hpp"
-#include "Templates/Array.hpp"
-#include "Math3D/Vector3.hpp"
+#include "wx/wx.h"
+#include "wx/spinctrl.h"
 
 
-class cfSpinControlT;
 class EditorMaterialI;
+class MapBezierPatchT;
 class MapBrushT;
 class MapDocumentT;
 class MapElementT;
@@ -129,32 +129,33 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
     void UpdateVectorInfo();
 
     // "Orientation" section controls.
-    cfSpinControlT* SpinCtrlScaleX;
-    cfSpinControlT* SpinCtrlScaleY;
-    cfSpinControlT* SpinCtrlShiftX;
-    cfSpinControlT* SpinCtrlShiftY;
-    cfSpinControlT* SpinCtrlRotation;
+    wxSpinCtrlDouble* m_SpinCtrlScaleX;
+    wxSpinCtrlDouble* m_SpinCtrlScaleY;
+    wxSpinCtrlDouble* m_SpinCtrlShiftX;
+    wxSpinCtrlDouble* m_SpinCtrlShiftY;
+    wxSpinCtrlDouble* m_SpinCtrlRotation;
+    wxStaticText*     m_TexGenModeInfo;
 
     // Face and Material Vector info text.
-    wxStaticText*   MaterialXInfo;
-    wxStaticText*   MaterialYInfo;
+    wxStaticText*     MaterialXInfo;
+    wxStaticText*     MaterialYInfo;
 
     // "Alignment" section controls.
-    wxCheckBox*     CheckBoxAlignWrtWorld;
-    wxCheckBox*     CheckBoxAlignWrtFace;
-    wxCheckBox*     CheckBoxTreatMultipleAsOne;
+    wxCheckBox*       CheckBoxAlignWrtWorld;
+    wxCheckBox*       CheckBoxAlignWrtFace;
+    wxCheckBox*       CheckBoxTreatMultipleAsOne;
 
     // "Material" section controls.
-    wxChoice*       ChoiceCurrentMat;
-    wxStaticBitmap* m_BitmapCurrentMat;
-    wxStaticText*   StaticTextCurrentMatSize;
+    wxChoice*         ChoiceCurrentMat;
+    wxStaticBitmap*   m_BitmapCurrentMat;
+    wxStaticText*     StaticTextCurrentMatSize;
 
     // "Tool Mode" section controls.
-    wxCheckBox*     CheckBoxHideSelMask;
-    wxChoice*       ChoiceRightMBMode;
+    wxCheckBox*       CheckBoxHideSelMask;
+    wxChoice*         ChoiceRightMBMode;
 
     // "Material Orientation" section event handlers (one for all spin controls).
-    void OnSpinCtrlValueChanged(wxCommandEvent& Event);
+    void OnSpinCtrlValueChanged(wxSpinDoubleEvent& Event);
 
     // "Alignment" section event handlers.
     void OnButtonAlign               (wxCommandEvent& Event);
