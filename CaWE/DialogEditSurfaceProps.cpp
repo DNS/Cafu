@@ -293,7 +293,7 @@ EditSurfacePropsDialogT::EditSurfacePropsDialogT(wxWindow* Parent, MapDocumentT*
     ChoiceRightMBMode->SetSelection(0);
     item57->Add(ChoiceRightMBMode, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxBOTTOM, 5 );
 
-    wxButton *item62 = new wxButton(this, ID_BUTTON_APPLY_TO_ALL_SELECTED, wxT("to all Sel."), wxDefaultPosition, wxSize(55,21), 0 );
+    wxButton *item62 = new wxButton(this, ID_BUTTON_APPLY_TO_ALL_SELECTED, wxT("to all Sel."), wxDefaultPosition, wxSize(55, -1), 0 );
     item57->Add( item62, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT|wxBOTTOM, 5 );
 
     item54->Add( item57, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
@@ -963,6 +963,8 @@ void EditSurfacePropsDialogT::OnButtonAlign(wxCommandEvent& Event)
 }
 
 
+// The OnCheckBoxAlign*() methods are the only way to reset a faces UV-axes (besides Apply Projective mode).
+// As such, the checkboxes act both as indicators of the current state, as well as controls to change it.
 void EditSurfacePropsDialogT::OnCheckBoxAlignWorld(wxCommandEvent& Event)
 {
     if (m_MapDoc==0) return;
@@ -986,6 +988,8 @@ void EditSurfacePropsDialogT::OnCheckBoxAlignWorld(wxCommandEvent& Event)
 }
 
 
+// The OnCheckBoxAlign*() methods are the only way to reset a faces UV-axes (besides Apply Projective mode).
+// As such, the checkboxes act both as indicators of the current state, as well as controls to change it.
 void EditSurfacePropsDialogT::OnCheckBoxAlignFace(wxCommandEvent& Event)
 {
     if (m_MapDoc==0) return;

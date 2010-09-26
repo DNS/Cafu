@@ -454,7 +454,7 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
 
     m_AUIManager.AddPane(ToolbarFile, wxAuiPaneInfo().ToolbarPane().
                          Name("File Toolbar").Caption("File Toolbar").
-                         Top().Row(1).LeftDockable(false).RightDockable(false));
+                         Top().Row(0).Position(0).LeftDockable(false).RightDockable(false));
 
 
     wxToolBar* ToolbarTools=new wxToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_FLAT | wxTB_NODIVIDER);
@@ -477,7 +477,7 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
 
     m_AUIManager.AddPane(ToolbarTools, wxAuiPaneInfo().ToolbarPane().
                          Name("Tools Toolbar").Caption("Tools Toolbar").
-                         Top().Row(1).LeftDockable(false).RightDockable(false));
+                         Top().Row(0).Position(1).LeftDockable(false).RightDockable(false));
 
 
     wxPanel* ToolbarToolOptions=new wxPanel(this, -1, wxDefaultPosition, wxSize(852, 30));
@@ -505,7 +505,7 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
 
     m_AUIManager.AddPane(ToolbarToolOptions, wxAuiPaneInfo().
                          Name("Tool Options").Caption("Tool Options").
-                         Top().Row(2));
+                         Top().Row(1));
 
 
     // Create the toolbars and non-modal dialogs.
@@ -514,23 +514,23 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     m_MaterialsToolbar=new MaterialsToolbarT(this, m_Doc);
     m_AUIManager.AddPane(m_MaterialsToolbar, wxAuiPaneInfo().
                          Name("Materials").Caption("Materials").
-                         Left());
+                         Left().Position(0));
 
     m_GroupsToolbar=new GroupsToolbarT(this, m_Doc);
     m_AUIManager.AddPane(m_GroupsToolbar, wxAuiPaneInfo().
                          Name("Groups").Caption("Groups").
-                         Left());
+                         Left().Position(1));
 
     m_InspectorDialog=new InspectorDialogT(this, m_Doc);
     m_AUIManager.AddPane(m_InspectorDialog, wxAuiPaneInfo().
                          Name("Properties").Caption("Object Properties").
-                         Right().Hide());
+                         Float().Hide());
 
     m_ConsoleDialog=new ConsoleDialogT(this);
     m_AUIManager.AddPane(m_ConsoleDialog, wxAuiPaneInfo().
                          Name("Console").Caption("Console").
                          BestSize(400, 300).
-                         Right().Hide());
+                         Bottom().Hide());
 
     m_SurfacePropsDialog=new EditSurfacePropsDialogT(this, m_Doc);
     m_AUIManager.AddPane(m_SurfacePropsDialog, wxAuiPaneInfo().
@@ -552,13 +552,13 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     m_AUIManager.AddPane(ViewTopRight, wxAuiPaneInfo().
                          // Name("xy").
                          Caption("2D View").
-                         DestroyOnClose().Right());
+                         DestroyOnClose().Right().Position(0));
 
     ViewWindow2DT* ViewBottomRight=new ViewWindow2DT(this, this, (ViewWindowT::ViewTypeT)wxConfigBase::Get()->Read("Splitter/ViewType11", ViewWindowT::VT_2D_XZ));
     m_AUIManager.AddPane(ViewBottomRight, wxAuiPaneInfo().
                          // Name("xy").
                          Caption("2D View").
-                         DestroyOnClose().Right());
+                         DestroyOnClose().Right().Position(1));
 
 
     // Save the AUI perspective that we set up in this ctor code as the "default perspective".
@@ -703,7 +703,7 @@ void ChildFrameT::ShowPane(wxWindow* Pane, bool DoShow)
 
     PaneInfo.Show(DoShow);
 
-    if (PaneInfo.floating_pos==wxDefaultPosition)
+    if (DoShow && PaneInfo.IsFloating() && PaneInfo.floating_pos==wxDefaultPosition)
         PaneInfo.FloatingPosition(ClientToScreen(wxPoint(20, 20)));
 
     m_AUIManager.Update();
@@ -956,8 +956,7 @@ void ChildFrameT::OnMenuEdit(wxCommandEvent& CE)
                 m_InspectorDialog->ChangePage(BestPage);
             }
 
-            PaneInfo.Show(!PaneInfo.IsShown());
-            m_AUIManager.Update();
+            PaneToggleShow(PaneInfo);
             break;
         }
     }
@@ -975,72 +974,51 @@ void ChildFrameT::OnMenuEditUpdate(wxUpdateUIEvent& UE)
 }
 
 
+void ChildFrameT::PaneToggleShow(wxAuiPaneInfo& PaneInfo)
+{
+    if (!PaneInfo.IsOk()) return;
+
+    const bool DoShow=!PaneInfo.IsShown();
+    PaneInfo.Show(DoShow);
+
+    if (DoShow && PaneInfo.IsFloating() && PaneInfo.floating_pos==wxDefaultPosition)
+        PaneInfo.FloatingPosition(ClientToScreen(wxPoint(20, 20)));
+
+    m_AUIManager.Update();
+}
+
+
 void ChildFrameT::OnMenuView(wxCommandEvent& CE)
 {
     switch (CE.GetId())
     {
         case ID_MENU_VIEW_TOOLBARS_FILE:
-        {
-            wxAuiPaneInfo& PaneInfo=m_AUIManager.GetPane("File Toolbar");
-
-            PaneInfo.Show(!PaneInfo.IsShown());
-            m_AUIManager.Update();
+            PaneToggleShow(m_AUIManager.GetPane("File Toolbar"));
             break;
-        }
 
         case ID_MENU_VIEW_TOOLBARS_TOOLS:
-        {
-            wxAuiPaneInfo& PaneInfo=m_AUIManager.GetPane("Tools Toolbar");
-
-            PaneInfo.Show(!PaneInfo.IsShown());
-            m_AUIManager.Update();
+            PaneToggleShow(m_AUIManager.GetPane("Tools Toolbar"));
             break;
-        }
 
         case ID_MENU_VIEW_PANELS_TOOLOPTIONS:
-        {
-            wxAuiPaneInfo& PaneInfo=m_AUIManager.GetPane("Tool Options");
-
-            PaneInfo.Show(!PaneInfo.IsShown());
-            m_AUIManager.Update();
+            PaneToggleShow(m_AUIManager.GetPane("Tool Options"));
             break;
-        }
 
         case ID_MENU_VIEW_PANELS_MATERIALS:
-        {
-            wxAuiPaneInfo& PaneInfo=m_AUIManager.GetPane(m_MaterialsToolbar);
-
-            PaneInfo.Show(!PaneInfo.IsShown());
-            m_AUIManager.Update();
+            PaneToggleShow(m_AUIManager.GetPane(m_MaterialsToolbar));
             break;
-        }
 
         case ID_MENU_VIEW_PANELS_GROUPS:
-        {
-            wxAuiPaneInfo& PaneInfo=m_AUIManager.GetPane(m_GroupsToolbar);
-
-            PaneInfo.Show(!PaneInfo.IsShown());
-            m_AUIManager.Update();
+            PaneToggleShow(m_AUIManager.GetPane(m_GroupsToolbar));
             break;
-        }
 
         case ID_MENU_VIEW_PANELS_INSPECTOR:
-        {
-            wxAuiPaneInfo& PaneInfo=m_AUIManager.GetPane(m_InspectorDialog);
-
-            PaneInfo.Show(!PaneInfo.IsShown());
-            m_AUIManager.Update();
+            PaneToggleShow(m_AUIManager.GetPane(m_InspectorDialog));
             break;
-        }
 
         case ID_MENU_VIEW_PANELS_CONSOLE:
-        {
-            wxAuiPaneInfo& PaneInfo=m_AUIManager.GetPane(m_ConsoleDialog);
-
-            PaneInfo.Show(!PaneInfo.IsShown());
-            m_AUIManager.Update();
+            PaneToggleShow(m_AUIManager.GetPane(m_ConsoleDialog));
             break;
-        }
 
         case ID_MENU_VIEW_NEW_2D_VIEW:
             m_AUIManager.AddPane(new ViewWindow2DT(this, this, ViewWindowT::VT_2D_XY), wxAuiPaneInfo().

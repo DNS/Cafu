@@ -453,7 +453,7 @@ wxMDIChildFrame* ParentFrameT::OpenFile(GameConfigT* GameConfig, wxString FileNa
             #ifdef __WXGTK__
                 // We cannot use the progress dialog under wxGTK, see <http://trac.wxwidgets.org/ticket/12500> for details.
                 wxProgressDialog* ProgDlgPtr=NULL;
-                wxBusyCursor      BusyCursor;
+                // wxBusyCursor   BusyCursor;   // Argh! And this doesn't seem to work as well: The busy cursor remains active for the parent frame and thus the menu bar.
             #else
                 wxProgressDialog  ProgressDialog("Loading Cafu Map File", "Almost done...", 100, this, wxPD_AUTO_HIDE | wxPD_APP_MODAL | wxPD_SMOOTH);
                 wxProgressDialog* ProgDlgPtr=&ProgressDialog;
@@ -493,7 +493,7 @@ wxMDIChildFrame* ParentFrameT::OpenFile(GameConfigT* GameConfig, wxString FileNa
             #ifdef __WXGTK__
                 // We cannot use the progress dialog under wxGTK, see <http://trac.wxwidgets.org/ticket/12500> for details.
                 wxProgressDialog* ProgDlgPtr=NULL;
-                wxBusyCursor      BusyCursor;
+                // wxBusyCursor   BusyCursor;   // Argh! And this doesn't seem to work as well: The busy cursor remains active for the parent frame and thus the menu bar.
             #else
                 wxProgressDialog  ProgressDialog("Importing "+Specifier+" map file", "Almost done...", 100, this, wxPD_AUTO_HIDE | wxPD_APP_MODAL | wxPD_SMOOTH);
                 wxProgressDialog* ProgDlgPtr=&ProgressDialog;
@@ -515,7 +515,7 @@ wxMDIChildFrame* ParentFrameT::OpenFile(GameConfigT* GameConfig, wxString FileNa
             #ifdef __WXGTK__
                 // We cannot use the progress dialog under wxGTK, see <http://trac.wxwidgets.org/ticket/12500> for details.
                 wxProgressDialog* ProgDlgPtr=NULL;
-                wxBusyCursor      BusyCursor;
+                // wxBusyCursor   BusyCursor;   // Argh! And this doesn't seem to work as well: The busy cursor remains active for the parent frame and thus the menu bar.
             #else
                 wxProgressDialog  ProgressDialog("Importing HL2 vmf file", "Almost done...", 100, this, wxPD_AUTO_HIDE | wxPD_APP_MODAL | wxPD_SMOOTH);
                 wxProgressDialog* ProgDlgPtr=&ProgressDialog;

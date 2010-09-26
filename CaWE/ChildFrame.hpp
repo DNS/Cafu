@@ -250,6 +250,9 @@ class ChildFrameT : public wxMDIChildFrame
     /// Used to prevent code duplication.
     void EndCompiling(const wxString& ConsoleMessage, const wxColour* Colour=wxGREEN);
 
+    /// Shows or hides the given AUI pane.
+    void PaneToggleShow(wxAuiPaneInfo& PaneInfo);
+
     // Event handlers.
     void OnClose          (wxCloseEvent&      CE);  ///< Event handler for close events, e.g. after a system close button or command or a call to Close() (also see ParentFrameT::OnClose()). See wx Window Deletion Overview for more details.
     void OnIdle           (wxIdleEvent&       IE);  ///< Idle event handler, for updating the console when an external compile process runs, update all 3D views and caching textures.

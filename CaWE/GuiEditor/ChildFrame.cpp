@@ -182,15 +182,15 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
 
     m_AUIManager.AddPane(m_WindowTree, wxAuiPaneInfo().
                          Name("WindowTree").Caption("Window Tree").
-                         Left());
+                         Left().Position(0));
 
     m_AUIManager.AddPane(m_WindowInspector, wxAuiPaneInfo().
                          Name("WindowInspector").Caption("Window Inspector").
-                         Right());
+                         Right().Position(0));
 
     m_AUIManager.AddPane(m_GuiInspector, wxAuiPaneInfo().
                          Name("GuiInspector").Caption("GUI Inspector").
-                         Right());
+                         Right().Position(1));
 
     // Create AUI toolbars.
     // Note: Right now those toolbars don't look to well under Windows Vista because of the new windows toolbar style that is used
@@ -235,23 +235,23 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
     ToolbarZoom->Realize();
 
     m_AUIManager.AddPane(ToolbarDocument, wxAuiPaneInfo().Name("ToolbarDocument").
-                         Caption("Toolbar Document").ToolbarPane().Top().Row(1).
+                         Caption("Toolbar Document").ToolbarPane().Top().Row(0).Position(0).
                          LeftDockable(false).RightDockable(false));
 
     m_AUIManager.AddPane(m_ToolbarTools, wxAuiPaneInfo().Name("ToolbarTools").
-                         Caption("Toolbar Tools").ToolbarPane().Top().Row(1).Position(1).
+                         Caption("Toolbar Tools").ToolbarPane().Top().Row(0).Position(1).
                          LeftDockable(false).RightDockable(false));
 
     m_AUIManager.AddPane(ToolbarWindow, wxAuiPaneInfo().Name("ToolbarWindow").
-                         Caption("Toolbar Window").ToolbarPane().Top().Row(1).Position(2).
+                         Caption("Toolbar Window").ToolbarPane().Top().Row(0).Position(2).
                          LeftDockable(false).RightDockable(false));
 
     m_AUIManager.AddPane(ToolbarText, wxAuiPaneInfo().Name("ToolbarText").
-                         Caption("Toolbar Text").ToolbarPane().Top().Row(1).Position(3).
+                         Caption("Toolbar Text").ToolbarPane().Top().Row(0).Position(3).
                          LeftDockable(false).RightDockable(false));
 
     m_AUIManager.AddPane(ToolbarZoom, wxAuiPaneInfo().Name("ToolbarZoom").
-                         Caption("Toolbar Zoom").ToolbarPane().Top().Row(1).Position(4).
+                         Caption("Toolbar Zoom").ToolbarPane().Top().Row(0).Position(4).
                          LeftDockable(false).RightDockable(false));
 
     // Set default perspective if not yet set.
