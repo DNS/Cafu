@@ -207,8 +207,9 @@ class ChildFrameT : public wxMDIChildFrame
     void All2DViews_Center(const Vector3fT& CenterPoint);
 
     // These two methods are needed because we cannot show or hide wxAUI panes from "outside" otherwise.
-    bool IsPaneShown(wxWindow* Pane);                   ///< Tells if the given pane (one of our toolbars or dialogs that is managed by wxAUI) is currently shown.
-    void ShowPane(wxWindow* Pane, bool DoShow=true);    ///< Shows or hides the given pane (one of our toolbars or dialogs that is managed by wxAUI).
+    bool IsPaneShown(wxWindow* Pane);                         ///< Tells if the given pane (one of our toolbars or dialogs that is managed by wxAUI) is currently shown.
+    void ShowPane(wxWindow* Pane, bool DoShow=true);          ///< Shows or hides the given pane (one of our toolbars or dialogs that is managed by wxAUI).
+    void SetCaption(wxWindow* Pane, const wxString& Caption); ///< Sets the caption of the AUI pane for the given window.
 
     ToolManagerT&            GetToolManager()         { return *m_ToolManager;        }  ///< Returns our tool manager.
     MaterialsToolbarT*       GetMaterialsToolbar()    { return m_MaterialsToolbar;    }  ///< Returns the Materials toolbar.

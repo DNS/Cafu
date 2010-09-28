@@ -545,19 +545,19 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
 
     ViewWindow3DT* CenterPaneView=new ViewWindow3DT(this, this, NULL, (ViewWindowT::ViewTypeT)wxConfigBase::Get()->Read("Splitter/ViewType00", ViewWindowT::VT_3D_FULL_MATS));
     m_AUIManager.AddPane(CenterPaneView, wxAuiPaneInfo().
-                         Name("Main View").Caption("Main View").
-                         CenterPane());
+                         Name("Main View").Caption(CenterPaneView->GetCaption()).
+                         CenterPane().CaptionVisible());
 
     ViewWindow2DT* ViewTopRight=new ViewWindow2DT(this, this, (ViewWindowT::ViewTypeT)wxConfigBase::Get()->Read("Splitter/ViewType01", ViewWindowT::VT_2D_XY));
     m_AUIManager.AddPane(ViewTopRight, wxAuiPaneInfo().
                          // Name("xy").
-                         Caption("2D View").
+                         Caption(ViewTopRight->GetCaption()).
                          DestroyOnClose().Right().Position(0));
 
     ViewWindow2DT* ViewBottomRight=new ViewWindow2DT(this, this, (ViewWindowT::ViewTypeT)wxConfigBase::Get()->Read("Splitter/ViewType11", ViewWindowT::VT_2D_XZ));
     m_AUIManager.AddPane(ViewBottomRight, wxAuiPaneInfo().
                          // Name("xy").
-                         Caption("2D View").
+                         Caption(ViewBottomRight->GetCaption()).
                          DestroyOnClose().Right().Position(1));
 
 
@@ -706,6 +706,17 @@ void ChildFrameT::ShowPane(wxWindow* Pane, bool DoShow)
     if (DoShow && PaneInfo.IsFloating() && PaneInfo.floating_pos==wxDefaultPosition)
         PaneInfo.FloatingPosition(ClientToScreen(wxPoint(20, 20)));
 
+    m_AUIManager.Update();
+}
+
+
+void ChildFrameT::SetCaption(wxWindow* Pane, const wxString& Caption)
+{
+    wxAuiPaneInfo& PaneInfo=m_AUIManager.GetPane(Pane);
+
+    if (!PaneInfo.IsOk()) return;
+
+    PaneInfo.Caption(Caption);
     m_AUIManager.Update();
 }
 

@@ -1372,5 +1372,6 @@ void ViewWindow2DT::OnChoiceSelViewType(wxCommandEvent& CE)
             break;
     }
 
+    m_ChildFrame->SetCaption(this, GetCaption());
     Refresh();
 }

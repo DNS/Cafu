@@ -60,6 +60,7 @@ class ViewWindowT : public ObserverT, public ToolsObserverT
     virtual wxWindow* GetWindow()=0;            ///< This function is not const because we can mutate this(!) object via the returned pointer.
     virtual ViewTypeT GetViewType() const=0;    ///< Returns the view type of this view window.
     virtual AxesInfoT GetAxesInfo() const=0;    ///< This method returns the axes info for this window. In the case of a 3D window, it computes the 2D axes info that this view is closest to.
+    wxString          GetCaption() const;       ///< Returns the caption that the AUI pane for this window should have.
     ChildFrameT*      GetChildFrame() const;    ///< Returns the child frame that owns this view (that is, our parent).
     MapDocumentT&     GetMapDoc() const;        ///< The document that is associated with this view window (or more precisely, our child frame).
 

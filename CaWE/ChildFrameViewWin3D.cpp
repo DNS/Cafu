@@ -491,6 +491,7 @@ void ViewWindow3DT::OnKeyDown(wxKeyEvent& KE)
             if (m_ViewType>VT_3D_FULL_MATS) m_ViewType=VT_3D_WIREFRAME;
 
             m_ViewTypeChoice->SetSelection(m_ViewType-VT_3D_WIREFRAME);
+            m_ChildFrame->SetCaption(this, GetCaption());
             break;
         }
 
@@ -1095,4 +1096,6 @@ void ViewWindow3DT::OnChoiceSelViewType(wxCommandEvent& CE)
 
     wxASSERT(m_ViewType>=VT_3D_WIREFRAME);
     if (m_ViewType<VT_3D_WIREFRAME) m_ViewType=VT_3D_WIREFRAME;
+
+    m_ChildFrame->SetCaption(this, GetCaption());
 }
