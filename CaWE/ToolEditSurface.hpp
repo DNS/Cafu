@@ -50,7 +50,7 @@ class ToolEditSurfaceT : public ToolT
     bool OnKeyDown3D   (ViewWindow3DT& ViewWindow, wxKeyEvent&   KE);
     bool OnKeyUp3D     (ViewWindow3DT& ViewWindow, wxKeyEvent&   KE);
     bool OnLMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME);
-    bool OnRMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME);
+    bool OnRMouseUp3D  (ViewWindow3DT& ViewWindow, wxMouseEvent& ME);
     bool OnMouseMove3D (ViewWindow3DT& ViewWindow, wxMouseEvent& ME);
 
     bool UpdateStatusBar(ChildFrameT* ChildFrame) const;

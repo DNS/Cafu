@@ -68,13 +68,13 @@ class ToolSelectionT : public ToolT, public ObserverT
     bool OnLMouseDown2D (ViewWindow2DT& ViewWindow, wxMouseEvent&       ME);
     bool OnLMouseUp2D   (ViewWindow2DT& ViewWindow, wxMouseEvent&       ME);
     bool OnMouseMove2D  (ViewWindow2DT& ViewWindow, wxMouseEvent&       ME);
-    bool OnContextMenu2D(ViewWindow2DT& ViewWindow, wxContextMenuEvent& CE);
+    int  OnContextMenu2D(ViewWindow2DT& ViewWindow, wxContextMenuEvent& CE, wxMenu& Menu);
 
     bool OnKeyDown3D    (ViewWindow3DT& ViewWindow, wxKeyEvent&         KE);
     bool OnLMouseDown3D (ViewWindow3DT& ViewWindow, wxMouseEvent&       ME);
     bool OnLMouseUp3D   (ViewWindow3DT& ViewWindow, wxMouseEvent&       ME);
     bool OnMouseMove3D  (ViewWindow3DT& ViewWindow, wxMouseEvent&       ME);
-    bool OnContextMenu3D(ViewWindow3DT& ViewWindow, wxContextMenuEvent& CE);
+    int  OnContextMenu3D(ViewWindow3DT& ViewWindow, wxContextMenuEvent& CE, wxMenu& Menu);
 
     void RenderTool2D(Renderer2DT& Renderer) const;
     void RenderTool3D(Renderer3DT& Renderer) const;
@@ -119,11 +119,19 @@ class ToolSelectionT : public ToolT, public ObserverT
         TS_BOX_TRAFO
     };
 
+    /// IDs used for the items in our RMB context menus.
+    enum
+    {
+        ID_CREATE_MODEL=wxID_HIGHEST+1000,
+        ID_CREATE_PLANT
+    };
+
     friend class CycleHitsTimerT;
 
     void OnEscape(ViewWindowT& ViewWindow);     ///< Handles the ESC key event in the 2D and 3D views.
     void UpdateTrafoBox();
-    void CreatePrimitive(const Vector3fT& WorldPos, int ID);
+    void CreateModel(const Vector3fT& WorldPos);
+    void CreatePlant(const Vector3fT& WorldPos);
     void NudgeSelection(const AxesInfoT& AxesInfo, const wxKeyEvent& KE);
     void GetToggleEffects(MapElementT* Elem, ArrayT<MapElementT*>& RemoveFromSel, ArrayT<MapElementT*>& AddToSel) const;
     void SetHitList(const ArrayT<MapElementT*>& NewHits, bool IsControlDown);

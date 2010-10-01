@@ -121,7 +121,7 @@ class ToolTerrainEditorT : public ToolT, public ObserverT
     bool OnLMouseUp2D   (ViewWindow2DT& ViewWindow, wxMouseEvent&       ME);
     bool OnMMouseUp2D   (ViewWindow2DT& ViewWindow, wxMouseEvent&       ME);
     bool OnMouseMove2D  (ViewWindow2DT& ViewWindow, wxMouseEvent&       ME);
-    bool OnContextMenu2D(ViewWindow2DT& ViewWindow, wxContextMenuEvent& CE);
+    int  OnContextMenu2D(ViewWindow2DT& ViewWindow, wxContextMenuEvent& CE, wxMenu& Menu);
 
     bool OnKeyDown3D    (ViewWindow3DT& ViewWindow, wxKeyEvent&         KE);
     bool OnKeyUp3D      (ViewWindow3DT& ViewWindow, wxKeyEvent&         KE);

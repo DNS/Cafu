@@ -81,9 +81,6 @@ class ToolT
     /// Returns the options bar window associated with this tool. NULL if no options bar has been assigned.
     virtual wxWindow* GetOptionsBar() { return NULL; }
 
-    // /// Returns the menu associated with and specific to this tool. NULL if this tool has no menu.
-    // virtual wxMenu* GetMenu() { return NULL; }
-
     void Activate(ToolT* OldTool);
     void Deactivate(ToolT* NewTool);
     bool IsActiveTool() const { return m_IsActiveTool; }
@@ -106,7 +103,7 @@ class ToolT
     virtual bool OnRMouseUp2D   (ViewWindow2DT& ViewWindow, wxMouseEvent&       ME) { return false; }
     virtual bool OnMouseWheel2D (ViewWindow2DT& ViewWindow, wxMouseEvent&       ME) { return false; }
     virtual bool OnMouseMove2D  (ViewWindow2DT& ViewWindow, wxMouseEvent&       ME) { return false; }
-    virtual bool OnContextMenu2D(ViewWindow2DT& ViewWindow, wxContextMenuEvent& CE) { return false; }
+    virtual int  OnContextMenu2D(ViewWindow2DT& ViewWindow, wxContextMenuEvent& CE, wxMenu& Menu);
 
     // Event handlers for events chain-forwarded by the 3D view windows.
     virtual bool OnKeyDown3D    (ViewWindow3DT& ViewWindow, wxKeyEvent&         KE) { return false; }
@@ -120,7 +117,7 @@ class ToolT
     virtual bool OnRMouseUp3D   (ViewWindow3DT& ViewWindow, wxMouseEvent&       ME) { return false; }
     virtual bool OnMouseWheel3D (ViewWindow3DT& ViewWindow, wxMouseEvent&       ME) { return false; }
     virtual bool OnMouseMove3D  (ViewWindow3DT& ViewWindow, wxMouseEvent&       ME) { return false; }
-    virtual bool OnContextMenu3D(ViewWindow3DT& ViewWindow, wxContextMenuEvent& CE) { return false; }
+    virtual int  OnContextMenu3D(ViewWindow3DT& ViewWindow, wxContextMenuEvent& CE, wxMenu& Menu);
     virtual bool OnIdle3D       (ViewWindow3DT& ViewWindow, const wxPoint&   Point) { return false; }
 
     // The TypeSys related declarations for this class.

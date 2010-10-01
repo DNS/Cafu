@@ -740,9 +740,26 @@ void ViewWindow3DT::OnContextMenu(wxContextMenuEvent& CE)
     // namely during the continued event processing between the call to Destroy() and our final deletion.
     if (&GetMapDoc()==NULL) { CE.Skip(); return; }
 
-    // Give the active tool a chance to intercept the event.
-    ToolT* Tool=m_ChildFrame->GetToolManager().GetActiveTool();
-    if (Tool && Tool->OnContextMenu3D(*this, CE)) return;
+    wxMenu Menu;
+
+    Menu.AppendRadioItem(VT_3D_WIREFRAME,  "3D Wireframe" );
+    Menu.AppendRadioItem(VT_3D_FLAT,       "3D Flat"      );
+    Menu.AppendRadioItem(VT_3D_EDIT_MATS,  "3D Edit Mats" );
+    Menu.AppendRadioItem(VT_3D_FULL_MATS,  "3D Full Mats" );
+    Menu.AppendRadioItem(VT_3D_LM_GRID,    "3D LM Grid"   );
+    Menu.AppendRadioItem(VT_3D_LM_PREVIEW, "3D LM Preview");
+    Menu.Check(GetViewType(), true);
+
+    ToolT*    Tool     =m_ChildFrame->GetToolManager().GetActiveTool();
+    const int MenuSelID=Tool ? Tool->OnContextMenu3D(*this, CE, Menu) : GetPopupMenuSelectionFromUser(Menu);
+
+    if (MenuSelID>=VT_3D_WIREFRAME && MenuSelID<=VT_3D_LM_PREVIEW)
+    {
+        m_ViewType=ViewTypeT(MenuSelID);
+
+        m_ViewTypeChoice->SetSelection(m_ViewType-VT_3D_WIREFRAME);
+        m_ChildFrame->SetCaption(this, GetCaption());
+    }
 }
 
 

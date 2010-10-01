@@ -216,14 +216,19 @@ bool ToolEditSurfaceT::OnLMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& M
 }
 
 
-bool ToolEditSurfaceT::OnRMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
+bool ToolEditSurfaceT::OnRMouseUp3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
 {
     const ArrayT<ViewWindow3DT::HitInfoT> Hits=ViewWindow.GetElementsAt(ME.GetPosition());
 
+    // This is in the RMB *up* instead of the RMB *down* handler in order to not have the context menu shown
+    // when the user hit something for an apply-click.
     if (Hits.Size()>0)
+    {
         ViewWindow.GetChildFrame()->GetSurfacePropsDialog()->ApplyClick(ViewWindow, Hits[0].Object, ME.ShiftDown() ? EditSurfacePropsDialogT::ALL_FACES : Hits[0].FaceNr);
+        return true;
+    }
 
-    return true;
+    return false;
 }
 
 

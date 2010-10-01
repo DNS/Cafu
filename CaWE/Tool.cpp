@@ -22,6 +22,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Tool.hpp"
+#include "ChildFrameViewWin2D.hpp"
+#include "ChildFrameViewWin3D.hpp"
 #include "ToolManager.hpp"
 #include "MapDocument.hpp"
 
@@ -78,4 +80,16 @@ void ToolT::Deactivate(ToolT* NewTool)
 {
     OnDeactivate(NewTool);
     m_IsActiveTool=false;
+}
+
+
+int ToolT::OnContextMenu2D(ViewWindow2DT& ViewWindow, wxContextMenuEvent& CE, wxMenu& Menu)
+{
+    return ViewWindow.GetPopupMenuSelectionFromUser(Menu);
+}
+
+
+int ToolT::OnContextMenu3D(ViewWindow3DT& ViewWindow, wxContextMenuEvent& CE, wxMenu& Menu)
+{
+    return ViewWindow.GetPopupMenuSelectionFromUser(Menu);
 }

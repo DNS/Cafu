@@ -824,62 +824,41 @@ bool ToolTerrainEditorT::OnMouseMove2D(ViewWindow2DT& ViewWindow, wxMouseEvent& 
 }
 
 
-class TerrainEditorContextMenu2DT : public wxMenu
+int ToolTerrainEditorT::OnContextMenu2D(ViewWindow2DT& ViewWindow, wxContextMenuEvent& CE, wxMenu& Menu)
 {
-    public:
-
     enum
     {
-        ID_MENU_1TO1_ZOOM=wxID_HIGHEST+1,
+        ID_MENU_1TO1_ZOOM=wxID_HIGHEST+1000,
         ID_MENU_COLOR_GREY,
         ID_MENU_COLOR_RAINBOW,
         ID_MENU_COLOR_DEBUG
     };
 
-    TerrainEditorContextMenu2DT()
-        : wxMenu("2D view options"),
-          ID(-1)
+    wxMenu* SubMenuViewColor=new wxMenu();
+    SubMenuViewColor->Append(ID_MENU_COLOR_GREY, "Greyscale");
+    SubMenuViewColor->Append(ID_MENU_COLOR_RAINBOW, "Rainbow");
+    SubMenuViewColor->Append(ID_MENU_COLOR_DEBUG, "Debug");
+
+    if (Menu.GetMenuItemCount()>0) Menu.AppendSeparator();
+    Menu.Append(ID_MENU_1TO1_ZOOM, "Zoom terrain 1:1")->Enable(m_TerrainCopy!=NULL);
+    Menu.AppendSubMenu(SubMenuViewColor, "Terrain color scheme");
+
+    const int MenuSelID=ViewWindow.GetPopupMenuSelectionFromUser(Menu);
+
+    switch (MenuSelID)
     {
-        wxMenu* SubMenuViewColor=new wxMenu();
-        SubMenuViewColor->Append(ID_MENU_COLOR_GREY, "Greyscale");
-        SubMenuViewColor->Append(ID_MENU_COLOR_RAINBOW, "Rainbow");
-        SubMenuViewColor->Append(ID_MENU_COLOR_DEBUG, "Debug");
-
-        // Create context menus.
-        this->Append(ID_MENU_1TO1_ZOOM, "Height map 1:1 zoom");
-        this->AppendSubMenu(SubMenuViewColor, "View color");
-    }
-
-    void OnMenuClick(wxCommandEvent& CE) { ID=CE.GetId(); }
-
-    int ID;
-
-    DECLARE_EVENT_TABLE()
-};
-
-
-BEGIN_EVENT_TABLE(TerrainEditorContextMenu2DT, wxMenu)
-    EVT_MENU(wxID_ANY, TerrainEditorContextMenu2DT::OnMenuClick)
-END_EVENT_TABLE()
-
-
-bool ToolTerrainEditorT::OnContextMenu2D(ViewWindow2DT& ViewWindow, wxContextMenuEvent& CE)
-{
-    TerrainEditorContextMenu2DT ContextMenu2D;
-
-    ViewWindow.PopupMenu(&ContextMenu2D);
-
-    switch (ContextMenu2D.ID)
-    {
-        case TerrainEditorContextMenu2DT::ID_MENU_1TO1_ZOOM:
+        case ID_MENU_1TO1_ZOOM:
         {
-            int TerrainSizeX=m_TerrainCopy->m_TerrainBounds.Max.x-m_TerrainCopy->m_TerrainBounds.Min.x;
-            ViewWindow.SetZoom(float(m_TerrainCopy->GetResolution())/float(TerrainSizeX));
-            m_ToolMan.UpdateAllObservers(this, UPDATE_NOW);
+            if (m_TerrainCopy)
+            {
+                int TerrainSizeX=m_TerrainCopy->m_TerrainBounds.Max.x-m_TerrainCopy->m_TerrainBounds.Min.x;
+                ViewWindow.SetZoom(float(m_TerrainCopy->GetResolution())/float(TerrainSizeX));
+                m_ToolMan.UpdateAllObservers(this, UPDATE_NOW);
+            }
             break;
         }
 
-        case TerrainEditorContextMenu2DT::ID_MENU_COLOR_GREY:
+        case ID_MENU_COLOR_GREY:
         {
             m_CurrentColorGradient=GREY;
             m_RenderUpdateBitmap=true;
@@ -887,7 +866,7 @@ bool ToolTerrainEditorT::OnContextMenu2D(ViewWindow2DT& ViewWindow, wxContextMen
             break;
         }
 
-        case TerrainEditorContextMenu2DT::ID_MENU_COLOR_RAINBOW:
+        case ID_MENU_COLOR_RAINBOW:
         {
             m_CurrentColorGradient=RAINBOW;
             m_RenderUpdateBitmap=true;
@@ -895,7 +874,7 @@ bool ToolTerrainEditorT::OnContextMenu2D(ViewWindow2DT& ViewWindow, wxContextMen
             break;
         }
 
-        case TerrainEditorContextMenu2DT::ID_MENU_COLOR_DEBUG:
+        case ID_MENU_COLOR_DEBUG:
         {
             m_CurrentColorGradient=DEBUG_COLOR;
             m_RenderUpdateBitmap=true;
@@ -904,7 +883,7 @@ bool ToolTerrainEditorT::OnContextMenu2D(ViewWindow2DT& ViewWindow, wxContextMen
         }
     }
 
-    return true;
+    return MenuSelID;
 }
 
 

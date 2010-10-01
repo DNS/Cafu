@@ -196,18 +196,6 @@ bool ToolNewBezierPatchT::OnMouseMove2D(ViewWindow2DT& ViewWindow, wxMouseEvent&
 }
 
 
-bool ToolNewBezierPatchT::OnContextMenu2D(ViewWindow2DT& ViewWindow, wxContextMenuEvent& CE)
-{
-    // If the CE event occured outside of ViewWindow, don't handle it.
-    if (!wxRect(wxPoint(0, 0), ViewWindow.GetClientSize()).Contains(ViewWindow.ScreenToClient(CE.GetPosition()))) return false;
-
-    // ...
-    // return true;
-
-    return false;
-}
-
-
 bool ToolNewBezierPatchT::OnKeyDown3D(ViewWindow3DT& ViewWindow, wxKeyEvent& KE)
 {
     return OnKeyDown(ViewWindow, KE);

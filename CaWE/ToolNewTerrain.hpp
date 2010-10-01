@@ -45,15 +45,14 @@ class ToolNewTerrainT : public ToolT
     int       GetWxEventID() const { return ChildFrameT::ID_MENU_TOOLS_TOOL_NEWTERRAIN; }
     wxWindow* GetOptionsBar();
 
-    bool OnKeyDown2D    (ViewWindow2DT& ViewWindow, wxKeyEvent&         KE);
-    bool OnLMouseDown2D (ViewWindow2DT& ViewWindow, wxMouseEvent&       ME);
-    bool OnLMouseUp2D   (ViewWindow2DT& ViewWindow, wxMouseEvent&       ME);
-    bool OnMouseMove2D  (ViewWindow2DT& ViewWindow, wxMouseEvent&       ME);
-    bool OnContextMenu2D(ViewWindow2DT& ViewWindow, wxContextMenuEvent& CE);
+    bool OnKeyDown2D   (ViewWindow2DT& ViewWindow, wxKeyEvent&   KE);
+    bool OnLMouseDown2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME);
+    bool OnLMouseUp2D  (ViewWindow2DT& ViewWindow, wxMouseEvent& ME);
+    bool OnMouseMove2D (ViewWindow2DT& ViewWindow, wxMouseEvent& ME);
 
-    bool OnKeyDown3D    (ViewWindow3DT& ViewWindow, wxKeyEvent&         KE);
-    bool OnLMouseDown3D (ViewWindow3DT& ViewWindow, wxMouseEvent&       ME);
-    bool OnMouseMove3D  (ViewWindow3DT& ViewWindow, wxMouseEvent&       ME);
+    bool OnKeyDown3D   (ViewWindow3DT& ViewWindow, wxKeyEvent&   KE);
+    bool OnLMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME);
+    bool OnMouseMove3D (ViewWindow3DT& ViewWindow, wxMouseEvent& ME);
 
     void RenderTool2D(Renderer2DT& Renderer) const;
     void RenderTool3D(Renderer3DT& Renderer) const;

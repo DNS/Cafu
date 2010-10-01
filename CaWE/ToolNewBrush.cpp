@@ -214,36 +214,19 @@ bool ToolNewBrushT::OnMouseMove2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
 }
 
 
-bool ToolNewBrushT::OnContextMenu2D(ViewWindow2DT& ViewWindow, wxContextMenuEvent& CE)
-{
-    // If the CE event occured outside of ViewWindow, don't handle it.
-    if (!wxRect(wxPoint(0, 0), ViewWindow.GetClientSize()).Contains(ViewWindow.ScreenToClient(CE.GetPosition()))) return false;
-
-    // ...
-    // return true;
-
-    return false;
-}
-
-
 bool ToolNewBrushT::OnKeyDown3D(ViewWindow3DT& ViewWindow, wxKeyEvent& KE)
 {
     return OnKeyDown(ViewWindow, KE);
 }
 
 
-bool ToolNewBrushT::OnLMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
-{
-    return false;
-}
-
-
-bool ToolNewBrushT::OnRMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
+bool ToolNewBrushT::OnRMouseUp3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
 {
     if (ME.ShiftDown() && ME.ControlDown())
     {
         // Create a brush in the shape of the current view frustum.
         // This has little practical relevance for the user, it is just a tool for debugging the view frustum computations.
+        // It is in the RMB *up* instead of the RMB *down* handler in order to not have the context menu shown.
         ArrayT<Plane3fT> Planes;
 
         Planes.PushBackEmpty(6);

@@ -87,49 +87,6 @@ void CycleHitsTimerT::Notify()
 }
 
 
-class SelectionContextMenuT : public wxMenu
-{
-    public:
-
-    enum
-    {
-        ID_MENU_CREATE_MODEL=wxID_HIGHEST+1,
-        ID_MENU_CREATE_PLANT
-    };
-
-    SelectionContextMenuT()
-        : wxMenu(),
-          ID(-1)
-    {
-        wxMenu* SubMenuCreate=new wxMenu();
-        SubMenuCreate->Append(ID_MENU_CREATE_MODEL,  "Model");
-        SubMenuCreate->Append(ID_MENU_CREATE_PLANT,  "Plant");
-
-        // Create context menus.
-        this->AppendSubMenu(SubMenuCreate, "Create");
-    }
-
-    int GetClickedMenuItem() { return ID; }
-
-
-    protected:
-
-    void OnMenuClick(wxCommandEvent& CE) { ID=CE.GetId(); }
-
-
-    private:
-
-    int ID;
-
-    DECLARE_EVENT_TABLE()
-};
-
-
-BEGIN_EVENT_TABLE(SelectionContextMenuT, wxMenu)
-    EVT_MENU(wxID_ANY, SelectionContextMenuT::OnMenuClick)
-END_EVENT_TABLE()
-
-
 /*** Begin of TypeSys related definitions for this class. ***/
 
 void* ToolSelectionT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
@@ -546,34 +503,38 @@ bool ToolSelectionT::OnMouseMove2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
 }
 
 
-bool ToolSelectionT::OnContextMenu2D(ViewWindow2DT& ViewWindow, wxContextMenuEvent& CE)
+int ToolSelectionT::OnContextMenu2D(ViewWindow2DT& ViewWindow, wxContextMenuEvent& CE, wxMenu& Menu)
 {
-    if (m_ToolState!=TS_IDLE) return false;
+    if (m_ToolState!=TS_IDLE) return wxID_NONE;
 
-    SelectionContextMenuT ContextMenu;
+    wxMenu* SubMenuCreate=new wxMenu();
+    SubMenuCreate->Append(ID_CREATE_MODEL, "Model");
+    SubMenuCreate->Append(ID_CREATE_PLANT, "Plant");
 
-    ViewWindow.PopupMenu(&ContextMenu);
+    if (Menu.GetMenuItemCount()>0) Menu.AppendSeparator();
+    Menu.AppendSubMenu(SubMenuCreate, "Create");
 
-    switch (ContextMenu.GetClickedMenuItem())
+    const int MenuSelID=ViewWindow.GetPopupMenuSelectionFromUser(Menu);
+
+    if (MenuSelID>=ID_CREATE_MODEL)
     {
-        case SelectionContextMenuT::ID_MENU_CREATE_MODEL:
-        case SelectionContextMenuT::ID_MENU_CREATE_PLANT:
+        wxPoint MousePosWin=ViewWindow.ScreenToClient(CE.GetPosition());
+
+        if (CE.GetPosition()==wxDefaultPosition)
         {
-            wxPoint MousePosWin=ViewWindow.ScreenToClient(CE.GetPosition());
+            MousePosWin=wxPoint(ViewWindow.GetClientSize().GetWidth()/2, ViewWindow.GetClientSize().GetHeight()/2);
+        }
 
-            if (CE.GetPosition()==wxDefaultPosition)
-            {
-                MousePosWin=wxPoint(ViewWindow.GetClientSize().GetWidth()/2, ViewWindow.GetClientSize().GetHeight()/2);
-            }
+        const Vector3fT WorldPos=m_MapDoc.SnapToGrid(ViewWindow.WindowToWorld(MousePosWin, m_MapDoc.GetMostRecentSelBB().Min.z), false /*Toogle?*/, -1 /*Snap all axes.*/);
 
-            const Vector3fT WorldPos=m_MapDoc.SnapToGrid(ViewWindow.WindowToWorld(MousePosWin, m_MapDoc.GetMostRecentSelBB().Min.z), false /*Toogle?*/, -1 /*Snap all axes.*/);
-
-            CreatePrimitive(WorldPos, ContextMenu.GetClickedMenuItem());
-            break;
+        switch (MenuSelID)
+        {
+            case ID_CREATE_MODEL: CreateModel(WorldPos); break;
+            case ID_CREATE_PLANT: CreatePlant(WorldPos); break;
         }
     }
 
-    return true;
+    return MenuSelID;
 }
 
 
@@ -656,38 +617,41 @@ bool ToolSelectionT::OnMouseMove3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
 }
 
 
-bool ToolSelectionT::OnContextMenu3D(ViewWindow3DT& ViewWindow, wxContextMenuEvent& CE)
+int ToolSelectionT::OnContextMenu3D(ViewWindow3DT& ViewWindow, wxContextMenuEvent& CE, wxMenu& Menu)
 {
-    if (m_ToolState!=TS_IDLE) return false;
+    if (m_ToolState!=TS_IDLE) return wxID_NONE;
 
-    SelectionContextMenuT ContextMenu;
+    wxMenu* SubMenuCreate=new wxMenu();
+    SubMenuCreate->Append(ID_CREATE_MODEL, "Model");
+    SubMenuCreate->Append(ID_CREATE_PLANT, "Plant");
 
-    ViewWindow.PopupMenu(&ContextMenu);
+    if (Menu.GetMenuItemCount()>0) Menu.AppendSeparator();
+    Menu.AppendSubMenu(SubMenuCreate, "Create");
 
-    switch (ContextMenu.GetClickedMenuItem())
+    const int MenuSelID=ViewWindow.GetPopupMenuSelectionFromUser(Menu);
+
+    if (MenuSelID>=ID_CREATE_MODEL)
     {
-        case SelectionContextMenuT::ID_MENU_CREATE_MODEL:
-        case SelectionContextMenuT::ID_MENU_CREATE_PLANT:
+        wxPoint MousePosWin=ViewWindow.ScreenToClient(CE.GetPosition());
+
+        if (CE.GetPosition()==wxDefaultPosition)
         {
-            wxPoint MousePosWin=ViewWindow.ScreenToClient(CE.GetPosition());
+            MousePosWin=wxPoint(ViewWindow.GetClientSize().GetWidth()/2, ViewWindow.GetClientSize().GetHeight()/2);
+        }
 
-            if (CE.GetPosition()==wxDefaultPosition)
-            {
-                MousePosWin=wxPoint(ViewWindow.GetClientSize().GetWidth()/2, ViewWindow.GetClientSize().GetHeight()/2);
-            }
+        const ArrayT<ViewWindow3DT::HitInfoT> Hits=ViewWindow.GetElementsAt(MousePosWin);
+        const Vector3fT ViewDir=ViewWindow.WindowToWorld(MousePosWin)-ViewWindow.GetCamera().Pos;
+        const float     Depth  =(Hits.Size()==0) ? 8.0f*length(ViewDir) : Hits[0].Depth;
+        const Vector3fT HitPos =ViewWindow.GetCamera().Pos + normalizeOr0(ViewDir)*Depth;
 
-            const ArrayT<ViewWindow3DT::HitInfoT> Hits=ViewWindow.GetElementsAt(MousePosWin);
-
-            const Vector3fT ViewDir=ViewWindow.WindowToWorld(MousePosWin)-ViewWindow.GetCamera().Pos;
-            const float     Depth  =(Hits.Size()==0) ? 8.0f*length(ViewDir) : Hits[0].Depth;
-            const Vector3fT HitPos =ViewWindow.GetCamera().Pos + normalizeOr0(ViewDir)*Depth;
-
-            CreatePrimitive(HitPos, ContextMenu.GetClickedMenuItem());
-            break;
+        switch (MenuSelID)
+        {
+            case ID_CREATE_MODEL: CreateModel(HitPos); break;
+            case ID_CREATE_PLANT: CreatePlant(HitPos); break;
         }
     }
 
-    return true;
+    return MenuSelID;
 }
 
 
@@ -913,39 +877,32 @@ void ToolSelectionT::UpdateTrafoBox()
 }
 
 
-void ToolSelectionT::CreatePrimitive(const Vector3fT& WorldPos, int ID)
+void ToolSelectionT::CreateModel(const Vector3fT& WorldPos)
 {
-    switch(ID)
-    {
-        case SelectionContextMenuT::ID_MENU_CREATE_PLANT:
-        {
-            wxFileName PlantDescrFile(wxFileSelector("Select a plant description", m_MapDoc.GetGameConfig()->ModDir+"/Plants/", "", "", "Plant Descriptions (*.cpd)|*.cpd|All Files (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST));
+    // TODO Can we choose the scale factor in a way to fit the model into the height of the bounding box?
+    wxFileName ModelFile(wxFileSelector("Select a model file", m_MapDoc.GetGameConfig()->ModDir+"/Models/", "", "", "All Files (*.*)|*.*|Model files (*.mdl)|*.mdl|Model Files (*.ase)|*.ase|Model Files (*.dlod)|*.dlod", wxFD_OPEN | wxFD_FILE_MUST_EXIST));
 
-            if (PlantDescrFile=="") return;
+    if (ModelFile=="") return;
 
-            PlantDescrFile.MakeRelativeTo(m_MapDoc.GetGameConfig()->ModDir);
+    ModelFile.MakeRelativeTo(m_MapDoc.GetGameConfig()->ModDir);
+    MapModelT* NewModel=new MapModelT(m_MapDoc, ModelFile.GetFullPath(wxPATH_UNIX), WorldPos);
 
-            PlantDescriptionT* PlantDescr=m_MapDoc.GetPlantDescrMan().GetPlantDescription(std::string(PlantDescrFile.GetFullPath(wxPATH_UNIX)));
-            MapPlantT*         NewPlant  =new MapPlantT(PlantDescr, PlantDescr->RandomSeed, WorldPos);
+    m_MapDoc.GetHistory().SubmitCommand(new CommandAddPrimT(m_MapDoc, NewModel, m_MapDoc.GetEntities()[0], "new model"));
+}
 
-            m_MapDoc.GetHistory().SubmitCommand(new CommandAddPrimT(m_MapDoc, NewPlant, m_MapDoc.GetEntities()[0], "new plant"));
-            break;
-        }
 
-        case SelectionContextMenuT::ID_MENU_CREATE_MODEL:
-        {
-            // TODO Can we choose the scale factor in a way to fit the model into the height of the bounding box?
-            wxFileName ModelFile(wxFileSelector("Select a model file", m_MapDoc.GetGameConfig()->ModDir+"/Models/", "", "", "All Files (*.*)|*.*|Model files (*.mdl)|*.mdl|Model Files (*.ase)|*.ase|Model Files (*.dlod)|*.dlod", wxFD_OPEN | wxFD_FILE_MUST_EXIST));
+void ToolSelectionT::CreatePlant(const Vector3fT& WorldPos)
+{
+    wxFileName PlantDescrFile(wxFileSelector("Select a plant description", m_MapDoc.GetGameConfig()->ModDir+"/Plants/", "", "", "Plant Descriptions (*.cpd)|*.cpd|All Files (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST));
 
-            if (ModelFile=="") return;
+    if (PlantDescrFile=="") return;
 
-            ModelFile.MakeRelativeTo(m_MapDoc.GetGameConfig()->ModDir);
-            MapModelT* NewModel=new MapModelT(m_MapDoc, ModelFile.GetFullPath(wxPATH_UNIX), WorldPos);
+    PlantDescrFile.MakeRelativeTo(m_MapDoc.GetGameConfig()->ModDir);
 
-            m_MapDoc.GetHistory().SubmitCommand(new CommandAddPrimT(m_MapDoc, NewModel, m_MapDoc.GetEntities()[0], "new model"));
-            break;
-        }
-    }
+    PlantDescriptionT* PlantDescr=m_MapDoc.GetPlantDescrMan().GetPlantDescription(std::string(PlantDescrFile.GetFullPath(wxPATH_UNIX)));
+    MapPlantT*         NewPlant  =new MapPlantT(PlantDescr, PlantDescr->RandomSeed, WorldPos);
+
+    m_MapDoc.GetHistory().SubmitCommand(new CommandAddPrimT(m_MapDoc, NewPlant, m_MapDoc.GetEntities()[0], "new plant"));
 }
 
 

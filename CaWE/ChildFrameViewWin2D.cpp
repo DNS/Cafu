@@ -1266,12 +1266,29 @@ void ViewWindow2DT::OnContextMenu(wxContextMenuEvent& CE)
 
     if (m_MouseDragTimer.IsRunning()) return;
 
-    // Give the active tool a chance to intercept the event.
-    ToolT* Tool=m_ChildFrame->GetToolManager().GetActiveTool();
+    wxMenu Menu;
 
-    if (Tool)
+    Menu.AppendRadioItem(VT_2D_XY, "2D Top (X/Y)");
+    Menu.AppendRadioItem(VT_2D_YZ, "2D Side (Y/Z)");
+    Menu.AppendRadioItem(VT_2D_XZ, "2D Front (X/Z)");
+    Menu.Check(GetViewType(), true);
+
+    ToolT*    Tool     =m_ChildFrame->GetToolManager().GetActiveTool();
+    const int MenuSelID=Tool ? Tool->OnContextMenu2D(*this, CE, Menu) : GetPopupMenuSelectionFromUser(Menu);
+
+    switch (MenuSelID)
     {
-        if (Tool->OnContextMenu2D(*this, CE)) return;
+        case VT_2D_XY:
+        case VT_2D_YZ:
+        case VT_2D_XZ:
+            // For a proper setup, we both have to select the proper item...
+            m_ViewTypeChoice->SetSelection(MenuSelID-VT_2D_XY);
+
+            // ... *and* to process the related event.
+            wxCommandEvent CE;
+            CE.SetClientData((void*)MenuSelID);
+            OnChoiceSelViewType(CE);
+            break;
     }
 }
 
