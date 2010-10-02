@@ -1304,7 +1304,7 @@ void ViewWindow2DT::OnScroll(wxScrollWinEvent& SE)
     int PageSize    =SE.GetOrientation()==wxHORIZONTAL ? GetClientSize().GetWidth() : GetClientSize().GetHeight();
     int ScrollAmount=0;
 
-    // switch-case doesn't work, as the events types are no constants.
+    // switch-case doesn't work, as the event types are no constants.
          if (SE.GetEventType()==wxEVT_SCROLLWIN_TOP         ) { /*Should we implement this?*/ }
     else if (SE.GetEventType()==wxEVT_SCROLLWIN_BOTTOM      ) { /*Should we implement this?*/ }
     else if (SE.GetEventType()==wxEVT_SCROLLWIN_LINEUP      ) { ScrollAmount=-PageSize/4; }
@@ -1312,7 +1312,15 @@ void ViewWindow2DT::OnScroll(wxScrollWinEvent& SE)
     else if (SE.GetEventType()==wxEVT_SCROLLWIN_PAGEUP      ) { ScrollAmount=-PageSize/2; }
     else if (SE.GetEventType()==wxEVT_SCROLLWIN_PAGEDOWN    ) { ScrollAmount= PageSize/2; }
     else if (SE.GetEventType()==wxEVT_SCROLLWIN_THUMBTRACK  ) { /*Intentionally do nothing here.*/ }
-    else if (SE.GetEventType()==wxEVT_SCROLLWIN_THUMBRELEASE) { ScrollAmount=SE.GetPosition()-GetScrollPos(SE.GetOrientation()); }
+    else if (SE.GetEventType()==wxEVT_SCROLLWIN_THUMBRELEASE)
+    {
+        ScrollAmount=SE.GetPosition()-GetScrollPos(SE.GetOrientation());
+        #ifndef __WXMSW__
+            // This is a work-around for <http://trac.wxwidgets.org/ticket/2617>.
+            // wxLogDebug(wxString::Format("scrollamount %i", ScrollAmount));
+            Refresh();
+        #endif
+    }
 
     if (ScrollAmount==0) return;
 
