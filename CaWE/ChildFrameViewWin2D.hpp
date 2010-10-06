@@ -35,10 +35,6 @@ class MapElementT;
 class ViewWindow2DT;
 
 
-/// Global operator in order to be able to conveniently divide the components of a wxPoint by a number.
-wxPoint operator / (const wxPoint& P, int n);
-
-
 class MouseDragTimerT : public wxTimer
 {
     public:
@@ -59,9 +55,6 @@ class ViewWindow2DT : public wxWindow, public ViewWindowT
 
     /// The constructor.
     ViewWindow2DT(wxWindow* Parent, ChildFrameT* ChildFrame, ViewTypeT InitialViewType);
-
-    /// The destructor.
-    ~ViewWindow2DT();
 
     // Methods inherited from ObserverT.
     void NotifySubjectChanged(SubjectT* Subject, MapDocOtherDetailT OtherDetail);
@@ -120,15 +113,15 @@ class ViewWindow2DT : public wxWindow, public ViewWindowT
     ViewWindow2DT(const ViewWindow2DT&);    ///< Use of the Copy    Constructor is not allowed.
     void operator = (const ViewWindow2DT&); ///< Use of the Assignment Operator is not allowed.
 
+    ViewTypeT       m_ViewType;             ///< The type of this 2D view (top, front, side).
     AxesInfoT       m_AxesInfo;             ///< Describes how the three world-space axes map to our two window-space axes.
-    wxChoice*       m_ViewTypeChoice;       ///< The choice for the view types.
     wxBitmap        m_BitmapMapOnly;        ///< For the 2D view types.
     wxBitmap        m_BitmapMapAndTools;    ///< For the 2D view types.
     float           m_ZoomFactor;           ///< The zoom factor.
     MouseDragTimerT m_MouseDragTimer;       ///< The timer for mouse-dragging the view.
 
-
     // Private helper methods.
+    void SetViewType(ViewTypeT NewViewType);
     void ScrollWindow(int AmountX, int AmountY, const wxRect* Rect=NULL);   ///< Overridden method of base class wxWindow.
     void UpdateScrollbars();                                                ///< Updates the scrollbars (and thus the virtual area of the window) according to window client size and map zoom factor.
     int  GetBestGridSpacing() const;
@@ -137,33 +130,24 @@ class ViewWindow2DT : public wxWindow, public ViewWindowT
     enum LayerT { TOOL_LAYER, MAP_AND_TOOL_LAYER };                         ///< The bitmap layers to repaint in DoPaint(). Note that there is no MAP_LAYER, because re-painting the map layer requires re-painting the tool layer (an inherent property of our implementation).
     void DoPaint(LayerT Layer, wxDC& dc, wxRegion* UpdateRegion=NULL);      ///< Called by OnPaint() and NotifySubjectChanged(Tool).
 
-
-    // IDs for the controls whose events we are interested in.
-    enum
-    {
-        ID_CHOICE_VIEWTYPE=wxID_HIGHEST+1
-    };
-
-
     // Event handlers.
-    void OnKeyDown          (wxKeyEvent&              KE);
-    void OnKeyUp            (wxKeyEvent&              KE);
-    void OnKeyChar          (wxKeyEvent&              KE);
-    void OnMouseLeftDown    (wxMouseEvent&            ME);  ///< We also handle "double-click" events in this method (use ME.ButtonDClick() for distinction).
-    void OnMouseLeftUp      (wxMouseEvent&            ME);
-    void OnMouseMiddleDown  (wxMouseEvent&            ME);  ///< We also handle "double-click" events in this method (use ME.ButtonDClick() for distinction).
-    void OnMouseMiddleUp    (wxMouseEvent&            ME);
-    void OnMouseRightDown   (wxMouseEvent&            ME);  ///< We also handle "double-click" events in this method (use ME.ButtonDClick() for distinction).
-    void OnMouseRightUp     (wxMouseEvent&            ME);
-    void OnMouseWheel       (wxMouseEvent&            ME);
-    void OnMouseMove        (wxMouseEvent&            ME);
-    void OnScroll           (wxScrollWinEvent&        SE);
-    void OnContextMenu      (wxContextMenuEvent&      CE);
-    void OnPaint            (wxPaintEvent&            PE);
-    void OnEraseBackground  (wxEraseEvent&            EE);
-    void OnSize             (wxSizeEvent&             SE);
-    void OnMouseCaptureLost (wxMouseCaptureLostEvent& ME);
-    void OnChoiceSelViewType(wxCommandEvent&          CE);
+    void OnKeyDown         (wxKeyEvent&              KE);
+    void OnKeyUp           (wxKeyEvent&              KE);
+    void OnKeyChar         (wxKeyEvent&              KE);
+    void OnMouseLeftDown   (wxMouseEvent&            ME);   ///< We also handle "double-click" events in this method (use ME.ButtonDClick() for distinction).
+    void OnMouseLeftUp     (wxMouseEvent&            ME);
+    void OnMouseMiddleDown (wxMouseEvent&            ME);   ///< We also handle "double-click" events in this method (use ME.ButtonDClick() for distinction).
+    void OnMouseMiddleUp   (wxMouseEvent&            ME);
+    void OnMouseRightDown  (wxMouseEvent&            ME);   ///< We also handle "double-click" events in this method (use ME.ButtonDClick() for distinction).
+    void OnMouseRightUp    (wxMouseEvent&            ME);
+    void OnMouseWheel      (wxMouseEvent&            ME);
+    void OnMouseMove       (wxMouseEvent&            ME);
+    void OnScroll          (wxScrollWinEvent&        SE);
+    void OnContextMenu     (wxContextMenuEvent&      CE);
+    void OnPaint           (wxPaintEvent&            PE);
+    void OnEraseBackground (wxEraseEvent&            EE);
+    void OnSize            (wxSizeEvent&             SE);
+    void OnMouseCaptureLost(wxMouseCaptureLostEvent& ME);
 
     DECLARE_EVENT_TABLE()
 };

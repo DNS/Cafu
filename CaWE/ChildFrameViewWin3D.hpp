@@ -34,7 +34,6 @@ class AxesInfoT;
 class CameraT;
 class MapElementT;
 class ToolCameraT;
-class wxChoice;
 
 
 class ViewWindow3DT : public wxGLCanvas, public ViewWindowT
@@ -136,8 +135,7 @@ class ViewWindow3DT : public wxGLCanvas, public ViewWindowT
 
     friend class ToolCameraT;
 
-    wxChoice*     m_ViewTypeChoice;     ///< The choice for the view types.
-    ViewTypeT     m_ViewType;           ///< This caches the contents of the m_ViewTypeChoice, because performance profiling has revealed that wxChoice::GetSelection() and wxChoice::GetClientData() are *really* *SLOW* under wxMSW.
+    ViewTypeT     m_ViewType;           ///< The type of this 3D view (wireframe, flat, materials, ...).
     Renderer3DT   m_Renderer;           ///< Performs the 3D rendering in our window.
     unsigned long m_TimeOfLastPaint;    ///< The time at which the OnPaint() event handler was last called.
     ToolCameraT*  m_CameraTool;         ///< The camera tool that manages all cameras. The camera of this 3D view is always among the cameras in the tool.
@@ -145,32 +143,24 @@ class ViewWindow3DT : public wxGLCanvas, public ViewWindowT
     Vector3fT     m_CameraVel;          ///< The cameras current velocity, in camera space. Positive values for m_CameraVel.y mean forward movement, etc.
     MouseControlT m_MouseControl;       ///< If and how the camera of the associated view is currently being controlled with the mouse.
 
-
-    // IDs for the controls in whose events we are interested.
-    enum
-    {
-        ID_CHOICE_VIEWTYPE=wxID_HIGHEST+1
-    };
-
     // Event handlers.
-    void OnKeyDown          (wxKeyEvent&              ME);
-    void OnKeyUp            (wxKeyEvent&              ME);
-    void OnKeyChar          (wxKeyEvent&              ME);
-    void OnMouseLeftDown    (wxMouseEvent&            ME);  ///< We also handle "double-click" events in this method (use ME.ButtonDClick() for distinction).
-    void OnMouseLeftUp      (wxMouseEvent&            ME);
-    void OnMouseMiddleDown  (wxMouseEvent&            ME);  ///< We also handle "double-click" events in this method (use ME.ButtonDClick() for distinction).
-    void OnMouseMiddleUp    (wxMouseEvent&            ME);
-    void OnMouseRightDown   (wxMouseEvent&            ME);  ///< We also handle "double-click" events in this method (use ME.ButtonDClick() for distinction).
-    void OnMouseRightUp     (wxMouseEvent&            ME);
-    void OnMouseWheel       (wxMouseEvent&            ME);
-    void OnMouseMove        (wxMouseEvent&            ME);
-    void OnContextMenu      (wxContextMenuEvent&      CE);
-    void OnPaint            (wxPaintEvent&            PE);
-    void OnSize             (wxSizeEvent&             SE);
-    void OnSetFocus         (wxFocusEvent&            FE);
-    void OnKillFocus        (wxFocusEvent&            FE);
-    void OnMouseCaptureLost (wxMouseCaptureLostEvent& ME);
-    void OnChoiceSelViewType(wxCommandEvent&          CE);
+    void OnKeyDown         (wxKeyEvent&              ME);
+    void OnKeyUp           (wxKeyEvent&              ME);
+    void OnKeyChar         (wxKeyEvent&              ME);
+    void OnMouseLeftDown   (wxMouseEvent&            ME);   ///< We also handle "double-click" events in this method (use ME.ButtonDClick() for distinction).
+    void OnMouseLeftUp     (wxMouseEvent&            ME);
+    void OnMouseMiddleDown (wxMouseEvent&            ME);   ///< We also handle "double-click" events in this method (use ME.ButtonDClick() for distinction).
+    void OnMouseMiddleUp   (wxMouseEvent&            ME);
+    void OnMouseRightDown  (wxMouseEvent&            ME);   ///< We also handle "double-click" events in this method (use ME.ButtonDClick() for distinction).
+    void OnMouseRightUp    (wxMouseEvent&            ME);
+    void OnMouseWheel      (wxMouseEvent&            ME);
+    void OnMouseMove       (wxMouseEvent&            ME);
+    void OnContextMenu     (wxContextMenuEvent&      CE);
+    void OnPaint           (wxPaintEvent&            PE);
+    void OnSize            (wxSizeEvent&             SE);
+    void OnSetFocus        (wxFocusEvent&            FE);
+    void OnKillFocus       (wxFocusEvent&            FE);
+    void OnMouseCaptureLost(wxMouseCaptureLostEvent& ME);
 
     DECLARE_EVENT_TABLE()
 };

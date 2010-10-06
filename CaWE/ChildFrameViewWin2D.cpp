@@ -90,7 +90,6 @@ BEGIN_EVENT_TABLE(ViewWindow2DT, wxWindow)
     EVT_ERASE_BACKGROUND  (ViewWindow2DT::OnEraseBackground )     // Erase background event.
     EVT_SIZE              (ViewWindow2DT::OnSize            )     // Size event.
     EVT_MOUSE_CAPTURE_LOST(ViewWindow2DT::OnMouseCaptureLost)
-    EVT_CHOICE(ViewWindow2DT::ID_CHOICE_VIEWTYPE, ViewWindow2DT::OnChoiceSelViewType)   // Selection event of the "view type" choice box.
 END_EVENT_TABLE()
 
 
@@ -103,41 +102,19 @@ END_EVENT_TABLE()
 ViewWindow2DT::ViewWindow2DT(wxWindow* Parent, ChildFrameT* ChildFrame, ViewTypeT InitialViewType)
     : wxWindow(Parent, -1, wxDefaultPosition, wxSize(400, 300), wxWANTS_CHARS | wxHSCROLL | wxVSCROLL),
       ViewWindowT(ChildFrame),
+      m_ViewType(VT_2D_XY),
       m_AxesInfo(0, false, 1, false),
-      m_ViewTypeChoice(NULL),
       m_ZoomFactor(0.12345f),
       m_MouseDragTimer(*this)
 {
     SetMinSize(wxSize(120, 90));
 
-    m_ViewTypeChoice=new wxChoice(this, ID_CHOICE_VIEWTYPE, wxPoint(0, 0), wxSize(100, -1), 0, NULL, 0);
-    m_ViewTypeChoice->Append("2D Top (X/Y)",    (void*)VT_2D_XY);
-    m_ViewTypeChoice->Append("2D Side (Y/Z)",   (void*)VT_2D_YZ);
-    m_ViewTypeChoice->Append("2D Front (X/Z)",  (void*)VT_2D_XZ);
-
-    SetZoom(0.25);  // Calls UpdateScrollbars(), which calls SetScrollbar(hor/ver) and Refresh(), then calls SetScrollPos(hor/ver).
-
-    // The view type was read from a config file - make sure that it is valid.
-    if (InitialViewType!=VT_2D_XY && InitialViewType!=VT_2D_YZ && InitialViewType!=VT_2D_XZ) InitialViewType=VT_2D_XY;
-
-    // For a proper setup, we both have to select the proper item...
-    m_ViewTypeChoice->SetSelection(InitialViewType-VT_2D_XY);
-    m_ViewTypeChoice->Show(true);
-
-    // ... *and* to process the related event.
-    wxCommandEvent CE;
-    CE.SetClientData((void*)InitialViewType);
-    OnChoiceSelViewType(CE);    // Calls Refresh().
-
+    SetZoom(0.25);                  // Calls UpdateScrollbars(), which calls SetScrollbar(hor/ver) and Refresh(), then calls SetScrollPos(hor/ver).
+    SetViewType(InitialViewType);   // Checks if InitialViewType (which was read from a config file) is valid. Also sets member m_AxesInfo.
 
     // Center on the center of the map.
     const MapEntityBaseT* World=GetMapDoc().GetEntities()[0];
     CenterView(World->GetBB().GetCenter());     // Calls SetScrollPos(), then Refresh().
-}
-
-
-ViewWindow2DT::~ViewWindow2DT()
-{
 }
 
 
@@ -279,23 +256,7 @@ wxWindow* ViewWindow2DT::GetWindow()
 
 ViewWindowT::ViewTypeT ViewWindow2DT::GetViewType() const
 {
-    int Selection=m_ViewTypeChoice->GetSelection();
-
-    if (Selection==wxNOT_FOUND)
-    {
-        wxASSERT(false);
-        return VT_2D_XY;
-    }
-
-    ViewTypeT ViewType=(ViewTypeT)(unsigned long)m_ViewTypeChoice->GetClientData(Selection);
-
-    if (ViewType>=VT_3D_WIREFRAME)
-    {
-        wxASSERT(false);
-        return VT_2D_XY;
-    }
-
-    return ViewType;
+    return m_ViewType;
 }
 
 
@@ -460,6 +421,38 @@ wxPoint ViewWindow2DT::WorldToWindow(const Vector3fT& v) const
 }
 
 
+void ViewWindow2DT::SetViewType(ViewTypeT NewViewType)
+{
+    m_ViewType=NewViewType;
+
+    if (m_ViewType<VT_2D_XY) m_ViewType=VT_2D_XZ;
+    if (m_ViewType>VT_2D_XZ) m_ViewType=VT_2D_XY;
+
+    switch (m_ViewType)
+    {
+        case VT_2D_XY:
+            m_AxesInfo=AxesInfoT(0, false, 1, true);
+            break;
+
+        case VT_2D_YZ:
+            m_AxesInfo=AxesInfoT(1, false, 2, true);
+            break;
+
+        case VT_2D_XZ:
+            m_AxesInfo=AxesInfoT(0, false, 2, true);
+            break;
+
+        default:
+            wxASSERT(false);        // We should never get here.
+            SetViewType(VT_2D_XY);  // Recurse!
+            break;
+    }
+
+    m_ChildFrame->SetCaption(this, GetCaption());
+    Refresh();
+}
+
+
 void ViewWindow2DT::ScrollWindow(int AmountX, int AmountY, const wxRect* /*Rect*/)
 {
     wxASSERT(&GetMapDoc());     // Can be NULL between Destroy() and the dtor, but between those we should never get here.
@@ -508,12 +501,7 @@ void ViewWindow2DT::ScrollWindow(int AmountX, int AmountY, const wxRect* /*Rect*
     MapOnlyDC    .SelectObject(wxNullBitmap);
     MapAndToolsDC.SelectObject(wxNullBitmap);
 
-    // For scrolling, temporarily hide the ViewTypeChoice, because otherwise,
-    // it would be scrolled, too, and thus briefly be visible in a wrong position.
-    m_ViewTypeChoice->Show(false);
     wxWindow::ScrollWindow(-AmountX, -AmountY);
-    m_ViewTypeChoice->Move(0, 0);
-    m_ViewTypeChoice->Show(true);
 }
 
 
@@ -925,18 +913,7 @@ void ViewWindow2DT::OnKeyDown(wxKeyEvent& KE)
             // Switch to the next or previous view type (top-down -- side -- front).
             // Note that checking for KE.ControlDown() here is meaningless,
             // because the Control+TAB combination is already caught by the MDI framework.
-            int NewViewType=GetViewType() + (KE.ShiftDown() ? -1 : 1);
-
-            if (NewViewType<VT_2D_XY) NewViewType=VT_2D_XZ;
-            if (NewViewType>VT_2D_XZ) NewViewType=VT_2D_XY;
-
-            // For a proper setup, we both have to select the proper item...
-            m_ViewTypeChoice->SetSelection(NewViewType-VT_2D_XY);
-
-            // ... *and* to process the related event.
-            wxCommandEvent CE;
-            CE.SetClientData((void*)NewViewType);
-            OnChoiceSelViewType(CE);
+            SetViewType(ViewTypeT(GetViewType() + (KE.ShiftDown() ? -1 : 1)));
             break;
         }
 
@@ -1281,13 +1258,7 @@ void ViewWindow2DT::OnContextMenu(wxContextMenuEvent& CE)
         case VT_2D_XY:
         case VT_2D_YZ:
         case VT_2D_XZ:
-            // For a proper setup, we both have to select the proper item...
-            m_ViewTypeChoice->SetSelection(MenuSelID-VT_2D_XY);
-
-            // ... *and* to process the related event.
-            wxCommandEvent CE;
-            CE.SetClientData((void*)MenuSelID);
-            OnChoiceSelViewType(CE);
+            SetViewType(ViewTypeT(MenuSelID));
             break;
     }
 }
@@ -1359,44 +1330,4 @@ void ViewWindow2DT::OnSize(wxSizeEvent& SE)
 
 void ViewWindow2DT::OnMouseCaptureLost(wxMouseCaptureLostEvent& ME)
 {
-}
-
-
-void ViewWindow2DT::OnChoiceSelViewType(wxCommandEvent& CE)
-{
-    // Guard against accessing an already deleted MapDoc. This can otherwise happen when closing this window/view/document,
-    // namely during the continued event processing between the call to Destroy() and our final deletion.
-    if (&GetMapDoc()==NULL) { CE.Skip(); return; }
-
-    switch ((ViewTypeT)(unsigned long)CE.GetClientData())
-    {
-        case VT_2D_XY:
-            m_AxesInfo=AxesInfoT(0, false, 1, true);
-            break;
-
-        case VT_2D_YZ:
-            m_AxesInfo=AxesInfoT(1, false, 2, true);
-            break;
-
-        case VT_2D_XZ:
-            m_AxesInfo=AxesInfoT(0, false, 2, true);
-            break;
-
-        default:
-            wxASSERT(false);    // We should never get here.
-            wxMessageBox("Sorry, selecting a 3D view type in a 2D view window doesn't work yet.");
-
-            // Simulate a user selection back to a good 2D type.
-            ViewTypeT GoodVT=VT_2D_XY;      // Previous??
-
-            m_ViewTypeChoice->SetSelection(GoodVT-VT_2D_XY);
-
-            wxCommandEvent GoodCE;
-            GoodCE.SetClientData((void*)GoodVT);
-            OnChoiceSelViewType(GoodCE);    // Recurse!
-            break;
-    }
-
-    m_ChildFrame->SetCaption(this, GetCaption());
-    Refresh();
 }

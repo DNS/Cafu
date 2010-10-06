@@ -112,14 +112,12 @@ BEGIN_EVENT_TABLE(ViewWindow3DT, wxGLCanvas)
     EVT_SET_FOCUS         (ViewWindow3DT::OnSetFocus        )     // Focus event.
     EVT_KILL_FOCUS        (ViewWindow3DT::OnKillFocus       )
     EVT_MOUSE_CAPTURE_LOST(ViewWindow3DT::OnMouseCaptureLost)
-    EVT_CHOICE(ViewWindow3DT::ID_CHOICE_VIEWTYPE, ViewWindow3DT::OnChoiceSelViewType)   // Selection event of the "view type" choice box.
 END_EVENT_TABLE()
 
 
 ViewWindow3DT::ViewWindow3DT(wxWindow* Parent, ChildFrameT* ChildFrame, CameraT* InitialCamera, ViewTypeT InitialViewType)
     : wxGLCanvas(Parent, -1, ParentFrameT::OpenGLAttributeList, wxDefaultPosition, wxSize(400, 300), wxWANTS_CHARS, "ViewWin3DCanvas"),
       ViewWindowT(ChildFrame),
-      m_ViewTypeChoice(NULL),
       m_ViewType(InitialViewType),
       m_Renderer(*this),
       m_TimeOfLastPaint(0),
@@ -134,20 +132,8 @@ ViewWindow3DT::ViewWindow3DT(wxWindow* Parent, ChildFrameT* ChildFrame, CameraT*
 
     SetMinSize(wxSize(120, 90));
 
-    m_ViewTypeChoice=new wxChoice(this, ID_CHOICE_VIEWTYPE, wxPoint(0, 0), wxSize(100, -1), 0, NULL, 0);
-    m_ViewTypeChoice->Append("3D Wireframe",  (void*)VT_3D_WIREFRAME);
-    m_ViewTypeChoice->Append("3D Flat",       (void*)VT_3D_FLAT);
-    m_ViewTypeChoice->Append("3D Edit Mats",  (void*)VT_3D_EDIT_MATS);
-    m_ViewTypeChoice->Append("3D Full Mats",  (void*)VT_3D_FULL_MATS);
-    m_ViewTypeChoice->Append("3D LM Grid",    (void*)VT_3D_LM_GRID);
-    m_ViewTypeChoice->Append("3D LM Preview", (void*)VT_3D_LM_PREVIEW);
-
     // The initial view type was read from a config file - make sure that it is valid.
     if (m_ViewType<VT_3D_WIREFRAME) m_ViewType=VT_3D_WIREFRAME;
-
-    // Make sure that the item for m_ViewType is selected.
-    m_ViewTypeChoice->SetSelection(m_ViewType-VT_3D_WIREFRAME);
-    m_ViewTypeChoice->Show(true);
 }
 
 
@@ -194,45 +180,11 @@ wxWindow* ViewWindow3DT::GetWindow()
 }
 
 
-// This method may be entered while the m_ViewTypeChoice is open (the user selects in it),
-// because the 3D renderer calls it which in turn is called in idle time.
-// Moreover, there seems to be a bug in wx: If the user moves the mouse in the open drop-down
-// list of m_ViewTypeChoice and we try to open a window or message box here at the same time,
-// the window doesn't appear but steals the focus of the app. Hitting ALT+TAB twice makes the
-// window to eventually appear (which fixes the problem), but otherwise the app seems frozen.
-// When the mouse is not in the drop-down list, the window appears normally.
-// Solution: Don't open windows while drop-down lists are shown. This is hard, because it means
-// that we must not open *any* windows from code called from AppCaWE::ProcessIdle().
-// The matter would also not arise if wxChoice::GetSelection() returned the new value only
-// after the choice was made (and thus the drop-down list closed).
-// In any case, this is why I cannot have any wxASSERT or wxMessageBox statements below.
-// They don't make much sense anyway, because they force-interrupt the users work with the
-// drop-down list.
 ViewWindowT::ViewTypeT ViewWindow3DT::GetViewType() const
 {
-#if 0
-    // This gets the viewtype from the wxChoice directly.
-    int Selection=m_ViewTypeChoice->GetSelection();
-
-    if (Selection==wxNOT_FOUND)
-    {
-        // [see comment above] wxASSERT(false);
-        return VT_3D_WIREFRAME;
-    }
-
-    ViewTypeT ViewType=(ViewTypeT)(unsigned long)m_ViewTypeChoice->GetClientData(Selection);
-
-    if (ViewType<VT_3D_WIREFRAME)
-    {
-        // [see comment above] wxMessageBox("Sorry, no 2D views in a 3D view possible.");
-        return VT_3D_WIREFRAME;
-    }
-
-    return ViewType;
-#else
-    // This returns the cached view-type -- and is *much* faster (at least under wxMSW).
+    // Note that keeping m_ViewType as a member is much faster than reading it from
+    // a control on each frame. See <http://trac.cafu.de/changeset/163> for details.
     return m_ViewType;
-#endif
 }
 
 
@@ -490,7 +442,6 @@ void ViewWindow3DT::OnKeyDown(wxKeyEvent& KE)
             if (m_ViewType<VT_3D_WIREFRAME) m_ViewType=VT_3D_FULL_MATS;
             if (m_ViewType>VT_3D_FULL_MATS) m_ViewType=VT_3D_WIREFRAME;
 
-            m_ViewTypeChoice->SetSelection(m_ViewType-VT_3D_WIREFRAME);
             m_ChildFrame->SetCaption(this, GetCaption());
             break;
         }
@@ -757,7 +708,6 @@ void ViewWindow3DT::OnContextMenu(wxContextMenuEvent& CE)
     {
         m_ViewType=ViewTypeT(MenuSelID);
 
-        m_ViewTypeChoice->SetSelection(m_ViewType-VT_3D_WIREFRAME);
         m_ChildFrame->SetCaption(this, GetCaption());
     }
 }
@@ -1100,19 +1050,4 @@ void ViewWindow3DT::OnMouseCaptureLost(wxMouseCaptureLostEvent& ME)
     // When we lose the capture, make sure that the mouse cursor is shown and the mouse capture is released.
     m_MouseControl.ActivateMoving(false);
     m_MouseControl.ActivateLooking(false);
-}
-
-
-void ViewWindow3DT::OnChoiceSelViewType(wxCommandEvent& CE)
-{
-    // Guard against accessing an already deleted MapDoc. This can otherwise happen when closing this window/view/document,
-    // namely during the continued event processing between the call to Destroy() and our final deletion.
-    if (&GetMapDoc()==NULL) { CE.Skip(); return; }
-
-    m_ViewType=(ViewTypeT)(unsigned long)CE.GetClientData();
-
-    wxASSERT(m_ViewType>=VT_3D_WIREFRAME);
-    if (m_ViewType<VT_3D_WIREFRAME) m_ViewType=VT_3D_WIREFRAME;
-
-    m_ChildFrame->SetCaption(this, GetCaption());
 }
