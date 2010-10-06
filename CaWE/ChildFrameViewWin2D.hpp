@@ -145,7 +145,6 @@ class ViewWindow2DT : public wxWindow, public ViewWindowT
     void OnScroll          (wxScrollWinEvent&        SE);
     void OnContextMenu     (wxContextMenuEvent&      CE);
     void OnPaint           (wxPaintEvent&            PE);
-    void OnEraseBackground (wxEraseEvent&            EE);
     void OnSize            (wxSizeEvent&             SE);
     void OnMouseCaptureLost(wxMouseCaptureLostEvent& ME);
 

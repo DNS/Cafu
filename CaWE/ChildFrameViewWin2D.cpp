@@ -87,7 +87,6 @@ BEGIN_EVENT_TABLE(ViewWindow2DT, wxWindow)
  // EVT_LEAVE_WINDOW      (ViewWindow2DT::OnMouseLeaveWindow)
     EVT_SCROLLWIN         (ViewWindow2DT::OnScroll          )     // Scroll event.
     EVT_PAINT             (ViewWindow2DT::OnPaint           )     // Paint event.
-    EVT_ERASE_BACKGROUND  (ViewWindow2DT::OnEraseBackground )     // Erase background event.
     EVT_SIZE              (ViewWindow2DT::OnSize            )     // Size event.
     EVT_MOUSE_CAPTURE_LOST(ViewWindow2DT::OnMouseCaptureLost)
 END_EVENT_TABLE()
@@ -108,6 +107,7 @@ ViewWindow2DT::ViewWindow2DT(wxWindow* Parent, ChildFrameT* ChildFrame, ViewType
       m_MouseDragTimer(*this)
 {
     SetMinSize(wxSize(120, 90));
+    SetBackgroundStyle(wxBG_STYLE_PAINT);   // Our paint event handler handles erasing the background.
 
     SetZoom(0.25);                  // Calls UpdateScrollbars(), which calls SetScrollbar(hor/ver) and Refresh(), then calls SetScrollPos(hor/ver).
     SetViewType(InitialViewType);   // Checks if InitialViewType (which was read from a config file) is valid. Also sets member m_AxesInfo.
@@ -1309,12 +1309,6 @@ void ViewWindow2DT::OnPaint(wxPaintEvent& PE)
     wxRegion  UpdateRegion(GetUpdateRegion());
 
     DoPaint(MAP_AND_TOOL_LAYER, dc, &UpdateRegion);
-}
-
-
-void ViewWindow2DT::OnEraseBackground(wxEraseEvent& EE)
-{
-    // Do nothing (i.e. do *not* erase the background).
 }
 
 

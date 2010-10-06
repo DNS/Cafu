@@ -478,6 +478,14 @@ void ViewWindow3DT::OnKeyDown(wxKeyEvent& KE)
             m_Camera->FarPlaneDist=std::min(m_Camera->FarPlaneDist*1.2f, float(Options.view3d.BackPlane));
             break;
 
+        case WXK_UP:
+        case WXK_DOWN:
+        case WXK_LEFT:
+        case WXK_RIGHT:
+            // Handle the arrow keys here (so that KE.Skip() is not called for them), in order to
+            // prevent (under wxGTK) that the default processing moves the focus to another window.
+            break;
+
         default:
             KE.Skip();
             break;
