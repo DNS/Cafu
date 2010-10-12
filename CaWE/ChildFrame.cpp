@@ -546,19 +546,19 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     ViewWindow3DT* CenterPaneView=new ViewWindow3DT(this, this, NULL, (ViewWindowT::ViewTypeT)wxConfigBase::Get()->Read("Splitter/ViewType00", ViewWindowT::VT_3D_FULL_MATS));
     m_AUIManager.AddPane(CenterPaneView, wxAuiPaneInfo().
                          Name("Main View").Caption(CenterPaneView->GetCaption()).
-                         CenterPane().CaptionVisible());
+                         CenterPane().CaptionVisible().MaximizeButton());
 
     ViewWindow2DT* ViewTopRight=new ViewWindow2DT(this, this, (ViewWindowT::ViewTypeT)wxConfigBase::Get()->Read("Splitter/ViewType01", ViewWindowT::VT_2D_XY));
     m_AUIManager.AddPane(ViewTopRight, wxAuiPaneInfo().
                          // Name("xy").
                          Caption(ViewTopRight->GetCaption()).
-                         DestroyOnClose().Right().Position(0));
+                         DestroyOnClose().Right().Position(0).MaximizeButton());
 
     ViewWindow2DT* ViewBottomRight=new ViewWindow2DT(this, this, (ViewWindowT::ViewTypeT)wxConfigBase::Get()->Read("Splitter/ViewType11", ViewWindowT::VT_2D_XZ));
     m_AUIManager.AddPane(ViewBottomRight, wxAuiPaneInfo().
                          // Name("xy").
                          Caption(ViewBottomRight->GetCaption()).
-                         DestroyOnClose().Right().Position(1));
+                         DestroyOnClose().Right().Position(1).MaximizeButton());
 
 
     // Save the AUI perspective that we set up in this ctor code as the "default perspective".
