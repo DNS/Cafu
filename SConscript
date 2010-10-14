@@ -89,7 +89,7 @@ if sys.platform=="win32":
 elif sys.platform=="linux2":
     # Geht es auch ohne die naechste Zeile? Woher weiss es, dass es freetype linken soll???
     wxEnv.Append(LIBS=Split("wx_gtk2u_gl-2.9 wx_gtk2u_aui-2.9 wx_gtk2u_propgrid-2.9 wx_gtk2u_xrc-2.9 wx_gtk2u_qa-2.9 wx_gtk2u_html-2.9 wx_gtk2u_adv-2.9 wx_gtk2u_core-2.9 wx_baseu_xml-2.9 wx_baseu_net-2.9 wx_baseu-2.9"))
-    wxEnv.ParseConfig(Dir("#/ExtLibs/wxWidgets").abspath + "/build-gtk/wx-config --cxxflags --libs std,gl | sed s/\\ -lpng// | sed s/\\ -ljpeg//")
+    wxEnv.ParseConfig(Dir("#/ExtLibs/wxWidgets").abspath + "/build-gtk/wx-config --cxxflags --libs std,gl | sed s/-lpng\\w*\\ //g | sed s/-l\\w*jpeg\\w*\\ //g")
 
 
 
