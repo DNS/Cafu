@@ -288,34 +288,6 @@ bool ToolCameraT::OnMouseMove2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
 }
 
 
-bool ToolCameraT::OnLMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
-{
-    ViewWindow.m_MouseControl.ActivateLooking(true);
-    return true;
-}
-
-
-bool ToolCameraT::OnLMouseUp3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
-{
-    ViewWindow.m_MouseControl.ActivateLooking(false);
-    return true;
-}
-
-
-bool ToolCameraT::OnRMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
-{
-    ViewWindow.m_MouseControl.ActivateMoving(true);
-    return true;
-}
-
-
-bool ToolCameraT::OnRMouseUp3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
-{
-    ViewWindow.m_MouseControl.ActivateMoving(false);
-    return true;
-}
-
-
 bool ToolCameraT::OnKeyDown3D(ViewWindow3DT& ViewWindow, wxKeyEvent& KE)
 {
     return OnKeyDown(ViewWindow, KE);

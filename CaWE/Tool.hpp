@@ -99,8 +99,7 @@ class ToolT
     virtual bool OnLMouseUp2D   (ViewWindow2DT& ViewWindow, wxMouseEvent&       ME) { return false; }
     virtual bool OnMMouseDown2D (ViewWindow2DT& ViewWindow, wxMouseEvent&       ME) { return false; }   ///< Also used for MMB "double-click" events (use ME.ButtonDClick() for distinction).
     virtual bool OnMMouseUp2D   (ViewWindow2DT& ViewWindow, wxMouseEvent&       ME) { return false; }
-    virtual bool OnRMouseDown2D (ViewWindow2DT& ViewWindow, wxMouseEvent&       ME) { return false; }   ///< Also used for RMB "double-click" events (use ME.ButtonDClick() for distinction).
-    virtual bool OnRMouseUp2D   (ViewWindow2DT& ViewWindow, wxMouseEvent&       ME) { return false; }
+    virtual bool OnRMouseClick2D(ViewWindow2DT& ViewWindow, wxMouseEvent&       ME) { return false; }   ///< For the RMB, only a "click" event is available, because the RMB is also used for mouse-looking and the context menu.
     virtual bool OnMouseWheel2D (ViewWindow2DT& ViewWindow, wxMouseEvent&       ME) { return false; }
     virtual bool OnMouseMove2D  (ViewWindow2DT& ViewWindow, wxMouseEvent&       ME) { return false; }
     virtual int  OnContextMenu2D(ViewWindow2DT& ViewWindow, wxContextMenuEvent& CE, wxMenu& Menu);
@@ -113,8 +112,7 @@ class ToolT
     virtual bool OnLMouseUp3D   (ViewWindow3DT& ViewWindow, wxMouseEvent&       ME) { return false; }
     virtual bool OnMMouseDown3D (ViewWindow3DT& ViewWindow, wxMouseEvent&       ME) { return false; }   ///< Also used for MMB "double-click" events (use ME.ButtonDClick() for distinction).
     virtual bool OnMMouseUp3D   (ViewWindow3DT& ViewWindow, wxMouseEvent&       ME) { return false; }
-    virtual bool OnRMouseDown3D (ViewWindow3DT& ViewWindow, wxMouseEvent&       ME) { return false; }   ///< Also used for RMB "double-click" events (use ME.ButtonDClick() for distinction).
-    virtual bool OnRMouseUp3D   (ViewWindow3DT& ViewWindow, wxMouseEvent&       ME) { return false; }
+    virtual bool OnRMouseClick3D(ViewWindow3DT& ViewWindow, wxMouseEvent&       ME) { return false; }   ///< For the RMB, only a "click" event is available, because the RMB is also used for mouse-looking and the context menu.
     virtual bool OnMouseWheel3D (ViewWindow3DT& ViewWindow, wxMouseEvent&       ME) { return false; }
     virtual bool OnMouseMove3D  (ViewWindow3DT& ViewWindow, wxMouseEvent&       ME) { return false; }
     virtual int  OnContextMenu3D(ViewWindow3DT& ViewWindow, wxContextMenuEvent& CE, wxMenu& Menu);

@@ -220,7 +220,7 @@ bool ToolNewBrushT::OnKeyDown3D(ViewWindow3DT& ViewWindow, wxKeyEvent& KE)
 }
 
 
-bool ToolNewBrushT::OnRMouseUp3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
+bool ToolNewBrushT::OnRMouseClick3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
 {
     if (ME.ShiftDown() && ME.ControlDown())
     {

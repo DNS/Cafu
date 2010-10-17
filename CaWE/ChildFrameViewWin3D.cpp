@@ -124,7 +124,9 @@ ViewWindow3DT::ViewWindow3DT(wxWindow* Parent, ChildFrameT* ChildFrame, CameraT*
       m_CameraTool(static_cast<ToolCameraT*>(m_ChildFrame->GetToolManager().GetTool(ToolCameraT::TypeInfo))),
       m_Camera(InitialCamera ? InitialCamera : m_CameraTool->GetCameras()[0]),
       m_CameraVel(),
-      m_MouseControl(*this)
+      m_MouseControl(*this),
+      m_RightMBState(RMB_UP_IDLE),
+      m_RDownPosWin()
 {
     // Make sure that if we were given an InitialCamera for use, is known to the Camera tool
     // (the AddCamera() method in turn makes sure that InitialCamera is not added twice).
@@ -420,10 +422,15 @@ void ViewWindow3DT::OnKeyDown(wxKeyEvent& KE)
 
     // wxLogDebug("ViewWindow3DT::OnKeyDown(), KE.GetKeyCode()==%lu", KE.GetKeyCode());
 
-    if (KE.GetKeyCode()=='Z')
+    switch (KE.GetKeyCode())
     {
-        m_MouseControl.ActivateLooking(!m_MouseControl.IsLooking());
-        return;
+        case WXK_SPACE:
+            m_MouseControl.ActivateLooking(true);
+            return;
+
+        case 'Z':
+            m_MouseControl.ActivateLooking(!m_MouseControl.IsLooking());
+            return;
     }
 
     // Give the active tool a chance to intercept the event.
@@ -499,6 +506,13 @@ void ViewWindow3DT::OnKeyUp(wxKeyEvent& KE)
     // namely during the continued event processing between the call to Destroy() and our final deletion.
     if (&GetMapDoc()==NULL) { KE.Skip(); return; }
 
+    switch (KE.GetKeyCode())
+    {
+        case WXK_SPACE:
+            m_MouseControl.ActivateLooking(false);
+            return;
+    }
+
     // Give the active tool a chance to intercept the event.
     ToolT* Tool=m_ChildFrame->GetToolManager().GetActiveTool();
     if (Tool && Tool->OnKeyUp3D(*this, KE)) return;
@@ -545,12 +559,6 @@ void ViewWindow3DT::OnMouseLeftDown(wxMouseEvent& ME)
     // namely during the continued event processing between the call to Destroy() and our final deletion.
     if (&GetMapDoc()==NULL) { ME.Skip(); return; }
 
-    if (wxGetKeyState(WXK_SPACE))
-    {
-        m_MouseControl.ActivateLooking(true);
-        return;
-    }
-
     // Give the active tool a chance to intercept the event.
     ToolT* Tool=m_ChildFrame->GetToolManager().GetActiveTool();
     if (Tool && Tool->OnLMouseDown3D(*this, ME)) return;
@@ -564,12 +572,6 @@ void ViewWindow3DT::OnMouseLeftUp(wxMouseEvent& ME)
     // Guard against accessing an already deleted MapDoc. This can otherwise happen when closing this window/view/document,
     // namely during the continued event processing between the call to Destroy() and our final deletion.
     if (&GetMapDoc()==NULL) { ME.Skip(); return; }
-
-    if (m_MouseControl.IsLooking())
-    {
-        m_MouseControl.ActivateLooking(false);
-        return;
-    }
 
     // Give the active tool a chance to intercept the event.
     ToolT* Tool=m_ChildFrame->GetToolManager().GetActiveTool();
@@ -589,7 +591,9 @@ void ViewWindow3DT::OnMouseMiddleDown(wxMouseEvent& ME)
     ToolT* Tool=m_ChildFrame->GetToolManager().GetActiveTool();
     if (Tool && Tool->OnMMouseDown3D(*this, ME)) return;
 
-    ME.Skip();
+    // TODO 1: Record MMB Pos in Win and World space.
+    // TODO 2: Activate mouse look in "orbit" mode.
+    // Oder: Halte die Win und World Pos IMMER fest, entscheide wie bewegt wird nur nach ME.GetMousestate...??
 }
 
 
@@ -599,11 +603,11 @@ void ViewWindow3DT::OnMouseMiddleUp(wxMouseEvent& ME)
     // namely during the continued event processing between the call to Destroy() and our final deletion.
     if (&GetMapDoc()==NULL) { ME.Skip(); return; }
 
+    // TODO 3: Deactivate orbit mode.
+
     // Give the active tool a chance to intercept the event.
     ToolT* Tool=m_ChildFrame->GetToolManager().GetActiveTool();
     if (Tool && Tool->OnMMouseUp3D(*this, ME)) return;
-
-    ME.Skip();
 }
 
 
@@ -613,17 +617,11 @@ void ViewWindow3DT::OnMouseRightDown(wxMouseEvent& ME)
     // namely during the continued event processing between the call to Destroy() and our final deletion.
     if (&GetMapDoc()==NULL) { ME.Skip(); return; }
 
-    if (wxGetKeyState(WXK_SPACE))
-    {
-        m_MouseControl.ActivateMoving(true);
-        return;
-    }
-
-    // Give the active tool a chance to intercept the event.
-    ToolT* Tool=m_ChildFrame->GetToolManager().GetActiveTool();
-    if (Tool && Tool->OnRMouseDown3D(*this, ME)) return;
-
-    ME.Skip();
+    // The active tool cannot intercept the RMB *down* event,
+    // because we don't want the tools to be able to shut off our mouse-looking feature.
+    wxASSERT(m_RightMBState==RMB_UP_IDLE);
+    m_RightMBState=RMB_DOWN_UNDECIDED;
+    m_RDownPosWin =ME.GetPosition();
 }
 
 
@@ -633,17 +631,29 @@ void ViewWindow3DT::OnMouseRightUp(wxMouseEvent& ME)
     // namely during the continued event processing between the call to Destroy() and our final deletion.
     if (&GetMapDoc()==NULL) { ME.Skip(); return; }
 
-    if (m_MouseControl.IsMoving())
+    if (m_MouseControl.IsLooking())
     {
-        m_MouseControl.ActivateMoving(false);
-        return;
+        m_MouseControl.ActivateLooking(false);
     }
 
-    // Give the active tool a chance to intercept the event.
-    ToolT* Tool=m_ChildFrame->GetToolManager().GetActiveTool();
-    if (Tool && Tool->OnRMouseUp3D(*this, ME)) return;
+    if (m_RightMBState==RMB_DOWN_UNDECIDED)
+    {
+        // Give the active tool a chance to intercept the event.
+        ToolT*     Tool   =m_ChildFrame->GetToolManager().GetActiveTool();
+        const bool Handled=Tool && Tool->OnRMouseClick3D(*this, ME);
 
-    ME.Skip();
+        if (!Handled)
+        {
+            // The tool did not handle the event, now show the context menu.
+            wxContextMenuEvent CE(wxEVT_CONTEXT_MENU, GetId(), ClientToScreen(ME.GetPosition()));
+
+            // We don't inline the OnContextMenu() code here, because context menus can also be opened via the keyboard.
+            CE.SetEventObject(this);
+            OnContextMenu(CE);
+        }
+    }
+
+    m_RightMBState=RMB_UP_IDLE;
 }
 
 
@@ -659,7 +669,6 @@ void ViewWindow3DT::OnMouseWheel(wxMouseEvent& ME)
 
     m_Camera->Pos+=m_Camera->GetYAxis()*(ME.GetWheelRotation()/2);
     m_CameraTool->NotifyCameraChanged(m_Camera);
-    ME.Skip();
 }
 
 
@@ -678,18 +687,29 @@ void ViewWindow3DT::OnMouseMove(wxMouseEvent& ME)
     if (wxGetApp().IsActive())
         if (wxWindow::FindFocus()!=this) SetFocus();
 
-
     // Update the status bar info.
     wxASSERT(m_ChildFrame);     // See the description of NotifyChildFrameDies() for why this should never trigger.
     m_ChildFrame->SetStatusText("", ChildFrameT::SBP_GRID_ZOOM);
     m_ChildFrame->SetStatusText("", ChildFrameT::SBP_MOUSE_POS);
 
+    // If the RMB is held down but still undecided, check the drag threshold.
+    if (m_RightMBState==RMB_DOWN_UNDECIDED)
+    {
+        const wxPoint Drag=m_RDownPosWin-ME.GetPosition();
 
-    // Give the active tool a chance to intercept the event.
-    ToolT* Tool=m_ChildFrame->GetToolManager().GetActiveTool();
-    if (Tool && Tool->OnMouseMove3D(*this, ME)) return;
+        if (abs(Drag.x)>3 || abs(Drag.y)>3)
+        {
+            m_RightMBState=RMB_DOWN_DRAGGING;
+            m_MouseControl.ActivateLooking(true);
+        }
+    }
 
-    ME.Skip();
+    if (!m_MouseControl.IsActive())
+    {
+        // Give the active tool a chance to intercept the event.
+        ToolT* Tool=m_ChildFrame->GetToolManager().GetActiveTool();
+        if (Tool && Tool->OnMouseMove3D(*this, ME)) return;
+    }
 }
 
 
@@ -841,22 +861,42 @@ void ViewWindow3DT::OnPaint(wxPaintEvent& PE)
     // Process mouse input.
     if (m_MouseControl.IsActive())
     {
-        wxPoint MousePos  =ScreenToClient(wxGetMousePosition());      // Note: ScreenToClient() is a method of wxWindow.
-        bool    Shift     =wxGetKeyState(WXK_SHIFT);
-        wxRect  Rect      =wxRect(wxPoint(0, 0), GetClientSize());
-        wxPoint RectCenter=wxPoint(Rect.x+Rect.width/2, Rect.y+Rect.height/2);
-        wxPoint MouseDelta=MousePos-RectCenter;
+        const bool    Shift     =wxGetKeyState(WXK_SHIFT);
+        const bool    Control   =wxGetKeyState(WXK_CONTROL);
+        const wxPoint MousePos  =ScreenToClient(wxGetMousePosition());      // ScreenToClient() is a method of wxWindow.
+        const wxRect  Rect      =wxRect(wxPoint(0, 0), GetClientSize());
+        const wxPoint RectCenter=wxPoint(Rect.x+Rect.width/2, Rect.y+Rect.height/2);
+        const wxPoint MouseDelta=MousePos-RectCenter;
 
-        if (m_MouseControl.IsMoving())
+        if (!Shift && !Control)
         {
-            m_Camera->Pos+=m_Camera->GetXAxis()*(MouseDelta.x*2);
-            m_Camera->Pos-=(Shift || m_MouseControl.IsLooking() ? m_Camera->GetYAxis() : m_Camera->GetZAxis())*(MouseDelta.y*2);
-        }
-        else
-        {
+            // No modifier key is down - look around.
             m_Camera->Angles.yaw()+=MouseDelta.x*0.4f;
             m_Camera->Angles.pitch()+=MouseDelta.y*(Options.view3d.ReverseY ? -0.4f : 0.4f);
             m_Camera->LimitAngles();
+        }
+        else if (Shift && !Control)
+        {
+            // Shift is down, but not Control - pan the view (shift up/down and strafe left/right).
+            m_Camera->Pos+=m_Camera->GetXAxis()*(MouseDelta.x*2);
+            m_Camera->Pos-=m_Camera->GetZAxis()*(MouseDelta.y*2);
+        }
+        else if (!Shift && Control)
+        {
+            // Control is down, but not Shift - "fly mode".
+            m_Camera->Angles.yaw()+=MouseDelta.x*0.4f;
+            m_Camera->LimitAngles();
+
+            Vector3fT   xy =m_Camera->GetYAxis(); xy.z=0.0f;
+            const float len=length(xy);
+
+            m_Camera->Pos-=(len>0.01f ? xy/len : m_Camera->GetYAxis())*(MouseDelta.y*2);
+        }
+        else
+        {
+            // Both Shift and Control is down - move the camera along its depth axis and strafe left/right.
+            m_Camera->Pos+=m_Camera->GetXAxis()*(MouseDelta.x*2);
+            m_Camera->Pos-=m_Camera->GetYAxis()*(MouseDelta.y*2);
         }
 
         if (MouseDelta.x || MouseDelta.y) WarpPointer(RectCenter.x, RectCenter.y);

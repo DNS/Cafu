@@ -43,15 +43,15 @@ class ToolEditSurfaceT : public ToolT
     void      OnActivate(ToolT* OldTool);
     void      OnDeactivate(ToolT* NewTool);
 
-    bool OnLMouseDown2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME);
-    bool OnKeyDown2D   (ViewWindow2DT& ViewWindow, wxKeyEvent&   KE);
-    bool OnKeyUp2D     (ViewWindow2DT& ViewWindow, wxKeyEvent&   KE);
+    bool OnLMouseDown2D (ViewWindow2DT& ViewWindow, wxMouseEvent& ME);
+    bool OnKeyDown2D    (ViewWindow2DT& ViewWindow, wxKeyEvent&   KE);
+    bool OnKeyUp2D      (ViewWindow2DT& ViewWindow, wxKeyEvent&   KE);
 
-    bool OnKeyDown3D   (ViewWindow3DT& ViewWindow, wxKeyEvent&   KE);
-    bool OnKeyUp3D     (ViewWindow3DT& ViewWindow, wxKeyEvent&   KE);
-    bool OnLMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME);
-    bool OnRMouseUp3D  (ViewWindow3DT& ViewWindow, wxMouseEvent& ME);
-    bool OnMouseMove3D (ViewWindow3DT& ViewWindow, wxMouseEvent& ME);
+    bool OnKeyDown3D    (ViewWindow3DT& ViewWindow, wxKeyEvent&   KE);
+    bool OnKeyUp3D      (ViewWindow3DT& ViewWindow, wxKeyEvent&   KE);
+    bool OnLMouseDown3D (ViewWindow3DT& ViewWindow, wxMouseEvent& ME);
+    bool OnRMouseClick3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME);
+    bool OnMouseMove3D  (ViewWindow3DT& ViewWindow, wxMouseEvent& ME);
 
     bool UpdateStatusBar(ChildFrameT* ChildFrame) const;
 

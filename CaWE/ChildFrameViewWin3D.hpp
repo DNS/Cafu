@@ -102,9 +102,6 @@ class ViewWindow3DT : public wxGLCanvas, public ViewWindowT
     /// Moves the camera that is currently associated with this view to the given new position.
     void MoveCamera(const Vector3fT& NewPos);
 
-    /// Returns the MouseControlT instance associated with this view.
-    const MouseControlT& GetMouseControl() const { return m_MouseControl; }
-
     /// This method returns visible all map elements at a given pixel in the 3D view window.
     /// @param Pixel   The pixel in window coordinates for which the map elements are to be found.
     /// @returns The array of visible map elements that intersect the ray from the camera position through the pixel.
@@ -134,6 +131,7 @@ class ViewWindow3DT : public wxGLCanvas, public ViewWindowT
     private:
 
     friend class ToolCameraT;
+    enum RightMBStateT { RMB_UP_IDLE, RMB_DOWN_UNDECIDED, RMB_DOWN_DRAGGING };  ///< This enumeration describes the states that the right mouse button can take.
 
     ViewTypeT     m_ViewType;           ///< The type of this 3D view (wireframe, flat, materials, ...).
     Renderer3DT   m_Renderer;           ///< Performs the 3D rendering in our window.
@@ -142,6 +140,8 @@ class ViewWindow3DT : public wxGLCanvas, public ViewWindowT
     CameraT*      m_Camera;             ///< Pointer to the camera that is currently used for this 3D view. The actual instance of the camera is kept in the camera tool.
     Vector3fT     m_CameraVel;          ///< The cameras current velocity, in camera space. Positive values for m_CameraVel.y mean forward movement, etc.
     MouseControlT m_MouseControl;       ///< If and how the camera of the associated view is currently being controlled with the mouse.
+    RightMBStateT m_RightMBState;       ///< The state of the right mouse button. This is required because the RMB has a dual function: a click can bring up the context menu, or initiate mouse-looking for the 3D view.
+    wxPoint       m_RDownPosWin;        ///< The point where the RMB went down, in window coordinates.
 
     // Event handlers.
     void OnKeyDown         (wxKeyEvent&              ME);

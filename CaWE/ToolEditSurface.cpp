@@ -216,7 +216,7 @@ bool ToolEditSurfaceT::OnLMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& M
 }
 
 
-bool ToolEditSurfaceT::OnRMouseUp3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
+bool ToolEditSurfaceT::OnRMouseClick3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
 {
     const ArrayT<ViewWindow3DT::HitInfoT> Hits=ViewWindow.GetElementsAt(ME.GetPosition());
 

@@ -58,10 +58,6 @@ class ToolCameraT : public ToolT
     bool OnMouseMove2D (ViewWindow2DT& ViewWindow, wxMouseEvent& ME);
 
     bool OnKeyDown3D   (ViewWindow3DT& ViewWindow, wxKeyEvent&   KE);
-    bool OnLMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME);
-    bool OnLMouseUp3D  (ViewWindow3DT& ViewWindow, wxMouseEvent& ME);
-    bool OnRMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME);
-    bool OnRMouseUp3D  (ViewWindow3DT& ViewWindow, wxMouseEvent& ME);
     bool OnMouseMove3D (ViewWindow3DT& ViewWindow, wxMouseEvent& ME);
 
     void RenderTool2D(Renderer2DT& Renderer) const;

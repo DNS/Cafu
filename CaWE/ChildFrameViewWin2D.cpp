@@ -1102,15 +1102,9 @@ void ViewWindow2DT::OnMouseRightDown(wxMouseEvent& ME)
     // namely during the continued event processing between the call to Destroy() and our final deletion.
     if (&GetMapDoc()==NULL) { ME.Skip(); return; }
 
-    // Give the active tool a chance to intercept the event.
-    ToolT* Tool=m_ChildFrame->GetToolManager().GetActiveTool();
-
-    if (Tool)
-    {
-        if (Tool->OnRMouseDown2D(*this, ME)) return;
-    }
-
-    ME.Skip();
+    // The active tool cannot intercept the RMB *down* event,
+    // because we don't want the tools to be able to shut off our mouse-looking feature.
+    ;
 }
 
 
@@ -1125,7 +1119,7 @@ void ViewWindow2DT::OnMouseRightUp(wxMouseEvent& ME)
 
     if (Tool)
     {
-        if (Tool->OnRMouseUp2D(*this, ME)) return;
+        if (Tool->OnRMouseClick2D(*this, ME)) return;
     }
 
     ME.Skip();
