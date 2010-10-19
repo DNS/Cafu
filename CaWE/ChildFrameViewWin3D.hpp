@@ -45,24 +45,38 @@ class ViewWindow3DT : public wxGLCanvas, public ViewWindowT
     {
         public:
 
+        enum StateT { NOT_ACTIVE, ACTIVE_NORMAL, ACTIVE_ORBIT };
+
         MouseControlT(ViewWindow3DT& ViewWin);
 
-        bool IsMoving() const { return m_IsMoving; }
-        void ActivateMoving(bool Move);
-        bool IsLooking() const { return m_IsLooking; }
-        void ActivateLooking(bool Look);
+        /// Activates the mouse control in the given state.
+        /// @param NewState   The state in which the mouse control should be activated.
+        /// @param RefPt      The position of the reference point in window coordinates.
+        /// Note that if the mouse control is already active, it can not be reactivated in a different ACTIVE_* state but must be deactivated first.
+        void Activate(StateT NewState, const wxPoint& RefPt=wxDefaultPosition);
 
-        /// Returns whether the camera is currently being controlled with the mouse.
-        bool IsActive() const { return m_IsMoving || m_IsLooking; }
+        /// Deactivates the mouse control.
+        void Deactivate();
+
+        /// Returns the state that the mouse control is currently in.
+        StateT GetState() const { return m_State; }
+
+        /// Returns whether the mouse control is active; a shortcut for GetState()!=NOT_ACTIVE.
+        bool IsActive() const { return m_State!=NOT_ACTIVE; }
+
+        /// Return the position of the reference point in window coordinates as set when the mouse control was activated.
+        const wxPoint& GetRefPtWin() const { return m_RefPtWin; }
+
+        /// Return the position of the reference point in world coordinates as set when the mouse control was activated.
+        const Vector3fT& GetRefPtWorld() const { return m_RefPtWorld; }
 
 
         private:
 
-        void UpdateViewWin();
-
         ViewWindow3DT& m_ViewWin;
-        bool           m_IsMoving;
-        bool           m_IsLooking;
+        StateT         m_State;
+        wxPoint        m_RefPtWin;    ///< The position of the reference point in window coordinates as set when the mouse control was activated.
+        Vector3fT      m_RefPtWorld;  ///< The position of the reference point in world  coordinates as set when the mouse control was activated.
     };
 
     /// This struct describes a hit (an intersection of a map element with a view ray through a given pixel) as returned by the GetElementsAt() method.
@@ -70,7 +84,8 @@ class ViewWindow3DT : public wxGLCanvas, public ViewWindowT
     {
         MapElementT*  Object;   ///< Pointer to the intersected map element.
         unsigned long FaceNr;   ///< If Object is a map brush, this is the number of its face that was hit.
-        float         Depth;    ///< Depth value (distance from ray origin along the ray) of the object that was clicked on.
+        float         Depth;    ///< Depth value (distance from ray origin (on near clip plane) along the ray) of the hit object.
+        Vector3fT     Pos;      ///< The point in the world where the object was hit.
     };
 
 

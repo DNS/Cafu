@@ -47,45 +47,42 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 ViewWindow3DT::MouseControlT::MouseControlT(ViewWindow3DT& ViewWin)
     : m_ViewWin(ViewWin),
-      m_IsMoving(false),
-      m_IsLooking(false)
+      m_State(NOT_ACTIVE)
 {
 }
 
 
-void ViewWindow3DT::MouseControlT::ActivateMoving(bool Move)
+void ViewWindow3DT::MouseControlT::Activate(StateT NewState, const wxPoint& RefPt)
 {
-    // Propagate the changes to the camera also to the other observers.
-    if (m_IsMoving && !Move) m_ViewWin.m_CameraTool->NotifyCameraChanged(m_ViewWin.m_Camera);
+    // Did someone use this method for deactivating mouse control?
+    if (NewState==NOT_ACTIVE) { Deactivate(); return; }
 
-    m_IsMoving=Move;
-    UpdateViewWin();
+    // If mouse control is already active (and attempted to re-activate, i.e. the state changes from ACTIVE_* to ACTIVE_*),
+    // do nothing, because we want to have the next state of ACTIVE_* always be NOT_ACTIVE.
+    if (m_State!=NOT_ACTIVE) return;
+
+    m_State=NewState;
+    m_RefPtWin=(RefPt==wxDefaultPosition) ? wxPoint(m_ViewWin.GetClientSize().x/2, m_ViewWin.GetClientSize().y/2) : RefPt;
+
+    const ArrayT<ViewWindow3DT::HitInfoT> Hits=m_ViewWin.GetElementsAt(m_RefPtWin);
+    m_RefPtWorld=Hits.Size()>0 ? Hits[0].Pos : m_ViewWin.GetCamera().Pos;
+
+    if (!m_ViewWin.HasCapture()) m_ViewWin.CaptureMouse();
+    m_ViewWin.SetCursor(wxCURSOR_BLANK);
+    m_ViewWin.WarpPointer(m_RefPtWin.x, m_RefPtWin.y);
 }
 
 
-void ViewWindow3DT::MouseControlT::ActivateLooking(bool Look)
+void ViewWindow3DT::MouseControlT::Deactivate()
 {
-    // Propagate the changes to the camera also to the other observers.
-    if (m_IsLooking && !Look) m_ViewWin.m_CameraTool->NotifyCameraChanged(m_ViewWin.m_Camera);
+    // The mouse control is deactivated (the state changes from ACTIVE_* to NOT_ACTIVE),
+    // so propagate the changes to the camera also to the other observers.
+    if (m_State!=NOT_ACTIVE) m_ViewWin.m_CameraTool->NotifyCameraChanged(m_ViewWin.m_Camera);
 
-    m_IsLooking=Look;
-    UpdateViewWin();
-}
+    m_State=NOT_ACTIVE;
 
-
-void ViewWindow3DT::MouseControlT::UpdateViewWin()
-{
-    if (IsActive())
-    {
-        if (!m_ViewWin.HasCapture()) m_ViewWin.CaptureMouse();
-        m_ViewWin.SetCursor(wxCURSOR_BLANK);
-        m_ViewWin.WarpPointer(m_ViewWin.GetClientSize().x/2, m_ViewWin.GetClientSize().y/2);
-    }
-    else
-    {
-        if (m_ViewWin.HasCapture()) m_ViewWin.ReleaseMouse();
-        m_ViewWin.SetCursor(*wxSTANDARD_CURSOR);
-    }
+    if (m_ViewWin.HasCapture()) m_ViewWin.ReleaseMouse();
+    m_ViewWin.SetCursor(*wxSTANDARD_CURSOR);
 }
 
 
@@ -303,6 +300,7 @@ class RayIntersectionTestT : public IterationHandlerI
             Hit.Object=Child;
             Hit.FaceNr=FaceNr;
             Hit.Depth =Fraction;
+            Hit.Pos   =RayOrigin + RayDir*Fraction;
 
             Hits.PushBack(Hit);
         }
@@ -425,11 +423,11 @@ void ViewWindow3DT::OnKeyDown(wxKeyEvent& KE)
     switch (KE.GetKeyCode())
     {
         case WXK_SPACE:
-            m_MouseControl.ActivateLooking(true);
+            m_MouseControl.Activate(MouseControlT::ACTIVE_NORMAL);
             return;
 
         case 'Z':
-            m_MouseControl.ActivateLooking(!m_MouseControl.IsLooking());
+            m_MouseControl.Activate(m_MouseControl.IsActive() ? MouseControlT::NOT_ACTIVE : MouseControlT::ACTIVE_NORMAL);
             return;
     }
 
@@ -509,7 +507,7 @@ void ViewWindow3DT::OnKeyUp(wxKeyEvent& KE)
     switch (KE.GetKeyCode())
     {
         case WXK_SPACE:
-            m_MouseControl.ActivateLooking(false);
+            m_MouseControl.Deactivate();
             return;
     }
 
@@ -591,9 +589,7 @@ void ViewWindow3DT::OnMouseMiddleDown(wxMouseEvent& ME)
     ToolT* Tool=m_ChildFrame->GetToolManager().GetActiveTool();
     if (Tool && Tool->OnMMouseDown3D(*this, ME)) return;
 
-    // TODO 1: Record MMB Pos in Win and World space.
-    // TODO 2: Activate mouse look in "orbit" mode.
-    // Oder: Halte die Win und World Pos IMMER fest, entscheide wie bewegt wird nur nach ME.GetMousestate...??
+    m_MouseControl.Activate(MouseControlT::ACTIVE_ORBIT, ME.GetPosition());
 }
 
 
@@ -603,7 +599,10 @@ void ViewWindow3DT::OnMouseMiddleUp(wxMouseEvent& ME)
     // namely during the continued event processing between the call to Destroy() and our final deletion.
     if (&GetMapDoc()==NULL) { ME.Skip(); return; }
 
-    // TODO 3: Deactivate orbit mode.
+    if (m_MouseControl.GetState()==MouseControlT::ACTIVE_ORBIT)
+    {
+        m_MouseControl.Deactivate();
+    }
 
     // Give the active tool a chance to intercept the event.
     ToolT* Tool=m_ChildFrame->GetToolManager().GetActiveTool();
@@ -631,9 +630,9 @@ void ViewWindow3DT::OnMouseRightUp(wxMouseEvent& ME)
     // namely during the continued event processing between the call to Destroy() and our final deletion.
     if (&GetMapDoc()==NULL) { ME.Skip(); return; }
 
-    if (m_MouseControl.IsLooking())
+    if (m_MouseControl.GetState()==MouseControlT::ACTIVE_NORMAL)
     {
-        m_MouseControl.ActivateLooking(false);
+        m_MouseControl.Deactivate();
     }
 
     if (m_RightMBState==RMB_DOWN_UNDECIDED)
@@ -667,7 +666,7 @@ void ViewWindow3DT::OnMouseWheel(wxMouseEvent& ME)
     ToolT* Tool=m_ChildFrame->GetToolManager().GetActiveTool();
     if (Tool && Tool->OnMouseWheel3D(*this, ME)) return;
 
-    m_Camera->Pos+=m_Camera->GetYAxis()*(ME.GetWheelRotation()/2);
+    m_Camera->Pos+=normalizeOr0(WindowToWorld(ME.GetPosition()) - m_Camera->Pos)*(ME.GetWheelRotation()/2);
     m_CameraTool->NotifyCameraChanged(m_Camera);
 }
 
@@ -700,7 +699,7 @@ void ViewWindow3DT::OnMouseMove(wxMouseEvent& ME)
         if (abs(Drag.x)>3 || abs(Drag.y)>3)
         {
             m_RightMBState=RMB_DOWN_DRAGGING;
-            m_MouseControl.ActivateLooking(true);
+            m_MouseControl.Activate(MouseControlT::ACTIVE_NORMAL);
         }
     }
 
@@ -864,42 +863,91 @@ void ViewWindow3DT::OnPaint(wxPaintEvent& PE)
         const bool    Shift     =wxGetKeyState(WXK_SHIFT);
         const bool    Control   =wxGetKeyState(WXK_CONTROL);
         const wxPoint MousePos  =ScreenToClient(wxGetMousePosition());      // ScreenToClient() is a method of wxWindow.
-        const wxRect  Rect      =wxRect(wxPoint(0, 0), GetClientSize());
-        const wxPoint RectCenter=wxPoint(Rect.x+Rect.width/2, Rect.y+Rect.height/2);
-        const wxPoint MouseDelta=MousePos-RectCenter;
+        const wxPoint MouseDelta=MousePos-m_MouseControl.GetRefPtWin();
 
-        if (!Shift && !Control)
+        if (m_MouseControl.GetState()==MouseControlT::ACTIVE_NORMAL)
         {
-            // No modifier key is down - look around.
-            m_Camera->Angles.yaw()+=MouseDelta.x*0.4f;
-            m_Camera->Angles.pitch()+=MouseDelta.y*(Options.view3d.ReverseY ? -0.4f : 0.4f);
-            m_Camera->LimitAngles();
-        }
-        else if (Shift && !Control)
-        {
-            // Shift is down, but not Control - pan the view (shift up/down and strafe left/right).
-            m_Camera->Pos+=m_Camera->GetXAxis()*(MouseDelta.x*2);
-            m_Camera->Pos-=m_Camera->GetZAxis()*(MouseDelta.y*2);
-        }
-        else if (!Shift && Control)
-        {
-            // Control is down, but not Shift - "fly mode".
-            m_Camera->Angles.yaw()+=MouseDelta.x*0.4f;
-            m_Camera->LimitAngles();
+            if (!Shift && !Control)
+            {
+                // No modifier key is down - look around.
+                m_Camera->Angles.yaw()+=MouseDelta.x*0.4f;
+                m_Camera->Angles.pitch()+=MouseDelta.y*(Options.view3d.ReverseY ? -0.4f : 0.4f);
+                m_Camera->LimitAngles();
+            }
+            else if (Shift && !Control)
+            {
+                // Shift is down, but not Control - pan the view (shift up/down and strafe left/right).
+                m_Camera->Pos+=m_Camera->GetXAxis()*(MouseDelta.x*2);
+                m_Camera->Pos-=m_Camera->GetZAxis()*(MouseDelta.y*2);
+            }
+            else if (!Shift && Control)
+            {
+                // Control is down, but not Shift - move the camera along its depth axis and strafe left/right.
+                m_Camera->Pos+=m_Camera->GetXAxis()*(MouseDelta.x*2);
+                m_Camera->Pos-=m_Camera->GetYAxis()*(MouseDelta.y*2);
+            }
+            else
+            {
+                // Both Shift and Control is down - "fly mode".
+                m_Camera->Angles.yaw()+=MouseDelta.x*0.4f;
+                m_Camera->LimitAngles();
 
-            Vector3fT   xy =m_Camera->GetYAxis(); xy.z=0.0f;
-            const float len=length(xy);
+                Vector3fT   xy =m_Camera->GetYAxis(); xy.z=0.0f;
+                const float len=length(xy);
 
-            m_Camera->Pos-=(len>0.01f ? xy/len : m_Camera->GetYAxis())*(MouseDelta.y*2);
+                m_Camera->Pos-=(len>0.01f ? xy/len : m_Camera->GetYAxis())*(MouseDelta.y*2);
+            }
         }
         else
         {
-            // Both Shift and Control is down - move the camera along its depth axis and strafe left/right.
-            m_Camera->Pos+=m_Camera->GetXAxis()*(MouseDelta.x*2);
-            m_Camera->Pos-=m_Camera->GetYAxis()*(MouseDelta.y*2);
+            // Orbit mode.
+            const float DeltaYaw=MouseDelta.x*0.4f;
+
+            // Apply yaw in order to orbit the camera horizontally (around the z-axis).
+            if (DeltaYaw!=0.0f)
+            {
+                m_Camera->Angles.yaw()+=DeltaYaw;
+                m_Camera->LimitAngles();
+
+                m_Camera->Pos-=m_MouseControl.GetRefPtWorld();
+                m_Camera->Pos=m_Camera->Pos.GetRotZ(-DeltaYaw);
+                m_Camera->Pos+=m_MouseControl.GetRefPtWorld();
+            }
+
+            if (Shift || Control)
+            {
+                // Shift or Control is down - move the camera closer or farther from the reference point.
+                m_Camera->Pos-=normalizeOr0(m_MouseControl.GetRefPtWorld() - m_Camera->Pos)*(MouseDelta.y*2);
+            }
+            else
+            {
+                // No modifier key is down - apply pitch in order to orbit the camera vertically.
+                const float DeltaPitch=MouseDelta.y*(Options.view3d.ReverseY ? -0.4f : 0.4f);
+
+                if (DeltaPitch!=0.0f)
+                {
+                    const float OldElev =90.0f - cf::math::AnglesfT::RadToDeg(acos(normalizeOr0(m_Camera->Pos - m_MouseControl.GetRefPtWorld()).z));
+                    const float NewElev =OldElev + DeltaPitch;
+                    const float NewPitch=m_Camera->Angles.pitch() + DeltaPitch;
+
+                    if (NewElev<85.0f && NewElev>-85.0f && NewPitch<90.0f && NewPitch>-90.0f)
+                    {
+                        m_Camera->Angles.pitch()+=DeltaPitch;
+                        m_Camera->LimitAngles();
+
+                        m_Camera->Pos-=m_MouseControl.GetRefPtWorld();
+
+                        wxASSERT(m_Camera->Pos.x!=0.0f || m_Camera->Pos.y!=0.0f);
+                        const float AngleZ=cf::math::AnglesfT::RadToDeg(atan2(m_Camera->Pos.x, m_Camera->Pos.y));
+                        m_Camera->Pos=m_Camera->Pos.GetRotZ(AngleZ).GetRotX(DeltaPitch).GetRotZ(-AngleZ);
+
+                        m_Camera->Pos+=m_MouseControl.GetRefPtWorld();
+                    }
+                }
+            }
         }
 
-        if (MouseDelta.x || MouseDelta.y) WarpPointer(RectCenter.x, RectCenter.y);
+        if (MouseDelta.x || MouseDelta.y) WarpPointer(m_MouseControl.GetRefPtWin().x, m_MouseControl.GetRefPtWin().y);
     }
 
     // Note that   m_CameraTool->NotifyCameraChanged(m_Camera);   is
@@ -1052,12 +1100,12 @@ void ViewWindow3DT::OnPaint(wxPaintEvent& PE)
     m_Renderer.RenderSplitPlanes(MapDoc.GetBspTree()->GetRootNode(), Options.view3d.SplitPlanesDepth);
 
 
-    // Render the "HUD". Right now, it's just the center cross-hair, if active.
+    // Render the "HUD" of the mouse control.
     if (m_MouseControl.IsActive())
     {
         Renderer3DT::UseOrthoMatricesT UseOrtho(*this);
 
-        m_Renderer.RenderCrossHair(wxPoint(CanvasSize.GetWidth()/2, CanvasSize.GetHeight()/2));
+        m_Renderer.RenderCrossHair(m_MouseControl.GetRefPtWin());
     }
 
 
@@ -1088,14 +1136,12 @@ void ViewWindow3DT::OnSetFocus(wxFocusEvent& FE)
 void ViewWindow3DT::OnKillFocus(wxFocusEvent& FE)
 {
     // When we lose the focus, make sure that the mouse cursor is shown and the mouse capture is released.
-    m_MouseControl.ActivateMoving(false);
-    m_MouseControl.ActivateLooking(false);
+    m_MouseControl.Deactivate();
 }
 
 
 void ViewWindow3DT::OnMouseCaptureLost(wxMouseCaptureLostEvent& ME)
 {
     // When we lose the capture, make sure that the mouse cursor is shown and the mouse capture is released.
-    m_MouseControl.ActivateMoving(false);
-    m_MouseControl.ActivateLooking(false);
+    m_MouseControl.Deactivate();
 }

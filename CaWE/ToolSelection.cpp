@@ -641,8 +641,7 @@ int ToolSelectionT::OnContextMenu3D(ViewWindow3DT& ViewWindow, wxContextMenuEven
 
         const ArrayT<ViewWindow3DT::HitInfoT> Hits=ViewWindow.GetElementsAt(MousePosWin);
         const Vector3fT ViewDir=ViewWindow.WindowToWorld(MousePosWin)-ViewWindow.GetCamera().Pos;
-        const float     Depth  =(Hits.Size()==0) ? 8.0f*length(ViewDir) : Hits[0].Depth;
-        const Vector3fT HitPos =ViewWindow.GetCamera().Pos + normalizeOr0(ViewDir)*Depth;
+        const Vector3fT HitPos =Hits.Size()>0 ? Hits[0].Pos : ViewWindow.GetCamera().Pos + ViewDir*8.0f;
 
         switch (MenuSelID)
         {
