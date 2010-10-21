@@ -154,7 +154,7 @@ class ViewWindow3DT : public wxGLCanvas, public ViewWindowT
     ToolCameraT*  m_CameraTool;         ///< The camera tool that manages all cameras. The camera of this 3D view is always among the cameras in the tool.
     CameraT*      m_Camera;             ///< Pointer to the camera that is currently used for this 3D view. The actual instance of the camera is kept in the camera tool.
     Vector3fT     m_CameraVel;          ///< The cameras current velocity, in camera space. Positive values for m_CameraVel.y mean forward movement, etc.
-    MouseControlT m_MouseControl;       ///< If and how the camera of the associated view is currently being controlled with the mouse.
+    MouseControlT m_MouseControl;       ///< If and how the camera of this view is currently being controlled with the mouse.
     RightMBStateT m_RightMBState;       ///< The state of the right mouse button. This is required because the RMB has a dual function: a click can bring up the context menu, or initiate mouse-looking for the 3D view.
     wxPoint       m_RDownPosWin;        ///< The point where the RMB went down, in window coordinates.
 

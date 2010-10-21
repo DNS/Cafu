@@ -48,22 +48,39 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 // d) This is converted to world space by dividing by the zoom factor and inverting (mirroring) the two axes, if necessary or desired.
 
 
-MouseDragTimerT::MouseDragTimerT(ViewWindow2DT& ViewWin2D)
-    : m_ViewWin2D(ViewWin2D),
-      m_MouseLeftDownPoint(0, 0),
-      m_ScrollDist(0, 0)
+ViewWindow2DT::MouseGrabT::MouseGrabT(ViewWindow2DT& ViewWin)
+    : m_ViewWin(ViewWin),
+      m_IsActive(false),
+      m_RefPtWin()
 {
 }
 
 
-void MouseDragTimerT::Notify()
+void ViewWindow2DT::MouseGrabT::Activate(const wxPoint& RefPt)
 {
-    m_ViewWin2D.ScrollWindow(m_ScrollDist.x, m_ScrollDist.y);
+    m_RefPtWin=RefPt;
 
-    m_MouseLeftDownPoint=m_ViewWin2D.ScreenToClient(wxGetMousePosition());     // Note: ScreenToClient() is a method of wxWindow.
-    m_ScrollDist=wxPoint(0, 0);
+    // If mouse control is already active, do nothing else.
+    if (m_IsActive) return;
 
-    m_ViewWin2D.Update();
+    // If some other code has already captured the mouse pointer, do nothing else.
+    if (m_ViewWin.HasCapture()) return;
+
+    m_IsActive=true;
+    m_ViewWin.CaptureMouse();
+    m_ViewWin.SetCursor(CursorMan->GetCursor(CursorManT::HAND_CLOSED));
+}
+
+
+void ViewWindow2DT::MouseGrabT::Deactivate()
+{
+    // If mouse control is already inactive, do nothing.
+    if (!m_IsActive) return;
+
+    m_IsActive=false;
+    // wxASSERT(m_ViewWin.HasCapture());    // Fails when called from OnMouseCaptureLost().
+    if (m_ViewWin.HasCapture()) m_ViewWin.ReleaseMouse();
+    m_ViewWin.SetCursor(*wxSTANDARD_CURSOR);
 }
 
 
@@ -88,6 +105,7 @@ BEGIN_EVENT_TABLE(ViewWindow2DT, wxWindow)
     EVT_SCROLLWIN         (ViewWindow2DT::OnScroll          )     // Scroll event.
     EVT_PAINT             (ViewWindow2DT::OnPaint           )     // Paint event.
     EVT_SIZE              (ViewWindow2DT::OnSize            )     // Size event.
+    EVT_KILL_FOCUS        (ViewWindow2DT::OnKillFocus       )
     EVT_MOUSE_CAPTURE_LOST(ViewWindow2DT::OnMouseCaptureLost)
 END_EVENT_TABLE()
 
@@ -104,7 +122,9 @@ ViewWindow2DT::ViewWindow2DT(wxWindow* Parent, ChildFrameT* ChildFrame, ViewType
       m_ViewType(VT_2D_XY),
       m_AxesInfo(0, false, 1, false),
       m_ZoomFactor(0.12345f),
-      m_MouseDragTimer(*this)
+      m_MouseGrab(*this),
+      m_RightMBState(RMB_UP_IDLE),
+      m_RDownPosWin()
 {
     SetMinSize(wxSize(120, 90));
     SetBackgroundStyle(wxBG_STYLE_PAINT);   // Our paint event handler handles erasing the background.
@@ -864,11 +884,20 @@ void ViewWindow2DT::OnKeyDown(wxKeyEvent& KE)
 
     // wxMessageBox(wxString::Format("Got a key down event!    :O)\n%lu, '%c', %i", KE.GetKeyCode(), KE.GetKeyCode(), KE.GetKeyCode()-WXK_ADD));
 
-    if (KE.GetKeyCode()==WXK_SPACE)
+    switch (KE.GetKeyCode())
     {
-        // Switch the cursor to the hand. We'll start panning the view on the left mouse button down event.
-        SetCursor(m_MouseDragTimer.IsRunning() ? CursorMan->GetCursor(CursorManT::HAND_CLOSED) : CursorMan->GetCursor(CursorManT::HAND_OPEN));
-        return;
+        case WXK_SPACE:
+            // Activate mouse grabbing, but don't wrongly update the reference point on auto-repeat events.
+            if (!m_MouseGrab.IsActive())
+            {
+                m_MouseGrab.Activate(ScreenToClient(wxGetMousePosition()));
+            }
+            return;
+
+        case 'Z':
+            if (m_MouseGrab.IsActive()) m_MouseGrab.Deactivate();
+                                   else m_MouseGrab.Activate(ScreenToClient(wxGetMousePosition()));
+            return;
     }
 
     // Give the active tool a chance to intercept the event.
@@ -930,11 +959,11 @@ void ViewWindow2DT::OnKeyUp(wxKeyEvent& KE)
     // namely during the continued event processing between the call to Destroy() and our final deletion.
     if (&GetMapDoc()==NULL) { KE.Skip(); return; }
 
-    if (KE.GetKeyCode()==WXK_SPACE)
+    switch (KE.GetKeyCode())
     {
-        // Enable the standard cursor again (pressing space enabled the "hand" cursor for grabbing and panning the view).
-        SetCursor(*wxSTANDARD_CURSOR);
-        return;
+        case WXK_SPACE:
+            m_MouseGrab.Deactivate();
+            return;
     }
 
     // Give the active tool a chance to intercept the event.
@@ -1008,26 +1037,12 @@ void ViewWindow2DT::OnMouseLeftDown(wxMouseEvent& ME)
     // namely during the continued event processing between the call to Destroy() and our final deletion.
     if (&GetMapDoc()==NULL) { ME.Skip(); return; }
 
-    m_MouseDragTimer.m_MouseLeftDownPoint=ME.GetPosition();
-
-    // The space key handling for panning takes precedence over the tools interests. ;)
-    if (wxGetKeyState(WXK_SPACE))
-    {
-        m_MouseDragTimer.m_ScrollDist=wxPoint(0, 0);
-
-        CaptureMouse();
-        m_MouseDragTimer.Start(10);
-        SetCursor(CursorMan->GetCursor(CursorManT::HAND_CLOSED));
-        return;
-    }
+    // TODO: At this time, the tools are not prepared for dealing with the window having captured the mouse already...
+    if (m_MouseGrab.IsActive()) return;
 
     // Give the active tool a chance to intercept the event.
     ToolT* Tool=m_ChildFrame->GetToolManager().GetActiveTool();
-
-    if (Tool)
-    {
-        if (Tool->OnLMouseDown2D(*this, ME)) return;
-    }
+    if (Tool && Tool->OnLMouseDown2D(*this, ME)) return;
 
     ME.Skip();
 }
@@ -1039,22 +1054,12 @@ void ViewWindow2DT::OnMouseLeftUp(wxMouseEvent& ME)
     // namely during the continued event processing between the call to Destroy() and our final deletion.
     if (&GetMapDoc()==NULL) { ME.Skip(); return; }
 
-    if (m_MouseDragTimer.IsRunning())
-    {
-        m_MouseDragTimer.Stop();
-        ReleaseMouse();
-
-        OnMouseMove(ME);
-        return;
-    }
+    // TODO: At this time, the tools are not prepared for dealing with the window having captured the mouse already...
+    if (m_MouseGrab.IsActive()) return;
 
     // Give the active tool a chance to intercept the event.
     ToolT* Tool=m_ChildFrame->GetToolManager().GetActiveTool();
-
-    if (Tool)
-    {
-        if (Tool->OnLMouseUp2D(*this, ME)) return;
-    }
+    if (Tool && Tool->OnLMouseUp2D(*this, ME)) return;
 
     ME.Skip();
 }
@@ -1068,11 +1073,7 @@ void ViewWindow2DT::OnMouseMiddleDown(wxMouseEvent& ME)
 
     // Give the active tool a chance to intercept the event.
     ToolT* Tool=m_ChildFrame->GetToolManager().GetActiveTool();
-
-    if (Tool)
-    {
-        if (Tool->OnMMouseDown2D(*this, ME)) return;
-    }
+    if (Tool && Tool->OnMMouseDown2D(*this, ME)) return;
 
     ME.Skip();
 }
@@ -1086,11 +1087,7 @@ void ViewWindow2DT::OnMouseMiddleUp(wxMouseEvent& ME)
 
     // Give the active tool a chance to intercept the event.
     ToolT* Tool=m_ChildFrame->GetToolManager().GetActiveTool();
-
-    if (Tool)
-    {
-        if (Tool->OnMMouseUp2D(*this, ME)) return;
-    }
+    if (Tool && Tool->OnMMouseUp2D(*this, ME)) return;
 
     ME.Skip();
 }
@@ -1104,7 +1101,11 @@ void ViewWindow2DT::OnMouseRightDown(wxMouseEvent& ME)
 
     // The active tool cannot intercept the RMB *down* event,
     // because we don't want the tools to be able to shut off our mouse-looking feature.
-    ;
+    if (m_RightMBState==RMB_UP_IDLE)    // Keys on the keyboard may generate RMB down events as well...
+    {
+        m_RightMBState=RMB_DOWN_UNDECIDED;
+        m_RDownPosWin =ME.GetPosition();
+    }
 }
 
 
@@ -1114,15 +1115,28 @@ void ViewWindow2DT::OnMouseRightUp(wxMouseEvent& ME)
     // namely during the continued event processing between the call to Destroy() and our final deletion.
     if (&GetMapDoc()==NULL) { ME.Skip(); return; }
 
-    // Give the active tool a chance to intercept the event.
-    ToolT* Tool=m_ChildFrame->GetToolManager().GetActiveTool();
+    m_MouseGrab.Deactivate();
 
-    if (Tool)
+    if (m_RightMBState==RMB_DOWN_UNDECIDED)
     {
-        if (Tool->OnRMouseClick2D(*this, ME)) return;
+        // Give the active tool a chance to intercept the event.
+        ToolT*     Tool   =m_ChildFrame->GetToolManager().GetActiveTool();
+        const bool Handled=Tool && Tool->OnRMouseClick2D(*this, ME);
+
+        if (!Handled)
+        {
+            // The tool did not handle the event, now show the context menu.
+            // Showing the context menu manually here also makes RMB handling uniform
+            // across platforms, see <http://trac.wxwidgets.org/ticket/12535> for details.
+            wxContextMenuEvent CE(wxEVT_CONTEXT_MENU, GetId(), ClientToScreen(ME.GetPosition()));
+
+            // We don't inline the OnContextMenu() code here, because context menus can also be opened via the keyboard.
+            CE.SetEventObject(this);
+            OnContextMenu(CE);
+        }
     }
 
-    ME.Skip();
+    m_RightMBState=RMB_UP_IDLE;
 }
 
 
@@ -1160,48 +1174,6 @@ void ViewWindow2DT::OnMouseMove(wxMouseEvent& ME)
     if (wxGetApp().IsActive())
         if (wxWindow::FindFocus()!=this) SetFocus();
 
-
-    // If we're currently panning the view with the mouse, just update the current scroll distance.
-    if (m_MouseDragTimer.IsRunning())
-    {
-        m_MouseDragTimer.m_ScrollDist=m_MouseDragTimer.m_MouseLeftDownPoint-ME.GetPosition();
-        return;
-    }
-
-
-    // If we have the mouse capture, make sure that the mouse pointer doesn't leave the window,
-    // but instead scroll the map and move the pointer back accordingly.
-    const wxRect ClientRect=wxRect(wxPoint(0, 0), GetClientSize());
-
-    if (HasCapture() && !ClientRect.Contains(ME.GetPosition()))
-    {
-        const wxPoint MousePos=ME.GetPosition();
-
-        // Additional space to move the mouse pointer truly back into the window, not just on its border.
-        const int OffsetX=ClientRect.GetWidth ()/5;
-        const int OffsetY=ClientRect.GetHeight()/5;
-
-        int ScrollX=0;
-        int ScrollY=0;
-
-        if (MousePos.x<                      0) ScrollX=-OffsetX+MousePos.x;                         // Scroll left.
-        if (MousePos.x>= ClientRect.GetWidth()) ScrollX= OffsetX+MousePos.x-ClientRect.GetWidth();   // Scroll right.
-
-        if (MousePos.y<                      0) ScrollY=-OffsetY+MousePos.y;                         // Scroll up.
-        if (MousePos.y>=ClientRect.GetHeight()) ScrollY= OffsetY+MousePos.y-ClientRect.GetHeight();  // Scroll down.
-
-        if (ScrollX!=0 || ScrollY!=0)
-        {
-            ScrollWindow(ScrollX, ScrollY);
-            WarpPointer(MousePos.x-ScrollX, MousePos.y-ScrollY);
-
-            // Force-moved the pointer, now fix the related mouse event for the tools.
-            ME.m_x-=ScrollX;
-            ME.m_y-=ScrollY;
-        }
-    }
-
-
     // Update status bar with the current zoom factor of this view, and the mouse position in world coordinates.
     {
         const wxString  AxesNames[]={ "x:", "y:", "z:" };
@@ -1212,20 +1184,64 @@ void ViewWindow2DT::OnMouseMove(wxMouseEvent& ME)
                                        +AxesNames[m_AxesInfo.VertAxis]+wxString::Format(" %.0f",   WorldPos[m_AxesInfo.VertAxis]), ChildFrameT::SBP_MOUSE_POS);
     }
 
-
-    // Give the active tool a chance to intercept the event.
-    ToolT* Tool=m_ChildFrame->GetToolManager().GetActiveTool();
-
-    if (Tool)
+    // If the RMB is held down but still undecided, check the drag threshold.
+    if (m_RightMBState==RMB_DOWN_UNDECIDED)
     {
-        if (Tool->OnMouseMove2D(*this, ME)) return;
+        const wxPoint Drag=m_RDownPosWin-ME.GetPosition();
+
+        if (abs(Drag.x)>3 || abs(Drag.y)>3)
+        {
+            m_RightMBState=RMB_DOWN_DRAGGING;
+            m_MouseGrab.Activate(ME.GetPosition());
+        }
     }
 
+    if (m_MouseGrab.IsActive())
+    {
+        const wxPoint Delta=m_MouseGrab.GetRefPt()-ME.GetPosition();
 
-    // The tool didn't process the event, so make sure that the proper cursor is set.
-    SetCursor(wxGetKeyState(WXK_SPACE) ? CursorMan->GetCursor(CursorManT::HAND_OPEN) : *wxSTANDARD_CURSOR);
+        ScrollWindow(Delta.x, Delta.y);
+        m_MouseGrab.Activate(ME.GetPosition());   // Update the reference point.
+    }
+    else
+    {
+        // If we have the mouse capture (e.g. because a tool captured it),
+        // make sure that the mouse pointer doesn't leave the window,
+        // but instead scroll the map and move the pointer back accordingly.
+        const wxRect ClientRect=wxRect(wxPoint(0, 0), GetClientSize());
 
-    ME.Skip();
+        if (HasCapture() && !ClientRect.Contains(ME.GetPosition()))
+        {
+            const wxPoint MousePos=ME.GetPosition();
+
+            // Additional space to move the mouse pointer truly back into the window, not just on its border.
+            const int OffsetX=ClientRect.GetWidth ()/5;
+            const int OffsetY=ClientRect.GetHeight()/5;
+
+            int ScrollX=0;
+            int ScrollY=0;
+
+            if (MousePos.x<                      0) ScrollX=-OffsetX+MousePos.x;                         // Scroll left.
+            if (MousePos.x>= ClientRect.GetWidth()) ScrollX= OffsetX+MousePos.x-ClientRect.GetWidth();   // Scroll right.
+
+            if (MousePos.y<                      0) ScrollY=-OffsetY+MousePos.y;                         // Scroll up.
+            if (MousePos.y>=ClientRect.GetHeight()) ScrollY= OffsetY+MousePos.y-ClientRect.GetHeight();  // Scroll down.
+
+            if (ScrollX!=0 || ScrollY!=0)
+            {
+                ScrollWindow(ScrollX, ScrollY);
+                WarpPointer(MousePos.x-ScrollX, MousePos.y-ScrollY);
+
+                // Force-moved the pointer, now fix the related mouse event for the tools.
+                ME.m_x-=ScrollX;
+                ME.m_y-=ScrollY;
+            }
+        }
+
+        // Give the active tool a chance to intercept the event.
+        ToolT* Tool=m_ChildFrame->GetToolManager().GetActiveTool();
+        if (Tool && Tool->OnMouseMove2D(*this, ME)) return;
+    }
 }
 
 
@@ -1234,8 +1250,6 @@ void ViewWindow2DT::OnContextMenu(wxContextMenuEvent& CE)
     // Guard against accessing an already deleted MapDoc. This can otherwise happen when closing this window/view/document,
     // namely during the continued event processing between the call to Destroy() and our final deletion.
     if (&GetMapDoc()==NULL) { CE.Skip(); return; }
-
-    if (m_MouseDragTimer.IsRunning()) return;
 
     wxMenu Menu;
 
@@ -1316,6 +1330,16 @@ void ViewWindow2DT::OnSize(wxSizeEvent& SE)
 }
 
 
+void ViewWindow2DT::OnKillFocus(wxFocusEvent& FE)
+{
+    // When we lose the focus, make sure that the mouse cursor is reset and the mouse capture is released.
+    m_MouseGrab.Deactivate();
+    m_RightMBState=RMB_UP_IDLE;
+}
+
+
 void ViewWindow2DT::OnMouseCaptureLost(wxMouseCaptureLostEvent& ME)
 {
+    // When we lose the capture, make sure that the mouse cursor is reset and the mouse capture is released.
+    m_MouseGrab.Deactivate();
 }

@@ -507,7 +507,10 @@ void ViewWindow3DT::OnKeyUp(wxKeyEvent& KE)
     switch (KE.GetKeyCode())
     {
         case WXK_SPACE:
-            m_MouseControl.Deactivate();
+            if (m_MouseControl.GetState()==MouseControlT::ACTIVE_NORMAL)
+            {
+                m_MouseControl.Deactivate();
+            }
             return;
     }
 
@@ -618,9 +621,11 @@ void ViewWindow3DT::OnMouseRightDown(wxMouseEvent& ME)
 
     // The active tool cannot intercept the RMB *down* event,
     // because we don't want the tools to be able to shut off our mouse-looking feature.
-    wxASSERT(m_RightMBState==RMB_UP_IDLE);
-    m_RightMBState=RMB_DOWN_UNDECIDED;
-    m_RDownPosWin =ME.GetPosition();
+    if (m_RightMBState==RMB_UP_IDLE)    // Keys on the keyboard may generate RMB down events as well...
+    {
+        m_RightMBState=RMB_DOWN_UNDECIDED;
+        m_RDownPosWin =ME.GetPosition();
+    }
 }
 
 
@@ -644,6 +649,8 @@ void ViewWindow3DT::OnMouseRightUp(wxMouseEvent& ME)
         if (!Handled)
         {
             // The tool did not handle the event, now show the context menu.
+            // Showing the context menu manually here also makes RMB handling uniform
+            // across platforms, see <http://trac.wxwidgets.org/ticket/12535> for details.
             wxContextMenuEvent CE(wxEVT_CONTEXT_MENU, GetId(), ClientToScreen(ME.GetPosition()));
 
             // We don't inline the OnContextMenu() code here, because context menus can also be opened via the keyboard.
@@ -939,7 +946,9 @@ void ViewWindow3DT::OnPaint(wxPaintEvent& PE)
 
                         wxASSERT(m_Camera->Pos.x!=0.0f || m_Camera->Pos.y!=0.0f);
                         const float AngleZ=cf::math::AnglesfT::RadToDeg(atan2(m_Camera->Pos.x, m_Camera->Pos.y));
-                        m_Camera->Pos=m_Camera->Pos.GetRotZ(AngleZ).GetRotX(DeltaPitch).GetRotZ(-AngleZ);
+                        m_Camera->Pos=m_Camera->Pos.GetRotZ(AngleZ).      // AngleZ is measured clockwise, GetRotZ() rotates counter-clockwise.
+                                                    GetRotX(DeltaPitch).
+                                                    GetRotZ(-AngleZ);
 
                         m_Camera->Pos+=m_MouseControl.GetRefPtWorld();
                     }
@@ -1137,6 +1146,7 @@ void ViewWindow3DT::OnKillFocus(wxFocusEvent& FE)
 {
     // When we lose the focus, make sure that the mouse cursor is shown and the mouse capture is released.
     m_MouseControl.Deactivate();
+    m_RightMBState=RMB_UP_IDLE;
 }
 
 

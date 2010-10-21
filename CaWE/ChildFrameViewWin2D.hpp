@@ -35,23 +35,40 @@ class MapElementT;
 class ViewWindow2DT;
 
 
-class MouseDragTimerT : public wxTimer
-{
-    public:
-
-    MouseDragTimerT(ViewWindow2DT& ViewWin2D);
-
-    void Notify();
-
-    ViewWindow2DT& m_ViewWin2D;
-    wxPoint        m_MouseLeftDownPoint;
-    wxPoint        m_ScrollDist;
-};
-
-
 class ViewWindow2DT : public wxWindow, public ViewWindowT
 {
     public:
+
+    /// This class defines if the associated view is currently being grabbed (for scrolling) with the mouse.
+    /// It is similar to class ViewWindow3DT::MouseControlT, but much simpler as grabbing is the only type of control.
+    class MouseGrabT
+    {
+        public:
+
+        MouseGrabT(ViewWindow2DT& ViewWin);
+
+        /// Activates mouse grabbing at the given reference point,
+        /// or updates the reference point when mouse grabbing is already active.
+        /// Note that activating can fail, especially if some other code has already captured the mouse pointer.
+        void Activate(const wxPoint& RefPt);
+
+        /// Deactivates the mouse control.
+        void Deactivate();
+
+        /// Returns whether the mouse control is active.
+        bool IsActive() const { return m_IsActive; }
+
+        /// Returns the position of the reference point in window coordinates.
+        const wxPoint& GetRefPt() const { return m_RefPtWin; }
+
+
+        private:
+
+        ViewWindow2DT& m_ViewWin;
+        bool           m_IsActive;
+        wxPoint        m_RefPtWin;  ///< The position of the reference point in window coordinates.
+    };
+
 
     /// The constructor.
     ViewWindow2DT(wxWindow* Parent, ChildFrameT* ChildFrame, ViewTypeT InitialViewType);
@@ -108,17 +125,19 @@ class ViewWindow2DT : public wxWindow, public ViewWindowT
 
     private:
 
-    friend class MouseDragTimerT;
+    enum RightMBStateT { RMB_UP_IDLE, RMB_DOWN_UNDECIDED, RMB_DOWN_DRAGGING };  ///< This enumeration describes the states that the right mouse button can take.
 
     ViewWindow2DT(const ViewWindow2DT&);    ///< Use of the Copy    Constructor is not allowed.
     void operator = (const ViewWindow2DT&); ///< Use of the Assignment Operator is not allowed.
 
-    ViewTypeT       m_ViewType;             ///< The type of this 2D view (top, front, side).
-    AxesInfoT       m_AxesInfo;             ///< Describes how the three world-space axes map to our two window-space axes.
-    wxBitmap        m_BitmapMapOnly;        ///< For the 2D view types.
-    wxBitmap        m_BitmapMapAndTools;    ///< For the 2D view types.
-    float           m_ZoomFactor;           ///< The zoom factor.
-    MouseDragTimerT m_MouseDragTimer;       ///< The timer for mouse-dragging the view.
+    ViewTypeT     m_ViewType;           ///< The type of this 2D view (top, front, side).
+    AxesInfoT     m_AxesInfo;           ///< Describes how the three world-space axes map to our two window-space axes.
+    wxBitmap      m_BitmapMapOnly;      ///< For the 2D view types.
+    wxBitmap      m_BitmapMapAndTools;  ///< For the 2D view types.
+    float         m_ZoomFactor;         ///< The zoom factor.
+    MouseGrabT    m_MouseGrab;          ///< If this view is currently being grabbed and scrolled with the mouse.
+    RightMBStateT m_RightMBState;       ///< The state of the right mouse button. This is required because the RMB has a dual function: a click can bring up the context menu, or initiate mouse-grabbing.
+    wxPoint       m_RDownPosWin;        ///< The point where the RMB went down, in window coordinates.
 
     // Private helper methods.
     void SetViewType(ViewTypeT NewViewType);
@@ -146,6 +165,7 @@ class ViewWindow2DT : public wxWindow, public ViewWindowT
     void OnContextMenu     (wxContextMenuEvent&      CE);
     void OnPaint           (wxPaintEvent&            PE);
     void OnSize            (wxSizeEvent&             SE);
+    void OnKillFocus       (wxFocusEvent&            FE);
     void OnMouseCaptureLost(wxMouseCaptureLostEvent& ME);
 
     DECLARE_EVENT_TABLE()
