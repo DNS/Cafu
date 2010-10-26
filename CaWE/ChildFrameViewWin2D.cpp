@@ -914,7 +914,6 @@ void ViewWindow2DT::OnKeyDown(wxKeyEvent& KE)
     //  pressing '[' (AltGr+8), which is used as menu accelerator key, *also* triggers a key down event for '8'!)
     switch (KE.GetKeyCode())
     {
-        case 'D':
         case '+':
         case WXK_NUMPAD_ADD:
         {
@@ -923,7 +922,6 @@ void ViewWindow2DT::OnKeyDown(wxKeyEvent& KE)
             break;
         }
 
-        case 'C':
         case '-':
         case WXK_NUMPAD_SUBTRACT:
         {

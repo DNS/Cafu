@@ -346,8 +346,8 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     ViewPanelsMenu->AppendCheckItem(ID_MENU_VIEW_PANELS_CONSOLE,     wxT("&Console"), wxT("") );
     item6->Append(ID_MENU_VIEW_PANELS, wxT("&Panels"), ViewPanelsMenu);
 
-    item6->Append(ID_MENU_VIEW_NEW_2D_VIEW, "Open new &2D View", "Opens a new 2D view on the map");
-    item6->Append(ID_MENU_VIEW_NEW_3D_VIEW, "Open new &3D View", "Opens a new 3D view on the map");
+    item6->Append(ID_MENU_VIEW_NEW_2D_VIEW, "New &2D view", "Opens a new 2D view on the map");
+    item6->Append(ID_MENU_VIEW_NEW_3D_VIEW, "New &3D view", "Opens a new 3D view on the map");
     item6->AppendSeparator();
 
     item6->Append(ID_MENU_VIEW_LOAD_USER_PERSPECTIVE, "&Load user window layout", "Loads the user defined window layout");
@@ -546,19 +546,19 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     ViewWindow3DT* CenterPaneView=new ViewWindow3DT(this, this, NULL, (ViewWindowT::ViewTypeT)wxConfigBase::Get()->Read("Splitter/ViewType00", ViewWindowT::VT_3D_FULL_MATS));
     m_AUIManager.AddPane(CenterPaneView, wxAuiPaneInfo().
                          Name("Main View").Caption(CenterPaneView->GetCaption()).
-                         CenterPane().CaptionVisible().MaximizeButton());
+                         CenterPane().CaptionVisible().MaximizeButton().MinimizeButton());
 
     ViewWindow2DT* ViewTopRight=new ViewWindow2DT(this, this, (ViewWindowT::ViewTypeT)wxConfigBase::Get()->Read("Splitter/ViewType01", ViewWindowT::VT_2D_XY));
     m_AUIManager.AddPane(ViewTopRight, wxAuiPaneInfo().
                          // Name("xy").
                          Caption(ViewTopRight->GetCaption()).
-                         DestroyOnClose().Right().Position(0).MaximizeButton());
+                         DestroyOnClose().Right().Position(0).MaximizeButton().MinimizeButton());
 
     ViewWindow2DT* ViewBottomRight=new ViewWindow2DT(this, this, (ViewWindowT::ViewTypeT)wxConfigBase::Get()->Read("Splitter/ViewType11", ViewWindowT::VT_2D_XZ));
     m_AUIManager.AddPane(ViewBottomRight, wxAuiPaneInfo().
                          // Name("xy").
                          Caption(ViewBottomRight->GetCaption()).
-                         DestroyOnClose().Right().Position(1).MaximizeButton());
+                         DestroyOnClose().Right().Position(1).MaximizeButton().MinimizeButton());
 
 
     // Save the AUI perspective that we set up in this ctor code as the "default perspective".
