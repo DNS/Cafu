@@ -44,12 +44,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/sstream.h"
 #include "wx/txtstrm.h"
 
-#if defined(_WIN32) && defined (_MSC_VER)
-    #if (_MSC_VER<1300)
-        #define for if (false) ; else for
-    #endif
-#endif
-
 
 /*** Begin of TypeSys related definitions for this class. ***/
 
@@ -198,7 +192,7 @@ void MapHelperModelT::Render3D(Renderer3DT& Renderer) const
     // Did not render the real model (either because we only have a dummy model,
     // or the distance was too great), thus render a replacement bounding-box.
     Renderer.RenderBox(GetBB(),
-        IsSelected() ? Options.colors.Selection : m_ParentEntity->GetColor(Options.view2d.UseGroupColors), true /* Solid? */);
+        m_ParentEntity->IsSelected() ? Options.colors.Selection : m_ParentEntity->GetColor(Options.view2d.UseGroupColors), true /* Solid? */);
 }
 
 

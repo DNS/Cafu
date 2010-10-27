@@ -96,5 +96,5 @@ void MapHelperBoundingBoxT::Render2D(Renderer2DT& Renderer) const
 void MapHelperBoundingBoxT::Render3D(Renderer3DT& Renderer) const
 {
     Renderer.RenderBox(GetBB(),
-        IsSelected() ? Options.colors.Selection : m_ParentEntity->GetColor(Options.view2d.UseGroupColors), !m_Wireframe /* Solid? */);
+        m_ParentEntity->IsSelected() ? Options.colors.Selection : m_ParentEntity->GetColor(Options.view2d.UseGroupColors), !m_Wireframe /* Solid? */);
 }
