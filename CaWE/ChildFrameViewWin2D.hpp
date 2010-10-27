@@ -132,8 +132,8 @@ class ViewWindow2DT : public wxWindow, public ViewWindowT
 
     ViewTypeT     m_ViewType;           ///< The type of this 2D view (top, front, side).
     AxesInfoT     m_AxesInfo;           ///< Describes how the three world-space axes map to our two window-space axes.
-    wxBitmap      m_BitmapMapOnly;      ///< For the 2D view types.
-    wxBitmap      m_BitmapMapAndTools;  ///< For the 2D view types.
+    wxBitmap      m_BitmapMapOnly;      ///< This bitmap caches our 2D rendering of the map only.
+    wxBitmap      m_BitmapMapAndTools;  ///< This bitmap caches our 2D rendering of the map and the tools overlay.
     float         m_ZoomFactor;         ///< The zoom factor.
     MouseGrabT    m_MouseGrab;          ///< If this view is currently being grabbed and scrolled with the mouse.
     RightMBStateT m_RightMBState;       ///< The state of the right mouse button. This is required because the RMB has a dual function: a click can bring up the context menu, or initiate mouse-grabbing.

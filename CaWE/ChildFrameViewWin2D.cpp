@@ -515,8 +515,8 @@ void ViewWindow2DT::ScrollWindow(int AmountX, int AmountY, const wxRect* /*Rect*
     MapOnlyDC    .SelectObject(m_BitmapMapOnly    );
     MapAndToolsDC.SelectObject(m_BitmapMapAndTools);
 
-    MapOnlyDC    .Blit(-AmountX, -AmountY, m_BitmapMapOnly    .GetWidth()-AmountX, m_BitmapMapOnly    .GetHeight()-AmountY, &MapOnlyDC,     0, 0, wxCOPY);
-    MapAndToolsDC.Blit(-AmountX, -AmountY, m_BitmapMapAndTools.GetWidth()-AmountX, m_BitmapMapAndTools.GetHeight()-AmountY, &MapAndToolsDC, 0, 0, wxCOPY);
+    MapOnlyDC    .Blit(-AmountX, -AmountY, m_BitmapMapOnly    .GetWidth(), m_BitmapMapOnly    .GetHeight(), &MapOnlyDC,     0, 0, wxCOPY);
+    MapAndToolsDC.Blit(-AmountX, -AmountY, m_BitmapMapAndTools.GetWidth(), m_BitmapMapAndTools.GetHeight(), &MapAndToolsDC, 0, 0, wxCOPY);
 
     MapOnlyDC    .SelectObject(wxNullBitmap);
     MapAndToolsDC.SelectObject(wxNullBitmap);
