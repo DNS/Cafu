@@ -940,7 +940,10 @@ void ViewWindow2DT::OnKeyDown(wxKeyEvent& KE)
             // Switch to the next or previous view type (top-down -- side -- front).
             // Note that checking for KE.ControlDown() here is meaningless,
             // because the Control+TAB combination is already caught by the MDI framework.
+            const Vector3fT OldCenter=WindowToWorld(GetClientCenter(), GetMapDoc().GetMostRecentSelBB().GetCenter()[m_AxesInfo.ThirdAxis]);
+
             SetViewType(ViewTypeT(GetViewType() + (KE.ShiftDown() ? -1 : 1)));
+            CenterView(OldCenter);
             break;
         }
 
@@ -1264,8 +1267,13 @@ void ViewWindow2DT::OnContextMenu(wxContextMenuEvent& CE)
         case VT_2D_XY:
         case VT_2D_YZ:
         case VT_2D_XZ:
+        {
+            const Vector3fT OldCenter=WindowToWorld(GetClientCenter(), GetMapDoc().GetMostRecentSelBB().GetCenter()[m_AxesInfo.ThirdAxis]);
+
             SetViewType(ViewTypeT(MenuSelID));
+            CenterView(OldCenter);
             break;
+        }
     }
 }
 

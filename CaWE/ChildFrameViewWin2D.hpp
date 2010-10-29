@@ -105,6 +105,7 @@ class ViewWindow2DT : public wxWindow, public ViewWindowT
 
     wxPoint GetScrollPosXY()   const { return wxPoint(GetScrollPos  (wxHORIZONTAL), GetScrollPos  (wxVERTICAL)); }  ///< Conveniently return the positions of both scroll bars in a wxPoint.
     wxPoint GetScrollRangeXY() const { return wxPoint(GetScrollRange(wxHORIZONTAL), GetScrollRange(wxVERTICAL)); }  ///< Conveniently return the ranges    of both scroll bars in a wxPoint.
+    wxPoint GetClientCenter()  const { const wxSize Size=GetClientSize(); return wxPoint(Size.x/2, Size.y/2); }     ///< Returns the center point of the client area of this window.
 
     // Methods for converting points between the coordinate systems.
     // TODO: Should window and tool coordinates also be of type float rather than int???
