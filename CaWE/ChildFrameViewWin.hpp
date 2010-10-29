@@ -41,9 +41,9 @@ class ViewWindowT : public ObserverT, public ToolsObserverT
 
     enum ViewTypeT
     {
-        VT_2D_XY,
-        VT_2D_YZ,
-        VT_2D_XZ,
+        VT_2D_XY,           // Top
+        VT_2D_XZ,           // Front
+        VT_2D_YZ,           // Side
         VT_3D_WIREFRAME,
         VT_3D_FLAT,
         VT_3D_EDIT_MATS,    // Materials in Edit    mode (shows the meta_EditorImage texture).

@@ -68,8 +68,8 @@ wxString ViewWindowT::GetCaption() const
     switch (GetViewType())
     {
         case VT_2D_XY:         return "2D Top (X/Y)";
-        case VT_2D_YZ:         return "2D Side (Y/Z)";
         case VT_2D_XZ:         return "2D Front (X/Z)";
+        case VT_2D_YZ:         return "2D Side (Y/Z)";
         case VT_3D_WIREFRAME:  return "3D Wireframe";
         case VT_3D_FLAT:       return "3D Flat";
         case VT_3D_EDIT_MATS:  return "3D Edit Mats";

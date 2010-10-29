@@ -1032,22 +1032,28 @@ void ChildFrameT::OnMenuView(wxCommandEvent& CE)
             break;
 
         case ID_MENU_VIEW_NEW_2D_VIEW:
-            m_AUIManager.AddPane(new ViewWindow2DT(this, this, ViewWindowT::VT_2D_XY), wxAuiPaneInfo().
+        {
+            ViewWindow2DT* NewView=new ViewWindow2DT(this, this, ViewWindowT::VT_2D_XY);
+            m_AUIManager.AddPane(NewView, wxAuiPaneInfo().
                                  // Name("xy").
-                                 Caption("2D View").
-                                 DestroyOnClose().Float());
+                                 Caption(NewView->GetCaption()).
+                                 DestroyOnClose().Float().MaximizeButton().MinimizeButton());
 
             m_AUIManager.Update();
             break;
+        }
 
         case ID_MENU_VIEW_NEW_3D_VIEW:
-            m_AUIManager.AddPane(new ViewWindow3DT(this, this, new CameraT(), (ViewWindowT::ViewTypeT)wxConfigBase::Get()->Read("Splitter/ViewType00", ViewWindowT::VT_3D_FULL_MATS)), wxAuiPaneInfo().
+        {
+            ViewWindow3DT* NewView=new ViewWindow3DT(this, this, new CameraT(), (ViewWindowT::ViewTypeT)wxConfigBase::Get()->Read("Splitter/ViewType00", ViewWindowT::VT_3D_FULL_MATS));
+            m_AUIManager.AddPane(NewView, wxAuiPaneInfo().
                                  // Name("xy").
-                                 Caption("3D View").
-                                 DestroyOnClose().Float());
+                                 Caption(NewView->GetCaption()).
+                                 DestroyOnClose().Float().MaximizeButton().MinimizeButton());
 
             m_AUIManager.Update();
             break;
+        }
 
         case ID_MENU_VIEW_LOAD_DEFAULT_PERSPECTIVE:
             m_AUIManager.LoadPerspective(m_AUIDefaultPerspective);

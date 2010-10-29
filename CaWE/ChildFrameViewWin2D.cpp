@@ -445,8 +445,8 @@ void ViewWindow2DT::SetViewType(ViewTypeT NewViewType)
 {
     m_ViewType=NewViewType;
 
-    if (m_ViewType<VT_2D_XY) m_ViewType=VT_2D_XZ;
-    if (m_ViewType>VT_2D_XZ) m_ViewType=VT_2D_XY;
+    if (m_ViewType<VT_2D_XY) m_ViewType=VT_2D_YZ;
+    if (m_ViewType>VT_2D_YZ) m_ViewType=VT_2D_XY;
 
     switch (m_ViewType)
     {
@@ -454,12 +454,12 @@ void ViewWindow2DT::SetViewType(ViewTypeT NewViewType)
             m_AxesInfo=AxesInfoT(0, false, 1, true);
             break;
 
-        case VT_2D_YZ:
-            m_AxesInfo=AxesInfoT(1, false, 2, true);
-            break;
-
         case VT_2D_XZ:
             m_AxesInfo=AxesInfoT(0, false, 2, true);
+            break;
+
+        case VT_2D_YZ:
+            m_AxesInfo=AxesInfoT(1, false, 2, true);
             break;
 
         default:
@@ -1255,8 +1255,8 @@ void ViewWindow2DT::OnContextMenu(wxContextMenuEvent& CE)
     wxMenu Menu;
 
     Menu.AppendRadioItem(VT_2D_XY, "2D Top (X/Y)");
-    Menu.AppendRadioItem(VT_2D_YZ, "2D Side (Y/Z)");
     Menu.AppendRadioItem(VT_2D_XZ, "2D Front (X/Z)");
+    Menu.AppendRadioItem(VT_2D_YZ, "2D Side (Y/Z)");
     Menu.Check(GetViewType(), true);
 
     ToolT*    Tool     =m_ChildFrame->GetToolManager().GetActiveTool();
@@ -1265,8 +1265,8 @@ void ViewWindow2DT::OnContextMenu(wxContextMenuEvent& CE)
     switch (MenuSelID)
     {
         case VT_2D_XY:
-        case VT_2D_YZ:
         case VT_2D_XZ:
+        case VT_2D_YZ:
         {
             const Vector3fT OldCenter=WindowToWorld(GetClientCenter(), GetMapDoc().GetMostRecentSelBB().GetCenter()[m_AxesInfo.ThirdAxis]);
 
