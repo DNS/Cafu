@@ -46,10 +46,23 @@ ModelEditor::ModelDocumentT::ModelDocumentT(GameConfigT* GameConfig, const wxStr
     else if (cf::String::EndsWith(FileName, "md5mesh")) { LoaderMd5T  Loader(FileName); m_Model=new CafuModelT(Loader); }
     else if (cf::String::EndsWith(FileName, "lwo"    )) { LoaderLwoT  Loader(FileName); m_Model=new CafuModelT(Loader); }
     else throw ModelT::LoadError();
+
+    m_Cameras.PushBack(new CameraT);
+    m_Cameras[0]->Pos.y=-500.0f;
+
+    m_LightSources.PushBack(new LightSourceT(true,  true, Vector3fT(200.0f,   0.0f, 200.0f), 1500.0f, wxColour(255, 235, 215)));
+    m_LightSources.PushBack(new LightSourceT(false, true, Vector3fT(  0.0f, 200.0f, 200.0f), 1500.0f, wxColour(215, 235, 255)));
+    m_LightSources.PushBack(new LightSourceT(false, true, Vector3fT(200.0f, 200.0f, 200.0f), 1500.0f, wxColour(235, 255, 215)));
 }
 
 
 ModelEditor::ModelDocumentT::~ModelDocumentT()
 {
+    for (unsigned long LsNr=0; LsNr<m_LightSources.Size(); LsNr++)
+        delete m_LightSources[LsNr];
+
+    for (unsigned long CamNr=0; CamNr<m_Cameras.Size(); CamNr++)
+        delete m_Cameras[CamNr];
+
     delete m_Model;
 }

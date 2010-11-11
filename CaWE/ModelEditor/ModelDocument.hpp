@@ -24,6 +24,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef _MODELEDITOR_MODEL_DOCUMENT_HPP_
 #define _MODELEDITOR_MODEL_DOCUMENT_HPP_
 
+#include "../Camera.hpp"
+#include "Templates/Array.hpp"
 #include "wx/wx.h"
 
 
@@ -37,6 +39,21 @@ namespace ModelEditor
     {
         public:
 
+        class LightSourceT
+        {
+            public:
+
+            LightSourceT(bool IsOn_, bool CastShadows_, const Vector3fT& Pos_, float Radius_, const wxColour& Color_)
+                : IsOn(IsOn_), CastShadows(CastShadows_), Pos(Pos_), Radius(Radius_), Color(Color_) { }
+
+            bool      IsOn;         ///< Whether this light source is currently on / active / being used.
+            bool      CastShadows;  ///< Whether this light source casts shadows.
+            Vector3fT Pos;          ///< The light sources position in world space.
+            float     Radius;       ///< The light sources radius in world space.
+            wxColour  Color;        ///< The light sources color (used for both the diffuse and specular component).
+        };
+
+
         /// The constructor.
         /// @throws   ModelT::LoadError if the model could not be loaded or imported.
         ModelDocumentT(GameConfigT* GameConfig, const wxString& ModelFileName="");
@@ -44,8 +61,11 @@ namespace ModelEditor
         /// The destructor.
         ~ModelDocumentT();
 
-        CafuModelT*  GetModel() const { return m_Model; }
-        GameConfigT* GetGameConfig() const { return m_GameConfig; }
+        const CafuModelT*            GetModel() const        { return m_Model; }
+        const ArrayT<CameraT*>&      GetCameras() const      { return m_Cameras; }
+        const ArrayT<LightSourceT*>& GetLightSources() const { return m_LightSources; }
+        const GameConfigT*           GetGameConfig() const   { return m_GameConfig; }
+        GameConfigT*           GetGameConfig() { return m_GameConfig; }
 
 
         private:
@@ -53,8 +73,10 @@ namespace ModelEditor
         ModelDocumentT(const ModelDocumentT&);      ///< Use of the Copy    Constructor is not allowed.
         void operator = (const ModelDocumentT&);    ///< Use of the Assignment Operator is not allowed.
 
-        CafuModelT*  m_Model;
-        GameConfigT* m_GameConfig;
+        CafuModelT*           m_Model;          ///< The model that is being edited.
+        ArrayT<CameraT*>      m_Cameras;        ///< The cameras in the scene (used by the 3D views for rendering), there is always at least one.
+        ArrayT<LightSourceT*> m_LightSources;   ///< The light sources that exist in the scene.
+        GameConfigT*          m_GameConfig;     ///< The game configuration that the model is used with.
     };
 }
 

@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ScenePropGrid.hpp"
 #include "ChildFrame.hpp"
+#include "ModelDocument.hpp"
 #include "../EditorMaterial.hpp"
 #include "../GameConfig.hpp"
 #include "MaterialSystem/MapComposition.hpp"
@@ -37,26 +38,17 @@ BEGIN_EVENT_TABLE(ModelEditor::ScenePropGridT, wxPropertyGridManager)
 END_EVENT_TABLE()
 
 
-ModelEditor::ScenePropGridT::ScenePropGridT(ChildFrameT* Parent, const wxSize& Size, GameConfigT* GameConfig)
+ModelEditor::ScenePropGridT::ScenePropGridT(ChildFrameT* Parent, const wxSize& Size)
     : wxPropertyGridManager(Parent, wxID_ANY, wxDefaultPosition, Size, wxPG_BOLD_MODIFIED | wxPG_SPLITTER_AUTO_CENTER), // | wxPG_DESCRIPTION
-      m_Camera(),
       m_BackgroundColor(wxColour(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/BackgroundColor", "rgb(0, 128, 255)"))),
       m_ShowOrigin(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/ShowOrigin", 1l)!=0),
       m_GroundPlane_Show(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/GroundPlane_Show", 1l)!=0),
       m_GroundPlane_zPos(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/GroundPlane_zPos", 0.0)),
-      m_GroundPlane_Mat(GameConfig->GetMatMan().FindMaterial(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/GroundPlane_Mat", "Textures/WilliH/rock01b"), true /*CreateDummy*/)),
+      m_GroundPlane_Mat(Parent->GetModelDoc()->GetGameConfig()->GetMatMan().FindMaterial(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/GroundPlane_Mat", "Textures/WilliH/rock01b"), true /*CreateDummy*/)),
       m_AmbientLightColor(wxColour(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/AmbientLightColor", "rgb(96, 96, 96)"))),
       m_AmbientTexture(NULL),
-      m_Lights(),
-      m_Parent(Parent),
-      m_GameConfig(GameConfig)
+      m_Parent(Parent)
 {
-    m_Camera.Pos.y=-500.0f;
-
-    LightT Light1={ true,  true, Vector3fT(200.0f,   0.0f, 200.0f), 1500.0f, wxColour(255, 235, 215) }; m_Lights.PushBack(Light1);
-    LightT Light2={ false, true, Vector3fT(  0.0f, 200.0f, 200.0f), 1500.0f, wxColour(215, 235, 255) }; m_Lights.PushBack(Light2);
-    LightT Light3={ false, true, Vector3fT(200.0f, 200.0f, 200.0f), 1500.0f, wxColour(235, 255, 215) }; m_Lights.PushBack(Light3);
-
     UpdateAmbientTexture();
 
     SetExtraStyle(wxPG_EX_HELP_AS_TOOLTIPS | wxPG_EX_MODE_BUTTONS);
@@ -84,22 +76,23 @@ void ModelEditor::ScenePropGridT::RefreshPropGrid()
 
 
     // "Camera" category.
+    const CameraT& Camera=*m_Parent->GetModelDoc()->GetCameras()[0];
     wxPGProperty* CameraCat=Append(new wxPropertyCategory("Camera"));
 
     wxPGProperty* CameraPos=AppendIn(CameraCat, new wxStringProperty("Pos", "Camera.Pos", "<composed>"));
-    wxPGProperty* CameraPosX=AppendIn(CameraPos, new wxFloatProperty("x", wxPG_LABEL, m_Camera.Pos.x)); SetPropertyTextColour(CameraPosX, wxColour(200, 0, 0)); // With wx2.9, change this into: CameraPosX->SetTextColour(wxColour(255, 0, 0));
-    wxPGProperty* CameraPosY=AppendIn(CameraPos, new wxFloatProperty("y", wxPG_LABEL, m_Camera.Pos.y)); SetPropertyTextColour(CameraPosY, wxColour(0, 200, 0));
-    wxPGProperty* CameraPosZ=AppendIn(CameraPos, new wxFloatProperty("z", wxPG_LABEL, m_Camera.Pos.z)); SetPropertyTextColour(CameraPosZ, wxColour(0, 0, 200));
+    wxPGProperty* CameraPosX=AppendIn(CameraPos, new wxFloatProperty("x", wxPG_LABEL, Camera.Pos.x)); SetPropertyTextColour(CameraPosX, wxColour(200, 0, 0)); // With wx2.9, change this into: CameraPosX->SetTextColour(wxColour(255, 0, 0));
+    wxPGProperty* CameraPosY=AppendIn(CameraPos, new wxFloatProperty("y", wxPG_LABEL, Camera.Pos.y)); SetPropertyTextColour(CameraPosY, wxColour(0, 200, 0));
+    wxPGProperty* CameraPosZ=AppendIn(CameraPos, new wxFloatProperty("z", wxPG_LABEL, Camera.Pos.z)); SetPropertyTextColour(CameraPosZ, wxColour(0, 0, 200));
 
     wxPGProperty* CameraAngles=AppendIn(CameraCat, new wxStringProperty("Angles", "Camera.Angles", "<composed>"));
-    AppendIn(CameraAngles, new wxFloatProperty("Pitch", wxPG_LABEL, m_Camera.Angles.pitch()));
- // AppendIn(CameraAngles, new wxFloatProperty("Roll", wxPG_LABEL, m_Camera.Angles.roll()));
-    AppendIn(CameraAngles, new wxFloatProperty("Yaw", wxPG_LABEL, m_Camera.Angles.yaw()));
+    AppendIn(CameraAngles, new wxFloatProperty("Pitch", wxPG_LABEL, Camera.Angles.pitch()));
+ // AppendIn(CameraAngles, new wxFloatProperty("Roll", wxPG_LABEL, Camera.Angles.roll()));
+    AppendIn(CameraAngles, new wxFloatProperty("Yaw", wxPG_LABEL, Camera.Angles.yaw()));
 
     wxPGProperty* CameraAdvanced=AppendIn(CameraCat, new wxStringProperty("Advanced", "Camera.Advanced", "<composed>"));
-    AppendIn(CameraAdvanced, new wxFloatProperty("vertical FOV", wxPG_LABEL, m_Camera.VerticalFOV));
-    AppendIn(CameraAdvanced, new wxFloatProperty("near plane dist", wxPG_LABEL, m_Camera.NearPlaneDist));
-    AppendIn(CameraAdvanced, new wxFloatProperty("far plane dist", wxPG_LABEL, m_Camera.FarPlaneDist));
+    AppendIn(CameraAdvanced, new wxFloatProperty("vertical FOV", wxPG_LABEL, Camera.VerticalFOV));
+    AppendIn(CameraAdvanced, new wxFloatProperty("near plane dist", wxPG_LABEL, Camera.NearPlaneDist));
+    AppendIn(CameraAdvanced, new wxFloatProperty("far plane dist", wxPG_LABEL, Camera.FarPlaneDist));
     Collapse(CameraAdvanced);
 
 
@@ -113,28 +106,31 @@ void ModelEditor::ScenePropGridT::RefreshPropGrid()
 
 
     // "Light Sources" category.
+    const ArrayT<ModelDocumentT::LightSourceT*>& LightSources=m_Parent->GetModelDoc()->GetLightSources();
     wxPGProperty* LightsCat=Append(new wxPropertyCategory("Light Sources"));
 
     AppendIn(LightsCat, new wxColourProperty("Ambient Light Color", wxPG_LABEL, m_AmbientLightColor));
 
-    for (unsigned long LightNr=0; LightNr<m_Lights.Size(); LightNr++)
+    for (unsigned long LightNr=0; LightNr<LightSources.Size(); LightNr++)
     {
+        const ModelDocumentT::LightSourceT& LS=*LightSources[LightNr];
+
         wxString      LightStr=wxString::Format("Light %lu", LightNr+1);
-        wxPGProperty* Light   =AppendIn(LightsCat, new wxStringProperty(LightStr, wxPG_LABEL, "<composed>"));
+        wxPGProperty* LsProp  =AppendIn(LightsCat, new wxStringProperty(LightStr, wxPG_LABEL, "<composed>"));
 
-        AppendIn(Light, new wxBoolProperty("On", wxPG_LABEL, m_Lights[LightNr].IsOn));
-        AppendIn(Light, new wxBoolProperty("Cast Shadows", wxPG_LABEL, m_Lights[LightNr].CastShadows));
+        AppendIn(LsProp, new wxBoolProperty("On", wxPG_LABEL, LS.IsOn));
+        AppendIn(LsProp, new wxBoolProperty("Cast Shadows", wxPG_LABEL, LS.CastShadows));
 
-        wxPGProperty* LightPos=AppendIn(Light, new wxStringProperty("Pos", wxPG_LABEL, "<composed>"));
-        wxPGProperty* LightPosX=AppendIn(LightPos, new wxFloatProperty("x", wxPG_LABEL, m_Lights[LightNr].Pos.x)); SetPropertyTextColour(LightPosX, wxColour(200, 0, 0)); // With wx2.9, change this into: LightPosX->SetTextColour(wxColour(255, 0, 0));
-        wxPGProperty* LightPosY=AppendIn(LightPos, new wxFloatProperty("y", wxPG_LABEL, m_Lights[LightNr].Pos.y)); SetPropertyTextColour(LightPosY, wxColour(0, 200, 0));
-        wxPGProperty* LightPosZ=AppendIn(LightPos, new wxFloatProperty("z", wxPG_LABEL, m_Lights[LightNr].Pos.z)); SetPropertyTextColour(LightPosZ, wxColour(0, 0, 200));
+        wxPGProperty* LightPos=AppendIn(LsProp, new wxStringProperty("Pos", wxPG_LABEL, "<composed>"));
+        wxPGProperty* LightPosX=AppendIn(LightPos, new wxFloatProperty("x", wxPG_LABEL, LS.Pos.x)); SetPropertyTextColour(LightPosX, wxColour(200, 0, 0)); // With wx2.9, change this into: LightPosX->SetTextColour(wxColour(255, 0, 0));
+        wxPGProperty* LightPosY=AppendIn(LightPos, new wxFloatProperty("y", wxPG_LABEL, LS.Pos.y)); SetPropertyTextColour(LightPosY, wxColour(0, 200, 0));
+        wxPGProperty* LightPosZ=AppendIn(LightPos, new wxFloatProperty("z", wxPG_LABEL, LS.Pos.z)); SetPropertyTextColour(LightPosZ, wxColour(0, 0, 200));
         Collapse(LightPos);
 
-        AppendIn(Light, new wxFloatProperty("Radius", wxPG_LABEL, m_Lights[LightNr].Radius));
-        AppendIn(Light, new wxColourProperty("Color", wxPG_LABEL, m_Lights[LightNr].Color));
+        AppendIn(LsProp, new wxFloatProperty("Radius", wxPG_LABEL, LS.Radius));
+        AppendIn(LsProp, new wxColourProperty("Color", wxPG_LABEL, LS.Color));
 
-        if (!m_Lights[LightNr].IsOn) Collapse(Light);
+        if (!LS.IsOn) Collapse(LsProp);
     }
 
 
@@ -151,6 +147,7 @@ void ModelEditor::ScenePropGridT::OnPropertyGridChanged(wxPropertyGridEvent& Eve
     // Since the user is definitely finished editing this property we can safely clear the selection.
  // ClearSelection();
 
+    CameraT&            Camera    =*m_Parent->GetModelDoc()->GetCameras()[0];
     const wxPGProperty* Prop      =Event.GetProperty();
     const wxString      PropName  =Prop->GetName();
     double              PropValueD=0.0;
@@ -158,15 +155,15 @@ void ModelEditor::ScenePropGridT::OnPropertyGridChanged(wxPropertyGridEvent& Eve
 
          if (PropName=="Background Color")                m_BackgroundColor << Prop->GetValue();
     else if (PropName=="Show Origin")                     m_ShowOrigin=Prop->GetValue().GetBool();
-    else if (PropName=="Camera.Pos.x")                    m_Camera.Pos.x=PropValueF;
-    else if (PropName=="Camera.Pos.y")                    m_Camera.Pos.y=PropValueF;
-    else if (PropName=="Camera.Pos.z")                    m_Camera.Pos.z=PropValueF;
-    else if (PropName=="Camera.Angles.Pitch")             m_Camera.Angles.pitch()=PropValueF;
- // else if (PropName=="Camera.Angles.Roll")              m_Camera.Angles.roll()=PropValueF;
-    else if (PropName=="Camera.Angles.Yaw")               m_Camera.Angles.yaw()=PropValueF;
-    else if (PropName=="Camera.Advanced.vertical FOV")    m_Camera.VerticalFOV=PropValueF;
-    else if (PropName=="Camera.Advanced.near plane dist") m_Camera.NearPlaneDist=PropValueF;
-    else if (PropName=="Camera.Advanced.far plane dist")  m_Camera.FarPlaneDist=PropValueF;
+    else if (PropName=="Camera.Pos.x")                    Camera.Pos.x=PropValueF;
+    else if (PropName=="Camera.Pos.y")                    Camera.Pos.y=PropValueF;
+    else if (PropName=="Camera.Pos.z")                    Camera.Pos.z=PropValueF;
+    else if (PropName=="Camera.Angles.Pitch")             Camera.Angles.pitch()=PropValueF;
+ // else if (PropName=="Camera.Angles.Roll")              Camera.Angles.roll()=PropValueF;
+    else if (PropName=="Camera.Angles.Yaw")               Camera.Angles.yaw()=PropValueF;
+    else if (PropName=="Camera.Advanced.vertical FOV")    Camera.VerticalFOV=PropValueF;
+    else if (PropName=="Camera.Advanced.near plane dist") Camera.NearPlaneDist=PropValueF;
+    else if (PropName=="Camera.Advanced.far plane dist")  Camera.FarPlaneDist=PropValueF;
     else if (PropName=="Ground Plane.Show")               m_GroundPlane_Show=Prop->GetValue().GetBool();
     else if (PropName=="Ground Plane.Height (z-Pos)")     m_GroundPlane_zPos=PropValueF;
     else if (PropName=="Ground Plane.Material")
@@ -182,18 +179,20 @@ void ModelEditor::ScenePropGridT::OnPropertyGridChanged(wxPropertyGridEvent& Eve
     }
     else if (PropName.StartsWith("Light "))
     {
-        for (unsigned long LightNr=0; LightNr<m_Lights.Size(); LightNr++)
-        {
-            const wxString LightStr=wxString::Format("Light %lu", LightNr+1);
-            LightT&        Light   =m_Lights[LightNr];
+        const ArrayT<ModelDocumentT::LightSourceT*>& LightSources=m_Parent->GetModelDoc()->GetLightSources();
 
-                 if (PropName==LightStr+".On")           Light.IsOn=Prop->GetValue().GetBool();
-            else if (PropName==LightStr+".Cast Shadows") Light.CastShadows=Prop->GetValue().GetBool();
-            else if (PropName==LightStr+".Pos.x")        Light.Pos.x=PropValueF;
-            else if (PropName==LightStr+".Pos.y")        Light.Pos.y=PropValueF;
-            else if (PropName==LightStr+".Pos.z")        Light.Pos.z=PropValueF;
-            else if (PropName==LightStr+".Radius")       Light.Radius=PropValueF;
-            else if (PropName==LightStr+".Color")        Light.Color << Prop->GetValue();
+        for (unsigned long LsNr=0; LsNr<LightSources.Size(); LsNr++)
+        {
+            const wxString                LightStr=wxString::Format("Light %lu", LsNr+1);
+            ModelDocumentT::LightSourceT& LS      =*LightSources[LsNr];
+
+                 if (PropName==LightStr+".On")           LS.IsOn=Prop->GetValue().GetBool();
+            else if (PropName==LightStr+".Cast Shadows") LS.CastShadows=Prop->GetValue().GetBool();
+            else if (PropName==LightStr+".Pos.x")        LS.Pos.x=PropValueF;
+            else if (PropName==LightStr+".Pos.y")        LS.Pos.y=PropValueF;
+            else if (PropName==LightStr+".Pos.z")        LS.Pos.z=PropValueF;
+            else if (PropName==LightStr+".Radius")       LS.Radius=PropValueF;
+            else if (PropName==LightStr+".Color")        LS.Color << Prop->GetValue();
         }
     }
     else

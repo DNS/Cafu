@@ -105,7 +105,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
 
     // Create model editor panes.
     m_ModelPropGrid=new ModelPropGridT(this, wxSize(230, 500));
-    m_ScenePropGrid=new ScenePropGridT(this, wxSize(230, 500), m_ModelDoc->GetGameConfig());
+    m_ScenePropGrid=new ScenePropGridT(this, wxSize(230, 500));
     m_SceneView3D  =new SceneView3DT(this);   // Created after m_ScenePropGrid, so that its ctor can access the camera in m_ScenePropGrid.
 
     m_AUIManager.AddPane(m_SceneView3D, wxAuiPaneInfo().

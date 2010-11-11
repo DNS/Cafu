@@ -47,7 +47,7 @@ namespace GuiEditor
 
     enum WindowModDetailE
     {
-        WMD_GENERIC,          ///< Generic change of windows (usefull if the subject doesn't know what exactly has been changed).
+        WMD_GENERIC,          ///< Generic change of windows (useful if the subject doesn't know what exactly has been changed).
         WMD_PROPERTY_CHANGED, ///< A windows property has been changed.
         WMD_TRANSFORMED,      ///< A window has been transformed.
         WMD_HOR_TEXT_ALIGN,   ///< The horizontal text alignment of a window has been changed.

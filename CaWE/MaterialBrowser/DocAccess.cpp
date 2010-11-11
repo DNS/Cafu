@@ -40,7 +40,7 @@ MaterialBrowser::MapDocAccessT::MapDocAccessT(MapDocumentT& MapDoc)
 }
 
 
-GameConfigT* MaterialBrowser::MapDocAccessT::GetGameConfig() const
+const GameConfigT* MaterialBrowser::MapDocAccessT::GetGameConfig() const
 {
     return m_MapDoc.GetGameConfig();
 }
@@ -89,7 +89,7 @@ MaterialBrowser::GuiDocAccessT::GuiDocAccessT(GuiEditor::GuiDocumentT& GuiDoc)
 }
 
 
-GameConfigT* MaterialBrowser::GuiDocAccessT::GetGameConfig() const
+const GameConfigT* MaterialBrowser::GuiDocAccessT::GetGameConfig() const
 {
     return m_GuiDoc.GetGameConfig();
 }
@@ -121,7 +121,7 @@ MaterialBrowser::ModelDocAccessT::ModelDocAccessT(ModelEditor::ModelDocumentT& M
 }
 
 
-GameConfigT* MaterialBrowser::ModelDocAccessT::GetGameConfig() const
+const GameConfigT* MaterialBrowser::ModelDocAccessT::GetGameConfig() const
 {
     return m_ModelDoc.GetGameConfig();
 }

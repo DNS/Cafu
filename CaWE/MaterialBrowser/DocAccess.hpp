@@ -44,7 +44,7 @@ namespace MaterialBrowser
     {
         public:
 
-        virtual GameConfigT* GetGameConfig() const=0;
+        virtual const GameConfigT* GetGameConfig() const=0;
         virtual void OnMarkMaterial(EditorMaterialI* Mat) const=0;
         virtual void OnReplaceMaterial(EditorMaterialI* Mat) const=0;
         virtual void GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const=0;
@@ -57,7 +57,7 @@ namespace MaterialBrowser
 
         MapDocAccessT(MapDocumentT& MapDoc);
 
-        GameConfigT* GetGameConfig() const;
+        const GameConfigT* GetGameConfig() const;
         void OnMarkMaterial(EditorMaterialI* Mat) const;
         void OnReplaceMaterial(EditorMaterialI* Mat) const;
         void GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const;
@@ -75,7 +75,7 @@ namespace MaterialBrowser
 
         GuiDocAccessT(GuiEditor::GuiDocumentT& GuiDoc);
 
-        GameConfigT* GetGameConfig() const;
+        const GameConfigT* GetGameConfig() const;
         void OnMarkMaterial(EditorMaterialI* Mat) const;
         void OnReplaceMaterial(EditorMaterialI* Mat) const;
         void GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const;
@@ -93,7 +93,7 @@ namespace MaterialBrowser
 
         ModelDocAccessT(ModelEditor::ModelDocumentT& ModelDoc);
 
-        GameConfigT* GetGameConfig() const;
+        const GameConfigT* GetGameConfig() const;
         void OnMarkMaterial(EditorMaterialI* Mat) const;
         void OnReplaceMaterial(EditorMaterialI* Mat) const;
         void GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const;

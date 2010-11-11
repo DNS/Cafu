@@ -54,7 +54,7 @@ ModelEditor::SceneView3DT::SceneView3DT(ChildFrameT* Parent)
       m_Parent(Parent),
       m_TimeOfLastPaint(0),
    // m_CameraTool(static_cast<ToolCameraT*>(m_ChildFrame->GetToolManager().GetTool(ToolCameraT::TypeInfo))),
-      m_Camera(&Parent->GetScenePropGrid()->m_Camera),
+      m_Camera(Parent->GetModelDoc()->GetCameras()[0]),
       m_CameraVel()
 {
     m_RMatWireframe  =MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/Wireframe"       ));
@@ -304,27 +304,29 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
     }
 
     // Render a small cross at the (world-space) position of each active light source.
-    for (unsigned long LightNr=0; LightNr<ScenePropGrid->m_Lights.Size(); LightNr++)
+    const ArrayT<ModelDocumentT::LightSourceT*>& LightSources=m_Parent->GetModelDoc()->GetLightSources();
+
+    for (unsigned long LsNr=0; LsNr<LightSources.Size(); LsNr++)
     {
-        const ScenePropGridT::LightT& Light=ScenePropGrid->m_Lights[LightNr];
+        const ModelDocumentT::LightSourceT& LS=*LightSources[LsNr];
 
-        if (!Light.IsOn) continue;
+        if (!LS.IsOn) continue;
 
-        const float r=Light.Color.Red()/255.0f;
-        const float g=Light.Color.Green()/255.0f;
-        const float b=Light.Color.Blue()/255.0f;
+        const float r=LS.Color.Red()/255.0f;
+        const float g=LS.Color.Green()/255.0f;
+        const float b=LS.Color.Blue()/255.0f;
 
         static MatSys::MeshT LightSourceMesh(MatSys::MeshT::Lines);
         if (LightSourceMesh.Vertices.Size()==0) LightSourceMesh.Vertices.PushBackEmpty(6);
 
-        LightSourceMesh.Vertices[0].SetOrigin(Light.Pos.x+50.0f, Light.Pos.y, Light.Pos.z); LightSourceMesh.Vertices[0].SetColor(r, g, b);
-        LightSourceMesh.Vertices[1].SetOrigin(Light.Pos.x-50.0f, Light.Pos.y, Light.Pos.z); LightSourceMesh.Vertices[1].SetColor(r, g, b);
+        LightSourceMesh.Vertices[0].SetOrigin(LS.Pos.x+50.0f, LS.Pos.y, LS.Pos.z); LightSourceMesh.Vertices[0].SetColor(r, g, b);
+        LightSourceMesh.Vertices[1].SetOrigin(LS.Pos.x-50.0f, LS.Pos.y, LS.Pos.z); LightSourceMesh.Vertices[1].SetColor(r, g, b);
 
-        LightSourceMesh.Vertices[2].SetOrigin(Light.Pos.x, Light.Pos.y+50.0f, Light.Pos.z); LightSourceMesh.Vertices[2].SetColor(r, g, b);
-        LightSourceMesh.Vertices[3].SetOrigin(Light.Pos.x, Light.Pos.y-50.0f, Light.Pos.z); LightSourceMesh.Vertices[3].SetColor(r, g, b);
+        LightSourceMesh.Vertices[2].SetOrigin(LS.Pos.x, LS.Pos.y+50.0f, LS.Pos.z); LightSourceMesh.Vertices[2].SetColor(r, g, b);
+        LightSourceMesh.Vertices[3].SetOrigin(LS.Pos.x, LS.Pos.y-50.0f, LS.Pos.z); LightSourceMesh.Vertices[3].SetColor(r, g, b);
 
-        LightSourceMesh.Vertices[4].SetOrigin(Light.Pos.x, Light.Pos.y, Light.Pos.z+50.0f); LightSourceMesh.Vertices[4].SetColor(r, g, b);
-        LightSourceMesh.Vertices[5].SetOrigin(Light.Pos.x, Light.Pos.y, Light.Pos.z-50.0f); LightSourceMesh.Vertices[5].SetColor(r, g, b);
+        LightSourceMesh.Vertices[4].SetOrigin(LS.Pos.x, LS.Pos.y, LS.Pos.z+50.0f); LightSourceMesh.Vertices[4].SetColor(r, g, b);
+        LightSourceMesh.Vertices[5].SetOrigin(LS.Pos.x, LS.Pos.y, LS.Pos.z-50.0f); LightSourceMesh.Vertices[5].SetColor(r, g, b);
 
         MatSys::Renderer->SetCurrentMaterial(m_RMatWireframe);
         MatSys::Renderer->RenderMesh(LightSourceMesh);
@@ -334,24 +336,24 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
 
 
     // 2) For each light source, draw the dynamic lighting passes.
-    for (unsigned long LightNr=0; LightNr<ScenePropGrid->m_Lights.Size(); LightNr++)
+    for (unsigned long LsNr=0; LsNr<LightSources.Size(); LsNr++)
     {
-        const ScenePropGridT::LightT& Light=ScenePropGrid->m_Lights[LightNr];
+        const ModelDocumentT::LightSourceT& LS=*LightSources[LsNr];
 
-        if (!Light.IsOn) continue;
+        if (!LS.IsOn) continue;
 
-        const float r=Light.Color.Red()/255.0f;
-        const float g=Light.Color.Green()/255.0f;
-        const float b=Light.Color.Blue()/255.0f;
+        const float r=LS.Color.Red()/255.0f;
+        const float g=LS.Color.Green()/255.0f;
+        const float b=LS.Color.Blue()/255.0f;
 
         // World-space and model-space are identical here, so we can directly set the world-space light source parameters as model-space parameters.
-        MatSys::Renderer->SetCurrentLightSourcePosition(Light.Pos.x, Light.Pos.y, Light.Pos.z);
-        MatSys::Renderer->SetCurrentLightSourceRadius(Light.Radius);
+        MatSys::Renderer->SetCurrentLightSourcePosition(LS.Pos.x, LS.Pos.y, LS.Pos.z);
+        MatSys::Renderer->SetCurrentLightSourceRadius(LS.Radius);
         MatSys::Renderer->SetCurrentLightSourceDiffuseColor (r, g, b);
         MatSys::Renderer->SetCurrentLightSourceSpecularColor(r, g, b);
 
         // 2a) Draw stencil shadow pass.
-        if (Light.CastShadows)
+        if (LS.CastShadows)
         {
             MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::STENCILSHADOW);
             RenderPass();

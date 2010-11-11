@@ -58,6 +58,7 @@ class GameConfigT
     const EntityClassT* FindClass(const wxString& Name) const;
     const ArrayT<const EntityClassT*>& GetEntityClasses() const { return m_EntityClasses; }
     EditorMatManT& GetMatMan() { return m_MatMan; }
+    const EditorMatManT& GetMatMan() const { return m_MatMan; }
 
     int GetMaxMapCoord() const { return  m_MaxMapCoord; }
     int GetMinMapCoord() const { return -m_MaxMapCoord; }
