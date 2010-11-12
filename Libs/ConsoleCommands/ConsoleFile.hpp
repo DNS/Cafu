@@ -31,16 +31,19 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 namespace cf
 {
-    /// This class implements the ConsoleI interface by printing the console output to stdout.
+    /// This class implements the ConsoleI interface by writing the console output into a text file.
     class ConsoleFileT : public ConsoleI
     {
         public:
 
-        /// Constructor for creating an instance of a ConsoleFile.
-        /// @param FileName Path to the file console output should be logged to.
+        /// Constructor for creating an instance of a ConsoleFileT.
+        /// @param FileName   Path and name of the file that the console output is to be written to.
         ConsoleFileT(const std::string& FileName);
 
-        /// Flushes the file stream.
+        /// Sets if the console buffer should be auto-flushed after each call to one of the Print() or Warning() methods.
+        void SetAutoFlush(bool AutoFlush) { m_AutoFlush=AutoFlush; }
+
+        /// Flushes the buffers so that all contents is immediately written into the file.
         void Flush();
 
         // Methods of the ConsoleI interface.
@@ -52,7 +55,8 @@ namespace cf
 
         private:
 
-        std::ofstream File;      ///< The filestream output is logged to.
+        std::ofstream m_File;       ///< The filestream output is logged to.
+        bool          m_AutoFlush;  ///< If the console buffer should be auto-flushed after each call to one of the Print() or Warning() methods.
     };
 }
 

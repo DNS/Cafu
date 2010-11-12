@@ -433,6 +433,7 @@ bool AppCafuT::OnCmdLineParsed(wxCmdLineParser& Parser)
     if (Parser.Found("log", &s) && m_ConFile==NULL)
     {
         m_ConFile=new cf::ConsoleFileT(s.ToStdString());
+        m_ConFile->SetAutoFlush(true);
         m_ConFile->Print(m_ConBuffer->GetBuffer());
 
         s_CompositeConsole.Attach(m_ConFile);
