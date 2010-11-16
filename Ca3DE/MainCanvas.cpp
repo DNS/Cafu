@@ -345,7 +345,7 @@ void MainCanvasT::Initialize()
     if (!SoundSystem->Initialize())
     {
         Console->Print("WARNING: Sound system failed to initialize!\n");
-        Console->Print("I'm sorry, but this is probably due to sound driver problems with your computer.\n");
+        Console->Print("Sorry, but this is probably due to sound driver problems with your computer.\n");
         Console->Print("We'll proceed anyway, with sound effects disabled.\n");
 
         SoundSystem=NULL;
@@ -355,16 +355,26 @@ void MainCanvasT::Initialize()
         #define QUOTE(str) QUOTE_HELPER(str)
         #define QUOTE_HELPER(str) #str
 #ifdef _WIN32
-        SoundSystem=PlatformAux::GetSoundSys(std::string("Libs/")+QUOTE(SCONS_BUILD_DIR)+"/SoundSystem/SoundSysNull.dll", m_SoundSysDLL);
+        const std::string NullPaths[]={ std::string("Libs/")+QUOTE(SCONS_BUILD_DIR)+"/SoundSystem/SoundSysNull.dll", "./SoundSysNull.dll" };
 #else
-        SoundSystem=PlatformAux::GetSoundSys(std::string("Libs/")+QUOTE(SCONS_BUILD_DIR)+"/SoundSystem/libSoundSysNull.so", m_SoundSysDLL);
+        const std::string NullPaths[]={ std::string("Libs/")+QUOTE(SCONS_BUILD_DIR)+"/SoundSystem/libSoundSysNull.so", "./libSoundSysNull.so" };
 #endif
         #undef QUOTE
         #undef QUOTE_HELPER
 #endif
 
-        // Null sound system should always be there and loadable.
-        assert(SoundSystem && m_SoundSysDLL);
+        SoundSystem=PlatformAux::GetSoundSys(NullPaths[0], m_SoundSysDLL);
+
+        if (SoundSystem==NULL || m_SoundSysDLL==NULL)
+            SoundSystem=PlatformAux::GetSoundSys(NullPaths[1], m_SoundSysDLL);
+
+        // Null sound system should always be there and loadable...
+        if (SoundSystem==NULL || m_SoundSysDLL==NULL)
+        {
+            wxMessageBox("Could not load the Null sound system.", "Sound System Error", wxOK | wxICON_ERROR);
+            m_Parent->Destroy();
+            return;
+        }
 
         SoundSystem->Initialize();    // Init of Null sound system always succeeds.
     }
