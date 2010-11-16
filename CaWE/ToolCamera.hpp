@@ -45,7 +45,7 @@ class ToolCameraT : public ToolT
     CameraT* GetActiveCamera() const { return m_Cameras[m_ActiveCameraNr]; }
     void AddCamera(CameraT* Camera);
     void DeleteActiveCamera();
-    void NotifyCameraChanged(CameraT* Camera);
+    void NotifyCameraChanged(const CameraT* Camera);
 
 
     // Implementations/overrides of ToolT methods.

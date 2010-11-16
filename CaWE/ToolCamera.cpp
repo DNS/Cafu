@@ -77,7 +77,7 @@ ToolCameraT::~ToolCameraT()
         {
             static CameraT SafeCamera;
 
-            ViewWin3D->m_Camera=&SafeCamera;
+            ViewWin3D->SetCamera(&SafeCamera);
         }
     }
 
@@ -98,10 +98,10 @@ void ToolCameraT::AddCamera(CameraT* Camera)
 }
 
 
-void ToolCameraT::NotifyCameraChanged(CameraT* Camera)
+void ToolCameraT::NotifyCameraChanged(const CameraT* Camera)
 {
     // Ok, somebody (either a ViewWindow3DT or we ourselves) notifies us that one of our cameras has changed.
-    const int CamNr=m_Cameras.Find(Camera);
+    const int CamNr=m_Cameras.Find(const_cast<CameraT*>(Camera));
 
     wxASSERT(CamNr!=-1);
     if (CamNr>=0) m_ActiveCameraNr=CamNr;
@@ -133,9 +133,9 @@ void ToolCameraT::DeleteActiveCamera()
         ViewWindowT*   ViewWin  =ChildFrame->GetViewWindows()[ViewWinNr];
         ViewWindow3DT* ViewWin3D=dynamic_cast<ViewWindow3DT*>(ViewWin);
 
-        if (ViewWin3D && ViewWin3D->m_Camera==OldActiveCamera)
+        if (ViewWin3D && &ViewWin3D->GetCamera()==OldActiveCamera)
         {
-            ViewWin3D->m_Camera=m_Cameras[m_ActiveCameraNr];
+            ViewWin3D->SetCamera(m_Cameras[m_ActiveCameraNr]);
         }
     }
 
@@ -296,13 +296,13 @@ bool ToolCameraT::OnKeyDown3D(ViewWindow3DT& ViewWindow, wxKeyEvent& KE)
 
 bool ToolCameraT::OnMouseMove3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
 {
-    const int CamNr=m_Cameras.Find(ViewWindow.m_Camera);
+    const int CamNr=m_Cameras.Find(const_cast<CameraT*>(&ViewWindow.GetCamera()));
 
     wxASSERT(CamNr!=-1);
-
     if (CamNr<0 || int(m_ActiveCameraNr)==CamNr) return false;
 
-    NotifyCameraChanged(ViewWindow.m_Camera);
+    // Have ViewWindow.GetCamera() become the newly active camera.
+    NotifyCameraChanged(&ViewWindow.GetCamera());
     return true;
 }
 
