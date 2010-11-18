@@ -292,7 +292,6 @@ void MainCanvasT::Initialize()
     try
     {
         // Obtain the specified MatSys renderer (or if none is specified, automatically find the "best").
-        extern ConVarT Options_ClientDesiredRenderer;
         const wxString RendererName=wxString(Options_ClientDesiredRenderer.GetValueString()).Trim();
 
         if (RendererName!="" && !RendererName.StartsWith("#"))

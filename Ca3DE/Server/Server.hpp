@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Network/Network.hpp"
 #include "Util/Util.hpp"
 
+#include <stdexcept>
 #include <string>
 
 
