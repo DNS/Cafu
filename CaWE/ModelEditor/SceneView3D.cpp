@@ -36,29 +36,23 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Models/Model_cmdl.hpp"
 
 
-BEGIN_EVENT_TABLE(ModelEditor::SceneView3DT, wxGLCanvas)
-    EVT_PAINT     (ModelEditor::SceneView3DT::OnPaint     )
-    EVT_IDLE      (ModelEditor::SceneView3DT::OnIdle      )
-    EVT_MOUSEWHEEL(ModelEditor::SceneView3DT::OnMouseWheel)
-    EVT_SIZE      (ModelEditor::SceneView3DT::OnSize      )
-    EVT_MOTION    (ModelEditor::SceneView3DT::OnMouseMove )
-    EVT_LEFT_DOWN (ModelEditor::SceneView3DT::OnLMouseDown)
-    EVT_LEFT_UP   (ModelEditor::SceneView3DT::OnLMouseUp  )
-    EVT_RIGHT_UP  (ModelEditor::SceneView3DT::OnRMouseUp  )
-    EVT_KEY_DOWN  (ModelEditor::SceneView3DT::OnKeyDown   )
+BEGIN_EVENT_TABLE(ModelEditor::SceneView3DT, Generic3DWindowT)
+    EVT_LEFT_DOWN  (ModelEditor::SceneView3DT::OnMouseLeftDown)
+    EVT_LEFT_DCLICK(ModelEditor::SceneView3DT::OnMouseLeftDown)
+    EVT_LEFT_UP    (ModelEditor::SceneView3DT::OnMouseLeftUp  )
+    EVT_MOTION     (ModelEditor::SceneView3DT::OnMouseMove    )
+    EVT_PAINT      (ModelEditor::SceneView3DT::OnPaint        )
+    EVT_IDLE       (ModelEditor::SceneView3DT::OnIdle         )
 END_EVENT_TABLE()
 
 
 ModelEditor::SceneView3DT::SceneView3DT(ChildFrameT* Parent)
-    : wxGLCanvas(Parent, -1, ParentFrameT::OpenGLAttributeList, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS, "SceneViewWindow"),
+    : Generic3DWindowT(Parent, Parent->GetModelDoc()->GetCameras()[0]),
       m_Parent(Parent),
       m_TimeOfLastPaint(0),
-   // m_CameraTool(static_cast<ToolCameraT*>(m_ChildFrame->GetToolManager().GetTool(ToolCameraT::TypeInfo))),
-      m_Camera(Parent->GetModelDoc()->GetCameras()[0]),
-      m_CameraVel()
+      m_RMatWireframe(MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/Wireframe"       ))),
+      m_RMatWireframeOZ(MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/WireframeOffsetZ")))
 {
-    m_RMatWireframe  =MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/Wireframe"       ));
-    m_RMatWireframeOZ=MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/WireframeOffsetZ"));
 }
 
 
@@ -103,6 +97,51 @@ void ModelEditor::SceneView3DT::RenderPass() const
 }
 
 
+Vector3fT ModelEditor::SceneView3DT::GetRefPtWorld(const wxPoint& RefPtWin) const
+{
+    return GetCamera().Pos;
+}
+
+
+void ModelEditor::SceneView3DT::InfoCameraChanged()
+{
+    // TODO: Limit the refresh to camera attributes?
+    m_Parent->GetScenePropGrid()->RefreshPropGrid();
+}
+
+
+void ModelEditor::SceneView3DT::InfoRightMouseClick(wxMouseEvent& ME)
+{
+    ;
+}
+
+
+void ModelEditor::SceneView3DT::OnMouseLeftDown(wxMouseEvent& ME)
+{
+    // ToolI* ActiveTool=m_Parent->GetToolManager()->GetActiveTool();
+
+    // if (ActiveTool) ActiveTool->OnLMouseDown(this, ME);
+}
+
+
+void ModelEditor::SceneView3DT::OnMouseLeftUp(wxMouseEvent& ME)
+{
+    // ToolI* ActiveTool=m_Parent->GetToolManager()->GetActiveTool();
+
+    // if (ActiveTool) ActiveTool->OnLMouseUp(this, ME);
+}
+
+
+void ModelEditor::SceneView3DT::OnMouseMove(wxMouseEvent& ME)
+{
+    // Reset focus on mouse move, so zooming and scrolling by cursor keys always works, when the mouse is over the window.
+    if (FindFocus()!=this) SetFocus();
+
+    // Make sure that the base class always gets this event as well.
+    ME.Skip();
+}
+
+
 void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
 {
     // Guard against accessing an already deleted MapDoc. This can otherwise happen when closing this window/view/document,
@@ -123,106 +162,7 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
     /*** Process Input ***/
     /*********************/
 
-    // Only move the camera if we actually have the keyboard input focus (the m_Camera is reset to (0, 0, 0) below if we haven't).
-    // Ideally, we would implement a system with proper acceleration and air and ground friction,
-    // but it's really difficult to properly "tune" such a system so that it "feels right".
-    if (wxWindow::FindFocus()==this)
-    {
-        // Keyboard layout summary:
-        //   1) WASD move and strafe (4 axes).
-        //   2) POS1 and END move up/down (remaining 2 axes).
-        //   3) Arrow keys rotate (heading and pitch).
-        //   4) Ctrl + arrow keys == WASD (first 4 axes again).
-        // Note that "Shift + arrow keys" is used by the Selection and Edit Vertices tools for nudging objects and vertices.
-        const bool ControlDown   =wxGetKeyState(WXK_CONTROL);
-        const bool ShiftDown     =wxGetKeyState(WXK_SHIFT);
-        const bool LeftArrowDown =wxGetKeyState(WXK_LEFT)  && !ShiftDown;
-        const bool RightArrowDown=wxGetKeyState(WXK_RIGHT) && !ShiftDown;
-        const bool UpArrowDown   =wxGetKeyState(WXK_UP)    && !ShiftDown;
-        const bool DownArrowDown =wxGetKeyState(WXK_DOWN)  && !ShiftDown;
-
-        // The maximum allowed camera speed, in camera space.
-        const Vector3fT CameraMaxVel=Vector3fT(Options.view3d.MaxCameraVelocity*0.75f,
-                                               Options.view3d.MaxCameraVelocity,
-                                               Options.view3d.MaxCameraVelocity*0.5f);
-
-        const Vector3fT CameraAccel=CameraMaxVel*(1000.0f/std::max(float(Options.view3d.TimeToMaxSpeed), 10.0f));
-
-
-        // Strafe left / right.
-        if (wxGetKeyState(wxKeyCode('D')) || (ControlDown && RightArrowDown))
-        {
-            m_CameraVel.x=std::min(m_CameraVel.x+CameraAccel.x*FrameTime,  CameraMaxVel.x);
-        }
-        else if (wxGetKeyState(wxKeyCode('A')) || (ControlDown && LeftArrowDown))
-        {
-            m_CameraVel.x=std::max(m_CameraVel.x-CameraAccel.x*FrameTime, -CameraMaxVel.x);
-        }
-        else
-        {
-            // Halts are instantaneous (infinite negative acceleration).
-            m_CameraVel.x=0.0f;
-        }
-
-        // Move forward / backward.
-        if (wxGetKeyState(wxKeyCode('W')) || (ControlDown && UpArrowDown))
-        {
-            m_CameraVel.y=std::min(m_CameraVel.y+CameraAccel.y*FrameTime,  CameraMaxVel.y);
-        }
-        else if (wxGetKeyState(wxKeyCode('S')) || (ControlDown && DownArrowDown))
-        {
-            m_CameraVel.y=std::max(m_CameraVel.y-CameraAccel.y*FrameTime, -CameraMaxVel.y);
-        }
-        else
-        {
-            // Halts are instantaneous (infinite negative acceleration).
-            m_CameraVel.y=0.0f;
-        }
-
-        // Hover up / down.
-        if (wxGetKeyState(WXK_HOME))
-        {
-            m_CameraVel.z=std::min(m_CameraVel.z+CameraAccel.z*FrameTime,  CameraMaxVel.z);
-        }
-        else if (wxGetKeyState(WXK_END))
-        {
-            m_CameraVel.z=std::max(m_CameraVel.z-CameraAccel.z*FrameTime, -CameraMaxVel.z);
-        }
-        else
-        {
-            // Halts are instantaneous (infinite negative acceleration).
-            m_CameraVel.z=0.0f;
-        }
-
-        // Rotate (heading and pitch).
-        if (!ControlDown)
-        {
-            if (   UpArrowDown) m_Camera->Angles.pitch()-=FrameTime*180.0f;
-            if ( DownArrowDown) m_Camera->Angles.pitch()+=FrameTime*180.0f;
-
-            if ( LeftArrowDown) m_Camera->Angles.yaw()-=FrameTime*180.0f;
-            if (RightArrowDown) m_Camera->Angles.yaw()+=FrameTime*180.0f;
-
-            m_Camera->LimitAngles();
-        }
-    }
-    else
-    {
-        // Make sure that the camera halts whenever we lose or don't have the focus.
-        m_CameraVel=Vector3fT(0, 0, 0);
-    }
-
-    // The cameras new position in camera space is at m_CameraVel*FrameTime.
-    if (m_CameraVel.x!=0) m_Camera->Pos+=m_Camera->GetXAxis()*(m_CameraVel.x*FrameTime);
-    if (m_CameraVel.y!=0) m_Camera->Pos+=m_Camera->GetYAxis()*(m_CameraVel.y*FrameTime);
-    if (m_CameraVel.z!=0) m_Camera->Pos+=m_Camera->GetZAxis()*(m_CameraVel.z*FrameTime);
-
-
-    // Process mouse input.
-    // if (m_MouseControl.IsActive())
-    // {
-    //      // TODO...
-    // }
+    ProcessInput(FrameTime);
 
 
     /********************/
@@ -235,7 +175,8 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
 
     // Initialize the viewport.
     SetCurrent(*wxGetApp().GetParentFrame()->m_GLContext);    // This is the method from the wxGLCanvas for activating the given RC with this window.
-    const wxSize CanvasSize=GetClientSize();
+    const wxSize   CanvasSize=GetClientSize();
+    const CameraT& Camera    =GetCamera();
 
     MatSys::Renderer->SetViewport(0, 0, CanvasSize.GetWidth(), CanvasSize.GetHeight());
 
@@ -250,11 +191,11 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
     // Initialize the perspective projection (view-to-clip) matrix.
     // Note that the far clip plane MUST be located at infinity for our stencil shadows implementation!
     MatSys::Renderer->SetMatrix(MatSys::RendererI::PROJECTION,
-        MatrixT::GetProjPerspectiveMatrix(m_Camera->VerticalFOV, (float)CanvasSize.GetWidth()/(float)CanvasSize.GetHeight(),
-                                          m_Camera->NearPlaneDist, -1.0f));   // The far plane must be at infinity, not m_Camera->FarPlaneDist!
+        MatrixT::GetProjPerspectiveMatrix(Camera.VerticalFOV, (float)CanvasSize.GetWidth()/(float)CanvasSize.GetHeight(),
+                                          Camera.NearPlaneDist, -1.0f));   // The far plane must be at infinity, not Camera.FarPlaneDist!
 
     // Initialize the camera (world-to-view) matrix.
-    MatrixT WorldToView=m_Camera->GetMatrix();
+    MatrixT WorldToView=Camera.GetMatrix();
 
     // Rotate by 90 degrees around the x-axis in order to meet the MatSys's expectation of axes orientation.
     for (unsigned long i=0; i<4; i++)
@@ -272,7 +213,7 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
     // 1) Draw the ambient rendering pass.
     MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
 
-    MatSys::Renderer->SetCurrentEyePosition(m_Camera->Pos.x, m_Camera->Pos.y, m_Camera->Pos.z);
+    MatSys::Renderer->SetCurrentEyePosition(Camera.Pos.x, Camera.Pos.y, Camera.Pos.z);
     MatSys::Renderer->SetCurrentAmbientLightColor(ScenePropGrid->m_AmbientLightColor.Red()/255.0f,
                                                   ScenePropGrid->m_AmbientLightColor.Green()/255.0f,
                                                   ScenePropGrid->m_AmbientLightColor.Blue()/255.0f);
@@ -376,95 +317,4 @@ void ModelEditor::SceneView3DT::OnIdle(wxIdleEvent& IE)
     Refresh(false);
 
     if (wxGetApp().IsActive()) IE.RequestMore();    // TODO: Does this work as good as expected?
-}
-
-
-void ModelEditor::SceneView3DT::OnMouseWheel(wxMouseEvent& ME)
-{
- // // Guard against accessing an already deleted MapDoc. This can otherwise happen when closing this window/view/document,
- // // namely during the continued event processing between the call to Destroy() and our final deletion.
- // if (&GetMapDoc()==NULL) { ME.Skip(); return; }
- //
- // // Give the active tool a chance to intercept the event.
- // ToolT* Tool=m_ChildFrame->GetToolManager().GetActiveTool();
- // if (Tool && Tool->OnMouseWheel3D(*this, ME)) return;
-
-    m_Camera->Pos+=m_Camera->GetYAxis()*(ME.GetWheelRotation()/2);
-    m_Parent->GetScenePropGrid()->RefreshPropGrid();
-}
-
-
-void ModelEditor::SceneView3DT::OnSize(wxSizeEvent& SE)
-{
-    // UpdateScrollbars();
-    // CalcViewOffsets();
-
-    Refresh(false);
-}
-
-
-void ModelEditor::SceneView3DT::OnMouseMove(wxMouseEvent& ME)
-{
-    // Reset focus on mouse move, so zooming and scrolling by cursor keys always works, when the mouse is over the window.
-    if (FindFocus()!=this) SetFocus();
-
-    // ToolI* ActiveTool=m_Parent->GetToolManager()->GetActiveTool();
-
-    // if (ActiveTool) ActiveTool->OnMouseMove(this, ME);
-}
-
-
-void ModelEditor::SceneView3DT::OnLMouseDown(wxMouseEvent& ME)
-{
-    // ToolI* ActiveTool=m_Parent->GetToolManager()->GetActiveTool();
-
-    // if (ActiveTool) ActiveTool->OnLMouseDown(this, ME);
-}
-
-
-void ModelEditor::SceneView3DT::OnLMouseUp(wxMouseEvent& ME)
-{
-    // ToolI* ActiveTool=m_Parent->GetToolManager()->GetActiveTool();
-
-    // if (ActiveTool) ActiveTool->OnLMouseUp(this, ME);
-}
-
-
-void ModelEditor::SceneView3DT::OnRMouseUp(wxMouseEvent& ME)
-{
-    // ToolI* ActiveTool=m_Parent->GetToolManager()->GetActiveTool();
-
-    // if (ActiveTool) ActiveTool->OnRMouseUp(this, ME);
-}
-
-
-void ModelEditor::SceneView3DT::OnKeyDown(wxKeyEvent& KE)
-{
-    // ToolI* ActiveTool=m_Parent->GetToolManager()->GetActiveTool();
-
-    // if (ActiveTool && ActiveTool->OnKeyDown(this, KE)) return;
-
-#if 0
-    switch (KE.GetKeyCode())
-    {
-        case '+':
-        case WXK_NUMPAD_ADD:
-            ZoomIn();
-            break;
-
-        case '-':
-        case WXK_NUMPAD_SUBTRACT:
-            ZoomOut();
-            break;
-
-        case WXK_UP:    { wxScrollWinEvent SWE(wxEVT_SCROLLWIN_LINEUP,   0, wxVERTICAL  ); OnScroll(SWE); break; }
-        case WXK_DOWN:  { wxScrollWinEvent SWE(wxEVT_SCROLLWIN_LINEDOWN, 0, wxVERTICAL  ); OnScroll(SWE); break; }
-        case WXK_LEFT:  { wxScrollWinEvent SWE(wxEVT_SCROLLWIN_LINEUP,   0, wxHORIZONTAL); OnScroll(SWE); break; }
-        case WXK_RIGHT: { wxScrollWinEvent SWE(wxEVT_SCROLLWIN_LINEDOWN, 0, wxHORIZONTAL); OnScroll(SWE); break; }
-
-        default:
-            KE.Skip();
-            break;
-    }
-#endif
 }

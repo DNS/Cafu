@@ -24,11 +24,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef _MODELEDITOR_SCENE_VIEW_3D_HPP_
 #define _MODELEDITOR_SCENE_VIEW_3D_HPP_
 
-#include "Math3D/Vector3.hpp"
-#include "wx/glcanvas.h"
+#include "../Generic3DWindow.hpp"
 
 
-class CameraT;
 namespace MatSys { class RenderMaterialT; }
 
 
@@ -37,8 +35,7 @@ namespace ModelEditor
     class ChildFrameT;
 
 
-    /// This class has many similarities with ViewWindow3DT from the map editor.
-    class SceneView3DT : public wxGLCanvas
+    class SceneView3DT : public Generic3DWindowT
     {
         public:
 
@@ -48,27 +45,26 @@ namespace ModelEditor
 
         private:
 
+        // Implement virtual methods of Generic3DViewT base class.
+        virtual Vector3fT GetRefPtWorld(const wxPoint& RefPtWin) const;
+        virtual void      InfoCameraChanged();
+        virtual void      InfoRightMouseClick(wxMouseEvent& ME);
+
         /// Renders a single pass of the scene.
         void RenderPass() const;
 
         ChildFrameT*  m_Parent;
         unsigned long m_TimeOfLastPaint;    ///< The time at which the OnPaint() event handler was last called.
-     // ToolCameraT*  m_CameraTool;         ///< [Not needed here - this is a single camera party.] The camera tool that manages all cameras. The camera of this 3D view is always among the cameras in the tool.
-        CameraT*      m_Camera;             ///< Pointer to the camera that is currently used for this 3D view. The actual instance of the camera is kept in the document.
-        Vector3fT     m_CameraVel;          ///< The cameras current velocity, in camera space. Positive values for m_CameraVel.y mean forward movement, etc.
 
         MatSys::RenderMaterialT* m_RMatWireframe;       ///< The render material for wire-frame rendering.
         MatSys::RenderMaterialT* m_RMatWireframeOZ;     ///< The render material for wire-frame rendering (with polygon z-offset, e.g. for outlines).
 
-        void OnPaint     (wxPaintEvent& PE);
-        void OnIdle      (wxIdleEvent&  IE);
-        void OnMouseWheel(wxMouseEvent& ME);
-        void OnSize      (wxSizeEvent&  SE);
-        void OnMouseMove (wxMouseEvent& ME);
-        void OnLMouseDown(wxMouseEvent& ME);
-        void OnLMouseUp  (wxMouseEvent& ME);
-        void OnRMouseUp  (wxMouseEvent& ME);
-        void OnKeyDown   (wxKeyEvent&   KE);
+        // Event handlers.
+        void OnMouseLeftDown(wxMouseEvent& ME); ///< We also handle "double-click" events in this method (use ME.ButtonDClick() for distinction).
+        void OnMouseLeftUp  (wxMouseEvent& ME);
+        void OnMouseMove    (wxMouseEvent& ME);
+        void OnPaint        (wxPaintEvent& PE);
+        void OnIdle         (wxIdleEvent&  IE);
 
         DECLARE_EVENT_TABLE()
     };

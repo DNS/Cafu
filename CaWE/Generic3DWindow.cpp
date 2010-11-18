@@ -346,11 +346,14 @@ void Generic3DWindowT::ProcessInput(float FrameTime)
 
                         m_Camera->Pos-=m_MouseControl.GetRefPtWorld();
 
-                        wxASSERT(m_Camera->Pos.x!=0.0f || m_Camera->Pos.y!=0.0f);
-                        const float AngleZ=cf::math::AnglesfT::RadToDeg(atan2(m_Camera->Pos.x, m_Camera->Pos.y));
-                        m_Camera->Pos=m_Camera->Pos.GetRotZ(AngleZ).      // AngleZ is measured clockwise, GetRotZ() rotates counter-clockwise.
-                                                    GetRotX(DeltaPitch).
-                                                    GetRotZ(-AngleZ);
+                        if (m_Camera->Pos.x!=0.0f || m_Camera->Pos.y!=0.0f)
+                        {
+                            const float AngleZ=cf::math::AnglesfT::RadToDeg(atan2(m_Camera->Pos.x, m_Camera->Pos.y));
+
+                            m_Camera->Pos=m_Camera->Pos.GetRotZ(AngleZ).      // AngleZ is measured clockwise, GetRotZ() rotates counter-clockwise.
+                                                        GetRotX(DeltaPitch).
+                                                        GetRotZ(-AngleZ);
+                        }
 
                         m_Camera->Pos+=m_MouseControl.GetRefPtWorld();
                     }
