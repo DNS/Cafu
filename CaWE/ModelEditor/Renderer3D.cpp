@@ -22,62 +22,15 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Renderer3D.hpp"
-#include "Camera.hpp"
-#include "ChildFrame.hpp"        // ONLY needed for   m_MapDoc.GetChildFrame()->GetToolManager()
-#include "ChildFrameViewWin3D.hpp"
-#include "EditorMaterialManager.hpp"
-#include "MapDocument.hpp"
-#include "MapElement.hpp"
-#include "Tool.hpp"
-#include "ToolManager.hpp"
 
-#include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/Mesh.hpp"
 #include "MaterialSystem/Renderer.hpp"
-#include "Math3D/Matrix.hpp"
 
 #include "wx/wx.h"
 
-#if defined(_WIN32) && defined(_MSC_VER)
-    #if (_MSC_VER<1300)
-        #define for if (false) ; else for
-    #endif
-#endif
 
-
-/// The global counter that indicates the number of the 3D video frame that is currently rendered.
-/// Copied into the map elements, it is used in order to avoid processing/rendering map elements twice.
-/// TODO: Move and turn into a member of the document or ChildFrameT? Can have multiple open documents, each with multiple 3D views...
-static unsigned int Renderer3D_FrameCount=0;
-
-
-Renderer3DT::UseOrthoMatricesT::UseOrthoMatricesT(const wxWindow& Window)
-{
-    const wxSize CanvasSize=Window.GetClientSize();
-
-    MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
-    MatSys::Renderer->PushMatrix(MatSys::RendererI::WORLD_TO_VIEW );
-    MatSys::Renderer->PushMatrix(MatSys::RendererI::PROJECTION    );
-
-    MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
-    MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,  MatrixT());
-    MatSys::Renderer->SetMatrix(MatSys::RendererI::PROJECTION,     MatrixT::GetProjOrthoMatrix(0.0f, CanvasSize.GetWidth(), CanvasSize.GetHeight(), 0.0f, -1.0f, 1.0f));
-}
-
-
-Renderer3DT::UseOrthoMatricesT::~UseOrthoMatricesT()
-{
-    MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
-    MatSys::Renderer->PopMatrix(MatSys::RendererI::WORLD_TO_VIEW );
-    MatSys::Renderer->PopMatrix(MatSys::RendererI::PROJECTION    );
-}
-
-
-Renderer3DT::Renderer3DT(ViewWindow3DT& ViewWin3D)
-    : m_ViewWin3D(ViewWin3D),
-      m_ActiveToolCache(NULL),
-      m_VisElemsBackToFront()
+ModelEditor::Renderer3DT::Renderer3DT()
 {
     // These could equally well be static members of this class,
     // and be initialized and shutdown by the AppCaWE class that also deals with the MatSys itself.
@@ -94,7 +47,7 @@ Renderer3DT::Renderer3DT(ViewWindow3DT& ViewWin3D)
 }
 
 
-Renderer3DT::~Renderer3DT()
+ModelEditor::Renderer3DT::~Renderer3DT()
 {
     MatSys::Renderer->FreeMaterial(m_RMatWireframe        );
     MatSys::Renderer->FreeMaterial(m_RMatWireframeOZ      );
@@ -107,28 +60,7 @@ Renderer3DT::~Renderer3DT()
 }
 
 
-void Renderer3DT::InitFrame()
-{
-    Renderer3D_FrameCount++;
-
-    m_ActiveToolCache=m_ViewWin3D.GetChildFrame()->GetToolManager().GetActiveTool();
-
-    // Locally cache the view frustum planes: They're needed for culling the BSP tree nodes and
-    // their map elements below, and even by some map elements for LoD computations (e.g. the terrains).
-    m_ViewWin3D.GetViewFrustum(m_FrustumPlanesCache);
-
-    // Determine the back-to-front ordered list of map elements that are in the view frustum and visible.
-    m_VisElemsBackToFront.Overwrite();
-
-    // COMPL_OUTSIDE doesn't make sense, COMPL_INSIDE would turn off view frustum culling.
-    GetRenderList(m_ViewWin3D.GetMapDoc().GetBspTree()->GetRootNode(), INTERSECTS);
-
-    // Set the active tool cache back to NULL.
-    m_ActiveToolCache=NULL;
-}
-
-
-float Renderer3DT::GetConstShade(const Vector3T<float>& Normal) const
+float ModelEditor::Renderer3DT::GetConstShade(const Vector3T<float>& Normal) const
 {
     const static Vector3fT Light =Vector3fT(0.2f, 0.4f, 0.7f);
     const static float     LightL=length(Light);
@@ -137,7 +69,7 @@ float Renderer3DT::GetConstShade(const Vector3T<float>& Normal) const
 }
 
 
-void Renderer3DT::RenderBox(const BoundingBox3fT& BB, const wxColour& Color, bool Solid) const
+void ModelEditor::Renderer3DT::RenderBox(const BoundingBox3fT& BB, const wxColour& Color, bool Solid) const
 {
     Vector3fT Vertices[8];
 
@@ -146,7 +78,7 @@ void Renderer3DT::RenderBox(const BoundingBox3fT& BB, const wxColour& Color, boo
 }
 
 
-void Renderer3DT::RenderBox(const Vector3fT Vertices[], const wxColour& Color, bool Solid) const
+void ModelEditor::Renderer3DT::RenderBox(const Vector3fT Vertices[], const wxColour& Color, bool Solid) const
 {
     const float r=Color.Red()  /255.0f;
     const float g=Color.Green()/255.0f;
@@ -228,7 +160,7 @@ void Renderer3DT::RenderBox(const Vector3fT Vertices[], const wxColour& Color, b
 }
 
 
-void Renderer3DT::RenderLine(const Vector3fT& A, const Vector3fT& B, const wxColour& Color) const
+void ModelEditor::Renderer3DT::RenderLine(const Vector3fT& A, const Vector3fT& B, const wxColour& Color) const
 {
     const float r=Color.Red()  /255.0f;
     const float g=Color.Green()/255.0f;
@@ -245,69 +177,7 @@ void Renderer3DT::RenderLine(const Vector3fT& A, const Vector3fT& B, const wxCol
 }
 
 
-void Renderer3DT::RenderSplitPlanes(const OrthoBspTreeT::NodeT* Node, int Depth) const
-{
-    if (Depth<=0) return;
-    if (Node->GetPlaneType()==OrthoBspTreeT::NodeT::NONE) return;
-
-    const unsigned int PlaneType=Node->GetPlaneType();
-    const unsigned int NearChild=m_ViewWin3D.GetCamera().Pos[PlaneType] > Node->GetPlaneDist() ? 0 : 1;
-    const unsigned int FarChild =1-NearChild;
-
-    // 1. Render the far child.
-    RenderSplitPlanes(Node->GetChild(FarChild), Depth-1);
-
-    // 2. Render the split plane.
-    // TODO: Sorry, the ClipBB should really not be hard-coded...
-    const BoundingBox3fT  ClipBB(Vector3fT(-2*1024, -2*1024, -3*1024), Vector3fT(5*1024, 2*1024, 2*1024));
-    const BoundingBox3fT& NodeBB=Node->GetBB();
-    Vector3fT             Points[4]={ NodeBB.Min, NodeBB.Min, NodeBB.Max, NodeBB.Max };
-
-    for (unsigned int PointNr=0; PointNr<4; PointNr++)
-    {
-        Points[PointNr][PlaneType]=Node->GetPlaneDist();
-
-        const unsigned int a=(PlaneType+1) % 3;
-        if (Points[PointNr][a] < ClipBB.Min[a]) Points[PointNr][a]=ClipBB.Min[a];
-        if (Points[PointNr][a] > ClipBB.Max[a]) Points[PointNr][a]=ClipBB.Max[a];
-
-        const unsigned int b=(PlaneType+2) % 3;
-        if (Points[PointNr][b] < ClipBB.Min[b]) Points[PointNr][b]=ClipBB.Min[b];
-        if (Points[PointNr][b] > ClipBB.Max[b]) Points[PointNr][b]=ClipBB.Max[b];
-    }
-
-    // Note that without the "+FarChild" here, the resulting Points array would be correct,
-    // but the order of the points would be oblivious of the camera position.
-    // Adding FarChild happens to yield an order in which the Points are always front-facing, and thus the
-    // rendered polygon is, as desired, never backside-culled even though it uses a single-sided material.
-    std::swap(Points[1][(PlaneType+1+FarChild) % 3], Points[3][(PlaneType+1+FarChild) % 3]);
-
-    for (int Pass=1; Pass<=2; Pass++)
-    {
-        // Note that in the wire-frame pass, we must use a MatSys::MeshT::Polygon rather than a MatSys::MeshT::LineLoop
-        // mesh, or else the depth offset won't work right (they are probably differently rasterized).
-        MatSys::MeshT Mesh(Pass==1 ? MatSys::MeshT::Polygon : MatSys::MeshT::TriangleFan);
-        Mesh.Vertices.PushBackEmpty(4);
-
-        float color[3]={ 0.0f, 0.0f, 0.0f };
-        color[Depth % 3]=(Pass==1) ? 1.0f : 0.4f;
-
-        for (unsigned long VertexNr=0; VertexNr<4; VertexNr++)
-        {
-            Mesh.Vertices[VertexNr].SetOrigin(Points[VertexNr]);
-            Mesh.Vertices[VertexNr].SetColor(color[0], color[1], color[2], Pass==1 ? 1.0f : 0.4f);
-        }
-
-        MatSys::Renderer->SetCurrentMaterial(Pass==1 ? GetRMatWireframe_OffsetZ() : GetRMatFlatShaded());
-        MatSys::Renderer->RenderMesh(Mesh);
-    }
-
-    // 3. Render the near child.
-    RenderSplitPlanes(Node->GetChild(NearChild), Depth-1);
-}
-
-
-void Renderer3DT::BasisVectors(const Vector3fT& Pos, const cf::math::Matrix3x3fT& Mat, float Length) const
+void ModelEditor::Renderer3DT::BasisVectors(const Vector3fT& Pos, const cf::math::Matrix3x3fT& Mat, float Length) const
 {
     static MatSys::MeshT Mesh(MatSys::MeshT::Lines);
 
@@ -336,7 +206,7 @@ void Renderer3DT::BasisVectors(const Vector3fT& Pos, const cf::math::Matrix3x3fT
 }
 
 
-void Renderer3DT::RenderCrossHair(const wxPoint& Center) const
+void ModelEditor::Renderer3DT::RenderCrossHair(const wxPoint& Center) const
 {
     const int RADIUS=5;
     static MatSys::MeshT Mesh(MatSys::MeshT::Lines);
@@ -365,60 +235,4 @@ void Renderer3DT::RenderCrossHair(const wxPoint& Center) const
 
     MatSys::Renderer->SetCurrentMaterial(GetRMatWireframe());
     MatSys::Renderer->RenderMesh(Mesh);
-}
-
-
-/// Determines where the given bounding-box BB is located in relation to the view frustum:
-/// Completely inside, completely outside, or intersecting one of the view frustum planes.
-Renderer3DT::RelLocT Renderer3DT::RelFrustum(const BoundingBox3fT& BB) const
-{
-    for (unsigned int PlaneNr=0; PlaneNr<6; PlaneNr++)
-    {
-        const BoundingBox3fT::SideT Side=BB.WhatSide(m_FrustumPlanesCache[PlaneNr]);
-
-        if (Side==BoundingBox3fT::Front) return COMPL_OUTSIDE;
-        if (Side==BoundingBox3fT::Both ) return INTERSECTS;
-    }
-
-    return COMPL_INSIDE;
-}
-
-
-void Renderer3DT::GetRenderList(const OrthoBspTreeT::NodeT* Node, RelLocT ParentLoc)
-{
-    const RelLocT NodeLoc=(ParentLoc==COMPL_INSIDE) ? COMPL_INSIDE : RelFrustum(Node->GetBB());
-
-    if (NodeLoc==COMPL_OUTSIDE) return;
-
-    // 1. Render the far child.
-    if (Node->GetPlaneType()!=OrthoBspTreeT::NodeT::NONE)
-    {
-        const unsigned int NearChild=m_ViewWin3D.GetCamera().Pos[Node->GetPlaneType()] > Node->GetPlaneDist() ? 0 : 1;
-        const unsigned int FarChild =1-NearChild;
-
-        GetRenderList(Node->GetChild(FarChild), NodeLoc);
-    }
-
-    // 2. Render the map elements in the node.
-    for (unsigned long ElemNr=0; ElemNr<Node->GetElems().Size(); ElemNr++)
-    {
-        MapElementT* Elem=Node->GetElems()[ElemNr];
-
-        if (Elem->GetFrameCount()==Renderer3D_FrameCount) continue;     // Already rendered in this frame?
-        Elem->SetFrameCount(Renderer3D_FrameCount);                     // Flag as processed (rendered or found invisible) in this frame.
-
-        if (!Elem->IsVisible()) continue;                                                 // Hidden by group?
-        if (m_ActiveToolCache->IsHiddenByTool(Elem)) continue;                            // Hidden by tool?
-        if (NodeLoc!=COMPL_INSIDE && RelFrustum(Elem->GetBB())==COMPL_OUTSIDE) continue;  // Outside view frustum?
-
-        m_VisElemsBackToFront.PushBack(Elem);
-    }
-
-    // 3. Render the near child.
-    if (Node->GetPlaneType()!=OrthoBspTreeT::NodeT::NONE)
-    {
-        const unsigned int NearChild=m_ViewWin3D.GetCamera().Pos[Node->GetPlaneType()] > Node->GetPlaneDist() ? 0 : 1;
-
-        GetRenderList(Node->GetChild(NearChild), NodeLoc);
-    }
 }

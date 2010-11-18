@@ -56,7 +56,7 @@ class Renderer3DT
         public:
 
         /// The constructor.
-        UseOrthoMatricesT(const ViewWindow3DT& ViewWin);
+        UseOrthoMatricesT(const wxWindow& Window);
 
         /// The destructor.
         ~UseOrthoMatricesT();

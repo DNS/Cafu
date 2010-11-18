@@ -29,6 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../EditorMaterial.hpp"
 #include "../Options.hpp"
 #include "../ParentFrame.hpp"
+#include "../Renderer3D.hpp"    // For class Renderer3DT::UseOrthoMatricesT.
 
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/Mesh.hpp"
@@ -49,51 +50,9 @@ END_EVENT_TABLE()
 ModelEditor::SceneView3DT::SceneView3DT(ChildFrameT* Parent)
     : Generic3DWindowT(Parent, Parent->GetModelDoc()->GetCameras()[0]),
       m_Parent(Parent),
-      m_TimeOfLastPaint(0),
-      m_RMatWireframe(MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/Wireframe"       ))),
-      m_RMatWireframeOZ(MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/WireframeOffsetZ")))
+      m_Renderer(),
+      m_TimeOfLastPaint(0)
 {
-}
-
-
-ModelEditor::SceneView3DT::~SceneView3DT()
-{
-    MatSys::Renderer->FreeMaterial(m_RMatWireframe  );
-    MatSys::Renderer->FreeMaterial(m_RMatWireframeOZ);
-}
-
-
-void ModelEditor::SceneView3DT::RenderPass() const
-{
-    const ScenePropGridT* ScenePropGrid=m_Parent->GetScenePropGrid();
-
-    // Render the ground plane.
-    if (ScenePropGrid->m_GroundPlane_Show && ScenePropGrid->m_GroundPlane_Mat!=NULL && MatSys::Renderer->GetCurrentRenderAction()!=MatSys::RendererI::STENCILSHADOW)
-    {
-        static MatSys::MeshT GroundPlaneMesh(MatSys::MeshT::TriangleFan);
-
-        if (GroundPlaneMesh.Vertices.Size()==0)
-        {
-            GroundPlaneMesh.Vertices.PushBackEmpty(4);
-
-            GroundPlaneMesh.Vertices[0].SetTextureCoord(0.0f, 1.0f); GroundPlaneMesh.Vertices[0].SetNormal(0.0f, 0.0f, 1.0f); GroundPlaneMesh.Vertices[0].SetTangent(1.0f, 0.0f, 0.0f); GroundPlaneMesh.Vertices[0].SetBiNormal(0.0f, -1.0f, 0.0f);
-            GroundPlaneMesh.Vertices[1].SetTextureCoord(0.0f, 0.0f); GroundPlaneMesh.Vertices[1].SetNormal(0.0f, 0.0f, 1.0f); GroundPlaneMesh.Vertices[1].SetTangent(1.0f, 0.0f, 0.0f); GroundPlaneMesh.Vertices[1].SetBiNormal(0.0f, -1.0f, 0.0f);
-            GroundPlaneMesh.Vertices[2].SetTextureCoord(1.0f, 0.0f); GroundPlaneMesh.Vertices[2].SetNormal(0.0f, 0.0f, 1.0f); GroundPlaneMesh.Vertices[2].SetTangent(1.0f, 0.0f, 0.0f); GroundPlaneMesh.Vertices[2].SetBiNormal(0.0f, -1.0f, 0.0f);
-            GroundPlaneMesh.Vertices[3].SetTextureCoord(1.0f, 1.0f); GroundPlaneMesh.Vertices[3].SetNormal(0.0f, 0.0f, 1.0f); GroundPlaneMesh.Vertices[3].SetTangent(1.0f, 0.0f, 0.0f); GroundPlaneMesh.Vertices[3].SetBiNormal(0.0f, -1.0f, 0.0f);
-        }
-
-        const double r=400.0;
-        GroundPlaneMesh.Vertices[0].SetOrigin(-r, -r, ScenePropGrid->m_GroundPlane_zPos);
-        GroundPlaneMesh.Vertices[1].SetOrigin(-r,  r, ScenePropGrid->m_GroundPlane_zPos);
-        GroundPlaneMesh.Vertices[2].SetOrigin( r,  r, ScenePropGrid->m_GroundPlane_zPos);
-        GroundPlaneMesh.Vertices[3].SetOrigin( r, -r, ScenePropGrid->m_GroundPlane_zPos);
-
-        MatSys::Renderer->SetCurrentMaterial(ScenePropGrid->m_GroundPlane_Mat->GetRenderMaterial(true /*PreviewMode*/));
-        MatSys::Renderer->RenderMesh(GroundPlaneMesh);
-    }
-
-    // Render the model.
-    m_Parent->GetModelDoc()->GetModel()->Draw(0, 0.0f, 0.0f, NULL);
 }
 
 
@@ -139,6 +98,40 @@ void ModelEditor::SceneView3DT::OnMouseMove(wxMouseEvent& ME)
 
     // Make sure that the base class always gets this event as well.
     ME.Skip();
+}
+
+
+void ModelEditor::SceneView3DT::RenderPass() const
+{
+    const ScenePropGridT* ScenePropGrid=m_Parent->GetScenePropGrid();
+
+    // Render the ground plane.
+    if (ScenePropGrid->m_GroundPlane_Show && ScenePropGrid->m_GroundPlane_Mat!=NULL && MatSys::Renderer->GetCurrentRenderAction()!=MatSys::RendererI::STENCILSHADOW)
+    {
+        static MatSys::MeshT GroundPlaneMesh(MatSys::MeshT::TriangleFan);
+
+        if (GroundPlaneMesh.Vertices.Size()==0)
+        {
+            GroundPlaneMesh.Vertices.PushBackEmpty(4);
+
+            GroundPlaneMesh.Vertices[0].SetTextureCoord(0.0f, 1.0f); GroundPlaneMesh.Vertices[0].SetNormal(0.0f, 0.0f, 1.0f); GroundPlaneMesh.Vertices[0].SetTangent(1.0f, 0.0f, 0.0f); GroundPlaneMesh.Vertices[0].SetBiNormal(0.0f, -1.0f, 0.0f);
+            GroundPlaneMesh.Vertices[1].SetTextureCoord(0.0f, 0.0f); GroundPlaneMesh.Vertices[1].SetNormal(0.0f, 0.0f, 1.0f); GroundPlaneMesh.Vertices[1].SetTangent(1.0f, 0.0f, 0.0f); GroundPlaneMesh.Vertices[1].SetBiNormal(0.0f, -1.0f, 0.0f);
+            GroundPlaneMesh.Vertices[2].SetTextureCoord(1.0f, 0.0f); GroundPlaneMesh.Vertices[2].SetNormal(0.0f, 0.0f, 1.0f); GroundPlaneMesh.Vertices[2].SetTangent(1.0f, 0.0f, 0.0f); GroundPlaneMesh.Vertices[2].SetBiNormal(0.0f, -1.0f, 0.0f);
+            GroundPlaneMesh.Vertices[3].SetTextureCoord(1.0f, 1.0f); GroundPlaneMesh.Vertices[3].SetNormal(0.0f, 0.0f, 1.0f); GroundPlaneMesh.Vertices[3].SetTangent(1.0f, 0.0f, 0.0f); GroundPlaneMesh.Vertices[3].SetBiNormal(0.0f, -1.0f, 0.0f);
+        }
+
+        const double r=400.0;
+        GroundPlaneMesh.Vertices[0].SetOrigin(-r, -r, ScenePropGrid->m_GroundPlane_zPos);
+        GroundPlaneMesh.Vertices[1].SetOrigin(-r,  r, ScenePropGrid->m_GroundPlane_zPos);
+        GroundPlaneMesh.Vertices[2].SetOrigin( r,  r, ScenePropGrid->m_GroundPlane_zPos);
+        GroundPlaneMesh.Vertices[3].SetOrigin( r, -r, ScenePropGrid->m_GroundPlane_zPos);
+
+        MatSys::Renderer->SetCurrentMaterial(ScenePropGrid->m_GroundPlane_Mat->GetRenderMaterial(true /*PreviewMode*/));
+        MatSys::Renderer->RenderMesh(GroundPlaneMesh);
+    }
+
+    // Render the model.
+    m_Parent->GetModelDoc()->GetModel()->Draw(0, 0.0f, 0.0f, NULL);
 }
 
 
@@ -240,7 +233,7 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
             Mesh.Vertices[5].SetColor(0, 0, 1); Mesh.Vertices[5].SetOrigin(0, 0, l);
         }
 
-        MatSys::Renderer->SetCurrentMaterial(m_RMatWireframe);
+        MatSys::Renderer->SetCurrentMaterial(m_Renderer.GetRMatWireframe());
         MatSys::Renderer->RenderMesh(Mesh);
     }
 
@@ -269,7 +262,7 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
         LightSourceMesh.Vertices[4].SetOrigin(LS.Pos.x, LS.Pos.y, LS.Pos.z+50.0f); LightSourceMesh.Vertices[4].SetColor(r, g, b);
         LightSourceMesh.Vertices[5].SetOrigin(LS.Pos.x, LS.Pos.y, LS.Pos.z-50.0f); LightSourceMesh.Vertices[5].SetColor(r, g, b);
 
-        MatSys::Renderer->SetCurrentMaterial(m_RMatWireframe);
+        MatSys::Renderer->SetCurrentMaterial(m_Renderer.GetRMatWireframe());
         MatSys::Renderer->RenderMesh(LightSourceMesh);
     }
 
@@ -303,6 +296,17 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
         // 2b) Draw dynamic lighting pass.
         MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::LIGHTING);
         RenderPass();
+    }
+
+    MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
+
+
+    // 3) Render the "HUD" of the mouse control.
+    if (GetMouseControl().IsActive())
+    {
+        ::Renderer3DT::UseOrthoMatricesT UseOrtho(*this);
+
+        m_Renderer.RenderCrossHair(GetMouseControl().GetRefPtWin());
     }
 
 

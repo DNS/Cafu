@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define _MODELEDITOR_SCENE_VIEW_3D_HPP_
 
 #include "../Generic3DWindow.hpp"
+#include "Renderer3D.hpp"
 
 
 namespace MatSys { class RenderMaterialT; }
@@ -40,7 +41,6 @@ namespace ModelEditor
         public:
 
         SceneView3DT(ChildFrameT* Parent);
-        ~SceneView3DT();
 
 
         private:
@@ -54,10 +54,8 @@ namespace ModelEditor
         void RenderPass() const;
 
         ChildFrameT*  m_Parent;
+        Renderer3DT   m_Renderer;           ///< Performs the 3D rendering in our window.
         unsigned long m_TimeOfLastPaint;    ///< The time at which the OnPaint() event handler was last called.
-
-        MatSys::RenderMaterialT* m_RMatWireframe;       ///< The render material for wire-frame rendering.
-        MatSys::RenderMaterialT* m_RMatWireframeOZ;     ///< The render material for wire-frame rendering (with polygon z-offset, e.g. for outlines).
 
         // Event handlers.
         void OnMouseLeftDown(wxMouseEvent& ME); ///< We also handle "double-click" events in this method (use ME.ButtonDClick() for distinction).
