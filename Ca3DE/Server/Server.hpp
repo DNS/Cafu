@@ -44,6 +44,8 @@ class ServerT
 {
     public:
 
+    class InitErrorT;
+
     /// A class that the server uses in order to let a GUI know in which state the server currently is,
     /// so that the GUI can decide which buttons it should enable/disable (i.e. which confuncs it makes sense to call).
     /// (This is the C++ equivalent to a traditional C call-back function.)
@@ -54,15 +56,11 @@ class ServerT
         virtual void OnServerStateChanged(const char* NewState) const=0;
     };
 
-    struct InitFailureT
-    {
-        InitFailureT(const char* Msg_) : Msg(Msg_) { }
 
-        const char* Msg;
-    };
+    /// The constructor.
+    /// @throws InitErrorT if the server could not be initialized (e.g. a socket for the desired port could not be aquired).
+    ServerT(const std::string& GameName_, const GuiCallbackI& GuiCallback_);
 
-
-    ServerT(const std::string& GameName_, const GuiCallbackI& GuiCallback_) /*throw (InitFailure)*/;
     ~ServerT();
 
     void MainLoop();   // Server main loop. To be called once per frame.
@@ -89,6 +87,15 @@ class ServerT
     std::string          WorldName;
     CaServerWorldT*      World;
     const GuiCallbackI&  GuiCallback;
+};
+
+
+/// A class that is thrown on server initialization errors.
+class ServerT::InitErrorT : public std::runtime_error
+{
+    public:
+
+    InitErrorT(const std::string& Message) : std::runtime_error(Message) { }
 };
 
 #endif

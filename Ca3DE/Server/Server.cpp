@@ -159,7 +159,7 @@ ServerT::ServerT(const std::string& GameName_, const GuiCallbackI& GuiCallback_)
       World(NULL),
       GuiCallback(GuiCallback_)
 {
-    if (ServerSocket==INVALID_SOCKET) throw InitFailureT("Unable to obtain UDP socket on server port.");
+    if (ServerSocket==INVALID_SOCKET) throw InitErrorT(cf::va("Unable to obtain UDP socket on port %i.", Options_ServerPortNr.GetValueInt()));
 
     assert(ServerPtr==NULL);
     ServerPtr=this;     // TODO: Turn the ServerT class into a singleton?
