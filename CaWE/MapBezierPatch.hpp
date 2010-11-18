@@ -186,7 +186,7 @@ class MapBezierPatchT : public MapPrimitiveT
     // Get the origin of vertice x/y from the rendermesh
     Vector3fT           GetRenderVertexPos(unsigned long x, unsigned long y) const;
 
-    void Render3D_Basic(Renderer3DT& Renderer, MatSys::RenderMaterialT* RenderMat, const wxColour& MeshColor, const int MeshAlpha) const;    ///< A helper method for Render3D(), but also useful e.g. for preview renderings by the "New Bezier Patch" tool.
+    void Render3D_Basic(MatSys::RenderMaterialT* RenderMat, const wxColour& MeshColor, const int MeshAlpha) const;    ///< A helper method for Render3D(), but also useful e.g. for preview renderings by the "New Bezier Patch" tool.
 
     // The TypeSys related declarations for this class.
     virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }

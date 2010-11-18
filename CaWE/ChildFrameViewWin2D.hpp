@@ -88,7 +88,7 @@ class ViewWindow2DT : public wxWindow, public ViewWindowT
 
     // Inherited methods from the ViewWindowT base class.
     wxWindow* GetWindow();
-    ViewTypeT GetViewType() const;
+    ViewTypeT GetViewType() const { return m_ViewType; }
     AxesInfoT GetAxesInfo() const { return m_AxesInfo; }
 
     // Helper methods (all for public and some also for private use).

@@ -274,12 +274,6 @@ wxWindow* ViewWindow2DT::GetWindow()
 }
 
 
-ViewWindowT::ViewTypeT ViewWindow2DT::GetViewType() const
-{
-    return m_ViewType;
-}
-
-
 void ViewWindow2DT::SetZoom(float NewZoom)
 {
     const float MIN_ZOOM=1.0/256.0;     // 1/32 == 0.03125

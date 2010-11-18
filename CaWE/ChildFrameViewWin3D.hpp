@@ -60,7 +60,7 @@ class ViewWindow3DT : public Generic3DWindowT, public ViewWindowT
 
     // Inherited methods from the ViewWindowT base class.
     wxWindow* GetWindow();
-    ViewTypeT GetViewType() const;
+    ViewTypeT GetViewType() const { return m_ViewType; }
     AxesInfoT GetAxesInfo() const { return Generic3DWindowT::GetAxesInfo(); }
 
     /// This method returns visible all map elements at a given pixel in the 3D view window.

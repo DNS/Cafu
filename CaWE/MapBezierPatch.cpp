@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "wx/wx.h"
 #include "ChildFrameViewWin2D.hpp"
+#include "ChildFrameViewWin3D.hpp"
 #include "EditorMaterial.hpp"
 #include "EditorMaterialManager.hpp"
 #include "Renderer2D.hpp"
@@ -910,7 +911,7 @@ void MapBezierPatchT::Render2D(Renderer2DT& Renderer) const
 }
 
 
-void MapBezierPatchT::Render3D_Basic(Renderer3DT& Renderer, MatSys::RenderMaterialT* RenderMat, const wxColour& MeshColor, const int MeshAlpha) const
+void MapBezierPatchT::Render3D_Basic(MatSys::RenderMaterialT* RenderMat, const wxColour& MeshColor, const int MeshAlpha) const
 {
     UpdateRenderMesh();
 
@@ -930,30 +931,32 @@ void MapBezierPatchT::Render3D_Basic(Renderer3DT& Renderer, MatSys::RenderMateri
 
 void MapBezierPatchT::Render3D(Renderer3DT& Renderer) const
 {
-    switch (Renderer.GetCurrentRenderMode())
+    const ViewWindow3DT& ViewWin=Renderer.GetViewWin3D();
+
+    switch (ViewWin.GetViewType())
     {
         case ViewWindowT::VT_3D_EDIT_MATS:
             // Note that the mesh color is ignored for most normal materials anyway... (they don't have the "useMeshColors" property).
-            Render3D_Basic(Renderer, Material!=NULL ? Material->GetRenderMaterial(false) : Renderer.GetRMatFlatShaded(), *wxWHITE, 255);
+            Render3D_Basic(Material!=NULL ? Material->GetRenderMaterial(false) : Renderer.GetRMatFlatShaded(), *wxWHITE, 255);
             break;
 
         case ViewWindowT::VT_3D_FULL_MATS:
             // Note that the mesh color is ignored for most normal materials anyway... (they don't have the "useMeshColors" property).
-            Render3D_Basic(Renderer, Material!=NULL ? Material->GetRenderMaterial(true) : Renderer.GetRMatFlatShaded(), *wxWHITE, 255);
+            Render3D_Basic(Material!=NULL ? Material->GetRenderMaterial(true) : Renderer.GetRMatFlatShaded(), *wxWHITE, 255);
             break;
 
         case ViewWindowT::VT_3D_LM_GRID:
         case ViewWindowT::VT_3D_LM_PREVIEW:
             // The concept of lightmaps does not really apply to bezier patches...
-            Render3D_Basic(Renderer, Renderer.GetRMatFlatShaded(), IsSelected() ? Options.colors.SelectedFace : *wxWHITE, 255);
+            Render3D_Basic(Renderer.GetRMatFlatShaded(), IsSelected() ? Options.colors.SelectedFace : *wxWHITE, 255);
             break;
 
         case ViewWindowT::VT_3D_FLAT:
-            Render3D_Basic(Renderer, Renderer.GetRMatFlatShaded(), IsSelected() ? Options.colors.SelectedFace : m_Color, 255);
+            Render3D_Basic(Renderer.GetRMatFlatShaded(), IsSelected() ? Options.colors.SelectedFace : m_Color, 255);
             break;
 
         case ViewWindowT::VT_3D_WIREFRAME:
-            Render3D_Basic(Renderer, Renderer.GetRMatWireframe(), IsSelected() ? Options.colors.SelectedEdge : m_Color, 255);
+            Render3D_Basic(Renderer.GetRMatWireframe(), IsSelected() ? Options.colors.SelectedEdge : m_Color, 255);
             break;
 
         default:
@@ -965,12 +968,12 @@ void MapBezierPatchT::Render3D(Renderer3DT& Renderer) const
     // only possibility to get to the surface dialog that holds information whether selected bezier patches should be rendered
     // with a selection mask or the toolmanager to check whether the surface editing tool is active.
     if (IsSelected())
-        if (   Renderer.GetMapDoc().GetChildFrame()->GetToolManager().GetActiveToolType()!=&ToolEditSurfaceT::TypeInfo
-            || Renderer.GetMapDoc().GetChildFrame()->GetSurfacePropsDialog()->WantSelectionOverlay())
-            if ((Renderer.GetCurrentRenderMode()==ViewWindowT::VT_3D_EDIT_MATS || Renderer.GetCurrentRenderMode()==ViewWindowT::VT_3D_FULL_MATS))
+        if (   ViewWin.GetMapDoc().GetChildFrame()->GetToolManager().GetActiveToolType()!=&ToolEditSurfaceT::TypeInfo
+            || ViewWin.GetMapDoc().GetChildFrame()->GetSurfacePropsDialog()->WantSelectionOverlay())
+            if ((ViewWin.GetViewType()==ViewWindowT::VT_3D_EDIT_MATS || ViewWin.GetViewType()==ViewWindowT::VT_3D_FULL_MATS))
             {
-                Render3D_Basic(Renderer, Renderer.GetRMatOverlay(), Options.colors.SelectedFace, 64);
-                Render3D_Basic(Renderer, Renderer.GetRMatWireframe_OffsetZ(), wxColour(255, 255, 0), 255);
+                Render3D_Basic(Renderer.GetRMatOverlay(), Options.colors.SelectedFace, 64);
+                Render3D_Basic(Renderer.GetRMatWireframe_OffsetZ(), wxColour(255, 255, 0), 255);
             }
 }
 

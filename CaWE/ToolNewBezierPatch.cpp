@@ -256,7 +256,7 @@ void ToolNewBezierPatchT::RenderTool3D(Renderer3DT& Renderer) const
         const bool       WasSelected=BP->IsSelected();
 
         BP->SetSelected(true);
-        BP->Render3D_Basic(Renderer, Renderer.GetRMatWireframe_OffsetZ(), *wxRED, 255);
+        BP->Render3D_Basic(Renderer.GetRMatWireframe_OffsetZ(), *wxRED, 255);
         BP->SetSelected(WasSelected);
     }
 }

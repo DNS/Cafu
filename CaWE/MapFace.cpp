@@ -207,10 +207,10 @@ void MapFaceT::Render3D(Renderer3DT& Renderer, const MapBrushT* ParentBrush) con
     if (m_Vertices.Size()==0) return;
 
     const bool  RenderAsSelected=ParentBrush->IsSelected() || (m_IsSelected && Renderer.GetViewWin3D().GetChildFrame()->GetSurfacePropsDialog()->WantSelectionOverlay());
-    const bool  FullMats        =(Renderer.GetCurrentRenderMode()==ViewWindowT::VT_3D_FULL_MATS);
+    const bool  FullMats        =(Renderer.GetViewWin3D().GetViewType()==ViewWindowT::VT_3D_FULL_MATS);
     const float Shade           =Renderer.GetConstShade(m_Plane.Normal);
 
-    switch (Renderer.GetCurrentRenderMode())
+    switch (Renderer.GetViewWin3D().GetViewType())
     {
         case ViewWindowT::VT_3D_EDIT_MATS:
         case ViewWindowT::VT_3D_FULL_MATS:
@@ -228,7 +228,7 @@ void MapFaceT::Render3D(Renderer3DT& Renderer, const MapBrushT* ParentBrush) con
         case ViewWindowT::VT_3D_LM_GRID:
         case ViewWindowT::VT_3D_LM_PREVIEW:
             Render3DBasic(Renderer, Renderer.GetRMatFlatShaded(),
-                ScaleColor(RenderAsSelected ? Options.colors.SelectedFace : (m_SurfaceInfo.LightmapScale!=Renderer.GetMapDoc().GetGameConfig()->DefaultLightmapScale ? wxColour(255, 255, 100) : *wxWHITE), Shade), 255);
+                ScaleColor(RenderAsSelected ? Options.colors.SelectedFace : (m_SurfaceInfo.LightmapScale!=Renderer.GetViewWin3D().GetMapDoc().GetGameConfig()->DefaultLightmapScale ? wxColour(255, 255, 100) : *wxWHITE), Shade), 255);
             break;
 
         case ViewWindowT::VT_3D_FLAT:

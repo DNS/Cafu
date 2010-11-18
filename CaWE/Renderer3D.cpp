@@ -121,18 +121,11 @@ void Renderer3DT::InitFrame()
     m_VisElemsBackToFront.Overwrite();
 
     // COMPL_OUTSIDE doesn't make sense, COMPL_INSIDE would turn off view frustum culling.
-    GetRenderList(GetMapDoc().GetBspTree()->GetRootNode(), INTERSECTS);
+    GetRenderList(m_ViewWin3D.GetMapDoc().GetBspTree()->GetRootNode(), INTERSECTS);
 
     // Set the active tool cache back to NULL.
     m_ActiveToolCache=NULL;
 }
-
-
-MapDocumentT&               Renderer3DT::GetMapDoc() const              { return m_ViewWin3D.GetMapDoc();   }
-const ViewWindow3DT&        Renderer3DT::GetViewWin3D() const           { return m_ViewWin3D;               }
-ViewWindowT::ViewTypeT      Renderer3DT::GetCurrentRenderMode() const   { return m_ViewWin3D.GetViewType(); }
-const Plane3fT*             Renderer3DT::GetViewFrustumPlanes() const   { return m_FrustumPlanesCache;      }
-const ArrayT<MapElementT*>& Renderer3DT::GetVisElemsBackToFront() const { return m_VisElemsBackToFront;     }
 
 
 float Renderer3DT::GetConstShade(const Vector3T<float>& Normal) const

@@ -116,14 +116,6 @@ wxWindow* ViewWindow3DT::GetWindow()
 }
 
 
-ViewWindowT::ViewTypeT ViewWindow3DT::GetViewType() const
-{
-    // Note that keeping m_ViewType as a member is much faster than reading it from
-    // a control on each frame. See <http://trac.cafu.de/changeset/163> for details.
-    return m_ViewType;
-}
-
-
 static bool CompareHitDepths(const ViewWindow3DT::HitInfoT& Hit1, const ViewWindow3DT::HitInfoT& Hit2)
 {
     return Hit1.Depth<Hit2.Depth;

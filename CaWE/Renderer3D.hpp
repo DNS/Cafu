@@ -73,11 +73,9 @@ class Renderer3DT
     void InitFrame();
 
     // Methods for getting the renderer state.
-    MapDocumentT&               GetMapDoc() const;
-    const ViewWindow3DT&        GetViewWin3D() const;
-    ViewWindowT::ViewTypeT      GetCurrentRenderMode() const;
-    const Plane3fT*             GetViewFrustumPlanes() const;
-    const ArrayT<MapElementT*>& GetVisElemsBackToFront() const;
+    const ViewWindow3DT&        GetViewWin3D() const { return m_ViewWin3D; }
+    const Plane3fT*             GetViewFrustumPlanes() const { return m_FrustumPlanesCache; }
+    const ArrayT<MapElementT*>& GetVisElemsBackToFront() const { return m_VisElemsBackToFront; }
     float                       GetConstShade(const Vector3T<float>& Normal) const;
 
     // Materials query methods.
@@ -91,7 +89,7 @@ class Renderer3DT
     MatSys::RenderMaterialT* GetRMatTerrainEyeDropper()  const { return m_RMatTerrainEyeDropper; }
 
     /// Renders a box from the given bounding-box in the given color, with solid faces or in wireframe.
-    void RenderBox(const BoundingBox3fT& BB,   const wxColour& Color, bool Solid) const;
+    void RenderBox(const BoundingBox3fT& BB, const wxColour& Color, bool Solid) const;
 
     /// Renders a box from the given eight vertices in the given color, with solid faces or in wireframe.
     /// The vertices are expected in the same order as given by the BoundingBox3T<T>::GetCornerVertices() method,
