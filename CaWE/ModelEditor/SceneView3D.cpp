@@ -27,10 +27,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ScenePropGrid.hpp"
 #include "../AppCaWE.hpp"
 #include "../EditorMaterial.hpp"
+#include "../MapBrush.hpp"
+#include "../MapFace.hpp"
 #include "../Options.hpp"
 #include "../ParentFrame.hpp"
 #include "../Renderer3D.hpp"    // For class Renderer3DT::UseOrthoMatricesT.
 
+#include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/Mesh.hpp"
 #include "MaterialSystem/Renderer.hpp"
@@ -58,7 +61,37 @@ ModelEditor::SceneView3DT::SceneView3DT(ChildFrameT* Parent)
 
 Vector3fT ModelEditor::SceneView3DT::GetRefPtWorld(const wxPoint& RefPtWin) const
 {
-    return GetCamera().Pos;
+    float     BestFraction=std::numeric_limits<float>::max();
+    Vector3fT BestPos     =GetCamera().Pos;
+
+    // Note that our ray does intentionally not start at GetCamera().Pos,
+    // but at the point of intersection with the near clipping plane!
+    const Vector3fT RayOrigin=WindowToWorld(RefPtWin);
+    const Vector3fT RayDir   =normalizeOr0(RayOrigin - GetCamera().Pos);
+
+    // Make sure that the ray is valid. It should never be invalid though.
+    if (length(RayDir)<0.9f) return BestPos;
+
+    ArrayT<const MapElementT*> Elems;
+    Elems.PushBack(m_Parent->GetModelDoc()->GetGround());   // Always include the ground in the test: even when not rendered it makes a useful reference for camera control.
+
+    for (unsigned long ElemNr=0; ElemNr<Elems.Size(); ElemNr++)
+    {
+        const MapElementT* Elem=Elems[ElemNr];
+        float              Fraction=0;
+        unsigned long      FaceNr=0;
+
+        if (Elem->IsVisible() && Elem->TraceRay(RayOrigin, RayDir, Fraction, FaceNr))
+        {
+            if (Fraction<BestFraction)
+            {
+                BestFraction=Fraction;
+                BestPos     =RayOrigin + RayDir*Fraction;
+            }
+        }
+    }
+
+    return BestPos;
 }
 
 
@@ -101,33 +134,28 @@ void ModelEditor::SceneView3DT::OnMouseMove(wxMouseEvent& ME)
 }
 
 
+static wxColour ScaleColor(const wxColour& Color, float Scale)
+{
+    return wxColour((unsigned char)(Color.Red()*Scale), (unsigned char)(Color.Green()*Scale), (unsigned char)(Color.Blue()*Scale));
+}
+
+
 void ModelEditor::SceneView3DT::RenderPass() const
 {
     const ScenePropGridT* ScenePropGrid=m_Parent->GetScenePropGrid();
 
     // Render the ground plane.
-    if (ScenePropGrid->m_GroundPlane_Show && ScenePropGrid->m_GroundPlane_Mat!=NULL && MatSys::Renderer->GetCurrentRenderAction()!=MatSys::RendererI::STENCILSHADOW)
+    if (ScenePropGrid->m_GroundPlane_Show && MatSys::Renderer->GetCurrentRenderAction()!=MatSys::RendererI::STENCILSHADOW)
     {
-        static MatSys::MeshT GroundPlaneMesh(MatSys::MeshT::TriangleFan);
+        const MapBrushT* Ground=m_Parent->GetModelDoc()->GetGround();
 
-        if (GroundPlaneMesh.Vertices.Size()==0)
+        for (unsigned long FaceNr=0; FaceNr<Ground->GetFaces().Size(); FaceNr++)
         {
-            GroundPlaneMesh.Vertices.PushBackEmpty(4);
+            const MapFaceT& Face =Ground->GetFaces()[FaceNr];
+            const float     Shade=m_Renderer.GetConstShade(Face.GetPlane().Normal);
 
-            GroundPlaneMesh.Vertices[0].SetTextureCoord(0.0f, 1.0f); GroundPlaneMesh.Vertices[0].SetNormal(0.0f, 0.0f, 1.0f); GroundPlaneMesh.Vertices[0].SetTangent(1.0f, 0.0f, 0.0f); GroundPlaneMesh.Vertices[0].SetBiNormal(0.0f, -1.0f, 0.0f);
-            GroundPlaneMesh.Vertices[1].SetTextureCoord(0.0f, 0.0f); GroundPlaneMesh.Vertices[1].SetNormal(0.0f, 0.0f, 1.0f); GroundPlaneMesh.Vertices[1].SetTangent(1.0f, 0.0f, 0.0f); GroundPlaneMesh.Vertices[1].SetBiNormal(0.0f, -1.0f, 0.0f);
-            GroundPlaneMesh.Vertices[2].SetTextureCoord(1.0f, 0.0f); GroundPlaneMesh.Vertices[2].SetNormal(0.0f, 0.0f, 1.0f); GroundPlaneMesh.Vertices[2].SetTangent(1.0f, 0.0f, 0.0f); GroundPlaneMesh.Vertices[2].SetBiNormal(0.0f, -1.0f, 0.0f);
-            GroundPlaneMesh.Vertices[3].SetTextureCoord(1.0f, 1.0f); GroundPlaneMesh.Vertices[3].SetNormal(0.0f, 0.0f, 1.0f); GroundPlaneMesh.Vertices[3].SetTangent(1.0f, 0.0f, 0.0f); GroundPlaneMesh.Vertices[3].SetBiNormal(0.0f, -1.0f, 0.0f);
+            Face.Render3DBasic(Face.GetMaterial()->GetRenderMaterial(true /*FullMats*/), ScaleColor(*wxWHITE, Shade), 255);
         }
-
-        const double r=400.0;
-        GroundPlaneMesh.Vertices[0].SetOrigin(-r, -r, ScenePropGrid->m_GroundPlane_zPos);
-        GroundPlaneMesh.Vertices[1].SetOrigin(-r,  r, ScenePropGrid->m_GroundPlane_zPos);
-        GroundPlaneMesh.Vertices[2].SetOrigin( r,  r, ScenePropGrid->m_GroundPlane_zPos);
-        GroundPlaneMesh.Vertices[3].SetOrigin( r, -r, ScenePropGrid->m_GroundPlane_zPos);
-
-        MatSys::Renderer->SetCurrentMaterial(ScenePropGrid->m_GroundPlane_Mat->GetRenderMaterial(true /*PreviewMode*/));
-        MatSys::Renderer->RenderMesh(GroundPlaneMesh);
     }
 
     // Render the model.

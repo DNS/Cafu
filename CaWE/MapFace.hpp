@@ -55,7 +55,7 @@ class MapFaceT
 
 
     void Save_cmap(std::ostream& OutFile) const;
-    void Render3DBasic(Renderer3DT& Renderer, MatSys::RenderMaterialT* RenderMat, const wxColour& MeshColor, const int MeshAlpha) const;
+    void Render3DBasic(MatSys::RenderMaterialT* RenderMat, const wxColour& MeshColor, const int MeshAlpha) const;
     void Render3D(Renderer3DT& Renderer, const MapBrushT* ParentBrush) const;
 
     void SetMaterial(EditorMaterialI* Material);

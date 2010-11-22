@@ -161,19 +161,13 @@ bool MapFaceT::IsUVSpaceWorldAligned() const
 }
 
 
-void MapFaceT::Render3DBasic(Renderer3DT& Renderer, MatSys::RenderMaterialT* RenderMat, const wxColour& MeshColor, const int MeshAlpha) const
+void MapFaceT::Render3DBasic(MatSys::RenderMaterialT* RenderMat, const wxColour& MeshColor, const int MeshAlpha) const
 {
-    if (RenderMat==NULL) RenderMat=Renderer.GetRMatFlatShaded();
-
-    // Do some culling...  TODO: Take the following conditions into account:
-    //   - !MatSys::Renderer->GetMaterialFromRM(RenderMat).TwoSided
-    //   - MatSys::Renderer->GetMaterialFromRM(RenderMat).PolygonMode!=MaterialT::Wireframe
-    //   - The current MODEL_TO_WORLD matrix must be the identity matrix (because the camera is given in world-space).
-    //     (Alternatively use the viewpoint in modelspace(!) for the test.)
-    if (m_Plane.GetDistance(Renderer.GetViewWin3D().GetCamera().Pos)<0 && /*mode!=RENDER_MODE_WIREFRAME &&*/ MeshAlpha==255) return;
+    if (!RenderMat) return;
 
     // A triangle-fan instead of a polygon for wire-frame materials would also render the "inner" fan lines.
     static MatSys::MeshT Mesh;
+
     Mesh.Type=(MatSys::Renderer->GetMaterialFromRM(RenderMat)->PolygonMode==MaterialT::Filled) ? MatSys::MeshT::TriangleFan : MatSys::MeshT::Polygon;
     Mesh.Vertices.Overwrite();
     Mesh.Vertices.PushBackEmpty(m_Vertices.Size());
@@ -182,7 +176,7 @@ void MapFaceT::Render3DBasic(Renderer3DT& Renderer, MatSys::RenderMaterialT* Ren
     {
         Mesh.Vertices[VertexNr].SetTextureCoord (m_TextureCoords [VertexNr][0], m_TextureCoords [VertexNr][1]);
         Mesh.Vertices[VertexNr].SetLightMapCoord(m_LightmapCoords[VertexNr][0], m_LightmapCoords[VertexNr][1]);
-        Mesh.Vertices[VertexNr].SetColor(MeshColor.Red()/255.0, MeshColor.Green()/255.0, MeshColor.Blue()/255.0, MeshAlpha/255.0);
+        Mesh.Vertices[VertexNr].SetColor(MeshColor.Red()/255.0f, MeshColor.Green()/255.0f, MeshColor.Blue()/255.0f, MeshAlpha/255.0f);
 
         Mesh.Vertices[VertexNr].SetOrigin(m_Vertices[VertexNr]);
 
@@ -206,6 +200,13 @@ void MapFaceT::Render3D(Renderer3DT& Renderer, const MapBrushT* ParentBrush) con
 {
     if (m_Vertices.Size()==0) return;
 
+    // Do some culling...  TODO: Take the following conditions into account:
+    //   - !MatSys::Renderer->GetMaterialFromRM(RenderMat).TwoSided
+    //   - MatSys::Renderer->GetMaterialFromRM(RenderMat).PolygonMode!=MaterialT::Wireframe
+    //   - The current MODEL_TO_WORLD matrix must be the identity matrix (because the camera is given in world-space).
+    //     (Alternatively use the viewpoint in modelspace(!) for the test.)
+    if (m_Plane.GetDistance(Renderer.GetViewWin3D().GetCamera().Pos)<0 /*&& mode!=RENDER_MODE_WIREFRAME*/ /*&& MeshAlpha==255*/) return;
+
     const bool  RenderAsSelected=ParentBrush->IsSelected() || (m_IsSelected && Renderer.GetViewWin3D().GetChildFrame()->GetSurfacePropsDialog()->WantSelectionOverlay());
     const bool  FullMats        =(Renderer.GetViewWin3D().GetViewType()==ViewWindowT::VT_3D_FULL_MATS);
     const float Shade           =Renderer.GetConstShade(m_Plane.Normal);
@@ -215,29 +216,29 @@ void MapFaceT::Render3D(Renderer3DT& Renderer, const MapBrushT* ParentBrush) con
         case ViewWindowT::VT_3D_EDIT_MATS:
         case ViewWindowT::VT_3D_FULL_MATS:
             // Note that the mesh color is ignored for most normal materials anyway... (they don't have the "useMeshColors" property).
-            Render3DBasic(Renderer, m_Material!=NULL ? m_Material->GetRenderMaterial(FullMats) : Renderer.GetRMatFlatShaded(),
+            Render3DBasic(m_Material!=NULL ? m_Material->GetRenderMaterial(FullMats) : Renderer.GetRMatFlatShaded(),
                 ScaleColor(*wxWHITE, Shade), 255);
 
             if (RenderAsSelected)
             {
-                Render3DBasic(Renderer, Renderer.GetRMatOverlay(), Options.colors.SelectedFace, 64);
-                Render3DBasic(Renderer, Renderer.GetRMatWireframe_OffsetZ(), wxColour(255, 255, 0), 255);
+                Render3DBasic(Renderer.GetRMatOverlay(), Options.colors.SelectedFace, 64);
+                Render3DBasic(Renderer.GetRMatWireframe_OffsetZ(), wxColour(255, 255, 0), 255);
             }
             break;
 
         case ViewWindowT::VT_3D_LM_GRID:
         case ViewWindowT::VT_3D_LM_PREVIEW:
-            Render3DBasic(Renderer, Renderer.GetRMatFlatShaded(),
+            Render3DBasic(Renderer.GetRMatFlatShaded(),
                 ScaleColor(RenderAsSelected ? Options.colors.SelectedFace : (m_SurfaceInfo.LightmapScale!=Renderer.GetViewWin3D().GetMapDoc().GetGameConfig()->DefaultLightmapScale ? wxColour(255, 255, 100) : *wxWHITE), Shade), 255);
             break;
 
         case ViewWindowT::VT_3D_FLAT:
-            Render3DBasic(Renderer, Renderer.GetRMatFlatShaded(),
+            Render3DBasic(Renderer.GetRMatFlatShaded(),
                 ScaleColor(RenderAsSelected ? Options.colors.SelectedFace : ParentBrush->GetColor(Options.view2d.UseGroupColors), Shade), 255);
             break;
 
         case ViewWindowT::VT_3D_WIREFRAME:
-            Render3DBasic(Renderer, Renderer.GetRMatWireframe(),
+            Render3DBasic(Renderer.GetRMatWireframe(),
                 ScaleColor(RenderAsSelected ? Options.colors.SelectedEdge : ParentBrush->GetColor(Options.view2d.UseGroupColors), Shade), 255);
             break;
 

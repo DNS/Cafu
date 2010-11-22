@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ModelDocument.hpp"
 #include "../GameConfig.hpp"
+#include "../MapBrush.hpp"
 
 #include "Models/Loader_ase.hpp"
 #include "Models/Loader_cmdl.hpp"
@@ -30,9 +31,22 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Models/Loader_md5.hpp"
 #include "String.hpp"
 
+#include "wx/confbase.h"
+
+
+static MapBrushT* GetGroundBrush(GameConfigT* GameConfig)
+{
+    EditorMaterialI* Mat =GameConfig->GetMatMan().FindMaterial(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/GroundPlane_Mat", "Textures/WilliH/rock01b"), true /*CreateDummy*/);
+    const float      zPos=wxConfigBase::Get()->Read("ModelEditor/SceneSetup/GroundPlane_zPos", 0.0);
+    const float      r   =400.0f;
+
+    return MapBrushT::CreateBlock(BoundingBox3fT(Vector3fT(-r, -r, zPos-20.0f), Vector3fT(r, r, zPos)), Mat);
+}
+
 
 ModelEditor::ModelDocumentT::ModelDocumentT(GameConfigT* GameConfig, const wxString& ModelFileName)
     : m_Model(NULL),
+      m_Ground(GetGroundBrush(GameConfig)),
       m_GameConfig(GameConfig)
 {
     const std::string FileName=std::string(ModelFileName);  // Change to ModelFileName.ToStdString() with wx 2.9.1.
@@ -64,5 +78,6 @@ ModelEditor::ModelDocumentT::~ModelDocumentT()
     for (unsigned long CamNr=0; CamNr<m_Cameras.Size(); CamNr++)
         delete m_Cameras[CamNr];
 
+    delete m_Ground;
     delete m_Model;
 }

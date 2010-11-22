@@ -31,6 +31,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 class CafuModelT;
 class GameConfigT;
+class MapBrushT;
 
 
 namespace ModelEditor
@@ -62,10 +63,13 @@ namespace ModelEditor
         ~ModelDocumentT();
 
         const CafuModelT*            GetModel() const        { return m_Model; }
+        const MapBrushT*             GetGround() const       { return m_Ground; }
         const ArrayT<CameraT*>&      GetCameras() const      { return m_Cameras; }
         const ArrayT<LightSourceT*>& GetLightSources() const { return m_LightSources; }
         const GameConfigT*           GetGameConfig() const   { return m_GameConfig; }
-        GameConfigT*           GetGameConfig() { return m_GameConfig; }
+
+        MapBrushT*   GetGround()     { return m_Ground; }
+        GameConfigT* GetGameConfig() { return m_GameConfig; }
 
 
         private:
@@ -74,6 +78,7 @@ namespace ModelEditor
         void operator = (const ModelDocumentT&);    ///< Use of the Assignment Operator is not allowed.
 
         CafuModelT*           m_Model;          ///< The model that is being edited.
+        MapBrushT*            m_Ground;         ///< The ground brush.
         ArrayT<CameraT*>      m_Cameras;        ///< The cameras in the scene (used by the 3D views for rendering), there is always at least one.
         ArrayT<LightSourceT*> m_LightSources;   ///< The light sources that exist in the scene.
         GameConfigT*          m_GameConfig;     ///< The game configuration that the model is used with.

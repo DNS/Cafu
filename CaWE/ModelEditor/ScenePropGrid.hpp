@@ -51,8 +51,6 @@ namespace ModelEditor
         wxColour             m_BackgroundColor;
         bool                 m_ShowOrigin;
         bool                 m_GroundPlane_Show;
-        float                m_GroundPlane_zPos;
-        EditorMaterialI*     m_GroundPlane_Mat;   ///< The material used for rendering the ground plane.
         wxColour             m_AmbientLightColor;
         MatSys::TextureMapI* m_AmbientTexture;    ///< A uniform 2x2 texture colored in the ambient light color, used as lightmap for the ground plane.
 
@@ -60,7 +58,6 @@ namespace ModelEditor
         private:
 
         ChildFrameT* m_Parent;
-        GameConfigT* m_GameConfig;
 
         void OnPropertyGridChanged(wxPropertyGridEvent& Event);
 

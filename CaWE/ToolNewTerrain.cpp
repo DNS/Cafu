@@ -267,10 +267,8 @@ void ToolNewTerrainT::RenderTool3D(Renderer3DT& Renderer) const
     if (!IsActiveTool()) return;
     if (!m_NewBrush) return;
 
-    const int MeshAlpha=254;    // Not 255, in order to prevent back-face culling. See MapFaceT::Render3DBasic() for details.
-
     for (unsigned long FaceNr=0; FaceNr<m_NewBrush->GetFaces().Size(); FaceNr++)
-        m_NewBrush->GetFaces()[FaceNr].Render3DBasic(Renderer, Renderer.GetRMatWireframe_OffsetZ(), *wxRED, MeshAlpha);
+        m_NewBrush->GetFaces()[FaceNr].Render3DBasic(Renderer.GetRMatWireframe_OffsetZ(), *wxRED, 255);
 }
 
 

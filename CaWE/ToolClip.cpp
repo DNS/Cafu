@@ -280,11 +280,11 @@ void ToolClipT::RenderTool3D(Renderer3DT& Renderer) const
 
         if (FrontBrush)
             for (unsigned long FaceNr=0; FaceNr<FrontBrush->GetFaces().Size(); FaceNr++)
-                FrontBrush->GetFaces()[FaceNr].Render3DBasic(Renderer, Renderer.GetRMatWireframe_OffsetZ(), *wxWHITE, 255);
+                FrontBrush->GetFaces()[FaceNr].Render3DBasic(Renderer.GetRMatWireframe_OffsetZ(), *wxWHITE, 255);
 
         if (BackBrush)
             for (unsigned long FaceNr=0; FaceNr<BackBrush->GetFaces().Size(); FaceNr++)
-                BackBrush->GetFaces()[FaceNr].Render3DBasic(Renderer, Renderer.GetRMatWireframe_OffsetZ(), *wxWHITE, 255);
+                BackBrush->GetFaces()[FaceNr].Render3DBasic(Renderer.GetRMatWireframe_OffsetZ(), *wxWHITE, 255);
     }
 }
 

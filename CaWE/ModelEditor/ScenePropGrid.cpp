@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ModelDocument.hpp"
 #include "../EditorMaterial.hpp"
 #include "../GameConfig.hpp"
+#include "../MapBrush.hpp"
 #include "MaterialSystem/MapComposition.hpp"
 #include "MaterialSystem/TextureMap.hpp"
 
@@ -43,8 +44,6 @@ ModelEditor::ScenePropGridT::ScenePropGridT(ChildFrameT* Parent, const wxSize& S
       m_BackgroundColor(wxColour(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/BackgroundColor", "rgb(0, 128, 255)"))),
       m_ShowOrigin(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/ShowOrigin", 1l)!=0),
       m_GroundPlane_Show(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/GroundPlane_Show", 1l)!=0),
-      m_GroundPlane_zPos(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/GroundPlane_zPos", 0.0)),
-      m_GroundPlane_Mat(Parent->GetModelDoc()->GetGameConfig()->GetMatMan().FindMaterial(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/GroundPlane_Mat", "Textures/WilliH/rock01b"), true /*CreateDummy*/)),
       m_AmbientLightColor(wxColour(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/AmbientLightColor", "rgb(96, 96, 96)"))),
       m_AmbientTexture(NULL),
       m_Parent(Parent)
@@ -97,12 +96,13 @@ void ModelEditor::ScenePropGridT::RefreshPropGrid()
 
 
     // "Scene Elements" category.
+    const MapBrushT* Ground=m_Parent->GetModelDoc()->GetGround();
     wxPGProperty* SceneElemsCat=Append(new wxPropertyCategory("Scene Elements"));
 
     wxPGProperty* GroundPlane=AppendIn(SceneElemsCat, new wxStringProperty("Ground Plane", wxPG_LABEL, "<composed>"));
     AppendIn(GroundPlane, new wxBoolProperty("Show", wxPG_LABEL, m_GroundPlane_Show));
-    AppendIn(GroundPlane, new wxFloatProperty("Height (z-Pos)", wxPG_LABEL, m_GroundPlane_zPos));
-    AppendIn(GroundPlane, new wxStringProperty("Material", wxPG_LABEL, m_GroundPlane_Mat->GetName()));      // TODO: MaterialProperty
+    AppendIn(GroundPlane, new wxFloatProperty("Height (z-Pos)", wxPG_LABEL, Ground->GetBB().Max.z));
+    AppendIn(GroundPlane, new wxStringProperty("Material", wxPG_LABEL, Ground->GetFaces()[0].GetMaterial()->GetName()));   // TODO: MaterialProperty
 
 
     // "Light Sources" category.
@@ -148,6 +148,7 @@ void ModelEditor::ScenePropGridT::OnPropertyGridChanged(wxPropertyGridEvent& Eve
  // ClearSelection();
 
     CameraT&            Camera    =*m_Parent->GetModelDoc()->GetCameras()[0];
+    MapBrushT*          Ground    =m_Parent->GetModelDoc()->GetGround();
     const wxPGProperty* Prop      =Event.GetProperty();
     const wxString      PropName  =Prop->GetName();
     double              PropValueD=0.0;
@@ -165,12 +166,19 @@ void ModelEditor::ScenePropGridT::OnPropertyGridChanged(wxPropertyGridEvent& Eve
     else if (PropName=="Camera.Advanced.near plane dist") Camera.NearPlaneDist=PropValueF;
     else if (PropName=="Camera.Advanced.far plane dist")  Camera.FarPlaneDist=PropValueF;
     else if (PropName=="Ground Plane.Show")               m_GroundPlane_Show=Prop->GetValue().GetBool();
-    else if (PropName=="Ground Plane.Height (z-Pos)")     m_GroundPlane_zPos=PropValueF;
+    else if (PropName=="Ground Plane.Height (z-Pos)")
+    {
+        Ground->TrafoMove(Vector3fT(0, 0, PropValueF - Ground->GetBB().Max.z));
+    }
     else if (PropName=="Ground Plane.Material")
     {
-        EditorMaterialI* NewMat=m_GameConfig->GetMatMan().FindMaterial(Prop->GetValueAsString(), false /*CreateDummy*/);
+        EditorMaterialI* NewMat=m_Parent->GetModelDoc()->GetGameConfig()->GetMatMan().FindMaterial(Prop->GetValueAsString(), false /*CreateDummy*/);
 
-        if (NewMat) m_GroundPlane_Mat=NewMat;
+        if (NewMat)
+        {
+            for (unsigned long FaceNr=0; FaceNr<Ground->GetFaces().Size(); FaceNr++)
+                Ground->GetFaces()[FaceNr].SetMaterial(NewMat);
+        }
     }
     else if (PropName=="Ambient Light Color")
     {
