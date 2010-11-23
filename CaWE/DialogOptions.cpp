@@ -553,21 +553,21 @@ wxSizer* OptionsDialogT::Options3DViewsTabInit( wxWindow *parent, bool call_fit,
     item1->Add( item4, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
     wxFlexGridSizer *item5 = new wxFlexGridSizer( 2, 0, 0 );
+    item5->AddGrowableCol(1, 1);    // Grow the second column with a proportion of 1.
 
     wxStaticText *item6 = new wxStaticText( parent, -1, wxT("Back clipping plane:"), wxDefaultPosition, wxDefaultSize, 0 );
     item5->Add( item6, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
-    // TODO: Logarithmic slider behaviour would be cool...
     wxSlider *item7 = new wxSlider( parent, -1, 0, 500, 100000, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL|wxSL_LABELS, wxGenericValidator(&Options.view3d.BackPlane));
-    item5->Add( item7, 0, wxALIGN_CENTER_VERTICAL|wxALIGN_RIGHT|wxALL, 5 );
+    item5->Add( item7, 0, wxGROW | wxALIGN_CENTER_VERTICAL | wxALL, 5 );
 
     wxStaticText *item8 = new wxStaticText( parent, -1, wxT("Model render distance:"), wxDefaultPosition, wxDefaultSize, 0 );
     item5->Add( item8, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
     wxSlider *item9 = new wxSlider( parent, -1, 0, 0, 10000, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL|wxSL_LABELS, wxGenericValidator(&Options.view3d.ModelDistance));
-    item5->Add( item9, 0, wxALIGN_CENTER_VERTICAL|wxALIGN_RIGHT|wxALL, 5 );
+    item5->Add( item9, 0, wxGROW | wxALIGN_CENTER_VERTICAL | wxALL, 5 );
 
-    item1->Add( item5, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    item1->Add( item5, 0, wxGROW | wxALIGN_CENTER_VERTICAL, 5 );
 
     item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
@@ -578,20 +578,21 @@ wxSizer* OptionsDialogT::Options3DViewsTabInit( wxWindow *parent, bool call_fit,
     item10->Add( item13, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
     wxFlexGridSizer *item14 = new wxFlexGridSizer( 2, 0, 0 );
+    item14->AddGrowableCol(1, 1);   // Grow the second column with a proportion of 1.
 
     wxStaticText *item15 = new wxStaticText( parent, -1, wxT("Max. camera velocity:"), wxDefaultPosition, wxDefaultSize, 0 );
     item14->Add( item15, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
     wxSlider *item16 = new wxSlider( parent, -1, 0, 100, 10000, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL|wxSL_LABELS, wxGenericValidator(&Options.view3d.MaxCameraVelocity));
-    item14->Add( item16, 0, wxALIGN_CENTER_VERTICAL|wxALIGN_RIGHT|wxALL, 5 );
+    item14->Add( item16, 0, wxGROW | wxALIGN_CENTER_VERTICAL | wxALL, 5 );
 
     wxStaticText *item17 = new wxStaticText( parent, -1, wxT("Time to top speed (msec):"), wxDefaultPosition, wxDefaultSize, 0 );
     item14->Add( item17, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
     wxSlider *item18 = new wxSlider( parent, -1, 0, 0, 10000, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL|wxSL_LABELS, wxGenericValidator(&Options.view3d.TimeToMaxSpeed));
-    item14->Add( item18, 0, wxALIGN_CENTER_VERTICAL|wxALIGN_RIGHT|wxALL, 5 );
+    item14->Add( item18, 0, wxGROW | wxALIGN_CENTER_VERTICAL | wxALL, 5 );
 
-    item10->Add( item14, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    item10->Add( item14, 0, wxGROW | wxALIGN_CENTER_VERTICAL, 5 );
 
     item0->Add( item10, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 

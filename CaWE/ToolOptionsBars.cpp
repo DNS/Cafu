@@ -592,7 +592,7 @@ OptionsBar_ClipBrushesToolT::OptionsBar_ClipBrushesToolT(wxWindow* Parent, ToolC
     wxStaticText *item1 = new wxStaticText(this, -1, wxT("Keep:"), wxDefaultPosition, wxDefaultSize, 0 );
     item0->Add( item1, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
 
-    m_RB_ClipModeKeepFront=new wxRadioButton(this, ID_RB_CLIPMODE_KEEP_FRONT, wxT("Front"), wxDefaultPosition, wxDefaultSize, 0 );
+    m_RB_ClipModeKeepFront=new wxRadioButton(this, ID_RB_CLIPMODE_KEEP_FRONT, wxT("Front"), wxDefaultPosition, wxDefaultSize, wxRB_GROUP );
     m_RB_ClipModeKeepFront->SetToolTip("Keep only the front part of the clipped brush. (The back part is thrown away.)");
     item0->Add(m_RB_ClipModeKeepFront, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
 
@@ -663,7 +663,7 @@ OptionsBar_EditVerticesToolT::OptionsBar_EditVerticesToolT(wxWindow* Parent, Too
     wxStaticText *item1 = new wxStaticText(this, -1, wxT("Edit:"), wxDefaultPosition, wxDefaultSize, 0 );
     item0->Add( item1, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
 
-    m_RB_EditModeVertices=new wxRadioButton(this, ID_RB_EDITMODE_VERTICES, wxT("Vertices"), wxDefaultPosition, wxDefaultSize, 0 );
+    m_RB_EditModeVertices=new wxRadioButton(this, ID_RB_EDITMODE_VERTICES, wxT("Vertices"), wxDefaultPosition, wxDefaultSize, wxRB_GROUP );
     m_RB_EditModeVertices->SetToolTip("Only show the vertices for editing.");
     item0->Add(m_RB_EditModeVertices, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
 
