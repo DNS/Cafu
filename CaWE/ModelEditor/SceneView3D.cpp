@@ -91,6 +91,18 @@ Vector3fT ModelEditor::SceneView3DT::GetRefPtWorld(const wxPoint& RefPtWin) cons
         }
     }
 
+    // As we currently cannot trace the ray against the model with per-triangle precision, use the bounding-box instead.
+    const float*         ModelFl=m_Parent->GetModelDoc()->GetModel()->GetSequenceBB(0, 0.0f);
+    const BoundingBox3fT ModelBB(Vector3fT(ModelFl+0), Vector3fT(ModelFl+3));
+    float Fraction;
+
+    if (ModelBB.TraceRay(RayOrigin, RayDir, Fraction))
+        if (Fraction<BestFraction)
+        {
+            BestFraction=Fraction;
+            BestPos     =RayOrigin + RayDir*Fraction;
+        }
+
     return BestPos;
 }
 
@@ -292,6 +304,18 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
 
         MatSys::Renderer->SetCurrentMaterial(m_Renderer.GetRMatWireframe());
         MatSys::Renderer->RenderMesh(LightSourceMesh);
+    }
+
+    // Render the wire-frame BB of the model when we're in camera orbit mode,
+    // because the BB (not the hit model triangle) is currently used as the reference point.
+    if (GetMouseControl().GetState()==MouseControlT::ACTIVE_ORBIT &&
+        GetMouseControl().GetRefPtWorld() != Camera.Pos &&
+        GetMouseControl().GetRefPtWorld().z > m_Parent->GetModelDoc()->GetGround()->GetBB().Max.z)
+    {
+        const float*         ModelFl=m_Parent->GetModelDoc()->GetModel()->GetSequenceBB(0, 0.0f);
+        const BoundingBox3fT ModelBB(Vector3fT(ModelFl+0), Vector3fT(ModelFl+3));
+
+        m_Renderer.RenderBox(ModelBB, Options.colors.Selection, false /*Solid?*/);
     }
 
     RenderPass();
