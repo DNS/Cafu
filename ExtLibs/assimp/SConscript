@@ -1,0 +1,10 @@
+import os, sys
+
+Import('env')
+
+
+env_assimp=env.Clone()
+env_assimp.Append(CPPDEFINES=["ASSIMP_BUILD_BOOST_WORKAROUND", "ASSIMP_BUILD_NO_OWN_ZLIB", "ASSIMP_BUILD_NO_Q3BSP_IMPORTER"]);
+env_assimp.Append(CPPPATH=["include", "code/BoostWorkaround", "#/ExtLibs/zlib"])
+
+env_assimp.StaticLibrary("assimp", Glob("code/*.cpp"))

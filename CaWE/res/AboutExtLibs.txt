@@ -9,7 +9,9 @@ The icons in CaWE were created and are copyrighted by:
 CaWE employs several external libraries that are copyrighted by their respective authors.
 Each of these libraries is compatible both with the GPL as well as with the custom licenses by Carsten Fuchs Software for closed-source commercial use.
 
-      Boost C++ Libraries, http://www.boost.org
+      Open Asset Import Library,
+      copyright (c) 2006-2010 Assimp Development Team,
+      http://assimp.sourceforge.net
 
       Bullet Continuous Collision Detection and Physics Library,
       copyright (c) 2003-2006 Erwin Coumans,
@@ -17,9 +19,6 @@ Each of these libraries is compatible both with the GPL as well as with the cust
 
       NVidia "Cg - C for graphics",
       http://developer.nvidia.com/object/cg_toolkit.html
-
-      Collada DOM, copyright (c) 2005 Sony Computer Entertainment Inc.,
-      http://www.collada.org
 
       FMOD, copyright (c) 1994-2004 Firelight Technologies Pty, Ltd.,
       http://www.fmod.org
@@ -41,9 +40,6 @@ Each of these libraries is compatible both with the GPL as well as with the cust
       libpng, copyright (c) 2004 Glenn Randers-Pehrson,
       http://www.libpng.org/pub/png/libpng.html
 
-      libxml2, copyright (c) 1998-2003 Daniel Veillard,
-      http://xmlsoft.org
-
       lightwave-8, http://www.newtek.com/lightwave/developers.php
 
       Lua, copyright (c) 1994-2006 Lua.org, PUC-Rio,
@@ -56,10 +52,6 @@ Each of these libraries is compatible both with the GPL as well as with the cust
 
       openal-soft (for Linux),
       http://kcat.strangesoft.net/openal.html
-
-      PCRE, copyright (c) 1997-2007 University of Cambridge,
-      copyright (c) 2007, Google Inc. (C++ wrappers),
-      http://www.pcre.org
 
       wxWidgets cross-platform GUI library,
       copyright (c) 1998-2005 Julian Smart, Robert Roebling et al,

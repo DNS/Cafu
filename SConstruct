@@ -209,7 +209,7 @@ my_build_dir_rel=my_build_dir+"/release"
 my_build_dir_prf=my_build_dir+"/profile"
 
 
-for lib_name in ["bullet", "freealut", "freetype", "jpeg", "libogg", "libpng", "libvorbis", "lwo", "lua", "mpg123", "noise", "openal-soft", "zlib"]:
+for lib_name in ["assimp", "bullet", "freealut", "freetype", "jpeg", "libogg", "libpng", "libvorbis", "lwo", "lua", "mpg123", "noise", "openal-soft", "zlib"]:
     s_name=lib_name
 
     if lib_name=="openal-soft" and sys.platform=="win32": continue;     # OpenAL-Soft is not built on Windows, use the OpenAL Windows SDK there.
