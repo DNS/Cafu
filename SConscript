@@ -155,7 +155,7 @@ if sys.platform=="linux2":
 
 envCaWE = wxEnv.Clone()
 envCaWE.Append(CPPPATH=['ExtLibs/lua/src', 'ExtLibs/noise/src'])
-envCaWE.Append(LIBS=Split("SceneGraph MatSys ClipSys cfsLib cfs_png cfs_jpeg bulletcollision noise lua minizip lightwave z"))
+envCaWE.Append(LIBS=Split("SceneGraph MatSys ClipSys cfsLib cfs_png cfs_jpeg assimp bulletcollision noise lua minizip lightwave z"))
 
 if sys.platform=="win32":
     envCaWE.Append(CPPPATH=['ExtLibs/freetype/include'])    # Windows builds use our local copy, Linux builds (must) use the systems freetype library instead.

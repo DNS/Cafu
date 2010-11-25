@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../MapBrush.hpp"
 
 #include "Models/Loader_ase.hpp"
+#include "Models/Loader_assimp.hpp"
 #include "Models/Loader_cmdl.hpp"
 #include "Models/Loader_lwo.hpp"
 #include "Models/Loader_md5.hpp"
@@ -59,7 +60,11 @@ ModelEditor::ModelDocumentT::ModelDocumentT(GameConfigT* GameConfig, const wxStr
     else if (cf::String::EndsWith(FileName, "md5"    )) { LoaderMd5T  Loader(FileName); m_Model=new CafuModelT(Loader); }
     else if (cf::String::EndsWith(FileName, "md5mesh")) { LoaderMd5T  Loader(FileName); m_Model=new CafuModelT(Loader); }
     else if (cf::String::EndsWith(FileName, "lwo"    )) { LoaderLwoT  Loader(FileName); m_Model=new CafuModelT(Loader); }
-    else throw ModelT::LoadError();
+    else
+    {
+        LoaderAssimpT Loader(FileName);
+        m_Model=new CafuModelT(Loader);
+    }
 
     m_Cameras.PushBack(new CameraT);
     m_Cameras[0]->Pos.y=-500.0f;

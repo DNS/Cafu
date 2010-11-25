@@ -15,14 +15,14 @@ env.StaticLibrary(
                     GuiSys/Window.cpp GuiSys/WindowCreateParams.cpp GuiSys/WindowChoice.cpp GuiSys/WindowEdit.cpp GuiSys/WindowListBox.cpp GuiSys/WindowModel.cpp GuiSys/WindowPtr.cpp GuiSys/EditorData.cpp
                     MapFile.cpp
                     Math3D/Angles.cpp Math3D/BezierPatch.cpp Math3D/BoundingBox.cpp Math3D/Brush.cpp Math3D/Matrix.cpp Math3D/Matrix3x3.cpp Math3D/Misc.cpp Math3D/Plane3.cpp Math3D/Pluecker.cpp Math3D/Polygon.cpp Math3D/Rotation.cpp
-                    Models/Loader.cpp Models/Loader_ase.cpp Models/Loader_cmdl.cpp Models/Loader_lwo.cpp Models/Loader_md5.cpp Models/Model_cmdl.cpp Models/Model_dlod.cpp Models/Model_dummy.cpp Models/Model_mdl.cpp Models/Model_proxy.cpp
+                    Models/Loader.cpp Models/Loader_ase.cpp Models/Loader_assimp.cpp Models/Loader_cmdl.cpp Models/Loader_lwo.cpp Models/Loader_md5.cpp Models/Model_cmdl.cpp Models/Model_dlod.cpp Models/Model_dummy.cpp Models/Model_mdl.cpp Models/Model_proxy.cpp
                     Network/Network.cpp ParticleEngine/ParticleEngineMS.cpp PlatformAux.cpp Terrain/Terrain.cpp
                     TextParser/TextParser.cpp
                     Plants/Tree.cpp Plants/PlantDescription.cpp Plants/PlantDescrMan.cpp
                     Util/Util.cpp
                     Win32/Win32PrintHelp.cpp
                     DebugLog.cpp TypeSys.cpp"""),
-    CPPPATH=env['CPPPATH'] + ["#/ExtLibs/lua/src", "#/ExtLibs/lwo"] + ["#/ExtLibs/jpeg", "#/ExtLibs/libpng", "#/ExtLibs/zlib"])
+    CPPPATH=env['CPPPATH'] + ["#/ExtLibs/lua/src", "#/ExtLibs/lwo"] + ["#/ExtLibs/jpeg", "#/ExtLibs/libpng", "#/ExtLibs/zlib"] + ["#/ExtLibs/assimp/include"])
 
 
 

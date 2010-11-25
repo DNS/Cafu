@@ -302,7 +302,8 @@ elif sys.platform=="linux2":
 ### Update the construction environments ###
 ############################################
 
-CommonLibPaths=["#/ExtLibs/bullet/",
+CommonLibPaths=["#/ExtLibs/assimp/",
+                "#/ExtLibs/bullet/",
                 "#/ExtLibs/freealut/",
                 "#/ExtLibs/jpeg/",
                 "#/ExtLibs/libogg/",
