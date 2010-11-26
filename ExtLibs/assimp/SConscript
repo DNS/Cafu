@@ -7,4 +7,5 @@ env_assimp=env.Clone()
 env_assimp.Append(CPPDEFINES=["ASSIMP_BUILD_BOOST_WORKAROUND", "ASSIMP_BUILD_NO_OWN_ZLIB", "ASSIMP_BUILD_NO_Q3BSP_IMPORTER"]);
 env_assimp.Append(CPPPATH=["include", "code/BoostWorkaround", "#/ExtLibs/zlib"])
 
+# Note that assimp currently uses the _DEBUG macro, that we never define (as opposed to DEBUG in debug builds).
 env_assimp.StaticLibrary("assimp", Glob("code/*.cpp") + ["contrib/ConvertUTF/ConvertUTF.c", "contrib/irrXML/irrXML.cpp"])

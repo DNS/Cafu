@@ -154,7 +154,7 @@ if sys.platform=="linux2":
 
 
 envCaWE = wxEnv.Clone()
-envCaWE.Append(CPPPATH=['ExtLibs/lua/src', 'ExtLibs/noise/src'])
+envCaWE.Append(CPPPATH=['ExtLibs/lua/src', 'ExtLibs/noise/src', 'ExtLibs/assimp/include'])
 envCaWE.Append(LIBS=Split("SceneGraph MatSys ClipSys cfsLib cfs_png cfs_jpeg assimp bulletcollision noise lua minizip lightwave z"))
 
 if sys.platform=="win32":
@@ -176,6 +176,7 @@ SourceFilesList = (Glob("CaWE/*.cpp")
     +Glob("CaWE/MapCommands/*.cpp")
     +Glob("CaWE/MaterialBrowser/*.cpp")
     +Glob("CaWE/ModelEditor/*.cpp")
+    +["Libs/Models/Loader_assimp.cpp"]  # If this was a source of library cfsLib, which is linked to Cafu with "--whole-archive", assimp had to be linked to Cafu as well...
     +Glob("CaWE/wxExt/*.cpp")
     +Glob("CaWE/wxFB/*.cpp"))
 
