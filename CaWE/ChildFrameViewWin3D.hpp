@@ -83,9 +83,9 @@ class ViewWindow3DT : public Generic3DWindowT, public ViewWindowT
     ToolCameraT*  m_CameraTool;         ///< The camera tool that manages all cameras. The camera of this 3D view is always among the cameras in the tool.
 
     // Event handlers.
-    void OnKeyDown        (wxKeyEvent&         ME);
-    void OnKeyUp          (wxKeyEvent&         ME);
-    void OnKeyChar        (wxKeyEvent&         ME);
+    void OnKeyDown        (wxKeyEvent&         KE);
+    void OnKeyUp          (wxKeyEvent&         KE);
+    void OnKeyChar        (wxKeyEvent&         KE);
     void OnMouseLeftDown  (wxMouseEvent&       ME); ///< We also handle "double-click" events in this method (use ME.ButtonDClick() for distinction).
     void OnMouseLeftUp    (wxMouseEvent&       ME);
     void OnMouseMiddleDown(wxMouseEvent&       ME); ///< We also handle "double-click" events in this method (use ME.ButtonDClick() for distinction).

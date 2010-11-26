@@ -161,6 +161,7 @@ ModelEditor::ChildFrameT::~ChildFrameT()
     m_AUIManager.UnInit();
 
     delete m_ModelDoc;
+    m_ModelDoc=NULL;
 }
 
 

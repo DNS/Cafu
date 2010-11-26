@@ -41,6 +41,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 BEGIN_EVENT_TABLE(ModelEditor::SceneView3DT, Generic3DWindowT)
+    EVT_KEY_DOWN   (ModelEditor::SceneView3DT::OnKeyDown      )
     EVT_LEFT_DOWN  (ModelEditor::SceneView3DT::OnMouseLeftDown)
     EVT_LEFT_DCLICK(ModelEditor::SceneView3DT::OnMouseLeftDown)
     EVT_LEFT_UP    (ModelEditor::SceneView3DT::OnMouseLeftUp  )
@@ -73,7 +74,10 @@ Vector3fT ModelEditor::SceneView3DT::GetRefPtWorld(const wxPoint& RefPtWin) cons
     if (length(RayDir)<0.9f) return BestPos;
 
     ArrayT<const MapElementT*> Elems;
-    Elems.PushBack(m_Parent->GetModelDoc()->GetGround());   // Always include the ground in the test: even when not rendered it makes a useful reference for camera control.
+
+    // Include the ground plane in the test only if it is visible - everything else confuses the user!
+    if (m_Parent->GetScenePropGrid()->m_GroundPlane_Show)
+        Elems.PushBack(m_Parent->GetModelDoc()->GetGround());
 
     for (unsigned long ElemNr=0; ElemNr<Elems.Size(); ElemNr++)
     {
@@ -92,7 +96,8 @@ Vector3fT ModelEditor::SceneView3DT::GetRefPtWorld(const wxPoint& RefPtWin) cons
     }
 
     // As we currently cannot trace the ray against the model with per-triangle precision, use the bounding-box instead.
-    const float*         ModelFl=m_Parent->GetModelDoc()->GetModel()->GetSequenceBB(0, 0.0f);
+    const ModelDocumentT::ModelAnimationT& Anim=m_Parent->GetModelDoc()->GetAnim();
+    const float*         ModelFl=m_Parent->GetModelDoc()->GetModel()->GetSequenceBB(Anim.SequNr, Anim.FrameNr);
     const BoundingBox3fT ModelBB(Vector3fT(ModelFl+0), Vector3fT(ModelFl+3));
     float Fraction;
 
@@ -117,6 +122,43 @@ void ModelEditor::SceneView3DT::InfoCameraChanged()
 void ModelEditor::SceneView3DT::InfoRightMouseClick(wxMouseEvent& ME)
 {
     ;
+}
+
+
+void ModelEditor::SceneView3DT::OnKeyDown(wxKeyEvent& KE)
+{
+    // Guard against accessing an already deleted MapDoc. This can otherwise happen when closing this window/view/document,
+    // namely during the continued event processing between the call to Destroy() and our final deletion.
+ // if (&GetMapDoc()==NULL) { KE.Skip(); return; }
+
+    switch (KE.GetKeyCode())
+    {
+        case '+':
+        case WXK_NUMPAD_ADD:
+        {
+            m_Parent->GetModelDoc()->SetNextAnimSequ();
+            break;
+        }
+
+        case '-':
+        case WXK_NUMPAD_SUBTRACT:
+        {
+
+            m_Parent->GetModelDoc()->SetPrevAnimSequ();
+            break;
+        }
+
+        case WXK_TAB:
+        {
+            m_Parent->GetModelDoc()->SetAnimSpeed(m_Parent->GetModelDoc()->GetAnim().Speed>0.0f ? 0.0f : 1.0f);
+            break;
+        }
+
+        default:
+            // Event not handled here - now let the base class process it.
+            KE.Skip();
+            break;
+    }
 }
 
 
@@ -171,7 +213,9 @@ void ModelEditor::SceneView3DT::RenderPass() const
     }
 
     // Render the model.
-    m_Parent->GetModelDoc()->GetModel()->Draw(0, 0.0f, 0.0f, NULL);
+    const ModelDocumentT::ModelAnimationT& Anim=m_Parent->GetModelDoc()->GetAnim();
+
+    m_Parent->GetModelDoc()->GetModel()->Draw(Anim.SequNr, Anim.FrameNr, 0.0f /*LodDist*/, NULL);
 }
 
 
@@ -189,6 +233,9 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
     const float         FrameTime=std::min(float(TimeNow-m_TimeOfLastPaint)/1000.0f, 0.5f);
 
     m_TimeOfLastPaint=TimeNow;
+
+    // Drive the model documents time, i.e. to advance the animation.
+    m_Parent->GetModelDoc()->AdvanceTime(FrameTime);
 
 
     /*********************/
@@ -310,9 +357,10 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
     // because the BB (not the hit model triangle) is currently used as the reference point.
     if (GetMouseControl().GetState()==MouseControlT::ACTIVE_ORBIT &&
         GetMouseControl().GetRefPtWorld() != Camera.Pos &&
-        GetMouseControl().GetRefPtWorld().z > m_Parent->GetModelDoc()->GetGround()->GetBB().Max.z)
+        fabs(GetMouseControl().GetRefPtWorld().z - m_Parent->GetModelDoc()->GetGround()->GetBB().Max.z) > 1.0f)
     {
-        const float*         ModelFl=m_Parent->GetModelDoc()->GetModel()->GetSequenceBB(0, 0.0f);
+        const ModelDocumentT::ModelAnimationT& Anim=m_Parent->GetModelDoc()->GetAnim();
+        const float*         ModelFl=m_Parent->GetModelDoc()->GetModel()->GetSequenceBB(Anim.SequNr, Anim.FrameNr);
         const BoundingBox3fT ModelBB(Vector3fT(ModelFl+0), Vector3fT(ModelFl+3));
 
         m_Renderer.RenderBox(ModelBB, Options.colors.Selection, false /*Solid?*/);

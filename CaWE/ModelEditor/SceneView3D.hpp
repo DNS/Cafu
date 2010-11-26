@@ -58,6 +58,7 @@ namespace ModelEditor
         unsigned long m_TimeOfLastPaint;    ///< The time at which the OnPaint() event handler was last called.
 
         // Event handlers.
+        void OnKeyDown      (wxKeyEvent&   KE);
         void OnMouseLeftDown(wxMouseEvent& ME); ///< We also handle "double-click" events in this method (use ME.ButtonDClick() for distinction).
         void OnMouseLeftUp  (wxMouseEvent& ME);
         void OnMouseMove    (wxMouseEvent& ME);

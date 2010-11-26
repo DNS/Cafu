@@ -86,3 +86,42 @@ ModelEditor::ModelDocumentT::~ModelDocumentT()
     delete m_Ground;
     delete m_Model;
 }
+
+
+void ModelEditor::ModelDocumentT::AdvanceTime(float Time)
+{
+    if (m_Anim.SequNr>=0 && Time*m_Anim.Speed!=0.0f)
+    {
+        m_Anim.FrameNr=m_Model->AdvanceFrameNr(m_Anim.SequNr, m_Anim.FrameNr, Time*m_Anim.Speed, m_Anim.Loop);
+
+        // TODO: Update all observers...
+    }
+}
+
+
+void ModelEditor::ModelDocumentT::SetNextAnimSequ()
+{
+    m_Anim.SequNr++;
+    if (m_Anim.SequNr>=m_Model->GetNrOfSequences()) m_Anim.SequNr=-1;
+    m_Anim.FrameNr=0.0f;
+
+    // TODO: Update all observers...
+}
+
+
+void ModelEditor::ModelDocumentT::SetPrevAnimSequ()
+{
+    m_Anim.SequNr--;
+    if (m_Anim.SequNr<-1) m_Anim.SequNr=m_Model->GetNrOfSequences()-1;
+    m_Anim.FrameNr=0.0f;
+
+    // TODO: Update all observers...
+}
+
+
+void ModelEditor::ModelDocumentT::SetAnimSpeed(float NewSpeed)
+{
+    m_Anim.Speed=NewSpeed;
+
+    // TODO: Update all observers...
+}

@@ -54,6 +54,19 @@ namespace ModelEditor
             wxColour  Color;        ///< The light sources color (used for both the diffuse and specular component).
         };
 
+        class ModelAnimationT
+        {
+            public:
+
+            ModelAnimationT()
+                : SequNr(-1), FrameNr(0.0f), Speed(1.0f), Loop(true) { }
+
+            int   SequNr;   ///< The animation sequence number, -1 is "base (or bind) pose", no animation data.
+            float FrameNr;  ///< The current frame number.
+            float Speed;    ///< The speed (relative to clock time) with which the animation is advanced, usually 0 for stop or 1 for playback.
+            bool  Loop;     ///< When playing the sequence, loop automatically when its end has been reached?
+        };
+
 
         /// The constructor.
         /// @throws   ModelT::LoadError if the model could not be loaded or imported.
@@ -62,7 +75,13 @@ namespace ModelEditor
         /// The destructor.
         ~ModelDocumentT();
 
+        void AdvanceTime(float Time);
+        void SetNextAnimSequ();
+        void SetPrevAnimSequ();
+        void SetAnimSpeed(float NewSpeed);
+
         const CafuModelT*            GetModel() const        { return m_Model; }
+        const ModelAnimationT&       GetAnim() const         { return m_Anim; }
         const MapBrushT*             GetGround() const       { return m_Ground; }
         const ArrayT<CameraT*>&      GetCameras() const      { return m_Cameras; }
         const ArrayT<LightSourceT*>& GetLightSources() const { return m_LightSources; }
@@ -78,6 +97,7 @@ namespace ModelEditor
         void operator = (const ModelDocumentT&);    ///< Use of the Assignment Operator is not allowed.
 
         CafuModelT*           m_Model;          ///< The model that is being edited.
+        ModelAnimationT       m_Anim;           ///< The state of our model animation.
         MapBrushT*            m_Ground;         ///< The ground brush.
         ArrayT<CameraT*>      m_Cameras;        ///< The cameras in the scene (used by the 3D views for rendering), there is always at least one.
         ArrayT<LightSourceT*> m_LightSources;   ///< The light sources that exist in the scene.
