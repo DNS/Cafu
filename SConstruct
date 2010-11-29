@@ -240,11 +240,11 @@ elif sys.platform=="linux2":
     # This automatic compilation of wxGTK requires that some library packages have been installed already,
     # e.g. libgtk2.0-dev, libgl1-mesa-dev and libglu1-mesa-dev under Ubuntu 8.04.
     # See the documentation at http://www.cafu.de/wiki/ for more details!
-    if not os.path.exists("ExtLibs/wxWidgets/build-gtk"):
+    if not os.path.exists("ExtLibs/wxWidgets/build-gtk/make-ok-flag"):
         envRelease.Execute(Mkdir("ExtLibs/wxWidgets/build-gtk"));
         result=envRelease.Execute("../configure --with-gtk --disable-shared --without-libtiff --disable-pnm --disable-pcx --disable-iff --with-opengl --with-regex=builtin --disable-compat26 --disable-compat28", chdir="ExtLibs/wxWidgets/build-gtk");
         if (result!=0): envRelease.Exit(result);
-        result=envRelease.Execute("make", chdir="ExtLibs/wxWidgets/build-gtk");
+        result=envRelease.Execute("make && touch make-ok-flag", chdir="ExtLibs/wxWidgets/build-gtk");
         if (result!=0): envRelease.Exit(result);
 
 
