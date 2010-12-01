@@ -15,6 +15,15 @@ Gui/Default
 }
 
 
+Gui/Cursors/Pointer
+{
+    diffusemap GUIs/pointer.png, noCompression, wrapS clampToEdge, wrapT clampToEdge, noScaleDown
+    useMeshColors
+    blendFunc src_alpha one_minus_src_alpha
+    meta_editorImage noEditor
+}
+
+
 Gui/CrossHair1
 {
     diffusemap Textures/Sprites/crosshair1.tga

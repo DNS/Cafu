@@ -340,35 +340,28 @@ void GuiImplT::Render()
 
     if (MouseIsShown)
     {
-        // TODO !!!!!!!!!!!
-        // All meshes should be setup ONCE in the constructor!!
-        // (Should they? Even if we plan to add scripting? Yes, I think they should, Render() is called far more often than anything else.)
+        static MatSys::MeshT Mesh(MatSys::MeshT::TriangleFan);
 
-        // Render the background.
-     // MatSys::Renderer->SetCurrentAmbientLightColor(BackColor);
-        MatSys::Renderer->SetCurrentMaterial(GuiMan->GetDefaultRM() /*BackMaterial*/);
-
-        static MatSys::MeshT CrossMesh(MatSys::MeshT::Lines);
-        CrossMesh.Vertices.Overwrite();
-        CrossMesh.Vertices.PushBackEmpty(4);     // Just a single quad for the background rectangle.
-
-        for (unsigned long VertexNr=0; VertexNr<CrossMesh.Vertices.Size(); VertexNr++)
+        if (Mesh.Vertices.Size()<4)
         {
-            CrossMesh.Vertices[VertexNr].Color[0]=0.8f;
-            CrossMesh.Vertices[VertexNr].Color[1]=0.0f;
-            CrossMesh.Vertices[VertexNr].Color[2]=0.0f;
-            CrossMesh.Vertices[VertexNr].Color[3]=1.0f;
+            Mesh.Vertices.PushBackEmpty(4);
+
+            for (unsigned long VNr=0; VNr<Mesh.Vertices.Size(); VNr++)
+            {
+                Mesh.Vertices[VNr].SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+                Mesh.Vertices[VNr].SetTextureCoord(VNr==0 || VNr==3 ? 0.0f : 1.0f, VNr<2 ? 0.0f : 1.0f);
+            }
         }
 
-        const float b=10.0f;    // The cursor size.
+        const float b=(EntityName=="") ? 20.0f : 40.0f;     // The mouse cursor size (double for world GUIs).
 
-        // The tex-coord currently don't make much sense...
-        CrossMesh.Vertices[0].SetOrigin(MousePosX-b, MousePosY  ); CrossMesh.Vertices[0].SetTextureCoord(0.0f, 0.0f);
-        CrossMesh.Vertices[1].SetOrigin(MousePosX+b, MousePosY  ); CrossMesh.Vertices[1].SetTextureCoord(1.0f, 0.0f);
-        CrossMesh.Vertices[2].SetOrigin(MousePosX,   MousePosY-b); CrossMesh.Vertices[2].SetTextureCoord(1.0f, 1.0f);
-        CrossMesh.Vertices[3].SetOrigin(MousePosX,   MousePosY+b); CrossMesh.Vertices[3].SetTextureCoord(0.0f, 1.0f);
+        Mesh.Vertices[0].SetOrigin(MousePosX,   MousePosY  );
+        Mesh.Vertices[1].SetOrigin(MousePosX+b, MousePosY  );
+        Mesh.Vertices[2].SetOrigin(MousePosX+b, MousePosY+b);
+        Mesh.Vertices[3].SetOrigin(MousePosX,   MousePosY+b);
 
-        MatSys::Renderer->RenderMesh(CrossMesh);
+        MatSys::Renderer->SetCurrentMaterial(GuiMan->GetPointerRM());
+        MatSys::Renderer->RenderMesh(Mesh);
     }
 }
 

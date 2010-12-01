@@ -43,11 +43,13 @@ static const unsigned long InitDummy=InitWindowTypes();
 
 GuiManImplT::GuiManImplT()
     : GuiDefaultRM(NULL),
+      GuiPointerRM(NULL),
       SuppressNextChar(false)
 {
     assert(MatSys::Renderer!=NULL);
 
     GuiDefaultRM=MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("Gui/Default"));
+    GuiPointerRM=MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("Gui/Cursors/Pointer"));
 }
 
 
@@ -61,8 +63,9 @@ GuiManImplT::~GuiManImplT()
     for (unsigned long FontNr=0; FontNr<Fonts.Size(); FontNr++)
         delete Fonts[FontNr];
 
-    // Free the GuiDefaultRM.
+    // Free the render materials.
     MatSys::Renderer->FreeMaterial(GuiDefaultRM);
+    MatSys::Renderer->FreeMaterial(GuiPointerRM);
 }
 
 
@@ -249,6 +252,12 @@ void GuiManImplT::DistributeClockTickEvents(float t)
 MatSys::RenderMaterialT* GuiManImplT::GetDefaultRM() const
 {
     return GuiDefaultRM;
+}
+
+
+MatSys::RenderMaterialT* GuiManImplT::GetPointerRM() const
+{
+    return GuiPointerRM;
 }
 
 

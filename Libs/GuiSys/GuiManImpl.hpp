@@ -59,6 +59,7 @@ namespace cf
             void DistributeClockTickEvents(float t);
             TrueTypeFontT* GetFont(const std::string& FontName);
             MatSys::RenderMaterialT* GetDefaultRM() const;
+            MatSys::RenderMaterialT* GetPointerRM() const;
 
 
             private:
@@ -70,6 +71,7 @@ namespace cf
             ArrayT<TrueTypeFontT*>   Fonts;             ///< The fonts that are used with the GUIs. We manage a GuiMan-global pool here in order to avoid instance duplication if multiple GUIs use the same font.
          // ArrayT<std::string>      FontsFailed;       ///< The fonts that have been attempted to load, but failed (kept in order to avoid retries).
             MatSys::RenderMaterialT* GuiDefaultRM;      ///< Used for the borders and the backgrounds if no other material is specified.
+            MatSys::RenderMaterialT* GuiPointerRM;      ///< Used for the mouse pointer.
             bool                     SuppressNextChar;  ///< Whether the next character (CaKeyboardEventT::CKE_CHAR) event should be suppressed. This is true whenever the preceeding CaKeyboardEventT::CKE_KEYDOWN event was positively processed.
         };
     }

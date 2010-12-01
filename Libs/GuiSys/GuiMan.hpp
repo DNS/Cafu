@@ -114,6 +114,9 @@ namespace cf
             /// Returns the default RenderMaterialT that should be used for borders and backgrounds if no other material is specified for that window.
             virtual MatSys::RenderMaterialT* GetDefaultRM() const=0;
 
+            /// Returns the (default) RenderMaterialT for the mouse pointer.
+            virtual MatSys::RenderMaterialT* GetPointerRM() const=0;
+
             /// The destructor.
             /// This ABC does neither have nor need a destructor, because no implementation will ever be deleted via a pointer to a GuiManI.
             /// (The implementations are singletons after all.)  See the Singleton pattern and the C++ FAQ 21.05 (the "precise rule") for more information.
