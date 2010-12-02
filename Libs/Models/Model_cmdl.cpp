@@ -1012,6 +1012,26 @@ void CafuModelT::UpdateCachedDrawData(int SequenceNr, float FrameNr) const
 }
 
 
+const ArrayT<MatrixT>& CafuModelT::GetDrawJointMatrices(int SequenceNr, float FrameNr) const
+{
+    // SequenceNr==-1 means "use the base pose from the md5mesh file only (no md5anim)".
+    if (SequenceNr>=int(m_Anims.Size())) SequenceNr=-1;
+    if (SequenceNr!=-1 && (m_Anims[SequenceNr].FPS<0.0 || m_Anims[SequenceNr].Frames.Size()==0)) SequenceNr=-1;
+    if (SequenceNr==-1) FrameNr=0.0;
+
+    // See Draw() for details.
+    if (m_Draw_CachedDataAtSequNr!=SequenceNr || m_Draw_CachedDataAtFrameNr!=FrameNr)
+    {
+        m_Draw_CachedDataAtSequNr =SequenceNr;
+        m_Draw_CachedDataAtFrameNr=FrameNr;
+
+        UpdateCachedDrawData(SequenceNr, FrameNr);
+    }
+
+    return m_Draw_JointMatrices;
+}
+
+
 void CafuModelT::Draw(int SequenceNr, float FrameNr, float /*LodDist*/, const ModelT* /*SubModel*/) const
 {
     // SequenceNr==-1 means "use the base pose from the md5mesh file only (no md5anim)".

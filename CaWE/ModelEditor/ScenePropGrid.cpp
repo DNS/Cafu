@@ -44,6 +44,8 @@ ModelEditor::ScenePropGridT::ScenePropGridT(ChildFrameT* Parent, const wxSize& S
       m_BackgroundColor(wxColour(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/BackgroundColor", "rgb(0, 128, 255)"))),
       m_ShowOrigin(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/ShowOrigin", 1l)!=0),
       m_GroundPlane_Show(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/GroundPlane_Show", 1l)!=0),
+      m_Model_ShowMesh(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/Model_ShowMesh", 1l)!=0),
+      m_Model_ShowSkeleton(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/Model_ShowSkeleton", 0l)!=0),
       m_AmbientLightColor(wxColour(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/AmbientLightColor", "rgb(96, 96, 96)"))),
       m_AmbientTexture(NULL),
       m_Parent(Parent)
@@ -103,6 +105,10 @@ void ModelEditor::ScenePropGridT::RefreshPropGrid()
     AppendIn(GroundPlane, new wxBoolProperty("Show", wxPG_LABEL, m_GroundPlane_Show));
     AppendIn(GroundPlane, new wxFloatProperty("Height (z-Pos)", wxPG_LABEL, Ground->GetBB().Max.z));
     AppendIn(GroundPlane, new wxStringProperty("Material", wxPG_LABEL, Ground->GetFaces()[0].GetMaterial()->GetName()));   // TODO: MaterialProperty
+
+    wxPGProperty* ModelProps=AppendIn(SceneElemsCat, new wxStringProperty("Model", wxPG_LABEL, "<composed>"));
+    AppendIn(ModelProps, new wxBoolProperty("Show Mesh", wxPG_LABEL, m_Model_ShowMesh));
+    AppendIn(ModelProps, new wxBoolProperty("Show Skeleton", wxPG_LABEL, m_Model_ShowSkeleton));
 
 
     // "Light Sources" category.
@@ -180,6 +186,8 @@ void ModelEditor::ScenePropGridT::OnPropertyGridChanged(wxPropertyGridEvent& Eve
                 Ground->GetFaces()[FaceNr].SetMaterial(NewMat);
         }
     }
+    else if (PropName=="Model.Show Mesh")     m_Model_ShowMesh    =Prop->GetValue().GetBool();
+    else if (PropName=="Model.Show Skeleton") m_Model_ShowSkeleton=Prop->GetValue().GetBool();
     else if (PropName=="Ambient Light Color")
     {
         m_AmbientLightColor << Prop->GetValue();

@@ -45,7 +45,7 @@ class CafuModelT : public ModelT
     struct JointT
     {
         std::string Name;
-        int         Parent;
+        int         Parent;     ///< The parent of the root joint is -1.
         Vector3fT   Pos;
         Vector3fT   Qtr;
     };
@@ -164,6 +164,9 @@ class CafuModelT : public ModelT
     const ArrayT<JointT>& GetJoints() const { return m_Joints; }
     const ArrayT<MeshT>&  GetMeshes() const { return m_Meshes; }
     const ArrayT<AnimT>&  GetAnims()  const { return m_Anims; }
+
+    /// This method returns the set of drawing matrices (one per joint) at the given sequence and frame number.
+    const ArrayT<MatrixT>& GetDrawJointMatrices(int SequenceNr, float FrameNr) const;
 
     // The ModelT interface.
     const std::string& GetFileName() const;     // TODO: Remove!?!

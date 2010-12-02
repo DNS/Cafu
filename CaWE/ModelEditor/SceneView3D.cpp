@@ -212,10 +212,59 @@ void ModelEditor::SceneView3DT::RenderPass() const
         }
     }
 
+
     // Render the model.
     const ModelDocumentT::ModelAnimationT& Anim=m_Parent->GetModelDoc()->GetAnim();
 
-    m_Parent->GetModelDoc()->GetModel()->Draw(Anim.SequNr, Anim.FrameNr, 0.0f /*LodDist*/, NULL);
+    if (ScenePropGrid->m_Model_ShowMesh)
+    {
+        m_Parent->GetModelDoc()->GetModel()->Draw(Anim.SequNr, Anim.FrameNr, 0.0f /*LodDist*/, NULL);
+    }
+
+
+    // Render the skeleton of the model.
+    if (ScenePropGrid->m_Model_ShowSkeleton && MatSys::Renderer->GetCurrentRenderAction()==MatSys::RendererI::AMBIENT)
+    {
+        static MatSys::MeshT              Skeleton(MatSys::MeshT::Lines);
+        const ArrayT<CafuModelT::JointT>& Joints  =m_Parent->GetModelDoc()->GetModel()->GetJoints();
+        const ArrayT<MatrixT>&            Matrices=m_Parent->GetModelDoc()->GetModel()->GetDrawJointMatrices(Anim.SequNr, Anim.FrameNr);
+
+        Skeleton.Vertices.Overwrite();
+
+        for (unsigned long JointNr=0; JointNr<Joints.Size(); JointNr++)
+        {
+            const MatrixT& Mj=Matrices[JointNr];
+
+            // Don't draw the line that connects the origin and the root joint of the model.
+            if (Joints[JointNr].Parent!=-1)
+            {
+                const MatrixT& Mp=Matrices[Joints[JointNr].Parent];
+
+                Skeleton.Vertices.PushBackEmpty(2);
+                MatSys::MeshT::VertexT& V1=Skeleton.Vertices[Skeleton.Vertices.Size()-2];
+                MatSys::MeshT::VertexT& V2=Skeleton.Vertices[Skeleton.Vertices.Size()-1];
+
+                V1.SetOrigin(Mp[0][3], Mp[1][3], Mp[2][3]); V1.SetColor(1, 0, 0);
+                V2.SetOrigin(Mj[0][3], Mj[1][3], Mj[2][3]); V2.SetColor(1, 1, 0, 0.5f);
+            }
+
+            // Draw the coordinate axes of Mj.
+            for (unsigned int i=0; i<3; i++)
+            {
+                Vector3fT Axis; Axis[i]=1.0f;
+
+                Skeleton.Vertices.PushBackEmpty(2);
+                MatSys::MeshT::VertexT& V1=Skeleton.Vertices[Skeleton.Vertices.Size()-2];
+                MatSys::MeshT::VertexT& V2=Skeleton.Vertices[Skeleton.Vertices.Size()-1];
+
+                V1.SetOrigin(Mj[0][3], Mj[1][3], Mj[2][3]); V1.SetColor(Axis.x, Axis.y, Axis.z);
+                V2.SetOrigin(Mj.Mul1(Axis));                V2.SetColor(Axis.x, Axis.y, Axis.z, 0.3f);
+            }
+        }
+
+        MatSys::Renderer->SetCurrentMaterial(m_Renderer.GetRMatWireframe());
+        MatSys::Renderer->RenderMesh(Skeleton);
+    }
 }
 
 
