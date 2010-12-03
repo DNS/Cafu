@@ -110,7 +110,7 @@ namespace cf
                 return Mul(v);
             }
 
-            /// Determines if this matrix is equal to Other. Note that this is a bit-wise comparision, no epsilon is taken into account.
+            /// Determines if this matrix is equal to Other. Note that this is a bit-wise comparison, no epsilon is taken into account.
             /// @param   Other   The other matrix (right side).
             /// @returns whether this matrix and Other are equal.
             bool operator == (const Matrix3x3T& Other) const
@@ -123,7 +123,7 @@ namespace cf
                 return true;
             }
 
-            /// Determines if this matrix is not equal to Other. Note that this is a bit-wise comparision, no epsilon is taken into account.
+            /// Determines if this matrix is not equal to Other. Note that this is a bit-wise comparison, no epsilon is taken into account.
             /// @param   Other   The other matrix (right side).
             /// @returns whether this matrix and Other are not equal.
             bool operator != (const Matrix3x3T& Other) const
@@ -142,8 +142,8 @@ namespace cf
             void RotateZ_RM(T Angle);           ///< Computes M=R*M, where R=GetRotateZMatrix    (Angle).
 
             /// Returns whether this matrix is equal to Other.
-            /// The matrices are considered equal if the element-wise comparision yields no difference larger than Epsilon.
-            /// @param Other Matrix to comapare to.
+            /// The matrices are considered equal if the element-wise comparison yields no difference larger than Epsilon.
+            /// @param Other Matrix to compare to.
             /// @param Epsilon Tolerance value.
             /// @see operator ==
             bool IsEqual(const Matrix3x3T& Other, const T Epsilon=0) const

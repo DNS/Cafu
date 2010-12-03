@@ -741,17 +741,8 @@ void CafuModelT::UpdateCachedDrawData(int SequenceNr, float FrameNr) const
         for (unsigned long JointNr=0; JointNr<m_Joints.Size(); JointNr++)
         {
             const JointT& J=m_Joints[JointNr];
-            const float   t=1.0f - J.Qtr.x*J.Qtr.x - J.Qtr.y*J.Qtr.y - J.Qtr.z*J.Qtr.z;
-            const float   w=(t<0.0f) ? 0.0f : -sqrt(t);
-            const float   Q[4]={ J.Qtr.x, J.Qtr.y, J.Qtr.z, w };
 
-            m_Draw_JointMatrices[JointNr]=MatrixT
-            (
-                1.0f-2.0f*Q[1]*Q[1]-2.0f*Q[2]*Q[2],      2.0f*Q[0]*Q[1]-2.0f*Q[3]*Q[2],      2.0f*Q[0]*Q[2]+2.0f*Q[3]*Q[1], J.Pos.x,
-                     2.0f*Q[0]*Q[1]+2.0f*Q[3]*Q[2], 1.0f-2.0f*Q[0]*Q[0]-2.0f*Q[2]*Q[2],      2.0f*Q[1]*Q[2]-2.0f*Q[3]*Q[0], J.Pos.y,
-                     2.0f*Q[0]*Q[2]-2.0f*Q[3]*Q[1],      2.0f*Q[1]*Q[2]+2.0f*Q[3]*Q[0], 1.0f-2.0f*Q[0]*Q[0]-2.0f*Q[1]*Q[1], J.Pos.z,
-                                              0.0f,                               0.0f,                               0.0f,    1.0f
-            );
+            m_Draw_JointMatrices[JointNr]=MatrixT(cf::math::QuaternionfT(J.Qtr), J.Pos);
         }
     }
     else

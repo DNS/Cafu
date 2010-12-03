@@ -187,7 +187,7 @@ class Vector3T
         return (*this-B).GetLengthSqr() <= Epsilon*Epsilon;
     }
 
-    /// Returns a copy ofthis vector scaled by s, that is, the scalar product (Skalarmultiplikation) of this vector and s.
+    /// Returns a copy of this vector scaled by s, that is, the scalar product (Skalarmultiplikation) of this vector and s.
     /// @param s Scale factor to scale this vector by.
     /// @see  Also see the operator *, which does exactly the same.
     Vector3T<T> GetScaled(const T s) const

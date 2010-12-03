@@ -21,20 +21,16 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/******************/
-/*** 4x4 Matrix ***/
-/******************/
-
 #ifndef _CA_4X4_MATRIX_HPP_
 #define _CA_4X4_MATRIX_HPP_
 
-#include "Vector3.hpp"
+#include "Quaternion.hpp"
 
 
 /// This class represents a generic 4x4 matrix.
 /// It has special helper methods for affine geometric transformations in 3D, but can be used for general purposes.
 /// Contrary to earlier test versions, it stores the fourth row explicitly, so that easy compatibility with
-/// OpenGL matrices is granted and no problems occur with general-case use (e.g. as projection matrix etc.).
+/// OpenGL matrices is given and no problems occur with general-case use (e.g. as projection matrix etc.).
 class MatrixT
 {
     public:
@@ -74,6 +70,9 @@ class MatrixT
         m[2][0]=m20; m[2][1]=m21; m[2][2]=m22; m[2][3]=m23;
         m[3][0]=m30; m[3][1]=m31; m[3][2]=m32; m[3][3]=m33;
     }
+
+    /// Constructor for creating a matrix from a quaternion and a translation.
+    MatrixT(const cf::math::QuaternionfT& Quat, const Vector3fT& Tl);
 
     /// \name Named constructors.
     //@{
@@ -216,6 +215,20 @@ class MatrixT
                           m[3][0]*v[0] + m[3][1]*v[1] + m[3][2]*v[2] + m[3][3]*v[3] };
 
         for (int i=0; i<4; i++) out[i]=Result[i];
+    }
+
+    /// Returns whether this matrix is equal to Other.
+    /// The matrices are considered equal if the element-wise comparison yields no difference larger than Epsilon.
+    /// @param Other Matrix to compare to.
+    /// @param Epsilon Tolerance value.
+    bool IsEqual(const MatrixT& Other, const float Epsilon=0) const
+    {
+        for (unsigned long i=0; i<4; i++)
+            for (unsigned long j=0; j<4; j++)
+                if (fabs(m[i][j]-Other.m[i][j]) > Epsilon)
+                    return false;
+
+        return true;
     }
 
     /// If this matrix represents a rigid transformation (rotation and translation only, no scale, shear, etc.),

@@ -21,10 +21,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/******************/
-/*** 4x4 Matrix ***/
-/******************/
-
 #include "Matrix.hpp"
 
 #if defined(_WIN32) && defined (_MSC_VER)
@@ -32,6 +28,20 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
         #define for if (false) ; else for
     #endif
 #endif
+
+
+MatrixT::MatrixT(const cf::math::QuaternionfT& Quat, const Vector3fT& Tl)
+{
+    const float x=Quat.x;
+    const float y=Quat.y;
+    const float z=Quat.z;
+    const float w=Quat.w;
+
+    m[0][0]=1.0f-2.0f*y*y-2.0f*z*z;  m[0][1]=     2.0f*x*y-2.0f*w*z;  m[0][2]=     2.0f*x*z+2.0f*w*y;  m[0][3]=Tl.x;
+    m[1][0]=     2.0f*x*y+2.0f*w*z;  m[1][1]=1.0f-2.0f*x*x-2.0f*z*z;  m[1][2]=     2.0f*y*z-2.0f*w*x;  m[1][3]=Tl.y;
+    m[2][0]=     2.0f*x*z-2.0f*w*y;  m[2][1]=     2.0f*y*z+2.0f*w*x;  m[2][2]=1.0f-2.0f*x*x-2.0f*y*y;  m[2][3]=Tl.z;
+    m[3][0]=                  0.0f;  m[3][1]=                  0.0f;  m[3][2]=                  0.0f;  m[3][3]=1.0f;
+}
 
 
 MatrixT MatrixT::GetProjOrthoMatrix(float left, float right, float bottom, float top, float zNear, float zFar)

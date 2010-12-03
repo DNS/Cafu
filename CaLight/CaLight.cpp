@@ -542,7 +542,7 @@ void DirectLighting(const CaLightWorldT& CaLightWorld, const char BLOCK_SIZE)
     PatchMeshIsInPVS.PushBackEmpty(PatchMeshes.Size());
 
     // Let point light sources radiate their energy into the environment.
-    // Subtlety: In comparision with the sunlight calculations, point light sources cast 'harder' shadows
+    // Subtlety: In comparison with the sunlight calculations, point light sources cast 'harder' shadows
     // because we only consider one sample point for each patch (its Coord), instead of five as for the sunlight ray tests.
     for (unsigned long PLNr=0; PLNr<CaLightWorld.GetPointLights().Size(); PLNr++)
     {
