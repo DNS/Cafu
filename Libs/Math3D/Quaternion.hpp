@@ -239,7 +239,7 @@ template<class T> inline cf::math::QuaternionT<T> normalizeOr0(const cf::math::Q
 {
     const T len=length(A);
 
-    return (len>Epsilon) ? A/len : QuaternionT<T>();
+    return (len>Epsilon) ? A/len : cf::math::QuaternionT<T>();
 }
 
 template<class T> inline std::string convertToString(const cf::math::QuaternionT<T>& A)
