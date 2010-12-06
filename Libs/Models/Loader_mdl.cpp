@@ -29,6 +29,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/Quaternion.hpp"
 #include "String.hpp"
 
+#include <stdio.h>
+#include <string.h>
+
 
 LoaderHL1mdlT::LoaderHL1mdlT(const std::string& FileName) /*throw (ModelT::LoadError)*/
     : ModelLoaderT(FileName)
@@ -256,13 +259,15 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::
 
                     for (int FrameNr=0; FrameNr<Sequ.NumFrames; FrameNr++)
                     {
+                        assert(AnimValues[0].Num.Valid>0 && AnimValues[0].Num.Total>=AnimValues[0].Num.Valid);
+
                         const float Delta=AnimValues[SpanValid].Value * StudioBones[BoneNr].Scale[j];
 
                         if (j<3) AllData[BoneNr][FrameNr].Pos[j  ] += Delta;
                             else AllData[BoneNr][FrameNr].Ang[j-3] += Delta;
 
                         if (SpanValid<AnimValues[0].Num.Valid) SpanValid++;
-                        if (SpanTotal<AnimValues[0].Num.Total) SpanTotal++;
+                        SpanTotal++;
 
                         if (SpanTotal>AnimValues[0].Num.Total)
                         {
