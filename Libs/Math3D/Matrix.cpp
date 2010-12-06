@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Matrix.hpp"
+#include "Quaternion.hpp"
 
 #if defined(_WIN32) && defined (_MSC_VER)
     #if (_MSC_VER<1300)
@@ -30,7 +31,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #endif
 
 
-MatrixT::MatrixT(const cf::math::QuaternionfT& Quat, const Vector3fT& Tl)
+MatrixT::MatrixT(const cf::math::QuaternionT<float>& Quat, const Vector3fT& Tl)
 {
     const float x=Quat.x;
     const float y=Quat.y;

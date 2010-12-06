@@ -24,7 +24,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef _CA_4X4_MATRIX_HPP_
 #define _CA_4X4_MATRIX_HPP_
 
-#include "Quaternion.hpp"
+#include "Vector3.hpp"
+
+
+namespace cf { namespace math { template<class T> class QuaternionT; } }
 
 
 /// This class represents a generic 4x4 matrix.
@@ -72,7 +75,7 @@ class MatrixT
     }
 
     /// Constructor for creating a matrix from a quaternion and a translation.
-    MatrixT(const cf::math::QuaternionfT& Quat, const Vector3fT& Tl);
+    MatrixT(const cf::math::QuaternionT<float>& Quat, const Vector3fT& Tl);
 
     /// \name Named constructors.
     //@{

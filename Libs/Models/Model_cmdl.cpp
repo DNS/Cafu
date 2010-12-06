@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/BoundingBox.hpp"
+#include "Math3D/Quaternion.hpp"
 
 #include <iostream>
 
@@ -742,7 +743,7 @@ void CafuModelT::UpdateCachedDrawData(int SequenceNr, float FrameNr) const
         {
             const JointT& J=m_Joints[JointNr];
 
-            m_Draw_JointMatrices[JointNr]=MatrixT(cf::math::QuaternionfT(J.Qtr), J.Pos);
+            m_Draw_JointMatrices[JointNr]=MatrixT(cf::math::QuaternionfT::FromXYZ(J.Qtr), J.Pos);
         }
     }
     else
@@ -761,7 +762,7 @@ void CafuModelT::UpdateCachedDrawData(int SequenceNr, float FrameNr) const
             // Determine the position and quaternion for Frame_0.
             float Data_0[7];
 
-            int FlagCount=0;
+            unsigned int FlagCount=0;
             for (int i=0; i<6; i++)
             {
                 const bool FlagIsSet=((AJ.Flags >> i) & 1)!=0;

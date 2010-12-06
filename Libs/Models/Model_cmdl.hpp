@@ -110,18 +110,18 @@ class CafuModelT : public ModelT
     };
 
 
-    /// There is one AnimT object per .md5anim file.
-    /// With the help of one AnimT structure we can obtain an array of joints (ArrayT<JointT>, like m_Joints) for each frame of that animation sequence.
+    /// This struct describes one animation sequence, e.g. "run", "walk", "jump", etc.
+    /// We use it to obtain an array of joints (ArrayT<JointT>, just like m_Joints) for any point (frame number) in the animation sequence.
     struct AnimT
     {
         struct AnimJointT
         {
-         // std::string   Name;             ///< Checked to be identical with the name  of the base mesh at load time.
-         // int           Parent;           ///< Checked to be identical with the value of the base mesh at load time.
-            float         BaseValues[6];    ///< One position and one quaternion triple that define the common base frame that is shared across all frames.
-            unsigned long Flags;
-            int           FirstDataIdx;     ///< If f is the current frame, this is the index into Frames[f].AnimData[...].
-         // int           NumDatas;         ///< There are so many data values as there are bits set in Flags.
+         // std::string  Name;              ///< Checked to be identical with the name  of the base mesh at load time.
+         // int          Parent;            ///< Checked to be identical with the value of the base mesh at load time.
+            float        BaseValues[6];     ///< One position and one quaternion triple that are used for all frames in this anim sequence.
+            unsigned int Flags;             ///< If the i-th bit in Flags is *not* set, BaseValue[i] is used for all frames in this anim sequence. Otherwise, for each set bit, we find frame-specific values in AnimData[FirstDataIdx+...].
+            unsigned int FirstDataIdx;      ///< If f is the current frame, this is the index into Frames[f].AnimData[...].
+         // int          NumDatas;          ///< There are so many data values as there are bits set in Flags.
         };
 
         /// A keyframe in the animation.
@@ -132,9 +132,12 @@ class CafuModelT : public ModelT
         };
 
 
-        float              FPS;             ///< Framerate for this animation sequence.
+     // std::string        Name;            ///< Name (label) of this animation sequence.
+        float              FPS;             ///< Playback rate for this animation sequence.
+     // int                Next;            ///< The sequence that should play after this. Use "this" for looping sequences, "none" for none.
+     // ...                Events;          ///< E.g. "call a script function at frame 3".
         ArrayT<AnimJointT> AnimJoints;      ///< AnimJoints.Size() == m_Joints.Size()
-        ArrayT<FrameT>     Frames;          ///< List of frames this animation consists of.
+        ArrayT<FrameT>     Frames;          ///< List of keyframes this animation consists of.
     };
 
 

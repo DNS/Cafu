@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Quaternion.hpp"
+#include "Matrix3x3.hpp"
 
 
 using namespace cf::math;

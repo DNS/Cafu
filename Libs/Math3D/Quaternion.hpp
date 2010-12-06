@@ -25,13 +25,15 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define _CFS_MATH_QUATERNION_HPP_
 
 #include "Vector3.hpp"
-#include "Matrix3x3.hpp"
 
 
 namespace cf
 {
     namespace math
     {
+        template<class T> class Matrix3x3T;
+
+
         /// This class represents a quaternion.
         template<class T>
         class QuaternionT
@@ -55,18 +57,19 @@ namespace cf
                   z(T(Values[2])),
                   w(T(Values[3])) { }
 
-            /// Constructs a quaternion from the first three components (x, y, z) of a unit quaternion.
-            QuaternionT(const Vector3T<T>& Qtr)
-                : x(Qtr.x), y(Qtr.y), z(Qtr.z), w(0)
-            {
-                const T ww = T(1.0) - x*x - y*y - z*z;
-
-                w=(ww<0) ? 0 : -sqrt(ww);
-            }
-
             /// Constructs a quaternion from the given rotation matrix.
             /// If the matrix is not orthonormal, the result is undefined.
             QuaternionT(const Matrix3x3T<T>& Mat);
+
+            /// Constructs a quaternion from the first three components (x, y, z) of a unit quaternion.
+            static QuaternionT FromXYZ(const Vector3T<T>& Vec)
+            {
+                const T ww = T(1.0) - Vec.x*Vec.x - Vec.y*Vec.y - Vec.z*Vec.z;
+
+                // Note that convention is to use -sqrt(ww), not +sqrt(ww).
+                // This must be taken into account in GetXYZ().
+                return QuaternionT(Vec.x, Vec.y, Vec.z, (ww<0) ? 0 : -sqrt(ww));
+            }
 
             /// Constructs a quaternion from three Euler angles.
             /// @param Pitch   the Euler rotation about the x-axis.
@@ -79,7 +82,12 @@ namespace cf
 
 
             /// Returns the x, y and z components as a Vector3T<T>.
-            Vector3T<T> GetXYZ() const { return Vector3T<T>(x, y, z); }
+            Vector3T<T> GetXYZ() const
+            {
+                // Properly take the sign of w into account for consistence with the FromXYZ constructor.
+                // Note that (-x, -y, -z, -w) is a different quaternion than (x, y, z, w), but it describes the *same* rotation.
+                return w<0 ? Vector3T<T>(x, y, z) : Vector3T<T>(-x, -y, -z);
+            }
 
             /// Returns the dot product of this quaternion and B.
             T dot(const QuaternionT<T>& B) const { return x*B.x + y*B.y + z*B.z + w*B.w; }
