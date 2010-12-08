@@ -87,8 +87,9 @@ namespace ModelEditor
         const ArrayT<LightSourceT*>& GetLightSources() const { return m_LightSources; }
         const GameConfigT*           GetGameConfig() const   { return m_GameConfig; }
 
-        MapBrushT*   GetGround()     { return m_Ground; }
-        GameConfigT* GetGameConfig() { return m_GameConfig; }
+        ModelAnimationT& GetAnim()       { return m_Anim; }
+        MapBrushT*       GetGround()     { return m_Ground; }
+        GameConfigT*     GetGameConfig() { return m_GameConfig; }
 
 
         private:

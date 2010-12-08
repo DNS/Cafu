@@ -111,6 +111,16 @@ void ModelEditor::ScenePropGridT::RefreshPropGrid()
     AppendIn(ModelProps, new wxBoolProperty("Show Skeleton", wxPG_LABEL, m_Model_ShowSkeleton));
 
 
+    // "Anim Control" category.
+    const ModelDocumentT::ModelAnimationT& Anim=m_Parent->GetModelDoc()->GetAnim();
+
+    wxPGProperty* AnimControlCat=Append(new wxPropertyCategory("Animation Control"));
+    AppendIn(AnimControlCat, new wxIntProperty("Sequence No.", wxPG_LABEL, Anim.SequNr));
+    AppendIn(AnimControlCat, new wxFloatProperty("Frame No.", wxPG_LABEL, Anim.FrameNr));
+    AppendIn(AnimControlCat, new wxFloatProperty("Speed", wxPG_LABEL, Anim.Speed));
+    AppendIn(AnimControlCat, new wxBoolProperty("Loop", wxPG_LABEL, Anim.Loop));
+
+
     // "Light Sources" category.
     const ArrayT<ModelDocumentT::LightSourceT*>& LightSources=m_Parent->GetModelDoc()->GetLightSources();
     wxPGProperty* LightsCat=Append(new wxPropertyCategory("Light Sources"));
@@ -188,6 +198,15 @@ void ModelEditor::ScenePropGridT::OnPropertyGridChanged(wxPropertyGridEvent& Eve
     }
     else if (PropName=="Model.Show Mesh")     m_Model_ShowMesh    =Prop->GetValue().GetBool();
     else if (PropName=="Model.Show Skeleton") m_Model_ShowSkeleton=Prop->GetValue().GetBool();
+    else if (PropName.StartsWith("Animation Control"))
+    {
+        ModelDocumentT::ModelAnimationT& Anim=m_Parent->GetModelDoc()->GetAnim();
+
+             if (PropName=="Animation Control.Sequence No.") Anim.SequNr =Prop->GetValue().GetLong();
+        else if (PropName=="Animation Control.Frame No.")    Anim.FrameNr=PropValueF;
+        else if (PropName=="Animation Control.Speed")        Anim.Speed  =PropValueF;
+        else if (PropName=="Animation Control.Loop")         Anim.Loop   =Prop->GetValue().GetBool();
+    }
     else if (PropName=="Ambient Light Color")
     {
         m_AmbientLightColor << Prop->GetValue();

@@ -171,7 +171,7 @@ void Generic3DWindowT::MoveCamera(const Vector3fT& NewPos)
 
 void Generic3DWindowT::ProcessInput(float FrameTime)
 {
-    // Only move the camera if we actually have the keyboard input focus (the m_Camera is reset to (0, 0, 0) below if we haven't).
+    // Only move the camera if we actually have the keyboard input focus (the m_CameraVel is reset to (0, 0, 0) below if we haven't).
     // Ideally, we would implement a system with proper acceleration and air and ground friction,
     // but it's really difficult to properly "tune" such a system so that it "feels right".
     if (wxWindow::FindFocus()==this)

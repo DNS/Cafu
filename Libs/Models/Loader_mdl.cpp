@@ -338,8 +338,13 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::
                 AnimData_Size++;
             }
         }
+
+        // If it is a looping sequence whose last frame is a repetition of the first,
+        // remove the redundant frame (our own code automatically wrap at the end of the sequence).
+        if (Sequ.Flags & 1) Anim.Frames.DeleteBack();
     }
 
     // TODO!
     //   - AnimT::FrameT::BB[6]
+    //   - Sequ.LinearMovement ?
 }

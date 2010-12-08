@@ -224,11 +224,13 @@ template<class T> inline T dot(const cf::math::QuaternionT<T>& A, const cf::math
     return A.dot(B);
 }
 
+
 /// Returns the length of A.
 template<class T> inline T length(const cf::math::QuaternionT<T>& A)
 {
     return A.length();
 }
+
 
 /// Returns the normalized (unit length) version of A.
 /// @throws DivisionByZeroE if length(A)<=Epsilon.
@@ -242,6 +244,7 @@ template<class T> inline cf::math::QuaternionT<T> normalize(const cf::math::Quat
     return A/len;
 }
 
+
 /// Returns the normalized (unit length) version of A if length(A)>Epsilon, or the identity quaternion otherwise.
 template<class T> inline cf::math::QuaternionT<T> normalizeOr0(const cf::math::QuaternionT<T>& A, const T Epsilon=0)
 {
@@ -249,6 +252,55 @@ template<class T> inline cf::math::QuaternionT<T> normalizeOr0(const cf::math::Q
 
     return (len>Epsilon) ? A/len : cf::math::QuaternionT<T>();
 }
+
+
+/// This methods implements spherical linear interpolation:
+/// It returns the interpolated quaternion between input quaternions P and Q, according to scalar t (at uniform angular velocity).
+template<class T> inline cf::math::QuaternionT<T> slerp(
+    const cf::math::QuaternionT<T>& P, cf::math::QuaternionT<T> Q, const T t, const bool ShortPath=true)
+{
+    T CosOmega=dot(P, Q);
+
+    if (CosOmega<0 && ShortPath)
+    {
+        CosOmega=-CosOmega;
+        Q=-Q;
+    }
+
+    CosOmega=std::min(CosOmega, T( 1.0));
+    CosOmega=std::max(CosOmega, T(-1.0));
+
+    // Note that the angle of the rotation that is described is actually 2*Omega.
+    const T Omega   =acos(CosOmega);
+    const T SinOmega=sin (Omega);
+
+    if (SinOmega > T(0.01))
+    {
+        // Omega is at least 0,57° larger than 0° or less than 180°,
+        // thus the division below is numerically stable: implement normal slerp.
+        const T tp=sin((T(1.0)-t)*Omega)/SinOmega;
+        const T tq=sin(        t *Omega)/SinOmega;
+
+        return P*tp + Q*tq;
+    }
+
+    if (CosOmega>0)
+    {
+        // Omega is close to 0°.
+        // For numerical stability, implement normalized linear interpolation.
+        return normalizeOr0(P*(T(1.0)-t) + Q*t);
+    }
+
+    // Omega is close to 180°, describing a rotation of about 360°.
+    // P and Q are thus on opposite (180°) points on the unit sphere, e.g. the north and south pole.
+    // The problem is solved by finding an arbitrary point E on the "equator". The interpolation is
+    // then done "through" that point, so that t==0 maps to P, t==0.5 to E, and t==1 to "2PE", which is Q.
+    assert(!ShortPath);
+    const T PI=T(3.14159265358979323846);
+
+    return P*sin((T(0.5)-t)*PI) + cf::math::QuaternionT<T>(-P.y, P.x, -P.w, P.z)*sin(t*PI);
+}
+
 
 template<class T> inline std::string convertToString(const cf::math::QuaternionT<T>& A)
 {
@@ -263,6 +315,7 @@ template<class T> inline std::string convertToString(const cf::math::QuaternionT
 
     return out.str();
 }
+
 
 template<class T> inline std::ostream& operator << (std::ostream& os, const cf::math::QuaternionT<T>& A)
 {

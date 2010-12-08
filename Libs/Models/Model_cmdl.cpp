@@ -149,17 +149,8 @@ void CafuModelT::InitMeshes()
         for (unsigned long JointNr=0; JointNr<m_Joints.Size(); JointNr++)
         {
             const JointT& J=m_Joints[JointNr];
-            const float   t=1.0f - J.Qtr.x*J.Qtr.x - J.Qtr.y*J.Qtr.y - J.Qtr.z*J.Qtr.z;
-            const float   w=(t<0.0f) ? 0.0f : -sqrt(t);
-            const float   Q[4]={ J.Qtr.x, J.Qtr.y, J.Qtr.z, w };
 
-            JointMatrices[JointNr]=MatrixT
-            (
-                1.0f-2.0f*Q[1]*Q[1]-2.0f*Q[2]*Q[2],      2.0f*Q[0]*Q[1]-2.0f*Q[3]*Q[2],      2.0f*Q[0]*Q[2]+2.0f*Q[3]*Q[1], J.Pos.x,
-                     2.0f*Q[0]*Q[1]+2.0f*Q[3]*Q[2], 1.0f-2.0f*Q[0]*Q[0]-2.0f*Q[2]*Q[2],      2.0f*Q[1]*Q[2]-2.0f*Q[3]*Q[0], J.Pos.y,
-                     2.0f*Q[0]*Q[2]-2.0f*Q[3]*Q[1],      2.0f*Q[1]*Q[2]+2.0f*Q[3]*Q[0], 1.0f-2.0f*Q[0]*Q[0]-2.0f*Q[1]*Q[1], J.Pos.z,
-                                              0.0f,                               0.0f,                               0.0f,    1.0f
-            );
+            JointMatrices[JointNr]=MatrixT(cf::math::QuaternionfT::FromXYZ(J.Qtr), J.Pos);
         }
 
         for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
@@ -662,65 +653,6 @@ const std::string& CafuModelT::GetFileName() const
 }
 
 
-static void QuaternionSlerp(const float p[4], float q[4], float t, float qt[4])
-{
-    float a=0;
-    float b=0;
-
-    // Decide if one of the quaternions is backwards.
-    for (int i=0; i<4; i++)
-    {
-        a+=(p[i]-q[i])*(p[i]-q[i]);
-        b+=(p[i]+q[i])*(p[i]+q[i]);
-    }
-
-    if (a>b)
-        for (int i=0; i<4; i++) q[i]=-q[i];
-
-    const float CosOmega=p[0]*q[0]+p[1]*q[1]+p[2]*q[2]+p[3]*q[3];
-
-    if (1.0+CosOmega>0.00000001)
-    {
-        float sclp;
-        float sclq;
-
-        if (1.0-CosOmega>0.00000001)
-        {
-            float    Omega=acos(CosOmega);
-            float SinOmega=sin (Omega);
-
-            sclp=sin((1.0f-t)*Omega)/SinOmega;
-            sclq=sin(      t *Omega)/SinOmega;
-        }
-        else
-        {
-            sclp=1.0f-t;
-            sclq=     t;
-        }
-
-        for (int i=0; i<4; i++) qt[i]=sclp*p[i]+sclq*q[i];
-    }
-    else
-    {
-        // This code seems to handle the case that the quaternions are on opposite (180 degrees) points on the unit sphere,
-        // e.g. the north and south pole. The problem is apparently solved by finding/constructing an arbitrary point on the
-        // equator (I believe that the next four lines do that). The interpolation is then done "through" that point(?).
-        qt[0]=-p[1];
-        qt[1]= p[0];
-        qt[2]=-p[3];
-        qt[3]= p[2];
-
-        // This code was originally copied from Model_mdl.cpp, but I believe it was wrong.
-        // Irrlicht 0.12.0 has something that corresponds more to my pole/equator comment above,
-        // and therefore I fix this code accordingly. See Model_mdl.cpp for the original (presumably wrong) code.
-        const float sclp=sin((0.5f-t)*3.14159265358979323846f);
-        const float sclq=sin(      t *3.14159265358979323846f);
-
-        for (int i=0; i<4; i++) qt[i]=sclp*p[i]+sclq*qt[i];
-    }
-}
-
-
 static Vector3fT myNormalize(const Vector3fT& A)
 {
     const float Length=length(A);
@@ -794,27 +726,12 @@ void CafuModelT::UpdateCachedDrawData(int SequenceNr, float FrameNr) const
 
 
             // Interpolate the position and quaternion according to the fraction Frame_f.
-            float Pos[3];
-
-            for (int i=0; i<3; i++)
-                Pos[i]=(1.0f-Frame_f)*Data_0[i] + Frame_f*Data_1[i];
-
-            float Q[4];
-
-            QuaternionSlerp(&Data_0[3], &Data_1[3], Frame_f, Q);      // Warning: This methods also modifies Data_1 (as scratch space)!
+            const Vector3fT              Pos =Vector3fT(&Data_0[0])*(1.0f-Frame_f) + Vector3fT(&Data_1[0])*Frame_f;
+            const cf::math::QuaternionfT Quat=slerp(cf::math::QuaternionfT(&Data_0[3]), cf::math::QuaternionfT(&Data_1[3]), Frame_f);
 
 
-            // Compute the matrix, which is relative to the parent bone.
-            const MatrixT RelMatrix
-            (
-                1.0f-2.0f*Q[1]*Q[1]-2.0f*Q[2]*Q[2],      2.0f*Q[0]*Q[1]-2.0f*Q[3]*Q[2],      2.0f*Q[0]*Q[2]+2.0f*Q[3]*Q[1], Pos[0],
-                     2.0f*Q[0]*Q[1]+2.0f*Q[3]*Q[2], 1.0f-2.0f*Q[0]*Q[0]-2.0f*Q[2]*Q[2],      2.0f*Q[1]*Q[2]-2.0f*Q[3]*Q[0], Pos[1],
-                     2.0f*Q[0]*Q[2]-2.0f*Q[3]*Q[1],      2.0f*Q[1]*Q[2]+2.0f*Q[3]*Q[0], 1.0f-2.0f*Q[0]*Q[0]-2.0f*Q[1]*Q[1], Pos[2],
-                                              0.0f,                               0.0f,                               0.0f,   1.0f
-            );
-
-
-            // And finally obtain the absolute matrix for that bone!
+            // Compute the matrix that is relative to the parent bone, and finally obtain the absolute matrix for that bone!
+            const MatrixT RelMatrix(Quat, Pos);
             const JointT& J=m_Joints[JointNr];
 
             m_Draw_JointMatrices[JointNr]=(J.Parent==-1) ? RelMatrix : m_Draw_JointMatrices[J.Parent]*RelMatrix;
