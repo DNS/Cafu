@@ -230,6 +230,9 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::
         const StudioAnimT*     Animations=(Sequ.SeqGroup==0) ? (StudioAnimT*)(&ModelData[0]+StudioSequenceGroups[0].Data +Sequ.AnimIndex)
                                                              : (StudioAnimT*)(&AnimationData[Sequ.SeqGroup][0]+Sequ.AnimIndex);
 
+        // Skip sequences with no frames (and make sure that we can safely access frame 0 below).
+        if (Sequ.NumFrames<1) continue;
+
         // Gather all animation data of this sequence in uncompressed form in AllData[BoneNr][FrameNr].
         // That is, for each frame and for each bone, we store the position and quaterion.
         ArrayT< ArrayT<PosQtrT> > AllData;
@@ -304,11 +307,12 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::
         for (int BoneNr=0; BoneNr<StudioHeader->NumBones; BoneNr++)
         {
             const StudioBoneT&             Bone     =StudioBones[BoneNr];
-            const Vector3fT                BoneQtr  =cf::math::QuaternionfT::Euler(Bone.Value[4], Bone.Value[5], Bone.Value[3]).GetXYZ();
             CafuModelT::AnimT::AnimJointT& AnimJoint=Anim.AnimJoints[BoneNr];
 
-            for (unsigned int i=0; i<3; i++) AnimJoint.BaseValues[i  ]=Bone.Value[i];
-            for (unsigned int i=0; i<3; i++) AnimJoint.BaseValues[i+3]=BoneQtr[i];
+            // For (space) efficiency, the defaults are taken from frame 0, rather than from the "unrelated" Bone.Value[...] as in HL1 mdl:
+            // the resulting AnimData then require only 1/4 to 1/3 of the original size! (tested with Trinity.mdl)
+            for (unsigned int i=0; i<3; i++) AnimJoint.BaseValues[i  ]=AllData[BoneNr][0].Pos[i];
+            for (unsigned int i=0; i<3; i++) AnimJoint.BaseValues[i+3]=AllData[BoneNr][0].Qtr[i];
             AnimJoint.Flags=0;
             AnimJoint.FirstDataIdx=AnimData_Size;
 
