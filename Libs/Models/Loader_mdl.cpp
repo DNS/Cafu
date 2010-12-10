@@ -306,7 +306,6 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::
 
         for (int BoneNr=0; BoneNr<StudioHeader->NumBones; BoneNr++)
         {
-            const StudioBoneT&             Bone     =StudioBones[BoneNr];
             CafuModelT::AnimT::AnimJointT& AnimJoint=Anim.AnimJoints[BoneNr];
 
             // For (space) efficiency, the defaults are taken from frame 0, rather than from the "unrelated" Bone.Value[...] as in HL1 mdl:
