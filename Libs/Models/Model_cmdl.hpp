@@ -26,8 +26,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Templates/Array.hpp"
 #include "MaterialSystem/Mesh.hpp"
+#include "Math3D/BoundingBox.hpp"
 #include "Math3D/Matrix.hpp"
-#include "Math3D/Vector3.hpp"
 #include "Model.hpp"
 
 
@@ -127,8 +127,8 @@ class CafuModelT : public ModelT
         /// A keyframe in the animation.
         struct FrameT
         {
-            float         BB[6];            ///< The bounding box of the model in this frame.
-            ArrayT<float> AnimData;
+            BoundingBox3fT BB;              ///< The bounding box of the model in this frame.
+            ArrayT<float>  AnimData;
         };
 
 
@@ -193,7 +193,7 @@ class CafuModelT : public ModelT
  // const bool            m_CastShadows;            ///< Should this model cast shadows?
     ArrayT<JointT>        m_Joints;                 ///< Array of joints of this model.
     mutable ArrayT<MeshT> m_Meshes;                 ///< Array of (sub)meshes of this model.
-    float                 m_BaseBB[6];
+    BoundingBox3fT        m_BasePoseBB;             ///< The bounding-box for the base pose of the model.
     ArrayT<AnimT>         m_Anims;                  ///< Array of animations of this model.
     ArrayT<GuiLocT>       m_GuiLocs;                ///< Array of locations where GUIs can be attached to this model.
 

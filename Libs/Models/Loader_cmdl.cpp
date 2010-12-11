@@ -314,7 +314,8 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Me
                                 for (unsigned int c=0; c<6; c++)
                                 {
                                     lua_rawgeti(m_LuaState, -1, c+1);
-                                    Frame.BB[c]=float(lua_tonumber(m_LuaState, -1));
+                                    if (c<3) Frame.BB.Min[c  ]=float(lua_tonumber(m_LuaState, -1));
+                                        else Frame.BB.Max[c-3]=float(lua_tonumber(m_LuaState, -1));
                                     lua_pop(m_LuaState, 1);
                                 }
                             }

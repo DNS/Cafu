@@ -178,26 +178,8 @@ void CafuModelT::InitMeshes()
                     }
                 }
 
-                if (MeshNr==0 && VertexNr==0)
-                {
-                    m_BaseBB[0]=OutVert.x;
-                    m_BaseBB[1]=OutVert.y;
-                    m_BaseBB[2]=OutVert.z;
-
-                    m_BaseBB[3]=OutVert.x;
-                    m_BaseBB[4]=OutVert.y;
-                    m_BaseBB[5]=OutVert.z;
-                }
-                else
-                {
-                    if (OutVert.x<m_BaseBB[0]) m_BaseBB[0]=OutVert.x;
-                    if (OutVert.y<m_BaseBB[1]) m_BaseBB[1]=OutVert.y;
-                    if (OutVert.z<m_BaseBB[2]) m_BaseBB[2]=OutVert.z;
-
-                    if (OutVert.x>m_BaseBB[3]) m_BaseBB[3]=OutVert.x;
-                    if (OutVert.y>m_BaseBB[4]) m_BaseBB[4]=OutVert.y;
-                    if (OutVert.z>m_BaseBB[5]) m_BaseBB[5]=OutVert.z;
-                }
+                if (MeshNr==0 && VertexNr==0) m_BasePoseBB=BoundingBox3fT(OutVert);
+                                         else m_BasePoseBB.Insert(OutVert);
             }
         }
     }
@@ -602,10 +584,11 @@ void CafuModelT::Save(std::ostream& OutStream) const
 
             OutStream << "\t\t\t"
                       << "{ "
-                      << "bb={";
-            for (unsigned long i=0; i<6; i++) OutStream << " " << serialize(Frame.BB[i]) << (i<5 ? ", " : " ");
-            OutStream << "};\ndata={";
-            for (unsigned long i=0; i<Frame.AnimData.Size(); i++) OutStream << " " << serialize(Frame.AnimData[i]) << (i+1<Frame.AnimData.Size() ? ", " : " ");
+                      << "bb={ " << serialize(Frame.BB.Min) << ", " << serialize(Frame.BB.Max) << " };\n"
+                      << "\t\t\t  "
+                      << "data={ ";
+            for (unsigned long i=0; i<Frame.AnimData.Size(); i++)
+                OutStream << serialize(Frame.AnimData[i]) << (i+1<Frame.AnimData.Size() ? ", " : " ");
             OutStream << "}; "
                       << "},\n";
         }
@@ -1251,12 +1234,12 @@ int CafuModelT::GetNrOfSequences() const
 const float* CafuModelT::GetSequenceBB(int SequenceNr, float FrameNr) const
 {
     if (SequenceNr==-1 || SequenceNr>=int(m_Anims.Size()) || m_Anims[SequenceNr].Frames.Size()==0 || m_Anims[SequenceNr].FPS<0.0)
-        return m_BaseBB;
+        return &m_BasePoseBB.Min[0];
 
     // Should we interpolate the bounding box between frames as we interpolate the bones?
     const int FNr=(int(FrameNr+0.5f)) % m_Anims[SequenceNr].Frames.Size();
 
-    return m_Anims[SequenceNr].Frames[FNr].BB;
+    return &m_Anims[SequenceNr].Frames[FNr].BB.Min[0];
 }
 
 

@@ -270,14 +270,14 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                     for (unsigned long FrameNr=0; FrameNr<Anim.Frames.Size(); FrameNr++)
                     {
                         TP.AssertAndSkipToken("(");
-                        Anim.Frames[FrameNr].BB[0]=TP.GetNextTokenAsFloat();
-                        Anim.Frames[FrameNr].BB[1]=TP.GetNextTokenAsFloat();
-                        Anim.Frames[FrameNr].BB[2]=TP.GetNextTokenAsFloat();
+                        Anim.Frames[FrameNr].BB.Min.x=TP.GetNextTokenAsFloat();
+                        Anim.Frames[FrameNr].BB.Min.y=TP.GetNextTokenAsFloat();
+                        Anim.Frames[FrameNr].BB.Min.z=TP.GetNextTokenAsFloat();
                         TP.AssertAndSkipToken(")");
                         TP.AssertAndSkipToken("(");
-                        Anim.Frames[FrameNr].BB[3]=TP.GetNextTokenAsFloat();
-                        Anim.Frames[FrameNr].BB[4]=TP.GetNextTokenAsFloat();
-                        Anim.Frames[FrameNr].BB[5]=TP.GetNextTokenAsFloat();
+                        Anim.Frames[FrameNr].BB.Max.x=TP.GetNextTokenAsFloat();
+                        Anim.Frames[FrameNr].BB.Max.y=TP.GetNextTokenAsFloat();
+                        Anim.Frames[FrameNr].BB.Max.z=TP.GetNextTokenAsFloat();
                         TP.AssertAndSkipToken(")");
                     }
 
