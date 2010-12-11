@@ -945,9 +945,8 @@ void CafuModelT::Draw(int SequenceNr, float FrameNr, float /*LodDist*/, const Mo
             const Vector3T<float>      LightBox(LightRadius, LightRadius, LightRadius);
             const Vector3T<float>      LightPosOLD(MatSys::Renderer->GetCurrentLightSourcePosition());
             const BoundingBox3T<float> LightBB(LightPosOLD+LightBox, LightPosOLD-LightBox);
-            const float*               SequenceBB=GetSequenceBB(SequenceNr, FrameNr);
 
-            if (!LightBB.Intersects(BoundingBox3T<float>(Vector3fT(&SequenceBB[0]), Vector3fT(&SequenceBB[3])))) return;
+            if (!LightBB.Intersects(GetBB(SequenceNr, FrameNr))) return;
             break;
         }
     }
@@ -1231,15 +1230,15 @@ int CafuModelT::GetNrOfSequences() const
 }
 
 
-const float* CafuModelT::GetSequenceBB(int SequenceNr, float FrameNr) const
+BoundingBox3fT CafuModelT::GetBB(int SequenceNr, float FrameNr) const
 {
     if (SequenceNr==-1 || SequenceNr>=int(m_Anims.Size()) || m_Anims[SequenceNr].Frames.Size()==0 || m_Anims[SequenceNr].FPS<0.0)
-        return &m_BasePoseBB.Min[0];
+        return m_BasePoseBB;
 
     // Should we interpolate the bounding box between frames as we interpolate the bones?
     const int FNr=(int(FrameNr+0.5f)) % m_Anims[SequenceNr].Frames.Size();
 
-    return &m_Anims[SequenceNr].Frames[FNr].BB.Min[0];
+    return m_Anims[SequenceNr].Frames[FNr].BB;
 }
 
 

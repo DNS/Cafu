@@ -181,20 +181,10 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
     // Set the proper Dimensions bounding box for this model.
     // Note that the bounding box depends on the current model sequence,
     // and it must be properly scaled and rotated for world space.
-    const float* BB=Model.GetSequenceBB(ModelSequenceNr, 0.0f);
-    VectorT      V[8];
-    char         VertexNr;
+    VectorT V[8];
+    Model.GetBB(ModelSequenceNr, 0.0f).AsBoxOfDouble().GetCornerVertices(V);
 
-    V[0]=VectorT(BB[0], BB[1], BB[2]);
-    V[1]=VectorT(BB[0], BB[1], BB[5]);
-    V[2]=VectorT(BB[0], BB[4], BB[2]);
-    V[3]=VectorT(BB[0], BB[4], BB[5]);
-    V[4]=VectorT(BB[3], BB[1], BB[2]);
-    V[5]=VectorT(BB[3], BB[1], BB[5]);
-    V[6]=VectorT(BB[3], BB[4], BB[2]);
-    V[7]=VectorT(BB[3], BB[4], BB[5]);
-
-    for (VertexNr=0; VertexNr<8; VertexNr++)
+    for (unsigned int VertexNr=0; VertexNr<8; VertexNr++)
     {
         V[VertexNr]=scale(V[VertexNr], 25.4);
         V[VertexNr]=V[VertexNr].GetRotX(    -double(State.Pitch  )/8192.0*45.0);
@@ -203,7 +193,7 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
     }
 
     State.Dimensions=BoundingBox3T<double>(V[0]);
-    for (VertexNr=1; VertexNr<8; VertexNr++) State.Dimensions.Insert(V[VertexNr]);
+    for (unsigned int VertexNr=1; VertexNr<8; VertexNr++) State.Dimensions.Insert(V[VertexNr]);
 
 
     ClipModel.SetOrigin(State.Origin);

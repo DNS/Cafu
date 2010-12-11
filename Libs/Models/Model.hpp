@@ -28,7 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef _MODEL_HPP_
 #define _MODEL_HPP_
 
-#include "Math3D/Vector3.hpp"
+#include "Math3D/BoundingBox.hpp"
 #include <string>
 
 
@@ -77,11 +77,10 @@ class ModelT
     /// @return Number of sequences of this model.
     virtual int GetNrOfSequences() const=0;
 
-    /// Returns a pointer to six statically allocated floats, describing the per-sequence bounding box of sequence SequenceNr at frame FrameNr.
+    /// Returns the bounding box for sequence SequenceNr at frame FrameNr.
     /// @param SequenceNr The sequence number to get the bounding box for.
     /// @param FrameNr The frame number to get this models bounding box for.
-    /// @return Six statically allocated floats, describing the bounding box of this model.
-    virtual const float* GetSequenceBB(int SequenceNr, float FrameNr) const=0;
+    virtual BoundingBox3fT GetBB(int SequenceNr, float FrameNr) const=0;
 
     // Returns the number of frames of sequence SequenceNr. Useful for non-repeating (e.g. death) sequences.
  // virtual float GetNrOfFrames(int SequenceNr) const=0;

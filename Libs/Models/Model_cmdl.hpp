@@ -177,7 +177,7 @@ class CafuModelT : public ModelT
     bool               GetGuiPlane(int SequenceNr, float FrameNr, float LodDist, Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const;
     void               Print() const;
     int                GetNrOfSequences() const;
-    const float*       GetSequenceBB(int SequenceNr, float FrameNr) const;
+    BoundingBox3fT     GetBB(int SequenceNr, float FrameNr) const;
  // float              GetNrOfFrames(int SequenceNr) const;
     float              AdvanceFrameNr(int SequenceNr, float FrameNr, float DeltaTime, bool Loop=true) const;
 

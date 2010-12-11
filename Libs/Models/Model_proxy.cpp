@@ -237,9 +237,9 @@ int ModelProxyT::GetNrOfSequences() const
 }
 
 
-const float* ModelProxyT::GetSequenceBB(int SequenceNr, float FrameNr) const
+BoundingBox3fT ModelProxyT::GetBB(int SequenceNr, float FrameNr) const
 {
-    return ModelPool[PoolIndex]->GetSequenceBB(SequenceNr, FrameNr);
+    return ModelPool[PoolIndex]->GetBB(SequenceNr, FrameNr);
 }
 
 

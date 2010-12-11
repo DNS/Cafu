@@ -132,8 +132,7 @@ void DrawPolygons(const ArrayT<VectorT>& AmbientLightingInfo, const ArrayT<Vecto
     {
         MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
 
-        const float*  BB      =Model->GetSequenceBB(ModelSequenceNr, 0.0f /*ModelFrameNr*/);
-        const VectorT ModelPos=VectorT(-(BB[0]+BB[3])*0.5, -(BB[1]+BB[4])*0.5, -(BB[2]+BB[5])*0.5);
+        const Vector3dT ModelPos=-Model->GetBB(ModelSequenceNr, 0.0f /*ModelFrameNr*/).GetCenter().AsVectorOfDouble();
 
         // Set up model space, both for the model, the light and the eye.
         ArrayT<VectorT> ModelSpace_DLI=DynamicLightingInfo;

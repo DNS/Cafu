@@ -113,9 +113,9 @@ int ModelDlodT::GetNrOfSequences() const
 }
 
 
-const float* ModelDlodT::GetSequenceBB(int SequenceNr, float FrameNr) const
+BoundingBox3fT ModelDlodT::GetBB(int SequenceNr, float FrameNr) const
 {
-    return LodModels[0].GetSequenceBB(SequenceNr, FrameNr);
+    return LodModels[0].GetBB(SequenceNr, FrameNr);
 }
 
 

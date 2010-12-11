@@ -68,11 +68,9 @@ int ModelDummyT::GetNrOfSequences() const
 }
 
 
-const float* ModelDummyT::GetSequenceBB(int /*SequenceNr*/, float /*FrameNr*/) const
+BoundingBox3fT ModelDummyT::GetBB(int /*SequenceNr*/, float /*FrameNr*/) const
 {
-    static float BB[6];
-
-    return BB;
+    return BoundingBox3fT(Vector3fT(-8, -8, -8), Vector3fT(8, 8, 8));
 }
 
 

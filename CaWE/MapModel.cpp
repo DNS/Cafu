@@ -163,16 +163,8 @@ BoundingBox3fT MapModelT::GetBB() const
     if (dynamic_cast<const ModelDummyT*>(m_Model.GetRealModel())==NULL)
     {
         // The 3D bounds are the bounds of the oriented model's first sequence, so that frustum culling works properly in the 3D view.
-        const float* BB=m_Model.GetSequenceBB(m_SeqNumber, 0.0f);
-
-        // Construct all eight vertices of this BB.
-        Vector3fT VerticesBB[8]=
-        {
-            Vector3fT(BB[0], BB[1], BB[2]), Vector3fT(BB[0], BB[1], BB[5]),
-            Vector3fT(BB[0], BB[4], BB[2]), Vector3fT(BB[0], BB[4], BB[5]),
-            Vector3fT(BB[3], BB[1], BB[2]), Vector3fT(BB[3], BB[1], BB[5]),
-            Vector3fT(BB[3], BB[4], BB[2]), Vector3fT(BB[3], BB[4], BB[5])
-        };
+        Vector3fT VerticesBB[8];
+        m_Model.GetBB(m_SeqNumber, 0.0f).GetCornerVertices(VerticesBB);
 
         // Rotate all eight vertices.
         for (unsigned long VertexNr=0; VertexNr<8; VertexNr++)

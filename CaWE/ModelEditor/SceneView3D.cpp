@@ -97,8 +97,7 @@ Vector3fT ModelEditor::SceneView3DT::GetRefPtWorld(const wxPoint& RefPtWin) cons
 
     // As we currently cannot trace the ray against the model with per-triangle precision, use the bounding-box instead.
     const ModelDocumentT::ModelAnimationT& Anim=m_Parent->GetModelDoc()->GetAnim();
-    const float*         ModelFl=m_Parent->GetModelDoc()->GetModel()->GetSequenceBB(Anim.SequNr, Anim.FrameNr);
-    const BoundingBox3fT ModelBB(Vector3fT(ModelFl+0), Vector3fT(ModelFl+3));
+    const BoundingBox3fT ModelBB(m_Parent->GetModelDoc()->GetModel()->GetBB(Anim.SequNr, Anim.FrameNr));
     float Fraction;
 
     if (ModelBB.TraceRay(RayOrigin, RayDir, Fraction))
@@ -409,8 +408,7 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
         fabs(GetMouseControl().GetRefPtWorld().z - m_Parent->GetModelDoc()->GetGround()->GetBB().Max.z) > 1.0f)
     {
         const ModelDocumentT::ModelAnimationT& Anim=m_Parent->GetModelDoc()->GetAnim();
-        const float*         ModelFl=m_Parent->GetModelDoc()->GetModel()->GetSequenceBB(Anim.SequNr, Anim.FrameNr);
-        const BoundingBox3fT ModelBB(Vector3fT(ModelFl+0), Vector3fT(ModelFl+3));
+        const BoundingBox3fT ModelBB(m_Parent->GetModelDoc()->GetModel()->GetBB(Anim.SequNr, Anim.FrameNr));
 
         m_Renderer.RenderBox(ModelBB, Options.colors.Selection, false /*Solid?*/);
     }

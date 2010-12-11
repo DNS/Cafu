@@ -109,13 +109,11 @@ void cf::SceneGraph::ModelNodeT::WriteTo(std::ostream& OutFile, aux::PoolT& Pool
 
 const BoundingBox3T<double>& cf::SceneGraph::ModelNodeT::GetBoundingBox() const
 {
-    static BoundingBox3dT ModelBB;
+    static BoundingBox3dT BB;
 
-    const float* ModelBounds=m_Model.GetSequenceBB(m_SeqNumber, m_FrameNumber);
+    BB=m_Model.GetBB(m_SeqNumber, m_FrameNumber).AsBoxOfDouble();
 
-    ModelBB=BoundingBox3dT(Vector3dT(ModelBounds[0], ModelBounds[1], ModelBounds[2]), Vector3dT(ModelBounds[3], ModelBounds[4], ModelBounds[5]));
-
-    return ModelBB;
+    return BB;
 }
 
 

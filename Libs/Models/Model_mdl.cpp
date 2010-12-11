@@ -1558,32 +1558,20 @@ int ModelMdlT::GetNrOfSequences() const
 }
 
 
-const float* ModelMdlT::GetSequenceBB(int SequenceNr, float /*FrameNr*/) const
+BoundingBox3fT ModelMdlT::GetBB(int SequenceNr, float /*FrameNr*/) const
 {
-    static float BB[6];
-
     if (SequenceNr<0 || SequenceNr>=StudioHeader->NumSeq)
     {
-        BB[0]=0.0;
-        BB[1]=0.0;
-        BB[2]=0.0;
-
-        BB[3]=0.0;
-        BB[4]=0.0;
-        BB[5]=0.0;
-    }
-    else
-    {
-        BB[0]=StudioSequences[SequenceNr].BBMin[0];
-        BB[1]=StudioSequences[SequenceNr].BBMin[1];
-        BB[2]=StudioSequences[SequenceNr].BBMin[2];
-
-        BB[3]=StudioSequences[SequenceNr].BBMax[0];
-        BB[4]=StudioSequences[SequenceNr].BBMax[1];
-        BB[5]=StudioSequences[SequenceNr].BBMax[2];
+        return BoundingBox3fT(Vector3fT(0, 0, 0));
     }
 
-    return BB;
+    return BoundingBox3fT(
+        Vector3fT(StudioSequences[SequenceNr].BBMin[0],
+                  StudioSequences[SequenceNr].BBMin[1],
+                  StudioSequences[SequenceNr].BBMin[2]),
+        Vector3fT(StudioSequences[SequenceNr].BBMax[0],
+                  StudioSequences[SequenceNr].BBMax[1],
+                  StudioSequences[SequenceNr].BBMax[2]));
 }
 
 
