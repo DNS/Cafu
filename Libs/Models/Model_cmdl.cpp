@@ -105,6 +105,7 @@ bool CafuModelT::MeshT::AreGeoDups(int Vertex1Nr, int Vertex2Nr) const
 CafuModelT::CafuModelT(ModelLoaderT& Loader)
     : m_FileName(Loader.GetFileName()),
       m_UseGivenTangentSpace(Loader.UseGivenTS()),  // Should we use the fixed, given tangent space, or recompute it ourselves here?
+      m_BasePoseBB(Vector3fT()),                    // Re-initialized in InitMeshes(), but start with a valid box anyways (e.g. for testing models that have a skeleton, but no mesh).
       m_Draw_CachedDataAtSequNr(-1234),             // Just a random number that is unlikely to occur normally.
       m_Draw_CachedDataAtFrameNr(-3.1415926f)       // Just a random number that is unlikely to occur normally.
 {
@@ -141,7 +142,7 @@ CafuModelT::~CafuModelT()
 
 void CafuModelT::InitMeshes()
 {
-    // Compute the bounding box for the model in the md5mesh file (stored in m_BaseBB), just in case this model has no animations.
+    // Compute the bounding box for the model in the md5mesh file (stored in m_BasePoseBB), just in case this model has no animations.
     {
         ArrayT<MatrixT> JointMatrices;
         JointMatrices.PushBackEmpty(m_Joints.Size());

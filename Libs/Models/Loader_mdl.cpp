@@ -345,9 +345,12 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::
         // If it is a looping sequence whose last frame is a repetition of the first,
         // remove the redundant frame (our own code automatically wrap at the end of the sequence).
         if (Sequ.Flags & 1) Anim.Frames.DeleteBack();
+
+        // Fill in the bounding-box for each frame from the sequence BB from the mdl file, which doesn't keep per-frame BBs.
+        // It would be more accurate of course if we re-computed the proper per-frame BB ourselves...
+        for (unsigned long FrameNr=0; FrameNr<Anim.Frames.Size(); FrameNr++)
+            Anim.Frames[FrameNr].BB=BoundingBox3fT(Vector3fT(Sequ.BBMin), Vector3fT(Sequ.BBMax));
     }
 
-    // TODO!
-    //   - AnimT::FrameT::BB[6]
-    //   - Sequ.LinearMovement ?
+    // TODO: Sequ.LinearMovement ?
 }
