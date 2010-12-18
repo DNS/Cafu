@@ -36,16 +36,16 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 LoaderHL1mdlT::LoaderHL1mdlT(const std::string& FileName) /*throw (ModelT::LoadError)*/
     : ModelLoaderT(FileName)
 {
-    // 1. Initialisiere einfache Variablen.
-    // ************************************
+    // 1. Initialize auxiliary variables.
+    // **********************************
 
     if (!cf::String::EndsWith(m_FileName, ".mdl")) throw ModelT::LoadError();
 
-    std::string BaseName(m_FileName.c_str(), m_FileName.length()-4);
+    const std::string BaseName(m_FileName.c_str(), m_FileName.length()-4);
 
 
-    // 2. Lade die Model-Daten.
-    // ************************
+    // 2. Load the model data.
+    // ***********************
 
     FILE* InFile=fopen(m_FileName.c_str(), "rb");
     if (InFile==NULL) throw ModelT::LoadError();
@@ -57,19 +57,19 @@ LoaderHL1mdlT::LoaderHL1mdlT(const std::string& FileName) /*throw (ModelT::LoadE
     fclose(InFile);
 
 
-    // 3. Abkürzungen und Checks.
-    // **************************
+    // 3. Abbreviations and checks.
+    // ****************************
 
-    StudioHeader=(StudioHeaderT*)(&ModelData[0]);   // Erste Abkürzung zur Vereinfachung des folgenden Codes
+    StudioHeader=(StudioHeaderT*)(&ModelData[0]);   // First abbreviation, simplifies the following code.
 
-    // TODO: Sanity Checks (ist das auch wirklich ein vollständiges mdl Model? NumBodyParts>0?)
+    // TODO: Sanity checks (ist this really a complete, valid model? NumBodyParts>0?)
     // ...
 
 
-    // 4. Lade ggf. Texturen nach.
-    // ***************************
+    // 4. Optionally load additional textures.
+    // ***************************************
 
-    // Falls das Model selbst keine Texturen mit sich bringt, hänge ein "T" an den Namen an und lade die Texturen daraus!
+    // If the model brings no textures itself, append "T" to the file name and get the textures from there!
     if (StudioHeader->NumTextures==0)
     {
         InFile=fopen((BaseName+"T.mdl").c_str(), "rb");
@@ -83,8 +83,8 @@ LoaderHL1mdlT::LoaderHL1mdlT(const std::string& FileName) /*throw (ModelT::LoadE
     }
 
 
-    // 5. Lade ggf. Sequences in anderen SequenceGroups nach.
-    // ******************************************************
+    // 5. Optionally load sequences from other sequence groups.
+    // ********************************************************
 
     // Falls es Sequences in mehr als einer SequenceGroup gibt, lade diese nun nach (d.h. KEIN "load on demand")!
     if (StudioHeader->NumSeqGroups>1)
@@ -112,7 +112,7 @@ LoaderHL1mdlT::LoaderHL1mdlT(const std::string& FileName) /*throw (ModelT::LoadE
     // 6. Laden erfolgreich.
     // *********************
 
-    // Weitere Abkürzungen zur Vereinfachung des Worker-Codes
+    // Additional abbreviations for our worker code.
     StudioBones          =(StudioBoneT*          )(&ModelData[0]+StudioHeader->BoneIndex          );
  // StudioBoneControllers=(StudioBoneControllerT*)(&ModelData[0]+StudioHeader->BoneControllerIndex);
  // StudioHitBoxes       =(StudioHitBoxT*        )(&ModelData[0]+StudioHeader->HitBoxIndex        );
@@ -124,7 +124,7 @@ LoaderHL1mdlT::LoaderHL1mdlT(const std::string& FileName) /*throw (ModelT::LoadE
  // StudioAttachments    =(StudioAttachmentT*    )(&ModelData[0]+StudioHeader->AttachmentIndex    );
  // StudioTransitions    =(StudioTransitionT*    )(&ModelData[0]+StudioHeader->TransitionIndex    );
 
-    // Abschluss
+    // Extract the materials.
     for (int TexNr=0; TexNr<StudioTextureHeader->NumTextures; TexNr++)
     {
         const char* RelFileName1=strstr(BaseName.c_str(), "Models");        // Strip the leading "Games/DeathMatch/", if present.
@@ -215,7 +215,7 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::JointT>& Joints) const
 
 void LoaderHL1mdlT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
 {
-    // Dies ist konfigurierbar mit BodyNr und SkinNr, wird aber zur Zeit nicht unterstützt!
+    // This is configurable with BodyNr and SkinNr, but at this time we always take the defaults (index 0 each).
     for (int BodyPartNr=0; BodyPartNr<StudioHeader->NumBodyParts; BodyPartNr++)
     {
         const StudioBodyPartT& CurrentBodyPart=StudioBodyParts[BodyPartNr];
@@ -339,6 +339,7 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
                             CafuVertex.NumWeights    =1;
                             CafuVertex.u             =TriangleVerts[i][2]/MatWidth;
                             CafuVertex.v             =TriangleVerts[i][3]/MatHeight;
+                            CafuVertex.Polarity      =false;    // Don't leave this uninitialized now, it's re-initialized in the CafuModelT code later.
 
                             CafuMesh.Vertices.PushBack(CafuVertex);
                         }
