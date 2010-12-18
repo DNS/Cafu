@@ -31,9 +31,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
     #elif defined(_MSC_VER)
         // Using the Microsoft Visual C++ compiler.
         #pragma pack(push, 1)
-        #if (_MSC_VER<1300)
-        #define for if (false) ; else for
-    #endif
         #define WATCOM_PACKED
         #define GCC_PACKED
     #else
@@ -54,59 +51,62 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #endif
 
 
+typedef float Vec3T[3];
+
+
 WATCOM_PACKED struct StudioHeaderT
 {
-    int              ID;                    // 4 Byte File-ID, should be "Cafu"
-    int              Version;               // File-Version
+    int   ID;                   // 4 Byte File-ID
+    int   Version;              // File-Version
 
-    char             Name[64];              // Model name as given by author(?), with file-path(?)
-    int              Length;                // File-Size
+    char  Name[64];             // Model name as given by author(?), with file-path(?)
+    int   Length;               // File-Size
 
-    LoaderHL1mdlT::Vec3T EyePosition;       // ideal eye position
-    LoaderHL1mdlT::Vec3T Min;               // ideal movement hull size
-    LoaderHL1mdlT::Vec3T Max;
+    Vec3T EyePosition;          // ideal eye position
+    Vec3T Min;                  // ideal movement hull size
+    Vec3T Max;
 
-    LoaderHL1mdlT::Vec3T BBMin;             // clipping bounding box
-    LoaderHL1mdlT::Vec3T BBMax;
+    Vec3T BBMin;                // clipping bounding box
+    Vec3T BBMax;
 
-    int              Flags;
+    int   Flags;
 
-    int              NumBones;              // StudioBoneT
-    int              BoneIndex;
+    int   NumBones;             // StudioBoneT
+    int   BoneIndex;
 
-    int              NumBoneControllers;    // StudioBoneControllerT
-    int              BoneControllerIndex;
+    int   NumBoneControllers;   // StudioBoneControllerT
+    int   BoneControllerIndex;
 
-    int              NumHitBoxes;           // complex bounding boxes
-    int              HitBoxIndex;
+    int   NumHitBoxes;          // complex bounding boxes
+    int   HitBoxIndex;
 
-    int              NumSeq;                // StudioSequenceT, animation sequence descriptions
-    int              SeqIndex;
+    int   NumSeq;               // StudioSequenceT, animation sequence descriptions
+    int   SeqIndex;
 
-    int              NumSeqGroups;          // StudioSeqGroupT, NumSeqGroups>1 == demand loaded sequences
-    int              SeqGroupIndex;
+    int   NumSeqGroups;         // StudioSeqGroupT, NumSeqGroups>1 == demand loaded sequences
+    int   SeqGroupIndex;
 
-    int              NumTextures;           // StudioTextureT, raw textures
-    int              TextureIndex;
-    int              TextureDataIndex;
+    int   NumTextures;          // StudioTextureT, raw textures
+    int   TextureIndex;
+    int   TextureDataIndex;
 
-    int              NumSkinRef;            // replaceable textures
-    int              NumSkinFamilies;
-    int              SkinIndex;
+    int   NumSkinRef;           // replaceable textures
+    int   NumSkinFamilies;
+    int   SkinIndex;
 
-    int              NumBodyParts;          // StudioBodyPartT
-    int              BodyPartIndex;
+    int   NumBodyParts;         // StudioBodyPartT
+    int   BodyPartIndex;
 
-    int              NumAttachments;        // queryable attachable points
-    int              AttachmentIndex;       // z.B. Haltepunkt für Waffe, Sprite o.ä.
+    int   NumAttachments;       // queryable attachable points
+    int   AttachmentIndex;      // z.B. Haltepunkt für Waffe, Sprite o.ä.
 
-    int              SoundTable;
-    int              SoundIndex;
-    int              SoundGroups;
-    int              SoundGroupIndex;
+    int   SoundTable;
+    int   SoundIndex;
+    int   SoundGroups;
+    int   SoundGroupIndex;
 
-    int              NumTransitions;        // animation node to animation node transition graph
-    int              TransitionIndex;       // Zeigt auf eine NumTransitions*NumTransitions-Matrix von Bytes (chars)
+    int   NumTransitions;       // animation node to animation node transition graph
+    int   TransitionIndex;      // Zeigt auf eine NumTransitions*NumTransitions-Matrix von Bytes (chars)
 } GCC_PACKED;
 
 
@@ -134,55 +134,55 @@ WATCOM_PACKED struct StudioBoneControllerT
 
 WATCOM_PACKED struct StudioSequenceT
 {
-    char             Label[32];             // sequence label
+    char  Label[32];            // sequence label
 
-    float            FPS;                   // frames per second
-    int              Flags;                 // looping/non-looping flags
+    float FPS;                  // frames per second
+    int   Flags;                // looping/non-looping flags
 
-    int              Activity;
-    int              ActWeight;
+    int   Activity;
+    int   ActWeight;
 
-    int              NumEvents;
-    int              EventIndex;
+    int   NumEvents;
+    int   EventIndex;
 
-    int              NumFrames;             // number of frames per sequence
+    int   NumFrames;            // number of frames per sequence
 
-    int              NumPivots;             // number of foot pivots
-    int              PivotIndex;
+    int   NumPivots;            // number of foot pivots
+    int   PivotIndex;
 
-    int              MotionType;
-    int              MotionBone;
-    LoaderHL1mdlT::Vec3T LinearMovement;
-    int              AutoMovePosIndex;
-    int              AutoMoveAngleIndex;
+    int   MotionType;
+    int   MotionBone;
+    Vec3T LinearMovement;
+    int   AutoMovePosIndex;
+    int   AutoMoveAngleIndex;
 
-    LoaderHL1mdlT::Vec3T BBMin;             // per sequence bounding box
-    LoaderHL1mdlT::Vec3T BBMax;
+    Vec3T BBMin;                // per sequence bounding box
+    Vec3T BBMax;
 
-    int              NumBlends;
-    int              AnimIndex;             // mstudioanim_t pointer relative to start of sequence group data  ( [blend][bone][X, Y, Z, XR, YR, ZR] (?))
+    int   NumBlends;
+    int   AnimIndex;            // StudioAnimT pointer relative to start of sequence group data ([blend][bone][X, Y, Z, XR, YR, ZR] (?))
 
-    int              BlendType[2];          // X, Y, Z, XR, YR, ZR
-    float            BlendStart[2];         // starting value
-    float            BlendEnd[2];           // ending value
-    int              BlendParent;
+    int   BlendType[2];         // X, Y, Z, XR, YR, ZR
+    float BlendStart[2];        // starting value
+    float BlendEnd[2];          // ending value
+    int   BlendParent;
 
-    int              SeqGroup;              // sequence group for demand loading
+    int   SeqGroup;             // sequence group for demand loading
 
-    int              EntryNode;             // transition node at entry
-    int              ExitNode;              // transition node at exit
-    int              NodeFlags;             // transition rules
+    int   EntryNode;            // transition node at entry
+    int   ExitNode;             // transition node at exit
+    int   NodeFlags;            // transition rules
 
-    int              NextSeq;               // auto advancing sequences
+    int   NextSeq;              // auto advancing sequences
 } GCC_PACKED;
 
 
 WATCOM_PACKED struct StudioSequenceGroupT
 {
-    char  Label[32];        // textual name
-    char  Name[64];         // file name
-    char  Dummy[4];
-    int   Data;             // hack for group 0
+    char Label[32];     // textual name
+    char Name[64];      // file name
+    char Dummy[4];
+    int  Data;          // hack for group 0
 } GCC_PACKED;
 
 
@@ -201,7 +201,7 @@ WATCOM_PACKED struct StudioBodyPartT
     char Name[64];
     int  NumModels;
     int  Base;
-    int  ModelIndex;        // index into models array
+    int  ModelIndex;    // index into models array
 } GCC_PACKED;
 
 
@@ -216,10 +216,10 @@ WATCOM_PACKED struct StudioModelT
 
     int   NumVerts;         // number of unique vertices
     int   VertInfoIndex;    // vertex bone info
-    int   VertIndex;        // vertex vec3_t
+    int   VertIndex;        // vertex Vec3T
     int   NumNorms;         // number of unique surface normals
     int   NormInfoIndex;    // normal bone info
-    int   NormIndex;        // normal vec3_t
+    int   NormIndex;        // normal Vec3T
 
     int   NumGroups;        // deformation groups
     int   GroupIndex;
@@ -263,11 +263,11 @@ WATCOM_PACKED struct StudioMeshT
 
 WATCOM_PACKED struct StudioAttachmentT
 {
-    char             Name[32];
-    int              Type;
-    int              Bone;
-    LoaderHL1mdlT::Vec3T Org;   // attachment point
-    LoaderHL1mdlT::Vec3T Vectors[3];
+    char  Name[32];
+    int   Type;
+    int   Bone;
+    Vec3T Org;          // attachment point
+    Vec3T Vectors[3];
 } GCC_PACKED;
 
 

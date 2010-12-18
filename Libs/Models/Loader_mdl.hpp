@@ -29,22 +29,16 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 struct StudioHeaderT;
 struct StudioBoneT;
-struct StudioBoneControllerT;
 struct StudioSequenceT;
 struct StudioSequenceGroupT;
-struct StudioHeaderT;
 struct StudioTextureT;
 struct StudioBodyPartT;
-struct StudioAttachmentT;
-struct StudioAnimT;
 
 
 /// This class imports a HL1 (.mdl) model file into a new Cafu model.
 class LoaderHL1mdlT : public ModelLoaderT
 {
     public:
-
-    typedef float Vec3T[3];     ///< x, y, z
 
     /// The constructor for importing a HL1 (.mdl) model file into a new Cafu model.
     /// @param FileName   The name of the .mdl file to import.
@@ -69,14 +63,14 @@ class LoaderHL1mdlT : public ModelLoaderT
     // Convenient abbreviations into the above data arrays.
     const StudioHeaderT*         StudioHeader;
     const StudioBoneT*           StudioBones;
-    const StudioBoneControllerT* StudioBoneControllers;
+ // const StudioBoneControllerT* StudioBoneControllers;
  // const StudioHitBoxT*         StudioHitBoxes;
     const StudioSequenceT*       StudioSequences;
     const StudioSequenceGroupT*  StudioSequenceGroups;
     const StudioHeaderT*         StudioTextureHeader;
     const StudioTextureT*        StudioTextures;
     const StudioBodyPartT*       StudioBodyParts;
-    const StudioAttachmentT*     StudioAttachments;
+ // const StudioAttachmentT*     StudioAttachments;
  // const StudioTransitionT*     StudioTransitions;
 };
 

@@ -114,14 +114,14 @@ LoaderHL1mdlT::LoaderHL1mdlT(const std::string& FileName) /*throw (ModelT::LoadE
 
     // Weitere Abkürzungen zur Vereinfachung des Worker-Codes
     StudioBones          =(StudioBoneT*          )(&ModelData[0]+StudioHeader->BoneIndex          );
-    StudioBoneControllers=(StudioBoneControllerT*)(&ModelData[0]+StudioHeader->BoneControllerIndex);
+ // StudioBoneControllers=(StudioBoneControllerT*)(&ModelData[0]+StudioHeader->BoneControllerIndex);
  // StudioHitBoxes       =(StudioHitBoxT*        )(&ModelData[0]+StudioHeader->HitBoxIndex        );
     StudioSequences      =(StudioSequenceT*      )(&ModelData[0]+StudioHeader->SeqIndex           );
     StudioSequenceGroups =(StudioSequenceGroupT* )(&ModelData[0]+StudioHeader->SeqGroupIndex      );
     StudioTextureHeader  =TextureData.Size()>0 ? (StudioHeaderT*)&TextureData[0] : StudioHeader;
     StudioTextures       =(StudioTextureT*       )((char*)StudioTextureHeader+StudioTextureHeader->TextureIndex);
     StudioBodyParts      =(StudioBodyPartT*      )(&ModelData[0]+StudioHeader->BodyPartIndex      );
-    StudioAttachments    =(StudioAttachmentT*    )(&ModelData[0]+StudioHeader->AttachmentIndex    );
+ // StudioAttachments    =(StudioAttachmentT*    )(&ModelData[0]+StudioHeader->AttachmentIndex    );
  // StudioTransitions    =(StudioTransitionT*    )(&ModelData[0]+StudioHeader->TransitionIndex    );
 
     // Abschluss
