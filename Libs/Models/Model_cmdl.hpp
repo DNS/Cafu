@@ -99,7 +99,7 @@ class CafuModelT : public ModelT
         /// Note that if Vertex1Nr==Vertex2Nr, true is returned (case (a) above).
         /// @param Vertex1Nr Array index of first vertex.
         /// @param Vertex2Nr Array index of second vertex.
-        /// @return Whether the vertices are geometrical duplicate of each other.
+        /// @return Whether the vertices are geometrical duplicates of each other.
         bool AreGeoDups(int Vertex1Nr, int Vertex2Nr) const;
 
         MaterialT*               Material;       ///< The material of this mesh.

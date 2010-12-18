@@ -45,14 +45,10 @@ class LoaderHL1mdlT : public ModelLoaderT
     public:
 
     typedef float Vec3T[3];     ///< x, y, z
-    typedef float Vec4T[4];     ///< x, y, z, w
 
     /// The constructor for importing a HL1 (.mdl) model file into a new Cafu model.
     /// @param FileName   The name of the .mdl file to import.
     LoaderHL1mdlT(const std::string& FileName) /*throw (ModelT::LoadError)*/;
-
-    /// The destructor.
-    ~LoaderHL1mdlT();
 
     bool UseGivenTS() const;
     void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims);
@@ -61,11 +57,14 @@ class LoaderHL1mdlT : public ModelLoaderT
 
     private:
 
-    ArrayT<char>                     ModelData;                 ///< Basic model data.
-    ArrayT<char>                     TextureData;               ///< Texture data (if not already present in ModelData).
-    ArrayT< ArrayT<char> >           AnimationData;             ///< Animation data ("demand loaded sequences").
-    ArrayT<MaterialT*>               Materials;                 ///< The MatSys materials (only needed for the ugly optimization below, in order to see whether the Normal-Map is empty or not).
-    ArrayT<MatSys::RenderMaterialT*> RenderMaterials;           ///< The MatSys render materials.
+    void Load(ArrayT<CafuModelT::JointT>& Joints) const;
+    void Load(ArrayT<CafuModelT::MeshT>& Meshes) const;
+    void Load(ArrayT<CafuModelT::AnimT>& Anims) const;
+
+    ArrayT<char>           ModelData;       ///< Basic model data.
+    ArrayT<char>           TextureData;     ///< Texture data (if not already present in ModelData).
+    ArrayT< ArrayT<char> > AnimationData;   ///< Animation data ("demand loaded sequences").
+    ArrayT<MaterialT*>     m_Materials;     ///< The MatSys materials used in the model.
 
     // Convenient abbreviations into the above data arrays.
     const StudioHeaderT*         StudioHeader;

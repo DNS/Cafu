@@ -150,35 +150,29 @@ LoaderHL1mdlT::LoaderHL1mdlT(const std::string& FileName) /*throw (ModelT::LoadE
 
         // if (Material==NULL) printf("WARNING: Material '%s' not found!\n", MaterialName.c_str());
 
-        Materials.PushBack(Material);
-        RenderMaterials.PushBack(MatSys::Renderer!=NULL ? MatSys::Renderer->RegisterMaterial(Material) : NULL);
+        m_Materials.PushBack(Material);
     }
-}
-
-
-LoaderHL1mdlT::~LoaderHL1mdlT()
-{
-    for (unsigned long RMNr=0; RMNr<RenderMaterials.Size(); RMNr++)
-        if (MatSys::Renderer!=NULL) MatSys::Renderer->FreeMaterial(RenderMaterials[RMNr]);
 }
 
 
 bool LoaderHL1mdlT::UseGivenTS() const
 {
-    // TODO...
+    // We don't provide the model with a precomputed, fixed (non-animated) tangent space.
+    // Instead, have the CafuModelT code compute it for each animation frame anew.
     return false;
 }
 
 
-struct PosQtrT
-{
-    Vector3fT Pos;
-    Vector3fT Ang;
-    Vector3fT Qtr;
-};
-
-
 void LoaderHL1mdlT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims)
+{
+    // For clarity and better readibility, break the loading into three separate functions.
+    Load(Joints);
+    Load(Meshes);
+    Load(Anims);
+}
+
+
+void LoaderHL1mdlT::Load(ArrayT<CafuModelT::JointT>& Joints) const
 {
     ArrayT<MatrixT> Matrices;
 
@@ -216,13 +210,162 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::
 
         assert(MatrixT(cf::math::QuaternionfT::FromXYZ(Joint.Qtr), Joint.Pos).IsEqual(Mat, 0.01f));
     }
+}
 
 
-    Meshes.PushBackEmpty();
-    Meshes[0].Material=NULL;
-    Meshes[0].RenderMaterial=NULL;
+void LoaderHL1mdlT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
+{
+    // Dies ist konfigurierbar mit BodyNr und SkinNr, wird aber zur Zeit nicht unterstützt!
+    for (int BodyPartNr=0; BodyPartNr<StudioHeader->NumBodyParts; BodyPartNr++)
+    {
+        const StudioBodyPartT& CurrentBodyPart=StudioBodyParts[BodyPartNr];
+        const StudioModelT*    StudioModels   =(StudioModelT*)(&ModelData[0]+CurrentBodyPart.ModelIndex);
+        const int              ModelNr        =(/*BodyNr*/ 0/CurrentBodyPart.Base) % CurrentBodyPart.NumModels;
+        const StudioModelT&    CurrentModel   =StudioModels[ModelNr];
+        const int              SkinNr         =0;
+        const short*           SkinRefs       =((short*)((char*)StudioTextureHeader+StudioTextureHeader->SkinIndex)) + (SkinNr<StudioTextureHeader->NumSkinFamilies ? SkinNr*StudioTextureHeader->NumSkinRef : 0);
+
+        const Vec3T*           StudioVertices =(Vec3T*)(&ModelData[0]+CurrentModel.VertIndex);  // List of all vertices of the CurrentModel.
+        const char*            BoneForStVertex=(&ModelData[0]+CurrentModel.VertInfoIndex);      // BoneForStVertex[VertexNr] yields the bone number for vertex VertexNr.
+     // const Vec3T*           StudioNormals  =(Vec3T*)(&ModelData[0]+CurrentModel.NormIndex);  // List of all normals of the CurrentModel.
+     // const char*            BoneForStNormal=(&ModelData[0]+CurrentModel.NormInfoIndex);      // BoneForStNormal[NormalNr] yields the bone number for normal NormalNr.
+        const StudioMeshT*     StudioMeshes   =(StudioMeshT*)(&ModelData[0]+CurrentModel.MeshIndex);
+
+        const unsigned long FirstMeshInModel=Meshes.Size();
+
+        for (int StudioMeshNr=0; StudioMeshNr<CurrentModel.NumMesh; StudioMeshNr++)
+        {
+            const StudioMeshT& StudioMesh=StudioMeshes[StudioMeshNr];
+            const float        MatWidth  =float(StudioTextures[SkinRefs[StudioMesh.SkinRef]].Width);
+            const float        MatHeight =float(StudioTextures[SkinRefs[StudioMesh.SkinRef]].Height);
+            MaterialT*         Material  =m_Materials[SkinRefs[StudioMesh.SkinRef]];
+
+            // Find a CafuModelT::MeshT with the same material (and the same set of weights, i.e. another one created from CurrentModel).
+            unsigned long CafuMeshNr;
+
+            for (CafuMeshNr=FirstMeshInModel; CafuMeshNr<Meshes.Size(); CafuMeshNr++)
+                if (Meshes[CafuMeshNr].Material==Material)
+                    break;
+
+            // None found, create a new one.
+            if (CafuMeshNr>=Meshes.Size())
+            {
+                Meshes.PushBackEmpty();
+
+                Meshes[CafuMeshNr].Material      =Material;
+                Meshes[CafuMeshNr].RenderMaterial=MatSys::Renderer->RegisterMaterial(Material);
+
+                Meshes[CafuMeshNr].Weights.PushBackEmptyExact(CurrentModel.NumVerts);
+                for (int VertexNr=0; VertexNr<CurrentModel.NumVerts; VertexNr++)
+                {
+                    CafuModelT::MeshT::WeightT& Weight=Meshes[CafuMeshNr].Weights[VertexNr];
+
+                    Weight.JointIdx=BoneForStVertex[VertexNr];
+                    Weight.Weight  =1.0f;
+                    Weight.Pos     =Vector3fT(StudioVertices[VertexNr]);
+                }
+            }
+
+            // Now add all triangles of all triangle strips in StudioMesh to CafuMesh.
+            CafuModelT::MeshT&  CafuMesh      =Meshes[CafuMeshNr];
+            const signed short* TriangleStrips=(signed short*)(&ModelData[0]+StudioMesh.TriIndex);
+
+            while (*TriangleStrips)
+            {
+                // Number and type (FAN vs. STRIP) of vertices in next TriangleStrip.
+                signed short       NrOfVertices    =*(TriangleStrips++);
+                bool               IsTriangleFan   =false;
+                const signed short (*VertexDefs)[4]=(const signed short (*)[4])TriangleStrips;
+
+                if (NrOfVertices<0)
+                {
+                    NrOfVertices =-NrOfVertices;
+                    IsTriangleFan=true;
+                }
+
+                // 'NrOfVertices-2' triangles will be created (both for FANs as well as STRIPs).
+                for (int TriNr=0; TriNr<NrOfVertices-2; TriNr++)
+                {
+                    const signed short* TriangleVerts[3];
+
+                    if (IsTriangleFan)
+                    {
+                        TriangleVerts[0]=VertexDefs[0];
+                        TriangleVerts[1]=VertexDefs[TriNr+1];
+                        TriangleVerts[2]=VertexDefs[TriNr+2];
+                    }
+                    else
+                    {
+                        if (TriNr & 1)
+                        {
+                            // 'TriNr' is odd.
+                            TriangleVerts[0]=VertexDefs[TriNr+1];
+                            TriangleVerts[1]=VertexDefs[TriNr  ];
+                            TriangleVerts[2]=VertexDefs[TriNr+2];
+                        }
+                        else
+                        {
+                            // 'TriNr' is even.
+                            TriangleVerts[0]=VertexDefs[TriNr  ];
+                            TriangleVerts[1]=VertexDefs[TriNr+1];
+                            TriangleVerts[2]=VertexDefs[TriNr+2];
+                        }
+                    }
+
+                    CafuModelT::MeshT::TriangleT CafuTri;
+
+                    for (unsigned int i=0; i<3; i++)
+                    {
+                        // TriangleVerts[i][0] -- index into the StudioVertices (or CafuMesh.Weights) array.
+                        // TriangleVerts[i][1] -- index into the StudioNormals array.
+                        // TriangleVerts[i][2] -- s-texture-coordinate (in pixel).
+                        // TriangleVerts[i][3] -- t-texture-coordinate (in pixel).
+                        unsigned long CafuVertexNr;
+
+                        for (CafuVertexNr=0; CafuVertexNr<CafuMesh.Vertices.Size(); CafuVertexNr++)
+                        {
+                            const CafuModelT::MeshT::VertexT& CafuVertex=CafuMesh.Vertices[CafuVertexNr];
+
+                            if (CafuVertex.FirstWeightIdx==TriangleVerts[i][0] &&
+                                CafuVertex.u             ==TriangleVerts[i][2]/MatWidth &&
+                                CafuVertex.v             ==TriangleVerts[i][3]/MatHeight) break;
+                        }
+
+                        if (CafuVertexNr>=CafuMesh.Vertices.Size())
+                        {
+                            CafuModelT::MeshT::VertexT CafuVertex;
+
+                            CafuVertex.FirstWeightIdx=TriangleVerts[i][0];
+                            CafuVertex.NumWeights    =1;
+                            CafuVertex.u             =TriangleVerts[i][2]/MatWidth;
+                            CafuVertex.v             =TriangleVerts[i][3]/MatHeight;
+
+                            CafuMesh.Vertices.PushBack(CafuVertex);
+                        }
+
+                        CafuTri.VertexIdx[i]=CafuVertexNr;
+                    }
+
+                    CafuMesh.Triangles.PushBack(CafuTri);
+                }
+
+                TriangleStrips+=4*NrOfVertices;
+            }
+        }
+    }
+}
 
 
+struct PosQtrT
+{
+    Vector3fT Pos;
+    Vector3fT Ang;
+    Vector3fT Qtr;
+};
+
+
+void LoaderHL1mdlT::Load(ArrayT<CafuModelT::AnimT>& Anims) const
+{
     Anims.PushBackEmptyExact(StudioHeader->NumSeq);
     for (int SequNr=0; SequNr<StudioHeader->NumSeq; SequNr++)
     {
