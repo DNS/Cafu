@@ -326,7 +326,12 @@ void Generic3DWindowT::ProcessInput(float FrameTime)
             if (Shift || Control)
             {
                 // Shift or Control is down - move the camera closer or farther from the reference point.
-                m_Camera->Pos-=normalizeOr0(m_MouseControl.GetRefPtWorld() - m_Camera->Pos)*(MouseDelta.y*2);
+                const Vector3fT N=normalizeOr0(m_MouseControl.GetRefPtWorld() - m_Camera->Pos);
+                const Plane3fT  P=Plane3fT(N, dot(N, m_MouseControl.GetRefPtWorld()));  // The plane through the reference point.
+                const float     MinDist=-(m_Camera->NearPlaneDist+1.0f);
+
+                // Note that the camera is on the backside of P (P.GetDistance(m_Camera->Pos) is a negative number).
+                m_Camera->Pos+=N*std::min(-2.0f*MouseDelta.y, MinDist-P.GetDistance(m_Camera->Pos));
             }
             else
             {
