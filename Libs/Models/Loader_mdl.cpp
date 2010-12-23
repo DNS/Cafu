@@ -62,7 +62,7 @@ LoaderHL1mdlT::LoaderHL1mdlT(const std::string& FileName) /*throw (ModelT::LoadE
 
     StudioHeader=(StudioHeaderT*)(&ModelData[0]);   // First abbreviation, simplifies the following code.
 
-    // TODO: Sanity checks (ist this really a complete, valid model? NumBodyParts>0?)
+    // TODO: Sanity checks (is this really a complete, valid model? NumBodyParts>0?)
     // ...
 
 

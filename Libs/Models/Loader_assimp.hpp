@@ -27,6 +27,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Loader.hpp"
 
 
+struct aiNode;
+
+
 /// This class imports a Doom3 (.md5) model file into a new Cafu model.
 class LoaderAssimpT : public ModelLoaderT
 {
@@ -41,6 +44,11 @@ class LoaderAssimpT : public ModelLoaderT
     bool UseGivenTS() const;
     void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims);
     void Load(ArrayT<CafuModelT::GuiLocT>& GuiLocs) { }
+
+
+    private:
+
+    void CreateJoint(int ParentIndex, aiNode* Node, ArrayT<CafuModelT::JointT>& Joints);
 };
 
 #endif

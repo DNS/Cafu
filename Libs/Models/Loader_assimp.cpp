@@ -55,4 +55,43 @@ void LoaderAssimpT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::
     if (!Scene)
         throw LoadErrorT(std::string("Asset Import: ") + Importer.GetErrorString());
 
+
+    // Joints.PushBackEmptyExact(Scene->mNumNodes);     // mNumNodes is unfortunately not available, need a simple recursive counting.
+    // Joints.Overwrite();
+
+    CreateJoint(-1, Scene->mRootNode, Joints);
+
+
+    for (unsigned int MeshNr=0; MeshNr<Scene->mNumMeshes; MeshNr++)
+    {
+        const aiMesh* Mesh=Scene->mMeshes[MeshNr];
+    }
+}
+
+
+/// Creates a joint from the given aiNode instance and the given parent index, and adds it to our list of joints.
+void LoaderAssimpT::CreateJoint(int ParentIndex, aiNode* Node, ArrayT<CafuModelT::JointT>& Joints)
+{
+    aiVector3D   Scaling;
+    aiQuaternion Quaternion;
+    aiVector3D   Translation;
+
+	Node->mTransformation.Decompose(Scaling, Quaternion, Translation);
+
+    // TODO: If Scaling.x|y|z < 0.99 or > 1.01 then log warning.
+    // TODO: If Quaternion.magnitude != 1.0 then log warning.
+    // TODO: Do we need the conjugate?
+    Quaternion.Normalize();
+
+    CafuModelT::JointT Joint;
+
+    Joint.Name  =Node->mName.data;
+    Joint.Parent=ParentIndex;
+    Joint.Pos   =Vector3fT(Translation.x, Translation.y, Translation.z);
+    Joint.Qtr   =Vector3fT(Quaternion.x, Quaternion.y, Quaternion.z);
+
+    Joints.PushBack(Joint);
+
+    for (unsigned int ChildNr=0; ChildNr<Node->mNumChildren; ChildNr++)
+        CreateJoint(Joints.Size()-1, Node->mChildren[ChildNr], Joints);
 }
