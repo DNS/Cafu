@@ -93,6 +93,12 @@ class TextParserT
     /// @returns whether the last read "real" token was a "quoted" token.
     bool WasLastTokenQuoted() const { return LastTokenWasQuoted; }
 
+    /// Skips tokens until the end of the current line of text. This method always succeeds (it never throws).
+    /// @returns the rest (skipped portion) of the line, preceeded by previously put back or peeked tokens.
+    ///     (Note that previously put back or peeked tokens are returned as well. The whitespace that is used
+    ///      to separate these tokens is however not guaranteed to be identical with the original input text.)
+    std::string SkipLine();
+
     /// Skips a whole "block" of tokens, e.g. a { ... } or ( ... ) block. The block can contain nested blocks.
     /// It can (and must) be stated if the caller has already read the opening token.
     /// @param OpeningToken Opening token of the block.

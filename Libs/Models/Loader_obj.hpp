@@ -21,27 +21,36 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _ASSIMP_MODEL_LOADER_HPP_
-#define _ASSIMP_MODEL_LOADER_HPP_
+#ifndef _OBJ_MODEL_LOADER_HPP_
+#define _OBJ_MODEL_LOADER_HPP_
 
 #include "Loader.hpp"
 
 
-struct aiAnimation;
-struct aiNode;
-struct aiScene;
-
-
-/// This class imports a Doom3 (.md5) model file into a new Cafu model.
-class LoaderAssimpT : public ModelLoaderT
+/// This class imports a Wavefront OBJ model file into a new Cafu model.
+class LoaderObjT : public ModelLoaderT
 {
     public:
 
-    /// The constructor for importing a Doom3 (.md5) model file into a new Cafu model.
-    /// @param FileName   The name of the .md5 file to import.
-    /// If FileName ends with "md5", it is assumed that the file has a white-space separated list of one md5mesh and arbitrarily many md5anim files.
-    /// If FileName ends with "md5mesh", this file is loaded without any animation information (e.g. for static detail models).
-    LoaderAssimpT(const std::string& FileName) /*throw (ModelT::LoadError)*/;
+    struct ObjFaceVertexT
+    {
+        ObjFaceVertexT() : VertexNr(0), TexCoordNr(0), NormalNr(0) { }
+
+        unsigned int VertexNr;      // 1-based index into the m_ObjVertices  array.
+        unsigned int TexCoordNr;    // 1-based index into the m_ObjTexCoords array (0 indicates unknown/unspecified).
+        unsigned int NormalNr;      // 1-based index into the m_ObjNormals   array (0 indicates unknown/unspecified).
+    };
+
+    struct ObjMeshT
+    {
+        std::string                      MtlName;
+        ArrayT< ArrayT<ObjFaceVertexT> > Faces;
+    };
+
+
+    /// The constructor for importing a Wavefront OBJ model file into a new Cafu model.
+    /// @param FileName   The name of the .obj file to import.
+    LoaderObjT(const std::string& FileName) /*throw (ModelT::LoadError)*/;
 
     bool UseGivenTS() const;
     void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims);
@@ -50,11 +59,11 @@ class LoaderAssimpT : public ModelLoaderT
 
     private:
 
-    void Load(ArrayT<CafuModelT::JointT>& Joints, int ParentIndex, const aiNode* Node);
-    void Load(ArrayT<CafuModelT::MeshT>& Meshes, const aiNode* Node, const ArrayT<CafuModelT::JointT>& Joints);
-    void Load(CafuModelT::AnimT& CafuAnim, const aiAnimation* AiAnim, const ArrayT<CafuModelT::JointT>& Joints);
-
-    const aiScene* m_Scene;
+    ArrayT<Vector3fT> m_ObjVertices;
+    ArrayT<Vector3fT> m_ObjTexCoords;
+    ArrayT<Vector3fT> m_ObjNormals;
+    ArrayT<ObjMeshT>  m_ObjMeshes;
+    unsigned int      m_NumShadedFaces[2];
 };
 
 #endif

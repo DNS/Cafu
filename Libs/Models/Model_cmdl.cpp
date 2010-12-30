@@ -248,7 +248,7 @@ void CafuModelT::InitMeshes()
         // *******************************************************************************
 
         // For each vertex, this is the list of triangles that use (refer to) this vertex,
-        // *without*   the trianges that refer to geometrically identical vertices (i.e. the vertices in GeoDups).
+        // *without* the triangles that refer to geometrically identical vertices (i.e. the vertices in GeoDups).
         ArrayT< ArrayT<int> > Vertices_RefTris;
         Vertices_RefTris.PushBackEmpty(Mesh.Vertices.Size());
 
@@ -263,7 +263,7 @@ void CafuModelT::InitMeshes()
 
 
         // For each vertex, this is the list of triangles that use (refer to) this vertex,
-        // *inclusive* the trianges that refer to geometrically identical vertices (i.e. the vertices in GeoDups).
+        // *inclusive* the triangles that refer to geometrically identical vertices (i.e. the vertices in GeoDups).
         // That means that vertices that are dups of each other have identical RefTrisInclDups arrays (barring their elements order!).
         ArrayT< ArrayT<int> > Vertices_RefTrisInclDups;
         Vertices_RefTrisInclDups.PushBackEmpty(Mesh.Vertices.Size());

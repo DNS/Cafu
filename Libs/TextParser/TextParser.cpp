@@ -221,6 +221,36 @@ void TextParserT::AssertAndSkipToken(const std::string& Token)
 }
 
 
+std::string TextParserT::SkipLine()
+{
+    std::string Result;
+
+    // Initialize with all previously put back tokens.
+    while (PutBackTokens.Size()>0)
+    {
+        Result+=PutBackTokens[PutBackTokens.Size()-1];
+        Result+=" ";
+        PutBackTokens.DeleteBack();
+    }
+
+    // If there are no more characters in TextBuffer, bail out early.
+    if (EndOfToken+1>=TextBuffer.Size()) return Result;
+
+    BeginOfToken=EndOfToken+1;
+    EndOfToken  =BeginOfToken;
+
+    while (true)
+    {
+        if (TextBuffer[EndOfToken]=='\n') break;
+        if (EndOfToken+1>=TextBuffer.Size()) break;
+
+        EndOfToken++;
+    }
+
+    return Result + std::string(&TextBuffer[BeginOfToken], EndOfToken-BeginOfToken+1);
+}
+
+
 std::string TextParserT::SkipBlock(const std::string& OpeningToken, const std::string& ClosingToken, bool CallerAlreadyReadOpeningToken)
 {
     if (!CallerAlreadyReadOpeningToken) GetNextToken();
