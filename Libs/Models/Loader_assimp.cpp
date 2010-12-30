@@ -158,16 +158,10 @@ void LoaderAssimpT::Load(ArrayT<CafuModelT::MeshT>& Meshes, const aiNode* AiNode
 
             for (unsigned int TriNr=0; TriNr<AiMesh->mNumFaces; TriNr++)
             {
-                const unsigned int* Indices=AiMesh->mFaces[TriNr].mIndices;
-
                 assert(AiMesh->mFaces[TriNr].mNumIndices==3);
-                Mesh.Triangles[TriNr].Polarity=false;
 
                 for (unsigned int i=0; i<3; i++)
-                {
-                    Mesh.Triangles[TriNr].VertexIdx[i]=Indices[i];
-                    Mesh.Triangles[TriNr].NeighbIdx[i]=-1;
-                }
+                    Mesh.Triangles[TriNr].VertexIdx[i]=AiMesh->mFaces[TriNr].mIndices[i];
             }
 
             Meshes.PushBack(Mesh);
@@ -182,7 +176,7 @@ void LoaderAssimpT::Load(ArrayT<CafuModelT::MeshT>& Meshes, const aiNode* AiNode
 /// Returns all "ticks" for the given aiAnimation as a std::map of the form (t, u),
 /// where t is the time (in ticks), and u is the number of "uses" of this tick.
 /// Note that our focus is on the (sorted) t values, whereas u is mostly waiting for future use.
-static std::map<double, unsigned int> GetAllTicks(const aiAnimation* AiAnim)
+/* static std::map<double, unsigned int> GetAllTicks(const aiAnimation* AiAnim)
 {
     std::map<double, unsigned int> AllTicks;
 
@@ -201,7 +195,7 @@ static std::map<double, unsigned int> GetAllTicks(const aiAnimation* AiAnim)
     }
 
     return AllTicks;
-}
+} */
 
 
 void LoaderAssimpT::Load(CafuModelT::AnimT& CafuAnim, const aiAnimation* AiAnim, const ArrayT<CafuModelT::JointT>& Joints)
@@ -213,7 +207,7 @@ void LoaderAssimpT::Load(CafuModelT::AnimT& CafuAnim, const aiAnimation* AiAnim,
 
     for (unsigned long JointNr=0; JointNr<Joints.Size(); JointNr++)
     {
-        CafuModelT::AnimT::AnimJointT& AnimJoint =CafuAnim.AnimJoints[JointNr];
+      //CafuModelT::AnimT::AnimJointT& AnimJoint =CafuAnim.AnimJoints[JointNr];
         const aiNodeAnim*              AiAnimNode=NULL;
 
         // Find the related aiNodeAnim in AiAnim.mChannels:

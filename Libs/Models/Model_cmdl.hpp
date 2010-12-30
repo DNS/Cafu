@@ -57,37 +57,39 @@ class CafuModelT : public ModelT
         /// A single triangle.
         struct TriangleT
         {
-            int       VertexIdx[3];     ///< The indices to the three vertices that define this triangle.
+            TriangleT(unsigned int v0=0, unsigned int v1=0, unsigned int v2=0);
 
-            int       NeighbIdx[3];     ///< The array indices of the three neighbouring triangles at the edges 01, 12 and 20. -1 indicates no neighbour, -2 indicates more than one neighbour.
-            bool      Polarity;         ///< True if this triangle has positive polarity (texture is not mirrored), or false if it has negative polarity (texture is mirrored, SxT points inward).
+            unsigned int VertexIdx[3];  ///< The indices to the three vertices that define this triangle.
 
-            Vector3fT Draw_Normal;      ///< The draw normal for this triangle, required for the shadow-silhouette determination.
+            int          NeighbIdx[3];  ///< The array indices of the three neighbouring triangles at the edges 01, 12 and 20. -1 indicates no neighbour, -2 indicates more than one neighbour.
+            bool         Polarity;      ///< True if this triangle has positive polarity (texture is not mirrored), or false if it has negative polarity (texture is mirrored, SxT points inward).
+
+            Vector3fT    Draw_Normal;   ///< The draw normal for this triangle, required for the shadow-silhouette determination.
         };
 
         /// A single vertex.
         struct VertexT
         {
-            float       u;              ///< Texture coordinate u.
-            float       v;              ///< Texture coordinate v.
-            int         FirstWeightIdx;
-            int         NumWeights;
+            float                u;             ///< Texture coordinate u.
+            float                v;             ///< Texture coordinate v.
+            unsigned int         FirstWeightIdx;
+            unsigned int         NumWeights;
 
-            bool        Polarity;       ///< True if this vertex belongs to triangles with positive polarity, false if it belongs to triangles with negative polarity. Note that a single vertex cannot belong to triangles of both positive and negative polarity (but a GeoDup of this vertex can belong to the other polarity).
-            ArrayT<int> GeoDups;        ///< This array contains the indices of vertices that are geometrical duplicates of this vertex, see AreVerticesGeoDups() for more information. The indices are stored in increasing order, and do *not* include the index of "this" vertex. Note that from the presence of GeoDups in a cmdl/md5 file we can *not* conclude that a break in the smoothing was intended by the modeller. Cylindrically wrapping seams are one counter-example.
+            bool                 Polarity;      ///< True if this vertex belongs to triangles with positive polarity, false if it belongs to triangles with negative polarity. Note that a single vertex cannot belong to triangles of both positive and negative polarity (but a GeoDup of this vertex can belong to the other polarity).
+            ArrayT<unsigned int> GeoDups;       ///< This array contains the indices of vertices that are geometrical duplicates of this vertex, see AreVerticesGeoDups() for more information. The indices are stored in increasing order, and do *not* include the index of "this" vertex. Note that from the presence of GeoDups in a cmdl/md5 file we can *not* conclude that a break in the smoothing was intended by the modeller. Cylindrically wrapping seams are one counter-example.
 
-            Vector3fT   Draw_Pos;       ///< Position of this vertex.
-            Vector3fT   Draw_Normal;    ///< Vertex normal.
-            Vector3fT   Draw_Tangent;   ///< Vertex tangent.
-            Vector3fT   Draw_BiNormal;  ///< Vertex binormal.
+            Vector3fT            Draw_Pos;      ///< Position of this vertex.
+            Vector3fT            Draw_Normal;   ///< Vertex normal.
+            Vector3fT            Draw_Tangent;  ///< Vertex tangent.
+            Vector3fT            Draw_BiNormal; ///< Vertex binormal.
         };
 
         /// A weight is a fixed position in the coordinate system of a joint.
         struct WeightT
         {
-            int       JointIdx;
-            float     Weight;
-            Vector3fT Pos;
+            unsigned int JointIdx;
+            float        Weight;
+            Vector3fT    Pos;
         };
 
 
@@ -100,7 +102,7 @@ class CafuModelT : public ModelT
         /// @param Vertex1Nr Array index of first vertex.
         /// @param Vertex2Nr Array index of second vertex.
         /// @return Whether the vertices are geometrical duplicates of each other.
-        bool AreGeoDups(int Vertex1Nr, int Vertex2Nr) const;
+        bool AreGeoDups(unsigned int Vertex1Nr, unsigned int Vertex2Nr) const;
 
         MaterialT*               Material;       ///< The material of this mesh.
         MatSys::RenderMaterialT* RenderMaterial; ///< The render material used to render this mesh.

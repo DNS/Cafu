@@ -345,7 +345,7 @@ void LoaderLwoT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                         const unsigned long               MeshVertexNr=WeightVerts[PolyVert.index][Nr];
                         const CafuModelT::MeshT::VertexT& MeshVertex  =Mesh.Vertices[MeshVertexNr];
 
-                        assert(MeshVertex.FirstWeightIdx==PolyVert.index);
+                        assert(MeshVertex.FirstWeightIdx==(unsigned int)PolyVert.index);
                         assert(MeshVertex.NumWeights==1);
 
                         if (MeshVertex.u==TexCoord.x && MeshVertex.v==TexCoord.y)

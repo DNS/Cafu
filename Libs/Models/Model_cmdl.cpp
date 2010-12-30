@@ -73,7 +73,20 @@ static std::string serialize(const Vector3fT& v)
 }
 
 
-bool CafuModelT::MeshT::AreGeoDups(int Vertex1Nr, int Vertex2Nr) const
+CafuModelT::MeshT::TriangleT::TriangleT(unsigned int v0, unsigned int v1, unsigned int v2)
+    : Polarity(false)
+{
+    VertexIdx[0]=v0;
+    VertexIdx[1]=v1;
+    VertexIdx[2]=v2;
+
+    NeighbIdx[0]=-1;
+    NeighbIdx[1]=-1;
+    NeighbIdx[2]=-1;
+}
+
+
+bool CafuModelT::MeshT::AreGeoDups(unsigned int Vertex1Nr, unsigned int Vertex2Nr) const
 {
     // A vertex is a geodup of itself!
     // (This explicit check is somewhat redundant, but I leave it in for clarity.)
@@ -87,7 +100,7 @@ bool CafuModelT::MeshT::AreGeoDups(int Vertex1Nr, int Vertex2Nr) const
 
     // The number of weights matches, but the FirstWeightIdx does not.
     // Now compare all the weights manually. If all their contents match, they are geodups.
-    for (int WeightNr=0; WeightNr<Vertices[Vertex1Nr].NumWeights; WeightNr++)
+    for (unsigned int WeightNr=0; WeightNr<Vertices[Vertex1Nr].NumWeights; WeightNr++)
     {
         const WeightT& Weight1=Weights[Vertices[Vertex1Nr].FirstWeightIdx+WeightNr];
         const WeightT& Weight2=Weights[Vertices[Vertex2Nr].FirstWeightIdx+WeightNr];
@@ -171,7 +184,7 @@ void CafuModelT::InitMeshes()
                 }
                 else
                 {
-                    for (int WeightNr=0; WeightNr<Vertex.NumWeights; WeightNr++)
+                    for (unsigned int WeightNr=0; WeightNr<Vertex.NumWeights; WeightNr++)
                     {
                         const MeshT::WeightT& Weight=Mesh.Weights[Vertex.FirstWeightIdx+WeightNr];
 
@@ -212,7 +225,7 @@ void CafuModelT::InitMeshes()
 
             // Assert that the index of Vertex does not occur in Vertex.GeoDups, i.e. that Vertex.GeoDups not contains self (the own vertex index).
             for (unsigned long DupNr=0; DupNr<Vertex.GeoDups.Size(); DupNr++)
-                assert(Vertex.GeoDups[DupNr]!=int(VertexNr));
+                assert(Vertex.GeoDups[DupNr]!=VertexNr);
 
             // Assert that the Vertex.GeoDups elements are indeed stored in increasing order.
             for (unsigned long DupNr=1; DupNr<Vertex.GeoDups.Size(); DupNr++)
@@ -406,8 +419,8 @@ void CafuModelT::InitMeshes()
                 {
                     // We found a vertex whose index is mentioned in a triangle with positive and in a triangle with negative polarity.
                     // Fix the situation by duplicating the vertex (it will become a GeoDup of the originial vertex).
-                    const int OldVertexNr=Tri.VertexIdx[i];
-                    const int NewVertexNr=Mesh.Vertices.Size();
+                    const unsigned int OldVertexNr=Tri.VertexIdx[i];
+                    const unsigned int NewVertexNr=Mesh.Vertices.Size();
 
                     Mesh.Vertices.PushBack(Mesh.Vertices[OldVertexNr]);
 
@@ -416,7 +429,7 @@ void CafuModelT::InitMeshes()
 
 
                     // Fix the GeoDups of all related vertices.
-                    ArrayT<int> AllOldGeoDups=Mesh.Vertices[OldVertexNr].GeoDups;
+                    ArrayT<unsigned int> AllOldGeoDups=Mesh.Vertices[OldVertexNr].GeoDups;
 
                     unsigned long InsertPos;
 
@@ -437,7 +450,7 @@ void CafuModelT::InitMeshes()
                     {
                         MeshT::TriangleT& FixTri=Mesh.Triangles[TriangleNr];
 
-                        for (unsigned long VNr=0; VNr<3; VNr++)
+                        for (unsigned int VNr=0; VNr<3; VNr++)
                             if (FixTri.VertexIdx[VNr]==OldVertexNr)
                             {
                                 // Re-assign the vertex indices so that the polarity of the triangle matches the polarity of the vertex.
@@ -453,7 +466,7 @@ void CafuModelT::InitMeshes()
         {
             const MeshT::TriangleT& Tri=Mesh.Triangles[TriangleNr];
 
-            for (unsigned long i=0; i<3; i++)
+            for (unsigned int i=0; i<3; i++)
                 assert(Mesh.Vertices[Tri.VertexIdx[i]].Polarity==Tri.Polarity);
         }
 #endif
@@ -736,7 +749,7 @@ void CafuModelT::UpdateCachedDrawData(int SequenceNr, float FrameNr) const
         {
             MeshT::VertexT& Vertex=Mesh.Vertices[VertexNr];
 
-            if (Vertex.GeoDups.Size()>0 && Vertex.GeoDups[0]<int(VertexNr))
+            if (Vertex.GeoDups.Size()>0 && Vertex.GeoDups[0]<VertexNr)
             {
                 // This vertex has a geometrically identical duplicate that has already been computed.
                 // Therefore, don't bother to recompute the same position again, just copy it from the duplicate.
@@ -754,7 +767,7 @@ void CafuModelT::UpdateCachedDrawData(int SequenceNr, float FrameNr) const
             {
                 Vertex.Draw_Pos=Vector3fT(0.0f, 0.0f, 0.0f);
 
-                for (int WeightNr=0; WeightNr<Vertex.NumWeights; WeightNr++)
+                for (unsigned int WeightNr=0; WeightNr<Vertex.NumWeights; WeightNr++)
                 {
                     const MeshT::WeightT& Weight=Mesh.Weights[Vertex.FirstWeightIdx+WeightNr];
 

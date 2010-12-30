@@ -326,7 +326,7 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
                         {
                             const CafuModelT::MeshT::VertexT& CafuVertex=CafuMesh.Vertices[CafuVertexNr];
 
-                            if (CafuVertex.FirstWeightIdx==TriangleVerts[i][0] &&
+                            if (CafuVertex.FirstWeightIdx==(unsigned int)(TriangleVerts[i][0]) &&
                                 CafuVertex.u             ==TriangleVerts[i][2]/MatWidth &&
                                 CafuVertex.v             ==TriangleVerts[i][3]/MatHeight) break;
                         }
