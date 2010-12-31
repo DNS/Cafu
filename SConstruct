@@ -25,6 +25,10 @@ envCommon=CompilerSetup.envCommon;
 # This big if-else tree has a branch for each supported platform and each supported compiler.
 # For the chosen combination of platform and compiler, it prepares the environments envDebug, envRelease and envProfile.
 if sys.platform=="win32":
+    # Under Windows, there are no system copies of these libraries,
+    # so instead we use our own local copies.
+    envCommon.Append(CPPPATH = ["#/ExtLibs/zlib"])
+
     if envCommon["MSVC_VERSION"] in ["8.0", "8.0Exp"]:
         ##############################
         ### Win32, Visual C++ 2005 ###
@@ -209,7 +213,7 @@ my_build_dir_rel=my_build_dir+"/release"
 my_build_dir_prf=my_build_dir+"/profile"
 
 
-for lib_name in ["assimp", "bullet", "freealut", "freetype", "jpeg", "libogg", "libpng", "libvorbis", "lwo", "lua", "mpg123", "noise", "openal-soft", "zlib"]:
+for lib_name in ["assimp", "bullet", "freealut", "freetype", "jpeg", "libogg", "libpng", "libvorbis", "lwo", "lua", "minizip", "mpg123", "noise", "openal-soft", "zlib"]:
     s_name=lib_name
 
     if lib_name=="openal-soft" and sys.platform=="win32": continue;     # OpenAL-Soft is not built on Windows, use the OpenAL Windows SDK there.
@@ -311,6 +315,7 @@ CommonLibPaths=["#/ExtLibs/assimp/",
                 "#/ExtLibs/libvorbis/",
                 "#/ExtLibs/lwo/",
                 "#/ExtLibs/lua/",
+                "#/ExtLibs/minizip/",
                 "#/ExtLibs/mpg123/",
                 "#/ExtLibs/noise/",
                 "#/ExtLibs/openal-soft/",

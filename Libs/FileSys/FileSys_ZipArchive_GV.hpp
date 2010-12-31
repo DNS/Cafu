@@ -25,7 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define _CF_FILESYS_FILESYSTEM_ZIPARCHIVE_GV_HPP_
 
 #include "FileSys.hpp"
-#include "contrib/minizip/unzip.h"
+#include "minizip/unzip.h"
 #include <map>
 
 
