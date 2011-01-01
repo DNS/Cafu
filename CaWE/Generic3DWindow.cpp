@@ -208,8 +208,9 @@ void Generic3DWindowT::ProcessInput(float FrameTime)
         }
         else
         {
-            // Halts are instantaneous (infinite negative acceleration).
-            m_CameraVel.x=0.0f;
+            // Deceleration is three times as hard as acceleration (short stopping distance).
+            m_CameraVel.x=(m_CameraVel.x>0) ? std::max(m_CameraVel.x-3.0f*CameraAccel.x*FrameTime, 0.0f)
+                                            : std::min(m_CameraVel.x+3.0f*CameraAccel.x*FrameTime, 0.0f);
         }
 
         // Move forward / backward.
@@ -223,8 +224,9 @@ void Generic3DWindowT::ProcessInput(float FrameTime)
         }
         else
         {
-            // Halts are instantaneous (infinite negative acceleration).
-            m_CameraVel.y=0.0f;
+            // Deceleration is three times as hard as acceleration (short stopping distance).
+            m_CameraVel.y=(m_CameraVel.y>0) ? std::max(m_CameraVel.y-3.0f*CameraAccel.y*FrameTime, 0.0f)
+                                            : std::min(m_CameraVel.y+3.0f*CameraAccel.y*FrameTime, 0.0f);
         }
 
         // Hover up / down.
@@ -238,8 +240,9 @@ void Generic3DWindowT::ProcessInput(float FrameTime)
         }
         else
         {
-            // Halts are instantaneous (infinite negative acceleration).
-            m_CameraVel.z=0.0f;
+            // Deceleration is three times as hard as acceleration (short stopping distance).
+            m_CameraVel.z=(m_CameraVel.z>0) ? std::max(m_CameraVel.z-3.0f*CameraAccel.z*FrameTime, 0.0f)
+                                            : std::min(m_CameraVel.z+3.0f*CameraAccel.z*FrameTime, 0.0f);
         }
 
         // Rotate (heading and pitch).

@@ -344,24 +344,24 @@ void Renderer3DT::RenderCrossHair(const wxPoint& Center) const
     if (Mesh.Vertices.Size()==0) Mesh.Vertices.PushBackEmpty(12);
 
     // Black background crosshair (rendered first).
-    Mesh.Vertices[ 0].SetOrigin(Center.x-RADIUS,   Center.y-1, 0); Mesh.Vertices[ 0].SetColor(0, 0, 0);
-    Mesh.Vertices[ 1].SetOrigin(Center.x+RADIUS+1, Center.y-1, 0); Mesh.Vertices[ 1].SetColor(0, 0, 0);
+    Mesh.Vertices[ 0].SetOrigin(Center.x-RADIUS-1, Center.y-1, 0); Mesh.Vertices[ 0].SetColor(0, 0, 0);
+    Mesh.Vertices[ 1].SetOrigin(Center.x+RADIUS,   Center.y-1, 0); Mesh.Vertices[ 1].SetColor(0, 0, 0);
 
-    Mesh.Vertices[ 2].SetOrigin(Center.x-RADIUS,   Center.y+1, 0); Mesh.Vertices[ 2].SetColor(0, 0, 0);
-    Mesh.Vertices[ 3].SetOrigin(Center.x+RADIUS+1, Center.y+1, 0); Mesh.Vertices[ 3].SetColor(0, 0, 0);
+    Mesh.Vertices[ 2].SetOrigin(Center.x-RADIUS-1, Center.y+1, 0); Mesh.Vertices[ 2].SetColor(0, 0, 0);
+    Mesh.Vertices[ 3].SetOrigin(Center.x+RADIUS,   Center.y+1, 0); Mesh.Vertices[ 3].SetColor(0, 0, 0);
 
-    Mesh.Vertices[ 4].SetOrigin(Center.x-1, Center.y-RADIUS-1, 0); Mesh.Vertices[ 4].SetColor(0, 0, 0);
-    Mesh.Vertices[ 5].SetOrigin(Center.x-1, Center.y+RADIUS,   0); Mesh.Vertices[ 5].SetColor(0, 0, 0);
+    Mesh.Vertices[ 4].SetOrigin(Center.x-1, Center.y-RADIUS,   0); Mesh.Vertices[ 4].SetColor(0, 0, 0);
+    Mesh.Vertices[ 5].SetOrigin(Center.x-1, Center.y+RADIUS+1, 0); Mesh.Vertices[ 5].SetColor(0, 0, 0);
 
-    Mesh.Vertices[ 6].SetOrigin(Center.x+1, Center.y-RADIUS-1, 0); Mesh.Vertices[ 6].SetColor(0, 0, 0);
-    Mesh.Vertices[ 7].SetOrigin(Center.x+1, Center.y+RADIUS,   0); Mesh.Vertices[ 7].SetColor(0, 0, 0);
+    Mesh.Vertices[ 6].SetOrigin(Center.x+1, Center.y-RADIUS,   0); Mesh.Vertices[ 6].SetColor(0, 0, 0);
+    Mesh.Vertices[ 7].SetOrigin(Center.x+1, Center.y+RADIUS+1, 0); Mesh.Vertices[ 7].SetColor(0, 0, 0);
 
     // White foreground crosshair (rendered second, on top of black background).
-    Mesh.Vertices[ 8].SetOrigin(Center.x-RADIUS,   Center.y, 0); Mesh.Vertices[ 8].SetColor(1, 1, 1);
-    Mesh.Vertices[ 9].SetOrigin(Center.x+RADIUS+1, Center.y, 0); Mesh.Vertices[ 9].SetColor(1, 1, 1);
+    Mesh.Vertices[ 8].SetOrigin(Center.x-RADIUS-1, Center.y, 0); Mesh.Vertices[ 8].SetColor(1, 1, 1);
+    Mesh.Vertices[ 9].SetOrigin(Center.x+RADIUS,   Center.y, 0); Mesh.Vertices[ 9].SetColor(1, 1, 1);
 
-    Mesh.Vertices[10].SetOrigin(Center.x, Center.y-RADIUS-1, 0); Mesh.Vertices[10].SetColor(1, 1, 1);
-    Mesh.Vertices[11].SetOrigin(Center.x, Center.y+RADIUS,   0); Mesh.Vertices[11].SetColor(1, 1, 1);
+    Mesh.Vertices[10].SetOrigin(Center.x, Center.y-RADIUS,   0); Mesh.Vertices[10].SetColor(1, 1, 1);
+    Mesh.Vertices[11].SetOrigin(Center.x, Center.y+RADIUS+1, 0); Mesh.Vertices[11].SetColor(1, 1, 1);
 
     MatSys::Renderer->SetCurrentMaterial(GetRMatWireframe());
     MatSys::Renderer->RenderMesh(Mesh);

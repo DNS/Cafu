@@ -155,6 +155,10 @@ void EditorMatManT::LazilyUpdateProxies()
     // Do nothing once we're done caching in.
     if (m_LazyMatUpdateCount>=m_Materials.Size()) return;
 
+    // Also do nothing while one of the mouse buttons is down, the user is probably interacting with the editor then.
+    const wxMouseState MS=wxGetMouseState();
+    if (MS.LeftIsDown() || MS.MiddleIsDown() || MS.RightIsDown()) return;
+
     m_Materials[m_LazyMatUpdateCount]->GetImage();
     m_LazyMatUpdateCount++;
 }
