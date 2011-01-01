@@ -58,13 +58,14 @@ class OptionsT
 
     struct View3DT
     {
-        bool ReverseY;                  ///< Whether to reverse the mouse's Y axis when mouse looking.
-        int  BackPlane;                 ///< Distance to far clipping plane in world units.
-        int  ModelDistance;             ///< Distance in world units within which models render.
-        bool AnimateModels;             ///< Whether or not to animate models.
-        int  MaxCameraVelocity;         ///< Max forward speed in world units per second.
-        int  TimeToMaxSpeed;            ///< Time to max forward speed in milliseconds.
-        int  SplitPlanesDepth;          ///< The depth up to which the split planes of the BSP tree should be rendered (for debugging/developers only).
+        bool  ReverseY;                 ///< Whether to reverse the mouse's Y axis when mouse looking.
+        int   BackPlane;                ///< Distance to far clipping plane in world units.
+        int   ModelDistance;            ///< Distance in world units within which models render.
+        bool  AnimateModels;            ///< Whether or not to animate models.
+        int   MaxCameraVelocity;        ///< Max forward speed in world units per second.
+        int   TimeToMaxSpeed;           ///< Time to max forward speed in milliseconds.
+        float MouseSensitivity;         ///< Mouse sensitivity for the angular (rotating and orbiting) modes of 3D views navigation, in degrees (of rotation) per pixel (of mouse movement).
+        int   SplitPlanesDepth;         ///< The depth up to which the split planes of the BSP tree should be rendered (for debugging/developers only).
     };
 
     struct GridT

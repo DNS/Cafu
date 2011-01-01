@@ -162,6 +162,7 @@ BEGIN_EVENT_TABLE(OptionsDialogT, wxDialog)
     EVT_BUTTON(OptionsDialogT::ID_BUTTON_GENERAL_BrowseCaLightExe,  OptionsDialogT::OnButton_General_BrowseCaLightExe)
     EVT_CHOICE(OptionsDialogT::ID_CHOICE_GAMECFG_GameConfigs,       OptionsDialogT::OnChoice_GameCfg_GameConfigs)
     EVT_BUTTON(OptionsDialogT::ID_BUTTON_GAMECFG_PickCordonTexture, OptionsDialogT::OnButton_GameCfg_PickCordonTexture)
+    EVT_SPINCTRLDOUBLE(OptionsDialogT::ID_SPINCTRL_3DVIEWS_MouseSensitivity, OptionsDialogT::OnSpinCtrl_3DViews_MouseSensitivity)
 END_EVENT_TABLE()
 
 
@@ -592,6 +593,14 @@ wxSizer* OptionsDialogT::Options3DViewsTabInit( wxWindow *parent, bool call_fit,
     wxSlider *item18 = new wxSlider( parent, -1, 0, 0, 10000, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL|wxSL_LABELS, wxGenericValidator(&Options.view3d.TimeToMaxSpeed));
     item14->Add( item18, 0, wxGROW | wxALIGN_CENTER_VERTICAL | wxALL, 5 );
 
+    wxStaticText* st_MouseSensitivity=new wxStaticText( parent, -1, wxT("Mouse sensitivity:"), wxDefaultPosition, wxDefaultSize, 0 );
+    item14->Add( st_MouseSensitivity, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+    wxSpinCtrlDouble* sc_MouseSensitivity=new wxSpinCtrlDouble(parent, ID_SPINCTRL_3DVIEWS_MouseSensitivity,
+        wxString::Format("%f", Options.view3d.MouseSensitivity), wxDefaultPosition, wxDefaultSize,
+        wxSP_ARROW_KEYS, 0.01, 1.0, Options.view3d.MouseSensitivity, 0.01);
+    item14->Add( sc_MouseSensitivity, 0, wxGROW | wxALIGN_CENTER_VERTICAL | wxALL, 5 );
+
     item10->Add( item14, 0, wxGROW | wxALIGN_CENTER_VERTICAL, 5 );
 
     item0->Add( item10, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
@@ -804,4 +813,10 @@ void OptionsDialogT::OnButton_General_BrowseCaLightExe(wxCommandEvent& Event)
 
     if (File=="") return;
     GameCfg_LightExe->SetValue(File);
+}
+
+
+void OptionsDialogT::OnSpinCtrl_3DViews_MouseSensitivity(wxSpinDoubleEvent& Event)
+{
+    Options.view3d.MouseSensitivity=float(Event.GetValue());
 }

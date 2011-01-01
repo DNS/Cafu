@@ -282,8 +282,8 @@ void Generic3DWindowT::ProcessInput(float FrameTime)
             if (!Shift && !Control)
             {
                 // No modifier key is down - look around.
-                m_Camera->Angles.yaw()+=MouseDelta.x*0.4f;
-                m_Camera->Angles.pitch()+=MouseDelta.y*(Options.view3d.ReverseY ? -0.4f : 0.4f);
+                m_Camera->Angles.yaw()+=MouseDelta.x*Options.view3d.MouseSensitivity;
+                m_Camera->Angles.pitch()+=MouseDelta.y*Options.view3d.MouseSensitivity*(Options.view3d.ReverseY ? -1.0f : 1.0f);
                 m_Camera->LimitAngles();
             }
             else if (Shift && !Control)
@@ -301,7 +301,7 @@ void Generic3DWindowT::ProcessInput(float FrameTime)
             else
             {
                 // Both Shift and Control is down - "fly mode".
-                m_Camera->Angles.yaw()+=MouseDelta.x*0.4f;
+                m_Camera->Angles.yaw()+=MouseDelta.x*Options.view3d.MouseSensitivity;
                 m_Camera->LimitAngles();
 
                 Vector3fT   xy =m_Camera->GetYAxis(); xy.z=0.0f;
@@ -313,7 +313,7 @@ void Generic3DWindowT::ProcessInput(float FrameTime)
         else
         {
             // Orbit mode.
-            const float DeltaYaw=MouseDelta.x*0.4f;
+            const float DeltaYaw=MouseDelta.x*Options.view3d.MouseSensitivity;
 
             // Apply yaw in order to orbit the camera horizontally (around the z-axis).
             if (DeltaYaw!=0.0f)
@@ -339,7 +339,7 @@ void Generic3DWindowT::ProcessInput(float FrameTime)
             else
             {
                 // No modifier key is down - apply pitch in order to orbit the camera vertically.
-                const float DeltaPitch=MouseDelta.y*(Options.view3d.ReverseY ? -0.4f : 0.4f);
+                const float DeltaPitch=MouseDelta.y*Options.view3d.MouseSensitivity*(Options.view3d.ReverseY ? -1.0f : 1.0f);
 
                 if (DeltaPitch!=0.0f)
                 {

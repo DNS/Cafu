@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef _DIALOG_OPTIONS_HPP_
 #define _DIALOG_OPTIONS_HPP_
 
+#include "wx/spinctrl.h"
 #include "wx/wx.h"
 
 
@@ -73,8 +74,9 @@ class OptionsDialogT : public wxDialog
     void OnButton_General_BrowseCaLightExe(wxCommandEvent& Event);
     void OnChoice_GameCfg_GameConfigs(wxCommandEvent& Event);
     void OnButton_GameCfg_PickCordonTexture(wxCommandEvent& Event);
+    void OnSpinCtrl_3DViews_MouseSensitivity(wxSpinDoubleEvent& Event);
 
-    // IDs for the controls in whose events we are interested.
+    // IDs for the controls whose events we are interested in.
     enum
     {
         ID_CHECKBOX_GENERAL_INDEPENDENTWINDOWS=wxID_HIGHEST+1,
@@ -83,7 +85,8 @@ class OptionsDialogT : public wxDialog
         ID_BUTTON_GENERAL_BrowseCaPVSExe,
         ID_BUTTON_GENERAL_BrowseCaLightExe,
         ID_CHOICE_GAMECFG_GameConfigs,
-        ID_BUTTON_GAMECFG_PickCordonTexture
+        ID_BUTTON_GAMECFG_PickCordonTexture,
+        ID_SPINCTRL_3DVIEWS_MouseSensitivity
     };
 
     DECLARE_EVENT_TABLE()

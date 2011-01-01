@@ -94,6 +94,7 @@ void OptionsT::Init()
     wxConfigBase::Get()->Read("AnimateModels",     &view3d.AnimateModels,     true);
     wxConfigBase::Get()->Read("MaxCameraVelocity", &view3d.MaxCameraVelocity, 1000);
     wxConfigBase::Get()->Read("TimeToMaxSpeed",    &view3d.TimeToMaxSpeed,    500);
+    wxConfigBase::Get()->Read("MouseSensitivity",  &view3d.MouseSensitivity,  0.4f);
     wxConfigBase::Get()->Read("SplitPlanesDepth",  &view3d.SplitPlanesDepth,  0);
     wxConfigBase::Get()->SetPath("..");
 
@@ -191,6 +192,7 @@ void OptionsT::Write() const
     wxConfigBase::Get()->Write("AnimateModels",     view3d.AnimateModels    );
     wxConfigBase::Get()->Write("MaxCameraVelocity", view3d.MaxCameraVelocity);
     wxConfigBase::Get()->Write("TimeToMaxSpeed",    view3d.TimeToMaxSpeed   );
+    wxConfigBase::Get()->Write("MouseSensitivity",  view3d.MouseSensitivity );
     wxConfigBase::Get()->Write("SplitPlanesDepth",  view3d.SplitPlanesDepth );
     wxConfigBase::Get()->SetPath("..");
 
