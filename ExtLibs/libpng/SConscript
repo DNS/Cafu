@@ -3,8 +3,6 @@ import os, sys
 Import('env')
 
 
-env_png=env.Clone()
-
-env_png.StaticLibrary("cfs_png",
+env.StaticLibrary("png",
     Split("""png.c pngset.c pngget.c pngrutil.c pngtrans.c pngwutil.c pngmem.c pngpread.c
-             pngread.c pngerror.c pngwrite.c pngrtran.c pngwtran.c pngrio.c pngwio.c"""), CPPPATH="#/ExtLibs/zlib")
+             pngread.c pngerror.c pngwrite.c pngrtran.c pngwtran.c pngrio.c pngwio.c"""))

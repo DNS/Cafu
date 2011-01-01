@@ -24,7 +24,7 @@ env.StaticLibrary(
                     Win32/Win32PrintHelp.cpp
                     DebugLog.cpp TypeSys.cpp""")+
            Glob("Math3D/*.cpp"),
-    CPPPATH=env['CPPPATH'] + ["#/ExtLibs/lua/src", "#/ExtLibs/lwo"] + ["#/ExtLibs/jpeg", "#/ExtLibs/libpng"])
+    CPPPATH=env['CPPPATH'] + ["#/ExtLibs/lua/src", "#/ExtLibs/lwo", "#/ExtLibs/jpeg"])
 
 
 
@@ -84,7 +84,7 @@ if sys.platform=="linux2":
 
 
 if sys.platform=="win32":
-    LibList=Split("cfsLib cfs_png cfs_jpeg z MatSys opengl32.lib glu32.lib")
+    LibList=Split("cfsLib png cfs_jpeg z MatSys opengl32.lib glu32.lib")
 else:
     LibList=[]
 
@@ -107,7 +107,7 @@ envRenderers.SharedLibrary(
 
 LibPath="#/ExtLibs/Cg/lib"
 if sys.platform=="win32":
-    LibList=Split("cfsLib cfs_png cfs_jpeg z MatSys opengl32.lib glu32.lib cg cgGL")
+    LibList=Split("cfsLib png cfs_jpeg z MatSys opengl32.lib glu32.lib cg cgGL")
     if envRenderers["TARGET_ARCH"]!="x86": LibPath += ".x64"
 elif sys.platform=="linux2":
     LibList=Split("Cg CgGL")
@@ -133,7 +133,7 @@ envRenderers.SharedLibrary(
 
 LibPath="#/ExtLibs/Cg/lib"
 if sys.platform=="win32":
-    LibList=Split("cfsLib cfs_png cfs_jpeg z MatSys opengl32.lib glu32.lib cg cgGL")
+    LibList=Split("cfsLib png cfs_jpeg z MatSys opengl32.lib glu32.lib cg cgGL")
     if envRenderers["TARGET_ARCH"]!="x86": LibPath += ".x64"
 elif sys.platform=="linux2":
     LibList=Split("Cg CgGL")
@@ -170,7 +170,7 @@ envRenderers.SharedLibrary(
 
 
 if sys.platform=="win32":
-    LibList=Split("cfsLib cfs_png cfs_jpeg z MatSys opengl32.lib glu32.lib")
+    LibList=Split("cfsLib png cfs_jpeg z MatSys opengl32.lib glu32.lib")
 else:
     LibList=[]
 

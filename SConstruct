@@ -27,7 +27,9 @@ envCommon=CompilerSetup.envCommon;
 if sys.platform=="win32":
     # Under Windows, there are no system copies of these libraries,
     # so instead we use our own local copies.
-    envCommon.Append(CPPPATH = ["#/ExtLibs/zlib"])
+    envCommon.Append(CPPPATH=["#/ExtLibs/freetype/include"])
+    envCommon.Append(CPPPATH=["#/ExtLibs/libpng"])
+    envCommon.Append(CPPPATH=["#/ExtLibs/zlib"])
 
     if envCommon["MSVC_VERSION"] in ["8.0", "8.0Exp"]:
         ##############################
@@ -157,6 +159,24 @@ if sys.platform=="win32":
         exit
 
 elif sys.platform=="linux2":
+    conf = Configure(envCommon)
+
+    # conf.CheckLib(...)    # See http://www.cafu.de/wiki/cppdev:gettingstarted#linux_packages for details.
+
+    #if not conf.CheckLibWithHeader("freetype2", "ft2build.h", "c++"):      # TODO: What is the proper way to check for freetype?
+        #print "Please install the freetype library!"
+        #Exit(1)
+
+    if not conf.CheckLibWithHeader("png", "png.h", "c++"):
+        print "Please install the png library!"
+        Exit(1)
+
+    if not conf.CheckLibWithHeader("z", "zlib.h", "c++"):
+        print "Please install the zlib library!"
+        Exit(1)
+
+    envCommon = conf.Finish()
+
     if envCommon["CXX"]=="g++":
         ##################
         ### Linux, g++ ###
@@ -213,10 +233,32 @@ my_build_dir_rel=my_build_dir+"/release"
 my_build_dir_prf=my_build_dir+"/profile"
 
 
-for lib_name in ["assimp", "bullet", "freealut", "freetype", "jpeg", "libogg", "libpng", "libvorbis", "lwo", "lua", "minizip", "mpg123", "noise", "openal-soft", "zlib"]:
+ExtLibsList = ["assimp",
+               "bullet",
+               "freealut",
+               "freetype",
+               "jpeg",
+               "libogg",
+               "libpng",
+               "libvorbis",
+               "lwo",
+               "lua",
+               "minizip",
+               "mpg123",
+               "noise",
+               "openal-soft",
+               "zlib"]
+
+if sys.platform=="win32":
+    ExtLibsList.remove("openal-soft")   # OpenAL-Soft is not built on Windows, use the OpenAL Windows SDK there.
+else:   # sys.platform=="linux2"
+    ExtLibsList.remove("freetype")      # We use the system copies of these libraries.
+    ExtLibsList.remove("libpng")
+    ExtLibsList.remove("zlib")
+
+for lib_name in ExtLibsList:
     s_name=lib_name
 
-    if lib_name=="openal-soft" and sys.platform=="win32": continue;     # OpenAL-Soft is not built on Windows, use the OpenAL Windows SDK there.
     if lib_name=="bullet": s_name+="/src";
     if lib_name=="lua":    s_name+="/src";
     if lib_name=="mpg123": s_name+="/src/libmpg123";
@@ -306,31 +348,6 @@ elif sys.platform=="linux2":
 ### Update the construction environments ###
 ############################################
 
-CommonLibPaths=["#/ExtLibs/assimp/",
-                "#/ExtLibs/bullet/",
-                "#/ExtLibs/freealut/",
-                "#/ExtLibs/jpeg/",
-                "#/ExtLibs/libogg/",
-                "#/ExtLibs/libpng/",
-                "#/ExtLibs/libvorbis/",
-                "#/ExtLibs/lwo/",
-                "#/ExtLibs/lua/",
-                "#/ExtLibs/minizip/",
-                "#/ExtLibs/mpg123/",
-                "#/ExtLibs/noise/",
-                "#/ExtLibs/openal-soft/",
-                "#/ExtLibs/zlib/",
-                "#/Libs/"];
-
-if sys.platform=="win32":
-    # Only for Windows, as under Linux we must link to the systems freetype library.
-    CommonLibPaths.append("#/ExtLibs/freetype/");
-
-CommonLibPaths_dbg=[x+my_build_dir_dbg for x in CommonLibPaths];
-CommonLibPaths_rel=[x+my_build_dir_rel for x in CommonLibPaths];
-CommonLibPaths_prf=[x+my_build_dir_prf for x in CommonLibPaths];
-
-
 # Note that modifying the original environments here affects the build of the external libraries above!
 envDebug_Cafu  =envDebug.Clone();
 envRelease_Cafu=envRelease.Clone();
@@ -344,9 +361,9 @@ envDebug_Cafu  .Append(CPPPATH=["#/Libs", "#/ExtLibs"]);
 envRelease_Cafu.Append(CPPPATH=["#/Libs", "#/ExtLibs"]);
 envProfile_Cafu.Append(CPPPATH=["#/Libs", "#/ExtLibs"]);
 
-envDebug_Cafu  .Append(LIBPATH=CommonLibPaths_dbg);
-envRelease_Cafu.Append(LIBPATH=CommonLibPaths_rel);
-envProfile_Cafu.Append(LIBPATH=CommonLibPaths_prf);
+envDebug_Cafu  .Append(LIBPATH=["#/ExtLibs/"+lib_name+"/"+my_build_dir_dbg for lib_name in ExtLibsList] + ["#/Libs/"+my_build_dir_dbg]);
+envRelease_Cafu.Append(LIBPATH=["#/ExtLibs/"+lib_name+"/"+my_build_dir_rel for lib_name in ExtLibsList] + ["#/Libs/"+my_build_dir_rel]);
+envProfile_Cafu.Append(LIBPATH=["#/ExtLibs/"+lib_name+"/"+my_build_dir_prf for lib_name in ExtLibsList] + ["#/Libs/"+my_build_dir_prf]);
 
 if compiler=="vc8":
     envDebug_Cafu  .Append(CCFLAGS=Split("/J /W3 /WX"));

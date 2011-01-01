@@ -333,14 +333,14 @@ BitmapT::BitmapT(const char* FileName) /*throw (LoadErrorT)*/ : SizeX(0), SizeY(
                     break;
 
                 case PNG_COLOR_TYPE_GRAY:
-                    if (png_get_bit_depth(png_ptr, info_ptr) < 8) png_set_gray_1_2_4_to_8(png_ptr);
+                    if (png_get_bit_depth(png_ptr, info_ptr) < 8) png_set_expand_gray_1_2_4_to_8(png_ptr);
                     if (png_get_bit_depth(png_ptr, info_ptr)==16) png_set_strip_16(png_ptr);
                     png_set_gray_to_rgb(png_ptr);
                     png_set_filler(png_ptr, 0xFF, PNG_FILLER_AFTER);
                     break;
 
                 case PNG_COLOR_TYPE_GRAY_ALPHA:
-                    if (png_get_bit_depth(png_ptr, info_ptr) < 8) png_set_gray_1_2_4_to_8(png_ptr);
+                    if (png_get_bit_depth(png_ptr, info_ptr) < 8) png_set_expand_gray_1_2_4_to_8(png_ptr);
                     if (png_get_bit_depth(png_ptr, info_ptr)==16) png_set_strip_16(png_ptr);
                     png_set_gray_to_rgb(png_ptr);
                     break;
