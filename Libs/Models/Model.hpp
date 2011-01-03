@@ -21,15 +21,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*************/
-/*** Model ***/
-/*************/
-
 #ifndef _MODEL_HPP_
 #define _MODEL_HPP_
 
 #include "Math3D/BoundingBox.hpp"
 #include <string>
+
+
+class MaterialT;
 
 
 /// This class represents a generic model (or rather, the interface to a model).
@@ -39,6 +38,17 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 class ModelT
 {
     public:
+
+    /// This class describes the result of tracing a ray or a bounding box against the model.
+    struct TraceResultT
+    {
+        /// The constructor.
+        TraceResultT(float Fraction_=0.0f) : Fraction(Fraction_), Material(NULL) { }
+
+        float      Fraction;    ///< The scalar along RayDir at which the hit occurred (RayOrigin + RayDir*Fraction).
+        Vector3fT  Normal;      ///< This is the normal vector of the hit surface.
+        MaterialT* Material;    ///< The material at the point of impact. Can be NULL, e.g. when an edge (i.e. a bevel plane) was hit or the material is not available.
+    };
 
     /// A class for throwing exceptions on load errors.
     class LoadError { };
@@ -81,6 +91,18 @@ class ModelT
     /// @param SequenceNr The sequence number to get the bounding box for.
     /// @param FrameNr The frame number to get this models bounding box for.
     virtual BoundingBox3fT GetBB(int SequenceNr, float FrameNr) const=0;
+
+    /// Traces a ray against this model, and returns whether it was hit.
+    /// The ray for the trace is defined by RayOrigin + RayDir*Fraction, where Fraction is a scalar >= 0.
+    ///
+    /// @param SequenceNr  The animation sequence at which the ray should be traced.
+    /// @param FrameNr     The animation frame at which the ray should be traced.
+    /// @param RayOrigin   The point in model space where the ray starts.
+    /// @param RayDir      A unit vector in model space that describes the direction the ray extends to.
+    /// @param Result      If the model was hit, this struct contains additional details of the hit.
+    ///
+    /// @returns true if the ray hit the model, false otherwise. When the model was hit, additional details are returned via the Result parameter.
+    virtual bool TraceRay(int SequenceNr, float FrameNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, TraceResultT& Result) const=0;
 
     // Returns the number of frames of sequence SequenceNr. Useful for non-repeating (e.g. death) sequences.
  // virtual float GetNrOfFrames(int SequenceNr) const=0;

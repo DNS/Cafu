@@ -243,6 +243,12 @@ BoundingBox3fT ModelProxyT::GetBB(int SequenceNr, float FrameNr) const
 }
 
 
+bool ModelProxyT::TraceRay(int SequenceNr, float FrameNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, TraceResultT& Result) const
+{
+    return ModelPool[PoolIndex]->TraceRay(SequenceNr, FrameNr, RayOrigin, RayDir, Result);
+}
+
+
 // float ModelProxyT::GetNrOfFrames(int SequenceNr) const
 // {
 //     return ModelPool[PoolIndex]->GetNrOfFrames();

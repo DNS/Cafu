@@ -74,6 +74,20 @@ BoundingBox3fT ModelDummyT::GetBB(int /*SequenceNr*/, float /*FrameNr*/) const
 }
 
 
+bool ModelDummyT::TraceRay(int SequenceNr, float FrameNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, TraceResultT& Result) const
+{
+    float Fraction=0.0f;
+
+    if (!GetBB(SequenceNr, FrameNr).TraceRay(RayOrigin, RayDir, Fraction)) return false;
+
+    Result.Fraction=Fraction;
+    Result.Normal  =-RayDir;
+    Result.Material=NULL;
+
+    return true;
+}
+
+
 // float ModelDummyT::GetNrOfFrames(int /*SequenceNr*/) const
 // {
 //     return 0.0;

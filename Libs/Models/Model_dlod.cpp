@@ -119,6 +119,17 @@ BoundingBox3fT ModelDlodT::GetBB(int SequenceNr, float FrameNr) const
 }
 
 
+bool ModelDlodT::TraceRay(int SequenceNr, float FrameNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, TraceResultT& Result) const
+{
+    // for (unsigned long LodModelNr=0; LodModelNr<LodModels.Size(); LodModelNr++)
+    //     if (LodDist>=LodStartRanges[LodModelNr] && LodDist<LodEndRanges[LodModelNr])
+    //         return LodModels[LodModelNr].TraceRay(SequenceNr, FrameNr, RayOrigin, RayDir, Result);
+    //
+    // return false;
+    return LodModels[0].TraceRay(SequenceNr, FrameNr, RayOrigin, RayDir, Result);
+}
+
+
 // float ModelDlodT::GetNrOfFrames(int /*SequenceNr*/) const
 // {
 //     return LodModels[0].GetNrOfFrames(SequenceNr);

@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/BoundingBox.hpp"
+#include "Math3D/Pluecker.hpp"
 #include "Math3D/Quaternion.hpp"
 
 #include <iostream>
@@ -1253,6 +1254,82 @@ BoundingBox3fT CafuModelT::GetBB(int SequenceNr, float FrameNr) const
     const int FNr=(int(FrameNr+0.5f)) % m_Anims[SequenceNr].Frames.Size();
 
     return m_Anims[SequenceNr].Frames[FNr].BB;
+}
+
+
+bool CafuModelT::TraceRay(int SequenceNr, float FrameNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, TraceResultT& Result) const
+{
+    float Fraction=0.0f;
+
+    // If we miss the bounding-box, then we miss all the triangles as well.
+    if (!GetBB(SequenceNr, FrameNr).TraceRay(RayOrigin, RayDir, Fraction)) return false;
+
+    // Call this method to update the draw structures according to SequenceNr and FrameNr.
+    GetDrawJointMatrices(SequenceNr, FrameNr);
+
+    for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
+    {
+        const MeshT& Mesh=m_Meshes[MeshNr];
+
+        // If the ClipFlags don't match the ClipMask, this polygon doesn't interfere with the trace.
+        if (!Mesh.Material) continue;
+        // if ((Mesh.Material->ClipFlags & ClipMask)==0) continue;
+
+        for (unsigned long TriNr=0; TriNr<Mesh.Triangles.Size(); TriNr++)
+        {
+            // This code is a modification of the code in CollisionModelStaticT::PolygonT::TraceRay(),
+            // see there for details and additional information.
+            using namespace cf::math;
+            const MeshT::TriangleT& Tri=Mesh.Triangles[TriNr];
+
+            const Vector3fT& A=Mesh.Vertices[Tri.VertexIdx[0]].Draw_Pos;
+            const Vector3fT& B=Mesh.Vertices[Tri.VertexIdx[1]].Draw_Pos;
+            const Vector3fT& C=Mesh.Vertices[Tri.VertexIdx[2]].Draw_Pos;
+
+            const PlueckerfT R=PlueckerfT::CreateFromRay(RayOrigin, RayDir);
+
+            // We use Pluecker coordinates for the orientation tests.
+            // Note that Christer Ericson has shown in his blog at http://realtimecollisiondetection.net/blog/?p=13
+            // that scalar triple products (Spatprodukte) are equivalent and could be used as well.  ;-)
+            if (!Mesh.Material->TwoSided)
+            {
+                if (R*PlueckerfT::CreateFromLine(A, B) >= 0) continue;
+                if (R*PlueckerfT::CreateFromLine(B, C) >= 0) continue;
+                if (R*PlueckerfT::CreateFromLine(C, A) >= 0) continue;
+            }
+            else
+            {
+                int Count=0;
+
+                // Should not change Count if result == 0...
+                Count+=(R*PlueckerfT::CreateFromLine(A, B) >= 0) ? -1 : 1;
+                Count+=(R*PlueckerfT::CreateFromLine(B, C) >= 0) ? -1 : 1;
+                Count+=(R*PlueckerfT::CreateFromLine(C, A) >= 0) ? -1 : 1;
+
+                if (Count!=-3 && Count!=3) continue;
+            }
+
+            // The "aperture" test passed, now compute the fraction at which RayDir intersects the triangle plane.
+            const float Nenner=dot(Tri.Draw_Normal, RayDir);
+
+            if (Nenner==0) continue;                            // If Nenner==0, then RayDir is parallel to the triangle plane (no intersection).
+            assert(Mesh.Material->TwoSided || Nenner<0);        // If material is single sided, then Nenner<0, a consequence of the Pluecker tests above.
+
+            const float Dist=dot(Tri.Draw_Normal, RayOrigin-A); // The distance of RayOrigin to the triangle plane.
+            const float F   =-(Dist-0.03125f)/Nenner;
+
+            // The intersection is only valid in the positive direction of RayDir.
+            if (F<0) continue;
+
+            // Hit the triangle!
+            Result.Fraction=F;
+            Result.Normal  =(Nenner<0) ? Tri.Draw_Normal : -Tri.Draw_Normal;    // Handle two-sided materials properly.
+            Result.Material=Mesh.Material;
+            return true;
+        }
+    }
+
+    return false;
 }
 
 

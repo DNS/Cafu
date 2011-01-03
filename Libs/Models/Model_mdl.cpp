@@ -1587,6 +1587,12 @@ BoundingBox3fT ModelMdlT::GetBB(int SequenceNr, float /*FrameNr*/) const
 } */
 
 
+bool ModelMdlT::TraceRay(int SequenceNr, float FrameNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, TraceResultT& Result) const
+{
+    return false;
+}
+
+
 float ModelMdlT::AdvanceFrameNr(int SequenceNr, float FrameNr, float DeltaTime, bool Loop) const
 {
     int NumFrames=StudioSequences[SequenceNr].NumFrames;
