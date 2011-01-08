@@ -161,28 +161,29 @@ if sys.platform=="win32":
         exit
 
 elif sys.platform=="linux2":
+    ErrorMsg = "Please install the %s library (development files)!\nOn many systems, the required package is named %s (possibly with a different version number)."
     conf = Configure(envCommon)
 
-    # conf.CheckLib(...)    # See http://www.cafu.de/wiki/cppdev:gettingstarted#linux_packages for details.
+    # conf.CheckLib(...)    # See http://www.cafu.de/wiki/cppdev:gettingstarted#linux_packages for additional libraries and headers that should be checked here.
 
-    #if not conf.CheckLibWithHeader("expat", "expat.h", "c++"):
-        #print "Please install the expat library!"
-        #Exit(1)
-
-    #if not conf.CheckLibWithHeader("freetype2", "ft2build.h", "c++"):      # TODO: What is the proper way to check for freetype?
-        #print "Please install the freetype library!"
-        #Exit(1)
-
-    #if not conf.CheckLibWithHeader("pcre", "pcre.h", "c++"):
-        #print "Please install the pcre library!"
-        #Exit(1)
-
-    if not conf.CheckLibWithHeader("png", "png.h", "c++"):
-        print "Please install the png library!"
+    if not conf.CheckLibWithHeader("expat", "expat.h", "c"):
+        print ErrorMsg % ("expat", "libexpat1-dev")
         Exit(1)
 
-    if not conf.CheckLibWithHeader("z", "zlib.h", "c++"):
-        print "Please install the zlib library!"
+    #if not conf.CheckLibWithHeader("freetype", "ft2build.h", "c"):     # TODO: What is the proper way to check for freetype?
+        #print ErrorMsg % ("freetype", "libfreetype6-dev")
+        #Exit(1)
+
+    if not conf.CheckLibWithHeader("pcre", "pcre.h", "c"):
+        print ErrorMsg % ("pcre", "libpcre3-dev")
+        Exit(1)
+
+    if not conf.CheckLibWithHeader("png", "png.h", "c"):
+        print ErrorMsg % ("png", "libpng12-dev")
+        Exit(1)
+
+    if not conf.CheckLibWithHeader("z", "zlib.h", "c"):
+        print ErrorMsg % ("zlib", "zlib1g-dev")
         Exit(1)
 
     envCommon = conf.Finish()

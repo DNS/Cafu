@@ -36,17 +36,13 @@ them both to 0; an emulation function will be used. */
 /* #undef EBCDIC */
 
 /* Define to 1 if you have the `bcopy' function. */
-#ifndef HAVE_BCOPY
-#define HAVE_BCOPY 0
-#endif
+/* #undef HAVE_BCOPY */
 
 /* Define to 1 if you have the <bits/type_traits.h> header file. */
 /* #undef HAVE_BITS_TYPE_TRAITS_H */
 
 /* Define to 1 if you have the <bzlib.h> header file. */
-#ifndef HAVE_BZLIB_H
-#define HAVE_BZLIB_H 0
-#endif
+/* #undef HAVE_BZLIB_H */
 
 /* Define to 1 if you have the <dirent.h> header file. */
 #ifndef HAVE_DIRENT_H
@@ -84,14 +80,10 @@ them both to 0; an emulation function will be used. */
 #endif
 
 /* Define to 1 if you have the <readline/history.h> header file. */
-#ifndef HAVE_READLINE_HISTORY_H
-#define HAVE_READLINE_HISTORY_H 1
-#endif
+/* #undef HAVE_READLINE_HISTORY_H */
 
 /* Define to 1 if you have the <readline/readline.h> header file. */
-#ifndef HAVE_READLINE_READLINE_H
-#define HAVE_READLINE_READLINE_H 1
-#endif
+/* #undef HAVE_READLINE_READLINE_H */
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #ifndef HAVE_STDINT_H
@@ -130,8 +122,9 @@ them both to 0; an emulation function will be used. */
 /* #undef HAVE_STRTOLL */
 
 /* Define to 1 if you have `strtoq'. */
-#ifndef HAVE_STRTOQ
-// #define HAVE_STRTOQ 1
+/* CF: We have this under Linux, but not under Windows. */
+#ifdef __linux__
+#define HAVE_STRTOQ 1
 #endif
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
@@ -166,7 +159,8 @@ them both to 0; an emulation function will be used. */
 #endif
 
 /* Define to 1 if you have `_strtoi64'. */
-#ifndef HAVE__STRTOI64
+/* CF: We have this under Windows, but not under Linux. */
+#ifdef _WIN32
 #define HAVE__STRTOI64 1
 #endif
 
