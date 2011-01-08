@@ -1,0 +1,13 @@
+import os, sys
+
+Import('env')
+
+env_expat = env.Clone()
+env_expat.Append(CPPPATH=[".", "lib"])
+
+if sys.platform=="win32":
+    env_expat.Append(CPPDEFINES=["COMPILED_FROM_DSP"])    # Shouldn't this have been named "USE_WINDOWS_CONFIG" or something?  ;-)
+#else:
+    #env_expat.Append(CPPDEFINES=["HAVE_EXPAT_CONFIG_H"])
+
+env_expat.StaticLibrary("expat", Glob("lib/*.c"))
