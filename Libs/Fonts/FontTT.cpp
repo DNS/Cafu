@@ -82,7 +82,7 @@ TrueTypeFontT::FontInfoT::FontInfoT(const std::string& FontName, int SizeInPixel
 
         for (unsigned long c=0; c<256; c++) CharToGlyphIndex[c]=TP.GetNextTokenAsInt();
 
-        while (TP.PeekNextToken()=="matname")
+        while (!TP.IsAtEOF() && TP.PeekNextToken()=="matname")
         {
             TP.AssertAndSkipToken("matname");
 
@@ -92,7 +92,7 @@ TrueTypeFontT::FontInfoT::FontInfoT(const std::string& FontName, int SizeInPixel
             RenderMaterials.PushBack(MatSys::Renderer->RegisterMaterial(Material));
         }
 
-        while (TP.PeekNextToken()=="glyph")
+        while (!TP.IsAtEOF() && TP.PeekNextToken()=="glyph")
         {
             GlyphInfos.PushBack(new TrueTypeFontT::GlyphInfoT(TP, RenderMaterials));
         }
