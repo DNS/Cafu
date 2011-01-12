@@ -46,6 +46,12 @@ POSSIBILITY OF SUCH DAMAGE.
 #define PCRE_PRERELEASE     
 #define PCRE_DATE           2010-12-10
 
+/* CF: Under Windows, we always link statically to PCRE. Under Linux, defining
+   PCRE_STATIC is not required, but there we use the systems copy of pcre anyways. */
+#if defined(_WIN32) && !defined(PCRE_STATIC)
+#define PCRE_STATIC
+#endif
+
 /* When an application links to a PCRE DLL in Windows, the symbols that are
 imported have to be identified as such. When building PCRE, the appropriate
 export setting is defined in pcre_internal.h, which includes this file. So we

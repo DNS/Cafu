@@ -25,12 +25,13 @@ envCommon=CompilerSetup.envCommon;
 # This big if-else tree has a branch for each supported platform and each supported compiler.
 # For the chosen combination of platform and compiler, it prepares the environments envDebug, envRelease and envProfile.
 if sys.platform=="win32":
-    # Under Windows, there are no system copies of these libraries,
-    # so instead we use our own local copies.
+    # Under Windows, there are no system copies of these libraries, so instead we use our own local copies.
+    # Setting these paths in envCommon means that they are "globally" available everywhere, but this is ok:
+    # Under Linux, all library headers are globally available (e.g. at /usr/include/) as well.
     envCommon.Append(CPPPATH=["#/ExtLibs/expat"])
     envCommon.Append(CPPPATH=["#/ExtLibs/freetype/include"])
     envCommon.Append(CPPPATH=["#/ExtLibs/libpng"])
-    envCommon.Append(CPPPATH=["#/ExtLibs/pcre"])
+    envCommon.Append(CPPPATH=["#/ExtLibs/pcre/include"])
     envCommon.Append(CPPPATH=["#/ExtLibs/zlib"])
 
     if envCommon["MSVC_VERSION"] in ["8.0", "8.0Exp"]:

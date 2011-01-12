@@ -270,7 +270,11 @@ them both to 0; an emulation function will be used. */
 /* #undef PCRE_EXP_DEFN */
 
 /* Define if linking statically (TODO: make nice with Libtool) */
-/* #undef PCRE_STATIC */
+/* CF: Under Windows, we always link statically to PCRE. Under Linux, defining
+   PCRE_STATIC is not required, but there we use the systems copy of pcre anyways. */
+#if defined(_WIN32) && !defined(PCRE_STATIC)
+#define PCRE_STATIC
+#endif
 
 /* When calling PCRE via the POSIX interface, additional working storage is
    required for holding the pointers to capturing substrings because PCRE
