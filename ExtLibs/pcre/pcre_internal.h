@@ -193,7 +193,14 @@ have stdint.h (e.g. Solaris) may have inttypes.h. The macro int64_t may be set
 by "configure". */
 
 #if HAVE_STDINT_H
+
+/* CF: Thanks to pstdint.h, we HAVE_STDINT_H everywhere. */
+#if defined(_WIN32) && _MSC_VER<1600
+#include "../pstdint.h"     // Paul Hsieh's portable implementation of the stdint.h header.
+#else
 #include <stdint.h>
+#endif
+
 #elif HAVE_INTTYPES_H
 #include <inttypes.h>
 #endif
