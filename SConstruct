@@ -260,6 +260,7 @@ ExtLibsList = ["assimp",
                "mpg123",
                "noise",
                "openal-soft",
+               "OpenCollada",
                "pcre",
                "zlib"]
 

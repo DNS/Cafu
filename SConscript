@@ -152,17 +152,7 @@ if sys.platform=="linux2":
 
 envCaWE = wxEnv.Clone()
 envCaWE.Append(CPPPATH=['ExtLibs/lua/src', 'ExtLibs/noise/src', 'ExtLibs/assimp/include'])
-envCaWE.Append(LIBS=Split("SceneGraph MatSys ClipSys cfsLib cfs_jpeg assimp bulletcollision noise lua minizip lightwave freetype png z"))
-
-if sys.platform=="win32":
-    WinResource = envCaWE.RES("CaWE/CaWE.rc")
-
-elif sys.platform=="linux2":
-    envCaWE.Append(CPPPATH=['/usr/include/freetype2'])  # As of 2009-09-10, this line is to become unnecessary in the future, see /usr/include/ftbuild.h for details.
-    envCaWE.Append(LINKFLAGS=['-Wl,-rpath,.'])          # Have dlopen() consider "." when searching for SOs (e.g. libCg.so).
-    envCaWE.Append(LINKFLAGS=['-Wl,--export-dynamic'])  # Have our symbols available for dynamically loaded SOs (e.g. the renderer DLLs).
-
-    WinResource = []
+envCaWE.Append(LIBS=Split("SceneGraph MatSys ClipSys cfsLib cfs_jpeg assimp bulletcollision OpenCollada expat noise lua minizip pcre lightwave freetype png z"))
 
 SourceFilesList = (Glob("CaWE/*.cpp")
     +Glob("CaWE/FontWizard/*.cpp")
@@ -174,4 +164,17 @@ SourceFilesList = (Glob("CaWE/*.cpp")
     +Glob("CaWE/wxExt/*.cpp")
     +Glob("CaWE/wxFB/*.cpp"))
 
-envCaWE.Program('CaWE/CaWE', SourceFilesList + WinResource + CommonWorldObject)
+SourceFilesList += envCaWE.StaticObject("Libs/Models/Loader_Collada.cpp", CPPPATH=envCaWE['CPPPATH']+[
+    "#/ExtLibs/OpenCollada/COLLADABaseUtils/include",
+    "#/ExtLibs/OpenCollada/COLLADAFramework/include",
+    "#/ExtLibs/OpenCollada/COLLADASaxFrameworkLoader/include"]);
+
+if sys.platform=="win32":
+    SourceFilesList += envCaWE.RES("CaWE/CaWE.rc")
+
+elif sys.platform=="linux2":
+    envCaWE.Append(CPPPATH=['/usr/include/freetype2'])  # As of 2009-09-10, this line is to become unnecessary in the future, see /usr/include/ftbuild.h for details.
+    envCaWE.Append(LINKFLAGS=['-Wl,-rpath,.'])          # Have dlopen() consider "." when searching for SOs (e.g. libCg.so).
+    envCaWE.Append(LINKFLAGS=['-Wl,--export-dynamic'])  # Have our symbols available for dynamically loaded SOs (e.g. the renderer DLLs).
+
+envCaWE.Program('CaWE/CaWE', SourceFilesList + CommonWorldObject)
