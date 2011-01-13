@@ -1,0 +1,34 @@
+import os, sys
+
+Import('env')
+
+env_OC = env.Clone()
+
+env_OC.Append(CPPPATH=[
+    "COLLADABaseUtils/include/",
+    "COLLADABaseUtils/include/Math/",
+    "COLLADAFramework/include/",
+    "COLLADASaxFrameworkLoader/include/",
+    "COLLADASaxFrameworkLoader/include/generated14/",
+    "COLLADASaxFrameworkLoader/include/generated15/",
+    "Externals/MathMLSolver/include/",
+    "Externals/MathMLSolver/include/AST/",
+    "Externals/UTF/include/",
+    "GeneratedSaxParser/include/"])
+
+env_OC.Append(CPPDEFINES=["XMLPARSER_EXPAT", "GENERATEDSAXPARSER_XMLPARSER_EXPAT"])
+
+SourceList = (
+    Glob("COLLADABaseUtils/src/*.cpp") +
+    Glob("COLLADABaseUtils/src/Math/*.cpp") +
+    Glob("COLLADAFramework/src/*.cpp") +
+    Glob("COLLADASaxFrameworkLoader/src/*.cpp") +
+    Glob("COLLADASaxFrameworkLoader/src/generated14/*.cpp") +
+    Glob("COLLADASaxFrameworkLoader/src/generated15/*.cpp") +
+    Glob("Externals/MathMLSolver/src/*.cpp") +
+    Glob("Externals/MathMLSolver/src/AST/*.cpp") +
+    Glob("Externals/UTF/src/*.cpp") +
+    [File for File in Glob("GeneratedSaxParser/src/*.cpp") if not "GeneratedSaxParserLibxmlSaxParser.cpp" in str(File)] +
+    [])
+
+env_OC.StaticLibrary("OpenCollada", SourceList)
