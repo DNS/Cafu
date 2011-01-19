@@ -28,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Models/Loader_ase.hpp"
 #include "Models/Loader_assimp.hpp"
 #include "Models/Loader_cmdl.hpp"
+#include "Models/Loader_Collada.hpp"
 #include "Models/Loader_lwo.hpp"
 #include "Models/Loader_md5.hpp"
 #include "Models/Loader_mdl.hpp"
@@ -56,14 +57,15 @@ ModelEditor::ModelDocumentT::ModelDocumentT(GameConfigT* GameConfig, const wxStr
 
     // TODO: This duplicates the code in Model_proxy.cpp and should be combined elsewhere, e.g. into class ModelLoaderT.
     //       Better yet: Use the type system with the loaders, and be able to iterate over them.
-         if (cf::String::EndsWith(FileName, "ase"    )) { LoaderAseT    Loader(FileName); m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "cmdl"   )) { LoaderCafuT   Loader(FileName); m_Model=new CafuModelT(Loader); }
+         if (cf::String::EndsWith(FileName, "ase"    )) { LoaderAseT     Loader(FileName); m_Model=new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(FileName, "cmdl"   )) { LoaderCafuT    Loader(FileName); m_Model=new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(FileName, "dae"    )) { LoaderColladaT Loader(FileName); m_Model=new CafuModelT(Loader); }
  // else if (cf::String::EndsWith(FileName, "dlod"   )) m_Model=new ModelDlodT(FileName);
-    else if (cf::String::EndsWith(FileName, "lwo"    )) { LoaderLwoT    Loader(FileName); m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "mdl"    )) { LoaderHL1mdlT Loader(FileName); m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "md5"    )) { LoaderMd5T    Loader(FileName); m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "md5mesh")) { LoaderMd5T    Loader(FileName); m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "obj"    )) { LoaderObjT    Loader(FileName); m_Model=new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(FileName, "lwo"    )) { LoaderLwoT     Loader(FileName); m_Model=new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(FileName, "mdl"    )) { LoaderHL1mdlT  Loader(FileName); m_Model=new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(FileName, "md5"    )) { LoaderMd5T     Loader(FileName); m_Model=new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(FileName, "md5mesh")) { LoaderMd5T     Loader(FileName); m_Model=new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(FileName, "obj"    )) { LoaderObjT     Loader(FileName); m_Model=new CafuModelT(Loader); }
     else
     {
         LoaderAssimpT Loader(FileName);

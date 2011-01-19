@@ -119,86 +119,101 @@ class CafuMdlWriterT : public COLLADAFW::IWriter
     void operator = (const CafuMdlWriterT&);        ///< Use of the Assignment Operator is not allowed.
 
     COLLADABU::URI m_OutputFile;
+    std::ofstream  OutStream;
 };
 
 
 CafuMdlWriterT::CafuMdlWriterT(const COLLADABU::URI& OutputFile)
-    : m_OutputFile(OutputFile)
+    : m_OutputFile(OutputFile),
+      OutStream("collada-out.log")
 {
 }
 
 
 void CafuMdlWriterT::cancel(const std::string& errorMessage)
 {
+    OutStream << __FUNCTION__ << "\n";
 }
 
 
 void CafuMdlWriterT::start()
 {
+    OutStream << __FUNCTION__ << "\n";
 }
 
 
 void CafuMdlWriterT::finish()
 {
+    OutStream << __FUNCTION__ << "\n";
 }
 
 
 bool CafuMdlWriterT::writeGlobalAsset(const COLLADAFW::FileInfo* asset)
 {
+    OutStream << __FUNCTION__ << "\n";
     return true;
 }
 
 
 bool CafuMdlWriterT::writeVisualScene(const COLLADAFW::VisualScene* visualScene)
 {
+    OutStream << __FUNCTION__ << "\n";
     return true;
 }
 
 
 bool CafuMdlWriterT::writeScene(const COLLADAFW::Scene* scene)
 {
+    OutStream << __FUNCTION__ << "\n";
     return true;
 }
 
 
 bool CafuMdlWriterT::writeLibraryNodes(const COLLADAFW::LibraryNodes* libraryNodes)
 {
+    OutStream << __FUNCTION__ << "\n";
     return true;
 }
 
 
 bool CafuMdlWriterT::writeGeometry(const COLLADAFW::Geometry* geometry)
 {
+    OutStream << __FUNCTION__ << "\n";
     return true;
 }
 
 
 bool CafuMdlWriterT::writeMaterial(const COLLADAFW::Material* material)
 {
+    OutStream << __FUNCTION__ << "\n";
     return true;
 }
 
 
 bool CafuMdlWriterT::writeEffect(const COLLADAFW::Effect* effect)
 {
+    OutStream << __FUNCTION__ << "\n";
     return true;
 }
 
 
 bool CafuMdlWriterT::writeCamera(const COLLADAFW::Camera* camera)
 {
+    OutStream << __FUNCTION__ << "\n";
     return true;
 }
 
 
 bool CafuMdlWriterT::writeImage(const COLLADAFW::Image* image)
 {
+    OutStream << __FUNCTION__ << "\n";
     return true;
 }
 
 
 bool CafuMdlWriterT::writeLight(const COLLADAFW::Light* light)
 {
+    OutStream << __FUNCTION__ << "\n";
     return true;
 }
 
