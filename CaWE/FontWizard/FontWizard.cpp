@@ -31,7 +31,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 FontWizardT::FontWizardT(wxWindow* Parent)
-    : wxWizard(Parent, wxID_ANY, "New Font Wizard", wxBitmap::wxBitmap("CaWE/res/FontWizard.png", wxBITMAP_TYPE_PNG), wxDefaultPosition, wxDEFAULT_DIALOG_STYLE),
+    : wxWizard(Parent, wxID_ANY, "New Font Wizard", wxBitmap("CaWE/res/FontWizard.png", wxBITMAP_TYPE_PNG), wxDefaultPosition, wxDEFAULT_DIALOG_STYLE),
       m_FirstPage(new WelcomePageT(this))
 {
     SetupPageT*   SetupPage  =new SetupPageT(this);
