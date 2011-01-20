@@ -28,7 +28,8 @@ using namespace cf::math;
 
 
 // The static PI constant.
-template<class T> /*static*/ const double AnglesT<T>::PI=3.14159265358979323846;
+template<> /*static*/ const double AnglesT<float> ::PI=3.14159265358979323846;
+template<> /*static*/ const double AnglesT<double>::PI=3.14159265358979323846;
 
 
 template class AnglesT<float>;
