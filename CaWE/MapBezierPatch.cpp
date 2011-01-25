@@ -1145,8 +1145,13 @@ void MapBezierPatchT::UpdateRenderMesh() const
         for (unsigned long VertexNr=0; VertexNr<CollisionBP.Mesh.Size(); VertexNr++)
             CoordsOnly.PushBack(CollisionBP.Mesh[VertexNr].Coord.AsVectorOfDouble());
 
+        // We cannot use our own Material->GetMaterial() here, because it might clip nothing (ClipFlags==0)
+        // and thus would wrongly not be considered in TraceRay().
+        static MaterialT s_CollMaterial;
+        s_CollMaterial.ClipFlags=MaterialT::Clip_AllBlocking;
+
         delete CollModel;
-        CollModel=new cf::ClipSys::CollisionModelStaticT(CollisionBP.Width, CollisionBP.Height, CoordsOnly, Material->GetMaterial());
+        CollModel=new cf::ClipSys::CollisionModelStaticT(CollisionBP.Width, CollisionBP.Height, CoordsOnly, &s_CollMaterial);
 
 
         // 3. Everything updated for now.
