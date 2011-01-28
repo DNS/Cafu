@@ -151,8 +151,9 @@ if sys.platform=="linux2":
 
 
 envCaWE = wxEnv.Clone()
-envCaWE.Append(CPPPATH=['ExtLibs/lua/src', 'ExtLibs/noise/src', 'ExtLibs/assimp/include'])
-envCaWE.Append(LIBS=Split("SceneGraph MatSys ClipSys cfsLib cfs_jpeg assimp bulletcollision OpenCollada expat noise lua minizip pcre lightwave freetype png z"))
+envCaWE.Append(CPPPATH=['ExtLibs/lua/src', 'ExtLibs/noise/src'])
+envCaWE.Append(LIBPATH=["ExtLibs/fbx/lib"])
+envCaWE.Append(LIBS=Split("SceneGraph MatSys ClipSys cfsLib ModelLoaders cfs_jpeg assimp bulletcollision OpenCollada expat noise lua minizip pcre lightwave freetype png z"))
 
 SourceFilesList = (Glob("CaWE/*.cpp")
     +Glob("CaWE/FontWizard/*.cpp")
@@ -160,17 +161,19 @@ SourceFilesList = (Glob("CaWE/*.cpp")
     +Glob("CaWE/MapCommands/*.cpp")
     +Glob("CaWE/MaterialBrowser/*.cpp")
     +Glob("CaWE/ModelEditor/*.cpp")
-    +["Libs/Models/Loader_assimp.cpp"]  # If this was a source of library cfsLib, which is linked to Cafu with "--whole-archive", assimp had to be linked to Cafu as well...
     +Glob("CaWE/wxExt/*.cpp")
     +Glob("CaWE/wxFB/*.cpp"))
 
-SourceFilesList += envCaWE.StaticObject("Libs/Models/Loader_Collada.cpp", CPPPATH=envCaWE['CPPPATH']+[
-    "#/ExtLibs/OpenCollada/COLLADABaseUtils/include",
-    "#/ExtLibs/OpenCollada/COLLADAFramework/include",
-    "#/ExtLibs/OpenCollada/COLLADASaxFrameworkLoader/include"]);
-
 if sys.platform=="win32":
     SourceFilesList += envCaWE.RES("CaWE/CaWE.rc")
+
+    if os.path.exists(Dir("#/ExtLibs/fbx/lib").abspath):
+        fbxlib = "fbxsdk_mt"
+        fbxlib += {"vc8": "2005", "vc9": "2008", "vc10": "2010"}[compiler]
+        if envCaWE["TARGET_ARCH"] in ["x86_64", "amd64", "emt64"]: fbxlib += "_amd64"
+        if buildMode=="dbg": fbxlib += "d"
+
+        envCaWE.Append(LIBS=[fbxlib])
 
 elif sys.platform=="linux2":
     envCaWE.Append(CPPPATH=['/usr/include/freetype2'])  # As of 2009-09-10, this line is to become unnecessary in the future, see /usr/include/ftbuild.h for details.

@@ -28,6 +28,25 @@ env.StaticLibrary(
 
 
 
+# The model loader classes are in a separate library in order to not have to compile many unrelated source files
+# with their header search paths, and to keep them from cfsLib, which is linked to Cafu with "--whole-archive"
+# and thus would involve all related external libraries as well.
+envModelLoaders = env.Clone()
+
+envModelLoaders.Append(CPPPATH=[
+    "#/ExtLibs/assimp/include",
+    "#/ExtLibs/OpenCollada/COLLADABaseUtils/include",
+    "#/ExtLibs/OpenCollada/COLLADAFramework/include",
+    "#/ExtLibs/OpenCollada/COLLADASaxFrameworkLoader/include"])
+
+if os.path.exists(Dir("#/ExtLibs/fbx/include").abspath):
+    envModelLoaders.Append(CPPDEFINES=["HAVE_FBX_SDK"])
+    envModelLoaders.Append(CPPPATH=["#/ExtLibs/fbx/include"])
+
+envModelLoaders.StaticLibrary("ModelLoaders", ["Models/Loader_assimp.cpp", "Models/Loader_Collada.cpp", "Models/Loader_fbx.cpp"])
+
+
+
 # This library is obsolete, and only used for our legacy programs in CaTools.
 if sys.platform=="win32":
     env.StaticLibrary(target="cfsOpenGL",
