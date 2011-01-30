@@ -36,7 +36,7 @@ elif sys.platform=="linux2":
     # GLU is needed for the TerrainViewerOld *and* for e.g. gluBuild2DMipmaps() in the renderers...
     envTools.Append(CPPPATH=['/usr/include/freetype2'])         # As of 2009-09-10, this line is to become unnecessary in the future, see /usr/include/ftbuild.h for details.
     envTools.Append(LIBS=Split("SceneGraph MatSys cfsOpenGL ClipSys cfsLib cfs_jpeg bulletcollision lua minizip lightwave png z")
-                       + Split("GL GLU"))
+                       + Split("GL GLU X11 dl"))
 
 envTools.Program("MakeFont", "CaTools/MakeFont.cpp", LIBS=envTools["LIBS"]+["freetype"])
 
@@ -87,6 +87,7 @@ if sys.platform=="win32":
 
 elif sys.platform=="linux2":
     wxEnv.ParseConfig(Dir("#/ExtLibs/wxWidgets").abspath + "/build-gtk/wx-config --cxxflags --libs std,aui,gl,propgrid | sed 's/-l\\S*jpeg\\S*\\ //g'")
+    wxEnv.Append(LIBS=Split("cairo pangocairo-1.0 X11"))
 
 
 
