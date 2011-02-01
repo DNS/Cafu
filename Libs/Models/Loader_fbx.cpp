@@ -23,18 +23,42 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Loader_fbx.hpp"
 #ifdef HAVE_FBX_SDK
+#include "fbxsdk.h"
 // #include "MaterialSystem/Renderer.hpp"
 // #include "wx/textdlg.h"
 
 
-LoaderFbxT::LoaderFbxT(const std::string& FileName) /*throw (ModelT::LoadError)*/
-    : ModelLoaderT(FileName),
-      m_SdkManager(KFbxSdkManager::Create()),
+class LoaderFbxT::FbxSceneT
+{
+    public:
+
+    FbxSceneT(const std::string& FileName);
+    ~FbxSceneT();
+
+    /// Returns the root node of this scene.
+    /*const*/ KFbxNode* GetRootNode() const { return m_Scene->GetRootNode(); }
+
+    /// Recursively loads the joints, beginning at the given KFbxNode instance and the given parent index.
+    void Load(ArrayT<CafuModelT::JointT>& Joints, int ParentIndex, /*const*/ KFbxNode* Node) const;
+
+
+    private:
+
+    void CleanUp();
+
+    KFbxSdkManager* m_SdkManager;
+    KFbxScene*      m_Scene;
+    KFbxImporter*   m_Importer;
+};
+
+
+LoaderFbxT::FbxSceneT::FbxSceneT(const std::string& FileName)
+    : m_SdkManager(KFbxSdkManager::Create()),
       m_Scene(KFbxScene::Create(m_SdkManager, "")),
       m_Importer(KFbxImporter::Create(m_SdkManager, ""))
 {
     // Initialize the importer by providing a filename.
-    if (!m_Importer->Initialize(m_FileName.c_str(), -1, m_SdkManager->GetIOSettings()))
+    if (!m_Importer->Initialize(FileName.c_str(), -1, m_SdkManager->GetIOSettings()))
     {
         std::string ErrorMsg=m_Importer->GetLastErrorString();
 
@@ -65,17 +89,59 @@ LoaderFbxT::LoaderFbxT(const std::string& FileName) /*throw (ModelT::LoadError)*
 }
 
 
-LoaderFbxT::~LoaderFbxT()
+LoaderFbxT::FbxSceneT::~FbxSceneT()
 {
     CleanUp();
 }
 
 
-void LoaderFbxT::CleanUp()
+void LoaderFbxT::FbxSceneT::CleanUp()
 {
     m_Importer->Destroy();
     m_Scene->Destroy();
     m_SdkManager->Destroy();
+}
+
+
+void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::JointT>& Joints, int ParentIndex, /*const*/ KFbxNode* Node) const
+{
+    const KFbxXMatrix& Transform  =m_Scene->GetEvaluator()->GetNodeLocalTransform(Node);
+    KFbxVector4        Translation=Transform.GetT();
+    KFbxQuaternion     Quaternion =Transform.GetQ();
+ // KFbxVector4        Scale      =Transform.GetS();
+
+    // TODO: If Scaling.x|y|z < 0.99 or > 1.01 then log warning.
+    Quaternion.Normalize();
+    if (Quaternion[3]>0) Quaternion=-Quaternion;
+
+    CafuModelT::JointT Joint;
+
+    Joint.Name  =Node->GetName();
+    Joint.Parent=ParentIndex;
+    Joint.Pos   =Vector3dT(Translation[0], Translation[1], Translation[2]).AsVectorOfFloat();
+    Joint.Qtr   =Vector3dT(Quaternion[0], Quaternion[1], Quaternion[2]).AsVectorOfFloat();
+
+    Joints.PushBack(Joint);
+
+    for (int ChildNr=0; ChildNr<Node->GetChildCount(); ChildNr++)
+        Load(Joints, Joints.Size()-1, Node->GetChild(ChildNr));
+}
+
+
+/******************/
+/*** LoaderFbxT ***/
+/******************/
+
+LoaderFbxT::LoaderFbxT(const std::string& FileName)
+    : ModelLoaderT(FileName),
+      m_FbxScene(new FbxSceneT(FileName))
+{
+}
+
+
+LoaderFbxT::~LoaderFbxT()
+{
+    delete m_FbxScene;
 }
 
 
@@ -88,6 +154,9 @@ bool LoaderFbxT::UseGivenTS() const
 
 void LoaderFbxT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims)
 {
+    // We unconditionally import all nodes in the FBX scene as joints
+    // (and leave it up to the caller to e.g. remove unused joints later).
+    m_FbxScene->Load(Joints, -1, m_FbxScene->GetRootNode());
 }
 
 
@@ -98,11 +167,17 @@ void LoaderFbxT::Load(ArrayT<CafuModelT::GuiLocT>& GuiLocs)
 
 #else   // HAVE_FBX_SDK
 
-LoaderFbxT::LoaderFbxT(const std::string& FileName) /*throw (ModelT::LoadError)*/
+// This is a stub implementation for use whenever the Autodesk FBX SDK is not available.
+LoaderFbxT::LoaderFbxT(const std::string& FileName)
     : ModelLoaderT(FileName)
 {
-    throw LoadErrorT("This edition of the program was built without the Autodesk"
-                     "FBX library that is required to import this file format.");
+    throw LoadErrorT("This edition of the program was built without the Autodesk FBX"
+                     "library that is required to import files in this file format.");
 }
+
+LoaderFbxT::~LoaderFbxT() { }
+bool LoaderFbxT::UseGivenTS() const { return false; }
+void LoaderFbxT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims) { }
+void LoaderFbxT::Load(ArrayT<CafuModelT::GuiLocT>& GuiLocs) { }
 
 #endif  // HAVE_FBX_SDK

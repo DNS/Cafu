@@ -25,8 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define _FBX_MODEL_LOADER_HPP_
 
 #include "Loader.hpp"
-#ifdef HAVE_FBX_SDK
-#include "fbxsdk.h"
 
 
 /// This class uses the Autodesk FBX SDK in order to load a model file into a new Cafu model.
@@ -51,27 +49,8 @@ class LoaderFbxT : public ModelLoaderT
     LoaderFbxT(const LoaderFbxT&);          ///< Use of the Copy Constructor    is not allowed.
     void operator = (const LoaderFbxT&);    ///< Use of the Assignment Operator is not allowed.
 
-    void CleanUp();
-
-    KFbxSdkManager* m_SdkManager;
-    KFbxScene*      m_Scene;
-    KFbxImporter*   m_Importer;
+    class FbxSceneT;
+    FbxSceneT* m_FbxScene;    ///< We use the PIMPL idiom because we cannot forward-declare the FBX SDK classes without hard-wiring the version dependent name of their namespace.
 };
 
-
-#else   // HAVE_FBX_SDK
-
-/// This is a stub for use whenever the Autodesk FBX SDK is not available.
-class LoaderFbxT : public ModelLoaderT
-{
-    public:
-
-    LoaderFbxT(const std::string& FileName);
-
-    bool UseGivenTS() const { return false; }
-    void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims) {}
-    void Load(ArrayT<CafuModelT::GuiLocT>& GuiLocs) {}
-};
-
-#endif  // HAVE_FBX_SDK
 #endif

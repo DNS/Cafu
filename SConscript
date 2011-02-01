@@ -174,7 +174,7 @@ if sys.platform=="win32":
         if envCaWE["TARGET_ARCH"] in ["x86_64", "amd64", "emt64"]: fbxlib += "_amd64"
         if buildMode=="dbg": fbxlib += "d"
 
-        envCaWE.Append(LIBS=[fbxlib])
+        envCaWE.Append(LIBS=[fbxlib, "wininet"])
 
 elif sys.platform=="linux2":
     envCaWE.Append(CPPPATH=['/usr/include/freetype2'])  # As of 2009-09-10, this line is to become unnecessary in the future, see /usr/include/ftbuild.h for details.
