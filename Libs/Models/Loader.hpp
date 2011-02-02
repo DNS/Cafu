@@ -27,6 +27,21 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Model_cmdl.hpp"
 
 
+// class UserFeedbackT
+// {
+//     public:
+// 
+//     /// Prompts the user for the password to decrypt the currently loaded file.
+//     std::string GetPassword() const=0;
+// 
+//     /// Returns an output stream for any log messages that the loader wants to present to the user.
+//     // std::ostream& GetLog()=0;
+// 
+//     // /// Tells the implementation how much of the model has already been loaded.
+//     // void SetProgress(float Percent)=0;
+// };
+
+
 /// The base class for importing arbitrary model files into Cafu models.
 /// The concrete derived classes determine which specific file format is imported.
 class ModelLoaderT
@@ -48,7 +63,7 @@ class ModelLoaderT
     /// or whether the Cafu model should recompute the tangent space (possibly after animation) itself.
     virtual bool UseGivenTS() const=0;
 
-    /// Actually loads the file data into the approproate parts of the Cafu model.
+    /// Actually loads the file data into the appropriate parts of the Cafu model.
     virtual void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims)=0;
 
     /// Loads the locations where GUIs can be attached to the Cafu model.
