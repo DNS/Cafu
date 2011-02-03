@@ -58,16 +58,18 @@ class LoaderFbxT::FbxSceneT
     /// Recursively loads the joints, beginning at the given KFbxNode instance and the given parent index.
     void Load(ArrayT<CafuModelT::JointT>& Joints, int ParentIndex, /*const*/ KFbxNode* Node) const;
 
+    /// Loads the animations.
+    void Load(ArrayT<CafuModelT::AnimT>& Anims) const;
+
 
     private:
 
     void CleanUp();
     void ConvertNurbsAndPatches(KFbxNode* Node);
 
-    KFbxSdkManager*     m_SdkManager;
-    KFbxScene*          m_Scene;
-    KFbxImporter*       m_Importer;
-    ArrayT<std::string> m_AnimStackNames;
+    KFbxSdkManager* m_SdkManager;
+    KFbxScene*      m_Scene;
+    KFbxImporter*   m_Importer;
 };
 
 
@@ -76,7 +78,7 @@ LoaderFbxT::FbxSceneT::FbxSceneT(const std::string& FileName)
       m_Scene(KFbxScene::Create(m_SdkManager, "")),
       m_Importer(KFbxImporter::Create(m_SdkManager, ""))
 {
-    Log << "\nBeginning import of " << FileName << " ...\n";
+    Log << "\nBeginning import of \"" << FileName << "\" ...\n";
 
     // Initialize the importer by providing a filename.
     if (!m_Importer->Initialize(FileName.c_str(), -1, m_SdkManager->GetIOSettings()))
@@ -143,58 +145,6 @@ LoaderFbxT::FbxSceneT::FbxSceneT(const std::string& FileName)
     // FillCameraArray(gScene, gCameraArray);
 
 
-    // Get the name of each animation stack in the scene.
-    KArrayTemplate<KString*> AnimStackNames;
-
-    m_Scene->FillAnimStackNameArray(AnimStackNames);
-    Log << "Anim stacks in scene: " << AnimStackNames.GetCount() << "\n";
-
-    for (int NameNr=0; NameNr<AnimStackNames.GetCount(); NameNr++)
-    {
-        m_AnimStackNames.PushBack(AnimStackNames[NameNr]->Buffer());
-
-        // Track the current animation stack index.
-        const bool IsActive=AnimStackNames[NameNr]->Compare(KFbxGet<KString>(m_Scene->ActiveAnimStackName)) == 0;
-
-        if (IsActive)
-        {
-            KFbxAnimStack* gCurrentAnimationStack=m_Scene->FindMember(FBX_TYPE(KFbxAnimStack), AnimStackNames[NameNr]->Buffer());
-
-            if (gCurrentAnimationStack == NULL)
-            {
-                // this is a problem. The anim stack should be found in the scene!
-                //return;
-            }
-
-            // we assume that the first animation layer connected to the animation stack is the base layer
-            // (this is the assumption made in the FBXSDK)
-            KFbxAnimLayer* gCurrentAnimationLayer=gCurrentAnimationStack->GetMember(FBX_TYPE(KFbxAnimLayer), 0);
-
-            //m_Scene->GetEvaluator()->SetContext(gCurrentAnimationStack);
-
-            //KFbxTakeInfo* lCurrentTakeInfo = gScene->GetTakeInfo(*(gAnimStackNameArray[pItem]));
-            //if (lCurrentTakeInfo)
-            //{
-            //    gStart = lCurrentTakeInfo->mLocalTimeSpan.GetStart();
-            //    gStop = lCurrentTakeInfo->mLocalTimeSpan.GetStop();
-            //}
-            //else
-            //{
-            //    // Take the time line value
-            //    KTimeSpan lTimeLineTimeSpan;
-            //    gScene->GetGlobalSettings().GetTimelineDefaultTimeSpan(lTimeLineTimeSpan);
-            //
-            //    gStart = lTimeLineTimeSpan.GetStart();
-            //    gStop  = lTimeLineTimeSpan.GetStop();
-            //}
-        }
-
-        Log << "    \"" << m_AnimStackNames[NameNr] << "\"" << (IsActive ? "    (active)" : "") << "\n";
-    }
-
-    FbxSdkDeleteAndClear(AnimStackNames);
-
-
     // Get the list of poses in the scene.
     Log << "Poses in scene: " << m_Scene->GetPoseCount() << "\n";
 
@@ -253,10 +203,15 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::JointT>& Joints, int ParentI
 {
     Log << "Loading node " << ParentIndex << ", \"" << Node->GetName() << "\"\n";
 
+    // Note that KFbxAnimEvaluator::GetNodeGlobalTransform() is the proper method to call here:
+    // It returns the node's default transformation matrix or the node's actual transformation
+    // matrix at a specified point in time (depending on its second parameter pTime).
+    // See FBX SDK Programmer's Guide pages 89 and 90 and its API method documentation for details.
+    // Also see KFbxAnimEvaluator::SetContext(): as we set no anim stack, it automatically uses the first in the scene.
     const KFbxXMatrix& Transform  =m_Scene->GetEvaluator()->GetNodeGlobalTransform(Node);
     KFbxVector4        Translation=Transform.GetT();
     KFbxQuaternion     Quaternion =Transform.GetQ();
- // KFbxVector4        Scale      =Transform.GetS();
+    KFbxVector4        Scale      =Transform.GetS();
 
     // TODO: If Scaling.x|y|z < 0.99 or > 1.01 then log warning.
     Quaternion.Normalize();
@@ -264,6 +219,7 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::JointT>& Joints, int ParentI
 
     Log << "    trans: " << Translation << "\n";
     Log << "    quat:  " << Quaternion << "\n";
+    Log << "    scale: " << Scale << "\n";
 
     CafuModelT::JointT Joint;
 
@@ -276,6 +232,44 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::JointT>& Joints, int ParentI
 
     for (int ChildNr=0; ChildNr<Node->GetChildCount(); ChildNr++)
         Load(Joints, Joints.Size()-1, Node->GetChild(ChildNr));
+}
+
+
+void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::AnimT>& Anims) const
+{
+    KTime FrameTime;
+    KArrayTemplate<KString*> AnimStackNames;
+
+    FrameTime.SetTime(0, 0, 0, 1, 0, m_Scene->GetGlobalSettings().GetTimeMode());
+    Log << "Global scene FPS: " << 1.0/FrameTime.GetSecondDouble() << "\n";
+
+    m_Scene->FillAnimStackNameArray(AnimStackNames);
+    Log << "Anim stacks in scene: " << AnimStackNames.GetCount() << "\n";
+
+    for (int NameNr=0; NameNr<AnimStackNames.GetCount(); NameNr++)
+    {
+        KFbxAnimStack* AnimStack=m_Scene->FindMember(FBX_TYPE(KFbxAnimStack), AnimStackNames[NameNr]->Buffer());
+
+        // Make sure that the animation stack was found in the scene (it always should).
+        if (AnimStack==NULL) continue;
+
+        const bool  IsActive =AnimStackNames[NameNr]->Compare(KFbxGet<KString>(m_Scene->ActiveAnimStackName))==0;
+        const KTime TimeStart=AnimStack->GetLocalTimeSpan().GetStart();
+        const KTime TimeStop =AnimStack->GetLocalTimeSpan().GetStop();   // + 0.1*FrameTime;     // For roundoff error.
+
+        m_Scene->GetEvaluator()->SetContext(AnimStack);
+        Log << "    \"" << AnimStackNames[NameNr]->Buffer() << "\"" << (IsActive ? "    (active)" : "") << "\n";
+
+        unsigned int FrameNr=0;
+        for (KTime TimeNow=TimeStart; TimeNow<=TimeStop; TimeNow+=FrameTime)
+        {
+            FrameNr++;
+        }
+
+        Log << "        " << FrameNr << " frames\n";
+    }
+
+    FbxSdkDeleteAndClear(AnimStackNames);
 }
 
 
@@ -309,6 +303,9 @@ void LoaderFbxT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
     // We unconditionally import all nodes in the FBX scene as joints
     // (and leave it up to the caller to e.g. remove unused joints later).
     m_FbxScene->Load(Joints, -1, m_FbxScene->GetRootNode());
+
+    // Load the animations.
+    m_FbxScene->Load(Anims);
 }
 
 
