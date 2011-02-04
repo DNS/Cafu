@@ -45,6 +45,14 @@ static std::ostream& operator << (std::ostream& os, const KFbxQuaternion& A)
 }
 
 
+struct PosQtrScaleT
+{
+    Vector3fT Pos;
+    Vector3fT Qtr;
+    Vector3fT Scale;
+};
+
+
 class LoaderFbxT::FbxSceneT
 {
     public:
@@ -66,6 +74,7 @@ class LoaderFbxT::FbxSceneT
 
     void CleanUp();
     void ConvertNurbsAndPatches(KFbxNode* Node);
+    ArrayT< ArrayT<PosQtrScaleT> > GetSequData(KFbxAnimStack* AnimStack, const ArrayT<KFbxNode*>& Nodes, const ArrayT<KTime>& FrameTimes) const;
 
     KFbxSdkManager* m_SdkManager;
     KFbxScene*      m_Scene;
@@ -235,16 +244,81 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::JointT>& Joints, int ParentI
 }
 
 
+// Returns the nodes in an array that parallels the Joints array.
+static void GetNodes(ArrayT<KFbxNode*>& Nodes, KFbxNode* Node)
+{
+    Nodes.PushBack(Node);
+
+    for (int ChildNr=0; ChildNr<Node->GetChildCount(); ChildNr++)
+        GetNodes(Nodes, Node->GetChild(ChildNr));
+}
+
+
+static ArrayT<KTime> GetFrameTimes(const KFbxAnimStack* AnimStack, const KTime& TimeStep)
+{
+    ArrayT<KTime> FrameTimes;
+
+    const KTime TimeStart=AnimStack->GetLocalTimeSpan().GetStart();
+    const KTime TimeStop =AnimStack->GetLocalTimeSpan().GetStop();
+
+    for (KTime TimeNow=TimeStart; TimeNow<=TimeStop; TimeNow+=TimeStep)
+    {
+        FrameTimes.PushBack(TimeNow);
+    }
+
+    return FrameTimes;
+}
+
+
+/// Gathers all animation data of a sequence (AnimStack) in uncompressed form in an array of the form SequData[NodeNr][FrameNr].
+/// That is, for each frame and for each node, we store the position, quaternion and scale.
+ArrayT< ArrayT<PosQtrScaleT> > LoaderFbxT::FbxSceneT::GetSequData(
+    KFbxAnimStack* AnimStack, const ArrayT<KFbxNode*>& Nodes, const ArrayT<KTime>& FrameTimes) const
+{
+    ArrayT< ArrayT<PosQtrScaleT> > SequData;
+
+    m_Scene->GetEvaluator()->SetContext(AnimStack);
+    SequData.PushBackEmptyExact(Nodes.Size());
+
+    for (unsigned long NodeNr=0; NodeNr<Nodes.Size(); NodeNr++)
+    {
+        SequData[NodeNr].PushBackEmptyExact(FrameTimes.Size());
+
+        for (unsigned long FrameNr=0; FrameNr<FrameTimes.Size(); FrameNr++)
+        {
+            const KFbxXMatrix& Transform  =m_Scene->GetEvaluator()->GetNodeLocalTransform(Nodes[NodeNr], FrameTimes[FrameNr]);
+            KFbxVector4        Translation=Transform.GetT();
+            KFbxQuaternion     Quaternion =Transform.GetQ();
+            KFbxVector4        Scale      =Transform.GetS();
+
+            // TODO: If Scaling.x|y|z < 0.99 or > 1.01 then log warning.
+            Quaternion.Normalize();
+            if (Quaternion[3]>0) Quaternion=-Quaternion;
+
+            SequData[NodeNr][FrameNr].Pos   = Vector3dT(Translation[0], Translation[1], Translation[2]).AsVectorOfFloat();
+            SequData[NodeNr][FrameNr].Qtr   = Vector3dT(Quaternion[0], Quaternion[1], Quaternion[2]).AsVectorOfFloat();
+            SequData[NodeNr][FrameNr].Scale = Vector3dT(Scale[0], Scale[1], Scale[2]).AsVectorOfFloat();
+        }
+    }
+
+    // Ideally, this requires no extra copy, see <http://www.parashift.com/c++-faq-lite/ctors.html#faq-10.10>.
+    return SequData;
+}
+
+
 void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::AnimT>& Anims) const
 {
-    KTime FrameTime;
+    KTime                    TimeStep;
     KArrayTemplate<KString*> AnimStackNames;
+    ArrayT<KFbxNode*>        Nodes;
 
-    FrameTime.SetTime(0, 0, 0, 1, 0, m_Scene->GetGlobalSettings().GetTimeMode());
-    Log << "Global scene FPS: " << 1.0/FrameTime.GetSecondDouble() << "\n";
-
+    TimeStep.SetTime(0, 0, 0, 1, 0, m_Scene->GetGlobalSettings().GetTimeMode());
     m_Scene->FillAnimStackNameArray(AnimStackNames);
+    GetNodes(Nodes, m_Scene->GetRootNode());
+
+    Log << "Global scene FPS: " << 1.0/TimeStep.GetSecondDouble() << "\n";
     Log << "Anim stacks in scene: " << AnimStackNames.GetCount() << "\n";
+    Log << "Animated nodes: " << Nodes.Size() << "\n";
 
     for (int NameNr=0; NameNr<AnimStackNames.GetCount(); NameNr++)
     {
@@ -253,20 +327,73 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::AnimT>& Anims) const
         // Make sure that the animation stack was found in the scene (it always should).
         if (AnimStack==NULL) continue;
 
-        const bool  IsActive =AnimStackNames[NameNr]->Compare(KFbxGet<KString>(m_Scene->ActiveAnimStackName))==0;
-        const KTime TimeStart=AnimStack->GetLocalTimeSpan().GetStart();
-        const KTime TimeStop =AnimStack->GetLocalTimeSpan().GetStop();   // + 0.1*FrameTime;     // For roundoff error.
+        const ArrayT<KTime>                  FrameTimes=GetFrameTimes(AnimStack, TimeStep);
+        const ArrayT< ArrayT<PosQtrScaleT> > SequData  =GetSequData(AnimStack, Nodes, FrameTimes);
 
-        m_Scene->GetEvaluator()->SetContext(AnimStack);
-        Log << "    \"" << AnimStackNames[NameNr]->Buffer() << "\"" << (IsActive ? "    (active)" : "") << "\n";
+        Log << "    \"" << AnimStackNames[NameNr]->Buffer() << "\"" << (AnimStackNames[NameNr]->Compare(KFbxGet<KString>(m_Scene->ActiveAnimStackName))==0 ? "    (active)" : "") << "\n";
+        Log << "        " << FrameTimes.Size() << " frames\n";
 
-        unsigned int FrameNr=0;
-        for (KTime TimeNow=TimeStart; TimeNow<=TimeStop; TimeNow+=FrameTime)
+
+        Anims.PushBackEmpty();
+        CafuModelT::AnimT& Anim=Anims[NameNr];
+        unsigned int       AnimData_Size=0;   // The current common value of Anim.Frames[FrameNr].AnimData.Size(), always the same for all frames.
+
+     // Anim.Name=AnimStackNames[NameNr]->Buffer();
+        Anim.FPS =float(1.0/TimeStep.GetSecondDouble());
+     // Anim.Next=-1;
+
+        Anim.AnimJoints.PushBackEmptyExact(Nodes.Size());
+        Anim.Frames.PushBackEmptyExact(FrameTimes.Size());
+
+        for (unsigned long NodeNr=0; NodeNr<Nodes.Size(); NodeNr++)
         {
-            FrameNr++;
+            CafuModelT::AnimT::AnimJointT& AnimJoint=Anim.AnimJoints[NodeNr];
+
+            // For (space) efficiency, the defaults are taken from frame 0, rather than from the "unrelated" Bone.Value[...] as in HL1 mdl:
+            // the resulting AnimData then require only 1/4 to 1/3 of the original size! (tested with Trinity.mdl)
+            for (unsigned int i=0; i<3; i++) AnimJoint.BaseValues[i  ]=SequData[NodeNr][0].Pos[i];
+            for (unsigned int i=0; i<3; i++) AnimJoint.BaseValues[i+3]=SequData[NodeNr][0].Qtr[i];
+            AnimJoint.Flags=0;
+            AnimJoint.FirstDataIdx=AnimData_Size;
+
+            for (unsigned long FrameNr=0; FrameNr<FrameTimes.Size(); FrameNr++)
+            {
+                for (unsigned int i=0; i<6; i++)
+                {
+                    const float Value=(i<3) ? SequData[NodeNr][FrameNr].Pos[i]
+                                            : SequData[NodeNr][FrameNr].Qtr[i-3];
+
+                    if (Value!=AnimJoint.BaseValues[i]) AnimJoint.Flags|=(1u << i);
+                }
+            }
+
+            for (unsigned int i=0; i<6; i++)
+            {
+                if (((AnimJoint.Flags >> i) & 1)==0) continue;
+
+                for (unsigned long FrameNr=0; FrameNr<FrameTimes.Size(); FrameNr++)
+                {
+                    assert(Anim.Frames[FrameNr].AnimData.Size()==AnimData_Size);
+
+                    Anim.Frames[FrameNr].AnimData.PushBack(i<3 ? SequData[NodeNr][FrameNr].Pos[i]
+                                                               : SequData[NodeNr][FrameNr].Qtr[i-3]);
+                }
+
+                AnimData_Size++;
+            }
         }
 
-        Log << "        " << FrameNr << " frames\n";
+        // If it is a looping sequence whose last frame is a repetition of the first,
+        // remove the redundant frame (our own code automatically wrap at the end of the sequence).
+        // if (Sequ.Flags & 1) Anim.Frames.DeleteBack();
+
+        // Fill in the bounding-box for each frame from the sequence BB from the mdl file, which doesn't keep per-frame BBs.
+        // It would be more accurate of course if we re-computed the proper per-frame BB ourselves...
+        const Vector3fT BBMin(-24, -24, -24);
+        const Vector3fT BBMax(-BBMin);
+
+        for (unsigned long FrameNr=0; FrameNr<Anim.Frames.Size(); FrameNr++)
+            Anim.Frames[FrameNr].BB=BoundingBox3fT(Vector3fT(BBMin), Vector3fT(BBMax));
     }
 
     FbxSdkDeleteAndClear(AnimStackNames);
