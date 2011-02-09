@@ -34,6 +34,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 class EntityCreateParamsT;
 namespace cf { namespace GuiSys { class GuiI; } }
+struct luaL_Reg;
 
 
 class EntStaticDetailModelT : public BaseEntityT
@@ -69,10 +70,18 @@ class EntStaticDetailModelT : public BaseEntityT
     protected:
 
     ModelProxyT       Model;
+    char&             m_PlayAnim;   ///< If 1, play the animation, i.e. advance the frames over time. If 0, keep still. This is a reference to State.Flags to have it sync'ed over the network.
     int               ModelSequenceNr;
     float             ModelFrameNr;
-    std::string       GuiName;  ///< If our "gui" entity key is set, store the value here.
-    cf::GuiSys::GuiI* Gui;      ///< If the Model can display a GUI (it has a "Textures/meta/EntityGUI" surface), we load it here, *both* on the server- as well as on the client-side.
+    std::string       GuiName;      ///< If our "gui" entity key is set, store the value here.
+    cf::GuiSys::GuiI* Gui;          ///< If the Model can display a GUI (it has a "Textures/meta/EntityGUI" surface), we load it here, *both* on the server- as well as on the client-side.
+
+
+    // Script methods (to be called from the map/entity Lua scripts).
+    static int IsPlayingAnim(lua_State* LuaState);
+    static int PlayAnim(lua_State* LuaState);
+
+    static const luaL_Reg MethodsList[];
 };
 
 #endif

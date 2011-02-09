@@ -3,23 +3,23 @@
 Version 13
 
 
-{ // Entity 0 (the world)
+{
   classname "worldspawn"
+  shlmap_patchsize "200.0"
+  lightmap_patchsize "200.0"
   sounds "1"
   fog_color "0 0 0"
-  lightmap_patchsize "200.0"
   wind_velocity "0.0"
   wind_velocity_var "0.0"
   precipitation_intensity "3"
   fog_density "0.0025"
   fog_start "0.0"
   fog_end "1.0"
-  shlmap_patchsize "200.0"
   mru_mat_0 "Textures/Frank/djcrate02"
   mru_mat_1 "Textures/Frank/djcrate01"
   mru_mat_2 "TechDemo/walls/wall-13b"
 
-  { // Brush 0
+  {
     ( 384 -256 0 ) ( 368 -256 0 ) ( 354 -324 0 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( 370 -330 80 ) ( 354 -324 80 ) ( 368 -256 80 ) "Textures/WilliH/tmet04" ( 2 0.375 0 11 ( 15.7061 -3.05295 0 ) ( -12.2118 -62.8242 0 ) )
     ( 368 -256 0 ) ( 384 -256 0 ) ( 384 -256 80 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -256 ) )
@@ -199,7 +199,7 @@ Version 13
     ( -68 654 0 ) ( 0 640 0 ) ( 0 640 80 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -256 ) )
   }
 
-  { // Brush 20
+  {
     ( -510 266 0 ) ( -526 260 0 ) ( -512 192 0 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( -496.00003 192 208.00002 ) ( -512 192 208.00002 ) ( -526 260 208.00002 ) "Textures/WilliH/tmet04" ( 2 0.125 0 -11 ( 15.7061 3.05295 0 ) ( 12.2118 -62.8242 0 ) )
     ( -496.00003 192 0 ) ( -512 192 0 ) ( -512 192 208.00002 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -256 ) )
@@ -379,7 +379,7 @@ Version 13
     ( -1922 162 192 ) ( -1992 58 192 ) ( -1992 58 256 ) "Textures/Industri/big-blue-cement" ( 2 0 0.5 0 ( 0 256 0 ) ( 0 0 -512 ) )
   }
 
-  { // Brush 40
+  {
     ( -2176 512 192 ) ( -1922 162 192 ) ( -1818 232 192 ) "Textures/Industri/und_rustbase" ( 2 0 0 0 ( 256 0 0 ) ( 0 -256 0 ) )
     ( -1922 162 256 ) ( -2176 512 256 ) ( -1920 512 256 ) "Textures/Industri/und_rustbase" ( 2 0 0 0 ( 256 0 0 ) ( 0 -256 0 ) )
     ( -1922 162 192 ) ( -2176 512 192 ) ( -2176 512 256 ) "Textures/Industri/und_rustbase" ( 2 0 0 0 ( 0 256 0 ) ( 0 0 -256 ) )
@@ -560,7 +560,7 @@ Version 13
     ( 592 -576 128 ) ( 592 -256 128 ) ( 576 -256 192 ) "Textures/Frank/rtgara" ( 2 0 0 0 ( 0 192 0 ) ( 0 0 -192 ) )
   }
 
-  { // Brush 60
+  {
     ( 592 -256 0 ) ( 592 -576 0 ) ( 608 -576 0 ) "Textures/Frank/rtgara" ( 2 0 0 0 ( 192 0 0 ) ( 0 -192 0 ) )
     ( 592 -576 128 ) ( 592 -256 128 ) ( 608 -256 128 ) "Textures/Frank/rtgara" ( 2 0 0 0 ( 192 0 0 ) ( 0 -192 0 ) )
     ( 592 -576 0 ) ( 592 -256 0 ) ( 592 -256 128 ) "Textures/Frank/rtgara" ( 2 0 0 0 ( 0 192 0 ) ( 0 0 -192 ) )
@@ -744,7 +744,7 @@ Version 13
     ( 192 -624 192 ) ( 192 -608 192 ) ( 192 -608 224 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -256 ) )
   }
 
-  { // Brush 80
+  {
     ( 512 -608 224 ) ( 192 -608 224 ) ( 192 -640 224 ) "Textures/WilliH/tmet04" ( 2 0 0 0 ( 16 0 0 ) ( 0 -64 0 ) )
     ( 512 -640 256 ) ( 192 -640 256 ) ( 192 -624 256 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( 192 -608 224 ) ( 512 -608 224 ) ( 512 -624 256 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -256 ) )
@@ -924,7 +924,7 @@ Version 13
     ( 128 -648 160 ) ( 64 -648 160 ) ( 64 -640 160 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
   }
 
-  { // Brush 100
+  {
     ( 320 -384 0 ) ( 320 0 0 ) ( 384 0 0 ) "Textures/Industri/und_rustbase" ( 2 0 0 0 ( 256 0 0 ) ( 0 -256 0 ) )
     ( 320 0 -64 ) ( 320 -384 -64 ) ( 384 -384 -64 ) "Textures/OldWAD/tnnl_brd1b" ( 2 0 0 0 ( 128 0 0 ) ( 0 -16 0 ) )
     ( 320 -384 -64 ) ( 320 0 -64 ) ( 320 0 0 ) "Textures/OldWAD/tnnl_brd1b" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -16 ) )
@@ -1104,7 +1104,7 @@ Version 13
     ( 640 -128 416.00003 ) ( -704 -128 416.00003 ) ( -704 -128 512 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -256 ) )
   }
 
-  { // Brush 120
+  {
     ( -704 -448 512 ) ( -704 -384 512 ) ( 640 -384 512 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( -704 -384 416.00003 ) ( -704 -448 416.00003 ) ( 640 -448 416.00003 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( -704 -448 416.00003 ) ( -704 -384 416.00003 ) ( -704 -384 512 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -256 ) )
@@ -1283,7 +1283,7 @@ Version 13
     ( -352 -576 164 ) ( -336.00003 -592 160 ) ( -336.00003 -592 96 ) "Textures/WilliH/tmet04" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -64 ) )
   }
 
-  { // Brush 140
+  {
     ( -352 -640 164 ) ( -352 -576 164 ) ( -336.00003 -592 160 ) "Textures/WilliH/tmet04" ( 2 0 0 0 ( 16 0 0 ) ( 0 -64 0 ) )
     ( -352 -576 96 ) ( -352 -640 96 ) ( -336.00003 -640 96 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( -352 -640 96 ) ( -352 -576 96 ) ( -352 -576 164 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -256 ) )
@@ -1463,7 +1463,7 @@ Version 13
     ( -496.00003 128 0 ) ( -512 128 0 ) ( -512 128 176 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -256 ) )
   }
 
-  { // Brush 160
+  {
     ( -512 -320 208.00002 ) ( -512 -256 176 ) ( -496.00003 -256 176 ) "Textures/WilliH/tmet04" ( 2 0 0 0 ( 16 0 0 ) ( 0 -64 0 ) )
     ( -512 -256 0 ) ( -512 -320 0 ) ( -496.00003 -320 0 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( -512 -320 0 ) ( -512 -256 0 ) ( -512 -256 176 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -256 ) )
@@ -1643,7 +1643,7 @@ Version 13
     ( -128 -448 48 ) ( -160 -448 48 ) ( -160 -432 48 ) "Textures/WilliH/tmet04" ( 2 0 0 0 ( 16 0 0 ) ( 0 -64 0 ) )
   }
 
-  { // Brush 180
+  {
     ( -160 -432 32 ) ( -224 -432 32 ) ( -224 -448 32 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( -224 -448 48 ) ( -224 -448 32 ) ( -224 -432 32 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -256 ) )
     ( -224 -432 48 ) ( -224 -432 32 ) ( -160 -432 32 ) "Textures/OldWAD/Lights/light_3a_on" ( 2 0 0.5 -90 ( 0 0 16 ) ( 64 0 0 ) )
@@ -1827,7 +1827,7 @@ Version 13
     ( -656 -672.00006 320 ) ( -512 -672.00006 320 ) ( -512 -576 448 ) "Textures/WilliH/rock01b" ( 2 0 0 0 ( 320 0 0 ) ( 0 0 -320 ) )
   }
 
-  { // Brush 200
+  {
     ( -640 -704 256 ) ( -640 -624 256 ) ( -528 -624 256 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( -640 -624 240 ) ( -640 -704 240 ) ( -528 -704 240 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( -640 -704 240 ) ( -640 -624 240 ) ( -640 -624 256 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -256 ) )
@@ -2005,7 +2005,7 @@ Version 13
     ( 0 640 0 ) ( 192 640 0 ) ( 192 640 80 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -256 ) )
   }
 
-  { // Brush 220
+  {
     ( 384 256 32 ) ( 384 320 32 ) ( 576 320 32 ) "Textures/Industri/tig_cmttile" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 384 320 0 ) ( 384 320 32 ) ( 384 256 32 ) "Textures/Industri/tig_cmttile" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
     ( 576 256 0 ) ( 576 256 32 ) ( 576 320 32 ) "Textures/Industri/tig_cmttile" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
@@ -2185,7 +2185,7 @@ Version 13
     ( 560 512 192 ) ( 576 512 192 ) ( 576 512 224 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -256 ) )
   }
 
-  { // Brush 240
+  {
     ( 560 640 192 ) ( 560 512 192 ) ( 576 512 192 ) "Textures/WilliH/tmet04" ( 2 0 0 0 ( 16 0 0 ) ( 0 -64 0 ) )
     ( 560 512 224 ) ( 560 640 224 ) ( 576 640 224 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( 560 512 192 ) ( 560 640 192 ) ( 560 640 224 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -256 ) )
@@ -2369,7 +2369,7 @@ Version 13
     ( 512 816 192 ) ( 512 832.00006 192 ) ( 512 832.00006 224 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -256 ) )
   }
 
-  { // Brush 260
+  {
     ( 528 816 192 ) ( 512 816 192 ) ( 512 800 192 ) "Textures/WilliH/tmet04" ( 2 0 0 -90 ( 0 16 0 ) ( 64 0 0 ) )
     ( 528 800 224 ) ( 512 800 224 ) ( 512 816 224 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( 528 800 192 ) ( 512 800 192 ) ( 512 800 224 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -256 ) )
@@ -2552,7 +2552,7 @@ Version 13
     ( 608 464 256 ) ( 0 464 256 ) ( 0 464 320 ) "Textures/Industri/und_rustbase" ( 2 0 0 0 ( 256 0 0 ) ( 0 0 -256 ) )
   }
 
-  { // Brush 280
+  {
     ( -469 640 320 ) ( 0 640 320 ) ( 0 464 320 ) "Textures/Industri/und_rustbase" ( 2 0 0 0 ( 256 0 0 ) ( 0 -256 0 ) )
     ( 0 464 256 ) ( 0 640 256 ) ( -469 640 256 ) "Textures/Industri/und_rustbase" ( 2 0 0 0 ( 256 0 0 ) ( 0 -256 0 ) )
     ( 0 640 256 ) ( 0 464 256 ) ( 0 464 320 ) "Textures/Industri/und_rustbase" ( 2 0 0 0 ( 0 256 0 ) ( 0 0 -256 ) )
@@ -2733,7 +2733,7 @@ Version 13
     ( -704 800 224 ) ( -704 832.00006 224 ) ( -704 832.00006 256 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -256 ) )
   }
 
-  { // Brush 300
+  {
     ( 0 832.00006 192 ) ( -512 832.00006 192 ) ( -512 816 192 ) "Textures/WilliH/tmet04" ( 2 0 0 -90 ( 0 16 0 ) ( 64 0 0 ) )
     ( 0 816 224 ) ( -512 816 224 ) ( -512 832.00006 224 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( 0 816 192 ) ( -512 816 192 ) ( -512 816 224 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -256 ) )
@@ -2911,7 +2911,7 @@ Version 13
     ( -408 912.00006 192 ) ( -424 912.00006 192 ) ( -424 912.00006 256 ) "Textures/Industri/und_rustbase" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
   }
 
-  { // Brush 320
+  {
     ( -424 920 256 ) ( -424 936 256 ) ( -408 936 256 ) "Textures/Industri/und_rustbase" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -424 936 192 ) ( -424 920 192 ) ( -408 920 192 ) "Textures/OldWAD/Lights/lightsmall2con" ( 2 0.5 0.5 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -424 920 192 ) ( -424 936 192 ) ( -424 936 256 ) "Textures/Industri/und_rustbase" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
@@ -3091,7 +3091,7 @@ Version 13
     ( -632 936 192 ) ( -648 936 192 ) ( -648 936 256 ) "Textures/Industri/und_rustbase" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
   }
 
-  { // Brush 340
+  {
     ( -656 912.00006 256 ) ( -656 944 256 ) ( -648 944 256 ) "Textures/Industri/und_rustbase" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -656 944 192 ) ( -656 912.00006 192 ) ( -648 912.00006 192 ) "Textures/Industri/und_rustbase" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -656 912.00006 192 ) ( -656 944 192 ) ( -656 944 256 ) "Textures/Industri/und_rustbase" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
@@ -3273,7 +3273,7 @@ Version 13
     ( -768 640 320 ) ( -512 640 448 ) ( -512 640 512 ) "Textures/WilliH/rock01b" ( 2 0 0 -30 ( 277.128 0 160 ) ( 160 0 -277.128 ) )
   }
 
-  { // Brush 360
+  {
     ( -768 128 128 ) ( -768 384 128 ) ( -704 384 128 ) "Textures/Industri/tig_cmttile" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -768 384 64 ) ( -768 128 64 ) ( -704 128 64 ) "Textures/Industri/tig_cmttile" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -768 128 64 ) ( -768 384 64 ) ( -768 384 128 ) "Textures/Industri/tig_cmttile" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
@@ -3449,7 +3449,7 @@ Version 13
     ( -256 -192 -64 ) ( -288 -192 -64 ) ( -288 -192 -16 ) "Textures/OldWAD/brdmtl_rst" ( 2 0 0 0 ( 32 0 0 ) ( 0 0 -128 ) )
   }
 
-  { // Brush 380
+  {
     ( -256 -192 -16 ) ( -256 -128 -8 ) ( -128 -128 -8 ) "Textures/WilliH/wmet02" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -256 -128 -64 ) ( -256 -192 -64 ) ( -128 -192 -64 ) "Textures/WilliH/wmet02" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -256 -128 -8 ) ( -256 -192 -16 ) ( -256 -192 -64 ) "Textures/WilliH/wmet02" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
@@ -3629,7 +3629,7 @@ Version 13
     ( -96 -448 -160 ) ( -96 -704 -160 ) ( -64 -704 -160 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
   }
 
-  { // Brush 400
+  {
     ( -320 -704 32 ) ( -320 -448 32 ) ( -64 -448 32 ) "Textures/Kai/pipes" ( 2 0.16666 0 0 ( 192 0 0 ) ( 0 -128 0 ) )
     ( -320 -448 0 ) ( -320 -704 0 ) ( -64 -704 0 ) "Textures/Kai/pipes" ( 2 0.16666 0 0 ( 192 0 0 ) ( 0 -128 0 ) )
     ( -320 -704 0 ) ( -320 -448 0 ) ( -320 -448 32 ) "Textures/Kai/pipes" ( 2 0.16666 0 0 ( 0 192 0 ) ( 0 0 -128 ) )
@@ -3805,7 +3805,7 @@ Version 13
     ( 128 -768 -160 ) ( 128 -896 -160 ) ( 128 -896 -128 ) "Textures/WilliH/wmet02" ( 2 0 0 0 ( 0 80 0 ) ( 0 0 -80 ) )
   }
 
-  { // Brush 420
+  {
     ( 128 -928 -128 ) ( -96 -928 -128 ) ( -96 -896 -128 ) "Textures/OldWAD/brdmtl_rst" ( 2 0 0 -90 ( 0 32 0 ) ( 128 0 0 ) )
     ( -96 -896 -160 ) ( -96 -928 -160 ) ( 128 -928 -160 ) "Textures/OldWAD/brdmtl_rst" ( 2 0 0 -90 ( 0 32 0 ) ( 128 0 0 ) )
     ( 128 -928 -160 ) ( -96 -928 -160 ) ( -96 -928 -128 ) "Textures/OldWAD/brdmtl_rst" ( 2 0 0 -90 ( 0 0 32 ) ( 128 0 0 ) )
@@ -3985,7 +3985,7 @@ Version 13
     ( -608 -928 -160 ) ( -608 -960 -160 ) ( -416.00003 -960 -160 ) "Textures/Frank/rtgara" ( 2 0 0 0 ( 192 0 0 ) ( 0 -192 0 ) )
   }
 
-  { // Brush 440
+  {
     ( -96 -960 0 ) ( -96 -928 0 ) ( 128 -928 0 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( 128 -960 -160 ) ( 128 -960 0 ) ( 128 -928 0 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -256 ) )
     ( -96 -928 -160 ) ( -96 -928 0 ) ( -96 -960 0 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -256 ) )
@@ -4163,7 +4163,7 @@ Version 13
     ( -736 -416.00003 -160 ) ( -736 -704 -160 ) ( -704 -704 -160 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
   }
 
-  { // Brush 460
+  {
     ( -960 -704 32 ) ( -960 -416.00003 32 ) ( -704 -416.00003 32 ) "Textures/Kai/pipes" ( 2 0.16666 0 0 ( 192 0 0 ) ( 0 -128 0 ) )
     ( -960 -416.00003 0 ) ( -960 -704 0 ) ( -704 -704 0 ) "Textures/Kai/pipes" ( 2 0.16666 0 0 ( 192 0 0 ) ( 0 -128 0 ) )
     ( -960 -704 0 ) ( -960 -416.00003 0 ) ( -960 -416.00003 32 ) "Textures/Kai/pipes" ( 2 0.16666 0 0 ( 0 192 0 ) ( 0 0 -128 ) )
@@ -4341,7 +4341,7 @@ Version 13
     ( -928 -416.00003 -160 ) ( -896 -384 -160 ) ( -896 -384 -128 ) "Textures/OldWAD/brdmtl_rst" ( 2 0 0 0 ( 0 32 0 ) ( 0 0 -128 ) )
   }
 
-  { // Brush 480
+  {
     ( -928 -224 0 ) ( -928 -192 0 ) ( -736 -192 0 ) "Textures/Frank/rtgara" ( 2 0.47916 0 0 ( 192 0 0 ) ( 0 -192 0 ) )
     ( -736 -224 -160 ) ( -736 -224 0 ) ( -736 -192 0 ) "Textures/Frank/rtgara" ( 2 0.47916 0 0 ( 0 192 0 ) ( 0 0 -192 ) )
     ( -928 -192 -160 ) ( -928 -192 0 ) ( -928 -224 0 ) "Textures/Frank/rtgara" ( 2 0.47916 0 0 ( 0 192 0 ) ( 0 0 -192 ) )
@@ -4521,7 +4521,7 @@ Version 13
     ( -1024 -448 0 ) ( -1024 -192 0 ) ( -1024 -192 32 ) "Textures/Kai/pipes" ( 2 0 0 0 ( 0 192 0 ) ( 0 0 -128 ) )
   }
 
-  { // Brush 500
+  {
     ( -1024 -416.00003 0 ) ( -960 -416.00003 0 ) ( -960 -448 0 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( -960 -448 -160 ) ( -960 -448 0 ) ( -960 -416.00003 0 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -256 ) )
     ( -1024 -448 0 ) ( -960 -448 0 ) ( -960 -448 -160 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -256 ) )
@@ -4702,7 +4702,7 @@ Version 13
     ( -1280 -1152 -64 ) ( -1664.0001 -1152 -64 ) ( -1664.0001 -1152 0 ) "Textures/Industri/tig_cmttile" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
   }
 
-  { // Brush 520
+  {
     ( -1152 192 0 ) ( -1152 128 0 ) ( -1136 128 0 ) "Textures/WilliH/tmet04" ( 2 0 0 0 ( 16 0 0 ) ( 0 -64 0 ) )
     ( -1152 128 32 ) ( -1152 192 32 ) ( -1136 192 32 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( -1152 128 0 ) ( -1152 192 0 ) ( -1152 192 32 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -256 ) )
@@ -4886,7 +4886,7 @@ Version 13
     ( -1600 -576 -192 ) ( -1600 -704 -192 ) ( -1600 -704 -136 ) "Textures/WilliH/wmet02" ( 2 0 0 0 ( 0 80 0 ) ( 0 0 -80 ) )
   }
 
-  { // Brush 540
+  {
     ( -1472 -704 -136 ) ( -1600 -704 -136 ) ( -1600 -576 -136 ) "Textures/Kai/ceiling05" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -1472 -576 -192 ) ( -1600 -576 -192 ) ( -1600 -704 -192 ) "Textures/Kai/ceiling05" ( 2 0 0 0 ( 102.4 0 0 ) ( 0 -102.4 0 ) )
     ( -1472 -704 -192 ) ( -1600 -704 -192 ) ( -1600 -704 -136 ) "Textures/Kai/ceiling05" ( 2 0 0 0 ( 102.4 0 0 ) ( 0 0 -102.4 ) )
@@ -5074,7 +5074,7 @@ Version 13
     ( -1664.0001 -944 -64 ) ( -1600 -992.00006 -64 ) ( -1600 -1056 128 ) "Textures/WilliH/rock01b" ( 2 0 0 0 ( 320 0 0 ) ( 0 0 -320 ) )
   }
 
-  { // Brush 560
+  {
     ( -2112 -1024 256 ) ( -2112 -928 256 ) ( -2016 -896 256 ) "Textures/WilliH/rock01b" ( 2 0 0 0 ( 320 0 0 ) ( 0 -320 0 ) )
     ( -2112 -992.00006 128 ) ( -2112 -1088 128 ) ( -1856 -1088 128 ) "Textures/WilliH/rock01b" ( 2 0 0 0 ( 320 0 0 ) ( 0 -320 0 ) )
     ( -2112 -1088 128 ) ( -2112 -992.00006 128 ) ( -2112 -928 256 ) "Textures/WilliH/rock01b" ( 2 0 0 0 ( 0 320 0 ) ( 0 0 -320 ) )
@@ -5270,7 +5270,7 @@ Version 13
     ( -2048 0 128 ) ( -2064 0 128 ) ( -2064 0 160 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -256 ) )
   }
 
-  { // Brush 580
+  {
     ( -2064 0 128 ) ( -2064 -64 128 ) ( -2048 -64 128 ) "Textures/WilliH/tmet04" ( 2 0 0 0 ( 16 0 0 ) ( 0 -64 0 ) )
     ( -2064 -64 160 ) ( -2064 0 160 ) ( -2048 0 160 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( -2048 0 128 ) ( -2048 -64 128 ) ( -2048 -64 160 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -256 ) )
@@ -5450,7 +5450,7 @@ Version 13
     ( -1600 256 -64 ) ( -1664.0001 256 -64 ) ( -1664.0001 256 256 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -256 ) )
   }
 
-  { // Brush 600
+  {
     ( -1696 256 256 ) ( -1696 512 256 ) ( -1664.0001 512 256 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 256 0 0 ) ( 0 -512 0 ) )
     ( -1696 512 192 ) ( -1696 256 192 ) ( -1664.0001 256 192 ) "Textures/Industri/und_rustbase" ( 2 0 0 0 ( 256 0 0 ) ( 0 -256 0 ) )
     ( -1696 256 192 ) ( -1696 512 192 ) ( -1696 512 256 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 0 256 0 ) ( 0 0 -512 ) )
@@ -5632,7 +5632,7 @@ Version 13
     ( -1088 1456 128 ) ( -1408 1456 128 ) ( -1408 1440 192 ) "Textures/Frank/rtgara" ( 2 -0.33334 0 0 ( 192 0 0 ) ( 0 0 -192 ) )
   }
 
-  { // Brush 620
+  {
     ( -1088 1472 0 ) ( -1408 1472 0 ) ( -1408 1456 0 ) "Textures/Frank/rtgara" ( 2 -0.33334 0 0 ( 192 0 0 ) ( 0 -192 0 ) )
     ( -1088 1456 128 ) ( -1408 1456 128 ) ( -1408 1472 128 ) "Textures/Frank/rtgara" ( 2 -0.33334 0 0 ( 192 0 0 ) ( 0 -192 0 ) )
     ( -1088 1456 0 ) ( -1408 1456 0 ) ( -1408 1456 128 ) "Textures/Frank/rtgara" ( 2 -0.33334 0 0 ( 192 0 0 ) ( 0 0 -192 ) )
@@ -5814,7 +5814,7 @@ Version 13
     ( -1408 1280 -128 ) ( -1280 1280 -128 ) ( -1280 1280 64 ) "Textures/Industri/big-blue-cement" ( 2 0 0.25 0 ( 128 0 0 ) ( 0 0 -256 ) )
   }
 
-  { // Brush 640
+  {
     ( -1296 816 64 ) ( -1296 1264 64 ) ( -1280 1280 64 ) "Textures/WilliH/tmet04" ( 2 0 0 0 ( 16 0 0 ) ( 0 -64 0 ) )
     ( -1296 1264 -128 ) ( -1296 816 -128 ) ( -1280 832.00006 -128 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( -1296 816 -128 ) ( -1296 1264 -128 ) ( -1296 1264 64 ) "Textures/Industri/big-blue-cement" ( 2 0 0.25 0 ( 0 128 0 ) ( 0 0 -256 ) )
@@ -5994,7 +5994,7 @@ Version 13
     ( -2112 768 0 ) ( -1856 768 0 ) ( -1856 768 64 ) "Textures/Industri/tig_cmttile" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
   }
 
-  { // Brush 660
+  {
     ( -1728 528 64 ) ( -1664.0001 528 64 ) ( -1664.0001 512 64 ) "Textures/WilliH/tmet04" ( 2 0 0 -90 ( 0 16 0 ) ( 64 0 0 ) )
     ( -1728 512 -128 ) ( -1664.0001 512 -128 ) ( -1664.0001 528 -128 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( -1664.0001 528 -128 ) ( -1664.0001 512 -128 ) ( -1664.0001 512 64 ) "Textures/Industri/big-blue-cement" ( 2 0 0.25 0 ( 0 128 0 ) ( 0 0 -256 ) )
@@ -6176,7 +6176,7 @@ Version 13
     ( -2048 1456 128 ) ( -2048 1472 128 ) ( -2048 1472 256 ) "Textures/Frank/rtgara" ( 2 0 0 0 ( 0 192 0 ) ( 0 0 -192 ) )
   }
 
-  { // Brush 680
+  {
     ( -1792 1472 0 ) ( -2048 1472 0 ) ( -2048 1456 0 ) "Textures/Frank/rtgara" ( 2 -0.33334 0 0 ( 192 0 0 ) ( 0 -192 0 ) )
     ( -1792 1456 128 ) ( -2048 1456 128 ) ( -2048 1472 128 ) "Textures/Frank/rtgara" ( 2 -0.33334 0 0 ( 192 0 0 ) ( 0 -192 0 ) )
     ( -1792 1456 0 ) ( -2048 1456 0 ) ( -2048 1456 128 ) "Textures/Frank/rtgara" ( 2 -0.33334 0 0 ( 192 0 0 ) ( 0 0 -192 ) )
@@ -6358,7 +6358,7 @@ Version 13
     ( -2096 1408 128 ) ( -2096 1024 128 ) ( -2080 1024 192 ) "Textures/Frank/rtgara" ( 2 -0.33334 0 0 ( 0 192 0 ) ( 0 0 -192 ) )
   }
 
-  { // Brush 700
+  {
     ( -2112 1408 0 ) ( -2112 1024 0 ) ( -2096 1024 0 ) "Textures/Frank/rtgara" ( 2 0 0.33334 0 ( 192 0 0 ) ( 0 -192 0 ) )
     ( -2112 1024 128 ) ( -2112 1408 128 ) ( -2096 1408 128 ) "Textures/Frank/rtgara" ( 2 0 0.33334 0 ( 192 0 0 ) ( 0 -192 0 ) )
     ( -2096 1408 0 ) ( -2096 1024 0 ) ( -2096 1024 128 ) "Textures/Frank/rtgara" ( 2 -0.33334 0 0 ( 0 192 0 ) ( 0 0 -192 ) )
@@ -6539,7 +6539,7 @@ Version 13
     ( -1648 512 192 ) ( -1984.0001 512 192 ) ( -1984.0001 512 256 ) "Textures/Industri/und_rustbase" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
   }
 
-  { // Brush 720
+  {
     ( -1456 256 0 ) ( -1456 512 0 ) ( -1280 512 0 ) "Textures/Industri/und_rustbase" ( 2 0.25 0 0 ( 256 0 0 ) ( 0 -256 0 ) )
     ( -1456 512 -16 ) ( -1456 256 -16 ) ( -1280 256 -16 ) "Textures/Kai/pipes" ( 2 0.16666 0 0 ( 192 0 0 ) ( 0 -128 0 ) )
     ( -1456 256 -16 ) ( -1456 512 -16 ) ( -1456 512 0 ) "Textures/Kai/pipes" ( 2 0.16666 0 0 ( 0 192 0 ) ( 0 0 -128 ) )
@@ -6718,7 +6718,7 @@ Version 13
     ( -1280 704 192 ) ( -1792 704 192 ) ( -1792 704 288 ) "Textures/Kai/parking" ( 2 0 0.25 0 ( 128 0 0 ) ( 0 0 -128 ) )
   }
 
-  { // Brush 740
+  {
     ( -1184 768 160 ) ( -1184 800 160 ) ( -1120 800 160 ) "Textures/WilliH/rock01b" ( 2 0 0 0 ( 160 0 0 ) ( 0 -160 0 ) )
     ( -1184 800 64 ) ( -1184 768 64 ) ( -1120 768 64 ) "Textures/WilliH/rock01b" ( 2 0 0 0 ( 160 0 0 ) ( 0 -160 0 ) )
     ( -1184 768 64 ) ( -1184 800 64 ) ( -1184 800 160 ) "Textures/WilliH/rock01b" ( 2 0 0 0 ( 0 160 0 ) ( 0 0 -160 ) )
@@ -6898,7 +6898,7 @@ Version 13
     ( -1728 1280 -96 ) ( -1664.0001 1280 -96 ) ( -1664.0001 1280 64 ) "Textures/Industri/big-blue-cement" ( 2 0 0.25 0 ( 128 0 0 ) ( 0 0 -256 ) )
   }
 
-  { // Brush 760
+  {
     ( -1728 1264 -96 ) ( -1728 1280 -96 ) ( -1664.0001 1280 -96 ) "Textures/WilliH/tmet04" ( 2 0 0 -90 ( 0 16 0 ) ( 64 0 0 ) )
     ( -1728 1280 -112 ) ( -1728 1264 -112 ) ( -1664.0001 1264 -112 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( -1728 1264 -112 ) ( -1728 1280 -112 ) ( -1728 1280 -96 ) "Textures/Industri/big-blue-cement" ( 2 0 0.25 0 ( 0 128 0 ) ( 0 0 -256 ) )
@@ -7078,7 +7078,7 @@ Version 13
     ( -640 448 -160 ) ( -640 512 -160 ) ( -640 512 -64 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -256 ) )
   }
 
-  { // Brush 780
+  {
     ( -768 512 -128 ) ( -768 640 -128 ) ( -704 640 -128 ) "Textures/Industri/tig_cmttile" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -768 640 -192 ) ( -768 512 -192 ) ( -704 512 -192 ) "Textures/Industri/und_rustbase" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -768 512 -192 ) ( -768 640 -192 ) ( -768 640 -128 ) "Textures/Industri/und_rustbase" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
@@ -7258,7 +7258,7 @@ Version 13
     ( -1456 304 -16 ) ( -1536 304 -16 ) ( -1536 304 16 ) "Textures/Industri/big-blue-cement" ( 2 0.25 0 0 ( 128 0 0 ) ( 0 0 -256 ) )
   }
 
-  { // Brush 800
+  {
     ( -1472 320 0 ) ( -1472 448 0 ) ( -1456 448 0 ) "Textures/Industri/big-blue-cement" ( 2 0.25 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( -1472 448 -16 ) ( -1472 320 -16 ) ( -1456 320 -16 ) "Textures/Industri/big-blue-cement" ( 2 0.25 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( -1472 320 -16 ) ( -1472 448 -16 ) ( -1472 448 0 ) "Textures/Industri/big-blue-cement" ( 2 0.25 0 0 ( 0 128 0 ) ( 0 0 -256 ) )
@@ -7438,7 +7438,7 @@ Version 13
     ( -1536 448 128 ) ( -1568 416.00003 128 ) ( -1536 416.00003 128 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
   }
 
-  { // Brush 820
+  {
     ( -1536 288 256 ) ( -1536 480 256 ) ( -1408 480 256 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( -1536 480 192 ) ( -1536 288 192 ) ( -1408 288 192 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( -1536 288 192 ) ( -1536 480 192 ) ( -1536 480 256 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -256 ) )
@@ -7620,7 +7620,7 @@ Version 13
     ( -768 224 240 ) ( -896 224 240 ) ( -896 224 256 ) "Textures/Industri/big-blue-cement" ( 2 0.4375 0 0 ( 128 0 0 ) ( 0 0 -256 ) )
   }
 
-  { // Brush 840
+  {
     ( -864 168.00002 248.00002 ) ( -864 184 248.00002 ) ( -800 184 248.00002 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( -864 184 240 ) ( -864 168.00002 240 ) ( -800 168.00002 240 ) "Textures/OldWAD/Lights/light_3a_on" ( 2 0.5 0.5 -90 ( 0 16 0 ) ( 64 0 0 ) )
     ( -864 168.00002 240 ) ( -864 184 240 ) ( -864 184 248.00002 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -256 ) )
@@ -7796,7 +7796,7 @@ Version 13
     ( -832.00006 -1024 32 ) ( -896 -1024 32 ) ( -896 -1024 64 ) "Textures/WilliH/wmet02" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
   }
 
-  { // Brush 860
+  {
     ( -768 -1024 96 ) ( -768 -896 96 ) ( -704 -896 96 ) "Textures/WilliH/wmet02" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -768 -896 64 ) ( -768 -1024 64 ) ( -704 -1024 64 ) "Textures/WilliH/wmet02" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -768 -1024 64 ) ( -768 -896 64 ) ( -768 -896 96 ) "Textures/WilliH/tmet04" ( 2 0 0 -90 ( 0 0 16 ) ( 0 64 0 ) )
@@ -7976,7 +7976,7 @@ Version 13
     ( -896 -1024 240 ) ( -960 -1024 240 ) ( -960 -1024 256 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -256 ) )
   }
 
-  { // Brush 880
+  {
     ( -384 -832.00006 256 ) ( -384 -704 256 ) ( -320 -704 256 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( -320 -832.00006 80 ) ( -320 -704 80 ) ( -384 -704 80 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( -320 -704 80 ) ( -320 -832.00006 80 ) ( -320 -832.00006 256 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -256 ) )
@@ -8156,7 +8156,7 @@ Version 13
     ( -1536 208.00002 0 ) ( -1536 192 0 ) ( -1536 192 32 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -256 ) )
   }
 
-  { // Brush 900
+  {
     ( -1584.0001 200 -96 ) ( -1584.0001 208.00002 -96 ) ( -1584.0001 208.00002 -48 ) "Textures/OldWAD/hev_edge" ( 2 0 0 0 ( 0 8 0 ) ( 0 0 -16 ) )
     ( -1552 208.00002 -96 ) ( -1552 200 -96 ) ( -1552 200 -48 ) "Textures/OldWAD/hev_edge" ( 2 0 0 0 ( 0 8 0 ) ( 0 0 -16 ) )
     ( -1584.0001 208.00002 -96 ) ( -1584.0001 200 -96 ) ( -1552 200 -96 ) "Textures/OldWAD/hev_edge" ( 2 0 0 -90 ( 0 8 0 ) ( 16 0 0 ) )
@@ -8306,12 +8306,12 @@ Version 13
   }
 }
 
-{ // Entity 1
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( 180 -432 32 ) ( 188.00002 -432 32 ) ( 188.00002 -448 32 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 180 -448 16 ) ( 188.00002 -448 16 ) ( 188.00002 -432 16 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 176 -432 20 ) ( 176 -432 28 ) ( 176 -448 28 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -8329,12 +8329,12 @@ Version 13
   }
 }
 
-{ // Entity 2
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( 52.000004 -432 32 ) ( 60 -432 32 ) ( 60 -448 32 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 52.000004 -448 16 ) ( 60 -448 16 ) ( 60 -432 16 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 48 -432 20 ) ( 48 -432 28 ) ( 48 -448 28 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -8352,12 +8352,12 @@ Version 13
   }
 }
 
-{ // Entity 3
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( 368 -252 32 ) ( 368 -244 32 ) ( 384 -244 32 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 368 -244 16 ) ( 368 -252 16 ) ( 384 -252 16 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 368 -256 20 ) ( 368 -256 28 ) ( 384 -256 28 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -8375,12 +8375,12 @@ Version 13
   }
 }
 
-{ // Entity 4
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( 368 -124.00001 32 ) ( 368 -116 32 ) ( 384 -116 32 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 368 -116 16 ) ( 368 -124.00001 16 ) ( 384 -124.00001 16 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 368 -128 20 ) ( 368 -128 28 ) ( 384 -128 28 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -8398,12 +8398,12 @@ Version 13
   }
 }
 
-{ // Entity 5
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -512 -124.00001 32 ) ( -512 -116 32 ) ( -496.00003 -116 32 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -512 -116 16 ) ( -512 -124.00001 16 ) ( -496.00003 -124.00001 16 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -496.00003 -112 20 ) ( -496.00003 -112 28 ) ( -512 -112 28 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -8421,30 +8421,30 @@ Version 13
   }
 }
 
-{ // Entity 6
+{
   classname "weapon_357handgun"
   angles "0 90 0"
   origin "-544 -192 128"
 }
 
-{ // Entity 7
+{
   classname "item_armor_green"
   angles "0 90 0"
   origin "-416 -352 0"
 }
 
-{ // Entity 8
+{
   classname "item_armor_green"
   angles "0 90 0"
   origin "-416 -288 0"
 }
 
-{ // Entity 9
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -512 -252 32 ) ( -512 -244 32 ) ( -496.00003 -244 32 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -512 -244 16 ) ( -512 -252 16 ) ( -496.00003 -252 16 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -496.00003 -240 20 ) ( -496.00003 -240 28 ) ( -512 -240 28 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -8462,12 +8462,12 @@ Version 13
   }
 }
 
-{ // Entity 10
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( 180 640 32 ) ( 188.00002 640 32 ) ( 188.00002 624 32 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 180 624 16 ) ( 188.00002 624 16 ) ( 188.00002 640 16 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 176 640 20 ) ( 176 640 28 ) ( 176 624 28 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -8485,12 +8485,12 @@ Version 13
   }
 }
 
-{ // Entity 11
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( 368 436.00003 32 ) ( 368 444 32 ) ( 384 444 32 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 368 444 16 ) ( 368 436.00003 16 ) ( 384 436.00003 16 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 384 448 20 ) ( 384 448 28 ) ( 368 448 28 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -8508,12 +8508,12 @@ Version 13
   }
 }
 
-{ // Entity 12
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( 368 308 32 ) ( 368 316 32 ) ( 384 316 32 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 368 316 16 ) ( 368 308 16 ) ( 384 308 16 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 384 320 20 ) ( 384 320 28 ) ( 368 320 28 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -8531,12 +8531,12 @@ Version 13
   }
 }
 
-{ // Entity 13
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( 52.000004 640 32 ) ( 60 640 32 ) ( 60 624 32 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 52.000004 624 16 ) ( 60 624 16 ) ( 60 640 16 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 48 640 20 ) ( 48 640 28 ) ( 48 624 28 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -8554,13 +8554,13 @@ Version 13
   }
 }
 
-{ // Entity 14
+{
   classname "func_wall"
   rendermode "2"
   rendercolor "0 0 0"
   rendertranslucency "255"
 
-  { // Brush 0
+  {
     ( -384 816 192 ) ( -384 832.00006 192 ) ( -224 832.00006 192 ) "Textures/OldWAD/{po_fencerst" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -384 832.00006 80 ) ( -384 816 80 ) ( -224 816 80 ) "Textures/OldWAD/{po_fencerst" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -384 816 80 ) ( -384 832.00006 80 ) ( -384 832.00006 192 ) "Textures/OldWAD/{po_fencerst" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
@@ -8570,12 +8570,12 @@ Version 13
   }
 }
 
-{ // Entity 15
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -420 816 32 ) ( -412 816 32 ) ( -412 800 32 ) "Textures/OldWAD/Lights/lightsmall2don" ( 2 -0.5 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -420 800 16 ) ( -412 800 16 ) ( -412 816 16 ) "Textures/OldWAD/Lights/lightsmall2don" ( 2 -0.5 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -424 816 20 ) ( -424 816 28 ) ( -424 800 28 ) "Textures/OldWAD/Lights/lightsmall2don" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -8593,12 +8593,12 @@ Version 13
   }
 }
 
-{ // Entity 16
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -212 816 32 ) ( -204 816 32 ) ( -204 800 32 ) "Textures/OldWAD/Lights/lightsmall2don" ( 2 -0.5 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -212 800 16 ) ( -204 800 16 ) ( -204 816 16 ) "Textures/OldWAD/Lights/lightsmall2don" ( 2 -0.5 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -216 816 20 ) ( -216 816 28 ) ( -216 800 28 ) "Textures/OldWAD/Lights/lightsmall2don" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -8616,12 +8616,12 @@ Version 13
   }
 }
 
-{ // Entity 17
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -512 4 32 ) ( -512 12 32 ) ( -496.00003 12 32 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -512 12 16 ) ( -512 4 16 ) ( -496.00003 4 16 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -496.00003 16 20 ) ( -496.00003 16 28 ) ( -512 16 28 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -8639,12 +8639,12 @@ Version 13
   }
 }
 
-{ // Entity 18
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -512 132 32 ) ( -512 140 32 ) ( -496.00003 140 32 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -512 140 16 ) ( -512 132 16 ) ( -496.00003 132 16 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -496.00003 144 20 ) ( -496.00003 144 28 ) ( -512 144 28 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -8662,13 +8662,13 @@ Version 13
   }
 }
 
-{ // Entity 19
+{
   classname "func_wall"
   rendermode "2"
   rendercolor "0 0 0"
   rendertranslucency "255"
 
-  { // Brush 0
+  {
     ( -608 816 192 ) ( -608 832.00006 192 ) ( -448 832.00006 192 ) "Textures/OldWAD/{po_fencerst" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -608 832.00006 80 ) ( -608 816 80 ) ( -448 816 80 ) "Textures/OldWAD/{po_fencerst" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -608 816 80 ) ( -608 832.00006 80 ) ( -608 832.00006 192 ) "Textures/OldWAD/{po_fencerst" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
@@ -8678,12 +8678,12 @@ Version 13
   }
 }
 
-{ // Entity 20
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -644 816 32 ) ( -636 816 32 ) ( -636 800 32 ) "Textures/OldWAD/Lights/lightsmall2don" ( 2 -0.5 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -644 800 16 ) ( -636 800 16 ) ( -636 816 16 ) "Textures/OldWAD/Lights/lightsmall2don" ( 2 -0.5 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -648 816 20 ) ( -648 816 28 ) ( -648 800 28 ) "Textures/OldWAD/Lights/lightsmall2don" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -8701,42 +8701,42 @@ Version 13
   }
 }
 
-{ // Entity 21
+{
   classname "weapon_egon"
   angles "0 90 0"
   origin "192 448 16"
 }
 
-{ // Entity 22
+{
   classname "ammo_357"
   angles "0 90 0"
   origin "-544 64 128"
 }
 
-{ // Entity 23
+{
   classname "weapon_shotgun"
   angles "0 183 0"
   origin "160 -832 -112"
 }
 
-{ // Entity 24
+{
   classname "weapon_tripmine"
   angles "0 1 0"
   origin "-752 -880 -112"
 }
 
-{ // Entity 25
+{
   classname "weapon_tripmine"
   angles "0 1 0"
   origin "-704 -880 -112"
 }
 
-{ // Entity 26
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -1404.0001 -816 -96 ) ( -1396 -816 -96 ) ( -1396 -832.00006 -96 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -1404.0001 -832.00006 -112 ) ( -1396 -832.00006 -112 ) ( -1396 -816 -112 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -1408 -816 -108 ) ( -1408 -816 -100 ) ( -1408 -832.00006 -100 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -8754,12 +8754,12 @@ Version 13
   }
 }
 
-{ // Entity 27
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -1612 -816 -96 ) ( -1604.0001 -816 -96 ) ( -1604.0001 -832.00006 -96 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -1612 -832.00006 -112 ) ( -1604.0001 -832.00006 -112 ) ( -1604.0001 -816 -112 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -1616 -816 -108 ) ( -1616 -816 -100 ) ( -1616 -832.00006 -100 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -8777,12 +8777,12 @@ Version 13
   }
 }
 
-{ // Entity 28
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -1856 -380 -96 ) ( -1856 -372 -96 ) ( -1840 -372 -96 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -1856 -372 -112 ) ( -1856 -380 -112 ) ( -1840 -380 -112 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -1840 -368 -108 ) ( -1840 -368 -100 ) ( -1856 -368 -100 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -8800,12 +8800,12 @@ Version 13
   }
 }
 
-{ // Entity 29
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -1856 -588 -96 ) ( -1856 -580 -96 ) ( -1840 -580 -96 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -1856 -580 -112 ) ( -1856 -588 -112 ) ( -1840 -588 -112 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -1840 -576 -108 ) ( -1840 -576 -100 ) ( -1856 -576 -100 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -8823,18 +8823,18 @@ Version 13
   }
 }
 
-{ // Entity 30
+{
   classname "info_player_start"
   angles "0 90 0"
   origin "-1424 -464 -88"
 }
 
-{ // Entity 31
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -1256 -848 128 ) ( -1256 -828 128 ) ( -1248 -828 128 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( -1256 -828 64 ) ( -1256 -848 64 ) ( -1248 -848 64 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( -1256 -848 64 ) ( -1256 -828 64 ) ( -1256 -828 128 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -256 ) )
@@ -8844,12 +8844,12 @@ Version 13
   }
 }
 
-{ // Entity 32
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -1184 -848 128 ) ( -1184 -828 128 ) ( -1176 -828 128 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( -1184 -828 64 ) ( -1184 -848 64 ) ( -1176 -848 64 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -256 0 ) )
     ( -1184 -848 64 ) ( -1184 -828 64 ) ( -1184 -828 128 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -256 ) )
@@ -8859,13 +8859,13 @@ Version 13
   }
 }
 
-{ // Entity 33
+{
   classname "func_wall"
   rendermode "2"
   rendercolor "0 0 0"
   rendertranslucency "255"
 
-  { // Brush 0
+  {
     ( -1216 -704 16 ) ( -1344.0001 -704 16 ) ( -1344.0001 -576 16 ) "Textures/Kai/fireescape" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -1216 -576 0 ) ( -1344.0001 -576 0 ) ( -1344.0001 -704 0 ) "Textures/Kai/fireescape" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -1216 -704 0 ) ( -1344.0001 -704 0 ) ( -1344.0001 -704 16 ) "Textures/Kai/fireescape" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
@@ -8875,12 +8875,12 @@ Version 13
   }
 }
 
-{ // Entity 34
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -1344.0001 1028 -96 ) ( -1344.0001 1036 -96 ) ( -1328 1036 -96 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -1344.0001 1036 -112 ) ( -1344.0001 1028 -112 ) ( -1328 1028 -112 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -1344.0001 1024 -108 ) ( -1344.0001 1024 -100 ) ( -1328 1024 -100 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -8898,12 +8898,12 @@ Version 13
   }
 }
 
-{ // Entity 35
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -1344.0001 900 -96 ) ( -1344.0001 908 -96 ) ( -1328 908 -96 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -1344.0001 908 -112 ) ( -1344.0001 900 -112 ) ( -1328 900 -112 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -1344.0001 896 -108 ) ( -1344.0001 896 -100 ) ( -1328 896 -100 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -8921,12 +8921,12 @@ Version 13
   }
 }
 
-{ // Entity 36
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -1856 1028 -96 ) ( -1856 1036 -96 ) ( -1840 1036 -96 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -1856 1036 -112 ) ( -1856 1028 -112 ) ( -1840 1028 -112 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -1856 1024 -108 ) ( -1856 1024 -100 ) ( -1840 1024 -100 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -8944,12 +8944,12 @@ Version 13
   }
 }
 
-{ // Entity 37
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -1856 900 -96 ) ( -1856 908 -96 ) ( -1840 908 -96 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -1856 908 -112 ) ( -1856 900 -112 ) ( -1840 900 -112 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -1856 896 -108 ) ( -1856 896 -100 ) ( -1840 896 -100 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -8967,12 +8967,12 @@ Version 13
   }
 }
 
-{ // Entity 38
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -1196 576 -96 ) ( -1188 576 -96 ) ( -1188 560 -96 ) "Textures/OldWAD/Lights/lightsmall2con" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -1196 560 -112 ) ( -1188 560 -112 ) ( -1188 576 -112 ) "Textures/OldWAD/Lights/lightsmall2con" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -1200 576 -108 ) ( -1200 576 -100 ) ( -1200 560 -100 ) "Textures/OldWAD/Lights/lightsmall2con" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -8990,12 +8990,12 @@ Version 13
   }
 }
 
-{ // Entity 39
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -940 576 -96 ) ( -932.00006 576 -96 ) ( -932.00006 560 -96 ) "Textures/OldWAD/Lights/lightsmall2con" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -940 560 -112 ) ( -932.00006 560 -112 ) ( -932.00006 576 -112 ) "Textures/OldWAD/Lights/lightsmall2con" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -944 576 -108 ) ( -944 576 -100 ) ( -944 560 -100 ) "Textures/OldWAD/Lights/lightsmall2con" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -9013,42 +9013,42 @@ Version 13
   }
 }
 
-{ // Entity 40
+{
   classname "weapon_gauss"
   angles "0 90 0"
   origin "-1664 1088 -112"
 }
 
-{ // Entity 41
+{
   classname "weapon_handgrenade"
   angles "0 90 0"
   origin "-1248 864 64"
 }
 
-{ // Entity 42
+{
   classname "weapon_handgrenade"
   angles "0 90 0"
   origin "-1248 928 64"
 }
 
-{ // Entity 43
+{
   classname "weapon_9mmAR"
   angles "0 32 0"
   origin "-2016 928 96"
 }
 
-{ // Entity 44
+{
   classname "item_healthkit_small"
   angles "0 133 0"
   origin "-1760 608 -128"
 }
 
-{ // Entity 45
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -1632 584 -68 ) ( -1632 576 -64 ) ( -1568 576 -64 ) "Textures/OldWAD/Lights/lightneon2c" ( 2 0.5 0 0 ( 64 0 0 ) ( 0 -16 0 ) )
     ( -1632 576 -64 ) ( -1632 584 -68 ) ( -1632 584 -64 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -256 ) )
     ( -1568 584 -64 ) ( -1568 584 -68 ) ( -1568 576 -64 ) "Textures/Industri/big-blue-cement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -256 ) )
@@ -9057,25 +9057,25 @@ Version 13
   }
 }
 
-{ // Entity 46
+{
   classname "item_healthkit_small"
   angles "0 32 0"
   origin "160 -288 32"
 }
 
-{ // Entity 47
+{
   classname "item_healthkit_small"
   angles "0 133 0"
   origin "-1760 672 -128"
 }
 
-{ // Entity 48
+{
   classname "func_wall"
   rendermode "2"
   rendercolor "0 0 0"
   rendertranslucency "255"
 
-  { // Brush 0
+  {
     ( -1536 368 144 ) ( -1536 400 144 ) ( -1534.0001 400 144 ) "Textures/Kai/ladder_chrm" ( 2 -0.03125 -0.5 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( -1536 400 -96 ) ( -1536 368 -96 ) ( -1534.0001 368 -96 ) "Textures/Kai/ladder_chrm" ( 2 -0.03125 -0.5 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( -1536 368 -96 ) ( -1536 400 -96 ) ( -1536 400 144 ) "Textures/Kai/ladder_chrm" ( 2 0.5 0 0 ( 0 32 0 ) ( 0 0 -32 ) )
@@ -9085,12 +9085,12 @@ Version 13
   }
 }
 
-{ // Entity 49
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -1212 -880 32 ) ( -1204 -880 32 ) ( -1204 -896 32 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -1212 -896 16 ) ( -1204 -896 16 ) ( -1204 -880 16 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -1216 -880 20 ) ( -1216 -880 28 ) ( -1216 -896 28 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -9108,12 +9108,12 @@ Version 13
   }
 }
 
-{ // Entity 50
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -956 -880 80 ) ( -948 -880 80 ) ( -948 -896 80 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -956 -896 64 ) ( -948 -896 64 ) ( -948 -880 64 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -960 -880 68 ) ( -960 -880 76 ) ( -960 -896 76 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -9131,12 +9131,12 @@ Version 13
   }
 }
 
-{ // Entity 51
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -700 -880 144 ) ( -692.00006 -880 144 ) ( -692.00006 -896 144 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -700 -896 128 ) ( -692.00006 -896 128 ) ( -692.00006 -880 128 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -704 -880 132 ) ( -704 -880 140 ) ( -704 -896 140 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -9154,198 +9154,198 @@ Version 13
   }
 }
 
-{ // Entity 52
+{
   classname "weapon_facehugger"
   angles "0 90 0"
   origin "-1624 384 144"
 }
 
-{ // Entity 53
+{
   classname "weapon_facehugger"
   angles "0 90 0"
   origin "-1576 384 144"
 }
 
-{ // Entity 54
+{
   classname "info_player_start"
   angles "0 225 0"
   origin "-1184 -480 -96"
 }
 
-{ // Entity 55
+{
   classname "info_player_start"
   angles "0 225 0"
   origin "-1216 128 -96"
 }
 
-{ // Entity 56
+{
   classname "info_player_start"
   angles "0 270 0"
   origin "96 -832 -88"
 }
 
-{ // Entity 57
+{
   classname "info_player_start"
   angles "0 90 0"
   origin "-656 416 40"
 }
 
-{ // Entity 58
+{
   classname "info_player_start"
   angles "0 315 0"
   origin "-416 -992 168"
 }
 
-{ // Entity 59
+{
   classname "info_player_start"
   angles "0 315 0"
   origin "488 -552 120"
 }
 
-{ // Entity 60
+{
   classname "weapon_crossbow"
   angles "0 42 0"
   origin "-832 168 136"
 }
 
-{ // Entity 61
+{
   classname "info_player_start"
   angles "0 140 0"
   origin "-1032 480 128"
 }
 
-{ // Entity 62
+{
   classname "info_player_start"
   angles "0 251 0"
   origin "-1320 1184 -88"
 }
 
-{ // Entity 63
+{
   classname "info_player_start"
   angles "0 225 0"
   origin "-1696 480 40"
 }
 
-{ // Entity 64
+{
   classname "weapon_357handgun"
   angles "0 90 0"
   origin "-1280 -640 24"
 }
 
-{ // Entity 65
+{
   classname "ammo_357"
   angles "0 202 0"
   origin "-1192 -608 24"
 }
 
-{ // Entity 66
+{
   classname "ammo_357"
   angles "0 141 0"
   origin "-1216 -640 24"
 }
 
-{ // Entity 67
+{
   classname "weapon_9mmAR"
   angles "0 141 0"
   origin "-1520 -136 -128"
 }
 
-{ // Entity 68
+{
   classname "ammo_9mmAR"
   angles "0 212 0"
   origin "-1600 64 -128"
 }
 
-{ // Entity 69
+{
   classname "ammo_9mmAR"
   angles "0 212 0"
   origin "-1600 16 -128"
 }
 
-{ // Entity 70
+{
   classname "item_healthkit_small"
   angles "0 269 0"
   origin "-1192 -792 -128"
 }
 
-{ // Entity 71
+{
   classname "ammo_ARgrenades"
   angles "0 117 0"
   origin "-656 744 0"
 }
 
-{ // Entity 72
+{
   classname "ammo_ARgrenades"
   angles "0 229 0"
   origin "-656 696 0"
 }
 
-{ // Entity 73
+{
   classname "weapon_9mmAR"
   angles "0 229 0"
   origin "-232 760 0"
 }
 
-{ // Entity 74
+{
   classname "item_armor_green"
   angles "0 174 0"
   origin "-408 -792 144"
 }
 
-{ // Entity 75
+{
   classname "ammo_gausscells"
   angles "0 174 0"
   origin "-448 -792 144"
 }
 
-{ // Entity 76
+{
   classname "ammo_crossbow_arrows"
   angles "0 269 0"
   origin "-1240 -792 -128"
 }
 
-{ // Entity 77
+{
   classname "ammo_crossbow_arrows"
   angles "0 214 0"
   origin "-1280 -792 -128"
 }
 
-{ // Entity 78
+{
   classname "ammo_shotgun_shells"
   angles "0 90 0"
   origin "-2016 -32 16"
 }
 
-{ // Entity 79
+{
   classname "ammo_shotgun_shells"
   angles "0 219 0"
   origin "-2016 16 16"
 }
 
-{ // Entity 80
+{
   classname "weapon_shotgun"
   angles "0 90 0"
   origin "-2016 64 16"
 }
 
-{ // Entity 81
+{
   classname "weapon_shotgun"
   angles "0 225 0"
   origin "-864 672 -128"
 }
 
-{ // Entity 82
+{
   classname "ammo_shotgun_shells"
   angles "0 151 0"
   origin "-896 672 -128"
 }
 
-{ // Entity 83
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -1648 -76 -96 ) ( -1648 -68 -96 ) ( -1632 -68 -96 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -1648 -68 -112 ) ( -1648 -76 -112 ) ( -1632 -76 -112 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -1632 -64 -108 ) ( -1632 -64 -100 ) ( -1648 -64 -100 ) "Textures/OldWAD/Lights/lightsmall2bon" ( 2 0 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -9363,10 +9363,10 @@ Version 13
   }
 }
 
-{ // Entity 84
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( -1534.0001 368 144 ) ( -1534.0001 400 144 ) ( -1528 400 144 ) "Textures/generic/_orange" ( 2 -0.0625 -1 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -1534.0001 400 -96 ) ( -1534.0001 368 -96 ) ( -1528 368 -96 ) "Textures/generic/_orange" ( 2 -0.0625 -1 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -1534.0001 368 -96 ) ( -1534.0001 400 -96 ) ( -1534.0001 400 144 ) "Textures/generic/_orange" ( 2 1 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -9376,7 +9376,7 @@ Version 13
   }
 }
 
-{ // Entity 85
+{
   classname "func_wall"
   health "40"
   material "2"
@@ -9384,7 +9384,7 @@ Version 13
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -1664.0001 352 192 ) ( -1664.0001 416.00003 192 ) ( -1656 416.00003 192 ) "Textures/Kai/vent_front" ( 2 0 0.666641 0 ( 64 0 0 ) ( 0 -48 0 ) )
     ( -1664.0001 416.00003 144 ) ( -1664.0001 352 144 ) ( -1656 352 144 ) "Textures/Kai/vent_front" ( 2 0 0.666641 0 ( 64 0 0 ) ( 0 -48 0 ) )
     ( -1664.0001 352 144 ) ( -1664.0001 416.00003 144 ) ( -1664.0001 416.00003 192 ) "Textures/Kai/vent_front" ( 2 -0.5 0 0 ( 0 64 0 ) ( 0 0 -48 ) )
@@ -9394,7 +9394,7 @@ Version 13
   }
 }
 
-{ // Entity 86
+{
   classname "func_wall"
   health "40"
   material "2"
@@ -9402,7 +9402,7 @@ Version 13
   rendertranslucency "255"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -1544.0001 352 192 ) ( -1544.0001 416.00003 192 ) ( -1536 416.00003 192 ) "Textures/Kai/vent_front" ( 2 0 0.666641 0 ( 64 0 0 ) ( 0 -48 0 ) )
     ( -1544.0001 416.00003 144 ) ( -1544.0001 352 144 ) ( -1536 352 144 ) "Textures/Kai/vent_front" ( 2 0 0.666641 0 ( 64 0 0 ) ( 0 -48 0 ) )
     ( -1544.0001 352 144 ) ( -1544.0001 416.00003 144 ) ( -1544.0001 416.00003 192 ) "Textures/Kai/vent_front" ( 2 -0.5 0 0 ( 0 64 0 ) ( 0 0 -48 ) )
@@ -9412,7 +9412,7 @@ Version 13
   }
 }
 
-{ // Entity 87
+{
   classname "func_door"
   triggerPadding "1524"
   moveDir "0 1 0"
@@ -9422,7 +9422,7 @@ Version 13
   name "door1_left"
   team "Double Door 1"
 
-  { // Brush 0
+  {
     ( -1082 -263 -3 ) ( -1078 -263 -3 ) ( -1078 -312 -3 ) "Textures/meta/caulk" ( 2 0.117188 -0.611328 0 ( 512 0 0 ) ( 0 -64 0 ) )
     ( -1082 -312 -125 ) ( -1078 -312 -125 ) ( -1078 -263 -125 ) "Textures/meta/caulk" ( 2 0.117188 -0.611328 0 ( 512 0 0 ) ( 0 -64 0 ) )
     ( -1082 -263 -3 ) ( -1082 -312 -3 ) ( -1082 -312 -125 ) "Textures/TechDemo/doors/Light" ( 2 0.00390625 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
@@ -9468,7 +9468,7 @@ Version 13
   }
 }
 
-{ // Entity 88
+{
   classname "func_door"
   triggerPadding "1524"
   moveDir "0 -1 0"
@@ -9478,7 +9478,7 @@ Version 13
   name "door1_right"
   team "Double Door 1"
 
-  { // Brush 0
+  {
     ( -1082 -328 -3 ) ( -1078 -328 -3 ) ( -1078 -377 -3 ) "Textures/meta/caulk" ( 2 -0.0625 -0.144531 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -1082 -377 -125 ) ( -1078 -377 -125 ) ( -1078 -328 -125 ) "Textures/meta/caulk" ( 2 -0.0625 -0.144531 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -1082 -328 -3 ) ( -1082 -377 -3 ) ( -1082 -377 -125 ) "Textures/TechDemo/doors/Light" ( 2 0.00390625 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
@@ -9524,7 +9524,7 @@ Version 13
   }
 }
 
-{ // Entity 89
+{
   classname "func_door"
   triggerPadding "1524"
   moveDir "0 0 1"
@@ -9533,7 +9533,7 @@ Version 13
   moveTime "1"
   team "Doors Team 1"
 
-  { // Brush 0
+  {
     ( -1168 576 -37 ) ( -1168 -424 -37 ) ( -2168 575.9999 -37 ) "Textures/TechDemo/doors/Heavy" ( 2 0.28125 -0.875 0 ( 512 0 0 ) ( 0 -512 0 ) )
     ( -1168 568.4866 -120.186035 ) ( -2168 568.4866 -120.186035 ) ( -1168 -152.34644 -813.2948 ) "TechDemo/caves/wardoortrim" ( 2 0.25 -0.594757 0 ( 64 0 0 ) ( 0 -16 0 ) )
     ( -1168 576 -128 ) ( -1168 -424 -128 ) ( -1168 576 -1128 ) "Textures/TechDemo/doors/Heavy" ( 2 0.503784 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
@@ -9561,7 +9561,7 @@ Version 13
   }
 }
 
-{ // Entity 90
+{
   classname "func_door"
   triggerPadding "1524"
   moveDir "0 0 -1"
@@ -9570,7 +9570,7 @@ Version 13
   moveTime "1"
   team "Doors Team 1"
 
-  { // Brush 0
+  {
     ( -1168 704 -72 ) ( -1152 704 -72 ) ( -1152 576 -72 ) "TechDemo/caves/wardoortrim" ( 2 0.25 -0.594757 0 ( 64 0 0 ) ( 0 -16 0 ) )
     ( -1168 576 -128 ) ( -1152 576 -128 ) ( -1152 704 -128 ) "Textures/meta/caulk" ( 2 0.25 -0.392365 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -1168 704 -72 ) ( -1168 576 -72 ) ( -1168 576 -128 ) "Textures/TechDemo/doors/Heavy" ( 2 0.503784 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
@@ -9598,12 +9598,12 @@ Version 13
   }
 }
 
-{ // Entity 91
+{
   classname "Rigid Body"
   Mass "10"
   name "Rigid_Body_001"
 
-  { // Brush 0
+  {
     ( -1912 288 40 ) ( -1872 288 40 ) ( -1872 248 40 ) "Textures/Frank/djcrate01" ( 2 0.799999 0.2 0 ( 40 0 0 ) ( 0 -40 0 ) )
     ( -1912 248 0 ) ( -1872 248 0 ) ( -1872 288 0 ) "Textures/Frank/djcrate01" ( 2 0.799999 0.2 0 ( 40 0 0 ) ( 0 -40 0 ) )
     ( -1912 288 40 ) ( -1912 248 40 ) ( -1912 248 0 ) "Textures/Frank/djcrate02" ( 2 0.2 0 0 ( 0 -40 0 ) ( 0 0 -40 ) )
@@ -9611,4 +9611,22 @@ Version 13
     ( -1872 288 40 ) ( -1912 288 40 ) ( -1912 288 0 ) "Textures/Frank/djcrate01" ( 2 0.799999 0 0 ( 40 0 0 ) ( 0 0 -40 ) )
     ( -1872 248 0 ) ( -1912 248 0 ) ( -1912 248 40 ) "Textures/Frank/djcrate01" ( 2 0.799999 0 0 ( 40 0 0 ) ( 0 0 -40 ) )
   }
+}
+
+{
+  classname "static_detail_model"
+  angles "-0 120 -0"
+  name "FaceHugger"
+  model "Models/LifeForms/FaceHugger.mdl"
+  scale "1.0"
+  origin "-63 445 -8"
+}
+
+{
+  classname "static_detail_model"
+  angles "-0 180 -0"
+  name "Skeleton"
+  model "Models/Players/Skeleton.mdl"
+  scale "1.0"
+  origin "-324 450 28"
 }

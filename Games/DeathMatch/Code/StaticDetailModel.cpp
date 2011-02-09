@@ -100,7 +100,15 @@ void* EntStaticDetailModelT::CreateInstance(const cf::TypeSys::CreateParamsT& Pa
     return new EntStaticDetailModelT(*static_cast<const EntityCreateParamsT*>(&Params));
 }
 
-const cf::TypeSys::TypeInfoT EntStaticDetailModelT::TypeInfo(GetBaseEntTIM(), "EntStaticDetailModelT", "BaseEntityT", EntStaticDetailModelT::CreateInstance, NULL /*MethodsList*/);
+const luaL_Reg EntStaticDetailModelT::MethodsList[]=
+{
+    { "IsPlayingAnim", EntStaticDetailModelT::IsPlayingAnim },
+    { "PlayAnim", EntStaticDetailModelT::PlayAnim },
+ // { "__tostring", toString },
+    { NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT EntStaticDetailModelT::TypeInfo(GetBaseEntTIM(), "EntStaticDetailModelT", "BaseEntityT", EntStaticDetailModelT::CreateInstance, MethodsList);
 
 
 EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
@@ -113,7 +121,7 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
                                0,
                                0,
                                0,       // StateOfExistance
-                               0,
+                               1,       // Flags -- m_PlayAnim
                                0,       // ModelIndex
                                0,       // ModelSequNr
                                0.0,     // ModelFrameNr
@@ -125,6 +133,7 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
                                0,       // ActiveWeaponSequNr
                                0.0)),   // ActiveWeaponFrameNr
       Model(""),
+      m_PlayAnim(State.Flags),
       ModelSequenceNr(0),
       ModelFrameNr(0.0f),
       GuiName(),
@@ -318,8 +327,11 @@ void EntStaticDetailModelT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
         Gui->DistributeClockTickEvents(FrameTime);
     }
 
-    // Advance the client-local animation.
-    ModelFrameNr=Model.AdvanceFrameNr(ModelSequenceNr, ModelFrameNr, FrameTime, true);
+    if (m_PlayAnim)
+    {
+        // Advance the client-local animation.
+        ModelFrameNr=Model.AdvanceFrameNr(ModelSequenceNr, ModelFrameNr, FrameTime, true);
+    }
 
 
     /* glColor3f(1.0, 0.0, 0.0);
@@ -382,4 +394,28 @@ bool EntStaticDetailModelT::GetGuiPlane(Vector3fT& GuiOrigin, Vector3fT& GuiAxis
     GuiOrigin+=State.Origin.AsVectorOfFloat();
 
     return true;
+}
+
+
+int EntStaticDetailModelT::IsPlayingAnim(lua_State* LuaState)
+{
+    EntStaticDetailModelT* Ent=(EntStaticDetailModelT*)cf::GameSys::ScriptStateT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+
+    lua_pushboolean(LuaState, Ent->m_PlayAnim);
+    return 1;
+}
+
+
+int EntStaticDetailModelT::PlayAnim(lua_State* LuaState)
+{
+    EntStaticDetailModelT* Ent=(EntStaticDetailModelT*)cf::GameSys::ScriptStateT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+
+    if (lua_isboolean(LuaState, 2))
+    {
+        Ent->m_PlayAnim=lua_toboolean(LuaState, 2)!=0 ? 1 : 0;
+        return 0;
+    }
+
+    Ent->m_PlayAnim=lua_tonumber(LuaState, 2)!=0 ? 1 : 0;
+    return 0;
 }
