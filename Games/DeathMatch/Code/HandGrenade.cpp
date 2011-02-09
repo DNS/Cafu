@@ -174,7 +174,7 @@ bool ParticleFunction_HandGrenadeExplosionSmall(ParticleMST* Particle, float Tim
 }
 
 
-void EntHandGrenadeT::ProcessEvent(char /*EventID*/) const
+void EntHandGrenadeT::ProcessEvent(char /*EventID*/)
 {
     // We only receive a single event here ("Detonation!"), thus there is no need to look at 'EventID'.
     // Update sound position.

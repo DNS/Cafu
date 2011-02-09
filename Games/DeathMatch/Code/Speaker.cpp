@@ -131,7 +131,7 @@ void EntSpeakerT::PostDraw(float FrameTime, bool FirstPersonView)
 }
 
 
-void EntSpeakerT::ProcessEvent(char EventID) const
+void EntSpeakerT::ProcessEvent(char EventID)
 {
     if (EventID==EventID_Play)
         m_Sound->Play();

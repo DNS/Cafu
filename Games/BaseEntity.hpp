@@ -228,13 +228,14 @@ class BaseEntityT
     /// (using event ID 'EventID'), and then this is the place to react accordingly.
     /// Note that both the name and the prototype of this function are subject to change in the future,
     /// in order to take also more flexible, custom network messages into account.
+    ///
     /// Notes for future prototypes:
-    /// So what's the difference between events and custom network messages?
-    /// Events are fully predictable, i.e. they work well even in the presence of client prediction,
-    /// and are always related to a certain entity.
-    /// Custom network messages are (currently) not predictable, and not necessarily associated with an entity.
-    /// Examples for custom messages include radar displays, and so on.
-    virtual void ProcessEvent(char EventID) const;
+    ///   - What's the difference between events and custom network messages?
+    ///     Events are fully predictable, i.e. they work well even in the presence of client prediction,
+    ///     and are always related to a certain entity.
+    ///     Custom network messages are (currently) not predictable, and not necessarily associated with an entity.
+    ///     Examples for custom messages include radar displays, and so on.
+    virtual void ProcessEvent(char EventID);
 
     /// This CLIENT-SIDE function is called in order to retrieve light source information about this entity.
     /// Returns 'true' if this entity is a light source and 'DiffuseColor', 'SpecularColor', 'Position' (in world space!), 'Radius' and 'CastsShadows' have been set.

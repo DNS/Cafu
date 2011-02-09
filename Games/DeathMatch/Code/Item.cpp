@@ -118,7 +118,7 @@ void EntItemT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 }
 
 
-void EntItemT::ProcessEvent(char EventID) const
+void EntItemT::ProcessEvent(char EventID)
 {
     switch (EventID)
     {

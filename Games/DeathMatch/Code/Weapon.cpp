@@ -118,7 +118,7 @@ void EntWeaponT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 }
 
 
-void EntWeaponT::ProcessEvent(char EventID) const
+void EntWeaponT::ProcessEvent(char EventID)
 {
     switch (EventID)
     {

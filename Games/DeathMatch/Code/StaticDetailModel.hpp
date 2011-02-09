@@ -37,6 +37,10 @@ namespace cf { namespace GuiSys { class GuiI; } }
 struct luaL_Reg;
 
 
+/// This class represents a static detail model.
+/// A static detail model adds geometric detail to a map and can optionally hold a scripted GUI that the user can interact with.
+/// Despite its name, a static detail model run animated sequences, but note these animations are essentially a client-side
+/// effect only, as only a <em>restart</em> of a sequence is sync'ed over the network.
 class EntStaticDetailModelT : public BaseEntityT
 {
     public:
@@ -47,6 +51,7 @@ class EntStaticDetailModelT : public BaseEntityT
     void Think(float FrameTime, unsigned long ServerFrameNr);
 
     void Cl_UnserializeFrom();
+    void ProcessEvent(char EventID);
     void Draw(bool FirstPersonView, float LodDist) const;
     void PostDraw(float FrameTime, bool FirstPersonView);
 
@@ -69,10 +74,12 @@ class EntStaticDetailModelT : public BaseEntityT
 
     protected:
 
+    enum EventIDs { EventID_RestartSequ };
+
     ModelProxyT       Model;
     char&             m_PlayAnim;   ///< If 1, play the animation, i.e. advance the frames over time. If 0, keep still. This is a reference to State.Flags to have it sync'ed over the network.
-    int               ModelSequenceNr;
-    float             ModelFrameNr;
+    char&             m_SequNr;     ///< The number of the animation sequence to play. This is a reference to State.ModelSequNr to have it sync'ed over the network.
+    float             m_FrameNr;    ///< The current frame of the played animation sequence. Used <em>independently</em> on the server and the clients; only a <em>restart</em> of a sequence is sync'ed over the network via the EventID_RestartSequ event.
     std::string       GuiName;      ///< If our "gui" entity key is set, store the value here.
     cf::GuiSys::GuiI* Gui;          ///< If the Model can display a GUI (it has a "Textures/meta/EntityGUI" surface), we load it here, *both* on the server- as well as on the client-side.
 
@@ -80,6 +87,10 @@ class EntStaticDetailModelT : public BaseEntityT
     // Script methods (to be called from the map/entity Lua scripts).
     static int IsPlayingAnim(lua_State* LuaState);
     static int PlayAnim(lua_State* LuaState);
+    static int GetSequNr(lua_State* LuaState);
+    static int SetSequNr(lua_State* LuaState);
+    static int RestartSequ(lua_State* LuaState);
+    static int GetNumSequences(lua_State* LuaState);
 
     static const luaL_Reg MethodsList[];
 };

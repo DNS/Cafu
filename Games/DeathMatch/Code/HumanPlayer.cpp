@@ -894,7 +894,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 }
 
 
-void EntHumanPlayerT::ProcessEvent(char EventID) const
+void EntHumanPlayerT::ProcessEvent(char EventID)
 {
     // GameWorld->PrintDebug("Entity %3u: ProcessEvent(%u)", TypeID, EventID);
 

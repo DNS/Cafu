@@ -171,7 +171,7 @@ bool ParticleFunction_RocketExplosionSmall(ParticleMST* Particle, float Time)
 }
 
 
-void EntRocketT::ProcessEvent(char /*EventID*/) const
+void EntRocketT::ProcessEvent(char /*EventID*/)
 {
     // We only receive a single event here ("Detonation!"), thus there is no need to look at 'EventID'.
     // Update souud position.

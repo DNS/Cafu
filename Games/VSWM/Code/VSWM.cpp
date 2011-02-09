@@ -182,7 +182,7 @@ void BaseEntityT::Cl_UnserializeFrom()
 }
 
 
-void BaseEntityT::ProcessEvent(char /*EventID*/) const
+void BaseEntityT::ProcessEvent(char /*EventID*/)
 {
 }
 

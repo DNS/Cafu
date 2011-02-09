@@ -182,7 +182,7 @@ bool ParticleFunction_ARGrenadeExplosionSmall(ParticleMST* Particle, float Time)
 }
 
 
-void EntARGrenadeT::ProcessEvent(char /*EventID*/) const
+void EntARGrenadeT::ProcessEvent(char /*EventID*/)
 {
     // We only receive a single event here ("Detonation!"), thus there is no need to look at 'EventID'.
     // Update sound position.

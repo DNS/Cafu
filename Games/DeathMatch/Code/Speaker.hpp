@@ -48,7 +48,7 @@ class EntSpeakerT : public BaseEntityT
 
     // BaseEntityT implementation.
     virtual void PostDraw(float FrameTime, bool FirstPersonView);
-    virtual void ProcessEvent(char EventID) const;
+    virtual void ProcessEvent(char EventID);
 
     // Scripting methods.
     static int Play(lua_State* LuaState);

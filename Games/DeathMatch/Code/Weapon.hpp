@@ -59,7 +59,7 @@ class EntWeaponT : public BaseEntityT
 
     virtual void Think(float FrameTime, unsigned long ServerFrameNr);
 
-    virtual void ProcessEvent(char EventID) const;
+    virtual void ProcessEvent(char EventID);
     virtual void Draw(bool FirstPersonView, float LodDist) const;
     virtual void PostDraw(float FrameTime, bool FirstPersonView);
 
