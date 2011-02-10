@@ -31,6 +31,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include <cassert>
 #include <cstring>
+#include <fstream>
 
 extern "C"
 {
@@ -41,6 +42,113 @@ extern "C"
 
 
 using namespace cf::GameSys;
+
+
+// This function is a variant of TypeInfoManT::CreateLuaDoxygenHeader(),
+// customized for the additional information that comes with map entities.
+static void CreateLuaDoxygenHeader(lua_State* LuaState)
+{
+    assert(lua_gettop(LuaState)==0);
+
+#ifndef NDEBUG
+    static bool Done=false;
+
+    if (Done) return;
+    Done=true;
+
+    // Contains the information from the EntityClassDefs.lua file.
+    struct EntDefInfoT
+    {
+        std::string MapName;
+        std::string CppName;
+        std::string Description;
+    };
+
+    std::map<std::string, EntDefInfoT> CppToInfo;
+
+    lua_getglobal(LuaState, "EntityClassDefs");
+
+    if (!lua_istable(LuaState, 1))
+    {
+        Console->Warning("Table EntityClassDefs not found in ScriptState!\n");
+        lua_pop(LuaState, 1);
+        return;
+    }
+
+    lua_pushnil(LuaState);  // The initial key for the traversal.
+
+    while (lua_next(LuaState, -2)!=0)
+    {
+        // The key is now at stack index -2, the value is at index -1.
+        // Note that in general, the warning from the Lua reference documentation applies:
+        // "While traversing a table, do not call lua_tolstring() directly on a key, unless you know that the key is actually a string."
+        if (lua_type(LuaState, -2)==LUA_TSTRING && lua_type(LuaState, -1)==LUA_TTABLE)
+        {
+            EntDefInfoT Info;
+            const char* s=NULL;
+
+            s=lua_tostring(LuaState, -2);
+            if (s) Info.MapName=s;
+
+            lua_getfield(LuaState, -1, "CppClass");
+            s=lua_tostring(LuaState, -1);
+            if (s) Info.CppName=s;
+            lua_pop(LuaState, 1);
+
+            lua_getfield(LuaState, -1, "description");
+            s=lua_tostring(LuaState, -1);
+            if (s) Info.Description=s;
+            lua_pop(LuaState, 1);
+
+            if (Info.CppName!="" && Info.MapName!="")
+                CppToInfo[Info.CppName]=Info;
+        }
+
+        // Make sure that the code above left the stack behind properly.
+        assert(lua_gettop(LuaState)==3);
+
+        // Remove the value, keep the key for the next iteration.
+        lua_pop(LuaState, 1);
+    }
+
+    assert(lua_gettop(LuaState)==1);
+    lua_pop(LuaState, 1);
+
+
+    std::ofstream Out("Doxygen/scripting/MapEntitiesDM.tmpl");
+
+    if (!Out.is_open()) return;
+
+    for (unsigned long RootNr=0; RootNr<GetBaseEntTIM().GetTypeInfoRoots().Size(); RootNr++)
+    {
+        for (const cf::TypeSys::TypeInfoT* TI=GetBaseEntTIM().GetTypeInfoRoots()[RootNr]; TI!=NULL; TI=TI->GetNext())
+        {
+            const std::map<std::string, EntDefInfoT>::const_iterator It=CppToInfo.find(TI->ClassName);
+
+            Out << "\n\n";
+            if (It!=CppToInfo.end())
+            {
+                Out << "/// " << It->second.Description << "\n";
+                Out << "/// Map editor entity type: " << It->second.MapName << "\n";
+            }
+            Out << "class " << TI->ClassName;
+            if (TI->Base) Out << " : public " << TI->BaseClassName;
+            Out << "\n";
+            Out << "{\n";
+
+            if (TI->MethodsList)
+            {
+                for (unsigned int MethodNr=0; TI->MethodsList[MethodNr].name; MethodNr++)
+                {
+                    Out << "    void " << TI->MethodsList[MethodNr].name << "();\n";
+                }
+            }
+
+            Out << "};\n";
+        }
+    }
+#endif
+}
 
 
 // The constructor does four things to initialize the Script State:
@@ -146,6 +254,8 @@ ScriptStateT::ScriptStateT()
 
     // Make sure that everyone dealt properly with the Lua stack so far.
     assert(lua_gettop(LuaState)==0);
+
+    CreateLuaDoxygenHeader(LuaState);
 }
 
 

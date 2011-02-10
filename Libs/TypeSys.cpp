@@ -276,3 +276,37 @@ const TypeInfoT* TypeInfoManT::FindTypeInfoByNr(unsigned long TypeNr) const
 
     return TypeInfosByNr[TypeNr];
 }
+
+
+extern "C"
+{
+    #include <lua.h>
+    #include <lualib.h>
+    #include <lauxlib.h>
+}
+
+
+void TypeInfoManT::CreateLuaDoxygenHeader(std::ostream& Out) const
+{
+    for (unsigned long RootNr=0; RootNr<TypeInfoRoots.Size(); RootNr++)
+    {
+        for (const cf::TypeSys::TypeInfoT* TI=TypeInfoRoots[RootNr]; TI!=NULL; TI=TI->GetNext())
+        {
+            Out << "\n\n";
+            Out << "class " << TI->ClassName;
+            if (TI->Base) Out << " : public " << TI->BaseClassName;
+            Out << "\n";
+            Out << "{\n";
+
+            if (TI->MethodsList)
+            {
+                for (unsigned int MethodNr=0; TI->MethodsList[MethodNr].name; MethodNr++)
+                {
+                    Out << "    void " << TI->MethodsList[MethodNr].name << "();\n";
+                }
+            }
+
+            Out << "};\n";
+        }
+    }
+}

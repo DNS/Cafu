@@ -58,6 +58,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/MaterialManagerImpl.hpp"
 #include "TypeSys.hpp"
 
+#include <fstream>
+
 
 static cf::ConsoleStdoutT ConsoleStdout;
 cf::ConsoleI* Console=&ConsoleStdout;
@@ -106,6 +108,15 @@ bool AppCaWE::OnInit()
     cf::GuiSys::GetWindowTIM().Init();  // The one-time init of the Window type info manager.
     GetMapElemTIM().Init();             // The one-time init of the map elements type info manager.
     GetToolTIM().Init();                // The one-time init of the tools type info manager.
+
+    #ifndef NDEBUG
+    {
+        std::ofstream OutFile("Doxygen/scripting/GuiWindows.tmpl");
+
+        if (OutFile.is_open())
+            cf::GuiSys::GetWindowTIM().CreateLuaDoxygenHeader(OutFile);
+    }
+    #endif
 
     const std::string AppDir="./CaWE";
 
