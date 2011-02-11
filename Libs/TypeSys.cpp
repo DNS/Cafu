@@ -293,16 +293,21 @@ void TypeInfoManT::CreateLuaDoxygenHeader(std::ostream& Out) const
         for (const cf::TypeSys::TypeInfoT* TI=TypeInfoRoots[RootNr]; TI!=NULL; TI=TI->GetNext())
         {
             Out << "\n\n";
+            Out << "/// @cppName{" << TI->ClassName << "}\n";
             Out << "class " << TI->ClassName;
             if (TI->Base) Out << " : public " << TI->BaseClassName;
             Out << "\n";
             Out << "{\n";
+            Out << "    public:\n";
+            Out << "\n";
 
             if (TI->MethodsList)
             {
                 for (unsigned int MethodNr=0; TI->MethodsList[MethodNr].name; MethodNr++)
                 {
-                    Out << "    void " << TI->MethodsList[MethodNr].name << "();\n";
+                    if (strncmp(TI->MethodsList[MethodNr].name, "__", 2)==0) continue;
+
+                    Out << "    " << /*"void " <<*/ TI->MethodsList[MethodNr].name << "();\n";
                 }
             }
 

@@ -128,19 +128,34 @@ static void CreateLuaDoxygenHeader(lua_State* LuaState)
             Out << "\n\n";
             if (It!=CppToInfo.end())
             {
-                Out << "/// " << It->second.Description << "\n";
-                Out << "/// Map editor entity type: " << It->second.MapName << "\n";
+                std::string Desc=It->second.Description;
+
+                size_t Start=0;
+                for (size_t Pos=Desc.find("\n", Start); Pos!=std::string::npos; Pos=Desc.find("\n", Start))
+                {
+                    Desc.replace(Pos, 1, "\n/// ");
+                    Start=Pos+1;
+                }
+
+                Out << "/// " << Desc << "\n";
+                Out << "///\n";
+                Out << "/// @mapName{" << It->second.MapName << "}\n";
+                Out << "/// @cppName{" << TI->ClassName << "}\n";
             }
             Out << "class " << TI->ClassName;
             if (TI->Base) Out << " : public " << TI->BaseClassName;
             Out << "\n";
             Out << "{\n";
+            Out << "    public:\n";
+            Out << "\n";
 
             if (TI->MethodsList)
             {
                 for (unsigned int MethodNr=0; TI->MethodsList[MethodNr].name; MethodNr++)
                 {
-                    Out << "    void " << TI->MethodsList[MethodNr].name << "();\n";
+                    if (strncmp(TI->MethodsList[MethodNr].name, "__", 2)==0) continue;
+
+                    Out << "    " << /*"void " <<*/ TI->MethodsList[MethodNr].name << "();\n";
                 }
             }
 
