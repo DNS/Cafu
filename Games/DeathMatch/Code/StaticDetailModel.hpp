@@ -39,7 +39,7 @@ struct luaL_Reg;
 
 /// This class represents a static detail model.
 /// A static detail model adds geometric detail to a map and can optionally hold a scripted GUI that the user can interact with.
-/// Despite its name, a static detail model run animated sequences, but note these animations are essentially a client-side
+/// Despite its name, a static detail model can run animated sequences, but note that these animations are essentially a client-side
 /// effect only, as only a <em>restart</em> of a sequence is sync'ed over the network.
 class EntStaticDetailModelT : public BaseEntityT
 {

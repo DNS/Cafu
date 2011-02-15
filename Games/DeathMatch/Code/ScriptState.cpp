@@ -140,8 +140,8 @@ static void CreateLuaDoxygenHeader(lua_State* LuaState)
                 Out << "/// " << Desc << "\n";
                 Out << "///\n";
                 Out << "/// @mapName{" << It->second.MapName << "}\n";
-                Out << "/// @cppName{" << TI->ClassName << "}\n";
             }
+            Out << "/// @cppName{" << TI->ClassName << "}\n";
             Out << "class " << TI->ClassName;
             if (TI->Base) Out << " : public " << TI->BaseClassName;
             Out << "\n";
