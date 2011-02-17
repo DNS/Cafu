@@ -3,7 +3,7 @@
  *
  * @section overview Overview
  *
- * Welcome to the Cafu Engine <em>Scripting</em> documentation.
+ * Welcome to the <em>Cafu Engine Scripting Documentation</em>.
  *
  * This reference documentation describes the classes and functions that can occur and be used in Cafu game scripts, especially:
  *

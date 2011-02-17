@@ -1,9 +1,9 @@
 /**
- * @mainpage Cafu Engine C++ API Documentation
+ * @mainpage Cafu Engine C++ Source Code Documentation
  *
  * @section overview Overview
  *
- * Welcome to the Cafu Engine <em>C++ Application Programming Interface (API)</em> documentation.
+ * Welcome to the <em>Cafu Engine C++ Source Code Documentation</em>.
  *
  * This reference documentation describes the classes, functions, namespaces and other elements of the C++ source code in detail.
  *
