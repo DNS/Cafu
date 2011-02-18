@@ -1,5 +1,5 @@
 /**
- * @mainpage
+ * @mainpage Scripting Documentation
  *
  * @section overview Overview
  *

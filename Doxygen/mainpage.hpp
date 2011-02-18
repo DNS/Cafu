@@ -1,5 +1,5 @@
 /**
- * @mainpage Cafu Engine C++ Source Code Documentation
+ * @mainpage C++ Source Code Documentation
  *
  * @section overview Overview
  *
