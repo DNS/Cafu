@@ -102,9 +102,10 @@ void LoaderAssimpT::Load(ArrayT<CafuModelT::JointT>& Joints, int ParentIndex, co
     Joint.Qtr   =Vector3fT(Quaternion.x, Quaternion.y, Quaternion.z);
 
     Joints.PushBack(Joint);
+    const int ThisIndex=Joints.Size()-1;
 
     for (unsigned int ChildNr=0; ChildNr<Node->mNumChildren; ChildNr++)
-        Load(Joints, Joints.Size()-1, Node->mChildren[ChildNr]);
+        Load(Joints, ThisIndex, Node->mChildren[ChildNr]);
 }
 
 

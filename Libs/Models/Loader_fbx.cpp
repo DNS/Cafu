@@ -210,7 +210,7 @@ void LoaderFbxT::FbxSceneT::ConvertNurbsAndPatches(KFbxNode* Node)
 
 void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::JointT>& Joints, int ParentIndex, /*const*/ KFbxNode* Node) const
 {
-    Log << "Loading node " << ParentIndex << ", \"" << Node->GetName() << "\"\n";
+    Log << "Loading node " << Joints.Size() << ", \"" << Node->GetName() << "\", Parent == " << ParentIndex << "\n";
 
     // Note that KFbxAnimEvaluator::GetNodeGlobalTransform() is the proper method to call here:
     // It returns the node's default transformation matrix or the node's actual transformation
@@ -238,9 +238,10 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::JointT>& Joints, int ParentI
     Joint.Qtr   =Vector3dT(Quaternion[0], Quaternion[1], Quaternion[2]).AsVectorOfFloat();
 
     Joints.PushBack(Joint);
+    const int ThisIndex=Joints.Size()-1;
 
     for (int ChildNr=0; ChildNr<Node->GetChildCount(); ChildNr++)
-        Load(Joints, Joints.Size()-1, Node->GetChild(ChildNr));
+        Load(Joints, ThisIndex, Node->GetChild(ChildNr));
 }
 
 
