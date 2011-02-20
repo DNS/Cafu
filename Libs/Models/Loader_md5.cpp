@@ -111,6 +111,7 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                     Joint.Qtr.y=TP.GetNextTokenAsFloat();
                     Joint.Qtr.z=TP.GetNextTokenAsFloat();
                     TP.AssertAndSkipToken(")");
+                    Joint.Scale=Vector3fT(1.0f, 1.0f, 1.0f);
 
                     // Make sure that all joints (bones) are declared in a proper hierarchical order.
                     // That is, if we traverse the m_Joints in increasing order 0, 1, 2, ..., then we are never faced with a
@@ -290,15 +291,16 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                     for (unsigned long JointNr=0; JointNr<Anim.AnimJoints.Size(); JointNr++)
                     {
                         TP.AssertAndSkipToken("(");
-                        Anim.AnimJoints[JointNr].BaseValues[0]=TP.GetNextTokenAsFloat();
-                        Anim.AnimJoints[JointNr].BaseValues[1]=TP.GetNextTokenAsFloat();
-                        Anim.AnimJoints[JointNr].BaseValues[2]=TP.GetNextTokenAsFloat();
+                        Anim.AnimJoints[JointNr].DefaultPos.x=TP.GetNextTokenAsFloat();
+                        Anim.AnimJoints[JointNr].DefaultPos.y=TP.GetNextTokenAsFloat();
+                        Anim.AnimJoints[JointNr].DefaultPos.z=TP.GetNextTokenAsFloat();
                         TP.AssertAndSkipToken(")");
                         TP.AssertAndSkipToken("(");
-                        Anim.AnimJoints[JointNr].BaseValues[3]=TP.GetNextTokenAsFloat();
-                        Anim.AnimJoints[JointNr].BaseValues[4]=TP.GetNextTokenAsFloat();
-                        Anim.AnimJoints[JointNr].BaseValues[5]=TP.GetNextTokenAsFloat();
+                        Anim.AnimJoints[JointNr].DefaultQtr.x=TP.GetNextTokenAsFloat();
+                        Anim.AnimJoints[JointNr].DefaultQtr.y=TP.GetNextTokenAsFloat();
+                        Anim.AnimJoints[JointNr].DefaultQtr.z=TP.GetNextTokenAsFloat();
                         TP.AssertAndSkipToken(")");
+                        Anim.AnimJoints[JointNr].DefaultScale=Vector3fT(1.0f, 1.0f, 1.0f);
                     }
 
                     TP.AssertAndSkipToken("}");

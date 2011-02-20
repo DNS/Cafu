@@ -165,7 +165,7 @@ void CafuModelT::InitMeshes()
         {
             const JointT& J=m_Joints[JointNr];
 
-            JointMatrices[JointNr]=MatrixT(cf::math::QuaternionfT::FromXYZ(J.Qtr), J.Pos);
+            JointMatrices[JointNr]=MatrixT(J.Pos, cf::math::QuaternionfT::FromXYZ(J.Qtr), J.Scale);
         }
 
         for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
@@ -494,6 +494,7 @@ void CafuModelT::Save(std::ostream& OutStream) const
                   << "parent=" << Joint.Parent << "; "
                   << "pos={ " << serialize(Joint.Pos) << " }; "
                   << "qtr={ " << serialize(Joint.Qtr) << " }; "
+                  << "scale={ " << serialize(Joint.Scale) << " }; "
                   << "},\n";
     }
 
@@ -583,8 +584,9 @@ void CafuModelT::Save(std::ostream& OutStream) const
 
             OutStream << "\t\t\t"
                       << "{ "
-                      << "pos={ " << serialize(Joint.BaseValues[0]) << ", " << serialize(Joint.BaseValues[1]) << ", " << serialize(Joint.BaseValues[2]) << " }; "
-                      << "qtr={ " << serialize(Joint.BaseValues[3]) << ", " << serialize(Joint.BaseValues[4]) << ", " << serialize(Joint.BaseValues[5]) << " }; "
+                      << "pos={ " << serialize(Joint.DefaultPos) << " }; "
+                      << "qtr={ " << serialize(Joint.DefaultQtr) << " }; "
+                      << "scale={ " << serialize(Joint.DefaultScale) << " }; "
                       << "flags=" << Joint.Flags << "; "
                       << "firstData=" << Joint.FirstDataIdx << "; "
                       << "},\n";
@@ -673,7 +675,7 @@ void CafuModelT::UpdateCachedDrawData(int SequenceNr, float FrameNr) const
         {
             const JointT& J=m_Joints[JointNr];
 
-            m_Draw_JointMatrices[JointNr]=MatrixT(cf::math::QuaternionfT::FromXYZ(J.Qtr), J.Pos);
+            m_Draw_JointMatrices[JointNr]=MatrixT(J.Pos, cf::math::QuaternionfT::FromXYZ(J.Qtr), J.Scale);
         }
     }
     else
@@ -687,49 +689,30 @@ void CafuModelT::UpdateCachedDrawData(int SequenceNr, float FrameNr) const
         for (unsigned long JointNr=0; JointNr<m_Joints.Size(); JointNr++)
         {
             const AnimT::AnimJointT& AJ=Anim.AnimJoints[JointNr];
+            Vector3fT                Data_0[3]={ AJ.DefaultPos, AJ.DefaultQtr, AJ.DefaultScale };
+            Vector3fT                Data_1[3]={ AJ.DefaultPos, AJ.DefaultQtr, AJ.DefaultScale };
 
-
-            // Determine the position and quaternion for Frame_0.
-            float Data_0[7];
-
+            // Determine the position, quaternion and scale for Frame_0 and Frame_1.
             unsigned int FlagCount=0;
-            for (int i=0; i<6; i++)
+
+            for (int i=0; i<9; i++)
             {
-                const bool FlagIsSet=((AJ.Flags >> i) & 1)!=0;
+                if ((AJ.Flags >> i) & 1)
+                {
+                    Data_0[i/3][i % 3]=Anim.Frames[Frame_0].AnimData[AJ.FirstDataIdx+FlagCount];
+                    Data_1[i/3][i % 3]=Anim.Frames[Frame_1].AnimData[AJ.FirstDataIdx+FlagCount];
 
-                Data_0[i]=FlagIsSet ? Anim.Frames[Frame_0].AnimData[AJ.FirstDataIdx+FlagCount] : AJ.BaseValues[i];
-
-                if (FlagIsSet) FlagCount++;
+                    FlagCount++;
+                }
             }
-
-            const float t_0=1.0f - Data_0[3]*Data_0[3] - Data_0[4]*Data_0[4] - Data_0[5]*Data_0[5];
-            Data_0[6]=(t_0<0.0f) ? 0.0f : -sqrt(t_0);
-
-
-            // Determine the position and quaternion for Frame_1.
-            float Data_1[7];
-
-            FlagCount=0;
-            for (int i=0; i<6; i++)
-            {
-                const bool FlagIsSet=((AJ.Flags >> i) & 1)!=0;
-
-                Data_1[i]=FlagIsSet ? Anim.Frames[Frame_1].AnimData[AJ.FirstDataIdx+FlagCount] : AJ.BaseValues[i];
-
-                if (FlagIsSet) FlagCount++;
-            }
-
-            const float t_1=1.0f - Data_1[3]*Data_1[3] - Data_1[4]*Data_1[4] - Data_1[5]*Data_1[5];
-            Data_1[6]=(t_1<0.0f) ? 0.0f : -sqrt(t_1);
-
 
             // Interpolate the position and quaternion according to the fraction Frame_f.
-            const Vector3fT              Pos =Vector3fT(&Data_0[0])*(1.0f-Frame_f) + Vector3fT(&Data_1[0])*Frame_f;
-            const cf::math::QuaternionfT Quat=slerp(cf::math::QuaternionfT(&Data_0[3]), cf::math::QuaternionfT(&Data_1[3]), Frame_f);
-
+            const Vector3fT              Pos  =Data_0[0]*(1.0f-Frame_f) + Data_1[0]*Frame_f;
+            const cf::math::QuaternionfT Quat =slerp(cf::math::QuaternionfT::FromXYZ(Data_0[1]), cf::math::QuaternionfT::FromXYZ(Data_1[1]), Frame_f);
+            const Vector3fT              Scale=Data_0[2]*(1.0f-Frame_f) + Data_1[2]*Frame_f;
 
             // Compute the matrix that is relative to the parent bone, and finally obtain the absolute matrix for that bone!
-            const MatrixT RelMatrix(Quat, Pos);
+            const MatrixT RelMatrix(Pos, Quat, Scale);
             const JointT& J=m_Joints[JointNr];
 
             m_Draw_JointMatrices[JointNr]=(J.Parent==-1) ? RelMatrix : m_Draw_JointMatrices[J.Parent]*RelMatrix;

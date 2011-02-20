@@ -31,17 +31,22 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #endif
 
 
-MatrixT::MatrixT(const cf::math::QuaternionT<float>& Quat, const Vector3fT& Tl)
+MatrixT::MatrixT(const Vector3fT& t, const cf::math::QuaternionT<float>& q, const Vector3fT& s)
 {
-    const float x=Quat.x;
-    const float y=Quat.y;
-    const float z=Quat.z;
-    const float w=Quat.w;
+    const float x=q.x;
+    const float y=q.y;
+    const float z=q.z;
+    const float w=q.w;
 
-    m[0][0]=1.0f-2.0f*y*y-2.0f*z*z;  m[0][1]=     2.0f*x*y-2.0f*w*z;  m[0][2]=     2.0f*x*z+2.0f*w*y;  m[0][3]=Tl.x;
-    m[1][0]=     2.0f*x*y+2.0f*w*z;  m[1][1]=1.0f-2.0f*x*x-2.0f*z*z;  m[1][2]=     2.0f*y*z-2.0f*w*x;  m[1][3]=Tl.y;
-    m[2][0]=     2.0f*x*z-2.0f*w*y;  m[2][1]=     2.0f*y*z+2.0f*w*x;  m[2][2]=1.0f-2.0f*x*x-2.0f*y*y;  m[2][3]=Tl.z;
+    m[0][0]=1.0f-2.0f*y*y-2.0f*z*z;  m[0][1]=     2.0f*x*y-2.0f*w*z;  m[0][2]=     2.0f*x*z+2.0f*w*y;  m[0][3]=t.x;
+    m[1][0]=     2.0f*x*y+2.0f*w*z;  m[1][1]=1.0f-2.0f*x*x-2.0f*z*z;  m[1][2]=     2.0f*y*z-2.0f*w*x;  m[1][3]=t.y;
+    m[2][0]=     2.0f*x*z-2.0f*w*y;  m[2][1]=     2.0f*y*z+2.0f*w*x;  m[2][2]=1.0f-2.0f*x*x-2.0f*y*y;  m[2][3]=t.z;
     m[3][0]=                  0.0f;  m[3][1]=                  0.0f;  m[3][2]=                  0.0f;  m[3][3]=1.0f;
+
+    for (unsigned int j=0; j<3; j++)
+        if (s[j]!=1.0f)
+            for (unsigned int i=0; i<3; i++)
+                m[i][j]*=s[j];
 }
 
 

@@ -181,7 +181,7 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::JointT>& Joints) const
     {
         const StudioBoneT& Bone=StudioBones[BoneNr];
 
-        Matrices[BoneNr]=MatrixT(cf::math::QuaternionfT::Euler(Bone.Value[4], Bone.Value[5], Bone.Value[3]), Vector3fT(&Bone.Value[0]));
+        Matrices[BoneNr]=MatrixT(Vector3fT(&Bone.Value[0]), cf::math::QuaternionfT::Euler(Bone.Value[4], Bone.Value[5], Bone.Value[3]));
 
         if (Bone.Parent!=-1)
         {
@@ -207,8 +207,9 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::JointT>& Joints) const
         Joint.Parent=StudioBones[BoneNr].Parent;
         Joint.Pos   =Vector3fT(Mat[0][3], Mat[1][3], Mat[2][3]);
         Joint.Qtr   =cf::math::QuaternionfT(Mat3x3).GetXYZ();
+        Joint.Scale =Vector3fT(1.0f, 1.0f, 1.0f);
 
-        assert(MatrixT(cf::math::QuaternionfT::FromXYZ(Joint.Qtr), Joint.Pos).IsEqual(Mat, 0.01f));
+        assert(MatrixT(Joint.Pos, cf::math::QuaternionfT::FromXYZ(Joint.Qtr), Joint.Scale).IsEqual(Mat, 0.01f));
     }
 }
 
@@ -454,19 +455,18 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::AnimT>& Anims) const
 
             // For (space) efficiency, the defaults are taken from frame 0, rather than from the "unrelated" Bone.Value[...] as in HL1 mdl:
             // the resulting AnimData then require only 1/4 to 1/3 of the original size! (tested with Trinity.mdl)
-            for (unsigned int i=0; i<3; i++) AnimJoint.BaseValues[i  ]=AllData[BoneNr][0].Pos[i];
-            for (unsigned int i=0; i<3; i++) AnimJoint.BaseValues[i+3]=AllData[BoneNr][0].Qtr[i];
+            AnimJoint.DefaultPos=AllData[BoneNr][0].Pos;
+            AnimJoint.DefaultQtr=AllData[BoneNr][0].Qtr;
+            AnimJoint.DefaultScale=Vector3fT(1.0f, 1.0f, 1.0f);
             AnimJoint.Flags=0;
             AnimJoint.FirstDataIdx=AnimData_Size;
 
             for (int FrameNr=0; FrameNr<Sequ.NumFrames; FrameNr++)
             {
-                for (unsigned int i=0; i<6; i++)
+                for (unsigned int i=0; i<3; i++)
                 {
-                    const float Value=(i<3) ? AllData[BoneNr][FrameNr].Pos[i]
-                                            : AllData[BoneNr][FrameNr].Qtr[i-3];
-
-                    if (Value!=AnimJoint.BaseValues[i]) AnimJoint.Flags|=(1u << i);
+                    if (AllData[BoneNr][FrameNr].Pos[i]!=AnimJoint.DefaultPos[i]) AnimJoint.Flags|=(1u << (i+0));
+                    if (AllData[BoneNr][FrameNr].Qtr[i]!=AnimJoint.DefaultQtr[i]) AnimJoint.Flags|=(1u << (i+3));
                 }
             }
 

@@ -34,6 +34,7 @@ namespace cf { namespace math { template<class T> class QuaternionT; } }
 /// It has special helper methods for affine geometric transformations in 3D, but can be used for general purposes.
 /// Contrary to earlier test versions, it stores the fourth row explicitly, so that easy compatibility with
 /// OpenGL matrices is given and no problems occur with general-case use (e.g. as projection matrix etc.).
+/// @nosubgrouping
 class MatrixT
 {
     public:
@@ -74,11 +75,28 @@ class MatrixT
         m[3][0]=m30; m[3][1]=m31; m[3][2]=m32; m[3][3]=m33;
     }
 
-    /// Constructor for creating a matrix from a quaternion and a translation.
-    MatrixT(const cf::math::QuaternionT<float>& Quat, const Vector3fT& Tl);
+    /// Constructor for creating a matrix from a translation, a quaternion, and an optional scale.
+    ///
+    /// The resulting matrix is equal to the matrix product T*R*S of three matrices T, R and S, where
+    /// T is the translation matrix that corresponds to the given translation vector @c t,
+    /// R is the rotation matrix that is constructed from the given quaternion @c q, and
+    /// S is the scale matrix that corresponds to the given scale @c s.
+    ///
+    /// The resulting matrix is of the form:
+    /// @code
+    ///     x1*s.x   x2*s.y   x3*s.z   t.x
+    ///     y1*s.x   y2*s.y   y3*s.z   t.y
+    ///     z1*s.x   z2*s.y   z3*s.z   t.z
+    ///          0        0        0     1
+    /// @endcode
+    ///
+    /// @param t   The translation that is expressed in the matrix.
+    /// @param q   The quaternion that describes the rotation that is expressed in the matrix.
+    /// @param s   The scale that is expressed in the matrix.
+    MatrixT(const Vector3fT& t, const cf::math::QuaternionT<float>& q, const Vector3fT& s=Vector3fT(1.0f, 1.0f, 1.0f));
 
-    /// \name Named constructors.
-    //@{
+    /// \name Named constructors
+    /// @{
     static MatrixT GetProjOrthoMatrix(float left, float right, float bottom, float top, float zNear, float zFar);   ///< Returns a matrix for orthographic projection.
     static MatrixT GetProjFrustumMatrix(float left, float right, float bottom, float top, float zNear, float zFar); ///< Returns a matrix for perspective projection. If zFar <= zNear, the far plane is assumed to be at infinity (a useful special case for stencil shadow projections).
     static MatrixT GetProjPerspectiveMatrix(float fovY, float aspect, float zNear, float zFar);                     ///< Returns a matrix for perspective projection. If zFar <= zNear, the far plane is assumed to be at infinity (a useful special case for stencil shadow projections).
@@ -90,7 +108,7 @@ class MatrixT
     static MatrixT GetRotateYMatrix(float Angle);                       ///< Returns a rotation matrix about Angle degrees around the y-axis.
     static MatrixT GetRotateZMatrix(float Angle);                       ///< Returns a rotation matrix about Angle degrees around the z-axis.
     static MatrixT GetRotateMatrix(float Angle, const Vector3fT& Axis); ///< Returns a rotation matrix about Angle degrees around Axis.
-    //@}
+    /// @}
 
 
 

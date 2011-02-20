@@ -222,7 +222,6 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::JointT>& Joints, int ParentI
     KFbxQuaternion     Quaternion =Transform.GetQ();
     KFbxVector4        Scale      =Transform.GetS();
 
-    // TODO: If Scaling.x|y|z < 0.99 or > 1.01 then log warning.
     Quaternion.Normalize();
     if (Quaternion[3]>0) Quaternion=-Quaternion;
 
@@ -236,6 +235,7 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::JointT>& Joints, int ParentI
     Joint.Parent=ParentIndex;
     Joint.Pos   =Vector3dT(Translation[0], Translation[1], Translation[2]).AsVectorOfFloat();
     Joint.Qtr   =Vector3dT(Quaternion[0], Quaternion[1], Quaternion[2]).AsVectorOfFloat();
+    Joint.Scale =Vector3dT(Scale[0], Scale[1], Scale[2]).AsVectorOfFloat();
 
     Joints.PushBack(Joint);
     const int ThisIndex=Joints.Size()-1;
@@ -292,13 +292,12 @@ ArrayT< ArrayT<PosQtrScaleT> > LoaderFbxT::FbxSceneT::GetSequData(
             KFbxQuaternion     Quaternion =Transform.GetQ();
             KFbxVector4        Scale      =Transform.GetS();
 
-            // TODO: If Scaling.x|y|z < 0.99 or > 1.01 then log warning.
             Quaternion.Normalize();
             if (Quaternion[3]>0) Quaternion=-Quaternion;
 
-            SequData[NodeNr][FrameNr].Pos   = Vector3dT(Translation[0], Translation[1], Translation[2]).AsVectorOfFloat();
-            SequData[NodeNr][FrameNr].Qtr   = Vector3dT(Quaternion[0], Quaternion[1], Quaternion[2]).AsVectorOfFloat();
-            SequData[NodeNr][FrameNr].Scale = Vector3dT(Scale[0], Scale[1], Scale[2]).AsVectorOfFloat();
+            SequData[NodeNr][FrameNr].Pos  =Vector3dT(Translation[0], Translation[1], Translation[2]).AsVectorOfFloat();
+            SequData[NodeNr][FrameNr].Qtr  =Vector3dT(Quaternion[0], Quaternion[1], Quaternion[2]).AsVectorOfFloat();
+            SequData[NodeNr][FrameNr].Scale=Vector3dT(Scale[0], Scale[1], Scale[2]).AsVectorOfFloat();
         }
     }
 
@@ -350,25 +349,24 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::AnimT>& Anims) const
         {
             CafuModelT::AnimT::AnimJointT& AnimJoint=Anim.AnimJoints[NodeNr];
 
-            // For (space) efficiency, the defaults are taken from frame 0, rather than from the "unrelated" Bone.Value[...] as in HL1 mdl:
-            // the resulting AnimData then require only 1/4 to 1/3 of the original size! (tested with Trinity.mdl)
-            for (unsigned int i=0; i<3; i++) AnimJoint.BaseValues[i  ]=SequData[NodeNr][0].Pos[i];
-            for (unsigned int i=0; i<3; i++) AnimJoint.BaseValues[i+3]=SequData[NodeNr][0].Qtr[i];
+            // For (space) efficiency, the defaults are taken from frame 0, rather than from the default pose.
+            AnimJoint.DefaultPos  =SequData[NodeNr][0].Pos;
+            AnimJoint.DefaultQtr  =SequData[NodeNr][0].Qtr;
+            AnimJoint.DefaultScale=SequData[NodeNr][0].Scale;
             AnimJoint.Flags=0;
             AnimJoint.FirstDataIdx=AnimData_Size;
 
             for (unsigned long FrameNr=0; FrameNr<FrameTimes.Size(); FrameNr++)
             {
-                for (unsigned int i=0; i<6; i++)
+                for (unsigned int i=0; i<3; i++)
                 {
-                    const float Value=(i<3) ? SequData[NodeNr][FrameNr].Pos[i]
-                                            : SequData[NodeNr][FrameNr].Qtr[i-3];
-
-                    if (Value!=AnimJoint.BaseValues[i]) AnimJoint.Flags|=(1u << i);
+                    if (SequData[NodeNr][FrameNr].Pos  [i]!=AnimJoint.DefaultPos  [i]) AnimJoint.Flags|=(1u << (i+0));
+                    if (SequData[NodeNr][FrameNr].Qtr  [i]!=AnimJoint.DefaultQtr  [i]) AnimJoint.Flags|=(1u << (i+3));
+                    if (SequData[NodeNr][FrameNr].Scale[i]!=AnimJoint.DefaultScale[i]) AnimJoint.Flags|=(1u << (i+6));
                 }
             }
 
-            for (unsigned int i=0; i<6; i++)
+            for (unsigned int i=0; i<9; i++)
             {
                 if (((AnimJoint.Flags >> i) & 1)==0) continue;
 
@@ -376,8 +374,9 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::AnimT>& Anims) const
                 {
                     assert(Anim.Frames[FrameNr].AnimData.Size()==AnimData_Size);
 
-                    Anim.Frames[FrameNr].AnimData.PushBack(i<3 ? SequData[NodeNr][FrameNr].Pos[i]
-                                                               : SequData[NodeNr][FrameNr].Qtr[i-3]);
+                         if (i<3) Anim.Frames[FrameNr].AnimData.PushBack(SequData[NodeNr][FrameNr].Pos  [i  ]);
+                    else if (i<6) Anim.Frames[FrameNr].AnimData.PushBack(SequData[NodeNr][FrameNr].Qtr  [i-3]);
+                    else          Anim.Frames[FrameNr].AnimData.PushBack(SequData[NodeNr][FrameNr].Scale[i-6]);
                 }
 
                 AnimData_Size++;
