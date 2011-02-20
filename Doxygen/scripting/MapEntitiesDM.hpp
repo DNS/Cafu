@@ -31,7 +31,8 @@ class BaseEntityT
     /// and unique among all entities.
     /// When a new map starts, a script object that represents the entity is created as a global with this name.
     ///
-    /// For example, this function prints the names of all entities in a map:
+    /// \par Example:
+    /// This function prints the names of all entities in a map:
     /// @code
     ///     function listAllEnts()
     ///         for k, v in pairs(_G) do                      -- Iterate over all global variables.
@@ -47,7 +48,7 @@ class BaseEntityT
 
     /// Returns the origin of this entity as a triple of numbers.
     ///
-    /// Example:
+    /// \par Example:
     /// @code
     ///     local px, py, pz=Player1:GetOrigin()
     /// @endcode
@@ -295,7 +296,7 @@ class EntStaticDetailModelT : public BaseEntityT
     RestartSequ();
 
     /// Returns the number (an integer) of animation sequences that are available with this static detail model.
-    /// Example:
+    /// \par Example:
     /// @code
     ///     -- Set the next sequence number, wrap to 0 after the last.
     ///     SDM:SetSequNr((SDM:GetSequNr()+1) % SDM:GetNumSequences())
@@ -348,7 +349,7 @@ class EntRigidBodyT : public BaseEntityT
     /// Sets the gravity vector for this body.
     /// The default gravity vector is (0, 0, -9.81).
     ///
-    /// Example:
+    /// \par Example:
     /// @code
     ///     crate_001:SetGravity(0, 0, 9.81)    -- This will "drop" the crate to the *ceiling*!
     /// @endcode
