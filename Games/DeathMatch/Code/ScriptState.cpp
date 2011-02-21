@@ -44,6 +44,20 @@ extern "C"
 using namespace cf::GameSys;
 
 
+#ifndef NDEBUG
+namespace
+{
+    // Contains the information from the EntityClassDefs.lua file.
+    struct EntDefInfoT
+    {
+        std::string MapName;
+        std::string CppName;
+        std::string Description;
+    };
+}
+#endif
+
+
 // This function is a variant of TypeInfoManT::CreateLuaDoxygenHeader(),
 // customized for the additional information that comes with map entities.
 static void CreateLuaDoxygenHeader(lua_State* LuaState)
@@ -55,14 +69,6 @@ static void CreateLuaDoxygenHeader(lua_State* LuaState)
 
     if (Done) return;
     Done=true;
-
-    // Contains the information from the EntityClassDefs.lua file.
-    struct EntDefInfoT
-    {
-        std::string MapName;
-        std::string CppName;
-        std::string Description;
-    };
 
     std::map<std::string, EntDefInfoT> CppToInfo;
 
