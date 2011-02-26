@@ -24,7 +24,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef _COMMAND_PATTERN_HPP_
 #define _COMMAND_PATTERN_HPP_
 
-/// \file This file provides the classes for the Command pattern as described in the book by the GoF.
+/// \file
+/// This file provides the classes for the Command pattern as described in the book by the GoF.
 
 #include "wx/wx.h"
 #include "Templates/Array.hpp"

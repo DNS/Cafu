@@ -24,7 +24,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef _OBSERVER_PATTERN_HPP_
 #define _OBSERVER_PATTERN_HPP_
 
-/// \file This file provides the classes for the Observer pattern as described in the book by the GoF.
+/// \file
+/// This file provides the classes for the Observer pattern as described in the book by the GoF.
 /// Note that implementations of ObserverT normally maintain a pointer to the subject(s) that they observe,
 /// e.g. in order to be able to redraw themselves also outside of and independent from the NotifySubjectChanged() method.
 /// This however in turn creates problems when the life of the observer begins before or ends after the life of the observed subject(s).

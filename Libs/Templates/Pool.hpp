@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 namespace cf
 {
+    /// This class manages memory for a pool of objects.
     /// Works best for POD- and simple class types, because:
     /// - Only calls the default ctor.
     /// - Does not really free the elements, only when the entire pool is deleted.
@@ -94,6 +95,7 @@ namespace cf
     };
 
 
+    /// This class manages memory for a pool of objects.
     /// Works best for POD- and simple class types, because:
     /// - Doesn't really care about ctor and dtor calls.
     /// - Can only allocate a single element at a time.

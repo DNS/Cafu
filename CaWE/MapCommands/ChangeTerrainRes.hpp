@@ -41,7 +41,6 @@ class CommandChangeTerrainResT : public CommandT
     /// @param MapDoc The map document in which the terrain is existent.
     /// @param Terrain Pointer to the terrain object that is to be modified.
     /// @param NewResolution The resolution this terrain is changed to.
-    /// @param Scale Whether to scale the current height data to the new resolution or just expand/cut the height data array.
     CommandChangeTerrainResT(MapDocumentT& MapDoc, MapTerrainT* Terrain, unsigned int NewResolution);
 
     // CommandT implementation.

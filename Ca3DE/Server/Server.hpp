@@ -47,8 +47,8 @@ class ServerT
 
     class InitErrorT;
 
-    /// A class that the server uses in order to let a GUI know in which state the server currently is,
-    /// so that the GUI can decide which buttons it should enable/disable (i.e. which confuncs it makes sense to call).
+    /// A class that the server uses in order to let a GUI know in which state the server currently is.
+    /// The GUI uses it to decide which buttons it should enable/disable (i.e. which confuncs it makes sense to call).
     /// (This is the C++ equivalent to a traditional C call-back function.)
     class GuiCallbackI
     {

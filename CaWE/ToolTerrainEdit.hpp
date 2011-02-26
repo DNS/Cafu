@@ -102,11 +102,9 @@ class ToolTerrainEditorT : public ToolT, public ObserverT
     void UpdateModifyWeights();
 
     /// Updates the noise weights according to the passed radius.
-    /// @param ToolRadius The tool radius from which the noise weights are created.
     void UpdateNoiseWeights();
 
     /// Updates the gauss kernel according to the passed tool effect.
-    /// @param ToolEffect The tool effect from which the gauss weights are created.
     void UpdateGaussWeights();
 
     // Implementations/overrides of ToolT methods.

@@ -90,10 +90,10 @@ class MP_FaceT
 };
 
 
-/// This is a *helper* class (see [1]) for the "morph" / "edit vertices" tool,
-/// representing a map primitive (a brush or a bezier patch) that is currently being morphed by the tool.
+/// This is a helper class for the ToolMorphT ("edit vertices") tool.
+/// It represents a map primitive (a brush or a bezier patch) that is currently being morphed by the tool.
 ///
-/// About [1]: This class is considered a "helper" class, because the user code (i.e. the morph tool)
+/// This class is considered a \emph{helper} class, because the user code (i.e. the morph tool)
 /// (currently) needs knowledge about the implementation of this class whenever it keeps pointers to
 /// parts (vertices, edges) of the object that this class represents. Such pointers into the internal
 /// structures may become invalidated by certain methods, and thus great care is required.

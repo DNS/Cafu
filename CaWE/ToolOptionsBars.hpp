@@ -24,7 +24,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef _TOOL_OPTIONS_BARS_HPP_
 #define _TOOL_OPTIONS_BARS_HPP_
 
-/// \file This file contains the declarations of the tool options bars.
+/// \file
+/// This file contains the declarations of the tool options bars.
 /// The bars are all derived from wxPanels, and add only little functionality.
 /// Having them as separate classes makes many things a lot cleaner and clearer, though.
 

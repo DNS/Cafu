@@ -220,7 +220,7 @@ class BaseEntityT
 
 
     /// The client calls this method when it received an update of this entitys state from the server.
-    /// @param NetMsg   The network message that contains the update.
+    // /// @param NetMsg   The network message that contains the update.
     virtual void Cl_UnserializeFrom(/*TODO: Add NetMsg param here.*/);
 
     /// This CLIENT-SIDE function is called exactly once per received event (on client-side).

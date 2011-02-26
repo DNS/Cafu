@@ -113,7 +113,7 @@ class CafuModelT : public ModelT
     };
 
 
-    /// This struct describes one animation sequence, e.g. "run", "walk", "jump", etc.
+    /// This struct describes one animation sequence, e.g.\ "run", "walk", "jump", etc.
     /// We use it to obtain an array of joints (ArrayT<JointT>, just like m_Joints) for any point (frame number) in the animation sequence.
     struct AnimT
     {

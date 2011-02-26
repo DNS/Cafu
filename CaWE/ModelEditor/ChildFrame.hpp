@@ -46,7 +46,7 @@ namespace ModelEditor
         /// The constructor for creating a new model editor child frame.
         /// @param Parent     The applications parent frame.
         /// @param FileName   The file name of the document being edited.
-        /// @param Document   This frames model document. The frame becomes the owner of the document, i.e. it is responsible for destructing it.
+        /// @param ModelDoc   This frames model document. The frame becomes the owner of the document, i.e. it is responsible for destructing it.
         ///                   (Document is created externally so that this constructor doesn't fail on doc creation failure.)
         ChildFrameT(ParentFrameT* Parent, const wxString& FileName, ModelDocumentT* ModelDoc);
 

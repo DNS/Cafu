@@ -85,10 +85,11 @@ class InverseMatrixT : public DepRelMatrixT
 
 
 /// This class models the relationship with which a product matrix A*B depends on its components A and B
-/// (e.g. how a model-to-view matrix depends on the model-to-world and world-to-view matrices).
-/// Note that  "ProductMatrixT ModelView(WorldToView, ModelToWorld);"  would be the correct statement
+/// (e.g.\ how a model-to-view matrix depends on the model-to-world and world-to-view matrices).
+///
+/// Note that \code ProductMatrixT ModelView(WorldToView, ModelToWorld); \endcode would be the correct statement
 /// for a model-to-view matrix, whereas the opposite component order
-/// "ProductMatrixT ModelView(ModelToWorld, WorldToView);"  is wrong.
+/// \code ProductMatrixT ModelView(ModelToWorld, WorldToView); \endcode is wrong.
 class ProductMatrixT : public DepRelMatrixT
 {
     public:

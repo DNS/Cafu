@@ -39,12 +39,13 @@ namespace cf
 {
     namespace GuiSys
     {
+        /// This class implements the GuiI interface.
         /// TODO / FIXME:
         /// - Should we use different metatables for the table representation of a window and its userdata item (contained at table index __userdata_cf)?
         /// - Should we use for the __index value of a metatable not the metatable itself (so that __gc is not accessible from the script anymore)?
         ///   (Search the Lua users mailing list for "__gc" in this regard.)
         /// - How does this affect GuiImplT::GetCheckedObjectParam()?
-        /// - Employ the *environment* of userdata for our private data (e.g. the __children_cf and __parent_cf fields)!
+        /// - Employ the \emph{environment} of userdata for our private data (e.g. the __children_cf and __parent_cf fields)!
         class GuiImplT : public GuiI
         {
             public:
