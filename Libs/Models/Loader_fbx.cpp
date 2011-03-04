@@ -78,13 +78,13 @@ class LoaderFbxT::FbxSceneT
     ~FbxSceneT();
 
     /// Returns the root node of this scene.
-    /*const*/ KFbxNode* GetRootNode() const { return m_Scene->GetRootNode(); }
+    const KFbxNode* GetRootNode() const { return m_Scene->GetRootNode(); }
 
     /// Recursively loads the joints, beginning at the given KFbxNode instance and the given parent index.
-    void Load(ArrayT<CafuModelT::JointT>& Joints, int ParentIndex, /*const*/ KFbxNode* Node) const;
+    void Load(ArrayT<CafuModelT::JointT>& Joints, int ParentIndex, const KFbxNode* Node) const;
 
     /// Loads the meshes.
-    void Load(ArrayT<CafuModelT::MeshT>& Meshes, const ArrayT<CafuModelT::JointT>& Joints) const;
+    void Load(ArrayT<CafuModelT::MeshT>& Meshes) const;
 
     /// Loads the animations.
     void Load(ArrayT<CafuModelT::AnimT>& Anims) const;
@@ -93,12 +93,15 @@ class LoaderFbxT::FbxSceneT
     private:
 
     void CleanUp();
+    void GetNodes(const KFbxNode* Node);
     void ConvertNurbsAndPatches(KFbxNode* Node);
-    ArrayT< ArrayT<PosQtrScaleT> > GetSequData(KFbxAnimStack* AnimStack, const ArrayT<const KFbxNode*>& Nodes, const ArrayT<KTime>& FrameTimes) const;
+    void GetWeights(const KFbxMesh* Mesh, const unsigned long MeshNodeNr, ArrayT< ArrayT<CafuModelT::MeshT::WeightT> >& Weights) const;
+    ArrayT< ArrayT<PosQtrScaleT> > GetSequData(KFbxAnimStack* AnimStack, const ArrayT<KTime>& FrameTimes) const;
 
-    KFbxSdkManager* m_SdkManager;
-    KFbxScene*      m_Scene;
-    KFbxImporter*   m_Importer;
+    KFbxSdkManager*         m_SdkManager;
+    KFbxScene*              m_Scene;
+    KFbxImporter*           m_Importer;
+    ArrayT<const KFbxNode*> m_Nodes;
 };
 
 
@@ -190,6 +193,8 @@ LoaderFbxT::FbxSceneT::FbxSceneT(const std::string& FileName)
 
     // Load the texture data in memory (for supported formats)
     // LoadSupportedTextures(gScene, gTextureArray);
+
+    GetNodes(m_Scene->GetRootNode());
 }
 
 
@@ -204,6 +209,15 @@ void LoaderFbxT::FbxSceneT::CleanUp()
     m_Importer->Destroy();
     m_Scene->Destroy();
     m_SdkManager->Destroy();
+}
+
+
+void LoaderFbxT::FbxSceneT::GetNodes(const KFbxNode* Node)
+{
+    m_Nodes.PushBack(Node);
+
+    for (int ChildNr=0; ChildNr<Node->GetChildCount(); ChildNr++)
+        GetNodes(Node->GetChild(ChildNr));
 }
 
 
@@ -228,7 +242,7 @@ void LoaderFbxT::FbxSceneT::ConvertNurbsAndPatches(KFbxNode* Node)
 }
 
 
-void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::JointT>& Joints, int ParentIndex, /*const*/ KFbxNode* Node) const
+void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::JointT>& Joints, int ParentIndex, const KFbxNode* Node) const
 {
     Log << "Loading node " << Joints.Size() << ", \"" << Node->GetName() << "\", Parent == " << ParentIndex << "\n";
  // Log << "        Character Link Count: " << Node->GetCharacterLinkCount() << "\n";
@@ -272,7 +286,7 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::JointT>& Joints, int ParentI
     // matrix at a specified point in time (depending on its second parameter pTime).
     // See FBX SDK Programmer's Guide pages 89 and 90 and its API method documentation for details.
     // Also see KFbxAnimEvaluator::SetContext(): as we set no anim stack, it automatically uses the first in the scene.
-    const KFbxXMatrix& Transform  =m_Scene->GetEvaluator()->GetNodeGlobalTransform(Node);
+    const KFbxXMatrix& Transform  =m_Scene->GetEvaluator()->GetNodeGlobalTransform(const_cast<KFbxNode*>(Node));
     KFbxVector4        Translation=Transform.GetT();
     KFbxQuaternion     Quaternion =Transform.GetQ();
     KFbxVector4        Scale      =Transform.GetS();
@@ -295,130 +309,149 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::JointT>& Joints, int ParentI
     Joints.PushBack(Joint);
     const int ThisIndex=Joints.Size()-1;
 
+    assert(m_Nodes[ThisIndex]==Node);   // Make sure that the m_Nodes array is in fact "parallel" to the Joints array.
+
     for (int ChildNr=0; ChildNr<Node->GetChildCount(); ChildNr++)
         Load(Joints, ThisIndex, Node->GetChild(ChildNr));
 }
 
 
-// Returns the nodes in an array that parallels the Joints array.
-static void GetNodes(ArrayT<const KFbxNode*>& Nodes, const KFbxNode* Node)
-{
-    Nodes.PushBack(Node);
-
-    for (int ChildNr=0; ChildNr<Node->GetChildCount(); ChildNr++)
-        GetNodes(Nodes, Node->GetChild(ChildNr));
-}
-
-
-// This function is from file GetPosition.cxx of the Autodesk SDK ViewScene example.
+// This function is from file GetPosition.cxx of the Autodesk SDK ViewScene example:
 // Get the geometry deformation local to a node. It is never inherited by the children.
-KFbxXMatrix GetGeometry(KFbxNode* pNode)
+static KFbxXMatrix GetGeometry(const KFbxNode* pNode)
 {
-    KFbxVector4 lT, lR, lS;
-    KFbxXMatrix lGeometry;
+    KFbxXMatrix GeometryMat;
 
-    lT = pNode->GetGeometricTranslation(KFbxNode::eSOURCE_SET);
-    lR = pNode->GetGeometricRotation(KFbxNode::eSOURCE_SET);
-    lS = pNode->GetGeometricScaling(KFbxNode::eSOURCE_SET);
+    GeometryMat.SetT(pNode->GetGeometricTranslation(KFbxNode::eSOURCE_SET));
+    GeometryMat.SetR(pNode->GetGeometricRotation   (KFbxNode::eSOURCE_SET));
+    GeometryMat.SetS(pNode->GetGeometricScaling    (KFbxNode::eSOURCE_SET));
 
-    lGeometry.SetT(lT);
-    lGeometry.SetR(lR);
-    lGeometry.SetS(lS);
-
-    return lGeometry;
+    return GeometryMat;
 }
 
 
-void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes, const ArrayT<CafuModelT::JointT>& Joints) const
+/// Returns, for each vertex in the mesh, the list of weights that affect it.
+void LoaderFbxT::FbxSceneT::GetWeights(const KFbxMesh* Mesh, const unsigned long MeshNodeNr, ArrayT< ArrayT<CafuModelT::MeshT::WeightT> >& Weights) const
 {
-    ArrayT<const KFbxNode*> Nodes;
+    // All the links must have the same link mode.
+    KFbxCluster::ELinkMode ClusterMode=KFbxCluster::eNORMALIZE;     // Updated below.
 
-    GetNodes(Nodes, m_Scene->GetRootNode());
+    Weights.PushBackEmptyExact(Mesh->GetControlPointsCount());
 
-    Log << "\n";
-    for (unsigned long NodeNr=0; NodeNr<Nodes.Size(); NodeNr++)
+    for (int DeformerNr=0; DeformerNr < Mesh->GetDeformerCount(); DeformerNr++)
     {
-        const KFbxMesh* Mesh=dynamic_cast<const KFbxMesh*>(Nodes[NodeNr]->GetNodeAttribute());
+        Log << "    " << DeformerNr << ", ";
 
-        if (!Mesh) continue;
-
-        ArrayT< ArrayT<CafuModelT::MeshT::WeightT> > Weights;   // For each vertex in the mesh, build an array of weights that affect it.
-        Weights.PushBackEmptyExact(Mesh->GetControlPointsCount());
-
-        // All the links must have the same link mode.
-        KFbxCluster::ELinkMode ClusterMode=KFbxCluster::eNORMALIZE;     // Updated below.
-
-        const int NumDeformers=Mesh->GetDeformerCount();
-
-        Log << "Node " << NodeNr << " is a mesh with " << NumDeformers << " deformers.\n";
-
-        for (int DeformerNr=0; DeformerNr<NumDeformers; DeformerNr++)
+        switch (Mesh->GetDeformer(DeformerNr)->GetDeformerType())
         {
-            Log << "    " << DeformerNr << ", ";
+            case KFbxDeformer::eSKIN:         Log << "eSKIN\n"; break;
+            case KFbxDeformer::eVERTEX_CACHE: Log << "eVERTEX_CACHE\n"; break;
+            default:                          Log << "[unknown deformer type]\n"; break;
+        }
 
-            switch (Mesh->GetDeformer(DeformerNr)->GetDeformerType())
+        KFbxSkin* Skin=dynamic_cast<KFbxSkin*>(Mesh->GetDeformer(DeformerNr));
+
+        if (Skin && Skin->GetClusterCount()>0)
+        {
+            ArrayT<KFbxVector4> GlobalBindPose;
+            KFbxXMatrix         MeshToGlobalBindPose;
+
+            // Transform the vertices from the local space of Mesh to bind pose in global space.
+            GlobalBindPose.PushBackEmptyExact(Mesh->GetControlPointsCount());
+
+            Skin->GetCluster(0)->GetTransformMatrix(MeshToGlobalBindPose);
+            MeshToGlobalBindPose *= GetGeometry(Mesh->GetNode());
+
+            for (unsigned long VertexNr=0; VertexNr<GlobalBindPose.Size(); VertexNr++)
+                GlobalBindPose[VertexNr]=MeshToGlobalBindPose.MultT(Mesh->GetControlPoints()[VertexNr]);
+
+            // For additional information regarding this code, besides the FBX SDK documentation and the ViewScene sample, see my post at
+            // http://area.autodesk.com/forum/autodesk-fbx/fbx-sdk/getting-the-local-transformation-matrix-for-the-vertices-of-a-cluster/
+            for (int ClusterNr=0; ClusterNr<Skin->GetClusterCount(); ClusterNr++)
             {
-                case KFbxDeformer::eSKIN:         Log << "eSKIN\n"; break;
-                case KFbxDeformer::eVERTEX_CACHE: Log << "eVERTEX_CACHE\n"; break;
-                default:                          Log << "[unknown deformer type]\n"; break;
-            }
+                const KFbxCluster* Cluster =Skin->GetCluster(ClusterNr);
+                const unsigned int JointIdx=m_Nodes.Find(Cluster->GetLink());
 
-            KFbxSkin* Skin=dynamic_cast<KFbxSkin*>(Mesh->GetDeformer(DeformerNr));
+                Log << "        cluster " << ClusterNr << ", link mode: " << Cluster->GetLinkMode() << "\n";
 
-            if (Skin && Skin->GetClusterCount()>0)
-            {
-                ArrayT<KFbxVector4> GlobalBindPose;
-                KFbxXMatrix         MeshToGlobalBindPose;
+                if (JointIdx>=m_Nodes.Size()) continue;
 
-                // Transform the vertices from the local space of Mesh to bind pose in global space.
-                GlobalBindPose.PushBackEmptyExact(Mesh->GetControlPointsCount());
+                // Update the ClusterMode (it should/must be the same for all links).
+                ClusterMode=Cluster->GetLinkMode();
 
-                Skin->GetCluster(0)->GetTransformMatrix(MeshToGlobalBindPose);
-                MeshToGlobalBindPose *= GetGeometry(Mesh->GetNode());
+                // Get the matrix that transforms the vertices from global space to local bone space in bind pose.
+                KFbxXMatrix BoneBindingMatrix;
+                Cluster->GetTransformLinkMatrix(BoneBindingMatrix);
+                KFbxXMatrix GlobalToLocalBoneBindPose=BoneBindingMatrix.Inverse();
 
-                for (unsigned long VertexNr=0; VertexNr<GlobalBindPose.Size(); VertexNr++)
-                    GlobalBindPose[VertexNr]=MeshToGlobalBindPose.MultT(Mesh->GetControlPoints()[VertexNr]);
-
-                // For additional information regarding this code, besides the FBX SDK documentation and the ViewScene sample, see my post at
-                // http://area.autodesk.com/forum/autodesk-fbx/fbx-sdk/getting-the-local-transformation-matrix-for-the-vertices-of-a-cluster/
-                for (int ClusterNr=0; ClusterNr<Skin->GetClusterCount(); ClusterNr++)
+                for (int i=0; i<Cluster->GetControlPointIndicesCount(); i++)
                 {
-                    const KFbxCluster* Cluster =Skin->GetCluster(ClusterNr);
-                    const unsigned int JointIdx=Nodes.Find(Cluster->GetLink());
+                    const int   VertexNr=Cluster->GetControlPointIndices()[i];
+                    const float w       =float(Cluster->GetControlPointWeights()[i]);
 
-                    Log << "        cluster " << ClusterNr << ", link mode: " << Cluster->GetLinkMode() << "\n";
+                    if (VertexNr >= Mesh->GetControlPointsCount()) continue;
+                    if (w==0.0f) continue;
 
-                    if (JointIdx>=Nodes.Size()) continue;
-
-                    // Update the ClusterMode (it should/must be the same for all links).
-                    ClusterMode=Cluster->GetLinkMode();
-
-                    // Get the matrix that transforms the vertices from global space to local bone space in bind pose.
-                    KFbxXMatrix BoneBindingMatrix;
-                    Cluster->GetTransformLinkMatrix(BoneBindingMatrix);
-                    KFbxXMatrix GlobalToLocalBoneBindPose=BoneBindingMatrix.Inverse();
-
-                    for (int i=0; i<Cluster->GetControlPointIndicesCount(); i++)
-                    {
-                        const int   VertexNr=Cluster->GetControlPointIndices()[i];
-                        const float w       =float(Cluster->GetControlPointWeights()[i]);
-
-                        if (VertexNr > Mesh->GetControlPointsCount()) continue;
-                        if (w==0.0f) continue;
-
-                        Weights[VertexNr].PushBack(CreateWeight(JointIdx, w, conv(GlobalToLocalBoneBindPose.MultT(GlobalBindPose[VertexNr]))));
-                    }
+                    Weights[VertexNr].PushBack(CreateWeight(JointIdx, w, conv(GlobalToLocalBoneBindPose.MultT(GlobalBindPose[VertexNr]))));
                 }
             }
         }
+    }
 
+    // Renormalize, complete or correct the weights for each vertex.
+    for (unsigned long VertexNr=0; VertexNr<Weights.Size(); VertexNr++)
+    {
+        float wSum=0.0f;
+
+        for (unsigned long WNr=0; WNr<Weights[VertexNr].Size(); WNr++)
+            wSum+=Weights[VertexNr][WNr].Weight;
+
+        if (wSum==0.0f)
+        {
+            Weights[VertexNr].Overwrite();
+            Weights[VertexNr].PushBack(CreateWeight(MeshNodeNr, 1.0f, conv(Mesh->GetControlPoints()[VertexNr])));
+        }
+        else
+        {
+            switch (ClusterMode)
+            {
+                case KFbxCluster::eNORMALIZE:
+                    for (unsigned long WNr=0; WNr<Weights[VertexNr].Size(); WNr++)
+                        Weights[VertexNr][WNr].Weight/=wSum;
+                    break;
+
+                case KFbxCluster::eTOTAL1:
+                    if (wSum!=1.0f)
+                        Weights[VertexNr].PushBack(CreateWeight(MeshNodeNr, 1.0f-wSum, conv(Mesh->GetControlPoints()[VertexNr])));
+                    break;
+            }
+        }
+    }
+}
+
+
+void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
+{
+    Log << "\n";
+
+    for (unsigned long NodeNr=0; NodeNr<m_Nodes.Size(); NodeNr++)
+    {
+        const KFbxMesh* Mesh=dynamic_cast<const KFbxMesh*>(m_Nodes[NodeNr]->GetNodeAttribute());
+
+        if (!Mesh) continue;
+        Log << "Node " << NodeNr << " is a mesh with " << Mesh->GetDeformerCount() << " deformers.\n";
+
+        ArrayT< ArrayT<CafuModelT::MeshT::WeightT> > Weights;   // For each vertex in the mesh, an array of weights that affect it.
+        GetWeights(Mesh, NodeNr, Weights);
 
         Meshes.PushBackEmpty();
         CafuModelT::MeshT& CafuMesh=Meshes[Meshes.Size()-1];
 
+        // Set the material and render material.
         CafuMesh.Material      =MaterialManager->GetMaterial("Models/Players/Alien/Alien" /*ObjMesh.MtlName*/);    // TODO...!  (Should use method GetMaterialByName() instead!)
         CafuMesh.RenderMaterial=MatSys::Renderer!=NULL ? MatSys::Renderer->RegisterMaterial(CafuMesh.Material) : NULL;
 
+        // Create the list of triangles.
         for (int PolyNr=0; PolyNr<Mesh->GetPolygonCount(); PolyNr++)
         {
             for (int PolyTriNr=0; PolyTriNr < Mesh->GetPolygonSize(PolyNr)-2; PolyTriNr++)
@@ -430,35 +463,7 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes, const ArrayT
             }
         }
 
-        for (unsigned long VertexNr=0; VertexNr<Weights.Size(); VertexNr++)
-        {
-            float wSum=0.0f;
-
-            for (unsigned long WNr=0; WNr<Weights[VertexNr].Size(); WNr++)
-                wSum+=Weights[VertexNr][WNr].Weight;
-
-            if (wSum==0.0f)
-            {
-                Weights[VertexNr].Overwrite();
-                Weights[VertexNr].PushBack(CreateWeight(NodeNr, 1.0f, conv(Mesh->GetControlPoints()[VertexNr])));
-            }
-            else
-            {
-                switch (ClusterMode)
-                {
-                    case KFbxCluster::eNORMALIZE:
-                        for (unsigned long WNr=0; WNr<Weights[VertexNr].Size(); WNr++)
-                            Weights[VertexNr][WNr].Weight/=wSum;
-                        break;
-
-                    case KFbxCluster::eTOTAL1:
-                        if (wSum!=1.0f)
-                            Weights[VertexNr].PushBack(CreateWeight(NodeNr, 1.0f-wSum, conv(Mesh->GetControlPoints()[VertexNr])));
-                        break;
-                }
-            }
-        }
-
+        // Create the list of vertices and the list of weights.
         CafuMesh.Vertices.PushBackEmpty(Weights.Size());
 
         for (unsigned long VertexNr=0; VertexNr<CafuMesh.Vertices.Size(); VertexNr++)
@@ -492,21 +497,20 @@ static ArrayT<KTime> GetFrameTimes(const KFbxAnimStack* AnimStack, const KTime& 
 
 /// Gathers all animation data of a sequence (AnimStack) in uncompressed form in an array of the form SequData[NodeNr][FrameNr].
 /// That is, for each frame and for each node, we store the position, quaternion and scale.
-ArrayT< ArrayT<PosQtrScaleT> > LoaderFbxT::FbxSceneT::GetSequData(
-    KFbxAnimStack* AnimStack, const ArrayT<const KFbxNode*>& Nodes, const ArrayT<KTime>& FrameTimes) const
+ArrayT< ArrayT<PosQtrScaleT> > LoaderFbxT::FbxSceneT::GetSequData(KFbxAnimStack* AnimStack, const ArrayT<KTime>& FrameTimes) const
 {
     ArrayT< ArrayT<PosQtrScaleT> > SequData;
 
     m_Scene->GetEvaluator()->SetContext(AnimStack);
-    SequData.PushBackEmptyExact(Nodes.Size());
+    SequData.PushBackEmptyExact(m_Nodes.Size());
 
-    for (unsigned long NodeNr=0; NodeNr<Nodes.Size(); NodeNr++)
+    for (unsigned long NodeNr=0; NodeNr<m_Nodes.Size(); NodeNr++)
     {
         SequData[NodeNr].PushBackEmptyExact(FrameTimes.Size());
 
         for (unsigned long FrameNr=0; FrameNr<FrameTimes.Size(); FrameNr++)
         {
-            const KFbxXMatrix& Transform  =m_Scene->GetEvaluator()->GetNodeLocalTransform(const_cast<KFbxNode*>(Nodes[NodeNr]), FrameTimes[FrameNr]);
+            const KFbxXMatrix& Transform  =m_Scene->GetEvaluator()->GetNodeLocalTransform(const_cast<KFbxNode*>(m_Nodes[NodeNr]), FrameTimes[FrameNr]);
             KFbxVector4        Translation=Transform.GetT();
             KFbxQuaternion     Quaternion =Transform.GetQ();
             KFbxVector4        Scale      =Transform.GetS();
@@ -529,16 +533,14 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::AnimT>& Anims) const
 {
     KTime                    TimeStep;
     KArrayTemplate<KString*> AnimStackNames;
-    ArrayT<const KFbxNode*>  Nodes;
 
     TimeStep.SetTime(0, 0, 0, 1, 0, m_Scene->GetGlobalSettings().GetTimeMode());
     m_Scene->FillAnimStackNameArray(AnimStackNames);
-    GetNodes(Nodes, m_Scene->GetRootNode());
 
     Log << "\n";
     Log << "Global scene FPS: " << 1.0/TimeStep.GetSecondDouble() << "\n";
     Log << "Anim stacks in scene: " << AnimStackNames.GetCount() << "\n";
-    Log << "Animated nodes: " << Nodes.Size() << "\n";
+    Log << "Animated nodes: " << m_Nodes.Size() << "\n";
 
     for (int NameNr=0; NameNr<AnimStackNames.GetCount(); NameNr++)
     {
@@ -548,7 +550,7 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::AnimT>& Anims) const
         if (AnimStack==NULL) continue;
 
         const ArrayT<KTime>                  FrameTimes=GetFrameTimes(AnimStack, TimeStep);
-        const ArrayT< ArrayT<PosQtrScaleT> > SequData  =GetSequData(AnimStack, Nodes, FrameTimes);
+        const ArrayT< ArrayT<PosQtrScaleT> > SequData  =GetSequData(AnimStack, FrameTimes);
 
         Log << "    \"" << AnimStackNames[NameNr]->Buffer() << "\"" << (AnimStackNames[NameNr]->Compare(KFbxGet<KString>(m_Scene->ActiveAnimStackName))==0 ? "    (active)" : "") << "\n";
         Log << "        " << FrameTimes.Size() << " frames\n";
@@ -562,10 +564,10 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::AnimT>& Anims) const
         Anim.FPS =float(1.0/TimeStep.GetSecondDouble());
      // Anim.Next=-1;
 
-        Anim.AnimJoints.PushBackEmptyExact(Nodes.Size());
+        Anim.AnimJoints.PushBackEmptyExact(m_Nodes.Size());
         Anim.Frames.PushBackEmptyExact(FrameTimes.Size());
 
-        for (unsigned long NodeNr=0; NodeNr<Nodes.Size(); NodeNr++)
+        for (unsigned long NodeNr=0; NodeNr<m_Nodes.Size(); NodeNr++)
         {
             CafuModelT::AnimT::AnimJointT& AnimJoint=Anim.AnimJoints[NodeNr];
 
@@ -652,7 +654,7 @@ void LoaderFbxT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
     m_FbxScene->Load(Joints, -1, m_FbxScene->GetRootNode());
 
     // Load the meshes.
-    m_FbxScene->Load(Meshes, Joints);
+    m_FbxScene->Load(Meshes);
 
     // Load the animations.
     m_FbxScene->Load(Anims);
