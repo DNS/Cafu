@@ -45,6 +45,22 @@ static std::ostream& operator << (std::ostream& os, const KFbxQuaternion& A)
     return os << "fbxQuat(" << A[0] << ", " << A[1] << ", " << A[2] << ", " << A[3] << ")";
 }
 
+static Vector3fT conv(const KFbxVector4& V)
+{
+    return Vector3dT(V[0], V[1], V[2]).AsVectorOfFloat();
+}
+
+static CafuModelT::MeshT::WeightT CreateWeight(unsigned int JointIdx, float w, const Vector3fT& Pos)
+{
+    CafuModelT::MeshT::WeightT Weight;
+
+    Weight.JointIdx=JointIdx;
+    Weight.Weight  =w;
+    Weight.Pos     =Pos;
+
+    return Weight;
+}
+
 
 struct PosQtrScaleT
 {
@@ -272,9 +288,9 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::JointT>& Joints, int ParentI
 
     Joint.Name  =Node->GetName();
     Joint.Parent=ParentIndex;
-    Joint.Pos   =Vector3dT(Translation[0], Translation[1], Translation[2]).AsVectorOfFloat();
+    Joint.Pos   =conv(Translation);
     Joint.Qtr   =Vector3dT(Quaternion[0], Quaternion[1], Quaternion[2]).AsVectorOfFloat();
-    Joint.Scale =Vector3dT(Scale[0], Scale[1], Scale[2]).AsVectorOfFloat();
+    Joint.Scale =conv(Scale);
 
     Joints.PushBack(Joint);
     const int ThisIndex=Joints.Size()-1;
@@ -326,11 +342,11 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes, const ArrayT
 
         if (!Mesh) continue;
 
-        ArrayT<KFbxVector4> GlobalBindPose;
         ArrayT< ArrayT<CafuModelT::MeshT::WeightT> > Weights;   // For each vertex in the mesh, build an array of weights that affect it.
+        Weights.PushBackEmptyExact(Mesh->GetControlPointsCount());
 
-        GlobalBindPose.PushBackEmptyExact(Mesh->GetControlPointsCount());
-        Weights       .PushBackEmptyExact(Mesh->GetControlPointsCount());
+        // All the links must have the same link mode.
+        KFbxCluster::ELinkMode ClusterMode=KFbxCluster::eNORMALIZE;     // Updated below.
 
         const int NumDeformers=Mesh->GetDeformerCount();
 
@@ -349,9 +365,21 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes, const ArrayT
 
             KFbxSkin* Skin=dynamic_cast<KFbxSkin*>(Mesh->GetDeformer(DeformerNr));
 
-            if (Skin)
+            if (Skin && Skin->GetClusterCount()>0)
             {
-                // For additional information regarding this code, see besides the FBX SDK documentation my post at
+                ArrayT<KFbxVector4> GlobalBindPose;
+                KFbxXMatrix         MeshToGlobalBindPose;
+
+                // Transform the vertices from the local space of Mesh to bind pose in global space.
+                GlobalBindPose.PushBackEmptyExact(Mesh->GetControlPointsCount());
+
+                Skin->GetCluster(0)->GetTransformMatrix(MeshToGlobalBindPose);
+                MeshToGlobalBindPose *= GetGeometry(Mesh->GetNode());
+
+                for (unsigned long VertexNr=0; VertexNr<GlobalBindPose.Size(); VertexNr++)
+                    GlobalBindPose[VertexNr]=MeshToGlobalBindPose.MultT(Mesh->GetControlPoints()[VertexNr]);
+
+                // For additional information regarding this code, besides the FBX SDK documentation and the ViewScene sample, see my post at
                 // http://area.autodesk.com/forum/autodesk-fbx/fbx-sdk/getting-the-local-transformation-matrix-for-the-vertices-of-a-cluster/
                 for (int ClusterNr=0; ClusterNr<Skin->GetClusterCount(); ClusterNr++)
                 {
@@ -360,17 +388,10 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes, const ArrayT
 
                     Log << "        cluster " << ClusterNr << ", link mode: " << Cluster->GetLinkMode() << "\n";
 
-                    if (ClusterNr==0)
-                    {
-                        KFbxXMatrix MeshToGlobalBindPose;
+                    if (JointIdx>=Nodes.Size()) continue;
 
-                        // Transform the vertices from the local space of Mesh to bind pose in global space.
-                        Cluster->GetTransformMatrix(MeshToGlobalBindPose);
-                        MeshToGlobalBindPose *= GetGeometry(Mesh->GetNode());
-
-                        for (unsigned long VertexNr=0; VertexNr<GlobalBindPose.Size(); VertexNr++)
-                            GlobalBindPose[VertexNr]=MeshToGlobalBindPose.MultT(Mesh->GetControlPoints()[VertexNr]);
-                    }
+                    // Update the ClusterMode (it should/must be the same for all links).
+                    ClusterMode=Cluster->GetLinkMode();
 
                     // Get the matrix that transforms the vertices from global space to local bone space in bind pose.
                     KFbxXMatrix BoneBindingMatrix;
@@ -379,16 +400,13 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes, const ArrayT
 
                     for (int i=0; i<Cluster->GetControlPointIndicesCount(); i++)
                     {
-                        const int         VertexNr=Cluster->GetControlPointIndices()[i];
-                        const KFbxVector4 Pos     =GlobalToLocalBoneBindPose.MultT(GlobalBindPose[VertexNr]);
+                        const int   VertexNr=Cluster->GetControlPointIndices()[i];
+                        const float w       =float(Cluster->GetControlPointWeights()[i]);
 
-                        CafuModelT::MeshT::WeightT Weight;
+                        if (VertexNr > Mesh->GetControlPointsCount()) continue;
+                        if (w==0.0f) continue;
 
-                        Weight.JointIdx=JointIdx;
-                        Weight.Weight  =float(Cluster->GetControlPointWeights()[i]);
-                        Weight.Pos     =Vector3dT(Pos[0], Pos[1], Pos[2]).AsVectorOfFloat();
-
-                        Weights[VertexNr].PushBack(Weight);
+                        Weights[VertexNr].PushBack(CreateWeight(JointIdx, w, conv(GlobalToLocalBoneBindPose.MultT(GlobalBindPose[VertexNr]))));
                     }
                 }
             }
@@ -409,6 +427,35 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes, const ArrayT
                     Mesh->GetPolygonVertex(PolyNr,           0),
                     Mesh->GetPolygonVertex(PolyNr, PolyTriNr+2),
                     Mesh->GetPolygonVertex(PolyNr, PolyTriNr+1)));
+            }
+        }
+
+        for (unsigned long VertexNr=0; VertexNr<Weights.Size(); VertexNr++)
+        {
+            float wSum=0.0f;
+
+            for (unsigned long WNr=0; WNr<Weights[VertexNr].Size(); WNr++)
+                wSum+=Weights[VertexNr][WNr].Weight;
+
+            if (wSum==0.0f)
+            {
+                Weights[VertexNr].Overwrite();
+                Weights[VertexNr].PushBack(CreateWeight(NodeNr, 1.0f, conv(Mesh->GetControlPoints()[VertexNr])));
+            }
+            else
+            {
+                switch (ClusterMode)
+                {
+                    case KFbxCluster::eNORMALIZE:
+                        for (unsigned long WNr=0; WNr<Weights[VertexNr].Size(); WNr++)
+                            Weights[VertexNr][WNr].Weight/=wSum;
+                        break;
+
+                    case KFbxCluster::eTOTAL1:
+                        if (wSum!=1.0f)
+                            Weights[VertexNr].PushBack(CreateWeight(NodeNr, 1.0f-wSum, conv(Mesh->GetControlPoints()[VertexNr])));
+                        break;
+                }
             }
         }
 
@@ -467,9 +514,9 @@ ArrayT< ArrayT<PosQtrScaleT> > LoaderFbxT::FbxSceneT::GetSequData(
             Quaternion.Normalize();
             if (Quaternion[3]>0) Quaternion=-Quaternion;
 
-            SequData[NodeNr][FrameNr].Pos  =Vector3dT(Translation[0], Translation[1], Translation[2]).AsVectorOfFloat();
+            SequData[NodeNr][FrameNr].Pos  =conv(Translation);
             SequData[NodeNr][FrameNr].Qtr  =Vector3dT(Quaternion[0], Quaternion[1], Quaternion[2]).AsVectorOfFloat();
-            SequData[NodeNr][FrameNr].Scale=Vector3dT(Scale[0], Scale[1], Scale[2]).AsVectorOfFloat();
+            SequData[NodeNr][FrameNr].Scale=conv(Scale);
         }
     }
 
