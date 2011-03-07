@@ -28,7 +28,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Renderer.hpp"
 // #include "wx/textdlg.h"
 
+#if defined(_WIN32) && _MSC_VER<1600
+#include "pstdint.h"            // Paul Hsieh's portable implementation of the stdint.h header.
+#else
+#include <stdint.h>
+#endif
+
 #include <fstream>
+#include <map>
 
 
 static std::ofstream Log("fbx-loader.log");
@@ -441,40 +448,69 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
         if (!Mesh) continue;
         Log << "Node " << NodeNr << " is a mesh with " << Mesh->GetDeformerCount() << " deformers.\n";
 
-        ArrayT< ArrayT<CafuModelT::MeshT::WeightT> > Weights;   // For each vertex in the mesh, an array of weights that affect it.
-        GetWeights(Mesh, NodeNr, Weights);
+        ArrayT< ArrayT<CafuModelT::MeshT::WeightT> > VertexWeights;   // For each vertex in the mesh, an array of weights that affect it.
+        GetWeights(Mesh, NodeNr, VertexWeights);
 
         Meshes.PushBackEmpty();
         CafuModelT::MeshT& CafuMesh=Meshes[Meshes.Size()-1];
 
-        // Set the material and render material.
-        CafuMesh.Material      =MaterialManager->GetMaterial("Models/Players/Alien/Alien" /*ObjMesh.MtlName*/);    // TODO...!  (Should use method GetMaterialByName() instead!)
-        CafuMesh.RenderMaterial=MatSys::Renderer!=NULL ? MatSys::Renderer->RegisterMaterial(CafuMesh.Material) : NULL;
+        // Create the "flat" list of weights, and for each vertex, record the first index into this list.
+        ArrayT<unsigned long> VertexFirstWeightIdx;
 
-        // Create the list of triangles.
+        for (unsigned long VertexNr=0; VertexNr<VertexWeights.Size(); VertexNr++)
+        {
+            VertexFirstWeightIdx.PushBack(CafuMesh.Weights.Size());
+            CafuMesh.Weights.PushBack(VertexWeights[VertexNr]);
+        }
+
+        // Create the list of triangles, also creating the list of vertices as we go.
+        const KFbxLayerElement::EMappingMode        MappingMode=(Mesh->GetLayer(0) && Mesh->GetLayer(0)->GetUVs()) ? Mesh->GetLayer(0)->GetUVs()->GetMappingMode() : KFbxLayerElement::eNONE;
+        KFbxLayerElementArrayTemplate<KFbxVector2>* UVArray    =NULL;
+        std::map<uint64_t, unsigned int>            UniqueVertices;     // Maps tuples of (Mesh->GetPolygonVertex(), Mesh->GetTextureUVIndex()) to indices into CafuMesh.Vertices.
+
+        Mesh->GetTextureUV(&UVArray, KFbxLayerElement::eDIFFUSE_TEXTURES);
+
         for (int PolyNr=0; PolyNr<Mesh->GetPolygonCount(); PolyNr++)
         {
             for (int PolyTriNr=0; PolyTriNr < Mesh->GetPolygonSize(PolyNr)-2; PolyTriNr++)
             {
-                CafuMesh.Triangles.PushBack(CafuModelT::MeshT::TriangleT(
-                    Mesh->GetPolygonVertex(PolyNr,           0),
-                    Mesh->GetPolygonVertex(PolyNr, PolyTriNr+2),
-                    Mesh->GetPolygonVertex(PolyNr, PolyTriNr+1)));
+                CafuModelT::MeshT::TriangleT Tri;
+                const int                    TriVIs[3]={ 0, PolyTriNr+2, PolyTriNr+1 };
+
+                for (unsigned int i=0; i<3; i++)
+                {
+                    const int VertexIdx=Mesh->GetPolygonVertex(PolyNr, TriVIs[i]);
+                    const int TexUV_Idx=(MappingMode==KFbxLayerElement::eBY_POLYGON_VERTEX) ? const_cast<KFbxMesh*>(Mesh)->GetTextureUVIndex(PolyNr, TriVIs[i]) : VertexIdx;
+
+                    const uint64_t Tuple=(uint64_t(uint32_t(VertexIdx)) << 32) | uint64_t(uint32_t(TexUV_Idx));
+                    const std::map<uint64_t, unsigned int>::const_iterator It=UniqueVertices.find(Tuple);
+
+                    if (It!=UniqueVertices.end())
+                    {
+                        Tri.VertexIdx[i]=It->second;
+                    }
+                    else
+                    {
+                        const unsigned long VertexNr=CafuMesh.Vertices.Size();
+                        CafuMesh.Vertices.PushBackEmpty();
+
+                        CafuMesh.Vertices[VertexNr].u=UVArray ? float(UVArray->GetAt(TexUV_Idx)[0]) : 0.0f;
+                        CafuMesh.Vertices[VertexNr].v=UVArray ? float(UVArray->GetAt(TexUV_Idx)[1]) : 0.0f;
+                        CafuMesh.Vertices[VertexNr].FirstWeightIdx=VertexFirstWeightIdx[VertexIdx];
+                        CafuMesh.Vertices[VertexNr].NumWeights=VertexWeights[VertexIdx].Size();
+
+                        Tri.VertexIdx[i]=VertexNr;
+                        UniqueVertices[Tuple]=VertexNr;
+                    }
+                }
+
+                CafuMesh.Triangles.PushBack(Tri);
             }
         }
 
-        // Create the list of vertices and the list of weights.
-        CafuMesh.Vertices.PushBackEmpty(Weights.Size());
-
-        for (unsigned long VertexNr=0; VertexNr<CafuMesh.Vertices.Size(); VertexNr++)
-        {
-            CafuMesh.Vertices[VertexNr].u=0;        // TODO!
-            CafuMesh.Vertices[VertexNr].v=0;        // TODO!
-            CafuMesh.Vertices[VertexNr].FirstWeightIdx=CafuMesh.Weights.Size();
-            CafuMesh.Vertices[VertexNr].NumWeights=Weights[VertexNr].Size();
-
-            CafuMesh.Weights.PushBack(Weights[VertexNr]);
-        }
+        // Set the material and render material.
+        CafuMesh.Material      =MaterialManager->GetMaterial("Models/Players/Alien/Alien" /*ObjMesh.MtlName*/);    // TODO...!  (Should use method GetMaterialByName() instead!)
+        CafuMesh.RenderMaterial=MatSys::Renderer!=NULL ? MatSys::Renderer->RegisterMaterial(CafuMesh.Material) : NULL;
     }
 }
 
