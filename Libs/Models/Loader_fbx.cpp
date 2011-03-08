@@ -37,6 +37,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <fstream>
 #include <map>
 
+#if defined(_WIN32) && defined(_MSC_VER)
+// Turn off "warning C4355: 'this' : used in base member initializer list".
+#pragma warning(disable:4355)
+#endif
+
 
 static std::ofstream Log("fbx-loader.log");
 // static std::ostream& Log=std::cout;
@@ -81,7 +86,7 @@ class LoaderFbxT::FbxSceneT
 {
     public:
 
-    FbxSceneT(const std::string& FileName);
+    FbxSceneT(const LoaderFbxT& MainClass, UserCallbacksI& UserCallbacks, const std::string& FileName);
     ~FbxSceneT();
 
     /// Returns the root node of this scene.
@@ -105,6 +110,8 @@ class LoaderFbxT::FbxSceneT
     void GetWeights(const KFbxMesh* Mesh, const unsigned long MeshNodeNr, ArrayT< ArrayT<CafuModelT::MeshT::WeightT> >& Weights) const;
     ArrayT< ArrayT<PosQtrScaleT> > GetSequData(KFbxAnimStack* AnimStack, const ArrayT<KTime>& FrameTimes) const;
 
+    const LoaderFbxT&       m_MainClass;
+    UserCallbacksI&         m_UserCallbacks;    ///< Interface to get the password from the user.
     KFbxSdkManager*         m_SdkManager;
     KFbxScene*              m_Scene;
     KFbxImporter*           m_Importer;
@@ -112,8 +119,10 @@ class LoaderFbxT::FbxSceneT
 };
 
 
-LoaderFbxT::FbxSceneT::FbxSceneT(const std::string& FileName)
-    : m_SdkManager(KFbxSdkManager::Create()),
+LoaderFbxT::FbxSceneT::FbxSceneT(const LoaderFbxT& MainClass, UserCallbacksI& UserCallbacks, const std::string& FileName)
+    : m_MainClass(MainClass),
+      m_UserCallbacks(UserCallbacks),
+      m_SdkManager(KFbxSdkManager::Create()),
       m_Scene(KFbxScene::Create(m_SdkManager, "")),
       m_Importer(KFbxImporter::Create(m_SdkManager, ""))
 {
@@ -132,10 +141,9 @@ LoaderFbxT::FbxSceneT::FbxSceneT(const std::string& FileName)
 
     if (!Result && m_Importer->GetLastErrorID()==KFbxIO::ePASSWORD_ERROR)
     {
-     // wxString Password=wxGetPasswordFromUser("Please enter password:", m_FileName);
-        KString  KPwd("TODO!");
+        const KString Password=UserCallbacks.GetPasswordFromUser("Please enter the password to open file\n" + FileName).c_str();
 
-        m_SdkManager->GetIOSettings()->SetStringProp(IMP_FBX_PASSWORD, KPwd);
+        m_SdkManager->GetIOSettings()->SetStringProp(IMP_FBX_PASSWORD, Password);
         m_SdkManager->GetIOSettings()->SetBoolProp(IMP_FBX_PASSWORD_ENABLE, true);
 
         Result=m_Importer->Import(m_Scene);
@@ -509,7 +517,7 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
         }
 
         // Set the material and render material.
-        CafuMesh.Material      =MaterialManager->GetMaterial("Models/Players/Alien/Alien" /*ObjMesh.MtlName*/);    // TODO...!  (Should use method GetMaterialByName() instead!)
+        CafuMesh.Material      =m_MainClass.GetMaterialByName("Models/Players/Alien/Alien" /*ObjMesh.MtlName*/);    // TODO...!  (Use proper material!)
         CafuMesh.RenderMaterial=MatSys::Renderer!=NULL ? MatSys::Renderer->RegisterMaterial(CafuMesh.Material) : NULL;
     }
 }
@@ -662,9 +670,9 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::AnimT>& Anims) const
 /*** LoaderFbxT ***/
 /******************/
 
-LoaderFbxT::LoaderFbxT(const std::string& FileName)
+LoaderFbxT::LoaderFbxT(const std::string& FileName, UserCallbacksI& UserCallbacks)
     : ModelLoaderT(FileName),
-      m_FbxScene(new FbxSceneT(FileName))
+      m_FbxScene(new FbxSceneT(*this, UserCallbacks, FileName))
 {
 }
 

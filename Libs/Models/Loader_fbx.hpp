@@ -34,7 +34,8 @@ class LoaderFbxT : public ModelLoaderT
 
     /// The constructor for loading an Autodesk FBX (.fbx) model file into a new Cafu model.
     /// @param FileName   The name of the file to load.
-    LoaderFbxT(const std::string& FileName) /*throw (ModelT::LoadError)*/;
+    /// @param UserCallbacks   An implementation of the UserCallbacksI interface.
+    LoaderFbxT(const std::string& FileName, UserCallbacksI& UserCallbacks) /*throw (ModelT::LoadError)*/;
 
     /// The destructor.
     ~LoaderFbxT();

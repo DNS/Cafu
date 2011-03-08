@@ -48,6 +48,7 @@ class ModelLoaderT
 {
     public:
 
+    class UserCallbacksI;
     class LoadErrorT;
 
 
@@ -75,6 +76,19 @@ class ModelLoaderT
     MaterialT* GetMaterialByName(const std::string& MaterialName) const;
 
     const std::string m_FileName;
+};
+
+
+/// An interface for user callbacks.
+/// A concrete model loader may require e.g. asking the user for a password to open the file.
+/// The calling code can implement this interface and pass it to the concrete loader in order to achieve the desired functionality.
+class ModelLoaderT::UserCallbacksI
+{
+    public:
+
+    /// Asks the user for a password to open the model file.
+    /// @returns The entered password, or the empty string for cancel/none.
+    virtual std::string GetPasswordFromUser(const std::string& Message, const std::string& Caption="Enter password")=0;
 };
 
 
