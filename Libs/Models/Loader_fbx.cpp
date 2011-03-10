@@ -42,6 +42,17 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #pragma warning(disable:4355)
 #endif
 
+#if __GNUG__    // This is equivalent to testing (__GNUC__ && __cplusplus).
+#if FBXFILESDK_NAMESPACE==fbxsdk_2011_3_1
+// Keep gcc's -Wall happy... for details, see:
+// http://area.autodesk.com/forum/autodesk-fbx/fbx-sdk/gcc--wall-gives-collectanimfromcurvenode-declared-static-but-never-defined-error/
+static void fbxsdk_2011_3_1::CollectAnimFromCurveNode(KFCurve**, KFCurveNode*, unsigned, KFbxAnimCurveNode*)
+{
+    (void)&CollectAnimFromCurveNode;
+}
+#endif
+#endif
+
 
 static std::ofstream Log("fbx-loader.log");
 // static std::ostream& Log=std::cout;
@@ -439,6 +450,10 @@ void LoaderFbxT::FbxSceneT::GetWeights(const KFbxMesh* Mesh, const unsigned long
                     if (wSum!=1.0f)
                         Weights[VertexNr].PushBack(CreateWeight(MeshNodeNr, 1.0f-wSum, conv(Mesh->GetControlPoints()[VertexNr])));
                     break;
+
+                case KFbxCluster::eADDITIVE:
+                    // This case is not implemented/supported yet.
+                    break;
             }
         }
     }
@@ -454,7 +469,7 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
         const KFbxMesh* Mesh=dynamic_cast<const KFbxMesh*>(m_Nodes[NodeNr]->GetNodeAttribute());
 
         if (!Mesh) continue;
-        Log << "Node " << NodeNr << " is a mesh with " << Mesh->GetDeformerCount() << " deformers.\n";
+        Log << "Node " << NodeNr << " is a mesh with " << Mesh->GetPolygonCount() << " polygons and " << Mesh->GetDeformerCount() << " deformers.\n";
 
         ArrayT< ArrayT<CafuModelT::MeshT::WeightT> > VertexWeights;   // For each vertex in the mesh, an array of weights that affect it.
         GetWeights(Mesh, NodeNr, VertexWeights);
@@ -530,9 +545,20 @@ static ArrayT<KTime> GetFrameTimes(const KFbxAnimStack* AnimStack, const KTime& 
     const KTime TimeStart=AnimStack->GetLocalTimeSpan().GetStart();
     const KTime TimeStop =AnimStack->GetLocalTimeSpan().GetStop();
 
+    Log << "    " << "start: " << TimeStart.Get() << " (" << TimeStart.GetSecondDouble() << ")";
+    Log <<    " " << "stop: "  << TimeStop.Get()  << " (" << TimeStop.GetSecondDouble()  << ")";
+    Log <<    " " << "step: "  << TimeStep.Get()  << " (" << TimeStep.GetSecondDouble()  << ")" << "\n";
+
     for (KTime TimeNow=TimeStart; TimeNow<=TimeStop; TimeNow+=TimeStep)
     {
         FrameTimes.PushBack(TimeNow);
+
+        if (FrameTimes.Size()>30*3600*10)
+        {
+            // Frame times that are worth 10 hours at 30 FPS??
+            Log.flush();
+            throw cfSizeOverflow();
+        }
     }
 
     return FrameTimes;
@@ -596,7 +622,8 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::AnimT>& Anims) const
         const ArrayT<KTime>                  FrameTimes=GetFrameTimes(AnimStack, TimeStep);
         const ArrayT< ArrayT<PosQtrScaleT> > SequData  =GetSequData(AnimStack, FrameTimes);
 
-        Log << "    \"" << AnimStackNames[NameNr]->Buffer() << "\"" << (AnimStackNames[NameNr]->Compare(KFbxGet<KString>(m_Scene->ActiveAnimStackName))==0 ? "    (active)" : "") << "\n";
+        Log << "    \"" << AnimStackNames[NameNr]->Buffer() << "\"\n";
+        // if (AnimStackNames[NameNr]->Compare(KFbxGet<KString>(m_Scene->ActiveAnimStackName))==0) Log << "    (active)";   // Why does this corrupt the stack under (x86_64) Linux?
         Log << "        " << FrameTimes.Size() << " frames\n";
 
 
@@ -655,7 +682,7 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::AnimT>& Anims) const
 
         // Fill in the bounding-box for each frame from the sequence BB from the mdl file, which doesn't keep per-frame BBs.
         // It would be more accurate of course if we re-computed the proper per-frame BB ourselves...
-        const Vector3fT BBMin(-24, -24, -24);
+        const Vector3fT BBMin(-24, -24, -24);   // TODO!
         const Vector3fT BBMax(-BBMin);
 
         for (unsigned long FrameNr=0; FrameNr<Anim.Frames.Size(); FrameNr++)

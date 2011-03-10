@@ -1,4 +1,4 @@
-import os, sys
+import os, platform, sys
 import CompilerSetup
 
 Import('env', 'buildMode', 'compiler')
@@ -180,5 +180,12 @@ elif sys.platform=="linux2":
     envCaWE.Append(CPPPATH=['/usr/include/freetype2'])  # As of 2009-09-10, this line is to become unnecessary in the future, see /usr/include/ftbuild.h for details.
     envCaWE.Append(LINKFLAGS=['-Wl,-rpath,.'])          # Have dlopen() consider "." when searching for SOs (e.g. libCg.so).
     envCaWE.Append(LINKFLAGS=['-Wl,--export-dynamic'])  # Have our symbols available for dynamically loaded SOs (e.g. the renderer DLLs).
+
+    if os.path.exists(Dir("#/ExtLibs/fbx/lib").abspath):
+        fbxlib = "fbxsdk_gcc4"
+        if platform.machine()=="x86_64": fbxlib += "_x64"
+        if buildMode=="dbg": fbxlib += "d"
+
+        envCaWE.Append(LIBS=[fbxlib])
 
 envCaWE.Program('CaWE/CaWE', SourceFilesList + CommonWorldObject)
