@@ -73,7 +73,8 @@ class ModelLoaderT
 
     protected:
 
-    MaterialT* GetMaterialByName(const std::string& MaterialName) const;
+    MaterialT*     GetMaterialByName(const std::string& MaterialName) const;
+    BoundingBox3fT GetBB(const ArrayT<CafuModelT::JointT>& Joints, const ArrayT<CafuModelT::MeshT>& Meshes, const CafuModelT::AnimT& Anim, unsigned long FrameNr) const;
 
     const std::string m_FileName;
 };

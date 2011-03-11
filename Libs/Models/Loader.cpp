@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/ConVar.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
+#include "Math3D/Quaternion.hpp"
 
 
 ModelLoaderT::LoadErrorT::LoadErrorT(const std::string& Message)
@@ -67,4 +68,74 @@ MaterialT* ModelLoaderT::GetMaterialByName(const std::string& MaterialName) cons
     }
 
     return Material;
+}
+
+
+/// An auxiliary function that computes the bounding box for the model with the given
+/// joints and meshes at the given anim sequence at the given frame number.
+BoundingBox3fT ModelLoaderT::GetBB(const ArrayT<CafuModelT::JointT>& Joints, const ArrayT<CafuModelT::MeshT>& Meshes, const CafuModelT::AnimT& Anim, unsigned long FrameNr) const
+{
+    BoundingBox3fT         BB;
+    static ArrayT<MatrixT> JointMatrices;
+
+    JointMatrices.Overwrite();
+    JointMatrices.PushBackEmpty(Joints.Size());
+
+    // This is a modified version of the loop in CafuModelT::UpdateCachedDrawData().
+    for (unsigned long JointNr=0; JointNr<Joints.Size(); JointNr++)
+    {
+        const CafuModelT::AnimT::AnimJointT& AJ=Anim.AnimJoints[JointNr];
+        Vector3fT Data_0[3]={ AJ.DefaultPos, AJ.DefaultQtr, AJ.DefaultScale };
+
+        // Determine the position, quaternion and scale at FrameNr.
+        unsigned int FlagCount=0;
+
+        for (int i=0; i<9; i++)
+        {
+            if ((AJ.Flags >> i) & 1)
+            {
+                Data_0[i/3][i % 3]=Anim.Frames[FrameNr].AnimData[AJ.FirstDataIdx+FlagCount];
+
+                FlagCount++;
+            }
+        }
+
+        // Compute the matrix that is relative to the parent bone, and finally obtain the absolute matrix for that bone!
+        const MatrixT RelMatrix(Data_0[0], cf::math::QuaternionfT::FromXYZ(Data_0[1]), Data_0[2]);
+        const CafuModelT::JointT& J=Joints[JointNr];
+
+        JointMatrices[JointNr]=(J.Parent==-1) ? RelMatrix : JointMatrices[J.Parent]*RelMatrix;
+    }
+
+    // This is a modified version of the loop in CafuModelT::InitMeshes().
+    for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
+    {
+        const CafuModelT::MeshT& Mesh=Meshes[MeshNr];
+
+        for (unsigned long VertexNr=0; VertexNr<Mesh.Vertices.Size(); VertexNr++)
+        {
+            const CafuModelT::MeshT::VertexT& Vertex=Mesh.Vertices[VertexNr];
+            Vector3fT OutVert;
+
+            if (Vertex.NumWeights==1)
+            {
+                const CafuModelT::MeshT::WeightT& Weight=Mesh.Weights[Vertex.FirstWeightIdx];
+
+                OutVert=JointMatrices[Weight.JointIdx].Mul_xyz1(Weight.Pos);
+            }
+            else
+            {
+                for (unsigned int WeightNr=0; WeightNr<Vertex.NumWeights; WeightNr++)
+                {
+                    const CafuModelT::MeshT::WeightT& Weight=Mesh.Weights[Vertex.FirstWeightIdx+WeightNr];
+
+                    OutVert+=JointMatrices[Weight.JointIdx].Mul_xyz1(Weight.Pos) * Weight.Weight;
+                }
+            }
+
+            BB+=OutVert;
+        }
+    }
+
+    return BB;
 }

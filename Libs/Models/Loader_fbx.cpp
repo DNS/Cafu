@@ -217,9 +217,8 @@ LoaderFbxT::FbxSceneT::FbxSceneT(const LoaderFbxT& MainClass, UserCallbacksI& Us
     }
 
 
-    // Load the texture data in memory (for supported formats)
-    // LoadSupportedTextures(gScene, gTextureArray);
-
+    // For future reference, create a linear record (in array m_Nodes) of all nodes in the scene.
+    // It is important that the nodes are in the same order as in Load(ArrayT<CafuModelT::JointT>& Joints, ...).
     GetNodes(m_Scene->GetRootNode());
 }
 
@@ -680,13 +679,9 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::AnimT>& Anims) const
         // remove the redundant frame (our own code automatically wrap at the end of the sequence).
         // if (Sequ.Flags & 1) Anim.Frames.DeleteBack();
 
-        // Fill in the bounding-box for each frame from the sequence BB from the mdl file, which doesn't keep per-frame BBs.
-        // It would be more accurate of course if we re-computed the proper per-frame BB ourselves...
-        const Vector3fT BBMin(-24, -24, -24);   // TODO!
-        const Vector3fT BBMax(-BBMin);
-
+        // The caller computes the proper bounding-box for each frame.
         for (unsigned long FrameNr=0; FrameNr<Anim.Frames.Size(); FrameNr++)
-            Anim.Frames[FrameNr].BB=BoundingBox3fT(Vector3fT(BBMin), Vector3fT(BBMax));
+            Anim.Frames[FrameNr].BB=BoundingBox3fT();
     }
 
     FbxSdkDeleteAndClear(AnimStackNames);
@@ -729,6 +724,11 @@ void LoaderFbxT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
 
     // Load the animations.
     m_FbxScene->Load(Anims);
+
+    // Compute the proper bounding-box for each frame of each animation.
+    for (unsigned long AnimNr=0; AnimNr<Anims.Size(); AnimNr++)
+        for (unsigned long FrameNr=0; FrameNr<Anims[AnimNr].Frames.Size(); FrameNr++)
+            Anims[AnimNr].Frames[FrameNr].BB=GetBB(Joints, Meshes, Anims[AnimNr], FrameNr);
 }
 
 
