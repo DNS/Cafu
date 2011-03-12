@@ -131,6 +131,14 @@ CafuModelT::CafuModelT(ModelLoaderT& Loader)
 
     InitMeshes();
 
+    // Allocate the render materials.
+    for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
+    {
+        MeshT& Mesh=m_Meshes[MeshNr];
+
+        assert(Mesh.RenderMaterial==NULL);
+        Mesh.RenderMaterial=MatSys::Renderer!=NULL ? MatSys::Renderer->RegisterMaterial(Mesh.Material) : NULL;
+    }
 
     // Allocate the cache space that is needed for drawing.
     m_Draw_JointMatrices.PushBackEmpty(m_Joints.Size());

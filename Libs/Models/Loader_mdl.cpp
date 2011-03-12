@@ -24,7 +24,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Loader_mdl.hpp"
 #include "Loader_mdl.h"
 #include "MaterialSystem/MaterialManager.hpp"
-#include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix3x3.hpp"
 #include "Math3D/Quaternion.hpp"
 #include "String.hpp"
@@ -253,8 +252,7 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
             {
                 Meshes.PushBackEmpty();
 
-                Meshes[CafuMeshNr].Material      =Material;
-                Meshes[CafuMeshNr].RenderMaterial=MatSys::Renderer->RegisterMaterial(Material);
+                Meshes[CafuMeshNr].Material=Material;
 
                 Meshes[CafuMeshNr].Weights.PushBackEmptyExact(CurrentModel.NumVerts);
                 for (int VertexNr=0; VertexNr<CurrentModel.NumVerts; VertexNr++)

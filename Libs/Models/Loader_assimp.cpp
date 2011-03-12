@@ -22,7 +22,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Loader_assimp.hpp"
-#include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Misc.hpp"
 
 #include "assimp.hpp"       // C++ importer interface

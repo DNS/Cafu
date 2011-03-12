@@ -22,7 +22,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Loader_ase.hpp"
-#include "MaterialSystem/Renderer.hpp"
 #include "Math3D/BoundingBox.hpp"
 #include "TextParser/TextParser.hpp"
 
@@ -575,8 +574,7 @@ void LoaderAseT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
             CafuTri.Draw_Normal=AseTri.Normal.AsVectorOfFloat();
         }
 
-        Mesh.Material      =GetMaterialByName(m_MaterialNames[GO.IndexMaterial]);
-        Mesh.RenderMaterial=MatSys::Renderer!=NULL ? MatSys::Renderer->RegisterMaterial(Mesh.Material) : NULL;
+        Mesh.Material=GetMaterialByName(m_MaterialNames[GO.IndexMaterial]);
     }
 }
 

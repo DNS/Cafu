@@ -22,7 +22,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Loader_obj.hpp"
-#include "MaterialSystem/Renderer.hpp"
 #include "TextParser/TextParser.hpp"
 
 
@@ -233,8 +232,7 @@ void LoaderObjT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
         const ObjMeshT&    ObjMesh=m_ObjMeshes[MeshNr];
         CafuModelT::MeshT& Mesh   =Meshes[MeshNr];
 
-        Mesh.Material      =GetMaterialByName("Models/Players/Alien/Alien" /*ObjMesh.MtlName*/);    // TODO...!
-        Mesh.RenderMaterial=MatSys::Renderer!=NULL ? MatSys::Renderer->RegisterMaterial(Mesh.Material) : NULL;
+        Mesh.Material=GetMaterialByName("Models/Players/Alien/Alien" /*ObjMesh.MtlName*/);    // TODO...!
 
         for (unsigned long FaceNr=0; FaceNr<ObjMesh.Faces.Size(); FaceNr++)
         {

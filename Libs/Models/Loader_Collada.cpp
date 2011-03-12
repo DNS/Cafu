@@ -22,7 +22,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Loader_Collada.hpp"
-// #include "MaterialSystem/Renderer.hpp"
 #include "COLLADABUURI.h"
 #include "COLLADAFWIWriter.h"
 #include "COLLADAFWRoot.h"

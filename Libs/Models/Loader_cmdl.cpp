@@ -22,7 +22,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Loader_cmdl.hpp"
-#include "MaterialSystem/Renderer.hpp"
 
 extern "C"
 {
@@ -162,8 +161,7 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Me
             {
                 lua_getfield(m_LuaState, -1, "Material");
                 const char* MatName=lua_tostring(m_LuaState, -1);
-                Mesh.Material      =GetMaterialByName(MatName ? MatName : "<NULL>");
-                Mesh.RenderMaterial=MatSys::Renderer!=NULL ? MatSys::Renderer->RegisterMaterial(Mesh.Material) : NULL;
+                Mesh.Material=GetMaterialByName(MatName ? MatName : "<NULL>");
                 lua_pop(m_LuaState, 1);
 
                 lua_getfield(m_LuaState, -1, "Weights");

@@ -94,6 +94,9 @@ class CafuModelT : public ModelT
         };
 
 
+        /// The default constructor.
+        MeshT() : Material(NULL), RenderMaterial(NULL) {}
+
         /// Determines whether the two vertices with array indices Vertex1Nr and Vertex2Nr are geometrical duplicates of each other.
         /// Two distinct vertices are geometrical duplicates of each other if
         /// (a) they have the same NumWeights and the same FirstWeightIdx, or

@@ -22,7 +22,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Loader_md5.hpp"
-#include "MaterialSystem/Renderer.hpp"
 #include "TextParser/TextParser.hpp"
 #include "String.hpp"
 
@@ -142,8 +141,7 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                     else if (Token=="numweights") { if (Mesh.Weights  .Size()>0) throw ModelT::LoadError(); Mesh.Weights  .PushBackEmpty(TP.GetNextTokenAsInt()); }
                     else if (Token=="shader")
                     {
-                        Mesh.Material      =GetMaterialByName(TP.GetNextToken());
-                        Mesh.RenderMaterial=MatSys::Renderer!=NULL ? MatSys::Renderer->RegisterMaterial(Mesh.Material) : NULL;
+                        Mesh.Material=GetMaterialByName(TP.GetNextToken());
                     }
                     else if (Token=="tri")
                     {

@@ -25,8 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifdef HAVE_FBX_SDK
 #include "fbxsdk.h"
 #include "MaterialSystem/MaterialManager.hpp"
-#include "MaterialSystem/Renderer.hpp"
-// #include "wx/textdlg.h"
 
 #if defined(_WIN32) && _MSC_VER<1600
 #include "pstdint.h"            // Paul Hsieh's portable implementation of the stdint.h header.
@@ -502,7 +500,8 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
                 for (unsigned int i=0; i<3; i++)
                 {
                     const int VertexIdx=Mesh->GetPolygonVertex(PolyNr, TriVIs[i]);
-                    const int TexUV_Idx=(MappingMode==KFbxLayerElement::eBY_POLYGON_VERTEX) ? const_cast<KFbxMesh*>(Mesh)->GetTextureUVIndex(PolyNr, TriVIs[i]) : VertexIdx;
+                    const int TexUV_Idx=(MappingMode==KFbxLayerElement::eBY_POLYGON_VERTEX) ? const_cast<KFbxMesh*>(Mesh)->GetTextureUVIndex(PolyNr, TriVIs[i])
+                                       /*MappingMode==KFbxLayerElement::eBY_CONTROL_POINT*/ : VertexIdx;
 
                     const uint64_t Tuple=(uint64_t(uint32_t(VertexIdx)) << 32) | uint64_t(uint32_t(TexUV_Idx));
                     const std::map<uint64_t, unsigned int>::const_iterator It=UniqueVertices.find(Tuple);
@@ -531,8 +530,7 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
         }
 
         // Set the material and render material.
-        CafuMesh.Material      =m_MainClass.GetMaterialByName("Models/Players/Alien/Alien" /*ObjMesh.MtlName*/);    // TODO...!  (Use proper material!)
-        CafuMesh.RenderMaterial=MatSys::Renderer!=NULL ? MatSys::Renderer->RegisterMaterial(CafuMesh.Material) : NULL;
+        CafuMesh.Material=m_MainClass.GetMaterialByName("Models/Players/Alien/Alien" /*ObjMesh.MtlName*/);    // TODO...!  (Use proper material!)
     }
 }
 

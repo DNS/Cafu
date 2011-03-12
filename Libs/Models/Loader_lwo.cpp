@@ -25,7 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/Console.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
-#include "MaterialSystem/Renderer.hpp"
 
 extern "C"
 {
@@ -280,9 +279,7 @@ void LoaderLwoT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
             MatToMeshNr[Poly.surf]=Meshes.Size()-1;
             CafuModelT::MeshT& Mesh=Meshes[Meshes.Size()-1];
 
-            Mesh.Material      =GetMaterialByName(Poly.surf->name);
-            Mesh.RenderMaterial=MatSys::Renderer!=NULL ? MatSys::Renderer->RegisterMaterial(Mesh.Material) :NULL;
-
+            Mesh.Material=GetMaterialByName(Poly.surf->name);
 
             Mesh.Weights.PushBackEmpty(Layer->point.count);
 
