@@ -26,3 +26,19 @@
  *        - http://trac.cafu.de/browser/cafu/trunk/Games/DeathMatch/GUIs for GUI scripts.
  *   - If you're looking for the \emph{C++} reference documentation instead, see http://api.cafu.de
  */
+
+
+/* // TODO: Try this out before adding it to the Doxygen documentation!
+ * @section List all methods of script object
+ *
+ * You can list all methods of a script object (e.g. the @c gui object, a GUI window, a map entity, ...)
+ * using this code:
+ * @code
+ *     function listMethods(t)
+ *         for k, v in pairs(t)
+ *         end
+ *     end
+ *
+ *     listMethods(gui.getmetatable())
+ * @endcode
+ */
