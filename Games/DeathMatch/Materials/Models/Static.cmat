@@ -225,6 +225,22 @@ Models/Static/Rocks01/stone01_d
 
 
 
+testASEmat1
+{
+    diffusemap  Textures/WilliH/dmet01_diff.png
+    normalmap   flipNMyAxis(Textures/WilliH/dmet01_norm.png)
+    specularmap Textures/WilliH/dmet01_spec.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+
+
+
 Models/Static/Tonne01/Rusty
 {
     diffusemap Models/Static/Tonne01_Rusty_diff.png
