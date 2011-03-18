@@ -1,0 +1,12 @@
+Models/Static/Rocks01/stone01_d
+{
+    diffusemap Models/Static/Rocks01_stone01_d_diff.png
+    normalmap  Models/Static/Rocks01_01_norm.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+

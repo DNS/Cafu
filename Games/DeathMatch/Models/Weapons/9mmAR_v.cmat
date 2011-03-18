@@ -1,0 +1,34 @@
+Models/Weapons/9mmAR_v/arm
+{
+    diffusemap Models/Weapons/_CommonHands_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Weapons/9mmAR_v/arm1
+{
+    diffusemap Models/Weapons/_CommonArms_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Weapons/9mmAR_v/m41
+{
+    diffusemap  Models/Weapons/9mmAR_v_m41_diff.png
+    specularmap Models/Weapons/9mmAR_v_m41_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+

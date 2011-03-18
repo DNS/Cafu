@@ -1,0 +1,11 @@
+Models/Static/television/base
+{
+    diffusemap  Models/Static/television.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+

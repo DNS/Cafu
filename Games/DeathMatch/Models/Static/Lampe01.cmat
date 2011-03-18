@@ -1,0 +1,11 @@
+Models/Static/Lampe01/Lamp_R01_blue
+{
+    diffusemap Models/Static/Lampe01_Lamp_R01_blue_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+

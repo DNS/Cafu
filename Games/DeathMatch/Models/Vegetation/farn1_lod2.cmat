@@ -1,0 +1,14 @@
+Models/vegetation/farn/farn1
+{
+    diffusemap  Models/Vegetation/farn.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    alphaTest 0.5
+    noShadows
+    noDynLight
+    twoSided 
+
+    meta_editorImage noEditor
+}
+

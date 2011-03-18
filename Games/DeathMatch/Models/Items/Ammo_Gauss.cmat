@@ -1,0 +1,22 @@
+Models/Items/Ammo_Gauss/metal
+{
+    diffusemap Models/Items/Ammo_Gauss_metal_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Items/Ammo_Gauss/sphere
+{
+    diffusemap Models/Items/Ammo_Gauss_sphere_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+

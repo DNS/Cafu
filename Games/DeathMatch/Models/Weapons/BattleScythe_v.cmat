@@ -1,0 +1,44 @@
+Models/Weapons/BattleScythe_v/arm
+{
+    diffusemap Models/Weapons/_CommonHands_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Weapons/BattleScythe_v/arm1
+{
+    diffusemap Models/Weapons/_CommonArms_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Weapons/BattleScythe_v/base_blade
+{
+    diffusemap Models/Weapons/BattleScythe_v_base_blade_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Weapons/BattleScythe_v/base_handle
+{
+    diffusemap Models/Weapons/BattleScythe_v_base_handle_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+

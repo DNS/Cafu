@@ -1,0 +1,77 @@
+Models/Weapons/Beretta_v/arm
+{
+    diffusemap Models/Weapons/Beretta_v_arm_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Weapons/Beretta_v/arm1
+{
+    diffusemap Models/Weapons/Shotgun_v_arm1_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Weapons/Beretta_v/barrelCHROME
+{
+    diffusemap Models/Weapons/Beretta_v_berettaCHROME_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Weapons/Beretta_v/berettaCHROME
+{
+    diffusemap Models/Weapons/Beretta_v_berettaCHROME_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Weapons/Beretta_v/clip
+{
+    diffusemap Models/Weapons/Beretta_v_clip_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Weapons/Beretta_v/grip
+{
+    diffusemap Models/Weapons/Beretta_v_grip_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Weapons/Beretta_v/slide
+{
+    diffusemap Models/Weapons/Beretta_v_slide_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+

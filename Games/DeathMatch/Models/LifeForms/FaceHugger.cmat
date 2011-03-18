@@ -1,0 +1,11 @@
+Models/LifeForms/FaceHugger/FaceHuggerS1
+{
+    diffusemap Models/LifeForms/FaceHugger_FaceHuggerS1_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+

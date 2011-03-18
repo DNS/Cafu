@@ -1,0 +1,12 @@
+Models/Static/Pipe02_big1/Hotmetal_256
+{
+    diffusemap Models/Static/Pipe02_big1_diff.png
+    normalmap  Models/Static/Pipe02_big_norm.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+

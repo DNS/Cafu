@@ -1,0 +1,13 @@
+Models/Static/Pipe01_T-Junction/Pipe
+{
+    diffusemap  Models/Static/Pipe01_BaseTex_diff.png
+    normalmap   Models/Static/Pipe01_BaseTex_norm.png
+    specularmap Models/Static/Pipe01_BaseTex_spec.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+

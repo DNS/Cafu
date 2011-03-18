@@ -1,0 +1,52 @@
+Models/general_statics/box2/box2
+{
+    diffusemap  Models/TechDemo/Crates/box2.png
+    normalmap   Models/TechDemo/Crates/box2b_norm.png
+    specularmap Models/TechDemo/Crates/box2_spec.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/general_statics/box2/box2b
+{
+    diffusemap  Models/TechDemo/Crates/box2b.png
+    normalmap   Models/TechDemo/Crates/box2b_norm.png
+    specularmap Models/TechDemo/Crates/box_spec.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/general_statics/box2/box2c
+{
+    diffusemap  Models/TechDemo/Crates/box2c.png
+    normalmap   Models/TechDemo/Crates/box2b_norm.png
+    specularmap Models/TechDemo/Crates/box2c_spec.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/general_statics/box2/box2d
+{
+    diffusemap  Models/TechDemo/Crates/box2d.png
+    normalmap   Models/TechDemo/Crates/box2b_norm.png
+    specularmap Models/TechDemo/Crates/box_spec.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+

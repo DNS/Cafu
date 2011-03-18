@@ -1,0 +1,110 @@
+Models/LifeForms/Butterfly/butterfly
+{
+    diffusemap Models/LifeForms/Butterfly_butterfly_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/LifeForms/Butterfly/butterfly1
+{
+    diffusemap Models/LifeForms/Butterfly_butterfly1_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/LifeForms/Butterfly/butterfly2
+{
+    diffusemap Models/LifeForms/Butterfly_butterfly2_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/LifeForms/Butterfly/butterfly3
+{
+    diffusemap Models/LifeForms/Butterfly_butterfly3_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/LifeForms/Butterfly/butterfly4
+{
+    diffusemap Models/LifeForms/Butterfly_butterfly4_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/LifeForms/Butterfly/butterfly5
+{
+    diffusemap Models/LifeForms/Butterfly_butterfly5_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/LifeForms/Butterfly/butterfly6
+{
+    diffusemap Models/LifeForms/Butterfly_butterfly6_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/LifeForms/Butterfly/butterfly7
+{
+    diffusemap Models/LifeForms/Butterfly_butterfly7_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/LifeForms/Butterfly/butterfly8
+{
+    diffusemap Models/LifeForms/Butterfly_butterfly8_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/LifeForms/Butterfly/butterfly9
+{
+    diffusemap Models/LifeForms/Butterfly_butterfly9_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+

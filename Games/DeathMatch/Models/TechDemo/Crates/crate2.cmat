@@ -1,0 +1,24 @@
+Models/general_statics/crate2/a
+{
+    diffusemap Models/TechDemo/Crates/crate2_diff.png
+    normalmap  Models/TechDemo/Crates/crate2_norm.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/general_statics/crate2/b
+{
+    diffusemap Models/TechDemo/Crates/crate2b_diff.png
+    normalmap  Models/TechDemo/Crates/crate2b_norm.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+

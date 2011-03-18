@@ -1,0 +1,33 @@
+Models/Weapons/Grenade_w/m61
+{
+    diffusemap Models/Weapons/Grenade_w_m61_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Weapons/Grenade_w/null
+{
+    diffusemap Models/Weapons/Grenade_w_null_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Weapons/Grenade_w/pinCHROME
+{
+    diffusemap Models/Weapons/Grenade_w_pinCHROME_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+

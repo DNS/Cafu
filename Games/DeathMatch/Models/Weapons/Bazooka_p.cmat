@@ -1,0 +1,11 @@
+Models/Weapons/Bazooka_p/w_rpg
+{
+    diffusemap Models/Weapons/Bazooka_w_w_rpg_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+

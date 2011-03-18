@@ -1,0 +1,44 @@
+Models/Items/Ammo_RPG/ammocan
+{
+    diffusemap Models/Items/Ammo_RPG_ammocan_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Items/Ammo_RPG/ammocantop
+{
+    diffusemap Models/Items/Ammo_RPG_ammocantop_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Items/Ammo_RPG/rocket
+{
+    diffusemap Models/Items/Ammo_RPG_rocket_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Items/Ammo_RPG/rocket1
+{
+    diffusemap Models/Items/Ammo_RPG_rocket1_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+

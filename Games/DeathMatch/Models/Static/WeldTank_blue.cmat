@@ -1,0 +1,13 @@
+Models/Static/WeldTank_blue/Weldtk_blue
+{
+    diffusemap  Models/Static/WeldTank_blue_Weldtk_blue_diff.png
+    normalmap   Models/Static/WeldTank_norm.png
+    specularmap Models/Static/WeldTank_blue_01_spec.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+

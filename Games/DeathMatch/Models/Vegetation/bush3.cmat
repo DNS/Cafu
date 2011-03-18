@@ -1,0 +1,14 @@
+Models/vegetation/bush3/strauch3
+{
+    diffusemap  Models/Vegetation/bush3_diff.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    alphaTest 0.5
+    noShadows
+    noDynLight
+    twoSided
+
+    meta_editorImage noEditor
+}
+

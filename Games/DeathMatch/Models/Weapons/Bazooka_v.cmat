@@ -1,0 +1,66 @@
+Models/Weapons/Bazooka_v/arm
+{
+    diffusemap Models/Weapons/_CommonHands_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Weapons/Bazooka_v/arm1
+{
+    diffusemap Models/Weapons/_CommonArms_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Weapons/Bazooka_v/Base
+{
+    diffusemap Models/Weapons/Bazooka_v_Base_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Weapons/Bazooka_v/Detail
+{
+    diffusemap Models/Weapons/Bazooka_v_Detail_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Weapons/Bazooka_v/rocket
+{
+    diffusemap Models/Weapons/Bazooka_v_rocket_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/Weapons/Bazooka_v/rocketmotor
+{
+    diffusemap Models/Weapons/Bazooka_v_rocketmotor_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+

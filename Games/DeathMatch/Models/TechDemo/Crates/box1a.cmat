@@ -1,0 +1,26 @@
+Models/general_statics/karton1/karton1a
+{
+    diffusemap  Models/TechDemo/Crates/karton1a_diff.png
+    normalmap   Models/TechDemo/Crates/box2b_norm.png
+    specularmap Models/TechDemo/Crates/karton1a_spec.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
+Models/general_statics/karton1/karton1a2
+{
+    diffusemap  Models/TechDemo/Crates/karton1a2_diff.png
+    normalmap   Models/TechDemo/Crates/box2b_norm.png
+    specularmap Models/TechDemo/Crates/karton1a_spec.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+

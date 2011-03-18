@@ -1,0 +1,11 @@
+Models/Static/Pipe01_Handle/Pipe
+{
+    diffusemap Models/Static/Pipe01_BaseTex_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+

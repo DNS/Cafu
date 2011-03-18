@@ -1,0 +1,11 @@
+Models/Weapons/DartGun_p/skin
+{
+    diffusemap Models/Weapons/DartGun_p_skin_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+

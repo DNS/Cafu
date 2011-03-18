@@ -1,0 +1,11 @@
+Models/Items/Ammo_DartGun/chrome
+{
+    diffusemap Models/Items/Ammo_DartGun_chrome_diff.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    meta_editorImage noEditor
+}
+
