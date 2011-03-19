@@ -9,3 +9,14 @@ Models/Static/television/base
     meta_editorImage noEditor
 }
 
+Textures/meta/EntityGUI     // Note that there is special-case code somewhere in the engine to render true GUIs in place where this material is.
+{
+    AmbientShader none
+    LightShader   none
+
+    // diffusemap  Textures/meta/entity_gui.png
+
+    noShadows
+    meta_editorImage Textures/meta/entity_gui.png
+}
+

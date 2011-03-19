@@ -738,7 +738,7 @@ void LoaderFbxT::Load(ArrayT<CafuModelT::GuiLocT>& GuiLocs)
 #else   // HAVE_FBX_SDK
 
 // This is a stub implementation for use whenever the Autodesk FBX SDK is not available.
-LoaderFbxT::LoaderFbxT(const std::string& FileName)
+LoaderFbxT::LoaderFbxT(const std::string& FileName, UserCallbacksI& /*UserCallbacks*/)
     : ModelLoaderT(FileName)
 {
     throw LoadErrorT("This edition of the program was built without the Autodesk FBX"
