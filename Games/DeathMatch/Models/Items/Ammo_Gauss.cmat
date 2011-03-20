@@ -1,6 +1,6 @@
 Models/Items/Ammo_Gauss/metal
 {
-    diffusemap Models/Items/Ammo_Gauss_metal_diff.png
+    diffusemap Ammo_Gauss_metal_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -11,7 +11,7 @@ Models/Items/Ammo_Gauss/metal
 
 Models/Items/Ammo_Gauss/sphere
 {
-    diffusemap Models/Items/Ammo_Gauss_sphere_diff.png
+    diffusemap Ammo_Gauss_sphere_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

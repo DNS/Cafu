@@ -1,8 +1,8 @@
 Models/general_statics/box2/box2b
 {
-    diffusemap  Models/TechDemo/Crates/box2b.png
-    normalmap   Models/TechDemo/Crates/box2b_norm.png
-    specularmap Models/TechDemo/Crates/box_spec.png
+    diffusemap  box2b.png
+    normalmap   box2b_norm.png
+    specularmap box_spec.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -13,9 +13,9 @@ Models/general_statics/box2/box2b
 
 Models/general_statics/box2/box2d
 {
-    diffusemap  Models/TechDemo/Crates/box2d.png
-    normalmap   Models/TechDemo/Crates/box2b_norm.png
-    specularmap Models/TechDemo/Crates/box_spec.png
+    diffusemap  box2d.png
+    normalmap   box2b_norm.png
+    specularmap box_spec.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -26,9 +26,9 @@ Models/general_statics/box2/box2d
 
 Models/general_statics/box2/box_u
 {
-    diffusemap  Models/TechDemo/Crates/box_u.png
-    normalmap   Models/TechDemo/Crates/box2b_norm.png
-    specularmap Models/TechDemo/Crates/box_spec.png
+    diffusemap  box_u.png
+    normalmap   box2b_norm.png
+    specularmap box_spec.png
 
     red   ambientLightRed
     green ambientLightGreen

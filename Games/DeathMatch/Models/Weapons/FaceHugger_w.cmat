@@ -1,6 +1,6 @@
 Models/Weapons/FaceHugger_w/EggCase6
 {
-    diffusemap Models/Weapons/FaceHugger_w_EggCase6_diff.png
+    diffusemap FaceHugger_w_EggCase6_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -11,7 +11,7 @@ Models/Weapons/FaceHugger_w/EggCase6
 
 Models/Weapons/FaceHugger_w/EggCase7
 {
-    diffusemap Models/Weapons/FaceHugger_w_EggCase7_diff.png
+    diffusemap FaceHugger_w_EggCase7_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

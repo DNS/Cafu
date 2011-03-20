@@ -1,8 +1,8 @@
 Models/Static/Pipe01_Scene/pipesscene
 {
-    diffusemap  Models/Static/Pipe01_Scene_pipesscene_diff.png
-    normalmap   Models/Static/Pipe01_BaseTex_norm.png
-    specularmap Models/Static/Pipe01_Scene_01_spec.png
+    diffusemap  Pipe01_Scene_pipesscene_diff.png
+    normalmap   Pipe01_BaseTex_norm.png
+    specularmap Pipe01_Scene_01_spec.png
 
     red   ambientLightRed
     green ambientLightGreen

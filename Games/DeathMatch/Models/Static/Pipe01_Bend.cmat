@@ -1,8 +1,8 @@
 Models/Static/Pipe01_Bend/Pipe
 {
-    diffusemap  Models/Static/Pipe01_BaseTex_diff.png
-    normalmap   Models/Static/Pipe01_BaseTex_norm.png
-    specularmap Models/Static/Pipe01_BaseTex_spec.png
+    diffusemap  Pipe01_BaseTex_diff.png
+    normalmap   Pipe01_BaseTex_norm.png
+    specularmap Pipe01_BaseTex_spec.png
 
     red   ambientLightRed
     green ambientLightGreen

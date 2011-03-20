@@ -1,6 +1,6 @@
 Models/Weapons/Egon_p/phaser_low_res
 {
-    diffusemap Models/Weapons/Egon_w_phaser_low_res_diff.png
+    diffusemap Egon_w_phaser_low_res_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

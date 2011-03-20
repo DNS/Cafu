@@ -1,7 +1,7 @@
 Models/furniture/regal1/1
 {
-    diffusemap  Models/TechDemo/Regal/regal1_diff.tga
-    normalmap   Models/TechDemo/Regal/regal1_norm.png
+    diffusemap  regal1_diff.tga
+    normalmap   regal1_norm.png
 
     alphaTest   0.5
     twoSided
@@ -15,8 +15,8 @@ Models/furniture/regal1/1
 
 Models/furniture/regal1/2
 {
-    diffusemap  Models/TechDemo/Regal/regal1_2_diff.tga
-    normalmap   Models/TechDemo/Regal/regal1_2_norm.png
+    diffusemap  regal1_2_diff.tga
+    normalmap   regal1_2_norm.png
 
     alphaTest   0.5
     twoSided
@@ -30,7 +30,7 @@ Models/furniture/regal1/2
 
 Models/furniture/regal1/3dirt
 {
-    diffusemap  Models/TechDemo/Regal/regal1_3dirt_diff.png
+    diffusemap  regal1_3dirt_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -41,8 +41,8 @@ Models/furniture/regal1/3dirt
 
 Models/furniture/regal1/4
 {
-    diffusemap  Models/TechDemo/Regal/regal1_3dirt_diff.png
-    normalmap   Models/TechDemo/Regal/regal1_4_norm.png
+    diffusemap  regal1_3dirt_diff.png
+    normalmap   regal1_4_norm.png
 
     red   ambientLightRed
     green ambientLightGreen

@@ -1,6 +1,6 @@
 Models/vegetation/bush2/strauch2
 {
-    diffusemap  Models/Vegetation/bush2_diff.png
+    diffusemap  bush2_diff.png
     red   ambientLightRed
     green ambientLightGreen
     blue  ambientLightBlue

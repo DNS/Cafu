@@ -1,6 +1,6 @@
 Models/Weapons/Gauss_p/barrelltop
 {
-    diffusemap Models/Weapons/Gauss_w_barrelltop_diff.png
+    diffusemap Gauss_w_barrelltop_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -11,7 +11,7 @@ Models/Weapons/Gauss_p/barrelltop
 
 Models/Weapons/Gauss_p/bodyback
 {
-    diffusemap Models/Weapons/Gauss_w_bodyback_diff.png
+    diffusemap Gauss_w_bodyback_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -22,7 +22,7 @@ Models/Weapons/Gauss_p/bodyback
 
 Models/Weapons/Gauss_p/grip
 {
-    diffusemap Models/Weapons/Gauss_w_grip_diff.png
+    diffusemap Gauss_w_grip_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

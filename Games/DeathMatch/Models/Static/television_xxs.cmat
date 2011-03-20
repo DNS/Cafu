@@ -1,6 +1,6 @@
 Models/Static/television/base
 {
-    diffusemap  Models/Static/television.png
+    diffusemap  television.png
 
     red   ambientLightRed
     green ambientLightGreen

@@ -1,8 +1,8 @@
 "Models/Static/MediBox01/Medibox Final"
 {
-    diffusemap  Models/Static/MediBox01_diff.png
-    normalmap   Models/Static/MediBox01_norm.png
-    specularmap Models/Static/MediBox01_diff.png
+    diffusemap  MediBox01_diff.png
+    normalmap   MediBox01_norm.png
+    specularmap MediBox01_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

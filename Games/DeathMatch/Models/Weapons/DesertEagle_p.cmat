@@ -1,6 +1,6 @@
 Models/Weapons/DesertEagle_p/w_44t
 {
-    diffusemap Models/Weapons/DesertEagle_w_w_44t_diff.png
+    diffusemap DesertEagle_w_w_44t_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

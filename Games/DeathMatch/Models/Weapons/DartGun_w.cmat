@@ -1,6 +1,6 @@
 Models/Weapons/DartGun_w/skin1
 {
-    diffusemap Models/Weapons/DartGun_w_skin1_diff.png
+    diffusemap DartGun_w_skin1_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

@@ -1,6 +1,6 @@
 Models/Items/Ammo_DesertEagle/w_44t_clip
 {
-    diffusemap Models/Items/Ammo_DesertEagle_w_44t_clip_diff.png
+    diffusemap Ammo_DesertEagle_w_44t_clip_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

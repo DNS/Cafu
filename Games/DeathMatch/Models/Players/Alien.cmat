@@ -1,6 +1,6 @@
 Models/Players/Alien/Alien
 {
-    diffusemap Models/Players/Alien_Alien_diff.png
+    diffusemap Alien_Alien_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

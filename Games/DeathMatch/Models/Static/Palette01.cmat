@@ -1,6 +1,6 @@
 Models/Static/Palette01/Palette01
 {
-    diffusemap Models/Static/Palette01_Palette01_diff.png
+    diffusemap Palette01_Palette01_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

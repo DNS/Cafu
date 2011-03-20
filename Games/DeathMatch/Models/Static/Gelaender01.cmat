@@ -1,6 +1,6 @@
 Models/Static/Gelaender01/Gelaender01
 {
-    diffusemap Models/Static/Gelaender01_Gelaender01_diff.png
+    diffusemap Gelaender01_Gelaender01_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

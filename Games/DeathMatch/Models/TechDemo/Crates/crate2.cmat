@@ -1,7 +1,7 @@
 Models/general_statics/crate2/a
 {
-    diffusemap Models/TechDemo/Crates/crate2_diff.png
-    normalmap  Models/TechDemo/Crates/crate2_norm.png
+    diffusemap crate2_diff.png
+    normalmap  crate2_norm.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -12,8 +12,8 @@ Models/general_statics/crate2/a
 
 Models/general_statics/crate2/b
 {
-    diffusemap Models/TechDemo/Crates/crate2b_diff.png
-    normalmap  Models/TechDemo/Crates/crate2b_norm.png
+    diffusemap crate2b_diff.png
+    normalmap  crate2b_norm.png
 
     red   ambientLightRed
     green ambientLightGreen

@@ -1,7 +1,7 @@
 Models/Static/Tonne01/Rusty
 {
-    diffusemap Models/Static/Tonne01_Rusty_diff.png
-    normalmap  Models/Static/Tonne01_01_norm.png
+    diffusemap Tonne01_Rusty_diff.png
+    normalmap  Tonne01_01_norm.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -12,8 +12,8 @@ Models/Static/Tonne01/Rusty
 
 Models/Static/Tonne01/Rustydown
 {
-    diffusemap Models/Static/Tonne01_Rustydown_diff.png
-    normalmap  Models/Static/Tonne01_02_norm.png
+    diffusemap Tonne01_Rustydown_diff.png
+    normalmap  Tonne01_02_norm.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -24,8 +24,8 @@ Models/Static/Tonne01/Rustydown
 
 Models/Static/Tonne01/Rustytop
 {
-    diffusemap Models/Static/Tonne01_Rustytop_diff.png
-    normalmap  Models/Static/Tonne01_03_norm.png
+    diffusemap Tonne01_Rustytop_diff.png
+    normalmap  Tonne01_03_norm.png
 
     red   ambientLightRed
     green ambientLightGreen

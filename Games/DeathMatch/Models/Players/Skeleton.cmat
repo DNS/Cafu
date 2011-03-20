@@ -1,6 +1,6 @@
 Models/Players/Skeleton/SK_Arm1
 {
-    diffusemap Models/Players/Skeleton_SK_Arm1_diff.png
+    diffusemap Skeleton_SK_Arm1_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -11,7 +11,7 @@ Models/Players/Skeleton/SK_Arm1
 
 Models/Players/Skeleton/SK_Chest1
 {
-    diffusemap Models/Players/Skeleton_SK_Chest1_diff.png
+    diffusemap Skeleton_SK_Chest1_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -22,7 +22,7 @@ Models/Players/Skeleton/SK_Chest1
 
 Models/Players/Skeleton/SK_Face1
 {
-    diffusemap Models/Players/Skeleton_SK_Face1_diff.png
+    diffusemap Skeleton_SK_Face1_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -33,7 +33,7 @@ Models/Players/Skeleton/SK_Face1
 
 Models/Players/Skeleton/SK_Foot1
 {
-    diffusemap Models/Players/Skeleton_SK_Foot1_diff.png
+    diffusemap Skeleton_SK_Foot1_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -44,7 +44,7 @@ Models/Players/Skeleton/SK_Foot1
 
 Models/Players/Skeleton/SK_Leg1
 {
-    diffusemap Models/Players/Skeleton_SK_Leg1_diff.png
+    diffusemap Skeleton_SK_Leg1_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -55,7 +55,7 @@ Models/Players/Skeleton/SK_Leg1
 
 Models/Players/Skeleton/SK_Mouth1
 {
-    diffusemap Models/Players/Skeleton_SK_Mouth1_diff.png
+    diffusemap Skeleton_SK_Mouth1_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -66,7 +66,7 @@ Models/Players/Skeleton/SK_Mouth1
 
 Models/Players/Skeleton/SK_Pelvis-Fnt1
 {
-    diffusemap Models/Players/Skeleton_SK_Pelvis-Fnt1_diff.png
+    diffusemap Skeleton_SK_Pelvis-Fnt1_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -77,7 +77,7 @@ Models/Players/Skeleton/SK_Pelvis-Fnt1
 
 Models/Players/Skeleton/SK_Pelvis-Side1
 {
-    diffusemap Models/Players/Skeleton_SK_Pelvis-Side1_diff.png
+    diffusemap Skeleton_SK_Pelvis-Side1_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -88,7 +88,7 @@ Models/Players/Skeleton/SK_Pelvis-Side1
 
 Models/Players/Skeleton/SK_Scapula1
 {
-    diffusemap Models/Players/Skeleton_SK_Scapula1_diff.png
+    diffusemap Skeleton_SK_Scapula1_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -99,7 +99,7 @@ Models/Players/Skeleton/SK_Scapula1
 
 Models/Players/Skeleton/SK_Skl-side1
 {
-    diffusemap Models/Players/Skeleton_SK_Skl-side1_diff.png
+    diffusemap Skeleton_SK_Skl-side1_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -110,7 +110,7 @@ Models/Players/Skeleton/SK_Skl-side1
 
 Models/Players/Skeleton/SK_Spine1
 {
-    diffusemap Models/Players/Skeleton_SK_Spine1_diff.png
+    diffusemap Skeleton_SK_Spine1_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

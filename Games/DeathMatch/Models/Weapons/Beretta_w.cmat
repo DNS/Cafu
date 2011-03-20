@@ -1,6 +1,6 @@
 Models/Weapons/Beretta_w/beretta
 {
-    diffusemap Models/Weapons/Beretta_w_beretta_diff.png
+    diffusemap Beretta_w_beretta_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

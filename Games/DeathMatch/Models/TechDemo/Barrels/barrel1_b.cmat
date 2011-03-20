@@ -1,7 +1,7 @@
 Models/Static/barrel1/barrelb
 {
-    diffusemap Models/TechDemo/Barrels/barrel1_b_diff.png
-    normalmap  Models/TechDemo/Barrels/barrel1_norm.png
+    diffusemap barrel1_b_diff.png
+    normalmap  barrel1_norm.png
 
     red   ambientLightRed
     green ambientLightGreen

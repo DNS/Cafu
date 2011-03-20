@@ -4,6 +4,7 @@ import os, shutil, subprocess, glob, fnmatch
 
 
 def material_filter_copy(from_cmat, to_cmat, MatNames):
+    relPath=to_cmat.replace("\\", "/").rpartition("/")[0]+"/"
     outFile=open(to_cmat, 'w')
     isInMat=False
     LineCount=0
@@ -22,6 +23,11 @@ def material_filter_copy(from_cmat, to_cmat, MatNames):
         assert(not line.startswith("//"))
 
         if isInMat:
+            line=line.replace("map "+relPath, "map ")
+            line=line.replace("map  "+relPath, "map  ")
+            line=line.replace("map   "+relPath, "map   ")
+            line=line.replace("map    "+relPath, "map    ")
+            line=line.replace("map     "+relPath, "map     ")
             outFile.write(line)
             LineCount+=1
 

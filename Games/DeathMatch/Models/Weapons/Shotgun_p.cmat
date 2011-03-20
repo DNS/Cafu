@@ -1,6 +1,6 @@
 Models/Weapons/Shotgun_p/spas
 {
-    diffusemap Models/Weapons/Shotgun_w_spas_diff.png
+    diffusemap Shotgun_w_spas_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

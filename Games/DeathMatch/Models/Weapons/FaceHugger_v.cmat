@@ -1,6 +1,6 @@
 Models/Weapons/FaceHugger_v/arm
 {
-    diffusemap Models/Weapons/_CommonHands_diff.png
+    diffusemap _CommonHands_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -11,7 +11,7 @@ Models/Weapons/FaceHugger_v/arm
 
 Models/Weapons/FaceHugger_v/arm1
 {
-    diffusemap Models/Weapons/_CommonArms_diff.png
+    diffusemap _CommonArms_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -22,7 +22,7 @@ Models/Weapons/FaceHugger_v/arm1
 
 Models/Weapons/FaceHugger_v/Fasehugger4
 {
-    diffusemap Models/Weapons/FaceHugger_v_Fasehugger4_diff.png
+    diffusemap FaceHugger_v_Fasehugger4_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

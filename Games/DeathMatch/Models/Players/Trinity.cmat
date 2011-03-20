@@ -1,6 +1,6 @@
 Models/Players/Trinity/trinitypantsF
 {
-    diffusemap Models/Players/Trinity_Pants_diff.png
+    diffusemap Trinity_Pants_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -11,7 +11,7 @@ Models/Players/Trinity/trinitypantsF
 
 Models/Players/Trinity/chrome_glass
 {
-    diffusemap Models/Players/Trinity_ChromeGlass_diff.png
+    diffusemap Trinity_ChromeGlass_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -22,7 +22,7 @@ Models/Players/Trinity/chrome_glass
 
 Models/Players/Trinity/trinityskin3
 {
-    diffusemap Models/Players/Trinity_Skin_diff.png, minFilter bilinear, noScaleDown
+    diffusemap Trinity_Skin_diff.png, minFilter bilinear, noScaleDown
 
     red   ambientLightRed
     green ambientLightGreen
@@ -33,7 +33,7 @@ Models/Players/Trinity/trinityskin3
 
 Models/Players/Trinity/chrome_buckle
 {
-    diffusemap Models/Players/Trinity_ChromeBuckle_diff.png
+    diffusemap Trinity_ChromeBuckle_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

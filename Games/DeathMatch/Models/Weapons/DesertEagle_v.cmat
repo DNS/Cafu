@@ -1,6 +1,6 @@
 Models/Weapons/DesertEagle_v/44t_barrel2
 {
-    diffusemap Models/Weapons/DesertEagle_v_44t_barrel2_diff.png
+    diffusemap DesertEagle_v_44t_barrel2_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -11,7 +11,7 @@ Models/Weapons/DesertEagle_v/44t_barrel2
 
 Models/Weapons/DesertEagle_v/44t_handle
 {
-    diffusemap Models/Weapons/DesertEagle_v_44t_handle_diff.png
+    diffusemap DesertEagle_v_44t_handle_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -22,7 +22,7 @@ Models/Weapons/DesertEagle_v/44t_handle
 
 Models/Weapons/DesertEagle_v/arm
 {
-    diffusemap Models/Weapons/_CommonHands_diff.png
+    diffusemap _CommonHands_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -33,7 +33,7 @@ Models/Weapons/DesertEagle_v/arm
 
 Models/Weapons/DesertEagle_v/arm1
 {
-    diffusemap Models/Weapons/_CommonArms_diff.png
+    diffusemap _CommonArms_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

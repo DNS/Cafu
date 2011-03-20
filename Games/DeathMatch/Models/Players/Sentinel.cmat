@@ -1,6 +1,6 @@
 Models/Players/Sentinel/arm
 {
-    diffusemap Models/Players/Sentinel_arm_diff.png
+    diffusemap Sentinel_arm_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

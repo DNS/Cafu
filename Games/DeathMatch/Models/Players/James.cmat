@@ -1,6 +1,6 @@
 Models/Players/James/low_poly_tex_outline3
 {
-    diffusemap Models/Players/James_low_poly_tex_outline3_diff.png
+    diffusemap James_low_poly_tex_outline3_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

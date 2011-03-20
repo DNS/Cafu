@@ -1,6 +1,6 @@
 Models/vegetation/farn/farn1
 {
-    diffusemap  Models/Vegetation/farn.png
+    diffusemap  farn.png
     red   ambientLightRed
     green ambientLightGreen
     blue  ambientLightBlue

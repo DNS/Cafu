@@ -1,6 +1,6 @@
 Models/Weapons/BattleScythe_w/v_wep
 {
-    diffusemap Models/Weapons/BattleScythe_w_v_wep_diff.png
+    diffusemap BattleScythe_w_v_wep_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

@@ -1,7 +1,7 @@
 Models/general_statics/lamp1/main
 {
-    diffusemap  Models/TechDemo/lamp1_diff.png
-    lumamap     Models/TechDemo/lamp1_luma.png
+    diffusemap  lamp1_diff.png
+    lumamap     lamp1_luma.png
 
     red   ambientLightRed
     green ambientLightGreen

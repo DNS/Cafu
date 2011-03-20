@@ -1,6 +1,6 @@
 Models/Weapons/9mmAR_p/m41_lowres
 {
-    diffusemap Models/Weapons/9mmAR_w_m41_lowres_diff.png
+    diffusemap 9mmAR_w_m41_lowres_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

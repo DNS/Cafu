@@ -1,6 +1,6 @@
 Models/Weapons/FaceHugger_p/FasehuggerP
 {
-    diffusemap Models/Weapons/FaceHugger_p_FasehuggerP_diff.png
+    diffusemap FaceHugger_p_FasehuggerP_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

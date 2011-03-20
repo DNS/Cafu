@@ -1,6 +1,6 @@
 Models/Static/WoodBox_large01/wood_box_01
 {
-    diffusemap Models/Static/WoodBox_large01_wood_box_01_diff.png
+    diffusemap WoodBox_large01_wood_box_01_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

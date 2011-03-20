@@ -1,6 +1,6 @@
 Models/Static/Tonne02/Barrel_blue_big
 {
-    diffusemap Models/Static/Tonne02_Barrel_blue_big_diff.png
+    diffusemap Tonne02_Barrel_blue_big_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

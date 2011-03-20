@@ -1,7 +1,7 @@
 Models/Static/Pipe02_big2/Hotmetal_256
 {
-    diffusemap Models/Static/Pipe02_big2_diff.png
-    normalmap  Models/Static/Pipe02_big_norm.png
+    diffusemap Pipe02_big2_diff.png
+    normalmap  Pipe02_big_norm.png
 
     red   ambientLightRed
     green ambientLightGreen

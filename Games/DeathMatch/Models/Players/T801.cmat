@@ -1,6 +1,6 @@
 Models/Players/T801/DM_Base
 {
-    diffusemap Models/Players/T801_DM_Base_diff.png
+    diffusemap T801_DM_Base_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -11,7 +11,7 @@ Models/Players/T801/DM_Base
 
 Models/Players/T801/DM_Face
 {
-    diffusemap Models/Players/T801_DM_Face_diff.png
+    diffusemap T801_DM_Face_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
