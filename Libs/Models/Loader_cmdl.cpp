@@ -106,7 +106,7 @@ static unsigned long lua_objlen_ul(lua_State* LuaState, int index)
 }
 
 
-void LoaderCafuT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims)
+void LoaderCafuT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan)
 {
     // Read the joints.
     lua_getglobal(m_LuaState, "Joints");
@@ -161,7 +161,10 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Me
             {
                 lua_getfield(m_LuaState, -1, "Material");
                 const char* MatName=lua_tostring(m_LuaState, -1);
-                Mesh.Material=GetMaterialByName(MatName ? MatName : "<NULL>");
+                // TODO: If the material is NULL, we must
+                //   - create a new material with whatever data there is in the model file,
+                //   - failing that, create and use a substitute material.
+                Mesh.Material=MaterialMan.GetMaterial(MatName ? MatName : "<NULL>");
                 lua_pop(m_LuaState, 1);
 
                 lua_getfield(m_LuaState, -1, "Weights");

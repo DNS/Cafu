@@ -29,8 +29,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 namespace cf
 {
+    /// The String namespace gathers auxiliary string functions that are not found in that standard library.
     namespace String
     {
+        /// Returns whether the given string \c String ends with the given \c Suffix.
         inline bool EndsWith(const std::string& String, const std::string& Suffix)
         {
             const size_t StringLength=String.length();
@@ -41,6 +43,30 @@ namespace cf
             std::string StringSuffix=&(String.c_str()[StringLength-SuffixLength]);
 
             return StringSuffix==Suffix;
+        }
+
+        /// Assumes that the given string \c s is a filename, removes the extension, if any, and returns the rest.
+        inline std::string StripExt(std::string s)
+        {
+            const size_t PosDot=s.find_last_of('.');
+            const size_t PosSep=s.find_last_of("/\\");
+
+            if (PosDot==std::string::npos) return s;    // "." not found in s?
+            if (PosDot<PosSep) return s;                // Last "." found before last "/"?
+
+            s.erase(PosDot);
+            return s;
+        }
+
+        /// Assumes that the given string \c s is a filename of pattern "path/filename.ext" and returns the path portion.
+        inline std::string GetPath(std::string s)
+        {
+            const size_t PosSep=s.find_last_of("/\\");
+
+            if (PosSep==std::string::npos) return "";   // "/" not found in s?
+
+            s.erase(PosSep);
+            return s;
         }
     }
 }

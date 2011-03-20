@@ -40,7 +40,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <string.h>
 
 #include "MaterialSystem/Material.hpp"
-#include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/Mesh.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/BoundingBox.hpp"
@@ -249,6 +248,8 @@ ModelMdlT::ModelMdlT(const std::string& FileName_) /*throw (ModelT::LoadError)*/
  // StudioTransitions    =(StudioTransitionT*    )(&ModelData[0]+StudioHeader->TransitionIndex    );
 
     // Abschluss
+    m_MaterialMan.RegisterMaterialScript(cf::String::StripExt(FileName)+".cmat", cf::String::GetPath(FileName)+"/");
+
     for (int TexNr=0; TexNr<StudioTextureHeader->NumTextures; TexNr++)
     {
         const char* RelFileName1=strstr(BaseName.c_str(), "Models");        // Strip the leading "Games/DeathMatch/", if present.
@@ -258,19 +259,7 @@ ModelMdlT::ModelMdlT(const std::string& FileName_) /*throw (ModelT::LoadError)*/
         // Flip back-slashes.
         for (unsigned long i=0; i<MaterialName.length(); i++) if (MaterialName.at(i)=='\\') MaterialName.at(i)='/';
 
-        // Strip any extension.
-        for (size_t i=MaterialName.length(); i>0; i--)
-        {
-            if (MaterialName.at(i-1)=='/') break;
-
-            if (MaterialName.at(i-1)=='.')
-            {
-                MaterialName=std::string(MaterialName.c_str(), i-1);
-                break;
-            }
-        }
-
-        MaterialT* Material=MaterialManager->GetMaterial(MaterialName);
+        MaterialT* Material=m_MaterialMan.GetMaterial(cf::String::StripExt(MaterialName));
 
         // if (Material==NULL) printf("WARNING: Material '%s' not found!\n", MaterialName.c_str());
 

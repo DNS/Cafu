@@ -206,7 +206,7 @@ static unsigned int FindVertex(CafuModelT::MeshT& Mesh, unsigned int WeightIdx, 
 }
 
 
-void LoaderObjT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims)
+void LoaderObjT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan)
 {
     // Create a default "identity" joint.
     // That single joint is used for (shared by) all weights of all meshes.
@@ -233,7 +233,10 @@ void LoaderObjT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
         const ObjMeshT&    ObjMesh=m_ObjMeshes[MeshNr];
         CafuModelT::MeshT& Mesh   =Meshes[MeshNr];
 
-        Mesh.Material=GetMaterialByName("Models/Players/Alien/Alien" /*ObjMesh.MtlName*/);    // TODO...!
+        // TODO: If the material is NULL, we must
+        //   - create a new material with whatever data there is in the model file,
+        //   - failing that, create and use a substitute material.
+        Mesh.Material=MaterialMan.GetMaterial("Models/Players/Alien/Alien" /*ObjMesh.MtlName*/);    // TODO...!
 
         for (unsigned long FaceNr=0; FaceNr<ObjMesh.Faces.Size(); FaceNr++)
         {

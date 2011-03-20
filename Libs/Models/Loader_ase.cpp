@@ -485,7 +485,7 @@ LoaderAseT::LoaderAseT(const std::string& FileName) /*throw (ModelT::LoadError)*
 }
 
 
-void LoaderAseT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims)
+void LoaderAseT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan)
 {
     // Create a default "identity" joint.
     // That single joint is used for (shared by) all weights of all meshes.
@@ -575,7 +575,10 @@ void LoaderAseT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
             CafuTri.Draw_Normal=AseTri.Normal.AsVectorOfFloat();
         }
 
-        Mesh.Material=GetMaterialByName(m_MaterialNames[GO.IndexMaterial]);
+        // TODO: If the material is NULL, we must
+        //   - create a new material with whatever data there is in the model file,
+        //   - failing that, create and use a substitute material.
+        Mesh.Material=MaterialMan.GetMaterial(m_MaterialNames[GO.IndexMaterial]);
     }
 }
 

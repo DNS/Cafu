@@ -28,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/BoundingBox.hpp"
 #include "Math3D/Pluecker.hpp"
 #include "Math3D/Quaternion.hpp"
+#include "String.hpp"
 
 #include <iostream>
 
@@ -118,12 +119,27 @@ bool CafuModelT::MeshT::AreGeoDups(unsigned int Vertex1Nr, unsigned int Vertex2N
 
 CafuModelT::CafuModelT(ModelLoaderT& Loader)
     : m_FileName(Loader.GetFileName()),
+      m_MaterialMan(),
       m_UseGivenTangentSpace(Loader.UseGivenTS()),  // Should we use the fixed, given tangent space, or recompute it ourselves here?
       m_BasePoseBB(Vector3fT()),                    // Re-initialized in InitMeshes(), but start with a valid box anyways (e.g. for testing models that have a skeleton, but no mesh).
       m_Draw_CachedDataAtSequNr(-1234),             // Just a random number that is unlikely to occur normally.
       m_Draw_CachedDataAtFrameNr(-3.1415926f)       // Just a random number that is unlikely to occur normally.
 {
-    Loader.Load(m_Joints, m_Meshes, m_Anims);
+    // No matter the actual model file format (that is, even if the file format is not "cmdl"),
+    // the model artist might have prepared materials that should be used instead of the ones the Loader would otherwise generate.
+    ArrayT<MaterialT*> AllMats=m_MaterialMan.RegisterMaterialScript(cf::String::StripExt(Loader.GetFileName())+".cmat", cf::String::GetPath(Loader.GetFileName())+"/");
+
+    for (unsigned long MatNr=0; MatNr<AllMats.Size(); MatNr++)
+        if (!AllMats[MatNr]->LightMapComp.IsEmpty())
+        {
+            // TODO: Use ModelLoaderT::UserCallbacksI::GetLog() instead.
+            std::cout << "Model \"" << m_FileName << "\" uses material \"" << AllMats[MatNr]->Name << "\", which in turn has lightmaps defined.\n" <<
+                "It will work in the ModelViewer, but for other applications like Cafu itself you should use a material without lightmaps.\n";
+                // It works in the ModelViewer because the ModelViewer is kind enough to provide a default lightmap...
+        }
+
+    // Have the model loader load the model file.
+    Loader.Load(m_Joints, m_Meshes, m_Anims, m_MaterialMan);
     Loader.Load(m_GuiLocs);
 
     if (m_Joints.Size()==0) throw ModelT::LoadError();

@@ -42,7 +42,7 @@ bool LoaderMd5T::UseGivenTS() const
 }
 
 
-void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims)
+void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan)
 {
     ArrayT<std::string> ComponentFiles;
 
@@ -141,7 +141,10 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                     else if (Token=="numweights") { if (Mesh.Weights  .Size()>0) throw ModelT::LoadError(); Mesh.Weights  .PushBackEmpty(TP.GetNextTokenAsInt()); }
                     else if (Token=="shader")
                     {
-                        Mesh.Material=GetMaterialByName(TP.GetNextToken());
+                        // TODO: If the material is NULL, we must
+                        //   - create a new material with whatever data there is in the model file,
+                        //   - failing that, create and use a substitute material.
+                        Mesh.Material=MaterialMan.GetMaterial(TP.GetNextToken());
                     }
                     else if (Token=="tri")
                     {

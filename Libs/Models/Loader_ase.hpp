@@ -40,7 +40,7 @@ class LoaderAseT : public ModelLoaderT
     LoaderAseT(const std::string& FileName) /*throw (ModelT::LoadError)*/;
 
     bool UseGivenTS() const { return true; }
-    void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims);
+    void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan);
     void Load(ArrayT<CafuModelT::GuiLocT>& GuiLocs);
 
 

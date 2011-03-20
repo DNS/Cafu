@@ -47,7 +47,7 @@ bool LoaderAssimpT::UseGivenTS() const
 }
 
 
-void LoaderAssimpT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims)
+void LoaderAssimpT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan)
 {
     Assimp::Importer Importer;
 

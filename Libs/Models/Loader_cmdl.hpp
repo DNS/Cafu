@@ -43,7 +43,7 @@ class LoaderCafuT : public ModelLoaderT
     ~LoaderCafuT();
 
     bool UseGivenTS() const;
-    void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims);
+    void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan);
     void Load(ArrayT<CafuModelT::GuiLocT>& GuiLocs);
 
 

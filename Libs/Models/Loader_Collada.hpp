@@ -37,7 +37,7 @@ class LoaderColladaT : public ModelLoaderT
     LoaderColladaT(const std::string& FileName) /*throw (ModelT::LoadError)*/;
 
     bool UseGivenTS() const;
-    void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims);
+    void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan);
     void Load(ArrayT<CafuModelT::GuiLocT>& GuiLocs);
 };
 

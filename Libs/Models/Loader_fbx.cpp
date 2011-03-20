@@ -24,7 +24,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Loader_fbx.hpp"
 #ifdef HAVE_FBX_SDK
 #include "fbxsdk.h"
-#include "MaterialSystem/MaterialManager.hpp"
 
 #if defined(_WIN32) && _MSC_VER<1600
 #include "pstdint.h"            // Paul Hsieh's portable implementation of the stdint.h header.
@@ -105,7 +104,7 @@ class LoaderFbxT::FbxSceneT
     void Load(ArrayT<CafuModelT::JointT>& Joints, int ParentIndex, const KFbxNode* Node) const;
 
     /// Loads the meshes.
-    void Load(ArrayT<CafuModelT::MeshT>& Meshes) const;
+    void Load(ArrayT<CafuModelT::MeshT>& Meshes, MaterialManagerImplT& MaterialMan) const;
 
     /// Loads the animations.
     void Load(ArrayT<CafuModelT::AnimT>& Anims) const;
@@ -218,6 +217,47 @@ LoaderFbxT::FbxSceneT::FbxSceneT(const LoaderFbxT& MainClass, UserCallbacksI& Us
     // For future reference, create a linear record (in array m_Nodes) of all nodes in the scene.
     // It is important that the nodes are in the same order as in Load(ArrayT<CafuModelT::JointT>& Joints, ...).
     GetNodes(m_Scene->GetRootNode());
+
+
+#if 0
+    // Get the list of all materials in the scene.
+    Log << "Materials in scene:\n";
+
+    for (unsigned long NodeNr=0; NodeNr<m_Nodes.Size(); NodeNr++)
+    {
+        const KFbxNode*           Node          =m_Nodes[NodeNr];
+        const KFbxLayerContainer* LayerContainer=dynamic_cast<const KFbxLayerContainer*>(Node->GetNodeAttribute());
+
+        if (LayerContainer)   // Typically a mesh, but can also be a Nurb, a patch, etc.
+        {
+            Log << "    Node " << NodeNr << " has " << Node->GetSrcObjectCount(KFbxSurfaceMaterial::ClassId) << " material(s)\n";
+            const int lNbMat=Node->GetSrcObjectCount(KFbxSurfaceMaterial::ClassId);
+
+            for (int lMaterialIndex=0; lMaterialIndex<lNbMat; lMaterialIndex++)
+            {
+                KFbxSurfaceMaterial* lMaterial=KFbxCast<KFbxSurfaceMaterial>(Node->GetSrcObject(KFbxSurfaceMaterial::ClassId, lMaterialIndex));
+
+                if (lMaterial)
+                {
+                    KFbxProperty lProperty=lMaterial->FindProperty(KFbxSurfaceMaterial::sDiffuse);
+
+                    if (lProperty.IsValid())
+                    {
+                        const int lNbTex = lProperty.GetSrcObjectCount(KFbxTexture::ClassId);
+
+                        for (int lTextureIndex=0; lTextureIndex<lNbTex; lTextureIndex++)
+                        {
+                            KFbxTexture* lTexture=KFbxCast<KFbxTexture>(lProperty.GetSrcObject(KFbxTexture::ClassId, lTextureIndex));
+
+                            //if (lTexture)
+                            //    LoadTexture(lTexture, pTextureArray);
+                        }
+                    }
+                }
+            }
+        }
+    }
+#endif
 }
 
 
@@ -457,7 +497,7 @@ void LoaderFbxT::FbxSceneT::GetWeights(const KFbxMesh* Mesh, const unsigned long
 }
 
 
-void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
+void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes, MaterialManagerImplT& MaterialMan) const
 {
     Log << "\n";
 
@@ -529,8 +569,11 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
             }
         }
 
-        // Set the material and render material.
-        CafuMesh.Material=m_MainClass.GetMaterialByName("Models/Players/Alien/Alien" /*ObjMesh.MtlName*/);    // TODO...!  (Use proper material!)
+        // Set the material.
+        // TODO: If the material is NULL, we must
+        //   - create a new material with whatever data there is in the model file,
+        //   - failing that, create and use a substitute material.
+        CafuMesh.Material=MaterialMan.GetMaterial("Models/Players/Alien/Alien" /*ObjMesh.MtlName*/);    // TODO...!  (Use proper material!)
     }
 }
 
@@ -711,14 +754,14 @@ bool LoaderFbxT::UseGivenTS() const
 }
 
 
-void LoaderFbxT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims)
+void LoaderFbxT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan)
 {
     // We unconditionally import all nodes in the FBX scene as joints
     // (and leave it up to the caller to e.g. remove unused joints later).
     m_FbxScene->Load(Joints, -1, m_FbxScene->GetRootNode());
 
     // Load the meshes.
-    m_FbxScene->Load(Meshes);
+    m_FbxScene->Load(Meshes, MaterialMan);
 
     // Load the animations.
     m_FbxScene->Load(Anims);
@@ -747,7 +790,7 @@ LoaderFbxT::LoaderFbxT(const std::string& FileName, UserCallbacksI& /*UserCallba
 
 LoaderFbxT::~LoaderFbxT() { }
 bool LoaderFbxT::UseGivenTS() const { return false; }
-void LoaderFbxT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims) { }
+void LoaderFbxT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan) { }
 void LoaderFbxT::Load(ArrayT<CafuModelT::GuiLocT>& GuiLocs) { }
 
 #endif  // HAVE_FBX_SDK

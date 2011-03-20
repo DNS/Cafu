@@ -24,7 +24,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Loader_lwo.hpp"
 #include "ConsoleCommands/Console.hpp"
 #include "MaterialSystem/Material.hpp"
-#include "MaterialSystem/MaterialManager.hpp"
 
 extern "C"
 {
@@ -229,7 +228,7 @@ LoaderLwoT::LoaderLwoT(const std::string& FileName) /*throw (ModelT::LoadError)*
 }
 
 
-void LoaderLwoT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims)
+void LoaderLwoT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan)
 {
     char*     fname=strdup(m_FileName.c_str());
     lwObject* lwo=lwGetObject(fname, NULL, NULL);
@@ -280,7 +279,10 @@ void LoaderLwoT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
             MatToMeshNr[Poly.surf]=Meshes.Size()-1;
             CafuModelT::MeshT& Mesh=Meshes[Meshes.Size()-1];
 
-            Mesh.Material=GetMaterialByName(Poly.surf->name);
+            // TODO: If the material is NULL, we must
+            //   - create a new material with whatever data there is in the model file,
+            //   - failing that, create and use a substitute material.
+            Mesh.Material=MaterialMan.GetMaterial(Poly.surf->name);
 
             Mesh.Weights.PushBackEmpty(Layer->point.count);
 

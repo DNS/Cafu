@@ -23,7 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Loader_mdl.hpp"
 #include "Loader_mdl.h"
-#include "MaterialSystem/MaterialManager.hpp"
 #include "Math3D/Matrix3x3.hpp"
 #include "Math3D/Quaternion.hpp"
 #include "String.hpp"
@@ -122,35 +121,6 @@ LoaderHL1mdlT::LoaderHL1mdlT(const std::string& FileName) /*throw (ModelT::LoadE
     StudioBodyParts      =(StudioBodyPartT*      )(&ModelData[0]+StudioHeader->BodyPartIndex      );
  // StudioAttachments    =(StudioAttachmentT*    )(&ModelData[0]+StudioHeader->AttachmentIndex    );
  // StudioTransitions    =(StudioTransitionT*    )(&ModelData[0]+StudioHeader->TransitionIndex    );
-
-    // Extract the materials.
-    for (int TexNr=0; TexNr<StudioTextureHeader->NumTextures; TexNr++)
-    {
-        const char* RelFileName1=strstr(BaseName.c_str(), "Models");        // Strip the leading "Games/DeathMatch/", if present.
-        std::string RelFileName2=RelFileName1 ? RelFileName1 : BaseName;
-        std::string MaterialName=RelFileName2+"/"+StudioTextures[TexNr].Name;
-
-        // Flip back-slashes.
-        for (unsigned long i=0; i<MaterialName.length(); i++) if (MaterialName.at(i)=='\\') MaterialName.at(i)='/';
-
-        // Strip any extension.
-        for (size_t i=MaterialName.length(); i>0; i--)
-        {
-            if (MaterialName.at(i-1)=='/') break;
-
-            if (MaterialName.at(i-1)=='.')
-            {
-                MaterialName=std::string(MaterialName.c_str(), i-1);
-                break;
-            }
-        }
-
-        MaterialT* Material=MaterialManager->GetMaterial(MaterialName);
-
-        // if (Material==NULL) printf("WARNING: Material '%s' not found!\n", MaterialName.c_str());
-
-        m_Materials.PushBack(Material);
-    }
 }
 
 
@@ -162,8 +132,31 @@ bool LoaderHL1mdlT::UseGivenTS() const
 }
 
 
-void LoaderHL1mdlT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims)
+void LoaderHL1mdlT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan)
 {
+    // Extract the materials.
+    const std::string BaseName(m_FileName.c_str(), m_FileName.length()-4);
+    m_Materials.Overwrite();
+
+    for (int TexNr=0; TexNr<StudioTextureHeader->NumTextures; TexNr++)
+    {
+        const char* RelFileName1=strstr(BaseName.c_str(), "Models");        // Strip the leading "Games/DeathMatch/", if present.
+        std::string RelFileName2=RelFileName1 ? RelFileName1 : BaseName;
+        std::string MaterialName=RelFileName2+"/"+StudioTextures[TexNr].Name;
+
+        // Flip back-slashes.
+        for (unsigned long i=0; i<MaterialName.length(); i++) if (MaterialName.at(i)=='\\') MaterialName.at(i)='/';
+
+        // TODO: If the material is NULL, we must
+        //   - create a new material with whatever data there is in the model file,
+        //   - failing that, create and use a substitute material.
+        MaterialT* Material=MaterialMan.GetMaterial(cf::String::StripExt(MaterialName));
+
+        // if (Material==NULL) printf("WARNING: Material '%s' not found!\n", MaterialName.c_str());
+
+        m_Materials.PushBack(Material);
+    }
+
     // For clarity and better readibility, break the loading into three separate functions.
     Load(Joints);
     Load(Meshes);

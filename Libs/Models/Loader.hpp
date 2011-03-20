@@ -50,7 +50,7 @@ class ModelLoaderT
     virtual bool UseGivenTS() const=0;
 
     /// Actually loads the file data into the appropriate parts of the Cafu model.
-    virtual void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims)=0;
+    virtual void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan)=0;
 
     /// Loads the locations where GUIs can be attached to the Cafu model.
     virtual void Load(ArrayT<CafuModelT::GuiLocT>& GuiLocs)=0;
@@ -58,7 +58,6 @@ class ModelLoaderT
 
     protected:
 
-    MaterialT*     GetMaterialByName(const std::string& MaterialName) const;
     BoundingBox3fT GetBB(const ArrayT<CafuModelT::JointT>& Joints, const ArrayT<CafuModelT::MeshT>& Meshes, const CafuModelT::AnimT& Anim, unsigned long FrameNr) const;
 
     const std::string m_FileName;

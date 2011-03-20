@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define _CAFU_MODEL_HPP_
 
 #include "Templates/Array.hpp"
+#include "MaterialSystem/MaterialManagerImpl.hpp"
 #include "MaterialSystem/Mesh.hpp"
 #include "Math3D/BoundingBox.hpp"
 #include "Math3D/Matrix.hpp"
@@ -198,19 +199,23 @@ class CafuModelT : public ModelT
 
 
     const std::string     m_FileName;               ///< File name of this model.   TODO: Remove!?!
-    const bool            m_UseGivenTangentSpace;
- // const bool            m_CastShadows;            ///< Should this model cast shadows?
+    MaterialManagerImplT  m_MaterialMan;            ///< The material manager for the materials that are used with the meshes of this model.
     ArrayT<JointT>        m_Joints;                 ///< Array of joints of this model.
     mutable ArrayT<MeshT> m_Meshes;                 ///< Array of (sub)meshes of this model.
-    BoundingBox3fT        m_BasePoseBB;             ///< The bounding-box for the base pose of the model.
     ArrayT<AnimT>         m_Anims;                  ///< Array of animations of this model.
+
+    const bool            m_UseGivenTangentSpace;   ///< Whether this model should use the fixed, given tangent space that was loaded from the model file, or it the tangent space is dynamically recomputed (useful for animated models).
+ // const bool            m_CastShadows;            ///< Should this model cast shadows?
+    BoundingBox3fT        m_BasePoseBB;             ///< The bounding-box for the base pose of the model.
     ArrayT<GuiLocT>       m_GuiLocs;                ///< Array of locations where GUIs can be attached to this model.
 
-    mutable ArrayT<MatrixT>       m_Draw_JointMatrices;
-    mutable ArrayT<MatSys::MeshT> m_Draw_Meshes;
 
-    mutable int   m_Draw_CachedDataAtSequNr;
-    mutable float m_Draw_CachedDataAtFrameNr;
+    // Members for caching the data that is required for drawing the model at a given animation sequence and frame.
+    mutable int                   m_Draw_CachedDataAtSequNr;    ///< The animation sequence number at which we have computed the cache data.
+    mutable float                 m_Draw_CachedDataAtFrameNr;   ///< The animation frame    number at which we have computed the cache data.
+
+    mutable ArrayT<MatrixT>       m_Draw_JointMatrices;         ///< The transformation matrices that represent the pose of the skeleton at the given animation sequence and frame number.
+    mutable ArrayT<MatSys::MeshT> m_Draw_Meshes;                ///< The draw meshes resulting from m_Draw_JointMatrices.
 };
 
 #endif

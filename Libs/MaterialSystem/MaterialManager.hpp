@@ -37,6 +37,8 @@ class MaterialT;
 
 
 /// This is an interface to the material manager.
+/// A material manager keeps a set of materials and their related script state, and finds materials by name.
+///
 /// The interface is specified as ABC in order to be able to share the material manager across exe/dll boundaries.
 /// (Note that sharing across exe/dll boundaries is probably not needed: The MaterialManagerI is just a helper
 ///  for getting MaterialTs from script files. Thus we could also share (pointers to) arrays of MaterialTs directly.

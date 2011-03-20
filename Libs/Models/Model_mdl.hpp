@@ -29,6 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define _MODEL_MDL_HPP_
 
 #include "Model.hpp"
+#include "MaterialSystem/MaterialManagerImpl.hpp"
 
 
 class  MaterialT;
@@ -71,6 +72,7 @@ class ModelMdlT : public ModelT
     ArrayT<MatSys::RenderMaterialT*> RenderMaterials;           ///< The MatSys render materials.
     ArrayT< ArrayT<TriangleInfoT> >  TriangleInfos;             ///< For the first model of each body part, this contains information about each triangle across all meshes of that model.
     ArrayT< ArrayT< ArrayT<int> > >  TrianglesReferingToNormal; ///< For each normal of the first model of each body part, this is a list of triangle indices into TriangleInfos of triangles that refer to this normal (with one vertex).
+    MaterialManagerImplT             m_MaterialMan;             ///< The material manager for the materials that are used with the meshes of this model.
 
     // Convenient abbreviations into the above data arrays
     const StudioHeaderT*            StudioHeader;
