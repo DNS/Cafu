@@ -99,6 +99,7 @@ void LoaderAssimpT::Load(ArrayT<CafuModelT::JointT>& Joints, int ParentIndex, co
     Joint.Parent=ParentIndex;
     Joint.Pos   =Vector3fT(Translation.x, Translation.y, Translation.z);
     Joint.Qtr   =Vector3fT(Quaternion.x, Quaternion.y, Quaternion.z);
+    Joint.Scale =Vector3fT(1.0f, 1.0f, 1.0f);
 
     Joints.PushBack(Joint);
     const int ThisIndex=Joints.Size()-1;

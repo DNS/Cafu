@@ -495,6 +495,7 @@ void LoaderAseT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
     Joints[0].Parent=-1;
  // Joints[0].Pos   =Vector3fT();
  // Joints[0].Qtr   =Vector3fT();   // Identity quaternion...
+    Joints[0].Scale =Vector3fT(1.0f, 1.0f, 1.0f);
 
 
     for (unsigned long GONr=0; GONr<m_GeomObjects.Size(); GONr++)

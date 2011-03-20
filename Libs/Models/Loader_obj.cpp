@@ -216,6 +216,7 @@ void LoaderObjT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
     Joints[0].Parent=-1;
  // Joints[0].Pos   =Vector3fT();
  // Joints[0].Qtr   =Vector3fT();   // Identity quaternion...
+    Joints[0].Scale =Vector3fT(1.0f, 1.0f, 1.0f);
 
     // Remove empty meshes from the m_ObjMeshes array.
     for (unsigned long MeshNr=0; MeshNr<m_ObjMeshes.Size(); MeshNr++)
