@@ -1,10 +1,8 @@
 /*
 =================================================================================
-This file is part of Cafu, the open-source game and graphics engine for
-multiplayer, cross-platform, real-time 3D action.
-$Id$
-
-Copyright (C) 2002-2010 Carsten Fuchs Software.
+This file is part of Cafu, the open-source game engine and graphics engine
+for multiplayer, cross-platform, real-time 3D action.
+Copyright (C) 2002-2011 Carsten Fuchs Software.
 
 Cafu is free software: you can redistribute it and/or modify it under the terms
 of the GNU General Public License as published by the Free Software Foundation,
