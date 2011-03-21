@@ -22,7 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "FileManImpl.hpp"
 #include "FileSys_LocalPath.hpp"
 #include "FileSys_ZipArchive_GV.hpp"
-#include "File.hpp"
+#include "File_local.hpp"
 #include "Password.hpp"
 #include "ConsoleCommands/Console.hpp"
 
@@ -128,6 +128,17 @@ void FileManImplT::Unmount(FileSystemT* FileSystem)
 
 InFileI* FileManImplT::OpenRead(const std::string& FileName)
 {
+    // Try to load the file from the local file system first.
+    // This way, the user is not required to register any file system at all before using the file manager,
+    // and the behavior is just as expected (principle of "least surprise").
+    {
+        LocalInFileT* InFile=new LocalInFileT(FileName, FileName);
+
+        if (InFile->IsOpen()) return InFile;
+        delete InFile;
+    }
+
+    // Now try the registered file systems in turn.
     for (unsigned long FileSysNr=0; FileSysNr<FileSystems.Size(); FileSysNr++)
     {
         InFileI* InFile=FileSystems[FileSystems.Size()-1-FileSysNr]->OpenRead(FileName);
