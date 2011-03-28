@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/***********************/
-/*** Map Composition ***/
-/***********************/
-
 #ifndef _CA_MATSYS_MAP_COMPOSITION_HPP_
 #define _CA_MATSYS_MAP_COMPOSITION_HPP_
 
@@ -38,19 +34,25 @@ class MapCompositionT
 {
     public:
 
-    /// Enumeration types for specifying the filter and wrap modes, kept in the root MapCompositionT (the children just keep the default values).
+    /// This enum describes the filter mode of this map composition, kept in the root MapCompositionT (the children just keep the default values).
     enum MinMagFiltersT { Nearest, Linear, Nearest_MipMap_Nearest, Nearest_MipMap_Linear, Linear_MipMap_Nearest, Linear_MipMap_Linear };
-    enum WrapModesT     { Repeat, Clamp, ClampToEdge };
 
-    // TODO: Operations for the alpha-channel: e.g. taking it from the red channel of another image...
-    // There is no scaling operation - scaling is automatic.
+    /// This enum describes the wrap mode of this map composition, kept in the root MapCompositionT (the children just keep the default values).
+    enum WrapModesT { Repeat, Clamp, ClampToEdge };
+
+    /// This enum describes the type of the map composition.
+    /// Note that there is no scaling operation - scaling is automatic.
+    /// TODO: Operations for the alpha-channel: e.g. taking it from the red channel of another image...
     enum TypeT { Empty, Map, Add, Mul, CombineNormals, HeightMapToNormalMap, FlipNormalMapYAxis, ReNormalize, BlueToAlpha };    // VideoStream
 
 
     /// Constructor for creating an "empty" map composition.
     MapCompositionT(MinMagFiltersT MinFilter_=Linear_MipMap_Linear, MinMagFiltersT MagFilter_=Linear, WrapModesT WrapS_=Repeat, WrapModesT WrapT_=Repeat, bool NoScaleDown_=false, bool NoCompression_=false);
 
-    /// Constructor. Never specify RecursionCount! It is for internal recursion, and must always be 0 in the call!
+    /// Constructor for creating a MapCompositionT from a string description.
+    MapCompositionT(const std::string& s, const std::string& BaseDir_) /*throw (TextParserT::ParseError)*/;
+
+    /// Constructor for creating a MapCompositionT from TextParserT input.
     MapCompositionT(TextParserT& TP, const std::string& BaseDir_, bool NoCompression_=false, const unsigned long RecursionCount=0) /*throw (TextParserT::ParseError)*/;
 
     /// Copy Constructor (Law of the Big Three).
@@ -79,7 +81,7 @@ class MapCompositionT
     WrapModesT     GetWrapModeT() const { return WrapT; }           ///< Returns the wrapping mode in t-direction.
     bool           GetNoScaleDown() const { return NoScaleDown; }   ///< Returns whether the texture should not be scaled down (e.g. for optimizing performance).
     bool           GetNoCompression() const { return NoCompression; }   ///< Returns whether the texture should not be compressed (e.g. for optimizing performance/memory).
-    TypeT          GetType() const { return Type; }
+    TypeT          GetType() const { return Type; }                 ///< Returns the type of this map composition.
 
     /// This function loads all image source files from disk (at *BaseDir+FileName), and combines them (according to this MapCompositionT)
     /// into a single resulting BitmapT. On any error with the participating bitmaps (ie. file not found, file unreadable, ...),
@@ -101,6 +103,9 @@ class MapCompositionT
     /// later copy MapCompositionTs even across exe/dll-boundaries, if need be. May later reconsider this, though...
     /// Currently, the cache is not intended to be cleared during program run-time, the OS does the clean-up after program termination.
     static ArrayT<std::string*> BaseDirCache;
+
+    /// An auxiliary method for the constructors.
+    void Init(TextParserT& TP, const unsigned long RecursionCount) /*throw (TextParserT::ParseError)*/;
 
 
     TypeT            Type;          ///< The type of this MapCompositionT.

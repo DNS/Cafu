@@ -166,6 +166,21 @@ MaterialManagerImplT::~MaterialManagerImplT()
 }
 
 
+MaterialT* MaterialManagerImplT::RegisterMaterial(const MaterialT& Mat)
+{
+    MaterialT*& MatPtr=Materials[Mat.Name];
+
+    // Creating a new copy of Mat here makes it clear to the user who has ownership of Mat (the user)
+    // and who has ownership of the registered material (we, the material manager).
+    // It also ensures that there is never a danger to register the same material instance accidently twice,
+    // as would be possible if we registered a user-created material instance whose name got possibly mangled
+    // to resolve name collisions.
+    if (!MatPtr) MatPtr=new MaterialT(Mat);
+
+    return MatPtr;
+}
+
+
 ArrayT<MaterialT*> MaterialManagerImplT::RegisterMaterialScript(const std::string& FileName, const std::string& BaseDir)
 {
     ArrayT<MaterialT*> NewMaterials;

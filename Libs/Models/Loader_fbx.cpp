@@ -21,6 +21,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Loader_fbx.hpp"
 #ifdef HAVE_FBX_SDK
+#include "MaterialSystem/MapComposition.hpp"
+#include "MaterialSystem/Material.hpp"
+#include "String.hpp"
 #include "fbxsdk.h"
 
 #if defined(_WIN32) && _MSC_VER<1600
@@ -114,6 +117,7 @@ class LoaderFbxT::FbxSceneT
     void GetNodes(const KFbxNode* Node);
     void ConvertNurbsAndPatches(KFbxNode* Node);
     void GetWeights(const KFbxMesh* Mesh, const unsigned long MeshNodeNr, ArrayT< ArrayT<CafuModelT::MeshT::WeightT> >& Weights) const;
+    bool LoadMaterial(MaterialT& Mat, const KFbxSurfaceMaterial* FbxMaterial) const;
     ArrayT< ArrayT<PosQtrScaleT> > GetSequData(KFbxAnimStack* AnimStack, const ArrayT<KTime>& FrameTimes) const;
 
     const LoaderFbxT&       m_MainClass;
@@ -495,6 +499,64 @@ void LoaderFbxT::FbxSceneT::GetWeights(const KFbxMesh* Mesh, const unsigned long
 }
 
 
+/// Attempts to load a MaterialT material from a KFbxSurfaceMaterial.
+/// @param Mat           The material to initialize.
+/// @param FbxMaterial   The source material.
+/// @returns \c true on success (\c Mat could be successfully/meaningfully initialized from \c FbxMaterial), \c false otherwise.
+bool LoaderFbxT::FbxSceneT::LoadMaterial(MaterialT& Mat, const KFbxSurfaceMaterial* FbxMaterial) const
+{
+    if (!FbxMaterial) return false;
+
+    KFbxProperty Property=FbxMaterial->FindProperty(KFbxSurfaceMaterial::sDiffuse);
+    if (!Property.IsValid()) return false;
+
+    const int    TextureIndex=0;
+    KFbxTexture* DiffuseTexture=KFbxCast<KFbxTexture>(Property.GetSrcObject(KFbxTexture::ClassId, TextureIndex));
+    if (!DiffuseTexture) return false;
+
+    const std::string BaseDir=cf::String::GetPath(m_MainClass.GetFileName())+"/";
+    Mat.DiffMapComp=MapCompositionT(DiffuseTexture->GetRelativeFileName(), BaseDir);
+
+    Property=FbxMaterial->FindProperty(KFbxSurfaceMaterial::sNormalMap);
+    if (Property.IsValid())
+    {
+        KFbxTexture* Texture=KFbxCast<KFbxTexture>(Property.GetSrcObject(KFbxTexture::ClassId, TextureIndex));
+
+        if (Texture)
+            Mat.NormMapComp=MapCompositionT(Texture->GetRelativeFileName(), BaseDir);
+    }
+
+    Property=FbxMaterial->FindProperty(KFbxSurfaceMaterial::sBump);
+    if (Property.IsValid())
+    {
+        KFbxTexture* Texture=KFbxCast<KFbxTexture>(Property.GetSrcObject(KFbxTexture::ClassId, TextureIndex));
+
+        if (Texture)
+            Mat.NormMapComp=MapCompositionT(std::string("hm2nm(")+Texture->GetRelativeFileName()+", 1)", BaseDir);
+    }
+
+    Property=FbxMaterial->FindProperty(KFbxSurfaceMaterial::sSpecular);
+    if (Property.IsValid())
+    {
+        KFbxTexture* Texture=KFbxCast<KFbxTexture>(Property.GetSrcObject(KFbxTexture::ClassId, TextureIndex));
+
+        if (Texture)
+            Mat.SpecMapComp=MapCompositionT(Texture->GetRelativeFileName(), BaseDir);
+    }
+
+    Property=FbxMaterial->FindProperty(KFbxSurfaceMaterial::sEmissive);
+    if (Property.IsValid())
+    {
+        KFbxTexture* Texture=KFbxCast<KFbxTexture>(Property.GetSrcObject(KFbxTexture::ClassId, TextureIndex));
+
+        if (Texture)
+            Mat.LumaMapComp=MapCompositionT(Texture->GetRelativeFileName(), BaseDir);
+    }
+
+    return true;
+}
+
+
 void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes, MaterialManagerImplT& MaterialMan) const
 {
     Log << "\n";
@@ -568,10 +630,28 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes, MaterialMana
         }
 
         // Set the material.
-        // TODO: If the material is NULL, we must
-        //   - create a new material with whatever data there is in the model file,
-        //   - failing that, create and use a substitute material.
-        CafuMesh.Material=MaterialMan.GetMaterial("Models/Players/Alien/Alien" /*ObjMesh.MtlName*/);    // TODO...!  (Use proper material!)
+        const int                  FbxMaterialIndex=0;
+        const KFbxSurfaceMaterial* FbxMaterial=KFbxCast<KFbxSurfaceMaterial>(Mesh->GetSrcObject(KFbxSurfaceMaterial::ClassId, FbxMaterialIndex));
+        const std::string          MatName=FbxMaterial ? FbxMaterial->GetName() : "wire-frame";
+
+        CafuMesh.Material=MaterialMan.GetMaterial(MatName);
+
+        if (!CafuMesh.Material)
+        {
+            MaterialT Mat;
+            Mat.Name=MatName;
+
+            if (!LoadMaterial(Mat, FbxMaterial))
+            {
+                Mat.PolygonMode  =MaterialT::Wireframe;
+             // Mat.DepthOffset  =-1.0f;
+             // Mat.RedGen       =ExpressionT(1.0f);
+                Mat.UseMeshColors=true;
+             // Mat.TwoSided     =true;      // Required e.g. for terrains being selected.
+            }
+
+            CafuMesh.Material=MaterialMan.RegisterMaterial(Mat);
+        }
     }
 }
 

@@ -42,6 +42,15 @@ class MaterialManagerImplT : public MaterialManagerI
     MaterialManagerImplT();
     ~MaterialManagerImplT();
 
+    /// Registers a copy of the given material \c Mat and returns a pointer to the registered copy.
+    /// If a material with the same name \c Mat.Name is already registered with the material manager,
+    /// \c Mat is not registered, but a pointer to the already registered instance with the same is returned
+    /// (use GetMaterial() in advance to unambigiously distingush between the two cases).
+    ///
+    /// @param Mat   The material of which a copy is to be registered with the material manager.
+    /// @returns A pointer to the registered material instance (or a previously existing instance with the same name).
+    MaterialT* RegisterMaterial(const MaterialT& Mat);
+
     // The MaterialManagerI interface.
     ArrayT<MaterialT*> RegisterMaterialScript(const std::string& FileName, const std::string& BaseDir);
     ArrayT<MaterialT*> RegisterMaterialScriptsInDir(const std::string& DirName, const std::string& BaseDir, const bool Recurse=true);

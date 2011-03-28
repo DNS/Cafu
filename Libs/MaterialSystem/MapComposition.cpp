@@ -19,15 +19,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/***********************/
-/*** Map Composition ***/
-/***********************/
-
-#include <math.h>
-
 #include "MapComposition.hpp"
 #include "Bitmap/Bitmap.hpp"
 #include "ConsoleCommands/Console.hpp"
+
+#include <math.h>
 
 
 ArrayT<std::string*> MapCompositionT::BaseDirCache;
@@ -46,7 +42,6 @@ static std::string* GetBaseDirCachePtr(ArrayT<std::string*>& BaseDirCache, const
 }
 
 
-// Constructor.
 MapCompositionT::MapCompositionT(MinMagFiltersT MinFilter_, MinMagFiltersT MagFilter_, WrapModesT WrapS_, WrapModesT WrapT_, bool NoScaleDown_, bool NoCompression_)
     : Type         (Empty),
       MinFilter    (MinFilter_),
@@ -64,7 +59,26 @@ MapCompositionT::MapCompositionT(MinMagFiltersT MinFilter_, MinMagFiltersT MagFi
 }
 
 
-// Constructor.
+MapCompositionT::MapCompositionT(const std::string& s, const std::string& BaseDir_) /*throw (TextParserT::ParseError)*/
+    : Type         (Empty),
+      MinFilter    (Linear_MipMap_Linear),
+      MagFilter    (Linear),
+      WrapS        (Repeat),
+      WrapT        (Repeat),
+      NoScaleDown  (false),
+      NoCompression(false),
+      FileName     (""),
+      BaseDir      (GetBaseDirCachePtr(BaseDirCache, BaseDir_)),
+      HeightScale  (1.0),
+      Child1       (NULL),
+      Child2       (NULL)
+{
+    TextParserT TP(s.c_str(), "({[]}),", false);
+
+    Init(TP, 0);
+}
+
+
 MapCompositionT::MapCompositionT(TextParserT& TP, const std::string& BaseDir_, bool NoCompression_, const unsigned long RecursionCount) /*throw (TextParserT::ParseError)*/
     : Type         (Empty),
       MinFilter    (Linear_MipMap_Linear),
@@ -79,6 +93,12 @@ MapCompositionT::MapCompositionT(TextParserT& TP, const std::string& BaseDir_, b
       Child1       (NULL),
       Child2       (NULL)
 {
+    Init(TP, RecursionCount);
+}
+
+
+void MapCompositionT::Init(TextParserT& TP, const unsigned long RecursionCount)
+{
     if (TP.IsAtEOF()) return;
     std::string Token=TP.GetNextToken();
 
@@ -86,34 +106,34 @@ MapCompositionT::MapCompositionT(TextParserT& TP, const std::string& BaseDir_, b
     {
         Type=Add;
         if (TP.GetNextToken()!="(") throw TextParserT::ParseError();
-        Child1=new MapCompositionT(TP, BaseDir_, NoCompression, RecursionCount+1);
+        Child1=new MapCompositionT(TP, *BaseDir, NoCompression, RecursionCount+1);
         if (TP.GetNextToken()!=",") throw TextParserT::ParseError();
-        Child2=new MapCompositionT(TP, BaseDir_, NoCompression, RecursionCount+1);
+        Child2=new MapCompositionT(TP, *BaseDir, NoCompression, RecursionCount+1);
         if (TP.GetNextToken()!=")") throw TextParserT::ParseError();
     }
     else if (Token=="mul")
     {
         Type=Mul;
         if (TP.GetNextToken()!="(") throw TextParserT::ParseError();
-        Child1=new MapCompositionT(TP, BaseDir_, NoCompression, RecursionCount+1);
+        Child1=new MapCompositionT(TP, *BaseDir, NoCompression, RecursionCount+1);
         if (TP.GetNextToken()!=",") throw TextParserT::ParseError();
-        Child2=new MapCompositionT(TP, BaseDir_, NoCompression, RecursionCount+1);
+        Child2=new MapCompositionT(TP, *BaseDir, NoCompression, RecursionCount+1);
         if (TP.GetNextToken()!=")") throw TextParserT::ParseError();
     }
     else if (Token=="combineNMs")
     {
         Type=CombineNormals;
         if (TP.GetNextToken()!="(") throw TextParserT::ParseError();
-        Child1=new MapCompositionT(TP, BaseDir_, NoCompression, RecursionCount+1);
+        Child1=new MapCompositionT(TP, *BaseDir, NoCompression, RecursionCount+1);
         if (TP.GetNextToken()!=",") throw TextParserT::ParseError();
-        Child2=new MapCompositionT(TP, BaseDir_, NoCompression, RecursionCount+1);
+        Child2=new MapCompositionT(TP, *BaseDir, NoCompression, RecursionCount+1);
         if (TP.GetNextToken()!=")") throw TextParserT::ParseError();
     }
     else if (Token=="hm2nm")
     {
         Type=HeightMapToNormalMap;
         if (TP.GetNextToken()!="(") throw TextParserT::ParseError();
-        Child1=new MapCompositionT(TP, BaseDir_, NoCompression, RecursionCount+1);
+        Child1=new MapCompositionT(TP, *BaseDir, NoCompression, RecursionCount+1);
         if (TP.GetNextToken()!=",") throw TextParserT::ParseError();
         HeightScale=float(atof(TP.GetNextToken().c_str()));
         if (TP.GetNextToken()!=")") throw TextParserT::ParseError();
@@ -122,21 +142,21 @@ MapCompositionT::MapCompositionT(TextParserT& TP, const std::string& BaseDir_, b
     {
         Type=FlipNormalMapYAxis;
         if (TP.GetNextToken()!="(") throw TextParserT::ParseError();
-        Child1=new MapCompositionT(TP, BaseDir_, NoCompression, RecursionCount+1);
+        Child1=new MapCompositionT(TP, *BaseDir, NoCompression, RecursionCount+1);
         if (TP.GetNextToken()!=")") throw TextParserT::ParseError();
     }
     else if (Token=="renormalize")
     {
         Type=ReNormalize;
         if (TP.GetNextToken()!="(") throw TextParserT::ParseError();
-        Child1=new MapCompositionT(TP, BaseDir_, NoCompression, RecursionCount+1);
+        Child1=new MapCompositionT(TP, *BaseDir, NoCompression, RecursionCount+1);
         if (TP.GetNextToken()!=")") throw TextParserT::ParseError();
     }
     else if (Token=="blue2alpha")
     {
         Type=BlueToAlpha;
         if (TP.GetNextToken()!="(") throw TextParserT::ParseError();
-        Child1=new MapCompositionT(TP, BaseDir_, NoCompression, RecursionCount+1);
+        Child1=new MapCompositionT(TP, *BaseDir, NoCompression, RecursionCount+1);
         if (TP.GetNextToken()!=")") throw TextParserT::ParseError();
     }
     else
