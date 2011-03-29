@@ -26,12 +26,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Models/Loader_ase.hpp"
 #include "Models/Loader_assimp.hpp"
 #include "Models/Loader_cmdl.hpp"
-// #include "Models/Loader_Collada.hpp"
 #include "Models/Loader_fbx.hpp"
 #include "Models/Loader_lwo.hpp"
 #include "Models/Loader_md5.hpp"
 #include "Models/Loader_mdl.hpp"
-// #include "Models/Loader_obj.hpp"
 #include "String.hpp"
 
 #include "wx/confbase.h"
