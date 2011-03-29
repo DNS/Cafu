@@ -66,6 +66,23 @@ namespace cf
             s.erase(PosSep);
             return s;
         }
+
+        /// Replaces in \c s all occurrences of \c search by \c replace, and returns the new string.
+        inline std::string Replace(std::string s, const std::string& search, const std::string& replace)
+        {
+            const size_t len_search =search.length(); if (len_search==0) return s;
+            const size_t len_replace=replace.length();
+
+            size_t pos=s.find(search);
+
+            while (pos!=std::string::npos)
+            {
+                s.replace(pos, len_search, replace);
+                pos=s.find(search, pos+len_replace);
+            }
+
+            return s;
+        }
     }
 }
 

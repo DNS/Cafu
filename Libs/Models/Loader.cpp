@@ -103,3 +103,32 @@ BoundingBox3fT ModelLoaderT::GetBB(const ArrayT<CafuModelT::JointT>& Joints, con
 
     return BB;
 }
+
+
+/// An auxiliary function that cleans loaded meshes.
+void ModelLoaderT::Clean(ArrayT<CafuModelT::MeshT>& Meshes)
+{
+    // Remove triangles with zero-length edges.
+    // This is especially important because such triangles "connect" two vertices that the CafuModelT code
+    // considers as "geometrical duplicates" of each other. That is, a single triangle refers to the same
+    // vertex coordinate twice, which triggers related assertions in debug builds.
+    for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
+    {
+        CafuModelT::MeshT& Mesh=Meshes[MeshNr];
+
+        for (unsigned long TriNr=0; TriNr<Mesh.Triangles.Size(); TriNr++)
+        {
+            const CafuModelT::MeshT::TriangleT& Tri=Mesh.Triangles[TriNr];
+
+            const Vector3fT& A=Mesh.Weights[Mesh.Vertices[Tri.VertexIdx[0]].FirstWeightIdx].Pos;
+            const Vector3fT& B=Mesh.Weights[Mesh.Vertices[Tri.VertexIdx[1]].FirstWeightIdx].Pos;
+            const Vector3fT& C=Mesh.Weights[Mesh.Vertices[Tri.VertexIdx[2]].FirstWeightIdx].Pos;
+
+            if (length(A-B)==0 || length(B-C)==0 || length(C-A)==0)
+            {
+                Mesh.Triangles.RemoveAt(TriNr);
+                TriNr--;
+            }
+        }
+    }
+}

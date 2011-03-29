@@ -57,6 +57,7 @@ class ModelLoaderT
     protected:
 
     BoundingBox3fT GetBB(const ArrayT<CafuModelT::JointT>& Joints, const ArrayT<CafuModelT::MeshT>& Meshes, const CafuModelT::AnimT& Anim, unsigned long FrameNr) const;
+    void Clean(ArrayT<CafuModelT::MeshT>& Meshes);
 
     const std::string m_FileName;
 };

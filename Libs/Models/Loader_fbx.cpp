@@ -499,59 +499,49 @@ void LoaderFbxT::FbxSceneT::GetWeights(const KFbxMesh* Mesh, const unsigned long
 }
 
 
+static std::string GetTexFileName(const KFbxSurfaceMaterial* FbxMaterial, const char* PropName)
+{
+    KFbxProperty Property=FbxMaterial->FindProperty(PropName);
+    if (!Property.IsValid()) return "";
+
+    const int    TextureIndex=0;
+    KFbxTexture* Texture=KFbxCast<KFbxTexture>(Property.GetSrcObject(KFbxTexture::ClassId, TextureIndex));
+    if (!Texture) return "";
+
+    const char* FileName=Texture->GetRelativeFileName();
+    if (FileName!=NULL && FileName[0]!=0) return cf::String::Replace(FileName, "\\", "/");
+
+    FileName=Texture->GetFileName();
+    if (FileName!=NULL && FileName[0]!=0) return cf::String::Replace(FileName, "\\", "/");
+
+    return "";
+}
+
+
 /// Attempts to load a MaterialT material from a KFbxSurfaceMaterial.
 /// @param Mat           The material to initialize.
 /// @param FbxMaterial   The source material.
 /// @returns \c true on success (\c Mat could be successfully/meaningfully initialized from \c FbxMaterial), \c false otherwise.
 bool LoaderFbxT::FbxSceneT::LoadMaterial(MaterialT& Mat, const KFbxSurfaceMaterial* FbxMaterial) const
 {
+    const std::string BaseDir=cf::String::GetPath(m_MainClass.GetFileName())+"/";
+
     if (!FbxMaterial) return false;
 
-    KFbxProperty Property=FbxMaterial->FindProperty(KFbxSurfaceMaterial::sDiffuse);
-    if (!Property.IsValid()) return false;
+    std::string fn=GetTexFileName(FbxMaterial, KFbxSurfaceMaterial::sDiffuse);
+    if (fn!="") Mat.DiffMapComp=MapCompositionT(fn, BaseDir); else return false;
 
-    const int    TextureIndex=0;
-    KFbxTexture* DiffuseTexture=KFbxCast<KFbxTexture>(Property.GetSrcObject(KFbxTexture::ClassId, TextureIndex));
-    if (!DiffuseTexture) return false;
+    fn=GetTexFileName(FbxMaterial, KFbxSurfaceMaterial::sNormalMap);
+    if (fn!="") Mat.NormMapComp=MapCompositionT(fn, BaseDir);
 
-    const std::string BaseDir=cf::String::GetPath(m_MainClass.GetFileName())+"/";
-    Mat.DiffMapComp=MapCompositionT(DiffuseTexture->GetRelativeFileName(), BaseDir);
+    fn=GetTexFileName(FbxMaterial, KFbxSurfaceMaterial::sBump);
+    if (fn!="") Mat.NormMapComp=MapCompositionT(std::string("hm2nm(")+fn+", 1)", BaseDir);
 
-    Property=FbxMaterial->FindProperty(KFbxSurfaceMaterial::sNormalMap);
-    if (Property.IsValid())
-    {
-        KFbxTexture* Texture=KFbxCast<KFbxTexture>(Property.GetSrcObject(KFbxTexture::ClassId, TextureIndex));
+    fn=GetTexFileName(FbxMaterial, KFbxSurfaceMaterial::sSpecular);
+    if (fn!="") Mat.SpecMapComp=MapCompositionT(fn, BaseDir);
 
-        if (Texture)
-            Mat.NormMapComp=MapCompositionT(Texture->GetRelativeFileName(), BaseDir);
-    }
-
-    Property=FbxMaterial->FindProperty(KFbxSurfaceMaterial::sBump);
-    if (Property.IsValid())
-    {
-        KFbxTexture* Texture=KFbxCast<KFbxTexture>(Property.GetSrcObject(KFbxTexture::ClassId, TextureIndex));
-
-        if (Texture)
-            Mat.NormMapComp=MapCompositionT(std::string("hm2nm(")+Texture->GetRelativeFileName()+", 1)", BaseDir);
-    }
-
-    Property=FbxMaterial->FindProperty(KFbxSurfaceMaterial::sSpecular);
-    if (Property.IsValid())
-    {
-        KFbxTexture* Texture=KFbxCast<KFbxTexture>(Property.GetSrcObject(KFbxTexture::ClassId, TextureIndex));
-
-        if (Texture)
-            Mat.SpecMapComp=MapCompositionT(Texture->GetRelativeFileName(), BaseDir);
-    }
-
-    Property=FbxMaterial->FindProperty(KFbxSurfaceMaterial::sEmissive);
-    if (Property.IsValid())
-    {
-        KFbxTexture* Texture=KFbxCast<KFbxTexture>(Property.GetSrcObject(KFbxTexture::ClassId, TextureIndex));
-
-        if (Texture)
-            Mat.LumaMapComp=MapCompositionT(Texture->GetRelativeFileName(), BaseDir);
-    }
+    fn=GetTexFileName(FbxMaterial, KFbxSurfaceMaterial::sEmissive);
+    if (fn!="") Mat.LumaMapComp=MapCompositionT(fn, BaseDir);
 
     return true;
 }
@@ -631,7 +621,7 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes, MaterialMana
 
         // Set the material.
         const int                  FbxMaterialIndex=0;
-        const KFbxSurfaceMaterial* FbxMaterial=KFbxCast<KFbxSurfaceMaterial>(Mesh->GetSrcObject(KFbxSurfaceMaterial::ClassId, FbxMaterialIndex));
+        const KFbxSurfaceMaterial* FbxMaterial=m_Nodes[NodeNr]->GetMaterial(FbxMaterialIndex);
         const std::string          MatName=FbxMaterial ? FbxMaterial->GetName() : "wire-frame";
 
         CafuMesh.Material=MaterialMan.GetMaterial(MatName);
@@ -843,6 +833,9 @@ void LoaderFbxT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
 
     // Load the animations.
     m_FbxScene->Load(Anims);
+
+    // Clean the meshes (e.g. remove triangles with zero-length edges).
+    Clean(Meshes);
 
     // Compute the proper bounding-box for each frame of each animation.
     for (unsigned long AnimNr=0; AnimNr<Anims.Size(); AnimNr++)
