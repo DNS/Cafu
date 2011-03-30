@@ -21,6 +21,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Loader_mdl.hpp"
 #include "Loader_mdl.h"
+#include "Bitmap/Bitmap.hpp"
+#include "MaterialSystem/Material.hpp"
 #include "Math3D/Matrix3x3.hpp"
 #include "Math3D/Quaternion.hpp"
 #include "String.hpp"
@@ -145,12 +147,53 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::
         // Flip back-slashes.
         for (unsigned long i=0; i<MaterialName.length(); i++) if (MaterialName.at(i)=='\\') MaterialName.at(i)='/';
 
-        // TODO: If the material is NULL, we must
-        //   - create a new material with whatever data there is in the model file,
-        //   - failing that, create and use a substitute material.
         MaterialT* Material=MaterialMan.GetMaterial(cf::String::StripExt(MaterialName));
 
-        // if (Material==NULL) printf("WARNING: Material '%s' not found!\n", MaterialName.c_str());
+        if (!Material)
+        {
+            // If there isn't an appropriately prepared .cmat file (so that MatName is found in MaterialMan),
+            // create a substitute using the diffuse texture available in StudioTextures[TexNr].
+            const std::string BaseDir=cf::String::GetPath(m_FileName)+"/";
+
+            std::string fn=cf::String::StripExt(StudioTextures[TexNr].Name);
+            fn=cf::String::Replace(fn, "\\", "_");
+            fn=cf::String::Replace(fn, "/",  "_");
+            fn+=std::string("_")+char('a'+(TexNr % 26))+std::string(".png");  // Make sure that fn is non-empty and (to a certain extent) unique.
+
+            MaterialT Mat;
+
+            Mat.Name       =cf::String::StripExt(MaterialName);
+            Mat.DiffMapComp=MapCompositionT(fn, BaseDir);
+            Mat.RedGen     =ExpressionT(ExpressionT::SymbolALRed);
+            Mat.GreenGen   =ExpressionT(ExpressionT::SymbolALGreen);
+            Mat.BlueGen    =ExpressionT(ExpressionT::SymbolALBlue);
+
+            Material=MaterialMan.RegisterMaterial(Mat);
+
+            // If it does not exist yet, create and save the related bitmap.
+            FILE* TestFile=fopen((BaseDir+fn).c_str(), "rb");
+
+            if (TestFile==NULL)
+            {
+                BitmapT        Bitmap(StudioTextures[TexNr].Width, StudioTextures[TexNr].Height);
+                unsigned char* Data=((unsigned char*)StudioTextureHeader) + StudioTextures[TexNr].Index;
+                unsigned char* Pal =Data + Bitmap.Data.Size();
+
+                for (int y=0; y<StudioTextures[TexNr].Height; y++)
+                    for (int x=0; x<StudioTextures[TexNr].Width; x++)
+                    {
+                        unsigned long PalIdx=Data[y*StudioTextures[TexNr].Width + x] * 3ul;
+
+                        Bitmap.SetPixel(x, y, Pal[PalIdx], Pal[PalIdx+1], Pal[PalIdx+2], 255);
+                    }
+
+                Bitmap.SaveToDisk((BaseDir+fn).c_str());
+            }
+            else
+            {
+                fclose(TestFile);
+            }
+        }
 
         m_Materials.PushBack(Material);
     }

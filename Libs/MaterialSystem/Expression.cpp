@@ -89,7 +89,6 @@ float TableT::Lookup(float x) const
 /*** Expression ***/
 /******************/
 
-// Constructor.
 ExpressionT::ExpressionT(float FloatNumberValue_)
     : Type(FloatNumber),
       FloatNumberValue(FloatNumberValue_),
@@ -101,7 +100,6 @@ ExpressionT::ExpressionT(float FloatNumberValue_)
 }
 
 
-// Constructor.
 ExpressionT::ExpressionT(int IntNumberValue_)
     : Type(IntNumber),
       FloatNumberValue(0.0),
@@ -113,7 +111,18 @@ ExpressionT::ExpressionT(int IntNumberValue_)
 }
 
 
-// Constructor.
+ExpressionT::ExpressionT(TypeT Type_)
+    : Type(Type_),
+      FloatNumberValue(0.0),
+      IntNumberValue(0),
+      Table(NULL),
+      Child1(NULL),
+      Child2(NULL)
+{
+    assert(Type==SymbolTime || Type==SymbolALRed || Type==SymbolALGreen || Type==SymbolALBlue);
+}
+
+
 ExpressionT::ExpressionT(TextParserT& TP, const ArrayT<TableT*>& ListOfTables) /*throw (TextParserT::ParseError)*/
     : Type(FloatNumber),
       FloatNumberValue(0.0),

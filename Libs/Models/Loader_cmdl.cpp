@@ -20,6 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Loader_cmdl.hpp"
+#include "MaterialSystem/Material.hpp"
 
 extern "C"
 {
@@ -158,11 +159,19 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Me
             lua_rawgeti(m_LuaState, -1, MeshNr+1);
             {
                 lua_getfield(m_LuaState, -1, "Material");
-                const char* MatName=lua_tostring(m_LuaState, -1);
-                // TODO: If the material is NULL, we must
-                //   - create a new material with whatever data there is in the model file,
-                //   - failing that, create and use a substitute material.
-                Mesh.Material=MaterialMan.GetMaterial(MatName ? MatName : "<NULL>");
+                {
+                    const char*       s=lua_tostring(m_LuaState, -1);
+                    const std::string MatName=s ? s : "wire-frame";
+
+                    Mesh.Material=MaterialMan.GetMaterial(MatName);
+
+                    if (!Mesh.Material)
+                    {
+                        // Our .cmdl model materials really depend on the related .cmat file.
+                        // Thus if a material cannot be found in MaterialMan, go for the wire-frame substitute straight away.
+                        Mesh.Material=MaterialMan.RegisterMaterial(CreateDefaultMaterial(MatName));
+                    }
+                }
                 lua_pop(m_LuaState, 1);
 
                 lua_getfield(m_LuaState, -1, "Weights");

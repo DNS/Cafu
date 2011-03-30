@@ -20,6 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Loader.hpp"
+#include "MaterialSystem/Material.hpp"
 #include "Math3D/Quaternion.hpp"
 
 
@@ -35,8 +36,6 @@ ModelLoaderT::ModelLoaderT(const std::string& FileName)
 }
 
 
-/// An auxiliary function that computes the bounding box for the model with the given
-/// joints and meshes at the given anim sequence at the given frame number.
 BoundingBox3fT ModelLoaderT::GetBB(const ArrayT<CafuModelT::JointT>& Joints, const ArrayT<CafuModelT::MeshT>& Meshes, const CafuModelT::AnimT& Anim, unsigned long FrameNr) const
 {
     BoundingBox3fT         BB;
@@ -105,7 +104,6 @@ BoundingBox3fT ModelLoaderT::GetBB(const ArrayT<CafuModelT::JointT>& Joints, con
 }
 
 
-/// An auxiliary function that cleans loaded meshes.
 void ModelLoaderT::Clean(ArrayT<CafuModelT::MeshT>& Meshes)
 {
     // Remove triangles with zero-length edges.
@@ -131,4 +129,19 @@ void ModelLoaderT::Clean(ArrayT<CafuModelT::MeshT>& Meshes)
             }
         }
     }
+}
+
+
+MaterialT ModelLoaderT::CreateDefaultMaterial(const std::string& MatName) const
+{
+    MaterialT Mat;
+
+    Mat.Name         =MatName;
+    Mat.PolygonMode  =MaterialT::Wireframe;
+ // Mat.DepthOffset  =-1.0f;
+ // Mat.RedGen       =ExpressionT(1.0f);
+    Mat.UseMeshColors=true;
+ // Mat.TwoSided     =true;      // Required e.g. for terrains being selected.
+
+    return Mat;
 }

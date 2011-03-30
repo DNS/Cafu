@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/******************/
-/*** Expression ***/
-/******************/
-
 #ifndef _CA_MATSYS_EXPRESSION_HPP_
 #define _CA_MATSYS_EXPRESSION_HPP_
 
@@ -99,6 +95,11 @@ class ExpressionT
 
     /// Constructor.
     ExpressionT(int IntNumberValue_);
+
+    /// This constructor creates an ExpressionT of a given type.
+    /// Note that only those types are meaningful for which no other parameter is required,
+    /// such as \c SymbolTime, \c SymbolALRed, \c SymbolALGreen and \c SymbolALBlue.
+    ExpressionT(TypeT Type_);
 
     /// Constructor.
     ExpressionT(TextParserT& TP, const ArrayT<TableT*>& ListOfTables) /*throw (TextParserT::ParseError)*/;

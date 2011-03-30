@@ -56,8 +56,16 @@ class ModelLoaderT
 
     protected:
 
+    /// An auxiliary function that computes the bounding box for the model with the given
+    /// joints and meshes at the given anim sequence at the given frame number.
     BoundingBox3fT GetBB(const ArrayT<CafuModelT::JointT>& Joints, const ArrayT<CafuModelT::MeshT>& Meshes, const CafuModelT::AnimT& Anim, unsigned long FrameNr) const;
+
+    /// An auxiliary function that cleans loaded meshes.
     void Clean(ArrayT<CafuModelT::MeshT>& Meshes);
+
+    /// An auxiliary function that creates and returns a fail-safe wire-frame material with the given name,
+    /// for use when a material with more detailed or more specific settings is not available.
+    MaterialT CreateDefaultMaterial(const std::string& MatName) const;
 
     const std::string m_FileName;
 };

@@ -21,7 +21,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Loader_fbx.hpp"
 #ifdef HAVE_FBX_SDK
-#include "MaterialSystem/MapComposition.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "String.hpp"
 #include "fbxsdk.h"
@@ -543,6 +542,10 @@ bool LoaderFbxT::FbxSceneT::LoadMaterial(MaterialT& Mat, const KFbxSurfaceMateri
     fn=GetTexFileName(FbxMaterial, KFbxSurfaceMaterial::sEmissive);
     if (fn!="") Mat.LumaMapComp=MapCompositionT(fn, BaseDir);
 
+    Mat.RedGen  =ExpressionT(ExpressionT::SymbolALRed);
+    Mat.GreenGen=ExpressionT(ExpressionT::SymbolALGreen);
+    Mat.BlueGen =ExpressionT(ExpressionT::SymbolALBlue);
+
     return true;
 }
 
@@ -631,16 +634,7 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes, MaterialMana
             MaterialT Mat;
             Mat.Name=MatName;
 
-            if (!LoadMaterial(Mat, FbxMaterial))
-            {
-                Mat.PolygonMode  =MaterialT::Wireframe;
-             // Mat.DepthOffset  =-1.0f;
-             // Mat.RedGen       =ExpressionT(1.0f);
-                Mat.UseMeshColors=true;
-             // Mat.TwoSided     =true;      // Required e.g. for terrains being selected.
-            }
-
-            CafuMesh.Material=MaterialMan.RegisterMaterial(Mat);
+            CafuMesh.Material=MaterialMan.RegisterMaterial(LoadMaterial(Mat, FbxMaterial) ? Mat : m_MainClass.CreateDefaultMaterial(MatName));
         }
     }
 }

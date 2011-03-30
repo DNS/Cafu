@@ -277,10 +277,15 @@ void LoaderLwoT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
             MatToMeshNr[Poly.surf]=Meshes.Size()-1;
             CafuModelT::MeshT& Mesh=Meshes[Meshes.Size()-1];
 
-            // TODO: If the material is NULL, we must
-            //   - create a new material with whatever data there is in the model file,
-            //   - failing that, create and use a substitute material.
             Mesh.Material=MaterialMan.GetMaterial(Poly.surf->name);
+
+            if (!Mesh.Material)
+            {
+                // We don't have enough data in order to be able to reasonably reconstruct materials here.
+                // Thus if there isn't an appropriately prepared .cmat file (so that MatName is found in MaterialMan),
+                // go for the wire-frame substitute straight away.
+                Mesh.Material=MaterialMan.RegisterMaterial(CreateDefaultMaterial(Poly.surf->name));
+            }
 
             Mesh.Weights.PushBackEmpty(Layer->point.count);
 

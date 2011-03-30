@@ -20,6 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Loader_ase.hpp"
+#include "MaterialSystem/Material.hpp"
 #include "Math3D/BoundingBox.hpp"
 #include "TextParser/TextParser.hpp"
 
@@ -49,9 +50,14 @@ void LoaderAseT::ReadMaterials(TextParserT& TP)
             if (Token=="*MATERIAL_NAME")
             {
                 // Good, found the material name.
-                m_MaterialNames.PushBack(TP.GetNextToken());    // Store the material name.
-                TP.SkipBlock("{", "}", true);                   // Skip the rest of this *MATERIAL block.
-                break;                                          // Proceed with the next material.
+                std::string MatName=TP.GetNextToken();
+
+                // Make sure that it is unique.
+                while (m_MaterialNames.Find(MatName)>=0) MatName+=std::string("/")+char('a'+(MaterialNr % 26));
+
+                m_MaterialNames.PushBack(MatName);      // Store the material name.
+                TP.SkipBlock("{", "}", true);           // Skip the rest of this *MATERIAL block.
+                break;                                  // Proceed with the next material.
             }
             else if (Token=="{")
             {
@@ -573,10 +579,16 @@ void LoaderAseT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
             CafuTri.Draw_Normal=AseTri.Normal.AsVectorOfFloat();
         }
 
-        // TODO: If the material is NULL, we must
-        //   - create a new material with whatever data there is in the model file,
-        //   - failing that, create and use a substitute material.
+
         Mesh.Material=MaterialMan.GetMaterial(m_MaterialNames[GO.IndexMaterial]);
+
+        if (!Mesh.Material)
+        {
+            // As we haven't parsed the *MATERIAL definitions more deeply, we cannot reasonably reconstruct materials here.
+            // Thus if there isn't an appropriately prepared .cmat file (so that MatName is found in MaterialMan),
+            // go for the wire-frame substitute straight away.
+            Mesh.Material=MaterialMan.RegisterMaterial(CreateDefaultMaterial(m_MaterialNames[GO.IndexMaterial]));
+        }
     }
 }
 

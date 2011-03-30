@@ -49,8 +49,8 @@ namespace cf
             const size_t PosDot=s.find_last_of('.');
             const size_t PosSep=s.find_last_of("/\\");
 
-            if (PosDot==std::string::npos) return s;    // "." not found in s?
-            if (PosDot<PosSep) return s;                // Last "." found before last "/"?
+            if (PosDot==std::string::npos) return s;                    // "." not found in s?
+            if (PosSep!=std::string::npos && PosDot<PosSep) return s;   // Last "." found before last "/"?
 
             s.erase(PosDot);
             return s;

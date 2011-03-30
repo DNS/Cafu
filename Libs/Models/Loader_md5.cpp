@@ -20,6 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Loader_md5.hpp"
+#include "MaterialSystem/Material.hpp"
 #include "TextParser/TextParser.hpp"
 #include "String.hpp"
 
@@ -139,10 +140,17 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                     else if (Token=="numweights") { if (Mesh.Weights  .Size()>0) throw ModelT::LoadError(); Mesh.Weights  .PushBackEmpty(TP.GetNextTokenAsInt()); }
                     else if (Token=="shader")
                     {
-                        // TODO: If the material is NULL, we must
-                        //   - create a new material with whatever data there is in the model file,
-                        //   - failing that, create and use a substitute material.
-                        Mesh.Material=MaterialMan.GetMaterial(TP.GetNextToken());
+                        const std::string MatName=TP.GetNextToken();
+
+                        Mesh.Material=MaterialMan.GetMaterial(MatName);
+
+                        if (!Mesh.Material)
+                        {
+                            // Short of parsing D3/Q4 material scripts, we cannot reasonably reconstruct materials here.
+                            // Thus if there isn't an appropriately prepared .cmat file (so that MatName is found in MaterialMan),
+                            // go for the wire-frame substitute straight away.
+                            Mesh.Material=MaterialMan.RegisterMaterial(CreateDefaultMaterial(MatName));
+                        }
                     }
                     else if (Token=="tri")
                     {
