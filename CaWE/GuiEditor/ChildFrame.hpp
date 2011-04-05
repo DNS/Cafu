@@ -26,7 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/aui/framemanager.h"
 
 #include "ToolManager.hpp"
-#include "CommandHistory.hpp"
+#include "../CommandHistory.hpp"
 
 #include "Math3D/Vector3.hpp"
 

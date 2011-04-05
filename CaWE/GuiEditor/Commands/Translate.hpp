@@ -22,7 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef _GUIEDITOR_COMMAND_TRANSLATE_HPP_
 #define _GUIEDITOR_COMMAND_TRANSLATE_HPP_
 
-#include "../CommandPattern.hpp"
+#include "../../CommandPattern.hpp"
 
 #include "Math3D/Vector3.hpp"
 

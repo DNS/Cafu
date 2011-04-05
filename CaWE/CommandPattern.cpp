@@ -20,7 +20,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "CommandPattern.hpp"
-#include "MapElement.hpp"
 
 
 /****************/

@@ -29,9 +29,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Templates/Array.hpp"
 
 
-class MapElementT;
-
-
 /// This class represents a general command for implementing modifications to the applications document.
 /// Commands are usually kept in an undo/redo history in order to provide the user with undo and redo.
 ///
