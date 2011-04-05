@@ -31,10 +31,11 @@ class ParentFrameT;
 
 namespace ModelEditor
 {
+    class JointsHierarchyT;
     class ModelDocumentT;
-    class SceneView3DT;
     class ModelPropGridT;
     class ScenePropGridT;
+    class SceneView3DT;
 
 
     class ChildFrameT : public wxMDIChildFrame
@@ -62,16 +63,17 @@ namespace ModelEditor
 
         private:
 
-        wxString        m_FileName;
-        ModelDocumentT* m_ModelDoc;
+        wxString          m_FileName;
+        ModelDocumentT*   m_ModelDoc;
 
-        ParentFrameT*   m_Parent;
-        wxAuiManager    m_AUIManager;
-        SceneView3DT*   m_SceneView3D;
-        ModelPropGridT* m_ModelPropGrid;
-        ScenePropGridT* m_ScenePropGrid;
+        ParentFrameT*     m_Parent;
+        wxAuiManager      m_AUIManager;
+        SceneView3DT*     m_SceneView3D;
+        JointsHierarchyT* m_JointsHierarchy;
+        ModelPropGridT*   m_ModelPropGrid;
+        ScenePropGridT*   m_ScenePropGrid;
 
-        wxMenu*         m_FileMenu;
+        wxMenu*           m_FileMenu;
 
 
         enum

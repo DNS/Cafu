@@ -267,7 +267,7 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
     if (!IsMaximized()) Maximize(true);     // Also have wxMAXIMIZE set as frame style.
     Show(true);
 
-    // Initial update of the gui documents oberservers.
+    // Initial update of the gui documents observers.
     m_RenderWindow->Refresh(false);
     m_WindowTree->RefreshTree();
     m_WindowInspector->RefreshPropGrid();

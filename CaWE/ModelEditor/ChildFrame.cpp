@@ -20,6 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "ChildFrame.hpp"
+#include "JointsHierarchy.hpp"
 #include "ModelDocument.hpp"
 #include "ModelPropGrid.hpp"
 #include "SceneView3D.hpp"
@@ -102,18 +103,22 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     m_AUIManager.SetManagedWindow(this);
 
     // Create model editor panes.
-    m_ModelPropGrid=new ModelPropGridT(this, wxSize(230, 500));
-    m_ScenePropGrid=new ScenePropGridT(this, wxSize(230, 500));
-    m_SceneView3D  =new SceneView3DT(this);   // Created after m_ScenePropGrid, so that its ctor can access the camera in m_ScenePropGrid.
-
+    m_SceneView3D=new SceneView3DT(this);
     m_AUIManager.AddPane(m_SceneView3D, wxAuiPaneInfo().
                          Name("SceneView").Caption("Scene View").
                          CenterPane());
 
+    m_JointsHierarchy=new JointsHierarchyT(this, wxSize(230, 180));
+    m_AUIManager.AddPane(m_JointsHierarchy, wxAuiPaneInfo().
+                         Name("JointsHierarchy").Caption("Skeleton / Joints Hierarchy").
+                         Left().Position(0));
+
+    m_ModelPropGrid=new ModelPropGridT(this, wxSize(230, 500));
     m_AUIManager.AddPane(m_ModelPropGrid, wxAuiPaneInfo().
                          Name("ModelPropGrid").Caption("Model Properties").
-                         Left());
+                         Left().Position(1));
 
+    m_ScenePropGrid=new ScenePropGridT(this, wxSize(230, 500));
     m_AUIManager.AddPane(m_ScenePropGrid, wxAuiPaneInfo().
                          Name("ScenePropGrid").Caption("Scene Setup").
                          Right());
@@ -141,8 +146,9 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     if (!IsMaximized()) Maximize(true);     // Also have wxMAXIMIZE set as frame style.
     Show(true);
 
-    // Initial update of the model editor panes.
+    // Initial update of the model documents observers.
     m_SceneView3D->Refresh(false);
+    m_JointsHierarchy->RefreshTree();
     m_ModelPropGrid->RefreshPropGrid();
     m_ScenePropGrid->RefreshPropGrid();
 }
@@ -218,6 +224,12 @@ bool ModelEditor::ChildFrameT::Save(bool AskForFileName)
     wxBusyCursor BusyCursor;
 
     m_ModelDoc->GetModel()->Save(ModelFile);
+
+    // if (Materials have been edited (or are "new"))
+    // {
+    //     SaveRelated_cmat_File();
+    //     possibly with related bitmaps? (those with relative paths)
+    // }
 
     // Mark the document as "not modified" only if the save was successful.
     // m_LastSavedAtCommandNr=m_History.GetLastSaveSuggestedCommandID();        // ------- TODO --- activate this ...

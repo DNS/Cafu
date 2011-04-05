@@ -78,12 +78,13 @@ namespace ModelEditor
         void SetPrevAnimSequ();
         void SetAnimSpeed(float NewSpeed);
 
-        const CafuModelT*            GetModel() const        { return m_Model; }
-        const ModelAnimationT&       GetAnim() const         { return m_Anim; }
-        const MapBrushT*             GetGround() const       { return m_Ground; }
-        const ArrayT<CameraT*>&      GetCameras() const      { return m_Cameras; }
-        const ArrayT<LightSourceT*>& GetLightSources() const { return m_LightSources; }
-        const GameConfigT*           GetGameConfig() const   { return m_GameConfig; }
+        const CafuModelT*            GetModel() const          { return m_Model; }
+        const ArrayT<unsigned int>&  GetSelectedJoints() const { return m_SelectedJoints; }
+        const ModelAnimationT&       GetAnim() const           { return m_Anim; }
+        const MapBrushT*             GetGround() const         { return m_Ground; }
+        const ArrayT<CameraT*>&      GetCameras() const        { return m_Cameras; }
+        const ArrayT<LightSourceT*>& GetLightSources() const   { return m_LightSources; }
+        const GameConfigT*           GetGameConfig() const     { return m_GameConfig; }
 
         ModelAnimationT& GetAnim()       { return m_Anim; }
         MapBrushT*       GetGround()     { return m_Ground; }
@@ -95,12 +96,13 @@ namespace ModelEditor
         ModelDocumentT(const ModelDocumentT&);      ///< Use of the Copy    Constructor is not allowed.
         void operator = (const ModelDocumentT&);    ///< Use of the Assignment Operator is not allowed.
 
-        CafuModelT*           m_Model;          ///< The model that is being edited.
-        ModelAnimationT       m_Anim;           ///< The state of our model animation.
-        MapBrushT*            m_Ground;         ///< The ground brush.
-        ArrayT<CameraT*>      m_Cameras;        ///< The cameras in the scene (used by the 3D views for rendering), there is always at least one.
-        ArrayT<LightSourceT*> m_LightSources;   ///< The light sources that exist in the scene.
-        GameConfigT*          m_GameConfig;     ///< The game configuration that the model is used with.
+        CafuModelT*           m_Model;              ///< The model that is being edited.
+        ArrayT<unsigned int>  m_SelectedJoints;     ///< The selected joints.
+        ModelAnimationT       m_Anim;               ///< The state of our model animation.
+        MapBrushT*            m_Ground;             ///< The ground brush.
+        ArrayT<CameraT*>      m_Cameras;            ///< The cameras in the scene (used by the 3D views for rendering), there is always at least one.
+        ArrayT<LightSourceT*> m_LightSources;       ///< The light sources that exist in the scene.
+        GameConfigT*          m_GameConfig;         ///< The game configuration that the model is used with.
     };
 }
 

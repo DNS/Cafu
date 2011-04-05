@@ -39,70 +39,73 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/imaglist.h"
 
 
-class TreeContextMenuT : public wxMenu
+namespace
 {
-    public:
-
-    enum
+    class TreeContextMenuT : public wxMenu
     {
-        ID_MENU_CREATE_WINDOW_BASE=wxID_HIGHEST+1,
-        ID_MENU_CREATE_WINDOW_EDIT,
-        ID_MENU_CREATE_WINDOW_CHOICE,
-        ID_MENU_CREATE_WINDOW_LISTBOX,
-        ID_MENU_CREATE_WINDOW_MODEL,
-        ID_MENU_DEFAULTFOCUS
+        public:
+
+        enum
+        {
+            ID_MENU_CREATE_WINDOW_BASE=wxID_HIGHEST+1,
+            ID_MENU_CREATE_WINDOW_EDIT,
+            ID_MENU_CREATE_WINDOW_CHOICE,
+            ID_MENU_CREATE_WINDOW_LISTBOX,
+            ID_MENU_CREATE_WINDOW_MODEL,
+            ID_MENU_DEFAULTFOCUS
+        };
+
+        TreeContextMenuT()
+            : wxMenu(),
+              ID(-1)
+        {
+            wxMenu* SubMenuCreate=new wxMenu();
+            SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_BASE,    "Window");
+            SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_EDIT,    "Text Editor");
+            SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_CHOICE,  "Choice Box");
+            SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_LISTBOX, "List Box");
+            SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_MODEL,   "Model Window");
+
+            // Create context menus.
+            this->AppendSubMenu(SubMenuCreate, "Create");
+            this->Append(ID_MENU_DEFAULTFOCUS, "Set as default focus");
+        }
+
+        int GetClickedMenuItem() { return ID; }
+
+
+        protected:
+
+        void OnMenuClick(wxCommandEvent& CE) { ID=CE.GetId(); }
+
+
+        private:
+
+        int ID;
+
+        DECLARE_EVENT_TABLE()
     };
 
-    TreeContextMenuT()
-        : wxMenu(),
-          ID(-1)
+
+    BEGIN_EVENT_TABLE(TreeContextMenuT, wxMenu)
+        EVT_MENU(wxID_ANY, TreeContextMenuT::OnMenuClick)
+    END_EVENT_TABLE()
+
+
+    class WindowTreeItemT : public wxTreeItemData
     {
-        wxMenu* SubMenuCreate=new wxMenu();
-        SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_BASE,    "Window");
-        SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_EDIT,    "Text Editor");
-        SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_CHOICE,  "Choice Box");
-        SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_LISTBOX, "List Box");
-        SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_MODEL,   "Model Window");
+        public:
 
-        // Create context menus.
-        this->AppendSubMenu(SubMenuCreate, "Create");
-        this->Append(ID_MENU_DEFAULTFOCUS, "Set as default focus");
-    }
+        WindowTreeItemT(cf::GuiSys::WindowT* Window) : m_Window(Window) {};
 
-    int GetClickedMenuItem() { return ID; }
+        cf::GuiSys::WindowT* GetWindow() { return m_Window; }
 
 
-    protected:
+        private:
 
-    void OnMenuClick(wxCommandEvent& CE) { ID=CE.GetId(); }
-
-
-    private:
-
-    int ID;
-
-    DECLARE_EVENT_TABLE()
-};
-
-
-BEGIN_EVENT_TABLE(TreeContextMenuT, wxMenu)
-    EVT_MENU(wxID_ANY, TreeContextMenuT::OnMenuClick)
-END_EVENT_TABLE()
-
-
-class WindowTreeItemT : public wxTreeItemData
-{
-    public:
-
-    WindowTreeItemT(cf::GuiSys::WindowT* Window) : m_Window(Window) {};
-
-    cf::GuiSys::WindowT* GetWindow() { return m_Window; }
-
-
-    private:
-
-    cf::GuiSys::WindowT* m_Window;
-};
+        cf::GuiSys::WindowT* m_Window;
+    };
+}
 
 
 using namespace GuiEditor;
