@@ -161,7 +161,7 @@ SourceFilesList = (Glob("CaWE/*.cpp")
     +Glob("CaWE/GuiEditor/*.cpp")+Glob("CaWE/GuiEditor/Commands/*.cpp")+Glob("CaWE/GuiEditor/EditorData/*.cpp")
     +Glob("CaWE/MapCommands/*.cpp")
     +Glob("CaWE/MaterialBrowser/*.cpp")
-    +Glob("CaWE/ModelEditor/*.cpp")
+    +Glob("CaWE/ModelEditor/*.cpp")+Glob("CaWE/ModelEditor/Commands/*.cpp")
     +Glob("CaWE/wxExt/*.cpp")
     +Glob("CaWE/wxFB/*.cpp"))
 

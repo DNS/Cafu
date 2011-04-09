@@ -52,7 +52,8 @@ namespace
             ID_MENU_CREATE_WINDOW_CHOICE,
             ID_MENU_CREATE_WINDOW_LISTBOX,
             ID_MENU_CREATE_WINDOW_MODEL,
-            ID_MENU_DEFAULTFOCUS
+            ID_MENU_DEFAULTFOCUS,
+            ID_MENU_RENAME
         };
 
         TreeContextMenuT()
@@ -69,6 +70,7 @@ namespace
             // Create context menus.
             this->AppendSubMenu(SubMenuCreate, "Create");
             this->Append(ID_MENU_DEFAULTFOCUS, "Set as default focus");
+            this->Append(ID_MENU_RENAME,       "Rename\tF2");
         }
 
         int GetClickedMenuItem() { return ID; }
@@ -112,6 +114,7 @@ using namespace GuiEditor;
 
 
 BEGIN_EVENT_TABLE(WindowTreeT, wxTreeCtrl)
+    EVT_KEY_DOWN             (WindowTreeT::OnKeyDown)
     EVT_LEFT_DOWN            (WindowTreeT::OnTreeLeftClick)
     EVT_LEFT_DCLICK          (WindowTreeT::OnTreeLeftClick) // Handle double clicks like normal left clicks when it comes to clicks on tree item icons (otherwise double clicks are handled normally).
     EVT_TREE_SEL_CHANGED     (wxID_ANY, WindowTreeT::OnSelectionChanged)
@@ -373,6 +376,25 @@ void WindowTreeT::NotifySubjectDies(SubjectT* dyingSubject)
 }
 
 
+void WindowTreeT::OnKeyDown(wxKeyEvent& KE)
+{
+    switch (KE.GetKeyCode())
+    {
+        case WXK_F2:
+        {
+            wxTreeItemId Item=GetFocusedItem();
+
+            if (Item.IsOk()) EditLabel(Item);
+            break;
+        }
+
+        default:
+            KE.Skip();
+            break;
+    }
+}
+
+
 void WindowTreeT::OnTreeLeftClick(wxMouseEvent& ME)
 {
     // Check if we hit an tree item icon.
@@ -482,6 +504,10 @@ void WindowTreeT::OnTreeItemRightClick(wxTreeEvent& TE)
 
         case TreeContextMenuT::ID_MENU_DEFAULTFOCUS:
             m_Parent->SubmitCommand(CommandModifyGuiT::Create(m_GuiDocument, "DefaultFocus", ((WindowTreeItemT*)GetItemData(TE.GetItem()))->GetWindow()->Name));
+            break;
+
+        case TreeContextMenuT::ID_MENU_RENAME:
+            EditLabel(TE.GetItem());
             break;
     }
 }

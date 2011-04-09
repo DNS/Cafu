@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef _MODELEDITOR_MODEL_DOCUMENT_HPP_
 #define _MODELEDITOR_MODEL_DOCUMENT_HPP_
 
+#include "ObserverPattern.hpp"
 #include "../Camera.hpp"
 #include "Templates/Array.hpp"
 #include "wx/wx.h"
@@ -34,7 +35,7 @@ class MapBrushT;
 
 namespace ModelEditor
 {
-    class ModelDocumentT
+    class ModelDocumentT : public SubjectT
     {
         public:
 
@@ -86,6 +87,7 @@ namespace ModelEditor
         const ArrayT<LightSourceT*>& GetLightSources() const   { return m_LightSources; }
         const GameConfigT*           GetGameConfig() const     { return m_GameConfig; }
 
+        CafuModelT*      GetModel()      { return m_Model; }
         ModelAnimationT& GetAnim()       { return m_Anim; }
         MapBrushT*       GetGround()     { return m_Ground; }
         GameConfigT*     GetGameConfig() { return m_GameConfig; }

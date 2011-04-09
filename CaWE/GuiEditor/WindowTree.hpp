@@ -86,6 +86,7 @@ namespace GuiEditor
         bool                 m_IsRecursiveSelfNotify;
         cf::GuiSys::WindowT* m_DraggedWindow;
 
+        void OnKeyDown           (wxKeyEvent&   KE);
         void OnTreeLeftClick     (wxMouseEvent& ME);
         void OnSelectionChanged  (wxTreeEvent&  TE);
         void OnLabelChanged      (wxTreeEvent&  TE);

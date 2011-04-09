@@ -22,7 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef _MODELEDITOR_JOINTS_HIERARCHY_HPP_
 #define _MODELEDITOR_JOINTS_HIERARCHY_HPP_
 
-//#include "ObserverPattern.hpp"
+#include "ObserverPattern.hpp"
 #include "Templates/Array.hpp"
 #include "wx/treectrl.h"
 
@@ -33,20 +33,17 @@ namespace ModelEditor
     class ModelDocumentT;
 
 
-    class JointsHierarchyT : public wxTreeCtrl /*, public ObserverT*/
+    class JointsHierarchyT : public wxTreeCtrl, public ObserverT
     {
         public:
 
         JointsHierarchyT(ChildFrameT* Parent, const wxSize& Size);
         ~JointsHierarchyT();
 
-        // // ObserverT implementation.
+        // ObserverT implementation.
         // void NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& OldSelection, const ArrayT<cf::GuiSys::WindowT*>& NewSelection);
-        // void NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows);
-        // void NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows);
-        // void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail);
-        // void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail, const wxString& PropertyName);
-        // void NotifySubjectDies(SubjectT* dyingSubject);
+        void Notify_JointChanged(SubjectT* Subject, unsigned int JointNr);
+        void Notify_SubjectDies(SubjectT* dyingSubject);
 
         /// Redraws the whole tree.
         void RefreshTree();
@@ -66,9 +63,10 @@ namespace ModelEditor
         ChildFrameT*    m_Parent;
         bool            m_IsRecursiveSelfNotify;
 
-        // void OnTreeLeftClick     (wxMouseEvent& ME);
-        // void OnSelectionChanged  (wxTreeEvent&  TE);
-        // void OnLabelChanged      (wxTreeEvent&  TE);
+        void OnKeyDown           (wxKeyEvent&   KE);
+     // void OnTreeLeftClick     (wxMouseEvent& ME);
+     // void OnSelectionChanged  (wxTreeEvent&  TE);
+        void OnLabelChanged      (wxTreeEvent&  TE);
         void OnTreeItemRightClick(wxTreeEvent&  TE);
 
         DECLARE_EVENT_TABLE()

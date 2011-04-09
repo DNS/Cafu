@@ -33,6 +33,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 class MaterialT;
 class ModelLoaderT;
 namespace MatSys { class RenderMaterialT; }
+namespace ModelEditor { class CommandRenameJointT; }
 
 
 /// This class represents a native Cafu model.
@@ -191,6 +192,8 @@ class CafuModelT : public ModelT
 
 
     private:
+
+    friend class ModelEditor::CommandRenameJointT;
 
     void InitMeshes();                                                  ///< An auxiliary method for the constructors.
     void UpdateCachedDrawData(int SequenceNr, float FrameNr) const;     ///< A private auxiliary method.

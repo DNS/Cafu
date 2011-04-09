@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "JointsHierarchy.hpp"
 #include "ChildFrame.hpp"
 #include "ModelDocument.hpp"
+#include "Commands/RenameJoint.hpp"
 #include "Models/Model_cmdl.hpp"
 
 #include "wx/wx.h"
@@ -35,7 +36,8 @@ namespace
 
         enum
         {
-            ID_MENU_EXPAND_RECURSIVELY=wxID_HIGHEST+1
+            ID_MENU_EXPAND_RECURSIVELY=wxID_HIGHEST+1,
+            ID_MENU_RENAME
         };
 
         TreeContextMenuT()
@@ -43,6 +45,7 @@ namespace
               ID(-1)
         {
             this->Append(ID_MENU_EXPAND_RECURSIVELY, "Expand all");
+            this->Append(ID_MENU_RENAME,             "Rename\tF2");
         }
 
         int GetClickedMenuItem() { return ID; }
@@ -86,10 +89,11 @@ using namespace ModelEditor;
 
 
 BEGIN_EVENT_TABLE(JointsHierarchyT, wxTreeCtrl)
-//    EVT_LEFT_DOWN            (JointsHierarchyT::OnTreeLeftClick)
-//    EVT_LEFT_DCLICK          (JointsHierarchyT::OnTreeLeftClick)  // Handle double clicks like normal left clicks when it comes to clicks on tree item icons (otherwise double clicks are handled normally).
-//    EVT_TREE_SEL_CHANGED     (wxID_ANY, JointsHierarchyT::OnSelectionChanged)
-//    EVT_TREE_END_LABEL_EDIT  (wxID_ANY, JointsHierarchyT::OnLabelChanged)
+    EVT_KEY_DOWN             (JointsHierarchyT::OnKeyDown)
+    // EVT_LEFT_DOWN         (JointsHierarchyT::OnTreeLeftClick)
+    // EVT_LEFT_DCLICK       (JointsHierarchyT::OnTreeLeftClick)  // Handle double clicks like normal left clicks when it comes to clicks on tree item icons (otherwise double clicks are handled normally).
+    // EVT_TREE_SEL_CHANGED  (wxID_ANY, JointsHierarchyT::OnSelectionChanged)
+    EVT_TREE_END_LABEL_EDIT  (wxID_ANY, JointsHierarchyT::OnLabelChanged)
     EVT_TREE_ITEM_RIGHT_CLICK(wxID_ANY, JointsHierarchyT::OnTreeItemRightClick)
 END_EVENT_TABLE()
 
@@ -181,66 +185,34 @@ void JointsHierarchyT::GetTreeItems(const wxTreeItemId& StartingItem, ArrayT<wxT
             }
         }
     }
-}
+}*/
 
 
-void JointsHierarchyT::NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows)
+void JointsHierarchyT::Notify_JointChanged(SubjectT* Subject, unsigned int JointNr)
 {
     if (m_IsRecursiveSelfNotify) return;
+    if (m_ModelDocument==NULL) return;
 
-    RefreshTree();
+    wxTreeItemId Item=FindTreeItem(GetRootItem(), JointNr);
+    if (!Item.IsOk()) return;
+
+    const std::string  Label    =GetItemText(Item);
+    const std::string& JointName=m_ModelDocument->GetModel()->GetJoints()[JointNr].Name;
+    if (Label==JointName) return;
+
+    SetItemText(Item, JointName);
+    EnsureVisible(Item);
 }
 
 
-void JointsHierarchyT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows)
+void JointsHierarchyT::Notify_SubjectDies(SubjectT* dyingSubject)
 {
-    if (m_IsRecursiveSelfNotify) return;
+    wxASSERT(dyingSubject==m_ModelDocument);
 
-    RefreshTree();
-}
-
-
-void JointsHierarchyT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail)
-{
-    if (m_IsRecursiveSelfNotify) return;
-
-    if (Detail!=WMD_GENERIC && Detail!=WMD_HIERARCHY) return;
-
-    // TODO can we handle order changes more precisely (e.g. move the tree item to its new order position)?
-
-    RefreshTree();
-}
-
-
-void JointsHierarchyT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail, const wxString& PropertyName)
-{
-    if (m_IsRecursiveSelfNotify) return;
-
-    if (PropertyName=="Name")
-    {
-        wxASSERT(Windows.Size()==1); // Can't set the name property for more windows since it must always be unique.
-
-        SetItemText(FindTreeItem(GetRootItem(), Windows[0]), Windows[0]->Name);
-    }
-
-    if (PropertyName=="Visible")
-    {
-        for (unsigned long WindowNr=0; WindowNr<Windows.Size(); WindowNr++)
-        {
-            SetItemImage(FindTreeItem(GetRootItem(), Windows[WindowNr]), Windows[WindowNr]->ShowWindow ? 0 : 1);
-        }
-    }
-}
-
-
-void JointsHierarchyT::NotifySubjectDies(SubjectT* dyingSubject)
-{
-    wxASSERT(dyingSubject==m_GuiDocument);
-
-    m_GuiDocument=NULL;
+    m_ModelDocument=NULL;
 
     DeleteAllItems();
-}*/
+}
 
 
 void JointsHierarchyT::RefreshTree()
@@ -367,6 +339,25 @@ void JointsHierarchyT::OnSelectionChanged(wxTreeEvent& TE)
     m_Parent->SubmitCommand(CommandSelectT::Set(m_GuiDocument, NewSelection));
 
     m_IsRecursiveSelfNotify=false;
+} */
+
+
+void JointsHierarchyT::OnKeyDown(wxKeyEvent& KE)
+{
+    switch (KE.GetKeyCode())
+    {
+        case WXK_F2:
+        {
+            wxTreeItemId Item=GetFocusedItem();
+
+            if (Item.IsOk()) EditLabel(Item);
+            break;
+        }
+
+        default:
+            KE.Skip();
+            break;
+    }
 }
 
 
@@ -380,17 +371,17 @@ void JointsHierarchyT::OnLabelChanged(wxTreeEvent& TE)
         return;
     }
 
-    cf::GuiSys::WindowT* Window=((JointsTreeItemT*)GetItemData(TE.GetItem()))->GetWindow();
+    const unsigned int JointNr=((JointsTreeItemT*)GetItemData(TE.GetItem()))->GetJointNr();
 
     m_IsRecursiveSelfNotify=true;
 
-    if (!m_Parent->SubmitCommand(new CommandModifyWindowT(m_GuiDocument, Window, "Name", Window->GetMemberVar("name"), TE.GetLabel())))
+    if (!m_Parent->SubmitCommand(new CommandRenameJointT(m_ModelDocument, JointNr, TE.GetLabel())))
     {
         TE.Veto(); // Reset value if not valid.
     }
 
     m_IsRecursiveSelfNotify=false;
-}*/
+}
 
 
 void JointsHierarchyT::OnTreeItemRightClick(wxTreeEvent& TE)
@@ -403,7 +394,10 @@ void JointsHierarchyT::OnTreeItemRightClick(wxTreeEvent& TE)
     {
         case TreeContextMenuT::ID_MENU_EXPAND_RECURSIVELY:
             ExpandAllChildren(TE.GetItem());
-            //m_Parent->SubmitCommand(new CommandCreateT(m_GuiDocument, ((JointsTreeItemT*)GetItemData(TE.GetItem()))->GetWindow()));
+            break;
+
+        case TreeContextMenuT::ID_MENU_RENAME:
+            EditLabel(TE.GetItem());
             break;
     }
 }

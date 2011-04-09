@@ -45,8 +45,10 @@ namespace ModelEditor
 
 
 BEGIN_EVENT_TABLE(ModelEditor::ChildFrameT, wxMDIChildFrame)
-    EVT_MENU_RANGE(ID_MENU_FILE_CLOSE, ID_MENU_FILE_SAVEAS, ModelEditor::ChildFrameT::OnMenuFile)
-    EVT_CLOSE     (ModelEditor::ChildFrameT::OnClose)
+    EVT_MENU_RANGE     (ID_MENU_FILE_CLOSE, ID_MENU_FILE_SAVEAS, ModelEditor::ChildFrameT::OnMenuFile)
+    EVT_MENU_RANGE     (wxID_UNDO,          wxID_REDO,           ModelEditor::ChildFrameT::OnMenuUndoRedo)
+    EVT_UPDATE_UI_RANGE(wxID_UNDO,          wxID_REDO,           ModelEditor::ChildFrameT::OnUpdateEditUndoRedo)
+    EVT_CLOSE          (                                         ModelEditor::ChildFrameT::OnClose)
 END_EVENT_TABLE()
 
 
@@ -54,11 +56,14 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     : wxMDIChildFrame(Parent, wxID_ANY, FileName, wxDefaultPosition, wxSize(800, 600), wxDEFAULT_FRAME_STYLE | wxMAXIMIZE),
       m_FileName(FileName),     // Must use a fixed size in place of wxDefaultSize, see <http://trac.wxwidgets.org/ticket/12490> for details.
       m_ModelDoc(ModelDoc),
+      m_History(),
+      m_LastSavedAtCommandNr(0),
       m_Parent(Parent),
       m_SceneView3D(NULL),
       m_ModelPropGrid(NULL),
       m_ScenePropGrid(NULL),
-      m_FileMenu(NULL)
+      m_FileMenu(NULL),
+      m_EditMenu(NULL)
 {
     // Register us with the parents list of children.
     m_Parent->m_MdlChildFrames.PushBack(this);
@@ -86,6 +91,11 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     m_Parent->m_FileHistory.UseMenu(m_FileMenu);
     m_Parent->m_FileHistory.AddFilesToMenu(m_FileMenu);
     item0->Append( m_FileMenu, wxT("&File") );
+
+    m_EditMenu=new wxMenu;
+    m_EditMenu->Append(wxID_UNDO, "&Undo\tCtrl+Z", "");
+    m_EditMenu->Append(wxID_REDO, "&Redo\tCtrl+Y", "");
+    item0->Append(m_EditMenu, "&Edit");
 
     wxMenu* HelpMenu = new wxMenu;
     HelpMenu->Append(ParentFrameT::ID_MENU_HELP_CONTENTS, wxT("&CaWE Help\tF1"), wxT("") );
@@ -143,6 +153,9 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     // Load user perspective (calls m_AUIManager.Update() automatically).
     m_AUIManager.LoadPerspective(wxConfigBase::Get()->Read("ModelEditor/AUI_UserLayout", m_AUIManager.SavePerspective()));
 
+    // Register observers.
+    m_ModelDoc->RegisterObserver(m_JointsHierarchy);
+
     if (!IsMaximized()) Maximize(true);     // Also have wxMAXIMIZE set as frame style.
     Show(true);
 
@@ -166,6 +179,18 @@ ModelEditor::ChildFrameT::~ChildFrameT()
 
     delete m_ModelDoc;
     m_ModelDoc=NULL;
+}
+
+
+bool ModelEditor::ChildFrameT::SubmitCommand(CommandT* Command)
+{
+    if (m_History.SubmitCommand(Command))
+    {
+        if (Command->SuggestsSave()) SetTitle(m_FileName+"*");
+        return true;
+    }
+
+    return false;
 }
 
 
@@ -232,7 +257,7 @@ bool ModelEditor::ChildFrameT::Save(bool AskForFileName)
     // }
 
     // Mark the document as "not modified" only if the save was successful.
-    // m_LastSavedAtCommandNr=m_History.GetLastSaveSuggestedCommandID();        // ------- TODO --- activate this ...
+    m_LastSavedAtCommandNr=m_History.GetLastSaveSuggestedCommandID();
     m_FileName=FileName;
     SetTitle(m_FileName);
 
@@ -270,6 +295,35 @@ void ModelEditor::ChildFrameT::OnMenuFile(wxCommandEvent& CE)
 }
 
 
+void ModelEditor::ChildFrameT::OnMenuUndoRedo(wxCommandEvent& CE)
+{
+    // Step forward or backward in the command history.
+    if (CE.GetId()==wxID_UNDO) m_History.Undo();
+                          else m_History.Redo();
+
+    SetTitle(m_FileName + (m_History.GetLastSaveSuggestedCommandID()==m_LastSavedAtCommandNr ? "" : "*"));
+}
+
+
+void ModelEditor::ChildFrameT::OnUpdateEditUndoRedo(wxUpdateUIEvent& UE)
+{
+    const CommandT* Cmd   =(UE.GetId()==wxID_UNDO) ? m_History.GetUndoCommand() : m_History.GetRedoCommand();
+    wxString        Action=(UE.GetId()==wxID_UNDO) ? "Undo" : "Redo";
+    wxString        Hotkey=(UE.GetId()==wxID_UNDO) ? "Ctrl+Z" : "Ctrl+Y";
+
+    if (Cmd)
+    {
+        UE.SetText(Action+" "+Cmd->GetName()+"\t"+Hotkey);
+        UE.Enable(true);
+    }
+    else
+    {
+        UE.SetText(wxString("Cannot ")+Action+"\t"+Hotkey);
+        UE.Enable(false);
+    }
+}
+
+
 void ModelEditor::ChildFrameT::OnClose(wxCloseEvent& CE)
 {
     if (!CE.CanVeto())
@@ -278,15 +332,14 @@ void ModelEditor::ChildFrameT::OnClose(wxCloseEvent& CE)
         return;
     }
 
-    // TODO:  if (m_LastSavedAtCommandNr==m_History.GetLastSaveSuggestedCommandID())
+    if (m_LastSavedAtCommandNr==m_History.GetLastSaveSuggestedCommandID())
     {
         // Our document has not been modified since the last save - close this window.
         Destroy();
         return;
     }
 
-/*
-    const int Answer=wxMessageBox("The GUI has been modified since it was last saved.\n"
+    const int Answer=wxMessageBox("The model has been modified since it was last saved.\n"
         "Do you want to save it before closing?\n"
         "Note that when you select 'No', all changes since the last save will be LOST.",
         "Save GUI before closing?", wxYES_NO | wxCANCEL | wxICON_EXCLAMATION);
@@ -313,5 +366,4 @@ void ModelEditor::ChildFrameT::OnClose(wxCloseEvent& CE)
             CE.Veto();
             return;
     }
-*/
 }

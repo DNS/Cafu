@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef _MODELEDITOR_CHILD_FRAME_HPP_
 #define _MODELEDITOR_CHILD_FRAME_HPP_
 
+#include "../CommandHistory.hpp"
 #include "wx/docmdi.h"
 #include "wx/aui/framemanager.h"
 
@@ -52,6 +53,10 @@ namespace ModelEditor
         /// The destructor.
         ~ChildFrameT();
 
+        /// [...]
+        /// All(!) commands for modifying the document must be submitted via this method.
+        bool SubmitCommand(CommandT* Command);
+
         /// Saves the model under the known or a new file name.
         /// @param AskForFileName   Whether the method should ask the user to enter a new file name, used for "Save as...".
         /// @returns whether the file was successfully saved.
@@ -65,6 +70,8 @@ namespace ModelEditor
 
         wxString          m_FileName;
         ModelDocumentT*   m_ModelDoc;
+        CommandHistoryT   m_History;                ///< The command history.
+        unsigned long     m_LastSavedAtCommandNr;
 
         ParentFrameT*     m_Parent;
         wxAuiManager      m_AUIManager;
@@ -74,6 +81,7 @@ namespace ModelEditor
         ScenePropGridT*   m_ScenePropGrid;
 
         wxMenu*           m_FileMenu;
+        wxMenu*           m_EditMenu;
 
 
         enum
@@ -84,6 +92,8 @@ namespace ModelEditor
         };
 
         void OnMenuFile(wxCommandEvent& CE);
+        void OnMenuUndoRedo(wxCommandEvent& CE);
+        void OnUpdateEditUndoRedo(wxUpdateUIEvent& UE);
         void OnClose(wxCloseEvent& CE);
 
         DECLARE_EVENT_TABLE()
