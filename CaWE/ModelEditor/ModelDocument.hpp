@@ -23,12 +23,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define _MODELEDITOR_MODEL_DOCUMENT_HPP_
 
 #include "ObserverPattern.hpp"
-#include "../Camera.hpp"
+#include "ElementTypes.hpp"
+#include "Math3D/Vector3.hpp"
 #include "Templates/Array.hpp"
 #include "wx/wx.h"
 
 
 class CafuModelT;
+class CameraT;
 class GameConfigT;
 class MapBrushT;
 
@@ -79,15 +81,16 @@ namespace ModelEditor
         void SetPrevAnimSequ();
         void SetAnimSpeed(float NewSpeed);
 
-        const CafuModelT*            GetModel() const          { return m_Model; }
-        const ArrayT<unsigned int>&  GetSelectedJoints() const { return m_SelectedJoints; }
-        const ModelAnimationT&       GetAnim() const           { return m_Anim; }
-        const MapBrushT*             GetGround() const         { return m_Ground; }
-        const ArrayT<CameraT*>&      GetCameras() const        { return m_Cameras; }
-        const ArrayT<LightSourceT*>& GetLightSources() const   { return m_LightSources; }
-        const GameConfigT*           GetGameConfig() const     { return m_GameConfig; }
+        const CafuModelT*            GetModel() const        { return m_Model; }
+        const ArrayT<unsigned int>&  GetSelection(ModelElementTypeT Type) const { wxASSERT(Type<3); return m_Selection[Type]; }
+        const ModelAnimationT&       GetAnim() const         { return m_Anim; }
+        const MapBrushT*             GetGround() const       { return m_Ground; }
+        const ArrayT<CameraT*>&      GetCameras() const      { return m_Cameras; }
+        const ArrayT<LightSourceT*>& GetLightSources() const { return m_LightSources; }
+        const GameConfigT*           GetGameConfig() const   { return m_GameConfig; }
 
         CafuModelT*      GetModel()      { return m_Model; }
+        void             SetSelection(ModelElementTypeT Type, const ArrayT<unsigned int>& NewSel) { wxASSERT(Type<3); m_Selection[Type]=NewSel; }
         ModelAnimationT& GetAnim()       { return m_Anim; }
         MapBrushT*       GetGround()     { return m_Ground; }
         GameConfigT*     GetGameConfig() { return m_GameConfig; }
@@ -99,7 +102,7 @@ namespace ModelEditor
         void operator = (const ModelDocumentT&);    ///< Use of the Assignment Operator is not allowed.
 
         CafuModelT*           m_Model;              ///< The model that is being edited.
-        ArrayT<unsigned int>  m_SelectedJoints;     ///< The selected joints.
+        ArrayT<unsigned int>  m_Selection[3];       ///< The selected joints, meshes and animations.
         ModelAnimationT       m_Anim;               ///< The state of our model animation.
         MapBrushT*            m_Ground;             ///< The ground brush.
         ArrayT<CameraT*>      m_Cameras;            ///< The cameras in the scene (used by the 3D views for rendering), there is always at least one.

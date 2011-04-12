@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ScenePropGrid.hpp"
 #include "ChildFrame.hpp"
 #include "ModelDocument.hpp"
+#include "../Camera.hpp"
 #include "../EditorMaterial.hpp"
 #include "../GameConfig.hpp"
 #include "../MapBrush.hpp"

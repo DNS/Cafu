@@ -59,11 +59,11 @@ void SubjectT::UnregisterObserver(ObserverT* Obs)
 }
 
 
-// void SubjectT::UpdateAllObservers_SelectionChanged(const ArrayT<cf::GuiSys::WindowT*>& OldSelection, const ArrayT<cf::GuiSys::WindowT*>& NewSelection)
-// {
-//     for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
-//         m_Observers[ObsNr]->NotifySubjectChanged_Selection(this, OldSelection, NewSelection);
-// }
+void SubjectT::UpdateAllObservers_SelectionChanged(ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel)
+{
+    for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
+        m_Observers[ObsNr]->Notify_SelectionChanged(this, Type, OldSel, NewSel);
+}
 
 
 void SubjectT::UpdateAllObservers_JointChanged(unsigned int JointNr)

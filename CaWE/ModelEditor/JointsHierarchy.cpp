@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrame.hpp"
 #include "ModelDocument.hpp"
 #include "Commands/RenameJoint.hpp"
+#include "Commands/Select.hpp"
 #include "Models/Model_cmdl.hpp"
 
 #include "wx/wx.h"
@@ -92,7 +93,7 @@ BEGIN_EVENT_TABLE(JointsHierarchyT, wxTreeCtrl)
     EVT_KEY_DOWN             (JointsHierarchyT::OnKeyDown)
     // EVT_LEFT_DOWN         (JointsHierarchyT::OnTreeLeftClick)
     // EVT_LEFT_DCLICK       (JointsHierarchyT::OnTreeLeftClick)  // Handle double clicks like normal left clicks when it comes to clicks on tree item icons (otherwise double clicks are handled normally).
-    // EVT_TREE_SEL_CHANGED  (wxID_ANY, JointsHierarchyT::OnSelectionChanged)
+    EVT_TREE_SEL_CHANGED     (wxID_ANY, JointsHierarchyT::OnSelectionChanged)
     EVT_TREE_END_LABEL_EDIT  (wxID_ANY, JointsHierarchyT::OnLabelChanged)
     EVT_TREE_ITEM_RIGHT_CLICK(wxID_ANY, JointsHierarchyT::OnTreeItemRightClick)
 END_EVENT_TABLE()
@@ -100,7 +101,7 @@ END_EVENT_TABLE()
 
 JointsHierarchyT::JointsHierarchyT(ChildFrameT* Parent, const wxSize& Size)
     : wxTreeCtrl(Parent, wxID_ANY, wxDefaultPosition, Size, wxTR_HAS_BUTTONS | wxTR_LINES_AT_ROOT | wxTR_MULTIPLE | wxSUNKEN_BORDER | wxTR_EDIT_LABELS | wxTR_TWIST_BUTTONS),
-      m_ModelDocument(Parent->GetModelDoc()),
+      m_ModelDoc(Parent->GetModelDoc()),
       m_Parent(Parent),
       m_IsRecursiveSelfNotify(false)
 {
@@ -159,16 +160,17 @@ void JointsHierarchyT::GetTreeItems(const wxTreeItemId& StartingItem, ArrayT<wxT
 }
 
 
-/*void JointsHierarchyT::NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& OldSelection, const ArrayT<cf::GuiSys::WindowT*>& NewSelection)
+void JointsHierarchyT::Notify_SelectionChanged(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel)
 {
     if (m_IsRecursiveSelfNotify) return;
+    if (Type!=JOINT) return;
 
     // Reset tree selection and update it according to new selection.
     UnselectAll();
 
-    for (unsigned long NewSelNr=0; NewSelNr<NewSelection.Size(); NewSelNr++)
+    for (unsigned long NewSelNr=0; NewSelNr<NewSel.Size(); NewSelNr++)
     {
-        wxTreeItemId Result=FindTreeItem(GetRootItem(), NewSelection[NewSelNr]);
+        wxTreeItemId Result=FindTreeItem(GetRootItem(), NewSel[NewSelNr]);
 
         if (Result.IsOk())
         {
@@ -178,26 +180,26 @@ void JointsHierarchyT::GetTreeItems(const wxTreeItemId& StartingItem, ArrayT<wxT
             Expand(Result);
 
             // Make sure parents are also expanded.
-            while(GetItemParent(Result).IsOk())
+            while (GetItemParent(Result).IsOk())
             {
                 Result=GetItemParent(Result);
                 Expand(Result);
             }
         }
     }
-}*/
+}
 
 
 void JointsHierarchyT::Notify_JointChanged(SubjectT* Subject, unsigned int JointNr)
 {
     if (m_IsRecursiveSelfNotify) return;
-    if (m_ModelDocument==NULL) return;
+    if (m_ModelDoc==NULL) return;
 
     wxTreeItemId Item=FindTreeItem(GetRootItem(), JointNr);
     if (!Item.IsOk()) return;
 
     const std::string  Label    =GetItemText(Item);
-    const std::string& JointName=m_ModelDocument->GetModel()->GetJoints()[JointNr].Name;
+    const std::string& JointName=m_ModelDoc->GetModel()->GetJoints()[JointNr].Name;
     if (Label==JointName) return;
 
     SetItemText(Item, JointName);
@@ -207,9 +209,9 @@ void JointsHierarchyT::Notify_JointChanged(SubjectT* Subject, unsigned int Joint
 
 void JointsHierarchyT::Notify_SubjectDies(SubjectT* dyingSubject)
 {
-    wxASSERT(dyingSubject==m_ModelDocument);
+    wxASSERT(dyingSubject==m_ModelDoc);
 
-    m_ModelDocument=NULL;
+    m_ModelDoc=NULL;
 
     DeleteAllItems();
 }
@@ -217,7 +219,7 @@ void JointsHierarchyT::Notify_SubjectDies(SubjectT* dyingSubject)
 
 void JointsHierarchyT::RefreshTree()
 {
-    if (m_ModelDocument==NULL) return;
+    if (m_ModelDoc==NULL) return;
 
     // Get all currently opened tree items and reopen them after the refresh.
     ArrayT<wxTreeItemId> TreeItems;
@@ -236,7 +238,7 @@ void JointsHierarchyT::RefreshTree()
     DeleteAllItems();
 
     // Add all joints to the tree.
-    const ArrayT<CafuModelT::JointT>& Joints=m_ModelDocument->GetModel()->GetJoints();
+    const ArrayT<CafuModelT::JointT>& Joints=m_ModelDoc->GetModel()->GetJoints();
     ArrayT<wxTreeItemId>              JointItemIds;
 
     for (unsigned long JointNr=0; JointNr<Joints.Size(); JointNr++)
@@ -249,7 +251,7 @@ void JointsHierarchyT::RefreshTree()
     }
 
     // Select first selected joint in the tree.
-    const ArrayT<unsigned int>& SelectedJoints=m_ModelDocument->GetSelectedJoints();
+    const ArrayT<unsigned int>& SelectedJoints=m_ModelDoc->GetSelection(JOINT);
 
     for (unsigned long SelNr=0; SelNr<SelectedJoints.Size(); SelNr++)
     {
@@ -318,28 +320,28 @@ void JointsHierarchyT::RefreshTree()
         // Skip event if no icon was hit to preserve wxTreeCtrl functionality.
         ME.Skip();
     }
-}
+}*/
 
 
 void JointsHierarchyT::OnSelectionChanged(wxTreeEvent& TE)
 {
-    if (m_GuiDocument==NULL || m_IsRecursiveSelfNotify) return;
+    if (m_ModelDoc==NULL) return;
+    if (m_IsRecursiveSelfNotify) return;
 
     m_IsRecursiveSelfNotify=true;
 
-    // Compare the new tree selection with the current document selection and update
-    // the document selection accordingly.
+    // Get the currently selected tree items and update the document selection accordingly.
     wxArrayTreeItemIds SelectedItems;
     GetSelections(SelectedItems);
-    ArrayT<cf::GuiSys::WindowT*> NewSelection;
 
+    ArrayT<unsigned int> NewSel;
     for (size_t SelNr=0; SelNr<SelectedItems.GetCount(); SelNr++)
-        NewSelection.PushBack(((JointsTreeItemT*)GetItemData(SelectedItems[SelNr]))->GetWindow());
+        NewSel.PushBack(((JointsTreeItemT*)GetItemData(SelectedItems[SelNr]))->GetJointNr());
 
-    m_Parent->SubmitCommand(CommandSelectT::Set(m_GuiDocument, NewSelection));
+    m_Parent->SubmitCommand(CommandSelectT::Set(m_ModelDoc, JOINT, NewSel));
 
     m_IsRecursiveSelfNotify=false;
-} */
+}
 
 
 void JointsHierarchyT::OnKeyDown(wxKeyEvent& KE)
@@ -367,7 +369,7 @@ void JointsHierarchyT::OnLabelChanged(wxTreeEvent& TE)
     // deleted the whole label string.
     if (TE.GetLabel()=="")
     {
-        TE.Veto(); // Reset value.
+        TE.Veto();  // Reset value.
         return;
     }
 
@@ -375,9 +377,9 @@ void JointsHierarchyT::OnLabelChanged(wxTreeEvent& TE)
 
     m_IsRecursiveSelfNotify=true;
 
-    if (!m_Parent->SubmitCommand(new CommandRenameJointT(m_ModelDocument, JointNr, TE.GetLabel())))
+    if (!m_Parent->SubmitCommand(new CommandRenameJointT(m_ModelDoc, JointNr, TE.GetLabel())))
     {
-        TE.Veto(); // Reset value if not valid.
+        TE.Veto();  // Reset value if not valid.
     }
 
     m_IsRecursiveSelfNotify=false;

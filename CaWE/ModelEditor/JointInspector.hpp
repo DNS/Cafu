@@ -19,12 +19,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MODELEDITOR_JOINTS_HIERARCHY_HPP_
-#define _MODELEDITOR_JOINTS_HIERARCHY_HPP_
+#ifndef _MODELEDITOR_JOINT_INSPECTOR_HPP_
+#define _MODELEDITOR_JOINT_INSPECTOR_HPP_
 
 #include "ObserverPattern.hpp"
-#include "Templates/Array.hpp"
-#include "wx/treectrl.h"
+
+#include "wx/wx.h"
+#include "wx/propgrid/manager.h"
 
 
 namespace ModelEditor
@@ -32,42 +33,29 @@ namespace ModelEditor
     class ChildFrameT;
     class ModelDocumentT;
 
-
-    class JointsHierarchyT : public wxTreeCtrl, public ObserverT
+    class JointInspectorT : public wxPropertyGridManager, public ObserverT
     {
         public:
 
-        JointsHierarchyT(ChildFrameT* Parent, const wxSize& Size);
-        ~JointsHierarchyT();
+        JointInspectorT(ChildFrameT* Parent, const wxSize& Size);
 
         // ObserverT implementation.
         void Notify_SelectionChanged(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel);
         void Notify_JointChanged(SubjectT* Subject, unsigned int JointNr);
         void Notify_SubjectDies(SubjectT* dyingSubject);
 
-        /// Redraws the whole tree.
-        void RefreshTree();
+        void RefreshPropGrid();
 
 
         private:
 
-        /// Recusively searches the tree for an item associated with a specified WindowT.
-        /// @param StartingItem Item to start the recursive search at.
-        /// @param JointNr      The number of the joint whose tree item we are interested in.
-        const wxTreeItemId FindTreeItem(const wxTreeItemId& StartingItem, unsigned int JointNr) const;
+        ModelDocumentT*      m_ModelDoc;
+        ChildFrameT*         m_Parent;
+        //cf::GuiSys::WindowT* m_SelectedWindow;
+        bool                 m_IsRecursiveSelfNotify;
 
-        /// Recursively gets all tree items, beginning with the passed tree item.
-        void GetTreeItems(const wxTreeItemId& StartingItem, ArrayT<wxTreeItemId>& Items);
 
-        ModelDocumentT* m_ModelDoc;
-        ChildFrameT*    m_Parent;
-        bool            m_IsRecursiveSelfNotify;
-
-        void OnKeyDown           (wxKeyEvent&   KE);
-     // void OnTreeLeftClick     (wxMouseEvent& ME);
-        void OnSelectionChanged  (wxTreeEvent&  TE);
-        void OnLabelChanged      (wxTreeEvent&  TE);
-        void OnTreeItemRightClick(wxTreeEvent&  TE);
+        void OnPropertyGridChanged(wxPropertyGridEvent& Event);
 
         DECLARE_EVENT_TABLE()
     };

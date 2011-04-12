@@ -238,7 +238,7 @@ void WindowTreeT::NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT
             Expand(Result);
 
             // Make sure parents are also expanded.
-            while(GetItemParent(Result).IsOk())
+            while (GetItemParent(Result).IsOk())
             {
                 Result=GetItemParent(Result);
                 Expand(Result);
@@ -436,12 +436,11 @@ void WindowTreeT::OnSelectionChanged(wxTreeEvent& TE)
 
     m_IsRecursiveSelfNotify=true;
 
-    // Compare the new tree selection with the current document selection and update
-    // the document selection accordingly.
+    // Get the currently selected tree items and update the document selection accordingly.
     wxArrayTreeItemIds SelectedItems;
     GetSelections(SelectedItems);
-    ArrayT<cf::GuiSys::WindowT*> NewSelection;
 
+    ArrayT<cf::GuiSys::WindowT*> NewSelection;
     for (size_t SelNr=0; SelNr<SelectedItems.GetCount(); SelNr++)
         NewSelection.PushBack(((WindowTreeItemT*)GetItemData(SelectedItems[SelNr]))->GetWindow());
 

@@ -32,6 +32,7 @@ class ParentFrameT;
 
 namespace ModelEditor
 {
+    class JointInspectorT;
     class JointsHierarchyT;
     class ModelDocumentT;
     class ModelPropGridT;
@@ -77,6 +78,7 @@ namespace ModelEditor
         wxAuiManager      m_AUIManager;
         SceneView3DT*     m_SceneView3D;
         JointsHierarchyT* m_JointsHierarchy;
+        JointInspectorT*  m_JointInspector;
         ModelPropGridT*   m_ModelPropGrid;
         ScenePropGridT*   m_ScenePropGrid;
 

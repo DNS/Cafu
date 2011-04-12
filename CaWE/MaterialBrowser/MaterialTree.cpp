@@ -211,7 +211,7 @@ void MaterialTreeT::OnSelectionChanged(wxTreeEvent& TE)
     // Set folder as filter.
     wxString MatFolderFilter="";
 
-    while(FolderItem!=GetRootItem())
+    while (FolderItem!=GetRootItem())
     {
         MatFolderFilter.Prepend(GetItemText(FolderItem)+"/");
         FolderItem=GetItemParent(FolderItem);

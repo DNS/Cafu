@@ -31,8 +31,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /// Fortunately, these possibly tough problems can (and apparently must) be addressed by the concrete implementation classes of
 /// observers and subjects, not by the base classes that the Observer pattern describes and provided herein.
 
+#include "ElementTypes.hpp"
 #include "Templates/Array.hpp"
-// #include "wx/string.h"
 
 
 namespace ModelEditor
@@ -44,11 +44,11 @@ namespace ModelEditor
     {
         public:
 
-        // /// This method is called whenever the window selection of a GUI subject changed.
-        // /// @param Subject The GUI document in which the selection has been changed.
-        // /// @param OldSelection Array of the previously selected windows.
-        // /// @param NewSelection Array of the new selected windows.
-        // virtual void NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& OldSelection, const ArrayT<cf::GuiSys::WindowT*>& NewSelection) { }
+        /// This method is called whenever the window selection of a GUI subject changed.
+        /// @param Subject The GUI document in which the selection has been changed.
+        /// @param OldSel Array of the previously selected windows.
+        /// @param NewSel Array of the new selected windows.
+        virtual void Notify_SelectionChanged(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel) { }
 
         /// Notifies the observer that a joint has changed.
         /// @param Subject   The model document with the model in which the joint has changed.
@@ -82,7 +82,7 @@ namespace ModelEditor
         /// \param Obs   The observer that is to be unregistered.
         virtual void UnregisterObserver(ObserverT* Obs);
 
-     // virtual void UpdateAllObservers_SelectionChanged(const ArrayT<cf::GuiSys::WindowT*>& OldSelection, const ArrayT<cf::GuiSys::WindowT*>& NewSelection);
+        virtual void UpdateAllObservers_SelectionChanged(ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel);
         virtual void UpdateAllObservers_JointChanged(unsigned int JointNr);
 
         /// The virtual destructor.

@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ModelDocument.hpp"
 #include "ScenePropGrid.hpp"
 #include "../AppCaWE.hpp"
+#include "../Camera.hpp"
 #include "../EditorMaterial.hpp"
 #include "../MapBrush.hpp"
 #include "../MapFace.hpp"

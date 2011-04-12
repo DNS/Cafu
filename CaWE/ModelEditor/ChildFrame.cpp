@@ -20,6 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "ChildFrame.hpp"
+#include "JointInspector.hpp"
 #include "JointsHierarchy.hpp"
 #include "ModelDocument.hpp"
 #include "ModelPropGrid.hpp"
@@ -60,6 +61,8 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
       m_LastSavedAtCommandNr(0),
       m_Parent(Parent),
       m_SceneView3D(NULL),
+      m_JointsHierarchy(NULL),
+      m_JointInspector(NULL),
       m_ModelPropGrid(NULL),
       m_ScenePropGrid(NULL),
       m_FileMenu(NULL),
@@ -123,10 +126,15 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
                          Name("JointsHierarchy").Caption("Skeleton / Joints Hierarchy").
                          Left().Position(0));
 
+    m_JointInspector=new JointInspectorT(this, wxSize(230, 180));
+    m_AUIManager.AddPane(m_JointInspector, wxAuiPaneInfo().
+                         Name("JointInspector").Caption("Joint Inspector").
+                         Left().Position(1));
+
     m_ModelPropGrid=new ModelPropGridT(this, wxSize(230, 500));
     m_AUIManager.AddPane(m_ModelPropGrid, wxAuiPaneInfo().
                          Name("ModelPropGrid").Caption("Model Properties").
-                         Left().Position(1));
+                         Left().Position(2));
 
     m_ScenePropGrid=new ScenePropGridT(this, wxSize(230, 500));
     m_AUIManager.AddPane(m_ScenePropGrid, wxAuiPaneInfo().
@@ -155,6 +163,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
 
     // Register observers.
     m_ModelDoc->RegisterObserver(m_JointsHierarchy);
+    m_ModelDoc->RegisterObserver(m_JointInspector);
 
     if (!IsMaximized()) Maximize(true);     // Also have wxMAXIMIZE set as frame style.
     Show(true);
@@ -162,6 +171,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     // Initial update of the model documents observers.
     m_SceneView3D->Refresh(false);
     m_JointsHierarchy->RefreshTree();
+    m_JointInspector->RefreshPropGrid();
     m_ModelPropGrid->RefreshPropGrid();
     m_ScenePropGrid->RefreshPropGrid();
 }

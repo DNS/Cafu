@@ -1,0 +1,174 @@
+/*
+=================================================================================
+This file is part of Cafu, the open-source game engine and graphics engine
+for multiplayer, cross-platform, real-time 3D action.
+Copyright (C) 2002-2011 Carsten Fuchs Software.
+
+Cafu is free software: you can redistribute it and/or modify it under the terms
+of the GNU General Public License as published by the Free Software Foundation,
+either version 3 of the License, or (at your option) any later version.
+
+Cafu is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Cafu. If not, see <http://www.gnu.org/licenses/>.
+
+For support and more information about Cafu, visit us at <http://www.cafu.de>.
+=================================================================================
+*/
+
+#include "JointInspector.hpp"
+#include "ChildFrame.hpp"
+#include "ModelDocument.hpp"
+#include "Commands/RenameJoint.hpp"
+#include "Commands/TransformJoint.hpp"
+#include "Models/Model_cmdl.hpp"
+
+
+using namespace ModelEditor;
+
+
+BEGIN_EVENT_TABLE(JointInspectorT, wxPropertyGridManager)
+    EVT_PG_CHANGED(wxID_ANY, JointInspectorT::OnPropertyGridChanged)
+END_EVENT_TABLE()
+
+
+JointInspectorT::JointInspectorT(ChildFrameT* Parent, const wxSize& Size)
+    : wxPropertyGridManager(Parent, wxID_ANY, wxDefaultPosition, Size, wxPG_BOLD_MODIFIED | wxPG_SPLITTER_AUTO_CENTER), // | wxPG_DESCRIPTION
+      m_ModelDoc(Parent->GetModelDoc()),
+      m_Parent(Parent),
+      // m_SelectedWindow(NULL),
+      m_IsRecursiveSelfNotify(false)
+{
+    SetExtraStyle(wxPG_EX_HELP_AS_TOOLTIPS | wxPG_EX_MODE_BUTTONS);
+    AddPage("Joint Properties");
+}
+
+
+void JointInspectorT::Notify_SelectionChanged(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel)
+{
+    if (m_IsRecursiveSelfNotify) return;
+    if (Type!=JOINT) return;
+
+    RefreshPropGrid();
+}
+
+
+void JointInspectorT::Notify_JointChanged(SubjectT* Subject, unsigned int JointNr)
+{
+    if (m_IsRecursiveSelfNotify) return;
+
+    RefreshPropGrid();
+}
+
+
+void JointInspectorT::Notify_SubjectDies(SubjectT* dyingSubject)
+{
+    wxASSERT(dyingSubject==m_ModelDoc);
+
+    m_ModelDoc=NULL;
+
+    ClearPage(0);
+}
+
+
+void JointInspectorT::RefreshPropGrid()
+{
+    if (m_ModelDoc==NULL) return;
+
+    const ArrayT<CafuModelT::JointT>& Joints   =m_ModelDoc->GetModel()->GetJoints();
+    const ArrayT<unsigned int>&       Selection=m_ModelDoc->GetSelection(JOINT);
+
+    Freeze();
+    ClearPage(0);
+
+    if (Selection.Size()==1)
+    {
+        const CafuModelT::JointT& Joint=Joints[Selection[0]];
+
+        Append(new wxStringProperty("Name", wxPG_LABEL, Joint.Name));
+        wxPGProperty* JointParent=Append(new wxIntProperty("Parent", wxPG_LABEL, Joint.Parent));
+        DisableProperty(JointParent);
+
+        wxPGProperty* JointPos =Append(new wxStringProperty("Pos", wxPG_LABEL, "<composed>"));
+        wxPGProperty* JointPosX=AppendIn(JointPos, new wxFloatProperty("x", wxPG_LABEL, Joint.Pos.x)); JointPosX->SetTextColour(wxColour(200, 0, 0));
+        wxPGProperty* JointPosY=AppendIn(JointPos, new wxFloatProperty("y", wxPG_LABEL, Joint.Pos.y)); JointPosY->SetTextColour(wxColour(0, 200, 0));
+        wxPGProperty* JointPosZ=AppendIn(JointPos, new wxFloatProperty("z", wxPG_LABEL, Joint.Pos.z)); JointPosZ->SetTextColour(wxColour(0, 0, 200));
+        Collapse(JointPos);
+
+        wxPGProperty* JointQtr =Append(new wxStringProperty("Qtr", wxPG_LABEL, "<composed>"));
+        AppendIn(JointQtr, new wxFloatProperty("x", wxPG_LABEL, Joint.Qtr.x));
+        AppendIn(JointQtr, new wxFloatProperty("y", wxPG_LABEL, Joint.Qtr.y));
+        AppendIn(JointQtr, new wxFloatProperty("z", wxPG_LABEL, Joint.Qtr.z));
+        Collapse(JointQtr);
+
+        wxPGProperty* JointScale =Append(new wxStringProperty("Scale", wxPG_LABEL, "<composed>"));
+        wxPGProperty* JointScaleX=AppendIn(JointScale, new wxFloatProperty("x", wxPG_LABEL, Joint.Scale.x)); JointScaleX->SetTextColour(wxColour(200, 0, 0));
+        wxPGProperty* JointScaleY=AppendIn(JointScale, new wxFloatProperty("y", wxPG_LABEL, Joint.Scale.y)); JointScaleY->SetTextColour(wxColour(0, 200, 0));
+        wxPGProperty* JointScaleZ=AppendIn(JointScale, new wxFloatProperty("z", wxPG_LABEL, Joint.Scale.z)); JointScaleZ->SetTextColour(wxColour(0, 0, 200));
+        Collapse(JointScale);
+    }
+    else
+    {
+        const wxString InfoMessage=(Selection.Size()==0) ? "No joint selected" : "Multiple selection";
+
+        // Multiple selection and no selection are handled by showing an info message in the property grid.
+        wxPGProperty* Info=Append(new wxStringProperty("Info", wxPG_LABEL, InfoMessage));
+        DisableProperty(Info);
+    }
+
+    RefreshGrid();
+    Thaw();
+}
+
+
+void JointInspectorT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
+{
+    if (m_ModelDoc==NULL) return;
+
+    const ArrayT<unsigned int>& Selection=m_ModelDoc->GetSelection(JOINT);
+    if (Selection.Size()!=1) return;
+
+    const wxPGProperty* Prop=Event.GetProperty();
+    if (!Prop) return;
+
+    // Changing a property by pressing ENTER doesn't change the selection. In consequence the property refresh below does not result in
+    // any change since selected properties are not updated (because the user could be in the process of editing a value).
+    // Since the user is definitely finished editing this property we can safely clear the selection.
+    // ClearSelection();
+
+    const ArrayT<CafuModelT::JointT>& Joints =m_ModelDoc->GetModel()->GetJoints();
+    const unsigned int                JointNr=Selection[0];
+
+    const wxString PropName  =Prop->GetName();
+    double         PropValueD=0.0;
+    const float    PropValueF=Prop->GetValue().Convert(&PropValueD) ? float(PropValueD) : 0.0f;
+
+    Vector3fT Pos  =Joints[JointNr].Pos;
+    Vector3fT Qtr  =Joints[JointNr].Qtr;
+    Vector3fT Scale=Joints[JointNr].Scale;
+
+    m_IsRecursiveSelfNotify=true;
+
+         if (PropName=="Name"   ) m_Parent->SubmitCommand(new CommandRenameJointT(m_ModelDoc, JointNr, Prop->GetValueAsString()));
+ // else if (PropName=="Parent" ) ;
+    else if (PropName=="Pos.x"  ) { Pos.x  =PropValueF; m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 'p', Pos  )); }
+    else if (PropName=="Pos.y"  ) { Pos.y  =PropValueF; m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 'p', Pos  )); }
+    else if (PropName=="Pos.z"  ) { Pos.z  =PropValueF; m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 'p', Pos  )); }
+    else if (PropName=="Qtr.x"  ) { Qtr.x  =PropValueF; m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 'q', Qtr  )); }
+    else if (PropName=="Qtr.y"  ) { Qtr.y  =PropValueF; m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 'q', Qtr  )); }
+    else if (PropName=="Qtr.z"  ) { Qtr.z  =PropValueF; m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 'q', Qtr  )); }
+    else if (PropName=="Scale.x") { Scale.x=PropValueF; m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 's', Scale)); }
+    else if (PropName=="Scale.y") { Scale.y=PropValueF; m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 's', Scale)); }
+    else if (PropName=="Scale.z") { Scale.z=PropValueF; m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 's', Scale)); }
+    else
+    {
+        // Changing child properties (e.g. "Pos.x" to "5") also generates events for the composite parent (e.g. "Pos" to "(5, 0, 0)")!
+        // That is, if the following line is uncommented, it produces false warnings as well:
+        // wxMessageBox("Unknown property label \""+Name+"\".", "Warning", wxOK | wxICON_ERROR);
+    }
+
+    m_IsRecursiveSelfNotify=false;
+}

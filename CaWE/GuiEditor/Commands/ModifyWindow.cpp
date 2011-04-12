@@ -155,7 +155,7 @@ bool CommandModifyWindowT::Do()
 
         try
         {
-            while(!ChoiceParser.IsAtEOF())
+            while (!ChoiceParser.IsAtEOF())
             {
                 Choices.PushBack(ChoiceParser.GetNextToken());
                 ChoiceParser.AssertAndSkipToken(";");
@@ -169,7 +169,7 @@ bool CommandModifyWindowT::Do()
                 TextParserT ChoiceParser(m_OldString.c_str(), ";", false);
                 Choices.Clear();
 
-                while(!ChoiceParser.IsAtEOF())
+                while (!ChoiceParser.IsAtEOF())
                 {
                     Choices.PushBack(ChoiceParser.GetNextToken());
                     ChoiceParser.AssertAndSkipToken(";");
@@ -270,7 +270,7 @@ void CommandModifyWindowT::Undo()
 
         try
         {
-            while(!ChoiceParser.IsAtEOF())
+            while (!ChoiceParser.IsAtEOF())
             {
                 Choices.PushBack(ChoiceParser.GetNextToken());
                 ChoiceParser.AssertAndSkipToken(";");
