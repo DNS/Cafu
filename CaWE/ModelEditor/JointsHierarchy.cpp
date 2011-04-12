@@ -198,8 +198,8 @@ void JointsHierarchyT::Notify_JointChanged(SubjectT* Subject, unsigned int Joint
     wxTreeItemId Item=FindTreeItem(GetRootItem(), JointNr);
     if (!Item.IsOk()) return;
 
-    const std::string  Label    =GetItemText(Item);
-    const std::string& JointName=m_ModelDoc->GetModel()->GetJoints()[JointNr].Name;
+    const wxString Label    =GetItemText(Item);
+    const wxString JointName=m_ModelDoc->GetModel()->GetJoints()[JointNr].Name;
     if (Label==JointName) return;
 
     SetItemText(Item, JointName);
