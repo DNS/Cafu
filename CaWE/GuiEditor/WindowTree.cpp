@@ -223,6 +223,11 @@ void WindowTreeT::NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT
 {
     if (m_IsRecursiveSelfNotify) return;
 
+    // Both UnselectAll() and SelectItem() result in EVT_TREE_SEL_CHANGED event,
+    // see <http://thread.gmane.org/gmane.comp.lib.wxwidgets.general/72754> for details.
+    // m_IsRecursiveSelfNotify makes sure that the tree isn't unintentionally updated recursively.
+    m_IsRecursiveSelfNotify=true;
+
     // Reset tree selection and update it according to new selection.
     UnselectAll();
 
@@ -232,19 +237,12 @@ void WindowTreeT::NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT
 
         if (Result.IsOk())
         {
-            m_IsRecursiveSelfNotify=true;
-            SelectItem(Result);            // Note: SelectItem results in SelectionChanged event. m_IsRecursiveSelfNotify makes sure the tree isn't updated recursively.
-            m_IsRecursiveSelfNotify=false;
-            Expand(Result);
-
-            // Make sure parents are also expanded.
-            while (GetItemParent(Result).IsOk())
-            {
-                Result=GetItemParent(Result);
-                Expand(Result);
-            }
+            SelectItem(Result);
+            EnsureVisible(Result);
         }
     }
+
+    m_IsRecursiveSelfNotify=false;
 }
 
 
@@ -338,7 +336,7 @@ void WindowTreeT::RefreshTree()
         if (Result.IsOk())
         {
             m_IsRecursiveSelfNotify=true;
-            SelectItem(Result);            // Note: SelectItem results in SelectionChanged event. m_IsRecursiveSelfNotify makes sure the tree isn't updated recursively.
+            SelectItem(Result);     // SelectItem() results in EVT_TREE_SEL_CHANGED event. m_IsRecursiveSelfNotify makes sure the tree isn't updated recursively.
             m_IsRecursiveSelfNotify=false;
             Expand(Result);
 

@@ -120,15 +120,17 @@ CommandSelectT::~CommandSelectT()
 bool CommandSelectT::Do()
 {
     wxASSERT(!m_Done);
-
     if (m_Done) return false;
+
+    // Protect against "extra" EVT_TREE_SEL_CHANGED events, see
+    // <http://thread.gmane.org/gmane.comp.lib.wxwidgets.general/72754> for details.
+    if (m_OldSelection.Size()==0 && m_NewSelection.Size()==0) return false;
+    if (m_OldSelection.Size()==1 && m_NewSelection.Size()==1 && m_OldSelection[0]==m_NewSelection[0]) return false;
 
     m_GuiDocument->SetSelection(m_NewSelection);
 
     m_GuiDocument->UpdateAllObservers_SelectionChanged(m_OldSelection, m_NewSelection);
-
     m_Done=true;
-
     return true;
 }
 
@@ -136,13 +138,11 @@ bool CommandSelectT::Do()
 void CommandSelectT::Undo()
 {
     wxASSERT(m_Done);
-
     if (!m_Done) return;
 
     m_GuiDocument->SetSelection(m_OldSelection);
 
     m_GuiDocument->UpdateAllObservers_SelectionChanged(m_NewSelection, m_OldSelection);
-
     m_Done=false;
 }
 
