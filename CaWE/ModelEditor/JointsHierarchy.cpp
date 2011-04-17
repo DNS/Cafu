@@ -248,7 +248,7 @@ void JointsHierarchyT::RefreshTree()
             : AppendItem(JointItemIds[J.Parent], J.Name, -1, -1, new JointsTreeItemT(JointNr)));
     }
 
-    // Select first selected joint in the tree.
+    // Re-select selected joints in the tree.
     const ArrayT<unsigned int>& SelectedJoints=m_ModelDoc->GetSelection(JOINT);
 
     for (unsigned long SelNr=0; SelNr<SelectedJoints.Size(); SelNr++)

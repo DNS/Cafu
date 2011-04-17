@@ -81,7 +81,12 @@ void JointInspectorT::RefreshPropGrid()
     const ArrayT<CafuModelT::JointT>& Joints   =m_ModelDoc->GetModel()->GetJoints();
     const ArrayT<unsigned int>&       Selection=m_ModelDoc->GetSelection(JOINT);
 
-    Freeze();
+    // Currently (with wx(MSW)-2.9.1), we don't use Freeze() and Thaw(), because with them, a click
+    // into the Joints Hierarchy tree (to select another joint) brings us here (via Notify_SelectionChanged()), where this
+    // code (when Freeze() and Thaw() are used) steals the input focus from the Joints Hierarchy back to this property grid,
+    // rendering the selected joint in the Joints Hierarchy grey (focus is elsewhere) instead of blue (tree has the focus).
+    // This should be re-tested with wx(MSW)-2.9.2, which will contain fix <http://trac.wxwidgets.org/changeset/67142>.
+    // Freeze();
     ClearPage(0);
 
     if (Selection.Size()==1)
@@ -120,7 +125,7 @@ void JointInspectorT::RefreshPropGrid()
     }
 
     RefreshGrid();
-    Thaw();
+    // Thaw();
 }
 
 

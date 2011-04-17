@@ -326,7 +326,7 @@ void WindowTreeT::RefreshTree()
     // Add all children of root recusively to the tree.
     AddChildren(ID, true);
 
-    // Select first selected window in the tree.
+    // Re-select selected windows in the tree.
     const ArrayT<cf::GuiSys::WindowT*>& Selection=m_GuiDocument->GetSelection();
 
     for (unsigned long SelNr=0; SelNr<Selection.Size(); SelNr++)
