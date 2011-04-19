@@ -32,6 +32,7 @@ class ParentFrameT;
 
 namespace ModelEditor
 {
+    class ElementsListT;
     class JointInspectorT;
     class JointsHierarchyT;
     class ModelDocumentT;
@@ -79,6 +80,8 @@ namespace ModelEditor
         SceneView3DT*     m_SceneView3D;
         JointsHierarchyT* m_JointsHierarchy;
         JointInspectorT*  m_JointInspector;
+        ElementsListT*    m_MeshesList;
+        ElementsListT*    m_AnimsList;
         ModelPropGridT*   m_ModelPropGrid;
         ScenePropGridT*   m_ScenePropGrid;
 

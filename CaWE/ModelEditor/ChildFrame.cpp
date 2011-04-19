@@ -21,6 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ChildFrame.hpp"
 #include "JointInspector.hpp"
+#include "ElementsList.hpp"
 #include "JointsHierarchy.hpp"
 #include "ModelDocument.hpp"
 #include "ModelPropGrid.hpp"
@@ -63,6 +64,8 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
       m_SceneView3D(NULL),
       m_JointsHierarchy(NULL),
       m_JointInspector(NULL),
+      m_MeshesList(NULL),
+      m_AnimsList(NULL),
       m_ModelPropGrid(NULL),
       m_ScenePropGrid(NULL),
       m_FileMenu(NULL),
@@ -131,10 +134,20 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
                          Name("JointInspector").Caption("Joint Inspector").
                          Left().Position(1));
 
+    m_MeshesList=new ElementsListT(this, wxSize(230, 500), MESH);
+    m_AUIManager.AddPane(m_MeshesList, wxAuiPaneInfo().
+                         Name("MeshesList").Caption("Meshes List").
+                         Left().Position(2));
+
+    m_AnimsList=new ElementsListT(this, wxSize(230, 500), ANIM);
+    m_AUIManager.AddPane(m_AnimsList, wxAuiPaneInfo().
+                         Name("AnimsList").Caption("Animations List").
+                         Left().Position(3));
+
     m_ModelPropGrid=new ModelPropGridT(this, wxSize(230, 500));
     m_AUIManager.AddPane(m_ModelPropGrid, wxAuiPaneInfo().
                          Name("ModelPropGrid").Caption("Model Properties").
-                         Left().Position(2));
+                         Left().Position(4));
 
     m_ScenePropGrid=new ScenePropGridT(this, wxSize(230, 500));
     m_AUIManager.AddPane(m_ScenePropGrid, wxAuiPaneInfo().
@@ -164,6 +177,8 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     // Register observers.
     m_ModelDoc->RegisterObserver(m_JointsHierarchy);
     m_ModelDoc->RegisterObserver(m_JointInspector);
+    // m_ModelDoc->RegisterObserver(m_MeshesList);  // Automatically done in the m_MeshesList ctor.
+    // m_ModelDoc->RegisterObserver(m_AnimsList);   // Automatically done in the m_AnimsList ctor.
 
     if (!IsMaximized()) Maximize(true);     // Also have wxMAXIMIZE set as frame style.
     Show(true);
