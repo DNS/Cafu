@@ -105,11 +105,15 @@ JointsHierarchyT::JointsHierarchyT(ChildFrameT* Parent, const wxSize& Size)
       m_Parent(Parent),
       m_IsRecursiveSelfNotify(false)
 {
+    m_ModelDoc->RegisterObserver(this);
+    RefreshTree();
 }
 
 
 JointsHierarchyT::~JointsHierarchyT()
 {
+    if (m_ModelDoc)
+        m_ModelDoc->UnregisterObserver(this);
 }
 
 

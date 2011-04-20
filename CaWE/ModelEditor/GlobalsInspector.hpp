@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MODELEDITOR_JOINT_INSPECTOR_HPP_
-#define _MODELEDITOR_JOINT_INSPECTOR_HPP_
+#ifndef _MODELEDITOR_GLOBALS_INSPECTOR_HPP_
+#define _MODELEDITOR_GLOBALS_INSPECTOR_HPP_
 
 #include "ObserverPattern.hpp"
 #include "wx/wx.h"
@@ -32,16 +32,15 @@ namespace ModelEditor
     class ChildFrameT;
     class ModelDocumentT;
 
-    class JointInspectorT : public wxPropertyGridManager, public ObserverT
+    class GlobalsInspectorT : public wxPropertyGridManager, public ObserverT
     {
         public:
 
-        JointInspectorT(ChildFrameT* Parent, const wxSize& Size);
-        ~JointInspectorT();
+        GlobalsInspectorT(ChildFrameT* Parent, const wxSize& Size);
+        ~GlobalsInspectorT();
 
         // ObserverT implementation.
-        void Notify_SelectionChanged(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel);
-        void Notify_JointChanged(SubjectT* Subject, unsigned int JointNr);
+        // void Notify_GlobalsChanged(SubjectT* Subject);
         void Notify_SubjectDies(SubjectT* dyingSubject);
 
 
@@ -52,9 +51,9 @@ namespace ModelEditor
 
         DECLARE_EVENT_TABLE()
 
-        ModelDocumentT* m_ModelDoc;
-        ChildFrameT*    m_Parent;
-        bool            m_IsRecursiveSelfNotify;
+        ModelDocumentT*      m_ModelDoc;
+        ChildFrameT*         m_Parent;
+        bool                 m_IsRecursiveSelfNotify;
     };
 }
 

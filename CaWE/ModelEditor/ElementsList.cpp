@@ -54,8 +54,8 @@ ElementsListT::ElementsListT(ChildFrameT* Parent, const wxSize& Size, ModelEleme
     InsertColumn(0, "#");
     InsertColumn(1, "Name");
 
-    InitListItems();
     m_ModelDoc->RegisterObserver(this);
+    InitListItems();
 }
 
 

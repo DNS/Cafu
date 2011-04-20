@@ -45,11 +45,11 @@ namespace ModelEditor
         void Notify_JointChanged(SubjectT* Subject, unsigned int JointNr);
         void Notify_SubjectDies(SubjectT* dyingSubject);
 
-        /// Redraws the whole tree.
-        void RefreshTree();
-
 
         private:
+
+        /// Redraws/re-inits the whole tree.
+        void RefreshTree();
 
         /// Recusively searches the tree for an item associated with a specified WindowT.
         /// @param StartingItem Item to start the recursive search at.
@@ -59,10 +59,6 @@ namespace ModelEditor
         /// Recursively gets all tree items, beginning with the passed tree item.
         void GetTreeItems(const wxTreeItemId& StartingItem, ArrayT<wxTreeItemId>& Items);
 
-        ModelDocumentT* m_ModelDoc;
-        ChildFrameT*    m_Parent;
-        bool            m_IsRecursiveSelfNotify;
-
         void OnKeyDown           (wxKeyEvent&   KE);
      // void OnTreeLeftClick     (wxMouseEvent& ME);
         void OnSelectionChanged  (wxTreeEvent&  TE);
@@ -70,6 +66,10 @@ namespace ModelEditor
         void OnTreeItemRightClick(wxTreeEvent&  TE);
 
         DECLARE_EVENT_TABLE()
+
+        ModelDocumentT* m_ModelDoc;
+        ChildFrameT*    m_Parent;
+        bool            m_IsRecursiveSelfNotify;
     };
 }
 

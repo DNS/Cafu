@@ -32,11 +32,13 @@ class ParentFrameT;
 
 namespace ModelEditor
 {
+    class AnimInspectorT;
     class ElementsListT;
+    class GlobalsInspectorT;
     class JointInspectorT;
     class JointsHierarchyT;
+    class MeshInspectorT;
     class ModelDocumentT;
-    class ModelPropGridT;
     class ScenePropGridT;
     class SceneView3DT;
 
@@ -70,23 +72,25 @@ namespace ModelEditor
 
         private:
 
-        wxString          m_FileName;
-        ModelDocumentT*   m_ModelDoc;
-        CommandHistoryT   m_History;                ///< The command history.
-        unsigned long     m_LastSavedAtCommandNr;
+        wxString           m_FileName;
+        ModelDocumentT*    m_ModelDoc;
+        CommandHistoryT    m_History;               ///< The command history.
+        unsigned long      m_LastSavedAtCommandNr;
 
-        ParentFrameT*     m_Parent;
-        wxAuiManager      m_AUIManager;
-        SceneView3DT*     m_SceneView3D;
-        JointsHierarchyT* m_JointsHierarchy;
-        JointInspectorT*  m_JointInspector;
-        ElementsListT*    m_MeshesList;
-        ElementsListT*    m_AnimsList;
-        ModelPropGridT*   m_ModelPropGrid;
-        ScenePropGridT*   m_ScenePropGrid;
+        ParentFrameT*      m_Parent;
+        wxAuiManager       m_AUIManager;
+        SceneView3DT*      m_SceneView3D;
+        GlobalsInspectorT* m_GlobalsInspector;
+        JointsHierarchyT*  m_JointsHierarchy;
+        JointInspectorT*   m_JointInspector;
+        ElementsListT*     m_MeshesList;
+        MeshInspectorT*    m_MeshInspector;
+        ElementsListT*     m_AnimsList;
+        AnimInspectorT*    m_AnimInspector;
+        ScenePropGridT*    m_ScenePropGrid;
 
-        wxMenu*           m_FileMenu;
-        wxMenu*           m_EditMenu;
+        wxMenu*            m_FileMenu;
+        wxMenu*            m_EditMenu;
 
 
         enum

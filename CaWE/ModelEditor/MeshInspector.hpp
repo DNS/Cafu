@@ -19,9 +19,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MODELEDITOR_MODEL_PROPGRID_HPP_
-#define _MODELEDITOR_MODEL_PROPGRID_HPP_
+#ifndef _MODELEDITOR_MESH_INSPECTOR_HPP_
+#define _MODELEDITOR_MESH_INSPECTOR_HPP_
 
+#include "ObserverPattern.hpp"
 #include "wx/wx.h"
 #include "wx/propgrid/manager.h"
 
@@ -29,24 +30,31 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 namespace ModelEditor
 {
     class ChildFrameT;
+    class ModelDocumentT;
 
-
-    class ModelPropGridT : public wxPropertyGridManager
+    class MeshInspectorT : public wxPropertyGridManager, public ObserverT
     {
         public:
 
-        ModelPropGridT(ChildFrameT* Parent, const wxSize& Size);
+        MeshInspectorT(ChildFrameT* Parent, const wxSize& Size);
+        ~MeshInspectorT();
 
-        void RefreshPropGrid();
+        // ObserverT implementation.
+        void Notify_SelectionChanged(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel);
+        // void Notify_MeshChanged(SubjectT* Subject, unsigned int MeshNr);
+        void Notify_SubjectDies(SubjectT* dyingSubject);
 
 
         private:
 
-        ChildFrameT* m_Parent;
-
+        void RefreshPropGrid();
         void OnPropertyGridChanged(wxPropertyGridEvent& Event);
 
         DECLARE_EVENT_TABLE()
+
+        ModelDocumentT*      m_ModelDoc;
+        ChildFrameT*         m_Parent;
+        bool                 m_IsRecursiveSelfNotify;
     };
 }
 

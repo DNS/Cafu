@@ -39,11 +39,20 @@ JointInspectorT::JointInspectorT(ChildFrameT* Parent, const wxSize& Size)
     : wxPropertyGridManager(Parent, wxID_ANY, wxDefaultPosition, Size, wxPG_BOLD_MODIFIED | wxPG_SPLITTER_AUTO_CENTER), // | wxPG_DESCRIPTION
       m_ModelDoc(Parent->GetModelDoc()),
       m_Parent(Parent),
-      // m_SelectedWindow(NULL),
       m_IsRecursiveSelfNotify(false)
 {
     SetExtraStyle(wxPG_EX_HELP_AS_TOOLTIPS | wxPG_EX_MODE_BUTTONS);
     AddPage("Joint Properties");
+
+    m_ModelDoc->RegisterObserver(this);
+    RefreshPropGrid();
+}
+
+
+JointInspectorT::~JointInspectorT()
+{
+    if (m_ModelDoc)
+        m_ModelDoc->UnregisterObserver(this);
 }
 
 
@@ -69,7 +78,6 @@ void JointInspectorT::Notify_SubjectDies(SubjectT* dyingSubject)
     wxASSERT(dyingSubject==m_ModelDoc);
 
     m_ModelDoc=NULL;
-
     ClearPage(0);
 }
 
