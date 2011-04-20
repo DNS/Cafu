@@ -103,7 +103,7 @@ void MeshInspectorT::RefreshPropGrid()
         wxPGProperty* Name=Append(new wxStringProperty("Name", wxPG_LABEL, wxString::Format("Mesh %u", Selection[0])));
         DisableProperty(Name);
 
-        wxPGProperty* MatProp=Append(new wxStringProperty("Material", wxPG_LABEL, Mesh.Material ? Mesh.Material->Name : "<NULL>"));
+        Append(new wxStringProperty("Material", wxPG_LABEL, Mesh.Material ? Mesh.Material->Name : "<NULL>"));
 
         wxPGProperty* UseGivenTS=Append(new wxBoolProperty("Use given TS", wxPG_LABEL, false));
         DisableProperty(UseGivenTS);
@@ -147,12 +147,12 @@ void MeshInspectorT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
     // Since the user is definitely finished editing this property we can safely clear the selection.
     // ClearSelection();
 
-    const ArrayT<CafuModelT::MeshT>& Meshes=m_ModelDoc->GetModel()->GetMeshes();
-    const unsigned int               MeshNr=Selection[0];
+    // const ArrayT<CafuModelT::MeshT>& Meshes=m_ModelDoc->GetModel()->GetMeshes();
+    // const unsigned int               MeshNr=Selection[0];
 
-    const wxString PropName  =Prop->GetName();
-    double         PropValueD=0.0;
-    const float    PropValueF=Prop->GetValue().Convert(&PropValueD) ? float(PropValueD) : 0.0f;
+    // const wxString PropName  =Prop->GetName();
+    // double         PropValueD=0.0;
+    // const float    PropValueF=Prop->GetValue().Convert(&PropValueD) ? float(PropValueD) : 0.0f;
 
     m_IsRecursiveSelfNotify=true;
 

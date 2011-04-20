@@ -138,12 +138,12 @@ void AnimInspectorT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
     // Since the user is definitely finished editing this property we can safely clear the selection.
     // ClearSelection();
 
-    const ArrayT<CafuModelT::AnimT>& Anims =m_ModelDoc->GetModel()->GetAnims();
-    const unsigned int               AnimNr=Selection[0];
+    // const ArrayT<CafuModelT::AnimT>& Anims =m_ModelDoc->GetModel()->GetAnims();
+    // const unsigned int               AnimNr=Selection[0];
 
-    const wxString PropName  =Prop->GetName();
-    double         PropValueD=0.0;
-    const float    PropValueF=Prop->GetValue().Convert(&PropValueD) ? float(PropValueD) : 0.0f;
+    // const wxString PropName  =Prop->GetName();
+    // double         PropValueD=0.0;
+    // const float    PropValueF=Prop->GetValue().Convert(&PropValueD) ? float(PropValueD) : 0.0f;
 
     m_IsRecursiveSelfNotify=true;
 

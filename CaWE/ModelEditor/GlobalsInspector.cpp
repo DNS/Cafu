@@ -96,9 +96,9 @@ void GlobalsInspectorT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
     // Since the user is definitely finished editing this property we can safely clear the selection.
     // ClearSelection();
 
-    const wxString PropName  =Prop->GetName();
-    double         PropValueD=0.0;
-    const float    PropValueF=Prop->GetValue().Convert(&PropValueD) ? float(PropValueD) : 0.0f;
+    // const wxString PropName  =Prop->GetName();
+    // double         PropValueD=0.0;
+    // const float    PropValueF=Prop->GetValue().Convert(&PropValueD) ? float(PropValueD) : 0.0f;
 
     m_IsRecursiveSelfNotify=true;
 
