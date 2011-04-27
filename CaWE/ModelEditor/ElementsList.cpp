@@ -26,12 +26,53 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Models/Model_cmdl.hpp"
 
 
+namespace
+{
+    class ListContextMenuT : public wxMenu
+    {
+        public:
+
+        enum
+        {
+            ID_MENU_INSPECT_EDIT=wxID_HIGHEST+1,
+            ID_MENU_RENAME
+        };
+
+        ListContextMenuT() : wxMenu(), ID(-1)
+        {
+            Append(ID_MENU_INSPECT_EDIT, "Inspect / Edit\tEnter");
+            Append(ID_MENU_RENAME,       "Rename\tF2")->Enable(false);
+        }
+
+        int GetClickedMenuItem() { return ID; }
+
+
+        protected:
+
+        void OnMenuClick(wxCommandEvent& CE) { ID=CE.GetId(); }
+
+
+        private:
+
+        int ID;
+
+        DECLARE_EVENT_TABLE()
+    };
+
+
+    BEGIN_EVENT_TABLE(ListContextMenuT, wxMenu)
+        EVT_MENU(wxID_ANY, ListContextMenuT::OnMenuClick)
+    END_EVENT_TABLE()
+}
+
+
 using namespace ModelEditor;
 
 
 BEGIN_EVENT_TABLE(ElementsListT, wxListView)
- // EVT_CONTEXT_MENU(ElementsListT::OnContextMenu)
+    EVT_CONTEXT_MENU        (ElementsListT::OnContextMenu)
  // EVT_LIST_KEY_DOWN       (wxID_ANY, ElementsListT::OnKeyDown)
+    EVT_LIST_ITEM_ACTIVATED (wxID_ANY, ElementsListT::OnItemActivated)
     EVT_LIST_ITEM_SELECTED  (wxID_ANY, ElementsListT::OnSelectionChanged)
     EVT_LIST_ITEM_DESELECTED(wxID_ANY, ElementsListT::OnSelectionChanged)
  // EVT_LIST_END_LABEL_EDIT (wxID_ANY, ElementsListT::OnEndLabelEdit)
@@ -112,9 +153,24 @@ void ElementsListT::InitListItems()
 }
 
 
-/*void ElementsListT::OnContextMenu(wxContextMenuEvent& CE)
+void ElementsListT::OnContextMenu(wxContextMenuEvent& CE)
 {
-}*/
+    ListContextMenuT ContextMenu;
+
+    PopupMenu(&ContextMenu);
+
+    switch (ContextMenu.GetClickedMenuItem())
+    {
+        case ListContextMenuT::ID_MENU_INSPECT_EDIT:
+            // Make sure that the AUI pane for the inspector related to this joints hierarchy is shown.
+            m_Parent->ShowRelatedInspector(this);
+            break;
+
+        case ListContextMenuT::ID_MENU_RENAME:
+            // EditLabel(...);
+            break;
+    }
+}
 
 
 /*void ElementsListT::OnKeyDown(wxListEvent& LE)
@@ -134,6 +190,16 @@ void ElementsListT::InitListItems()
             break;
     }
 }*/
+
+
+void ElementsListT::OnItemActivated(wxListEvent& LE)
+{
+    // This is called when the item has been activated (ENTER or double click).
+    if (m_ModelDoc==NULL) return;
+
+    // Make sure that the AUI pane for the inspector related to this elements list is shown.
+    m_Parent->ShowRelatedInspector(this);
+}
 
 
 void ElementsListT::OnSelectionChanged(wxListEvent& LE)

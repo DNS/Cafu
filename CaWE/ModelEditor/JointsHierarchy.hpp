@@ -61,6 +61,7 @@ namespace ModelEditor
 
         void OnKeyDown           (wxKeyEvent&   KE);
      // void OnTreeLeftClick     (wxMouseEvent& ME);
+        void OnItemActivated     (wxTreeEvent&  TE);    ///< The item has been activated (ENTER or double click).
         void OnSelectionChanged  (wxTreeEvent&  TE);
         void OnLabelChanged      (wxTreeEvent&  TE);
         void OnTreeItemRightClick(wxTreeEvent&  TE);

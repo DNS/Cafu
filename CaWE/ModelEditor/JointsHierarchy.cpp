@@ -37,16 +37,16 @@ namespace
 
         enum
         {
-            ID_MENU_EXPAND_RECURSIVELY=wxID_HIGHEST+1,
-            ID_MENU_RENAME
+            ID_MENU_INSPECT_EDIT=wxID_HIGHEST+1,
+            ID_MENU_RENAME,
+            ID_MENU_EXPAND_RECURSIVELY
         };
 
-        TreeContextMenuT()
-            : wxMenu(),
-              ID(-1)
+        TreeContextMenuT() : wxMenu(), ID(-1)
         {
-            this->Append(ID_MENU_EXPAND_RECURSIVELY, "Expand all");
-            this->Append(ID_MENU_RENAME,             "Rename\tF2");
+            Append(ID_MENU_INSPECT_EDIT,       "Inspect / Edit\tEnter");
+            Append(ID_MENU_RENAME,             "Rename\tF2");
+            Append(ID_MENU_EXPAND_RECURSIVELY, "Expand all");
         }
 
         int GetClickedMenuItem() { return ID; }
@@ -93,6 +93,7 @@ BEGIN_EVENT_TABLE(JointsHierarchyT, wxTreeCtrl)
     EVT_KEY_DOWN             (JointsHierarchyT::OnKeyDown)
     // EVT_LEFT_DOWN         (JointsHierarchyT::OnTreeLeftClick)
     // EVT_LEFT_DCLICK       (JointsHierarchyT::OnTreeLeftClick)  // Handle double clicks like normal left clicks when it comes to clicks on tree item icons (otherwise double clicks are handled normally).
+    EVT_TREE_ITEM_ACTIVATED  (wxID_ANY, JointsHierarchyT::OnItemActivated)
     EVT_TREE_SEL_CHANGED     (wxID_ANY, JointsHierarchyT::OnSelectionChanged)
     EVT_TREE_END_LABEL_EDIT  (wxID_ANY, JointsHierarchyT::OnLabelChanged)
     EVT_TREE_ITEM_RIGHT_CLICK(wxID_ANY, JointsHierarchyT::OnTreeItemRightClick)
@@ -325,6 +326,16 @@ void JointsHierarchyT::RefreshTree()
 }*/
 
 
+void JointsHierarchyT::OnItemActivated(wxTreeEvent& TE)
+{
+    // This is called when the item has been activated (ENTER or double click).
+    if (m_ModelDoc==NULL) return;
+
+    // Make sure that the AUI pane for the inspector related to this joints hierarchy is shown.
+    m_Parent->ShowRelatedInspector(this);
+}
+
+
 void JointsHierarchyT::OnSelectionChanged(wxTreeEvent& TE)
 {
     if (m_ModelDoc==NULL) return;
@@ -396,12 +407,17 @@ void JointsHierarchyT::OnTreeItemRightClick(wxTreeEvent& TE)
 
     switch (ContextMenu.GetClickedMenuItem())
     {
-        case TreeContextMenuT::ID_MENU_EXPAND_RECURSIVELY:
-            ExpandAllChildren(TE.GetItem());
+        case TreeContextMenuT::ID_MENU_INSPECT_EDIT:
+            // Make sure that the AUI pane for the inspector related to this joints hierarchy is shown.
+            m_Parent->ShowRelatedInspector(this);
             break;
 
         case TreeContextMenuT::ID_MENU_RENAME:
             EditLabel(TE.GetItem());
+            break;
+
+        case TreeContextMenuT::ID_MENU_EXPAND_RECURSIVELY:
+            ExpandAllChildren(TE.GetItem());
             break;
     }
 }

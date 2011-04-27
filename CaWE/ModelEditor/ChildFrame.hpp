@@ -66,11 +66,18 @@ namespace ModelEditor
         /// @returns whether the file was successfully saved.
         bool Save(bool AskForFileName=false);
 
+        /// This method shows or hides the pane of the detail inspector that is related to the given list view.
+        /// The method does nothing if the given list view is not the joints hierarchy, the meshes list or the anims list.
+        void ShowRelatedInspector(wxWindow* List, bool DoShow=true);
+
         ModelDocumentT* GetModelDoc() const { return m_ModelDoc; }
         ScenePropGridT* GetScenePropGrid() const { return m_ScenePropGrid; }
 
 
         private:
+
+        /// Shows or hides the given AUI pane.
+        void PaneToggleShow(wxAuiPaneInfo& PaneInfo);
 
         wxString           m_FileName;
         ModelDocumentT*    m_ModelDoc;
@@ -97,12 +104,26 @@ namespace ModelEditor
         {
             ID_MENU_FILE_CLOSE=wxID_HIGHEST+1+2000,
             ID_MENU_FILE_SAVE,
-            ID_MENU_FILE_SAVEAS
+            ID_MENU_FILE_SAVEAS,
+
+            ID_MENU_VIEW_AUIPANE_GLOBALS_INSPECTOR,
+            ID_MENU_VIEW_AUIPANE_JOINTS_HIERARCHY,
+            ID_MENU_VIEW_AUIPANE_JOINT_INSPECTOR,
+            ID_MENU_VIEW_AUIPANE_MESHES_LIST,
+            ID_MENU_VIEW_AUIPANE_MESH_INSPECTOR,
+            ID_MENU_VIEW_AUIPANE_ANIMS_LIST,
+            ID_MENU_VIEW_AUIPANE_ANIM_INSPECTOR,
+            ID_MENU_VIEW_AUIPANE_SCENE_SETUP,
+            ID_MENU_VIEW_LOAD_DEFAULT_PERSPECTIVE,
+            ID_MENU_VIEW_LOAD_USER_PERSPECTIVE,
+            ID_MENU_VIEW_SAVE_USER_PERSPECTIVE
         };
 
         void OnMenuFile(wxCommandEvent& CE);
         void OnMenuUndoRedo(wxCommandEvent& CE);
         void OnUpdateEditUndoRedo(wxUpdateUIEvent& UE);
+        void OnMenuView(wxCommandEvent& CE);
+        void OnMenuViewUpdate(wxUpdateUIEvent& UE);
         void OnClose(wxCloseEvent& CE);
 
         DECLARE_EVENT_TABLE()

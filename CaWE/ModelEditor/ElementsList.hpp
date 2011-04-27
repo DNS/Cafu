@@ -54,8 +54,9 @@ namespace ModelEditor
 
         void InitListItems();
 
-     // void OnContextMenu     (wxContextMenuEvent& CE);
+        void OnContextMenu     (wxContextMenuEvent& CE);
      // void OnKeyDown         (wxListEvent&        LE);
+        void OnItemActivated   (wxListEvent&        LE);    ///< The item has been activated (ENTER or double click).
         void OnSelectionChanged(wxListEvent&        LE);
      // void OnEndLabelEdit    (wxListEvent&        LE);
 

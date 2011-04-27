@@ -49,10 +49,12 @@ namespace ModelEditor
 
 
 BEGIN_EVENT_TABLE(ModelEditor::ChildFrameT, wxMDIChildFrame)
-    EVT_MENU_RANGE     (ID_MENU_FILE_CLOSE, ID_MENU_FILE_SAVEAS, ModelEditor::ChildFrameT::OnMenuFile)
-    EVT_MENU_RANGE     (wxID_UNDO,          wxID_REDO,           ModelEditor::ChildFrameT::OnMenuUndoRedo)
-    EVT_UPDATE_UI_RANGE(wxID_UNDO,          wxID_REDO,           ModelEditor::ChildFrameT::OnUpdateEditUndoRedo)
-    EVT_CLOSE          (                                         ModelEditor::ChildFrameT::OnClose)
+    EVT_MENU_RANGE     (ID_MENU_FILE_CLOSE,                     ID_MENU_FILE_SAVEAS,                   ModelEditor::ChildFrameT::OnMenuFile)
+    EVT_MENU_RANGE     (wxID_UNDO,                              wxID_REDO,                             ModelEditor::ChildFrameT::OnMenuUndoRedo)
+    EVT_UPDATE_UI_RANGE(wxID_UNDO,                              wxID_REDO,                             ModelEditor::ChildFrameT::OnUpdateEditUndoRedo)
+    EVT_MENU_RANGE     (ID_MENU_VIEW_AUIPANE_GLOBALS_INSPECTOR, ID_MENU_VIEW_LOAD_DEFAULT_PERSPECTIVE, ModelEditor::ChildFrameT::OnMenuView)
+    EVT_UPDATE_UI_RANGE(ID_MENU_VIEW_AUIPANE_GLOBALS_INSPECTOR, ID_MENU_VIEW_LOAD_DEFAULT_PERSPECTIVE, ModelEditor::ChildFrameT::OnMenuViewUpdate)
+    EVT_CLOSE          (ModelEditor::ChildFrameT::OnClose)
 END_EVENT_TABLE()
 
 
@@ -107,7 +109,22 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     m_EditMenu->Append(wxID_REDO, "&Redo\tCtrl+Y", "");
     item0->Append(m_EditMenu, "&Edit");
 
-    wxMenu* HelpMenu = new wxMenu;
+    wxMenu* ViewMenu=new wxMenu;
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_GLOBALS_INSPECTOR, "Globals Inspector",   "Show or hide the global model properties");
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_JOINTS_HIERARCHY,  "Joints Hierarchy",    "Show or hide the joints hierarchy (the skeleton)");
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_JOINT_INSPECTOR,   "Joint Inspector",     "Show or hide the joint inspector");
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_MESHES_LIST,       "Meshes List",         "Show or hide the meshes list");
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_MESH_INSPECTOR,    "Mesh Inspector",      "Show or hide the mesh inspector");
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_ANIMS_LIST,        "Animations List",     "Show or hide the animations list");
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_ANIM_INSPECTOR,    "Animation Inspector", "Show or hide the animation inspector");
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_SCENE_SETUP,       "Scene Setup",         "Show or hide the scene setup inspector");
+    ViewMenu->AppendSeparator();
+    ViewMenu->Append(ID_MENU_VIEW_LOAD_USER_PERSPECTIVE, "&Load user window layout", "Loads the user defined window layout");
+    ViewMenu->Append(ID_MENU_VIEW_SAVE_USER_PERSPECTIVE, "&Save user window layout", "Saves the current window layout");
+    ViewMenu->Append(ID_MENU_VIEW_LOAD_DEFAULT_PERSPECTIVE, "Load &default window layout", "Restores the default window layout");
+    item0->Append(ViewMenu, "&View");
+
+    wxMenu* HelpMenu=new wxMenu;
     HelpMenu->Append(ParentFrameT::ID_MENU_HELP_CONTENTS, wxT("&CaWE Help\tF1"), wxT("") );
     HelpMenu->AppendSeparator();
     HelpMenu->Append(ParentFrameT::ID_MENU_HELP_CAFU_WEBSITE, wxT("Cafu &Website"), wxT("") );
@@ -128,40 +145,40 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
                          Name("SceneView").Caption("Scene View").
                          CenterPane());
 
-    m_GlobalsInspector=new GlobalsInspectorT(this, wxSize(230, 500));
+    m_GlobalsInspector=new GlobalsInspectorT(this, wxSize(230, 180));
     m_AUIManager.AddPane(m_GlobalsInspector, wxAuiPaneInfo().
                          Name("GlobalsInspector").Caption("Global Model Properties").
                          Left().Position(0));
 
-    m_JointsHierarchy=new JointsHierarchyT(this, wxSize(230, 180));
+    m_JointsHierarchy=new JointsHierarchyT(this, wxSize(230, 400));
     m_AUIManager.AddPane(m_JointsHierarchy, wxAuiPaneInfo().
                          Name("JointsHierarchy").Caption("Skeleton / Joints Hierarchy").
                          Left().Position(1));
 
-    m_JointInspector=new JointInspectorT(this, wxSize(230, 180));
+    m_JointInspector=new JointInspectorT(this, wxSize(360, 200));
     m_AUIManager.AddPane(m_JointInspector, wxAuiPaneInfo().
                          Name("JointInspector").Caption("Joint Inspector").
-                         Left().Position(2));
+                         Float().Hide());
 
-    m_MeshesList=new ElementsListT(this, wxSize(230, 500), MESH);
+    m_MeshesList=new ElementsListT(this, wxSize(230, 400), MESH);
     m_AUIManager.AddPane(m_MeshesList, wxAuiPaneInfo().
                          Name("MeshesList").Caption("Meshes List").
                          Left().Position(3));
 
-    m_MeshInspector=new MeshInspectorT(this, wxSize(230, 500));
+    m_MeshInspector=new MeshInspectorT(this, wxSize(480, 180));
     m_AUIManager.AddPane(m_MeshInspector, wxAuiPaneInfo().
                          Name("MeshInspector").Caption("Mesh Inspector").
-                         Left().Position(4));
+                         Float().Hide());
 
-    m_AnimsList=new ElementsListT(this, wxSize(230, 500), ANIM);
+    m_AnimsList=new ElementsListT(this, wxSize(230, 400), ANIM);
     m_AUIManager.AddPane(m_AnimsList, wxAuiPaneInfo().
                          Name("AnimsList").Caption("Animations List").
                          Left().Position(5));
 
-    m_AnimInspector=new AnimInspectorT(this, wxSize(230, 500));
+    m_AnimInspector=new AnimInspectorT(this, wxSize(240, 160));
     m_AUIManager.AddPane(m_AnimInspector, wxAuiPaneInfo().
                          Name("AnimInspector").Caption("Animation Inspector").
-                         Left().Position(6));
+                         Float().Hide());
 
     m_ScenePropGrid=new ScenePropGridT(this, wxSize(230, 500));
     m_AUIManager.AddPane(m_ScenePropGrid, wxAuiPaneInfo().
@@ -182,7 +199,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
                          LeftDockable(false).RightDockable(false));
 
 
-    // Set default perspective if not yet set.
+    // Save the AUI default perspective if not yet set.
     if (AUIDefaultPerspective.IsEmpty()) AUIDefaultPerspective=m_AUIManager.SavePerspective();
 
     // Load user perspective (calls m_AUIManager.Update() automatically).
@@ -296,6 +313,36 @@ bool ModelEditor::ChildFrameT::Save(bool AskForFileName)
 }
 
 
+void ModelEditor::ChildFrameT::ShowRelatedInspector(wxWindow* List, bool DoShow)
+{
+    wxWindow* Insp=NULL;
+
+         if (List==m_JointsHierarchy) Insp=m_JointInspector;
+    else if (List==m_MeshesList)      Insp=m_MeshInspector;
+    else if (List==m_AnimsList)       Insp=m_AnimInspector;
+
+    if (Insp==NULL) return;
+
+    wxAuiPaneInfo& PaneInfo=m_AUIManager.GetPane(Insp);
+
+    if (!PaneInfo.IsOk()) return;
+
+    if (PaneInfo.IsFloating() && DoShow)
+    {
+        // Hide first, then show again: this brings the pane into the foreground (regarding z order).
+        PaneInfo.Show(false);
+        m_AUIManager.Update();  // Required for this to be effective.
+    }
+
+    PaneInfo.Show(DoShow);
+
+    if (DoShow && PaneInfo.IsFloating() && PaneInfo.floating_pos==wxDefaultPosition)
+        PaneInfo.FloatingPosition(ClientToScreen(wxPoint(20, 20)));
+
+    m_AUIManager.Update();
+}
+
+
 void ModelEditor::ChildFrameT::OnMenuFile(wxCommandEvent& CE)
 {
     // The events for menu entries that are duplicated from the parents file menu are forwarded to the parent.
@@ -350,6 +397,64 @@ void ModelEditor::ChildFrameT::OnUpdateEditUndoRedo(wxUpdateUIEvent& UE)
     {
         UE.SetText(wxString("Cannot ")+Action+"\t"+Hotkey);
         UE.Enable(false);
+    }
+}
+
+
+void ModelEditor::ChildFrameT::PaneToggleShow(wxAuiPaneInfo& PaneInfo)
+{
+    if (!PaneInfo.IsOk()) return;
+
+    const bool DoShow=!PaneInfo.IsShown();
+    PaneInfo.Show(DoShow);
+
+    if (DoShow && PaneInfo.IsFloating() && PaneInfo.floating_pos==wxDefaultPosition)
+        PaneInfo.FloatingPosition(ClientToScreen(wxPoint(20, 20)));
+
+    m_AUIManager.Update();
+}
+
+
+void ModelEditor::ChildFrameT::OnMenuView(wxCommandEvent& CE)
+{
+    switch (CE.GetId())
+    {
+        case ID_MENU_VIEW_AUIPANE_GLOBALS_INSPECTOR: PaneToggleShow(m_AUIManager.GetPane(m_GlobalsInspector)); break;
+        case ID_MENU_VIEW_AUIPANE_JOINTS_HIERARCHY:  PaneToggleShow(m_AUIManager.GetPane(m_JointsHierarchy )); break;
+        case ID_MENU_VIEW_AUIPANE_JOINT_INSPECTOR:   PaneToggleShow(m_AUIManager.GetPane(m_JointInspector  )); break;
+        case ID_MENU_VIEW_AUIPANE_MESHES_LIST:       PaneToggleShow(m_AUIManager.GetPane(m_MeshesList      )); break;
+        case ID_MENU_VIEW_AUIPANE_MESH_INSPECTOR:    PaneToggleShow(m_AUIManager.GetPane(m_MeshInspector   )); break;
+        case ID_MENU_VIEW_AUIPANE_ANIMS_LIST:        PaneToggleShow(m_AUIManager.GetPane(m_AnimsList       )); break;
+        case ID_MENU_VIEW_AUIPANE_ANIM_INSPECTOR:    PaneToggleShow(m_AUIManager.GetPane(m_AnimInspector   )); break;
+        case ID_MENU_VIEW_AUIPANE_SCENE_SETUP:       PaneToggleShow(m_AUIManager.GetPane(m_ScenePropGrid   )); break;
+
+        case ID_MENU_VIEW_LOAD_DEFAULT_PERSPECTIVE:
+            m_AUIManager.LoadPerspective(AUIDefaultPerspective);
+            break;
+
+        case ID_MENU_VIEW_LOAD_USER_PERSPECTIVE:
+            m_AUIManager.LoadPerspective(wxConfigBase::Get()->Read("ModelEditor/AUI_UserLayout", m_AUIManager.SavePerspective()));
+            break;
+
+        case ID_MENU_VIEW_SAVE_USER_PERSPECTIVE:
+            wxConfigBase::Get()->Write("ModelEditor/AUI_UserLayout", m_AUIManager.SavePerspective());
+            break;
+    }
+}
+
+
+void ModelEditor::ChildFrameT::OnMenuViewUpdate(wxUpdateUIEvent& UE)
+{
+    switch (UE.GetId())
+    {
+        case ID_MENU_VIEW_AUIPANE_GLOBALS_INSPECTOR: UE.Check(m_AUIManager.GetPane(m_GlobalsInspector).IsShown()); break;
+        case ID_MENU_VIEW_AUIPANE_JOINTS_HIERARCHY:  UE.Check(m_AUIManager.GetPane(m_JointsHierarchy ).IsShown()); break;
+        case ID_MENU_VIEW_AUIPANE_JOINT_INSPECTOR:   UE.Check(m_AUIManager.GetPane(m_JointInspector  ).IsShown()); break;
+        case ID_MENU_VIEW_AUIPANE_MESHES_LIST:       UE.Check(m_AUIManager.GetPane(m_MeshesList      ).IsShown()); break;
+        case ID_MENU_VIEW_AUIPANE_MESH_INSPECTOR:    UE.Check(m_AUIManager.GetPane(m_MeshInspector   ).IsShown()); break;
+        case ID_MENU_VIEW_AUIPANE_ANIMS_LIST:        UE.Check(m_AUIManager.GetPane(m_AnimsList       ).IsShown()); break;
+        case ID_MENU_VIEW_AUIPANE_ANIM_INSPECTOR:    UE.Check(m_AUIManager.GetPane(m_AnimInspector   ).IsShown()); break;
+        case ID_MENU_VIEW_AUIPANE_SCENE_SETUP:       UE.Check(m_AUIManager.GetPane(m_ScenePropGrid   ).IsShown()); break;
     }
 }
 
