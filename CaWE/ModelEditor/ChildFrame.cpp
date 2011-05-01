@@ -327,17 +327,13 @@ void ModelEditor::ChildFrameT::ShowRelatedInspector(wxWindow* List, bool DoShow)
 
     if (!PaneInfo.IsOk()) return;
 
-    if (PaneInfo.IsFloating() && DoShow)
-    {
-        // Hide first, then show again: this brings the pane into the foreground (regarding z order).
-        PaneInfo.Show(false);
-        m_AUIManager.Update();  // Required for this to be effective.
-    }
-
     PaneInfo.Show(DoShow);
 
     if (DoShow && PaneInfo.IsFloating() && PaneInfo.floating_pos==wxDefaultPosition)
         PaneInfo.FloatingPosition(ClientToScreen(wxPoint(20, 20)));
+
+    if (DoShow && PaneInfo.IsFloating() && PaneInfo.frame)
+        PaneInfo.frame->Raise();
 
     m_AUIManager.Update();
 }

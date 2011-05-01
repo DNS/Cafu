@@ -29,7 +29,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "FilterSettings.hpp"
 
 #include "../EditorMaterial.hpp"
-#include "../GameConfig.hpp"
 
 #include "wx/confbase.h"
 
@@ -138,7 +137,7 @@ MaterialBrowserDialogT::MaterialBrowserDialogT(wxWindow* Parent, const DocAccess
       m_CurrentMaterial(InitialMaterial),
       m_UsedMaterialsList(NULL)
 {
-    Init(m_DocAccess.GetGameConfig()->GetMatMan().GetMaterials(), InitialNameFilter_, OnlyShowUsed_);
+    Init(m_DocAccess.GetMaterials(), InitialNameFilter_, OnlyShowUsed_);
 }
 
 

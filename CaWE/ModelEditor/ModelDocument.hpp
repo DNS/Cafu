@@ -32,6 +32,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 class CafuModelT;
 class CameraT;
 class GameConfigT;
+class EditorMaterialI;
 class MapBrushT;
 
 
@@ -81,13 +82,14 @@ namespace ModelEditor
         void SetPrevAnimSequ();
         void SetAnimSpeed(float NewSpeed);
 
-        const CafuModelT*            GetModel() const        { return m_Model; }
-        const ArrayT<unsigned int>&  GetSelection(ModelElementTypeT Type) const { wxASSERT(Type<3); return m_Selection[Type]; }
-        const ModelAnimationT&       GetAnim() const         { return m_Anim; }
-        const MapBrushT*             GetGround() const       { return m_Ground; }
-        const ArrayT<CameraT*>&      GetCameras() const      { return m_Cameras; }
-        const ArrayT<LightSourceT*>& GetLightSources() const { return m_LightSources; }
-        const GameConfigT*           GetGameConfig() const   { return m_GameConfig; }
+        const CafuModelT*               GetModel() const           { return m_Model; }
+        const ArrayT<unsigned int>&     GetSelection(ModelElementTypeT Type) const { wxASSERT(Type<3); return m_Selection[Type]; }
+        const ArrayT<EditorMaterialI*>& GetEditorMaterials() const { return m_EditorMaterials; }
+        const ModelAnimationT&          GetAnim() const            { return m_Anim; }
+        const MapBrushT*                GetGround() const          { return m_Ground; }
+        const ArrayT<CameraT*>&         GetCameras() const         { return m_Cameras; }
+        const ArrayT<LightSourceT*>&    GetLightSources() const    { return m_LightSources; }
+        const GameConfigT*              GetGameConfig() const      { return m_GameConfig; }
 
         CafuModelT*      GetModel()      { return m_Model; }
         void             SetSelection(ModelElementTypeT Type, const ArrayT<unsigned int>& NewSel) { wxASSERT(Type<3); m_Selection[Type]=NewSel; }
@@ -101,13 +103,14 @@ namespace ModelEditor
         ModelDocumentT(const ModelDocumentT&);      ///< Use of the Copy    Constructor is not allowed.
         void operator = (const ModelDocumentT&);    ///< Use of the Assignment Operator is not allowed.
 
-        CafuModelT*           m_Model;              ///< The model that is being edited.
-        ArrayT<unsigned int>  m_Selection[3];       ///< The selected joints, meshes and animations.
-        ModelAnimationT       m_Anim;               ///< The state of our model animation.
-        MapBrushT*            m_Ground;             ///< The ground brush.
-        ArrayT<CameraT*>      m_Cameras;            ///< The cameras in the scene (used by the 3D views for rendering), there is always at least one.
-        ArrayT<LightSourceT*> m_LightSources;       ///< The light sources that exist in the scene.
-        GameConfigT*          m_GameConfig;         ///< The game configuration that the model is used with.
+        CafuModelT*              m_Model;           ///< The model that is being edited.
+        ArrayT<unsigned int>     m_Selection[3];    ///< The selected joints, meshes and animations.
+        ArrayT<EditorMaterialI*> m_EditorMaterials; ///< One editor material for each material in the model (its material manager).
+        ModelAnimationT          m_Anim;            ///< The state of our model animation.
+        MapBrushT*               m_Ground;          ///< The ground brush.
+        ArrayT<CameraT*>         m_Cameras;         ///< The cameras in the scene (used by the 3D views for rendering), there is always at least one.
+        ArrayT<LightSourceT*>    m_LightSources;    ///< The light sources that exist in the scene.
+        GameConfigT*             m_GameConfig;      ///< The game configuration that the model is used with.
     };
 }
 

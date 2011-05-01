@@ -173,6 +173,7 @@ class CafuModelT : public ModelT
 
     // Inspector methods.
     bool GetUseGivenTS() const { return m_UseGivenTangentSpace; }
+    const MaterialManagerImplT& GetMaterialManager() const { return m_MaterialMan; }
     const ArrayT<JointT>& GetJoints() const { return m_Joints; }
     const ArrayT<MeshT>&  GetMeshes() const { return m_Meshes; }
     const ArrayT<AnimT>&  GetAnims()  const { return m_Anims; }

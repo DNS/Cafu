@@ -26,7 +26,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 class EditorMaterialI;
-class GameConfigT;
 class MapDocumentT;
 namespace GuiEditor { class GuiDocumentT; }
 namespace ModelEditor { class ModelDocumentT; }
@@ -42,10 +41,10 @@ namespace MaterialBrowser
     {
         public:
 
-        virtual const GameConfigT* GetGameConfig() const=0;
+        virtual const ArrayT<EditorMaterialI*>& GetMaterials() const=0;
+        virtual void GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const=0;
         virtual void OnMarkMaterial(EditorMaterialI* Mat) const=0;
         virtual void OnReplaceMaterial(EditorMaterialI* Mat) const=0;
-        virtual void GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const=0;
     };
 
 
@@ -55,10 +54,10 @@ namespace MaterialBrowser
 
         MapDocAccessT(MapDocumentT& MapDoc);
 
-        const GameConfigT* GetGameConfig() const;
+        const ArrayT<EditorMaterialI*>& GetMaterials() const;
+        void GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const;
         void OnMarkMaterial(EditorMaterialI* Mat) const;
         void OnReplaceMaterial(EditorMaterialI* Mat) const;
-        void GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const;
 
 
         private:
@@ -73,10 +72,10 @@ namespace MaterialBrowser
 
         GuiDocAccessT(GuiEditor::GuiDocumentT& GuiDoc);
 
-        const GameConfigT* GetGameConfig() const;
+        const ArrayT<EditorMaterialI*>& GetMaterials() const;
+        void GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const;
         void OnMarkMaterial(EditorMaterialI* Mat) const;
         void OnReplaceMaterial(EditorMaterialI* Mat) const;
-        void GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const;
 
 
         private:
@@ -91,10 +90,10 @@ namespace MaterialBrowser
 
         ModelDocAccessT(ModelEditor::ModelDocumentT& ModelDoc);
 
-        const GameConfigT* GetGameConfig() const;
+        const ArrayT<EditorMaterialI*>& GetMaterials() const;
+        void GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const;
         void OnMarkMaterial(EditorMaterialI* Mat) const;
         void OnReplaceMaterial(EditorMaterialI* Mat) const;
-        void GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const;
 
 
         private:

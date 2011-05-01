@@ -28,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Templates/Array.hpp"
 
+#include <map>
 #include <string>
 
 
@@ -61,9 +62,8 @@ class MaterialManagerI
     ///          Note that only "new", not previously registered materials are considered here!
     virtual ArrayT<MaterialT*> RegisterMaterialScriptsInDir(const std::string& DirName, const std::string& BaseDir, const bool Recurse=true)=0;
 
-    // This method is (currently) not needed.
-    // /// Returns all the materials registered so far.
-    // virtual const std::map<std::string, const MaterialT*>& GetAllMaterials()=0;
+    /// Returns all the materials registered so far.
+    virtual const std::map<std::string, MaterialT*>& GetAllMaterials() const=0;
 
     /// Returns a material by its name.
     /// If the material is not found in the previously registered scripts, NULL is returned.

@@ -21,6 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ModelDocument.hpp"
 #include "../Camera.hpp"
+#include "../EditorMaterialEngine.hpp"
 #include "../GameConfig.hpp"
 #include "../MapBrush.hpp"
 
@@ -91,11 +92,21 @@ ModelEditor::ModelDocumentT::ModelDocumentT(GameConfigT* GameConfig, const wxStr
     m_LightSources.PushBack(new LightSourceT(true,  true, Vector3fT(200.0f,   0.0f, 200.0f), 1500.0f, wxColour(255, 235, 215)));
     m_LightSources.PushBack(new LightSourceT(false, true, Vector3fT(  0.0f, 200.0f, 200.0f), 1500.0f, wxColour(215, 235, 255)));
     m_LightSources.PushBack(new LightSourceT(false, true, Vector3fT(200.0f, 200.0f, 200.0f), 1500.0f, wxColour(235, 255, 215)));
+
+    // Init the editor materials.
+    const std::map<std::string, MaterialT*>& ModelMaterials=m_Model->GetMaterialManager().GetAllMaterials();
+
+    // No need to explicitly sort the m_EditorMaterials array after it has been filled in the order of the std::map.
+    for (std::map<std::string, MaterialT*>::const_iterator It=ModelMaterials.begin(); It!=ModelMaterials.end(); It++)
+        m_EditorMaterials.PushBack(new EngineMaterialT(It->second));
 }
 
 
 ModelEditor::ModelDocumentT::~ModelDocumentT()
 {
+    for (unsigned long MatNr=0; MatNr<m_EditorMaterials.Size(); MatNr++)
+        delete m_EditorMaterials[MatNr];
+
     for (unsigned long LsNr=0; LsNr<m_LightSources.Size(); LsNr++)
         delete m_LightSources[LsNr];
 

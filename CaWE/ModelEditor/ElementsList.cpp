@@ -23,6 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrame.hpp"
 #include "ModelDocument.hpp"
 #include "Commands/Select.hpp"
+
+#include "MaterialSystem/Material.hpp"
 #include "Models/Model_cmdl.hpp"
 
 
@@ -42,6 +44,12 @@ namespace
         {
             Append(ID_MENU_INSPECT_EDIT, "Inspect / Edit\tEnter");
             Append(ID_MENU_RENAME,       "Rename\tF2")->Enable(false);
+
+            /* if (Type==MESH)
+            {
+                Append(..., "Remove unused Vertices");
+                Append(..., "Remove unused Weights");
+            } */
         }
 
         int GetClickedMenuItem() { return ID; }
@@ -94,6 +102,7 @@ ElementsListT::ElementsListT(ChildFrameT* Parent, const wxSize& Size, ModelEleme
 
     InsertColumn(0, "#");
     InsertColumn(1, "Name");
+    if (m_TYPE==MESH) InsertColumn(2, "Material");
 
     m_ModelDoc->RegisterObserver(this);
     InitListItems();
@@ -147,9 +156,14 @@ void ElementsListT::InitListItems()
     {
         InsertItem(ElemNr, wxString::Format("%lu", ElemNr));
         SetItem(ElemNr, 1, wxString(m_TYPE==MESH ? "Mesh" : "Anim") + wxString::Format(" %lu", ElemNr));
+        if (m_TYPE==MESH) SetItem(ElemNr, 2, m_ModelDoc->GetModel()->GetMeshes()[ElemNr].Material->Name);
 
         if (Sel.Find(ElemNr)!=-1) Select(ElemNr);
     }
+
+    // Set the widths of the columns to the width of their longest item.
+    for (int ColNr=0; ColNr<GetColumnCount(); ColNr++)
+        SetColumnWidth(ColNr, wxLIST_AUTOSIZE);
 }
 
 

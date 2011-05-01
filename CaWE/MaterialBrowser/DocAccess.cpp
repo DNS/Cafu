@@ -22,10 +22,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "DocAccess.hpp"
 #include "../DialogReplaceMaterials.hpp"
 #include "../EditorMaterial.hpp"
+#include "../GameConfig.hpp"
 #include "../MapDocument.hpp"
 #include "../GuiEditor/GuiDocument.hpp"
 #include "../MapCommands/ReplaceMat.hpp"
 #include "../ModelEditor/ModelDocument.hpp"
+#include "Models/Model_cmdl.hpp"
 
 
 /*********************/
@@ -38,9 +40,15 @@ MaterialBrowser::MapDocAccessT::MapDocAccessT(MapDocumentT& MapDoc)
 }
 
 
-const GameConfigT* MaterialBrowser::MapDocAccessT::GetGameConfig() const
+const ArrayT<EditorMaterialI*>& MaterialBrowser::MapDocAccessT::GetMaterials() const
 {
-    return m_MapDoc.GetGameConfig();
+    return m_MapDoc.GetGameConfig()->GetMatMan().GetMaterials();
+}
+
+
+void MaterialBrowser::MapDocAccessT::GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const
+{
+    m_MapDoc.GetUsedMaterials(UsedMaterials);
 }
 
 
@@ -71,12 +79,6 @@ void MaterialBrowser::MapDocAccessT::OnReplaceMaterial(EditorMaterialI* Mat) con
 }
 
 
-void MaterialBrowser::MapDocAccessT::GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const
-{
-    m_MapDoc.GetUsedMaterials(UsedMaterials);
-}
-
-
 /*********************/
 /*** GuiDocAccessT ***/
 /*********************/
@@ -87,9 +89,15 @@ MaterialBrowser::GuiDocAccessT::GuiDocAccessT(GuiEditor::GuiDocumentT& GuiDoc)
 }
 
 
-const GameConfigT* MaterialBrowser::GuiDocAccessT::GetGameConfig() const
+const ArrayT<EditorMaterialI*>& MaterialBrowser::GuiDocAccessT::GetMaterials() const
 {
-    return m_GuiDoc.GetGameConfig();
+    return m_GuiDoc.GetGameConfig()->GetMatMan().GetMaterials();
+}
+
+
+void MaterialBrowser::GuiDocAccessT::GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const
+{
+    m_GuiDoc.GetUsedMaterials(UsedMaterials);
 }
 
 
@@ -103,12 +111,6 @@ void MaterialBrowser::GuiDocAccessT::OnReplaceMaterial(EditorMaterialI* Mat) con
 }
 
 
-void MaterialBrowser::GuiDocAccessT::GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const
-{
-    m_GuiDoc.GetUsedMaterials(UsedMaterials);
-}
-
-
 /***********************/
 /*** ModelDocAccessT ***/
 /***********************/
@@ -119,9 +121,33 @@ MaterialBrowser::ModelDocAccessT::ModelDocAccessT(ModelEditor::ModelDocumentT& M
 }
 
 
-const GameConfigT* MaterialBrowser::ModelDocAccessT::GetGameConfig() const
+const ArrayT<EditorMaterialI*>& MaterialBrowser::ModelDocAccessT::GetMaterials() const
 {
-    return m_ModelDoc.GetGameConfig();
+    return m_ModelDoc.GetEditorMaterials();
+}
+
+
+void MaterialBrowser::ModelDocAccessT::GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const
+{
+    UsedMaterials.Overwrite();
+
+    const ArrayT<CafuModelT::MeshT>& Meshes         =m_ModelDoc.GetModel()->GetMeshes();
+    const ArrayT<EditorMaterialI*>&  EditorMaterials=m_ModelDoc.GetEditorMaterials();
+
+    for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
+    {
+        for (unsigned long EMNr=0; EMNr<EditorMaterials.Size(); EMNr++)
+        {
+            EditorMaterialI* EM=EditorMaterials[EMNr];
+
+            if (EM->GetMaterial() == Meshes[MeshNr].Material)
+            {
+                if (UsedMaterials.Find(EM)==-1)
+                    UsedMaterials.PushBack(EM);
+                break;
+            }
+        }
+    }
 }
 
 
@@ -132,11 +158,4 @@ void MaterialBrowser::ModelDocAccessT::OnMarkMaterial(EditorMaterialI* Mat) cons
 
 void MaterialBrowser::ModelDocAccessT::OnReplaceMaterial(EditorMaterialI* Mat) const
 {
-}
-
-
-void MaterialBrowser::ModelDocAccessT::GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const
-{
-    UsedMaterials.Overwrite();
-    // m_ModelDoc.GetUsedMaterials(UsedMaterials);
 }

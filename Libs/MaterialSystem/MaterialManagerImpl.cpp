@@ -344,12 +344,6 @@ ArrayT<MaterialT*> MaterialManagerImplT::RegisterMaterialScriptsInDir(const std:
 }
 
 
-// const ArrayT<MaterialT*>& MaterialManagerImplT::GetAllMaterials()
-// {
-//     return Materials;
-// }
-
-
 MaterialT* MaterialManagerImplT::GetMaterial(const std::string& MaterialName)
 {
     // Note that we are *not* just writing   return Materials[MaterialName]   here, because that

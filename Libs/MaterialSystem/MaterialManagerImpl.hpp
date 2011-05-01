@@ -44,7 +44,7 @@ class MaterialManagerImplT : public MaterialManagerI
 
     /// Registers a copy of the given material \c Mat and returns a pointer to the registered copy.
     /// If a material with the same name \c Mat.Name is already registered with the material manager,
-    /// \c Mat is not registered, but a pointer to the already registered instance with the same is returned
+    /// \c Mat is not registered, but a pointer to the already registered instance with the same name is returned
     /// (use GetMaterial() in advance to unambigiously distingush between the two cases).
     ///
     /// @param Mat   The material of which a copy is to be registered with the material manager.
@@ -54,7 +54,7 @@ class MaterialManagerImplT : public MaterialManagerI
     // The MaterialManagerI interface.
     ArrayT<MaterialT*> RegisterMaterialScript(const std::string& FileName, const std::string& BaseDir);
     ArrayT<MaterialT*> RegisterMaterialScriptsInDir(const std::string& DirName, const std::string& BaseDir, const bool Recurse=true);
- // const std::map<std::string, const MaterialT*>& GetAllMaterials();
+    const std::map<std::string, MaterialT*>& GetAllMaterials() const { return Materials; }
     MaterialT* GetMaterial(const std::string& MaterialName);
  // void ClearAllMaterials();
 

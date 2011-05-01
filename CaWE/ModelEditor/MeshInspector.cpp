@@ -22,8 +22,52 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MeshInspector.hpp"
 #include "ChildFrame.hpp"
 #include "ModelDocument.hpp"
+
+#include "../EditorMaterial.hpp"
+#include "../MaterialBrowser/DocAccess.hpp"
+#include "../MaterialBrowser/MaterialBrowserDialog.hpp"
+
 #include "MaterialSystem/Material.hpp"
 #include "Models/Model_cmdl.hpp"
+
+
+namespace
+{
+    /// Custom property to select materials for meshes.
+    class MaterialPropertyT : public wxLongStringProperty
+    {
+        public:
+
+        MaterialPropertyT(const wxString& name,
+                          const wxString& label,
+                          const wxString& value,
+                          ModelEditor::ModelDocumentT* ModelDoc)
+            : wxLongStringProperty(name, label, value),
+              m_ModelDoc(ModelDoc)
+        {
+        }
+
+        // Shows the file selection dialog and makes the choosen file path relative.
+        virtual bool OnButtonClick(wxPropertyGrid* propGrid, wxString& value)
+        {
+            MaterialBrowserDialogT MatBrowser(GetGrid(), MaterialBrowser::ModelDocAccessT(*m_ModelDoc),
+                                              /*m_ModelDoc->GetGameConfig()->GetMatMan().FindMaterial(GetValueAsString(), false)*/NULL, "", false);
+
+            if (MatBrowser.ShowModal()!=wxID_OK) return false;
+
+            EditorMaterialI* Mat=MatBrowser.GetCurrentMaterial();
+            if (Mat==NULL) return false;
+
+            value=Mat->GetName();
+            return true;
+        }
+
+
+        private:
+
+        ModelEditor::ModelDocumentT* m_ModelDoc;
+    };
+}
 
 
 using namespace ModelEditor;
@@ -103,7 +147,7 @@ void MeshInspectorT::RefreshPropGrid()
         wxPGProperty* Name=Append(new wxStringProperty("Name", wxPG_LABEL, wxString::Format("Mesh %u", Selection[0])));
         DisableProperty(Name);
 
-        Append(new wxStringProperty("Material", wxPG_LABEL, Mesh.Material ? Mesh.Material->Name : "<NULL>"));
+        Append(new MaterialPropertyT("Material", wxPG_LABEL, Mesh.Material ? Mesh.Material->Name : "<NULL>", m_ModelDoc));
 
         wxPGProperty* UseGivenTS=Append(new wxBoolProperty("Use given TS", wxPG_LABEL, false));
         DisableProperty(UseGivenTS);
