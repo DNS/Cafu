@@ -55,7 +55,7 @@ class MaterialManagerImplT : public MaterialManagerI
     ArrayT<MaterialT*> RegisterMaterialScript(const std::string& FileName, const std::string& BaseDir);
     ArrayT<MaterialT*> RegisterMaterialScriptsInDir(const std::string& DirName, const std::string& BaseDir, const bool Recurse=true);
     const std::map<std::string, MaterialT*>& GetAllMaterials() const { return Materials; }
-    MaterialT* GetMaterial(const std::string& MaterialName);
+    MaterialT* GetMaterial(const std::string& MaterialName) const;
  // void ClearAllMaterials();
 
 

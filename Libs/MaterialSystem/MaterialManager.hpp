@@ -67,7 +67,7 @@ class MaterialManagerI
 
     /// Returns a material by its name.
     /// If the material is not found in the previously registered scripts, NULL is returned.
-    virtual MaterialT* GetMaterial(const std::string& MaterialName)=0;
+    virtual MaterialT* GetMaterial(const std::string& MaterialName) const=0;
 
     // This method no longer exists - materials that have been registered once cannot be unregistered again without quitting the program.
     // This is to guarantee that the user code will never be left with stale MaterialT* pointers at any time.

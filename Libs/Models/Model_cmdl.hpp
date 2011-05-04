@@ -35,6 +35,7 @@ class ModelLoaderT;
 namespace MatSys { class RenderMaterialT; }
 namespace ModelEditor { class CommandRenameJointT; }
 namespace ModelEditor { class CommandTransformJointT; }
+namespace ModelEditor { class CommandSetMeshMaterialT; }
 
 
 /// This class represents a native Cafu model.
@@ -197,6 +198,7 @@ class CafuModelT : public ModelT
 
     friend class ModelEditor::CommandRenameJointT;
     friend class ModelEditor::CommandTransformJointT;
+    friend class ModelEditor::CommandSetMeshMaterialT;
 
     void InitMeshes();                                                  ///< An auxiliary method for the constructors.
     void UpdateCachedDrawData(int SequenceNr, float FrameNr) const;     ///< A private auxiliary method.

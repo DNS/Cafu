@@ -344,7 +344,7 @@ ArrayT<MaterialT*> MaterialManagerImplT::RegisterMaterialScriptsInDir(const std:
 }
 
 
-MaterialT* MaterialManagerImplT::GetMaterial(const std::string& MaterialName)
+MaterialT* MaterialManagerImplT::GetMaterial(const std::string& MaterialName) const
 {
     // Note that we are *not* just writing   return Materials[MaterialName]   here, because that
     // would implicitly create a NULL entry for every MaterialName that does not actually exist.
