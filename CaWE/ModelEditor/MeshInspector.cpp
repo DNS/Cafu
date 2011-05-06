@@ -122,12 +122,12 @@ void MeshInspectorT::Notify_SelectionChanged(SubjectT* Subject, ModelElementType
 }
 
 
-/*void MeshInspectorT::Notify_MeshChanged(SubjectT* Subject, unsigned int MeshNr)
+void MeshInspectorT::Notify_MeshChanged(SubjectT* Subject, unsigned int MeshNr)
 {
     if (m_IsRecursiveSelfNotify) return;
 
     RefreshPropGrid();
-}*/
+}
 
 
 void MeshInspectorT::Notify_SubjectDies(SubjectT* dyingSubject)

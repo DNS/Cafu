@@ -60,7 +60,7 @@ bool CommandSetMeshMaterialT::Do()
         Mesh.RenderMaterial=MatSys::Renderer->RegisterMaterial(Mesh.Material);
     }
 
-    // m_ModelDoc->UpdateAllObservers_MeshChanged(m_MeshNr);
+    m_ModelDoc->UpdateAllObservers_MeshChanged(m_MeshNr);
     m_Done=true;
     return true;
 }
@@ -83,7 +83,7 @@ void CommandSetMeshMaterialT::Undo()
         Mesh.RenderMaterial=MatSys::Renderer->RegisterMaterial(Mesh.Material);
     }
 
-    // m_ModelDoc->UpdateAllObservers_MeshChanged(m_MeshNr);
+    m_ModelDoc->UpdateAllObservers_MeshChanged(m_MeshNr);
     m_Done=false;
 }
 

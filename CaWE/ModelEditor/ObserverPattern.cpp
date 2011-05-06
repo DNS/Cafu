@@ -73,6 +73,13 @@ void SubjectT::UpdateAllObservers_JointChanged(unsigned int JointNr)
 }
 
 
+void SubjectT::UpdateAllObservers_MeshChanged(unsigned int MeshNr)
+{
+    for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
+        m_Observers[ObsNr]->Notify_MeshChanged(this, MeshNr);
+}
+
+
 SubjectT::~SubjectT()
 {
     for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)

@@ -135,6 +135,15 @@ void ElementsListT::Notify_SelectionChanged(SubjectT* Subject, ModelElementTypeT
 }
 
 
+void ElementsListT::Notify_MeshChanged(SubjectT* Subject, unsigned int MeshNr)
+{
+    if (m_IsRecursiveSelfNotify) return;
+    if (m_TYPE!=MESH) return;
+
+    InitListItems();
+}
+
+
 void ElementsListT::Notify_SubjectDies(SubjectT* dyingSubject)
 {
     wxASSERT(dyingSubject==m_ModelDoc);
