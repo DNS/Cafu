@@ -25,28 +25,31 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/wx.h"
 
 
-class MaterialBrowserDialogT;
-
-
-class FilterSettingsT : public wxPanel
+namespace MaterialBrowser
 {
-    public:
-
-    FilterSettingsT(MaterialBrowserDialogT* Parent);
-
-    wxString GetNameFilterValue() const;
+    class DialogT;
 
 
-    private:
+    class FilterSettingsT : public wxPanel
+    {
+        public:
 
-    MaterialBrowserDialogT* m_Parent;
+        FilterSettingsT(DialogT* Parent);
 
-    wxComboBox*   m_NameFilterCombobox;
-    wxCheckBox*   m_OnlyShowUsedCheckbox;
-    wxCheckBox*   m_OnlyShowEditorMaterials;
+        wxString GetNameFilterValue() const;
+        void     SetNameFilterValue(const wxString& s);
 
-    friend class MaterialBrowserDialogT;
-    friend class ScrolledMaterialWindowT;
-};
+        bool OnlyShowUsed() const       { return m_OnlyShowUsedCheckbox && m_OnlyShowUsedCheckbox->IsChecked(); }
+        bool OnlyShowEditorMats() const { return m_OnlyShowEditorMaterials && m_OnlyShowEditorMaterials->IsChecked(); }
+
+
+        private:
+
+        DialogT*    m_Parent;
+        wxComboBox* m_NameFilterCombobox;
+        wxCheckBox* m_OnlyShowUsedCheckbox;
+        wxCheckBox* m_OnlyShowEditorMaterials;
+    };
+}
 
 #endif

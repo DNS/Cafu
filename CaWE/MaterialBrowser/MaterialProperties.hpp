@@ -29,23 +29,28 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 class EditorMaterialI;
-class MaterialBrowserDialogT;
 
 
-class MaterialPropertiesT : public wxPropertyGridManager
+namespace MaterialBrowser
 {
-    public:
-
-    MaterialPropertiesT(MaterialBrowserDialogT* Parent);
-
-    void ShowMaterial(EditorMaterialI* EditorMaterial);
+    class DialogT;
 
 
-    private:
+    class MaterialPropertiesT : public wxPropertyGridManager
+    {
+        public:
 
-    void OnValueChanging(wxPropertyGridEvent& Event);
+        MaterialPropertiesT(DialogT* Parent);
 
-    DECLARE_EVENT_TABLE()
-};
+        void ShowMaterial(EditorMaterialI* EditorMaterial);
+
+
+        private:
+
+        void OnValueChanging(wxPropertyGridEvent& Event);
+
+        DECLARE_EVENT_TABLE()
+    };
+}
 
 #endif

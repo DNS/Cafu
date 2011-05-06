@@ -51,8 +51,21 @@ namespace
         // Shows the file selection dialog and makes the choosen file path relative.
         virtual bool OnButtonClick(wxPropertyGrid* propGrid, wxString& value)
         {
-            MaterialBrowserDialogT MatBrowser(GetGrid(), MaterialBrowser::ModelDocAccessT(*m_ModelDoc),
-                                              /*m_ModelDoc->GetGameConfig()->GetMatMan().FindMaterial(GetValueAsString(), false)*/NULL, "", false);
+            EditorMaterialI*                 InitMat=NULL;
+            const ArrayT<EditorMaterialI*>&  EditorMaterials=m_ModelDoc->GetEditorMaterials();
+
+            for (unsigned long EMNr=0; EMNr<EditorMaterials.Size(); EMNr++)
+                if (EditorMaterials[EMNr]->GetName()==value)
+                {
+                    InitMat=EditorMaterials[EMNr];
+                    break;
+                }
+
+            MaterialBrowser::DialogT MatBrowser(GetGrid(), MaterialBrowser::ModelDocAccessT(*m_ModelDoc), MaterialBrowser::ConfigT()
+                .InitialMaterial(InitMat)
+                .NoFilterEditorMatsOnly()
+                .NoButtonMark()
+                .NoButtonReplace());
 
             if (MatBrowser.ShowModal()!=wxID_OK) return false;
 

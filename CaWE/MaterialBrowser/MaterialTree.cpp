@@ -20,7 +20,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "MaterialTree.hpp"
-
 #include "MaterialBrowserDialog.hpp"
 #include "ScrolledMaterialWin.hpp"
 
@@ -30,41 +29,47 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/wupdlock.h"
 
 
-static ArrayT<wxString> GetMaterialNameParts(wxString MaterialName)
+namespace
 {
-    ArrayT<wxString> NameParts;
-
-    int Index=MaterialName.Find('/');
-
-    // Split material with delimiter '/' to get name parts.
-    while (Index!=wxNOT_FOUND)
+    ArrayT<wxString> GetMaterialNameParts(wxString MaterialName)
     {
-        // Remove this part from the string and add it to our name parts.
-        NameParts.PushBack(MaterialName.substr(0, Index));
-        MaterialName.erase(0, Index+1);
+        ArrayT<wxString> NameParts;
 
-        Index=MaterialName.Find('/');
+        int Index=MaterialName.Find('/');
+
+        // Split material with delimiter '/' to get name parts.
+        while (Index!=wxNOT_FOUND)
+        {
+            // Remove this part from the string and add it to our name parts.
+            NameParts.PushBack(MaterialName.substr(0, Index));
+            MaterialName.erase(0, Index+1);
+
+            Index=MaterialName.Find('/');
+        }
+
+        Index=MaterialName.Len();
+
+        // Get the last part.
+        NameParts.PushBack(MaterialName.substr(0, Index));
+
+        return NameParts;
     }
 
-    Index=MaterialName.Len();
 
-    // Get the last part.
-    NameParts.PushBack(MaterialName.substr(0, Index));
+    class MaterialTreeItemT : public wxTreeItemData
+    {
+        public:
 
-    return NameParts;
+        MaterialTreeItemT(EditorMaterialI* Material_) : Material(Material_)
+        {
+        }
+
+        EditorMaterialI* Material;
+    };
 }
 
 
-class MaterialTreeItemT : public wxTreeItemData
-{
-    public:
-
-    MaterialTreeItemT(EditorMaterialI* Material_) : Material(Material_)
-    {
-    }
-
-    EditorMaterialI* Material;
-};
+using namespace MaterialBrowser;
 
 
 BEGIN_EVENT_TABLE(MaterialTreeT, wxTreeCtrl)
@@ -72,7 +77,7 @@ BEGIN_EVENT_TABLE(MaterialTreeT, wxTreeCtrl)
 END_EVENT_TABLE()
 
 
-MaterialTreeT::MaterialTreeT(MaterialBrowserDialogT* Parent, const ArrayT<EditorMaterialI*>& Materials)
+MaterialTreeT::MaterialTreeT(DialogT* Parent, const ArrayT<EditorMaterialI*>& Materials)
     : wxTreeCtrl(Parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTR_HAS_BUTTONS|wxTR_LINES_AT_ROOT|wxSUNKEN_BORDER),
       m_Parent(Parent),
       m_IsRecursiveSelfNotify(false)

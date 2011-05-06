@@ -20,14 +20,16 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "ControlsBar.hpp"
-
 #include "MaterialBrowserDialog.hpp"
 
 #include "wx/statline.h"
 #include "wx/confbase.h"
 
 
-ControlsBarT::ControlsBarT(MaterialBrowserDialogT* Parent, bool MapEditorOptionsBar)
+using namespace MaterialBrowser;
+
+
+ControlsBarT::ControlsBarT(DialogT* Parent)
     : wxPanel(Parent, wxID_ANY),
       m_Parent(Parent),
       m_DisplaySizeChoice(NULL)
@@ -48,7 +50,7 @@ ControlsBarT::ControlsBarT(MaterialBrowserDialogT* Parent, bool MapEditorOptions
         wxT("max. 256 x 256"),
         wxT("max. 512 x 512")
     };
-    m_DisplaySizeChoice=new wxChoice( this, MaterialBrowserDialogT::ID_CHOICE_DisplaySize, wxDefaultPosition, wxDefaultSize, 4, strs6, 0 );
+    m_DisplaySizeChoice=new wxChoice( this, DialogT::ID_CHOICE_DisplaySize, wxDefaultPosition, wxDefaultSize, 4, strs6, 0 );
     item4->Add(m_DisplaySizeChoice, 0, wxALIGN_CENTER|wxALL, 5 );
 
     item3->Add( item4, 0, wxALIGN_LEFT, 5 );
@@ -63,16 +65,19 @@ ControlsBarT::ControlsBarT(MaterialBrowserDialogT* Parent, bool MapEditorOptions
 
     if (wxConfigBase::Get()->Read("General/Activate Hidden", 0L)==0x1978)
     {
-        wxButton* ExportDiffuseMapsButton=new wxButton(this, MaterialBrowserDialogT::ID_BUTTON_ExportDiffMaps, wxT("Export Diff-Maps"), wxDefaultPosition, wxDefaultSize, 0 );
+        wxButton* ExportDiffuseMapsButton=new wxButton(this, DialogT::ID_BUTTON_ExportDiffMaps, wxT("Export Diff-Maps"), wxDefaultPosition, wxDefaultSize, 0 );
         item18->Add(ExportDiffuseMapsButton, 0, wxALL, 5 );
     }
 
-    if (MapEditorOptionsBar)
+    if (!Parent->m_Config.m_NoButtonMark)
     {
-        wxButton *item20 = new wxButton( this, MaterialBrowserDialogT::ID_BUTTON_Mark, wxT("Mark"), wxDefaultPosition, wxDefaultSize, 0 );
+        wxButton *item20 = new wxButton( this, DialogT::ID_BUTTON_Mark, wxT("Mark"), wxDefaultPosition, wxDefaultSize, 0 );
         item18->Add( item20, 0, wxALIGN_CENTER|wxALL, 5 );
+    }
 
-        wxButton *item21 = new wxButton( this, MaterialBrowserDialogT::ID_BUTTON_Replace, wxT("Replace"), wxDefaultPosition, wxDefaultSize, 0 );
+    if (!Parent->m_Config.m_NoButtonReplace)
+    {
+        wxButton *item21 = new wxButton( this, DialogT::ID_BUTTON_Replace, wxT("Replace"), wxDefaultPosition, wxDefaultSize, 0 );
         item18->Add( item21, 0, wxALIGN_CENTER|wxALL, 5 );
     }
 

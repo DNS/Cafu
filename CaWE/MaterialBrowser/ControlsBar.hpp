@@ -25,23 +25,25 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/wx.h"
 
 
-class MaterialBrowserDialogT;
-
-
-class ControlsBarT : public wxPanel
+namespace MaterialBrowser
 {
-    public:
-
-    ControlsBarT(MaterialBrowserDialogT* Parent, bool MapEditorOptionsBar=true);
+    class DialogT;
 
 
-    private:
+    class ControlsBarT : public wxPanel
+    {
+        public:
 
-    MaterialBrowserDialogT* m_Parent;
+        ControlsBarT(DialogT* Parent);
 
-    wxChoice* m_DisplaySizeChoice;
 
-    friend class MaterialBrowserDialogT;
-};
+        private:
+
+        DialogT*  m_Parent;
+        wxChoice* m_DisplaySizeChoice;
+
+        friend class DialogT;
+    };
+}
 
 #endif

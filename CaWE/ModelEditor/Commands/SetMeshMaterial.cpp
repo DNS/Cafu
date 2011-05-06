@@ -21,7 +21,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "SetMeshMaterial.hpp"
 #include "../ModelDocument.hpp"
-#include "MaterialSystem/Material.hpp"  // NUR FÜR wxLogDebug
 #include "MaterialSystem/Renderer.hpp"
 #include "Models/Model_cmdl.hpp"
 

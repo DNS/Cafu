@@ -26,12 +26,15 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Material.hpp"
 
 
+using namespace MaterialBrowser;
+
+
 BEGIN_EVENT_TABLE(MaterialPropertiesT, wxPropertyGridManager)
     EVT_PG_CHANGING(wxID_ANY, MaterialPropertiesT::OnValueChanging)
 END_EVENT_TABLE()
 
 
-MaterialPropertiesT::MaterialPropertiesT(MaterialBrowserDialogT* Parent)
+MaterialPropertiesT::MaterialPropertiesT(DialogT* Parent)
     : wxPropertyGridManager(Parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxPG_BOLD_MODIFIED | wxPG_SPLITTER_AUTO_CENTER)
 {
     SetExtraStyle(wxPG_EX_HELP_AS_TOOLTIPS | wxPG_EX_MODE_BUTTONS);

@@ -1097,8 +1097,9 @@ void EditSurfacePropsDialogT::OnButtonBrowseMats(wxCommandEvent& Event)
 {
     int Index=ChoiceCurrentMat->GetSelection();
 
-    MaterialBrowserDialogT MatBrowser(this, MaterialBrowser::MapDocAccessT(*m_MapDoc),
-                                      Index!=-1 ? (EditorMaterialI*)ChoiceCurrentMat->GetClientData(Index) : NULL, "", false);
+    MaterialBrowser::DialogT MatBrowser(this,
+        MaterialBrowser::MapDocAccessT(*m_MapDoc),
+        MaterialBrowser::ConfigT().InitialMaterial(Index!=-1 ? (EditorMaterialI*)ChoiceCurrentMat->GetClientData(Index) : NULL));
 
     if (MatBrowser.ShowModal()!=wxID_OK) return;
 

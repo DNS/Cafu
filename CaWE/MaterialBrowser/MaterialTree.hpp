@@ -28,32 +28,37 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 class EditorMaterialI;
-class MaterialBrowserDialogT;
 
 
-class MaterialTreeT : public wxTreeCtrl
+namespace MaterialBrowser
 {
-    public:
-
-    MaterialTreeT(MaterialBrowserDialogT* Parent, const ArrayT<EditorMaterialI*>& Materials);
-
-    void SelectMaterial(const EditorMaterialI* Material);
-    void ShowEditorOnly(bool EditorOnly=true);
+    class DialogT;
 
 
-    private:
+    class MaterialTreeT : public wxTreeCtrl
+    {
+        public:
 
-    MaterialBrowserDialogT* m_Parent;
+        MaterialTreeT(DialogT* Parent, const ArrayT<EditorMaterialI*>& Materials);
 
-    bool m_IsRecursiveSelfNotify;
+        void SelectMaterial(const EditorMaterialI* Material);
+        void ShowEditorOnly(bool EditorOnly=true);
 
-    // Helper methods.
-    wxTreeItemId GetChildByName(const wxTreeItemId& Parent, const wxString& Name, bool OnlyCategories, bool Recursive);
-    wxTreeItemId GetItemByMaterial(const EditorMaterialI* Material);
 
-    void OnSelectionChanged(wxTreeEvent& TE);
+        private:
 
-    DECLARE_EVENT_TABLE()
-};
+        DialogT* m_Parent;
+
+        bool m_IsRecursiveSelfNotify;
+
+        // Helper methods.
+        wxTreeItemId GetChildByName(const wxTreeItemId& Parent, const wxString& Name, bool OnlyCategories, bool Recursive);
+        wxTreeItemId GetItemByMaterial(const EditorMaterialI* Material);
+
+        void OnSelectionChanged(wxTreeEvent& TE);
+
+        DECLARE_EVENT_TABLE()
+    };
+}
 
 #endif

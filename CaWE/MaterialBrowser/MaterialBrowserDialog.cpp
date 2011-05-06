@@ -33,25 +33,39 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/confbase.h"
 
 
+using namespace MaterialBrowser;
+
+
+ConfigT::ConfigT()
+    : m_InitialMaterial(NULL),
+      m_InitialNameFilter(""),
+      m_OnlyShowUsed(false),
+      m_NoFilterEditorMatsOnly(false),
+      m_NoButtonMark(false),
+      m_NoButtonReplace(false)
+{
+}
+
+
 static ArrayT<wxString> NameFilterHistory;      // Updated on each dialog exit.
 
 
-BEGIN_EVENT_TABLE(MaterialBrowserDialogT, wxDialog)
- // EVT_?????   (MaterialBrowserDialogT::ID_SCROLLED_MaterialWindow, MaterialBrowserDialogT::OnScrolled_MaterialWindow)
-    EVT_CHOICE  (MaterialBrowserDialogT::ID_CHOICE_DisplaySize,      MaterialBrowserDialogT::OnChoice_DisplaySize)
-    EVT_BUTTON  (MaterialBrowserDialogT::ID_BUTTON_Mark,             MaterialBrowserDialogT::OnButton_Mark)
-    EVT_BUTTON  (MaterialBrowserDialogT::ID_BUTTON_Replace,          MaterialBrowserDialogT::OnButton_Replace)
-    EVT_BUTTON  (MaterialBrowserDialogT::ID_BUTTON_ExportDiffMaps,   MaterialBrowserDialogT::OnButton_ExportDiffMaps)
-    EVT_BUTTON  (wxID_CANCEL,                                        MaterialBrowserDialogT::OnButton_Cancel)
-    EVT_COMBOBOX(MaterialBrowserDialogT::ID_COMBO_NameFilter,        MaterialBrowserDialogT::OnCombobox_NameFilterSelection)
-    EVT_TEXT    (MaterialBrowserDialogT::ID_COMBO_NameFilter,        MaterialBrowserDialogT::OnCombobox_NameFilterTextChange)
- // EVT_?????   (MaterialBrowserDialogT::ID_COMBO_KeywordFilter,     MaterialBrowserDialogT::OnXXX_KeywordFilter)
-    EVT_CHECKBOX(MaterialBrowserDialogT::ID_CHECKBOX_OnlyShowUsed,   MaterialBrowserDialogT::OnCheckbox_OnlyShowUsed)
-    EVT_CHECKBOX(MaterialBrowserDialogT::ID_CHECKBOX_OnlyShowEditor, MaterialBrowserDialogT::OnCheckbox_OnlyShowEditor)
+BEGIN_EVENT_TABLE(DialogT, wxDialog)
+ // EVT_?????   (DialogT::ID_SCROLLED_MaterialWindow, DialogT::OnScrolled_MaterialWindow)
+    EVT_CHOICE  (DialogT::ID_CHOICE_DisplaySize,      DialogT::OnChoice_DisplaySize)
+    EVT_BUTTON  (DialogT::ID_BUTTON_Mark,             DialogT::OnButton_Mark)
+    EVT_BUTTON  (DialogT::ID_BUTTON_Replace,          DialogT::OnButton_Replace)
+    EVT_BUTTON  (DialogT::ID_BUTTON_ExportDiffMaps,   DialogT::OnButton_ExportDiffMaps)
+    EVT_BUTTON  (wxID_CANCEL,                         DialogT::OnButton_Cancel)
+    EVT_COMBOBOX(DialogT::ID_COMBO_NameFilter,        DialogT::OnCombobox_NameFilterSelection)
+    EVT_TEXT    (DialogT::ID_COMBO_NameFilter,        DialogT::OnCombobox_NameFilterTextChange)
+ // EVT_?????   (DialogT::ID_COMBO_KeywordFilter,     DialogT::OnXXX_KeywordFilter)
+    EVT_CHECKBOX(DialogT::ID_CHECKBOX_OnlyShowUsed,   DialogT::OnCheckbox_OnlyShowUsed)
+    EVT_CHECKBOX(DialogT::ID_CHECKBOX_OnlyShowEditor, DialogT::OnCheckbox_OnlyShowEditor)
 END_EVENT_TABLE()
 
 
-void MaterialBrowserDialogT::Init(const ArrayT<EditorMaterialI*>& Materials, const wxString& InitialNameFilter, bool OnlyShowUsed)
+void DialogT::Init(const ArrayT<EditorMaterialI*>& Materials)
 {
     // Set this dialog to be managed by wxAUI.
     m_AUIManager.SetManagedWindow(this);
@@ -62,7 +76,7 @@ void MaterialBrowserDialogT::Init(const ArrayT<EditorMaterialI*>& Materials, con
     wxBusyCursor BusyCursor;
 
     m_ScrolledMatWin    =new ScrolledMaterialWindowT(this, wxID_ANY, Materials);
-    m_ControlsBar       =new ControlsBarT(this, true);
+    m_ControlsBar       =new ControlsBarT(this);
     m_MaterialTree      =new MaterialTreeT(this, Materials);
     m_MaterialProperties=new MaterialPropertiesT(this);
     m_FilterSettings    =new FilterSettingsT(this);
@@ -84,15 +98,15 @@ void MaterialBrowserDialogT::Init(const ArrayT<EditorMaterialI*>& Materials, con
 
     // If no explicit initial name filter was specified but we have some history record,
     // set the first entry of the history, otherwise set the (possibly empty) initial name filter.
-    m_FilterSettings->m_NameFilterCombobox->SetValue(InitialNameFilter=="" && NameFilterHistory.Size()>0 ? NameFilterHistory[0] : InitialNameFilter);
+    m_FilterSettings->SetNameFilterValue(m_Config.m_InitialNameFilter=="" && NameFilterHistory.Size()>0 ? NameFilterHistory[0] : m_Config.m_InitialNameFilter);
 
     // Setup the "Display Size" choice.
     const int SelectionIndex=wxConfigBase::Get()->Read("Material Browser Dialog/DisplaySizeSelection", 0l);
     m_ControlsBar->m_DisplaySizeChoice->SetSelection(SelectionIndex>=0 ? SelectionIndex : 0);
     wxCommandEvent CE1; OnChoice_DisplaySize(CE1);
 
-    // Setup the "Only show used" checkbox.
-    m_FilterSettings->m_OnlyShowUsedCheckbox->SetValue(OnlyShowUsed);
+    // Setup (initiaize for) the "Only show used" checkbox.
+    // ( Now in filter ctor: m_FilterSettings->m_OnlyShowUsedCheckbox->SetValue(m_Config.m_OnlyShowUsed); )
     wxCommandEvent CE2; OnCheckbox_OnlyShowUsed(CE2);
 
     // Note that the sizes set here are merely hints for wxAUI on how to size the panes.
@@ -125,41 +139,42 @@ void MaterialBrowserDialogT::Init(const ArrayT<EditorMaterialI*>& Materials, con
 }
 
 
-MaterialBrowserDialogT::MaterialBrowserDialogT(wxWindow* Parent, const DocAccessI& DocAccess, EditorMaterialI* InitialMaterial, const wxString& InitialNameFilter_, bool OnlyShowUsed_)
+DialogT::DialogT(wxWindow* Parent, const DocAccessI& DocAccess, const ConfigT& Config)
     : wxDialog(Parent, -1, wxString("CaWE Material Browser"), wxDefaultPosition, wxSize(800, 600), wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxMAXIMIZE_BOX),
       m_DocAccess(DocAccess),       // Must use a fixed size in place of wxDefaultSize, see <http://trac.wxwidgets.org/ticket/12490> for details.
+      m_Config(Config),
       m_ScrolledMatWin(NULL),
       m_ControlsBar(NULL),
       m_MaterialTree(NULL),
       m_MaterialProperties(NULL),
       m_FilterSettings(NULL),
       DisplaySize(0),
-      m_CurrentMaterial(InitialMaterial),
+      m_CurrentMaterial(Config.m_InitialMaterial),
       m_UsedMaterialsList(NULL)
 {
-    Init(m_DocAccess.GetMaterials(), InitialNameFilter_, OnlyShowUsed_);
+    Init(m_DocAccess.GetMaterials());
 }
 
 
-MaterialBrowserDialogT::~MaterialBrowserDialogT()
+DialogT::~DialogT()
 {
     m_AUIManager.UnInit();
 }
 
 
-EditorMaterialI* MaterialBrowserDialogT::GetCurrentMaterial() const
+EditorMaterialI* DialogT::GetCurrentMaterial() const
 {
     return m_CurrentMaterial;
 }
 
 
-const ArrayT<wxString>& MaterialBrowserDialogT::GetNameFilterHistory()
+const ArrayT<wxString>& DialogT::GetNameFilterHistory()
 {
     return NameFilterHistory;
 }
 
 
-void MaterialBrowserDialogT::SelectMaterial(EditorMaterialI* Material)
+void DialogT::SelectMaterial(EditorMaterialI* Material)
 {
     m_CurrentMaterial=Material;
 
@@ -169,19 +184,19 @@ void MaterialBrowserDialogT::SelectMaterial(EditorMaterialI* Material)
 }
 
 
-void MaterialBrowserDialogT::SaveAndQuitDialog(int ReturnValue)
+void DialogT::SaveAndQuitDialog(int ReturnValue)
 {
     // Update the NameFilterHistory with the current string in the NameFilterCombobox.
     // If the current name filter is already in the history, delete it.
     for (unsigned long FilterNr=0; FilterNr<NameFilterHistory.Size(); FilterNr++)
-        if (wxStricmp(NameFilterHistory[FilterNr], m_FilterSettings->m_NameFilterCombobox->GetValue())==0)
+        if (wxStricmp(NameFilterHistory[FilterNr], m_FilterSettings->GetNameFilterValue())==0)
         {
             NameFilterHistory.RemoveAtAndKeepOrder(FilterNr);
             break;
         }
 
     // Now insert the current name filter at NameFilterHistory[0].
-    NameFilterHistory.InsertAt(0, m_FilterSettings->m_NameFilterCombobox->GetValue());
+    NameFilterHistory.InsertAt(0, m_FilterSettings->GetNameFilterValue());
 
 
     // Save the dialogs position and size in the config file.
@@ -202,7 +217,7 @@ void MaterialBrowserDialogT::SaveAndQuitDialog(int ReturnValue)
 /*** Event Handler Functions ***/
 /*******************************/
 
-void MaterialBrowserDialogT::OnChoice_DisplaySize(wxCommandEvent& Event)
+void DialogT::OnChoice_DisplaySize(wxCommandEvent& Event)
 {
     switch (m_ControlsBar->m_DisplaySizeChoice->GetSelection())
     {
@@ -222,7 +237,7 @@ void MaterialBrowserDialogT::OnChoice_DisplaySize(wxCommandEvent& Event)
 }
 
 
-void MaterialBrowserDialogT::OnButton_Mark(wxCommandEvent& Event)
+void DialogT::OnButton_Mark(wxCommandEvent& Event)
 {
     if (m_CurrentMaterial==NULL) { wxMessageBox("Please select a material first!", "Currently no material is selected."); return; }
 
@@ -231,28 +246,28 @@ void MaterialBrowserDialogT::OnButton_Mark(wxCommandEvent& Event)
 }
 
 
-void MaterialBrowserDialogT::OnButton_Replace(wxCommandEvent& Event)
+void DialogT::OnButton_Replace(wxCommandEvent& Event)
 {
     if (m_CurrentMaterial==NULL) { wxMessageBox("Please select a material first!", "Currently no material is selected."); return; }
 
     m_DocAccess.OnReplaceMaterial(m_CurrentMaterial);
-    if (m_FilterSettings->m_OnlyShowUsedCheckbox->IsChecked()) { wxCommandEvent CE; OnCheckbox_OnlyShowUsed(CE); }
+    if (m_FilterSettings->OnlyShowUsed()) { wxCommandEvent CE; OnCheckbox_OnlyShowUsed(CE); }
 }
 
 
-void MaterialBrowserDialogT::OnButton_ExportDiffMaps(wxCommandEvent& Event)
+void DialogT::OnButton_ExportDiffMaps(wxCommandEvent& Event)
 {
     m_ScrolledMatWin->ExportDiffuseMaps(wxDirSelector("Please select the destination directory for the export.", "."));
 }
 
 
-void MaterialBrowserDialogT::OnButton_Cancel(wxCommandEvent& Event)
+void DialogT::OnButton_Cancel(wxCommandEvent& Event)
 {
     SaveAndQuitDialog(wxID_CANCEL);
 }
 
 
-void MaterialBrowserDialogT::OnCombobox_NameFilterSelection(wxCommandEvent& Event)
+void DialogT::OnCombobox_NameFilterSelection(wxCommandEvent& Event)
 {
     m_ScrolledMatWin->UpdateVirtualSize();
     m_ScrolledMatWin->SelectMaterial(m_CurrentMaterial);
@@ -260,7 +275,7 @@ void MaterialBrowserDialogT::OnCombobox_NameFilterSelection(wxCommandEvent& Even
 }
 
 
-void MaterialBrowserDialogT::OnCombobox_NameFilterTextChange(wxCommandEvent& Event)
+void DialogT::OnCombobox_NameFilterTextChange(wxCommandEvent& Event)
 {
     m_ScrolledMatWin->UpdateVirtualSize();
     m_ScrolledMatWin->SelectMaterial(m_CurrentMaterial);
@@ -268,9 +283,9 @@ void MaterialBrowserDialogT::OnCombobox_NameFilterTextChange(wxCommandEvent& Eve
 }
 
 
-void MaterialBrowserDialogT::OnCheckbox_OnlyShowUsed(wxCommandEvent& Event)
+void DialogT::OnCheckbox_OnlyShowUsed(wxCommandEvent& Event)
 {
-    if (m_FilterSettings->m_OnlyShowUsedCheckbox->IsChecked())
+    if (m_FilterSettings->OnlyShowUsed())
     {
         static ArrayT<EditorMaterialI*> UsedMatList;
 
@@ -288,7 +303,7 @@ void MaterialBrowserDialogT::OnCheckbox_OnlyShowUsed(wxCommandEvent& Event)
 }
 
 
-void MaterialBrowserDialogT::OnCheckbox_OnlyShowEditor(wxCommandEvent& Event)
+void DialogT::OnCheckbox_OnlyShowEditor(wxCommandEvent& Event)
 {
     m_ScrolledMatWin->UpdateVirtualSize();
     m_ScrolledMatWin->SelectMaterial(m_CurrentMaterial);

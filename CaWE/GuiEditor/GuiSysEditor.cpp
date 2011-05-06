@@ -100,8 +100,11 @@ class MaterialPropertyT : public wxLongStringProperty
     // Shows the file selection dialog and makes the choosen file path relative.
     virtual bool OnButtonClick(wxPropertyGrid* propGrid, wxString& value)
     {
-        MaterialBrowserDialogT MatBrowser(GetGrid(), MaterialBrowser::GuiDocAccessT(*m_GuiDocument),
-                                          m_GuiDocument->GetGameConfig()->GetMatMan().FindMaterial(GetValueAsString(), false), "", false);
+        MaterialBrowser::DialogT MatBrowser(GetGrid(), MaterialBrowser::GuiDocAccessT(*m_GuiDocument), MaterialBrowser::ConfigT()
+            .InitialMaterial(m_GuiDocument->GetGameConfig()->GetMatMan().FindMaterial(GetValueAsString(), false))
+         // .ShowEditorMatsOnly(false)
+            .NoButtonMark()
+            .NoButtonReplace());
 
         if (MatBrowser.ShowModal()!=wxID_OK) return false;
 

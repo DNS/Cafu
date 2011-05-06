@@ -762,7 +762,7 @@ void OptionsDialogT::OnButton_GameCfg_PickCordonTexture(wxCommandEvent& Event)
 {
     // I've disabled this button from being clicked - see comment near item36->Disable() above for details.
 #if 0
-    MaterialBrowserDialogT MatBrowser(this, NULL /*no document*/, GameCfg_LastSelConfig->GetMatMan().FindMaterial(GameCfg_CordonTexture->GetValue(), false), "", false);
+    MaterialBrowser::DialogT MatBrowser(this, NULL /*no document*/, GameCfg_LastSelConfig->GetMatMan().FindMaterial(GameCfg_CordonTexture->GetValue(), false), "", false);
 
     if (MatBrowser.ShowModal()==wxID_OK)
         if (MatBrowser.GetCurrentMaterial()!=NULL)

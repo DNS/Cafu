@@ -34,6 +34,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/tokenzr.h"
 
 
+using namespace MaterialBrowser;
+
+
 BEGIN_EVENT_TABLE(ScrolledMaterialWindowT, wxScrolledWindow)
     EVT_SIZE(ScrolledMaterialWindowT::OnSize)
     EVT_LEFT_DOWN(ScrolledMaterialWindowT::OnLeftButtonDown)
@@ -47,7 +50,7 @@ const int ScrolledMaterialWindowT::Padding              = 4;
 const int ScrolledMaterialWindowT::MaterialNameBoxHeight=14;
 
 
-ScrolledMaterialWindowT::ScrolledMaterialWindowT(MaterialBrowserDialogT* Parent, wxWindowID OurID, const ArrayT<EditorMaterialI*>& Materials)
+ScrolledMaterialWindowT::ScrolledMaterialWindowT(DialogT* Parent, wxWindowID OurID, const ArrayT<EditorMaterialI*>& Materials)
     : wxScrolledWindow(Parent, OurID, wxDefaultPosition, wxDefaultSize, wxHSCROLL|wxVSCROLL|wxSUNKEN_BORDER),
       m_Parent(Parent),
       m_Materials(Materials)
@@ -131,7 +134,7 @@ ScrolledMaterialWindowT::TexPosEnumT* ScrolledMaterialWindowT::EnumTexturePositi
         TPE.Index++;
 
         // Only show editor materials if filter option is checked.
-        if (!TPE.Mat->ShowInMaterialBrowser() && m_Parent->m_FilterSettings->m_OnlyShowEditorMaterials->IsChecked()) continue;
+        if (!TPE.Mat->ShowInMaterialBrowser() && m_Parent->m_FilterSettings->OnlyShowEditorMats()) continue;
 
         // Filter by used materials list.
         if (m_Parent->m_UsedMaterialsList!=NULL)
