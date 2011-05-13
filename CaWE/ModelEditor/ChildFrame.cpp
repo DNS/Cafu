@@ -473,7 +473,7 @@ void ModelEditor::ChildFrameT::OnClose(wxCloseEvent& CE)
     const int Answer=wxMessageBox("The model has been modified since it was last saved.\n"
         "Do you want to save it before closing?\n"
         "Note that when you select 'No', all changes since the last save will be LOST.",
-        "Save GUI before closing?", wxYES_NO | wxCANCEL | wxICON_EXCLAMATION);
+        "Save model before closing?", wxYES_NO | wxCANCEL | wxICON_EXCLAMATION);
 
     switch (Answer)
     {
@@ -485,7 +485,7 @@ void ModelEditor::ChildFrameT::OnClose(wxCloseEvent& CE)
                 return;
             }
 
-            // The GUI was successfully saved - close the window.
+            // The model was successfully saved - close the window.
             Destroy();
             return;
 

@@ -125,6 +125,7 @@ class MaterialT
 
     // Material meta-parameters for the compile tools etc. Not directly related to the rendering of the material.
     MapCompositionT         meta_EditorImage;                       ///< Image shown in CaWE.
+    bool                    meta_EditorSave;                        ///< If \c true, this is a material that the user has created and/or manipulated in the editor (CaWE) and that the editor thus should save, possibly overwriting a previous definition. This flag is used for keeping such materials separate from custom, hand-crafted material definitions that the editor should not touch or overwrite. The editor saves such materials typically in a separate file whose name ends like <tt>_editor.cmat</tt> that in turn is included from another <tt>.cmat</tt> file.
     float                   meta_RadiantExitance_Values[3];         ///< Radiant Exitance RGB values in [W/m^2]. Used by CaLight.
     MapCompositionT         meta_RadiantExitance_ByImage_FileName;  ///< Radiant Exitance RGB values from image file. Used by CaLight.
     float                   meta_RadiantExitance_ByImage_Scale;     ///< Radiant Exitance intensity (scale) for the RGB values from image file. Used by CaLight.

@@ -132,16 +132,17 @@ void ModelLoaderT::Clean(ArrayT<CafuModelT::MeshT>& Meshes)
 }
 
 
-MaterialT ModelLoaderT::CreateDefaultMaterial(const std::string& MatName) const
+MaterialT ModelLoaderT::CreateDefaultMaterial(const std::string& MatName, bool EditorSave) const
 {
     MaterialT Mat;
 
-    Mat.Name         =MatName;
-    Mat.PolygonMode  =MaterialT::Wireframe;
- // Mat.DepthOffset  =-1.0f;
- // Mat.RedGen       =ExpressionT(1.0f);
-    Mat.UseMeshColors=true;
- // Mat.TwoSided     =true;      // Required e.g. for terrains being selected.
+    Mat.Name           =MatName;
+    Mat.PolygonMode    =MaterialT::Wireframe;
+ // Mat.DepthOffset    =-1.0f;
+ // Mat.RedGen         =ExpressionT(1.0f);
+    Mat.UseMeshColors  =true;
+ // Mat.TwoSided       =true;   // Required e.g. for terrains being selected.
+    Mat.meta_EditorSave=EditorSave;
 
     return Mat;
 }

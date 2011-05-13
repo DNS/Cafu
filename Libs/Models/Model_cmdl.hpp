@@ -48,7 +48,7 @@ class CafuModelT : public ModelT
     {
         std::string Name;       ///< The name of the joint.
         int         Parent;     ///< The parent of the root joint is -1.
-        Vector3fT   Pos;        ///< The position of the origin of the joint (in the coordinate system of the parent joint).
+        Vector3fT   Pos;        ///< The position of the origin of the joint (absolute, in the coordinate system of the model).
         Vector3fT   Qtr;        ///< The orientation of the coordinate axes of the joint.
         Vector3fT   Scale;      ///< The scale  of the coordinate axes of the joint.
     };
@@ -126,7 +126,7 @@ class CafuModelT : public ModelT
         {
          // std::string  Name;              ///< Checked to be identical with the name  of the base mesh at load time.
          // int          Parent;            ///< Checked to be identical with the value of the base mesh at load time.
-            Vector3fT    DefaultPos;        ///< The default position of the origin of the joint (in the coordinate system of the parent joint). Used for all frames in this anim sequence unless bits 0 to 2 in @c Flags indicate that we have individiual values for each frame.
+            Vector3fT    DefaultPos;        ///< The default position of the origin of the joint (relative, in the coordinate system of the parent joint). Used for all frames in this anim sequence unless bits 0 to 2 in @c Flags indicate that we have individiual values for each frame.
             Vector3fT    DefaultQtr;        ///< The default orientation of the coordinate axes of the joint. Used for all frames in this anim sequence unless bits 3 to 5 in @c Flags indicate that we have individiual values for each frame.
             Vector3fT    DefaultScale;      ///< The default scale  of the coordinate axes of the joint. Used for all frames in this anim sequence unless bits 6 to 8 in @c Flags indicate that we have individiual values for each frame.
             unsigned int Flags;             ///< If the i-th bit in Flags is \emph{not} set, DefaultPos[i], DefaultQtr[i-3] and DefaultScale[i-6] are used for all frames in this anim sequence. Otherwise, for each set bit, we find frame-specific values in AnimData[FirstDataIdx+...].

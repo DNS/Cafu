@@ -53,6 +53,7 @@ MaterialT::MaterialT()
       ClipFlags(Clip_AllBlocking),
       SurfaceType(ST_None),
       meta_EditorImage(),
+      meta_EditorSave(false),
       meta_RadiantExitance_ByImage_Scale(1.0),
       meta_AlphaModulatesRadiosityLight(false),
    // BaseDir("."),
@@ -133,6 +134,7 @@ MaterialT::MaterialT(const std::string& MaterialName, const std::string& BaseDir
       NoShadows(false),
       ClipFlags(Clip_AllBlocking),
       SurfaceType(ST_None),
+      meta_EditorSave(false),
       meta_RadiantExitance_ByImage_Scale(1.0),
       meta_AlphaModulatesRadiosityLight(false),
    // BaseDir("."),
@@ -350,6 +352,10 @@ MaterialT::MaterialT(const std::string& MaterialName, const std::string& BaseDir
         else if (Token=="meta_editorImage")
         {
             meta_EditorImage=MapCompositionT(TP, BaseDir);
+        }
+        else if (Token=="meta_editorSave")
+        {
+            meta_EditorSave=true;
         }
         else if (Token=="meta_radiantExitance")
         {

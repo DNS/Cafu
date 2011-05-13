@@ -44,6 +44,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Expression.hpp"
 #include "Material.hpp"
 #include "ConsoleCommands/Console.hpp"
+#include "String.hpp"
 #include "TextParser/TextParser.hpp"
 
 
@@ -222,6 +223,14 @@ ArrayT<MaterialT*> MaterialManagerImplT::RegisterMaterialScript(const std::strin
                 // We do not check for duplicate tables.
                 Tables.PushBack(T);
                 ThisScriptsTables.PushBack(T);
+            }
+            else if (Token=="dofile")
+            {
+                TextParser.AssertAndSkipToken("(");
+                std::string Include=TextParser.GetNextToken();
+                TextParser.AssertAndSkipToken(")");
+
+                NewMaterials.PushBack(RegisterMaterialScript(BaseDir+Include, BaseDir+cf::String::GetPath(Include)+"/"));
             }
             else
             {

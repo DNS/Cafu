@@ -162,11 +162,12 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::
 
             MaterialT Mat;
 
-            Mat.Name       =cf::String::StripExt(MaterialName);
-            Mat.DiffMapComp=MapCompositionT(fn, BaseDir);
-            Mat.RedGen     =ExpressionT(ExpressionT::SymbolALRed);
-            Mat.GreenGen   =ExpressionT(ExpressionT::SymbolALGreen);
-            Mat.BlueGen    =ExpressionT(ExpressionT::SymbolALBlue);
+            Mat.Name           =cf::String::StripExt(MaterialName);
+            Mat.DiffMapComp    =MapCompositionT(fn, BaseDir);
+            Mat.RedGen         =ExpressionT(ExpressionT::SymbolALRed);
+            Mat.GreenGen       =ExpressionT(ExpressionT::SymbolALGreen);
+            Mat.BlueGen        =ExpressionT(ExpressionT::SymbolALBlue);
+            Mat.meta_EditorSave=true;
 
             Material=MaterialMan.RegisterMaterial(Mat);
 

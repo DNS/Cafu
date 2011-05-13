@@ -632,7 +632,9 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes, MaterialMana
         if (!CafuMesh.Material)
         {
             MaterialT Mat;
-            Mat.Name=MatName;
+
+            Mat.Name           =MatName;
+            Mat.meta_EditorSave=true;
 
             CafuMesh.Material=MaterialMan.RegisterMaterial(LoadMaterial(Mat, FbxMaterial) ? Mat : m_MainClass.CreateDefaultMaterial(MatName));
         }

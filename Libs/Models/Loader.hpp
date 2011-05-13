@@ -65,7 +65,7 @@ class ModelLoaderT
 
     /// An auxiliary function that creates and returns a fail-safe wire-frame material with the given name,
     /// for use when a material with more detailed or more specific settings is not available.
-    MaterialT CreateDefaultMaterial(const std::string& MatName) const;
+    MaterialT CreateDefaultMaterial(const std::string& MatName, bool EditorSave=true) const;
 
     const std::string m_FileName;
 };
