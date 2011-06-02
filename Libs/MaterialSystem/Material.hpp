@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/****************/
-/*** Material ***/
-/****************/
-
 #ifndef _CA_MATSYS_MATERIAL_HPP_
 #define _CA_MATSYS_MATERIAL_HPP_
 
@@ -162,6 +158,9 @@ class MaterialT
 
         return false;
     }
+
+    /// Saves the material into the given stream.
+    void Save(std::ostream& OutStream) const;
 
 
     private:

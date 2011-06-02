@@ -92,6 +92,9 @@ class MapCompositionT
     /// Returns a string description of this MapCompositionT (quasi the counter-piece to the constructor).
     std::string GetString() const;
 
+    /// Like GetString(), which is kept for backwards-compatibility, but includes the list of options as well.
+    std::string GetStringWithOptions(bool NoCompressionDefault=false) const;
+
     /// Returns the base dir of this MapCompositionT. Can be the empty string for empty map compositions.
     std::string GetBaseDir() const;
 

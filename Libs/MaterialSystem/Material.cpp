@@ -19,17 +19,40 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/****************/
-/*** Material ***/
-/****************/
-
 #include "Material.hpp"
 #include "Bitmap/Bitmap.hpp"
 
 
-/****************/
-/*** Material ***/
-/****************/
+namespace
+{
+    const char* BlendFactorTokens[]=
+    {
+        "none",
+        "zero",
+        "one",
+        "dst_color",
+        "src_color",
+        "one_minus_dst_color",
+        "one_minus_src_color",
+        "dst_alpha",
+        "src_alpha",
+        "one_minus_dst_alpha",
+        "one_minus_src_alpha"
+    };
+
+    const char* SurfaceTypeTokens[]=
+    {
+        "none",
+        "stone",
+        "metal",
+        "sand",
+        "wood",
+        "liquid",
+        "glass",
+        "plastic"
+    };
+}
+
 
 MaterialT::MaterialT()
     : CubeMap1Comp(),
@@ -134,6 +157,7 @@ MaterialT::MaterialT(const std::string& MaterialName, const std::string& BaseDir
       NoShadows(false),
       ClipFlags(Clip_AllBlocking),
       SurfaceType(ST_None),
+      meta_EditorImage(),
       meta_EditorSave(false),
       meta_RadiantExitance_ByImage_Scale(1.0),
       meta_AlphaModulatesRadiosityLight(false),
@@ -345,6 +369,10 @@ MaterialT::MaterialT(const std::string& MaterialName, const std::string& BaseDir
 
             ClipFlags=ClipFlagsT(cf);
         }
+        else if (Token=="_clip_int")    // "internal" or "integer" representation of the clip flags.
+        {
+            ClipFlags=ClipFlagsT(TP.GetNextTokenAsInt());
+        }
         else if (Token=="surfaceType")
         {
             SurfaceType=ParseSurfaceType(TP.GetNextToken());
@@ -451,4 +479,89 @@ unsigned int MaterialT::GetPixelSizeY() const
     }
 
     return PixelSizeY;
+}
+
+
+void MaterialT::Save(std::ostream& OutStream) const
+{
+    const char* INDENT="    ";
+
+    OutStream << "\"" << Name << "\"\n";
+    OutStream << "{\n";
+
+    if (AmbientShaderName!="") OutStream << INDENT << "AmbientShader" << " " << AmbientShaderName << "\n";
+    if (LightShaderName  !="") OutStream << INDENT << "LightShader" << " " << LightShaderName   << "\n";
+
+    std::string mcs;
+    mcs=DiffMapComp .GetStringWithOptions();     if (mcs!="") OutStream << INDENT << "diffusemap"  << " " << mcs << "\n";
+    mcs=NormMapComp .GetStringWithOptions(true); if (mcs!="") OutStream << INDENT << "normalmap"   << " " << mcs << "\n";
+    mcs=SpecMapComp .GetStringWithOptions();     if (mcs!="") OutStream << INDENT << "specularmap" << " " << mcs << "\n";
+    mcs=LumaMapComp .GetStringWithOptions();     if (mcs!="") OutStream << INDENT << "lumamap"     << " " << mcs << "\n";
+    mcs=LightMapComp.GetStringWithOptions();     if (mcs!="") OutStream << INDENT << "lightmap"    << " " << mcs << "\n";
+    mcs=SHLMapComp  .GetStringWithOptions();     if (mcs!="") OutStream << INDENT << "shlmap"      << " " << mcs << "\n";
+    mcs=CubeMap1Comp.GetStringWithOptions();     if (mcs!="") OutStream << INDENT << "cubeMap"     << " " << mcs << "\n";
+    mcs=CubeMap2Comp.GetStringWithOptions();     if (mcs!="") OutStream << INDENT << "cubeMap2"    << " " << mcs << "\n";
+
+    for (unsigned long i=0; i<ShaderParamExpr.Size(); i++) OutStream << INDENT << "shaderParamExpr" << " " << ShaderParamExpr[i].GetString() << "\n";
+    for (unsigned long i=0; i<ShaderParamMapC.Size(); i++) OutStream << INDENT << "shaderParamMapC" << " " << ShaderParamMapC[i].GetStringWithOptions() << "\n";
+
+    if (NoDraw)   OutStream << INDENT << "noDraw"   << "\n";
+    if (TwoSided) OutStream << INDENT << "twoSided" << "\n";
+    if (DepthOffset!=0.0f) OutStream << INDENT << "depthOffset" << " " << DepthOffset << "\n";
+    if (PolygonMode==Wireframe) OutStream << INDENT << "polygonMode wireframe" << "\n";
+    if (PolygonMode==Points)    OutStream << INDENT << "polygonMode points"    << "\n";
+
+    float f; const ExpressionT::SymbolsT ExpSym;
+    f=AlphaTestValue.Evaluate(ExpSym).GetAsFloat(); if (f>=0.0f) OutStream << INDENT << "alphaTest" << " " << f << "\n";
+    f=RedGen  .Evaluate(ExpSym).GetAsFloat(); if (f!=1.0f) OutStream << INDENT << "red"   << " " << f << "\n";
+    f=GreenGen.Evaluate(ExpSym).GetAsFloat(); if (f!=1.0f) OutStream << INDENT << "green" << " " << f << "\n";
+    f=BlueGen .Evaluate(ExpSym).GetAsFloat(); if (f!=1.0f) OutStream << INDENT << "blue"  << " " << f << "\n";
+    f=AlphaGen.Evaluate(ExpSym).GetAsFloat(); if (f!=1.0f) OutStream << INDENT << "alpha" << " " << f << "\n";
+
+    if (BlendFactorSrc!=None || BlendFactorDst!=None)
+        OutStream << INDENT << "blendFunc" << " " << BlendFactorTokens[BlendFactorSrc] << " " << BlendFactorTokens[BlendFactorDst] << "\n";
+
+    const char BitToChannel[]={ 'r', 'g', 'b', 'a', 'd' };
+
+    for (unsigned int MaskBit=0; MaskBit<5; MaskBit++)
+        if (!AmbientMask[MaskBit]) OutStream << INDENT << "ambientMask " << BitToChannel[MaskBit] << "\n";
+
+    for (unsigned int MaskBit=0; MaskBit<5; MaskBit++)
+        if (!LightMask[MaskBit]) OutStream << INDENT << "lightMask " << BitToChannel[MaskBit] << "\n";
+
+    if (UseMeshColors) OutStream << INDENT << "useMeshColors" << "\n";
+    if (NoDynLight)    OutStream << INDENT << "noDynLight" << "\n";
+    if (NoShadows)     OutStream << INDENT << "noShadows" << "\n";
+
+    if (ClipFlags!=Clip_AllBlocking)
+        OutStream << INDENT << "_clip_int" << " " << ClipFlags << "\n";
+
+    if (SurfaceType!=ST_None)
+        OutStream << INDENT << "surfaceType" << " " << SurfaceTypeTokens[SurfaceType] << "\n";
+
+    mcs=meta_EditorImage.GetStringWithOptions(); if (mcs!="") OutStream << INDENT << "meta_editorImage" << " " << mcs << "\n";
+    if (meta_EditorSave) OutStream << INDENT << "meta_editorSave" << "\n";
+    mcs=meta_RadiantExitance_ByImage_FileName.GetStringWithOptions(); if (mcs!="") OutStream << INDENT << "meta_radiantExitance_byImage" << " " << mcs << " " << meta_RadiantExitance_ByImage_Scale << "\n";
+    if (meta_AlphaModulatesRadiosityLight) OutStream << INDENT << "meta_alphaModulatesRadiosityLight" << "\n";
+
+    if (meta_RadiantExitance_Values[0]!=0.0f || meta_RadiantExitance_Values[1]!=0.0f || meta_RadiantExitance_Values[2]!=0.0f)
+    {
+        OutStream << INDENT << "meta_radiantExitance"
+                  << " " << meta_RadiantExitance_Values[0]
+                  << " " << meta_RadiantExitance_Values[1]
+                  << " " << meta_RadiantExitance_Values[2] << " 1.0\n";
+    }
+
+    if (meta_SunLight_Irr[0]!=0.0f || meta_SunLight_Irr[1]!=0.0f || meta_SunLight_Irr[2]!=0.0f)
+    {
+        OutStream << INDENT << "meta_sunlight "
+                  << "(" << meta_SunLight_Irr[0]
+                  << " " << meta_SunLight_Irr[1]
+                  << " " << meta_SunLight_Irr[2] << ") "
+                  << "(" << meta_SunLight_Dir[0]
+                  << " " << meta_SunLight_Dir[1]
+                  << " " << meta_SunLight_Dir[2] << ")\n";
+    }
+
+    OutStream << "}\n";
 }

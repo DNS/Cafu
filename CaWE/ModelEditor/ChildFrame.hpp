@@ -76,6 +76,9 @@ namespace ModelEditor
 
         private:
 
+        /// Saves all the materials that are not hand-crafted when the model is saved.
+        void SaveMaterials(const wxString& OldBaseName, const wxString& BaseName);
+
         /// Shows or hides the given AUI pane.
         void PaneToggleShow(wxAuiPaneInfo& PaneInfo);
 

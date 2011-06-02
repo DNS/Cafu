@@ -673,9 +673,45 @@ BitmapT* MapCompositionT::GetBitmap() const
 
 std::string MapCompositionT::GetString() const
 {
-    // The const is commented out due to a compiler bug - see my posting to openwatcom.contributors on 2005-03-05.
-    /*const*/ static MapCompositionT RefMapComp;    // Use a reference object here, just in case I ever change the defaults filter or wrap defaults.
-    std::string OptionsString="";
+    switch (Type)
+    {
+        case Empty:
+            // Handled below as the default case.
+            break;
+
+        case Map:
+            return FileName;
+
+        case Add:
+            return std::string("add(")+Child1->GetString()+", "+Child2->GetString()+")";
+
+        case Mul:
+            return std::string("mul(")+Child1->GetString()+", "+Child2->GetString()+")";
+
+        case CombineNormals:
+            return std::string("combineNMs(")+Child1->GetString()+", "+Child2->GetString()+")";
+
+        case HeightMapToNormalMap:
+            return std::string("hm2nm(")+Child1->GetString()+", "+cf::va("%f", HeightScale)+")";
+
+        case FlipNormalMapYAxis:
+            return std::string("flipNMyAxis(")+Child1->GetString()+")";
+
+        case ReNormalize:
+            return std::string("renormalize(")+Child1->GetString()+")";
+
+        case BlueToAlpha:
+            return std::string("blue2alpha(")+Child1->GetString()+")";
+    }
+
+    return "";
+}
+
+
+std::string MapCompositionT::GetStringWithOptions(bool NoCompressionDefault) const
+{
+    const static MapCompositionT RefMapComp;    // Use a reference object here, just in case we ever change the defaults.
+    std::string                  OptionsString="";
 
     if (MinFilter!=RefMapComp.MinFilter)
     {
@@ -689,7 +725,6 @@ std::string MapCompositionT::GetString() const
             case Nearest_MipMap_Linear:  OptionsString+="nearest_mipmap_linear";  break;
             case Linear_MipMap_Nearest:  OptionsString+="linear_mipmap_nearest";  break;
             case Linear_MipMap_Linear:   OptionsString+="linear_mipmap_linear";   break;
-
         }
     }
 
@@ -734,49 +769,16 @@ std::string MapCompositionT::GetString() const
         OptionsString+=", noScaleDown";
     }
 
-    if (NoCompression)
+    if (NoCompression && !NoCompressionDefault)
     {
         OptionsString+=", noCompression";
     }
-    // else
-    // {
-    //     // Must explicitly mention it in order to account for varying default settings (normal-maps).
-    //     OptionsString+=", useCompression";
-    // }
-
-
-    switch (Type)
+    else if (!NoCompression && NoCompressionDefault)
     {
-        case Empty:
-            // Handled below as the default case.
-            break;
-
-        case Map:
-            return FileName;
-
-        case Add:
-            return std::string("add(")+Child1->GetString()+", "+Child2->GetString()+")";
-
-        case Mul:
-            return std::string("mul(")+Child1->GetString()+", "+Child2->GetString()+")";
-
-        case CombineNormals:
-            return std::string("combineNMs(")+Child1->GetString()+", "+Child2->GetString()+")";
-
-        case HeightMapToNormalMap:
-            return std::string("hm2nm(")+Child1->GetString()+", "+cf::va("%f", HeightScale)+")";
-
-        case FlipNormalMapYAxis:
-            return std::string("flipNMyAxis(")+Child1->GetString()+")";
-
-        case ReNormalize:
-            return std::string("renormalize(")+Child1->GetString()+")";
-
-        case BlueToAlpha:
-            return std::string("blue2alpha(")+Child1->GetString()+")";
+        OptionsString+=", useCompression";
     }
 
-    return "";
+    return GetString() + OptionsString;
 }
 
 

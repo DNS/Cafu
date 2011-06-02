@@ -38,6 +38,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /// to comp.lang.c++ on 2009-10-06 for additional details.
 static std::string serialize(float f1)
 {
+    // Make sure that if f1 is -0, "0" instead of "-0" is returned.
+    if (f1==0.0f) return "0";
+
     // From MSDN documentation: "digits10 returns the number of decimal digits that the type can represent without loss of precision."
     // For floats, that's usually 6, for doubles, that's usually 15. However, we want to use the number of *significant* decimal digits here,
     // that is, max_digits10. See http://www.open-std.org/JTC1/sc22/wg21/docs/papers/2006/n2005.pdf for details.
@@ -545,7 +548,7 @@ void CafuModelT::Save(std::ostream& OutStream) const
             OutStream << "\t\t\t"
                       << "{ "
                       << "joint=" << Weight.JointIdx << "; "
-                      << "weight=" << Weight.Weight << "; "
+                      << "weight=" << serialize(Weight.Weight) << "; "
                       << "pos={ " << serialize(Weight.Pos) << " }; "
                       << "},\n";
         }

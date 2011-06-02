@@ -33,10 +33,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../GameConfig.hpp"
 #include "../ParentFrame.hpp"
 
+#include "MaterialSystem/Material.hpp"
 #include "Models/Model_cmdl.hpp"
 
 #include "wx/wx.h"
 #include "wx/confbase.h"
+#include "wx/dir.h"
 
 #include <fstream>
 
@@ -241,6 +243,92 @@ bool ModelEditor::ChildFrameT::SubmitCommand(CommandT* Command)
 }
 
 
+void ModelEditor::ChildFrameT::SaveMaterials(const wxString& OldBaseName, const wxString& BaseName)
+{
+    const wxString EditorCmatName=BaseName+"_editor.cmat";
+    const wxString MainCmatName  =BaseName+".cmat";
+    const wxString OldCmatName   =OldBaseName+".cmat";
+
+
+    // Save the editor materials in a separate file.
+    std::ofstream EditorCmatFile(EditorCmatName.fn_str());
+
+    if (EditorCmatFile.is_open())
+    {
+        const std::map<std::string, MaterialT*>& Materials=m_ModelDoc->GetModel()->GetMaterialManager().GetAllMaterials();
+        bool IsFirst=true;
+
+        for (std::map<std::string, MaterialT*>::const_iterator It=Materials.begin(); It!=Materials.end(); It++)
+        {
+            const MaterialT* Mat=It->second;
+
+            if (Mat->meta_EditorSave)
+            {
+                if (!IsFirst)
+                    EditorCmatFile << "\n\n";
+
+                Mat->Save(EditorCmatFile);
+                IsFirst=false;
+            }
+        }
+    }
+    else wxMessageBox("Unable to create editor cmat file\n"+EditorCmatName);
+
+
+    // If we happen to have a main cmat file in the old location (but not yet in the new),
+    // carry the file from the old location into the new.
+    if (wxFileExists(OldCmatName) && !wxFileExists(MainCmatName))
+    {
+        wxCopyFile(OldCmatName, MainCmatName, false /*overwrite?*/);
+    }
+
+
+    // Insert the dofile() include-statement into the main .cmat file.
+    // The code works whether the file already exists or not.
+    bool NeedsPatch=true;
+
+    try
+    {
+        TextParserT TextParser(MainCmatName.c_str(), "({[]}),");
+
+        while (!TextParser.IsAtEOF())
+        {
+            const std::string Token=TextParser.GetNextToken();
+
+            if (Token=="dofile")
+            {
+                TextParser.AssertAndSkipToken("(");
+                if (TextParser.GetNextToken().find("_editor.cmat")!=std::string::npos)
+                {
+                    NeedsPatch=false;
+                    break;
+                }
+                TextParser.AssertAndSkipToken(")");
+            }
+        }
+    }
+    catch (const TextParserT::ParseError&)
+    {
+        NeedsPatch=false;
+    }
+
+    if (NeedsPatch)
+    {
+        std::ofstream MainCmatFile(MainCmatName.fn_str(), std::ios_base::out | std::ios_base::app);
+
+        if (MainCmatFile.is_open())
+        {
+            wxFileName RelName=EditorCmatName;
+            RelName.MakeRelativeTo(wxFileName(MainCmatName).GetPath());     // Make it relative to the main .cmat file.
+
+            MainCmatFile << "\n";
+            MainCmatFile << "dofile(\"" << RelName.GetFullPath(wxPATH_UNIX) << "\");\n";
+        }
+        else wxMessageBox("Unable to insert dofile() statement into main cmat file\n"+MainCmatName);
+    }
+}
+
+
 bool ModelEditor::ChildFrameT::Save(bool AskForFileName)
 {
     wxString FileName=m_FileName;
@@ -251,10 +339,10 @@ bool ModelEditor::ChildFrameT::Save(bool AskForFileName)
         static wxString  LastUsedDir=m_ModelDoc->GetGameConfig()->ModDir+"/Models";
         const wxFileName FN(m_FileName);
 
-        wxFileDialog SaveFileDialog(NULL,                               // parent
+        wxFileDialog SaveFileDialog(this,                               // parent
                                     "Save Cafu Model File",             // message
                                     (FN.IsOk() && wxDirExists(FN.GetPath())) ? FN.GetPath() : LastUsedDir, // default dir
-                                    "",                                 // default file
+                                    FN.IsOk() ? FN.GetName() : wxString("NewModel"),                       // default file
                                     "Cafu Model Files (*.cmdl)|*.cmdl"  // wildcard
                                     "|All Files (*.*)|*.*",
                                     wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
@@ -292,16 +380,102 @@ bool ModelEditor::ChildFrameT::Save(bool AskForFileName)
         return false;
     }
 
-    // This sets the cursor to the busy cursor in its ctor, and back to the default cursor in the dtor.
-    wxBusyCursor BusyCursor;
+    // Save the model file.
+    {
+        wxBusyCursor BusyCursor;    // This sets the cursor to the busy cursor in its ctor, and back to the default cursor in the dtor.
 
-    m_ModelDoc->GetModel()->Save(ModelFile);
+        m_ModelDoc->GetModel()->Save(ModelFile);
+    }
 
-    // if (Materials have been edited (or are "new"))
-    // {
-    //     SaveRelated_cmat_File();
-    //     possibly with related bitmaps? (those with relative paths)
-    // }
+
+    // Save the materials that are not hand-crafted.
+    {
+        wxBusyCursor BusyCursor;    // This sets the cursor to the busy cursor in its ctor, and back to the default cursor in the dtor.
+        wxString BaseName;
+
+        wxASSERT(FileName.EndsWith(".cmdl"));
+        FileName.EndsWith(".cmdl", &BaseName);
+
+        wxFileName OldBase(m_FileName);
+        OldBase.ClearExt();
+
+        SaveMaterials(OldBase.GetFullPath(), BaseName);
+    }
+
+
+    // Attempt to save (copy) the related bitmaps as well, if
+    //   - we have the old/previous file (acting as the "source"),
+    //   - the new file is in a directory that is *different* from the old file.
+    wxFileName OldFileName(m_FileName); OldFileName.Normalize();
+    wxFileName NewFileName(FileName  ); NewFileName.Normalize();
+
+    if (OldFileName.FileExists() && wxFileName::DirName(OldFileName.GetPath())!=wxFileName::DirName(NewFileName.GetPath()))
+    {
+        wxArrayString AllFiles;
+
+        wxDir::GetAllFiles(OldFileName.GetPath(), &AllFiles, "", wxDIR_FILES | wxDIR_DIRS /*but not wxDIR_HIDDEN*/);
+
+        // Remove all files that are no texture images from the list.
+        for (size_t FileNr=0; FileNr<AllFiles.GetCount(); FileNr++)
+        {
+            const wxString& fn=AllFiles[FileNr];
+
+            if (fn.EndsWith(".bmp" )) continue;
+            if (fn.EndsWith(".png" )) continue;
+            if (fn.EndsWith(".jpg" )) continue;
+            if (fn.EndsWith(".jpeg")) continue;
+            if (fn.EndsWith(".tga" )) continue;
+
+            AllFiles.RemoveAt(FileNr);
+            FileNr--;
+        }
+
+        // Make all file names relative (to OldFileName.GetPath()).
+        for (size_t FileNr=0; FileNr<AllFiles.GetCount(); FileNr++)
+        {
+            wxFileName tmp(AllFiles[FileNr]);
+            tmp.MakeRelativeTo(OldFileName.GetPath());
+
+            AllFiles[FileNr]=tmp.GetFullPath();
+        }
+
+        // Try to guess which files the user might want to copy.
+        wxArrayInt SelIndices;
+
+        for (size_t FileNr=0; FileNr<AllFiles.GetCount(); FileNr++)
+        {
+            if (AllFiles[FileNr].Lower().Find(OldFileName.GetName().Lower())!=wxNOT_FOUND)
+                SelIndices.Add(FileNr);
+        }
+
+        if (AllFiles.GetCount()>0)
+        {
+            const int Result=wxGetSelectedChoices(SelIndices,
+                "The model file was successfully saved into the new location.\n"
+                "Please select the related texture images, if any, that you would\n"
+                "like to copy into the new location along with the model file.",
+                "Copy related texture images into new location?", AllFiles, this);
+
+            for (int i=0; i<Result; i++)
+            {
+                const wxFileName from(OldFileName.GetPath(wxPATH_GET_VOLUME | wxPATH_GET_SEPARATOR) + AllFiles[SelIndices[i]]);
+                const wxFileName to  (NewFileName.GetPath(wxPATH_GET_VOLUME | wxPATH_GET_SEPARATOR) + AllFiles[SelIndices[i]]);
+
+                if (!wxFileName::Mkdir(to.GetPath(), wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL))
+                {
+                    wxMessageBox("Could not create directory " + to.GetPath());
+                    continue;
+                }
+
+                if (!wxCopyFile(from.GetFullPath(), to.GetFullPath()))
+                {
+                    wxMessageBox("Could not copy file\n" + from.GetFullPath() + " to\n" + to.GetFullPath());
+                    continue;
+                }
+            }
+        }
+    }
+
 
     // Mark the document as "not modified" only if the save was successful.
     m_LastSavedAtCommandNr=m_History.GetLastSaveSuggestedCommandID();
