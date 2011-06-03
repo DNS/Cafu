@@ -22,6 +22,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Material.hpp"
 #include "Bitmap/Bitmap.hpp"
 
+#include <ostream>
+
 
 namespace
 {
