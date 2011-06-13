@@ -50,9 +50,9 @@ SetupPageT::SetupPageT(FontWizardT* Parent)
 	bSizer3 = new wxBoxSizer( wxHORIZONTAL );
 
 	m_FontFile = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer3->Add( m_FontFile, 1, wxALL, 5 );
+	bSizer3->Add( m_FontFile, 1, wxALL|wxEXPAND, 5 );
 
-	m_FileButton = new wxButton( this, wxID_ANY, wxT("Choose file..."), wxDefaultPosition, wxDefaultSize, 0 );
+	m_FileButton = new wxButton( this, wxID_ANY, wxT("..."), wxDefaultPosition, wxSize(24, -1), 0 );
 	m_FileButton->SetDefault();
 	bSizer3->Add( m_FileButton, 0, wxALL, 5 );
 

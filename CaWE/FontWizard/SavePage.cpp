@@ -66,7 +66,7 @@ SavePageT::SavePageT(FontWizardT* Parent)
 	bSizer10 = new wxBoxSizer( wxVERTICAL );
 
 	wxStaticText* m_staticText9;
-	m_staticText9 = new wxStaticText( this, wxID_ANY, wxT("In order to save the font and be able to use it you have to specify a unique name for this font.\n"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText9 = new wxStaticText( this, wxID_ANY, wxT("In order to save the font, specify a unique name for this font.\n"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText9->Wrap( -1 );
 	bSizer10->Add( m_staticText9, 0, wxALL|wxEXPAND, 5 );
 
@@ -85,7 +85,7 @@ SavePageT::SavePageT(FontWizardT* Parent)
 	bSizer11 = new wxBoxSizer( wxVERTICAL );
 
 	wxStaticText* m_staticText10;
-	m_staticText10 = new wxStaticText( this, wxID_ANY, wxT("The font is saved to "), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText10 = new wxStaticText( this, wxID_ANY, wxT("The font will be saved to"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText10->Wrap( -1 );
 	bSizer11->Add( m_staticText10, 0, wxALL, 5 );
 
@@ -99,7 +99,7 @@ SavePageT::SavePageT(FontWizardT* Parent)
 	bSizer11->Add( 0, 10, 0, 0, 5 );
 
 	wxStaticText* m_staticText17;
-	m_staticText17 = new wxStaticText( this, wxID_ANY, wxT("If you want to delete this font later on, all you have to do is delete the directory above.\n"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText17 = new wxStaticText( this, wxID_ANY, wxT("(If you want to delete this font later, delete the directory mentioned above.)\n"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText17->Wrap( -1 );
 	bSizer11->Add( m_staticText17, 0, wxALL|wxEXPAND, 5 );
 
