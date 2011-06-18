@@ -67,23 +67,26 @@ class ModelLoaderT
 
     protected:
 
-    /// An auxiliary function that computes the bounding box for the model with the given
+    /// Computes the bounding box for the model with the given
     /// joints and meshes at the given anim sequence at the given frame number.
     BoundingBox3fT GetBB(const ArrayT<CafuModelT::JointT>& Joints, const ArrayT<CafuModelT::MeshT>& Meshes, const CafuModelT::AnimT& Anim, unsigned long FrameNr) const;
 
-    /// An auxiliary function that removes triangles with zero-length edges from the given mesh.
+    /// Removes triangles with zero-length edges from the given mesh.
     /// This is especially important because such triangles "connect" two vertices that the CafuModelT code
     /// considers as "geometrical duplicates" of each other. That is, a single triangle refers to the same
     /// vertex coordinate twice, which triggers related assertions in debug builds.
     void RemoveDegenTriangles(CafuModelT::MeshT& Mesh);
 
-    /// An auxiliary function that removes unused vertices from the given mesh.
+    /// Removes unused vertices from the given mesh.
     void RemoveUnusedVertices(CafuModelT::MeshT& Mesh);
 
-    /// An auxiliary function that removes unused weights from the given mesh (should be called after RemoveUnusedVertices()).
+    /// Makes sure that vertices that are geo-dups of each other refer to the same set of weights.
+    void AbandonDuplicateWeights(CafuModelT::MeshT& Mesh);
+
+    /// Removes unused weights from the given mesh (should be called after RemoveUnusedVertices()).
     void RemoveUnusedWeights(CafuModelT::MeshT& Mesh);
 
-    /// An auxiliary function that creates and returns a fail-safe wire-frame material with the given name,
+    /// Creates and returns a fail-safe wire-frame material with the given name,
     /// for use when a material with more detailed or more specific settings is not available.
     MaterialT CreateDefaultMaterial(const std::string& MatName, bool EditorSave=true) const;
 

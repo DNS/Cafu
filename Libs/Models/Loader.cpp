@@ -41,9 +41,10 @@ void ModelLoaderT::Postprocess(ArrayT<CafuModelT::MeshT>& Meshes)
 {
     for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
     {
-        if (m_Flags & REMOVE_DEGEN_TRIANGLES) RemoveDegenTriangles(Meshes[MeshNr]);
-        if (m_Flags & REMOVE_UNUSED_VERTICES) RemoveUnusedVertices(Meshes[MeshNr]);
-        if (m_Flags & REMOVE_UNUSED_WEIGHTS ) RemoveUnusedWeights (Meshes[MeshNr]);
+        if (m_Flags & REMOVE_DEGEN_TRIANGLES   ) RemoveDegenTriangles   (Meshes[MeshNr]);
+        if (m_Flags & REMOVE_UNUSED_VERTICES   ) RemoveUnusedVertices   (Meshes[MeshNr]);
+     // if (m_Flags & ABANDON_DUPLICATE_WEIGHTS) AbandonDuplicateWeights(Meshes[MeshNr]);
+        if (m_Flags & REMOVE_UNUSED_WEIGHTS    ) RemoveUnusedWeights    (Meshes[MeshNr]);
     }
 }
 
@@ -163,6 +164,17 @@ void ModelLoaderT::RemoveUnusedVertices(CafuModelT::MeshT& Mesh)
         Used.RemoveAtAndKeepOrder(VNr);
         VNr--;
     }
+}
+
+
+void ModelLoaderT::AbandonDuplicateWeights(CafuModelT::MeshT& Mesh)
+{
+    ArrayT<CafuModelT::MeshT::VertexT>& Vertices=Mesh.Vertices;
+
+    for (unsigned long V1Nr=0; V1Nr<Vertices.Size(); V1Nr++)
+        for (unsigned long V2Nr=V1Nr+1; V2Nr<Vertices.Size(); V2Nr++)
+            if (Mesh.AreGeoDups(V1Nr, V2Nr))
+                Vertices[V2Nr].FirstWeightIdx=Vertices[V1Nr].FirstWeightIdx;
 }
 
 
