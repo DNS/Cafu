@@ -32,7 +32,7 @@ class LoaderLwoT : public ModelLoaderT
 
     /// The constructor for importing a LightWave Object (.lwo) file into a new Cafu model.
     /// @param FileName   The name of the .lwo file to import.
-    LoaderLwoT(const std::string& FileName) /*throw (ModelT::LoadError)*/;
+    LoaderLwoT(const std::string& FileName, int Flags=NONE) /*throw (ModelT::LoadError)*/;
 
     bool UseGivenTS() const { return true; }
     void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan);

@@ -27,8 +27,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <stdio.h>
 
 
-LoaderMd5T::LoaderMd5T(const std::string& FileName) /*throw (ModelT::LoadError)*/
-    : ModelLoaderT(FileName)
+LoaderMd5T::LoaderMd5T(const std::string& FileName, int Flags) /*throw (ModelT::LoadError)*/
+    : ModelLoaderT(FileName, Flags)
 {
 }
 

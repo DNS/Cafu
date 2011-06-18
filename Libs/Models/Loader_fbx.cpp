@@ -797,8 +797,8 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::AnimT>& Anims) const
 /*** LoaderFbxT ***/
 /******************/
 
-LoaderFbxT::LoaderFbxT(const std::string& FileName, UserCallbacksI& UserCallbacks)
-    : ModelLoaderT(FileName),
+LoaderFbxT::LoaderFbxT(const std::string& FileName, UserCallbacksI& UserCallbacks, int Flags)
+    : ModelLoaderT(FileName, Flags | REMOVE_DEGEN_TRIANGLES),   // Always remove triangles with zero-length edges (required for proper loading).
       m_FbxScene(new FbxSceneT(*this, UserCallbacks, FileName))
 {
 }
@@ -829,9 +829,6 @@ void LoaderFbxT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
 
     // Load the animations.
     m_FbxScene->Load(Anims);
-
-    // Clean the meshes (e.g. remove triangles with zero-length edges).
-    Clean(Meshes);
 
     // Compute the proper bounding-box for each frame of each animation.
     for (unsigned long AnimNr=0; AnimNr<Anims.Size(); AnimNr++)

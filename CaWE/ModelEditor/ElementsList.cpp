@@ -157,7 +157,7 @@ void ElementsListT::Notify_SubjectDies(SubjectT* dyingSubject)
 void ElementsListT::InitListItems()
 {
     const unsigned long         NumElems=(m_TYPE==MESH) ? m_ModelDoc->GetModel()->GetMeshes().Size() : m_ModelDoc->GetModel()->GetAnims().Size();
-    const ArrayT<unsigned int>& Sel     =m_ModelDoc->GetSelection(MESH);
+    const ArrayT<unsigned int>& Sel     =m_ModelDoc->GetSelection(m_TYPE);
 
     DeleteAllItems();
 

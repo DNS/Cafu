@@ -30,8 +30,8 @@ extern "C"
 }
 
 
-LoaderCafuT::LoaderCafuT(const std::string& FileName) /*throw (ModelT::LoadError)*/
-    : ModelLoaderT(FileName),
+LoaderCafuT::LoaderCafuT(const std::string& FileName, int Flags) /*throw (ModelT::LoadError)*/
+    : ModelLoaderT(FileName, Flags),
       m_LuaState(lua_open()),
       m_UseGivenTS(false)
 {

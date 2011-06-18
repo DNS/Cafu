@@ -142,6 +142,7 @@ CafuModelT::CafuModelT(ModelLoaderT& Loader)
     // Have the model loader load the model file.
     Loader.Load(m_Joints, m_Meshes, m_Anims, m_MaterialMan);
     Loader.Load(m_GuiLocs);
+    Loader.Postprocess(m_Meshes);
 
     if (m_Joints.Size()==0) throw ModelT::LoadError();
  // if (m_Meshes.Size()==0) throw ModelT::LoadError();  // Consider models with no meshes as valid, skeleton-only meshes are sometimes useful for testing.

@@ -64,25 +64,26 @@ ModelEditor::ModelDocumentT::ModelDocumentT(GameConfigT* GameConfig, const wxStr
       m_GameConfig(GameConfig)
 {
     const std::string   FileName=std::string(ModelFileName);  // Change to ModelFileName.ToStdString() with wx 2.9.1.
+    const int           Flags   =ModelLoaderT::REMOVE_DEGEN_TRIANGLES | ModelLoaderT::REMOVE_UNUSED_VERTICES | ModelLoaderT::REMOVE_UNUSED_WEIGHTS;
     ModelUserCallbacksT UserCbs;
 
     // TODO: This duplicates the code in Model_proxy.cpp and should be combined elsewhere, e.g. into class ModelLoaderT.
     //       Better yet: Use the type system with the loaders, and be able to iterate over them.
-         if (cf::String::EndsWith(FileName, "3ds"    )) { LoaderFbxT    Loader(FileName, UserCbs); m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "ase"    )) { LoaderAseT    Loader(FileName);          m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "cmdl"   )) { LoaderCafuT   Loader(FileName);          m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "dae"    )) { LoaderFbxT    Loader(FileName, UserCbs); m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "dxf"    )) { LoaderFbxT    Loader(FileName, UserCbs); m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "fbx"    )) { LoaderFbxT    Loader(FileName, UserCbs); m_Model=new CafuModelT(Loader); }
+         if (cf::String::EndsWith(FileName, "3ds"    )) { LoaderFbxT    Loader(FileName, UserCbs, Flags); m_Model=new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(FileName, "ase"    )) { LoaderAseT    Loader(FileName, Flags);          m_Model=new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(FileName, "cmdl"   )) { LoaderCafuT   Loader(FileName, Flags);          m_Model=new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(FileName, "dae"    )) { LoaderFbxT    Loader(FileName, UserCbs, Flags); m_Model=new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(FileName, "dxf"    )) { LoaderFbxT    Loader(FileName, UserCbs, Flags); m_Model=new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(FileName, "fbx"    )) { LoaderFbxT    Loader(FileName, UserCbs, Flags); m_Model=new CafuModelT(Loader); }
  // else if (cf::String::EndsWith(FileName, "dlod"   )) m_Model=new ModelDlodT(FileName);
-    else if (cf::String::EndsWith(FileName, "lwo"    )) { LoaderLwoT    Loader(FileName);          m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "mdl"    )) { LoaderHL1mdlT Loader(FileName);          m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "md5"    )) { LoaderMd5T    Loader(FileName);          m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "md5mesh")) { LoaderMd5T    Loader(FileName);          m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "obj"    )) { LoaderFbxT    Loader(FileName, UserCbs); m_Model=new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(FileName, "lwo"    )) { LoaderLwoT    Loader(FileName, Flags);          m_Model=new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(FileName, "mdl"    )) { LoaderHL1mdlT Loader(FileName, Flags);          m_Model=new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(FileName, "md5"    )) { LoaderMd5T    Loader(FileName, Flags);          m_Model=new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(FileName, "md5mesh")) { LoaderMd5T    Loader(FileName, Flags);          m_Model=new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(FileName, "obj"    )) { LoaderFbxT    Loader(FileName, UserCbs, Flags); m_Model=new CafuModelT(Loader); }
     else
     {
-        LoaderAssimpT Loader(FileName);
+        LoaderAssimpT Loader(FileName, Flags);
         m_Model=new CafuModelT(Loader);
     }
 

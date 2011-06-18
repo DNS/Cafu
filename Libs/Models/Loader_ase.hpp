@@ -35,7 +35,7 @@ class LoaderAseT : public ModelLoaderT
 
     /// The constructor for importing an ASE (ASCII Scene Exporter, 3dsmax) model file into a new Cafu model.
     /// @param FileName   The name of the .ase file to import.
-    LoaderAseT(const std::string& FileName) /*throw (ModelT::LoadError)*/;
+    LoaderAseT(const std::string& FileName, int Flags=NONE) /*throw (ModelT::LoadError)*/;
 
     bool UseGivenTS() const { return true; }
     void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan);

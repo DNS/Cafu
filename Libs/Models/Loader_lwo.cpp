@@ -220,8 +220,8 @@ static Vector3fT myNormalize(const Vector3fT& A)
 // - An LWO "polygon" can also mean something more complex than a planar surface, there are several polygon types.
 // - LWOs store their vertex positions in "points", the CafuModelT class in "weights" (CafuModelT::MeshT::WeightT).
 // - LWOs store their texture-coordinates in "VMAPs" and "VMADs", the CafuModelT class in "vertices" (CafuModelT::MeshT::VertexT).
-LoaderLwoT::LoaderLwoT(const std::string& FileName) /*throw (ModelT::LoadError)*/
-    : ModelLoaderT(FileName)
+LoaderLwoT::LoaderLwoT(const std::string& FileName, int Flags) /*throw (ModelT::LoadError)*/
+    : ModelLoaderT(FileName, Flags | REMOVE_UNUSED_VERTICES | REMOVE_UNUSED_WEIGHTS)    // The code below relies on postprocessing removing unused vertices and weights.
 {
 }
 
@@ -259,10 +259,8 @@ void LoaderLwoT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
         // For each LWO layer, create a matching MeshT in Meshes.
         // LWO layers and MeshTs match nicely wrt. the vertices, but note that MeshTs can only have a single material for all triangles,
         // whereas with LWO layers, theoretically each *polygon* can have an individual material.
-        // We solve/work-around the problem by creating one MeshT for each material used in the layer, duplicating the vertices.
-        // TODO: Either "optimize" the meshes by removing vertices that are unused in each mesh
-        //       OR (BETTER!) update the MeshTs so that they are able to share common vertices (and weights...) lists,
-        //       OR (BETTER??) update the MeshT::TriangleTs to have an individual material pointer... (no... bad for large triangle batch sizes...).
+        // We solve/work-around the problem by creating one MeshT for each material used in the layer,
+        // initially duplicating the vertices and removing all unused ones in postprocessing (see Flags in ctor).
         std::map<lwSurface*, unsigned long> MatToMeshNr;     // Maps lwSurface pointers to indices into Meshes.
 
         // This loop is only to create a separate mesh for each material in the layer.
@@ -299,9 +297,8 @@ void LoaderLwoT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
             }
         }
 
-        // This warning is useful as long as the above TODO has not been implemented.
         if (MatToMeshNr.size()>1)
-            Console->Warning(cf::va("LWO layer uses %lu materials and thus has been duplicated into %lu meshes.\n", MatToMeshNr.size(), MatToMeshNr.size()));
+            Console->Warning(cf::va("LWO layer uses %lu materials and thus has been split into %lu meshes.\n", MatToMeshNr.size(), MatToMeshNr.size()));
 
 
         // For each LWO surface (Cafu material), there is one mesh in Meshes.

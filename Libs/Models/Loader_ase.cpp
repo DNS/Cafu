@@ -295,8 +295,8 @@ void LoaderAseT::ReadGeometry(TextParserT& TP)
 }
 
 
-LoaderAseT::LoaderAseT(const std::string& FileName) /*throw (ModelT::LoadError)*/
-    : ModelLoaderT(FileName)
+LoaderAseT::LoaderAseT(const std::string& FileName, int Flags) /*throw (ModelT::LoadError)*/
+    : ModelLoaderT(FileName, Flags)
 {
     TextParserT TP(FileName.c_str(), ",");  // The comma is required for SmoothGroups.
 

@@ -31,8 +31,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <string.h>
 
 
-LoaderHL1mdlT::LoaderHL1mdlT(const std::string& FileName) /*throw (ModelT::LoadError)*/
-    : ModelLoaderT(FileName)
+LoaderHL1mdlT::LoaderHL1mdlT(const std::string& FileName, int Flags) /*throw (ModelT::LoadError)*/
+    : ModelLoaderT(FileName, Flags | REMOVE_UNUSED_VERTICES | REMOVE_UNUSED_WEIGHTS)    // The code below relies on postprocessing removing unused vertices and weights.
 {
     // 1. Initialize auxiliary variables.
     // **********************************
@@ -354,28 +354,27 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
                         // TriangleVerts[i][1] -- index into the StudioNormals array.
                         // TriangleVerts[i][2] -- s-texture-coordinate (in pixel).
                         // TriangleVerts[i][3] -- t-texture-coordinate (in pixel).
-                        unsigned long CafuVertexNr;
+                        unsigned long              CafuVertexNr;
+                        CafuModelT::MeshT::VertexT RefVertex;
+
+                        RefVertex.FirstWeightIdx=TriangleVerts[i][0];
+                        RefVertex.NumWeights    =1;
+                        RefVertex.u             =TriangleVerts[i][2]/MatWidth;
+                        RefVertex.v             =TriangleVerts[i][3]/MatHeight;
+                        RefVertex.Polarity      =false;   // Don't leave this uninitialized now, it's re-initialized in the CafuModelT code later.
 
                         for (CafuVertexNr=0; CafuVertexNr<CafuMesh.Vertices.Size(); CafuVertexNr++)
                         {
                             const CafuModelT::MeshT::VertexT& CafuVertex=CafuMesh.Vertices[CafuVertexNr];
 
-                            if (CafuVertex.FirstWeightIdx==(unsigned int)(TriangleVerts[i][0]) &&
-                                CafuVertex.u             ==TriangleVerts[i][2]/MatWidth &&
-                                CafuVertex.v             ==TriangleVerts[i][3]/MatHeight) break;
+                            if (CafuVertex.FirstWeightIdx==RefVertex.FirstWeightIdx &&
+                                CafuVertex.u             ==RefVertex.u &&
+                                CafuVertex.v             ==RefVertex.v) break;
                         }
 
                         if (CafuVertexNr>=CafuMesh.Vertices.Size())
                         {
-                            CafuModelT::MeshT::VertexT CafuVertex;
-
-                            CafuVertex.FirstWeightIdx=TriangleVerts[i][0];
-                            CafuVertex.NumWeights    =1;
-                            CafuVertex.u             =TriangleVerts[i][2]/MatWidth;
-                            CafuVertex.v             =TriangleVerts[i][3]/MatHeight;
-                            CafuVertex.Polarity      =false;    // Don't leave this uninitialized now, it's re-initialized in the CafuModelT code later.
-
-                            CafuMesh.Vertices.PushBack(CafuVertex);
+                            CafuMesh.Vertices.PushBack(RefVertex);
                         }
 
                         CafuTri.VertexIdx[i]=CafuVertexNr;

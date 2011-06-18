@@ -34,9 +34,17 @@ class ModelLoaderT
     class UserCallbacksI;
     class LoadErrorT;
 
+    enum FlagsT
+    {
+        NONE                  =0x00,
+        REMOVE_DEGEN_TRIANGLES=0x01,
+        REMOVE_UNUSED_VERTICES=0x02,
+        REMOVE_UNUSED_WEIGHTS =0x04
+    };
+
 
     /// The constructor.
-    ModelLoaderT(const std::string& FileName);
+    ModelLoaderT(const std::string& FileName, int Flags);
 
     /// Returns the file name of the imported model.
     const std::string& GetFileName() const { return m_FileName; }
@@ -53,6 +61,9 @@ class ModelLoaderT
     /// Loads the locations where GUIs can be attached to the Cafu model.
     virtual void Load(ArrayT<CafuModelT::GuiLocT>& GuiLocs)=0;
 
+    /// Postprocesses the file data according to flags given to the constructor.
+    virtual void Postprocess(ArrayT<CafuModelT::MeshT>& Meshes);
+
 
     protected:
 
@@ -60,14 +71,24 @@ class ModelLoaderT
     /// joints and meshes at the given anim sequence at the given frame number.
     BoundingBox3fT GetBB(const ArrayT<CafuModelT::JointT>& Joints, const ArrayT<CafuModelT::MeshT>& Meshes, const CafuModelT::AnimT& Anim, unsigned long FrameNr) const;
 
-    /// An auxiliary function that cleans loaded meshes.
-    void Clean(ArrayT<CafuModelT::MeshT>& Meshes);
+    /// An auxiliary function that removes triangles with zero-length edges from the given mesh.
+    /// This is especially important because such triangles "connect" two vertices that the CafuModelT code
+    /// considers as "geometrical duplicates" of each other. That is, a single triangle refers to the same
+    /// vertex coordinate twice, which triggers related assertions in debug builds.
+    void RemoveDegenTriangles(CafuModelT::MeshT& Mesh);
+
+    /// An auxiliary function that removes unused vertices from the given mesh.
+    void RemoveUnusedVertices(CafuModelT::MeshT& Mesh);
+
+    /// An auxiliary function that removes unused weights from the given mesh (should be called after RemoveUnusedVertices()).
+    void RemoveUnusedWeights(CafuModelT::MeshT& Mesh);
 
     /// An auxiliary function that creates and returns a fail-safe wire-frame material with the given name,
     /// for use when a material with more detailed or more specific settings is not available.
     MaterialT CreateDefaultMaterial(const std::string& MatName, bool EditorSave=true) const;
 
     const std::string m_FileName;
+    const int         m_Flags;
 };
 
 
