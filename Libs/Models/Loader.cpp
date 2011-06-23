@@ -140,7 +140,6 @@ void ModelLoaderT::RemoveUnusedVertices(CafuModelT::MeshT& Mesh)
 {
     ArrayT<CafuModelT::MeshT::TriangleT>& Triangles=Mesh.Triangles;
     ArrayT<CafuModelT::MeshT::VertexT>&   Vertices =Mesh.Vertices;
-    ArrayT<CafuModelT::MeshT::WeightT>&   Weights  =Mesh.Weights;
 
     ArrayT<bool> Used;
     Used.PushBackEmptyExact(Vertices.Size());
@@ -180,9 +179,8 @@ void ModelLoaderT::AbandonDuplicateWeights(CafuModelT::MeshT& Mesh)
 
 void ModelLoaderT::RemoveUnusedWeights(CafuModelT::MeshT& Mesh)
 {
-    ArrayT<CafuModelT::MeshT::TriangleT>& Triangles=Mesh.Triangles;
-    ArrayT<CafuModelT::MeshT::VertexT>&   Vertices =Mesh.Vertices;
-    ArrayT<CafuModelT::MeshT::WeightT>&   Weights  =Mesh.Weights;
+    ArrayT<CafuModelT::MeshT::VertexT>& Vertices=Mesh.Vertices;
+    ArrayT<CafuModelT::MeshT::WeightT>& Weights =Mesh.Weights;
 
     ArrayT<bool> Used;
     Used.PushBackEmptyExact(Weights.Size());
