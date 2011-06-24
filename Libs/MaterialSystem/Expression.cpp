@@ -89,6 +89,17 @@ float TableT::Lookup(float x) const
 /*** Expression ***/
 /******************/
 
+ExpressionT::SymbolsT::SymbolsT()
+    : Time(0.0f),
+      GenFloat(),
+      GenInt()
+{
+    AmbientLightColor[0]=0.0f;
+    AmbientLightColor[1]=0.0f;
+    AmbientLightColor[2]=0.0f;
+}
+
+
 ExpressionT::ExpressionT(float FloatNumberValue_)
     : Type(FloatNumber),
       FloatNumberValue(FloatNumberValue_),

@@ -83,6 +83,8 @@ class ExpressionT
     /// An instance of it must be passed to the Evaluate() method.
     struct SymbolsT
     {
+        SymbolsT();
+
         float         Time;
         float         AmbientLightColor[3];
         ArrayT<float> GenFloat;     ///< Generic / general purpose float variables/symbols.
