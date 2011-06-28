@@ -35,6 +35,7 @@ class LoaderCafuT : public ModelLoaderT
 
     /// The constructor for loading a native Cafu (.cmdl) model file into a new Cafu model.
     /// @param FileName   The name of the .cmdl file to load.
+    /// @param Flags      The flags to load the model with. See ModelLoaderT::FlagsT for details.
     LoaderCafuT(const std::string& FileName, int Flags=NONE) /*throw (ModelT::LoadError)*/;
 
     /// The destructor.

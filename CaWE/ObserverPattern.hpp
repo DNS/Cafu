@@ -107,23 +107,29 @@ class ObserverT
     /// These methods notify the observer that one or more map elements have been modified.
     /// The first 3 parameters are common to all of these methods since they are the basic information needed to communicate
     /// an object modification.
-    /// @param Subject The map document in which the elements have been modified.
-    /// @param MapElements List of modified map elements.
-    /// @param Detail Information about what has been modified. Note that not all MapElemModDetailE elements can be used with all
-    ///        overloads of this method since some methods use only a part of them (see detailed documentation below).
     //@{
 
-    /// @param Detail Can be one of MEMD_PRIMITIVE_PROPS_CHANGED, MEMD_GENERIC, MEMD_ASSIGN_PRIM_TO_ENTITY and MEMD_MATERIAL_CHANGED.
+    /// @param Subject       The map document in which the elements have been modified.
+    /// @param MapElements   List of modified map elements.
+    /// @param Detail        Information about what has been modified:
+    ///                      Can be one of MEMD_PRIMITIVE_PROPS_CHANGED, MEMD_GENERIC, MEMD_ASSIGN_PRIM_TO_ENTITY and MEMD_MATERIAL_CHANGED.
     virtual void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail) { }
 
-    /// @param Detail Can be one of MEMD_TRANSFORM, MEMD_PRIMITIVE_PROPS_CHANGED and MEMD_MORPH. In the case of MEMD_PRIMITIVE_PROPS_CHANGED one can assume that
-    ///        only map primitives (no entities) are in the MapElements array.
-    /// @param OldBounds Holds the bounds of each objects BEFORE the modification (has the same size as MapElements).
+    /// @param Subject       The map document in which the elements have been modified.
+    /// @param MapElements   List of modified map elements.
+    /// @param Detail        Information about what has been modified:
+    ///                      Can be one of MEMD_TRANSFORM, MEMD_PRIMITIVE_PROPS_CHANGED and MEMD_MORPH.
+    ///                      In the case of MEMD_PRIMITIVE_PROPS_CHANGED one can assume that
+    ///                      only map primitives (no entities) are in the MapElements array.
+    /// @param OldBounds     Holds the bounds of each objects BEFORE the modification (has the same size as MapElements).
     virtual void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const ArrayT<BoundingBox3fT>& OldBounds) { }
 
     /// Since this overload is used exclusively for entities, one can assume that all map elements are entities.
-    /// @param Detail Can be one of MEMD_ENTITY_PROPERTY_CREATED, MEMD_ENTITY_PROPERTY_DELETED, MEMD_ENTITY_PROPERTY_MODIFIED or MEMD_ENTITY_CLASS_CHANGED.
-    /// @param Key Holds the keyname of the changed property or an empty string if Detail is MEMD_ENTITY_CLASS_CHANGED.
+    /// @param Subject       The map document in which the elements have been modified.
+    /// @param MapElements   List of modified map elements.
+    /// @param Detail        Information about what has been modified:
+    ///                      Can be one of MEMD_ENTITY_PROPERTY_CREATED, MEMD_ENTITY_PROPERTY_DELETED, MEMD_ENTITY_PROPERTY_MODIFIED or MEMD_ENTITY_CLASS_CHANGED.
+    /// @param Key           Holds the keyname of the changed property or an empty string if Detail is MEMD_ENTITY_CLASS_CHANGED.
     /// @todo move MEMD_ENTITY_CLASS_CHANGED into general modification method.
     virtual void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const wxString& Key) { }
     //@}

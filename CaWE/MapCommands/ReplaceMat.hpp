@@ -44,6 +44,7 @@ class CommandReplaceMatT : public CommandT
 
     /// Constructor to replace or just mark materials in the current selection of the map document or all map objects.
     /// @param MapDoc_         The map document in which the replace/mark should be performed.
+    /// @param Selection_      The set of elements to apply the mark or replace to.
     /// @param Find_           What should be found.
     /// @param Replace_        What it should be replaced with.
     /// @param Action_         The replace action to be taken.

@@ -40,7 +40,8 @@ namespace GuiEditor
         public:
 
         /// Scales a set of windows.
-        /// @param Windows The windows to translate.
+        /// @param GuiDocument The GUI document the windows are from.
+        /// @param Windows The windows to scale.
         /// @param Positions Depending on parameter Done these are the positions where the windows should be moved or the original
         ///                  window positions (since window origin is the top left corner of the window, scaling may change positions).
         /// @param Sizes Depending on parameter Done these are the sizes the windows should be scaled to or the original window sizes.

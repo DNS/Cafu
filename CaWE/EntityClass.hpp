@@ -51,7 +51,8 @@ class EntityClassT
     /// The constructor. It creates a new entity class instance from the contents of the given Lua stack.
     /// At Lua stack index -2, the name of the entity class is provided.
     /// At Lua stack index -1, there is a table with the variables and meta-information for this class.
-    /// @param LuaState   The representation of the Lua stack from whose contents the EntityClassT instance is created.
+    /// @param GameConfig   The game configuration that this entity class is for.
+    /// @param LuaState     The representation of the Lua stack from whose contents the EntityClassT instance is created.
     EntityClassT(const GameConfigT& GameConfig, lua_State* LuaState);
 
     /// The constructor for creating an entity class that is *unknown/undefined* in the game config.

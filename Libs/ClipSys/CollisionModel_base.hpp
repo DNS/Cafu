@@ -60,13 +60,11 @@ namespace cf
             ///       Right now this is fixed and works for CollisionModelStaticTs only!!!
             virtual void SaveToFile(std::ostream& OutFile, SceneGraph::aux::PoolT& Pool) const=0;
 
-            /// Traces the given convex polyhedron from Start along Ray (up to the input value of Result.Fraction)
+            /// Traces the given TraceSolidT instance from Start along Ray (up to the input value of Result.Fraction)
             /// through the collision model, and reports the first collision, if any.
             ///
-            /// @param HullVerts
-            ///     The vertices in this array define the shape of the convex polyhedron by their convex hull.
-            ///     It is valid (though suboptimal) for HullVerts to contain vertices that are "inside" the polyhedron,
-            ///     i.e. not part of the convex hull. Zero-volume hulls are valid as well.
+            /// @param TraceSolid
+            ///     The TraceSolidT instance that is traced from Start along Ray.
             ///
             /// @param Start
             ///     The start point in model space where the trace begins.

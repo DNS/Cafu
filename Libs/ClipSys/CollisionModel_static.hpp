@@ -232,6 +232,8 @@ namespace cf
             CollisionModelStaticT(std::istream& InFile, cf::SceneGraph::aux::PoolT& Pool, const ArrayT<TerrainRefT>& Terrains);
 
             /// Constructor for creating a collision model from the brushes and patches of a MapFileEntityT.
+            /// @param Entity              The entity to create the collision model from.
+            /// @param Terrains            The pool of references to shared terrain instances.
             /// @param UseGenericBrushes   Whether generic brushes should be used, or variants with precomputed bevel planes.
             ///     When false, internally the same code that has been used in the Cafu engine for years
             ///     (in the cf::SceneGraph::BspTreeNodeT class) is used, and is thus *very* fast, rock solid and battle proven.

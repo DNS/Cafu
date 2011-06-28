@@ -81,16 +81,19 @@ namespace GuiEditor
         /// These methods notify the observer that one or more GUI windows have been modified.
         /// The first 3 parameters are common to all of these methods since they are the basic information needed to communicate
         /// an object modification.
-        /// @param Subject The GUI document in which the elements have been modified.
-        /// @param Windows List of modified windows.
-        /// @param Detail Information about what has been modified. Note that not all WindowModDetailE elements can be used with all
-        ///        overloads of this method since some methods use only a part of them (see detailed documentation below).
         //@{
 
-        /// @param Detail Can be WMD_GENERIC, WMD_TRANSFORMED, WMD_HOR_TEXT_ALIGN or WMD_HIERARCHY.
+        /// @param Subject   The GUI document in which the elements have been modified.
+        /// @param Windows   List of modified windows.
+        /// @param Detail    Information about what has been modified:
+        ///                  Can be WMD_GENERIC, WMD_TRANSFORMED, WMD_HOR_TEXT_ALIGN or WMD_HIERARCHY.
         virtual void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail) { }
 
-        /// @param Can only be WMD_PROPERTY_CHANGED.
+        /// @param Subject   The GUI document in which the elements have been modified.
+        /// @param Windows   List of modified windows.
+        /// @param Detail    Information about what has been modified:
+        ///                  Can only be WMD_PROPERTY_CHANGED.
+        /// @param PropertyName   The name of the property whose value has been modified.
         virtual void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail, const wxString& PropertyName) { }
         //@}
 

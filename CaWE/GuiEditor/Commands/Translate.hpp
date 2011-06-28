@@ -39,10 +39,10 @@ namespace GuiEditor
         public:
 
         /// Translates a set of windows.
-        /// @param Windows The windows to translate.
-        /// @param Position Depending on parameter Done these are the positions where the windows should be moved or the original
-        ///                 window positions.
-        /// @param Done Determines whether the windows have already been moved or should be moved by the command on first do.
+        /// @param GuiDocument The GUI document the windows are from.
+        /// @param Windows     The windows to translate.
+        /// @param Positions   Depending on parameter \c Done these are the positions where the windows should be moved, or the original window positions.
+        /// @param Done        Determines whether the windows have already been moved or should be moved by the command on first do.
         CommandTranslateT(GuiDocumentT* GuiDocument, const ArrayT<cf::GuiSys::WindowT*>& Windows, const ArrayT<Vector3fT>& Positions, bool Done=false);
         ~CommandTranslateT();
 

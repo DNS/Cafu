@@ -36,7 +36,9 @@ class CommandChangeClassT : public CommandT
     public:
 
     /// Constructor to change the class of an entity.
-    /// @param Entity   Cannot be NULL.
+    /// @param MapDoc     The map document that the entity lives in.
+    /// @param Entity     Cannot be NULL.
+    /// @param NewClass   The new class for the entity.
     CommandChangeClassT(MapDocumentT& MapDoc, MapEntityT* Entity, const EntityClassT* NewClass);
 
     // Implementation of the CommandT interface.

@@ -46,6 +46,7 @@ namespace ModelEditor
 
         /// This method is called whenever the window selection of a GUI subject changed.
         /// @param Subject The GUI document in which the selection has been changed.
+        /// @param Type    The type of the elements in a model whose selection changed (joints, meshes or anims).
         /// @param OldSel Array of the previously selected windows.
         /// @param NewSel Array of the new selected windows.
         virtual void Notify_SelectionChanged(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel) { }

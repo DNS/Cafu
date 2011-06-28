@@ -81,19 +81,27 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     MapDocumentT(GameConfigT* GameConfig);
 
     /// The regular constructor for loading a cmap file from disk.
-    /// @param GameConfig   The game configuration that will be used for the map.
+    /// @param GameConfig       The game configuration that will be used for the map.
+    /// @param ProgressDialog   If non-NULL, this dialog is used to show the progress while loading the map.
+    /// @param FileName         The name of the file to load the map from.
     MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDialog, const wxString& FileName);
 
     /// A named constructor for importing a map in HL1 map file format.
-    /// @param GameConfig   The game configuration that will be used for the map.
+    /// @param GameConfig       The game configuration that will be used for the map.
+    /// @param ProgressDialog   If non-NULL, this dialog is used to show the progress while loading the map.
+    /// @param FileName         The name of the file to load the map from.
     static MapDocumentT* ImportHalfLife1Map(GameConfigT* GameConfig, wxProgressDialog* ProgressDialog, const wxString& FileName);
 
     /// A named constructor for importing a map in HL2 vmf file format.
-    /// @param GameConfig   The game configuration that will be used for the map.
+    /// @param GameConfig       The game configuration that will be used for the map.
+    /// @param ProgressDialog   If non-NULL, this dialog is used to show the progress while loading the map.
+    /// @param FileName         The name of the file to load the map from.
     static MapDocumentT* ImportHalfLife2Vmf(GameConfigT* GameConfig, wxProgressDialog* ProgressDialog, const wxString& FileName);
 
     /// A named constructor for importing a map in Doom3 map file format.
-    /// @param GameConfig   The game configuration that will be used for the map.
+    /// @param GameConfig       The game configuration that will be used for the map.
+    /// @param ProgressDialog   If non-NULL, this dialog is used to show the progress while loading the map.
+    /// @param FileName         The name of the file to load the map from.
     static MapDocumentT* ImportDoom3Map(GameConfigT* GameConfig, wxProgressDialog* ProgressDialog, const wxString& FileName);
 
     /// The destructor.

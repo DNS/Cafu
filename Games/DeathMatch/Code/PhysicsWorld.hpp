@@ -32,8 +32,8 @@ class BaseEntityT;
 
 
 // Auxiliary functions for making the conversion between Bullet and Cafu vectors easier.
-inline btVector3 conv(const Vector3fT& v) { return btVector3(v.x, v.y, v.z); }
-inline btVector3 conv(const Vector3dT& v) { return btVector3(float(v.x), float(v.y), float(v.z)); }
+inline btVector3 conv(const Vector3T<float>& v) { return btVector3(v.x, v.y, v.z); }
+inline btVector3 conv(const Vector3T<double>& v) { return btVector3(float(v.x), float(v.y), float(v.z)); }
 inline Vector3fT conv(const btVector3& v) { return Vector3fT(v.x(), v.y(), v.z()); }
 inline Vector3dT convd(const btVector3& v) { return Vector3dT(v.x(), v.y(), v.z()); }
 
@@ -96,7 +96,7 @@ class ShapeResultT : public btCollisionWorld::ClosestConvexResultCallback
 
 
     /// Adds the given collision object to the objects to be ignored for this trace.
-    /// @param IgnoreObject   A collision object to ignore for this trace. This is often the object from which the trace emanates.
+    /// @param Obj   A collision object to ignore for this trace. This is often the object from which the trace emanates.
     void Ignore(const btCollisionObject* Obj)
     {
         assert(m_IgnoreObjCount<2);
@@ -107,7 +107,7 @@ class ShapeResultT : public btCollisionWorld::ClosestConvexResultCallback
 
 
     /// Adds the given entity to the entities to be ignored for this trace.
-    /// @param IgnoreEntity   An entity to ignore for this trace. This is often the entity from which the trace emanates, or e.g. NULL (the world).
+    /// @param Ent   An entity to ignore for this trace. This is often the entity from which the trace emanates, or e.g. NULL (the world).
     void Ignore(const BaseEntityT* Ent)
     {
         assert(m_IgnoreEntCount<2);

@@ -44,10 +44,10 @@ namespace cf
             TerrainNodeT();
 
             /// Constructor for creating a TerrainNodeT from parameters.
-            /// @param BB_ The bounding box of the terrain node.
-            /// @param SideLength_ The lateral bounds of the terrains height data.
-            /// @param HeightData_ The height data to create the terrain from.
-            /// @param MaterialName_ Name of the material that is applied to this terrain.
+            /// @param BB_               The bounding box of the terrain node.
+            /// @param Terrain_          The TerrainT instance to create the TerrainNodeT from.
+            /// @param TerrainShareID_   Used for sharing common TerrainT instances across several TerrainNodeT's. (TODO: Needs better documentation!)
+            /// @param MaterialName_     Name of the material that is applied to this terrain.
             TerrainNodeT(const BoundingBox3dT& BB_, const TerrainT& Terrain_, unsigned long TerrainShareID_, const std::string& MaterialName_);
 
             /// Named constructor.

@@ -15,11 +15,18 @@
  * For example GUI scripts, see the files in
  *   - http://trac.cafu.de/browser/cafu/trunk/Games/DeathMatch/GUIs
  *
+ * GUI scripts have access to our <a href="group__Common.html">Common</a> libraries as well as
+ * to (most of) the <a href="http://www.lua.org/manual/5.1/manual.html#5">Lua standard libraries</a>.
+ *
  * @{
  */
 
 
 /// This class represents a basic, rectangular window.
+/// Each window has attributes like position, size, border, color, text, animations, effects, and more.
+/// The built-in behaviour of a window is generally determined by its \emph{class} (WindowT or one of its subclasses)
+/// when the window is created, and can optionally be augmented by custom script code.
+/// Windows also have parent and child windows, and the entire window hierarchy forms the GUI.
 ///
 /// <h3>Event Handler Callbacks</h3>
 /// The methods that are listed in this group are \emph{event handlers}:

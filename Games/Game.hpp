@@ -88,7 +88,8 @@ namespace cf
             /// @param RootNode       The root node of the scene graph of this entity as defined in the map file. NULL if the entity is created "dynamically".
             /// @param CollisionModel The collision model of this entity as defined by map primitives. NULL if no collision model was defined by map primitives (the entity may still have a collision model based on the Properties).
             /// @param ID             The global unique ID of this entity (in the current map).
-            /// @param MapFileID      The number of the entity in the map file, for obtaining the information in the map file about it later.
+            /// @param WorldFileIndex The index number of the entity in the world file.
+            /// @param MapFileIndex   The index number of the entity in the map file, for obtaining the information in the map file about it later.
             /// @param GameWorld      Pointer to the game world implementation.
             /// @param Origin         Where the new entity is supposed to be instantiated.
             /// @returns a base class pointer to the newly created entity instance.
@@ -103,7 +104,8 @@ namespace cf
             /// @param RootNode       The root node of the scene graph of this entity as defined in the map file. NULL if the entity is created "dynamically".
             /// @param CollisionModel The collision model of this entity as defined by map primitives. NULL if no collision model was defined by map primitives (the entity may still have a collision model based on the Properties).
             /// @param ID             The global unique ID of this entity (in the current map).
-            /// @param MapFileID      The number of the entity in the map file, for obtaining the information in the map file about it later.
+            /// @param WorldFileIndex The index number of the entity in the world file.
+            /// @param MapFileIndex   The index number of the entity in the map file, for obtaining the information in the map file about it later.
             /// @param GameWorld      Pointer to the game world implementation.
             /// @returns a base class pointer to the newly created entity instance.
             virtual BaseEntityT* CreateBaseEntityFromTypeNr(unsigned long TypeNr, const std::map<std::string, std::string>& Properties,

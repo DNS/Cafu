@@ -38,6 +38,7 @@ class CommandAssignPrimToEntT : public CommandT
     public:
 
     /// Constructor to (re-)assign a list of map primitives to a given entity (the world or any custom entity).
+    /// @param MapDoc   The map document in which the action is performed.
     /// @param Prims    The primitives that are assigned to the given entity.
     /// @param Entity   The entity which all primitives are assigned to.
     CommandAssignPrimToEntT(MapDocumentT& MapDoc, const ArrayT<MapPrimitiveT*>& Prims, MapEntityBaseT* Entity);

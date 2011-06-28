@@ -47,9 +47,9 @@ class CommandPasteT : public CommandT
     /// @param GoodPastePos       A good position for pasting the map elements. This is considered a suggestion, and adjusted when there are multiple subsequent pastes into the same place. When CenterAtOriginals is true, this parameter is ignored.
     /// @param DeltaTranslation   Translation offset for each pasted copy (only relevant if NumberOfCopies>1).
     /// @param DeltaRotation      Rotation offset for each pasted copy (only relevant if NumberOfCopies>1).
-    /// @param NumberOfCopies     Number of times the objects are pasted into the world.
+    /// @param NrOfCopies         Number of times the objects are pasted into the world.
     /// @param PasteGrouped       Should all pasted objects be grouped?
-    /// @param CenterAtOriginal   Should pasted objects be centered at position of original objects?
+    /// @param CenterAtOriginals  Should pasted objects be centered at position of original objects?
     CommandPasteT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>& Originals, const Vector3fT& OriginalsCenter,
         const Vector3fT& GoodPastePos,
         const Vector3fT& DeltaTranslation=Vector3fT(), const cf::math::AnglesfT& DeltaRotation=cf::math::AnglesfT(),

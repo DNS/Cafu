@@ -95,8 +95,6 @@ class ToolTerrainEditorT : public ToolT, public ObserverT
     void ExportHeightMap(wxString FileName, ExportFileTypeE ExportFileType);
 
     /// Updates the modification matrix using the passed radius and hardness.
-    /// @param ToolRadius The tool radius from which the modify weights are created.
-    /// @param ToolHardness The tool hardness from which the modify weights are created.
     void UpdateModifyWeights();
 
     /// Updates the noise weights according to the passed radius.

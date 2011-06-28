@@ -52,13 +52,14 @@ class FontGeneratorT
     ~FontGeneratorT();
 
     /// Generates a Cafu font from a .ttf font file.
-    /// @param FontFile The ttf file to create the Cafu font from.
-    /// @param MaterialBaseName The name of the material to be created for this font. Empty string means that no material is created.
+    /// @param FontFile    The ttf file to create the Cafu font from.
+    /// @param DebugPNGs   Add debug information to the created texture images?
     /// @return Whether the font has been successfully generated.
     bool GenerateFont(const wxString& FontFile, bool DebugPNGs=false);
 
     /// Saves all files related to this font into a directory.
-    /// @param Directory The directory into which the font files are saved.
+    /// @param Directory          The directory into which the font files are saved.
+    /// @param MaterialBaseName   The name of the material to be created for this font. Empty string means that no material is created.
     void SaveFont(const wxString& Directory, const wxString& MaterialBaseName="") const;
 
     /// Gets the number of sizes created for this font.

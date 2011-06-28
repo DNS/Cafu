@@ -49,10 +49,10 @@ namespace GuiEditor
         public:
 
         /// Constructor to create a child frame for GUI editing.
-        /// @param Parent The parent frame of this child frame.
-        /// @param FileName Filename for this frame.
-        /// @param Document This frames gui document. The frame becomes the owner of the document, i.e. it is responsible for destructing it.
-        ///                 (Document is created externally so that this constructor doesn't fail on doc creation failure.)
+        /// @param Parent        The parent frame of this child frame.
+        /// @param FileName      Filename for this frame.
+        /// @param GuiDocument   This frames gui document. The frame becomes the owner of the document, i.e. it is responsible for destructing it.
+        ///                      (\c GuiDocument is created externally so that this constructor doesn't fail on doc creation failure.)
         ChildFrameT(ParentFrameT* Parent, const wxString& FileName, GuiDocumentT* GuiDocument);
         ~ChildFrameT();
 

@@ -81,17 +81,6 @@ namespace cf
             /// Determines all places of contact between all clip models in this world and the given trace model
             /// that would occur when the trace model was translated from trmOrig into direction trmMoveDir by trmMoveAmount.
             ///
-            /// @param FoundContacts All found contacts are appended to (and thus returned in) this array.
-            /// @param FoundClipModels Parallel to FoundContacts, this array returns the related clip models. That is, the contact described by FoundContacts[i] occurred with FoundClipModels[i].
-            /// @param trmStart      The point where the (imaginary) translation of the trace model starts.
-            /// @param trmMoveDir    The direction into which the (imaginary) translation is performed.
-            /// @param trmMoveAmount The amount by which the trace model is moved into direction trmMoveDir.
-            /// @param trm           The trace model whose contacts with this clip model are determined.
-            /// @param trmAxis       How the trace model is oriented (rotated) for the test.
-            /// @param contentMask   Determines on the basis of contents which surfaces should (and should not) participate in the test.
-            /// @param Ignore        A clip model that is to be ignored during the tests, even if the content mask matches.
-            ///                      This is normally used to "hide" the clip model to prevent it to find contacts with itself.
-            ///
             /// @returns This methods returns its results in the two parallel arrays Contacts and ClipModels,
             ///          where each contact that is described by FoundContacts[i] occurred with the clip model pointed to by FoundClipModels[i].
             void GetContacts(const BoundingBox3dT& TraceBB, const Vector3dT& Start, const Vector3dT& Ray,

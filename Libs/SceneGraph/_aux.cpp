@@ -162,7 +162,7 @@ void aux::Write(std::ostream& OutFile, const std::string& Str)
 }
 
 
-void aux::Write(std::ostream& OutFile, const Vector3dT& v)
+void aux::Write(std::ostream& OutFile, const Vector3T<double>& v)
 {
     OutFile.write((char*)&v.x, sizeof(v.x));
     OutFile.write((char*)&v.y, sizeof(v.y));
@@ -170,7 +170,7 @@ void aux::Write(std::ostream& OutFile, const Vector3dT& v)
 }
 
 
-void aux::Write(std::ostream& OutFile, const Vector3fT& v)
+void aux::Write(std::ostream& OutFile, const Vector3T<float>& v)
 {
     OutFile.write((char*)&v.x, sizeof(v.x));
     OutFile.write((char*)&v.y, sizeof(v.y));

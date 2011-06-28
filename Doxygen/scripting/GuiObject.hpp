@@ -2,6 +2,7 @@
  * This class represents the GUI that is defined in a <tt>.cgui</tt> script file as a whole.
  * It is quasi the top-level "desktop" object that contains all the windows that together form the user interface.
  * Its methods affect the entire GUI, not just a single window of its window hierarchy.
+ * (The new() method described below is an exception: It is used to create new windows.)
  *
  * Note that you never create GuiT instances yourself:
  * Instead, each GUI script accesses the global @c gui variable that is automatically predefined.
@@ -153,10 +154,14 @@ class GuiT
     SetRootWindow(WindowT win);
 
     /// Creates and returns a new window.
-    /// @param Type   The (name of the) type of the newly created window, e.g. "WindowT", "ChoiceT", or the name of any other class in the WindowT hierarchy.
-    /// @param Name   The name that the newly created window instance is assigned. This parameter is optional, and can be set later with the WindowT::SetName() method.
+    /// @param Class  The (name of the) class of the newly created window, e.g. "WindowT", "ChoiceT",
+    ///               or the name of any other class in the WindowT hierarchy.
+    /// @param Name   The name that the newly created window instance is assigned.
+    ///               Even though this parameter is optional and can be set with the WindowT::SetName() method later,
+    ///               it is recommended that a unique window name is set here, so that other script code can
+    ///               unambiguously find and identify the window by name later.
     /// @returns The newly created window.
-    WindowT new(string Type, string Name="");
+    WindowT new(string Class, string Name="");
 
     /// Finds and returns a window by pointer value.
     /// This method is useful for debugging, when an error message referred to a window by pointer value.

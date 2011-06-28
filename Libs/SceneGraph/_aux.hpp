@@ -86,10 +86,10 @@ namespace cf
             void Write(std::ostream& OutFile, const std::string& Str);
 
             /// Writes a Vector3dT into a std::ostream.
-            void Write(std::ostream& OutFile, const Vector3dT& v);
+            void Write(std::ostream& OutFile, const Vector3T<double>& v);
 
             /// Writes a Vector3fT into a std::ostream.
-            void Write(std::ostream& OutFile, const Vector3fT& v);
+            void Write(std::ostream& OutFile, const Vector3T<float>& v);
 
 
             /// This function casts the given integer i to an int32_t, and checks that the returned int32_t has the same value as i.

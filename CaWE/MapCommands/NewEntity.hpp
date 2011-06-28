@@ -38,7 +38,7 @@ class CommandNewEntityT : public CommandT
 
     /// Constructor to create a new entity.
     /// @param MapDoc        Map document in which the entity is created.
-    /// @param ClassName     Class of the point entity that is created.
+    /// @param EntityClass   Class of the entity that is created.
     /// @param Position      Position at which the entity is created.
     /// @param AdjustPlane   The (optional) plane the new entities origin is adjusted to.
     CommandNewEntityT(MapDocumentT& MapDoc, const EntityClassT* EntityClass, const Vector3fT& Position, const Plane3fT* AdjustPlane=NULL);
