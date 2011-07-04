@@ -119,14 +119,22 @@ namespace ModelEditor
             ID_MENU_VIEW_AUIPANE_SCENE_SETUP,
             ID_MENU_VIEW_LOAD_DEFAULT_PERSPECTIVE,
             ID_MENU_VIEW_LOAD_USER_PERSPECTIVE,
-            ID_MENU_VIEW_SAVE_USER_PERSPECTIVE
+            ID_MENU_VIEW_SAVE_USER_PERSPECTIVE,
+
+            ID_MENU_MODEL_ANIM_SKIP_BACKWARD,
+            ID_MENU_MODEL_ANIM_PLAY,
+            ID_MENU_MODEL_ANIM_PAUSE,
+            ID_MENU_MODEL_ANIM_SKIP_FORWARD
         };
 
         void OnMenuFile(wxCommandEvent& CE);
+        void OnMenuFileUpdate(wxUpdateUIEvent& UE);
         void OnMenuUndoRedo(wxCommandEvent& CE);
-        void OnUpdateEditUndoRedo(wxUpdateUIEvent& UE);
+        void OnMenuUndoRedoUpdate(wxUpdateUIEvent& UE);
         void OnMenuView(wxCommandEvent& CE);
         void OnMenuViewUpdate(wxUpdateUIEvent& UE);
+        void OnMenuModel(wxCommandEvent& CE);
+        void OnMenuModelUpdate(wxUpdateUIEvent& UE);
         void OnClose(wxCloseEvent& CE);
 
         DECLARE_EVENT_TABLE()

@@ -37,6 +37,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Models/Model_cmdl.hpp"
 
 #include "wx/wx.h"
+#include "wx/artprov.h"
+#include "wx/aui/auibar.h"
 #include "wx/confbase.h"
 #include "wx/dir.h"
 
@@ -52,10 +54,13 @@ namespace ModelEditor
 
 BEGIN_EVENT_TABLE(ModelEditor::ChildFrameT, wxMDIChildFrame)
     EVT_MENU_RANGE     (ID_MENU_FILE_CLOSE,                     ID_MENU_FILE_SAVEAS,                   ModelEditor::ChildFrameT::OnMenuFile)
+    EVT_UPDATE_UI_RANGE(ID_MENU_FILE_CLOSE,                     ID_MENU_FILE_SAVEAS,                   ModelEditor::ChildFrameT::OnMenuFileUpdate)
     EVT_MENU_RANGE     (wxID_UNDO,                              wxID_REDO,                             ModelEditor::ChildFrameT::OnMenuUndoRedo)
-    EVT_UPDATE_UI_RANGE(wxID_UNDO,                              wxID_REDO,                             ModelEditor::ChildFrameT::OnUpdateEditUndoRedo)
+    EVT_UPDATE_UI_RANGE(wxID_UNDO,                              wxID_REDO,                             ModelEditor::ChildFrameT::OnMenuUndoRedoUpdate)
     EVT_MENU_RANGE     (ID_MENU_VIEW_AUIPANE_GLOBALS_INSPECTOR, ID_MENU_VIEW_LOAD_DEFAULT_PERSPECTIVE, ModelEditor::ChildFrameT::OnMenuView)
     EVT_UPDATE_UI_RANGE(ID_MENU_VIEW_AUIPANE_GLOBALS_INSPECTOR, ID_MENU_VIEW_LOAD_DEFAULT_PERSPECTIVE, ModelEditor::ChildFrameT::OnMenuViewUpdate)
+    EVT_MENU_RANGE     (ID_MENU_MODEL_ANIM_SKIP_BACKWARD,        ID_MENU_MODEL_ANIM_SKIP_FORWARD,      ModelEditor::ChildFrameT::OnMenuModel)
+    EVT_UPDATE_UI_RANGE(ID_MENU_MODEL_ANIM_SKIP_BACKWARD,        ID_MENU_MODEL_ANIM_SKIP_FORWARD,      ModelEditor::ChildFrameT::OnMenuModelUpdate)
     EVT_CLOSE          (ModelEditor::ChildFrameT::OnClose)
 END_EVENT_TABLE()
 
@@ -126,6 +131,11 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     ViewMenu->Append(ID_MENU_VIEW_LOAD_DEFAULT_PERSPECTIVE, "Load &default window layout", "Restores the default window layout");
     item0->Append(ViewMenu, "&View");
 
+    wxMenu* ModelMenu=new wxMenu;
+    ModelMenu->AppendRadioItem(ID_MENU_MODEL_ANIM_PLAY,  "&Play anim"/*, "Loads the user defined window layout"*/);
+    ModelMenu->AppendRadioItem(ID_MENU_MODEL_ANIM_PAUSE, "P&ause anim"/*, "Loads the user defined window layout"*/);
+    item0->Append(ModelMenu, "&Model");
+
     wxMenu* HelpMenu=new wxMenu;
     HelpMenu->Append(ParentFrameT::ID_MENU_HELP_CONTENTS, wxT("&CaWE Help\tF1"), wxT("") );
     HelpMenu->AppendSeparator();
@@ -188,16 +198,29 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
                          Right());
 
     // Create AUI toolbars.
-    // Note: Right now those toolbars don't look to well under Windows Vista because of the new windows toolbar style that is used
-    // to render the toolbars but not the wxAUI handles. Insert this code to see the problem.
-    wxToolBar* ToolbarDocument=new wxToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_FLAT | wxTB_NODIVIDER);
-    ToolbarDocument->SetToolBitmapSize(wxSize(16,16));
-    ToolbarDocument->AddTool(ParentFrameT::ID_MENU_FILE_NEW_MODEL, "New model", wxBitmap("CaWE/res/GuiEditor/page_white.png", wxBITMAP_TYPE_PNG), "New model");
-    ToolbarDocument->AddTool(ID_MENU_FILE_SAVE,                    "Save", wxBitmap("CaWE/res/GuiEditor/disk.png", wxBITMAP_TYPE_PNG), "Save model");
+    wxAuiToolBar* ToolbarDocument=new wxAuiToolBar(this, wxID_ANY);
+    ToolbarDocument->AddTool(ParentFrameT::ID_MENU_FILE_NEW_MODEL, "New", wxArtProvider::GetBitmap(wxART_NEW, wxART_TOOLBAR), "Create a new file");
+    ToolbarDocument->AddTool(ParentFrameT::ID_MENU_FILE_OPEN,      "Open", wxArtProvider::GetBitmap(wxART_FILE_OPEN, wxART_TOOLBAR), "Open an existing file");
+    ToolbarDocument->AddTool(ID_MENU_FILE_SAVE,                    "Save", wxArtProvider::GetBitmap(wxART_FILE_SAVE, wxART_TOOLBAR), "Save the file");
+    ToolbarDocument->AddTool(ID_MENU_FILE_SAVEAS,                  "Save as", wxArtProvider::GetBitmap(wxART_FILE_SAVE_AS, wxART_TOOLBAR), "Save the file under a different name");
+    ToolbarDocument->AddSeparator();
+    ToolbarDocument->AddTool(wxID_UNDO,                            "Undo", wxArtProvider::GetBitmap(wxART_UNDO, wxART_TOOLBAR), "Undo the last action");
+    ToolbarDocument->AddTool(wxID_REDO,                            "Redo", wxArtProvider::GetBitmap(wxART_REDO, wxART_TOOLBAR), "Redo the previously undone action");
     ToolbarDocument->Realize();
 
     m_AUIManager.AddPane(ToolbarDocument, wxAuiPaneInfo().Name("ToolbarDocument").
-                         Caption("Toolbar Document").ToolbarPane().Top().Row(1).
+                         Caption("Toolbar Document").ToolbarPane().Top().Row(0).
+                         LeftDockable(false).RightDockable(false));
+
+    wxAuiToolBar* AnimToolbar=new wxAuiToolBar(this, wxID_ANY);
+    AnimToolbar->AddTool(ID_MENU_MODEL_ANIM_SKIP_BACKWARD,  "Skip backward",  wxArtProvider::GetBitmap("media-skip-backward", wxART_TOOLBAR), "Select previous animation sequence");
+    AnimToolbar->AddTool(ID_MENU_MODEL_ANIM_PLAY,  "Play Anim",  wxArtProvider::GetBitmap("media-playback-start", wxART_TOOLBAR), "Playback the animation sequence", wxITEM_RADIO);
+    AnimToolbar->AddTool(ID_MENU_MODEL_ANIM_PAUSE, "Pause Anim", wxArtProvider::GetBitmap("media-playback-pause", wxART_TOOLBAR), "Pause/stop the animation sequence", wxITEM_RADIO);
+    AnimToolbar->AddTool(ID_MENU_MODEL_ANIM_SKIP_FORWARD,  "Skip forward",  wxArtProvider::GetBitmap("media-skip-forward", wxART_TOOLBAR), "Select next animation sequence");
+    AnimToolbar->Realize();
+
+    m_AUIManager.AddPane(AnimToolbar, wxAuiPaneInfo().Name("AnimToolbar").
+                         Caption("Anim Toolbar").ToolbarPane().Top().Row(0).
                          LeftDockable(false).RightDockable(false));
 
 
@@ -542,6 +565,17 @@ void ModelEditor::ChildFrameT::OnMenuFile(wxCommandEvent& CE)
 }
 
 
+void ModelEditor::ChildFrameT::OnMenuFileUpdate(wxUpdateUIEvent& UE)
+{
+    switch (UE.GetId())
+    {
+        case ID_MENU_FILE_SAVE:
+            UE.Enable(m_History.GetLastSaveSuggestedCommandID()!=m_LastSavedAtCommandNr);
+            break;
+    }
+}
+
+
 void ModelEditor::ChildFrameT::OnMenuUndoRedo(wxCommandEvent& CE)
 {
     // Step forward or backward in the command history.
@@ -552,7 +586,7 @@ void ModelEditor::ChildFrameT::OnMenuUndoRedo(wxCommandEvent& CE)
 }
 
 
-void ModelEditor::ChildFrameT::OnUpdateEditUndoRedo(wxUpdateUIEvent& UE)
+void ModelEditor::ChildFrameT::OnMenuUndoRedoUpdate(wxUpdateUIEvent& UE)
 {
     const CommandT* Cmd   =(UE.GetId()==wxID_UNDO) ? m_History.GetUndoCommand() : m_History.GetRedoCommand();
     wxString        Action=(UE.GetId()==wxID_UNDO) ? "Undo" : "Redo";
@@ -625,6 +659,39 @@ void ModelEditor::ChildFrameT::OnMenuViewUpdate(wxUpdateUIEvent& UE)
         case ID_MENU_VIEW_AUIPANE_ANIMS_LIST:        UE.Check(m_AUIManager.GetPane(m_AnimsList       ).IsShown()); break;
         case ID_MENU_VIEW_AUIPANE_ANIM_INSPECTOR:    UE.Check(m_AUIManager.GetPane(m_AnimInspector   ).IsShown()); break;
         case ID_MENU_VIEW_AUIPANE_SCENE_SETUP:       UE.Check(m_AUIManager.GetPane(m_ScenePropGrid   ).IsShown()); break;
+    }
+}
+
+
+void ModelEditor::ChildFrameT::OnMenuModel(wxCommandEvent& CE)
+{
+    switch (CE.GetId())
+    {
+        case ID_MENU_MODEL_ANIM_SKIP_FORWARD:
+            m_ModelDoc->SetNextAnimSequ();
+            break;
+
+        case ID_MENU_MODEL_ANIM_SKIP_BACKWARD:
+            m_ModelDoc->SetPrevAnimSequ();
+            break;
+
+        case ID_MENU_MODEL_ANIM_PLAY:
+            m_ModelDoc->SetAnimSpeed(1.0f);
+            break;
+
+        case ID_MENU_MODEL_ANIM_PAUSE:
+            m_ModelDoc->SetAnimSpeed(0.0f);
+            break;
+    }
+}
+
+
+void ModelEditor::ChildFrameT::OnMenuModelUpdate(wxUpdateUIEvent& UE)
+{
+    switch (UE.GetId())
+    {
+        case ID_MENU_MODEL_ANIM_PLAY:  UE.Check(m_ModelDoc->GetAnim().Speed> 0.0f); break;
+        case ID_MENU_MODEL_ANIM_PAUSE: UE.Check(m_ModelDoc->GetAnim().Speed<=0.0f); break;
     }
 }
 

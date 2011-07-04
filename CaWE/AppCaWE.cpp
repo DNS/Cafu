@@ -30,6 +30,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/stdpaths.h"
 
 #include "AppCaWE.hpp"
+#include "ArtProvider.hpp"
 #include "ChildFrameViewWin2D.hpp"
 #include "ChildFrameViewWin3D.hpp"
 #include "CursorMan.hpp"
@@ -153,6 +154,12 @@ bool AppCaWE::OnInit()
     // Initialize the global cursor manager instance.
     wxASSERT(CursorMan==NULL);
     CursorMan=new CursorManT;
+
+    // Initialize the global art provider.
+    if (wxArtProvider::HasNativeProvider())
+        wxArtProvider::PushBack(new ArtProviderT("default"));
+    else
+        wxArtProvider::Push(new ArtProviderT("default"));
 
 
     // Set the globally used configuration storage object for easy access via wxConfigBase::Get().

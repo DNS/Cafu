@@ -1,4 +1,7 @@
-The icons in CaWE were created and are copyrighted by:
+The default Cafu Icon Theme uses icons from:
+
+      The Tango Icon Library,
+      http://tango.freedesktop.org/Tango_Icon_Library
 
       Kai Schadwinkel, http://www.mdkai.de
 
@@ -8,10 +11,6 @@ The icons in CaWE were created and are copyrighted by:
 
 CaWE employs several external libraries that are copyrighted by their respective authors.
 Each of these libraries is compatible both with the GPL as well as with the custom licenses by Carsten Fuchs Software for closed-source commercial use.
-
-      Open Asset Import Library,
-      copyright (c) 2006-2010 Assimp Development Team,
-      http://assimp.sourceforge.net
 
       Bullet Continuous Collision Detection and Physics Library,
       copyright (c) 2003-2006 Erwin Coumans,
