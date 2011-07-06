@@ -1303,7 +1303,7 @@ void ModelMdlT::Draw(int SequenceNr, float FrameNr, float /*LodDist*/, const Mod
         }
     }
 
-    if (SequenceNr>=GetNrOfSequences()) SequenceNr=0;
+    if (SequenceNr>=int(GetNrOfSequences())) SequenceNr=0;
 
     DoDraw(SequenceNr, FrameNr, SubMdl, 0, NULL, NULL);
 }
@@ -1539,7 +1539,7 @@ void ModelMdlT::Print() const
 }
 
 
-int ModelMdlT::GetNrOfSequences() const
+unsigned int ModelMdlT::GetNrOfSequences() const
 {
     return StudioHeader->NumSeq;
 }

@@ -236,8 +236,8 @@ void BenchMark(const bool EnableShadows, const std::string& ModelName, const std
                 ModelSequenceNr=9;
                 ModelFrameNr   =0.0f;
 
-                if (ModelSequenceNr>=Model->GetNrOfSequences()) ModelSequenceNr=1;
-                if (ModelSequenceNr>=Model->GetNrOfSequences()) ModelSequenceNr=0;
+                if (ModelSequenceNr>=int(Model->GetNrOfSequences())) ModelSequenceNr=1;
+                if (ModelSequenceNr>=int(Model->GetNrOfSequences())) ModelSequenceNr=0;
                 break;
         }
 
@@ -369,7 +369,7 @@ void InteractiveViewer(const bool EnableShadows, const bool EnableAnim)
                 case CaKeyboardEventT::CK_Y: RotYOn=!RotYOn; break;
                 case CaKeyboardEventT::CK_Z: RotZOn=!RotZOn; break;
                 case CaKeyboardEventT::CK_K: DrawLightSource=!DrawLightSource; break;
-                case CaKeyboardEventT::CK_ADD     : ModelSequenceNr++; if (ModelSequenceNr>=Model->GetNrOfSequences()) ModelSequenceNr=0; break;
+                case CaKeyboardEventT::CK_ADD     : ModelSequenceNr++; if (ModelSequenceNr>=int(Model->GetNrOfSequences())) ModelSequenceNr=0; break;
                 case CaKeyboardEventT::CK_SUBTRACT: ModelSequenceNr--; if (ModelSequenceNr<0) ModelSequenceNr=Model->GetNrOfSequences()-1; break;
                 default: break;
             }

@@ -61,6 +61,10 @@ namespace ModelEditor
         /// @param MeshNr    The number of the mesh that has changed.
         virtual void Notify_MeshChanged(SubjectT* Subject, unsigned int MeshNr) { }
 
+        /// Notifies the observer that the animation state has changed.
+        /// @param Subject   The model document whose AnimStateT has changed.
+        virtual void Notify_AnimStateChanged(SubjectT* Subject) { }
+
         /// This method is called whenever a subject is about the be destroyed (and become unavailable).
         /// \param dyingSubject   The subject that is being destroyed.
         virtual void Notify_SubjectDies(SubjectT* dyingSubject)=0;
@@ -91,6 +95,7 @@ namespace ModelEditor
         virtual void UpdateAllObservers_SelectionChanged(ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel);
         virtual void UpdateAllObservers_JointChanged(unsigned int JointNr);
         virtual void UpdateAllObservers_MeshChanged(unsigned int MeshNr);
+        virtual void UpdateAllObservers_AnimStateChanged();
 
         /// The virtual destructor.
         virtual ~SubjectT();

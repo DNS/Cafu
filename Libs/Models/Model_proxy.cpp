@@ -229,7 +229,7 @@ void ModelProxyT::Print() const
 }
 
 
-int ModelProxyT::GetNrOfSequences() const
+unsigned int ModelProxyT::GetNrOfSequences() const
 {
     return ModelPool[PoolIndex]->GetNrOfSequences();
 }

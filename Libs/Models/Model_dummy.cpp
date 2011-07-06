@@ -60,7 +60,7 @@ void ModelDummyT::Print() const
 }
 
 
-int ModelDummyT::GetNrOfSequences() const
+unsigned int ModelDummyT::GetNrOfSequences() const
 {
     return 1;
 }

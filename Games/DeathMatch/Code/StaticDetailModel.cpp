@@ -451,7 +451,7 @@ int EntStaticDetailModelT::SetSequNr(lua_State* LuaState)
     Ent->m_FrameNr=0.0f;
     Ent->State.Events^=(1 << EventID_RestartSequ);
 
-    if (Ent->m_SequNr>=Ent->Model.GetNrOfSequences()) Ent->m_SequNr=0;
+    if (Ent->m_SequNr>=int(Ent->Model.GetNrOfSequences())) Ent->m_SequNr=0;
     return 0;
 }
 

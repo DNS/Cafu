@@ -209,7 +209,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     ToolbarDocument->Realize();
 
     m_AUIManager.AddPane(ToolbarDocument, wxAuiPaneInfo().Name("ToolbarDocument").
-                         Caption("Toolbar Document").ToolbarPane().Top().Row(0).
+                         Caption("Toolbar Document").ToolbarPane().Top().Row(0).Position(0).
                          LeftDockable(false).RightDockable(false));
 
     wxAuiToolBar* AnimToolbar=new wxAuiToolBar(this, wxID_ANY);
@@ -220,7 +220,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     AnimToolbar->Realize();
 
     m_AUIManager.AddPane(AnimToolbar, wxAuiPaneInfo().Name("AnimToolbar").
-                         Caption("Anim Toolbar").ToolbarPane().Top().Row(0).
+                         Caption("Anim Toolbar").ToolbarPane().Top().Row(0).Position(1).
                          LeftDockable(false).RightDockable(false));
 
 
@@ -232,10 +232,6 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
 
     if (!IsMaximized()) Maximize(true);     // Also have wxMAXIMIZE set as frame style.
     Show(true);
-
-    // Initial update of the model documents observers.
-    m_SceneView3D->Refresh(false);
-    m_ScenePropGrid->RefreshPropGrid();
 }
 
 
@@ -668,30 +664,51 @@ void ModelEditor::ChildFrameT::OnMenuModel(wxCommandEvent& CE)
     switch (CE.GetId())
     {
         case ID_MENU_MODEL_ANIM_SKIP_FORWARD:
-            m_ModelDoc->SetNextAnimSequ();
+         {
+            const ArrayT<unsigned int> OldSel=m_ModelDoc->GetSelection(ANIM);
+            m_ModelDoc->SetSelection(ANIM, m_ModelDoc->GetSelection_NextAnimSequ());
+            m_ModelDoc->UpdateAllObservers_SelectionChanged(ANIM, OldSel, m_ModelDoc->GetSelection(ANIM));
+
+            m_ModelDoc->GetAnimState().FrameNr=0.0f;
+            m_ModelDoc->UpdateAllObservers_AnimStateChanged();
             break;
+        }
 
         case ID_MENU_MODEL_ANIM_SKIP_BACKWARD:
-            m_ModelDoc->SetPrevAnimSequ();
+        {
+            const ArrayT<unsigned int> OldSel=m_ModelDoc->GetSelection(ANIM);
+            m_ModelDoc->SetSelection(ANIM, m_ModelDoc->GetSelection_PrevAnimSequ());
+            m_ModelDoc->UpdateAllObservers_SelectionChanged(ANIM, OldSel, m_ModelDoc->GetSelection(ANIM));
+
+            m_ModelDoc->GetAnimState().FrameNr=0.0f;
+            m_ModelDoc->UpdateAllObservers_AnimStateChanged();
             break;
+        }
 
         case ID_MENU_MODEL_ANIM_PLAY:
+        {
             m_ModelDoc->SetAnimSpeed(1.0f);
+            m_ModelDoc->UpdateAllObservers_AnimStateChanged();
             break;
+        }
 
         case ID_MENU_MODEL_ANIM_PAUSE:
+        {
             m_ModelDoc->SetAnimSpeed(0.0f);
+            m_ModelDoc->UpdateAllObservers_AnimStateChanged();
             break;
+        }
     }
 }
 
 
 void ModelEditor::ChildFrameT::OnMenuModelUpdate(wxUpdateUIEvent& UE)
 {
+    // Alternatively, ChildFrameT should derive from ObserverT and implement its Notify_AnimStateChanged() method.
     switch (UE.GetId())
     {
-        case ID_MENU_MODEL_ANIM_PLAY:  UE.Check(m_ModelDoc->GetAnim().Speed> 0.0f); break;
-        case ID_MENU_MODEL_ANIM_PAUSE: UE.Check(m_ModelDoc->GetAnim().Speed<=0.0f); break;
+        case ID_MENU_MODEL_ANIM_PLAY:  UE.Check(m_ModelDoc->GetAnimState().Speed!=0.0f); break;
+        case ID_MENU_MODEL_ANIM_PAUSE: UE.Check(m_ModelDoc->GetAnimState().Speed==0.0f); break;
     }
 }
 

@@ -22,12 +22,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef _MODELEDITOR_SCENE_PROPGRID_HPP_
 #define _MODELEDITOR_SCENE_PROPGRID_HPP_
 
+#include "ObserverPattern.hpp"
 #include "wx/wx.h"
 #include "wx/propgrid/manager.h"
 
 
-class EditorMaterialI;
-class GameConfigT;
 namespace MatSys { class TextureMapI; }
 
 
@@ -36,7 +35,7 @@ namespace ModelEditor
     class ChildFrameT;
 
 
-    class ScenePropGridT : public wxPropertyGridManager
+    class ScenePropGridT : public wxPropertyGridManager, public ObserverT
     {
         public:
 
@@ -44,7 +43,10 @@ namespace ModelEditor
         ~ScenePropGridT();
 
         void RefreshPropGrid();
-        void UpdateAmbientTexture();
+
+        // ObserverT implementation.
+        void Notify_AnimStateChanged(SubjectT* Subject);
+        void Notify_SubjectDies(SubjectT* dyingSubject);
 
         wxColour             m_BackgroundColor;
         bool                 m_ShowOrigin;
@@ -57,9 +59,14 @@ namespace ModelEditor
 
         private:
 
-        ChildFrameT* m_Parent;
-
         void OnPropertyGridChanged(wxPropertyGridEvent& Event);
+        void UpdateAmbientTexture();
+
+        ChildFrameT*  m_Parent;
+        bool          m_IsRecursiveSelfNotify;
+        wxPGProperty* m_AnimFrameNrProp;
+        wxPGProperty* m_AnimSpeedProp;
+        wxPGProperty* m_AnimLoopProp;
 
         DECLARE_EVENT_TABLE()
     };

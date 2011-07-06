@@ -187,7 +187,7 @@ class CafuModelT : public ModelT
     void               Draw(int SequenceNr, float FrameNr, float LodDist, const ModelT* SubModel=NULL) const;
     bool               GetGuiPlane(int SequenceNr, float FrameNr, float LodDist, Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const;
     void               Print() const;
-    int                GetNrOfSequences() const;
+    unsigned int       GetNrOfSequences() const;
     BoundingBox3fT     GetBB(int SequenceNr, float FrameNr) const;
     bool               TraceRay(int SequenceNr, float FrameNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, TraceResultT& Result) const;
  // float              GetNrOfFrames(int SequenceNr) const;

@@ -83,7 +83,7 @@ class ModelT
 
     /// Gets the number of animation sequences of this model.
     /// @return Number of sequences of this model.
-    virtual int GetNrOfSequences() const=0;
+    virtual unsigned int GetNrOfSequences() const=0;
 
     /// Returns the bounding box for sequence SequenceNr at frame FrameNr.
     /// @param SequenceNr The sequence number to get the bounding box for.

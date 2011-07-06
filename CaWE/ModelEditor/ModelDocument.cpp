@@ -119,40 +119,40 @@ ModelEditor::ModelDocumentT::~ModelDocumentT()
 }
 
 
+ArrayT<unsigned int> ModelEditor::ModelDocumentT::GetSelection_NextAnimSequ() const
+{
+    ArrayT<unsigned int> NextSel;
+    const unsigned int   NextAnimSequNr=m_Selection[ANIM].Size()==0 ? 0 : m_Selection[ANIM][0]+1;
+
+    if (NextAnimSequNr < m_Model->GetNrOfSequences())
+        NextSel.PushBack(NextAnimSequNr);
+
+    return NextSel;
+}
+
+
+ArrayT<unsigned int> ModelEditor::ModelDocumentT::GetSelection_PrevAnimSequ() const
+{
+    ArrayT<unsigned int> NextSel;
+    const unsigned int   NextAnimSequNr=m_Selection[ANIM].Size()==0 ? m_Model->GetNrOfSequences()-1 : m_Selection[ANIM][0]-1;
+
+    if (NextAnimSequNr < m_Model->GetNrOfSequences())
+        NextSel.PushBack(NextAnimSequNr);
+
+    return NextSel;
+}
+
+
 void ModelEditor::ModelDocumentT::AdvanceTime(float Time)
 {
-    if (m_Anim.SequNr>=0 && Time*m_Anim.Speed!=0.0f)
+    if (m_Selection[ANIM].Size()>0 && Time*m_AnimState.Speed!=0.0f)
     {
-        m_Anim.FrameNr=m_Model->AdvanceFrameNr(m_Anim.SequNr, m_Anim.FrameNr, Time*m_Anim.Speed, m_Anim.Loop);
-
-        // TODO: Update all observers...
+        m_AnimState.FrameNr=m_Model->AdvanceFrameNr(m_Selection[ANIM][0], m_AnimState.FrameNr, Time*m_AnimState.Speed, m_AnimState.Loop);
     }
-}
-
-
-void ModelEditor::ModelDocumentT::SetNextAnimSequ()
-{
-    m_Anim.SequNr++;
-    if (m_Anim.SequNr>=m_Model->GetNrOfSequences()) m_Anim.SequNr=-1;
-    m_Anim.FrameNr=0.0f;
-
-    // TODO: Update all observers...
-}
-
-
-void ModelEditor::ModelDocumentT::SetPrevAnimSequ()
-{
-    m_Anim.SequNr--;
-    if (m_Anim.SequNr<-1) m_Anim.SequNr=m_Model->GetNrOfSequences()-1;
-    m_Anim.FrameNr=0.0f;
-
-    // TODO: Update all observers...
 }
 
 
 void ModelEditor::ModelDocumentT::SetAnimSpeed(float NewSpeed)
 {
-    m_Anim.Speed=NewSpeed;
-
-    // TODO: Update all observers...
+    m_AnimState.Speed=NewSpeed;
 }

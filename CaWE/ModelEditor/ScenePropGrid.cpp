@@ -47,17 +47,27 @@ ModelEditor::ScenePropGridT::ScenePropGridT(ChildFrameT* Parent, const wxSize& S
       m_Model_ShowSkeleton(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/Model_ShowSkeleton", 0l)!=0),
       m_AmbientLightColor(wxColour(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/AmbientLightColor", "rgb(96, 96, 96)"))),
       m_AmbientTexture(NULL),
-      m_Parent(Parent)
+      m_Parent(Parent),
+      m_IsRecursiveSelfNotify(false),
+      m_AnimFrameNrProp(NULL),
+      m_AnimSpeedProp(NULL),
+      m_AnimLoopProp(NULL)
 {
     UpdateAmbientTexture();
 
     SetExtraStyle(wxPG_EX_HELP_AS_TOOLTIPS | wxPG_EX_MODE_BUTTONS);
     AddPage("Scene Setup");
+
+    m_Parent->GetModelDoc()->RegisterObserver(this);
+    RefreshPropGrid();
 }
 
 
 ModelEditor::ScenePropGridT::~ScenePropGridT()
 {
+    if (m_Parent->GetModelDoc())
+        m_Parent->GetModelDoc()->UnregisterObserver(this);
+
     MatSys::TextureMapManager->FreeTextureMap(m_AmbientTexture);
 }
 
@@ -111,13 +121,12 @@ void ModelEditor::ScenePropGridT::RefreshPropGrid()
 
 
     // "Anim Control" category.
-    const ModelDocumentT::ModelAnimationT& Anim=m_Parent->GetModelDoc()->GetAnim();
+    const ModelDocumentT::AnimStateT& Anim=m_Parent->GetModelDoc()->GetAnimState();
 
     wxPGProperty* AnimControlCat=Append(new wxPropertyCategory("Animation Control"));
-    AppendIn(AnimControlCat, new wxIntProperty("Sequence No.", wxPG_LABEL, Anim.SequNr));
-    AppendIn(AnimControlCat, new wxFloatProperty("Frame No.", wxPG_LABEL, Anim.FrameNr));
-    AppendIn(AnimControlCat, new wxFloatProperty("Speed", wxPG_LABEL, Anim.Speed));
-    AppendIn(AnimControlCat, new wxBoolProperty("Loop", wxPG_LABEL, Anim.Loop));
+    m_AnimFrameNrProp=AppendIn(AnimControlCat, new wxFloatProperty("Frame No.", wxPG_LABEL, Anim.FrameNr));
+    m_AnimSpeedProp  =AppendIn(AnimControlCat, new wxFloatProperty("Speed", wxPG_LABEL, Anim.Speed));
+    m_AnimLoopProp   =AppendIn(AnimControlCat, new wxBoolProperty("Loop", wxPG_LABEL, Anim.Loop));
 
 
     // "Light Sources" category.
@@ -162,6 +171,7 @@ void ModelEditor::ScenePropGridT::OnPropertyGridChanged(wxPropertyGridEvent& Eve
     // Since the user is definitely finished editing this property we can safely clear the selection.
  // ClearSelection();
 
+    ModelDocumentT::AnimStateT& AnimState=m_Parent->GetModelDoc()->GetAnimState();
     CameraT&            Camera    =*m_Parent->GetModelDoc()->GetCameras()[0];
     MapBrushT*          Ground    =m_Parent->GetModelDoc()->GetGround();
     const wxPGProperty* Prop      =Event.GetProperty();
@@ -197,15 +207,9 @@ void ModelEditor::ScenePropGridT::OnPropertyGridChanged(wxPropertyGridEvent& Eve
     }
     else if (PropName=="Model.Show Mesh")     m_Model_ShowMesh    =Prop->GetValue().GetBool();
     else if (PropName=="Model.Show Skeleton") m_Model_ShowSkeleton=Prop->GetValue().GetBool();
-    else if (PropName.StartsWith("Animation Control"))
-    {
-        ModelDocumentT::ModelAnimationT& Anim=m_Parent->GetModelDoc()->GetAnim();
-
-             if (PropName=="Animation Control.Sequence No.") Anim.SequNr =Prop->GetValue().GetLong();
-        else if (PropName=="Animation Control.Frame No.")    Anim.FrameNr=PropValueF;
-        else if (PropName=="Animation Control.Speed")        Anim.Speed  =PropValueF;
-        else if (PropName=="Animation Control.Loop")         Anim.Loop   =Prop->GetValue().GetBool();
-    }
+    else if (PropName=="Frame No.") { AnimState.FrameNr=PropValueF; m_IsRecursiveSelfNotify=true; m_Parent->GetModelDoc()->UpdateAllObservers_AnimStateChanged(); m_IsRecursiveSelfNotify=false; }
+    else if (PropName=="Speed")     { AnimState.Speed  =PropValueF; m_IsRecursiveSelfNotify=true; m_Parent->GetModelDoc()->UpdateAllObservers_AnimStateChanged(); m_IsRecursiveSelfNotify=false; }
+    else if (PropName=="Loop")      { AnimState.Loop   =Prop->GetValue().GetBool(); m_IsRecursiveSelfNotify=true; m_Parent->GetModelDoc()->UpdateAllObservers_AnimStateChanged(); m_IsRecursiveSelfNotify=false; }
     else if (PropName=="Ambient Light Color")
     {
         m_AmbientLightColor << Prop->GetValue();
@@ -251,4 +255,26 @@ void ModelEditor::ScenePropGridT::UpdateAmbientTexture()
                   r, g, b, r, g, b, 0, 0 };
 
     m_AmbientTexture=MatSys::TextureMapManager->GetTextureMap2D(Data, 2, 2, 3, true, MapCompositionT(MapCompositionT::Linear, MapCompositionT::Linear));
+}
+
+
+void ModelEditor::ScenePropGridT::Notify_AnimStateChanged(SubjectT* Subject)
+{
+    if (m_IsRecursiveSelfNotify) return;
+
+    const ModelDocumentT::AnimStateT& AnimState=m_Parent->GetModelDoc()->GetAnimState();
+
+    if (m_AnimFrameNrProp->GetValue().GetDouble()!=AnimState.FrameNr)
+        m_AnimFrameNrProp->SetValue(AnimState.FrameNr);
+
+    if (m_AnimSpeedProp->GetValue().GetDouble()!=AnimState.Speed)
+        m_AnimSpeedProp->SetValue(AnimState.Speed);
+
+    if (m_AnimLoopProp->GetValue().GetBool()!=AnimState.Loop)
+        m_AnimLoopProp->SetValue(AnimState.Loop);
+}
+
+
+void ModelEditor::ScenePropGridT::Notify_SubjectDies(SubjectT* dyingSubject)
+{
 }

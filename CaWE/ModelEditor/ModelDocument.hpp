@@ -56,14 +56,13 @@ namespace ModelEditor
             wxColour  Color;        ///< The light sources color (used for both the diffuse and specular component).
         };
 
-        class ModelAnimationT
+        class AnimStateT
         {
             public:
 
-            ModelAnimationT()
-                : SequNr(-1), FrameNr(0.0f), Speed(1.0f), Loop(true) { }
+            AnimStateT()
+                : FrameNr(0.0f), Speed(1.0f), Loop(true) { }
 
-            int   SequNr;   ///< The animation sequence number, -1 is "base (or bind) pose", no animation data.
             float FrameNr;  ///< The current frame number.
             float Speed;    ///< The speed (relative to clock time) with which the animation is advanced, usually 0 for stop or 1 for playback.
             bool  Loop;     ///< When playing the sequence, loop automatically when its end has been reached?
@@ -77,15 +76,10 @@ namespace ModelEditor
         /// The destructor.
         ~ModelDocumentT();
 
-        void AdvanceTime(float Time);
-        void SetNextAnimSequ();
-        void SetPrevAnimSequ();
-        void SetAnimSpeed(float NewSpeed);
-
         const CafuModelT*               GetModel() const           { return m_Model; }
         const ArrayT<unsigned int>&     GetSelection(ModelElementTypeT Type) const { wxASSERT(Type<3); return m_Selection[Type]; }
         const ArrayT<EditorMaterialI*>& GetEditorMaterials() const { return m_EditorMaterials; }
-        const ModelAnimationT&          GetAnim() const            { return m_Anim; }
+        const AnimStateT&               GetAnimState() const       { return m_AnimState; }
         const MapBrushT*                GetGround() const          { return m_Ground; }
         const ArrayT<CameraT*>&         GetCameras() const         { return m_Cameras; }
         const ArrayT<LightSourceT*>&    GetLightSources() const    { return m_LightSources; }
@@ -93,9 +87,14 @@ namespace ModelEditor
 
         CafuModelT*      GetModel()      { return m_Model; }
         void             SetSelection(ModelElementTypeT Type, const ArrayT<unsigned int>& NewSel) { wxASSERT(Type<3); m_Selection[Type]=NewSel; }
-        ModelAnimationT& GetAnim()       { return m_Anim; }
+        AnimStateT&      GetAnimState()  { return m_AnimState; }
         MapBrushT*       GetGround()     { return m_Ground; }
         GameConfigT*     GetGameConfig() { return m_GameConfig; }
+
+        ArrayT<unsigned int> GetSelection_NextAnimSequ() const;  ///< Returns the suggested selection set for activating the next animation sequence.
+        ArrayT<unsigned int> GetSelection_PrevAnimSequ() const;  ///< Returns the suggested selection set for activating the previous animation sequence.
+        void                 AdvanceTime(float Time);
+        void                 SetAnimSpeed(float NewSpeed);
 
 
         private:
@@ -106,7 +105,7 @@ namespace ModelEditor
         CafuModelT*              m_Model;           ///< The model that is being edited.
         ArrayT<unsigned int>     m_Selection[3];    ///< The selected joints, meshes and animations.
         ArrayT<EditorMaterialI*> m_EditorMaterials; ///< One editor material for each material in the model (its material manager).
-        ModelAnimationT          m_Anim;            ///< The state of our model animation.
+        AnimStateT               m_AnimState;       ///< The current state of the model animation.
         MapBrushT*               m_Ground;          ///< The ground brush.
         ArrayT<CameraT*>         m_Cameras;         ///< The cameras in the scene (used by the 3D views for rendering), there is always at least one.
         ArrayT<LightSourceT*>    m_LightSources;    ///< The light sources that exist in the scene.

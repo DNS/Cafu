@@ -95,10 +95,11 @@ Vector3fT ModelEditor::SceneView3DT::GetRefPtWorld(const wxPoint& RefPtWin) cons
     }
 
     // Trace the ray against the model, which is a per-triangle accurate test.
-    const ModelDocumentT::ModelAnimationT& Anim=m_Parent->GetModelDoc()->GetAnim();
+    const ModelDocumentT::AnimStateT& Anim   =m_Parent->GetModelDoc()->GetAnimState();
+    const ArrayT<unsigned int>&       AnimSel=m_Parent->GetModelDoc()->GetSelection(ANIM);
     ModelT::TraceResultT Result;
 
-    if (m_Parent->GetModelDoc()->GetModel()->TraceRay(Anim.SequNr, Anim.FrameNr, RayOrigin, RayDir, Result) && Result.Fraction<BestFraction)
+    if (m_Parent->GetModelDoc()->GetModel()->TraceRay(AnimSel.Size()==0 ? -1 : AnimSel[0], Anim.FrameNr, RayOrigin, RayDir, Result) && Result.Fraction<BestFraction)
     {
         BestFraction=Result.Fraction;
         BestPos     =RayOrigin + RayDir*Result.Fraction;
@@ -123,6 +124,8 @@ void ModelEditor::SceneView3DT::InfoRightMouseClick(wxMouseEvent& ME)
 
 void ModelEditor::SceneView3DT::OnKeyDown(wxKeyEvent& KE)
 {
+    ModelDocumentT* ModelDoc=m_Parent->GetModelDoc();
+
     // Guard against accessing an already deleted MapDoc. This can otherwise happen when closing this window/view/document,
     // namely during the continued event processing between the call to Destroy() and our final deletion.
  // if (&GetMapDoc()==NULL) { KE.Skip(); return; }
@@ -132,21 +135,31 @@ void ModelEditor::SceneView3DT::OnKeyDown(wxKeyEvent& KE)
         case '+':
         case WXK_NUMPAD_ADD:
         {
-            m_Parent->GetModelDoc()->SetNextAnimSequ();
+            const ArrayT<unsigned int> OldSel=ModelDoc->GetSelection(ANIM);
+            ModelDoc->SetSelection(ANIM, ModelDoc->GetSelection_NextAnimSequ());
+            ModelDoc->UpdateAllObservers_SelectionChanged(ANIM, OldSel, ModelDoc->GetSelection(ANIM));
+
+            ModelDoc->GetAnimState().FrameNr=0.0f;
+            ModelDoc->UpdateAllObservers_AnimStateChanged();
             break;
         }
 
         case '-':
         case WXK_NUMPAD_SUBTRACT:
         {
+            const ArrayT<unsigned int> OldSel=ModelDoc->GetSelection(ANIM);
+            ModelDoc->SetSelection(ANIM, ModelDoc->GetSelection_PrevAnimSequ());
+            ModelDoc->UpdateAllObservers_SelectionChanged(ANIM, OldSel, ModelDoc->GetSelection(ANIM));
 
-            m_Parent->GetModelDoc()->SetPrevAnimSequ();
+            ModelDoc->GetAnimState().FrameNr=0.0f;
+            ModelDoc->UpdateAllObservers_AnimStateChanged();
             break;
         }
 
         case WXK_TAB:
         {
-            m_Parent->GetModelDoc()->SetAnimSpeed(m_Parent->GetModelDoc()->GetAnim().Speed>0.0f ? 0.0f : 1.0f);
+            ModelDoc->SetAnimSpeed(ModelDoc->GetAnimState().Speed!=0.0f ? 0.0f : 1.0f);
+            ModelDoc->UpdateAllObservers_AnimStateChanged();
             break;
         }
 
@@ -210,11 +223,12 @@ void ModelEditor::SceneView3DT::RenderPass() const
 
 
     // Render the model.
-    const ModelDocumentT::ModelAnimationT& Anim=m_Parent->GetModelDoc()->GetAnim();
+    const ModelDocumentT::AnimStateT& Anim   =m_Parent->GetModelDoc()->GetAnimState();
+    const ArrayT<unsigned int>&       AnimSel=m_Parent->GetModelDoc()->GetSelection(ANIM);
 
     if (ScenePropGrid->m_Model_ShowMesh)
     {
-        m_Parent->GetModelDoc()->GetModel()->Draw(Anim.SequNr, Anim.FrameNr, 0.0f /*LodDist*/, NULL);
+        m_Parent->GetModelDoc()->GetModel()->Draw(AnimSel.Size()==0 ? -1 : AnimSel[0], Anim.FrameNr, 0.0f /*LodDist*/, NULL);
     }
 
 
@@ -223,7 +237,7 @@ void ModelEditor::SceneView3DT::RenderPass() const
     {
         static MatSys::MeshT              Skeleton(MatSys::MeshT::Lines);
         const ArrayT<CafuModelT::JointT>& Joints  =m_Parent->GetModelDoc()->GetModel()->GetJoints();
-        const ArrayT<MatrixT>&            Matrices=m_Parent->GetModelDoc()->GetModel()->GetDrawJointMatrices(Anim.SequNr, Anim.FrameNr);
+        const ArrayT<MatrixT>&            Matrices=m_Parent->GetModelDoc()->GetModel()->GetDrawJointMatrices(AnimSel.Size()==0 ? -1 : AnimSel[0], Anim.FrameNr);
 
         Skeleton.Vertices.Overwrite();
 
@@ -281,6 +295,7 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
 
     // Drive the model documents time, i.e. to advance the animation.
     m_Parent->GetModelDoc()->AdvanceTime(FrameTime);
+    m_Parent->GetModelDoc()->UpdateAllObservers_AnimStateChanged();
 
 
     /*********************/

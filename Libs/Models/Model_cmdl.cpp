@@ -1248,7 +1248,7 @@ void CafuModelT::Print() const
 }
 
 
-int CafuModelT::GetNrOfSequences() const
+unsigned int CafuModelT::GetNrOfSequences() const
 {
     return m_Anims.Size();
 }
@@ -1351,22 +1351,25 @@ bool CafuModelT::TraceRay(int SequenceNr, float FrameNr, const Vector3fT& RayOri
 float CafuModelT::AdvanceFrameNr(int SequenceNr, float FrameNr, float DeltaTime, bool Loop) const
 {
     if (SequenceNr<0 || SequenceNr>=int(m_Anims.Size())) return 0.0f;
-    const int NumFrames=m_Anims[SequenceNr].Frames.Size();
-    if (NumFrames<=1) return 0.0f;
+    if (m_Anims[SequenceNr].Frames.Size()<=1) return 0.0f;
 
-    float NewFrameNr=FrameNr+DeltaTime*m_Anims[SequenceNr].FPS;
+    const float NumFrames=float(m_Anims[SequenceNr].Frames.Size());
+
+    FrameNr+=DeltaTime*m_Anims[SequenceNr].FPS;
 
     if (Loop)
     {
         // Wrap the sequence (it's a looping (repeating) sequence, like idle, walk, ...).
-        NewFrameNr-=(int)(NewFrameNr/NumFrames)*NumFrames;
+        FrameNr=fmod(FrameNr, NumFrames);
+        if (FrameNr<0.0f) FrameNr+=NumFrames;
     }
     else
     {
         // Clamp the sequence (it's a play-once (non-repeating) sequence, like dying).
         // On clamping, stop the sequence 1/100th sec before the end of the last frame.
-        if (NewFrameNr>=float(NumFrames-1)) NewFrameNr=float(NumFrames-1)-0.01f;
+        if (FrameNr>=NumFrames-1.0f) FrameNr=NumFrames-1.0f-0.01f;
+        if (FrameNr<0.0f) FrameNr=0.0f;
     }
 
-    return NewFrameNr;
+    return FrameNr;
 }

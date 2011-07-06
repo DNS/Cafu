@@ -105,7 +105,7 @@ void ModelDlodT::Print() const
 }
 
 
-int ModelDlodT::GetNrOfSequences() const
+unsigned int ModelDlodT::GetNrOfSequences() const
 {
     return LodModels[0].GetNrOfSequences();
 }
