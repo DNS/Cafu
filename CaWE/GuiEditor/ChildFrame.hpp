@@ -33,6 +33,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 class ParentFrameT;
 class GameConfigT;
+class wxAuiToolBar;
 
 
 namespace GuiEditor
@@ -98,7 +99,7 @@ namespace GuiEditor
         wxMenu*           m_EditMenu;
         wxMenu*           m_ViewMenu;
 
-        wxToolBar*        m_ToolbarTools;
+        wxAuiToolBar*     m_ToolbarTools;
 
 
         enum
@@ -123,7 +124,6 @@ namespace GuiEditor
             ID_TOOLBAR_TOOL_SELECTION,
             ID_TOOLBAR_TOOL_NEW_WINDOW,
 
-            ID_TOOLBAR_WINDOW_DELETE,
             ID_TOOLBAR_WINDOW_MOVE_UP,
             ID_TOOLBAR_WINDOW_MOVE_DOWN,
             ID_TOOLBAR_WINDOW_ROTATE_CW,
@@ -140,6 +140,7 @@ namespace GuiEditor
         };
 
         void OnMenuFile(wxCommandEvent& CE);
+        void OnMenuFileUpdate(wxUpdateUIEvent& UE);
         void OnMenuUndoRedo(wxCommandEvent& CE);
         void OnUpdateEditUndoRedo(wxUpdateUIEvent& UE);
         void OnMenuEditCut(wxCommandEvent& CE);
@@ -147,9 +148,7 @@ namespace GuiEditor
         void OnMenuEditPaste(wxCommandEvent& CE);
         void OnMenuEditDelete(wxCommandEvent& CE);
         void OnMenuEditGrid(wxCommandEvent& CE);
-        void OnUpdateEditCutCopyDelete(wxUpdateUIEvent& UE);
-        void OnUpdateEditPaste(wxUpdateUIEvent& UE);
-        void OnUpdateEditSnapGrid(wxUpdateUIEvent& UE);
+        void OnMenuEditUpdate(wxUpdateUIEvent& UE);
         void OnMenuView(wxCommandEvent& CE);
         void OnMenuViewUpdate(wxUpdateUIEvent& UE);
         void OnClose(wxCloseEvent& CE);

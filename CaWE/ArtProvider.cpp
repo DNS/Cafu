@@ -60,6 +60,7 @@ ArtProviderT::ArtProviderT(const wxString& Theme)
     // TODO: Traverse the "res/icons/$theme" directory in order to discover the available sizes.
     m_Sizes.push_back(wxSize(16, 16));
     m_Sizes.push_back(wxSize(22, 22));
+    m_Sizes.push_back(wxSize(24, 24));
     m_Sizes.push_back(wxSize(32, 32));
 }
 
@@ -94,7 +95,8 @@ wxBitmap ArtProviderT::CreateBitmap(const wxArtID& ID, const wxArtClient& Client
     sort(m_Sizes.begin(), m_Sizes.end(), CompareSizesT(S));
 
 
-    // Translate some wxART IDs to Gnome icon names.
+    // Translate some wxART IDs to the Standard Icon Naming Specification,
+    // http://tango.freedesktop.org/Standard_Icon_Naming_Specification
     wxString Name=ID;
 
          if (Name==wxART_NEW)          Name="document-new";
@@ -103,6 +105,10 @@ wxBitmap ArtProviderT::CreateBitmap(const wxArtID& ID, const wxArtClient& Client
     else if (Name==wxART_FILE_SAVE_AS) Name="document-save-as";
     else if (Name==wxART_UNDO)         Name="edit-undo";
     else if (Name==wxART_REDO)         Name="edit-redo";
+    else if (Name==wxART_CUT)          Name="edit-cut";
+    else if (Name==wxART_COPY)         Name="edit-copy";
+    else if (Name==wxART_PASTE)        Name="edit-paste";
+    else if (Name==wxART_DELETE)       Name="edit-delete";
 
 
     // Iterate through the available bitmap sizes in the order of best size match.

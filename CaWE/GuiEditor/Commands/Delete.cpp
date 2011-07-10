@@ -32,11 +32,11 @@ CommandDeleteT::CommandDeleteT(GuiDocumentT* GuiDocument, cf::GuiSys::WindowT* W
     : m_GuiDocument(GuiDocument),
       m_CommandSelect(NULL)
 {
-    wxASSERT(Window->Parent->Children.Find(Window)>=0);
-
     // The root window cannot be deleted.
     if (Window!=Window->GetRoot())
     {
+        wxASSERT(Window->Parent->Children.Find(Window)>=0);
+
         m_Windows.PushBack(Window);
         m_Indices.PushBack(-1);
     }
@@ -53,11 +53,11 @@ CommandDeleteT::CommandDeleteT(GuiDocumentT* GuiDocument, const ArrayT<cf::GuiSy
     {
         cf::GuiSys::WindowT* Window=Windows[WinNr];
 
-        wxASSERT(Window->Parent->Children.Find(Window)>=0);
-
         // The root window cannot be deleted.
         if (Window!=Window->GetRoot())
         {
+            wxASSERT(Window->Parent->Children.Find(Window)>=0);
+
             m_Windows.PushBack(Window);
             m_Indices.PushBack(-1);
         }
@@ -81,6 +81,9 @@ bool CommandDeleteT::Do()
 {
     wxASSERT(!m_Done);
     if (m_Done) return false;
+
+    // Fail if there are no windows to delete.
+    if (m_Windows.Size()==0) return false;
 
     // Deselect any affected windows that are selected.
     m_CommandSelect->Do();
@@ -115,8 +118,8 @@ void CommandDeleteT::Undo()
 
     m_GuiDocument->UpdateAllObservers_Created(m_Windows);
 
-    // Select the previously selected windows again.
-    m_CommandSelect->Undo();
+    // Select the previously selected windows again (unless the command failed on Do(), which can happen e.g. on unchanged selection).
+    if (m_CommandSelect->IsDone()) m_CommandSelect->Undo();
 
     m_Done=false;
 }

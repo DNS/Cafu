@@ -42,6 +42,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/Misc.hpp"
 
 #include "wx/wx.h"
+#include "wx/artprov.h"
+#include "wx/aui/auibar.h"
 #include "wx/confbase.h"
 #include "wx/settings.h"
 #include "wx/file.h"
@@ -63,12 +65,11 @@ namespace GuiEditor
 
 BEGIN_EVENT_TABLE(GuiEditor::ChildFrameT, wxMDIChildFrame)
     EVT_MENU_RANGE     (ID_MENU_FILE_CLOSE,        ID_MENU_FILE_SAVEAS,           GuiEditor::ChildFrameT::OnMenuFile)
+    EVT_UPDATE_UI_RANGE(ID_MENU_FILE_CLOSE,        ID_MENU_FILE_SAVEAS,           GuiEditor::ChildFrameT::OnMenuFileUpdate)
     EVT_MENU_RANGE     (wxID_UNDO,                 wxID_REDO,                     GuiEditor::ChildFrameT::OnMenuUndoRedo)
     EVT_UPDATE_UI_RANGE(wxID_UNDO,                 wxID_REDO,                     GuiEditor::ChildFrameT::OnUpdateEditUndoRedo)
-    EVT_UPDATE_UI_RANGE(wxID_CUT,                  wxID_COPY,                     GuiEditor::ChildFrameT::OnUpdateEditCutCopyDelete)
-    EVT_UPDATE_UI      (wxID_PASTE,                                               GuiEditor::ChildFrameT::OnUpdateEditPaste)
-    EVT_UPDATE_UI      (ID_MENU_EDIT_DELETE,                                      GuiEditor::ChildFrameT::OnUpdateEditCutCopyDelete)
-    EVT_UPDATE_UI      (ID_MENU_EDIT_SNAP_TO_GRID,                                GuiEditor::ChildFrameT::OnUpdateEditSnapGrid)
+    EVT_UPDATE_UI_RANGE(wxID_CUT,                  wxID_PASTE,                    GuiEditor::ChildFrameT::OnMenuEditUpdate)
+    EVT_UPDATE_UI_RANGE(ID_MENU_EDIT_DELETE,       ID_MENU_EDIT_SET_GRID_SIZE,    GuiEditor::ChildFrameT::OnMenuEditUpdate)
     EVT_MENU           (wxID_CUT,                                                 GuiEditor::ChildFrameT::OnMenuEditCut)
     EVT_MENU           (wxID_COPY,                                                GuiEditor::ChildFrameT::OnMenuEditCopy)
     EVT_MENU           (wxID_PASTE,                                               GuiEditor::ChildFrameT::OnMenuEditPaste)
@@ -191,45 +192,48 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
                          Right().Position(1));
 
     // Create AUI toolbars.
-    // Note: Right now those toolbars don't look to well under Windows Vista because of the new windows toolbar style that is used
-    // to render the toolbars but not the wxAUI handles. Insert this code to see the problem.
-    wxToolBar* ToolbarDocument=new wxToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_FLAT | wxTB_NODIVIDER);
-    ToolbarDocument->SetToolBitmapSize(wxSize(16,16));
-    ToolbarDocument->AddTool(ParentFrameT::ID_MENU_FILE_NEW_GUI, "New GUI document", wxBitmap("CaWE/res/GuiEditor/page_white.png", wxBITMAP_TYPE_PNG), "New GUI document");
-    ToolbarDocument->AddTool(ID_MENU_FILE_SAVE,      "Save", wxBitmap("CaWE/res/GuiEditor/disk.png", wxBITMAP_TYPE_PNG), "Save GUI ");
-    ToolbarDocument->AddTool(ID_TOOLBAR_DOC_PREVIEW, "Live preview", wxBitmap("CaWE/res/GuiEditor/preview.png", wxBITMAP_TYPE_PNG), "Live preview");
+    wxAuiToolBar* ToolbarDocument=new wxAuiToolBar(this, wxID_ANY);
+    ToolbarDocument->AddTool(ParentFrameT::ID_MENU_FILE_NEW_GUI, "New", wxArtProvider::GetBitmap(wxART_NEW, wxART_TOOLBAR), "Create a new file");
+    ToolbarDocument->AddTool(ParentFrameT::ID_MENU_FILE_OPEN,    "Open", wxArtProvider::GetBitmap(wxART_FILE_OPEN, wxART_TOOLBAR), "Open an existing file");
+    ToolbarDocument->AddTool(ID_MENU_FILE_SAVE,                  "Save", wxArtProvider::GetBitmap(wxART_FILE_SAVE, wxART_TOOLBAR), "Save the file");
+    ToolbarDocument->AddTool(ID_MENU_FILE_SAVEAS,                "Save as", wxArtProvider::GetBitmap(wxART_FILE_SAVE_AS, wxART_TOOLBAR), "Save the file under a different name");
+    ToolbarDocument->AddSeparator();
+    ToolbarDocument->AddTool(wxID_UNDO,           "Undo", wxArtProvider::GetBitmap(wxART_UNDO, wxART_TOOLBAR), "Undo the last action");
+    ToolbarDocument->AddTool(wxID_REDO,           "Redo", wxArtProvider::GetBitmap(wxART_REDO, wxART_TOOLBAR), "Redo the previously undone action");
+    ToolbarDocument->AddSeparator();
+    ToolbarDocument->AddTool(wxID_CUT,            "Cut", wxArtProvider::GetBitmap(wxART_CUT, wxART_TOOLBAR), "Cut");
+    ToolbarDocument->AddTool(wxID_COPY,           "Copy", wxArtProvider::GetBitmap(wxART_COPY, wxART_TOOLBAR), "Copy");
+    ToolbarDocument->AddTool(wxID_PASTE,          "Paste", wxArtProvider::GetBitmap(wxART_PASTE, wxART_TOOLBAR), "Paste");
+    ToolbarDocument->AddTool(ID_MENU_EDIT_DELETE, "Delete", wxArtProvider::GetBitmap(wxART_DELETE, wxART_TOOLBAR), "Delete");
     ToolbarDocument->Realize();
 
-    m_ToolbarTools=new wxToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_FLAT | wxTB_NODIVIDER);
-    m_ToolbarTools->SetToolBitmapSize(wxSize(16,16));
+    m_ToolbarTools=new wxAuiToolBar(this, wxID_ANY);
     m_ToolbarTools->AddTool(ID_TOOLBAR_TOOL_SELECTION, "Selection tool", wxBitmap("CaWE/res/GuiEditor/cursor.png", wxBITMAP_TYPE_PNG), "Selection tool", wxITEM_CHECK);
     m_ToolbarTools->ToggleTool(ID_TOOLBAR_TOOL_SELECTION, true); // Selection tool is active by default.
-    m_ToolbarTools->AddTool(ID_TOOLBAR_TOOL_NEW_WINDOW, "Window Creation tool", wxBitmap("CaWE/res/GuiEditor/shape_square_add.png", wxBITMAP_TYPE_PNG), "Window creation tool (in this version, use right-mouse-button context menu in Window Tree or main view in order to create new windows)", wxITEM_CHECK);
+    m_ToolbarTools->AddTool(ID_TOOLBAR_TOOL_NEW_WINDOW, "Window Creation tool", wxArtProvider::GetBitmap("window-new", wxART_TOOLBAR), "Window creation tool (in this version, use right-mouse-button context menu in Window Tree or main view in order to create new windows)", wxITEM_CHECK);
     m_ToolbarTools->EnableTool(ID_TOOLBAR_TOOL_NEW_WINDOW, false);
     m_ToolbarTools->Realize();
 
-    wxToolBar* ToolbarWindow=new wxToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_FLAT | wxTB_NODIVIDER);
-    ToolbarWindow->SetToolBitmapSize(wxSize(16,16));
-    ToolbarWindow->AddTool(ID_TOOLBAR_WINDOW_DELETE, "Delete", wxBitmap("CaWE/res/GuiEditor/delete.png", wxBITMAP_TYPE_PNG), "Delete");
+    wxAuiToolBar* ToolbarWindow=new wxAuiToolBar(this, wxID_ANY);
     ToolbarWindow->AddTool(ID_TOOLBAR_WINDOW_MOVE_UP, "Move up in window order", wxBitmap("CaWE/res/GuiEditor/arrow_up.png", wxBITMAP_TYPE_PNG), "Move up in window orders");
     ToolbarWindow->AddTool(ID_TOOLBAR_WINDOW_MOVE_DOWN, "Move down in window order", wxBitmap("CaWE/res/GuiEditor/arrow_down.png", wxBITMAP_TYPE_PNG), "Move down in window order");
     ToolbarWindow->AddTool(ID_TOOLBAR_WINDOW_ROTATE_CW, "Rotate clockwise", wxBitmap("CaWE/res/GuiEditor/shape_rotate_clockwise.png", wxBITMAP_TYPE_PNG), "Rotate clockwise");
     ToolbarWindow->AddTool(ID_TOOLBAR_WINDOW_ROTATE_CCW, "Rotate anticlockwise", wxBitmap("CaWE/res/GuiEditor/shape_rotate_anticlockwise.png", wxBITMAP_TYPE_PNG), "Rotate anticlockwise");
     ToolbarWindow->Realize();
 
-    wxToolBar* ToolbarText=new wxToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_FLAT | wxTB_NODIVIDER);
-    ToolbarText->SetToolBitmapSize(wxSize(16,16));
-    ToolbarText->AddTool(ID_TOOLBAR_TEXT_ALIGN_LEFT, "Align left", wxBitmap("CaWE/res/GuiEditor/text_align_left.png", wxBITMAP_TYPE_PNG), "Left align text");
-    ToolbarText->AddTool(ID_TOOLBAR_TEXT_ALIGN_CENTER, "Align center", wxBitmap("CaWE/res/GuiEditor/text_align_center.png", wxBITMAP_TYPE_PNG), "Center text");
-    ToolbarText->AddTool(ID_TOOLBAR_TEXT_ALIGN_RIGHT, "Align right", wxBitmap("CaWE/res/GuiEditor/text_align_right.png", wxBITMAP_TYPE_PNG), "Right align text");
+    wxAuiToolBar* ToolbarText=new wxAuiToolBar(this, wxID_ANY);
+    ToolbarText->AddTool(ID_TOOLBAR_TEXT_ALIGN_LEFT,   "Align left",   wxArtProvider::GetBitmap("format-justify-left",   wxART_TOOLBAR), "Left align text");
+    ToolbarText->AddTool(ID_TOOLBAR_TEXT_ALIGN_CENTER, "Align center", wxArtProvider::GetBitmap("format-justify-center", wxART_TOOLBAR), "Center text");
+    ToolbarText->AddTool(ID_TOOLBAR_TEXT_ALIGN_RIGHT,  "Align right",  wxArtProvider::GetBitmap("format-justify-right",  wxART_TOOLBAR), "Right align text");
     ToolbarText->Realize();
 
-    wxToolBar* ToolbarZoom=new wxToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_FLAT | wxTB_NODIVIDER);
-    ToolbarZoom->SetToolBitmapSize(wxSize(16,16));
-    ToolbarZoom->AddTool(ID_TOOLBAR_ZOOM_IN, "Zoom in", wxBitmap("CaWE/res/GuiEditor/magnifier_zoom_in.png", wxBITMAP_TYPE_PNG), "Zoom in");
-    ToolbarZoom->AddTool(ID_TOOLBAR_ZOOM_OUT, "Zoom out", wxBitmap("CaWE/res/GuiEditor/magnifier_zoom_out.png", wxBITMAP_TYPE_PNG), "Zoom out");
-    ToolbarZoom->AddTool(ID_TOOLBAR_ZOOM_FIT, "Fit to page", wxBitmap("CaWE/res/GuiEditor/page_white_magnify.png", wxBITMAP_TYPE_PNG), "Fit to page");
-    ToolbarZoom->AddTool(ID_TOOLBAR_ZOOM_100, "Set zoom 100%", wxBitmap("CaWE/res/GuiEditor/page_white_magnify_100.png", wxBITMAP_TYPE_PNG), "Set zoom 100%");
+    wxAuiToolBar* ToolbarZoom=new wxAuiToolBar(this, wxID_ANY);
+    ToolbarZoom->AddTool(ID_TOOLBAR_ZOOM_IN, "Zoom in",        wxArtProvider::GetBitmap("zoom-in", wxART_TOOLBAR), "Zoom in");
+    ToolbarZoom->AddTool(ID_TOOLBAR_ZOOM_OUT, "Zoom out",      wxArtProvider::GetBitmap("zoom-out", wxART_TOOLBAR), "Zoom out");
+    ToolbarZoom->AddTool(ID_TOOLBAR_ZOOM_FIT, "Best fit",      wxArtProvider::GetBitmap("zoom-fit-best", wxART_TOOLBAR), "Best fit");
+    ToolbarZoom->AddTool(ID_TOOLBAR_ZOOM_100, "Set zoom 100%", wxArtProvider::GetBitmap("zoom-original", wxART_TOOLBAR), "Set zoom to 100%");
+    ToolbarZoom->AddSeparator();
+    ToolbarZoom->AddTool(ID_TOOLBAR_DOC_PREVIEW, "Live preview", wxArtProvider::GetBitmap("x-office-presentation", wxART_TOOLBAR), "Live preview");
     ToolbarZoom->Realize();
 
     m_AUIManager.AddPane(ToolbarDocument, wxAuiPaneInfo().Name("ToolbarDocument").
@@ -433,6 +437,17 @@ void GuiEditor::ChildFrameT::OnMenuFile(wxCommandEvent& CE)
 }
 
 
+void GuiEditor::ChildFrameT::OnMenuFileUpdate(wxUpdateUIEvent& UE)
+{
+    switch (UE.GetId())
+    {
+        case ID_MENU_FILE_SAVE:
+            UE.Enable(m_History.GetLastSaveSuggestedCommandID()!=m_LastSavedAtCommandNr);
+            break;
+    }
+}
+
+
 void GuiEditor::ChildFrameT::OnMenuUndoRedo(wxCommandEvent& CE)
 {
     // Step forward or backward in the command history.
@@ -514,22 +529,25 @@ void GuiEditor::ChildFrameT::OnMenuEditGrid(wxCommandEvent& CE)
 }
 
 
-void GuiEditor::ChildFrameT::OnUpdateEditCutCopyDelete(wxUpdateUIEvent& UE)
+void GuiEditor::ChildFrameT::OnMenuEditUpdate(wxUpdateUIEvent& UE)
 {
-    UE.Enable(m_GuiDocument->GetSelection().Size()>0);
-}
+    switch (UE.GetId())
+    {
+        case wxID_CUT:
+        case wxID_COPY:
+        case ID_MENU_EDIT_DELETE:
+            UE.Enable(m_GuiDocument->GetSelection().Size()>0);
+            break;
 
+        case wxID_PASTE:
+            UE.Enable(ClipBoard.Size()>0 && m_GuiDocument->GetSelection().Size()==1);
+            break;
 
-void GuiEditor::ChildFrameT::OnUpdateEditPaste(wxUpdateUIEvent& UE)
-{
-    UE.Enable(ClipBoard.Size()>0 && m_GuiDocument->GetSelection().Size()==1);
-}
-
-
-void GuiEditor::ChildFrameT::OnUpdateEditSnapGrid(wxUpdateUIEvent& UE)
-{
-    UE.Check(m_SnapToGrid);
-    UE.SetText(wxString::Format("Snap to grid (%lu)\tCtrl+G", m_GridSpacing));
+        case ID_MENU_EDIT_SNAP_TO_GRID:
+            UE.Check(m_SnapToGrid);
+            UE.SetText(wxString::Format("Snap to grid (%lu)\tCtrl+G", m_GridSpacing));
+            break;
+    }
 }
 
 
@@ -694,11 +712,6 @@ void GuiEditor::ChildFrameT::OnToolbar(wxCommandEvent& CE)
 
             break;
         }
-
-        case ID_TOOLBAR_WINDOW_DELETE:
-            if (m_GuiDocument->GetSelection().Size()>0)
-                SubmitCommand(new CommandDeleteT(m_GuiDocument, m_GuiDocument->GetSelection()));
-            break;
 
         case ID_TOOLBAR_WINDOW_MOVE_UP:
         {
