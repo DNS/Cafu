@@ -257,6 +257,7 @@ class ChildFrameT : public wxMDIChildFrame
     void OnIdle           (wxIdleEvent&       IE);  ///< Idle event handler, for updating the console when an external compile process runs, update all 3D views and caching textures.
     void OnProcessEnd     (wxProcessEvent&    PE);
     void OnMenuFile       (wxCommandEvent&    CE);  ///< Event handler for File    menu events.
+    void OnMenuFileUpdate (wxUpdateUIEvent&   UE);  ///< Event handler for File    menu update events.
     void OnMenuEdit       (wxCommandEvent&    CE);  ///< Event handler for Edit    menu events.
     void OnMenuEditUpdate (wxUpdateUIEvent&   UE);  ///< Event handler for Edit    menu update events.
     void OnMenuView       (wxCommandEvent&    CE);  ///< Event handler for View    menu events.

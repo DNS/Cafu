@@ -40,6 +40,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ToolManager.hpp"
 
 #include "wx/wx.h"
+#include "wx/artprov.h"
+#include "wx/aui/auibar.h"
 #include "wx/confbase.h"
 #include "wx/filename.h"
 #include "wx/process.h"
@@ -214,6 +216,7 @@ BEGIN_EVENT_TABLE(ChildFrameT, wxMDIChildFrame)
     EVT_END_PROCESS(wxID_ANY, ChildFrameT::OnProcessEnd)
 
     EVT_MENU_RANGE     (ID_MENU_FILE_CLOSE,            ID_MENU_FILE_SAVEAS,             ChildFrameT::OnMenuFile)
+    EVT_UPDATE_UI_RANGE(ID_MENU_FILE_CLOSE,            ID_MENU_FILE_SAVEAS,             ChildFrameT::OnMenuFileUpdate)
     EVT_MENU_RANGE     (ID_MENU_EDIT_ENTITY_INSPECTOR, ID_MENU_EDIT_ENTITY_INSPECTOR,   ChildFrameT::OnMenuEdit)
     EVT_UPDATE_UI_RANGE(ID_MENU_EDIT_ENTITY_INSPECTOR, ID_MENU_EDIT_ENTITY_INSPECTOR,   ChildFrameT::OnMenuEditUpdate)
     EVT_MENU_RANGE     (ID_MENU_VIEW_TOOLBARS,         ID_MENU_VIEW_CENTER_3D_VIEWS,    ChildFrameT::OnMenuView)
@@ -444,34 +447,40 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
 
 
     // Create the toolbars.
-    wxToolBar* ToolbarFile=new wxToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_FLAT | wxTB_NODIVIDER);
-    ToolbarFile->SetToolBitmapSize(wxSize(16, 18));
-    ToolbarFile->AddTool(ParentFrameT::ID_MENU_FILE_NEW_MAP, "New Map", wxBitmap("CaWE/res/GuiEditor/page_white.png", wxBITMAP_TYPE_PNG), "New Map");
-    ToolbarFile->AddTool(ID_MENU_FILE_SAVE,                  "Save Map", wxBitmap("CaWE/res/GuiEditor/disk.png", wxBITMAP_TYPE_PNG), "Save Map");
+    wxAuiToolBar* ToolbarFile=new wxAuiToolBar(this, wxID_ANY);
+    ToolbarFile->AddTool(ParentFrameT::ID_MENU_FILE_NEW_GUI, "New", wxArtProvider::GetBitmap(wxART_NEW, wxART_TOOLBAR), "Create a new file");
+    ToolbarFile->AddTool(ParentFrameT::ID_MENU_FILE_OPEN,    "Open", wxArtProvider::GetBitmap(wxART_FILE_OPEN, wxART_TOOLBAR), "Open an existing file");
+    ToolbarFile->AddTool(ID_MENU_FILE_SAVE,                  "Save", wxArtProvider::GetBitmap(wxART_FILE_SAVE, wxART_TOOLBAR), "Save the file");
+    ToolbarFile->AddTool(ID_MENU_FILE_SAVEAS,                "Save as", wxArtProvider::GetBitmap(wxART_FILE_SAVE_AS, wxART_TOOLBAR), "Save the file under a different name");
+    ToolbarFile->AddSeparator();
+    ToolbarFile->AddTool(wxID_UNDO,           "Undo", wxArtProvider::GetBitmap(wxART_UNDO, wxART_TOOLBAR), "Undo the last action");
+    ToolbarFile->AddTool(wxID_REDO,           "Redo", wxArtProvider::GetBitmap(wxART_REDO, wxART_TOOLBAR), "Redo the previously undone action");
+    ToolbarFile->AddSeparator();
+    ToolbarFile->AddTool(wxID_CUT,            "Cut", wxArtProvider::GetBitmap(wxART_CUT, wxART_TOOLBAR), "Cut");
+    ToolbarFile->AddTool(wxID_COPY,           "Copy", wxArtProvider::GetBitmap(wxART_COPY, wxART_TOOLBAR), "Copy");
+    ToolbarFile->AddTool(wxID_PASTE,          "Paste", wxArtProvider::GetBitmap(wxART_PASTE, wxART_TOOLBAR), "Paste");
+    ToolbarFile->AddTool(ID_MENU_EDIT_DELETE, "Delete", wxArtProvider::GetBitmap(wxART_DELETE, wxART_TOOLBAR), "Delete");
     ToolbarFile->Realize();
+
+    // Note that we cannot have separators between these tools, because they must all be in the same radio group.
+    wxAuiToolBar* ToolbarTools=new wxAuiToolBar(this, wxID_ANY);
+    ToolbarTools->AddTool(ID_MENU_TOOLS_TOOL_SELECTION,             "Selection",               wxArtProvider::GetBitmap("MapEditor/tool-selection",          wxART_TOOLBAR, wxSize(21, 18)), "Selection", wxITEM_RADIO);
+    ToolbarTools->AddTool(ID_MENU_TOOLS_TOOL_CAMERA,                "Camera",                  wxArtProvider::GetBitmap("MapEditor/tool-camera",             wxART_TOOLBAR, wxSize(21, 18)), "Camera", wxITEM_RADIO);
+    ToolbarTools->AddTool(ID_MENU_TOOLS_TOOL_NEWBRUSH,              "New Brush",               wxArtProvider::GetBitmap("MapEditor/tool-new-brush",          wxART_TOOLBAR, wxSize(21, 18)), "New Brush", wxITEM_RADIO);
+    ToolbarTools->AddTool(ID_MENU_TOOLS_TOOL_NEWENTITY,             "New Entity",              wxArtProvider::GetBitmap("MapEditor/tool-new-entity",         wxART_TOOLBAR, wxSize(21, 18)), "New Entity", wxITEM_RADIO);
+    ToolbarTools->AddTool(ID_MENU_TOOLS_TOOL_NEWBEZIERPATCH,        "New Bezier Patch",        wxArtProvider::GetBitmap("MapEditor/tool-new-bezierpatch",    wxART_TOOLBAR, wxSize(21, 18)), "New Bezier Patch", wxITEM_RADIO);
+    ToolbarTools->AddTool(ID_MENU_TOOLS_TOOL_NEWTERRAIN,            "New Terrain",             wxArtProvider::GetBitmap("MapEditor/tool-new-terrain",        wxART_TOOLBAR, wxSize(21, 18)), "New Terrain", wxITEM_RADIO);
+    ToolbarTools->AddTool(ID_MENU_TOOLS_TOOL_NEWLIGHT,              "New Light",               wxArtProvider::GetBitmap("MapEditor/tool-new-light",          wxART_TOOLBAR, wxSize(21, 18)), "New Light", wxITEM_RADIO);
+    ToolbarTools->AddTool(ID_MENU_TOOLS_TOOL_NEWDECAL,              "New Decal",               wxArtProvider::GetBitmap("MapEditor/tool-new-decal",          wxART_TOOLBAR, wxSize(21, 18)), "New Decal", wxITEM_RADIO);
+    ToolbarTools->AddTool(ID_MENU_TOOLS_TOOL_EDITSURFACEPROPERTIES, "Edit Surface Properties", wxArtProvider::GetBitmap("MapEditor/tool-edit-surface-props", wxART_TOOLBAR, wxSize(21, 18)), "Edit Surface Properties", wxITEM_RADIO);
+    ToolbarTools->AddTool(ID_MENU_TOOLS_TOOL_TERRAINEDITOR,         "Edit Terrain",            wxArtProvider::GetBitmap("MapEditor/tool-edit-terrain",       wxART_TOOLBAR, wxSize(21, 18)), "Edit Terrain", wxITEM_RADIO);
+    ToolbarTools->AddTool(ID_MENU_TOOLS_TOOL_CLIP,                  "Clip Brushes",            wxArtProvider::GetBitmap("MapEditor/tool-clip",               wxART_TOOLBAR, wxSize(21, 18)), "Clip Brushes", wxITEM_RADIO);
+    ToolbarTools->AddTool(ID_MENU_TOOLS_TOOL_EDITVERTICES,          "Edit Brush Vertices",     wxArtProvider::GetBitmap("MapEditor/tool-edit-vertices",      wxART_TOOLBAR, wxSize(21, 18)), "Edit Brush Vertices", wxITEM_RADIO);
+    ToolbarTools->Realize();
 
     m_AUIManager.AddPane(ToolbarFile, wxAuiPaneInfo().ToolbarPane().
                          Name("File Toolbar").Caption("File Toolbar").
                          Top().Row(0).Position(0).LeftDockable(false).RightDockable(false));
-
-
-    wxToolBar* ToolbarTools=new wxToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_FLAT | wxTB_NODIVIDER);
-    ToolbarTools->SetToolBitmapSize(wxSize(21, 18));
-
-    // Note that we cannot have separators between these tools, because they must all be in the same radio group.
-    ToolbarTools->AddRadioTool(ID_MENU_TOOLS_TOOL_SELECTION,             "Selection",               wxBitmap("CaWE/res/Tool_Selection.png", wxBITMAP_TYPE_PNG),      wxNullBitmap, "Selection",             "Selection" );
-    ToolbarTools->AddRadioTool(ID_MENU_TOOLS_TOOL_CAMERA,                "Camera",                  wxBitmap("CaWE/res/Tool_Camera.png", wxBITMAP_TYPE_PNG),         wxNullBitmap, "Camera"                 );
-    ToolbarTools->AddRadioTool(ID_MENU_TOOLS_TOOL_NEWBRUSH,              "New Brush",               wxBitmap("CaWE/res/Tool_NewBrush.png", wxBITMAP_TYPE_PNG),       wxNullBitmap, "New Brush"              );
-    ToolbarTools->AddRadioTool(ID_MENU_TOOLS_TOOL_NEWENTITY,             "New Entity",              wxBitmap("CaWE/res/Tool_NewEntity.png", wxBITMAP_TYPE_PNG),      wxNullBitmap, "New Entity"             );
-    ToolbarTools->AddRadioTool(ID_MENU_TOOLS_TOOL_NEWBEZIERPATCH,        "New Bezier Patch",        wxBitmap("CaWE/res/Tool_NewBezierPatch.png", wxBITMAP_TYPE_PNG), wxNullBitmap, "New Bezier Patch"       );
-    ToolbarTools->AddRadioTool(ID_MENU_TOOLS_TOOL_NEWTERRAIN,            "New Terrain",             wxBitmap("CaWE/res/Tool_NewTerrain.png", wxBITMAP_TYPE_PNG),     wxNullBitmap, "New Terrain"            );
-    ToolbarTools->AddRadioTool(ID_MENU_TOOLS_TOOL_NEWLIGHT,              "New Light",               wxBitmap("CaWE/res/Tool_NewLight.png", wxBITMAP_TYPE_PNG),       wxNullBitmap, "New Light"              );
-    ToolbarTools->AddRadioTool(ID_MENU_TOOLS_TOOL_NEWDECAL,              "New Decal",               wxBitmap("CaWE/res/Tool_NewDecal.png", wxBITMAP_TYPE_PNG),       wxNullBitmap, "New Decal"              );
-    ToolbarTools->AddRadioTool(ID_MENU_TOOLS_TOOL_EDITSURFACEPROPERTIES, "Edit Surface Properties", wxBitmap("CaWE/res/Tool_EditSurfProps.png", wxBITMAP_TYPE_PNG),  wxNullBitmap, "Edit Surface Properties");
-    ToolbarTools->AddRadioTool(ID_MENU_TOOLS_TOOL_TERRAINEDITOR,         "Edit Terrain",            wxBitmap("CaWE/res/Tool_EditTerrain.png", wxBITMAP_TYPE_PNG),    wxNullBitmap, "Edit Terrain"           );
-    ToolbarTools->AddRadioTool(ID_MENU_TOOLS_TOOL_CLIP,                  "Clip Brushes",            wxBitmap("CaWE/res/Tool_Clip.png", wxBITMAP_TYPE_PNG),           wxNullBitmap, "Clip Brushes"           );
-    ToolbarTools->AddRadioTool(ID_MENU_TOOLS_TOOL_EDITVERTICES,          "Edit Brush Vertices",     wxBitmap("CaWE/res/Tool_EditVertices.png", wxBITMAP_TYPE_PNG),   wxNullBitmap, "Edit Brush Vertices"    );
-    ToolbarTools->Realize();
 
     m_AUIManager.AddPane(ToolbarTools, wxAuiPaneInfo().ToolbarPane().
                          Name("Tools Toolbar").Caption("Tools Toolbar").
@@ -950,6 +959,17 @@ void ChildFrameT::OnMenuFile(wxCommandEvent& CE)
 }
 
 
+void ChildFrameT::OnMenuFileUpdate(wxUpdateUIEvent& UE)
+{
+    switch (UE.GetId())
+    {
+        case ID_MENU_FILE_SAVE:
+            UE.Enable(m_Doc->GetHistory().GetLastSaveSuggestedCommandID()!=m_LastSavedAtCommandNr);
+            break;
+    }
+}
+
+
 void ChildFrameT::OnMenuEdit(wxCommandEvent& CE)
 {
     switch (CE.GetId())
@@ -1151,8 +1171,7 @@ void ChildFrameT::OnMenuToolsUpdate(wxUpdateUIEvent& UE)
 {
     const ToolT* ActiveTool=m_ToolManager->GetActiveTool();
 
-    if (ActiveTool && ActiveTool->GetWxEventID()==UE.GetId())
-        UE.Check(true);
+    UE.Check(ActiveTool && ActiveTool->GetWxEventID()==UE.GetId());
 }
 
 
