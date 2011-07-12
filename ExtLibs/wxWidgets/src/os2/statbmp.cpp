@@ -28,8 +28,6 @@
 // macros
 // ---------------------------------------------------------------------------
 
-IMPLEMENT_DYNAMIC_CLASS(wxStaticBitmap, wxControl)
-
 BEGIN_EVENT_TABLE(wxStaticBitmap, wxWindow)
     EVT_PAINT(wxStaticBitmap::OnPaint)
 END_EVENT_TABLE()
@@ -136,7 +134,7 @@ bool wxStaticBitmap::Create( wxWindow*         pParent,
 
 bool wxStaticBitmap::ImageIsOk() const
 {
-    return(m_pImage && m_pImage->Ok());
+    return(m_pImage && m_pImage->IsOk());
 }
 
 void wxStaticBitmap::Free()

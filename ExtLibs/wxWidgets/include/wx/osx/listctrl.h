@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        listctrl.h
+// Name:        wx/osx/listctrl.h
 // Purpose:     wxListCtrl class
 // Author:      Stefan Csomor
 // Modified by:
@@ -420,7 +420,6 @@ protected:
 private:
   int CalcColumnAutoWidth(int col) const;
 
-  DECLARE_EVENT_TABLE()
 };
 
 #endif

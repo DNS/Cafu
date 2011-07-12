@@ -200,7 +200,7 @@ bool wxRegion::DoOffset(wxCoord x, wxCoord y)
 //! Union /e region with this.
 bool wxRegion::DoCombine(const wxRegion& region, wxRegionOp op)
 {
-    wxCHECK_MSG( region.Ok(), false, wxT("invalid wxRegion") );
+    wxCHECK_MSG( region.IsOk(), false, wxT("invalid wxRegion") );
 
     // Don't change shared data
     if (!m_refData)
@@ -288,7 +288,7 @@ bool wxRegion::IsEmpty() const
         return true ;
 }
 
-const WXHRGN wxRegion::GetWXHRGN() const
+WXHRGN wxRegion::GetWXHRGN() const
 {
     return M_REGION ;
 }

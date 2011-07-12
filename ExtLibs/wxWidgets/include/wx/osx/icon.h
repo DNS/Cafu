@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        icon.h
+// Name:        wx/osx/icon.h
 // Purpose:     wxIcon class
 // Author:      Stefan Csomor
 // Modified by:
@@ -49,6 +49,8 @@ public:
     void SetHeight(int h);
     void SetDepth(int d);
     void SetOk(bool isOk);
+
+    wxSize GetSize() const { return wxSize(GetWidth(), GetHeight()); }
 
     WXHICON GetHICON() const;
 

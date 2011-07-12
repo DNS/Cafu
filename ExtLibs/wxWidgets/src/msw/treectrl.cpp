@@ -40,12 +40,9 @@
 #include "wx/dynlib.h"
 #include "wx/msw/private.h"
 
-// Set this to 1 to be _absolutely_ sure that repainting will work for all
-// comctl32.dll versions
-#define wxUSE_COMCTL32_SAFELY 0
-
 #include "wx/imaglist.h"
 #include "wx/msw/dragimag.h"
+#include "wx/msw/uxtheme.h"
 
 // macros to hide the cast ugliness
 // --------------------------------
@@ -80,7 +77,7 @@ typedef struct tagNMTVITEMCHANGE
 // The vista tree control includes some new code that originally broke the
 // multi-selection tree, causing seemingly spurious item selection state changes
 // during Shift or Ctrl-click item selection. (To witness the original broken
-// behavior, simply make IsLocked() below always return false). This problem was
+// behaviour, simply make IsLocked() below always return false). This problem was
 // solved by using the following class to 'unlock' an item's selection state.
 
 class TreeItemUnlocker
@@ -133,6 +130,32 @@ private:
 // ----------------------------------------------------------------------------
 // private functions
 // ----------------------------------------------------------------------------
+
+namespace
+{
+
+// Work around a problem with TreeView_GetItemRect() when using MinGW/Cygwin:
+// it results in warnings about breaking strict aliasing rules because HITEM is
+// passed via a RECT pointer, so use a union to avoid them and define our own
+// version of the standard macro using it.
+union TVGetItemRectParam
+{
+    RECT rect;
+    HTREEITEM hItem;
+};
+
+inline bool
+wxTreeView_GetItemRect(HWND hwnd,
+                       HTREEITEM hItem,
+                       TVGetItemRectParam& param,
+                       BOOL fItemRect)
+{
+    param.hItem = hItem;
+    return ::SendMessage(hwnd, TVM_GETITEMRECT, fItemRect,
+                        (LPARAM)&param) == TRUE;
+}
+
+} // anonymous namespace
 
 // wrappers for TreeView_GetItem/TreeView_SetItem
 static bool IsItemSelected(HWND hwndTV, HTREEITEM hItem)
@@ -601,72 +624,6 @@ private:
 // wxWin macros
 // ----------------------------------------------------------------------------
 
-#if wxUSE_EXTENDED_RTTI
-WX_DEFINE_FLAGS( wxTreeCtrlStyle )
-
-wxBEGIN_FLAGS( wxTreeCtrlStyle )
-    // new style border flags, we put them first to
-    // use them for streaming out
-    wxFLAGS_MEMBER(wxBORDER_SIMPLE)
-    wxFLAGS_MEMBER(wxBORDER_SUNKEN)
-    wxFLAGS_MEMBER(wxBORDER_DOUBLE)
-    wxFLAGS_MEMBER(wxBORDER_RAISED)
-    wxFLAGS_MEMBER(wxBORDER_STATIC)
-    wxFLAGS_MEMBER(wxBORDER_NONE)
-
-    // old style border flags
-    wxFLAGS_MEMBER(wxSIMPLE_BORDER)
-    wxFLAGS_MEMBER(wxSUNKEN_BORDER)
-    wxFLAGS_MEMBER(wxDOUBLE_BORDER)
-    wxFLAGS_MEMBER(wxRAISED_BORDER)
-    wxFLAGS_MEMBER(wxSTATIC_BORDER)
-    wxFLAGS_MEMBER(wxBORDER)
-
-    // standard window styles
-    wxFLAGS_MEMBER(wxTAB_TRAVERSAL)
-    wxFLAGS_MEMBER(wxCLIP_CHILDREN)
-    wxFLAGS_MEMBER(wxTRANSPARENT_WINDOW)
-    wxFLAGS_MEMBER(wxWANTS_CHARS)
-    wxFLAGS_MEMBER(wxFULL_REPAINT_ON_RESIZE)
-    wxFLAGS_MEMBER(wxALWAYS_SHOW_SB )
-    wxFLAGS_MEMBER(wxVSCROLL)
-    wxFLAGS_MEMBER(wxHSCROLL)
-
-    wxFLAGS_MEMBER(wxTR_EDIT_LABELS)
-    wxFLAGS_MEMBER(wxTR_NO_BUTTONS)
-    wxFLAGS_MEMBER(wxTR_HAS_BUTTONS)
-    wxFLAGS_MEMBER(wxTR_TWIST_BUTTONS)
-    wxFLAGS_MEMBER(wxTR_NO_LINES)
-    wxFLAGS_MEMBER(wxTR_FULL_ROW_HIGHLIGHT)
-    wxFLAGS_MEMBER(wxTR_LINES_AT_ROOT)
-    wxFLAGS_MEMBER(wxTR_HIDE_ROOT)
-    wxFLAGS_MEMBER(wxTR_ROW_LINES)
-    wxFLAGS_MEMBER(wxTR_HAS_VARIABLE_ROW_HEIGHT)
-    wxFLAGS_MEMBER(wxTR_SINGLE)
-    wxFLAGS_MEMBER(wxTR_MULTIPLE)
-#if WXWIN_COMPATIBILITY_2_8
-    wxFLAGS_MEMBER(wxTR_EXTENDED)
-#endif
-    wxFLAGS_MEMBER(wxTR_DEFAULT_STYLE)
-
-wxEND_FLAGS( wxTreeCtrlStyle )
-
-IMPLEMENT_DYNAMIC_CLASS_XTI(wxTreeCtrl, wxControl,"wx/treectrl.h")
-
-wxBEGIN_PROPERTIES_TABLE(wxTreeCtrl)
-    wxEVENT_PROPERTY( TextUpdated , wxEVT_COMMAND_TEXT_UPDATED , wxCommandEvent )
-    wxEVENT_RANGE_PROPERTY( TreeEvent , wxEVT_COMMAND_TREE_BEGIN_DRAG , wxEVT_COMMAND_TREE_STATE_IMAGE_CLICK , wxTreeEvent )
-    wxPROPERTY_FLAGS( WindowStyle , wxTreeCtrlStyle , long , SetWindowStyleFlag , GetWindowStyleFlag , EMPTY_MACROVALUE , 0 /*flags*/ , wxT("Helpstring") , wxT("group")) // style
-wxEND_PROPERTIES_TABLE()
-
-wxBEGIN_HANDLERS_TABLE(wxTreeCtrl)
-wxEND_HANDLERS_TABLE()
-
-wxCONSTRUCTOR_5( wxTreeCtrl , wxWindow* , Parent , wxWindowID , Id , wxPoint , Position , wxSize , Size , long , WindowStyle )
-#else
-IMPLEMENT_DYNAMIC_CLASS(wxTreeCtrl, wxControl)
-#endif
-
 // ----------------------------------------------------------------------------
 // constants
 // ----------------------------------------------------------------------------
@@ -806,24 +763,24 @@ bool wxTreeCtrl::Create(wxWindow *parent,
     if ( !MSWCreateControl(WC_TREEVIEW, wstyle, pos, size) )
         return false;
 
-#if wxUSE_COMCTL32_SAFELY
-    wxWindow::SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW));
-    wxWindow::SetForegroundColour(wxWindow::GetParent()->GetForegroundColour());
-#elif 1
     SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW));
     SetForegroundColour(wxWindow::GetParent()->GetForegroundColour());
-#else
-    // This works around a bug in the Windows tree control whereby for some versions
-    // of comctrl32, setting any colour actually draws the background in black.
-    // This will initialise the background to the system colour.
-    // THIS FIX NOW REVERTED since it caused problems on _other_ systems.
-    // Assume the user has an updated comctl32.dll.
-    ::SendMessage(GetHwnd(), TVM_SETBKCOLOR, 0,-1);
-    wxWindow::SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW));
-    SetForegroundColour(wxWindow::GetParent()->GetForegroundColour());
-#endif
 
     wxSetCCUnicodeFormat(GetHwnd());
+
+    if ( m_windowStyle & wxTR_TWIST_BUTTONS )
+    {
+        // Under Vista and later Explorer uses rotating ("twist") buttons
+        // instead of the default "+/-" ones so apply its theme to the tree
+        // control to implement this style.
+        if ( wxGetWinVersion() >= wxWinVersion_Vista )
+        {
+            if ( wxUxThemeEngine *theme = wxUxThemeEngine::GetIfActive() )
+            {
+                theme->SetWindowTheme(GetHwnd(), L"EXPLORER", NULL);
+            }
+        }
+    }
 
     return true;
 }
@@ -943,24 +900,20 @@ size_t wxTreeCtrl::GetChildrenCount(const wxTreeItemId& item,
 
 bool wxTreeCtrl::SetBackgroundColour(const wxColour &colour)
 {
-#if !wxUSE_COMCTL32_SAFELY
     if ( !wxWindowBase::SetBackgroundColour(colour) )
         return false;
 
     ::SendMessage(GetHwnd(), TVM_SETBKCOLOR, 0, colour.GetPixel());
-#endif
 
     return true;
 }
 
 bool wxTreeCtrl::SetForegroundColour(const wxColour &colour)
 {
-#if !wxUSE_COMCTL32_SAFELY
     if ( !wxWindowBase::SetForegroundColour(colour) )
         return false;
 
     ::SendMessage(GetHwnd(), TVM_SETTEXTCOLOR, 0, colour.GetPixel());
-#endif
 
     return true;
 }
@@ -1271,14 +1224,10 @@ bool wxTreeCtrl::IsVisible(const wxTreeItemId& item) const
     }
 
     // Bug in Gnu-Win32 headers, so don't use the macro TreeView_GetItemRect
-    RECT rect;
-
-    // this ugliness comes directly from MSDN - it *is* the correct way to pass
-    // the HTREEITEM with TVM_GETITEMRECT
-    *(HTREEITEM *)&rect = HITEM(item);
+    TVGetItemRectParam param;
 
     // true means to get rect for just the text, not the whole line
-    if ( !::SendMessage(GetHwnd(), TVM_GETITEMRECT, true, (LPARAM)&rect) )
+    if ( !wxTreeView_GetItemRect(GetHwnd(), HITEM(item), param, TRUE) )
     {
         // if TVM_GETITEMRECT returned false, then the item is definitely not
         // visible (because its parent is not expanded)
@@ -1288,7 +1237,7 @@ bool wxTreeCtrl::IsVisible(const wxTreeItemId& item) const
     // however if it returned true, the item might still be outside the
     // currently visible part of the tree, test for it (notice that partly
     // visible means visible here)
-    return rect.bottom > 0 && rect.top < GetClientSize().y;
+    return param.rect.bottom > 0 && param.rect.top < GetClientSize().y;
 }
 
 bool wxTreeCtrl::ItemHasChildren(const wxTreeItemId& item) const
@@ -1561,9 +1510,10 @@ wxTreeItemId wxTreeCtrl::DoInsertAfter(const wxTreeItemId& parent,
     // need this to make the "[+]" appear
     if ( firstChild )
     {
-        RECT rect;
-        TreeView_GetItemRect(GetHwnd(), HITEM(parent), &rect, FALSE);
-        ::InvalidateRect(GetHwnd(), &rect, FALSE);
+        TVGetItemRectParam param;
+
+        wxTreeView_GetItemRect(GetHwnd(), HITEM(parent), param, FALSE);
+        ::InvalidateRect(GetHwnd(), &param.rect, FALSE);
     }
 
     // associate the application tree item with Win32 tree item handle
@@ -1966,23 +1916,25 @@ void wxTreeCtrl::SelectItem(const wxTreeItemId& item, bool select)
             // leave itemNew invalid
         }
 
-        // in spite of the docs (MSDN Jan 99 edition), we don't seem to receive
-        // the notification from the control (i.e. TVN_SELCHANG{ED|ING}), so
-        // send them ourselves
-
+        // Recent versions of comctl32.dll send TVN_SELCHANG{ED,ING} events
+        // when we call TreeView_SelectItem() but apparently some old ones did
+        // not so send the events ourselves and ignore those generated by
+        // TreeView_SelectItem() if m_changingSelection is set.
         wxTreeEvent
             changingEvent(wxEVT_COMMAND_TREE_SEL_CHANGING, this, itemNew);
         changingEvent.SetOldItem(itemOld);
 
         if ( IsTreeEventAllowed(changingEvent) )
         {
+            TempSetter set(m_changingSelection);
+
             if ( !TreeView_SelectItem(GetHwnd(), HITEM(itemNew)) )
             {
                 wxLogLastError(wxT("TreeView_SelectItem"));
             }
             else // ok
             {
-                SetFocusedItem(item);
+                ::SetFocus(GetHwnd(), HITEM(item));
 
                 wxTreeEvent changedEvent(wxEVT_COMMAND_TREE_SEL_CHANGED,
                                          this, itemNew);
@@ -2101,18 +2053,18 @@ bool wxTreeCtrl::GetBoundingRect(const wxTreeItemId& item,
                                  wxRect& rect,
                                  bool textOnly) const
 {
-    RECT rc;
-
     // Virtual root items have no bounding rectangle
     if ( IS_VIRTUAL_ROOT(item) )
     {
         return false;
     }
 
-    if ( TreeView_GetItemRect(GetHwnd(), HITEM(item),
-                              &rc, textOnly) )
+    TVGetItemRectParam param;
+
+    if ( wxTreeView_GetItemRect(GetHwnd(), HITEM(item), param, textOnly) )
     {
-        rect = wxRect(wxPoint(rc.left, rc.top), wxPoint(rc.right, rc.bottom));
+        rect = wxRect(wxPoint(param.rect.left, param.rect.top),
+                      wxPoint(param.rect.right, param.rect.bottom));
 
         return true;
     }
@@ -2655,18 +2607,7 @@ bool wxTreeCtrl::MSWHandleSelectionKey(unsigned vkey)
 bool wxTreeCtrl::MSWHandleTreeKeyDownEvent(WXWPARAM wParam, WXLPARAM lParam)
 {
     wxTreeEvent keyEvent(wxEVT_COMMAND_TREE_KEY_DOWN, this);
-
-    int keyCode = wxCharCodeMSWToWX(wParam);
-
-    if ( !keyCode )
-    {
-        // wxCharCodeMSWToWX() returns 0 to indicate that this is a
-        // simple ASCII key
-        keyCode = wParam;
-    }
-
-    keyEvent.m_evtKey = CreateKeyEvent(wxEVT_KEY_DOWN, keyCode,
-                                       lParam, wParam);
+    keyEvent.m_evtKey = CreateKeyEvent(wxEVT_KEY_DOWN, wParam, lParam);
 
     bool processed = HandleTreeEvent(keyEvent);
 
@@ -2738,13 +2679,16 @@ wxTreeCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lParam)
         }
 
         // create the event
-        wxTreeEvent event(wxEVT_COMMAND_TREE_ITEM_MENU, this, item);
+        if ( item.IsOk() )
+        {
+            wxTreeEvent event(wxEVT_COMMAND_TREE_ITEM_MENU, this, item);
 
-        event.m_pointDrag = pt;
+            event.m_pointDrag = pt;
 
-        if ( HandleTreeEvent(event) )
-            processed = true;
-        //else: continue with generating wxEVT_CONTEXT_MENU in base class code
+            if ( HandleTreeEvent(event) )
+                processed = true;
+            //else: continue with generating wxEVT_CONTEXT_MENU in base class code
+        }
     }
     else if ( (nMsg >= WM_MOUSEFIRST) && (nMsg <= WM_MOUSELAST) )
     {
@@ -3172,16 +3116,16 @@ wxTreeCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lParam)
             // do it for the other items itself - help it
             wxArrayTreeItemIds selections;
             size_t count = GetSelections(selections);
-            RECT rect;
+            TVGetItemRectParam param;
 
             for ( size_t n = 0; n < count; n++ )
             {
                 // TreeView_GetItemRect() will return false if item is not
                 // visible, which may happen perfectly well
-                if ( TreeView_GetItemRect(GetHwnd(), HITEM(selections[n]),
-                                          &rect, TRUE) )
+                if ( wxTreeView_GetItemRect(GetHwnd(), HITEM(selections[n]),
+                                            param, TRUE) )
                 {
-                    ::InvalidateRect(GetHwnd(), &rect, FALSE);
+                    ::InvalidateRect(GetHwnd(), &param.rect, FALSE);
                 }
             }
         }
@@ -3450,7 +3394,7 @@ bool wxTreeCtrl::MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result)
         // the wrong items are deselected.
 
         // Fortunately, Vista provides a new notification, TVN_ITEMCHANGING
-        // that can be used to regulate this incorrect behavior.  The
+        // that can be used to regulate this incorrect behaviour.  The
         // following messages will allow only the unlocked item's selection
         // state to change
 
@@ -3480,7 +3424,7 @@ bool wxTreeCtrl::MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result)
         //     we have to handle both messages:
         case TVN_SELCHANGEDA:
         case TVN_SELCHANGEDW:
-            if ( !HasFlag(wxTR_MULTIPLE) || !m_changingSelection )
+            if ( !m_changingSelection )
             {
                 eventType = wxEVT_COMMAND_TREE_SEL_CHANGED;
             }
@@ -3488,7 +3432,7 @@ bool wxTreeCtrl::MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result)
 
         case TVN_SELCHANGINGA:
         case TVN_SELCHANGINGW:
-            if ( !HasFlag(wxTR_MULTIPLE) || !m_changingSelection )
+            if ( !m_changingSelection )
             {
                 if ( eventType == wxEVT_NULL )
                     eventType = wxEVT_COMMAND_TREE_SEL_CHANGING;
@@ -3520,12 +3464,13 @@ bool wxTreeCtrl::MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result)
             //
             // to avoid such surprises, we force the generation of focus events
             // now, before we generate the selection change ones
-            SetFocus();
+            if ( !m_changingSelection )
+                SetFocus();
             break;
 
         // instead of explicitly checking for _WIN32_IE, check if the
         // required symbols are available in the headers
-#if defined(CDDS_PREPAINT) && !wxUSE_COMCTL32_SAFELY
+#if defined(CDDS_PREPAINT)
         case NM_CUSTOMDRAW:
             {
                 LPNMTVCUSTOMDRAW lptvcd = (LPNMTVCUSTOMDRAW)lParam;

@@ -4,7 +4,7 @@
 // Author:      Stefan Csomor
 // Modified by: Ryan Norton (MLTE GetLineLength and GetLineText)
 // Created:     1998-01-01
-// RCS-ID:      $Id: textctrl.cpp 54820 2008-07-29 20:04:11Z SC $
+// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -45,6 +45,7 @@
 #include "wx/filefn.h"
 #include "wx/sysopt.h"
 #include "wx/thread.h"
+#include "wx/textcompleter.h"
 
 #include "wx/osx/private.h"
 #include "wx/osx/cocoa/private/textimpl.h"
@@ -52,6 +53,8 @@
 @interface NSView(EditableView)
 - (BOOL)isEditable;
 - (void)setEditable:(BOOL)flag;
+- (BOOL)isSelectable;
+- (void)setSelectable:(BOOL)flag;
 @end
 
 class wxMacEditHelper
@@ -60,10 +63,11 @@ public :
     wxMacEditHelper( NSView* textView )
     {
         m_textView = textView;
-        m_formerState = YES;
+        m_formerEditable = YES;
         if ( textView )
         {
-            m_formerState = [textView isEditable];
+            m_formerEditable = [textView isEditable];
+            m_formerSelectable = [textView isSelectable];
             [textView setEditable:YES];
         }
     }
@@ -71,11 +75,15 @@ public :
     ~wxMacEditHelper()
     {
         if ( m_textView )
-            [m_textView setEditable:m_formerState];
+        {
+            [m_textView setEditable:m_formerEditable];
+            [m_textView setSelectable:m_formerSelectable];
+        }
     }
 
 protected :
-    BOOL m_formerState ;
+    BOOL m_formerEditable ;
+    BOOL m_formerSelectable;
     NSView* m_textView;
 } ;
 
@@ -192,6 +200,35 @@ protected :
         impl->controlTextDidChange();
 }
 
+- (void) setEnabled:(BOOL) flag
+{
+    // from Technical Q&A QA1461
+    if (flag) {
+        [self setTextColor: [NSColor controlTextColor]];
+
+    } else {
+        [self setTextColor: [NSColor disabledControlTextColor]];
+    }
+
+    [self setSelectable: flag];
+    [self setEditable: flag];
+}
+
+- (BOOL) isEnabled
+{
+    return [self isEditable];
+}
+
+- (void)textDidEndEditing:(NSNotification *)aNotification
+{
+    wxUnusedVar(aNotification);
+    wxWidgetCocoaImpl* impl = (wxWidgetCocoaImpl* ) wxWidgetImpl::FindFromWXWidget( self );
+    if ( impl )
+    {
+        impl->DoNotifyFocusEvent( false, NULL );
+    }
+}
+
 @end
 
 @implementation wxNSTextField
@@ -221,7 +258,12 @@ protected :
 
 - (void) setFieldEditor:(wxNSTextFieldEditor*) editor
 {
-    fieldEditor = editor;
+    if ( editor != fieldEditor )
+    {
+        [editor retain];
+        [fieldEditor release];
+        fieldEditor = editor;
+    }
 }
 
 - (wxNSTextFieldEditor*) fieldEditor
@@ -253,29 +295,91 @@ protected :
         impl->controlTextDidChange();
 }
 
-typedef BOOL (*wxOSX_insertNewlineHandlerPtr)(NSView* self, SEL _cmd, NSControl *control, NSTextView* textView, SEL commandSelector);
+- (NSArray *)control:(NSControl *)control textView:(NSTextView *)textView completions:(NSArray *)words
+ forPartialWordRange:(NSRange)charRange indexOfSelectedItem:(int*)index
+{
+    NSMutableArray* matches = NULL;
+
+    wxTextWidgetImpl* impl = (wxNSTextFieldControl * ) wxWidgetImpl::FindFromWXWidget( self );
+    wxTextEntry * const entry = impl->GetTextEntry();
+    wxTextCompleter * const completer = entry->OSXGetCompleter();
+    if ( completer )
+    {
+        const wxString prefix = entry->GetValue();
+        if ( completer->Start(prefix) )
+        {
+            const wxString
+                wordStart = wxCFStringRef::AsString(
+                              [[textView string] substringWithRange:charRange]
+                            );
+
+            matches = [NSMutableArray array];
+            for ( ;; )
+            {
+                const wxString s = completer->GetNext();
+                if ( s.empty() )
+                    break;
+
+                // Normally the completer should return only the strings
+                // starting with the prefix, but there could be exceptions
+                // and, for compatibility with MSW which simply ignores all
+                // entries that don't match the current text control contents,
+                // we ignore them as well. Besides, our own wxTextCompleterFixed
+                // doesn't respect this rule and, moreover, we need to extract
+                // just the rest of the string anyhow.
+                wxString completion;
+                if ( s.StartsWith(prefix, &completion) )
+                {
+                    // We discarded the entire prefix above but actually we
+                    // should include the part of it that consists of the
+                    // beginning of the current word, otherwise it would be
+                    // lost when completion is accepted as OS X supposes that
+                    // our matches do start with the "partial word range"
+                    // passed to us.
+                    const wxCFStringRef fullWord(wordStart + completion);
+                    [matches addObject: fullWord.AsNSString()];
+                }
+            }
+        }
+    }
+
+    return matches;
+}
 
 - (BOOL)control:(NSControl*)control textView:(NSTextView*)textView doCommandBySelector:(SEL)commandSelector
 {
     wxUnusedVar(textView);
     wxUnusedVar(control);
-    if (commandSelector == @selector(insertNewline:))
+    
+    BOOL handled = NO;
+
+    // send back key events wx' common code knows how to handle
+    
+    wxWidgetCocoaImpl* impl = (wxWidgetCocoaImpl* ) wxWidgetImpl::FindFromWXWidget( self );
+    if ( impl  )
     {
-        wxWidgetCocoaImpl* impl = (wxWidgetCocoaImpl* ) wxWidgetImpl::FindFromWXWidget( self );
-        if ( impl  )
+        wxWindow* wxpeer = (wxWindow*) impl->GetWXPeer();
+        if ( wxpeer )
         {
-            wxWindow* wxpeer = (wxWindow*) impl->GetWXPeer();
-            if ( wxpeer && wxpeer->GetWindowStyle() & wxTE_PROCESS_ENTER )
+            if (commandSelector == @selector(insertNewline:))
             {
-                wxCommandEvent event(wxEVT_COMMAND_TEXT_ENTER, wxpeer->GetId());
-                event.SetEventObject( wxpeer );
-                event.SetString( static_cast<wxTextCtrl*>(wxpeer)->GetValue() );
-                wxpeer->HandleWindowEvent( event );
+                [textView insertNewlineIgnoringFieldEditor:self];
+                handled = YES;
+            }
+            else if ( commandSelector == @selector(insertTab:))
+            {
+                [textView insertTabIgnoringFieldEditor:self];
+                handled = YES;
+            }
+            else if ( commandSelector == @selector(insertBacktab:))
+            {
+                [textView insertTabIgnoringFieldEditor:self];
+                handled = YES;
             }
         }
     }
-
-    return NO;
+    
+    return handled;
 }
 
 - (void)controlTextDidEndEditing:(NSNotification *)aNotification
@@ -291,7 +395,9 @@ typedef BOOL (*wxOSX_insertNewlineHandlerPtr)(NSView* self, SEL _cmd, NSControl 
 
 // wxNSTextViewControl
 
-wxNSTextViewControl::wxNSTextViewControl( wxTextCtrl *wxPeer, WXWidget w ) : wxWidgetCocoaImpl(wxPeer, w)
+wxNSTextViewControl::wxNSTextViewControl( wxTextCtrl *wxPeer, WXWidget w )
+    : wxWidgetCocoaImpl(wxPeer, w),
+      wxTextWidgetImpl(wxPeer)
 {
     wxNSTextScrollView* sv = (wxNSTextScrollView*) w;
     m_scrollView = sv;
@@ -438,7 +544,7 @@ bool wxNSTextViewControl::GetStyle(long position, wxTextAttr& style)
         // NOTE: It appears that other platforms accept GetStyle with the position == length
         // but that NSTextStorage does not accept length as a valid position.
         // Therefore we return the default control style in that case.
-        if (position < [[m_textView string] length]) 
+        if (position < (long) [[m_textView string] length]) 
         {
             NSTextStorage* storage = [m_textView textStorage];
             font = [[storage attribute:NSFontAttributeName atIndex:position effectiveRange:NULL] autorelease];
@@ -503,19 +609,33 @@ wxSize wxNSTextViewControl::GetBestSize() const
     if (m_textView && [m_textView layoutManager])
     {
         NSRect rect = [[m_textView layoutManager] usedRectForTextContainer: [m_textView textContainer]];
-        wxSize size = wxSize(rect.size.width, rect.size.height);
-        size.x += [m_textView textContainerInset].width;
-        size.y += [m_textView textContainerInset].height;
-        return size;
+        return wxSize((int)(rect.size.width + [m_textView textContainerInset].width),
+                      (int)(rect.size.height + [m_textView textContainerInset].height));
     }
     return wxSize(0,0);
 }
 
 // wxNSTextFieldControl
 
-wxNSTextFieldControl::wxNSTextFieldControl( wxWindow *wxPeer, WXWidget w ) : wxWidgetCocoaImpl(wxPeer, w)
+wxNSTextFieldControl::wxNSTextFieldControl( wxTextCtrl *text, WXWidget w )
+    : wxWidgetCocoaImpl(text, w),
+      wxTextWidgetImpl(text)
 {
-    NSTextField wxOSX_10_6_AND_LATER(<NSTextFieldDelegate>) *tf = (NSTextField*) w;
+    Init(w);
+}
+
+wxNSTextFieldControl::wxNSTextFieldControl(wxWindow *wxPeer,
+                                           wxTextEntry *entry,
+                                           WXWidget w)
+    : wxWidgetCocoaImpl(wxPeer, w),
+      wxTextWidgetImpl(entry)
+{
+    Init(w);
+}
+
+void wxNSTextFieldControl::Init(WXWidget w)
+{
+    NSTextField wxOSX_10_6_AND_LATER(<NSTextFieldDelegate>) *tf = (NSTextField wxOSX_10_6_AND_LATER(<NSTextFieldDelegate>)*) w;
     m_textField = tf;
     [m_textField setDelegate: tf];
     m_selStart = m_selEnd = 0;
@@ -652,9 +772,16 @@ void wxNSTextFieldControl::controlAction(WXWidget WXUNUSED(slf),
     {
         wxCommandEvent event(wxEVT_COMMAND_TEXT_ENTER, wxpeer->GetId());
         event.SetEventObject( wxpeer );
-        event.SetString( static_cast<wxTextCtrl*>(wxpeer)->GetValue() );
+        event.SetString( GetTextEntry()->GetValue() );
         wxpeer->HandleWindowEvent( event );
     }
+}
+
+bool wxNSTextFieldControl::SetHint(const wxString& hint)
+{
+    wxCFStringRef hintstring(hint);
+    [[m_textField cell] setPlaceholderString:hintstring.AsNSString()];
+    return true;
 }
 
 //
@@ -692,12 +819,19 @@ wxWidgetImplType* wxWidgetImpl::CreateTextControl( wxTextCtrl* wxpeer,
             // FIXME: How can we remove the native control's border?
             // setBordered is separate from the text ctrl's border.
         }
+        
+        NSTextFieldCell* cell = [v cell];
+        [cell setScrollable:YES];
+        // TODO: Remove if we definitely are sure, it's not needed
+        // as setting scrolling to yes, should turn off any wrapping
+        // [cell setLineBreakMode:NSLineBreakByClipping]; 
 
         [v setBezeled:NO];
         [v setBordered:NO];
 
-        c = new wxNSTextFieldControl( wxpeer, v );
+        c = new wxNSTextFieldControl( wxpeer, wxpeer, v );
     }
+    c->SetNeedsFocusRect( true );
 
     return c;
 }

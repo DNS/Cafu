@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        font.h
+// Name:        wx/mgl/font.h
 // Author:      Vaclav Slavik
 // Id:          $Id$
 // Copyright:   (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
@@ -87,7 +87,6 @@ public:
 
     // implement base class pure virtuals
     virtual int GetPointSize() const;
-    virtual wxFontFamily GetFamily() const;
     virtual wxFontStyle GetStyle() const;
     virtual wxFontWeight GetWeight() const;
     virtual wxString GetFaceName() const;
@@ -112,6 +111,8 @@ protected:
     // ref counting code
     virtual wxGDIRefData *CreateGDIRefData() const;
     virtual wxGDIRefData *CloneGDIRefData(const wxGDIRefData *data) const;
+
+    virtual wxFontFamily DoGetFamily() const;
 
 private:
     DECLARE_DYNAMIC_CLASS(wxFont)

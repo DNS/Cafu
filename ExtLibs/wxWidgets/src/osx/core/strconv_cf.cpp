@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        src/osx/corefoundation/strconv.cpp
+// Name:        src/osx/core/strconv_cf.cpp
 // Purpose:     Unicode conversion classes
 // Author:      David Elliott
 // Modified by:
@@ -89,6 +89,14 @@ WXDLLIMPEXP_BASE wxMBConv* new_wxMBConv_cf(wxFontEncoding encoding)
 
         if ( theString == NULL )
             return wxCONV_FAILED;
+
+        // Ensure that the string is in canonical composed form (NFC): this is
+        // important because Darwin uses decomposed form (NFD) for e.g. file
+        // names but we want to use NFC internally.
+        wxCFRef<CFMutableStringRef>
+            cfMutableString(CFStringCreateMutableCopy(NULL, 0, theString));
+        CFStringNormalize(cfMutableString, kCFStringNormalizationFormC);
+        theString = cfMutableString;
 
         /* NOTE: The string content includes the NULL element if the source string did
          * That means we have to do nothing special because the destination will have

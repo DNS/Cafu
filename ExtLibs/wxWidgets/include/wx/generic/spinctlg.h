@@ -82,6 +82,9 @@ public:
     virtual bool Enable(bool enable = true);
     virtual bool Show(bool show = true);
     virtual bool Reparent(wxWindowBase *newParent);
+#if wxUSE_TOOLTIPS
+    virtual void DoSetToolTip(wxToolTip *tip);
+#endif // wxUSE_TOOLTIPS
 
     // get the subcontrols
     wxTextCtrl   *GetText() const       { return m_textCtrl; }
@@ -89,12 +92,14 @@ public:
 
     // forwarded events from children windows
     void OnSpinButton(wxSpinEvent& event);
-    void OnTextEnter(wxCommandEvent& event);
+    void OnTextLostFocus(wxFocusEvent& event);
     void OnTextChar(wxKeyEvent& event);
 
     // this window itself is used only as a container for its sub windows so it
-    // shouldn't accept the focus at all
+    // shouldn't accept the focus at all and any attempts to explicitly set
+    // focus to it should give focus to its text constol part
     virtual bool AcceptsFocus() const { return false; }
+    virtual void SetFocus();
 
     friend class wxSpinCtrlTextGeneric;
 
@@ -143,6 +148,8 @@ protected:
 private:
     // common part of all ctors
     void Init();
+
+    DECLARE_EVENT_TABLE()
 };
 
 #else // !wxUSE_SPINBTN

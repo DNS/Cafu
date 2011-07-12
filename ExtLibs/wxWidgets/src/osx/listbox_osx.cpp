@@ -1,10 +1,10 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:        src/osx/carbon/listbox.cpp
+// Name:        src/osx/listbox_osx.cpp
 // Purpose:     wxListBox
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     1998-01-01
-// RCS-ID:      $Id: listbox.cpp 54820 2008-07-29 20:04:11Z SC $
+// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,8 +23,6 @@
     #include "wx/arrstr.h"
     #include "wx/dcclient.h"
 #endif
-
-IMPLEMENT_DYNAMIC_CLASS(wxListBox, wxControlWithItems)
 
 BEGIN_EVENT_TABLE(wxListBox, wxControl)
 END_EVENT_TABLE()
@@ -73,8 +71,8 @@ bool wxListBox::Create(
     const wxValidator& validator,
     const wxString& name )
 {
+    DontCreatePeer();
     m_blockEvents = false;
-    m_macIsUserPane = false;
 
     wxASSERT_MSG( !(style & wxLB_MULTIPLE) || !(style & wxLB_EXTENDED),
                   wxT("only a single listbox selection mode can be specified") );
@@ -87,7 +85,7 @@ bool wxListBox::Create(
     else
         m_strings.unsorted = new wxArrayString;
 
-    m_peer = wxWidgetImpl::CreateListBox( this, parent, id, pos, size, style, GetExtraStyle() );
+    SetPeer(wxWidgetImpl::CreateListBox( this, parent, id, pos, size, style, GetExtraStyle() ));
 
     MacPostControlCreate( pos, size );
 
@@ -108,7 +106,7 @@ wxListBox::~wxListBox()
     m_blockEvents = false;
 
     // make sure no native events get sent to a object in destruction
-    wxDELETE(m_peer);
+    SetPeer(NULL);
 
     if ( IsSorted() )
         delete m_strings.sorted;
@@ -329,7 +327,6 @@ int wxListBox::FindString(const wxString& s, bool bCase) const
 
 void wxListBox::OnItemInserted(unsigned int WXUNUSED(pos))
 {
-
 }
 
 int wxListBox::DoInsertItems(const wxArrayStringsAdapter& items,
@@ -356,6 +353,14 @@ int wxListBox::DoInsertItems(const wxArrayStringsAdapter& items,
     }
 
     GetListPeer()->UpdateLineToEnd(startpos);
+
+    // Inserting the items may scroll the listbox down to show the last
+    // selected one but we don't want to do it as it could result in e.g. the
+    // first items of a listbox be hidden immediately after its creation so
+    // show the first selected item instead. Ideal would probably be to
+    // preserve the old selection unchanged, in fact, but I don't know how to
+    // get the first visible item so for now do at least this.
+    SetFirstItem(startpos);
 
     UpdateOldSelections();
 

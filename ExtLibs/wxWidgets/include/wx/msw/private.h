@@ -454,7 +454,7 @@ private:
     void DoInit(HGDIOBJ hgdiobj) { m_hgdiobj = ::SelectObject(m_hdc, hgdiobj); }
 
 public:
-    SelectInHDC() : m_hdc(NULL) { }
+    SelectInHDC() : m_hdc(NULL), m_hgdiobj(NULL) { }
     SelectInHDC(HDC hdc, HGDIOBJ hgdiobj) : m_hdc(hdc) { DoInit(hgdiobj); }
 
     void Init(HDC hdc, HGDIOBJ hgdiobj)
@@ -541,7 +541,12 @@ public:
 class AutoHBITMAP : private AutoGDIObject
 {
 public:
+    AutoHBITMAP()
+        : AutoGDIObject() { }
+
     AutoHBITMAP(HBITMAP hbmp) : AutoGDIObject(hbmp) { }
+
+    void Init(HBITMAP hbmp) { InitGdiobj(hbmp); }
 
     operator HBITMAP() const { return (HBITMAP)GetObject(); }
 };

@@ -95,7 +95,9 @@ wxString wxStringProperty::ValueToString( wxVariant& value,
     if ( GetChildCount() && HasFlag(wxPG_PROP_COMPOSED_VALUE) )
     {
         // Value stored in m_value is non-editable, non-full value
-        if ( (argFlags & wxPG_FULL_VALUE) || (argFlags & wxPG_EDITABLE_VALUE) )
+        if ( (argFlags & wxPG_FULL_VALUE) ||
+             (argFlags & wxPG_EDITABLE_VALUE) ||
+             !s.length() )
         {
             // Calling this under incorrect conditions will fail
             wxASSERT_MSG( argFlags & wxPG_VALUE_IS_CURRENT,
@@ -143,6 +145,80 @@ bool wxStringProperty::DoSetAttribute( const wxString& name, wxVariant& value )
 }
 
 // -----------------------------------------------------------------------
+// wxNumericPropertyValidator
+// -----------------------------------------------------------------------
+
+#if wxUSE_VALIDATORS
+
+wxNumericPropertyValidator::
+    wxNumericPropertyValidator( NumericType numericType, int base )
+    : wxTextValidator(wxFILTER_INCLUDE_CHAR_LIST)
+{
+    wxArrayString arr;
+    arr.Add(wxS("0"));
+    arr.Add(wxS("1"));
+    arr.Add(wxS("2"));
+    arr.Add(wxS("3"));
+    arr.Add(wxS("4"));
+    arr.Add(wxS("5"));
+    arr.Add(wxS("6"));
+    arr.Add(wxS("7"));
+
+    if ( base >= 10 )
+    {
+        arr.Add(wxS("8"));
+        arr.Add(wxS("9"));
+        if ( base >= 16 )
+        {
+            arr.Add(wxS("a")); arr.Add(wxS("A"));
+            arr.Add(wxS("b")); arr.Add(wxS("B"));
+            arr.Add(wxS("c")); arr.Add(wxS("C"));
+            arr.Add(wxS("d")); arr.Add(wxS("D"));
+            arr.Add(wxS("e")); arr.Add(wxS("E"));
+            arr.Add(wxS("f")); arr.Add(wxS("F"));
+        }
+    }
+
+    if ( numericType == Signed )
+    {
+        arr.Add(wxS("+"));
+        arr.Add(wxS("-"));
+    }
+    else if ( numericType == Float )
+    {
+        arr.Add(wxS("+"));
+        arr.Add(wxS("-"));
+        arr.Add(wxS("e"));
+
+        // Use locale-specific decimal point
+        arr.Add(wxString::Format("%g", 1.1)[1]);
+    }
+
+    SetIncludes(arr);
+}
+
+bool wxNumericPropertyValidator::Validate(wxWindow* parent)
+{
+    if ( !wxTextValidator::Validate(parent) )
+        return false;
+
+    wxWindow* wnd = GetWindow();
+    if ( !wnd->IsKindOf(CLASSINFO(wxTextCtrl)) )
+        return true;
+
+    // Do not allow zero-length string
+    wxTextCtrl* tc = static_cast<wxTextCtrl*>(wnd);
+    wxString text = tc->GetValue();
+
+    if ( text.empty() )
+        return false;
+
+    return true;
+}
+
+#endif // wxUSE_VALIDATORS
+
+// -----------------------------------------------------------------------
 // wxIntProperty
 // -----------------------------------------------------------------------
 
@@ -184,7 +260,7 @@ bool wxIntProperty::StringToValue( wxVariant& variant, const wxString& text, int
     wxString s;
     long value32;
 
-    if ( text.length() == 0 )
+    if ( text.empty() )
     {
         variant.MakeNull();
         return true;
@@ -261,11 +337,22 @@ bool wxIntProperty::IntToValue( wxVariant& variant, int value, int WXUNUSED(argF
     return false;
 }
 
-bool wxIntProperty::DoValidation( const wxPGProperty* property, wxLongLong_t& value, wxPGValidationInfo* pValidationInfo, int mode )
+//
+// Common validation code to be called in ValidateValue()
+// implementations.
+//
+// Note that 'value' is reference on purpose, so we can write
+// back to it when mode is wxPG_PROPERTY_VALIDATION_SATURATE.
+//
+template<typename T>
+bool NumericValidation( const wxPGProperty* property,
+                        T& value,
+                        wxPGValidationInfo* pValidationInfo,
+                        int mode,
+                        const wxString& strFmt )
 {
-    // Check for min/max
-    wxLongLong_t min = wxINT64_MIN;
-    wxLongLong_t max = wxINT64_MAX;
+    T min = (T) wxINT64_MIN;
+    T max = (T) wxINT64_MAX;
     wxVariant variant;
     bool minOk = false;
     bool maxOk = false;
@@ -273,14 +360,14 @@ bool wxIntProperty::DoValidation( const wxPGProperty* property, wxLongLong_t& va
     variant = property->GetAttribute(wxPGGlobalVars->m_strMin);
     if ( !variant.IsNull() )
     {
-        min = variant.GetLongLong().GetValue();
+        variant.Convert(&min);
         minOk = true;
     }
 
     variant = property->GetAttribute(wxPGGlobalVars->m_strMax);
     if ( !variant.IsNull() )
     {
-        max = variant.GetLongLong().GetValue();
+        variant.Convert(&max);
         maxOk = true;
     }
 
@@ -291,13 +378,16 @@ bool wxIntProperty::DoValidation( const wxPGProperty* property, wxLongLong_t& va
             if ( mode == wxPG_PROPERTY_VALIDATION_ERROR_MESSAGE )
             {
                 wxString msg;
+                wxString smin = wxString::Format(strFmt, min);
+                wxString smax = wxString::Format(strFmt, max);
                 if ( !maxOk )
                     msg = wxString::Format(
-                                _("Value must be %lld or higher."), min);
+                                _("Value must be %s or higher."),
+                                smin.c_str());
                 else
                     msg = wxString::Format(
-                                _("Value must be between %lld and %lld."),
-                                min, max);
+                                _("Value must be between %s and %s."),
+                                smin.c_str(), smax.c_str());
                 pValidationInfo->SetFailureMessage(msg);
             }
             else if ( mode == wxPG_PROPERTY_VALIDATION_SATURATE )
@@ -315,13 +405,16 @@ bool wxIntProperty::DoValidation( const wxPGProperty* property, wxLongLong_t& va
             if ( mode == wxPG_PROPERTY_VALIDATION_ERROR_MESSAGE )
             {
                 wxString msg;
+                wxString smin = wxString::Format(strFmt, min);
+                wxString smax = wxString::Format(strFmt, max);
                 if ( !minOk )
                     msg = wxString::Format(
-                                _("Value must be %lld or lower."), max);
+                                _("Value must be %s or less."),
+                                smax.c_str());
                 else
                     msg = wxString::Format(
-                                _("Value must be between %lld and %lld."),
-                                min, max);
+                                _("Value must be between %s and %s."),
+                                smin.c_str(), smax.c_str());
                 pValidationInfo->SetFailureMessage(msg);
             }
             else if ( mode == wxPG_PROPERTY_VALIDATION_SATURATE )
@@ -332,6 +425,18 @@ bool wxIntProperty::DoValidation( const wxPGProperty* property, wxLongLong_t& va
         }
     }
     return true;
+}
+
+bool wxIntProperty::DoValidation( const wxPGProperty* property,
+                                  wxLongLong_t& value,
+                                  wxPGValidationInfo* pValidationInfo,
+                                  int mode )
+{
+    return NumericValidation<wxLongLong_t>(property,
+                                           value,
+                                           pValidationInfo,
+                                           mode,
+                                           wxS("%lld"));
 }
 
 bool wxIntProperty::ValidateValue( wxVariant& value,
@@ -347,9 +452,8 @@ wxValidator* wxIntProperty::GetClassValidator()
 #if wxUSE_VALIDATORS
     WX_PG_DOGETVALIDATOR_ENTRY()
 
-    // Atleast wxPython 2.6.2.1 required that the string argument is given
-    static wxString v;
-    wxTextValidator* validator = new wxTextValidator(wxFILTER_NUMERIC,&v);
+    wxValidator* validator = new wxNumericPropertyValidator(
+                                    wxNumericPropertyValidator::Signed);
 
     WX_PG_DOGETVALIDATOR_EXIT(validator)
 #else
@@ -435,7 +539,7 @@ bool wxUIntProperty::StringToValue( wxVariant& variant, const wxString& text, in
     wxString variantType = variant.GetType();
     bool isPrevLong = variantType == wxPG_VARIANT_TYPE_LONG;
 
-    if ( text.length() == 0 )
+    if ( text.empty() )
     {
         variant.MakeNull();
         return true;
@@ -493,39 +597,28 @@ bool wxUIntProperty::IntToValue( wxVariant& variant, int number, int WXUNUSED(ar
 
 bool wxUIntProperty::ValidateValue( wxVariant& value, wxPGValidationInfo& validationInfo ) const
 {
-    // Check for min/max
-    wxULongLong_t ll = value.GetULongLong().GetValue();
+    wxULongLong_t uul = value.GetULongLong().GetValue();
+    return
+    NumericValidation<wxULongLong_t>(this,
+                                     uul,
+                                     &validationInfo,
+                                     wxPG_PROPERTY_VALIDATION_ERROR_MESSAGE,
+                                     wxS("%llu"));
+}
 
-    wxULongLong_t min = 0;
-    wxULongLong_t max = wxUINT64_MAX;
-    wxVariant variant;
+wxValidator* wxUIntProperty::DoGetValidator() const
+{
+#if wxUSE_VALIDATORS
+    WX_PG_DOGETVALIDATOR_ENTRY()
 
-    variant = GetAttribute(wxPGGlobalVars->m_strMin);
-    if ( !variant.IsNull() )
-    {
-        min = variant.GetULongLong().GetValue();
-        if ( ll < min )
-        {
-            validationInfo.SetFailureMessage(
-                wxString::Format(_("Value must be %llu or higher"),min)
-                );
-            return false;
-        }
-    }
-    variant = GetAttribute(wxPGGlobalVars->m_strMax);
-    if ( !variant.IsNull() )
-    {
-        max = variant.GetULongLong().GetValue();
-        if ( ll > max )
-        {
-            validationInfo.SetFailureMessage(
-                wxString::Format(_("Value must be %llu or less"),max)
-                );
-            return false;
-        }
-    }
+    wxValidator* validator = new wxNumericPropertyValidator(
+                                    wxNumericPropertyValidator::Unsigned,
+                                    m_realBase);
 
-    return true;
+    WX_PG_DOGETVALIDATOR_EXIT(validator)
+#else
+    return NULL;
+#endif
 }
 
 bool wxUIntProperty::DoSetAttribute( const wxString& name, wxVariant& value )
@@ -577,11 +670,11 @@ wxFloatProperty::~wxFloatProperty() { }
 
 // This helper method provides standard way for floating point-using
 // properties to convert values to string.
-void wxPropertyGrid::DoubleToString(wxString& target,
-                                    double value,
-                                    int precision,
-                                    bool removeZeroes,
-                                    wxString* precTemplate)
+const wxString& wxPropertyGrid::DoubleToString(wxString& target,
+                                               double value,
+                                               int precision,
+                                               bool removeZeroes,
+                                               wxString* precTemplate)
 {
     if ( precision >= 0 )
     {
@@ -589,7 +682,7 @@ void wxPropertyGrid::DoubleToString(wxString& target,
         if (!precTemplate)
             precTemplate = &text1;
 
-        if ( !precTemplate->length() )
+        if ( precTemplate->empty() )
         {
             *precTemplate = wxS("%.");
             *precTemplate << wxString::Format( wxS("%i"), precision );
@@ -603,7 +696,7 @@ void wxPropertyGrid::DoubleToString(wxString& target,
         target.Printf( wxS("%f"), value );
     }
 
-    if ( removeZeroes && precision != 0 && target.length() )
+    if ( removeZeroes && precision != 0 && !target.empty() )
     {
         // Remove excess zeroes (do not remove this code just yet,
         // since sprintf can't do the same consistently across platforms).
@@ -624,6 +717,27 @@ void wxPropertyGrid::DoubleToString(wxString& target,
         if ( new_len != target.length() )
             target.resize(new_len);
     }
+
+    // Remove sign from zero
+    if ( target.length() >= 2 && target[0] == wxS('-') )
+    {
+        bool isZero = true;
+        wxString::const_iterator i = target.begin() + 1;
+
+        for ( ; i != target.end(); i++ )
+        {
+            if ( *i != wxS('0') && *i != wxS('.') && *i != wxS(',') )
+            {
+                isZero = false;
+                break;
+            }
+        }
+
+        if ( isZero )
+            target.erase(target.begin());
+    }
+
+    return target;
 }
 
 wxString wxFloatProperty::ValueToString( wxVariant& value,
@@ -646,7 +760,7 @@ bool wxFloatProperty::StringToValue( wxVariant& variant, const wxString& text, i
     wxString s;
     double value;
 
-    if ( text.length() == 0 )
+    if ( text.empty() )
     {
         variant.MakeNull();
         return true;
@@ -672,60 +786,11 @@ bool wxFloatProperty::DoValidation( const wxPGProperty* property,
                                     wxPGValidationInfo* pValidationInfo,
                                     int mode )
 {
-    // Check for min/max
-    double min = (double)wxINT64_MIN;
-    double max = (double)wxINT64_MAX;
-    wxVariant variant;
-    bool minOk = false;
-    bool maxOk = false;
-
-    variant = property->GetAttribute(wxPGGlobalVars->m_strMin);
-    if ( !variant.IsNull() )
-    {
-        min = variant.GetDouble();
-        minOk = true;
-    }
-
-    variant = property->GetAttribute(wxPGGlobalVars->m_strMax);
-    if ( !variant.IsNull() )
-    {
-        max = variant.GetDouble();
-        maxOk = true;
-    }
-
-    if ( minOk )
-    {
-        if ( value < min )
-        {
-            if ( mode == wxPG_PROPERTY_VALIDATION_ERROR_MESSAGE )
-                pValidationInfo->SetFailureMessage(
-                    wxString::Format(_("Value must be %f or higher"),min)
-                    );
-            else if ( mode == wxPG_PROPERTY_VALIDATION_SATURATE )
-                value = min;
-            else
-                value = max - (min - value);
-            return false;
-        }
-    }
-
-    if ( maxOk )
-    {
-        max = variant.GetDouble();
-        if ( value > max )
-        {
-            if ( mode == wxPG_PROPERTY_VALIDATION_ERROR_MESSAGE )
-                pValidationInfo->SetFailureMessage(
-                    wxString::Format(_("Value must be %f or less"),max)
-                    );
-            else if ( mode == wxPG_PROPERTY_VALIDATION_SATURATE )
-                value = max;
-            else
-                value = min + (value - max);
-            return false;
-        }
-    }
-    return true;
+    return NumericValidation<double>(property,
+                                     value,
+                                     pValidationInfo,
+                                     mode,
+                                     wxS("%g"));
 }
 
 bool
@@ -747,9 +812,24 @@ bool wxFloatProperty::DoSetAttribute( const wxString& name, wxVariant& value )
     return false;
 }
 
+wxValidator*
+wxFloatProperty::GetClassValidator()
+{
+#if wxUSE_VALIDATORS
+    WX_PG_DOGETVALIDATOR_ENTRY()
+
+    wxValidator* validator = new wxNumericPropertyValidator(
+                                    wxNumericPropertyValidator::Float);
+
+    WX_PG_DOGETVALIDATOR_EXIT(validator)
+#else
+    return NULL;
+#endif
+}
+
 wxValidator* wxFloatProperty::DoGetValidator() const
 {
-    return wxIntProperty::GetClassValidator();
+    return GetClassValidator();
 }
 
 // -----------------------------------------------------------------------
@@ -834,7 +914,7 @@ bool wxBoolProperty::StringToValue( wxVariant& variant, const wxString& text, in
          text.CmpNoCase(m_label) == 0 )
         boolValue = true;
 
-    if ( text.length() == 0 )
+    if ( text.empty() )
     {
         variant.MakeNull();
         return true;
@@ -1389,7 +1469,7 @@ void wxFlagsProperty::OnSetValue()
             flag = choices.GetValue(i);
 
             if ( (newFlags & flag) != (m_oldValue & flag) )
-                Item(i)->SetFlag( wxPG_PROP_MODIFIED );
+                Item(i)->ChangeFlag( wxPG_PROP_MODIFIED, true );
         }
 
         m_oldValue = newFlags;
@@ -1438,7 +1518,7 @@ bool wxFlagsProperty::StringToValue( wxVariant& variant, const wxString& text, i
     // semicolons are no longer valid delimeters
     WX_PG_TOKENIZER1_BEGIN(text,wxS(','))
 
-        if ( token.length() )
+        if ( !token.empty() )
         {
             // Determine which one it is
             long bit = IdToBit( token );
@@ -1497,7 +1577,7 @@ void wxFlagsProperty::RefreshChildren()
         wxPGProperty* p = Item(i);
 
         if ( subVal != (m_oldValue & flag) )
-            p->SetFlag( wxPG_PROP_MODIFIED );
+            p->ChangeFlag( wxPG_PROP_MODIFIED, true );
 
         p->SetValue( subVal?true:false );
     }
@@ -1610,7 +1690,7 @@ bool wxPGFileDialogAdapter::DoShowDialog( wxPropertyGrid* propGrid, wxPGProperty
         path = filename.GetPath();
         indFilter = fileProp->m_indFilter;
 
-        if ( !path.length() && fileProp->m_basePath.length() )
+        if ( path.empty() && !fileProp->m_basePath.empty() )
             path = fileProp->m_basePath;
     }
     else
@@ -1701,7 +1781,7 @@ void wxFileProperty::OnSetValue()
     }
 
     // Find index for extension.
-    if ( m_indFilter < 0 && fnstr.length() )
+    if ( m_indFilter < 0 && !fnstr.empty() )
     {
         wxString ext = filename.GetExt();
         int curind = 0;
@@ -1718,7 +1798,7 @@ void wxFileProperty::OnSetValue()
                 pos = len;
             wxString found_ext = m_wildcard.substr(ext_begin, pos-ext_begin);
 
-            if ( found_ext.length() > 0 )
+            if ( !found_ext.empty() )
             {
                 if ( found_ext[0] == wxS('*') )
                 {
@@ -1759,7 +1839,7 @@ wxString wxFileProperty::ValueToString( wxVariant& value,
         return wxEmptyString;
 
     wxString fullName = filename.GetFullName();
-    if ( !fullName.length() )
+    if ( fullName.empty() )
         return wxEmptyString;
 
     if ( argFlags & wxPG_FULL_VALUE )
@@ -1768,7 +1848,7 @@ wxString wxFileProperty::ValueToString( wxVariant& value,
     }
     else if ( m_flags & wxPG_PROP_SHOW_FULL_FILENAME )
     {
-        if ( m_basePath.Length() )
+        if ( !m_basePath.empty() )
         {
             wxFileName fn2(filename);
             fn2.MakeRelativeTo(m_basePath);
@@ -2106,7 +2186,7 @@ bool wxPGArrayEditorDialog::Create( wxWindow *parent,
     wxBoxSizer* topsizer = new wxBoxSizer( wxVERTICAL );
 
     // Message
-    if ( message.length() )
+    if ( !message.empty() )
         topsizer->Add( new wxStaticText(this,-1,message),
             0, wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL|wxALL, spacing );
 
@@ -2199,7 +2279,7 @@ void wxPGArrayEditorDialog::OnAddClick(wxCommandEvent& event)
     wxListCtrl* lc = m_elb->GetListCtrl();
     int newItemIndex = lc->GetItemCount() - 1;
 
-    if ( m_hasCustomNewAction ) 
+    if ( m_hasCustomNewAction )
     {
         wxString str;
         if ( OnCustomNewAction(&str) )
@@ -2388,7 +2468,7 @@ wxArrayStringProperty::wxArrayStringProperty( const wxString& label,
                                                         const wxArrayString& array )
     : wxPGProperty(label,name)
 {
-    m_delimiter = '"';
+    m_delimiter = ',';
     SetValue( array );
 }
 
@@ -2475,7 +2555,7 @@ wxArrayStringProperty::ArrayStringToString( wxString& dst,
         if ( flags & Escape )
         {
             str.Replace( wxS("\\"), wxS("\\\\"), true );
-            if ( pdr.length() )
+            if ( !pdr.empty() )
                 str.Replace( preas, pdr, true );
         }
 

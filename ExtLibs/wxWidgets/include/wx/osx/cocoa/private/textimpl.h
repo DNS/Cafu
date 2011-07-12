@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        textimpl.h
+// Name:        wx/osx/cocoa/private/textimpl.h
 // Purpose:     textcontrol implementation classes that have to be exposed
 // Author:      Stefan Csomor
 // Modified by:
@@ -20,7 +20,12 @@
 class wxNSTextFieldControl : public wxWidgetCocoaImpl, public wxTextWidgetImpl
 {
 public :
-    wxNSTextFieldControl( wxWindow *wxPeer, WXWidget w );
+    // wxNSTextFieldControl must always be associated with a wxTextEntry. If
+    // it's associated with a wxTextCtrl then we can get the associated entry
+    // from it but otherwise the second ctor should be used to explicitly pass
+    // us the entry.
+    wxNSTextFieldControl( wxTextCtrl *text, WXWidget w );
+    wxNSTextFieldControl( wxWindow *wxPeer, wxTextEntry *entry, WXWidget w );
     virtual ~wxNSTextFieldControl();
 
     virtual wxString GetStringValue() const ;
@@ -34,12 +39,18 @@ public :
     virtual void SetSelection( long from , long to );
     virtual void WriteText(const wxString& str) ;
     virtual bool HasOwnContextMenu() const { return true; }
+    virtual bool SetHint(const wxString& hint);
 
     virtual void controlAction(WXWidget slf, void* _cmd, void *sender);
+
 protected :
     NSTextField* m_textField;
     long m_selStart;
     long m_selEnd;
+
+private:
+    // Common part of both ctors.
+    void Init(WXWidget w);
 };
 
 class wxNSTextViewControl : public wxWidgetCocoaImpl, public wxTextWidgetImpl
@@ -59,14 +70,14 @@ public:
     virtual void SetSelection( long from , long to );
     virtual void WriteText(const wxString& str) ;
     virtual void SetFont( const wxFont & font , const wxColour& foreground , long windowStyle, bool ignoreBlack = true );
-    
+
     virtual bool GetStyle(long position, wxTextAttr& style);
     virtual void SetStyle(long start, long end, const wxTextAttr& style);
-    
+
     virtual bool CanFocus() const;
-    
+
     virtual bool HasOwnContextMenu() const { return true; }
-    
+
     virtual void CheckSpelling(bool check);
     virtual wxSize GetBestSize() const;
 
@@ -78,21 +89,21 @@ protected:
 class wxNSComboBoxControl : public wxNSTextFieldControl, public wxComboWidgetImpl
 {
 public :
-    wxNSComboBoxControl( wxWindow *wxPeer, WXWidget w );
+    wxNSComboBoxControl( wxComboBox *wxPeer, WXWidget w );
     virtual ~wxNSComboBoxControl();
-    
+
     virtual int GetSelectedItem() const;
     virtual void SetSelectedItem(int item);
-    
+
     virtual int GetNumberOfItems() const;
-    
+
     virtual void InsertItem(int pos, const wxString& item);
     virtual void RemoveItem(int pos);
-    
+
     virtual void Clear();
-    
+
     virtual wxString GetStringAtIndex(int pos) const;
-    
+
     virtual int FindString(const wxString& text) const;
 private:
     NSComboBox* m_comboBox;

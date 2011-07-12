@@ -41,79 +41,6 @@
 
 #include "wx/hashmap.h"
 
-#if wxUSE_EXTENDED_RTTI
-WX_DEFINE_FLAGS( wxListCtrlStyle )
-
-wxBEGIN_FLAGS( wxListCtrlStyle )
-    // new style border flags, we put them first to
-    // use them for streaming out
-    wxFLAGS_MEMBER(wxBORDER_SIMPLE)
-    wxFLAGS_MEMBER(wxBORDER_SUNKEN)
-    wxFLAGS_MEMBER(wxBORDER_DOUBLE)
-    wxFLAGS_MEMBER(wxBORDER_RAISED)
-    wxFLAGS_MEMBER(wxBORDER_STATIC)
-    wxFLAGS_MEMBER(wxBORDER_NONE)
-
-    // old style border flags
-    wxFLAGS_MEMBER(wxSIMPLE_BORDER)
-    wxFLAGS_MEMBER(wxSUNKEN_BORDER)
-    wxFLAGS_MEMBER(wxDOUBLE_BORDER)
-    wxFLAGS_MEMBER(wxRAISED_BORDER)
-    wxFLAGS_MEMBER(wxSTATIC_BORDER)
-    wxFLAGS_MEMBER(wxBORDER)
-
-    // standard window styles
-    wxFLAGS_MEMBER(wxTAB_TRAVERSAL)
-    wxFLAGS_MEMBER(wxCLIP_CHILDREN)
-    wxFLAGS_MEMBER(wxTRANSPARENT_WINDOW)
-    wxFLAGS_MEMBER(wxWANTS_CHARS)
-    wxFLAGS_MEMBER(wxFULL_REPAINT_ON_RESIZE)
-    wxFLAGS_MEMBER(wxALWAYS_SHOW_SB )
-    wxFLAGS_MEMBER(wxVSCROLL)
-    wxFLAGS_MEMBER(wxHSCROLL)
-
-    wxFLAGS_MEMBER(wxLC_LIST)
-    wxFLAGS_MEMBER(wxLC_REPORT)
-    wxFLAGS_MEMBER(wxLC_ICON)
-    wxFLAGS_MEMBER(wxLC_SMALL_ICON)
-    wxFLAGS_MEMBER(wxLC_ALIGN_TOP)
-    wxFLAGS_MEMBER(wxLC_ALIGN_LEFT)
-    wxFLAGS_MEMBER(wxLC_AUTOARRANGE)
-    wxFLAGS_MEMBER(wxLC_USER_TEXT)
-    wxFLAGS_MEMBER(wxLC_EDIT_LABELS)
-    wxFLAGS_MEMBER(wxLC_NO_HEADER)
-    wxFLAGS_MEMBER(wxLC_SINGLE_SEL)
-    wxFLAGS_MEMBER(wxLC_SORT_ASCENDING)
-    wxFLAGS_MEMBER(wxLC_SORT_DESCENDING)
-    wxFLAGS_MEMBER(wxLC_VIRTUAL)
-
-wxEND_FLAGS( wxListCtrlStyle )
-
-IMPLEMENT_DYNAMIC_CLASS_XTI(wxListCtrl, wxControl,"wx/listctrl.h")
-
-wxBEGIN_PROPERTIES_TABLE(wxListCtrl)
-    wxEVENT_PROPERTY( TextUpdated , wxEVT_COMMAND_TEXT_UPDATED , wxCommandEvent )
-
-    wxPROPERTY_FLAGS( WindowStyle , wxListCtrlStyle , long , SetWindowStyleFlag , GetWindowStyleFlag , EMPTY_MACROVALUE , 0 /*flags*/ , wxT("Helpstring") , wxT("group")) // style
-wxEND_PROPERTIES_TABLE()
-
-wxBEGIN_HANDLERS_TABLE(wxListCtrl)
-wxEND_HANDLERS_TABLE()
-
-wxCONSTRUCTOR_5( wxListCtrl , wxWindow* , Parent , wxWindowID , Id , wxPoint , Position , wxSize , Size , long , WindowStyle )
-
-/*
- TODO : Expose more information of a list's layout etc. via appropriate objects (a la NotebookPageInfo)
-*/
-#else
-IMPLEMENT_DYNAMIC_CLASS(wxListCtrl, wxControl)
-#endif
-
-IMPLEMENT_DYNAMIC_CLASS(wxListView, wxListCtrl)
-IMPLEMENT_DYNAMIC_CLASS(wxListItem, wxObject)
-
-IMPLEMENT_DYNAMIC_CLASS(wxListEvent, wxNotifyEvent)
-
 WX_DECLARE_HASH_MAP( int, wxListItem*, wxIntegerHash, wxIntegerEqual, wxListItemList );
 
 #include "wx/listimpl.cpp"
@@ -519,14 +446,6 @@ void wxListCtrlTextCtrlWrapper::OnKillFocus( wxFocusEvent &event )
     event.Skip();
 }
 
-BEGIN_EVENT_TABLE(wxListCtrl, wxControl)
-    EVT_LEFT_DOWN(wxListCtrl::OnLeftDown)
-    EVT_LEFT_DCLICK(wxListCtrl::OnDblClick)
-    EVT_MIDDLE_DOWN(wxListCtrl::OnMiddleDown)
-    EVT_RIGHT_DOWN(wxListCtrl::OnRightDown)
-    EVT_CHAR(wxListCtrl::OnChar)
-END_EVENT_TABLE()
-
 // ============================================================================
 // implementation
 // ============================================================================
@@ -561,7 +480,7 @@ void wxListCtrl::Init()
     m_bgColor = wxNullColour;
     m_textctrlWrapper = NULL;
     m_current = -1;
-    m_renameTimer = new wxListCtrlRenameTimer( this );
+    m_renameTimer = NULL;
 }
 
 class wxGenericListCtrlHook : public wxGenericListCtrl
@@ -618,7 +537,8 @@ void wxListCtrl::OnLeftDown(wxMouseEvent& event)
         (hitResult & wxLIST_HITTEST_ONITEMLABEL) &&
         HasFlag(wxLC_EDIT_LABELS) )
     {
-        m_renameTimer->Start( 100, true );
+        if ( m_renameTimer )
+            m_renameTimer->Start( 250, true );
     }
     else
     {
@@ -629,7 +549,7 @@ void wxListCtrl::OnLeftDown(wxMouseEvent& event)
 
 void wxListCtrl::OnDblClick(wxMouseEvent& event)
 {
-    if ( m_renameTimer->IsRunning() )
+    if ( m_renameTimer && m_renameTimer->IsRunning() )
         m_renameTimer->Stop();
     event.Skip();
 }
@@ -735,8 +655,6 @@ bool wxListCtrl::Create(wxWindow *parent,
             && (wxSystemOptions::GetOptionInt( wxMAC_ALWAYS_USE_GENERIC_LISTCTRL ) == 1)) ||
             (style & wxLC_ICON) || (style & wxLC_SMALL_ICON) || (style & wxLC_LIST) )
     {
-        m_macIsUserPane = true;
-
         long paneStyle = style;
         paneStyle &= ~wxSIMPLE_BORDER;
         paneStyle &= ~wxDOUBLE_BORDER;
@@ -754,17 +672,25 @@ bool wxListCtrl::Create(wxWindow *parent,
 
     else
     {
-         m_macIsUserPane = false;
+        DontCreatePeer();
         if ( !wxWindow::Create(parent, id, pos, size, style & ~(wxHSCROLL | wxVSCROLL), name) )
             return false;
         m_dbImpl = new wxMacDataBrowserListCtrlControl( this, pos, size, style );
-        m_peer = m_dbImpl;
+        SetPeer(m_dbImpl);
 
         MacPostControlCreate( pos, size );
 
-        InstallControlEventHandler( m_peer->GetControlRef() , GetwxMacListCtrlEventHandlerUPP(),
+        InstallControlEventHandler( GetPeer()->GetControlRef() , GetwxMacListCtrlEventHandlerUPP(),
             GetEventTypeCount(eventList), eventList, this,
             (EventHandlerRef *)&m_macListCtrlEventHandler);
+
+        m_renameTimer = new wxListCtrlRenameTimer( this );
+        
+        Connect( wxID_ANY, wxEVT_CHAR, wxCharEventHandler(wxListCtrl::OnChar), NULL, this );
+        Connect( wxID_ANY, wxEVT_LEFT_DOWN, wxMouseEventHandler(wxListCtrl::OnLeftDown), NULL, this );
+        Connect( wxID_ANY, wxEVT_LEFT_DCLICK, wxMouseEventHandler(wxListCtrl::OnDblClick), NULL, this );
+        Connect( wxID_ANY, wxEVT_MIDDLE_DOWN, wxMouseEventHandler(wxListCtrl::OnMiddleDown), NULL, this );
+        Connect( wxID_ANY, wxEVT_RIGHT_DOWN, wxMouseEventHandler(wxListCtrl::OnRightDown), NULL, this );
     }
 
     return true;
@@ -1017,7 +943,7 @@ bool wxListCtrl::SetColumn(int col, wxListItem& item)
         if (item.GetMask() & wxLIST_MASK_TEXT)
         {
             wxFontEncoding enc;
-            if ( m_font.Ok() )
+            if ( m_font.IsOk() )
                 enc = GetFont().GetEncoding();
             else
                 enc = wxLocale::GetSystemEncoding();
@@ -2071,12 +1997,12 @@ wxListCtrl::HitTest(const wxPoint& point, int& flags, long *ptrSubItem) const
 
                WXUNUSED_UNLESS_DEBUG( OSStatus status = ) m_dbImpl->GetItemPartBounds( id, kMinColumnId + column, kDataBrowserPropertyEnclosingPart, &enclosingRect );
                wxASSERT( status == noErr );
-              
+
                enclosingCGRect = CGRectMake(enclosingRect.left,
                                             enclosingRect.top,
                                             enclosingRect.right - enclosingRect.left,
                                             enclosingRect.bottom - enclosingRect.top);
-              
+
                if (column >= 0)
                {
                    if ( !(GetWindowStyleFlag() & wxLC_VIRTUAL ) )
@@ -2085,7 +2011,7 @@ wxListCtrl::HitTest(const wxPoint& point, int& flags, long *ptrSubItem) const
                        if (lcItem->HasColumnInfo(column))
                        {
                            wxListItem* item = lcItem->GetColumnInfo(column);
-                          
+
                            if (item->GetMask() & wxLIST_MASK_IMAGE)
                            {
                                imgIndex = item->GetImage();
@@ -2101,9 +2027,9 @@ wxListCtrl::HitTest(const wxPoint& point, int& flags, long *ptrSubItem) const
                        }
                    }
                }
-          
+
                calculateCGDrawingBounds(enclosingCGRect, &iconCGRect, &textCGRect, (imgIndex != -1) );
-              
+
                if ( CGRectContainsPoint( iconCGRect, click_point ) )
                {
                    flags = wxLIST_HITTEST_ONITEMICON;
@@ -2251,7 +2177,7 @@ long wxListCtrl::InsertColumn(long col, wxListItem& item)
         if (imageList && imageList->GetImageCount() > 0)
         {
             wxBitmap bmp = imageList->GetBitmap(0);
-            //if (bmp.Ok())
+            //if (bmp.IsOk())
             //    type = kDataBrowserIconAndTextType;
         }
 
@@ -2318,7 +2244,9 @@ bool wxListCtrl::ScrollList(int dx, int dy)
 
     if (m_dbImpl)
     {
-        m_dbImpl->SetScrollPosition(dx, dy);
+        // Notice that the parameter order is correct here: first argument is
+        // the "top" displacement, second one is the "left" one.
+        m_dbImpl->SetScrollPosition(dy, dx);
     }
     return true;
 }
@@ -2858,7 +2786,7 @@ void wxMacDataBrowserListCtrlControl::DrawItem(
     if (bgColor == wxNullColour)
         bgColor = listBgColor;
 
-    if (!font.Ok())
+    if (!font.IsOk())
         font = list->GetFont();
 
     wxCFStringRef cfString( text, wxLocale::GetSystemEncoding() );
@@ -2922,12 +2850,12 @@ void wxMacDataBrowserListCtrlControl::DrawItem(
     else
     {
 
-        if (color.Ok())
+        if (color.IsOk())
             color.GetRGBColor(&labelColor);
-        else if (list->GetTextColour().Ok())
+        else if (list->GetTextColour().IsOk())
             list->GetTextColour().GetRGBColor(&labelColor);
 
-        if (bgColor.Ok())
+        if (bgColor.IsOk())
         {
             bgColor.GetRGBColor(&backgroundColor);
             CGContextSaveGState(context);
@@ -2969,7 +2897,7 @@ void wxMacDataBrowserListCtrlControl::DrawItem(
     {
         info.version = kHIThemeTextInfoVersionOne;
         info.fontID = kThemeViewsFont;
-        if (font.Ok())
+        if (font.IsOk())
         {
             info.fontID = kThemeSpecifiedFont;
             info.font = (CTFontRef) font.OSXGetCTFont();
@@ -2983,7 +2911,7 @@ void wxMacDataBrowserListCtrlControl::DrawItem(
         info.version = kHIThemeTextInfoVersionZero;
         info.fontID = kThemeViewsFont;
 
-        if (font.Ok())
+        if (font.IsOk())
         {
             info.fontID = font.MacGetThemeFontID();
 

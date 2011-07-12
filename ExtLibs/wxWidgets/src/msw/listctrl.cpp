@@ -34,6 +34,7 @@
     #include "wx/intl.h"
     #include "wx/log.h"
     #include "wx/settings.h"
+    #include "wx/stopwatch.h"
     #include "wx/dcclient.h"
     #include "wx/textctrl.h"
 #endif
@@ -42,6 +43,7 @@
 #include "wx/vector.h"
 
 #include "wx/msw/private.h"
+#include "wx/msw/private/keyboard.h"
 
 #if defined(__WXWINCE__) && !defined(__HANDHELDPC__)
   #include <ole2.h>
@@ -223,79 +225,6 @@ public:
 
     wxDECLARE_NO_COPY_CLASS(wxMSWListItemData);
 };
-
-#if wxUSE_EXTENDED_RTTI
-WX_DEFINE_FLAGS( wxListCtrlStyle )
-
-wxBEGIN_FLAGS( wxListCtrlStyle )
-    // new style border flags, we put them first to
-    // use them for streaming out
-    wxFLAGS_MEMBER(wxBORDER_SIMPLE)
-    wxFLAGS_MEMBER(wxBORDER_SUNKEN)
-    wxFLAGS_MEMBER(wxBORDER_DOUBLE)
-    wxFLAGS_MEMBER(wxBORDER_RAISED)
-    wxFLAGS_MEMBER(wxBORDER_STATIC)
-    wxFLAGS_MEMBER(wxBORDER_NONE)
-
-    // old style border flags
-    wxFLAGS_MEMBER(wxSIMPLE_BORDER)
-    wxFLAGS_MEMBER(wxSUNKEN_BORDER)
-    wxFLAGS_MEMBER(wxDOUBLE_BORDER)
-    wxFLAGS_MEMBER(wxRAISED_BORDER)
-    wxFLAGS_MEMBER(wxSTATIC_BORDER)
-    wxFLAGS_MEMBER(wxBORDER)
-
-    // standard window styles
-    wxFLAGS_MEMBER(wxTAB_TRAVERSAL)
-    wxFLAGS_MEMBER(wxCLIP_CHILDREN)
-    wxFLAGS_MEMBER(wxTRANSPARENT_WINDOW)
-    wxFLAGS_MEMBER(wxWANTS_CHARS)
-    wxFLAGS_MEMBER(wxFULL_REPAINT_ON_RESIZE)
-    wxFLAGS_MEMBER(wxALWAYS_SHOW_SB )
-    wxFLAGS_MEMBER(wxVSCROLL)
-    wxFLAGS_MEMBER(wxHSCROLL)
-
-    wxFLAGS_MEMBER(wxLC_LIST)
-    wxFLAGS_MEMBER(wxLC_REPORT)
-    wxFLAGS_MEMBER(wxLC_ICON)
-    wxFLAGS_MEMBER(wxLC_SMALL_ICON)
-    wxFLAGS_MEMBER(wxLC_ALIGN_TOP)
-    wxFLAGS_MEMBER(wxLC_ALIGN_LEFT)
-    wxFLAGS_MEMBER(wxLC_AUTOARRANGE)
-    wxFLAGS_MEMBER(wxLC_USER_TEXT)
-    wxFLAGS_MEMBER(wxLC_EDIT_LABELS)
-    wxFLAGS_MEMBER(wxLC_NO_HEADER)
-    wxFLAGS_MEMBER(wxLC_SINGLE_SEL)
-    wxFLAGS_MEMBER(wxLC_SORT_ASCENDING)
-    wxFLAGS_MEMBER(wxLC_SORT_DESCENDING)
-    wxFLAGS_MEMBER(wxLC_VIRTUAL)
-
-wxEND_FLAGS( wxListCtrlStyle )
-
-IMPLEMENT_DYNAMIC_CLASS_XTI(wxListCtrl, wxControl,"wx/listctrl.h")
-
-wxBEGIN_PROPERTIES_TABLE(wxListCtrl)
-    wxEVENT_PROPERTY( TextUpdated , wxEVT_COMMAND_TEXT_UPDATED , wxCommandEvent )
-
-    wxPROPERTY_FLAGS( WindowStyle , wxListCtrlStyle , long , SetWindowStyleFlag , GetWindowStyleFlag , EMPTY_MACROVALUE , 0 /*flags*/ , wxT("Helpstring") , wxT("group")) // style
-wxEND_PROPERTIES_TABLE()
-
-wxBEGIN_HANDLERS_TABLE(wxListCtrl)
-wxEND_HANDLERS_TABLE()
-
-wxCONSTRUCTOR_5( wxListCtrl , wxWindow* , Parent , wxWindowID , Id , wxPoint , Position , wxSize , Size , long , WindowStyle )
-
-/*
- TODO : Expose more information of a list's layout etc. via appropriate objects (a la NotebookPageInfo)
-*/
-#else
-IMPLEMENT_DYNAMIC_CLASS(wxListCtrl, wxControl)
-#endif
-
-IMPLEMENT_DYNAMIC_CLASS(wxListView, wxListCtrl)
-IMPLEMENT_DYNAMIC_CLASS(wxListItem, wxObject)
-
-IMPLEMENT_DYNAMIC_CLASS(wxListEvent, wxNotifyEvent)
 
 BEGIN_EVENT_TABLE(wxListCtrl, wxControl)
     EVT_PAINT(wxListCtrl::OnPaint)
@@ -1464,7 +1393,9 @@ bool wxListCtrl::DeleteItem(long item)
 // Deletes all items
 bool wxListCtrl::DeleteAllItems()
 {
-    return ListView_DeleteAllItems(GetHwnd()) != 0;
+    // Calling ListView_DeleteAllItems() will always generate an event but we
+    // shouldn't do it if the control is empty
+    return !GetItemCount() || ListView_DeleteAllItems(GetHwnd()) != 0;
 }
 
 // Deletes all items
@@ -1511,7 +1442,7 @@ void wxListCtrl::InitEditControl(WXHWND hWnd)
     m_textCtrl->SubclassWin(hWnd);
     m_textCtrl->SetParent(this);
 
-    // we must disallow TABbing away from the control while the edit contol is
+    // we must disallow TABbing away from the control while the edit control is
     // shown because this leaves it in some strange state (just try removing
     // this line and then pressing TAB while editing an item in  listctrl
     // inside a panel)
@@ -1890,8 +1821,8 @@ int CALLBACK wxInternalDataCompareFunc(LPARAM lParam1, LPARAM lParam2,  LPARAM l
     wxMSWListItemData *data1 = (wxMSWListItemData *) lParam1;
     wxMSWListItemData *data2 = (wxMSWListItemData *) lParam2;
 
-    long d1 = (data1 == NULL ? 0 : data1->lParam);
-    long d2 = (data2 == NULL ? 0 : data2->lParam);
+    wxIntPtr d1 = (data1 == NULL ? 0 : data1->lParam);
+    wxIntPtr d2 = (data2 == NULL ? 0 : data2->lParam);
 
     return internalData->user_fn(d1, d2, internalData->data);
 
@@ -2235,22 +2166,6 @@ bool wxListCtrl::MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result)
                 eventType = wxEVT_COMMAND_LIST_DELETE_ITEM;
                 event.m_itemIndex = iItem;
 
-                // delete the associated internal data
-                if ( wxMSWListItemData *data = MSWGetItemData(iItem) )
-                {
-                    const unsigned count = m_internalData.size();
-                    for ( unsigned n = 0; n < count; n++ )
-                    {
-                        if ( m_internalData[n] == data )
-                        {
-                            m_internalData.erase(m_internalData.begin() + n);
-                            wxDELETE(data);
-                            break;
-                        }
-                    }
-
-                    wxASSERT_MSG( !data, "invalid internal data pointer?" );
-                }
                 break;
 
             case LVN_INSERTITEM:
@@ -2338,10 +2253,15 @@ bool wxListCtrl::MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result)
                     {
                         eventType = wxEVT_COMMAND_LIST_KEY_DOWN;
 
-                        // wxCharCodeMSWToWX() returns 0 if the key is an ASCII
-                        // value which should be used as is
-                        int code = wxCharCodeMSWToWX(wVKey);
-                        event.m_code = code ? code : wVKey;
+                        event.m_code = wxMSWKeyboard::VKToWX(wVKey);
+
+                        if ( event.m_code == WXK_NONE )
+                        {
+                            // We can't translate this to a standard key code,
+                            // until support for Unicode key codes is added to
+                            // wxListEvent we just ignore them.
+                            return false;
+                        }
                     }
 
                     event.m_itemIndex =
@@ -2447,12 +2367,8 @@ bool wxListCtrl::MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result)
 
 #ifdef HAVE_NMLVFINDITEM
             case LVN_ODFINDITEM:
-                // this message is only used with the virtual list control but
-                // even there we don't want to always use it: in a control with
-                // sufficiently big number of items (defined as > 1000 here),
-                // accidentally pressing a key could result in hanging an
-                // application waiting while it performs linear search
-                if ( IsVirtual() && GetItemCount() <= 1000 )
+                // Find an item in a (necessarily virtual) list control.
+                if ( IsVirtual() )
                 {
                     NMLVFINDITEM* pFindInfo = (NMLVFINDITEM*)lParam;
 
@@ -2472,22 +2388,34 @@ bool wxListCtrl::MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result)
 
                     // this is the first item we should examine, search from it
                     // wrapping if necessary
-                    const int startPos = pFindInfo->iStart;
+                    int startPos = pFindInfo->iStart;
                     const int maxPos = GetItemCount();
-                    wxCHECK_MSG( startPos <= maxPos, false,
-                                 wxT("bad starting position in LVN_ODFINDITEM") );
 
-                    int currentPos = startPos;
-                    do
+                    // Check that the index is valid to ensure that our loop
+                    // below always terminates.
+                    if ( startPos < 0 || startPos >= maxPos )
                     {
-                        // wrap to the beginning if necessary
-                        if ( currentPos == maxPos )
+                        // When the last item in the control is selected,
+                        // iStart is really set to (invalid) maxPos index so
+                        // accept this silently.
+                        if ( startPos != maxPos )
                         {
-                            // somewhat surprisingly, LVFI_WRAP isn't set in
-                            // flags but we still should wrap
-                            currentPos = 0;
+                            wxLogDebug(wxT("Ignoring invalid search start ")
+                                       wxT("position %d in list control with ")
+                                       wxT("%d items."), startPos, maxPos);
                         }
 
+                        startPos = 0;
+                    }
+
+                    // Linear search in a control with a lot of items can take
+                    // a long time so we limit the total time of the search to
+                    // ensure that the program doesn't appear to hang.
+#if wxUSE_STOPWATCH
+                    wxStopWatch sw;
+#endif // wxUSE_STOPWATCH
+                    for ( int currentPos = startPos; ; )
+                    {
                         // does this item begin with searchstr?
                         if ( wxStrnicmp(searchstr,
                                             GetItemText(currentPos), len) == 0 )
@@ -2495,13 +2423,46 @@ bool wxListCtrl::MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result)
                             *result = currentPos;
                             break;
                         }
-                    }
-                    while ( ++currentPos != startPos );
 
-                    if ( *result == -1 )
-                    {
-                        // not found
-                        return false;
+                        // Go to next item with wrapping if necessary.
+                        if ( ++currentPos == maxPos )
+                        {
+                            // Surprisingly, LVFI_WRAP seems to be never set in
+                            // the flags so wrap regardless of it.
+                            currentPos = 0;
+                        }
+
+                        if ( currentPos == startPos )
+                        {
+                            // We examined all items without finding anything.
+                            //
+                            // Notice that we still return true as we did
+                            // perform the search, if we didn't do this the
+                            // message would have been considered unhandled and
+                            // the control seems to always select the first
+                            // item by default in this case.
+                            return true;
+                        }
+
+#if wxUSE_STOPWATCH
+                        // Check the time elapsed only every thousand
+                        // iterations for performance reasons: if we did it
+                        // more often calling wxStopWatch::Time() could take
+                        // noticeable time on its own.
+                        if ( !((currentPos - startPos)%1000) )
+                        {
+                            // We use half a second to limit the search time
+                            // which is about as long as we can take without
+                            // annoying the user.
+                            if ( sw.Time() > 500 )
+                            {
+                                // As above, return true to prevent the control
+                                // from selecting the first item by default.
+                                return true;
+                            }
+                        }
+#endif // wxUSE_STOPWATCH
+
                     }
 
                     SetItemState(*result,
@@ -2600,6 +2561,27 @@ bool wxListCtrl::MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result)
             // with the real one
             m_count = 0;
             return true;
+
+        case LVN_DELETEITEM:
+            // Delete the associated internal data. Notice that this can be
+            // done only after the event has been handled as the data could be
+            // accessed during the handling of the event.
+            if ( wxMSWListItemData *data = MSWGetItemData(event.m_itemIndex) )
+            {
+                const unsigned count = m_internalData.size();
+                for ( unsigned n = 0; n < count; n++ )
+                {
+                    if ( m_internalData[n] == data )
+                    {
+                        m_internalData.erase(m_internalData.begin() + n);
+                        wxDELETE(data);
+                        break;
+                    }
+                }
+
+                wxASSERT_MSG( !data, "invalid internal data pointer?" );
+            }
+            break;
 
         case LVN_ENDLABELEDITA:
         case LVN_ENDLABELEDITW:

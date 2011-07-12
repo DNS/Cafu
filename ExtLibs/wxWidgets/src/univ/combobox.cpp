@@ -105,8 +105,6 @@ BEGIN_EVENT_TABLE(wxComboListBox, wxListBox)
     EVT_LEFT_UP(wxComboListBox::OnLeftUp)
 END_EVENT_TABLE()
 
-IMPLEMENT_DYNAMIC_CLASS2(wxComboBox, wxControl, wxComboCtrl)
-
 // ============================================================================
 // implementation
 // ============================================================================
@@ -275,12 +273,13 @@ wxComboBox::~wxComboBox()
 
 wxString wxComboBox::DoGetValue() const
 {
-    return wxComboCtrl::GetValue();
+    return GetTextCtrl() ? GetTextCtrl()->GetValue() : wxString();
 }
 
 void wxComboBox::SetValue(const wxString& value)
 {
-    wxComboCtrl::SetValue(value);
+    if ( GetTextCtrl() )
+        GetTextCtrl()->SetValue(value);
 }
 
 void wxComboBox::WriteText(const wxString& value)
@@ -411,7 +410,7 @@ void wxComboBox::SetSelection(int n)
 
 int wxComboBox::GetSelection() const
 {
-#if 1 // FIXME:: What is the correct behavior?
+#if 1 // FIXME:: What is the correct behaviour?
     // if the current value isn't one of the listbox strings, return -1
     return GetLBox()->GetSelection();
 #else

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        dialog.h
+// Name:        wx/osx/dialog.h
 // Purpose:     wxDialog class
 // Author:      Stefan Csomor
 // Modified by:
@@ -13,8 +13,6 @@
 #define _WX_DIALOG_H_
 
 #include "wx/panel.h"
-
-WXDLLIMPEXP_DATA_CORE(extern const char) wxDialogNameStr[];
 
 class WXDLLIMPEXP_FWD_CORE wxMacToolTip ;
 class WXDLLIMPEXP_FWD_CORE wxModalEventLoop ;
@@ -56,12 +54,12 @@ public:
 
     // show the dialog modally and return the value passed to EndModal()
     virtual int ShowModal();
-    
+
     virtual void ShowWindowModal();
 
     // may be called to terminate the dialog with the given return code
     virtual void EndModal(int retCode);
-    
+
     static bool OSXHasModalDialogsOpen();
     static void OSXBeginModalDialog();
     static void OSXEndModalDialog();
@@ -70,13 +68,13 @@ public:
     // --------------
 
     wxDialogModality GetModality() const;
-    
+
 #if wxOSX_USE_COCOA
     virtual void ModalFinishedCallback(void* WXUNUSED(panel), int WXUNUSED(returnCode)) {}
 #endif
 
 protected:
-    // show window modal dialog 
+    // show window modal dialog
     void DoShowWindowModal();
 
     // end window modal dialog.
@@ -87,7 +85,7 @@ protected:
 
 
     wxDialogModality m_modality;
-    
+
     wxModalEventLoop* m_eventLoop;
 
 private:

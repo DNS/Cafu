@@ -64,8 +64,6 @@ gtkcombobox_popupshown_callback(GObject *WXUNUSED(gobject),
 // wxComboBox
 //-----------------------------------------------------------------------------
 
-IMPLEMENT_DYNAMIC_CLASS(wxComboBox, wxChoice)
-
 BEGIN_EVENT_TABLE(wxComboBox, wxChoice)
     EVT_CHAR(wxComboBox::OnChar)
 
@@ -118,7 +116,7 @@ bool wxComboBox::Create( wxWindow *parent, wxWindowID id, const wxString& value,
     }
 
     if (HasFlag(wxCB_SORT))
-        m_strings = new wxSortedArrayString();
+        m_strings = new wxGtkCollatedArrayString();
 
     GTKCreateComboBoxWidget();
 
@@ -136,7 +134,7 @@ bool wxComboBox::Create( wxWindow *parent, wxWindowID id, const wxString& value,
         gtk_entry_set_activates_default( entry,
                                          !HasFlag(wxTE_PROCESS_ENTER) );
 
-        gtk_entry_set_editable( entry, TRUE );
+        gtk_editable_set_editable(GTK_EDITABLE(entry), true);
     }
 
     Append(n, choices);
@@ -157,7 +155,7 @@ bool wxComboBox::Create( wxWindow *parent, wxWindowID id, const wxString& value,
             // wxMSW and also because it doesn't make sense to have a string
             // which is not a possible choice in a read-only combobox)
             SetStringSelection(value);
-            gtk_entry_set_editable( entry, FALSE );
+            gtk_editable_set_editable(GTK_EDITABLE(entry), false);
         }
         else // editable combobox
         {
@@ -188,12 +186,12 @@ void wxComboBox::GTKCreateComboBoxWidget()
     m_widget = gtk_combo_box_entry_new_text();
     g_object_ref(m_widget);
 
-    m_entry = GTK_ENTRY(GTK_BIN(m_widget)->child);
+    m_entry = GTK_ENTRY(gtk_bin_get_child(GTK_BIN(m_widget)));
 }
 
 GtkEditable *wxComboBox::GetEditable() const
 {
-    return GTK_EDITABLE( GTK_BIN(m_widget)->child );
+    return GTK_EDITABLE(gtk_bin_get_child(GTK_BIN(m_widget)));
 }
 
 void wxComboBox::OnChar( wxKeyEvent &event )
@@ -229,12 +227,12 @@ void wxComboBox::EnableTextChangedEvents(bool enable)
 
     if ( enable )
     {
-        g_signal_handlers_unblock_by_func(GTK_BIN(m_widget)->child,
+        g_signal_handlers_unblock_by_func(gtk_bin_get_child(GTK_BIN(m_widget)),
             (gpointer)gtkcombobox_text_changed_callback, this);
     }
     else // disable
     {
-        g_signal_handlers_block_by_func(GTK_BIN(m_widget)->child,
+        g_signal_handlers_block_by_func(gtk_bin_get_child(GTK_BIN(m_widget)),
             (gpointer)gtkcombobox_text_changed_callback, this);
     }
 }
@@ -266,7 +264,7 @@ GtkWidget* wxComboBox::GetConnectWidget()
 
 GdkWindow* wxComboBox::GTKGetWindow(wxArrayGdkWindows& /* windows */) const
 {
-    return GetEntry()->text_area;
+    return gtk_entry_get_text_window(GetEntry());
 }
 
 // static
@@ -274,6 +272,14 @@ wxVisualAttributes
 wxComboBox::GetClassDefaultAttributes(wxWindowVariant WXUNUSED(variant))
 {
     return GetDefaultAttributesFromGTKWidget(gtk_combo_box_entry_new, true);
+}
+
+void wxComboBox::SetValue(const wxString& value)
+{
+    if ( HasFlag(wxCB_READONLY) )
+        SetStringSelection(value);
+    else
+        wxTextEntry::SetValue(value);
 }
 
 // ----------------------------------------------------------------------------

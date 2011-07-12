@@ -38,6 +38,7 @@
 #endif
 
 #include "wx/evtloop.h"
+#include "wx/unix/utilsx11.h"
 
 #if  wxUSE_DRAG_AND_DROP
     #include "wx/dnd.h"
@@ -130,8 +131,6 @@ static int str16len(const char *s)
 // ----------------------------------------------------------------------------
 // event tables
 // ----------------------------------------------------------------------------
-
-    IMPLEMENT_DYNAMIC_CLASS(wxWindow, wxWindowBase)
 
     BEGIN_EVENT_TABLE(wxWindow, wxWindowBase)
         EVT_SYS_COLOUR_CHANGED(wxWindow::OnSysColourChanged)
@@ -688,10 +687,10 @@ bool wxWindow::SetCursor(const wxCursor& cursor)
         return false;
     }
 
-    //    wxASSERT_MSG( m_cursor.Ok(),
+    //    wxASSERT_MSG( m_cursor.IsOk(),
     //                  wxT("cursor must be valid after call to the base version"));
     const wxCursor* cursor2 = NULL;
-    if (m_cursor.Ok())
+    if (m_cursor.IsOk())
         cursor2 = & m_cursor;
     else
         cursor2 = wxSTANDARD_CURSOR;
@@ -1455,7 +1454,7 @@ int wxWindow::GetCharHeight() const
 {
     int height;
 
-    if (m_font.Ok())
+    if (m_font.IsOk())
         wxGetTextExtent (GetXDisplay(), m_font, 1.0,
                          "x", NULL, &height, NULL, NULL);
     else
@@ -1468,7 +1467,7 @@ int wxWindow::GetCharWidth() const
 {
     int width;
 
-    if (m_font.Ok())
+    if (m_font.IsOk())
         wxGetTextExtent (GetXDisplay(), m_font, 1.0,
                          "x", &width, NULL, NULL, NULL);
     else
@@ -1487,7 +1486,7 @@ void wxWindow::DoGetTextExtent(const wxString& string,
 
     if (externalLeading)
         *externalLeading = 0;
-    if (fontToUse->Ok())
+    if (fontToUse->IsOk())
         wxGetTextExtent (GetXDisplay(), *fontToUse, 1.0,
                          string, x, y, NULL, descent);
     else
@@ -1653,14 +1652,6 @@ void wxWindow::OnSysColourChanged(wxSysColourChangedEvent& event)
     }
 }
 
-void wxWindow::OnInternalIdle()
-{
-    // This calls the UI-update mechanism (querying windows for
-    // menu/toolbar/control state information)
-    if (wxUpdateUIEvent::CanUpdate(this) && IsShownOnScreen())
-        UpdateWindowUI(wxUPDATE_UI_FROMIDLE);
-}
-
 // ----------------------------------------------------------------------------
 // accelerators
 // ----------------------------------------------------------------------------
@@ -1668,7 +1659,7 @@ void wxWindow::OnInternalIdle()
 bool wxWindow::ProcessAccelerator(wxKeyEvent& event)
 {
 #if wxUSE_ACCEL
-    if (!m_acceleratorTable.Ok())
+    if (!m_acceleratorTable.IsOk())
         return false;
 
     int count = m_acceleratorTable.GetCount();
@@ -2498,7 +2489,7 @@ void wxWindow::ChangeFont(bool keepOriginalSize)
     // to its original size! We therefore have to set the size
     // back again. TODO: a better way in Motif?
     Widget w = (Widget) GetLabelWidget(); // Usually the main widget
-    if (w && m_font.Ok())
+    if (w && m_font.IsOk())
     {
         int width, height, width1, height1;
         GetSize(& width, & height);

@@ -33,7 +33,7 @@ class WXDLLIMPEXP_FWD_CORE wxTopLevelWindowBase;
 // ----------------------------------------------------------------------------
 
 /*
-    Summary of the bits used (some of them are defined in wx/frame.g and
+    Summary of the bits used (some of them are defined in wx/frame.h and
     wx/dialog.h and not here):
 
     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
@@ -200,10 +200,10 @@ public:
 
     // maximize the window to cover entire screen
     virtual bool ShowFullScreen(bool show, long style = wxFULLSCREEN_ALL) = 0;
-    
+
     // shows the window, but doesn't activate it. If the base code is being run,
     // it means the port doesn't implement this method yet and so alert the user.
-    virtual void ShowWithoutActivating() { 
+    virtual void ShowWithoutActivating() {
         wxFAIL_MSG("ShowWithoutActivating not implemented on this platform.");
     }
 
@@ -246,6 +246,10 @@ public:
     // centre the window on screen: this is just a shortcut
     void CentreOnScreen(int dir = wxBOTH) { DoCentre(dir | wxCENTRE_ON_SCREEN); }
     void CenterOnScreen(int dir = wxBOTH) { CentreOnScreen(dir); }
+
+    // Get the default size for a new top level window. This is used when
+    // creating a wxTLW under some platforms if no explicit size given.
+    static wxSize GetDefaultSize();
 
 
     // default item access: we have a permanent default item which is the one
@@ -296,7 +300,7 @@ public:
     // a different API for SetSizeHints
     virtual void SetMinSize(const wxSize& minSize);
     virtual void SetMaxSize(const wxSize& maxSize);
-    
+
     virtual void OSXSetModified(bool modified) { m_modified = modified; }
     virtual bool OSXIsModified() const { return m_modified; }
 
@@ -331,10 +335,6 @@ protected:
     // client area
     void DoLayout();
 
-    // Get the default size for the new window if no explicit size given. If
-    // there are better default sizes then these can be changed, just as long
-    // as they are not too small for TLWs (and not larger than screen).
-    static wxSize GetDefaultSize();
     static int WidthDefault(int w) { return w == wxDefaultCoord ? GetDefaultSize().x : w; }
     static int HeightDefault(int h) { return h == wxDefaultCoord ? GetDefaultSize().y : h; }
 
@@ -347,7 +347,7 @@ protected:
 
     // a temporary override of m_winDefault, use the latter if NULL
     wxWindowRef m_winTmpDefault;
-    
+
     bool m_modified;
 
     wxDECLARE_NO_COPY_CLASS(wxTopLevelWindowBase);

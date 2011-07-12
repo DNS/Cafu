@@ -4,7 +4,7 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     2008-06-20
-// RCS-ID:      $Id: window.mm 48805 2007-09-19 14:52:25Z SC $
+// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -329,8 +329,8 @@ void wxOSXIPhoneClassAddWXMethods(Class c)
 
 IMPLEMENT_DYNAMIC_CLASS( wxWidgetIPhoneImpl , wxWidgetImpl )
 
-wxWidgetIPhoneImpl::wxWidgetIPhoneImpl( wxWindowMac* peer , WXWidget w, bool isRootControl ) :
-    wxWidgetImpl( peer, isRootControl ), m_osxView(w)
+wxWidgetIPhoneImpl::wxWidgetIPhoneImpl( wxWindowMac* peer , WXWidget w, bool isRootControl, bool isUserPane ) :
+    wxWidgetImpl( peer, isRootControl, isUserPane ), m_osxView(w)
 {
 }
 
@@ -391,6 +391,8 @@ void wxWidgetIPhoneImpl::Move(int x, int y, int width, int height)
     CGRect r = CGRectMake( x, y, width, height) ;
     [m_osxView setFrame:r];
 }
+
+
 
 void wxWidgetIPhoneImpl::GetPosition( int &x, int &y ) const
 {
@@ -477,7 +479,14 @@ void wxWidgetIPhoneImpl::SetBackgroundColour( const wxColour &col )
 
 bool wxWidgetIPhoneImpl::SetBackgroundStyle(wxBackgroundStyle style) 
 {
-    [m_osxView setOpaque: (style == wxBG_STYLE_PAINT) ];
+    if ( style == wxBG_STYLE_PAINT )
+        [m_osxView setOpaque: YES ];
+    else
+    {
+        [m_osxView setOpaque: NO ];
+        m_osxView.backgroundColor = [UIColor clearColor];
+    }
+    return true;
 }
 
 void wxWidgetIPhoneImpl::SetLabel(const wxString& title, wxFontEncoding encoding)
@@ -584,6 +593,14 @@ void wxWidgetIPhoneImpl::SetControlSize( wxWindowVariant variant )
 {
 }
 
+float wxWidgetIPhoneImpl::GetContentScaleFactor() const 
+{
+    if ( [m_osxView respondsToSelector:@selector(contentScaleFactor) ])
+        return [m_osxView contentScaleFactor];
+    else 
+        return 1.0;
+}
+
 void wxWidgetIPhoneImpl::SetFont( const wxFont & font , const wxColour& foreground , long windowStyle, bool ignoreBlack )
 {
 }
@@ -681,10 +698,10 @@ void wxWidgetIPhoneImpl::drawRect(CGRect* rect, WXWidget slf, void *WXUNUSED(_cm
     CGContextRef context = (CGContextRef) UIGraphicsGetCurrentContext();
     CGContextSaveGState( context );
     // draw background
-
+/*
     CGContextSetFillColorWithColor( context, GetWXPeer()->GetBackgroundColour().GetCGColor());
     CGContextFillRect(context, *rect );
-
+*/
     GetWXPeer()->MacSetCGContextRef( context );
 
     GetWXPeer()->GetUpdateRegion() =
@@ -783,7 +800,7 @@ wxWidgetImpl* wxWidgetImpl::CreateUserPane( wxWindowMac* wxpeer, wxWindowMac* WX
     sv.clipsToBounds = YES;
     sv.contentMode =  UIViewContentModeRedraw;
     sv.clearsContextBeforeDrawing = NO;
-    wxWidgetIPhoneImpl* c = new wxWidgetIPhoneImpl( wxpeer, v );
+    wxWidgetIPhoneImpl* c = new wxWidgetIPhoneImpl( wxpeer, v, false, true );
     return c;
 }
 

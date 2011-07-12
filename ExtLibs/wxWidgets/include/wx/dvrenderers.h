@@ -116,7 +116,13 @@ public:
 
     virtual void SetAttr(const wxDataViewItemAttr& WXUNUSED(attr)) { }
 
+    virtual void SetEnabled(bool WXUNUSED(enabled)) { }
+
     wxString GetVariantType() const             { return m_variantType; }
+
+    // helper that calls SetValue and SetAttr:
+    void PrepareForItem(const wxDataViewModel *model,
+                        const wxDataViewItem& item, unsigned column);
 
     // renderer properties:
     virtual void SetMode( wxDataViewCellMode mode ) = 0;
@@ -139,11 +145,11 @@ public:
     // in-place editing
     virtual bool HasEditorCtrl() const
         { return false; }
-    virtual wxControl* CreateEditorCtrl(wxWindow * WXUNUSED(parent),
-                                        wxRect WXUNUSED(labelRect),
-                                        const wxVariant& WXUNUSED(value))
+    virtual wxWindow* CreateEditorCtrl(wxWindow * WXUNUSED(parent),
+                                       wxRect WXUNUSED(labelRect),
+                                       const wxVariant& WXUNUSED(value))
         { return NULL; }
-    virtual bool GetValueFromEditorCtrl(wxControl * WXUNUSED(editor),
+    virtual bool GetValueFromEditorCtrl(wxWindow * WXUNUSED(editor),
                                         wxVariant& WXUNUSED(value))
         { return false; }
 
@@ -151,7 +157,10 @@ public:
     virtual void CancelEditing();
     virtual bool FinishEditing();
 
-    wxControl *GetEditorCtrl() { return m_editorCtrl; }
+    wxWindow *GetEditorCtrl() { return m_editorCtrl; }
+
+    virtual bool IsCustomRenderer() const { return false; }
+
 
 protected:
     // Called from {Cancel,Finish}Editing() to cleanup m_editorCtrl
@@ -159,7 +168,7 @@ protected:
 
     wxString                m_variantType;
     wxDataViewColumn       *m_owner;
-    wxWeakRef<wxControl>    m_editorCtrl;
+    wxWeakRef<wxWindow>     m_editorCtrl;
     wxDataViewItem          m_item; // for m_editorCtrl
 
     // internal utility:
@@ -221,21 +230,21 @@ public:
     // to drag it: by default they all simply return false indicating that the
     // events are not handled
 
-    virtual bool Activate(wxRect WXUNUSED(cell),
+    virtual bool Activate(const wxRect& WXUNUSED(cell),
                           wxDataViewModel *WXUNUSED(model),
                           const wxDataViewItem & WXUNUSED(item),
                           unsigned int WXUNUSED(col))
         { return false; }
 
-    virtual bool LeftClick(wxPoint WXUNUSED(cursor),
-                           wxRect WXUNUSED(cell),
+    virtual bool LeftClick(const wxPoint& WXUNUSED(cursor),
+                           const wxRect& WXUNUSED(cell),
                            wxDataViewModel *WXUNUSED(model),
                            const wxDataViewItem & WXUNUSED(item),
                            unsigned int WXUNUSED(col) )
         { return false; }
 
-    virtual bool StartDrag(wxPoint WXUNUSED(cursor),
-                           wxRect WXUNUSED(cell),
+    virtual bool StartDrag(const wxPoint& WXUNUSED(cursor),
+                           const wxRect& WXUNUSED(cell),
                            wxDataViewModel *WXUNUSED(model),
                            const wxDataViewItem & WXUNUSED(item),
                            unsigned int WXUNUSED(col) )
@@ -257,6 +266,11 @@ public:
     virtual void SetAttr(const wxDataViewItemAttr& attr) { m_attr = attr; }
     const wxDataViewItemAttr& GetAttr() const { return m_attr; }
 
+    // Store the enabled state of the item so that it can be accessed from
+    // Render() via GetEnabled() if needed.
+    virtual void SetEnabled(bool enabled) { m_enabled = enabled; }
+    bool GetEnabled() const { return m_enabled; }
+
 
     // Implementation only from now on
 
@@ -267,8 +281,15 @@ public:
     // Prepare DC to use attributes and call Render().
     void WXCallRender(wxRect rect, wxDC *dc, int state);
 
+    virtual bool IsCustomRenderer() const { return true; }
+
+protected:
+    // helper for GetSize() implementations, respects attributes
+    wxSize GetTextExtent(const wxString& str) const;
+
 private:
     wxDataViewItemAttr m_attr;
+    bool m_enabled;
 
     wxDECLARE_NO_COPY_CLASS(wxDataViewCustomRendererBase);
 };
@@ -301,8 +322,8 @@ public:
                             wxDataViewCellMode mode = wxDATAVIEW_CELL_EDITABLE,
                             int alignment = wxDVR_DEFAULT_ALIGNMENT );
     virtual bool HasEditorCtrl() const { return true; }
-    virtual wxControl* CreateEditorCtrl( wxWindow *parent, wxRect labelRect, const wxVariant &value );
-    virtual bool GetValueFromEditorCtrl( wxControl* editor, wxVariant &value );
+    virtual wxWindow* CreateEditorCtrl( wxWindow *parent, wxRect labelRect, const wxVariant &value );
+    virtual bool GetValueFromEditorCtrl( wxWindow* editor, wxVariant &value );
     virtual bool Render( wxRect rect, wxDC *dc, int state );
     virtual wxSize GetSize() const;
     virtual bool SetValue( const wxVariant &value );
@@ -326,8 +347,8 @@ public:
                             wxDataViewCellMode mode = wxDATAVIEW_CELL_EDITABLE,
                             int alignment = wxDVR_DEFAULT_ALIGNMENT );
     virtual bool HasEditorCtrl() const { return true; }
-    virtual wxControl* CreateEditorCtrl( wxWindow *parent, wxRect labelRect, const wxVariant &value );
-    virtual bool GetValueFromEditorCtrl( wxControl* editor, wxVariant &value );
+    virtual wxWindow* CreateEditorCtrl( wxWindow *parent, wxRect labelRect, const wxVariant &value );
+    virtual bool GetValueFromEditorCtrl( wxWindow* editor, wxVariant &value );
     virtual bool Render( wxRect rect, wxDC *dc, int state );
     virtual wxSize GetSize() const;
     virtual bool SetValue( const wxVariant &value );
@@ -351,10 +372,10 @@ public:
     wxDataViewChoiceByIndexRenderer( const wxArrayString &choices,
                               wxDataViewCellMode mode = wxDATAVIEW_CELL_EDITABLE,
                               int alignment = wxDVR_DEFAULT_ALIGNMENT );
-                            
-    virtual wxControl* CreateEditorCtrl( wxWindow *parent, wxRect labelRect, const wxVariant &value );
-    virtual bool GetValueFromEditorCtrl( wxControl* editor, wxVariant &value );
-    
+
+    virtual wxWindow* CreateEditorCtrl( wxWindow *parent, wxRect labelRect, const wxVariant &value );
+    virtual bool GetValueFromEditorCtrl( wxWindow* editor, wxVariant &value );
+
     virtual bool SetValue( const wxVariant &value );
     virtual bool GetValue( wxVariant &value ) const;
 };

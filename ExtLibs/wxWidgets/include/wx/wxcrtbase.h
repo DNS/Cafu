@@ -188,9 +188,12 @@ WXDLLIMPEXP_BASE void *calloc( size_t num, size_t size );
 #endif /* __WXWINCE__ */
 
 /* Almost all compiler have strdup(), but not quite all: CodeWarrior under
-   Mac and VC++ for Windows CE don't provide it; additionally, gcc under
-   Mac and OpenVMS do not have wcsdup: */
-#if defined(__VISUALC__) && __VISUALC__ >= 1400
+   Mac and VC++ for Windows CE don't provide it. Another special case is gcc in
+   strict ANSI mode: normally it doesn't provide strdup() but MinGW does
+   provide it under MSVC-compatible name so test for it before checking
+   __WX_STRICT_ANSI_GCC__. */
+#if (defined(__VISUALC__) && __VISUALC__ >= 1400) || \
+    defined(__MINGW32__)
     #define wxCRT_StrdupA _strdup
 #elif !((defined(__MWERKS__) && defined(__WXMAC__)) || \
         defined(__WXWINCE__) || \
@@ -198,7 +201,7 @@ WXDLLIMPEXP_BASE void *calloc( size_t num, size_t size );
     #define wxCRT_StrdupA strdup
 #endif
 
-// most Windows compilers provide _wcsdup()
+/* most Windows compilers provide _wcsdup() */
 #if defined(__WINDOWS__) && \
         !(defined(__CYGWIN__) || defined(__WX_STRICT_ANSI_GCC__))
     #define wxCRT_StrdupW _wcsdup
@@ -449,7 +452,7 @@ WXDLLIMPEXP_BASE wchar_t *wxCRT_StrtokW(wchar_t *psz, const wchar_t *delim, wcha
                                                        wchar_t** endptr,
                                                        int base);
     #endif
-#endif // wxLongLong_t
+#endif /* wxLongLong_t */
 
 
 /* -------------------------------------------------------------------------
@@ -621,7 +624,7 @@ WXDLLIMPEXP_BASE wchar_t * wxCRT_GetenvW(const wchar_t *name);
 #endif
 
 #ifdef __DARWIN__
-    #if MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_2
+    #if !defined(__WXOSX_IPHONE__) && MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_2
         #define wxNEED_WX_MBSTOWCS
     #endif
 #endif
@@ -664,8 +667,14 @@ WXDLLIMPEXP_BASE wchar_t * wxCRT_GetenvW(const wchar_t *name);
     _xpg5_wcsftime(wchar_t *, size_t, const wchar_t *, const struct tm * );
     #define wxCRT_StrftimeW _xpg5_wcsftime
 #else
-    #ifndef __WXPALMOS__
-        // assume it's always available, this does seem to be the case for now
+    /*
+        Assume it's always available under non-Unix systems with the
+        exception of Palm OS, this does seem to be the case for now. And
+        under Unix we trust configure to detect it (except for SGI special
+        case above).
+     */
+    #if defined(HAVE_WCSFTIME) || \
+        !(defined(__UNIX__) || defined(__WXPALMOS__))
         #define wxCRT_StrftimeW  wcsftime
     #endif /* ! __WXPALMOS__ */
 #endif

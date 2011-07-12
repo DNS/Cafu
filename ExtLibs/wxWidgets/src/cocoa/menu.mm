@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        src/cocoa/menu.cpp
+// Name:        src/cocoa/menu.mm
 // Purpose:     wxMenu and wxMenuBar implementation
 // Author:      David Elliott
 // Modified by:
@@ -40,8 +40,6 @@
 // ============================================================================
 // wxMenu implementation
 // ============================================================================
-
-IMPLEMENT_DYNAMIC_CLASS(wxMenu,wxEvtHandler)
 
 bool wxMenu::Create(const wxString& title, long style)
 {
@@ -115,7 +113,6 @@ void wxMenu::Cocoa_dealloc()
 // ============================================================================
 // wxMenuBar implementation
 // ============================================================================
-IMPLEMENT_DYNAMIC_CLASS(wxMenuBar,wxWindow)
 
 bool wxMenuBar::Create(long style)
 {

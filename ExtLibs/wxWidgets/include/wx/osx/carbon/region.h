@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        region.h
+// Name:        wx/osx/carbon/region.h
 // Purpose:     wxRegion class
 // Author:      Stefan Csomor
 // Modified by:
@@ -40,7 +40,7 @@ public:
     virtual bool IsEmpty() const;
 
     // Internal
-    const WXHRGN GetWXHRGN() const ;
+    WXHRGN GetWXHRGN() const ;
 
 protected:
     virtual wxGDIRefData *CreateGDIRefData() const;

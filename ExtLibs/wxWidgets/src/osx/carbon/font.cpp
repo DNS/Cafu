@@ -31,8 +31,6 @@
 #include <map>
 #include <string>
 
-IMPLEMENT_DYNAMIC_CLASS(wxFont, wxGDIObject)
-
 class WXDLLEXPORT wxFontRefData: public wxGDIRefData
 {
 public:
@@ -177,7 +175,7 @@ public:
 
 #define M_FONTDATA ((wxFontRefData*)m_refData)
 
-wxFontRefData::wxFontRefData(const wxFontRefData& data)
+wxFontRefData::wxFontRefData(const wxFontRefData& data) : wxGDIRefData()
 {
     Init();
     m_info = data.m_info;
@@ -499,7 +497,7 @@ void wxFontRefData::MacFindFont()
                     {
                         CTFontSymbolicTraits remainingTraits = traits;
                         const CGAffineTransform* remainingTransform = NULL;
-                        
+
                         if( remainingTraits & kCTFontItalicTrait )
                         {
                             remainingTraits &= ~kCTFontItalicTrait;
@@ -515,19 +513,19 @@ void wxFontRefData::MacFindFont()
                                 }
                             }
                         }
-                        
+
                         if ( fontWithTraits == NULL )
                         {
                             fontWithTraits = CTFontCreateWithName( wxCFStringRef(m_info.m_faceName), m_info.m_pointSize, remainingTransform );
                         }
-                            
+
                     }
                     if ( fontWithTraits != NULL )
                         m_ctFont.reset(fontWithTraits);
                 }
             }
         }
-        
+
         m_cgFont.reset(CTFontCopyGraphicsFont(m_ctFont, NULL));
     }
 
@@ -732,10 +730,8 @@ wxSize wxFont::GetPixelSize() const
 #endif
 }
 
-wxFontFamily wxFont::GetFamily() const
+wxFontFamily wxFont::DoGetFamily() const
 {
-    wxCHECK_MSG( M_FONTDATA != NULL , wxFONTFAMILY_MAX, wxT("invalid font") );
-
     return M_FONTDATA->GetFamily();
 }
 
@@ -816,7 +812,6 @@ void * wxFont::MacGetATSUStyle() const
     return M_FONTDATA->m_macATSUStyle;
 }
 
-#if WXWIN_COMPATIBILITY_2_8
 wxUint32 wxFont::MacGetATSUFontID() const
 {
     wxCHECK_MSG( M_FONTDATA != NULL, 0, wxT("invalid font") );
@@ -836,8 +831,6 @@ wxUint32 wxFont::MacGetATSUAdditionalQDStyles() const
 
     return M_FONTDATA->m_info.m_atsuAdditionalQDStyles;
 }
-#endif
-
 #endif
 
 #if wxOSX_USE_CORE_TEXT
@@ -888,10 +881,10 @@ NSFont* wxFont::OSXGetNSFont() const
 UIFont* wxFont::OSXGetUIFont() const
 {
     wxCHECK_MSG( M_FONTDATA != NULL , 0, wxT("invalid font") );
-    
+
     // cast away constness otherwise lazy font resolution is not possible
     const_cast<wxFont *>(this)->RealizeResource();
-    
+
     return (M_FONTDATA->m_uiFont);
 }
 
@@ -900,7 +893,7 @@ UIFont* wxFont::OSXGetUIFont() const
 const wxNativeFontInfo * wxFont::GetNativeFontInfo() const
 {
     wxCHECK_MSG( M_FONTDATA != NULL , NULL, wxT("invalid font") );
-    wxCHECK_MSG( Ok(), NULL, wxT("invalid font") );
+    wxCHECK_MSG( IsOk(), NULL, wxT("invalid font") );
 
     // cast away constness otherwise lazy font resolution is not possible
     const_cast<wxFont *>(this)->RealizeResource();

@@ -4,7 +4,7 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     1998-01-01
-// RCS-ID:      $Id: combobox.mm 54129 2008-06-11 19:30:52Z SC $
+// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,17 @@
 #include "wx/osx/cocoa/private/textimpl.h"
 
 // work in progress
+
+@interface wxNSTableDataSource : NSObject wxOSX_10_6_AND_LATER(<NSComboBoxDataSource>)
+{
+    wxNSComboBoxControl* impl;
+}
+
+- (NSInteger)numberOfItemsInComboBox:(NSComboBox *)aComboBox;
+- (id)comboBox:(NSComboBox *)aComboBox objectValueForItemAtIndex:(NSInteger)index;
+
+@end
+
 
 @interface wxNSComboBox : NSComboBox
 {
@@ -78,7 +89,8 @@
 }
 @end
 
-wxNSComboBoxControl::wxNSComboBoxControl( wxWindow *wxPeer, WXWidget w ) : wxNSTextFieldControl(wxPeer, w)
+wxNSComboBoxControl::wxNSComboBoxControl( wxComboBox *wxPeer, WXWidget w )
+    : wxNSTextFieldControl(wxPeer, wxPeer, w)
 {
     m_comboBox = (NSComboBox*)w;
 }
@@ -94,9 +106,21 @@ int wxNSComboBoxControl::GetSelectedItem() const
 
 void wxNSComboBoxControl::SetSelectedItem(int item)
 {
-    wxASSERT_MSG(item >= 0 && item < [m_comboBox numberOfItems], "Inavlid item index.");
     SendEvents(false);
-    [m_comboBox selectItemAtIndex: item];
+
+    if ( item != wxNOT_FOUND )
+    {
+        wxASSERT_MSG( item >= 0 && item < [m_comboBox numberOfItems],
+                      "Inavlid item index." );
+        [m_comboBox selectItemAtIndex: item];
+    }
+    else // remove current selection (if we have any)
+    {
+        const int sel = GetSelectedItem();
+        if ( sel != wxNOT_FOUND )
+            [m_comboBox deselectItemAtIndex:sel];
+    }
+
     SendEvents(true);
 }
 
@@ -131,16 +155,20 @@ wxString wxNSComboBoxControl::GetStringAtIndex(int pos) const
 
 int wxNSComboBoxControl::FindString(const wxString& text) const
 {
-    int result = [m_comboBox indexOfItemWithObjectValue:wxCFStringRef( text , m_wxPeer->GetFont().GetEncoding() ).AsNSString()];
-    if (result == NSNotFound)
+    NSInteger nsresult = [m_comboBox indexOfItemWithObjectValue:wxCFStringRef( text , m_wxPeer->GetFont().GetEncoding() ).AsNSString()];
+
+    int result;
+    if (nsresult == NSNotFound)
         result = wxNOT_FOUND;
+    else
+        result = (int) nsresult;
     return result;
 }
 
-wxWidgetImplType* wxWidgetImpl::CreateComboBox( wxWindowMac* wxpeer, 
+wxWidgetImplType* wxWidgetImpl::CreateComboBox( wxComboBox* wxpeer, 
                                     wxWindowMac* WXUNUSED(parent), 
                                     wxWindowID WXUNUSED(id), 
-                                    wxMenu* menu,
+                                    wxMenu* WXUNUSED(menu),
                                     const wxPoint& pos, 
                                     const wxSize& size,
                                     long style, 

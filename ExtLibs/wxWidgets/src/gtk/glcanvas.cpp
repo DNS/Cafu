@@ -16,15 +16,9 @@
 
 #include "wx/glcanvas.h"
 
-#ifndef WX_PRECOMP
-    #include "wx/app.h"
-    #include "wx/frame.h"
-    #include "wx/colour.h"
-    #include "wx/module.h"
-#endif // WX_PRECOMP
-
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
+#include "wx/gtk/private/gtk2-compat.h"
 
 #if WXWIN_COMPATIBILITY_2_8
 
@@ -203,9 +197,12 @@ bool wxGLCanvas::Create(wxWindow *parent,
                         long style,
                         const wxString& name,
                         const int *attribList,
-                        const wxPalette& WXUNUSED_UNLESS_DEBUG(palette))
+                        const wxPalette& palette)
 {
+#if wxUSE_PALETTE
     wxASSERT_MSG( !palette.IsOk(), wxT("palettes not supported") );
+#endif // wxUSE_PALETTE
+    wxUnusedVar(palette); // Unused when wxDEBUG_LEVEL==0
 
     m_exposed = false;
     m_noExpose = true;
@@ -235,11 +232,11 @@ bool wxGLCanvas::Create(wxWindow *parent,
     // if our parent window is already visible, we had been realized before we
     // connected to the "realize" signal and hence our m_glContext hasn't been
     // initialized yet and we have to do it now
-    if (GTK_WIDGET_REALIZED(m_wxwindow))
+    if (gtk_widget_get_realized(m_wxwindow))
         gtk_glwindow_realized_callback( m_wxwindow, this );
 #endif // WXWIN_COMPATIBILITY_2_8
 
-    if (GTK_WIDGET_MAPPED(m_wxwindow))
+    if (gtk_widget_get_mapped(m_wxwindow))
         gtk_glwindow_map_callback( m_wxwindow, this );
 
     return true;

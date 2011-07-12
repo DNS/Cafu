@@ -4,7 +4,7 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     1998-01-01
-// RCS-ID:      $Id: slider.cpp 54129 2008-06-11 19:30:52Z SC $
+// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:       wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -15,8 +15,6 @@
 
 #include "wx/slider.h"
 #include "wx/osx/private.h"
-
-IMPLEMENT_DYNAMIC_CLASS(wxSlider, wxControl)
 
 BEGIN_EVENT_TABLE(wxSlider, wxControl)
 END_EVENT_TABLE()
@@ -59,9 +57,9 @@ bool wxSlider::Create(wxWindow *parent,
     const wxSize& size, long style,
     const wxValidator& validator,
     const wxString& name)
-{
-    m_macIsUserPane = false;
-
+{    
+    DontCreatePeer();
+    
     m_macMinimumStatic = NULL;
     m_macMaximumStatic = NULL;
     m_macValueStatic = NULL;
@@ -105,7 +103,7 @@ bool wxSlider::Create(wxWindow *parent,
     if ( !wxControl::Create(parent, id, pos, size, style, validator, name) )
         return false;
 
-    m_peer = wxWidgetImpl::CreateSlider( this, parent, id, value, minValue, maxValue, pos, size, style, GetExtraStyle() );
+    SetPeer(wxWidgetImpl::CreateSlider( this, parent, id, value, minValue, maxValue, pos, size, style, GetExtraStyle() ));
 
     if (style & wxSL_VERTICAL)
         // Forces SetSize to use the proper width
@@ -148,7 +146,7 @@ wxSlider::~wxSlider()
 int wxSlider::GetValue() const
 {
     // We may need to invert the value returned by the widget
-    return ValueInvertOrNot( m_peer->GetValue() ) ;
+    return ValueInvertOrNot( GetPeer()->GetValue() ) ;
 }
 
 void wxSlider::SetValue(int value)
@@ -161,18 +159,24 @@ void wxSlider::SetValue(int value)
     }
 
     // We only invert for the setting of the actual native widget
-    m_peer->SetValue( ValueInvertOrNot( value ) );
+    GetPeer()->SetValue( ValueInvertOrNot( value ) );
 }
 
 void wxSlider::SetRange(int minValue, int maxValue)
 {
+    // Changing the range preserves the value of the native control but may
+    // change our logical value if we're inverting the native value to get it
+    // as ValueInvertOrNot() depends on the range so preserve it before
+    // changing the range.
+    const int valueOld = GetValue();
+
     wxString value;
 
     m_rangeMin = minValue;
     m_rangeMax = maxValue;
 
-    m_peer->SetMinimum( m_rangeMin );
-    m_peer->SetMaximum( m_rangeMax );
+    GetPeer()->SetMinimum( m_rangeMin );
+    GetPeer()->SetMaximum( m_rangeMax );
 
     if (m_macMinimumStatic)
     {
@@ -196,10 +200,13 @@ void wxSlider::SetRange(int minValue, int maxValue)
         SetValue(m_rangeMin);
     else if(currentValue > m_rangeMax)
         SetValue(m_rangeMax);
+
+    // Ensure that our value didn't change.
+    SetValue(valueOld);
 }
 
 // For trackbars only
-void wxSlider::SetTickFreq(int n, int WXUNUSED(pos))
+void wxSlider::DoSetTickFreq(int n)
 {
     // TODO
     m_tickFreq = n;
@@ -281,7 +288,7 @@ void wxSlider::TriggerScrollEvent( wxEventType scrollEvent)
 {
     // Whatever the native value is, we may need to invert it for calling
     // SetValue and putting the possibly inverted value in the event
-    int value = ValueInvertOrNot( m_peer->GetValue() );
+    int value = ValueInvertOrNot( GetPeer()->GetValue() );
 
     SetValue( value );
 
@@ -429,7 +436,7 @@ void wxSlider::DoSetSize(int x, int y, int w, int h, int sizeFlags)
 
         if (GetWindowStyle() & wxSL_VERTICAL)
             // If vertical, use current value
-            text.Printf(wxT("%d"), (int)m_peer->GetValue());
+            text.Printf(wxT("%d"), (int)GetPeer()->GetValue());
         else
             // Use max so that the current value doesn't drift as centering would need to change
             text.Printf(wxT("%d"), m_rangeMax);

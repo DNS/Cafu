@@ -24,7 +24,6 @@
     #include "wx/log.h"
     #include "wx/utils.h"
     #include "wx/settings.h"
-    #include "wx/cmndata.h"
     #include "wx/gdicmn.h"
 #endif
 
@@ -267,8 +266,6 @@ void wxFontRefData::SetNativeFontInfo(const wxNativeFontInfo& info)
 // wxFont creation
 // ----------------------------------------------------------------------------
 
-IMPLEMENT_DYNAMIC_CLASS(wxFont, wxGDIObject)
-
 wxFont::wxFont(const wxNativeFontInfo& info)
 {
     Create( info.GetPointSize(),
@@ -333,10 +330,8 @@ wxString wxFont::GetFaceName() const
     return M_FONTDATA->m_nativeFontInfo.GetFaceName();
 }
 
-wxFontFamily wxFont::GetFamily() const
+wxFontFamily wxFont::DoGetFamily() const
 {
-    wxCHECK_MSG( IsOk(), wxFONTFAMILY_MAX, wxT("invalid font") );
-
     return M_FONTDATA->m_nativeFontInfo.GetFamily();
 }
 

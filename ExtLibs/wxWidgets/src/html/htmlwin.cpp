@@ -1149,6 +1149,7 @@ void wxHtmlWindow::OnPaint(wxPaintEvent& WXUNUSED(event))
     // draw the HTML window contents
     dc->SetMapMode(wxMM_TEXT);
     dc->SetBackgroundMode(wxBRUSHSTYLE_TRANSPARENT);
+    dc->SetLayoutDirection(GetLayoutDirection());
 
     wxHtmlRenderingInfo rinfo;
     wxDefaultHtmlRenderingStyle rstyle;
@@ -1575,7 +1576,7 @@ void wxHtmlWindow::SelectLine(const wxPoint& pos)
         {
             // We use following heuristic to find a "line": let the line be all
             // cells in same container as the cell under mouse cursor that are
-            // neither completely above nor completely bellow the clicked cell
+            // neither completely above nor completely below the clicked cell
             // (i.e. are likely to be words positioned on same line of text).
 
             int y1 = cell->GetAbsPos().y;
@@ -1639,9 +1640,6 @@ void wxHtmlWindow::SelectAll()
 
 IMPLEMENT_ABSTRACT_CLASS(wxHtmlProcessor,wxObject)
 
-#if wxUSE_EXTENDED_RTTI
-IMPLEMENT_DYNAMIC_CLASS_XTI(wxHtmlWindow, wxScrolledWindow,"wx/html/htmlwin.h")
-
 wxBEGIN_PROPERTIES_TABLE(wxHtmlWindow)
 /*
     TODO PROPERTIES
@@ -1656,9 +1654,8 @@ wxBEGIN_HANDLERS_TABLE(wxHtmlWindow)
 wxEND_HANDLERS_TABLE()
 
 wxCONSTRUCTOR_5( wxHtmlWindow , wxWindow* , Parent , wxWindowID , Id , wxPoint , Position , wxSize , Size , long , WindowStyle )
-#else
-IMPLEMENT_DYNAMIC_CLASS(wxHtmlWindow,wxScrolledWindow)
-#endif
+
+wxIMPLEMENT_DYNAMIC_CLASS_XTI(wxHtmlWindow, wxScrolledWindow,"wx/html/htmlwin.h")
 
 BEGIN_EVENT_TABLE(wxHtmlWindow, wxScrolledWindow)
     EVT_SIZE(wxHtmlWindow::OnSize)

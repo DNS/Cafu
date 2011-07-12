@@ -1004,6 +1004,16 @@ public:
       iterator operator-(ptrdiff_t n) const
         { return iterator(str(), wxStringOperations::AddToIter(m_cur, -n)); }
 
+      // Normal iterators need to be comparable with the const_iterators so
+      // declare the comparison operators and implement them below after the
+      // full const_iterator declaration.
+      bool operator==(const const_iterator& i) const;
+      bool operator!=(const const_iterator& i) const;
+      bool operator<(const const_iterator& i) const;
+      bool operator>(const const_iterator& i) const;
+      bool operator<=(const const_iterator& i) const;
+      bool operator>=(const const_iterator& i) const;
+
   private:
       iterator(wxString *wxstr, underlying_iterator ptr)
           : m_cur(ptr), m_node(wxstr, &m_cur) {}
@@ -1048,6 +1058,11 @@ public:
       const_iterator operator-(ptrdiff_t n) const
         { return const_iterator(str(), wxStringOperations::AddToIter(m_cur, -n)); }
 
+      // Notice that comparison operators taking non-const iterator are not
+      // needed here because of the implicit conversion from non-const iterator
+      // to const ones ensure that the versions for const_iterator declared
+      // inside WX_STR_ITERATOR_IMPL can be used.
+
   private:
       // for internal wxString use only:
       const_iterator(const wxString *wxstr, underlying_iterator ptr)
@@ -1083,6 +1098,15 @@ public:
       iterator operator-(ptrdiff_t n) const
         { return iterator(wxStringOperations::AddToIter(m_cur, -n)); }
 
+      // As in UTF-8 case above, define comparison operators taking
+      // const_iterator too.
+      bool operator==(const const_iterator& i) const;
+      bool operator!=(const const_iterator& i) const;
+      bool operator<(const const_iterator& i) const;
+      bool operator>(const const_iterator& i) const;
+      bool operator<=(const const_iterator& i) const;
+      bool operator>=(const const_iterator& i) const;
+
   private:
       // for internal wxString use only:
       iterator(underlying_iterator ptr) : m_cur(ptr) {}
@@ -1109,6 +1133,11 @@ public:
         { return const_iterator(wxStringOperations::AddToIter(m_cur, n)); }
       const_iterator operator-(ptrdiff_t n) const
         { return const_iterator(wxStringOperations::AddToIter(m_cur, -n)); }
+
+      // As in UTF-8 case above, we don't need comparison operators taking
+      // iterator because we have an implicit conversion from iterator to
+      // const_iterator so the operators declared by WX_STR_ITERATOR_IMPL will
+      // be used.
 
   private:
       // for internal wxString use only:
@@ -1316,12 +1345,13 @@ public:
   }
 #endif // wxUSE_STRING_POS_CACHE
 
-  // even if we're not built with wxUSE_STL == 1 it is very convenient to allow
-  // implicit conversions from std::string to wxString and vice verse as this
-  // allows to use the same strings in non-GUI and GUI code, however we don't
-  // want to unconditionally add this ctor as it would make wx lib dependent on
-  // libstdc++ on some Linux versions which is bad, so instead we ask the
-  // client code to define this wxUSE_STD_STRING symbol if they need it
+  // even if we're not built with wxUSE_STD_STRING_CONV_IN_WXSTRING == 1 it is
+  // very convenient to allow implicit conversions from std::string to wxString
+  // and vice verse as this allows to use the same strings in non-GUI and GUI
+  // code, however we don't want to unconditionally add this ctor as it would
+  // make wx lib dependent on libstdc++ on some Linux versions which is bad, so
+  // instead we ask the client code to define this wxUSE_STD_STRING symbol if
+  // they need it
 #if wxUSE_STD_STRING
   #if wxUSE_UNICODE_WCHAR
     wxString(const wxStdWideString& str) : m_impl(str) {}
@@ -1339,10 +1369,8 @@ public:
   #endif
 #endif // wxUSE_STD_STRING
 
-  // Unlike ctor from std::string, we provide conversion to std::string only
-  // if wxUSE_STL and not merely wxUSE_STD_STRING (which is on by default),
-  // because it conflicts with operator const char/wchar_t* but we still
-  // provide explicit conversions to std::[w]string for convenience in any case
+  // Also always provide explicit conversions to std::[w]string in any case,
+  // see below for the implicit ones.
 #if wxUSE_STD_STRING
   // We can avoid a copy if we already use this string type internally,
   // otherwise we create a copy on the fly:
@@ -1354,7 +1382,13 @@ public:
     #define wxStringToStdWstringRetType wxStdWideString
     wxStdWideString ToStdWstring() const
     {
+#if wxUSE_UNICODE_WCHAR
+        wxScopedWCharBuffer buf =
+            wxScopedWCharBuffer::CreateNonOwned(m_impl.c_str(), m_impl.length());
+#else // !wxUSE_UNICODE_WCHAR
         wxScopedWCharBuffer buf(wc_str());
+#endif
+
         return wxStdWideString(buf.data(), buf.length());
     }
   #endif
@@ -1373,13 +1407,14 @@ public:
     }
   #endif
 
-#if wxUSE_STL
-  // In wxUSE_STL case we also provide implicit conversions as there is no
-  // ambiguity with the const char/wchar_t* ones as they are disabled in this
-  // build (for consistency with std::basic_string<>)
+#if wxUSE_STD_STRING_CONV_IN_WXSTRING
+    // Implicit conversions to std::[w]string are not provided by default as
+    // they conflict with the implicit conversions to "const char/wchar_t *"
+    // which we use for backwards compatibility but do provide them if
+    // explicitly requested.
   operator wxStringToStdStringRetType() const { return ToStdString(); }
   operator wxStringToStdWstringRetType() const { return ToStdWstring(); }
-#endif // wxUSE_STL
+#endif // wxUSE_STD_STRING_CONV_IN_WXSTRING
 
 #undef wxStringToStdStringRetType
 #undef wxStringToStdWstringRetType
@@ -1619,11 +1654,12 @@ public:
     operator wxCStrData() const { return c_str(); }
 
     // the first two operators conflict with operators for conversion to
-    // std::string and they must be disabled in STL build; the next one only
-    // makes sense if conversions to char* are also defined and not defining it
-    // in STL build also helps us to get more clear error messages for the code
-    // which relies on implicit conversion to char* in STL build
-#if !wxUSE_STL
+    // std::string and they must be disabled if those conversions are enabled;
+    // the next one only makes sense if conversions to char* are also defined
+    // and not defining it in STL build also helps us to get more clear error
+    // messages for the code which relies on implicit conversion to char* in
+    // STL build
+#if !wxUSE_STD_STRING_CONV_IN_WXSTRING
     operator const char*() const { return c_str(); }
     operator const wchar_t*() const { return c_str(); }
 
@@ -1631,7 +1667,7 @@ public:
     // wxWidgets versions: this is the same as conversion to const char * so it
     // may fail!
     operator const void*() const { return c_str(); }
-#endif // wxUSE_STL
+#endif // !wxUSE_STD_STRING_CONV_IN_WXSTRING
 
     // identical to c_str(), for MFC compatibility
     const wxCStrData GetData() const { return c_str(); }
@@ -2086,7 +2122,7 @@ public:
       // insert an unsigned long into string
   wxString& operator<<(unsigned long ul)
     { return (*this) << Format(wxT("%lu"), ul); }
-#if defined wxLongLong_t && !defined wxLongLongIsLong
+#ifdef wxHAS_LONG_LONG_T_DIFFERENT_FROM_LONG
       // insert a long long if they exist and aren't longs
   wxString& operator<<(wxLongLong_t ll)
     {
@@ -2097,7 +2133,7 @@ public:
     {
       return (*this) << Format("%" wxLongLongFmtSpec "u" , ull);
     }
-#endif // wxLongLong_t && !wxLongLongIsLong
+#endif // wxHAS_LONG_LONG_T_DIFFERENT_FROM_LONG
       // insert a float into string
   wxString& operator<<(float f)
     { return (*this) << Format(wxT("%f"), f); }
@@ -2181,11 +2217,13 @@ public:
       // get last nCount characters
   wxString Right(size_t nCount) const;
       // get all characters before the first occurrence of ch
-      // (returns the whole string if ch not found)
-  wxString BeforeFirst(wxUniChar ch) const;
+      // (returns the whole string if ch not found) and also put everything
+      // following the first occurrence of ch into rest if it's non-NULL
+  wxString BeforeFirst(wxUniChar ch, wxString *rest = NULL) const;
       // get all characters before the last occurrence of ch
-      // (returns empty string if ch not found)
-  wxString BeforeLast(wxUniChar ch) const;
+      // (returns empty string if ch not found) and also put everything
+      // following the last occurrence of ch into rest if it's non-NULL
+  wxString BeforeLast(wxUniChar ch, wxString *rest = NULL) const;
       // get all characters after the first occurrence of ch
       // (returns empty string if ch not found)
   wxString AfterFirst(wxUniChar ch) const;
@@ -2289,12 +2327,12 @@ public:
       // convert to a double
   bool ToCDouble(double *val) const;
 
-  // create a string representing the given floating point number
+  // create a string representing the given floating point number with the
+  // default (like %g) or fixed (if precision >=0) precision
     // in the current locale
-  static wxString FromDouble(double val)
-    { return wxString::Format(wxS("%g"), val); }
+  static wxString FromDouble(double val, int precision = -1);
     // in C locale
-  static wxString FromCDouble(double val);
+  static wxString FromCDouble(double val, int precision = -1);
 
 #ifndef wxNEEDS_WXSTRING_PRINTF_MIXIN
   // formatted input/output
@@ -4045,6 +4083,21 @@ inline bool operator!=(const wxString& s, const wxUniChar& c) { return !s.IsSame
 inline bool operator!=(const wxString& s, const wxUniCharRef& c) { return !s.IsSameAs(c); }
 inline bool operator!=(const wxString& s, char c) { return !s.IsSameAs(c); }
 inline bool operator!=(const wxString& s, wchar_t c) { return !s.IsSameAs(c); }
+
+
+// wxString iterators comparisons
+inline bool wxString::iterator::operator==(const const_iterator& i) const
+    { return i == *this; }
+inline bool wxString::iterator::operator!=(const const_iterator& i) const
+    { return i != *this; }
+inline bool wxString::iterator::operator<(const const_iterator& i) const
+    { return i > *this; }
+inline bool wxString::iterator::operator>(const const_iterator& i) const
+    { return i < *this; }
+inline bool wxString::iterator::operator<=(const const_iterator& i) const
+    { return i >= *this; }
+inline bool wxString::iterator::operator>=(const const_iterator& i) const
+    { return i <= *this; }
 
 // comparison with C string in Unicode build
 #if wxUSE_UNICODE

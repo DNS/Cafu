@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        gauge.h
+// Name:        wx/osx/gauge.h
 // Purpose:     wxGauge class
 // Author:      Stefan Csomor
 // Modified by:
@@ -13,8 +13,6 @@
 #define _WX_GAUGE_H_
 
 #include "wx/control.h"
-
-WXDLLIMPEXP_DATA_CORE(extern const char) wxGaugeNameStr[];
 
 // Group box
 class WXDLLIMPEXP_CORE wxGauge: public wxGaugeBase

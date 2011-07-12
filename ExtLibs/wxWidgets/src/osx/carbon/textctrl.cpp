@@ -470,7 +470,9 @@ static pascal OSStatus wxMacUnicodeTextControlEventHandler( EventHandlerCallRef 
 
 DEFINE_ONE_SHOT_HANDLER_GETTER( wxMacUnicodeTextControlEventHandler )
 
-wxMacUnicodeTextControl::wxMacUnicodeTextControl( wxTextCtrl *wxPeer ) : wxMacControl( wxPeer )
+wxMacUnicodeTextControl::wxMacUnicodeTextControl( wxTextCtrl *wxPeer )
+    : wxMacControl( wxPeer ),
+      wxTextWidgetImpl( wxPeer )
 {
 }
 
@@ -478,7 +480,8 @@ wxMacUnicodeTextControl::wxMacUnicodeTextControl( wxTextCtrl *wxPeer,
     const wxString& str,
     const wxPoint& pos,
     const wxSize& size, long style )
-    : wxMacControl( wxPeer )
+    : wxMacControl( wxPeer ),
+      wxTextWidgetImpl( wxPeer )
 {
     m_font = wxPeer->GetFont() ;
     m_windowStyle = style ;
@@ -707,7 +710,8 @@ protected :
 } ;
 
 wxMacMLTEControl::wxMacMLTEControl( wxTextCtrl *peer )
-    : wxMacControl( peer )
+    : wxMacControl( peer ),
+      wxTextWidgetImpl( peer )
 {
     SetNeedsFocusRect( true ) ;
 }
@@ -735,10 +739,6 @@ wxString wxMacMLTEControl::GetStringValue() const
             {
                 wxChar *ptr = NULL ;
 
-#if SIZEOF_WCHAR_T == 2
-                ptr = new wxChar[actualSize + 1] ;
-                wxStrncpy( ptr , (wxChar*)(*theText) , actualSize ) ;
-#else
                 SetHandleSize( theText, (actualSize + 1) * sizeof(UniChar) ) ;
                 HLock( theText ) ;
                 (((UniChar*)*theText)[actualSize]) = 0 ;
@@ -751,7 +751,6 @@ wxString wxMacMLTEControl::GetStringValue() const
                 wxASSERT_MSG( noChars != wxCONV_FAILED, wxT("Conversion of string failed!") );
                 ptr[noChars] = 0 ;
                 HUnlock( theText ) ;
-#endif
 
                 ptr[actualSize] = 0 ;
                 result = wxString( ptr ) ;
@@ -760,7 +759,7 @@ wxString wxMacMLTEControl::GetStringValue() const
 
             DisposeHandle( theText ) ;
         }
-#else
+#else // !wxUSE_UNICODE
         Handle theText ;
         err = TXNGetDataEncoded( m_txn , kTXNStartOffset, kTXNEndOffset, &theText, kTXNTextData );
 
@@ -781,7 +780,7 @@ wxString wxMacMLTEControl::GetStringValue() const
 
             DisposeHandle( theText ) ;
         }
-#endif
+#endif // wxUSE_UNICODE/!wxUSE_UNICODE
     }
 
 #if '\n' == 10
@@ -1377,10 +1376,6 @@ void wxMacMLTEControl::ShowPosition( long pos )
 void wxMacMLTEControl::SetTXNData( const wxString& st, TXNOffset start, TXNOffset end )
 {
 #if wxUSE_UNICODE
-#if SIZEOF_WCHAR_T == 2
-    size_t len = st.length() ;
-    TXNSetData( m_txn, kTXNUnicodeTextData, (void*)st.wc_str(), len * 2, start, end );
-#else
     wxMBConvUTF16 converter ;
     ByteCount byteBufferLen = converter.WC2MB( NULL, st.wc_str(), 0 ) ;
     wxASSERT_MSG( byteBufferLen != wxCONV_FAILED,
@@ -1389,11 +1384,10 @@ void wxMacMLTEControl::SetTXNData( const wxString& st, TXNOffset start, TXNOffse
     converter.WC2MB( (char*)unibuf, st.wc_str(), byteBufferLen + 2 ) ;
     TXNSetData( m_txn, kTXNUnicodeTextData, (void*)unibuf, byteBufferLen, start, end ) ;
     free( unibuf ) ;
-#endif
-#else
+#else // !wxUSE_UNICODE
     wxCharBuffer text = st.mb_str( wxConvLocal ) ;
     TXNSetData( m_txn, kTXNTextData, (void*)text.data(), strlen( text ), start, end ) ;
-#endif
+#endif // wxUSE_UNICODE/!wxUSE_UNICODE
 }
 
 wxString wxMacMLTEControl::GetLineText(long lineNo) const

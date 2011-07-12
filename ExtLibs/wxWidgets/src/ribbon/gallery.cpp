@@ -32,6 +32,7 @@
 
 wxDEFINE_EVENT(wxEVT_COMMAND_RIBBONGALLERY_HOVER_CHANGED, wxRibbonGalleryEvent);
 wxDEFINE_EVENT(wxEVT_COMMAND_RIBBONGALLERY_SELECTED, wxRibbonGalleryEvent);
+wxDEFINE_EVENT(wxEVT_COMMAND_RIBBONGALLERY_CLICKED, wxRibbonGalleryEvent);
 
 IMPLEMENT_DYNAMIC_CLASS(wxRibbonGalleryEvent, wxCommandEvent)
 IMPLEMENT_CLASS(wxRibbonGallery, wxRibbonControl)
@@ -75,6 +76,7 @@ BEGIN_EVENT_TABLE(wxRibbonGallery, wxRibbonControl)
     EVT_LEAVE_WINDOW(wxRibbonGallery::OnMouseLeave)
     EVT_LEFT_DOWN(wxRibbonGallery::OnMouseDown)
     EVT_LEFT_UP(wxRibbonGallery::OnMouseUp)
+    EVT_LEFT_DCLICK(wxRibbonGallery::OnMouseDClick)
     EVT_MOTION(wxRibbonGallery::OnMouseMove)
     EVT_PAINT(wxRibbonGallery::OnPaint)
     EVT_SIZE(wxRibbonGallery::OnSize)
@@ -356,12 +358,28 @@ void wxRibbonGallery::OnMouseUp(wxMouseEvent& evt)
                     notification.SetGalleryItem(m_selected_item);
                     ProcessWindowEvent(notification);
                 }
+
+                wxRibbonGalleryEvent notification(
+                    wxEVT_COMMAND_RIBBONGALLERY_CLICKED, GetId());
+                notification.SetEventObject(this);
+                notification.SetGallery(this);
+                notification.SetGalleryItem(m_selected_item);
+                ProcessWindowEvent(notification);
             }
         }
         m_mouse_active_rect = NULL;
         m_active_item = NULL;
         Refresh(false);
     }
+}
+
+void wxRibbonGallery::OnMouseDClick(wxMouseEvent& evt)
+{
+    // The 2nd click of a double-click should be handled as a click in the
+    // same way as the 1st click of the double-click. This is useful for
+    // scrolling through the gallery.
+    OnMouseDown(evt);
+    OnMouseUp(evt);
 }
 
 void wxRibbonGallery::SetItemClientObject(wxRibbonGalleryItem* itm,
@@ -390,14 +408,31 @@ bool wxRibbonGallery::ScrollLines(int lines)
     if(m_scroll_limit == 0 || m_art == NULL)
         return false;
 
+    return ScrollPixels(lines * GetScrollLineSize());
+}
+
+int wxRibbonGallery::GetScrollLineSize() const
+{
+    if(m_art == NULL)
+        return 32;
+
     int line_size = m_bitmap_padded_size.GetHeight();
     if(m_art->GetFlags() & wxRIBBON_BAR_FLOW_VERTICAL)
         line_size = m_bitmap_padded_size.GetWidth();
-    if(lines < 0)
+
+    return line_size;
+}
+
+bool wxRibbonGallery::ScrollPixels(int pixels)
+{
+    if(m_scroll_limit == 0 || m_art == NULL)
+        return false;
+
+    if(pixels < 0)
     {
         if(m_scroll_amount > 0)
         {
-            m_scroll_amount += lines * line_size;
+            m_scroll_amount += pixels;
             if(m_scroll_amount <= 0)
             {
                 m_scroll_amount = 0;
@@ -410,11 +445,11 @@ bool wxRibbonGallery::ScrollLines(int lines)
             return true;
         }
     }
-    else if(lines > 0)
+    else if(pixels > 0)
     {
         if(m_scroll_amount < m_scroll_limit)
         {
-            m_scroll_amount += lines * line_size;
+            m_scroll_amount += pixels;
             if(m_scroll_amount >= m_scroll_limit)
             {
                 m_scroll_amount = m_scroll_limit;
@@ -435,10 +470,20 @@ void wxRibbonGallery::EnsureVisible(const wxRibbonGalleryItem* item)
     if(item == NULL || !item->IsVisible() || IsEmpty())
         return;
 
-    int y = item->GetPosition().GetTop();
-    int base_y = m_items.Item(0)->GetPosition().GetTop();
-    int delta = y - base_y - m_scroll_amount;
-    ScrollLines(delta / m_bitmap_padded_size.GetHeight());
+    if(m_art->GetFlags() & wxRIBBON_BAR_FLOW_VERTICAL)
+    {
+        int x = item->GetPosition().GetLeft();
+        int base_x = m_items.Item(0)->GetPosition().GetLeft();
+        int delta = x - base_x - m_scroll_amount;
+        ScrollLines(delta / m_bitmap_padded_size.GetWidth());
+    }
+    else
+    {
+        int y = item->GetPosition().GetTop();
+        int base_y = m_items.Item(0)->GetPosition().GetTop();
+        int delta = y - base_y - m_scroll_amount;
+        ScrollLines(delta / m_bitmap_padded_size.GetHeight());
+    }
 }
 
 bool wxRibbonGallery::IsHovered() const

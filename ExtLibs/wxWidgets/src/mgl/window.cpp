@@ -659,7 +659,7 @@ void wxWindowMGL::SetMGLwindow_t(struct window_t *wnd)
     MGL_wmPushWindowEventHandler(m_wnd, wxWindowMouseHandler, EVT_MOUSEEVT, 0);
     MGL_wmPushWindowEventHandler(m_wnd, wxWindowKeybHandler, EVT_KEYEVT, 0);
 
-    if ( m_cursor.Ok() )
+    if ( m_cursor.IsOk() )
         MGL_wmSetWindowCursor(m_wnd, *m_cursor.GetMGLCursor());
     else
         MGL_wmSetWindowCursor(m_wnd, *wxSTANDARD_CURSOR->GetMGLCursor());
@@ -822,7 +822,7 @@ bool wxWindowMGL::SetCursor(const wxCursor& cursor)
         return false;
     }
 
-    if ( m_cursor.Ok() )
+    if ( m_cursor.IsOk() )
         MGL_wmSetWindowCursor(m_wnd, *m_cursor.GetMGLCursor());
     else
         MGL_wmSetWindowCursor(m_wnd, *wxSTANDARD_CURSOR->GetMGLCursor());
@@ -1205,15 +1205,4 @@ wxWindow* wxFindWindowAtPoint(const wxPoint& pt)
 {
     window_t *wnd = MGL_wmGetWindowAtPosition(g_winMng, pt.x, pt.y);
     return (wxWindow*)wnd->userData;
-}
-
-
-// ---------------------------------------------------------------------------
-// idle events processing
-// ---------------------------------------------------------------------------
-
-void wxWindowMGL::OnInternalIdle()
-{
-    if (wxUpdateUIEvent::CanUpdate(this) && IsShown())
-        UpdateWindowUI(wxUPDATE_UI_FROMIDLE);
 }

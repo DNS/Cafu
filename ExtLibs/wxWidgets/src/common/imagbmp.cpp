@@ -39,6 +39,16 @@
 // For memcpy
 #include <string.h>
 
+// ----------------------------------------------------------------------------
+// private functions
+// ----------------------------------------------------------------------------
+
+#if wxUSE_ICO_CUR
+
+static bool CanReadICOOrCUR(wxInputStream *stream, wxUint16 resourceType);
+
+#endif // wxUSE_ICO_CUR
+
 //-----------------------------------------------------------------------------
 // wxBMPHandler
 //-----------------------------------------------------------------------------
@@ -81,7 +91,7 @@ bool wxBMPHandler::SaveDib(wxImage *image,
 {
     wxCHECK_MSG( image, false, wxT("invalid pointer in wxBMPHandler::SaveFile") );
 
-    if ( !image->Ok() )
+    if ( !image->IsOk() )
     {
         if ( verbose )
         {
@@ -136,8 +146,8 @@ bool wxBMPHandler::SaveDib(wxImage *image,
     }
 
     unsigned width = image->GetWidth();
-    unsigned row_padding = (4 - int(width*bpp/8.0) % 4) % 4; // # bytes to pad to dword
-    unsigned row_width = int(width * bpp/8.0) + row_padding; // # of bytes per row
+    unsigned row_padding = (4 - ((width * bpp + 7) / 8) % 4) % 4; // # bytes to pad to dword
+    unsigned row_width = (width * bpp + 7) / 8 + row_padding; // # of bytes per row
 
     struct
     {
@@ -341,7 +351,7 @@ bool wxBMPHandler::SaveDib(wxImage *image,
 
     // pointer to the image data, use quantized if available
     wxUint8 *data = (wxUint8*) image->GetData();
-    if (q_image) if (q_image->Ok()) data = (wxUint8*) q_image->GetData();
+    if (q_image) if (q_image->IsOk()) data = (wxUint8*) q_image->GetData();
 
     wxUint8 *buffer = new wxUint8[row_width];
     memset(buffer, 0, row_width);
@@ -1239,7 +1249,7 @@ bool wxICOHandler::SaveFile(wxImage *image,
         // wxCountingOutputStream::IsOk() always returns true for now and this
         // "if" provokes VC++ warnings in optimized build
 #if 0
-        if ( !cStream.Ok() )
+        if ( !cStream.IsOk() )
         {
             if ( verbose )
             {
@@ -1325,6 +1335,11 @@ bool wxICOHandler::SaveFile(wxImage *image,
 bool wxICOHandler::LoadFile(wxImage *image, wxInputStream& stream,
                             bool verbose, int index)
 {
+    if ( stream.IsSeekable() && stream.SeekI(0) == wxInvalidOffset )
+    {
+        return false;
+    }
+
     return DoLoadFile(image, stream, verbose, index);
 }
 
@@ -1413,10 +1428,16 @@ bool wxICOHandler::DoLoadFile(wxImage *image, wxInputStream& stream,
 
 int wxICOHandler::DoGetImageCount(wxInputStream& stream)
 {
+    // It's ok to modify the stream position in this function.
+
+    if ( stream.IsSeekable() && stream.SeekI(0) == wxInvalidOffset )
+    {
+        return 0;
+    }
+
     ICONDIR IconDir;
 
     if (stream.Read(&IconDir, sizeof(IconDir)).LastRead() != sizeof(IconDir))
-             // it's ok to modify the stream position here
         return 0;
 
     return (int)wxUINT16_SWAP_ON_BE(IconDir.idCount);
@@ -1424,12 +1445,8 @@ int wxICOHandler::DoGetImageCount(wxInputStream& stream)
 
 bool wxICOHandler::DoCanRead(wxInputStream& stream)
 {
-    unsigned char hdr[4];
-    if ( !stream.Read(hdr, WXSIZEOF(hdr)) )     // it's ok to modify the stream position here
-        return false;
+    return CanReadICOOrCUR(&stream, 1 /*for identifying an icon*/);
 
-    // hdr[2] is one for an icon and two for a cursor
-    return hdr[0] == '\0' && hdr[1] == '\0' && hdr[2] == '\1' && hdr[3] == '\0';
 }
 
 #endif // wxUSE_STREAMS
@@ -1445,12 +1462,7 @@ IMPLEMENT_DYNAMIC_CLASS(wxCURHandler, wxICOHandler)
 
 bool wxCURHandler::DoCanRead(wxInputStream& stream)
 {
-    unsigned char hdr[4];
-    if ( !stream.Read(hdr, WXSIZEOF(hdr)) )     // it's ok to modify the stream position here
-        return false;
-
-    // hdr[2] is one for an icon and two for a cursor
-    return hdr[0] == '\0' && hdr[1] == '\0' && hdr[2] == '\2' && hdr[3] == '\0';
+    return CanReadICOOrCUR(&stream, 2 /*for identifying a cursor*/);
 }
 
 #endif // wxUSE_STREAMS
@@ -1487,6 +1499,26 @@ int wxANIHandler::DoGetImageCount(wxInputStream& stream)
         return wxNOT_FOUND;
 
     return decoder.GetFrameCount();
+}
+
+static bool CanReadICOOrCUR(wxInputStream *stream, wxUint16 resourceType)
+{
+    // It's ok to modify the stream position in this function.
+
+    if ( stream->IsSeekable() && stream->SeekI(0) == wxInvalidOffset )
+    {
+        return false;
+    }
+
+    ICONDIR iconDir;
+    if ( !stream->Read(&iconDir, sizeof(iconDir)) )
+    {
+        return false;
+    }
+
+    return !iconDir.idReserved // reserved, must be 0
+        && wxUINT16_SWAP_ON_BE(iconDir.idType) == resourceType // either 1 or 2
+        && iconDir.idCount; // must contain at least one image
 }
 
 #endif // wxUSE_STREAMS

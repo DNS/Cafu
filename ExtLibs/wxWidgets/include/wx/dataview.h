@@ -126,6 +126,10 @@ public:
     virtual bool ValueChanged( const wxDataViewItem &item, unsigned int col ) = 0;
     virtual bool Cleared() = 0;
 
+    // some platforms, such as GTK+, may need a two step procedure for ::Reset()
+    virtual bool BeforeReset() { return true; }
+    virtual bool AfterReset() { return Cleared(); }
+
     virtual void Resort() = 0;
 
     void SetOwner( wxDataViewModel *owner ) { m_owner = owner; }
@@ -159,7 +163,7 @@ public:
     void SetItalic( bool set ) { m_italic = set; }
 
     // accessors
-    bool HasColour() const { return m_colour.Ok(); }
+    bool HasColour() const { return m_colour.IsOk(); }
     const wxColour& GetColour() const { return m_colour; }
 
     bool HasFont() const { return m_bold || m_italic; }
@@ -167,6 +171,9 @@ public:
     bool GetItalic() const { return m_italic; }
 
     bool IsDefault() const { return !(HasColour() || HasFont()); }
+
+    // Return the font based on the given one with this attribute applied to it.
+    wxFont GetEffectiveFont(const wxFont& font) const;
 
 private:
     wxColour m_colour;
@@ -227,6 +234,13 @@ public:
         return false;
     }
 
+    // Override this if you want to disable specific items
+    virtual bool IsEnabled(const wxDataViewItem &WXUNUSED(item),
+                           unsigned int WXUNUSED(col)) const
+    {
+        return true;
+    }
+
     // define hierachy
     virtual wxDataViewItem GetParent( const wxDataViewItem &item ) const = 0;
     virtual bool IsContainer( const wxDataViewItem &item ) const = 0;
@@ -236,16 +250,21 @@ public:
     virtual unsigned int GetChildren( const wxDataViewItem &item, wxDataViewItemArray &children ) const = 0;
 
     // delegated notifiers
-    virtual bool ItemAdded( const wxDataViewItem &parent, const wxDataViewItem &item );
-    virtual bool ItemsAdded( const wxDataViewItem &parent, const wxDataViewItemArray &items );
-    virtual bool ItemDeleted( const wxDataViewItem &parent, const wxDataViewItem &item );
-    virtual bool ItemsDeleted( const wxDataViewItem &parent, const wxDataViewItemArray &items );
-    virtual bool ItemChanged( const wxDataViewItem &item );
-    virtual bool ItemsChanged( const wxDataViewItemArray &items );
-    virtual bool ValueChanged( const wxDataViewItem &item, unsigned int col );
-    virtual bool Cleared();
+    bool ItemAdded( const wxDataViewItem &parent, const wxDataViewItem &item );
+    bool ItemsAdded( const wxDataViewItem &parent, const wxDataViewItemArray &items );
+    bool ItemDeleted( const wxDataViewItem &parent, const wxDataViewItem &item );
+    bool ItemsDeleted( const wxDataViewItem &parent, const wxDataViewItemArray &items );
+    bool ItemChanged( const wxDataViewItem &item );
+    bool ItemsChanged( const wxDataViewItemArray &items );
+    bool ValueChanged( const wxDataViewItem &item, unsigned int col );
+    bool Cleared();
 
-    // delegatd action
+    // some platforms, such as GTK+, may need a two step procedure for ::Reset()
+    bool BeforeReset();
+    bool AfterReset();
+
+
+    // delegated action
     virtual void Resort();
 
     void AddNotifier( wxDataViewModelNotifier *notifier );
@@ -257,6 +276,7 @@ public:
     virtual bool HasDefaultCompare() const { return false; }
 
     // internal
+    virtual bool IsListModel() const { return false; }
     virtual bool IsVirtualListModel() const { return false; }
 
 protected:
@@ -291,10 +311,18 @@ public:
         return false;
     }
 
+    virtual bool IsEnabledByRow(unsigned int WXUNUSED(row),
+                                unsigned int WXUNUSED(col)) const
+    {
+        return true;
+    }
+
 
     // helper methods provided by list models only
     virtual unsigned GetRow( const wxDataViewItem &item ) const = 0;
 
+    // returns the number of rows
+    virtual unsigned int GetCount() const = 0;
 
     // implement some base class pure virtual directly
     virtual wxDataViewItem
@@ -328,6 +356,14 @@ public:
     {
         return GetAttrByRow( GetRow(item), col, attr );
     }
+
+    virtual bool IsEnabled(const wxDataViewItem &item, unsigned int col) const
+    {
+        return IsEnabledByRow( GetRow(item), col );
+    }
+
+
+    virtual bool IsListModel() const { return true; }
 };
 
 // ---------------------------------------------------------
@@ -639,6 +675,12 @@ public:
     int GetIndent() const
         { return m_indent; }
 
+    // Current item is the one used by the keyboard navigation, it is the same
+    // as the (unique) selected item in single selection mode so these
+    // functions are mostly useful for controls with wxDV_MULTIPLE style.
+    wxDataViewItem GetCurrentItem() const;
+    void SetCurrentItem(const wxDataViewItem& item);
+
     virtual wxDataViewItem GetSelection() const = 0;
     virtual int GetSelections( wxDataViewItemArray & sel ) const = 0;
     virtual void SetSelections( const wxDataViewItemArray & sel ) = 0;
@@ -658,6 +700,12 @@ public:
                                 const wxDataViewColumn *column = NULL ) = 0;
     virtual void HitTest( const wxPoint & point, wxDataViewItem &item, wxDataViewColumn* &column ) const = 0;
     virtual wxRect GetItemRect( const wxDataViewItem & item, const wxDataViewColumn *column = NULL ) const = 0;
+
+    virtual bool SetRowHeight( int WXUNUSED(rowHeight) ) { return false; }
+
+    virtual void StartEditor( const wxDataViewItem & WXUNUSED(item),
+                              unsigned int WXUNUSED(column) )
+        { }
 
 #if wxUSE_DRAG_AND_DROP
     virtual bool EnableDragSource(const wxDataFormat& WXUNUSED(format))
@@ -685,6 +733,12 @@ protected:
     virtual void DoSetIndent() = 0;
 
 private:
+    // Implementation of the public Set/GetCurrentItem() methods which are only
+    // called in multi selection case (for single selection controls their
+    // implementation is trivial and is done in the base class itself).
+    virtual wxDataViewItem DoGetCurrentItem() const = 0;
+    virtual void DoSetCurrentItem(const wxDataViewItem& item) = 0;
+
     wxDataViewModel        *m_model;
     wxDataViewColumn       *m_expander_column;
     int m_indent ;
@@ -724,7 +778,7 @@ public:
         m_model(event.m_model),
         m_value(event.m_value),
         m_column(event.m_column),
-        m_pos(m_pos),
+        m_pos(event.m_pos),
         m_cacheFrom(event.m_cacheFrom),
         m_cacheTo(event.m_cacheTo)
 #if wxUSE_DRAG_AND_DROP
@@ -950,6 +1004,20 @@ public:
     const wxDataViewListStore *GetStore() const
         { return (const wxDataViewListStore*) GetModel(); }
 
+    int ItemToRow(const wxDataViewItem &item) const
+        { return item.IsOk() ? (int)GetStore()->GetRow(item) : wxNOT_FOUND; }
+    wxDataViewItem RowToItem(int row) const
+        { return row == wxNOT_FOUND ? wxDataViewItem() : GetStore()->GetItem(row); }
+
+    int GetSelectedRow() const
+        { return ItemToRow(GetSelection()); }
+    void SelectRow(unsigned row)
+        { Select(RowToItem(row)); }
+    void UnselectRow(unsigned row)
+        { Unselect(RowToItem(row)); }
+    bool IsRowSelected(unsigned row) const
+        { return IsSelected(RowToItem(row)); }
+
     bool AppendColumn( wxDataViewColumn *column, const wxString &varianttype );
     bool PrependColumn( wxDataViewColumn *column, const wxString &varianttype );
     bool InsertColumn( unsigned int pos, wxDataViewColumn *column, const wxString &varianttype );
@@ -1110,7 +1178,7 @@ public:
 
     wxDataViewItem GetNthChild( const wxDataViewItem& parent, unsigned int pos ) const;
     int GetChildCount( const wxDataViewItem& parent ) const;
-    
+
     void SetItemText( const wxDataViewItem& item, const wxString &text );
     wxString GetItemText( const wxDataViewItem& item ) const;
     void SetItemIcon( const wxDataViewItem& item, const wxIcon &icon );

@@ -1162,7 +1162,7 @@ bool wxQTMediaBackend::ShowPlayerControls(wxMediaCtrlPlayerControls flags)
 //---------------------------------------------------------------------------
 // wxQTMediaBackend::MCFilterProc (static)
 //
-// Callback for when the movie controller recieves a message
+// Callback for when the movie controller receives a message
 //---------------------------------------------------------------------------
 Boolean wxQTMediaBackend::MCFilterProc(MovieController WXUNUSED(theController),
                                short action,
@@ -1281,8 +1281,9 @@ void wxQTMediaEvtHandler::OnEraseBackground(wxEraseEvent& evt)
 //  End QT Backend
 //---------------------------------------------------------------------------
 
-// in source file that contains stuff you don't directly use
-#include "wx/html/forcelnk.h"
-FORCE_LINK_ME(wxmediabackend_qt)
+// Allow the user code to use wxFORCE_LINK_MODULE() to ensure that this object
+// file is not discarded by the linker.
+#include "wx/link.h"
+wxFORCE_LINK_THIS_MODULE(wxmediabackend_qt)
 
 #endif // wxUSE_MEDIACTRL && wxUSE_ACTIVEX

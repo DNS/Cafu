@@ -376,6 +376,7 @@ public:
   virtual wxDataViewColumn* GetColumn          (unsigned int pos) const;
   virtual int               GetColumnPosition  (wxDataViewColumn const* columnPtr) const;
   virtual bool              InsertColumn       (unsigned int pos, wxDataViewColumn* columnPtr);
+  virtual void              FitColumnWidthToContent(unsigned int WXUNUSED(pos)) { /*not implemented*/ }
 
  //
  // item related methods (inherited from wxDataViewWidgetImpl)
@@ -403,6 +404,8 @@ public:
  //
  // selection related methods (inherited from wxDataViewWidgetImpl)
  //
+  virtual wxDataViewItem GetCurrentItem() const;
+  virtual void SetCurrentItem(const wxDataViewItem& item);
   virtual int  GetSelections(wxDataViewItemArray& sel)   const;
   virtual bool IsSelected   (wxDataViewItem const& item) const;
   virtual void Select       (wxDataViewItem const& item);
@@ -423,6 +426,8 @@ public:
   virtual void HitTest     (wxPoint const& point, wxDataViewItem& item, wxDataViewColumn*& columnPtr) const;
   virtual void SetRowHeight(wxDataViewItem const& item, unsigned int height);
   virtual void OnSize      ();
+
+  virtual void StartEditor( const wxDataViewItem & item, unsigned int column );
 
  //
  // other methods

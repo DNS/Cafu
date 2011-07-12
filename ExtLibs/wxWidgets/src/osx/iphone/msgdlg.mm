@@ -4,7 +4,7 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     04/01/98
-// RCS-ID:      $Id: msgdlg.cpp 54129 2008-06-11 19:30:52Z SC $
+// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ wxMessageDialog::wxMessageDialog(wxWindow *parent,
                                  const wxString& caption,
                                  long style,
                                  const wxPoint& WXUNUSED(pos))
-               : wxMessageDialogWithCustomLabels(parent, message, caption, style)
+               : wxMessageDialogBase(parent, message, caption, style)
 {
 }
 

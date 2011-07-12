@@ -17,6 +17,7 @@
 #include "wx/control.h"
 #include "wx/scrolwin.h"
 #include "wx/icon.h"
+#include "wx/vector.h"
 
 class WXDLLIMPEXP_FWD_ADV wxDataViewMainWindow;
 class WXDLLIMPEXP_FWD_ADV wxDataViewHeaderWindow;
@@ -56,7 +57,7 @@ public:
     virtual wxString GetTitle() const { return m_title; }
 
     virtual void SetWidth(int width) { m_width = width; UpdateDisplay(); }
-    virtual int GetWidth() const { return m_width; }
+    virtual int GetWidth() const;
 
     virtual void SetMinWidth(int minWidth) { m_minWidth = minWidth; UpdateDisplay(); }
     virtual int GetMinWidth() const { return m_minWidth; }
@@ -79,7 +80,7 @@ public:
 private:
     // common part of all ctors
     void Init(int width, wxAlignment align, int flags);
-    
+
     void UpdateDisplay();
 
     wxString m_title;
@@ -120,10 +121,11 @@ public:
     wxDataViewCtrl( wxWindow *parent, wxWindowID id,
            const wxPoint& pos = wxDefaultPosition,
            const wxSize& size = wxDefaultSize, long style = 0,
-           const wxValidator& validator = wxDefaultValidator )
+           const wxValidator& validator = wxDefaultValidator,
+           const wxString& name = wxDataViewCtrlNameStr )
              : wxScrollHelper(this)
     {
-        Create(parent, id, pos, size, style, validator );
+        Create(parent, id, pos, size, style, validator, name);
     }
 
     virtual ~wxDataViewCtrl();
@@ -133,7 +135,8 @@ public:
     bool Create(wxWindow *parent, wxWindowID id,
                 const wxPoint& pos = wxDefaultPosition,
                 const wxSize& size = wxDefaultSize, long style = 0,
-                const wxValidator& validator = wxDefaultValidator );
+                const wxValidator& validator = wxDefaultValidator,
+                const wxString& name = wxDataViewCtrlNameStr);
 
     virtual bool AssociateModel( wxDataViewModel *model );
 
@@ -169,6 +172,8 @@ public:
     virtual wxRect GetItemRect( const wxDataViewItem & item,
                                 const wxDataViewColumn *column = NULL ) const;
 
+    virtual bool SetRowHeight( int rowHeight );
+
     virtual void Expand( const wxDataViewItem & item );
     virtual void Collapse( const wxDataViewItem & item );
     virtual bool IsExpanded( const wxDataViewItem & item ) const;
@@ -182,7 +187,7 @@ public:
 
     virtual wxBorder GetDefaultBorder() const;
 
-    void StartEditor( const wxDataViewItem & item, unsigned int column );
+    virtual void StartEditor( const wxDataViewItem & item, unsigned int column );
 
 protected:
     virtual int GetSelections( wxArrayInt & sel ) const;
@@ -204,10 +209,7 @@ protected:
 public:     // utility functions not part of the API
 
     // returns the "best" width for the idx-th column
-    unsigned int GetBestColumnWidth(int WXUNUSED(idx)) const
-    {
-        return GetClientSize().GetWidth() / GetColumnCount();
-    }
+    unsigned int GetBestColumnWidth(int idx) const;
 
     // called by header window after reorder
     void ColumnMoved( wxDataViewColumn* col, unsigned int new_pos );
@@ -227,7 +229,16 @@ public:     // utility functions not part of the API
     wxDataViewColumn *GetColumnAt(unsigned int pos) const;
 
 private:
+    virtual wxDataViewItem DoGetCurrentItem() const;
+    virtual void DoSetCurrentItem(const wxDataViewItem& item);
+
+    void InvalidateColBestWidths();
+    void InvalidateColBestWidth(int idx);
+
     wxDataViewColumnList      m_cols;
+    // cached column best widths or 0 if not computed, values are for
+    // respective columns from m_cols and the arrays have same size
+    wxVector<int>             m_colsBestWidths;
     wxDataViewModelNotifier  *m_notifier;
     wxDataViewMainWindow     *m_clientArea;
     wxDataViewHeaderWindow   *m_headerArea;

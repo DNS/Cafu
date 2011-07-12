@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// Name:        msw/spinctrl.h
+// Name:        wx/msw/spinctrl.h
 // Purpose:     wxSpinCtrl class declaration for Win32
 // Author:      Vadim Zeitlin
 // Modified by:
@@ -141,10 +141,6 @@ protected:
 
     // Block text update event after SetValue()
     bool m_blockEvent;
-
-    // all existing wxSpinCtrls - this allows to find the one corresponding to
-    // the given buddy window in GetSpinForTextCtrl()
-    static wxArraySpins ms_allSpins;
 
 private:
     DECLARE_DYNAMIC_CLASS(wxSpinCtrl)

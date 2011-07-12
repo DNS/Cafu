@@ -11,7 +11,7 @@
 @page overview_archive Archive Formats
 
 The archive classes handle archive formats such as zip, tar, rar and cab.
-Currently wxZip and wxTar classes are included.
+Currently wxZip, wxTar and wxZlib classes are included.
 
 For each archive type, there are the following classes (using zip here as an
 example):
@@ -361,7 +361,7 @@ attempts to update it if it is still around.
 The documentation for each archive entry type gives the details of what
 meta-data becomes available and when. For generic programming, when the worst
 case must be assumed, you can rely on all the fields of wxArchiveEntry being
-fully populated when GetNextEntry() returns, with the the following exceptions:
+fully populated when GetNextEntry() returns, with the following exceptions:
 
 @li wxArchiveEntry::GetSize(): Guaranteed to be available after the entry has
     been read to wxInputStream::Eof(), or wxArchiveInputStream::CloseEntry()

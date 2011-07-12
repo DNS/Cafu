@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        xml.h
+// Name:        wx/xml/xml.h
 // Purpose:     wxXmlDocument - XML parser & data holder class
 // Author:      Vaclav Slavik
 // Created:     2000/03/05
@@ -19,6 +19,7 @@
 #include "wx/string.h"
 #include "wx/object.h"
 #include "wx/list.h"
+#include "wx/versioninfo.h"
 
 #ifdef WXMAKINGDLL_XML
     #define WXDLLIMPEXP_XML WXEXPORT
@@ -34,7 +35,6 @@ class WXDLLIMPEXP_FWD_XML wxXmlDocument;
 class WXDLLIMPEXP_FWD_XML wxXmlIOHandler;
 class WXDLLIMPEXP_FWD_BASE wxInputStream;
 class WXDLLIMPEXP_FWD_BASE wxOutputStream;
-
 
 // Represents XML node type.
 enum wxXmlNodeType
@@ -69,8 +69,8 @@ public:
             : m_name(name), m_value(value), m_next(next) {}
     virtual ~wxXmlAttribute() {}
 
-    wxString GetName() const { return m_name; }
-    wxString GetValue() const { return m_value; }
+    const wxString& GetName() const { return m_name; }
+    const wxString& GetValue() const { return m_value; }
     wxXmlAttribute *GetNext() const { return m_next; }
 
     void SetName(const wxString& name) { m_name = name; }
@@ -104,7 +104,7 @@ class WXDLLIMPEXP_XML wxXmlNode
 public:
     wxXmlNode()
         : m_attrs(NULL), m_parent(NULL), m_children(NULL), m_next(NULL),
-          m_lineNo(-1)
+          m_lineNo(-1), m_noConversion(false)
     {
     }
 
@@ -115,7 +115,7 @@ public:
 
     virtual ~wxXmlNode();
 
-    // copy ctor & operator=. Note that this does NOT copy syblings
+    // copy ctor & operator=. Note that this does NOT copy siblings
     // and parent pointer, i.e. m_parent and m_next will be NULL
     // after using copy ctor and are never unmodified by operator=.
     // On the other hand, it DOES copy children and attributes.
@@ -171,6 +171,10 @@ public:
     void SetAttributes(wxXmlAttribute *attr) { m_attrs = attr; }
     virtual void AddAttribute(wxXmlAttribute *attr);
 
+    // If true, don't do encoding conversion to improve efficiency - node content is ACII text
+    bool GetNoConversion() const { return m_noConversion; }
+    void SetNoConversion(bool noconversion) { m_noConversion = noconversion; }
+
 #if WXWIN_COMPATIBILITY_2_8
     wxDEPRECATED( inline wxXmlAttribute *GetProperties() const );
     wxDEPRECATED( inline bool GetPropVal(const wxString& propName,
@@ -210,6 +214,7 @@ private:
     wxXmlAttribute *m_attrs;
     wxXmlNode *m_parent, *m_children, *m_next;
     int m_lineNo; // line number in original file, or -1
+    bool m_noConversion; // don't do encoding conversion - node is plain text
 
     void DoCopy(const wxXmlNode& node);
 };
@@ -252,7 +257,7 @@ public:
                   const wxString& encoding = wxT("UTF-8"));
     wxXmlDocument(wxInputStream& stream,
                   const wxString& encoding = wxT("UTF-8"));
-    virtual ~wxXmlDocument() { wxDELETE(m_root); }
+    virtual ~wxXmlDocument() { wxDELETE(m_docNode); }
 
     wxXmlDocument(const wxXmlDocument& doc);
     wxXmlDocument& operator=(const wxXmlDocument& doc);
@@ -268,10 +273,13 @@ public:
     virtual bool Save(const wxString& filename, int indentstep = 2) const;
     virtual bool Save(wxOutputStream& stream, int indentstep = 2) const;
 
-    bool IsOk() const { return m_root != NULL; }
+    bool IsOk() const { return GetRoot() != NULL; }
 
     // Returns root node of the document.
-    wxXmlNode *GetRoot() const { return m_root; }
+    wxXmlNode *GetRoot() const;
+    // Returns the document node.
+    wxXmlNode *GetDocumentNode() const { return m_docNode; }
+
 
     // Returns version of document (may be empty).
     const wxString& GetVersion() const { return m_version; }
@@ -281,10 +289,13 @@ public:
     const wxString& GetFileEncoding() const { return m_fileEncoding; }
 
     // Write-access methods:
-    wxXmlNode *DetachRoot() { wxXmlNode *old=m_root; m_root=NULL; return old; }
-    void SetRoot(wxXmlNode *node) { wxDELETE(m_root); m_root = node; }
+    wxXmlNode *DetachDocumentNode() { wxXmlNode *old=m_docNode; m_docNode=NULL; return old; }
+    void SetDocumentNode(wxXmlNode *node) { wxDELETE(m_docNode); m_docNode = node; }
+    wxXmlNode *DetachRoot();
+    void SetRoot(wxXmlNode *node);
     void SetVersion(const wxString& version) { m_version = version; }
     void SetFileEncoding(const wxString& encoding) { m_fileEncoding = encoding; }
+    void AppendToProlog(wxXmlNode *node);
 
 #if !wxUSE_UNICODE
     // Returns encoding of in-memory representation of the document
@@ -294,13 +305,15 @@ public:
     void SetEncoding(const wxString& enc) { m_encoding = enc; }
 #endif
 
+    static wxVersionInfo GetLibraryVersionInfo();
+
 private:
     wxString   m_version;
     wxString   m_fileEncoding;
 #if !wxUSE_UNICODE
     wxString   m_encoding;
 #endif
-    wxXmlNode *m_root;
+    wxXmlNode *m_docNode;
 
     void DoCopy(const wxXmlDocument& doc);
 

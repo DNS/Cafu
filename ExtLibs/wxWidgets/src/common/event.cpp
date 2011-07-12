@@ -62,11 +62,11 @@
     IMPLEMENT_DYNAMIC_CLASS(wxEvtHandler, wxObject)
     IMPLEMENT_ABSTRACT_CLASS(wxEvent, wxObject)
     IMPLEMENT_DYNAMIC_CLASS(wxIdleEvent, wxEvent)
+    IMPLEMENT_DYNAMIC_CLASS(wxThreadEvent, wxEvent)
 #endif // wxUSE_BASE
 
 #if wxUSE_GUI
     IMPLEMENT_DYNAMIC_CLASS(wxCommandEvent, wxEvent)
-    IMPLEMENT_DYNAMIC_CLASS(wxThreadEvent, wxCommandEvent)
     IMPLEMENT_DYNAMIC_CLASS(wxNotifyEvent, wxCommandEvent)
     IMPLEMENT_DYNAMIC_CLASS(wxScrollEvent, wxCommandEvent)
     IMPLEMENT_DYNAMIC_CLASS(wxScrollWinEvent, wxEvent)
@@ -155,6 +155,9 @@ const wxEventType wxEVT_NULL = wxNewEventType();
 
 wxDEFINE_EVENT( wxEVT_IDLE, wxIdleEvent );
 
+// Thread event
+wxDEFINE_EVENT( wxEVT_THREAD, wxThreadEvent );
+
 #endif // wxUSE_BASE
 
 #if wxUSE_GUI
@@ -206,6 +209,7 @@ wxDEFINE_EVENT( wxEVT_AUX2_DCLICK, wxMouseEvent );
 
 // Character input event type
 wxDEFINE_EVENT( wxEVT_CHAR, wxKeyEvent );
+wxDEFINE_EVENT( wxEVT_AFTER_CHAR, wxKeyEvent );
 wxDEFINE_EVENT( wxEVT_CHAR_HOOK, wxKeyEvent );
 wxDEFINE_EVENT( wxEVT_NAVIGATION_KEY, wxNavigationKeyEvent );
 wxDEFINE_EVENT( wxEVT_KEY_DOWN, wxKeyEvent );
@@ -310,9 +314,6 @@ wxDEFINE_EVENT( wxEVT_COMMAND_ENTER, wxCommandEvent );
 // Help events
 wxDEFINE_EVENT( wxEVT_HELP, wxHelpEvent );
 wxDEFINE_EVENT( wxEVT_DETAILED_HELP, wxHelpEvent );
-
-// Thread event
-wxDEFINE_EVENT( wxEVT_COMMAND_THREAD, wxThreadEvent );
 
 #endif // wxUSE_GUI
 
@@ -421,8 +422,6 @@ wxCommandEvent::wxCommandEvent(wxEventType commandType, int theId)
 {
     m_clientData = NULL;
     m_clientObject = NULL;
-    m_extraLong = 0;
-    m_commandInt = 0;
     m_isCommandEvent = true;
 
     // the command events are propagated upwards by default
@@ -471,6 +470,13 @@ bool wxUpdateUIEvent::CanUpdate(wxWindowBase *win)
     if (win &&
        (GetMode() == wxUPDATE_UI_PROCESS_SPECIFIED &&
        ((win->GetExtraStyle() & wxWS_EX_PROCESS_UI_UPDATES) == 0)))
+        return false;
+
+    // Don't update children of the hidden windows: this is useless as any
+    // change to their state won't be seen by the user anyhow. Notice that this
+    // argument doesn't apply to the hidden windows (with visible parent)
+    // themselves as they could be shown by their EVT_UPDATE_UI handler.
+    if ( win->GetParent() && !win->GetParent()->IsShownOnScreen() )
         return false;
 
     if (sm_updateInterval == -1)
@@ -733,9 +739,9 @@ wxPoint wxMouseEvent::GetLogicalPosition(const wxDC& dc) const
 wxKeyEvent::wxKeyEvent(wxEventType type)
 {
     m_eventType = type;
-    m_keyCode = 0;
+    m_keyCode = WXK_NONE;
 #if wxUSE_UNICODE
-    m_uniChar = 0;
+    m_uniChar = WXK_NONE;
 #endif
 }
 
@@ -959,7 +965,7 @@ void wxEventHashTable::InitHashTable()
         table = table->baseTable;
     }
 
-    // Lets free some memory.
+    // Let's free some memory.
     size_t i;
     for(i = 0; i < m_size; i++)
     {

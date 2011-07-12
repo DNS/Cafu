@@ -40,6 +40,8 @@ class WXDLLIMPEXP_FWD_CORE wxPreviewFrame;
 class WXDLLIMPEXP_FWD_CORE wxPrintFactory;
 class WXDLLIMPEXP_FWD_CORE wxPrintNativeDataBase;
 class WXDLLIMPEXP_FWD_CORE wxPrintPreview;
+class wxPrintPageMaxCtrl;
+class wxPrintPageTextCtrl;
 
 //----------------------------------------------------------------------------
 // error consts
@@ -50,6 +52,19 @@ enum wxPrinterError
     wxPRINTER_NO_ERROR = 0,
     wxPRINTER_CANCELLED,
     wxPRINTER_ERROR
+};
+
+// Preview frame modality kind used with wxPreviewFrame::Initialize()
+enum wxPreviewFrameModalityKind
+{
+    // Disable all the other top level windows while the preview is shown.
+    wxPreviewFrame_AppModal,
+
+    // Disable only the parent window while the preview is shown.
+    wxPreviewFrame_WindowModal,
+
+    // Don't disable any windows.
+    wxPreviewFrame_NonModal
 };
 
 //----------------------------------------------------------------------------
@@ -383,8 +398,26 @@ public:
                    const wxString& name = wxFrameNameStr);
     virtual ~wxPreviewFrame();
 
+    // Either Initialize() or InitializeWithModality() must be called before
+    // showing the preview frame, the former being just a particular case of
+    // the latter initializing the frame for being showing app-modally.
+
+    // Notice that we must keep Initialize() with its existing signature to
+    // avoid breaking the old code that overrides it and we can't reuse the
+    // same name for the other functions to avoid virtual function hiding
+    // problem and the associated warnings given by some compilers (e.g. from
+    // g++ with -Woverloaded-virtual).
+    virtual void Initialize()
+    {
+        InitializeWithModality(wxPreviewFrame_AppModal);
+    }
+
+    // Also note that this method is not virtual as it doesn't need to be
+    // overridden: it's never called by wxWidgets (of course, the same is true
+    // for Initialize() but, again, it must remain virtual for compatibility).
+    void InitializeWithModality(wxPreviewFrameModalityKind kind);
+
     void OnCloseWindow(wxCloseEvent& event);
-    virtual void Initialize();
     virtual void CreateCanvas();
     virtual void CreateControlBar();
 
@@ -395,6 +428,9 @@ protected:
     wxPreviewControlBar*  m_controlBar;
     wxPrintPreviewBase*   m_printPreview;
     wxWindowDisabler*     m_windowDisabler;
+
+    wxPreviewFrameModalityKind m_modalityKind;
+
 
 private:
     void OnChar(wxKeyEvent& event);
@@ -434,6 +470,8 @@ private:
 #define wxID_PREVIEW_FIRST      6
 #define wxID_PREVIEW_LAST       7
 #define wxID_PREVIEW_GOTO       8
+#define wxID_PREVIEW_ZOOM_IN    9
+#define wxID_PREVIEW_ZOOM_OUT   10
 
 class WXDLLIMPEXP_CORE wxPreviewControlBar: public wxPanel
 {
@@ -450,40 +488,71 @@ public:
     virtual ~wxPreviewControlBar();
 
     virtual void CreateButtons();
+    virtual void SetPageInfo(int minPage, int maxPage);
     virtual void SetZoomControl(int zoom);
     virtual int GetZoomControl();
     virtual wxPrintPreviewBase *GetPrintPreview() const
         { return m_printPreview; }
 
+
+    // Implementation only from now on.
     void OnWindowClose(wxCommandEvent& event);
     void OnNext();
     void OnPrevious();
     void OnFirst();
     void OnLast();
-    void OnGoto();
+    void OnGotoPage();
     void OnPrint();
+
     void OnPrintButton(wxCommandEvent& WXUNUSED(event)) { OnPrint(); }
     void OnNextButton(wxCommandEvent & WXUNUSED(event)) { OnNext(); }
     void OnPreviousButton(wxCommandEvent & WXUNUSED(event)) { OnPrevious(); }
     void OnFirstButton(wxCommandEvent & WXUNUSED(event)) { OnFirst(); }
     void OnLastButton(wxCommandEvent & WXUNUSED(event)) { OnLast(); }
-    void OnGotoButton(wxCommandEvent & WXUNUSED(event)) { OnGoto(); }
-    void OnZoom(wxCommandEvent& event);
     void OnPaint(wxPaintEvent& event);
+
+    void OnUpdateNextButton(wxUpdateUIEvent& event)
+        { event.Enable(IsNextEnabled()); }
+    void OnUpdatePreviousButton(wxUpdateUIEvent& event)
+        { event.Enable(IsPreviousEnabled()); }
+    void OnUpdateFirstButton(wxUpdateUIEvent& event)
+        { event.Enable(IsFirstEnabled()); }
+    void OnUpdateLastButton(wxUpdateUIEvent& event)
+        { event.Enable(IsLastEnabled()); }
+    void OnUpdateZoomInButton(wxUpdateUIEvent& event)
+        { event.Enable(IsZoomInEnabled()); }
+    void OnUpdateZoomOutButton(wxUpdateUIEvent& event)
+        { event.Enable(IsZoomOutEnabled()); }
+
+    // These methods are not private because they are called by wxPreviewCanvas.
+    void DoZoomIn();
+    void DoZoomOut();
 
 protected:
     wxPrintPreviewBase*   m_printPreview;
     wxButton*             m_closeButton;
-    wxButton*             m_nextPageButton;
-    wxButton*             m_previousPageButton;
-    wxButton*             m_printButton;
     wxChoice*             m_zoomControl;
-    wxButton*             m_firstPageButton;
-    wxButton*             m_lastPageButton;
-    wxButton*             m_gotoPageButton;
+    wxPrintPageTextCtrl*  m_currentPageText;
+    wxPrintPageMaxCtrl*   m_maxPageText;
+
     long                  m_buttonFlags;
 
 private:
+    void DoGotoPage(int page);
+
+    void DoZoom();
+
+    bool IsNextEnabled() const;
+    bool IsPreviousEnabled() const;
+    bool IsFirstEnabled() const;
+    bool IsLastEnabled() const;
+    bool IsZoomInEnabled() const;
+    bool IsZoomOutEnabled() const;
+
+    void OnZoomInButton(wxCommandEvent & WXUNUSED(event)) { DoZoomIn(); }
+    void OnZoomOutButton(wxCommandEvent & WXUNUSED(event)) { DoZoomOut(); }
+    void OnZoomChoice(wxCommandEvent& WXUNUSED(event)) { DoZoom(); }
+
     DECLARE_EVENT_TABLE()
     wxDECLARE_NO_COPY_CLASS(wxPreviewControlBar);
 };

@@ -67,6 +67,8 @@ public:
 
     virtual int GetHeaderButtonHeight(wxWindow *win);
 
+    virtual int GetHeaderButtonMargin(wxWindow *win);
+
     virtual void DrawTreeItemButton(wxWindow *win,
                                     wxDC& dc,
                                     const wxRect& rect,
@@ -279,7 +281,7 @@ wxRendererGeneric::DrawHeaderButtonContents(wxWindow *win,
         // native hot-tracking line (on XP)
         const int penwidth = 3;
         int y = rect.y + rect.height + 1 - penwidth;
-        wxColour c = (params && params->m_selectionColour.Ok()) ?
+        wxColour c = (params && params->m_selectionColour.IsOk()) ?
             params->m_selectionColour : wxColour(0x66, 0x66, 0x66);
         wxPen pen(c, penwidth);
         pen.SetCap(wxCAP_BUTT);
@@ -320,7 +322,7 @@ wxRendererGeneric::DrawHeaderButtonContents(wxWindow *win,
             triPt[2].y = ar.height;
         }
 
-        wxColour c = (params && params->m_arrowColour.Ok()) ?
+        wxColour c = (params && params->m_arrowColour.IsOk()) ?
             params->m_arrowColour : wxSystemSettings::GetColour(wxSYS_COLOUR_3DSHADOW);
 
         wxDCPenChanger setPen(dc, c);
@@ -334,7 +336,7 @@ wxRendererGeneric::DrawHeaderButtonContents(wxWindow *win,
     int bmpWidth = 0;
 
     // draw the bitmap if there is one
-    if ( params && params->m_labelBitmap.Ok() )
+    if ( params && params->m_labelBitmap.IsOk() )
     {
         int w = params->m_labelBitmap.GetWidth();
         int h = params->m_labelBitmap.GetHeight();
@@ -377,9 +379,9 @@ wxRendererGeneric::DrawHeaderButtonContents(wxWindow *win,
         const int margin = 5;   // number of pixels to reserve on either side of the label
         labelWidth += 2*margin;
 
-        wxFont font  = params->m_labelFont.Ok() ?
+        wxFont font  = params->m_labelFont.IsOk() ?
             params->m_labelFont : win->GetFont();
-        wxColour clr = params->m_labelColour.Ok() ?
+        wxColour clr = params->m_labelColour.IsOk() ?
             params->m_labelColour : win->GetForegroundColour();
 
         wxString label( params->m_labelText );
@@ -396,6 +398,7 @@ wxRendererGeneric::DrawHeaderButtonContents(wxWindow *win,
 
         // truncate and add an ellipsis (...) if the text is too wide.
         const int availWidth = rect.width - labelWidth;
+#if wxUSE_CONTROLS
         if ( tw > availWidth )
         {
             label = wxControl::Ellipsize(label,
@@ -406,6 +409,7 @@ wxRendererGeneric::DrawHeaderButtonContents(wxWindow *win,
             tw = dc.GetTextExtent(label).x;
         }
         else // enough space, we can respect alignment
+#endif // wxUSE_CONTROLS
         {
             switch (params->m_labelAlignment)
             {
@@ -443,6 +447,11 @@ int wxRendererGeneric::GetHeaderButtonHeight(wxWindow *win)
         win->GetTextExtent(wxT("Hg"), &w, &h, &d);
 
     return h + d + 2 * HEADER_OFFSET_Y + EXTRA_HEIGHT;
+}
+
+int wxRendererGeneric::GetHeaderButtonMargin(wxWindow *WXUNUSED(win))
+{
+    return 5;
 }
 
 

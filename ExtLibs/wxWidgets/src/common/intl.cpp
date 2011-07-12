@@ -238,7 +238,7 @@ bool wxLocale::Init(const wxString& name,
                     const wxString& locale,
                     bool            bLoadDefault
 #if WXWIN_COMPATIBILITY_2_8
-                   ,bool            bConvertEncoding
+                   ,bool            WXUNUSED_UNLESS_DEBUG(bConvertEncoding)
 #endif
                     )
 {
@@ -293,7 +293,7 @@ bool wxLocale::DoInit(const wxString& name,
 
     if ( m_pszOldLocale == NULL )
     {
-        wxLogError(_("locale '%s' can not be set."), szLocale);
+        wxLogError(_("locale '%s' cannot be set."), szLocale);
     }
 
     // the short name will be used to look for catalog files as well,
@@ -1024,7 +1024,7 @@ wxLocale::~wxLocale()
     wxSetLocale(m_pOldLocale);
 
     wxSetlocale(LC_ALL, m_pszOldLocale);
-    free((wxChar *)m_pszOldLocale);     // const_cast
+    free(const_cast<char *>(m_pszOldLocale));
 }
 
 
@@ -1045,16 +1045,21 @@ bool wxLocale::IsAvailable(int lang)
 #elif defined(__UNIX__)
 
     // Test if setting the locale works, then set it back.
-    const char *oldLocale = wxSetlocaleTryUTF8(LC_ALL, info->CanonicalName);
-    if ( !oldLocale )
-    {
-        // Some C libraries don't like xx_YY form and require xx only
-        oldLocale = wxSetlocaleTryUTF8(LC_ALL, ExtractLang(info->CanonicalName));
-        if ( !oldLocale )
-            return false;
-    }
+    char * const oldLocale = wxStrdupA(setlocale(LC_ALL, NULL));
+
+    // Some platforms don't like xx_YY form and require xx only so test for
+    // it too.
+    const bool
+        available = wxSetlocaleTryUTF8(LC_ALL, info->CanonicalName) ||
+                    wxSetlocaleTryUTF8(LC_ALL, ExtractLang(info->CanonicalName));
+
     // restore the original locale
     wxSetlocale(LC_ALL, oldLocale);
+
+    free(oldLocale);
+
+    if ( !available )
+        return false;
 #endif
 
     return true;
@@ -1407,7 +1412,7 @@ LCTYPE GetLCTYPEFormatFromLocalInfo(wxLocaleInfo index)
 } // anonymous namespace
 
 /* static */
-wxString wxLocale::GetInfo(wxLocaleInfo index, wxLocaleCategory WXUNUSED(cat))
+wxString wxLocale::GetInfo(wxLocaleInfo index, wxLocaleCategory cat)
 {
     wxUint32 lcid = LOCALE_USER_DEFAULT;
     if ( wxGetLocale() )
@@ -1425,8 +1430,18 @@ wxString wxLocale::GetInfo(wxLocaleInfo index, wxLocaleCategory WXUNUSED(cat))
 
     switch ( index )
     {
+        case wxLOCALE_THOUSANDS_SEP:
+            if ( ::GetLocaleInfo(lcid, LOCALE_STHOUSAND, buf, WXSIZEOF(buf)) )
+                str = buf;
+            break;
+
         case wxLOCALE_DECIMAL_POINT:
-            if ( ::GetLocaleInfo(lcid, LOCALE_SDECIMAL, buf, WXSIZEOF(buf)) )
+            if ( ::GetLocaleInfo(lcid,
+                                 cat == wxLOCALE_CAT_MONEY
+                                     ? LOCALE_SMONDECIMALSEP
+                                     : LOCALE_SDECIMAL,
+                                 buf,
+                                 WXSIZEOF(buf)) )
                 str = buf;
             break;
 

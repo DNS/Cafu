@@ -50,7 +50,7 @@ public:
   // ---------
 
     // set the currently selected page, return the index of the previously
-    // selected one (or -1 on error)
+    // selected one (or wxNOT_FOUND on error)
     // NB: this function will _not_ generate wxEVT_NOTEBOOK_PAGE_xxx events
     int SetSelection(size_t nPage) { return DoSetSelection(nPage, SetSelection_SendEvent); }
     // get the currently selected page
@@ -129,7 +129,7 @@ public:
     // flag set to true while we're inside "switch_page" callback
     bool m_inSwitchPage;
 
-    // flag set to true when the switch-page signal has been programatically generated
+    // flag set to true when the switch-page signal has been programmatically generated
     bool m_skipNextPageChangeEvent;
 
 protected:

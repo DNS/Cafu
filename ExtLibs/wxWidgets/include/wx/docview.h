@@ -17,6 +17,7 @@
 #if wxUSE_DOC_VIEW_ARCHITECTURE
 
 #include "wx/list.h"
+#include "wx/dlist.h"
 #include "wx/string.h"
 #include "wx/frame.h"
 #include "wx/filehistory.h"
@@ -172,6 +173,10 @@ public:
     // dialogs. Override if necessary.
     virtual wxWindow *GetDocumentWindow() const;
 
+    // Returns true if this document is a child document corresponding to a
+    // part of the parent document and not a disk file as usual.
+    bool IsChildDocument() const { return m_documentParent != NULL; }
+
 protected:
     wxList                m_documentViews;
     wxString              m_documentFile;
@@ -179,13 +184,18 @@ protected:
     wxString              m_documentTypeName;
     wxDocTemplate*        m_documentTemplate;
     bool                  m_documentModified;
+
+    // if the document parent is non-NULL, it's a pseudo-document corresponding
+    // to a part of the parent document which can't be saved or loaded
+    // independently of its parent and is always closed when its parent is
     wxDocument*           m_documentParent;
+
     wxCommandProcessor*   m_commandProcessor;
     bool                  m_savedYet;
 
     // Called by OnSaveDocument and OnOpenDocument to implement standard
-    // Save/Load behavior. Re-implement in derived class for custom
-    // behavior.
+    // Save/Load behaviour. Re-implement in derived class for custom
+    // behaviour.
     virtual bool DoSaveDocument(const wxString& file);
     virtual bool DoOpenDocument(const wxString& file);
 
@@ -193,6 +203,10 @@ protected:
     wxString DoGetUserReadableName() const;
 
 private:
+    // list of all documents whose m_documentParent is this one
+    typedef wxDList<wxDocument> DocsList;
+    DocsList m_childDocuments;
+
     DECLARE_ABSTRACT_CLASS(wxDocument)
     wxDECLARE_NO_COPY_CLASS(wxDocument);
 };
@@ -386,6 +400,7 @@ public:
     void OnUpdateFileRevert(wxUpdateUIEvent& event);
     void OnUpdateFileNew(wxUpdateUIEvent& event);
     void OnUpdateFileSave(wxUpdateUIEvent& event);
+    void OnUpdateFileSaveAs(wxUpdateUIEvent& event);
     void OnUpdateUndo(wxUpdateUIEvent& event);
     void OnUpdateRedo(wxUpdateUIEvent& event);
 
@@ -413,6 +428,9 @@ public:
 
     void AssociateTemplate(wxDocTemplate *temp);
     void DisassociateTemplate(wxDocTemplate *temp);
+
+    // Find template from document class info, may return NULL.
+    wxDocTemplate* FindTemplate(const wxClassInfo* documentClassInfo);
 
     wxDocument *GetCurrentDocument() const;
 
@@ -470,6 +488,13 @@ public:
 
     // Get the current document manager
     static wxDocManager* GetDocumentManager() { return sm_docManager; }
+
+#if wxUSE_PRINTING_ARCHITECTURE
+    wxPageSetupDialogData& GetPageSetupDialogData()
+        { return m_pageSetupDialogData; }
+    const wxPageSetupDialogData& GetPageSetupDialogData() const
+        { return m_pageSetupDialogData; }
+#endif // wxUSE_PRINTING_ARCHITECTURE
 
 #if WXWIN_COMPATIBILITY_2_8
     // deprecated, override GetDefaultName() instead
@@ -919,7 +944,7 @@ private:
 class WXDLLIMPEXP_CORE wxDocPrintout : public wxPrintout
 {
 public:
-    wxDocPrintout(wxView *view = NULL, const wxString& title = _("Printout"));
+    wxDocPrintout(wxView *view = NULL, const wxString& title = wxString());
 
     // implement wxPrintout methods
     virtual bool OnPrintPage(int page);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        cocoa/notebook.mm
+// Name:        src/cocoa/notebook.mm
 // Purpose:     wxNotebook
 // Author:      David Elliott
 // Modified by:
@@ -127,7 +127,7 @@ WX_IMPLEMENT_GET_OBJC_CLASS(WXCTabViewImageItem,NSTabViewItem)
 // ========================================================================
 // wxNotebook
 // ========================================================================
-IMPLEMENT_DYNAMIC_CLASS(wxNotebook, wxBookCtrlBase)
+
 BEGIN_EVENT_TABLE(wxNotebook, wxNotebookBase)
 END_EVENT_TABLE()
 WX_IMPLEMENT_COCOA_OWNER(wxNotebook,NSTabView,NSView,NSView)
@@ -301,7 +301,7 @@ int wxNotebook::GetSelection() const
 {
     NSTabViewItem *selectedItem = [GetNSTabView() selectedTabViewItem];
     if(!selectedItem)
-        return -1;
+        return wxNOT_FOUND;
     return [GetNSTabView() indexOfTabViewItem:selectedItem];
 }
 

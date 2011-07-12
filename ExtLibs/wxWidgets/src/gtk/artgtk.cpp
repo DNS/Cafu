@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        src/gtk/artstd.cpp
+// Name:        src/gtk/artgtk.cpp
 // Purpose:     stock wxArtProvider instance with native GTK+ stock icons
 // Author:      Vaclav Slavik
 // Modified by:
@@ -81,6 +81,8 @@ wxString wxArtIDToStock(const wxArtID& id)
     ART(wxART_GO_DOWN,                             GTK_STOCK_GO_DOWN)
     ART(wxART_GO_TO_PARENT,                        GTK_STOCK_GO_UP)
     ART(wxART_GO_HOME,                             GTK_STOCK_HOME)
+    ART(wxART_GOTO_FIRST,                          GTK_STOCK_GOTO_FIRST)
+    ART(wxART_GOTO_LAST,                           GTK_STOCK_GOTO_LAST)
     ART(wxART_FILE_OPEN,                           GTK_STOCK_OPEN)
     ART(wxART_PRINT,                               GTK_STOCK_PRINT)
     ART(wxART_HELP,                                GTK_STOCK_HELP)
@@ -112,6 +114,9 @@ wxString wxArtIDToStock(const wxArtID& id)
 
     ART(wxART_UNDO,                                GTK_STOCK_UNDO)
     ART(wxART_REDO,                                GTK_STOCK_REDO)
+
+    ART(wxART_PLUS,                                GTK_STOCK_ADD)
+    ART(wxART_MINUS,                               GTK_STOCK_REMOVE)
 
     ART(wxART_CLOSE,                               GTK_STOCK_CLOSE)
     ART(wxART_QUIT,                                GTK_STOCK_QUIT)
@@ -198,7 +203,7 @@ GdkPixbuf *CreateStockIcon(const char *stockid, GtkIconSize size)
     //        with "stock-id" representation (in addition to pixmap and pixbuf
     //        ones) and would convert it to pixbuf when rendered.
 
-    GtkStyle* style = wxGTKPrivate::GetButtonWidget()->style;
+    GtkStyle* style = gtk_widget_get_style(wxGTKPrivate::GetButtonWidget());
     GtkIconSet* iconset = gtk_style_lookup_icon_set(style, stockid);
 
     if (!iconset)
@@ -305,7 +310,7 @@ wxGTK2ArtProvider::CreateIconBundle(const wxArtID& id,
     const wxString stockid = wxArtIDToStock(id);
 
     // try to load the bundle as stock icon first
-    GtkStyle* style = wxGTKPrivate::GetButtonWidget()->style;
+    GtkStyle* style = gtk_widget_get_style(wxGTKPrivate::GetButtonWidget());
     GtkIconSet* iconset = gtk_style_lookup_icon_set(style, stockid.utf8_str());
     if ( iconset )
     {

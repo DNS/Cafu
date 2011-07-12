@@ -88,8 +88,6 @@ void wxColourRefData::AllocColour( GdkColormap *cmap )
 // GDK's values are in 0..65535 range, ours are in 0..255
 #define SHIFT  8
 
-IMPLEMENT_DYNAMIC_CLASS(wxColour,wxGDIObject)
-
 wxColour::wxColour(const GdkColor& gdkColor)
 {
     m_refData = new wxColourRefData(gdkColor.red, gdkColor.green, gdkColor.blue);
@@ -129,49 +127,49 @@ void wxColour::InitRGBA(unsigned char red, unsigned char green, unsigned char bl
 
 unsigned char wxColour::Red() const
 {
-    wxCHECK_MSG( Ok(), 0, wxT("invalid colour") );
+    wxCHECK_MSG( IsOk(), 0, wxT("invalid colour") );
 
     return wxByte(M_COLDATA->m_red >> SHIFT);
 }
 
 unsigned char wxColour::Green() const
 {
-    wxCHECK_MSG( Ok(), 0, wxT("invalid colour") );
+    wxCHECK_MSG( IsOk(), 0, wxT("invalid colour") );
 
     return wxByte(M_COLDATA->m_green >> SHIFT);
 }
 
 unsigned char wxColour::Blue() const
 {
-    wxCHECK_MSG( Ok(), 0, wxT("invalid colour") );
+    wxCHECK_MSG( IsOk(), 0, wxT("invalid colour") );
 
     return wxByte(M_COLDATA->m_blue >> SHIFT);
 }
 
 unsigned char wxColour::Alpha() const
 {
-    wxCHECK_MSG( Ok(), 0, wxT("invalid colour") );
+    wxCHECK_MSG( IsOk(), 0, wxT("invalid colour") );
 
     return M_COLDATA->m_alpha;
 }
 
 void wxColour::CalcPixel( GdkColormap *cmap )
 {
-    if (!Ok()) return;
+    if (!IsOk()) return;
 
     M_COLDATA->AllocColour( cmap );
 }
 
 int wxColour::GetPixel() const
 {
-    wxCHECK_MSG( Ok(), 0, wxT("invalid colour") );
+    wxCHECK_MSG( IsOk(), 0, wxT("invalid colour") );
 
     return M_COLDATA->m_color.pixel;
 }
 
 const GdkColor *wxColour::GetColor() const
 {
-    wxCHECK_MSG( Ok(), NULL, wxT("invalid colour") );
+    wxCHECK_MSG( IsOk(), NULL, wxT("invalid colour") );
 
     return &M_COLDATA->m_color;
 }

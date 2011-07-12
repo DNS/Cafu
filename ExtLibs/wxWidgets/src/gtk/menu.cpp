@@ -58,8 +58,6 @@ static void DoCommonMenuCallbackCode(wxMenu *menu, wxMenuEvent& event)
 // wxMenuBar
 //-----------------------------------------------------------------------------
 
-IMPLEMENT_DYNAMIC_CLASS(wxMenuBar,wxWindow)
-
 void wxMenuBar::Init(size_t n, wxMenu *menus[], const wxString titles[], long style)
 {
 #if wxUSE_LIBHILDON || wxUSE_LIBHILDON2
@@ -333,7 +331,7 @@ wxMenu *wxMenuBar::Remove(size_t pos)
 
 static int FindMenuItemRecursive( const wxMenu *menu, const wxString &menuString, const wxString &itemString )
 {
-    if (wxMenuItem::GetLabelText(wxConvertMnemonicsFromGTK(menu->GetTitle())) == wxMenuItem::GetLabelText(menuString))
+    if (wxMenuItem::GetLabelText(menu->GetTitle()) == wxMenuItem::GetLabelText(menuString))
     {
         int res = menu->FindItem( itemString );
         if (res != wxNOT_FOUND)
@@ -426,7 +424,7 @@ wxString wxMenuBar::GetMenuLabel( size_t pos ) const
 
     wxMenu* menu = node->GetData();
 
-    return wxConvertMnemonicsFromGTK(menu->GetTitle());
+    return menu->GetTitle();
 }
 
 void wxMenuBar::SetMenuLabel( size_t pos, const wxString& label )
@@ -442,7 +440,7 @@ void wxMenuBar::SetMenuLabel( size_t pos, const wxString& label )
     menu->SetTitle( str );
 
     if (menu->m_owner)
-        gtk_label_set_text_with_mnemonic( GTK_LABEL( GTK_BIN(menu->m_owner)->child), wxGTK_CONV(str) );
+        gtk_label_set_text_with_mnemonic(GTK_LABEL(gtk_bin_get_child(GTK_BIN(menu->m_owner))), wxGTK_CONV(str));
 }
 
 //-----------------------------------------------------------------------------
@@ -519,8 +517,6 @@ static void menuitem_deselect(GtkWidget*, wxMenuItem* item)
 // wxMenuItem
 //-----------------------------------------------------------------------------
 
-IMPLEMENT_DYNAMIC_CLASS(wxMenuItem, wxObject)
-
 wxMenuItem *wxMenuItemBase::New(wxMenu *parentMenu,
                                 int id,
                                 const wxString& name,
@@ -585,7 +581,7 @@ void wxMenuItem::SetItemLabel( const wxString& str )
 void wxMenuItem::SetGtkLabel()
 {
     const wxString text = wxConvertMnemonicsToGTK(m_text.BeforeFirst('\t'));
-    GtkLabel* label = GTK_LABEL(GTK_BIN(m_menuItem)->child);
+    GtkLabel* label = GTK_LABEL(gtk_bin_get_child(GTK_BIN(m_menuItem)));
     gtk_label_set_text_with_mnemonic(label, wxGTK_CONV_SYS(text));
 #if wxUSE_ACCEL
     guint accel_key;
@@ -605,7 +601,9 @@ void wxMenuItem::SetBitmap(const wxBitmap& bitmap)
     if (m_kind == wxITEM_NORMAL)
         m_bitmap = bitmap;
     else
+    {
         wxFAIL_MSG("only normal menu items can have bitmaps");
+    }
 }
 
 void wxMenuItem::Check( bool check )
@@ -644,7 +642,7 @@ bool wxMenuItem::IsChecked() const
     wxCHECK_MSG( IsCheckable(), false,
                  wxT("can't get state of uncheckable item!") );
 
-    return ((GtkCheckMenuItem*)m_menuItem)->active != 0;
+    return gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(m_menuItem)) != 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -678,8 +676,6 @@ static gboolean can_activate_accel(GtkWidget*, guint, wxMenu* menu)
 }
 }
 
-IMPLEMENT_DYNAMIC_CLASS(wxMenu,wxEvtHandler)
-
 void wxMenu::Init()
 {
     m_popupShown = false;
@@ -688,8 +684,7 @@ void wxMenu::Init()
     m_menu = gtk_menu_new();
     // NB: keep reference to the menu so that it is not destroyed behind
     //     our back by GTK+ e.g. when it is removed from menubar:
-    g_object_ref(m_menu);
-    gtk_object_sink(GTK_OBJECT(m_menu));
+    g_object_ref_sink(m_menu);
 
     m_owner = NULL;
 
@@ -702,8 +697,6 @@ void wxMenu::Init()
 
         gtk_menu_shell_append(GTK_MENU_SHELL(m_menu), tearoff);
     }
-
-    m_prevRadio = NULL;
 
     // append the title as the very first entry if we have it
     if ( !m_title.empty() )
@@ -719,6 +712,11 @@ void wxMenu::Init()
 
 wxMenu::~wxMenu()
 {
+    // Destroying a menu generates a "hide" signal even if it's not shown
+    // currently, so disconnect it to avoid dummy wxEVT_MENU_CLOSE events
+    // generation.
+    g_signal_handlers_disconnect_by_func(m_menu, (gpointer)menu_hide, this);
+
     // see wxMenu::Init
     g_object_unref(m_menu);
 
@@ -742,11 +740,14 @@ wxLayoutDirection wxMenu::GetLayoutDirection() const
     return wxWindow::GTKGetLayout(m_owner);
 }
 
+wxString wxMenu::GetTitle() const
+{
+    return wxConvertMnemonicsFromGTK(wxMenuBase::GetTitle());
+}
+
 bool wxMenu::GtkAppend(wxMenuItem *mitem, int pos)
 {
     GtkWidget *menuItem;
-    GtkWidget* prevRadio = m_prevRadio;
-    m_prevRadio = NULL;
     switch (mitem->GetKind())
     {
         case wxITEM_SEPARATOR:
@@ -757,11 +758,44 @@ bool wxMenu::GtkAppend(wxMenuItem *mitem, int pos)
             break;
         case wxITEM_RADIO:
             {
+                // See if we need to create a new radio group for this item or
+                // add it to an existing one.
+                wxMenuItem* radioGroupItem = NULL;
+
+                const size_t numItems = GetMenuItemCount();
+                const size_t n = pos == -1 ? numItems
+                                           : static_cast<size_t>(pos);
+                if ( n > 0 )
+                {
+                    wxMenuItem* const itemPrev = FindItemByPosition(n - 1);
+                    if ( itemPrev->GetKind() == wxITEM_RADIO )
+                    {
+                        // Appending an item after an existing radio item puts
+                        // it into the same radio group.
+                        radioGroupItem = itemPrev;
+                    }
+                }
+
+                if ( n < numItems )
+                {
+                    wxMenuItem* const itemNext = FindItemByPosition(n);
+                    if ( itemNext->GetKind() == wxITEM_RADIO )
+                    {
+                        // Inserting an item before an existing radio item
+                        // also puts it into the existing radio group.
+                        radioGroupItem = itemNext;
+                    }
+                }
+
                 GSList* group = NULL;
-                if (prevRadio)
-                    group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(prevRadio));
+                if ( radioGroupItem )
+                {
+                    group = gtk_radio_menu_item_get_group(
+                              GTK_RADIO_MENU_ITEM(radioGroupItem->GetMenuItem())
+                            );
+                }
+
                 menuItem = gtk_radio_menu_item_new_with_label(group, "");
-                m_prevRadio = menuItem;
             }
             break;
         default:
@@ -830,14 +864,10 @@ wxMenuItem* wxMenu::DoAppend(wxMenuItem *mitem)
 
 wxMenuItem* wxMenu::DoInsert(size_t pos, wxMenuItem *item)
 {
-    if ( !wxMenuBase::DoInsert(pos, item) )
-        return NULL;
-
-    // TODO
     if ( !GtkAppend(item, (int)pos) )
         return NULL;
 
-    return item;
+    return wxMenuBase::DoInsert(pos, item);
 }
 
 wxMenuItem *wxMenu::DoRemove(wxMenuItem *item)
@@ -846,13 +876,6 @@ wxMenuItem *wxMenu::DoRemove(wxMenuItem *item)
         return NULL;
 
     GtkWidget * const mitem = item->GetMenuItem();
-    if ( m_prevRadio == mitem )
-    {
-        // deleting an item starts a new radio group (has to as we shouldn't
-        // keep a deleted pointer anyhow)
-        m_prevRadio = NULL;
-    }
-
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(mitem), NULL);
     gtk_widget_destroy(mitem);
     item->SetMenuItem(NULL);

@@ -48,6 +48,68 @@
 #include "wx/display.h"
 #endif
 
+extern WXDLLEXPORT_DATA(const char) wxDialogNameStr[] = "dialog";
+
+// ----------------------------------------------------------------------------
+// XTI
+// ----------------------------------------------------------------------------
+
+wxDEFINE_FLAGS( wxDialogStyle )
+wxBEGIN_FLAGS( wxDialogStyle )
+// new style border flags, we put them first to
+// use them for streaming out
+wxFLAGS_MEMBER(wxBORDER_SIMPLE)
+wxFLAGS_MEMBER(wxBORDER_SUNKEN)
+wxFLAGS_MEMBER(wxBORDER_DOUBLE)
+wxFLAGS_MEMBER(wxBORDER_RAISED)
+wxFLAGS_MEMBER(wxBORDER_STATIC)
+wxFLAGS_MEMBER(wxBORDER_NONE)
+
+// old style border flags
+wxFLAGS_MEMBER(wxSIMPLE_BORDER)
+wxFLAGS_MEMBER(wxSUNKEN_BORDER)
+wxFLAGS_MEMBER(wxDOUBLE_BORDER)
+wxFLAGS_MEMBER(wxRAISED_BORDER)
+wxFLAGS_MEMBER(wxSTATIC_BORDER)
+wxFLAGS_MEMBER(wxNO_BORDER)
+
+// standard window styles
+wxFLAGS_MEMBER(wxTAB_TRAVERSAL)
+wxFLAGS_MEMBER(wxCLIP_CHILDREN)
+
+// dialog styles
+wxFLAGS_MEMBER(wxWS_EX_VALIDATE_RECURSIVELY)
+wxFLAGS_MEMBER(wxSTAY_ON_TOP)
+wxFLAGS_MEMBER(wxCAPTION)
+#if WXWIN_COMPATIBILITY_2_6
+wxFLAGS_MEMBER(wxTHICK_FRAME)
+#endif // WXWIN_COMPATIBILITY_2_6
+wxFLAGS_MEMBER(wxSYSTEM_MENU)
+wxFLAGS_MEMBER(wxRESIZE_BORDER)
+#if WXWIN_COMPATIBILITY_2_6
+wxFLAGS_MEMBER(wxRESIZE_BOX)
+#endif // WXWIN_COMPATIBILITY_2_6
+wxFLAGS_MEMBER(wxCLOSE_BOX)
+wxFLAGS_MEMBER(wxMAXIMIZE_BOX)
+wxFLAGS_MEMBER(wxMINIMIZE_BOX)
+wxEND_FLAGS( wxDialogStyle )
+
+wxIMPLEMENT_DYNAMIC_CLASS_XTI(wxDialog, wxTopLevelWindow, "wx/dialog.h")
+
+wxBEGIN_PROPERTIES_TABLE(wxDialog)
+wxPROPERTY( Title, wxString, SetTitle, GetTitle, wxString(), \
+           0 /*flags*/, wxT("Helpstring"), wxT("group"))
+
+wxPROPERTY_FLAGS( WindowStyle, wxDialogStyle, long, SetWindowStyleFlag, \
+                 GetWindowStyleFlag, wxEMPTY_PARAMETER_VALUE, 0 /*flags*/, \
+                 wxT("Helpstring"), wxT("group")) // style
+wxEND_PROPERTIES_TABLE()
+
+wxEMPTY_HANDLERS_TABLE(wxDialog)
+
+wxCONSTRUCTOR_6( wxDialog, wxWindow*, Parent, wxWindowID, Id, \
+                wxString, Title, wxPoint, Position, wxSize, Size, long, WindowStyle)
+
 // ----------------------------------------------------------------------------
 // wxDialogBase
 // ----------------------------------------------------------------------------
@@ -143,45 +205,15 @@ wxDialogBase::GetParentForModalDialog(wxWindow *parent, long style) const
 
 #if wxUSE_STATTEXT
 
-class wxTextSizerWrapper : public wxTextWrapper
-{
-public:
-    wxTextSizerWrapper(wxWindow *win)
-    {
-        m_win = win;
-        m_hLine = 0;
-    }
-
-    wxSizer *CreateSizer(const wxString& text, int widthMax)
-    {
-        m_sizer = new wxBoxSizer(wxVERTICAL);
-        Wrap(m_win, text, widthMax);
-        return m_sizer;
-    }
-
-protected:
-    virtual void OnOutputLine(const wxString& line)
-    {
-        if ( !line.empty() )
-        {
-            m_sizer->Add(new wxStaticText(m_win, wxID_ANY, line));
-        }
-        else // empty line, no need to create a control for it
-        {
-            if ( !m_hLine )
-                m_hLine = m_win->GetCharHeight();
-
-            m_sizer->Add(5, m_hLine);
-        }
-    }
-
-private:
-    wxWindow *m_win;
-    wxSizer *m_sizer;
-    int m_hLine;
-};
-
 wxSizer *wxDialogBase::CreateTextSizer(const wxString& message)
+{
+    wxTextSizerWrapper wrapper(this);
+
+    return CreateTextSizer(message, wrapper);
+}
+
+wxSizer *wxDialogBase::CreateTextSizer(const wxString& message,
+                                       wxTextSizerWrapper& wrapper)
 {
     // I admit that this is complete bogus, but it makes
     // message boxes work for pda screens temporarily..
@@ -197,8 +229,6 @@ wxSizer *wxDialogBase::CreateTextSizer(const wxString& message)
     // for example), we don't want this special meaning, so we need to quote it
     wxString text(message);
     text.Replace(wxT("&"), wxT("&&"));
-
-    wxTextSizerWrapper wrapper(this);
 
     return wrapper.CreateSizer(text, widthMax);
 }
@@ -250,12 +280,8 @@ wxSizer *wxDialogBase::CreateButtonSizer(long flags)
 #endif // __SMARTPHONE__/!__SMARTPHONE__
 }
 
-wxSizer *wxDialogBase::CreateSeparatedButtonSizer(long flags)
+wxSizer *wxDialogBase::CreateSeparatedSizer(wxSizer *sizer)
 {
-    wxSizer *sizer = CreateButtonSizer(flags);
-    if ( !sizer )
-        return NULL;
-
     // Mac Human Interface Guidelines recommend not to use static lines as
     // grouping elements
 #if wxUSE_STATLINE && !defined(__WXMAC__)
@@ -267,6 +293,15 @@ wxSizer *wxDialogBase::CreateSeparatedButtonSizer(long flags)
 #endif // wxUSE_STATLINE
 
     return sizer;
+}
+
+wxSizer *wxDialogBase::CreateSeparatedButtonSizer(long flags)
+{
+    wxSizer *sizer = CreateButtonSizer(flags);
+    if ( !sizer )
+        return NULL;
+
+    return CreateSeparatedSizer(sizer);
 }
 
 #if wxUSE_BUTTON
@@ -404,6 +439,32 @@ bool wxDialogBase::EmulateButtonClickIfPresent(int id)
 #endif // wxUSE_BUTTON/!wxUSE_BUTTON
 }
 
+bool wxDialogBase::SendCloseButtonClickEvent()
+{
+    int idCancel = GetEscapeId();
+    switch ( idCancel )
+    {
+        case wxID_NONE:
+            // The user doesn't want this dialog to close "implicitly".
+            break;
+
+        case wxID_ANY:
+            // this value is special: it means translate Esc to wxID_CANCEL
+            // but if there is no such button, then fall back to wxID_OK
+            if ( EmulateButtonClickIfPresent(wxID_CANCEL) )
+                return true;
+            idCancel = GetAffirmativeId();
+            // fall through
+
+        default:
+            // translate Esc to button press for the button with given id
+            if ( EmulateButtonClickIfPresent(idCancel) )
+                return true;
+    }
+
+    return false;
+}
+
 bool wxDialogBase::IsEscapeKey(const wxKeyEvent& event)
 {
     // for most platforms, Esc key is used to close the dialogs
@@ -415,25 +476,10 @@ void wxDialogBase::OnCharHook(wxKeyEvent& event)
 {
     if ( event.GetKeyCode() == WXK_ESCAPE )
     {
-        int idCancel = GetEscapeId();
-        switch ( idCancel )
+        if ( SendCloseButtonClickEvent() )
         {
-            case wxID_NONE:
-                // don't handle Esc specially at all
-                break;
-
-            case wxID_ANY:
-                // this value is special: it means translate Esc to wxID_CANCEL
-                // but if there is no such button, then fall back to wxID_OK
-                if ( EmulateButtonClickIfPresent(wxID_CANCEL) )
-                    return;
-                idCancel = GetAffirmativeId();
-                // fall through
-
-            default:
-                // translate Esc to button press for the button with given id
-                if ( EmulateButtonClickIfPresent(idCancel) )
-                    return;
+            // Skip the call to event.Skip() below, we did handle this key.
+            return;
         }
     }
 
@@ -507,23 +553,9 @@ wxDialogModality wxDialogBase::GetModality() const
 void wxDialogBase::OnCloseWindow(wxCloseEvent& WXUNUSED(event))
 {
     // We'll send a Cancel message by default, which may close the dialog.
+
     // Check for looping if the Cancel event handler calls Close().
-
-    // Note that if a cancel button and handler aren't present in the dialog,
-    // nothing will happen when you close the dialog via the window manager, or
-    // via Close(). We wouldn't want to destroy the dialog by default, since
-    // the dialog may have been created on the stack. However, this does mean
-    // that calling dialog->Close() won't delete the dialog unless the handler
-    // for wxID_CANCEL does so. So use Destroy() if you want to be sure to
-    // destroy the dialog. The default OnCancel (above) simply ends a modal
-    // dialog, and hides a modeless dialog.
-
-    int idCancel = GetEscapeId();
-    if ( idCancel == wxID_NONE )
-        return;
-    if ( idCancel == wxID_ANY )
-        idCancel = wxID_CANCEL;
-
+    //
     // VZ: this is horrible and MT-unsafe. Can't we reuse some of these global
     //     lists here? don't dare to change it now, but should be done later!
     static wxList closing;
@@ -533,9 +565,17 @@ void wxDialogBase::OnCloseWindow(wxCloseEvent& WXUNUSED(event))
 
     closing.Append(this);
 
-    wxCommandEvent cancelEvent(wxEVT_COMMAND_BUTTON_CLICKED, idCancel);
-    cancelEvent.SetEventObject( this );
-    GetEventHandler()->ProcessEvent(cancelEvent); // This may close the dialog
+    if ( !SendCloseButtonClickEvent() )
+    {
+        // If the handler didn't close the dialog (e.g. because there is no
+        // button with matching id) we still want to close it when the user
+        // clicks the "x" button in the title bar, otherwise we shouldn't even
+        // have put it there.
+        //
+        // Notice that using wxID_CLOSE might have been a better choice but we
+        // use wxID_CANCEL for compatibility reasons.
+        EndDialog(wxID_CANCEL);
+    }
 
     closing.DeleteObject(this);
 }
@@ -655,6 +695,7 @@ bool wxStandardDialogLayoutAdapter::DoLayoutAdaptation(wxDialog* dialog)
         else
 #endif // wxUSE_BOOKCTRL
         {
+#if wxUSE_BUTTON
             // If we have an arbitrary dialog, create a scrolling area for the main content, and a button sizer
             // for the main buttons.
             wxScrolledWindow* scrolledWindow = CreateScrolledWindow(dialog);
@@ -701,6 +742,7 @@ bool wxStandardDialogLayoutAdapter::DoLayoutAdaptation(wxDialog* dialog)
             scrolledWindow->SetSizer(oldSizer);
 
             FitWithScrolling(dialog, scrolledWindow);
+#endif // wxUSE_BUTTON
         }
     }
 
@@ -714,6 +756,8 @@ wxScrolledWindow* wxStandardDialogLayoutAdapter::CreateScrolledWindow(wxWindow* 
     wxScrolledWindow* scrolledWindow = new wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL|wxVSCROLL|wxHSCROLL|wxBORDER_NONE);
     return scrolledWindow;
 }
+
+#if wxUSE_BUTTON
 
 /// Find and remove the button sizer, if any
 wxSizer* wxStandardDialogLayoutAdapter::FindButtonSizer(bool stdButtonSizer, wxDialog* dialog, wxSizer* sizer, int& retBorder, int accumlatedBorder)
@@ -811,6 +855,8 @@ bool wxStandardDialogLayoutAdapter::FindLooseButtons(wxDialog* dialog, wxStdDial
     }
     return true;
 }
+
+#endif // wxUSE_BUTTON
 
 /// Reparent the controls to the scrolled window
 void wxStandardDialogLayoutAdapter::ReparentControls(wxWindow* parent, wxWindow* reparentTo, wxSizer* buttonSizer)

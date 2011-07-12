@@ -12,10 +12,13 @@
 #ifndef _WX_PROPGRID_PROPGRID_H_
 #define _WX_PROPGRID_PROPGRID_H_
 
+#include "wx/defs.h"
+
 #if wxUSE_PROPGRID
 
 #include "wx/thread.h"
 #include "wx/dcclient.h"
+#include "wx/control.h"
 #include "wx/scrolwin.h"
 #include "wx/tooltip.h"
 #include "wx/datetime.h"
@@ -156,7 +159,7 @@ wxPG_ALPHABETIC_MODE                = (wxPG_HIDE_CATEGORIES|wxPG_AUTO_SORT),
 wxPG_BOLD_MODIFIED                  = 0x00000040,
 
 /** Using this style, the column splitters move automatically based on column
-    proportions (default is equal proportion for every column). This behavior
+    proportions (default is equal proportion for every column). This behaviour
     stops once the user manually moves a splitter, and returns when a
     splitter is double-clicked.
 
@@ -245,7 +248,7 @@ wxPG_EX_MODE_BUTTONS                = 0x00008000,
 */
 wxPG_EX_HELP_AS_TOOLTIPS            = 0x00010000,
 
-/** Prevent TAB from focusing to wxButtons. This behavior was default
+/** Prevent TAB from focusing to wxButtons. This behaviour was default
     in version 1.2.0 and earlier.
     NOTE! Tabbing to button doesn't work yet. Problem seems to be that on wxMSW
       atleast the button doesn't properly propagate key events (yes, I'm using
@@ -373,7 +376,7 @@ protected:
 
 // -----------------------------------------------------------------------
 
-/** @section propgrid_vfbflags wxPropertyGrid Validation Failure Behavior Flags
+/** @section propgrid_vfbflags wxPropertyGrid Validation Failure behaviour Flags
     @{
 */
 
@@ -381,7 +384,7 @@ enum wxPG_VALIDATION_FAILURE_BEHAVIOR_FLAGS
 {
 
 /** Prevents user from leaving property unless value is valid. If this
-    behavior flag is not used, then value change is instead cancelled.
+    behaviour flag is not used, then value change is instead cancelled.
 */
 wxPG_VFB_STAY_IN_PROPERTY           = 0x01,
 
@@ -394,11 +397,11 @@ wxPG_VFB_BEEP                       = 0x02,
 wxPG_VFB_MARK_CELL                  = 0x04,
 
 /**
-    Display a text message explaining the situation. 
+    Display a text message explaining the situation.
 
     To customize the way the message is displayed, you need to
     reimplement wxPropertyGrid::DoShowPropertyError() in a
-    derived class. Default behavior is to display the text on
+    derived class. Default behaviour is to display the text on
     the top-level frame's status bar, if present, and otherwise
     using wxMessageBox.
 */
@@ -457,7 +460,7 @@ public:
     }
 
     /**
-        @return Returns failure behavior which is a combination of
+        @return Returns failure behaviour which is a combination of
                @ref propgrid_vfbflags.
     */
     wxPGVFBFlags GetFailureBehavior() const
@@ -478,7 +481,7 @@ public:
         return *m_pValue;
     }
 
-    /** Set validation failure behavior
+    /** Set validation failure behaviour
 
         @param failureBehavior
             Mixture of @ref propgrid_vfbflags.
@@ -501,7 +504,7 @@ private:
     */
     wxString        m_failureMessage;
 
-    /** Validation failure behavior. Use wxPG_VFB_XXX flags.
+    /** Validation failure behaviour. Use wxPG_VFB_XXX flags.
     */
     wxPGVFBFlags    m_failureBehavior;
 
@@ -521,12 +524,32 @@ private:
 enum wxPG_KEYBOARD_ACTIONS
 {
     wxPG_ACTION_INVALID = 0,
+
+    /** Select the next property. */
     wxPG_ACTION_NEXT_PROPERTY,
+
+    /** Select the previous property. */
     wxPG_ACTION_PREV_PROPERTY,
+
+    /** Expand the selected property, if it has child items. */
     wxPG_ACTION_EXPAND_PROPERTY,
+
+    /** Collapse the selected property, if it has child items. */
     wxPG_ACTION_COLLAPSE_PROPERTY,
+
+    /** Cancel and undo any editing done in the currently active property
+        editor.
+    */
     wxPG_ACTION_CANCEL_EDIT,
-    wxPG_ACTION_PRESS_BUTTON,  // Causes editor button (if any) to be pressed
+
+    /** Move focus to the editor control of the currently selected
+        property.
+    */
+    wxPG_ACTION_EDIT,
+
+    /** Causes editor's button (if any) to be pressed. */
+    wxPG_ACTION_PRESS_BUTTON,
+
     wxPG_ACTION_MAX
 };
 
@@ -710,8 +733,9 @@ enum wxPG_SET_SPLITTER_POSITION_SPLITTER_FLAGS
     @library{wxpropgrid}
     @category{propgrid}
 */
-class WXDLLIMPEXP_PROPGRID
-    wxPropertyGrid : public wxScrolledWindow, public wxPropertyGridInterface
+class WXDLLIMPEXP_PROPGRID wxPropertyGrid : public wxControl,
+                                            public wxScrollHelper,
+                                            public wxPropertyGridInterface
 {
     friend class wxPropertyGridEvent;
     friend class wxPropertyGridPageState;
@@ -733,7 +757,7 @@ public:
 #endif
 
     /** The default constructor. The styles to be used are styles valid for
-        the wxWindow and wxScrolledWindow.
+        the wxWindow.
 
         @see @link wndflags Additional Window Styles @endlink
     */
@@ -758,8 +782,12 @@ public:
         @endcode
 
         @param action
-            Which action to trigger. See @link pgactions List of list of
-            wxPropertyGrid actions@endlink.
+            Which action to trigger. See @ref propgrid_keyboard_actions.
+        @param keycode
+            Which keycode triggers the action.
+        @param modifiers
+            Which key event modifiers, in addition to keycode, are needed to
+            trigger the action.
     */
     void AddActionTrigger( int action, int keycode, int modifiers = 0 );
 
@@ -798,7 +826,7 @@ public:
 
     /**
         Centers the splitter.
-        
+
         @param enableAutoResizing
             If @true, automatic column resizing is enabled (only applicapple
             if window style wxPG_SPLITTER_AUTO_CENTER is used).
@@ -1037,7 +1065,7 @@ public:
 
         @param pt
             Coordinates in the virtual grid space. You may need to use
-            wxScrolledWindow::CalcScrolledPosition() for translating
+            wxScrolled<T>::CalcScrolledPosition() for translating
             wxPropertyGrid client coordinates into something this member
             function can use.
     */
@@ -1522,7 +1550,7 @@ public:
     void RefreshEditor();
 
     // Events from editor controls are forward to this function
-    void HandleCustomEditorEvent( wxEvent &event );
+    bool HandleCustomEditorEvent( wxEvent &event );
 
     // Mostly useful for page switching.
     void SwitchState( wxPropertyGridPageState* pNewState );
@@ -1543,11 +1571,11 @@ public:
 
     /** Standardized double-to-string conversion.
     */
-    static void DoubleToString( wxString& target,
-                                double value,
-                                int precision,
-                                bool removeZeroes,
-                                wxString* precTemplate );
+    static const wxString& DoubleToString( wxString& target,
+                                           double value,
+                                           int precision,
+                                           bool removeZeroes,
+                                           wxString* precTemplate = NULL );
 
     /**
         Call this from wxPGProperty::OnEvent() to cause property value to be
@@ -1597,7 +1625,7 @@ public:
             Return true if user is allowed to change to another property even
             if current has invalid value.
         @remarks
-        To add your own validation failure behavior, override
+        To add your own validation failure behaviour, override
         wxPropertyGrid::DoOnValidationFailure().
     */
     bool OnValidationFailure( wxPGProperty* property,
@@ -1641,13 +1669,13 @@ public:
     /**
         Return wxStatusBar that is used by this wxPropertyGrid. You can
         reimplement this member function in derived class to override
-        the default behavior of using the top-level wxFrame's status
+        the default behaviour of using the top-level wxFrame's status
         bar, if any.
     */
     virtual wxStatusBar* GetStatusBar();
 #endif
 
-    /** Override to customize property validation failure behavior.
+    /** Override to customize property validation failure behaviour.
         @param invalidValue
             Value which failed in validation.
         @return
@@ -1715,7 +1743,7 @@ protected:
     /**
         Runs all validation functionality (includes sending wxEVT_PG_CHANGING).
         Returns true if all tests passed. Implement in derived class to
-        add additional validation behavior.
+        add additional validation behaviour.
     */
     virtual bool PerformValidation( wxPGProperty* p,
                                     wxVariant& pendingValue,
@@ -1749,9 +1777,6 @@ public:
     virtual void Refresh( bool eraseBackground = true,
                           const wxRect *rect = (const wxRect *) NULL );
     virtual bool SetFont( const wxFont& font );
-#if wxPG_SUPPORT_TOOLTIPS
-    void SetToolTip( const wxString& tipString );
-#endif
     virtual void Freeze();
     virtual void SetExtraStyle( long exStyle );
     virtual void Thaw();
@@ -1770,9 +1795,7 @@ protected:
     wxWindow            *m_wndEditor;
     wxWindow            *m_wndEditor2;
 
-#if wxPG_DOUBLE_BUFFER
     wxBitmap            *m_doubleBuffer;
-#endif
 
     /** Local time ms when control was created. */
     wxLongLong          m_timeCreated;
@@ -1839,12 +1862,7 @@ protected:
     /** Current cursor id. */
     int                 m_curcursor;
 
-    /**
-        This captionFont is made equal to the font of the wxScrolledWindow.
-
-        As extra the bold face is set on it when this is wanted by the user
-        (see flags)
-     */
+    // Caption font. Same as normal font plus bold style.
     wxFont              m_captionFont;
 
     int                 m_fontHeight;  // Height of the font.
@@ -2111,7 +2129,7 @@ protected:
     void CorrectEditorWidgetPosY();
 
     int DoDrawItems( wxDC& dc,
-                     const wxRect* drawRect,
+                     const wxRect* itemsRect,
                      bool isBuffered ) const;
 
     /** Draws an expand/collapse (ie. +/-) button.
@@ -2123,7 +2141,7 @@ protected:
     void DrawItems( wxDC& dc,
                     unsigned int topItemY,
                     unsigned int bottomItemY,
-                    const wxRect* drawRect = NULL );
+                    const wxRect* itemsRect = NULL );
 
     // Translate wxKeyEvent to wxPG_ACTION_XXX
     int KeyEventToActions(wxKeyEvent &event, int* pSecond) const;
@@ -2218,6 +2236,8 @@ protected:
                     unsigned int selFlags = wxPG_SEL_NOVALIDATE,
                     unsigned int column = 1 );
 
+    // This function only moves focus to the wxPropertyGrid if it already
+    // was on one of its child controls.
     void SetFocusOnCanvas();
 
     bool DoHideProperty( wxPGProperty* p, bool hide, int flags );
@@ -2467,7 +2487,7 @@ public:
     }
 
     /**
-        Set override validation failure behavior.
+        Set override validation failure behaviour.
 
         Only effective if Veto was also called, and only allowed if event type
         is wxEVT_PG_CHANGING.
@@ -2665,7 +2685,6 @@ protected:
     #undef wxPG_FL_INITIALIZED
     #undef wxPG_FL_ACTIVATION_BY_CLICK
     #undef wxPG_SUPPORT_TOOLTIPS
-    #undef wxPG_DOUBLE_BUFFER
     #undef wxPG_ICON_WIDTH
     #undef wxPG_USE_RENDERER_NATIVE
 // Following are needed by the manager headers

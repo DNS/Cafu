@@ -1083,40 +1083,63 @@ size_t wxString::find_last_not_of(const wxOtherCharType* sz, size_t nStart,
 
 int wxString::CmpNoCase(const wxString& s) const
 {
-#if defined(__WXMSW__) && !wxUSE_UNICODE_UTF8
-    // Prefer to use CompareString() if available as it's more efficient than
-    // doing it manually or even using wxStricmp() (see #10375)
-    //
-    // Also note that not using NORM_STRINGSORT may result in not having a
-    // strict weak ordering (e.g. s1 < s2 and s2 < s3 but s3 < s1) and so break
-    // algorithms such as std::sort that rely on it. It's also more consistent
-    // with the fall back version below.
-    switch ( ::CompareString(LOCALE_USER_DEFAULT,
-                             NORM_IGNORECASE | SORT_STRINGSORT,
-                             m_impl.c_str(), m_impl.length(),
-                             s.m_impl.c_str(), s.m_impl.length()) )
+#if !wxUSE_UNICODE_UTF8
+    // We compare NUL-delimited chunks of the strings inside the loop. We will
+    // do as many iterations as there are embedded NULs in the string, i.e.
+    // usually we will run it just once.
+
+    typedef const wxStringImpl::value_type *pchar_type;
+    const pchar_type thisBegin = m_impl.c_str();
+    const pchar_type thatBegin = s.m_impl.c_str();
+
+    const pchar_type thisEnd = thisBegin + m_impl.length();
+    const pchar_type thatEnd = thatBegin + s.m_impl.length();
+
+    pchar_type thisCur = thisBegin;
+    pchar_type thatCur = thatBegin;
+
+    int rc;
+    for ( ;; )
     {
-        case CSTR_LESS_THAN:
-            return -1;
+        // Compare until the next NUL, if the strings differ this is the final
+        // result.
+        rc = wxStricmp(thisCur, thatCur);
+        if ( rc )
+            break;
 
-        case CSTR_EQUAL:
-            return 0;
+        const size_t lenChunk = wxStrlen(thisCur);
+        thisCur += lenChunk;
+        thatCur += lenChunk;
 
-        case CSTR_GREATER_THAN:
-            return 1;
+        // Skip all the NULs as wxStricmp() doesn't handle them.
+        for ( ; !*thisCur; thisCur++, thatCur++ )
+        {
+            // Check if we exhausted either of the strings.
+            if ( thisCur == thisEnd )
+            {
+                // This one is exhausted, is the other one too?
+                return thatCur == thatEnd ? 0 : -1;
+            }
 
-        default:
-            wxFAIL_MSG( "unexpected CompareString() return value" );
-            // fall through
+            if ( thatCur == thatEnd )
+            {
+                // Because of the test above we know that this one is not
+                // exhausted yet so it's greater than the other one that is.
+                return 1;
+            }
 
-        case 0:
-            wxLogLastError("CompareString");
-            // use generic code below
+            if ( *thatCur )
+            {
+                // Anything non-NUL is greater than NUL.
+                return -1;
+            }
+        }
     }
-#endif // __WXMSW__ && !wxUSE_UNICODE_UTF8
 
-    // do the comparison manually: notice that we can't use wxStricmp() as it
-    // doesn't handle embedded NULs
+    return rc;
+#else // wxUSE_UNICODE_UTF8
+    // CRT functions can't be used for case-insensitive comparison of UTF-8
+    // strings so do it in the naive, simple and inefficient way.
 
     // FIXME-UTF8: use wxUniChar::ToLower/ToUpper once added
     const_iterator i1 = begin();
@@ -1140,6 +1163,7 @@ int wxString::CmpNoCase(const wxString& s) const
     else if ( len1 > len2 )
         return 1;
     return 0;
+#endif // !wxUSE_UNICODE_UTF8/wxUSE_UNICODE_UTF8
 }
 
 
@@ -1325,22 +1349,43 @@ wxString wxString::Left(size_t nCount) const
 
 // get all characters before the first occurrence of ch
 // (returns the whole string if ch not found)
-wxString wxString::BeforeFirst(wxUniChar ch) const
+wxString wxString::BeforeFirst(wxUniChar ch, wxString *rest) const
 {
   int iPos = Find(ch);
   if ( iPos == wxNOT_FOUND )
-      iPos = length();
+  {
+    iPos = length();
+    if ( rest )
+      rest->clear();
+  }
+  else
+  {
+    if ( rest )
+      rest->assign(*this, iPos + 1, npos);
+  }
+
   return wxString(*this, 0, iPos);
 }
 
 /// get all characters before the last occurrence of ch
 /// (returns empty string if ch not found)
-wxString wxString::BeforeLast(wxUniChar ch) const
+wxString wxString::BeforeLast(wxUniChar ch, wxString *rest) const
 {
   wxString str;
   int iPos = Find(ch, true);
-  if ( iPos != wxNOT_FOUND && iPos != 0 )
-    str = wxString(c_str(), iPos);
+  if ( iPos != wxNOT_FOUND )
+  {
+    if ( iPos != 0 )
+      str.assign(*this, 0, iPos);
+
+    if ( rest )
+      rest->assign(*this, iPos + 1, npos);
+  }
+  else
+  {
+    if ( rest )
+      *rest = *this;
+  }
 
   return str;
 }
@@ -1794,17 +1839,43 @@ bool wxString::ToCDouble(double *pVal) const
 // ----------------------------------------------------------------------------
 
 /* static */
-wxString wxString::FromCDouble(double val)
+wxString wxString::FromDouble(double val, int precision)
 {
+    wxCHECK_MSG( precision >= -1, wxString(), "Invalid negative precision" );
+
+    wxString format;
+    if ( precision == -1 )
+    {
+        format = "%g";
+    }
+    else // Use fixed precision.
+    {
+        format.Printf("%%.%df", precision);
+    }
+
+    return wxString::Format(format, val);
+}
+
+/* static */
+wxString wxString::FromCDouble(double val, int precision)
+{
+    wxCHECK_MSG( precision >= -1, wxString(), "Invalid negative precision" );
+
 #if wxUSE_STD_IOSTREAM && wxUSE_STD_STRING
     // We assume that we can use the ostream and not wstream for numbers.
     wxSTD ostringstream os;
+    if ( precision != -1 )
+    {
+        os.precision(precision);
+        os.setf(std::ios::fixed, std::ios::floatfield);
+    }
+
     os << val;
     return os.str();
-#else // wxUSE_STD_IOSTREAM
+#else // !wxUSE_STD_IOSTREAM
     // Can't use iostream locale support, fall back to the manual method
     // instead.
-    wxString s = FromDouble(val);
+    wxString s = FromDouble(val, precision);
 #if wxUSE_INTL
     wxString sep = wxLocale::GetInfo(wxLOCALE_DECIMAL_POINT,
                                      wxLOCALE_CAT_NUMBER);
@@ -1937,16 +2008,16 @@ int wxString::DoPrintfUtf8(const char *format, ...)
     Since EILSEQ and EINVAL are rather common but EOVERFLOW is not and since
     EILSEQ and EINVAL are specifically defined to mean the error is other than
     an undersized buffer and no other errno are defined we treat those two
-    as meaning hard errors and everything else gets the old behavior which
+    as meaning hard errors and everything else gets the old behaviour which
     is to keep looping and increasing buffer size until the function succeeds.
 
-    In practice it's impossible to determine before compilation which behavior
-    may be used.  The vswprintf function may have vsnprintf-like behavior or
-    vice-versa.  Behavior detected on one release can theoretically change
+    In practice it's impossible to determine before compilation which behaviour
+    may be used.  The vswprintf function may have vsnprintf-like behaviour or
+    vice-versa.  Behaviour detected on one release can theoretically change
     with an updated release.  Not to mention that configure testing for it
     would require the test to be run on the host system, not the build system
     which makes cross compilation difficult. Therefore, we make no assumptions
-    about behavior and try our best to handle every known case, including the
+    about behaviour and try our best to handle every known case, including the
     case where wxVsnprintf returns a negative number and fails to set errno.
 
     There is yet one more non-standard implementation and that is our own.
@@ -1957,9 +2028,9 @@ int wxString::DoPrintfUtf8(const char *format, ...)
     at the given buffer size minus 1.  It is supposed to do this even if it
     turns out that the buffer is sized too small.
 
-    Darwin (tested on 10.5) follows the C99 behavior exactly.
+    Darwin (tested on 10.5) follows the C99 behaviour exactly.
 
-    Glibc 2.6 almost follows the C99 behavior except vswprintf never sets
+    Glibc 2.6 almost follows the C99 behaviour except vswprintf never sets
     errno even when it fails.  However, it only seems to ever fail due
     to an undersized buffer.
 */
@@ -1988,11 +2059,6 @@ static int DoStringPrintfV(wxString& str,
         if ( !buf )
         {
             // out of memory
-
-            // in UTF-8 build, leaving uninitialized junk in the buffer
-            // could result in invalid non-empty UTF-8 string, so just
-            // reset the string to empty on failure:
-            buf[0] = '\0';
             return -1;
         }
 

@@ -4,7 +4,7 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     1998-01-01
-// RCS-ID:      $Id: menu.cpp 54129 2008-06-11 19:30:52Z SC $
+// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -43,10 +43,7 @@ wxMenuImpl::~wxMenuImpl()
 {
 }
 
-IMPLEMENT_DYNAMIC_CLASS(wxMenu, wxEvtHandler)
-IMPLEMENT_DYNAMIC_CLASS(wxMenuBar, wxEvtHandler)
-
-// the (popup) menu title has this special id
+// the (popup) menu title has this special menuid
 static const int idMenuTitle = -3;
 
 // ============================================================================
@@ -56,18 +53,6 @@ static const int idMenuTitle = -3;
 // Menus
 
 // Construct a menu with optional title (then use append)
-
-static
-wxMenu *
-_wxMenuAt(const wxMenuList &menuList, size_t pos)
-{
-    wxMenuList::compatibility_iterator menuIter = menuList.GetFirst();
-
-    while (pos-- > 0)
-        menuIter = menuIter->GetNext();
-
-    return menuIter->GetData() ;
-}
 
 void wxMenu::Init()
 {
@@ -126,7 +111,7 @@ void wxMenu::SetNoEventsMode( bool noEvents )
 bool wxMenu::DoInsertOrAppend(wxMenuItem *pItem, size_t pos)
 {
     wxASSERT_MSG( pItem != NULL, wxT("can't append NULL item to the menu") );
-    m_peer->InsertOrAppend( pItem, pos );
+    GetPeer()->InsertOrAppend( pItem, pos );
 
     if ( pItem->IsSeparator() )
     {
@@ -243,7 +228,7 @@ wxMenuItem *wxMenu::DoRemove(wxMenuItem *item)
 
     wxOSXMenuRemoveItem(m_hMenu , pos );
     */
-    m_peer->Remove( item );
+    GetPeer()->Remove( item );
     // and from internal data structures
     return wxMenuBase::DoRemove(item);
 }
@@ -251,7 +236,7 @@ wxMenuItem *wxMenu::DoRemove(wxMenuItem *item)
 void wxMenu::SetTitle(const wxString& label)
 {
     m_title = label ;
-    m_peer->SetTitle( wxStripMenuCodes( label ) );
+    GetPeer()->SetTitle( wxStripMenuCodes( label ) );
 }
 
 bool wxMenu::ProcessCommand(wxCommandEvent & event)
@@ -352,8 +337,8 @@ void wxMenu::DoRearrange()
 
 bool wxMenu::HandleCommandUpdateStatus( wxMenuItem* item, wxWindow* senderWindow )
 {
-    int id = item ? item->GetId() : 0;
-    wxUpdateUIEvent event(id);
+    int menuid = item ? item->GetId() : 0;
+    wxUpdateUIEvent event(menuid);
     event.SetEventObject( this );
 
     bool processed = false;
@@ -383,11 +368,11 @@ bool wxMenu::HandleCommandUpdateStatus( wxMenuItem* item, wxWindow* senderWindow
     {
         // if anything changed, update the changed attribute
         if (event.GetSetText())
-            SetLabel(id, event.GetText());
+            SetLabel(menuid, event.GetText());
         if (event.GetSetChecked())
-            Check(id, event.GetChecked());
+            Check(menuid, event.GetChecked());
         if (event.GetSetEnabled())
-            Enable(id, event.GetEnabled());
+            Enable(menuid, event.GetEnabled());
     }
     else
     {
@@ -396,11 +381,11 @@ bool wxMenu::HandleCommandUpdateStatus( wxMenuItem* item, wxWindow* senderWindow
         // always reset them ourselves
         UInt32 cmd = 0;
 
-        if ( id == wxApp::s_macExitMenuItemId )
+        if ( menuid == wxApp::s_macExitMenuItemId )
         {
             cmd = kHICommandQuit;
         }
-        else if (id == wxApp::s_macPreferencesMenuItemId )
+        else if (menuid == wxApp::s_macPreferencesMenuItemId )
         {
             cmd = kHICommandPreferences;
         }
@@ -421,18 +406,18 @@ bool wxMenu::HandleCommandUpdateStatus( wxMenuItem* item, wxWindow* senderWindow
 
 bool wxMenu::HandleCommandProcess( wxMenuItem* item, wxWindow* senderWindow )
 {
-    int id = item ? item->GetId() : 0;
+    int menuid = item ? item->GetId() : 0;
     bool processed = false;
     if (item->IsCheckable())
         item->Check( !item->IsChecked() ) ;
 
-    if ( SendEvent( id , item->IsCheckable() ? item->IsChecked() : -1 ) )
+    if ( SendEvent( menuid , item->IsCheckable() ? item->IsChecked() : -1 ) )
         processed = true ;
     else
     {
         if ( senderWindow != NULL )
         {
-            wxCommandEvent event(wxEVT_COMMAND_MENU_SELECTED , id);
+            wxCommandEvent event(wxEVT_COMMAND_MENU_SELECTED , menuid);
             event.SetEventObject(senderWindow);
             event.SetInt(item->IsCheckable() ? item->IsChecked() : -1);
 
@@ -440,13 +425,19 @@ bool wxMenu::HandleCommandProcess( wxMenuItem* item, wxWindow* senderWindow )
                 processed = true ;
         }
     }
+
+    if(!processed && item)
+    {
+        processed = item->GetPeer()->DoDefault();  
+    }
+    
     return processed;
 }
 
 void wxMenu::HandleMenuItemHighlighted( wxMenuItem* item )
 {
-    int id = item ? item->GetId() : 0;
-    wxMenuEvent wxevent(wxEVT_MENU_HIGHLIGHT, id, this);
+    int menuid = item ? item->GetId() : 0;
+    wxMenuEvent wxevent(wxEVT_MENU_HIGHLIGHT, menuid, this);
     DoHandleMenuEvent( wxevent );
 }
 
@@ -506,6 +497,8 @@ wxMenuBar* wxMenuBar::s_macCommonMenuBar = NULL ;
 bool     wxMenuBar::s_macAutoWindowMenu = true ;
 WXHMENU  wxMenuBar::s_macWindowMenuHandle = NULL ;
 
+const int firstMenuPos = 1; // to account for the 0th application menu on mac
+
 void wxMenuBar::Init()
 {
     m_eventHandler = this;
@@ -515,13 +508,46 @@ void wxMenuBar::Init()
 
     m_appleMenu = new wxMenu();
     m_appleMenu->SetAllowRearrange(false);
-    m_appleMenu->Append( wxApp::s_macAboutMenuItemId, "About..." );
-    m_appleMenu->AppendSeparator();
+
+    // Create standard items unless the application explicitly disabled this by
+    // setting the corresponding ids to wxID_NONE: although this is not
+    // recommended, sometimes these items really don't make sense.
+    if ( wxApp::s_macAboutMenuItemId != wxID_NONE )
+    {
+        wxString aboutLabel(_("About"));
+        if ( wxTheApp )
+            aboutLabel << ' ' << wxTheApp->GetAppDisplayName();
+        else
+            aboutLabel << "...";
+        m_appleMenu->Append( wxApp::s_macAboutMenuItemId, aboutLabel);
+        m_appleMenu->AppendSeparator();
+    }
+
 #if !wxOSX_USE_CARBON
-    m_appleMenu->Append( wxApp::s_macPreferencesMenuItemId, "Preferences..." );
+    if ( wxApp::s_macPreferencesMenuItemId != wxID_NONE )
+    {
+        m_appleMenu->Append( wxApp::s_macPreferencesMenuItemId,
+                             _("Preferences...") + "\tCtrl+," );
+        m_appleMenu->AppendSeparator();
+    }
+
+    // standard menu items, handled in wxMenu::HandleCommandProcess(), see above:
+    wxString hideLabel(_("Hide"));
+    if ( wxTheApp )
+        hideLabel << ' ' << wxTheApp->GetAppDisplayName();
+    hideLabel << "\tCtrl+H";
+    m_appleMenu->Append( wxID_OSX_HIDE, hideLabel );    
+    m_appleMenu->Append( wxID_OSX_HIDEOTHERS, _("Hide Others")+"\tAlt+Ctrl+H" );    
+    m_appleMenu->Append( wxID_OSX_SHOWALL, _("Show All") );    
     m_appleMenu->AppendSeparator();
-    m_appleMenu->Append( wxApp::s_macExitMenuItemId, "Quit\tCtrl+Q" );
-#endif
+    
+    // Do always add "Quit" item unconditionally however, it can't be disabled.
+    wxString quitLabel(_("Quit"));
+    if ( wxTheApp )
+        quitLabel << ' ' << wxTheApp->GetAppDisplayName();
+    quitLabel << "\tCtrl+Q";
+    m_appleMenu->Append( wxApp::s_macExitMenuItemId, quitLabel );
+#endif // !wxOSX_USE_CARBON
 
     m_rootMenu->AppendSubMenu(m_appleMenu, "\x14") ;
 }
@@ -540,12 +566,9 @@ wxMenuBar::wxMenuBar(size_t count, wxMenu *menus[], const wxString titles[], lon
 {
     Init();
 
-    m_titles.Alloc(count);
-
     for ( size_t i = 0; i < count; i++ )
     {
         m_menus.Append(menus[i]);
-        m_titles.Add(titles[i]);
 
         menus[i]->Attach(this);
         Append( menus[i], titles[i] );
@@ -574,28 +597,37 @@ void wxMenuBar::MacInstallMenuBar()
         return ;
 
     m_rootMenu->GetPeer()->MakeRoot();
+    
+    // hide items in the apple menu that don't exist in the wx menubar
+    
+    int menuid = 0;
+    wxMenuItem* appleItem = NULL;
+    wxMenuItem* wxItem = NULL;
 
+    menuid = wxApp::s_macAboutMenuItemId;
+    appleItem = m_appleMenu->FindItem(menuid);
+    wxItem = FindItem(menuid);
+    if ( appleItem != NULL )
+    {
+        if ( wxItem == NULL )
+            appleItem->GetPeer()->Hide();
+        else 
+            appleItem->SetItemLabel(wxItem->GetItemLabel());
+    }
+    
+    menuid = wxApp::s_macPreferencesMenuItemId;
+    appleItem = m_appleMenu->FindItem(menuid);
+    wxItem = FindItem(menuid);
+    if ( appleItem != NULL )
+    {
+        if ( wxItem == NULL )
+            appleItem->GetPeer()->Hide();
+        else 
+            appleItem->SetItemLabel(wxItem->GetItemLabel());
+    }
+    
+        
 #if 0
-
-    MenuBarHandle menubar = NULL ;
-
-    menubar = NewHandleClear( 6 /* sizeof( MenuBarHeader ) */ ) ;
-
-    ::SetMenuBar( menubar ) ;
-    DisposeMenuBar( menubar ) ;
-    MenuHandle appleMenu = NULL ;
-
-    verify_noerr( CreateNewMenu( kwxMacAppleMenuId , 0 , &appleMenu ) ) ;
-    verify_noerr( SetMenuTitleWithCFString( appleMenu , CFSTR( "\x14" ) ) );
-
-    // Add About/Preferences separator only on OS X
-    // KH/RN: Separator is always present on 10.3 but not on 10.2
-    // However, the change from 10.2 to 10.3 suggests it is preferred
-    InsertMenuItemTextWithCFString( appleMenu,
-                CFSTR(""), 0, kMenuItemAttrSeparator, 0);
-    InsertMenuItemTextWithCFString( appleMenu,
-                CFSTR("About..."), 0, 0, 0);
-    MacInsertMenu( appleMenu , 0 ) ;
 
     // if we have a mac help menu, clean it up before adding new items
     MenuHandle helpMenuHandle ;
@@ -737,7 +769,7 @@ void wxMenuBar::MacInstallMenuBar()
             UMASetMenuTitle( MAC_WXHMENU(menu->GetHMenu()) , m_titles[i], GetFont().GetEncoding()  ) ;
             menu->MacBeforeDisplay(false) ;
 
-            ::InsertMenu(MAC_WXHMENU(_wxMenuAt(m_menus, i)->GetHMenu()), 0);
+            ::InsertMenu(MAC_WXHMENU(GetMenu(i)->GetHMenu()), 0);
         }
     }
 
@@ -776,7 +808,7 @@ void wxMenuBar::EnableTop(size_t pos, bool enable)
 {
     wxCHECK_RET( IsAttached(), wxT("doesn't work with unattached menubars") );
 
-    m_rootMenu->FindItemByPosition( pos )->Enable(enable);
+    m_rootMenu->FindItemByPosition(pos+firstMenuPos)->Enable(enable);
 
     Refresh();
 }
@@ -796,12 +828,7 @@ void wxMenuBar::SetMenuLabel(size_t pos, const wxString& label)
 {
     wxCHECK_RET( pos < GetMenuCount(), wxT("invalid menu index") );
 
-    m_titles[pos] = label;
-
-    if ( !IsAttached() )
-        return;
-
-    _wxMenuAt(m_menus, pos)->SetTitle( label ) ;
+    GetMenu(pos)->SetTitle( label ) ;
 }
 
 wxString wxMenuBar::GetMenuLabel(size_t pos) const
@@ -809,37 +836,18 @@ wxString wxMenuBar::GetMenuLabel(size_t pos) const
     wxCHECK_MSG( pos < GetMenuCount(), wxEmptyString,
                  wxT("invalid menu index in wxMenuBar::GetMenuLabel") );
 
-    return m_titles[pos];
-}
-
-int wxMenuBar::FindMenu(const wxString& title)
-{
-    wxString menuTitle = wxStripMenuCodes(title);
-
-    size_t count = GetMenuCount();
-    for ( size_t i = 0; i < count; i++ )
-    {
-        wxString title = wxStripMenuCodes(m_titles[i]);
-        if ( menuTitle == title )
-            return i;
-    }
-
-    return wxNOT_FOUND;
+    return GetMenu(pos)->GetTitle();
 }
 
 // ---------------------------------------------------------------------------
 // wxMenuBar construction
 // ---------------------------------------------------------------------------
 
-const int firstMenuPos = 1; // to account for the 0th application menu on mac
-
 wxMenu *wxMenuBar::Replace(size_t pos, wxMenu *menu, const wxString& title)
 {
     wxMenu *menuOld = wxMenuBarBase::Replace(pos, menu, title);
     if ( !menuOld )
         return NULL;
-
-    m_titles[pos] = title;
 
     wxMenuItem* item = m_rootMenu->FindItemByPosition(pos+firstMenuPos);
     m_rootMenu->Remove(item);
@@ -852,8 +860,6 @@ bool wxMenuBar::Insert(size_t pos, wxMenu *menu, const wxString& title)
 {
     if ( !wxMenuBarBase::Insert(pos, menu, title) )
         return false;
-
-    m_titles.Insert(title, pos);
 
     m_rootMenu->Insert( pos+firstMenuPos, wxMenuItem::New( m_rootMenu, wxID_ANY, title, "", wxITEM_NORMAL, menu ) );
 
@@ -869,8 +875,6 @@ wxMenu *wxMenuBar::Remove(size_t pos)
     wxMenuItem* item = m_rootMenu->FindItemByPosition(pos+firstMenuPos);
     m_rootMenu->Remove(item);
 
-    m_titles.RemoveAt(pos);
-
     return menu;
 }
 
@@ -882,9 +886,8 @@ bool wxMenuBar::Append(wxMenu *menu, const wxString& title)
     if ( !wxMenuBarBase::Append(menu, title) )
         return false;
 
-    m_titles.Add(title);
-
     m_rootMenu->AppendSubMenu(menu, title);
+    menu->SetTitle(title);
 
     return true;
 }
@@ -899,37 +902,4 @@ void wxMenuBar::Attach(wxFrame *frame)
     wxMenuBarBase::Attach( frame ) ;
 }
 
-// ---------------------------------------------------------------------------
-// wxMenuBar searching for menu items
-// ---------------------------------------------------------------------------
-
-// Find the itemString in menuString, and return the item id or wxNOT_FOUND
-int wxMenuBar::FindMenuItem(const wxString& menuString,
-                            const wxString& itemString) const
-{
-    wxString menuLabel = wxStripMenuCodes(menuString);
-    size_t count = GetMenuCount();
-    for ( size_t i = 0; i < count; i++ )
-    {
-        wxString title = wxStripMenuCodes(m_titles[i]);
-        if ( menuLabel == title )
-            return _wxMenuAt(m_menus, i)->FindItem(itemString);
-    }
-
-    return wxNOT_FOUND;
-}
-
-wxMenuItem *wxMenuBar::FindItem(int id, wxMenu **itemMenu) const
-{
-    if ( itemMenu )
-        *itemMenu = NULL;
-
-    wxMenuItem *item = NULL;
-    size_t count = GetMenuCount();
-    for ( size_t i = 0; !item && (i < count); i++ )
-        item = _wxMenuAt(m_menus, i)->FindItem(id, itemMenu);
-
-    return item;
-}
-
-#endif
+#endif // wxUSE_MENUS

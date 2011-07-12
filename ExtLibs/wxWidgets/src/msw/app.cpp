@@ -121,13 +121,15 @@ extern void wxSetKeyboardHook(bool doIt);
 // see http://article.gmane.org/gmane.comp.lib.wxwidgets.devel/110282
 struct ClassRegInfo
 {
-    // the base name of the class: this is used to construct the unique name in
-    // wxApp::GetRegisteredClassName()
-    wxString basename;
+    ClassRegInfo(const wxChar *name)
+        : regname(name),
+          regnameNR(regname + wxApp::GetNoRedrawClassSuffix())
+    {
+    }
 
     // the name of the registered class with and without CS_[HV]REDRAW styles
-    wxString regname,
-             regnameNR;
+    wxString regname;
+    wxString regnameNR;
 };
 
 namespace
@@ -217,6 +219,7 @@ void wxGUIAppTraits::AfterChildWaitLoop(void *dataOrig)
     delete data;
 }
 
+#if wxUSE_THREADS
 bool wxGUIAppTraits::DoMessageFromThreadWait()
 {
     // we should return false only if the app should exit, i.e. only if
@@ -231,14 +234,20 @@ bool wxGUIAppTraits::DoMessageFromThreadWait()
     return evtLoop->Dispatch();
 }
 
-DWORD wxGUIAppTraits::WaitForThread(WXHANDLE hThread)
+DWORD wxGUIAppTraits::WaitForThread(WXHANDLE hThread, int flags)
 {
-    // if we don't have a running event loop, we shouldn't wait for the
-    // messages as we never remove them from the message queue and so we enter
-    // an infinite loop as MsgWaitForMultipleObjects() keeps returning
-    // WAIT_OBJECT_0 + 1
-    if ( !wxEventLoop::GetActive() )
+    // We only ever dispatch messages from the main thread and, additionally,
+    // even from the main thread we shouldn't wait for the message if we don't
+    // have a running event loop as we would never remove them from the message
+    // queue then and so we would enter an infinite loop as
+    // MsgWaitForMultipleObjects() keeps returning WAIT_OBJECT_0 + 1.
+    if ( flags == wxTHREAD_WAIT_BLOCK ||
+            !wxIsMainThread() ||
+                !wxEventLoop::GetActive() )
+    {
+        // Simple blocking wait.
         return DoSimpleWaitForThread(hThread);
+    }
 
     return ::MsgWaitForMultipleObjects
              (
@@ -250,6 +259,7 @@ DWORD wxGUIAppTraits::WaitForThread(WXHANDLE hThread)
                QS_ALLPOSTMESSAGE
              );
 }
+#endif // wxUSE_THREADS
 
 wxPortId wxGUIAppTraits::GetToolkitVersion(int *majVer, int *minVer) const
 {
@@ -293,6 +303,8 @@ wxEventLoopBase* wxGUIAppTraits::CreateEventLoop()
 // ---------------------------------------------------------------------------
 
 #ifndef __WXWINCE__
+
+#if wxUSE_DYNLIB_CLASS
 
 #include <wx/dynlib.h>
 
@@ -570,6 +582,20 @@ bool wxGUIAppTraits::WriteToStderr(const wxString& text)
     return s_consoleStderr.IsOkToUse() && s_consoleStderr.Write(text);
 }
 
+#else // !wxUSE_DYNLIB_CLASS
+
+bool wxGUIAppTraits::CanUseStderr()
+{
+    return false;
+}
+
+bool wxGUIAppTraits::WriteToStderr(const wxString& WXUNUSED(text))
+{
+    return false;
+}
+
+#endif // wxUSE_DYNLIB_CLASS/!wxUSE_DYNLIB_CLASS
+
 #endif // !__WXWINCE__
 
 // ===========================================================================
@@ -650,7 +676,7 @@ const wxChar *wxApp::GetRegisteredClassName(const wxChar *name,
     const size_t count = gs_regClassesInfo.size();
     for ( size_t n = 0; n < count; n++ )
     {
-        if ( gs_regClassesInfo[n].basename == name )
+        if ( gs_regClassesInfo[n].regname == name )
             return gs_regClassesInfo[n].regname.c_str();
     }
 
@@ -665,16 +691,7 @@ const wxChar *wxApp::GetRegisteredClassName(const wxChar *name,
     wndclass.style         = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS | extraStyles;
 
 
-    ClassRegInfo regClass;
-    regClass.basename = name;
-
-    // constuct a unique suffix to allow registering the class with the same
-    // base name in a main application using wxWidgets and a DLL using
-    // wxWidgets loaded into its address space: as gs_regClassesInfo variable
-    // is different in them, we're going to obtain a unique prefix by using its
-    // address here
-    regClass.regname = regClass.basename +
-                            wxString::Format(wxT("@%p"), &gs_regClassesInfo);
+    ClassRegInfo regClass(name);
     wndclass.lpszClassName = regClass.regname.wx_str();
     if ( !::RegisterClass(&wndclass) )
     {
@@ -683,10 +700,6 @@ const wxChar *wxApp::GetRegisteredClassName(const wxChar *name,
         return NULL;
     }
 
-    // NB: remember that code elsewhere supposes that no redraw class names
-    //     use the same names as normal classes with "NR" suffix so we must put
-    //     "NR" at the end instead of using more natural basename+"NR"+suffix
-    regClass.regnameNR = regClass.regname + GetNoRedrawClassSuffix();
     wndclass.style &= ~(CS_HREDRAW | CS_VREDRAW);
     wndclass.lpszClassName = regClass.regnameNR.wx_str();
     if ( !::RegisterClass(&wndclass) )

@@ -4,7 +4,7 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     1998-01-01
-// RCS-ID:      $Id: dialog.cpp 54820 2008-07-29 20:04:11Z SC $
+// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -39,9 +39,6 @@ void wxDialog::OSXEndModalDialog()
     wxASSERT_MSG( s_openDialogs > 0, "incorrect internal modal dialog count");
     s_openDialogs--;
 }
-
-
-IMPLEMENT_DYNAMIC_CLASS(wxDialog, wxTopLevelWindow)
 
 void wxDialog::Init()
 {
@@ -102,7 +99,7 @@ bool wxDialog::Show(bool show)
             // nothing to do
             return false;
     }
-    else 
+    else
     {
         if ( !wxDialogBase::Show(show) )
             // nothing to do
@@ -122,14 +119,14 @@ bool wxDialog::Show(bool show)
         {
             case wxDIALOG_MODALITY_WINDOW_MODAL:
                 EndWindowModal(); // OS X implementation method for cleanup
-                SendWindowModalDialogEvent ( wxEVT_WINDOW_MODAL_DIALOG_CLOSED  );        
+                SendWindowModalDialogEvent ( wxEVT_WINDOW_MODAL_DIALOG_CLOSED  );
                 break;
             default:
                 break;
         }
         m_modality = wxDIALOG_MODALITY_NONE;
     }
-    
+
     return true;
 }
 
@@ -137,27 +134,27 @@ bool wxDialog::Show(bool show)
 int wxDialog::ShowModal()
 {
     m_modality = wxDIALOG_MODALITY_APP_MODAL;
-    
+
     Show();
 
     wxModalEventLoop modalLoop(this);
     m_eventLoop = &modalLoop;
-    
+
     wxDialog::OSXBeginModalDialog();
     modalLoop.Run();
     wxDialog::OSXEndModalDialog();
-    
+
     m_eventLoop = NULL;
-    
+
     return GetReturnCode();
 }
 
 void wxDialog::ShowWindowModal()
 {
     m_modality = wxDIALOG_MODALITY_WINDOW_MODAL;
-    
+
     Show();
-    
+
     DoShowWindowModal();
 }
 
@@ -172,7 +169,7 @@ void wxDialog::EndModal(int retCode)
 {
     if ( m_eventLoop )
         m_eventLoop->Exit(retCode);
-    
+
     SetReturnCode(retCode);
     Show(false);
 }

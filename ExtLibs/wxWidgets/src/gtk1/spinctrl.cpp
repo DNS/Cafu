@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        src/gtk1/spinbutt.cpp
+// Name:        src/gtk1/spinctrl.cpp
 // Purpose:     wxSpinCtrl
 // Author:      Robert
 // Modified by:
@@ -89,8 +89,6 @@ gtk_spinctrl_text_changed_callback( GtkWidget *WXUNUSED(widget), wxSpinCtrl *win
 //-----------------------------------------------------------------------------
 // wxSpinCtrl
 //-----------------------------------------------------------------------------
-
-IMPLEMENT_DYNAMIC_CLASS(wxSpinCtrl,wxControl)
 
 BEGIN_EVENT_TABLE(wxSpinCtrl, wxControl)
     EVT_CHAR(wxSpinCtrl::OnChar)

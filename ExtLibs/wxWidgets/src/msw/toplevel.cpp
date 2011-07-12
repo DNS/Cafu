@@ -403,7 +403,7 @@ bool wxTopLevelWindowMSW::CreateDialog(const void *dlgTemplate,
         if ( winTop )
         {
             wxIcon icon = winTop->GetIcon();
-            if ( icon.Ok() )
+            if ( icon.IsOk() )
             {
                 ::SendMessage(GetHwnd(), WM_SETICON,
                               (WPARAM)TRUE,
@@ -496,8 +496,8 @@ bool wxTopLevelWindowMSW::Create(wxWindow *parent,
     if ( GetExtraStyle() & wxTOPLEVEL_EX_DIALOG )
     {
         // we have different dialog templates to allows creation of dialogs
-        // with & without captions under MSWindows, resizeable or not (but a
-        // resizeable dialog always has caption - otherwise it would look too
+        // with & without captions under MSWindows, resizable or not (but a
+        // resizable dialog always has caption - otherwise it would look too
         // strange)
 
         // we need 3 additional WORDs for dialog menu, class and title (as we
@@ -662,6 +662,7 @@ bool wxTopLevelWindowMSW::Show(bool show)
         nShowCmd = SW_HIDE;
     }
 
+#if wxUSE_DEFERRED_SIZING
     // we only set pending size if we're maximized before being shown, now that
     // we're shown we don't need it any more (it is reset in size event handler
     // for child windows but we have to do it ourselves for this parent window)
@@ -671,6 +672,7 @@ bool wxTopLevelWindowMSW::Show(bool show)
     // them, not the size returned by WM_NCCALCSIZE in DoGetClientSize() which
     // turns out to be wrong for maximized windows (see #11762)
     m_pendingSize = wxDefaultSize;
+#endif // wxUSE_DEFERRED_SIZING
 
     DoShowWindow(nShowCmd);
 
@@ -701,6 +703,7 @@ void wxTopLevelWindowMSW::Maximize(bool maximize)
         // so just remember that we should do it later in this case
         m_maximizeOnShow = maximize;
 
+#if wxUSE_DEFERRED_SIZING
         // after calling Maximize() the client code expects to get the frame
         // "real" size and doesn't want to know that, because of implementation
         // details, the frame isn't really maximized yet but will be only once
@@ -718,6 +721,7 @@ void wxTopLevelWindowMSW::Maximize(bool maximize)
             m_pendingSize = wxGetClientDisplayRect().GetSize();
         }
         //else: can't do anything in this case, we don't have the old size
+#endif // wxUSE_DEFERRED_SIZING
     }
 }
 
@@ -1010,6 +1014,7 @@ bool wxTopLevelWindowMSW::ShowFullScreen(bool show, long style)
 
         // finally send an event allowing the window to relayout itself &c
         wxSizeEvent event(rect.GetSize(), GetId());
+        event.SetEventObject(this);
         HandleWindowEvent(event);
     }
     else // stop showing full screen
@@ -1047,14 +1052,24 @@ bool wxTopLevelWindowMSW::DoSelectAndSetIcon(const wxIconBundle& icons,
 {
     const wxSize size(::GetSystemMetrics(smX), ::GetSystemMetrics(smY));
 
-    const wxIcon icon = icons.GetIconOfExactSize(size);
-    if ( icon.Ok() )
+    // Try the exact size first.
+    wxIcon icon = icons.GetIconOfExactSize(size);
+
+    if ( !icon.IsOk() )
     {
-        ::SendMessage(GetHwnd(), WM_SETICON, i, (LPARAM)GetHiconOf(icon));
-        return true;
+        // If we didn't find any, set at least some icon: it will look scaled
+        // and ugly but in practice it's impossible to prevent this because not
+        // everyone can provide the icons in all sizes used by all versions of
+        // Windows in all DPIs (this would include creating them in at least
+        // 14, 16, 22, 32, 48, 64 and 128 pixel sizes).
+        icon = icons.GetIcon(size);
     }
 
-    return false;
+    if ( !icon.IsOk() )
+        return false;
+
+    ::SendMessage(GetHwnd(), WM_SETICON, i, (LPARAM)GetHiconOf(icon));
+    return true;
 }
 
 void wxTopLevelWindowMSW::SetIcons(const wxIconBundle& icons)
@@ -1069,15 +1084,8 @@ void wxTopLevelWindowMSW::SetIcons(const wxIconBundle& icons)
         return;
     }
 
-    bool anySet =
-        DoSelectAndSetIcon(icons, SM_CXSMICON, SM_CYSMICON, ICON_SMALL);
-    if ( DoSelectAndSetIcon(icons, SM_CXICON, SM_CYICON, ICON_BIG) )
-        anySet = true;
-
-    if ( !anySet )
-    {
-        wxFAIL_MSG( "icon bundle doesn't contain any suitable icon" );
-    }
+    DoSelectAndSetIcon(icons, SM_CXSMICON, SM_CYSMICON, ICON_SMALL);
+    DoSelectAndSetIcon(icons, SM_CXICON, SM_CYICON, ICON_BIG);
 }
 
 bool wxTopLevelWindowMSW::EnableCloseButton(bool enable)
@@ -1272,6 +1280,17 @@ bool wxTopLevelWindowMSW::CanSetTransparent()
     return (os_type == wxOS_WINDOWS_NT && ver_major >= 5);
 }
 
+void wxTopLevelWindowMSW::DoEnable(bool enable)
+{
+    wxTopLevelWindowBase::DoEnable(enable);
+
+    // Enabling or disabling a window may change its appearance. Unfortunately,
+    // in at least some situation, toplevel windows don't repaint themselves,
+    // so we have to issue explicit refresh to avoid rendering artifacts.
+    //
+    // TODO: find out just what exactly is wrong here
+    Refresh();
+}
 
 void wxTopLevelWindowMSW::DoFreeze()
 {

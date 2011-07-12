@@ -42,7 +42,17 @@ IMPLEMENT_DYNAMIC_CLASS(wxIconBundle, wxGDIObject)
 class WXDLLEXPORT wxIconBundleRefData : public wxGDIRefData
 {
 public:
-    // default and copy ctors and assignment operators are ok
+    wxIconBundleRefData() { }
+
+    // We need the copy ctor for CloneGDIRefData() but notice that we use the
+    // base class default ctor in it and not the copy one which it doesn't have.
+    wxIconBundleRefData(const wxIconBundleRefData& other)
+        : wxGDIRefData(),
+          m_icons(other.m_icons)
+    {
+    }
+
+    // default assignment operator and dtor are ok
 
     virtual bool IsOk() const { return !m_icons.empty(); }
 
@@ -153,7 +163,7 @@ void wxIconBundle::AddIcon(const wxString& file, wxBitmapType type)
     if ( type == wxBITMAP_TYPE_ICON_RESOURCE )
     {
         wxIcon tmp(file, type);
-        if (tmp.Ok())
+        if (tmp.IsOk())
         {
             AddIcon(tmp);
             return;
@@ -235,7 +245,7 @@ wxIcon wxIconBundle::GetIcon(const wxSize& size) const
 wxIcon wxIconBundle::GetIconOfExactSize(const wxSize& size) const
 {
     wxIcon icon = GetIcon(size);
-    if ( icon.Ok() &&
+    if ( icon.IsOk() &&
             (icon.GetWidth() != size.x || icon.GetHeight() != size.y) )
     {
         icon = wxNullIcon;
@@ -257,7 +267,7 @@ void wxIconBundle::AddIcon(const wxIcon& icon)
     for ( size_t i = 0; i < count; ++i )
     {
         wxIcon& tmp = iconArray[i];
-        if ( tmp.Ok() &&
+        if ( tmp.IsOk() &&
                 tmp.GetWidth() == icon.GetWidth() &&
                 tmp.GetHeight() == icon.GetHeight() )
         {

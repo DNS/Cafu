@@ -28,6 +28,16 @@
     #include "wx/window.h"
 #endif // WX_PRECOMP
 
+extern WXDLLEXPORT_DATA(const char) wxFileDialogNameStr[] = "filedlg";
+extern WXDLLEXPORT_DATA(const char) wxFileSelectorPromptStr[] = "Select a file";
+extern WXDLLEXPORT_DATA(const char) wxFileSelectorDefaultWildcardStr[] =
+#if defined(__WXMSW__) || defined(__OS2__)
+    "*.*"
+#else // Unix/Mac
+    "*"
+#endif
+    ;
+
 //----------------------------------------------------------------------------
 // wxFileDialogBase
 //----------------------------------------------------------------------------
@@ -186,7 +196,7 @@ void wxFileDialogBase::SetPath(const wxString& path)
     wxString ext;
     wxFileName::SplitPath(path, &m_dir, &m_fileName, &ext);
     if ( !ext.empty() )
-        m_fileName << _T('.') << ext;
+        m_fileName << wxT('.') << ext;
     m_path = path;
 }
 

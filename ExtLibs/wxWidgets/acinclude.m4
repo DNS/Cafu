@@ -23,7 +23,7 @@ ac_ext=mm
 ])
 
 dnl ===========================================================================
-dnl macros to find the a file in the list of include/lib paths
+dnl macros to find a file in the list of include/lib paths
 dnl ===========================================================================
 
 dnl ---------------------------------------------------------------------------
@@ -33,7 +33,7 @@ dnl ---------------------------------------------------------------------------
 AC_DEFUN([WX_PATH_FIND_INCLUDES],
 [
 ac_find_includes=
-for ac_dir in $1 /usr/include;
+for ac_dir in $1 /usr/include
   do
     if test -f "$ac_dir/$2"; then
       ac_find_includes=$ac_dir
@@ -49,7 +49,7 @@ dnl ---------------------------------------------------------------------------
 AC_DEFUN([WX_PATH_FIND_LIBRARIES],
 [
   ac_find_libraries=
-  for ac_dir in $1;
+  for ac_dir in $1
   do
     for ac_extension in a so sl dylib dll.a; do
       if test -f "$ac_dir/lib$2.$ac_extension"; then
@@ -101,7 +101,7 @@ dnl after calling this function
 dnl ---------------------------------------------------------------------------
 AC_DEFUN([WX_LINK_PATH_EXIST],
 [
-  dnl never add -L/usr/libXXX explicitely to libpath
+  dnl never add -L/usr/libXXX explicitly to libpath
   if test "$1" = "default location"; then
     ac_path_to_link=""
   else
@@ -287,7 +287,7 @@ AC_TRY_RUN([main () {
 }], [ac_cv_c_bigendian=no], [ac_cv_c_bigendian=yes], [ac_cv_c_bigendian=unknown])
 fi])
 if test $ac_cv_c_bigendian = unknown; then
-  AC_MSG_WARN([Assuming little-endian target machine - this may be overriden by adding the line "ac_cv_c_bigendian=${ac_cv_c_bigendian='yes'}" to config.cache file])
+  AC_MSG_WARN([Assuming little-endian target machine - this may be overridden by adding the line "ac_cv_c_bigendian=${ac_cv_c_bigendian='yes'}" to config.cache file])
 fi
 if test $ac_cv_c_bigendian = yes; then
   AC_DEFINE(WORDS_BIGENDIAN)

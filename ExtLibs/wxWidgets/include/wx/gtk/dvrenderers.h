@@ -185,8 +185,16 @@ public:
     virtual wxSize GetSize() const;
 
 private:
+    void GTKSetLabel();
+
     wxString    m_label;
     int         m_value;
+
+#if !wxUSE_UNICODE
+    // Flag used to indicate that we need to set the label because we were
+    // unable to do it in the ctor (see comments there).
+    bool m_needsToSetLabel;
+#endif // !wxUSE_UNICODE
 
 protected:
     DECLARE_DYNAMIC_CLASS_NO_COPY(wxDataViewProgressRenderer)
@@ -239,7 +247,7 @@ public:
 
     virtual bool Render( wxRect cell, wxDC *dc, int state );
     virtual wxSize GetSize() const;
-    virtual bool Activate( wxRect cell,
+    virtual bool Activate( const wxRect& cell,
                            wxDataViewModel *model,
                            const wxDataViewItem &item,
                            unsigned int col );
@@ -286,10 +294,10 @@ public:
     wxDataViewChoiceByIndexRenderer( const wxArrayString &choices,
                               wxDataViewCellMode mode = wxDATAVIEW_CELL_EDITABLE,
                               int alignment = wxDVR_DEFAULT_ALIGNMENT );
-                            
+
     virtual bool SetValue( const wxVariant &value );
     virtual bool GetValue( wxVariant &value ) const;
-    
+
 private:
     virtual void GtkOnTextEdited(const gchar *itempath, const wxString& str);
 };

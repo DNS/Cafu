@@ -4,7 +4,7 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     04/01/98
-// RCS-ID:      $Id: msgdlg.cpp 54129 2008-06-11 19:30:52Z SC $
+// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -47,8 +47,15 @@ wxMessageDialog::wxMessageDialog(wxWindow *parent,
                                  const wxString& caption,
                                  long style,
                                  const wxPoint& WXUNUSED(pos))
-               : wxMessageDialogWithCustomLabels(parent, message, caption, style)
+               : wxMessageDialogBase(parent, message, caption, style)
 {
+    m_sheetDelegate = [[ModalDialogDelegate alloc] init];
+    [(ModalDialogDelegate*)m_sheetDelegate setImplementation: this];
+}
+
+wxMessageDialog::~wxMessageDialog()
+{
+    [m_sheetDelegate release];
 }
 
 int wxMessageDialog::ShowModal()
@@ -167,15 +174,13 @@ void wxMessageDialog::ShowWindowModal()
     if (parentWindow)
     {
         NSWindow* nativeParent = parentWindow->GetWXWindow();
-        ModalDialogDelegate* sheetDelegate = [[ModalDialogDelegate alloc] init];
-        [sheetDelegate setImplementation: this];
-        [alert beginSheetModalForWindow: nativeParent modalDelegate: sheetDelegate
+        [alert beginSheetModalForWindow: nativeParent modalDelegate: m_sheetDelegate
             didEndSelector: @selector(sheetDidEnd:returnCode:contextInfo:)
             contextInfo: nil];
     }
 }
 
-void wxMessageDialog::ModalFinishedCallback(void* panel, int resultCode)
+void wxMessageDialog::ModalFinishedCallback(void* WXUNUSED(panel), int resultCode)
 {
     int resultbutton = wxID_CANCEL;
     if ( resultCode < NSAlertFirstButtonReturn )
@@ -260,13 +265,25 @@ void* wxMessageDialog::ConstructNSAlert()
     // the MSW implementation even shows an OK button if it is not specified, we'll do the same
     else
     {
-        [alert addButtonWithTitle:cfOKString.AsNSString()];
-        m_buttonId[ m_buttonCount++ ] = wxID_OK;
-        if (style & wxCANCEL)
+        if ( style & wxCANCEL_DEFAULT )
         {
             [alert addButtonWithTitle:cfCancelString.AsNSString()];
             m_buttonId[ m_buttonCount++ ] = wxID_CANCEL;
+
+            [alert addButtonWithTitle:cfOKString.AsNSString()];
+            m_buttonId[ m_buttonCount++ ] = wxID_OK;
         }
+        else 
+        {
+            [alert addButtonWithTitle:cfOKString.AsNSString()];
+            m_buttonId[ m_buttonCount++ ] = wxID_OK;
+            if (style & wxCANCEL)
+            {
+                [alert addButtonWithTitle:cfCancelString.AsNSString()];
+                m_buttonId[ m_buttonCount++ ] = wxID_CANCEL;
+            }
+        }
+
     }
     return alert;
 }

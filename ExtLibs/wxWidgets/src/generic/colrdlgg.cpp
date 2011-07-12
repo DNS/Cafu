@@ -35,6 +35,7 @@
     #include "wx/statline.h"
 #endif
 
+#include "wx/colourdata.h"
 #include "wx/generic/colrdlgg.h"
 
 IMPLEMENT_DYNAMIC_CLASS(wxGenericColourDialog, wxDialog)
@@ -314,7 +315,7 @@ void wxGenericColourDialog::InitializeColours(void)
     for (i = 0; i < WXSIZEOF(wxColourDialogNames); i++)
     {
         wxColour col = wxTheColourDatabase->Find(wxColourDialogNames[i]);
-        if (col.Ok())
+        if (col.IsOk())
             m_standardColours[i].Set(col.Red(), col.Green(), col.Blue());
         else
             m_standardColours[i].Set(0, 0, 0);
@@ -323,14 +324,14 @@ void wxGenericColourDialog::InitializeColours(void)
     for (i = 0; i < WXSIZEOF(m_customColours); i++)
     {
         wxColour c = m_colourData.GetCustomColour(i);
-        if (c.Ok())
+        if (c.IsOk())
             m_customColours[i] = m_colourData.GetCustomColour(i);
         else
             m_customColours[i] = wxColour(255, 255, 255);
     }
 
     wxColour curr = m_colourData.GetColour();
-    if ( curr.Ok() )
+    if ( curr.IsOk() )
     {
         bool m_initColourFound = false;
 

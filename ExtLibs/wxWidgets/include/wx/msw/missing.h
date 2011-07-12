@@ -29,17 +29,24 @@
     #define WM_CONTEXTMENU      0x007B
 #endif
 
-// Needed by toplevel.cpp
-#ifndef WM_UPDATEUISTATE
-    #define WM_UPDATEUISTATE    0x0128
-#endif
-
 #ifndef WM_CHANGEUISTATE
     #define WM_CHANGEUISTATE    0x0127
 #endif
 
+#ifndef WM_UPDATEUISTATE
+    #define WM_UPDATEUISTATE    0x0128
+#endif
+
+#ifndef WM_QUERYUISTATE
+    #define WM_QUERYUISTATE     0x0129
+#endif
+
 #ifndef WM_PRINTCLIENT
     #define WM_PRINTCLIENT 0x318
+#endif
+
+#ifndef DT_HIDEPREFIX
+    #define DT_HIDEPREFIX 0x00100000
 #endif
 
 // Needed by toplevel.cpp
@@ -529,6 +536,10 @@ typedef struct
         #define BROADCAST_QUERY_DENY    1112363332
     #endif
 #endif  // defined __WINE__
+
+#ifndef INVALID_FILE_ATTRIBUTES
+    #define INVALID_FILE_ATTRIBUTES ((DWORD)-1)
+#endif
 
 #endif
     // _WX_MISSING_H_

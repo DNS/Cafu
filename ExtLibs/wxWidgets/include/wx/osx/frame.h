@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        frame.h
+// Name:        wx/osx/frame.h
 // Purpose:     wxFrame class
 // Author:      Stefan Csomor
 // Modified by:
@@ -12,15 +12,10 @@
 #ifndef _WX_FRAME_H_
 #define _WX_FRAME_H_
 
-#include "wx/window.h"
 #include "wx/toolbar.h"
 #include "wx/accel.h"
 #include "wx/icon.h"
 
-WXDLLIMPEXP_DATA_CORE(extern const char) wxToolBarNameStr[];
-
-class WXDLLIMPEXP_FWD_CORE wxMenuBar;
-class WXDLLIMPEXP_FWD_CORE wxStatusBar;
 class WXDLLIMPEXP_FWD_CORE wxMacToolTip ;
 
 class WXDLLIMPEXP_CORE wxFrame: public wxFrameBase
@@ -64,6 +59,7 @@ public:
     // event handlers
     void OnActivate(wxActivateEvent& event);
     void OnSysColourChanged(wxSysColourChangedEvent& event);
+    void OnSize(wxSizeEvent& event);
 
     // Toolbar
 #if wxUSE_TOOLBAR
@@ -88,8 +84,6 @@ public:
 
     void PositionBars();
 
-    // osx specific event handling common for all osx-ports
-    virtual void HandleResized( double timestampsec );
 
 protected:
     // common part of all ctors

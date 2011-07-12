@@ -441,7 +441,7 @@ wxTreeTextCtrl::wxTreeTextCtrl(wxGenericTreeCtrl *owner,
     rect.y -= 2;
     rect.width  += 8;
     rect.height += 4;
-#elif defined(__WXMAC__)
+#elif defined(wxOSX_USE_CARBON) && wxOSX_USE_CARBON
     int bestHeight = GetBestSize().y - 8;
     if ( rect.height > bestHeight )
     {
@@ -902,20 +902,12 @@ BEGIN_EVENT_TABLE(wxGenericTreeCtrl, wxTreeCtrlBase)
     EVT_PAINT          (wxGenericTreeCtrl::OnPaint)
     EVT_SIZE           (wxGenericTreeCtrl::OnSize)
     EVT_MOUSE_EVENTS   (wxGenericTreeCtrl::OnMouse)
+    EVT_KEY_DOWN       (wxGenericTreeCtrl::OnKeyDown)
     EVT_CHAR           (wxGenericTreeCtrl::OnChar)
     EVT_SET_FOCUS      (wxGenericTreeCtrl::OnSetFocus)
     EVT_KILL_FOCUS     (wxGenericTreeCtrl::OnKillFocus)
     EVT_TREE_ITEM_GETTOOLTIP(wxID_ANY, wxGenericTreeCtrl::OnGetToolTip)
 END_EVENT_TABLE()
-
-#if !defined(__WXMSW__) || defined(__WXUNIVERSAL__)
-/*
- * wxTreeCtrl has to be a real class or we have problems with
- * the run-time information.
- */
-
-IMPLEMENT_DYNAMIC_CLASS(wxTreeCtrl, wxGenericTreeCtrl)
-#endif
 
 // -----------------------------------------------------------------------------
 // construction/destruction
@@ -1492,16 +1484,16 @@ wxTreeItemId wxGenericTreeCtrl::GetNext(const wxTreeItemId& item) const
 
 wxTreeItemId wxGenericTreeCtrl::GetFirstVisibleItem() const
 {
-    wxTreeItemId id = GetRootItem();
-    if (!id.IsOk())
-        return id;
+    wxTreeItemId itemid = GetRootItem();
+    if (!itemid.IsOk())
+        return itemid;
 
     do
     {
-        if (IsVisible(id))
-              return id;
-        id = GetNext(id);
-    } while (id.IsOk());
+        if (IsVisible(itemid))
+              return itemid;
+        itemid = GetNext(itemid);
+    } while (itemid.IsOk());
 
     return wxTreeItemId();
 }
@@ -1578,40 +1570,40 @@ wxTreeItemId wxGenericTreeCtrl::FindItem(const wxTreeItemId& idParent,
     // allows to switch between two items starting with the same letter just by
     // pressing it) but we shouldn't jump to the next one if the user is
     // continuing to type as otherwise he might easily skip the item he wanted
-    wxTreeItemId id = idParent;
+    wxTreeItemId itemid = idParent;
     if ( prefix.length() == 1 )
     {
-        id = GetNext(id);
+        itemid = GetNext(itemid);
     }
 
     // look for the item starting with the given prefix after it
-    while ( id.IsOk() && !GetItemText(id).Lower().StartsWith(prefix) )
+    while ( itemid.IsOk() && !GetItemText(itemid).Lower().StartsWith(prefix) )
     {
-        id = GetNext(id);
+        itemid = GetNext(itemid);
     }
 
     // if we haven't found anything...
-    if ( !id.IsOk() )
+    if ( !itemid.IsOk() )
     {
         // ... wrap to the beginning
-        id = GetRootItem();
+        itemid = GetRootItem();
         if ( HasFlag(wxTR_HIDE_ROOT) )
         {
             // can't select virtual root
-            id = GetNext(id);
+            itemid = GetNext(itemid);
         }
 
         // and try all the items (stop when we get to the one we started from)
-        while ( id.IsOk() && id != idParent &&
-                    !GetItemText(id).Lower().StartsWith(prefix) )
+        while ( itemid.IsOk() && itemid != idParent &&
+                    !GetItemText(itemid).Lower().StartsWith(prefix) )
         {
-            id = GetNext(id);
+            itemid = GetNext(itemid);
         }
         // If we haven't found the item, id.IsOk() will be false, as per
         // documentation
     }
 
-    return id;
+    return itemid;
 }
 
 // -----------------------------------------------------------------------------
@@ -2767,7 +2759,10 @@ wxGenericTreeCtrl::PaintLevel(wxGenericTreeItem *item,
 #ifdef __WXMAC__
             colText = *wxWHITE;
 #else
-            colText = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT);
+            if (m_hasFocus)
+                colText = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT);
+            else
+                colText = wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXHIGHLIGHTTEXT);
 #endif
         }
         else
@@ -3021,16 +3016,19 @@ void wxGenericTreeCtrl::OnKillFocus( wxFocusEvent &event )
     event.Skip();
 }
 
-void wxGenericTreeCtrl::OnChar( wxKeyEvent &event )
+void wxGenericTreeCtrl::OnKeyDown( wxKeyEvent &event )
 {
+    // send a tree event
     wxTreeEvent te( wxEVT_COMMAND_TREE_KEY_DOWN, this);
     te.m_evtKey = event;
     if ( GetEventHandler()->ProcessEvent( te ) )
-    {
-        // intercepted by the user code
         return;
-    }
 
+    event.Skip();
+}
+
+void wxGenericTreeCtrl::OnChar( wxKeyEvent &event )
+{
     if ( (m_current == 0) || (m_key_current == 0) )
     {
         event.Skip();
@@ -3701,7 +3699,7 @@ void wxGenericTreeCtrl::OnMouse( wxMouseEvent &event )
             event.Skip(!GetEventHandler()->ProcessEvent(nevent));
 
             // Consistent with MSW (for now), send the ITEM_MENU *after*
-            // the RIGHT_CLICK event. TODO: This behavior may change.
+            // the RIGHT_CLICK event. TODO: This behaviour may change.
             wxTreeEvent nevent2(wxEVT_COMMAND_TREE_ITEM_MENU,  this, item);
             nevent2.m_pointDrag = CalcScrolledPosition(pt);
             GetEventHandler()->ProcessEvent(nevent2);

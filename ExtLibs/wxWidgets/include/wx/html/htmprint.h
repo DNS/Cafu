@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        htmprint.h
+// Name:        wx/html/htmprint.h
 // Purpose:     html printing classes
 // Author:      Vaclav Slavik
 // Created:     25/09/99
@@ -199,7 +199,6 @@ private:
 
 private:
     int m_NumPages;
-    //int m_PageBreaks[wxHTML_PRINT_MAX_PAGES];
     wxArrayInt m_PageBreaks;
 
     wxString m_Document, m_BasePath;

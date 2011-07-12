@@ -71,6 +71,21 @@ enum wxThreadKind
     wxTHREAD_JOINABLE
 };
 
+enum wxThreadWait
+{
+    wxTHREAD_WAIT_BLOCK,
+    wxTHREAD_WAIT_YIELD,       // process events while waiting; MSW only
+
+    // For compatibility reasons we use wxTHREAD_WAIT_YIELD by default as this
+    // was the default behaviour of wxMSW 2.8 but it should be avoided as it's
+    // dangerous and not portable.
+#if WXWIN_COMPATIBILITY_2_8
+    wxTHREAD_WAIT_DEFAULT = wxTHREAD_WAIT_YIELD
+#else
+    wxTHREAD_WAIT_DEFAULT = wxTHREAD_WAIT_BLOCK
+#endif
+};
+
 // defines the interval of priority
 enum
 {
@@ -516,13 +531,14 @@ public:
         // does it!
         //
         // will fill the rc pointer with the thread exit code if it's !NULL
-    wxThreadError Delete(ExitCode *rc = NULL);
+    wxThreadError Delete(ExitCode *rc = NULL,
+                         wxThreadWait waitMode = wxTHREAD_WAIT_DEFAULT);
 
         // waits for a joinable thread to finish and returns its exit code
         //
         // Returns (ExitCode)-1 on error (for example, if the thread is not
         // joinable)
-    ExitCode Wait();
+    ExitCode Wait(wxThreadWait waitMode = wxTHREAD_WAIT_DEFAULT);
 
         // kills the thread without giving it any chance to clean up - should
         // not be used under normal circumstances, use Delete() instead.
@@ -584,6 +600,19 @@ protected:
     // entry point for the thread - called by Run() and executes in the context
     // of this thread.
     virtual void *Entry() = 0;
+
+
+    // Callbacks which may be overridden by the derived class to perform some
+    // specific actions when the thread is deleted or killed. By default they
+    // do nothing.
+
+    // This one is called by Delete() before actually deleting the thread and
+    // is executed in the context of the thread that called Delete().
+    virtual void OnDelete() {}
+
+    // This one is called by Kill() before killing the thread and is executed
+    // in the context of the thread that called Kill().
+    virtual void OnKill() {}
 
 private:
     // no copy ctor/assignment operator
@@ -811,7 +840,7 @@ public:
 
 #if wxUSE_THREADS
 
-#if defined(__WXMSW__) || defined(__OS2__) || defined(__EMX__)
+#if defined(__WXMSW__) || defined(__OS2__) || defined(__EMX__) || defined(__WXOSX__)
     // unlock GUI if there are threads waiting for and lock it back when
     // there are no more of them - should be called periodically by the main
     // thread
@@ -823,9 +852,11 @@ public:
     // wakes up the main thread if it's sleeping inside ::GetMessage()
     extern void WXDLLIMPEXP_BASE wxWakeUpMainThread();
 
+#ifndef __WXOSX__
     // return true if the main thread is waiting for some other to terminate:
     // wxApp then should block all "dangerous" messages
     extern bool WXDLLIMPEXP_BASE wxIsWaitingForThread();
+#endif
 #endif // MSW, OS/2
 
 #endif // wxUSE_THREADS

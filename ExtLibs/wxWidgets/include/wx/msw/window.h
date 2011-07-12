@@ -347,7 +347,7 @@ public:
     bool HandleMouseMove(int x, int y, WXUINT flags);
     bool HandleMouseWheel(WXWPARAM wParam, WXLPARAM lParam);
 
-    bool HandleChar(WXWPARAM wParam, WXLPARAM lParam, bool isASCII = false);
+    bool HandleChar(WXWPARAM wParam, WXLPARAM lParam);
     bool HandleKeyDown(WXWPARAM wParam, WXLPARAM lParam);
     bool HandleKeyUp(WXWPARAM wParam, WXLPARAM lParam);
 #if wxUSE_ACCEL
@@ -387,6 +387,18 @@ public:
     // called when the window is about to be destroyed
     virtual void MSWDestroyWindow();
 
+
+    // Functions dealing with painting the window background. The derived
+    // classes should normally only need to reimplement MSWGetBgBrush() if they
+    // need to use a non-solid brush for erasing their background. This
+    // function is called by MSWGetBgBrushForChild() which only exists for the
+    // weird wxToolBar case and MSWGetBgBrushForChild() itself is used by
+    // MSWGetBgBrush() to actually find the right brush to use.
+
+    // The brush returned from here must remain valid at least until the next
+    // event loop iteration. Returning 0, as is done by default, indicates
+    // there is no custom background brush.
+    virtual WXHBRUSH MSWGetCustomBgBrush() { return 0; }
 
     // this function should return the brush to paint the children controls
     // background or 0 if this window doesn't impose any particular background
@@ -437,6 +449,11 @@ public:
     {
         return true;
     }
+
+    // This should be overridden to return true for the controls which have
+    // themed background that should through their children. Currently only
+    // wxNotebook uses this.
+    virtual bool MSWHasInheritableBackground() const { return false; }
 
 #if !defined(__WXWINCE__) && !defined(__WXUNIVERSAL__)
     #define wxHAS_MSW_BACKGROUND_ERASE_HOOK
@@ -566,9 +583,29 @@ protected:
                              const wxString& ttip);
 #endif // wxUSE_TOOLTIPS
 
-    // the helper functions used by HandleChar/KeyXXX methods
-    wxKeyEvent CreateKeyEvent(wxEventType evType, int id,
-                              WXLPARAM lParam = 0, WXWPARAM wParam = 0) const;
+    // This is used by CreateKeyEvent() and also for wxEVT_CHAR[_HOOK] event
+    // creation. Notice that this method doesn't initialize wxKeyEvent
+    // m_keyCode and m_uniChar fields.
+    void InitAnyKeyEvent(wxKeyEvent& event,
+                         WXWPARAM wParam,
+                         WXLPARAM lParam) const;
+
+    // Helper functions used by HandleKeyXXX() methods and some derived
+    // classes, wParam and lParam have the same meaning as in WM_KEY{DOWN,UP}.
+    //
+    // NB: evType here must be wxEVT_KEY_{DOWN,UP} as wParam here contains the
+    //     virtual key code, not character!
+    wxKeyEvent CreateKeyEvent(wxEventType evType,
+                              WXWPARAM wParam,
+                              WXLPARAM lParam = 0) const;
+
+    // Another helper for creating wxKeyEvent for wxEVT_CHAR and related types.
+    //
+    // The wParam and lParam here must come from WM_CHAR event parameters, i.e.
+    // wParam must be a character and not a virtual code.
+    wxKeyEvent CreateCharEvent(wxEventType evType,
+                               WXWPARAM wParam,
+                               WXLPARAM lParam) const;
 
 
     // default OnEraseBackground() implementation, return true if we did erase
@@ -589,6 +626,8 @@ protected:
                                           const wxSize& size,
                                           int& x, int& y,
                                           int& w, int& h) const;
+
+    bool MSWEnableHWND(WXHWND hWnd, bool enable);
 
 private:
     // common part of all ctors
@@ -628,18 +667,6 @@ private:
     wxDECLARE_NO_COPY_CLASS(wxWindowMSW);
     DECLARE_EVENT_TABLE()
 };
-
-// ----------------------------------------------------------------------------
-// inline functions
-// ----------------------------------------------------------------------------
-
-// ---------------------------------------------------------------------------
-// global functions
-// ---------------------------------------------------------------------------
-
-// kbd code translation
-WXDLLIMPEXP_CORE int wxCharCodeMSWToWX(int keySym, WXLPARAM lParam = 0);
-WXDLLIMPEXP_CORE WXWORD wxCharCodeWXToMSW(int id);
 
 // window creation helper class: before creating a new HWND, instantiate an
 // object of this class on stack - this allows to process the messages sent to

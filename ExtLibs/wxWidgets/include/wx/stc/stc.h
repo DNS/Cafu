@@ -38,6 +38,7 @@
 #include "wx/control.h"
 #include "wx/dnd.h"
 #include "wx/stopwatch.h"
+#include "wx/versioninfo.h"
 
 #include "wx/textentry.h"
 #if wxUSE_TEXTCTRL
@@ -4041,7 +4042,7 @@ public:
 
 
 
-    // The following methods are nearly equivallent to their similarly named
+    // The following methods are nearly equivalent to their similarly named
     // cousins above.  The difference is that these methods bypass wxString
     // and always use a char* even if used in a unicode build of wxWidgets.
     // In that case the character data will be utf-8 encoded since that is
@@ -4240,6 +4241,8 @@ public:
         return wxTextAreaBase::HitTest(pt, col, row);
     }
 
+    static wxVersionInfo GetLibraryVersionInfo();
+
 protected:
     virtual wxString DoGetValue() const { return GetText(); }
     virtual wxWindow *GetEditableWindow() { return this; }
@@ -4325,10 +4328,20 @@ public:
     void SetListType(int val)             { m_listType = val; }
     void SetX(int val)                    { m_x = val; }
     void SetY(int val)                    { m_y = val; }
-    void SetDragText(const wxString& val) { m_dragText = val; }
-    void SetDragAllowMove(bool val)       { m_dragAllowMove = val; }
 #ifdef  STC_USE_DND
+    void SetDragText(const wxString& val) { m_dragText = val; }
+    void SetDragFlags(int flags)          { m_dragFlags = flags; }
     void SetDragResult(wxDragResult val)  { m_dragResult = val; }
+
+    // This method is kept mainly for backwards compatibility, use
+    // SetDragFlags() in the new code.
+    void SetDragAllowMove(bool allow)
+    {
+        if ( allow )
+            m_dragFlags |= wxDrag_AllowMove;
+        else
+            m_dragFlags &= ~(wxDrag_AllowMove | wxDrag_DefaultMove);
+    }
 #endif
 
     int  GetPosition() const         { return m_position; }
@@ -4348,10 +4361,12 @@ public:
     int  GetListType() const         { return m_listType; }
     int  GetX() const                { return m_x; }
     int  GetY() const                { return m_y; }
-    wxString GetDragText()           { return m_dragText; }
-    bool GetDragAllowMove()          { return m_dragAllowMove; }
 #ifdef STC_USE_DND
+    wxString GetDragText()           { return m_dragText; }
+    int GetDragFlags()               { return m_dragFlags; }
     wxDragResult GetDragResult()     { return m_dragResult; }
+
+    bool GetDragAllowMove() { return (GetDragFlags() & wxDrag_AllowMove) != 0; }
 #endif
 
     bool GetShift() const;
@@ -4386,11 +4401,10 @@ private:
     int m_x;
     int m_y;
 
-    wxString m_dragText;        // wxEVT_STC_START_DRAG, wxEVT_STC_DO_DROP
-    bool     m_dragAllowMove;   // wxEVT_STC_START_DRAG
-
 #if wxUSE_DRAG_AND_DROP
-    wxDragResult m_dragResult; // wxEVT_STC_DRAG_OVER,wxEVT_STC_DO_DROP
+    wxString m_dragText;        // wxEVT_STC_START_DRAG, wxEVT_STC_DO_DROP
+    int      m_dragFlags;       // wxEVT_STC_START_DRAG
+    wxDragResult m_dragResult;  // wxEVT_STC_DRAG_OVER,wxEVT_STC_DO_DROP
 #endif
 #endif
 };

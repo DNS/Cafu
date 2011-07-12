@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        msw/dir.cpp
+// Name:        src/msw/dir.cpp
 // Purpose:     wxDir implementation for Win32
 // Author:      Vadim Zeitlin
 // Modified by:
@@ -67,7 +67,7 @@ inline void FreeFindData(FIND_DATA fd)
 inline FIND_DATA FindFirst(const wxString& spec,
                            FIND_STRUCT *finddata)
 {
-    return ::FindFirstFile(spec.fn_str(), finddata);
+    return ::FindFirstFile(spec.t_str(), finddata);
 }
 
 inline bool FindNext(FIND_DATA fd, FIND_STRUCT *finddata)
@@ -208,7 +208,7 @@ bool wxDirData::Read(wxString *filename)
 
         if ( err != ERROR_FILE_NOT_FOUND && err != ERROR_NO_MORE_FILES )
         {
-            wxLogSysError(err, _("Can not enumerate files in directory '%s'"),
+            wxLogSysError(err, _("Cannot enumerate files in directory '%s'"),
                           m_dirname.c_str());
         }
 #endif // __WIN32__

@@ -904,7 +904,7 @@ bool wxMsgCatalogFile::LoadFile(const wxString& filename,
     if ( !fileMsg.IsOpened() )
         return false;
 
-    // get the file size (assume it is less than 4Gb...)
+    // get the file size (assume it is less than 4GB...)
     wxFileOffset lenFile = fileMsg.Length();
     if ( lenFile == wxInvalidOffset )
         return false;
@@ -1500,8 +1500,8 @@ const wxString& wxTranslations::GetString(const wxString& origString,
             TRACE_I18N,
             "string \"%s\"%s not found in %slocale '%s'.",
             origString,
-            n != UINT_MAX ? wxString::Format("[%ld]", (long)n) : wxString(),
-            !domain.empty() ? wxString::Format("domain '%s' ", domain) : wxString(),
+            (n != UINT_MAX ? wxString::Format("[%ld]", (long)n) : wxString()),
+            (!domain.empty() ? wxString::Format("domain '%s' ", domain) : wxString()),
             m_lang
         );
 
@@ -1741,7 +1741,7 @@ wxArrayString wxFileTranslationsLoader::GetAvailableTranslations(const wxString&
           i != prefixes.end();
           ++i )
     {
-        if (i->length() == 0)
+        if ( i->empty() )
             continue;
         wxDir dir;
         if ( !dir.Open(*i) )
@@ -1790,7 +1790,7 @@ wxMsgCatalog *wxResourceTranslationsLoader::LoadCatalog(const wxString& domain,
                              resname,
                              GetResourceType(),
                              GetModule()) )
-        return false;
+        return NULL;
 
     wxLogTrace(TRACE_I18N,
                "Using catalog from Windows resource \"%s\".", resname);
@@ -1800,7 +1800,9 @@ wxMsgCatalog *wxResourceTranslationsLoader::LoadCatalog(const wxString& domain,
         domain);
 
     if ( !cat )
+    {
         wxLogWarning(_("Resource '%s' is not a valid message catalog."), resname);
+    }
 
     return cat;
 }
@@ -1847,7 +1849,9 @@ wxArrayString wxResourceTranslationsLoader::GetAvailableTranslations(const wxStr
     {
         const DWORD err = GetLastError();
         if ( err != NO_ERROR && err != ERROR_RESOURCE_TYPE_NOT_FOUND )
+        {
             wxLogSysError(_("Couldn't enumerate translations"));
+        }
     }
 
     return data.langs;

@@ -50,55 +50,6 @@ static const wxCoord ICON_MARGIN = 0;
 static const wxCoord ICON_OFFSET = 0;
 #endif
 
-// ----------------------------------------------------------------------------
-// TODO: These functions or something like them should probably be made
-// public.  There are similar functions in src/aui/dockart.cpp...
-
-static double wxBlendColour(double fg, double bg, double alpha)
-{
-    double result = bg + (alpha * (fg - bg));
-    if (result < 0.0)
-        result = 0.0;
-    if (result > 255)
-        result = 255;
-    return result;
-}
-
-static wxColor wxStepColour(const wxColor& c, int ialpha)
-{
-    if (ialpha == 100)
-        return c;
-
-    double r = c.Red(), g = c.Green(), b = c.Blue();
-    double bg;
-
-    // ialpha is 0..200 where 0 is completely black
-    // and 200 is completely white and 100 is the same
-    // convert that to normal alpha 0.0 - 1.0
-    ialpha = wxMin(ialpha, 200);
-    ialpha = wxMax(ialpha, 0);
-    double alpha = ((double)(ialpha - 100.0))/100.0;
-
-    if (ialpha > 100)
-    {
-        // blend with white
-        bg = 255.0;
-        alpha = 1.0 - alpha;  // 0 = transparent fg; 1 = opaque fg
-    }
-     else
-    {
-        // blend with black
-        bg = 0.0;
-        alpha = 1.0 + alpha;  // 0 = transparent fg; 1 = opaque fg
-    }
-
-    r = wxBlendColour(r, bg, alpha);
-    g = wxBlendColour(g, bg, alpha);
-    b = wxBlendColour(b, bg, alpha);
-
-    return wxColour((unsigned char)r, (unsigned char)g, (unsigned char)b);
-}
-
 #define LIGHT_STEP 160
 
 // ----------------------------------------------------------------------------
@@ -183,7 +134,7 @@ protected:
         {
             ChangeValue(m_descriptiveText);
             SetInsertionPoint(0);
-            SetForegroundColour(wxStepColour(m_defaultFG, LIGHT_STEP));
+            SetForegroundColour(m_defaultFG.ChangeLightness (LIGHT_STEP));
         }
     }
 
@@ -848,7 +799,7 @@ bool wxSearchCtrl::SetFont(const wxFont& font)
 void wxSearchCtrl::SetSearchBitmap( const wxBitmap& bitmap )
 {
     m_searchBitmap = bitmap;
-    m_searchBitmapUser = bitmap.Ok();
+    m_searchBitmapUser = bitmap.IsOk();
     if ( m_searchBitmapUser )
     {
         if ( m_searchButton && !HasMenu() )
@@ -868,7 +819,7 @@ void wxSearchCtrl::SetSearchBitmap( const wxBitmap& bitmap )
 void wxSearchCtrl::SetSearchMenuBitmap( const wxBitmap& bitmap )
 {
     m_searchMenuBitmap = bitmap;
-    m_searchMenuBitmapUser = bitmap.Ok();
+    m_searchMenuBitmapUser = bitmap.IsOk();
     if ( m_searchMenuBitmapUser )
     {
         if ( m_searchButton && m_menu )
@@ -888,7 +839,7 @@ void wxSearchCtrl::SetSearchMenuBitmap( const wxBitmap& bitmap )
 void wxSearchCtrl::SetCancelBitmap( const wxBitmap& bitmap )
 {
     m_cancelBitmap = bitmap;
-    m_cancelBitmapUser = bitmap.Ok();
+    m_cancelBitmapUser = bitmap.IsOk();
     if ( m_cancelBitmapUser )
     {
         if ( m_cancelButton )
@@ -967,7 +918,7 @@ static int GetMultiplier()
 wxBitmap wxSearchCtrl::RenderSearchBitmap( int x, int y, bool renderDrop )
 {
     wxColour bg = GetBackgroundColour();
-    wxColour fg = wxStepColour(GetForegroundColour(), LIGHT_STEP-20);
+    wxColour fg = GetForegroundColour().ChangeLightness(LIGHT_STEP-20);
 
     //===============================================================================
     // begin drawing code
@@ -1072,7 +1023,7 @@ wxBitmap wxSearchCtrl::RenderSearchBitmap( int x, int y, bool renderDrop )
 wxBitmap wxSearchCtrl::RenderCancelBitmap( int x, int y )
 {
     wxColour bg = GetBackgroundColour();
-    wxColour fg = wxStepColour(GetForegroundColour(), LIGHT_STEP);
+    wxColour fg = GetForegroundColour().ChangeLightness(LIGHT_STEP);
 
     //===============================================================================
     // begin drawing code
@@ -1168,7 +1119,7 @@ void wxSearchCtrl::RecalcBitmaps()
     if ( !m_searchBitmapUser )
     {
         if (
-            !m_searchBitmap.Ok() ||
+            !m_searchBitmap.IsOk() ||
             m_searchBitmap.GetHeight() != bitmapHeight ||
             m_searchBitmap.GetWidth() != bitmapWidth
             )
@@ -1186,7 +1137,7 @@ void wxSearchCtrl::RecalcBitmaps()
     if ( !m_searchMenuBitmapUser )
     {
         if (
-            !m_searchMenuBitmap.Ok() ||
+            !m_searchMenuBitmap.IsOk() ||
             m_searchMenuBitmap.GetHeight() != bitmapHeight ||
             m_searchMenuBitmap.GetWidth() != bitmapWidth
             )
@@ -1204,7 +1155,7 @@ void wxSearchCtrl::RecalcBitmaps()
     if ( !m_cancelBitmapUser )
     {
         if (
-            !m_cancelBitmap.Ok() ||
+            !m_cancelBitmap.IsOk() ||
             m_cancelBitmap.GetHeight() != bitmapHeight ||
             m_cancelBitmap.GetWidth() != bitmapHeight
             )

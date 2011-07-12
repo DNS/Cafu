@@ -14,7 +14,7 @@
 
 #include "wx/defs.h"
 
-#if wxUSE_STL
+#if wxUSE_STD_CONTAINERS
 
 #include <vector>
 #include <algorithm>
@@ -26,7 +26,7 @@ inline void wxVectorSort(wxVector<T>& v)
     std::sort(v.begin(), v.end());
 }
 
-#else // !wxUSE_STL
+#else // !wxUSE_STD_CONTAINERS
 
 #include "wx/utils.h"
 #include "wx/scopeguard.h"
@@ -118,7 +118,10 @@ private:
     // Note that we use typedef instead of privately deriving from this (which
     // would allowed us to omit "Ops::" prefixes below) to keep VC6 happy,
     // it can't compile code that derives from wxIf<...>::value.
-    typedef typename wxIf< wxIsMovable<T>::value,
+    //
+    // Note that bcc needs the extra parentheses for non-type template
+    // arguments to compile this expression.
+    typedef typename wxIf< (wxIsMovable<T>::value),
                            wxPrivate::wxVectorMemOpsMovable<T>,
                            wxPrivate::wxVectorMemOpsGeneric<T> >::value
             Ops;
@@ -452,7 +455,7 @@ namespace wxPrivate
 // This is a helper for the wxVectorSort function, and should not be used
 // directly in user's code.
 template<typename T>
-struct wxVectorSort
+struct wxVectorComparator
 {
     static int wxCMPFUNC_CONV
     Compare(const void* pitem1, const void* pitem2, const void* )
@@ -477,12 +480,12 @@ template<typename T>
 void wxVectorSort(wxVector<T>& v)
 {
     wxQsort(v.begin(), v.size(), sizeof(T),
-            wxPrivate::wxVectorSort<T>::Compare, NULL);
+            wxPrivate::wxVectorComparator<T>::Compare, NULL);
 }
 
 
 
-#endif // wxUSE_STL/!wxUSE_STL
+#endif // wxUSE_STD_CONTAINERS/!wxUSE_STD_CONTAINERS
 
 #if WXWIN_COMPATIBILITY_2_8
     #define WX_DECLARE_VECTORBASE(obj, cls) typedef wxVector<obj> cls

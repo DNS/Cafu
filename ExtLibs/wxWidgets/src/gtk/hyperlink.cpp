@@ -47,9 +47,6 @@ static inline bool UseNative()
 // implementation
 // ============================================================================
 
-IMPLEMENT_DYNAMIC_CLASS(wxHyperlinkCtrl, wxGenericHyperlinkCtrl)
-
-
 // ----------------------------------------------------------------------------
 // "clicked"
 // ----------------------------------------------------------------------------
@@ -124,6 +121,13 @@ wxSize wxHyperlinkCtrl::DoGetBestSize() const
     if ( UseNative() )
         return wxControl::DoGetBestSize();
     return wxGenericHyperlinkCtrl::DoGetBestSize();
+}
+
+wxSize wxHyperlinkCtrl::DoGetBestClientSize() const
+{
+    if ( UseNative() )
+        return wxControl::DoGetBestClientSize();
+    return wxGenericHyperlinkCtrl::DoGetBestClientSize();
 }
 
 void wxHyperlinkCtrl::SetLabel(const wxString &label)

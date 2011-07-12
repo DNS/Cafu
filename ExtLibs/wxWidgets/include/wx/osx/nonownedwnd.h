@@ -4,7 +4,7 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     2008-03-24
-// RCS-ID:      $Id: nonownedwnd.h 46993 2007-06-28 08:46:04Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) 2008 Stefan Csomor
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -56,8 +56,11 @@ public:
                 const wxString& name = wxPanelNameStr);
 
     bool Create(wxWindow *parent, WXWindow nativeWindow);
-    
+
     virtual ~wxNonOwnedWindow();
+
+    virtual void SubclassWin(WXWindow nativeWindow);
+    virtual void UnsubclassWin();
 
     virtual wxPoint GetClientAreaOrigin() const;
 
@@ -106,9 +109,9 @@ public:
     virtual void HandleResized( double timestampsec );
     virtual void HandleMoved( double timestampsec );
     virtual void HandleResizing( double timestampsec, wxRect* rect );
-    
+
     virtual bool Destroy();
-    
+
 protected:
     // common part of all ctors
     void Init();
@@ -121,7 +124,7 @@ protected:
     virtual bool OSXShowWithEffect(bool show,
                                    wxShowEffect effect,
                                    unsigned timeout);
-    
+
     virtual void WillBeDestroyed();
 
     wxNonOwnedWindowImpl* m_nowpeer ;
@@ -129,7 +132,7 @@ protected:
 //    wxWindowMac* m_macFocus ;
 
     static wxNonOwnedWindow *s_macDeactivateWindow;
-    
+
 private :
     wxRegion m_shape;
 };

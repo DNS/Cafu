@@ -4,7 +4,7 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     1998-01-01
-// RCS-ID:      $Id: bmpbuttn.cpp 54820 2008-07-29 20:04:11Z SC $
+// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -20,9 +20,6 @@
     #include "wx/dcmemory.h"
 #endif
 
-IMPLEMENT_DYNAMIC_CLASS(wxBitmapButton, wxButton)
-
-
 #include "wx/osx/private.h"
 
 //---------------------------------------------------------------------------
@@ -36,8 +33,8 @@ bool wxBitmapButton::Create( wxWindow *parent,
                              const wxValidator& validator,
                              const wxString& name )
 {
-    m_macIsUserPane = false;
-
+    DontCreatePeer();
+    
     if ( !wxBitmapButtonBase::Create(parent, id, pos, size, style,
                                      validator, name) )
         return false;
@@ -55,7 +52,7 @@ bool wxBitmapButton::Create( wxWindow *parent,
 
     m_bitmaps[State_Normal] = bitmap;
 
-    m_peer = wxWidgetImpl::CreateBitmapButton( this, parent, id, bitmap, pos, size, style, GetExtraStyle() );
+    SetPeer(wxWidgetImpl::CreateBitmapButton( this, parent, id, bitmap, pos, size, style, GetExtraStyle() ));
 
     MacPostControlCreate( pos, size );
 

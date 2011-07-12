@@ -249,6 +249,16 @@ wxRibbonButtonBarButtonBase* wxRibbonButtonBar::AddDropdownButton(
         wxRIBBON_BUTTON_DROPDOWN);
 }
 
+wxRibbonButtonBarButtonBase* wxRibbonButtonBar::AddToggleButton(
+                int button_id,
+                const wxString& label,
+                const wxBitmap& bitmap,
+                const wxString& help_string)
+{
+    return AddButton(button_id, label, bitmap, help_string,
+        wxRIBBON_BUTTON_TOGGLE);
+}
+
 wxRibbonButtonBarButtonBase* wxRibbonButtonBar::AddHybridButton(
                 int button_id,
                 const wxString& label,
@@ -258,7 +268,7 @@ wxRibbonButtonBarButtonBase* wxRibbonButtonBar::AddHybridButton(
     return AddButton(button_id, label, bitmap, help_string,
         wxRIBBON_BUTTON_HYBRID);
 }
-    
+
 wxRibbonButtonBarButtonBase* wxRibbonButtonBar::AddButton(
                 int button_id,
                 const wxString& label,
@@ -445,6 +455,36 @@ void wxRibbonButtonBar::EnableButton(int button_id, bool enable)
     }
 }
 
+void wxRibbonButtonBar::ToggleButton(int button_id, bool checked)
+{
+    size_t count = m_buttons.GetCount();
+    size_t i;
+    for(i = 0; i < count; ++i)
+    {
+        wxRibbonButtonBarButtonBase* button = m_buttons.Item(i);
+        if(button->id == button_id)
+        {
+            if(checked)
+            {
+                if((button->state & wxRIBBON_BUTTONBAR_BUTTON_TOGGLED) == 0)
+                {
+                    button->state |= wxRIBBON_BUTTONBAR_BUTTON_TOGGLED;
+                    Refresh();
+                }
+            }
+            else
+            {
+                if(button->state & wxRIBBON_BUTTONBAR_BUTTON_TOGGLED)
+                {
+                    button->state &= ~wxRIBBON_BUTTONBAR_BUTTON_TOGGLED;
+                    Refresh();
+                }
+            }
+            return;
+        }
+    }
+}
+
 void wxRibbonButtonBar::SetArtProvider(wxRibbonArtProvider* art)
 {
     if(art == m_art)
@@ -585,7 +625,7 @@ void wxRibbonButtonBar::OnPaint(wxPaintEvent& WXUNUSED(evt))
             bitmap_small = &base->bitmap_small_disabled;
         }
         wxRect rect(button.position + m_layout_offset, base->sizes[button.size].size);
-        
+
         m_art->DrawButtonBarButton(dc, this, rect, base->kind,
             base->state | button.size, base->label, *bitmap, *bitmap_small);
     }
@@ -936,6 +976,13 @@ void wxRibbonButtonBar::OnMouseUp(wxMouseEvent& evt)
                 else
                     break;
                 wxRibbonButtonBarEvent notification(event_type, id);
+                if(m_active_button->base->kind == wxRIBBON_BUTTON_TOGGLE)
+                {
+                    m_active_button->base->state ^=
+                        wxRIBBON_BUTTONBAR_BUTTON_TOGGLED;
+                    notification.SetInt(m_active_button->base->state &
+                        wxRIBBON_BUTTONBAR_BUTTON_TOGGLED);
+                }
                 notification.SetEventObject(this);
                 notification.SetBar(this);
                 m_lock_active_state = true;

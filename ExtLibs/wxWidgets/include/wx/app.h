@@ -497,7 +497,7 @@ protected:
     wxDECLARE_NO_COPY_CLASS(wxAppConsoleBase);
 };
 
-#if defined(__UNIX__)
+#if defined(__UNIX__) && !defined(__CYGWIN__)
     #include "wx/unix/app.h"
 #else
     // this has to be a class and not a typedef as we forward declare it
@@ -561,10 +561,6 @@ public:
         //
         // it should return true if more idle events are needed, false if not
     virtual bool ProcessIdle();
-
-        // Send idle event to window and all subwindows
-        // Returns true if more idle time is requested.
-    virtual bool SendIdleEvents(wxWindow* win, wxIdleEvent& event);
 
         // override base class version: GUI apps always use an event loop
     virtual bool UsesEventLoop() const { return true; }

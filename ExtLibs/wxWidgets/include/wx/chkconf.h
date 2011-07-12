@@ -21,10 +21,10 @@
     If you get an error saying "wxUSE_FOO must be defined", it means that you
     are not using the correct up-to-date version of setup.h. This happens most
     often when using svn or daily snapshots and a new symbol was added to
-    setup0.h and you haven't updated your local setup.h to to reflect it. If
+    setup0.h and you haven't updated your local setup.h to reflect it. If
     this is the case, you need to propagate the changes from setup0.h to your
     setup.h and, if using makefiles under MSW, also remove setup.h under the
-    build directory (lib/$(COMPILER)_{lib,dll}/msw[u][d][dll]/wx) so that it
+    build directory (lib/$(COMPILER)_{lib,dll}/msw[u][d][dll]/wx) so that
     the new setup.h is copied there.
 
     If you get an error of the form "wxFoo requires wxBar", then the settings
@@ -299,6 +299,22 @@
 #   endif
 #endif /* !defined(wxUSE_SOCKETS) */
 
+#ifndef wxUSE_STD_CONTAINERS
+#   ifdef wxABORT_ON_CONFIG_ERROR
+#       error "wxUSE_STD_CONTAINERS must be defined, please read comment near the top of this file."
+#   else
+#       define wxUSE_STD_CONTAINERS 0
+#   endif
+#endif /* !defined(wxUSE_STD_CONTAINERS) */
+
+#ifndef wxUSE_STD_STRING_CONV_IN_WXSTRING
+#   ifdef wxABORT_ON_CONFIG_ERROR
+#       error "wxUSE_STD_STRING_CONV_IN_WXSTRING must be defined, please read comment near the top of this file."
+#   else
+#       define wxUSE_STD_STRING_CONV_IN_WXSTRING 0
+#   endif
+#endif /* !defined(wxUSE_STD_STRING_CONV_IN_WXSTRING) */
+
 #ifndef wxUSE_STREAMS
 #   ifdef wxABORT_ON_CONFIG_ERROR
 #       error "wxUSE_STREAMS must be defined, please read comment near the top of this file."
@@ -407,6 +423,22 @@
 #   endif
 #endif /* !defined(wxUSE_ANIMATIONCTRL) */
 
+#ifndef wxUSE_ARTPROVIDER_STD
+#   ifdef wxABORT_ON_CONFIG_ERROR
+#       error "wxUSE_ARTPROVIDER_STD must be defined, please read comment near the top of this file."
+#   else
+#       define wxUSE_ARTPROVIDER_STD 0
+#   endif
+#endif /* !defined(wxUSE_ARTPROVIDER_STD) */
+
+#ifndef wxUSE_ARTPROVIDER_TANGO
+#   ifdef wxABORT_ON_CONFIG_ERROR
+#       error "wxUSE_ARTPROVIDER_TANGO must be defined, please read comment near the top of this file."
+#   else
+#       define wxUSE_ARTPROVIDER_TANGO 0
+#   endif
+#endif /* !defined(wxUSE_ARTPROVIDER_TANGO) */
+
 #ifndef wxUSE_AUTOID_MANAGEMENT
 #   ifdef wxABORT_ON_CONFIG_ERROR
 #       error "wxUSE_AUTOID_MANAGEMENT must be defined, please read comment near the top of this file."
@@ -439,17 +471,13 @@
 #   endif
 #endif /* !defined(wxUSE_BUTTON) */
 
-/*
-    This one is special, it's only used under wxGTK currently so don't require
-    pre-defining it.
- */
 #ifndef wxUSE_CAIRO
-#   ifdef __WXGTK210__
-#        define wxUSE_CAIRO 1
-#    else
-#        define wxUSE_CAIRO 0
-#    endif
-#endif
+#   ifdef wxABORT_ON_CONFIG_ERROR
+#       error "wxUSE_CAIRO must be defined, please read comment near the top of this file."
+#   else
+#       define wxUSE_CAIRO 0
+#   endif
+#endif /* !defined(wxUSE_CAIRO) */
 
 #ifndef wxUSE_CALENDARCTRL
 #   ifdef wxABORT_ON_CONFIG_ERROR
@@ -547,6 +575,14 @@
 #   endif
 #endif /* !defined(wxUSE_COMBOBOX) */
 
+#ifndef wxUSE_COMMANDLINKBUTTON
+#   ifdef wxABORT_ON_CONFIG_ERROR
+#       error "wxUSE_COMMANDLINKBUTTON must be defined, please read comment near the top of this file."
+#   else
+#       define wxUSE_COMMANDLINKBUTTON 0
+#   endif
+#endif /* !defined(wxUSE_COMMANDLINKBUTTON) */
+
 #ifndef wxUSE_COMBOCTRL
 #   ifdef wxABORT_ON_CONFIG_ERROR
 #       error "wxUSE_COMBOCTRL must be defined, please read comment near the top of this file."
@@ -578,6 +614,14 @@
 #       define wxUSE_DATEPICKCTRL 0
 #   endif
 #endif /* !defined(wxUSE_DATEPICKCTRL) */
+
+#ifndef wxUSE_DC_TRANSFORM_MATRIX
+#   ifdef wxABORT_ON_CONFIG_ERROR
+#       error "wxUSE_DC_TRANSFORM_MATRIX must be defined, please read comment near the top of this file."
+#   else
+#       define wxUSE_DC_TRANSFORM_MATRIX 1
+#   endif
+#endif /* wxUSE_DC_TRANSFORM_MATRIX */
 
 #ifndef wxUSE_DIRPICKERCTRL
 #   ifdef wxABORT_ON_CONFIG_ERROR
@@ -809,6 +853,14 @@
 #   endif
 #endif /* !defined(wxUSE_LOG_DIALOG) */
 
+#ifndef wxUSE_MARKUP
+#   ifdef wxABORT_ON_CONFIG_ERROR
+#       error "wxUSE_MARKUP must be defined, please read comment near the top of this file."
+#   else
+#       define wxUSE_MARKUP 0
+#   endif
+#endif /* !defined(wxUSE_MARKUP) */
+
 #ifndef wxUSE_MDI
 #   ifdef wxABORT_ON_CONFIG_ERROR
 #       error "wxUSE_MDI must be defined, please read comment near the top of this file."
@@ -918,6 +970,14 @@
 #       error "wxUSE_RIBBON must be defined, please read comment near the top of this file."
 #   else
 #       define wxUSE_RIBBON 0
+#   endif
+#endif /* !defined(wxUSE_RIBBON) */
+
+#ifndef wxUSE_RICHMSGDLG
+#   ifdef wxABORT_ON_CONFIG_ERROR
+#       error "wxUSE_RICHMSGDLG must be defined, please read comment near the top of this file."
+#   else
+#       define wxUSE_RICHMSGDLG 0
 #   endif
 #endif /* !defined(wxUSE_RIBBON) */
 
@@ -1425,6 +1485,17 @@
 #    endif
 #endif /* wxUSE_BMPBUTTON */
 
+#if wxUSE_COMMANDLINKBUTTON
+#    if !wxUSE_BUTTON
+#        ifdef wxABORT_ON_CONFIG_ERROR
+#            error "wxUSE_COMMANDLINKBUTTON requires wxUSE_BUTTON"
+#        else
+#            undef wxUSE_BUTTON
+#            define wxUSE_BUTTON 1
+#        endif
+#    endif
+#endif /* wxUSE_COMMANDLINKBUTTON */
+
 /*
    wxUSE_BOOKCTRL should be only used if any of the controls deriving from it
    are used
@@ -1520,6 +1591,17 @@
 #   endif
 #endif /* wxUSE_REARRANGECTRL */
 
+#if wxUSE_RICHMSGDLG
+#    if !wxUSE_MSGDLG
+#        ifdef wxABORT_ON_CONFIG_ERROR
+#            error "wxUSE_RICHMSGDLG requires wxUSE_MSGDLG"
+#        else
+#            undef wxUSE_MSGDLG
+#            define wxUSE_MSGDLG 1
+#        endif
+#    endif
+#endif /* wxUSE_RICHMSGDLG */
+
 /* don't attempt to use native status bar on the platforms not having it */
 #ifndef wxUSE_NATIVE_STATUSBAR
 #   define wxUSE_NATIVE_STATUSBAR 0
@@ -1581,6 +1663,17 @@
 #endif /* wxUSE_FILEDLG */
 
 /* common dependencies */
+#if wxUSE_ARTPROVIDER_TANGO
+#   if !(wxUSE_STREAMS && wxUSE_IMAGE && wxUSE_LIBPNG)
+#       ifdef wxABORT_ON_CONFIG_ERROR
+#           error "Tango art provider requires wxImage with streams and PNG support"
+#       else
+#           undef wxUSE_ARTPROVIDER_TANGO
+#           define wxUSE_ARTPROVIDER_TANGO 0
+#       endif
+#   endif
+#endif /* wxUSE_ARTPROVIDER_TANGO */
+
 #if wxUSE_CALENDARCTRL
 #   if !(wxUSE_SPINBTN && wxUSE_COMBOBOX)
 #       ifdef wxABORT_ON_CONFIG_ERROR
@@ -2014,6 +2107,15 @@
 #       define wxUSE_SVG 0
 #   endif
 #endif /* wxUSE_SVG */
+
+#if wxUSE_TASKBARICON && !wxUSE_MENUS
+#   ifdef wxABORT_ON_CONFIG_ERROR
+#       error "wxUSE_TASKBARICON requires wxUSE_MENUS"
+#   else
+#       undef wxUSE_TASKBARICON
+#       define wxUSE_TASKBARICON 0
+#   endif
+#endif /* wxUSE_TASKBARICON */
 
 #if !wxUSE_VARIANT
 #   if wxUSE_DATAVIEWCTRL

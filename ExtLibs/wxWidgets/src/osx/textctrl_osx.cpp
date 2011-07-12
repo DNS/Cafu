@@ -4,7 +4,7 @@
 // Author:      Stefan Csomor
 // Modified by: Ryan Norton (MLTE GetLineLength and GetLineText)
 // Created:     1998-01-01
-// RCS-ID:      $Id: textctrl.cpp 54820 2008-07-29 20:04:11Z SC $
+// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -47,8 +47,6 @@
 #include "wx/thread.h"
 
 #include "wx/osx/private.h"
-
-IMPLEMENT_DYNAMIC_CLASS(wxTextCtrl, wxTextCtrlBase)
 
 BEGIN_EVENT_TABLE(wxTextCtrl, wxTextCtrlBase)
     EVT_DROP_FILES(wxTextCtrl::OnDropFiles)
@@ -97,7 +95,7 @@ bool wxTextCtrl::Create( wxWindow *parent,
     const wxValidator& validator,
     const wxString& name )
 {
-    m_macIsUserPane = false ;
+    DontCreatePeer();
     m_editable = true ;
 
     if ( ! (style & wxNO_BORDER) )
@@ -114,16 +112,16 @@ bool wxTextCtrl::Create( wxWindow *parent,
     }
 
 
-    m_peer = wxWidgetImpl::CreateTextControl( this, GetParent(), GetId(), str, pos, size, style, GetExtraStyle() );
+    SetPeer(wxWidgetImpl::CreateTextControl( this, GetParent(), GetId(), str, pos, size, style, GetExtraStyle() ));
 
     MacPostControlCreate(pos, size) ;
-    
+
 #if wxOSX_USE_COCOA
     // under carbon everything can already be set before the MacPostControlCreate embedding takes place
     // but under cocoa for single line textfields this only works after everything has been set up
     GetTextPeer()->SetStringValue(str);
 #endif
-    
+
     // only now the embedding is correct and we can do a positioning update
 
     MacSuperChangedPosition() ;
@@ -206,7 +204,7 @@ wxSize wxTextCtrl::DoGetBestSize() const
         if (size.x > 0 && size.y > 0)
             return size;
     }
-    
+
     int wText, hText;
 
     // these are the numbers from the HIG:
@@ -292,7 +290,7 @@ void wxTextCtrl::Copy()
 {
     if (CanCopy())
     {
-        wxClipboardTextEvent evt(wxEVT_COMMAND_TEXT_COPY, GetId());        
+        wxClipboardTextEvent evt(wxEVT_COMMAND_TEXT_COPY, GetId());
         evt.SetEventObject(this);
         if (!GetEventHandler()->ProcessEvent(evt))
         {
@@ -305,7 +303,7 @@ void wxTextCtrl::Cut()
 {
     if (CanCut())
     {
-        wxClipboardTextEvent evt(wxEVT_COMMAND_TEXT_CUT, GetId());        
+        wxClipboardTextEvent evt(wxEVT_COMMAND_TEXT_CUT, GetId());
         evt.SetEventObject(this);
         if (!GetEventHandler()->ProcessEvent(evt))
         {
@@ -320,7 +318,7 @@ void wxTextCtrl::Paste()
 {
     if (CanPaste())
     {
-        wxClipboardTextEvent evt(wxEVT_COMMAND_TEXT_PASTE, GetId());        
+        wxClipboardTextEvent evt(wxEVT_COMMAND_TEXT_PASTE, GetId());
         evt.SetEventObject(this);
         if (!GetEventHandler()->ProcessEvent(evt))
         {
@@ -602,6 +600,21 @@ bool wxTextCtrl::MacSetupCursor( const wxPoint& pt )
         return wxWindow::MacSetupCursor( pt ) ;
     else
         return true ;
+}
+
+bool wxTextCtrl::SetHint(const wxString& hint)
+{
+    m_hintString = hint;
+    
+    if ( GetTextPeer() && GetTextPeer()->SetHint(hint) )
+        return true;
+    
+    return false;
+}
+
+wxString wxTextCtrl::GetHint() const
+{
+    return m_hintString;
 }
 
 // ----------------------------------------------------------------------------

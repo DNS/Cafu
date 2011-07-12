@@ -79,6 +79,7 @@
 #endif
 
 #include "wx/msw/private.h"
+#include "wx/msw/private/keyboard.h"
 #include "wx/msw/dcclient.h"
 
 #if wxUSE_TOOLTIPS
@@ -88,6 +89,10 @@
 #if wxUSE_CARET
     #include "wx/caret.h"
 #endif // wxUSE_CARET
+
+#if wxUSE_RADIOBOX
+    #include "wx/radiobox.h"
+#endif // wxUSE_RADIOBOX
 
 #if wxUSE_SPINCTRL
     #include "wx/spinctrl.h"
@@ -165,6 +170,10 @@
     #define wxHAS_XBUTTON
 #endif
 
+#ifndef MAPVK_VK_TO_CHAR
+    #define MAPVK_VK_TO_CHAR 2
+#endif
+
 // ---------------------------------------------------------------------------
 // global variables
 // ---------------------------------------------------------------------------
@@ -172,6 +181,13 @@
 #if wxUSE_MENUS_NATIVE
 extern wxMenu *wxCurrentPopupMenu;
 #endif
+
+#if wxUSE_UXTHEME
+// This is a hack used by the owner-drawn wxButton implementation to ensure
+// that the brush used for erasing its background is correctly aligned with the
+// control.
+wxWindowMSW *wxWindowBeingErased = NULL;
+#endif // wxUSE_UXTHEME
 
 namespace
 {
@@ -218,6 +234,15 @@ WX_DECLARE_HASH_MAP(wxWindow *, wxWindow *,
 EraseBgHooks gs_eraseBgHooks;
 
 #endif // wxHAS_MSW_BACKGROUND_ERASE_HOOK
+
+// If this variable is strictly positive, EVT_CHAR_HOOK is not generated for
+// Escape key presses as it can't be intercepted because it's needed by some
+// currently shown window, e.g. IME entry.
+//
+// This is currently global as we allow using UI from the main thread only
+// anyhow but could be replaced with a thread-specific value in the future if
+// needed.
+int gs_modalEntryWindowCount = 0;
 
 } // anonymous namespace
 
@@ -319,115 +344,7 @@ bool GetCursorPosWinCE(POINT* pt)
 // method
 #ifdef __WXUNIVERSAL__
     IMPLEMENT_ABSTRACT_CLASS(wxWindowMSW, wxWindowBase)
-#else // __WXMSW__
-#if wxUSE_EXTENDED_RTTI
-
-// windows that are created from a parent window during its Create method, eg. spin controls in a calendar controls
-// must never been streamed out separately otherwise chaos occurs. Right now easiest is to test for negative ids, as
-// windows with negative ids never can be recreated anyway
-
-bool wxWindowStreamingCallback( const wxObject *object, wxWriter * , wxPersister * , wxxVariantArray & )
-{
-    const wxWindow * win = dynamic_cast<const wxWindow*>(object) ;
-    if ( win && win->GetId() < 0 )
-        return false ;
-    return true ;
-}
-
-IMPLEMENT_DYNAMIC_CLASS_XTI_CALLBACK(wxWindow, wxWindowBase,"wx/window.h", wxWindowStreamingCallback)
-
-// make wxWindowList known before the property is used
-
-wxCOLLECTION_TYPE_INFO( wxWindow* , wxWindowList ) ;
-
-template<> void wxCollectionToVariantArray( wxWindowList const &theList, wxxVariantArray &value)
-{
-    wxListCollectionToVariantArray<wxWindowList::compatibility_iterator>( theList , value ) ;
-}
-
-WX_DEFINE_FLAGS( wxWindowStyle )
-
-wxBEGIN_FLAGS( wxWindowStyle )
-    // new style border flags, we put them first to
-    // use them for streaming out
-
-    wxFLAGS_MEMBER(wxBORDER_SIMPLE)
-    wxFLAGS_MEMBER(wxBORDER_SUNKEN)
-    wxFLAGS_MEMBER(wxBORDER_DOUBLE)
-    wxFLAGS_MEMBER(wxBORDER_RAISED)
-    wxFLAGS_MEMBER(wxBORDER_STATIC)
-    wxFLAGS_MEMBER(wxBORDER_NONE)
-
-    // old style border flags
-    wxFLAGS_MEMBER(wxSIMPLE_BORDER)
-    wxFLAGS_MEMBER(wxSUNKEN_BORDER)
-    wxFLAGS_MEMBER(wxDOUBLE_BORDER)
-    wxFLAGS_MEMBER(wxRAISED_BORDER)
-    wxFLAGS_MEMBER(wxSTATIC_BORDER)
-    wxFLAGS_MEMBER(wxBORDER)
-
-    // standard window styles
-    wxFLAGS_MEMBER(wxTAB_TRAVERSAL)
-    wxFLAGS_MEMBER(wxCLIP_CHILDREN)
-    wxFLAGS_MEMBER(wxTRANSPARENT_WINDOW)
-    wxFLAGS_MEMBER(wxWANTS_CHARS)
-    wxFLAGS_MEMBER(wxFULL_REPAINT_ON_RESIZE)
-    wxFLAGS_MEMBER(wxALWAYS_SHOW_SB )
-    wxFLAGS_MEMBER(wxVSCROLL)
-    wxFLAGS_MEMBER(wxHSCROLL)
-
-wxEND_FLAGS( wxWindowStyle )
-
-wxBEGIN_PROPERTIES_TABLE(wxWindow)
-    wxEVENT_PROPERTY( Close , wxEVT_CLOSE_WINDOW , wxCloseEvent)
-    wxEVENT_PROPERTY( Create , wxEVT_CREATE , wxWindowCreateEvent )
-    wxEVENT_PROPERTY( Destroy , wxEVT_DESTROY , wxWindowDestroyEvent )
-    // Always constructor Properties first
-
-    wxREADONLY_PROPERTY( Parent,wxWindow*, GetParent, EMPTY_MACROVALUE , 0 /*flags*/ , wxT("Helpstring") , wxT("group"))
-    wxPROPERTY( Id,wxWindowID, SetId, GetId, -1 /*wxID_ANY*/ , 0 /*flags*/ , wxT("Helpstring") , wxT("group") )
-    wxPROPERTY( Position,wxPoint, SetPosition , GetPosition, wxDefaultPosition , 0 /*flags*/ , wxT("Helpstring") , wxT("group")) // pos
-    wxPROPERTY( Size,wxSize, SetSize, GetSize, wxDefaultSize , 0 /*flags*/ , wxT("Helpstring") , wxT("group")) // size
-    wxPROPERTY( WindowStyle , long , SetWindowStyleFlag , GetWindowStyleFlag , EMPTY_MACROVALUE , 0 /*flags*/ , wxT("Helpstring") , wxT("group")) // style
-
-    // Then all relations of the object graph
-
-    wxREADONLY_PROPERTY_COLLECTION( Children , wxWindowList , wxWindowBase* , GetWindowChildren , wxPROP_OBJECT_GRAPH /*flags*/ , wxT("Helpstring") , wxT("group"))
-
-   // and finally all other properties
-
-    wxPROPERTY( ExtraStyle , long , SetExtraStyle , GetExtraStyle , EMPTY_MACROVALUE , 0 /*flags*/ , wxT("Helpstring") , wxT("group")) // extstyle
-    wxPROPERTY( BackgroundColour , wxColour , SetBackgroundColour , GetBackgroundColour , EMPTY_MACROVALUE , 0 /*flags*/ , wxT("Helpstring") , wxT("group")) // bg
-    wxPROPERTY( ForegroundColour , wxColour , SetForegroundColour , GetForegroundColour , EMPTY_MACROVALUE , 0 /*flags*/ , wxT("Helpstring") , wxT("group")) // fg
-    wxPROPERTY( Enabled , bool , Enable , IsEnabled , wxxVariant((bool)true) , 0 /*flags*/ , wxT("Helpstring") , wxT("group"))
-    wxPROPERTY( Shown , bool , Show , IsShown , wxxVariant((bool)true) , 0 /*flags*/ , wxT("Helpstring") , wxT("group"))
-#if 0
-    // possible property candidates (not in xrc) or not valid in all subclasses
-    wxPROPERTY( Title,wxString, SetTitle, GetTitle, wxEmptyString )
-    wxPROPERTY( Font , wxFont , SetFont , GetWindowFont  , )
-    wxPROPERTY( Label,wxString, SetLabel, GetLabel, wxEmptyString )
-    // MaxHeight, Width , MinHeight , Width
-    // TODO switch label to control and title to toplevels
-
-    wxPROPERTY( ThemeEnabled , bool , SetThemeEnabled , GetThemeEnabled , )
-    //wxPROPERTY( Cursor , wxCursor , SetCursor , GetCursor , )
-    // wxPROPERTY( ToolTip , wxString , SetToolTip , GetToolTipText , )
-    wxPROPERTY( AutoLayout , bool , SetAutoLayout , GetAutoLayout , )
-
-
-
-#endif
-wxEND_PROPERTIES_TABLE()
-
-wxBEGIN_HANDLERS_TABLE(wxWindow)
-wxEND_HANDLERS_TABLE()
-
-wxCONSTRUCTOR_DUMMY(wxWindow)
-
-#else
-    IMPLEMENT_DYNAMIC_CLASS(wxWindow, wxWindowBase)
-#endif
-#endif // __WXUNIVERSAL__/__WXMSW__
+#endif // __WXUNIVERSAL__
 
 BEGIN_EVENT_TABLE(wxWindowMSW, wxWindowBase)
     EVT_SYS_COLOUR_CHANGED(wxWindowMSW::OnSysColourChanged)
@@ -699,9 +616,21 @@ wxWindow *wxWindowBase::DoFindFocus()
 
 void wxWindowMSW::DoEnable( bool enable )
 {
-    HWND hWnd = GetHwnd();
-    if ( hWnd )
-        ::EnableWindow(hWnd, (BOOL)enable);
+    MSWEnableHWND(GetHwnd(), enable);
+}
+
+bool wxWindowMSW::MSWEnableHWND(WXHWND hWnd, bool enable)
+{
+    if ( !hWnd )
+        return false;
+
+    // If disabling focused control, we move focus to the next one, as if the
+    // user pressed Tab. That's because we can't keep focus on a disabled
+    // control, Tab-navigation would stop working then.
+    if ( !enable && ::GetFocus() == hWnd )
+        Navigate();
+
+    return ::EnableWindow(hWnd, (BOOL)enable) != 0;
 }
 
 bool wxWindowMSW::Show(bool show)
@@ -909,7 +838,7 @@ bool wxWindowMSW::SetCursor(const wxCursor& cursor)
     }
 
     // don't "overwrite" busy cursor
-    if ( m_cursor.Ok() && !wxIsBusy() )
+    if ( m_cursor.IsOk() && !wxIsBusy() )
     {
         // normally we should change the cursor only if it's over this window
         // but we should do it always if we capture the mouse currently
@@ -1416,7 +1345,8 @@ void wxWindowMSW::MSWUpdateStyle(long flagsOld, long exflagsOld)
                              exstyleReal & WS_EX_TOPMOST ? HWND_TOPMOST
                                                          : HWND_NOTOPMOST,
                              0, 0, 0, 0,
-                             SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED) )
+                             SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE |
+                             SWP_FRAMECHANGED) )
         {
             wxLogLastError(wxT("SetWindowPos"));
         }
@@ -1593,8 +1523,7 @@ void wxWindowMSW::OnInternalIdle()
     }
 #endif // !HAVE_TRACKMOUSEEVENT
 
-    if (wxUpdateUIEvent::CanUpdate(this) && IsShownOnScreen())
-        UpdateWindowUI(wxUPDATE_UI_FROMIDLE);
+    wxWindowBase::OnInternalIdle();
 }
 
 // Set this window to be the child of 'parent'.
@@ -1858,6 +1787,15 @@ void wxWindowMSW::DoGetClientSize(int *x, int *y) const
         if ( y )
             *y = rect.bottom;
     }
+
+    // The size of the client window can't be negative but ::GetClientRect()
+    // can return negative size for an extremely small (1x1) window with
+    // borders so ensure that we correct it here as having negative sizes is
+    // completely unexpected.
+    if ( x && *x < 0 )
+        *x = 0;
+    if ( y && *y < 0 )
+        *y = 0;
 }
 
 void wxWindowMSW::DoGetPosition(int *x, int *y) const
@@ -1865,11 +1803,13 @@ void wxWindowMSW::DoGetPosition(int *x, int *y) const
     wxWindow * const parent = GetParent();
 
     wxPoint pos;
+#if wxUSE_DEFERRED_SIZING
     if ( m_pendingPosition != wxDefaultPosition )
     {
         pos = m_pendingPosition;
     }
     else // use current position
+#endif // wxUSE_DEFERRED_SIZING
     {
         RECT rect = wxGetWindowRect(GetHwnd());
 
@@ -2209,7 +2149,7 @@ void wxWindowMSW::DoGetTextExtent(const wxString& string,
                                   int *externalLeading,
                                   const wxFont *fontToUse) const
 {
-    wxASSERT_MSG( !fontToUse || fontToUse->Ok(),
+    wxASSERT_MSG( !fontToUse || fontToUse->IsOk(),
                     wxT("invalid font in GetTextExtent()") );
 
     HFONT hfontToUse;
@@ -2273,18 +2213,16 @@ bool wxWindowMSW::DoPopupMenu(wxMenu *menu, int x, int y)
 {
     menu->UpdateUI();
 
+    wxPoint pt;
     if ( x == wxDefaultCoord && y == wxDefaultCoord )
     {
-        wxPoint mouse = ScreenToClient(wxGetMousePosition());
-        x = mouse.x; y = mouse.y;
+        pt = wxGetMousePosition();
+    }
+    else
+    {
+        pt = ClientToScreen(wxPoint(x, y));
     }
 
-    HWND hWnd = GetHwnd();
-    HMENU hMenu = GetHmenuOf(menu);
-    POINT point;
-    point.x = x;
-    point.y = y;
-    ::ClientToScreen(hWnd, &point);
 #if defined(__WXWINCE__)
     static const UINT flags = 0;
 #else // !__WXWINCE__
@@ -2302,7 +2240,7 @@ bool wxWindowMSW::DoPopupMenu(wxMenu *menu, int x, int y)
     }
 #endif // __WXWINCE__/!__WXWINCE__
 
-    ::TrackPopupMenu(hMenu, flags, point.x, point.y, 0, hWnd, NULL);
+    ::TrackPopupMenu(GetHmenuOf(menu), flags, pt.x, pt.y, 0, GetHwnd(), NULL);
 
     // we need to do it right now as otherwise the events are never going to be
     // sent to wxCurrentPopupMenu from HandleCommand()
@@ -2324,10 +2262,23 @@ bool wxWindowMSW::DoPopupMenu(wxMenu *menu, int x, int y)
 
 WXLRESULT wxWindowMSW::MSWDefWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lParam)
 {
+    WXLRESULT rc;
     if ( m_oldWndProc )
-        return ::CallWindowProc(CASTWNDPROC m_oldWndProc, GetHwnd(), (UINT) nMsg, (WPARAM) wParam, (LPARAM) lParam);
+        rc = ::CallWindowProc(CASTWNDPROC m_oldWndProc, GetHwnd(), (UINT) nMsg, (WPARAM) wParam, (LPARAM) lParam);
     else
-        return ::DefWindowProc(GetHwnd(), nMsg, wParam, lParam);
+        rc = ::DefWindowProc(GetHwnd(), nMsg, wParam, lParam);
+
+    // Special hack used by wxTextEntry auto-completion only: this event is
+    // sent after the normal keyboard processing so that its handler could use
+    // the updated contents of the text control, after taking the key that was
+    // pressed into account.
+    if ( nMsg == WM_CHAR )
+    {
+        wxKeyEvent event(CreateCharEvent(wxEVT_AFTER_CHAR, wParam, lParam));
+        HandleWindowEvent(event);
+    }
+
+    return rc;
 }
 
 bool wxWindowMSW::MSWProcessMessage(WXMSG* pMsg)
@@ -2812,7 +2763,7 @@ WXLRESULT wxWindowMSW::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM l
                 }
             }
             break;
-#if 0
+
         case WM_ENTERSIZEMOVE:
             {
                 processed = HandleEnterSizeMove();
@@ -2824,7 +2775,7 @@ WXLRESULT wxWindowMSW::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM l
                 processed = HandleExitSizeMove();
             }
             break;
-#endif
+
         case WM_SIZING:
             {
                 LPRECT pRect = (LPRECT)lParam;
@@ -3121,32 +3072,36 @@ WXLRESULT wxWindowMSW::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM l
 
         case WM_SYSKEYDOWN:
         case WM_KEYDOWN:
-            // If this has been processed by an event handler, return 0 now
-            // (we've handled it).
+            // Generate the key down event in any case.
             m_lastKeydownProcessed = HandleKeyDown((WORD) wParam, lParam);
             if ( m_lastKeydownProcessed )
             {
+                // If it was processed by an event handler, we stop here,
+                // notably we intentionally don't generate char event then.
                 processed = true;
             }
-
-            if ( !processed )
+            else // key down event not handled
             {
+                // Examine the event to decide whether we need to generate a
+                // char event for it ourselves or let Windows do it. Window
+                // mostly only does it for the keys which produce printable
+                // characters (although there are exceptions, e.g. VK_ESCAPE or
+                // VK_BACK (but not VK_DELETE)) while we do it for all keys
+                // except the modifier ones (the wisdom of this is debatable
+                // but by now this decision is enshrined forever due to
+                // backwards compatibility).
                 switch ( wParam )
                 {
-                    // we consider these messages "not interesting" to OnChar, so
-                    // just don't do anything more with them
+                    // No wxEVT_CHAR events are generated for these keys at all.
                     case VK_SHIFT:
                     case VK_CONTROL:
                     case VK_MENU:
                     case VK_CAPITAL:
                     case VK_NUMLOCK:
                     case VK_SCROLL:
-                        processed = true;
-                        break;
 
-                    // avoid duplicate messages to OnChar for these ASCII keys:
-                    // they will be translated by TranslateMessage() and received
-                    // in WM_CHAR
+                    // Windows will send us WM_CHAR for these ones so we'll
+                    // generate wxEVT_CHAR for them later when we get it.
                     case VK_ESCAPE:
                     case VK_SPACE:
                     case VK_RETURN:
@@ -3178,10 +3133,6 @@ WXLRESULT wxWindowMSW::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM l
                     case VK_OEM_COMMA:
                     case VK_OEM_MINUS:
                     case VK_OEM_PERIOD:
-                        // but set processed to false, not true to still pass them
-                        // to the control's default window proc - otherwise
-                        // built-in keyboard handling won't work
-                        processed = false;
                         break;
 
 #ifdef VK_APPS
@@ -3193,8 +3144,32 @@ WXLRESULT wxWindowMSW::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM l
 #endif // VK_APPS
 
                     default:
-                        // do generate a CHAR event
-                        processed = HandleChar((WORD)wParam, lParam);
+                        if ( (wParam >= '0' && wParam <= '9') ||
+                                (wParam >= 'A' && wParam <= 'Z') )
+                        {
+                            // We'll get WM_CHAR for those later too.
+                            break;
+                        }
+
+                        // But for the rest we won't get WM_CHAR later so we do
+                        // need to generate the event right now.
+                        wxKeyEvent event(wxEVT_CHAR);
+                        InitAnyKeyEvent(event, wParam, lParam);
+
+                        // Set the "extended" bit in lParam because we want to
+                        // generate CHAR events with WXK_HOME and not
+                        // WXK_NUMPAD_HOME even if the "Home" key on numpad was
+                        // pressed.
+                        event.m_keyCode = wxMSWKeyboard::VKToWX
+                                          (
+                                            wParam,
+                                            lParam | (KF_EXTENDED << 16)
+                                          );
+
+                        // Don't produce events without any valid character
+                        // code (even if this shouldn't normally happen...).
+                        if ( event.m_keyCode != WXK_NONE )
+                            processed = HandleWindowEvent(event);
                 }
             }
             if (message == WM_SYSKEYDOWN)  // Let Windows still handle the SYSKEYs
@@ -3228,8 +3203,19 @@ WXLRESULT wxWindowMSW::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM l
             }
             else
             {
-                processed = HandleChar((WORD)wParam, lParam, true);
+                processed = HandleChar((WORD)wParam, lParam);
             }
+            break;
+
+        case WM_IME_STARTCOMPOSITION:
+            // IME popup needs Escape as it should undo the changes in its
+            // entry window instead of e.g. closing the dialog for which the
+            // IME is used (and losing all the changes in the IME window).
+            gs_modalEntryWindowCount++;
+            break;
+
+        case WM_IME_ENDCOMPOSITION:
+            gs_modalEntryWindowCount--;
             break;
 
 #if wxUSE_HOTKEY
@@ -4202,7 +4188,7 @@ bool wxWindowMSW::HandleSetCursor(WXHWND WXUNUSED(hWnd),
             // m_cursor if the user code caught EVT_SET_CURSOR() and returned
             // nothing from it - this is a way to say that our cursor shouldn't
             // be used for this point
-            if ( !processedEvtSetCursor && m_cursor.Ok() )
+            if ( !processedEvtSetCursor && m_cursor.IsOk() )
             {
                 hcursor = GetHcursorOf(m_cursor);
             }
@@ -4210,7 +4196,7 @@ bool wxWindowMSW::HandleSetCursor(WXHWND WXUNUSED(hWnd),
             if ( !hcursor && !GetParent() )
             {
                 const wxCursor *cursor = wxGetGlobalCursor();
-                if ( cursor && cursor->Ok() )
+                if ( cursor && cursor->IsOk() )
                 {
                     hcursor = GetHcursorOf(*cursor);
                 }
@@ -4647,7 +4633,7 @@ extern wxCOLORMAP *wxGetStdColourMap()
             // to.
             wxLogNull logNo; // suppress error if we couldn't load the bitmap
             wxBitmap stdColourBitmap(wxT("wxBITMAP_STD_COLOURS"));
-            if ( stdColourBitmap.Ok() )
+            if ( stdColourBitmap.IsOk() )
             {
                 // the pixels in the bitmap must correspond to wxSTD_COL_XXX!
                 wxASSERT_MSG( stdColourBitmap.GetWidth() == wxSTD_COL_MAX,
@@ -4882,7 +4868,8 @@ bool wxWindowMSW::HandleEraseBkgnd(WXHDC hdc)
 
 bool wxWindowMSW::MSWHasEraseBgHook() const
 {
-    return gs_eraseBgHooks.find(this) != gs_eraseBgHooks.end();
+    return gs_eraseBgHooks.find(const_cast<wxWindowMSW *>(this))
+                != gs_eraseBgHooks.end();
 }
 
 void wxWindowMSW::MSWSetEraseBgHook(wxWindow *child)
@@ -4924,9 +4911,30 @@ bool wxWindowMSW::DoEraseBackground(WXHDC hDC)
 }
 
 WXHBRUSH
-wxWindowMSW::MSWGetBgBrushForChild(WXHDC WXUNUSED(hDC),
-                                   wxWindowMSW * WXUNUSED(child))
+wxWindowMSW::MSWGetBgBrushForChild(WXHDC hDC, wxWindowMSW *child)
 {
+    // Test for the custom background brush first.
+    WXHBRUSH hbrush = MSWGetCustomBgBrush();
+    if ( hbrush )
+    {
+        // We assume that this is either a stipple or hatched brush and not a
+        // solid one as otherwise it would have been enough to set the
+        // background colour and such brushes need to be positioned correctly
+        // in order to align when different windows are painted, so do it here.
+        RECT rc;
+        ::GetWindowRect(GetHwndOf(child), &rc);
+
+        ::MapWindowPoints(NULL, GetHwnd(), (POINT *)&rc, 1);
+
+        if ( !::SetBrushOrgEx((HDC)hDC, -rc.left, -rc.top, NULL) )
+        {
+            wxLogLastError(wxT("SetBrushOrgEx(bg brush)"));
+        }
+
+        return hbrush;
+    }
+
+    // Otherwise see if we have a custom background colour.
     if ( m_hasBgCol )
     {
         wxBrush *
@@ -4940,9 +4948,17 @@ wxWindowMSW::MSWGetBgBrushForChild(WXHDC WXUNUSED(hDC),
 
 WXHBRUSH wxWindowMSW::MSWGetBgBrush(WXHDC hDC)
 {
+    // Use the special wxWindowBeingErased variable if it is set as the child
+    // being erased.
+    wxWindowMSW * const child =
+#if wxUSE_UXTHEME
+                                wxWindowBeingErased ? wxWindowBeingErased :
+#endif
+                                this;
+
     for ( wxWindowMSW *win = this; win; win = win->GetParent() )
     {
-        WXHBRUSH hBrush = win->MSWGetBgBrushForChild(hDC, this);
+        WXHBRUSH hBrush = win->MSWGetBgBrushForChild(hDC, child);
         if ( hBrush )
             return hBrush;
 
@@ -5593,62 +5609,127 @@ void wxWindowMSW::GenerateMouseLeave()
 // keyboard handling
 // ---------------------------------------------------------------------------
 
-// create the key event of the given type for the given key - used by
-// HandleChar and HandleKeyDown/Up
-wxKeyEvent wxWindowMSW::CreateKeyEvent(wxEventType evType,
-                                       int id,
-                                       WXLPARAM lParam,
-                                       WXWPARAM wParam) const
+namespace
 {
-    wxKeyEvent event(evType);
-    event.SetId(GetId());
+
+// Implementation of InitAnyKeyEvent() which can also be used when there is no
+// associated window: this can happen for the wxEVT_CHAR_HOOK events created by
+// the global keyboard hook (e.g. the event might have happened in a non-wx
+// window).
+void
+MSWInitAnyKeyEvent(wxKeyEvent& event,
+                   WXWPARAM wParam,
+                   WXLPARAM lParam,
+                   const wxWindowBase *win /* may be NULL */)
+{
+    if ( win )
+    {
+        event.SetId(win->GetId());
+        event.SetEventObject(const_cast<wxWindowBase *>(win));
+    }
+    else // No associated window.
+    {
+        // Use wxID_ANY for compatibility with the old code even if wxID_NONE
+        // would arguably make more sense.
+        event.SetId(wxID_ANY);
+    }
+
     event.m_shiftDown = wxIsShiftDown();
     event.m_controlDown = wxIsCtrlDown();
     event.m_altDown = (HIWORD(lParam) & KF_ALTDOWN) == KF_ALTDOWN;
 
-    event.SetEventObject((wxWindow *)this); // const_cast
-    event.m_keyCode = id;
-#if wxUSE_UNICODE
-    event.m_uniChar = (wxChar) wParam;
-#endif
     event.m_rawCode = (wxUint32) wParam;
     event.m_rawFlags = (wxUint32) lParam;
 #ifndef __WXWINCE__
     event.SetTimestamp(::GetMessageTime());
 #endif
 
-    // translate the position to client coordinates
-    const wxPoint mousePos = ScreenToClient(wxGetMousePosition());
-    event.m_x = mousePos.x;
-    event.m_y = mousePos.y;
+    // Event coordinates must be in window client coordinates system which
+    // doesn't make sense if there is no window.
+    //
+    // We could use screen coordinates for such events but this would make the
+    // logic of the event handlers more complicated: you'd need to test for the
+    // event object and interpret the coordinates differently according to
+    // whether it's NULL or not so unless somebody really asks for this let's
+    // just avoid the issue.
+    if ( win )
+    {
+        const wxPoint mousePos = win->ScreenToClient(wxGetMousePosition());
+        event.m_x = mousePos.x;
+        event.m_y = mousePos.y;
+    }
+}
+
+} // anonymous namespace
+
+void
+wxWindowMSW::InitAnyKeyEvent(wxKeyEvent& event,
+                             WXWPARAM wParam,
+                             WXLPARAM lParam) const
+{
+    MSWInitAnyKeyEvent(event, wParam, lParam, this);
+}
+
+wxKeyEvent
+wxWindowMSW::CreateKeyEvent(wxEventType evType,
+                            WXWPARAM wParam,
+                            WXLPARAM lParam) const
+{
+    // Catch any attempts to use this with WM_CHAR, it wouldn't work because
+    // wParam is supposed to be a virtual key and not a character here.
+    wxASSERT_MSG( evType != wxEVT_CHAR && evType != wxEVT_CHAR_HOOK,
+                    "CreateKeyEvent() can't be used for char events" );
+
+    wxKeyEvent event(evType);
+    InitAnyKeyEvent(event, wParam, lParam);
+
+    event.m_keyCode = wxMSWKeyboard::VKToWX
+                                     (
+                                        wParam,
+                                        lParam
+#if wxUSE_UNICODE
+                                        , &event.m_uniChar
+#endif // wxUSE_UNICODE
+                                     );
 
     return event;
 }
 
-// isASCII is true only when we're called from WM_CHAR handler and not from
-// WM_KEYDOWN one
-bool wxWindowMSW::HandleChar(WXWPARAM wParam, WXLPARAM lParam, bool isASCII)
+wxKeyEvent
+wxWindowMSW::CreateCharEvent(wxEventType evType,
+                             WXWPARAM wParam,
+                             WXLPARAM lParam) const
 {
-    int id;
-    if ( isASCII )
-    {
-        id = wParam;
-    }
-    else // we're called from WM_KEYDOWN
-    {
-        // don't pass lParam to wxCharCodeMSWToWX() here because we don't want
-        // to get numpad key codes: CHAR events should use the logical keys
-        // such as WXK_HOME instead of WXK_NUMPAD_HOME which is for KEY events
-        id = wxCharCodeMSWToWX(wParam);
-        if ( id == 0 )
-        {
-            // it's ASCII and will be processed here only when called from
-            // WM_CHAR (i.e. when isASCII = true), don't process it now
-            return false;
-        }
-    }
+    wxKeyEvent event(evType);
+    InitAnyKeyEvent(event, wParam, lParam);
 
-    wxKeyEvent event(CreateKeyEvent(wxEVT_CHAR, id, lParam, wParam));
+#if wxUSE_UNICODE
+    // TODO: wParam uses UTF-16 so this is incorrect for characters outside of
+    //       the BMP, we should use WM_UNICHAR to handle them.
+    event.m_uniChar = wParam;
+#endif // wxUSE_UNICODE
+
+    // Set non-Unicode key code too for compatibility if possible.
+    if ( wParam < 0x80 )
+    {
+        // It's an ASCII character, no need to translate it.
+        event.m_keyCode = wParam;
+    }
+    else
+    {
+        // Check if this key can be represented (as a single character) in the
+        // current locale.
+        const wchar_t wc = wParam;
+        char ch;
+        if ( wxConvLibc.FromWChar(&ch, 1, &wc, 1) != wxCONV_FAILED )
+        {
+            // For compatibility continue to provide the key code in this field
+            // even though using GetUnicodeKey() is recommended now.
+            event.m_keyCode = static_cast<unsigned char>(ch);
+        }
+        //else: Key can't be represented in the current locale, leave m_keyCode
+        //      as WXK_NONE and use GetUnicodeKey() to access the character.
+    }
 
     // the alphanumeric keys produced by pressing AltGr+something on European
     // keyboards have both Ctrl and Alt modifiers which may confuse the user
@@ -5657,40 +5738,32 @@ bool wxWindowMSW::HandleChar(WXWPARAM wParam, WXLPARAM lParam, bool isASCII)
     // KEY_DOWN event would still have the correct modifiers if they're really
     // needed)
     if ( event.m_controlDown && event.m_altDown &&
-            (id >= 32 && id < 256) )
+            (event.m_keyCode >= 32 && event.m_keyCode < 256) )
     {
         event.m_controlDown =
         event.m_altDown = false;
     }
 
+    return event;
+}
+
+// isASCII is true only when we're called from WM_CHAR handler and not from
+// WM_KEYDOWN one
+bool wxWindowMSW::HandleChar(WXWPARAM wParam, WXLPARAM lParam)
+{
+    wxKeyEvent event(CreateCharEvent(wxEVT_CHAR, wParam, lParam));
     return HandleWindowEvent(event);
 }
 
 bool wxWindowMSW::HandleKeyDown(WXWPARAM wParam, WXLPARAM lParam)
 {
-    int id = wxCharCodeMSWToWX(wParam, lParam);
-
-    if ( !id )
-    {
-        // normal ASCII char
-        id = wParam;
-    }
-
-    wxKeyEvent event(CreateKeyEvent(wxEVT_KEY_DOWN, id, lParam, wParam));
+    wxKeyEvent event(CreateKeyEvent(wxEVT_KEY_DOWN, wParam, lParam));
     return HandleWindowEvent(event);
 }
 
 bool wxWindowMSW::HandleKeyUp(WXWPARAM wParam, WXLPARAM lParam)
 {
-    int id = wxCharCodeMSWToWX(wParam, lParam);
-
-    if ( !id )
-    {
-        // normal ASCII char
-        id = wParam;
-    }
-
-    wxKeyEvent event(CreateKeyEvent(wxEVT_KEY_UP, id, lParam, wParam));
+    wxKeyEvent event(CreateKeyEvent(wxEVT_KEY_UP, wParam, lParam));
     return HandleWindowEvent(event);
 }
 
@@ -6006,24 +6079,34 @@ void wxGetCharSize(WXHWND wnd, int *x, int *y, const wxFont& the_font)
     //   the_font.ReleaseResource();
 }
 
-// use the "extended" bit (24) of lParam to distinguish extended keys
-// from normal keys as the same key is sent
-static inline
+// ----------------------------------------------------------------------------
+// keyboard codes
+// ----------------------------------------------------------------------------
+
+namespace wxMSWKeyboard
+{
+
+namespace
+{
+
+// use the "extended" bit of lParam to distinguish extended keys from normal
+// keys as the same virtual key code is sent for both by Windows
+inline
 int ChooseNormalOrExtended(int lParam, int keyNormal, int keyExtended)
 {
     // except that if lParam is 0, it means we don't have real lParam from
     // WM_KEYDOWN but are just translating just a VK constant (e.g. done from
     // msw/treectrl.cpp when processing TVN_KEYDOWN) -- then assume this is a
     // non-numpad (hence extended) key as this is a more common case
-    return !lParam || (lParam & (1 << 24)) ? keyExtended : keyNormal;
+    return !lParam || (HIWORD(lParam) & KF_EXTENDED) ? keyExtended : keyNormal;
 }
 
 // this array contains the Windows virtual key codes which map one to one to
-// WXK_xxx constants and is used in wxCharCodeMSWToWX/WXToMSW() below
+// WXK_xxx constants and is used in wxMSWKeyboard::VKToWX/WXToVK() below
 //
 // note that keys having a normal and numpad version (e.g. WXK_HOME and
 // WXK_NUMPAD_HOME) are not included in this table as the mapping is not 1-to-1
-static const struct wxKeyMapping
+const struct wxKeyMapping
 {
     int vk;
     wxKeyCode wxk;
@@ -6097,34 +6180,75 @@ static const struct wxKeyMapping
 #endif // VK_APPS defined
 };
 
-// Returns 0 if was a normal ASCII value, not a special key. This indicates that
-// the key should be ignored by WM_KEYDOWN and processed by WM_CHAR instead.
-int wxCharCodeMSWToWX(int vk, WXLPARAM lParam)
+} // anonymous namespace
+
+int VKToWX(WXWORD vk, WXLPARAM lParam, wchar_t *uc)
 {
+    int wxk;
+
     // check the table first
     for ( size_t n = 0; n < WXSIZEOF(gs_specialKeys); n++ )
     {
         if ( gs_specialKeys[n].vk == vk )
-            return gs_specialKeys[n].wxk;
+        {
+            wxk = gs_specialKeys[n].wxk;
+            if ( wxk < WXK_START )
+            {
+                // Unicode code for this key is the same as its ASCII code.
+                if ( uc )
+                    *uc = wxk;
+            }
+
+            return wxk;
+        }
     }
 
     // keys requiring special handling
-    int wxk;
     switch ( vk )
     {
-        // the mapping for these keys may be incorrect on non-US keyboards so
-        // maybe we shouldn't map them to ASCII values at all
-        case VK_OEM_1:      wxk = ';'; break;
-        case VK_OEM_PLUS:   wxk = '+'; break;
-        case VK_OEM_COMMA:  wxk = ','; break;
-        case VK_OEM_MINUS:  wxk = '-'; break;
-        case VK_OEM_PERIOD: wxk = '.'; break;
-        case VK_OEM_2:      wxk = '/'; break;
-        case VK_OEM_3:      wxk = '~'; break;
-        case VK_OEM_4:      wxk = '['; break;
-        case VK_OEM_5:      wxk = '\\'; break;
-        case VK_OEM_6:      wxk = ']'; break;
-        case VK_OEM_7:      wxk = '\''; break;
+        case VK_OEM_1:
+        case VK_OEM_PLUS:
+        case VK_OEM_COMMA:
+        case VK_OEM_MINUS:
+        case VK_OEM_PERIOD:
+        case VK_OEM_2:
+        case VK_OEM_3:
+        case VK_OEM_4:
+        case VK_OEM_5:
+        case VK_OEM_6:
+        case VK_OEM_7:
+            // MapVirtualKey() returns 0 if it fails to convert the virtual
+            // key which nicely corresponds to our WXK_NONE.
+            wxk = ::MapVirtualKey(vk, MAPVK_VK_TO_CHAR);
+
+            if ( HIWORD(wxk) & 0x8000 )
+            {
+                // It's a dead key and we don't return anything at all for them
+                // as we simply don't have any way to indicate the difference
+                // between e.g. a normal "'" and "'" as a dead key -- and
+                // generating the same events for them just doesn't seem like a
+                // good idea.
+                wxk = WXK_NONE;
+            }
+
+            // In any case return this as a Unicode character value.
+            if ( uc )
+                *uc = wxk;
+
+            // For compatibility with the old non-Unicode code we continue
+            // returning key codes for Latin-1 characters directly
+            // (normally it would really only make sense to do it for the
+            // ASCII characters, not Latin-1 ones).
+            if ( wxk > 255 )
+            {
+                // But for anything beyond this we can only return the key
+                // value as a real Unicode character, not a wxKeyCode
+                // because this enum values clash with Unicode characters
+                // (e.g. WXK_LBUTTON also happens to be U+012C a.k.a.
+                // "LATIN CAPITAL LETTER I WITH BREVE").
+                wxk = WXK_NONE;
+            }
+            break;
 
         // handle extended keys
         case VK_PRIOR:
@@ -6170,75 +6294,106 @@ int wxCharCodeMSWToWX(int vk, WXLPARAM lParam)
         case VK_RETURN:
             // don't use ChooseNormalOrExtended() here as the keys are reversed
             // here: numpad enter is the extended one
-            wxk = lParam && (lParam & (1 << 24)) ? WXK_NUMPAD_ENTER : WXK_RETURN;
+            wxk = HIWORD(lParam) & KF_EXTENDED ? WXK_NUMPAD_ENTER : WXK_RETURN;
             break;
 
         default:
-            wxk = 0;
+            if ( (vk >= '0' && vk <= '9') || (vk >= 'A' && vk <= 'Z') )
+            {
+                // A simple alphanumeric key and the values of them coincide in
+                // Windows and wx for both ASCII and Unicode codes.
+                wxk = vk;
+            }
+            else // Something we simply don't know about at all.
+            {
+                wxk = WXK_NONE;
+            }
+
+            if ( uc )
+                *uc = vk;
     }
 
     return wxk;
 }
 
-WXWORD wxCharCodeWXToMSW(int wxk)
+WXWORD WXToVK(int wxk, bool *isExtended)
 {
     // check the table first
     for ( size_t n = 0; n < WXSIZEOF(gs_specialKeys); n++ )
     {
         if ( gs_specialKeys[n].wxk == wxk )
+        {
+            // All extended keys (i.e. non-numpad versions of the keys that
+            // exist both in the numpad and outside of it) are dealt with
+            // below.
+            if ( isExtended )
+                *isExtended = false;
+
             return gs_specialKeys[n].vk;
+        }
     }
 
     // and then check for special keys not included in the table
+    bool extended = false;
     WXWORD vk;
     switch ( wxk )
     {
         case WXK_PAGEUP:
+            extended = true;
         case WXK_NUMPAD_PAGEUP:
             vk = VK_PRIOR;
             break;
 
         case WXK_PAGEDOWN:
+            extended = true;
         case WXK_NUMPAD_PAGEDOWN:
             vk = VK_NEXT;
             break;
 
         case WXK_END:
+            extended = true;
         case WXK_NUMPAD_END:
             vk = VK_END;
             break;
 
         case WXK_HOME:
+            extended = true;
         case WXK_NUMPAD_HOME:
             vk = VK_HOME;
             break;
 
         case WXK_LEFT:
+            extended = true;
         case WXK_NUMPAD_LEFT:
             vk = VK_LEFT;
             break;
 
         case WXK_UP:
+            extended = true;
         case WXK_NUMPAD_UP:
             vk = VK_UP;
             break;
 
         case WXK_RIGHT:
+            extended = true;
         case WXK_NUMPAD_RIGHT:
             vk = VK_RIGHT;
             break;
 
         case WXK_DOWN:
+            extended = true;
         case WXK_NUMPAD_DOWN:
             vk = VK_DOWN;
             break;
 
         case WXK_INSERT:
+            extended = true;
         case WXK_NUMPAD_INSERT:
             vk = VK_INSERT;
             break;
 
         case WXK_DELETE:
+            extended = true;
         case WXK_NUMPAD_DELETE:
             vk = VK_DELETE;
             break;
@@ -6260,8 +6415,13 @@ WXWORD wxCharCodeWXToMSW(int wxk)
             }
     }
 
+    if ( isExtended )
+        *isExtended = extended;
+
     return vk;
 }
+
+} // namespace wxMSWKeyboard
 
 // small helper for wxGetKeyState() and wxGetMouseState()
 static inline bool wxIsKeyDown(WXWORD vk)
@@ -6295,7 +6455,7 @@ bool wxGetKeyState(wxKeyCode key)
                         key != VK_MBUTTON,
                     wxT("can't use wxGetKeyState() for mouse buttons") );
 
-    const WXWORD vk = wxCharCodeWXToMSW(key);
+    const WXWORD vk = wxMSWKeyboard::WXToVK(key);
 
     // if the requested key is a LED key, return true if the led is pressed
     if ( key == WXK_NUMLOCK || key == WXK_CAPITAL || key == WXK_SCROLL )
@@ -6361,13 +6521,13 @@ extern wxWindow *wxGetWindowFromHWND(WXHWND hWnd)
         win = wxFindWinFromHandle(hwnd);
         if ( !win )
         {
-#if wxUSE_RADIOBOX
+#if wxUSE_RADIOBOX && !defined(__WXUNIVERSAL__)
             // native radiobuttons return DLGC_RADIOBUTTON here and for any
             // wxWindow class which overrides WM_GETDLGCODE processing to
             // do it as well, win would be already non NULL
             if ( ::SendMessage(hwnd, WM_GETDLGCODE, 0, 0) & DLGC_RADIOBUTTON )
             {
-                win = (wxWindow *)wxGetWindowUserData(hwnd);
+                win = wxRadioBox::GetFromRadioButtonHWND(hwnd);
             }
             //else: it's a wxRadioButton, not a radiobutton from wxRadioBox
 #endif // wxUSE_RADIOBOX
@@ -6420,37 +6580,44 @@ wxKeyboardHook(int nCode, WORD wParam, DWORD lParam)
     DWORD hiWord = HIWORD(lParam);
     if ( nCode != HC_NOREMOVE && ((hiWord & KF_UP) == 0) )
     {
-        int id = wxCharCodeMSWToWX(wParam, lParam);
-        if ( id != 0 )
+        wchar_t uc;
+        int id = wxMSWKeyboard::VKToWX(wParam, lParam, &uc);
+
+        // Don't intercept keyboard entry (notably Escape) if a modal window
+        // (not managed by wx, e.g. IME one) is currently opened as more often
+        // than not it needs all the keys for itself.
+        //
+        // Also don't catch it if a window currently captures the mouse as
+        // Escape is normally used to release the mouse capture and if you
+        // really need to catch all the keys in the window that has mouse
+        // capture it can be easily done in its own EVT_CHAR handler as it is
+        // certain to have focus while it has the capture.
+        if ( !gs_modalEntryWindowCount && !::GetCapture() )
         {
-            wxKeyEvent event(wxEVT_CHAR_HOOK);
-            if ( (HIWORD(lParam) & KF_ALTDOWN) == KF_ALTDOWN )
-                event.m_altDown = true;
+            if ( id != WXK_NONE
+#if wxUSE_UNICODE
+                    || static_cast<int>(uc) != WXK_NONE
+#endif // wxUSE_UNICODE
+                    )
+            {
+                const wxWindow * const win = wxGetActiveWindow();
 
-            event.SetEventObject(NULL);
-            event.m_keyCode = id;
-            event.m_shiftDown = wxIsShiftDown();
-            event.m_controlDown = wxIsCtrlDown();
-#ifndef __WXWINCE__
-            event.SetTimestamp(::GetMessageTime());
-#endif
-            wxWindow *win = wxGetActiveWindow();
-            wxEvtHandler *handler;
-            if ( win )
-            {
-                handler = win->GetEventHandler();
-                event.SetId(win->GetId());
-            }
-            else
-            {
-                handler = wxTheApp;
-                event.SetId(wxID_ANY);
-            }
+                wxKeyEvent event(wxEVT_CHAR_HOOK);
+                MSWInitAnyKeyEvent(event, wParam, lParam, win);
 
-            if ( handler && handler->ProcessEvent(event) )
-            {
-                // processed
-                return 1;
+                event.m_keyCode = id;
+#if wxUSE_UNICODE
+                event.m_uniChar = uc;
+#endif // wxUSE_UNICODE
+
+                wxEvtHandler * const handler = win ? win->GetEventHandler()
+                                                   : wxTheApp;
+
+                if ( handler && handler->ProcessEvent(event) )
+                {
+                    // processed
+                    return 1;
+                }
             }
         }
     }
@@ -7091,12 +7258,10 @@ bool wxWindowMSW::UnregisterHotKey(int hotkeyId)
 
 bool wxWindowMSW::HandleHotKey(WXWPARAM wParam, WXLPARAM lParam)
 {
-    int hotkeyId = wParam;
-    int virtualKey = HIWORD(lParam);
     int win_modifiers = LOWORD(lParam);
 
-    wxKeyEvent event(CreateKeyEvent(wxEVT_HOTKEY, virtualKey, wParam, lParam));
-    event.SetId(hotkeyId);
+    wxKeyEvent event(CreateKeyEvent(wxEVT_HOTKEY, HIWORD(lParam)));
+    event.SetId(wParam);
     event.m_shiftDown = (win_modifiers & MOD_SHIFT) != 0;
     event.m_controlDown = (win_modifiers & MOD_CONTROL) != 0;
     event.m_altDown = (win_modifiers & MOD_ALT) != 0;

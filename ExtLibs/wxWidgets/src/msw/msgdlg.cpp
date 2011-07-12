@@ -18,8 +18,6 @@
 
 #if wxUSE_MSGDLG
 
-#include "wx/msgdlg.h"
-
 // there is no hook support under CE so we can't use the code for message box
 // positioning there
 #ifndef __WXWINCE__
@@ -29,18 +27,21 @@
 #endif
 
 #ifndef WX_PRECOMP
+    #include "wx/msgdlg.h"
     #include "wx/app.h"
     #include "wx/intl.h"
     #include "wx/utils.h"
-    #include "wx/dialog.h"
+    #include "wx/msw/private.h"
     #if wxUSE_MSGBOX_HOOK
         #include "wx/hashmap.h"
     #endif
 #endif
 
-#include "wx/msw/private.h"
+#include "wx/ptr_scpd.h"
+#include "wx/dynlib.h"
 #include "wx/msw/private/button.h"
 #include "wx/msw/private/metrics.h"
+#include "wx/msw/private/msgdlg.h"
 
 #if wxUSE_MSGBOX_HOOK
     #include "wx/fontutil.h"
@@ -52,6 +53,8 @@
 #ifdef __WXWINCE__
     #include "wx/msw/wince/missing.h"
 #endif
+
+using namespace wxMSWMessageDialog;
 
 IMPLEMENT_CLASS(wxMessageDialog, wxDialog)
 
@@ -250,8 +253,10 @@ void wxMessageDialog::ReplaceStaticWithEdit()
     {
         if ( *i != '\n' )
         {
-            // found last non-newline char, remove everything after it and stop
-            text.erase(i.base() + 1, text.end());
+            // found last non-newline char, remove anything after it if
+            // necessary and stop in any case
+            if ( i != text.rbegin() )
+                text.erase(i.base() + 1, text.end());
             break;
         }
     }
@@ -430,7 +435,7 @@ wxFont wxMessageDialog::GetMessageFont()
     return wxNativeFontInfo(ncm.lfMessageFont);
 }
 
-int wxMessageDialog::ShowModal()
+int wxMessageDialog::ShowMessageBox()
 {
     if ( !wxTheApp->GetTopWindow() )
     {
@@ -564,11 +569,262 @@ int wxMessageDialog::ShowModal()
 
     // do show the dialog
     int msAns = MessageBox(hWnd, message.wx_str(), m_caption.wx_str(), msStyle);
+
+    return MSWTranslateReturnCode(msAns);
+}
+
+int wxMessageDialog::ShowModal()
+{
+#ifdef wxHAS_MSW_TASKDIALOG
+    if ( HasNativeTaskDialog() )
+    {
+        TaskDialogIndirect_t taskDialogIndirect = GetTaskDialogIndirectFunc();
+        wxCHECK_MSG( taskDialogIndirect, wxID_CANCEL, wxS("no task dialog?") );
+
+        WinStruct<TASKDIALOGCONFIG> tdc;
+        wxMSWTaskDialogConfig wxTdc( *this );
+        wxTdc.MSWCommonTaskDialogInit( tdc );
+
+        int msAns;
+        HRESULT hr = taskDialogIndirect( &tdc, &msAns, NULL, NULL );
+        if ( FAILED(hr) )
+        {
+            wxLogApiError( "TaskDialogIndirect", hr );
+            return wxID_CANCEL;
+        }
+
+        // In case only an "OK" button was specified we actually created a
+        // "Cancel" button (see comment in MSWCommonTaskDialogInit). This
+        // results in msAns being IDCANCEL while we want IDOK (just like
+        // how the native MessageBox function does with only an "OK" button).
+        if ( (msAns == IDCANCEL)
+            && !(GetMessageDialogStyle() & (wxYES_NO|wxCANCEL)) )
+        {
+            msAns = IDOK;
+        }
+
+        return MSWTranslateReturnCode( msAns );
+    }
+#endif // wxHAS_MSW_TASKDIALOG
+
+    return ShowMessageBox();
+}
+
+void wxMessageDialog::DoCentre(int dir)
+{
+#ifdef wxHAS_MSW_TASKDIALOG
+    // Task dialog is always centered on its parent window and trying to center
+    // it manually doesn't work because its HWND is not created yet so don't
+    // even try as this would only result in (debug) error messages.
+    if ( HasNativeTaskDialog() )
+        return;
+#endif // wxHAS_MSW_TASKDIALOG
+
+    wxMessageDialogBase::DoCentre(dir);
+}
+
+// ----------------------------------------------------------------------------
+// Helpers of the wxMSWMessageDialog namespace
+// ----------------------------------------------------------------------------
+
+#ifdef wxHAS_MSW_TASKDIALOG
+
+wxMSWTaskDialogConfig::wxMSWTaskDialogConfig(const wxMessageDialogBase& dlg)
+                     : buttons(new TASKDIALOG_BUTTON[3])
+{
+    parent = dlg.GetParentForModalDialog();
+    caption = dlg.GetCaption();
+    message = dlg.GetMessage();
+    extendedMessage = dlg.GetExtendedMessage();
+
+    // Before wxMessageDialog added support for extended message it was common
+    // practice to have long multiline texts in the message box with the first
+    // line playing the role of the main message and the rest of the extended
+    // one. Try to detect such usage automatically here by synthesizing the
+    // extended message on our own if it wasn't given.
+    if ( extendedMessage.empty() )
+    {
+        // Check if there is a blank separating line after the first line (this
+        // is not the same as searching for "\n\n" as we want the automatically
+        // recognized main message be single line to avoid embarrassing false
+        // positives).
+        const size_t posNL = message.find('\n');
+        if ( posNL != wxString::npos &&
+                posNL < message.length() - 1 &&
+                    message[posNL + 1 ] == '\n' )
+        {
+            extendedMessage.assign(message, posNL + 2, wxString::npos);
+            message.erase(posNL);
+        }
+    }
+
+    iconId = dlg.GetEffectiveIcon();
+    style = dlg.GetMessageDialogStyle();
+    useCustomLabels = dlg.HasCustomLabels();
+    btnYesLabel = dlg.GetYesLabel();
+    btnNoLabel = dlg.GetNoLabel();
+    btnOKLabel = dlg.GetOKLabel();
+    btnCancelLabel = dlg.GetCancelLabel();
+}
+
+void wxMSWTaskDialogConfig::MSWCommonTaskDialogInit(TASKDIALOGCONFIG &tdc)
+{
+    tdc.dwFlags = TDF_EXPAND_FOOTER_AREA | TDF_POSITION_RELATIVE_TO_WINDOW;
+    tdc.hInstance = wxGetInstance();
+    tdc.pszWindowTitle = caption.wx_str();
+
+    // use the top level window as parent if none specified
+    tdc.hwndParent = parent ? GetHwndOf(parent) : NULL;
+
+    if ( wxTheApp->GetLayoutDirection() == wxLayout_RightToLeft )
+        tdc.dwFlags |= TDF_RTL_LAYOUT;
+
+    // If we have both the main and extended messages, just use them as
+    // intended. However if only one message is given we normally use it as the
+    // content and not as the main instruction because the latter is supposed
+    // to stand out compared to the former and doesn't look good if there is
+    // nothing for it to contrast with. Finally, notice that the extended
+    // message we use here might be automatically extracted from the main
+    // message in our ctor, see comment there.
+    if ( !extendedMessage.empty() )
+    {
+        tdc.pszMainInstruction = message.wx_str();
+        tdc.pszContent = extendedMessage.wx_str();
+    }
+    else
+    {
+        tdc.pszContent = message.wx_str();
+    }
+
+    // set an icon to be used, if possible
+    switch ( iconId )
+    {
+        case wxICON_ERROR:
+            tdc.pszMainIcon = TD_ERROR_ICON;
+            break;
+
+        case wxICON_WARNING:
+            tdc.pszMainIcon = TD_WARNING_ICON;
+            break;
+
+        case wxICON_INFORMATION:
+            tdc.pszMainIcon = TD_INFORMATION_ICON;
+            break;
+    }
+
+    // custom label button array that can hold all buttons in use
+    tdc.pButtons = buttons.get();
+
+    if ( style & wxYES_NO )
+    {
+        AddTaskDialogButton(tdc, IDYES, TDCBF_YES_BUTTON, btnYesLabel);
+        AddTaskDialogButton(tdc, IDNO,  TDCBF_NO_BUTTON,  btnNoLabel);
+
+        if (style & wxCANCEL)
+            AddTaskDialogButton(tdc, IDCANCEL,
+                                TDCBF_CANCEL_BUTTON, btnCancelLabel);
+
+        if ( style & wxNO_DEFAULT )
+            tdc.nDefaultButton = IDNO;
+        else if ( style & wxCANCEL_DEFAULT )
+            tdc.nDefaultButton = IDCANCEL;
+    }
+    else // without Yes/No we're going to have an OK button
+    {
+        if ( style & wxCANCEL )
+        {
+            AddTaskDialogButton(tdc, IDOK, TDCBF_OK_BUTTON, btnOKLabel);
+            AddTaskDialogButton(tdc, IDCANCEL,
+                                TDCBF_CANCEL_BUTTON, btnCancelLabel);
+
+            if ( style & wxCANCEL_DEFAULT )
+                tdc.nDefaultButton = IDCANCEL;
+        }
+        else // Only "OK"
+        {
+            // We actually create a "Cancel" button instead because we want to
+            // allow closing the dialog box with Escape (and also Alt-F4 or
+            // clicking the close button in the title bar) which wouldn't work
+            // without a Cancel button.
+            if ( !useCustomLabels )
+            {
+                useCustomLabels = true;
+                btnOKLabel = _("OK");
+            }
+
+            AddTaskDialogButton(tdc, IDCANCEL, TDCBF_CANCEL_BUTTON, btnOKLabel);
+        }
+    }
+}
+
+void wxMSWTaskDialogConfig::AddTaskDialogButton(TASKDIALOGCONFIG &tdc,
+                                                int btnCustomId,
+                                                int btnCommonId,
+                                                const wxString& customLabel)
+{
+    if ( useCustomLabels )
+    {
+        // use custom buttons to implement custom labels
+        TASKDIALOG_BUTTON &tdBtn = buttons[tdc.cButtons];
+
+        tdBtn.nButtonID = btnCustomId;
+        tdBtn.pszButtonText = customLabel.wx_str();
+        tdc.cButtons++;
+    }
+    else
+    {
+        tdc.dwCommonButtons |= btnCommonId;
+    }
+}
+
+// Task dialog can be used from different threads (and wxProgressDialog always
+// uses it from another thread in fact) so protect access to the static
+// variable below with a critical section.
+wxCRIT_SECT_DECLARE(gs_csTaskDialogIndirect);
+
+TaskDialogIndirect_t wxMSWMessageDialog::GetTaskDialogIndirectFunc()
+{
+    // Initialize the function pointer to an invalid value different from NULL
+    // to avoid reloading comctl32.dll and trying to resolve it every time
+    // we're called if task dialog is not available (notice that this may
+    // happen even under Vista+ if we don't use comctl32.dll v6).
+    static const TaskDialogIndirect_t
+        INVALID_TASKDIALOG_FUNC = reinterpret_cast<TaskDialogIndirect_t>(-1);
+    static TaskDialogIndirect_t s_TaskDialogIndirect = INVALID_TASKDIALOG_FUNC;
+
+    wxCRIT_SECT_LOCKER(lock, gs_csTaskDialogIndirect);
+
+    if ( s_TaskDialogIndirect == INVALID_TASKDIALOG_FUNC )
+    {
+        wxLoadedDLL dllComCtl32("comctl32.dll");
+        wxDL_INIT_FUNC(s_, TaskDialogIndirect, dllComCtl32);
+    }
+
+    return s_TaskDialogIndirect;
+}
+
+#endif // wxHAS_MSW_TASKDIALOG
+
+bool wxMSWMessageDialog::HasNativeTaskDialog()
+{
+#ifdef wxHAS_MSW_TASKDIALOG
+    if ( wxGetWinVersion() >= wxWinVersion_6 )
+    {
+        if ( wxMSWMessageDialog::GetTaskDialogIndirectFunc() )
+            return true;
+    }
+#endif // wxHAS_MSW_TASKDIALOG
+
+    return false;
+}
+
+int wxMSWMessageDialog::MSWTranslateReturnCode(int msAns)
+{
     int ans;
     switch (msAns)
     {
         default:
-            wxFAIL_MSG(wxT("unexpected ::MessageBox() return code"));
+            wxFAIL_MSG(wxT("unexpected return code"));
             // fall through
 
         case IDCANCEL:
@@ -584,6 +840,7 @@ int wxMessageDialog::ShowModal()
             ans = wxID_NO;
             break;
     }
+
     return ans;
 }
 

@@ -39,8 +39,6 @@
 #define BST_CHECKED 0x0001
 #endif
 
-IMPLEMENT_DYNAMIC_CLASS(wxButton, wxControl)
-
 // Button
 
 bool wxButton::Create( wxWindow*          pParent,
@@ -383,7 +381,7 @@ WXDWORD wxButton::OS2GetStyle(
 
     //
     // We must use WS_CLIPSIBLINGS with the buttons or they would draw over
-    // each other in any resizeable dialog which has more than one button in
+    // each other in any resizable dialog which has more than one button in
     // the bottom
     //
     dwStyle |= WS_CLIPSIBLINGS;

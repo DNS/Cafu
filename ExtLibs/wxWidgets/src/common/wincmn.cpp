@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        src/common/window.cpp
+// Name:        src/common/wincmn.cpp
 // Purpose:     common (to all ports) wxWindow functions
 // Author:      Julian Smart, Vadim Zeitlin
 // Modified by:
@@ -87,6 +87,8 @@ WXDLLIMPEXP_DATA_CORE(wxWindowList) wxTopLevelWindows;
 wxMenu *wxCurrentPopupMenu = NULL;
 #endif // wxUSE_MENUS
 
+extern WXDLLEXPORT_DATA(const char) wxPanelNameStr[] = "panel";
+
 // ----------------------------------------------------------------------------
 // static data
 // ----------------------------------------------------------------------------
@@ -113,6 +115,138 @@ END_EVENT_TABLE()
 // ============================================================================
 // implementation of the common functionality of the wxWindow class
 // ============================================================================
+
+// ----------------------------------------------------------------------------
+// XTI
+// ----------------------------------------------------------------------------
+
+#if wxUSE_EXTENDED_RTTI
+
+// windows that are created from a parent window during its Create method, 
+// eg. spin controls in a calendar controls must never been streamed out 
+// separately otherwise chaos occurs. Right now easiest is to test for negative ids, 
+// as windows with negative ids never can be recreated anyway
+
+
+bool wxWindowStreamingCallback( const wxObject *object, wxObjectWriter *, 
+                               wxObjectWriterCallback *, const wxStringToAnyHashMap & )
+{
+    const wxWindow * win = wx_dynamic_cast(const wxWindow*, object);
+    if ( win && win->GetId() < 0 )
+        return false;
+    return true;
+}
+
+wxIMPLEMENT_DYNAMIC_CLASS_XTI_CALLBACK(wxWindow, wxWindowBase, "wx/window.h", \
+                                       wxWindowStreamingCallback)
+
+// make wxWindowList known before the property is used
+
+wxCOLLECTION_TYPE_INFO( wxWindow*, wxWindowList );
+
+template<> void wxCollectionToVariantArray( wxWindowList const &theList, 
+                                           wxAnyList &value)
+{
+    wxListCollectionToAnyList<wxWindowList::compatibility_iterator>( theList, value );
+}
+
+wxDEFINE_FLAGS( wxWindowStyle )
+
+wxBEGIN_FLAGS( wxWindowStyle )
+// new style border flags, we put them first to
+// use them for streaming out
+
+wxFLAGS_MEMBER(wxBORDER_SIMPLE)
+wxFLAGS_MEMBER(wxBORDER_SUNKEN)
+wxFLAGS_MEMBER(wxBORDER_DOUBLE)
+wxFLAGS_MEMBER(wxBORDER_RAISED)
+wxFLAGS_MEMBER(wxBORDER_STATIC)
+wxFLAGS_MEMBER(wxBORDER_NONE)
+
+// old style border flags
+wxFLAGS_MEMBER(wxSIMPLE_BORDER)
+wxFLAGS_MEMBER(wxSUNKEN_BORDER)
+wxFLAGS_MEMBER(wxDOUBLE_BORDER)
+wxFLAGS_MEMBER(wxRAISED_BORDER)
+wxFLAGS_MEMBER(wxSTATIC_BORDER)
+wxFLAGS_MEMBER(wxBORDER)
+
+// standard window styles
+wxFLAGS_MEMBER(wxTAB_TRAVERSAL)
+wxFLAGS_MEMBER(wxCLIP_CHILDREN)
+wxFLAGS_MEMBER(wxTRANSPARENT_WINDOW)
+wxFLAGS_MEMBER(wxWANTS_CHARS)
+wxFLAGS_MEMBER(wxFULL_REPAINT_ON_RESIZE)
+wxFLAGS_MEMBER(wxALWAYS_SHOW_SB )
+wxFLAGS_MEMBER(wxVSCROLL)
+wxFLAGS_MEMBER(wxHSCROLL)
+
+wxEND_FLAGS( wxWindowStyle )
+
+wxBEGIN_PROPERTIES_TABLE(wxWindow)
+wxEVENT_PROPERTY( Close, wxEVT_CLOSE_WINDOW, wxCloseEvent)
+wxEVENT_PROPERTY( Create, wxEVT_CREATE, wxWindowCreateEvent )
+wxEVENT_PROPERTY( Destroy, wxEVT_DESTROY, wxWindowDestroyEvent )
+// Always constructor Properties first
+
+wxREADONLY_PROPERTY( Parent,wxWindow*, GetParent, wxEMPTY_PARAMETER_VALUE, \
+                    0 /*flags*/, wxT("Helpstring"), wxT("group"))
+wxPROPERTY( Id,wxWindowID, SetId, GetId, -1 /*wxID_ANY*/, 0 /*flags*/, \
+           wxT("Helpstring"), wxT("group") )
+wxPROPERTY( Position,wxPoint, SetPosition, GetPosition, wxDefaultPosition, \
+           0 /*flags*/, wxT("Helpstring"), wxT("group")) // pos
+wxPROPERTY( Size,wxSize, SetSize, GetSize, wxDefaultSize, 0 /*flags*/, \
+           wxT("Helpstring"), wxT("group")) // size
+wxPROPERTY( WindowStyle, long, SetWindowStyleFlag, GetWindowStyleFlag, \
+           wxEMPTY_PARAMETER_VALUE, 0 /*flags*/, wxT("Helpstring"), wxT("group")) // style
+wxPROPERTY( Name,wxString, SetName, GetName, wxEmptyString, 0 /*flags*/, \
+           wxT("Helpstring"), wxT("group") )
+
+// Then all relations of the object graph
+
+wxREADONLY_PROPERTY_COLLECTION( Children, wxWindowList, wxWindowBase*, \
+                               GetWindowChildren, wxPROP_OBJECT_GRAPH /*flags*/, \
+                               wxT("Helpstring"), wxT("group"))
+
+// and finally all other properties
+
+wxPROPERTY( ExtraStyle, long, SetExtraStyle, GetExtraStyle, wxEMPTY_PARAMETER_VALUE, \
+           0 /*flags*/, wxT("Helpstring"), wxT("group")) // extstyle
+wxPROPERTY( BackgroundColour, wxColour, SetBackgroundColour, GetBackgroundColour, \
+           wxEMPTY_PARAMETER_VALUE, 0 /*flags*/, wxT("Helpstring"), wxT("group")) // bg
+wxPROPERTY( ForegroundColour, wxColour, SetForegroundColour, GetForegroundColour, \
+           wxEMPTY_PARAMETER_VALUE, 0 /*flags*/, wxT("Helpstring"), wxT("group")) // fg
+wxPROPERTY( Enabled, bool, Enable, IsEnabled, wxAny((bool)true), 0 /*flags*/, \
+           wxT("Helpstring"), wxT("group"))
+wxPROPERTY( Shown, bool, Show, IsShown, wxAny((bool)true), 0 /*flags*/, \
+           wxT("Helpstring"), wxT("group"))
+
+#if 0
+// possible property candidates (not in xrc) or not valid in all subclasses
+wxPROPERTY( Title,wxString, SetTitle, GetTitle, wxEmptyString )
+wxPROPERTY( Font, wxFont, SetFont, GetWindowFont , )
+wxPROPERTY( Label,wxString, SetLabel, GetLabel, wxEmptyString )
+// MaxHeight, Width, MinHeight, Width
+// TODO switch label to control and title to toplevels
+
+wxPROPERTY( ThemeEnabled, bool, SetThemeEnabled, GetThemeEnabled, )
+//wxPROPERTY( Cursor, wxCursor, SetCursor, GetCursor, )
+// wxPROPERTY( ToolTip, wxString, SetToolTip, GetToolTipText, )
+wxPROPERTY( AutoLayout, bool, SetAutoLayout, GetAutoLayout, )
+#endif
+wxEND_PROPERTIES_TABLE()
+
+wxEMPTY_HANDLERS_TABLE(wxWindow)
+
+wxCONSTRUCTOR_DUMMY(wxWindow)
+
+#else
+
+#ifndef __WXUNIVERSAL__
+IMPLEMENT_DYNAMIC_CLASS(wxWindow, wxWindowBase)
+#endif
+
+#endif
 
 // ----------------------------------------------------------------------------
 // initialization
@@ -420,7 +554,14 @@ void wxWindowBase::SendDestroyEvent()
 
 bool wxWindowBase::Destroy()
 {
-    SendDestroyEvent();
+    // If our handle is invalid, it means that this window has never been
+    // created, either because creating it failed or, more typically, because
+    // this wxWindow object was default-constructed and its Create() method had
+    // never been called. As we didn't send wxWindowCreateEvent in this case
+    // (which is sent after successful creation), don't send the matching
+    // wxWindowDestroyEvent neither.
+    if ( GetHandle() )
+        SendDestroyEvent();
 
     delete this;
 
@@ -719,6 +860,16 @@ wxSize wxWindowBase::GetWindowBorderSize() const
     return size*2;
 }
 
+bool
+wxWindowBase::InformFirstDirection(int direction,
+                                   int size,
+                                   int availableOtherDir)
+{
+    return GetSizer() && GetSizer()->InformFirstDirection(direction,
+                                                          size,
+                                                          availableOtherDir);
+}
+
 wxSize wxWindowBase::GetEffectiveMinSize() const
 {
     // merge the best size with the min size, giving priority to the min size
@@ -836,18 +987,15 @@ void wxWindowBase::DoSetWindowVariant( wxWindowVariant variant )
             break;
 
         case wxWINDOW_VARIANT_SMALL:
-            size *= 3;
-            size /= 4;
+            size = wxRound(size * 3.0 / 4.0);
             break;
 
         case wxWINDOW_VARIANT_MINI:
-            size *= 2;
-            size /= 3;
+            size = wxRound(size * 2.0 / 3.0);
             break;
 
         case wxWINDOW_VARIANT_LARGE:
-            size *= 5;
-            size /= 4;
+            size = wxRound(size * 5.0 / 4.0);
             break;
 
         default:
@@ -923,7 +1071,7 @@ void wxWindowBase::SendSizeEvent(int flags)
     wxSizeEvent event(GetSize(), GetId());
     event.SetEventObject(this);
     if ( flags & wxSEND_EVENT_POST )
-        wxPostEvent(this, event);
+        wxPostEvent(GetEventHandler(), event);
     else
         HandleWindowEvent(event);
 }
@@ -974,18 +1122,33 @@ bool wxWindowBase::IsEnabled() const
 
 void wxWindowBase::NotifyWindowOnEnableChange(bool enabled)
 {
+    // Under some platforms there is no need to update the window state
+    // explicitly, it will become disabled when its parent is. On other ones we
+    // do need to disable all windows recursively though.
 #ifndef wxHAS_NATIVE_ENABLED_MANAGEMENT
     DoEnable(enabled);
 #endif // !defined(wxHAS_NATIVE_ENABLED_MANAGEMENT)
 
     OnEnabled(enabled);
 
-    // If we are top-level then the logic doesn't apply - otherwise
-    // showing a modal dialog would result in total greying out (and ungreying
-    // out later) of everything which would be really ugly
-    if ( IsTopLevel() )
+    // Disabling a top level window is typically done when showing a modal
+    // dialog and we don't need to disable its children in this case, they will
+    // be logically disabled anyhow (i.e. their IsEnabled() will return false)
+    // and the TLW won't accept any input for them. Moreover, explicitly
+    // disabling them would look ugly as the entire TLW would be greyed out
+    // whenever a modal dialog is shown and no native applications under any
+    // platform behave like this.
+    if ( IsTopLevel() && !enabled )
         return;
 
+    // When disabling (or enabling back) a non-TLW window we need to
+    // recursively propagate the change of the state to its children, otherwise
+    // they would still show as enabled even though they wouldn't actually
+    // accept any input (at least under MSW where children don't accept input
+    // if any of the windows in their parent chain is enabled).
+    //
+    // Notice that we must do this even for wxHAS_NATIVE_ENABLED_MANAGEMENT
+    // platforms as we still need to call the children OnEnabled() recursively.
     for ( wxWindowList::compatibility_iterator node = GetChildren().GetFirst();
           node;
           node = node->GetNext() )
@@ -1003,14 +1166,10 @@ bool wxWindowBase::Enable(bool enable)
 
     m_isEnabled = enable;
 
+    // If we call DoEnable() from NotifyWindowOnEnableChange(), we don't need
+    // to do it from here.
 #ifdef wxHAS_NATIVE_ENABLED_MANAGEMENT
     DoEnable(enable);
-#else // !defined(wxHAS_NATIVE_ENABLED_MANAGEMENT)
-    wxWindowBase * const parent = GetParent();
-    if( !IsTopLevel() && parent && !parent->IsEnabled() )
-    {
-        return true;
-    }
 #endif // !defined(wxHAS_NATIVE_ENABLED_MANAGEMENT)
 
     NotifyWindowOnEnableChange(enable);
@@ -1369,7 +1528,7 @@ wxColour wxWindowBase::GetBackgroundColour() const
         // wxWidgets versions where GetBackgroundColour() always returned
         // something -- so give them something even if it doesn't make sense
         // for this window (e.g. it has a themed background)
-        if ( !colBg.Ok() )
+        if ( !colBg.IsOk() )
             colBg = GetClassDefaultAttributes().colBg;
 
         return colBg;
@@ -1381,7 +1540,7 @@ wxColour wxWindowBase::GetBackgroundColour() const
 wxColour wxWindowBase::GetForegroundColour() const
 {
     // logic is the same as above
-    if ( !m_hasFgCol && !m_foregroundColour.Ok() )
+    if ( !m_hasFgCol && !m_foregroundColour.IsOk() )
     {
         wxColour colFg = GetDefaultAttributes().colFg;
 
@@ -1403,7 +1562,7 @@ bool wxWindowBase::SetBackgroundColour( const wxColour &colour )
 
     m_inheritBgCol = m_hasBgCol;
     m_backgroundColour = colour;
-    SetThemeEnabled( !m_hasBgCol && !m_foregroundColour.Ok() );
+    SetThemeEnabled( !m_hasBgCol && !m_foregroundColour.IsOk() );
     return true;
 }
 
@@ -1415,7 +1574,7 @@ bool wxWindowBase::SetForegroundColour( const wxColour &colour )
     m_hasFgCol = colour.IsOk();
     m_inheritFgCol = m_hasFgCol;
     m_foregroundColour = colour;
-    SetThemeEnabled( !m_hasFgCol && !m_backgroundColour.Ok() );
+    SetThemeEnabled( !m_hasFgCol && !m_backgroundColour.IsOk() );
     return true;
 }
 
@@ -2459,6 +2618,44 @@ void wxWindowBase::DoUpdateWindowUI(wxUpdateUIEvent& event)
 }
 
 // ----------------------------------------------------------------------------
+// Idle processing
+// ----------------------------------------------------------------------------
+
+// Send idle event to window and all subwindows
+bool wxWindowBase::SendIdleEvents(wxIdleEvent& event)
+{
+    bool needMore = false;
+
+    OnInternalIdle();
+
+    // should we send idle event to this window?
+    if (wxIdleEvent::GetMode() == wxIDLE_PROCESS_ALL ||
+        HasExtraStyle(wxWS_EX_PROCESS_IDLE))
+    {
+        event.SetEventObject(this);
+        HandleWindowEvent(event);
+
+        if (event.MoreRequested())
+            needMore = true;
+    }
+    wxWindowList::compatibility_iterator node = GetChildren().GetFirst();
+    for (; node; node = node->GetNext())
+    {
+        wxWindow* child = node->GetData();
+        if (child->SendIdleEvents(event))
+            needMore = true;
+    }
+
+    return needMore;
+}
+
+void wxWindowBase::OnInternalIdle()
+{
+    if ( wxUpdateUIEvent::CanUpdate(this) )
+        UpdateWindowUI(wxUPDATE_UI_FROMIDLE);
+}
+
+// ----------------------------------------------------------------------------
 // dialog units translations
 // ----------------------------------------------------------------------------
 
@@ -2471,7 +2668,7 @@ void wxWindowBase::DoUpdateWindowUI(wxUpdateUIEvent& event)
 // using them.
 wxSize wxWindowBase::GetDlgUnitBase() const
 {
-    const wxWindow *parent = wxGetTopLevelParent((wxWindow*)this);
+    const wxWindowBase * const parent = wxGetTopLevelParent((wxWindow*)this);
 
     if ( !parent->m_font.IsOk() )
     {
@@ -2731,8 +2928,10 @@ void wxWindowBase::OnMiddleClick( wxMouseEvent& event )
         else
 #endif // __WXDEBUG__
         {
+#if wxUSE_MSGDLG
             // just Ctrl-Alt-middle click shows information about wx version
             ::wxInfoMessageBox((wxWindow*)this);
+#endif // wxUSE_MSGDLG
         }
     }
     else
@@ -2775,19 +2974,19 @@ wxAccessible* wxWindowBase::CreateAccessible()
 // list classes implementation
 // ----------------------------------------------------------------------------
 
-#if wxUSE_STL
+#if wxUSE_STD_CONTAINERS
 
 #include "wx/listimpl.cpp"
 WX_DEFINE_LIST(wxWindowList)
 
-#else // !wxUSE_STL
+#else // !wxUSE_STD_CONTAINERS
 
 void wxWindowListNode::DeleteData()
 {
     delete (wxWindow *)GetData();
 }
 
-#endif // wxUSE_STL/!wxUSE_STL
+#endif // wxUSE_STD_CONTAINERS/!wxUSE_STD_CONTAINERS
 
 // ----------------------------------------------------------------------------
 // borders
@@ -3091,8 +3290,8 @@ void wxWindowBase::DoMoveInTabOrder(wxWindow *win, WindowOrder move)
     wxWindowList::compatibility_iterator i = siblings.Find(win);
     wxCHECK_RET( i, wxT("MoveBefore/AfterInTabOrder(): win is not a sibling") );
 
-    // unfortunately, when wxUSE_STL == 1 DetachNode() is not implemented so we
-    // can't just move the node around
+    // unfortunately, when wxUSE_STD_CONTAINERS == 1 DetachNode() is not
+    // implemented so we can't just move the node around
     wxWindow *self = (wxWindow *)this;
     siblings.DeleteObject(self);
     if ( move == OrderAfter )

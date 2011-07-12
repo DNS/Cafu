@@ -170,9 +170,7 @@ static wxWindow*                    gpWinBeingCreated = NULL;
 // method
 #ifdef __WXUNIVERSAL__
     IMPLEMENT_ABSTRACT_CLASS(wxWindowOS2, wxWindowBase)
-#else // __WXPM__
-    IMPLEMENT_DYNAMIC_CLASS(wxWindow, wxWindowBase)
-#endif // __WXUNIVERSAL__/__WXPM__
+#endif // __WXUNIVERSAL__
 
 BEGIN_EVENT_TABLE(wxWindowOS2, wxWindowBase)
     EVT_ERASE_BACKGROUND(wxWindowOS2::OnEraseBackground)
@@ -573,7 +571,7 @@ bool wxWindowOS2::SetCursor( const wxCursor& rCursor)
         return false;
     }
 
-    if ( m_cursor.Ok() ) {
+    if ( m_cursor.IsOk() ) {
         HWND                            hWnd = GetHwnd();
         POINTL                          vPoint;
         RECTL                           vRect;
@@ -1089,8 +1087,6 @@ void wxWindowOS2::OnIdle(
             (void)HandleWindowEvent(rEvent);
         }
     }
-    if (wxUpdateUIEvent::CanUpdate(this))
-        UpdateWindowUI(wxUPDATE_UI_FROMIDLE);
 } // end of wxWindowOS2::OnIdle
 
 //
@@ -1255,7 +1251,7 @@ void wxWindowOS2::DoGetPosition(
     // use WinQueryWindowPos.  This call, unlike the WIN32 call, however,
     // returns a position relative to it's parent, so no parent adujstments
     // are needed under OS/2.  Also, windows should be created using
-    // wxWindow coordinates, i.e 0,0 is the TOP left.
+    // wxWindow coordinates, i.e. 0,0 is the TOP left.
     //
     if (IsKindOf(CLASSINFO(wxFrame)))
     {

@@ -582,25 +582,20 @@ bool wxSizerItem::IsShown() const
             return m_window->IsShown();
 
         case Item_Sizer:
+        {
             // arbitrarily decide that if at least one of our elements is
             // shown, so are we (this arbitrariness is the reason for
             // deprecating this function)
+            for ( wxSizerItemList::compatibility_iterator
+                    node = m_sizer->GetChildren().GetFirst();
+                  node;
+                  node = node->GetNext() )
             {
-                // Some apps (such as dialog editors) depend on an empty sizer still
-                // being laid out correctly and reporting the correct size and position.
-                if (m_sizer->GetChildren().GetCount() == 0)
+                if ( node->GetData()->IsShown() )
                     return true;
-
-                for ( wxSizerItemList::compatibility_iterator
-                        node = m_sizer->GetChildren().GetFirst();
-                      node;
-                      node = node->GetNext() )
-                {
-                    if ( node->GetData()->IsShown() )
-                        return true;
-                }
             }
             return false;
+        }
 
         case Item_Spacer:
             return m_spacer->IsShown();
@@ -845,6 +840,10 @@ bool wxSizer::Replace( size_t old, wxSizerItem *newitem )
 
     wxSizerItem *item = node->GetData();
     node->SetData(newitem);
+
+    if (item->IsWindow() && item->GetWindow())
+        item->GetWindow()->SetContainingSizer(NULL);
+
     delete item;
 
     return true;
@@ -1324,6 +1323,7 @@ wxGridSizer::wxGridSizer( int cols, int vgap, int hgap )
       m_vgap( vgap ),
       m_hgap( hgap )
 {
+    wxASSERT(cols >= 0);
 }
 
 wxGridSizer::wxGridSizer( int cols, const wxSize& gap )
@@ -1332,6 +1332,7 @@ wxGridSizer::wxGridSizer( int cols, const wxSize& gap )
       m_vgap( gap.GetHeight() ),
       m_hgap( gap.GetWidth() )
 {
+    wxASSERT(cols >= 0);
 }
 
 wxGridSizer::wxGridSizer( int rows, int cols, int vgap, int hgap )
@@ -1340,6 +1341,7 @@ wxGridSizer::wxGridSizer( int rows, int cols, int vgap, int hgap )
       m_vgap( vgap ),
       m_hgap( hgap )
 {
+    wxASSERT(rows >= 0 && cols >= 0);
 }
 
 wxGridSizer::wxGridSizer( int rows, int cols, const wxSize& gap )
@@ -1348,6 +1350,7 @@ wxGridSizer::wxGridSizer( int rows, int cols, const wxSize& gap )
       m_vgap( gap.GetHeight() ),
       m_hgap( gap.GetWidth() )
 {
+    wxASSERT(rows >= 0 && cols >= 0);
 }
 
 wxSizerItem *wxGridSizer::DoInsert(size_t index, wxSizerItem *item)
@@ -2090,7 +2093,7 @@ void wxBoxSizer::RecalcSizes()
 
     // Check for the degenerated case when we don't have enough space for even
     // the min sizes of all the items: in this case we really can't do much
-    // more than to to allocate the min size to as many of fixed size items as
+    // more than to allocate the min size to as many of fixed size items as
     // possible (on the assumption that variable size items such as text zones
     // or list boxes may use scrollbars to show their content even if their
     // size is less than min size but that fixed size items such as buttons
@@ -2339,7 +2342,7 @@ wxSize wxBoxSizer::CalcMin()
 
     // Using the max ratio ensures that the min size is big enough for all
     // items to have their min size and satisfy the proportions among them.
-    SizeInMajorDir(m_minSize) += maxMinSizeToProp*m_totalProportion;
+    SizeInMajorDir(m_minSize) += (int)(maxMinSizeToProp*m_totalProportion);
 
     return m_minSize;
 }
@@ -2394,6 +2397,9 @@ void wxStaticBoxSizer::RecalcSizes()
         // in the wxBoxSizer::RecalcSizes() call below using coordinates relative
         // to the top-left corner of the staticbox:
         m_position.x = m_position.y = 0;
+#elif defined(__WXOSX__) && wxOSX_USE_COCOA
+        // the distance from the 'inner' content view to the embedded controls
+        m_position.x = m_position.y = 10;
 #else
         // if the wxStaticBox has childrens, then these windows must be placed
         // by the wxBoxSizer::RecalcSizes() call below using coordinates relative
@@ -2572,30 +2578,38 @@ void wxStdDialogButtonSizer::Realize()
         // Extra space around and at the right
         Add(12, 40);
 #elif defined(__WXGTK20__)
-        Add(0, 0, 0, wxLEFT, 9);
+        // http://library.gnome.org/devel/hig-book/stable/windows-alert.html.en
+        // says that the correct button order is
+        //
+        //      [Help]                  [Alternative] [Cancel] [Affirmative]
+
+        // Flags ensuring that margins between the buttons are 6 pixels.
+        const wxSizerFlags
+            flagsBtn = wxSizerFlags().Centre().Border(wxLEFT | wxRIGHT, 3);
+
+        // Margin around the entire sizer button should be 12.
+        AddSpacer(9);
+
         if (m_buttonHelp)
-            Add((wxWindow*)m_buttonHelp, 0, wxALIGN_CENTRE | wxLEFT | wxRIGHT, 3);
+            Add(m_buttonHelp, flagsBtn);
 
-        // extra whitespace between help and cancel/ok buttons
-        Add(0, 0, 1, wxEXPAND, 0);
+        // Align the rest of the buttons to the right.
+        AddStretchSpacer();
 
-        if (m_buttonNegative){
-            Add((wxWindow*)m_buttonNegative, 0, wxALIGN_CENTRE | wxLEFT | wxRIGHT, 3);
-        }
+        if (m_buttonNegative)
+            Add(m_buttonNegative, flagsBtn);
 
-        // according to HIG, in explicit apply windows the order is:
-        // [ Help                     Apply   Cancel   OK ]
         if (m_buttonApply)
-            Add((wxWindow*)m_buttonApply, 0, wxALIGN_CENTRE | wxLEFT | wxRIGHT, 3);
+            Add(m_buttonApply, flagsBtn);
 
-        if (m_buttonCancel){
-            Add((wxWindow*)m_buttonCancel, 0, wxALIGN_CENTRE | wxLEFT | wxRIGHT, 3);
-            // Cancel or help should be default
-            // m_buttonCancel->SetDefaultButton();
-        }
+        if (m_buttonCancel)
+            Add(m_buttonCancel, flagsBtn);
 
         if (m_buttonAffirmative)
-            Add((wxWindow*)m_buttonAffirmative, 0, wxALIGN_CENTRE | wxLEFT, 6);
+            Add(m_buttonAffirmative, flagsBtn);
+
+        // Ensure that the right margin is 12 as well.
+        AddSpacer(9);
 #elif defined(__WXMSW__)
         // Windows
 

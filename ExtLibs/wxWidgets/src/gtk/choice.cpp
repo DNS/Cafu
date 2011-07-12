@@ -38,8 +38,6 @@ gtk_choice_changed_callback( GtkWidget *WXUNUSED(widget), wxChoice *choice )
 // wxChoice
 //-----------------------------------------------------------------------------
 
-IMPLEMENT_DYNAMIC_CLASS(wxChoice, wxControlWithItems)
-
 void wxChoice::Init()
 {
     m_strings = NULL;
@@ -75,7 +73,7 @@ bool wxChoice::Create( wxWindow *parent, wxWindowID id,
     {
         // if our m_strings != NULL, Append() will check for it and insert
         // items in the correct order
-        m_strings = new wxSortedArrayString;
+        m_strings = new wxGtkCollatedArrayString;
     }
 
     m_widget = gtk_combo_box_new_text();
@@ -140,7 +138,7 @@ int wxChoice::DoInsertItems(const wxArrayStringsAdapter & items,
         n = pos + i;
         // If sorted, use this wxSortedArrayStrings to determine
         // the right insertion point
-        if(m_strings)
+        if (m_strings)
             n = m_strings->Add(items[i]);
 
         GTKInsertComboBoxTextItem( n, items[i] );
@@ -168,7 +166,7 @@ void wxChoice::DoClear()
 {
     wxCHECK_RET( m_widget != NULL, wxT("invalid control") );
 
-    DisableEvents();
+    GTKDisableEvents();
 
     GtkComboBox* combobox = GTK_COMBO_BOX( m_widget );
     GtkTreeModel* model = gtk_combo_box_get_model( combobox );
@@ -179,7 +177,7 @@ void wxChoice::DoClear()
     if (m_strings)
         m_strings->Clear();
 
-    EnableEvents();
+    GTKEnableEvents();
 
     InvalidateBestSize();
 }
@@ -299,12 +297,12 @@ void wxChoice::SetSelection( int n )
 {
     wxCHECK_RET( m_widget != NULL, wxT("invalid control") );
 
-    DisableEvents();
+    GTKDisableEvents();
 
     GtkComboBox* combobox = GTK_COMBO_BOX( m_widget );
     gtk_combo_box_set_active( combobox, n );
 
-    EnableEvents();
+    GTKEnableEvents();
 }
 
 void wxChoice::SetColumns(int n)
@@ -321,13 +319,13 @@ int wxChoice::GetColumns() const
 }
 
 
-void wxChoice::DisableEvents()
+void wxChoice::GTKDisableEvents()
 {
     g_signal_handlers_block_by_func(m_widget,
                                 (gpointer) gtk_choice_changed_callback, this);
 }
 
-void wxChoice::EnableEvents()
+void wxChoice::GTKEnableEvents()
 {
     g_signal_handlers_unblock_by_func(m_widget,
                                 (gpointer) gtk_choice_changed_callback, this);
@@ -336,7 +334,7 @@ void wxChoice::EnableEvents()
 
 GdkWindow *wxChoice::GTKGetWindow(wxArrayGdkWindows& WXUNUSED(windows)) const
 {
-    return m_widget->window;
+    return gtk_widget_get_window(m_widget);
 }
 
 // Notice that this method shouldn't be necessary, because GTK calculates
@@ -373,7 +371,7 @@ wxSize wxChoice::DoGetBestSize() const
 void wxChoice::DoApplyWidgetStyle(GtkRcStyle *style)
 {
     gtk_widget_modify_style(m_widget, style);
-    gtk_widget_modify_style(GTK_BIN(m_widget)->child, style);
+    gtk_widget_modify_style(gtk_bin_get_child(GTK_BIN(m_widget)), style);
 }
 
 

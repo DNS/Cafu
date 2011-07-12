@@ -221,7 +221,15 @@ bool wxConfigBase::DoReadBool(const wxString& key, bool* val) const
     if ( !DoReadLong(key, &l) )
         return false;
 
-    wxASSERT_MSG( l == 0 || l == 1, wxT("bad bool value in wxConfig::DoReadInt") );
+    if ( l != 0 && l != 1 )
+    {
+        // Don't assert here as this could happen in the result of user editing
+        // the file directly and this not indicate a bug in the program but
+        // still complain that something is wrong.
+        wxLogWarning(_("Invalid value %ld for a boolean key \"%s\" in "
+                       "config file."),
+                     l, key);
+    }
 
     *val = l != 0;
 
@@ -282,10 +290,11 @@ wxConfigPathChanger::wxConfigPathChanger(const wxConfigBase *pContainer,
                                          const wxString& strEntry)
 {
   m_bChanged = false;
-  m_pContainer = (wxConfigBase *)pContainer;
+  m_pContainer = const_cast<wxConfigBase *>(pContainer);
 
-  // the path is everything which precedes the last slash
-  wxString strPath = strEntry.BeforeLast(wxCONFIG_PATH_SEPARATOR);
+  // the path is everything which precedes the last slash and the name is
+  // everything after it -- and this works correctly if there is no slash too
+  wxString strPath = strEntry.BeforeLast(wxCONFIG_PATH_SEPARATOR, &m_strName);
 
   // except in the special case of "/keyname" when there is nothing before "/"
   if ( strPath.empty() &&
@@ -317,13 +326,6 @@ wxConfigPathChanger::wxConfigPathChanger(const wxConfigBase *pContainer,
           m_strOldPath += wxCONFIG_PATH_SEPARATOR;
         m_pContainer->SetPath(strPath);
     }
-
-    // in any case, use the just the name, not full path
-    m_strName = strEntry.AfterLast(wxCONFIG_PATH_SEPARATOR);
-  }
-  else {
-    // it's a name only, without path - nothing to do
-    m_strName = strEntry;
   }
 }
 

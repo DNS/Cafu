@@ -1823,8 +1823,8 @@ void wxAMMediaBackend::FinishLoad()
 bool wxAMMediaBackend::ShowPlayerControls(wxMediaCtrlPlayerControls flags)
 {
     // Note that IMediaPlayer doesn't have a statusbar by
-    // default but IActiveMovie does - so lets try to keep
-    // the interface consistant
+    // default but IActiveMovie does - so let's try to keep
+    // the interface consistent.
     if(!flags)
     {
         GetAM()->put_Enabled(VARIANT_FALSE);
@@ -2009,18 +2009,27 @@ wxLongLong wxAMMediaBackend::GetDuration()
 {
     double outDuration;
     HRESULT hr = GetAM()->get_Duration(&outDuration);
-    if(FAILED(hr))
+    switch ( hr )
     {
-        wxAMLOG(hr);
-        return 0;
+        default:
+            wxAMLOG(hr);
+            // fall through
+
+        case S_FALSE:
+            return 0;
+
+        case S_OK:
+            // outDuration is in seconds, we need milliseconds
+#ifdef wxLongLong_t
+            return static_cast<wxLongLong_t>(outDuration * 1000);
+#else
+            // In principle it's possible to have video of duration greater
+            // than ~1193 hours which corresponds LONG_MAX in milliseconds so
+            // cast to wxLongLong first and multiply by 1000 only then to avoid
+            // the overflow (resulting in maximal duration of ~136 years).
+            return wxLongLong(static_cast<long>(outDuration)) * 1000;
+#endif
     }
-
-    // h,m,s,milli - outDuration is in 1 second (double)
-    outDuration *= 1000;
-    wxLongLong ll;
-    ll.Assign(outDuration);
-
-    return ll;
 }
 
 //---------------------------------------------------------------------------
@@ -2258,8 +2267,9 @@ void wxAMMediaEvtHandler::OnActiveX(wxActiveXEvent& event)
 // End of wxAMMediaBackend
 //---------------------------------------------------------------------------
 
-// in source file that contains stuff you don't directly use
-#include "wx/html/forcelnk.h"
-FORCE_LINK_ME(wxmediabackend_am)
+// Allow the user code to use wxFORCE_LINK_MODULE() to ensure that this object
+// file is not discarded by the linker.
+#include "wx/link.h"
+wxFORCE_LINK_THIS_MODULE(wxmediabackend_am)
 
 #endif // wxUSE_MEDIACTRL && wxUSE_ACTIVEX

@@ -29,6 +29,7 @@
 #endif //WX_PRECOMP
 
 #include "wx/spinctrl.h"
+#include "wx/tooltip.h"
 
 #if wxUSE_SPINCTRL
 
@@ -46,8 +47,12 @@ IMPLEMENT_DYNAMIC_CLASS(wxSpinDoubleEvent, wxNotifyEvent)
 // constants
 // ----------------------------------------------------------------------------
 
-// the margin between the text control and the spin
-static const wxCoord MARGIN = 2;
+// The margin between the text control and the spin: the value here is the same
+// as the margin between the spin button and its "buddy" text control in wxMSW
+// so the generic control looks similarly to the native one there, we might
+// need to use different value for the other platforms (and maybe even
+// determine it dynamically?).
+static const wxCoord MARGIN = 1;
 
 #define SPINCTRLBUT_MAX 32000 // large to avoid wrap around trouble
 
@@ -60,7 +65,7 @@ class wxSpinCtrlTextGeneric : public wxTextCtrl
 public:
     wxSpinCtrlTextGeneric(wxSpinCtrlGenericBase *spin, const wxString& value, long style=0)
         : wxTextCtrl(spin->GetParent(), wxID_ANY, value, wxDefaultPosition, wxDefaultSize,
-                     ( style & wxALIGN_MASK ) | wxTE_NOHIDESEL | wxTE_PROCESS_ENTER)
+                     style & wxALIGN_MASK)
     {
         m_spin = spin;
 
@@ -77,25 +82,16 @@ public:
         m_spin = NULL;
     }
 
-    void OnTextEnter(wxCommandEvent& event)
-    {
-        if (m_spin)
-            m_spin->OnTextEnter(event);
-    }
-
     void OnChar( wxKeyEvent &event )
     {
         if (m_spin)
-            m_spin->OnTextChar(event);
+            m_spin->ProcessWindowEvent(event);
     }
 
     void OnKillFocus(wxFocusEvent& event)
     {
         if (m_spin)
-        {
-            if ( m_spin->SyncSpinToText() )
-                m_spin->DoSendEvent();
-        }
+            m_spin->ProcessWindowEvent(event);
 
         event.Skip();
     }
@@ -107,8 +103,6 @@ private:
 };
 
 BEGIN_EVENT_TABLE(wxSpinCtrlTextGeneric, wxTextCtrl)
-    EVT_TEXT_ENTER(wxID_ANY, wxSpinCtrlTextGeneric::OnTextEnter)
-
     EVT_CHAR(wxSpinCtrlTextGeneric::OnChar)
 
     EVT_KILL_FOCUS(wxSpinCtrlTextGeneric::OnKillFocus)
@@ -199,6 +193,10 @@ bool wxSpinCtrlGenericBase::Create(wxWindow *parent,
 
     m_textCtrl   = new wxSpinCtrlTextGeneric(this, value, style);
     m_spinButton = new wxSpinCtrlButtonGeneric(this, style);
+#if wxUSE_TOOLTIPS
+    m_textCtrl->SetToolTip(GetToolTipText());
+    m_spinButton->SetToolTip(GetToolTipText());
+#endif // wxUSE_TOOLTIPS
 
     m_spin_value = m_spinButton->GetValue();
 
@@ -270,7 +268,7 @@ void wxSpinCtrlGenericBase::DoMoveWindow(int x, int y, int width, int height)
     // position the subcontrols inside the client area
     wxSize sizeBtn = m_spinButton->GetSize();
 
-    wxCoord wText = width - sizeBtn.x;
+    wxCoord wText = width - sizeBtn.x - MARGIN;
     m_textCtrl->SetSize(x, y, wText, height);
     m_spinButton->SetSize(x + wText + MARGIN, y, wxDefaultCoord, height);
 }
@@ -278,6 +276,12 @@ void wxSpinCtrlGenericBase::DoMoveWindow(int x, int y, int width, int height)
 // ----------------------------------------------------------------------------
 // operations forwarded to the subcontrols
 // ----------------------------------------------------------------------------
+
+void wxSpinCtrlGenericBase::SetFocus()
+{
+    if ( m_textCtrl )
+        m_textCtrl->SetFocus();
+}
 
 bool wxSpinCtrlGenericBase::Enable(bool enable)
 {
@@ -322,9 +326,41 @@ bool wxSpinCtrlGenericBase::Reparent(wxWindowBase *newParent)
     return true;
 }
 
+#if wxUSE_TOOLTIPS
+void wxSpinCtrlGenericBase::DoSetToolTip(wxToolTip *tip)
+{
+    // Notice that we must check for the subcontrols not being NULL (as they
+    // could be if we were created with the default ctor and this is called
+    // before Create() for some reason) and that we can't call SetToolTip(tip)
+    // because this would take ownership of the wxToolTip object (twice).
+    if ( m_textCtrl )
+    {
+        if ( tip )
+            m_textCtrl->SetToolTip(tip->GetTip());
+        else
+            m_textCtrl->SetToolTip(NULL);
+    }
+
+    if ( m_spinButton )
+    {
+        if( tip )
+            m_spinButton->SetToolTip(tip->GetTip());
+        else
+            m_spinButton->SetToolTip(NULL);
+    }
+
+    wxWindowBase::DoSetToolTip(tip);
+}
+#endif // wxUSE_TOOLTIPS
+
 // ----------------------------------------------------------------------------
 // Handle sub controls events
 // ----------------------------------------------------------------------------
+
+BEGIN_EVENT_TABLE(wxSpinCtrlGenericBase, wxSpinCtrlBase)
+    EVT_CHAR(wxSpinCtrlGenericBase::OnTextChar)
+    EVT_KILL_FOCUS(wxSpinCtrlGenericBase::OnTextLostFocus)
+END_EVENT_TABLE()
 
 void wxSpinCtrlGenericBase::OnSpinButton(wxSpinEvent& event)
 {
@@ -357,10 +393,11 @@ void wxSpinCtrlGenericBase::OnSpinButton(wxSpinEvent& event)
         DoSendEvent();
 }
 
-void wxSpinCtrlGenericBase::OnTextEnter(wxCommandEvent& event)
+void wxSpinCtrlGenericBase::OnTextLostFocus(wxFocusEvent& event)
 {
     SyncSpinToText();
     DoSendEvent();
+
     event.Skip();
 }
 
@@ -529,8 +566,6 @@ void wxSpinCtrlGenericBase::SetSelection(long from, long to)
 // wxSpinCtrl
 //-----------------------------------------------------------------------------
 
-IMPLEMENT_DYNAMIC_CLASS(wxSpinCtrl, wxSpinCtrlGenericBase)
-
 void wxSpinCtrl::DoSendEvent()
 {
     wxSpinEvent event( wxEVT_COMMAND_SPINCTRL_UPDATED, GetId());
@@ -560,6 +595,11 @@ void wxSpinCtrlDouble::DoSendEvent()
 void wxSpinCtrlDouble::SetDigits(unsigned digits)
 {
     wxCHECK_RET( digits <= 20, "too many digits for wxSpinCtrlDouble" );
+
+    if ( digits == m_digits )
+        return;
+
+    m_digits = digits;
 
     m_format.Printf(wxT("%%0.%ulf"), digits);
 

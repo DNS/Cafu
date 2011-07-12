@@ -106,7 +106,7 @@ typedef struct _MYRECORD
 // Problem:
 //  The MSW version had problems with SetTextColour() et al as the
 //  CListItemAttr's were stored keyed on the item index. If a item was
-//  inserted anywhere but the end of the list the the text attributes
+//  inserted anywhere but the end of the list the text attributes
 //  (colour etc) for the following items were out of sync.
 //
 // Solution:
@@ -772,13 +772,6 @@ void ConvertToOS2ListCol (
     //
     pField->offStruct = 0;
 } // end of ConvertToOS2ListCol
-
-
-IMPLEMENT_DYNAMIC_CLASS(wxListCtrl, wxControl)
-IMPLEMENT_DYNAMIC_CLASS(wxListView, wxListCtrl)
-IMPLEMENT_DYNAMIC_CLASS(wxListItem, wxObject)
-
-IMPLEMENT_DYNAMIC_CLASS(wxListEvent, wxNotifyEvent)
 
 BEGIN_EVENT_TABLE(wxListCtrl, wxControl)
     EVT_PAINT(wxListCtrl::OnPaint)
@@ -2254,7 +2247,7 @@ long wxListCtrl::InsertItem (
     vInsert.fInvalidateRecord = TRUE;
 
     //
-    // Check wether we need to allocate our internal data
+    // Check whether we need to allocate our internal data
     //
     bool                            bNeedInternalData = ((rInfo.GetMask() & wxLIST_MASK_DATA) ||
                                                           rInfo.HasAttributes()

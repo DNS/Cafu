@@ -1,10 +1,10 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        src/osx/carbon/stattext.cpp
+// Name:        src/osx/stattext_osx.cpp
 // Purpose:     wxStaticText
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     04/01/98
-// RCS-ID:      $Id: stattext.cpp 54845 2008-07-30 14:52:41Z SC $
+// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -27,8 +27,6 @@
 
 #include <stdio.h>
 
-IMPLEMENT_DYNAMIC_CLASS(wxStaticText, wxControl)
-
 
 bool wxStaticText::Create( wxWindow *parent,
     wxWindowID id,
@@ -37,13 +35,13 @@ bool wxStaticText::Create( wxWindow *parent,
     const wxSize& size,
     long style,
     const wxString& name )
-{
-    m_macIsUserPane = false;
-
+{    
+    DontCreatePeer();
+    
     if ( !wxControl::Create( parent, id, pos, size, style, wxDefaultValidator, name ) )
         return false;
 
-    m_peer = wxWidgetImpl::CreateStaticText( this, parent, id, label, pos, size, style, GetExtraStyle() );
+    SetPeer(wxWidgetImpl::CreateStaticText( this, parent, id, label, pos, size, style, GetExtraStyle() ));
 
     MacPostControlCreate( pos, size );
 
@@ -64,11 +62,11 @@ void wxStaticText::SetLabel(const wxString& label)
     )
     {
         // leave ellipsization to the OS
-        DoSetLabel(GetLabelWithoutMarkup());
+        DoSetLabel(GetLabel());
     }
     else // not supported natively
     {
-        DoSetLabel(GetEllipsizedLabelWithoutMarkup());
+        DoSetLabel(GetEllipsizedLabel());
     }
 
     if ( !(GetWindowStyle() & wxST_NO_AUTORESIZE) &&
@@ -103,8 +101,22 @@ bool wxStaticText::SetFont(const wxFont& font)
 void wxStaticText::DoSetLabel(const wxString& label)
 {
     m_label = RemoveMnemonics(label);
-    m_peer->SetLabel(m_label , GetFont().GetEncoding() );
+    GetPeer()->SetLabel(m_label , GetFont().GetEncoding() );
 }
+
+#if wxUSE_MARKUP && wxOSX_USE_COCOA
+
+bool wxStaticText::DoSetLabelMarkup(const wxString& markup)
+{
+    if ( !wxStaticTextBase::DoSetLabelMarkup(markup) )
+        return false;
+
+    GetPeer()->SetLabelMarkup(markup);
+
+    return true;
+}
+
+#endif // wxUSE_MARKUP && wxOSX_USE_COCOA
 
 wxString wxStaticText::DoGetLabel() const
 {

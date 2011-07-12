@@ -93,7 +93,7 @@ static CGDisplayErr wxOSXGetDisplayList(CGDisplayCount maxDisplays,
 {
     CGDisplayErr error = kCGErrorSuccess;
     CGDisplayCount onlineCount;
-    
+
     error = CGGetOnlineDisplayList(0,NULL,&onlineCount);
     if ( error == kCGErrorSuccess )
     {
@@ -108,7 +108,7 @@ static CGDisplayErr wxOSXGetDisplayList(CGDisplayCount maxDisplays,
                 {
                     if ( CGDisplayMirrorsDisplay(onlineDisplays[i]) != kCGNullDirectDisplay )
                         continue;
-                    
+
                     if ( displays == NULL )
                         *displayCount += 1;
                     else
@@ -123,7 +123,7 @@ static CGDisplayErr wxOSXGetDisplayList(CGDisplayCount maxDisplays,
             }
             delete[] onlineDisplays;
         }
-            
+
     }
     return error;
 }
@@ -267,10 +267,14 @@ wxVideoMode wxDisplayImplMacOSX::GetCurrentMode() const
 
 bool wxDisplayImplMacOSX::ChangeMode( const wxVideoMode& mode )
 {
-    // Changing to default mode (wxDefaultVideoMode) doesn't
-    // work because we don't have access to the system's 'scrn'
-    // resource which holds the user's mode which the system
-    // will return to after this app is done
+#ifndef __WXOSX_IPHONE__
+    if (mode == wxDefaultVideoMode)
+    {
+        CGRestorePermanentDisplayConfiguration();
+        return true;
+    }
+#endif
+
     boolean_t bExactMatch;
     CFDictionaryRef theCGMode = CGDisplayBestModeForParametersAndRefreshRate(
         m_id,

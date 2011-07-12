@@ -281,10 +281,6 @@ private:
 // wxWin macros
 // ----------------------------------------------------------------------------
 
-IMPLEMENT_DYNAMIC_CLASS(wxMenu, wxEvtHandler)
-IMPLEMENT_DYNAMIC_CLASS(wxMenuBar, wxWindow)
-IMPLEMENT_DYNAMIC_CLASS(wxMenuItem, wxObject)
-
 BEGIN_EVENT_TABLE(wxPopupMenuWindow, wxPopupTransientWindow)
     EVT_KEY_DOWN(wxPopupMenuWindow::OnKeyDown)
 
@@ -606,7 +602,7 @@ void wxPopupMenuWindow::DoDraw(wxControlRenderer *renderer)
                 bmp = item->GetDisabledBitmap();
             }
 
-            if ( !bmp.Ok() )
+            if ( !bmp.IsOk() )
             {
                 // strangely enough, for unchecked item we use the
                 // "checked" bitmap because this is the default one - this
