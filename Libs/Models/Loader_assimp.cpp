@@ -135,6 +135,7 @@ void LoaderAssimpT::Load(ArrayT<CafuModelT::MeshT>& Meshes, const aiNode* AiNode
 
             CafuModelT::MeshT Mesh;
 
+            Mesh.Name="Mesh";               // TODO!
             Mesh.Material=NULL;             // TODO!
             Mesh.RenderMaterial=NULL;       // TODO!
             Mesh.Weights.PushBackEmptyExact(AiMesh->mNumVertices);
@@ -199,8 +200,9 @@ void LoaderAssimpT::Load(ArrayT<CafuModelT::MeshT>& Meshes, const aiNode* AiNode
 
 void LoaderAssimpT::Load(CafuModelT::AnimT& CafuAnim, const aiAnimation* AiAnim, const ArrayT<CafuModelT::JointT>& Joints)
 {
-    // CafuAnim.Name=AiAnim.mName.data;
-    CafuAnim.FPS=1.2345f;       // TODO!
+    CafuAnim.Name=AiAnim->mName.data;
+    CafuAnim.FPS =1.2345f;       // TODO!
+    CafuAnim.Next=-1;
 
     CafuAnim.AnimJoints.PushBackEmptyExact(Joints.Size());
 

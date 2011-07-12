@@ -22,7 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "JointsHierarchy.hpp"
 #include "ChildFrame.hpp"
 #include "ModelDocument.hpp"
-#include "Commands/RenameJoint.hpp"
+#include "Commands/Rename.hpp"
 #include "Commands/Select.hpp"
 #include "Models/Model_cmdl.hpp"
 
@@ -390,7 +390,7 @@ void JointsHierarchyT::OnLabelChanged(wxTreeEvent& TE)
 
     m_IsRecursiveSelfNotify=true;
 
-    if (!m_Parent->SubmitCommand(new CommandRenameJointT(m_ModelDoc, JointNr, TE.GetLabel())))
+    if (!m_Parent->SubmitCommand(new CommandRenameT(m_ModelDoc, JOINT, JointNr, TE.GetLabel())))
     {
         TE.Veto();  // Reset value if not valid.
     }

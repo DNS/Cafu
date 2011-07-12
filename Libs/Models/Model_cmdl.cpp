@@ -537,7 +537,8 @@ void CafuModelT::Save(std::ostream& OutStream) const
         OutStream << "\t-- Mesh " << MeshNr << "\n";
         OutStream << "\t{\n";
 
-        // Write the mesh material.
+        // Write the mesh name and material.
+        OutStream << "\t\t" << "name=\"" << Mesh.Name << "\";\n";
         OutStream << "\t\t" << "Material=\"" << (Mesh.Material ? Mesh.Material->Name : "") << "\";\n";
 
         // Write the mesh weights.
@@ -599,8 +600,10 @@ void CafuModelT::Save(std::ostream& OutStream) const
         OutStream << "\t-- Animation " << AnimNr << "\n";
         OutStream << "\t{\n";
 
-        // Write the anim FPS.
-        OutStream << "\t\tFPS=" << Anim.FPS << ";\n";
+        // Write the anim name, FPS and next sequence number.
+        OutStream << "\t\t" << "name=\"" << Anim.Name << "\";\n";
+        OutStream << "\t\t" << "FPS="    << Anim.FPS << ";\n";
+        OutStream << "\t\t" << "next=\"" << Anim.Next << "\";\n";
 
         // Write the anim joints.
         OutStream << "\n\t\tAnimJoints=\n\t\t{\n";

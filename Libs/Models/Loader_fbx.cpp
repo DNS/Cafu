@@ -567,6 +567,10 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes, MaterialMana
         Meshes.PushBackEmpty();
         CafuModelT::MeshT& CafuMesh=Meshes[Meshes.Size()-1];
 
+        CafuMesh.Name=Mesh->GetName();
+        if (CafuMesh.Name=="") CafuMesh.Name=m_Nodes[NodeNr]->GetName();
+        if (CafuMesh.Name=="") CafuMesh.Name="Mesh";
+
         // Create the "flat" list of weights, and for each vertex, record the first index into this list.
         ArrayT<unsigned long> VertexFirstWeightIdx;
 
@@ -735,9 +739,9 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::AnimT>& Anims) const
         CafuModelT::AnimT& Anim=Anims[NameNr];
         unsigned int       AnimData_Size=0;   // The current common value of Anim.Frames[FrameNr].AnimData.Size(), always the same for all frames.
 
-     // Anim.Name=AnimStackNames[NameNr]->Buffer();
+        Anim.Name=AnimStackNames[NameNr]->Buffer();
         Anim.FPS =float(1.0/TimeStep.GetSecondDouble());
-     // Anim.Next=-1;
+        Anim.Next=-1;
 
         Anim.AnimJoints.PushBackEmptyExact(m_Nodes.Size());
         Anim.Frames.PushBackEmptyExact(FrameTimes.Size());

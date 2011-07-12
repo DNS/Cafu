@@ -19,7 +19,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "RenameJoint.hpp"
+#include "SetAnimNext.hpp"
 #include "../ModelDocument.hpp"
 #include "Models/Model_cmdl.hpp"
 
@@ -27,48 +27,52 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace ModelEditor;
 
 
-CommandRenameJointT::CommandRenameJointT(ModelDocumentT* ModelDoc, unsigned int JointNr, const wxString& NewName)
+CommandSetAnimNextT::CommandSetAnimNextT(ModelDocumentT* ModelDoc, unsigned int AnimNr, int NewNext)
     : m_ModelDoc(ModelDoc),
-      m_JointNr(JointNr),
-      m_NewName(std::string(NewName)),
-      m_OldName(m_ModelDoc->GetModel()->m_Joints[m_JointNr].Name)
+      m_AnimNr(AnimNr),
+      m_NewNext(NewNext),
+      m_OldNext(m_ModelDoc->GetModel()->GetAnims()[m_AnimNr].Next)
 {
 }
 
 
-bool CommandRenameJointT::Do()
+bool CommandSetAnimNextT::Do()
 {
     wxASSERT(!m_Done);
     if (m_Done) return false;
 
-    // If the name didn't really change, don't put this command into the command history.
-    if (m_NewName==m_OldName) return false;
+    // If the next sequence didn't really change, don't put this command into the command history.
+    if (m_NewNext==m_OldNext) return false;
 
-    // Cannot keep a reference to m_ModelDoc->GetModel()->m_Joints[m_JointNr],
-    // because it's bound to become invalid whenever another command meddles with the array of joints.
-    m_ModelDoc->GetModel()->m_Joints[m_JointNr].Name=m_NewName;
+    // Cannot keep a reference to m_ModelDoc->GetModel()->m_Anims[m_AnimNr] as a member,
+    // because it's bound to become invalid whenever another command meddles with the array of anims.
+    CafuModelT::AnimT& Anim=m_ModelDoc->GetModel()->m_Anims[m_AnimNr];
 
-    m_ModelDoc->UpdateAllObservers_JointChanged(m_JointNr);
+    Anim.Next=m_NewNext;
+
+    m_ModelDoc->UpdateAllObservers_AnimChanged(m_AnimNr);
     m_Done=true;
     return true;
 }
 
 
-void CommandRenameJointT::Undo()
+void CommandSetAnimNextT::Undo()
 {
     wxASSERT(m_Done);
     if (!m_Done) return;
 
-    // Cannot keep a reference to m_ModelDoc->GetModel()->m_Joints[m_JointNr],
-    // because it's bound to become invalid whenever another command meddles with the array of joints.
-    m_ModelDoc->GetModel()->m_Joints[m_JointNr].Name=m_OldName;
+    // Cannot keep a reference to m_ModelDoc->GetModel()->m_Anims[m_AnimNr] as a member,
+    // because it's bound to become invalid whenever another command meddles with the array of anims.
+    CafuModelT::AnimT& Anim=m_ModelDoc->GetModel()->m_Anims[m_AnimNr];
 
-    m_ModelDoc->UpdateAllObservers_JointChanged(m_JointNr);
+    Anim.Next=m_OldNext;
+
+    m_ModelDoc->UpdateAllObservers_AnimChanged(m_AnimNr);
     m_Done=false;
 }
 
 
-wxString CommandRenameJointT::GetName() const
+wxString CommandSetAnimNextT::GetName() const
 {
-    return "Rename Joint";
+    return "Assign next anim sequence";
 }

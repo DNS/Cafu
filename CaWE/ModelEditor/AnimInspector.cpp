@@ -22,6 +22,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "AnimInspector.hpp"
 #include "ChildFrame.hpp"
 #include "ModelDocument.hpp"
+#include "Commands/Rename.hpp"
+#include "Commands/SetAnimFPS.hpp"
+#include "Commands/SetAnimNext.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "Models/Model_cmdl.hpp"
 
@@ -30,7 +33,7 @@ using namespace ModelEditor;
 
 
 BEGIN_EVENT_TABLE(AnimInspectorT, wxPropertyGridManager)
-    EVT_PG_CHANGED(wxID_ANY, AnimInspectorT::OnPropertyGridChanged)
+    EVT_PG_CHANGING(wxID_ANY, AnimInspectorT::OnPropertyGridChanging)
 END_EVENT_TABLE()
 
 
@@ -64,12 +67,12 @@ void AnimInspectorT::Notify_SelectionChanged(SubjectT* Subject, ModelElementType
 }
 
 
-/*void AnimInspectorT::Notify_AnimChanged(SubjectT* Subject, unsigned int AnimNr)
+void AnimInspectorT::Notify_AnimChanged(SubjectT* Subject, unsigned int AnimNr)
 {
     if (m_IsRecursiveSelfNotify) return;
 
     RefreshPropGrid();
-}*/
+}
 
 
 void AnimInspectorT::Notify_SubjectDies(SubjectT* dyingSubject)
@@ -100,13 +103,13 @@ void AnimInspectorT::RefreshPropGrid()
     {
         const CafuModelT::AnimT& Anim=Anims[Selection[0]];
 
-        wxPGProperty* Name=Append(new wxStringProperty("Name", wxPG_LABEL, wxString::Format("Anim %u", Selection[0])));
-        DisableProperty(Name);
-
+        Append(new wxStringProperty("Name", wxPG_LABEL, Anim.Name));
         Append(new wxFloatProperty("FPS", wxPG_LABEL, Anim.FPS));
 
         wxPGProperty* NumFrames=Append(new wxIntProperty("Num Frames", wxPG_LABEL, Anim.Frames.Size()));
         DisableProperty(NumFrames);
+
+        Append(new wxIntProperty("Next sequence", wxPG_LABEL, Anim.Next));
     }
     else
     {
@@ -123,41 +126,35 @@ void AnimInspectorT::RefreshPropGrid()
 }
 
 
-void AnimInspectorT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
+void AnimInspectorT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
 {
     if (m_ModelDoc==NULL) return;
 
     const ArrayT<unsigned int>& Selection=m_ModelDoc->GetSelection(ANIM);
     if (Selection.Size()!=1) return;
 
-    const wxPGProperty* Prop=Event.GetProperty();
-    if (!Prop) return;
-
     // Changing a property by pressing ENTER doesn't change the selection. In consequence the property refresh below does not result in
     // any change since selected properties are not updated (because the user could be in the process of editing a value).
     // Since the user is definitely finished editing this property we can safely clear the selection.
     // ClearSelection();
 
-    // const ArrayT<CafuModelT::AnimT>& Anims =m_ModelDoc->GetModel()->GetAnims();
-    // const unsigned int               AnimNr=Selection[0];
-
-    // const wxString PropName  =Prop->GetName();
-    // double         PropValueD=0.0;
-    // const float    PropValueF=Prop->GetValue().Convert(&PropValueD) ? float(PropValueD) : 0.0f;
+    const unsigned int AnimNr  =Selection[0];
+    const wxString     PropName=Event.GetPropertyName();
 
     m_IsRecursiveSelfNotify=true;
+    bool ok=true;
 
-/*         if (PropName=="Name"   ) m_Parent->SubmitCommand(new CommandRenameJointT(m_ModelDoc, JointNr, Prop->GetValueAsString()));
- // else if (PropName=="Parent" ) ;
-    else if (PropName=="Pos.x"  ) { Pos.x  =PropValueF; m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 'p', Pos)); }
-    else if (PropName=="Pos.y"  ) { Pos.y  =PropValueF; m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 'p', Pos)); }
-    else if (PropName=="Pos.z"  ) { Pos.z  =PropValueF; m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 'p', Pos)); }
+         if (PropName=="Name"         ) ok=m_Parent->SubmitCommand(new CommandRenameT(m_ModelDoc, ANIM, AnimNr, Event.GetValue().GetString()));
+    else if (PropName=="FPS"          ) ok=m_Parent->SubmitCommand(new CommandSetAnimFPST(m_ModelDoc, AnimNr, Event.GetValue().GetDouble()));
+    else if (PropName=="Next sequence") ok=m_Parent->SubmitCommand(new CommandSetAnimNextT(m_ModelDoc, AnimNr, Event.GetValue().GetLong()));
     else
     {
         // Changing child properties (e.g. "Pos.x" to "5") also generates events for the composite parent (e.g. "Pos" to "(5, 0, 0)")!
         // That is, if the following line is uncommented, it produces false warnings as well:
         // wxMessageBox("Unknown property label \""+Name+"\".", "Warning", wxOK | wxICON_ERROR);
-    } */
+    }
 
+    wxASSERT(Event.CanVeto());    // EVT_PG_CHANGING events can be vetoed (as opposed to EVT_PG_CHANGED events).
+    if (!ok) Event.Veto();
     m_IsRecursiveSelfNotify=false;
 }

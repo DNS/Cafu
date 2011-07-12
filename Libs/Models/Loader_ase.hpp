@@ -79,6 +79,7 @@ class LoaderAseT : public ModelLoaderT
         void ReadMesh(TextParserT& TP);
 
         // This data is read from the file.
+        std::string       Name;           ///< Name of the object.
         ArrayT<VectorT>   Vertices;       ///< List of vertices.
         ArrayT<VectorT>   TexCoords;      ///< List of texture coordinates.
         ArrayT<TriangleT> Triangles;      ///< List of triangles.

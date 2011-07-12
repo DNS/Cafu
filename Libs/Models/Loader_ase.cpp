@@ -267,6 +267,7 @@ void LoaderAseT::ReadGeometry(TextParserT& TP)
     m_GeomObjects.PushBackEmpty();
     GeomObjectT& GO=m_GeomObjects[m_GeomObjects.Size()-1];
 
+    GO.Name="Object";
     GO.IndexMaterial=0;
     GO.CastShadows=false;
 
@@ -274,7 +275,7 @@ void LoaderAseT::ReadGeometry(TextParserT& TP)
     {
         const std::string Token=TP.GetNextToken();
 
-             if (Token=="*NODE_NAME"      ) TP.GetNextToken();              // Ignore the name of this object.
+             if (Token=="*NODE_NAME"      ) GO.Name=TP.GetNextToken();
         else if (Token=="*NODE_TM"        ) TP.SkipBlock("{", "}", false);  // Ignore the transformation matrix specification. May change my mind later, though!
         else if (Token=="*MESH"           ) GO.ReadMesh(TP);
         else if (Token=="*PROP_MOTIONBLUR") TP.GetNextToken();              // Ignore the "motion blur" property.
@@ -508,6 +509,8 @@ void LoaderAseT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
 
         const GeomObjectT& GO  =m_GeomObjects[GONr];
         CafuModelT::MeshT& Mesh=Meshes[GONr];
+
+        Mesh.Name=GO.Name;
 
         for (unsigned long TriNr=0; TriNr<GO.Triangles.Size(); TriNr++)
         {

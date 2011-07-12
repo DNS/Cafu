@@ -45,8 +45,8 @@ namespace ModelEditor
 
         // ObserverT implementation.
         void Notify_SelectionChanged(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel);
-     // void Notify_AnimChanged(SubjectT* Subject, unsigned int AnimNr);
         void Notify_MeshChanged(SubjectT* Subject, unsigned int MeshNr);
+        void Notify_AnimChanged(SubjectT* Subject, unsigned int AnimNr);
         void Notify_SubjectDies(SubjectT* dyingSubject);
 
 
@@ -55,10 +55,10 @@ namespace ModelEditor
         void InitListItems();
 
         void OnContextMenu     (wxContextMenuEvent& CE);
-     // void OnKeyDown         (wxListEvent&        LE);
+        void OnKeyDown         (wxListEvent&        LE);
         void OnItemActivated   (wxListEvent&        LE);    ///< The item has been activated (ENTER or double click).
         void OnSelectionChanged(wxListEvent&        LE);
-     // void OnEndLabelEdit    (wxListEvent&        LE);
+        void OnEndLabelEdit    (wxListEvent&        LE);
 
         DECLARE_EVENT_TABLE()
 

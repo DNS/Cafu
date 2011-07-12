@@ -22,7 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "JointInspector.hpp"
 #include "ChildFrame.hpp"
 #include "ModelDocument.hpp"
-#include "Commands/RenameJoint.hpp"
+#include "Commands/Rename.hpp"
 #include "Commands/TransformJoint.hpp"
 #include "Models/Model_cmdl.hpp"
 
@@ -165,7 +165,7 @@ void JointInspectorT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
 
     m_IsRecursiveSelfNotify=true;
 
-         if (PropName=="Name"   ) m_Parent->SubmitCommand(new CommandRenameJointT(m_ModelDoc, JointNr, Prop->GetValueAsString()));
+         if (PropName=="Name"   ) m_Parent->SubmitCommand(new CommandRenameT(m_ModelDoc, JOINT, JointNr, Prop->GetValueAsString()));
  // else if (PropName=="Parent" ) ;
     else if (PropName=="Pos.x"  ) { Pos.x  =PropValueF; m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 'p', Pos  )); }
     else if (PropName=="Pos.y"  ) { Pos.y  =PropValueF; m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 'p', Pos  )); }

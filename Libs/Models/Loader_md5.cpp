@@ -130,6 +130,8 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
 
                 TP.AssertAndSkipToken("{");
 
+                Mesh.Name="Mesh";
+
                 while (true)
                 {
                     const std::string Token=TP.GetNextToken();
@@ -217,7 +219,9 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
         {
             CafuModelT::AnimT Anim;
 
-            Anim.FPS=24.0f;
+            Anim.Name="Anim";
+            Anim.FPS =24.0f;
+            Anim.Next=-1;
 
             while (!TP.IsAtEOF())
             {

@@ -102,7 +102,7 @@ void GlobalsInspectorT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
 
     m_IsRecursiveSelfNotify=true;
 
-/*  if (PropName=="Name"   ) m_Parent->SubmitCommand(new CommandRenameJointT(m_ModelDoc, JointNr, Prop->GetValueAsString()));
+/*  if (PropName=="Name"   ) m_Parent->SubmitCommand(new CommandRenameT(m_ModelDoc, JOINT, JointNr, Prop->GetValueAsString()));
     else
     {
         // Changing child properties (e.g. "Pos.x" to "5") also generates events for the composite parent (e.g. "Pos" to "(5, 0, 0)")!

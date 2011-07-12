@@ -19,21 +19,22 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MODELEDITOR_RENAME_JOINT_HPP_
-#define _MODELEDITOR_RENAME_JOINT_HPP_
+#ifndef _MODELEDITOR_COMMAND_RENAME_HPP_
+#define _MODELEDITOR_COMMAND_RENAME_HPP_
 
 #include "../../CommandPattern.hpp"
+#include "../ModelDocument.hpp"
 
 
 namespace ModelEditor
 {
     class ModelDocumentT;
 
-    class CommandRenameJointT : public CommandT
+    class CommandRenameT : public CommandT
     {
         public:
 
-        CommandRenameJointT(ModelDocumentT* ModelDoc, unsigned int JointNr, const wxString& NewName);
+        CommandRenameT(ModelDocumentT* ModelDoc, ModelElementTypeT Type, unsigned int ElemNr, const wxString& NewName);
 
         // CommandT implementation.
         bool Do();
@@ -43,10 +44,14 @@ namespace ModelEditor
 
         private:
 
-        ModelDocumentT* m_ModelDoc;
-        unsigned int    m_JointNr;
-        std::string     m_NewName;
-        std::string     m_OldName;
+        std::string& GetStringRef() const;
+        void UpdateAllObservers() const;
+
+        ModelDocumentT*         m_ModelDoc;
+        const ModelElementTypeT m_Type;
+        const unsigned int      m_ElemNr;
+        const std::string       m_NewName;
+        const std::string       m_OldName;
     };
 }
 

@@ -80,6 +80,13 @@ void SubjectT::UpdateAllObservers_MeshChanged(unsigned int MeshNr)
 }
 
 
+void SubjectT::UpdateAllObservers_AnimChanged(unsigned int AnimNr)
+{
+    for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
+        m_Observers[ObsNr]->Notify_AnimChanged(this, AnimNr);
+}
+
+
 void SubjectT::UpdateAllObservers_AnimStateChanged()
 {
     for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)

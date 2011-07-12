@@ -33,9 +33,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 class MaterialT;
 class ModelLoaderT;
 namespace MatSys { class RenderMaterialT; }
-namespace ModelEditor { class CommandRenameJointT; }
-namespace ModelEditor { class CommandTransformJointT; }
+namespace ModelEditor { class CommandRenameT; }
+namespace ModelEditor { class CommandSetAnimFPST; }
+namespace ModelEditor { class CommandSetAnimNextT; }
 namespace ModelEditor { class CommandSetMeshMaterialT; }
+namespace ModelEditor { class CommandTransformJointT; }
 
 
 /// This class represents a native Cafu model.
@@ -110,6 +112,7 @@ class CafuModelT : public ModelT
         /// @return Whether the vertices are geometrical duplicates of each other.
         bool AreGeoDups(unsigned int Vertex1Nr, unsigned int Vertex2Nr) const;
 
+        std::string              Name;           ///< Name of this mesh.
         MaterialT*               Material;       ///< The material of this mesh.
         MatSys::RenderMaterialT* RenderMaterial; ///< The render material used to render this mesh.
         ArrayT<TriangleT>        Triangles;      ///< List of triangles this mesh consists of.
@@ -142,9 +145,9 @@ class CafuModelT : public ModelT
         };
 
 
-     // std::string        Name;            ///< Name (label) of this animation sequence.
+        std::string        Name;            ///< Name of this animation sequence.
         float              FPS;             ///< Playback rate for this animation sequence.
-     // int                Next;            ///< The sequence that should play after this. Use "this" for looping sequences, "none" for none.
+        int                Next;            ///< The sequence that should play after this. Use "this" for looping sequences, "none" for none.
      // ...                Events;          ///< E.g. "call a script function at frame 3".
         ArrayT<AnimJointT> AnimJoints;      ///< AnimJoints.Size() == m_Joints.Size()
         ArrayT<FrameT>     Frames;          ///< List of keyframes this animation consists of.
@@ -196,9 +199,11 @@ class CafuModelT : public ModelT
 
     private:
 
-    friend class ModelEditor::CommandRenameJointT;
-    friend class ModelEditor::CommandTransformJointT;
+    friend class ModelEditor::CommandRenameT;
+    friend class ModelEditor::CommandSetAnimFPST;
+    friend class ModelEditor::CommandSetAnimNextT;
     friend class ModelEditor::CommandSetMeshMaterialT;
+    friend class ModelEditor::CommandTransformJointT;
 
     void InitMeshes();                                                  ///< An auxiliary method for the constructors.
     void UpdateCachedDrawData(int SequenceNr, float FrameNr) const;     ///< A private auxiliary method.

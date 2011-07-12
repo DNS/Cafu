@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ElementsList.hpp"
 #include "ChildFrame.hpp"
 #include "ModelDocument.hpp"
+#include "Commands/Rename.hpp"
 #include "Commands/Select.hpp"
 
 #include "MaterialSystem/Material.hpp"
@@ -43,7 +44,7 @@ namespace
         ListContextMenuT() : wxMenu(), ID(-1)
         {
             Append(ID_MENU_INSPECT_EDIT, "Inspect / Edit\tEnter");
-            Append(ID_MENU_RENAME,       "Rename\tF2")->Enable(false);
+            Append(ID_MENU_RENAME,       "Rename\tF2");
 
             /* if (Type==MESH)
             {
@@ -79,16 +80,16 @@ using namespace ModelEditor;
 
 BEGIN_EVENT_TABLE(ElementsListT, wxListView)
     EVT_CONTEXT_MENU        (ElementsListT::OnContextMenu)
- // EVT_LIST_KEY_DOWN       (wxID_ANY, ElementsListT::OnKeyDown)
+    EVT_LIST_KEY_DOWN       (wxID_ANY, ElementsListT::OnKeyDown)
     EVT_LIST_ITEM_ACTIVATED (wxID_ANY, ElementsListT::OnItemActivated)
     EVT_LIST_ITEM_SELECTED  (wxID_ANY, ElementsListT::OnSelectionChanged)
     EVT_LIST_ITEM_DESELECTED(wxID_ANY, ElementsListT::OnSelectionChanged)
- // EVT_LIST_END_LABEL_EDIT (wxID_ANY, ElementsListT::OnEndLabelEdit)
+    EVT_LIST_END_LABEL_EDIT (wxID_ANY, ElementsListT::OnEndLabelEdit)
 END_EVENT_TABLE()
 
 
 ElementsListT::ElementsListT(ChildFrameT* Parent, const wxSize& Size, ModelElementTypeT Type)
-    : wxListView(Parent, wxID_ANY, wxDefaultPosition, Size, wxLC_REPORT /*| wxLC_EDIT_LABELS*/),
+    : wxListView(Parent, wxID_ANY, wxDefaultPosition, Size, wxLC_REPORT | wxLC_EDIT_LABELS),
       m_TYPE(Type),
       m_ModelDoc(Parent->GetModelDoc()),
       m_Parent(Parent),
@@ -100,8 +101,8 @@ ElementsListT::ElementsListT(ChildFrameT* Parent, const wxSize& Size, ModelEleme
     // // As we are now a wxAUI pane rather than a wxDialog, explicitly set that events are not propagated to our parent.
     // SetExtraStyle(wxWS_EX_BLOCK_EVENTS);
 
-    InsertColumn(0, "#");
-    InsertColumn(1, "Name");
+    InsertColumn(0, "Name");
+    InsertColumn(1, "#");
     if (m_TYPE==MESH) InsertColumn(2, "Material");
 
     m_ModelDoc->RegisterObserver(this);
@@ -144,6 +145,15 @@ void ElementsListT::Notify_MeshChanged(SubjectT* Subject, unsigned int MeshNr)
 }
 
 
+void ElementsListT::Notify_AnimChanged(SubjectT* Subject, unsigned int AnimNr)
+{
+    if (m_IsRecursiveSelfNotify) return;
+    if (m_TYPE!=ANIM) return;
+
+    InitListItems();
+}
+
+
 void ElementsListT::Notify_SubjectDies(SubjectT* dyingSubject)
 {
     wxASSERT(dyingSubject==m_ModelDoc);
@@ -159,13 +169,22 @@ void ElementsListT::InitListItems()
     const unsigned long         NumElems=(m_TYPE==MESH) ? m_ModelDoc->GetModel()->GetMeshes().Size() : m_ModelDoc->GetModel()->GetAnims().Size();
     const ArrayT<unsigned int>& Sel     =m_ModelDoc->GetSelection(m_TYPE);
 
+    Freeze();
     DeleteAllItems();
 
     for (unsigned long ElemNr=0; ElemNr<NumElems; ElemNr++)
     {
-        InsertItem(ElemNr, wxString::Format("%lu", ElemNr));
-        SetItem(ElemNr, 1, wxString(m_TYPE==MESH ? "Mesh" : "Anim") + wxString::Format(" %lu", ElemNr));
-        if (m_TYPE==MESH) SetItem(ElemNr, 2, m_ModelDoc->GetModel()->GetMeshes()[ElemNr].Material->Name);
+        if (m_TYPE==MESH)
+        {
+            InsertItem(ElemNr, m_ModelDoc->GetModel()->GetMeshes()[ElemNr].Name);
+            SetItem(ElemNr, 1, wxString::Format("%lu", ElemNr));
+            SetItem(ElemNr, 2, m_ModelDoc->GetModel()->GetMeshes()[ElemNr].Material->Name);
+        }
+        else
+        {
+            InsertItem(ElemNr, m_ModelDoc->GetModel()->GetAnims()[ElemNr].Name);
+            SetItem(ElemNr, 1, wxString::Format("%lu", ElemNr));
+        }
 
         if (Sel.Find(ElemNr)!=-1) Select(ElemNr);
     }
@@ -173,6 +192,8 @@ void ElementsListT::InitListItems()
     // Set the widths of the columns to the width of their longest item.
     for (int ColNr=0; ColNr<GetColumnCount(); ColNr++)
         SetColumnWidth(ColNr, wxLIST_AUTOSIZE);
+
+    Thaw();
 }
 
 
@@ -190,13 +211,17 @@ void ElementsListT::OnContextMenu(wxContextMenuEvent& CE)
             break;
 
         case ListContextMenuT::ID_MENU_RENAME:
-            // EditLabel(...);
+        {
+            const long SelNr=GetFirstSelected();
+
+            if (SelNr!=-1) EditLabel(SelNr);
             break;
+        }
     }
 }
 
 
-/*void ElementsListT::OnKeyDown(wxListEvent& LE)
+void ElementsListT::OnKeyDown(wxListEvent& LE)
 {
     switch (LE.GetKeyCode())
     {
@@ -212,7 +237,7 @@ void ElementsListT::OnContextMenu(wxContextMenuEvent& CE)
             LE.Skip();
             break;
     }
-}*/
+}
 
 
 void ElementsListT::OnItemActivated(wxListEvent& LE)
@@ -244,14 +269,13 @@ void ElementsListT::OnSelectionChanged(wxListEvent& LE)
 }
 
 
-/*void ElementsListT::OnEndLabelEdit(wxListEvent& LE)
+void ElementsListT::OnEndLabelEdit(wxListEvent& LE)
 {
-    const unsigned long Index=LE.GetIndex();
+    const unsigned int Index=LE.GetIndex();
 
     if (LE.IsEditCancelled()) return;
-    // if (Index>=m_ModelDoc->GetGroups().Size()) return;
 
     m_IsRecursiveSelfNotify=true;
-    // m_ModelDoc->GetHistory().SubmitCommand(new CommandGroupSetPropT(*MapDoc, MapDoc->GetGroups()[Index], LE.GetLabel()));
+    m_Parent->SubmitCommand(new CommandRenameT(m_ModelDoc, m_TYPE, Index, LE.GetLabel()));
     m_IsRecursiveSelfNotify=false;
-}*/
+}

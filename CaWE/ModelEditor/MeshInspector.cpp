@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MeshInspector.hpp"
 #include "ChildFrame.hpp"
 #include "ModelDocument.hpp"
+#include "Commands/Rename.hpp"
 #include "Commands/SetMeshMaterial.hpp"
 
 #include "../EditorMaterial.hpp"
@@ -158,9 +159,7 @@ void MeshInspectorT::RefreshPropGrid()
     {
         const CafuModelT::MeshT& Mesh=Meshes[Selection[0]];
 
-        wxPGProperty* Name=Append(new wxStringProperty("Name", wxPG_LABEL, wxString::Format("Mesh %u", Selection[0])));
-        DisableProperty(Name);
-
+        Append(new wxStringProperty("Name", wxPG_LABEL, Mesh.Name));
         Append(new MaterialPropertyT("Material", wxPG_LABEL, Mesh.Material ? Mesh.Material->Name : "<NULL>", m_ModelDoc));
 
         wxPGProperty* UseGivenTS=Append(new wxBoolProperty("Use given TS", wxPG_LABEL, false));
@@ -208,7 +207,7 @@ void MeshInspectorT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
     m_IsRecursiveSelfNotify=true;
     bool ok=true;
 
-         if (PropName=="Name"    ) /*ok=m_Parent->SubmitCommand(new CommandRenameMeshT(m_ModelDoc, MeshNr, Prop->GetValueAsString()))*/;
+         if (PropName=="Name"    ) ok=m_Parent->SubmitCommand(new CommandRenameT(m_ModelDoc, MESH, MeshNr, Event.GetValue().GetString()));
     else if (PropName=="Material") ok=m_Parent->SubmitCommand(new CommandSetMeshMaterialT(m_ModelDoc, MeshNr, Event.GetValue().GetString()));
     else
     {

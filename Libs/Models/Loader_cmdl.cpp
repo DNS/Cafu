@@ -121,7 +121,7 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Me
             {
                 lua_getfield(m_LuaState, -1, "name");
                 const char* Name=lua_tostring(m_LuaState, -1);
-                Joint.Name=Name ? Name : "<NULL>";
+                Joint.Name=Name ? Name : "Joint";
                 lua_pop(m_LuaState, 1);
 
                 lua_getfield(m_LuaState, -1, "parent");
@@ -158,6 +158,13 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Me
 
             lua_rawgeti(m_LuaState, -1, MeshNr+1);
             {
+                lua_getfield(m_LuaState, -1, "name");
+                {
+                    const char* Name=lua_tostring(m_LuaState, -1);
+                    Mesh.Name=Name ? Name : "Mesh";
+                }
+                lua_pop(m_LuaState, 1);
+
                 lua_getfield(m_LuaState, -1, "Material");
                 {
                     const char*       s=lua_tostring(m_LuaState, -1);
@@ -270,8 +277,19 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Me
 
             lua_rawgeti(m_LuaState, -1, AnimNr+1);
             {
+                lua_getfield(m_LuaState, -1, "name");
+                {
+                    const char* Name=lua_tostring(m_LuaState, -1);
+                    Anim.Name=Name ? Name : "Anim";
+                }
+                lua_pop(m_LuaState, 1);
+
                 lua_getfield(m_LuaState, -1, "FPS");
                 Anim.FPS=float(lua_tonumber(m_LuaState, -1));
+                lua_pop(m_LuaState, 1);
+
+                lua_getfield(m_LuaState, -1, "next");
+                Anim.Next=lua_tointeger(m_LuaState, -1);
                 lua_pop(m_LuaState, 1);
 
                 lua_getfield(m_LuaState, -1, "AnimJoints");

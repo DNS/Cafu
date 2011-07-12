@@ -275,6 +275,7 @@ void LoaderLwoT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
             MatToMeshNr[Poly.surf]=Meshes.Size()-1;
             CafuModelT::MeshT& Mesh=Meshes[Meshes.Size()-1];
 
+            Mesh.Name="Mesh";
             Mesh.Material=MaterialMan.GetMaterial(Poly.surf->name);
 
             if (!Mesh.Material)

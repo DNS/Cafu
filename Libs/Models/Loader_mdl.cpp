@@ -280,13 +280,21 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
 
             for (CafuMeshNr=FirstMeshInModel; CafuMeshNr<Meshes.Size(); CafuMeshNr++)
                 if (Meshes[CafuMeshNr].Material==Material)
+                {
+                    if (Meshes[CafuMeshNr].Name.find(CurrentBodyPart.Name)==std::string::npos)
+                    {
+                        Meshes[CafuMeshNr].Name+=", ";
+                        Meshes[CafuMeshNr].Name+=CurrentBodyPart.Name;
+                    }
                     break;
+                }
 
             // None found, create a new one.
             if (CafuMeshNr>=Meshes.Size())
             {
                 Meshes.PushBackEmpty();
 
+                Meshes[CafuMeshNr].Name    =CurrentBodyPart.Name;
                 Meshes[CafuMeshNr].Material=Material;
 
                 Meshes[CafuMeshNr].Weights.PushBackEmptyExact(CurrentModel.NumVerts);
@@ -411,7 +419,7 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::AnimT>& Anims) const
         if (Sequ.NumFrames<1) continue;
 
         // Gather all animation data of this sequence in uncompressed form in AllData[BoneNr][FrameNr].
-        // That is, for each frame and for each bone, we store the position and quaterion.
+        // That is, for each frame and for each bone, we store the position and quaternion.
         ArrayT< ArrayT<PosQtrT> > AllData;
 
         AllData.PushBackEmptyExact(StudioHeader->NumBones);
@@ -474,9 +482,9 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::AnimT>& Anims) const
         CafuModelT::AnimT& Anim=Anims[SequNr];
         unsigned int       AnimData_Size=0;   // The current common value of Anim.Frames[FrameNr].AnimData.Size(), always the same for all frames.
 
-     // Anim.Name=Sequ.Label;
+        Anim.Name=Sequ.Label;
         Anim.FPS =Sequ.FPS;
-     // Anim.Next=-1;
+        Anim.Next=(Sequ.Flags & 1) ? SequNr : -1;
 
         Anim.AnimJoints.PushBackEmptyExact(StudioHeader->NumBones);
         Anim.Frames.PushBackEmptyExact(Sequ.NumFrames);
@@ -519,7 +527,7 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::AnimT>& Anims) const
         }
 
         // If it is a looping sequence whose last frame is a repetition of the first,
-        // remove the redundant frame (our own code automatically wrap at the end of the sequence).
+        // remove the redundant frame (our own code automatically wraps at the end of the sequence).
         if (Sequ.Flags & 1) Anim.Frames.DeleteBack();
 
         // Fill in the bounding-box for each frame from the sequence BB from the mdl file, which doesn't keep per-frame BBs.

@@ -19,42 +19,34 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MODELEDITOR_ANIM_INSPECTOR_HPP_
-#define _MODELEDITOR_ANIM_INSPECTOR_HPP_
+#ifndef _MODELEDITOR_SET_ANIM_NEXT_HPP_
+#define _MODELEDITOR_SET_ANIM_NEXT_HPP_
 
-#include "ObserverPattern.hpp"
-#include "wx/wx.h"
-#include "wx/propgrid/manager.h"
+#include "../../CommandPattern.hpp"
 
 
 namespace ModelEditor
 {
-    class ChildFrameT;
     class ModelDocumentT;
 
-    class AnimInspectorT : public wxPropertyGridManager, public ObserverT
+    class CommandSetAnimNextT : public CommandT
     {
         public:
 
-        AnimInspectorT(ChildFrameT* Parent, const wxSize& Size);
-        ~AnimInspectorT();
+        CommandSetAnimNextT(ModelDocumentT* ModelDoc, unsigned int AnimNr, int NewNext);
 
-        // ObserverT implementation.
-        void Notify_SelectionChanged(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel);
-        void Notify_AnimChanged(SubjectT* Subject, unsigned int AnimNr);
-        void Notify_SubjectDies(SubjectT* dyingSubject);
+        // CommandT implementation.
+        bool Do();
+        void Undo();
+        wxString GetName() const;
 
 
         private:
 
-        void RefreshPropGrid();
-        void OnPropertyGridChanging(wxPropertyGridEvent& Event);
-
-        DECLARE_EVENT_TABLE()
-
-        ModelDocumentT*      m_ModelDoc;
-        ChildFrameT*         m_Parent;
-        bool                 m_IsRecursiveSelfNotify;
+        ModelDocumentT*    m_ModelDoc;
+        const unsigned int m_AnimNr;
+        const int          m_NewNext;
+        const int          m_OldNext;
     };
 }
 
