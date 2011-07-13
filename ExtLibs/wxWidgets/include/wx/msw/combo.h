@@ -83,6 +83,9 @@ protected:
 
 protected:
 
+    // Dummy method - we override all functions that call this
+    virtual WXHWND GetEditHWND() const { return NULL; }
+
     // customization
     virtual void OnResize();
     virtual wxCoord GetNativeTextIndent() const;
@@ -90,6 +93,8 @@ protected:
     // event handlers
     void OnPaintEvent( wxPaintEvent& event );
     void OnMouseEvent( wxMouseEvent& event );
+
+    virtual bool HasTransparentBackground() { return IsDoubleBuffered(); }
 
 private:
     void Init();

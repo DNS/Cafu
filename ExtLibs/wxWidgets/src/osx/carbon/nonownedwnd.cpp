@@ -3,7 +3,7 @@
 // Purpose:     implementation of wxNonOwnedWindow
 // Author:      Stefan Csomor
 // Created:     2008-03-24
-// RCS-ID:      $Id: nonownedwnd.cpp 50329 2007-11-29 17:00:58Z VS $
+// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor 2008
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -237,12 +237,12 @@ void wxNonOwnedWindowCarbonImpl::MacSetUnifiedAppearance( bool set )
         set ? kWindowNoAttributes : kWindowUnifiedTitleAndToolbarAttribute) ;
 
     // For some reason, Tiger uses white as the background color for this appearance,
-    // while most apps using it use the typical striped background. Restore that behavior
+    // while most apps using it use the typical striped background. Restore that behaviour
     // for wx.
     // TODO: Determine if we need this on Leopard as well. (should be harmless either way,
     // though)
     // since when creating the peering is not yet completely set-up we call both setters
-    // explicitely
+    // explicitly
     m_wxPeer->SetBackgroundColour( wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW) ) ;
     SetBackgroundColour( wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW) ) ;
 }
@@ -323,17 +323,13 @@ static pascal OSStatus KeyboardEventHandler( EventHandlerCallRef handler , Event
         GetEventParameter( event, kEventParamKeyUnicodes, typeUnicodeText, NULL, dataSize , NULL , charBuf ) ;
         charBuf[ numChars - 1 ] = 0;
 
-#if SIZEOF_WCHAR_T == 2
-        uniChar = charBuf[0] ;
-#else
         wxMBConvUTF16 converter ;
         converter.MB2WC( uniChar , (const char*)charBuf , 2 ) ;
-#endif
 
         if ( numChars * 2 > 4 )
             delete[] charBuf ;
     }
-#endif
+#endif // wxUSE_UNICODE
 
     GetEventParameter( event, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(char), NULL, &charCode );
     GetEventParameter( event, kEventParamKeyCode, typeUInt32, NULL, sizeof(UInt32), NULL, &keyCode );
@@ -722,8 +718,8 @@ wxMacTopLevelMouseEventHandler(EventHandlerCallRef WXUNUSED(handler),
 
         if ( currentMouseWindow->HandleWindowEvent(wxevent) )
         {
-            if ((currentMouseWindowParent != NULL) &&
-                (currentMouseWindowParent->GetChildren().Find(currentMouseWindow) == NULL))
+            if ( currentMouseWindowParent &&
+                 !currentMouseWindowParent->GetChildren().Member(currentMouseWindow) )
                 currentMouseWindow = NULL;
 
             result = noErr;

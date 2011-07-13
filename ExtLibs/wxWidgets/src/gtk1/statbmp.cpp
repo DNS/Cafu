@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        statbmp.cpp
+// Name:        src/gtk1/statbmp.cpp
 // Purpose:
 // Author:      Robert Roebling
 // Id:          $Id$
@@ -20,8 +20,6 @@
 //-----------------------------------------------------------------------------
 // wxStaticBitmap
 //-----------------------------------------------------------------------------
-
-IMPLEMENT_DYNAMIC_CLASS(wxStaticBitmap,wxControl)
 
 wxStaticBitmap::wxStaticBitmap(void)
 {
@@ -56,10 +54,10 @@ bool wxStaticBitmap::Create( wxWindow *parent, wxWindowID id, const wxBitmap &bi
 
     m_bitmap = bitmap;
 
-    wxBitmap bmp(bitmap.Ok() ? bitmap : wxBitmap(bogus_xpm));
+    wxBitmap bmp(bitmap.IsOk() ? bitmap : wxBitmap(bogus_xpm));
     m_widget = gtk_pixmap_new(bmp.GetPixmap(), NULL);
 
-    if (bitmap.Ok())
+    if (bitmap.IsOk())
         SetBitmap(bitmap);
 
     PostCreation(size);
@@ -72,7 +70,7 @@ void wxStaticBitmap::SetBitmap( const wxBitmap &bitmap )
 {
     m_bitmap = bitmap;
 
-    if (m_bitmap.Ok())
+    if (m_bitmap.IsOk())
     {
         GdkBitmap *mask = NULL;
         if (m_bitmap.GetMask())

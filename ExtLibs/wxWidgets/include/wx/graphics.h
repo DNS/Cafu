@@ -27,6 +27,20 @@ enum wxAntialiasMode
     wxANTIALIAS_DEFAULT,
 };
 
+enum wxInterpolationQuality
+{
+    // default interpolation
+    wxINTERPOLATION_DEFAULT,
+    // no interpolation
+    wxINTERPOLATION_NONE, 
+    // fast interpolation, suited for interactivity
+    wxINTERPOLATION_FAST,
+    // better quality
+    wxINTERPOLATION_GOOD,
+    // best quality, not suited for interactivity
+    wxINTERPOLATION_BEST
+};
+
 enum wxCompositionMode
 {
     // R = Result, S = Source, D = Destination, premultiplied with alpha
@@ -35,6 +49,7 @@ enum wxCompositionMode
     // classic Porter-Duff compositions
     // http://keithp.com/~keithp/porterduff/p253-porter.pdf
 
+    wxCOMPOSITION_INVALID = -1, /* indicates invalid/unsupported mode */
     wxCOMPOSITION_CLEAR, /* R = 0 */
     wxCOMPOSITION_SOURCE, /* R = S */
     wxCOMPOSITION_OVER, /* R = S + D*(1 - Sa) */
@@ -50,14 +65,18 @@ enum wxCompositionMode
     wxCOMPOSITION_XOR, /* R = S*(1 - Da) + D*(1 - Sa) */
 
     // mathematical compositions
-    wxCOMPOSITION_ADD, /* R = S + D */
+    wxCOMPOSITION_ADD /* R = S + D */
 };
 
 class WXDLLIMPEXP_FWD_CORE wxWindowDC;
 class WXDLLIMPEXP_FWD_CORE wxMemoryDC;
 #if wxUSE_PRINTING_ARCHITECTURE
 class WXDLLIMPEXP_FWD_CORE wxPrinterDC;
+#endif
+#ifdef __WXMSW__
+#if wxUSE_ENH_METAFILE
 class WXDLLIMPEXP_FWD_CORE wxEnhMetaFileDC;
+#endif
 #endif
 class WXDLLIMPEXP_FWD_CORE wxGraphicsContext;
 class WXDLLIMPEXP_FWD_CORE wxGraphicsPath;
@@ -393,10 +412,12 @@ public:
     static wxGraphicsContext * Create( const wxMemoryDC& dc);
 #if wxUSE_PRINTING_ARCHITECTURE
     static wxGraphicsContext * Create( const wxPrinterDC& dc);
+#endif
 #ifdef __WXMSW__
+#if wxUSE_ENH_METAFILE
     static wxGraphicsContext * Create( const wxEnhMetaFileDC& dc);
 #endif
-#endif // wxUSE_PRINTING_ARCHITECTURE
+#endif
 
     static wxGraphicsContext* CreateFromNative( void * context );
 
@@ -490,6 +511,12 @@ public:
     // sets the antialiasing mode, returns true if it supported
     virtual bool SetAntialiasMode(wxAntialiasMode antialias) = 0;
 
+    // returns the current interpolation quality
+    virtual wxInterpolationQuality GetInterpolationQuality() const { return m_interpolation; }
+    
+    // sets the interpolation quality, returns true if it supported
+    virtual bool SetInterpolationQuality(wxInterpolationQuality interpolation) = 0;
+    
     // returns the current compositing operator
     virtual wxCompositionMode GetCompositionMode() const { return m_composition; }
 
@@ -497,7 +524,13 @@ public:
     virtual bool SetCompositionMode(wxCompositionMode op) = 0;
 
     // returns the size of the graphics context in device coordinates
-    virtual void GetSize( wxDouble* width, wxDouble* height);
+    void GetSize(wxDouble* width, wxDouble* height)
+    {
+        if ( width )
+            *width = m_width;
+        if ( height )
+            *height = m_height;
+    }
 
     // returns the resolution of the graphics context in device points per inch
     virtual void GetDPI( wxDouble* dpiX, wxDouble* dpiY);
@@ -630,14 +663,26 @@ public:
 
     // helper to determine if a 0.5 offset should be applied for the drawing operation
     virtual bool ShouldOffset() const { return false; }
-
+    
+    // indicates whether the context should try to offset for pixel boundaries, this only makes sense on 
+    // bitmap devices like screen, by default this is turned off
+    virtual void EnableOffset(bool enable = true);
+    
+    void DisableOffset() { EnableOffset(false); }
+    bool OffsetEnabled() { return m_enableOffset; }
+    
 protected:
+    // These fields must be initialized in the derived class ctors.
+    wxDouble m_width,
+             m_height;
 
     wxGraphicsPen m_pen;
     wxGraphicsBrush m_brush;
     wxGraphicsFont m_font;
     wxAntialiasMode m_antialias;
     wxCompositionMode m_composition;
+    wxInterpolationQuality m_interpolation;
+    bool m_enableOffset;
 
 protected:
     // implementations of overloaded public functions: we use different names
@@ -714,10 +759,12 @@ public:
     virtual wxGraphicsContext * CreateContext( const wxMemoryDC& dc) = 0;
 #if wxUSE_PRINTING_ARCHITECTURE
     virtual wxGraphicsContext * CreateContext( const wxPrinterDC& dc) = 0;
+#endif
 #ifdef __WXMSW__
+#if wxUSE_ENH_METAFILE
     virtual wxGraphicsContext * CreateContext( const wxEnhMetaFileDC& dc) = 0;
 #endif
-#endif // wxUSE_PRINTING_ARCHITECTURE
+#endif
 
     virtual wxGraphicsContext * CreateContextFromNativeContext( void * context ) = 0;
 

@@ -408,7 +408,7 @@ public:
     void Centre(int dir = wxBOTH) { DoCentre(dir); }
     void Center(int dir = wxBOTH) { DoCentre(dir); }
 
-        // centre with respect to the the parent window
+        // centre with respect to the parent window
     void CentreOnParent(int dir = wxBOTH) { DoCentre(dir); }
     void CenterOnParent(int dir = wxBOTH) { CentreOnParent(dir); }
 
@@ -446,7 +446,7 @@ public:
 
 
         // Call these to override what GetBestSize() returns. This
-        // method is only virtual because it is overriden in wxTLW
+        // method is only virtual because it is overridden in wxTLW
         // as a different API for SetSizeHints().
     virtual void SetMinSize(const wxSize& minSize);
     virtual void SetMaxSize(const wxSize& maxSize);
@@ -480,7 +480,7 @@ public:
         // windows this is just the client area of the window, but for
         // some like scrolled windows it is more or less independent of
         // the screen window size.  You may override the DoXXXVirtual
-        // methods below for classes where that is is the case.
+        // methods below for classes where that is the case.
 
     void SetVirtualSize( const wxSize &size ) { DoSetVirtualSize( size.x, size.y ); }
     void SetVirtualSize( int x, int y ) { DoSetVirtualSize( x, y ); }
@@ -525,12 +525,7 @@ public:
     // tells the item how much more space there is available in the opposite
     // direction (-1 if unknown).
     virtual bool
-    InformFirstDirection(int WXUNUSED(direction),
-                         int WXUNUSED(size),
-                         int WXUNUSED(availableOtherDir))
-    {
-        return false;
-    }
+    InformFirstDirection(int direction, int size, int availableOtherDir);
 
     // sends a size event to the window using its current size -- this has an
     // effect of refreshing the window layout
@@ -1370,10 +1365,11 @@ public:
 
         // virtual function for implementing internal idle
         // behaviour
-        virtual void OnInternalIdle() {}
+        virtual void OnInternalIdle();
 
-        // call internal idle recursively
-//        void ProcessInternalIdle() ;
+    // Send idle event to window and all subwindows
+    // Returns true if more idle time is requested.
+    virtual bool SendIdleEvents(wxIdleEvent& event);
 
         // get the handle of the window for the underlying window system: this
         // is only used for wxWin itself or for user code which wants to call
@@ -1662,7 +1658,7 @@ protected:
     // (GetBorderSize() will be used to add them)
     virtual wxSize DoGetBestClientSize() const { return wxDefaultSize; }
 
-    // this is the virtual function to be overriden in any derived class which
+    // this is the virtual function to be overridden in any derived class which
     // wants to change how SetSize() or Move() works - it is called by all
     // versions of these functions in the base class
     virtual void DoSetSize(int x, int y,

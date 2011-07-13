@@ -24,8 +24,6 @@
 
 #include "wx/osx/private.h"
 
-IMPLEMENT_DYNAMIC_CLASS(wxCheckListBox, wxListBox)
-
 BEGIN_EVENT_TABLE(wxCheckListBox, wxListBox)
 END_EVENT_TABLE()
 
@@ -58,9 +56,8 @@ bool wxCheckListBox::Create(
    long style,
    const wxValidator& validator,
    const wxString& name )
-{
-    m_macIsUserPane = false;
-
+{    
+    
     wxASSERT_MSG( !(style & wxLB_MULTIPLE) || !(style & wxLB_EXTENDED),
                   wxT("only one of listbox selection modes can be specified") );
 

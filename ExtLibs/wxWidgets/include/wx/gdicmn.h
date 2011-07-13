@@ -524,6 +524,18 @@ public:
 
     wxPoint& operator+=(const wxSize& s) { x += s.GetWidth(); y += s.GetHeight(); return *this; }
     wxPoint& operator-=(const wxSize& s) { x -= s.GetWidth(); y -= s.GetHeight(); return *this; }
+
+    // check if both components are set/initialized
+    bool IsFullySpecified() const { return x != wxDefaultCoord && y != wxDefaultCoord; }
+
+    // fill in the unset components with the values from the other point
+    void SetDefaults(const wxPoint& pt)
+    {
+        if ( x == wxDefaultCoord )
+            x = pt.x;
+        if ( y == wxDefaultCoord )
+            y = pt.y;
+    }
 };
 
 
@@ -713,7 +725,7 @@ public:
     wxPoint GetTopRight() const { return wxPoint(GetRight(), GetTop()); }
     wxPoint GetRightTop() const { return GetTopRight(); }
     void SetTopRight(const wxPoint &p) { SetRight(p.x); SetTop(p.y); }
-    void SetRightTop(const wxPoint &p) { SetTopLeft(p); }
+    void SetRightTop(const wxPoint &p) { SetTopRight(p); }
 
     wxPoint GetBottomLeft() const { return wxPoint(GetLeft(), GetBottom()); }
     wxPoint GetLeftBottom() const { return GetBottomLeft(); }
@@ -888,7 +900,7 @@ class WXDLLIMPEXP_CORE wxResourceCache: public wxList
 {
 public:
     wxResourceCache() { }
-#if !wxUSE_STL
+#if !wxUSE_STD_CONTAINERS
     wxResourceCache(const unsigned int keyType) : wxList(keyType) { }
 #endif
     virtual ~wxResourceCache();

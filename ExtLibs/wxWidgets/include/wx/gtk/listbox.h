@@ -82,11 +82,7 @@ public:
 
     // implementation from now on
 
-    GtkWidget *GetConnectWidget();
-
-#if wxUSE_TOOLTIPS
-    void GTKApplyToolTip( GtkTooltips *tips, const gchar *tip );
-#endif // wxUSE_TOOLTIPS
+    virtual GtkWidget *GetConnectWidget();
 
     struct _GtkTreeView   *m_treeview;
     struct _GtkListStore  *m_liststore;
@@ -99,6 +95,9 @@ public:
 
     void GTKDisableEvents();
     void GTKEnableEvents();
+
+    void GTKOnSelectionChanged();
+    void GTKOnActivated(int item);
 
 protected:
     virtual void DoClear();

@@ -105,6 +105,8 @@ IMPLEMENT_DYNAMIC_CLASS(wxSharedDCBufferManager, wxModule)
 
 void wxBufferedDC::UseBuffer(wxCoord w, wxCoord h)
 {
+    wxCHECK_RET( w >= -1 && h >= -1, "Invalid buffer size" );
+
     if ( !m_buffer || !m_buffer->IsOk() )
     {
         if ( w == -1 || h == -1 )
@@ -129,6 +131,9 @@ void wxBufferedDC::UnMask()
 
     wxCoord x = 0,
             y = 0;
+
+    // Ensure the scale matches the device
+    SetUserScale(1.0, 1.0);
 
     if ( m_style & wxBUFFER_CLIENT_AREA )
         GetDeviceOrigin(&x, &y);

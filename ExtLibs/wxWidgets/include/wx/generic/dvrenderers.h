@@ -23,7 +23,25 @@ public:
                               wxDataViewCellMode mode = wxDATAVIEW_CELL_INERT,
                               int align = wxDVR_DEFAULT_ALIGNMENT );
 
-    virtual wxDataViewCustomRenderer *WXGetAsCustom() { return this; }
+
+    // see the explanation of the following WXOnXXX() methods in wx/generic/dvrenderer.h
+
+    virtual bool WXOnActivate(const wxRect& cell,
+                              wxDataViewModel *model,
+                              const wxDataViewItem& item,
+                              unsigned int col)
+    {
+        return Activate(cell, model, item, col);
+    }
+
+    virtual bool WXOnLeftClick(const wxPoint& cursor,
+                               const wxRect& cell,
+                               wxDataViewModel *model,
+                               const wxDataViewItem &item,
+                               unsigned int col)
+    {
+        return LeftClick(cursor, cell, model, item, col);
+    }
 
 private:
     DECLARE_DYNAMIC_CLASS_NO_COPY(wxDataViewCustomRenderer)
@@ -49,9 +67,9 @@ public:
 
     // in-place editing
     virtual bool HasEditorCtrl() const;
-    virtual wxControl* CreateEditorCtrl( wxWindow *parent, wxRect labelRect,
-                                         const wxVariant &value );
-    virtual bool GetValueFromEditorCtrl( wxControl* editor, wxVariant &value );
+    virtual wxWindow* CreateEditorCtrl( wxWindow *parent, wxRect labelRect,
+                                        const wxVariant &value );
+    virtual bool GetValueFromEditorCtrl( wxWindow* editor, wxVariant &value );
 
 protected:
     wxString   m_text;
@@ -103,10 +121,11 @@ public:
     wxSize GetSize() const;
 
     // Implementation only, don't use nor override
-    virtual void WXOnActivate(wxDataViewModel *model,
-                              const wxVariant& valueOld,
-                              const wxDataViewItem& item,
-                              unsigned int col);
+    virtual bool WXOnLeftClick(const wxPoint& cursor,
+                               const wxRect& cell,
+                               wxDataViewModel *model,
+                               const wxDataViewItem& item,
+                               unsigned int col);
 private:
     bool    m_toggle;
 
@@ -158,9 +177,9 @@ public:
     virtual wxSize GetSize() const;
 
     virtual bool HasEditorCtrl() const { return true; }
-    virtual wxControl* CreateEditorCtrl( wxWindow *parent, wxRect labelRect,
-                                         const wxVariant &value );
-    virtual bool GetValueFromEditorCtrl( wxControl* editor, wxVariant &value );
+    virtual wxWindow* CreateEditorCtrl( wxWindow *parent, wxRect labelRect,
+                                        const wxVariant &value );
+    virtual bool GetValueFromEditorCtrl( wxWindow* editor, wxVariant &value );
 
 private:
     wxDataViewIconText   m_value;
@@ -187,8 +206,8 @@ public:
     virtual wxSize GetSize() const;
 
     // Implementation only, don't use nor override
-    virtual void WXOnActivate(wxDataViewModel *model,
-                              const wxVariant& valueOld,
+    virtual bool WXOnActivate(const wxRect& cell,
+                              wxDataViewModel *model,
                               const wxDataViewItem& item,
                               unsigned int col);
 

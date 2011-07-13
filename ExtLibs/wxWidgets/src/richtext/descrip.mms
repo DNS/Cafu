@@ -2,7 +2,7 @@
 #                                                                            *
 # Make file for VMS                                                          *
 # Author : J.Jansen (joukj@hrem.nano.tudelft.nl)                             *
-# Date : 3 October 2009                                                      *
+# Date : 14 December 2010                                                    *
 #                                                                            *
 #*****************************************************************************
 .first
@@ -47,14 +47,15 @@ OBJECTS=richtextbuffer.obj,richtextctrl.obj,\
 	richtextformatdlg.obj,richtexthtml.obj,\
 	richtextindentspage.obj,richtextprint.obj,\
 	richtextstyledlg.obj,richtextstylepage.obj,richtextstyles.obj,\
-	richtextsymboldlg.obj,richtexttabspage.obj,richtextxml.obj
+	richtextsymboldlg.obj,richtexttabspage.obj,richtextxml.obj,\
+	richtextimagedlg.obj
 
 SOURCES=richtextbuffer.cpp,richtextbulletspage.cpp,richtextctrl.cpp,\
 	richtextfontpage.cpp,richtextformatdlg.cpp,richtexthtml.cpp,\
 	richtextindentspage.cpp,richtextliststylepage.cpp,richtextprint.cpp,\
 	richtextstyledlg.cpp,richtextstylepage.cpp,richtextstyles.cpp,\
-	richtextsymboldlg.cpp,richtexttabspage.cpp,richtextxml.cpp
-
+	richtextsymboldlg.cpp,richtexttabspage.cpp,richtextxml.cpp,\
+	richtextimagedlg.cpp
 
 all : $(SOURCES)
 	$(MMS)$(MMSQUALIFIERS) $(OBJECTS)
@@ -74,7 +75,10 @@ all : $(SOURCES)
 .endif
 .endif
 
+$(OBJECTS) : [--.include.wx]setup.h
+
 richtextbuffer.obj : richtextbuffer.cpp
+	cxx $(CXXFLAGS)$(CXX_DEFINE)/nowarn richtextbuffer.cpp
 richtextctrl.obj : richtextctrl.cpp
 richtextformatdlg.obj : richtextformatdlg.cpp
 richtexthtml.obj : richtexthtml.cpp
@@ -86,3 +90,4 @@ richtextstyles.obj : richtextstyles.cpp
 richtextsymboldlg.obj : richtextsymboldlg.cpp
 richtexttabspage.obj : richtexttabspage.cpp
 richtextxml.obj : richtextxml.cpp
+richtextimagedlg.obj : richtextimagedlg.cpp

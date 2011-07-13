@@ -14,10 +14,6 @@
 #ifndef _WX_PRIVATE_H_
 #define _WX_PRIVATE_H_
 
-#include "wx/osx/core/private.h"
-
-#include <Carbon/Carbon.h>
-
 #if MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_5
 typedef UInt32 URefCon;
 typedef SInt32 SRefCon;
@@ -283,7 +279,7 @@ enum {
 class WXDLLIMPEXP_CORE wxMacControl : public wxWidgetImpl
 {
 public :
-    wxMacControl( wxWindowMac* peer , bool isRootControl = false );
+    wxMacControl( wxWindowMac* peer , bool isRootControl = false, bool isUserPane = false );
     wxMacControl() ;
     virtual ~wxMacControl();
 
@@ -943,21 +939,6 @@ UPP Get##x()                                \
 }
 
 //---------------------------------------------------------------------------
-// wxMac string conversions
-//---------------------------------------------------------------------------
-
-void wxMacSetupConverters();
-void wxMacCleanupConverters();
-
-// utils.cpp
-
-// filefn.cpp
-
-WXDLLIMPEXP_BASE wxString wxMacFSRefToPath( const FSRef *fsRef , CFStringRef additionalPathComponent = NULL );
-WXDLLIMPEXP_BASE OSStatus wxMacPathToFSRef( const wxString&path , FSRef *fsRef );
-WXDLLIMPEXP_BASE wxString wxMacHFSUniStrToString( ConstHFSUniStr255Param uniname );
-
-//---------------------------------------------------------------------------
 // cocoa bridging utilities
 //---------------------------------------------------------------------------
 
@@ -986,7 +967,8 @@ const short kwxCursorSize = 11;
 const short kwxCursorSizeNESW = 12;
 const short kwxCursorSizeNWSE = 13;
 const short kwxCursorRoller = 14;
-const short kwxCursorLast = kwxCursorRoller;
+const short kwxCursorWatch = 15;
+const short kwxCursorLast = kwxCursorWatch;
 
 // exposing our fallback cursor map
 
@@ -1044,7 +1026,7 @@ public :
     virtual bool IsFullScreen() const;
 
     virtual bool ShowFullScreen(bool show, long style);
-    
+
     virtual void ShowWithoutActivating();
 
     virtual void RequestUserAttention(int flags);

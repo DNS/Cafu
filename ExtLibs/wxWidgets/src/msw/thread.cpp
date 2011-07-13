@@ -450,6 +450,7 @@ public:
     // (politely, this is not Kill()!) to do it
     wxThreadError WaitForTerminate(wxCriticalSection& cs,
                                    wxThread::ExitCode *pRc,
+                                   wxThreadWait waitMode,
                                    wxThread *threadToDelete = NULL);
 
     // kill the thread unconditionally
@@ -545,7 +546,7 @@ THREAD_RETVAL wxThreadInternal::DoThreadStart(wxThread *thread)
         // store the thread object in the TLS
         if ( !::TlsSetValue(gs_tlsThisThread, thread) )
         {
-            wxLogSysError(_("Can not start thread: error writing TLS."));
+            wxLogSysError(_("Cannot start thread: error writing TLS."));
 
             return THREAD_ERROR_EXIT;
         }
@@ -686,6 +687,8 @@ bool wxThreadInternal::Create(wxThread *thread, unsigned int stackSize)
 
 wxThreadError wxThreadInternal::Kill()
 {
+    m_thread->OnKill();
+
     if ( !::TerminateThread(m_hThread, THREAD_ERROR_EXIT) )
     {
         wxLogSysError(_("Couldn't terminate thread"));
@@ -701,6 +704,7 @@ wxThreadError wxThreadInternal::Kill()
 wxThreadError
 wxThreadInternal::WaitForTerminate(wxCriticalSection& cs,
                                    wxThread::ExitCode *pRc,
+                                   wxThreadWait waitMode,
                                    wxThread *threadToDelete)
 {
     // prevent the thread C++ object from disappearing as long as we are using
@@ -759,6 +763,8 @@ wxThreadInternal::WaitForTerminate(wxCriticalSection& cs,
         Cancel();
     }
 
+    if ( threadToDelete )
+        threadToDelete->OnDelete();
 
     // now wait for thread to finish
     if ( wxThread::IsMain() )
@@ -788,7 +794,7 @@ wxThreadInternal::WaitForTerminate(wxCriticalSection& cs,
         wxAppTraits *traits = wxTheApp ? wxTheApp->GetTraits() : NULL;
         if ( traits )
         {
-            result = traits->WaitForThread(m_hThread);
+            result = traits->WaitForThread(m_hThread, waitMode);
         }
         else // can't wait for the thread
         {
@@ -800,7 +806,7 @@ wxThreadInternal::WaitForTerminate(wxCriticalSection& cs,
         {
             case 0xFFFFFFFF:
                 // error
-                wxLogSysError(_("Can not wait for thread termination"));
+                wxLogSysError(_("Cannot wait for thread termination"));
                 Kill();
                 return wxTHREAD_KILLED;
 
@@ -877,7 +883,7 @@ bool wxThreadInternal::Suspend()
     DWORD nSuspendCount = ::SuspendThread(m_hThread);
     if ( nSuspendCount == (DWORD)-1 )
     {
-        wxLogSysError(_("Can not suspend thread %x"), m_hThread);
+        wxLogSysError(_("Cannot suspend thread %x"), m_hThread);
 
         return false;
     }
@@ -892,7 +898,7 @@ bool wxThreadInternal::Resume()
     DWORD nSuspendCount = ::ResumeThread(m_hThread);
     if ( nSuspendCount == (DWORD)-1 )
     {
-        wxLogSysError(_("Can not resume thread %x"), m_hThread);
+        wxLogSysError(_("Cannot resume thread %x"), m_hThread);
 
         return false;
     }
@@ -1077,11 +1083,8 @@ wxThreadError wxThread::Run()
 {
     wxCriticalSectionLocker lock(m_critsect);
 
-    if ( m_internal->GetState() != STATE_NEW )
-    {
-        // actually, it may be almost any state at all, not only STATE_RUNNING
-        return wxTHREAD_RUNNING;
-    }
+    wxCHECK_MSG( m_internal->GetState() == STATE_NEW, wxTHREAD_RUNNING,
+             wxT("thread may only be started once after Create()") );
 
     // the thread has just been created and is still suspended - let it run
     return Resume();
@@ -1107,7 +1110,7 @@ wxThreadError wxThread::Resume()
 // stopping thread
 // ---------------
 
-wxThread::ExitCode wxThread::Wait()
+wxThread::ExitCode wxThread::Wait(wxThreadWait waitMode)
 {
     ExitCode rc = wxUIntToPtr(THREAD_ERROR_EXIT);
 
@@ -1116,14 +1119,14 @@ wxThread::ExitCode wxThread::Wait()
     wxCHECK_MSG( !IsDetached(), rc,
                  wxT("wxThread::Wait(): can't wait for detached thread") );
 
-    (void)m_internal->WaitForTerminate(m_critsect, &rc);
+    (void)m_internal->WaitForTerminate(m_critsect, &rc, waitMode);
 
     return rc;
 }
 
-wxThreadError wxThread::Delete(ExitCode *pRc)
+wxThreadError wxThread::Delete(ExitCode *pRc, wxThreadWait waitMode)
 {
-    return m_internal->WaitForTerminate(m_critsect, pRc, this);
+    return m_internal->WaitForTerminate(m_critsect, pRc, waitMode, this);
 }
 
 wxThreadError wxThread::Kill()
@@ -1183,28 +1186,28 @@ void wxThread::SetPriority(unsigned int prio)
 
 unsigned int wxThread::GetPriority() const
 {
-    wxCriticalSectionLocker lock((wxCriticalSection &)m_critsect); // const_cast
+    wxCriticalSectionLocker lock(const_cast<wxCriticalSection &>(m_critsect));
 
     return m_internal->GetPriority();
 }
 
 unsigned long wxThread::GetId() const
 {
-    wxCriticalSectionLocker lock((wxCriticalSection &)m_critsect); // const_cast
+    wxCriticalSectionLocker lock(const_cast<wxCriticalSection &>(m_critsect));
 
     return (unsigned long)m_internal->GetId();
 }
 
 bool wxThread::IsRunning() const
 {
-    wxCriticalSectionLocker lock((wxCriticalSection &)m_critsect); // const_cast
+    wxCriticalSectionLocker lock(const_cast<wxCriticalSection &>(m_critsect));
 
     return m_internal->GetState() == STATE_RUNNING;
 }
 
 bool wxThread::IsAlive() const
 {
-    wxCriticalSectionLocker lock((wxCriticalSection &)m_critsect); // const_cast
+    wxCriticalSectionLocker lock(const_cast<wxCriticalSection &>(m_critsect));
 
     return (m_internal->GetState() == STATE_RUNNING) ||
            (m_internal->GetState() == STATE_PAUSED);
@@ -1212,14 +1215,14 @@ bool wxThread::IsAlive() const
 
 bool wxThread::IsPaused() const
 {
-    wxCriticalSectionLocker lock((wxCriticalSection &)m_critsect); // const_cast
+    wxCriticalSectionLocker lock(const_cast<wxCriticalSection &>(m_critsect));
 
     return m_internal->GetState() == STATE_PAUSED;
 }
 
 bool wxThread::TestDestroy()
 {
-    wxCriticalSectionLocker lock((wxCriticalSection &)m_critsect); // const_cast
+    wxCriticalSectionLocker lock(const_cast<wxCriticalSection &>(m_critsect));
 
     return m_internal->GetState() == STATE_CANCELED;
 }
@@ -1261,7 +1264,7 @@ bool wxThreadModule::OnInit()
         ::TlsFree(gs_tlsThisThread);
         gs_tlsThisThread = 0xFFFFFFFF;
 
-        wxLogSysError(_("Thread module initialization failed: can not store value in thread local storage"));
+        wxLogSysError(_("Thread module initialization failed: cannot store value in thread local storage"));
 
         return false;
     }

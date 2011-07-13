@@ -4,7 +4,7 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     1998-01-01
-// RCS-ID:      $Id: menuitem.cpp 54129 2008-06-11 19:30:52Z SC $
+// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -29,8 +29,6 @@ wxMenuItemImpl::~wxMenuItemImpl()
 {
 }
 
-IMPLEMENT_DYNAMIC_CLASS(wxMenuItem, wxObject)
-
 wxMenuItem::wxMenuItem(wxMenu *pParentMenu,
                        int id,
                        const wxString& t,
@@ -43,13 +41,14 @@ wxMenuItem::wxMenuItem(wxMenu *pParentMenu,
 
     // In other languages there is no difference in naming the Exit/Quit menu item between MacOS and Windows guidelines
     // therefore these item must not be translated
-    if ( wxStripMenuCodes(m_text).Upper() == wxT("EXIT") )
-        m_text = wxT("Quit\tCtrl+Q") ;
+    if (pParentMenu != NULL && !pParentMenu->GetNoEventsMode())
+        if ( wxStripMenuCodes(m_text).Upper() == wxT("EXIT") )
+            m_text = wxT("Quit\tCtrl+Q") ;
 
     m_radioGroup.start = -1;
     m_isRadioGroupStart = false;
 
-    wxString text = wxStripMenuCodes(m_text);
+    wxString text = wxStripMenuCodes(m_text, (pParentMenu != NULL && pParentMenu->GetNoEventsMode()) ? wxStrip_Accel : wxStrip_All);
     if (text.IsEmpty() && !IsSeparator())
     {
         wxASSERT_MSG(wxIsStockID(GetId()), wxT("A non-stock menu item with an empty label?"));
@@ -177,9 +176,9 @@ void wxMenuItem::UpdateItemBitmap()
     if ( !m_parentMenu )
         return;
 
-    if ( m_bitmap.Ok() )
+    if ( m_bitmap.IsOk() )
     {
-        m_peer->SetBitmap( m_bitmap );
+        GetPeer()->SetBitmap( m_bitmap );
     }
 }
 
@@ -192,11 +191,11 @@ void wxMenuItem::UpdateItemStatus()
         return ;
 
     if ( IsCheckable() && IsChecked() )
-        m_peer->Check( true );
+        GetPeer()->Check( true );
     else
-        m_peer->Check( false );
+        GetPeer()->Check( false );
 
-    m_peer->Enable( IsEnabled() );
+    GetPeer()->Enable( IsEnabled() );
 }
 
 void wxMenuItem::UpdateItemText()
@@ -204,7 +203,7 @@ void wxMenuItem::UpdateItemText()
     if ( !m_parentMenu )
         return ;
 
-    wxString text = wxStripMenuCodes(m_text);
+    wxString text = wxStripMenuCodes(m_text, m_parentMenu != NULL && m_parentMenu->GetNoEventsMode() ? wxStrip_Accel : wxStrip_All);
     if (text.IsEmpty() && !IsSeparator())
     {
         wxASSERT_MSG(wxIsStockID(GetId()), wxT("A non-stock menu item with an empty label?"));
@@ -212,7 +211,7 @@ void wxMenuItem::UpdateItemText()
     }
 
     wxAcceleratorEntry *entry = wxAcceleratorEntry::Create( m_text ) ;
-    m_peer->SetLabel( text, entry );
+    GetPeer()->SetLabel( text, entry );
     delete entry ;
 }
 

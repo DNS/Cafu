@@ -12,6 +12,8 @@
 #ifndef _WX_PROPGRID_PROPS_H_
 #define _WX_PROPGRID_PROPS_H_
 
+#include "wx/defs.h"
+
 #if wxUSE_PROPGRID
 
 // -----------------------------------------------------------------------
@@ -25,6 +27,7 @@ class wxPGArrayEditorDialog;
 #include "wx/textctrl.h"
 #include "wx/button.h"
 #include "wx/listbox.h"
+#include "wx/valtext.h"
 
 // -----------------------------------------------------------------------
 
@@ -91,7 +94,7 @@ private:
     Basic property with string value.
 
     <b>Supported special attributes:</b>
-    - "Password": set to 1 inorder to enable wxTE_PASSWORD on the editor.
+    - "Password": set to 1 in order to enable wxTE_PASSWORD on the editor.
 
     @remarks
     - If value "<composed>" is set, then actual value is formed (or composed)
@@ -122,9 +125,9 @@ protected:
 
 // -----------------------------------------------------------------------
 
-/** Constants used with DoValidation() methods.
+/** Constants used with NumericValidation<>().
 */
-enum wxPGDoValidationConstants
+enum wxPGNumericValidationConstants
 {
     /** Instead of modifying the value, show an error message.
     */
@@ -140,6 +143,29 @@ enum wxPGDoValidationConstants
 };
 
 // -----------------------------------------------------------------------
+
+#if wxUSE_VALIDATORS
+
+/**
+    A more comprehensive numeric validator class.
+*/
+class WXDLLIMPEXP_PROPGRID wxNumericPropertyValidator : public wxTextValidator
+{
+public:
+    enum NumericType
+    {
+        Signed = 0,
+        Unsigned,
+        Float
+    };
+
+    wxNumericPropertyValidator( NumericType numericType, int base = 10 );
+    virtual ~wxNumericPropertyValidator() { }
+    virtual bool Validate(wxWindow* parent);
+};
+
+#endif // wxUSE_VALIDATORS
+
 
 /** @class wxIntProperty
     @ingroup classes
@@ -255,6 +281,7 @@ public:
     virtual bool DoSetAttribute( const wxString& name, wxVariant& value );
     virtual bool ValidateValue( wxVariant& value,
                                 wxPGValidationInfo& validationInfo ) const;
+    virtual wxValidator* DoGetValidator () const;
     virtual bool IntToValue( wxVariant& variant,
                              int number,
                              int argFlags = 0 ) const;
@@ -300,6 +327,7 @@ public:
                               wxPGValidationInfo* pValidationInfo,
                               int mode =
                                  wxPG_PROPERTY_VALIDATION_ERROR_MESSAGE );
+    static wxValidator* GetClassValidator();
     virtual wxValidator* DoGetValidator () const;
 
 protected:
@@ -489,7 +517,7 @@ protected:
     @ingroup classes
     Represents a bit set that fits in a long integer. wxBoolProperty
     sub-properties are created for editing individual bits. Textctrl is created
-    to manually edit the flags as a text; a continous sequence of spaces,
+    to manually edit the flags as a text; a continuous sequence of spaces,
     commas and semicolons is considered as a flag id separator.
     <b>Note:</b> When changing "choices" (ie. flag labels) of wxFlagsProperty,
     you will need to use SetPropertyChoices - otherwise they will not get
@@ -969,7 +997,7 @@ public:
     void SetCustomButton( const wxString& custBtText,
                           wxArrayStringProperty* pcc )
     {
-        if ( custBtText.length() )
+        if ( !custBtText.empty() )
         {
             EnableCustomNewAction();
             m_pCallingClass = pcc;

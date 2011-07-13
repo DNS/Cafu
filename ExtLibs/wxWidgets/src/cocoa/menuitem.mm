@@ -82,7 +82,6 @@ WX_IMPLEMENT_GET_OBJC_CLASS(wxNSMenuItemTarget,NSObject)
 // ============================================================================
 // wxMenuItemCocoa implementation
 // ============================================================================
-IMPLEMENT_DYNAMIC_CLASS(wxMenuItem, wxObject)
 wxMenuItemCocoaHash wxMenuItemCocoa::sm_cocoaHash;
 
 wxObjcAutoRefFromAlloc<struct objc_object *> wxMenuItemCocoa::sm_cocoaTarget = [[WX_GET_OBJC_CLASS(wxNSMenuItemTarget) alloc] init];
@@ -226,7 +225,7 @@ void wxMenuItem::SetBitmaps(const wxBitmap& bmpChecked,
     }
     else
     {
-        wxASSERT_MSG(!bmpUnchecked.Ok(),wxT("Normal menu items should only have one bitmap"));
+        wxASSERT_MSG(!bmpUnchecked.IsOk(),wxT("Normal menu items should only have one bitmap"));
         [m_cocoaNSMenuItem setImage: bmpChecked.GetNSImage(true)];
     }
 }

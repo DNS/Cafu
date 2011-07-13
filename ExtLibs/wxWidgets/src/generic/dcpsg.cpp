@@ -427,7 +427,8 @@ void wxPostScriptDCImpl::DoDrawLine (wxCoord x1, wxCoord y1, wxCoord x2, wxCoord
 {
     wxCHECK_RET( m_ok, wxT("invalid postscript dc") );
 
-    if  (m_pen.GetStyle() == wxPENSTYLE_TRANSPARENT) return;
+    if ( m_pen.IsTransparent() )
+        return;
 
     SetPen( m_pen );
 
@@ -480,7 +481,7 @@ void wxPostScriptDCImpl::DoDrawArc (wxCoord x1, wxCoord y1, wxCoord x2, wxCoord 
 
     int i_radius = wxRound( radius );
 
-    if (m_brush.GetStyle() != wxBRUSHSTYLE_TRANSPARENT)
+    if ( m_brush.IsNonTransparent() )
     {
         SetBrush( m_brush );
 
@@ -501,20 +502,17 @@ void wxPostScriptDCImpl::DoDrawArc (wxCoord x1, wxCoord y1, wxCoord x2, wxCoord 
         CalcBoundingBox( xc+i_radius, yc+i_radius );
     }
 
-    if (m_pen.GetStyle() != wxPENSTYLE_TRANSPARENT)
+    if ( m_pen.IsNonTransparent() )
     {
         SetPen( m_pen );
 
         wxString buffer;
         buffer.Printf( "newpath\n"
                        "%f %f %f %f %f %f ellipse\n"
-                       "%f %f lineto\n"
-                       "closepath\n"
                        "stroke\n",
                 XLOG2DEV(xc), YLOG2DEV(yc),
                 XLOG2DEVREL(i_radius), YLOG2DEVREL(i_radius),
-                alpha1, alpha2,
-                XLOG2DEV(xc), YLOG2DEV(yc) );
+                alpha1, alpha2 );
         buffer.Replace( ",", "." );
         PsPrint( buffer );
 
@@ -542,7 +540,7 @@ void wxPostScriptDCImpl::DoDrawEllipticArc(wxCoord x,wxCoord y,wxCoord w,wxCoord
         return;
     }
 
-    if (m_brush.GetStyle () != wxBRUSHSTYLE_TRANSPARENT)
+    if ( m_brush.IsNonTransparent() )
     {
         SetBrush( m_brush );
 
@@ -559,7 +557,7 @@ void wxPostScriptDCImpl::DoDrawEllipticArc(wxCoord x,wxCoord y,wxCoord w,wxCoord
         CalcBoundingBox( x+w, y+h );
     }
 
-    if (m_pen.GetStyle () != wxPENSTYLE_TRANSPARENT)
+    if ( m_pen.IsNonTransparent() )
     {
         SetPen( m_pen );
 
@@ -581,7 +579,8 @@ void wxPostScriptDCImpl::DoDrawPoint (wxCoord x, wxCoord y)
 {
     wxCHECK_RET( m_ok, wxT("invalid postscript dc") );
 
-    if (m_pen.GetStyle() == wxPENSTYLE_TRANSPARENT) return;
+    if ( m_pen.IsTransparent() )
+        return;
 
     SetPen (m_pen);
 
@@ -604,7 +603,7 @@ void wxPostScriptDCImpl::DoDrawPolygon (int n, wxPoint points[], wxCoord xoffset
 
     if (n <= 0) return;
 
-    if (m_brush.GetStyle () != wxBRUSHSTYLE_TRANSPARENT)
+    if ( m_brush.IsNonTransparent() )
     {
         SetBrush( m_brush );
 
@@ -635,7 +634,7 @@ void wxPostScriptDCImpl::DoDrawPolygon (int n, wxPoint points[], wxCoord xoffset
         PsPrint( (fillStyle == wxODDEVEN_RULE ? "eofill\n" : "fill\n") );
     }
 
-    if (m_pen.GetStyle () != wxPENSTYLE_TRANSPARENT)
+    if ( m_pen.IsNonTransparent() )
     {
         SetPen( m_pen );
 
@@ -674,7 +673,7 @@ void wxPostScriptDCImpl::DoDrawPolyPolygon (int n, int count[], wxPoint points[]
 
     if (n <= 0) return;
 
-    if (m_brush.GetStyle () != wxBRUSHSTYLE_TRANSPARENT)
+    if ( m_brush.IsNonTransparent() )
     {
         SetBrush( m_brush );
 
@@ -708,7 +707,7 @@ void wxPostScriptDCImpl::DoDrawPolyPolygon (int n, int count[], wxPoint points[]
         PsPrint( (fillStyle == wxODDEVEN_RULE ? "eofill\n" : "fill\n") );
     }
 
-    if (m_pen.GetStyle () != wxPENSTYLE_TRANSPARENT)
+    if ( m_pen.IsNonTransparent() )
     {
         SetPen( m_pen );
 
@@ -748,7 +747,8 @@ void wxPostScriptDCImpl::DoDrawLines (int n, wxPoint points[], wxCoord xoffset, 
 {
     wxCHECK_RET( m_ok, wxT("invalid postscript dc") );
 
-    if (m_pen.GetStyle() == wxPENSTYLE_TRANSPARENT) return;
+    if ( m_pen.IsTransparent() )
+        return;
 
     if (n <= 0) return;
 
@@ -785,7 +785,7 @@ void wxPostScriptDCImpl::DoDrawRectangle (wxCoord x, wxCoord y, wxCoord width, w
     width--;
     height--;
 
-    if (m_brush.GetStyle () != wxBRUSHSTYLE_TRANSPARENT)
+    if ( m_brush.IsNonTransparent() )
     {
         SetBrush( m_brush );
 
@@ -808,7 +808,7 @@ void wxPostScriptDCImpl::DoDrawRectangle (wxCoord x, wxCoord y, wxCoord width, w
         CalcBoundingBox( x + width, y + height );
     }
 
-    if (m_pen.GetStyle () != wxPENSTYLE_TRANSPARENT)
+    if ( m_pen.IsNonTransparent() )
     {
         SetPen (m_pen);
 
@@ -849,7 +849,7 @@ void wxPostScriptDCImpl::DoDrawRoundedRectangle (wxCoord x, wxCoord y, wxCoord w
 
     wxCoord rad = (wxCoord) radius;
 
-    if (m_brush.GetStyle () != wxBRUSHSTYLE_TRANSPARENT)
+    if ( m_brush.IsNonTransparent() )
     {
         SetBrush( m_brush );
 
@@ -881,7 +881,7 @@ void wxPostScriptDCImpl::DoDrawRoundedRectangle (wxCoord x, wxCoord y, wxCoord w
         CalcBoundingBox( x + width, y + height );
     }
 
-    if (m_pen.GetStyle () != wxPENSTYLE_TRANSPARENT)
+    if ( m_pen.IsNonTransparent() )
     {
         SetPen (m_pen);
 
@@ -921,7 +921,7 @@ void wxPostScriptDCImpl::DoDrawEllipse (wxCoord x, wxCoord y, wxCoord width, wxC
     width--;
     height--;
 
-    if (m_brush.GetStyle () != wxBRUSHSTYLE_TRANSPARENT)
+    if ( m_brush.IsNonTransparent() )
     {
         SetBrush (m_brush);
 
@@ -938,7 +938,7 @@ void wxPostScriptDCImpl::DoDrawEllipse (wxCoord x, wxCoord y, wxCoord width, wxC
         CalcBoundingBox( x + width, y + height );
     }
 
-    if (m_pen.GetStyle () != wxPENSTYLE_TRANSPARENT)
+    if ( m_pen.IsNonTransparent() )
     {
         SetPen (m_pen);
 
@@ -968,11 +968,11 @@ void wxPostScriptDCImpl::DoDrawBitmap( const wxBitmap& bitmap, wxCoord x, wxCoor
 {
     wxCHECK_RET( m_ok, wxT("invalid postscript dc") );
 
-    if (!bitmap.Ok()) return;
+    if (!bitmap.IsOk()) return;
 
     wxImage image = bitmap.ConvertToImage();
 
-    if (!image.Ok()) return;
+    if (!image.IsOk()) return;
 
     wxCoord w = image.GetWidth();
     wxCoord h = image.GetHeight();
@@ -1038,7 +1038,7 @@ void wxPostScriptDCImpl::SetFont( const wxFont& font )
 {
     wxCHECK_RET( m_ok, wxT("invalid postscript dc") );
 
-    if (!font.Ok())  return;
+    if (!font.IsOk())  return;
 
     m_font = font;
 
@@ -1133,7 +1133,7 @@ void wxPostScriptDCImpl::SetPen( const wxPen& pen )
 {
     wxCHECK_RET( m_ok, wxT("invalid postscript dc") );
 
-    if (!pen.Ok()) return;
+    if (!pen.IsOk()) return;
 
     int oldStyle = m_pen.GetStyle();
 
@@ -1240,7 +1240,7 @@ void wxPostScriptDCImpl::SetBrush( const wxBrush& brush )
 {
     wxCHECK_RET( m_ok, wxT("invalid postscript dc") );
 
-    if (!brush.Ok()) return;
+    if (!brush.IsOk()) return;
 
     m_brush = brush;
 
@@ -1288,7 +1288,7 @@ void wxPostScriptDCImpl::DoDrawText( const wxString& text, wxCoord x, wxCoord y 
     if ( !textbuf )
         return;
 
-    if (m_textForegroundColour.Ok())
+    if (m_textForegroundColour.IsOk())
     {
         unsigned char red = m_textForegroundColour.Red();
         unsigned char blue = m_textForegroundColour.Blue();
@@ -1398,7 +1398,7 @@ void wxPostScriptDCImpl::DoDrawRotatedText( const wxString& text, wxCoord x, wxC
 
     SetFont( m_font );
 
-    if (m_textForegroundColour.Ok())
+    if (m_textForegroundColour.IsOk())
     {
         unsigned char red = m_textForegroundColour.Red();
         unsigned char blue = m_textForegroundColour.Blue();
@@ -1957,7 +1957,7 @@ bool wxPostScriptDCImpl::DoBlit( wxCoord xdest, wxCoord ydest,
 
 wxCoord wxPostScriptDCImpl::GetCharHeight() const
 {
-    if (m_font.Ok())
+    if (m_font.IsOk())
         return m_font.GetPointSize();
     else
         return 12;
@@ -2055,7 +2055,7 @@ void wxPostScriptDCImpl::DoGetTextExtent(const wxString& string,
     /  example:
     /
     /    wxPostScriptDC dc(NULL, true);
-    /    if (dc.Ok()){
+    /    if (dc.IsOk()){
     /      wxSetAFMPath("d:\\wxw161\\afm\\");
     /      dc.StartDoc("Test");
     /      dc.StartPage();

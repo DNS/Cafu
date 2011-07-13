@@ -94,11 +94,6 @@ bool wxSplitterWindow::Create(wxWindow *parent, wxWindowID id,
     // allow TABbing from one window to the other
     style |= wxTAB_TRAVERSAL;
 
-    // we draw our border ourselves to blend the sash with it
-    style &= ~wxBORDER_MASK;
-    style |= wxBORDER_NONE;
-
-
     if ( !wxWindow::Create(parent, id, pos, size, style, name) )
         return false;
 
@@ -134,7 +129,6 @@ void wxSplitterWindow::Init()
     m_sashStart = 0;
     m_sashPosition = m_requestedSashPosition = 0;
     m_sashGravity = 0.0;
-    m_sashSize = -1; // -1 means use the native sash size
     m_lastSize = wxSize(0,0);
     m_checkRequestedSashPosition = false;
     m_minimumPaneSize = 0;
@@ -196,7 +190,7 @@ void wxSplitterWindow::OnPaint(wxPaintEvent& WXUNUSED(event))
     wxPaintDC dc(this);
 #ifdef __WXOSX__
     // as subpanels might have a transparent background we must erase the background
-    // at least on OSX, otherwise traces of the sash will remain 
+    // at least on OSX, otherwise traces of the sash will remain
     // test with: splitter sample->replace right window
     dc.Clear();
 #endif
@@ -496,7 +490,7 @@ bool wxSplitterWindow::SashHitTest(int x, int y, int tolerance)
 
 int wxSplitterWindow::GetSashSize() const
 {
-    return m_sashSize > -1 ? m_sashSize : wxRendererNative::Get().GetSplitterParams(this).widthSash;
+    return wxRendererNative::Get().GetSplitterParams(this).widthSash;
 }
 
 int wxSplitterWindow::GetBorderSize() const
@@ -747,7 +741,7 @@ bool wxSplitterWindow::DoSplit(wxSplitMode mode,
         return false;
 
     wxCHECK_MSG( window1 && window2, false,
-                 wxT("can not split with NULL window(s)") );
+                 wxT("cannot split with NULL window(s)") );
 
     wxCHECK_MSG( window1->GetParent() == this && window2->GetParent() == this, false,
                   wxT("windows in the splitter should have it as parent!") );

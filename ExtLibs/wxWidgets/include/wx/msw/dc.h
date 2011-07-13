@@ -87,6 +87,13 @@ public:
     virtual void SetDeviceOrigin(wxCoord x, wxCoord y);
     virtual void SetAxisOrientation(bool xLeftRight, bool yBottomUp);
 
+#if wxUSE_DC_TRANSFORM_MATRIX
+    virtual bool CanUseTransformMatrix() const;
+    virtual bool SetTransformMatrix(const wxAffineMatrix2D& matrix);
+    virtual wxAffineMatrix2D GetTransformMatrix() const;
+    virtual void ResetTransformMatrix();
+#endif // wxUSE_DC_TRANSFORM_MATRIX
+
     virtual void SetLogicalFunction(wxRasterOperationMode function);
 
     // implementation from now on
@@ -165,6 +172,12 @@ protected:
     void RealizeScaleAndOrigin();
 
 public:
+    virtual void DoGetFontMetrics(int *height,
+                                  int *ascent,
+                                  int *descent,
+                                  int *internalLeading,
+                                  int *externalLeading,
+                                  int *averageWidth) const;
     virtual void DoGetTextExtent(const wxString& string,
                                  wxCoord *x, wxCoord *y,
                                  wxCoord *descent = NULL,

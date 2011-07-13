@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        fs_arc.cpp
+// Name:        src/common/fs_arc.cpp
 // Purpose:     wxArchive file system
 // Author:      Vaclav Slavik, Mike Wetherell
 // Copyright:   (c) 1999 Vaclav Slavik, (c) 2006 Mike Wetherell
@@ -358,7 +358,7 @@ wxFSFile* wxArchiveFSHandler::OpenFile(
         right = rightPart.GetFullPath(wxPATH_UNIX);
     }
 
-    if (right.GetChar(0) == wxT('/')) right = right.Mid(1);
+    if (!right.empty() && right.GetChar(0) == wxT('/')) right = right.Mid(1);
 
     if (!m_cache)
         m_cache = new wxArchiveFSCache;

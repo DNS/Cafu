@@ -40,7 +40,7 @@ namespace
 class wxDataViewEditorCtrlEvtHandler: public wxEvtHandler
 {
 public:
-    wxDataViewEditorCtrlEvtHandler(wxControl *editor, wxDataViewRenderer *owner)
+    wxDataViewEditorCtrlEvtHandler(wxWindow *editor, wxDataViewRenderer *owner)
     {
         m_editorCtrl = editor;
         m_owner = owner;
@@ -59,7 +59,7 @@ protected:
 
 private:
     wxDataViewRenderer     *m_owner;
-    wxControl              *m_editorCtrl;
+    wxWindow               *m_editorCtrl;
     bool                    m_finished;
     bool                    m_focusOnIdle;
 
@@ -68,6 +68,24 @@ private:
 };
 
 } // anonymous namespace
+
+// ---------------------------------------------------------
+// wxDataViewItemAttr
+// ---------------------------------------------------------
+
+wxFont wxDataViewItemAttr::GetEffectiveFont(const wxFont& font) const
+{
+    if ( !HasFont() )
+        return font;
+
+    wxFont f(font);
+    if ( GetBold() )
+        f.MakeBold();
+    if ( GetItalic() )
+        f.MakeItalic();
+    return f;
+}
+
 
 // ---------------------------------------------------------
 // wxDataViewModelNotifier
@@ -235,6 +253,36 @@ bool wxDataViewModel::Cleared()
     return ret;
 }
 
+bool wxDataViewModel::BeforeReset()
+{
+    bool ret = true;
+
+    wxDataViewModelNotifiers::iterator iter;
+    for (iter = m_notifiers.begin(); iter != m_notifiers.end(); ++iter)
+    {
+        wxDataViewModelNotifier* notifier = *iter;
+        if (!notifier->BeforeReset())
+            ret = false;
+    }
+
+    return ret;
+}
+
+bool wxDataViewModel::AfterReset()
+{
+    bool ret = true;
+
+    wxDataViewModelNotifiers::iterator iter;
+    for (iter = m_notifiers.begin(); iter != m_notifiers.end(); ++iter)
+    {
+        wxDataViewModelNotifier* notifier = *iter;
+        if (!notifier->AfterReset())
+            ret = false;
+    }
+
+    return ret;
+}
+
 void wxDataViewModel::Resort()
 {
     wxDataViewModelNotifiers::iterator iter;
@@ -345,6 +393,8 @@ wxDataViewIndexListModel::wxDataViewIndexListModel( unsigned int initial_size )
 
 void wxDataViewIndexListModel::Reset( unsigned int new_size )
 {
+    /* wxDataViewModel:: */ BeforeReset();
+
     m_hash.Clear();
 
     // IDs are ordered until an item gets deleted or inserted
@@ -357,7 +407,7 @@ void wxDataViewIndexListModel::Reset( unsigned int new_size )
 
     m_nextFreeID = new_size + 1;
 
-    /* wxDataViewModel:: */ Cleared();
+    /* wxDataViewModel:: */ AfterReset();
 }
 
 void wxDataViewIndexListModel::RowPrepended()
@@ -499,9 +549,11 @@ wxDataViewVirtualListModel::wxDataViewVirtualListModel( unsigned int initial_siz
 
 void wxDataViewVirtualListModel::Reset( unsigned int new_size )
 {
+    /* wxDataViewModel:: */ BeforeReset();
+
     m_size = new_size;
 
-    /* wxDataViewModel:: */ Cleared();
+    /* wxDataViewModel:: */ AfterReset();
 }
 
 void wxDataViewVirtualListModel::RowPrepended()
@@ -676,11 +728,14 @@ bool wxDataViewRendererBase::StartEditing( const wxDataViewItem &item, wxRect la
 
 void wxDataViewRendererBase::DestroyEditControl()
 {
+    // Remove our event handler first to prevent it from (recursively) calling
+    // us again as it would do via a call to FinishEditing() when the editor
+    // loses focus when we hide it below.
+    wxEvtHandler * const handler = m_editorCtrl->PopEventHandler();
+
     // Hide the control immediately but don't delete it yet as there could be
     // some pending messages for it.
     m_editorCtrl->Hide();
-
-    wxEvtHandler * const handler = m_editorCtrl->PopEventHandler();
 
     wxPendingDelete.Append(handler);
     wxPendingDelete.Append(m_editorCtrl);
@@ -690,8 +745,6 @@ void wxDataViewRendererBase::CancelEditing()
 {
     if (!m_editorCtrl)
         return;
-
-    GetOwner()->GetOwner()->GetMainWindow()->SetFocus();
 
     DestroyEditControl();
 }
@@ -726,6 +779,22 @@ bool wxDataViewRendererBase::FinishEditing()
 
     return true;
 }
+
+void wxDataViewRendererBase::PrepareForItem(const wxDataViewModel *model,
+                                            const wxDataViewItem& item,
+                                            unsigned column)
+{
+    wxVariant value;
+    model->GetValue(value, item, column);
+    SetValue(value);
+
+    wxDataViewItemAttr attr;
+    model->GetAttr(item, column, attr);
+    SetAttr(attr);
+
+    SetEnabled(model->IsEnabled(item, column));
+}
+
 
 // ----------------------------------------------------------------------------
 // wxDataViewCustomRendererBase
@@ -792,17 +861,26 @@ wxDataViewCustomRendererBase::WXCallRender(wxRect rectCell, wxDC *dc, int state)
 
     wxDCFontChanger changeFont(*dc);
     if ( m_attr.HasFont() )
-    {
-        wxFont font(dc->GetFont());
-        if ( m_attr.GetBold() )
-            font.MakeBold();
-        if ( m_attr.GetItalic() )
-            font.MakeItalic();
-
-        changeFont.Set(font);
-    }
+        changeFont.Set(m_attr.GetEffectiveFont(dc->GetFont()));
 
     Render(rectItem, dc, state);
+}
+
+wxSize wxDataViewCustomRendererBase::GetTextExtent(const wxString& str) const
+{
+    const wxDataViewCtrl *view = GetView();
+
+    if ( m_attr.HasFont() )
+    {
+        wxFont font(m_attr.GetEffectiveFont(view->GetFont()));
+        wxSize size;
+        view->GetTextExtent(str, &size.x, &size.y, NULL, NULL, &font);
+        return size;
+    }
+    else
+    {
+        return view->GetTextExtent(str);
+    }
 }
 
 void
@@ -992,6 +1070,22 @@ void wxDataViewCtrlBase::ExpandAncestors( const wxDataViewItem & item )
          Expand(parentChain.back());
          parentChain.pop_back();
     }
+}
+
+wxDataViewItem wxDataViewCtrlBase::GetCurrentItem() const
+{
+    return HasFlag(wxDV_MULTIPLE) ? DoGetCurrentItem()
+                                  : GetSelection();
+}
+
+void wxDataViewCtrlBase::SetCurrentItem(const wxDataViewItem& item)
+{
+    wxCHECK_RET( item.IsOk(), "Can't make current an invalid item." );
+
+    if ( HasFlag(wxDV_MULTIPLE) )
+        DoSetCurrentItem(item);
+    else
+        Select(item);
 }
 
 wxDataViewColumn *
@@ -1324,7 +1418,7 @@ wxDataViewSpinRenderer::wxDataViewSpinRenderer( int min, int max, wxDataViewCell
     m_max = max;
 }
 
-wxControl* wxDataViewSpinRenderer::CreateEditorCtrl( wxWindow *parent, wxRect labelRect, const wxVariant &value )
+wxWindow* wxDataViewSpinRenderer::CreateEditorCtrl( wxWindow *parent, wxRect labelRect, const wxVariant &value )
 {
     long l = value;
     wxSize size = labelRect.GetSize();
@@ -1344,7 +1438,7 @@ wxControl* wxDataViewSpinRenderer::CreateEditorCtrl( wxWindow *parent, wxRect la
     return sc;
 }
 
-bool wxDataViewSpinRenderer::GetValueFromEditorCtrl( wxControl* editor, wxVariant &value )
+bool wxDataViewSpinRenderer::GetValueFromEditorCtrl( wxWindow* editor, wxVariant &value )
 {
     wxSpinCtrl *sc = (wxSpinCtrl*) editor;
     long l = sc->GetValue();
@@ -1389,15 +1483,22 @@ wxDataViewChoiceRenderer::wxDataViewChoiceRenderer( const wxArrayString& choices
     m_choices = choices;
 }
 
-wxControl* wxDataViewChoiceRenderer::CreateEditorCtrl( wxWindow *parent, wxRect labelRect, const wxVariant &value )
+wxWindow* wxDataViewChoiceRenderer::CreateEditorCtrl( wxWindow *parent, wxRect labelRect, const wxVariant &value )
 {
-    wxChoice* c = new wxChoice(parent, wxID_ANY, labelRect.GetTopLeft(), wxDefaultSize, m_choices );
+    wxChoice* c = new wxChoice
+                      (
+                          parent,
+                          wxID_ANY,
+                          labelRect.GetTopLeft(),
+                          wxSize(labelRect.GetWidth(), -1),
+                          m_choices
+                      );
     c->Move(labelRect.GetRight() - c->GetRect().width, wxDefaultCoord);
     c->SetStringSelection( value.GetString() );
     return c;
 }
 
-bool wxDataViewChoiceRenderer::GetValueFromEditorCtrl( wxControl* editor, wxVariant &value )
+bool wxDataViewChoiceRenderer::GetValueFromEditorCtrl( wxWindow* editor, wxVariant &value )
 {
     wxChoice *c = (wxChoice*) editor;
     wxString s = c->GetStringSelection();
@@ -1437,15 +1538,15 @@ wxDataViewChoiceByIndexRenderer::wxDataViewChoiceByIndexRenderer( const wxArrayS
       wxDataViewChoiceRenderer( choices, mode, alignment )
 {
 }
-                            
-wxControl* wxDataViewChoiceByIndexRenderer::CreateEditorCtrl( wxWindow *parent, wxRect labelRect, const wxVariant &value )
+
+wxWindow* wxDataViewChoiceByIndexRenderer::CreateEditorCtrl( wxWindow *parent, wxRect labelRect, const wxVariant &value )
 {
     wxVariant string_value = GetChoice( value.GetLong() );
-    
+
     return wxDataViewChoiceRenderer::CreateEditorCtrl( parent, labelRect, string_value );
 }
 
-bool wxDataViewChoiceByIndexRenderer::GetValueFromEditorCtrl( wxControl* editor, wxVariant &value )
+bool wxDataViewChoiceByIndexRenderer::GetValueFromEditorCtrl( wxWindow* editor, wxVariant &value )
 {
     wxVariant string_value;
     if (!wxDataViewChoiceRenderer::GetValueFromEditorCtrl( editor, string_value ))
@@ -1460,13 +1561,13 @@ bool wxDataViewChoiceByIndexRenderer::SetValue( const wxVariant &value )
     wxVariant string_value = GetChoice( value.GetLong() );
     return wxDataViewChoiceRenderer::SetValue( string_value );
 }
-    
+
 bool wxDataViewChoiceByIndexRenderer::GetValue( wxVariant &value ) const
 {
     wxVariant string_value;
     if (!wxDataViewChoiceRenderer::GetValue( string_value ))
         return false;
-            
+
     value = (long) GetChoices().Index( string_value.GetString() );
     return true;
 }
@@ -1600,10 +1701,6 @@ wxDataViewListCtrl::wxDataViewListCtrl( wxWindow *parent, wxWindowID id,
            const wxValidator& validator )
 {
     Create( parent, id, pos, size, style, validator );
-
-    wxDataViewListStore *store = new wxDataViewListStore;
-    AssociateModel( store );
-    store->DecRef();
 }
 
 wxDataViewListCtrl::~wxDataViewListCtrl()
@@ -1615,7 +1712,14 @@ bool wxDataViewListCtrl::Create( wxWindow *parent, wxWindowID id,
            const wxPoint& pos, const wxSize& size, long style,
            const wxValidator& validator )
 {
-    return wxDataViewCtrl::Create( parent, id, pos, size, style, validator );
+    if ( !wxDataViewCtrl::Create( parent, id, pos, size, style, validator ) )
+        return false;
+
+    wxDataViewListStore *store = new wxDataViewListStore;
+    AssociateModel( store );
+    store->DecRef();
+
+    return true;
 }
 
 bool wxDataViewListCtrl::AppendColumn( wxDataViewColumn *column, const wxString &varianttype )
@@ -2142,7 +2246,7 @@ bool wxDataViewTreeCtrl::Create( wxWindow *parent, wxWindowID id,
         wxDATAVIEW_CELL_EDITABLE,
         -1,                         // default width
         wxALIGN_NOT,                //  and alignment
-        0                           // not resizeable
+        0                           // not resizable
     );
 
     return true;

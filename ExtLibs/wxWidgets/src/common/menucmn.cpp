@@ -49,17 +49,187 @@ WX_DEFINE_LIST(wxMenuItemList)
 // ============================================================================
 
 // ----------------------------------------------------------------------------
+// XTI for wxMenu(Bar)
+// ----------------------------------------------------------------------------
+
+wxDEFINE_FLAGS( wxMenuStyle )
+wxBEGIN_FLAGS( wxMenuStyle )
+wxFLAGS_MEMBER(wxMENU_TEAROFF)
+wxEND_FLAGS( wxMenuStyle )
+
+wxIMPLEMENT_DYNAMIC_CLASS_XTI(wxMenu, wxEvtHandler, "wx/menu.h")
+wxCOLLECTION_TYPE_INFO( wxMenuItem *, wxMenuItemList ) ;
+
+#if wxUSE_EXTENDED_RTTI    
+template<> void wxCollectionToVariantArray( wxMenuItemList const &theList,
+                                           wxAnyList &value)
+{
+    wxListCollectionToAnyList<wxMenuItemList::compatibility_iterator>( theList, value ) ;
+}
+#endif
+
+wxBEGIN_PROPERTIES_TABLE(wxMenu)
+wxEVENT_PROPERTY( Select, wxEVT_COMMAND_MENU_SELECTED, wxCommandEvent)
+
+wxPROPERTY( Title, wxString, SetTitle, GetTitle, wxString(), \
+           0 /*flags*/, wxT("Helpstring"), wxT("group") )
+
+wxREADONLY_PROPERTY_FLAGS( MenuStyle, wxMenuStyle, long, GetStyle, \
+                          wxEMPTY_PARAMETER_VALUE, 0 /*flags*/, wxT("Helpstring"), \
+                          wxT("group")) // style
+
+wxPROPERTY_COLLECTION( MenuItems, wxMenuItemList, wxMenuItem*, Append, \
+                      GetMenuItems, 0 /*flags*/, wxT("Helpstring"), wxT("group"))
+wxEND_PROPERTIES_TABLE()
+
+wxEMPTY_HANDLERS_TABLE(wxMenu)
+
+wxDIRECT_CONSTRUCTOR_2( wxMenu, wxString, Title, long, MenuStyle  )
+
+wxDEFINE_FLAGS( wxMenuBarStyle )
+
+wxBEGIN_FLAGS( wxMenuBarStyle )
+wxFLAGS_MEMBER(wxMB_DOCKABLE)
+wxEND_FLAGS( wxMenuBarStyle )
+
+#if wxUSE_EXTENDED_RTTI    
+// the negative id would lead the window (its superclass !) to
+// vetoe streaming out otherwise
+bool wxMenuBarStreamingCallback( const wxObject *WXUNUSED(object), wxObjectWriter *,
+                                wxObjectWriterCallback *, const wxStringToAnyHashMap & )
+{
+    return true;
+}
+#endif
+
+wxIMPLEMENT_DYNAMIC_CLASS_XTI_CALLBACK(wxMenuBar, wxWindow, "wx/menu.h", \
+                                       wxMenuBarStreamingCallback)
+
+
+#if wxUSE_EXTENDED_RTTI    
+WX_DEFINE_LIST( wxMenuInfoHelperList )
+
+wxIMPLEMENT_DYNAMIC_CLASS_XTI(wxMenuInfoHelper, wxObject, "wx/menu.h")
+
+wxBEGIN_PROPERTIES_TABLE(wxMenuInfoHelper)
+wxREADONLY_PROPERTY( Menu, wxMenu*, GetMenu, wxEMPTY_PARAMETER_VALUE, \
+                    0 /*flags*/, wxT("Helpstring"), wxT("group"))
+
+wxREADONLY_PROPERTY( Title, wxString, GetTitle, wxString(), \
+                    0 /*flags*/, wxT("Helpstring"), wxT("group"))
+wxEND_PROPERTIES_TABLE()
+
+wxEMPTY_HANDLERS_TABLE(wxMenuInfoHelper)
+
+wxCONSTRUCTOR_2( wxMenuInfoHelper, wxMenu*, Menu, wxString, Title )
+
+wxCOLLECTION_TYPE_INFO( wxMenuInfoHelper *, wxMenuInfoHelperList ) ;
+
+template<> void wxCollectionToVariantArray( wxMenuInfoHelperList const &theList, 
+                                           wxAnyList &value)
+{
+    wxListCollectionToAnyList<wxMenuInfoHelperList::compatibility_iterator>( theList, value ) ;
+}
+
+#endif
+
+wxBEGIN_PROPERTIES_TABLE(wxMenuBar)
+wxPROPERTY_COLLECTION( MenuInfos, wxMenuInfoHelperList, wxMenuInfoHelper*, AppendMenuInfo, \
+                      GetMenuInfos, 0 /*flags*/, wxT("Helpstring"), wxT("group"))
+wxEND_PROPERTIES_TABLE()
+
+wxEMPTY_HANDLERS_TABLE(wxMenuBar)
+
+wxCONSTRUCTOR_DUMMY( wxMenuBar )
+
+#if wxUSE_EXTENDED_RTTI    
+
+const wxMenuInfoHelperList& wxMenuBarBase::GetMenuInfos() const
+{
+    wxMenuInfoHelperList* list = const_cast< wxMenuInfoHelperList* > (& m_menuInfos);
+    WX_CLEAR_LIST( wxMenuInfoHelperList, *list);
+    for (size_t i = 0 ; i < GetMenuCount(); ++i)
+    {
+        wxMenuInfoHelper* info = new wxMenuInfoHelper();
+        info->Create( GetMenu(i), GetMenuLabel(i));
+        list->Append(info);
+    }
+    return m_menuInfos;
+}
+
+#endif
+
+// ----------------------------------------------------------------------------
+// XTI for wxMenuItem
+// ----------------------------------------------------------------------------
+
+#if wxUSE_EXTENDED_RTTI
+
+bool wxMenuItemStreamingCallback( const wxObject *object, wxObjectWriter *,
+                                 wxObjectWriterCallback *, const wxStringToAnyHashMap & )
+{
+    const wxMenuItem * mitem = wx_dynamic_cast(const wxMenuItem*, object);
+    if ( mitem->GetMenu() && !mitem->GetMenu()->GetTitle().empty() )
+    {
+        // we don't stream out the first two items for menus with a title,
+        // they will be reconstructed
+        if ( mitem->GetMenu()->FindItemByPosition(0) == mitem ||
+            mitem->GetMenu()->FindItemByPosition(1) == mitem )
+            return false;
+    }
+    return true;
+}
+
+#endif
+
+wxBEGIN_ENUM( wxItemKind )
+wxENUM_MEMBER( wxITEM_SEPARATOR )
+wxENUM_MEMBER( wxITEM_NORMAL )
+wxENUM_MEMBER( wxITEM_CHECK )
+wxENUM_MEMBER( wxITEM_RADIO )
+wxEND_ENUM( wxItemKind )
+
+wxIMPLEMENT_DYNAMIC_CLASS_XTI_CALLBACK(wxMenuItem, wxObject, "wx/menuitem.h", \
+                                       wxMenuItemStreamingCallback)
+
+wxBEGIN_PROPERTIES_TABLE(wxMenuItem)
+wxPROPERTY( Parent, wxMenu*, SetMenu, GetMenu, wxEMPTY_PARAMETER_VALUE, \
+           0 /*flags*/, wxT("Helpstring"), wxT("group") )
+wxPROPERTY( Id, int, SetId, GetId, wxEMPTY_PARAMETER_VALUE, \
+           0 /*flags*/, wxT("Helpstring"), wxT("group") )
+wxPROPERTY( ItemLabel, wxString, SetItemLabel, GetItemLabel, wxString(), \
+           0 /*flags*/, wxT("Helpstring"), wxT("group") )
+wxPROPERTY( Help, wxString, SetHelp, GetHelp, wxString(), \
+           0 /*flags*/, wxT("Helpstring"), wxT("group") )
+wxREADONLY_PROPERTY( Kind, wxItemKind, GetKind, wxEMPTY_PARAMETER_VALUE, \
+                    0 /*flags*/, wxT("Helpstring"), wxT("group") )
+wxPROPERTY( SubMenu, wxMenu*, SetSubMenu, GetSubMenu, wxEMPTY_PARAMETER_VALUE, \
+           0 /*flags*/, wxT("Helpstring"), wxT("group") )
+wxPROPERTY( Enabled, bool, Enable, IsEnabled, wxAny((bool)true), \
+           0 /*flags*/, wxT("Helpstring"), wxT("group") )
+wxPROPERTY( Checked, bool, Check, IsChecked, wxAny((bool)false), \
+           0 /*flags*/, wxT("Helpstring"), wxT("group") )
+wxPROPERTY( Checkable, bool, SetCheckable, IsCheckable, wxAny((bool)false), \
+           0 /*flags*/, wxT("Helpstring"), wxT("group") )
+wxEND_PROPERTIES_TABLE()
+
+wxEMPTY_HANDLERS_TABLE(wxMenuItem)
+
+wxDIRECT_CONSTRUCTOR_6( wxMenuItem, wxMenu*, Parent, int, Id, wxString, \
+                       Text, wxString, Help, wxItemKind, Kind, wxMenu*, SubMenu )
+
+// ----------------------------------------------------------------------------
 // wxMenuItemBase
 // ----------------------------------------------------------------------------
 
 wxMenuItemBase::wxMenuItemBase(wxMenu *parentMenu,
-                               int id,
+                               int itemid,
                                const wxString& text,
                                const wxString& help,
                                wxItemKind kind,
                                wxMenu *subMenu)
 {
-    switch ( id )
+    switch ( itemid )
     {
         case wxID_ANY:
             m_id = wxWindow::NewControlId();
@@ -79,17 +249,17 @@ wxMenuItemBase::wxMenuItemBase(wxMenu *parentMenu,
             // (popup) menu titles in wxMSW use this ID to indicate that
             // it's not a real menu item, so we don't want the check below to
             // apply to it
-            m_id = id;
+            m_id = itemid;
             break;
 
         default:
             // ids are limited to 16 bits under MSW so portable code shouldn't
             // use ids outside of this range (negative ids generated by wx are
             // fine though)
-            wxASSERT_MSG( (id >= 0 && id < SHRT_MAX) ||
-                            (id >= wxID_AUTO_LOWEST && id <= wxID_AUTO_HIGHEST),
-                          wxS("invalid id value") );
-            m_id = id;
+            wxASSERT_MSG( (itemid >= 0 && itemid < SHRT_MAX) ||
+                            (itemid >= wxID_AUTO_LOWEST && itemid <= wxID_AUTO_HIGHEST),
+                          wxS("invalid itemid value") );
+            m_id = itemid;
     }
 
     // notice that parentMenu can be NULL: the item can be attached to the menu
@@ -383,7 +553,7 @@ wxMenuItem *wxMenuBase::FindItem(int itemId, wxMenu **itemMenu) const
 }
 
 // non recursive search
-wxMenuItem *wxMenuBase::FindChildItem(int id, size_t *ppos) const
+wxMenuItem *wxMenuBase::FindChildItem(int itemid, size_t *ppos) const
 {
     wxMenuItem *item = NULL;
     wxMenuItemList::compatibility_iterator node = GetMenuItems().GetFirst();
@@ -391,7 +561,7 @@ wxMenuItem *wxMenuBase::FindChildItem(int id, size_t *ppos) const
     size_t pos;
     for ( pos = 0; node; pos++ )
     {
-        if ( node->GetData()->GetId() == id )
+        if ( node->GetData()->GetId() == itemid )
         {
             item = node->GetData();
 
@@ -449,19 +619,19 @@ void wxMenuBase::UpdateUI(wxEvtHandler* source)
         wxMenuItem* item = node->GetData();
         if ( !item->IsSeparator() )
         {
-            wxWindowID id = item->GetId();
-            wxUpdateUIEvent event(id);
+            wxWindowID itemid = item->GetId();
+            wxUpdateUIEvent event(itemid);
             event.SetEventObject( source );
 
             if ( source->ProcessEvent(event) )
             {
                 // if anything changed, update the changed attribute
                 if (event.GetSetText())
-                    SetLabel(id, event.GetText());
+                    SetLabel(itemid, event.GetText());
                 if (event.GetSetChecked())
-                    Check(id, event.GetChecked());
+                    Check(itemid, event.GetChecked());
                 if (event.GetSetEnabled())
-                    Enable(id, event.GetEnabled());
+                    Enable(itemid, event.GetEnabled());
             }
 
             // recurse to the submenus
@@ -474,9 +644,9 @@ void wxMenuBase::UpdateUI(wxEvtHandler* source)
     }
 }
 
-bool wxMenuBase::SendEvent(int id, int checked)
+bool wxMenuBase::SendEvent(int itemid, int checked)
 {
-    wxCommandEvent event(wxEVT_COMMAND_MENU_SELECTED, id);
+    wxCommandEvent event(wxEVT_COMMAND_MENU_SELECTED, itemid);
     event.SetEventObject(this);
     event.SetInt(checked);
 
@@ -560,72 +730,72 @@ wxWindow *wxMenuBase::GetWindow() const
 // wxMenu functions forwarded to wxMenuItem
 // ----------------------------------------------------------------------------
 
-void wxMenuBase::Enable( int id, bool enable )
+void wxMenuBase::Enable( int itemid, bool enable )
 {
-    wxMenuItem *item = FindItem(id);
+    wxMenuItem *item = FindItem(itemid);
 
     wxCHECK_RET( item, wxT("wxMenu::Enable: no such item") );
 
     item->Enable(enable);
 }
 
-bool wxMenuBase::IsEnabled( int id ) const
+bool wxMenuBase::IsEnabled( int itemid ) const
 {
-    wxMenuItem *item = FindItem(id);
+    wxMenuItem *item = FindItem(itemid);
 
     wxCHECK_MSG( item, false, wxT("wxMenu::IsEnabled: no such item") );
 
     return item->IsEnabled();
 }
 
-void wxMenuBase::Check( int id, bool enable )
+void wxMenuBase::Check( int itemid, bool enable )
 {
-    wxMenuItem *item = FindItem(id);
+    wxMenuItem *item = FindItem(itemid);
 
     wxCHECK_RET( item, wxT("wxMenu::Check: no such item") );
 
     item->Check(enable);
 }
 
-bool wxMenuBase::IsChecked( int id ) const
+bool wxMenuBase::IsChecked( int itemid ) const
 {
-    wxMenuItem *item = FindItem(id);
+    wxMenuItem *item = FindItem(itemid);
 
     wxCHECK_MSG( item, false, wxT("wxMenu::IsChecked: no such item") );
 
     return item->IsChecked();
 }
 
-void wxMenuBase::SetLabel( int id, const wxString &label )
+void wxMenuBase::SetLabel( int itemid, const wxString &label )
 {
-    wxMenuItem *item = FindItem(id);
+    wxMenuItem *item = FindItem(itemid);
 
     wxCHECK_RET( item, wxT("wxMenu::SetLabel: no such item") );
 
     item->SetItemLabel(label);
 }
 
-wxString wxMenuBase::GetLabel( int id ) const
+wxString wxMenuBase::GetLabel( int itemid ) const
 {
-    wxMenuItem *item = FindItem(id);
+    wxMenuItem *item = FindItem(itemid);
 
     wxCHECK_MSG( item, wxEmptyString, wxT("wxMenu::GetLabel: no such item") );
 
     return item->GetItemLabel();
 }
 
-void wxMenuBase::SetHelpString( int id, const wxString& helpString )
+void wxMenuBase::SetHelpString( int itemid, const wxString& helpString )
 {
-    wxMenuItem *item = FindItem(id);
+    wxMenuItem *item = FindItem(itemid);
 
     wxCHECK_RET( item, wxT("wxMenu::SetHelpString: no such item") );
 
     item->SetHelp( helpString );
 }
 
-wxString wxMenuBase::GetHelpString( int id ) const
+wxString wxMenuBase::GetHelpString( int itemid ) const
 {
-    wxMenuItem *item = FindItem(id);
+    wxMenuItem *item = FindItem(itemid);
 
     wxCHECK_MSG( item, wxEmptyString, wxT("wxMenu::GetHelpString: no such item") );
 
@@ -763,7 +933,7 @@ void wxMenuBarBase::Detach()
 // wxMenuBar searching for items
 // ----------------------------------------------------------------------------
 
-wxMenuItem *wxMenuBarBase::FindItem(int id, wxMenu **menu) const
+wxMenuItem *wxMenuBarBase::FindItem(int itemid, wxMenu **menu) const
 {
     if ( menu )
         *menu = NULL;
@@ -773,7 +943,7 @@ wxMenuItem *wxMenuBarBase::FindItem(int id, wxMenu **menu) const
     wxMenuList::const_iterator it;
     for ( i = 0, it = m_menus.begin(); !item && (i < count); i++, it++ )
     {
-        item = (*it)->FindItem(id, menu);
+        item = (*it)->FindItem(itemid, menu);
     }
 
     return item;
@@ -798,18 +968,18 @@ int wxMenuBarBase::FindMenuItem(const wxString& menu, const wxString& item) cons
 // wxMenuBar functions forwarded to wxMenuItem
 // ---------------------------------------------------------------------------
 
-void wxMenuBarBase::Enable(int id, bool enable)
+void wxMenuBarBase::Enable(int itemid, bool enable)
 {
-    wxMenuItem *item = FindItem(id);
+    wxMenuItem *item = FindItem(itemid);
 
     wxCHECK_RET( item, wxT("attempt to enable an item which doesn't exist") );
 
     item->Enable(enable);
 }
 
-void wxMenuBarBase::Check(int id, bool check)
+void wxMenuBarBase::Check(int itemid, bool check)
 {
-    wxMenuItem *item = FindItem(id);
+    wxMenuItem *item = FindItem(itemid);
 
     wxCHECK_RET( item, wxT("attempt to check an item which doesn't exist") );
     wxCHECK_RET( item->IsCheckable(), wxT("attempt to check an uncheckable item") );
@@ -817,36 +987,36 @@ void wxMenuBarBase::Check(int id, bool check)
     item->Check(check);
 }
 
-bool wxMenuBarBase::IsChecked(int id) const
+bool wxMenuBarBase::IsChecked(int itemid) const
 {
-    wxMenuItem *item = FindItem(id);
+    wxMenuItem *item = FindItem(itemid);
 
     wxCHECK_MSG( item, false, wxT("wxMenuBar::IsChecked(): no such item") );
 
     return item->IsChecked();
 }
 
-bool wxMenuBarBase::IsEnabled(int id) const
+bool wxMenuBarBase::IsEnabled(int itemid) const
 {
-    wxMenuItem *item = FindItem(id);
+    wxMenuItem *item = FindItem(itemid);
 
     wxCHECK_MSG( item, false, wxT("wxMenuBar::IsEnabled(): no such item") );
 
     return item->IsEnabled();
 }
 
-void wxMenuBarBase::SetLabel(int id, const wxString& label)
+void wxMenuBarBase::SetLabel(int itemid, const wxString& label)
 {
-    wxMenuItem *item = FindItem(id);
+    wxMenuItem *item = FindItem(itemid);
 
     wxCHECK_RET( item, wxT("wxMenuBar::SetLabel(): no such item") );
 
     item->SetItemLabel(label);
 }
 
-wxString wxMenuBarBase::GetLabel(int id) const
+wxString wxMenuBarBase::GetLabel(int itemid) const
 {
-    wxMenuItem *item = FindItem(id);
+    wxMenuItem *item = FindItem(itemid);
 
     wxCHECK_MSG( item, wxEmptyString,
                  wxT("wxMenuBar::GetLabel(): no such item") );
@@ -854,18 +1024,18 @@ wxString wxMenuBarBase::GetLabel(int id) const
     return item->GetItemLabel();
 }
 
-void wxMenuBarBase::SetHelpString(int id, const wxString& helpString)
+void wxMenuBarBase::SetHelpString(int itemid, const wxString& helpString)
 {
-    wxMenuItem *item = FindItem(id);
+    wxMenuItem *item = FindItem(itemid);
 
     wxCHECK_RET( item, wxT("wxMenuBar::SetHelpString(): no such item") );
 
     item->SetHelp(helpString);
 }
 
-wxString wxMenuBarBase::GetHelpString(int id) const
+wxString wxMenuBarBase::GetHelpString(int itemid) const
 {
-    wxMenuItem *item = FindItem(id);
+    wxMenuItem *item = FindItem(itemid);
 
     wxCHECK_MSG( item, wxEmptyString,
                  wxT("wxMenuBar::GetHelpString(): no such item") );

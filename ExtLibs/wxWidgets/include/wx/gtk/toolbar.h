@@ -12,6 +12,8 @@
 
 #if wxUSE_TOOLBAR
 
+typedef struct _GtkTooltips GtkTooltips;
+
 // ----------------------------------------------------------------------------
 // wxToolBar
 // ----------------------------------------------------------------------------
@@ -58,8 +60,6 @@ public:
 
     // implementation from now on
     // --------------------------
-
-    void OnInternalIdle();
 
 protected:
     virtual wxSize DoGetBestSize() const;

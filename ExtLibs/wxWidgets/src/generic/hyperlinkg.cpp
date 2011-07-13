@@ -41,12 +41,11 @@
 #endif
 
 #include "wx/clipbrd.h"
+#include "wx/renderer.h"
 
 // ============================================================================
 // implementation
 // ============================================================================
-
-IMPLEMENT_DYNAMIC_CLASS(wxGenericHyperlinkCtrl, wxControl)
 
 // reserved for internal use only
 #define wxHYPERLINK_POPUP_COPY_ID           16384
@@ -72,14 +71,7 @@ bool wxGenericHyperlinkCtrl::Create(wxWindow *parent, wxWindowID id,
     SetURL(url.empty() ? label : url);
     SetLabel(label.empty() ? url : label);
 
-    m_rollover = false;
-    m_clicking = false;
-    m_visited = false;
-
-    // colours
-    m_normalColour = *wxBLUE;
-    m_hoverColour = *wxRED;
-    m_visitedColour = wxColour("#551a8b");
+    Init();
     SetForegroundColour(m_normalColour);
 
     // by default the font of an hyperlink control is underlined
@@ -98,30 +90,44 @@ bool wxGenericHyperlinkCtrl::Create(wxWindow *parent, wxWindowID id,
     //       with GTK+'s native handling):
 
     Connect( wxEVT_PAINT, wxPaintEventHandler(wxGenericHyperlinkCtrl::OnPaint) );
+    Connect( wxEVT_SET_FOCUS, wxFocusEventHandler(wxGenericHyperlinkCtrl::OnFocus) );
+    Connect( wxEVT_KILL_FOCUS, wxFocusEventHandler(wxGenericHyperlinkCtrl::OnFocus) );
+    Connect( wxEVT_CHAR, wxKeyEventHandler(wxGenericHyperlinkCtrl::OnChar) );
     Connect( wxEVT_LEAVE_WINDOW, wxMouseEventHandler(wxGenericHyperlinkCtrl::OnLeaveWindow) );
 
     Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler(wxGenericHyperlinkCtrl::OnLeftDown) );
     Connect( wxEVT_LEFT_UP, wxMouseEventHandler(wxGenericHyperlinkCtrl::OnLeftUp) );
-    Connect( wxEVT_RIGHT_UP, wxMouseEventHandler(wxGenericHyperlinkCtrl::OnRightUp) );
     Connect( wxEVT_MOTION, wxMouseEventHandler(wxGenericHyperlinkCtrl::OnMotion) );
 
-    Connect( wxHYPERLINK_POPUP_COPY_ID, wxEVT_COMMAND_MENU_SELECTED,
-             wxCommandEventHandler(wxGenericHyperlinkCtrl::OnPopUpCopy) );
+    ConnectMenuHandlers();
 
     return true;
 }
 
-wxSize wxGenericHyperlinkCtrl::DoGetBestSize() const
+void wxGenericHyperlinkCtrl::Init()
 {
-    int w, h;
+    m_rollover = false;
+    m_clicking = false;
+    m_visited = false;
 
+    // colours
+    m_normalColour = *wxBLUE;
+    m_hoverColour = *wxRED;
+    m_visitedColour = wxColour("#551a8b");
+}
+
+void wxGenericHyperlinkCtrl::ConnectMenuHandlers()
+{
+    // Connect the event handlers for the context menu.
+    Connect( wxEVT_RIGHT_UP, wxMouseEventHandler(wxGenericHyperlinkCtrl::OnRightUp) );
+    Connect( wxHYPERLINK_POPUP_COPY_ID, wxEVT_COMMAND_MENU_SELECTED,
+             wxCommandEventHandler(wxGenericHyperlinkCtrl::OnPopUpCopy) );
+}
+
+wxSize wxGenericHyperlinkCtrl::DoGetBestClientSize() const
+{
     wxClientDC dc((wxWindow *)this);
-    dc.SetFont(GetFont());
-    dc.GetTextExtent(GetLabel(), &w, &h);
-
-    wxSize best(w, h);
-    CacheBestSize(best);
-    return best;
+    return dc.GetTextExtent(GetLabel());
 }
 
 
@@ -185,6 +191,32 @@ void wxGenericHyperlinkCtrl::OnPaint(wxPaintEvent& WXUNUSED(event))
     dc.SetTextBackground(GetBackgroundColour());
 
     dc.DrawText(GetLabel(), GetLabelRect().GetTopLeft());
+    if (HasFocus())
+    {
+        wxRendererNative::Get().DrawFocusRect(this, dc, GetClientRect(), wxCONTROL_SELECTED);
+    }
+}
+
+void wxGenericHyperlinkCtrl::OnFocus(wxFocusEvent& event)
+{
+    Refresh();
+    event.Skip();
+}
+
+void wxGenericHyperlinkCtrl::OnChar(wxKeyEvent& event)
+{
+    switch (event.m_keyCode)
+    {
+    default:
+        event.Skip();
+        break;
+    case WXK_SPACE:
+    case WXK_NUMPAD_SPACE:
+        SetForegroundColour(m_visitedColour);
+        m_visited = true;
+        SendEvent();
+        break;
+    }
 }
 
 void wxGenericHyperlinkCtrl::OnLeftDown(wxMouseEvent& event)

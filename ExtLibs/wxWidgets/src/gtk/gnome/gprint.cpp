@@ -1060,7 +1060,8 @@ wxGnomePrinterDCImpl::DoGetPixel(wxCoord WXUNUSED(x1),
 
 void wxGnomePrinterDCImpl::DoDrawLine(wxCoord x1, wxCoord y1, wxCoord x2, wxCoord y2)
 {
-    if  (m_pen.GetStyle() == wxPENSTYLE_TRANSPARENT) return;
+    if ( m_pen.IsTransparent() )
+        return;
 
     SetPen( m_pen );
 
@@ -1107,7 +1108,7 @@ void wxGnomePrinterDCImpl::DoDrawArc(wxCoord x1,wxCoord y1,wxCoord x2,wxCoord y2
         while (alpha2 > 360)  alpha2 -= 360;
     }
 
-    if (m_brush.GetStyle() != wxBRUSHSTYLE_TRANSPARENT)
+    if ( m_brush.IsNonTransparent() )
     {
         SetBrush( m_brush );
         gs_libGnomePrint->gnome_print_moveto ( m_gpc, XLOG2DEV(xc), YLOG2DEV(yc) );
@@ -1116,7 +1117,7 @@ void wxGnomePrinterDCImpl::DoDrawArc(wxCoord x1,wxCoord y1,wxCoord x2,wxCoord y2
         gs_libGnomePrint->gnome_print_fill( m_gpc );
     }
 
-    if (m_pen.GetStyle() != wxPENSTYLE_TRANSPARENT)
+    if ( m_pen.IsNonTransparent() )
     {
         SetPen (m_pen);
         gs_libGnomePrint->gnome_print_newpath( m_gpc );
@@ -1149,7 +1150,7 @@ void wxGnomePrinterDCImpl::DoDrawEllipticArc(wxCoord x,wxCoord y,wxCoord w,wxCoo
     xx = 0.0;
     yy = 0.0;
 
-    if (m_brush.GetStyle () != wxBRUSHSTYLE_TRANSPARENT)
+    if ( m_brush.IsNonTransparent() )
     {
         SetBrush( m_brush );
 
@@ -1161,7 +1162,7 @@ void wxGnomePrinterDCImpl::DoDrawEllipticArc(wxCoord x,wxCoord y,wxCoord w,wxCoo
         gs_libGnomePrint->gnome_print_fill( m_gpc );
     }
 
-    if (m_pen.GetStyle () != wxPENSTYLE_TRANSPARENT)
+    if ( m_pen.IsNonTransparent() )
     {
         SetPen (m_pen);
 
@@ -1183,9 +1184,10 @@ void wxGnomePrinterDCImpl::DoDrawPoint(wxCoord WXUNUSED(x), wxCoord WXUNUSED(y))
 
 void wxGnomePrinterDCImpl::DoDrawLines(int n, wxPoint points[], wxCoord xoffset, wxCoord yoffset)
 {
-    if (m_pen.GetStyle() == wxPENSTYLE_TRANSPARENT) return;
-
     if (n <= 0) return;
+
+    if ( m_pen.IsTransparent() )
+        return;
 
     SetPen (m_pen);
 
@@ -1207,7 +1209,7 @@ void wxGnomePrinterDCImpl::DoDrawPolygon(int n, wxPoint points[],
 {
     if (n==0) return;
 
-    if (m_brush.GetStyle () != wxBRUSHSTYLE_TRANSPARENT)
+    if ( m_brush.IsNonTransparent() )
     {
         SetBrush( m_brush );
 
@@ -1228,7 +1230,7 @@ void wxGnomePrinterDCImpl::DoDrawPolygon(int n, wxPoint points[],
         gs_libGnomePrint->gnome_print_fill( m_gpc );
     }
 
-    if (m_pen.GetStyle () != wxPENSTYLE_TRANSPARENT)
+    if ( m_pen.IsNonTransparent() )
     {
         SetPen (m_pen);
 
@@ -1263,7 +1265,7 @@ void wxGnomePrinterDCImpl::DoDrawRectangle(wxCoord x, wxCoord y, wxCoord width, 
     width--;
     height--;
 
-    if (m_brush.GetStyle () != wxBRUSHSTYLE_TRANSPARENT)
+    if ( m_brush.IsNonTransparent() )
     {
         SetBrush( m_brush );
 
@@ -1279,7 +1281,7 @@ void wxGnomePrinterDCImpl::DoDrawRectangle(wxCoord x, wxCoord y, wxCoord width, 
         CalcBoundingBox( x + width, y + height );
     }
 
-    if (m_pen.GetStyle () != wxPENSTYLE_TRANSPARENT)
+    if ( m_pen.IsNonTransparent() )
     {
         SetPen (m_pen);
 
@@ -1303,7 +1305,7 @@ void wxGnomePrinterDCImpl::DoDrawRoundedRectangle(wxCoord x, wxCoord y, wxCoord 
 
     wxCoord rad = wxRound( radius );
 
-    if (m_brush.GetStyle() != wxBRUSHSTYLE_TRANSPARENT)
+    if ( m_brush.IsNonTransparent() )
     {
         SetBrush(m_brush);
         gs_libGnomePrint->gnome_print_newpath(m_gpc);
@@ -1335,7 +1337,7 @@ void wxGnomePrinterDCImpl::DoDrawRoundedRectangle(wxCoord x, wxCoord y, wxCoord 
         CalcBoundingBox(x+width,y+height);
     }
 
-    if (m_pen.GetStyle() != wxPENSTYLE_TRANSPARENT)
+    if ( m_pen.IsNonTransparent() )
     {
         SetPen(m_pen);
         gs_libGnomePrint->gnome_print_newpath(m_gpc);
@@ -1419,7 +1421,7 @@ void wxGnomePrinterDCImpl::DoDrawEllipse(wxCoord x, wxCoord y, wxCoord width, wx
     width--;
     height--;
 
-    if (m_brush.GetStyle () != wxBRUSHSTYLE_TRANSPARENT)
+    if ( m_brush.IsNonTransparent() )
     {
         SetBrush( m_brush );
         makeEllipticalPath( x, y, width, height );
@@ -1428,7 +1430,7 @@ void wxGnomePrinterDCImpl::DoDrawEllipse(wxCoord x, wxCoord y, wxCoord width, wx
         CalcBoundingBox( x + width, y + height );
     }
 
-    if (m_pen.GetStyle () != wxPENSTYLE_TRANSPARENT)
+    if ( m_pen.IsNonTransparent() )
     {
         SetPen (m_pen);
         makeEllipticalPath( x, y, width, height );
@@ -1532,7 +1534,7 @@ wxGnomePrinterDCImpl::DoDrawBitmap(const wxBitmap& bitmap,
                              wxCoord x, wxCoord y,
                              bool WXUNUSED(useMask))
 {
-    if (!bitmap.Ok()) return;
+    if (!bitmap.IsOk()) return;
 
     if (bitmap.HasPixbuf())
     {
@@ -1563,7 +1565,7 @@ wxGnomePrinterDCImpl::DoDrawBitmap(const wxBitmap& bitmap,
     {
         wxImage image = bitmap.ConvertToImage();
 
-        if (!image.Ok()) return;
+        if (!image.IsOk()) return;
 
         gs_libGnomePrint->gnome_print_gsave( m_gpc );
         double matrix[6];
@@ -1590,7 +1592,7 @@ void wxGnomePrinterDCImpl::DoDrawRotatedText(const wxString& text, wxCoord x, wx
     double xx = XLOG2DEV(x);
     double yy = YLOG2DEV(y);
 
-    bool underlined = m_font.Ok() && m_font.GetUnderlined();
+    bool underlined = m_font.IsOk() && m_font.GetUnderlined();
 
     const wxScopedCharBuffer data(text.utf8_str());
 
@@ -1608,7 +1610,7 @@ void wxGnomePrinterDCImpl::DoDrawRotatedText(const wxString& text, wxCoord x, wx
         pango_attr_list_unref(attrs);
     }
 
-    if (m_textForegroundColour.Ok())
+    if (m_textForegroundColour.IsOk())
     {
         unsigned char red = m_textForegroundColour.Red();
         unsigned char blue = m_textForegroundColour.Blue();
@@ -1672,7 +1674,7 @@ void wxGnomePrinterDCImpl::SetFont( const wxFont& font )
 {
     m_font = font;
 
-    if (m_font.Ok())
+    if (m_font.IsOk())
     {
         if (m_fontdesc)
             pango_font_description_free( m_fontdesc );
@@ -1689,7 +1691,7 @@ void wxGnomePrinterDCImpl::SetFont( const wxFont& font )
 
 void wxGnomePrinterDCImpl::SetPen( const wxPen& pen )
 {
-    if (!pen.Ok()) return;
+    if (!pen.IsOk()) return;
 
     m_pen = pen;
 
@@ -1755,7 +1757,7 @@ void wxGnomePrinterDCImpl::SetPen( const wxPen& pen )
 
 void wxGnomePrinterDCImpl::SetBrush( const wxBrush& brush )
 {
-    if (!brush.Ok()) return;
+    if (!brush.IsOk()) return;
 
     m_brush = brush;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        statbox.h
+// Name:        wx/osx/statbox.h
 // Purpose:     wxStaticBox class
 // Author:      Stefan Csomor
 // Modified by:
@@ -13,8 +13,6 @@
 #define _WX_STATBOX_H_
 
 #include "wx/control.h"
-
-WXDLLIMPEXP_DATA_CORE(extern const char) wxStaticBoxNameStr[];
 
 // Group box
 class WXDLLIMPEXP_CORE wxStaticBox: public wxControl

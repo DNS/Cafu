@@ -13,7 +13,7 @@
 #ifndef _WX_MSGBOXDLG_H_
 #define _WX_MSGBOXDLG_H_
 
-class WXDLLIMPEXP_CORE wxMessageDialog : public wxMessageDialogWithCustomLabels
+class WXDLLIMPEXP_CORE wxMessageDialog : public wxMessageDialogBase
 {
 public:
     wxMessageDialog(wxWindow *parent,
@@ -22,8 +22,12 @@ public:
                     long style = wxOK|wxCENTRE,
                     const wxPoint& pos = wxDefaultPosition);
 
-    virtual int ShowModal();
+#if wxOSX_USE_COCOA
+    ~wxMessageDialog();
+#endif
     
+    virtual int ShowModal();
+
 #if wxOSX_USE_COCOA
     virtual void ShowWindowModal();
     virtual void ModalFinishedCallback(void* panel, int resultCode);
@@ -42,6 +46,9 @@ protected:
     int m_buttonId[3];
     int m_buttonCount;
 
+#if wxOSX_USE_COCOA
+    WX_NSObject m_sheetDelegate;
+#endif
     DECLARE_DYNAMIC_CLASS(wxMessageDialog)
 };
 

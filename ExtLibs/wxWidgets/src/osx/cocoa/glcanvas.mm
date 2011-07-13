@@ -4,7 +4,7 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     1998-01-01
-// RCS-ID:      $Id: glcanvas.cpp 54129 2008-06-11 19:30:52Z SC $
+// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -187,7 +187,7 @@ WXGLPixelFormat WXGLChoosePixelFormat(const int *attribList)
                         if ( !attribList[arg++] )
                             break;
 
-                        return false;
+                        return nil;
                     }
 
                     data[p++] = NSOpenGLPFASampleBuffers;
@@ -204,7 +204,7 @@ WXGLPixelFormat WXGLChoosePixelFormat(const int *attribList)
                         if ( !attribList[arg++] )
                             break;
 
-                        return false;
+                        return nil;
                     }
 
                     data[p++] = NSOpenGLPFASamples;
@@ -260,8 +260,8 @@ bool wxGLCanvas::Create(wxWindow *parent,
     if ( !m_glFormat )
         return false;
 
-   // m_macIsUserPane = false ;
-
+    // DontCreatePeer();
+    
     if ( !wxWindow::Create(parent, id, pos, size, style, name) )
         return false;
 

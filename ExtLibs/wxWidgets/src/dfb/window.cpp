@@ -323,7 +323,7 @@ bool wxWindowDFB::SetCursor(const wxCursor& cursor)
 
 #warning "implement this"
 #if 0
-    if ( m_cursor.Ok() )
+    if ( m_cursor.IsOk() )
         DFB_wmSetWindowCursor(m_wnd, *m_cursor.GetDFBCursor());
     else
         DFB_wmSetWindowCursor(m_wnd, *wxSTANDARD_CURSOR->GetDFBCursor());
@@ -1053,17 +1053,6 @@ void wxWindowDFB::HandleKeyEvent(const wxDFBWindowEvent& event_)
         }
     }
 }
-
-// ---------------------------------------------------------------------------
-// idle events processing
-// ---------------------------------------------------------------------------
-
-void wxWindowDFB::OnInternalIdle()
-{
-    if (wxUpdateUIEvent::CanUpdate(this) && IsShown())
-        UpdateWindowUI(wxUPDATE_UI_FROMIDLE);
-}
-
 
 // Find the wxWindow at the current mouse position, returning the mouse
 // position.

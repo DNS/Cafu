@@ -149,7 +149,7 @@
 // Number added to image width for SetCustomPaintWidth
 #define ODCB_CUST_PAINT_MARGIN               6
 
-// Milliseconds to wait for two mouse-ups after focus inorder
+// Milliseconds to wait for two mouse-ups after focus in order
 // to trigger a double-click.
 #define DOUBLE_CLICK_CONVERSION_TRESHOLD        500
 
@@ -444,7 +444,7 @@ bool wxPGTextCtrlEditor::GetTextCtrlValueFromControl( wxVariant& variant, wxPGPr
     wxTextCtrl* tc = wxStaticCast(ctrl, wxTextCtrl);
     wxString textVal = tc->GetValue();
 
-    if ( property->UsesAutoUnspecified() && !textVal.length() )
+    if ( property->UsesAutoUnspecified() && textVal.empty() )
     {
         variant.MakeNull();
         return true;
@@ -487,7 +487,7 @@ void wxPGTextCtrlEditor_OnFocus( wxPGProperty* property,
 {
     // Make sure there is correct text (instead of unspecified value
     // indicator or hint text)
-    int flags = property->HasFlag(wxPG_PROP_READONLY) ? 
+    int flags = property->HasFlag(wxPG_PROP_READONLY) ?
         0 : wxPG_EDITABLE_VALUE;
     wxString correctText = property->GetValueAsString(flags);
 
@@ -499,7 +499,7 @@ void wxPGTextCtrlEditor_OnFocus( wxPGProperty* property,
 
     tc->SetSelection(-1,-1);
 }
- 
+
 void wxPGTextCtrlEditor::OnFocus( wxPGProperty* property,
                                   wxWindow* wnd ) const
 {
@@ -507,7 +507,12 @@ void wxPGTextCtrlEditor::OnFocus( wxPGProperty* property,
     wxPGTextCtrlEditor_OnFocus(property, tc);
 }
 
-wxPGTextCtrlEditor::~wxPGTextCtrlEditor() { }
+wxPGTextCtrlEditor::~wxPGTextCtrlEditor()
+{
+    // Reset the global pointer. Useful when wxPropertyGrid is accessed
+    // from an external main loop.
+    wxPG_EDITOR(TextCtrl) = NULL;
+}
 
 
 // -----------------------------------------------------------------------
@@ -769,7 +774,7 @@ void wxPropertyGrid::OnComboItemPaint( const wxPGComboBox* pCb,
 
     const wxBitmap* itemBitmap = NULL;
 
-    if ( item >= 0 && choices.IsOk() && choices.Item(item).GetBitmap().Ok() && comValIndex == -1 )
+    if ( item >= 0 && choices.IsOk() && choices.Item(item).GetBitmap().IsOk() && comValIndex == -1 )
         itemBitmap = &choices.Item(item).GetBitmap();
 
     //
@@ -1065,10 +1070,10 @@ wxWindow* wxPGChoiceEditor::CreateControlsBase( wxPropertyGrid* propGrid,
     if ( index >= 0 && index < (int)cb->GetCount() )
     {
         cb->SetSelection( index );
-        if ( defString.length() )
+        if ( !defString.empty() )
             cb->SetText( defString );
     }
-    else if ( !(extraStyle & wxCB_READONLY) && defString.length() )
+    else if ( !(extraStyle & wxCB_READONLY) && !defString.empty() )
     {
         propGrid->SetupTextCtrlValue(defString);
         cb->SetValue( defString );
@@ -1216,7 +1221,10 @@ bool wxPGChoiceEditor::CanContainCustomImage() const
 }
 
 
-wxPGChoiceEditor::~wxPGChoiceEditor() { }
+wxPGChoiceEditor::~wxPGChoiceEditor()
+{
+    wxPG_EDITOR(Choice) = NULL;
+}
 
 
 // -----------------------------------------------------------------------
@@ -1275,7 +1283,7 @@ bool wxPGComboBoxEditor::GetValueFromControl( wxVariant& variant, wxPGProperty* 
     wxOwnerDrawnComboBox* cb = (wxOwnerDrawnComboBox*)ctrl;
     wxString textVal = cb->GetValue();
 
-    if ( property->UsesAutoUnspecified() && !textVal.length() )
+    if ( property->UsesAutoUnspecified() && textVal.empty() )
     {
         variant.MakeNull();
         return true;
@@ -1300,7 +1308,11 @@ void wxPGComboBoxEditor::OnFocus( wxPGProperty* property,
 }
 
 
-wxPGComboBoxEditor::~wxPGComboBoxEditor() { }
+wxPGComboBoxEditor::~wxPGComboBoxEditor()
+{
+    wxPG_EDITOR(ComboBox) = NULL;
+}
+
 
 
 // -----------------------------------------------------------------------
@@ -1352,8 +1364,10 @@ wxPGWindowList wxPGChoiceAndButtonEditor::CreateControls( wxPropertyGrid* propGr
 }
 
 
-wxPGChoiceAndButtonEditor::~wxPGChoiceAndButtonEditor() { }
-
+wxPGChoiceAndButtonEditor::~wxPGChoiceAndButtonEditor()
+{
+    wxPG_EDITOR(ChoiceAndButton) = NULL;
+}
 
 // -----------------------------------------------------------------------
 // wxPGTextCtrlAndButtonEditor
@@ -1377,8 +1391,10 @@ wxPGWindowList wxPGTextCtrlAndButtonEditor::CreateControls( wxPropertyGrid* prop
 }
 
 
-wxPGTextCtrlAndButtonEditor::~wxPGTextCtrlAndButtonEditor() { }
-
+wxPGTextCtrlAndButtonEditor::~wxPGTextCtrlAndButtonEditor()
+{
+    wxPG_EDITOR(TextCtrlAndButton) = NULL;
+}
 
 // -----------------------------------------------------------------------
 // wxPGCheckBoxEditor
@@ -1708,8 +1724,10 @@ void wxPGCheckBoxEditor::SetValueToUnspecified( wxPGProperty* WXUNUSED(property)
 }
 
 
-wxPGCheckBoxEditor::~wxPGCheckBoxEditor() { }
-
+wxPGCheckBoxEditor::~wxPGCheckBoxEditor()
+{
+    wxPG_EDITOR(CheckBox) = NULL;
+}
 
 #endif // wxPG_INCLUDE_CHECKBOX
 
@@ -1788,7 +1806,7 @@ void wxPropertyGrid::CorrectEditorWidgetPosY()
             m_labelEditor->Move(pos.x, r.y + offset);
         }
 
-        if ( m_wndEditor || m_wndEditor2 ) 
+        if ( m_wndEditor || m_wndEditor2 )
         {
             wxRect r = GetEditorWidgetRect(selected, 1);
 
@@ -2141,35 +2159,35 @@ void wxPGMultiButton::Finalize( wxPropertyGrid* WXUNUSED(propGrid),
     Move( pos.x + m_fullEditorSize.x - m_buttonsWidth, pos.y );
 }
 
-int wxPGMultiButton::GenId( int id ) const
+int wxPGMultiButton::GenId( int itemid ) const
 {
-    if ( id < -1 )
+    if ( itemid < -1 )
     {
         if ( m_buttons.size() )
-            id = GetButton(m_buttons.size()-1)->GetId() + 1;
+            itemid = GetButton(m_buttons.size()-1)->GetId() + 1;
         else
-            id = wxPG_SUBID2;
+            itemid = wxPG_SUBID2;
     }
-    return id;
+    return itemid;
 }
 
 #if wxUSE_BMPBUTTON
-void wxPGMultiButton::Add( const wxBitmap& bitmap, int id )
+void wxPGMultiButton::Add( const wxBitmap& bitmap, int itemid )
 {
-    id = GenId(id);
+    itemid = GenId(itemid);
     wxSize sz = GetSize();
-    wxButton* button = new wxBitmapButton( this, id, bitmap,
+    wxButton* button = new wxBitmapButton( this, itemid, bitmap,
                                            wxPoint(sz.x, 0),
                                            wxSize(sz.y, sz.y) );
     DoAddButton( button, sz );
 }
 #endif
 
-void wxPGMultiButton::Add( const wxString& label, int id )
+void wxPGMultiButton::Add( const wxString& label, int itemid )
 {
-    id = GenId(id);
+    itemid = GenId(itemid);
     wxSize sz = GetSize();
-    wxButton* button = new wxButton( this, id, label, wxPoint(sz.x, 0),
+    wxButton* button = new wxButton( this, itemid, label, wxPoint(sz.x, 0),
                                      wxSize(sz.y, sz.y) );
     DoAddButton( button, sz );
 }

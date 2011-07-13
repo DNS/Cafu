@@ -4,7 +4,7 @@
 // Author:      DavidStefan Csomor
 // Modified by:
 // Created:     2008-06-20
-// RCS-ID:      $Id: nonownedwnd.mm 48805 2007-09-19 14:52:25Z SC $
+// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -14,13 +14,26 @@
     #include "wx/nonownedwnd.h"
     #include "wx/frame.h"
     #include "wx/app.h"
+    #include "wx/dialog.h"
+    #include "wx/menuitem.h"
+    #include "wx/menu.h"
 #endif
 
 #include "wx/osx/private.h"
 
+NSScreen* wxOSXGetMenuScreen()
+{
+    if ( [NSScreen screens] == nil )
+        return [NSScreen mainScreen];
+    else 
+    {
+        return [[NSScreen screens] objectAtIndex:0];
+    }
+}
+
 NSRect wxToNSRect( NSView* parent, const wxRect& r )
 {
-    NSRect frame = parent ? [parent bounds] : [[NSScreen mainScreen] frame];
+    NSRect frame = parent ? [parent bounds] : [wxOSXGetMenuScreen() frame];
     int y = r.y;
     int x = r.x ;
     if ( parent == NULL || ![ parent isFlipped ] )
@@ -30,7 +43,7 @@ NSRect wxToNSRect( NSView* parent, const wxRect& r )
 
 wxRect wxFromNSRect( NSView* parent, const NSRect& rect )
 {
-    NSRect frame = parent ? [parent bounds] : [[NSScreen mainScreen] frame];
+    NSRect frame = parent ? [parent bounds] : [wxOSXGetMenuScreen() frame];
     int y = (int)rect.origin.y;
     int x = (int)rect.origin.x;
     if ( parent == NULL || ![ parent isFlipped ] )
@@ -40,7 +53,7 @@ wxRect wxFromNSRect( NSView* parent, const NSRect& rect )
 
 NSPoint wxToNSPoint( NSView* parent, const wxPoint& p )
 {
-    NSRect frame = parent ? [parent bounds] : [[NSScreen mainScreen] frame];
+    NSRect frame = parent ? [parent bounds] : [wxOSXGetMenuScreen() frame];
     int x = p.x ;
     int y = p.y;
     if ( parent == NULL || ![ parent isFlipped ] )
@@ -50,7 +63,7 @@ NSPoint wxToNSPoint( NSView* parent, const wxPoint& p )
 
 wxPoint wxFromNSPoint( NSView* parent, const NSPoint& p )
 {
-    NSRect frame = parent ? [parent bounds] : [[NSScreen mainScreen] frame];
+    NSRect frame = parent ? [parent bounds] : [wxOSXGetMenuScreen() frame];
     int x = (int)p.x;
     int y = (int)p.y;
     if ( parent == NULL || ![ parent isFlipped ] )
@@ -66,6 +79,7 @@ bool shouldHandleSelector(SEL selector)
             || selector == @selector(deleteForward:)
             || selector == @selector(insertNewline:)
             || selector == @selector(insertTab:)
+            || selector == @selector(insertBacktab:)
             || selector == @selector(keyDown:)
             || selector == @selector(keyUp:)
             || selector == @selector(scrollPageUp:)
@@ -188,11 +202,21 @@ bool shouldHandleSelector(SEL selector)
 {
 }
 
+- (NSRect)constrainFrameRect:(NSRect)frameRect toScreen:(NSScreen *)screen;
 - (void)noResponderFor: (SEL) selector;
 - (void)sendEvent:(NSEvent *)event;
 @end
 
 @implementation wxNSPanel
+
+- (NSRect)constrainFrameRect:(NSRect)frameRect toScreen:(NSScreen *)screen
+{
+    wxNonOwnedWindowCocoaImpl* impl = (wxNonOwnedWindowCocoaImpl*) wxNonOwnedWindowImpl::FindFromWXWindow( self );
+    if (impl && impl->IsFullScreen())
+        return frameRect;
+    else
+        return [super constrainFrameRect:frameRect toScreen:screen];
+}
 
 - (BOOL)canBecomeKeyWindow
 {
@@ -241,12 +265,87 @@ bool shouldHandleSelector(SEL selector)
 
 @end
 
+extern int wxOSXGetIdFromSelector(SEL action );
+
 @implementation wxNonOwnedWindowController
 
 - (id) init
 {
-    [super init];
+    self = [super init];
     return self;
+}
+
+- (BOOL) triggerMenu:(SEL) action
+{
+    wxMenuBar* mbar = wxMenuBar::MacGetInstalledMenuBar();
+    if ( mbar )
+    {
+        wxMenu* menu = NULL;
+        wxMenuItem* menuitem = mbar->FindItem(wxOSXGetIdFromSelector(action), &menu);
+        if ( menu != NULL && menuitem != NULL)
+            return menu->HandleCommandProcess(menuitem);
+    }
+    return NO;
+}
+
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem 
+{    
+    SEL action = [menuItem action];
+
+    wxMenuBar* mbar = wxMenuBar::MacGetInstalledMenuBar();
+    if ( mbar )
+    {
+        wxMenu* menu = NULL;
+        wxMenuItem* menuitem = mbar->FindItem(wxOSXGetIdFromSelector(action), &menu);
+        if ( menu != NULL && menuitem != NULL)
+        {
+            menu->HandleCommandUpdateStatus(menuitem);
+            return menuitem->IsEnabled();
+        }
+    }
+    return YES;
+}
+
+- (void)undo:(id)sender 
+{
+    wxUnusedVar(sender);
+    [self triggerMenu:_cmd];
+}
+
+- (void)redo:(id)sender 
+{
+    wxUnusedVar(sender);
+    [self triggerMenu:_cmd];
+}
+
+- (void)cut:(id)sender 
+{
+    wxUnusedVar(sender);
+    [self triggerMenu:_cmd];
+}
+
+- (void)copy:(id)sender
+{
+    wxUnusedVar(sender);
+    [self triggerMenu:_cmd];
+}
+
+- (void)paste:(id)sender
+{
+    wxUnusedVar(sender);
+    [self triggerMenu:_cmd];
+}
+
+- (void)delete:(id)sender 
+{
+    wxUnusedVar(sender);
+    [self triggerMenu:_cmd];
+}
+
+- (void)selectAll:(id)sender 
+{
+    wxUnusedVar(sender);
+    [self triggerMenu:_cmd];
 }
 
 - (BOOL)windowShouldClose:(id)nwindow
@@ -353,6 +452,7 @@ bool shouldHandleSelector(SEL selector)
             editor = [[wxNSTextFieldEditor alloc] init];
             [editor setFieldEditor:YES];
             [tf setFieldEditor:editor];
+            [editor release];
         }
         return editor;
     }
@@ -408,7 +508,7 @@ void wxNonOwnedWindowCocoaImpl::WillBeDestroyed()
     }
 }
 
-void wxNonOwnedWindowCocoaImpl::Create( wxWindow* WXUNUSED(parent), const wxPoint& pos, const wxSize& size,
+void wxNonOwnedWindowCocoaImpl::Create( wxWindow* parent, const wxPoint& pos, const wxSize& size,
 long style, long extraStyle, const wxString& WXUNUSED(name) )
 {
     static wxNonOwnedWindowController* controller = NULL;
@@ -516,7 +616,31 @@ long style, long extraStyle, const wxString& WXUNUSED(name) )
         defer:NO
         ];
 
+    // If the parent is modal, windows with wxFRAME_FLOAT_ON_PARENT style need
+    // to be in kCGUtilityWindowLevel and not kCGFloatingWindowLevel to stay
+    // above the parent.
+    wxDialog * const parentDialog = wxDynamicCast(parent, wxDialog);
+    if (parentDialog && parentDialog->IsModal())
+    {
+        if (level == kCGFloatingWindowLevel)
+        {
+            level = kCGUtilityWindowLevel;
+        }
+
+        // Cocoa's modal loop does not process other windows by default, but
+        // don't call this on normal window levels so nested modal dialogs will
+        // still behave modally.
+        if (level != kCGNormalWindowLevel)
+        {
+            if ([m_macWindow isKindOfClass:[NSPanel class]])
+            {
+                [(NSPanel*)m_macWindow setWorksWhenModal:YES];
+            }
+        }
+    }
+
     [m_macWindow setLevel:level];
+    m_macWindowLevel = level;
 
     [m_macWindow setDelegate:controller];
 
@@ -544,7 +668,7 @@ WXWindow wxNonOwnedWindowCocoaImpl::GetWXWindow() const
 
 void wxNonOwnedWindowCocoaImpl::Raise()
 {
-    [m_macWindow orderWindow:NSWindowAbove relativeTo:0];
+    [m_macWindow makeKeyAndOrderFront:nil];
 }
 
 void wxNonOwnedWindowCocoaImpl::Lower()
@@ -593,8 +717,12 @@ bool wxNonOwnedWindowCocoaImpl::SetTransparent(wxByte alpha)
     return true;
 }
 
-bool wxNonOwnedWindowCocoaImpl::SetBackgroundColour(const wxColour& WXUNUSED(col) )
+bool wxNonOwnedWindowCocoaImpl::SetBackgroundColour(const wxColour& col )
 {
+    [m_macWindow setBackgroundColor:[NSColor colorWithCalibratedRed:(CGFloat) (col.Red() / 255.0)
+                                                             green:(CGFloat) (col.Green() / 255.0)
+                                                              blue:(CGFloat) (col.Blue() / 255.0)
+                                                             alpha:(CGFloat) (col.Alpha() / 255.0)]];
     return true;
 }
 
@@ -627,6 +755,7 @@ void wxNonOwnedWindowCocoaImpl::SetWindowStyleFlag( long style )
             level = kCGFloatingWindowLevel;
         
         [m_macWindow setLevel: level];
+        m_macWindowLevel = level;
     }
 }
 
@@ -669,8 +798,6 @@ void wxNonOwnedWindowCocoaImpl::GetSize( int &width, int &height ) const
 
 void wxNonOwnedWindowCocoaImpl::GetContentArea( int& left, int &top, int &width, int &height ) const
 {
-    NSRect outer = NSMakeRect(100,100,100,100);
-    NSRect content = [NSWindow contentRectForFrameRect:outer styleMask:[m_macWindow styleMask] ];
     NSRect rect = [[m_macWindow contentView] frame];
     left = (int)rect.origin.x;
     top = (int)rect.origin.y;
@@ -751,18 +878,39 @@ bool wxNonOwnedWindowCocoaImpl::ShowFullScreen(bool show, long WXUNUSED(style))
         m_macFullScreenData = data ;
         data->m_formerLevel = [m_macWindow level];
         data->m_formerFrame = [m_macWindow frame];
-        CGDisplayCapture( kCGDirectMainDisplay );
-        [m_macWindow setLevel:CGShieldingWindowLevel()];
-        [m_macWindow setFrame:[[NSScreen mainScreen] frame] display:YES];
+#if 0
+        // CGDisplayCapture( kCGDirectMainDisplay );
+        //[m_macWindow setLevel:NSMainMenuWindowLevel+1/*CGShieldingWindowLevel()*/];
+#endif
+        NSRect screenframe = [[NSScreen mainScreen] frame];
+        NSRect frame = NSMakeRect (0, 0, 100, 100);
+        NSRect contentRect;
+        contentRect = [NSWindow contentRectForFrameRect: frame
+                                styleMask: [m_macWindow styleMask]];
+        screenframe.origin.y += (frame.origin.y - contentRect.origin.y);
+        screenframe.size.height += (frame.size.height - contentRect.size.height);
+        [m_macWindow setFrame:screenframe display:YES];
+
+        SetSystemUIMode(kUIModeAllHidden,
+                                kUIOptionDisableAppleMenu
+                        /*
+                                | kUIOptionDisableProcessSwitch
+                                | kUIOptionDisableForceQuit
+                         */); 
     }
     else if ( m_macFullScreenData != NULL )
     {
         FullScreenData *data = (FullScreenData *) m_macFullScreenData ;
-        CGDisplayRelease( kCGDirectMainDisplay );
-        [m_macWindow setLevel:data->m_formerLevel];
+#if 0
+        // CGDisplayRelease( kCGDirectMainDisplay );
+        // [m_macWindow setLevel:data->m_formerLevel];
+#endif
+        
         [m_macWindow setFrame:data->m_formerFrame display:YES];
         delete data ;
         m_macFullScreenData = NULL ;
+
+        SetSystemUIMode(kUIModeNormal, 0); 
     }
 
     return true;
@@ -830,6 +978,16 @@ bool wxNonOwnedWindowCocoaImpl::IsModified() const
     return [m_macWindow isDocumentEdited];
 }
 
+void wxNonOwnedWindowCocoaImpl::RestoreWindowLevel()
+{
+    if ( [m_macWindow level] != m_macWindowLevel )
+        [m_macWindow setLevel:m_macWindowLevel];
+}
+
+//
+//
+//
+
 wxNonOwnedWindowImpl* wxNonOwnedWindowImpl::CreateNonOwnedWindow( wxNonOwnedWindow* wxpeer, wxWindow* parent, WXWindow nativeWindow)
 {
     wxNonOwnedWindowCocoaImpl* now = new wxNonOwnedWindowCocoaImpl( wxpeer );
@@ -844,3 +1002,4 @@ wxNonOwnedWindowImpl* wxNonOwnedWindowImpl::CreateNonOwnedWindow( wxNonOwnedWind
     now->Create( parent, pos, size, style , extraStyle, name );
     return now;
 }
+

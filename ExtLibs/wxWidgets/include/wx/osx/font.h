@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        font.h
+// Name:        wx/osx/font.h
 // Purpose:     wxFont class
 // Author:      Julian Smart
 // Modified by:
@@ -27,7 +27,7 @@ enum wxOSXSystemFont
     wxOSX_SYSTEM_FONT_MINI,
     wxOSX_SYSTEM_FONT_MINI_BOLD,
     wxOSX_SYSTEM_FONT_LABELS,
-    wxOSX_SYSTEM_FONT_VIEWS,
+    wxOSX_SYSTEM_FONT_VIEWS
 };
 
 
@@ -36,7 +36,7 @@ class WXDLLIMPEXP_CORE wxFont : public wxFontBase
 public:
     // ctors and such
     wxFont() { }
-    
+
     wxFont( wxOSXSystemFont systemFont );
 
 #if wxOSX_USE_COCOA
@@ -101,7 +101,6 @@ public:
     // implement base class pure virtuals
     virtual int GetPointSize() const;
     virtual wxSize GetPixelSize() const;
-    virtual wxFontFamily GetFamily() const;
     virtual wxFontStyle GetStyle() const;
     virtual wxFontWeight GetWeight() const;
     virtual bool GetUnderlined() const;
@@ -147,10 +146,8 @@ public:
     void* MacGetATSUStyle() const ;
     void* OSXGetATSUStyle() const { return MacGetATSUStyle() ; }
 
-#if WXWIN_COMPATIBILITY_2_8
     wxDEPRECATED( wxUint32 MacGetATSUFontID() const );
     wxDEPRECATED( wxUint32 MacGetATSUAdditionalQDStyles() const );
-#endif
 #endif
 
 #if wxOSX_USE_COCOA
@@ -168,6 +165,7 @@ public:
 
 protected:
     virtual void DoSetNativeFontInfo(const wxNativeFontInfo& info);
+    virtual wxFontFamily DoGetFamily() const;
 
     virtual wxGDIRefData *CreateGDIRefData() const;
     virtual wxGDIRefData *CloneGDIRefData(const wxGDIRefData *data) const;

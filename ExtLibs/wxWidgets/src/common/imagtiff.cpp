@@ -25,6 +25,7 @@
 #if wxUSE_IMAGE && wxUSE_LIBTIFF
 
 #include "wx/imagtiff.h"
+#include "wx/versioninfo.h"
 
 #ifndef WX_PRECOMP
     #include "wx/log.h"
@@ -295,13 +296,23 @@ bool wxTIFFHandler::LoadFile( wxImage *image, wxInputStream& stream, bool verbos
     TIFFGetField( tif, TIFFTAG_IMAGEWIDTH, &w );
     TIFFGetField( tif, TIFFTAG_IMAGELENGTH, &h );
 
+    uint16 photometric;
+    uint16 samplesPerPixel;
     uint16 extraSamples;
     uint16* samplesInfo;
+    TIFFGetFieldDefaulted(tif, TIFFTAG_SAMPLESPERPIXEL, &samplesPerPixel);
     TIFFGetFieldDefaulted(tif, TIFFTAG_EXTRASAMPLES,
                           &extraSamples, &samplesInfo);
-    const bool hasAlpha = (extraSamples == 1 &&
-                           (samplesInfo[0] == EXTRASAMPLE_ASSOCALPHA ||
-                            samplesInfo[0] == EXTRASAMPLE_UNASSALPHA));
+    if (!TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &photometric))
+    {
+        photometric = PHOTOMETRIC_MINISWHITE;
+    }
+    const bool hasAlpha = (extraSamples >= 1
+        && ((samplesInfo[0] == EXTRASAMPLE_UNSPECIFIED && samplesPerPixel > 3)
+            || samplesInfo[0] == EXTRASAMPLE_ASSOCALPHA
+            || samplesInfo[0] == EXTRASAMPLE_UNASSALPHA))
+        || (extraSamples == 0 && samplesPerPixel == 4
+            && photometric == PHOTOMETRIC_RGB);
 
     // guard against integer overflow during multiplication which could result
     // in allocating a too small buffer and then overflowing it
@@ -333,7 +344,7 @@ bool wxTIFFHandler::LoadFile( wxImage *image, wxInputStream& stream, bool verbos
     }
 
     image->Create( (int)w, (int)h );
-    if (!image->Ok())
+    if (!image->IsOk())
     {
         if (verbose)
         {
@@ -391,42 +402,78 @@ bool wxTIFFHandler::LoadFile( wxImage *image, wxInputStream& stream, bool verbos
             alpha -= 2*w;
     }
 
-    // set the image resolution if it's available
-    uint16 tiffRes;
-    if ( TIFFGetField(tif, TIFFTAG_RESOLUTIONUNIT, &tiffRes) )
+
+    uint16 spp, bpp, compression;
+    /*
+    Read some baseline TIFF tags which helps when re-saving a TIFF
+    to be similar to the original image.
+    */
+    if ( TIFFGetFieldDefaulted(tif, TIFFTAG_SAMPLESPERPIXEL, &spp) )
     {
-        wxImageResolution res;
-        switch ( tiffRes )
+        image->SetOption(wxIMAGE_OPTION_SAMPLESPERPIXEL, spp);
+    }
+
+    if ( TIFFGetFieldDefaulted(tif, TIFFTAG_BITSPERSAMPLE, &bpp) )
+    {
+        image->SetOption(wxIMAGE_OPTION_BITSPERSAMPLE, bpp);
+    }
+
+    if ( TIFFGetFieldDefaulted(tif, TIFFTAG_COMPRESSION, &compression) )
+    {
+        image->SetOption(wxIMAGE_OPTION_COMPRESSION, compression);
+    }
+
+    // Set the resolution unit.
+    wxImageResolution resUnit = wxIMAGE_RESOLUTION_NONE;
+    uint16 tiffRes;
+    if ( TIFFGetFieldDefaulted(tif, TIFFTAG_RESOLUTIONUNIT, &tiffRes) )
+    {
+        switch (tiffRes)
         {
             default:
                 wxLogWarning(_("Unknown TIFF resolution unit %d ignored"),
-                             tiffRes);
+                    tiffRes);
                 // fall through
 
             case RESUNIT_NONE:
-                res = wxIMAGE_RESOLUTION_NONE;
+                resUnit = wxIMAGE_RESOLUTION_NONE;
                 break;
 
             case RESUNIT_INCH:
-                res = wxIMAGE_RESOLUTION_INCHES;
+                resUnit = wxIMAGE_RESOLUTION_INCHES;
                 break;
 
             case RESUNIT_CENTIMETER:
-                res = wxIMAGE_RESOLUTION_CM;
+                resUnit = wxIMAGE_RESOLUTION_CM;
                 break;
-        }
-
-        if ( res != wxIMAGE_RESOLUTION_NONE )
-        {
-            float xres, yres;
-            if ( TIFFGetField(tif, TIFFTAG_XRESOLUTION, &xres) )
-                image->SetOption(wxIMAGE_OPTION_RESOLUTIONX, wxRound(xres));
-
-            if ( TIFFGetField(tif, TIFFTAG_YRESOLUTION, &yres) )
-                image->SetOption(wxIMAGE_OPTION_RESOLUTIONY, wxRound(yres));
         }
     }
 
+    image->SetOption(wxIMAGE_OPTION_RESOLUTIONUNIT, resUnit);
+
+    /*
+    Set the image resolution if it's available. Resolution tag is not
+    dependant on RESOLUTIONUNIT != RESUNIT_NONE (according to TIFF spec).
+    */
+    float resX, resY;
+
+    if ( TIFFGetField(tif, TIFFTAG_XRESOLUTION, &resX) )
+    {
+        /*
+        Use a string value to not lose precision.
+        rounding to int as cm and then converting to inch may
+        result in whole integer rounding error, eg. 201 instead of 200 dpi.
+        If an app wants an int, GetOptionInt will convert and round down.
+        */
+        image->SetOption(wxIMAGE_OPTION_RESOLUTIONX,
+            wxString::FromCDouble((double) resX));
+    }
+
+    if ( TIFFGetField(tif, TIFFTAG_YRESOLUTION, &resY) )
+    {
+        image->SetOption(wxIMAGE_OPTION_RESOLUTIONY,
+            wxString::FromCDouble((double) resY));
+    }
 
     _TIFFfree( raster );
 
@@ -626,5 +673,28 @@ bool wxTIFFHandler::DoCanRead( wxInputStream& stream )
 }
 
 #endif  // wxUSE_STREAMS
+
+/*static*/ wxVersionInfo wxTIFFHandler::GetLibraryVersionInfo()
+{
+    int major,
+        minor,
+        micro;
+
+    const wxString ver(::TIFFGetVersion());
+    if ( wxSscanf(ver, "LIBTIFF, Version %d.%d.%d", &major, &minor, &micro) != 3 )
+    {
+        wxLogDebug("Unrecognized libtiff version string \"%s\"", ver);
+
+        major =
+        minor =
+        micro = 0;
+    }
+
+    wxString copyright;
+    const wxString desc = ver.BeforeFirst('\n', &copyright);
+    copyright.Replace("\n", "");
+
+    return wxVersionInfo("libtiff", major, minor, micro, desc, copyright);
+}
 
 #endif  // wxUSE_LIBTIFF

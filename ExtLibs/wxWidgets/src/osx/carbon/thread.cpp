@@ -940,7 +940,7 @@ wxThreadError wxThread::Resume()
 // exiting thread
 // -----------------------------------------------------------------------------
 
-wxThread::ExitCode wxThread::Wait()
+wxThread::ExitCode wxThread::Wait(wxThreadWait WXUNUSED(waitMode))
 {
     wxCHECK_MSG( This() != this, (ExitCode)-1,
                  wxT("a thread can't wait for itself") );
@@ -953,7 +953,7 @@ wxThread::ExitCode wxThread::Wait()
     return m_internal->GetExitCode();
 }
 
-wxThreadError wxThread::Delete(ExitCode *rc)
+wxThreadError wxThread::Delete(ExitCode *rc, wxThreadWait WXUNUSED(waitMode))
 {
     wxCHECK_MSG( This() != this, wxTHREAD_MISC_ERROR,
                  wxT("a thread can't delete itself") );
@@ -1128,14 +1128,14 @@ void wxThread::SetPriority(unsigned int prio)
 
 unsigned int wxThread::GetPriority() const
 {
-    wxCriticalSectionLocker lock((wxCriticalSection &)m_critsect); // const_cast
+    wxCriticalSectionLocker lock(const_cast<wxCriticalSection &>(m_critsect));
 
     return m_internal->GetPriority();
 }
 
 unsigned long wxThread::GetId() const
 {
-    wxCriticalSectionLocker lock((wxCriticalSection &)m_critsect); // const_cast
+    wxCriticalSectionLocker lock(const_cast<wxCriticalSection &>(m_critsect));
 
     return (unsigned long)m_internal->GetId();
 }

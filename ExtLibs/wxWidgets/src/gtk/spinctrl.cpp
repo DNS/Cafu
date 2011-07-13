@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        src/gtk/spinbutt.cpp
+// Name:        src/gtk/spinctrl.cpp
 // Purpose:     wxSpinCtrl
 // Author:      Robert
 // Modified by:
@@ -152,12 +152,14 @@ double wxSpinCtrlGTKBase::DoGetValue() const
     g_signal_emit(m_widget, sig_id, 0, &value, &handled);
     if (!handled)
         value = g_strtod(gtk_entry_get_text(GTK_ENTRY(m_widget)), NULL);
-    const GtkAdjustment* adj =
+    GtkAdjustment* adj =
         gtk_spin_button_get_adjustment(GTK_SPIN_BUTTON(m_widget));
-    if (value < adj->lower)
-        value = adj->lower;
-    else if (value > adj->upper)
-        value = adj->upper;
+    const double lower = gtk_adjustment_get_lower(adj);
+    const double upper = gtk_adjustment_get_upper(adj);
+    if (value < lower)
+        value = lower;
+    else if (value > upper)
+        value = upper;
 
     return value;
 }
@@ -185,7 +187,7 @@ double wxSpinCtrlGTKBase::DoGetIncrement() const
     wxCHECK_MSG( (m_widget != NULL), 0, wxT("invalid spin button") );
 
     double inc = 0;
-    gtk_spin_button_get_increments( GTK_SPIN_BUTTON(m_widget), NULL, &inc);
+    gtk_spin_button_get_increments( GTK_SPIN_BUTTON(m_widget), &inc, NULL);
     return inc;
 }
 
@@ -257,7 +259,12 @@ void wxSpinCtrlGTKBase::DoSetIncrement(double inc)
     wxCHECK_RET( m_widget, "invalid spin button" );
 
     GtkDisableEvents();
-    gtk_spin_button_set_increments( GTK_SPIN_BUTTON(m_widget), inc, 10*inc);
+
+    // Preserve the old page value when changing just the increment.
+    double page = 10*inc;
+    gtk_spin_button_get_increments( GTK_SPIN_BUTTON(m_widget), NULL, &page);
+
+    gtk_spin_button_set_increments( GTK_SPIN_BUTTON(m_widget), inc, page);
     GtkEnableEvents();
 }
 
@@ -292,7 +299,7 @@ void wxSpinCtrlGTKBase::OnChar( wxKeyEvent &event )
             GtkWindow *window = GTK_WINDOW(top_frame->m_widget);
             if ( window )
             {
-                GtkWidget *widgetDef = window->default_widget;
+                GtkWidget* widgetDef = gtk_window_get_default_widget(window);
 
                 if ( widgetDef )
                 {
@@ -346,8 +353,6 @@ wxSpinCtrlGTKBase::GetClassDefaultAttributes(wxWindowVariant WXUNUSED(variant))
 //-----------------------------------------------------------------------------
 // wxSpinCtrl
 //-----------------------------------------------------------------------------
-
-IMPLEMENT_DYNAMIC_CLASS(wxSpinCtrl, wxSpinCtrlGTKBase)
 
 //-----------------------------------------------------------------------------
 // wxSpinCtrlDouble

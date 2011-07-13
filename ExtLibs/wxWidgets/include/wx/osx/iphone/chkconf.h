@@ -4,7 +4,7 @@
  * Author:      Stefan Csomor
  * Modified by:
  * Created:     2008-07-30
- * RCS-ID:      $Id: chkconf.h 54833 2008-07-29 21:03:18Z SC $
+ * RCS-ID:      $Id$
  * Copyright:   (c) Stefan Csomor
  * Licence:     wxWindows licence
  */
@@ -94,7 +94,7 @@
 #endif
 
 #ifndef __WXUNIVERSAL__
-#undef wxUSE_SCROLLBAR 
+#undef wxUSE_SCROLLBAR
 #define wxUSE_SCROLLBAR 0
 #endif
 
@@ -331,6 +331,21 @@
 #if wxUSE_DATAOBJ
 #undef wxUSE_DATAOBJ
 #define wxUSE_DATAOBJ 0
+#endif
+
+#if wxUSE_UIACTIONSIMULATOR
+#undef wxUSE_UIACTIONSIMULATOR
+#define wxUSE_UIACTIONSIMULATOR 0
+#endif
+
+#if wxUSE_RICHMSGDLG
+#undef wxUSE_RICHMSGDLG
+#define wxUSE_RICHMSGDLG 0
+#endif
+
+#if wxUSE_RICHTEXT
+#undef wxUSE_RICHTEXT
+#define wxUSE_RICHTEXT 0
 #endif
 
 #endif

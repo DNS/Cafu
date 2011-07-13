@@ -56,6 +56,8 @@ public:
 
     virtual int GetHeaderButtonHeight(wxWindow *win);
 
+    virtual int GetHeaderButtonMargin(wxWindow *win);
+
 
     // draw the expanded/collapsed icon for a tree control item
     virtual void DrawTreeItemButton(wxWindow *win,
@@ -203,7 +205,7 @@ wxRendererGTK::DrawHeaderButton(wxWindow *win,
 
     gtk_paint_box
     (
-        button->style,
+        gtk_widget_get_style(button),
         gdk_window,
         state,
         GTK_SHADOW_OUT,
@@ -224,6 +226,12 @@ int wxRendererGTK::GetHeaderButtonHeight(wxWindow *WXUNUSED(win))
     GTK_WIDGET_GET_CLASS(button)->size_request(button, &req);
 
     return req.height;
+}
+
+int wxRendererGTK::GetHeaderButtonMargin(wxWindow *WXUNUSED(win))
+{
+    wxFAIL_MSG( "GetHeaderButtonMargin() not implemented" );
+    return -1;
 }
 
 
@@ -252,7 +260,7 @@ wxRendererGTK::DrawTreeItemButton(wxWindow* win,
     //     in the given rectangle, +2/3 below is just what looks good here...
     gtk_paint_expander
     (
-        tree->style,
+        gtk_widget_get_style(tree),
         gdk_window,
         state,
         NULL,
@@ -307,7 +315,7 @@ wxRendererGTK::DrawSplitterSash(wxWindow* win,
                                 wxOrientation orient,
                                 int flags)
 {
-    if ( !win->m_wxwindow->window )
+    if (gtk_widget_get_window(win->m_wxwindow) == NULL)
     {
         // window not realized yet
         return;
@@ -345,7 +353,7 @@ wxRendererGTK::DrawSplitterSash(wxWindow* win,
 
     gtk_paint_handle
     (
-        win->m_wxwindow->style,
+        gtk_widget_get_style(win->m_wxwindow),
         gdk_window,
         flags & wxCONTROL_CURRENT ? GTK_STATE_PRELIGHT : GTK_STATE_NORMAL,
         GTK_SHADOW_NONE,
@@ -401,7 +409,7 @@ wxRendererGTK::DrawDropArrow(wxWindow* win,
     // draw arrow on button
     gtk_paint_arrow
     (
-        button->style,
+        gtk_widget_get_style(button),
         gdk_window,
         state,
         flags & wxCONTROL_PRESSED ? GTK_SHADOW_IN : GTK_SHADOW_OUT,
@@ -469,12 +477,21 @@ wxRendererGTK::DrawCheckBox(wxWindow* win,
     else
         state = GTK_STATE_NORMAL;
 
+    GtkShadowType shadow_type;
+
+    if ( flags & wxCONTROL_UNDETERMINED )
+        shadow_type = GTK_SHADOW_ETCHED_IN;
+    else if ( flags & wxCONTROL_CHECKED )
+        shadow_type = GTK_SHADOW_IN;
+    else
+        shadow_type = GTK_SHADOW_OUT;
+
     gtk_paint_check
     (
-        button->style,
+        gtk_widget_get_style(button),
         gdk_window,
         state,
-        flags & wxCONTROL_CHECKED ? GTK_SHADOW_IN : GTK_SHADOW_OUT,
+        shadow_type,
         NULL,
         button,
         "cellcheck",
@@ -510,7 +527,7 @@ wxRendererGTK::DrawPushButton(wxWindow* win,
 
     gtk_paint_box
     (
-        button->style,
+        gtk_widget_get_style(button),
         gdk_window,
         state,
         flags & wxCONTROL_PRESSED ? GTK_SHADOW_IN : GTK_SHADOW_OUT,
@@ -542,7 +559,7 @@ wxRendererGTK::DrawItemSelectionRect(wxWindow* win,
 
         // the wxCONTROL_FOCUSED state is deduced
         // directly from the m_wxwindow by GTK+
-        gtk_paint_flat_box(wxGTKPrivate::GetTreeWidget()->style,
+        gtk_paint_flat_box(gtk_widget_get_style(wxGTKPrivate::GetTreeWidget()),
                         gdk_window,
                         GTK_STATE_SELECTED,
                         GTK_SHADOW_NONE,
@@ -571,7 +588,7 @@ void wxRendererGTK::DrawFocusRect(wxWindow* win, wxDC& dc, const wxRect& rect, i
     else
         state = GTK_STATE_NORMAL;
 
-    gtk_paint_focus( win->m_widget->style,
+    gtk_paint_focus( gtk_widget_get_style(win->m_widget),
                      gdk_window,
                      state,
                      NULL,
@@ -594,14 +611,11 @@ void wxRendererGTK::DrawTextCtrl(wxWindow* win, wxDC& dc, const wxRect& rect, in
     if ( flags & wxCONTROL_DISABLED )
         state = GTK_STATE_INSENSITIVE;
 
-    if (flags & wxCONTROL_CURRENT )
-        GTK_WIDGET_SET_FLAGS( entry, GTK_HAS_FOCUS );
-    else
-        GTK_WIDGET_UNSET_FLAGS( entry, GTK_HAS_FOCUS );
+    gtk_widget_set_can_focus(entry, (flags & wxCONTROL_CURRENT) != 0);
 
     gtk_paint_shadow
     (
-        entry->style,
+        gtk_widget_get_style(entry),
         gdk_window,
         state,
         GTK_SHADOW_OUT,
@@ -615,7 +629,7 @@ void wxRendererGTK::DrawTextCtrl(wxWindow* win, wxDC& dc, const wxRect& rect, in
   );
 }
 
-// Draw the equivallent of a wxComboBox
+// Draw the equivalent of a wxComboBox
 void wxRendererGTK::DrawComboBox(wxWindow* win, wxDC& dc, const wxRect& rect, int flags)
 {
     GtkWidget *combo = wxGTKPrivate::GetComboBoxWidget();
@@ -626,14 +640,11 @@ void wxRendererGTK::DrawComboBox(wxWindow* win, wxDC& dc, const wxRect& rect, in
     if ( flags & wxCONTROL_DISABLED )
        state = GTK_STATE_INSENSITIVE;
 
-    if (flags & wxCONTROL_CURRENT )
-        GTK_WIDGET_SET_FLAGS( combo, GTK_HAS_FOCUS );
-    else
-        GTK_WIDGET_UNSET_FLAGS( combo, GTK_HAS_FOCUS );
+    gtk_widget_set_can_focus(combo, (flags & wxCONTROL_CURRENT) != 0);
 
     gtk_paint_shadow
     (
-        combo->style,
+        gtk_widget_get_style(combo),
         gdk_window,
         state,
         GTK_SHADOW_OUT,
@@ -655,7 +666,7 @@ void wxRendererGTK::DrawComboBox(wxWindow* win, wxDC& dc, const wxRect& rect, in
 
     gtk_paint_arrow
     (
-        combo->style,
+        gtk_widget_get_style(combo),
         gdk_window,
         state,
         GTK_SHADOW_OUT,
@@ -676,7 +687,7 @@ void wxRendererGTK::DrawComboBox(wxWindow* win, wxDC& dc, const wxRect& rect, in
 
     gtk_paint_box
     (
-        combo->style,
+        gtk_widget_get_style(combo),
         gdk_window,
         state,
         GTK_SHADOW_ETCHED_OUT,
@@ -723,7 +734,7 @@ void wxRendererGTK::DrawRadioBitmap(wxWindow* win, wxDC& dc, const wxRect& rect,
 
     gtk_paint_option
     (
-        button->style,
+        gtk_widget_get_style(button),
         gdk_window,
         state,
         shadow_type,

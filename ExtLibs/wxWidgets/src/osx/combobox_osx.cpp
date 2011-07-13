@@ -4,7 +4,7 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     1998-01-01
-// RCS-ID:      $Id: combobox_osx.cpp 58318 2009-01-23 08:36:16Z RR $
+// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -20,8 +20,6 @@
 #endif
 
 // work in progress
-
-IMPLEMENT_DYNAMIC_CLASS(wxComboBox, wxControl)
 
 wxComboBox::~wxComboBox()
 {
@@ -55,18 +53,18 @@ bool wxComboBox::Create(wxWindow *parent, wxWindowID id,
            const wxValidator& validator,
            const wxString& name)
 {
+    DontCreatePeer();
+    
     m_text = NULL;
     m_choice = NULL;
-
-    m_macIsUserPane = false;
-
+    
     if ( !wxControl::Create( parent, id, pos, size, style, validator, name ) )
         return false;
 
     wxASSERT_MSG( !(style & wxCB_SORT),
                   "wxCB_SORT not currently supported by wxOSX/Cocoa");
 
-    m_peer = wxWidgetImpl::CreateComboBox( this, parent, id, NULL, pos, size, style, GetExtraStyle() );
+    SetPeer(wxWidgetImpl::CreateComboBox( this, parent, id, NULL, pos, size, style, GetExtraStyle() ));
 
     MacPostControlCreate( pos, size );
 
@@ -112,7 +110,7 @@ int wxComboBox::DoInsertItems(const wxArrayStringsAdapter& items,
         AssignNewItemClientData(idx, clientData, i, type);
     }
 
-    m_peer->SetMaximum( GetCount() );
+    GetPeer()->SetMaximum( GetCount() );
 
     return pos - 1;
 }
@@ -122,15 +120,11 @@ int wxComboBox::DoInsertItems(const wxArrayStringsAdapter& items,
 // ----------------------------------------------------------------------------
 void wxComboBox::DoSetItemClientData(unsigned int n, void* clientData)
 {
-    wxCHECK_RET( IsValid(n), "invalid index" );
-
     m_datas[n] = (char*)clientData ;
 }
 
 void * wxComboBox::DoGetItemClientData(unsigned int n) const
 {
-    wxCHECK_MSG( IsValid(n), NULL, "invalid index" );
-
     return (void *)m_datas[n];
 }
 
@@ -186,12 +180,15 @@ int wxComboBox::FindString(const wxString& s, bool bCase) const
 
 wxString wxComboBox::GetString(unsigned int n) const
 {
+    wxCHECK_MSG( n < GetCount(), wxString(), "Invalid combobox index" );
+
     return GetComboPeer()->GetStringAtIndex(n);
 }
 
 wxString wxComboBox::GetStringSelection() const
 {
-    return GetString(GetSelection());
+    const int sel = GetSelection();
+    return sel == wxNOT_FOUND ? wxString() : GetString(sel);
 }
 
 void wxComboBox::SetString(unsigned int n, const wxString& s)
@@ -219,7 +216,7 @@ bool wxComboBox::OSXHandleClicked( double WXUNUSED(timestampsec) )
 
 wxComboWidgetImpl* wxComboBox::GetComboPeer() const
 {
-    return dynamic_cast<wxComboWidgetImpl*> (m_peer);
+    return dynamic_cast<wxComboWidgetImpl*> (GetPeer());
 }
 
 #endif // wxUSE_COMBOBOX && wxOSX_USE_COCOA

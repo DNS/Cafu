@@ -39,6 +39,7 @@ should carefully read final section in @ref propgrid_compat.
 @li @ref propgrid_validating
 @li @ref propgrid_populating
 @li @ref propgrid_cellrender
+@li @ref propgrid_keyhandling
 @li @ref propgrid_customizing
 @li @ref propgrid_usage2
 @li @ref propgrid_subclassing
@@ -742,11 +743,58 @@ wxPGProperty::SetCell() for this purpose.
 In addition, it is possible to control these characteristics for
 wxPGChoices list items. See wxPGChoices class reference for more info.
 
+@section propgrid_keyhandling Customizing Keyboard Handling
+
+There is probably one preference for keyboard handling for every developer
+out there, and as a conveniency control wxPropertyGrid tries to cater for
+that. By the default arrow keys are used for navigating between properties,
+and TAB key is used to move focus between the property editor and the
+first column. When the focus is in the editor, arrow keys usually no longer
+work for navigation since they are consumed by the editor.
+
+There are mainly two functions which you can use this customize things,
+wxPropertyGrid::AddActionTrigger() and wxPropertyGrid::DedicateKey().
+First one can be used to set a navigation event to occur on a specific key
+press and the second is used to divert a key from property editors, making it
+possible for the grid to use keys normally consumed by the focused editors.
+
+For example, let's say you want to have an ENTER-based editing scheme. That
+is, editor is focused on ENTER press and the next property is selected when
+the user finishes editing and presses ENTER again. Code like this would
+accomplish the task:
+
+@code
+    // Have property editor focus on Enter
+    propgrid->AddActionTrigger( wxPG_ACTION_EDIT, WXK_RETURN );
+    
+    // Have Enter work as action trigger even when editor is focused
+    propgrid->DedicateKey( WXK_RETURN );
+    
+    // Let Enter also navigate to the next property
+    propgrid->AddActionTrigger( wxPG_ACTION_NEXT_PROPERTY, WXK_RETURN );
+
+@endcode
+
+wxPG_ACTION_EDIT is prioritized above wxPG_ACTION_NEXT_PROPERTY so that the
+above code can work without conflicts. For a complete list of available
+actions, see @ref propgrid_keyboard_actions.
+
+Here's another trick. Normally the up and down cursor keys are consumed by
+the focused wxTextCtrl editor and as such can't be used for navigating between
+properties when that editor is focused. However, using DedicateKey() we can
+change this so that instead of the cursor keys moving the caret inside the
+wxTextCtrl, they navigate between adjacent properties. As such:
+
+@code
+    propgrid->DedicateKey(WXK_UP);
+    propgrid->DedicateKey(WXK_DOWN);
+@endcode
+
 
 @section propgrid_customizing Customizing Properties (without sub-classing)
 
 In this section are presented miscellaneous ways to have custom appearance
-and behavior for your properties without all the necessary hassle
+and behaviour for your properties without all the necessary hassle
 of sub-classing a property class etc.
 
 @subsection propgrid_customimage Setting Value Image
@@ -909,7 +957,7 @@ wxPropertyGrid::CenterSplitter() method. <b>However, be sure to call it after
 the sizer setup and SetSize calls!</b> (ie. usually at the end of the
 frame/dialog constructor)
 
-  Splitter centering behavior can be customized using
+  Splitter centering behaviour can be customized using
 wxPropertyGridInterface::SetColumnProportion(). Usually it is used to set
 non-equal column proportions, which in essence stops the splitter(s) from
 being 'centered' as such, and instead just auto-resized.
@@ -946,7 +994,7 @@ Version of wxPropertyGrid bundled with wxWidgets 2.9+ has various backward-
 incompatible changes from version 1.4, which had a stable API and will remain
 as the last separate branch.
 
-Note that in general any behavior-breaking changes should not compile or run
+Note that in general any behaviour-breaking changes should not compile or run
 without warnings or errors.
 
 @subsection propgrid_compat_general General Changes
@@ -957,14 +1005,14 @@ without warnings or errors.
     with keyboard. This change allowed fixing broken tab traversal on wxGTK
     (which is open issue in wxPropertyGrid 1.4).
 
-  - wxPG_EX_UNFOCUS_ON_ENTER style is removed and is now default behavior.
+  - wxPG_EX_UNFOCUS_ON_ENTER style is removed and is now default behaviour.
     That is, when enter is pressed, editing is considered done and focus
     moves back to the property grid from the editor control.
 
   - A few member functions were removed from wxPropertyGridInterface.
     Please use wxPGProperty's counterparts from now on.
 
-  - wxPGChoices now has proper Copy-On-Write behavior.
+  - wxPGChoices now has proper Copy-On-Write behaviour.
 
   - wxPGChoices::SetExclusive() was renamed to AllocExclusive().
 
@@ -978,15 +1026,15 @@ without warnings or errors.
     now use wxPropertyGridInterface::GetEditableState() instead.
 
   - wxPG_EX_DISABLE_TLP_TRACKING is now enabled by default. To get the old
-    behavior (recommended if you don't use a system that reparents the grid
+    behaviour (recommended if you don't use a system that reparents the grid
     on its own), use the wxPG_EX_ENABLE_TLP_TRACKING extra style.
 
   - Extended window style wxPG_EX_LEGACY_VALIDATORS was removed.
 
-  - Default property validation failure behavior has been changed to
+  - Default property validation failure behaviour has been changed to
     (wxPG_VFB_MARK_CELL | wxPG_VFB_SHOW_MESSAGEBOX), which means that the
     cell is marked red and wxMessageBox is shown. This is more user-friendly
-    than the old behavior, which simply beeped and prevented leaving the
+    than the old behaviour, which simply beeped and prevented leaving the
     property editor until a valid value was entered.
 
   - wxPropertyGridManager now has same Get/SetSelection() semantics as
@@ -1014,6 +1062,14 @@ without warnings or errors.
 
   - wxPropertyGrid::CanClose() has been removed. Call
     wxPropertyGridInterface::EditorValidate() instead.
+
+  - wxPGProperty::SetFlag() has been moved to private API. This was done to
+    underline the fact that it was not the preferred method to change a
+    property's state since it never had any desired side-effects. ChangeFlag()
+    still exists for those who really need to achieve the same effect.
+
+  - wxArrayStringProperty default delimiter is now comma (','), and it can
+    be changed by setting the new "Delimiter" attribute.
 
 @subsection propgrid_compat_propdev Property and Editor Sub-classing Changes
 

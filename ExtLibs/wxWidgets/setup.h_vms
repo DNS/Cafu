@@ -3,7 +3,7 @@
  * Template for the set.h file for VMS                                       *
  * Created from setup.h_in                                                   *
  * Author : J.Jansen (joukj@hrem.nano.tudelft.nl)                            *
- * Date : 1 July 2010                                                        *
+ * Date : 27 April 2011                                                      *
  *                                                                           *
  *****************************************************************************/
 
@@ -22,6 +22,11 @@
 
 /* Define as __inline if that's what the C compiler calls it.  */
 #undef inline
+
+#else
+
+#define __USE_STD_IOSTREAM 1
+#define _USE_STD_STAT 1
 
 #endif /* __cplusplus */
 
@@ -97,6 +102,12 @@ typedef pid_t GPid;
 #define G_GNUC_INTERNAL
 
 #endif
+#endif
+
+#ifdef VMS_GTK2
+#define wxUSE_CAIRO 1
+#else
+#define wxUSE_CAIRO 0
 #endif
 
 /*
@@ -205,8 +216,6 @@ typedef pid_t GPid;
 
 #define wxUSE_EXTENDED_RTTI 0
 
-#define wxUSE_STL 0
-
 #define wxUSE_LOG 1
 
 #define wxUSE_LOGWINDOW 1
@@ -221,18 +230,26 @@ typedef pid_t GPid;
 
 #define wxUSE_STREAMS       1
 
+#define wxUSE_PRINTF_POS_PARAMS      0
+
+#define wxUSE_STL 0
+
 #if defined(__DMC__) || defined(__WATCOMC__) \
         || (defined(_MSC_VER) && _MSC_VER < 1200)
     #define wxUSE_STD_DEFAULT  0
 #else
-    #define wxUSE_STD_DEFAULT  0
+    #define wxUSE_STD_DEFAULT  1
 #endif
+
+#define wxUSE_STD_CONTAINERS wxUSE_STD_DEFAULT
 
 #define wxUSE_STD_IOSTREAM  wxUSE_STD_DEFAULT
 
 #define wxUSE_STD_STRING  wxUSE_STD_DEFAULT
 
-#define wxUSE_PRINTF_POS_PARAMS 0
+#define wxUSE_STD_STRING_CONV_IN_WXSTRING wxUSE_STL
+
+#define wxUSE_IOSTREAMH     1
 
 #define wxUSE_LONGLONG      1
 
@@ -362,6 +379,8 @@ typedef pid_t GPid;
 
 #define wxUSE_CONTROLS     1
 
+#define wxUSE_MARKUP       1
+
 #ifdef __WXMOTIF__
 #define wxUSE_POPUPWIN 0
 #else
@@ -382,6 +401,7 @@ typedef pid_t GPid;
 #define wxUSE_COLLPANE      1
 #define wxUSE_COLOURPICKERCTRL 1
 #define wxUSE_COMBOBOX     1
+#define wxUSE_COMMANDLINKBUTTON 1
 #define wxUSE_DATAVIEWCTRL   1
 #define wxUSE_DATEPICKCTRL 1
 #define wxUSE_DIRPICKERCTRL 1
@@ -396,6 +416,7 @@ typedef pid_t GPid;
 #define wxUSE_LISTCTRL     1
 #define wxUSE_RADIOBOX     1
 #define wxUSE_RADIOBTN     1
+#define wxUSE_RICHMSGDLG    1
 #define wxUSE_SCROLLBAR    1
 #define wxUSE_SEARCHCTRL    1
 #define wxUSE_SLIDER       1
@@ -445,6 +466,10 @@ typedef pid_t GPid;
 #define wxUSE_REARRANGECTRL 1
 
 #define wxUSE_ACCEL 1
+
+#define wxUSE_ARTPROVIDER_STD 1
+
+#define wxUSE_ARTPROVIDER_TANGO 1
 
 #define wxUSE_HOTKEY 1
 
@@ -574,12 +599,6 @@ typedef pid_t GPid;
 #define wxUSE_AFM_FOR_POSTSCRIPT 1
 
 #define wxUSE_SVG 1
-
-#define REMOVE_UNUSED_ARG   1
-
-#define wxUSE_IOSTREAMH     1
-
-
 
 #define wxUSE_IMAGE         1
 
@@ -818,6 +837,9 @@ typedef pid_t GPid;
  * Use the Hildon 2.0 framework
  */
 #define wxUSE_LIBHILDON2 0
+
+#define wxUSE_DC_TRANSFORM_MATRIX 1
+
 /*
  * Have glibc2
  */
@@ -1054,6 +1076,9 @@ typedef pid_t GPid;
 
 /* Define if you have wcsdup function  */
 #undef HAVE_WCSDUP
+
+/* Define if you have wcsftime() function  */
+#define HAVE_WCSFTIME 1
 
 /* Define if you have strnlen() function */
 #define HAVE_STRNLEN 1

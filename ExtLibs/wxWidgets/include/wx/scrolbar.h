@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        scrolbar.h
+// Name:        wx/scrolbar.h
 // Purpose:     wxScrollBar base header
 // Author:      Julian Smart
 // Modified by:
@@ -29,7 +29,10 @@ class WXDLLIMPEXP_CORE wxScrollBarBase : public wxControl
 public:
     wxScrollBarBase() { }
 
-    // scrollbar construction
+    /*
+        Derived classes should provide the following method and ctor with the
+        same parameters:
+
     bool Create(wxWindow *parent,
                 wxWindowID id,
                 const wxPoint& pos = wxDefaultPosition,
@@ -37,6 +40,7 @@ public:
                 long style = wxSB_HORIZONTAL,
                 const wxValidator& validator = wxDefaultValidator,
                 const wxString& name = wxScrollBarNameStr);
+    */
 
     // accessors
     virtual int GetThumbPosition() const = 0;

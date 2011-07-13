@@ -91,8 +91,6 @@ BEGIN_EVENT_TABLE(wxFrame, wxFrameBase)
     EVT_SYS_COLOUR_CHANGED(wxFrame::OnSysColourChanged)
 END_EVENT_TABLE()
 
-IMPLEMENT_DYNAMIC_CLASS(wxFrame, wxTopLevelWindow)
-
 // ============================================================================
 // implementation
 // ============================================================================
@@ -451,7 +449,7 @@ void wxFrame::DoSetIcon(const wxIcon& icon)
     if (!m_frameShell)
         return;
 
-    if (!icon.Ok() || !icon.GetDrawable())
+    if (!icon.IsOk() || !icon.GetDrawable())
         return;
 
     XtVaSetValues((Widget) m_frameShell,

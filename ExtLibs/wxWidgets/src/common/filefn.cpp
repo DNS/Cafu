@@ -64,11 +64,13 @@
     #include "wx/msw/mslu.h"
 
     // sys/cygwin.h is needed for cygwin_conv_to_full_win32_path()
+    // and for cygwin_conv_path()
     //
     // note that it must be included after <windows.h>
     #ifdef __GNUWIN32__
         #ifdef __CYGWIN__
             #include <sys/cygwin.h>
+            #include <cygwin/version.h>
         #endif
     #endif // __GNUWIN32__
 
@@ -94,10 +96,6 @@
 
 #ifndef _MAXPATHLEN
     #define _MAXPATHLEN 1024
-#endif
-
-#ifndef INVALID_FILE_ATTRIBUTES
-    #define INVALID_FILE_ATTRIBUTES ((DWORD)-1)
 #endif
 
 // ----------------------------------------------------------------------------
@@ -733,16 +731,7 @@ wxChar *wxFileNameFromPath (wxChar *path)
 
 wxString wxFileNameFromPath (const wxString& path)
 {
-    wxString name, ext;
-    wxFileName::SplitPath(path, NULL, &name, &ext);
-
-    wxString fullname = name;
-    if ( !ext.empty() )
-    {
-        fullname << wxFILE_SEP_EXT << ext;
-    }
-
-    return fullname;
+    return wxFileName(path).GetFullName();
 }
 
 // Return just the directory, or NULL if no directory
@@ -1062,7 +1051,7 @@ wxCopyFile (const wxString& file1, const wxString& file2, bool overwrite)
     // instead of our code if available
     //
     // NB: 3rd parameter is bFailIfExists i.e. the inverse of overwrite
-    if ( !::CopyFile(file1.fn_str(), file2.fn_str(), !overwrite) )
+    if ( !::CopyFile(file1.t_str(), file2.t_str(), !overwrite) )
     {
         wxLogSysError(_("Failed to copy the file '%s' to '%s'"),
                       file1.c_str(), file2.c_str());
@@ -1356,7 +1345,7 @@ wxString wxFindFirstFile(const wxString& spec, int flags)
 
     if ( !gs_dir->IsOpened() )
     {
-        wxLogSysError(_("Can not enumerate files '%s'"), spec);
+        wxLogSysError(_("Cannot enumerate files '%s'"), spec);
         return wxEmptyString;
     }
 
@@ -1505,11 +1494,19 @@ wxChar *wxDoGetCwd(wxChar *buf, int sz)
         // another example of DOS/Unix mix (Cygwin)
         wxString pathUnix = buf;
 #if wxUSE_UNICODE
+    #if CYGWIN_VERSION_DLL_MAJOR >= 1007
+        cygwin_conv_path(CCP_POSIX_TO_WIN_W, pathUnix.mb_str(wxConvFile), buf, sz);
+    #else
         char bufA[_MAXPATHLEN];
         cygwin_conv_to_full_win32_path(pathUnix.mb_str(wxConvFile), bufA);
         wxConvFile.MB2WC(buf, bufA, sz);
+    #endif
 #else
+    #if CYGWIN_VERSION_DLL_MAJOR >= 1007
+        cygwin_conv_path(CCP_POSIX_TO_WIN_A, pathUnix, buf, sz);
+    #else
         cygwin_conv_to_full_win32_path(pathUnix, buf);
+    #endif
 #endif // wxUSE_UNICODE
 #endif // __CYGWIN__
     }

@@ -59,8 +59,6 @@ public:
 // implementation
 // ============================================================================
 
-IMPLEMENT_DYNAMIC_CLASS(wxCheckBox, wxControl)
-
 // ----------------------------------------------------------------------------
 // wxCheckBox
 // ----------------------------------------------------------------------------
@@ -80,6 +78,7 @@ bool wxCheckBox::Create(wxWindow *parent,
                         const wxValidator& validator,
                         const wxString &name)
 {
+    WXValidateStyle( &style );
     if ( !wxControl::Create(parent, id, pos, size, style, validator, name) )
         return false;
 
@@ -117,7 +116,7 @@ void wxCheckBox::OnCheck()
 wxBitmap wxCheckBox::GetBitmap(State state, Status status) const
 {
     wxBitmap bmp = m_bitmaps[state][status];
-    if ( !bmp.Ok() )
+    if ( !bmp.IsOk() )
         bmp = m_bitmaps[State_Normal][status];
 
     return bmp;
@@ -179,7 +178,7 @@ void wxCheckBox::DoDraw(wxControlRenderer *renderer)
 wxSize wxCheckBox::GetBitmapSize() const
 {
     wxBitmap bmp = GetBitmap(State_Normal, Status_Checked);
-    return bmp.Ok() ? wxSize(bmp.GetWidth(), bmp.GetHeight())
+    return bmp.IsOk() ? wxSize(bmp.GetWidth(), bmp.GetHeight())
                     : GetRenderer()->GetCheckBitmapSize();
 }
 

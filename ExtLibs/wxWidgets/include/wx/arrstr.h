@@ -28,7 +28,7 @@ inline int wxCMPFUNC_CONV wxStringSortDescending(wxString* s1, wxString* s2)
     return wxStringSortAscending(s2, s1);
 }
 
-#if wxUSE_STL
+#if wxUSE_STD_CONTAINERS
 
 #include "wx/dynarray.h"
 
@@ -100,7 +100,7 @@ private:
     }
 };
 
-#else // if !wxUSE_STL
+#else // if !wxUSE_STD_CONTAINERS
 
 // this shouldn't be defined for compilers not supporting template methods or
 // without std::distance()
@@ -173,23 +173,26 @@ public:
 
   // items access (range checking is done in debug version)
     // get item at position uiIndex
-  wxString& Item(size_t nIndex) const
+  wxString& Item(size_t nIndex)
     {
         wxASSERT_MSG( nIndex < m_nCount,
                       wxT("wxArrayString: index out of bounds") );
 
         return m_pItems[nIndex];
     }
+  const wxString& Item(size_t nIndex) const { return const_cast<wxArrayString*>(this)->Item(nIndex); }
 
     // same as Item()
-  wxString& operator[](size_t nIndex) const { return Item(nIndex); }
+  wxString& operator[](size_t nIndex) { return Item(nIndex); }
+  const wxString& operator[](size_t nIndex) const { return Item(nIndex); }
     // get last item
-  wxString& Last() const
+  wxString& Last()
   {
       wxASSERT_MSG( !IsEmpty(),
                     wxT("wxArrayString: index out of bounds") );
       return Item(GetCount() - 1);
   }
+  const wxString& Last() const { return const_cast<wxArrayString*>(this)->Last(); }
 
 
   // item management
@@ -249,7 +252,7 @@ public:
   public:
     pointer m_ptr;
     reverse_iterator() : m_ptr(NULL) { }
-    reverse_iterator(pointer ptr) : m_ptr(ptr) { }
+    wxEXPLICIT reverse_iterator(pointer ptr) : m_ptr(ptr) { }
     reverse_iterator(const itor& it) : m_ptr(it.m_ptr) { }
     reference operator*() const { return *m_ptr; }
     pointer operator->() const { return m_ptr; }
@@ -275,7 +278,7 @@ public:
   public:
     pointer m_ptr;
     const_reverse_iterator() : m_ptr(NULL) { }
-    const_reverse_iterator(pointer ptr) : m_ptr(ptr) { }
+    wxEXPLICIT const_reverse_iterator(pointer ptr) : m_ptr(ptr) { }
     const_reverse_iterator(const itor& it) : m_ptr(it.m_ptr) { }
     const_reverse_iterator(const reverse_iterator& it) : m_ptr(it.m_ptr) { }
     reference operator*() const { return *m_ptr; }
@@ -381,7 +384,7 @@ public:
     { Copy(array); }
 };
 
-#endif // !wxUSE_STL
+#endif // !wxUSE_STD_CONTAINERS
 
 // this class provides a temporary wxString* from a
 // wxArrayString

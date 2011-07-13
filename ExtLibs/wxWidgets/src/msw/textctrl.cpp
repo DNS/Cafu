@@ -176,76 +176,6 @@ private:
 // event tables and other macros
 // ----------------------------------------------------------------------------
 
-#if wxUSE_EXTENDED_RTTI
-WX_DEFINE_FLAGS( wxTextCtrlStyle )
-
-wxBEGIN_FLAGS( wxTextCtrlStyle )
-    // new style border flags, we put them first to
-    // use them for streaming out
-    wxFLAGS_MEMBER(wxBORDER_SIMPLE)
-    wxFLAGS_MEMBER(wxBORDER_SUNKEN)
-    wxFLAGS_MEMBER(wxBORDER_DOUBLE)
-    wxFLAGS_MEMBER(wxBORDER_RAISED)
-    wxFLAGS_MEMBER(wxBORDER_STATIC)
-    wxFLAGS_MEMBER(wxBORDER_NONE)
-
-    // old style border flags
-    wxFLAGS_MEMBER(wxSIMPLE_BORDER)
-    wxFLAGS_MEMBER(wxSUNKEN_BORDER)
-    wxFLAGS_MEMBER(wxDOUBLE_BORDER)
-    wxFLAGS_MEMBER(wxRAISED_BORDER)
-    wxFLAGS_MEMBER(wxSTATIC_BORDER)
-    wxFLAGS_MEMBER(wxBORDER)
-
-    // standard window styles
-    wxFLAGS_MEMBER(wxTAB_TRAVERSAL)
-    wxFLAGS_MEMBER(wxCLIP_CHILDREN)
-    wxFLAGS_MEMBER(wxTRANSPARENT_WINDOW)
-    wxFLAGS_MEMBER(wxWANTS_CHARS)
-    wxFLAGS_MEMBER(wxFULL_REPAINT_ON_RESIZE)
-    wxFLAGS_MEMBER(wxALWAYS_SHOW_SB )
-    wxFLAGS_MEMBER(wxVSCROLL)
-    wxFLAGS_MEMBER(wxHSCROLL)
-
-    wxFLAGS_MEMBER(wxTE_PROCESS_ENTER)
-    wxFLAGS_MEMBER(wxTE_PROCESS_TAB)
-    wxFLAGS_MEMBER(wxTE_MULTILINE)
-    wxFLAGS_MEMBER(wxTE_PASSWORD)
-    wxFLAGS_MEMBER(wxTE_READONLY)
-    wxFLAGS_MEMBER(wxHSCROLL)
-    wxFLAGS_MEMBER(wxTE_RICH)
-    wxFLAGS_MEMBER(wxTE_RICH2)
-    wxFLAGS_MEMBER(wxTE_AUTO_URL)
-    wxFLAGS_MEMBER(wxTE_NOHIDESEL)
-    wxFLAGS_MEMBER(wxTE_LEFT)
-    wxFLAGS_MEMBER(wxTE_CENTRE)
-    wxFLAGS_MEMBER(wxTE_RIGHT)
-    wxFLAGS_MEMBER(wxTE_DONTWRAP)
-    wxFLAGS_MEMBER(wxTE_CHARWRAP)
-    wxFLAGS_MEMBER(wxTE_WORDWRAP)
-
-wxEND_FLAGS( wxTextCtrlStyle )
-
-IMPLEMENT_DYNAMIC_CLASS_XTI(wxTextCtrl, wxControl,"wx/textctrl.h")
-
-wxBEGIN_PROPERTIES_TABLE(wxTextCtrl)
-    wxEVENT_PROPERTY( TextUpdated , wxEVT_COMMAND_TEXT_UPDATED , wxCommandEvent )
-    wxEVENT_PROPERTY( TextEnter , wxEVT_COMMAND_TEXT_ENTER , wxCommandEvent )
-
-    wxPROPERTY( Font , wxFont , SetFont , GetFont  , EMPTY_MACROVALUE, 0 /*flags*/ , wxT("Helpstring") , wxT("group") )
-    wxPROPERTY( Value , wxString , SetValue, GetValue, wxString() , 0 /*flags*/ , wxT("Helpstring") , wxT("group"))
-    wxPROPERTY_FLAGS( WindowStyle , wxTextCtrlStyle , long , SetWindowStyleFlag , GetWindowStyleFlag , EMPTY_MACROVALUE , 0 /*flags*/ , wxT("Helpstring") , wxT("group")) // style
-wxEND_PROPERTIES_TABLE()
-
-wxBEGIN_HANDLERS_TABLE(wxTextCtrl)
-wxEND_HANDLERS_TABLE()
-
-wxCONSTRUCTOR_6( wxTextCtrl , wxWindow* , Parent , wxWindowID , Id , wxString , Value , wxPoint , Position , wxSize , Size , long , WindowStyle)
-#else
-IMPLEMENT_DYNAMIC_CLASS(wxTextCtrl, wxTextCtrlBase)
-#endif
-
-
 BEGIN_EVENT_TABLE(wxTextCtrl, wxTextCtrlBase)
     EVT_CHAR(wxTextCtrl::OnChar)
     EVT_KEY_DOWN(wxTextCtrl::OnKeyDown)
@@ -434,6 +364,8 @@ bool wxTextCtrl::MSWCreateText(const wxString& value,
                 {
                     // yes, class name for version 4.1 really is 5.0
                     windowClass = wxT("RICHEDIT50W");
+
+                    m_verRichEdit = 4;
                 }
                 else if ( wxRichEditModule::Load(wxRichEditModule::Version_2or3) )
                 {
@@ -802,10 +734,10 @@ wxString wxTextCtrl::GetRange(long from, long to) const
                 wxFontEncoding encoding = wxFONTENCODING_SYSTEM;
 
                 wxFont font = m_defaultStyle.GetFont();
-                if ( !font.Ok() )
+                if ( !font.IsOk() )
                     font = GetFont();
 
-                if ( font.Ok() )
+                if ( font.IsOk() )
                 {
                    encoding = font.GetEncoding();
                 }
@@ -1140,10 +1072,10 @@ void wxTextCtrl::DoWriteText(const wxString& value, int flags)
         if ( GetRichVersion() > 1 )
         {
             wxFont font = m_defaultStyle.GetFont();
-            if ( !font.Ok() )
+            if ( !font.IsOk() )
                 font = GetFont();
 
-            if ( font.Ok() )
+            if ( font.IsOk() )
             {
                wxFontEncoding encoding = font.GetEncoding();
                if ( encoding != wxFONTENCODING_SYSTEM )
@@ -1193,7 +1125,7 @@ void wxTextCtrl::AppendText(const wxString& text)
     // don't do this if we're frozen, saves some time
     if ( !IsFrozen() && IsMultiLine() && GetRichVersion() > 1 )
     {
-        ::SendMessage(GetHwnd(), WM_VSCROLL, SB_BOTTOM, NULL);
+        ::SendMessage(GetHwnd(), WM_VSCROLL, SB_BOTTOM, (LPARAM)NULL);
     }
 #endif // wxUSE_RICHEDIT
 }
@@ -2363,16 +2295,15 @@ bool wxTextCtrl::SetFont(const wxFont& font)
     if ( !wxTextCtrlBase::SetFont(font) )
         return false;
 
-    if ( IsRich() )
+    if ( GetRichVersion() >= 4 )
     {
-        // Using WM_SETFONT doesn't work reliably with rich edit controls: as
-        // an example, if we set a fixed width font for a richedit 4.1 control,
-        // it's used for the ASCII characters but inserting any non-ASCII ones
-        // switches the font to a proportional one, whether it's done
-        // programmatically or not. So just use EM_SETCHARFORMAT for this too.
+        // Using WM_SETFONT is not enough with RichEdit 4.1: it does work but
+        // for ASCII characters only and inserting a non-ASCII one into it
+        // later reverts to the default font so use EM_SETCHARFORMAT to change
+        // the default font for it.
         wxTextAttr attr;
         attr.SetFont(font);
-        SetDefaultStyle(attr);
+        SetStyle(-1, -1, attr);
     }
 
     return true;
@@ -2382,46 +2313,8 @@ bool wxTextCtrl::SetFont(const wxFont& font)
 // styling support for rich edit controls
 // ----------------------------------------------------------------------------
 
-bool wxTextCtrl::SetStyle(long start, long end, const wxTextAttr& style)
+bool wxTextCtrl::MSWSetCharFormat(const wxTextAttr& style, long start, long end)
 {
-    if ( !IsRich() )
-    {
-        // can't do it with normal text control
-        return false;
-    }
-
-    // the richedit 1.0 doesn't handle setting background colour, so don't
-    // even try to do anything if it's the only thing we want to change
-    if ( m_verRichEdit == 1 && !style.HasFont() && !style.HasTextColour() &&
-        !style.HasLeftIndent() && !style.HasRightIndent() && !style.HasAlignment() &&
-        !style.HasTabs() )
-    {
-        // nothing to do: return true if there was really nothing to do and
-        // false if we failed to set bg colour
-        return !style.HasBackgroundColour();
-    }
-
-    // order the range if needed
-    if ( start > end )
-    {
-        long tmp = start;
-        start = end;
-        end = tmp;
-    }
-
-    // we can only change the format of the selection, so select the range we
-    // want and restore the old selection later
-    long startOld, endOld;
-    GetSelection(&startOld, &endOld);
-
-    // but do we really have to change the selection?
-    bool changeSel = start != startOld || end != endOld;
-
-    if ( changeSel )
-    {
-        DoSetSelection(start, end, SetSel_NoScroll);
-    }
-
     // initialize CHARFORMAT struct
 #if wxUSE_RICHEDIT2
     CHARFORMAT2 cf;
@@ -2503,17 +2396,37 @@ bool wxTextCtrl::SetStyle(long start, long end, const wxTextAttr& style)
     }
 #endif // wxUSE_RICHEDIT2
 
-    // do format the selection
-    bool ok = ::SendMessage(GetHwnd(), EM_SETCHARFORMAT,
-                            SCF_SELECTION, (LPARAM)&cf) != 0;
-    if ( !ok )
+    // Apply the style either to the selection or to the entire control.
+    WPARAM selMode;
+    if ( start != -1 || end != -1 )
     {
-        wxLogDebug(wxT("SendMessage(EM_SETCHARFORMAT, SCF_SELECTION) failed"));
+        DoSetSelection(start, end, SetSel_NoScroll);
+        selMode = SCF_SELECTION;
+    }
+    else
+    {
+        selMode = SCF_ALL;
     }
 
-    // now do the paragraph formatting
+    if ( !::SendMessage(GetHwnd(), EM_SETCHARFORMAT, selMode, (LPARAM)&cf) )
+    {
+        wxLogLastError(wxT("SendMessage(EM_SETCHARFORMAT)"));
+        return false;
+    }
+
+    return true;
+}
+
+bool wxTextCtrl::MSWSetParaFormat(const wxTextAttr& style, long start, long end)
+{
+#if wxUSE_RICHEDIT2
     PARAFORMAT2 pf;
+#else
+    PARAFORMAT pf;
+#endif
+
     wxZeroMemory(pf);
+
     // we can't use PARAFORMAT2 with RichEdit 1.0, so pretend it is a simple
     // PARAFORMAT in that case
 #if wxUSE_RICHEDIT2
@@ -2588,16 +2501,54 @@ bool wxTextCtrl::SetStyle(long start, long end, const wxTextAttr& style)
 
     if ( pf.dwMask )
     {
-        // do format the selection
-        bool ok = ::SendMessage(GetHwnd(), EM_SETPARAFORMAT,
-                                0, (LPARAM) &pf) != 0;
-        if ( !ok )
+        // Do format the selection.
+        DoSetSelection(start, end, SetSel_NoScroll);
+
+        if ( !::SendMessage(GetHwnd(), EM_SETPARAFORMAT, 0, (LPARAM) &pf) )
         {
-            wxLogDebug(wxT("SendMessage(EM_SETPARAFORMAT, 0) failed"));
+            wxLogLastError(wxT("SendMessage(EM_SETPARAFORMAT)"));
+
+            return false;
         }
     }
 
-    if ( changeSel )
+    return true;
+}
+
+bool wxTextCtrl::SetStyle(long start, long end, const wxTextAttr& style)
+{
+    if ( !IsRich() )
+    {
+        // can't do it with normal text control
+        return false;
+    }
+
+    // the richedit 1.0 doesn't handle setting background colour, so don't
+    // even try to do anything if it's the only thing we want to change
+    if ( m_verRichEdit == 1 && !style.HasFont() && !style.HasTextColour() &&
+        !style.HasLeftIndent() && !style.HasRightIndent() && !style.HasAlignment() &&
+        !style.HasTabs() )
+    {
+        // nothing to do: return true if there was really nothing to do and
+        // false if we failed to set bg colour
+        return !style.HasBackgroundColour();
+    }
+
+    // order the range if needed
+    if ( start > end )
+        wxSwap(start, end);
+
+    // we can only change the format of the selection, so select the range we
+    // want and restore the old selection later, after MSWSetXXXFormat()
+    // functions (possibly) change it.
+    long startOld, endOld;
+    GetSelection(&startOld, &endOld);
+
+    bool ok = MSWSetCharFormat(style, start, end);
+    if ( !MSWSetParaFormat(style, start, end) )
+        ok = false;
+
+    if ( start != startOld || end != endOld )
     {
         // restore the original selection
         DoSetSelection(startOld, endOld, SetSel_NoScroll);
@@ -2706,7 +2657,7 @@ bool wxTextCtrl::GetStyle(long position, wxTextAttr& style)
         lf.lfWeight = FW_NORMAL;
 
     wxFont font = wxCreateFontFromLogFont(& lf);
-    if (font.Ok())
+    if (font.IsOk())
     {
         style.SetFont(font);
     }

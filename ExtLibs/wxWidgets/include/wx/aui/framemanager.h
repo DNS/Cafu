@@ -25,6 +25,7 @@
 #include "wx/window.h"
 #include "wx/timer.h"
 #include "wx/sizer.h"
+#include "wx/bitmap.h"
 
 enum wxAuiManagerDock
 {
@@ -173,6 +174,7 @@ public:
     {
         name = c.name;
         caption = c.caption;
+        icon = c.icon;
         window = c.window;
         frame = c.frame;
         state = c.state;
@@ -222,6 +224,8 @@ public:
         source.window = window;
         source.frame = frame;
         source.buttons = buttons;
+        wxCHECK_RET(source.IsValid(),
+                    "window settings and pane settings are incompatible");
         // now assign
         *this = source;
     }
@@ -237,6 +241,11 @@ public:
     bool IsBottomDockable() const { return HasFlag(optionBottomDockable); }
     bool IsLeftDockable() const { return HasFlag(optionLeftDockable); }
     bool IsRightDockable() const { return HasFlag(optionRightDockable); }
+    bool IsDockable() const
+    {
+        return HasFlag(optionTopDockable | optionBottomDockable |
+                        optionLeftDockable | optionRightDockable);
+    }
     bool IsFloatable() const { return HasFlag(optionFloatable); }
     bool IsMovable() const { return HasFlag(optionMovable); }
     bool IsDestroyOnClose() const { return HasFlag(optionDestroyOnClose); }
@@ -253,9 +262,18 @@ public:
 #ifdef SWIG
     %typemap(out) wxAuiPaneInfo& { $result = $self; Py_INCREF($result); }
 #endif
-    wxAuiPaneInfo& Window(wxWindow* w) { window = w; return *this; }
+    wxAuiPaneInfo& Window(wxWindow* w)
+    {
+        wxAuiPaneInfo test(*this);
+        test.window = w;
+        wxCHECK_MSG(test.IsValid(), *this,
+                    "window settings and pane settings are incompatible");
+        *this = test;
+        return *this;
+    }
     wxAuiPaneInfo& Name(const wxString& n) { name = n; return *this; }
     wxAuiPaneInfo& Caption(const wxString& c) { caption = c; return *this; }
+    wxAuiPaneInfo& Icon(const wxBitmap& b) { icon = b; return *this; }
     wxAuiPaneInfo& Left() { dock_direction = wxAUI_DOCK_LEFT; return *this; }
     wxAuiPaneInfo& Right() { dock_direction = wxAUI_DOCK_RIGHT; return *this; }
     wxAuiPaneInfo& Top() { dock_direction = wxAUI_DOCK_TOP; return *this; }
@@ -308,10 +326,14 @@ public:
 
     wxAuiPaneInfo& DefaultPane()
     {
-        state |= optionTopDockable | optionBottomDockable |
+        wxAuiPaneInfo test(*this);
+        test.state |= optionTopDockable | optionBottomDockable |
                  optionLeftDockable | optionRightDockable |
                  optionFloatable | optionMovable | optionResizable |
                  optionCaption | optionPaneBorder | buttonClose;
+        wxCHECK_MSG(test.IsValid(), *this,
+                    "window settings and pane settings are incompatible");
+        *this = test;
         return *this;
     }
 
@@ -334,10 +356,14 @@ public:
 
     wxAuiPaneInfo& SetFlag(int flag, bool option_state)
     {
+        wxAuiPaneInfo test(*this);
         if (option_state)
-            state |= flag;
+            test.state |= flag;
         else
-            state &= ~flag;
+            test.state &= ~flag;
+        wxCHECK_MSG(test.IsValid(), *this,
+                    "window settings and pane settings are incompatible");
+        *this = test;
         return *this;
     }
 
@@ -395,6 +421,7 @@ public:
 public:
     wxString name;        // name of the pane
     wxString caption;     // caption displayed on the window
+    wxBitmap icon;        // icon of the pane, may be invalid
 
     wxWindow* window;     // window that is in this pane
     wxFrame* frame;       // floating frame window that holds the pane
@@ -415,7 +442,10 @@ public:
 
     wxAuiPaneButtonArray buttons; // buttons on the pane
 
+
     wxRect rect;              // current rectangle (populated by wxAUI)
+
+    bool IsValid() const;
 };
 
 

@@ -1977,8 +1977,6 @@ protected:
 // Convert to/from list of wxAnys
 //
 
-WX_DEFINE_LIST(wxAnyList)
-
 bool wxVariantDataList::GetAsAny(wxAny* any) const
 {
     wxAnyList dst;
@@ -2360,6 +2358,15 @@ bool wxVariant::Convert(wxUniChar* value) const
         *value = (char) (((wxVariantDataLong*)GetData())->GetValue());
     else if (type == wxT("bool"))
         *value = (char) (((wxVariantDataBool*)GetData())->GetValue());
+    else if (type == wxS("string"))
+    {
+        // Also accept strings of length 1
+        const wxString& str = (((wxVariantDataString*)GetData())->GetValue());
+        if ( str.length() == 1 )
+            *value = str[0];
+        else
+            return false;
+    }
     else
         return false;
 

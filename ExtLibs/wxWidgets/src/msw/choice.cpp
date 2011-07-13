@@ -38,64 +38,6 @@
 
 #include "wx/msw/private.h"
 
-#if wxUSE_EXTENDED_RTTI
-WX_DEFINE_FLAGS( wxChoiceStyle )
-
-wxBEGIN_FLAGS( wxChoiceStyle )
-    // new style border flags, we put them first to
-    // use them for streaming out
-    wxFLAGS_MEMBER(wxBORDER_SIMPLE)
-    wxFLAGS_MEMBER(wxBORDER_SUNKEN)
-    wxFLAGS_MEMBER(wxBORDER_DOUBLE)
-    wxFLAGS_MEMBER(wxBORDER_RAISED)
-    wxFLAGS_MEMBER(wxBORDER_STATIC)
-    wxFLAGS_MEMBER(wxBORDER_NONE)
-
-    // old style border flags
-    wxFLAGS_MEMBER(wxSIMPLE_BORDER)
-    wxFLAGS_MEMBER(wxSUNKEN_BORDER)
-    wxFLAGS_MEMBER(wxDOUBLE_BORDER)
-    wxFLAGS_MEMBER(wxRAISED_BORDER)
-    wxFLAGS_MEMBER(wxSTATIC_BORDER)
-    wxFLAGS_MEMBER(wxBORDER)
-
-    // standard window styles
-    wxFLAGS_MEMBER(wxTAB_TRAVERSAL)
-    wxFLAGS_MEMBER(wxCLIP_CHILDREN)
-    wxFLAGS_MEMBER(wxTRANSPARENT_WINDOW)
-    wxFLAGS_MEMBER(wxWANTS_CHARS)
-    wxFLAGS_MEMBER(wxFULL_REPAINT_ON_RESIZE)
-    wxFLAGS_MEMBER(wxALWAYS_SHOW_SB )
-    wxFLAGS_MEMBER(wxVSCROLL)
-    wxFLAGS_MEMBER(wxHSCROLL)
-
-wxEND_FLAGS( wxChoiceStyle )
-
-IMPLEMENT_DYNAMIC_CLASS_XTI(wxChoice, wxControlWithItems,"wx/choice.h")
-
-wxBEGIN_PROPERTIES_TABLE(wxChoice)
-    wxEVENT_PROPERTY( Select , wxEVT_COMMAND_CHOICE_SELECTED , wxCommandEvent )
-
-    wxPROPERTY( Font , wxFont , SetFont , GetFont  , EMPTY_MACROVALUE , 0 /*flags*/ , wxT("Helpstring") , wxT("group"))
-    wxPROPERTY_COLLECTION( Choices , wxArrayString , wxString , AppendString , GetStrings , 0 /*flags*/ , wxT("Helpstring") , wxT("group"))
-    wxPROPERTY( Selection ,int, SetSelection, GetSelection, EMPTY_MACROVALUE , 0 /*flags*/ , wxT("Helpstring") , wxT("group"))
-    wxPROPERTY_FLAGS( WindowStyle , wxChoiceStyle , long , SetWindowStyleFlag , GetWindowStyleFlag , EMPTY_MACROVALUE , 0 /*flags*/ , wxT("Helpstring") , wxT("group")) // style
-wxEND_PROPERTIES_TABLE()
-
-wxBEGIN_HANDLERS_TABLE(wxChoice)
-wxEND_HANDLERS_TABLE()
-
-wxCONSTRUCTOR_4( wxChoice , wxWindow* , Parent , wxWindowID , Id , wxPoint , Position , wxSize , Size )
-#else
-IMPLEMENT_DYNAMIC_CLASS(wxChoice, wxControlWithItems)
-#endif
-/*
-    TODO PROPERTIES
-        selection (long)
-        content (list)
-            item
-*/
-
 // ============================================================================
 // implementation
 // ============================================================================
@@ -246,7 +188,7 @@ wxChoice::GetClassDefaultAttributes(wxWindowVariant WXUNUSED(variant))
 
     // NB: use EDIT, not COMBOBOX (the latter works in XP but not Vista)
     attrs.colBg = wnd->MSWGetThemeColour(L"EDIT",
-                                         EP_EDITTEXT, 
+                                         EP_EDITTEXT,
                                          ETS_NORMAL,
                                          ThemeColourBackground,
                                          wxSYS_COLOUR_WINDOW);
@@ -614,7 +556,7 @@ void wxChoice::DoSetSize(int x, int y,
     // make the control itself of the requested height: notice that this
     // must be done after changing its size or it has no effect (apparently
     // the height is reset to default during the control layout) and that it's
-    // useless to to do it when using the deferred sizing -- in this case it
+    // useless to do it when using the deferred sizing -- in this case it
     // will be done from MSWEndDeferWindowPos()
 #if wxUSE_DEFERRED_SIZING
     if ( m_pendingSize == wxDefaultSize )

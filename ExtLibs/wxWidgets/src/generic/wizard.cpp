@@ -316,7 +316,7 @@ void wxWizard::AddBitmapRow(wxBoxSizer *mainColumn)
     mainColumn->Add(
         m_sizerBmpAndPage,
         1, // Vertically stretchable
-        wxEXPAND // Horizonal stretching, no border
+        wxEXPAND // Horizontal stretching, no border
     );
     mainColumn->Add(0,5,
         0, // No vertical stretching
@@ -324,7 +324,7 @@ void wxWizard::AddBitmapRow(wxBoxSizer *mainColumn)
     );
 
 #if wxUSE_STATBMP
-    if ( m_bitmap.Ok() )
+    if ( m_bitmap.IsOk() )
     {
         wxSize bitmapSize(wxDefaultSize);
         if (GetBitmapPlacement())
@@ -373,13 +373,6 @@ void wxWizard::AddBackNextPair(wxBoxSizer *buttonRow)
                   wxT("You must create the buttons before calling ")
                   wxT("wxWizard::AddBackNextPair") );
 
-    // margin between Back and Next buttons
-#ifdef __WXMAC__
-    static const int BACKNEXT_MARGIN = 10;
-#else
-    static const int BACKNEXT_MARGIN = 0;
-#endif
-
     wxBoxSizer *backNextPair = new wxBoxSizer(wxHORIZONTAL);
     buttonRow->Add(
         backNextPair,
@@ -389,7 +382,7 @@ void wxWizard::AddBackNextPair(wxBoxSizer *buttonRow)
     );
 
     backNextPair->Add(m_btnPrev);
-    backNextPair->Add(BACKNEXT_MARGIN,0,
+    backNextPair->Add(10, 0,
         0, // No horizontal stretching
         wxEXPAND // No border, (mostly useless) vertical stretching
     );
@@ -563,11 +556,8 @@ bool wxWizard::ShowPage(wxWizardPage *page, bool goingForward)
             m_sizerBmpAndPage->Detach(m_page);
     }
 
-    // set the new page
-    m_page = page;
-
     // is this the end?
-    if ( !m_page )
+    if ( !page )
     {
         // terminate successfully
         if ( IsModal() )
@@ -582,11 +572,17 @@ bool wxWizard::ShowPage(wxWizardPage *page, bool goingForward)
 
         // and notify the user code (this is especially useful for modeless
         // wizards)
-        wxWizardEvent event(wxEVT_WIZARD_FINISHED, GetId(), false, 0);
+        wxWizardEvent event(wxEVT_WIZARD_FINISHED, GetId(), false, m_page);
         (void)GetEventHandler()->ProcessEvent(event);
+
+        m_page = NULL;
 
         return true;
     }
+
+    // notice that we change m_page only here so that wxEVT_WIZARD_FINISHED
+    // event above could still use the correct (i.e. old) value of m_page
+    m_page = page;
 
     // position and show the new page
     (void)m_page->TransferDataToWindow();
@@ -608,10 +604,10 @@ bool wxWizard::ShowPage(wxWizardPage *page, bool goingForward)
     if ( m_statbmp )
     {
         bmp = m_page->GetBitmap();
-        if ( !bmp.Ok() )
+        if ( !bmp.IsOk() )
             bmp = m_bitmap;
 
-        if ( !bmpPrev.Ok() )
+        if ( !bmpPrev.IsOk() )
             bmpPrev = m_bitmap;
 
         if (!GetBitmapPlacement())
@@ -932,7 +928,7 @@ bool wxWizard::ResizeBitmap(wxBitmap& bmp)
     if (!GetBitmapPlacement())
         return false;
 
-    if (bmp.Ok())
+    if (bmp.IsOk())
     {
         wxSize pageSize = m_sizerPage->GetSize();
         if (pageSize == wxSize(0,0))
@@ -940,7 +936,7 @@ bool wxWizard::ResizeBitmap(wxBitmap& bmp)
         int bitmapWidth = wxMax(bmp.GetWidth(), GetMinimumBitmapWidth());
         int bitmapHeight = pageSize.y;
 
-        if (!m_statbmp->GetBitmap().Ok() || m_statbmp->GetBitmap().GetHeight() != bitmapHeight)
+        if (!m_statbmp->GetBitmap().IsOk() || m_statbmp->GetBitmap().GetHeight() != bitmapHeight)
         {
             wxBitmap bitmap(bitmapWidth, bitmapHeight);
             {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        slider.h
+// Name:        wx/os2/slider.h
 // Purpose:     wxSlider class
 // Author:      David Webster
 // Modified by:
@@ -94,9 +94,6 @@ public:
                                   );
                  void SetThumbLength(int nLen) ;
                  void SetTick(int ntickPos) ;
-                 void SetTickFreq( int n
-                                  ,int nPos
-                                 );
 
     //
     // IMPLEMENTATION
@@ -148,6 +145,10 @@ protected:
                            ,int  nHeight
                            ,int  nSizeFlags = wxSIZE_AUTO
                           );
+
+    // Platform-specific implementation of SetTickFreq
+    virtual void DoSetTickFreq(int freq);
+
 private:
     DECLARE_DYNAMIC_CLASS(wxSlider)
 }; // end of CLASS wxSlider

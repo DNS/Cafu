@@ -1,10 +1,10 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        src/osx/carbon/printdlg.cpp
+// Name:        src/osx/cocoa/printdlg.mm
 // Purpose:     wxPrintDialog, wxPageSetupDialog
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     1998-01-01
-// RCS-ID:      $Id: printdlg.cpp 55419 2008-09-02 16:53:23Z SC $
+// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,7 @@ wxOSXCocoaPrintData::wxOSXCocoaPrintData()
     m_macPageFormat = (PMPageFormat) [m_macPrintInfo PMPageFormat];
     m_macPrintSettings = (PMPrintSettings) [m_macPrintInfo PMPrintSettings];
     m_macPrintSession = (PMPrintSession) [m_macPrintInfo PMPrintSession] ;
+    PMGetPageFormatPaper(m_macPageFormat, &m_macPaper);
 }
 
 wxOSXCocoaPrintData::~wxOSXCocoaPrintData()

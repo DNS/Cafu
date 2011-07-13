@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        privx.h
+// Name:        wx/x11/privx.h
 // Purpose:     Private declarations common to X11 and Motif ports
 // Author:      Julian Smart
 // Modified by:
@@ -35,9 +35,6 @@ class WXDLLIMPEXP_FWD_CORE wxRegion;
 // key events related functions
 // ----------------------------------------------------------------------------
 
-extern int wxCharCodeXToWX(KeySym keySym);
-extern KeySym wxCharCodeWXToX(int id);
-
 WXPixel wxGetBestMatchingPixel(Display *display, XColor *desiredColor, Colormap cmap);
 Pixmap XCreateInsensitivePixmap( Display *display, Pixmap pixmap );
 
@@ -68,9 +65,6 @@ void wxAllocColor(Display *display,Colormap colormap,XColor *xcolor);
 
 // For debugging
 wxString wxGetXEventName(XEvent& event);
-
-// Is the window visible?
-bool wxWindowIsVisible(Window win);
 
 #if wxUSE_NANOX
 #define XEventGetWindow(event) event->general.wid

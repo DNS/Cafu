@@ -12,6 +12,8 @@
 #ifndef _WX_PROPGRID_PROPGRIDPAGESTATE_H_
 #define _WX_PROPGRID_PROPGRIDPAGESTATE_H_
 
+#include "wx/defs.h"
+
 #if wxUSE_PROPGRID
 
 #include "wx/propgrid/property.h"
@@ -435,7 +437,7 @@ public:
     void CheckColumnWidths( int widthChange = 0 );
 
     /**
-        Override this member function to add custom behavior on property
+        Override this member function to add custom behaviour on property
         deletion.
     */
     virtual void DoDelete( wxPGProperty* item, bool doDelete = true );
@@ -445,7 +447,7 @@ public:
     wxPGProperty* DoGetItemAtY( int y ) const;
 
     /**
-        Override this member function to add custom behavior on property
+        Override this member function to add custom behaviour on property
         insertion.
     */
     virtual wxPGProperty* DoInsert( wxPGProperty* parent,
@@ -472,9 +474,6 @@ public:
             m_vhCalcPending = 0;
         }
     }
-
-    /** Enables or disables given property and its subproperties. */
-    bool DoEnableProperty( wxPGProperty* p, bool enable );
 
     /** Returns (precalculated) height of contained visible properties.
     */
@@ -591,7 +590,7 @@ public:
 
         @param pt
             Logical coordinates in the virtual grid space. Use
-            wxScrolledWindow::CalcUnscrolledPosition() if you need to
+            wxScrolled<T>::CalcUnscrolledPosition() if you need to
             translate a scrolled position into a logical one.
     */
     wxPropertyGridHitTestResult HitTest( const wxPoint& pt ) const;

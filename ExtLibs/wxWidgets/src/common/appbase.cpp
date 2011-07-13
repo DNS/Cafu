@@ -345,8 +345,11 @@ bool wxAppConsoleBase::Dispatch()
 bool wxAppConsoleBase::Yield(bool onlyIfNeeded)
 {
     wxEventLoopBase * const loop = wxEventLoopBase::GetActive();
+    if ( loop )
+       return loop->Yield(onlyIfNeeded);
 
-    return loop && loop->Yield(onlyIfNeeded);
+    wxScopedPtr<wxEventLoopBase> tmpLoop(CreateMainLoop());
+    return tmpLoop->Yield(onlyIfNeeded);
 }
 
 void wxAppConsoleBase::WakeUpIdle()
@@ -370,11 +373,7 @@ bool wxAppConsoleBase::ProcessIdle()
     wxLog::FlushActive();
 #endif
 
-    // When user idle event handling code
-    //   - schedules an object for deletion, and
-    //   - continuously requests more idle events,
-    // then without this, the objects are collected in ProcessPendingEvents()
-    // only when the next *external* event occurs.
+    // Garbage collect all objects previously scheduled for destruction.
     DeletePendingObjects();
 
     return event.MoreRequested();
@@ -516,9 +515,6 @@ void wxAppConsoleBase::ProcessPendingEvents()
 
         wxLEAVE_CRIT_SECT(m_handlersWithPendingEventsLocker);
     }
-
-    // Garbage collect all objects previously scheduled for destruction.
-    DeletePendingObjects();
 }
 
 void wxAppConsoleBase::DeletePendingEvents()

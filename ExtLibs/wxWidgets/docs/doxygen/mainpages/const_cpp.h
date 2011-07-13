@@ -192,10 +192,15 @@ the corresponding feature is available and not defined at all otherwise.
 Currently the following symbols exist:
 
 @beginDefList
+@itemdef{wxHAS_3STATE_CHECKBOX, Defined if wxCheckBox supports wxCHK_3STATE
+    flag, i.e. is capable of showing three states and not only the usual two.
+    Currently defined for almost all ports.}
 @itemdef{wxHAS_ATOMIC_OPS, Defined if wxAtomicInc() and wxAtomicDec() functions
     have an efficient (CPU-specific) implementation. Notice that the functions
     themselves are always available but can be prohibitively slow to use when
     implemented in a generic way, using a critical section.}
+@itemdef{wxHAS_BITMAPTOGGLEBUTTON, Defined in @c wx/tglbtn.h if
+    wxBitmapToggleButton class is available in addition to wxToggleButton.}
 @itemdef{wxHAS_CONFIG_TEMPLATE_RW, Defined if the currently used compiler
     supports template Read() and Write() methods in wxConfig.}
 @itemdef{wxHAS_LARGE_FILES, Defined if wxFile supports files more than 4GB in
@@ -204,6 +209,13 @@ Currently the following symbols exist:
 @itemdef{wxHAS_LARGE_FFILES, Defined if wxFFile supports files more than 4GB in
     size (notice that you must include @c wx/filefn.h before testing for this
     symbol).}
+@itemdef{wxHAS_LONG_LONG_T_DIFFERENT_FROM_LONG, Defined if compiler supports a
+    64 bit integer type (available as @c wxLongLong_t) and this type is
+    different from long. Notice that, provided wxUSE_LONGLONG is not turned
+    off, some 64 bit type is always available to wxWidgets programs and this
+    symbol only indicates a presence of such primitive type. It is useful to
+    decide whether some function should be overloaded for both
+    <code>long</code> and <code>long long</code> types.}
 @itemdef{wxHAS_MULTIPLE_FILEDLG_FILTERS, Defined if wxFileDialog supports multiple ('|'-separated) filters.}
 @itemdef{wxHAS_POWER_EVENTS, Defined if wxPowerEvent are ever generated on the current platform.}
 @itemdef{wxHAS_RADIO_MENU_ITEMS,

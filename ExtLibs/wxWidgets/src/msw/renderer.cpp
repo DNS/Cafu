@@ -31,6 +31,7 @@
     #include "wx/settings.h"
 #endif //WX_PRECOMP
 
+#include "wx/dcgraph.h"
 #include "wx/scopeguard.h"
 #include "wx/splitter.h"
 #include "wx/renderer.h"
@@ -112,6 +113,28 @@
 #ifndef DFCS_HOT
     #define DFCS_HOT 0x1000
 #endif
+
+// When we're using GDI+, the DC might have transforms applied to it,
+// but the renderer APIs don't respect them. So we need to apply
+// the transforms to the rect ourselves.
+inline
+wxRect applyGDIPlusTransformsToRect(wxDC& dc, const wxRect& r)
+{
+    wxRect rect = r;
+#if wxUSE_GRAPHICS_CONTEXT
+    wxGCDC* gcdc = dynamic_cast<wxGCDC*>(&dc);
+    if (gcdc) 
+    {
+        double xtrans = 0;
+        double ytrans = 0;
+        wxGraphicsContext* gc = gcdc->GetGraphicsContext();
+        gc->GetTransform().TransformPoint(&xtrans, &ytrans);
+        rect.x = rect.x + (int)xtrans;
+        rect.y = rect.y + (int)ytrans;
+    }
+#endif
+    return rect;
+}
 
 // ----------------------------------------------------------------------------
 // methods common to wxRendererMSW and wxRendererXP
@@ -196,6 +219,8 @@ public:
     virtual wxSize GetCheckBoxSize(wxWindow *win);
 
     virtual int GetHeaderButtonHeight(wxWindow *win);
+
+    virtual int GetHeaderButtonMargin(wxWindow *win);
 
 private:
     // wrapper of DrawFrameControl()
@@ -392,8 +417,10 @@ wxRendererMSW::DrawComboBoxDropButton(wxWindow * WXUNUSED(win),
                                       const wxRect& rect,
                                       int flags)
 {
+    wxRect adjustedRect = applyGDIPlusTransformsToRect(dc, rect);
+    
     RECT r;
-    wxCopyRectToRECT(rect, r);
+    wxCopyRectToRECT(adjustedRect, r);
 
     int style = DFCS_SCROLLCOMBOBOX;
     if ( flags & wxCONTROL_DISABLED )
@@ -412,8 +439,10 @@ wxRendererMSW::DoDrawFrameControl(UINT type,
                                   const wxRect& rect,
                                   int flags)
 {
+    wxRect adjustedRect = applyGDIPlusTransformsToRect(dc, rect);
+
     RECT r;
-    wxCopyRectToRECT(rect, r);
+    wxCopyRectToRECT(adjustedRect, r);
 
     int style = kind;
     if ( flags & wxCONTROL_CHECKED )
@@ -517,6 +546,11 @@ int wxRendererMSW::GetHeaderButtonHeight(wxWindow * WXUNUSED(win))
     return Header_Layout(hwndHeader, &hdl) ? wp.cy : DEFAULT_HEIGHT;
 }
 
+int wxRendererMSW::GetHeaderButtonMargin(wxWindow *WXUNUSED(win))
+{
+    return 10;
+}
+
 // Uses the theme to draw the border and fill for something like a wxTextCtrl
 void wxRendererMSW::DrawTextCtrl(wxWindow* win, wxDC& dc, const wxRect& rect, int flags)
 {
@@ -608,8 +642,10 @@ wxRendererXP::DrawComboBoxDropButton(wxWindow * win,
         return;
     }
 
+    wxRect adjustedRect = applyGDIPlusTransformsToRect(dc, rect);
+
     RECT r;
-    wxCopyRectToRECT(rect, r);
+    wxCopyRectToRECT(adjustedRect, r);
 
     int state;
     if ( flags & wxCONTROL_PRESSED )
@@ -647,8 +683,10 @@ wxRendererXP::DrawHeaderButton(wxWindow *win,
         return m_rendererNative.DrawHeaderButton(win, dc, rect, flags, sortArrow, params);
     }
 
+    wxRect adjustedRect = applyGDIPlusTransformsToRect(dc, rect);
+
     RECT r;
-    wxCopyRectToRECT(rect, r);
+    wxCopyRectToRECT(adjustedRect, r);
 
     int state;
     if ( flags & wxCONTROL_PRESSED )
@@ -689,8 +727,10 @@ wxRendererXP::DrawTreeItemButton(wxWindow *win,
         return;
     }
 
+    wxRect adjustedRect = applyGDIPlusTransformsToRect(dc, rect);
+
     RECT r;
-    wxCopyRectToRECT(rect, r);
+    wxCopyRectToRECT(adjustedRect, r);
 
     int state = flags & wxCONTROL_EXPANDED ? GLPS_OPENED : GLPS_CLOSED;
     wxUxThemeEngine::Get()->DrawThemeBackground
@@ -727,8 +767,10 @@ wxRendererXP::DoDrawButtonLike(HTHEME htheme,
                                const wxRect& rect,
                                int flags)
 {
+    wxRect adjustedRect = applyGDIPlusTransformsToRect(dc, rect);
+
     RECT r;
-    wxCopyRectToRECT(rect, r);
+    wxCopyRectToRECT(adjustedRect, r);
 
     // the base state is always 1, whether it is PBS_NORMAL,
     // {CBS,RBS}_UNCHECKEDNORMAL or CBS_NORMAL

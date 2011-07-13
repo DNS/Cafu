@@ -16,8 +16,6 @@
 #include "wx/choice.h"
 #include "wx/textctrl.h"
 
-WXDLLIMPEXP_DATA_CORE(extern const char) wxComboBoxNameStr[];
-
 WX_DEFINE_ARRAY( char * , wxComboBoxDataArray ) ;
 
 // forward declaration of private implementation classes
@@ -100,7 +98,7 @@ class WXDLLIMPEXP_CORE wxComboBox : public wxControl, public wxComboBoxBase
     virtual void SetString(unsigned int n, const wxString& s);
 
     virtual unsigned int GetCount() const;
-    
+
 // these methods are provided by wxTextEntry for the native impl.
 #if wxOSX_USE_CARBON
     // Text field functions

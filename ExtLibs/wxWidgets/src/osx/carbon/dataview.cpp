@@ -854,7 +854,7 @@ bool wxMacDataViewDataBrowserListViewControl::DeleteColumn(wxDataViewColumn* col
 
 void wxMacDataViewDataBrowserListViewControl::DoSetExpanderColumn(wxDataViewColumn const* columnPtr)
 {
-  SetDisclosureColumn(columnPtr->GetNativeData()->GetPropertyID(),false); // second parameter explicitely passed to ensure that arrow is centered
+  SetDisclosureColumn(columnPtr->GetNativeData()->GetPropertyID(),false); // second parameter explicitly passed to ensure that arrow is centered
 }
 
 wxDataViewColumn* wxMacDataViewDataBrowserListViewControl::GetColumn(unsigned int pos) const
@@ -889,7 +889,7 @@ bool wxMacDataViewDataBrowserListViewControl::InsertColumn(unsigned int pos, wxD
 
   UInt32 noOfColumns;
 
-  wxCFStringRef title(columnPtr->GetTitle(),m_font.Ok() ? dynamic_cast<wxDataViewCtrl*>(GetWXPeer())->GetFont().GetEncoding() : wxLocale::GetSystemEncoding());
+  wxCFStringRef title(columnPtr->GetTitle(),m_font.IsOk() ? dynamic_cast<wxDataViewCtrl*>(GetWXPeer())->GetFont().GetEncoding() : wxLocale::GetSystemEncoding());
 
 
  // try to get new ID for the column:
@@ -1095,6 +1095,18 @@ bool wxMacDataViewDataBrowserListViewControl::AssociateModel(wxDataViewModel* WX
 //
 // selection related methods (inherited from wxDataViewWidgetImpl)
 //
+wxDataViewItem wxMacDataViewDataBrowserListViewControl::GetCurrentItem() const
+{
+    wxFAIL_MSG( "unimplemented for Carbon" );
+
+    return wxDataViewItem();
+}
+
+void wxMacDataViewDataBrowserListViewControl::SetCurrentItem(const wxDataViewItem& WXUNUSED(item))
+{
+    wxFAIL_MSG( "unimplemented for Carbon" );
+}
+
 int wxMacDataViewDataBrowserListViewControl::GetSelections(wxDataViewItemArray& sel) const
 {
   size_t noOfSelectedItems;
@@ -1222,6 +1234,11 @@ void wxMacDataViewDataBrowserListViewControl::OnSize()
   }
   else // otherwise keep the current column size and have scrollbars in both directions
     SetHasScrollBars(true,true);
+}
+
+void wxMacDataViewDataBrowserListViewControl::StartEditor( const wxDataViewItem & item, unsigned int column )
+{
+    // implement me
 }
 
 //
@@ -2327,7 +2344,7 @@ bool wxDataViewTextRenderer::MacRender()
 {
   wxCHECK_MSG(GetValue().GetType() == GetVariantType(),false,wxString(_("Text renderer cannot render value; value type: ")) << GetValue().GetType());
 
-  wxCFStringRef cfString(GetValue().GetString(),(GetView()->GetFont().Ok() ? GetView()->GetFont().GetEncoding() : wxLocale::GetSystemEncoding()));
+  wxCFStringRef cfString(GetValue().GetString(),(GetView()->GetFont().IsOk() ? GetView()->GetFont().GetEncoding() : wxLocale::GetSystemEncoding()));
   return (::SetDataBrowserItemDataText(GetNativeData()->GetItemDataRef(),cfString) == noErr);
 }
 
@@ -2353,7 +2370,7 @@ bool wxDataViewBitmapRenderer::MacRender()
   wxBitmap bitmap;
 
   bitmap << GetValue();
-  return (!(bitmap.Ok()) || (::SetDataBrowserItemDataIcon(GetNativeData()->GetItemDataRef(),bitmap.GetIconRef()) == noErr));
+  return (!(bitmap.IsOk()) || (::SetDataBrowserItemDataIcon(GetNativeData()->GetItemDataRef(),bitmap.GetIconRef()) == noErr));
 }
 
 IMPLEMENT_CLASS(wxDataViewBitmapRenderer,wxDataViewRenderer)
@@ -2378,7 +2395,7 @@ bool wxDataViewIconTextRenderer::MacRender()
 
   iconText << GetValue();
 
-  wxCFStringRef cfString(iconText.GetText(),(GetView()->GetFont().Ok() ? GetView()->GetFont().GetEncoding() : wxLocale::GetSystemEncoding()));
+  wxCFStringRef cfString(iconText.GetText(),(GetView()->GetFont().IsOk() ? GetView()->GetFont().GetEncoding() : wxLocale::GetSystemEncoding()));
 
   if (iconText.GetIcon().IsOk())
     if (::SetDataBrowserItemDataIcon(GetNativeData()->GetItemDataRef(),MAC_WXHICON(iconText.GetIcon().GetHICON())) != noErr)
@@ -2456,16 +2473,18 @@ wxDataViewColumn::wxDataViewColumn(const wxString& title, wxDataViewRenderer* re
                  :wxDataViewColumnBase(renderer, model_column), m_NativeDataPtr(new wxDataViewColumnNativeData()), m_title(title)
 {
   InitCommon(width, align, flags);
-  if ((renderer != NULL) && (renderer->GetAlignment() == wxDVR_DEFAULT_ALIGNMENT))
-    renderer->SetAlignment(align);
+  if ((renderer != NULL) && !renderer->IsCustomRenderer() &&
+      (renderer->GetAlignment() == wxDVR_DEFAULT_ALIGNMENT))
+      renderer->SetAlignment(align);
 }
 
 wxDataViewColumn::wxDataViewColumn(const wxBitmap& bitmap, wxDataViewRenderer* renderer, unsigned int model_column, int width, wxAlignment align, int flags)
                  :wxDataViewColumnBase(bitmap, renderer, model_column), m_NativeDataPtr(new wxDataViewColumnNativeData())
 {
   InitCommon(width, align, flags);
-  if ((renderer != NULL) && (renderer->GetAlignment() == wxDVR_DEFAULT_ALIGNMENT))
-    renderer->SetAlignment(align);
+  if ((renderer != NULL) && !renderer->IsCustomRenderer() &&
+      (renderer->GetAlignment() == wxDVR_DEFAULT_ALIGNMENT))
+      renderer->SetAlignment(align);
 }
 
 wxDataViewColumn::~wxDataViewColumn()
@@ -2475,7 +2494,7 @@ wxDataViewColumn::~wxDataViewColumn()
 
 int wxDataViewColumn::GetWidth() const
 {
-    // FIXME: This returns the last programatically set width and will not work if
+    // FIXME: This returns the last programmatically set width and will not work if
     //        the user changes the column's width by dragging it with the mouse.
     return m_width;
 }
@@ -2542,7 +2561,7 @@ void wxDataViewColumn::SetBitmap(wxBitmap const& bitmap)
       DataBrowserListViewHeaderDesc headerDescription;
 
       wxCHECK_RET(macDataViewListCtrlPtr->GetHeaderDesc(GetNativeData()->GetPropertyID(),&headerDescription) == noErr,_("Could not get header description."));
-      if (GetBitmap().Ok())
+      if (GetBitmap().IsOk())
         headerDescription.btnContentInfo.u.iconRef = GetBitmap().GetIconRef();
       else
         headerDescription.btnContentInfo.u.iconRef = NULL;
@@ -2618,10 +2637,10 @@ void wxDataViewColumn::SetReorderable(bool reorderable)
   }
 }
 
-void wxDataViewColumn::SetResizeable(bool resizeable)
+void wxDataViewColumn::SetResizeable(bool resizable)
 {
  // first set the internal flag of the column:
-  if (resizeable)
+  if (resizable)
     m_flags |= wxDATAVIEW_COL_RESIZABLE;
   else
     m_flags &= ~wxDATAVIEW_COL_RESIZABLE;
@@ -2637,7 +2656,7 @@ void wxDataViewColumn::SetResizeable(bool resizeable)
       DataBrowserListViewHeaderDesc headerDescription;
 
       verify_noerr(macDataViewListCtrlPtr->GetHeaderDesc(GetNativeData()->GetPropertyID(),&headerDescription));
-      if (resizeable)
+      if (resizable)
       {
         if (GetMinWidth() >= GetMaxWidth())
         {
@@ -2721,7 +2740,7 @@ void wxDataViewColumn::SetTitle(wxString const& title)
     if (macDataViewListCtrlPtr != NULL)
     {
       DataBrowserListViewHeaderDesc headerDescription;
-      wxCFStringRef           cfTitle(title,(dataViewCtrlPtr->GetFont().Ok() ? dataViewCtrlPtr->GetFont().GetEncoding() : wxLocale::GetSystemEncoding()));
+      wxCFStringRef           cfTitle(title,(dataViewCtrlPtr->GetFont().IsOk() ? dataViewCtrlPtr->GetFont().GetEncoding() : wxLocale::GetSystemEncoding()));
 
       wxCHECK_RET(macDataViewListCtrlPtr->GetHeaderDesc(GetNativeData()->GetPropertyID(),&headerDescription) == noErr,_("Could not get header description."));
       headerDescription.titleString = cfTitle;
@@ -2734,6 +2753,16 @@ void wxDataViewColumn::SetWidth(int width)
 {
   wxDataViewCtrl* dataViewCtrlPtr(GetOwner());
 
+  switch ( width )
+  {
+    case wxCOL_WIDTH_AUTOSIZE:
+       // not implemented, fall through
+    case wxCOL_WIDTH_DEFAULT:
+      width = wxDVC_DEFAULT_WIDTH;
+      break;
+    default:
+      break;
+  }
 
   if ((width >= m_minWidth) && (width <= m_maxWidth))
   {

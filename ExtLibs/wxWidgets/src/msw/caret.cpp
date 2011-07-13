@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:        msw/caret.cpp
+// Name:        src/msw/caret.cpp
 // Purpose:     MSW implementation of wxCaret
 // Author:      Vadim Zeitlin
 // Modified by:
@@ -39,9 +39,11 @@
 // macros
 // ---------------------------------------------------------------------------
 
-#define CALL_CARET_API(api, args)   \
-        if ( !api args )                \
-            wxLogLastError(wxT(#api))
+#define CALL_CARET_API(api, args) \
+        if ( !api args ) \
+        { \
+            wxLogLastError(wxT(#api)); \
+        }
 
 // ===========================================================================
 // implementation

@@ -189,8 +189,6 @@
 
 #define wxUSE_EXTENDED_RTTI 0
 
-#define wxUSE_STL 0
-
 #define wxUSE_LOG 0
 
 #define wxUSE_LOGWINDOW 0
@@ -205,6 +203,12 @@
 
 #define wxUSE_STREAMS       0
 
+#define wxUSE_PRINTF_POS_PARAMS      0
+
+
+
+#define wxUSE_STL 0
+
 #if defined(__DMC__) || defined(__WATCOMC__) \
         || (defined(_MSC_VER) && _MSC_VER < 1200)
     #define wxUSE_STD_DEFAULT  0
@@ -212,11 +216,16 @@
     #define wxUSE_STD_DEFAULT  0
 #endif
 
+#define wxUSE_STD_CONTAINERS 0
+
 #define wxUSE_STD_IOSTREAM  wxUSE_STD_DEFAULT
 
 #define wxUSE_STD_STRING  wxUSE_STD_DEFAULT
 
-#define wxUSE_PRINTF_POS_PARAMS      0
+#define wxUSE_STD_STRING_CONV_IN_WXSTRING wxUSE_STL
+
+#define wxUSE_IOSTREAMH     0
+
 
 
 #define wxUSE_LONGLONG      0
@@ -343,8 +352,13 @@
 #   define wxUSE_GRAPHICS_CONTEXT 0
 #endif
 
+#define wxUSE_CAIRO 0
+
+
 
 #define wxUSE_CONTROLS     0
+
+#define wxUSE_MARKUP       0
 
 #define wxUSE_POPUPWIN     0
 
@@ -360,6 +374,7 @@
 #define wxUSE_COLLPANE      0
 #define wxUSE_COLOURPICKERCTRL 0
 #define wxUSE_COMBOBOX      0
+#define wxUSE_COMMANDLINKBUTTON 0
 #define wxUSE_DATAVIEWCTRL  0
 #define wxUSE_DATEPICKCTRL  0
 #define wxUSE_DIRPICKERCTRL 0
@@ -374,6 +389,7 @@
 #define wxUSE_LISTCTRL      0
 #define wxUSE_RADIOBOX      0
 #define wxUSE_RADIOBTN      0
+#define wxUSE_RICHMSGDLG    0
 #define wxUSE_SCROLLBAR     0
 #define wxUSE_SEARCHCTRL    0
 #define wxUSE_SLIDER        0
@@ -420,6 +436,10 @@
 
 
 #define wxUSE_ACCEL 0
+
+#define wxUSE_ARTPROVIDER_STD 0
+
+#define wxUSE_ARTPROVIDER_TANGO 0
 
 #define wxUSE_HOTKEY 0
 
@@ -549,10 +569,7 @@
 
 #define wxUSE_SVG 0
 
-
-#define REMOVE_UNUSED_ARG   0
-
-#define wxUSE_IOSTREAMH     0
+#define wxUSE_DC_TRANSFORM_MATRIX 0
 
 
 
@@ -975,6 +992,9 @@
 
 /* Define if you have wcsdup function  */
 #undef HAVE_WCSDUP
+
+/* Define if you have wcsftime() function  */
+#undef HAVE_WCSFTIME
 
 /* Define if you have strnlen() function */
 #undef HAVE_STRNLEN

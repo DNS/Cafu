@@ -477,9 +477,9 @@ void wxPropertyGridPageState::DoSetPropertyName( wxPGProperty* p,
 
     if ( parent->IsCategory() || parent->IsRoot() )
     {
-        if ( p->GetBaseName().length() )
+        if ( !p->GetBaseName().empty() )
             m_dictName.erase( p->GetBaseName() );
-        if ( newName.length() )
+        if ( !newName.empty() )
             m_dictName[newName] = (void*) p;
     }
 
@@ -1399,42 +1399,6 @@ bool wxPropertyGridPageState::DoHideProperty( wxPGProperty* p, bool hide, int fl
 }
 
 // -----------------------------------------------------------------------
-
-bool wxPropertyGridPageState::DoEnableProperty( wxPGProperty* p, bool enable )
-{
-    if ( p )
-    {
-        if ( enable )
-        {
-            if ( !(p->m_flags & wxPG_PROP_DISABLED) )
-                return false;
-
-            // Enabling
-
-            p->m_flags &= ~(wxPG_PROP_DISABLED);
-        }
-        else
-        {
-            if ( p->m_flags & wxPG_PROP_DISABLED )
-                return false;
-
-            // Disabling
-
-            p->m_flags |= wxPG_PROP_DISABLED;
-
-        }
-
-        // Apply same to sub-properties as well
-        unsigned int i;
-        for ( i = 0; i < p->GetChildCount(); i++ )
-            DoEnableProperty( p->Item(i), enable );
-
-        return true;
-    }
-    return false;
-}
-
-// -----------------------------------------------------------------------
 // wxPropertyGridPageState wxVariant related routines
 // -----------------------------------------------------------------------
 
@@ -1534,7 +1498,7 @@ void wxPropertyGridPageState::DoSetPropertyValues( const wxVariantList& list, wx
         wxASSERT( wxStrcmp(current->GetClassInfo()->GetClassName(),wxT("wxVariant")) == 0 );
 
         const wxString& name = current->GetName();
-        if ( name.length() > 0 )
+        if ( !name.empty() )
         {
             //
             // '@' signified a special entry
@@ -1593,7 +1557,7 @@ void wxPropertyGridPageState::DoSetPropertyValues( const wxVariantList& list, wx
             wxVariant *current = (wxVariant*)*node;
 
             const wxString& name = current->GetName();
-            if ( name.length() > 0 )
+            if ( !name.empty() )
             {
                 //
                 // '@' signified a special entry
@@ -1662,7 +1626,7 @@ bool wxPropertyGridPageState::PrepareToAddItem( wxPGProperty* property,
 {
     wxPropertyGrid* propGrid = m_pPropGrid;
 
-    // This will allow better behavior.
+    // This will allow better behaviour.
     if ( scheduledParent == m_properties )
         scheduledParent = NULL;
 
@@ -1758,7 +1722,7 @@ wxPGProperty* wxPropertyGridPageState::DoInsert( wxPGProperty* parent, int index
 
     bool res = PrepareToAddItem( property, (wxPropertyCategory*)parent );
 
-    // PrepareToAddItem() may just decide to use use current category
+    // PrepareToAddItem() may just decide to use current category
     // instead of adding new one.
     if ( !res )
         return m_currentCategory;
@@ -1818,7 +1782,7 @@ wxPGProperty* wxPropertyGridPageState::DoInsert( wxPGProperty* parent, int index
     }
 
     // Only add name to hashmap if parent is root or category
-    if ( property->m_name.length() &&
+    if ( !property->m_name.empty() &&
         (parentIsCategory || parentIsRoot) )
         m_dictName[property->m_name] = (void*) property;
 
@@ -1955,7 +1919,7 @@ void wxPropertyGridPageState::DoDelete( wxPGProperty* item, bool doDelete )
         }
     }
 
-    if ( item->GetBaseName().length() &&
+    if ( !item->GetBaseName().empty() &&
          (parent->IsCategory() || parent->IsRoot()) )
         m_dictName.erase(item->GetBaseName());
 
@@ -1970,6 +1934,8 @@ void wxPropertyGridPageState::DoDelete( wxPGProperty* item, bool doDelete )
     // We can actually delete it now
     if ( doDelete )
         delete item;
+    else
+        item->OnDetached(this, pg);
 
     m_itemsAdded = 1; // Not a logical assignment (but required nonetheless).
 

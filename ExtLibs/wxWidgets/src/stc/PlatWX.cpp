@@ -385,7 +385,7 @@ void SurfaceImpl::AlphaRectangle(PRectangle rc, int cornerSize,
     dc.DrawRoundedRectangle(wxRectFromPRectangle(rc), cornerSize);
     return;
 #else
-    
+
 #ifdef wxHAS_RAW_BITMAP
 
     // TODO:  do something with cornerSize
@@ -545,7 +545,7 @@ void SurfaceImpl::MeasureWidths(Font &font, const char *s, int len, int *positio
 #else
 
     // If not unicode then just use the widths we have
-#if wxUSE_STL
+#if wxUSE_STD_CONTAINERS
     std::copy(tpos.begin(), tpos.end(), positions);
 #else
     memcpy(positions, tpos.begin(), len * sizeof(int));

@@ -52,6 +52,7 @@
 #include "wx/uri.h"
 #include "wx/mimetype.h"
 #include "wx/config.h"
+#include "wx/versioninfo.h"
 
 #if defined(__WXWINCE__) && wxUSE_DATETIME
     #include "wx/datetime.h"
@@ -113,21 +114,12 @@
 static const wxChar hexArray[] = wxT("0123456789ABCDEF");
 
 // Convert 2-digit hex number to decimal
-int wxHexToDec(const wxString& buf)
+int wxHexToDec(const wxString& str)
 {
-    int firstDigit, secondDigit;
-
-    if (buf.GetChar(0) >= wxT('A'))
-        firstDigit = buf.GetChar(0) - wxT('A') + 10;
-    else
-        firstDigit = buf.GetChar(0) - wxT('0');
-
-    if (buf.GetChar(1) >= wxT('A'))
-        secondDigit = buf.GetChar(1) - wxT('A') + 10;
-    else
-        secondDigit = buf.GetChar(1) - wxT('0');
-
-    return (firstDigit & 0xF) * 16 + (secondDigit & 0xF );
+    char buf[2];
+    buf[0] = str.GetChar(0);
+    buf[1] = str.GetChar(1);
+    return wxHexToDec((const char*) buf);
 }
 
 // Convert decimal integer to 2-character hex string
@@ -553,6 +545,70 @@ wxString wxGetCurrentDir()
 #endif // 0
 
 // ----------------------------------------------------------------------------
+// Environment
+// ----------------------------------------------------------------------------
+
+#ifdef __WXOSX__
+#if wxOSX_USE_COCOA_OR_CARBON
+    #include <crt_externs.h>
+#endif
+#endif
+
+bool wxGetEnvMap(wxEnvVariableHashMap *map)
+{
+    wxCHECK_MSG( map, false, wxS("output pointer can't be NULL") );
+
+#if defined(__VISUALC__)
+    wxChar **env = _tenviron;
+#elif defined(__VMS)
+   // Now this routine wil give false for OpenVMS
+   // TODO : should we do something with logicals?
+    char **env=NULL;
+#elif defined(__WXOSX__)
+#if wxOSX_USE_COCOA_OR_CARBON
+    // Under Mac shared libraries don't have access to the global environ
+    // variable so use this Mac-specific function instead as advised by
+    // environ(7) under Darwin
+    char ***penv = _NSGetEnviron();
+    if ( !penv )
+        return false;
+    char **env = *penv;
+#else
+    char **env=NULL;
+    // todo translate NSProcessInfo environment into map
+#endif
+#else // non-MSVC non-Mac
+    // Not sure if other compilers have _tenviron so use the (more standard)
+    // ANSI version only for them.
+#ifdef __BSD__
+    // POSIX, but not in an include file
+    extern char **environ;
+#endif
+    char **env = environ;
+#endif
+
+    if ( env )
+    {
+        wxString name,
+                 value;
+        while ( *env )
+        {
+            const wxString var(*env);
+
+            name = var.BeforeFirst(wxS('='), &value);
+
+            (*map)[name] = value;
+
+            env++;
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+// ----------------------------------------------------------------------------
 // wxExecute
 // ----------------------------------------------------------------------------
 
@@ -599,13 +655,14 @@ static bool ReadAll(wxInputStream *is, wxArrayString& output)
 static long wxDoExecuteWithCapture(const wxString& command,
                                    wxArrayString& output,
                                    wxArrayString* error,
-                                   int flags)
+                                   int flags,
+                                   const wxExecuteEnv *env)
 {
     // create a wxProcess which will capture the output
     wxProcess *process = new wxProcess;
     process->Redirect();
 
-    long rc = wxExecute(command, wxEXEC_SYNC | flags, process);
+    long rc = wxExecute(command, wxEXEC_SYNC | flags, process, env);
 
 #if wxUSE_STREAMS
     if ( rc != -1 )
@@ -630,17 +687,19 @@ static long wxDoExecuteWithCapture(const wxString& command,
     return rc;
 }
 
-long wxExecute(const wxString& command, wxArrayString& output, int flags)
+long wxExecute(const wxString& command, wxArrayString& output, int flags,
+               const wxExecuteEnv *env)
 {
-    return wxDoExecuteWithCapture(command, output, NULL, flags);
+    return wxDoExecuteWithCapture(command, output, NULL, flags, env);
 }
 
 long wxExecute(const wxString& command,
                wxArrayString& output,
                wxArrayString& error,
-               int flags)
+               int flags,
+               const wxExecuteEnv *env)
 {
-    return wxDoExecuteWithCapture(command, output, &error, flags);
+    return wxDoExecuteWithCapture(command, output, &error, flags, env);
 }
 
 // ----------------------------------------------------------------------------
@@ -1309,7 +1368,7 @@ int wxMessageBox(const wxString& message, const wxString& caption, long style,
     return wxCANCEL;
 }
 
-void wxInfoMessageBox(wxWindow* parent)
+wxVersionInfo wxGetLibraryVersionInfo()
 {
     // don't translate these strings, they're for diagnostics purposes only
     wxString msg;
@@ -1342,7 +1401,20 @@ void wxInfoMessageBox(wxWindow* parent)
                             GTK_MICRO_VERSION);
 #endif // __WXGTK__
 
-    msg += wxS("\nCopyright (c) 1995-2010 wxWidgets team");
+    return wxVersionInfo(wxS("wxWidgets"),
+                         wxMAJOR_VERSION,
+                         wxMINOR_VERSION,
+                         wxRELEASE_NUMBER,
+                         msg,
+                         wxS("Copyright (c) 1995-2010 wxWidgets team"));
+}
+
+void wxInfoMessageBox(wxWindow* parent)
+{
+    wxVersionInfo info = wxGetLibraryVersionInfo();
+    wxString msg = info.ToString();
+
+    msg << wxS("\n") << info.GetCopyright();
 
     wxMessageBox(msg, wxT("wxWidgets information"),
                  wxICON_INFORMATION | wxOK,
@@ -1464,7 +1536,7 @@ wxColour wxGetColourFromUser(wxWindow *parent,
 wxFont wxGetFontFromUser(wxWindow *parent, const wxFont& fontInit, const wxString& caption)
 {
     wxFontData data;
-    if ( fontInit.Ok() )
+    if ( fontInit.IsOk() )
     {
         data.SetInitialFont(fontInit);
     }
@@ -1494,6 +1566,12 @@ void wxEnableTopLevelWindows(bool enable)
     for ( node = wxTopLevelWindows.GetFirst(); node; node = node->GetNext() )
         node->GetData()->Enable(enable);
 }
+
+#if defined(__WXOSX__) && wxOSX_USE_COCOA
+
+// defined in evtloop.mm
+
+#else
 
 wxWindowDisabler::wxWindowDisabler(bool disable)
 {
@@ -1556,6 +1634,8 @@ wxWindowDisabler::~wxWindowDisabler()
 
     delete m_winDisabled;
 }
+
+#endif
 
 // Yield to other apps/messages and disable user input to all windows except
 // the given one

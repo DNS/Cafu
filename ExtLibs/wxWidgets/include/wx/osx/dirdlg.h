@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        dirdlg.h
+// Name:        wx/osx/dirdlg.h
 // Purpose:     wxDirDialog class
 // Author:      Stefan Csomor
 // Modified by:
@@ -23,16 +23,24 @@ public:
                 const wxSize& size = wxDefaultSize,
                 const wxString& name = wxDirDialogNameStr);
 
+#if wxOSX_USE_COCOA
+    ~wxDirDialog();
+#endif
+
     virtual int ShowModal();
-    
+
 #if wxOSX_USE_COCOA
     virtual void ShowWindowModal();
     virtual void ModalFinishedCallback(void* panel, int returnCode);
-#endif    
+#endif
 
 protected:
 
     DECLARE_DYNAMIC_CLASS(wxDirDialog)
+
+#if wxOSX_USE_COCOA
+    WX_NSObject m_sheetDelegate;
+#endif
 };
 
 #endif

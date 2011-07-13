@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        bmpbuttn.h
+// Name:        wx/osx/bmpbuttn.h
 // Purpose:     wxBitmapButton class
 // Author:      Stefan Csomor
 // Modified by:
@@ -40,7 +40,7 @@ public:
                 const wxString& name = wxButtonNameStr);
 
 protected:
-    
+
     virtual wxSize DoGetBestSize() const;
 
     DECLARE_DYNAMIC_CLASS(wxBitmapButton)

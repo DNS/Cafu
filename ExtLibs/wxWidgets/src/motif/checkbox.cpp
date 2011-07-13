@@ -45,8 +45,6 @@
 void wxCheckBoxCallback (Widget w, XtPointer clientData,
                          XtPointer ptr);
 
-IMPLEMENT_DYNAMIC_CLASS(wxCheckBox, wxControl)
-
 // Single check box item
 bool wxCheckBox::Create(wxWindow *parent, wxWindowID id, const wxString& label,
                         const wxPoint& pos,
@@ -140,7 +138,7 @@ void wxCheckBoxCallback (Widget WXUNUSED(w), XtPointer clientData,
 
 void wxCheckBox::ChangeBackgroundColour()
 {
-    if (!m_backgroundColour.Ok())
+    if (!m_backgroundColour.IsOk())
         return;
 
     wxComputeColours (XtDisplay((Widget) m_mainWidget), & m_backgroundColour,

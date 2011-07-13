@@ -146,8 +146,10 @@ bool wxGLContext::SetCurrent(const wxGLCanvas& win) const
 IMPLEMENT_CLASS(wxGLCanvas, wxWindow)
 
 BEGIN_EVENT_TABLE(wxGLCanvas, wxWindow)
+#if wxUSE_PALETTE
     EVT_PALETTE_CHANGED(wxGLCanvas::OnPaletteChanged)
     EVT_QUERY_NEW_PALETTE(wxGLCanvas::OnQueryNewPalette)
+#endif
 END_EVENT_TABLE()
 
 // ----------------------------------------------------------------------------
@@ -493,11 +495,20 @@ static int ChoosePixelFormatARB(HDC hdc, const int *attribList)
 
     int pf;
     UINT numFormats = 0;
+
     if ( !wglChoosePixelFormatARB(hdc, iAttributes, NULL, 1, &pf, &numFormats) )
     {
         wxLogLastError(wxT("wglChoosePixelFormatARB"));
         return 0;
     }
+
+    // Although TRUE is returned if no matching formats are found (see
+    // http://www.opengl.org/registry/specs/ARB/wgl_pixel_format.txt), pf is
+    // not initialized in this case so we need to check for numFormats being
+    // not 0 explicitly (however this is not an error so don't call
+    // wxLogLastError() here).
+    if ( !numFormats )
+        pf = 0;
 
     return pf;
 }
@@ -723,10 +734,10 @@ bool wxGLCanvas::SetupPalette(const wxPalette& palette)
 
     m_palette = palette;
 
-    if ( !m_palette.Ok() )
+    if ( !m_palette.IsOk() )
     {
         m_palette = CreateDefaultPalette();
-        if ( !m_palette.Ok() )
+        if ( !m_palette.IsOk() )
             return false;
     }
 
@@ -788,7 +799,7 @@ wxPalette wxGLCanvas::CreateDefaultPalette()
 void wxGLCanvas::OnQueryNewPalette(wxQueryNewPaletteEvent& event)
 {
   /* realize palette if this is the current window */
-  if ( GetPalette()->Ok() ) {
+  if ( GetPalette()->IsOk() ) {
     ::UnrealizeObject((HPALETTE) GetPalette()->GetHPALETTE());
     ::SelectPalette(GetHDC(), (HPALETTE) GetPalette()->GetHPALETTE(), FALSE);
     ::RealizePalette(GetHDC());
@@ -803,7 +814,7 @@ void wxGLCanvas::OnPaletteChanged(wxPaletteChangedEvent& event)
 {
   /* realize palette if this is *not* the current window */
   if ( GetPalette() &&
-       GetPalette()->Ok() && (this != event.GetChangedWindow()) )
+       GetPalette()->IsOk() && (this != event.GetChangedWindow()) )
   {
     ::UnrealizeObject((HPALETTE) GetPalette()->GetHPALETTE());
     ::SelectPalette(GetHDC(), (HPALETTE) GetPalette()->GetHPALETTE(), FALSE);

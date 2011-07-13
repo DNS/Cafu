@@ -30,6 +30,59 @@
 IMPLEMENT_VARIANT_OBJECT_EXPORTED(wxColour,WXDLLEXPORT)
 #endif
 
+
+// ----------------------------------------------------------------------------
+// XTI
+// ----------------------------------------------------------------------------
+
+#if wxUSE_EXTENDED_RTTI
+
+#include <string.h>
+
+template<> void wxStringReadValue(const wxString &s, wxColour &data )
+{
+    if ( !data.Set(s) )
+    {
+        wxLogError(_("String To Colour : Incorrect colour specification : %s"),
+                   s.c_str() );
+        data = wxNullColour;
+    }
+}
+
+template<> void wxStringWriteValue(wxString &s, const wxColour &data )
+{
+    s = data.GetAsString(wxC2S_HTML_SYNTAX);
+}
+
+wxTO_STRING_IMP( wxColour )
+wxFROM_STRING_IMP( wxColour )
+
+wxIMPLEMENT_DYNAMIC_CLASS_WITH_COPY_AND_STREAMERS_XTI( wxColour, wxObject,  \
+                                                      "wx/colour.h",  &wxTO_STRING( wxColour ), &wxFROM_STRING( wxColour ))
+//WX_IMPLEMENT_ANY_VALUE_TYPE(wxAnyValueTypeImpl<wxColour>)
+wxBEGIN_PROPERTIES_TABLE(wxColour)
+wxREADONLY_PROPERTY( Red, unsigned char, Red, wxEMPTY_PARAMETER_VALUE, \
+                    0 /*flags*/, wxT("Helpstring"), wxT("group"))
+wxREADONLY_PROPERTY( Green, unsigned char, Green, wxEMPTY_PARAMETER_VALUE, \
+                    0 /*flags*/, wxT("Helpstring"), wxT("group"))
+wxREADONLY_PROPERTY( Blue, unsigned char, Blue, wxEMPTY_PARAMETER_VALUE, \
+                    0 /*flags*/, wxT("Helpstring"), wxT("group"))
+wxEND_PROPERTIES_TABLE()
+
+wxDIRECT_CONSTRUCTOR_3( wxColour, unsigned char, Red, \
+                       unsigned char, Green, unsigned char, Blue )
+
+wxEMPTY_HANDLERS_TABLE(wxColour)
+#else
+
+#if wxCOLOUR_IS_GDIOBJECT
+wxIMPLEMENT_DYNAMIC_CLASS(wxColour, wxGDIObject)
+#else
+wxIMPLEMENT_DYNAMIC_CLASS(wxColour, wxObject)
+#endif
+
+#endif
+
 // ============================================================================
 // wxString <-> wxColour conversions
 // ============================================================================
@@ -48,10 +101,48 @@ bool wxColourBase::FromString(const wxString& str)
             alpha = wxALPHA_OPAQUE;
         if ( str.length() > 3 && (str[3] == wxT('a') || str[3] == wxT('A')) )
         {
-            float a;
-            // TODO: use locale-independent function
-            if ( wxSscanf(str.wx_str() + 4, wxT("( %d , %d , %d , %f )"),
-                                                &red, &green, &blue, &a) != 4 )
+            // We can't use sscanf() for the alpha value as sscanf() uses the
+            // current locale while the floating point numbers in CSS always
+            // use point as decimal separator, regardless of locale. So parse
+            // the tail of the string manually by putting it in a buffer and
+            // using wxString::ToCDouble() below. Notice that we can't use "%s"
+            // for this as it stops at white space and we need "%c" to avoid
+            // this and really get all the rest of the string into the buffer.
+
+            const unsigned len = str.length(); // always big enough
+            wxCharBuffer alphaBuf(len);
+            char * const alphaPtr = alphaBuf.data();
+
+            for ( unsigned n = 0; n < len; n++ )
+                alphaPtr[n] = '\0';
+
+            // Construct the format string which ensures that the last argument
+            // receives all the rest of the string.
+            wxString formatStr;
+            formatStr << wxS("( %d , %d , %d , %") << len << 'c';
+
+            // Notice that we use sscanf() here because if the string is not
+            // ASCII it can't represent a valid RGB colour specification anyhow
+            // and like this we can be sure that %c corresponds to "char *"
+            // while with wxSscanf() it depends on the type of the string
+            // passed as first argument: if it is a wide string, then %c
+            // expects "wchar_t *" matching parameter under MSW for example.
+            if ( sscanf(str.c_str() + 4,
+                        formatStr.mb_str(),
+                        &red, &green, &blue, alphaPtr) != 4 )
+                return false;
+
+            // Notice that we must explicitly specify the length to get rid of
+            // trailing NULs.
+            wxString alphaStr(alphaPtr, wxStrlen(alphaPtr));
+            if ( alphaStr.empty() || alphaStr.Last() != ')' )
+                return false;
+
+            alphaStr.RemoveLast();
+            alphaStr.Trim();
+
+            double a;
+            if ( !alphaStr.ToCDouble(&a) )
                 return false;
 
             alpha = wxRound(a * 255);
@@ -86,13 +177,13 @@ bool wxColourBase::FromString(const wxString& str)
         // because this place can be called from constructor
         // and 'this' could not be available yet
         wxColour clr = wxTheColourDatabase->Find(str);
-        if (clr.Ok())
+        if (clr.IsOk())
             Set((unsigned char)clr.Red(),
                 (unsigned char)clr.Green(),
                 (unsigned char)clr.Blue());
     }
 
-    if (Ok())
+    if (IsOk())
         return true;
 
     wxLogDebug(wxT("wxColour::Set - couldn't set to colour string '%s'"), str);
@@ -128,9 +219,9 @@ wxString wxColourBase::GetAsString(long flags) const
             }
             else // use rgba() form
             {
-                // TODO: use locale-independent function
-                colName.Printf(wxT("rgba(%d, %d, %d, %.3f)"),
-                               red, green, blue, Alpha() / 255.);
+                colName.Printf(wxT("rgba(%d, %d, %d, %s)"),
+                               red, green, blue,
+                               wxString::FromCDouble(Alpha() / 255., 3));
             }
         }
         else if ( flags & wxC2S_HTML_SYNTAX )
@@ -150,7 +241,7 @@ wxString wxColourBase::GetAsString(long flags) const
 }
 
 // static
-void wxColourBase::MakeMono(unsigned char* r, unsigned char* g, unsigned char* b, 
+void wxColourBase::MakeMono(unsigned char* r, unsigned char* g, unsigned char* b,
                             bool on)
 {
     *r = *g = *b = on ? 255 : 0;
@@ -173,7 +264,7 @@ void wxColourBase::MakeGrey(unsigned char* r, unsigned char* g, unsigned char* b
 }
 
 // static
-void wxColourBase::MakeDisabled(unsigned char* r, unsigned char* g, unsigned char* b, 
+void wxColourBase::MakeDisabled(unsigned char* r, unsigned char* g, unsigned char* b,
                                 unsigned char brightness)
 {
     //MakeGrey(r, g, b, brightness); // grey no-blend version
@@ -185,7 +276,7 @@ void wxColourBase::MakeDisabled(unsigned char* r, unsigned char* g, unsigned cha
 // AlphaBlend is used by ChangeLightness and MakeDisabled
 
 // static
-unsigned char wxColourBase::AlphaBlend(unsigned char fg, unsigned char bg, 
+unsigned char wxColourBase::AlphaBlend(unsigned char fg, unsigned char bg,
                                        double alpha)
 {
     double result = bg + (alpha * (fg - bg));

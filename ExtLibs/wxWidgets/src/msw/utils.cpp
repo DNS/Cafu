@@ -67,7 +67,9 @@
 #if defined(__CYGWIN__)
     #include <sys/unistd.h>
     #include <sys/stat.h>
-    #include <sys/cygwin.h> // for cygwin_conv_to_full_win32_path()
+    #include <sys/cygwin.h> // for cygwin_conv_path()
+    // and cygwin_conv_to_full_win32_path()
+    #include <cygwin/version.h>
 #endif  //GNUWIN32
 
 #ifdef __BORLANDC__ // Please someone tell me which version of Borland needs
@@ -301,7 +303,7 @@ bool wxGetUserName(wxChar *buf, int maxSize)
     // Get the computer name of a DC for the domain.
     if ( NetGetDCName( NULL, wszDomain, &ComputerName ) != NERR_Success )
     {
-        wxLogError(wxT("Can not find domain controller"));
+        wxLogError(wxT("Cannot find domain controller"));
 
         goto error;
     }
@@ -367,7 +369,7 @@ const wxChar* wxGetHomeDir(wxString *pstr)
 
     // first branch is for Cygwin
 #if defined(__UNIX__) && !defined(__WINE__)
-    const wxChar *szHome = wxGetenv("HOME");
+    const wxChar *szHome = wxGetenv(wxT("HOME"));
     if ( szHome == NULL ) {
       // we're homeless...
       wxLogWarning(_("can't find user's HOME, using current directory."));
@@ -383,7 +385,11 @@ const wxChar* wxGetHomeDir(wxString *pstr)
     #ifdef __CYGWIN__
         // Cygwin returns unix type path but that does not work well
         static wxChar windowsPath[MAX_PATH];
-        cygwin_conv_to_full_win32_path(strDir, windowsPath);
+        #if CYGWIN_VERSION_DLL_MAJOR >= 1007
+            cygwin_conv_path(CCP_POSIX_TO_WIN_W, strDir, windowsPath, MAX_PATH);
+        #else
+            cygwin_conv_to_full_win32_path(strDir, windowsPath);
+        #endif
         strDir = windowsPath;
     #endif
 #elif defined(__WXWINCE__)
@@ -494,7 +500,7 @@ bool wxGetDiskSpace(const wxString& WXUNUSED_IN_WINCE(path),
         ULARGE_INTEGER bytesFree, bytesTotal;
 
         // may pass the path as is, GetDiskFreeSpaceEx() is smart enough
-        if ( !pGetDiskFreeSpaceEx(path.fn_str(),
+        if ( !pGetDiskFreeSpaceEx(path.t_str(),
                                   &bytesFree,
                                   &bytesTotal,
                                   NULL) )
@@ -544,7 +550,7 @@ bool wxGetDiskSpace(const wxString& WXUNUSED_IN_WINCE(path),
 
         // FIXME: this is wrong, we should extract the root drive from path
         //        instead, but this is the job for wxFileName...
-        if ( !::GetDiskFreeSpace(path.fn_str(),
+        if ( !::GetDiskFreeSpace(path.t_str(),
                                  &lSectorsPerCluster,
                                  &lBytesPerSector,
                                  &lNumberOfFreeClusters,
@@ -621,7 +627,7 @@ bool wxDoSetEnv(const wxString& var, const wxChar *value)
     //
     // TODO: add checks for the other compilers (and update wxSetEnv()
     //       documentation in interface/wx/utils.h accordingly)
-#if defined(__VISUALC__)
+#if defined(__VISUALC__) || defined(__MINGW32__)
     // notice that Microsoft _putenv() has different semantics from POSIX
     // function with almost the same name: in particular it makes a copy of the
     // string instead of using it as part of environment so we can safely call
@@ -702,11 +708,11 @@ int wxKill(long pid, wxSignal sig, wxKillError *krc, int flags)
         wxKillAllChildren(pid, sig, krc);
 
     // get the process handle to operate on
-    HANDLE hProcess = ::OpenProcess(SYNCHRONIZE |
-                                    PROCESS_TERMINATE |
-                                    PROCESS_QUERY_INFORMATION,
-                                    FALSE, // not inheritable
-                                    (DWORD)pid);
+    DWORD dwAccess = PROCESS_QUERY_INFORMATION | SYNCHRONIZE;
+    if ( sig == wxSIGKILL )
+        dwAccess |= PROCESS_TERMINATE;
+
+    HANDLE hProcess = ::OpenProcess(dwAccess, FALSE, (DWORD)pid);
     if ( hProcess == NULL )
     {
         if ( krc )
@@ -723,6 +729,12 @@ int wxKill(long pid, wxSignal sig, wxKillError *krc, int flags)
     }
 
     wxON_BLOCK_EXIT1(::CloseHandle, hProcess);
+
+    // Default timeout for waiting for the process termination after killing
+    // it. It should be long enough to allow the process to terminate even on a
+    // busy system but short enough to avoid blocking the main thread for too
+    // long.
+    DWORD waitTimeout = 500; // ms
 
     bool ok = true;
     switch ( sig )
@@ -745,10 +757,14 @@ int wxKill(long pid, wxSignal sig, wxKillError *krc, int flags)
             break;
 
         case wxSIGNONE:
-            // do nothing, we just want to test for process existence
-            if ( krc )
-                *krc = wxKILL_OK;
-            return 0;
+            // Opening the process handle may succeed for a process even if it
+            // doesn't run any more (typically because open handles to it still
+            // exist elsewhere, possibly in this process itself if we're
+            // killing a child process) so we still need check if it hasn't
+            // terminated yet but, unlike when killing it, we don't need to
+            // wait for any time at all.
+            waitTimeout = 0;
+            break;
 
         default:
             // any other signal means "terminate"
@@ -793,18 +809,22 @@ int wxKill(long pid, wxSignal sig, wxKillError *krc, int flags)
     }
 
     // the return code
-    DWORD rc wxDUMMY_INITIALIZE(0);
     if ( ok )
     {
         // as we wait for a short time, we can use just WaitForSingleObject()
         // and not MsgWaitForMultipleObjects()
-        switch ( ::WaitForSingleObject(hProcess, 500 /* msec */) )
+        switch ( ::WaitForSingleObject(hProcess, waitTimeout) )
         {
             case WAIT_OBJECT_0:
-                // process terminated
-                if ( !::GetExitCodeProcess(hProcess, &rc) )
+                // Process terminated: normally this indicates that we
+                // successfully killed it but when testing for the process
+                // existence, this means failure.
+                if ( sig == wxSIGNONE )
                 {
-                    wxLogLastError(wxT("GetExitCodeProcess"));
+                    if ( krc )
+                        *krc = wxKILL_NO_PROCESS;
+
+                    ok = false;
                 }
                 break;
 
@@ -817,10 +837,15 @@ int wxKill(long pid, wxSignal sig, wxKillError *krc, int flags)
                 // fall through
 
             case WAIT_TIMEOUT:
-                if ( krc )
-                    *krc = wxKILL_ERROR;
+                // Process didn't terminate: normally this is a failure but not
+                // when we're just testing for its existence.
+                if ( sig != wxSIGNONE )
+                {
+                    if ( krc )
+                        *krc = wxKILL_ERROR;
 
-                rc = STILL_ACTIVE;
+                    ok = false;
+                }
                 break;
         }
     }
@@ -828,7 +853,7 @@ int wxKill(long pid, wxSignal sig, wxKillError *krc, int flags)
 
     // the return code is the same as from Unix kill(): 0 if killed
     // successfully or -1 on error
-    if ( !ok || rc == STILL_ACTIVE )
+    if ( !ok )
         return -1;
 
     if ( krc )
@@ -1249,8 +1274,7 @@ wxString wxGetOsDescription()
                         switch ( info.dwMinorVersion )
                         {
                             case 0:
-                                str.Printf(_("Windows 2000 (build %lu"),
-                                           info.dwBuildNumber);
+                                str = _("Windows 2000");
                                 break;
 
                             case 2:
@@ -1259,36 +1283,44 @@ wxString wxGetOsDescription()
                                 // type to resolve this ambiguity
                                 if ( wxIsWindowsServer() == 1 )
                                 {
-                                    str.Printf(_("Windows Server 2003 (build %lu"),
-                                               info.dwBuildNumber);
+                                    str = _("Windows Server 2003");
                                     break;
                                 }
                                 //else: must be XP, fall through
 
                             case 1:
-                                str.Printf(_("Windows XP (build %lu"),
-                                           info.dwBuildNumber);
+                                str = _("Windows XP");
                                 break;
                         }
                         break;
 
                     case 6:
-                        if ( info.dwMinorVersion == 0 )
+                        switch ( info.dwMinorVersion )
                         {
-                            str.Printf(_("Windows Vista (build %lu"),
-                                       info.dwBuildNumber);
+                            case 0:
+                                str = wxIsWindowsServer() == 1
+                                        ? _("Windows Server 2008")
+                                        : _("Windows Vista");
+                                break;
+
+                            case 1:
+                                str = wxIsWindowsServer() == 1
+                                        ? _("Windows Server 2008 R2")
+                                        : _("Windows 7");
+                                break;
                         }
                         break;
                 }
 
                 if ( str.empty() )
                 {
-                    str.Printf(_("Windows NT %lu.%lu (build %lu"),
-                           info.dwMajorVersion,
-                           info.dwMinorVersion,
-                           info.dwBuildNumber);
+                    str.Printf(_("Windows NT %lu.%lu"),
+                               info.dwMajorVersion,
+                               info.dwMinorVersion);
                 }
 
+                str << wxT(" (")
+                    << wxString::Format(_("build %lu"), info.dwBuildNumber);
                 if ( !wxIsEmpty(info.szCSDVersion) )
                 {
                     str << wxT(", ") << info.szCSDVersion;

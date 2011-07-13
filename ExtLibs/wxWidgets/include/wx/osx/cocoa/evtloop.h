@@ -15,15 +15,28 @@ class WXDLLIMPEXP_BASE wxGUIEventLoop : public wxCFEventLoop
 {
 public:
     wxGUIEventLoop();
+    ~wxGUIEventLoop();
     
+    void BeginModalSession( wxWindow* modalWindow );
+    
+    void EndModalSession();
+
 protected:
     virtual int DoDispatchTimeout(unsigned long timeout);
-    
+
     virtual void DoRun();
 
     virtual void DoStop();
-    
+
     virtual CFRunLoopRef CFGetCurrentRunLoop() const;
+    
+    void* m_modalSession;
+    
+    wxWindow* m_modalWindow;
+    
+    WXWindow m_dummyWindow;
+    
+    int m_modalNestedLevel;
 };
 
 #endif // _WX_OSX_COCOA_EVTLOOP_H_

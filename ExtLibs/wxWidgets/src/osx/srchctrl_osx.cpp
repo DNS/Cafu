@@ -3,7 +3,7 @@
 // Purpose:     implements mac carbon wxSearchCtrl
 // Author:      Vince Harron
 // Created:     2006-02-19
-// RCS-ID:      $Id: srchctrl.cpp 54820 2008-07-29 20:04:11Z SC $
+// RCS-ID:      $Id$
 // Copyright:   Vince Harron
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -68,7 +68,7 @@ void wxSearchCtrl::Init()
 
 wxSearchWidgetImpl* wxSearchCtrl::GetSearchPeer() const
 {
-    return dynamic_cast<wxSearchWidgetImpl*> (m_peer);
+    return dynamic_cast<wxSearchWidgetImpl*> (GetPeer());
 }
 
 wxSearchCtrl::~wxSearchCtrl()
@@ -168,7 +168,7 @@ bool wxSearchCtrl::Create(wxWindow *parent, wxWindowID id,
             const wxValidator& validator,
             const wxString& name)
 {
-    m_macIsUserPane = false ;
+    DontCreatePeer();
     m_editable = true ;
 
     if ( ! (style & wxNO_BORDER) )
@@ -185,7 +185,7 @@ bool wxSearchCtrl::Create(wxWindow *parent, wxWindowID id,
     }
 
 
-    m_peer = wxWidgetImpl::CreateSearchControl( this, GetParent(), GetId(), value, pos, size, style, GetExtraStyle() );
+    SetPeer(wxWidgetImpl::CreateSearchControl( this, GetParent(), GetId(), value, pos, size, style, GetExtraStyle() ));
 
     MacPostControlCreate(pos, size) ;
 

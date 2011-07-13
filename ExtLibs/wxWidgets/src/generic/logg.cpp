@@ -610,6 +610,11 @@ wxLogWindow::wxLogWindow(wxWindow *pParent,
                          bool bShow,
                          bool bDoPass)
 {
+    // Initialize it to NULL to ensure that we don't crash if any log messages
+    // are generated before the frame is fully created (while this doesn't
+    // happen normally, it might, in principle).
+    m_pLogFrame = NULL;
+
     PassMessages(bDoPass);
 
     m_pLogFrame = new wxLogFrame(pParent, this, szTitle);
@@ -721,7 +726,7 @@ wxLogDialog::wxLogDialog(wxWindow *parent,
     bool isPda = (wxSystemSettings::GetScreenType() <= wxSYS_SCREEN_PDA);
 
     // create the controls which are always shown and layout them: we use
-    // sizers even though our window is not resizeable to calculate the size of
+    // sizers even though our window is not resizable to calculate the size of
     // the dialog properly
     wxBoxSizer *sizerTop = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer *sizerAll = new wxBoxSizer(isPda ? wxVERTICAL : wxHORIZONTAL);
@@ -829,7 +834,7 @@ void wxLogDialog::CreateDetailsControls(wxWindow *parent)
     wxImageList *imageList = new wxImageList(ICON_SIZE, ICON_SIZE);
 
     // order should be the same as in the switch below!
-    static const wxChar* const icons[] =
+    static const char* const icons[] =
     {
         wxART_ERROR,
         wxART_WARNING,
@@ -845,7 +850,7 @@ void wxLogDialog::CreateDetailsControls(wxWindow *parent)
 
         // This may very well fail if there are insufficient colours available.
         // Degrade gracefully.
-        if ( !bmp.Ok() )
+        if ( !bmp.IsOk() )
         {
             loadedIcons = false;
 

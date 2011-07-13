@@ -32,8 +32,6 @@
 // event tables
 // ----------------------------------------------------------------------------
 
-IMPLEMENT_DYNAMIC_CLASS(wxFrame, wxTopLevelWindow)
-
 // ============================================================================
 // implementation
 // ============================================================================
@@ -237,32 +235,24 @@ bool wxFrame::ShowFullScreen(bool show, long style)
     return true;
 }
 
-void wxFrame::OnInternalIdle()
+bool wxFrame::SendIdleEvents(wxIdleEvent& event)
 {
-    wxFrameBase::OnInternalIdle();
+    bool needMore = wxFrameBase::SendIdleEvents(event);
 
-#if wxUSE_MENUS_NATIVE
-    if (m_frameMenuBar) m_frameMenuBar->OnInternalIdle();
-#endif // wxUSE_MENUS_NATIVE
+#if wxUSE_MENUS
+    if (m_frameMenuBar && m_frameMenuBar->SendIdleEvents(event))
+        needMore = true;
+#endif
 #if wxUSE_TOOLBAR
-    if (m_frameToolBar) m_frameToolBar->OnInternalIdle();
+    if (m_frameToolBar && m_frameToolBar->SendIdleEvents(event))
+        needMore = true;
 #endif
 #if wxUSE_STATUSBAR
-    if (m_frameStatusBar)
-    {
-        m_frameStatusBar->OnInternalIdle();
-
-        // There may be controls in the status bar that
-        // need to be updated
-        for ( wxWindowList::compatibility_iterator node = m_frameStatusBar->GetChildren().GetFirst();
-          node;
-          node = node->GetNext() )
-        {
-            wxWindow *child = node->GetData();
-            child->OnInternalIdle();
-        }
-    }
+    if (m_frameStatusBar && m_frameStatusBar->SendIdleEvents(event))
+        needMore = true;
 #endif
+
+    return needMore;
 }
 
 // ----------------------------------------------------------------------------
@@ -281,7 +271,7 @@ void wxFrame::DetachMenuBar()
 #if wxUSE_LIBHILDON || wxUSE_LIBHILDON2
         hildon_window_set_menu(HILDON_WINDOW(m_widget), NULL);
 #else // !wxUSE_LIBHILDON && !wxUSE_LIBHILDON2
-        gtk_widget_ref( m_frameMenuBar->m_widget );
+        g_object_ref( m_frameMenuBar->m_widget );
 
         gtk_container_remove( GTK_CONTAINER(m_mainWidget), m_frameMenuBar->m_widget );
 #endif // wxUSE_LIBHILDON || wxUSE_LIBHILDON2 /!wxUSE_LIBHILDON && !wxUSE_LIBHILDON2
@@ -342,7 +332,7 @@ void wxFrame::SetToolBar(wxToolBar *toolbar)
         {
             // Vertical toolbar and m_wxwindow go into an hbox, inside the
             // vbox (m_mainWidget). hbox is created on demand.
-            GtkWidget* hbox = m_wxwindow->parent;
+            GtkWidget* hbox = gtk_widget_get_parent(m_wxwindow);
             if (!GTK_IS_HBOX(hbox))
             {
                 hbox = gtk_hbox_new(false, 0);

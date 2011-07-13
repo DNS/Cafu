@@ -4,7 +4,7 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     1998-01-01
-// RCS-ID:      $Id: menuitem.cpp 54129 2008-06-11 19:30:52Z SC $
+// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,12 +22,60 @@
 
 #include "wx/osx/private.h"
 
+// a mapping from wx ids to standard osx actions in order to support the native menu item handling
+// if a new mapping is added, make sure the wxNonOwnedWindowController has a handler for this action as well
+
+struct Mapping
+{
+    int menuid;
+    SEL action;
+};
+
+Mapping sActionToWXMapping[] =
+{
+    { wxID_UNDO, @selector(undo:) },
+    { wxID_REDO, @selector(redo:) },
+    { wxID_CUT, @selector(cut:) },
+    { wxID_COPY, @selector(copy:) },
+    { wxID_PASTE, @selector(paste:) },
+    { wxID_CLEAR, @selector(delete:) },
+    { wxID_SELECTALL, @selector(selectAll:) },
+    { 0, NULL }
+};
+
+int wxOSXGetIdFromSelector(SEL action )
+{
+    int i = 0 ;
+    while ( sActionToWXMapping[i].action != nil )
+    {
+        if ( sActionToWXMapping[i].action == action )
+            return sActionToWXMapping[i].menuid;
+        ++i;
+    }
+    
+    return 0;
+}
+
+SEL wxOSXGetSelectorFromID(int menuId )
+{
+    int i = 0 ;
+    while ( sActionToWXMapping[i].action != nil )
+    {
+        if ( sActionToWXMapping[i].menuid == menuId )
+            return sActionToWXMapping[i].action;
+        ++i;
+    }
+    
+    return nil;
+}
+
+
 @implementation wxNSMenuItem
 
-- (id) init
+- (id) initWithTitle:(NSString *)aString action:(SEL)aSelector keyEquivalent:(NSString *)charCode
 {
-    [super init];
-     return self;
+    self = [super initWithTitle:aString action:aSelector keyEquivalent:charCode];
+    return self;
 }
 
 - (void) clickedAction: (id) sender
@@ -35,8 +83,16 @@
     wxUnusedVar(sender);
     if ( impl )
     {
-        impl->GetWXPeer()->GetMenu()->HandleCommandProcess(impl->GetWXPeer());
+        wxMenuItem* menuitem = impl->GetWXPeer();
+        if ( menuitem->GetMenu()->HandleCommandProcess(menuitem) == false )
+        {
+        }
      }
+}
+
+- (void) setEnabled:(BOOL) flag
+{
+    [super setEnabled:flag];
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *) menuItem
@@ -44,8 +100,12 @@
     wxUnusedVar(menuItem);
     if( impl )
     {
-        impl->GetWXPeer()->GetMenu()->HandleCommandUpdateStatus(impl->GetWXPeer());
-        return impl->GetWXPeer()->IsEnabled();
+        wxMenuItem* wxmenuitem = impl->GetWXPeer();
+        if ( wxmenuitem )
+        {
+            wxmenuitem->GetMenu()->HandleCommandUpdateStatus(wxmenuitem);
+            return wxmenuitem->IsEnabled();
+        }
     }
     return YES ;
 }
@@ -64,6 +124,12 @@
 
 void wxMacCocoaMenuItemSetAccelerator( NSMenuItem* menuItem, wxAcceleratorEntry* entry )
 {
+    if ( entry == NULL )
+    {
+        [menuItem setKeyEquivalent:@""];
+        return;
+    }
+         
     unsigned int modifiers = 0 ;
     int key = entry->GetKeyCode() ;
     if ( key )
@@ -89,71 +155,59 @@ void wxMacCocoaMenuItemSetAccelerator( NSMenuItem* menuItem, wxAcceleratorEntry*
         {
             switch ( key )
             {
-/*
-                // standard function keys from here
-                case WXK_TAB :
-                    modifiers |= NSFunctionKeyMask ;
-                    shortcut = NSTabCharacter ;
-                    break ;
-
-                case kEnterCharCode :
-                    modifiers |= NSFunctionKeyMask ;
-                    cocoaKey = NSTabCharacter ;
-                    break ;
-
-                case WXK_RETURN :
-                    modifiers |= NSFunctionKeyMask ;
-                    cocoaKey = NSTabCharacter ;
-                    break ;
-
-                case WXK_ESCAPE :
-                    modifiers |= NSFunctionKeyMask ;
-                    cocoaKey = kEscapeCharCode ;
-                    break ;
-
-                case WXK_SPACE :
-                    shortcut = ' ' ;
-                    break ;
-
-
                 case WXK_CLEAR :
-                    cocoaKey = kClearCharCode ;
+                    modifiers |= NSFunctionKeyMask;
+                    shortcut = NSDeleteCharacter ;
                     break ;
 
                 case WXK_PAGEUP :
-                    cocoaKey = kPageUpCharCode ;
+                    modifiers |= NSFunctionKeyMask;
+                    shortcut = NSPageUpFunctionKey ;
                     break ;
 
                 case WXK_PAGEDOWN :
-                    cocoaKey = kPageDownCharCode ;
+                    modifiers |= NSFunctionKeyMask;
+                    shortcut = NSPageDownFunctionKey ;
                     break ;
 
                 case WXK_LEFT :
-                    cocoaKey = kLeftArrowCharCode ;
+                    modifiers |= NSNumericPadKeyMask | NSFunctionKeyMask;
+                    shortcut = NSLeftArrowFunctionKey ;
                     break ;
 
                 case WXK_UP :
-                    cocoaKey = kUpArrowCharCode ;
+                    modifiers |= NSNumericPadKeyMask | NSFunctionKeyMask;
+                    shortcut = NSUpArrowFunctionKey ;
                     break ;
 
                 case WXK_RIGHT :
-                    cocoaKey = kRightArrowCharCode ;
+                    modifiers |= NSNumericPadKeyMask | NSFunctionKeyMask;
+                    shortcut = NSRightArrowFunctionKey ;
                     break ;
 
                 case WXK_DOWN :
-                    cocoaKey = kDownArrowCharCode ;
+                    modifiers |= NSNumericPadKeyMask | NSFunctionKeyMask;
+                    shortcut = NSDownArrowFunctionKey ;
                     break ;
 
                 case WXK_HOME :
-                    cocoaKey = kHomeCharCode ;
+                    modifiers |= NSFunctionKeyMask;
+                    shortcut = NSHomeFunctionKey ;
                     break ;
 
                 case WXK_END :
-                    cocoaKey = kEndCharCode ;
+                    modifiers |= NSFunctionKeyMask;
+                    shortcut = NSEndFunctionKey ;
                     break ;
-*/
-                // TODO Test all above with their function key equiv.
-                // from NSEvent.h
+
+                case WXK_NUMPAD_ENTER :
+                    shortcut = NSEnterCharacter;
+                    break;
+                    
+                case WXK_BACK :
+                case WXK_RETURN :
+                case WXK_TAB :
+                case WXK_ESCAPE :
                 default :
                     if(entry->GetFlags() & wxACCEL_SHIFT)
                         shortcut = toupper(key);
@@ -167,6 +221,10 @@ void wxMacCocoaMenuItemSetAccelerator( NSMenuItem* menuItem, wxAcceleratorEntry*
         [menuItem setKeyEquivalentModifierMask:modifiers];
     }
 }
+
+@interface NSMenuItem(PossibleMethods)
+- (void)setHidden:(BOOL)hidden;
+@end
 
 class wxMenuItemCocoaImpl : public wxMenuItemImpl
 {
@@ -208,10 +266,10 @@ public :
         wxCFStringRef cfText(text);
         [m_osxMenuItem setTitle:cfText.AsNSString()];
 
-        if ( entry )
-            wxMacCocoaMenuItemSetAccelerator( m_osxMenuItem, entry );
-
+        wxMacCocoaMenuItemSetAccelerator( m_osxMenuItem, entry );
     }
+    
+    bool DoDefault();
 
     void * GetHMenuItem() { return m_osxMenuItem; }
 
@@ -226,9 +284,32 @@ wxMenuItemCocoaImpl::~wxMenuItemCocoaImpl()
     [m_osxMenuItem release];
 }
 
+bool wxMenuItemCocoaImpl::DoDefault()
+{
+    bool handled=false;
+    int menuid = m_peer->GetId();
+    
+    NSApplication *theNSApplication = [NSApplication sharedApplication];
+    if (menuid == wxID_OSX_HIDE)
+    {
+        [theNSApplication hide:nil];
+        handled=true;
+    }
+    else if (menuid == wxID_OSX_HIDEOTHERS)
+    {
+        [theNSApplication hideOtherApplications:nil];
+        handled=true;
+    }
+    else if (menuid == wxID_OSX_SHOWALL)
+    {
+        [theNSApplication unhideAllApplications:nil];
+        handled=true;
+    }
+    return handled;
+}
 
 wxMenuItemImpl* wxMenuItemImpl::Create( wxMenuItem* peer, wxMenu *pParentMenu,
-                       int WXUNUSED(id),
+                       int menuid,
                        const wxString& text,
                        wxAcceleratorEntry *entry,
                        const wxString& WXUNUSED(strHelp),
@@ -245,24 +326,33 @@ wxMenuItemImpl* wxMenuItemImpl::Create( wxMenuItem* peer, wxMenu *pParentMenu,
     else
     {
         wxCFStringRef cfText(text);
-        wxNSMenuItem* temp = [ [ wxNSMenuItem alloc ] init ];
-        if ( ! pParentMenu->GetNoEventsMode() )
+        SEL selector = nil;
+        bool targetSelf = false;
+        if ( ! pParentMenu->GetNoEventsMode() && pSubMenu == NULL )
         {
-            [temp setTarget: temp];
-            [temp setAction: @selector(clickedAction:)];
+            selector = wxOSXGetSelectorFromID(menuid);
+            
+            if ( selector == nil )
+            {
+                selector = @selector(clickedAction:);
+                targetSelf = true;
+            }
         }
-        [temp setTitle:cfText.AsNSString()];
+        
+        wxNSMenuItem* menuitem = [ [ wxNSMenuItem alloc ] initWithTitle:cfText.AsNSString() action:selector keyEquivalent:@""];
+        if ( targetSelf )
+            [menuitem setTarget:menuitem];
+        
         if ( pSubMenu )
         {
             pSubMenu->GetPeer()->SetTitle( text );
-            [temp setSubmenu:pSubMenu->GetHMenu()];
+            [menuitem setSubmenu:pSubMenu->GetHMenu()];
         }
         else
         {
-            if ( entry )
-                wxMacCocoaMenuItemSetAccelerator( temp, entry );
+            wxMacCocoaMenuItemSetAccelerator( menuitem, entry );
         }
-        item = temp;
+        item = menuitem;
     }
     c = new wxMenuItemCocoaImpl( peer, item );
     return c;

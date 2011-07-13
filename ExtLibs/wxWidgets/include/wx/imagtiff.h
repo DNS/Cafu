@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        imagtiff.h
+// Name:        wx/imagtiff.h
 // Purpose:     wxImage TIFF handler
 // Author:      Robert Roebling
 // RCS-ID:      $Id$
@@ -19,6 +19,7 @@
 #if wxUSE_LIBTIFF
 
 #include "wx/image.h"
+#include "wx/versioninfo.h"
 
 // defines for wxImage::SetOption
 #define wxIMAGE_OPTION_BITSPERSAMPLE               wxString(wxT("BitsPerSample"))
@@ -30,6 +31,8 @@ class WXDLLIMPEXP_CORE wxTIFFHandler: public wxImageHandler
 {
 public:
     wxTIFFHandler();
+
+    static wxVersionInfo GetLibraryVersionInfo();
 
 #if wxUSE_STREAMS
     virtual bool LoadFile( wxImage *image, wxInputStream& stream, bool verbose=true, int index=-1 );

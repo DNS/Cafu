@@ -25,8 +25,6 @@
 #endif
 #endif
 
-IMPLEMENT_DYNAMIC_CLASS(wxComboBox, wxControl)
-
 #if TARGET_API_MAC_OSX
 #define USE_HICOMBOBOX 1 //use hi combobox define
 #else
@@ -343,7 +341,7 @@ bool wxComboBox::Create(wxWindow *parent, wxWindowID id,
     m_text = NULL;
     m_choice = NULL;
 #if USE_HICOMBOBOX
-    m_macIsUserPane = false;
+    DontCreatePeer();
 #endif
     if ( !wxControl::Create(parent, id, wxDefaultPosition, wxDefaultSize, style ,
                             wxDefaultValidator, name) )

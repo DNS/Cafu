@@ -22,6 +22,7 @@ class WXDLLIMPEXP_FWD_CORE wxDialogLayoutAdapter;
 class WXDLLIMPEXP_FWD_CORE wxDialog;
 class WXDLLIMPEXP_FWD_CORE wxButton;
 class WXDLLIMPEXP_FWD_CORE wxScrolledWindow;
+class wxTextSizerWrapper;
 
 // Also see the bit summary table in wx/toplevel.h.
 
@@ -115,9 +116,14 @@ public:
     }
 
 #if wxUSE_STATTEXT // && wxUSE_TEXTCTRL
-    // splits text up at newlines and places the
-    // lines into a vertical wxBoxSizer
-    wxSizer *CreateTextSizer( const wxString &message );
+    // splits text up at newlines and places the lines into a vertical
+    // wxBoxSizer
+    wxSizer *CreateTextSizer( const wxString& message );
+
+    // same as above but uses a customized wxTextSizerWrapper to create
+    // non-standard controls for the lines
+    wxSizer *CreateTextSizer( const wxString& message,
+                              wxTextSizerWrapper& wrapper );
 #endif // wxUSE_STATTEXT // && wxUSE_TEXTCTRL
 
     // returns a horizontal wxBoxSizer containing the given buttons
@@ -127,9 +133,16 @@ public:
     // platforms which have hardware buttons replacing OK/Cancel and such)
     wxSizer *CreateButtonSizer(long flags);
 
+    // returns a sizer containing the given one and a static line separating it
+    // from the preceding elements if it's appropriate for the current platform
+    wxSizer *CreateSeparatedSizer(wxSizer *sizer);
+
     // returns the sizer containing CreateButtonSizer() below a separating
     // static line for the platforms which use static lines for items
     // separation (i.e. not Mac)
+    //
+    // this is just a combination of CreateButtonSizer() and
+    // CreateSeparatedSizer()
     wxSizer *CreateSeparatedButtonSizer(long flags);
 
 #if wxUSE_BUTTON
@@ -236,6 +249,13 @@ private:
     // can be used as our parent or NULL if it can't
     wxWindow *CheckIfCanBeUsedAsParent(wxWindow *parent) const;
 
+    // Helper of OnCharHook() and OnCloseWindow(): find the appropriate button
+    // for closing the dialog and send a click event for it.
+    //
+    // Return true if we found a button to close the dialog and "clicked" it or
+    // false otherwise.
+    bool SendCloseButtonClickEvent();
+
     // handle Esc key presses
     void OnCharHook(wxKeyEvent& event);
 
@@ -297,6 +317,7 @@ public:
     // Create the scrolled window
     virtual wxScrolledWindow* CreateScrolledWindow(wxWindow* parent);
 
+#if wxUSE_BUTTON
     // Find a standard or horizontal box sizer
     virtual wxSizer* FindButtonSizer(bool stdButtonSizer, wxDialog* dialog, wxSizer* sizer, int& retBorder, int accumlatedBorder = 0);
 
@@ -308,6 +329,7 @@ public:
 
     // Find 'loose' main buttons in the existing layout and add them to the standard dialog sizer
     virtual bool FindLooseButtons(wxDialog* dialog, wxStdDialogButtonSizer* buttonSizer, wxSizer* sizer, int& count);
+#endif // wxUSE_BUTTON
 
     // Reparent the controls to the scrolled window, except those in buttonSizer
     virtual void ReparentControls(wxWindow* parent, wxWindow* reparentTo, wxSizer* buttonSizer = NULL);

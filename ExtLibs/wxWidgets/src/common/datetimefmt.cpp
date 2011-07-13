@@ -320,7 +320,7 @@ wxString wxDateTime::Format(const wxString& formatp, const TimeZone& tz) const
     format.Replace("%X",wxLocale::GetInfo(wxLOCALE_TIME_FMT));
 #endif
     // we have to use our own implementation if the date is out of range of
-    // strftime() or if we use non standard specificators
+    // strftime() or if we use non standard specifiers
 #ifdef wxHAS_STRFTIME
     time_t time = GetTicks();
 
@@ -374,12 +374,11 @@ wxString wxDateTime::Format(const wxString& formatp, const TimeZone& tz) const
 
     // used for calls to strftime() when we only deal with time
     struct tm tmTimeOnly;
+    memset(&tmTimeOnly, 0, sizeof(tmTimeOnly));
     tmTimeOnly.tm_hour = tm.hour;
     tmTimeOnly.tm_min = tm.min;
     tmTimeOnly.tm_sec = tm.sec;
-    tmTimeOnly.tm_wday = 0;
-    tmTimeOnly.tm_yday = 0;
-    tmTimeOnly.tm_mday = 1;         // any date will do
+    tmTimeOnly.tm_mday = 1;         // any date will do, use 1976-01-01
     tmTimeOnly.tm_mon = 0;
     tmTimeOnly.tm_year = 76;
     tmTimeOnly.tm_isdst = 0;        // no DST, we adjust for tz ourselves
@@ -649,9 +648,10 @@ wxString wxDateTime::Format(const wxString& formatp, const TimeZone& tz) const
 
                 default:
                     // is it the format width?
-                    fmt.Empty();
-                    while ( *p == wxT('-') || *p == wxT('+') ||
-                            *p == wxT(' ') || wxIsdigit(*p) )
+                    for ( fmt.clear();
+                          *p == wxT('-') || *p == wxT('+') ||
+                            *p == wxT(' ') || wxIsdigit(*p);
+                          ++p )
                     {
                         fmt += *p;
                     }
@@ -668,7 +668,7 @@ wxString wxDateTime::Format(const wxString& formatp, const TimeZone& tz) const
                     }
 
                     // no, it wasn't the width
-                    wxFAIL_MSG(wxT("unknown format specificator"));
+                    wxFAIL_MSG(wxT("unknown format specifier"));
 
                     // fall through and just copy it nevertheless
 
@@ -1625,9 +1625,10 @@ wxDateTime::ParseDate(const wxString& date, wxString::const_iterator *end)
     while ( p != pEnd )
     {
         // skip white space and date delimiters
-        while ( wxStrchr(".,/-\t\r\n ", *p) )
+        if ( wxStrchr(".,/-\t\r\n ", *p) )
         {
             ++p;
+            continue;
         }
 
         // modify copy of the iterator as we're not sure if the next token is

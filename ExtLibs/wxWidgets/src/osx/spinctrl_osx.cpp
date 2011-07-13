@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        src/osx/carbon/spinbutt.cpp
+// Name:        src/osx/spinctrl_osx.cpp
 // Purpose:     wxSpinCtrl
 // Author:      Robert
 // Modified by: Mark Newsam (Based on GTK file)
@@ -196,8 +196,6 @@ BEGIN_EVENT_TABLE(wxSpinCtrlButton, wxSpinButton)
     EVT_SPIN(wxID_ANY, wxSpinCtrlButton::OnSpinButton)
 END_EVENT_TABLE()
 
-IMPLEMENT_DYNAMIC_CLASS(wxSpinCtrl, wxControl)
-
 BEGIN_EVENT_TABLE(wxSpinCtrl, wxControl)
     WX_EVENT_TABLE_CONTROL_CONTAINER(wxSpinCtrl)
 END_EVENT_TABLE()
@@ -231,7 +229,6 @@ bool wxSpinCtrl::Create(wxWindow *parent,
                         int initial,
                         const wxString& name)
 {
-    m_macIsUserPane = true;
     if ( !wxControl::Create(parent, id, pos, size, style,
                             wxDefaultValidator, name) )
     {

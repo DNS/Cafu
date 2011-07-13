@@ -46,7 +46,7 @@ public :
 
     // returns 0 in case of no Error, otherwise platform specific error codes
     virtual wxUint32 GetStatus() const = 0 ;
-    bool Ok() { return GetStatus() == 0 ; }
+    bool IsOk() { return GetStatus() == 0 ; }
 
     static wxNativePrinterDC* Create(wxPrintData* data) ;
 } ;
@@ -74,20 +74,20 @@ wxMacCarbonPrinterDC::wxMacCarbonPrinterDC( wxPrintData* data )
 {
     m_err = noErr ;
     wxOSXPrintData *native = (wxOSXPrintData*) data->GetNativeData() ;
-    
+
     PMRect rPage;
     m_err = PMGetAdjustedPageRect(native->GetPageFormat(), &rPage);
     if ( m_err != noErr )
         return;
-    
+
     m_maxX = wxCoord(rPage.right - rPage.left) ;
     m_maxY = wxCoord(rPage.bottom - rPage.top);
-    
+
     PMResolution res;
     PMPrinter printer;
     m_err = PMSessionGetCurrentPrinter(native->GetPrintSession(), &printer);
     if ( m_err == noErr )
-    {    
+    {
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
         if ( PMPrinterGetOutputResolution != NULL )
         {
@@ -112,7 +112,11 @@ wxMacCarbonPrinterDC::wxMacCarbonPrinterDC( wxPrintData* data )
 #endif
         }
     }
-    
+    else
+    {
+        res.hRes = res.vRes = 300;
+    }
+
     m_maxX = wxCoord((double)m_maxX * res.hRes / 72.0);
     m_maxY = wxCoord((double)m_maxY * res.vRes / 72.0);
 
@@ -179,7 +183,7 @@ bool wxMacCarbonPrinterDC::StartDoc(  wxPrinterDC* dc , const wxString& message 
 #endif
         }
     }
-    
+
     m_maxX = wxCoord((double)m_maxX * res.hRes / 72.0);
     m_maxY = wxCoord((double)m_maxY * res.vRes / 72.0);
 
@@ -231,7 +235,7 @@ void wxMacCarbonPrinterDC::StartPage( wxPrinterDC* dc )
         // Core Graphics initially has the lower left of the paper as 0,0
         if ( !m_err )
             CGContextTranslateCTM( pageContext , (CGFloat) -paperRect.left , (CGFloat) paperRect.bottom ) ;
-        
+
         // since this is a non-critical error, we set the flag back
         m_err = noErr ;
 
@@ -288,7 +292,7 @@ wxPrinterDCImpl::wxPrinterDCImpl( wxPrinterDC *owner, const wxPrintData& printda
     m_nativePrinterDC = wxNativePrinterDC::Create( &m_printData ) ;
     if ( m_nativePrinterDC )
     {
-        m_ok = m_nativePrinterDC->Ok() ;
+        m_ok = m_nativePrinterDC->IsOk() ;
         if ( !m_ok )
         {
             wxString message ;
@@ -329,7 +333,7 @@ bool wxPrinterDCImpl::StartDoc( const wxString& message )
     {
         // in case we have to do additional things when successful
     }
-    m_ok = m_nativePrinterDC->Ok() ;
+    m_ok = m_nativePrinterDC->IsOk() ;
     if ( !m_ok )
     {
         wxString message ;
@@ -347,7 +351,7 @@ void wxPrinterDCImpl::EndDoc(void)
         return ;
 
     m_nativePrinterDC->EndDoc( (wxPrinterDC*) GetOwner() ) ;
-    m_ok = m_nativePrinterDC->Ok() ;
+    m_ok = m_nativePrinterDC->IsOk() ;
 
     if ( !m_ok )
     {
@@ -397,7 +401,7 @@ void wxPrinterDCImpl::StartPage()
     m_backgroundBrush = *wxWHITE_BRUSH;
 
     m_nativePrinterDC->StartPage( (wxPrinterDC*) GetOwner() ) ;
-    m_ok = m_nativePrinterDC->Ok() ;
+    m_ok = m_nativePrinterDC->IsOk() ;
 
 }
 
@@ -407,7 +411,7 @@ void wxPrinterDCImpl::EndPage()
         return ;
 
     m_nativePrinterDC->EndPage( (wxPrinterDC*) GetOwner() );
-    m_ok = m_nativePrinterDC->Ok() ;
+    m_ok = m_nativePrinterDC->IsOk() ;
 }
 
 void wxPrinterDCImpl::DoGetSize(int *width, int *height) const

@@ -59,7 +59,6 @@ public:
     int GetMax() const { return m_rangeMax; }
 
     // Win32-specific slider methods
-    void SetTickFreq(int n, int pos);
     int GetTickFreq() const { return m_tickFreq; }
     void SetPageSize(int pageSize);
     int GetPageSize() const;
@@ -106,8 +105,8 @@ protected:
     // get the boundig box for the slider and possible labels
     wxRect GetBoundingBox() const;
 
-    // get the height and, if the pointer is not NULL, width of our labels
-    int GetLabelsSize(int *width = NULL) const;
+    // Get the height and, if the pointers are non NULL, widths of both labels.
+    int GetLabelsSize(int *widthMin = NULL, int *widthMax = NULL) const;
 
 
     // overridden base class virtuals
@@ -124,10 +123,15 @@ protected:
     int           m_pageSize;
     int           m_lineSize;
     int           m_tickFreq;
+    int           m_minLabelWidth;
+    int           m_maxLabelWidth;
 
     // flag needed to detect whether we're getting THUMBRELEASE event because
     // of dragging the thumb or scrolling the mouse wheel
     bool m_isDragging;
+
+    // Platform-specific implementation of SetTickFreq
+    virtual void DoSetTickFreq(int freq);
 
     DECLARE_DYNAMIC_CLASS_NO_COPY(wxSlider)
 };

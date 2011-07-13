@@ -1,11 +1,13 @@
 /////////////////////////////////////////////////////////////////////////////
 // Name:        src/osx/uiaction_osx.cpp
 // Purpose:     wxUIActionSimulator implementation
-// Author:      Kevin Ollivier
+// Author:      Kevin Ollivier, Steven Lamerton, Vadim Zeitlin
 // Modified by:
 // Created:     2010-03-06
-// RCS-ID:      $Id: menu.cpp 54129 2008-06-11 19:30:52Z SC $
+// RCS-ID:      $Id$
 // Copyright:   (c) Kevin Ollivier
+//              (c) 2010 Steven Lamerton
+//              (c) 2010 Vadim Zeitlin
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
@@ -15,61 +17,63 @@
 
 #include "wx/uiaction.h"
 
-#include <ApplicationServices/ApplicationServices.h>
+#include "wx/log.h"
 
+#include "wx/osx/private.h"
+#include "wx/osx/core/cfref.h"
+
+namespace
+{
+    
 CGEventTapLocation tap = kCGSessionEventTap;
 
 CGEventType CGEventTypeForMouseButton(int button, bool isDown)
 {
-    switch (button)
+    switch ( button )
     {
         case wxMOUSE_BTN_LEFT:
-            if (isDown)
-                return kCGEventLeftMouseDown;
-            else
-                return kCGEventLeftMouseUp;
+            return isDown ? kCGEventLeftMouseDown : kCGEventLeftMouseUp;
+
         case wxMOUSE_BTN_RIGHT:
-            if (isDown)
-                return kCGEventRightMouseDown;
-            else
-                return kCGEventRightMouseUp;
+            return isDown ? kCGEventRightMouseDown : kCGEventRightMouseUp;
 
-        // Apparently all other buttons use the constant OtherMouseDown
-
+        // All the other buttons use the constant OtherMouseDown but we still
+        // want to check for invalid parameters so assert first
         default:
-            if (isDown)
-                return kCGEventOtherMouseDown;
-            else
-                return kCGEventOtherMouseUp;
+            wxFAIL_MSG("Unsupported button passed in.");
+            // fall back to the only known remaining case
+
+        case wxMOUSE_BTN_MIDDLE:
+            return isDown ? kCGEventOtherMouseDown : kCGEventOtherMouseUp;
     }
 }
 
-void SendCharCode(CGCharCode keycode, bool isDown)
+CGPoint GetMousePosition()
 {
-    CGEventRef event = CGEventCreateKeyboardEvent(NULL, keycode, isDown);
-    if (event)
-    {
-        CGEventPost(kCGHIDEventTap, event);
-    }
-    CFRelease(event);
+    int x, y;
+    wxGetMousePosition(&x, &y);
+
+    CGPoint pos;
+    pos.x = x;
+    pos.y = y;
+
+    return pos;
 }
+
+} // anonymous namespace
 
 bool wxUIActionSimulator::MouseDown(int button)
 {
-    CGPoint pos;
-    int x, y;
-    wxGetMousePosition(&x, &y);
-    pos.x = x;
-    pos.y = y;
     CGEventType type = CGEventTypeForMouseButton(button, true);
-    CGEventRef event = CGEventCreateMouseEvent(NULL, type, pos, button);
-    CGEventSetType(event, type);
+    wxCFRef<CGEventRef> event(
+            CGEventCreateMouseEvent(NULL, type, GetMousePosition(), button));
 
-    if (event)
-    {
-        CGEventPost(tap, event);
-    }
-    CFRelease(event);
+    if ( !event )
+        return false;
+
+    CGEventSetType(event, type);
+    CGEventPost(tap, event);
+
     return true;
 }
 
@@ -78,57 +82,46 @@ bool wxUIActionSimulator::MouseMove(long x, long y)
     CGPoint pos;
     pos.x = x;
     pos.y = y;
-    CGEventType type = kCGEventMouseMoved;
-    CGEventRef event = CGEventCreateMouseEvent(NULL, type, pos, kCGMouseButtonLeft);
-    CGEventSetType(event, type);
 
-    if (event)
-    {
-        CGEventPost(tap, event);
-    }
-    CFRelease(event);
+    CGEventType type = kCGEventMouseMoved;
+    wxCFRef<CGEventRef> event(
+            CGEventCreateMouseEvent(NULL, type, pos, kCGMouseButtonLeft));
+
+    if ( !event )
+        return false;
+
+    CGEventSetType(event, type);
+    CGEventPost(tap, event);
 
     return true;
 }
 
 bool wxUIActionSimulator::MouseUp(int button)
 {
-    CGPoint pos;
-    int x, y;
-    wxGetMousePosition(&x, &y);
-    pos.x = x;
-    pos.y = y;
     CGEventType type = CGEventTypeForMouseButton(button, false);
-    CGEventRef event = CGEventCreateMouseEvent(NULL, type, pos, button);
-    CGEventSetType(event, type);
+    wxCFRef<CGEventRef> event(
+            CGEventCreateMouseEvent(NULL, type, GetMousePosition(), button));
 
-    if (event)
-    {
-        CGEventPost(tap, event);
-    }
-    CFRelease(event);
+    if ( !event )
+        return false;
+
+    CGEventSetType(event, type);
+    CGEventPost(tap, event);
 
     return true;
 }
 
-bool wxUIActionSimulator::Key(int keycode, bool isDown, bool shiftDown, bool cmdDown, bool altDown)
+bool
+wxUIActionSimulator::DoKey(int keycode, int WXUNUSED(modifiers), bool isDown)
 {
-    if (shiftDown)
-        SendCharCode((CGCharCode)56, true);
-    if (altDown)
-        SendCharCode((CGCharCode)58, true);
-    if (cmdDown)
-        SendCharCode((CGCharCode)55, true);
+    CGKeyCode cgcode = wxCharCodeWXToOSX((wxKeyCode)keycode);
 
-    SendCharCode((CGCharCode)keycode, isDown);
+    wxCFRef<CGEventRef>
+        event(CGEventCreateKeyboardEvent(NULL, cgcode, isDown));
+    if ( !event )
+        return false;
 
-    if (shiftDown)
-        SendCharCode((CGCharCode)56, false);
-    if (altDown)
-        SendCharCode((CGCharCode)58, false);
-    if (cmdDown)
-        SendCharCode((CGCharCode)55, false);
-
+    CGEventPost(kCGHIDEventTap, event);
     return true;
 }
 

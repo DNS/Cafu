@@ -58,7 +58,7 @@
 #include "wx/spinctrl.h"
 
 // what is considered "small index"?
-#define INDEX_IS_SMALL 100
+#define INDEX_IS_SMALL 1000
 
 /* Motif defines this as a macro */
 #ifdef Below
@@ -361,7 +361,7 @@ bool wxHtmlHelpWindow::Create(wxWindow* parent, wxWindowID id,
     if (htmlWindowBorder == wxBORDER_SUNKEN)
         htmlWindowBorder = wxBORDER_SIMPLE;
 #else
-    wxBorder htmlWindowBorder = wxBORDER_SIMPLE;
+    wxBorder htmlWindowBorder = wxBORDER_SUNKEN;
 #endif
 
     if (helpStyle & (wxHF_CONTENTS | wxHF_INDEX | wxHF_SEARCH))
@@ -658,11 +658,11 @@ void wxHtmlHelpWindow::AddToolbarButtons(wxToolBar *toolBar, int style)
     wxBitmap woptionsBitmap =
         wxArtProvider::GetBitmap(wxART_HELP_SETTINGS, wxART_TOOLBAR);
 
-    wxASSERT_MSG( (wpanelBitmap.Ok() && wbackBitmap.Ok() &&
-                   wforwardBitmap.Ok() && wupnodeBitmap.Ok() &&
-                   wupBitmap.Ok() && wdownBitmap.Ok() &&
-                   wopenBitmap.Ok() && wprintBitmap.Ok() &&
-                   woptionsBitmap.Ok()),
+    wxASSERT_MSG( (wpanelBitmap.IsOk() && wbackBitmap.IsOk() &&
+                   wforwardBitmap.IsOk() && wupnodeBitmap.IsOk() &&
+                   wupBitmap.IsOk() && wdownBitmap.IsOk() &&
+                   wopenBitmap.IsOk() && wprintBitmap.IsOk() &&
+                   woptionsBitmap.IsOk()),
                   wxT("One or more HTML help frame toolbar bitmap could not be loaded.")) ;
 
 
@@ -1035,13 +1035,13 @@ void wxHtmlHelpWindow::CreateIndex()
 
     m_IndexList->Clear();
 
-    size_t cnt = m_mergedIndex->size();
+    unsigned long cnt = m_mergedIndex->size();
 
     wxString cnttext;
     if (cnt > INDEX_IS_SMALL)
-        cnttext.Printf(_("%i of %i"), 0, cnt);
+        cnttext.Printf(_("%d of %lu"), 0, cnt);
     else
-        cnttext.Printf(_("%i of %i"), cnt, cnt);
+        cnttext.Printf(_("%lu of %lu"), cnt, cnt);
     m_IndexCountInfo->SetLabel(cnttext);
     if (cnt > INDEX_IS_SMALL)
         return;

@@ -173,7 +173,7 @@ public:
         // the time in the current time zone
         Local,
 
-        // zones from GMT (= Greenwhich Mean Time): they're guaranteed to be
+        // zones from GMT (= Greenwich Mean Time): they're guaranteed to be
         // consequent numbers, so writing something like `GMT0 + offset' is
         // safe if abs(offset) <= 12
 
@@ -462,7 +462,9 @@ public:
         //     instead of modifying the member fields directly!
     struct WXDLLIMPEXP_BASE Tm
     {
-        wxDateTime_t msec, sec, min, hour, mday;
+        wxDateTime_t msec, sec, min, hour,
+                     mday,  // Day of the month in 1..31 range.
+                     yday;  // Day of the year in 0..365 range.
         Month mon;
         int year;
 
@@ -497,9 +499,10 @@ public:
         // the timezone we correspond to
         TimeZone m_tz;
 
-        // these values can't be accessed directly because they're not always
-        // computed and we calculate them on demand
-        wxDateTime_t wday, yday;
+        // This value can only be accessed via GetWeekDay() and not directly
+        // because it's not always computed when creating this object and may
+        // need to be calculated on demand.
+        wxDateTime_t wday;
     };
 
     // static methods

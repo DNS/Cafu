@@ -1,10 +1,10 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        textimpl.h
+// Name:        wx/osx/iphone/private/textimpl.h
 // Purpose:     textcontrol implementation classes that have to be exposed
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     03/02/99
-// RCS-ID:      $Id: textimpl.h 63564 2010-02-27 02:51:45Z KO $
+// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@
 class wxUITextFieldControl : public wxWidgetIPhoneImpl, public wxTextWidgetImpl
 {
 public :
-    wxUITextFieldControl( wxWindow *wxPeer, UITextField* w );
+    wxUITextFieldControl( wxTextCtrl *wxPeer, UITextField* w );
     virtual ~wxUITextFieldControl();
 
     virtual wxString GetStringValue() const ;
@@ -35,9 +35,14 @@ public :
     virtual void WriteText(const wxString& str) ;
     virtual bool HasOwnContextMenu() const { return true; }
 
+    virtual wxSize GetBestSize() const;    
+    
+    virtual bool SetHint(const wxString& hint);
+    
     virtual void controlAction(WXWidget slf, void* _cmd, void *sender);
 protected :
     UITextField* m_textField;
+    NSObject<UITextFieldDelegate>* m_delegate;
     long m_selStart;
     long m_selEnd;
 };
@@ -59,18 +64,19 @@ public:
     virtual void SetSelection( long from , long to );
     virtual void WriteText(const wxString& str) ;
     virtual void SetFont( const wxFont & font , const wxColour& foreground , long windowStyle, bool ignoreBlack = true );
-    
+
     virtual bool GetStyle(long position, wxTextAttr& style);
     virtual void SetStyle(long start, long end, const wxTextAttr& style);
-    
+
     virtual bool CanFocus() const;
-    
+
     virtual bool HasOwnContextMenu() const { return true; }
-    
+
     virtual void CheckSpelling(bool check);
     virtual wxSize GetBestSize() const;
 
 protected:
+    NSObject<UITextViewDelegate>* m_delegate;
     UITextView* m_textView;
 };
 
@@ -80,19 +86,19 @@ class wxNSComboBoxControl : public wxUITextFieldControl, public wxComboWidgetImp
 public :
     wxNSComboBoxControl( wxWindow *wxPeer, WXWidget w );
     virtual ~wxNSComboBoxControl();
-    
+
     virtual int GetSelectedItem() const;
     virtual void SetSelectedItem(int item);
-    
+
     virtual int GetNumberOfItems() const;
-    
+
     virtual void InsertItem(int pos, const wxString& item);
     virtual void RemoveItem(int pos);
-    
+
     virtual void Clear();
-    
+
     virtual wxString GetStringAtIndex(int pos) const;
-    
+
     virtual int FindString(const wxString& text) const;
 private:
     NSComboBox* m_comboBox;

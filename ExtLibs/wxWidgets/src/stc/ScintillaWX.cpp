@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// Name:        ScintillaWX.cxx
+// Name:        src/stc/ScintillaWX.cpp
 // Purpose:     A wxWidgets implementation of Scintilla.  A class derived
 //              from ScintillaBase that uses the "wx platform" defined in
 //              PlatformWX.cxx  This class is one end of a bridge between
@@ -33,6 +33,12 @@
 #include "wx/dataobj.h"
 #include "wx/clipbrd.h"
 #include "wx/dnd.h"
+
+#if !wxUSE_STD_CONTAINERS && !wxUSE_STD_IOSTREAM && !wxUSE_STD_STRING
+    #include "wx/beforestd.h"
+    #include <string>
+    #include "wx/afterstd.h"
+#endif
 
 #include "ScintillaWX.h"
 #include "ExternalLexer.h"
@@ -283,13 +289,13 @@ void ScintillaWX::StartDrag() {
     wxStyledTextEvent evt(wxEVT_STC_START_DRAG, stc->GetId());
     evt.SetEventObject(stc);
     evt.SetDragText(dragText);
-    evt.SetDragAllowMove(true);
+    evt.SetDragFlags(wxDrag_DefaultMove);
     evt.SetPosition(wxMin(stc->GetSelectionStart(),
                           stc->GetSelectionEnd()));
     stc->GetEventHandler()->ProcessEvent(evt);
     dragText = evt.GetDragText();
 
-    if (dragText.length()) {
+    if ( !dragText.empty() ) {
         wxDropSource        source(stc);
         wxTextDataObject    data(dragText);
         wxDragResult        result;
@@ -297,7 +303,7 @@ void ScintillaWX::StartDrag() {
         source.SetData(data);
         dropWentOutside = true;
         inDragDrop = ddDragging;
-        result = source.DoDragDrop(evt.GetDragAllowMove());
+        result = source.DoDragDrop(evt.GetDragFlags());
         if (result == wxDragMove && dropWentOutside)
             ClearSelection();
         inDragDrop = ddNone;

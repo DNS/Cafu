@@ -95,6 +95,8 @@ static gboolean wx_on_channel_event(GIOChannel *channel,
                                     GIOCondition condition,
                                     gpointer data)
 {
+    wxUnusedVar(channel); // Unused if !wxUSE_LOG || !wxDEBUG_LEVEL
+
     wxLogTrace(wxTRACE_EVT_SOURCE,
                "wx_on_channel_event, fd=%d, condition=%08x",
                g_io_channel_unix_get_fd(channel), condition);

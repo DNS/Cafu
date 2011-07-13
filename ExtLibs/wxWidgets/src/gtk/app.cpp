@@ -28,6 +28,7 @@
 
 #include "wx/gtk/private.h"
 #include "wx/apptrait.h"
+#include "wx/fontmap.h"
 
 #if wxUSE_LIBHILDON
     #include <hildon-widgets/hildon-program.h>
@@ -85,7 +86,7 @@ static void wx_add_idle_hooks()
         }
     }
     // "size_allocate" hook
-    // Needed to match the behavior of the old idle system,
+    // Needed to match the behaviour of the old idle system,
     // but probably not necessary.
     {
         static bool hook_installed;
@@ -124,7 +125,7 @@ bool wxApp::DoIdle()
 
 #if wxDEBUG_LEVEL
         // don't generate the idle events while the assert modal dialog is shown,
-        // this matches the behavior of wxMSW
+        // this matches the behaviour of wxMSW
         if (m_isInAssert)
             return false;
 #endif
@@ -309,8 +310,24 @@ bool wxApp::Initialize(int& argc_, wxChar **argv_)
         // (2) if a non default locale is set, assume that the user wants his
         //     filenames in this locale too
         encName = wxLocale::GetSystemEncodingName().Upper();
+
+        // But don't consider ASCII in this case.
+        if ( !encName.empty() )
+        {
+#if wxUSE_FONTMAP
+            wxFontEncoding enc = wxFontMapperBase::GetEncodingFromName(encName);
+            if ( enc == wxFONTENCODING_DEFAULT )
+#else // !wxUSE_FONTMAP
+            if ( encName == wxT("US-ASCII") )
+#endif // wxUSE_FONTMAP/!wxUSE_FONTMAP
+            {
+                // This means US-ASCII when returned from GetEncodingFromName().
+                encName.clear();
+            }
+        }
+
         // (3) finally use UTF-8 by default
-        if (encName.empty() || encName == wxT("US-ASCII"))
+        if ( encName.empty() )
             encName = wxT("UTF-8");
         wxSetEnv(wxT("G_FILENAME_ENCODING"), encName);
     }
@@ -422,7 +439,7 @@ bool wxApp::Initialize(int& argc_, wxChar **argv_)
         return false;
     }
 
-    // we can not enter threads before gtk_init is done
+    // we cannot enter threads before gtk_init is done
     gdk_threads_enter();
 
 #if wxUSE_INTL
@@ -513,8 +530,8 @@ void wxGUIAppTraits::MutexGuiLeave()
 #if wxUSE_LIBHILDON || wxUSE_LIBHILDON2
 // Maemo-specific method: get the main program object
 HildonProgram *wxApp::GetHildonProgram()
-{ 
-    return hildon_program_get_instance(); 
+{
+    return hildon_program_get_instance();
 }
-    
+
 #endif // wxUSE_LIBHILDON || wxUSE_LIBHILDON2

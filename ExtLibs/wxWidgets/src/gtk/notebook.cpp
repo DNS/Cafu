@@ -61,10 +61,11 @@ static void event_after(GtkNotebook*, GdkEvent*, wxNotebook*);
 
 extern "C" {
 static void
-switch_page_after(GtkWidget* widget, GtkNotebookPage*, guint, wxNotebook* win)
+switch_page_after(GtkNotebook* widget, GtkNotebookPage*, guint, wxNotebook* win)
 {
     g_signal_handlers_block_by_func(widget, (void*)switch_page_after, win);
-    win->SendPageChangedEvent(win->m_oldSelection);
+
+    win->GTKOnPageChanged();
 }
 }
 
@@ -124,8 +125,6 @@ void wxNotebook::AddChildGTK(wxWindowGTK* child)
 //-----------------------------------------------------------------------------
 // wxNotebook
 //-----------------------------------------------------------------------------
-
-IMPLEMENT_DYNAMIC_CLASS(wxNotebook,wxBookCtrlBase)
 
 BEGIN_EVENT_TABLE(wxNotebook, wxBookCtrlBase)
     EVT_NAVIGATION_KEY(wxNotebook::OnNavigationKey)
@@ -202,7 +201,7 @@ bool wxNotebook::Create(wxWindow *parent, wxWindowID id,
 
 int wxNotebook::GetSelection() const
 {
-    wxCHECK_MSG( m_widget != NULL, -1, wxT("invalid notebook") );
+    wxCHECK_MSG( m_widget != NULL, wxNOT_FOUND, wxT("invalid notebook") );
 
     return gtk_notebook_get_current_page( GTK_NOTEBOOK(m_widget) );
 }
@@ -217,7 +216,7 @@ wxString wxNotebook::GetPageText( size_t page ) const
 
 int wxNotebook::GetPageImage( size_t page ) const
 {
-    wxCHECK_MSG(page < GetPageCount(), -1, "invalid notebook index");
+    wxCHECK_MSG(page < GetPageCount(), wxNOT_FOUND, "invalid notebook index");
 
     return GetNotebookPage(page)->m_imageIndex;
 }
@@ -229,7 +228,7 @@ wxGtkNotebookPage* wxNotebook::GetNotebookPage( int page ) const
 
 int wxNotebook::DoSetSelection( size_t page, int flags )
 {
-    wxCHECK_MSG(page < GetPageCount(), -1, "invalid notebook index");
+    wxCHECK_MSG(page < GetPageCount(), wxNOT_FOUND, "invalid notebook index");
 
     int selOld = GetSelection();
 
@@ -245,11 +244,20 @@ int wxNotebook::DoSetSelection( size_t page, int flags )
         g_signal_handlers_unblock_by_func(m_widget, (void*)switch_page, this);
     }
 
+    m_selection = page;
+
     wxNotebookPage *client = GetPage(page);
     if ( client )
         client->SetFocus();
 
     return selOld;
+}
+
+void wxNotebook::GTKOnPageChanged()
+{
+    m_selection = gtk_notebook_get_current_page(GTK_NOTEBOOK(m_widget));
+
+    SendPageChangedEvent(m_oldSelection);
 }
 
 bool wxNotebook::SetPageText( size_t page, const wxString &text )
@@ -410,7 +418,9 @@ bool wxNotebook::InsertPage( size_t position,
                 pageData->m_image, false, false, m_padding);
         }
         else
+        {
             wxFAIL_MSG("invalid notebook imagelist");
+        }
     }
 
     /* set the label text */
@@ -426,7 +436,7 @@ bool wxNotebook::InsertPage( size_t position,
     if ( style )
     {
         gtk_widget_modify_style(pageData->m_label, style);
-        gtk_rc_style_unref(style);
+        g_object_unref(style);
     }
 
     if (select && GetPageCount() > 1)
@@ -445,24 +455,30 @@ static bool
 IsPointInsideWidget(const wxPoint& pt, GtkWidget *w,
                     gint x, gint y, gint border = 0)
 {
+    GtkAllocation a;
+    gtk_widget_get_allocation(w, &a);
     return
-        (pt.x >= w->allocation.x - x - border) &&
-        (pt.x <= w->allocation.x - x + border + w->allocation.width) &&
-        (pt.y >= w->allocation.y - y - border) &&
-        (pt.y <= w->allocation.y - y + border + w->allocation.height);
+        (pt.x >= a.x - x - border) &&
+        (pt.x <= a.x - x + border + a.width) &&
+        (pt.y >= a.y - y - border) &&
+        (pt.y <= a.y - y + border + a.height);
 }
 
 int wxNotebook::HitTest(const wxPoint& pt, long *flags) const
 {
-    const gint x = m_widget->allocation.x;
-    const gint y = m_widget->allocation.y;
+    GtkAllocation a;
+    gtk_widget_get_allocation(m_widget, &a);
+    const int x = a.x;
+    const int y = a.y;
 
     const size_t count = GetPageCount();
     size_t i = 0;
 
+#if !GTK_CHECK_VERSION(3,0,0) && !defined(GSEAL_ENABLE)
     GtkNotebook * notebook = GTK_NOTEBOOK(m_widget);
     if (gtk_notebook_get_scrollable(notebook))
         i = g_list_position( notebook->children, notebook->first_tab );
+#endif
 
     for ( ; i < count; i++ )
     {
@@ -548,7 +564,7 @@ void wxNotebook::DoApplyWidgetStyle(GtkRcStyle *style)
 
 GdkWindow *wxNotebook::GTKGetWindow(wxArrayGdkWindows& windows) const
 {
-    windows.push_back(m_widget->window);
+    windows.push_back(gtk_widget_get_window(m_widget));
     windows.push_back(GTK_NOTEBOOK(m_widget)->event_window);
 
     return NULL;

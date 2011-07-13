@@ -362,6 +362,24 @@ public:
 #if wxUSE_LONGLONG
     bool Convert(wxLongLong* value) const;
     bool Convert(wxULongLong* value) const;
+  #ifdef wxLongLong_t
+    bool Convert(wxLongLong_t* value) const
+    {
+        wxLongLong temp;
+        if ( !Convert(&temp) )
+            return false;
+        *value = temp.GetValue();
+        return true;
+    }
+    bool Convert(wxULongLong_t* value) const
+    {
+        wxULongLong temp;
+        if ( !Convert(&temp) )
+            return false;
+        *value = temp.GetValue();
+        return true;
+    }
+  #endif // wxLongLong_t
 #endif // wxUSE_LONGLONG
 
 // Attributes
@@ -443,9 +461,6 @@ wxVariantData* CLASSNAME::VariantDataFactory(const wxAny& any) \
     return new CLASSNAME(wxANY_AS(any, T)); \
 } \
 REGISTER_WXANY_CONVERSION(T, CLASSNAME)
-
-// This is needed for wxVariantList conversion
-WX_DECLARE_LIST_WITH_DECL(wxAny, wxAnyList, class WXDLLIMPEXP_BASE);
 
 #else // if !wxUSE_ANY
 

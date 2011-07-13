@@ -387,9 +387,12 @@ void wxRibbonAUIArtProvider::DrawTab(wxDC& dc,
         icon = tab.page->GetIcon();
         if((m_flags & wxRIBBON_BAR_SHOW_PAGE_LABELS) == 0)
         {
+            if(icon.IsOk())
+            {
             int x = tab.rect.x + (tab.rect.width - icon.GetWidth()) / 2;
             dc.DrawBitmap(icon, x, tab.rect.y + 1 + (tab.rect.height - 1 -
                 icon.GetHeight()) / 2, true);
+            }
         }
     }
     if(m_flags & wxRIBBON_BAR_SHOW_PAGE_LABELS)
@@ -861,7 +864,7 @@ void wxRibbonAUIArtProvider::DrawGalleryBackground(
     dc.SetPen(m_gallery_border_pen);
     dc.SetBrush(*wxTRANSPARENT_BRUSH);
     dc.DrawRectangle(rect.x, rect.y, rect.width, rect.height);
-    
+
     DrawGalleryBackgroundCommon(dc, wnd, rect);
 }
 
@@ -956,6 +959,13 @@ void wxRibbonAUIArtProvider::DrawButtonBarButton(
                         const wxBitmap& bitmap_large,
                         const wxBitmap& bitmap_small)
 {
+    if(kind == wxRIBBON_BUTTON_TOGGLE)
+    {
+        kind = wxRIBBON_BUTTON_NORMAL;
+        if(state & wxRIBBON_BUTTONBAR_BUTTON_TOGGLED)
+            state ^= wxRIBBON_BUTTONBAR_BUTTON_ACTIVE_MASK;
+    }
+
     if(state & (wxRIBBON_BUTTONBAR_BUTTON_HOVER_MASK
         | wxRIBBON_BUTTONBAR_BUTTON_ACTIVE_MASK))
     {
@@ -1119,7 +1129,7 @@ void wxRibbonAUIArtProvider::DrawTool(
         avail_width -= 8;
         if(is_split_hybrid)
         {
-            dc.DrawLine(rect.x + avail_width + 1, rect.y, 
+            dc.DrawLine(rect.x + avail_width + 1, rect.y,
                 rect.x + avail_width + 1, rect.y + rect.height);
         }
         dc.DrawBitmap(m_toolbar_drop_bitmap, bg_rect.x + avail_width + 2,

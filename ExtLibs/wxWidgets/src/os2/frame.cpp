@@ -52,8 +52,6 @@ BEGIN_EVENT_TABLE(wxFrame, wxFrameBase)
     EVT_SYS_COLOUR_CHANGED(wxFrame::OnSysColourChanged)
 END_EVENT_TABLE()
 
-IMPLEMENT_DYNAMIC_CLASS(wxFrame, wxWindow)
-
 // ============================================================================
 // implementation
 // ============================================================================
@@ -854,7 +852,7 @@ bool wxFrame::HandlePaint()
             const wxIcon&           vIcon = GetIcon();
             HPOINTER                hIcon;
 
-            if (vIcon.Ok())
+            if (vIcon.IsOk())
                 hIcon = (HPOINTER)::WinSendMsg(m_hFrame, WM_QUERYICON, 0L, 0L);
             else
                 hIcon = (HPOINTER)m_hDefaultIcon;
@@ -1304,7 +1302,7 @@ MRESULT wxFrame::OS2WindowProc( WXUINT uMessage,
                 const wxIcon&           vIcon = GetIcon();
                 HPOINTER                hIcon;
 
-                if (vIcon.Ok())
+                if (vIcon.IsOk())
                     hIcon = (HPOINTER)::WinSendMsg(GetHWND(), WM_QUERYICON, 0L, 0L);
                 else
                     hIcon = (HPOINTER)m_hDefaultIcon;

@@ -281,7 +281,7 @@ private:
         ofItem:(id)item;
 
     -(id)
-    outlineView:(NSOutlineView*)outlineView 
+    outlineView:(NSOutlineView*)outlineView
         objectValueForTableColumn:(NSTableColumn*)tableColumn
         byItem:(id)item;
 
@@ -441,6 +441,7 @@ public:
     virtual wxDataViewColumn* GetColumn(unsigned int pos) const;
     virtual int GetColumnPosition(wxDataViewColumn const* columnPtr) const;
     virtual bool InsertColumn(unsigned int pos, wxDataViewColumn* columnPtr);
+    virtual void FitColumnWidthToContent(unsigned int pos);
 
     // item related methods (inherited from wxDataViewWidgetImpl)
     virtual bool Add(const wxDataViewItem& parent, const wxDataViewItem& item);
@@ -471,6 +472,8 @@ public:
     //
     // selection related methods (inherited from wxDataViewWidgetImpl)
     //
+    virtual wxDataViewItem GetCurrentItem() const;
+    virtual void SetCurrentItem(const wxDataViewItem& item);
     virtual int  GetSelections(wxDataViewItemArray& sel)   const;
     virtual bool IsSelected(const wxDataViewItem& item) const;
     virtual void Select(const wxDataViewItem& item);
@@ -493,6 +496,8 @@ public:
                          wxDataViewColumn*& columnPtr) const;
     virtual void SetRowHeight(const wxDataViewItem& item, unsigned int height);
     virtual void OnSize();
+    
+    virtual void StartEditor( const wxDataViewItem & item, unsigned int column );
 
     // drag & drop helper methods
     wxDataFormat GetDnDDataFormat(wxDataObjectComposite* dataObjects);

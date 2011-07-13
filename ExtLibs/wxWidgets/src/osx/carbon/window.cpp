@@ -610,14 +610,9 @@ pascal OSStatus wxMacUnicodeTextEventHandler( EventHandlerCallRef handler , Even
         uniChars = new wchar_t[ numChars ] ;
         GetEventParameter( event, kEventParamTextInputSendText, typeUnicodeText, NULL, dataSize , NULL , charBuf ) ;
         charBuf[ numChars - 1 ] = 0;
-#if SIZEOF_WCHAR_T == 2
-        uniChars = (wchar_t*) charBuf ;
-/*        memcpy( uniChars , charBuf , numChars * 2 ) ;*/   // is there any point in copying charBuf over itself? (in fact, memcpy isn't even guaranteed to work correctly if the source and destination ranges overlap...)
-#else
         // the resulting string will never have more chars than the utf16 version, so this is safe
         wxMBConvUTF16 converter ;
         numChars = converter.MB2WC( uniChars , (const char*)charBuf , numChars ) ;
-#endif
     }
 
     switch ( GetEventKind( event ) )
@@ -841,7 +836,7 @@ wxWidgetImplType* wxWidgetImpl::CreateUserPane( wxWindowMac* wxpeer,
 {
     OSStatus err = noErr;
     Rect bounds = wxMacGetBoundsForControl( wxpeer , pos , size ) ;
-    wxMacControl* c = new wxMacControl(wxpeer) ;
+    wxMacControl* c = new wxMacControl(wxpeer, false, true) ;
     UInt32 features = 0
         | kControlSupportsEmbedding
         | kControlSupportsLiveFeedback
@@ -873,8 +868,8 @@ wxMacControl::wxMacControl()
     Init();
 }
 
-wxMacControl::wxMacControl(wxWindowMac* peer , bool isRootControl ) :
-    wxWidgetImpl( peer, isRootControl )
+wxMacControl::wxMacControl(wxWindowMac* peer , bool isRootControl, bool isUserPane ) :
+    wxWidgetImpl( peer, isRootControl, isUserPane )
 {
     Init();
 }
@@ -998,10 +993,10 @@ void wxMacControl::GetPosition( int &x, int &y ) const
     {
         HIRect parent;
         HIViewGetFrame( HIViewGetSuperview(m_controlRef), &parent );
-        x -= parent.origin.x;
-        y -= parent.origin.y;
+        x -= (int)parent.origin.x;
+        y -= (int)parent.origin.y;
     }
-    
+
 }
 
 void wxMacControl::GetSize( int &width, int &height ) const
@@ -1358,7 +1353,7 @@ bool wxMacControl::SetBackgroundStyle(wxBackgroundStyle style)
         OSStatus err = HIViewChangeFeatures(m_controlRef , kHIViewIsOpaque , 0);
         verify_noerr( err );
     }
-    
+
     return true ;
 }
 
@@ -1431,7 +1426,7 @@ void wxMacControl::GetRectInWindowCoords( Rect *r )
         OffsetRect( r , (short) hiPoint.x , (short) hiPoint.y ) ;
     }
 }
-        
+
 void wxMacControl::GetBestRect( wxRect *rect ) const
 {
     short   baselineoffset;
@@ -1561,6 +1556,6 @@ wxWidgetImplType* wxWidgetImpl::CreateContentView( wxNonOwnedWindow* now )
     // the root control level handler
     if ( !now->IsNativeWindowWrapper() )
         contentview->InstallEventHandler() ;
-    
+
     return contentview;
 }

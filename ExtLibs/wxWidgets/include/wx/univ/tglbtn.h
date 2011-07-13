@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:        wx/univ/button.h
+// Name:        wx/univ/tglbtn.h
 // Purpose:     wxToggleButton for wxUniversal
 // Author:      Vadim Zeitlin
 // Modified by: David Bjorkevik
@@ -13,8 +13,6 @@
 #define _WX_UNIV_TGLBTN_H_
 
 #include "wx/button.h"
-
-extern WXDLLIMPEXP_DATA_CORE(const char) wxCheckBoxNameStr[];
 
 // ----------------------------------------------------------------------------
 // wxToggleButton: a push button

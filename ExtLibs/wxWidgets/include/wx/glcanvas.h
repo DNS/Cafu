@@ -49,7 +49,7 @@ enum
     WX_GL_MIN_ACCUM_BLUE,  // use blue buffer with most bits (> MIN_ACCUM_BLUE bits)
     WX_GL_MIN_ACCUM_ALPHA, // use alpha buffer with most bits (> MIN_ACCUM_ALPHA bits)
     WX_GL_SAMPLE_BUFFERS,  // 1 for multisampling support (antialiasing)
-    WX_GL_SAMPLES          // 4 for 2x2 antialising supersampling on most graphics cards
+    WX_GL_SAMPLES          // 4 for 2x2 antialiasing supersampling on most graphics cards
 };
 
 #define wxGLCanvasName wxT("GLCanvas")
@@ -113,7 +113,9 @@ public:
     // check if the given attributes are supported without creating a canvas
     static bool IsDisplaySupported(const int *attribList);
 
+#if wxUSE_PALETTE
     const wxPalette *GetPalette() const { return &m_palette; }
+#endif // wxUSE_PALETTE
 
     // miscellaneous helper functions
     // ------------------------------
@@ -149,16 +151,18 @@ protected:
     // (currently only implemented in wxX11 and wxMotif ports)
     virtual int GetColourIndex(const wxColour& WXUNUSED(col)) { return -1; }
 
-    // create default palette if we're not using RGBA mode
-    // (not supported in most ports)
-    virtual wxPalette CreateDefaultPalette() { return wxNullPalette; }
-
     // check if the given extension name is present in the space-separated list
     // of extensions supported by the current implementation such as returned
     // by glXQueryExtensionsString() or glGetString(GL_EXTENSIONS)
     static bool IsExtensionInList(const char *list, const char *extension);
 
+#if wxUSE_PALETTE
+    // create default palette if we're not using RGBA mode
+    // (not supported in most ports)
+    virtual wxPalette CreateDefaultPalette() { return wxNullPalette; }
+
     wxPalette m_palette;
+#endif // wxUSE_PALETTE
 
 #if WXWIN_COMPATIBILITY_2_8
     wxGLContext *m_glContext;
@@ -229,7 +233,7 @@ public:
     wxGLAPI();
     ~wxGLAPI();
 
-    static void glFrustum(GLfloat left, GLfloat right, GLfloat bottom, 
+    static void glFrustum(GLfloat left, GLfloat right, GLfloat bottom,
                             GLfloat top, GLfloat zNear, GLfloat zFar);
     static void glBegin(GLenum mode);
     static void glTexCoord2f(GLfloat s, GLfloat t);

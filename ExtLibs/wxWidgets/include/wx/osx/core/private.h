@@ -6,7 +6,7 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     1998-01-01
-// RCS-ID:      $Id: private.h 53819 2008-05-29 14:11:45Z SC $
+// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -32,12 +32,25 @@
     #define wxOSX_10_6_AND_LATER(x)
 #endif
 
-#if wxOSX_USE_COCOA_OR_CARBON
+#if ( !wxUSE_GUI && !wxOSX_USE_IPHONE ) || wxOSX_USE_COCOA_OR_CARBON
+
+// Carbon functions are currently still used in wxOSX/Cocoa too (including
+// wxBase part of it).
+#include <Carbon/Carbon.h>
 
 WXDLLIMPEXP_BASE long UMAGetSystemVersion() ;
 
 void WXDLLIMPEXP_CORE wxMacStringToPascal( const wxString&from , unsigned char * to );
 wxString WXDLLIMPEXP_CORE wxMacMakeStringFromPascal( const unsigned char * from );
+
+WXDLLIMPEXP_BASE wxString wxMacFSRefToPath( const FSRef *fsRef , CFStringRef additionalPathComponent = NULL );
+WXDLLIMPEXP_BASE OSStatus wxMacPathToFSRef( const wxString&path , FSRef *fsRef );
+WXDLLIMPEXP_BASE wxString wxMacHFSUniStrToString( ConstHFSUniStr255Param uniname );
+
+// keycode utils from app.cpp
+
+WXDLLIMPEXP_BASE CGKeyCode wxCharCodeWXToOSX(wxKeyCode code);
+WXDLLIMPEXP_BASE long wxMacTranslateKey(unsigned char key, unsigned char code);
 
 #endif
 
@@ -103,8 +116,10 @@ class wxNonOwnedWindow;
 
 class wxMacControl;
 class wxWidgetImpl;
+class wxComboBox;
 class wxNotebook;
 class wxTextCtrl;
+class wxSearchCtrl;
 
 WXDLLIMPEXP_CORE wxWindowMac * wxFindWindowFromWXWidget(WXWidget inControl );
 
@@ -140,7 +155,9 @@ public :
                        const wxString& strHelp,
                        wxItemKind kind,
                        wxMenu *pSubMenu );
-
+    
+    // handle OS specific menu items if they weren't handled during normal processing
+    virtual bool DoDefault() { return false; }
 protected :
     wxMenuItem* m_peer;
 
@@ -181,13 +198,15 @@ protected :
 class WXDLLIMPEXP_CORE wxWidgetImpl : public wxObject
 {
 public :
-    wxWidgetImpl( wxWindowMac* peer , bool isRootControl = false );
+    wxWidgetImpl( wxWindowMac* peer , bool isRootControl = false, bool isUserPane = false );
     wxWidgetImpl();
     virtual ~wxWidgetImpl();
 
     void Init();
 
     bool                IsRootControl() const { return m_isRootControl; }
+    
+    bool                IsUserPane() const { return m_isUserPane; }
 
     wxWindowMac*        GetWXPeer() const { return m_wxPeer; }
 
@@ -223,6 +242,17 @@ public :
     virtual void        GetPosition( int &x, int &y ) const = 0;
     virtual void        GetSize( int &width, int &height ) const = 0;
     virtual void        SetControlSize( wxWindowVariant variant ) = 0;
+    virtual float       GetContentScaleFactor() const 
+    {
+        return 1.0;
+    }
+    
+    // the native coordinates may have an 'aura' for shadows etc, if this is the case the layout
+    // inset indicates on which insets the real control is drawn
+    virtual void        GetLayoutInset(int &left , int &top , int &right, int &bottom) const
+    {
+        left = top = right = bottom = 0;
+    }
 
     // native view coordinates are topleft to bottom right (flipped regarding CoreGraphics origin)
     virtual bool        IsFlipped() const { return true; }
@@ -247,6 +277,9 @@ public :
     virtual void        SetDefaultButton( bool isDefault ) = 0;
     virtual void        PerformClick() = 0;
     virtual void        SetLabel( const wxString& title, wxFontEncoding encoding ) = 0;
+#if wxUSE_MARKUP && wxOSX_USE_COCOA
+    virtual void        SetLabelMarkup( const wxString& WXUNUSED(markup) ) { }
+#endif
 
     virtual void        SetCursor( const wxCursor & cursor ) = 0;
     virtual void        CaptureMouse() = 0;
@@ -269,7 +302,7 @@ public :
     virtual void        SetScrollThumb( wxInt32 value, wxInt32 thumbSize ) = 0;
 
     virtual void        SetFont( const wxFont & font , const wxColour& foreground , long windowStyle, bool ignoreBlack = true ) = 0;
-    
+
     virtual void        SetToolTip(wxToolTip* WXUNUSED(tooltip)) { }
 
     // is the clicked event sent AFTER the state already changed, so no additional
@@ -277,7 +310,7 @@ public :
     virtual bool        ButtonClickDidStateChange() = 0;
 
     virtual void        InstallEventHandler( WXWidget control = NULL ) = 0;
-    
+
     // Mechanism used to keep track of whether a change should send an event
     // Do SendEvents(false) when starting actions that would trigger programmatic events
     // and SendEvents(true) at the end of the block.
@@ -359,7 +392,7 @@ public :
                                     long style,
                                     long extraStyle) ;
 
-    static wxWidgetImplType*    CreateSearchControl( wxTextCtrl* wxpeer,
+    static wxWidgetImplType*    CreateSearchControl( wxSearchCtrl* wxpeer,
                                     wxWindowMac* parent,
                                     wxWindowID id,
                                     const wxString& content,
@@ -480,13 +513,13 @@ public :
                                     long extraStyle);
 
 #if wxOSX_USE_COCOA
-    static wxWidgetImplType*    CreateComboBox( wxWindowMac* wxpeer, 
-                                    wxWindowMac* parent, 
-                                    wxWindowID id, 
+    static wxWidgetImplType*    CreateComboBox( wxComboBox* wxpeer,
+                                    wxWindowMac* parent,
+                                    wxWindowID id,
                                     wxMenu* menu,
-                                    const wxPoint& pos, 
+                                    const wxPoint& pos,
                                     const wxSize& size,
-                                    long style, 
+                                    long style,
                                     long extraStyle);
 #endif
 
@@ -494,6 +527,7 @@ public :
     static void Convert( wxPoint *pt , wxWidgetImpl *from , wxWidgetImpl *to );
 protected :
     bool                m_isRootControl;
+    bool                m_isUserPane;
     wxWindowMac*        m_wxPeer;
     bool                m_needsFocusRect;
     bool                m_needsFrame;
@@ -563,7 +597,7 @@ public:
     // accessing content
 
     virtual unsigned int    ListGetCount() const = 0;
-    
+
     virtual int             DoListHitTest( const wxPoint& inpoint ) const = 0;
 };
 
@@ -572,15 +606,22 @@ public:
 //
 
 class WXDLLIMPEXP_FWD_CORE wxTextAttr;
+class WXDLLIMPEXP_FWD_CORE wxTextEntry;
 
 // common interface for all implementations
 class WXDLLIMPEXP_CORE wxTextWidgetImpl
 
 {
 public :
-    wxTextWidgetImpl() {}
+    // Any widgets implementing this interface must be associated with a
+    // wxTextEntry so instead of requiring the derived classes to implement
+    // another (pure) virtual function, just take the pointer to this entry in
+    // our ctor and implement GetTextEntry() ourselves.
+    wxTextWidgetImpl(wxTextEntry *entry) : m_entry(entry) {}
 
     virtual ~wxTextWidgetImpl() {}
+
+    wxTextEntry *GetTextEntry() const { return m_entry; }
 
     virtual bool CanFocus() const { return true; }
 
@@ -620,8 +661,14 @@ public :
     virtual int GetLineLength(long lineNo) const ;
     virtual wxString GetLineText(long lineNo) const ;
     virtual void CheckSpelling(bool WXUNUSED(check)) { }
-    
+
     virtual wxSize GetBestSize() const { return wxDefaultSize; }
+
+    virtual bool SetHint(const wxString& WXUNUSED(hint)) { return false; }
+private:
+    wxTextEntry * const m_entry;
+
+    wxDECLARE_NO_COPY_CLASS(wxTextWidgetImpl);
 };
 
 // common interface for all implementations
@@ -632,20 +679,20 @@ public :
     wxComboWidgetImpl() {}
 
     virtual ~wxComboWidgetImpl() {}
-  
+
     virtual int GetSelectedItem() const { return -1; };
     virtual void SetSelectedItem(int WXUNUSED(item)) {};
-    
+
     virtual int GetNumberOfItems() const { return -1; };
-    
+
     virtual void InsertItem(int WXUNUSED(pos), const wxString& WXUNUSED(item)) {}
-    
+
     virtual void RemoveItem(int WXUNUSED(pos)) {}
-    
+
     virtual void Clear() {}
-    
+
     virtual wxString GetStringAtIndex(int WXUNUSED(pos)) const { return wxEmptyString; }
-    
+
     virtual int FindString(const wxString& WXUNUSED(text)) const { return -1; }
 };
 
@@ -658,7 +705,7 @@ class wxButtonImpl
     public :
     wxButtonImpl(){}
     virtual ~wxButtonImpl(){}
-    
+
     virtual void SetPressedBitmap( const wxBitmap& bitmap ) = 0;
 } ;
 
@@ -746,17 +793,17 @@ public :
     virtual void SetExtraStyle( long WXUNUSED(exStyle) )
     {
     }
-    
+
     virtual void SetWindowStyleFlag( long WXUNUSED(style) )
     {
     }
-    
+
     virtual bool SetBackgroundStyle(wxBackgroundStyle WXUNUSED(style))
     {
         return false ;
     }
 
-    bool CanSetTransparent()
+    virtual bool CanSetTransparent()
     {
         return false;
     }
@@ -784,7 +831,7 @@ public :
     virtual bool IsFullScreen() const= 0;
 
     virtual void ShowWithoutActivating() { Show(true); }
-    
+
     virtual bool ShowFullScreen(bool show, long style)= 0;
 
     virtual void RequestUserAttention(int flags) = 0;
@@ -794,26 +841,32 @@ public :
     virtual void WindowToScreen( int *x, int *y ) = 0;
 
     virtual bool IsActive() = 0;
-    
+
     wxNonOwnedWindow*   GetWXPeer() { return m_wxPeer; }
 
     static wxNonOwnedWindowImpl*
                 FindFromWXWindow(WXWindow window);
-    
+
     static void  RemoveAssociations( wxNonOwnedWindowImpl* impl);
-    
+
     static void  Associate( WXWindow window, wxNonOwnedWindowImpl *impl );
-    
+
     // static creation methods, must be implemented by all toolkits
 
     static wxNonOwnedWindowImpl* CreateNonOwnedWindow( wxNonOwnedWindow* wxpeer, wxWindow* parent, WXWindow native) ;
-    
+
     static wxNonOwnedWindowImpl* CreateNonOwnedWindow( wxNonOwnedWindow* wxpeer, wxWindow* parent, const wxPoint& pos, const wxSize& size,
     long style, long extraStyle, const wxString& name  ) ;
-    
+
     virtual void SetModified(bool WXUNUSED(modified)) { }
     virtual bool IsModified() const { return false; }
 
+#if wxOSX_USE_IPHONE
+    virtual CGFloat GetWindowLevel() const { return 0.0; }
+#else
+    virtual CGWindowLevel GetWindowLevel() const { return kCGNormalWindowLevel; }
+#endif
+    virtual void RestoreWindowLevel() {}
 protected :
     wxNonOwnedWindow*   m_wxPeer;
     DECLARE_ABSTRACT_CLASS(wxNonOwnedWindowImpl)

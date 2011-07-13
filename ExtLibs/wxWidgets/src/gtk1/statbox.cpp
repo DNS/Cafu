@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        gtk/statbox.cpp
+// Name:        src/gtk1/statbox.cpp
 // Purpose:
 // Author:      Robert Roebling
 // Id:          $Id$
@@ -21,8 +21,6 @@
 //-----------------------------------------------------------------------------
 // wxStaticBox
 //-----------------------------------------------------------------------------
-
-IMPLEMENT_DYNAMIC_CLASS(wxStaticBox, wxControl)
 
 wxStaticBox::wxStaticBox()
 {

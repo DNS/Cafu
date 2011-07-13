@@ -4,7 +4,7 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     1998-01-01
-// RCS-ID:      $Id: statbox.cpp 54129 2008-06-11 19:30:52Z SC $
+// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:       wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -16,8 +16,6 @@
 #include "wx/statbox.h"
 #include "wx/osx/private.h"
 
-IMPLEMENT_DYNAMIC_CLASS(wxStaticBox, wxControl)
-
 bool wxStaticBox::Create( wxWindow *parent,
     wxWindowID id,
     const wxString& label,
@@ -25,15 +23,15 @@ bool wxStaticBox::Create( wxWindow *parent,
     const wxSize& size,
     long style,
     const wxString& name )
-{
-    m_macIsUserPane = false;
-
+{    
+    DontCreatePeer();
+    
     if ( !wxControl::Create( parent, id, pos, size, style, wxDefaultValidator, name ) )
         return false;
 
     m_labelOrig = m_label = label;
 
-    m_peer = wxWidgetImpl::CreateGroupBox( this, parent, id, label, pos, size, style, GetExtraStyle() );
+    SetPeer(wxWidgetImpl::CreateGroupBox( this, parent, id, label, pos, size, style, GetExtraStyle() ));
 
     MacPostControlCreate( pos, size );
 
@@ -55,7 +53,11 @@ void wxStaticBox::GetBordersForSizer(int *borderTop, int *borderOther) const
         // pixels (otherwise overlapping occurs at the top). The "other"
         // border has to be 11.
         extraTop = 11;
+#if wxOSX_USE_COCOA
+        other = 17;
+#else
         other = 11;
+#endif
     }
 
     *borderTop = extraTop;

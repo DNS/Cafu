@@ -90,8 +90,6 @@ static void gtk_checkbox_toggled_callback(GtkWidget *widget, wxCheckBox *cb)
 // wxCheckBox
 //-----------------------------------------------------------------------------
 
-IMPLEMENT_DYNAMIC_CLASS(wxCheckBox,wxControl)
-
 wxCheckBox::wxCheckBox()
 {
 }
@@ -105,17 +103,13 @@ bool wxCheckBox::Create(wxWindow *parent,
                         const wxValidator& validator,
                         const wxString &name )
 {
+    WXValidateStyle( &style );
     if (!PreCreation( parent, pos, size ) ||
         !CreateBase( parent, id, pos, size, style, validator, name ))
     {
         wxFAIL_MSG( wxT("wxCheckBox creation failed") );
         return false;
     }
-
-    wxASSERT_MSG( (style & wxCHK_ALLOW_3RD_STATE_FOR_USER) == 0 ||
-                  (style & wxCHK_3STATE) != 0,
-                  wxT("Using wxCHK_ALLOW_3RD_STATE_FOR_USER")
-                  wxT(" style flag for a 2-state checkbox is useless") );
 
     if ( style & wxALIGN_RIGHT )
     {
@@ -137,7 +131,7 @@ bool wxCheckBox::Create(wxWindow *parent,
     else
     {
         m_widgetCheckbox = gtk_check_button_new_with_label("");
-        m_widgetLabel = GTK_BIN(m_widgetCheckbox)->child;
+        m_widgetLabel = gtk_bin_get_child(GTK_BIN(m_widgetCheckbox));
         m_widget = m_widgetCheckbox;
     }
     g_object_ref(m_widget);

@@ -4,7 +4,7 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     1998-01-01
-// RCS-ID:      $Id: utils.mm 48805 2007-09-19 14:52:25Z SC $
+// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -49,30 +49,13 @@ void wxBell()
 
 #if wxUSE_GUI
 
-@interface wxNSAppController : NSObject wxOSX_10_6_AND_LATER(<NSApplicationDelegate>)
-{
-}
-
-- (void)applicationWillFinishLaunching:(NSApplication *)sender;
-
-- (BOOL)application:(NSApplication *)sender openFile:(NSString *)filename;
-- (BOOL)applicationShouldOpenUntitledFile:(NSApplication *)sender;
-- (BOOL)application:(NSApplication *)sender printFile:(NSString *)filename;
-- (void)handleGetURLEvent:(NSAppleEventDescriptor *)event
-           withReplyEvent:(NSAppleEventDescriptor *)replyEvent;
-
-- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender;
-- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender;
-- (void)applicationWillTerminate:(NSApplication *)sender;
-@end
-
 @implementation wxNSAppController
 
-- (void)applicationWillFinishLaunching:(NSApplication *)application {	
+- (void)applicationWillFinishLaunching:(NSNotification *)application {	
     wxUnusedVar(application);
 }
 
-- (BOOL)application:(NSApplication *)sender openFile:(NSString *)filename;
+- (BOOL)application:(NSApplication *)sender openFile:(NSString *)filename
 {
     wxUnusedVar(sender);
     wxCFStringRef cf(wxCFRetain(filename));
@@ -80,7 +63,7 @@ void wxBell()
     return YES;
 }
 
-- (BOOL)applicationShouldOpenUntitledFile:(NSApplication *)sender;
+- (BOOL)applicationShouldOpenUntitledFile:(NSApplication *)sender
 {
     wxUnusedVar(sender);
     wxTheApp->MacNewFile() ;
@@ -130,7 +113,7 @@ void wxBell()
     return NSTerminateNow;
 }
 
-- (void)applicationWillTerminate:(NSApplication *)application {
+- (void)applicationWillTerminate:(NSNotification *)application {
     wxUnusedVar(application);
     wxCloseEvent event;
     event.SetCanVeto(false);
@@ -144,6 +127,49 @@ void wxBell()
     return NO;
 }
 
+- (void)applicationDidBecomeActive:(NSNotification *)notification
+{
+    wxUnusedVar(notification);
+
+    for ( wxWindowList::const_iterator i = wxTopLevelWindows.begin(),
+         end = wxTopLevelWindows.end();
+         i != end;
+         ++i )
+    {
+        wxTopLevelWindow * const win = static_cast<wxTopLevelWindow *>(*i);
+        wxNonOwnedWindowImpl* winimpl = win ? win->GetNonOwnedPeer() : NULL;
+        WXWindow nswindow = win ? win->GetWXWindow() : nil;
+        
+        if ( nswindow && [nswindow hidesOnDeactivate] == NO && winimpl)
+            winimpl->RestoreWindowLevel();
+    }
+    if ( wxTheApp )
+        wxTheApp->SetActive( true , NULL ) ;
+}
+
+- (void)applicationWillResignActive:(NSNotification *)notification
+{
+    wxUnusedVar(notification);
+    for ( wxWindowList::const_iterator i = wxTopLevelWindows.begin(),
+         end = wxTopLevelWindows.end();
+         i != end;
+         ++i )
+    {
+        wxTopLevelWindow * const win = static_cast<wxTopLevelWindow *>(*i);
+        WXWindow nswindow = win ? win->GetWXWindow() : nil;
+        
+        if ( nswindow && [nswindow level] == kCGFloatingWindowLevel && [nswindow hidesOnDeactivate] == NO )
+            [nswindow setLevel:kCGNormalWindowLevel];
+    }
+}
+
+- (void)applicationDidResignActive:(NSNotification *)notification
+{
+    wxUnusedVar(notification);
+    if ( wxTheApp )
+        wxTheApp->SetActive( false , NULL ) ;
+}
+
 @end
 
 /*
@@ -153,7 +179,7 @@ void wxBell()
 @implementation ModalDialogDelegate
 - (id)init
 {
-    [super init];
+    self = [super init];
     sheetFinished = NO;
     resultCode = -1;
     impl = 0;
@@ -226,7 +252,7 @@ void wxApp::DoCleanUp()
 
 void wxClientDisplayRect(int *x, int *y, int *width, int *height)
 {
-    NSRect displayRect = [[NSScreen mainScreen] visibleFrame];
+    NSRect displayRect = [wxOSXGetMenuScreen() visibleFrame];
     wxRect r = wxFromNSRect( NULL, displayRect );
     if ( x )
         *x = r.x;
@@ -290,6 +316,13 @@ void wxBeginBusyCursor(const wxCursor *cursor)
 {
     if (gs_wxBusyCursorCount++ == 0)
     {
+        NSEnumerator *enumerator = [[[NSApplication sharedApplication] windows] objectEnumerator];
+        id object;
+        
+        while ((object = [enumerator nextObject])) {
+            [(NSWindow*) object disableCursorRects];
+        }        
+
         gMacStoredActiveCursor = gMacCurrentCursor;
         cursor->MacInstall();
 
@@ -306,10 +339,17 @@ void wxEndBusyCursor()
 
     if (--gs_wxBusyCursorCount == 0)
     {
-        gMacStoredActiveCursor.MacInstall();
-        gMacStoredActiveCursor = wxNullCursor;
+        NSEnumerator *enumerator = [[[NSApplication sharedApplication] windows] objectEnumerator];
+        id object;
+        
+        while ((object = [enumerator nextObject])) {
+            [(NSWindow*) object enableCursorRects];
+        }        
 
         wxSetCursor(wxNullCursor);
+
+        gMacStoredActiveCursor.MacInstall();
+        gMacStoredActiveCursor = wxNullCursor;
     }
 }
 
@@ -328,35 +368,33 @@ wxBitmap wxWindowDCImpl::DoGetAsBitmap(const wxRect *subrect) const
 
     wxSize sz = m_window->GetSize();
 
-    int left = subrect != NULL ? subrect->x : 0 ;
-    int top = subrect != NULL ? subrect->y : 0 ;
     int width = subrect != NULL ? subrect->width : sz.x;
     int height = subrect !=  NULL ? subrect->height : sz.y ;
 
-    NSRect rect = NSMakeRect(left, top, width, height );
-    NSView* view = (NSView*) m_window->GetHandle();
-    [view lockFocus];
-    // we use this method as other methods force a repaint, and this method can be
-    // called from OnPaint, even with the window's paint dc as source (see wxHTMLWindow)
-    NSBitmapImageRep *rep = [[[NSBitmapImageRep alloc] initWithFocusedViewRect: [view bounds]] retain];
-    [view unlockFocus];
-
     wxBitmap bitmap(width, height);
-    if ( [rep respondsToSelector:@selector(CGImage)] )
-    {
-        CGImageRef cgImageRef = (CGImageRef)[rep CGImage];
 
-        CGRect r = CGRectMake( 0 , 0 , CGImageGetWidth(cgImageRef)  , CGImageGetHeight(cgImageRef) );
-        // since our context is upside down we dont use CGContextDrawImage
-        wxMacDrawCGImage( (CGContextRef) bitmap.GetHBITMAP() , &r, cgImageRef ) ;
-        CGImageRelease(cgImageRef);
-        cgImageRef = NULL;
-    }
-    else
+    NSView* view = (NSView*) m_window->GetHandle();
+    if ( [view isHiddenOrHasHiddenAncestor] == NO )
     {
-        // TODO for 10.4 in case we can support this for osx_cocoa
+        [view lockFocus];
+        // we use this method as other methods force a repaint, and this method can be
+        // called from OnPaint, even with the window's paint dc as source (see wxHTMLWindow)
+        NSBitmapImageRep *rep = [[NSBitmapImageRep alloc] initWithFocusedViewRect: [view bounds]];
+        [view unlockFocus];
+        if ( [rep respondsToSelector:@selector(CGImage)] )
+        {
+            CGImageRef cgImageRef = (CGImageRef)[rep CGImage];
+
+            CGRect r = CGRectMake( 0 , 0 , CGImageGetWidth(cgImageRef)  , CGImageGetHeight(cgImageRef) );
+            // since our context is upside down we dont use CGContextDrawImage
+            wxMacDrawCGImage( (CGContextRef) bitmap.GetHBITMAP() , &r, cgImageRef ) ;
+        }
+        else
+        {
+            // TODO for 10.4 in case we can support this for osx_cocoa
+        }
+        [rep release];
     }
-    [rep release];
 
     return bitmap;
 }

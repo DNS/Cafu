@@ -4,7 +4,7 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     1998-01-01
-// RCS-ID:      $Id: dnd.cpp 61724 2009-08-21 10:41:26Z VZ $
+// RCS-ID:      $Id$
 // Copyright:   (c) 1998 Stefan Csomor
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ wxDragResult wxDropTarget::OnDragOver(
 
 wxDataFormat wxDropTarget::GetMatchingPair()
 {
-    wxFAIL_MSG("wxDropTarget::GetMatchingPair() not implemented in src/osx/carbon/dnd.cpp");
+    wxFAIL_MSG("wxDropTarget::GetMatchingPair() not implemented in src/osx/dnd_osx.cpp");
     return wxDF_INVALID;
 }
 
@@ -164,7 +164,7 @@ wxDropSource::~wxDropSource()
 bool wxDropSource::MacInstallDefaultCursor(wxDragResult effect)
 {
     const wxCursor& cursor = GetCursor(effect);
-    bool result = cursor.Ok();
+    bool result = cursor.IsOk();
 
     if ( result )
         cursor.MacInstall();

@@ -165,7 +165,7 @@ int wxFileDialog::ShowModal()
     Arg args[10];
     int ac = 0;
 
-    if (m_backgroundColour.Ok())
+    if (m_backgroundColour.IsOk())
     {
         wxComputeColours (dpy, & m_backgroundColour, NULL);
 
@@ -228,7 +228,7 @@ int wxFileDialog::ShowModal()
 
     Widget shell = XtParent(fileSel);
 
-    if (!m_message.IsNull())
+    if ( !m_message.empty() )
         XtVaSetValues(shell,
                       XmNtitle, (const char*)m_message.mb_str(),
                       NULL);

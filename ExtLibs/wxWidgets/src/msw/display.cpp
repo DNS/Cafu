@@ -140,6 +140,10 @@ protected:
                            dm.dmDisplayFrequency > 1 ? dm.dmDisplayFrequency : 0);
     }
 
+    // Call GetMonitorInfo() and fill in the provided struct and return true if
+    // it succeeded, otherwise return false.
+    bool GetMonInfo(MONITORINFOEX& monInfo) const;
+
     HMONITOR m_hmon;
 
 private:
@@ -185,8 +189,8 @@ private:
     // return wxNOT_FOUND if not found
     int FindDisplayFromHMONITOR(HMONITOR hmon) const;
 
-    // the array containing information about all available displays, should be
-    // filled by the derived class ctors
+    // the array containing information about all available displays, filled by
+    // MultimonEnumProc()
     wxMonitorHandleArray m_displays;
 
     wxDECLARE_NO_COPY_CLASS(wxDisplayFactoryMSW);
@@ -206,7 +210,7 @@ private:
 
     delete factoryMM;
 
-    // finally fall back to a stub implementation if all else failed (Win95?)
+    // fall back to a stub implementation if no multimon support (Win95?)
     return new wxDisplayFactorySingle;
 }
 
@@ -215,18 +219,24 @@ private:
 // wxDisplayMSW implementation
 // ----------------------------------------------------------------------------
 
+bool wxDisplayMSW::GetMonInfo(MONITORINFOEX& monInfo) const
+{
+    if ( !gs_GetMonitorInfo(m_hmon, &monInfo) )
+    {
+        wxLogLastError(wxT("GetMonitorInfo"));
+        return false;
+    }
+
+    return true;
+}
+
 wxRect wxDisplayMSW::GetGeometry() const
 {
     WinStruct<MONITORINFOEX> monInfo;
 
-    if ( !gs_GetMonitorInfo(m_hmon, (LPMONITORINFO)&monInfo) )
-    {
-        wxLogLastError(wxT(__FUNCTION__));
-        return wxRect();
-    }
-
     wxRect rect;
-    wxCopyRECTToRect(monInfo.rcMonitor, rect);
+    if ( GetMonInfo(monInfo) )
+        wxCopyRECTToRect(monInfo.rcMonitor, rect);
 
     return rect;
 }
@@ -235,14 +245,9 @@ wxRect wxDisplayMSW::GetClientArea() const
 {
     WinStruct<MONITORINFOEX> monInfo;
 
-    if ( !gs_GetMonitorInfo(m_hmon, (LPMONITORINFO)&monInfo) )
-    {
-        wxLogLastError(wxT(__FUNCTION__));
-        return wxRect();
-    }
-
     wxRect rectClient;
-    wxCopyRECTToRect(monInfo.rcWork, rectClient);
+    if ( GetMonInfo(monInfo) )
+        wxCopyRECTToRect(monInfo.rcWork, rectClient);
 
     return rectClient;
 }
@@ -251,24 +256,19 @@ wxString wxDisplayMSW::GetName() const
 {
     WinStruct<MONITORINFOEX> monInfo;
 
-    if ( !gs_GetMonitorInfo(m_hmon, (LPMONITORINFO)&monInfo) )
-    {
-        wxLogLastError(wxT(__FUNCTION__));
-        return "";
-    }
+    wxString name;
+    if ( GetMonInfo(monInfo) )
+        name = monInfo.szDevice;
 
-    return monInfo.szDevice;
+    return name;
 }
 
 bool wxDisplayMSW::IsPrimary() const
 {
     WinStruct<MONITORINFOEX> monInfo;
 
-    if ( !gs_GetMonitorInfo(m_hmon, (LPMONITORINFO)&monInfo) )
-    {
-        wxLogLastError(wxT(__FUNCTION__));
+    if ( !GetMonInfo(monInfo) )
         return false;
-    }
 
     return (monInfo.dwFlags & MONITORINFOF_PRIMARY) != 0;
 }
@@ -417,7 +417,7 @@ bool wxDisplayMSW::ChangeMode(const wxVideoMode& mode)
             // ok
             {
                 // If we have a top-level, full-screen frame, emulate
-                // the DirectX behavior and resize it.  This makes this
+                // the DirectX behaviour and resize it.  This makes this
                 // API quite a bit easier to use.
                 wxWindow *winTop = wxTheApp->GetTopWindow();
                 wxFrame *frameTop = wxDynamicCast(winTop, wxFrame);

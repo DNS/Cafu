@@ -48,6 +48,7 @@ wxDEFINE_EVENT(wxEVT_COMMAND_AUINOTEBOOK_PAGE_CHANGED, wxAuiNotebookEvent);
 wxDEFINE_EVENT(wxEVT_COMMAND_AUINOTEBOOK_BUTTON, wxAuiNotebookEvent);
 wxDEFINE_EVENT(wxEVT_COMMAND_AUINOTEBOOK_BEGIN_DRAG, wxAuiNotebookEvent);
 wxDEFINE_EVENT(wxEVT_COMMAND_AUINOTEBOOK_END_DRAG, wxAuiNotebookEvent);
+wxDEFINE_EVENT(wxEVT_COMMAND_AUINOTEBOOK_CANCEL_DRAG, wxAuiNotebookEvent);
 wxDEFINE_EVENT(wxEVT_COMMAND_AUINOTEBOOK_DRAG_MOTION, wxAuiNotebookEvent);
 wxDEFINE_EVENT(wxEVT_COMMAND_AUINOTEBOOK_ALLOW_DND, wxAuiNotebookEvent);
 wxDEFINE_EVENT(wxEVT_COMMAND_AUINOTEBOOK_BG_DCLICK, wxAuiNotebookEvent);
@@ -67,8 +68,6 @@ IMPLEMENT_DYNAMIC_CLASS(wxAuiNotebookEvent, wxEvent)
 
 // these functions live in dockart.cpp -- they'll eventually
 // be moved to a new utility cpp file
-
-wxColor wxAuiStepColour(const wxColor& c, int percent);
 
 wxBitmap wxAuiBitmapFromBits(const unsigned char bits[], int w, int h,
                              const wxColour& color);
@@ -92,8 +91,8 @@ static void DrawButtons(wxDC& dc,
     if (button_state == wxAUI_BUTTON_STATE_HOVER ||
         button_state == wxAUI_BUTTON_STATE_PRESSED)
     {
-        dc.SetBrush(wxBrush(wxAuiStepColour(bkcolour, 120)));
-        dc.SetPen(wxPen(wxAuiStepColour(bkcolour, 75)));
+        dc.SetBrush(wxBrush(bkcolour.ChangeLightness(120)));
+        dc.SetPen(wxPen(bkcolour.ChangeLightness(75)));
 
         // draw the background behind the button
         dc.DrawRectangle(rect.x, rect.y, 15, 15);
@@ -205,11 +204,12 @@ wxAuiDefaultTabArt::wxAuiDefaultTabArt()
         (255-base_colour.Green()) +
         (255-base_colour.Blue()) < 60)
     {
-        base_colour = wxAuiStepColour(base_colour, 92);
+        base_colour = base_colour.ChangeLightness(92);
     }
 
+    m_active_colour = base_colour;
     m_base_colour = base_colour;
-    wxColor border_colour = wxAuiStepColour(base_colour, 75);
+    wxColor border_colour = base_colour.ChangeLightness(75);
 
     m_border_pen = wxPen(border_colour);
     m_base_colour_pen = wxPen(m_base_colour);
@@ -236,12 +236,7 @@ wxAuiDefaultTabArt::~wxAuiDefaultTabArt()
 
 wxAuiTabArt* wxAuiDefaultTabArt::Clone()
 {
-    wxAuiDefaultTabArt* art = new wxAuiDefaultTabArt;
-    art->SetNormalFont(m_normal_font);
-    art->SetSelectedFont(m_selected_font);
-    art->SetMeasuringFont(m_measuring_font);
-
-    return art;
+    return new wxAuiDefaultTabArt(*this);
 }
 
 void wxAuiDefaultTabArt::SetFlags(unsigned int flags)
@@ -286,8 +281,8 @@ void wxAuiDefaultTabArt::DrawBackground(wxDC& dc,
 {
     // draw background
 
-    wxColor top_color       = wxAuiStepColour(m_base_colour, 90);
-    wxColor bottom_color   = wxAuiStepColour(m_base_colour, 170);
+    wxColor top_color       = m_base_colour.ChangeLightness(90);
+    wxColor bottom_color   = m_base_colour.ChangeLightness(170);
     wxRect r;
 
    if (m_flags &wxAUI_NB_BOTTOM)
@@ -445,8 +440,8 @@ void wxAuiDefaultTabArt::DrawTab(wxDC& dc,
 
         // draw base background color
         wxRect r(tab_x, tab_y, tab_width, tab_height);
-        dc.SetPen(m_base_colour_pen);
-        dc.SetBrush(m_base_colour_brush);
+        dc.SetPen(wxPen(m_active_colour));
+        dc.SetBrush(wxBrush(m_active_colour));
         dc.DrawRectangle(r.x+1, r.y+1, r.width-1, r.height-4);
 
         // this white helps fill out the gradient at the top of the tab
@@ -455,20 +450,20 @@ void wxAuiDefaultTabArt::DrawTab(wxDC& dc,
         dc.DrawRectangle(r.x+2, r.y+1, r.width-3, r.height-4);
 
         // these two points help the rounded corners appear more antialiased
-        dc.SetPen(m_base_colour_pen);
+        dc.SetPen(wxPen(m_active_colour));
         dc.DrawPoint(r.x+2, r.y+1);
         dc.DrawPoint(r.x+r.width-2, r.y+1);
 
         // set rectangle down a bit for gradient drawing
         r.SetHeight(r.GetHeight()/2);
         r.x += 2;
-        r.width -= 2;
+        r.width -= 3;
         r.y += r.height;
         r.y -= 2;
 
         // draw gradient background
         wxColor top_color = *wxWHITE;
-        wxColor bottom_color = m_base_colour;
+        wxColor bottom_color = m_active_colour;
         dc.GradientFillLinear(r, bottom_color, top_color, wxNORTH);
     }
     else
@@ -488,7 +483,7 @@ void wxAuiDefaultTabArt::DrawTab(wxDC& dc,
 
         // -- draw top gradient fill for glossy look
         wxColor top_color = m_base_colour;
-        wxColor bottom_color = wxAuiStepColour(top_color, 160);
+        wxColor bottom_color = top_color.ChangeLightness(160);
         dc.GradientFillLinear(r, bottom_color, top_color, wxNORTH);
 
         r.y += r.height;
@@ -510,7 +505,7 @@ void wxAuiDefaultTabArt::DrawTab(wxDC& dc,
     if (page.active)
     {
         if (m_flags &wxAUI_NB_BOTTOM)
-            dc.SetPen(wxPen(wxColour(wxAuiStepColour(m_base_colour, 170))));
+            dc.SetPen(wxPen(m_base_colour.ChangeLightness(170)));
         // TODO: else if (m_flags &wxAUI_NB_LEFT) {}
         // TODO: else if (m_flags &wxAUI_NB_RIGHT) {}
         else //for wxAUI_NB_TOP
@@ -595,10 +590,15 @@ void wxAuiDefaultTabArt::DrawTab(wxDC& dc,
             bmp = m_active_close_bmp;
         }
 
+        int offsetY = tab_y-1;
+        if (m_flags & wxAUI_NB_BOTTOM)
+            offsetY = 1;
+
         wxRect rect(tab_x + tab_width - close_button_width - 1,
-                    tab_y + (tab_height/2) - (bmp.GetHeight()/2),
+                    offsetY + (tab_height/2) - (bmp.GetHeight()/2),
                     close_button_width,
                     tab_height);
+
         IndentPressedBitmap(&rect, close_button_state);
         dc.DrawBitmap(bmp, rect.x, rect.y, true);
 
@@ -833,6 +833,18 @@ void wxAuiDefaultTabArt::SetMeasuringFont(const wxFont& font)
     m_measuring_font = font;
 }
 
+void wxAuiDefaultTabArt::SetColour(const wxColour& colour)
+{
+    m_base_colour = colour;
+    m_border_pen = wxPen(m_base_colour.ChangeLightness(75));
+    m_base_colour_pen = wxPen(m_base_colour);
+    m_base_colour_brush = wxBrush(m_base_colour);
+}
+
+void wxAuiDefaultTabArt::SetActiveColour(const wxColour& colour)
+{
+    m_active_colour = colour;
+}
 
 // -- wxAuiSimpleTabArt class implementation --
 
@@ -878,9 +890,8 @@ wxAuiSimpleTabArt::~wxAuiSimpleTabArt()
 
 wxAuiTabArt* wxAuiSimpleTabArt::Clone()
 {
-    return static_cast<wxAuiTabArt*>(new wxAuiSimpleTabArt);
+    return new wxAuiSimpleTabArt(*this);
 }
-
 
 void wxAuiSimpleTabArt::SetFlags(unsigned int flags)
 {
@@ -913,6 +924,19 @@ void wxAuiSimpleTabArt::SetSizingInfo(const wxSize& tab_ctrl_size,
 
     if (m_fixed_tab_width > 220)
         m_fixed_tab_width = 220;
+}
+
+void wxAuiSimpleTabArt::SetColour(const wxColour& colour)
+{
+    m_bkbrush = wxBrush(colour);
+    m_normal_bkbrush = wxBrush(colour);
+    m_normal_bkpen = wxPen(colour);
+}
+
+void wxAuiSimpleTabArt::SetActiveColour(const wxColour& colour)
+{
+    m_selected_bkbrush = wxBrush(colour);
+    m_selected_bkpen = wxPen(colour);
 }
 
 void wxAuiSimpleTabArt::DrawBackground(wxDC& dc,
@@ -1365,6 +1389,16 @@ void wxAuiTabContainer::SetSelectedFont(const wxFont& font)
 void wxAuiTabContainer::SetMeasuringFont(const wxFont& font)
 {
     m_art->SetMeasuringFont(font);
+}
+
+void wxAuiTabContainer::SetColour(const wxColour& colour)
+{
+    m_art->SetColour(colour);
+}
+
+void wxAuiTabContainer::SetActiveColour(const wxColour& colour)
+{
+    m_art->SetActiveColour(colour);
 }
 
 void wxAuiTabContainer::SetRect(const wxRect& rect)
@@ -2273,6 +2307,16 @@ void wxAuiTabCtrl::OnLeftDown(wxMouseEvent& evt)
 
 void wxAuiTabCtrl::OnCaptureLost(wxMouseCaptureLostEvent& WXUNUSED(event))
 {
+    if (m_is_dragging)
+    {
+        m_is_dragging = false;
+
+        wxAuiNotebookEvent evt(wxEVT_COMMAND_AUINOTEBOOK_CANCEL_DRAG, m_windowId);
+        evt.SetSelection(GetIdxFromWindow(m_click_tab));
+        evt.SetOldSelection(evt.GetSelection());
+        evt.SetEventObject(this);
+        GetEventHandler()->ProcessEvent(evt);
+    }
 }
 
 void wxAuiTabCtrl::OnLeftUp(wxMouseEvent& evt)
@@ -2792,6 +2836,9 @@ BEGIN_EVENT_TABLE(wxAuiNotebook, wxControl)
                       wxEVT_COMMAND_AUINOTEBOOK_END_DRAG,
                       wxAuiNotebook::OnTabEndDrag)
     EVT_AUI_RANGE(wxAuiBaseTabCtrlId, wxAuiBaseTabCtrlId+500,
+                      wxEVT_COMMAND_AUINOTEBOOK_CANCEL_DRAG,
+                      wxAuiNotebook::OnTabCancelDrag)
+    EVT_AUI_RANGE(wxAuiBaseTabCtrlId, wxAuiBaseTabCtrlId+500,
                       wxEVT_COMMAND_AUINOTEBOOK_DRAG_MOTION,
                       wxAuiNotebook::OnTabDragMotion)
     EVT_AUI_RANGE(wxAuiBaseTabCtrlId, wxAuiBaseTabCtrlId+500,
@@ -2909,7 +2956,23 @@ void wxAuiNotebook::SetArtProvider(wxAuiTabArt* art)
 {
     m_tabs.SetArtProvider(art);
 
-    UpdateTabCtrlHeight();
+    // Update the height and do nothing else if it did something but otherwise
+    // (i.e. if the new art provider uses the same height as the old one) we
+    // need to manually set the art provider for all tabs ourselves.
+    if ( !UpdateTabCtrlHeight() )
+    {
+        wxAuiPaneInfoArray& all_panes = m_mgr.GetAllPanes();
+        const size_t pane_count = all_panes.GetCount();
+        for (size_t i = 0; i < pane_count; ++i)
+        {
+            wxAuiPaneInfo& pane = all_panes.Item(i);
+            if (pane.name == wxT("dummy"))
+                continue;
+            wxTabFrame* tab_frame = (wxTabFrame*)pane.window;
+            wxAuiTabCtrl* tabctrl = tab_frame->m_tabs;
+            tabctrl->SetArtProvider(art->Clone());
+        }
+    }
 }
 
 // SetTabCtrlHeight() is the highest-level override of the
@@ -2917,7 +2980,7 @@ void wxAuiNotebook::SetArtProvider(wxAuiTabArt* art)
 // specified tab ctrl height, overriding all other considerations,
 // such as text or bitmap height.  It overrides any call to
 // SetUniformBitmapSize().  Specifying a height of -1 reverts
-// any previous call and returns to the default behavior
+// any previous call and returns to the default behaviour
 
 void wxAuiNotebook::SetTabCtrlHeight(int height)
 {
@@ -2950,34 +3013,36 @@ void wxAuiNotebook::SetUniformBitmapSize(const wxSize& size)
 }
 
 // UpdateTabCtrlHeight() does the actual tab resizing. It's meant
-// to be used interally
-void wxAuiNotebook::UpdateTabCtrlHeight()
+// to be used internally
+bool wxAuiNotebook::UpdateTabCtrlHeight()
 {
     // get the tab ctrl height we will use
     int height = CalculateTabCtrlHeight();
 
     // if the tab control height needs to change, update
     // all of our tab controls with the new height
-    if (m_tab_ctrl_height != height)
+    if (m_tab_ctrl_height == height)
+        return false;
+
+    wxAuiTabArt* art = m_tabs.GetArtProvider();
+
+    m_tab_ctrl_height = height;
+
+    wxAuiPaneInfoArray& all_panes = m_mgr.GetAllPanes();
+    size_t i, pane_count = all_panes.GetCount();
+    for (i = 0; i < pane_count; ++i)
     {
-        wxAuiTabArt* art = m_tabs.GetArtProvider();
-
-        m_tab_ctrl_height = height;
-
-        wxAuiPaneInfoArray& all_panes = m_mgr.GetAllPanes();
-        size_t i, pane_count = all_panes.GetCount();
-        for (i = 0; i < pane_count; ++i)
-        {
-            wxAuiPaneInfo& pane = all_panes.Item(i);
-            if (pane.name == wxT("dummy"))
-                continue;
-            wxTabFrame* tab_frame = (wxTabFrame*)pane.window;
-            wxAuiTabCtrl* tabctrl = tab_frame->m_tabs;
-            tab_frame->SetTabCtrlHeight(m_tab_ctrl_height);
-            tabctrl->SetArtProvider(art->Clone());
-            tab_frame->DoSizing();
-        }
+        wxAuiPaneInfo& pane = all_panes.Item(i);
+        if (pane.name == wxT("dummy"))
+            continue;
+        wxTabFrame* tab_frame = (wxTabFrame*)pane.window;
+        wxAuiTabCtrl* tabctrl = tab_frame->m_tabs;
+        tab_frame->SetTabCtrlHeight(m_tab_ctrl_height);
+        tabctrl->SetArtProvider(art->Clone());
+        tab_frame->DoSizing();
     }
+
+    return true;
 }
 
 void wxAuiNotebook::UpdateHintWindowSize()
@@ -4062,6 +4127,18 @@ void wxAuiNotebook::OnTabEndDrag(wxAuiNotebookEvent& evt)
 }
 
 
+
+void wxAuiNotebook::OnTabCancelDrag(wxAuiNotebookEvent& command_evt)
+{
+    wxAuiNotebookEvent& evt = (wxAuiNotebookEvent&)command_evt;
+
+    m_mgr.HideHint();
+
+    wxAuiTabCtrl* src_tabs = (wxAuiTabCtrl*)evt.GetEventObject();
+    wxCHECK_RET( src_tabs, _T("no source object?") );
+
+    src_tabs->SetCursor(wxCursor(wxCURSOR_ARROW));
+}
 
 wxAuiTabCtrl* wxAuiNotebook::GetTabCtrlFromPoint(const wxPoint& pt)
 {

@@ -161,7 +161,7 @@ WXDLLEXPORT bool wxConvertVariantToOle(const wxVariant& variant, VARIANTARG& ole
     else if (type == wxT("bool"))
     {
         oleVariant.vt = VT_BOOL;
-        oleVariant.boolVal = variant.GetBool();
+        oleVariant.boolVal = variant.GetBool() ? VARIANT_TRUE : VARIANT_FALSE;
     }
     else if (type == wxT("string"))
     {
@@ -360,6 +360,10 @@ wxConvertOleToVariant(const VARIANTARG& oleVariant, wxVariant& variant)
 
             case VT_BOOL:
                 variant = oleVariant.boolVal != 0;
+                break;
+
+            case VT_R4:
+                variant = oleVariant.fltVal;
                 break;
 
             case VT_R8:

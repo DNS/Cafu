@@ -19,8 +19,6 @@
     #include "wx/dcclient.h"
 #endif
 
-IMPLEMENT_DYNAMIC_CLASS(wxStaticBitmap, wxControl)
-
 /*
  * wxStaticBitmap
  */
@@ -68,7 +66,7 @@ void wxStaticBitmap::OnPaint( wxPaintEvent& WXUNUSED(event) )
     wxPaintDC dc(this);
     PrepareDC(dc);
 
-    if (m_bitmap.Ok())
+    if (m_bitmap.IsOk())
     {
         dc.DrawBitmap( m_bitmap , 0 , 0 , TRUE ) ;
     }
@@ -76,7 +74,7 @@ void wxStaticBitmap::OnPaint( wxPaintEvent& WXUNUSED(event) )
 
 wxSize wxStaticBitmap::DoGetBestSize() const
 {
-    if ( m_bitmap.Ok() )
+    if ( m_bitmap.IsOk() )
         return DoGetSizeFromClientSize( wxSize(m_bitmap.GetWidth(), m_bitmap.GetHeight()) );
 
     // this is completely arbitrary

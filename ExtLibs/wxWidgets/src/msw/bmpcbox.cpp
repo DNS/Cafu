@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        src/msw/bmpcboxg.cpp
+// Name:        src/msw/bmpcbox.cpp
 // Purpose:     wxBitmapComboBox
 // Author:      Jaakko Salli
 // Created:     2008-04-06
@@ -131,6 +131,7 @@ void wxBitmapComboBox::RecreateControl()
     wxString value = GetValue();
     wxPoint pos = GetPosition();
     wxSize size = GetSize();
+    size.y = GetBestSize().y;
     wxArrayString strings = GetStrings();
 
     wxComboBox::DoClear();
@@ -139,7 +140,7 @@ void wxBitmapComboBox::RecreateControl()
     DissociateHandle();
     ::DestroyWindow(hwnd);
 
-    if ( !MSWCreateControl(wxT("COMBOBOX"), value, pos, size) )
+    if ( !MSWCreateControl(wxT("COMBOBOX"), wxEmptyString, pos, size) )
         return;
 
     // initialize the controls contents
@@ -176,6 +177,12 @@ void wxBitmapComboBox::RecreateControl()
     {
         SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW));
     }
+
+    ::SendMessage(GetHwnd(), CB_SETITEMHEIGHT, 0, MeasureItem(0));
+
+    // Revert the old string value
+    if ( !HasFlag(wxCB_READONLY) )
+        ChangeValue(value);
 }
 
 wxBitmapComboBox::~wxBitmapComboBox()

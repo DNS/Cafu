@@ -28,8 +28,6 @@
 #include "wx/slider.h"
 #include "wx/os2/private.h"
 
-IMPLEMENT_DYNAMIC_CLASS(wxSlider, wxControl)
-
 wxSlider::wxSlider()
 {
     m_hStaticValue = 0L;
@@ -370,7 +368,7 @@ bool wxSlider::Create(
                                                  ,NULL                     // no control data
                                                  ,NULL                     // no Presentation parameters
                                                 );
-        if (GetFont().Ok())
+        if (GetFont().IsOk())
         {
             if (GetFont().GetResourceHandle())
             {
@@ -1076,7 +1074,7 @@ void wxSlider::SetTick(
 } // end of wxSlider::SetTick
 
 // For trackbars only
-void wxSlider::SetTickFreq( int n, int WXUNUSED(nPos) )
+void wxSlider::DoSetTickFreq( int n )
 {
     SLDCDATA  vSlData;
     WNDPARAMS vWndParams;
