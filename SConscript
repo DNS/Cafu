@@ -153,7 +153,6 @@ if sys.platform=="linux2":
 
 envCaWE = wxEnv.Clone()
 envCaWE.Append(CPPPATH=['ExtLibs/lua/src', 'ExtLibs/noise/src'])
-envCaWE.Append(LIBPATH=["ExtLibs/fbx/lib"])
 envCaWE.Append(LIBS=Split("SceneGraph MatSys ClipSys cfsLib ModelLoaders cfs_jpeg assimp bulletcollision OpenCollada expat noise lua minizip pcre lightwave freetype png z"))
 
 SourceFilesList = (Glob("CaWE/*.cpp")
@@ -169,12 +168,10 @@ if sys.platform=="win32":
     SourceFilesList += envCaWE.RES("CaWE/CaWE.rc")
 
     if os.path.exists(Dir("#/ExtLibs/fbx/lib").abspath):
-        fbxlib = "fbxsdk_mt"
-        fbxlib += {"vc8": "2005", "vc9": "2008", "vc10": "2010"}[compiler]
-        if envCaWE["TARGET_ARCH"] in ["x86_64", "amd64", "emt64"]: fbxlib += "_amd64"
-        if buildMode=="dbg": fbxlib += "d"
-
-        envCaWE.Append(LIBS=[fbxlib, "wininet"])
+        envCaWE.Append(LIBPATH=["ExtLibs/fbx/lib/" +
+            {"vc8": "vs2005", "vc9": "vs2008", "vc10": "vs2010"}[compiler] + "/" +
+            ("x64" if envCaWE["TARGET_ARCH"] in ["x86_64", "amd64", "emt64"] else "x86")])
+        envCaWE.Append(LIBS=["fbxsdk-2012.1-mtd" if buildMode=="dbg" else "fbxsdk-2012.1-mt", "wininet"])
 
 elif sys.platform=="linux2":
     envCaWE.Append(CPPPATH=['/usr/include/freetype2'])  # As of 2009-09-10, this line is to become unnecessary in the future, see /usr/include/ftbuild.h for details.
@@ -182,6 +179,7 @@ elif sys.platform=="linux2":
     envCaWE.Append(LINKFLAGS=['-Wl,--export-dynamic'])  # Have our symbols available for dynamically loaded SOs (e.g. the renderer DLLs).
 
     if os.path.exists(Dir("#/ExtLibs/fbx/lib").abspath):
+        envCaWE.Append(LIBPATH=["ExtLibs/fbx/lib"])
         fbxlib = "fbxsdk_gcc4"
         if platform.machine()=="x86_64": fbxlib += "_x64"
         if buildMode=="dbg": fbxlib += "d"

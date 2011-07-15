@@ -227,7 +227,7 @@ LoaderFbxT::FbxSceneT::FbxSceneT(const LoaderFbxT& MainClass, UserCallbacksI& Us
     for (unsigned long NodeNr=0; NodeNr<m_Nodes.Size(); NodeNr++)
     {
         const KFbxNode*           Node          =m_Nodes[NodeNr];
-        const KFbxLayerContainer* LayerContainer=dynamic_cast<const KFbxLayerContainer*>(Node->GetNodeAttribute());
+        const KFbxLayerContainer* LayerContainer=KFbxCast<KFbxLayerContainer>(Node->GetNodeAttribute());    // Must use KFbxCast<T> instead of dynamic_cast<T*> for classes of the FBX SDK.
 
         if (LayerContainer)   // Typically a mesh, but can also be a Nurb, a patch, etc.
         {
@@ -244,11 +244,11 @@ LoaderFbxT::FbxSceneT::FbxSceneT(const LoaderFbxT& MainClass, UserCallbacksI& Us
 
                     if (lProperty.IsValid())
                     {
-                        const int lNbTex = lProperty.GetSrcObjectCount(KFbxTexture::ClassId);
+                        const int lNbTex = lProperty.GetSrcObjectCount(KFbxFileTexture::ClassId);
 
                         for (int lTextureIndex=0; lTextureIndex<lNbTex; lTextureIndex++)
                         {
-                            KFbxTexture* lTexture=KFbxCast<KFbxTexture>(lProperty.GetSrcObject(KFbxTexture::ClassId, lTextureIndex));
+                            KFbxFileTexture* lTexture=KFbxCast<KFbxFileTexture>(lProperty.GetSrcObject(KFbxFileTexture::ClassId, lTextureIndex));
 
                             //if (lTexture)
                             //    LoadTexture(lTexture, pTextureArray);
@@ -413,7 +413,7 @@ void LoaderFbxT::FbxSceneT::GetWeights(const KFbxMesh* Mesh, const unsigned long
             default:                          Log << "[unknown deformer type]\n"; break;
         }
 
-        KFbxSkin* Skin=dynamic_cast<KFbxSkin*>(Mesh->GetDeformer(DeformerNr));
+        KFbxSkin* Skin=KFbxCast<KFbxSkin>(Mesh->GetDeformer(DeformerNr));   // Must use KFbxCast<T> instead of dynamic_cast<T*> for classes of the FBX SDK.
 
         if (Skin && Skin->GetClusterCount()>0)
         {
@@ -503,8 +503,8 @@ static std::string GetTexFileName(const KFbxSurfaceMaterial* FbxMaterial, const 
     KFbxProperty Property=FbxMaterial->FindProperty(PropName);
     if (!Property.IsValid()) return "";
 
-    const int    TextureIndex=0;
-    KFbxTexture* Texture=KFbxCast<KFbxTexture>(Property.GetSrcObject(KFbxTexture::ClassId, TextureIndex));
+    const int        TextureIndex=0;
+    KFbxFileTexture* Texture=KFbxCast<KFbxFileTexture>(Property.GetSrcObject(KFbxFileTexture::ClassId, TextureIndex));  // Must use KFbxCast<T> instead of dynamic_cast<T*> for classes of the FBX SDK.
     if (!Texture) return "";
 
     const char* FileName=Texture->GetRelativeFileName();
@@ -556,7 +556,7 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes, MaterialMana
 
     for (unsigned long NodeNr=0; NodeNr<m_Nodes.Size(); NodeNr++)
     {
-        const KFbxMesh* Mesh=dynamic_cast<const KFbxMesh*>(m_Nodes[NodeNr]->GetNodeAttribute());
+        const KFbxMesh* Mesh=KFbxCast<KFbxMesh>(m_Nodes[NodeNr]->GetNodeAttribute());   // Must use KFbxCast<T> instead of dynamic_cast<T*> for classes of the FBX SDK.
 
         if (!Mesh) continue;
         Log << "Node " << NodeNr << " is a mesh with " << Mesh->GetPolygonCount() << " polygons and " << Mesh->GetDeformerCount() << " deformers.\n";
