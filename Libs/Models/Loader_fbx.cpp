@@ -39,17 +39,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #pragma warning(disable:4355)
 #endif
 
-#if __GNUG__    // This is equivalent to testing (__GNUC__ && __cplusplus).
-#if FBXFILESDK_NAMESPACE==fbxsdk_2011_3_1
-// Keep gcc's -Wall happy... for details, see:
-// http://area.autodesk.com/forum/autodesk-fbx/fbx-sdk/gcc--wall-gives-collectanimfromcurvenode-declared-static-but-never-defined-error/
-static void fbxsdk_2011_3_1::CollectAnimFromCurveNode(KFCurve**, KFCurveNode*, unsigned, KFbxAnimCurveNode*)
-{
-    (void)&CollectAnimFromCurveNode;
-}
-#endif
-#endif
-
 
 static std::ofstream Log("fbx-loader.log");
 // static std::ostream& Log=std::cout;
