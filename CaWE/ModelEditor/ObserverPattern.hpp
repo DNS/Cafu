@@ -44,12 +44,24 @@ namespace ModelEditor
     {
         public:
 
-        /// This method is called whenever the window selection of a GUI subject changed.
-        /// @param Subject The GUI document in which the selection has been changed.
+        /// This method is called whenever the selection of a model changed.
+        /// @param Subject The model document in which the selection has changed.
         /// @param Type    The type of the elements in a model whose selection changed (joints, meshes or anims).
-        /// @param OldSel Array of the previously selected windows.
-        /// @param NewSel Array of the new selected windows.
+        /// @param OldSel  Array of the previously selected elements.
+        /// @param NewSel  Array of the new selected elements.
         virtual void Notify_SelectionChanged(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel) { }
+
+        /// This method is called when new elements have been created and were added to the model.
+        /// @param Subject The model document to which elements were added.
+        /// @param Type    The type of the added elements (joints, meshes or anims).
+        /// @param Indices The array indices at which the new elements were inserted.
+        virtual void Notify_Created(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& Indices) { }
+
+        /// This method is called when new elements were deleted from the model.
+        /// @param Subject The model document from which elements were deleted.
+        /// @param Type    The type of the deleted elements (joints, meshes or anims).
+        /// @param Indices The array indices at which the elements were deleted.
+        virtual void Notify_Deleted(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& Indices) { }
 
         /// Notifies the observer that a joint has changed.
         /// @param Subject   The model document with the model in which the joint has changed.
@@ -98,6 +110,8 @@ namespace ModelEditor
         virtual void UnregisterObserver(ObserverT* Obs);
 
         virtual void UpdateAllObservers_SelectionChanged(ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel);
+        virtual void UpdateAllObservers_Created(ModelElementTypeT Type, const ArrayT<unsigned int>& Indices);
+        virtual void UpdateAllObservers_Deleted(ModelElementTypeT Type, const ArrayT<unsigned int>& Indices);
         virtual void UpdateAllObservers_JointChanged(unsigned int JointNr);
         virtual void UpdateAllObservers_MeshChanged(unsigned int MeshNr);
         virtual void UpdateAllObservers_AnimChanged(unsigned int AnimNr);

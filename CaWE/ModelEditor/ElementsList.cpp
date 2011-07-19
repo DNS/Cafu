@@ -79,6 +79,7 @@ using namespace ModelEditor;
 
 
 BEGIN_EVENT_TABLE(ElementsListT, wxListView)
+    EVT_SET_FOCUS           (ElementsListT::OnFocus)
     EVT_CONTEXT_MENU        (ElementsListT::OnContextMenu)
     EVT_LIST_KEY_DOWN       (wxID_ANY, ElementsListT::OnKeyDown)
     EVT_LIST_ITEM_ACTIVATED (wxID_ANY, ElementsListT::OnItemActivated)
@@ -133,6 +134,24 @@ void ElementsListT::Notify_SelectionChanged(SubjectT* Subject, ModelElementTypeT
 
     Thaw();
     m_IsRecursiveSelfNotify=false;
+}
+
+
+void ElementsListT::Notify_Created(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& Indices)
+{
+    if (m_IsRecursiveSelfNotify) return;
+    if (Type!=m_TYPE) return;
+
+    InitListItems();
+}
+
+
+void ElementsListT::Notify_Deleted(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& Indices)
+{
+    if (m_IsRecursiveSelfNotify) return;
+    if (Type!=m_TYPE) return;
+
+    InitListItems();
 }
 
 
@@ -194,6 +213,13 @@ void ElementsListT::InitListItems()
         SetColumnWidth(ColNr, wxLIST_AUTOSIZE);
 
     Thaw();
+}
+
+
+void ElementsListT::OnFocus(wxFocusEvent& FE)
+{
+    m_Parent->SetLastUsedType(m_TYPE);
+    FE.Skip();
 }
 
 

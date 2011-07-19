@@ -33,6 +33,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 class MaterialT;
 class ModelLoaderT;
 namespace MatSys { class RenderMaterialT; }
+namespace ModelEditor { class CommandDeleteT; }
 namespace ModelEditor { class CommandRenameT; }
 namespace ModelEditor { class CommandSetAnimFPST; }
 namespace ModelEditor { class CommandSetAnimNextT; }
@@ -199,6 +200,7 @@ class CafuModelT : public ModelT
 
     private:
 
+    friend class ModelEditor::CommandDeleteT;
     friend class ModelEditor::CommandRenameT;
     friend class ModelEditor::CommandSetAnimFPST;
     friend class ModelEditor::CommandSetAnimNextT;

@@ -29,6 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ModelDocument.hpp"
 #include "SceneView3D.hpp"
 #include "ScenePropGrid.hpp"
+#include "Commands/Delete.hpp"
 
 #include "../GameConfig.hpp"
 #include "../ParentFrame.hpp"
@@ -57,6 +58,8 @@ BEGIN_EVENT_TABLE(ModelEditor::ChildFrameT, wxMDIChildFrame)
     EVT_UPDATE_UI_RANGE(ID_MENU_FILE_CLOSE,                     ID_MENU_FILE_SAVEAS,                   ModelEditor::ChildFrameT::OnMenuFileUpdate)
     EVT_MENU_RANGE     (wxID_UNDO,                              wxID_REDO,                             ModelEditor::ChildFrameT::OnMenuUndoRedo)
     EVT_UPDATE_UI_RANGE(wxID_UNDO,                              wxID_REDO,                             ModelEditor::ChildFrameT::OnMenuUndoRedoUpdate)
+    EVT_MENU_RANGE     (wxID_CUT,                               wxID_DELETE,                           ModelEditor::ChildFrameT::OnMenuEdit)
+    EVT_UPDATE_UI_RANGE(wxID_CUT,                               wxID_DELETE,                           ModelEditor::ChildFrameT::OnMenuEditUpdate)
     EVT_MENU_RANGE     (ID_MENU_VIEW_AUIPANE_GLOBALS_INSPECTOR, ID_MENU_VIEW_LOAD_DEFAULT_PERSPECTIVE, ModelEditor::ChildFrameT::OnMenuView)
     EVT_UPDATE_UI_RANGE(ID_MENU_VIEW_AUIPANE_GLOBALS_INSPECTOR, ID_MENU_VIEW_LOAD_DEFAULT_PERSPECTIVE, ModelEditor::ChildFrameT::OnMenuViewUpdate)
     EVT_MENU_RANGE     (ID_MENU_MODEL_ANIM_SKIP_BACKWARD,        ID_MENU_MODEL_ANIM_SKIP_FORWARD,      ModelEditor::ChildFrameT::OnMenuModel)
@@ -71,6 +74,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
       m_ModelDoc(ModelDoc),
       m_History(),
       m_LastSavedAtCommandNr(0),
+      m_LastUsedType(JOINT),
       m_Parent(Parent),
       m_SceneView3D(NULL),
       m_GlobalsInspector(NULL),
@@ -114,6 +118,11 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     m_EditMenu=new wxMenu;
     m_EditMenu->Append(wxID_UNDO, "&Undo\tCtrl+Z", "");
     m_EditMenu->Append(wxID_REDO, "&Redo\tCtrl+Y", "");
+    m_EditMenu->AppendSeparator();
+    m_EditMenu->Append(wxID_CUT, "Cu&t\tCtrl+X", "");
+    m_EditMenu->Append(wxID_COPY, "&Copy\tCtrl+C", "");
+    m_EditMenu->Append(wxID_PASTE, "&Paste\tCtrl+V", "");
+    m_EditMenu->Append(wxID_DELETE, "&Delete\tShift+Del", "");
     item0->Append(m_EditMenu, "&Edit");
 
     wxMenu* ViewMenu=new wxMenu;
@@ -134,6 +143,9 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     wxMenu* ModelMenu=new wxMenu;
     ModelMenu->AppendRadioItem(ID_MENU_MODEL_ANIM_PLAY,  "&Play anim"/*, "Loads the user defined window layout"*/);
     ModelMenu->AppendRadioItem(ID_MENU_MODEL_ANIM_PAUSE, "P&ause anim"/*, "Loads the user defined window layout"*/);
+    ModelMenu->AppendSeparator();
+    ModelMenu->Append(-1, "Set GUI position", "Define the locations where a GUI can be attached")->Enable(false);
+    ModelMenu->Append(-1, "Run benchmark", "Move the camera along a predefined path and determine the time taken")->Enable(false);
     item0->Append(ModelMenu, "&Model");
 
     wxMenu* HelpMenu=new wxMenu;
@@ -204,8 +216,13 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     ToolbarDocument->AddTool(ID_MENU_FILE_SAVE,                    "Save", wxArtProvider::GetBitmap(wxART_FILE_SAVE, wxART_TOOLBAR), "Save the file");
     ToolbarDocument->AddTool(ID_MENU_FILE_SAVEAS,                  "Save as", wxArtProvider::GetBitmap(wxART_FILE_SAVE_AS, wxART_TOOLBAR), "Save the file under a different name");
     ToolbarDocument->AddSeparator();
-    ToolbarDocument->AddTool(wxID_UNDO,                            "Undo", wxArtProvider::GetBitmap(wxART_UNDO, wxART_TOOLBAR), "Undo the last action");
-    ToolbarDocument->AddTool(wxID_REDO,                            "Redo", wxArtProvider::GetBitmap(wxART_REDO, wxART_TOOLBAR), "Redo the previously undone action");
+    ToolbarDocument->AddTool(wxID_UNDO,   "Undo", wxArtProvider::GetBitmap(wxART_UNDO, wxART_TOOLBAR), "Undo the last action");
+    ToolbarDocument->AddTool(wxID_REDO,   "Redo", wxArtProvider::GetBitmap(wxART_REDO, wxART_TOOLBAR), "Redo the previously undone action");
+    ToolbarDocument->AddSeparator();
+    ToolbarDocument->AddTool(wxID_CUT,    "Cut", wxArtProvider::GetBitmap(wxART_CUT, wxART_TOOLBAR), "Cut");
+    ToolbarDocument->AddTool(wxID_COPY,   "Copy", wxArtProvider::GetBitmap(wxART_COPY, wxART_TOOLBAR), "Copy");
+    ToolbarDocument->AddTool(wxID_PASTE,  "Paste", wxArtProvider::GetBitmap(wxART_PASTE, wxART_TOOLBAR), "Paste");
+    ToolbarDocument->AddTool(wxID_DELETE, "Delete", wxArtProvider::GetBitmap(wxART_DELETE, wxART_TOOLBAR), "Delete");
     ToolbarDocument->Realize();
 
     m_AUIManager.AddPane(ToolbarDocument, wxAuiPaneInfo().Name("ToolbarDocument").
@@ -597,6 +614,36 @@ void ModelEditor::ChildFrameT::OnMenuUndoRedoUpdate(wxUpdateUIEvent& UE)
     {
         UE.SetText(wxString("Cannot ")+Action+"\t"+Hotkey);
         UE.Enable(false);
+    }
+}
+
+
+void ModelEditor::ChildFrameT::OnMenuEdit(wxCommandEvent& CE)
+{
+    //if (CE.GetId()==wxID_CUT || CE.GetId()==wxID_COPY)
+    //    ;
+
+    if (CE.GetId()==wxID_CUT || CE.GetId()==wxID_DELETE)
+    {
+        CommandDeleteT* DelCmd=new CommandDeleteT(m_ModelDoc, m_LastUsedType, m_ModelDoc->GetSelection(m_LastUsedType));
+        bool            Result=DelCmd->Do();
+
+        if (DelCmd->GetMessage()!="") wxMessageBox(DelCmd->GetMessage(), "Delete");
+        if (Result) SubmitCommand(DelCmd); else delete DelCmd;
+    }
+}
+
+
+void ModelEditor::ChildFrameT::OnMenuEditUpdate(wxUpdateUIEvent& UE)
+{
+    const bool HaveSel=m_ModelDoc->GetSelection(m_LastUsedType).Size()>0;
+
+    switch (UE.GetId())
+    {
+        case wxID_CUT:    UE.Enable(false); break;
+        case wxID_COPY:   UE.Enable(false); break;
+        case wxID_PASTE:  UE.Enable(false); break;
+        case wxID_DELETE: UE.Enable(HaveSel && m_LastUsedType!=JOINT); break;
     }
 }
 

@@ -66,6 +66,20 @@ void SubjectT::UpdateAllObservers_SelectionChanged(ModelElementTypeT Type, const
 }
 
 
+void SubjectT::UpdateAllObservers_Created(ModelElementTypeT Type, const ArrayT<unsigned int>& Indices)
+{
+    for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
+        m_Observers[ObsNr]->Notify_Created(this, Type, Indices);
+}
+
+
+void SubjectT::UpdateAllObservers_Deleted(ModelElementTypeT Type, const ArrayT<unsigned int>& Indices)
+{
+    for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
+        m_Observers[ObsNr]->Notify_Deleted(this, Type, Indices);
+}
+
+
 void SubjectT::UpdateAllObservers_JointChanged(unsigned int JointNr)
 {
     for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)

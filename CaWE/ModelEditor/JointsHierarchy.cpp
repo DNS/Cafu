@@ -90,6 +90,7 @@ using namespace ModelEditor;
 
 
 BEGIN_EVENT_TABLE(JointsHierarchyT, wxTreeCtrl)
+    EVT_SET_FOCUS            (JointsHierarchyT::OnFocus)
     EVT_KEY_DOWN             (JointsHierarchyT::OnKeyDown)
     // EVT_LEFT_DOWN         (JointsHierarchyT::OnTreeLeftClick)
     // EVT_LEFT_DCLICK       (JointsHierarchyT::OnTreeLeftClick)  // Handle double clicks like normal left clicks when it comes to clicks on tree item icons (otherwise double clicks are handled normally).
@@ -193,6 +194,24 @@ void JointsHierarchyT::Notify_SelectionChanged(SubjectT* Subject, ModelElementTy
 }
 
 
+void JointsHierarchyT::Notify_Created(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& Indices)
+{
+    if (m_IsRecursiveSelfNotify) return;
+    if (Type!=JOINT) return;
+
+    RefreshTree();
+}
+
+
+void JointsHierarchyT::Notify_Deleted(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& Indices)
+{
+    if (m_IsRecursiveSelfNotify) return;
+    if (Type!=JOINT) return;
+
+    RefreshTree();
+}
+
+
 void JointsHierarchyT::Notify_JointChanged(SubjectT* Subject, unsigned int JointNr)
 {
     if (m_IsRecursiveSelfNotify) return;
@@ -236,8 +255,6 @@ void JointsHierarchyT::RefreshTree()
             ExpandedJoints.PushBack(((JointsTreeItemT*)GetItemData(TreeItems[ItemNr]))->GetJointNr());
 
     Freeze();
-
-    // For now we just update everything if the gui doc changes.
     DeleteAllItems();
 
     // Add all joints to the tree.
@@ -324,6 +341,13 @@ void JointsHierarchyT::RefreshTree()
         ME.Skip();
     }
 }*/
+
+
+void JointsHierarchyT::OnFocus(wxFocusEvent& FE)
+{
+    m_Parent->SetLastUsedType(JOINT);
+    FE.Skip();
+}
 
 
 void JointsHierarchyT::OnItemActivated(wxTreeEvent& TE)

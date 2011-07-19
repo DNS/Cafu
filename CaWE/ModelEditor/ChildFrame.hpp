@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define _MODELEDITOR_CHILD_FRAME_HPP_
 
 #include "../CommandHistory.hpp"
+#include "ElementTypes.hpp"
 #include "wx/docmdi.h"
 #include "wx/aui/framemanager.h"
 
@@ -70,6 +71,12 @@ namespace ModelEditor
         /// The method does nothing if the given list view is not the joints hierarchy, the meshes list or the anims list.
         void ShowRelatedInspector(wxWindow* List, bool DoShow=true);
 
+        /// Returns the type of the most recently used (clicked) model element.
+        const ModelElementTypeT GetLastUsedType() const { return m_LastUsedType; }
+
+        /// Sets the type of the most recently used (clicked) model element.
+        void SetLastUsedType(ModelElementTypeT Type) { wxASSERT(Type<3); m_LastUsedType=Type; }
+
         ModelDocumentT* GetModelDoc() const { return m_ModelDoc; }
         ScenePropGridT* GetScenePropGrid() const { return m_ScenePropGrid; }
 
@@ -86,6 +93,7 @@ namespace ModelEditor
         ModelDocumentT*    m_ModelDoc;
         CommandHistoryT    m_History;               ///< The command history.
         unsigned long      m_LastSavedAtCommandNr;
+        ModelElementTypeT  m_LastUsedType;          ///< The type of the most recently used (clicked) model element.
 
         ParentFrameT*      m_Parent;
         wxAuiManager       m_AUIManager;
@@ -131,6 +139,8 @@ namespace ModelEditor
         void OnMenuFileUpdate(wxUpdateUIEvent& UE);
         void OnMenuUndoRedo(wxCommandEvent& CE);
         void OnMenuUndoRedoUpdate(wxUpdateUIEvent& UE);
+        void OnMenuEdit(wxCommandEvent& CE);
+        void OnMenuEditUpdate(wxUpdateUIEvent& UE);
         void OnMenuView(wxCommandEvent& CE);
         void OnMenuViewUpdate(wxUpdateUIEvent& UE);
         void OnMenuModel(wxCommandEvent& CE);

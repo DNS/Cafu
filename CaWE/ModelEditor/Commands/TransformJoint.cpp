@@ -49,6 +49,9 @@ bool CommandTransformJointT::Do()
     // because it's bound to become invalid whenever another command meddles with the array of joints.
     GetModelVec()=m_NewVec;
 
+    // Make sure that the draw cache is refreshed.
+    m_ModelDoc->GetModel()->m_Draw_CachedDataAtSequNr=-1234;
+
     m_ModelDoc->UpdateAllObservers_JointChanged(m_JointNr);
     m_Done=true;
     return true;
@@ -63,6 +66,9 @@ void CommandTransformJointT::Undo()
     // Cannot keep a reference to m_ModelDoc->GetModel()->m_Joints[m_JointNr],
     // because it's bound to become invalid whenever another command meddles with the array of joints.
     GetModelVec()=m_OldVec;
+
+    // Make sure that the draw cache is refreshed.
+    m_ModelDoc->GetModel()->m_Draw_CachedDataAtSequNr=-1234;
 
     m_ModelDoc->UpdateAllObservers_JointChanged(m_JointNr);
     m_Done=false;

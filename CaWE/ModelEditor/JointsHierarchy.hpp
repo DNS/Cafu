@@ -42,6 +42,8 @@ namespace ModelEditor
 
         // ObserverT implementation.
         void Notify_SelectionChanged(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel);
+        void Notify_Created(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& Indices);
+        void Notify_Deleted(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& Indices);
         void Notify_JointChanged(SubjectT* Subject, unsigned int JointNr);
         void Notify_SubjectDies(SubjectT* dyingSubject);
 
@@ -59,6 +61,7 @@ namespace ModelEditor
         /// Recursively gets all tree items, beginning with the passed tree item.
         void GetTreeItems(const wxTreeItemId& StartingItem, ArrayT<wxTreeItemId>& Items);
 
+        void OnFocus             (wxFocusEvent& FE);
         void OnKeyDown           (wxKeyEvent&   KE);
      // void OnTreeLeftClick     (wxMouseEvent& ME);
         void OnItemActivated     (wxTreeEvent&  TE);    ///< The item has been activated (ENTER or double click).
