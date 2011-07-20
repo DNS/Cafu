@@ -83,6 +83,22 @@ namespace
 
         unsigned int m_JointNr;
     };
+
+
+    long GetCustomStyle()
+    {
+        int Major;
+        int Minor;
+        const wxOperatingSystemId OsId=wxGetOsVersion(&Major, &Minor);
+
+        if ((OsId & wxOS_WINDOWS) && (Major>=6))
+        {
+            // Twist buttons really should be used without lines, so use them only if they are supported.
+            return wxTR_TWIST_BUTTONS | wxTR_NO_LINES;
+        }
+
+        return 0;
+    }
 }
 
 
@@ -102,7 +118,7 @@ END_EVENT_TABLE()
 
 
 JointsHierarchyT::JointsHierarchyT(ChildFrameT* Parent, const wxSize& Size)
-    : wxTreeCtrl(Parent, wxID_ANY, wxDefaultPosition, Size, wxTR_HAS_BUTTONS | wxTR_LINES_AT_ROOT | wxTR_MULTIPLE | wxSUNKEN_BORDER | wxTR_EDIT_LABELS | wxTR_TWIST_BUTTONS),
+    : wxTreeCtrl(Parent, wxID_ANY, wxDefaultPosition, Size, wxTR_HAS_BUTTONS | wxTR_LINES_AT_ROOT | wxTR_MULTIPLE | wxTR_EDIT_LABELS | ::GetCustomStyle()),
       m_ModelDoc(Parent->GetModelDoc()),
       m_Parent(Parent),
       m_IsRecursiveSelfNotify(false)
