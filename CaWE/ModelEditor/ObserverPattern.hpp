@@ -75,7 +75,7 @@ namespace ModelEditor
 
         /// Notifies the observer that an animation sequence has changed.
         /// @param Subject   The model document with the model in which the anim has changed.
-        /// @param MeshNr    The number of the anim sequence that has changed.
+        /// @param AnimNr    The number of the anim sequence that has changed.
         virtual void Notify_AnimChanged(SubjectT* Subject, unsigned int AnimNr) { }
 
         /// Notifies the observer that the animation state has changed.

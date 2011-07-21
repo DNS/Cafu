@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define _MODELEDITOR_SCENE_VIEW_3D_HPP_
 
 #include "../Generic3DWindow.hpp"
+#include "Models/Model_cmdl.hpp"
 #include "Renderer3D.hpp"
 
 
@@ -47,6 +48,9 @@ namespace ModelEditor
         virtual Vector3fT GetRefPtWorld(const wxPoint& RefPtWin) const;
         virtual void      InfoCameraChanged();
         virtual void      InfoRightMouseClick(wxMouseEvent& ME);
+
+        /// Renders the skeleton of the model with the given joints and matrices.
+        void RenderSkeleton(const ArrayT<CafuModelT::JointT>& Joints, const ArrayT<MatrixT>& Matrices) const;
 
         /// Renders a single pass of the scene.
         void RenderPass() const;

@@ -47,46 +47,13 @@ static MapBrushT* GetGroundBrush(GameConfigT* GameConfig)
 }
 
 
-class ModelUserCallbacksT : public ModelLoaderT::UserCallbacksI
-{
-    public:
-
-    std::string GetPasswordFromUser(const std::string& Message, const std::string& Caption="Enter password")
-    {
-        return wxGetPasswordFromUser(Message, Caption).ToStdString();
-    }
-};
-
-
-ModelEditor::ModelDocumentT::ModelDocumentT(GameConfigT* GameConfig, const wxString& ModelFileName)
-    : m_Model(NULL),
+ModelEditor::ModelDocumentT::ModelDocumentT(GameConfigT* GameConfig, const wxString& FileName)
+    : m_Model(LoadModel(FileName)),
+      m_SubModel(NULL),
+      m_SubModelMap(),
       m_Ground(GetGroundBrush(GameConfig)),
       m_GameConfig(GameConfig)
 {
-    const std::string   FileName=std::string(ModelFileName);  // Change to ModelFileName.ToStdString() with wx 2.9.1.
-    const int           Flags   =ModelLoaderT::REMOVE_DEGEN_TRIANGLES | ModelLoaderT::REMOVE_UNUSED_VERTICES | ModelLoaderT::REMOVE_UNUSED_WEIGHTS;
-    ModelUserCallbacksT UserCbs;
-
-    // TODO: This duplicates the code in Model_proxy.cpp and should be combined elsewhere, e.g. into class ModelLoaderT.
-    //       Better yet: Use the type system with the loaders, and be able to iterate over them.
-         if (cf::String::EndsWith(FileName, "3ds"    )) { LoaderFbxT    Loader(FileName, UserCbs, Flags); m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "ase"    )) { LoaderAseT    Loader(FileName, Flags);          m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "cmdl"   )) { LoaderCafuT   Loader(FileName, Flags);          m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "dae"    )) { LoaderFbxT    Loader(FileName, UserCbs, Flags); m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "dxf"    )) { LoaderFbxT    Loader(FileName, UserCbs, Flags); m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "fbx"    )) { LoaderFbxT    Loader(FileName, UserCbs, Flags); m_Model=new CafuModelT(Loader); }
- // else if (cf::String::EndsWith(FileName, "dlod"   )) m_Model=new ModelDlodT(FileName);
-    else if (cf::String::EndsWith(FileName, "lwo"    )) { LoaderLwoT    Loader(FileName, Flags);          m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "mdl"    )) { LoaderHL1mdlT Loader(FileName, Flags);          m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "md5"    )) { LoaderMd5T    Loader(FileName, Flags);          m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "md5mesh")) { LoaderMd5T    Loader(FileName, Flags);          m_Model=new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(FileName, "obj"    )) { LoaderFbxT    Loader(FileName, UserCbs, Flags); m_Model=new CafuModelT(Loader); }
-    else
-    {
-        LoaderAssimpT Loader(FileName, Flags);
-        m_Model=new CafuModelT(Loader);
-    }
-
     m_Cameras.PushBack(new CameraT);
     m_Cameras[0]->Pos.y=-500.0f;
 
@@ -115,7 +82,47 @@ ModelEditor::ModelDocumentT::~ModelDocumentT()
         delete m_Cameras[CamNr];
 
     delete m_Ground;
+    delete m_SubModel;
     delete m_Model;
+}
+
+
+void ModelEditor::ModelDocumentT::SetSubModel(const wxString& FileName)
+{
+    delete m_SubModel;
+    m_SubModel=NULL;
+
+    m_SubModelMap.Overwrite();
+
+    try
+    {
+        if (FileName!="")
+        {
+            m_SubModel=LoadModel(FileName);
+
+            for (unsigned int JointNr=0; JointNr<m_SubModel->GetJoints().Size(); JointNr++)
+            {
+                const std::string& SubName=m_SubModel->GetJoints()[JointNr].Name;
+
+                unsigned int JNr;
+                for (JNr=0; JNr<m_Model->GetJoints().Size(); JNr++)
+                    if (wxStricmp(SubName, m_Model->GetJoints()[JNr].Name)==0)
+                        break;
+
+                // Not found / no correspondence is indicated by a too large and thus invalid JNr.
+                m_SubModelMap.PushBack(JNr);
+            }
+        }
+    }
+    catch (const ModelT::LoadError& /*E*/)
+    {
+        // TODO: We really should have more detailed information about what exactly went wrong when loading the model...
+        wxMessageBox(wxString("The submodel file \"")+FileName+"\" could not be loaded!", "Couldn't load or import submodel");
+    }
+    catch (const ModelLoaderT::LoadErrorT& LE)
+    {
+        wxMessageBox(wxString("The submodel file \"")+FileName+"\" could not be loaded:\n"+LE.what(), "Couldn't load or import submodel");
+    }
 }
 
 
@@ -155,4 +162,44 @@ void ModelEditor::ModelDocumentT::AdvanceTime(float Time)
 void ModelEditor::ModelDocumentT::SetAnimSpeed(float NewSpeed)
 {
     m_AnimState.Speed=NewSpeed;
+}
+
+
+namespace
+{
+    class ModelUserCallbacksT : public ModelLoaderT::UserCallbacksI
+    {
+        public:
+
+        std::string GetPasswordFromUser(const std::string& Message, const std::string& Caption="Enter password")
+        {
+            return wxGetPasswordFromUser(Message, Caption).ToStdString();
+        }
+    };
+}
+
+
+/*static*/ CafuModelT* ModelEditor::ModelDocumentT::LoadModel(const wxString& FileName)
+{
+    const std::string   fn   =FileName.ToStdString();
+    const int           Flags=ModelLoaderT::REMOVE_DEGEN_TRIANGLES | ModelLoaderT::REMOVE_UNUSED_VERTICES | ModelLoaderT::REMOVE_UNUSED_WEIGHTS;
+    ModelUserCallbacksT UserCbs;
+
+    // TODO: This duplicates the code in Model_proxy.cpp and should be combined elsewhere, e.g. into class ModelLoaderT.
+    //       Better yet: Use the type system with the loaders, and be able to iterate over them.
+         if (cf::String::EndsWith(fn, "3ds"    )) { LoaderFbxT    Loader(fn, UserCbs, Flags); return new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(fn, "ase"    )) { LoaderAseT    Loader(fn, Flags);          return new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(fn, "cmdl"   )) { LoaderCafuT   Loader(fn, Flags);          return new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(fn, "dae"    )) { LoaderFbxT    Loader(fn, UserCbs, Flags); return new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(fn, "dxf"    )) { LoaderFbxT    Loader(fn, UserCbs, Flags); return new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(fn, "fbx"    )) { LoaderFbxT    Loader(fn, UserCbs, Flags); return new CafuModelT(Loader); }
+ // else if (cf::String::EndsWith(fn, "dlod"   )) return new ModelDlodT(fn);
+    else if (cf::String::EndsWith(fn, "lwo"    )) { LoaderLwoT    Loader(fn, Flags);          return new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(fn, "mdl"    )) { LoaderHL1mdlT Loader(fn, Flags);          return new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(fn, "md5"    )) { LoaderMd5T    Loader(fn, Flags);          return new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(fn, "md5mesh")) { LoaderMd5T    Loader(fn, Flags);          return new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(fn, "obj"    )) { LoaderFbxT    Loader(fn, UserCbs, Flags); return new CafuModelT(Loader); }
+
+    LoaderAssimpT Loader(fn, Flags);
+    return new CafuModelT(Loader);
 }

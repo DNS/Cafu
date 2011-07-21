@@ -690,7 +690,7 @@ static Vector3fT myNormalize(const Vector3fT& A)
 }
 
 
-void CafuModelT::UpdateCachedDrawData(int SequenceNr, float FrameNr) const
+void CafuModelT::UpdateCachedDrawData(int SequenceNr, float FrameNr, const SuperT* Super) const
 {
     // **************************************************************************************************************
     //  Obtain a joints (bone) hierarchy for the desired frame FrameNr of the desired animation sequence SequenceNr.
@@ -702,6 +702,17 @@ void CafuModelT::UpdateCachedDrawData(int SequenceNr, float FrameNr) const
         // Don't do animation, just use the pose defined in the md5mesh file.
         for (unsigned long JointNr=0; JointNr<m_Joints.Size(); JointNr++)
         {
+            if (Super && Super->HasMatrix(JointNr))
+            {
+                // This code is correct, but note that joints for which Super does *not* have a matrix
+                // are assigned the *absolute* transformation matrix of joint J below, when they in fact
+                // should be placed *relative* to their parent bone (which was possibly positioned by Super).
+                // As a result, the code below for SequenceNr>=0 works all right; to make it work here,
+                // the m_Joints have to be expressed as relative transformations as well.
+                m_Draw_JointMatrices[JointNr]=Super->GetMatrix(JointNr);
+                continue;
+            }
+
             const JointT& J=m_Joints[JointNr];
 
             m_Draw_JointMatrices[JointNr]=MatrixT(J.Pos, cf::math::QuaternionfT::FromXYZ(J.Qtr), J.Scale);
@@ -717,6 +728,12 @@ void CafuModelT::UpdateCachedDrawData(int SequenceNr, float FrameNr) const
 
         for (unsigned long JointNr=0; JointNr<m_Joints.Size(); JointNr++)
         {
+            if (Super && Super->HasMatrix(JointNr))
+            {
+                m_Draw_JointMatrices[JointNr]=Super->GetMatrix(JointNr);
+                continue;
+            }
+
             const AnimT::AnimJointT& AJ=Anim.AnimJoints[JointNr];
             Vector3fT                Data_0[3]={ AJ.DefaultPos, AJ.DefaultQtr, AJ.DefaultScale };
             Vector3fT                Data_1[3]={ AJ.DefaultPos, AJ.DefaultQtr, AJ.DefaultScale };
@@ -931,7 +948,7 @@ void CafuModelT::UpdateCachedDrawData(int SequenceNr, float FrameNr) const
 }
 
 
-const ArrayT<MatrixT>& CafuModelT::GetDrawJointMatrices(int SequenceNr, float FrameNr) const
+const ArrayT<MatrixT>& CafuModelT::GetDrawJointMatrices(int SequenceNr, float FrameNr, const SuperT* Super) const
 {
     // SequenceNr==-1 means "use the base pose from the md5mesh file only (no md5anim)".
     if (SequenceNr>=int(m_Anims.Size())) SequenceNr=-1;
@@ -939,19 +956,19 @@ const ArrayT<MatrixT>& CafuModelT::GetDrawJointMatrices(int SequenceNr, float Fr
     if (SequenceNr==-1) FrameNr=0.0;
 
     // See Draw() for details.
-    if (m_Draw_CachedDataAtSequNr!=SequenceNr || m_Draw_CachedDataAtFrameNr!=FrameNr)
+    if (m_Draw_CachedDataAtSequNr!=SequenceNr || m_Draw_CachedDataAtFrameNr!=FrameNr || Super!=NULL)
     {
         m_Draw_CachedDataAtSequNr =SequenceNr;
         m_Draw_CachedDataAtFrameNr=FrameNr;
 
-        UpdateCachedDrawData(SequenceNr, FrameNr);
+        UpdateCachedDrawData(SequenceNr, FrameNr, Super);
     }
 
     return m_Draw_JointMatrices;
 }
 
 
-void CafuModelT::Draw(int SequenceNr, float FrameNr, float /*LodDist*/, const ModelT* /*SubModel*/) const
+void CafuModelT::Draw(int SequenceNr, float FrameNr, float /*LodDist*/, const SuperT* Super) const
 {
     // SequenceNr==-1 means "use the base pose from the md5mesh file only (no md5anim)".
     if (SequenceNr>=int(m_Anims.Size())) SequenceNr=-1;
@@ -1014,12 +1031,12 @@ void CafuModelT::Draw(int SequenceNr, float FrameNr, float /*LodDist*/, const Mo
     // 3. Finally, consider a scene with arbitrarily many non-animated models.
     // As in this case the frame and sequence numbers are always identical for each call, the caching mechanism has maximum efficiency.
     // All computations occur only once and then never again. This is the optimum cache utilization case.
-    if (m_Draw_CachedDataAtSequNr!=SequenceNr || m_Draw_CachedDataAtFrameNr!=FrameNr)
+    if (m_Draw_CachedDataAtSequNr!=SequenceNr || m_Draw_CachedDataAtFrameNr!=FrameNr || Super!=NULL)
     {
         m_Draw_CachedDataAtSequNr =SequenceNr;
         m_Draw_CachedDataAtFrameNr=FrameNr;
 
-        UpdateCachedDrawData(SequenceNr, FrameNr);
+        UpdateCachedDrawData(SequenceNr, FrameNr, Super);
     }
 
 
@@ -1195,6 +1212,12 @@ void CafuModelT::Draw(int SequenceNr, float FrameNr, float /*LodDist*/, const Mo
             break;
         }
     }
+}
+
+
+void CafuModelT::Draw(int SequenceNr, float FrameNr, float LodDist, const ModelT* /*SubModel*/) const
+{
+    Draw(SequenceNr, FrameNr, LodDist, (SuperT*)NULL);
 }
 
 

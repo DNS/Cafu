@@ -48,7 +48,7 @@ namespace ModelEditor
         private:
 
         void RefreshPropGrid();
-        void OnPropertyGridChanged(wxPropertyGridEvent& Event);
+        void OnPropertyGridChanging(wxPropertyGridEvent& Event);
 
         DECLARE_EVENT_TABLE()
 

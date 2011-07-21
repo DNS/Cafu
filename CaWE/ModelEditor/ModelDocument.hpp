@@ -71,7 +71,7 @@ namespace ModelEditor
 
         /// The constructor.
         /// @throws   ModelT::LoadError if the model could not be loaded or imported.
-        ModelDocumentT(GameConfigT* GameConfig, const wxString& ModelFileName="");
+        ModelDocumentT(GameConfigT* GameConfig, const wxString& FileName);
 
         /// The destructor.
         ~ModelDocumentT();
@@ -80,6 +80,8 @@ namespace ModelEditor
         const ArrayT<unsigned int>&     GetSelection(ModelElementTypeT Type) const { wxASSERT(Type<3); return m_Selection[Type]; }
         const ArrayT<EditorMaterialI*>& GetEditorMaterials() const { return m_EditorMaterials; }
         const AnimStateT&               GetAnimState() const       { return m_AnimState; }
+        const CafuModelT*               GetSubModel() const        { return m_SubModel; }
+        const ArrayT<unsigned int>&     GetSubModelMap() const     { return m_SubModelMap; }
         const MapBrushT*                GetGround() const          { return m_Ground; }
         const ArrayT<CameraT*>&         GetCameras() const         { return m_Cameras; }
         const ArrayT<LightSourceT*>&    GetLightSources() const    { return m_LightSources; }
@@ -88,6 +90,7 @@ namespace ModelEditor
         CafuModelT*      GetModel()      { return m_Model; }
         void             SetSelection(ModelElementTypeT Type, const ArrayT<unsigned int>& NewSel) { wxASSERT(Type<3); m_Selection[Type]=NewSel; }
         AnimStateT&      GetAnimState()  { return m_AnimState; }
+        void             SetSubModel(const wxString& FileName);
         MapBrushT*       GetGround()     { return m_Ground; }
         GameConfigT*     GetGameConfig() { return m_GameConfig; }
 
@@ -102,10 +105,14 @@ namespace ModelEditor
         ModelDocumentT(const ModelDocumentT&);      ///< Use of the Copy    Constructor is not allowed.
         void operator = (const ModelDocumentT&);    ///< Use of the Assignment Operator is not allowed.
 
+        static CafuModelT* LoadModel(const wxString& FileName);
+
         CafuModelT*              m_Model;           ///< The model that is being edited.
         ArrayT<unsigned int>     m_Selection[3];    ///< The selected joints, meshes and animations.
         ArrayT<EditorMaterialI*> m_EditorMaterials; ///< One editor material for each material in the model (its material manager).
         AnimStateT               m_AnimState;       ///< The current state of the model animation.
+        CafuModelT*              m_SubModel;        ///< The submodel that is shown with the main model.
+        ArrayT<unsigned int>     m_SubModelMap;     ///< Describes how the joints of m_SubModel map to the joints of the m_Model super model.
         MapBrushT*               m_Ground;          ///< The ground brush.
         ArrayT<CameraT*>         m_Cameras;         ///< The cameras in the scene (used by the 3D views for rendering), there is always at least one.
         ArrayT<LightSourceT*>    m_LightSources;    ///< The light sources that exist in the scene.

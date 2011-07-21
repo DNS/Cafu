@@ -62,8 +62,8 @@ BEGIN_EVENT_TABLE(ModelEditor::ChildFrameT, wxMDIChildFrame)
     EVT_UPDATE_UI_RANGE(wxID_CUT,                               wxID_DELETE,                           ModelEditor::ChildFrameT::OnMenuEditUpdate)
     EVT_MENU_RANGE     (ID_MENU_VIEW_AUIPANE_GLOBALS_INSPECTOR, ID_MENU_VIEW_LOAD_DEFAULT_PERSPECTIVE, ModelEditor::ChildFrameT::OnMenuView)
     EVT_UPDATE_UI_RANGE(ID_MENU_VIEW_AUIPANE_GLOBALS_INSPECTOR, ID_MENU_VIEW_LOAD_DEFAULT_PERSPECTIVE, ModelEditor::ChildFrameT::OnMenuViewUpdate)
-    EVT_MENU_RANGE     (ID_MENU_MODEL_ANIM_SKIP_BACKWARD,        ID_MENU_MODEL_ANIM_SKIP_FORWARD,      ModelEditor::ChildFrameT::OnMenuModel)
-    EVT_UPDATE_UI_RANGE(ID_MENU_MODEL_ANIM_SKIP_BACKWARD,        ID_MENU_MODEL_ANIM_SKIP_FORWARD,      ModelEditor::ChildFrameT::OnMenuModelUpdate)
+    EVT_MENU_RANGE     (ID_MENU_MODEL_ANIM_SKIP_BACKWARD,       ID_MENU_MODEL_UNLOAD_SUBMODEL,         ModelEditor::ChildFrameT::OnMenuModel)
+    EVT_UPDATE_UI_RANGE(ID_MENU_MODEL_ANIM_SKIP_BACKWARD,       ID_MENU_MODEL_UNLOAD_SUBMODEL,         ModelEditor::ChildFrameT::OnMenuModelUpdate)
     EVT_CLOSE          (ModelEditor::ChildFrameT::OnClose)
 END_EVENT_TABLE()
 
@@ -146,6 +146,9 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     ModelMenu->AppendSeparator();
     ModelMenu->Append(-1, "Set GUI position", "Define the locations where a GUI can be attached")->Enable(false);
     ModelMenu->Append(-1, "Run benchmark", "Move the camera along a predefined path and determine the time taken")->Enable(false);
+    ModelMenu->AppendSeparator();
+    ModelMenu->Append(ID_MENU_MODEL_LOAD_SUBMODEL, "&Load submodel...", "Loads a submodel (such as a weapon) to show with the main model");
+    ModelMenu->Append(ID_MENU_MODEL_UNLOAD_SUBMODEL, "&Unload submodel", "Unloads the submodel");
     item0->Append(ModelMenu, "&Model");
 
     wxMenu* HelpMenu=new wxMenu;
@@ -745,6 +748,21 @@ void ModelEditor::ChildFrameT::OnMenuModel(wxCommandEvent& CE)
             m_ModelDoc->UpdateAllObservers_AnimStateChanged();
             break;
         }
+
+        case ID_MENU_MODEL_LOAD_SUBMODEL:
+        {
+            wxFileDialog FileDialog(this, "Open submodel", "", "", "Model files (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+            if (FileDialog.ShowModal()==wxID_OK)
+                m_ModelDoc->SetSubModel(FileDialog.GetPath());
+            break;
+        }
+
+        case ID_MENU_MODEL_UNLOAD_SUBMODEL:
+        {
+            m_ModelDoc->SetSubModel("");
+            break;
+        }
     }
 }
 
@@ -754,8 +772,9 @@ void ModelEditor::ChildFrameT::OnMenuModelUpdate(wxUpdateUIEvent& UE)
     // Alternatively, ChildFrameT should derive from ObserverT and implement its Notify_AnimStateChanged() method.
     switch (UE.GetId())
     {
-        case ID_MENU_MODEL_ANIM_PLAY:  UE.Check(m_ModelDoc->GetAnimState().Speed!=0.0f); break;
-        case ID_MENU_MODEL_ANIM_PAUSE: UE.Check(m_ModelDoc->GetAnimState().Speed==0.0f); break;
+        case ID_MENU_MODEL_ANIM_PLAY:       UE.Check(m_ModelDoc->GetAnimState().Speed!=0.0f); break;
+        case ID_MENU_MODEL_ANIM_PAUSE:      UE.Check(m_ModelDoc->GetAnimState().Speed==0.0f); break;
+        case ID_MENU_MODEL_UNLOAD_SUBMODEL: UE.Enable(m_ModelDoc->GetSubModel()!=NULL); break;
     }
 }
 

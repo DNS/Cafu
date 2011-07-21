@@ -111,6 +111,7 @@ bool CommandDeleteT::Do()
         // Deleting joints is difficult, especially because we have to
         //   - decide what to do with child joints, if any (probably delete them as well),
         //   - decide what to with meshes whose weights refer to the joint or one of its children (probably refuse to delete the joint),
+        //   - unload the submodel (if any),
         //   - delete the joint also from the anim joints (this is easy), and restore the deleted anim joints on undo (not so easy).
         // (It might help though to restrict deleting joints to one joint at a time.)
         m_Message="Deleting joints is not supported at this time. Sorry.";

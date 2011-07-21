@@ -31,7 +31,7 @@ using namespace ModelEditor;
 
 
 BEGIN_EVENT_TABLE(JointInspectorT, wxPropertyGridManager)
-    EVT_PG_CHANGED(wxID_ANY, JointInspectorT::OnPropertyGridChanged)
+    EVT_PG_CHANGING(wxID_ANY, JointInspectorT::OnPropertyGridChanging)
 END_EVENT_TABLE()
 
 
@@ -137,15 +137,12 @@ void JointInspectorT::RefreshPropGrid()
 }
 
 
-void JointInspectorT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
+void JointInspectorT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
 {
     if (m_ModelDoc==NULL) return;
 
     const ArrayT<unsigned int>& Selection=m_ModelDoc->GetSelection(JOINT);
     if (Selection.Size()!=1) return;
-
-    const wxPGProperty* Prop=Event.GetProperty();
-    if (!Prop) return;
 
     // Changing a property by pressing ENTER doesn't change the selection. In consequence the property refresh below does not result in
     // any change since selected properties are not updated (because the user could be in the process of editing a value).
@@ -155,27 +152,28 @@ void JointInspectorT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
     const ArrayT<CafuModelT::JointT>& Joints =m_ModelDoc->GetModel()->GetJoints();
     const unsigned int                JointNr=Selection[0];
 
-    const wxString PropName  =Prop->GetName();
+    const wxString PropName  =Event.GetPropertyName();
     double         PropValueD=0.0;
-    const float    PropValueF=Prop->GetValue().Convert(&PropValueD) ? float(PropValueD) : 0.0f;
+    const float    PropValueF=Event.GetValue().Convert(&PropValueD) ? float(PropValueD) : 0.0f;
 
     Vector3fT Pos  =Joints[JointNr].Pos;
     Vector3fT Qtr  =Joints[JointNr].Qtr;
     Vector3fT Scale=Joints[JointNr].Scale;
 
     m_IsRecursiveSelfNotify=true;
+    bool ok=true;
 
-         if (PropName=="Name"   ) m_Parent->SubmitCommand(new CommandRenameT(m_ModelDoc, JOINT, JointNr, Prop->GetValueAsString()));
+         if (PropName=="Name"   ) ok=m_Parent->SubmitCommand(new CommandRenameT(m_ModelDoc, JOINT, JointNr, Event.GetValue().GetString()));
  // else if (PropName=="Parent" ) ;
-    else if (PropName=="Pos.x"  ) { Pos.x  =PropValueF; m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 'p', Pos  )); }
-    else if (PropName=="Pos.y"  ) { Pos.y  =PropValueF; m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 'p', Pos  )); }
-    else if (PropName=="Pos.z"  ) { Pos.z  =PropValueF; m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 'p', Pos  )); }
-    else if (PropName=="Qtr.x"  ) { Qtr.x  =PropValueF; m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 'q', Qtr  )); }
-    else if (PropName=="Qtr.y"  ) { Qtr.y  =PropValueF; m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 'q', Qtr  )); }
-    else if (PropName=="Qtr.z"  ) { Qtr.z  =PropValueF; m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 'q', Qtr  )); }
-    else if (PropName=="Scale.x") { Scale.x=PropValueF; m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 's', Scale)); }
-    else if (PropName=="Scale.y") { Scale.y=PropValueF; m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 's', Scale)); }
-    else if (PropName=="Scale.z") { Scale.z=PropValueF; m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 's', Scale)); }
+    else if (PropName=="Pos.x"  ) { Pos.x  =PropValueF; ok=m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 'p', Pos  )); }
+    else if (PropName=="Pos.y"  ) { Pos.y  =PropValueF; ok=m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 'p', Pos  )); }
+    else if (PropName=="Pos.z"  ) { Pos.z  =PropValueF; ok=m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 'p', Pos  )); }
+    else if (PropName=="Qtr.x"  ) { Qtr.x  =PropValueF; ok=m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 'q', Qtr  )); }
+    else if (PropName=="Qtr.y"  ) { Qtr.y  =PropValueF; ok=m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 'q', Qtr  )); }
+    else if (PropName=="Qtr.z"  ) { Qtr.z  =PropValueF; ok=m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 'q', Qtr  )); }
+    else if (PropName=="Scale.x") { Scale.x=PropValueF; ok=m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 's', Scale)); }
+    else if (PropName=="Scale.y") { Scale.y=PropValueF; ok=m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 's', Scale)); }
+    else if (PropName=="Scale.z") { Scale.z=PropValueF; ok=m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, JointNr, 's', Scale)); }
     else
     {
         // Changing child properties (e.g. "Pos.x" to "5") also generates events for the composite parent (e.g. "Pos" to "(5, 0, 0)")!
@@ -183,5 +181,7 @@ void JointInspectorT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
         // wxMessageBox("Unknown property label \""+Name+"\".", "Warning", wxOK | wxICON_ERROR);
     }
 
+    wxASSERT(Event.CanVeto());    // EVT_PG_CHANGING events can be vetoed (as opposed to EVT_PG_CHANGED events).
+    if (!ok) Event.Veto();
     m_IsRecursiveSelfNotify=false;
 }

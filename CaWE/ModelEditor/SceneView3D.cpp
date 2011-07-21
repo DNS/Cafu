@@ -36,7 +36,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/Mesh.hpp"
 #include "MaterialSystem/Renderer.hpp"
-#include "Models/Model_cmdl.hpp"
 
 
 BEGIN_EVENT_TABLE(ModelEditor::SceneView3DT, Generic3DWindowT)
@@ -197,6 +196,48 @@ void ModelEditor::SceneView3DT::OnMouseMove(wxMouseEvent& ME)
 }
 
 
+void ModelEditor::SceneView3DT::RenderSkeleton(const ArrayT<CafuModelT::JointT>& Joints, const ArrayT<MatrixT>& Matrices) const
+{
+    static MatSys::MeshT Skeleton(MatSys::MeshT::Lines);
+
+    Skeleton.Vertices.Overwrite();
+
+    for (unsigned long JointNr=0; JointNr<Joints.Size(); JointNr++)
+    {
+        const MatrixT& Mj=Matrices[JointNr];
+
+        // Don't draw the line that connects the origin and the root joint of the model.
+        if (Joints[JointNr].Parent!=-1)
+        {
+            const MatrixT& Mp=Matrices[Joints[JointNr].Parent];
+
+            Skeleton.Vertices.PushBackEmpty(2);
+            MatSys::MeshT::VertexT& V1=Skeleton.Vertices[Skeleton.Vertices.Size()-2];
+            MatSys::MeshT::VertexT& V2=Skeleton.Vertices[Skeleton.Vertices.Size()-1];
+
+            V1.SetOrigin(Mp[0][3], Mp[1][3], Mp[2][3]); V1.SetColor(1, 0, 0);
+            V2.SetOrigin(Mj[0][3], Mj[1][3], Mj[2][3]); V2.SetColor(1, 1, 0, 0.5f);
+        }
+
+        // Draw the coordinate axes of Mj.
+        for (unsigned int i=0; i<3; i++)
+        {
+            Vector3fT Axis; Axis[i]=1.0f;
+
+            Skeleton.Vertices.PushBackEmpty(2);
+            MatSys::MeshT::VertexT& V1=Skeleton.Vertices[Skeleton.Vertices.Size()-2];
+            MatSys::MeshT::VertexT& V2=Skeleton.Vertices[Skeleton.Vertices.Size()-1];
+
+            V1.SetOrigin(Mj[0][3], Mj[1][3], Mj[2][3]); V1.SetColor(Axis.x, Axis.y, Axis.z);
+            V2.SetOrigin(Mj.Mul1(Axis));                V2.SetColor(Axis.x, Axis.y, Axis.z, 0.3f);
+        }
+    }
+
+    MatSys::Renderer->SetCurrentMaterial(m_Renderer.GetRMatWireframe());
+    MatSys::Renderer->RenderMesh(Skeleton);
+}
+
+
 static wxColour ScaleColor(const wxColour& Color, float Scale)
 {
     return wxColour((unsigned char)(Color.Red()*Scale), (unsigned char)(Color.Green()*Scale), (unsigned char)(Color.Blue()*Scale));
@@ -205,12 +246,13 @@ static wxColour ScaleColor(const wxColour& Color, float Scale)
 
 void ModelEditor::SceneView3DT::RenderPass() const
 {
+    const ModelDocumentT* ModelDoc     =m_Parent->GetModelDoc();
     const ScenePropGridT* ScenePropGrid=m_Parent->GetScenePropGrid();
 
     // Render the ground plane.
     if (ScenePropGrid->m_GroundPlane_Show && MatSys::Renderer->GetCurrentRenderAction()!=MatSys::RendererI::STENCILSHADOW)
     {
-        const MapBrushT* Ground=m_Parent->GetModelDoc()->GetGround();
+        const MapBrushT* Ground=ModelDoc->GetGround();
 
         for (unsigned long FaceNr=0; FaceNr<Ground->GetFaces().Size(); FaceNr++)
         {
@@ -223,57 +265,39 @@ void ModelEditor::SceneView3DT::RenderPass() const
 
 
     // Render the model.
-    const ModelDocumentT::AnimStateT& Anim   =m_Parent->GetModelDoc()->GetAnimState();
-    const ArrayT<unsigned int>&       AnimSel=m_Parent->GetModelDoc()->GetSelection(ANIM);
+    const CafuModelT*                 Model  =ModelDoc->GetModel();
+    const ModelDocumentT::AnimStateT& Anim   =ModelDoc->GetAnimState();
+    const ArrayT<unsigned int>&       AnimSel=ModelDoc->GetSelection(ANIM);
+    const int                         SequNr =AnimSel.Size()==0 ? -1 : AnimSel[0];
 
     if (ScenePropGrid->m_Model_ShowMesh)
     {
-        m_Parent->GetModelDoc()->GetModel()->Draw(AnimSel.Size()==0 ? -1 : AnimSel[0], Anim.FrameNr, 0.0f /*LodDist*/, NULL);
+        Model->Draw(SequNr, Anim.FrameNr, 0.0f /*LodDist*/, (CafuModelT::SuperT*)NULL);
+
+        if (ModelDoc->GetSubModel())
+        {
+            const CafuModelT::SuperT Super(
+                Model->GetDrawJointMatrices(SequNr, Anim.FrameNr),
+                ModelDoc->GetSubModelMap());
+
+            ModelDoc->GetSubModel()->Draw(0, 0.0f, 0.0f /*LodDist*/, &Super);
+        }
     }
 
 
     // Render the skeleton of the model.
     if (ScenePropGrid->m_Model_ShowSkeleton && MatSys::Renderer->GetCurrentRenderAction()==MatSys::RendererI::AMBIENT)
     {
-        static MatSys::MeshT              Skeleton(MatSys::MeshT::Lines);
-        const ArrayT<CafuModelT::JointT>& Joints  =m_Parent->GetModelDoc()->GetModel()->GetJoints();
-        const ArrayT<MatrixT>&            Matrices=m_Parent->GetModelDoc()->GetModel()->GetDrawJointMatrices(AnimSel.Size()==0 ? -1 : AnimSel[0], Anim.FrameNr);
+        RenderSkeleton(Model->GetJoints(), Model->GetDrawJointMatrices(SequNr, Anim.FrameNr));
 
-        Skeleton.Vertices.Overwrite();
-
-        for (unsigned long JointNr=0; JointNr<Joints.Size(); JointNr++)
+        if (ModelDoc->GetSubModel())
         {
-            const MatrixT& Mj=Matrices[JointNr];
+            const CafuModelT::SuperT Super(
+                Model->GetDrawJointMatrices(SequNr, Anim.FrameNr),
+                ModelDoc->GetSubModelMap());
 
-            // Don't draw the line that connects the origin and the root joint of the model.
-            if (Joints[JointNr].Parent!=-1)
-            {
-                const MatrixT& Mp=Matrices[Joints[JointNr].Parent];
-
-                Skeleton.Vertices.PushBackEmpty(2);
-                MatSys::MeshT::VertexT& V1=Skeleton.Vertices[Skeleton.Vertices.Size()-2];
-                MatSys::MeshT::VertexT& V2=Skeleton.Vertices[Skeleton.Vertices.Size()-1];
-
-                V1.SetOrigin(Mp[0][3], Mp[1][3], Mp[2][3]); V1.SetColor(1, 0, 0);
-                V2.SetOrigin(Mj[0][3], Mj[1][3], Mj[2][3]); V2.SetColor(1, 1, 0, 0.5f);
-            }
-
-            // Draw the coordinate axes of Mj.
-            for (unsigned int i=0; i<3; i++)
-            {
-                Vector3fT Axis; Axis[i]=1.0f;
-
-                Skeleton.Vertices.PushBackEmpty(2);
-                MatSys::MeshT::VertexT& V1=Skeleton.Vertices[Skeleton.Vertices.Size()-2];
-                MatSys::MeshT::VertexT& V2=Skeleton.Vertices[Skeleton.Vertices.Size()-1];
-
-                V1.SetOrigin(Mj[0][3], Mj[1][3], Mj[2][3]); V1.SetColor(Axis.x, Axis.y, Axis.z);
-                V2.SetOrigin(Mj.Mul1(Axis));                V2.SetColor(Axis.x, Axis.y, Axis.z, 0.3f);
-            }
+            RenderSkeleton(ModelDoc->GetSubModel()->GetJoints(), ModelDoc->GetSubModel()->GetDrawJointMatrices(0, 0.0f, &Super));
         }
-
-        MatSys::Renderer->SetCurrentMaterial(m_Renderer.GetRMatWireframe());
-        MatSys::Renderer->RenderMesh(Skeleton);
     }
 }
 

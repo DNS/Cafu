@@ -132,7 +132,9 @@ namespace ModelEditor
             ID_MENU_MODEL_ANIM_SKIP_BACKWARD,
             ID_MENU_MODEL_ANIM_PLAY,
             ID_MENU_MODEL_ANIM_PAUSE,
-            ID_MENU_MODEL_ANIM_SKIP_FORWARD
+            ID_MENU_MODEL_ANIM_SKIP_FORWARD,
+            ID_MENU_MODEL_LOAD_SUBMODEL,
+            ID_MENU_MODEL_UNLOAD_SUBMODEL
         };
 
         void OnMenuFile(wxCommandEvent& CE);

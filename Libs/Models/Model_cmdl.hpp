@@ -155,6 +155,29 @@ class CafuModelT : public ModelT
     };
 
 
+    /// This struct describes information about a parent or "super" model whose skeleton pose should be used when rendering this model.
+    /// For example, a player model can act as the super model for a weapon, so that the skeleton of the weapon is copied from the
+    /// player model in order to align the weapon with the hands of the player.
+    struct SuperT
+    {
+        /// The constructor.
+        /// @param Matrices_   The draw matrices of the super model.
+        /// @param Map_        Describes how our joints map to the joints of the super model.
+        ///                    If <tt>Map_[i]</tt> is not a valid index into \c Matrices_, then our joint \c i has no match in the skeleton of the super model.
+        SuperT(const ArrayT<MatrixT>& Matrices_, const ArrayT<unsigned int>& Map_) : Matrices(Matrices_), Map(Map_) { }
+
+        /// Has our joint \c JointNr a correspondence in the super model?
+        bool HasMatrix(unsigned long JointNr) const { return Map[JointNr] < Matrices.Size(); }
+
+        /// For our joint \c JointNr, return the corresponding matrix from the super model.
+        /// Only call this if HasMatrix(JointNr) returns \c true.
+        const MatrixT& GetMatrix(unsigned long JointNr) const { return Matrices[Map[JointNr]]; }
+
+        const ArrayT<MatrixT>&      Matrices;   ///< The draw matrices of the super model.
+        const ArrayT<unsigned int>& Map;        ///< Describes how our joints map to the joints of the super model. If <tt>Map[i]</tt> is not a valid index into \c Matrices, then our joint \c i has no match in the skeleton of the super model.
+    };
+
+
     /// This structure is used to describe the locations where GUIs can be attached to the model.
     /// Note that the current static/fixed-position implementation (origin, x- and y-axis) is temporary though,
     /// it should eventually be possible to attach GUIs even to animated models.
@@ -184,7 +207,14 @@ class CafuModelT : public ModelT
     const ArrayT<AnimT>&  GetAnims()  const { return m_Anims; }
 
     /// This method returns the set of drawing matrices (one per joint) at the given sequence and frame number.
-    const ArrayT<MatrixT>& GetDrawJointMatrices(int SequenceNr, float FrameNr) const;
+    const ArrayT<MatrixT>& GetDrawJointMatrices(int SequenceNr, float FrameNr, const SuperT* Super=NULL) const;
+
+    /// The new method to draw the model.
+    /// @param SequenceNr   The number of the animation sequence to use, -1 for the bind pose.
+    /// @param FrameNr      The frame number in the animation sequence to render to model at.
+    /// @param LodDist      The distance to the camera for reducing the level-of-detail (currently unused).
+    /// @param Super        Information about a parent or "super" model whose skeleton pose should be used when rendering this model.
+    void Draw(int SequenceNr, float FrameNr, float LodDist, const SuperT* Super=NULL) const;
 
     // The ModelT interface.
     const std::string& GetFileName() const;     // TODO: Remove!?!
@@ -207,8 +237,8 @@ class CafuModelT : public ModelT
     friend class ModelEditor::CommandSetMeshMaterialT;
     friend class ModelEditor::CommandTransformJointT;
 
-    void InitMeshes();                                                  ///< An auxiliary method for the constructors.
-    void UpdateCachedDrawData(int SequenceNr, float FrameNr) const;     ///< A private auxiliary method.
+    void InitMeshes();                                                                      ///< An auxiliary method for the constructors.
+    void UpdateCachedDrawData(int SequenceNr, float FrameNr, const SuperT* Super) const;    ///< A private auxiliary method.
 
 
     const std::string     m_FileName;               ///< File name of this model.   TODO: Remove!?!
