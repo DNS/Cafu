@@ -77,7 +77,7 @@ namespace ModelEditor
         ~ModelDocumentT();
 
         const CafuModelT*               GetModel() const           { return m_Model; }
-        const ArrayT<unsigned int>&     GetSelection(ModelElementTypeT Type) const { wxASSERT(Type<3); return m_Selection[Type]; }
+        const ArrayT<unsigned int>&     GetSelection(ModelElementTypeT Type) const { wxASSERT(Type<4); return m_Selection[Type]; }
         const ArrayT<EditorMaterialI*>& GetEditorMaterials() const { return m_EditorMaterials; }
         const AnimStateT&               GetAnimState() const       { return m_AnimState; }
         const CafuModelT*               GetSubModel() const        { return m_SubModel; }
@@ -88,7 +88,7 @@ namespace ModelEditor
         const GameConfigT*              GetGameConfig() const      { return m_GameConfig; }
 
         CafuModelT*      GetModel()      { return m_Model; }
-        void             SetSelection(ModelElementTypeT Type, const ArrayT<unsigned int>& NewSel) { wxASSERT(Type<3); m_Selection[Type]=NewSel; }
+        void             SetSelection(ModelElementTypeT Type, const ArrayT<unsigned int>& NewSel) { wxASSERT(Type<4); m_Selection[Type]=NewSel; }
         AnimStateT&      GetAnimState()  { return m_AnimState; }
         void             SetSubModel(const wxString& FileName);
         MapBrushT*       GetGround()     { return m_Ground; }
@@ -108,7 +108,7 @@ namespace ModelEditor
         static CafuModelT* LoadModel(const wxString& FileName);
 
         CafuModelT*              m_Model;           ///< The model that is being edited.
-        ArrayT<unsigned int>     m_Selection[3];    ///< The selected joints, meshes and animations.
+        ArrayT<unsigned int>     m_Selection[4];    ///< The selected joints, meshes, animations and GUI fixtures.
         ArrayT<EditorMaterialI*> m_EditorMaterials; ///< One editor material for each material in the model (its material manager).
         AnimStateT               m_AnimState;       ///< The current state of the model animation.
         CafuModelT*              m_SubModel;        ///< The submodel that is shown with the main model.

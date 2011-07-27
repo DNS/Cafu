@@ -118,6 +118,23 @@ bool CafuModelT::MeshT::AreGeoDups(unsigned int Vertex1Nr, unsigned int Vertex2N
 }
 
 
+CafuModelT::GuiFixtureT::GuiFixtureT()
+    : Name("GUI Fixture")
+{
+    for (unsigned int PointNr=0; PointNr<3; PointNr++)
+    {
+        Points[PointNr].MeshNr  =std::numeric_limits<unsigned int>::max();
+        Points[PointNr].VertexNr=std::numeric_limits<unsigned int>::max();
+    }
+
+    Trans[0]=0.0f;
+    Trans[1]=0.0f;
+
+    Scale[0]=1.0f;
+    Scale[1]=1.0f;
+}
+
+
 CafuModelT::CafuModelT(ModelLoaderT& Loader)
     : m_FileName(Loader.GetFileName()),
       m_MaterialMan(),
@@ -141,7 +158,7 @@ CafuModelT::CafuModelT(ModelLoaderT& Loader)
 
     // Have the model loader load the model file.
     Loader.Load(m_Joints, m_Meshes, m_Anims, m_MaterialMan);
-    Loader.Load(m_GuiLocs);
+    Loader.Load(m_GuiFixtures, m_GuiLocs);
     Loader.Postprocess(m_Meshes);
 
     if (m_Joints.Size()==0) throw ModelT::LoadError();
@@ -177,6 +194,19 @@ CafuModelT::~CafuModelT()
 
     for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
         MatSys::Renderer->FreeMaterial(m_Meshes[MeshNr].RenderMaterial);
+}
+
+
+bool CafuModelT::IsMeshNrOK(const GuiFixtureT& GF, unsigned int PointNr) const
+{
+    return GF.Points[PointNr].MeshNr < m_Meshes.Size();
+}
+
+
+bool CafuModelT::IsVertexNrOK(const GuiFixtureT& GF, unsigned int PointNr) const
+{
+    return IsMeshNrOK(GF, PointNr) &&
+           GF.Points[PointNr].VertexNr < m_Meshes[GF.Points[PointNr].MeshNr].Vertices.Size();
 }
 
 
@@ -641,6 +671,26 @@ void CafuModelT::Save(std::ostream& OutStream) const
         OutStream << "\t\t};\n";
 
         OutStream << "\t},\n";
+    }
+
+    OutStream << "}\n";
+
+
+    // *** Write the GUI fixtures. ***
+    OutStream << "\nGuiFixtures=\n{\n";
+
+    for (unsigned long FixNr=0; FixNr<m_GuiFixtures.Size(); FixNr++)
+    {
+        const GuiFixtureT& GuiFixture=m_GuiFixtures[FixNr];
+
+        OutStream << "\t{\n"
+                  << "\t\tname=\"" << GuiFixture.Name << "\";\n"
+                  << "\t\tpoints={ " << GuiFixture.Points[0].MeshNr << ", " << GuiFixture.Points[0].VertexNr << ", "
+                                     << GuiFixture.Points[1].MeshNr << ", " << GuiFixture.Points[1].VertexNr << ", "
+                                     << GuiFixture.Points[2].MeshNr << ", " << GuiFixture.Points[2].VertexNr << " };\n"
+                  << "\t\ttrans={ " << GuiFixture.Trans[0] << ", " << GuiFixture.Trans[1] << " };\n"
+                  << "\t\tscale={ " << GuiFixture.Scale[0] << ", " << GuiFixture.Scale[1] << " };\n"
+                  << "\t},\n";
     }
 
     OutStream << "}\n";

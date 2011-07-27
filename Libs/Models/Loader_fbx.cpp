@@ -830,7 +830,7 @@ void LoaderFbxT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
 }
 
 
-void LoaderFbxT::Load(ArrayT<CafuModelT::GuiLocT>& GuiLocs)
+void LoaderFbxT::Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures, ArrayT<CafuModelT::GuiLocT>& GuiLocs)
 {
 }
 
@@ -848,6 +848,6 @@ LoaderFbxT::LoaderFbxT(const std::string& FileName, UserCallbacksI& /*UserCallba
 LoaderFbxT::~LoaderFbxT() { }
 bool LoaderFbxT::UseGivenTS() const { return false; }
 void LoaderFbxT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan) { }
-void LoaderFbxT::Load(ArrayT<CafuModelT::GuiLocT>& GuiLocs) { }
+void LoaderFbxT::Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures, ArrayT<CafuModelT::GuiLocT>& GuiLocs) { }
 
 #endif  // HAVE_FBX_SDK

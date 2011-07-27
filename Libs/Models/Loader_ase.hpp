@@ -40,7 +40,7 @@ class LoaderAseT : public ModelLoaderT
 
     bool UseGivenTS() const { return true; }
     void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan);
-    void Load(ArrayT<CafuModelT::GuiLocT>& GuiLocs);
+    void Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures, ArrayT<CafuModelT::GuiLocT>& GuiLocs);
 
 
     private:

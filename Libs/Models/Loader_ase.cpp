@@ -596,7 +596,7 @@ void LoaderAseT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
 }
 
 
-void LoaderAseT::Load(ArrayT<CafuModelT::GuiLocT>& GuiLocs)
+void LoaderAseT::Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures, ArrayT<CafuModelT::GuiLocT>& GuiLocs)
 {
     // See if we have locations for attaching a GUI.
     for (unsigned long GONr=0; GONr<m_GeomObjects.Size(); GONr++)

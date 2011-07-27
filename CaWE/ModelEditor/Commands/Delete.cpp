@@ -65,6 +65,7 @@ CommandDeleteT::CommandDeleteT(ModelDocumentT* ModelDoc, ModelElementTypeT Type,
       m_Meshes(),
       m_DrawMs(),
       m_Anims(),
+      m_GuiFixtures(),
       m_Message(),
       m_CommandSelect(CommandSelectT::Remove(m_ModelDoc, m_Type, m_Indices))
 {
@@ -74,10 +75,11 @@ CommandDeleteT::CommandDeleteT(ModelDocumentT* ModelDoc, ModelElementTypeT Type,
 
         switch (m_Type)
         {
-            case JOINT: m_Joints.PushBack(m_ModelDoc->GetModel()->GetJoints()[i]); break;
-            case MESH:  m_Meshes.PushBack(m_ModelDoc->GetModel()->GetMeshes()[i]);
-                        m_DrawMs.PushBack(m_ModelDoc->GetModel()->m_Draw_Meshes[i]); break;
-            case ANIM:  m_Anims .PushBack(m_ModelDoc->GetModel()->GetAnims ()[i]); break;
+            case JOINT: m_Joints     .PushBack(m_ModelDoc->GetModel()->GetJoints()[i]); break;
+            case MESH:  m_Meshes     .PushBack(m_ModelDoc->GetModel()->GetMeshes()[i]);
+                        m_DrawMs     .PushBack(m_ModelDoc->GetModel()->m_Draw_Meshes[i]); break;
+            case ANIM:  m_Anims      .PushBack(m_ModelDoc->GetModel()->GetAnims()[i]); break;
+            case GFIX:  m_GuiFixtures.PushBack(m_ModelDoc->GetModel()->GetGuiFixtures()[i]); break;
         }
     }
 }
@@ -118,6 +120,17 @@ bool CommandDeleteT::Do()
         return false;
     }
 
+    if (m_Type==MESH)
+    {
+        for (unsigned long GFixNr=0; GFixNr<m_ModelDoc->GetModel()->GetGuiFixtures().Size(); GFixNr++)
+            for (unsigned int PointNr=0; PointNr<3; PointNr++)
+                if (m_Indices.Find(m_ModelDoc->GetModel()->GetGuiFixtures()[GFixNr].Points[PointNr].MeshNr)>=0)
+                {
+                    m_Message="There are still GUI fixtures referring to the selected mesh(es). Please delete the GUI fixtures first, then delete the meshes.";
+                    return false;
+                }
+    }
+
     // Deselect any affected elements that are selected.
     m_CommandSelect->Do();
 
@@ -131,6 +144,7 @@ bool CommandDeleteT::Do()
             case MESH:  m_ModelDoc->GetModel()->m_Meshes     .RemoveAtAndKeepOrder(i);
                         m_ModelDoc->GetModel()->m_Draw_Meshes.RemoveAtAndKeepOrder(i); break;
             case ANIM:  m_ModelDoc->GetModel()->m_Anims      .RemoveAtAndKeepOrder(i); break;
+            case GFIX:  m_ModelDoc->GetModel()->m_GuiFixtures.RemoveAtAndKeepOrder(i); break;
         }
     }
 
@@ -155,10 +169,11 @@ void CommandDeleteT::Undo()
 
         switch (m_Type)
         {
-            case JOINT: m_ModelDoc->GetModel()->m_Joints     .InsertAt(i, m_Joints[INr]); break;
-            case MESH:  m_ModelDoc->GetModel()->m_Meshes     .InsertAt(i, m_Meshes[INr]);
-                        m_ModelDoc->GetModel()->m_Draw_Meshes.InsertAt(i, m_DrawMs[INr]); break;
-            case ANIM:  m_ModelDoc->GetModel()->m_Anims      .InsertAt(i, m_Anims [INr]); break;
+            case JOINT: m_ModelDoc->GetModel()->m_Joints     .InsertAt(i, m_Joints     [INr]); break;
+            case MESH:  m_ModelDoc->GetModel()->m_Meshes     .InsertAt(i, m_Meshes     [INr]);
+                        m_ModelDoc->GetModel()->m_Draw_Meshes.InsertAt(i, m_DrawMs     [INr]); break;
+            case ANIM:  m_ModelDoc->GetModel()->m_Anims      .InsertAt(i, m_Anims      [INr]); break;
+            case GFIX:  m_ModelDoc->GetModel()->m_GuiFixtures.InsertAt(i, m_GuiFixtures[INr]); break;
         }
     }
 
@@ -180,9 +195,10 @@ wxString CommandDeleteT::GetName() const
 
     switch (m_Type)
     {
-        case JOINT: Name+=(m_Indices.Size()==1) ? "joint"     : "joints";     break;
-        case MESH:  Name+=(m_Indices.Size()==1) ? "mesh"      : "meshes";     break;
-        case ANIM:  Name+=(m_Indices.Size()==1) ? "animation" : "animations"; break;
+        case JOINT: Name+=(m_Indices.Size()==1) ? "joint"       : "joints";       break;
+        case MESH:  Name+=(m_Indices.Size()==1) ? "mesh"        : "meshes";       break;
+        case ANIM:  Name+=(m_Indices.Size()==1) ? "animation"   : "animations";   break;
+        case GFIX:  Name+=(m_Indices.Size()==1) ? "GUI fixture" : "GUI fixtures"; break;
     }
 
     return Name;

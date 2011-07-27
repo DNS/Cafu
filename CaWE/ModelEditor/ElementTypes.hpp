@@ -30,7 +30,8 @@ namespace ModelEditor
     {
         JOINT=0,
         MESH =1,
-        ANIM =2
+        ANIM =2,
+        GFIX =3
     };
 }
 

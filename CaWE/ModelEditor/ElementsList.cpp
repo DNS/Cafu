@@ -22,11 +22,16 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ElementsList.hpp"
 #include "ChildFrame.hpp"
 #include "ModelDocument.hpp"
+#include "Commands/Add.hpp"
+#include "Commands/Delete.hpp"
 #include "Commands/Rename.hpp"
 #include "Commands/Select.hpp"
 
 #include "MaterialSystem/Material.hpp"
 #include "Models/Model_cmdl.hpp"
+
+
+using namespace ModelEditor;
 
 
 namespace
@@ -38,13 +43,16 @@ namespace
         enum
         {
             ID_MENU_INSPECT_EDIT=wxID_HIGHEST+1,
-            ID_MENU_RENAME
+            ID_MENU_RENAME,
+            ID_MENU_ADD_NEW
         };
 
-        ListContextMenuT() : wxMenu(), ID(-1)
+        ListContextMenuT(ModelElementTypeT Type) : wxMenu(), ID(-1)
         {
             Append(ID_MENU_INSPECT_EDIT, "Inspect / Edit\tEnter");
             Append(ID_MENU_RENAME,       "Rename\tF2");
+
+            if (Type==GFIX) Append(ID_MENU_ADD_NEW, "Add/create new");
 
             /* if (Type==MESH)
             {
@@ -75,9 +83,6 @@ namespace
 }
 
 
-using namespace ModelEditor;
-
-
 BEGIN_EVENT_TABLE(ElementsListT, wxListView)
     EVT_SET_FOCUS           (ElementsListT::OnFocus)
     EVT_CONTEXT_MENU        (ElementsListT::OnContextMenu)
@@ -96,7 +101,7 @@ ElementsListT::ElementsListT(ChildFrameT* Parent, const wxSize& Size, ModelEleme
       m_Parent(Parent),
       m_IsRecursiveSelfNotify(false)
 {
-    wxASSERT(m_TYPE==ANIM || m_TYPE==MESH);
+    wxASSERT(m_TYPE==ANIM || m_TYPE==MESH || m_TYPE==GFIX);
 
     // TODO: Make it up to the caller code to call this?
     // // As we are now a wxAUI pane rather than a wxDialog, explicitly set that events are not propagated to our parent.
@@ -173,6 +178,15 @@ void ElementsListT::Notify_AnimChanged(SubjectT* Subject, unsigned int AnimNr)
 }
 
 
+void ElementsListT::Notify_GuiFixtureChanged(SubjectT* Subject, unsigned int GuiFixtureNr)
+{
+    if (m_IsRecursiveSelfNotify) return;
+    if (m_TYPE!=GFIX) return;
+
+    InitListItems();
+}
+
+
 void ElementsListT::Notify_SubjectDies(SubjectT* dyingSubject)
 {
     wxASSERT(dyingSubject==m_ModelDoc);
@@ -185,27 +199,43 @@ void ElementsListT::Notify_SubjectDies(SubjectT* dyingSubject)
 
 void ElementsListT::InitListItems()
 {
-    const unsigned long         NumElems=(m_TYPE==MESH) ? m_ModelDoc->GetModel()->GetMeshes().Size() : m_ModelDoc->GetModel()->GetAnims().Size();
-    const ArrayT<unsigned int>& Sel     =m_ModelDoc->GetSelection(m_TYPE);
+    const ArrayT<unsigned int>& Sel=m_ModelDoc->GetSelection(m_TYPE);
 
     Freeze();
     DeleteAllItems();
 
-    for (unsigned long ElemNr=0; ElemNr<NumElems; ElemNr++)
+    switch (m_TYPE)
     {
-        if (m_TYPE==MESH)
-        {
-            InsertItem(ElemNr, m_ModelDoc->GetModel()->GetMeshes()[ElemNr].Name);
-            SetItem(ElemNr, 1, wxString::Format("%lu", ElemNr));
-            SetItem(ElemNr, 2, m_ModelDoc->GetModel()->GetMeshes()[ElemNr].Material->Name);
-        }
-        else
-        {
-            InsertItem(ElemNr, m_ModelDoc->GetModel()->GetAnims()[ElemNr].Name);
-            SetItem(ElemNr, 1, wxString::Format("%lu", ElemNr));
-        }
+        case MESH:
+            for (unsigned long ElemNr=0; ElemNr<m_ModelDoc->GetModel()->GetMeshes().Size(); ElemNr++)
+            {
+                InsertItem(ElemNr, m_ModelDoc->GetModel()->GetMeshes()[ElemNr].Name);
+                SetItem(ElemNr, 1, wxString::Format("%lu", ElemNr));
+                SetItem(ElemNr, 2, m_ModelDoc->GetModel()->GetMeshes()[ElemNr].Material->Name);
 
-        if (Sel.Find(ElemNr)!=-1) Select(ElemNr);
+                if (Sel.Find(ElemNr)!=-1) Select(ElemNr);
+            }
+            break;
+
+        case ANIM:
+            for (unsigned long ElemNr=0; ElemNr<m_ModelDoc->GetModel()->GetAnims().Size(); ElemNr++)
+            {
+                InsertItem(ElemNr, m_ModelDoc->GetModel()->GetAnims()[ElemNr].Name);
+                SetItem(ElemNr, 1, wxString::Format("%lu", ElemNr));
+
+                if (Sel.Find(ElemNr)!=-1) Select(ElemNr);
+            }
+            break;
+
+        case GFIX:
+            for (unsigned long ElemNr=0; ElemNr<m_ModelDoc->GetModel()->GetGuiFixtures().Size(); ElemNr++)
+            {
+                InsertItem(ElemNr, m_ModelDoc->GetModel()->GetGuiFixtures()[ElemNr].Name);
+                SetItem(ElemNr, 1, wxString::Format("%lu", ElemNr));
+
+                if (Sel.Find(ElemNr)!=-1) Select(ElemNr);
+            }
+            break;
     }
 
     // Set the widths of the columns to the width of their longest item.
@@ -225,7 +255,7 @@ void ElementsListT::OnFocus(wxFocusEvent& FE)
 
 void ElementsListT::OnContextMenu(wxContextMenuEvent& CE)
 {
-    ListContextMenuT ContextMenu;
+    ListContextMenuT ContextMenu(m_TYPE);
 
     PopupMenu(&ContextMenu);
 
@@ -241,6 +271,20 @@ void ElementsListT::OnContextMenu(wxContextMenuEvent& CE)
             const long SelNr=GetFirstSelected();
 
             if (SelNr!=-1) EditLabel(SelNr);
+            break;
+        }
+
+        case ListContextMenuT::ID_MENU_ADD_NEW:
+        {
+            if (m_TYPE==GFIX)
+            {
+                ArrayT<CafuModelT::GuiFixtureT> GuiFixtures;
+
+                GuiFixtures.PushBackEmpty();
+                GuiFixtures[0].Name="New GUI Fixture";
+
+                m_Parent->SubmitCommand(new CommandAddT(m_ModelDoc, GuiFixtures));
+            }
             break;
         }
     }

@@ -71,17 +71,32 @@ void CommandRenameT::Undo()
 
 wxString CommandRenameT::GetName() const
 {
-    return m_Type==JOINT ? "Rename joint" :
-           m_Type==MESH  ? "Rename mesh"  :
-                           "Rename anim";
+    switch (m_Type)
+    {
+        case JOINT: return "Rename joint";
+        case MESH:  return "Rename mesh";
+        case ANIM:  return "Rename anim";
+        case GFIX:  return "Rename GUI fixture";
+    }
+
+    wxASSERT(false);
+    return "???";
 }
 
 
 std::string& CommandRenameT::GetStringRef() const
 {
-    return m_Type==JOINT ? m_ModelDoc->GetModel()->m_Joints[m_ElemNr].Name :
-           m_Type==MESH  ? m_ModelDoc->GetModel()->m_Meshes[m_ElemNr].Name :
-                           m_ModelDoc->GetModel()->m_Anims [m_ElemNr].Name;
+    switch (m_Type)
+    {
+        case JOINT: return m_ModelDoc->GetModel()->m_Joints     [m_ElemNr].Name;
+        case MESH:  return m_ModelDoc->GetModel()->m_Meshes     [m_ElemNr].Name;
+        case ANIM:  return m_ModelDoc->GetModel()->m_Anims      [m_ElemNr].Name;
+        case GFIX:  return m_ModelDoc->GetModel()->m_GuiFixtures[m_ElemNr].Name;
+    }
+
+    wxASSERT(false);
+    static std::string BadType("???");
+    return BadType;
 }
 
 
@@ -89,8 +104,9 @@ void CommandRenameT::UpdateAllObservers() const
 {
     switch (m_Type)
     {
-        case JOINT: m_ModelDoc->UpdateAllObservers_JointChanged(m_ElemNr); break;
-        case MESH:  m_ModelDoc->UpdateAllObservers_MeshChanged (m_ElemNr); break;
-        case ANIM:  m_ModelDoc->UpdateAllObservers_AnimChanged (m_ElemNr); break;
+        case JOINT: m_ModelDoc->UpdateAllObservers_JointChanged     (m_ElemNr); break;
+        case MESH:  m_ModelDoc->UpdateAllObservers_MeshChanged      (m_ElemNr); break;
+        case ANIM:  m_ModelDoc->UpdateAllObservers_AnimChanged      (m_ElemNr); break;
+        case GFIX:  m_ModelDoc->UpdateAllObservers_GuiFixtureChanged(m_ElemNr); break;
     }
 }

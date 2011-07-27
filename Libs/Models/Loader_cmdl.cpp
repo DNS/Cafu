@@ -374,8 +374,60 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Me
 }
 
 
-void LoaderCafuT::Load(ArrayT<CafuModelT::GuiLocT>& GuiLocs)
+void LoaderCafuT::Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures, ArrayT<CafuModelT::GuiLocT>& GuiLocs)
 {
+    // Read the GUI fixtures.
+    lua_getglobal(m_LuaState, "GuiFixtures");
+    {
+        GuiFixtures.Overwrite();
+        GuiFixtures.PushBackEmptyExact(lua_objlen_ul(m_LuaState, -1));
+
+        for (unsigned long FixNr=0; FixNr<GuiFixtures.Size(); FixNr++)
+        {
+            CafuModelT::GuiFixtureT& GuiFixture=GuiFixtures[FixNr];
+
+            lua_rawgeti(m_LuaState, -1, FixNr+1);
+            {
+                lua_getfield(m_LuaState, -1, "name");
+                {
+                    const char* Name=lua_tostring(m_LuaState, -1);
+                    GuiFixture.Name=Name ? Name : "GUI Fixture";
+                }
+                lua_pop(m_LuaState, 1);
+
+                lua_getfield(m_LuaState, -1, "points");
+                for (unsigned int c=0; c<6; c++)
+                {
+                    lua_rawgeti(m_LuaState, -1, c+1);
+                    if ((c % 2)==0) GuiFixture.Points[c/2].MeshNr  =lua_tointeger(m_LuaState, -1);
+                               else GuiFixture.Points[c/2].VertexNr=lua_tointeger(m_LuaState, -1);
+                    lua_pop(m_LuaState, 1);
+                }
+                lua_pop(m_LuaState, 1);
+
+                lua_getfield(m_LuaState, -1, "trans");
+                for (unsigned int c=0; c<2; c++)
+                {
+                    lua_rawgeti(m_LuaState, -1, c+1);
+                    GuiFixture.Trans[c]=float(lua_tonumber(m_LuaState, -1));
+                    lua_pop(m_LuaState, 1);
+                }
+                lua_pop(m_LuaState, 1);
+
+                lua_getfield(m_LuaState, -1, "scale");
+                for (unsigned int c=0; c<2; c++)
+                {
+                    lua_rawgeti(m_LuaState, -1, c+1);
+                    GuiFixture.Scale[c]=float(lua_tonumber(m_LuaState, -1));
+                    lua_pop(m_LuaState, 1);
+                }
+                lua_pop(m_LuaState, 1);
+            }
+            lua_pop(m_LuaState, 1);
+        }
+    }
+    lua_pop(m_LuaState, 1);
+
     // Read the GUI locations.
     lua_getglobal(m_LuaState, "GuiLocs");
     {

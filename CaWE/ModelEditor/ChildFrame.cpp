@@ -23,12 +23,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "AnimInspector.hpp"
 #include "ElementsList.hpp"
 #include "GlobalsInspector.hpp"
+#include "GuiFixtureInspector.hpp"
 #include "JointInspector.hpp"
 #include "JointsHierarchy.hpp"
 #include "MeshInspector.hpp"
 #include "ModelDocument.hpp"
 #include "SceneView3D.hpp"
 #include "ScenePropGrid.hpp"
+#include "Commands/Add.hpp"
 #include "Commands/Delete.hpp"
 
 #include "../GameConfig.hpp"
@@ -84,6 +86,8 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
       m_MeshInspector(NULL),
       m_AnimsList(NULL),
       m_AnimInspector(NULL),
+      m_GuiFixturesList(NULL),
+      m_GuiFixtureInspector(NULL),
       m_ScenePropGrid(NULL),
       m_FileMenu(NULL),
       m_EditMenu(NULL)
@@ -126,14 +130,16 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     item0->Append(m_EditMenu, "&Edit");
 
     wxMenu* ViewMenu=new wxMenu;
-    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_GLOBALS_INSPECTOR, "Globals Inspector",   "Show or hide the global model properties");
-    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_JOINTS_HIERARCHY,  "Joints Hierarchy",    "Show or hide the joints hierarchy (the skeleton)");
-    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_JOINT_INSPECTOR,   "Joint Inspector",     "Show or hide the joint inspector");
-    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_MESHES_LIST,       "Meshes List",         "Show or hide the meshes list");
-    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_MESH_INSPECTOR,    "Mesh Inspector",      "Show or hide the mesh inspector");
-    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_ANIMS_LIST,        "Animations List",     "Show or hide the animations list");
-    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_ANIM_INSPECTOR,    "Animation Inspector", "Show or hide the animation inspector");
-    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_SCENE_SETUP,       "Scene Setup",         "Show or hide the scene setup inspector");
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_GLOBALS_INSPECTOR,    "Globals Inspector",     "Show or hide the global model properties");
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_JOINTS_HIERARCHY,     "Joints Hierarchy",      "Show or hide the joints hierarchy (the skeleton)");
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_JOINT_INSPECTOR,      "Joint Inspector",       "Show or hide the joint inspector");
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_MESHES_LIST,          "Meshes List",           "Show or hide the meshes list");
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_MESH_INSPECTOR,       "Mesh Inspector",        "Show or hide the mesh inspector");
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_ANIMS_LIST,           "Animations List",       "Show or hide the animations list");
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_ANIM_INSPECTOR,       "Animation Inspector",   "Show or hide the animation inspector");
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_GUIFIXTURES_LIST,     "GUI Fixtures List",     "Show or hide the GUI fixtures list");
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_GUIFIXTURE_INSPECTOR, "GUI Fixture Inspector", "Show or hide the GUI fixture inspector");
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_SCENE_SETUP,          "Scene Setup",           "Show or hide the scene setup inspector");
     ViewMenu->AppendSeparator();
     ViewMenu->Append(ID_MENU_VIEW_LOAD_USER_PERSPECTIVE, "&Load user window layout", "Loads the user defined window layout");
     ViewMenu->Append(ID_MENU_VIEW_SAVE_USER_PERSPECTIVE, "&Save user window layout", "Saves the current window layout");
@@ -144,7 +150,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     ModelMenu->AppendRadioItem(ID_MENU_MODEL_ANIM_PLAY,  "&Play anim"/*, "Loads the user defined window layout"*/);
     ModelMenu->AppendRadioItem(ID_MENU_MODEL_ANIM_PAUSE, "P&ause anim"/*, "Loads the user defined window layout"*/);
     ModelMenu->AppendSeparator();
-    ModelMenu->Append(-1, "Set GUI position", "Define the locations where a GUI can be attached")->Enable(false);
+    ModelMenu->Append(ID_MENU_MODEL_GUIFIXTURE_ADD, "Add GUI fixture", "Adds a new GUI fixture to the model");
     ModelMenu->Append(-1, "Run benchmark", "Move the camera along a predefined path and determine the time taken")->Enable(false);
     ModelMenu->AppendSeparator();
     ModelMenu->Append(ID_MENU_MODEL_LOAD_SUBMODEL, "&Load submodel...", "Loads a submodel (such as a weapon) to show with the main model");
@@ -207,6 +213,16 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
                          Name("AnimInspector").Caption("Animation Inspector").
                          Float().Hide());
 
+    m_GuiFixturesList=new ElementsListT(this, wxSize(230, 150), GFIX);
+    m_AUIManager.AddPane(m_GuiFixturesList, wxAuiPaneInfo().
+                         Name("GuiFixturesList").Caption("Gui Fixtures List").
+                         Left().Position(7));
+
+    m_GuiFixtureInspector=new GuiFixInspectorT(this, wxSize(260, 320));
+    m_AUIManager.AddPane(m_GuiFixtureInspector, wxAuiPaneInfo().
+                         Name("GuiFixtureInspector").Caption("GUI Fixture Inspector").
+                         Float().Hide());
+
     m_ScenePropGrid=new ScenePropGridT(this, wxSize(230, 500));
     m_AUIManager.AddPane(m_ScenePropGrid, wxAuiPaneInfo().
                          Name("ScenePropGrid").Caption("Scene Setup").
@@ -233,10 +249,12 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
                          LeftDockable(false).RightDockable(false));
 
     wxAuiToolBar* AnimToolbar=new wxAuiToolBar(this, wxID_ANY);
-    AnimToolbar->AddTool(ID_MENU_MODEL_ANIM_SKIP_BACKWARD,  "Skip backward",  wxArtProvider::GetBitmap("media-skip-backward", wxART_TOOLBAR), "Select previous animation sequence");
-    AnimToolbar->AddTool(ID_MENU_MODEL_ANIM_PLAY,  "Play Anim",  wxArtProvider::GetBitmap("media-playback-start", wxART_TOOLBAR), "Playback the animation sequence", wxITEM_RADIO);
-    AnimToolbar->AddTool(ID_MENU_MODEL_ANIM_PAUSE, "Pause Anim", wxArtProvider::GetBitmap("media-playback-pause", wxART_TOOLBAR), "Pause/stop the animation sequence", wxITEM_RADIO);
+    AnimToolbar->AddTool(ID_MENU_MODEL_ANIM_SKIP_BACKWARD, "Skip backward", wxArtProvider::GetBitmap("media-skip-backward", wxART_TOOLBAR), "Select previous animation sequence");
+    AnimToolbar->AddTool(ID_MENU_MODEL_ANIM_PLAY,          "Play Anim",     wxArtProvider::GetBitmap("media-playback-start", wxART_TOOLBAR), "Playback the animation sequence", wxITEM_RADIO);
+    AnimToolbar->AddTool(ID_MENU_MODEL_ANIM_PAUSE,         "Pause Anim",    wxArtProvider::GetBitmap("media-playback-pause", wxART_TOOLBAR), "Pause/stop the animation sequence", wxITEM_RADIO);
     AnimToolbar->AddTool(ID_MENU_MODEL_ANIM_SKIP_FORWARD,  "Skip forward",  wxArtProvider::GetBitmap("media-skip-forward", wxART_TOOLBAR), "Select next animation sequence");
+    AnimToolbar->AddSeparator();
+    AnimToolbar->AddTool(ID_MENU_MODEL_GUIFIXTURE_ADD, "Add GUI fixture", wxArtProvider::GetBitmap("window-new", wxART_TOOLBAR), "Add GUI fixture");
     AnimToolbar->Realize();
 
     m_AUIManager.AddPane(AnimToolbar, wxAuiPaneInfo().Name("AnimToolbar").
@@ -533,6 +551,7 @@ void ModelEditor::ChildFrameT::ShowRelatedInspector(wxWindow* List, bool DoShow)
          if (List==m_JointsHierarchy) Insp=m_JointInspector;
     else if (List==m_MeshesList)      Insp=m_MeshInspector;
     else if (List==m_AnimsList)       Insp=m_AnimInspector;
+    else if (List==m_GuiFixturesList) Insp=m_GuiFixtureInspector;
 
     if (Insp==NULL) return;
 
@@ -669,14 +688,16 @@ void ModelEditor::ChildFrameT::OnMenuView(wxCommandEvent& CE)
 {
     switch (CE.GetId())
     {
-        case ID_MENU_VIEW_AUIPANE_GLOBALS_INSPECTOR: PaneToggleShow(m_AUIManager.GetPane(m_GlobalsInspector)); break;
-        case ID_MENU_VIEW_AUIPANE_JOINTS_HIERARCHY:  PaneToggleShow(m_AUIManager.GetPane(m_JointsHierarchy )); break;
-        case ID_MENU_VIEW_AUIPANE_JOINT_INSPECTOR:   PaneToggleShow(m_AUIManager.GetPane(m_JointInspector  )); break;
-        case ID_MENU_VIEW_AUIPANE_MESHES_LIST:       PaneToggleShow(m_AUIManager.GetPane(m_MeshesList      )); break;
-        case ID_MENU_VIEW_AUIPANE_MESH_INSPECTOR:    PaneToggleShow(m_AUIManager.GetPane(m_MeshInspector   )); break;
-        case ID_MENU_VIEW_AUIPANE_ANIMS_LIST:        PaneToggleShow(m_AUIManager.GetPane(m_AnimsList       )); break;
-        case ID_MENU_VIEW_AUIPANE_ANIM_INSPECTOR:    PaneToggleShow(m_AUIManager.GetPane(m_AnimInspector   )); break;
-        case ID_MENU_VIEW_AUIPANE_SCENE_SETUP:       PaneToggleShow(m_AUIManager.GetPane(m_ScenePropGrid   )); break;
+        case ID_MENU_VIEW_AUIPANE_GLOBALS_INSPECTOR:    PaneToggleShow(m_AUIManager.GetPane(m_GlobalsInspector   )); break;
+        case ID_MENU_VIEW_AUIPANE_JOINTS_HIERARCHY:     PaneToggleShow(m_AUIManager.GetPane(m_JointsHierarchy    )); break;
+        case ID_MENU_VIEW_AUIPANE_JOINT_INSPECTOR:      PaneToggleShow(m_AUIManager.GetPane(m_JointInspector     )); break;
+        case ID_MENU_VIEW_AUIPANE_MESHES_LIST:          PaneToggleShow(m_AUIManager.GetPane(m_MeshesList         )); break;
+        case ID_MENU_VIEW_AUIPANE_MESH_INSPECTOR:       PaneToggleShow(m_AUIManager.GetPane(m_MeshInspector      )); break;
+        case ID_MENU_VIEW_AUIPANE_ANIMS_LIST:           PaneToggleShow(m_AUIManager.GetPane(m_AnimsList          )); break;
+        case ID_MENU_VIEW_AUIPANE_ANIM_INSPECTOR:       PaneToggleShow(m_AUIManager.GetPane(m_AnimInspector      )); break;
+        case ID_MENU_VIEW_AUIPANE_GUIFIXTURES_LIST:     PaneToggleShow(m_AUIManager.GetPane(m_GuiFixturesList    )); break;
+        case ID_MENU_VIEW_AUIPANE_GUIFIXTURE_INSPECTOR: PaneToggleShow(m_AUIManager.GetPane(m_GuiFixtureInspector)); break;
+        case ID_MENU_VIEW_AUIPANE_SCENE_SETUP:          PaneToggleShow(m_AUIManager.GetPane(m_ScenePropGrid      )); break;
 
         case ID_MENU_VIEW_LOAD_DEFAULT_PERSPECTIVE:
             m_AUIManager.LoadPerspective(AUIDefaultPerspective);
@@ -697,14 +718,16 @@ void ModelEditor::ChildFrameT::OnMenuViewUpdate(wxUpdateUIEvent& UE)
 {
     switch (UE.GetId())
     {
-        case ID_MENU_VIEW_AUIPANE_GLOBALS_INSPECTOR: UE.Check(m_AUIManager.GetPane(m_GlobalsInspector).IsShown()); break;
-        case ID_MENU_VIEW_AUIPANE_JOINTS_HIERARCHY:  UE.Check(m_AUIManager.GetPane(m_JointsHierarchy ).IsShown()); break;
-        case ID_MENU_VIEW_AUIPANE_JOINT_INSPECTOR:   UE.Check(m_AUIManager.GetPane(m_JointInspector  ).IsShown()); break;
-        case ID_MENU_VIEW_AUIPANE_MESHES_LIST:       UE.Check(m_AUIManager.GetPane(m_MeshesList      ).IsShown()); break;
-        case ID_MENU_VIEW_AUIPANE_MESH_INSPECTOR:    UE.Check(m_AUIManager.GetPane(m_MeshInspector   ).IsShown()); break;
-        case ID_MENU_VIEW_AUIPANE_ANIMS_LIST:        UE.Check(m_AUIManager.GetPane(m_AnimsList       ).IsShown()); break;
-        case ID_MENU_VIEW_AUIPANE_ANIM_INSPECTOR:    UE.Check(m_AUIManager.GetPane(m_AnimInspector   ).IsShown()); break;
-        case ID_MENU_VIEW_AUIPANE_SCENE_SETUP:       UE.Check(m_AUIManager.GetPane(m_ScenePropGrid   ).IsShown()); break;
+        case ID_MENU_VIEW_AUIPANE_GLOBALS_INSPECTOR:    UE.Check(m_AUIManager.GetPane(m_GlobalsInspector   ).IsShown()); break;
+        case ID_MENU_VIEW_AUIPANE_JOINTS_HIERARCHY:     UE.Check(m_AUIManager.GetPane(m_JointsHierarchy    ).IsShown()); break;
+        case ID_MENU_VIEW_AUIPANE_JOINT_INSPECTOR:      UE.Check(m_AUIManager.GetPane(m_JointInspector     ).IsShown()); break;
+        case ID_MENU_VIEW_AUIPANE_MESHES_LIST:          UE.Check(m_AUIManager.GetPane(m_MeshesList         ).IsShown()); break;
+        case ID_MENU_VIEW_AUIPANE_MESH_INSPECTOR:       UE.Check(m_AUIManager.GetPane(m_MeshInspector      ).IsShown()); break;
+        case ID_MENU_VIEW_AUIPANE_ANIMS_LIST:           UE.Check(m_AUIManager.GetPane(m_AnimsList          ).IsShown()); break;
+        case ID_MENU_VIEW_AUIPANE_ANIM_INSPECTOR:       UE.Check(m_AUIManager.GetPane(m_AnimInspector      ).IsShown()); break;
+        case ID_MENU_VIEW_AUIPANE_GUIFIXTURES_LIST:     UE.Check(m_AUIManager.GetPane(m_GuiFixturesList    ).IsShown()); break;
+        case ID_MENU_VIEW_AUIPANE_GUIFIXTURE_INSPECTOR: UE.Check(m_AUIManager.GetPane(m_GuiFixtureInspector).IsShown()); break;
+        case ID_MENU_VIEW_AUIPANE_SCENE_SETUP:          UE.Check(m_AUIManager.GetPane(m_ScenePropGrid      ).IsShown()); break;
     }
 }
 
@@ -714,7 +737,7 @@ void ModelEditor::ChildFrameT::OnMenuModel(wxCommandEvent& CE)
     switch (CE.GetId())
     {
         case ID_MENU_MODEL_ANIM_SKIP_FORWARD:
-         {
+        {
             const ArrayT<unsigned int> OldSel=m_ModelDoc->GetSelection(ANIM);
             m_ModelDoc->SetSelection(ANIM, m_ModelDoc->GetSelection_NextAnimSequ());
             m_ModelDoc->UpdateAllObservers_SelectionChanged(ANIM, OldSel, m_ModelDoc->GetSelection(ANIM));
@@ -746,6 +769,17 @@ void ModelEditor::ChildFrameT::OnMenuModel(wxCommandEvent& CE)
         {
             m_ModelDoc->SetAnimSpeed(0.0f);
             m_ModelDoc->UpdateAllObservers_AnimStateChanged();
+            break;
+        }
+
+        case ID_MENU_MODEL_GUIFIXTURE_ADD:
+        {
+            ArrayT<CafuModelT::GuiFixtureT> GuiFixtures;
+
+            GuiFixtures.PushBackEmpty();
+            GuiFixtures[0].Name="New GUI Fixture";
+
+            SubmitCommand(new CommandAddT(m_ModelDoc, GuiFixtures));
             break;
         }
 

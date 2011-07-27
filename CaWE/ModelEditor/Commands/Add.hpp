@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MODELEDITOR_COMMAND_DELETE_HPP_
-#define _MODELEDITOR_COMMAND_DELETE_HPP_
+#ifndef _MODELEDITOR_COMMAND_ADD_HPP_
+#define _MODELEDITOR_COMMAND_ADD_HPP_
 
 #include "../../CommandPattern.hpp"
 #include "../ElementTypes.hpp"
@@ -33,14 +33,11 @@ namespace ModelEditor
     class ModelDocumentT;
 
 
-    class CommandDeleteT : public CommandT
+    class CommandAddT : public CommandT
     {
         public:
 
-        CommandDeleteT(ModelDocumentT* ModelDoc, ModelElementTypeT Type, const ArrayT<unsigned int>& Indices);
-        ~CommandDeleteT();
-
-        const wxString& GetMessage() const { return m_Message; }
+        CommandAddT(ModelDocumentT* ModelDoc, const ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures);
 
         // CommandT implementation.
         bool Do();
@@ -52,14 +49,11 @@ namespace ModelEditor
 
         ModelDocumentT*                 m_ModelDoc;
         const ModelElementTypeT         m_Type;
-        const ArrayT<unsigned int>      m_Indices;
-        ArrayT<CafuModelT::JointT>      m_Joints;           ///< The deleted joints (if m_Type==JOINT).
-        ArrayT<CafuModelT::MeshT>       m_Meshes;           ///< The deleted meshes (if m_Type==MESH).
-        ArrayT<MatSys::MeshT>           m_DrawMs;           ///< The draw meshes related to m_Meshes.
-        ArrayT<CafuModelT::AnimT>       m_Anims;            ///< The deleted anims (if m_Type==ANIM).
-        ArrayT<CafuModelT::GuiFixtureT> m_GuiFixtures;      ///< The deleted GUI fixtures (if m_Type==GFIX).
-        wxString                        m_Message;          ///< Calling Do() may place an error or info message here that the caller is supposed to show to the user (when the command is first run).
-        CommandSelectT*                 m_CommandSelect;    ///< The command that unselects the elements before they are deleted.
+     // ArrayT<CafuModelT::JointT>      m_Joints;       ///< The added joints (if m_Type==JOINT).
+     // ArrayT<CafuModelT::MeshT>       m_Meshes;       ///< The added meshes (if m_Type==MESH).
+     // ArrayT<MatSys::MeshT>           m_DrawMs;       ///< The draw meshes related to m_Meshes.
+     // ArrayT<CafuModelT::AnimT>       m_Anims;        ///< The added anims (if m_Type==ANIM).
+        ArrayT<CafuModelT::GuiFixtureT> m_GuiFixtures;  ///< The added GUI fixtures (if m_Type==GFIX).
     };
 }
 

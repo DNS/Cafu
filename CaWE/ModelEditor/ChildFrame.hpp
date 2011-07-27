@@ -36,6 +36,7 @@ namespace ModelEditor
     class AnimInspectorT;
     class ElementsListT;
     class GlobalsInspectorT;
+    class GuiFixInspectorT;
     class JointInspectorT;
     class JointsHierarchyT;
     class MeshInspectorT;
@@ -68,14 +69,14 @@ namespace ModelEditor
         bool Save(bool AskForFileName=false);
 
         /// This method shows or hides the pane of the detail inspector that is related to the given list view.
-        /// The method does nothing if the given list view is not the joints hierarchy, the meshes list or the anims list.
+        /// The method does nothing if the given list view is not the joints hierarchy, the meshes list, the anims list or the GUI fixtures list.
         void ShowRelatedInspector(wxWindow* List, bool DoShow=true);
 
         /// Returns the type of the most recently used (clicked) model element.
         const ModelElementTypeT GetLastUsedType() const { return m_LastUsedType; }
 
         /// Sets the type of the most recently used (clicked) model element.
-        void SetLastUsedType(ModelElementTypeT Type) { wxASSERT(Type<3); m_LastUsedType=Type; }
+        void SetLastUsedType(ModelElementTypeT Type) { wxASSERT(Type<4); m_LastUsedType=Type; }
 
         ModelDocumentT* GetModelDoc() const { return m_ModelDoc; }
         ScenePropGridT* GetScenePropGrid() const { return m_ScenePropGrid; }
@@ -105,6 +106,8 @@ namespace ModelEditor
         MeshInspectorT*    m_MeshInspector;
         ElementsListT*     m_AnimsList;
         AnimInspectorT*    m_AnimInspector;
+        ElementsListT*     m_GuiFixturesList;
+        GuiFixInspectorT*  m_GuiFixtureInspector;
         ScenePropGridT*    m_ScenePropGrid;
 
         wxMenu*            m_FileMenu;
@@ -124,6 +127,8 @@ namespace ModelEditor
             ID_MENU_VIEW_AUIPANE_MESH_INSPECTOR,
             ID_MENU_VIEW_AUIPANE_ANIMS_LIST,
             ID_MENU_VIEW_AUIPANE_ANIM_INSPECTOR,
+            ID_MENU_VIEW_AUIPANE_GUIFIXTURES_LIST,
+            ID_MENU_VIEW_AUIPANE_GUIFIXTURE_INSPECTOR,
             ID_MENU_VIEW_AUIPANE_SCENE_SETUP,
             ID_MENU_VIEW_LOAD_DEFAULT_PERSPECTIVE,
             ID_MENU_VIEW_LOAD_USER_PERSPECTIVE,
@@ -133,6 +138,7 @@ namespace ModelEditor
             ID_MENU_MODEL_ANIM_PLAY,
             ID_MENU_MODEL_ANIM_PAUSE,
             ID_MENU_MODEL_ANIM_SKIP_FORWARD,
+            ID_MENU_MODEL_GUIFIXTURE_ADD,
             ID_MENU_MODEL_LOAD_SUBMODEL,
             ID_MENU_MODEL_UNLOAD_SUBMODEL
         };

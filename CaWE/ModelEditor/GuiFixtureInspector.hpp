@@ -19,11 +19,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MODELEDITOR_ELEMENTS_LIST_HPP_
-#define _MODELEDITOR_ELEMENTS_LIST_HPP_
+#ifndef _MODELEDITOR_GUI_FIXTURE_INSPECTOR_HPP_
+#define _MODELEDITOR_GUI_FIXTURE_INSPECTOR_HPP_
 
 #include "ObserverPattern.hpp"
-#include "wx/listctrl.h"
+#include "wx/wx.h"
+#include "wx/propgrid/manager.h"
 
 
 namespace ModelEditor
@@ -31,45 +32,29 @@ namespace ModelEditor
     class ChildFrameT;
     class ModelDocumentT;
 
-
-    /// A control for displaying a list of the elements (meshes or animations) of the model.
-    class ElementsListT : public wxListView, public ObserverT
+    class GuiFixInspectorT : public wxPropertyGridManager, public ObserverT
     {
         public:
 
-        /// The constructor.
-        ElementsListT(ChildFrameT* Parent, const wxSize& Size, ModelElementTypeT Type);
-
-        /// The destructor.
-        ~ElementsListT();
+        GuiFixInspectorT(ChildFrameT* Parent, const wxSize& Size);
+        ~GuiFixInspectorT();
 
         // ObserverT implementation.
         void Notify_SelectionChanged(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel);
-        void Notify_Created(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& Indices);
-        void Notify_Deleted(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& Indices);
-        void Notify_MeshChanged(SubjectT* Subject, unsigned int MeshNr);
-        void Notify_AnimChanged(SubjectT* Subject, unsigned int AnimNr);
         void Notify_GuiFixtureChanged(SubjectT* Subject, unsigned int GuiFixtureNr);
         void Notify_SubjectDies(SubjectT* dyingSubject);
 
 
         private:
 
-        void InitListItems();
-
-        void OnFocus           (wxFocusEvent&       FE);
-        void OnContextMenu     (wxContextMenuEvent& CE);
-        void OnKeyDown         (wxListEvent&        LE);
-        void OnItemActivated   (wxListEvent&        LE);    ///< The item has been activated (ENTER or double click).
-        void OnSelectionChanged(wxListEvent&        LE);
-        void OnEndLabelEdit    (wxListEvent&        LE);
+        void RefreshPropGrid();
+        void OnPropertyGridChanging(wxPropertyGridEvent& Event);
 
         DECLARE_EVENT_TABLE()
 
-        const ModelElementTypeT m_TYPE;
-        ModelDocumentT*         m_ModelDoc;
-        ChildFrameT*            m_Parent;
-        bool                    m_IsRecursiveSelfNotify;
+        ModelDocumentT* m_ModelDoc;
+        ChildFrameT*    m_Parent;
+        bool            m_IsRecursiveSelfNotify;
     };
 }
 

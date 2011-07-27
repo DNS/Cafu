@@ -19,30 +19,36 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _LIGHTWAVE_OBJECT_LOADER_HPP_
-#define _LIGHTWAVE_OBJECT_LOADER_HPP_
+#ifndef _MODELEDITOR_UPDATE_GUI_FIXTURE_HPP_
+#define _MODELEDITOR_UPDATE_GUI_FIXTURE_HPP_
 
-#include "Loader.hpp"
+#include "../../CommandPattern.hpp"
+#include "Models/Loader_cmdl.hpp"
 
 
-/// This class imports a LightWave Object (.lwo) file into a new Cafu model.
-class LoaderLwoT : public ModelLoaderT
+namespace ModelEditor
 {
-    public:
+    class ModelDocumentT;
 
-    /// The constructor for importing a LightWave Object (.lwo) file into a new Cafu model.
-    /// @param FileName   The name of the .lwo file to import.
-    /// @param Flags      The flags to load the model with. See ModelLoaderT::FlagsT for details.
-    LoaderLwoT(const std::string& FileName, int Flags=NONE) /*throw (ModelT::LoadError)*/;
+    class CommandUpdateGuiFixtureT : public CommandT
+    {
+        public:
 
-    bool UseGivenTS() const { return true; }
-    void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan);
-    void Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures, ArrayT<CafuModelT::GuiLocT>& GuiLocs) { }
+        CommandUpdateGuiFixtureT(ModelDocumentT* ModelDoc, unsigned int GFNr, const CafuModelT::GuiFixtureT& GF);
+
+        // CommandT implementation.
+        bool Do();
+        void Undo();
+        wxString GetName() const;
 
 
-    private:
+        private:
 
-    void ComputeTangents(const CafuModelT::MeshT& Mesh, const unsigned long TriangleNr, Vector3fT& Tangent, Vector3fT& BiTangent) const;
-};
+        ModelDocumentT*               m_ModelDoc;
+        const unsigned int            m_GFNr;
+        const CafuModelT::GuiFixtureT m_NewGF;
+        const CafuModelT::GuiFixtureT m_OldGF;
+    };
+}
 
 #endif

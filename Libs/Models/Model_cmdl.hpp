@@ -33,12 +33,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 class MaterialT;
 class ModelLoaderT;
 namespace MatSys { class RenderMaterialT; }
+namespace ModelEditor { class CommandAddT; }
 namespace ModelEditor { class CommandDeleteT; }
 namespace ModelEditor { class CommandRenameT; }
 namespace ModelEditor { class CommandSetAnimFPST; }
 namespace ModelEditor { class CommandSetAnimNextT; }
 namespace ModelEditor { class CommandSetMeshMaterialT; }
 namespace ModelEditor { class CommandTransformJointT; }
+namespace ModelEditor { class CommandUpdateGuiFixtureT; }
 
 
 /// This class represents a native Cafu model.
@@ -155,6 +157,40 @@ class CafuModelT : public ModelT
     };
 
 
+    /// This struct defines how and where a GUI can be fixed to the model.
+    /// The GUI rectangle is defined by three points: the origin, the x-axis endpoint, and the y-axis endpoint, numbered 0, 1 and 2.
+    /// Each point is represented by an arbitrary vertex of one of meshes in the model.
+    /// The whole GUI rectangle can be translated and scaled, in order to compensate for cases where the mesh vertices do not
+    /// exactly match the desired rectangle dimensions.
+    /// More than one GUI can be fixed to a model, and if the referenced mesh vertices are animated, the GUI rectangle is animated, too.
+    struct GuiFixtureT
+    {
+        GuiFixtureT();
+
+        struct PointT
+        {
+            unsigned int MeshNr;
+            unsigned int VertexNr;
+        };
+
+        std::string Name;
+        PointT      Points[3];
+        float       Trans[2];
+        float       Scale[2];
+    };
+
+
+    /// This structure is used to describe the locations where GUIs can be attached to the model.
+    /// Note that the current static/fixed-position implementation (origin, x- and y-axis) is temporary though,
+    /// it should eventually be possible to attach GUIs even to animated models.
+    struct GuiLocT
+    {
+        Vector3fT Origin;
+        Vector3fT AxisX;
+        Vector3fT AxisY;
+    };
+
+
     /// This struct describes information about a parent or "super" model whose skeleton pose should be used when rendering this model.
     /// For example, a player model can act as the super model for a weapon, so that the skeleton of the weapon is copied from the
     /// player model in order to align the weapon with the hands of the player.
@@ -178,17 +214,6 @@ class CafuModelT : public ModelT
     };
 
 
-    /// This structure is used to describe the locations where GUIs can be attached to the model.
-    /// Note that the current static/fixed-position implementation (origin, x- and y-axis) is temporary though,
-    /// it should eventually be possible to attach GUIs even to animated models.
-    struct GuiLocT
-    {
-        Vector3fT Origin;
-        Vector3fT AxisX;
-        Vector3fT AxisY;
-    };
-
-
     /// The constructor. Creates a new Cafu model from a file as directed by the given model loader.
     /// @param Loader   The model loader that actually imports the file and fills in the model data.
     CafuModelT(ModelLoaderT& Loader);
@@ -202,9 +227,10 @@ class CafuModelT : public ModelT
     // Inspector methods.
     bool GetUseGivenTS() const { return m_UseGivenTangentSpace; }
     const MaterialManagerImplT& GetMaterialManager() const { return m_MaterialMan; }
-    const ArrayT<JointT>& GetJoints() const { return m_Joints; }
-    const ArrayT<MeshT>&  GetMeshes() const { return m_Meshes; }
-    const ArrayT<AnimT>&  GetAnims()  const { return m_Anims; }
+    const ArrayT<JointT>&       GetJoints() const { return m_Joints; }
+    const ArrayT<MeshT>&        GetMeshes() const { return m_Meshes; }
+    const ArrayT<AnimT>&        GetAnims() const { return m_Anims; }
+    const ArrayT<GuiFixtureT>&  GetGuiFixtures() const { return m_GuiFixtures; }
 
     /// This method returns the set of drawing matrices (one per joint) at the given sequence and frame number.
     const ArrayT<MatrixT>& GetDrawJointMatrices(int SequenceNr, float FrameNr, const SuperT* Super=NULL) const;
@@ -215,6 +241,12 @@ class CafuModelT : public ModelT
     /// @param LodDist      The distance to the camera for reducing the level-of-detail (currently unused).
     /// @param Super        Information about a parent or "super" model whose skeleton pose should be used when rendering this model.
     void Draw(int SequenceNr, float FrameNr, float LodDist, const SuperT* Super=NULL) const;
+
+    /// Determines if <tt>GF.Points[PointNr].MeshNr</tt> is a valid index into this model.
+    bool IsMeshNrOK(const GuiFixtureT& GF, unsigned int PointNr) const;
+
+    /// Determines if <tt>GF.Points[PointNr].VertexNr</tt> is a valid index into this model.
+    bool IsVertexNrOK(const GuiFixtureT& GF, unsigned int PointNr) const;
 
     // The ModelT interface.
     const std::string& GetFileName() const;     // TODO: Remove!?!
@@ -230,12 +262,14 @@ class CafuModelT : public ModelT
 
     private:
 
+    friend class ModelEditor::CommandAddT;
     friend class ModelEditor::CommandDeleteT;
     friend class ModelEditor::CommandRenameT;
     friend class ModelEditor::CommandSetAnimFPST;
     friend class ModelEditor::CommandSetAnimNextT;
     friend class ModelEditor::CommandSetMeshMaterialT;
     friend class ModelEditor::CommandTransformJointT;
+    friend class ModelEditor::CommandUpdateGuiFixtureT;
 
     void InitMeshes();                                                                      ///< An auxiliary method for the constructors.
     void UpdateCachedDrawData(int SequenceNr, float FrameNr, const SuperT* Super) const;    ///< A private auxiliary method.
@@ -250,6 +284,7 @@ class CafuModelT : public ModelT
     const bool            m_UseGivenTangentSpace;   ///< Whether this model should use the fixed, given tangent space that was loaded from the model file, or it the tangent space is dynamically recomputed (useful for animated models).
  // const bool            m_CastShadows;            ///< Should this model cast shadows?
     BoundingBox3fT        m_BasePoseBB;             ///< The bounding-box for the base pose of the model.
+    ArrayT<GuiFixtureT>   m_GuiFixtures;            ///< Array of GUI fixtures in the model.
     ArrayT<GuiLocT>       m_GuiLocs;                ///< Array of locations where GUIs can be attached to this model.
 
 
