@@ -206,6 +206,10 @@ void ElementsListT::InitListItems()
 
     switch (m_TYPE)
     {
+        case JOINT:
+            wxASSERT(false);
+            break;
+
         case MESH:
             for (unsigned long ElemNr=0; ElemNr<m_ModelDoc->GetModel()->GetMeshes().Size(); ElemNr++)
             {
