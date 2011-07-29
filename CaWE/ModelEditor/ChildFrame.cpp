@@ -193,7 +193,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
                          Name("JointInspector").Caption("Joint Inspector").
                          Float().Hide());
 
-    m_MeshesList=new ElementsListT(this, wxSize(230, 400), MESH);
+    m_MeshesList=new ElementsPanelT(this, wxSize(230, 400), MESH);
     m_AUIManager.AddPane(m_MeshesList, wxAuiPaneInfo().
                          Name("MeshesList").Caption("Meshes List").
                          Left().Position(3));
@@ -203,7 +203,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
                          Name("MeshInspector").Caption("Mesh Inspector").
                          Float().Hide());
 
-    m_AnimsList=new ElementsListT(this, wxSize(230, 400), ANIM);
+    m_AnimsList=new ElementsPanelT(this, wxSize(230, 400), ANIM);
     m_AUIManager.AddPane(m_AnimsList, wxAuiPaneInfo().
                          Name("AnimsList").Caption("Animations List").
                          Left().Position(5));
@@ -213,7 +213,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
                          Name("AnimInspector").Caption("Animation Inspector").
                          Float().Hide());
 
-    m_GuiFixturesList=new ElementsListT(this, wxSize(230, 150), GFIX);
+    m_GuiFixturesList=new ElementsPanelT(this, wxSize(230, 150), GFIX);
     m_AUIManager.AddPane(m_GuiFixturesList, wxAuiPaneInfo().
                          Name("GuiFixturesList").Caption("Gui Fixtures List").
                          Left().Position(7));

@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Commands/Delete.hpp"
 #include "Commands/Rename.hpp"
 #include "Commands/Select.hpp"
+#include "../ArtProvider.hpp"
 
 #include "MaterialSystem/Material.hpp"
 #include "Models/Model_cmdl.hpp"
@@ -94,11 +95,11 @@ BEGIN_EVENT_TABLE(ElementsListT, wxListView)
 END_EVENT_TABLE()
 
 
-ElementsListT::ElementsListT(ChildFrameT* Parent, const wxSize& Size, ModelElementTypeT Type)
+ElementsListT::ElementsListT(ChildFrameT* MainFrame, wxWindow* Parent, const wxSize& Size, ModelElementTypeT Type)
     : wxListView(Parent, wxID_ANY, wxDefaultPosition, Size, wxLC_REPORT | wxLC_EDIT_LABELS),
       m_TYPE(Type),
-      m_ModelDoc(Parent->GetModelDoc()),
-      m_Parent(Parent),
+      m_ModelDoc(MainFrame->GetModelDoc()),
+      m_MainFrame(MainFrame),
       m_IsRecursiveSelfNotify(false)
 {
     wxASSERT(m_TYPE==ANIM || m_TYPE==MESH || m_TYPE==GFIX);
@@ -252,7 +253,7 @@ void ElementsListT::InitListItems()
 
 void ElementsListT::OnFocus(wxFocusEvent& FE)
 {
-    m_Parent->SetLastUsedType(m_TYPE);
+    m_MainFrame->SetLastUsedType(m_TYPE);
     FE.Skip();
 }
 
@@ -267,7 +268,7 @@ void ElementsListT::OnContextMenu(wxContextMenuEvent& CE)
     {
         case ListContextMenuT::ID_MENU_INSPECT_EDIT:
             // Make sure that the AUI pane for the inspector related to this joints hierarchy is shown.
-            m_Parent->ShowRelatedInspector(this);
+            m_MainFrame->ShowRelatedInspector(this);
             break;
 
         case ListContextMenuT::ID_MENU_RENAME:
@@ -287,7 +288,7 @@ void ElementsListT::OnContextMenu(wxContextMenuEvent& CE)
                 GuiFixtures.PushBackEmpty();
                 GuiFixtures[0].Name="New GUI Fixture";
 
-                m_Parent->SubmitCommand(new CommandAddT(m_ModelDoc, GuiFixtures));
+                m_MainFrame->SubmitCommand(new CommandAddT(m_ModelDoc, GuiFixtures));
             }
             break;
         }
@@ -320,7 +321,7 @@ void ElementsListT::OnItemActivated(wxListEvent& LE)
     if (m_ModelDoc==NULL) return;
 
     // Make sure that the AUI pane for the inspector related to this elements list is shown.
-    m_Parent->ShowRelatedInspector(this);
+    m_MainFrame->ShowRelatedInspector(this);
 }
 
 
@@ -337,7 +338,7 @@ void ElementsListT::OnSelectionChanged(wxListEvent& LE)
     for (long SelNr=GetFirstSelected(); SelNr!=-1; SelNr=GetNextSelected(SelNr))
         NewSel.PushBack(SelNr);
 
-    m_Parent->SubmitCommand(CommandSelectT::Set(m_ModelDoc, m_TYPE, NewSel));
+    m_MainFrame->SubmitCommand(CommandSelectT::Set(m_ModelDoc, m_TYPE, NewSel));
 
     m_IsRecursiveSelfNotify=false;
 }
@@ -350,6 +351,117 @@ void ElementsListT::OnEndLabelEdit(wxListEvent& LE)
     if (LE.IsEditCancelled()) return;
 
     m_IsRecursiveSelfNotify=true;
-    m_Parent->SubmitCommand(new CommandRenameT(m_ModelDoc, m_TYPE, Index, LE.GetLabel()));
+    m_MainFrame->SubmitCommand(new CommandRenameT(m_ModelDoc, m_TYPE, Index, LE.GetLabel()));
     m_IsRecursiveSelfNotify=false;
+}
+
+
+BEGIN_EVENT_TABLE(ElementsPanelT, wxPanel)
+    EVT_BUTTON(ID_BUTTON_ADD,    ElementsPanelT::OnButton)
+    EVT_BUTTON(ID_BUTTON_UP,     ElementsPanelT::OnButton)
+    EVT_BUTTON(ID_BUTTON_DOWN,   ElementsPanelT::OnButton)
+    EVT_BUTTON(ID_BUTTON_DELETE, ElementsPanelT::OnButton)
+    EVT_UPDATE_UI_RANGE(ID_BUTTON_ADD, ID_BUTTON_DELETE, ElementsPanelT::OnButtonUpdate)
+END_EVENT_TABLE()
+
+
+ElementsPanelT::ElementsPanelT(ChildFrameT* MainFrame, const wxSize& Size, ModelElementTypeT Type)
+    : wxPanel(MainFrame, -1, wxDefaultPosition, Size),
+      m_TYPE(Type),
+      m_ModelDoc(MainFrame->GetModelDoc()),
+      m_MainFrame(MainFrame),
+      m_List(NULL)
+{
+    // As we are a wxAUI pane rather than a wxDialog, explicitly set that events are not propagated to our parent.
+    SetExtraStyle(wxWS_EX_BLOCK_EVENTS);
+
+    wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
+
+    wxBoxSizer *item7 = new wxBoxSizer( wxHORIZONTAL );
+
+    wxButton* button1 = new wxButton(this, ID_BUTTON_ADD, wxT("add"), wxDefaultPosition, wxSize(22, -1), wxBU_EXACTFIT | wxBU_NOTEXT );
+    button1->SetBitmap(wxArtProvider::GetBitmap("list-add", wxART_BUTTON));
+    item7->Add(button1, 1, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
+
+    wxButton* button2 = new wxButton(this, ID_BUTTON_UP, wxT("up"), wxDefaultPosition, wxSize(22, -1), wxBU_EXACTFIT | wxBU_NOTEXT );
+    button2->SetBitmap(wxArtProvider::GetBitmap("list-selection-up", wxART_BUTTON));
+    item7->Add(button2, 1, wxALIGN_CENTER|wxRIGHT, 5 );
+
+    wxButton* button3 = new wxButton(this, ID_BUTTON_DOWN, wxT("down"), wxDefaultPosition, wxSize(22, -1), wxBU_EXACTFIT | wxBU_NOTEXT );
+    button3->SetBitmap(wxArtProvider::GetBitmap("list-selection-down", wxART_BUTTON));
+    item7->Add(button3, 1, wxALIGN_CENTER|wxRIGHT, 5 );
+
+    wxButton* button4 = new wxButton(this, ID_BUTTON_DELETE, wxT("del"), wxDefaultPosition, wxSize(22, -1), wxBU_EXACTFIT | wxBU_NOTEXT );
+    button4->SetBitmap(wxArtProvider::GetBitmap("list-remove", wxART_BUTTON));
+    item7->Add(button4, 1, wxALIGN_CENTER|wxRIGHT, 5 );
+
+    item0->Add( item7, 0, wxEXPAND | wxTOP | wxBOTTOM, 3 );
+
+    m_List=new ElementsListT(MainFrame, this, /*ID_LISTVIEW,*/ wxDefaultSize, Type);
+    item0->Add(m_List, 1, wxEXPAND, 0 );
+
+    this->SetSizer( item0 );
+    item0->SetSizeHints(this);
+}
+
+
+void ElementsPanelT::OnButton(wxCommandEvent& Event)
+{
+    switch (Event.GetId())
+    {
+        case ID_BUTTON_ADD:
+        {
+            if (m_TYPE==GFIX)
+            {
+                ArrayT<CafuModelT::GuiFixtureT> GuiFixtures;
+
+                GuiFixtures.PushBackEmpty();
+                GuiFixtures[0].Name="New GUI Fixture";
+
+                m_MainFrame->SubmitCommand(new CommandAddT(m_ModelDoc, GuiFixtures));
+            }
+            break;
+        }
+
+        case ID_BUTTON_DELETE:
+        {
+            CommandDeleteT* DelCmd=new CommandDeleteT(m_ModelDoc, m_TYPE, m_ModelDoc->GetSelection(m_TYPE));
+            bool            Result=DelCmd->Do();
+
+            if (DelCmd->GetMessage()!="") wxMessageBox(DelCmd->GetMessage(), "Delete");
+            if (Result) m_MainFrame->SubmitCommand(DelCmd); else delete DelCmd;
+            break;
+        }
+    }
+}
+
+
+void ElementsPanelT::OnButtonUpdate(wxUpdateUIEvent& UE)
+{
+    switch (UE.GetId())
+    {
+        case ID_BUTTON_ADD:
+        {
+            UE.Enable(m_TYPE==GFIX);
+            break;
+        }
+
+        case ID_BUTTON_UP:
+        {
+            UE.Enable(false);
+            break;
+        }
+
+        case ID_BUTTON_DOWN:
+        {
+            UE.Enable(false);
+            break;
+        }
+
+        case ID_BUTTON_DELETE:
+        {
+            UE.Enable(m_ModelDoc->GetSelection(m_TYPE).Size()>0);
+            break;
+        }
+    }
 }

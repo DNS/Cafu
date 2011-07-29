@@ -34,7 +34,7 @@ class ParentFrameT;
 namespace ModelEditor
 {
     class AnimInspectorT;
-    class ElementsListT;
+    class ElementsPanelT;
     class GlobalsInspectorT;
     class GuiFixInspectorT;
     class JointInspectorT;
@@ -102,11 +102,11 @@ namespace ModelEditor
         GlobalsInspectorT* m_GlobalsInspector;
         JointsHierarchyT*  m_JointsHierarchy;
         JointInspectorT*   m_JointInspector;
-        ElementsListT*     m_MeshesList;
+        ElementsPanelT*    m_MeshesList;
         MeshInspectorT*    m_MeshInspector;
-        ElementsListT*     m_AnimsList;
+        ElementsPanelT*    m_AnimsList;
         AnimInspectorT*    m_AnimInspector;
-        ElementsListT*     m_GuiFixturesList;
+        ElementsPanelT*    m_GuiFixturesList;
         GuiFixInspectorT*  m_GuiFixtureInspector;
         ScenePropGridT*    m_ScenePropGrid;
 

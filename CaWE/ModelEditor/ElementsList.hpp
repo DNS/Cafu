@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ObserverPattern.hpp"
 #include "wx/listctrl.h"
+#include "wx/panel.h"
 
 
 namespace ModelEditor
@@ -38,7 +39,7 @@ namespace ModelEditor
         public:
 
         /// The constructor.
-        ElementsListT(ChildFrameT* Parent, const wxSize& Size, ModelElementTypeT Type);
+        ElementsListT(ChildFrameT* MainFrame, wxWindow* Parent, const wxSize& Size, ModelElementTypeT Type);
 
         /// The destructor.
         ~ElementsListT();
@@ -68,8 +69,39 @@ namespace ModelEditor
 
         const ModelElementTypeT m_TYPE;
         ModelDocumentT*         m_ModelDoc;
-        ChildFrameT*            m_Parent;
+        ChildFrameT*            m_MainFrame;
         bool                    m_IsRecursiveSelfNotify;
+    };
+
+
+    class ElementsPanelT : public wxPanel
+    {
+        public:
+
+        ElementsPanelT(ChildFrameT* MainFrame, const wxSize& Size, ModelElementTypeT Type);
+
+
+        private:
+
+        /// IDs for the controls whose events we are interested in.
+        enum
+        {
+            ID_LISTVIEW=wxID_HIGHEST+1,
+            ID_BUTTON_ADD,
+            ID_BUTTON_UP,
+            ID_BUTTON_DOWN,
+            ID_BUTTON_DELETE
+        };
+
+        void OnButton(wxCommandEvent& Event);
+        void OnButtonUpdate(wxUpdateUIEvent& UE);
+
+        const ModelElementTypeT m_TYPE;
+        ModelDocumentT*         m_ModelDoc;
+        ChildFrameT*            m_MainFrame;
+        ElementsListT*          m_List;
+
+        DECLARE_EVENT_TABLE()
     };
 }
 
