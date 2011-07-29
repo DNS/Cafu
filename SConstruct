@@ -28,10 +28,8 @@ if sys.platform=="win32":
     # Under Windows, there are no system copies of these libraries, so instead we use our own local copies.
     # Setting these paths in envCommon means that they are "globally" available everywhere, but this is ok:
     # Under Linux, all library headers are globally available (e.g. at /usr/include/) as well.
-    envCommon.Append(CPPPATH=["#/ExtLibs/expat"])
     envCommon.Append(CPPPATH=["#/ExtLibs/freetype/include"])
     envCommon.Append(CPPPATH=["#/ExtLibs/libpng"])
-    envCommon.Append(CPPPATH=["#/ExtLibs/pcre/include"])
     envCommon.Append(CPPPATH=["#/ExtLibs/zlib"])
 
     if envCommon["MSVC_VERSION"] in ["8.0", "8.0Exp"]:
@@ -167,17 +165,9 @@ elif sys.platform=="linux2":
 
     # conf.CheckLib(...)    # See http://www.cafu.de/wiki/cppdev:gettingstarted#linux_packages for additional libraries and headers that should be checked here.
 
-    if not conf.CheckLibWithHeader("expat", "expat.h", "c"):
-        print ErrorMsg % ("expat", "libexpat1-dev")
-        Exit(1)
-
     #if not conf.CheckLibWithHeader("freetype", "ft2build.h", "c"):     # TODO: What is the proper way to check for freetype?
         #print ErrorMsg % ("freetype", "libfreetype6-dev")
         #Exit(1)
-
-    if not conf.CheckLibWithHeader("pcre", "pcre.h", "c"):
-        print ErrorMsg % ("pcre", "libpcre3-dev")
-        Exit(1)
 
     if not conf.CheckLibWithHeader("png", "png.h", "c"):
         print ErrorMsg % ("png", "libpng12-dev")
@@ -247,7 +237,6 @@ my_build_dir_prf=my_build_dir+"/profile"
 
 ExtLibsList = ["assimp",
                "bullet",
-               "expat",
                "freealut",
                "freetype",
                "jpeg",
@@ -260,16 +249,13 @@ ExtLibsList = ["assimp",
                "mpg123",
                "noise",
                "openal-soft",
-               "pcre",
                "zlib"]
 
 if sys.platform=="win32":
     ExtLibsList.remove("openal-soft")   # OpenAL-Soft is not built on Windows, use the OpenAL Windows SDK there.
 else:   # sys.platform=="linux2"
-    ExtLibsList.remove("expat")         # We use the system copies of these libraries.
-    ExtLibsList.remove("freetype")
+    ExtLibsList.remove("freetype")      # We use the system copies of these libraries.
     ExtLibsList.remove("libpng")
-    ExtLibsList.remove("pcre")
     ExtLibsList.remove("zlib")
 
 for lib_name in ExtLibsList:
