@@ -274,13 +274,14 @@ void ModelEditor::SceneView3DT::RenderPass() const
     {
         Model->Draw(SequNr, Anim.FrameNr, 0.0f /*LodDist*/, (CafuModelT::SuperT*)NULL);
 
-        if (ModelDoc->GetSubModel())
+        for (unsigned long SmNr=0; SmNr<ModelDoc->GetSubmodels().Size(); SmNr++)
         {
+            const ModelDocumentT::SubmodelT* SM=ModelDoc->GetSubmodels()[SmNr];
             const CafuModelT::SuperT Super(
                 Model->GetDrawJointMatrices(SequNr, Anim.FrameNr),
-                ModelDoc->GetSubModelMap());
+                SM->GetJointsMap());
 
-            ModelDoc->GetSubModel()->Draw(0, 0.0f, 0.0f /*LodDist*/, &Super);
+            SM->GetSubmodel()->Draw(0, 0.0f, 0.0f /*LodDist*/, &Super);
         }
     }
 
@@ -290,13 +291,14 @@ void ModelEditor::SceneView3DT::RenderPass() const
     {
         RenderSkeleton(Model->GetJoints(), Model->GetDrawJointMatrices(SequNr, Anim.FrameNr));
 
-        if (ModelDoc->GetSubModel())
+        for (unsigned long SmNr=0; SmNr<ModelDoc->GetSubmodels().Size(); SmNr++)
         {
+            const ModelDocumentT::SubmodelT* SM=ModelDoc->GetSubmodels()[SmNr];
             const CafuModelT::SuperT Super(
                 Model->GetDrawJointMatrices(SequNr, Anim.FrameNr),
-                ModelDoc->GetSubModelMap());
+                SM->GetJointsMap());
 
-            RenderSkeleton(ModelDoc->GetSubModel()->GetJoints(), ModelDoc->GetSubModel()->GetDrawJointMatrices(0, 0.0f, &Super));
+            RenderSkeleton(SM->GetSubmodel()->GetJoints(), SM->GetSubmodel()->GetDrawJointMatrices(0, 0.0f, &Super));
         }
     }
 }

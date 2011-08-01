@@ -68,6 +68,28 @@ namespace ModelEditor
             bool  Loop;     ///< When playing the sequence, loop automatically when its end has been reached?
         };
 
+        class SubmodelT
+        {
+            public:
+
+            SubmodelT(const wxString& fn, CafuModelT* sm, const ArrayT<unsigned int>& jm);
+            ~SubmodelT();
+
+            const wxString&             GetFilename() const { return m_Filename; }
+            const CafuModelT*           GetSubmodel() const { return m_Submodel; }
+            const ArrayT<unsigned int>& GetJointsMap() const { return m_JointsMap; }
+
+
+            private:
+
+            wxString             m_Filename;    ///< The filename of the submodel.
+            CafuModelT*          m_Submodel;    ///< The submodel that is shown with the main model.
+            ArrayT<unsigned int> m_JointsMap;   ///< Describes how the joints of the m_Submodel map to the joints of the m_Model super model.
+
+            SubmodelT(const SubmodelT&);        ///< Use of the Copy    Constructor is not allowed.
+            void operator = (const SubmodelT&); ///< Use of the Assignment Operator is not allowed.
+        };
+
 
         /// The constructor.
         /// @throws   ModelT::LoadError if the model could not be loaded or imported.
@@ -80,8 +102,7 @@ namespace ModelEditor
         const ArrayT<unsigned int>&     GetSelection(ModelElementTypeT Type) const { wxASSERT(Type<4); return m_Selection[Type]; }
         const ArrayT<EditorMaterialI*>& GetEditorMaterials() const { return m_EditorMaterials; }
         const AnimStateT&               GetAnimState() const       { return m_AnimState; }
-        const CafuModelT*               GetSubModel() const        { return m_SubModel; }
-        const ArrayT<unsigned int>&     GetSubModelMap() const     { return m_SubModelMap; }
+        const ArrayT<SubmodelT*>&       GetSubmodels() const       { return m_Submodels; }
         const MapBrushT*                GetGround() const          { return m_Ground; }
         const ArrayT<CameraT*>&         GetCameras() const         { return m_Cameras; }
         const ArrayT<LightSourceT*>&    GetLightSources() const    { return m_LightSources; }
@@ -90,7 +111,8 @@ namespace ModelEditor
         CafuModelT*      GetModel()      { return m_Model; }
         void             SetSelection(ModelElementTypeT Type, const ArrayT<unsigned int>& NewSel) { wxASSERT(Type<4); m_Selection[Type]=NewSel; }
         AnimStateT&      GetAnimState()  { return m_AnimState; }
-        void             SetSubModel(const wxString& FileName);
+        void             LoadSubmodel(const wxString& FileName);
+        void             UnloadSubmodel(unsigned long SubmodelNr);
         MapBrushT*       GetGround()     { return m_Ground; }
         GameConfigT*     GetGameConfig() { return m_GameConfig; }
 
@@ -111,8 +133,7 @@ namespace ModelEditor
         ArrayT<unsigned int>     m_Selection[4];    ///< The selected joints, meshes, animations and GUI fixtures.
         ArrayT<EditorMaterialI*> m_EditorMaterials; ///< One editor material for each material in the model (its material manager).
         AnimStateT               m_AnimState;       ///< The current state of the model animation.
-        CafuModelT*              m_SubModel;        ///< The submodel that is shown with the main model.
-        ArrayT<unsigned int>     m_SubModelMap;     ///< Describes how the joints of m_SubModel map to the joints of the m_Model super model.
+        ArrayT<SubmodelT*>       m_Submodels;       ///< The submodels that are shown with the main model.
         MapBrushT*               m_Ground;          ///< The ground brush.
         ArrayT<CameraT*>         m_Cameras;         ///< The cameras in the scene (used by the 3D views for rendering), there is always at least one.
         ArrayT<LightSourceT*>    m_LightSources;    ///< The light sources that exist in the scene.

@@ -87,6 +87,10 @@ namespace ModelEditor
         /// @param Subject   The model document whose AnimStateT has changed.
         virtual void Notify_AnimStateChanged(SubjectT* Subject) { }
 
+        /// Notifies the observer that the listz of submodels has changed.
+        /// @param Subject   The model document with the model in which the list of submodels has changed.
+        virtual void Notify_SubmodelsChanged(SubjectT* Subject) { }
+
         /// This method is called whenever a subject is about the be destroyed (and become unavailable).
         /// \param dyingSubject   The subject that is being destroyed.
         virtual void Notify_SubjectDies(SubjectT* dyingSubject)=0;
@@ -122,6 +126,7 @@ namespace ModelEditor
         virtual void UpdateAllObservers_AnimChanged(unsigned int AnimNr);
         virtual void UpdateAllObservers_GuiFixtureChanged(unsigned int GuiFixtureNr);
         virtual void UpdateAllObservers_AnimStateChanged();
+        virtual void UpdateAllObservers_SubmodelsChanged();
 
         /// The virtual destructor.
         virtual ~SubjectT();

@@ -244,8 +244,9 @@ void ElementsListT::InitListItems()
     }
 
     // Set the widths of the columns to the width of their longest item.
-    for (int ColNr=0; ColNr<GetColumnCount(); ColNr++)
-        SetColumnWidth(ColNr, wxLIST_AUTOSIZE);
+    if (GetItemCount()>0)
+        for (int ColNr=0; ColNr<GetColumnCount(); ColNr++)
+            SetColumnWidth(ColNr, wxLIST_AUTOSIZE);
 
     Thaw();
 }

@@ -43,6 +43,7 @@ namespace ModelEditor
     class ModelDocumentT;
     class ScenePropGridT;
     class SceneView3DT;
+    class SubmodelsPanelT;
 
 
     class ChildFrameT : public wxMDIChildFrame
@@ -109,6 +110,7 @@ namespace ModelEditor
         ElementsPanelT*    m_GuiFixturesList;
         GuiFixInspectorT*  m_GuiFixtureInspector;
         ScenePropGridT*    m_ScenePropGrid;
+        SubmodelsPanelT*   m_SubmodelsPanel;
 
         wxMenu*            m_FileMenu;
         wxMenu*            m_EditMenu;
@@ -130,6 +132,7 @@ namespace ModelEditor
             ID_MENU_VIEW_AUIPANE_GUIFIXTURES_LIST,
             ID_MENU_VIEW_AUIPANE_GUIFIXTURE_INSPECTOR,
             ID_MENU_VIEW_AUIPANE_SCENE_SETUP,
+            ID_MENU_VIEW_AUIPANE_SUBMODELS_LIST,
             ID_MENU_VIEW_LOAD_DEFAULT_PERSPECTIVE,
             ID_MENU_VIEW_LOAD_USER_PERSPECTIVE,
             ID_MENU_VIEW_SAVE_USER_PERSPECTIVE,
@@ -140,7 +143,7 @@ namespace ModelEditor
             ID_MENU_MODEL_ANIM_SKIP_FORWARD,
             ID_MENU_MODEL_GUIFIXTURE_ADD,
             ID_MENU_MODEL_LOAD_SUBMODEL,
-            ID_MENU_MODEL_UNLOAD_SUBMODEL
+            ID_MENU_MODEL_UNLOAD_SUBMODELS
         };
 
         void OnMenuFile(wxCommandEvent& CE);

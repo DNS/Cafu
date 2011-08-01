@@ -37,6 +37,18 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/confbase.h"
 
 
+ModelEditor::ModelDocumentT::SubmodelT::SubmodelT(const wxString& fn, CafuModelT* sm, const ArrayT<unsigned int>& jm)
+    : m_Filename(fn), m_Submodel(sm), m_JointsMap(jm)
+{
+}
+
+
+ModelEditor::ModelDocumentT::SubmodelT::~SubmodelT()
+{
+    delete m_Submodel;
+}
+
+
 static MapBrushT* GetGroundBrush(GameConfigT* GameConfig)
 {
     EditorMaterialI* Mat =GameConfig->GetMatMan().FindMaterial(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/GroundPlane_Mat", "Textures/WilliH/rock01b"), true /*CreateDummy*/);
@@ -49,8 +61,7 @@ static MapBrushT* GetGroundBrush(GameConfigT* GameConfig)
 
 ModelEditor::ModelDocumentT::ModelDocumentT(GameConfigT* GameConfig, const wxString& FileName)
     : m_Model(LoadModel(FileName)),
-      m_SubModel(NULL),
-      m_SubModelMap(),
+      m_Submodels(),
       m_Ground(GetGroundBrush(GameConfig)),
       m_GameConfig(GameConfig)
 {
@@ -75,6 +86,9 @@ ModelEditor::ModelDocumentT::~ModelDocumentT()
     for (unsigned long MatNr=0; MatNr<m_EditorMaterials.Size(); MatNr++)
         delete m_EditorMaterials[MatNr];
 
+    for (unsigned long SmNr=0; SmNr<m_Submodels.Size(); SmNr++)
+        delete m_Submodels[SmNr];
+
     for (unsigned long LsNr=0; LsNr<m_LightSources.Size(); LsNr++)
         delete m_LightSources[LsNr];
 
@@ -82,37 +96,33 @@ ModelEditor::ModelDocumentT::~ModelDocumentT()
         delete m_Cameras[CamNr];
 
     delete m_Ground;
-    delete m_SubModel;
     delete m_Model;
 }
 
 
-void ModelEditor::ModelDocumentT::SetSubModel(const wxString& FileName)
+void ModelEditor::ModelDocumentT::LoadSubmodel(const wxString& FileName)
 {
-    delete m_SubModel;
-    m_SubModel=NULL;
-
-    m_SubModelMap.Overwrite();
+    if (FileName=="") return;
 
     try
     {
-        if (FileName!="")
+        CafuModelT*          Submodel=LoadModel(FileName);
+        ArrayT<unsigned int> JointsMap;
+
+        for (unsigned int JointNr=0; JointNr<Submodel->GetJoints().Size(); JointNr++)
         {
-            m_SubModel=LoadModel(FileName);
+            const std::string& SubName=Submodel->GetJoints()[JointNr].Name;
 
-            for (unsigned int JointNr=0; JointNr<m_SubModel->GetJoints().Size(); JointNr++)
-            {
-                const std::string& SubName=m_SubModel->GetJoints()[JointNr].Name;
+            unsigned int JNr;
+            for (JNr=0; JNr<m_Model->GetJoints().Size(); JNr++)
+                if (wxStricmp(SubName, m_Model->GetJoints()[JNr].Name)==0)
+                    break;
 
-                unsigned int JNr;
-                for (JNr=0; JNr<m_Model->GetJoints().Size(); JNr++)
-                    if (wxStricmp(SubName, m_Model->GetJoints()[JNr].Name)==0)
-                        break;
-
-                // Not found / no correspondence is indicated by a too large and thus invalid JNr.
-                m_SubModelMap.PushBack(JNr);
-            }
+            // Not found / no correspondence is indicated by a too large and thus invalid JNr.
+            JointsMap.PushBack(JNr);
         }
+
+        m_Submodels.PushBack(new SubmodelT(FileName, Submodel, JointsMap));
     }
     catch (const ModelT::LoadError& /*E*/)
     {
@@ -122,6 +132,16 @@ void ModelEditor::ModelDocumentT::SetSubModel(const wxString& FileName)
     catch (const ModelLoaderT::LoadErrorT& LE)
     {
         wxMessageBox(wxString("The submodel file \"")+FileName+"\" could not be loaded:\n"+LE.what(), "Couldn't load or import submodel");
+    }
+}
+
+
+void ModelEditor::ModelDocumentT::UnloadSubmodel(unsigned long SubmodelNr)
+{
+    if (SubmodelNr<m_Submodels.Size())
+    {
+        delete m_Submodels[SubmodelNr];
+        m_Submodels.RemoveAtAndKeepOrder(SubmodelNr);
     }
 }
 

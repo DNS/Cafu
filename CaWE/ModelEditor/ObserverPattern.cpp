@@ -115,6 +115,13 @@ void SubjectT::UpdateAllObservers_AnimStateChanged()
 }
 
 
+void SubjectT::UpdateAllObservers_SubmodelsChanged()
+{
+    for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
+        m_Observers[ObsNr]->Notify_SubmodelsChanged(this);
+}
+
+
 SubjectT::~SubjectT()
 {
     for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
