@@ -206,7 +206,7 @@ void SubmodelsListT::OnItemActivated(wxListEvent& LE)
     if (m_ModelDoc==NULL) return;
 
     // Make sure that the AUI pane for the inspector related to this elements list is shown.
-    // m_MainFrame->ShowRelatedInspector(this);
+    // m_MainFrame->ShowRelatedInspector(GetParent());
 }
 
 

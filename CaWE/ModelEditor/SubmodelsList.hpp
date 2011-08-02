@@ -80,7 +80,7 @@ namespace ModelEditor
         /// IDs for the controls whose events we are interested in.
         enum
         {
-            ID_LISTVIEW=wxID_HIGHEST+1,
+            ID_LISTVIEW=wxID_HIGHEST+1+100,
             ID_BUTTON_LOAD,
             ID_BUTTON_UP,
             ID_BUTTON_DOWN,

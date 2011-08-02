@@ -61,7 +61,7 @@ namespace ModelEditor
         void OnFocus           (wxFocusEvent&       FE);
         void OnContextMenu     (wxContextMenuEvent& CE);
         void OnKeyDown         (wxListEvent&        LE);
-        void OnItemActivated   (wxListEvent&        LE);    ///< The item has been activated (ENTER or double click).
+        void OnItemActivated   (wxListEvent&        LE);    ///< A list item has been activated (ENTER or double click).
         void OnSelectionChanged(wxListEvent&        LE);
         void OnEndLabelEdit    (wxListEvent&        LE);
 
@@ -86,7 +86,7 @@ namespace ModelEditor
         /// IDs for the controls whose events we are interested in.
         enum
         {
-            ID_LISTVIEW=wxID_HIGHEST+1,
+            ID_LISTVIEW=wxID_HIGHEST+1+100,
             ID_BUTTON_ADD,
             ID_BUTTON_UP,
             ID_BUTTON_DOWN,

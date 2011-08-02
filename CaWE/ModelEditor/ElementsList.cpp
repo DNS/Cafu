@@ -268,8 +268,8 @@ void ElementsListT::OnContextMenu(wxContextMenuEvent& CE)
     switch (ContextMenu.GetClickedMenuItem())
     {
         case ListContextMenuT::ID_MENU_INSPECT_EDIT:
-            // Make sure that the AUI pane for the inspector related to this joints hierarchy is shown.
-            m_MainFrame->ShowRelatedInspector(this);
+            // Make sure that the AUI pane for the inspector related to this elements list is shown.
+            m_MainFrame->ShowRelatedInspector(GetParent());
             break;
 
         case ListContextMenuT::ID_MENU_RENAME:
@@ -322,7 +322,7 @@ void ElementsListT::OnItemActivated(wxListEvent& LE)
     if (m_ModelDoc==NULL) return;
 
     // Make sure that the AUI pane for the inspector related to this elements list is shown.
-    m_MainFrame->ShowRelatedInspector(this);
+    m_MainFrame->ShowRelatedInspector(GetParent());
 }
 
 
