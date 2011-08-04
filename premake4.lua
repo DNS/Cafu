@@ -18,7 +18,7 @@ solution "CafuEngine"
         -- -- /EHsc  Enable exception handling.
         -- buildoptions { "/GR", "/EHsc" }      -- TODO: Does premake4 set this by default?
         defines { "_CRT_SECURE_NO_DEPRECATE", "_CRT_NONSTDC_NO_DEPRECATE" }
-        linkoptions { "/incremental:no" }       -- TODO: Why do we want this?
+        flags { "StaticRuntime", "No64BitChecks" }
 
     configuration "Debug"
         -- envDebug.Append(CCFLAGS=Split("/MTd /Od /Z7 /RTC1"));
@@ -28,7 +28,7 @@ solution "CafuEngine"
 
     configuration "Release"
         -- envRelease.Append(CCFLAGS=Split("/MT /O2 /Ob2"));
-        flags { "OptimizeSpeed" }
+        flags { "OptimizeSpeed", "NoIncrementalLink" }
         defines { "NDEBUG" }    -- Need NDEBUG to have the assert macro generate no runtime code.
 
 
