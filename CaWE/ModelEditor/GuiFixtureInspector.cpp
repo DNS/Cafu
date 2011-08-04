@@ -173,7 +173,7 @@ void GuiFixInspectorT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
 
     m_IsRecursiveSelfNotify=true;
     wxASSERT(Event.CanVeto());    // EVT_PG_CHANGING events can be vetoed (as opposed to EVT_PG_CHANGED events).
-    bool ok=m_Parent->SubmitCommand(new CommandUpdateGuiFixtureT(m_ModelDoc, GFixNr, GF));;
+    bool ok=m_Parent->SubmitCommand(new CommandUpdateGuiFixtureT(m_ModelDoc, GFixNr, GF));
     if (!ok) Event.Veto();
     m_IsRecursiveSelfNotify=false;
 }

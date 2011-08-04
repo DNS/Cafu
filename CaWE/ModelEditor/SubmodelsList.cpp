@@ -38,46 +38,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace ModelEditor;
 
 
-namespace
-{
-    class ListContextMenuT : public wxMenu
-    {
-        public:
-
-        enum
-        {
-            ID_MENU_LOAD=wxID_HIGHEST+1,
-            ID_MENU_UNLOAD
-        };
-
-        ListContextMenuT() : wxMenu(), ID(-1)
-        {
-            Append(ID_MENU_LOAD,   "Load...");
-            Append(ID_MENU_UNLOAD, "Unload");
-        }
-
-        int GetClickedMenuItem() { return ID; }
-
-
-        protected:
-
-        void OnMenuClick(wxCommandEvent& CE) { ID=CE.GetId(); }
-
-
-        private:
-
-        int ID;
-
-        DECLARE_EVENT_TABLE()
-    };
-
-
-    BEGIN_EVENT_TABLE(ListContextMenuT, wxMenu)
-        EVT_MENU(wxID_ANY, ListContextMenuT::OnMenuClick)
-    END_EVENT_TABLE()
-}
-
-
 BEGIN_EVENT_TABLE(SubmodelsListT, wxListView)
     EVT_CONTEXT_MENU       (SubmodelsListT::OnContextMenu)
     EVT_LIST_ITEM_ACTIVATED(wxID_ANY, SubmodelsListT::OnItemActivated)
@@ -179,19 +139,28 @@ void SubmodelsListT::UnloadSelectedSubmodels()
 
 void SubmodelsListT::OnContextMenu(wxContextMenuEvent& CE)
 {
-    ListContextMenuT ContextMenu;
-
-    PopupMenu(&ContextMenu);
-
-    switch (ContextMenu.GetClickedMenuItem())
+    // Note that GetPopupMenuSelectionFromUser() temporarily disables UI updates for the window,
+    // so our menu IDs used below should be doubly clash-free.
+    enum
     {
-        case ListContextMenuT::ID_MENU_LOAD:
+        ID_MENU_LOAD=wxID_HIGHEST+1+100,
+        ID_MENU_UNLOAD
+    };
+
+    wxMenu Menu;
+
+    Menu.Append(ID_MENU_LOAD,   "Load...");
+    Menu.Append(ID_MENU_UNLOAD, "Unload");
+
+    switch (GetPopupMenuSelectionFromUser(Menu))
+    {
+        case ID_MENU_LOAD:
         {
             LoadSubmodel();
             break;
         }
 
-        case ListContextMenuT::ID_MENU_UNLOAD:
+        case ID_MENU_UNLOAD:
         {
             UnloadSelectedSubmodels();
             break;

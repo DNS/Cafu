@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrame.hpp"
 #include "ModelDocument.hpp"
 #include "ScenePropGrid.hpp"
+#include "Commands/UpdateGuiFixture.hpp"
 #include "../AppCaWE.hpp"
 #include "../Camera.hpp"
 #include "../EditorMaterial.hpp"
@@ -39,13 +40,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 BEGIN_EVENT_TABLE(ModelEditor::SceneView3DT, Generic3DWindowT)
-    EVT_KEY_DOWN   (ModelEditor::SceneView3DT::OnKeyDown      )
-    EVT_LEFT_DOWN  (ModelEditor::SceneView3DT::OnMouseLeftDown)
-    EVT_LEFT_DCLICK(ModelEditor::SceneView3DT::OnMouseLeftDown)
-    EVT_LEFT_UP    (ModelEditor::SceneView3DT::OnMouseLeftUp  )
-    EVT_MOTION     (ModelEditor::SceneView3DT::OnMouseMove    )
-    EVT_PAINT      (ModelEditor::SceneView3DT::OnPaint        )
-    EVT_IDLE       (ModelEditor::SceneView3DT::OnIdle         )
+    EVT_KEY_DOWN    (ModelEditor::SceneView3DT::OnKeyDown      )
+    EVT_LEFT_DOWN   (ModelEditor::SceneView3DT::OnMouseLeftDown)
+    EVT_LEFT_DCLICK (ModelEditor::SceneView3DT::OnMouseLeftDown)
+    EVT_LEFT_UP     (ModelEditor::SceneView3DT::OnMouseLeftUp  )
+    EVT_MOTION      (ModelEditor::SceneView3DT::OnMouseMove    )
+    EVT_CONTEXT_MENU(ModelEditor::SceneView3DT::OnContextMenu  )
+    EVT_PAINT       (ModelEditor::SceneView3DT::OnPaint        )
+    EVT_IDLE        (ModelEditor::SceneView3DT::OnIdle         )
 END_EVENT_TABLE()
 
 
@@ -58,7 +60,7 @@ ModelEditor::SceneView3DT::SceneView3DT(ChildFrameT* Parent)
 }
 
 
-Vector3fT ModelEditor::SceneView3DT::GetRefPtWorld(const wxPoint& RefPtWin) const
+Vector3fT ModelEditor::SceneView3DT::TraceCameraRay(const wxPoint& RefPtWin, ModelT::TraceResultT& ModelTR) const
 {
     float     BestFraction=std::numeric_limits<float>::max();
     Vector3fT BestPos     =GetCamera().Pos;
@@ -67,6 +69,9 @@ Vector3fT ModelEditor::SceneView3DT::GetRefPtWorld(const wxPoint& RefPtWin) cons
     // but at the point of intersection with the near clipping plane!
     const Vector3fT RayOrigin=WindowToWorld(RefPtWin);
     const Vector3fT RayDir   =normalizeOr0(RayOrigin - GetCamera().Pos);
+
+    // Initialize the ModelTR as "invalid".
+    ModelTR.Fraction=-1.0f;
 
     // Make sure that the ray is valid. It should never be invalid though.
     if (length(RayDir)<0.9f) return BestPos;
@@ -102,9 +107,18 @@ Vector3fT ModelEditor::SceneView3DT::GetRefPtWorld(const wxPoint& RefPtWin) cons
     {
         BestFraction=Result.Fraction;
         BestPos     =RayOrigin + RayDir*Result.Fraction;
+        ModelTR     =Result;
     }
 
     return BestPos;
+}
+
+
+Vector3fT ModelEditor::SceneView3DT::GetRefPtWorld(const wxPoint& RefPtWin) const
+{
+    ModelT::TraceResultT ModelTR;
+
+    return TraceCameraRay(RefPtWin, ModelTR);
 }
 
 
@@ -115,9 +129,18 @@ void ModelEditor::SceneView3DT::InfoCameraChanged()
 }
 
 
+// As the RMB serves multiple functions (click, context-menu, camera control),
+// the Generic3DWindowT keeps tight control over it and thus its event are handled differently.
 void ModelEditor::SceneView3DT::InfoRightMouseClick(wxMouseEvent& ME)
 {
-    ;
+    // As we have no tool that might have handled the event, now show the context menu.
+    // Showing the context menu manually here also makes RMB handling uniform
+    // across platforms, see <http://trac.wxwidgets.org/ticket/12535> for details.
+    wxContextMenuEvent CE(wxEVT_CONTEXT_MENU, GetId(), ClientToScreen(ME.GetPosition()));
+
+    // We don't inline the OnContextMenu() code here, because context menus can also be opened via the keyboard.
+    CE.SetEventObject(this);
+    OnContextMenu(CE);
 }
 
 
@@ -193,6 +216,83 @@ void ModelEditor::SceneView3DT::OnMouseMove(wxMouseEvent& ME)
 
     // Make sure that the base class always gets this event as well.
     ME.Skip();
+}
+
+
+void ModelEditor::SceneView3DT::OnContextMenu(wxContextMenuEvent& CE)
+{
+    // Note that GetPopupMenuSelectionFromUser() temporarily disables UI updates for the window,
+    // so our menu IDs used below should be doubly clash-free.
+    enum
+    {
+        ID_MENU_GUIFIX_NONE=wxID_HIGHEST+1+100,
+        ID_MENU_SET_GUIFIX_ORIGIN,
+        ID_MENU_SET_GUIFIX_ENDPOINT_X,
+        ID_MENU_SET_GUIFIX_ENDPOINT_Y
+    };
+
+    ModelT::TraceResultT ModelTR;
+    const Vector3fT      HitPos=TraceCameraRay(ScreenToClient(CE.GetPosition()), ModelTR);
+    const CafuModelT*    Model=m_Parent->GetModelDoc()->GetModel();
+    unsigned int         BestVertexNr=0;
+    bool                 HaveModelHit=false;
+
+    if (ModelTR.Fraction>0.0f && ModelTR.MeshNr<Model->GetMeshes().Size() && ModelTR.TriNr<Model->GetMeshes()[ModelTR.MeshNr].Triangles.Size())
+    {
+        float BestDist=0.0f;
+
+        for (unsigned int i=0; i<3; i++)
+        {
+            const unsigned int VertexNr=Model->GetMeshes()[ModelTR.MeshNr].Triangles[ModelTR.TriNr].VertexIdx[i];
+            const Vector3fT&   DrawPos =Model->GetMeshes()[ModelTR.MeshNr].Vertices[VertexNr].Draw_Pos;
+            const float        Dist    =length(DrawPos-HitPos);
+
+            if (i==0 || Dist<BestDist)
+            {
+                BestDist    =Dist;
+                BestVertexNr=VertexNr;
+            }
+        }
+
+        HaveModelHit=true;
+    }
+
+    wxMenu Menu;
+    const ArrayT<unsigned int>& Sel=m_Parent->GetModelDoc()->GetSelection(GFIX);
+
+    if (Sel.Size()==0)
+    {
+        Menu.Append(ID_MENU_GUIFIX_NONE, "No GUI fixture selected")->Enable(false);
+    }
+    else if (Sel.Size()>1)
+    {
+        Menu.Append(ID_MENU_GUIFIX_NONE, "Multiple GUI fixtures selected")->Enable(false);
+    }
+    else
+    {
+        wxMenu* SubmenuGF=new wxMenu();
+
+        SubmenuGF->Append(ID_MENU_GUIFIX_NONE,
+            HaveModelHit ? wxString::Format("Mesh %u, Vertex %u:", ModelTR.MeshNr, BestVertexNr) : wxString("Right-click did not hit model!"))->Enable(false);
+
+        SubmenuGF->Append(ID_MENU_SET_GUIFIX_ORIGIN,     "Set Origin")->Enable(HaveModelHit);
+        SubmenuGF->Append(ID_MENU_SET_GUIFIX_ENDPOINT_X, "Set X-endpoint")->Enable(HaveModelHit);
+        SubmenuGF->Append(ID_MENU_SET_GUIFIX_ENDPOINT_Y, "Set Y-endpoint")->Enable(HaveModelHit);
+
+        Menu.AppendSubMenu(SubmenuGF, "GUI fixture");
+    }
+
+    const int PointNr=GetPopupMenuSelectionFromUser(Menu)-ID_MENU_SET_GUIFIX_ORIGIN;
+
+    if (HaveModelHit && PointNr>=0 && PointNr<=2)
+    {
+        CafuModelT::GuiFixtureT GF=Model->GetGuiFixtures()[Sel[0]];
+
+        GF.Points[PointNr].MeshNr  =ModelTR.MeshNr;
+        GF.Points[PointNr].VertexNr=BestVertexNr;
+
+        m_Parent->SubmitCommand(new CommandUpdateGuiFixtureT(m_Parent->GetModelDoc(), Sel[0], GF));
+    }
 }
 
 

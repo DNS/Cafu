@@ -35,55 +35,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace ModelEditor;
 
 
-namespace
-{
-    class ListContextMenuT : public wxMenu
-    {
-        public:
-
-        enum
-        {
-            ID_MENU_INSPECT_EDIT=wxID_HIGHEST+1,
-            ID_MENU_RENAME,
-            ID_MENU_ADD_NEW
-        };
-
-        ListContextMenuT(ModelElementTypeT Type) : wxMenu(), ID(-1)
-        {
-            Append(ID_MENU_INSPECT_EDIT, "Inspect / Edit\tEnter");
-            Append(ID_MENU_RENAME,       "Rename\tF2");
-
-            if (Type==GFIX) Append(ID_MENU_ADD_NEW, "Add/create new");
-
-            /* if (Type==MESH)
-            {
-                Append(..., "Remove unused Vertices");
-                Append(..., "Remove unused Weights");
-            } */
-        }
-
-        int GetClickedMenuItem() { return ID; }
-
-
-        protected:
-
-        void OnMenuClick(wxCommandEvent& CE) { ID=CE.GetId(); }
-
-
-        private:
-
-        int ID;
-
-        DECLARE_EVENT_TABLE()
-    };
-
-
-    BEGIN_EVENT_TABLE(ListContextMenuT, wxMenu)
-        EVT_MENU(wxID_ANY, ListContextMenuT::OnMenuClick)
-    END_EVENT_TABLE()
-}
-
-
 BEGIN_EVENT_TABLE(ElementsListT, wxListView)
     EVT_SET_FOCUS           (ElementsListT::OnFocus)
     EVT_CONTEXT_MENU        (ElementsListT::OnContextMenu)
@@ -261,18 +212,36 @@ void ElementsListT::OnFocus(wxFocusEvent& FE)
 
 void ElementsListT::OnContextMenu(wxContextMenuEvent& CE)
 {
-    ListContextMenuT ContextMenu(m_TYPE);
-
-    PopupMenu(&ContextMenu);
-
-    switch (ContextMenu.GetClickedMenuItem())
+    // Note that GetPopupMenuSelectionFromUser() temporarily disables UI updates for the window,
+    // so our menu IDs used below should be doubly clash-free.
+    enum
     {
-        case ListContextMenuT::ID_MENU_INSPECT_EDIT:
+        ID_MENU_INSPECT_EDIT=wxID_HIGHEST+1+100,
+        ID_MENU_RENAME,
+        ID_MENU_ADD_NEW
+    };
+
+    wxMenu Menu;
+
+    Menu.Append(ID_MENU_INSPECT_EDIT, "Inspect / Edit\tEnter");
+    Menu.Append(ID_MENU_RENAME,       "Rename\tF2");
+
+    if (m_TYPE==GFIX) Menu.Append(ID_MENU_ADD_NEW, "Add/create new");
+
+    /* if (m_TYPE==MESH)
+    {
+        Append(..., "Remove unused Vertices");
+        Append(..., "Remove unused Weights");
+    } */
+
+    switch (GetPopupMenuSelectionFromUser(Menu))
+    {
+        case ID_MENU_INSPECT_EDIT:
             // Make sure that the AUI pane for the inspector related to this elements list is shown.
             m_MainFrame->ShowRelatedInspector(GetParent());
             break;
 
-        case ListContextMenuT::ID_MENU_RENAME:
+        case ID_MENU_RENAME:
         {
             const long SelNr=GetFirstSelected();
 
@@ -280,7 +249,7 @@ void ElementsListT::OnContextMenu(wxContextMenuEvent& CE)
             break;
         }
 
-        case ListContextMenuT::ID_MENU_ADD_NEW:
+        case ID_MENU_ADD_NEW:
         {
             if (m_TYPE==GFIX)
             {

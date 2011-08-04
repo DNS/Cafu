@@ -41,6 +41,8 @@ namespace ModelEditor
 
         SceneView3DT(ChildFrameT* Parent);
 
+        Vector3fT TraceCameraRay(const wxPoint& RefPtWin, ModelT::TraceResultT& ModelTR) const;
+
 
         private:
 
@@ -60,12 +62,13 @@ namespace ModelEditor
         unsigned long m_TimeOfLastPaint;    ///< The time at which the OnPaint() event handler was last called.
 
         // Event handlers.
-        void OnKeyDown      (wxKeyEvent&   KE);
-        void OnMouseLeftDown(wxMouseEvent& ME); ///< We also handle "double-click" events in this method (use ME.ButtonDClick() for distinction).
-        void OnMouseLeftUp  (wxMouseEvent& ME);
-        void OnMouseMove    (wxMouseEvent& ME);
-        void OnPaint        (wxPaintEvent& PE);
-        void OnIdle         (wxIdleEvent&  IE);
+        void OnKeyDown      (wxKeyEvent&         KE);
+        void OnMouseLeftDown(wxMouseEvent&       ME);   ///< We also handle "double-click" events in this method (use ME.ButtonDClick() for distinction).
+        void OnMouseLeftUp  (wxMouseEvent&       ME);
+        void OnMouseMove    (wxMouseEvent&       ME);
+        void OnContextMenu  (wxContextMenuEvent& CE);
+        void OnPaint        (wxPaintEvent&       PE);
+        void OnIdle         (wxIdleEvent&        IE);
 
         DECLARE_EVENT_TABLE()
     };

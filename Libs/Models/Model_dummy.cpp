@@ -81,6 +81,8 @@ bool ModelDummyT::TraceRay(int SequenceNr, float FrameNr, const Vector3fT& RayOr
     Result.Fraction=Fraction;
     Result.Normal  =-RayDir;
     Result.Material=NULL;
+    Result.MeshNr  =std::numeric_limits<unsigned int>::max();
+    Result.TriNr   =std::numeric_limits<unsigned int>::max();
 
     return true;
 }

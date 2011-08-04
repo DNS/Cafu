@@ -41,11 +41,13 @@ class ModelT
     struct TraceResultT
     {
         /// The constructor.
-        TraceResultT(float Fraction_=0.0f) : Fraction(Fraction_), Material(NULL) { }
+        TraceResultT(float Fraction_=0.0f) : Fraction(Fraction_), Material(NULL), MeshNr(-1), TriNr(-1) { }
 
-        float      Fraction;    ///< The scalar along RayDir at which the hit occurred (RayOrigin + RayDir*Fraction).
-        Vector3fT  Normal;      ///< This is the normal vector of the hit surface.
-        MaterialT* Material;    ///< The material at the point of impact. Can be NULL, e.g. when an edge (i.e. a bevel plane) was hit or the material is not available.
+        float        Fraction;  ///< The scalar along RayDir at which the hit occurred (RayOrigin + RayDir*Fraction).
+        Vector3fT    Normal;    ///< This is the normal vector of the hit surface.
+        MaterialT*   Material;  ///< The material at the point of impact. Can be NULL, e.g. when an edge (i.e. a bevel plane) was hit or the material is not available.
+        unsigned int MeshNr;    ///< The number of the hit mesh. Can be -1 (that is, \emph{larger} then the number of meshes in the model) if the hit mesh cannot be determined.
+        unsigned int TriNr;     ///< The number of the hit triangle in the hit mesh. Can be -1 (that is, \emph{larger} then the number of triangles in the mesh) if the hit triangle cannot be determined.
     };
 
     /// A class for throwing exceptions on load errors.

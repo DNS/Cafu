@@ -31,45 +31,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 namespace
 {
-    class TreeContextMenuT : public wxMenu
-    {
-        public:
-
-        enum
-        {
-            ID_MENU_INSPECT_EDIT=wxID_HIGHEST+1,
-            ID_MENU_RENAME,
-            ID_MENU_EXPAND_RECURSIVELY
-        };
-
-        TreeContextMenuT() : wxMenu(), ID(-1)
-        {
-            Append(ID_MENU_INSPECT_EDIT,       "Inspect / Edit\tEnter");
-            Append(ID_MENU_RENAME,             "Rename\tF2");
-            Append(ID_MENU_EXPAND_RECURSIVELY, "Expand all");
-        }
-
-        int GetClickedMenuItem() { return ID; }
-
-
-        protected:
-
-        void OnMenuClick(wxCommandEvent& CE) { ID=CE.GetId(); }
-
-
-        private:
-
-        int ID;
-
-        DECLARE_EVENT_TABLE()
-    };
-
-
-    BEGIN_EVENT_TABLE(TreeContextMenuT, wxMenu)
-        EVT_MENU(wxID_ANY, TreeContextMenuT::OnMenuClick)
-    END_EVENT_TABLE()
-
-
     class JointsTreeItemT : public wxTreeItemData
     {
         public:
@@ -441,22 +402,33 @@ void JointsHierarchyT::OnLabelChanged(wxTreeEvent& TE)
 
 void JointsHierarchyT::OnTreeItemRightClick(wxTreeEvent& TE)
 {
-    TreeContextMenuT ContextMenu;
-
-    PopupMenu(&ContextMenu);
-
-    switch (ContextMenu.GetClickedMenuItem())
+    // Note that GetPopupMenuSelectionFromUser() temporarily disables UI updates for the window,
+    // so our menu IDs used below should be doubly clash-free.
+    enum
     {
-        case TreeContextMenuT::ID_MENU_INSPECT_EDIT:
+        ID_MENU_INSPECT_EDIT=wxID_HIGHEST+1+100,
+        ID_MENU_RENAME,
+        ID_MENU_EXPAND_RECURSIVELY
+    };
+
+    wxMenu Menu;
+
+    Menu.Append(ID_MENU_INSPECT_EDIT,       "Inspect / Edit\tEnter");
+    Menu.Append(ID_MENU_RENAME,             "Rename\tF2");
+    Menu.Append(ID_MENU_EXPAND_RECURSIVELY, "Expand all");
+
+    switch (GetPopupMenuSelectionFromUser(Menu))
+    {
+        case ID_MENU_INSPECT_EDIT:
             // Make sure that the AUI pane for the inspector related to this joints hierarchy is shown.
             m_Parent->ShowRelatedInspector(this);
             break;
 
-        case TreeContextMenuT::ID_MENU_RENAME:
+        case ID_MENU_RENAME:
             EditLabel(TE.GetItem());
             break;
 
-        case TreeContextMenuT::ID_MENU_EXPAND_RECURSIVELY:
+        case ID_MENU_EXPAND_RECURSIVELY:
             ExpandAllChildren(TE.GetItem());
             break;
     }

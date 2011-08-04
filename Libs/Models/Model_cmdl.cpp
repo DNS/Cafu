@@ -1410,6 +1410,8 @@ bool CafuModelT::TraceRay(int SequenceNr, float FrameNr, const Vector3fT& RayOri
             Result.Fraction=F;
             Result.Normal  =(Nenner<0) ? Tri.Draw_Normal : -Tri.Draw_Normal;    // Handle two-sided materials properly.
             Result.Material=Mesh.Material;
+            Result.MeshNr  =MeshNr;
+            Result.TriNr   =TriNr;
             return true;
         }
     }
