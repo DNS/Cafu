@@ -332,7 +332,7 @@ void GuiImplT::SetShowMouse(bool ShowMouse_)
 }
 
 
-void GuiImplT::Render()
+void GuiImplT::Render() const
 {
     RootWindow->Render();
 

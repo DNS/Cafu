@@ -81,7 +81,7 @@ namespace cf
 
             /// Renders this GUI.
             /// Note that this method does *not* setup any of the MatSys's model, view or projection matrices: it's up to the caller to do that!
-            virtual void Render()=0;
+            virtual void Render() const=0;
 
             /// Processes a keyboard event by forwarding it to the window that currently has the input focus.
             /// The GuiMan should make the descision to call this method dependend on the result of the GetIsInteractive() method.

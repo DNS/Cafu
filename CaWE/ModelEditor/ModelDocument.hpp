@@ -34,6 +34,7 @@ class CameraT;
 class GameConfigT;
 class EditorMaterialI;
 class MapBrushT;
+namespace cf { namespace GuiSys { class GuiImplT; } }
 
 
 namespace ModelEditor
@@ -103,6 +104,7 @@ namespace ModelEditor
         const ArrayT<EditorMaterialI*>& GetEditorMaterials() const { return m_EditorMaterials; }
         const AnimStateT&               GetAnimState() const       { return m_AnimState; }
         const ArrayT<SubmodelT*>&       GetSubmodels() const       { return m_Submodels; }
+        const cf::GuiSys::GuiImplT*     GetGui() const             { return m_Gui; }
         const MapBrushT*                GetGround() const          { return m_Ground; }
         const ArrayT<CameraT*>&         GetCameras() const         { return m_Cameras; }
         const ArrayT<LightSourceT*>&    GetLightSources() const    { return m_LightSources; }
@@ -134,6 +136,7 @@ namespace ModelEditor
         ArrayT<EditorMaterialI*> m_EditorMaterials; ///< One editor material for each material in the model (its material manager).
         AnimStateT               m_AnimState;       ///< The current state of the model animation.
         ArrayT<SubmodelT*>       m_Submodels;       ///< The submodels that are shown with the main model.
+        cf::GuiSys::GuiImplT*    m_Gui;             ///< The GUI that is rendered where the model has GUI fixtures.
         MapBrushT*               m_Ground;          ///< The ground brush.
         ArrayT<CameraT*>         m_Cameras;         ///< The cameras in the scene (used by the 3D views for rendering), there is always at least one.
         ArrayT<LightSourceT*>    m_LightSources;    ///< The light sources that exist in the scene.

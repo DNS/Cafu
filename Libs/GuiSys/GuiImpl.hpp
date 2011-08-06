@@ -79,7 +79,7 @@ namespace cf
             void SetMousePos(float MousePosX_, float MousePosY_);
             void SetShowMouse(bool ShowMouse_);
             bool IsMouseShown() const { return MouseIsShown; }
-            void Render();
+            void Render() const;
             bool ProcessDeviceEvent(const CaKeyboardEventT& KE);
             bool ProcessDeviceEvent(const CaMouseEventT& ME);
             void DistributeClockTickEvents(float t);

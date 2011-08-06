@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../GameConfig.hpp"
 #include "../MapBrush.hpp"
 
+#include "GuiSys/GuiImpl.hpp"
 #include "Models/Loader_ase.hpp"
 #include "Models/Loader_assimp.hpp"
 #include "Models/Loader_cmdl.hpp"
@@ -62,6 +63,12 @@ static MapBrushT* GetGroundBrush(GameConfigT* GameConfig)
 ModelEditor::ModelDocumentT::ModelDocumentT(GameConfigT* GameConfig, const wxString& FileName)
     : m_Model(LoadModel(FileName)),
       m_Submodels(),
+      m_Gui(new cf::GuiSys::GuiImplT("Win1=gui:new('WindowT'); gui:SetRootWindow(Win1); gui:activate(true); "
+          "gui:setInteractive(true); gui:showMouse(true); Win1:set('rect', 0, 0, 640, 480); "
+          "Win1:set('backColor', 150/255, 170/255, 204/255, 0.8); "
+          "Win1:set('textAlignHor', 2); Win1:set('textAlignVer', 2); "
+          "Win1:set('textColor', 15/255, 49/255, 106/255); "
+          "Win1:set('text', 'This is a\\nfull-scale sample GUI.\\n\\nUse the Map Editor\\nto place the model and\\nto assign the true GUI.');", true)),
       m_Ground(GetGroundBrush(GameConfig)),
       m_GameConfig(GameConfig)
 {
@@ -96,6 +103,7 @@ ModelEditor::ModelDocumentT::~ModelDocumentT()
         delete m_Cameras[CamNr];
 
     delete m_Ground;
+    delete m_Gui;
     delete m_Model;
 }
 

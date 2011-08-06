@@ -33,6 +33,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../ParentFrame.hpp"
 #include "../Renderer3D.hpp"    // For class Renderer3DT::UseOrthoMatricesT.
 
+#include "GuiSys/GuiImpl.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/Mesh.hpp"
@@ -399,6 +400,68 @@ void ModelEditor::SceneView3DT::RenderPass() const
                 SM->GetJointsMap());
 
             RenderSkeleton(SM->GetSubmodel()->GetJoints(), SM->GetSubmodel()->GetDrawJointMatrices(0, 0.0f, &Super));
+        }
+    }
+
+
+    // Render the GUI fixtures.
+    if (MatSys::Renderer->GetCurrentRenderAction()==MatSys::RendererI::AMBIENT)
+    {
+        for (unsigned long GFNr=0; GFNr<Model->GetGuiFixtures().Size(); GFNr++)
+        {
+            const CafuModelT::GuiFixtureT& GF=Model->GetGuiFixtures()[GFNr];
+            Vector3fT                      Points[3];
+            unsigned int                   PointsOK=0;
+
+            for (unsigned int PointNr=0; PointNr<3; PointNr++)
+            {
+                if (!Model->IsMeshNrOK  (GF, PointNr)) continue;
+                if (!Model->IsVertexNrOK(GF, PointNr)) continue;
+
+                Points[PointNr]=Model->GetMeshes()[GF.Points[PointNr].MeshNr].Vertices[GF.Points[PointNr].VertexNr].Draw_Pos;
+                PointsOK|=(1 << PointNr);
+            }
+
+            for (unsigned int PointNr=0; PointNr<3; PointNr++)
+            {
+                static MatSys::MeshT Cross(MatSys::MeshT::Lines);
+
+                if ((PointsOK & (1 << PointNr))==0) continue;
+                Cross.Vertices.Overwrite();
+
+                for (unsigned int i=0; i<3; i++)
+                {
+                    Vector3fT Axis; Axis[i]=1.0f;
+
+                    Cross.Vertices.PushBackEmpty(2);
+                    MatSys::MeshT::VertexT& V1=Cross.Vertices[Cross.Vertices.Size()-2];
+                    MatSys::MeshT::VertexT& V2=Cross.Vertices[Cross.Vertices.Size()-1];
+
+                    V1.SetOrigin(Points[PointNr]-Axis); V1.SetColor(Axis.x+0.5f, Axis.y+0.5f, Axis.z+0.5f);
+                    V2.SetOrigin(Points[PointNr]+Axis); V2.SetColor(Axis.x+0.5f, Axis.y+0.5f, Axis.z+0.5f);
+                }
+
+                MatSys::Renderer->SetCurrentMaterial(m_Renderer.GetRMatWireframe());
+                MatSys::Renderer->RenderMesh(Cross);
+            }
+
+            if (PointsOK==7)
+            {
+                const Vector3fT AxisX =(Points[1]-Points[0])*GF.Scale[0];
+                const Vector3fT AxisY =(Points[2]-Points[0])*GF.Scale[1];
+                const Vector3fT Origin=Points[0] + AxisX*GF.Trans[0] + AxisY*GF.Trans[1];
+                const MatrixT   ModelToWorld=MatSys::Renderer->GetMatrix(MatSys::RendererI::MODEL_TO_WORLD);
+
+                // It's pretty easy to derive this matrix geometrically, see my TechArchive note from 2006-08-22.
+                MatrixT M(AxisX.x/640.0f, AxisY.x/480.0f, 0.0f, Origin.x,
+                          AxisX.y/640.0f, AxisY.y/480.0f, 0.0f, Origin.y,
+                          AxisX.z/640.0f, AxisY.z/480.0f, 0.0f, Origin.z,
+                                    0.0f,           0.0f, 0.0f,     1.0f);
+
+                MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, ModelToWorld*M);
+                ModelDoc->GetGui()->Render();
+                MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, ModelToWorld);
+            }
         }
     }
 }
