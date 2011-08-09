@@ -431,12 +431,12 @@ void MainCanvasT::Initialize()
         wxMessageDialog Msg(NULL,
             wxString("While initializing Cafu, the following error occurred:\n\n") + typeid(RE).name() + "\n" + RE.what(),
             "Cafu Initialization Error",
-            wxOK | wxCANCEL | wxICON_ERROR);
+            wxOK | wxCANCEL | wxCANCEL_DEFAULT | wxICON_ERROR);
 
         Msg.SetExtendedMessage("Sorry it didn't work out.\nTo get help, please post this error at the Cafu forums or mailing-list.");
-        Msg.SetOKCancelLabels("Close", "Open www.cafu.de");
+        Msg.SetOKCancelLabels("Open www.cafu.de", "Close");
 
-        while (Msg.ShowModal()==wxID_CANCEL)
+        while (Msg.ShowModal()==wxID_OK)
         {
             wxLaunchDefaultBrowser("http://www.cafu.de");
         }

@@ -124,6 +124,27 @@ bool AppCaWE::OnInit()
     cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_LOCAL_PATH, "./", "");
 
 
+    for (unsigned int DirNr=0; DirNr<2; DirNr++)
+    {
+        wxString TestDirs[]={ "CaWE", "Games" };
+
+        if (!wxDirExists(TestDirs[DirNr]))
+        {
+            wxMessageDialog Msg(NULL, "Could not find directory \"" + TestDirs[DirNr] + "\" in " + wxGetCwd(),
+                "Subdirectory not found", wxOK | wxCANCEL | wxCANCEL_DEFAULT | wxICON_ERROR);
+
+            Msg.SetExtendedMessage("Did you run the program from the right working directory?\n\nTo get help, please post this error at the Cafu forums or mailing-list.");
+            Msg.SetOKCancelLabels("Open www.cafu.de", "Close");
+
+            while (Msg.ShowModal()==wxID_OK)
+                wxLaunchDefaultBrowser("http://www.cafu.de");
+
+            OnExit();
+            return false;
+        }
+    }
+
+
     const wxString UserDataDir=wxStandardPaths::Get().GetUserDataDir();
 
     if (!wxFileName::Mkdir(UserDataDir, 0777, wxPATH_MKDIR_FULL))

@@ -46,6 +46,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "wx/wx.h"
 #include "wx/aboutdlg.h"
+#include "wx/busyinfo.h"
 #include "wx/confbase.h"
 #include "wx/dir.h"
 #include "wx/filename.h"
@@ -523,6 +524,8 @@ wxMDIChildFrame* ParentFrameT::OpenFile(GameConfigT* GameConfig, wxString FileNa
         }
 
         // We've tried all known filename suffixes. Now assume that FileName specifies a model file and try that.
+        wxBusyInfo BusyInfo("Loading...");
+
         return new ModelEditor::ChildFrameT(this, FileName, new ModelEditor::ModelDocumentT(GameConfig, FileName));
     }
     catch (const MapDocumentT::LoadErrorT& /*E*/)
