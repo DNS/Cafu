@@ -259,6 +259,8 @@ class CafuModelT : public ModelT
  // float              GetNrOfFrames(int SequenceNr) const;
     float              AdvanceFrameNr(int SequenceNr, float FrameNr, float DeltaTime, bool Loop=true) const;
 
+    static const unsigned int CMDL_FILE_VERSION;    ///< The current version of the \c cmdl file format.
+
 
     private:
 

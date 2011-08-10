@@ -48,8 +48,11 @@ class LoaderCafuT : public ModelLoaderT
 
     private:
 
-    lua_State* m_LuaState;
-    bool       m_UseGivenTS;
+    static int SetVersion(lua_State* LuaState);
+
+    lua_State*   m_LuaState;
+    unsigned int m_Version;
+    bool         m_UseGivenTS;
 };
 
 #endif

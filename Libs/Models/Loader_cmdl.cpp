@@ -20,6 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Loader_cmdl.hpp"
+#include "ConsoleCommands/Console.hpp"      // for cf::va()
 #include "MaterialSystem/Material.hpp"
 
 extern "C"
@@ -33,6 +34,7 @@ extern "C"
 LoaderCafuT::LoaderCafuT(const std::string& FileName, int Flags) /*throw (ModelT::LoadError)*/
     : ModelLoaderT(FileName, Flags),
       m_LuaState(lua_open()),
+      m_Version(0),
       m_UseGivenTS(false)
 {
     if (!m_LuaState) throw LoadErrorT("Couldn't open Lua state.");
@@ -44,6 +46,14 @@ LoaderCafuT::LoaderCafuT(const std::string& FileName, int Flags) /*throw (ModelT
     lua_pushcfunction(m_LuaState, luaopen_os);      lua_pushstring(m_LuaState, LUA_OSLIBNAME);   lua_call(m_LuaState, 1, 0);  // Opens the OS library.
     lua_pushcfunction(m_LuaState, luaopen_string);  lua_pushstring(m_LuaState, LUA_STRLIBNAME);  lua_call(m_LuaState, 1, 0);  // Opens the string lib.
     lua_pushcfunction(m_LuaState, luaopen_math);    lua_pushstring(m_LuaState, LUA_MATHLIBNAME); lua_call(m_LuaState, 1, 0);  // Opens the math lib.
+
+    // Set  REGISTRY["LoaderCafuT"]=this  so that our custom functions can obtain the pointer to this LoaderCafuT instance.
+    lua_pushlightuserdata(m_LuaState, this);
+    lua_setfield(m_LuaState, LUA_REGISTRYINDEX, "LoaderCafuT");
+
+    // Add our custom global functions to the Lua state.
+    lua_pushcfunction(m_LuaState, SetVersion);
+    lua_setglobal(m_LuaState, "Version");
 
     // Load and process the Lua program that defines the model.
     if (luaL_loadfile(m_LuaState, m_FileName.c_str())!=0 || lua_pcall(m_LuaState, 0, 0, 0)!=0)
@@ -107,6 +117,14 @@ static unsigned long lua_objlen_ul(lua_State* LuaState, int index)
 
 void LoaderCafuT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan)
 {
+    // Check the file format version.
+    if (m_Version<1 || m_Version>CafuModelT::CMDL_FILE_VERSION)
+    {
+                             // "Expected cmdl file format version 1 to %u, ..."
+        throw LoadErrorT(cf::va("Expected cmdl file format version %u, but found version %u.", CafuModelT::CMDL_FILE_VERSION, m_Version));
+    }
+
+
     // Read the joints.
     lua_getglobal(m_LuaState, "Joints");
     {
@@ -456,4 +474,23 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures, ArrayT<Cafu
         }
     }
     lua_pop(m_LuaState, 1);
+}
+
+
+/*static*/ int LoaderCafuT::SetVersion(lua_State* LuaState)
+{
+    // Put REGISTRY["LoaderCafuT"] onto the stack.
+    lua_getfield(LuaState, LUA_REGISTRYINDEX, "LoaderCafuT");
+
+    LoaderCafuT* Loader=(LoaderCafuT*)lua_touserdata(LuaState, -1);
+    if (Loader==NULL) luaL_error(LuaState, "NULL pointer to LoaderCafuT instance.");
+
+    // Remove the light userdata from the stack again, restoring the stack to its original state.
+    lua_pop(LuaState, 1);
+
+    const int v=luaL_checkint(LuaState, 1);
+    if (Loader->m_Version!=0 && Loader->m_Version!=v) luaL_error(LuaState, "Attempt to redefine the version number of the file format.");
+
+    Loader->m_Version=v;
+    return 0;
 }

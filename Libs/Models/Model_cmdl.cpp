@@ -31,6 +31,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <iostream>
 
 
+/*static*/ const unsigned int CafuModelT::CMDL_FILE_VERSION=1;
+
+
 /// This function serializes a given float f1 to a string s, such that:
 ///   - s is minimal (uses the least number of decimal digits required),
 ///   - unserializing s back to a float f2 yields f1==f2.
@@ -534,7 +537,8 @@ void CafuModelT::InitMeshes()
 void CafuModelT::Save(std::ostream& OutStream) const
 {
     OutStream << "-- Cafu Model File\n"
-              << "-- Written by CaWE, the Cafu World Editor.\n";
+              << "-- Written by CaWE, the Cafu World Editor.\n"
+              << "Version(" << CMDL_FILE_VERSION << ")\n";
 
 
     // *** Write the joints. ***
