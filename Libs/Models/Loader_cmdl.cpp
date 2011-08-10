@@ -488,7 +488,7 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures, ArrayT<Cafu
     // Remove the light userdata from the stack again, restoring the stack to its original state.
     lua_pop(LuaState, 1);
 
-    const int v=luaL_checkint(LuaState, 1);
+    const unsigned int v=luaL_checkint(LuaState, 1);
     if (Loader->m_Version!=0 && Loader->m_Version!=v) luaL_error(LuaState, "Attempt to redefine the version number of the file format.");
 
     Loader->m_Version=v;
