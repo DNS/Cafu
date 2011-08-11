@@ -420,12 +420,63 @@ GameConfigT* ParentFrameT::AskUserForGameConfig(const wxFileName& DocumentPath)
 }
 
 
-static const char*         SPECIFIER_LIST_C[]={ "D3", "HL1", "HL2" };
-static const wxArrayString SPECIFIER_LIST(3, SPECIFIER_LIST_C);
+namespace
+{
+    /// This class is a wrapper around a wxProgressDialog.
+    /// It is necessary because the wxProgressDialog has several bugs, see code below for details.
+    class ProgDlgT
+    {
+        public:
+
+        ProgDlgT(wxWindow* Parent, const wxString& Msg)
+            : m_ProgDlg(NULL),
+              m_BusyInfo(NULL)
+        {
+            #if defined(__WXGTK__)
+                // Under wxGTK, the wxProgressDialog cannot be used at all, see http://trac.wxwidgets.org/ticket/12500 for details.
+                // To make matters worse, the wxBusyCursor and the wxBusyInfo don't work as well:
+                //   - wxBusyCursor: http://trac.wxwidgets.org/ticket/13390
+                //   - wxBusyInfo:   http://trac.wxwidgets.org/ticket/13262
+            #elif defined(__WXMSW__)
+                /// Under wxMSW, the wxProgressDialog sometimes hangs when a 32-bit program is run under WOW64,
+                /// see http://trac.cafu.de/ticket/47 for details.
+                if (sizeof(void*)==4 && wxIsPlatform64Bit())
+                    m_BusyInfo=new wxBusyInfo(Msg);
+                else
+                    m_ProgDlg=new wxProgressDialog(Msg, "Almost done...", 100, Parent, wxPD_AUTO_HIDE | wxPD_APP_MODAL | wxPD_SMOOTH);
+            #else
+                m_ProgDlg=new wxProgressDialog(Msg, "Almost done...", 100, Parent, wxPD_AUTO_HIDE | wxPD_APP_MODAL | wxPD_SMOOTH);
+            #endif
+        }
+
+        ~ProgDlgT()
+        {
+            delete m_ProgDlg;
+            delete m_BusyInfo;
+        }
+
+        wxProgressDialog* GetPtr()
+        {
+            return m_ProgDlg;
+        }
+
+
+        private:
+
+        ProgDlgT(const ProgDlgT&);          // Use of the Copy Constructor    is not allowed.
+        void operator = (const ProgDlgT&);  // Use of the Assignment Operator is not allowed.
+
+        wxProgressDialog* m_ProgDlg;
+        wxBusyInfo*       m_BusyInfo;
+    };
+}
 
 
 wxMDIChildFrame* ParentFrameT::OpenFile(GameConfigT* GameConfig, wxString FileName)
 {
+    static const char*         SPECIFIER_LIST_C[]={ "D3", "HL1", "HL2" };
+    static const wxArrayString SPECIFIER_LIST(3, SPECIFIER_LIST_C);
+
     // Don't attempt to open the file if the game config is not given.
     if (GameConfig==NULL) return NULL;
 
@@ -449,20 +500,15 @@ wxMDIChildFrame* ParentFrameT::OpenFile(GameConfigT* GameConfig, wxString FileNa
     {
         if (FileName.EndsWith(".cmap"))
         {
-            #ifdef __WXGTK__
-                // We cannot use the progress dialog under wxGTK, see <http://trac.wxwidgets.org/ticket/12500> for details.
-                wxProgressDialog* ProgDlgPtr=NULL;
-                // wxBusyCursor   BusyCursor;   // Argh! And this doesn't seem to work as well: The busy cursor remains active for the parent frame and thus the menu bar.
-            #else
-                wxProgressDialog  ProgressDialog("Loading Cafu Map File", "Almost done...", 100, this, wxPD_AUTO_HIDE | wxPD_APP_MODAL | wxPD_SMOOTH);
-                wxProgressDialog* ProgDlgPtr=&ProgressDialog;
-            #endif
+            ProgDlgT ProgDlg(this, "Loading Cafu Map File");
 
-            return new ChildFrameT(this, FileName, new MapDocumentT(GameConfig, ProgDlgPtr, FileName));
+            return new ChildFrameT(this, FileName, new MapDocumentT(GameConfig, ProgDlg.GetPtr(), FileName));
         }
 
         if (FileName.EndsWith(".cmdl"))
         {
+            wxBusyInfo BusyInfo("Loading...");
+
             return new ModelEditor::ChildFrameT(this, FileName, new ModelEditor::ModelDocumentT(GameConfig, FileName));
         }
 
@@ -470,6 +516,8 @@ wxMDIChildFrame* ParentFrameT::OpenFile(GameConfigT* GameConfig, wxString FileNa
         {
             if (FileName.EndsWith("_init.cgui"))
             {
+                wxBusyInfo BusyInfo("Loading...");
+
                 return new GuiEditor::ChildFrameT(this, FileName, new GuiEditor::GuiDocumentT(GameConfig, FileName));
             }
 
@@ -489,38 +537,24 @@ wxMDIChildFrame* ParentFrameT::OpenFile(GameConfigT* GameConfig, wxString FileNa
                 Specifier=SPECIFIER_LIST[Choice];
             }
 
-            #ifdef __WXGTK__
-                // We cannot use the progress dialog under wxGTK, see <http://trac.wxwidgets.org/ticket/12500> for details.
-                wxProgressDialog* ProgDlgPtr=NULL;
-                // wxBusyCursor   BusyCursor;   // Argh! And this doesn't seem to work as well: The busy cursor remains active for the parent frame and thus the menu bar.
-            #else
-                wxProgressDialog  ProgressDialog("Importing "+Specifier+" map file", "Almost done...", 100, this, wxPD_AUTO_HIDE | wxPD_APP_MODAL | wxPD_SMOOTH);
-                wxProgressDialog* ProgDlgPtr=&ProgressDialog;
-            #endif
+            ProgDlgT ProgDlg(this, "Importing "+Specifier+" map file");
 
             if (Specifier=="HL1")
             {
-                return new ChildFrameT(this, FileName, MapDocumentT::ImportHalfLife1Map(GameConfig, ProgDlgPtr, FileName));
+                return new ChildFrameT(this, FileName, MapDocumentT::ImportHalfLife1Map(GameConfig, ProgDlg.GetPtr(), FileName));
             }
 
             if (Specifier=="D3")
             {
-                return new ChildFrameT(this, FileName, MapDocumentT::ImportDoom3Map(GameConfig, ProgDlgPtr, FileName));
+                return new ChildFrameT(this, FileName, MapDocumentT::ImportDoom3Map(GameConfig, ProgDlg.GetPtr(), FileName));
             }
         }
 
         if (FileName.EndsWith(".vmf"))
         {
-            #ifdef __WXGTK__
-                // We cannot use the progress dialog under wxGTK, see <http://trac.wxwidgets.org/ticket/12500> for details.
-                wxProgressDialog* ProgDlgPtr=NULL;
-                // wxBusyCursor   BusyCursor;   // Argh! And this doesn't seem to work as well: The busy cursor remains active for the parent frame and thus the menu bar.
-            #else
-                wxProgressDialog  ProgressDialog("Importing HL2 vmf file", "Almost done...", 100, this, wxPD_AUTO_HIDE | wxPD_APP_MODAL | wxPD_SMOOTH);
-                wxProgressDialog* ProgDlgPtr=&ProgressDialog;
-            #endif
+            ProgDlgT ProgDlg(this, "Importing HL2 vmf file");
 
-            return new ChildFrameT(this, FileName, MapDocumentT::ImportHalfLife2Vmf(GameConfig, ProgDlgPtr, FileName));
+            return new ChildFrameT(this, FileName, MapDocumentT::ImportHalfLife2Vmf(GameConfig, ProgDlg.GetPtr(), FileName));
         }
 
         // We've tried all known filename suffixes. Now assume that FileName specifies a model file and try that.
