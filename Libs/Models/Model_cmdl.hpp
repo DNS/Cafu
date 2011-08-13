@@ -53,7 +53,7 @@ class CafuModelT : public ModelT
     {
         std::string Name;       ///< The name of the joint.
         int         Parent;     ///< The parent of the root joint is -1.
-        Vector3fT   Pos;        ///< The position of the origin of the joint (absolute, in the coordinate system of the model).
+        Vector3fT   Pos;        ///< The position of the origin of the joint (relative, in the coordinate system of the parent joint).
         Vector3fT   Qtr;        ///< The orientation of the coordinate axes of the joint.
         Vector3fT   Scale;      ///< The scale  of the coordinate axes of the joint.
     };

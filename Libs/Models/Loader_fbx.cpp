@@ -334,12 +334,12 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::JointT>& Joints, int ParentI
         }
     }
 
-    // Note that KFbxAnimEvaluator::GetNodeGlobalTransform() is the proper method to call here:
+    // Note that KFbxAnimEvaluator::GetNodeLocalTransform() is the proper method to call here:
     // It returns the node's default transformation matrix or the node's actual transformation
     // matrix at a specified point in time (depending on its second parameter pTime).
     // See FBX SDK Programmer's Guide pages 89 and 90 and its API method documentation for details.
     // Also see KFbxAnimEvaluator::SetContext(): as we set no anim stack, it automatically uses the first in the scene.
-    const KFbxXMatrix& Transform  =m_Scene->GetEvaluator()->GetNodeGlobalTransform(const_cast<KFbxNode*>(Node));
+    const KFbxXMatrix& Transform  =m_Scene->GetEvaluator()->GetNodeLocalTransform(const_cast<KFbxNode*>(Node));
     KFbxVector4        Translation=Transform.GetT();
     KFbxQuaternion     Quaternion =Transform.GetQ();
     KFbxVector4        Scale      =Transform.GetS();

@@ -215,7 +215,7 @@ bool CafuModelT::IsVertexNrOK(const GuiFixtureT& GF, unsigned int PointNr) const
 
 void CafuModelT::InitMeshes()
 {
-    // Compute the bounding box for the model in the md5mesh file (stored in m_BasePoseBB), just in case this model has no animations.
+    // Compute the bounding box for the model in bind pose (stored in m_BasePoseBB), just in case this model has no animations.
     {
         ArrayT<MatrixT> JointMatrices;
         JointMatrices.PushBackEmpty(m_Joints.Size());
@@ -223,8 +223,9 @@ void CafuModelT::InitMeshes()
         for (unsigned long JointNr=0; JointNr<m_Joints.Size(); JointNr++)
         {
             const JointT& J=m_Joints[JointNr];
+            const MatrixT RelMatrix(J.Pos, cf::math::QuaternionfT::FromXYZ(J.Qtr), J.Scale);
 
-            JointMatrices[JointNr]=MatrixT(J.Pos, cf::math::QuaternionfT::FromXYZ(J.Qtr), J.Scale);
+            JointMatrices[JointNr]=(J.Parent==-1) ? RelMatrix : JointMatrices[J.Parent]*RelMatrix;
         }
 
         for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
@@ -753,23 +754,19 @@ void CafuModelT::UpdateCachedDrawData(int SequenceNr, float FrameNr, const Super
 
     if (SequenceNr==-1)
     {
-        // Don't do animation, just use the pose defined in the md5mesh file.
+        // Don't animate, just use the bind pose defined in the model file.
         for (unsigned long JointNr=0; JointNr<m_Joints.Size(); JointNr++)
         {
             if (Super && Super->HasMatrix(JointNr))
             {
-                // This code is correct, but note that joints for which Super does *not* have a matrix
-                // are assigned the *absolute* transformation matrix of joint J below, when they in fact
-                // should be placed *relative* to their parent bone (which was possibly positioned by Super).
-                // As a result, the code below for SequenceNr>=0 works all right; to make it work here,
-                // the m_Joints have to be expressed as relative transformations as well.
                 m_Draw_JointMatrices[JointNr]=Super->GetMatrix(JointNr);
                 continue;
             }
 
             const JointT& J=m_Joints[JointNr];
+            const MatrixT RelMatrix(J.Pos, cf::math::QuaternionfT::FromXYZ(J.Qtr), J.Scale);
 
-            m_Draw_JointMatrices[JointNr]=MatrixT(J.Pos, cf::math::QuaternionfT::FromXYZ(J.Qtr), J.Scale);
+            m_Draw_JointMatrices[JointNr]=(J.Parent==-1) ? RelMatrix : m_Draw_JointMatrices[J.Parent]*RelMatrix;
         }
     }
     else
@@ -1004,7 +1001,7 @@ void CafuModelT::UpdateCachedDrawData(int SequenceNr, float FrameNr, const Super
 
 const ArrayT<MatrixT>& CafuModelT::GetDrawJointMatrices(int SequenceNr, float FrameNr, const SuperT* Super) const
 {
-    // SequenceNr==-1 means "use the base pose from the md5mesh file only (no md5anim)".
+    // SequenceNr==-1 means "use the bind pose from the model file only (no anim)".
     if (SequenceNr>=int(m_Anims.Size())) SequenceNr=-1;
     if (SequenceNr!=-1 && (m_Anims[SequenceNr].FPS<0.0 || m_Anims[SequenceNr].Frames.Size()==0)) SequenceNr=-1;
     if (SequenceNr==-1) FrameNr=0.0;
@@ -1024,7 +1021,7 @@ const ArrayT<MatrixT>& CafuModelT::GetDrawJointMatrices(int SequenceNr, float Fr
 
 void CafuModelT::Draw(int SequenceNr, float FrameNr, float /*LodDist*/, const SuperT* Super) const
 {
-    // SequenceNr==-1 means "use the base pose from the md5mesh file only (no md5anim)".
+    // SequenceNr==-1 means "use the bind pose from the model file only (no anim)".
     if (SequenceNr>=int(m_Anims.Size())) SequenceNr=-1;
     if (SequenceNr!=-1 && (m_Anims[SequenceNr].FPS<0.0 || m_Anims[SequenceNr].Frames.Size()==0)) SequenceNr=-1;
     if (SequenceNr==-1) FrameNr=0.0;

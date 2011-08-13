@@ -266,7 +266,7 @@ class MatrixT
     }
 
     /// Computes the inverse of this matrix.
-    /// @param Result Whether the inversion was successfull.
+    /// @param Result Whether the inversion was successful.
     /// @return If this matrix is invertible, the inverse is returned by this method and *Result, if not at NULL, is set to true.
     ///         Otherwise, an undefined matrix is returned and *Result, if not at NULL, is set to false.
     MatrixT GetInverse(bool* Result=NULL) const;

@@ -208,34 +208,19 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::
 
 void LoaderHL1mdlT::Load(ArrayT<CafuModelT::JointT>& Joints) const
 {
-    ArrayT<MatrixT> Matrices;
-
-    Matrices.PushBackEmptyExact(StudioHeader->NumBones);
-    for (int BoneNr=0; BoneNr<StudioHeader->NumBones; BoneNr++)
-    {
-        const StudioBoneT& Bone=StudioBones[BoneNr];
-
-        Matrices[BoneNr]=MatrixT(Vector3fT(&Bone.Value[0]), cf::math::QuaternionfT::Euler(Bone.Value[4], Bone.Value[5], Bone.Value[3]));
-
-        if (Bone.Parent!=-1)
-        {
-            if (Bone.Parent>=BoneNr)
-                throw ModelLoaderT::LoadErrorT("Bone hierarchy: Child bone preceeds parent bone!");
-
-            Matrices[BoneNr]=Matrices[Bone.Parent] * Matrices[BoneNr];
-        }
-    }
-
     Joints.PushBackEmptyExact(StudioHeader->NumBones);
+
     for (int BoneNr=0; BoneNr<StudioHeader->NumBones; BoneNr++)
     {
-        CafuModelT::JointT&   Joint=Joints[BoneNr];
-        const MatrixT&        Mat  =Matrices[BoneNr];
+        const StudioBoneT&    Bone=StudioBones[BoneNr];
+        const MatrixT         Mat(Vector3fT(&Bone.Value[0]), cf::math::QuaternionfT::Euler(Bone.Value[4], Bone.Value[5], Bone.Value[3]));
         cf::math::Matrix3x3fT Mat3x3;
 
         for (unsigned long i=0; i<3; i++)
             for (unsigned long j=0; j<3; j++)
                 Mat3x3[i][j]=Mat[i][j];
+
+        CafuModelT::JointT& Joint=Joints[BoneNr];
 
         Joint.Name  =StudioBones[BoneNr].Name;
         Joint.Parent=StudioBones[BoneNr].Parent;

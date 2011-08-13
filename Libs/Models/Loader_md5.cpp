@@ -21,6 +21,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Loader_md5.hpp"
 #include "MaterialSystem/Material.hpp"
+#include "Math3D/Matrix3x3.hpp"
+#include "Math3D/Quaternion.hpp"
 #include "TextParser/TextParser.hpp"
 #include "String.hpp"
 
@@ -92,6 +94,7 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
             else if (Token=="joints")
             {
                 TP.AssertAndSkipToken("{");
+                ArrayT<MatrixT> ParentGlobalInverse;
 
                 while (true)
                 {
@@ -109,7 +112,6 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                     Joint.Qtr.y=TP.GetNextTokenAsFloat();
                     Joint.Qtr.z=TP.GetNextTokenAsFloat();
                     TP.AssertAndSkipToken(")");
-                    Joint.Scale=Vector3fT(1.0f, 1.0f, 1.0f);
 
                     // Make sure that all joints (bones) are declared in a proper hierarchical order.
                     // That is, if we traverse the m_Joints in increasing order 0, 1, 2, ..., then we are never faced with a
@@ -120,6 +122,19 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                         throw ModelT::LoadError();  // TODO: Fix this by re-sorting the joints rather than by abortion!
                     }
 
+                    const MatrixT GlobalMat(Joint.Pos, cf::math::QuaternionfT::FromXYZ(Joint.Qtr));
+                    const MatrixT LocalMat=(Joint.Parent==-1) ? GlobalMat : ParentGlobalInverse[Joint.Parent] * GlobalMat;
+                    cf::math::Matrix3x3fT Mat3x3;
+
+                    for (unsigned long i=0; i<3; i++)
+                        for (unsigned long j=0; j<3; j++)
+                            Mat3x3[i][j]=LocalMat[i][j];
+
+                    Joint.Pos   =Vector3fT(LocalMat[0][3], LocalMat[1][3], LocalMat[2][3]);
+                    Joint.Qtr   =cf::math::QuaternionfT(Mat3x3).GetXYZ();
+                    Joint.Scale =Vector3fT(1.0f, 1.0f, 1.0f);
+
+                    ParentGlobalInverse.PushBack(GlobalMat.GetInverse());
                     Joints.PushBack(Joint);
                 }
             }
