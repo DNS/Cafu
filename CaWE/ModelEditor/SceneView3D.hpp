@@ -52,7 +52,7 @@ namespace ModelEditor
         virtual void      InfoRightMouseClick(wxMouseEvent& ME);
 
         /// Renders the skeleton of the model with the given joints and matrices.
-        void RenderSkeleton(const ArrayT<CafuModelT::JointT>& Joints, const ArrayT<MatrixT>& Matrices) const;
+        void RenderSkeleton(const ArrayT<CafuModelT::JointT>& Joints, const ArrayT<MatrixT>& Matrices, bool IsSubModel) const;
 
         /// Renders a single pass of the scene.
         void RenderPass() const;
@@ -60,6 +60,7 @@ namespace ModelEditor
         ChildFrameT*  m_Parent;
         Renderer3DT   m_Renderer;           ///< Performs the 3D rendering in our window.
         unsigned long m_TimeOfLastPaint;    ///< The time at which the OnPaint() event handler was last called.
+        ArrayT<bool>  m_JointSelCache;      ///< Stores for each joint whether it is currently selected, updated every frame.
 
         // Event handlers.
         void OnKeyDown      (wxKeyEvent&         KE);

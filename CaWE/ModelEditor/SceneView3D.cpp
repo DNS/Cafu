@@ -297,7 +297,7 @@ void ModelEditor::SceneView3DT::OnContextMenu(wxContextMenuEvent& CE)
 }
 
 
-void ModelEditor::SceneView3DT::RenderSkeleton(const ArrayT<CafuModelT::JointT>& Joints, const ArrayT<MatrixT>& Matrices) const
+void ModelEditor::SceneView3DT::RenderSkeleton(const ArrayT<CafuModelT::JointT>& Joints, const ArrayT<MatrixT>& Matrices, bool IsSubModel) const
 {
     static MatSys::MeshT Skeleton(MatSys::MeshT::Lines);
 
@@ -316,8 +316,23 @@ void ModelEditor::SceneView3DT::RenderSkeleton(const ArrayT<CafuModelT::JointT>&
             MatSys::MeshT::VertexT& V1=Skeleton.Vertices[Skeleton.Vertices.Size()-2];
             MatSys::MeshT::VertexT& V2=Skeleton.Vertices[Skeleton.Vertices.Size()-1];
 
-            V1.SetOrigin(Mp[0][3], Mp[1][3], Mp[2][3]); V1.SetColor(1, 0, 0);
-            V2.SetOrigin(Mj[0][3], Mj[1][3], Mj[2][3]); V2.SetColor(1, 1, 0, 0.5f);
+            V1.SetOrigin(Mp[0][3], Mp[1][3], Mp[2][3]);
+            V2.SetOrigin(Mj[0][3], Mj[1][3], Mj[2][3]);
+
+            if (!IsSubModel && JointNr<m_JointSelCache.Size() && m_JointSelCache[JointNr])
+            {
+                // Set highlight color for selected joints.
+                const float c=float(sin(m_TimeOfLastPaint / 300.0)*0.4 + 0.4);
+
+                V1.SetColor(c, 0.8f, 0.8f);
+                V2.SetColor(0,    c, 0.8f);
+            }
+            else
+            {
+                // Set color for normal, unselected joints.
+                V1.SetColor(1, 0, 0);
+                V2.SetColor(1, 1, 0, 0.5f);
+            }
         }
 
         // Draw the coordinate axes of Mj.
@@ -390,7 +405,7 @@ void ModelEditor::SceneView3DT::RenderPass() const
     // Render the skeleton of the model.
     if (ScenePropGrid->m_Model_ShowSkeleton && MatSys::Renderer->GetCurrentRenderAction()==MatSys::RendererI::AMBIENT)
     {
-        RenderSkeleton(Model->GetJoints(), Model->GetDrawJointMatrices(SequNr, Anim.FrameNr));
+        RenderSkeleton(Model->GetJoints(), Model->GetDrawJointMatrices(SequNr, Anim.FrameNr), false);
 
         for (unsigned long SmNr=0; SmNr<ModelDoc->GetSubmodels().Size(); SmNr++)
         {
@@ -399,7 +414,7 @@ void ModelEditor::SceneView3DT::RenderPass() const
                 Model->GetDrawJointMatrices(SequNr, Anim.FrameNr),
                 SM->GetJointsMap());
 
-            RenderSkeleton(SM->GetSubmodel()->GetJoints(), SM->GetSubmodel()->GetDrawJointMatrices(0, 0.0f, &Super));
+            RenderSkeleton(SM->GetSubmodel()->GetJoints(), SM->GetSubmodel()->GetDrawJointMatrices(0, 0.0f, &Super), true);
         }
     }
 
@@ -485,6 +500,18 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
     // Drive the model documents time, i.e. to advance the animation.
     m_Parent->GetModelDoc()->AdvanceTime(FrameTime);
     m_Parent->GetModelDoc()->UpdateAllObservers_AnimStateChanged();
+
+    // Update the m_JointSelCache member.
+    const ArrayT<unsigned int>& JointSel=m_Parent->GetModelDoc()->GetSelection(JOINT);
+
+    for (unsigned long JNr=0; JNr<m_JointSelCache.Size(); JNr++)
+        m_JointSelCache[JNr]=false;
+
+    for (unsigned long JNr=0; JNr<JointSel.Size(); JNr++)
+    {
+        while (JointSel[JNr]>=m_JointSelCache.Size()) m_JointSelCache.PushBack(false);
+        m_JointSelCache[JointSel[JNr]]=true;
+    }
 
 
     /*********************/
