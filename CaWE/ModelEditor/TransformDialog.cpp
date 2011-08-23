@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ModelDocument.hpp"
 //#include "Models/Model_cmdl.hpp"
 #include "wx/artprov.h"
+#include "wx/imaglist.h"
 #include "wx/notebook.h"
 #include "wx/valnum.h"
 
