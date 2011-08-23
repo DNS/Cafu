@@ -31,6 +31,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SceneView3D.hpp"
 #include "ScenePropGrid.hpp"
 #include "SubmodelsList.hpp"
+#include "TransformDialog.hpp"
 #include "Commands/Add.hpp"
 #include "Commands/Delete.hpp"
 
@@ -91,6 +92,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
       m_GuiFixtureInspector(NULL),
       m_ScenePropGrid(NULL),
       m_SubmodelsPanel(NULL),
+      m_TransformDialog(NULL),
       m_FileMenu(NULL),
       m_EditMenu(NULL)
 {
@@ -144,6 +146,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     ViewMenu->AppendSeparator();
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_SCENE_SETUP,          "Scene Setup",           "Show or hide the scene setup inspector");
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_SUBMODELS_LIST,       "Submodels List",        "Show or hide the submodels list");
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_TRANSFORM_DIALOG,     "Transform Dialog",      "Show or hide the model transform dialog");
     ViewMenu->AppendSeparator();
     ViewMenu->Append(ID_MENU_VIEW_LOAD_USER_PERSPECTIVE, "&Load user window layout", "Loads the user defined window layout");
     ViewMenu->Append(ID_MENU_VIEW_SAVE_USER_PERSPECTIVE, "&Save user window layout", "Saves the current window layout");
@@ -154,6 +157,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     ModelMenu->AppendRadioItem(ID_MENU_MODEL_ANIM_PLAY,  "&Play anim"/*, "Loads the user defined window layout"*/);
     ModelMenu->AppendRadioItem(ID_MENU_MODEL_ANIM_PAUSE, "P&ause anim"/*, "Loads the user defined window layout"*/);
     ModelMenu->AppendSeparator();
+    ModelMenu->Append(ID_MENU_MODEL_TRANSFORM, "&Transform...\tCtrl+T", "Transform the model");
     ModelMenu->Append(ID_MENU_MODEL_GUIFIXTURE_ADD, "Add GUI fixture", "Adds a new GUI fixture to the model");
     ModelMenu->Append(-1, "Run benchmark", "Move the camera along a predefined path and determine the time taken")->Enable(false);
     ModelMenu->AppendSeparator();
@@ -237,6 +241,11 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
                          Name("SubmodelsPanel").Caption("Submodels List").
                          Right().Position(1));
 
+    m_TransformDialog=new TransformDialogT(this, wxSize(248, 240));
+    m_AUIManager.AddPane(m_TransformDialog, wxAuiPaneInfo().
+                         Name("TransformDialog").Caption("Model Transform").
+                         Float().Hide());
+
     // Create AUI toolbars.
     wxAuiToolBar* ToolbarDocument=new wxAuiToolBar(this, wxID_ANY);
     ToolbarDocument->AddTool(ParentFrameT::ID_MENU_FILE_NEW_MODEL, "New", wxArtProvider::GetBitmap(wxART_NEW, wxART_TOOLBAR), "Create a new file");
@@ -263,6 +272,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     AnimToolbar->AddTool(ID_MENU_MODEL_ANIM_PAUSE,         "Pause Anim",    wxArtProvider::GetBitmap("media-playback-pause", wxART_TOOLBAR), "Pause/stop the animation sequence", wxITEM_RADIO);
     AnimToolbar->AddTool(ID_MENU_MODEL_ANIM_SKIP_FORWARD,  "Skip forward",  wxArtProvider::GetBitmap("media-skip-forward", wxART_TOOLBAR), "Select next animation sequence");
     AnimToolbar->AddSeparator();
+    AnimToolbar->AddTool(ID_MENU_MODEL_TRANSFORM,      "Transform",       wxArtProvider::GetBitmap("transform-rotate-right", wxART_TOOLBAR), "Transform model");
     AnimToolbar->AddTool(ID_MENU_MODEL_GUIFIXTURE_ADD, "Add GUI fixture", wxArtProvider::GetBitmap("window-new", wxART_TOOLBAR), "Add GUI fixture");
     AnimToolbar->Realize();
 
@@ -708,6 +718,7 @@ void ModelEditor::ChildFrameT::OnMenuView(wxCommandEvent& CE)
         case ID_MENU_VIEW_AUIPANE_GUIFIXTURE_INSPECTOR: PaneToggleShow(m_AUIManager.GetPane(m_GuiFixtureInspector)); break;
         case ID_MENU_VIEW_AUIPANE_SCENE_SETUP:          PaneToggleShow(m_AUIManager.GetPane(m_ScenePropGrid      )); break;
         case ID_MENU_VIEW_AUIPANE_SUBMODELS_LIST:       PaneToggleShow(m_AUIManager.GetPane(m_SubmodelsPanel     )); break;
+        case ID_MENU_VIEW_AUIPANE_TRANSFORM_DIALOG:     PaneToggleShow(m_AUIManager.GetPane(m_TransformDialog    )); break;
 
         case ID_MENU_VIEW_LOAD_DEFAULT_PERSPECTIVE:
             m_AUIManager.LoadPerspective(AUIDefaultPerspective);
@@ -739,6 +750,7 @@ void ModelEditor::ChildFrameT::OnMenuViewUpdate(wxUpdateUIEvent& UE)
         case ID_MENU_VIEW_AUIPANE_GUIFIXTURE_INSPECTOR: UE.Check(m_AUIManager.GetPane(m_GuiFixtureInspector).IsShown()); break;
         case ID_MENU_VIEW_AUIPANE_SCENE_SETUP:          UE.Check(m_AUIManager.GetPane(m_ScenePropGrid      ).IsShown()); break;
         case ID_MENU_VIEW_AUIPANE_SUBMODELS_LIST:       UE.Check(m_AUIManager.GetPane(m_SubmodelsPanel     ).IsShown()); break;
+        case ID_MENU_VIEW_AUIPANE_TRANSFORM_DIALOG:     UE.Check(m_AUIManager.GetPane(m_TransformDialog    ).IsShown()); break;
     }
 }
 
@@ -780,6 +792,13 @@ void ModelEditor::ChildFrameT::OnMenuModel(wxCommandEvent& CE)
         {
             m_ModelDoc->SetAnimSpeed(0.0f);
             m_ModelDoc->UpdateAllObservers_AnimStateChanged();
+            break;
+        }
+
+        case ID_MENU_MODEL_TRANSFORM:
+        {
+            if (!m_AUIManager.GetPane(m_TransformDialog).IsShown())
+                PaneToggleShow(m_AUIManager.GetPane(m_TransformDialog));
             break;
         }
 

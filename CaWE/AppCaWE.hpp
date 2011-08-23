@@ -44,6 +44,7 @@ class AppCaWE : public wxApp
 
     private:
 
+    wxLocale*     m_Locale;
     wxFileConfig* m_FileConfig;
     ParentFrameT* m_ParentFrame;
 };

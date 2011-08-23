@@ -78,6 +78,7 @@ class AppCafuT : public wxApp
     void OnInitCmdLine(wxCmdLineParser& Parser);
     bool OnCmdLineParsed(wxCmdLineParser& Parser);
 
+    wxLocale*                 m_Locale;
     cf::ConsoleStringBufferT* m_ConBuffer;          ///< The console that buffers all output.
     cf::ConsoleFileT*         m_ConFile;            ///< The console that logs all output into a file (can be NULL if not used).
     bool                      m_IsCustomVideoMode;  ///< Whether we successfully set a custom video mode (screen resolution) during initialization.

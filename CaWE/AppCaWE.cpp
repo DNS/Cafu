@@ -85,6 +85,7 @@ IMPLEMENT_APP(AppCaWE)
 
 AppCaWE::AppCaWE()
     : wxApp(),
+      m_Locale(NULL),
       m_FileConfig(NULL),
       m_ParentFrame(NULL)
 {
@@ -161,10 +162,11 @@ bool AppCaWE::OnInit()
     }
 
 
-    // Undo the wx locale initialization, as I want to be sure to use the same (default) locale "C" always and everywhere.
+    // Undo the wx locale initialization, as we want to be sure to use the same (default) locale "C" always and everywhere.
     // Using other locales introduces a lot of subtle errors. E.g. reading floating point numbers from anywhere
     // (like map files!) fails because e.g. "1.4" is no proper floating point string in the German locale (but "1,4" is).
-    setlocale(LC_ALL, "C");
+    // setlocale(LC_ALL, "C");      // This alone is not enough, see http://trac.wxwidgets.org/ticket/12970 for details.
+    m_Locale=new wxLocale(wxLANGUAGE_ENGLISH, wxLOCALE_DONT_LOAD_DEFAULT);
 
     // Activate a log console as the wx debug target.
     // wxLog::SetActiveTarget(new wxLogWindow(NULL, "wx Debug Console", true, false));
@@ -263,6 +265,9 @@ int AppCaWE::OnExit()
     // Shutdown the global cursor manager instance.
     delete CursorMan;
     CursorMan=NULL;
+
+    delete m_Locale;
+    m_Locale=NULL;
 
     return wxApp::OnExit();
 }

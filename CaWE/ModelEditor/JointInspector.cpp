@@ -101,9 +101,13 @@ void JointInspectorT::RefreshPropGrid()
     {
         const CafuModelT::JointT& Joint=Joints[Selection[0]];
 
+        wxPGProperty* GeneralCat=Append(new wxPropertyCategory("General"));
+
         Append(new wxStringProperty("Name", wxPG_LABEL, Joint.Name));
         wxPGProperty* JointParent=Append(new wxIntProperty("Parent", wxPG_LABEL, Joint.Parent));
         DisableProperty(JointParent);
+
+        wxPGProperty* BindPoseCat=Append(new wxPropertyCategory("Bind pose (no effect on animations)"));
 
         wxPGProperty* JointPos =Append(new wxStringProperty("Pos", wxPG_LABEL, "<composed>"));
         wxPGProperty* JointPosX=AppendIn(JointPos, new wxFloatProperty("x", wxPG_LABEL, Joint.Pos.x)); JointPosX->SetTextColour(wxColour(200, 0, 0));

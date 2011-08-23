@@ -164,6 +164,7 @@ IMPLEMENT_APP(AppCafuT)
 
 AppCafuT::AppCafuT()
     : wxApp(),
+      m_Locale(NULL),
       m_ConBuffer(new cf::ConsoleStringBufferT()),
       m_ConFile(NULL),
       m_IsCustomVideoMode(false),
@@ -221,7 +222,8 @@ bool AppCafuT::OnInit()
     // Undo the wx locale initialization, as we want to be sure to use the same (default) locale "C" always and everywhere.
     // Using other locales introduces a lot of subtle errors. E.g. reading floating point numbers from anywhere
     // (like map files!) fails because e.g. "1.4" is no proper floating point string in the German locale (but "1,4" is).
-    setlocale(LC_ALL, "C");
+    // setlocale(LC_ALL, "C");      // This alone is not enough, see http://trac.wxwidgets.org/ticket/12970 for details.
+    m_Locale=new wxLocale(wxLANGUAGE_ENGLISH, wxLOCALE_DONT_LOAD_DEFAULT);
 
     ConsoleInterpreter->RunCommand("dofile('config.lua');");
 
@@ -355,6 +357,9 @@ int AppCafuT::OnExit()
     // Setting the ConsoleInterpreter to NULL is very important, to make sure that no ConFuncT
     // or ConVarT dtor accesses the ConsoleInterpreter that might already have been destroyed then.
     ConsoleInterpreter=NULL;
+
+    delete m_Locale;
+    m_Locale=NULL;
 
     return wxApp::OnExit();
 }
