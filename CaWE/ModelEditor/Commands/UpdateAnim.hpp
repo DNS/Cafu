@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MODELEDITOR_UPDATE_GUI_FIXTURE_HPP_
-#define _MODELEDITOR_UPDATE_GUI_FIXTURE_HPP_
+#ifndef _MODELEDITOR_UPDATE_ANIM_HPP_
+#define _MODELEDITOR_UPDATE_ANIM_HPP_
 
 #include "../../CommandPattern.hpp"
 #include "Models/Model_cmdl.hpp"
@@ -30,11 +30,11 @@ namespace ModelEditor
 {
     class ModelDocumentT;
 
-    class CommandUpdateGuiFixtureT : public CommandT
+    class CommandUpdateAnimT : public CommandT
     {
         public:
 
-        CommandUpdateGuiFixtureT(ModelDocumentT* ModelDoc, unsigned int GFNr, const CafuModelT::GuiFixtureT& GF);
+        CommandUpdateAnimT(ModelDocumentT* ModelDoc, unsigned int AnimNr, const CafuModelT::AnimT& Anim);
 
         // CommandT implementation.
         bool Do();
@@ -44,10 +44,10 @@ namespace ModelEditor
 
         private:
 
-        ModelDocumentT*               m_ModelDoc;
-        const unsigned int            m_GFNr;
-        const CafuModelT::GuiFixtureT m_NewGF;
-        const CafuModelT::GuiFixtureT m_OldGF;
+        ModelDocumentT*         m_ModelDoc;
+        const unsigned int      m_AnimNr;
+        const CafuModelT::AnimT m_NewAnim;
+        const CafuModelT::AnimT m_OldAnim;
     };
 }
 

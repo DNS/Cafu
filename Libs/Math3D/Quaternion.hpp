@@ -70,9 +70,9 @@ namespace cf
             }
 
             /// Constructs a quaternion from three Euler angles.
-            /// @param Pitch   the Euler rotation about the x-axis.
-            /// @param Yaw     the Euler rotation about the y-axis.
-            /// @param Roll    the Euler rotation about the z-axis.
+            /// @param Pitch   the Euler rotation about the x-axis, in radians.
+            /// @param Yaw     the Euler rotation about the y-axis, in radians.
+            /// @param Roll    the Euler rotation about the z-axis, in radians.
             /// Note that the assignment of angles to axes assumes a right-handed coordinate system where the z-axis points towards the viewer.
             /// This is especially different from the coordinate system that class cf::math::AnglesT<T> uses, which is also right-handed, but
             /// rotated by 90 degrees so that the z-axis points up and the y-axis away from the viewer!
@@ -180,6 +180,16 @@ namespace cf
             {
                 x-=B.x; y-=B.y; z-=B.z; w-=B.w;
                 return *this;
+            }
+
+            /// Returns the quaternion Q that expresses the combined rotation of this quaternion and \c B, <tt>Q = this*B</tt>.
+            QuaternionT<T> operator * (const QuaternionT<T>& B) const
+            {
+                return QuaternionT<T>(
+                    w*B.x + x*B.w + y*B.z - z*B.y,
+                    w*B.y + y*B.w + z*B.x - x*B.z,
+                    w*B.z + z*B.w + x*B.y - y*B.x,
+                    w*B.w - x*B.x - y*B.y - z*B.z);
             }
 
             /// Returns a copy of this quaternion scaled by s.

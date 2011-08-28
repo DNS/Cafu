@@ -121,6 +121,76 @@ bool CafuModelT::MeshT::AreGeoDups(unsigned int Vertex1Nr, unsigned int Vertex2N
 }
 
 
+void CafuModelT::AnimT::RecomputeBB(unsigned int FrameNr, const ArrayT<JointT>& Joints, const ArrayT<MeshT>& Meshes)
+{
+    // This is an auxiliary method that is only needed after an AnimT instance has been newly
+    // created (e.g. in one of the model loaders) or manipulated (e.g. in the Model Editor).
+    static ArrayT<MatrixT> JointMatrices;
+
+    JointMatrices.Overwrite();
+    JointMatrices.PushBackEmpty(Joints.Size());
+
+    // This is a modified version of the loop in CafuModelT::UpdateCachedDrawData().
+    for (unsigned long JointNr=0; JointNr<Joints.Size(); JointNr++)
+    {
+        const CafuModelT::AnimT::AnimJointT& AJ=AnimJoints[JointNr];
+        Vector3fT Data_0[3]={ AJ.DefaultPos, AJ.DefaultQtr, AJ.DefaultScale };
+
+        // Determine the position, quaternion and scale at FrameNr.
+        unsigned int FlagCount=0;
+
+        for (int i=0; i<9; i++)
+        {
+            if ((AJ.Flags >> i) & 1)
+            {
+                Data_0[i/3][i % 3]=Frames[FrameNr].AnimData[AJ.FirstDataIdx+FlagCount];
+
+                FlagCount++;
+            }
+        }
+
+        // Compute the matrix that is relative to the parent bone, and finally obtain the absolute matrix for that bone!
+        const MatrixT RelMatrix(Data_0[0], cf::math::QuaternionfT::FromXYZ(Data_0[1]), Data_0[2]);
+        const CafuModelT::JointT& J=Joints[JointNr];
+
+        JointMatrices[JointNr]=(J.Parent==-1) ? RelMatrix : JointMatrices[J.Parent]*RelMatrix;
+    }
+
+    // "Clear" the old bounding-box.
+    Frames[FrameNr].BB=BoundingBox3fT();
+
+    // This is a modified version of the loop in CafuModelT::RecomputeBindPoseBB().
+    for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
+    {
+        const CafuModelT::MeshT& Mesh=Meshes[MeshNr];
+
+        for (unsigned long VertexNr=0; VertexNr<Mesh.Vertices.Size(); VertexNr++)
+        {
+            const CafuModelT::MeshT::VertexT& Vertex=Mesh.Vertices[VertexNr];
+            Vector3fT OutVert;
+
+            if (Vertex.NumWeights==1)
+            {
+                const CafuModelT::MeshT::WeightT& Weight=Mesh.Weights[Vertex.FirstWeightIdx];
+
+                OutVert=JointMatrices[Weight.JointIdx].Mul_xyz1(Weight.Pos);
+            }
+            else
+            {
+                for (unsigned int WeightNr=0; WeightNr<Vertex.NumWeights; WeightNr++)
+                {
+                    const CafuModelT::MeshT::WeightT& Weight=Mesh.Weights[Vertex.FirstWeightIdx+WeightNr];
+
+                    OutVert+=JointMatrices[Weight.JointIdx].Mul_xyz1(Weight.Pos) * Weight.Weight;
+                }
+            }
+
+            Frames[FrameNr].BB+=OutVert;
+        }
+    }
+}
+
+
 CafuModelT::GuiFixtureT::GuiFixtureT()
     : Name("GUI Fixture")
 {
@@ -142,7 +212,7 @@ CafuModelT::CafuModelT(ModelLoaderT& Loader)
     : m_FileName(Loader.GetFileName()),
       m_MaterialMan(),
       m_UseGivenTangentSpace(Loader.UseGivenTS()),  // Should we use the fixed, given tangent space, or recompute it ourselves here?
-      m_BasePoseBB(Vector3fT()),                    // Re-initialized in InitMeshes(), but start with a valid box anyways (e.g. for testing models that have a skeleton, but no mesh).
+      m_BindPoseBB(Vector3fT()),                    // Re-initialized in InitMeshes() calling RecomputeBindPoseBB(), but start with a valid box anyways (e.g. for testing models that have a skeleton, but no mesh).
       m_Draw_CachedDataAtSequNr(-1234),             // Just a random number that is unlikely to occur normally.
       m_Draw_CachedDataAtFrameNr(-3.1415926f)       // Just a random number that is unlikely to occur normally.
 {
@@ -213,51 +283,55 @@ bool CafuModelT::IsVertexNrOK(const GuiFixtureT& GF, unsigned int PointNr) const
 }
 
 
-void CafuModelT::InitMeshes()
+void CafuModelT::RecomputeBindPoseBB()
 {
-    // Compute the bounding box for the model in bind pose (stored in m_BasePoseBB), just in case this model has no animations.
+    ArrayT<MatrixT> JointMatrices;
+    JointMatrices.PushBackEmpty(m_Joints.Size());
+
+    for (unsigned long JointNr=0; JointNr<m_Joints.Size(); JointNr++)
     {
-        ArrayT<MatrixT> JointMatrices;
-        JointMatrices.PushBackEmpty(m_Joints.Size());
+        const JointT& J=m_Joints[JointNr];
+        const MatrixT RelMatrix(J.Pos, cf::math::QuaternionfT::FromXYZ(J.Qtr), J.Scale);
 
-        for (unsigned long JointNr=0; JointNr<m_Joints.Size(); JointNr++)
+        JointMatrices[JointNr]=(J.Parent==-1) ? RelMatrix : JointMatrices[J.Parent]*RelMatrix;
+    }
+
+    for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
+    {
+        const MeshT& Mesh=m_Meshes[MeshNr];
+
+        for (unsigned long VertexNr=0; VertexNr<Mesh.Vertices.Size(); VertexNr++)
         {
-            const JointT& J=m_Joints[JointNr];
-            const MatrixT RelMatrix(J.Pos, cf::math::QuaternionfT::FromXYZ(J.Qtr), J.Scale);
+            const MeshT::VertexT& Vertex=Mesh.Vertices[VertexNr];
+            Vector3fT             OutVert;
 
-            JointMatrices[JointNr]=(J.Parent==-1) ? RelMatrix : JointMatrices[J.Parent]*RelMatrix;
-        }
-
-        for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
-        {
-            const MeshT& Mesh=m_Meshes[MeshNr];
-
-            for (unsigned long VertexNr=0; VertexNr<Mesh.Vertices.Size(); VertexNr++)
+            if (Vertex.NumWeights==1)
             {
-                const MeshT::VertexT& Vertex=Mesh.Vertices[VertexNr];
-                Vector3fT             OutVert;
+                const MeshT::WeightT& Weight=Mesh.Weights[Vertex.FirstWeightIdx];
 
-                if (Vertex.NumWeights==1)
-                {
-                    const MeshT::WeightT& Weight=Mesh.Weights[Vertex.FirstWeightIdx];
-
-                    OutVert=JointMatrices[Weight.JointIdx].Mul_xyz1(Weight.Pos);
-                }
-                else
-                {
-                    for (unsigned int WeightNr=0; WeightNr<Vertex.NumWeights; WeightNr++)
-                    {
-                        const MeshT::WeightT& Weight=Mesh.Weights[Vertex.FirstWeightIdx+WeightNr];
-
-                        OutVert+=JointMatrices[Weight.JointIdx].Mul_xyz1(Weight.Pos) * Weight.Weight;
-                    }
-                }
-
-                if (MeshNr==0 && VertexNr==0) m_BasePoseBB=BoundingBox3fT(OutVert);
-                                         else m_BasePoseBB.Insert(OutVert);
+                OutVert=JointMatrices[Weight.JointIdx].Mul_xyz1(Weight.Pos);
             }
+            else
+            {
+                for (unsigned int WeightNr=0; WeightNr<Vertex.NumWeights; WeightNr++)
+                {
+                    const MeshT::WeightT& Weight=Mesh.Weights[Vertex.FirstWeightIdx+WeightNr];
+
+                    OutVert+=JointMatrices[Weight.JointIdx].Mul_xyz1(Weight.Pos) * Weight.Weight;
+                }
+            }
+
+            if (MeshNr==0 && VertexNr==0) m_BindPoseBB=BoundingBox3fT(OutVert);
+                                     else m_BindPoseBB.Insert(OutVert);
         }
     }
+}
+
+
+void CafuModelT::InitMeshes()
+{
+    // Compute the bounding box for the model in bind pose (stored in m_BindPoseBB), just in case this model has no animations.
+    RecomputeBindPoseBB();
 
 
     // Compute auxiliary data for each mesh.
@@ -1334,7 +1408,7 @@ unsigned int CafuModelT::GetNrOfSequences() const
 BoundingBox3fT CafuModelT::GetBB(int SequenceNr, float FrameNr) const
 {
     if (SequenceNr==-1 || SequenceNr>=int(m_Anims.Size()) || m_Anims[SequenceNr].Frames.Size()==0 || m_Anims[SequenceNr].FPS<0.0)
-        return m_BasePoseBB;
+        return m_BindPoseBB;
 
     // Should we interpolate the bounding box between frames as we interpolate the bones?
     const int FNr=(int(FrameNr+0.5f)) % m_Anims[SequenceNr].Frames.Size();

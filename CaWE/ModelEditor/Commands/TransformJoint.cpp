@@ -49,7 +49,8 @@ bool CommandTransformJointT::Do()
     // because it's bound to become invalid whenever another command meddles with the array of joints.
     GetModelVec()=m_NewVec;
 
-    // Make sure that the draw cache is refreshed.
+    // Make sure that the BB is updated and the draw cache is refreshed.
+    m_ModelDoc->GetModel()->RecomputeBindPoseBB();
     m_ModelDoc->GetModel()->m_Draw_CachedDataAtSequNr=-1234;
 
     m_ModelDoc->UpdateAllObservers_JointChanged(m_JointNr);
@@ -67,7 +68,8 @@ void CommandTransformJointT::Undo()
     // because it's bound to become invalid whenever another command meddles with the array of joints.
     GetModelVec()=m_OldVec;
 
-    // Make sure that the draw cache is refreshed.
+    // Make sure that the BB is updated and the draw cache is refreshed.
+    m_ModelDoc->GetModel()->RecomputeBindPoseBB();
     m_ModelDoc->GetModel()->m_Draw_CachedDataAtSequNr=-1234;
 
     m_ModelDoc->UpdateAllObservers_JointChanged(m_JointNr);

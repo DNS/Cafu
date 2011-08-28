@@ -22,7 +22,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "TransformDialog.hpp"
 #include "ChildFrame.hpp"
 #include "ModelDocument.hpp"
-//#include "Models/Model_cmdl.hpp"
+#include "Commands/TransformJoint.hpp"
+#include "Commands/UpdateAnim.hpp"
+#include "Math3D/Angles.hpp"
+#include "Math3D/Quaternion.hpp"
+#include "Models/Model_cmdl.hpp"
+
 #include "wx/artprov.h"
 #include "wx/imaglist.h"
 #include "wx/notebook.h"
@@ -191,6 +196,154 @@ void TransformDialogT::OnButton(wxCommandEvent& Event)
 
         case ID_BUTTON_APPLY:
         {
+            m_Notebook->GetPage(SelPage)->TransferDataFromWindow();
+
+            const ArrayT<unsigned int>& SelAnims=m_ModelDoc->GetSelection(ANIM);
+
+            if (m_ModelDoc->GetModel()->GetJoints().Size()==0)
+                break;
+
+            // Transform the bind pose.
+            if (SelAnims.Size()==0)
+            {
+                const ArrayT<CafuModelT::JointT>& Joints=m_ModelDoc->GetModel()->GetJoints();
+
+                switch (SelPage)
+                {
+                    case 0:
+                    {
+                        const Vector3fT Values(m_Values[SelPage]);
+
+                        m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, 0, 'p', Joints[0].Pos + Values));
+                        break;
+                    }
+
+                    case 1:
+                    {
+                        const Vector3fT Values=Vector3fT(m_Values[SelPage]) * float(cf::math::AnglesT<double>::PI / 180.0);
+                        const cf::math::QuaternionfT Qtr=
+                            cf::math::QuaternionfT::Euler(Values.y, Values.z, Values.x) *
+                            cf::math::QuaternionfT::FromXYZ(Joints[0].Qtr);
+
+                        m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, 0, 'q', Qtr.GetXYZ()));
+                        break;
+                    }
+
+                    case 2:
+                    {
+                        Vector3fT Values(m_Values[SelPage]);
+
+                        for (unsigned int i=0; i<3; i++)
+                            if (Values[i]==0.0f) Values[i]=1.0f;
+
+                        m_Parent->SubmitCommand(new CommandTransformJointT(m_ModelDoc, 0, 's', scale(Joints[0].Scale, Values)));
+                        break;
+                    }
+                }
+            }
+
+            // Transform the selected anims.
+            ArrayT<CommandT*> TransformCommands;
+
+            for (unsigned long SelNr=0; SelNr<SelAnims.Size(); SelNr++)
+            {
+                const CafuModelT::AnimT&             Anim=m_ModelDoc->GetModel()->GetAnims()[SelAnims[SelNr]];
+                const CafuModelT::AnimT::AnimJointT& AJ  =Anim.AnimJoints[0];
+
+                // "Decompress" all frames for the given anim joint AJ.
+                struct TrafoT { Vector3fT Trafo[3]; };
+                ArrayT<TrafoT> Decomp;
+                Decomp.PushBackEmptyExact(Anim.Frames.Size());
+
+                for (unsigned long FrameNr=0; FrameNr<Anim.Frames.Size(); FrameNr++)
+                {
+                    Decomp[FrameNr].Trafo[0]=AJ.DefaultPos;
+                    Decomp[FrameNr].Trafo[1]=AJ.DefaultQtr;
+                    Decomp[FrameNr].Trafo[2]=AJ.DefaultScale;
+
+                    unsigned int FlagCount=0;
+
+                    for (unsigned int i=0; i<9; i++)
+                    {
+                        if ((AJ.Flags >> i) & 1)
+                        {
+                            Decomp[FrameNr].Trafo[i/3][i % 3]=Anim.Frames[FrameNr].AnimData[AJ.FirstDataIdx+FlagCount];
+                            FlagCount++;
+                        }
+                    }
+                }
+
+                // Transform the decompressed data.
+                switch (SelPage)
+                {
+                    case 0:
+                    {
+                        const Vector3fT Values(m_Values[SelPage]);
+
+                        for (unsigned long FrameNr=0; FrameNr<Anim.Frames.Size(); FrameNr++)
+                            Decomp[FrameNr].Trafo[0] += Values;
+                        break;
+                    }
+
+                    case 1:
+                    {
+                        const Vector3fT Values=Vector3fT(m_Values[SelPage]) * float(cf::math::AnglesT<double>::PI / 180.0);
+                        const cf::math::QuaternionfT Qtr=cf::math::QuaternionfT::Euler(Values.y, Values.z, Values.x);
+
+                        for (unsigned long FrameNr=0; FrameNr<Anim.Frames.Size(); FrameNr++)
+                            Decomp[FrameNr].Trafo[1] = (Qtr * cf::math::QuaternionfT::FromXYZ(Decomp[FrameNr].Trafo[1])).GetXYZ();
+                        break;
+                    }
+
+                    case 2:
+                    {
+                        Vector3fT Values(m_Values[SelPage]);
+
+                        for (unsigned int i=0; i<3; i++)
+                            if (Values[i]==0.0f) Values[i]=1.0f;
+
+                        for (unsigned long FrameNr=0; FrameNr<Anim.Frames.Size(); FrameNr++)
+                            Decomp[FrameNr].Trafo[2] = scale(Decomp[FrameNr].Trafo[2], Values);
+                        break;
+                    }
+                }
+
+                // Create a new CafuModelT::AnimT instance, "recompressing" the transformed data into it.
+                CafuModelT::AnimT              NewAnim=Anim;
+                CafuModelT::AnimT::AnimJointT& NewAJ  =NewAnim.AnimJoints[0];
+
+                NewAJ.DefaultPos  =Decomp[/*FrameNr*/0].Trafo[0];
+                NewAJ.DefaultQtr  =Decomp[/*FrameNr*/0].Trafo[1];
+                NewAJ.DefaultScale=Decomp[/*FrameNr*/0].Trafo[2];
+
+                for (unsigned long FrameNr=0; FrameNr<Anim.Frames.Size(); FrameNr++)
+                {
+                    unsigned int FlagCount=0;
+
+                    for (unsigned int i=0; i<9; i++)
+                    {
+                        if ((NewAJ.Flags >> i) & 1)
+                        {
+                            NewAnim.Frames[FrameNr].AnimData[NewAJ.FirstDataIdx+FlagCount]=Decomp[FrameNr].Trafo[i/3][i % 3];
+                            FlagCount++;
+                        }
+                    }
+
+                    NewAnim.RecomputeBB(FrameNr, m_ModelDoc->GetModel()->GetJoints(), m_ModelDoc->GetModel()->GetMeshes());
+                }
+
+                TransformCommands.PushBack(new CommandUpdateAnimT(m_ModelDoc, SelAnims[SelNr], NewAnim));
+            }
+
+            if (TransformCommands.Size()==1)
+            {
+                m_Parent->SubmitCommand(TransformCommands[0]);
+            }
+            else if (TransformCommands.Size()>1)
+            {
+                m_Parent->SubmitCommand(new CommandMacroT(TransformCommands,
+                    wxString::Format("Transform %u anims", TransformCommands.Size())));
+            }
             break;
         }
     }

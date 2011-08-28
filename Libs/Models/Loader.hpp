@@ -67,10 +67,6 @@ class ModelLoaderT
 
     protected:
 
-    /// Computes the bounding box for the model with the given
-    /// joints and meshes at the given anim sequence at the given frame number.
-    BoundingBox3fT GetBB(const ArrayT<CafuModelT::JointT>& Joints, const ArrayT<CafuModelT::MeshT>& Meshes, const CafuModelT::AnimT& Anim, unsigned long FrameNr) const;
-
     /// Removes triangles with zero-length edges from the given mesh.
     /// This is especially important because such triangles "connect" two vertices that the CafuModelT code
     /// considers as "geometrical duplicates" of each other. That is, a single triangle refers to the same

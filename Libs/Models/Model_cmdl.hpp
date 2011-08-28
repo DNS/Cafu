@@ -40,6 +40,7 @@ namespace ModelEditor { class CommandSetAnimFPST; }
 namespace ModelEditor { class CommandSetAnimNextT; }
 namespace ModelEditor { class CommandSetMeshMaterialT; }
 namespace ModelEditor { class CommandTransformJointT; }
+namespace ModelEditor { class CommandUpdateAnimT; }
 namespace ModelEditor { class CommandUpdateGuiFixtureT; }
 
 
@@ -146,6 +147,13 @@ class CafuModelT : public ModelT
             BoundingBox3fT BB;              ///< The bounding box of the model in this frame.
             ArrayT<float>  AnimData;
         };
+
+
+        /// Recomputes the bounding-box for the specified frame in this animation sequence.
+        /// @param FrameNr   The number of the frame to recompute the bounding-box for.
+        /// @param Joints    The joints of the related model.
+        /// @param Meshes    The meshes of the related model.
+        void RecomputeBB(unsigned int FrameNr, const ArrayT<JointT>& Joints, const ArrayT<MeshT>& Meshes);
 
 
         std::string        Name;            ///< Name of this animation sequence.
@@ -271,8 +279,10 @@ class CafuModelT : public ModelT
     friend class ModelEditor::CommandSetAnimNextT;
     friend class ModelEditor::CommandSetMeshMaterialT;
     friend class ModelEditor::CommandTransformJointT;
+    friend class ModelEditor::CommandUpdateAnimT;
     friend class ModelEditor::CommandUpdateGuiFixtureT;
 
+    void RecomputeBindPoseBB();                                                             ///< Recomputes the bounding box for the model in bind pose (stored in m_BindPoseBB).
     void InitMeshes();                                                                      ///< An auxiliary method for the constructors.
     void UpdateCachedDrawData(int SequenceNr, float FrameNr, const SuperT* Super) const;    ///< A private auxiliary method.
 
@@ -285,7 +295,7 @@ class CafuModelT : public ModelT
 
     const bool            m_UseGivenTangentSpace;   ///< Whether this model should use the fixed, given tangent space that was loaded from the model file, or it the tangent space is dynamically recomputed (useful for animated models).
  // const bool            m_CastShadows;            ///< Should this model cast shadows?
-    BoundingBox3fT        m_BasePoseBB;             ///< The bounding-box for the base pose of the model.
+    BoundingBox3fT        m_BindPoseBB;             ///< The bounding-box for the base pose of the model.
     ArrayT<GuiFixtureT>   m_GuiFixtures;            ///< Array of GUI fixtures in the model.
     ArrayT<GuiLocT>       m_GuiLocs;                ///< Array of locations where GUIs can be attached to this model.
 

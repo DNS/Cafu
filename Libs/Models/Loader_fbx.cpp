@@ -826,7 +826,7 @@ void LoaderFbxT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
     // Compute the proper bounding-box for each frame of each animation.
     for (unsigned long AnimNr=0; AnimNr<Anims.Size(); AnimNr++)
         for (unsigned long FrameNr=0; FrameNr<Anims[AnimNr].Frames.Size(); FrameNr++)
-            Anims[AnimNr].Frames[FrameNr].BB=GetBB(Joints, Meshes, Anims[AnimNr], FrameNr);
+            Anims[AnimNr].RecomputeBB(FrameNr, Joints, Meshes);
 }
 
 
