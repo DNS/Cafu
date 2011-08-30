@@ -36,11 +36,13 @@ static bool CompareMaterials(EditorMaterialI* const& elem1, EditorMaterialI* con
 
 
 EditorMatManT::EditorMatManT(const GameConfigT& GameConfig)
-    : m_DefaultMaterial(NULL),
+    : m_MaterialMan(),
+      m_Materials(),
+      m_DefaultMaterial(NULL),
       m_LazyMatUpdateCount(0)
 {
     // Register all material scripts of this game and obtain all found materials.
-    ArrayT<MaterialT*> Materials=MaterialManager->RegisterMaterialScriptsInDir(std::string(GameConfig.ModDir)+"/Materials", std::string(GameConfig.ModDir)+"/");
+    ArrayT<MaterialT*> Materials=m_MaterialMan.RegisterMaterialScriptsInDir(std::string(GameConfig.ModDir)+"/Materials", std::string(GameConfig.ModDir)+"/");
 
     // Create an editor material for each loaded engine material.
     for (unsigned long MaterialNr=0; MaterialNr<Materials.Size(); MaterialNr++)

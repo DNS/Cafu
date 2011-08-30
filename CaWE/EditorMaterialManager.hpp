@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef _EDITOR_MATERIAL_MANAGER_HPP_
 #define _EDITOR_MATERIAL_MANAGER_HPP_
 
+#include "MaterialSystem/MaterialManagerImpl.hpp"
 #include "Templates/Array.hpp"
 #include "wx/wx.h"
 
@@ -63,6 +64,7 @@ class EditorMatManT
     EditorMatManT(const EditorMatManT&);            ///< Use of the Copy Constructor    is not allowed.
     void operator = (const EditorMatManT&);         ///< Use of the Assignment Operator is not allowed.
 
+    MaterialManagerImplT     m_MaterialMan;         ///< The material manager for the materials that are used with this game config.
     ArrayT<EditorMaterialI*> m_Materials;           ///< Array of all materials in this game configuration.
     EditorMaterialI*         m_DefaultMaterial;     ///< The currently used default material.
     unsigned long            m_LazyMatUpdateCount;  ///< This counts up to where we already cached in the m_Materials.

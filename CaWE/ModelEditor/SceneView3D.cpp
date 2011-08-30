@@ -35,7 +35,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "GuiSys/GuiImpl.hpp"
 #include "MaterialSystem/Material.hpp"
-#include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/Mesh.hpp"
 #include "MaterialSystem/Renderer.hpp"
 
