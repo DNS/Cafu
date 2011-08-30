@@ -25,8 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "InitWindowTypes.hpp"
 #include "ConsoleCommands/Console.hpp"
 #include "TextParser/TextParser.hpp"
-#include "MaterialSystem/Renderer.hpp"          // For dealing with the default RM.
-#include "MaterialSystem/MaterialManager.hpp"   // For dealing with the default RM.
+#include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"
 #include "Fonts/FontTT.hpp"                     // For dealing with the default font.
 #include "OpenGL/OpenGLWindow.hpp"              // Just for the Ca*EventT classes...
@@ -40,14 +39,9 @@ static const unsigned long InitDummy=InitWindowTypes();
 
 
 GuiManImplT::GuiManImplT()
-    : GuiDefaultRM(NULL),
-      GuiPointerRM(NULL),
-      SuppressNextChar(false)
+    : SuppressNextChar(false)
 {
     assert(MatSys::Renderer!=NULL);
-
-    GuiDefaultRM=MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("Gui/Default"));
-    GuiPointerRM=MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("Gui/Cursors/Pointer"));
 }
 
 
@@ -60,10 +54,6 @@ GuiManImplT::~GuiManImplT()
     // Free the Fonts.
     for (unsigned long FontNr=0; FontNr<Fonts.Size(); FontNr++)
         delete Fonts[FontNr];
-
-    // Free the render materials.
-    MatSys::Renderer->FreeMaterial(GuiDefaultRM);
-    MatSys::Renderer->FreeMaterial(GuiPointerRM);
 }
 
 
@@ -244,18 +234,6 @@ void GuiManImplT::DistributeClockTickEvents(float t)
         // because we want to run the pending coroutines of a GUI even if it isn't active.
         Guis[GuiNr]->DistributeClockTickEvents(t);
     }
-}
-
-
-MatSys::RenderMaterialT* GuiManImplT::GetDefaultRM() const
-{
-    return GuiDefaultRM;
-}
-
-
-MatSys::RenderMaterialT* GuiManImplT::GetPointerRM() const
-{
-    return GuiPointerRM;
 }
 
 

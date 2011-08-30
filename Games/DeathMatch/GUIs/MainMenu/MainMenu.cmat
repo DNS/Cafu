@@ -1,0 +1,135 @@
+// Default material for borders and backgrounds that is used if nothing else is specified with a GUI window.
+// This material will be used with the "A_Solid" shader.
+Gui/Default
+{
+    useMeshColors
+    blendFunc src_alpha one_minus_src_alpha
+
+    // We need "ambientMask d" in order to prevent z-fighting with world (entity) GUIs.
+    // The font materials have this keyword either, and any material that is supposed
+    // to be used as a window background will most likely need it, too.
+    // (I don't use it with the crosshairs below, but would if they were used on entity GUIs.)
+    ambientMask d
+
+    meta_editorImage noEditor
+}
+
+
+Gui/Cursors/Pointer
+{
+    diffusemap ../pointer.png, noCompression, wrapS clampToEdge, wrapT clampToEdge, noScaleDown
+    useMeshColors
+    blendFunc src_alpha one_minus_src_alpha
+    meta_editorImage noEditor
+}
+
+
+Gui/MainMenu/Background1
+{
+    diffusemap Background1_512.png, noCompression, wrapS clampToEdge, wrapT clampToEdge
+
+    // Although this material is only used in the 2D "Main Menu", we need "ambientMask d" here so
+    // that the depth-buffer is left alone and the ModelWindowTs later find it undisturbed when
+    // renderig the model previews.
+    ambientMask d
+
+    meta_editorImage noEditor
+}
+
+
+
+
+Games/DeathMatch/Worlds/AEonsCanyonTower.jpg
+{
+    diffusemap ../../Worlds/AEonsCanyonTower.jpg, wrapS clampToEdge, wrapT clampToEdge
+
+    meta_editorImage noEditor
+}
+
+
+Games/DeathMatch/Worlds/AEonsCube.jpg
+{
+    diffusemap ../../Worlds/AEonsCube.jpg, wrapS clampToEdge, wrapT clampToEdge
+
+    meta_editorImage noEditor
+}
+
+
+Games/DeathMatch/Worlds/BPRockB.jpg
+{
+    diffusemap ../../Worlds/BPRockB.jpg, wrapS clampToEdge, wrapT clampToEdge
+
+    meta_editorImage noEditor
+}
+
+
+Games/DeathMatch/Worlds/BPWxBeta.jpg
+{
+    diffusemap ../../Worlds/BPWxBeta.jpg, wrapS clampToEdge, wrapT clampToEdge
+
+    meta_editorImage noEditor
+}
+
+
+Games/DeathMatch/Worlds/Gotham.jpg
+{
+    diffusemap ../../Worlds/Gotham.jpg, wrapS clampToEdge, wrapT clampToEdge
+
+    meta_editorImage noEditor
+}
+
+
+Games/DeathMatch/Worlds/JrBaseHQ.jpg
+{
+    diffusemap ../../Worlds/JrBaseHQ.jpg, wrapS clampToEdge, wrapT clampToEdge
+
+    meta_editorImage noEditor
+}
+
+
+Games/DeathMatch/Worlds/Kidney.jpg
+{
+    diffusemap ../../Worlds/Kidney.jpg, wrapS clampToEdge, wrapT clampToEdge
+
+    meta_editorImage noEditor
+}
+
+
+Games/DeathMatch/Worlds/ReNoEcho.jpg
+{
+    diffusemap ../../Worlds/ReNoEcho.jpg, wrapS clampToEdge, wrapT clampToEdge
+
+    meta_editorImage noEditor
+}
+
+
+Games/DeathMatch/Worlds/ReNoElixir.jpg
+{
+    diffusemap ../../Worlds/ReNoElixir.jpg, wrapS clampToEdge, wrapT clampToEdge
+
+    meta_editorImage noEditor
+}
+
+
+Games/DeathMatch/Worlds/TechDemo.jpg
+{
+    diffusemap ../../Worlds/TechDemo.jpg, wrapS clampToEdge, wrapT clampToEdge
+
+    meta_editorImage noEditor
+}
+
+
+Games/DeathMatch/Worlds/Test1.jpg
+{
+    diffusemap ../../Worlds/Test1.jpg, wrapS clampToEdge, wrapT clampToEdge
+
+    meta_editorImage noEditor
+}
+
+
+Games/DeathMatch/Worlds/TestPatches.jpg
+{
+    diffusemap ../../Worlds/TestPatches.jpg, wrapS clampToEdge, wrapT clampToEdge
+
+    meta_editorImage noEditor
+}

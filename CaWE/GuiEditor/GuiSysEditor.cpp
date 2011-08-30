@@ -34,7 +34,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../EditorMaterialManager.hpp"
 #include "../GameConfig.hpp"
 
-#include "GuiSys/GuiMan.hpp"
+#include "GuiSys/GuiImpl.hpp"
 #include "GuiSys/Window.hpp"
 #include "GuiSys/WindowChoice.hpp"
 #include "GuiSys/WindowEdit.hpp"
@@ -966,7 +966,6 @@ void WindowT::EditorRender() const
     if (((EditorDataWindowT*)EditorData)->Selected)
     {
         // Render selection border.
-
         float x1;
         float y1;
 
@@ -975,7 +974,7 @@ void WindowT::EditorRender() const
         const float x2=x1+Rect[2];
         const float y2=y1+Rect[3];
 
-        MatSys::Renderer->SetCurrentMaterial(GuiMan->GetDefaultRM());
+        MatSys::Renderer->SetCurrentMaterial(Gui.GetDefaultRM());
 
         static MatSys::MeshT BorderMesh(MatSys::MeshT::Quads);
         BorderMesh.Vertices.Overwrite();

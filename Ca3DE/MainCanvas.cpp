@@ -366,14 +366,13 @@ void MainCanvasT::Initialize()
         SoundSystem->SetMasterVolume(float(InitialMasterVolume.GetValueDouble()));
 
 
-        // Initialize the GUI systems GUI managager.
+        // Initialize the GUI systems GUI manager.
         //   - This has to be done *after* all materials are loaded (AppCafuT::OnInit()) and after the MatSys::Renderer
         //     has been initialized, so that the GuiMan finds its default material and can register it for rendering.
+        //     (This is no longer exactly true: each GUI has now its own local material manager! See r359 from 2011-08-29 for details.)
         //   - It has to be done *before* the game is initialized, because even the server needs access to it
         //     when it loads static detail model entities that have world/entity-GUIs.
         cf::GuiSys::GuiMan=new cf::GuiSys::GuiManImplT;
-
-        wxASSERT(cf::GuiSys::GuiMan->GetDefaultRM()!=NULL);
 
 
         // Provide a definition for Game, that is, set the global (Cafu.exe-wide) cf::GameSys::Game pointer

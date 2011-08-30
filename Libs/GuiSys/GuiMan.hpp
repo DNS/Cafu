@@ -29,12 +29,6 @@ struct CaKeyboardEventT;
 struct CaMouseEventT;
 
 
-namespace MatSys
-{
-    class RenderMaterialT;
-}
-
-
 namespace cf
 {
     class TrueTypeFontT;
@@ -108,12 +102,6 @@ namespace cf
             /// @param FontName Name of the font to get.
             /// @returns a pointer to the desired font, or NULL if there was an error (e.g. the font could not be loaded).
             virtual TrueTypeFontT* GetFont(const std::string& FontName)=0;
-
-            /// Returns the default RenderMaterialT that should be used for borders and backgrounds if no other material is specified for that window.
-            virtual MatSys::RenderMaterialT* GetDefaultRM() const=0;
-
-            /// Returns the (default) RenderMaterialT for the mouse pointer.
-            virtual MatSys::RenderMaterialT* GetPointerRM() const=0;
 
             /// The destructor.
             /// This ABC does neither have nor need a destructor, because no implementation will ever be deleted via a pointer to a GuiManI.

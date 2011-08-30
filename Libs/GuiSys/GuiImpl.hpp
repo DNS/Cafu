@@ -24,12 +24,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Gui.hpp"
 #include "Coroutines.hpp"
+#include "MaterialSystem/MaterialManagerImpl.hpp"
 
 #include <cstdarg>
 #include <stdexcept>
 
 
 namespace cf { namespace TypeSys { class TypeInfoT; } }
+namespace MatSys { class RenderMaterialT; }
 struct lua_State;
 
 
@@ -64,6 +66,12 @@ namespace cf
             /// Note that errors reported here are not necessarily fatal: the GUI may be usable (at least partially) anyway.
             /// @returns the empty string when there have been no errors, or the error message otherwise.
             const std::string& GetScriptInitResult() const { return ScriptInitResult; }
+
+            /// Returns the default RenderMaterialT that should be used for borders and backgrounds if no other material is specified for that window.
+            MatSys::RenderMaterialT* GetDefaultRM() const;
+
+            /// Returns the (default) RenderMaterialT for the mouse pointer.
+            MatSys::RenderMaterialT* GetPointerRM() const;
 
 
             // Implement all the (pure) virtual methods of the GuiI interface.
@@ -114,24 +122,27 @@ namespace cf
             void operator = (const GuiImplT&);  ///< Use of the Assignment Operator is not allowed.
 
 
-            std::string   ScriptName;           ///< The name of the *.cgui file that contains this GUI's script.
-            lua_State*    LuaState;             ///< The Lua program state of this GUI.
-            CoroutineManT CoroutineMan;         ///< This class manages (keeps track of) the pending Lua coroutines.
-            std::string   ScriptInitResult;     ///< The result of loading and running the script. "" if there have been no errors, the error message otherwise.
+            std::string              ScriptName;        ///< The name of the *.cgui file that contains this GUI's script.
+            lua_State*               LuaState;          ///< The Lua program state of this GUI.
+            CoroutineManT            CoroutineMan;      ///< This class manages (keeps track of) the pending Lua coroutines.
+            std::string              ScriptInitResult;  ///< The result of loading and running the script. "" if there have been no errors, the error message otherwise.
+            MaterialManagerImplT     m_MaterialMan;     ///< The material manager for the materials that are used in this GUI.
+            MatSys::RenderMaterialT* m_GuiDefaultRM;    ///< Used for the window borders and the backgrounds if no other material is specified.
+            MatSys::RenderMaterialT* m_GuiPointerRM;    ///< Used for the mouse pointer.
 
-            WindowPtrT    RootWindow;           ///< The root window of the window hierarchy that forms this GUI.
-            WindowPtrT    FocusWindow;          ///< The window in the hierachy that currently has the (keyboard) input focus.
-            WindowPtrT    MouseOverWindow;      ///< The window that the mouse is currently hovering over.
+            WindowPtrT               RootWindow;        ///< The root window of the window hierarchy that forms this GUI.
+            WindowPtrT               FocusWindow;       ///< The window in the hierachy that currently has the (keyboard) input focus.
+            WindowPtrT               MouseOverWindow;   ///< The window that the mouse is currently hovering over.
 
-            bool          IsActive;             ///< Whether this GUI is active or not. This is of importance mainly for the GuiMan, which doesn't send us events and doesn't draw us if we're not active.
-            bool          IsInteractive;        ///< Whether this GUI is interactive (reacts to device events) or not. This is of importance mainly for the GuiMan, which doesn't send us device events if we are not interactive, and sends device events only to the top-most interactive GUI.
-            bool          IsFullCover;          ///< Whether this GUI is fullscreen and fully opaque, i.e. whether this GUI covers everything under it. If true, the GuiSys saves the rendering of the GUIs "below" this one. This can improve the GUI performance significantly if e.g. the player is at a point in the game where the world rendering FPS is low.
-            float         MousePosX;            ///< The x-coordinate of the position of the mouse cursor.
-            float         MousePosY;            ///< The y-coordinate of the position of the mouse cursor.
-            bool          MouseIsShown;         ///< Whether the mouse cursor is shown. Non-interactive GUIs normally don't show a cursor.
+            bool                     IsActive;          ///< Whether this GUI is active or not. This is of importance mainly for the GuiMan, which doesn't send us events and doesn't draw us if we're not active.
+            bool                     IsInteractive;     ///< Whether this GUI is interactive (reacts to device events) or not. This is of importance mainly for the GuiMan, which doesn't send us device events if we are not interactive, and sends device events only to the top-most interactive GUI.
+            bool                     IsFullCover;       ///< Whether this GUI is fullscreen and fully opaque, i.e. whether this GUI covers everything under it. If true, the GuiSys saves the rendering of the GUIs "below" this one. This can improve the GUI performance significantly if e.g. the player is at a point in the game where the world rendering FPS is low.
+            float                    MousePosX;         ///< The x-coordinate of the position of the mouse cursor.
+            float                    MousePosY;         ///< The y-coordinate of the position of the mouse cursor.
+            bool                     MouseIsShown;      ///< Whether the mouse cursor is shown. Non-interactive GUIs normally don't show a cursor.
 
-            std::string   EntityName;           ///< If this is a 3D world GUI, this is the name of its parent entity.
-         // void*         EntityInstancePtr;    ///< If this is a 3D world GUI, this is the pointer to the instance of its parent entity.
+            std::string              EntityName;        ///< If this is a 3D world GUI, this is the name of its parent entity.
+         // void*                    EntityInstancePtr; ///< If this is a 3D world GUI, this is the pointer to the instance of its parent entity.
 
             // Gui variables (general purpose)... (Maus-unabhängig, z.B. aktuelle Lift-Position............. übers Netzwerk sync'en!!)
             // ...

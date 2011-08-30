@@ -20,15 +20,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Window.hpp"
-#include "EditorData.hpp" // Needed because of deletion of undefined type warning.
+#include "EditorData.hpp"
 #include "Coroutines.hpp"
 #include "WindowCreateParams.hpp"
 #include "GuiMan.hpp"
 #include "GuiImpl.hpp"      // For GuiImplT::GetCheckedObjectParam().
 #include "ConsoleCommands/Console.hpp"
-#include "MaterialSystem/MaterialManager.hpp"
-#include "MaterialSystem/Renderer.hpp"
 #include "MaterialSystem/Mesh.hpp"
+#include "MaterialSystem/Renderer.hpp"
 #include "Fonts/FontTT.hpp"
 #include "TypeSys.hpp"
 
@@ -132,18 +131,15 @@ WindowT::WindowT(const WindowCreateParamsT& Params)
 }
 
 
-static cf::GuiSys::GuiImplT& NullGui=*((cf::GuiSys::GuiImplT*)NULL);
-
-
 WindowT::WindowT(const WindowT& Window, bool Recursive)
-    : Gui(NullGui), // Intentionally set NULL Gui since copying of windows is only used in the editor where the Gui is not used.
+    : Gui(Window.Gui),
       EditorData(NULL), // We leave the creation of editor data to the caller. Otherwise we would need to implemented cloning of editor data.
       Parent(NULL),
       Name(Window.Name),
       Time(Window.Time),
       ShowWindow(Window.ShowWindow),
       RotAngle(Window.RotAngle),
-      BackRenderMat(Window.BackRenderMatName.empty() ? NULL : MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial(Window.BackRenderMatName))),
+      BackRenderMat(Window.BackRenderMatName.empty() ? NULL : MatSys::Renderer->RegisterMaterial(Gui.m_MaterialMan.GetMaterial(Window.BackRenderMatName))),
       BackRenderMatName(Window.BackRenderMatName),
       BorderWidth(Window.BorderWidth),
       Font(GuiMan->GetFont(Window.Font->GetName())),
@@ -209,7 +205,7 @@ WindowT::~WindowT()
 
     delete EditorData;
 
-    assert(BackRenderMat!=GuiMan->GetDefaultRM());
+    assert(BackRenderMat!=Gui.GetDefaultRM());
     MatSys::Renderer->FreeMaterial(BackRenderMat);
 }
 
@@ -349,7 +345,7 @@ void WindowT::Render() const
 
     // Render the background.
  // MatSys::Renderer->SetCurrentAmbientLightColor(BackColor);
-    MatSys::Renderer->SetCurrentMaterial(BackRenderMat!=NULL ? BackRenderMat : GuiMan->GetDefaultRM());
+    MatSys::Renderer->SetCurrentMaterial(BackRenderMat!=NULL ? BackRenderMat : Gui.GetDefaultRM());
 
     static MatSys::MeshT BackMesh(MatSys::MeshT::Quads);
     BackMesh.Vertices.Overwrite();
@@ -378,7 +374,7 @@ void WindowT::Render() const
     if (b>0.0f)
     {
      // MatSys::Renderer->SetCurrentAmbientLightColor(BorderColor);
-        MatSys::Renderer->SetCurrentMaterial(GuiMan->GetDefaultRM() /*BorderMaterial*/);
+        MatSys::Renderer->SetCurrentMaterial(Gui.GetDefaultRM() /*BorderMaterial*/);
 
         static MatSys::MeshT BorderMesh(MatSys::MeshT::Quads);
         BorderMesh.Vertices.Overwrite();
@@ -704,7 +700,7 @@ int WindowT::Set(lua_State* LuaState)
                 // back to NULL again by specifying an invalid material name, e.g. "", "none", "NULL", "default", etc.
                 Win->BackRenderMatName=NewMaterialName;
                 MatSys::Renderer->FreeMaterial(Win->BackRenderMat);
-                Win->BackRenderMat=Win->BackRenderMatName.empty() ? NULL : MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial(Win->BackRenderMatName));
+                Win->BackRenderMat=Win->BackRenderMatName.empty() ? NULL : MatSys::Renderer->RegisterMaterial(Win->Gui.m_MaterialMan.GetMaterial(Win->BackRenderMatName));
             }
             return 0;
         }

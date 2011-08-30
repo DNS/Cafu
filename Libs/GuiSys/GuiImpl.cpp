@@ -26,9 +26,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/Console.hpp"
 #include "ConsoleCommands/Console_Lua.hpp"
 #include "ConsoleCommands/ConsoleInterpreter.hpp"
-#include "MaterialSystem/Renderer.hpp"
+#include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/Mesh.hpp"
+#include "MaterialSystem/Renderer.hpp"
 #include "OpenGL/OpenGLWindow.hpp"  // Just for the Ca*EventT classes...
+#include "String.hpp"
 #include "TypeSys.hpp"
 
 extern "C"
@@ -64,6 +66,9 @@ GuiImplT::GuiImplT(const std::string& GuiScriptName, bool IsInlineCode)
     : ScriptName(IsInlineCode ? "" : GuiScriptName),
       LuaState(NULL),
       ScriptInitResult(""),
+      m_MaterialMan(),
+      m_GuiDefaultRM(NULL),
+      m_GuiPointerRM(NULL),
       RootWindow(NULL),
       FocusWindow(NULL),
       MouseOverWindow(NULL),
@@ -74,6 +79,49 @@ GuiImplT::GuiImplT(const std::string& GuiScriptName, bool IsInlineCode)
       MousePosY(VIRTUAL_SCREEN_SIZE_Y/2.0f),   // 240.0f
       MouseIsShown(true)
 {
+    if (!IsInlineCode)
+    {
+        std::string s=cf::String::StripExt(GuiScriptName);
+
+        if (cf::String::EndsWith(s, "_main"))
+            s=std::string(s, 0, s.length()-5);
+
+        Console->Print("s = " + s + ".cmat\n");
+        /*ArrayT<MaterialT*> AllMats=*/m_MaterialMan.RegisterMaterialScript(s+".cmat", cf::String::GetPath(GuiScriptName)+"/");
+    }
+
+    if (!m_MaterialMan.GetMaterial("Gui/Default"))
+    {
+        // This material has either not been defined in the .cmat file, or we're dealing with inline code.
+        MaterialT Mat;
+
+        Mat.Name          ="Gui/Default";
+        Mat.UseMeshColors =true;
+        Mat.BlendFactorSrc=MaterialT::SrcAlpha;
+        Mat.BlendFactorDst=MaterialT::OneMinusSrcAlpha;
+        Mat.AmbientMask[4]=false;
+
+        m_MaterialMan.RegisterMaterial(Mat);
+    }
+
+    if (!m_MaterialMan.GetMaterial("Gui/Cursors/Pointer"))
+    {
+        // This material has either not been defined in the .cmat file, or we're dealing with inline code.
+        MaterialT Mat;
+
+        Mat.Name          ="Gui/Cursors/Pointer";
+     // Mat.DiffMapComp   =...;
+        Mat.UseMeshColors =true;
+        Mat.BlendFactorSrc=MaterialT::SrcAlpha;
+        Mat.BlendFactorDst=MaterialT::OneMinusSrcAlpha;
+
+        m_MaterialMan.RegisterMaterial(Mat);
+    }
+
+    m_GuiDefaultRM=MatSys::Renderer->RegisterMaterial(m_MaterialMan.GetMaterial("Gui/Default"));
+    m_GuiPointerRM=MatSys::Renderer->RegisterMaterial(m_MaterialMan.GetMaterial("Gui/Cursors/Pointer"));
+
+
     // Initialize Lua.
     LuaState=lua_open();
 
@@ -223,6 +271,8 @@ GuiImplT::GuiImplT(const std::string& GuiScriptName, bool IsInlineCode)
         // this code is not guaranteed to be fail-safe and thus not guaranteed to fix the
         // problem. That is, there might still be a case left where we might want to throw.
         lua_close(LuaState);
+        MatSys::Renderer->FreeMaterial(m_GuiDefaultRM);
+        MatSys::Renderer->FreeMaterial(m_GuiPointerRM);
         throw InitErrorT("No root window set. Probable cause:\n"+ScriptInitResult);
     }
 
@@ -262,6 +312,22 @@ GuiImplT::~GuiImplT()
 
     // Close Lua.
     lua_close(LuaState);
+
+    // Free the render materials.
+    MatSys::Renderer->FreeMaterial(m_GuiDefaultRM);
+    MatSys::Renderer->FreeMaterial(m_GuiPointerRM);
+}
+
+
+MatSys::RenderMaterialT* GuiImplT::GetDefaultRM() const
+{
+    return m_GuiDefaultRM;
+}
+
+
+MatSys::RenderMaterialT* GuiImplT::GetPointerRM() const
+{
+    return m_GuiPointerRM;
 }
 
 
@@ -358,7 +424,7 @@ void GuiImplT::Render() const
         Mesh.Vertices[2].SetOrigin(MousePosX+b, MousePosY+b);
         Mesh.Vertices[3].SetOrigin(MousePosX,   MousePosY+b);
 
-        MatSys::Renderer->SetCurrentMaterial(GuiMan->GetPointerRM());
+        MatSys::Renderer->SetCurrentMaterial(m_GuiPointerRM);
         MatSys::Renderer->RenderMesh(Mesh);
     }
 }

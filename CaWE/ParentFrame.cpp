@@ -306,12 +306,11 @@ void ParentFrameT::OnShow(wxShowEvent& SE)
         MatSys::Renderer->SetCurrentLightDirMap(NULL);  // The MatSys provides a default for LightDirMaps when NULL is set.
 
 
-        // Initialize the GUI managager.
+        // Initialize the GUI manager.
         // This has to be done after all materials are loaded (AppCaWE::OnInit()) and after the MatSys::Renderer has been initialized,
         // so that the GuiManager finds its default material and can register it for rendering.
+        // (This is no longer exactly true: each GUI has now its own local material manager! See r359 from 2011-08-29 for details.)
         cf::GuiSys::GuiMan=new cf::GuiSys::GuiManImplT();
-
-        wxASSERT(cf::GuiSys::GuiMan->GetDefaultRM()!=NULL);
     }
 }
 
@@ -525,6 +524,7 @@ wxMDIChildFrame* ParentFrameT::OpenFile(GameConfigT* GameConfig, wxString FileNa
                          "(instead of "+FileName+").\n\n"
                          "CaWE always deals with the *_init.cgui files, everything else is for your customizations (hand-written script code).\n"
                          "This way the files never overwrite each other.", "*_init.gui file expected");
+            return NULL;
         }
 
         if (FileName.EndsWith(".map"))

@@ -1,0 +1,61 @@
+// Default material for borders and backgrounds that is used if nothing else is specified with a GUI window.
+// This material will be used with the "A_Solid" shader.
+Gui/Default
+{
+    useMeshColors
+    blendFunc src_alpha one_minus_src_alpha
+
+    // We need "ambientMask d" in order to prevent z-fighting with world (entity) GUIs.
+    // The font materials have this keyword either, and any material that is supposed
+    // to be used as a window background will most likely need it, too.
+    // (I don't use it with the crosshairs below, but would if they were used on entity GUIs.)
+    ambientMask d
+
+    meta_editorImage noEditor
+}
+
+
+Gui/Cursors/Pointer
+{
+    diffusemap pointer.png, noCompression, wrapS clampToEdge, wrapT clampToEdge, noScaleDown
+    useMeshColors
+    blendFunc src_alpha one_minus_src_alpha
+    meta_editorImage noEditor
+}
+
+
+Gui/CrossHair1
+{
+    diffusemap ../Textures/Sprites/crosshair1.tga
+
+    // With this we can use e.g.   self:set("backColor", 1.0, 1.0, 0.0, 1.0);   in the Gui scripts to tint the crosshair.
+    // ARGH!! Unfortunately, it isn't implemented in most shaders yet, so it currently doesn't work.
+    // See http://www.cafu.de/wiki/doku.php?id=matsys:cmat_manual:keywordreference for details.
+    // Work-around: Tint the crosshair here, in the cmat script, using red, green, blue, etc.
+    //
+    // useMeshColors
+    red 0.8
+
+    blendFunc src_alpha one_minus_src_alpha
+
+    meta_editorImage noEditor
+}
+
+
+Gui/CrossHair2
+{
+    diffusemap ../Textures/Sprites/crosshair2.tga
+
+    // With this we can use e.g.   self:set("backColor", 1.0, 1.0, 0.0, 1.0);   in the Gui scripts to tint the crosshair.
+    // ARGH!! Unfortunately, it isn't implemented in most shaders yet, so it currently doesn't work.
+    // See http://www.cafu.de/wiki/doku.php?id=matsys:cmat_manual:keywordreference for details.
+    // Work-around: Tint the crosshair here, in the cmat script, using red, green, blue, etc.
+    //
+    // useMeshColors
+    red   0.8
+    green 0.8
+
+    blendFunc src_alpha one_minus_src_alpha
+
+    meta_editorImage noEditor
+}

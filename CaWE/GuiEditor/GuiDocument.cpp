@@ -48,40 +48,42 @@ GuiPropertiesT::GuiPropertiesT(cf::GuiSys::GuiImplT& Gui)
 
 
 GuiDocumentT::GuiDocumentT(GameConfigT* GameConfig, const wxString& GuiInitFileName)
-    : m_RootWindow(NULL),
+    : m_Gui(NULL),
+      m_RootWindow(NULL),
       m_Selection(),
       m_GameConfig(GameConfig)
 {
     // Load GUI initialization script and create documents window hierarchy.
     if (GuiInitFileName!="")
     {
-        const std::string    gifn(GuiInitFileName);
-        cf::GuiSys::GuiImplT Gui(gifn);
+        const std::string gifn(GuiInitFileName);
 
-        if (Gui.GetScriptInitResult()!="")
+        m_Gui=new cf::GuiSys::GuiImplT(gifn);
+
+        if (m_Gui->GetScriptInitResult()!="")
         {
             // GuiImplT::InitErrorT excecptions are caught in the caller code.
             // Here we handle the case that initializing the GUI succeeded "halfway".
             wxMessageBox("GUI file "+GuiInitFileName+" was loaded, but errors occurred:\n\n"+
-                         Gui.GetScriptInitResult()+"\n\n"+
+                         m_Gui->GetScriptInitResult()+"\n\n"+
                          "You may choose to ignore this error and proceed,\n"+
                          "but it is probably better to edit the file and manually fix the problem first.",
                          "GUI initialization warning", wxOK | wxICON_EXCLAMATION);
         }
 
-        m_GuiProperties=GuiPropertiesT(Gui);
+        m_GuiProperties=GuiPropertiesT(*m_Gui);
 
         // Clone root window and all of its children.
-        m_RootWindow=Gui.GetRootWindow()->Clone(true);
+        m_RootWindow=m_Gui->GetRootWindow()->Clone(true);
     }
     else
     {
-        cf::GuiSys::GuiImplT Gui("Win=gui:new('WindowT'); gui:SetRootWindow(Win); gui:showMouse(false); gui:setFocus(Win); Win:SetName('Window'); Win:set(\"rect\", 0, 0, 640, 480);", true);
+        m_Gui=new cf::GuiSys::GuiImplT("Win=gui:new('WindowT'); gui:SetRootWindow(Win); gui:showMouse(false); gui:setFocus(Win); Win:SetName('Window'); Win:set(\"rect\", 0, 0, 640, 480);", true);
 
-        m_GuiProperties=GuiPropertiesT(Gui);
+        m_GuiProperties=GuiPropertiesT(*m_Gui);
 
         // Clone root window and all of its children.
-        m_RootWindow=Gui.GetRootWindow()->Clone(true);
+        m_RootWindow=m_Gui->GetRootWindow()->Clone(true);
     }
 
     m_Selection.PushBack(m_RootWindow); // Make root window default selection.
@@ -107,6 +109,7 @@ GuiDocumentT::~GuiDocumentT()
         delete Children[i];
 
     delete m_RootWindow;
+    delete m_Gui;
 }
 
 

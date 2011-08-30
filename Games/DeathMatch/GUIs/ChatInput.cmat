@@ -1,0 +1,24 @@
+// Default material for borders and backgrounds that is used if nothing else is specified with a GUI window.
+// This material will be used with the "A_Solid" shader.
+Gui/Default
+{
+    useMeshColors
+    blendFunc src_alpha one_minus_src_alpha
+
+    // We need "ambientMask d" in order to prevent z-fighting with world (entity) GUIs.
+    // The font materials have this keyword either, and any material that is supposed
+    // to be used as a window background will most likely need it, too.
+    // (I don't use it with the crosshairs below, but would if they were used on entity GUIs.)
+    ambientMask d
+
+    meta_editorImage noEditor
+}
+
+
+Gui/Cursors/Pointer
+{
+    diffusemap pointer.png, noCompression, wrapS clampToEdge, wrapT clampToEdge, noScaleDown
+    useMeshColors
+    blendFunc src_alpha one_minus_src_alpha
+    meta_editorImage noEditor
+}
