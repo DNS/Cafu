@@ -176,6 +176,15 @@ void TransformDialogT::Notify_SubjectDies(SubjectT* dyingSubject)
 }
 
 
+namespace
+{
+    struct TrafoT
+    {
+        Vector3fT Trafo[3];
+    };
+}
+
+
 void TransformDialogT::OnButton(wxCommandEvent& Event)
 {
     const int SelPage=m_Notebook->GetSelection();
@@ -251,7 +260,6 @@ void TransformDialogT::OnButton(wxCommandEvent& Event)
                 const CafuModelT::AnimT::AnimJointT& AJ  =Anim.AnimJoints[0];
 
                 // "Decompress" all frames for the given anim joint AJ.
-                struct TrafoT { Vector3fT Trafo[3]; };
                 ArrayT<TrafoT> Decomp;
                 Decomp.PushBackEmptyExact(Anim.Frames.Size());
 
