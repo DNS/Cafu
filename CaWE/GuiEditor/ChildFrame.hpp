@@ -153,7 +153,6 @@ namespace GuiEditor
         void OnMenuViewUpdate(wxUpdateUIEvent& UE);
         void OnClose(wxCloseEvent& CE);
         void OnToolbar(wxCommandEvent& CE);
-        void OnIdle(wxIdleEvent& IE);
 
         DECLARE_EVENT_TABLE()
     };

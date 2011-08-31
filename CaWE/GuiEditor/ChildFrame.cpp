@@ -79,7 +79,6 @@ BEGIN_EVENT_TABLE(GuiEditor::ChildFrameT, wxMDIChildFrame)
     EVT_UPDATE_UI_RANGE(ID_MENU_VIEW_WINDOWTREE,   ID_MENU_VIEW_GUIINSPECTOR,     GuiEditor::ChildFrameT::OnMenuViewUpdate)
     EVT_CLOSE          (                                                          GuiEditor::ChildFrameT::OnClose)
     EVT_TOOL_RANGE     (ID_TOOLBAR_DOC_PREVIEW,    ID_TOOLBAR_ZOOM_100,           GuiEditor::ChildFrameT::OnToolbar)
-    EVT_IDLE           (                                                          GuiEditor::ChildFrameT::OnIdle)
 END_EVENT_TABLE()
 
 
@@ -781,19 +780,4 @@ void GuiEditor::ChildFrameT::OnToolbar(wxCommandEvent& CE)
             m_RenderWindow->ZoomSet(1.0f);
             break;
     }
-}
-
-
-void GuiEditor::ChildFrameT::OnIdle(wxIdleEvent& IE)
-{
-    // The following things are only performed if the child frame is the active childframe.
-    GuiEditor::ChildFrameT* ActiveChild=dynamic_cast<GuiEditor::ChildFrameT*>(m_Parent->GetActiveChild());
-
-    if (this==ActiveChild)
-    {
-        // Cache textures for the childframes game configuration (one texture on each idle event).
-        m_GameConfig->GetMatMan().LazilyUpdateProxies();
-    }
-
-    IE.RequestMore();
 }

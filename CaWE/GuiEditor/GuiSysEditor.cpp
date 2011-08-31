@@ -61,65 +61,78 @@ using namespace cf::GuiSys;
 using namespace GuiEditor;
 
 
-static const float SelectionColor[]={ 1.0, 0.0, 0.0, 1.0 };
-static const float SelectionBorder =2;
-
-
-static unsigned char* cast(float* f)
+namespace
 {
-    static unsigned char c[4];
+    const float SelectionColor[]={ 1.0, 0.0, 0.0, 1.0 };
+    const float SelectionBorder =2;
 
-    for (int i=0; i<4; i++)
+
+    unsigned char* cast(float* f)
     {
-        float g=f[i];
+        static unsigned char c[4];
 
-        if (g<0.0f) g=0.0f;
-        if (g>1.0f) g=1.0f;
+        for (int i=0; i<4; i++)
+        {
+            float g=f[i];
 
-        c[i]=(unsigned char)(g*255.0f + 0.5f);
+            if (g<0.0f) g=0.0f;
+            if (g>1.0f) g=1.0f;
+
+            c[i]=(unsigned char)(g*255.0f + 0.5f);
+        }
+
+        return c;
     }
 
-    return c;
+
+    /// Custom property to select materials for window backgrounds.
+    class MaterialPropertyT : public wxLongStringProperty
+    {
+        public:
+
+        MaterialPropertyT(const wxString& name,
+                          const wxString& label,
+                          const wxString& value,
+                          GuiDocumentT* GuiDoc)
+            : wxLongStringProperty(name, label, value),
+              m_GuiDocument(GuiDoc)
+        {
+        }
+
+        // Shows the file selection dialog and makes the choosen file path relative.
+        virtual bool OnButtonClick(wxPropertyGrid* propGrid, wxString& value)
+        {
+            EditorMaterialI*                 InitMat=NULL;
+            const ArrayT<EditorMaterialI*>&  EditorMaterials=m_GuiDocument->GetEditorMaterials();
+
+            for (unsigned long EMNr=0; EMNr<EditorMaterials.Size(); EMNr++)
+                if (EditorMaterials[EMNr]->GetName()==value)
+                {
+                    InitMat=EditorMaterials[EMNr];
+                    break;
+                }
+
+            MaterialBrowser::DialogT MatBrowser(GetGrid(), MaterialBrowser::GuiDocAccessT(*m_GuiDocument), MaterialBrowser::ConfigT()
+                .InitialMaterial(InitMat)
+             // .ShowEditorMatsOnly(false)
+                .NoButtonMark()
+                .NoButtonReplace());
+
+            if (MatBrowser.ShowModal()!=wxID_OK) return false;
+
+            EditorMaterialI* Mat=MatBrowser.GetCurrentMaterial();
+            if (Mat==NULL) return false;
+
+            value=Mat->GetName();
+            return true;
+        }
+
+
+        private:
+
+        GuiDocumentT* m_GuiDocument;
+    };
 }
-
-
-/// Custom property to select materials for window backgrounds.
-class MaterialPropertyT : public wxLongStringProperty
-{
-    public:
-
-    MaterialPropertyT(const wxString& name,
-                      const wxString& label,
-                      const wxString& value,
-                      GuiDocumentT* GuiDoc)
-        : wxLongStringProperty(name, label, value),
-          m_GuiDocument(GuiDoc)
-    {
-    }
-
-    // Shows the file selection dialog and makes the choosen file path relative.
-    virtual bool OnButtonClick(wxPropertyGrid* propGrid, wxString& value)
-    {
-        MaterialBrowser::DialogT MatBrowser(GetGrid(), MaterialBrowser::GuiDocAccessT(*m_GuiDocument), MaterialBrowser::ConfigT()
-            .InitialMaterial(m_GuiDocument->GetGameConfig()->GetMatMan().FindMaterial(GetValueAsString(), false))
-         // .ShowEditorMatsOnly(false)
-            .NoButtonMark()
-            .NoButtonReplace());
-
-        if (MatBrowser.ShowModal()!=wxID_OK) return false;
-
-        EditorMaterialI* Mat=MatBrowser.GetCurrentMaterial();
-        if (Mat==NULL) return false;
-
-        value=Mat->GetName();
-        return true;
-    }
-
-
-    private:
-
-    GuiDocumentT* m_GuiDocument;
-};
 
 
 void WindowT::EditorFillInPG(wxPropertyGridManager* PropMan)

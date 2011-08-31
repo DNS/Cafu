@@ -54,7 +54,8 @@ namespace GuiEditor
         GuiDocumentT(GameConfigT* GameConfig, const wxString& GuiInitFileName="");
         ~GuiDocumentT();
 
-        cf::GuiSys::WindowT* GetRootWindow();
+        cf::GuiSys::GuiImplT* GetGui() { return m_Gui; }
+        cf::GuiSys::WindowT* GetRootWindow() { return m_RootWindow; }
         cf::GuiSys::WindowT* FindWindowByName(const wxString& WindowName);
 
         GuiPropertiesT& GetGuiProperties() { return m_GuiProperties; }
@@ -62,9 +63,8 @@ namespace GuiEditor
         void SetSelection(const ArrayT<cf::GuiSys::WindowT*>& NewSelection);
         const ArrayT<cf::GuiSys::WindowT*>& GetSelection();
 
+        const ArrayT<EditorMaterialI*>& GetEditorMaterials() const { return m_EditorMaterials; }
         GameConfigT* GetGameConfig() { return m_GameConfig; }
-
-        void GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials);
 
         bool SaveInit_cgui(std::ostream& OutFile);
 
@@ -78,6 +78,7 @@ namespace GuiEditor
         cf::GuiSys::WindowT*         m_RootWindow;
         ArrayT<cf::GuiSys::WindowT*> m_Selection;
         GuiPropertiesT               m_GuiProperties;
+        ArrayT<EditorMaterialI*>     m_EditorMaterials; ///< One editor material for each material in the GUI (its material manager).
         GameConfigT*                 m_GameConfig;
     };
 }

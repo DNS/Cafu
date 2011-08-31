@@ -64,7 +64,7 @@ bool CommandCreateT::Do()
     if (!m_NewWindow)
     {
         // Intentionally use NULL reference as GUI when creating a new window, since no GUI is present in the editor.
-        cf::GuiSys::WindowCreateParamsT CreateParams(*((cf::GuiSys::GuiImplT*)NULL));
+        cf::GuiSys::WindowCreateParamsT CreateParams(*m_GuiDocument->GetGui());
 
         // Create window and editor data.
         switch (m_Type)

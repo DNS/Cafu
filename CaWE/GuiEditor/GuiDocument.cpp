@@ -20,16 +20,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "GuiDocument.hpp"
-
 #include "EditorData/Window.hpp"
-
 #include "../GameConfig.hpp"
-#include "../EditorMaterial.hpp"
-#include "../EditorMaterialManager.hpp"
+#include "../EditorMaterialEngine.hpp"
 
 #include "GuiSys/GuiImpl.hpp"
 #include "GuiSys/Window.hpp"
-
 #include "TypeSys.hpp"
 
 #include <fstream>
@@ -51,6 +47,7 @@ GuiDocumentT::GuiDocumentT(GameConfigT* GameConfig, const wxString& GuiInitFileN
     : m_Gui(NULL),
       m_RootWindow(NULL),
       m_Selection(),
+      m_EditorMaterials(),
       m_GameConfig(GameConfig)
 {
     // Load GUI initialization script and create documents window hierarchy.
@@ -97,11 +94,22 @@ GuiDocumentT::GuiDocumentT(GameConfigT* GameConfig, const wxString& GuiInitFileN
 
     for (unsigned long i=0; i<GuiWindows.Size(); i++)
         new EditorDataWindowT(GuiWindows[i], this);
+
+
+    // Init the editor materials.
+    const std::map<std::string, MaterialT*>& GuiMaterials=m_Gui->GetMaterialManager().GetAllMaterials();
+
+    // No need to explicitly sort the m_EditorMaterials array after it has been filled in the order of the std::map.
+    for (std::map<std::string, MaterialT*>::const_iterator It=GuiMaterials.begin(); It!=GuiMaterials.end(); It++)
+        m_EditorMaterials.PushBack(new EngineMaterialT(It->second));
 }
 
 
 GuiDocumentT::~GuiDocumentT()
 {
+    for (unsigned long MatNr=0; MatNr<m_EditorMaterials.Size(); MatNr++)
+        delete m_EditorMaterials[MatNr];
+
     ArrayT<cf::GuiSys::WindowT*> Children;
     m_RootWindow->GetChildren(Children, true);
 
@@ -110,12 +118,6 @@ GuiDocumentT::~GuiDocumentT()
 
     delete m_RootWindow;
     delete m_Gui;
-}
-
-
-cf::GuiSys::WindowT* GuiDocumentT::GetRootWindow()
-{
-    return m_RootWindow;
 }
 
 
@@ -147,26 +149,6 @@ void GuiDocumentT::SetSelection(const ArrayT<cf::GuiSys::WindowT*>& NewSelection
 const ArrayT<cf::GuiSys::WindowT*>& GuiDocumentT::GetSelection()
 {
     return m_Selection;
-}
-
-
-void GuiDocumentT::GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials)
-{
-    UsedMaterials.Overwrite();
-
-    EditorMaterialI* Mat=m_GameConfig->GetMatMan().FindMaterial(m_RootWindow->BackRenderMatName, false);
-
-    if (Mat) UsedMaterials.PushBack(Mat);
-
-    ArrayT<cf::GuiSys::WindowT*> GuiWindows;
-    m_RootWindow->GetChildren(GuiWindows, true);
-
-    for (unsigned long i=0; i<GuiWindows.Size(); i++)
-    {
-        Mat=m_GameConfig->GetMatMan().FindMaterial(GuiWindows[i]->BackRenderMatName, false);
-
-        if (Mat) UsedMaterials.PushBack(Mat);
-    }
 }
 
 

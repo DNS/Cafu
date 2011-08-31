@@ -67,6 +67,9 @@ namespace cf
             /// @returns the empty string when there have been no errors, or the error message otherwise.
             const std::string& GetScriptInitResult() const { return ScriptInitResult; }
 
+            /// Returns the material manager instance of this GUI.
+            const MaterialManagerImplT& GetMaterialManager() const { return m_MaterialMan; }
+
             /// Returns the default RenderMaterialT that should be used for borders and backgrounds if no other material is specified for that window.
             MatSys::RenderMaterialT* GetDefaultRM() const;
 

@@ -27,6 +27,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../GuiEditor/GuiDocument.hpp"
 #include "../MapCommands/ReplaceMat.hpp"
 #include "../ModelEditor/ModelDocument.hpp"
+#include "GuiSys/Window.hpp"
+#include "MaterialSystem/Material.hpp"
 #include "Models/Model_cmdl.hpp"
 
 
@@ -91,13 +93,34 @@ MaterialBrowser::GuiDocAccessT::GuiDocAccessT(GuiEditor::GuiDocumentT& GuiDoc)
 
 const ArrayT<EditorMaterialI*>& MaterialBrowser::GuiDocAccessT::GetMaterials() const
 {
-    return m_GuiDoc.GetGameConfig()->GetMatMan().GetMaterials();
+    return m_GuiDoc.GetEditorMaterials();
 }
 
 
 void MaterialBrowser::GuiDocAccessT::GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const
 {
-    m_GuiDoc.GetUsedMaterials(UsedMaterials);
+    UsedMaterials.Overwrite();
+
+    const ArrayT<EditorMaterialI*>& EditorMaterials=m_GuiDoc.GetEditorMaterials();
+    ArrayT<cf::GuiSys::WindowT*>    GuiWindows;
+
+    GuiWindows.PushBack(m_GuiDoc.GetRootWindow());
+    m_GuiDoc.GetRootWindow()->GetChildren(GuiWindows, true);
+
+    for (unsigned long WinNr=0; WinNr<GuiWindows.Size(); WinNr++)
+    {
+        for (unsigned long EMNr=0; EMNr<EditorMaterials.Size(); EMNr++)
+        {
+            EditorMaterialI* EM=EditorMaterials[EMNr];
+
+            if (EM->GetMaterial()->Name == GuiWindows[WinNr]->BackRenderMatName)
+            {
+                if (UsedMaterials.Find(EM)==-1)
+                    UsedMaterials.PushBack(EM);
+                break;
+            }
+        }
+    }
 }
 
 
