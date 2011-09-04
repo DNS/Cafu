@@ -78,6 +78,7 @@ unsigned long CommandHistoryT::GetLastSaveSuggestedCommandID() const
 
 void CommandHistoryT::Undo()
 {
+    if (m_CurrentIndex<0) return;
     wxASSERT(m_CurrentIndex<(int)m_Commands.Size());
 
     // Undo all commands from the invisible commands list and delete them.
@@ -91,20 +92,24 @@ void CommandHistoryT::Undo()
     // Undo all commands succeeding the current undo command starting at the current array position.
     // These commands are not visible in the undo/redo history but must be undone before undoing the
     // current command.
-    while (!m_Commands[m_CurrentIndex]->ShowInHistory())
+    while (m_CurrentIndex>=0 && !m_Commands[m_CurrentIndex]->ShowInHistory())
     {
         m_Commands[m_CurrentIndex]->Undo();
         m_CurrentIndex--;
     }
 
     // Complete the undo.
-    m_Commands[m_CurrentIndex]->Undo();
-    m_CurrentIndex--;
+    if (m_CurrentIndex>=0)
+    {
+        m_Commands[m_CurrentIndex]->Undo();
+        m_CurrentIndex--;
+    }
 }
 
 
 void CommandHistoryT::Redo()
 {
+    if (m_CurrentIndex+1>=int(m_Commands.Size())) return;
     wxASSERT(m_CurrentIndex<(int)m_Commands.Size()-1);
 
     // Undo all commands from the invisible commands list and delete them.
@@ -118,15 +123,18 @@ void CommandHistoryT::Redo()
     // Redo all commands preceeding the current redo command starting at the current array position +1.
     // These commands are not visible in the undo/redo history but must be redone before redoing the
     // current command.
-    while (!m_Commands[m_CurrentIndex+1]->ShowInHistory())
+    while (m_CurrentIndex+1<int(m_Commands.Size()) && !m_Commands[m_CurrentIndex+1]->ShowInHistory())
     {
         m_Commands[m_CurrentIndex+1]->Do();
         m_CurrentIndex++;
     }
 
     // Complete the redo.
-    m_Commands[m_CurrentIndex+1]->Do();
-    m_CurrentIndex++;
+    if (m_CurrentIndex+1<int(m_Commands.Size()))
+    {
+        m_Commands[m_CurrentIndex+1]->Do();
+        m_CurrentIndex++;
+    }
 }
 
 
@@ -157,13 +165,10 @@ bool CommandHistoryT::SubmitCommand(CommandT* Command)
     else
     {
         // If we have redo commands in the array delete them.
-        if (m_CurrentIndex<(int)m_Commands.Size()-1)
+        while (m_CurrentIndex<(int)m_Commands.Size()-1)
         {
-            while (m_CurrentIndex<(int)m_Commands.Size()-1)
-            {
-                delete m_Commands[m_CurrentIndex+1];
-                m_Commands.RemoveAtAndKeepOrder(m_CurrentIndex+1);
-            }
+            delete m_Commands[m_CurrentIndex+1];
+            m_Commands.RemoveAtAndKeepOrder(m_CurrentIndex+1);
         }
 
         // First add all invisible commands to the list then the real command so the history will stay intact.

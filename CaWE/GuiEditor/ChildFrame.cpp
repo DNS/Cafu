@@ -214,8 +214,8 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
     m_ToolbarTools->Realize();
 
     wxAuiToolBar* ToolbarWindow=new wxAuiToolBar(this, wxID_ANY);
-    ToolbarWindow->AddTool(ID_TOOLBAR_WINDOW_MOVE_UP, "Move up in window order", wxBitmap("CaWE/res/GuiEditor/arrow_up.png", wxBITMAP_TYPE_PNG), "Move up in window orders");
-    ToolbarWindow->AddTool(ID_TOOLBAR_WINDOW_MOVE_DOWN, "Move down in window order", wxBitmap("CaWE/res/GuiEditor/arrow_down.png", wxBITMAP_TYPE_PNG), "Move down in window order");
+    ToolbarWindow->AddTool(ID_TOOLBAR_WINDOW_MOVE_UP, "Move up", wxBitmap("CaWE/res/GuiEditor/arrow_up.png", wxBITMAP_TYPE_PNG), "Move window up in the parent's list of children");
+    ToolbarWindow->AddTool(ID_TOOLBAR_WINDOW_MOVE_DOWN, "Move down", wxBitmap("CaWE/res/GuiEditor/arrow_down.png", wxBITMAP_TYPE_PNG), "Move window down in the parent's list of children");
     ToolbarWindow->AddTool(ID_TOOLBAR_WINDOW_ROTATE_CW, "Rotate clockwise", wxBitmap("CaWE/res/GuiEditor/shape_rotate_clockwise.png", wxBITMAP_TYPE_PNG), "Rotate clockwise");
     ToolbarWindow->AddTool(ID_TOOLBAR_WINDOW_ROTATE_CCW, "Rotate anticlockwise", wxBitmap("CaWE/res/GuiEditor/shape_rotate_anticlockwise.png", wxBITMAP_TYPE_PNG), "Rotate anticlockwise");
     ToolbarWindow->Realize();
@@ -703,43 +703,52 @@ void GuiEditor::ChildFrameT::OnToolbar(wxCommandEvent& CE)
 
             m_ToolbarTools->ToggleTool(CE.GetId(), true);
 
-                 if (CE.GetId()==ID_TOOLBAR_TOOL_SELECTION)
-                    m_ToolManager.SetActiveTool(TOOL_SELECTION);
+            if (CE.GetId()==ID_TOOLBAR_TOOL_SELECTION)
+                m_ToolManager.SetActiveTool(TOOL_SELECTION);
             else if (CE.GetId()==ID_TOOLBAR_TOOL_NEW_WINDOW)
-                    m_ToolManager.SetActiveTool(TOOL_NEW_WINDOW);
+                m_ToolManager.SetActiveTool(TOOL_NEW_WINDOW);
 
             break;
         }
 
         case ID_TOOLBAR_WINDOW_MOVE_UP:
-        {
-            if (m_GuiDocument->GetSelection().Size()==0) break;
-
-            if (m_GuiDocument->GetSelection().Size()>1)
-            {
-                wxMessageBox("You can only move single windows");
-                break;
-            }
-
-            int NewPosition=m_GuiDocument->GetSelection()[0]->Parent->Children.Find(m_GuiDocument->GetSelection()[0])-1;
-            SubmitCommand(new CommandChangeWindowHierarchyT(m_GuiDocument, m_GuiDocument->GetSelection()[0], m_GuiDocument->GetSelection()[0]->Parent, NewPosition));
-
-            break;
-        }
-
         case ID_TOOLBAR_WINDOW_MOVE_DOWN:
         {
-            if (m_GuiDocument->GetSelection().Size()==0) break;
+            const ArrayT<cf::GuiSys::WindowT*>& Sel=m_GuiDocument->GetSelection();
 
-            if (m_GuiDocument->GetSelection().Size()>1)
+            if (Sel.Size()==0)
             {
-                wxMessageBox("You can only move single windows");
+                wxMessageBox("Please select a window first.");
                 break;
             }
 
-            int NewPosition=m_GuiDocument->GetSelection()[0]->Parent->Children.Find(m_GuiDocument->GetSelection()[0])+1;
-            SubmitCommand(new CommandChangeWindowHierarchyT(m_GuiDocument, m_GuiDocument->GetSelection()[0], m_GuiDocument->GetSelection()[0]->Parent, NewPosition));
+            if (Sel.Size()>1)
+            {
+                wxMessageBox("Sorry, only one window can be moved at a time.");
+                break;
+            }
 
+            if (!Sel[0]->Parent)
+            {
+                wxMessageBox("Sorry, the topmost (root) window cannot be moved.");
+                break;
+            }
+
+            const int NewPos=Sel[0]->Parent->Children.Find(Sel[0]) + (CE.GetId()==ID_TOOLBAR_WINDOW_MOVE_UP ? -1 : 1);
+
+            if (NewPos<0)
+            {
+                wxMessageBox("This window is already the first child of its parent.\n\nUse cut and paste if you would like to assign the window to another parent.");
+                break;
+            }
+
+            if (NewPos>=int(Sel[0]->Parent->Children.Size()))
+            {
+                wxMessageBox("This window is already the last child of its parent.\n\nUse cut and paste if you would like to assign the window to another parent.");
+                break;
+            }
+
+            SubmitCommand(new CommandChangeWindowHierarchyT(m_GuiDocument, Sel[0], Sel[0]->Parent, NewPos));
             break;
         }
 

@@ -20,7 +20,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Rotate.hpp"
-
 #include "../GuiDocument.hpp"
 
 #include "GuiSys/Window.hpp"
@@ -39,12 +38,7 @@ CommandRotateT::CommandRotateT(GuiDocumentT* GuiDocument, const ArrayT<cf::GuiSy
     {
         for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
         {
-            float OldRotation=m_Windows[WinNr]->RotAngle-Rotation;
-
-            while (OldRotation<  0.0f) OldRotation=360.0f+OldRotation;
-            while (OldRotation>360.0f) OldRotation=OldRotation-360.0f;
-
-            m_OldRotations.PushBack(OldRotation);
+            m_OldRotations.PushBack(fmod(m_Windows[WinNr]->RotAngle - Rotation + 360.0f, 360.0f));
             m_NewRotations.PushBack(m_Windows[WinNr]->RotAngle);
         }
     }
@@ -52,13 +46,8 @@ CommandRotateT::CommandRotateT(GuiDocumentT* GuiDocument, const ArrayT<cf::GuiSy
     {
         for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
         {
-            float NewRotation=m_Windows[WinNr]->RotAngle+Rotation;
-
-            while (NewRotation<  0.0f) NewRotation=360.0f+NewRotation;
-            while (NewRotation>360.0f) NewRotation=NewRotation-360.0f;
-
             m_OldRotations.PushBack(m_Windows[WinNr]->RotAngle);
-            m_NewRotations.PushBack(NewRotation);
+            m_NewRotations.PushBack(fmod(m_Windows[WinNr]->RotAngle + Rotation + 360.0f, 360.0f));
         }
     }
 }
@@ -67,7 +56,6 @@ CommandRotateT::CommandRotateT(GuiDocumentT* GuiDocument, const ArrayT<cf::GuiSy
 bool CommandRotateT::Do()
 {
     wxASSERT(!m_Done);
-
     if (m_Done) return false;
 
     for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
@@ -76,7 +64,6 @@ bool CommandRotateT::Do()
     m_GuiDocument->UpdateAllObservers_Modified(m_Windows, WMD_TRANSFORMED);
 
     m_Done=true;
-
     return true;
 }
 
@@ -84,11 +71,10 @@ bool CommandRotateT::Do()
 void CommandRotateT::Undo()
 {
     wxASSERT(m_Done);
-
     if (!m_Done) return;
 
     for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
-        m_Windows[WinNr]->RotAngle=m_NewRotations[WinNr];
+        m_Windows[WinNr]->RotAngle=m_OldRotations[WinNr];
 
     m_GuiDocument->UpdateAllObservers_Modified(m_Windows, WMD_TRANSFORMED);
 

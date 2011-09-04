@@ -86,7 +86,6 @@ GuiImplT::GuiImplT(const std::string& GuiScriptName, bool IsInlineCode)
         if (cf::String::EndsWith(s, "_main") || cf::String::EndsWith(s, "_init"))
             s=std::string(s, 0, s.length()-5);
 
-        Console->Print("s = " + s + ".cmat\n");
         /*ArrayT<MaterialT*> AllMats=*/m_MaterialMan.RegisterMaterialScript(s+".cmat", cf::String::GetPath(GuiScriptName)+"/");
     }
 
