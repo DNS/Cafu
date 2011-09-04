@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../EditorData/Window.hpp"
 
 #include "GuiSys/GuiMan.hpp"
+#include "GuiSys/GuiImpl.hpp"
 #include "GuiSys/WindowChoice.hpp"
 #include "GuiSys/WindowModel.hpp"
 #include "MaterialSystem/Renderer.hpp"
@@ -129,7 +130,7 @@ bool CommandModifyWindowT::Do()
 
         m_Window->BackRenderMatName=m_NewString;
         MatSys::Renderer->FreeMaterial(m_Window->BackRenderMat);
-        m_Window->BackRenderMat=m_Window->BackRenderMatName.empty() ? NULL : MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial(m_Window->BackRenderMatName));
+        m_Window->BackRenderMat=m_Window->BackRenderMatName.empty() ? NULL : MatSys::Renderer->RegisterMaterial(m_GuiDocument->GetGui()->GetMaterialManager().GetMaterial(m_Window->BackRenderMatName));
     }
     else if (m_PropertyName=="FontName")
     {
@@ -251,7 +252,7 @@ void CommandModifyWindowT::Undo()
     {
         m_Window->BackRenderMatName=m_OldString;
         MatSys::Renderer->FreeMaterial(m_Window->BackRenderMat);
-        m_Window->BackRenderMat=m_Window->BackRenderMatName.empty() ? NULL : MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial(m_Window->BackRenderMatName));
+        m_Window->BackRenderMat=m_Window->BackRenderMatName.empty() ? NULL : MatSys::Renderer->RegisterMaterial(m_GuiDocument->GetGui()->GetMaterialManager().GetMaterial(m_Window->BackRenderMatName));
     }
     else if (m_PropertyName=="FontName")
     {

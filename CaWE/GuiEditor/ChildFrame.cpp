@@ -499,9 +499,8 @@ void GuiEditor::ChildFrameT::OnMenuEditCopy(wxCommandEvent& CE)
 
 void GuiEditor::ChildFrameT::OnMenuEditPaste(wxCommandEvent& CE)
 {
-    wxASSERT(m_GuiDocument->GetSelection().Size()==1);
-
-    SubmitCommand(new CommandPasteT(m_GuiDocument, ClipBoard, m_GuiDocument->GetSelection()[0]));
+    SubmitCommand(new CommandPasteT(m_GuiDocument, ClipBoard,
+        m_GuiDocument->GetSelection().Size()==1 ? m_GuiDocument->GetSelection()[0] : m_GuiDocument->GetRootWindow()));
 }
 
 
@@ -539,7 +538,7 @@ void GuiEditor::ChildFrameT::OnMenuEditUpdate(wxUpdateUIEvent& UE)
             break;
 
         case wxID_PASTE:
-            UE.Enable(ClipBoard.Size()>0 && m_GuiDocument->GetSelection().Size()==1);
+            UE.Enable(ClipBoard.Size()>0);
             break;
 
         case ID_MENU_EDIT_SNAP_TO_GRID:

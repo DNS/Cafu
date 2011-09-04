@@ -114,7 +114,7 @@ namespace
 
             MaterialBrowser::DialogT MatBrowser(GetGrid(), MaterialBrowser::GuiDocAccessT(*m_GuiDocument), MaterialBrowser::ConfigT()
                 .InitialMaterial(InitMat)
-             // .ShowEditorMatsOnly(false)
+                .NoFilterEditorMatsOnly()
                 .NoButtonMark()
                 .NoButtonReplace());
 

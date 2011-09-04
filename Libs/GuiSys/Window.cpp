@@ -205,7 +205,12 @@ WindowT::~WindowT()
 
     delete EditorData;
 
+    // Even if one of these materials is explicitly assigned in the .cgui script (by name),
+    // the render material is newly registered with the MatSys::Renderer as a separate instance,
+    // thus the two assertions below should always hold:
     assert(BackRenderMat!=Gui.GetDefaultRM());
+    assert(BackRenderMat!=Gui.GetPointerRM());
+
     MatSys::Renderer->FreeMaterial(BackRenderMat);
 }
 

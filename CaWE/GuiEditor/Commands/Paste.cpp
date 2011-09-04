@@ -39,6 +39,9 @@ CommandPasteT::CommandPasteT(GuiDocumentT* GuiDocument, const ArrayT<cf::GuiSys:
     {
         m_Windows.PushBack(Windows[WinNr]->Clone(true));
 
+        m_Windows[WinNr]->Rect[0]=(WinNr + 1) * 20.0f;
+        m_Windows[WinNr]->Rect[1]=(WinNr + 1) * 10.0f;
+
         // Create editor data for the window itself and all of its children.
         new EditorDataWindowT(m_Windows[WinNr], m_GuiDocument);
 
@@ -73,6 +76,13 @@ bool CommandPasteT::Do()
 {
     wxASSERT(!m_Done);
     if (m_Done) return false;
+
+    for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
+        if (&m_Windows[WinNr]->Gui != m_GuiDocument->GetGui())
+        {
+            wxMessageBox("Sorry, cannot copy windows from one GUI document and paste them into another at this time.");
+            return false;
+        }
 
     for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
     {

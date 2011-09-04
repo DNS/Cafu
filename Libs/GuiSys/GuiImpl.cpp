@@ -83,7 +83,7 @@ GuiImplT::GuiImplT(const std::string& GuiScriptName, bool IsInlineCode)
     {
         std::string s=cf::String::StripExt(GuiScriptName);
 
-        if (cf::String::EndsWith(s, "_main"))
+        if (cf::String::EndsWith(s, "_main") || cf::String::EndsWith(s, "_init"))
             s=std::string(s, 0, s.length()-5);
 
         Console->Print("s = " + s + ".cmat\n");
