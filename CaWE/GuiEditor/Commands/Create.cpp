@@ -58,12 +58,10 @@ CommandCreateT::~CommandCreateT()
 bool CommandCreateT::Do()
 {
     wxASSERT(!m_Done);
-
     if (m_Done) return false;
 
     if (!m_NewWindow)
     {
-        // Intentionally use NULL reference as GUI when creating a new window, since no GUI is present in the editor.
         cf::GuiSys::WindowCreateParamsT CreateParams(*m_GuiDocument->GetGui());
 
         // Create window and editor data.
@@ -122,7 +120,6 @@ bool CommandCreateT::Do()
     m_GuiDocument->UpdateAllObservers_SelectionChanged(m_OldSelection, NewSelection);
 
     m_Done=true;
-
     return true;
 }
 
@@ -130,7 +127,6 @@ bool CommandCreateT::Do()
 void CommandCreateT::Undo()
 {
     wxASSERT(m_Done);
-
     if (!m_Done) return;
 
     m_Parent->Children.DeleteBack();

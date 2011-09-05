@@ -204,7 +204,11 @@ void ChoiceT::EditorFillInPG(wxPropertyGridManager* PropMan)
 
     PropMan->Append(new wxLongStringProperty("Choices", wxPG_LABEL, ChoicesString));
 
+#ifndef __WXGTK__
+    // This is only temporarily disabled, see http://trac.wxwidgets.org/ticket/13447 for details.
+    // TODO: Re-enable also for wxGTK as soon as possible.
     PropMan->Append(new wxUIntProperty("DefaultChoice", wxPG_LABEL, SelectedChoice));
+#endif
 }
 
 
