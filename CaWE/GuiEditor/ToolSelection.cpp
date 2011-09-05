@@ -42,55 +42,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace GuiEditor;
 
 
-class ContextMenuT : public wxMenu
-{
-    public:
-
-    enum
-    {
-        ID_MENU_CREATE_WINDOW_BASE=wxID_HIGHEST+1,
-        ID_MENU_CREATE_WINDOW_EDIT,
-        ID_MENU_CREATE_WINDOW_CHOICE,
-        ID_MENU_CREATE_WINDOW_LISTBOX,
-        ID_MENU_CREATE_WINDOW_MODEL
-    };
-
-    ContextMenuT()
-        : wxMenu(),
-          ID(-1)
-    {
-        wxMenu* SubMenuCreate=new wxMenu();
-        SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_BASE,    "Window");
-        SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_EDIT,    "Text Editor");
-        SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_CHOICE,  "Choice Box");
-        SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_LISTBOX, "List Box");
-        SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_MODEL,   "Model Window");
-
-        // Create context menus.
-        this->AppendSubMenu(SubMenuCreate, "Create");
-    }
-
-    int GetClickedMenuItem() { return ID; }
-
-
-    protected:
-
-    void OnMenuClick(wxCommandEvent& CE) { ID=CE.GetId(); }
-
-
-    private:
-
-    int ID;
-
-    DECLARE_EVENT_TABLE()
-};
-
-
-BEGIN_EVENT_TABLE(ContextMenuT, wxMenu)
-    EVT_MENU(wxID_ANY, ContextMenuT::OnMenuClick)
-END_EVENT_TABLE()
-
-
 const float HANDLE_WIDTH=5.0f; // Width in GUI units of the handle used to scale windows.
 
 
@@ -422,9 +373,16 @@ bool ToolSelectionT::OnMouseMove(RenderWindowT* RenderWindow, wxMouseEvent& ME)
 
 bool ToolSelectionT::OnRMouseUp(RenderWindowT* RenderWindow, wxMouseEvent& ME)
 {
-    ContextMenuT ContextMenu;
-
-    RenderWindow->PopupMenu(&ContextMenu);
+    // Note that GetPopupMenuSelectionFromUser() temporarily disables UI updates for the window,
+    // so our menu IDs used below should be doubly clash-free.
+    enum
+    {
+        ID_MENU_CREATE_WINDOW_BASE=wxID_HIGHEST+1,
+        ID_MENU_CREATE_WINDOW_EDIT,
+        ID_MENU_CREATE_WINDOW_CHOICE,
+        ID_MENU_CREATE_WINDOW_LISTBOX,
+        ID_MENU_CREATE_WINDOW_MODEL
+    };
 
     // Create a new window and use the top most window under the mouse cursor as parent.
     Vector3fT MousePosGUI      =RenderWindow->ClientToGui(ME.GetX(), ME.GetY());
@@ -432,25 +390,34 @@ bool ToolSelectionT::OnRMouseUp(RenderWindowT* RenderWindow, wxMouseEvent& ME)
 
     if (!Parent) return false;
 
-    switch (ContextMenu.GetClickedMenuItem())
+    wxMenu Menu;
+    wxMenu* SubMenuCreate=new wxMenu();
+    SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_BASE,    "Window");
+    SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_EDIT,    "Text Editor");
+    SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_CHOICE,  "Choice Box");
+    SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_LISTBOX, "List Box");
+    SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_MODEL,   "Model Window");
+    Menu.AppendSubMenu(SubMenuCreate, "Create");
+
+    switch (RenderWindow->GetPopupMenuSelectionFromUser(Menu))
     {
-        case ContextMenuT::ID_MENU_CREATE_WINDOW_BASE:
+        case ID_MENU_CREATE_WINDOW_BASE:
             m_Parent->SubmitCommand(new CommandCreateT(m_GuiDocument, Parent));
             break;
 
-        case ContextMenuT::ID_MENU_CREATE_WINDOW_EDIT:
+        case ID_MENU_CREATE_WINDOW_EDIT:
             m_Parent->SubmitCommand(new CommandCreateT(m_GuiDocument, Parent, CommandCreateT::WINDOW_TEXTEDITOR));
             break;
 
-        case ContextMenuT::ID_MENU_CREATE_WINDOW_CHOICE:
+        case ID_MENU_CREATE_WINDOW_CHOICE:
             m_Parent->SubmitCommand(new CommandCreateT(m_GuiDocument, Parent, CommandCreateT::WINDOW_CHOICE));
             break;
 
-        case ContextMenuT::ID_MENU_CREATE_WINDOW_LISTBOX:
+        case ID_MENU_CREATE_WINDOW_LISTBOX:
             m_Parent->SubmitCommand(new CommandCreateT(m_GuiDocument, Parent, CommandCreateT::WINDOW_LISTBOX));
             break;
 
-        case ContextMenuT::ID_MENU_CREATE_WINDOW_MODEL:
+        case ID_MENU_CREATE_WINDOW_MODEL:
             m_Parent->SubmitCommand(new CommandCreateT(m_GuiDocument, Parent, CommandCreateT::WINDOW_MODEL));
             break;
     }

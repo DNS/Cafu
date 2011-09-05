@@ -41,59 +41,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 namespace
 {
-    class TreeContextMenuT : public wxMenu
-    {
-        public:
-
-        enum
-        {
-            ID_MENU_CREATE_WINDOW_BASE=wxID_HIGHEST+1,
-            ID_MENU_CREATE_WINDOW_EDIT,
-            ID_MENU_CREATE_WINDOW_CHOICE,
-            ID_MENU_CREATE_WINDOW_LISTBOX,
-            ID_MENU_CREATE_WINDOW_MODEL,
-            ID_MENU_DEFAULTFOCUS,
-            ID_MENU_RENAME
-        };
-
-        TreeContextMenuT()
-            : wxMenu(),
-              ID(-1)
-        {
-            wxMenu* SubMenuCreate=new wxMenu();
-            SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_BASE,    "Window");
-            SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_EDIT,    "Text Editor");
-            SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_CHOICE,  "Choice Box");
-            SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_LISTBOX, "List Box");
-            SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_MODEL,   "Model Window");
-
-            // Create context menus.
-            this->AppendSubMenu(SubMenuCreate, "Create");
-            this->Append(ID_MENU_DEFAULTFOCUS, "Set as default focus");
-            this->Append(ID_MENU_RENAME,       "Rename\tF2");
-        }
-
-        int GetClickedMenuItem() { return ID; }
-
-
-        protected:
-
-        void OnMenuClick(wxCommandEvent& CE) { ID=CE.GetId(); }
-
-
-        private:
-
-        int ID;
-
-        DECLARE_EVENT_TABLE()
-    };
-
-
-    BEGIN_EVENT_TABLE(TreeContextMenuT, wxMenu)
-        EVT_MENU(wxID_ANY, TreeContextMenuT::OnMenuClick)
-    END_EVENT_TABLE()
-
-
     class WindowTreeItemT : public wxTreeItemData
     {
         public:
@@ -473,37 +420,59 @@ void WindowTreeT::OnLabelChanged(wxTreeEvent& TE)
 
 void WindowTreeT::OnTreeItemRightClick(wxTreeEvent& TE)
 {
-    TreeContextMenuT ContextMenu;
-
-    PopupMenu(&ContextMenu);
-
-    switch (ContextMenu.GetClickedMenuItem())
+    // Note that GetPopupMenuSelectionFromUser() temporarily disables UI updates for the window,
+    // so our menu IDs used below should be doubly clash-free.
+    enum
     {
-        case TreeContextMenuT::ID_MENU_CREATE_WINDOW_BASE:
+        ID_MENU_CREATE_WINDOW_BASE=wxID_HIGHEST+1,
+        ID_MENU_CREATE_WINDOW_EDIT,
+        ID_MENU_CREATE_WINDOW_CHOICE,
+        ID_MENU_CREATE_WINDOW_LISTBOX,
+        ID_MENU_CREATE_WINDOW_MODEL,
+        ID_MENU_DEFAULTFOCUS,
+        ID_MENU_RENAME
+    };
+
+    wxMenu Menu;
+    wxMenu* SubMenuCreate=new wxMenu();
+    SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_BASE,    "Window");
+    SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_EDIT,    "Text Editor");
+    SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_CHOICE,  "Choice Box");
+    SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_LISTBOX, "List Box");
+    SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_MODEL,   "Model Window");
+
+    // Create context menus.
+    Menu.AppendSubMenu(SubMenuCreate, "Create");
+    Menu.Append(ID_MENU_DEFAULTFOCUS, "Set as default focus");
+    Menu.Append(ID_MENU_RENAME,       "Rename\tF2");
+
+    switch (GetPopupMenuSelectionFromUser(Menu))
+    {
+        case ID_MENU_CREATE_WINDOW_BASE:
             m_Parent->SubmitCommand(new CommandCreateT(m_GuiDocument, ((WindowTreeItemT*)GetItemData(TE.GetItem()))->GetWindow()));
             break;
 
-        case TreeContextMenuT::ID_MENU_CREATE_WINDOW_EDIT:
+        case ID_MENU_CREATE_WINDOW_EDIT:
             m_Parent->SubmitCommand(new CommandCreateT(m_GuiDocument, ((WindowTreeItemT*)GetItemData(TE.GetItem()))->GetWindow(), CommandCreateT::WINDOW_TEXTEDITOR));
             break;
 
-        case TreeContextMenuT::ID_MENU_CREATE_WINDOW_CHOICE:
+        case ID_MENU_CREATE_WINDOW_CHOICE:
             m_Parent->SubmitCommand(new CommandCreateT(m_GuiDocument, ((WindowTreeItemT*)GetItemData(TE.GetItem()))->GetWindow(), CommandCreateT::WINDOW_CHOICE));
             break;
 
-        case TreeContextMenuT::ID_MENU_CREATE_WINDOW_LISTBOX:
+        case ID_MENU_CREATE_WINDOW_LISTBOX:
             m_Parent->SubmitCommand(new CommandCreateT(m_GuiDocument, ((WindowTreeItemT*)GetItemData(TE.GetItem()))->GetWindow(), CommandCreateT::WINDOW_LISTBOX));
             break;
 
-        case TreeContextMenuT::ID_MENU_CREATE_WINDOW_MODEL:
+        case ID_MENU_CREATE_WINDOW_MODEL:
             m_Parent->SubmitCommand(new CommandCreateT(m_GuiDocument, ((WindowTreeItemT*)GetItemData(TE.GetItem()))->GetWindow(), CommandCreateT::WINDOW_MODEL));
             break;
 
-        case TreeContextMenuT::ID_MENU_DEFAULTFOCUS:
+        case ID_MENU_DEFAULTFOCUS:
             m_Parent->SubmitCommand(CommandModifyGuiT::Create(m_GuiDocument, "DefaultFocus", ((WindowTreeItemT*)GetItemData(TE.GetItem()))->GetWindow()->Name));
             break;
 
-        case TreeContextMenuT::ID_MENU_RENAME:
+        case ID_MENU_RENAME:
             EditLabel(TE.GetItem());
             break;
     }
