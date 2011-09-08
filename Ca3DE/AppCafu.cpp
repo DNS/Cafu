@@ -236,7 +236,7 @@ bool AppCafuT::OnInit()
 
     if (!m_Locale)
     {
-        // If the above for some reasons didn't work, at least force the "C" locale.
+        // If the above for some reason didn't work, set at least the CRT to the "C" locale.
         setlocale(LC_ALL, "C");
         wxLogDebug("Program locale set to \"C\".");
     }
