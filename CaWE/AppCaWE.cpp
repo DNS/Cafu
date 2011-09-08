@@ -179,8 +179,9 @@ bool AppCaWE::OnInit()
 
     if (!m_Locale)
     {
-        // If the above for some reasons didn't work, try to force the generic English locale.
-        m_Locale=new wxLocale(wxLANGUAGE_ENGLISH, wxLOCALE_DONT_LOAD_DEFAULT);
+        // If the above for some reason didn't work, set at least the CRT to the "C" locale.
+        setlocale(LC_ALL, "C");
+        wxLogDebug("Program locale set to \"C\".");
     }
 
 
