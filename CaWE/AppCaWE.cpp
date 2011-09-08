@@ -166,7 +166,23 @@ bool AppCaWE::OnInit()
     // Using other locales introduces a lot of subtle errors. E.g. reading floating point numbers from anywhere
     // (like map files!) fails because e.g. "1.4" is no proper floating point string in the German locale (but "1,4" is).
     // setlocale(LC_ALL, "C");      // This alone is not enough, see http://trac.wxwidgets.org/ticket/12970 for details.
-    m_Locale=new wxLocale(wxLANGUAGE_ENGLISH, wxLOCALE_DONT_LOAD_DEFAULT);
+    for (int LangNr=wxLANGUAGE_ENGLISH; LangNr<=wxLANGUAGE_ENGLISH_ZIMBABWE; LangNr++)
+    {
+        if (wxLocale::IsAvailable(LangNr))
+        {
+            m_Locale=new wxLocale(LangNr, wxLOCALE_DONT_LOAD_DEFAULT);
+
+            wxLogDebug("Program locale set to %s (%s, %s).", m_Locale->GetName(), m_Locale->GetCanonicalName(), m_Locale->GetLocale());
+            break;
+        }
+    }
+
+    if (!m_Locale)
+    {
+        // If the above for some reasons didn't work, try to force the generic English locale.
+        m_Locale=new wxLocale(wxLANGUAGE_ENGLISH, wxLOCALE_DONT_LOAD_DEFAULT);
+    }
+
 
     // Activate a log console as the wx debug target.
     // wxLog::SetActiveTarget(new wxLogWindow(NULL, "wx Debug Console", true, false));
