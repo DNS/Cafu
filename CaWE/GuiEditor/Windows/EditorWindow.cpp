@@ -43,8 +43,8 @@ using namespace GuiEditor;
 
 
 EditorWindowT::EditorWindowT(cf::GuiSys::WindowT* Win, GuiDocumentT* GuiDoc)
-    : m_GuiDoc(GuiDoc),
-      m_Win(Win),
+    : m_Win(Win),
+      m_GuiDoc(GuiDoc),
       m_IsSelected(false),
       m_Counter(1)
 {

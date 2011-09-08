@@ -93,9 +93,7 @@ const cf::TypeSys::TypeInfoT WindowT::TypeInfo(GetWindowTIM(), "WindowT", NULL /
 
 
 WindowT::WindowT(const WindowCreateParamsT& Params)
-    : m_Gui(Params.Gui),
-      m_ExtData(NULL),
-   // Children(),
+    : Children(),
       Parent(NULL),
       Name(""),
       Time(0.0f),
@@ -113,6 +111,8 @@ WindowT::WindowT(const WindowCreateParamsT& Params)
    // TextColor(),
       TextAlignHor(left),
       TextAlignVer(top),
+      m_Gui(Params.Gui),
+      m_ExtData(NULL),
       m_CppRefCount(0)
 {
     for (unsigned long c=0; c<4; c++)

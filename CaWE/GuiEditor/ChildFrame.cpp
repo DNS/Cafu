@@ -214,10 +214,10 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
     m_ToolbarTools->Realize();
 
     wxAuiToolBar* ToolbarWindow=new wxAuiToolBar(this, wxID_ANY);
-    ToolbarWindow->AddTool(ID_TOOLBAR_WINDOW_MOVE_UP, "Move up", wxBitmap("CaWE/res/GuiEditor/arrow_up.png", wxBITMAP_TYPE_PNG), "Move window up in the parent's list of children");
-    ToolbarWindow->AddTool(ID_TOOLBAR_WINDOW_MOVE_DOWN, "Move down", wxBitmap("CaWE/res/GuiEditor/arrow_down.png", wxBITMAP_TYPE_PNG), "Move window down in the parent's list of children");
-    ToolbarWindow->AddTool(ID_TOOLBAR_WINDOW_ROTATE_CW, "Rotate clockwise", wxBitmap("CaWE/res/GuiEditor/shape_rotate_clockwise.png", wxBITMAP_TYPE_PNG), "Rotate clockwise");
-    ToolbarWindow->AddTool(ID_TOOLBAR_WINDOW_ROTATE_CCW, "Rotate anticlockwise", wxBitmap("CaWE/res/GuiEditor/shape_rotate_anticlockwise.png", wxBITMAP_TYPE_PNG), "Rotate anticlockwise");
+    ToolbarWindow->AddTool(ID_TOOLBAR_WINDOW_MOVE_UP,    "Move up",              wxArtProvider::GetBitmap("list-selection-up", wxART_TOOLBAR), "Move window up in the parent's list of children");
+    ToolbarWindow->AddTool(ID_TOOLBAR_WINDOW_MOVE_DOWN,  "Move down",            wxArtProvider::GetBitmap("list-selection-down", wxART_TOOLBAR), "Move window down in the parent's list of children");
+    ToolbarWindow->AddTool(ID_TOOLBAR_WINDOW_ROTATE_CCW, "Rotate anticlockwise", wxArtProvider::GetBitmap("transform-rotate-left", wxART_TOOLBAR), "Rotate anticlockwise");
+    ToolbarWindow->AddTool(ID_TOOLBAR_WINDOW_ROTATE_CW,  "Rotate clockwise",     wxArtProvider::GetBitmap("transform-rotate-right", wxART_TOOLBAR), "Rotate clockwise");
     ToolbarWindow->Realize();
 
     wxAuiToolBar* ToolbarText=new wxAuiToolBar(this, wxID_ANY);
