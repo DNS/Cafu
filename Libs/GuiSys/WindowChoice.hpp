@@ -51,18 +51,15 @@ namespace cf
             /// Destructor.
             ~ChoiceT();
 
-            /// Returns an array of the choices  of this window.
+            /// Returns an array of the choices of this window.
             ArrayT<std::string>& GetChoices() { return Choices; }
+
+            unsigned long GetSelectedChoice() const { return SelectedChoice; }
 
             // Overloaded methods from the base class.
             void Render() const;
             bool OnInputEvent(const CaKeyboardEventT& KE);
             bool OnInputEvent(const CaMouseEventT&    ME, float PosX, float PosY);
-            void EditorFillInPG(wxPropertyGridManager* PropMan);
-            bool UpdateProperty(wxPGProperty* Property);
-            bool EditorHandlePGChange(wxPropertyGridEvent& Event, GuiEditor::ChildFrameT* ChildFrame);
-            bool WriteInitMethod(std::ostream& OutFile);
-            void EditorRender() const;
 
             // The TypeSys related declarations for this class.
             virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }

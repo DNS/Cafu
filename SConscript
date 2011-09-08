@@ -95,7 +95,7 @@ envCafu = wxEnv.Clone()
 envCafu.Append(CPPPATH=['ExtLibs/lua/src'])
 
 if sys.platform=="win32":
-    envCafu.Append(LIBS=Split("SceneGraph MatSys SoundSys cfsLib cfs_jpeg bulletcollision minizip lua ClipSys GuiSysNullEditor png z"))
+    envCafu.Append(LIBS=Split("SceneGraph MatSys SoundSys cfsLib cfs_jpeg bulletcollision minizip lua ClipSys png z"))
     envCafu.Append(LIBS=Split("lightwave"))     # For the GuiSys::ModelWindowT class.
 
     WinResource = envCafu.RES("Ca3DE/Cafu.rc")
@@ -128,7 +128,7 @@ elif sys.platform=="linux2":
     # which in turn requires these...
     # Note that this (using --whole-archive) is actually the proper strategy under Linux (vs. Windows), because this is *the* way
     # in order to make sure that the -fPIC can be handled correctly - otherwise we had to link .so libs with non-fPIC object files...
-    envCafu.Append(LINKCOM=" -Wl,--whole-archive -lcfsLib -lbulletdynamics -lbulletcollision -lbulletmath -lopenal -lalut -lmpg123 -logg -lvorbis -lvorbisfile -Wl,--no-whole-archive -lGuiSysNullEditor -llua -llightwave -lminizip -lcfs_jpeg")
+    envCafu.Append(LINKCOM=" -Wl,--whole-archive -lcfsLib -lbulletdynamics -lbulletcollision -lbulletmath -lopenal -lalut -lmpg123 -logg -lvorbis -lvorbisfile -Wl,--no-whole-archive -llua -llightwave -lminizip -lcfs_jpeg")
 
     WinResource = []
 
@@ -142,7 +142,7 @@ appCafu = envCafu.Program('Ca3DE/Cafu',
 
 if sys.platform=="linux2":
     # This is a work-around for the fact that SCons doesn't automatically add dependencies for the libraries mentioned in LINKCOM.
-    for LibName in Split("cfsLib bulletdynamics bulletcollision bulletmath openal alut mpg123 ogg vorbis vorbisfile GuiSysNullEditor lua lightwave minizip cfs_jpeg"):
+    for LibName in Split("cfsLib bulletdynamics bulletcollision bulletmath openal alut mpg123 ogg vorbis vorbisfile lua lightwave minizip cfs_jpeg"):
         LibFile = envCafu.FindFile("lib" + LibName + ".so", envCafu['LIBPATH'])
         if LibFile==None:
             LibFile = envCafu.FindFile("lib" + LibName + ".a", envCafu['LIBPATH'])
@@ -157,7 +157,7 @@ envCaWE.Append(LIBS=Split("SceneGraph MatSys ClipSys cfsLib ModelLoaders cfs_jpe
 
 SourceFilesList = (Glob("CaWE/*.cpp")
     +Glob("CaWE/FontWizard/*.cpp")
-    +Glob("CaWE/GuiEditor/*.cpp")+Glob("CaWE/GuiEditor/Commands/*.cpp")+Glob("CaWE/GuiEditor/EditorData/*.cpp")
+    +Glob("CaWE/GuiEditor/*.cpp")+Glob("CaWE/GuiEditor/Commands/*.cpp")+Glob("CaWE/GuiEditor/Windows/*.cpp")
     +Glob("CaWE/MapCommands/*.cpp")
     +Glob("CaWE/MaterialBrowser/*.cpp")
     +Glob("CaWE/ModelEditor/*.cpp")+Glob("CaWE/ModelEditor/Commands/*.cpp")

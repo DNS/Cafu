@@ -21,10 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Paste.hpp"
 #include "../GuiDocument.hpp"
-#include "../EditorData/Window.hpp"
-#include "GuiSys/Window.hpp"
-
-#include <sstream>
+#include "../Windows/EditorWindow.hpp"
 
 
 using namespace GuiEditor;
@@ -43,13 +40,13 @@ CommandPasteT::CommandPasteT(GuiDocumentT* GuiDocument, const ArrayT<cf::GuiSys:
         m_Windows[WinNr]->Rect[1]=(WinNr + 1) * 10.0f;
 
         // Create editor data for the window itself and all of its children.
-        new EditorDataWindowT(m_Windows[WinNr], m_GuiDocument);
+        GuiDocumentT::CreateSibling(m_Windows[WinNr], m_GuiDocument);
 
         ArrayT<cf::GuiSys::WindowT*> Children;
         m_Windows[WinNr]->GetChildren(Children, true);
 
         for (unsigned long ChildNr=0; ChildNr<Children.Size(); ChildNr++)
-            new EditorDataWindowT(Children[ChildNr], m_GuiDocument);
+            GuiDocumentT::CreateSibling(Children[ChildNr], m_GuiDocument);
     }
 }
 
@@ -78,7 +75,7 @@ bool CommandPasteT::Do()
     if (m_Done) return false;
 
     for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
-        if (&m_Windows[WinNr]->Gui != m_GuiDocument->GetGui())
+        if (&m_Windows[WinNr]->GetGui() != m_GuiDocument->GetGui())
         {
             wxMessageBox("Sorry, cannot copy windows from one GUI document and paste them into another at this time.");
             return false;
@@ -90,7 +87,7 @@ bool CommandPasteT::Do()
         m_NewParent->Children.PushBack(m_Windows[WinNr]);
 
         // If the name of the window is not unique among its siblings, find a new unique name.
-        ((EditorDataWindowT*)m_Windows[WinNr]->EditorData)->RepairNameUniqueness();
+        GuiDocumentT::GetSibling(m_Windows[WinNr])->RepairNameUniqueness();
     }
 
     m_GuiDocument->UpdateAllObservers_Created(m_Windows);

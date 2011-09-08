@@ -23,8 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrame.hpp"
 #include "GuiDocument.hpp"
 
-#include "EditorData/Window.hpp"
-
 #include "Commands/Select.hpp"
 #include "Commands/Create.hpp"
 #include "Commands/ModifyWindow.hpp"
@@ -32,7 +30,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Commands/ChangeWindowHierarchy.hpp"
 
 #include "GuiSys/Window.hpp"
-
 #include "Templates/Array.hpp"
 
 #include "wx/wx.h"

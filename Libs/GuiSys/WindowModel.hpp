@@ -49,15 +49,17 @@ namespace cf
             /// Returns the model this window shows.
             ModelProxyT& GetModel() { return Model; }
 
+            int              GetModelSequNr() const { return ModelSequNr; }     ///< Returns the animation sequence number that is used for the model.
+         // float            GetModelFrameNr() const { return ModelFrameNr; }   ///< Returns the frame number of the sequence. The only variable that is not set by script, but advanced automatically.
+            const Vector3fT& GetModelPos() const { return ModelPos; }           ///< Returns the position of the model in world space.
+            float            GetModelScale() const { return ModelScale; }       ///< Returns the scale factor applied to the model coordinates when converted to world space.
+            const Vector3fT& GetModelAngles() const { return ModelAngles; }     ///< Returns the angles around the axes that determine the orientation of the model in world space.
+            const Vector3fT& GetCameraPos() const { return CameraPos; }         ///< Returns the position of the camera in world space.
+
 
             // Overloaded methods from the base class.
             void Render() const;
             bool OnClockTickEvent(float t);
-            void EditorFillInPG(wxPropertyGridManager* PropMan);
-            bool UpdateProperty(wxPGProperty* Property);
-            bool EditorHandlePGChange(wxPropertyGridEvent& Event, GuiEditor::ChildFrameT* ChildFrame);
-            bool WriteInitMethod(std::ostream& OutFile);
-            void EditorRender() const;
 
 
             // The TypeSys related declarations for this class.

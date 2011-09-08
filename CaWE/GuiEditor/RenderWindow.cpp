@@ -23,8 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrame.hpp"
 #include "GuiDocument.hpp"
 
-#include "EditorData/Window.hpp"
-
 #include "../ParentFrame.hpp"
 #include "../AppCaWE.hpp"
 

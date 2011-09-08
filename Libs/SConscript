@@ -11,8 +11,6 @@ env.StaticLibrary(
                     ConsoleCommands/Console.cpp ConsoleCommands/Console_Lua.cpp ConsoleCommands/ConsoleComposite.cpp ConsoleCommands/ConsoleStdout.cpp ConsoleCommands/ConsoleStringBuffer.cpp ConsoleCommands/ConsoleWarningsOnly.cpp ConsoleCommands/ConsoleFile.cpp
                     Fonts/Font.cpp Fonts/FontTT.cpp
                     FileSys/FileManImpl.cpp FileSys/FileSys_LocalPath.cpp FileSys/FileSys_ZipArchive_GV.cpp FileSys/File_local.cpp FileSys/File_memory.cpp FileSys/Password.cpp
-                    GuiSys/ConsoleByWindow.cpp GuiSys/Coroutines.cpp GuiSys/InitWindowTypes.cpp GuiSys/GuiImpl.cpp GuiSys/GuiManImpl.cpp
-                    GuiSys/Window.cpp GuiSys/WindowCreateParams.cpp GuiSys/WindowChoice.cpp GuiSys/WindowEdit.cpp GuiSys/WindowListBox.cpp GuiSys/WindowModel.cpp GuiSys/WindowPtr.cpp GuiSys/EditorData.cpp
                     MapFile.cpp
                     Models/Loader.cpp Models/Loader_ase.cpp Models/Loader_cmdl.cpp Models/Loader_lwo.cpp Models/Loader_md5.cpp
                     Models/Loader_mdl.cpp
@@ -23,6 +21,7 @@ env.StaticLibrary(
                     Util/Util.cpp
                     Win32/Win32PrintHelp.cpp
                     DebugLog.cpp TypeSys.cpp""")+
+           Glob("GuiSys/*.cpp")+
            Glob("Math3D/*.cpp"),
     CPPPATH=env['CPPPATH'] + ["#/ExtLibs/lua/src", "#/ExtLibs/lwo", "#/ExtLibs/jpeg"])
 
@@ -50,13 +49,6 @@ if sys.platform=="win32":
         CPPPATH=env['CPPPATH']+["#/ExtLibs/DirectX7/include"])
 else:
     env.StaticLibrary(target="cfsOpenGL", source="OpenGL/OpenGLWindow.cpp")
-
-
-
-env.StaticLibrary(
-    target="GuiSysNullEditor",
-    source=Split("""GuiSys/Window_NullEditor.cpp GuiSys/WindowChoice_NullEditor.cpp GuiSys/WindowEdit_NullEditor.cpp
-                    GuiSys/WindowModel_NullEditor.cpp GuiSys/WindowListBox_NullEditor.cpp"""))
 
 
 

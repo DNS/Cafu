@@ -25,17 +25,15 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GuiDocument.hpp"
 #include "ChildFrame.hpp"
 
-#include "EditorData/Window.hpp"
-
 #include "Commands/Select.hpp"
 #include "Commands/Translate.hpp"
 #include "Commands/Scale.hpp"
 #include "Commands/Create.hpp"
 #include "Commands/Delete.hpp"
+#include "Windows/EditorWindow.hpp"
 
 #include "../CursorMan.hpp"
 
-#include "GuiSys/Window.hpp"
 #include "Math3D/Angles.hpp"
 
 
@@ -112,7 +110,7 @@ bool ToolSelectionT::OnLMouseDown(RenderWindowT* RenderWindow, wxMouseEvent& ME)
         return true;
     }
 
-    if (!((EditorDataWindowT*)ClickedWindow->EditorData)->Selected)
+    if (!GuiDocumentT::GetSibling(ClickedWindow)->IsSelected())
     {
         if (!ME.ControlDown()) m_Parent->SubmitCommand(CommandSelectT::Clear(m_GuiDocument));
         m_Parent->SubmitCommand(CommandSelectT::Add(m_GuiDocument, ClickedWindow));
@@ -316,7 +314,7 @@ bool ToolSelectionT::OnMouseMove(RenderWindowT* RenderWindow, wxMouseEvent& ME)
         cf::GuiSys::WindowT* MouseOverWindow=m_GuiDocument->GetRootWindow()->Find(MousePosGUI.x, MousePosGUI.y);
 
         // If window under the cursor is selected.
-        if (MouseOverWindow && ((EditorDataWindowT*)MouseOverWindow->EditorData)->Selected)
+        if (MouseOverWindow && GuiDocumentT::GetSibling(MouseOverWindow)->IsSelected())
         {
             // Get window rect for window size.
             float* Rect=&MouseOverWindow->Rect[0];

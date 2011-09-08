@@ -19,35 +19,35 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "WindowListBox.hpp"
+#ifndef _GUIEDITOR_EDITOR_EDIT_WINDOW_HPP_
+#define _GUIEDITOR_EDITOR_EDIT_WINDOW_HPP_
+
+#include "EditorWindow.hpp"
 
 
-using namespace cf::GuiSys;
+namespace cf { namespace GuiSys { class EditWindowT; } }
 
 
-void ListBoxT::EditorFillInPG(wxPropertyGridManager* PropMan)
+namespace GuiEditor
 {
+    class EditorEditWindowT : public EditorWindowT
+    {
+        public:
+
+        /// The constructor.
+        EditorEditWindowT(cf::GuiSys::EditWindowT* EditWindow, GuiDocumentT* GuiDoc);
+
+        // Implementations and overrides for base class methods.
+        void FillInPG(wxPropertyGridManager* PropMan);
+        bool UpdateProperty(wxPGProperty* Property);
+        bool HandlePGChange(wxPropertyGridEvent& Event, GuiEditor::ChildFrameT* ChildFrame);
+        bool WriteInitMethod(std::ostream& OutFile);
+
+
+        private:
+
+        cf::GuiSys::EditWindowT* m_EditWindow;
+    };
 }
 
-
-bool ListBoxT::UpdateProperty(wxPGProperty* Property)
-{
-    return false;
-}
-
-
-bool ListBoxT::EditorHandlePGChange(wxPropertyGridEvent& Event, GuiEditor::ChildFrameT* ChildFrame)
-{
-    return false;
-}
-
-
-bool ListBoxT::WriteInitMethod(std::ostream& OutFile)
-{
-    return false;
-}
-
-
-void ListBoxT::EditorRender() const
-{
-}
+#endif

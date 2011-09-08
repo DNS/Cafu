@@ -19,35 +19,35 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "WindowChoice.hpp"
+#ifndef _GUIEDITOR_EDITOR_MODEL_WINDOW_HPP_
+#define _GUIEDITOR_EDITOR_MODEL_WINDOW_HPP_
+
+#include "EditorWindow.hpp"
 
 
-using namespace cf::GuiSys;
+namespace cf { namespace GuiSys { class ModelWindowT; } }
 
 
-void ChoiceT::EditorFillInPG(wxPropertyGridManager* PropMan)
+namespace GuiEditor
 {
+    class EditorModelWindowT : public EditorWindowT
+    {
+        public:
+
+        /// The constructor.
+        EditorModelWindowT(cf::GuiSys::ModelWindowT* ModelWindow, GuiDocumentT* GuiDoc);
+
+        // Implementations and overrides for base class methods.
+        void FillInPG(wxPropertyGridManager* PropMan);
+        bool UpdateProperty(wxPGProperty* Property);
+        bool HandlePGChange(wxPropertyGridEvent& Event, GuiEditor::ChildFrameT* ChildFrame);
+        bool WriteInitMethod(std::ostream& OutFile);
+
+
+        private:
+
+        cf::GuiSys::ModelWindowT* m_ModelWindow;
+    };
 }
 
-
-bool ChoiceT::UpdateProperty(wxPGProperty* Property)
-{
-    return false;
-}
-
-
-bool ChoiceT::EditorHandlePGChange(wxPropertyGridEvent& Event, GuiEditor::ChildFrameT* ChildFrame)
-{
-    return false;
-}
-
-
-bool ChoiceT::WriteInitMethod(std::ostream& OutFile)
-{
-    return false;
-}
-
-
-void ChoiceT::EditorRender() const
-{
-}
+#endif

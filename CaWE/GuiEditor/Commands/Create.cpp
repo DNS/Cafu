@@ -20,10 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Create.hpp"
-
 #include "../GuiDocument.hpp"
-
-#include "../EditorData/Window.hpp"
 
 #include "GuiSys/Window.hpp"
 #include "GuiSys/WindowChoice.hpp"
@@ -92,7 +89,7 @@ bool CommandCreateT::Do()
         // made unique when creating the editor data).
         m_NewWindow->Parent=m_Parent;
 
-        new EditorDataWindowT(m_NewWindow, m_GuiDocument);
+        GuiDocumentT::CreateSibling(m_NewWindow, m_GuiDocument);
 
         // Set a window default size and center it on its parent.
         // If the size is larger than parentsize/2, set it to parentsize/2.

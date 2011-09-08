@@ -130,7 +130,7 @@ ListBoxT::~ListBoxT()
 
 void ListBoxT::Insert(unsigned long RowNr, const std::string& RowText)
 {
-    Rows.InsertAt(RowNr, new WindowT(WindowCreateParamsT(Gui)));
+    Rows.InsertAt(RowNr, new WindowT(WindowCreateParamsT(m_Gui)));
 
     // Initialize the new row window.
     Rows[RowNr]->Parent      =this;        // Set the proper parent so that the rendering of the row is relative to this window.

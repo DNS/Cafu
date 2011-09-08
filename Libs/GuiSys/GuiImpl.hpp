@@ -79,8 +79,8 @@ namespace cf
 
             // Implement all the (pure) virtual methods of the GuiI interface.
             const std::string& GetScriptName() const;
-            WindowPtrT GetRootWindow() { return RootWindow; }
-            WindowPtrT GetFocusWindow() { return FocusWindow; }
+            WindowPtrT GetRootWindow() const { return RootWindow; }
+            WindowPtrT GetFocusWindow() const { return FocusWindow; }
             void Activate(bool doActivate=true);
             bool GetIsActive() const { return IsActive; }
             void SetInteractive(bool IsInteractive_=true);

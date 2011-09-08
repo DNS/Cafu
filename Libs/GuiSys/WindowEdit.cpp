@@ -64,14 +64,14 @@ const cf::TypeSys::TypeInfoT EditWindowT::TypeInfo(GetWindowTIM(), "EditWindowT"
 
 EditWindowT::EditWindowT(const cf::GuiSys::WindowCreateParamsT& Params)
     : WindowT(Params),
-      TextCursorPos((unsigned int)Text.length()),
-      TextCursorType(0),
-      TextCursorRate(1.0f),
-      TextCursorTime(0)
+      m_TextCursorPos((unsigned int)Text.length()),
+      m_TextCursorType(0),
+      m_TextCursorRate(1.0f),
+      m_TextCursorTime(0)
 {
     for (unsigned long c=0; c<4; c++)
     {
-        TextCursorColor[c]=(c==2) ? 0.0f : 1.0f;
+        m_TextCursorColor[c]=(c==2) ? 0.0f : 1.0f;
     }
 
     FillMemberVars();
@@ -80,13 +80,13 @@ EditWindowT::EditWindowT(const cf::GuiSys::WindowCreateParamsT& Params)
 
 EditWindowT::EditWindowT(const EditWindowT& Window, bool Recursive)
     : WindowT(Window, Recursive),
-      TextCursorPos(Window.TextCursorPos),
-      TextCursorType(Window.TextCursorType),
-      TextCursorRate(Window.TextCursorRate),
-      TextCursorTime(Window.TextCursorTime)
+      m_TextCursorPos(Window.m_TextCursorPos),
+      m_TextCursorType(Window.m_TextCursorType),
+      m_TextCursorRate(Window.m_TextCursorRate),
+      m_TextCursorTime(Window.m_TextCursorTime)
 {
     for (unsigned long i=0; i<4; i++)
-        TextCursorColor[i]=Window.TextCursorColor[i];
+        m_TextCursorColor[i]=Window.m_TextCursorColor[i];
 
     FillMemberVars();
 }
@@ -108,8 +108,8 @@ void EditWindowT::Render() const
     // Render the text cursor.
     if (!ShowWindow) return;
     if (Font==NULL) return;
-    if (&Gui!=NULL && Gui.GetFocusWindow().GetRaw()!=this) return;    // Only render the text cursor if we have the keyboard input focus.
-    if (TextCursorTime>=0.5f*TextCursorRate) return;    // Only render the text cursor during one half of the blink cycle.
+    if (m_Gui.GetFocusWindow().GetRaw()!=this) return;      // Only render the text cursor if we have the keyboard input focus.
+    if (m_TextCursorTime>=0.5f*m_TextCursorRate) return;    // Only render the text cursor during one half of the blink cycle.
 
     float x1;
     float y1;
@@ -141,10 +141,10 @@ void EditWindowT::Render() const
         if (Text[i]=='\n')
             LineCount++;
 
-    unsigned long r_=(unsigned long)(TextCursorColor[0]*255.0f);
-    unsigned long g_=(unsigned long)(TextCursorColor[1]*255.0f);
-    unsigned long b_=(unsigned long)(TextCursorColor[2]*255.0f);
-    unsigned long a_=(unsigned long)(TextCursorColor[3]*255.0f);
+    unsigned long r_=(unsigned long)(m_TextCursorColor[0]*255.0f);
+    unsigned long g_=(unsigned long)(m_TextCursorColor[1]*255.0f);
+    unsigned long b_=(unsigned long)(m_TextCursorColor[2]*255.0f);
+    unsigned long a_=(unsigned long)(m_TextCursorColor[3]*255.0f);
 
     const float MaxTop     =Font->GetAscender(TextScale);
     const float LineSpacing=Font->GetLineSpacing(TextScale);
@@ -175,12 +175,12 @@ void EditWindowT::Render() const
         }
 
         // If the text cursor is in this line, render the cursor and break.
-        if (LineStart<=TextCursorPos && TextCursorPos<=LineEnd)
+        if (LineStart<=m_TextCursorPos && m_TextCursorPos<=LineEnd)
         {
-            const std::string LineUntilCursor =std::string(Line, 0, TextCursorPos-LineStart);
+            const std::string LineUntilCursor =std::string(Line, 0, m_TextCursorPos-LineStart);
             const float       WidthUntilCursor=Font->GetWidth(LineUntilCursor, TextScale);
 
-            if (TextCursorType==1)
+            if (m_TextCursorType==1)
             {
                 Font->Print(x1+AlignX+WidthUntilCursor, y1+AlignY+LineOffsetY, TextScale, (a_ << 24) | (r_ << 16) | (g_ << 8) | (b_ << 0), "_");
             }
@@ -193,7 +193,7 @@ void EditWindowT::Render() const
             break;
         }
 
-        if (NextNewline==std::string::npos) break;  // Emergency break, in case TextCursorPos is not in Text.
+        if (NextNewline==std::string::npos) break;  // Emergency break, in case m_TextCursorPos is not in Text.
         LineStart=LineEnd+1;
         LineOffsetY+=LineSpacing;
     }
@@ -216,53 +216,53 @@ bool EditWindowT::OnInputEvent(const CaKeyboardEventT& KE)
         switch (KE.Key)
         {
             case CaKeyboardEventT::CK_BACKSPACE:
-                if (TextCursorPos>0)
+                if (m_TextCursorPos>0)
                 {
-                    Text.erase(TextCursorPos-1, 1);
-                    TextCursorPos--;
-                    TextCursorTime=0;
+                    Text.erase(m_TextCursorPos-1, 1);
+                    m_TextCursorPos--;
+                    m_TextCursorTime=0;
                 }
                 return true;
 
             case CaKeyboardEventT::CK_DELETE:
-                if (TextCursorPos<Text.length())
+                if (m_TextCursorPos<Text.length())
                 {
-                    Text.erase(TextCursorPos, 1);
+                    Text.erase(m_TextCursorPos, 1);
                 }
                 return true;
 
             case CaKeyboardEventT::CK_LEFT:
-                if (TextCursorPos>0)
+                if (m_TextCursorPos>0)
                 {
-                    TextCursorPos--;
-                    TextCursorTime=0;
+                    m_TextCursorPos--;
+                    m_TextCursorTime=0;
                 }
                 return true;
 
             case CaKeyboardEventT::CK_RIGHT:
-                if (TextCursorPos<Text.length())
+                if (m_TextCursorPos<Text.length())
                 {
-                    TextCursorPos++;
-                    TextCursorTime=0;
+                    m_TextCursorPos++;
+                    m_TextCursorTime=0;
                 }
                 return true;
 
             case CaKeyboardEventT::CK_HOME:
-                TextCursorPos=0;
-                TextCursorTime=0;
+                m_TextCursorPos=0;
+                m_TextCursorTime=0;
                 return true;
 
             case CaKeyboardEventT::CK_END:
-                TextCursorPos=(unsigned int)Text.length();
-                TextCursorTime=0;
+                m_TextCursorPos=(unsigned int)Text.length();
+                m_TextCursorTime=0;
                 return true;
         }
     }
     else if (KE.Type==CaKeyboardEventT::CKE_CHAR)
     {
-        Text.insert(TextCursorPos, 1, char(KE.Key));
-        TextCursorPos++;
-        TextCursorTime=0;
+        Text.insert(m_TextCursorPos, 1, char(KE.Key));
+        m_TextCursorPos++;
+        m_TextCursorTime=0;
         return true;
     }
 
@@ -274,8 +274,8 @@ bool EditWindowT::OnInputEvent(const CaKeyboardEventT& KE)
 
 bool EditWindowT::OnClockTickEvent(float t)
 {
-    TextCursorTime+=t;
-    while (TextCursorTime>=TextCursorRate) TextCursorTime-=TextCursorRate;
+    m_TextCursorTime+=t;
+    while (m_TextCursorTime>=m_TextCursorRate) m_TextCursorTime-=m_TextCursorRate;
 
     return WindowT::OnClockTickEvent(t);
 }
@@ -285,14 +285,14 @@ void EditWindowT::FillMemberVars()
 {
     WindowT::FillMemberVars();
 
-    MemberVars["textCursorPos"]=MemberVarT(MemberVarT::TYPE_INT, &TextCursorPos);
-    MemberVars["textCursorType"]=MemberVarT(MemberVarT::TYPE_INT, &TextCursorType);
-    MemberVars["textCursorRate"]=MemberVarT(TextCursorRate);
-    MemberVars["textCursorColor"]=MemberVarT(MemberVarT::TYPE_FLOAT4, &TextCursorColor[0]);
-    MemberVars["textCursorColor.r"]=MemberVarT(TextCursorColor[0]);
-    MemberVars["textCursorColor.g"]=MemberVarT(TextCursorColor[1]);
-    MemberVars["textCursorColor.b"]=MemberVarT(TextCursorColor[2]);
-    MemberVars["textCursorColor.a"]=MemberVarT(TextCursorColor[3]);
+    MemberVars["textCursorPos"]=MemberVarT(MemberVarT::TYPE_INT, &m_TextCursorPos);
+    MemberVars["textCursorType"]=MemberVarT(MemberVarT::TYPE_INT, &m_TextCursorType);
+    MemberVars["textCursorRate"]=MemberVarT(m_TextCursorRate);
+    MemberVars["textCursorColor"]=MemberVarT(MemberVarT::TYPE_FLOAT4, &m_TextCursorColor[0]);
+    MemberVars["textCursorColor.r"]=MemberVarT(m_TextCursorColor[0]);
+    MemberVars["textCursorColor.g"]=MemberVarT(m_TextCursorColor[1]);
+    MemberVars["textCursorColor.b"]=MemberVarT(m_TextCursorColor[2]);
+    MemberVars["textCursorColor.a"]=MemberVarT(m_TextCursorColor[3]);
 }
 
 
@@ -304,7 +304,7 @@ int EditWindowT::Set(lua_State* LuaState)
     std::string  VarName=luaL_checkstring(LuaState, 2);
 
     // If the text of this window was changed, set the text cursor position to its end.
-    if (VarName=="text") EditWin->TextCursorPos=(unsigned int)EditWin->Text.length();
+    if (VarName=="text") EditWin->m_TextCursorPos=(unsigned int)EditWin->Text.length();
     return Result;
 }
 
@@ -313,7 +313,7 @@ int EditWindowT::GetTextCursorPos(lua_State* LuaState)
 {
     EditWindowT* EditWin=(EditWindowT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
 
-    lua_pushinteger(LuaState, EditWin->TextCursorPos);
+    lua_pushinteger(LuaState, EditWin->m_TextCursorPos);
     return 1;
 }
 
@@ -322,7 +322,7 @@ int EditWindowT::SetTextCursorPos(lua_State* LuaState)
 {
     EditWindowT* EditWin=(EditWindowT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
 
-    EditWin->TextCursorPos=lua_tointeger(LuaState, 2);
+    EditWin->m_TextCursorPos=lua_tointeger(LuaState, 2);
     return 0;
 }
 
@@ -332,7 +332,7 @@ int EditWindowT::SetTextCursorType(lua_State* LuaState)
     EditWindowT* EditWin=(EditWindowT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
     const char*  Type=luaL_checkstring(LuaState, 2);
 
-    EditWin->TextCursorType=(Type[0]=='_') ? 1 : 0;
+    EditWin->m_TextCursorType=(Type[0]=='_') ? 1 : 0;
     return 0;
 }
 
@@ -341,7 +341,7 @@ int EditWindowT::SetTextCursorRate(lua_State* LuaState)
 {
     EditWindowT* EditWin=(EditWindowT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
 
-    EditWin->TextCursorRate=float(lua_tonumber(LuaState, 2));
+    EditWin->m_TextCursorRate=float(lua_tonumber(LuaState, 2));
     return 0;
 }
 
@@ -350,9 +350,9 @@ int EditWindowT::SetTextCursorColor(lua_State* LuaState)
 {
     EditWindowT* EditWin=(EditWindowT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
 
-    EditWin->TextCursorColor[0]=float(lua_tonumber(LuaState, 2));
-    EditWin->TextCursorColor[1]=float(lua_tonumber(LuaState, 3));
-    EditWin->TextCursorColor[2]=float(lua_tonumber(LuaState, 4));
-    EditWin->TextCursorColor[3]=lua_isnil(LuaState, 5) ? 1.0f : float(lua_tonumber(LuaState, 5));
+    EditWin->m_TextCursorColor[0]=float(lua_tonumber(LuaState, 2));
+    EditWin->m_TextCursorColor[1]=float(lua_tonumber(LuaState, 3));
+    EditWin->m_TextCursorColor[2]=float(lua_tonumber(LuaState, 4));
+    EditWin->m_TextCursorColor[3]=lua_isnil(LuaState, 5) ? 1.0f : float(lua_tonumber(LuaState, 5));
     return 0;
 }

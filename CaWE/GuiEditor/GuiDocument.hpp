@@ -35,6 +35,8 @@ class EditorMaterialI;
 
 namespace GuiEditor
 {
+    class EditorWindowT;
+
     struct GuiPropertiesT
     {
         GuiPropertiesT() {}
@@ -67,6 +69,9 @@ namespace GuiEditor
         GameConfigT* GetGameConfig() { return m_GameConfig; }
 
         bool SaveInit_cgui(std::ostream& OutFile);
+
+        static void CreateSibling(cf::GuiSys::WindowT* Win, GuiDocumentT* GuiDoc);
+        static EditorWindowT* GetSibling(cf::GuiSys::WindowT* Win);
 
 
         private:

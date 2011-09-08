@@ -20,7 +20,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Window.hpp"
-#include "EditorData.hpp"
 #include "Coroutines.hpp"
 #include "WindowCreateParams.hpp"
 #include "GuiMan.hpp"
@@ -94,8 +93,8 @@ const cf::TypeSys::TypeInfoT WindowT::TypeInfo(GetWindowTIM(), "WindowT", NULL /
 
 
 WindowT::WindowT(const WindowCreateParamsT& Params)
-    : Gui(Params.Gui),
-      EditorData(NULL),
+    : m_Gui(Params.Gui),
+      m_ExtData(NULL),
    // Children(),
       Parent(NULL),
       Name(""),
@@ -114,7 +113,7 @@ WindowT::WindowT(const WindowCreateParamsT& Params)
    // TextColor(),
       TextAlignHor(left),
       TextAlignVer(top),
-      CppReferencesCount(0)
+      m_CppRefCount(0)
 {
     for (unsigned long c=0; c<4; c++)
     {
@@ -132,14 +131,12 @@ WindowT::WindowT(const WindowCreateParamsT& Params)
 
 
 WindowT::WindowT(const WindowT& Window, bool Recursive)
-    : Gui(Window.Gui),
-      EditorData(NULL), // We leave the creation of editor data to the caller. Otherwise we would need to implemented cloning of editor data.
-      Parent(NULL),
+    : Parent(NULL),
       Name(Window.Name),
       Time(Window.Time),
       ShowWindow(Window.ShowWindow),
       RotAngle(Window.RotAngle),
-      BackRenderMat(Window.BackRenderMatName.empty() ? NULL : MatSys::Renderer->RegisterMaterial(Gui.m_MaterialMan.GetMaterial(Window.BackRenderMatName))),
+      BackRenderMat(NULL),
       BackRenderMatName(Window.BackRenderMatName),
       BorderWidth(Window.BorderWidth),
       Font(GuiMan->GetFont(Window.Font->GetName())),
@@ -147,8 +144,15 @@ WindowT::WindowT(const WindowT& Window, bool Recursive)
       TextScale(Window.TextScale),
       TextAlignHor(Window.TextAlignHor),
       TextAlignVer(Window.TextAlignVer),
-      CppReferencesCount(0)
+      m_Gui(Window.m_Gui),
+      m_ExtData(NULL   /* Clone() it?? */),
+      m_CppRefCount(0)
 {
+    if (!BackRenderMatName.empty())
+    {
+        BackRenderMat=MatSys::Renderer->RegisterMaterial(m_Gui.m_MaterialMan.GetMaterial(BackRenderMatName));
+    }
+
     for (unsigned long i=0; i<4; i++)
     {
         Rect       [i]=Window.Rect[i];
@@ -201,29 +205,31 @@ WindowT::~WindowT()
     // If the reference count is not 0 at this point, this means that one or more WindowPtrTs to this window still exists.
     // When the next of them is destructed, it will try to decrease the value of this CppReferencesCount instance,
     // which however is in already deleted memory then.
-    assert(CppReferencesCount==0);
+    assert(m_CppRefCount==0);
 
-    delete EditorData;
+    delete m_ExtData;
+    m_ExtData=NULL;
 
     // Even if one of these materials is explicitly assigned in the .cgui script (by name),
     // the render material is newly registered with the MatSys::Renderer as a separate instance,
     // thus the two assertions below should always hold:
-    assert(BackRenderMat!=Gui.GetDefaultRM());
-    assert(BackRenderMat!=Gui.GetPointerRM());
+    assert(BackRenderMat!=m_Gui.GetDefaultRM());
+    assert(BackRenderMat!=m_Gui.GetPointerRM());
 
     MatSys::Renderer->FreeMaterial(BackRenderMat);
+}
+
+
+void WindowT::SetExtData(ExtDataT* ExtData)
+{
+    delete m_ExtData;
+    m_ExtData=ExtData;
 }
 
 
 const std::string& WindowT::GetName() const
 {
     return Name;
-}
-
-
-EditorDataT* WindowT::GetEditorData()
-{
-    return EditorData;
 }
 
 
@@ -350,7 +356,7 @@ void WindowT::Render() const
 
     // Render the background.
  // MatSys::Renderer->SetCurrentAmbientLightColor(BackColor);
-    MatSys::Renderer->SetCurrentMaterial(BackRenderMat!=NULL ? BackRenderMat : Gui.GetDefaultRM());
+    MatSys::Renderer->SetCurrentMaterial(BackRenderMat!=NULL ? BackRenderMat : m_Gui.GetDefaultRM());
 
     static MatSys::MeshT BackMesh(MatSys::MeshT::Quads);
     BackMesh.Vertices.Overwrite();
@@ -379,7 +385,7 @@ void WindowT::Render() const
     if (b>0.0f)
     {
      // MatSys::Renderer->SetCurrentAmbientLightColor(BorderColor);
-        MatSys::Renderer->SetCurrentMaterial(Gui.GetDefaultRM() /*BorderMaterial*/);
+        MatSys::Renderer->SetCurrentMaterial(m_Gui.GetDefaultRM() /*BorderMaterial*/);
 
         static MatSys::MeshT BorderMesh(MatSys::MeshT::Quads);
         BorderMesh.Vertices.Overwrite();
@@ -477,8 +483,9 @@ void WindowT::Render() const
         Children[ChildNr]->Render();
     }
 
-    // Render the editor part of this window.
-    EditorRender();
+    // Give the external data class a chance to render additional items.
+    // E.g. if m_ExtData is used in a GUI editor, it might render selection borders etc.
+    if (m_ExtData) m_ExtData->Render();
 
     if (RotAngle!=0)
     {
@@ -523,15 +530,15 @@ bool WindowT::OnClockTickEvent(float t)
     // ;
 
     // Run the pending value interpolations.
-    for (unsigned long INr=0; INr<PendingInterpolations.Size(); INr++)
+    for (unsigned long INr=0; INr<m_PendingInterp.Size(); INr++)
     {
-        InterpolationT* I=PendingInterpolations[INr];
+        InterpolationT* I=m_PendingInterp[INr];
 
         // Run this interpolation only if there is no other interpolation that addresses the same target value.
         unsigned long OldINr;
 
         for (OldINr=0; OldINr<INr; OldINr++)
-            if (PendingInterpolations[OldINr]->Value == I->Value)
+            if (m_PendingInterp[OldINr]->Value == I->Value)
                 break;
 
         if (OldINr<INr) continue;
@@ -546,7 +553,7 @@ bool WindowT::OnClockTickEvent(float t)
             I->Value[0]=I->EndValue;
 
             delete I;
-            PendingInterpolations.RemoveAtAndKeepOrder(INr);
+            m_PendingInterp.RemoveAtAndKeepOrder(INr);
             INr--;
         }
         else
@@ -573,7 +580,7 @@ bool WindowT::CallLuaMethod(const char* MethodName, const char* Signature, ...)
 
 bool WindowT::CallLuaMethod(const char* MethodName, const char* Signature, va_list vl)
 {
-    lua_State* LuaState=Gui.LuaState;
+    lua_State* LuaState=m_Gui.LuaState;
 
     // Note that when re-entrancy occurs, we do usually NOT have an empty stack here!
     // That is, when we first call a Lua function the stack is empty, but when the called Lua function
@@ -602,38 +609,38 @@ bool WindowT::CallLuaMethod(const char* MethodName, const char* Signature, va_li
     lua_insert(LuaState, -2);   // Inserting the function at index -2 shifts the alter ego to index -1.
 
     // The stack is now prepared according to the requirements/specs of the StartNewCoroutine() method.
-    return Gui.StartNewCoroutine(1, Signature, vl, std::string("method ")+MethodName+"() of window with name \""+Name+"\"");
+    return m_Gui.StartNewCoroutine(1, Signature, vl, std::string("method ")+MethodName+"() of window with name \""+Name+"\"");
 }
 
 
 bool WindowT::PushAlterEgo()
 {
-    lua_getfield(Gui.LuaState, LUA_REGISTRYINDEX, "__windows_list_cf");
+    lua_getfield(m_Gui.LuaState, LUA_REGISTRYINDEX, "__windows_list_cf");
 
 #ifdef DEBUG
-    if (!lua_istable(Gui.LuaState, -1))
+    if (!lua_istable(m_Gui.LuaState, -1))
     {
         // This should never happen, the __windows_list_cf table was created when the first WindowT was created!
         assert(false);
         Console->Warning("Registry table \"__windows_list_cf\" does not exist.\n");
-        lua_pop(Gui.LuaState, 1);
+        lua_pop(m_Gui.LuaState, 1);
         return false;
     }
 #endif
 
-    lua_pushlightuserdata(Gui.LuaState, this);
-    lua_rawget(Gui.LuaState, -2);
+    lua_pushlightuserdata(m_Gui.LuaState, this);
+    lua_rawget(m_Gui.LuaState, -2);
 
     // Remove the __windows_list_cf table from the stack, so that only the window table is left.
-    lua_remove(Gui.LuaState, -2);
+    lua_remove(m_Gui.LuaState, -2);
 
 #ifdef DEBUG
-    if (!lua_istable(Gui.LuaState, -1))
+    if (!lua_istable(m_Gui.LuaState, -1))
     {
         // This should never happen, or otherwise we had a WindowT instance here that was already garbage collected by Lua!
         assert(false);
         Console->Warning("Lua table for WindowT instance does not exist!\n");
-        lua_pop(Gui.LuaState, 1);
+        lua_pop(m_Gui.LuaState, 1);
         return false;
     }
 #endif
@@ -705,7 +712,7 @@ int WindowT::Set(lua_State* LuaState)
                 // back to NULL again by specifying an invalid material name, e.g. "", "none", "NULL", "default", etc.
                 Win->BackRenderMatName=NewMaterialName;
                 MatSys::Renderer->FreeMaterial(Win->BackRenderMat);
-                Win->BackRenderMat=Win->BackRenderMatName.empty() ? NULL : MatSys::Renderer->RegisterMaterial(Win->Gui.m_MaterialMan.GetMaterial(Win->BackRenderMatName));
+                Win->BackRenderMat=Win->BackRenderMatName.empty() ? NULL : MatSys::Renderer->RegisterMaterial(Win->m_Gui.m_MaterialMan.GetMaterial(Win->BackRenderMatName));
             }
             return 0;
         }
@@ -837,16 +844,16 @@ int WindowT::Interpolate(lua_State* LuaState)
             // which could happen from bad user code (e.g. if the Cafu game code doesn't protect multiple human players from using
             // a GUI simultaneously, mouse cursor "position flickering" might occur on the server, which in turn might trigger the
             // permanent addition of interpolations from OnFocusLose()/OnFocusGain() scripts).
-            for (unsigned long INr=Win->PendingInterpolations.Size(); INr>0; INr--)
+            for (unsigned long INr=Win->m_PendingInterp.Size(); INr>0; INr--)
             {
-                InterpolationT* I=Win->PendingInterpolations[INr-1];
+                InterpolationT* I=Win->m_PendingInterp[INr-1];
 
                 if (I->Value==(float*)Var.Member) InterpolationCount++;
 
                 if (InterpolationCount>MAX_INTERPOLATIONS)
                 {
                     delete I;
-                    Win->PendingInterpolations.RemoveAtAndKeepOrder(INr-1);
+                    Win->m_PendingInterp.RemoveAtAndKeepOrder(INr-1);
                     break;
                 }
             }
@@ -860,7 +867,7 @@ int WindowT::Interpolate(lua_State* LuaState)
             I->CurrentTime=0.0f;
             I->TotalTime  =float(lua_tonumber(LuaState, 5)/1000.0);
 
-            Win->PendingInterpolations.PushBack(I);
+            Win->m_PendingInterp.PushBack(I);
             break;
         }
 

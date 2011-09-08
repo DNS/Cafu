@@ -46,15 +46,16 @@ namespace cf
 
             virtual EditWindowT* Clone(bool Recursive=false) const;
 
+            unsigned int GetTextCursorPos() const { return m_TextCursorPos; }       ///< Returns the character position of the text cursor in the text. Valid values are 0 to Text.length().
+            unsigned int GetTextCursorType() const { return m_TextCursorType; }     ///< Returns the type of the text cursor. 0 is a vertical bar cursor '|', 1 is an underline cursor'_'. Any other types are not supported and default to the '|' cursor type.
+            float        GetTextCursorRate() const { return m_TextCursorRate; }     ///< Returns the rate in seconds at which the text cursor completes one blink cycle (on/off).
+         // float        GetTextCursorTime() const { return m_TextCursorTime; }     ///< Returns the current time in the cursor blink cycle.
+            const float* GetTextCursorColor() const { return m_TextCursorColor; }   ///< Returns the color of the text cursor.
+
             // Overloaded methods from the base class.
             void Render() const;
             bool OnInputEvent(const CaKeyboardEventT& KE);
             bool OnClockTickEvent(float t);
-            void EditorFillInPG(wxPropertyGridManager* PropMan);
-            bool UpdateProperty(wxPGProperty* Property);
-            bool EditorHandlePGChange(wxPropertyGridEvent& Event, GuiEditor::ChildFrameT* ChildFrame);
-            bool WriteInitMethod(std::ostream& OutFile);
-            void EditorRender() const;
 
             // The TypeSys related declarations for this class.
             virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
@@ -69,11 +70,11 @@ namespace cf
 
             private:
 
-            unsigned int TextCursorPos;       ///< The character position of the text cursor in the text. Valid values are 0 to Text.length().
-            unsigned int TextCursorType;      ///< The type of the text cursor. 0 is a vertical bar cursor '|', 1 is an underline cursor'_'. Any other types are not supported and default to the '|' cursor type.
-            float        TextCursorRate;      ///< The rate in seconds at which the text cursor completes one blink cycle (on/off).
-            float        TextCursorTime;      ///< The current time in the cursor blink cycle.
-            float        TextCursorColor[4];  ///< The color of the text cursor.
+            unsigned int m_TextCursorPos;       ///< The character position of the text cursor in the text. Valid values are 0 to Text.length().
+            unsigned int m_TextCursorType;      ///< The type of the text cursor. 0 is a vertical bar cursor '|', 1 is an underline cursor'_'. Any other types are not supported and default to the '|' cursor type.
+            float        m_TextCursorRate;      ///< The rate in seconds at which the text cursor completes one blink cycle (on/off).
+            float        m_TextCursorTime;      ///< The current time in the cursor blink cycle.
+            float        m_TextCursorColor[4];  ///< The color of the text cursor.
 
 
             // Lua script methods.

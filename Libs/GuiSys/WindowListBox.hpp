@@ -45,20 +45,22 @@ namespace cf
             /// Destructor.
             ~ListBoxT();
 
+            const float  GetRowHeight() const            { return RowHeight; }              ///< Returns the height of each row.
+            const float* GetOddRowBgColor() const        { return OddRowBgColor; }          ///< Returns the background color for unselected odd  rows (for coloring, numering starts at one, not zero).
+            const float* GetEvenRowBgColor() const       { return EvenRowBgColor; }         ///< Returns the background color for unselected even rows (for coloring, numering starts at one, not zero).
+            const float* GetRowTextColor() const         { return RowTextColor; }           ///< Returns the text color for unselected rows.
+            const float* GetSelectedRowBgColor() const   { return SelectedRowBgColor; }     ///< Returns the background color for selected rows.
+            const float* GetSelectedRowTextColor() const { return SelectedRowTextColor; }   ///< Returns the text color for selected rows.
+
             /// Inserts a new row into the list box.
-            /// @param RowNr The index where to insert the new row.
-            /// @param RowText Text of the row to insert.
+            /// @param RowNr     The index where to insert the new row.
+            /// @param RowText   Text of the row to insert.
             void Insert(unsigned long RowNr, const std::string& RowText);
 
             // Overloaded methods from the base class.
             void Render() const;
             bool OnInputEvent(const CaKeyboardEventT& KE);
             bool OnInputEvent(const CaMouseEventT&    ME, float PosX, float PosY);
-            void EditorFillInPG(wxPropertyGridManager* PropMan);
-            bool UpdateProperty(wxPGProperty* Property);
-            bool EditorHandlePGChange(wxPropertyGridEvent& Event, GuiEditor::ChildFrameT* ChildFrame);
-            bool WriteInitMethod(std::ostream& OutFile);
-            void EditorRender() const;
 
 
             // The TypeSys related declarations for this class.

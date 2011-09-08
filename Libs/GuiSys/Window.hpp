@@ -41,12 +41,6 @@ namespace cf { namespace TypeSys { class TypeInfoManT; } }
 namespace cf { namespace TypeSys { class CreateParamsT; } }
 namespace MatSys { class RenderMaterialT; }
 
-// Gui editor related forward declarations.
-class wxPropertyGridManager;
-class wxPropertyGridEvent;
-class wxPGProperty;
-namespace GuiEditor { class ChildFrameT; }
-
 
 namespace cf
 {
@@ -57,7 +51,6 @@ namespace cf
     {
         class GuiImplT;
         class WindowCreateParamsT;
-        class EditorDataT;
 
 
         /// The TypeInfoTs of all WindowT derived classes must register with this TypeInfoManT instance.
@@ -122,6 +115,16 @@ namespace cf
         {
             public:
 
+            /// Extra / extern / extension data that user code can derive from and assign to this window
+            /// in order to "configure" it with "callbacks" (e\.g\. the \c Render() method) and to have it
+            /// store additional user-specific data and functions.
+            struct ExtDataT
+            {
+                virtual ~ExtDataT() { }
+                //virtual xy* Clone();    // ???
+                virtual void Render() const { }   ///< Callback for rendering additional items, called from WindowT::Render().
+            };
+
             /// Describes the member variable of a class consisting of a variable type and a void pointer
             /// pointing to the real member.
             struct MemberVarT
@@ -153,7 +156,7 @@ namespace cf
             WindowT(const WindowT& Window, bool Recursive=false);
 
             /// Virtual Copy Constructor.
-            /// Creates an excat clone of the window and due to its virtuality considers the real class not just the class
+            /// Creates an exact clone of the window and due to its virtuality considers the real class not just the class
             /// on which the method is called as with the copy ctor.
             /// @param Recursive Whether to recursively clone all children of this window.
             virtual WindowT* Clone(bool Recursive=false) const;
@@ -161,11 +164,16 @@ namespace cf
             /// The virtual destructor. Deletes this window and all its children.
             virtual ~WindowT();
 
+            const GuiImplT& GetGui() const { return m_Gui; }
+
+            /// Assigns the editor sibling for this window.
+            void SetExtData(ExtDataT* ExtData);
+
+            /// Returns the ExtDataT instance for this window (possibly NULL).
+            ExtDataT* GetExtData() { return m_ExtData; }
+
             /// Returns the name of this window.
             const std::string& GetName() const;
-
-            /// Returns the EditorDataT object of this gui window (or NULL if no EditorDataT has been created for this WindowT from a GUI editor).
-            EditorDataT* GetEditorData();
 
             /// Returns the children of this window.
             /// @param Chld      The array to which the children of this window are appended. Note that Chld gets *not* initially cleared by this function!
@@ -244,33 +252,6 @@ namespace cf
             static const cf::TypeSys::TypeInfoT TypeInfo;
 
 
-            // GUI editor related declarations. These methods are not implemented by the GuiSys and have to be implemented in the calling code (Gui editor).
-
-            /// Fills a property grid manager with one property for each class member.
-            /// @param PropMan The property manager grid to fill.
-            virtual void EditorFillInPG(wxPropertyGridManager* PropMan);
-
-            /// Updates a single property with the current value of the related class member.
-            /// @param Property Property to update.
-            /// @return Whether the property has been updated (has a related member in this class).
-            virtual bool UpdateProperty(wxPGProperty* Property);
-
-            /// Handles property grid changes and updates the related class member(s).
-            /// @param Event The property grid event to handle.
-            /// @param ChildFrame The GUI editor childframe in which the event happened (needed to create commands for the changes).
-            /// @return Whether the event was handled (has a related member in this class).
-            virtual bool EditorHandlePGChange(wxPropertyGridEvent& Event, GuiEditor::ChildFrameT* ChildFrame);
-
-            /// Writes the Lua initialization function for this window into a stream.
-            /// @param OutFile The stream to write into.
-            /// @return Whether the opration was successfull.
-            virtual bool WriteInitMethod(std::ostream& OutFile);
-
-            /// Renders this window in the editor.
-            /// This is used to render GUI editor specific things like e.g. selection state.
-            virtual void EditorRender() const;
-
-
             /// Enumeartion of horizontal alignments of a window.
             /// The purpose of END_HOR is to ensure that an int is used as the underlying type.
             enum TextAlignHorT { left, right, center, END_HOR=0x10000000 };
@@ -279,9 +260,6 @@ namespace cf
             /// The purpose of END_VER is to ensure that an int is used as the underlying type.
             enum TextAlignVerT { top, bottom, middle, END_VER=0x10000000 };
 
-
-            GuiImplT&                Gui;               ///< The GUI instance in which this window was created and exists. Useful in many regards, but especially for access to the underlying Lua state, which in turn keeps the alter ego instance of this window.
-            EditorDataT*             EditorData;        ///< Auxiliary data class that is used to view/edit WindowT parameters from a GUI editor. This data is created by an external GUI editor, but destroyed by WindowT.
 
             // "Duplicates" or "mirrors" of what we already have in Lua.
             // The main window hierarchy is directly modelled in Lua, because Lua must have that knowledge for its garbage collector.
@@ -323,23 +301,20 @@ namespace cf
 
             static const luaL_Reg MethodsList[]; ///< List of methods registered with Lua.
 
+            void FillMemberVars();  ///< Helper method that fills the MemberVars array with entries for each class member.
+
+            GuiImplT&               m_Gui;            ///< The GUI instance in which this window was created and exists. Useful in many regards, but especially for access to the underlying Lua state, which in turn keeps the alter ego instance of this window.
+            ExtDataT*               m_ExtData;        ///< The GuiEditor's "dual" or "sibling" of this window.
+
             /// Maps strings (names) to member variables of this class.
             /// This map is needed for implementing the Lua-binding methods efficiently.
             /// It is also used in the GUI editor to easily modify members without the need for Get/Set methods.
             std::map<std::string, MemberVarT> MemberVars;
 
-            void FillMemberVars(); ///< Helper method that fills the MemberVars array with entries for each class member.
-
 
             private:
 
             friend class WindowPtrT;
-            friend class EditorDataT;           // This friendship is (currently) not technically necessary, because most class members are currently declared for "public" access anyway, but it expresses well the conceptual meaning of the EditorDataT class, namely as a way to access (possibly private) members of this class for the purposes of a GUI editor.
-
-            void operator = (const WindowT&);   ///< Use of the Assignment Operator is not allowed.
-
-            bool PushAlterEgo();    ///< An auxiliary function that pushes the Lua instance (the alter ego) of this window onto the LuaState stack.
-
 
             /// A helper structure for interpolations between values.
             struct InterpolationT
@@ -356,11 +331,14 @@ namespace cf
                 }
             };
 
-            ArrayT<InterpolationT*> PendingInterpolations;
 
-            /// This is a reference counter for this WindowT instance.
-            /// It is for the sole use by the WindowPtrT class.
-            unsigned long CppReferencesCount;
+            void operator = (const WindowT&);   ///< Use of the Assignment Operator is not allowed.
+
+            bool PushAlterEgo();    ///< An auxiliary function that pushes the Lua instance (the alter ego) of this window onto the LuaState stack.
+
+
+            ArrayT<InterpolationT*> m_PendingInterp;  ///< The currently pending interpolations.
+            unsigned long           m_CppRefCount;    ///< This is a reference counter for this WindowT instance. It is for the sole use by the WindowPtrT class.
         };
     }
 }

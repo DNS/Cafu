@@ -20,9 +20,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "ModifyWindow.hpp"
-
 #include "../GuiDocument.hpp"
-#include "../EditorData/Window.hpp"
+#include "../Windows/EditorWindow.hpp"
 
 #include "GuiSys/GuiMan.hpp"
 #include "GuiSys/GuiImpl.hpp"
@@ -118,7 +117,7 @@ bool CommandModifyWindowT::Do()
     {
         m_OldString=m_Window->Name;
 
-        if (!((EditorDataWindowT*)m_Window->EditorData)->SetName(m_NewString))
+        if (!GuiDocumentT::GetSibling(m_Window)->SetName(m_NewString))
         {
             m_GuiDocument->UpdateAllObservers_Modified(m_Window, WMD_PROPERTY_CHANGED, m_PropertyName); // This is needed to reset the property grid correctly.
             return false;

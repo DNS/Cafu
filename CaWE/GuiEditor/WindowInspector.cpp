@@ -20,10 +20,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "WindowInspector.hpp"
-#include "Commands/ModifyWindow.hpp"
-#include "GuiSys/Window.hpp"
 #include "ChildFrame.hpp"
 #include "GuiDocument.hpp"
+#include "Commands/ModifyWindow.hpp"
+#include "Windows/EditorWindow.hpp"
 
 
 using namespace GuiEditor;
@@ -136,7 +136,7 @@ void WindowInspectorT::NotifySubjectChanged_Modified(SubjectT* Subject, const Ar
             wxPGProperty* Property=GetProperty(PropertyName);
             wxASSERT(Property);
 
-            m_SelectedWindow->UpdateProperty(Property);
+            GuiDocumentT::GetSibling(m_SelectedWindow)->UpdateProperty(Property);
 
             RefreshGrid();
             return;
@@ -167,7 +167,7 @@ void WindowInspectorT::RefreshPropGrid()
     {
         m_SelectedWindow=Selection[0];
 
-        m_SelectedWindow->EditorFillInPG(this);
+        GuiDocumentT::GetSibling(m_SelectedWindow)->FillInPG(this);
     }
     else
     {
@@ -195,5 +195,5 @@ void WindowInspectorT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
     // Since the user is definitely finished editing this property we can safely clear the selection.
     ClearSelection();
 
-    m_SelectedWindow->EditorHandlePGChange(Event, m_Parent);
+    GuiDocumentT::GetSibling(m_SelectedWindow)->HandlePGChange(Event, m_Parent);
 }

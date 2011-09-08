@@ -20,7 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "GuiDocument.hpp"
-#include "EditorData/Window.hpp"
+#include "Windows/EditorWindow.hpp"
 #include "../GameConfig.hpp"
 #include "../EditorMaterialEngine.hpp"
 
@@ -85,15 +85,15 @@ GuiDocumentT::GuiDocumentT(GameConfigT* GameConfig, const wxString& GuiInitFileN
 
     m_Selection.PushBack(m_RootWindow); // Make root window default selection.
 
-    // Create editor data for all windows.
-    new EditorDataWindowT(m_RootWindow, this);
-    ((EditorDataWindowT*)m_RootWindow->EditorData)->Selected=true; // Mark root as selected.
+    // Create editor windows for all GuiSys windows.
+    CreateSibling(m_RootWindow, this);
+    GetSibling(m_RootWindow)->SetSelected(true);
 
     ArrayT<cf::GuiSys::WindowT*> GuiWindows;
     m_RootWindow->GetChildren(GuiWindows, true);
 
     for (unsigned long i=0; i<GuiWindows.Size(); i++)
-        new EditorDataWindowT(GuiWindows[i], this);
+        CreateSibling(GuiWindows[i], this);
 
 
     // Init the editor materials.
@@ -133,7 +133,7 @@ void GuiDocumentT::SetSelection(const ArrayT<cf::GuiSys::WindowT*>& NewSelection
 {
     // Clear the previous selection.
     for (unsigned long SelNr=0; SelNr<m_Selection.Size(); SelNr++)
-        ((EditorDataWindowT*)m_Selection[SelNr]->EditorData)->Selected=false;
+        GetSibling(m_Selection[SelNr])->SetSelected(false);
 
     m_Selection.Clear();
 
@@ -141,7 +141,7 @@ void GuiDocumentT::SetSelection(const ArrayT<cf::GuiSys::WindowT*>& NewSelection
     {
         m_Selection.PushBack(NewSelection[NewSelNr]);
 
-        ((EditorDataWindowT*)NewSelection[NewSelNr]->EditorData)->Selected=true;
+        GetSibling(NewSelection[NewSelNr])->SetSelected(true);
     }
 }
 
@@ -160,10 +160,10 @@ static void CheckWindowNames(cf::GuiSys::WindowT* Window)
 {
     const std::string OldName=Window->Name;
 
-    ((EditorDataWindowT*)Window->EditorData)->RepairNameUniqueness();
+    GuiDocumentT::GetSibling(Window)->RepairNameUniqueness();
 
     if (Window->Name!=OldName)
-        ((EditorDataWindowT*)Window->EditorData)->GetGuiDoc()->UpdateAllObservers_Modified(Window, WMD_PROPERTY_CHANGED, "Name");
+        GuiDocumentT::GetSibling(Window)->GetGuiDoc()->UpdateAllObservers_Modified(Window, WMD_PROPERTY_CHANGED, "Name");
 
     for (unsigned long ChildNr=0; ChildNr<Window->Children.Size(); ChildNr++)
         CheckWindowNames(Window->Children[ChildNr]);
@@ -215,7 +215,7 @@ static void SaveRootInitialization(std::ostream& OutFile, cf::GuiSys::WindowT* R
 
     OutFile << "function " << Root->Name << ":OnInit()\n";
 
-    Root->WriteInitMethod(OutFile);
+    GuiDocumentT::GetSibling(Root)->WriteInitMethod(OutFile);
 
     OutFile << "\n";
     OutFile << "    gui:activate      (" << (GuiProps.Activate    ? "true" : "false") << ");\n";
@@ -236,7 +236,7 @@ static void SaveWindowInitialization(std::ostream& OutFile, cf::GuiSys::WindowT*
     {
         OutFile << "function " << ParentName+Window->Name << ":OnInit()\n";
 
-        Window->WriteInitMethod(OutFile);
+        GuiDocumentT::GetSibling(Window)->WriteInitMethod(OutFile);
 
         OutFile << "end\n\n";
     }
@@ -292,4 +292,44 @@ bool GuiDocumentT::SaveInit_cgui(std::ostream& OutFile)
     }
 
     return true;
+}
+
+
+#include "Windows/EditorChoiceWindow.hpp"
+#include "Windows/EditorEditWindow.hpp"
+#include "Windows/EditorListBoxWindow.hpp"
+#include "Windows/EditorModelWindow.hpp"
+
+#include "GuiSys/WindowChoice.hpp"
+#include "GuiSys/WindowEdit.hpp"
+#include "GuiSys/WindowListBox.hpp"
+#include "GuiSys/WindowModel.hpp"
+
+
+/*static*/ void GuiDocumentT::CreateSibling(cf::GuiSys::WindowT* Win, GuiDocumentT* GuiDoc)
+{
+    wxASSERT(Win);
+
+    cf::GuiSys::ChoiceT*      Choice     =dynamic_cast<cf::GuiSys::ChoiceT*>(Win);
+    cf::GuiSys::EditWindowT*  EditWindow =dynamic_cast<cf::GuiSys::EditWindowT*>(Win);
+    cf::GuiSys::ListBoxT*     ListBox    =dynamic_cast<cf::GuiSys::ListBoxT*>(Win);
+    cf::GuiSys::ModelWindowT* ModelWindow=dynamic_cast<cf::GuiSys::ModelWindowT*>(Win);
+
+    EditorWindowT* EditorWin=NULL;
+
+         if (Choice)      EditorWin=new EditorChoiceWindowT(Choice, GuiDoc);
+    else if (EditWindow)  EditorWin=new EditorEditWindowT(EditWindow, GuiDoc);
+    else if (ListBox)     EditorWin=new EditorListBoxWindowT(ListBox, GuiDoc);
+    else if (ModelWindow) EditorWin=new EditorModelWindowT(ModelWindow, GuiDoc);
+    else                  EditorWin=new EditorWindowT(Win, GuiDoc);
+
+    Win->SetExtData(EditorWin);
+}
+
+
+/*static*/ EditorWindowT* GuiDocumentT::GetSibling(cf::GuiSys::WindowT* Win)
+{
+    wxASSERT(dynamic_cast<EditorWindowT*>(Win->GetExtData()));
+
+    return static_cast<EditorWindowT*>(Win->GetExtData());
 }

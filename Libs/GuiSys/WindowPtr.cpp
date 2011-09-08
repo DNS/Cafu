@@ -37,9 +37,9 @@ WindowPtrT::WindowPtrT(WindowT* Win_)
 {
     if (Win)
     {
-        Win->CppReferencesCount++;
+        Win->m_CppRefCount++;
 
-        if (Win->CppReferencesCount==1)
+        if (Win->m_CppRefCount==1)
         {
             Anchor();
         }
@@ -53,9 +53,9 @@ WindowPtrT::WindowPtrT(const WindowPtrT& Other)
     if (Win)
     {
         // There must have been at least one reference before, namely that of Other.
-        assert(Win->CppReferencesCount>0);
+        assert(Win->m_CppRefCount>0);
 
-        Win->CppReferencesCount++;
+        Win->m_CppRefCount++;
     }
 }
 
@@ -64,11 +64,11 @@ WindowPtrT::~WindowPtrT()
 {
     if (Win)
     {
-        assert(Win->CppReferencesCount>0);
+        assert(Win->m_CppRefCount>0);
 
-        Win->CppReferencesCount--;
+        Win->m_CppRefCount--;
 
-        if (Win->CppReferencesCount==0)
+        if (Win->m_CppRefCount==0)
         {
             Unanchor();
         }
@@ -81,18 +81,18 @@ WindowPtrT& WindowPtrT::operator = (const WindowPtrT& Other)
     // Note that this implementation handles self-assignment implicitly right!
     if (Other.Win)
     {
-        assert(Other.Win->CppReferencesCount>0);
+        assert(Other.Win->m_CppRefCount>0);
 
-        Other.Win->CppReferencesCount++;
+        Other.Win->m_CppRefCount++;
     }
 
     if (Win)
     {
-        assert(Win->CppReferencesCount>0);
+        assert(Win->m_CppRefCount>0);
 
-        Win->CppReferencesCount--;
+        Win->m_CppRefCount--;
 
-        if (Win->CppReferencesCount==0)
+        if (Win->m_CppRefCount==0)
         {
             Unanchor();
         }
@@ -120,7 +120,7 @@ void WindowPtrT::Anchor()
     // which doesn't seem to be very worthwhile by itself. However, note that the
     // __windows_list_cf table has weak values, whereas __have_refs_in_cpp_cf is
     // normal, and that the purposes of both tables are different by definition.
-    lua_State* LuaState=Win->Gui.LuaState;
+    lua_State* LuaState=Win->m_Gui.LuaState;
 
     lua_getfield(LuaState, LUA_REGISTRYINDEX, __have_refs_in_cpp_cf);
 
@@ -147,7 +147,7 @@ void WindowPtrT::Unanchor()
     assert(Win!=NULL);
 
     // Analogous to Anchor(), we do: REGISTRY.__have_refs_in_cpp_cf[Win]=nil;
-    lua_State* LuaState=Win->Gui.LuaState;
+    lua_State* LuaState=Win->m_Gui.LuaState;
 
     lua_getfield(LuaState, LUA_REGISTRYINDEX, __have_refs_in_cpp_cf);
 

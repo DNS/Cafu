@@ -47,10 +47,10 @@ namespace cf
             virtual const std::string& GetScriptName() const=0;
 
             /// Returns the root window of this GUI.
-            virtual WindowPtrT GetRootWindow()=0;
+            virtual WindowPtrT GetRootWindow() const=0;
 
             /// Returns the window in this GUI that has the keyboard input focus.
-            virtual WindowPtrT GetFocusWindow()=0;
+            virtual WindowPtrT GetFocusWindow() const=0;
 
             /// Activates or deactivates this GUI.
             virtual void Activate(bool doActivate=true)=0;
