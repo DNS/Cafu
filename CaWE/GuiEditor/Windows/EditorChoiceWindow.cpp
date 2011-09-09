@@ -50,7 +50,7 @@ void EditorChoiceWindowT::FillInPG(wxPropertyGridManager* PropMan)
         ChoicesString+=m_Choice->GetChoices()[ChoiceNr]+";\n";
 
     PropMan->Append(new wxLongStringProperty("Choices", wxPG_LABEL, ChoicesString));
-    PropMan->Append(new wxUIntProperty("DefaultChoice", wxPG_LABEL, m_Choice->GetSelectedChoice()));
+    PropMan->Append(new wxIntProperty("DefaultChoice", wxPG_LABEL, m_Choice->GetSelectedChoice()));
 }
 
 
@@ -68,11 +68,16 @@ bool EditorChoiceWindowT::UpdateProperty(wxPGProperty* Property)
             ChoicesString+=m_Choice->GetChoices()[ChoiceNr]+";\n";
 
         Property->SetValueFromString(ChoicesString);
+        return true;
     }
-    else if (PropName=="DefaultChoice") Property->SetValue(int(m_Choice->GetSelectedChoice()));
-    else                                return false;
 
-    return true;
+    if (PropName=="DefaultChoice")
+    {
+        Property->SetValue(m_Choice->GetSelectedChoice());
+        return true;
+    }
+
+    return false;
 }
 
 
@@ -95,19 +100,18 @@ bool EditorChoiceWindowT::HandlePGChange(wxPropertyGridEvent& Event, GuiEditor::
 
         // Specially treated by command.
         ChildFrame->SubmitCommand(new CommandModifyWindowT(m_GuiDoc, m_Choice, PropName, DummyVar, FormattedString));
-    }
-    else if (PropName=="DefaultChoice")
-    {
-        wxASSERT(m_Choice->GetMemberVar("defaultChoice").Member!=NULL);
-
-        ChildFrame->SubmitCommand(new CommandModifyWindowT(m_GuiDoc, m_Choice, PropName, m_Choice->GetMemberVar("defaultChoice"), Prop->GetValue().GetLong()));
-    }
-    else
-    {
-        return false;
+        return true;
     }
 
-    return true;
+    if (PropName=="DefaultChoice")
+    {
+        wxASSERT(m_Choice->GetMemberVar("selectedChoice").Member!=NULL);
+
+        ChildFrame->SubmitCommand(new CommandModifyWindowT(m_GuiDoc, m_Choice, PropName, m_Choice->GetMemberVar("selectedChoice"), Prop->GetValue().GetLong()));
+        return true;
+    }
+
+    return false;
 }
 
 

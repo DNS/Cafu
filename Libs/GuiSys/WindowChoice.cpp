@@ -63,7 +63,8 @@ const cf::TypeSys::TypeInfoT ChoiceT::TypeInfo(GetWindowTIM(), "ChoiceT", "Windo
 
 ChoiceT::ChoiceT(const cf::GuiSys::WindowCreateParamsT& Params)
     : WindowT(Params),
-      SelectedChoice(0xFFFFFFFF)
+      m_Choices(),
+      m_SelectedChoice(-1)
 {
     FillMemberVars();
 }
@@ -71,8 +72,8 @@ ChoiceT::ChoiceT(const cf::GuiSys::WindowCreateParamsT& Params)
 
 ChoiceT::ChoiceT(const ChoiceT& Window, bool Recursive)
     : WindowT(Window, Recursive),
-      Choices(Window.Choices),
-      SelectedChoice(Window.SelectedChoice)
+      m_Choices(Window.m_Choices),
+      m_SelectedChoice(Window.m_SelectedChoice)
 {
     FillMemberVars();
 }
@@ -106,50 +107,50 @@ bool ChoiceT::OnInputEvent(const CaKeyboardEventT& KE)
             case CaKeyboardEventT::CK_UP:       // UpArrow on arrow keypad.
             case CaKeyboardEventT::CK_LEFT:     // LeftArrow on arrow keypad.
                 // Select the previous choice, wrapping.
-                if (Choices.Size()>0)
+                if (m_Choices.Size()>0)
                 {
-                    SelectedChoice--;   // This works even if SelectedChoice==0xFFFFFFFF.
-                    if (SelectedChoice>=Choices.Size()) SelectedChoice=Choices.Size()-1;    // Wrap.
+                    m_SelectedChoice--;
+                    if (m_SelectedChoice<0) m_SelectedChoice=m_Choices.Size()-1;
 
-                    Text=Choices[SelectedChoice];
-                    CallLuaMethod("OnSelectionChanged", "i", SelectedChoice);
+                    Text=m_Choices[m_SelectedChoice];
+                    CallLuaMethod("OnSelectionChanged", "i", m_SelectedChoice);
                 }
                 return true;
 
             case CaKeyboardEventT::CK_DOWN:     // DownArrow on arrow keypad.
             case CaKeyboardEventT::CK_RIGHT:    // RightArrow on arrow keypad.
                 // Select the next choice, wrapping.
-                if (Choices.Size()>0)
+                if (m_Choices.Size()>0)
                 {
-                    SelectedChoice++;   // This works even if SelectedChoice==0xFFFFFFFF.
-                    if (SelectedChoice>=Choices.Size()) SelectedChoice=0;   // Wrap.
+                    m_SelectedChoice++;
+                    if (m_SelectedChoice>=int(m_Choices.Size())) m_SelectedChoice=0;
 
-                    Text=Choices[SelectedChoice];
-                    CallLuaMethod("OnSelectionChanged", "i", SelectedChoice);
+                    Text=m_Choices[m_SelectedChoice];
+                    CallLuaMethod("OnSelectionChanged", "i", m_SelectedChoice);
                 }
                 return true;
 
             case CaKeyboardEventT::CK_HOME:     // Home on arrow keypad.
             case CaKeyboardEventT::CK_PGUP:     // PgUp on arrow keypad.
                 // Move the selection to the first choice.
-                if (Choices.Size()>0 && SelectedChoice!=0)
+                if (m_Choices.Size()>0 && m_SelectedChoice!=0)
                 {
-                    SelectedChoice=0;
+                    m_SelectedChoice=0;
 
-                    Text=Choices[SelectedChoice];
-                    CallLuaMethod("OnSelectionChanged", "i", SelectedChoice);
+                    Text=m_Choices[m_SelectedChoice];
+                    CallLuaMethod("OnSelectionChanged", "i", m_SelectedChoice);
                 }
                 return true;
 
             case CaKeyboardEventT::CK_END:      // End on arrow keypad.
             case CaKeyboardEventT::CK_PGDN:     // PgDn on arrow keypad.
                 // Move the selection to the last choice.
-                if (Choices.Size()>0 && SelectedChoice!=Choices.Size()-1)
+                if (m_Choices.Size()>0 && m_SelectedChoice!=int(m_Choices.Size())-1)
                 {
-                    SelectedChoice=Choices.Size()-1;
+                    m_SelectedChoice=m_Choices.Size()-1;
 
-                    Text=Choices[SelectedChoice];
-                    CallLuaMethod("OnSelectionChanged", "i", SelectedChoice);
+                    Text=m_Choices[m_SelectedChoice];
+                    CallLuaMethod("OnSelectionChanged", "i", m_SelectedChoice);
                 }
                 return true;
         }
@@ -165,13 +166,13 @@ bool ChoiceT::OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY)
 {
     // 1. The relevant Lua OnMouse...() methods didn't handle this event, so we got here (see GuiT::ProcessDeviceEvent()).
     // 2. Now see if we want to and can handle the event here.
-    if (Choices.Size()>0 && ME.Type==CaMouseEventT::CM_BUTTON0 && ME.Amount==0)
+    if (m_Choices.Size()>0 && ME.Type==CaMouseEventT::CM_BUTTON0 && ME.Amount==0)
     {
-        SelectedChoice++;   // This works even if SelectedChoice==0xFFFFFFFF.
-        if (SelectedChoice>=Choices.Size()) SelectedChoice=0;
+        m_SelectedChoice++;
+        if (m_SelectedChoice>=int(m_Choices.Size())) m_SelectedChoice=0;
 
-        Text=Choices[SelectedChoice];
-        CallLuaMethod("OnSelectionChanged", "i", SelectedChoice);
+        Text=m_Choices[m_SelectedChoice];
+        CallLuaMethod("OnSelectionChanged", "i", m_SelectedChoice);
         return true;
     }
 
@@ -185,8 +186,7 @@ void ChoiceT::FillMemberVars()
 {
     WindowT::FillMemberVars();
 
-    // TODO Should we add an unsigned long type to member vars?
-    MemberVars["selectedChoice"]=MemberVarT(MemberVarT(MemberVarT::TYPE_INT, &SelectedChoice));
+    MemberVars["selectedChoice"]=MemberVarT(MemberVarT(MemberVarT::TYPE_INT, &m_SelectedChoice));
 }
 
 
@@ -194,9 +194,9 @@ int ChoiceT::Clear(lua_State* LuaState)
 {
     ChoiceT* Choice=(ChoiceT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
 
-    Choice->Choices.Overwrite();
+    Choice->m_Choices.Overwrite();
     Choice->Text="";
-    Choice->SelectedChoice=0xFFFFFFFF;
+    Choice->m_SelectedChoice=-1;
     return 0;
 }
 
@@ -205,19 +205,19 @@ int ChoiceT::Append(lua_State* LuaState)
 {
     ChoiceT* Choice=(ChoiceT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
 
-    Choice->Choices.PushBack(luaL_checkstring(LuaState, 2));
+    Choice->m_Choices.PushBack(luaL_checkstring(LuaState, 2));
     return 0;
 }
 
 
 int ChoiceT::Insert(lua_State* LuaState)
 {
-    ChoiceT*      Choice=(ChoiceT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
-    unsigned long ChNr  =luaL_checkinteger(LuaState, 2);
-    const char*   ChText=luaL_checkstring(LuaState, 3);
+    ChoiceT*    Choice=(ChoiceT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+    const int   ChNr  =luaL_checkinteger(LuaState, 2);
+    const char* ChText=luaL_checkstring(LuaState, 3);
 
-    luaL_argcheck(LuaState, ChNr<=Choice->Choices.Size(), 2, "Insertion index too large.");
-    Choice->Choices.InsertAt(ChNr, ChText);
+    luaL_argcheck(LuaState, ChNr>=0 && ChNr<=int(Choice->m_Choices.Size()), 2, "Insertion index too large.");
+    Choice->m_Choices.InsertAt(ChNr, ChText);
     return 0;
 }
 
@@ -226,29 +226,29 @@ int ChoiceT::GetNumChoices(lua_State* LuaState)
 {
     ChoiceT* Choice=(ChoiceT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
 
-    lua_pushinteger(LuaState, Choice->Choices.Size());
+    lua_pushinteger(LuaState, Choice->m_Choices.Size());
     return 1;
 }
 
 
 int ChoiceT::GetChoice(lua_State* LuaState)
 {
-    ChoiceT*      Choice=(ChoiceT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
-    unsigned long ChNr  =luaL_checkinteger(LuaState, 2);
+    ChoiceT*  Choice=(ChoiceT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+    const int ChNr  =luaL_checkinteger(LuaState, 2);
 
-    luaL_argcheck(LuaState, ChNr<Choice->Choices.Size(), 2, "Index out of range.");
-    lua_pushstring(LuaState, Choice->Choices[ChNr].c_str());
+    luaL_argcheck(LuaState, ChNr>=0 && ChNr<int(Choice->m_Choices.Size()), 2, "Index out of range.");
+    lua_pushstring(LuaState, Choice->m_Choices[ChNr].c_str());
     return 1;
 }
 
 
 int ChoiceT::SetChoice(lua_State* LuaState)
 {
-    ChoiceT*      Choice=(ChoiceT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
-    unsigned long ChNr  =luaL_checkinteger(LuaState, 2);
+    ChoiceT*  Choice=(ChoiceT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+    const int ChNr  =luaL_checkinteger(LuaState, 2);
 
-    luaL_argcheck(LuaState, ChNr<Choice->Choices.Size(), 2, "Index out of range.");
-    Choice->Choices[ChNr]=luaL_checkstring(LuaState, 3);
+    luaL_argcheck(LuaState, ChNr>=0 && ChNr<int(Choice->m_Choices.Size()), 2, "Index out of range.");
+    Choice->m_Choices[ChNr]=luaL_checkstring(LuaState, 3);
     return 0;
 }
 
@@ -257,7 +257,7 @@ int ChoiceT::GetSelection(lua_State* LuaState)
 {
     ChoiceT* Choice=(ChoiceT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
 
-    lua_pushinteger(LuaState, Choice->SelectedChoice>=Choice->Choices.Size() ? -1 : Choice->SelectedChoice);
+    lua_pushinteger(LuaState, Choice->m_SelectedChoice>=int(Choice->m_Choices.Size()) ? -1 : Choice->m_SelectedChoice);
     return 1;
 }
 
@@ -266,17 +266,17 @@ int ChoiceT::SetSelection(lua_State* LuaState)
 {
     ChoiceT* Choice=(ChoiceT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
 
-    Choice->SelectedChoice=luaL_checkinteger(LuaState, 2);
+    Choice->m_SelectedChoice=luaL_checkinteger(LuaState, 2);
 
-    // Anything out-of-range is a "none" selection, set them uniquely to 0xFFFFFFFF.
-    if (Choice->SelectedChoice >= Choice->Choices.Size())
+    // Anything out-of-range is a "none" selection, set them uniquely to -1.
+    if (Choice->m_SelectedChoice<0 || Choice->m_SelectedChoice>=int(Choice->m_Choices.Size()))
     {
         Choice->Text="";
-        Choice->SelectedChoice=0xFFFFFFFF;
+        Choice->m_SelectedChoice=-1;
     }
     else
     {
-        Choice->Text=Choice->Choices[Choice->SelectedChoice];
+        Choice->Text=Choice->m_Choices[Choice->m_SelectedChoice];
     }
 
     return 0;

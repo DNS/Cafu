@@ -153,7 +153,7 @@ WindowT::WindowT(const WindowT& Window, bool Recursive)
         BackRenderMat=MatSys::Renderer->RegisterMaterial(m_Gui.m_MaterialMan.GetMaterial(BackRenderMatName));
     }
 
-    for (unsigned long i=0; i<4; i++)
+    for (unsigned int i=0; i<4; i++)
     {
         Rect       [i]=Window.Rect[i];
         BackColor  [i]=Window.BackColor[i];

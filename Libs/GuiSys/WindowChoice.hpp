@@ -52,9 +52,9 @@ namespace cf
             ~ChoiceT();
 
             /// Returns an array of the choices of this window.
-            ArrayT<std::string>& GetChoices() { return Choices; }
+            ArrayT<std::string>& GetChoices() { return m_Choices; }
 
-            unsigned long GetSelectedChoice() const { return SelectedChoice; }
+            int GetSelectedChoice() const { return m_SelectedChoice; }
 
             // Overloaded methods from the base class.
             void Render() const;
@@ -69,16 +69,12 @@ namespace cf
 
             protected:
 
-            void FillMemberVars(); ///< Helper method that fills the MemberVars array with entries for each class member.
+            void FillMemberVars();  ///< Helper method that fills the MemberVars array with entries for each class member.
 
-
-            private:
-
-            ArrayT<std::string> Choices;        ///< The available choices that the user can choose from.
-            unsigned long       SelectedChoice; ///< Number of the currently selected choice, 0xFFFFFFFF for none.
-         // bool                IsListOpen;     ///< Whether the dropdown list of choices is currently shown.
-         // float               ListMaxHeight;  ///< The maximum height of the dropdown list, when opened.
-
+            ArrayT<std::string> m_Choices;          ///< The available choices that the user can choose from.
+            int                 m_SelectedChoice;   ///< Number of the currently selected choice, -1 for none.
+         // bool                m_IsListOpen;       ///< Whether the dropdown list of choices is currently shown.
+         // float               m_ListMaxHeight;    ///< The maximum height of the dropdown list, when opened.
 
             // Lua script methods.
             // These first basic methods are analogous to those in WindowListBoxT.
