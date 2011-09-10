@@ -116,7 +116,7 @@ namespace cf
             public:
 
             /// Extra / extern / extension data that user code can derive from and assign to this window
-            /// in order to "configure" it with "callbacks" (e\.g\. the \c Render() method) and to have it
+            /// in order to "configure" it with "callbacks" (e.g.\ the \c Render() method) and to have it
             /// store additional user-specific data and functions.
             struct ExtDataT
             {

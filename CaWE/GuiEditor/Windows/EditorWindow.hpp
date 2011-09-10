@@ -48,6 +48,9 @@ namespace GuiEditor
         /// The destructor.
         virtual ~EditorWindowT() { }
 
+        /// Returns the GuiSys "dual" or "sibling" of this window.
+        const cf::GuiSys::WindowT* GetDual() const { return m_Win; }
+
         /// Returns the GuiDocumentT instance that this window lives in.
         GuiDocumentT* GetGuiDoc() { return m_GuiDoc; }
 

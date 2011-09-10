@@ -25,12 +25,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "GuiSys/GuiMan.hpp"
 #include "GuiSys/GuiImpl.hpp"
-#include "GuiSys/WindowChoice.hpp"
 #include "GuiSys/WindowModel.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "Fonts/FontTT.hpp"
-#include "TextParser/TextParser.hpp"
 
 
 using namespace GuiEditor;
@@ -137,53 +135,6 @@ bool CommandModifyWindowT::Do()
 
         m_Window->Font=cf::GuiSys::GuiMan->GetFont(m_NewString);
     }
-    else if (m_PropertyName=="Choices")
-    {
-        cf::GuiSys::ChoiceT* ChoiceWindow=dynamic_cast<cf::GuiSys::ChoiceT*>(m_Window);
-        wxASSERT(ChoiceWindow!=NULL);
-
-        m_OldString="";
-
-        ArrayT<std::string>& Choices=ChoiceWindow->GetChoices();
-
-        for (unsigned long ChoiceNr=0; ChoiceNr<Choices.Size(); ChoiceNr++)
-            m_OldString+=Choices[ChoiceNr]+";";
-
-        // Parse choice list and update the window choices.
-        TextParserT ChoiceParser(m_NewString.c_str(), ";", false);
-        Choices.Clear();
-
-        try
-        {
-            while (!ChoiceParser.IsAtEOF())
-            {
-                Choices.PushBack(ChoiceParser.GetNextToken());
-                ChoiceParser.AssertAndSkipToken(";");
-            }
-        }
-        catch (const TextParserT::ParseError&)
-        {
-            // Undo all changes made up to this point.
-            try
-            {
-                TextParserT ChoiceParser(m_OldString.c_str(), ";", false);
-                Choices.Clear();
-
-                while (!ChoiceParser.IsAtEOF())
-                {
-                    Choices.PushBack(ChoiceParser.GetNextToken());
-                    ChoiceParser.AssertAndSkipToken(";");
-                }
-            }
-            catch (const TextParserT::ParseError&)
-            {
-                wxASSERT(false);
-                return false;
-            }
-
-            return false;
-        }
-    }
     else if (m_PropertyName=="Model")
     {
         cf::GuiSys::ModelWindowT* ModelWindow=dynamic_cast<cf::GuiSys::ModelWindowT*>(m_Window);
@@ -256,30 +207,6 @@ void CommandModifyWindowT::Undo()
     else if (m_PropertyName=="FontName")
     {
         m_Window->Font=cf::GuiSys::GuiMan->GetFont(m_OldString);
-    }
-    else if (m_PropertyName=="Choices")
-    {
-        cf::GuiSys::ChoiceT* ChoiceWindow=dynamic_cast<cf::GuiSys::ChoiceT*>(m_Window);
-        wxASSERT(ChoiceWindow!=NULL);
-
-        ArrayT<std::string>& Choices=ChoiceWindow->GetChoices();
-
-        // Parse choice list and update the window choices.
-        TextParserT ChoiceParser(m_OldString.c_str(), ";", false);
-        Choices.Clear();
-
-        try
-        {
-            while (!ChoiceParser.IsAtEOF())
-            {
-                Choices.PushBack(ChoiceParser.GetNextToken());
-                ChoiceParser.AssertAndSkipToken(";");
-            }
-        }
-        catch (const TextParserT::ParseError&)
-        {
-            wxASSERT(false);
-        }
     }
     else if (m_PropertyName=="Model")
     {

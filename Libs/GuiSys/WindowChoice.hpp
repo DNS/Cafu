@@ -25,25 +25,27 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Window.hpp"
 
 
+namespace GuiEditor { class EditorChoiceWindowT; }
+
+
 namespace cf
 {
     namespace GuiSys
     {
         /// A choice window.
-        /// This was initially intended to look-n-feel like a combobox under Windows,
-        /// but it turns out that for speed and ease of implementation, an entirely
-        /// different approach is more feasible (for now).
+        /// This was initially intended to look and feel like a "combobox" under Windows,
+        /// but for ease of implementation, the current approach works slightly different.
         class ChoiceT : public WindowT
         {
             public:
 
-            /// Constructor for creating a listbox.
-            /// @param Params Choice creation parameters.
+            /// Constructor for creating a choice.
+            /// @param Params   Choice creation parameters.
             ChoiceT(const cf::GuiSys::WindowCreateParamsT& Params);
 
-            /// The Copy Constructor.
-            /// @param Window Window to copy.
-            /// @param Recursive Whether to copy the whole window hierarchy of the window and its children.
+            /// The copy constructor.
+            /// @param Window      Window to copy.
+            /// @param Recursive   Whether to copy the whole window hierarchy of the window and its children.
             ChoiceT(const ChoiceT& Window, bool Recursive=false);
 
             virtual ChoiceT* Clone(bool Recursive=false) const;
@@ -52,8 +54,9 @@ namespace cf
             ~ChoiceT();
 
             /// Returns an array of the choices of this window.
-            ArrayT<std::string>& GetChoices() { return m_Choices; }
+            const ArrayT<std::string>& GetChoices() const { return m_Choices; }
 
+            /// Returns the currently selected choice, -1 for none.
             int GetSelectedChoice() const { return m_SelectedChoice; }
 
             // Overloaded methods from the base class.
@@ -68,6 +71,8 @@ namespace cf
 
 
             protected:
+
+            friend class GuiEditor::EditorChoiceWindowT;
 
             void FillMemberVars();  ///< Helper method that fills the MemberVars array with entries for each class member.
 

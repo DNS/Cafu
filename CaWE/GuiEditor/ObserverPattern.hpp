@@ -41,6 +41,7 @@ namespace cf { namespace GuiSys { class WindowT; } }
 
 namespace GuiEditor
 {
+    class EditorWindowT;
     class SubjectT;
     class UpdateBoxT;
 
@@ -97,8 +98,14 @@ namespace GuiEditor
         virtual void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail, const wxString& PropertyName) { }
         //@}
 
+        /// Notifies the observer that a property of a window has changed.
+        /// @param Subject    The GUI document whose window has changed.
+        /// @param Win        The window whose property has changed.
+        /// @param PropName   The name of the property whose value has changed.
+        virtual void Notify_WinChanged(SubjectT* Subject, const EditorWindowT* Win, const wxString& PropName) { }
+
         /// This method is called whenever a subject is about the be destroyed (and become unavailable).
-        /// \param dyingSubject   The subject that is being destroyed.
+        /// @param dyingSubject   The subject that is being destroyed.
         virtual void NotifySubjectDies(SubjectT* dyingSubject)=0;
 
         /// The virtual destructor.
@@ -134,6 +141,7 @@ namespace GuiEditor
         virtual void UpdateAllObservers_Modified(cf::GuiSys::WindowT* Window, WindowModDetailE Detail);
         virtual void UpdateAllObservers_Modified(const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail, const wxString& PropertyName);
         virtual void UpdateAllObservers_Modified(cf::GuiSys::WindowT* Window, WindowModDetailE Detail, const wxString& PropertyName);
+        virtual void UpdateAllObservers_Modified(const EditorWindowT* Win, const wxString& PropName);
 
         /// The virtual destructor.
         virtual ~SubjectT();

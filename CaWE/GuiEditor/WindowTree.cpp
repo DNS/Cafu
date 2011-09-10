@@ -239,6 +239,11 @@ void WindowTreeT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<
 }
 
 
+void WindowTreeT::Notify_WinChanged(SubjectT* Subject, const EditorWindowT* Win, const wxString& PropName)
+{
+}
+
+
 void WindowTreeT::RefreshTree()
 {
     if (m_GuiDocument==NULL) return;

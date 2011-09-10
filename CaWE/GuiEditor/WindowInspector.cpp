@@ -72,52 +72,53 @@ void WindowInspectorT::NotifySubjectChanged_Deleted(SubjectT* Subject, const Arr
 
 void WindowInspectorT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail)
 {
+    if (m_IsRecursiveSelfNotify) return;
     if (!m_SelectedWindow) return;
+    if (Windows.Find(m_SelectedWindow)==-1) return;
 
-    if (Detail==WMD_HIERARCHY) return; // The ordner doesn't affect the window inspector.
-
-    for (unsigned long WindowNr=0; WindowNr<Windows.Size(); WindowNr++)
+    switch (Detail)
     {
-        if (m_SelectedWindow==Windows[WindowNr])
+        case WMD_HIERARCHY:
         {
-            if (Detail==WMD_GENERIC)
-            {
-                RefreshPropGrid();
-                return;
-            }
+            // The window hierarchy doesn't affect the window inspector.
+            break;
+        }
 
-            if (Detail==WMD_TRANSFORMED)
-            {
-                // Update all transformation related properties (position, size, rotation).
-                wxPGProperty* Property=GetProperty("Position.X");
-                Property->SetValue(wxVariant(m_SelectedWindow->Rect[0]));
+        case WMD_GENERIC:
+        {
+            RefreshPropGrid();
+            break;
+        }
 
-                Property=GetProperty("Position.Y");
-                Property->SetValue(wxVariant(m_SelectedWindow->Rect[1]));
+        case WMD_TRANSFORMED:
+        {
+            // Update all transformation related properties (position, size, rotation).
+            wxPGProperty* Property=GetProperty("Position.X");
+            Property->SetValue(wxVariant(m_SelectedWindow->Rect[0]));
 
-                Property=GetProperty("Size.Width");
-                Property->SetValue(wxVariant(m_SelectedWindow->Rect[2]));
+            Property=GetProperty("Position.Y");
+            Property->SetValue(wxVariant(m_SelectedWindow->Rect[1]));
 
-                Property=GetProperty("Size.Height");
-                Property->SetValue(wxVariant(m_SelectedWindow->Rect[3]));
+            Property=GetProperty("Size.Width");
+            Property->SetValue(wxVariant(m_SelectedWindow->Rect[2]));
 
-                Property=GetProperty("Rotation");
-                Property->SetValue(wxVariant(m_SelectedWindow->RotAngle));
+            Property=GetProperty("Size.Height");
+            Property->SetValue(wxVariant(m_SelectedWindow->Rect[3]));
 
-                RefreshGrid();
+            Property=GetProperty("Rotation");
+            Property->SetValue(wxVariant(m_SelectedWindow->RotAngle));
 
-                return;
-            }
+            RefreshGrid();
+            break;
+        }
 
-            if (Detail==WMD_HOR_TEXT_ALIGN)
-            {
-                wxPGProperty* Property=GetProperty("HorizontalAlign");
-                Property->SetValueFromInt(int(m_SelectedWindow->TextAlignHor));
+        case WMD_HOR_TEXT_ALIGN:
+        {
+            wxPGProperty* Property=GetProperty("HorizontalAlign");
+            Property->SetValueFromInt(int(m_SelectedWindow->TextAlignHor));
 
-                RefreshGrid();
-
-                return;
-            }
+            RefreshGrid();
+            break;
         }
     }
 }
@@ -126,22 +127,28 @@ void WindowInspectorT::NotifySubjectChanged_Modified(SubjectT* Subject, const Ar
 void WindowInspectorT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail, const wxString& PropertyName)
 {
     if (m_IsRecursiveSelfNotify) return;
-
     if (!m_SelectedWindow) return;
+    if (Windows.Find(m_SelectedWindow)==-1) return;
 
-    for (unsigned long WindowNr=0; WindowNr<Windows.Size(); WindowNr++)
-    {
-        if (m_SelectedWindow==Windows[WindowNr])
-        {
-            wxPGProperty* Property=GetProperty(PropertyName);
-            wxASSERT(Property);
+    wxPGProperty* Property=GetProperty(PropertyName);
+    wxASSERT(Property);
 
-            GuiDocumentT::GetSibling(m_SelectedWindow)->UpdateProperty(Property);
+    GuiDocumentT::GetSibling(m_SelectedWindow)->UpdateProperty(Property);
+    RefreshGrid();
+}
 
-            RefreshGrid();
-            return;
-        }
-    }
+
+void WindowInspectorT::Notify_WinChanged(SubjectT* Subject, const EditorWindowT* Win, const wxString& PropName)
+{
+    if (m_IsRecursiveSelfNotify) return;
+    if (!m_SelectedWindow) return;
+    if (Win->GetDual()!=m_SelectedWindow) return;
+
+    wxPGProperty* Property=GetProperty(PropName);
+    wxASSERT(Property);
+
+    GuiDocumentT::GetSibling(m_SelectedWindow)->UpdateProperty(Property);
+    RefreshGrid();
 }
 
 
@@ -195,5 +202,7 @@ void WindowInspectorT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
     // Since the user is definitely finished editing this property we can safely clear the selection.
     ClearSelection();
 
+    m_IsRecursiveSelfNotify=true;
     GuiDocumentT::GetSibling(m_SelectedWindow)->HandlePGChange(Event, m_Parent);
+    m_IsRecursiveSelfNotify=false;
 }

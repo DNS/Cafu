@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../ChildFrame.hpp"
 #include "../GuiDocument.hpp"
 #include "../Commands/ModifyWindow.hpp"
+#include "../Commands/SetStrings.hpp"
 
 #include "GuiSys/WindowChoice.hpp"
 #include "GuiSys/WindowCreateParams.hpp"
@@ -44,12 +45,15 @@ void EditorChoiceWindowT::FillInPG(wxPropertyGridManager* PropMan)
 {
     EditorWindowT::FillInPG(PropMan);
 
-    wxString ChoicesString;
+    wxString Str;
 
     for (unsigned long ChoiceNr=0; ChoiceNr<m_Choice->GetChoices().Size(); ChoiceNr++)
-        ChoicesString+=m_Choice->GetChoices()[ChoiceNr]+";\n";
+    {
+        if (ChoiceNr>0) Str+="\n";
+        Str+=m_Choice->GetChoices()[ChoiceNr];
+    }
 
-    PropMan->Append(new wxLongStringProperty("Choices", wxPG_LABEL, ChoicesString));
+    PropMan->Append(new wxLongStringProperty("Choices", wxPG_LABEL, Str));
     PropMan->Append(new wxIntProperty("DefaultChoice", wxPG_LABEL, m_Choice->GetSelectedChoice()));
 }
 
@@ -62,12 +66,15 @@ bool EditorChoiceWindowT::UpdateProperty(wxPGProperty* Property)
 
     if (PropName=="Choices")
     {
-        wxString ChoicesString;
+        wxString Str;
 
         for (unsigned long ChoiceNr=0; ChoiceNr<m_Choice->GetChoices().Size(); ChoiceNr++)
-            ChoicesString+=m_Choice->GetChoices()[ChoiceNr]+";\n";
+        {
+            if (ChoiceNr>0) Str+="\n";
+            Str+=m_Choice->GetChoices()[ChoiceNr];
+        }
 
-        Property->SetValueFromString(ChoicesString);
+        Property->SetValueFromString(Str);
         return true;
     }
 
@@ -90,16 +97,13 @@ bool EditorChoiceWindowT::HandlePGChange(wxPropertyGridEvent& Event, GuiEditor::
 
     if (PropName=="Choices")
     {
-        static cf::GuiSys::WindowT::MemberVarT DummyVar;
+        ArrayT<std::string> NewStrings;
+        wxStringTokenizer   Tokenizer(Prop->GetValueAsString(), "\r\n");
 
-        // Remove all newline characters from the string since they break the choices display.
-        wxString FormattedString=Prop->GetValueAsString();
-        FormattedString.Replace("\\n", "");
-        // Remove all trailing characters after the last delimiter (;).
-        FormattedString=FormattedString.Mid(0, FormattedString.Find(';', true)+1);
+        while (Tokenizer.HasMoreTokens())
+            NewStrings.PushBack(std::string(Tokenizer.GetNextToken()));
 
-        // Specially treated by command.
-        ChildFrame->SubmitCommand(new CommandModifyWindowT(m_GuiDoc, m_Choice, PropName, DummyVar, FormattedString));
+        ChildFrame->SubmitCommand(new CommandSetStringsT(m_GuiDoc, this, PropName, m_Choice->m_Choices, NewStrings));
         return true;
     }
 

@@ -137,6 +137,13 @@ void SubjectT::UpdateAllObservers_Modified(cf::GuiSys::WindowT* Window, WindowMo
 }
 
 
+void SubjectT::UpdateAllObservers_Modified(const EditorWindowT* Win, const wxString& PropName)
+{
+    for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
+        m_Observers[ObsNr]->Notify_WinChanged(this, Win, PropName);
+}
+
+
 SubjectT::~SubjectT()
 {
     for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)

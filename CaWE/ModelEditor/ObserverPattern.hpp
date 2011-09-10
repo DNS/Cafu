@@ -87,7 +87,7 @@ namespace ModelEditor
         /// @param Subject   The model document whose AnimStateT has changed.
         virtual void Notify_AnimStateChanged(SubjectT* Subject) { }
 
-        /// Notifies the observer that the listz of submodels has changed.
+        /// Notifies the observer that the list of submodels has changed.
         /// @param Subject   The model document with the model in which the list of submodels has changed.
         virtual void Notify_SubmodelsChanged(SubjectT* Subject) { }
 

@@ -63,6 +63,7 @@ namespace GuiEditor
         void NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows);
         void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail);
         void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail, const wxString& PropertyName);
+        void Notify_WinChanged(SubjectT* Subject, const EditorWindowT* Win, const wxString& PropName);
         void NotifySubjectDies(SubjectT* dyingSubject);
 
         /// Redraws the whole tree.

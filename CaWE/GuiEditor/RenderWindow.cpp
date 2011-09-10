@@ -100,6 +100,12 @@ void RenderWindowT::NotifySubjectChanged_Modified(SubjectT* Subject, const Array
 }
 
 
+void RenderWindowT::Notify_WinChanged(SubjectT* Subject, const EditorWindowT* Win, const wxString& PropName)
+{
+    Refresh(false);
+}
+
+
 void RenderWindowT::NotifySubjectDies(SubjectT* dyingSubject)
 {
     m_GuiDocument=NULL;
