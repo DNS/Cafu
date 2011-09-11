@@ -707,6 +707,10 @@ void ParentFrameT::OnMenuFile(wxCommandEvent& CE)
                 wxString     FileName  =m_FileHistory.GetHistoryFile(CE.GetId()-wxID_FILE1);
                 GameConfigT* GameConfig=AskUserForGameConfig(wxFileName(FileName));
 
+                // If the user cancelled the "select game configuration" dialog,
+                // don't remove the file from the file history.
+                if (!GameConfig) break;
+
                 // We remove the file from the file history beforehand.
                 // It is added back below when it could be successfully opened, and left out otherwise.
                 m_FileHistory.RemoveFileFromHistory(CE.GetId()-wxID_FILE1);
