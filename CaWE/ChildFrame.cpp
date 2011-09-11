@@ -747,14 +747,16 @@ void ChildFrameT::OnClose(wxCloseEvent& CE)
         return;
     }
 
-    const int Answer=wxMessageBox("The map has been modified since it was last saved.\n"
-        "Do you want to save it before closing?\n"
-        "Note that when you select 'No', all changes since the last save will be LOST.",
-        "Save map before closing?", wxYES_NO | wxCANCEL | wxICON_EXCLAMATION);
+    // This "Save Confirmation Alert" essentially follows the GNOME Human Interface Guidelines,
+    // see http://developer.gnome.org/hig-book/ for details.
+    wxMessageDialog Msg(NULL, "Save changes to map \"" + m_Doc->GetFileName() + "\" before closing?", "CaWE Map Editor", wxYES_NO | wxCANCEL);
 
-    switch (Answer)
+    Msg.SetExtendedMessage("If you close without saving, your changes will be discarded.");
+    Msg.SetYesNoLabels("Save", "Close without Saving");
+
+    switch (Msg.ShowModal())
     {
-        case wxYES:
+        case wxID_YES:
             if (!m_Doc->Save())
             {
                 // The document could not be saved - keep the window open.
@@ -775,11 +777,11 @@ void ChildFrameT::OnClose(wxCloseEvent& CE)
             Destroy();
             return;
 
-        case wxNO:
+        case wxID_NO:
             Destroy();
             return;
 
-        default:    // Answer==wxCANCEL
+        default:    // wxID_CANCEL
             CE.Veto();
             return;
     }

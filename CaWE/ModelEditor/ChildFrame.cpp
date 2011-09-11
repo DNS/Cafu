@@ -864,14 +864,16 @@ void ModelEditor::ChildFrameT::OnClose(wxCloseEvent& CE)
         return;
     }
 
-    const int Answer=wxMessageBox("The model has been modified since it was last saved.\n"
-        "Do you want to save it before closing?\n"
-        "Note that when you select 'No', all changes since the last save will be LOST.",
-        "Save model before closing?", wxYES_NO | wxCANCEL | wxICON_EXCLAMATION);
+    // This "Save Confirmation Alert" essentially follows the GNOME Human Interface Guidelines,
+    // see http://developer.gnome.org/hig-book/ for details.
+    wxMessageDialog Msg(NULL, "Save changes to model \"" + m_FileName + "\" before closing?", "CaWE Model Editor", wxYES_NO | wxCANCEL);
 
-    switch (Answer)
+    Msg.SetExtendedMessage("If you close without saving, your changes will be discarded.");
+    Msg.SetYesNoLabels("Save", "Close without Saving");
+
+    switch (Msg.ShowModal())
     {
-        case wxYES:
+        case wxID_YES:
             if (!Save())
             {
                 // The document could not be saved - keep the window open.
@@ -883,11 +885,11 @@ void ModelEditor::ChildFrameT::OnClose(wxCloseEvent& CE)
             Destroy();
             return;
 
-        case wxNO:
+        case wxID_NO:
             Destroy();
             return;
 
-        default:    // Answer==wxCANCEL
+        default:    // wxID_CANCEL
             CE.Veto();
             return;
     }
