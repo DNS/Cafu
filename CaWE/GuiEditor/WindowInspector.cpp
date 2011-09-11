@@ -84,7 +84,8 @@ void WindowInspectorT::NotifySubjectChanged_Modified(SubjectT* Subject, const Ar
             break;
         }
 
-        case WMD_GENERIC:
+        case WMD_GENERIC:           // Intentional fall-through.
+        case WMD_PROPERTY_CHANGED:
         {
             RefreshPropGrid();
             break;
