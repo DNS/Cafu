@@ -19,54 +19,60 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "SetStrings.hpp"
+#include "SetWinProp.hpp"
 #include "../GuiDocument.hpp"
 
 
 using namespace GuiEditor;
 
 
-CommandSetStringsT::CommandSetStringsT(GuiDocumentT* GuiDoc, const EditorWindowT* Win, const wxString& PropertyName,
-    ArrayT<std::string>& Strings, const ArrayT<std::string>& NewStrings)
+template<class T>
+CommandSetWinPropT<T>::CommandSetWinPropT(GuiDocumentT* GuiDoc, const EditorWindowT* Win, const wxString& PropName, T& Value, const T& NewValue)
     : m_GuiDoc(GuiDoc),
       m_Win(Win),
-      m_PropertyName(PropertyName),
-      m_Strings(Strings),
-      m_NewStrings(NewStrings),
-      m_OldStrings(Strings)
+      m_PropName(PropName),
+      m_Value(Value),
+      m_NewValue(NewValue),
+      m_OldValue(Value)
 {
 }
 
 
-bool CommandSetStringsT::Do()
+template<class T>
+bool CommandSetWinPropT<T>::Do()
 {
     wxASSERT(!m_Done);
     if (m_Done) return false;
 
-    // If the next sequence didn't really change, don't put this command into the command history.
-    // if (m_NewNext==m_OldNext) return false;
+    // If the new value isn't different from the old, don't put this command into the command history.
+    // if (m_NewValue==m_OldValue) return false;
 
-    m_Strings=m_NewStrings;
+    m_Value=m_NewValue;
 
-    m_GuiDoc->UpdateAllObservers_Modified(m_Win, m_PropertyName);
+    m_GuiDoc->UpdateAllObservers_Modified(m_Win, m_PropName);
     m_Done=true;
     return true;
 }
 
 
-void CommandSetStringsT::Undo()
+template<class T>
+void CommandSetWinPropT<T>::Undo()
 {
     wxASSERT(m_Done);
     if (!m_Done) return;
 
-    m_Strings=m_OldStrings;
+    m_Value=m_OldValue;
 
-    m_GuiDoc->UpdateAllObservers_Modified(m_Win, m_PropertyName);
+    m_GuiDoc->UpdateAllObservers_Modified(m_Win, m_PropName);
     m_Done=false;
 }
 
 
-wxString CommandSetStringsT::GetName() const
+template<class T>
+wxString CommandSetWinPropT<T>::GetName() const
 {
-    return "Set strings for " + m_PropertyName;
+    return "Set " + m_PropName;
 }
+
+
+template class CommandSetWinPropT< ArrayT<std::string> >;

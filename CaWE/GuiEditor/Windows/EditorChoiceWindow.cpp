@@ -23,7 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../ChildFrame.hpp"
 #include "../GuiDocument.hpp"
 #include "../Commands/ModifyWindow.hpp"
-#include "../Commands/SetStrings.hpp"
+#include "../Commands/SetWinProp.hpp"
 
 #include "GuiSys/WindowChoice.hpp"
 #include "GuiSys/WindowCreateParams.hpp"
@@ -103,7 +103,7 @@ bool EditorChoiceWindowT::HandlePGChange(wxPropertyGridEvent& Event, GuiEditor::
         while (Tokenizer.HasMoreTokens())
             NewStrings.PushBack(std::string(Tokenizer.GetNextToken()));
 
-        ChildFrame->SubmitCommand(new CommandSetStringsT(m_GuiDoc, this, PropName, m_Choice->m_Choices, NewStrings));
+        ChildFrame->SubmitCommand(new CommandSetWinPropT< ArrayT<std::string> >(m_GuiDoc, this, PropName, m_Choice->m_Choices, NewStrings));
         return true;
     }
 

@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _GUIEDITOR_SET_STRINGS_HPP_
-#define _GUIEDITOR_SET_STRINGS_HPP_
+#ifndef _GUIEDITOR_SET_WINDOW_PROPERTY_HPP_
+#define _GUIEDITOR_SET_WINDOW_PROPERTY_HPP_
 
 #include "../../CommandPattern.hpp"
 
@@ -30,12 +30,12 @@ namespace GuiEditor
     class GuiDocumentT;
     class EditorWindowT;
 
-    class CommandSetStringsT : public CommandT
+    template<class T>
+    class CommandSetWinPropT : public CommandT
     {
         public:
 
-        CommandSetStringsT(GuiDocumentT* GuiDoc, const EditorWindowT* Win, const wxString& PropertyName,
-            ArrayT<std::string>& Strings, const ArrayT<std::string>& NewStrings);
+        CommandSetWinPropT(GuiDocumentT* GuiDoc, const EditorWindowT* Win, const wxString& PropName, T& Value, const T& NewValue);
 
         // CommandT implementation.
         bool Do();
@@ -45,12 +45,12 @@ namespace GuiEditor
 
         private:
 
-        GuiDocumentT*             m_GuiDoc;
-        const EditorWindowT*      m_Win;
-        const wxString            m_PropertyName;
-        ArrayT<std::string>&      m_Strings;
-        const ArrayT<std::string> m_NewStrings;
-        const ArrayT<std::string> m_OldStrings;
+        GuiDocumentT*        m_GuiDoc;
+        const EditorWindowT* m_Win;
+        const wxString       m_PropName;
+        T&                   m_Value;
+        const T              m_NewValue;
+        const T              m_OldValue;
     };
 }
 
