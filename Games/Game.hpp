@@ -39,7 +39,7 @@ namespace cf
     namespace GameSys
     {
         /// The game interface, specified as an ABC so that is can be used without linked (module-local) implementation.
-        /// This interfce is implemented by the game DLL, and thus defines the essence of a game/MOD.
+        /// This interface is implemented by the game DLL, and thus defines the essence of a game/MOD.
         /// It is used (only) by the engine to run the game.
         class GameI
         {

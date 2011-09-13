@@ -72,36 +72,51 @@ class SoundSysI;
 // **********************
 
 
-// This is the first function that is called by both the client and the server after they have loaded this DLL.
-// Its purpose is to point us to the shared implementation of the relevant interfaces (the MatSys etc.),
-// so that we can access the same implementation of the interfaces as the engine.
-//
-// The fact that DLLs that are loaded multiple times cause only a reference counter to be increased rather than separate copies
-// of the DLL to be created (the global state exists only once), and the way how clients and servers change worlds (client deletes
-// the old world first, then loads the new, server loads new world first and only then deletes the old one), and the fact that in
-// a single Cafu.exe instance, the client only, the server only, or both can be running, means that a *single* instance of this
-// DLL may live over several world changes of a client and server, because at least one of them keeps referring to it at all times.
-//
-// Therefore, it may happen that GetGame() is called *many* times, namely on each world change once by the server and once
-// by the client. The parameters to this function however are always non-volatile, they don't change over multiple calls.
-// In future implementations I'll possibly change this and load and init the DLL only once, even before the client or server gets instantiated.
-
 #ifdef _WIN32
+// Provide definitions for the globally declared pointers to these interfaces (see e.g. see GuiMan.hpp for more details).
 // Under Linux (where DLLs are shared objects), these all resolve to their counterparts in the main executable.
-cf::GuiSys::GuiManI*   cf::GuiSys::GuiMan=NULL;     // Define the global GuiMan pointer instance -- see GuiMan.hpp for more details.
-MaterialManagerI*      MaterialManager   =NULL;
-cf::ConsoleI*          Console=NULL;
-ConsoleInterpreterI*   ConsoleInterpreter=NULL;
-cf::FileSys::FileManI* cf::FileSys::FileMan=NULL;
+cf::GuiSys::GuiManI*        cf::GuiSys::GuiMan       =NULL;
+MaterialManagerI*           MaterialManager          =NULL;
+cf::ConsoleI*               Console                  =NULL;
+ConsoleInterpreterI*        ConsoleInterpreter       =NULL;
+cf::FileSys::FileManI*      cf::FileSys::FileMan     =NULL;
 cf::ClipSys::CollModelManI* cf::ClipSys::CollModelMan=NULL;
-SoundSysI*             SoundSystem=NULL;
-SoundShaderManagerI*   SoundShaderManager=NULL;
+SoundSysI*                  SoundSystem              =NULL;
+SoundShaderManagerI*        SoundShaderManager       =NULL;
 #endif
 
 
-// WARNING: When the signature of GetGame() is changed here (e.g. by adding more interface pointer parameters),
-// grep all C++ source code files for "GetGame@", because the number of parameter bytes must be updated there!
-DLL_EXPORT cf::GameSys::GameI* __stdcall GetGame(MatSys::RendererI* Renderer, MatSys::TextureMapManagerI* TexMapMan, MaterialManagerI* MatMan, cf::GuiSys::GuiManI* GuiMan_, cf::ConsoleI* Console_, ConsoleInterpreterI* ConInterpreter_, cf::ClipSys::CollModelManI* CollModelMan_, SoundSysI* SoundSystem_, SoundShaderManagerI* SoundShaderManager_)
+/// This is the first function that is called by the core engine (both the client and the server)
+/// after it has loaded this game DLL.
+///
+/// Its purpose is to exchange pointers to various interfaces:
+///   - The engine points us to all the relevant interfaces (the MatSys, SoundSys, etc.)
+///     that are implemented in the core engine and can be used by our code in the game DLL.
+///   - In return we provide the core engine with our implementation of the cf::GameSys::GameI interface,
+///     that the client and/or the server will in turn use as the sole means to communicate with and run the game.
+///
+/// The fact that DLLs that are loaded multiple times cause only a reference counter to be increased rather than separate copies
+/// of the DLL to be created (the global state exists only once), and the way how clients and servers change worlds (client deletes
+/// the old world first, then loads the new, server loads new world first and only then deletes the old one), and the fact that in
+/// a single Cafu.exe instance, the client only, the server only, or both can be running, means that a *single* instance of this
+/// DLL may live over several world changes of a client and server, because at least one of them keeps referring to it at all times.
+///
+/// Therefore, it may happen that GetGame() is called *many* times, namely on each world change once by the server and once
+/// by the client. The parameters to this function however are always non-volatile, they don't change over multiple calls.
+/// In future implementations we'll possibly change this and load and init the DLL only once, even before the client or server gets instantiated.
+///
+/// WARNING: When the signature of GetGame() is changed here (e.g. by adding more interface pointer parameters),
+/// grep all C++ source code files for "GetGame@", because the number of parameter bytes must be updated there!
+DLL_EXPORT cf::GameSys::GameI* __stdcall GetGame(
+    MatSys::RendererI* Renderer,
+    MatSys::TextureMapManagerI* TexMapMan,
+    MaterialManagerI* MatMan,
+    cf::GuiSys::GuiManI* GuiMan_,
+    cf::ConsoleI* Console_,
+    ConsoleInterpreterI* ConInterpreter_,
+    cf::ClipSys::CollModelManI* CollModelMan_,
+    SoundSysI* SoundSystem_,
+    SoundShaderManagerI* SoundShaderManager_)
 {
 #ifdef _WIN32
     // Under Linux (where DLLs are shared objects), these all resolve to their counterparts in the main executable.
