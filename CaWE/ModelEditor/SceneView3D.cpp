@@ -599,6 +599,55 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
         MatSys::Renderer->RenderMesh(Mesh);
     }
 
+    // Render the grid.
+    if (ScenePropGrid->m_ShowGrid)
+    {
+        for (unsigned int PlaneNr=0; PlaneNr<3; PlaneNr++)
+        {
+            static MatSys::MeshT Mesh(MatSys::MeshT::Lines);
+
+            const unsigned int NumLines=17;
+            const float        Spacing =ScenePropGrid->m_GridSpacing;
+            const float        MaxCoord=Spacing * ((NumLines-1)/2);
+
+            if (Mesh.Vertices.Size()==0)
+            {
+                Mesh.Vertices.PushBackEmptyExact(NumLines*2);
+
+                const float r=Options.Grid.ColorHighlight1.Red()   / 255.0f;
+                const float g=Options.Grid.ColorHighlight1.Green() / 255.0f;
+                const float b=Options.Grid.ColorHighlight1.Blue()  / 255.0f;
+
+                for (unsigned int LineNr=0; LineNr<NumLines; LineNr++)
+                {
+                    Mesh.Vertices[LineNr*2  ].SetColor(r, g, b);
+                    Mesh.Vertices[LineNr*2+1].SetColor(r, g, b);
+                }
+            }
+
+            for (unsigned int DirNr=0; DirNr<2; DirNr++)
+            {
+                for (unsigned int LineNr=0; LineNr<NumLines; LineNr++)
+                {
+                    Vector3fT A;
+                    Vector3fT B;
+
+                    A[(PlaneNr+1+DirNr) % 3]=-MaxCoord;
+                    A[(PlaneNr+2-DirNr) % 3]=Spacing*LineNr - MaxCoord;
+
+                    B[(PlaneNr+1+DirNr) % 3]=MaxCoord;
+                    B[(PlaneNr+2-DirNr) % 3]=Spacing*LineNr - MaxCoord;
+
+                    Mesh.Vertices[LineNr*2  ].SetOrigin(A);
+                    Mesh.Vertices[LineNr*2+1].SetOrigin(B);
+                }
+
+                MatSys::Renderer->SetCurrentMaterial(m_Renderer.GetRMatWireframe());
+                MatSys::Renderer->RenderMesh(Mesh);
+            }
+        }
+    }
+
     // Render a small cross at the (world-space) position of each active light source.
     const ArrayT<ModelDocumentT::LightSourceT*>& LightSources=m_Parent->GetModelDoc()->GetLightSources();
 

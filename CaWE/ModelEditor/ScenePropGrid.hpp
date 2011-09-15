@@ -50,6 +50,8 @@ namespace ModelEditor
 
         wxColour             m_BackgroundColor;
         bool                 m_ShowOrigin;
+        bool                 m_ShowGrid;
+        float                m_GridSpacing;
         bool                 m_GroundPlane_Show;
         bool                 m_Model_ShowMesh;
         bool                 m_Model_ShowSkeleton;

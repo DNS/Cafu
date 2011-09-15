@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../EditorMaterial.hpp"
 #include "../GameConfig.hpp"
 #include "../MapBrush.hpp"
+#include "../Options.hpp"
 #include "MaterialSystem/MapComposition.hpp"
 #include "MaterialSystem/TextureMap.hpp"
 
@@ -42,6 +43,8 @@ ModelEditor::ScenePropGridT::ScenePropGridT(ChildFrameT* Parent, const wxSize& S
     : wxPropertyGridManager(Parent, wxID_ANY, wxDefaultPosition, Size, wxPG_BOLD_MODIFIED | wxPG_SPLITTER_AUTO_CENTER), // | wxPG_DESCRIPTION
       m_BackgroundColor(wxColour(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/BackgroundColor", "rgb(0, 128, 255)"))),
       m_ShowOrigin(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/ShowOrigin", 1l)!=0),
+      m_ShowGrid(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/ShowGrid", 0l)!=0),
+      m_GridSpacing(Options.Grid.InitialSpacing),
       m_GroundPlane_Show(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/GroundPlane_Show", 1l)!=0),
       m_Model_ShowMesh(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/Model_ShowMesh", 1l)!=0),
       m_Model_ShowSkeleton(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/Model_ShowSkeleton", 0l)!=0),
@@ -83,6 +86,8 @@ void ModelEditor::ScenePropGridT::RefreshPropGrid()
 
     AppendIn(GeneralCat, new wxColourProperty("Background Color", wxPG_LABEL, m_BackgroundColor));
     AppendIn(GeneralCat, new wxBoolProperty("Show Origin", wxPG_LABEL, m_ShowOrigin));
+    AppendIn(GeneralCat, new wxBoolProperty("Show Grid", wxPG_LABEL, m_ShowGrid));
+    AppendIn(GeneralCat, new wxFloatProperty("Grid Spacing", wxPG_LABEL, m_GridSpacing));
 
 
     // "Camera" category.
@@ -181,6 +186,8 @@ void ModelEditor::ScenePropGridT::OnPropertyGridChanged(wxPropertyGridEvent& Eve
 
          if (PropName=="Background Color")                m_BackgroundColor << Prop->GetValue();
     else if (PropName=="Show Origin")                     m_ShowOrigin=Prop->GetValue().GetBool();
+    else if (PropName=="Show Grid")                       m_ShowGrid=Prop->GetValue().GetBool();
+    else if (PropName=="Grid Spacing")                    m_GridSpacing=PropValueF;
     else if (PropName=="Camera.Pos.x")                    Camera.Pos.x=PropValueF;
     else if (PropName=="Camera.Pos.y")                    Camera.Pos.y=PropValueF;
     else if (PropName=="Camera.Pos.z")                    Camera.Pos.z=PropValueF;
