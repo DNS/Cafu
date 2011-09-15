@@ -53,6 +53,8 @@ namespace ModelEditor
         bool                 m_ShowGrid;
         float                m_GridSpacing;
         bool                 m_GroundPlane_Show;
+        float                m_GroundPlane_PosZ;
+        bool                 m_GroundPlane_AutoZ;
         bool                 m_Model_ShowMesh;
         bool                 m_Model_ShowSkeleton;
         wxColour             m_AmbientLightColor;

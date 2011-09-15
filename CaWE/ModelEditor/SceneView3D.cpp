@@ -577,6 +577,18 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
     MatSys::Renderer->SetCurrentLightMap(ScenePropGrid->m_AmbientTexture);
     MatSys::Renderer->SetCurrentLightDirMap(NULL);    // The MatSys provides a default for LightDirMaps when NULL is set.
 
+    // Update the z-position of the ground plane.
+    if (ScenePropGrid->m_GroundPlane_Show)
+    {
+        MapBrushT*  Ground=m_Parent->GetModelDoc()->GetGround();
+        const float DeltaZ=(ScenePropGrid->m_GroundPlane_AutoZ
+            ? m_Parent->GetModelDoc()->GetSequenceBB().Min.z
+            : ScenePropGrid->m_GroundPlane_PosZ) - Ground->GetBB().Max.z;
+
+        if (fabs(DeltaZ) > 0.0001f)
+            Ground->TrafoMove(Vector3fT(0, 0, DeltaZ));
+    }
+
     // Render the world axes. They're great for technical and emotional reassurance.
     if (ScenePropGrid->m_ShowOrigin)
     {

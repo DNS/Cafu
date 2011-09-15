@@ -46,6 +46,8 @@ ModelEditor::ScenePropGridT::ScenePropGridT(ChildFrameT* Parent, const wxSize& S
       m_ShowGrid(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/ShowGrid", 0l)!=0),
       m_GridSpacing(Options.Grid.InitialSpacing),
       m_GroundPlane_Show(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/GroundPlane_Show", 1l)!=0),
+      m_GroundPlane_PosZ(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/GroundPlane_PosZ", 0.0f)),
+      m_GroundPlane_AutoZ(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/GroundPlane_AutoZ", 1l)!=0),
       m_Model_ShowMesh(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/Model_ShowMesh", 1l)!=0),
       m_Model_ShowSkeleton(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/Model_ShowSkeleton", 0l)!=0),
       m_AmbientLightColor(wxColour(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/AmbientLightColor", "rgb(96, 96, 96)"))),
@@ -117,7 +119,8 @@ void ModelEditor::ScenePropGridT::RefreshPropGrid()
 
     wxPGProperty* GroundPlane=AppendIn(SceneElemsCat, new wxStringProperty("Ground Plane", wxPG_LABEL, "<composed>"));
     AppendIn(GroundPlane, new wxBoolProperty("Show", wxPG_LABEL, m_GroundPlane_Show));
-    AppendIn(GroundPlane, new wxFloatProperty("Height (z-Pos)", wxPG_LABEL, Ground->GetBB().Max.z));
+    AppendIn(GroundPlane, new wxFloatProperty("Height (z-Pos)", wxPG_LABEL, m_GroundPlane_PosZ));
+    AppendIn(GroundPlane, new wxBoolProperty("Auto Height", wxPG_LABEL, m_GroundPlane_AutoZ));
     AppendIn(GroundPlane, new wxStringProperty("Material", wxPG_LABEL, Ground->GetFaces()[0].GetMaterial()->GetName()));   // TODO: MaterialProperty
 
     wxPGProperty* ModelProps=AppendIn(SceneElemsCat, new wxStringProperty("Model", wxPG_LABEL, "<composed>"));
@@ -198,10 +201,8 @@ void ModelEditor::ScenePropGridT::OnPropertyGridChanged(wxPropertyGridEvent& Eve
     else if (PropName=="Camera.Advanced.near plane dist") Camera.NearPlaneDist=PropValueF;
     else if (PropName=="Camera.Advanced.far plane dist")  Camera.FarPlaneDist=PropValueF;
     else if (PropName=="Ground Plane.Show")               m_GroundPlane_Show=Prop->GetValue().GetBool();
-    else if (PropName=="Ground Plane.Height (z-Pos)")
-    {
-        Ground->TrafoMove(Vector3fT(0, 0, PropValueF - Ground->GetBB().Max.z));
-    }
+    else if (PropName=="Ground Plane.Height (z-Pos)")     m_GroundPlane_PosZ=PropValueF;
+    else if (PropName=="Ground Plane.Auto Height")        m_GroundPlane_AutoZ=Prop->GetValue().GetBool();
     else if (PropName=="Ground Plane.Material")
     {
         EditorMaterialI* NewMat=m_Parent->GetModelDoc()->GetGameConfig()->GetMatMan().FindMaterial(Prop->GetValueAsString(), false /*CreateDummy*/);

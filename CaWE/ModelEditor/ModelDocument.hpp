@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ObserverPattern.hpp"
 #include "ElementTypes.hpp"
+#include "Math3D/BoundingBox.hpp"
 #include "Math3D/Vector3.hpp"
 #include "Templates/Array.hpp"
 #include "wx/wx.h"
@@ -101,6 +102,7 @@ namespace ModelEditor
 
         const CafuModelT*               GetModel() const           { return m_Model; }
         const ArrayT<unsigned int>&     GetSelection(ModelElementTypeT Type) const { wxASSERT(Type<4); return m_Selection[Type]; }
+        const BoundingBox3fT&           GetSequenceBB() const      { return m_SequenceBB; }
         const ArrayT<EditorMaterialI*>& GetEditorMaterials() const { return m_EditorMaterials; }
         const AnimStateT&               GetAnimState() const       { return m_AnimState; }
         const ArrayT<SubmodelT*>&       GetSubmodels() const       { return m_Submodels; }
@@ -111,7 +113,7 @@ namespace ModelEditor
         const GameConfigT*              GetGameConfig() const      { return m_GameConfig; }
 
         CafuModelT*      GetModel()      { return m_Model; }
-        void             SetSelection(ModelElementTypeT Type, const ArrayT<unsigned int>& NewSel) { wxASSERT(Type<4); m_Selection[Type]=NewSel; }
+        void             SetSelection(ModelElementTypeT Type, const ArrayT<unsigned int>& NewSel);
         AnimStateT&      GetAnimState()  { return m_AnimState; }
         void             LoadSubmodel(const wxString& FileName);
         void             UnloadSubmodel(unsigned long SubmodelNr);
@@ -133,6 +135,7 @@ namespace ModelEditor
 
         CafuModelT*              m_Model;           ///< The model that is being edited.
         ArrayT<unsigned int>     m_Selection[4];    ///< The selected joints, meshes, animations and GUI fixtures.
+        BoundingBox3fT           m_SequenceBB;      ///< The bounding-box encompassing all frames of the currently selected animation sequence(s).
         ArrayT<EditorMaterialI*> m_EditorMaterials; ///< One editor material for each material in the model (its material manager).
         AnimStateT               m_AnimState;       ///< The current state of the model animation.
         ArrayT<SubmodelT*>       m_Submodels;       ///< The submodels that are shown with the main model.

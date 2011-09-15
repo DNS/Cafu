@@ -62,6 +62,7 @@ static MapBrushT* GetGroundBrush(GameConfigT* GameConfig)
 
 ModelEditor::ModelDocumentT::ModelDocumentT(GameConfigT* GameConfig, const wxString& FileName)
     : m_Model(LoadModel(FileName)),
+      m_SequenceBB(m_Model->GetBB(-1, 0.0f)),
       m_Submodels(),
       m_Gui(new cf::GuiSys::GuiImplT("Win1=gui:new('WindowT'); gui:SetRootWindow(Win1); gui:activate(true); "
           "gui:setInteractive(true); gui:showMouse(true); Win1:set('rect', 0, 0, 640, 480); "
@@ -105,6 +106,33 @@ ModelEditor::ModelDocumentT::~ModelDocumentT()
     delete m_Ground;
     delete m_Gui;
     delete m_Model;
+}
+
+
+void ModelEditor::ModelDocumentT::SetSelection(ModelElementTypeT Type, const ArrayT<unsigned int>& NewSel)
+{
+    wxASSERT(Type<4);
+    m_Selection[Type]=NewSel;
+
+    if (Type==ANIM)
+    {
+        if (m_Selection[ANIM].Size()==0)
+        {
+            m_SequenceBB=m_Model->GetBB(-1, 0.0f);
+        }
+        else
+        {
+            m_SequenceBB=BoundingBox3fT();
+
+            for (unsigned long SelNr=0; SelNr<m_Selection[ANIM].Size(); SelNr++)
+            {
+                const CafuModelT::AnimT& Anim=m_Model->GetAnims()[m_Selection[ANIM][SelNr]];
+
+                for (unsigned long FrameNr=0; FrameNr<Anim.Frames.Size(); FrameNr++)
+                    m_SequenceBB+=Anim.Frames[FrameNr].BB;
+            }
+        }
+    }
 }
 
 
