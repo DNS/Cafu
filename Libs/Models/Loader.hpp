@@ -58,6 +58,9 @@ class ModelLoaderT
     /// Actually loads the file data into the appropriate parts of the Cafu model.
     virtual void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan)=0;
 
+    /// Loads the skins of the Cafu model.
+    virtual void Load(ArrayT<CafuModelT::SkinT>& Skins, const MaterialManagerImplT& MaterialMan)=0;
+
     /// Loads the GUI fixtures of the Cafu model.
     virtual void Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures, ArrayT<CafuModelT::GuiLocT>& GuiLocs)=0;
 

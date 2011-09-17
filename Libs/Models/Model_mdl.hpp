@@ -124,7 +124,7 @@ class ModelMdlT : public ModelT
     void               Print() const;
     unsigned int       GetNrOfSequences() const;
     BoundingBox3fT     GetBB(int SequenceNr, float FrameNr) const;
-    bool               TraceRay(int SequenceNr, float FrameNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, TraceResultT& Result) const;
+    bool               TraceRay(int SequenceNr, float FrameNr, int SkinNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, TraceResultT& Result) const;
  // float              GetNrOfFrames(int SequenceNr) const;
     float              AdvanceFrameNr(int SequenceNr, float FrameNr, float DeltaTime, bool Loop=true) const;
 };

@@ -201,7 +201,7 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::
 
     // For clarity and better readibility, break the loading into three separate functions.
     Load(Joints);
-    Load(Meshes);
+    Load(Meshes, m_MeshSkinRef);
     Load(Anims);
 }
 
@@ -233,7 +233,7 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::JointT>& Joints) const
 }
 
 
-void LoaderHL1mdlT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
+void LoaderHL1mdlT::Load(ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<int>& MeshSkinRef) const
 {
     // This is configurable with BodyNr and SkinNr, but at this time we always take the defaults (index 0 each).
     for (int BodyPartNr=0; BodyPartNr<StudioHeader->NumBodyParts; BodyPartNr++)
@@ -291,6 +291,8 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
                     Weight.Weight  =1.0f;
                     Weight.Pos     =Vector3fT(StudioVertices[VertexNr]);
                 }
+
+                MeshSkinRef.PushBack(StudioMesh.SkinRef);
             }
 
             // Now add all triangles of all triangle strips in StudioMesh to CafuMesh.
@@ -522,4 +524,28 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::AnimT>& Anims) const
     }
 
     // TODO: Sequ.LinearMovement ?
+}
+
+
+void LoaderHL1mdlT::Load(ArrayT<CafuModelT::SkinT>& Skins, const MaterialManagerImplT& MaterialMan)
+{
+    const short* SkinRefs0=(short*)((char*)StudioTextureHeader+StudioTextureHeader->SkinIndex);
+
+    if (StudioTextureHeader->NumSkinFamilies <= 1) return;
+    Skins.PushBackEmptyExact(StudioTextureHeader->NumSkinFamilies - 1);
+
+    // Start with SkinNr=1, because the materials of the first (default) skin are kept directly in the mesh definitions.
+    for (int SkinNr=1; SkinNr<StudioTextureHeader->NumSkinFamilies; SkinNr++)
+    {
+        const short*       SkinRefs=((short*)((char*)StudioTextureHeader+StudioTextureHeader->SkinIndex)) + SkinNr*StudioTextureHeader->NumSkinRef;
+        CafuModelT::SkinT& Skin    =Skins[SkinNr-1];
+
+        for (unsigned long MeshNr=0; MeshNr<m_MeshSkinRef.Size(); MeshNr++)
+        {
+            const int msr=m_MeshSkinRef[MeshNr];
+
+            Skin.Materials.PushBack(SkinRefs0[msr]==SkinRefs[msr] ? NULL : m_Materials[SkinRefs[msr]]);
+            Skin.RenderMaterials.PushBack(NULL);
+        }
+    }
 }

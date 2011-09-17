@@ -165,6 +165,15 @@ class CafuModelT : public ModelT
     };
 
 
+    /// This struct describes additional/alternative skins for this model.
+    struct SkinT
+    {
+        std::string                      Name;              ///< The name of this skin.
+        ArrayT<MaterialT*>               Materials;         ///< For each mesh \c m, <tt>Materials[m]</tt> is the material for the mesh in this skin. If <tt>Materials[m]</tt> is NULL, the material of the default skin is used.
+        ArrayT<MatSys::RenderMaterialT*> RenderMaterials;   ///< Analogous to \c Materials, these are the (possibly NULL) render materials for the meshes in this skin.
+    };
+
+
     /// This struct defines how and where a GUI can be fixed to the model.
     /// The GUI rectangle is defined by three points: the origin, the x-axis endpoint, and the y-axis endpoint, numbered 0, 1 and 2.
     /// Each point is represented by an arbitrary vertex of one of meshes in the model.
@@ -238,6 +247,7 @@ class CafuModelT : public ModelT
     const ArrayT<JointT>&       GetJoints() const { return m_Joints; }
     const ArrayT<MeshT>&        GetMeshes() const { return m_Meshes; }
     const ArrayT<AnimT>&        GetAnims() const { return m_Anims; }
+    const ArrayT<SkinT>&        GetSkins() const { return m_Skins; }
     const ArrayT<GuiFixtureT>&  GetGuiFixtures() const { return m_GuiFixtures; }
 
     /// This method returns the set of drawing matrices (one per joint) at the given sequence and frame number.
@@ -246,9 +256,10 @@ class CafuModelT : public ModelT
     /// The new method to draw the model.
     /// @param SequenceNr   The number of the animation sequence to use, -1 for the bind pose.
     /// @param FrameNr      The frame number in the animation sequence to render to model at.
+    /// @param SkinNr       The skin to render the model with, -1 for the default skin.
     /// @param LodDist      The distance to the camera for reducing the level-of-detail (currently unused).
     /// @param Super        Information about a parent or "super" model whose skeleton pose should be used when rendering this model.
-    void Draw(int SequenceNr, float FrameNr, float LodDist, const SuperT* Super=NULL) const;
+    void Draw(int SequenceNr, float FrameNr, int SkinNr, float LodDist, const SuperT* Super=NULL) const;
 
     /// Determines if <tt>GF.Points[PointNr].MeshNr</tt> is a valid index into this model.
     bool IsMeshNrOK(const GuiFixtureT& GF, unsigned int PointNr) const;
@@ -263,7 +274,7 @@ class CafuModelT : public ModelT
     void               Print() const;
     unsigned int       GetNrOfSequences() const;
     BoundingBox3fT     GetBB(int SequenceNr, float FrameNr) const;
-    bool               TraceRay(int SequenceNr, float FrameNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, TraceResultT& Result) const;
+    bool               TraceRay(int SequenceNr, float FrameNr, int SkinNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, TraceResultT& Result) const;
  // float              GetNrOfFrames(int SequenceNr) const;
     float              AdvanceFrameNr(int SequenceNr, float FrameNr, float DeltaTime, bool Loop=true) const;
 
@@ -285,6 +296,8 @@ class CafuModelT : public ModelT
     void RecomputeBindPoseBB();                                                             ///< Recomputes the bounding box for the model in bind pose (stored in m_BindPoseBB).
     void InitMeshes();                                                                      ///< An auxiliary method for the constructors.
     void UpdateCachedDrawData(int SequenceNr, float FrameNr, const SuperT* Super) const;    ///< A private auxiliary method.
+    const MaterialT* GetMaterial(unsigned long MeshNr, int SkinNr) const;                   ///< Returns the proper material for the given mesh in the given skin.
+    MatSys::RenderMaterialT* GetRenderMaterial(unsigned long MeshNr, int SkinNr) const;     ///< Returns the proper render material for the given mesh in the given skin.
 
 
     const std::string     m_FileName;               ///< File name of this model.   TODO: Remove!?!
@@ -292,6 +305,7 @@ class CafuModelT : public ModelT
     ArrayT<JointT>        m_Joints;                 ///< Array of joints of this model.
     mutable ArrayT<MeshT> m_Meshes;                 ///< Array of (sub)meshes of this model.
     ArrayT<AnimT>         m_Anims;                  ///< Array of animations of this model.
+    ArrayT<SkinT>         m_Skins;                  ///< Array of additional/alternative skins for this model.
 
     const bool            m_UseGivenTangentSpace;   ///< Whether this model should use the fixed, given tangent space that was loaded from the model file, or it the tangent space is dynamically recomputed (useful for animated models).
  // const bool            m_CastShadows;            ///< Should this model cast shadows?

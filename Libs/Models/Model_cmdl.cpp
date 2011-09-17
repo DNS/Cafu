@@ -231,6 +231,7 @@ CafuModelT::CafuModelT(ModelLoaderT& Loader)
 
     // Have the model loader load the model file.
     Loader.Load(m_Joints, m_Meshes, m_Anims, m_MaterialMan);
+    Loader.Load(m_Skins, m_MaterialMan);
     Loader.Load(m_GuiFixtures, m_GuiLocs);
     Loader.Postprocess(m_Meshes);
 
@@ -239,13 +240,30 @@ CafuModelT::CafuModelT(ModelLoaderT& Loader)
 
     InitMeshes();
 
-    // Allocate the render materials.
+    // Allocate the render materials for the meshes (the default skin).
     for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
     {
         MeshT& Mesh=m_Meshes[MeshNr];
 
         assert(Mesh.RenderMaterial==NULL);
         Mesh.RenderMaterial=MatSys::Renderer!=NULL ? MatSys::Renderer->RegisterMaterial(Mesh.Material) : NULL;
+    }
+
+    // Allocate the render materials for the skins.
+    for (unsigned long SkinNr=0; SkinNr<m_Skins.Size(); SkinNr++)
+    {
+        SkinT& Skin=m_Skins[SkinNr];
+
+        assert(Skin.Materials.Size()==m_Meshes.Size());
+        assert(Skin.Materials.Size()==Skin.RenderMaterials.Size());
+
+        for (unsigned long MatNr=0; MatNr<Skin.Materials.Size(); MatNr++)
+        {
+            assert(Skin.RenderMaterials[MatNr]==NULL);
+
+            if (Skin.Materials[MatNr]!=NULL && MatSys::Renderer!=NULL)
+                Skin.RenderMaterials[MatNr]=MatSys::Renderer->RegisterMaterial(Skin.Materials[MatNr]);
+        }
     }
 
     // Allocate the cache space that is needed for drawing.
@@ -265,6 +283,12 @@ CafuModelT::~CafuModelT()
 {
     if (MatSys::Renderer==NULL) return;
 
+    // Free all render materials used in skins.
+    for (unsigned long SkinNr=0; SkinNr<m_Skins.Size(); SkinNr++)
+        for (unsigned long MatNr=0; MatNr<m_Skins[SkinNr].RenderMaterials.Size(); MatNr++)
+            MatSys::Renderer->FreeMaterial(m_Skins[SkinNr].RenderMaterials[MatNr]);
+
+    // Free all render materials used in the meshes (the default skin).
     for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
         MatSys::Renderer->FreeMaterial(m_Meshes[MeshNr].RenderMaterial);
 }
@@ -755,6 +779,32 @@ void CafuModelT::Save(std::ostream& OutStream) const
     OutStream << "}\n";
 
 
+    // *** Write the skins. ***
+    OutStream << "\nSkins=\n{\n";
+
+    for (unsigned long SkinNr=0; SkinNr<m_Skins.Size(); SkinNr++)
+    {
+        const SkinT& Skin=m_Skins[SkinNr];
+
+        OutStream << "\t{\n"
+                  << "\t\tname=\"" << Skin.Name << "\";\n"
+                  << "\t\tmaterials={ ";
+
+        for (unsigned long MatNr=0; MatNr<Skin.Materials.Size(); MatNr++)
+        {
+            OutStream << "\"";
+            if (Skin.Materials[MatNr]!=NULL) OutStream << Skin.Materials[MatNr]->Name;
+            OutStream << "\"";
+            if (MatNr+1 < Skin.Materials.Size()) OutStream << ", ";
+        }
+
+        OutStream << " };\n"
+                  << "\t},\n";
+    }
+
+    OutStream << "}\n";
+
+
     // *** Write the GUI fixtures. ***
     OutStream << "\nGuiFixtures=\n{\n";
 
@@ -1093,7 +1143,41 @@ const ArrayT<MatrixT>& CafuModelT::GetDrawJointMatrices(int SequenceNr, float Fr
 }
 
 
-void CafuModelT::Draw(int SequenceNr, float FrameNr, float /*LodDist*/, const SuperT* Super) const
+const MaterialT* CafuModelT::GetMaterial(unsigned long MeshNr, int SkinNr) const
+{
+    assert(MeshNr<m_Meshes.Size());
+
+    if (SkinNr<0 || SkinNr>=int(m_Skins.Size()))
+        return m_Meshes[MeshNr].Material;
+
+    if (MeshNr>=m_Skins[SkinNr].Materials.Size())
+        return m_Meshes[MeshNr].Material;
+
+    if (!m_Skins[SkinNr].Materials[MeshNr])
+        return m_Meshes[MeshNr].Material;
+
+    return m_Skins[SkinNr].Materials[MeshNr];
+}
+
+
+MatSys::RenderMaterialT* CafuModelT::GetRenderMaterial(unsigned long MeshNr, int SkinNr) const
+{
+    assert(MeshNr<m_Meshes.Size());
+
+    if (SkinNr<0 || SkinNr>=int(m_Skins.Size()))
+        return m_Meshes[MeshNr].RenderMaterial;
+
+    if (MeshNr>=m_Skins[SkinNr].RenderMaterials.Size())
+        return m_Meshes[MeshNr].RenderMaterial;
+
+    if (!m_Skins[SkinNr].RenderMaterials[MeshNr])
+        return m_Meshes[MeshNr].RenderMaterial;
+
+    return m_Skins[SkinNr].RenderMaterials[MeshNr];
+}
+
+
+void CafuModelT::Draw(int SequenceNr, float FrameNr, int SkinNr, float /*LodDist*/, const SuperT* Super) const
 {
     // SequenceNr==-1 means "use the bind pose from the model file only (no anim)".
     if (SequenceNr>=int(m_Anims.Size())) SequenceNr=-1;
@@ -1171,7 +1255,7 @@ void CafuModelT::Draw(int SequenceNr, float FrameNr, float /*LodDist*/, const Su
         {
             for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
             {
-                MatSys::Renderer->SetCurrentMaterial(m_Meshes[MeshNr].RenderMaterial);
+                MatSys::Renderer->SetCurrentMaterial(GetRenderMaterial(MeshNr, SkinNr));
                 MatSys::Renderer->RenderMesh(m_Draw_Meshes[MeshNr]);
 
 #if 0
@@ -1230,7 +1314,7 @@ void CafuModelT::Draw(int SequenceNr, float FrameNr, float /*LodDist*/, const Su
         {
             for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
             {
-                MatSys::Renderer->SetCurrentMaterial(m_Meshes[MeshNr].RenderMaterial);
+                MatSys::Renderer->SetCurrentMaterial(GetRenderMaterial(MeshNr, SkinNr));
                 MatSys::Renderer->RenderMesh(m_Draw_Meshes[MeshNr]);
             }
             break;
@@ -1242,9 +1326,10 @@ void CafuModelT::Draw(int SequenceNr, float FrameNr, float /*LodDist*/, const Su
 
             for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
             {
-                const MeshT& Mesh=m_Meshes[MeshNr];
+                const MeshT&     Mesh   =m_Meshes[MeshNr];
+                const MaterialT* MeshMat=GetMaterial(MeshNr, SkinNr);
 
-                if (Mesh.Material==NULL || Mesh.Material->NoShadows) continue;
+                if (MeshMat==NULL || MeshMat->NoShadows) continue;
 
                 static ArrayT<bool> TriangleIsFrontFacing;
                 if (TriangleIsFrontFacing.Size()<Mesh.Triangles.Size())
@@ -1342,7 +1427,7 @@ void CafuModelT::Draw(int SequenceNr, float FrameNr, float /*LodDist*/, const Su
 
 void CafuModelT::Draw(int SequenceNr, float FrameNr, float LodDist, const ModelT* /*SubModel*/) const
 {
-    Draw(SequenceNr, FrameNr, LodDist, (SuperT*)NULL);
+    Draw(SequenceNr, FrameNr, -1 /*default skin*/, LodDist, (SuperT*)NULL);
 }
 
 
@@ -1417,7 +1502,7 @@ BoundingBox3fT CafuModelT::GetBB(int SequenceNr, float FrameNr) const
 }
 
 
-bool CafuModelT::TraceRay(int SequenceNr, float FrameNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, TraceResultT& Result) const
+bool CafuModelT::TraceRay(int SequenceNr, float FrameNr, int SkinNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, TraceResultT& Result) const
 {
     float Fraction=0.0f;
 
@@ -1429,11 +1514,12 @@ bool CafuModelT::TraceRay(int SequenceNr, float FrameNr, const Vector3fT& RayOri
 
     for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
     {
-        const MeshT& Mesh=m_Meshes[MeshNr];
+        const MeshT&     Mesh   =m_Meshes[MeshNr];
+        const MaterialT* MeshMat=GetMaterial(MeshNr, SkinNr);
 
         // If the ClipFlags don't match the ClipMask, this polygon doesn't interfere with the trace.
-        if (!Mesh.Material) continue;
-        // if ((Mesh.Material->ClipFlags & ClipMask)==0) continue;
+        if (!MeshMat) continue;
+        // if ((MeshMat->ClipFlags & ClipMask)==0) continue;
 
         for (unsigned long TriNr=0; TriNr<Mesh.Triangles.Size(); TriNr++)
         {
@@ -1451,7 +1537,7 @@ bool CafuModelT::TraceRay(int SequenceNr, float FrameNr, const Vector3fT& RayOri
             // We use Pluecker coordinates for the orientation tests.
             // Note that Christer Ericson has shown in his blog at http://realtimecollisiondetection.net/blog/?p=13
             // that scalar triple products (Spatprodukte) are equivalent and could be used as well.  ;-)
-            if (!Mesh.Material->TwoSided)
+            if (!MeshMat->TwoSided)
             {
                 if (R*PlueckerfT::CreateFromLine(A, B) >= 0) continue;
                 if (R*PlueckerfT::CreateFromLine(B, C) >= 0) continue;
@@ -1473,7 +1559,7 @@ bool CafuModelT::TraceRay(int SequenceNr, float FrameNr, const Vector3fT& RayOri
             const float Nenner=dot(Tri.Draw_Normal, RayDir);
 
             if (Nenner==0) continue;                            // If Nenner==0, then RayDir is parallel to the triangle plane (no intersection).
-            assert(Mesh.Material->TwoSided || Nenner<0);        // If material is single sided, then Nenner<0, a consequence of the Pluecker tests above.
+            assert(MeshMat->TwoSided || Nenner<0);              // If the material is single sided, then Nenner<0, a consequence of the Pluecker tests above.
 
             const float Dist=dot(Tri.Draw_Normal, RayOrigin-A); // The distance of RayOrigin to the triangle plane.
             const float F   =-(Dist-0.03125f)/Nenner;
@@ -1484,7 +1570,7 @@ bool CafuModelT::TraceRay(int SequenceNr, float FrameNr, const Vector3fT& RayOri
             // Hit the triangle!
             Result.Fraction=F;
             Result.Normal  =(Nenner<0) ? Tri.Draw_Normal : -Tri.Draw_Normal;    // Handle two-sided materials properly.
-            Result.Material=Mesh.Material;
+            Result.Material=MeshMat;
             Result.MeshNr  =MeshNr;
             Result.TriNr   =TriNr;
             return true;

@@ -1574,7 +1574,7 @@ BoundingBox3fT ModelMdlT::GetBB(int SequenceNr, float /*FrameNr*/) const
 } */
 
 
-bool ModelMdlT::TraceRay(int SequenceNr, float FrameNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, TraceResultT& Result) const
+bool ModelMdlT::TraceRay(int SequenceNr, float FrameNr, int SkinNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, TraceResultT& Result) const
 {
     return false;
 }

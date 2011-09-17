@@ -392,6 +392,56 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Me
 }
 
 
+void LoaderCafuT::Load(ArrayT<CafuModelT::SkinT>& Skins, const MaterialManagerImplT& MaterialMan)
+{
+    // Read the skins.
+    lua_getglobal(m_LuaState, "Skins");
+    {
+        Skins.Overwrite();
+        Skins.PushBackEmptyExact(lua_objlen_ul(m_LuaState, -1));
+
+        for (unsigned long SkinNr=0; SkinNr<Skins.Size(); SkinNr++)
+        {
+            CafuModelT::SkinT& Skin=Skins[SkinNr];
+
+            lua_rawgeti(m_LuaState, -1, SkinNr+1);
+            {
+                lua_getfield(m_LuaState, -1, "name");
+                {
+                    const char* Name=lua_tostring(m_LuaState, -1);
+                    Skin.Name=Name ? Name : "Skin";
+                }
+                lua_pop(m_LuaState, 1);
+
+                lua_getfield(m_LuaState, -1, "materials");
+                {
+                    const unsigned long NumMats=lua_objlen_ul(m_LuaState, -1);
+
+                    Skin.Materials.PushBackEmptyExact(NumMats);
+                    Skin.RenderMaterials.PushBackEmptyExact(NumMats);
+
+                    for (unsigned int c=0; c<NumMats; c++)
+                    {
+                        lua_rawgeti(m_LuaState, -1, c+1);
+                        {
+                            const char*       s=lua_tostring(m_LuaState, -1);
+                            const std::string MatName=s ? s : "";
+
+                            Skin.Materials[c]      =(s!="") ? MaterialMan.GetMaterial(MatName) : NULL;
+                            Skin.RenderMaterials[c]=NULL;
+                        }
+                        lua_pop(m_LuaState, 1);
+                    }
+                }
+                lua_pop(m_LuaState, 1);
+            }
+            lua_pop(m_LuaState, 1);
+        }
+    }
+    lua_pop(m_LuaState, 1);
+}
+
+
 void LoaderCafuT::Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures, ArrayT<CafuModelT::GuiLocT>& GuiLocs)
 {
     // Read the GUI fixtures.

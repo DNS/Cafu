@@ -43,11 +43,11 @@ class ModelT
         /// The constructor.
         TraceResultT(float Fraction_=0.0f) : Fraction(Fraction_), Material(NULL), MeshNr(-1), TriNr(-1) { }
 
-        float        Fraction;  ///< The scalar along RayDir at which the hit occurred (RayOrigin + RayDir*Fraction).
-        Vector3fT    Normal;    ///< This is the normal vector of the hit surface.
-        MaterialT*   Material;  ///< The material at the point of impact. Can be NULL, e.g. when an edge (i.e. a bevel plane) was hit or the material is not available.
-        unsigned int MeshNr;    ///< The number of the hit mesh. Can be -1 (that is, \emph{larger} then the number of meshes in the model) if the hit mesh cannot be determined.
-        unsigned int TriNr;     ///< The number of the hit triangle in the hit mesh. Can be -1 (that is, \emph{larger} then the number of triangles in the mesh) if the hit triangle cannot be determined.
+        float            Fraction;  ///< The scalar along RayDir at which the hit occurred (RayOrigin + RayDir*Fraction).
+        Vector3fT        Normal;    ///< This is the normal vector of the hit surface.
+        const MaterialT* Material;  ///< The material at the point of impact. Can be NULL, e.g. when an edge (i.e. a bevel plane) was hit or the material is not available.
+        unsigned int     MeshNr;    ///< The number of the hit mesh. Can be -1 (that is, \emph{larger} then the number of meshes in the model) if the hit mesh cannot be determined.
+        unsigned int     TriNr;     ///< The number of the hit triangle in the hit mesh. Can be -1 (that is, \emph{larger} then the number of triangles in the mesh) if the hit triangle cannot be determined.
     };
 
     /// A class for throwing exceptions on load errors.
@@ -97,12 +97,13 @@ class ModelT
     ///
     /// @param SequenceNr  The animation sequence at which the ray should be traced.
     /// @param FrameNr     The animation frame at which the ray should be traced.
+    /// @param SkinNr      The skin to use for the trace, use -1 for the default skin.
     /// @param RayOrigin   The point in model space where the ray starts.
     /// @param RayDir      A unit vector in model space that describes the direction the ray extends to.
     /// @param Result      If the model was hit, this struct contains additional details of the hit.
     ///
     /// @returns true if the ray hit the model, false otherwise. When the model was hit, additional details are returned via the Result parameter.
-    virtual bool TraceRay(int SequenceNr, float FrameNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, TraceResultT& Result) const=0;
+    virtual bool TraceRay(int SequenceNr, float FrameNr, int SkinNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, TraceResultT& Result) const=0;
 
     // Returns the number of frames of sequence SequenceNr. Useful for non-repeating (e.g. death) sequences.
  // virtual float GetNrOfFrames(int SequenceNr) const=0;

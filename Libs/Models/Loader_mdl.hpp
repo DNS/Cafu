@@ -45,19 +45,21 @@ class LoaderHL1mdlT : public ModelLoaderT
 
     bool UseGivenTS() const;
     void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan);
+    void Load(ArrayT<CafuModelT::SkinT>& Skins, const MaterialManagerImplT& MaterialMan);
     void Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures, ArrayT<CafuModelT::GuiLocT>& GuiLocs) { }
 
 
     private:
 
     void Load(ArrayT<CafuModelT::JointT>& Joints) const;
-    void Load(ArrayT<CafuModelT::MeshT>& Meshes) const;
+    void Load(ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<int>& MeshSkinRef) const;
     void Load(ArrayT<CafuModelT::AnimT>& Anims) const;
 
     ArrayT<char>           ModelData;       ///< Basic model data.
     ArrayT<char>           TextureData;     ///< Texture data (if not already present in ModelData).
     ArrayT< ArrayT<char> > AnimationData;   ///< Animation data ("demand loaded sequences").
     ArrayT<MaterialT*>     m_Materials;     ///< The MatSys materials used in the model.
+    ArrayT<int>            m_MeshSkinRef;   ///< For each mesh, the original StudioMeshT::SkinRef number.
 
     // Convenient abbreviations into the above data arrays.
     const StudioHeaderT*         StudioHeader;

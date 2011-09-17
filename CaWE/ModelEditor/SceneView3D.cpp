@@ -103,7 +103,7 @@ Vector3fT ModelEditor::SceneView3DT::TraceCameraRay(const wxPoint& RefPtWin, Mod
     const ArrayT<unsigned int>&       AnimSel=m_Parent->GetModelDoc()->GetSelection(ANIM);
     ModelT::TraceResultT Result;
 
-    if (m_Parent->GetModelDoc()->GetModel()->TraceRay(AnimSel.Size()==0 ? -1 : AnimSel[0], Anim.FrameNr, RayOrigin, RayDir, Result) && Result.Fraction<BestFraction)
+    if (m_Parent->GetModelDoc()->GetModel()->TraceRay(AnimSel.Size()==0 ? -1 : AnimSel[0], Anim.FrameNr, -1 /*SkinNr*/, RayOrigin, RayDir, Result) && Result.Fraction<BestFraction)
     {
         BestFraction=Result.Fraction;
         BestPos     =RayOrigin + RayDir*Result.Fraction;
@@ -387,7 +387,7 @@ void ModelEditor::SceneView3DT::RenderPass() const
 
     if (ScenePropGrid->m_Model_ShowMesh)
     {
-        Model->Draw(SequNr, Anim.FrameNr, 0.0f /*LodDist*/, (CafuModelT::SuperT*)NULL);
+        Model->Draw(SequNr, Anim.FrameNr, -1 /*SkinNr*/, 0.0f /*LodDist*/, (CafuModelT::SuperT*)NULL);
 
         for (unsigned long SmNr=0; SmNr<ModelDoc->GetSubmodels().Size(); SmNr++)
         {
@@ -396,7 +396,7 @@ void ModelEditor::SceneView3DT::RenderPass() const
                 Model->GetDrawJointMatrices(SequNr, Anim.FrameNr),
                 SM->GetJointsMap());
 
-            SM->GetSubmodel()->Draw(0, 0.0f, 0.0f /*LodDist*/, &Super);
+            SM->GetSubmodel()->Draw(0, 0.0f, -1 /*SkinNr*/, 0.0f /*LodDist*/, &Super);
         }
     }
 
