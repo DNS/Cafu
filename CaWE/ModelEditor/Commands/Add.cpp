@@ -130,6 +130,12 @@ wxString CommandAddT::GetName() const
         case MESH:  break;
         case ANIM:  break;
 
+        case SKIN:
+        {
+            Name=(m_Skins.Size()==1) ? wxString("Add skin") : wxString::Format("Add %lu skins", m_Skins.Size());
+            break;
+        }
+
         case GFIX:
         {
             const unsigned long Num=m_GuiFixtures.Size();

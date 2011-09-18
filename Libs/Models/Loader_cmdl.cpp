@@ -427,7 +427,7 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::SkinT>& Skins, const MaterialManagerIm
                             const char*       s=lua_tostring(m_LuaState, -1);
                             const std::string MatName=s ? s : "";
 
-                            Skin.Materials[c]      =(s!="") ? MaterialMan.GetMaterial(MatName) : NULL;
+                            Skin.Materials[c]      =(MatName!="") ? MaterialMan.GetMaterial(MatName) : NULL;
                             Skin.RenderMaterials[c]=NULL;
                         }
                         lua_pop(m_LuaState, 1);
