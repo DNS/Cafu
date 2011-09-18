@@ -78,6 +78,7 @@ ElementsListT::~ElementsListT()
 void ElementsListT::Notify_SelectionChanged(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel)
 {
     if (m_IsRecursiveSelfNotify) return;
+    if (m_TYPE==MESH && Type==SKIN) { InitListItems(); return; }
     if (Type!=m_TYPE) return;
 
     m_IsRecursiveSelfNotify=true;
@@ -130,6 +131,18 @@ void ElementsListT::Notify_AnimChanged(SubjectT* Subject, unsigned int AnimNr)
 }
 
 
+void ElementsListT::Notify_SkinChanged(SubjectT* Subject, unsigned int SkinNr)
+{
+    if (m_IsRecursiveSelfNotify) return;
+
+    // Update the list of meshes also when a skin changed, as with each
+    // mesh we display the used material in the currently selected skin.
+    if (m_TYPE!=MESH) return;
+
+    InitListItems();
+}
+
+
 void ElementsListT::Notify_GuiFixtureChanged(SubjectT* Subject, unsigned int GuiFixtureNr)
 {
     if (m_IsRecursiveSelfNotify) return;
@@ -163,15 +176,25 @@ void ElementsListT::InitListItems()
             break;
 
         case MESH:
+        {
+            wxListItem Col;
+
+            GetColumn(2, Col);
+            Col.SetText(wxString::Format("Material (%s)", m_ModelDoc->GetSelSkinString()));
+            SetColumn(2, Col);
+
             for (unsigned long ElemNr=0; ElemNr<m_ModelDoc->GetModel()->GetMeshes().Size(); ElemNr++)
             {
+                const MaterialT* Mat=m_ModelDoc->GetModel()->GetMaterial(ElemNr, m_ModelDoc->GetSelSkinNr());
+
                 InsertItem(ElemNr, m_ModelDoc->GetModel()->GetMeshes()[ElemNr].Name);
                 SetItem(ElemNr, 1, wxString::Format("%lu", ElemNr));
-                SetItem(ElemNr, 2, m_ModelDoc->GetModel()->GetMeshes()[ElemNr].Material->Name);
+                SetItem(ElemNr, 2, Mat ? Mat->Name : "<NULL>");
 
                 if (Sel.Find(ElemNr)!=-1) Select(ElemNr);
             }
             break;
+        }
 
         case ANIM:
             for (unsigned long ElemNr=0; ElemNr<m_ModelDoc->GetModel()->GetAnims().Size(); ElemNr++)
@@ -181,6 +204,10 @@ void ElementsListT::InitListItems()
 
                 if (Sel.Find(ElemNr)!=-1) Select(ElemNr);
             }
+            break;
+
+        case SKIN:
+            wxASSERT(false);
             break;
 
         case GFIX:

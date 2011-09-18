@@ -43,6 +43,7 @@ namespace ModelEditor
     class ModelDocumentT;
     class ScenePropGridT;
     class SceneView3DT;
+    class SkinsPanelT;
     class SubmodelsPanelT;
     class TransformDialogT;
 
@@ -78,7 +79,7 @@ namespace ModelEditor
         const ModelElementTypeT GetLastUsedType() const { return m_LastUsedType; }
 
         /// Sets the type of the most recently used (clicked) model element.
-        void SetLastUsedType(ModelElementTypeT Type) { wxASSERT(Type<4); m_LastUsedType=Type; }
+        void SetLastUsedType(ModelElementTypeT Type) { wxASSERT(Type<5); m_LastUsedType=Type; }
 
         ModelDocumentT* GetModelDoc() const { return m_ModelDoc; }
         ScenePropGridT* GetScenePropGrid() const { return m_ScenePropGrid; }
@@ -108,6 +109,7 @@ namespace ModelEditor
         MeshInspectorT*    m_MeshInspector;
         ElementsPanelT*    m_AnimsList;
         AnimInspectorT*    m_AnimInspector;
+        SkinsPanelT*       m_SkinsList;
         ElementsPanelT*    m_GuiFixturesList;
         GuiFixInspectorT*  m_GuiFixtureInspector;
         ScenePropGridT*    m_ScenePropGrid;
@@ -131,6 +133,7 @@ namespace ModelEditor
             ID_MENU_VIEW_AUIPANE_MESH_INSPECTOR,
             ID_MENU_VIEW_AUIPANE_ANIMS_LIST,
             ID_MENU_VIEW_AUIPANE_ANIM_INSPECTOR,
+            ID_MENU_VIEW_AUIPANE_SKINS_LIST,
             ID_MENU_VIEW_AUIPANE_GUIFIXTURES_LIST,
             ID_MENU_VIEW_AUIPANE_GUIFIXTURE_INSPECTOR,
             ID_MENU_VIEW_AUIPANE_SCENE_SETUP,

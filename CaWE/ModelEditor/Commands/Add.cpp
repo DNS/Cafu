@@ -26,13 +26,18 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace ModelEditor;
 
 
+CommandAddT::CommandAddT(ModelDocumentT* ModelDoc, const CafuModelT::SkinT& Skin)
+    : m_ModelDoc(ModelDoc),
+      m_Type(SKIN),
+      m_Skins()
+{
+    m_Skins.PushBack(Skin);
+}
+
+
 CommandAddT::CommandAddT(ModelDocumentT* ModelDoc, const ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures)
     : m_ModelDoc(ModelDoc),
       m_Type(GFIX),
-   // m_Joints(),
-   // m_Meshes(),
-   // m_DrawMs(),
-   // m_Anims(),
       m_GuiFixtures(GuiFixtures)
 {
 }
@@ -45,10 +50,26 @@ bool CommandAddT::Do()
 
     ArrayT<unsigned int> Indices;
 
-    for (unsigned long GFixNr=0; GFixNr<m_GuiFixtures.Size(); GFixNr++)
+    switch (m_Type)
     {
-        Indices.PushBack(m_ModelDoc->GetModel()->m_GuiFixtures.Size());
-        m_ModelDoc->GetModel()->m_GuiFixtures.PushBack(m_GuiFixtures[GFixNr]);
+        case SKIN:
+            for (unsigned long SkinNr=0; SkinNr<m_Skins.Size(); SkinNr++)
+            {
+                Indices.PushBack(m_ModelDoc->GetModel()->m_Skins.Size());
+                m_ModelDoc->GetModel()->m_Skins.PushBack(m_Skins[SkinNr]);
+            }
+            break;
+
+        case GFIX:
+            for (unsigned long GFixNr=0; GFixNr<m_GuiFixtures.Size(); GFixNr++)
+            {
+                Indices.PushBack(m_ModelDoc->GetModel()->m_GuiFixtures.Size());
+                m_ModelDoc->GetModel()->m_GuiFixtures.PushBack(m_GuiFixtures[GFixNr]);
+            }
+            break;
+
+        default:
+            break;
     }
 
     // Make sure that the draw cache is refreshed.
@@ -68,10 +89,26 @@ void CommandAddT::Undo()
 
     ArrayT<unsigned int> Indices;
 
-    for (unsigned long GFixNr=0; GFixNr<m_GuiFixtures.Size(); GFixNr++)
+    switch (m_Type)
     {
-        m_ModelDoc->GetModel()->m_GuiFixtures.DeleteBack();
-        Indices.InsertAt(0, m_ModelDoc->GetModel()->m_GuiFixtures.Size());
+        case SKIN:
+            for (unsigned long SkinNr=0; SkinNr<m_Skins.Size(); SkinNr++)
+            {
+                m_ModelDoc->GetModel()->m_Skins.DeleteBack();
+                Indices.InsertAt(0, m_ModelDoc->GetModel()->m_Skins.Size());
+            }
+            break;
+
+        case GFIX:
+            for (unsigned long GFixNr=0; GFixNr<m_GuiFixtures.Size(); GFixNr++)
+            {
+                m_ModelDoc->GetModel()->m_GuiFixtures.DeleteBack();
+                Indices.InsertAt(0, m_ModelDoc->GetModel()->m_GuiFixtures.Size());
+            }
+            break;
+
+        default:
+            break;
     }
 
     // Make sure that the draw cache is refreshed.

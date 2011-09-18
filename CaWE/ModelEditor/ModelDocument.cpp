@@ -109,9 +109,24 @@ ModelEditor::ModelDocumentT::~ModelDocumentT()
 }
 
 
+int ModelEditor::ModelDocumentT::GetSelSkinNr() const
+{
+    return m_Selection[SKIN].Size()==0 ? -1 : m_Selection[SKIN][0];
+}
+
+
+wxString ModelEditor::ModelDocumentT::GetSelSkinString() const
+{
+    if (m_Selection[SKIN].Size()==0)
+        return "default skin";
+
+    return wxString::Format("skin %u: \"%s\"", m_Selection[SKIN][0], m_Model->GetSkins()[m_Selection[SKIN][0]].Name);
+}
+
+
 void ModelEditor::ModelDocumentT::SetSelection(ModelElementTypeT Type, const ArrayT<unsigned int>& NewSel)
 {
-    wxASSERT(Type<4);
+    wxASSERT(Type<5);
     m_Selection[Type]=NewSel;
 
     if (Type==ANIM)

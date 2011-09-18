@@ -62,9 +62,9 @@ CommandDeleteT::CommandDeleteT(ModelDocumentT* ModelDoc, ModelElementTypeT Type,
       m_Type(Type),
       m_Indices(GetSorted(Indices)),
       m_Joints(),
-      m_Meshes(),
-      m_DrawMs(),
+      m_MeshInfos(),
       m_Anims(),
+      m_Skins(),
       m_GuiFixtures(),
       m_Message(),
       m_CommandSelect(CommandSelectT::Remove(m_ModelDoc, m_Type, m_Indices))
@@ -75,11 +75,26 @@ CommandDeleteT::CommandDeleteT(ModelDocumentT* ModelDoc, ModelElementTypeT Type,
 
         switch (m_Type)
         {
-            case JOINT: m_Joints     .PushBack(m_ModelDoc->GetModel()->GetJoints()[i]); break;
-            case MESH:  m_Meshes     .PushBack(m_ModelDoc->GetModel()->GetMeshes()[i]);
-                        m_DrawMs     .PushBack(m_ModelDoc->GetModel()->m_Draw_Meshes[i]); break;
-            case ANIM:  m_Anims      .PushBack(m_ModelDoc->GetModel()->GetAnims()[i]); break;
+            case JOINT: m_Joints     .PushBack(m_ModelDoc->GetModel()->GetJoints()     [i]); break;
+            case ANIM:  m_Anims      .PushBack(m_ModelDoc->GetModel()->GetAnims()      [i]); break;
+            case SKIN:  m_Skins      .PushBack(m_ModelDoc->GetModel()->GetSkins()      [i]); break;
             case GFIX:  m_GuiFixtures.PushBack(m_ModelDoc->GetModel()->GetGuiFixtures()[i]); break;
+            case MESH:
+            {
+                wxASSERT(m_MeshInfos.Size() == INr);
+                m_MeshInfos.PushBackEmpty();
+                MeshInfoT& MI=m_MeshInfos[m_MeshInfos.Size()-1];
+
+                MI.Mesh    =m_ModelDoc->GetModel()->GetMeshes()[i];
+                MI.DrawMesh=m_ModelDoc->GetModel()->m_Draw_Meshes[i];
+
+                for (unsigned long SkinNr=0; SkinNr<m_ModelDoc->GetModel()->GetSkins().Size(); SkinNr++)
+                {
+                    MI.SkinsMaterials      .PushBack(m_ModelDoc->GetModel()->GetSkins()[SkinNr].Materials[i]);
+                    MI.SkinsRenderMaterials.PushBack(m_ModelDoc->GetModel()->GetSkins()[SkinNr].RenderMaterials[i]);
+                }
+                break;
+            }
         }
     }
 }
@@ -89,10 +104,27 @@ CommandDeleteT::~CommandDeleteT()
 {
     if (m_Done && MatSys::Renderer!=NULL)
     {
-        for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
+        for (unsigned long MeshInfoNr=0; MeshInfoNr<m_MeshInfos.Size(); MeshInfoNr++)
         {
-            MatSys::Renderer->FreeMaterial(m_Meshes[MeshNr].RenderMaterial);
-            m_Meshes[MeshNr].RenderMaterial=NULL;
+            MeshInfoT& MI=m_MeshInfos[MeshInfoNr];
+
+            MatSys::Renderer->FreeMaterial(MI.Mesh.RenderMaterial);
+            MI.Mesh.RenderMaterial=NULL;
+
+            for (unsigned long SkinNr=0; SkinNr<MI.SkinsRenderMaterials.Size(); SkinNr++)
+            {
+                MatSys::Renderer->FreeMaterial(MI.SkinsRenderMaterials[SkinNr]);
+                MI.SkinsRenderMaterials[SkinNr]=NULL;
+            }
+        }
+
+        for (unsigned long SkinNr=0; SkinNr<m_Skins.Size(); SkinNr++)
+        {
+            for (unsigned long MatNr=0; MatNr<m_Skins[SkinNr].RenderMaterials.Size(); MatNr++)
+            {
+                MatSys::Renderer->FreeMaterial(m_Skins[SkinNr].RenderMaterials[MatNr]);
+                m_Skins[SkinNr].RenderMaterials[MatNr]=NULL;
+            }
         }
     }
 
@@ -126,7 +158,7 @@ bool CommandDeleteT::Do()
             for (unsigned int PointNr=0; PointNr<3; PointNr++)
                 if (m_Indices.Find(m_ModelDoc->GetModel()->GetGuiFixtures()[GFixNr].Points[PointNr].MeshNr)>=0)
                 {
-                    m_Message="There are still GUI fixtures referring to the selected mesh(es). Please delete the GUI fixtures first, then delete the meshes.";
+                    m_Message="There are still GUI fixtures referring to the selected mesh(es). Delete the GUI fixtures first, then delete the meshes.";
                     return false;
                 }
     }
@@ -141,10 +173,21 @@ bool CommandDeleteT::Do()
         switch (m_Type)
         {
             case JOINT: m_ModelDoc->GetModel()->m_Joints     .RemoveAtAndKeepOrder(i); break;
-            case MESH:  m_ModelDoc->GetModel()->m_Meshes     .RemoveAtAndKeepOrder(i);
-                        m_ModelDoc->GetModel()->m_Draw_Meshes.RemoveAtAndKeepOrder(i); break;
             case ANIM:  m_ModelDoc->GetModel()->m_Anims      .RemoveAtAndKeepOrder(i); break;
+            case SKIN:  m_ModelDoc->GetModel()->m_Skins      .RemoveAtAndKeepOrder(i); break;
             case GFIX:  m_ModelDoc->GetModel()->m_GuiFixtures.RemoveAtAndKeepOrder(i); break;
+            case MESH:
+            {
+                m_ModelDoc->GetModel()->m_Meshes     .RemoveAtAndKeepOrder(i);
+                m_ModelDoc->GetModel()->m_Draw_Meshes.RemoveAtAndKeepOrder(i);
+
+                for (unsigned long SkinNr=0; SkinNr<m_ModelDoc->GetModel()->GetSkins().Size(); SkinNr++)
+                {
+                    m_ModelDoc->GetModel()->m_Skins[SkinNr].Materials      .RemoveAtAndKeepOrder(i);
+                    m_ModelDoc->GetModel()->m_Skins[SkinNr].RenderMaterials.RemoveAtAndKeepOrder(i);
+                }
+                break;
+            }
         }
     }
 
@@ -170,10 +213,23 @@ void CommandDeleteT::Undo()
         switch (m_Type)
         {
             case JOINT: m_ModelDoc->GetModel()->m_Joints     .InsertAt(i, m_Joints     [INr]); break;
-            case MESH:  m_ModelDoc->GetModel()->m_Meshes     .InsertAt(i, m_Meshes     [INr]);
-                        m_ModelDoc->GetModel()->m_Draw_Meshes.InsertAt(i, m_DrawMs     [INr]); break;
             case ANIM:  m_ModelDoc->GetModel()->m_Anims      .InsertAt(i, m_Anims      [INr]); break;
+            case SKIN:  m_ModelDoc->GetModel()->m_Skins      .InsertAt(i, m_Skins      [INr]); break;
             case GFIX:  m_ModelDoc->GetModel()->m_GuiFixtures.InsertAt(i, m_GuiFixtures[INr]); break;
+            case MESH:
+            {
+                const MeshInfoT& MI=m_MeshInfos[INr];
+
+                m_ModelDoc->GetModel()->m_Meshes     .InsertAt(i, MI.Mesh);
+                m_ModelDoc->GetModel()->m_Draw_Meshes.InsertAt(i, MI.DrawMesh);
+
+                for (unsigned long SkinNr=0; SkinNr<m_ModelDoc->GetModel()->GetSkins().Size(); SkinNr++)
+                {
+                    m_ModelDoc->GetModel()->m_Skins[SkinNr].Materials      .InsertAt(i, MI.SkinsMaterials[SkinNr]);
+                    m_ModelDoc->GetModel()->m_Skins[SkinNr].RenderMaterials.InsertAt(i, MI.SkinsRenderMaterials[SkinNr]);
+                }
+                break;
+            }
         }
     }
 
@@ -198,6 +254,7 @@ wxString CommandDeleteT::GetName() const
         case JOINT: Name+=(m_Indices.Size()==1) ? "joint"       : "joints";       break;
         case MESH:  Name+=(m_Indices.Size()==1) ? "mesh"        : "meshes";       break;
         case ANIM:  Name+=(m_Indices.Size()==1) ? "animation"   : "animations";   break;
+        case SKIN:  Name+=(m_Indices.Size()==1) ? "skin"        : "skins";        break;
         case GFIX:  Name+=(m_Indices.Size()==1) ? "GUI fixture" : "GUI fixtures"; break;
     }
 

@@ -540,6 +540,8 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::SkinT>& Skins, const MaterialManager
         const short*       SkinRefs=((short*)((char*)StudioTextureHeader+StudioTextureHeader->SkinIndex)) + SkinNr*StudioTextureHeader->NumSkinRef;
         CafuModelT::SkinT& Skin    =Skins[SkinNr-1];
 
+        Skin.Name="Skin";
+
         for (unsigned long MeshNr=0; MeshNr<m_MeshSkinRef.Size(); MeshNr++)
         {
             const int msr=m_MeshSkinRef[MeshNr];

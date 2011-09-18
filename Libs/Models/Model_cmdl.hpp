@@ -267,6 +267,9 @@ class CafuModelT : public ModelT
     /// Determines if <tt>GF.Points[PointNr].VertexNr</tt> is a valid index into this model.
     bool IsVertexNrOK(const GuiFixtureT& GF, unsigned int PointNr) const;
 
+    /// Returns the proper material for the given mesh in the given skin.
+    const MaterialT* GetMaterial(unsigned long MeshNr, int SkinNr) const;
+
     // The ModelT interface.
     const std::string& GetFileName() const;     // TODO: Remove!?!
     void               Draw(int SequenceNr, float FrameNr, float LodDist, const ModelT* SubModel=NULL) const;
@@ -296,7 +299,6 @@ class CafuModelT : public ModelT
     void RecomputeBindPoseBB();                                                             ///< Recomputes the bounding box for the model in bind pose (stored in m_BindPoseBB).
     void InitMeshes();                                                                      ///< An auxiliary method for the constructors.
     void UpdateCachedDrawData(int SequenceNr, float FrameNr, const SuperT* Super) const;    ///< A private auxiliary method.
-    const MaterialT* GetMaterial(unsigned long MeshNr, int SkinNr) const;                   ///< Returns the proper material for the given mesh in the given skin.
     MatSys::RenderMaterialT* GetRenderMaterial(unsigned long MeshNr, int SkinNr) const;     ///< Returns the proper render material for the given mesh in the given skin.
 
 

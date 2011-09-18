@@ -62,8 +62,9 @@ ModelEditor::SceneView3DT::SceneView3DT(ChildFrameT* Parent)
 
 Vector3fT ModelEditor::SceneView3DT::TraceCameraRay(const wxPoint& RefPtWin, ModelT::TraceResultT& ModelTR) const
 {
-    float     BestFraction=std::numeric_limits<float>::max();
-    Vector3fT BestPos     =GetCamera().Pos;
+    const ModelDocumentT* ModelDoc    =m_Parent->GetModelDoc();
+    float                 BestFraction=std::numeric_limits<float>::max();
+    Vector3fT             BestPos     =GetCamera().Pos;
 
     // Note that our ray does intentionally not start at GetCamera().Pos,
     // but at the point of intersection with the near clipping plane!
@@ -80,7 +81,7 @@ Vector3fT ModelEditor::SceneView3DT::TraceCameraRay(const wxPoint& RefPtWin, Mod
 
     // Include the ground plane in the test only if it is visible - everything else confuses the user!
     if (m_Parent->GetScenePropGrid()->m_GroundPlane_Show)
-        Elems.PushBack(m_Parent->GetModelDoc()->GetGround());
+        Elems.PushBack(ModelDoc->GetGround());
 
     for (unsigned long ElemNr=0; ElemNr<Elems.Size(); ElemNr++)
     {
@@ -99,11 +100,12 @@ Vector3fT ModelEditor::SceneView3DT::TraceCameraRay(const wxPoint& RefPtWin, Mod
     }
 
     // Trace the ray against the model, which is a per-triangle accurate test.
-    const ModelDocumentT::AnimStateT& Anim   =m_Parent->GetModelDoc()->GetAnimState();
-    const ArrayT<unsigned int>&       AnimSel=m_Parent->GetModelDoc()->GetSelection(ANIM);
+    const ModelDocumentT::AnimStateT& Anim   =ModelDoc->GetAnimState();
+    const ArrayT<unsigned int>&       AnimSel=ModelDoc->GetSelection(ANIM);
     ModelT::TraceResultT Result;
 
-    if (m_Parent->GetModelDoc()->GetModel()->TraceRay(AnimSel.Size()==0 ? -1 : AnimSel[0], Anim.FrameNr, -1 /*SkinNr*/, RayOrigin, RayDir, Result) && Result.Fraction<BestFraction)
+    if (ModelDoc->GetModel()->TraceRay(AnimSel.Size()==0 ? -1 : AnimSel[0], Anim.FrameNr,
+        ModelDoc->GetSelSkinNr(), RayOrigin, RayDir, Result) && Result.Fraction<BestFraction)
     {
         BestFraction=Result.Fraction;
         BestPos     =RayOrigin + RayDir*Result.Fraction;
@@ -387,7 +389,7 @@ void ModelEditor::SceneView3DT::RenderPass() const
 
     if (ScenePropGrid->m_Model_ShowMesh)
     {
-        Model->Draw(SequNr, Anim.FrameNr, -1 /*SkinNr*/, 0.0f /*LodDist*/, (CafuModelT::SuperT*)NULL);
+        Model->Draw(SequNr, Anim.FrameNr, ModelDoc->GetSelSkinNr(), 0.0f /*LodDist*/, (CafuModelT::SuperT*)NULL);
 
         for (unsigned long SmNr=0; SmNr<ModelDoc->GetSubmodels().Size(); SmNr++)
         {

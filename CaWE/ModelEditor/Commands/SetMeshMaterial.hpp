@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 class MaterialT;
+namespace MatSys { class RenderMaterialT; }
 
 
 namespace ModelEditor
@@ -36,7 +37,7 @@ namespace ModelEditor
     {
         public:
 
-        CommandSetMeshMaterialT(ModelDocumentT* ModelDoc, unsigned int MeshNr, const wxString& NewName);
+        CommandSetMeshMaterialT(ModelDocumentT* ModelDoc, unsigned int MeshNr, int SkinNr, const wxString& NewName);
 
         // CommandT implementation.
         bool Do();
@@ -46,10 +47,14 @@ namespace ModelEditor
 
         private:
 
-        ModelDocumentT* m_ModelDoc;
-        unsigned int    m_MeshNr;
-        MaterialT*      m_NewMat;
-        MaterialT*      m_OldMat;
+        MaterialT*&               GetMaterial();
+        MatSys::RenderMaterialT*& GetRenderMaterial();
+
+        ModelDocumentT*    m_ModelDoc;
+        const unsigned int m_MeshNr;
+        const int          m_SkinNr;
+        MaterialT*         m_NewMat;
+        MaterialT*         m_OldMat;
     };
 }
 

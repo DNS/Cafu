@@ -100,11 +100,13 @@ void ModelEditor::ScenePropGridT::RefreshPropGrid()
     wxPGProperty* CameraPosX=AppendIn(CameraPos, new wxFloatProperty("x", wxPG_LABEL, Camera.Pos.x)); SetPropertyTextColour(CameraPosX, wxColour(200, 0, 0)); // With wx2.9, change this into: CameraPosX->SetTextColour(wxColour(255, 0, 0));
     wxPGProperty* CameraPosY=AppendIn(CameraPos, new wxFloatProperty("y", wxPG_LABEL, Camera.Pos.y)); SetPropertyTextColour(CameraPosY, wxColour(0, 200, 0));
     wxPGProperty* CameraPosZ=AppendIn(CameraPos, new wxFloatProperty("z", wxPG_LABEL, Camera.Pos.z)); SetPropertyTextColour(CameraPosZ, wxColour(0, 0, 200));
+    Collapse(CameraPos);
 
     wxPGProperty* CameraAngles=AppendIn(CameraCat, new wxStringProperty("Angles", "Camera.Angles", "<composed>"));
     AppendIn(CameraAngles, new wxFloatProperty("Pitch", wxPG_LABEL, Camera.Angles.pitch()));
  // AppendIn(CameraAngles, new wxFloatProperty("Roll", wxPG_LABEL, Camera.Angles.roll()));
     AppendIn(CameraAngles, new wxFloatProperty("Yaw", wxPG_LABEL, Camera.Angles.yaw()));
+    Collapse(CameraAngles);
 
     wxPGProperty* CameraAdvanced=AppendIn(CameraCat, new wxStringProperty("Advanced", "Camera.Advanced", "<composed>"));
     AppendIn(CameraAdvanced, new wxFloatProperty("vertical FOV", wxPG_LABEL, Camera.VerticalFOV));

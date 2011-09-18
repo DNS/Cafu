@@ -30,6 +30,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ModelDocument.hpp"
 #include "SceneView3D.hpp"
 #include "ScenePropGrid.hpp"
+#include "SkinsList.hpp"
 #include "SubmodelsList.hpp"
 #include "TransformDialog.hpp"
 #include "Commands/Add.hpp"
@@ -88,6 +89,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
       m_MeshInspector(NULL),
       m_AnimsList(NULL),
       m_AnimInspector(NULL),
+      m_SkinsList(NULL),
       m_GuiFixturesList(NULL),
       m_GuiFixtureInspector(NULL),
       m_ScenePropGrid(NULL),
@@ -143,6 +145,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_ANIM_INSPECTOR,       "Animation Inspector",   "Show or hide the animation inspector");
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_GUIFIXTURES_LIST,     "GUI Fixtures List",     "Show or hide the GUI fixtures list");
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_GUIFIXTURE_INSPECTOR, "GUI Fixture Inspector", "Show or hide the GUI fixture inspector");
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_SKINS_LIST,           "Skins List",            "Show or hide the skins list");
     ViewMenu->AppendSeparator();
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_SCENE_SETUP,          "Scene Setup",           "Show or hide the scene setup inspector");
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_SUBMODELS_LIST,       "Submodels List",        "Show or hide the submodels list");
@@ -240,6 +243,11 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     m_AUIManager.AddPane(m_SubmodelsPanel, wxAuiPaneInfo().
                          Name("SubmodelsPanel").Caption("Submodels List").
                          Right().Position(1));
+
+    m_SkinsList=new SkinsPanelT(this, wxSize(230, 150));
+    m_AUIManager.AddPane(m_SkinsList, wxAuiPaneInfo().
+                         Name("SkinsList").Caption("Skins List").
+                         Right().Position(2));
 
     m_TransformDialog=new TransformDialogT(this, wxSize(248, 240));
     m_AUIManager.AddPane(m_TransformDialog, wxAuiPaneInfo().
@@ -714,6 +722,7 @@ void ModelEditor::ChildFrameT::OnMenuView(wxCommandEvent& CE)
         case ID_MENU_VIEW_AUIPANE_MESH_INSPECTOR:       PaneToggleShow(m_AUIManager.GetPane(m_MeshInspector      )); break;
         case ID_MENU_VIEW_AUIPANE_ANIMS_LIST:           PaneToggleShow(m_AUIManager.GetPane(m_AnimsList          )); break;
         case ID_MENU_VIEW_AUIPANE_ANIM_INSPECTOR:       PaneToggleShow(m_AUIManager.GetPane(m_AnimInspector      )); break;
+        case ID_MENU_VIEW_AUIPANE_SKINS_LIST:           PaneToggleShow(m_AUIManager.GetPane(m_SkinsList          )); break;
         case ID_MENU_VIEW_AUIPANE_GUIFIXTURES_LIST:     PaneToggleShow(m_AUIManager.GetPane(m_GuiFixturesList    )); break;
         case ID_MENU_VIEW_AUIPANE_GUIFIXTURE_INSPECTOR: PaneToggleShow(m_AUIManager.GetPane(m_GuiFixtureInspector)); break;
         case ID_MENU_VIEW_AUIPANE_SCENE_SETUP:          PaneToggleShow(m_AUIManager.GetPane(m_ScenePropGrid      )); break;
@@ -746,6 +755,7 @@ void ModelEditor::ChildFrameT::OnMenuViewUpdate(wxUpdateUIEvent& UE)
         case ID_MENU_VIEW_AUIPANE_MESH_INSPECTOR:       UE.Check(m_AUIManager.GetPane(m_MeshInspector      ).IsShown()); break;
         case ID_MENU_VIEW_AUIPANE_ANIMS_LIST:           UE.Check(m_AUIManager.GetPane(m_AnimsList          ).IsShown()); break;
         case ID_MENU_VIEW_AUIPANE_ANIM_INSPECTOR:       UE.Check(m_AUIManager.GetPane(m_AnimInspector      ).IsShown()); break;
+        case ID_MENU_VIEW_AUIPANE_SKINS_LIST:           UE.Check(m_AUIManager.GetPane(m_SkinsList          ).IsShown()); break;
         case ID_MENU_VIEW_AUIPANE_GUIFIXTURES_LIST:     UE.Check(m_AUIManager.GetPane(m_GuiFixturesList    ).IsShown()); break;
         case ID_MENU_VIEW_AUIPANE_GUIFIXTURE_INSPECTOR: UE.Check(m_AUIManager.GetPane(m_GuiFixtureInspector).IsShown()); break;
         case ID_MENU_VIEW_AUIPANE_SCENE_SETUP:          UE.Check(m_AUIManager.GetPane(m_ScenePropGrid      ).IsShown()); break;

@@ -78,6 +78,11 @@ namespace ModelEditor
         /// @param AnimNr    The number of the anim sequence that has changed.
         virtual void Notify_AnimChanged(SubjectT* Subject, unsigned int AnimNr) { }
 
+        /// Notifies the observer that a skin has changed.
+        /// @param Subject   The model document with the model in which the skin has changed.
+        /// @param AnimNr    The number of the skin that has changed.
+        virtual void Notify_SkinChanged(SubjectT* Subject, unsigned int SkinNr) { }
+
         /// Notifies the observer that a GUI fixture has changed.
         /// @param Subject        The model document with the model in which the GUI fixture has changed.
         /// @param GuiFixtureNr   The number of the GUI fixture that has changed.
@@ -124,6 +129,7 @@ namespace ModelEditor
         virtual void UpdateAllObservers_JointChanged(unsigned int JointNr);
         virtual void UpdateAllObservers_MeshChanged(unsigned int MeshNr);
         virtual void UpdateAllObservers_AnimChanged(unsigned int AnimNr);
+        virtual void UpdateAllObservers_SkinChanged(unsigned int SkinNr);
         virtual void UpdateAllObservers_GuiFixtureChanged(unsigned int GuiFixtureNr);
         virtual void UpdateAllObservers_AnimStateChanged();
         virtual void UpdateAllObservers_SubmodelsChanged();

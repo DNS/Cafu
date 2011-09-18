@@ -42,6 +42,7 @@ namespace ModelEditor
         // ObserverT implementation.
         void Notify_SelectionChanged(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel);
         void Notify_MeshChanged(SubjectT* Subject, unsigned int MeshNr);
+        void Notify_SkinChanged(SubjectT* Subject, unsigned int SkinNr);
         void Notify_SubjectDies(SubjectT* dyingSubject);
 
 

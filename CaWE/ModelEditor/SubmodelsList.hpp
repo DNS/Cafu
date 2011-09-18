@@ -33,7 +33,7 @@ namespace ModelEditor
     class ModelDocumentT;
 
 
-    /// A control for displaying a list of the elements (meshes or animations) of the model.
+    /// A control for displaying a list of the submodels that are rendered with the model.
     class SubmodelsListT : public wxListView, public ObserverT
     {
         public:

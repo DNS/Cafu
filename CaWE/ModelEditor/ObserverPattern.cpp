@@ -101,6 +101,13 @@ void SubjectT::UpdateAllObservers_AnimChanged(unsigned int AnimNr)
 }
 
 
+void SubjectT::UpdateAllObservers_SkinChanged(unsigned int SkinNr)
+{
+    for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
+        m_Observers[ObsNr]->Notify_SkinChanged(this, SkinNr);
+}
+
+
 void SubjectT::UpdateAllObservers_GuiFixtureChanged(unsigned int GuiFixtureNr)
 {
     for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)

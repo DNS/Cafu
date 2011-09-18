@@ -25,13 +25,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 namespace ModelEditor
 {
-    /// Enumerates the types of the elements that a model is comprised of.
+    /// Enumerates the types of the elements that a model is composed of.
     enum ModelElementTypeT
     {
         JOINT=0,
         MESH =1,
         ANIM =2,
-        GFIX =3
+        SKIN =3,
+        GFIX =4
     };
 }
 

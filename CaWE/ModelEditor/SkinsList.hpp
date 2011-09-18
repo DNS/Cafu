@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MODELEDITOR_ELEMENTS_LIST_HPP_
-#define _MODELEDITOR_ELEMENTS_LIST_HPP_
+#ifndef _MODELEDITOR_SKINS_LIST_HPP_
+#define _MODELEDITOR_SKINS_LIST_HPP_
 
 #include "ObserverPattern.hpp"
 #include "wx/listctrl.h"
@@ -33,25 +33,22 @@ namespace ModelEditor
     class ModelDocumentT;
 
 
-    /// A control for displaying a list of the elements (meshes or animations) of the model.
-    class ElementsListT : public wxListView, public ObserverT
+    /// A control for displaying a list of the skins of the model.
+    class SkinsListT : public wxListView, public ObserverT
     {
         public:
 
         /// The constructor.
-        ElementsListT(ChildFrameT* MainFrame, wxWindow* Parent, const wxSize& Size, ModelElementTypeT Type);
+        SkinsListT(ChildFrameT* MainFrame, wxWindow* Parent, const wxSize& Size);
 
         /// The destructor.
-        ~ElementsListT();
+        ~SkinsListT();
 
         // ObserverT implementation.
         void Notify_SelectionChanged(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel);
         void Notify_Created(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& Indices);
         void Notify_Deleted(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& Indices);
-        void Notify_MeshChanged(SubjectT* Subject, unsigned int MeshNr);
-        void Notify_AnimChanged(SubjectT* Subject, unsigned int AnimNr);
         void Notify_SkinChanged(SubjectT* Subject, unsigned int SkinNr);
-        void Notify_GuiFixtureChanged(SubjectT* Subject, unsigned int GuiFixtureNr);
         void Notify_SubjectDies(SubjectT* dyingSubject);
 
 
@@ -68,18 +65,17 @@ namespace ModelEditor
 
         DECLARE_EVENT_TABLE()
 
-        const ModelElementTypeT m_TYPE;
-        ModelDocumentT*         m_ModelDoc;
-        ChildFrameT*            m_MainFrame;
-        bool                    m_IsRecursiveSelfNotify;
+        ModelDocumentT* m_ModelDoc;
+        ChildFrameT*    m_MainFrame;
+        bool            m_IsRecursiveSelfNotify;
     };
 
 
-    class ElementsPanelT : public wxPanel
+    class SkinsPanelT : public wxPanel
     {
         public:
 
-        ElementsPanelT(ChildFrameT* MainFrame, const wxSize& Size, ModelElementTypeT Type);
+        SkinsPanelT(ChildFrameT* MainFrame, const wxSize& Size);
 
 
         private:
@@ -97,10 +93,9 @@ namespace ModelEditor
         void OnButton(wxCommandEvent& Event);
         void OnButtonUpdate(wxUpdateUIEvent& UE);
 
-        const ModelElementTypeT m_TYPE;
-        ModelDocumentT*         m_ModelDoc;
-        ChildFrameT*            m_MainFrame;
-        ElementsListT*          m_List;
+        ModelDocumentT* m_ModelDoc;
+        ChildFrameT*    m_MainFrame;
+        SkinsListT*     m_List;
 
         DECLARE_EVENT_TABLE()
     };

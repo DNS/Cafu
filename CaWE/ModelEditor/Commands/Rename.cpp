@@ -76,6 +76,7 @@ wxString CommandRenameT::GetName() const
         case JOINT: return "Rename joint";
         case MESH:  return "Rename mesh";
         case ANIM:  return "Rename anim";
+        case SKIN:  return "Rename skin";
         case GFIX:  return "Rename GUI fixture";
     }
 
@@ -91,6 +92,7 @@ std::string& CommandRenameT::GetStringRef() const
         case JOINT: return m_ModelDoc->GetModel()->m_Joints     [m_ElemNr].Name;
         case MESH:  return m_ModelDoc->GetModel()->m_Meshes     [m_ElemNr].Name;
         case ANIM:  return m_ModelDoc->GetModel()->m_Anims      [m_ElemNr].Name;
+        case SKIN:  return m_ModelDoc->GetModel()->m_Skins      [m_ElemNr].Name;
         case GFIX:  return m_ModelDoc->GetModel()->m_GuiFixtures[m_ElemNr].Name;
     }
 
@@ -107,6 +109,7 @@ void CommandRenameT::UpdateAllObservers() const
         case JOINT: m_ModelDoc->UpdateAllObservers_JointChanged     (m_ElemNr); break;
         case MESH:  m_ModelDoc->UpdateAllObservers_MeshChanged      (m_ElemNr); break;
         case ANIM:  m_ModelDoc->UpdateAllObservers_AnimChanged      (m_ElemNr); break;
+        case SKIN:  m_ModelDoc->UpdateAllObservers_SkinChanged      (m_ElemNr); break;
         case GFIX:  m_ModelDoc->UpdateAllObservers_GuiFixtureChanged(m_ElemNr); break;
     }
 }

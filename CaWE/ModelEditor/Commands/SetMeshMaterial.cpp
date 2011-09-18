@@ -28,11 +28,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace ModelEditor;
 
 
-CommandSetMeshMaterialT::CommandSetMeshMaterialT(ModelDocumentT* ModelDoc, unsigned int MeshNr, const wxString& NewName)
+CommandSetMeshMaterialT::CommandSetMeshMaterialT(ModelDocumentT* ModelDoc, unsigned int MeshNr, int SkinNr, const wxString& NewName)
     : m_ModelDoc(ModelDoc),
       m_MeshNr(MeshNr),
+      m_SkinNr(SkinNr),
       m_NewMat(m_ModelDoc->GetModel()->GetMaterialManager().GetMaterial(NewName.ToStdString())),
-      m_OldMat(m_ModelDoc->GetModel()->GetMeshes()[m_MeshNr].Material)
+      m_OldMat(GetMaterial())
 {
 }
 
@@ -48,16 +49,14 @@ bool CommandSetMeshMaterialT::Do()
     // If the material didn't really change, don't put this command into the command history.
     if (m_NewMat==m_OldMat) return false;
 
-    // Cannot keep a reference to m_ModelDoc->GetModel()->m_Meshes[m_MeshNr] as a member,
+    // Cannot keep a reference to m_ModelDoc->GetModel()->m_Meshes[m_MeshNr].Material as a member,
     // because it's bound to become invalid whenever another command meddles with the array of meshes.
-    CafuModelT::MeshT& Mesh=m_ModelDoc->GetModel()->m_Meshes[m_MeshNr];
-
-    Mesh.Material=m_NewMat;
+    GetMaterial()=m_NewMat;
 
     if (MatSys::Renderer!=NULL)
     {
-        MatSys::Renderer->FreeMaterial(Mesh.RenderMaterial);
-        Mesh.RenderMaterial=MatSys::Renderer->RegisterMaterial(Mesh.Material);
+        MatSys::Renderer->FreeMaterial(GetRenderMaterial());
+        GetRenderMaterial()=MatSys::Renderer->RegisterMaterial(GetMaterial());
     }
 
     m_ModelDoc->UpdateAllObservers_MeshChanged(m_MeshNr);
@@ -71,20 +70,36 @@ void CommandSetMeshMaterialT::Undo()
     wxASSERT(m_Done);
     if (!m_Done) return;
 
-    // Cannot keep a reference to m_ModelDoc->GetModel()->m_Meshes[m_MeshNr] as a member,
+    // Cannot keep a reference to m_ModelDoc->GetModel()->m_Meshes[m_MeshNr].Material as a member,
     // because it's bound to become invalid whenever another command meddles with the array of meshes.
-    CafuModelT::MeshT& Mesh=m_ModelDoc->GetModel()->m_Meshes[m_MeshNr];
-
-    Mesh.Material=m_OldMat;
+    GetMaterial()=m_OldMat;
 
     if (MatSys::Renderer!=NULL)
     {
-        MatSys::Renderer->FreeMaterial(Mesh.RenderMaterial);
-        Mesh.RenderMaterial=MatSys::Renderer->RegisterMaterial(Mesh.Material);
+        MatSys::Renderer->FreeMaterial(GetRenderMaterial());
+        GetRenderMaterial()=MatSys::Renderer->RegisterMaterial(GetMaterial());
     }
 
     m_ModelDoc->UpdateAllObservers_MeshChanged(m_MeshNr);
     m_Done=false;
+}
+
+
+MaterialT*& CommandSetMeshMaterialT::GetMaterial()
+{
+    if (m_SkinNr<0)
+        return m_ModelDoc->GetModel()->m_Meshes[m_MeshNr].Material;
+
+    return m_ModelDoc->GetModel()->m_Skins[m_SkinNr].Materials[m_MeshNr];
+}
+
+
+MatSys::RenderMaterialT*& CommandSetMeshMaterialT::GetRenderMaterial()
+{
+    if (m_SkinNr<0)
+        return m_ModelDoc->GetModel()->m_Meshes[m_MeshNr].RenderMaterial;
+
+    return m_ModelDoc->GetModel()->m_Skins[m_SkinNr].RenderMaterials[m_MeshNr];
 }
 
 
