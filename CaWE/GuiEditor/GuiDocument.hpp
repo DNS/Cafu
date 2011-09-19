@@ -58,7 +58,6 @@ namespace GuiEditor
 
         cf::GuiSys::GuiImplT* GetGui() { return m_Gui; }
         cf::GuiSys::WindowT* GetRootWindow() { return m_RootWindow; }
-        cf::GuiSys::WindowT* FindWindowByName(const wxString& WindowName);
 
         GuiPropertiesT& GetGuiProperties() { return m_GuiProperties; }
 

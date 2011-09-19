@@ -121,14 +121,6 @@ GuiDocumentT::~GuiDocumentT()
 }
 
 
-cf::GuiSys::WindowT* GuiDocumentT::FindWindowByName(const wxString& WindowName)
-{
-    if (m_RootWindow->GetName()==WindowName) return m_RootWindow;
-
-    return m_RootWindow->Find(std::string(WindowName));
-}
-
-
 void GuiDocumentT::SetSelection(const ArrayT<cf::GuiSys::WindowT*>& NewSelection)
 {
     // Clear the previous selection.

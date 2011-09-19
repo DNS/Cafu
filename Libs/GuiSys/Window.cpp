@@ -235,6 +235,12 @@ const std::string& WindowT::GetName() const
 
 void WindowT::GetChildren(ArrayT<WindowT*>& Chld, bool Recurse)
 {
+#ifdef DEBUG
+    // Make sure that there are no cycles in the hierarchy of children.
+    for (unsigned long ChildNr=0; ChildNr<Children.Size(); ChildNr++)
+        assert(Chld.Find(Children[ChildNr]) == -1);
+#endif
+
     Chld.PushBack(Children);
 
     if (!Recurse) return;
@@ -905,8 +911,11 @@ int WindowT::AddChild(lua_State* LuaState)
     WindowT* Win  =(WindowT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
     WindowT* Child=(WindowT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 2, TypeInfo);
 
-    if (Child->Parent!=NULL)
+    if (Child->Parent!=NULL)        // A child window must be a root node...
         return luaL_argerror(LuaState, 2, "child window already has a parent, use RemoveChild() first");
+
+    if (Child==Win->GetRoot())      // ... but not the root of the hierarchy it is inserted into.
+        return luaL_argerror(LuaState, 2, "a window cannot be made a child of itself");
 
     Win->Children.PushBack(Child);
     Child->Parent=Win;
