@@ -59,8 +59,8 @@ namespace GuiEditor
         bool IsSelected() const { return m_IsSelected; }
 
         /// Sets the name for this window.
-        /// This method checks if the name is valid in the sense of LUA compatibility
-        /// (window name is used as a LUA variable name for this window) and uniqueness.
+        /// This method checks if the name is valid in the sense of Lua compatibility
+        /// (window name is used as a Lua variable name for this window) and uniqueness.
         /// This function should always be called instead of setting the name member
         /// of the window directly.
         /// @param NewName   The name to be set.

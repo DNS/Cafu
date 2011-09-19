@@ -40,11 +40,11 @@ bool CheckLuaVarCompat(const wxString& Varname)
 
     if (LuaVarName.Matches(Varname))
     {
-        // Check if variable name is a reserved LUA keyword.
+        // Check if variable name is a reserved Lua keyword.
         for (int KeywordNr=0; KeywordNr<NrOfKeywords; KeywordNr++)
             if (Varname.c_str()==Keywords_Lua[KeywordNr]) return false;
 
-        // Check if variable name matches a LUA global variable.
+        // Check if variable name matches a Lua global variable.
         wxRegEx LuaGlobals("^[_][A-Z]+$", wxRE_ADVANCED);
         wxASSERT(LuaGlobals.IsValid());
 

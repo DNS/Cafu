@@ -55,7 +55,7 @@ EditorWindowT::EditorWindowT(cf::GuiSys::WindowT* Win, GuiDocumentT* GuiDoc)
     RepairNameUniqueness();
 
     // Note: Since the name of a window comes from an already functional script or is checked when set
-    // by the method below, we assert that the name is already LUA compatible here.
+    // by the method below, we assert that the name is already Lua compatible here.
     wxASSERT(CheckLuaVarCompat(m_Win->Name));
 }
 
@@ -64,7 +64,9 @@ bool EditorWindowT::SetName(const wxString& NewName)
 {
     if (!CheckLuaVarCompat(NewName))
     {
-        wxMessageBox("Window names must be LUA compatible:\n-Must only consist of letters, digits and underscores\n-Must not begin with digits\n-Must not be a LUA keyword or LUA global variable", "Error: Entity name is not LUA compatible.", wxOK | wxICON_ERROR);
+        wxMessageBox("A window name must be a string of letters, digits, and underscores that is\n"
+            "not beginning with a digit and is not a reserved Lua keyword or global variable.",
+            "Window name is not a valid Lua identifier.", wxOK | wxICON_ERROR);
         return false;
     }
 
