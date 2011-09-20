@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Windows/EditorWindow.hpp"
 #include "../GameConfig.hpp"
 #include "../EditorMaterialEngine.hpp"
+#include "../LuaAux.hpp"
 
 #include "GuiSys/GuiImpl.hpp"
 #include "GuiSys/Window.hpp"
@@ -75,7 +76,7 @@ GuiDocumentT::GuiDocumentT(GameConfigT* GameConfig, const wxString& GuiInitFileN
     }
     else
     {
-        m_Gui=new cf::GuiSys::GuiImplT("Win=gui:new('WindowT'); gui:SetRootWindow(Win); gui:showMouse(false); gui:setFocus(Win); Win:SetName('Window'); Win:set(\"rect\", 0, 0, 640, 480);", true);
+        m_Gui=new cf::GuiSys::GuiImplT("Win=gui:new('WindowT'); gui:SetRootWindow(Win); gui:showMouse(false); gui:setFocus(Win); Win:SetName('Root'); Win:set(\"rect\", 0, 0, 640, 480);", true);
 
         m_GuiProperties=GuiPropertiesT(*m_Gui);
 
@@ -138,27 +139,37 @@ void GuiDocumentT::SetSelection(const ArrayT<cf::GuiSys::WindowT*>& NewSelection
 }
 
 
-const ArrayT<cf::GuiSys::WindowT*>& GuiDocumentT::GetSelection()
+wxString GuiDocumentT::CheckWindowName(const wxString& TestName, EditorWindowT* Win) const
 {
-    return m_Selection;
-}
+    const wxString               Name_  =CheckLuaIdentifier(TestName);
+    const cf::GuiSys::WindowT*   Win_   =Win ? Win->GetDual() : NULL;
+    wxString                     NewName=Name_;
+    ArrayT<cf::GuiSys::WindowT*> AllChildren;
 
+    AllChildren.PushBack(m_RootWindow);
+    m_RootWindow->GetChildren(AllChildren, true);
 
-// Recursively makes sure that the children of each window have unique names.
-// Normally the other GUI editor code should make sure that that is always true, but right now it
-// is possible to create violations of this constraint via drag-and-drop in the window hierarchy tree
-// (can drop a window as a child of another window that already has a child with the same name).
-static void CheckWindowNames(cf::GuiSys::WindowT* Window)
-{
-    const std::string OldName=Window->Name;
+    while (true)
+    {
+        bool IsUnique=true;
 
-    GuiDocumentT::GetSibling(Window)->RepairNameUniqueness();
+        for (unsigned long ChildNr=0; ChildNr<AllChildren.Size(); ChildNr++)
+        {
+            if (AllChildren[ChildNr]->Name==NewName && AllChildren[ChildNr]!=Win_)
+            {
+                IsUnique=false;
+                break;
+            }
+        }
 
-    if (Window->Name!=OldName)
-        GuiDocumentT::GetSibling(Window)->GetGuiDoc()->UpdateAllObservers_Modified(Window, WMD_PROPERTY_CHANGED, "Name");
+        if (IsUnique) break;
 
-    for (unsigned long ChildNr=0; ChildNr<Window->Children.Size(); ChildNr++)
-        CheckWindowNames(Window->Children[ChildNr]);
+        static unsigned int Count=1;
+        NewName=Name_+wxString::Format("_%u", Count);
+        Count++;
+    }
+
+    return NewName;
 }
 
 
@@ -242,8 +253,6 @@ static void SaveWindowInitialization(std::ostream& OutFile, cf::GuiSys::WindowT*
 
 bool GuiDocumentT::SaveInit_cgui(std::ostream& OutFile)
 {
-    CheckWindowNames(m_RootWindow);
-
     OutFile << "-- This is a Cafu engine GUI script file, written by CaWE, the Cafu World Editor.\n";
     OutFile << "-- You CAN edit this file manually, but note that CaWE may overwrite your changes.\n";
     OutFile << "-- It is recommended that you place all your customizations like method overrides\n";

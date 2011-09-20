@@ -948,9 +948,12 @@ void InspDlgEntityPropsT::OnPropertyGridChanged(wxPropertyGridEvent& event)
         }
 
         // Check Lua compatibility for entity names.
-        if (Key=="name" && !CheckLuaVarCompat(NewValue))
+        if (Key=="name" && !IsLuaIdentifier(NewValue))
         {
-            wxMessageBox("Entity names must be valid Lua identifiers: They can be any combination of letters, digits and underscores that does not begin with a digit and is not a reserved Lua keyword.", "Error: Entity name is not a Lua identifier.", wxOK | wxICON_ERROR);
+            wxMessageBox("An entity name must be a string of letters, digits, and underscores that is\n"
+                "not beginning with a digit and is not a reserved Lua keyword or global variable.",
+                "Entity name is not a valid script identifier.", wxOK | wxICON_ERROR);
+
             NotifySubjectChanged_Modified(MapDoc, MapElements, MEMD_ENTITY_PROPERTY_MODIFIED, ""); // Intentionally update also this dialog to restore previous property value.
             return;
         }

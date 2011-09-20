@@ -62,10 +62,17 @@ namespace GuiEditor
         GuiPropertiesT& GetGuiProperties() { return m_GuiProperties; }
 
         void SetSelection(const ArrayT<cf::GuiSys::WindowT*>& NewSelection);
-        const ArrayT<cf::GuiSys::WindowT*>& GetSelection();
+        const ArrayT<cf::GuiSys::WindowT*>& GetSelection() const { return m_Selection; }
 
         const ArrayT<EditorMaterialI*>& GetEditorMaterials() const { return m_EditorMaterials; }
         GameConfigT* GetGameConfig() { return m_GameConfig; }
+
+        /// Checks if the given string is a valid name for the given window.
+        /// A name is valid if it is a valid Lua identifier and unique among all windows in this GUI.
+        /// @returns
+        ///     If the given string \c TestName is valid, it is returned unchanged.
+        ///     Otherwise, a new string is created from \c TestName that is valid.
+        wxString CheckWindowName(const wxString& TestName, EditorWindowT* Win) const;
 
         bool SaveInit_cgui(std::ostream& OutFile);
 

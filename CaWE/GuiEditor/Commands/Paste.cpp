@@ -85,9 +85,6 @@ bool CommandPasteT::Do()
     {
         m_Windows[WinNr]->Parent=m_NewParent;
         m_NewParent->Children.PushBack(m_Windows[WinNr]);
-
-        // If the name of the window is not unique among its siblings, find a new unique name.
-        GuiDocumentT::GetSibling(m_Windows[WinNr])->RepairNameUniqueness();
     }
 
     m_GuiDocument->UpdateAllObservers_Created(m_Windows);

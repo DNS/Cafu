@@ -80,7 +80,7 @@ namespace ModelEditor
 
         /// Notifies the observer that a skin has changed.
         /// @param Subject   The model document with the model in which the skin has changed.
-        /// @param AnimNr    The number of the skin that has changed.
+        /// @param SkinNr    The number of the skin that has changed.
         virtual void Notify_SkinChanged(SubjectT* Subject, unsigned int SkinNr) { }
 
         /// Notifies the observer that a GUI fixture has changed.

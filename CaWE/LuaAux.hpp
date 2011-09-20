@@ -38,16 +38,19 @@ enum
 };
 
 
-/// Checks if a string is a valid Lua variable name.
-/// @param Varname The variable name to be checked.
-/// @return Whether the string is valid or not.
-bool CheckLuaVarCompat(const wxString& Varname);
+/// Determines if the given string is a valid Lua identifier.
+///
+/// @param id   The identifier name to check.
+/// @return Whether \c id is a valid Lua identifier.
+bool IsLuaIdentifier(const wxString& id);
 
-/// Converts a string into a valid Lua variable name by replacing
-/// all special invalid characters with underscores and/or adding
-/// underscores to the begining of the name to make it valid.
-/// @param Varname The variable name to convert.
-/// @return The converted valid Lua variable name.
-wxString MakeLuaVarName(const wxString& Varname);
+
+/// Determines if the given string is a valid Lua identifier.
+/// If valid, \c id is returned unchanged.
+/// Otherwise, for the return value a variant of \c id is created that is valid.
+///
+/// @param id   The identifier name to check.
+/// @return A valid Lua identifier derived from \c id.
+wxString CheckLuaIdentifier(const wxString& id);
 
 #endif

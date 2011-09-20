@@ -25,60 +25,64 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/regex.h"
 
 
-static const std::string Keywords_Lua[]={"and", "break", "do", "else", "elseif",
-                                         "end", "false", "for", "function", "if",
-                                         "in", "local", "nil", "not", "or", "repeat",
-                                         "return", "then", "true", "until", "while"};
-
-static const int NrOfKeywords=sizeof(Keywords_Lua)/sizeof(*Keywords_Lua);
-
-
-bool CheckLuaVarCompat(const wxString& Varname)
+namespace
 {
-    wxRegEx LuaVarName("^[A-Za-z_][\\w]+$", wxRE_ADVANCED);
-    wxASSERT(LuaVarName.IsValid());
-
-    if (LuaVarName.Matches(Varname))
+    const wxString Keywords[]=
     {
-        // Check if variable name is a reserved Lua keyword.
-        for (int KeywordNr=0; KeywordNr<NrOfKeywords; KeywordNr++)
-            if (Varname.c_str()==Keywords_Lua[KeywordNr]) return false;
+        "and", "break", "do", "else", "elseif",
+        "end", "false", "for", "function", "if",
+        "in", "local", "nil", "not", "or", "repeat",
+        "return", "then", "true", "until", "while"
+    };
 
-        // Check if variable name matches a Lua global variable.
-        wxRegEx LuaGlobals("^[_][A-Z]+$", wxRE_ADVANCED);
-        wxASSERT(LuaGlobals.IsValid());
-
-        if (LuaGlobals.Matches(Varname)) return false;
-
-        return true;
-    }
-
-    return false;
+    const unsigned int NrOfKeywords=sizeof(Keywords)/sizeof(*Keywords);
 }
 
 
-wxString MakeLuaVarName(const wxString& Varname)
+bool IsLuaIdentifier(const wxString& id)
 {
-    // Return the original name if it is already valid.
-    if (CheckLuaVarCompat(Varname)) return Varname;
+    // Does id fail to meet the Lua identifier rules?
+    const wxRegEx LuaIdRegEx("^[A-Za-z_][\\w]+$", wxRE_ADVANCED);
+    wxASSERT(LuaIdRegEx.IsValid());
 
-    // Return a default string if passed varname is empty so this functions never fails.
-    if (Varname=="") return "Variable";
+    if (!LuaIdRegEx.Matches(id)) return false;
 
-    wxRegEx LuaVarName("\\W", wxRE_ADVANCED);
-    wxASSERT(LuaVarName.IsValid());
+    // Is id a global reserved Lua identifier?
+    const wxRegEx LuaGlobalRegEx("^[_][A-Z]+$", wxRE_ADVANCED);
+    wxASSERT(LuaGlobalRegEx.IsValid());
 
-    wxString LuaVar=Varname;
+    if (LuaGlobalRegEx.Matches(id)) return false;
 
-    LuaVarName.Replace(&LuaVar, "_"); // Replace all non compatible chars with underscore.
+    // Is id a reserved Lua keyword?
+    for (unsigned int kwNr=0; kwNr<NrOfKeywords; kwNr++)
+        if (id==Keywords[kwNr]) return false;
 
-    // If variable is now compatible, return it.
-    if (CheckLuaVarCompat(LuaVar)) return LuaVar;
+    // All tests passed: id is a valid Lua identifier!
+    return true;
+}
 
-    // Add a leading underscore which will make the variable compatible in any case.
-    LuaVar="_"+LuaVar;
 
-    wxASSERT(CheckLuaVarCompat(LuaVar));
+wxString CheckLuaIdentifier(const wxString& id)
+{
+    // If id is valid, return it unchanged.
+    if (IsLuaIdentifier(id)) return id;
 
-    return LuaVar;
+    // If id is empty, just come up with some valid identifier.
+    if (id=="") return "id";
+
+    // Replace all non-alphanumeric characters with an underscore.
+    wxString NewId=id;
+
+    const wxRegEx NotAlphaNumRegEx("\\W", wxRE_ADVANCED);
+    wxASSERT(NotAlphaNumRegEx.IsValid());
+
+    NotAlphaNumRegEx.Replace(&NewId, "_");
+
+    if (IsLuaIdentifier(NewId)) return NewId;
+
+    // Still not good? Add a prefix.
+    NewId="id_"+NewId;
+
+    wxASSERT(IsLuaIdentifier(NewId));
+    return NewId;
 }

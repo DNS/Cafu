@@ -416,6 +416,10 @@ void WindowTreeT::OnLabelChanged(wxTreeEvent& TE)
         TE.Veto(); // Reset value if not valid.
     }
 
+    // The command may well have set a name different from TE.GetLabel().
+    TE.Veto();
+    SetItemText(TE.GetItem(), Window->Name);
+
     m_IsRecursiveSelfNotify=false;
 }
 

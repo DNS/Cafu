@@ -114,12 +114,7 @@ bool CommandModifyWindowT::Do()
     if (m_PropertyName=="Name")
     {
         m_OldString=m_Window->Name;
-
-        if (!GuiDocumentT::GetSibling(m_Window)->SetName(m_NewString))
-        {
-            m_GuiDocument->UpdateAllObservers_Modified(m_Window, WMD_PROPERTY_CHANGED, m_PropertyName); // This is needed to reset the property grid correctly.
-            return false;
-        }
+        m_Window->Name=m_GuiDocument->CheckWindowName(m_NewString, GuiDocumentT::GetSibling(m_Window));
     }
     else if (m_PropertyName=="BackMatName")
     {

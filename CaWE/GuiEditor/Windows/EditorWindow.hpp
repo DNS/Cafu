@@ -58,23 +58,6 @@ namespace GuiEditor
 
         bool IsSelected() const { return m_IsSelected; }
 
-        /// Sets the name for this window.
-        /// This method checks if the name is valid in the sense of Lua compatibility
-        /// (window name is used as a Lua variable name for this window) and uniqueness.
-        /// This function should always be called instead of setting the name member
-        /// of the window directly.
-        /// @param NewName   The name to be set.
-        /// @return Whether the name has been successfully set.
-        bool SetName(const wxString& NewName);
-
-        /// Checks the name uniqueness of a new name string within the windows siblings.
-        /// @param Name    Name to check for uniqueness.
-        /// @return Whether this name is unique.
-        bool CheckNameUniqueness(const wxString& Name) const;
-
-        /// Helper method to check and auto-repair the uniqueness of the name of this window.
-        void RepairNameUniqueness();
-
         /// Fills a property grid manager with one property for each class member.
         /// @param PropMan   The property manager grid to fill.
         virtual void FillInPG(wxPropertyGridManager* PropMan);
@@ -104,8 +87,7 @@ namespace GuiEditor
 
         cf::GuiSys::WindowT* m_Win;         ///< The GuiSys's "dual" or "sibling" of this window.
         GuiDocumentT*        m_GuiDoc;      ///< The GUI document that this window lives in.
-        bool                 m_IsSelected;
-        unsigned int         m_Counter;
+        bool                 m_IsSelected;  ///< Is this window selected for editing?
     };
 }
 

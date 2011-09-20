@@ -24,7 +24,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../GuiDocument.hpp"
 #include "../Commands/ModifyWindow.hpp"
 #include "../../EditorMaterial.hpp"
-#include "../../LuaAux.hpp"
 #include "../../MaterialBrowser/DocAccess.hpp"
 #include "../../MaterialBrowser/MaterialBrowserDialog.hpp"
 
@@ -45,90 +44,22 @@ using namespace GuiEditor;
 EditorWindowT::EditorWindowT(cf::GuiSys::WindowT* Win, GuiDocumentT* GuiDoc)
     : m_Win(Win),
       m_GuiDoc(GuiDoc),
-      m_IsSelected(false),
-      m_Counter(1)
+      m_IsSelected(false)
 {
-    // If window has no name, create default name.
-    if (m_Win->Name=="") m_Win->Name="Window";
-
-    // Check window name uniqueness and repair it.
-    RepairNameUniqueness();
-
-    // Note: Since the name of a window comes from an already functional script or is checked when set
-    // by the method below, we assert that the name is already Lua compatible here.
-    wxASSERT(CheckLuaVarCompat(m_Win->Name));
-}
-
-
-bool EditorWindowT::SetName(const wxString& NewName)
-{
-    if (!CheckLuaVarCompat(NewName))
+    if (m_Win->Name=="")
     {
-        wxMessageBox("A window name must be a string of letters, digits, and underscores that is\n"
-            "not beginning with a digit and is not a reserved Lua keyword or global variable.",
-            "Window name is not a valid Lua identifier.", wxOK | wxICON_ERROR);
-        return false;
+        m_Win->Name=m_Win->GetType()->ClassName;
+
+        const size_t len=m_Win->Name.length();
+
+        if (len>1 && m_Win->Name[len-1]=='T')
+        {
+            // Remove the trailing "T" from our class name.
+            m_Win->Name=std::string(m_Win->Name, 0, len-1);
+        }
     }
 
-    if (!CheckNameUniqueness(NewName))
-    {
-        wxMessageBox("The window name must be unique in this window hierarchy level. The window can't have a name that is already taken by one of its siblings.", "Error: The given window name is not unique.", wxOK | wxICON_ERROR);
-        return false;
-    }
-
-    m_Win->Name=NewName.c_str();
-
-    return true;
-}
-
-
-bool EditorWindowT::CheckNameUniqueness(const wxString& Name) const
-{
-    if (m_Win->GetRoot()==m_Win) return true; // Root window can have any name.
-
-    // Get the siblings of this windows and check name uniqueness against them.
-    cf::GuiSys::WindowT* Parent=m_Win->GetParent();
-    ArrayT<cf::GuiSys::WindowT*> Siblings;
-    Parent->GetChildren(Siblings);
-
-    for (unsigned long SibNr=0; SibNr<Siblings.Size(); SibNr++)
-    {
-        if (Siblings[SibNr]==m_Win) continue; // Don't check against ourselves.
-
-        if (Siblings[SibNr]->Name==Name) return false;
-    }
-
-    return true;
-}
-
-
-static wxString StripSuffix(const wxString& Str)
-{
-    const size_t Pos=Str.rfind("_");
-
-    if (Pos==std::string::npos) return Str;
-
-    for (size_t i=Pos+1; i<Str.length(); i++)
-        if (!wxIsdigit(Str[i])) return Str;
-
-    if (Pos==0) return "Window";
-
-    return Str.Left(Pos);
-}
-
-
-void EditorWindowT::RepairNameUniqueness()
-{
-    const wxString BaseName=StripSuffix(m_Win->Name);
-    wxString       NewName =m_Win->Name;
-
-    while (!CheckNameUniqueness(NewName))
-    {
-        NewName=BaseName+"_"+wxString::Format("%u", m_Counter);
-        m_Counter++;
-    }
-
-    m_Win->Name=NewName;
+    m_Win->Name=m_GuiDoc->CheckWindowName(m_Win->Name, this);
 }
 
 

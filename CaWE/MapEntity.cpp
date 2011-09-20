@@ -408,7 +408,7 @@ ArrayT<EntPropertyT> MapEntityT::CheckUniqueValues(MapDocumentT& MapDoc, bool Re
             // Repair faulty value.
             for (unsigned long Count=1; true; Count++)
             {
-                const wxString UniqueValue=MakeLuaVarName(m_Class->GetName())+wxString::Format("_%03lu", Count);
+                const wxString UniqueValue=CheckLuaIdentifier(m_Class->GetName())+wxString::Format("_%03lu", Count);
                 unsigned long  EntNr;
 
                 for (EntNr=1/*skip world*/; EntNr<MapDoc.GetEntities().Size(); EntNr++)
