@@ -90,7 +90,7 @@ namespace GuiEditor
         void OnKeyDown           (wxKeyEvent&   KE);
         void OnTreeLeftClick     (wxMouseEvent& ME);
         void OnSelectionChanged  (wxTreeEvent&  TE);
-        void OnLabelChanged      (wxTreeEvent&  TE);
+        void OnEndLabelEdit      (wxTreeEvent&  TE);
         void OnTreeItemRightClick(wxTreeEvent&  TE);
         void OnBeginDrag         (wxTreeEvent&  TE);
         void OnEndDrag           (wxTreeEvent&  TE);

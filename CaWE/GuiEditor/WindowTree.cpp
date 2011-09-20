@@ -62,7 +62,7 @@ BEGIN_EVENT_TABLE(WindowTreeT, wxTreeCtrl)
     EVT_LEFT_DOWN            (WindowTreeT::OnTreeLeftClick)
     EVT_LEFT_DCLICK          (WindowTreeT::OnTreeLeftClick) // Handle double clicks like normal left clicks when it comes to clicks on tree item icons (otherwise double clicks are handled normally).
     EVT_TREE_SEL_CHANGED     (wxID_ANY, WindowTreeT::OnSelectionChanged)
-    EVT_TREE_END_LABEL_EDIT  (wxID_ANY, WindowTreeT::OnLabelChanged)
+    EVT_TREE_END_LABEL_EDIT  (wxID_ANY, WindowTreeT::OnEndLabelEdit)
     EVT_TREE_ITEM_RIGHT_CLICK(wxID_ANY, WindowTreeT::OnTreeItemRightClick)
     EVT_TREE_BEGIN_DRAG      (wxID_ANY, WindowTreeT::OnBeginDrag)
     EVT_TREE_END_DRAG        (wxID_ANY, WindowTreeT::OnEndDrag)
@@ -397,30 +397,19 @@ void WindowTreeT::OnSelectionChanged(wxTreeEvent& TE)
 }
 
 
-void WindowTreeT::OnLabelChanged(wxTreeEvent& TE)
+void WindowTreeT::OnEndLabelEdit(wxTreeEvent& TE)
 {
-    // Emtpy string means the user has either not changed the label at all or
-    // deleted the whole label string.
-    if (TE.GetLabel()=="")
-    {
-        TE.Veto(); // Reset value.
-        return;
-    }
-
     cf::GuiSys::WindowT* Window=((WindowTreeItemT*)GetItemData(TE.GetItem()))->GetWindow();
 
-    m_IsRecursiveSelfNotify=true;
+    if (TE.IsEditCancelled()) return;
 
-    if (!m_Parent->SubmitCommand(new CommandModifyWindowT(m_GuiDocument, Window, "Name", Window->GetMemberVar("name"), TE.GetLabel())))
-    {
-        TE.Veto(); // Reset value if not valid.
-    }
+    m_IsRecursiveSelfNotify=true;
+    m_Parent->SubmitCommand(new CommandModifyWindowT(m_GuiDocument, Window, "Name", Window->GetMemberVar("name"), TE.GetLabel()));
+    m_IsRecursiveSelfNotify=false;
 
     // The command may well have set a name different from TE.GetLabel().
     TE.Veto();
     SetItemText(TE.GetItem(), Window->Name);
-
-    m_IsRecursiveSelfNotify=false;
 }
 
 

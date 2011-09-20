@@ -240,6 +240,10 @@ bool EditorWindowT::HandlePGChange(wxPropertyGridEvent& Event, GuiEditor::ChildF
     {
         // Specially treated by command.
         ChildFrame->SubmitCommand(new CommandModifyWindowT(m_GuiDoc, m_Win, PropName, DummyVar, Prop->GetValueAsString()));
+
+        // The command may well have set a name different from Prop->GetValueAsString().
+        wxASSERT(Event.GetEventType() == wxEVT_PG_CHANGED);
+        Event.GetProperty()->SetValueFromString(m_Win->Name);
     }
     else if (PropName=="Visible")
     {
