@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MODELEDITOR_SET_MESH_MATERIAL_HPP_
-#define _MODELEDITOR_SET_MESH_MATERIAL_HPP_
+#ifndef _MODELEDITOR_SET_MATERIAL_HPP_
+#define _MODELEDITOR_SET_MATERIAL_HPP_
 
 #include "../../CommandPattern.hpp"
 
@@ -33,11 +33,12 @@ namespace ModelEditor
 {
     class ModelDocumentT;
 
-    class CommandSetMeshMaterialT : public CommandT
+    /// This command sets a new material for a given mesh in a given skin.
+    class CommandSetMaterialT : public CommandT
     {
         public:
 
-        CommandSetMeshMaterialT(ModelDocumentT* ModelDoc, unsigned int MeshNr, int SkinNr, const wxString& NewName);
+        CommandSetMaterialT(ModelDocumentT* ModelDoc, unsigned int MeshNr, int SkinNr, const wxString& NewName);
 
         // CommandT implementation.
         bool Do();

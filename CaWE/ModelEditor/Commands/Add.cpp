@@ -31,6 +31,9 @@ CommandAddT::CommandAddT(ModelDocumentT* ModelDoc, const CafuModelT::SkinT& Skin
       m_Type(SKIN),
       m_Skins()
 {
+    wxASSERT(Skin.Materials.Size()       == m_ModelDoc->GetModel()->GetMeshes().Size());
+    wxASSERT(Skin.RenderMaterials.Size() == m_ModelDoc->GetModel()->GetMeshes().Size());
+
     m_Skins.PushBack(Skin);
 }
 
@@ -52,6 +55,11 @@ bool CommandAddT::Do()
 
     switch (m_Type)
     {
+        case MESH:
+            // If we supported adding meshes, note that we had to add a
+            // new "NULL" material (and render material) to each skin as well.
+            break;
+
         case SKIN:
             for (unsigned long SkinNr=0; SkinNr<m_Skins.Size(); SkinNr++)
             {
@@ -91,6 +99,11 @@ void CommandAddT::Undo()
 
     switch (m_Type)
     {
+        case MESH:
+            // For undoing the addition of a mesh, note that we had to remove
+            // the related material (and render material) in each skin as well.
+            break;
+
         case SKIN:
             for (unsigned long SkinNr=0; SkinNr<m_Skins.Size(); SkinNr++)
             {

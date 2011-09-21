@@ -238,6 +238,18 @@ CafuModelT::CafuModelT(ModelLoaderT& Loader)
     if (m_Joints.Size()==0) throw ModelT::LoadError();
  // if (m_Meshes.Size()==0) throw ModelT::LoadError();  // Consider models with no meshes as valid, skeleton-only meshes are sometimes useful for testing.
 
+    // Make sure that each skin has as many materials as there are meshes.
+    for (unsigned long SkinNr=0; SkinNr<m_Skins.Size(); SkinNr++)
+    {
+        SkinT& Skin=m_Skins[SkinNr];
+
+        while (Skin.Materials.Size() > m_Meshes.Size()) Skin.Materials.DeleteBack();
+        while (Skin.Materials.Size() < m_Meshes.Size()) Skin.Materials.PushBack(NULL);
+
+        while (Skin.RenderMaterials.Size() > m_Meshes.Size()) Skin.RenderMaterials.DeleteBack();
+        while (Skin.RenderMaterials.Size() < m_Meshes.Size()) Skin.RenderMaterials.PushBack(NULL);
+    }
+
     InitMeshes();
 
     // Allocate the render materials for the meshes (the default skin).
@@ -254,8 +266,8 @@ CafuModelT::CafuModelT(ModelLoaderT& Loader)
     {
         SkinT& Skin=m_Skins[SkinNr];
 
-        assert(Skin.Materials.Size()==m_Meshes.Size());
-        assert(Skin.Materials.Size()==Skin.RenderMaterials.Size());
+        assert(Skin.Materials.Size()      ==m_Meshes.Size());
+        assert(Skin.RenderMaterials.Size()==m_Meshes.Size());
 
         for (unsigned long MatNr=0; MatNr<Skin.Materials.Size(); MatNr++)
         {

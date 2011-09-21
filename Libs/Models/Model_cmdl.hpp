@@ -38,7 +38,7 @@ namespace ModelEditor { class CommandDeleteT; }
 namespace ModelEditor { class CommandRenameT; }
 namespace ModelEditor { class CommandSetAnimFPST; }
 namespace ModelEditor { class CommandSetAnimNextT; }
-namespace ModelEditor { class CommandSetMeshMaterialT; }
+namespace ModelEditor { class CommandSetMaterialT; }
 namespace ModelEditor { class CommandTransformJointT; }
 namespace ModelEditor { class CommandUpdateAnimT; }
 namespace ModelEditor { class CommandUpdateGuiFixtureT; }
@@ -291,7 +291,7 @@ class CafuModelT : public ModelT
     friend class ModelEditor::CommandRenameT;
     friend class ModelEditor::CommandSetAnimFPST;
     friend class ModelEditor::CommandSetAnimNextT;
-    friend class ModelEditor::CommandSetMeshMaterialT;
+    friend class ModelEditor::CommandSetMaterialT;
     friend class ModelEditor::CommandTransformJointT;
     friend class ModelEditor::CommandUpdateAnimT;
     friend class ModelEditor::CommandUpdateGuiFixtureT;

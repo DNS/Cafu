@@ -194,6 +194,8 @@ void SkinsListT::OnContextMenu(wxContextMenuEvent& CE)
             CafuModelT::SkinT Skin;
 
             Skin.Name="New Skin";
+            while (Skin.Materials.Size()       < m_ModelDoc->GetModel()->GetMeshes().Size()) Skin.Materials.PushBack(NULL);
+            while (Skin.RenderMaterials.Size() < m_ModelDoc->GetModel()->GetMeshes().Size()) Skin.RenderMaterials.PushBack(NULL);
 
             m_MainFrame->SubmitCommand(new CommandAddT(m_ModelDoc, Skin));
             break;
@@ -325,6 +327,8 @@ void SkinsPanelT::OnButton(wxCommandEvent& Event)
             CafuModelT::SkinT Skin;
 
             Skin.Name="New Skin";
+            while (Skin.Materials.Size()       < m_ModelDoc->GetModel()->GetMeshes().Size()) Skin.Materials.PushBack(NULL);
+            while (Skin.RenderMaterials.Size() < m_ModelDoc->GetModel()->GetMeshes().Size()) Skin.RenderMaterials.PushBack(NULL);
 
             m_MainFrame->SubmitCommand(new CommandAddT(m_ModelDoc, Skin));
             break;

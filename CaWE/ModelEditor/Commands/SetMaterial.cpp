@@ -19,7 +19,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "SetMeshMaterial.hpp"
+#include "SetMaterial.hpp"
 #include "../ModelDocument.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Models/Model_cmdl.hpp"
@@ -28,7 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace ModelEditor;
 
 
-CommandSetMeshMaterialT::CommandSetMeshMaterialT(ModelDocumentT* ModelDoc, unsigned int MeshNr, int SkinNr, const wxString& NewName)
+CommandSetMaterialT::CommandSetMaterialT(ModelDocumentT* ModelDoc, unsigned int MeshNr, int SkinNr, const wxString& NewName)
     : m_ModelDoc(ModelDoc),
       m_MeshNr(MeshNr),
       m_SkinNr(SkinNr),
@@ -38,7 +38,7 @@ CommandSetMeshMaterialT::CommandSetMeshMaterialT(ModelDocumentT* ModelDoc, unsig
 }
 
 
-bool CommandSetMeshMaterialT::Do()
+bool CommandSetMaterialT::Do()
 {
     wxASSERT(!m_Done);
     if (m_Done) return false;
@@ -59,13 +59,15 @@ bool CommandSetMeshMaterialT::Do()
         GetRenderMaterial()=MatSys::Renderer->RegisterMaterial(GetMaterial());
     }
 
-    m_ModelDoc->UpdateAllObservers_MeshChanged(m_MeshNr);
+    if (m_SkinNr<0) m_ModelDoc->UpdateAllObservers_MeshChanged(m_MeshNr);
+               else m_ModelDoc->UpdateAllObservers_SkinChanged(m_SkinNr);
+
     m_Done=true;
     return true;
 }
 
 
-void CommandSetMeshMaterialT::Undo()
+void CommandSetMaterialT::Undo()
 {
     wxASSERT(m_Done);
     if (!m_Done) return;
@@ -80,12 +82,14 @@ void CommandSetMeshMaterialT::Undo()
         GetRenderMaterial()=MatSys::Renderer->RegisterMaterial(GetMaterial());
     }
 
-    m_ModelDoc->UpdateAllObservers_MeshChanged(m_MeshNr);
+    if (m_SkinNr<0) m_ModelDoc->UpdateAllObservers_MeshChanged(m_MeshNr);
+               else m_ModelDoc->UpdateAllObservers_SkinChanged(m_SkinNr);
+
     m_Done=false;
 }
 
 
-MaterialT*& CommandSetMeshMaterialT::GetMaterial()
+MaterialT*& CommandSetMaterialT::GetMaterial()
 {
     if (m_SkinNr<0)
         return m_ModelDoc->GetModel()->m_Meshes[m_MeshNr].Material;
@@ -94,7 +98,7 @@ MaterialT*& CommandSetMeshMaterialT::GetMaterial()
 }
 
 
-MatSys::RenderMaterialT*& CommandSetMeshMaterialT::GetRenderMaterial()
+MatSys::RenderMaterialT*& CommandSetMaterialT::GetRenderMaterial()
 {
     if (m_SkinNr<0)
         return m_ModelDoc->GetModel()->m_Meshes[m_MeshNr].RenderMaterial;
@@ -103,7 +107,7 @@ MatSys::RenderMaterialT*& CommandSetMeshMaterialT::GetRenderMaterial()
 }
 
 
-wxString CommandSetMeshMaterialT::GetName() const
+wxString CommandSetMaterialT::GetName() const
 {
     return "Assign material";
 }

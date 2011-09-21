@@ -23,7 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrame.hpp"
 #include "ModelDocument.hpp"
 #include "Commands/Rename.hpp"
-#include "Commands/SetMeshMaterial.hpp"
+#include "Commands/SetMaterial.hpp"
 
 #include "../EditorMaterial.hpp"
 #include "../MaterialBrowser/DocAccess.hpp"
@@ -176,7 +176,7 @@ void MeshInspectorT::RefreshPropGrid()
         Append(new wxStringProperty("Name", wxPG_LABEL, Mesh.Name));
 
         Append(new MaterialPropertyT(wxString::Format("Material (%s)", m_ModelDoc->GetSelSkinString()),
-            wxPG_LABEL, Mat ? Mat->Name : "<NULL>", m_ModelDoc));
+            "Material", Mat ? Mat->Name : "<NULL>", m_ModelDoc));
 
         wxPGProperty* UseGivenTS=Append(new wxBoolProperty("Use given TS", wxPG_LABEL, false));
         DisableProperty(UseGivenTS);
@@ -224,7 +224,7 @@ void MeshInspectorT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
     bool ok=true;
 
          if (PropName=="Name"    ) ok=m_Parent->SubmitCommand(new CommandRenameT(m_ModelDoc, MESH, MeshNr, Event.GetValue().GetString()));
-    else if (PropName=="Material") ok=m_Parent->SubmitCommand(new CommandSetMeshMaterialT(m_ModelDoc, MeshNr, m_ModelDoc->GetSelSkinNr(), Event.GetValue().GetString()));
+    else if (PropName=="Material") ok=m_Parent->SubmitCommand(new CommandSetMaterialT(m_ModelDoc, MeshNr, m_ModelDoc->GetSelSkinNr(), Event.GetValue().GetString()));
     else
     {
         // Changing child properties (e.g. "Pos.x" to "5") also generates events for the composite parent (e.g. "Pos" to "(5, 0, 0)")!
