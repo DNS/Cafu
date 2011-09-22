@@ -64,6 +64,9 @@ class ModelLoaderT
     /// Loads the GUI fixtures of the Cafu model.
     virtual void Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures, ArrayT<CafuModelT::GuiLocT>& GuiLocs)=0;
 
+    /// Loads the animation channels (groups of joints) of the Cafu model.
+    virtual void Load(ArrayT<CafuModelT::ChannelT>& Channels)=0;
+
     /// Postprocesses the file data according to flags given to the constructor.
     virtual void Postprocess(ArrayT<CafuModelT::MeshT>& Meshes);
 

@@ -29,6 +29,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/Matrix.hpp"
 #include "Model.hpp"
 
+#if defined(_WIN32) && _MSC_VER<1600
+#include "pstdint.h"            // Paul Hsieh's portable implementation of the stdint.h header.
+#else
+#include <stdint.h>
+#endif
+
 
 class MaterialT;
 class ModelLoaderT;
@@ -165,7 +171,7 @@ class CafuModelT : public ModelT
     };
 
 
-    /// This struct describes additional/alternative skins for this model.
+    /// This struct describes additional/alternative skins for the meshes of this model.
     struct SkinT
     {
         std::string                      Name;              ///< The name of this skin.
@@ -205,6 +211,27 @@ class CafuModelT : public ModelT
         Vector3fT Origin;
         Vector3fT AxisX;
         Vector3fT AxisY;
+    };
+
+
+    /// Channels allow animations to play only on a subset of the joints,
+    /// so that multiple animations can play on different parts of the model at the same time.
+    /// For example, you can play a walking animation on the legs, an animation for swinging
+    /// the arms on the upper body, and an animation for moving the eyes on the head. 
+    ///
+    /// Technically, a channel defines a group of joints. It is used to limit or "filter"
+    /// animations such that they affect only the joints that are members of the channel.
+    struct ChannelT
+    {
+        std::string Name;   ///< The name of this channel.
+
+        bool IsMember(unsigned int JointNr) const;
+        void SetMember(unsigned int JointNr, bool Member=true);
+
+
+        private:
+
+        ArrayT<uint32_t> m_BitBlocks;
     };
 
 
@@ -249,6 +276,7 @@ class CafuModelT : public ModelT
     const ArrayT<AnimT>&        GetAnims() const { return m_Anims; }
     const ArrayT<SkinT>&        GetSkins() const { return m_Skins; }
     const ArrayT<GuiFixtureT>&  GetGuiFixtures() const { return m_GuiFixtures; }
+    const ArrayT<ChannelT>&     GetChannels() const { return m_Channels; }
 
     /// This method returns the set of drawing matrices (one per joint) at the given sequence and frame number.
     const ArrayT<MatrixT>& GetDrawJointMatrices(int SequenceNr, float FrameNr, const SuperT* Super=NULL) const;
@@ -314,6 +342,7 @@ class CafuModelT : public ModelT
     BoundingBox3fT        m_BindPoseBB;             ///< The bounding-box for the base pose of the model.
     ArrayT<GuiFixtureT>   m_GuiFixtures;            ///< Array of GUI fixtures in the model.
     ArrayT<GuiLocT>       m_GuiLocs;                ///< Array of locations where GUIs can be attached to this model.
+    ArrayT<ChannelT>      m_Channels;               ///< Array of channels in this model.
 
 
     // Members for caching the data that is required for drawing the model at a given animation sequence and frame.

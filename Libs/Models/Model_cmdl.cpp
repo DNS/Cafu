@@ -208,6 +208,33 @@ CafuModelT::GuiFixtureT::GuiFixtureT()
 }
 
 
+bool CafuModelT::ChannelT::IsMember(unsigned int JointNr) const
+{
+    const unsigned int BlockNr=JointNr >> 5;
+    const unsigned int BitNr  =JointNr & 31;
+    const unsigned int BitMask=1 << BitNr;
+
+    if (BlockNr >= m_BitBlocks.Size()) return false;
+
+    return (m_BitBlocks[BlockNr] & BitMask) != 0;
+}
+
+
+void CafuModelT::ChannelT::SetMember(unsigned int JointNr, bool Member)
+{
+    const unsigned int BlockNr=JointNr >> 5;
+    const unsigned int BitNr  =JointNr & 31;
+    const unsigned int BitMask=1 << BitNr;
+
+    // Grow as needed.
+    while (BlockNr >= m_BitBlocks.Size())
+        m_BitBlocks.PushBack(0);
+
+    if (Member) m_BitBlocks[BlockNr] |=  BitMask;
+           else m_BitBlocks[BlockNr] &= ~BitMask;
+}
+
+
 CafuModelT::CafuModelT(ModelLoaderT& Loader)
     : m_FileName(Loader.GetFileName()),
       m_MaterialMan(),
@@ -233,6 +260,7 @@ CafuModelT::CafuModelT(ModelLoaderT& Loader)
     Loader.Load(m_Joints, m_Meshes, m_Anims, m_MaterialMan);
     Loader.Load(m_Skins, m_MaterialMan);
     Loader.Load(m_GuiFixtures, m_GuiLocs);
+    Loader.Load(m_Channels);
     Loader.Postprocess(m_Meshes);
 
     if (m_Joints.Size()==0) throw ModelT::LoadError();
@@ -850,6 +878,35 @@ void CafuModelT::Save(std::ostream& OutStream) const
                   << "AxisX={ " << serialize(GuiLoc.AxisX) << " }; "
                   << "AxisY={ " << serialize(GuiLoc.AxisY) << " }; "
                   << "},\n";
+    }
+
+    OutStream << "}\n";
+
+
+    // *** Write the channels. ***
+    OutStream << "\nChannels=\n{\n";
+
+    for (unsigned long ChanNr=0; ChanNr<m_Channels.Size(); ChanNr++)
+    {
+        const ChannelT& Channel=m_Channels[ChanNr];
+        bool            IsFirst=true;
+
+        OutStream << "\t{\n"
+                  << "\t\tname=\"" << Channel.Name << "\";\n"
+                  << "\t\tjoints={ ";
+
+        for (unsigned long JointNr=0; JointNr<m_Joints.Size(); JointNr++)
+        {
+            if (Channel.IsMember(JointNr))
+            {
+                if (!IsFirst) OutStream << ", ";
+                OutStream << JointNr;
+                IsFirst=false;
+            }
+        }
+
+        OutStream << " };\n"
+                  << "\t},\n";
     }
 
     OutStream << "}\n";

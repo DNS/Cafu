@@ -527,6 +527,47 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures, ArrayT<Cafu
 }
 
 
+void LoaderCafuT::Load(ArrayT<CafuModelT::ChannelT>& Channels)
+{
+    // Read the channels.
+    lua_getglobal(m_LuaState, "Channels");
+    {
+        Channels.Overwrite();
+        Channels.PushBackEmptyExact(lua_objlen_ul(m_LuaState, -1));
+
+        for (unsigned long ChannelNr=0; ChannelNr<Channels.Size(); ChannelNr++)
+        {
+            CafuModelT::ChannelT& Channel=Channels[ChannelNr];
+
+            lua_rawgeti(m_LuaState, -1, ChannelNr+1);
+            {
+                lua_getfield(m_LuaState, -1, "name");
+                {
+                    const char* Name=lua_tostring(m_LuaState, -1);
+                    Channel.Name=Name ? Name : "Channel";
+                }
+                lua_pop(m_LuaState, 1);
+
+                lua_getfield(m_LuaState, -1, "joints");
+                {
+                    const unsigned long NumJoints=lua_objlen_ul(m_LuaState, -1);
+
+                    for (unsigned int c=0; c<NumJoints; c++)
+                    {
+                        lua_rawgeti(m_LuaState, -1, c+1);
+                        Channel.SetMember(lua_tointeger(m_LuaState, -1));
+                        lua_pop(m_LuaState, 1);
+                    }
+                }
+                lua_pop(m_LuaState, 1);
+            }
+            lua_pop(m_LuaState, 1);
+        }
+    }
+    lua_pop(m_LuaState, 1);
+}
+
+
 /*static*/ int LoaderCafuT::SetVersion(lua_State* LuaState)
 {
     // Put REGISTRY["LoaderCafuT"] onto the stack.
