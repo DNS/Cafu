@@ -30,7 +30,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ModelDocument.hpp"
 #include "SceneView3D.hpp"
 #include "ScenePropGrid.hpp"
-#include "SkinsList.hpp"
 #include "SubmodelsList.hpp"
 #include "TransformDialog.hpp"
 #include "Commands/Add.hpp"
@@ -244,7 +243,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
                          Name("SubmodelsPanel").Caption("Submodels List").
                          Right().Position(1));
 
-    m_SkinsList=new SkinsPanelT(this, wxSize(230, 150), SKIN);
+    m_SkinsList=new ElementsPanelT(this, wxSize(230, 150), SKIN);
     m_AUIManager.AddPane(m_SkinsList, wxAuiPaneInfo().
                          Name("SkinsList").Caption("Skins List").
                          Right().Position(2));

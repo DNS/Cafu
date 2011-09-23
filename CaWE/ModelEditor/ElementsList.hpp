@@ -33,7 +33,7 @@ namespace ModelEditor
     class ModelDocumentT;
 
 
-    /// A control for displaying a list of the elements (meshes or animations) of the model.
+    /// A control for displaying a list of the elements of the model.
     class ElementsListT : public wxListView, public ObserverT
     {
         public:
@@ -43,6 +43,9 @@ namespace ModelEditor
 
         /// The destructor.
         ~ElementsListT();
+
+        /// Returns whether one or more "default" elements are selected in the list.
+        bool AreDefaultItemsSelected() const;
 
         // ObserverT implementation.
         void Notify_SelectionChanged(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel);
@@ -69,6 +72,7 @@ namespace ModelEditor
         DECLARE_EVENT_TABLE()
 
         const ModelElementTypeT m_TYPE;
+        const int               m_NUM_DEFAULT_ITEMS;
         ModelDocumentT*         m_ModelDoc;
         ChildFrameT*            m_MainFrame;
         bool                    m_IsRecursiveSelfNotify;

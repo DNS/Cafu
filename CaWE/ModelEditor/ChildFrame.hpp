@@ -43,7 +43,6 @@ namespace ModelEditor
     class ModelDocumentT;
     class ScenePropGridT;
     class SceneView3DT;
-    class SkinsPanelT;
     class SubmodelsPanelT;
     class TransformDialogT;
 
@@ -109,7 +108,7 @@ namespace ModelEditor
         MeshInspectorT*    m_MeshInspector;
         ElementsPanelT*    m_AnimsList;
         AnimInspectorT*    m_AnimInspector;
-        SkinsPanelT*       m_SkinsList;
+        ElementsPanelT*    m_SkinsList;
         ElementsPanelT*    m_GuiFixturesList;
         GuiFixInspectorT*  m_GuiFixtureInspector;
         ScenePropGridT*    m_ScenePropGrid;

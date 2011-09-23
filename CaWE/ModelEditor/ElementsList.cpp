@@ -49,11 +49,12 @@ END_EVENT_TABLE()
 ElementsListT::ElementsListT(ChildFrameT* MainFrame, wxWindow* Parent, const wxSize& Size, ModelElementTypeT Type)
     : wxListView(Parent, wxID_ANY, wxDefaultPosition, Size, wxLC_REPORT | wxLC_EDIT_LABELS),
       m_TYPE(Type),
+      m_NUM_DEFAULT_ITEMS(m_TYPE==SKIN ? 1 : 0),
       m_ModelDoc(MainFrame->GetModelDoc()),
       m_MainFrame(MainFrame),
       m_IsRecursiveSelfNotify(false)
 {
-    wxASSERT(m_TYPE==ANIM || m_TYPE==MESH || m_TYPE==GFIX);
+    wxASSERT(m_TYPE==MESH || m_TYPE==SKIN || m_TYPE==GFIX || m_TYPE==ANIM);
 
     // TODO: Make it up to the caller code to call this?
     // // As we are now a wxAUI pane rather than a wxDialog, explicitly set that events are not propagated to our parent.
@@ -75,6 +76,16 @@ ElementsListT::~ElementsListT()
 }
 
 
+bool ElementsListT::AreDefaultItemsSelected() const
+{
+    for (int ItemNr=0; ItemNr<m_NUM_DEFAULT_ITEMS; ItemNr++)
+        if (IsSelected(ItemNr))
+            return true;
+
+    return false;
+}
+
+
 void ElementsListT::Notify_SelectionChanged(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel)
 {
     if (m_IsRecursiveSelfNotify) return;
@@ -88,7 +99,10 @@ void ElementsListT::Notify_SelectionChanged(SubjectT* Subject, ModelElementTypeT
         Select(SelNr, false);
 
     for (unsigned long SelNr=0; SelNr<NewSel.Size(); SelNr++)
-        Select(NewSel[SelNr]);
+        Select(NewSel[SelNr] + m_NUM_DEFAULT_ITEMS);
+
+    if (NewSel.Size()==0 && m_NUM_DEFAULT_ITEMS>0)
+        Select(0);
 
     Thaw();
     m_IsRecursiveSelfNotify=false;
@@ -137,7 +151,7 @@ void ElementsListT::Notify_SkinChanged(SubjectT* Subject, unsigned int SkinNr)
 
     // Update the list of meshes also when a skin changed, as with each
     // mesh we display the used material in the currently selected skin.
-    if (m_TYPE!=MESH) return;
+    if (m_TYPE!=SKIN && m_TYPE!=MESH) return;
 
     InitListItems();
 }
@@ -207,7 +221,17 @@ void ElementsListT::InitListItems()
             break;
 
         case SKIN:
-            wxASSERT(false);
+            InsertItem(0, "default");
+            SetItem(0, 1, "-1");
+            if (Sel.Size()==0) Select(0);
+
+            for (unsigned long ElemNr=0; ElemNr<m_ModelDoc->GetModel()->GetSkins().Size(); ElemNr++)
+            {
+                InsertItem(ElemNr+1, m_ModelDoc->GetModel()->GetSkins()[ElemNr].Name);
+                SetItem(ElemNr+1, 1, wxString::Format("%lu", ElemNr));
+
+                if (Sel.Find(ElemNr)!=-1) Select(ElemNr+1);
+            }
             break;
 
         case GFIX:
@@ -250,9 +274,8 @@ void ElementsListT::OnContextMenu(wxContextMenuEvent& CE)
 
     wxMenu Menu;
 
-    Menu.Append(ID_MENU_INSPECT_EDIT, "Inspect / Edit\tEnter");
-    Menu.Append(ID_MENU_RENAME,       "Rename\tF2");
-
+    if (m_TYPE!=SKIN) Menu.Append(ID_MENU_INSPECT_EDIT, "Inspect / Edit\tEnter");
+    Menu.Append(ID_MENU_RENAME, "Rename\tF2");
     if (m_TYPE==GFIX) Menu.Append(ID_MENU_ADD_NEW, "Add/create new");
 
     /* if (m_TYPE==MESH)
@@ -272,13 +295,24 @@ void ElementsListT::OnContextMenu(wxContextMenuEvent& CE)
         {
             const long SelNr=GetFirstSelected();
 
-            if (SelNr!=-1) EditLabel(SelNr);
+            // Only relabel custom elements (not the "default" ones).
+            if (SelNr>=m_NUM_DEFAULT_ITEMS) EditLabel(SelNr);
             break;
         }
 
         case ID_MENU_ADD_NEW:
         {
-            if (m_TYPE==GFIX)
+            if (m_TYPE==SKIN)
+            {
+                CafuModelT::SkinT Skin;
+
+                Skin.Name="New Skin";
+                while (Skin.Materials.Size()       < m_ModelDoc->GetModel()->GetMeshes().Size()) Skin.Materials.PushBack(NULL);
+                while (Skin.RenderMaterials.Size() < m_ModelDoc->GetModel()->GetMeshes().Size()) Skin.RenderMaterials.PushBack(NULL);
+
+                m_MainFrame->SubmitCommand(new CommandAddT(m_ModelDoc, Skin));
+            }
+            else if (m_TYPE==GFIX)
             {
                 ArrayT<CafuModelT::GuiFixtureT> GuiFixtures;
 
@@ -301,7 +335,8 @@ void ElementsListT::OnKeyDown(wxListEvent& LE)
         {
             const long SelNr=LE.GetIndex();
 
-            if (SelNr!=-1) EditLabel(SelNr);
+            // Only relabel custom elements (not the "default" ones).
+            if (SelNr>=m_NUM_DEFAULT_ITEMS) EditLabel(SelNr);
             break;
         }
 
@@ -333,7 +368,8 @@ void ElementsListT::OnSelectionChanged(wxListEvent& LE)
     ArrayT<unsigned int> NewSel;
 
     for (long SelNr=GetFirstSelected(); SelNr!=-1; SelNr=GetNextSelected(SelNr))
-        NewSel.PushBack(SelNr);
+        if (SelNr>=m_NUM_DEFAULT_ITEMS)     // Skip the "default" elements.
+            NewSel.PushBack(SelNr - m_NUM_DEFAULT_ITEMS);
 
     m_MainFrame->SubmitCommand(CommandSelectT::Set(m_ModelDoc, m_TYPE, NewSel));
 
@@ -343,12 +379,13 @@ void ElementsListT::OnSelectionChanged(wxListEvent& LE)
 
 void ElementsListT::OnEndLabelEdit(wxListEvent& LE)
 {
-    const unsigned int Index=LE.GetIndex();
+    const long Index=LE.GetIndex();
 
     if (LE.IsEditCancelled()) return;
+    if (Index < m_NUM_DEFAULT_ITEMS) { LE.Veto(); return; }   // Cannot relabel the "default" elements.
 
     m_IsRecursiveSelfNotify=true;
-    m_MainFrame->SubmitCommand(new CommandRenameT(m_ModelDoc, m_TYPE, Index, LE.GetLabel()));
+    m_MainFrame->SubmitCommand(new CommandRenameT(m_ModelDoc, m_TYPE, Index - m_NUM_DEFAULT_ITEMS, LE.GetLabel()));
     m_IsRecursiveSelfNotify=false;
 }
 
@@ -408,7 +445,17 @@ void ElementsPanelT::OnButton(wxCommandEvent& Event)
     {
         case ID_BUTTON_ADD:
         {
-            if (m_TYPE==GFIX)
+            if (m_TYPE==SKIN)
+            {
+                CafuModelT::SkinT Skin;
+
+                Skin.Name="New Skin";
+                while (Skin.Materials.Size()       < m_ModelDoc->GetModel()->GetMeshes().Size()) Skin.Materials.PushBack(NULL);
+                while (Skin.RenderMaterials.Size() < m_ModelDoc->GetModel()->GetMeshes().Size()) Skin.RenderMaterials.PushBack(NULL);
+
+                m_MainFrame->SubmitCommand(new CommandAddT(m_ModelDoc, Skin));
+            }
+            else if (m_TYPE==GFIX)
             {
                 ArrayT<CafuModelT::GuiFixtureT> GuiFixtures;
 
@@ -439,7 +486,7 @@ void ElementsPanelT::OnButtonUpdate(wxUpdateUIEvent& UE)
     {
         case ID_BUTTON_ADD:
         {
-            UE.Enable(m_TYPE==GFIX);
+            UE.Enable(m_TYPE==SKIN || m_TYPE==GFIX);
             break;
         }
 
@@ -457,7 +504,8 @@ void ElementsPanelT::OnButtonUpdate(wxUpdateUIEvent& UE)
 
         case ID_BUTTON_DELETE:
         {
-            UE.Enable(m_ModelDoc->GetSelection(m_TYPE).Size()>0);
+            // Are some elements but not the "default" elements selected?
+            UE.Enable(m_ModelDoc->GetSelection(m_TYPE).Size()>0 && !m_List->AreDefaultItemsSelected());
             break;
         }
     }
