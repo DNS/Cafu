@@ -244,7 +244,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
                          Name("SubmodelsPanel").Caption("Submodels List").
                          Right().Position(1));
 
-    m_SkinsList=new SkinsPanelT(this, wxSize(230, 150));
+    m_SkinsList=new SkinsPanelT(this, wxSize(230, 150), SKIN);
     m_AUIManager.AddPane(m_SkinsList, wxAuiPaneInfo().
                          Name("SkinsList").Caption("Skins List").
                          Right().Position(2));

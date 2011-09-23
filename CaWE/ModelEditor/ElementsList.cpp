@@ -394,7 +394,7 @@ ElementsPanelT::ElementsPanelT(ChildFrameT* MainFrame, const wxSize& Size, Model
 
     item0->Add( item7, 0, wxEXPAND | wxTOP | wxBOTTOM, 3 );
 
-    m_List=new ElementsListT(MainFrame, this, /*ID_LISTVIEW,*/ wxDefaultSize, Type);
+    m_List=new ElementsListT(MainFrame, this, /*ID_LISTVIEW,*/ wxDefaultSize, m_TYPE);
     item0->Add(m_List, 1, wxEXPAND, 0 );
 
     this->SetSizer( item0 );

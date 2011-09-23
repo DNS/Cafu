@@ -39,7 +39,7 @@ namespace ModelEditor
         public:
 
         /// The constructor.
-        SkinsListT(ChildFrameT* MainFrame, wxWindow* Parent, const wxSize& Size);
+        SkinsListT(ChildFrameT* MainFrame, wxWindow* Parent, const wxSize& Size, ModelElementTypeT Type);
 
         /// The destructor.
         ~SkinsListT();
@@ -65,9 +65,10 @@ namespace ModelEditor
 
         DECLARE_EVENT_TABLE()
 
-        ModelDocumentT* m_ModelDoc;
-        ChildFrameT*    m_MainFrame;
-        bool            m_IsRecursiveSelfNotify;
+        const ModelElementTypeT m_TYPE;
+        ModelDocumentT*         m_ModelDoc;
+        ChildFrameT*            m_MainFrame;
+        bool                    m_IsRecursiveSelfNotify;
     };
 
 
@@ -75,7 +76,7 @@ namespace ModelEditor
     {
         public:
 
-        SkinsPanelT(ChildFrameT* MainFrame, const wxSize& Size);
+        SkinsPanelT(ChildFrameT* MainFrame, const wxSize& Size, ModelElementTypeT Type);
 
 
         private:
@@ -93,9 +94,10 @@ namespace ModelEditor
         void OnButton(wxCommandEvent& Event);
         void OnButtonUpdate(wxUpdateUIEvent& UE);
 
-        ModelDocumentT* m_ModelDoc;
-        ChildFrameT*    m_MainFrame;
-        SkinsListT*     m_List;
+        const ModelElementTypeT m_TYPE;
+        ModelDocumentT*         m_ModelDoc;
+        ChildFrameT*            m_MainFrame;
+        SkinsListT*             m_List;
 
         DECLARE_EVENT_TABLE()
     };

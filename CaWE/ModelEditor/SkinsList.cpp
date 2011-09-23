@@ -45,8 +45,9 @@ BEGIN_EVENT_TABLE(SkinsListT, wxListView)
 END_EVENT_TABLE()
 
 
-SkinsListT::SkinsListT(ChildFrameT* MainFrame, wxWindow* Parent, const wxSize& Size)
+SkinsListT::SkinsListT(ChildFrameT* MainFrame, wxWindow* Parent, const wxSize& Size, ModelElementTypeT Type)
     : wxListView(Parent, wxID_ANY, wxDefaultPosition, Size, wxLC_REPORT | wxLC_EDIT_LABELS),
+      m_TYPE(Type),
       m_ModelDoc(MainFrame->GetModelDoc()),
       m_MainFrame(MainFrame),
       m_IsRecursiveSelfNotify(false)
@@ -73,7 +74,7 @@ SkinsListT::~SkinsListT()
 void SkinsListT::Notify_SelectionChanged(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel)
 {
     if (m_IsRecursiveSelfNotify) return;
-    if (Type!=SKIN) return;
+    if (Type!=m_TYPE) return;
 
     m_IsRecursiveSelfNotify=true;
     Freeze();
@@ -95,7 +96,7 @@ void SkinsListT::Notify_SelectionChanged(SubjectT* Subject, ModelElementTypeT Ty
 void SkinsListT::Notify_Created(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& Indices)
 {
     if (m_IsRecursiveSelfNotify) return;
-    if (Type!=SKIN) return;
+    if (Type!=m_TYPE) return;
 
     InitListItems();
 }
@@ -104,7 +105,7 @@ void SkinsListT::Notify_Created(SubjectT* Subject, ModelElementTypeT Type, const
 void SkinsListT::Notify_Deleted(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& Indices)
 {
     if (m_IsRecursiveSelfNotify) return;
-    if (Type!=SKIN) return;
+    if (Type!=m_TYPE) return;
 
     InitListItems();
 }
@@ -130,21 +131,27 @@ void SkinsListT::Notify_SubjectDies(SubjectT* dyingSubject)
 
 void SkinsListT::InitListItems()
 {
-    const ArrayT<unsigned int>& SkinSel=m_ModelDoc->GetSelection(SKIN);
+    const ArrayT<unsigned int>& Sel=m_ModelDoc->GetSelection(m_TYPE);
 
     Freeze();
     DeleteAllItems();
 
-    InsertItem(0, "default");
-    SetItem(0, 1, "-1");
-    if (SkinSel.Size()==0) Select(0);
-
-    for (unsigned long ElemNr=0; ElemNr<m_ModelDoc->GetModel()->GetSkins().Size(); ElemNr++)
+    switch (m_TYPE)
     {
-        InsertItem(ElemNr+1, m_ModelDoc->GetModel()->GetSkins()[ElemNr].Name);
-        SetItem(ElemNr+1, 1, wxString::Format("%lu", ElemNr));
+        case SKIN:
+            InsertItem(0, "default");
+            SetItem(0, 1, "-1");
+            if (Sel.Size()==0) Select(0);
 
-        if (SkinSel.Find(ElemNr)!=-1) Select(ElemNr+1);
+            for (unsigned long ElemNr=0; ElemNr<m_ModelDoc->GetModel()->GetSkins().Size(); ElemNr++)
+            {
+                InsertItem(ElemNr+1, m_ModelDoc->GetModel()->GetSkins()[ElemNr].Name);
+                SetItem(ElemNr+1, 1, wxString::Format("%lu", ElemNr));
+
+                if (Sel.Find(ElemNr)!=-1) Select(ElemNr+1);
+            }
+
+            break;
     }
 
     // Set the widths of the columns to the width of their longest item.
@@ -158,7 +165,7 @@ void SkinsListT::InitListItems()
 
 void SkinsListT::OnFocus(wxFocusEvent& FE)
 {
-    m_MainFrame->SetLastUsedType(SKIN);
+    m_MainFrame->SetLastUsedType(m_TYPE);
     FE.Skip();
 }
 
@@ -191,13 +198,16 @@ void SkinsListT::OnContextMenu(wxContextMenuEvent& CE)
 
         case ID_MENU_ADD_NEW:
         {
-            CafuModelT::SkinT Skin;
+            if (m_TYPE==SKIN)
+            {
+                CafuModelT::SkinT Skin;
 
-            Skin.Name="New Skin";
-            while (Skin.Materials.Size()       < m_ModelDoc->GetModel()->GetMeshes().Size()) Skin.Materials.PushBack(NULL);
-            while (Skin.RenderMaterials.Size() < m_ModelDoc->GetModel()->GetMeshes().Size()) Skin.RenderMaterials.PushBack(NULL);
+                Skin.Name="New Skin";
+                while (Skin.Materials.Size()       < m_ModelDoc->GetModel()->GetMeshes().Size()) Skin.Materials.PushBack(NULL);
+                while (Skin.RenderMaterials.Size() < m_ModelDoc->GetModel()->GetMeshes().Size()) Skin.RenderMaterials.PushBack(NULL);
 
-            m_MainFrame->SubmitCommand(new CommandAddT(m_ModelDoc, Skin));
+                m_MainFrame->SubmitCommand(new CommandAddT(m_ModelDoc, Skin));
+            }
             break;
         }
     }
@@ -251,7 +261,7 @@ void SkinsListT::OnSelectionChanged(wxListEvent& LE)
         if (SelNr>0)    // Skip the "default" skin.
             NewSel.PushBack(SelNr-1);
 
-    m_MainFrame->SubmitCommand(CommandSelectT::Set(m_ModelDoc, SKIN, NewSel));
+    m_MainFrame->SubmitCommand(CommandSelectT::Set(m_ModelDoc, m_TYPE, NewSel));
 
     m_IsRecursiveSelfNotify=false;
 }
@@ -279,8 +289,9 @@ BEGIN_EVENT_TABLE(SkinsPanelT, wxPanel)
 END_EVENT_TABLE()
 
 
-SkinsPanelT::SkinsPanelT(ChildFrameT* MainFrame, const wxSize& Size)
+SkinsPanelT::SkinsPanelT(ChildFrameT* MainFrame, const wxSize& Size, ModelElementTypeT Type)
     : wxPanel(MainFrame, -1, wxDefaultPosition, Size),
+      m_TYPE(Type),
       m_ModelDoc(MainFrame->GetModelDoc()),
       m_MainFrame(MainFrame),
       m_List(NULL)
@@ -310,7 +321,7 @@ SkinsPanelT::SkinsPanelT(ChildFrameT* MainFrame, const wxSize& Size)
 
     item0->Add( item7, 0, wxEXPAND | wxTOP | wxBOTTOM, 3 );
 
-    m_List=new SkinsListT(MainFrame, this, /*ID_LISTVIEW,*/ wxDefaultSize);
+    m_List=new SkinsListT(MainFrame, this, /*ID_LISTVIEW,*/ wxDefaultSize, m_TYPE);
     item0->Add(m_List, 1, wxEXPAND, 0 );
 
     this->SetSizer( item0 );
@@ -324,19 +335,22 @@ void SkinsPanelT::OnButton(wxCommandEvent& Event)
     {
         case ID_BUTTON_ADD:
         {
-            CafuModelT::SkinT Skin;
+            if (m_TYPE==SKIN)
+            {
+                CafuModelT::SkinT Skin;
 
-            Skin.Name="New Skin";
-            while (Skin.Materials.Size()       < m_ModelDoc->GetModel()->GetMeshes().Size()) Skin.Materials.PushBack(NULL);
-            while (Skin.RenderMaterials.Size() < m_ModelDoc->GetModel()->GetMeshes().Size()) Skin.RenderMaterials.PushBack(NULL);
+                Skin.Name="New Skin";
+                while (Skin.Materials.Size()       < m_ModelDoc->GetModel()->GetMeshes().Size()) Skin.Materials.PushBack(NULL);
+                while (Skin.RenderMaterials.Size() < m_ModelDoc->GetModel()->GetMeshes().Size()) Skin.RenderMaterials.PushBack(NULL);
 
-            m_MainFrame->SubmitCommand(new CommandAddT(m_ModelDoc, Skin));
+                m_MainFrame->SubmitCommand(new CommandAddT(m_ModelDoc, Skin));
+            }
             break;
         }
 
         case ID_BUTTON_DELETE:
         {
-            CommandDeleteT* DelCmd=new CommandDeleteT(m_ModelDoc, SKIN, m_ModelDoc->GetSelection(SKIN));
+            CommandDeleteT* DelCmd=new CommandDeleteT(m_ModelDoc, m_TYPE, m_ModelDoc->GetSelection(m_TYPE));
             bool            Result=DelCmd->Do();
 
             if (DelCmd->GetMessage()!="") wxMessageBox(DelCmd->GetMessage(), "Delete");
@@ -353,7 +367,7 @@ void SkinsPanelT::OnButtonUpdate(wxUpdateUIEvent& UE)
     {
         case ID_BUTTON_ADD:
         {
-            UE.Enable(true);
+            UE.Enable(m_TYPE==SKIN || m_TYPE==GFIX);
             break;
         }
 
