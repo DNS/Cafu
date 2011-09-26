@@ -126,7 +126,7 @@ wxString ModelEditor::ModelDocumentT::GetSelSkinString() const
 
 void ModelEditor::ModelDocumentT::SetSelection(ModelElementTypeT Type, const ArrayT<unsigned int>& NewSel)
 {
-    wxASSERT(Type<5);
+    wxASSERT(Type<6);
     m_Selection[Type]=NewSel;
 
     if (Type==ANIM)

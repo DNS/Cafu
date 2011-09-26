@@ -49,12 +49,12 @@ END_EVENT_TABLE()
 ElementsListT::ElementsListT(ChildFrameT* MainFrame, wxWindow* Parent, const wxSize& Size, ModelElementTypeT Type)
     : wxListView(Parent, wxID_ANY, wxDefaultPosition, Size, wxLC_REPORT | wxLC_EDIT_LABELS),
       m_TYPE(Type),
-      m_NUM_DEFAULT_ITEMS(m_TYPE==SKIN ? 1 : 0),
+      m_NUM_DEFAULT_ITEMS(m_TYPE==SKIN || m_TYPE==CHAN ? 1 : 0),
       m_ModelDoc(MainFrame->GetModelDoc()),
       m_MainFrame(MainFrame),
       m_IsRecursiveSelfNotify(false)
 {
-    wxASSERT(m_TYPE==MESH || m_TYPE==SKIN || m_TYPE==GFIX || m_TYPE==ANIM);
+    wxASSERT(m_TYPE==MESH || m_TYPE==SKIN || m_TYPE==GFIX || m_TYPE==ANIM || m_TYPE==CHAN);
 
     // TODO: Make it up to the caller code to call this?
     // // As we are now a wxAUI pane rather than a wxDialog, explicitly set that events are not propagated to our parent.
@@ -145,6 +145,15 @@ void ElementsListT::Notify_AnimChanged(SubjectT* Subject, unsigned int AnimNr)
 }
 
 
+void ElementsListT::Notify_ChannelChanged(SubjectT* Subject, unsigned int ChannelNr)
+{
+    if (m_IsRecursiveSelfNotify) return;
+    if (m_TYPE!=CHAN) return;
+
+    InitListItems();
+}
+
+
 void ElementsListT::Notify_SkinChanged(SubjectT* Subject, unsigned int SkinNr)
 {
     if (m_IsRecursiveSelfNotify) return;
@@ -220,6 +229,20 @@ void ElementsListT::InitListItems()
             }
             break;
 
+        case CHAN:
+            InsertItem(0, "all (default)");
+            SetItem(0, 1, "-1");
+            if (Sel.Size()==0) Select(0);
+
+            for (unsigned long ElemNr=0; ElemNr<m_ModelDoc->GetModel()->GetChannels().Size(); ElemNr++)
+            {
+                InsertItem(ElemNr+1, m_ModelDoc->GetModel()->GetChannels()[ElemNr].Name);
+                SetItem(ElemNr+1, 1, wxString::Format("%lu", ElemNr));
+
+                if (Sel.Find(ElemNr)!=-1) Select(ElemNr+1);
+            }
+            break;
+
         case SKIN:
             InsertItem(0, "default");
             SetItem(0, 1, "-1");
@@ -276,7 +299,7 @@ void ElementsListT::OnContextMenu(wxContextMenuEvent& CE)
 
     if (m_TYPE!=SKIN) Menu.Append(ID_MENU_INSPECT_EDIT, "Inspect / Edit\tEnter");
     Menu.Append(ID_MENU_RENAME, "Rename\tF2");
-    if (m_TYPE==GFIX) Menu.Append(ID_MENU_ADD_NEW, "Add/create new");
+    if (m_TYPE==GFIX || m_TYPE==SKIN || m_TYPE==CHAN) Menu.Append(ID_MENU_ADD_NEW, "Add/create new");
 
     /* if (m_TYPE==MESH)
     {
@@ -320,6 +343,13 @@ void ElementsListT::OnContextMenu(wxContextMenuEvent& CE)
                 GuiFixtures[0].Name="New GUI Fixture";
 
                 m_MainFrame->SubmitCommand(new CommandAddT(m_ModelDoc, GuiFixtures));
+            }
+            else if (m_TYPE==CHAN)
+            {
+                CafuModelT::ChannelT Channel;
+
+                Channel.Name="New Channel";
+                m_MainFrame->SubmitCommand(new CommandAddT(m_ModelDoc, Channel));
             }
             break;
         }
@@ -464,6 +494,13 @@ void ElementsPanelT::OnButton(wxCommandEvent& Event)
 
                 m_MainFrame->SubmitCommand(new CommandAddT(m_ModelDoc, GuiFixtures));
             }
+            else if (m_TYPE==CHAN)
+            {
+                CafuModelT::ChannelT Channel;
+
+                Channel.Name="New Channel";
+                m_MainFrame->SubmitCommand(new CommandAddT(m_ModelDoc, Channel));
+            }
             break;
         }
 
@@ -486,7 +523,7 @@ void ElementsPanelT::OnButtonUpdate(wxUpdateUIEvent& UE)
     {
         case ID_BUTTON_ADD:
         {
-            UE.Enable(m_TYPE==SKIN || m_TYPE==GFIX);
+            UE.Enable(m_TYPE==SKIN || m_TYPE==GFIX || m_TYPE==CHAN);
             break;
         }
 

@@ -19,21 +19,43 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MODELEDITOR_ELEMENT_TYPES_HPP_
-#define _MODELEDITOR_ELEMENT_TYPES_HPP_
+#ifndef _MODELEDITOR_CHANNEL_INSPECTOR_HPP_
+#define _MODELEDITOR_CHANNEL_INSPECTOR_HPP_
+
+#include "ObserverPattern.hpp"
+#include "wx/wx.h"
+#include "wx/propgrid/manager.h"
 
 
 namespace ModelEditor
 {
-    /// Enumerates the types of the elements that a model is composed of.
-    enum ModelElementTypeT
+    class ChildFrameT;
+    class ModelDocumentT;
+
+    class ChannelInspectorT : public wxPropertyGridManager, public ObserverT
     {
-        JOINT=0,
-        MESH =1,
-        ANIM =2,
-        CHAN =3,
-        SKIN =4,
-        GFIX =5
+        public:
+
+        ChannelInspectorT(ChildFrameT* Parent, const wxSize& Size);
+        ~ChannelInspectorT();
+
+        // ObserverT implementation.
+        void Notify_SelectionChanged(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel);
+     // void Notify_Joint Added / Deleted();
+        void Notify_ChannelChanged(SubjectT* Subject, unsigned int ChannelNr);
+        void Notify_SubjectDies(SubjectT* dyingSubject);
+
+
+        private:
+
+        void RefreshPropGrid();
+        void OnPropertyGridChanging(wxPropertyGridEvent& Event);
+
+        DECLARE_EVENT_TABLE()
+
+        ModelDocumentT* m_ModelDoc;
+        ChildFrameT*    m_Parent;
+        bool            m_IsRecursiveSelfNotify;
     };
 }
 

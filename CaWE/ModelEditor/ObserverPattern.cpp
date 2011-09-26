@@ -101,6 +101,13 @@ void SubjectT::UpdateAllObservers_AnimChanged(unsigned int AnimNr)
 }
 
 
+void SubjectT::UpdateAllObservers_ChannelChanged(unsigned int ChannelNr)
+{
+    for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
+        m_Observers[ObsNr]->Notify_ChannelChanged(this, ChannelNr);
+}
+
+
 void SubjectT::UpdateAllObservers_SkinChanged(unsigned int SkinNr)
 {
     for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)

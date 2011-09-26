@@ -39,6 +39,7 @@ namespace ModelEditor
 
         CommandAddT(ModelDocumentT* ModelDoc, const CafuModelT::SkinT& Skin);
         CommandAddT(ModelDocumentT* ModelDoc, const ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures);
+        CommandAddT(ModelDocumentT* ModelDoc, const CafuModelT::ChannelT& Channel);
 
         // CommandT implementation.
         bool Do();
@@ -56,6 +57,7 @@ namespace ModelEditor
      // ArrayT<CafuModelT::AnimT>       m_Anims;        ///< The added anims (if m_Type==ANIM).
         ArrayT<CafuModelT::SkinT>       m_Skins;        ///< The added skins (if m_Type==SKIN).
         ArrayT<CafuModelT::GuiFixtureT> m_GuiFixtures;  ///< The added GUI fixtures (if m_Type==GFIX).
+        ArrayT<CafuModelT::ChannelT>    m_Channels;     ///< The added channels (if m_Type==CHAN).
     };
 }
 

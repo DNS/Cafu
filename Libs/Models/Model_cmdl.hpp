@@ -47,6 +47,7 @@ namespace ModelEditor { class CommandSetAnimNextT; }
 namespace ModelEditor { class CommandSetMaterialT; }
 namespace ModelEditor { class CommandTransformJointT; }
 namespace ModelEditor { class CommandUpdateAnimT; }
+namespace ModelEditor { class CommandUpdateChannelT; }
 namespace ModelEditor { class CommandUpdateGuiFixtureT; }
 
 
@@ -322,6 +323,7 @@ class CafuModelT : public ModelT
     friend class ModelEditor::CommandSetMaterialT;
     friend class ModelEditor::CommandTransformJointT;
     friend class ModelEditor::CommandUpdateAnimT;
+    friend class ModelEditor::CommandUpdateChannelT;
     friend class ModelEditor::CommandUpdateGuiFixtureT;
 
     void RecomputeBindPoseBB();                                                             ///< Recomputes the bounding box for the model in bind pose (stored in m_BindPoseBB).

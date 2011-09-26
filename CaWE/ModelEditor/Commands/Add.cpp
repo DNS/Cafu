@@ -46,6 +46,15 @@ CommandAddT::CommandAddT(ModelDocumentT* ModelDoc, const ArrayT<CafuModelT::GuiF
 }
 
 
+CommandAddT::CommandAddT(ModelDocumentT* ModelDoc, const CafuModelT::ChannelT& Channel)
+    : m_ModelDoc(ModelDoc),
+      m_Type(CHAN),
+      m_Channels()
+{
+    m_Channels.PushBack(Channel);
+}
+
+
 bool CommandAddT::Do()
 {
     wxASSERT(!m_Done);
@@ -55,6 +64,10 @@ bool CommandAddT::Do()
 
     switch (m_Type)
     {
+        case JOINT:
+            // If we supported adding joints, note that we had to update all channels as well.
+            break;
+
         case MESH:
             // If we supported adding meshes, note that we had to add a
             // new "NULL" material (and render material) to each skin as well.
@@ -73,6 +86,14 @@ bool CommandAddT::Do()
             {
                 Indices.PushBack(m_ModelDoc->GetModel()->m_GuiFixtures.Size());
                 m_ModelDoc->GetModel()->m_GuiFixtures.PushBack(m_GuiFixtures[GFixNr]);
+            }
+            break;
+
+        case CHAN:
+            for (unsigned long ChannelNr=0; ChannelNr<m_Channels.Size(); ChannelNr++)
+            {
+                Indices.PushBack(m_ModelDoc->GetModel()->m_Channels.Size());
+                m_ModelDoc->GetModel()->m_Channels.PushBack(m_Channels[ChannelNr]);
             }
             break;
 
@@ -99,6 +120,10 @@ void CommandAddT::Undo()
 
     switch (m_Type)
     {
+        case JOINT:
+            // For undoing the addition of joints, note that we had to update all channels as well.
+            break;
+
         case MESH:
             // For undoing the addition of a mesh, note that we had to remove
             // the related material (and render material) in each skin as well.
@@ -117,6 +142,14 @@ void CommandAddT::Undo()
             {
                 m_ModelDoc->GetModel()->m_GuiFixtures.DeleteBack();
                 Indices.InsertAt(0, m_ModelDoc->GetModel()->m_GuiFixtures.Size());
+            }
+            break;
+
+        case CHAN:
+            for (unsigned long ChannelNr=0; ChannelNr<m_Channels.Size(); ChannelNr++)
+            {
+                m_ModelDoc->GetModel()->m_Channels.DeleteBack();
+                Indices.InsertAt(0, m_ModelDoc->GetModel()->m_Channels.Size());
             }
             break;
 
@@ -154,6 +187,12 @@ wxString CommandAddT::GetName() const
             const unsigned long Num=m_GuiFixtures.Size();
 
             Name=(Num==1) ? wxString("Add GUI fixture") : wxString::Format("Add %lu GUI fixtures", Num);
+            break;
+        }
+
+        case CHAN:
+        {
+            Name=(m_Channels.Size()==1) ? wxString("Add channel") : wxString::Format("Add %lu channels", m_Channels.Size());
             break;
         }
     }

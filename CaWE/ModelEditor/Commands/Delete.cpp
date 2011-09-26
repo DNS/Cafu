@@ -64,6 +64,7 @@ CommandDeleteT::CommandDeleteT(ModelDocumentT* ModelDoc, ModelElementTypeT Type,
       m_Joints(),
       m_MeshInfos(),
       m_Anims(),
+      m_Channels(),
       m_Skins(),
       m_GuiFixtures(),
       m_Message(),
@@ -77,6 +78,7 @@ CommandDeleteT::CommandDeleteT(ModelDocumentT* ModelDoc, ModelElementTypeT Type,
         {
             case JOINT: m_Joints     .PushBack(m_ModelDoc->GetModel()->GetJoints()     [i]); break;
             case ANIM:  m_Anims      .PushBack(m_ModelDoc->GetModel()->GetAnims()      [i]); break;
+            case CHAN:  m_Channels   .PushBack(m_ModelDoc->GetModel()->GetChannels()   [i]); break;
             case SKIN:  m_Skins      .PushBack(m_ModelDoc->GetModel()->GetSkins()      [i]); break;
             case GFIX:  m_GuiFixtures.PushBack(m_ModelDoc->GetModel()->GetGuiFixtures()[i]); break;
             case MESH:
@@ -146,6 +148,7 @@ bool CommandDeleteT::Do()
         //   - decide what to do with child joints, if any (probably delete them as well),
         //   - decide what to with meshes whose weights refer to the joint or one of its children (probably refuse to delete the joint),
         //   - unload the submodel (if any),
+        //   - delete the joint also from the anim channels,
         //   - delete the joint also from the anim joints (this is easy), and restore the deleted anim joints on undo (not so easy).
         // (It might help though to restrict deleting joints to one joint at a time.)
         m_Message="Deleting joints is not supported at this time. Sorry.";
@@ -174,6 +177,7 @@ bool CommandDeleteT::Do()
         {
             case JOINT: m_ModelDoc->GetModel()->m_Joints     .RemoveAtAndKeepOrder(i); break;
             case ANIM:  m_ModelDoc->GetModel()->m_Anims      .RemoveAtAndKeepOrder(i); break;
+            case CHAN:  m_ModelDoc->GetModel()->m_Channels   .RemoveAtAndKeepOrder(i); break;
             case SKIN:  m_ModelDoc->GetModel()->m_Skins      .RemoveAtAndKeepOrder(i); break;
             case GFIX:  m_ModelDoc->GetModel()->m_GuiFixtures.RemoveAtAndKeepOrder(i); break;
             case MESH:
@@ -214,6 +218,7 @@ void CommandDeleteT::Undo()
         {
             case JOINT: m_ModelDoc->GetModel()->m_Joints     .InsertAt(i, m_Joints     [INr]); break;
             case ANIM:  m_ModelDoc->GetModel()->m_Anims      .InsertAt(i, m_Anims      [INr]); break;
+            case CHAN:  m_ModelDoc->GetModel()->m_Channels   .InsertAt(i, m_Channels   [INr]); break;
             case SKIN:  m_ModelDoc->GetModel()->m_Skins      .InsertAt(i, m_Skins      [INr]); break;
             case GFIX:  m_ModelDoc->GetModel()->m_GuiFixtures.InsertAt(i, m_GuiFixtures[INr]); break;
             case MESH:
@@ -254,6 +259,7 @@ wxString CommandDeleteT::GetName() const
         case JOINT: Name+=(m_Indices.Size()==1) ? "joint"       : "joints";       break;
         case MESH:  Name+=(m_Indices.Size()==1) ? "mesh"        : "meshes";       break;
         case ANIM:  Name+=(m_Indices.Size()==1) ? "animation"   : "animations";   break;
+        case CHAN:  Name+=(m_Indices.Size()==1) ? "channel"     : "channels";     break;
         case SKIN:  Name+=(m_Indices.Size()==1) ? "skin"        : "skins";        break;
         case GFIX:  Name+=(m_Indices.Size()==1) ? "GUI fixture" : "GUI fixtures"; break;
     }

@@ -101,7 +101,7 @@ namespace ModelEditor
         ~ModelDocumentT();
 
         const CafuModelT*               GetModel() const           { return m_Model; }
-        const ArrayT<unsigned int>&     GetSelection(ModelElementTypeT Type) const { wxASSERT(Type<5); return m_Selection[Type]; }
+        const ArrayT<unsigned int>&     GetSelection(ModelElementTypeT Type) const { wxASSERT(Type<6); return m_Selection[Type]; }
         const BoundingBox3fT&           GetSequenceBB() const      { return m_SequenceBB; }
         int                             GetSelSkinNr() const;      ///< Return the index number of the currently selected skin, or -1 when no skin (that is, the default skin) is selected.
         wxString                        GetSelSkinString() const;  ///< Returns a string representation for the currently selected skin.
@@ -136,7 +136,7 @@ namespace ModelEditor
         static CafuModelT* LoadModel(const wxString& FileName);
 
         CafuModelT*              m_Model;           ///< The model that is being edited.
-        ArrayT<unsigned int>     m_Selection[5];    ///< The selected joints, meshes, animations, skins and GUI fixtures.
+        ArrayT<unsigned int>     m_Selection[6];    ///< The selected joints, meshes, animations, channels, skins and GUI fixtures.
         BoundingBox3fT           m_SequenceBB;      ///< The bounding-box encompassing all frames of the currently selected animation sequence(s).
         ArrayT<EditorMaterialI*> m_EditorMaterials; ///< One editor material for each material in the model (its material manager).
         AnimStateT               m_AnimState;       ///< The current state of the model animation.

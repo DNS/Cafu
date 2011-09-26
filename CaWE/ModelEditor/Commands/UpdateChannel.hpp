@@ -19,21 +19,36 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MODELEDITOR_ELEMENT_TYPES_HPP_
-#define _MODELEDITOR_ELEMENT_TYPES_HPP_
+#ifndef _MODELEDITOR_UPDATE_CHANNEL_HPP_
+#define _MODELEDITOR_UPDATE_CHANNEL_HPP_
+
+#include "../../CommandPattern.hpp"
+#include "Models/Model_cmdl.hpp"
 
 
 namespace ModelEditor
 {
-    /// Enumerates the types of the elements that a model is composed of.
-    enum ModelElementTypeT
+    class ModelDocumentT;
+
+    class CommandUpdateChannelT : public CommandT
     {
-        JOINT=0,
-        MESH =1,
-        ANIM =2,
-        CHAN =3,
-        SKIN =4,
-        GFIX =5
+        public:
+
+        CommandUpdateChannelT(ModelDocumentT* ModelDoc, unsigned int ChannelNr, unsigned int JointNr, bool IsMember);
+
+        // CommandT implementation.
+        bool Do();
+        void Undo();
+        wxString GetName() const;
+
+
+        private:
+
+        ModelDocumentT*    m_ModelDoc;
+        const unsigned int m_ChannelNr;
+        const unsigned int m_JointNr;
+        const bool         m_NewIsMember;
+        const bool         m_OldIsMember;
     };
 }
 

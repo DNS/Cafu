@@ -34,6 +34,7 @@ class ParentFrameT;
 namespace ModelEditor
 {
     class AnimInspectorT;
+    class ChannelInspectorT;
     class ElementsPanelT;
     class GlobalsInspectorT;
     class GuiFixInspectorT;
@@ -108,7 +109,10 @@ namespace ModelEditor
         MeshInspectorT*    m_MeshInspector;
         ElementsPanelT*    m_AnimsList;
         AnimInspectorT*    m_AnimInspector;
+        ElementsPanelT*    m_ChannelsList;
+        ChannelInspectorT* m_ChannelInspector;
         ElementsPanelT*    m_SkinsList;
+     // SkinInspectorT*    m_SkinInspector;
         ElementsPanelT*    m_GuiFixturesList;
         GuiFixInspectorT*  m_GuiFixtureInspector;
         ScenePropGridT*    m_ScenePropGrid;
@@ -132,7 +136,10 @@ namespace ModelEditor
             ID_MENU_VIEW_AUIPANE_MESH_INSPECTOR,
             ID_MENU_VIEW_AUIPANE_ANIMS_LIST,
             ID_MENU_VIEW_AUIPANE_ANIM_INSPECTOR,
+            ID_MENU_VIEW_AUIPANE_CHANNELS_LIST,
+            ID_MENU_VIEW_AUIPANE_CHANNEL_INSPECTOR,
             ID_MENU_VIEW_AUIPANE_SKINS_LIST,
+         // ID_MENU_VIEW_AUIPANE_SKIN_INSPECTOR,
             ID_MENU_VIEW_AUIPANE_GUIFIXTURES_LIST,
             ID_MENU_VIEW_AUIPANE_GUIFIXTURE_INSPECTOR,
             ID_MENU_VIEW_AUIPANE_SCENE_SETUP,
@@ -148,6 +155,8 @@ namespace ModelEditor
             ID_MENU_MODEL_ANIM_SKIP_FORWARD,
             ID_MENU_MODEL_TRANSFORM,
             ID_MENU_MODEL_GUIFIXTURE_ADD,
+         // ID_MENU_MODEL_SKIN_ADD,
+         // ID_MENU_MODEL_CHANNEL_ADD,
             ID_MENU_MODEL_LOAD_SUBMODEL,
             ID_MENU_MODEL_UNLOAD_SUBMODELS
         };
