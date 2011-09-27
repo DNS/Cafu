@@ -132,6 +132,49 @@ class CafuModelT : public ModelT
     };
 
 
+    /// This struct describes additional/alternative skins for the meshes of this model.
+    struct SkinT
+    {
+        std::string                      Name;              ///< The name of this skin.
+        ArrayT<MaterialT*>               Materials;         ///< For each mesh \c m, <tt>Materials[m]</tt> is the material for the mesh in this skin. If <tt>Materials[m]</tt> is NULL, the material of the default skin is used.
+        ArrayT<MatSys::RenderMaterialT*> RenderMaterials;   ///< Analogous to \c Materials, these are the (possibly NULL) render materials for the meshes in this skin.
+    };
+
+
+    /// This struct defines how and where a GUI can be fixed to the model.
+    /// The GUI rectangle is defined by three points: the origin, the x-axis endpoint, and the y-axis endpoint, numbered 0, 1 and 2.
+    /// Each point is represented by an arbitrary vertex of one of meshes in the model.
+    /// The whole GUI rectangle can be translated and scaled, in order to compensate for cases where the mesh vertices do not
+    /// exactly match the desired rectangle dimensions.
+    /// More than one GUI can be fixed to a model, and if the referenced mesh vertices are animated, the GUI rectangle is animated, too.
+    struct GuiFixtureT
+    {
+        GuiFixtureT();
+
+        struct PointT
+        {
+            unsigned int MeshNr;
+            unsigned int VertexNr;
+        };
+
+        std::string Name;
+        PointT      Points[3];
+        float       Trans[2];
+        float       Scale[2];
+    };
+
+
+    /// This (now obsolete) structure is used to describe the locations where GUIs can be attached to the model.
+    /// Note that the current static/fixed-position implementation (origin, x- and y-axis) is temporary though,
+    /// it should eventually be possible to attach GUIs even to animated models.
+    struct GuiLocT
+    {
+        Vector3fT Origin;
+        Vector3fT AxisX;
+        Vector3fT AxisY;
+    };
+
+
     /// This struct describes one animation sequence, e.g.\ "run", "walk", "jump", etc.
     /// We use it to obtain an array of joints (ArrayT<JointT>, just like m_Joints) for any point (frame number) in the animation sequence.
     struct AnimT
@@ -169,49 +212,6 @@ class CafuModelT : public ModelT
      // ...                Events;          ///< E.g. "call a script function at frame 3".
         ArrayT<AnimJointT> AnimJoints;      ///< AnimJoints.Size() == m_Joints.Size()
         ArrayT<FrameT>     Frames;          ///< List of keyframes this animation consists of.
-    };
-
-
-    /// This struct describes additional/alternative skins for the meshes of this model.
-    struct SkinT
-    {
-        std::string                      Name;              ///< The name of this skin.
-        ArrayT<MaterialT*>               Materials;         ///< For each mesh \c m, <tt>Materials[m]</tt> is the material for the mesh in this skin. If <tt>Materials[m]</tt> is NULL, the material of the default skin is used.
-        ArrayT<MatSys::RenderMaterialT*> RenderMaterials;   ///< Analogous to \c Materials, these are the (possibly NULL) render materials for the meshes in this skin.
-    };
-
-
-    /// This struct defines how and where a GUI can be fixed to the model.
-    /// The GUI rectangle is defined by three points: the origin, the x-axis endpoint, and the y-axis endpoint, numbered 0, 1 and 2.
-    /// Each point is represented by an arbitrary vertex of one of meshes in the model.
-    /// The whole GUI rectangle can be translated and scaled, in order to compensate for cases where the mesh vertices do not
-    /// exactly match the desired rectangle dimensions.
-    /// More than one GUI can be fixed to a model, and if the referenced mesh vertices are animated, the GUI rectangle is animated, too.
-    struct GuiFixtureT
-    {
-        GuiFixtureT();
-
-        struct PointT
-        {
-            unsigned int MeshNr;
-            unsigned int VertexNr;
-        };
-
-        std::string Name;
-        PointT      Points[3];
-        float       Trans[2];
-        float       Scale[2];
-    };
-
-
-    /// This structure is used to describe the locations where GUIs can be attached to the model.
-    /// Note that the current static/fixed-position implementation (origin, x- and y-axis) is temporary though,
-    /// it should eventually be possible to attach GUIs even to animated models.
-    struct GuiLocT
-    {
-        Vector3fT Origin;
-        Vector3fT AxisX;
-        Vector3fT AxisY;
     };
 
 
@@ -274,9 +274,9 @@ class CafuModelT : public ModelT
     const MaterialManagerImplT& GetMaterialManager() const { return m_MaterialMan; }
     const ArrayT<JointT>&       GetJoints() const { return m_Joints; }
     const ArrayT<MeshT>&        GetMeshes() const { return m_Meshes; }
-    const ArrayT<AnimT>&        GetAnims() const { return m_Anims; }
     const ArrayT<SkinT>&        GetSkins() const { return m_Skins; }
     const ArrayT<GuiFixtureT>&  GetGuiFixtures() const { return m_GuiFixtures; }
+    const ArrayT<AnimT>&        GetAnims() const { return m_Anims; }
     const ArrayT<ChannelT>&     GetChannels() const { return m_Channels; }
 
     /// This method returns the set of drawing matrices (one per joint) at the given sequence and frame number.
@@ -290,14 +290,14 @@ class CafuModelT : public ModelT
     /// @param Super        Information about a parent or "super" model whose skeleton pose should be used when rendering this model.
     void Draw(int SequenceNr, float FrameNr, int SkinNr, float LodDist, const SuperT* Super=NULL) const;
 
+    /// Returns the proper material for the given mesh in the given skin.
+    const MaterialT* GetMaterial(unsigned long MeshNr, int SkinNr) const;
+
     /// Determines if <tt>GF.Points[PointNr].MeshNr</tt> is a valid index into this model.
     bool IsMeshNrOK(const GuiFixtureT& GF, unsigned int PointNr) const;
 
     /// Determines if <tt>GF.Points[PointNr].VertexNr</tt> is a valid index into this model.
     bool IsVertexNrOK(const GuiFixtureT& GF, unsigned int PointNr) const;
-
-    /// Returns the proper material for the given mesh in the given skin.
-    const MaterialT* GetMaterial(unsigned long MeshNr, int SkinNr) const;
 
     // The ModelT interface.
     const std::string& GetFileName() const;     // TODO: Remove!?!
@@ -336,15 +336,15 @@ class CafuModelT : public ModelT
     MaterialManagerImplT  m_MaterialMan;            ///< The material manager for the materials that are used with the meshes of this model.
     ArrayT<JointT>        m_Joints;                 ///< Array of joints of this model.
     mutable ArrayT<MeshT> m_Meshes;                 ///< Array of (sub)meshes of this model.
-    ArrayT<AnimT>         m_Anims;                  ///< Array of animations of this model.
     ArrayT<SkinT>         m_Skins;                  ///< Array of additional/alternative skins for this model.
+    ArrayT<GuiFixtureT>   m_GuiFixtures;            ///< Array of GUI fixtures in the model.
+    ArrayT<GuiLocT>       m_GuiLocs;                ///< Array of locations where GUIs can be attached to this model.
+    ArrayT<AnimT>         m_Anims;                  ///< Array of animations of this model.
+    ArrayT<ChannelT>      m_Channels;               ///< Array of channels in this model.
 
     const bool            m_UseGivenTangentSpace;   ///< Whether this model should use the fixed, given tangent space that was loaded from the model file, or it the tangent space is dynamically recomputed (useful for animated models).
  // const bool            m_CastShadows;            ///< Should this model cast shadows?
     BoundingBox3fT        m_BindPoseBB;             ///< The bounding-box for the base pose of the model.
-    ArrayT<GuiFixtureT>   m_GuiFixtures;            ///< Array of GUI fixtures in the model.
-    ArrayT<GuiLocT>       m_GuiLocs;                ///< Array of locations where GUIs can be attached to this model.
-    ArrayT<ChannelT>      m_Channels;               ///< Array of channels in this model.
 
 
     // Members for caching the data that is required for drawing the model at a given animation sequence and frame.

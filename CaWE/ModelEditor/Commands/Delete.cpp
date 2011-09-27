@@ -63,10 +63,10 @@ CommandDeleteT::CommandDeleteT(ModelDocumentT* ModelDoc, ModelElementTypeT Type,
       m_Indices(GetSorted(Indices)),
       m_Joints(),
       m_MeshInfos(),
-      m_Anims(),
-      m_Channels(),
       m_Skins(),
       m_GuiFixtures(),
+      m_Anims(),
+      m_Channels(),
       m_Message(),
       m_CommandSelect(CommandSelectT::Remove(m_ModelDoc, m_Type, m_Indices))
 {
@@ -77,10 +77,10 @@ CommandDeleteT::CommandDeleteT(ModelDocumentT* ModelDoc, ModelElementTypeT Type,
         switch (m_Type)
         {
             case JOINT: m_Joints     .PushBack(m_ModelDoc->GetModel()->GetJoints()     [i]); break;
-            case ANIM:  m_Anims      .PushBack(m_ModelDoc->GetModel()->GetAnims()      [i]); break;
-            case CHAN:  m_Channels   .PushBack(m_ModelDoc->GetModel()->GetChannels()   [i]); break;
             case SKIN:  m_Skins      .PushBack(m_ModelDoc->GetModel()->GetSkins()      [i]); break;
             case GFIX:  m_GuiFixtures.PushBack(m_ModelDoc->GetModel()->GetGuiFixtures()[i]); break;
+            case ANIM:  m_Anims      .PushBack(m_ModelDoc->GetModel()->GetAnims()      [i]); break;
+            case CHAN:  m_Channels   .PushBack(m_ModelDoc->GetModel()->GetChannels()   [i]); break;
             case MESH:
             {
                 wxASSERT(m_MeshInfos.Size() == INr);
@@ -176,10 +176,10 @@ bool CommandDeleteT::Do()
         switch (m_Type)
         {
             case JOINT: m_ModelDoc->GetModel()->m_Joints     .RemoveAtAndKeepOrder(i); break;
-            case ANIM:  m_ModelDoc->GetModel()->m_Anims      .RemoveAtAndKeepOrder(i); break;
-            case CHAN:  m_ModelDoc->GetModel()->m_Channels   .RemoveAtAndKeepOrder(i); break;
             case SKIN:  m_ModelDoc->GetModel()->m_Skins      .RemoveAtAndKeepOrder(i); break;
             case GFIX:  m_ModelDoc->GetModel()->m_GuiFixtures.RemoveAtAndKeepOrder(i); break;
+            case ANIM:  m_ModelDoc->GetModel()->m_Anims      .RemoveAtAndKeepOrder(i); break;
+            case CHAN:  m_ModelDoc->GetModel()->m_Channels   .RemoveAtAndKeepOrder(i); break;
             case MESH:
             {
                 m_ModelDoc->GetModel()->m_Meshes     .RemoveAtAndKeepOrder(i);
@@ -217,10 +217,10 @@ void CommandDeleteT::Undo()
         switch (m_Type)
         {
             case JOINT: m_ModelDoc->GetModel()->m_Joints     .InsertAt(i, m_Joints     [INr]); break;
-            case ANIM:  m_ModelDoc->GetModel()->m_Anims      .InsertAt(i, m_Anims      [INr]); break;
-            case CHAN:  m_ModelDoc->GetModel()->m_Channels   .InsertAt(i, m_Channels   [INr]); break;
             case SKIN:  m_ModelDoc->GetModel()->m_Skins      .InsertAt(i, m_Skins      [INr]); break;
             case GFIX:  m_ModelDoc->GetModel()->m_GuiFixtures.InsertAt(i, m_GuiFixtures[INr]); break;
+            case ANIM:  m_ModelDoc->GetModel()->m_Anims      .InsertAt(i, m_Anims      [INr]); break;
+            case CHAN:  m_ModelDoc->GetModel()->m_Channels   .InsertAt(i, m_Channels   [INr]); break;
             case MESH:
             {
                 const MeshInfoT& MI=m_MeshInfos[INr];
@@ -258,10 +258,10 @@ wxString CommandDeleteT::GetName() const
     {
         case JOINT: Name+=(m_Indices.Size()==1) ? "joint"       : "joints";       break;
         case MESH:  Name+=(m_Indices.Size()==1) ? "mesh"        : "meshes";       break;
-        case ANIM:  Name+=(m_Indices.Size()==1) ? "animation"   : "animations";   break;
-        case CHAN:  Name+=(m_Indices.Size()==1) ? "channel"     : "channels";     break;
         case SKIN:  Name+=(m_Indices.Size()==1) ? "skin"        : "skins";        break;
         case GFIX:  Name+=(m_Indices.Size()==1) ? "GUI fixture" : "GUI fixtures"; break;
+        case ANIM:  Name+=(m_Indices.Size()==1) ? "animation"   : "animations";   break;
+        case CHAN:  Name+=(m_Indices.Size()==1) ? "channel"     : "channels";     break;
     }
 
     return Name;

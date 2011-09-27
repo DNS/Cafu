@@ -94,20 +94,6 @@ void SubjectT::UpdateAllObservers_MeshChanged(unsigned int MeshNr)
 }
 
 
-void SubjectT::UpdateAllObservers_AnimChanged(unsigned int AnimNr)
-{
-    for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
-        m_Observers[ObsNr]->Notify_AnimChanged(this, AnimNr);
-}
-
-
-void SubjectT::UpdateAllObservers_ChannelChanged(unsigned int ChannelNr)
-{
-    for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
-        m_Observers[ObsNr]->Notify_ChannelChanged(this, ChannelNr);
-}
-
-
 void SubjectT::UpdateAllObservers_SkinChanged(unsigned int SkinNr)
 {
     for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
@@ -122,10 +108,17 @@ void SubjectT::UpdateAllObservers_GuiFixtureChanged(unsigned int GuiFixtureNr)
 }
 
 
-void SubjectT::UpdateAllObservers_AnimStateChanged()
+void SubjectT::UpdateAllObservers_AnimChanged(unsigned int AnimNr)
 {
     for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
-        m_Observers[ObsNr]->Notify_AnimStateChanged(this);
+        m_Observers[ObsNr]->Notify_AnimChanged(this, AnimNr);
+}
+
+
+void SubjectT::UpdateAllObservers_ChannelChanged(unsigned int ChannelNr)
+{
+    for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
+        m_Observers[ObsNr]->Notify_ChannelChanged(this, ChannelNr);
 }
 
 
@@ -133,6 +126,13 @@ void SubjectT::UpdateAllObservers_SubmodelsChanged()
 {
     for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
         m_Observers[ObsNr]->Notify_SubmodelsChanged(this);
+}
+
+
+void SubjectT::UpdateAllObservers_AnimStateChanged()
+{
+    for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
+        m_Observers[ObsNr]->Notify_AnimStateChanged(this);
 }
 
 

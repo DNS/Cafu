@@ -136,24 +136,6 @@ void ElementsListT::Notify_MeshChanged(SubjectT* Subject, unsigned int MeshNr)
 }
 
 
-void ElementsListT::Notify_AnimChanged(SubjectT* Subject, unsigned int AnimNr)
-{
-    if (m_IsRecursiveSelfNotify) return;
-    if (m_TYPE!=ANIM) return;
-
-    InitListItems();
-}
-
-
-void ElementsListT::Notify_ChannelChanged(SubjectT* Subject, unsigned int ChannelNr)
-{
-    if (m_IsRecursiveSelfNotify) return;
-    if (m_TYPE!=CHAN) return;
-
-    InitListItems();
-}
-
-
 void ElementsListT::Notify_SkinChanged(SubjectT* Subject, unsigned int SkinNr)
 {
     if (m_IsRecursiveSelfNotify) return;
@@ -170,6 +152,24 @@ void ElementsListT::Notify_GuiFixtureChanged(SubjectT* Subject, unsigned int Gui
 {
     if (m_IsRecursiveSelfNotify) return;
     if (m_TYPE!=GFIX) return;
+
+    InitListItems();
+}
+
+
+void ElementsListT::Notify_AnimChanged(SubjectT* Subject, unsigned int AnimNr)
+{
+    if (m_IsRecursiveSelfNotify) return;
+    if (m_TYPE!=ANIM) return;
+
+    InitListItems();
+}
+
+
+void ElementsListT::Notify_ChannelChanged(SubjectT* Subject, unsigned int ChannelNr)
+{
+    if (m_IsRecursiveSelfNotify) return;
+    if (m_TYPE!=CHAN) return;
 
     InitListItems();
 }
@@ -219,30 +219,6 @@ void ElementsListT::InitListItems()
             break;
         }
 
-        case ANIM:
-            for (unsigned long ElemNr=0; ElemNr<m_ModelDoc->GetModel()->GetAnims().Size(); ElemNr++)
-            {
-                InsertItem(ElemNr, m_ModelDoc->GetModel()->GetAnims()[ElemNr].Name);
-                SetItem(ElemNr, 1, wxString::Format("%lu", ElemNr));
-
-                if (Sel.Find(ElemNr)!=-1) Select(ElemNr);
-            }
-            break;
-
-        case CHAN:
-            InsertItem(0, "all (default)");
-            SetItem(0, 1, "-1");
-            if (Sel.Size()==0) Select(0);
-
-            for (unsigned long ElemNr=0; ElemNr<m_ModelDoc->GetModel()->GetChannels().Size(); ElemNr++)
-            {
-                InsertItem(ElemNr+1, m_ModelDoc->GetModel()->GetChannels()[ElemNr].Name);
-                SetItem(ElemNr+1, 1, wxString::Format("%lu", ElemNr));
-
-                if (Sel.Find(ElemNr)!=-1) Select(ElemNr+1);
-            }
-            break;
-
         case SKIN:
             InsertItem(0, "default");
             SetItem(0, 1, "-1");
@@ -264,6 +240,30 @@ void ElementsListT::InitListItems()
                 SetItem(ElemNr, 1, wxString::Format("%lu", ElemNr));
 
                 if (Sel.Find(ElemNr)!=-1) Select(ElemNr);
+            }
+            break;
+
+        case ANIM:
+            for (unsigned long ElemNr=0; ElemNr<m_ModelDoc->GetModel()->GetAnims().Size(); ElemNr++)
+            {
+                InsertItem(ElemNr, m_ModelDoc->GetModel()->GetAnims()[ElemNr].Name);
+                SetItem(ElemNr, 1, wxString::Format("%lu", ElemNr));
+
+                if (Sel.Find(ElemNr)!=-1) Select(ElemNr);
+            }
+            break;
+
+        case CHAN:
+            InsertItem(0, "all (default)");
+            SetItem(0, 1, "-1");
+            if (Sel.Size()==0) Select(0);
+
+            for (unsigned long ElemNr=0; ElemNr<m_ModelDoc->GetModel()->GetChannels().Size(); ElemNr++)
+            {
+                InsertItem(ElemNr+1, m_ModelDoc->GetModel()->GetChannels()[ElemNr].Name);
+                SetItem(ElemNr+1, 1, wxString::Format("%lu", ElemNr));
+
+                if (Sel.Find(ElemNr)!=-1) Select(ElemNr+1);
             }
             break;
     }

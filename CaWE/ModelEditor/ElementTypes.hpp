@@ -30,10 +30,10 @@ namespace ModelEditor
     {
         JOINT=0,
         MESH =1,
-        ANIM =2,
-        CHAN =3,
-        SKIN =4,
-        GFIX =5
+        SKIN =2,
+        GFIX =3,
+        ANIM =4,
+        CHAN =5
     };
 }
 

@@ -81,6 +81,8 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
       m_LastSavedAtCommandNr(0),
       m_LastUsedType(JOINT),
       m_Parent(Parent),
+      m_FileMenu(NULL),
+      m_EditMenu(NULL),
       m_SceneView3D(NULL),
       m_GlobalsInspector(NULL),
       m_JointsHierarchy(NULL),
@@ -97,9 +99,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
       m_GuiFixtureInspector(NULL),
       m_ScenePropGrid(NULL),
       m_SubmodelsPanel(NULL),
-      m_TransformDialog(NULL),
-      m_FileMenu(NULL),
-      m_EditMenu(NULL)
+      m_TransformDialog(NULL)
 {
     // Register us with the parents list of children.
     m_Parent->m_MdlChildFrames.PushBack(this);
@@ -144,14 +144,14 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_JOINT_INSPECTOR,      "Joint Inspector",       "Show or hide the joint inspector");
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_MESHES_LIST,          "Meshes List",           "Show or hide the meshes list");
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_MESH_INSPECTOR,       "Mesh Inspector",        "Show or hide the mesh inspector");
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_SKINS_LIST,           "Skins List",            "Show or hide the skins list");
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_SKIN_INSPECTOR,       "Skin Inspector",        "Show or hide the skin inspector");
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_GUIFIXTURES_LIST,     "GUI Fixtures List",     "Show or hide the GUI fixtures list");
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_GUIFIXTURE_INSPECTOR, "GUI Fixture Inspector", "Show or hide the GUI fixture inspector");
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_ANIMS_LIST,           "Animations List",       "Show or hide the animations list");
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_ANIM_INSPECTOR,       "Animation Inspector",   "Show or hide the animation inspector");
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_CHANNELS_LIST,        "Channels List",         "Show or hide the animation channels list");
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_CHANNEL_INSPECTOR,    "Channel Inspector",     "Show or hide the animation channel inspector");
-    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_GUIFIXTURES_LIST,     "GUI Fixtures List",     "Show or hide the GUI fixtures list");
-    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_GUIFIXTURE_INSPECTOR, "GUI Fixture Inspector", "Show or hide the GUI fixture inspector");
-    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_SKINS_LIST,           "Skins List",            "Show or hide the skins list");
-    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_SKIN_INSPECTOR,       "Skin Inspector",        "Show or hide the skin inspector");
     ViewMenu->AppendSeparator();
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_SCENE_SETUP,          "Scene Setup",           "Show or hide the scene setup inspector");
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_SUBMODELS_LIST,       "Submodels List",        "Show or hide the submodels list");
@@ -222,10 +222,30 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
                          Name("MeshInspector").Caption("Mesh Inspector").
                          Float().Hide());
 
+    m_SkinsList=new ElementsPanelT(this, wxSize(230, 150), SKIN);
+    m_AUIManager.AddPane(m_SkinsList, wxAuiPaneInfo().
+                         Name("SkinsList").Caption("Skins").
+                         Left().Position(5));
+
+    m_SkinInspector=new wxStaticText(this, wxID_ANY, "\nSkins are used to assign alternative materials to the meshes in the model.\n\nTo use a skin, select it in the Skins list, then use the Mesh Inspector to assign a material to the mesh in the selected skin.", wxDefaultPosition, wxSize(260, 180));
+    m_AUIManager.AddPane(m_SkinInspector, wxAuiPaneInfo().
+                         Name("SkinInspector").Caption("Skin Inspector").
+                         Float().Hide());
+
+    m_GuiFixturesList=new ElementsPanelT(this, wxSize(230, 150), GFIX);
+    m_AUIManager.AddPane(m_GuiFixturesList, wxAuiPaneInfo().
+                         Name("GuiFixturesList").Caption("Gui Fixtures").
+                         Left().Position(7));
+
+    m_GuiFixtureInspector=new GuiFixInspectorT(this, wxSize(260, 320));
+    m_AUIManager.AddPane(m_GuiFixtureInspector, wxAuiPaneInfo().
+                         Name("GuiFixtureInspector").Caption("GUI Fixture Inspector").
+                         Float().Hide());
+
     m_AnimsList=new ElementsPanelT(this, wxSize(230, 400), ANIM);
     m_AUIManager.AddPane(m_AnimsList, wxAuiPaneInfo().
                          Name("AnimsList").Caption("Animations").
-                         Left().Position(5));
+                         Right().Position(0));
 
     m_AnimInspector=new AnimInspectorT(this, wxSize(240, 160));
     m_AUIManager.AddPane(m_AnimInspector, wxAuiPaneInfo().
@@ -235,42 +255,22 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     m_ChannelsList=new ElementsPanelT(this, wxSize(230, 150), CHAN);
     m_AUIManager.AddPane(m_ChannelsList, wxAuiPaneInfo().
                          Name("ChannelsList").Caption("Channels").
-                         Left().Position(7));
+                         Right().Position(2));
 
     m_ChannelInspector=new ChannelInspectorT(this, wxSize(260, 320));
     m_AUIManager.AddPane(m_ChannelInspector, wxAuiPaneInfo().
                          Name("ChannelInspector").Caption("Channel Inspector").
                          Float().Hide());
 
-    m_GuiFixturesList=new ElementsPanelT(this, wxSize(230, 150), GFIX);
-    m_AUIManager.AddPane(m_GuiFixturesList, wxAuiPaneInfo().
-                         Name("GuiFixturesList").Caption("Gui Fixtures").
-                         Left().Position(9));
-
-    m_GuiFixtureInspector=new GuiFixInspectorT(this, wxSize(260, 320));
-    m_AUIManager.AddPane(m_GuiFixtureInspector, wxAuiPaneInfo().
-                         Name("GuiFixtureInspector").Caption("GUI Fixture Inspector").
-                         Float().Hide());
-
     m_ScenePropGrid=new ScenePropGridT(this, wxSize(230, 500));
     m_AUIManager.AddPane(m_ScenePropGrid, wxAuiPaneInfo().
                          Name("ScenePropGrid").Caption("Scene Setup").
-                         Right().Position(0));
+                         Right().Position(4));
 
     m_SubmodelsPanel=new SubmodelsPanelT(this, wxSize(230, 150));
     m_AUIManager.AddPane(m_SubmodelsPanel, wxAuiPaneInfo().
                          Name("SubmodelsPanel").Caption("Submodels").
-                         Right().Position(1));
-
-    m_SkinsList=new ElementsPanelT(this, wxSize(230, 150), SKIN);
-    m_AUIManager.AddPane(m_SkinsList, wxAuiPaneInfo().
-                         Name("SkinsList").Caption("Skins").
-                         Right().Position(2));
-
-    m_SkinInspector=new wxStaticText(this, wxID_ANY, "\nSkins are used to assign alternative materials to the meshes in the model.\n\nTo use a skin, select it in the Skins list, then use the Mesh Inspector to assign a material to the mesh in the selected skin.", wxDefaultPosition, wxSize(260, 180));
-    m_AUIManager.AddPane(m_SkinInspector, wxAuiPaneInfo().
-                         Name("SkinInspector").Caption("Skin Inspector").
-                         Float().Hide());
+                         Right().Position(5));
 
     m_TransformDialog=new TransformDialogT(this, wxSize(248, 240));
     m_AUIManager.AddPane(m_TransformDialog, wxAuiPaneInfo().
@@ -304,8 +304,8 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     AnimToolbar->AddTool(ID_MENU_MODEL_ANIM_SKIP_FORWARD,  "Skip forward",  wxArtProvider::GetBitmap("media-skip-forward", wxART_TOOLBAR), "Select next animation sequence");
     AnimToolbar->AddSeparator();
     AnimToolbar->AddTool(ID_MENU_MODEL_TRANSFORM,      "Transform",       wxArtProvider::GetBitmap("transform-rotate-right", wxART_TOOLBAR), "Transform model");
-    AnimToolbar->AddTool(ID_MENU_MODEL_GUIFIXTURE_ADD, "Add GUI fixture", wxArtProvider::GetBitmap("window-new", wxART_TOOLBAR), "Add GUI fixture");
  // AnimToolbar->AddTool(ID_MENU_MODEL_SKIN_ADD,       "Add skin",        wxArtProvider::GetBitmap("window-new", wxART_TOOLBAR), "Add skin");
+    AnimToolbar->AddTool(ID_MENU_MODEL_GUIFIXTURE_ADD, "Add GUI fixture", wxArtProvider::GetBitmap("window-new", wxART_TOOLBAR), "Add GUI fixture");
  // AnimToolbar->AddTool(ID_MENU_MODEL_CHANNEL_ADD,    "Add channel",     wxArtProvider::GetBitmap("window-new", wxART_TOOLBAR), "Add channel");
     AnimToolbar->Realize();
 

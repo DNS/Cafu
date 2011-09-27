@@ -73,16 +73,6 @@ namespace ModelEditor
         /// @param MeshNr    The number of the mesh that has changed.
         virtual void Notify_MeshChanged(SubjectT* Subject, unsigned int MeshNr) { }
 
-        /// Notifies the observer that an animation sequence has changed.
-        /// @param Subject   The model document with the model in which the anim has changed.
-        /// @param AnimNr    The number of the anim sequence that has changed.
-        virtual void Notify_AnimChanged(SubjectT* Subject, unsigned int AnimNr) { }
-
-        /// Notifies the observer that an animation channel has changed.
-        /// @param Subject     The model document with the model in which the channel has changed.
-        /// @param ChannelNr   The number of the anim channel that has changed.
-        virtual void Notify_ChannelChanged(SubjectT* Subject, unsigned int ChannelNr) { }
-
         /// Notifies the observer that a skin has changed.
         /// @param Subject   The model document with the model in which the skin has changed.
         /// @param SkinNr    The number of the skin that has changed.
@@ -93,13 +83,23 @@ namespace ModelEditor
         /// @param GuiFixtureNr   The number of the GUI fixture that has changed.
         virtual void Notify_GuiFixtureChanged(SubjectT* Subject, unsigned int GuiFixtureNr) { }
 
-        /// Notifies the observer that the animation state has changed.
-        /// @param Subject   The model document whose AnimStateT has changed.
-        virtual void Notify_AnimStateChanged(SubjectT* Subject) { }
+        /// Notifies the observer that an animation sequence has changed.
+        /// @param Subject   The model document with the model in which the anim has changed.
+        /// @param AnimNr    The number of the anim sequence that has changed.
+        virtual void Notify_AnimChanged(SubjectT* Subject, unsigned int AnimNr) { }
+
+        /// Notifies the observer that an animation channel has changed.
+        /// @param Subject     The model document with the model in which the channel has changed.
+        /// @param ChannelNr   The number of the anim channel that has changed.
+        virtual void Notify_ChannelChanged(SubjectT* Subject, unsigned int ChannelNr) { }
 
         /// Notifies the observer that the list of submodels has changed.
         /// @param Subject   The model document with the model in which the list of submodels has changed.
         virtual void Notify_SubmodelsChanged(SubjectT* Subject) { }
+
+        /// Notifies the observer that the animation state has changed.
+        /// @param Subject   The model document whose AnimStateT has changed.
+        virtual void Notify_AnimStateChanged(SubjectT* Subject) { }
 
         /// This method is called whenever a subject is about the be destroyed (and become unavailable).
         /// \param dyingSubject   The subject that is being destroyed.
@@ -133,12 +133,12 @@ namespace ModelEditor
         virtual void UpdateAllObservers_Deleted(ModelElementTypeT Type, const ArrayT<unsigned int>& Indices);
         virtual void UpdateAllObservers_JointChanged(unsigned int JointNr);
         virtual void UpdateAllObservers_MeshChanged(unsigned int MeshNr);
-        virtual void UpdateAllObservers_AnimChanged(unsigned int AnimNr);
-        virtual void UpdateAllObservers_ChannelChanged(unsigned int ChannelNr);
         virtual void UpdateAllObservers_SkinChanged(unsigned int SkinNr);
         virtual void UpdateAllObservers_GuiFixtureChanged(unsigned int GuiFixtureNr);
-        virtual void UpdateAllObservers_AnimStateChanged();
+        virtual void UpdateAllObservers_AnimChanged(unsigned int AnimNr);
+        virtual void UpdateAllObservers_ChannelChanged(unsigned int ChannelNr);
         virtual void UpdateAllObservers_SubmodelsChanged();
+        virtual void UpdateAllObservers_AnimStateChanged();
 
         /// The virtual destructor.
         virtual ~SubjectT();

@@ -109,6 +109,9 @@ namespace ModelEditor
         ModelElementTypeT  m_LastUsedType;          ///< The type of the most recently used (clicked) model element.
 
         ParentFrameT*      m_Parent;
+        wxMenu*            m_FileMenu;
+        wxMenu*            m_EditMenu;
+
         wxAuiManager       m_AUIManager;
         SceneView3DT*      m_SceneView3D;
         GlobalsInspectorT* m_GlobalsInspector;
@@ -116,20 +119,17 @@ namespace ModelEditor
         JointInspectorT*   m_JointInspector;
         ElementsPanelT*    m_MeshesList;
         MeshInspectorT*    m_MeshInspector;
-        ElementsPanelT*    m_AnimsList;
-        AnimInspectorT*    m_AnimInspector;
-        ElementsPanelT*    m_ChannelsList;
-        ChannelInspectorT* m_ChannelInspector;
         ElementsPanelT*    m_SkinsList;
         wxStaticText*      m_SkinInspector;
         ElementsPanelT*    m_GuiFixturesList;
         GuiFixInspectorT*  m_GuiFixtureInspector;
+        ElementsPanelT*    m_AnimsList;
+        AnimInspectorT*    m_AnimInspector;
+        ElementsPanelT*    m_ChannelsList;
+        ChannelInspectorT* m_ChannelInspector;
         ScenePropGridT*    m_ScenePropGrid;
         SubmodelsPanelT*   m_SubmodelsPanel;
         TransformDialogT*  m_TransformDialog;
-
-        wxMenu*            m_FileMenu;
-        wxMenu*            m_EditMenu;
 
 
         enum
@@ -143,14 +143,14 @@ namespace ModelEditor
             ID_MENU_VIEW_AUIPANE_JOINT_INSPECTOR,
             ID_MENU_VIEW_AUIPANE_MESHES_LIST,
             ID_MENU_VIEW_AUIPANE_MESH_INSPECTOR,
-            ID_MENU_VIEW_AUIPANE_ANIMS_LIST,
-            ID_MENU_VIEW_AUIPANE_ANIM_INSPECTOR,
-            ID_MENU_VIEW_AUIPANE_CHANNELS_LIST,
-            ID_MENU_VIEW_AUIPANE_CHANNEL_INSPECTOR,
             ID_MENU_VIEW_AUIPANE_SKINS_LIST,
             ID_MENU_VIEW_AUIPANE_SKIN_INSPECTOR,
             ID_MENU_VIEW_AUIPANE_GUIFIXTURES_LIST,
             ID_MENU_VIEW_AUIPANE_GUIFIXTURE_INSPECTOR,
+            ID_MENU_VIEW_AUIPANE_ANIMS_LIST,
+            ID_MENU_VIEW_AUIPANE_ANIM_INSPECTOR,
+            ID_MENU_VIEW_AUIPANE_CHANNELS_LIST,
+            ID_MENU_VIEW_AUIPANE_CHANNEL_INSPECTOR,
             ID_MENU_VIEW_AUIPANE_SCENE_SETUP,
             ID_MENU_VIEW_AUIPANE_SUBMODELS_LIST,
             ID_MENU_VIEW_AUIPANE_TRANSFORM_DIALOG,
@@ -163,8 +163,8 @@ namespace ModelEditor
             ID_MENU_MODEL_ANIM_PAUSE,
             ID_MENU_MODEL_ANIM_SKIP_FORWARD,
             ID_MENU_MODEL_TRANSFORM,
-            ID_MENU_MODEL_GUIFIXTURE_ADD,
             ID_MENU_MODEL_SKIN_ADD,
+            ID_MENU_MODEL_GUIFIXTURE_ADD,
             ID_MENU_MODEL_CHANNEL_ADD,
             ID_MENU_MODEL_LOAD_SUBMODEL,
             ID_MENU_MODEL_UNLOAD_SUBMODELS

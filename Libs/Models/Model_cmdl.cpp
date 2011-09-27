@@ -121,6 +121,23 @@ bool CafuModelT::MeshT::AreGeoDups(unsigned int Vertex1Nr, unsigned int Vertex2N
 }
 
 
+CafuModelT::GuiFixtureT::GuiFixtureT()
+    : Name("GUI Fixture")
+{
+    for (unsigned int PointNr=0; PointNr<3; PointNr++)
+    {
+        Points[PointNr].MeshNr  =std::numeric_limits<unsigned int>::max();
+        Points[PointNr].VertexNr=std::numeric_limits<unsigned int>::max();
+    }
+
+    Trans[0]=0.0f;
+    Trans[1]=0.0f;
+
+    Scale[0]=1.0f;
+    Scale[1]=1.0f;
+}
+
+
 void CafuModelT::AnimT::RecomputeBB(unsigned int FrameNr, const ArrayT<JointT>& Joints, const ArrayT<MeshT>& Meshes)
 {
     // This is an auxiliary method that is only needed after an AnimT instance has been newly
@@ -188,23 +205,6 @@ void CafuModelT::AnimT::RecomputeBB(unsigned int FrameNr, const ArrayT<JointT>& 
             Frames[FrameNr].BB+=OutVert;
         }
     }
-}
-
-
-CafuModelT::GuiFixtureT::GuiFixtureT()
-    : Name("GUI Fixture")
-{
-    for (unsigned int PointNr=0; PointNr<3; PointNr++)
-    {
-        Points[PointNr].MeshNr  =std::numeric_limits<unsigned int>::max();
-        Points[PointNr].VertexNr=std::numeric_limits<unsigned int>::max();
-    }
-
-    Trans[0]=0.0f;
-    Trans[1]=0.0f;
-
-    Scale[0]=1.0f;
-    Scale[1]=1.0f;
 }
 
 
@@ -763,62 +763,6 @@ void CafuModelT::Save(std::ostream& OutStream) const
     OutStream << "}\n";
 
 
-    // *** Write the animations. ***
-    OutStream << "\nAnimations=\n{\n";
-
-    for (unsigned long AnimNr=0; AnimNr<m_Anims.Size(); AnimNr++)
-    {
-        const AnimT& Anim=m_Anims[AnimNr];
-
-        OutStream << "\t-- Animation " << AnimNr << "\n";
-        OutStream << "\t{\n";
-
-        // Write the anim name, FPS and next sequence number.
-        OutStream << "\t\t" << "name=\"" << Anim.Name << "\";\n";
-        OutStream << "\t\t" << "FPS="    << Anim.FPS << ";\n";
-        OutStream << "\t\t" << "next=\"" << Anim.Next << "\";\n";
-
-        // Write the anim joints.
-        OutStream << "\n\t\tAnimJoints=\n\t\t{\n";
-        for (unsigned long JointNr=0; JointNr<Anim.AnimJoints.Size(); JointNr++)
-        {
-            const AnimT::AnimJointT& Joint=Anim.AnimJoints[JointNr];
-
-            OutStream << "\t\t\t"
-                      << "{ "
-                      << "pos={ " << serialize(Joint.DefaultPos) << " }; "
-                      << "qtr={ " << serialize(Joint.DefaultQtr) << " }; "
-                      << "scale={ " << serialize(Joint.DefaultScale) << " }; "
-                      << "flags=" << Joint.Flags << "; "
-                      << "firstData=" << Joint.FirstDataIdx << "; "
-                      << "},\n";
-        }
-        OutStream << "\t\t};\n";
-
-        // Write the anim frames.
-        OutStream << "\n\t\tFrames=\n\t\t{\n";
-        for (unsigned long FrameNr=0; FrameNr<Anim.Frames.Size(); FrameNr++)
-        {
-            const AnimT::FrameT& Frame=Anim.Frames[FrameNr];
-
-            OutStream << "\t\t\t"
-                      << "{ "
-                      << "bb={ " << serialize(Frame.BB.Min) << ", " << serialize(Frame.BB.Max) << " };\n"
-                      << "\t\t\t  "
-                      << "data={ ";
-            for (unsigned long i=0; i<Frame.AnimData.Size(); i++)
-                OutStream << serialize(Frame.AnimData[i]) << (i+1<Frame.AnimData.Size() ? ", " : " ");
-            OutStream << "}; "
-                      << "},\n";
-        }
-        OutStream << "\t\t};\n";
-
-        OutStream << "\t},\n";
-    }
-
-    OutStream << "}\n";
-
-
     // *** Write the skins. ***
     OutStream << "\nSkins=\n{\n";
 
@@ -878,6 +822,62 @@ void CafuModelT::Save(std::ostream& OutStream) const
                   << "AxisX={ " << serialize(GuiLoc.AxisX) << " }; "
                   << "AxisY={ " << serialize(GuiLoc.AxisY) << " }; "
                   << "},\n";
+    }
+
+    OutStream << "}\n";
+
+
+    // *** Write the animations. ***
+    OutStream << "\nAnimations=\n{\n";
+
+    for (unsigned long AnimNr=0; AnimNr<m_Anims.Size(); AnimNr++)
+    {
+        const AnimT& Anim=m_Anims[AnimNr];
+
+        OutStream << "\t-- Animation " << AnimNr << "\n";
+        OutStream << "\t{\n";
+
+        // Write the anim name, FPS and next sequence number.
+        OutStream << "\t\t" << "name=\"" << Anim.Name << "\";\n";
+        OutStream << "\t\t" << "FPS="    << Anim.FPS << ";\n";
+        OutStream << "\t\t" << "next=\"" << Anim.Next << "\";\n";
+
+        // Write the anim joints.
+        OutStream << "\n\t\tAnimJoints=\n\t\t{\n";
+        for (unsigned long JointNr=0; JointNr<Anim.AnimJoints.Size(); JointNr++)
+        {
+            const AnimT::AnimJointT& Joint=Anim.AnimJoints[JointNr];
+
+            OutStream << "\t\t\t"
+                      << "{ "
+                      << "pos={ " << serialize(Joint.DefaultPos) << " }; "
+                      << "qtr={ " << serialize(Joint.DefaultQtr) << " }; "
+                      << "scale={ " << serialize(Joint.DefaultScale) << " }; "
+                      << "flags=" << Joint.Flags << "; "
+                      << "firstData=" << Joint.FirstDataIdx << "; "
+                      << "},\n";
+        }
+        OutStream << "\t\t};\n";
+
+        // Write the anim frames.
+        OutStream << "\n\t\tFrames=\n\t\t{\n";
+        for (unsigned long FrameNr=0; FrameNr<Anim.Frames.Size(); FrameNr++)
+        {
+            const AnimT::FrameT& Frame=Anim.Frames[FrameNr];
+
+            OutStream << "\t\t\t"
+                      << "{ "
+                      << "bb={ " << serialize(Frame.BB.Min) << ", " << serialize(Frame.BB.Max) << " };\n"
+                      << "\t\t\t  "
+                      << "data={ ";
+            for (unsigned long i=0; i<Frame.AnimData.Size(); i++)
+                OutStream << serialize(Frame.AnimData[i]) << (i+1<Frame.AnimData.Size() ? ", " : " ");
+            OutStream << "}; "
+                      << "},\n";
+        }
+        OutStream << "\t\t};\n";
+
+        OutStream << "\t},\n";
     }
 
     OutStream << "}\n";

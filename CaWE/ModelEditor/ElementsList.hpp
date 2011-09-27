@@ -52,10 +52,10 @@ namespace ModelEditor
         void Notify_Created(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& Indices);
         void Notify_Deleted(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& Indices);
         void Notify_MeshChanged(SubjectT* Subject, unsigned int MeshNr);
-        void Notify_AnimChanged(SubjectT* Subject, unsigned int AnimNr);
-        void Notify_ChannelChanged(SubjectT* Subject, unsigned int ChannelNr);
         void Notify_SkinChanged(SubjectT* Subject, unsigned int SkinNr);
         void Notify_GuiFixtureChanged(SubjectT* Subject, unsigned int GuiFixtureNr);
+        void Notify_AnimChanged(SubjectT* Subject, unsigned int AnimNr);
+        void Notify_ChannelChanged(SubjectT* Subject, unsigned int ChannelNr);
         void Notify_SubjectDies(SubjectT* dyingSubject);
 
 
