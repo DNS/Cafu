@@ -325,31 +325,12 @@ void ElementsListT::OnContextMenu(wxContextMenuEvent& CE)
 
         case ID_MENU_ADD_NEW:
         {
-            if (m_TYPE==SKIN)
+            switch (m_TYPE)
             {
-                CafuModelT::SkinT Skin;
-
-                Skin.Name="New Skin";
-                while (Skin.Materials.Size()       < m_ModelDoc->GetModel()->GetMeshes().Size()) Skin.Materials.PushBack(NULL);
-                while (Skin.RenderMaterials.Size() < m_ModelDoc->GetModel()->GetMeshes().Size()) Skin.RenderMaterials.PushBack(NULL);
-
-                m_MainFrame->SubmitCommand(new CommandAddT(m_ModelDoc, Skin));
-            }
-            else if (m_TYPE==GFIX)
-            {
-                ArrayT<CafuModelT::GuiFixtureT> GuiFixtures;
-
-                GuiFixtures.PushBackEmpty();
-                GuiFixtures[0].Name="New GUI Fixture";
-
-                m_MainFrame->SubmitCommand(new CommandAddT(m_ModelDoc, GuiFixtures));
-            }
-            else if (m_TYPE==CHAN)
-            {
-                CafuModelT::ChannelT Channel;
-
-                Channel.Name="New Channel";
-                m_MainFrame->SubmitCommand(new CommandAddT(m_ModelDoc, Channel));
+                case SKIN: m_MainFrame->SubmitNewSkin();       break;
+                case GFIX: m_MainFrame->SubmitNewGuiFixture(); break;
+                case CHAN: m_MainFrame->SubmitNewChannel();    break;
+                default: break;
             }
             break;
         }
@@ -475,31 +456,12 @@ void ElementsPanelT::OnButton(wxCommandEvent& Event)
     {
         case ID_BUTTON_ADD:
         {
-            if (m_TYPE==SKIN)
+            switch (m_TYPE)
             {
-                CafuModelT::SkinT Skin;
-
-                Skin.Name="New Skin";
-                while (Skin.Materials.Size()       < m_ModelDoc->GetModel()->GetMeshes().Size()) Skin.Materials.PushBack(NULL);
-                while (Skin.RenderMaterials.Size() < m_ModelDoc->GetModel()->GetMeshes().Size()) Skin.RenderMaterials.PushBack(NULL);
-
-                m_MainFrame->SubmitCommand(new CommandAddT(m_ModelDoc, Skin));
-            }
-            else if (m_TYPE==GFIX)
-            {
-                ArrayT<CafuModelT::GuiFixtureT> GuiFixtures;
-
-                GuiFixtures.PushBackEmpty();
-                GuiFixtures[0].Name="New GUI Fixture";
-
-                m_MainFrame->SubmitCommand(new CommandAddT(m_ModelDoc, GuiFixtures));
-            }
-            else if (m_TYPE==CHAN)
-            {
-                CafuModelT::ChannelT Channel;
-
-                Channel.Name="New Channel";
-                m_MainFrame->SubmitCommand(new CommandAddT(m_ModelDoc, Channel));
+                case SKIN: m_MainFrame->SubmitNewSkin();       break;
+                case GFIX: m_MainFrame->SubmitNewGuiFixture(); break;
+                case CHAN: m_MainFrame->SubmitNewChannel();    break;
+                default: break;
             }
             break;
         }

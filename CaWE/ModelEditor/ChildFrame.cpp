@@ -92,7 +92,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
       m_ChannelsList(NULL),
       m_ChannelInspector(NULL),
       m_SkinsList(NULL),
-   // m_SkinInspector(NULL),
+      m_SkinInspector(NULL),
       m_GuiFixturesList(NULL),
       m_GuiFixtureInspector(NULL),
       m_ScenePropGrid(NULL),
@@ -151,7 +151,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_GUIFIXTURES_LIST,     "GUI Fixtures List",     "Show or hide the GUI fixtures list");
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_GUIFIXTURE_INSPECTOR, "GUI Fixture Inspector", "Show or hide the GUI fixture inspector");
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_SKINS_LIST,           "Skins List",            "Show or hide the skins list");
- // ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_SKIN_INSPECTOR,       "Skin Inspector",        "Show or hide the skin inspector");
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_SKIN_INSPECTOR,       "Skin Inspector",        "Show or hide the skin inspector");
     ViewMenu->AppendSeparator();
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_SCENE_SETUP,          "Scene Setup",           "Show or hide the scene setup inspector");
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_SUBMODELS_LIST,       "Submodels List",        "Show or hide the submodels list");
@@ -167,9 +167,9 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     ModelMenu->AppendRadioItem(ID_MENU_MODEL_ANIM_PAUSE, "P&ause anim"/*, "Loads the user defined window layout"*/);
     ModelMenu->AppendSeparator();
     ModelMenu->Append(ID_MENU_MODEL_TRANSFORM, "&Transform...\tCtrl+T", "Transform the model");
+    ModelMenu->Append(ID_MENU_MODEL_SKIN_ADD, "Add skin", "Adds a new skin to the model");
     ModelMenu->Append(ID_MENU_MODEL_GUIFIXTURE_ADD, "Add GUI fixture", "Adds a new GUI fixture to the model");
- // ModelMenu->Append(ID_MENU_MODEL_SKIN_ADD, "Add skin", "Adds a new skin to the model");
- // ModelMenu->Append(ID_MENU_MODEL_CHANNEL_ADD, "Add channel", "Adds a new animation channel to the model");
+    ModelMenu->Append(ID_MENU_MODEL_CHANNEL_ADD, "Add channel", "Adds a new animation channel to the model");
     ModelMenu->Append(-1, "Run benchmark", "Move the camera along a predefined path and determine the time taken")->Enable(false);
     ModelMenu->AppendSeparator();
     ModelMenu->Append(ID_MENU_MODEL_LOAD_SUBMODEL, "&Load submodel...", "Loads a submodel (such as a weapon) to show with the main model");
@@ -214,7 +214,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
 
     m_MeshesList=new ElementsPanelT(this, wxSize(230, 400), MESH);
     m_AUIManager.AddPane(m_MeshesList, wxAuiPaneInfo().
-                         Name("MeshesList").Caption("Meshes List").
+                         Name("MeshesList").Caption("Meshes").
                          Left().Position(3));
 
     m_MeshInspector=new MeshInspectorT(this, wxSize(480, 180));
@@ -224,7 +224,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
 
     m_AnimsList=new ElementsPanelT(this, wxSize(230, 400), ANIM);
     m_AUIManager.AddPane(m_AnimsList, wxAuiPaneInfo().
-                         Name("AnimsList").Caption("Animations List").
+                         Name("AnimsList").Caption("Animations").
                          Left().Position(5));
 
     m_AnimInspector=new AnimInspectorT(this, wxSize(240, 160));
@@ -234,7 +234,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
 
     m_ChannelsList=new ElementsPanelT(this, wxSize(230, 150), CHAN);
     m_AUIManager.AddPane(m_ChannelsList, wxAuiPaneInfo().
-                         Name("ChannelsList").Caption("Channels List").
+                         Name("ChannelsList").Caption("Channels").
                          Left().Position(7));
 
     m_ChannelInspector=new ChannelInspectorT(this, wxSize(260, 320));
@@ -244,7 +244,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
 
     m_GuiFixturesList=new ElementsPanelT(this, wxSize(230, 150), GFIX);
     m_AUIManager.AddPane(m_GuiFixturesList, wxAuiPaneInfo().
-                         Name("GuiFixturesList").Caption("Gui Fixtures List").
+                         Name("GuiFixturesList").Caption("Gui Fixtures").
                          Left().Position(9));
 
     m_GuiFixtureInspector=new GuiFixInspectorT(this, wxSize(260, 320));
@@ -259,13 +259,18 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
 
     m_SubmodelsPanel=new SubmodelsPanelT(this, wxSize(230, 150));
     m_AUIManager.AddPane(m_SubmodelsPanel, wxAuiPaneInfo().
-                         Name("SubmodelsPanel").Caption("Submodels List").
+                         Name("SubmodelsPanel").Caption("Submodels").
                          Right().Position(1));
 
     m_SkinsList=new ElementsPanelT(this, wxSize(230, 150), SKIN);
     m_AUIManager.AddPane(m_SkinsList, wxAuiPaneInfo().
-                         Name("SkinsList").Caption("Skins List").
+                         Name("SkinsList").Caption("Skins").
                          Right().Position(2));
+
+    m_SkinInspector=new wxStaticText(this, wxID_ANY, "\nSkins are used to assign alternative materials to the meshes in the model.\n\nTo use a skin, select it in the Skins list, then use the Mesh Inspector to assign a material to the mesh in the selected skin.", wxDefaultPosition, wxSize(260, 180));
+    m_AUIManager.AddPane(m_SkinInspector, wxAuiPaneInfo().
+                         Name("SkinInspector").Caption("Skin Inspector").
+                         Float().Hide());
 
     m_TransformDialog=new TransformDialogT(this, wxSize(248, 240));
     m_AUIManager.AddPane(m_TransformDialog, wxAuiPaneInfo().
@@ -344,6 +349,38 @@ bool ModelEditor::ChildFrameT::SubmitCommand(CommandT* Command)
     }
 
     return false;
+}
+
+
+bool ModelEditor::ChildFrameT::SubmitNewSkin()
+{
+    CafuModelT::SkinT Skin;
+
+    Skin.Name="New Skin";
+    while (Skin.Materials.Size()       < m_ModelDoc->GetModel()->GetMeshes().Size()) Skin.Materials.PushBack(NULL);
+    while (Skin.RenderMaterials.Size() < m_ModelDoc->GetModel()->GetMeshes().Size()) Skin.RenderMaterials.PushBack(NULL);
+
+    return SubmitCommand(new CommandAddT(m_ModelDoc, Skin));
+}
+
+
+bool ModelEditor::ChildFrameT::SubmitNewGuiFixture()
+{
+    ArrayT<CafuModelT::GuiFixtureT> GuiFixtures;
+
+    GuiFixtures.PushBackEmpty();
+    GuiFixtures[0].Name="New GUI Fixture";
+
+    return SubmitCommand(new CommandAddT(m_ModelDoc, GuiFixtures));
+}
+
+
+bool ModelEditor::ChildFrameT::SubmitNewChannel()
+{
+    CafuModelT::ChannelT Channel;
+
+    Channel.Name="New Channel";
+    return SubmitCommand(new CommandAddT(m_ModelDoc, Channel));
 }
 
 
@@ -597,6 +634,7 @@ void ModelEditor::ChildFrameT::ShowRelatedInspector(wxWindow* List, bool DoShow)
 
          if (List==m_JointsHierarchy) Insp=m_JointInspector;
     else if (List==m_MeshesList)      Insp=m_MeshInspector;
+    else if (List==m_SkinsList)       Insp=m_SkinInspector;
     else if (List==m_AnimsList)       Insp=m_AnimInspector;
     else if (List==m_ChannelsList)    Insp=m_ChannelInspector;
     else if (List==m_GuiFixturesList) Insp=m_GuiFixtureInspector;
@@ -746,7 +784,7 @@ void ModelEditor::ChildFrameT::OnMenuView(wxCommandEvent& CE)
         case ID_MENU_VIEW_AUIPANE_CHANNELS_LIST:        PaneToggleShow(m_AUIManager.GetPane(m_ChannelsList       )); break;
         case ID_MENU_VIEW_AUIPANE_CHANNEL_INSPECTOR:    PaneToggleShow(m_AUIManager.GetPane(m_ChannelInspector   )); break;
         case ID_MENU_VIEW_AUIPANE_SKINS_LIST:           PaneToggleShow(m_AUIManager.GetPane(m_SkinsList          )); break;
-     // case ID_MENU_VIEW_AUIPANE_SKINS_INSPECTOR:      PaneToggleShow(m_AUIManager.GetPane(m_SkinsInspector     )); break;
+        case ID_MENU_VIEW_AUIPANE_SKIN_INSPECTOR:       PaneToggleShow(m_AUIManager.GetPane(m_SkinInspector      )); break;
         case ID_MENU_VIEW_AUIPANE_GUIFIXTURES_LIST:     PaneToggleShow(m_AUIManager.GetPane(m_GuiFixturesList    )); break;
         case ID_MENU_VIEW_AUIPANE_GUIFIXTURE_INSPECTOR: PaneToggleShow(m_AUIManager.GetPane(m_GuiFixtureInspector)); break;
         case ID_MENU_VIEW_AUIPANE_SCENE_SETUP:          PaneToggleShow(m_AUIManager.GetPane(m_ScenePropGrid      )); break;
@@ -782,7 +820,7 @@ void ModelEditor::ChildFrameT::OnMenuViewUpdate(wxUpdateUIEvent& UE)
         case ID_MENU_VIEW_AUIPANE_CHANNELS_LIST:        UE.Check(m_AUIManager.GetPane(m_ChannelsList       ).IsShown()); break;
         case ID_MENU_VIEW_AUIPANE_CHANNEL_INSPECTOR:    UE.Check(m_AUIManager.GetPane(m_ChannelInspector   ).IsShown()); break;
         case ID_MENU_VIEW_AUIPANE_SKINS_LIST:           UE.Check(m_AUIManager.GetPane(m_SkinsList          ).IsShown()); break;
-     // case ID_MENU_VIEW_AUIPANE_SKIN_INSPECTOR:       UE.Check(m_AUIManager.GetPane(m_SkinInspector      ).IsShown()); break;
+        case ID_MENU_VIEW_AUIPANE_SKIN_INSPECTOR:       UE.Check(m_AUIManager.GetPane(m_SkinInspector      ).IsShown()); break;
         case ID_MENU_VIEW_AUIPANE_GUIFIXTURES_LIST:     UE.Check(m_AUIManager.GetPane(m_GuiFixturesList    ).IsShown()); break;
         case ID_MENU_VIEW_AUIPANE_GUIFIXTURE_INSPECTOR: UE.Check(m_AUIManager.GetPane(m_GuiFixtureInspector).IsShown()); break;
         case ID_MENU_VIEW_AUIPANE_SCENE_SETUP:          UE.Check(m_AUIManager.GetPane(m_ScenePropGrid      ).IsShown()); break;
@@ -839,26 +877,23 @@ void ModelEditor::ChildFrameT::OnMenuModel(wxCommandEvent& CE)
             break;
         }
 
-        case ID_MENU_MODEL_GUIFIXTURE_ADD:
+        case ID_MENU_MODEL_SKIN_ADD:
         {
-            ArrayT<CafuModelT::GuiFixtureT> GuiFixtures;
-
-            GuiFixtures.PushBackEmpty();
-            GuiFixtures[0].Name="New GUI Fixture";
-
-            SubmitCommand(new CommandAddT(m_ModelDoc, GuiFixtures));
+            SubmitNewSkin();
             break;
         }
 
-        // case ID_MENU_MODEL_SKIN_ADD:
-        // {
-        //     break;
-        // }
+        case ID_MENU_MODEL_GUIFIXTURE_ADD:
+        {
+            SubmitNewGuiFixture();
+            break;
+        }
 
-        // case ID_MENU_MODEL_CHANNEL_ADD:
-        // {
-        //     break;
-        // }
+        case ID_MENU_MODEL_CHANNEL_ADD:
+        {
+            SubmitNewChannel();
+            break;
+        }
 
         case ID_MENU_MODEL_LOAD_SUBMODEL:
         {

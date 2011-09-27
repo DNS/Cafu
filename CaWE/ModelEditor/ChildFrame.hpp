@@ -66,6 +66,15 @@ namespace ModelEditor
         /// All(!) commands for modifying the document must be submitted via this method.
         bool SubmitCommand(CommandT* Command);
 
+        /// Creates a new skin, calls SubmitCommand() accordingly and returns its result.
+        bool SubmitNewSkin();
+
+        /// Creates a new GUI fixture, calls SubmitCommand() accordingly and returns its result.
+        bool SubmitNewGuiFixture();
+
+        /// Creates a new animation channel, calls SubmitCommand() accordingly and returns its result.
+        bool SubmitNewChannel();
+
         /// Saves the model under the known or a new file name.
         /// @param AskForFileName   Whether the method should ask the user to enter a new file name, used for "Save as...".
         /// @returns whether the file was successfully saved.
@@ -112,7 +121,7 @@ namespace ModelEditor
         ElementsPanelT*    m_ChannelsList;
         ChannelInspectorT* m_ChannelInspector;
         ElementsPanelT*    m_SkinsList;
-     // SkinInspectorT*    m_SkinInspector;
+        wxStaticText*      m_SkinInspector;
         ElementsPanelT*    m_GuiFixturesList;
         GuiFixInspectorT*  m_GuiFixtureInspector;
         ScenePropGridT*    m_ScenePropGrid;
@@ -139,7 +148,7 @@ namespace ModelEditor
             ID_MENU_VIEW_AUIPANE_CHANNELS_LIST,
             ID_MENU_VIEW_AUIPANE_CHANNEL_INSPECTOR,
             ID_MENU_VIEW_AUIPANE_SKINS_LIST,
-         // ID_MENU_VIEW_AUIPANE_SKIN_INSPECTOR,
+            ID_MENU_VIEW_AUIPANE_SKIN_INSPECTOR,
             ID_MENU_VIEW_AUIPANE_GUIFIXTURES_LIST,
             ID_MENU_VIEW_AUIPANE_GUIFIXTURE_INSPECTOR,
             ID_MENU_VIEW_AUIPANE_SCENE_SETUP,
@@ -155,8 +164,8 @@ namespace ModelEditor
             ID_MENU_MODEL_ANIM_SKIP_FORWARD,
             ID_MENU_MODEL_TRANSFORM,
             ID_MENU_MODEL_GUIFIXTURE_ADD,
-         // ID_MENU_MODEL_SKIN_ADD,
-         // ID_MENU_MODEL_CHANNEL_ADD,
+            ID_MENU_MODEL_SKIN_ADD,
+            ID_MENU_MODEL_CHANNEL_ADD,
             ID_MENU_MODEL_LOAD_SUBMODEL,
             ID_MENU_MODEL_UNLOAD_SUBMODELS
         };

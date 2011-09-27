@@ -154,7 +154,7 @@ void ChannelInspectorT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
     {
         ok=m_Parent->SubmitCommand(new CommandRenameT(m_ModelDoc, CHAN, ChanNr, Event.GetValue().GetString()));
     }
-    else if (PropName.StartsWith("Joint."))
+    else if (PropName.StartsWith("Joints."))
     {
         ok=m_Parent->SubmitCommand(new CommandUpdateChannelT(m_ModelDoc, ChanNr, Event.GetProperty()->GetIndexInParent(), Event.GetValue().GetBool()));
     }
