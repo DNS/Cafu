@@ -307,7 +307,7 @@ CafuModelT::CafuModelT(ModelLoaderT& Loader)
     }
 
     // Allocate the cache space that is needed for drawing.
-    m_Draw_JointMatrices.PushBackEmpty(m_Joints.Size());
+    m_JointMatrices.PushBackEmpty(m_Joints.Size());
     m_Draw_Meshes.PushBackEmpty(m_Meshes.Size());
 
     for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
@@ -952,14 +952,14 @@ void CafuModelT::UpdateCachedDrawData(int SequenceNr, float FrameNr, const Super
         {
             if (Super && Super->HasMatrix(JointNr))
             {
-                m_Draw_JointMatrices[JointNr]=Super->GetMatrix(JointNr);
+                m_JointMatrices[JointNr]=Super->GetMatrix(JointNr);
                 continue;
             }
 
             const JointT& J=m_Joints[JointNr];
             const MatrixT RelMatrix(J.Pos, cf::math::QuaternionfT::FromXYZ(J.Qtr), J.Scale);
 
-            m_Draw_JointMatrices[JointNr]=(J.Parent==-1) ? RelMatrix : m_Draw_JointMatrices[J.Parent]*RelMatrix;
+            m_JointMatrices[JointNr]=(J.Parent==-1) ? RelMatrix : m_JointMatrices[J.Parent]*RelMatrix;
         }
     }
     else
@@ -974,7 +974,7 @@ void CafuModelT::UpdateCachedDrawData(int SequenceNr, float FrameNr, const Super
         {
             if (Super && Super->HasMatrix(JointNr))
             {
-                m_Draw_JointMatrices[JointNr]=Super->GetMatrix(JointNr);
+                m_JointMatrices[JointNr]=Super->GetMatrix(JointNr);
                 continue;
             }
 
@@ -1005,7 +1005,7 @@ void CafuModelT::UpdateCachedDrawData(int SequenceNr, float FrameNr, const Super
             const MatrixT RelMatrix(Pos, Quat, Scale);
             const JointT& J=m_Joints[JointNr];
 
-            m_Draw_JointMatrices[JointNr]=(J.Parent==-1) ? RelMatrix : m_Draw_JointMatrices[J.Parent]*RelMatrix;
+            m_JointMatrices[JointNr]=(J.Parent==-1) ? RelMatrix : m_JointMatrices[J.Parent]*RelMatrix;
         }
     }
 
@@ -1035,7 +1035,7 @@ void CafuModelT::UpdateCachedDrawData(int SequenceNr, float FrameNr, const Super
             {
                 const MeshT::WeightT& Weight=Mesh.Weights[Vertex.FirstWeightIdx];
 
-                Vertex.Draw_Pos=m_Draw_JointMatrices[Weight.JointIdx].Mul_xyz1(Weight.Pos);
+                Vertex.Draw_Pos=m_JointMatrices[Weight.JointIdx].Mul_xyz1(Weight.Pos);
             }
             else
             {
@@ -1045,7 +1045,7 @@ void CafuModelT::UpdateCachedDrawData(int SequenceNr, float FrameNr, const Super
                 {
                     const MeshT::WeightT& Weight=Mesh.Weights[Vertex.FirstWeightIdx+WeightNr];
 
-                    Vertex.Draw_Pos+=m_Draw_JointMatrices[Weight.JointIdx].Mul_xyz1(Weight.Pos) * Weight.Weight;
+                    Vertex.Draw_Pos+=m_JointMatrices[Weight.JointIdx].Mul_xyz1(Weight.Pos) * Weight.Weight;
                 }
             }
         }
@@ -1208,7 +1208,7 @@ const ArrayT<MatrixT>& CafuModelT::GetDrawJointMatrices(int SequenceNr, float Fr
         UpdateCachedDrawData(SequenceNr, FrameNr, Super);
     }
 
-    return m_Draw_JointMatrices;
+    return m_JointMatrices;
 }
 
 

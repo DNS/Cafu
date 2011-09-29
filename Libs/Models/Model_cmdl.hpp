@@ -67,7 +67,9 @@ class CafuModelT : public ModelT
     };
 
 
-    /// A mesh consisting of a material and a list of vertices.
+    /// This struct defines a triangle mesh in the model.
+    /// A mesh essentially consists of a list of triangles whose vertices are composed
+    /// of weighted positions that are attached to the joints of the model.
     struct MeshT
     {
         /// A single triangle.
@@ -351,8 +353,8 @@ class CafuModelT : public ModelT
     mutable int                   m_Draw_CachedDataAtSequNr;    ///< The animation sequence number at which we have computed the cache data.
     mutable float                 m_Draw_CachedDataAtFrameNr;   ///< The animation frame    number at which we have computed the cache data.
 
-    mutable ArrayT<MatrixT>       m_Draw_JointMatrices;         ///< The transformation matrices that represent the pose of the skeleton at the given animation sequence and frame number.
-    mutable ArrayT<MatSys::MeshT> m_Draw_Meshes;                ///< The draw meshes resulting from m_Draw_JointMatrices.
+    mutable ArrayT<MatrixT>       m_JointMatrices;              ///< The transformation matrices that represent the pose of the skeleton at the given animation sequence and frame number.
+    mutable ArrayT<MatSys::MeshT> m_Draw_Meshes;                ///< The draw meshes resulting from m_JointMatrices.
 };
 
 #endif
