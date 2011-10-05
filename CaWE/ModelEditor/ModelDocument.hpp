@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ElementTypes.hpp"
 #include "Math3D/BoundingBox.hpp"
 #include "Math3D/Vector3.hpp"
+#include "Models/AnimPose.hpp"
 #include "Templates/Array.hpp"
 #include "wx/wx.h"
 
@@ -62,12 +63,12 @@ namespace ModelEditor
         {
             public:
 
-            AnimStateT()
-                : FrameNr(0.0f), Speed(1.0f), Loop(true) { }
+            AnimStateT(const CafuModelT& Model)
+                : Pose(Model), Speed(1.0f), Loop(true) { }
 
-            float FrameNr;  ///< The current frame number.
-            float Speed;    ///< The speed (relative to clock time) with which the animation is advanced, usually 0 for stop or 1 for playback.
-            bool  Loop;     ///< When playing the sequence, loop automatically when its end has been reached?
+            AnimPoseT Pose;     ///< The current pose of the model, as defined by sequence and frame number.
+            float     Speed;    ///< The speed (relative to clock time) with which the animation is advanced, usually 0 for stop or 1 for playback.
+            bool      Loop;     ///< When playing the sequence, loop automatically when its end has been reached?
         };
 
         class SubmodelT
@@ -79,6 +80,7 @@ namespace ModelEditor
 
             const wxString&             GetFilename() const { return m_Filename; }
             const CafuModelT*           GetSubmodel() const { return m_Submodel; }
+            AnimPoseT&                  GetPose() { return m_Pose; }
             const ArrayT<unsigned int>& GetJointsMap() const { return m_JointsMap; }
 
 
@@ -86,6 +88,7 @@ namespace ModelEditor
 
             wxString             m_Filename;    ///< The filename of the submodel.
             CafuModelT*          m_Submodel;    ///< The submodel that is shown with the main model.
+            AnimPoseT            m_Pose;        ///< The pose of the submodel.
             ArrayT<unsigned int> m_JointsMap;   ///< Describes how the joints of the m_Submodel map to the joints of the m_Model super model.
 
             SubmodelT(const SubmodelT&);        ///< Use of the Copy    Constructor is not allowed.

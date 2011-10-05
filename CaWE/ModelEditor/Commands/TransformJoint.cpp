@@ -51,7 +51,7 @@ bool CommandTransformJointT::Do()
 
     // Make sure that the BB is updated and the draw cache is refreshed.
     m_ModelDoc->GetModel()->RecomputeBindPoseBB();
-    m_ModelDoc->GetModel()->m_Draw_CachedDataAtSequNr=-1234;
+    m_ModelDoc->GetAnimState().Pose.SetNeedsRecache();
 
     m_ModelDoc->UpdateAllObservers_JointChanged(m_JointNr);
     m_Done=true;
@@ -70,7 +70,7 @@ void CommandTransformJointT::Undo()
 
     // Make sure that the BB is updated and the draw cache is refreshed.
     m_ModelDoc->GetModel()->RecomputeBindPoseBB();
-    m_ModelDoc->GetModel()->m_Draw_CachedDataAtSequNr=-1234;
+    m_ModelDoc->GetAnimState().Pose.SetNeedsRecache();
 
     m_ModelDoc->UpdateAllObservers_JointChanged(m_JointNr);
     m_Done=false;

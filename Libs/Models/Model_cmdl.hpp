@@ -82,7 +82,7 @@ class CafuModelT : public ModelT
             int          NeighbIdx[3];  ///< The array indices of the three neighbouring triangles at the edges 01, 12 and 20. -1 indicates no neighbour, -2 indicates more than one neighbour.
             bool         Polarity;      ///< True if this triangle has positive polarity (texture is not mirrored), or false if it has negative polarity (texture is mirrored, SxT points inward).
 
-            Vector3fT    Draw_Normal;   ///< The draw normal for this triangle, required for the shadow-silhouette determination.
+            Vector3fT    gts_Normal;    ///< The draw normal for this triangle, required for the shadow-silhouette determination.
         };
 
         /// A single vertex.
@@ -96,10 +96,10 @@ class CafuModelT : public ModelT
             bool                 Polarity;      ///< True if this vertex belongs to triangles with positive polarity, false if it belongs to triangles with negative polarity. Note that a single vertex cannot belong to triangles of both positive and negative polarity (but a GeoDup of this vertex can belong to the other polarity).
             ArrayT<unsigned int> GeoDups;       ///< This array contains the indices of vertices that are geometrical duplicates of this vertex, see AreVerticesGeoDups() for more information. The indices are stored in increasing order, and do *not* include the index of "this" vertex. Note that from the presence of GeoDups in a cmdl/md5 file we can *not* conclude that a break in the smoothing was intended by the modeller. Cylindrically wrapping seams are one counter-example.
 
-            Vector3fT            Draw_Pos;      ///< Position of this vertex.
-            Vector3fT            Draw_Normal;   ///< Vertex normal.
-            Vector3fT            Draw_Tangent;  ///< Vertex tangent.
-            Vector3fT            Draw_BiNormal; ///< Vertex binormal.
+            Vector3fT            gts_Pos;       ///< Position of this vertex.
+            Vector3fT            gts_Normal;    ///< Vertex normal.
+            Vector3fT            gts_Tangent;   ///< Vertex tangent.
+            Vector3fT            gts_BiNormal;  ///< Vertex binormal.
         };
 
         /// A weight is a fixed position in the coordinate system of a joint.
@@ -238,29 +238,6 @@ class CafuModelT : public ModelT
     };
 
 
-    /// This struct describes information about a parent or "super" model whose skeleton pose should be used when rendering this model.
-    /// For example, a player model can act as the super model for a weapon, so that the skeleton of the weapon is copied from the
-    /// player model in order to align the weapon with the hands of the player.
-    struct SuperT
-    {
-        /// The constructor.
-        /// @param Matrices_   The draw matrices of the super model.
-        /// @param Map_        Describes how our joints map to the joints of the super model.
-        ///                    If <tt>Map_[i]</tt> is not a valid index into \c Matrices_, then our joint \c i has no match in the skeleton of the super model.
-        SuperT(const ArrayT<MatrixT>& Matrices_, const ArrayT<unsigned int>& Map_) : Matrices(Matrices_), Map(Map_) { }
-
-        /// Has our joint \c JointNr a correspondence in the super model?
-        bool HasMatrix(unsigned long JointNr) const { return Map[JointNr] < Matrices.Size(); }
-
-        /// For our joint \c JointNr, return the corresponding matrix from the super model.
-        /// Only call this if HasMatrix(JointNr) returns \c true.
-        const MatrixT& GetMatrix(unsigned long JointNr) const { return Matrices[Map[JointNr]]; }
-
-        const ArrayT<MatrixT>&      Matrices;   ///< The draw matrices of the super model.
-        const ArrayT<unsigned int>& Map;        ///< Describes how our joints map to the joints of the super model. If <tt>Map[i]</tt> is not a valid index into \c Matrices, then our joint \c i has no match in the skeleton of the super model.
-    };
-
-
     /// The constructor. Creates a new Cafu model from a file as directed by the given model loader.
     /// @param Loader   The model loader that actually imports the file and fills in the model data.
     CafuModelT(ModelLoaderT& Loader);
@@ -281,19 +258,11 @@ class CafuModelT : public ModelT
     const ArrayT<AnimT>&        GetAnims() const { return m_Anims; }
     const ArrayT<ChannelT>&     GetChannels() const { return m_Channels; }
 
-    /// This method returns the set of drawing matrices (one per joint) at the given sequence and frame number.
-    const ArrayT<MatrixT>& GetDrawJointMatrices(int SequenceNr, float FrameNr, const SuperT* Super=NULL) const;
-
-    /// The new method to draw the model.
-    /// @param SequenceNr   The number of the animation sequence to use, -1 for the bind pose.
-    /// @param FrameNr      The frame number in the animation sequence to render to model at.
-    /// @param SkinNr       The skin to render the model with, -1 for the default skin.
-    /// @param LodDist      The distance to the camera for reducing the level-of-detail (currently unused).
-    /// @param Super        Information about a parent or "super" model whose skeleton pose should be used when rendering this model.
-    void Draw(int SequenceNr, float FrameNr, int SkinNr, float LodDist, const SuperT* Super=NULL) const;
-
     /// Returns the proper material for the given mesh in the given skin.
     const MaterialT* GetMaterial(unsigned long MeshNr, int SkinNr) const;
+
+    /// Returns the proper render material for the given mesh in the given skin.
+    MatSys::RenderMaterialT* GetRenderMaterial(unsigned long MeshNr, int SkinNr) const;
 
     /// Determines if <tt>GF.Points[PointNr].MeshNr</tt> is a valid index into this model.
     bool IsMeshNrOK(const GuiFixtureT& GF, unsigned int PointNr) const;
@@ -328,16 +297,13 @@ class CafuModelT : public ModelT
     friend class ModelEditor::CommandUpdateChannelT;
     friend class ModelEditor::CommandUpdateGuiFixtureT;
 
-    void RecomputeBindPoseBB();                                                             ///< Recomputes the bounding box for the model in bind pose (stored in m_BindPoseBB).
-    void InitMeshes();                                                                      ///< An auxiliary method for the constructors.
-    void UpdateCachedDrawData(int SequenceNr, float FrameNr, const SuperT* Super) const;    ///< A private auxiliary method.
-    MatSys::RenderMaterialT* GetRenderMaterial(unsigned long MeshNr, int SkinNr) const;     ///< Returns the proper render material for the given mesh in the given skin.
-
+    void RecomputeBindPoseBB();                     ///< Recomputes the bounding box for the model in bind pose (stored in m_BindPoseBB).
+    void InitMeshes();                              ///< An auxiliary method for the constructors.
 
     const std::string     m_FileName;               ///< File name of this model.   TODO: Remove!?!
     MaterialManagerImplT  m_MaterialMan;            ///< The material manager for the materials that are used with the meshes of this model.
     ArrayT<JointT>        m_Joints;                 ///< Array of joints of this model.
-    mutable ArrayT<MeshT> m_Meshes;                 ///< Array of (sub)meshes of this model.
+    ArrayT<MeshT>         m_Meshes;                 ///< Array of (sub)meshes of this model.
     ArrayT<SkinT>         m_Skins;                  ///< Array of additional/alternative skins for this model.
     ArrayT<GuiFixtureT>   m_GuiFixtures;            ///< Array of GUI fixtures in the model.
     ArrayT<GuiLocT>       m_GuiLocs;                ///< Array of locations where GUIs can be attached to this model.
@@ -346,15 +312,7 @@ class CafuModelT : public ModelT
 
     const bool            m_UseGivenTangentSpace;   ///< Whether this model should use the fixed, given tangent space that was loaded from the model file, or it the tangent space is dynamically recomputed (useful for animated models).
  // const bool            m_CastShadows;            ///< Should this model cast shadows?
-    BoundingBox3fT        m_BindPoseBB;             ///< The bounding-box for the base pose of the model.
-
-
-    // Members for caching the data that is required for drawing the model at a given animation sequence and frame.
-    mutable int                   m_Draw_CachedDataAtSequNr;    ///< The animation sequence number at which we have computed the cache data.
-    mutable float                 m_Draw_CachedDataAtFrameNr;   ///< The animation frame    number at which we have computed the cache data.
-
-    mutable ArrayT<MatrixT>       m_JointMatrices;              ///< The transformation matrices that represent the pose of the skeleton at the given animation sequence and frame number.
-    mutable ArrayT<MatSys::MeshT> m_Draw_Meshes;                ///< The draw meshes resulting from m_JointMatrices.
+    BoundingBox3fT        m_BindPoseBB;             ///< [REMOVE???] The bounding-box for the base pose of the model.
 };
 
 #endif

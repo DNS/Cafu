@@ -53,7 +53,6 @@ namespace ModelEditor
         struct MeshInfoT
         {
             CafuModelT::MeshT                Mesh;                  ///< The deleted mesh.
-            MatSys::MeshT                    DrawMesh;              ///< The draw mesh related to \c Mesh.
             ArrayT<MaterialT*>               SkinsMaterials;        ///< The material in each skin for this mesh.
             ArrayT<MatSys::RenderMaterialT*> SkinsRenderMaterials;  ///< The render material in each skin for this mesh.
         };

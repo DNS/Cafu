@@ -102,7 +102,7 @@ bool CommandAddT::Do()
     }
 
     // Make sure that the draw cache is refreshed.
-    m_ModelDoc->GetModel()->m_Draw_CachedDataAtSequNr=-1234;
+    m_ModelDoc->GetAnimState().Pose.SetNeedsRecache();
 
     m_ModelDoc->UpdateAllObservers_Created(m_Type, Indices);
 
@@ -158,7 +158,7 @@ void CommandAddT::Undo()
     }
 
     // Make sure that the draw cache is refreshed.
-    m_ModelDoc->GetModel()->m_Draw_CachedDataAtSequNr=-1234;
+    m_ModelDoc->GetAnimState().Pose.SetNeedsRecache();
 
     m_ModelDoc->UpdateAllObservers_Deleted(m_Type, Indices);
 

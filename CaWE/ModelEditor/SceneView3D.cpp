@@ -100,12 +100,9 @@ Vector3fT ModelEditor::SceneView3DT::TraceCameraRay(const wxPoint& RefPtWin, Mod
     }
 
     // Trace the ray against the model, which is a per-triangle accurate test.
-    const ModelDocumentT::AnimStateT& Anim   =ModelDoc->GetAnimState();
-    const ArrayT<unsigned int>&       AnimSel=ModelDoc->GetSelection(ANIM);
     ModelT::TraceResultT Result;
 
-    if (ModelDoc->GetModel()->TraceRay(AnimSel.Size()==0 ? -1 : AnimSel[0], Anim.FrameNr,
-        ModelDoc->GetSelSkinNr(), RayOrigin, RayDir, Result) && Result.Fraction<BestFraction)
+    if (ModelDoc->GetAnimState().Pose.TraceRay(ModelDoc->GetSelSkinNr(), RayOrigin, RayDir, Result) && Result.Fraction<BestFraction)
     {
         BestFraction=Result.Fraction;
         BestPos     =RayOrigin + RayDir*Result.Fraction;
@@ -163,7 +160,7 @@ void ModelEditor::SceneView3DT::OnKeyDown(wxKeyEvent& KE)
             ModelDoc->SetSelection(ANIM, ModelDoc->GetSelection_NextAnimSequ());
             ModelDoc->UpdateAllObservers_SelectionChanged(ANIM, OldSel, ModelDoc->GetSelection(ANIM));
 
-            ModelDoc->GetAnimState().FrameNr=0.0f;
+            ModelDoc->GetAnimState().Pose.SetFrameNr(0.0f);
             ModelDoc->UpdateAllObservers_AnimStateChanged();
             break;
         }
@@ -175,7 +172,7 @@ void ModelEditor::SceneView3DT::OnKeyDown(wxKeyEvent& KE)
             ModelDoc->SetSelection(ANIM, ModelDoc->GetSelection_PrevAnimSequ());
             ModelDoc->UpdateAllObservers_SelectionChanged(ANIM, OldSel, ModelDoc->GetSelection(ANIM));
 
-            ModelDoc->GetAnimState().FrameNr=0.0f;
+            ModelDoc->GetAnimState().Pose.SetFrameNr(0.0f);
             ModelDoc->UpdateAllObservers_AnimStateChanged();
             break;
         }
@@ -236,26 +233,13 @@ void ModelEditor::SceneView3DT::OnContextMenu(wxContextMenuEvent& CE)
     ModelT::TraceResultT ModelTR;
     const Vector3fT      HitPos=TraceCameraRay(ScreenToClient(CE.GetPosition()), ModelTR);
     const CafuModelT*    Model=m_Parent->GetModelDoc()->GetModel();
+    const AnimPoseT&     Pose=m_Parent->GetModelDoc()->GetAnimState().Pose;
     unsigned int         BestVertexNr=0;
     bool                 HaveModelHit=false;
 
     if (ModelTR.Fraction>0.0f && ModelTR.MeshNr<Model->GetMeshes().Size() && ModelTR.TriNr<Model->GetMeshes()[ModelTR.MeshNr].Triangles.Size())
     {
-        float BestDist=0.0f;
-
-        for (unsigned int i=0; i<3; i++)
-        {
-            const unsigned int VertexNr=Model->GetMeshes()[ModelTR.MeshNr].Triangles[ModelTR.TriNr].VertexIdx[i];
-            const Vector3fT&   DrawPos =Model->GetMeshes()[ModelTR.MeshNr].Vertices[VertexNr].Draw_Pos;
-            const float        Dist    =length(DrawPos-HitPos);
-
-            if (i==0 || Dist<BestDist)
-            {
-                BestDist    =Dist;
-                BestVertexNr=VertexNr;
-            }
-        }
-
+        BestVertexNr=Pose.FindClosestVertex(ModelTR.MeshNr, ModelTR.TriNr, HitPos);
         HaveModelHit=true;
     }
 
@@ -382,23 +366,25 @@ void ModelEditor::SceneView3DT::RenderPass() const
 
 
     // Render the model.
-    const CafuModelT*                 Model  =ModelDoc->GetModel();
-    const ModelDocumentT::AnimStateT& Anim   =ModelDoc->GetAnimState();
-    const ArrayT<unsigned int>&       AnimSel=ModelDoc->GetSelection(ANIM);
-    const int                         SequNr =AnimSel.Size()==0 ? -1 : AnimSel[0];
+    const CafuModelT*                 Model=ModelDoc->GetModel();
+    const ModelDocumentT::AnimStateT& Anim =ModelDoc->GetAnimState();
 
     if (ScenePropGrid->m_Model_ShowMesh)
     {
-        Model->Draw(SequNr, Anim.FrameNr, ModelDoc->GetSelSkinNr(), 0.0f /*LodDist*/, (CafuModelT::SuperT*)NULL);
+        Anim.Pose.Draw(ModelDoc->GetSelSkinNr(), 0.0f /*LodDist*/);
 
         for (unsigned long SmNr=0; SmNr<ModelDoc->GetSubmodels().Size(); SmNr++)
         {
-            const ModelDocumentT::SubmodelT* SM=ModelDoc->GetSubmodels()[SmNr];
-            const CafuModelT::SuperT Super(
-                Model->GetDrawJointMatrices(SequNr, Anim.FrameNr),
+            ModelDocumentT::SubmodelT* SM=ModelDoc->GetSubmodels()[SmNr];
+            AnimPoseT&                 SmPose=SM->GetPose();
+
+            const AnimPoseT::SuperT Super(
+                Anim.Pose.GetJointMatrices(),
                 SM->GetJointsMap());
 
-            SM->GetSubmodel()->Draw(0, 0.0f, -1 /*SkinNr*/, 0.0f /*LodDist*/, &Super);
+            SmPose.SetSuper(&Super);
+            SmPose.Draw(-1 /*SkinNr*/, 0.0f /*LodDist*/);
+            SmPose.SetSuper(NULL);
         }
     }
 
@@ -406,16 +392,20 @@ void ModelEditor::SceneView3DT::RenderPass() const
     // Render the skeleton of the model.
     if (ScenePropGrid->m_Model_ShowSkeleton && MatSys::Renderer->GetCurrentRenderAction()==MatSys::RendererI::AMBIENT)
     {
-        RenderSkeleton(Model->GetJoints(), Model->GetDrawJointMatrices(SequNr, Anim.FrameNr), false);
+        RenderSkeleton(Model->GetJoints(), Anim.Pose.GetJointMatrices(), false);
 
         for (unsigned long SmNr=0; SmNr<ModelDoc->GetSubmodels().Size(); SmNr++)
         {
-            const ModelDocumentT::SubmodelT* SM=ModelDoc->GetSubmodels()[SmNr];
-            const CafuModelT::SuperT Super(
-                Model->GetDrawJointMatrices(SequNr, Anim.FrameNr),
+            ModelDocumentT::SubmodelT* SM=ModelDoc->GetSubmodels()[SmNr];
+            AnimPoseT&                 SmPose=SM->GetPose();
+
+            const AnimPoseT::SuperT Super(
+                Anim.Pose.GetJointMatrices(),
                 SM->GetJointsMap());
 
-            RenderSkeleton(SM->GetSubmodel()->GetJoints(), SM->GetSubmodel()->GetDrawJointMatrices(0, 0.0f, &Super), true);
+            SmPose.SetSuper(&Super);
+            RenderSkeleton(SM->GetSubmodel()->GetJoints(), SmPose.GetJointMatrices(), true);
+            SmPose.SetSuper(NULL);
         }
     }
 
@@ -434,7 +424,7 @@ void ModelEditor::SceneView3DT::RenderPass() const
                 if (!Model->IsMeshNrOK  (GF, PointNr)) continue;
                 if (!Model->IsVertexNrOK(GF, PointNr)) continue;
 
-                Points[PointNr]=Model->GetMeshes()[GF.Points[PointNr].MeshNr].Vertices[GF.Points[PointNr].VertexNr].Draw_Pos;
+                Points[PointNr]=Anim.Pose.GetVertexPos(GF.Points[PointNr].MeshNr, GF.Points[PointNr].VertexNr);
                 PointsOK|=(1 << PointNr);
             }
 

@@ -39,7 +39,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 ModelEditor::ModelDocumentT::SubmodelT::SubmodelT(const wxString& fn, CafuModelT* sm, const ArrayT<unsigned int>& jm)
-    : m_Filename(fn), m_Submodel(sm), m_JointsMap(jm)
+    : m_Filename(fn),
+      m_Submodel(sm),
+      m_Pose(*sm, -1, 0.0f),
+      m_JointsMap(jm)
 {
 }
 
@@ -63,6 +66,7 @@ static MapBrushT* GetGroundBrush(GameConfigT* GameConfig)
 ModelEditor::ModelDocumentT::ModelDocumentT(GameConfigT* GameConfig, const wxString& FileName)
     : m_Model(LoadModel(FileName)),
       m_SequenceBB(m_Model->GetBB(-1, 0.0f)),
+      m_AnimState(*m_Model),
       m_Submodels(),
       m_Gui(new cf::GuiSys::GuiImplT("Win1=gui:new('WindowT'); gui:SetRootWindow(Win1); gui:activate(true); "
           "gui:setInteractive(true); gui:showMouse(true); Win1:set('rect', 0, 0, 640, 480); "
@@ -131,6 +135,8 @@ void ModelEditor::ModelDocumentT::SetSelection(ModelElementTypeT Type, const Arr
 
     if (Type==ANIM)
     {
+        m_AnimState.Pose.SetSequNr(m_Selection[ANIM].Size()==0 ? -1 : m_Selection[ANIM][0]);
+
         if (m_Selection[ANIM].Size()==0)
         {
             m_SequenceBB=m_Model->GetBB(-1, 0.0f);
@@ -223,9 +229,9 @@ ArrayT<unsigned int> ModelEditor::ModelDocumentT::GetSelection_PrevAnimSequ() co
 
 void ModelEditor::ModelDocumentT::AdvanceTime(float Time)
 {
-    if (m_Selection[ANIM].Size()>0 && Time*m_AnimState.Speed!=0.0f)
+    if (Time*m_AnimState.Speed!=0.0f)
     {
-        m_AnimState.FrameNr=m_Model->AdvanceFrameNr(m_Selection[ANIM][0], m_AnimState.FrameNr, Time*m_AnimState.Speed, m_AnimState.Loop);
+        m_AnimState.Pose.Advance(Time*m_AnimState.Speed, m_AnimState.Loop);
     }
 }
 

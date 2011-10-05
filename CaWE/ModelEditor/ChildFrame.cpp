@@ -840,7 +840,7 @@ void ModelEditor::ChildFrameT::OnMenuModel(wxCommandEvent& CE)
             m_ModelDoc->SetSelection(ANIM, m_ModelDoc->GetSelection_NextAnimSequ());
             m_ModelDoc->UpdateAllObservers_SelectionChanged(ANIM, OldSel, m_ModelDoc->GetSelection(ANIM));
 
-            m_ModelDoc->GetAnimState().FrameNr=0.0f;
+            m_ModelDoc->GetAnimState().Pose.SetFrameNr(0.0f);
             m_ModelDoc->UpdateAllObservers_AnimStateChanged();
             break;
         }
@@ -851,7 +851,7 @@ void ModelEditor::ChildFrameT::OnMenuModel(wxCommandEvent& CE)
             m_ModelDoc->SetSelection(ANIM, m_ModelDoc->GetSelection_PrevAnimSequ());
             m_ModelDoc->UpdateAllObservers_SelectionChanged(ANIM, OldSel, m_ModelDoc->GetSelection(ANIM));
 
-            m_ModelDoc->GetAnimState().FrameNr=0.0f;
+            m_ModelDoc->GetAnimState().Pose.SetFrameNr(0.0f);
             m_ModelDoc->UpdateAllObservers_AnimStateChanged();
             break;
         }

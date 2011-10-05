@@ -87,8 +87,7 @@ CommandDeleteT::CommandDeleteT(ModelDocumentT* ModelDoc, ModelElementTypeT Type,
                 m_MeshInfos.PushBackEmpty();
                 MeshInfoT& MI=m_MeshInfos[m_MeshInfos.Size()-1];
 
-                MI.Mesh    =m_ModelDoc->GetModel()->GetMeshes()[i];
-                MI.DrawMesh=m_ModelDoc->GetModel()->m_Draw_Meshes[i];
+                MI.Mesh=m_ModelDoc->GetModel()->GetMeshes()[i];
 
                 for (unsigned long SkinNr=0; SkinNr<m_ModelDoc->GetModel()->GetSkins().Size(); SkinNr++)
                 {
@@ -157,6 +156,12 @@ bool CommandDeleteT::Do()
 
     if (m_Type==MESH)
     {
+        if (m_Indices.Size() >= m_ModelDoc->GetModel()->GetMeshes().Size())
+        {
+            m_Message="Cannot delete all meshes -- at least one mesh must be left.";
+            return false;
+        }
+
         for (unsigned long GFixNr=0; GFixNr<m_ModelDoc->GetModel()->GetGuiFixtures().Size(); GFixNr++)
             for (unsigned int PointNr=0; PointNr<3; PointNr++)
                 if (m_Indices.Find(m_ModelDoc->GetModel()->GetGuiFixtures()[GFixNr].Points[PointNr].MeshNr)>=0)
@@ -182,8 +187,7 @@ bool CommandDeleteT::Do()
             case CHAN:  m_ModelDoc->GetModel()->m_Channels   .RemoveAtAndKeepOrder(i); break;
             case MESH:
             {
-                m_ModelDoc->GetModel()->m_Meshes     .RemoveAtAndKeepOrder(i);
-                m_ModelDoc->GetModel()->m_Draw_Meshes.RemoveAtAndKeepOrder(i);
+                m_ModelDoc->GetModel()->m_Meshes.RemoveAtAndKeepOrder(i);
 
                 for (unsigned long SkinNr=0; SkinNr<m_ModelDoc->GetModel()->GetSkins().Size(); SkinNr++)
                 {
@@ -196,7 +200,7 @@ bool CommandDeleteT::Do()
     }
 
     // Make sure that the draw cache is refreshed.
-    m_ModelDoc->GetModel()->m_Draw_CachedDataAtSequNr=-1234;
+    m_ModelDoc->GetAnimState().Pose.SetNeedsRecache();
 
     m_ModelDoc->UpdateAllObservers_Deleted(m_Type, m_Indices);
 
@@ -225,8 +229,7 @@ void CommandDeleteT::Undo()
             {
                 const MeshInfoT& MI=m_MeshInfos[INr];
 
-                m_ModelDoc->GetModel()->m_Meshes     .InsertAt(i, MI.Mesh);
-                m_ModelDoc->GetModel()->m_Draw_Meshes.InsertAt(i, MI.DrawMesh);
+                m_ModelDoc->GetModel()->m_Meshes.InsertAt(i, MI.Mesh);
 
                 for (unsigned long SkinNr=0; SkinNr<m_ModelDoc->GetModel()->GetSkins().Size(); SkinNr++)
                 {
@@ -239,7 +242,7 @@ void CommandDeleteT::Undo()
     }
 
     // Make sure that the draw cache is refreshed.
-    m_ModelDoc->GetModel()->m_Draw_CachedDataAtSequNr=-1234;
+    m_ModelDoc->GetAnimState().Pose.SetNeedsRecache();
 
     m_ModelDoc->UpdateAllObservers_Created(m_Type, m_Indices);
 

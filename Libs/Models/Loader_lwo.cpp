@@ -368,10 +368,10 @@ void LoaderLwoT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                     MeshVertex.FirstWeightIdx=PolyVert.index;
                     MeshVertex.NumWeights    =1;
 
-                    MeshVertex.Draw_Pos      =Mesh.Weights[PolyVert.index].Pos;     // Normally the base class code computes this, but we also have to pre-provide a proper value here for ComputeTangents().
-                    MeshVertex.Draw_Normal   =Vector3fT(PolyVert.norm);
-                 // MeshVertex.Draw_Tangent  =...;      // Set below to polygon average.
-                 // MeshVertex.Draw_BiNormal =...;      // Set below to polygon average.
+                    MeshVertex.gts_Pos      =Mesh.Weights[PolyVert.index].Pos;     // Normally the base class code computes this, but we also have to pre-provide a proper value here for ComputeTangents().
+                    MeshVertex.gts_Normal   =Vector3fT(PolyVert.norm);
+                 // MeshVertex.gts_Tangent  =...;      // Set below to polygon average.
+                 // MeshVertex.gts_BiNormal =...;      // Set below to polygon average.
 
                     WeightVerts[PolyVert.index].PushBack(MeshVertexNr);
                     PolygonMeshVertices.PushBack(MeshVertexNr);
@@ -394,7 +394,7 @@ void LoaderLwoT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                     Triangle.VertexIdx[1]=PolygonMeshVertices[VertexNr+2];
                     Triangle.VertexIdx[2]=PolygonMeshVertices[VertexNr+1];
 
-                    Triangle.Draw_Normal=Vector3fT(Poly.norm);
+                    Triangle.gts_Normal=Vector3fT(Poly.norm);
 
 
                     Vector3fT Tri_Tangent;
@@ -414,8 +414,8 @@ void LoaderLwoT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
 
                     // The vertex may be shared across multiple polygons, and we want to build the average over them.
                     // Therefore we only accumulate the tangents here, and normalize below.
-                    Vertex.Draw_Tangent +=myNormalize(Poly_Tangent);
-                    Vertex.Draw_BiNormal+=myNormalize(Poly_BiTangent);
+                    Vertex.gts_Tangent +=myNormalize(Poly_Tangent);
+                    Vertex.gts_BiNormal+=myNormalize(Poly_BiTangent);
                 }
             }
 
@@ -425,8 +425,8 @@ void LoaderLwoT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
             {
                 CafuModelT::MeshT::VertexT& Vertex=Mesh.Vertices[VertexNr];
 
-                Vertex.Draw_Tangent =myNormalize(Vertex.Draw_Tangent );
-                Vertex.Draw_BiNormal=myNormalize(Vertex.Draw_BiNormal);
+                Vertex.gts_Tangent =myNormalize(Vertex.gts_Tangent );
+                Vertex.gts_BiNormal=myNormalize(Vertex.gts_BiNormal);
             }
         }
     }
@@ -445,12 +445,12 @@ void LoaderLwoT::ComputeTangents(const CafuModelT::MeshT& Mesh, const unsigned l
     const CafuModelT::MeshT::VertexT&   V_0   =Mesh.Vertices[Tri.VertexIdx[0]];
     const CafuModelT::MeshT::VertexT&   V_1   =Mesh.Vertices[Tri.VertexIdx[1]];
     const CafuModelT::MeshT::VertexT&   V_2   =Mesh.Vertices[Tri.VertexIdx[2]];
-    const Vector3fT                     Edge01=V_1.Draw_Pos-V_0.Draw_Pos;
-    const Vector3fT                     Edge02=V_2.Draw_Pos-V_0.Draw_Pos;
+    const Vector3fT                     Edge01=V_1.gts_Pos-V_0.gts_Pos;
+    const Vector3fT                     Edge02=V_2.gts_Pos-V_0.gts_Pos;
 
     // Triangles are ordered CW for md5 models and CCW for ase models, so we write
     // Normal=VectorCross(Edge02, Edge01) for md5 models and Normal=VectorCross(Edge01, Edge02) for ase models.
-    // Tri.Draw_Normal=myNormalize(Edge02.cross(Edge01));
+    // Tri.gts_Normal=myNormalize(Edge02.cross(Edge01));
 
     // Understanding what's going on here is easy. The key statement is
     // "The tangent vector is parallel to the direction of increasing S on a parametric surface."

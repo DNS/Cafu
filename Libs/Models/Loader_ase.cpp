@@ -530,15 +530,15 @@ void LoaderAseT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                     const CafuModelT::MeshT::VertexT& CafuVertex=Mesh.Vertices[CafuVertexNr];
 
                     assert(CafuVertex.NumWeights==1);
-                    assert(Mesh.Weights[CafuVertex.FirstWeightIdx].Pos==CafuVertex.Draw_Pos);
+                    assert(Mesh.Weights[CafuVertex.FirstWeightIdx].Pos==CafuVertex.gts_Pos);
 
-                    if (CafuVertex.Draw_Pos!=AseVertexPos) continue;
+                    if (CafuVertex.gts_Pos!=AseVertexPos) continue;
                     if (CafuVertex.u!=GO.TexCoords[AseTri.IndTexCoords[i]].AsVectorOfFloat().x) continue;
                     if (CafuVertex.v!=GO.TexCoords[AseTri.IndTexCoords[i]].AsVectorOfFloat().y) continue;
 
-                    if (CafuVertex.Draw_Normal!=AseTri.Normals[i].AsVectorOfFloat()) continue;
-                    if (CafuVertex.Draw_Tangent!=AseTri.Tangents[i].AsVectorOfFloat()) continue;
-                    if (CafuVertex.Draw_BiNormal!=AseTri.BiNormals[i].AsVectorOfFloat()) continue;
+                    if (CafuVertex.gts_Normal!=AseTri.Normals[i].AsVectorOfFloat()) continue;
+                    if (CafuVertex.gts_Tangent!=AseTri.Tangents[i].AsVectorOfFloat()) continue;
+                    if (CafuVertex.gts_BiNormal!=AseTri.BiNormals[i].AsVectorOfFloat()) continue;
 
                     // This vertex meets all criteria - take it.
                     break;
@@ -568,10 +568,10 @@ void LoaderAseT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                     CafuVertex.v             =GO.TexCoords[AseTri.IndTexCoords[i]].AsVectorOfFloat().y;
                     CafuVertex.FirstWeightIdx=WeightNr;
                     CafuVertex.NumWeights    =1;
-                    CafuVertex.Draw_Pos      =AseVertexPos;
-                    CafuVertex.Draw_Normal   =AseTri.Normals[i].AsVectorOfFloat();
-                    CafuVertex.Draw_Tangent  =AseTri.Tangents[i].AsVectorOfFloat();
-                    CafuVertex.Draw_BiNormal =AseTri.BiNormals[i].AsVectorOfFloat();
+                    CafuVertex.gts_Pos       =AseVertexPos;
+                    CafuVertex.gts_Normal    =AseTri.Normals[i].AsVectorOfFloat();
+                    CafuVertex.gts_Tangent   =AseTri.Tangents[i].AsVectorOfFloat();
+                    CafuVertex.gts_BiNormal  =AseTri.BiNormals[i].AsVectorOfFloat();
                 }
 
                 // Triangles are ordered CW for Cafu models and CCW for ase models,
@@ -579,7 +579,7 @@ void LoaderAseT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                 CafuTri.VertexIdx[2-i]=CafuVertexNr;
             }
 
-            CafuTri.Draw_Normal=AseTri.Normal.AsVectorOfFloat();
+            CafuTri.gts_Normal=AseTri.Normal.AsVectorOfFloat();
         }
 
 
