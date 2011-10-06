@@ -132,19 +132,19 @@ class AnimPoseT
     private:
 
     /// The instances of this struct parallel and augment the \c CafuModelT::MeshT instances in the related \c CafuModelT.
-    struct MeshT
+    struct MeshInfoT
     {
         struct TriangleT
         {
-            Vector3fT Draw_Normal;      ///< The normal vector of this triangle, required for the shadow-silhouette determination.
+            Vector3fT Normal;       ///< The normal vector of this triangle, required for the shadow-silhouette determination.
         };
 
         struct VertexT
         {
-            Vector3fT Draw_Pos;         ///< The spatial position of this vertex.
-            Vector3fT Draw_Normal;      ///< The tangent-space normal   vector of this vertex.
-            Vector3fT Draw_Tangent;     ///< The tangent-space tangent  vector of this vertex.
-            Vector3fT Draw_BiNormal;    ///< The tangent-space binormal vector of this vertex.
+            Vector3fT Pos;          ///< The spatial position of this vertex.
+            Vector3fT Normal;       ///< The tangent-space normal   vector of this vertex.
+            Vector3fT Tangent;      ///< The tangent-space tangent  vector of this vertex.
+            Vector3fT BiNormal;     ///< The tangent-space binormal vector of this vertex.
         };
 
         ArrayT<TriangleT> Triangles;
@@ -157,18 +157,18 @@ class AnimPoseT
     void UpdateData() const;
     void Recache() const;
 
-    const CafuModelT&     m_Model;
-    int                   m_SequNr;             ///< The animation sequence number at which we have computed the cache data.
-    float                 m_FrameNr;            ///< The animation frame    number at which we have computed the cache data.
-    const SuperT*         m_Super;
- // ArrayT<...>           m_Def;                ///< Array of { channel, sequence, framenr, (forceloop), blendweight } tuples.
- // bool                  m_DoCache;            ///< Cache the computed data? (Set to true by the user if he want to re-use this instance.)
+    const CafuModelT&             m_Model;              ///< The related model that this is a pose for.
+    int                           m_SequNr;             ///< The animation sequence number at which we have computed the cache data.
+    float                         m_FrameNr;            ///< The animation frame    number at which we have computed the cache data.
+    const SuperT*                 m_Super;
+ // ArrayT<...>                   m_Def;                ///< Array of { channel, sequence, framenr, (forceloop), blendweight } tuples.
+ // bool                          m_DoCache;            ///< Cache the computed data? (Set to true by the user if he want to re-use this instance.)
 
     mutable bool                  m_NeedsRecache;       ///< wird auf 'true' gesetzt wann immer SetSequ(), SetFrameNr() oder AdvanceAll() o.ä. aufgerufen wird, übernimmt m_Draw_CachedDataAt*Nr Funktionalität.
     mutable ArrayT<MatrixT>       m_JointMatrices;      ///< The transformation matrices that represent the pose of the skeleton at the given animation sequence and frame number.
-    mutable ArrayT<MeshT>         m_Meshes;
-    mutable ArrayT<MatSys::MeshT> m_Draw_Meshes;        ///< The draw meshes resulting from m_JointMatrices.
-    mutable BoundingBox3fT        m_BoundingBox;
+    mutable ArrayT<MeshInfoT>     m_MeshInfos;          ///< Additional data for each mesh in m_Model.
+    mutable ArrayT<MatSys::MeshT> m_Draw_Meshes;        ///< The draw meshes resulting from the m_JointMatrices.
+    mutable BoundingBox3fT        m_BoundingBox;        ///< The bounding-box for the model in this pose.
 };
 
 #endif

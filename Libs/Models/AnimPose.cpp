@@ -31,8 +31,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 AnimPoseT::AnimPoseT(const CafuModelT& Model, int SequNr, float FrameNr)
     : m_Model(Model),
       m_SequNr(SequNr),
-      m_Super(NULL),
       m_FrameNr(FrameNr),
+      m_Super(NULL),
       m_NeedsRecache(true),
       m_BoundingBox()
 {
@@ -130,7 +130,7 @@ void AnimPoseT::Draw(int SkinNr, float /*LodDist*/) const
     {
         case MatSys::RendererI::AMBIENT:
         {
-            for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
+            for (unsigned long MeshNr=0; MeshNr<m_Draw_Meshes.Size(); MeshNr++)
             {
                 MatSys::Renderer->SetCurrentMaterial(m_Model.GetRenderMaterial(MeshNr, SkinNr));
                 MatSys::Renderer->RenderMesh(m_Draw_Meshes[MeshNr]);
@@ -189,7 +189,7 @@ void AnimPoseT::Draw(int SkinNr, float /*LodDist*/) const
 
         case MatSys::RendererI::LIGHTING:
         {
-            for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
+            for (unsigned long MeshNr=0; MeshNr<m_Draw_Meshes.Size(); MeshNr++)
             {
                 MatSys::Renderer->SetCurrentMaterial(m_Model.GetRenderMaterial(MeshNr, SkinNr));
                 MatSys::Renderer->RenderMesh(m_Draw_Meshes[MeshNr]);
@@ -199,13 +199,16 @@ void AnimPoseT::Draw(int SkinNr, float /*LodDist*/) const
 
         case MatSys::RendererI::STENCILSHADOW:
         {
-            const Vector3fT LightPos(MatSys::Renderer->GetCurrentLightSourcePosition());
+            typedef CafuModelT::MeshT MeshT;
 
-            for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
+            const ArrayT<MeshT>& Meshes=m_Model.GetMeshes();
+            const Vector3fT      LightPos(MatSys::Renderer->GetCurrentLightSourcePosition());
+
+            for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
             {
-                const CafuModelT::MeshT& Mesh    =m_Model.GetMeshes()[MeshNr];
-                const AnimPoseT::MeshT&  PoseMesh=m_Meshes[MeshNr];
-                const MaterialT*         MeshMat =m_Model.GetMaterial(MeshNr, SkinNr);
+                const MeshT&     Mesh    =Meshes[MeshNr];
+                const MeshInfoT& MeshInfo=m_MeshInfos[MeshNr];
+                const MaterialT* MeshMat =m_Model.GetMaterial(MeshNr, SkinNr);
 
                 if (MeshMat==NULL || MeshMat->NoShadows) continue;
 
@@ -215,10 +218,10 @@ void AnimPoseT::Draw(int SkinNr, float /*LodDist*/) const
 
                 for (unsigned long TriNr=0; TriNr<Mesh.Triangles.Size(); TriNr++)
                 {
-                    const CafuModelT::MeshT::TriangleT& Tri    =Mesh.Triangles[TriNr];
-                    const AnimPoseT::MeshT::TriangleT&  PoseTri=PoseMesh.Triangles[TriNr];
+                    const MeshT::TriangleT&     Tri    =Mesh.Triangles[TriNr];
+                    const MeshInfoT::TriangleT& TriInfo=MeshInfo.Triangles[TriNr];
 
-                    const float Dot=(LightPos-PoseMesh.Vertices[Tri.VertexIdx[0]].Draw_Pos).dot(PoseTri.Draw_Normal);
+                    const float Dot=(LightPos-MeshInfo.Vertices[Tri.VertexIdx[0]].Pos).dot(TriInfo.Normal);
 
                     TriangleIsFrontFacing[TriNr]=Dot>0;
                 }
@@ -233,7 +236,7 @@ void AnimPoseT::Draw(int SkinNr, float /*LodDist*/) const
                     if (!TriangleIsFrontFacing[TriNr]) continue;
 
                     // This triangle is front-facing wrt. the light source.
-                    const CafuModelT::MeshT::TriangleT& Tri=Mesh.Triangles[TriNr];
+                    const MeshT::TriangleT& Tri=Mesh.Triangles[TriNr];
 
                     for (unsigned long EdgeNr=0; EdgeNr<3; EdgeNr++)
                     {
@@ -245,15 +248,15 @@ void AnimPoseT::Draw(int SkinNr, float /*LodDist*/) const
                             // The neighbour at edge 'EdgeNr' is back-facing (or non-existant), so we have found a possible silhouette edge.
                             const unsigned long v1=EdgeNr;
                             const unsigned long v2=(EdgeNr+1) % 3;
-                            const Vector3fT     LA=PoseMesh.Vertices[Tri.VertexIdx[v1]].Draw_Pos-LightPos;
-                            const Vector3fT     LB=PoseMesh.Vertices[Tri.VertexIdx[v2]].Draw_Pos-LightPos;
+                            const Vector3fT     LA=MeshInfo.Vertices[Tri.VertexIdx[v1]].Pos-LightPos;
+                            const Vector3fT     LB=MeshInfo.Vertices[Tri.VertexIdx[v2]].Pos-LightPos;
 
                             MeshSilhouette.Vertices.PushBackEmpty(4);
 
                             const unsigned long MeshSize=MeshSilhouette.Vertices.Size();
 
-                            MeshSilhouette.Vertices[MeshSize-4].SetOrigin(PoseMesh.Vertices[Tri.VertexIdx[v2]].Draw_Pos);
-                            MeshSilhouette.Vertices[MeshSize-3].SetOrigin(PoseMesh.Vertices[Tri.VertexIdx[v1]].Draw_Pos);
+                            MeshSilhouette.Vertices[MeshSize-4].SetOrigin(MeshInfo.Vertices[Tri.VertexIdx[v2]].Pos);
+                            MeshSilhouette.Vertices[MeshSize-3].SetOrigin(MeshInfo.Vertices[Tri.VertexIdx[v1]].Pos);
                             MeshSilhouette.Vertices[MeshSize-2].SetOrigin(LA, 0.0);
                             MeshSilhouette.Vertices[MeshSize-1].SetOrigin(LB, 0.0);
                         }
@@ -278,9 +281,9 @@ void AnimPoseT::Draw(int SkinNr, float /*LodDist*/) const
                     const unsigned long MeshSize=MeshCaps.Vertices.Size();
 
                     // Render the occluder (front-facing wrt. the light source).
-                    const Vector3fT& A=PoseMesh.Vertices[Tri.VertexIdx[0]].Draw_Pos;
-                    const Vector3fT& B=PoseMesh.Vertices[Tri.VertexIdx[1]].Draw_Pos;
-                    const Vector3fT& C=PoseMesh.Vertices[Tri.VertexIdx[2]].Draw_Pos;
+                    const Vector3fT& A=MeshInfo.Vertices[Tri.VertexIdx[0]].Pos;
+                    const Vector3fT& B=MeshInfo.Vertices[Tri.VertexIdx[1]].Pos;
+                    const Vector3fT& C=MeshInfo.Vertices[Tri.VertexIdx[2]].Pos;
 
                     MeshCaps.Vertices[MeshSize-6].SetOrigin(A);
                     MeshCaps.Vertices[MeshSize-5].SetOrigin(B);
@@ -307,18 +310,21 @@ void AnimPoseT::Draw(int SkinNr, float /*LodDist*/) const
 
 bool AnimPoseT::TraceRay(int SkinNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, ModelT::TraceResultT& Result) const
 {
-    float Fraction=0.0f;
-
     Recache();
 
     // If we miss the bounding-box, then we miss all the triangles as well.
+    float Fraction=0.0f;
     if (!GetBB().TraceRay(RayOrigin, RayDir, Fraction)) return false;
 
-    for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
+    typedef CafuModelT::MeshT MeshT;
+
+    const ArrayT<MeshT>& Meshes=m_Model.GetMeshes();
+
+    for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
     {
-        const CafuModelT::MeshT& Mesh    =m_Model.GetMeshes()[MeshNr];
-        const MeshT&             DrawMesh=m_Meshes[MeshNr];
-        const MaterialT*         MeshMat =m_Model.GetMaterial(MeshNr, SkinNr);
+        const MeshT&     Mesh    =Meshes[MeshNr];
+        const MeshInfoT& MeshInfo=m_MeshInfos[MeshNr];
+        const MaterialT* MeshMat =m_Model.GetMaterial(MeshNr, SkinNr);
 
         // If the ClipFlags don't match the ClipMask, this polygon doesn't interfere with the trace.
         if (!MeshMat) continue;
@@ -329,12 +335,12 @@ bool AnimPoseT::TraceRay(int SkinNr, const Vector3fT& RayOrigin, const Vector3fT
             // This code is a modification of the code in CollisionModelStaticT::PolygonT::TraceRay(),
             // see there for details and additional information.
             using namespace cf::math;
-            const CafuModelT::MeshT::TriangleT& Tri    =Mesh.Triangles[TriNr];
-            const AnimPoseT::MeshT::TriangleT&  DrawTri=DrawMesh.Triangles[TriNr];
+            const MeshT::TriangleT&     Tri    =Mesh.Triangles[TriNr];
+            const MeshInfoT::TriangleT& TriInfo=MeshInfo.Triangles[TriNr];
 
-            const Vector3fT& A=DrawMesh.Vertices[Tri.VertexIdx[0]].Draw_Pos;
-            const Vector3fT& B=DrawMesh.Vertices[Tri.VertexIdx[1]].Draw_Pos;
-            const Vector3fT& C=DrawMesh.Vertices[Tri.VertexIdx[2]].Draw_Pos;
+            const Vector3fT& A=MeshInfo.Vertices[Tri.VertexIdx[0]].Pos;
+            const Vector3fT& B=MeshInfo.Vertices[Tri.VertexIdx[1]].Pos;
+            const Vector3fT& C=MeshInfo.Vertices[Tri.VertexIdx[2]].Pos;
 
             const PlueckerfT R=PlueckerfT::CreateFromRay(RayOrigin, RayDir);
 
@@ -360,12 +366,12 @@ bool AnimPoseT::TraceRay(int SkinNr, const Vector3fT& RayOrigin, const Vector3fT
             }
 
             // The "aperture" test passed, now compute the fraction at which RayDir intersects the triangle plane.
-            const float Nenner=dot(DrawTri.Draw_Normal, RayDir);
+            const float Nenner=dot(TriInfo.Normal, RayDir);
 
-            if (Nenner==0) continue;                                // If Nenner==0, then RayDir is parallel to the triangle plane (no intersection).
-            assert(MeshMat->TwoSided || Nenner<0);                  // If the material is single sided, then Nenner<0, a consequence of the Pluecker tests above.
+            if (Nenner==0) continue;                            // If Nenner==0, then RayDir is parallel to the triangle plane (no intersection).
+            assert(MeshMat->TwoSided || Nenner<0);              // If the material is single sided, then Nenner<0, a consequence of the Pluecker tests above.
 
-            const float Dist=dot(DrawTri.Draw_Normal, RayOrigin-A); // The distance of RayOrigin to the triangle plane.
+            const float Dist=dot(TriInfo.Normal, RayOrigin-A);  // The distance of RayOrigin to the triangle plane.
             const float F   =-(Dist-0.03125f)/Nenner;
 
             // The intersection is only valid in the positive direction of RayDir.
@@ -373,7 +379,7 @@ bool AnimPoseT::TraceRay(int SkinNr, const Vector3fT& RayOrigin, const Vector3fT
 
             // Hit the triangle!
             Result.Fraction=F;
-            Result.Normal  =(Nenner<0) ? DrawTri.Draw_Normal : -DrawTri.Draw_Normal;    // Handle two-sided materials properly.
+            Result.Normal  =(Nenner<0) ? TriInfo.Normal : -TriInfo.Normal;  // Handle two-sided materials properly.
             Result.Material=MeshMat;
             Result.MeshNr  =MeshNr;
             Result.TriNr   =TriNr;
@@ -395,7 +401,7 @@ unsigned int AnimPoseT::FindClosestVertex(unsigned int MeshNr, unsigned int TriN
     for (unsigned int i=0; i<3; i++)
     {
         const unsigned int VertexNr=m_Model.GetMeshes()[MeshNr].Triangles[TriNr].VertexIdx[i];
-        const Vector3fT&   DrawPos =m_Meshes[MeshNr].Vertices[VertexNr].Draw_Pos;
+        const Vector3fT&   DrawPos =m_MeshInfos[MeshNr].Vertices[VertexNr].Pos;
         const float        Dist    =length(DrawPos-P);
 
         if (i==0 || Dist<BestDist)
@@ -413,7 +419,7 @@ const Vector3fT& AnimPoseT::GetVertexPos(unsigned int MeshNr, unsigned int Verte
 {
     Recache();
 
-    return m_Meshes[MeshNr].Vertices[VertexNr].Draw_Pos;
+    return m_MeshInfos[MeshNr].Vertices[VertexNr].Pos;
 }
 
 
@@ -463,10 +469,10 @@ void AnimPoseT::SyncDimensions() const
         m_JointMatrices.PushBackEmptyExact(m_Model.GetJoints().Size());
     }
 
-    if (m_Meshes.Size()!=m_Model.GetMeshes().Size())
+    if (m_MeshInfos.Size()!=m_Model.GetMeshes().Size())
     {
-        m_Meshes.Overwrite();
-        m_Meshes.PushBackEmptyExact(m_Model.GetMeshes().Size());
+        m_MeshInfos.Overwrite();
+        m_MeshInfos.PushBackEmptyExact(m_Model.GetMeshes().Size());
     }
 
     if (m_Draw_Meshes.Size()!=m_Model.GetMeshes().Size())
@@ -480,16 +486,16 @@ void AnimPoseT::SyncDimensions() const
     {
         const CafuModelT::MeshT& Mesh=m_Model.GetMeshes()[MeshNr];
 
-        if (m_Meshes[MeshNr].Vertices.Size()!=Mesh.Vertices.Size())
+        if (m_MeshInfos[MeshNr].Vertices.Size()!=Mesh.Vertices.Size())
         {
-            m_Meshes[MeshNr].Vertices.Overwrite();
-            m_Meshes[MeshNr].Vertices.PushBackEmptyExact(Mesh.Vertices.Size());
+            m_MeshInfos[MeshNr].Vertices.Overwrite();
+            m_MeshInfos[MeshNr].Vertices.PushBackEmptyExact(Mesh.Vertices.Size());
         }
 
-        if (m_Meshes[MeshNr].Triangles.Size()!=Mesh.Triangles.Size())
+        if (m_MeshInfos[MeshNr].Triangles.Size()!=Mesh.Triangles.Size())
         {
-            m_Meshes[MeshNr].Triangles.Overwrite();
-            m_Meshes[MeshNr].Triangles.PushBackEmptyExact(Mesh.Triangles.Size());
+            m_MeshInfos[MeshNr].Triangles.Overwrite();
+            m_MeshInfos[MeshNr].Triangles.PushBackEmptyExact(Mesh.Triangles.Size());
         }
 
 
@@ -518,34 +524,32 @@ namespace
 
 void AnimPoseT::UpdateData() const
 {
-    const int     SequenceNr=m_SequNr;
-    const float   FrameNr   =m_FrameNr;
-    const SuperT* Super     =m_Super;
-    const bool m_UseGivenTangentSpace=m_Model.GetUseGivenTS();
-
-    const ArrayT<CafuModelT::JointT>& m_Joints=m_Model.GetJoints();
-    const ArrayT<CafuModelT::AnimT>&  m_Anims =m_Model.GetAnims();
     typedef CafuModelT::JointT JointT;
-    typedef CafuModelT::AnimT AnimT;
+    typedef CafuModelT::MeshT  MeshT;
+    typedef CafuModelT::AnimT  AnimT;
+
+    const ArrayT<JointT>& Joints=m_Model.GetJoints();
+    const ArrayT<MeshT>&  Meshes=m_Model.GetMeshes();
+    const ArrayT<AnimT>&  Anims =m_Model.GetAnims();
 
 
     // **************************************************************************************************************
-    //  Obtain a joints (bone) hierarchy for the desired frame FrameNr of the desired animation sequence SequenceNr.
+    //  Obtain a joints (bone) hierarchy for the desired frame m_FrameNr of the desired animation sequence m_SequNr.
     //  The result will be a transformation matrix for each joint (bone).
     // **************************************************************************************************************
 
-    if (SequenceNr==-1)
+    if (m_SequNr==-1)
     {
         // Don't animate, just use the bind pose defined in the model file.
-        for (unsigned long JointNr=0; JointNr<m_Joints.Size(); JointNr++)
+        for (unsigned long JointNr=0; JointNr<Joints.Size(); JointNr++)
         {
-            if (Super && Super->HasMatrix(JointNr))
+            if (m_Super && m_Super->HasMatrix(JointNr))
             {
-                m_JointMatrices[JointNr]=Super->GetMatrix(JointNr);
+                m_JointMatrices[JointNr]=m_Super->GetMatrix(JointNr);
                 continue;
             }
 
-            const JointT& J=m_Joints[JointNr];
+            const JointT& J=Joints[JointNr];
             const MatrixT RelMatrix(J.Pos, cf::math::QuaternionfT::FromXYZ(J.Qtr), J.Scale);
 
             m_JointMatrices[JointNr]=(J.Parent==-1) ? RelMatrix : m_JointMatrices[J.Parent]*RelMatrix;
@@ -553,23 +557,24 @@ void AnimPoseT::UpdateData() const
     }
     else
     {
-        // SequenceNr is a valid index into m_Anims, so use that.
-        const AnimT& Anim=m_Anims[SequenceNr];
-        const int    Frame_0=int(FrameNr);                                          // If FrameNr == 17.83, then Frame_0 == 17
-        const float  Frame_f=FrameNr-Frame_0;                                       //                           Frame_f ==  0.83
-        const int    Frame_1=(Frame_0+1>=int(Anim.Frames.Size())) ? 0 : Frame_0+1;  //                           Frame_1 == 18
+        // m_SequNr is a valid index into Anims, so use that.
+        const AnimT& Anim=Anims[m_SequNr];
+        const int    Frame_0=int(m_FrameNr);                                        // If m_FrameNr == 17.83, then Frame_0 == 17
+        const float  Frame_f=m_FrameNr-Frame_0;                                     //                             Frame_f ==  0.83
+        const int    Frame_1=(Frame_0+1>=int(Anim.Frames.Size())) ? 0 : Frame_0+1;  //                             Frame_1 == 18
 
-        for (unsigned long JointNr=0; JointNr<m_Joints.Size(); JointNr++)
+        for (unsigned long JointNr=0; JointNr<Joints.Size(); JointNr++)
         {
-            if (Super && Super->HasMatrix(JointNr))
+            if (m_Super && m_Super->HasMatrix(JointNr))
             {
-                m_JointMatrices[JointNr]=Super->GetMatrix(JointNr);
+                m_JointMatrices[JointNr]=m_Super->GetMatrix(JointNr);
                 continue;
             }
 
             const AnimT::AnimJointT& AJ=Anim.AnimJoints[JointNr];
-            Vector3fT                Data_0[3]={ AJ.DefaultPos, AJ.DefaultQtr, AJ.DefaultScale };
-            Vector3fT                Data_1[3]={ AJ.DefaultPos, AJ.DefaultQtr, AJ.DefaultScale };
+
+            Vector3fT Data_0[3]={ AJ.DefaultPos, AJ.DefaultQtr, AJ.DefaultScale };
+            Vector3fT Data_1[3]={ AJ.DefaultPos, AJ.DefaultQtr, AJ.DefaultScale };
 
             // Determine the position, quaternion and scale for Frame_0 and Frame_1.
             unsigned int FlagCount=0;
@@ -592,7 +597,7 @@ void AnimPoseT::UpdateData() const
 
             // Compute the matrix that is relative to the parent bone, and finally obtain the absolute matrix for that bone!
             const MatrixT RelMatrix(Pos, Quat, Scale);
-            const JointT& J=m_Joints[JointNr];
+            const JointT& J=Joints[JointNr];
 
             m_JointMatrices[JointNr]=(J.Parent==-1) ? RelMatrix : m_JointMatrices[J.Parent]*RelMatrix;
         }
@@ -604,39 +609,39 @@ void AnimPoseT::UpdateData() const
     //  For all meshes do now compute the vertices according to their weights.
     // *******************************************************************************************************************
 
-    for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
+    for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
     {
-        const CafuModelT::MeshT& Mesh=m_Model.GetMeshes()[MeshNr];
-        MeshT& DrawMesh=m_Meshes[MeshNr];
+        const MeshT& Mesh    =Meshes[MeshNr];
+        MeshInfoT&   MeshInfo=m_MeshInfos[MeshNr];
 
         for (unsigned long VertexNr=0; VertexNr<Mesh.Vertices.Size(); VertexNr++)
         {
-            const CafuModelT::MeshT::VertexT& Vertex=Mesh.Vertices[VertexNr];
-            MeshT::VertexT& DrawVertex=DrawMesh.Vertices[VertexNr];
+            const MeshT::VertexT& Vertex    =Mesh.Vertices[VertexNr];
+            MeshInfoT::VertexT&   VertexInfo=MeshInfo.Vertices[VertexNr];
 
             if (Vertex.GeoDups.Size()>0 && Vertex.GeoDups[0]<VertexNr)
             {
                 // This vertex has a geometrically identical duplicate that has already been computed.
                 // Therefore, don't bother to recompute the same position again, just copy it from the duplicate.
-                DrawVertex.Draw_Pos=DrawMesh.Vertices[Vertex.GeoDups[0]].Draw_Pos;
+                VertexInfo.Pos=MeshInfo.Vertices[Vertex.GeoDups[0]].Pos;
                 continue;
             }
 
             if (Vertex.NumWeights==1)
             {
-                const CafuModelT::MeshT::WeightT& Weight=Mesh.Weights[Vertex.FirstWeightIdx];
+                const MeshT::WeightT& Weight=Mesh.Weights[Vertex.FirstWeightIdx];
 
-                DrawVertex.Draw_Pos=m_JointMatrices[Weight.JointIdx].Mul_xyz1(Weight.Pos);
+                VertexInfo.Pos=m_JointMatrices[Weight.JointIdx].Mul_xyz1(Weight.Pos);
             }
             else
             {
-                DrawVertex.Draw_Pos=Vector3fT(0.0f, 0.0f, 0.0f);
+                VertexInfo.Pos=Vector3fT(0.0f, 0.0f, 0.0f);
 
                 for (unsigned int WeightNr=0; WeightNr<Vertex.NumWeights; WeightNr++)
                 {
-                    const CafuModelT::MeshT::WeightT& Weight=Mesh.Weights[Vertex.FirstWeightIdx+WeightNr];
+                    const MeshT::WeightT& Weight=Mesh.Weights[Vertex.FirstWeightIdx+WeightNr];
 
-                    DrawVertex.Draw_Pos+=m_JointMatrices[Weight.JointIdx].Mul_xyz1(Weight.Pos) * Weight.Weight;
+                    VertexInfo.Pos+=m_JointMatrices[Weight.JointIdx].Mul_xyz1(Weight.Pos) * Weight.Weight;
                 }
             }
         }
@@ -650,51 +655,51 @@ void AnimPoseT::UpdateData() const
     //  The per-triangle normal vectors are also kept for stencil shadow silhoutte determination.
     // *******************************************************************************************
 
-    if (m_UseGivenTangentSpace)
+    if (m_Model.GetUseGivenTS())
     {
-        assert(m_Anims.Size()==0);  // It doesn't make sense to have statically given tangent-space axes with *animated* geometry...
+        assert(Anims.Size()==0);  // It doesn't make sense to have statically given tangent-space axes with *animated* geometry...
         goto DoneComputingTS;
     }
 
     // For all vertices, zero the tangent-space vectors for the subsequent average accumulation.
-    for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
+    for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
     {
-        MeshT& Mesh=m_Meshes[MeshNr];
+        MeshInfoT& MeshInfo=m_MeshInfos[MeshNr];
 
-        for (unsigned long VertexNr=0; VertexNr<Mesh.Vertices.Size(); VertexNr++)
+        for (unsigned long VertexNr=0; VertexNr<MeshInfo.Vertices.Size(); VertexNr++)
         {
-            MeshT::VertexT& Vertex=Mesh.Vertices[VertexNr];
+            MeshInfoT::VertexT& VertexInfo=MeshInfo.Vertices[VertexNr];
 
-            Vertex.Draw_Normal  =Vector3fT(0, 0, 0);
-            Vertex.Draw_Tangent =Vector3fT(0, 0, 0);
-            Vertex.Draw_BiNormal=Vector3fT(0, 0, 0);
+            VertexInfo.Normal  =Vector3fT(0, 0, 0);
+            VertexInfo.Tangent =Vector3fT(0, 0, 0);
+            VertexInfo.BiNormal=Vector3fT(0, 0, 0);
         }
     }
 
     // Compute the per-triangle tangent-space axes and distribute them over the relevant vertices appropriately.
-    for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
+    for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
     {
-        const CafuModelT::MeshT& Mesh=m_Model.GetMeshes()[MeshNr];
-        MeshT& DrawMesh=m_Meshes[MeshNr];
+        const MeshT& Mesh    =Meshes[MeshNr];
+        MeshInfoT&   MeshInfo=m_MeshInfos[MeshNr];
 
         for (unsigned long TriangleNr=0; TriangleNr<Mesh.Triangles.Size(); TriangleNr++)
         {
-            const CafuModelT::MeshT::TriangleT& Tri=Mesh.Triangles[TriangleNr];
-            const CafuModelT::MeshT::VertexT&   V_0=Mesh.Vertices[Tri.VertexIdx[0]];
-            const CafuModelT::MeshT::VertexT&   V_1=Mesh.Vertices[Tri.VertexIdx[1]];
-            const CafuModelT::MeshT::VertexT&   V_2=Mesh.Vertices[Tri.VertexIdx[2]];
+            const MeshT::TriangleT& Tri=Mesh.Triangles[TriangleNr];
+            const MeshT::VertexT&   V_0=Mesh.Vertices[Tri.VertexIdx[0]];
+            const MeshT::VertexT&   V_1=Mesh.Vertices[Tri.VertexIdx[1]];
+            const MeshT::VertexT&   V_2=Mesh.Vertices[Tri.VertexIdx[2]];
 
-            MeshT::TriangleT& DrawTri=DrawMesh.Triangles[TriangleNr];
-            MeshT::VertexT&   DrawV_0=DrawMesh.Vertices[Tri.VertexIdx[0]];
-            MeshT::VertexT&   DrawV_1=DrawMesh.Vertices[Tri.VertexIdx[1]];
-            MeshT::VertexT&   DrawV_2=DrawMesh.Vertices[Tri.VertexIdx[2]];
+            MeshInfoT::TriangleT&   TriInfo=MeshInfo.Triangles[TriangleNr];
+            MeshInfoT::VertexT&     V_0Info=MeshInfo.Vertices[Tri.VertexIdx[0]];
+            MeshInfoT::VertexT&     V_1Info=MeshInfo.Vertices[Tri.VertexIdx[1]];
+            MeshInfoT::VertexT&     V_2Info=MeshInfo.Vertices[Tri.VertexIdx[2]];
 
-            const Vector3fT Edge01=DrawV_1.Draw_Pos-DrawV_0.Draw_Pos;
-            const Vector3fT Edge02=DrawV_2.Draw_Pos-DrawV_0.Draw_Pos;
+            const Vector3fT         Edge01=V_1Info.Pos-V_0Info.Pos;
+            const Vector3fT         Edge02=V_2Info.Pos-V_0Info.Pos;
 
             // Triangles are ordered CW for md5 models and CCW for ase models, so we write
             // Normal=VectorCross(Edge02, Edge01) for md5 models and Normal=VectorCross(Edge01, Edge02) for ase models.
-            DrawTri.Draw_Normal=myNormalize(Edge02.cross(Edge01));
+            TriInfo.Normal=myNormalize(Edge02.cross(Edge01));
 
             // Understanding what's going on here is easy. The key statement is
             // "The tangent vector is parallel to the direction of increasing S on a parametric surface."
@@ -704,8 +709,8 @@ void AnimPoseT::UpdateData() const
             const Vector3fT uv02=Vector3fT(V_2.u, V_2.v, 0.0f)-Vector3fT(V_0.u, V_0.v, 0.0f);
             const float     f   =uv01.x*uv02.y-uv01.y*uv02.x>0.0 ? 1.0f : -1.0f;
 
-            const Vector3fT Tri_Draw_Tangent =myNormalize(Edge02.GetScaled(-uv01.y*f) + Edge01.GetScaled(uv02.y*f));
-            const Vector3fT Tri_Draw_BiNormal=myNormalize(Edge02.GetScaled( uv01.x*f) - Edge01.GetScaled(uv02.x*f));
+            const Vector3fT TriInfo_Draw_Tangent =myNormalize(Edge02.GetScaled(-uv01.y*f) + Edge01.GetScaled(uv02.y*f));
+            const Vector3fT TriInfo_Draw_BiNormal=myNormalize(Edge02.GetScaled( uv01.x*f) - Edge01.GetScaled(uv02.x*f));
 
 
             // Distribute the per-triangle tangent-space over the affected vertices.
@@ -713,7 +718,7 @@ void AnimPoseT::UpdateData() const
             const float Pi=3.14159265358979323846f;
 
             const float c0=dot(myNormalize(Edge01), myNormalize(Edge02));
-            const float c1=dot(myNormalize(Edge01), myNormalize(DrawV_1.Draw_Pos-DrawV_2.Draw_Pos));
+            const float c1=dot(myNormalize(Edge01), myNormalize(V_1Info.Pos-V_2Info.Pos));
 
             const float w0=(c0>=1.0f) ? 0.0f : ( (c0<=-1.0f) ? Pi : acos(c0) );
             const float w1=(c1>=1.0f) ? 0.0f : ( (c1<=-1.0f) ? Pi : acos(c1) );
@@ -725,41 +730,41 @@ void AnimPoseT::UpdateData() const
 
             for (int i=0; i<3; i++)
             {
-                const CafuModelT::MeshT::VertexT& Vertex=Mesh.Vertices[Tri.VertexIdx[i]];
-                MeshT::VertexT& DrawVertex=DrawMesh.Vertices[Tri.VertexIdx[i]];
+                const MeshT::VertexT& Vertex    =Mesh.Vertices[Tri.VertexIdx[i]];
+                MeshInfoT::VertexT&   VertexInfo=MeshInfo.Vertices[Tri.VertexIdx[i]];
 
                 assert(Tri.Polarity==Vertex.Polarity);
 
-                DrawVertex.Draw_Normal  +=DrawTri.Draw_Normal*TriWeight[i];
-                DrawVertex.Draw_Tangent +=Tri_Draw_Tangent*TriWeight[i];
-                DrawVertex.Draw_BiNormal+=Tri_Draw_BiNormal*TriWeight[i];
+                VertexInfo.Normal  +=TriInfo.Normal*TriWeight[i];
+                VertexInfo.Tangent +=TriInfo_Draw_Tangent*TriWeight[i];
+                VertexInfo.BiNormal+=TriInfo_Draw_BiNormal*TriWeight[i];
 
                 for (unsigned long DupNr=0; DupNr<Vertex.GeoDups.Size(); DupNr++)
                 {
-                    const CafuModelT::MeshT::VertexT& DupVertex=Mesh.Vertices[Vertex.GeoDups[DupNr]];
-                    MeshT::VertexT&                   DrawDupVertex=DrawMesh.Vertices[Vertex.GeoDups[DupNr]];
+                    const MeshT::VertexT& DupVertex    =Mesh.Vertices[Vertex.GeoDups[DupNr]];
+                    MeshInfoT::VertexT&   DupVertexInfo=MeshInfo.Vertices[Vertex.GeoDups[DupNr]];
 
-                    DrawDupVertex.Draw_Normal  +=DrawTri.Draw_Normal*TriWeight[i];
-                    DrawDupVertex.Draw_Tangent +=Tri_Draw_Tangent*(Tri.Polarity==DupVertex.Polarity ? TriWeight[i] : -TriWeight[i]);
-                    DrawDupVertex.Draw_BiNormal+=Tri_Draw_BiNormal*TriWeight[i];
+                    DupVertexInfo.Normal  +=TriInfo.Normal*TriWeight[i];
+                    DupVertexInfo.Tangent +=TriInfo_Draw_Tangent*(Tri.Polarity==DupVertex.Polarity ? TriWeight[i] : -TriWeight[i]);
+                    DupVertexInfo.BiNormal+=TriInfo_Draw_BiNormal*TriWeight[i];
                 }
             }
         }
     }
 
     // Finally normalize the per-vertex tangent-space axes; this is quasi the "division" in the average computations.
-    for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
+    for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
     {
-        MeshT& Mesh=m_Meshes[MeshNr];
+        MeshInfoT& MeshInfo=m_MeshInfos[MeshNr];
 
-        for (unsigned long VertexNr=0; VertexNr<Mesh.Vertices.Size(); VertexNr++)
+        for (unsigned long VertexNr=0; VertexNr<MeshInfo.Vertices.Size(); VertexNr++)
         {
-            MeshT::VertexT& Vertex=Mesh.Vertices[VertexNr];
+            MeshInfoT::VertexT& VertexInfo=MeshInfo.Vertices[VertexNr];
 
             // Normalize the tangent-space axes.
-            Vertex.Draw_Normal  =myNormalize(Vertex.Draw_Normal  );
-            Vertex.Draw_Tangent =myNormalize(Vertex.Draw_Tangent );
-            Vertex.Draw_BiNormal=myNormalize(Vertex.Draw_BiNormal);
+            VertexInfo.Normal  =myNormalize(VertexInfo.Normal  );
+            VertexInfo.Tangent =myNormalize(VertexInfo.Tangent );
+            VertexInfo.BiNormal=myNormalize(VertexInfo.BiNormal);
         }
     }
 
@@ -771,23 +776,23 @@ void AnimPoseT::UpdateData() const
     //  Note that this is very inefficient - we REALLY should work with index arrays! (and/or vertex buffer objects!)
     // ***************************************************************************************************************
 
-    for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
+    for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
     {
-        const CafuModelT::MeshT& Mesh    =m_Model.GetMeshes()[MeshNr];
-        const AnimPoseT::MeshT&  DrawMesh=m_Meshes[MeshNr];
+        const MeshT&     Mesh    =Meshes[MeshNr];
+        const MeshInfoT& MeshInfo=m_MeshInfos[MeshNr];
 
         for (unsigned long TriNr=0; TriNr<Mesh.Triangles.Size(); TriNr++)
         {
             for (unsigned long i=0; i<3; i++)
             {
-                unsigned long VertexIdx=Mesh.Triangles[TriNr].VertexIdx[i];
-                const MeshT::VertexT& DrawVertex=DrawMesh.Vertices[VertexIdx];
+                const unsigned long       VertexIdx =Mesh.Triangles[TriNr].VertexIdx[i];
+                const MeshInfoT::VertexT& VertexInfo=MeshInfo.Vertices[VertexIdx];
 
-                m_Draw_Meshes[MeshNr].Vertices[TriNr*3+i].SetOrigin(DrawVertex.Draw_Pos.x, DrawVertex.Draw_Pos.y, DrawVertex.Draw_Pos.z);
+                m_Draw_Meshes[MeshNr].Vertices[TriNr*3+i].SetOrigin(VertexInfo.Pos.x, VertexInfo.Pos.y, VertexInfo.Pos.z);
                 m_Draw_Meshes[MeshNr].Vertices[TriNr*3+i].SetTextureCoord(Mesh.Vertices[VertexIdx].u, Mesh.Vertices[VertexIdx].v);
-                m_Draw_Meshes[MeshNr].Vertices[TriNr*3+i].SetNormal  (DrawVertex.Draw_Normal.x,   DrawVertex.Draw_Normal.y,   DrawVertex.Draw_Normal.z  );
-                m_Draw_Meshes[MeshNr].Vertices[TriNr*3+i].SetTangent (DrawVertex.Draw_Tangent.x,  DrawVertex.Draw_Tangent.y,  DrawVertex.Draw_Tangent.z );
-                m_Draw_Meshes[MeshNr].Vertices[TriNr*3+i].SetBiNormal(DrawVertex.Draw_BiNormal.x, DrawVertex.Draw_BiNormal.y, DrawVertex.Draw_BiNormal.z);
+                m_Draw_Meshes[MeshNr].Vertices[TriNr*3+i].SetNormal  (VertexInfo.Normal.x,   VertexInfo.Normal.y,   VertexInfo.Normal.z  );
+                m_Draw_Meshes[MeshNr].Vertices[TriNr*3+i].SetTangent (VertexInfo.Tangent.x,  VertexInfo.Tangent.y,  VertexInfo.Tangent.z );
+                m_Draw_Meshes[MeshNr].Vertices[TriNr*3+i].SetBiNormal(VertexInfo.BiNormal.x, VertexInfo.BiNormal.y, VertexInfo.BiNormal.z);
             }
         }
     }
@@ -799,12 +804,12 @@ void AnimPoseT::UpdateData() const
 
     m_BoundingBox=BoundingBox3fT();
 
-    for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
+    for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
     {
-        const MeshT& DrawMesh=m_Meshes[MeshNr];
+        const MeshInfoT& MeshInfo=m_MeshInfos[MeshNr];
 
-        for (unsigned long VertexNr=0; VertexNr<DrawMesh.Vertices.Size(); VertexNr++)
-            m_BoundingBox+=DrawMesh.Vertices[VertexNr].Draw_Pos;
+        for (unsigned long VertexNr=0; VertexNr<MeshInfo.Vertices.Size(); VertexNr++)
+            m_BoundingBox+=MeshInfo.Vertices[VertexNr].Pos;
     }
 }
 
