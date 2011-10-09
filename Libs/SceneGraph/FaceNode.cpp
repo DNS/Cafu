@@ -604,7 +604,7 @@ void FaceNodeT::DrawStencilShadowVolumes(const Vector3dT& LightPos, const float 
     assert(MatSys::Renderer->GetCurrentRenderAction()==MatSys::RendererI::STENCILSHADOW);
 
     // Render the silhouette quads.
-    static MatSys::MeshT SilhouetteMesh(MatSys::MeshT::QuadStrip, MatSys::MeshT::CCW);
+    static MatSys::MeshT SilhouetteMesh(MatSys::MeshT::QuadStrip);
     SilhouetteMesh.Vertices.Overwrite();
     SilhouetteMesh.Vertices.PushBackEmpty(2*Mesh.Vertices.Size()+2);
 
@@ -632,35 +632,31 @@ void FaceNodeT::DrawStencilShadowVolumes(const Vector3dT& LightPos, const float 
 
 
     // Render the occluders near cap (front-facing wrt. the light source).
-    // (The MatSys expects vertices for front-facing polygons to be specified in CCW order.
-    //  However, as we are considering a *back-facing* polygon as a occluder (oriented CW when looked at from behind),
-    //  we have to reverse the order of its vertices in order to turn it into a CCW ordered, front-facing polygon.)
-    static MatSys::MeshT M_front(MatSys::MeshT::TriangleFan, MatSys::MeshT::CCW);
-    M_front.Vertices.Overwrite();
-    M_front.Vertices.PushBackEmpty(Mesh.Vertices.Size());
+    // As we are considering a *back-facing* polygon as a occluder (oriented CCW when looked at from behind),
+    // we have to reverse the order of its vertices in order to turn it into a CW ordered, front-facing polygon.
+    static MatSys::MeshT CapMesh(MatSys::MeshT::TriangleFan);   // The default winding order is "CW".
+
+    CapMesh.Vertices.Overwrite();
+    CapMesh.Vertices.PushBackEmpty(Mesh.Vertices.Size());
 
     for (unsigned long VertexNr=0; VertexNr<Mesh.Vertices.Size(); VertexNr++)
-        M_front.Vertices[M_front.Vertices.Size()-VertexNr-1].SetOrigin(Mesh.Vertices[VertexNr].Origin[0],
+        CapMesh.Vertices[CapMesh.Vertices.Size()-VertexNr-1].SetOrigin(Mesh.Vertices[VertexNr].Origin[0],
                                                                        Mesh.Vertices[VertexNr].Origin[1],
                                                                        Mesh.Vertices[VertexNr].Origin[2], 1.0);
 
     // What a pity the order isn't the other way round. Could then simply write:  MatSys::Renderer->RenderMesh(Mesh);
-    MatSys::Renderer->RenderMesh(M_front);
+    MatSys::Renderer->RenderMesh(CapMesh);
 
 
     // Render the occluders far cap (back-facing wrt. the light source).
     // As we are already dealing with a back-facing polygon, the vertex order is already as required,
     // we just have to project them to infinity as seen from the light source.
-    static MatSys::MeshT M_back(MatSys::MeshT::TriangleFan, MatSys::MeshT::CCW);
-    M_back.Vertices.Overwrite();
-    M_back.Vertices.PushBackEmpty(Mesh.Vertices.Size());
-
     for (unsigned long VertexNr=0; VertexNr<Mesh.Vertices.Size(); VertexNr++)
-        M_back.Vertices[VertexNr].SetOrigin(Mesh.Vertices[VertexNr].Origin[0]-LightPos.x,
-                                            Mesh.Vertices[VertexNr].Origin[1]-LightPos.y,
-                                            Mesh.Vertices[VertexNr].Origin[2]-LightPos.z, 0.0);
+        CapMesh.Vertices[VertexNr].SetOrigin(Mesh.Vertices[VertexNr].Origin[0]-LightPos.x,
+                                             Mesh.Vertices[VertexNr].Origin[1]-LightPos.y,
+                                             Mesh.Vertices[VertexNr].Origin[2]-LightPos.z, 0.0);
 
-    MatSys::Renderer->RenderMesh(M_back);
+    MatSys::Renderer->RenderMesh(CapMesh);
 }
 
 

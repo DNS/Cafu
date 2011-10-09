@@ -14,7 +14,7 @@ env.StaticLibrary(
                     MapFile.cpp
                     Models/Loader.cpp Models/Loader_ase.cpp Models/Loader_cmdl.cpp Models/Loader_lwo.cpp Models/Loader_md5.cpp
                     Models/Loader_mdl.cpp Models/AnimPose.cpp
-                    Models/Model_cmdl.cpp Models/Model_dlod.cpp Models/Model_dummy.cpp Models/Model_mdl.cpp Models/Model_proxy.cpp
+                    Models/Model_cmdl.cpp Models/Model_dlod.cpp Models/Model_dummy.cpp Models/Model_proxy.cpp
                     Network/Network.cpp ParticleEngine/ParticleEngineMS.cpp PlatformAux.cpp Terrain/Terrain.cpp
                     TextParser/TextParser.cpp
                     Plants/Tree.cpp Plants/PlantDescription.cpp Plants/PlantDescrMan.cpp
