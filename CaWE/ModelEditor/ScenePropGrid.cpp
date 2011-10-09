@@ -50,6 +50,8 @@ ModelEditor::ScenePropGridT::ScenePropGridT(ChildFrameT* Parent, const wxSize& S
       m_GroundPlane_AutoZ(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/GroundPlane_AutoZ", 1l)!=0),
       m_Model_ShowMesh(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/Model_ShowMesh", 1l)!=0),
       m_Model_ShowSkeleton(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/Model_ShowSkeleton", 0l)!=0),
+      m_Model_ShowTriangleNormals(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/Model_ShowTriangleNormals", 0l)!=0),
+      m_Model_ShowTangentSpace(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/Model_ShowTangentSpace", 0l)!=0),
       m_AmbientLightColor(wxColour(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/AmbientLightColor", "rgb(96, 96, 96)"))),
       m_AmbientTexture(NULL),
       m_Parent(Parent),
@@ -128,6 +130,8 @@ void ModelEditor::ScenePropGridT::RefreshPropGrid()
     wxPGProperty* ModelProps=AppendIn(SceneElemsCat, new wxStringProperty("Model", wxPG_LABEL, "<composed>"));
     AppendIn(ModelProps, new wxBoolProperty("Show Mesh", wxPG_LABEL, m_Model_ShowMesh));
     AppendIn(ModelProps, new wxBoolProperty("Show Skeleton", wxPG_LABEL, m_Model_ShowSkeleton));
+    AppendIn(ModelProps, new wxBoolProperty("Show triangle normals", wxPG_LABEL, m_Model_ShowTriangleNormals));
+    AppendIn(ModelProps, new wxBoolProperty("Show tangent-space", wxPG_LABEL, m_Model_ShowTangentSpace));
 
 
     // "Anim Control" category.
@@ -215,8 +219,10 @@ void ModelEditor::ScenePropGridT::OnPropertyGridChanged(wxPropertyGridEvent& Eve
                 Ground->GetFaces()[FaceNr].SetMaterial(NewMat);
         }
     }
-    else if (PropName=="Model.Show Mesh")     m_Model_ShowMesh    =Prop->GetValue().GetBool();
-    else if (PropName=="Model.Show Skeleton") m_Model_ShowSkeleton=Prop->GetValue().GetBool();
+    else if (PropName=="Model.Show Mesh")             m_Model_ShowMesh           =Prop->GetValue().GetBool();
+    else if (PropName=="Model.Show Skeleton")         m_Model_ShowSkeleton       =Prop->GetValue().GetBool();
+    else if (PropName=="Model.Show triangle normals") m_Model_ShowTriangleNormals=Prop->GetValue().GetBool();
+    else if (PropName=="Model.Show tangent-space")    m_Model_ShowTangentSpace   =Prop->GetValue().GetBool();
     else if (PropName=="Frame No.") { AnimState.Pose.SetFrameNr(PropValueF); m_IsRecursiveSelfNotify=true; m_Parent->GetModelDoc()->UpdateAllObservers_AnimStateChanged(); m_IsRecursiveSelfNotify=false; }
     else if (PropName=="Speed")     { AnimState.Speed=PropValueF; m_IsRecursiveSelfNotify=true; m_Parent->GetModelDoc()->UpdateAllObservers_AnimStateChanged(); m_IsRecursiveSelfNotify=false; }
     else if (PropName=="Loop")      { AnimState.Loop =Prop->GetValue().GetBool(); m_IsRecursiveSelfNotify=true; m_Parent->GetModelDoc()->UpdateAllObservers_AnimStateChanged(); m_IsRecursiveSelfNotify=false; }

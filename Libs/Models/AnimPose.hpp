@@ -53,6 +53,27 @@ class AnimPoseT
 {
     public:
 
+    /// The instances of this struct parallel and augment the \c CafuModelT::MeshT instances in the related \c CafuModelT.
+    struct MeshInfoT
+    {
+        struct TriangleT
+        {
+            Vector3fT Normal;       ///< The normal vector of this triangle, required for the shadow-silhouette determination.
+        };
+
+        struct VertexT
+        {
+            Vector3fT Pos;          ///< The spatial position of this vertex.
+            Vector3fT Normal;       ///< The tangent-space normal   vector of this vertex.
+            Vector3fT Tangent;      ///< The tangent-space tangent  vector of this vertex.
+            Vector3fT BiNormal;     ///< The tangent-space binormal vector of this vertex.
+        };
+
+        ArrayT<TriangleT> Triangles;
+        ArrayT<VertexT>   Vertices;
+    };
+
+
     /// This struct describes information about a parent or "super" model whose skeleton pose
     /// should be used when rendering this model. For example, a player model can act as the
     /// super model for a weapon, so that the skeleton of the weapon is copied from the
@@ -116,59 +137,38 @@ class AnimPoseT
     /// The returned number is the index of the vertex in the mesh, \emph{not} the (0, 1 or 2) index in the triangle.
     unsigned int FindClosestVertex(unsigned int MeshNr, unsigned int TriNr, const Vector3fT& P) const;
 
-    /// Returns the spatial position of the given vertex in the specified mesh.
-    const Vector3fT& GetVertexPos(unsigned int MeshNr, unsigned int VertexNr) const;
-
-    /// This method returns the set of transformation matrices (one per joint) at the given sequence and frame number.
+    /// Returns the set of transformation matrices (one per joint) at the given sequence and frame number.
     const ArrayT<MatrixT>& GetJointMatrices() const;
 
-    /// This method returns the MatSys meshes for this pose.
+    /// Returns the mesh infos with additional data for each mesh in this pose.
+    const ArrayT<MeshInfoT>& GetMeshInfos() const;
+
+    /// Returns the MatSys meshes for this pose.
     const ArrayT<MatSys::MeshT>& GetDrawMeshes() const;
 
-    /// This method returns the bounding-box for this pose.
+    /// Returns the bounding-box for this pose.
     const BoundingBox3fT& GetBB() const;
 
 
     private:
-
-    /// The instances of this struct parallel and augment the \c CafuModelT::MeshT instances in the related \c CafuModelT.
-    struct MeshInfoT
-    {
-        struct TriangleT
-        {
-            Vector3fT Normal;       ///< The normal vector of this triangle, required for the shadow-silhouette determination.
-        };
-
-        struct VertexT
-        {
-            Vector3fT Pos;          ///< The spatial position of this vertex.
-            Vector3fT Normal;       ///< The tangent-space normal   vector of this vertex.
-            Vector3fT Tangent;      ///< The tangent-space tangent  vector of this vertex.
-            Vector3fT BiNormal;     ///< The tangent-space binormal vector of this vertex.
-        };
-
-        ArrayT<TriangleT> Triangles;
-        ArrayT<VertexT>   Vertices;
-    };
-
 
     void NormalizeInput();
     void SyncDimensions() const;
     void UpdateData() const;
     void Recache() const;
 
-    const CafuModelT&             m_Model;              ///< The related model that this is a pose for.
-    int                           m_SequNr;             ///< The animation sequence number at which we have computed the cache data.
-    float                         m_FrameNr;            ///< The animation frame    number at which we have computed the cache data.
+    const CafuModelT&             m_Model;          ///< The related model that this is a pose for.
+    int                           m_SequNr;         ///< The animation sequence number at which we have computed the cache data.
+    float                         m_FrameNr;        ///< The animation frame    number at which we have computed the cache data.
     const SuperT*                 m_Super;
- // ArrayT<...>                   m_Def;                ///< Array of { channel, sequence, framenr, (forceloop), blendweight } tuples.
- // bool                          m_DoCache;            ///< Cache the computed data? (Set to true by the user if he want to re-use this instance.)
+ // ArrayT<...>                   m_Def;            ///< Array of { channel, sequence, framenr, (forceloop), blendweight } tuples.
+ // bool                          m_DoCache;        ///< Cache the computed data? (Set to true by the user if he want to re-use this instance.)
 
-    mutable bool                  m_NeedsRecache;       ///< wird auf 'true' gesetzt wann immer SetSequ(), SetFrameNr() oder AdvanceAll() o.ä. aufgerufen wird, übernimmt m_Draw_CachedDataAt*Nr Funktionalität.
-    mutable ArrayT<MatrixT>       m_JointMatrices;      ///< The transformation matrices that represent the pose of the skeleton at the given animation sequence and frame number.
-    mutable ArrayT<MeshInfoT>     m_MeshInfos;          ///< Additional data for each mesh in m_Model.
-    mutable ArrayT<MatSys::MeshT> m_Draw_Meshes;        ///< The draw meshes resulting from the m_JointMatrices.
-    mutable BoundingBox3fT        m_BoundingBox;        ///< The bounding-box for the model in this pose.
+    mutable bool                  m_NeedsRecache;   ///< wird auf 'true' gesetzt wann immer SetSequ(), SetFrameNr() oder AdvanceAll() o.ä. aufgerufen wird, übernimmt m_Draw_CachedDataAt*Nr Funktionalität.
+    mutable ArrayT<MatrixT>       m_JointMatrices;  ///< The transformation matrices that represent the pose of the skeleton at the given animation sequence and frame number.
+    mutable ArrayT<MeshInfoT>     m_MeshInfos;      ///< Additional data for each mesh in m_Model.
+    mutable ArrayT<MatSys::MeshT> m_Draw_Meshes;    ///< The draw meshes resulting from the m_JointMatrices.
+    mutable BoundingBox3fT        m_BoundingBox;    ///< The bounding-box for the model in this pose.
 };
 
 #endif

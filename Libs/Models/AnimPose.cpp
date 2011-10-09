@@ -36,6 +36,7 @@ AnimPoseT::AnimPoseT(const CafuModelT& Model, int SequNr, float FrameNr)
       m_NeedsRecache(true),
       m_BoundingBox()
 {
+    NormalizeInput();
 }
 
 
@@ -134,55 +135,6 @@ void AnimPoseT::Draw(int SkinNr, float /*LodDist*/) const
             {
                 MatSys::Renderer->SetCurrentMaterial(m_Model.GetRenderMaterial(MeshNr, SkinNr));
                 MatSys::Renderer->RenderMesh(m_Draw_Meshes[MeshNr]);
-
-#if 0
-                // Render the tangent space axes for each vertex.
-                static MaterialT SolidColorMaterial;
-                SolidColorMaterial.UseMeshColors=true;
-
-                static MatSys::MeshT TangentSpaceAxes(MatSys::MeshT::Lines);
-                TangentSpaceAxes.Vertices.Overwrite();
-
-                for (unsigned long VertexNr=0; VertexNr<m_Draw_Meshes[MeshNr].Vertices.Size(); VertexNr++)
-                {
-                    const float         scale=1.0f;
-                    const Vector3fT     Orig =Vector3fT(m_Draw_Meshes[MeshNr].Vertices[VertexNr].Origin);
-                    const Vector3fT     S_   =Vector3fT(m_Draw_Meshes[MeshNr].Vertices[VertexNr].Tangent);
-                    const Vector3fT     T_   =Vector3fT(m_Draw_Meshes[MeshNr].Vertices[VertexNr].BiNormal);
-                    const Vector3fT     N_   =Vector3fT(m_Draw_Meshes[MeshNr].Vertices[VertexNr].Normal);
-                    const float         col_ =m_Meshes[MeshNr].Triangles[VertexNr / 3].Polarity ? 0.5f : 0.0f;
-                    const unsigned long Ofs  =TangentSpaceAxes.Vertices.Size();
-
-                    TangentSpaceAxes.Vertices.PushBackEmpty(6);
-
-                    TangentSpaceAxes.Vertices[Ofs+0].SetOrigin(Orig);
-                    TangentSpaceAxes.Vertices[Ofs+0].SetColor(1, col_, col_);
-                    TangentSpaceAxes.Vertices[Ofs+1].SetOrigin(Orig+S_*scale);
-                    TangentSpaceAxes.Vertices[Ofs+1].SetColor(1, col_, col_);
-
-                    TangentSpaceAxes.Vertices[Ofs+2].SetOrigin(Orig);
-                    TangentSpaceAxes.Vertices[Ofs+2].SetColor(col_, 1, col_);
-                    TangentSpaceAxes.Vertices[Ofs+3].SetOrigin(Orig+T_*scale);
-                    TangentSpaceAxes.Vertices[Ofs+3].SetColor(col_, 1, col_);
-
-                    TangentSpaceAxes.Vertices[Ofs+4].SetOrigin(Orig);
-                    TangentSpaceAxes.Vertices[Ofs+4].SetColor(col_, col_, 1);
-                    TangentSpaceAxes.Vertices[Ofs+5].SetOrigin(Orig+N_*scale);
-                    TangentSpaceAxes.Vertices[Ofs+5].SetColor(col_, col_, 1);
-                }
-
-                MatSys::RenderMaterialT* SolidColorRenderMat=MatSys::Renderer->RegisterMaterial(&SolidColorMaterial);
-
-                MatSys::Renderer->SetCurrentMaterial(SolidColorRenderMat);
-                MatSys::Renderer->RenderMesh(TangentSpaceAxes);
-
-                MatSys::Renderer->FreeMaterial(SolidColorRenderMat);
-
-                // FIXME! Rendering the stencil shadows uses the same material as the ambient pass does!
-                // (The call to FreeMaterial() above implies that no material is being set, and thus without this line,
-                //  no stencil shadows get rendered!)
-                MatSys::Renderer->SetCurrentMaterial(m_Meshes[MeshNr].RenderMaterial);
-#endif
             }
             break;
         }
@@ -415,19 +367,19 @@ unsigned int AnimPoseT::FindClosestVertex(unsigned int MeshNr, unsigned int TriN
 }
 
 
-const Vector3fT& AnimPoseT::GetVertexPos(unsigned int MeshNr, unsigned int VertexNr) const
-{
-    Recache();
-
-    return m_MeshInfos[MeshNr].Vertices[VertexNr].Pos;
-}
-
-
 const ArrayT<MatrixT>& AnimPoseT::GetJointMatrices() const
 {
     Recache();
 
     return m_JointMatrices;
+}
+
+
+const ArrayT<AnimPoseT::MeshInfoT>& AnimPoseT::GetMeshInfos() const
+{
+    Recache();
+
+    return m_MeshInfos;
 }
 
 
@@ -709,8 +661,8 @@ void AnimPoseT::UpdateData() const
             const Vector3fT uv02=Vector3fT(V_2.u, V_2.v, 0.0f)-Vector3fT(V_0.u, V_0.v, 0.0f);
             const float     f   =uv01.x*uv02.y-uv01.y*uv02.x>0.0 ? 1.0f : -1.0f;
 
-            const Vector3fT TriInfo_Draw_Tangent =myNormalize(Edge02.GetScaled(-uv01.y*f) + Edge01.GetScaled(uv02.y*f));
-            const Vector3fT TriInfo_Draw_BiNormal=myNormalize(Edge02.GetScaled( uv01.x*f) - Edge01.GetScaled(uv02.x*f));
+            const Vector3fT TriInfo_Tangent =myNormalize(Edge02.GetScaled(-uv01.y*f) + Edge01.GetScaled(uv02.y*f));
+            const Vector3fT TriInfo_BiNormal=myNormalize(Edge02.GetScaled( uv01.x*f) - Edge01.GetScaled(uv02.x*f));
 
 
             // Distribute the per-triangle tangent-space over the affected vertices.
@@ -736,8 +688,8 @@ void AnimPoseT::UpdateData() const
                 assert(Tri.Polarity==Vertex.Polarity);
 
                 VertexInfo.Normal  +=TriInfo.Normal*TriWeight[i];
-                VertexInfo.Tangent +=TriInfo_Draw_Tangent*TriWeight[i];
-                VertexInfo.BiNormal+=TriInfo_Draw_BiNormal*TriWeight[i];
+                VertexInfo.Tangent +=TriInfo_Tangent*TriWeight[i];
+                VertexInfo.BiNormal+=TriInfo_BiNormal*TriWeight[i];
 
                 for (unsigned long DupNr=0; DupNr<Vertex.GeoDups.Size(); DupNr++)
                 {
@@ -745,8 +697,8 @@ void AnimPoseT::UpdateData() const
                     MeshInfoT::VertexT&   DupVertexInfo=MeshInfo.Vertices[Vertex.GeoDups[DupNr]];
 
                     DupVertexInfo.Normal  +=TriInfo.Normal*TriWeight[i];
-                    DupVertexInfo.Tangent +=TriInfo_Draw_Tangent*(Tri.Polarity==DupVertex.Polarity ? TriWeight[i] : -TriWeight[i]);
-                    DupVertexInfo.BiNormal+=TriInfo_Draw_BiNormal*TriWeight[i];
+                    DupVertexInfo.Tangent +=TriInfo_Tangent*(Tri.Polarity==DupVertex.Polarity ? TriWeight[i] : -TriWeight[i]);
+                    DupVertexInfo.BiNormal+=TriInfo_BiNormal*TriWeight[i];
                 }
             }
         }

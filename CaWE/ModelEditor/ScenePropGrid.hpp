@@ -57,6 +57,8 @@ namespace ModelEditor
         bool                 m_GroundPlane_AutoZ;
         bool                 m_Model_ShowMesh;
         bool                 m_Model_ShowSkeleton;
+        bool                 m_Model_ShowTriangleNormals;
+        bool                 m_Model_ShowTangentSpace;
         wxColour             m_AmbientLightColor;
         MatSys::TextureMapI* m_AmbientTexture;    ///< A uniform 2x2 texture colored in the ambient light color, used as lightmap for the ground plane.
 

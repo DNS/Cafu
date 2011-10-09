@@ -410,6 +410,76 @@ void ModelEditor::SceneView3DT::RenderPass() const
     }
 
 
+    // Render the triangle normals and/or the tangent-space axes of the model in this pose.
+    if ((ScenePropGrid->m_Model_ShowTriangleNormals || ScenePropGrid->m_Model_ShowTangentSpace) && MatSys::Renderer->GetCurrentRenderAction()==MatSys::RendererI::AMBIENT)
+    {
+        static MatSys::MeshT TangentSpace(MatSys::MeshT::Lines);
+
+        TangentSpace.Vertices.Overwrite();
+
+        for (unsigned long MeshNr=0; MeshNr<Model->GetMeshes().Size(); MeshNr++)
+        {
+            const CafuModelT::MeshT&    Mesh    =Model->GetMeshes()[MeshNr];
+            const AnimPoseT::MeshInfoT& MeshInfo=Anim.Pose.GetMeshInfos()[MeshNr];
+
+            for (unsigned long TriNr=0; TriNr<Mesh.Triangles.Size(); TriNr++)
+            {
+                const CafuModelT::MeshT::TriangleT& Tri=Mesh.Triangles[TriNr];
+                Vector3fT Center;
+
+                for (unsigned int i=0; i<3; i++)
+                {
+                    const AnimPoseT::MeshInfoT::VertexT& VertexInfo=MeshInfo.Vertices[Tri.VertexIdx[i]];
+
+                    Center+=VertexInfo.Pos;
+
+                    if (ScenePropGrid->m_Model_ShowTangentSpace)
+                    {
+                        // Render the tangent-space axes at each vertex.
+                        for (unsigned int AxisNr=0; AxisNr<3; AxisNr++)
+                        {
+                            Vector3fT Axis; Axis[AxisNr]=1.0f;
+
+                            TangentSpace.Vertices.PushBackEmpty(2);
+                            MatSys::MeshT::VertexT& V1=TangentSpace.Vertices[TangentSpace.Vertices.Size()-2];
+                            MatSys::MeshT::VertexT& V2=TangentSpace.Vertices[TangentSpace.Vertices.Size()-1];
+
+                            V1.SetOrigin(VertexInfo.Pos);
+                            V1.SetColor(Axis.x, Axis.y, Axis.z);
+
+                            const Vector3fT Vec=(AxisNr==0) ? VertexInfo.Normal :
+                                                (AxisNr==1) ? VertexInfo.Tangent :
+                                                              VertexInfo.BiNormal;
+
+                            V2.SetOrigin(VertexInfo.Pos + Vec);
+                            V2.SetColor(Axis.x, Axis.y, Axis.z);
+                        }
+                    }
+                }
+
+                // Render the triangle's normal vector.
+                if (ScenePropGrid->m_Model_ShowTriangleNormals)
+                {
+                    Center/=3.0f;
+
+                    TangentSpace.Vertices.PushBackEmpty(2);
+                    MatSys::MeshT::VertexT& V1=TangentSpace.Vertices[TangentSpace.Vertices.Size()-2];
+                    MatSys::MeshT::VertexT& V2=TangentSpace.Vertices[TangentSpace.Vertices.Size()-1];
+
+                    V1.SetOrigin(Center);
+                    V1.SetColor(0.5f, Tri.Polarity ? 0 : 0.5f, 0);
+
+                    V2.SetOrigin(Center + MeshInfo.Triangles[TriNr].Normal);
+                    V2.SetColor(0.5f, Tri.Polarity ? 0 : 0.5f, 0);
+                }
+            }
+        }
+
+        MatSys::Renderer->SetCurrentMaterial(m_Renderer.GetRMatWireframe());
+        MatSys::Renderer->RenderMesh(TangentSpace);
+    }
+
+
     // Render the GUI fixtures.
     if (MatSys::Renderer->GetCurrentRenderAction()==MatSys::RendererI::AMBIENT)
     {
@@ -424,7 +494,7 @@ void ModelEditor::SceneView3DT::RenderPass() const
                 if (!Model->IsMeshNrOK  (GF, PointNr)) continue;
                 if (!Model->IsVertexNrOK(GF, PointNr)) continue;
 
-                Points[PointNr]=Anim.Pose.GetVertexPos(GF.Points[PointNr].MeshNr, GF.Points[PointNr].VertexNr);
+                Points[PointNr]=Anim.Pose.GetMeshInfos()[GF.Points[PointNr].MeshNr].Vertices[GF.Points[PointNr].VertexNr].Pos;
                 PointsOK|=(1 << PointNr);
             }
 
