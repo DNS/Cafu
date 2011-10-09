@@ -610,6 +610,27 @@ void AnimPoseT::UpdateData() const
     if (m_Model.GetUseGivenTS())
     {
         assert(Anims.Size()==0);  // It doesn't make sense to have statically given tangent-space axes with *animated* geometry...
+
+        // Copy the given tangent space details into the pose.
+        for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
+        {
+            const MeshT& Mesh    =Meshes[MeshNr];
+            MeshInfoT&   MeshInfo=m_MeshInfos[MeshNr];
+
+            for (unsigned long TriNr=0; TriNr<Mesh.Triangles.Size(); TriNr++)
+            {
+                MeshInfo.Triangles[TriNr].Normal = Mesh.Triangles[TriNr].gts_Normal;
+            }
+
+            for (unsigned long VertexNr=0; VertexNr<Mesh.Vertices.Size(); VertexNr++)
+            {
+                MeshInfo.Vertices[VertexNr].Pos      = Mesh.Vertices[VertexNr].gts_Pos;
+                MeshInfo.Vertices[VertexNr].Normal   = Mesh.Vertices[VertexNr].gts_Normal;
+                MeshInfo.Vertices[VertexNr].Tangent  = Mesh.Vertices[VertexNr].gts_Tangent;
+                MeshInfo.Vertices[VertexNr].BiNormal = Mesh.Vertices[VertexNr].gts_BiNormal;
+            }
+        }
+
         goto DoneComputingTS;
     }
 
