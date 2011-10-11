@@ -32,7 +32,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 LoaderHL1mdlT::LoaderHL1mdlT(const std::string& FileName, int Flags) /*throw (ModelT::LoadError)*/
-    : ModelLoaderT(FileName, Flags | REMOVE_UNUSED_VERTICES | REMOVE_UNUSED_WEIGHTS)    // The code below relies on postprocessing removing unused vertices and weights.
+    : ModelLoaderT(FileName, Flags |
+          REMOVE_DEGEN_TRIANGLES |                          // Need this flag in order to pass all assertions in the CafuModelT code.
+          REMOVE_UNUSED_VERTICES | REMOVE_UNUSED_WEIGHTS)   // The code below relies on postprocessing removing unused vertices and weights.
 {
     // 1. Initialize auxiliary variables.
     // **********************************

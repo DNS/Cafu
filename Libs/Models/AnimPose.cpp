@@ -33,10 +33,17 @@ AnimPoseT::AnimPoseT(const CafuModelT& Model, int SequNr, float FrameNr)
       m_SequNr(SequNr),
       m_FrameNr(FrameNr),
       m_Super(NULL),
+      m_DlodPose(m_Model.GetDlodModel() ? new AnimPoseT(*m_Model.GetDlodModel(), SequNr, FrameNr) : NULL),  // Recursively create the chain of dlod poses matching the chain of dlod models.
       m_NeedsRecache(true),
       m_BoundingBox()
 {
     NormalizeInput();
+}
+
+
+AnimPoseT::~AnimPoseT()
+{
+    delete m_DlodPose;
 }
 
 
@@ -48,6 +55,9 @@ void AnimPoseT::SetSequNr(int SequNr)
     NormalizeInput();
 
     m_NeedsRecache=true;
+
+    // Recursively update the chain of dlod poses.
+    if (m_DlodPose) m_DlodPose->SetSequNr(SequNr);
 }
 
 
@@ -59,6 +69,9 @@ void AnimPoseT::SetFrameNr(float FrameNr)
     NormalizeInput();
 
     m_NeedsRecache=true;
+
+    // Recursively update the chain of dlod poses.
+    if (m_DlodPose) m_DlodPose->SetFrameNr(FrameNr);
 }
 
 
@@ -69,6 +82,9 @@ void AnimPoseT::SetSuper(const SuperT* Super)
     m_Super=Super;
 
     m_NeedsRecache=true;
+
+    // Recursively update the chain of dlod poses.
+    if (m_DlodPose) m_DlodPose->SetSuper(Super);
 }
 
 
@@ -101,11 +117,20 @@ void AnimPoseT::Advance(float Time, bool ForceLoop)
     }
 
     SetFrameNr(FrameNr);
+
+    // Recursively update the chain of dlod poses.
+    if (m_DlodPose) m_DlodPose->Advance(Time, ForceLoop);
 }
 
 
-void AnimPoseT::Draw(int SkinNr, float /*LodDist*/) const
+void AnimPoseT::Draw(int SkinNr, float LodDist) const
 {
+    if (m_Model.GetDlodModel() && LodDist >= m_Model.GetDlodDist())
+    {
+        m_DlodPose->Draw(SkinNr, LodDist);
+        return;
+    }
+
     Recache();
 
     // Do an early check whether the light and the sequence BBs intersect.
@@ -262,6 +287,11 @@ void AnimPoseT::Draw(int SkinNr, float /*LodDist*/) const
 
 bool AnimPoseT::TraceRay(int SkinNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, ModelT::TraceResultT& Result) const
 {
+    // if (m_Model.GetDlodModel() && LodDist >= m_Model.GetDlodDist())
+    // {
+    //     return m_DlodPose->TraceRay(SkinNr, RayOrigin, RayDir, Result);
+    // }
+
     Recache();
 
     // If we miss the bounding-box, then we miss all the triangles as well.

@@ -98,7 +98,11 @@ class AnimPoseT
     };
 
 
+    /// The constructor.
     AnimPoseT(const CafuModelT& Model, int SequNr=-1, float FrameNr=0.0f);
+
+    /// The destructor.
+    ~AnimPoseT();
 
     /// @param SequenceNr   The number of the animation sequence to use, -1 for the bind pose.
     void SetSequNr(int SequNr);
@@ -119,7 +123,7 @@ class AnimPoseT
 
     /// This method renders the model in this pose.
     /// @param SkinNr     The skin to render the model with, -1 for the default skin.
-    /// @param LodDist    The distance to the camera for reducing the level-of-detail (currently unused).
+    /// @param LodDist    The distance to the camera for reducing the level-of-detail.
     void Draw(int SkinNr, float LodDist) const;
 
     /// Traces a ray against this model in this pose, and returns whether it was hit.
@@ -152,6 +156,9 @@ class AnimPoseT
 
     private:
 
+    AnimPoseT(const AnimPoseT&);                    ///< Use of the Copy    Constructor is not allowed.
+    void operator = (const AnimPoseT&);             ///< Use of the Assignment Operator is not allowed.
+
     void NormalizeInput();
     void SyncDimensions() const;
     void UpdateData() const;
@@ -161,6 +168,7 @@ class AnimPoseT
     int                           m_SequNr;         ///< The animation sequence number at which we have computed the cache data.
     float                         m_FrameNr;        ///< The animation frame    number at which we have computed the cache data.
     const SuperT*                 m_Super;
+    AnimPoseT*                    m_DlodPose;       ///< The next pose in the chain of dlod poses matching the chain of dlod models.
  // ArrayT<...>                   m_Def;            ///< Array of { channel, sequence, framenr, (forceloop), blendweight } tuples.
  // bool                          m_DoCache;        ///< Cache the computed data? (Set to true by the user if he want to re-use this instance.)
 

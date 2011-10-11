@@ -40,6 +40,7 @@ class LoaderLwoT : public ModelLoaderT
     void Load(ArrayT<CafuModelT::SkinT>& Skins, const MaterialManagerImplT& MaterialMan) { }
     void Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures, ArrayT<CafuModelT::GuiLocT>& GuiLocs) { }
     void Load(ArrayT<CafuModelT::ChannelT>& Channels) { }
+    bool Load(unsigned int Level, CafuModelT*& DlodModel, float& DlodDist) { return false; }
 
 
     private:

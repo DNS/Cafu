@@ -234,19 +234,14 @@ void CafuModelT::ChannelT::SetMember(unsigned int JointNr, bool Member)
 }
 
 
-// TEMPORARY!
-#if defined(_WIN32) && defined(_MSC_VER)
-// Turn off "warning C4355: 'this' : used in base member initializer list".
-#pragma warning(disable:4355)
-#endif
-
-
 CafuModelT::CafuModelT(ModelLoaderT& Loader)
     : m_FileName(Loader.GetFileName()),
       m_MaterialMan(),
       m_UseGivenTangentSpace(Loader.UseGivenTS()),  // Should we use the fixed, given tangent space, or recompute it ourselves here?
-      m_BindPoseBB(Vector3fT())                     // Re-initialized in InitMeshes() calling RecomputeBindPoseBB(), but start with a valid box anyways (e.g. for testing models that have a skeleton, but no mesh).
-      , m_TEMP_Pose(*this)
+      m_BindPoseBB(Vector3fT()),                    // Re-initialized in InitMeshes() calling RecomputeBindPoseBB(), but start with a valid box anyways (e.g. for testing models that have a skeleton, but no mesh).
+      m_DlodModel(NULL),
+      m_DlodDist(0.0f)
+      , m_TEMP_Pose(NULL)
 {
     // No matter the actual model file format (that is, even if the file format is not "cmdl"),
     // the model artist might have prepared materials that should be used instead of the ones the Loader would otherwise generate.
@@ -270,6 +265,20 @@ CafuModelT::CafuModelT(ModelLoaderT& Loader)
 
     if (m_Joints.Size()==0) throw ModelT::LoadError();
  // if (m_Meshes.Size()==0) throw ModelT::LoadError();  // Consider models with no meshes as valid, skeleton-only meshes are sometimes useful for testing.
+
+    // Load the chain of dlod models, if any.
+    {
+        unsigned int Num=1;
+        CafuModelT*  Model=this;
+
+        while (Loader.Load(Num, Model->m_DlodModel, Model->m_DlodDist))
+        {
+            Num++;
+            Model=Model->m_DlodModel;
+        }
+    }
+
+    m_TEMP_Pose=new AnimPoseT(*this);
 
     // Make sure that each skin has as many materials as there are meshes.
     for (unsigned long SkinNr=0; SkinNr<m_Skins.Size(); SkinNr++)
@@ -315,6 +324,11 @@ CafuModelT::CafuModelT(ModelLoaderT& Loader)
 
 CafuModelT::~CafuModelT()
 {
+    delete m_TEMP_Pose;
+
+    delete m_DlodModel;
+    m_DlodModel=NULL;
+
     if (MatSys::Renderer==NULL) return;
 
     // Free all render materials used in skins.
@@ -960,10 +974,10 @@ MatSys::RenderMaterialT* CafuModelT::GetRenderMaterial(unsigned long MeshNr, int
 
 void CafuModelT::Draw(int SequenceNr, float FrameNr, float LodDist, const ModelT* /*SubModel*/) const
 {
-    m_TEMP_Pose.SetSequNr(SequenceNr);
-    m_TEMP_Pose.SetFrameNr(FrameNr);
+    m_TEMP_Pose->SetSequNr(SequenceNr);
+    m_TEMP_Pose->SetFrameNr(FrameNr);
 
-    m_TEMP_Pose.Draw(-1 /*default skin*/, LodDist);
+    m_TEMP_Pose->Draw(-1 /*default skin*/, LodDist);
 }
 
 
@@ -1040,10 +1054,10 @@ BoundingBox3fT CafuModelT::GetBB(int SequenceNr, float FrameNr) const
 
 bool CafuModelT::TraceRay(int SequenceNr, float FrameNr, int SkinNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, TraceResultT& Result) const
 {
-    m_TEMP_Pose.SetSequNr(SequenceNr);
-    m_TEMP_Pose.SetFrameNr(FrameNr);
+    m_TEMP_Pose->SetSequNr(SequenceNr);
+    m_TEMP_Pose->SetFrameNr(FrameNr);
 
-    return m_TEMP_Pose.TraceRay(SkinNr, RayOrigin, RayDir, Result);
+    return m_TEMP_Pose->TraceRay(SkinNr, RayOrigin, RayDir, Result);
 }
 
 

@@ -21,11 +21,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Loader_ase.hpp"
 #include "Loader_cmdl.hpp"
+#include "Loader_dlod.hpp"
 #include "Loader_lwo.hpp"
 #include "Loader_md5.hpp"
 #include "Loader_mdl.hpp"
 #include "Model_cmdl.hpp"
-#include "Model_dlod.hpp"
 #include "Model_dummy.hpp"
 #include "Model_proxy.hpp"
 #include "String.hpp"
@@ -119,22 +119,20 @@ ModelProxyT::ModelProxyT(const std::string& FileName)
 
     try
     {
-        const int Flags=ModelLoaderT::REMOVE_DEGEN_TRIANGLES | ModelLoaderT::REMOVE_UNUSED_VERTICES | ModelLoaderT::REMOVE_UNUSED_WEIGHTS;
-
         // TODO: This duplicates the code in CaWE/ModelEditor/ModelDocument.cpp and should be combined elsewhere, e.g. into class ModelLoaderT.
         //       Better yet: Use the type system with the loaders, and be able to iterate over them.
-     //      if (cf::String::EndsWith(FileName, "3ds"    )) { LoaderFbxT    Loader(FileName);        NewModel=new CafuModelT(Loader); }
-    /*else*/ if (cf::String::EndsWith(FileName, "ase"    )) { LoaderAseT    Loader(FileName);        NewModel=new CafuModelT(Loader); }
-        else if (cf::String::EndsWith(FileName, "cmdl"   )) { LoaderCafuT   Loader(FileName);        NewModel=new CafuModelT(Loader); }
-     // else if (cf::String::EndsWith(FileName, "dae"    )) { LoaderFbxT    Loader(FileName);        NewModel=new CafuModelT(Loader); }
-     // else if (cf::String::EndsWith(FileName, "dxf"    )) { LoaderFbxT    Loader(FileName);        NewModel=new CafuModelT(Loader); }
-     // else if (cf::String::EndsWith(FileName, "fbx"    )) { LoaderFbxT    Loader(FileName);        NewModel=new CafuModelT(Loader); }
-        else if (cf::String::EndsWith(FileName, "dlod"   )) NewModel=new ModelDlodT(FileName);
-        else if (cf::String::EndsWith(FileName, "lwo"    )) { LoaderLwoT    Loader(FileName);        NewModel=new CafuModelT(Loader); }
-        else if (cf::String::EndsWith(FileName, "mdl"    )) { LoaderHL1mdlT Loader(FileName, Flags); NewModel=new CafuModelT(Loader); }   // Need these flags in order to pass all assertions in the CafuModelT code.
-        else if (cf::String::EndsWith(FileName, "md5"    )) { LoaderMd5T    Loader(FileName);        NewModel=new CafuModelT(Loader); }
-        else if (cf::String::EndsWith(FileName, "md5mesh")) { LoaderMd5T    Loader(FileName);        NewModel=new CafuModelT(Loader); }
-     // else if (cf::String::EndsWith(FileName, "obj"    )) { LoaderFbxT    Loader(FileName);        NewModel=new CafuModelT(Loader); }
+     //      if (cf::String::EndsWith(FileName, "3ds"    )) { LoaderFbxT    Loader(FileName); NewModel=new CafuModelT(Loader); }
+    /*else*/ if (cf::String::EndsWith(FileName, "ase"    )) { LoaderAseT    Loader(FileName); NewModel=new CafuModelT(Loader); }
+        else if (cf::String::EndsWith(FileName, "cmdl"   )) { LoaderCafuT   Loader(FileName); NewModel=new CafuModelT(Loader); }
+     // else if (cf::String::EndsWith(FileName, "dae"    )) { LoaderFbxT    Loader(FileName); NewModel=new CafuModelT(Loader); }
+     // else if (cf::String::EndsWith(FileName, "dxf"    )) { LoaderFbxT    Loader(FileName); NewModel=new CafuModelT(Loader); }
+     // else if (cf::String::EndsWith(FileName, "fbx"    )) { LoaderFbxT    Loader(FileName); NewModel=new CafuModelT(Loader); }
+        else if (cf::String::EndsWith(FileName, "dlod"   )) { LoaderDlodT   Loader(FileName); NewModel=new CafuModelT(Loader); }
+        else if (cf::String::EndsWith(FileName, "lwo"    )) { LoaderLwoT    Loader(FileName); NewModel=new CafuModelT(Loader); }
+        else if (cf::String::EndsWith(FileName, "mdl"    )) { LoaderHL1mdlT Loader(FileName); NewModel=new CafuModelT(Loader); }
+        else if (cf::String::EndsWith(FileName, "md5"    )) { LoaderMd5T    Loader(FileName); NewModel=new CafuModelT(Loader); }
+        else if (cf::String::EndsWith(FileName, "md5mesh")) { LoaderMd5T    Loader(FileName); NewModel=new CafuModelT(Loader); }
+     // else if (cf::String::EndsWith(FileName, "obj"    )) { LoaderFbxT    Loader(FileName); NewModel=new CafuModelT(Loader); }
         else throw ModelT::LoadError();
 
         // LoaderAssimpT Loader(fn, Flags);

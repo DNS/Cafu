@@ -258,6 +258,8 @@ class CafuModelT : public ModelT
     const ArrayT<GuiFixtureT>&  GetGuiFixtures() const { return m_GuiFixtures; }
     const ArrayT<AnimT>&        GetAnims() const { return m_Anims; }
     const ArrayT<ChannelT>&     GetChannels() const { return m_Channels; }
+    const CafuModelT*           GetDlodModel() const { return m_DlodModel; }
+    float                       GetDlodDist() const { return m_DlodDist; }
 
     /// Returns the proper material for the given mesh in the given skin.
     const MaterialT* GetMaterial(unsigned long MeshNr, int SkinNr) const;
@@ -298,24 +300,30 @@ class CafuModelT : public ModelT
     friend class ModelEditor::CommandUpdateChannelT;
     friend class ModelEditor::CommandUpdateGuiFixtureT;
 
+    CafuModelT(const CafuModelT&);                  ///< Use of the Copy    Constructor is not allowed.
+    void operator = (const CafuModelT&);            ///< Use of the Assignment Operator is not allowed.
+
     void RecomputeBindPoseBB();                     ///< Recomputes the bounding box for the model in bind pose (stored in m_BindPoseBB).
     void InitMeshes();                              ///< An auxiliary method for the constructors.
 
-    const std::string     m_FileName;               ///< File name of this model.   TODO: Remove!?!
-    MaterialManagerImplT  m_MaterialMan;            ///< The material manager for the materials that are used with the meshes of this model.
-    ArrayT<JointT>        m_Joints;                 ///< Array of joints of this model.
-    ArrayT<MeshT>         m_Meshes;                 ///< Array of (sub)meshes of this model.
-    ArrayT<SkinT>         m_Skins;                  ///< Array of additional/alternative skins for this model.
-    ArrayT<GuiFixtureT>   m_GuiFixtures;            ///< Array of GUI fixtures in the model.
-    ArrayT<GuiLocT>       m_GuiLocs;                ///< Array of locations where GUIs can be attached to this model.
-    ArrayT<AnimT>         m_Anims;                  ///< Array of animations of this model.
-    ArrayT<ChannelT>      m_Channels;               ///< Array of channels in this model.
+    const std::string    m_FileName;                ///< File name of this model.   TODO: Remove!?!
+    MaterialManagerImplT m_MaterialMan;             ///< The material manager for the materials that are used with the meshes of this model.
+    ArrayT<JointT>       m_Joints;                  ///< Array of joints of this model.
+    ArrayT<MeshT>        m_Meshes;                  ///< Array of (sub)meshes of this model.
+    ArrayT<SkinT>        m_Skins;                   ///< Array of additional/alternative skins for this model.
+    ArrayT<GuiFixtureT>  m_GuiFixtures;             ///< Array of GUI fixtures in the model.
+    ArrayT<GuiLocT>      m_GuiLocs;                 ///< Array of locations where GUIs can be attached to this model.
+    ArrayT<AnimT>        m_Anims;                   ///< Array of animations of this model.
+    ArrayT<ChannelT>     m_Channels;                ///< Array of channels in this model.
 
-    const bool            m_UseGivenTangentSpace;   ///< Whether this model should use the fixed, given tangent space that was loaded from the model file, or it the tangent space is dynamically recomputed (useful for animated models).
- // const bool            m_CastShadows;            ///< Should this model cast shadows?
-    BoundingBox3fT        m_BindPoseBB;             ///< [REMOVE???] The bounding-box for the base pose of the model.
+    const bool           m_UseGivenTangentSpace;    ///< Whether this model should use the fixed, given tangent space that was loaded from the model file, or it the tangent space is dynamically recomputed (useful for animated models).
+ // const bool           m_CastShadows;             ///< Should this model cast shadows?
+    BoundingBox3fT       m_BindPoseBB;              ///< [REMOVE???] The bounding-box for the base pose of the model.
 
-    mutable AnimPoseT m_TEMP_Pose;      ///< TEMPORARY!
+    CafuModelT*          m_DlodModel;               ///< Use the m_DlodModel instead of this when the camera is more that m_DlodDist away.
+    float                m_DlodDist;                ///< The distance beyond which the m_DlodModel is used instead of this.
+
+    mutable AnimPoseT* m_TEMP_Pose;      ///< TEMPORARY!
 };
 
 #endif

@@ -19,43 +19,43 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CAFU_MODEL_LOADER_HPP_
-#define _CAFU_MODEL_LOADER_HPP_
+#ifndef _DLOD_MODEL_LOADER_HPP_
+#define _DLOD_MODEL_LOADER_HPP_
 
 #include "Loader.hpp"
 
 
-struct lua_State;
-
-
-/// This class loads a native Cafu (.cmdl) model file into a new Cafu model.
-class LoaderCafuT : public ModelLoaderT
+/// This class loads a discrete-level-of-detail (.dlod) model file into a new Cafu model.
+class LoaderDlodT : public ModelLoaderT
 {
     public:
 
-    /// The constructor for loading a native Cafu (.cmdl) model file into a new Cafu model.
-    /// @param FileName   The name of the .cmdl file to load.
+    /// The constructor for loading a discrete-level-of-detail (.dlod) model file into a new Cafu model.
+    /// @param FileName   The name of the .dlod file to load.
     /// @param Flags      The flags to load the model with. See ModelLoaderT::FlagsT for details.
-    LoaderCafuT(const std::string& FileName, int Flags=NONE) /*throw (ModelT::LoadError)*/;
+    LoaderDlodT(const std::string& FileName, int Flags=NONE) /*throw (ModelT::LoadError)*/;
 
     /// The destructor.
-    ~LoaderCafuT();
+    ~LoaderDlodT();
 
+    const std::string& GetFileName() const;
     bool UseGivenTS() const;
     void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan);
     void Load(ArrayT<CafuModelT::SkinT>& Skins, const MaterialManagerImplT& MaterialMan);
     void Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures, ArrayT<CafuModelT::GuiLocT>& GuiLocs);
     void Load(ArrayT<CafuModelT::ChannelT>& Channels);
-    bool Load(unsigned int Level, CafuModelT*& DlodModel, float& DlodDist) { return false; }
+    bool Load(unsigned int Level, CafuModelT*& DlodModel, float& DlodDist);
 
 
     private:
 
-    static int SetVersion(lua_State* LuaState);
+    LoaderDlodT(const LoaderDlodT&);        ///< Use of the Copy    Constructor is not allowed.
+    void operator = (const LoaderDlodT&);   ///< Use of the Assignment Operator is not allowed.
 
-    lua_State*   m_LuaState;
-    unsigned int m_Version;
-    bool         m_UseGivenTS;
+    ArrayT<std::string>   m_ModelNames;     ///< The names of the concrete models in the dlod chain.
+    ArrayT<float>         m_StartRanges;
+    ArrayT<float>         m_EndRanges;
+    ArrayT<ModelLoaderT*> m_ModelLoaders;
 };
 
 #endif

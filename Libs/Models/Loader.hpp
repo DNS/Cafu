@@ -47,7 +47,8 @@ class ModelLoaderT
     ModelLoaderT(const std::string& FileName, int Flags);
 
     /// Returns the file name of the imported model.
-    const std::string& GetFileName() const { return m_FileName; }
+    /// This method is reimplemented in the \c LoaderDlodT class.
+    virtual const std::string& GetFileName() const { return m_FileName; }
 
     /// Some (static, non-animated) model file formats may bring all their tangent space data with them.
     /// For such files, there is no need for the Cafu model to recompute that data from the vertices.
@@ -66,6 +67,9 @@ class ModelLoaderT
 
     /// Loads the animation channels (groups of joints) of the Cafu model.
     virtual void Load(ArrayT<CafuModelT::ChannelT>& Channels)=0;
+
+    /// Loads the dlod-model and dlod-distance at the given level.
+    virtual bool Load(unsigned int Level, CafuModelT*& DlodModel, float& DlodDist)=0;
 
     /// Postprocesses the file data according to flags given to the constructor.
     virtual void Postprocess(ArrayT<CafuModelT::MeshT>& Meshes);
