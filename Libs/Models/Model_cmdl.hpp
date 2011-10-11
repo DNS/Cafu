@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Mesh.hpp"
 #include "Math3D/BoundingBox.hpp"
 #include "Math3D/Matrix.hpp"
+#include "AnimPose.hpp"     // Only for TEMPORARILY implementing the "old" ModelT interface methods.
 #include "Model.hpp"
 
 #if defined(_WIN32) && _MSC_VER<1600
@@ -313,6 +314,8 @@ class CafuModelT : public ModelT
     const bool            m_UseGivenTangentSpace;   ///< Whether this model should use the fixed, given tangent space that was loaded from the model file, or it the tangent space is dynamically recomputed (useful for animated models).
  // const bool            m_CastShadows;            ///< Should this model cast shadows?
     BoundingBox3fT        m_BindPoseBB;             ///< [REMOVE???] The bounding-box for the base pose of the model.
+
+    mutable AnimPoseT m_TEMP_Pose;      ///< TEMPORARY!
 };
 
 #endif

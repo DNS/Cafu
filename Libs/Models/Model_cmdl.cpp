@@ -20,7 +20,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Model_cmdl.hpp"
-#include "AnimPose.hpp"     // Only for implementing the "old" ModelT interface methods.
 #include "Loader.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/Renderer.hpp"
@@ -235,11 +234,19 @@ void CafuModelT::ChannelT::SetMember(unsigned int JointNr, bool Member)
 }
 
 
+// TEMPORARY!
+#if defined(_WIN32) && defined(_MSC_VER)
+// Turn off "warning C4355: 'this' : used in base member initializer list".
+#pragma warning(disable:4355)
+#endif
+
+
 CafuModelT::CafuModelT(ModelLoaderT& Loader)
     : m_FileName(Loader.GetFileName()),
       m_MaterialMan(),
       m_UseGivenTangentSpace(Loader.UseGivenTS()),  // Should we use the fixed, given tangent space, or recompute it ourselves here?
       m_BindPoseBB(Vector3fT())                     // Re-initialized in InitMeshes() calling RecomputeBindPoseBB(), but start with a valid box anyways (e.g. for testing models that have a skeleton, but no mesh).
+      , m_TEMP_Pose(*this)
 {
     // No matter the actual model file format (that is, even if the file format is not "cmdl"),
     // the model artist might have prepared materials that should be used instead of the ones the Loader would otherwise generate.
@@ -953,9 +960,10 @@ MatSys::RenderMaterialT* CafuModelT::GetRenderMaterial(unsigned long MeshNr, int
 
 void CafuModelT::Draw(int SequenceNr, float FrameNr, float LodDist, const ModelT* /*SubModel*/) const
 {
-    AnimPoseT Pose(*this, SequenceNr, FrameNr);     // TODO: This is reconstructed on each call -- no caching at all!
+    m_TEMP_Pose.SetSequNr(SequenceNr);
+    m_TEMP_Pose.SetFrameNr(FrameNr);
 
-    Pose.Draw(-1 /*default skin*/, LodDist);
+    m_TEMP_Pose.Draw(-1 /*default skin*/, LodDist);
 }
 
 
@@ -1032,9 +1040,10 @@ BoundingBox3fT CafuModelT::GetBB(int SequenceNr, float FrameNr) const
 
 bool CafuModelT::TraceRay(int SequenceNr, float FrameNr, int SkinNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, TraceResultT& Result) const
 {
-    AnimPoseT Pose(*this, SequenceNr, FrameNr);     // TODO: This is reconstructed on each call -- no caching at all!
+    m_TEMP_Pose.SetSequNr(SequenceNr);
+    m_TEMP_Pose.SetFrameNr(FrameNr);
 
-    return Pose.TraceRay(SkinNr, RayOrigin, RayDir, Result);
+    return m_TEMP_Pose.TraceRay(SkinNr, RayOrigin, RayDir, Result);
 }
 
 
