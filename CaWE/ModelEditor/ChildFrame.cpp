@@ -99,6 +99,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
       m_ChannelInspector(NULL),
       m_ScenePropGrid(NULL),
       m_SubmodelsPanel(NULL),
+      m_DlodModelsList(NULL),
       m_TransformDialog(NULL)
 {
     // Register us with the parents list of children.
@@ -155,6 +156,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     ViewMenu->AppendSeparator();
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_SCENE_SETUP,          "Scene Setup",           "Show or hide the scene setup inspector");
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_SUBMODELS_LIST,       "Submodels List",        "Show or hide the submodels list");
+    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_DLOD_MODELS_LIST,     "LoD Models",            "Show or hide the list of models for reduced levels of detail");
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_TRANSFORM_DIALOG,     "Transform Dialog",      "Show or hide the model transform dialog");
     ViewMenu->AppendSeparator();
     ViewMenu->Append(ID_MENU_VIEW_LOAD_USER_PERSPECTIVE, "&Load user window layout", "Loads the user defined window layout");
@@ -271,6 +273,11 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     m_AUIManager.AddPane(m_SubmodelsPanel, wxAuiPaneInfo().
                          Name("SubmodelsPanel").Caption("Submodels").
                          Right().Position(5));
+
+    m_DlodModelsList=new wxStaticText(this, wxID_ANY, GetLodModelsString(), wxDefaultPosition, wxSize(260, 180), wxST_ELLIPSIZE_START);
+    m_AUIManager.AddPane(m_DlodModelsList, wxAuiPaneInfo().
+                         Name("DlodModelsList").Caption("Level-of-Detail Models").
+                         Right().Position(6));
 
     m_TransformDialog=new TransformDialogT(this, wxSize(248, 240));
     m_AUIManager.AddPane(m_TransformDialog, wxAuiPaneInfo().
@@ -770,6 +777,27 @@ void ModelEditor::ChildFrameT::PaneToggleShow(wxAuiPaneInfo& PaneInfo)
 }
 
 
+wxString ModelEditor::ChildFrameT::GetLodModelsString() const
+{
+    wxString s;
+
+    for (const CafuModelT* Model=m_ModelDoc->GetModel(); Model; Model=Model->GetDlodModel())
+    {
+        wxFileName fn(Model->GetFileName());
+
+        fn.MakeRelativeTo(m_ModelDoc->GetGameConfig()->ModDir);
+        s+=fn.GetFullPath(wxPATH_UNIX);
+
+        if (Model->GetDlodModel())
+            s+=wxString::Format(" (%.2f)\n", Model->GetDlodDist());
+        else
+            s+=" (inf)";
+    }
+
+    return s;
+}
+
+
 void ModelEditor::ChildFrameT::OnMenuView(wxCommandEvent& CE)
 {
     switch (CE.GetId())
@@ -789,6 +817,7 @@ void ModelEditor::ChildFrameT::OnMenuView(wxCommandEvent& CE)
         case ID_MENU_VIEW_AUIPANE_GUIFIXTURE_INSPECTOR: PaneToggleShow(m_AUIManager.GetPane(m_GuiFixtureInspector)); break;
         case ID_MENU_VIEW_AUIPANE_SCENE_SETUP:          PaneToggleShow(m_AUIManager.GetPane(m_ScenePropGrid      )); break;
         case ID_MENU_VIEW_AUIPANE_SUBMODELS_LIST:       PaneToggleShow(m_AUIManager.GetPane(m_SubmodelsPanel     )); break;
+        case ID_MENU_VIEW_AUIPANE_DLOD_MODELS_LIST:     PaneToggleShow(m_AUIManager.GetPane(m_DlodModelsList     )); break;
         case ID_MENU_VIEW_AUIPANE_TRANSFORM_DIALOG:     PaneToggleShow(m_AUIManager.GetPane(m_TransformDialog    )); break;
 
         case ID_MENU_VIEW_LOAD_DEFAULT_PERSPECTIVE:
@@ -825,6 +854,7 @@ void ModelEditor::ChildFrameT::OnMenuViewUpdate(wxUpdateUIEvent& UE)
         case ID_MENU_VIEW_AUIPANE_GUIFIXTURE_INSPECTOR: UE.Check(m_AUIManager.GetPane(m_GuiFixtureInspector).IsShown()); break;
         case ID_MENU_VIEW_AUIPANE_SCENE_SETUP:          UE.Check(m_AUIManager.GetPane(m_ScenePropGrid      ).IsShown()); break;
         case ID_MENU_VIEW_AUIPANE_SUBMODELS_LIST:       UE.Check(m_AUIManager.GetPane(m_SubmodelsPanel     ).IsShown()); break;
+        case ID_MENU_VIEW_AUIPANE_DLOD_MODELS_LIST:     UE.Check(m_AUIManager.GetPane(m_DlodModelsList     ).IsShown()); break;
         case ID_MENU_VIEW_AUIPANE_TRANSFORM_DIALOG:     UE.Check(m_AUIManager.GetPane(m_TransformDialog    ).IsShown()); break;
     }
 }

@@ -102,6 +102,9 @@ namespace ModelEditor
         /// Shows or hides the given AUI pane.
         void PaneToggleShow(wxAuiPaneInfo& PaneInfo);
 
+        /// Returns a string with all the LoD models loaded with the main model.
+        wxString GetLodModelsString() const;
+
         wxString           m_FileName;
         ModelDocumentT*    m_ModelDoc;
         CommandHistoryT    m_History;               ///< The command history.
@@ -129,6 +132,7 @@ namespace ModelEditor
         ChannelInspectorT* m_ChannelInspector;
         ScenePropGridT*    m_ScenePropGrid;
         SubmodelsPanelT*   m_SubmodelsPanel;
+        wxStaticText*      m_DlodModelsList;
         TransformDialogT*  m_TransformDialog;
 
 
@@ -153,6 +157,7 @@ namespace ModelEditor
             ID_MENU_VIEW_AUIPANE_CHANNEL_INSPECTOR,
             ID_MENU_VIEW_AUIPANE_SCENE_SETUP,
             ID_MENU_VIEW_AUIPANE_SUBMODELS_LIST,
+            ID_MENU_VIEW_AUIPANE_DLOD_MODELS_LIST,
             ID_MENU_VIEW_AUIPANE_TRANSFORM_DIALOG,
             ID_MENU_VIEW_LOAD_DEFAULT_PERSPECTIVE,
             ID_MENU_VIEW_LOAD_USER_PERSPECTIVE,

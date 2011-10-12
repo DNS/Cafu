@@ -320,7 +320,7 @@ class CafuModelT : public ModelT
  // const bool           m_CastShadows;             ///< Should this model cast shadows?
     BoundingBox3fT       m_BindPoseBB;              ///< [REMOVE???] The bounding-box for the base pose of the model.
 
-    CafuModelT*          m_DlodModel;               ///< Use the m_DlodModel instead of this when the camera is more that m_DlodDist away.
+    CafuModelT*          m_DlodModel;               ///< Use the m_DlodModel instead of this when the camera is more than m_DlodDist away.
     float                m_DlodDist;                ///< The distance beyond which the m_DlodModel is used instead of this.
 
     mutable AnimPoseT* m_TEMP_Pose;      ///< TEMPORARY!
