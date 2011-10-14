@@ -33,7 +33,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Mesh.hpp"
 #include "Math3D/BoundingBox.hpp"
 #include "Math3D/Matrix3x3.hpp"
-#include "Models/Model_dummy.hpp"
 #include "EditorMaterialManager.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "TypeSys.hpp"
@@ -106,31 +105,26 @@ BoundingBox3fT MapHelperModelT::GetBB() const
     UpdateModelCache();
 
     // TODO: Cache!
-    if (dynamic_cast<const ModelDummyT*>(m_ModelProxy.GetRealModel())==NULL)
-    {
-        const cf::math::AnglesfT Angles=m_ParentEntity->GetAngles();
+    const cf::math::AnglesfT Angles=m_ParentEntity->GetAngles();
 
-        // The 3D bounds are the bounds of the oriented model's first sequence, so that frustum culling works properly in the 3D view.
-        Vector3fT VerticesBB[8];
-        m_ModelProxy.GetBB(GetSequenceNr(), 0.0f).GetCornerVertices(VerticesBB);
+    // The 3D bounds are the bounds of the oriented model's first sequence, so that frustum culling works properly in the 3D view.
+    Vector3fT VerticesBB[8];
+    m_ModelProxy.GetBB(GetSequenceNr(), 0.0f).GetCornerVertices(VerticesBB);
 
-        // Rotate all eight vertices.
-        for (unsigned long VertexNr=0; VertexNr<8; VertexNr++)
-            VerticesBB[VertexNr]=VerticesBB[VertexNr].GetRotX(Angles[ROLL]).GetRotY(-Angles[PITCH]).GetRotZ(Angles[YAW]);
+    // Rotate all eight vertices.
+    for (unsigned long VertexNr=0; VertexNr<8; VertexNr++)
+        VerticesBB[VertexNr]=VerticesBB[VertexNr].GetRotX(Angles[ROLL]).GetRotY(-Angles[PITCH]).GetRotZ(Angles[YAW]);
 
-        // Build a new BB of the rotated BB.
-        BoundingBox3fT RotBB(VerticesBB[0]);
+    // Build a new BB of the rotated BB.
+    BoundingBox3fT RotBB(VerticesBB[0]);
 
-        for (unsigned long VertexNr=1; VertexNr<8; VertexNr++)
-            RotBB.Insert(VerticesBB[VertexNr]);
+    for (unsigned long VertexNr=1; VertexNr<8; VertexNr++)
+        RotBB.Insert(VerticesBB[VertexNr]);
 
-        RotBB.Min+=Origin;
-        RotBB.Max+=Origin;
+    RotBB.Min+=Origin;
+    RotBB.Max+=Origin;
 
-        return RotBB;
-    }
-
-    return BoundingBox3fT(Origin-Vector3fT(10, 10, 10), Origin+Vector3fT(10, 10, 10));
+    return RotBB;
 }
 
 
@@ -149,40 +143,37 @@ void MapHelperModelT::Render3D(Renderer3DT& Renderer) const
 
     UpdateModelCache();
 
-    if (dynamic_cast<const ModelDummyT*>(m_ModelProxy.GetRealModel())==NULL)
+    const Vector3fT ViewPoint=Renderer.GetViewWin3D().GetCamera().Pos;
+    const float     ModelDist=length(Origin-ViewPoint);
+
+    if (Options.view3d.AnimateModels)
+        m_ModelFrameNr=m_ModelProxy.AdvanceFrameNr(SequenceNr, m_ModelFrameNr, float(m_Timer.GetSecondsSinceLastCall()));
+
+    if (ModelDist < float(Options.view3d.ModelDistance))
     {
-        const Vector3fT ViewPoint=Renderer.GetViewWin3D().GetCamera().Pos;
-        const float     ModelDist=length(Origin-ViewPoint);
+        const cf::math::AnglesfT Angles=m_ParentEntity->GetAngles();
+        const float              CAFU_ENG_SCALE=25.4f;
 
-        if (Options.view3d.AnimateModels)
-            m_ModelFrameNr=m_ModelProxy.AdvanceFrameNr(SequenceNr, m_ModelFrameNr, float(m_Timer.GetSecondsSinceLastCall()));
+        MatSys::Renderer->SetCurrentAmbientLightColor(1.0f, 1.0f, 1.0f);
+        MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
 
-        if (ModelDist<float(Options.view3d.ModelDistance))
-        {
-            const cf::math::AnglesfT Angles=m_ParentEntity->GetAngles();
-            const float              CAFU_ENG_SCALE=25.4f;
+        MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, Origin[0], Origin[1], Origin[2]);
+        MatSys::Renderer->RotateZ  (MatSys::RendererI::MODEL_TO_WORLD,  Angles[YAW  ]);
+        MatSys::Renderer->RotateY  (MatSys::RendererI::MODEL_TO_WORLD, -Angles[PITCH]);
+        MatSys::Renderer->RotateX  (MatSys::RendererI::MODEL_TO_WORLD,  Angles[ROLL ]);
 
-            MatSys::Renderer->SetCurrentAmbientLightColor(1.0f, 1.0f, 1.0f);
-            MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
+        m_ModelProxy.Draw(SequenceNr, m_ModelFrameNr, CAFU_ENG_SCALE*ModelDist, NULL);
 
-            MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, Origin[0], Origin[1], Origin[2]);
-            MatSys::Renderer->RotateZ  (MatSys::RendererI::MODEL_TO_WORLD,  Angles[YAW  ]);
-            MatSys::Renderer->RotateY  (MatSys::RendererI::MODEL_TO_WORLD, -Angles[PITCH]);
-            MatSys::Renderer->RotateX  (MatSys::RendererI::MODEL_TO_WORLD,  Angles[ROLL ]);
+        MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
 
-            m_ModelProxy.Draw(SequenceNr, m_ModelFrameNr, CAFU_ENG_SCALE*ModelDist, NULL);
-
-            MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
-
-            if (m_ParentEntity->IsSelected()) Renderer.RenderBox(GetBB(), Options.colors.Selection, false /* Solid? */);
-            return;
-        }
+        if (m_ParentEntity->IsSelected()) Renderer.RenderBox(GetBB(), Options.colors.Selection, false /* Solid? */);
     }
-
-    // Did not render the real model (either because we only have a dummy model,
-    // or the distance was too great), thus render a replacement bounding-box.
-    Renderer.RenderBox(GetBB(),
-        m_ParentEntity->IsSelected() ? Options.colors.Selection : m_ParentEntity->GetColor(Options.view2d.UseGroupColors), true /* Solid? */);
+    else
+    {
+        // Did not render the real model (the distance was too great), thus render a replacement bounding-box.
+        Renderer.RenderBox(GetBB(),
+            m_ParentEntity->IsSelected() ? Options.colors.Selection : m_ParentEntity->GetColor(Options.view2d.UseGroupColors), true /* Solid? */);
+    }
 }
 
 

@@ -22,11 +22,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Loader_ase.hpp"
 #include "Loader_cmdl.hpp"
 #include "Loader_dlod.hpp"
+#include "Loader_dummy.hpp"
 #include "Loader_lwo.hpp"
 #include "Loader_md5.hpp"
 #include "Loader_mdl.hpp"
 #include "Model_cmdl.hpp"
-#include "Model_dummy.hpp"
 #include "Model_proxy.hpp"
 #include "String.hpp"
 
@@ -79,7 +79,9 @@ class ModelPoolManagerT
     /// The usual constructor is only for private use (Singleton pattern).
     ModelPoolManagerT()
     {
-        ModelPool      .PushBack(new ModelDummyT("dummy"));
+        LoaderDummyT Loader("dummy");
+
+        ModelPool      .PushBack(new CafuModelT(Loader));
         ModelPoolCounts.PushBack(1);
     }
 
@@ -133,7 +135,7 @@ ModelProxyT::ModelProxyT(const std::string& FileName)
         else if (cf::String::EndsWith(FileName, "md5"    )) { LoaderMd5T    Loader(FileName); NewModel=new CafuModelT(Loader); }
         else if (cf::String::EndsWith(FileName, "md5mesh")) { LoaderMd5T    Loader(FileName); NewModel=new CafuModelT(Loader); }
      // else if (cf::String::EndsWith(FileName, "obj"    )) { LoaderFbxT    Loader(FileName); NewModel=new CafuModelT(Loader); }
-        else throw ModelT::LoadError();
+        else { LoaderDummyT Loader(FileName); NewModel=new CafuModelT(Loader); }
 
         // LoaderAssimpT Loader(fn, Flags);
         // NewModel=new CafuModelT(Loader);
@@ -142,7 +144,9 @@ ModelProxyT::ModelProxyT(const std::string& FileName)
     {
         // Okay, the model could not be loaded for some reason.
         // Do just substitute a dummy model for now.
-        NewModel=new ModelDummyT(FileName);
+        LoaderDummyT Loader(FileName);
+
+        NewModel=new CafuModelT(Loader);
     }
 
     // Finally find a good place in the pool:

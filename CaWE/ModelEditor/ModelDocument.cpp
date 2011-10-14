@@ -30,6 +30,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Models/Loader_assimp.hpp"
 #include "Models/Loader_cmdl.hpp"
 #include "Models/Loader_dlod.hpp"
+#include "Models/Loader_dummy.hpp"
 #include "Models/Loader_fbx.hpp"
 #include "Models/Loader_lwo.hpp"
 #include "Models/Loader_md5.hpp"
@@ -269,6 +270,7 @@ namespace
     else if (cf::String::EndsWith(fn, "ase"    )) { LoaderAseT    Loader(fn, Flags);          return new CafuModelT(Loader); }
     else if (cf::String::EndsWith(fn, "cmdl"   )) { LoaderCafuT   Loader(fn, Flags);          return new CafuModelT(Loader); }
     else if (cf::String::EndsWith(fn, "dae"    )) { LoaderFbxT    Loader(fn, UserCbs, Flags); return new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(fn, "dummy"  )) { LoaderDummyT  Loader(fn, Flags);          return new CafuModelT(Loader); }
     else if (cf::String::EndsWith(fn, "dxf"    )) { LoaderFbxT    Loader(fn, UserCbs, Flags); return new CafuModelT(Loader); }
     else if (cf::String::EndsWith(fn, "fbx"    )) { LoaderFbxT    Loader(fn, UserCbs, Flags); return new CafuModelT(Loader); }
     else if (cf::String::EndsWith(fn, "dlod"   )) { LoaderDlodT   Loader(fn, Flags);          return new CafuModelT(Loader); }
