@@ -32,8 +32,7 @@ if sys.platform=="win32":
     envTools.Append(LIBS=Split("SceneGraph MatSys ClipSys cfsLib cfs_jpeg bulletcollision lua minizip lightwave png z")
                        + Split("gdi32 glu32 opengl32 user32") + ['cfsOpenGL', 'dinput', 'dxguid'])
 elif sys.platform=="linux2":
-    # envTools.Append(LINKFLAGS=['-Wl,--export-dynamic'])       # Not needed any more, .so libs now link to the required .a libs directly, just as under Windows.
-    # GLU is needed for the TerrainViewerOld *and* for e.g. gluBuild2DMipmaps() in the renderers...
+    # GLU is only needed for the TerrainViewerOld...
     envTools.Append(CPPPATH=['/usr/include/freetype2'])         # As of 2009-09-10, this line is to become unnecessary in the future, see /usr/include/ftbuild.h for details.
     envTools.Append(LIBS=Split("SceneGraph MatSys cfsOpenGL ClipSys cfsLib cfs_jpeg bulletcollision lua minizip lightwave png z")
                        + Split("GL GLU X11 dl"))
@@ -106,7 +105,6 @@ elif sys.platform=="linux2":
     envCafu.Append(LINKFLAGS=['-Wl,-rpath,.', '-Wl,--export-dynamic'])
     envCafu.Append(LIBS=Split("MatSys SoundSys SceneGraph ClipSys"))
 
-    # We need GLU for e.g. gluBuild2DMipmaps() in the renderers.
     # pthread is needed because some libraries that we load (possibly indirectly), e.g. the libCg.so and libopenal.so, use functions
     # from the pthread library, but have not been linked themselves against it. They rely on the executable to be linked appropriately
     # in order to resolve the pthread symbols. Paul Pluzhnikov states in a newsgroup posting (see [1]) that even if the .so libs were
@@ -114,7 +112,7 @@ elif sys.platform=="linux2":
     # "Note that dlopen()ing an MT library from non-MT executable is not supported on most platforms, certainly not on Linux."
     # [1] http://groups.google.de/group/gnu.gcc.help/browse_thread/thread/1e8f8dfd6027d7fa/
     # rt is required in order to resolve clock_gettime() in openal-soft.
-    envCafu.Append(LIBS=Split("GL GLU rt pthread"))
+    envCafu.Append(LIBS=Split("GL rt pthread"))
 
     # Wrapping -lcfsLib in --whole-archive and --no-whole-archive is required so that the linker puts all symbols that are in libcfsLib.a
     # into the executable, because otherwise, it would omit e.g. some ParticleEngine-related stuff that is not referenced by the engine,
@@ -128,7 +126,7 @@ elif sys.platform=="linux2":
     # which in turn requires these...
     # Note that this (using --whole-archive) is actually the proper strategy under Linux (vs. Windows), because this is *the* way
     # in order to make sure that the -fPIC can be handled correctly - otherwise we had to link .so libs with non-fPIC object files...
-    envCafu.Append(LINKCOM=" -Wl,--whole-archive -lcfsLib -lbulletdynamics -lbulletcollision -lbulletmath -lopenal -lalut -lmpg123 -logg -lvorbis -lvorbisfile -Wl,--no-whole-archive -llua -llightwave -lminizip -lcfs_jpeg")
+    envCafu.Append(LINKCOM=" -Wl,--whole-archive -lcfsLib -lbulletdynamics -lbulletcollision -lbulletmath -lopenal -lalut -lmpg123 -logg -lvorbis -lvorbisfile -Wl,--no-whole-archive -llua -llightwave -lminizip -lcfs_jpeg -lpng -lz")
 
     WinResource = []
 
@@ -142,7 +140,8 @@ appCafu = envCafu.Program('Ca3DE/Cafu',
 
 if sys.platform=="linux2":
     # This is a work-around for the fact that SCons doesn't automatically add dependencies for the libraries mentioned in LINKCOM.
-    for LibName in Split("cfsLib bulletdynamics bulletcollision bulletmath openal alut mpg123 ogg vorbis vorbisfile lua lightwave minizip cfs_jpeg"):
+    for LibName in Split("""cfsLib bulletdynamics bulletcollision bulletmath openal alut mpg123 ogg vorbis vorbisfile
+                            lua lightwave minizip cfs_jpeg"""):   # png and z are not in the list, because we use the system libraries.
         LibFile = envCafu.FindFile("lib" + LibName + ".so", envCafu['LIBPATH'])
         if LibFile==None:
             LibFile = envCafu.FindFile("lib" + LibName + ".a", envCafu['LIBPATH'])

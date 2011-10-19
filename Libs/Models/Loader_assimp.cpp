@@ -208,14 +208,14 @@ void LoaderAssimpT::Load(CafuModelT::AnimT& CafuAnim, const aiAnimation* AiAnim,
 
     for (unsigned long JointNr=0; JointNr<Joints.Size(); JointNr++)
     {
-      //CafuModelT::AnimT::AnimJointT& AnimJoint =CafuAnim.AnimJoints[JointNr];
-        const aiNodeAnim*              AiAnimNode=NULL;
+        // CafuModelT::AnimT::AnimJointT& AnimJoint =CafuAnim.AnimJoints[JointNr];
+        // const aiNodeAnim*              AiAnimNode=NULL;
 
         // Find the related aiNodeAnim in AiAnim.mChannels:
         for (unsigned int ChannelNr=0; ChannelNr<AiAnim->mNumChannels; ChannelNr++)
             if (Joints[JointNr].Name == AiAnim->mChannels[ChannelNr]->mNodeName.data)
             {
-                AiAnimNode=AiAnim->mChannels[ChannelNr];
+                // AiAnimNode=AiAnim->mChannels[ChannelNr];
                 break;
             }
     }

@@ -187,7 +187,7 @@ public:
 			btTransformUtil::calculateVelocityQuaternion(m_posA,toPosA,m_ornA,toOrnA,btScalar(1.),linVelA,angVelA);
 			btTransformUtil::calculateVelocityQuaternion(m_posB,toPosB,m_ornB,toOrnB,btScalar(1.),linVelB,angVelB);
 			btScalar maxAngularProjectedVelocity = angVelA.length() * m_boundingRadiusA + angVelB.length() * m_boundingRadiusB;
-			btVector3 relLinVel = (linVelB-linVelA);
+			// btVector3 relLinVel = (linVelB-linVelA);
 			btScalar relLinVelocLength = (linVelB-linVelA).dot(m_separatingNormal);
 			if (relLinVelocLength<0.f)
 			{

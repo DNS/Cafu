@@ -165,12 +165,12 @@ int main(int ArgC, const char* ArgV[])
             continue;
         }*/
 
-        char EthernetDest  [6];
-        char EthernetSource[6];
+        // char EthernetDest  [6];
+        // char EthernetSource[6];
         char c;
 
-        for (c=0; c<6; c++) { EthernetDest  [c]=ReadByte(); BytesRemaining--; }
-        for (c=0; c<6; c++) { EthernetSource[c]=ReadByte(); BytesRemaining--; }
+        for (c=0; c<6; c++) { /*EthernetDest  [c]=*/ReadByte(); BytesRemaining--; }
+        for (c=0; c<6; c++) { /*EthernetSource[c]=*/ReadByte(); BytesRemaining--; }
         // printf(" %02X:%02X:%02X:%02X:%02X:%02X", EthernetSource[0], EthernetSource[1], EthernetSource[2], EthernetSource[3], EthernetSource[4], EthernetSource[5]);
         // printf(" %02X:%02X:%02X:%02X:%02X:%02X", EthernetDest  [0], EthernetDest  [1], EthernetDest  [2], EthernetDest  [3], EthernetDest  [4], EthernetDest  [5]);
 
@@ -220,11 +220,11 @@ int main(int ArgC, const char* ArgV[])
         unsigned short IPHeaderChecksum=ReadWord(); BytesRemaining-=2;
         printf(" IP Checksum %u\n", IPHeaderChecksum);
 
-        char IPSource[4];
-        char IPDest  [4];
+        // char IPSource[4];
+        // char IPDest  [4];
 
-        for (c=0; c<4; c++) { IPSource[c]=ReadByte(); BytesRemaining--; }
-        for (c=0; c<4; c++) { IPDest  [c]=ReadByte(); BytesRemaining--; }
+        for (c=0; c<4; c++) { /*IPSource[c]=*/ReadByte(); BytesRemaining--; }
+        for (c=0; c<4; c++) { /*IPDest  [c]=*/ReadByte(); BytesRemaining--; }
         // printf(" %3u.%3u.%3u.%3u", IPSource[0], IPSource[1], IPSource[2], IPSource[3]);
         // printf(" %3u.%3u.%3u.%3u", IPDest  [0], IPDest  [1], IPDest  [2], IPDest  [3]);
 
