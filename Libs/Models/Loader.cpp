@@ -148,7 +148,7 @@ MaterialT ModelLoaderT::CreateDefaultMaterial(const std::string& MatName, bool E
     Mat.Name           =MatName;
     Mat.PolygonMode    =MaterialT::Wireframe;
  // Mat.DepthOffset    =-1.0f;
-    Mat.DiffMapComp    =MapCompositionT("file-not-found", ".");
+    Mat.DiffMapComp    =MapCompositionT("file-not-found", "./");
  // Mat.RedGen         =ExpressionT(1.0f);
  // Mat.UseMeshColors  =true;       // Mesh colors aren't used for rendering models, but unfortunately required for rendering wire-frame without diffuse-map texture image.
     Mat.TwoSided       =true;       // For wire-frame, render the backsides as well.

@@ -22,7 +22,7 @@
 	It's cumbersome to have them all with different names, though...
 */
 
-#ifdef DEBUG
+#ifdef PRINT_DEBUG
 #include <stdio.h>
 #define debug(s) fprintf(stderr, "[" __FILE__ ":%i] debug: " s "\n", __LINE__)
 #define debug1(s, a) fprintf(stderr, "[" __FILE__ ":%i] debug: " s "\n", __LINE__, a)

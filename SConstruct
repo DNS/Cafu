@@ -320,30 +320,12 @@ if sys.platform=="win32":
         envRelease.Install(".", ["#/ExtLibs/Cg/bin.x64/cg.dll", "#/ExtLibs/Cg/bin.x64/cgGL.dll"]);
         envRelease.Install(".", ["#/ExtLibs/openal-win/libs/Win64/OpenAL32.dll", "#/ExtLibs/openal-win/libs/Win64/wrap_oal.dll"]);
 
-    if "r" in BVs:
-        envRelease.Install(".", ["#/ExtLibs/freealut/"+my_build_dir_rel+"/alut.dll"]);
-        envRelease.Install(".", ["#/ExtLibs/mpg123/"+my_build_dir_rel+"/mpg123.dll"]);
-
-    else:
-        envRelease.Install(".", ["#/ExtLibs/freealut/"+my_build_dir_dbg+"/alut.dll"]);
-        envRelease.Install(".", ["#/ExtLibs/mpg123/"+my_build_dir_dbg+"/mpg123.dll"]);
-
 elif sys.platform=="linux2":
     if platform.machine()!="x86_64":
         envRelease.Install(".", ["#/ExtLibs/Cg/lib/libCg.so", "#/ExtLibs/Cg/lib/libCgGL.so"]);
         envRelease.Install(".", ["#/ExtLibs/fmod/api/libfmod-3.75.so"]);
     else:
         envRelease.Install(".", ["#/ExtLibs/Cg/lib.x64/libCg.so", "#/ExtLibs/Cg/lib.x64/libCgGL.so"]);
-
-    if "r" in BVs:
-        envRelease.Install(".", ["#/ExtLibs/freealut/"+my_build_dir_rel+"/libalut.so"]);
-        envRelease.Install(".", ["#/ExtLibs/mpg123/"+my_build_dir_rel+"/libmpg123.so"]);
-        envRelease.Install(".", ["#/ExtLibs/openal-soft/"+my_build_dir_rel+"/libopenal.so"]);
-
-    else:
-        envRelease.Install(".", ["#/ExtLibs/freealut/"+my_build_dir_dbg+"/libalut.so"]);
-        envRelease.Install(".", ["#/ExtLibs/mpg123/"+my_build_dir_dbg+"/libmpg123.so"]);
-        envRelease.Install(".", ["#/ExtLibs/openal-soft/"+my_build_dir_dbg+"/libopenal.so"]);
 
 
 ############################################

@@ -126,7 +126,7 @@ elif sys.platform=="linux2":
     # which in turn requires these...
     # Note that this (using --whole-archive) is actually the proper strategy under Linux (vs. Windows), because this is *the* way
     # in order to make sure that the -fPIC can be handled correctly - otherwise we had to link .so libs with non-fPIC object files...
-    envCafu.Append(LINKCOM=" -Wl,--whole-archive -lcfsLib -lbulletdynamics -lbulletcollision -lbulletmath -lopenal -lalut -lmpg123 -logg -lvorbis -lvorbisfile -Wl,--no-whole-archive -llua -llightwave -lminizip -lcfs_jpeg -lpng -lz")
+    envCafu.Append(LINKCOM=" -Wl,--whole-archive -lcfsLib -lbulletdynamics -lbulletcollision -lbulletmath -Wl,--no-whole-archive -llua -llightwave -lminizip -lcfs_jpeg -lpng -lz")
 
     WinResource = []
 
@@ -140,7 +140,7 @@ appCafu = envCafu.Program('Ca3DE/Cafu',
 
 if sys.platform=="linux2":
     # This is a work-around for the fact that SCons doesn't automatically add dependencies for the libraries mentioned in LINKCOM.
-    for LibName in Split("""cfsLib bulletdynamics bulletcollision bulletmath openal alut mpg123 ogg vorbis vorbisfile
+    for LibName in Split("""cfsLib bulletdynamics bulletcollision bulletmath
                             lua lightwave minizip cfs_jpeg"""):   # png and z are not in the list, because we use the system libraries.
         LibFile = envCafu.FindFile("lib" + LibName + ".so", envCafu['LIBPATH'])
         if LibFile==None:

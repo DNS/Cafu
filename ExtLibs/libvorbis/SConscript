@@ -6,6 +6,10 @@ Import('env')
 env_vorbis=env.Clone()
 env_vorbis.Append(CPPPATH=["include", "lib", "#/ExtLibs/libogg/include"])
 
+if sys.platform=="linux2":
+    # These libraries will be linked to a .so, thus we have to compile with -fpic.
+    env_vorbis.Append(CCFLAGS=["-fpic"])
+
 
 env_vorbis.StaticLibrary("vorbis",
     Split("""lib/analysis.c lib/bitrate.c lib/block.c lib/codebook.c lib/envelope.c lib/floor0.c

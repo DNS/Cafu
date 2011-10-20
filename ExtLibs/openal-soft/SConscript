@@ -11,6 +11,10 @@ AlcObjs=Split("Alc/ALc.c Alc/ALu.c Alc/alcConfig.c Alc/alcEcho.c Alc/alcReverb.c
 envOpenALSoft.Append(CPPDEFINES=[('_GNU_SOURCE', '1'), '_REENTRANT', 'AL_BUILD_LIBRARY'])    # 'HAVE_GCC_VISIBILITY'
 envOpenALSoft.Append(CCFLAGS=['-fno-strict-aliasing'])    # '-fvisibility=hidden'
 
+if sys.platform=="linux2":
+    # This library will be linked to a .so, thus we have to compile with -fpic.
+    envOpenALSoft.Append(CCFLAGS=["-fpic"])
 
-envOpenALSoft.SharedLibrary("openal", Glob("OpenAL32/*.c") + AlcObjs,
+
+envOpenALSoft.StaticLibrary("openal", Glob("OpenAL32/*.c") + AlcObjs,
     CPPPATH=[".", "include", "OpenAL32/Include"]);

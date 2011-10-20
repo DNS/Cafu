@@ -238,6 +238,7 @@ if sys.platform=="win32":
         envSoundSys.Append(LIBPATH=['#/ExtLibs/openal-win/libs/Win64'])
 elif sys.platform=="linux2":
     envSoundSys.Append(CPPPATH=['#/ExtLibs/openal-soft/include'])
+    envSoundSys.Append(LIBS=Split("openal alut mpg123 vorbisfile vorbis ogg"))
     envSoundSys.Append(LINKFLAGS=["Libs/SoundSystem/Common/linker-script"])
 
 envSoundSys.SharedLibrary(
