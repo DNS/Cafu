@@ -7,7 +7,7 @@ env_freealut = env.Clone()
 
 # CPPDEFINES created using VC++ project file as template (removed Windows specific DEFINES for Linux build).
 if sys.platform=="win32":
-    env_freealut.Append(CPPDEFINES=['_WINDOWS', '_USRDLL', 'ALUT_EXPORTS', 'WIN32', '_MBCS', 'ALUT_BUILD_LIBRARY', 'HAVE__STAT', 'HAVE_BASETSD_H', 'HAVE_SLEEP', 'HAVE_WINDOWS_H'])
+    env_freealut.Append(CPPDEFINES=['ALUT_EXPORTS', '_MBCS', 'ALUT_BUILD_LIBRARY', 'HAVE__STAT', 'HAVE_BASETSD_H', 'HAVE_SLEEP', 'HAVE_WINDOWS_H'])
     env_freealut.Append(CPPPATH=['include', '#/ExtLibs/openal-win/include'])
     if env_freealut["TARGET_ARCH"]=="x86":
         env_freealut.Append(LIBPATH=['#/ExtLibs/openal-win/libs/Win32'])

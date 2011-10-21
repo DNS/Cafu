@@ -16,7 +16,7 @@
 extern "C" {
 #endif
 
-#if defined(_WIN32) && !defined(_XBOX)
+#if defined(_WIN32) && !defined(_XBOX) && defined(ALUT_BUILD_AS_DLL)    // CF: I added ALUT_BUILD_AS_DLL so that we can build alut as a *static* library as well.
  #if defined (ALUT_BUILD_LIBRARY)
   #define ALUT_API __declspec(dllexport)
  #else

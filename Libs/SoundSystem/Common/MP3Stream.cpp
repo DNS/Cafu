@@ -28,10 +28,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <iostream>
 #include <stdexcept>
 
-#ifdef _WIN32
-// Under Windows, the mpg123 functions must be properly declared for DLL import.
-#define LINK_MPG123_DLL
-#endif
+// #ifdef _WIN32
+// // Under Windows, the mpg123 functions must be properly declared for DLL import.
+// #define LINK_MPG123_DLL
+// #endif
 #include "mpg123.h"
 
 
