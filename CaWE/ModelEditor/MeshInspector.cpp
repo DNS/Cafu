@@ -181,6 +181,9 @@ void MeshInspectorT::RefreshPropGrid()
         wxPGProperty* UseGivenTS=Append(new wxBoolProperty("Use given TS", wxPG_LABEL, false));
         DisableProperty(UseGivenTS);
 
+        wxPGProperty* CastShadows=Append(new wxBoolProperty("Cast Shadows", wxPG_LABEL, true));
+        DisableProperty(CastShadows);
+
         wxPGProperty* NumTriangles=Append(new wxIntProperty("Num Triangles", wxPG_LABEL, Mesh.Triangles.Size()));
         DisableProperty(NumTriangles);
 

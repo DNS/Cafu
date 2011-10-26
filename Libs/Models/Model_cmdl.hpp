@@ -126,12 +126,13 @@ class CafuModelT : public ModelT
         /// @return Whether the vertices are geometrical duplicates of each other.
         bool AreGeoDups(unsigned int Vertex1Nr, unsigned int Vertex2Nr) const;
 
-        std::string              Name;           ///< Name of this mesh.
-        MaterialT*               Material;       ///< The material of this mesh.
-        MatSys::RenderMaterialT* RenderMaterial; ///< The render material used to render this mesh.
-        ArrayT<TriangleT>        Triangles;      ///< List of triangles this mesh consists of.
-        ArrayT<VertexT>          Vertices;       ///< List of vertices this mesh consists of.
-        ArrayT<WeightT>          Weights;        ///< List of weights that are attached to the skeleton (hierarchy of bones/joints).
+        std::string              Name;            ///< Name of this mesh.
+        MaterialT*               Material;        ///< The material of this mesh.
+        MatSys::RenderMaterialT* RenderMaterial;  ///< The render material used to render this mesh.
+     // bool                     CastShadows;     ///< Should this mesh cast shadows?
+        ArrayT<TriangleT>        Triangles;       ///< List of triangles this mesh consists of.
+        ArrayT<VertexT>          Vertices;        ///< List of vertices this mesh consists of.
+        ArrayT<WeightT>          Weights;         ///< List of weights that are attached to the skeleton (hierarchy of bones/joints).
     };
 
 
