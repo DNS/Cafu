@@ -43,7 +43,6 @@ if sys.platform!="win32" or envTools["TARGET_ARCH"]=="x86":
     # Don't build these programs under 64-bit Windows, as they still depend on our legacy 32-bit-only DirectInput code.
     envTools.Program('CaSanity', ['CaTools/CaSanity.cpp'] + CommonWorldObject)
     envTools.Program('MaterialViewer', "CaTools/MaterialViewer.cpp")
-    envTools.Program('ModelViewer', "CaTools/ModelViewer.cpp")
     envTools.Program('TerrainViewer', "CaTools/TerrainViewer.cpp")
     envTools.Program('TerrainViewerOld', "CaTools/TerrainViewerOld.cpp")
 
