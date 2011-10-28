@@ -65,7 +65,7 @@ bool CommandModifyModelT::Do()
     OldBounds.PushBack(m_Model->GetBB());
 
     m_Model->m_ModelFileName    =m_NewModelFileName;
-    m_Model->m_Model            =ModelProxyT(std::string(m_MapDoc.GetGameConfig()->ModDir+"/"+m_NewModelFileName));
+    m_Model->m_Model            =m_MapDoc.GetGameConfig()->GetModel(m_NewModelFileName);
     m_Model->m_CollModelFileName=m_NewCollModelFileName;
     m_Model->m_Label            =m_NewLabel;
     m_Model->m_Scale            =m_NewScale;
@@ -95,7 +95,7 @@ void CommandModifyModelT::Undo()
     OldBounds.PushBack(m_Model->GetBB());
 
     m_Model->m_ModelFileName    =m_OldModelFileName;
-    m_Model->m_Model            =ModelProxyT(std::string(m_MapDoc.GetGameConfig()->ModDir+"/"+m_OldModelFileName));
+    m_Model->m_Model            =m_MapDoc.GetGameConfig()->GetModel(m_OldModelFileName);
     m_Model->m_CollModelFileName=m_OldCollModelFileName;
     m_Model->m_Label            =m_OldLabel;
     m_Model->m_Scale            =m_OldScale;

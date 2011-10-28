@@ -504,7 +504,7 @@ void MapModelT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc)
     MapElementT::Load_cmap(TP, MapDoc);
 
     m_ModelFileName    =TP.GetNextToken();
-    m_Model            =ModelProxyT(std::string(MapDoc.GetGameConfig()->ModDir+"/"+m_ModelFileName));
+    m_Model            =MapDoc.GetGameConfig()->GetModel(m_ModelFileName);
     m_CollModelFileName=TP.GetNextToken();
 
     m_Label=TP.GetNextToken();
@@ -689,7 +689,7 @@ void MapEntityBaseT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, wxProgress
         else if (Token=="ModelDef")
         {
             // A model definition.
-            MapModelT* Model=new MapModelT();
+            MapModelT* Model=new MapModelT(MapDoc, "dummy", Vector3fT());
 
             Model->Load_cmap(TP, MapDoc);
             AddPrim(Model);

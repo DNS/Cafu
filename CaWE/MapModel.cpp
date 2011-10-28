@@ -31,8 +31,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Renderer3D.hpp"
 
 #include "MaterialSystem/Renderer.hpp"
-#include "MaterialSystem/Mesh.hpp"
 #include "Math3D/Matrix3x3.hpp"
+#include "Models/Model_cmdl.hpp"
 
 #include "wx/wx.h"
 
@@ -49,28 +49,10 @@ const cf::TypeSys::TypeInfoT MapModelT::TypeInfo(GetMapElemTIM(), "MapModelT", "
 /*** End of TypeSys related definitions for this class. ***/
 
 
-MapModelT::MapModelT()
-    : MapPrimitiveT(wxColour(150 + (rand() % 106), 150 + (rand() % 106), 0)),
-      m_ModelFileName(""),
-      m_Model(),
-      m_CollModelFileName(""),
-      m_Label(""),
-      m_Angles(),
-      m_Scale(1.0f),
-      m_SeqNumber(0),
-      m_FrameOffset(0.0f),
-      m_FrameTimeScale(1.0f),
-      m_FrameNumber(0.0f),
-      m_Animated(false),
-      m_Timer()
-{
-}
-
-
 MapModelT::MapModelT(MapDocumentT& MapDoc, const wxString& ModelFileName, const Vector3fT& Position)
     : MapPrimitiveT(wxColour(150 + (rand() % 106), 150 + (rand() % 106), 0)),
       m_ModelFileName(ModelFileName),
-      m_Model(std::string(MapDoc.GetGameConfig()->ModDir+"/"+ModelFileName)),
+      m_Model(MapDoc.GetGameConfig()->GetModel(m_ModelFileName)),
       m_Origin(Position),
       m_CollModelFileName(""),
       m_Label(""),
@@ -89,7 +71,7 @@ MapModelT::MapModelT(MapDocumentT& MapDoc, const wxString& ModelFileName, const 
 MapModelT::MapModelT(MapDocumentT& MapDoc, const wxString& ModelFileName, const wxString& CollisionModelFileName, const wxString& Label, const Vector3fT& Position, const Vector3fT& Angles, float Scale, int Sequence, float FrameOffset, float FrameTimeScale, bool Animated)
     : MapPrimitiveT(wxColour(150 + (rand() % 106), 150 + (rand() % 106), 0)),
       m_ModelFileName(ModelFileName),
-      m_Model(std::string(MapDoc.GetGameConfig()->ModDir+"/"+m_ModelFileName)),
+      m_Model(MapDoc.GetGameConfig()->GetModel(m_ModelFileName)),
       m_Origin(Position),
       m_CollModelFileName(CollisionModelFileName),
       m_Label(Label),
@@ -159,7 +141,7 @@ BoundingBox3fT MapModelT::GetBB() const
     // TODO: Cache!
     // The 3D bounds are the bounds of the oriented model's first sequence, so that frustum culling works properly in the 3D view.
     Vector3fT VerticesBB[8];
-    m_Model.GetBB(m_SeqNumber, 0.0f).GetCornerVertices(VerticesBB);
+    m_Model->GetSharedPose(m_SeqNumber, 0.0f)->GetBB().GetCornerVertices(VerticesBB);
 
     // Rotate all eight vertices.
     for (unsigned long VertexNr=0; VertexNr<8; VertexNr++)
@@ -204,9 +186,14 @@ void MapModelT::Render3D(Renderer3DT& Renderer) const
 {
     const Vector3fT ViewPoint=Renderer.GetViewWin3D().GetCamera().Pos;
     const float     ModelDist=length(m_Origin-ViewPoint);
+    AnimPoseT*      Pose     =m_Model->GetSharedPose(m_SeqNumber, m_FrameNumber);
 
     if (Options.view3d.AnimateModels && m_Animated)
-        m_FrameNumber=m_Model.AdvanceFrameNr(m_SeqNumber, m_FrameNumber, float(m_Timer.GetSecondsSinceLastCall())*m_FrameTimeScale);
+    {
+        Pose->Advance(float(m_Timer.GetSecondsSinceLastCall())*m_FrameTimeScale);
+
+        m_FrameNumber=Pose->GetFrameNr();
+    }
 
     if (ModelDist<float(Options.view3d.ModelDistance))
     {
@@ -221,7 +208,7 @@ void MapModelT::Render3D(Renderer3DT& Renderer) const
         MatSys::Renderer->RotateX  (MatSys::RendererI::MODEL_TO_WORLD, m_Angles[ROLL ]);
         MatSys::Renderer->Scale    (MatSys::RendererI::MODEL_TO_WORLD, m_Scale);
 
-        m_Model.Draw(m_SeqNumber, m_FrameNumber, CAFU_ENG_SCALE*ModelDist, NULL);
+        Pose->Draw(-1 /*default skin*/, CAFU_ENG_SCALE*ModelDist);
 
         MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
 

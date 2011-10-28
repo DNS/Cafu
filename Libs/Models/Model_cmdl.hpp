@@ -274,6 +274,9 @@ class CafuModelT : public ModelT
     /// Determines if <tt>GF.Points[PointNr].VertexNr</tt> is a valid index into this model.
     bool IsVertexNrOK(const GuiFixtureT& GF, unsigned int PointNr) const;
 
+    /// This method is strictly for backwards-compatibility only, do not use in new code!
+    AnimPoseT* GetSharedPose(int SequNr, float FrameNr) const;
+
     // The ModelT interface.
     const std::string& GetFileName() const;     // TODO: Remove!?!
     void               Draw(int SequenceNr, float FrameNr, float LodDist, const ModelT* SubModel=NULL) const;

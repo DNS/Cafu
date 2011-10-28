@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "EditorMaterialManager.hpp"
 #include "Math3D/BoundingBox.hpp"
+#include "Models/ModelManager.hpp"
 #include "Templates/Array.hpp"
 #include "wx/wx.h"
 
@@ -58,6 +59,9 @@ class GameConfigT
     EditorMatManT& GetMatMan() { return m_MatMan; }
     const EditorMatManT& GetMatMan() const { return m_MatMan; }
 
+    /// Returns the model for the given FileName that is relative to ModDir.
+    const CafuModelT* GetModel(const wxString& FileName, wxString* ErrorMsg=NULL) const;
+
     int GetMaxMapCoord() const { return  m_MaxMapCoord; }
     int GetMinMapCoord() const { return -m_MaxMapCoord; }
     BoundingBox3fT GetMaxMapBB() const;
@@ -83,10 +87,10 @@ class GameConfigT
     GameConfigT(const GameConfigT&);        ///< Use of the Copy Constructor    is not allowed.
     void operator = (const GameConfigT&);   ///< Use of the Assignment Operator is not allowed.
 
-
     ArrayT<cf::FileSys::FileSystemT*> m_MountedFileSystems;     ///< The file systems that have been mounted for this game config.
     ArrayT<const EntityClassT*>       m_EntityClasses;          ///< The entity classes as obtained from the EntityClassDefs.lua script.
-    EditorMatManT                     m_MatMan;                 ///< This material manager of this game config.
+    EditorMatManT                     m_MatMan;                 ///< The material manager for this game config.
+    ModelManagerT                     m_ModelMan;               ///< The model manager for this game config.
     int                               m_MaxMapCoord;
 };
 

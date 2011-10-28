@@ -23,22 +23,18 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define _MAP_MODEL_HPP_
 
 #include "MapPrimitive.hpp"
-
-#include "Models/Model_proxy.hpp"
 #include "Util/Util.hpp"
 
 
 class MapDocumentT;
+class CafuModelT;
 
 
 class MapModelT : public MapPrimitiveT
 {
     public:
 
-    MapModelT();
-
     MapModelT(MapDocumentT& MapDoc, const wxString& ModelFileName, const Vector3fT& Position);
-
     MapModelT(MapDocumentT& MapDoc, const wxString& ModelFileName, const wxString& CollisionModelFileName, const wxString& Label, const Vector3fT& Position, const Vector3fT& Angles, float Scale, int Sequence, float FrameOffset, float FrameTimeScale, bool Animated);
 
     /// The copy constructor for copying a model.
@@ -82,7 +78,7 @@ class MapModelT : public MapPrimitiveT
     friend class CommandModifyModelT;
 
     wxString           m_ModelFileName;
-    ModelProxyT        m_Model;
+    const CafuModelT*  m_Model;
     Vector3fT          m_Origin;
     wxString           m_CollModelFileName;
     wxString           m_Label;

@@ -355,6 +355,15 @@ bool CafuModelT::IsVertexNrOK(const GuiFixtureT& GF, unsigned int PointNr) const
 }
 
 
+AnimPoseT* CafuModelT::GetSharedPose(int SequNr, float FrameNr) const
+{
+    m_TEMP_Pose->SetSequNr(SequNr);
+    m_TEMP_Pose->SetFrameNr(FrameNr);
+
+    return m_TEMP_Pose;
+}
+
+
 void CafuModelT::RecomputeBindPoseBB()
 {
     ArrayT<MatrixT> JointMatrices;

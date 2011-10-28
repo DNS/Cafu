@@ -23,7 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define _MAP_HELPER_MODEL_HPP_
 
 #include "MapHelper.hpp"
-#include "Models/Model_proxy.hpp"
 #include "Util/Util.hpp"
 
 
@@ -31,6 +30,8 @@ class HelperInfoT;
 class MapEntityT;
 class Renderer2DT;
 class Renderer3DT;
+
+class CafuModelT;
 namespace cf { namespace TypeSys { class TypeInfoT; } }
 namespace cf { namespace TypeSys { class TypeInfoManT; } }
 namespace cf { namespace TypeSys { class CreateParamsT; } }
@@ -69,10 +70,10 @@ class MapHelperModelT : public MapHelperT
     void UpdateModelCache() const;
     int  GetSequenceNr() const;
 
-    const HelperInfoT*  m_HelperInfo;       ///< The HelperInfoT instance that caused the instantiation of this helper.
-    mutable ModelProxyT m_ModelProxy;       ///< Our model (proxy).
-    mutable float       m_ModelFrameNr;     ///< The frame number of the sequence to render this model in.
-    mutable TimerT      m_Timer;
+    const HelperInfoT*        m_HelperInfo;     ///< The HelperInfoT instance that caused the instantiation of this helper.
+    mutable const CafuModelT* m_Model;          ///< Our model (obtained from the game config's model manager).
+    mutable float             m_ModelFrameNr;   ///< The frame number of the sequence to render this model in.
+    mutable TimerT            m_Timer;
 };
 
 #endif

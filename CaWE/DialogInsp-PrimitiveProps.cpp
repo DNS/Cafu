@@ -38,6 +38,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/propgrid/manager.h"
 #include "wx/propgrid/advprops.h"
 
+#include "Models/Model_cmdl.hpp"
 #include "TypeSys.hpp"
 
 
@@ -269,7 +270,7 @@ void InspDlgPrimitivePropsT::UpdateGrid()
 
             MapModelT* Model=(MapModelT*)SelectedPrimitives[i];
 
-            PropMan->AppendIn(Cat, new GameFilePropertyT("Model",           wxPG_LABEL, Model->m_Model.GetFileName(), MapDoc, "All Files (*.*)|*.*|Model files (*.mdl)|*.mdl|Model Files (*.ase)|*.ase|Model Files (*.dlod)|*.dlod", "/Models/"))->SetClientData(Model);
+            PropMan->AppendIn(Cat, new GameFilePropertyT("Model",           wxPG_LABEL, Model->m_Model->GetFileName(), MapDoc, "All Files (*.*)|*.*|Model files (*.mdl)|*.mdl|Model Files (*.ase)|*.ase|Model Files (*.dlod)|*.dlod", "/Models/"))->SetClientData(Model);
             PropMan->AppendIn(Cat, new GameFilePropertyT("Collision Model", wxPG_LABEL, Model->m_CollModelFileName, MapDoc, "Collision Model (*.cmap)|*.cmap|All Files (*.*)|*.*", "/Models/"))->SetClientData(Model);
             PropMan->AppendIn(Cat, new wxStringProperty ("Label",           wxPG_LABEL, Model->m_Label))->SetClientData(Model);
             PropMan->AppendIn(Cat, new wxFloatProperty  ("Scale",           wxPG_LABEL, Model->m_Scale))->SetClientData(Model);

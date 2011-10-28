@@ -33,13 +33,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Mesh.hpp"
 #include "Math3D/BoundingBox.hpp"
 #include "Math3D/Matrix3x3.hpp"
+#include "Models/Model_cmdl.hpp"
 #include "EditorMaterialManager.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "TypeSys.hpp"
-
-#include "wx/wx.h"
-#include "wx/sstream.h"
-#include "wx/txtstrm.h"
 
 
 /*** Begin of TypeSys related definitions for this class. ***/
@@ -57,7 +54,7 @@ const cf::TypeSys::TypeInfoT MapHelperModelT::TypeInfo(GetMapElemTIM(), "MapHelp
 MapHelperModelT::MapHelperModelT(const MapEntityT* ParentEntity, const HelperInfoT* HelperInfo)
     : MapHelperT(ParentEntity),
       m_HelperInfo(HelperInfo),
-      m_ModelProxy(),
+      m_Model(NULL),
       m_ModelFrameNr(0.0f),
       m_Timer()
 {
@@ -67,7 +64,7 @@ MapHelperModelT::MapHelperModelT(const MapEntityT* ParentEntity, const HelperInf
 MapHelperModelT::MapHelperModelT(const MapHelperModelT& Model)
     : MapHelperT(Model),
       m_HelperInfo(Model.m_HelperInfo),
-      m_ModelProxy(Model.m_ModelProxy),
+      m_Model(Model.m_Model),
       m_ModelFrameNr(0.0f),
       m_Timer(Model.m_Timer)
 {
@@ -92,7 +89,7 @@ void MapHelperModelT::Assign(const MapElementT* Elem)
 
     m_ParentEntity=Model->m_ParentEntity;
     m_HelperInfo  =Model->m_HelperInfo;
-    m_ModelProxy  =Model->m_ModelProxy;
+    m_Model       =Model->m_Model;
     m_ModelFrameNr=Model->m_ModelFrameNr;
     m_Timer       =Model->m_Timer;
 }
@@ -109,7 +106,7 @@ BoundingBox3fT MapHelperModelT::GetBB() const
 
     // The 3D bounds are the bounds of the oriented model's first sequence, so that frustum culling works properly in the 3D view.
     Vector3fT VerticesBB[8];
-    m_ModelProxy.GetBB(GetSequenceNr(), 0.0f).GetCornerVertices(VerticesBB);
+    m_Model->GetSharedPose(GetSequenceNr(), 0.0f)->GetBB().GetCornerVertices(VerticesBB);
 
     // Rotate all eight vertices.
     for (unsigned long VertexNr=0; VertexNr<8; VertexNr++)
@@ -145,9 +142,14 @@ void MapHelperModelT::Render3D(Renderer3DT& Renderer) const
 
     const Vector3fT ViewPoint=Renderer.GetViewWin3D().GetCamera().Pos;
     const float     ModelDist=length(Origin-ViewPoint);
+    AnimPoseT*      Pose     =m_Model->GetSharedPose(SequenceNr, m_ModelFrameNr);
 
     if (Options.view3d.AnimateModels)
-        m_ModelFrameNr=m_ModelProxy.AdvanceFrameNr(SequenceNr, m_ModelFrameNr, float(m_Timer.GetSecondsSinceLastCall()));
+    {
+        Pose->Advance(float(m_Timer.GetSecondsSinceLastCall()));
+
+        m_ModelFrameNr=Pose->GetFrameNr();
+    }
 
     if (ModelDist < float(Options.view3d.ModelDistance))
     {
@@ -162,7 +164,7 @@ void MapHelperModelT::Render3D(Renderer3DT& Renderer) const
         MatSys::Renderer->RotateY  (MatSys::RendererI::MODEL_TO_WORLD, -Angles[PITCH]);
         MatSys::Renderer->RotateX  (MatSys::RendererI::MODEL_TO_WORLD,  Angles[ROLL ]);
 
-        m_ModelProxy.Draw(SequenceNr, m_ModelFrameNr, CAFU_ENG_SCALE*ModelDist, NULL);
+        Pose->Draw(-1 /*default skin*/, CAFU_ENG_SCALE*ModelDist);
 
         MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
 
@@ -179,28 +181,33 @@ void MapHelperModelT::Render3D(Renderer3DT& Renderer) const
 
 void MapHelperModelT::UpdateModelCache() const
 {
-    const wxString* ModelName=m_HelperInfo->Parameters.Size()>0 ? &m_HelperInfo->Parameters[0] : NULL;
+    wxString ModelName="";
+    wxString ErrorMsg ="";
 
-    // If we weren't passed a model name as an argument, get it from our parent entity's "model" property.
-    if (ModelName==NULL)
+    if (m_HelperInfo->Parameters.Size() > 0)
     {
+        ModelName=m_HelperInfo->Parameters[0];
+    }
+    else
+    {
+        // If we weren't passed a model name as an argument, get it from our parent entity's "model" property.
         // Calling FindProperty() each render frame is not particularly efficient...
         const EntPropertyT* ModelProp=m_ParentEntity->FindProperty("model");
 
-        if (ModelProp) ModelName=&ModelProp->Value;
+        if (ModelProp) ModelName=ModelProp->Value;
     }
 
-    // If the helper info has no argument and the parent has no "model" property, we shouldn't have gotten here.
-    if (ModelName==NULL) return;
+    const CafuModelT* Model=m_ParentEntity->GetClass()->GetGameConfig().GetModel(ModelName, &ErrorMsg);
 
-    const wxString FullName=m_ParentEntity->GetClass()->GetGameConfig().ModDir+"/"+(*ModelName);
+    if (m_Model!=Model)
+    {
+        const std::string PrevFileName=m_Model ? m_Model->GetFileName() : "<none>";
 
-    if (m_ModelProxy.GetFileName()==FullName) return;
+        wxLogDebug("MapHelperModelT::UpdateModelCache(): Updating model from %s to %s. %s", PrevFileName, Model->GetFileName(), ErrorMsg);
 
-    wxLogDebug("MapHelperModelT::UpdateModelCache(): Updating model from %s to %s.", m_ModelProxy.GetFileName(), FullName);
-
-    m_ModelProxy=ModelProxyT(std::string(FullName));
-    m_ModelFrameNr=0.0f;
+        m_Model       =Model;
+        m_ModelFrameNr=0.0f;
+    }
 }
 
 
