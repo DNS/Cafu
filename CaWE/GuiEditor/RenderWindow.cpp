@@ -27,7 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../AppCaWE.hpp"
 
 #include "MaterialSystem/Renderer.hpp"
-#include "GuiSys/GuiMan.hpp" // For virtual screen sizes.
+#include "GuiSys/Gui.hpp"
 #include "GuiSys/Window.hpp"
 
 #include "Math3D/Matrix.hpp"

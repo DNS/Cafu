@@ -40,6 +40,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "MaterialSystem/TextureMap.hpp"
+#include "Models/ModelManager.hpp"
 #include "OpenGL/OpenGLWindow.hpp"  // For CaMouseEventT and CaKeyboardEventT.
 #include "SoundSystem/SoundShaderManager.hpp"
 #include "SoundSystem/SoundSys.hpp"
@@ -112,6 +113,8 @@ MainCanvasT::MainCanvasT(MainFrameT* Parent)
       m_InitState(INIT_REQUIRED),
       m_GLContext(NULL),
       m_RendererDLL(NULL),
+      m_ModelManager(NULL),
+      m_GuiResources(NULL),
       m_SoundSysDLL(NULL),
       m_GameDLL(NULL),
       m_Client(NULL),
@@ -183,6 +186,22 @@ MainCanvasT::~MainCanvasT()
     {
         FreeLibrary(m_SoundSysDLL);
         m_SoundSysDLL=NULL;
+    }
+
+
+    // Release the GUI resources.
+    if (m_GuiResources)
+    {
+        delete m_GuiResources;
+        m_GuiResources=NULL;
+    }
+
+
+    // Release the model manager.
+    if (m_ModelManager)
+    {
+        delete m_ModelManager;
+        m_ModelManager=NULL;
     }
 
 
@@ -317,6 +336,11 @@ void MainCanvasT::Initialize()
         }
 
 
+        // Initialize the model manager and the GUI resources.
+        m_ModelManager=new ModelManagerT();
+        m_GuiResources=new cf::GuiSys::GuiResourcesT(*m_ModelManager);
+
+
         // Initialize the sound system.
         const wxString SoundSysName=wxString(Options_ClientDesiredSoundSystem.GetValueString()).Trim();
 
@@ -372,7 +396,7 @@ void MainCanvasT::Initialize()
         //     (This is no longer exactly true: each GUI has now its own local material manager! See r359 from 2011-08-29 for details.)
         //   - It has to be done *before* the game is initialized, because even the server needs access to it
         //     when it loads static detail model entities that have world/entity-GUIs.
-        cf::GuiSys::GuiMan=new cf::GuiSys::GuiManImplT;
+        cf::GuiSys::GuiMan=new cf::GuiSys::GuiManImplT(*m_GuiResources);
 
 
         // Provide a definition for Game, that is, set the global (Cafu.exe-wide) cf::GameSys::Game pointer
@@ -396,7 +420,7 @@ void MainCanvasT::Initialize()
         // Finish the initialization of the GuiSys.
         // Note that in the line below, the call to gui:setMousePos() is important, because it sets "MouseOverWindow" in the GUI properly to "Cl".
         // Without this, a left mouse button click that was not preceeded by a mouse movement would erroneously remove the input focus from "Cl".
-        cf::GuiSys::GuiImplT* ClientGui   =new cf::GuiSys::GuiImplT("Cl=gui:new('ClientWindowT'); gui:SetRootWindow(Cl); gui:showMouse(false); gui:setMousePos(320, 240); gui:setFocus(Cl); Cl:SetName('Client');", true);
+        cf::GuiSys::GuiImplT* ClientGui   =new cf::GuiSys::GuiImplT(*m_GuiResources, "Cl=gui:new('ClientWindowT'); gui:SetRootWindow(Cl); gui:showMouse(false); gui:setMousePos(320, 240); gui:setFocus(Cl); Cl:SetName('Client');", true);
         cf::GuiSys::WindowT*  ClientWindow=ClientGui->GetRootWindow()->Find("Client");
         ClientWindowT*        ClWin       =dynamic_cast<ClientWindowT*>(ClientWindow);
 
@@ -408,7 +432,7 @@ void MainCanvasT::Initialize()
         cf::GuiSys::GuiI* MainMenuGui=cf::GuiSys::GuiMan->Find("Games/"+Options_ServerGameName.GetValueString()+"/GUIs/MainMenu/MainMenu_main.cgui", true);
         if (MainMenuGui==NULL)
         {
-            MainMenuGui=new cf::GuiSys::GuiImplT("Err=gui:new('WindowT'); gui:SetRootWindow(Err); gui:activate(true); gui:setInteractive(true); gui:showMouse(true); Err:set('rect', 0, 0, 640, 480); Err:set('text', 'Error loading MainMenu_main.cgui,\\nsee console <F1> for details.');", true);
+            MainMenuGui=new cf::GuiSys::GuiImplT(*m_GuiResources, "Err=gui:new('WindowT'); gui:SetRootWindow(Err); gui:activate(true); gui:setInteractive(true); gui:showMouse(true); Err:set('rect', 0, 0, 640, 480); Err:set('text', 'Error loading MainMenu_main.cgui,\\nsee console <F1> for details.');", true);
             cf::GuiSys::GuiMan->Register(MainMenuGui);
         }
         m_Client->SetMainMenuGui(MainMenuGui);

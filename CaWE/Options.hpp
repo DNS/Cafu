@@ -101,6 +101,7 @@ class OptionsT
 
     void Init();
     void Write() const;
+    void DeleteGameConfigs();
 
     GeneralT             general;
     View2DT              view2d;

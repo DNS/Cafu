@@ -35,7 +35,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/Console.hpp"
 #include "FileSys/FileManImpl.hpp"
 #include "GuiSys/GuiImpl.hpp"   // Needed to catch InitErrorT if GUI document creation fails.
-#include "GuiSys/GuiManImpl.hpp"
 #include "MaterialSystem/MapComposition.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "MaterialSystem/TextureMap.hpp"
@@ -184,12 +183,8 @@ ParentFrameT::~ParentFrameT()
 {
     m_FileHistory.Save(*wxConfigBase::Get());
 
-    // Release the GuiManager (BEFORE the renderer).
-    if (cf::GuiSys::GuiMan!=NULL)
-    {
-        delete cf::GuiSys::GuiMan;
-        cf::GuiSys::GuiMan=NULL;
-    }
+    // Release the resources in the game configs before releasing the material system below.
+    Options.DeleteGameConfigs();
 
     // Release the Cafu Material System.
     if (MatSys::TextureMapManager!=NULL)
@@ -304,13 +299,6 @@ void ParentFrameT::OnShow(wxShowEvent& SE)
 
         MatSys::Renderer->SetCurrentLightMap(m_WhiteTexture);
         MatSys::Renderer->SetCurrentLightDirMap(NULL);  // The MatSys provides a default for LightDirMaps when NULL is set.
-
-
-        // Initialize the GUI manager.
-        // This has to be done after all materials are loaded (AppCaWE::OnInit()) and after the MatSys::Renderer has been initialized,
-        // so that the GuiManager finds its default material and can register it for rendering.
-        // (This is no longer exactly true: each GUI has now its own local material manager! See r359 from 2011-08-29 for details.)
-        cf::GuiSys::GuiMan=new cf::GuiSys::GuiManImplT();
     }
 }
 

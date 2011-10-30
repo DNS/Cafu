@@ -23,7 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../ParentFrame.hpp"
 #include "../AppCaWE.hpp"
 
-#include "GuiSys/GuiMan.hpp"        // For virtual screen sizes.
 #include "GuiSys/GuiImpl.hpp"
 #include "OpenGL/OpenGLWindow.hpp"  // For CaMouseEventT and CaKeyboardEventT.
 #include "MaterialSystem/Renderer.hpp"

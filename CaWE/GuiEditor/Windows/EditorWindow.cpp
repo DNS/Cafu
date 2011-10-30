@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../ChildFrame.hpp"
 #include "../GuiDocument.hpp"
 #include "../Commands/ModifyWindow.hpp"
+#include "../Commands/SetWinProp.hpp"
 #include "../../EditorMaterial.hpp"
 #include "../../MaterialBrowser/DocAccess.hpp"
 #include "../../MaterialBrowser/MaterialBrowserDialog.hpp"
@@ -321,8 +322,9 @@ bool EditorWindowT::HandlePGChange(wxPropertyGridEvent& Event, GuiEditor::ChildF
     }
     else if (PropName=="FontName")
     {
-        // Specially treated by command.
-        ChildFrame->SubmitCommand(new CommandModifyWindowT(m_GuiDoc, m_Win, PropName, DummyVar, Prop->GetValueAsString()));
+        cf::TrueTypeFontT* NewFont=m_Win->GetGui().GetGuiResources().GetFont(std::string(Prop->GetValueAsString()));
+
+        ChildFrame->SubmitCommand(new CommandSetWinPropT<cf::TrueTypeFontT*>(m_GuiDoc, this, PropName, m_Win->Font, NewFont));
     }
     else if (PropName=="Text")
     {

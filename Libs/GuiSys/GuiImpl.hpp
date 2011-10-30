@@ -31,7 +31,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 namespace cf { namespace TypeSys { class TypeInfoT; } }
+namespace cf { class TrueTypeFontT; }
 namespace MatSys { class RenderMaterialT; }
+class CafuModelT;
+class ModelManagerT;
 struct lua_State;
 
 
@@ -39,6 +42,39 @@ namespace cf
 {
     namespace GuiSys
     {
+        /// This class manages and provides resources (fonts and models) for GuiImplT instances.
+        /// One GuiResourcesT can be commonly used for several GuiImplT instances at once.
+        class GuiResourcesT
+        {
+            public:
+
+            /// The constructor.
+            GuiResourcesT(ModelManagerT& ModelMan);
+
+            /// The destructor.
+            ~GuiResourcesT();
+
+            /// Returns (a pointer to) a font instance for the given filename.
+            /// The returned font instance is possibly shared with other users, and must not be deleted.
+            /// @param FontName   The name of the font to return.
+            /// @returns A pointer to the specified font, or NULL if there was an error (e.g. the font could not be loaded).
+            TrueTypeFontT* GetFont(const std::string& FontName);
+
+            /// Returns (a pointer to) a model instance for the given filename.
+            /// @see ModelManagerT::GetModel() for more details.
+            const CafuModelT* GetModel(const std::string& FileName, std::string& ErrorMsg);
+
+
+            private:
+
+            GuiResourcesT(const GuiResourcesT&);        ///< Use of the Copy Constructor    is not allowed.
+            void operator = (const GuiResourcesT&);     ///< Use of the Assignment Operator is not allowed.
+
+            ArrayT<TrueTypeFontT*> m_Fonts;     ///< The fonts that are used within the GUIs.
+            ModelManagerT&         m_ModelMan;  ///< The model manager from which any models that occur in the GUIs are aquired.
+        };
+
+
         /// This class implements the GuiI interface.
         /// TODO / FIXME:
         /// - Should we use different metatables for the table representation of a window and its userdata item (contained at table index __userdata_cf)?
@@ -54,10 +90,11 @@ namespace cf
 
 
             /// Constructor for creating a window hierarchy (=="a GUI") from the GUI script file GuiScriptName.
-            /// @param GuiScriptName The file name of the GUI script to load or inline script code (depending on IsInlineCode).
-            /// @param IsInlineCode Whether GuIScriptName is inline script code or a filename.
+            /// @param GuiRes          The provider for resources (fonts and models) that are used in this GUI.
+            /// @param GuiScriptName   The file name of the GUI script to load or inline script code (depending on IsInlineCode).
+            /// @param IsInlineCode    Whether GuiScriptName is inline script code or a filename.
             /// @throws an InitErrorT object on problems initializing the GUI.
-            GuiImplT(const std::string& GuiScriptName, bool IsInlineCode=false);
+            GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool IsInlineCode=false);
 
             /// The destructor.
             ~GuiImplT();
@@ -75,6 +112,9 @@ namespace cf
 
             /// Returns the (default) RenderMaterialT for the mouse pointer.
             MatSys::RenderMaterialT* GetPointerRM() const;
+
+            /// Returns the resource provider for fonts and models that are used in this GUI.
+            GuiResourcesT& GetGuiResources() const { return m_GuiResources; }
 
 
             // Implement all the (pure) virtual methods of the GuiI interface.
@@ -132,6 +172,7 @@ namespace cf
             MaterialManagerImplT     m_MaterialMan;     ///< The material manager for the materials that are used in this GUI.
             MatSys::RenderMaterialT* m_GuiDefaultRM;    ///< Used for the window borders and the backgrounds if no other material is specified.
             MatSys::RenderMaterialT* m_GuiPointerRM;    ///< Used for the mouse pointer.
+            GuiResourcesT&           m_GuiResources;    ///< The provider for resources (fonts and models) that are used in this GUI.
 
             WindowPtrT               RootWindow;        ///< The root window of the window hierarchy that forms this GUI.
             WindowPtrT               FocusWindow;       ///< The window in the hierachy that currently has the (keyboard) input focus.

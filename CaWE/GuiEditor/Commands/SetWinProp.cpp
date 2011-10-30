@@ -75,4 +75,7 @@ wxString CommandSetWinPropT<T>::GetName() const
 }
 
 
+namespace cf { class TrueTypeFontT; }
+
 template class CommandSetWinPropT< ArrayT<std::string> >;
+template class CommandSetWinPropT< cf::TrueTypeFontT* >;

@@ -20,15 +20,16 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "GuiImpl.hpp"
-#include "GuiMan.hpp"
 #include "Window.hpp"
 #include "WindowCreateParams.hpp"
 #include "ConsoleCommands/Console.hpp"
 #include "ConsoleCommands/Console_Lua.hpp"
 #include "ConsoleCommands/ConsoleInterpreter.hpp"
+#include "Fonts/FontTT.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/Mesh.hpp"
 #include "MaterialSystem/Renderer.hpp"
+#include "Models/ModelManager.hpp"
 #include "OpenGL/OpenGLWindow.hpp"  // Just for the Ca*EventT classes...
 #include "String.hpp"
 #include "TypeSys.hpp"
@@ -56,19 +57,65 @@ extern "C"
 using namespace cf::GuiSys;
 
 
+GuiResourcesT::GuiResourcesT(ModelManagerT& ModelMan)
+    : m_ModelMan(ModelMan)
+{
+}
+
+
+GuiResourcesT::~GuiResourcesT()
+{
+    for (unsigned long FontNr=0; FontNr<m_Fonts.Size(); FontNr++)
+        delete m_Fonts[FontNr];
+}
+
+
+cf::TrueTypeFontT* GuiResourcesT::GetFont(const std::string& FontName)
+{
+    // See if FontName has been loaded successfully before.
+    for (unsigned long FontNr=0; FontNr<m_Fonts.Size(); FontNr++)
+        if (m_Fonts[FontNr]->GetName()==FontName)
+            return m_Fonts[FontNr];
+
+    // See if FontName has been loaded UNsuccessfully before.
+ // for (unsigned long FontNr=0; FontNr<m_FontsFailed.Size(); FontNr++)
+ //     if (m_FontsFailed[FontNr]==FontName)
+ //         return NULL;
+
+    // FontName has never been attempted to be loaded, try now.
+    try
+    {
+        m_Fonts.PushBack(new cf::TrueTypeFontT(FontName));
+        return m_Fonts[m_Fonts.Size()-1];
+    }
+    catch (const TextParserT::ParseError&) { }
+
+    Console->Warning(std::string("Failed to load font \"")+FontName+"\".\n");
+ // FontsFailed.PushBack(FontName);
+    return m_Fonts.Size()>0 ? m_Fonts[0] : NULL;
+}
+
+
+const CafuModelT* GuiResourcesT::GetModel(const std::string& FileName, std::string& ErrorMsg)
+{
+    return m_ModelMan.GetModel(FileName, ErrorMsg);
+}
+
+
 GuiImplT::InitErrorT::InitErrorT(const std::string& Message)
     : std::runtime_error(Message)
 {
 }
 
 
-GuiImplT::GuiImplT(const std::string& GuiScriptName, bool IsInlineCode)
+GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool IsInlineCode)
     : ScriptName(IsInlineCode ? "" : GuiScriptName),
       LuaState(NULL),
       ScriptInitResult(""),
       m_MaterialMan(),
       m_GuiDefaultRM(NULL),
       m_GuiPointerRM(NULL),
+      m_GuiResources(GuiRes),
       RootWindow(NULL),
       FocusWindow(NULL),
       MouseOverWindow(NULL),

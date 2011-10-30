@@ -31,17 +31,9 @@ struct CaMouseEventT;
 
 namespace cf
 {
-    class TrueTypeFontT;
-
-
     namespace GuiSys
     {
         class GuiI;
-
-        /// Note that it is very difficult to change these constants later, because then all GUI scripts
-        /// in the world had to be changed too (and in a non-trivial way)!
-        const float VIRTUAL_SCREEN_SIZE_X=640.0f;
-        const float VIRTUAL_SCREEN_SIZE_Y=480.0f;
 
 
         /// This class provides an interface to a GUI manager.
@@ -95,13 +87,6 @@ namespace cf
             /// to all their (sub-)windows, even if that part of the window(-hierarchy) is currently invisible.
             /// @param t   The time in seconds since the last clock-tick.
             virtual void DistributeClockTickEvents(float t)=0;
-
-            /// Returns (a pointer to) the font with name FontName.
-            /// The returned pointer is valid throughout the lifetime of the implementation of this GuiManI,
-            /// and must not be freed (the GuiMan retains the ownership of the font).
-            /// @param FontName Name of the font to get.
-            /// @returns a pointer to the desired font, or NULL if there was an error (e.g. the font could not be loaded).
-            virtual TrueTypeFontT* GetFont(const std::string& FontName)=0;
 
             /// The destructor.
             /// This ABC does neither have nor need a destructor, because no implementation will ever be deleted via a pointer to a GuiManI.

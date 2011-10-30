@@ -27,7 +27,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "TextParser/TextParser.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"
-#include "Fonts/FontTT.hpp"                     // For dealing with the default font.
 #include "OpenGL/OpenGLWindow.hpp"              // Just for the Ca*EventT classes...
 
 #include <assert.h>
@@ -38,8 +37,9 @@ using namespace cf::GuiSys;
 static const unsigned long InitDummy=InitWindowTypes();
 
 
-GuiManImplT::GuiManImplT()
-    : SuppressNextChar(false)
+GuiManImplT::GuiManImplT(GuiResourcesT& GuiRes)
+    : m_GuiResources(GuiRes),
+      SuppressNextChar(false)
 {
     assert(MatSys::Renderer!=NULL);
 }
@@ -50,10 +50,6 @@ GuiManImplT::~GuiManImplT()
     // Delete all the GUIs.
     for (unsigned long GuiNr=0; GuiNr<Guis.Size(); GuiNr++)
         delete Guis[GuiNr];
-
-    // Free the Fonts.
-    for (unsigned long FontNr=0; FontNr<Fonts.Size(); FontNr++)
-        delete Fonts[FontNr];
 }
 
 
@@ -61,7 +57,7 @@ GuiI* GuiManImplT::Register(const std::string& GuiScriptName)
 {
     try
     {
-        Guis.PushBack(new GuiImplT(GuiScriptName));
+        Guis.PushBack(new GuiImplT(m_GuiResources, GuiScriptName));
 
         return Guis[Guis.Size()-1];
     }
@@ -138,7 +134,7 @@ void GuiManImplT::ReloadAllGuis()
 
         try
         {
-            GuiI* Reloaded=new GuiImplT(Guis[GuiNr]->GetScriptName());
+            GuiI* Reloaded=new GuiImplT(m_GuiResources, Guis[GuiNr]->GetScriptName());
 
             delete Guis[GuiNr];
             Guis[GuiNr]=Reloaded;
@@ -234,30 +230,4 @@ void GuiManImplT::DistributeClockTickEvents(float t)
         // because we want to run the pending coroutines of a GUI even if it isn't active.
         Guis[GuiNr]->DistributeClockTickEvents(t);
     }
-}
-
-
-cf::TrueTypeFontT* GuiManImplT::GetFont(const std::string& FontName)
-{
-    // See if FontName has been loaded successfully before.
-    for (unsigned long FontNr=0; FontNr<Fonts.Size(); FontNr++)
-        if (Fonts[FontNr]->GetName()==FontName)
-            return Fonts[FontNr];
-
-    // See if FontName has been loaded UNsuccessfully before.
- // for (unsigned long FontNr=0; FontNr<FontsFailed.Size(); FontNr++)
- //     if (FontsFailed[FontNr]==FontName)
- //         return NULL;
-
-    // FontName has never been attempted to be loaded, try now.
-    try
-    {
-        Fonts.PushBack(new cf::TrueTypeFontT(FontName));
-        return Fonts[Fonts.Size()-1];
-    }
-    catch (const TextParserT::ParseError&) { }
-
-    Console->Warning(std::string("Failed to load font \"")+FontName+"\".\n");
- // FontsFailed.PushBack(FontName);
-    return Fonts.Size()>0 ? Fonts[0] : NULL;
 }

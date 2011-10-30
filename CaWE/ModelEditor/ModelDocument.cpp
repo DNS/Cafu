@@ -70,7 +70,8 @@ ModelEditor::ModelDocumentT::ModelDocumentT(GameConfigT* GameConfig, const wxStr
       m_SequenceBB(m_Model->GetBB(-1, 0.0f)),
       m_AnimState(*m_Model),
       m_Submodels(),
-      m_Gui(new cf::GuiSys::GuiImplT("Win1=gui:new('WindowT'); gui:SetRootWindow(Win1); gui:activate(true); "
+      m_Gui(new cf::GuiSys::GuiImplT(GameConfig->GetGuiResources(),
+          "Win1=gui:new('WindowT'); gui:SetRootWindow(Win1); gui:activate(true); "
           "gui:setInteractive(true); gui:showMouse(true); Win1:set('rect', 0, 0, 640, 480); "
           "Win1:set('backColor', 150/255, 170/255, 204/255, 0.8); "
           "Win1:set('textAlignHor', 2); Win1:set('textAlignVer', 2); "

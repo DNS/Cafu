@@ -23,7 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define _GUIEDITOR_GUI_DOCUMENT_HPP_
 
 #include "ObserverPattern.hpp"
-
 #include "wx/wx.h"
 
 

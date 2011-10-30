@@ -36,6 +36,8 @@ GameConfigT::GameConfigT(wxFileConfig& CfgFile, const wxString& Name_, const wxS
     : Name(Name_),
       ModDir(ModDir_),
       m_MatMan(*this),
+      m_ModelMan(),
+      m_GuiResources(m_ModelMan),
       m_MaxMapCoord(8192)
 {
     // The next line doesn't work with wx 2.6.4, it always returns the default value 1.0.

@@ -105,7 +105,7 @@ WindowT::WindowT(const WindowCreateParamsT& Params)
    // BackColor(),
       BorderWidth(0.0f),
    // BorderColor(),
-      Font(GuiMan->GetFont(DEFAULT_FONT_NAME)),
+      Font(Params.Gui.GetGuiResources().GetFont(DEFAULT_FONT_NAME)),
       Text(""),
       TextScale(1.0f),
    // TextColor(),
@@ -139,7 +139,7 @@ WindowT::WindowT(const WindowT& Window, bool Recursive)
       BackRenderMat(NULL),
       BackRenderMatName(Window.BackRenderMatName),
       BorderWidth(Window.BorderWidth),
-      Font(GuiMan->GetFont(Window.Font->GetName())),
+      Font(Window.Font),
       Text(Window.Text),
       TextScale(Window.TextScale),
       TextAlignHor(Window.TextAlignHor),
@@ -726,7 +726,7 @@ int WindowT::Set(lua_State* LuaState)
         {
             const std::string FontName=luaL_checkstring(LuaState, 3);
 
-            Win->Font=GuiMan->GetFont(FontName);
+            Win->Font=Win->m_Gui.GetGuiResources().GetFont(FontName);
             return 0;
         }
 

@@ -33,8 +33,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 OptionsT::~OptionsT()
 {
-    for (unsigned long i=0; i<GameConfigs.Size(); i++)
-        delete GameConfigs[i];
+    DeleteGameConfigs();
 }
 
 
@@ -219,4 +218,13 @@ void OptionsT::Write() const
         GameConfigs[ConfigNr]->Save(CfgFile);
         CfgFile.SetPath("..");
     }
+}
+
+
+void OptionsT::DeleteGameConfigs()
+{
+    for (unsigned long i=0; i<GameConfigs.Size(); i++)
+        delete GameConfigs[i];
+
+    GameConfigs.Clear();
 }

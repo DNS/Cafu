@@ -52,7 +52,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/ConVar.hpp"
 #include "ConsoleCommands/ConFunc.hpp"
 #include "FileSys/FileManImpl.hpp"
-#include "GuiSys/GuiMan.hpp"
 #include "GuiSys/Window.hpp"
 #include "MaterialSystem/MaterialManagerImpl.hpp"
 #include "TypeSys.hpp"
@@ -74,7 +73,6 @@ cf::ClipSys::CollModelManI* cf::ClipSys::CollModelMan=&CCM;
 
 ConsoleInterpreterI* ConsoleInterpreter=NULL;
 MaterialManagerI*    MaterialManager   =NULL;
-cf::GuiSys::GuiManI* cf::GuiSys::GuiMan=NULL;
 
 
 OptionsT Options;

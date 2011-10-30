@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define _CF_MODEL_MANAGER_HPP_
 
 #include <map>
+#include <string>
 
 
 class CafuModelT;

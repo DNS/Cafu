@@ -30,6 +30,9 @@ namespace cf
 {
     namespace GuiSys
     {
+        class GuiResourcesT;
+
+
         /// This class implements the GuiManI interface.
         class GuiManImplT : public GuiManI
         {
@@ -37,7 +40,7 @@ namespace cf
 
             /// The constructor.
             /// The MatSys *must* be initialized *before* this constructor is called (i.e. a GuiManImplT is instantiated)!
-            GuiManImplT();
+            GuiManImplT(GuiResourcesT& GuiRes);
 
             /// The destructor.
             ~GuiManImplT();
@@ -55,7 +58,6 @@ namespace cf
             void ProcessDeviceEvent(const CaKeyboardEventT& KE);
             void ProcessDeviceEvent(const CaMouseEventT& ME);
             void DistributeClockTickEvents(float t);
-            TrueTypeFontT* GetFont(const std::string& FontName);
 
 
             private:
@@ -63,10 +65,9 @@ namespace cf
             GuiManImplT(const GuiManImplT&);            ///< Use of the Copy Constructor    is not allowed.
             void operator = (const GuiManImplT&);       ///< Use of the Assignment Operator is not allowed.
 
-            ArrayT<GuiI*>          Guis;
-            ArrayT<TrueTypeFontT*> Fonts;               ///< The fonts that are used with the GUIs. We manage a GuiMan-global pool here in order to avoid instance duplication if multiple GUIs use the same font.
-         // ArrayT<std::string>    FontsFailed;         ///< The fonts that have been attempted to load, but failed (kept in order to avoid retries).
-            bool                   SuppressNextChar;    ///< Whether the next character (CaKeyboardEventT::CKE_CHAR) event should be suppressed. This is true whenever the preceeding CaKeyboardEventT::CKE_KEYDOWN event was positively processed.
+            GuiResourcesT& m_GuiResources;      ///< The provider for resources (fonts and models) that are used in the GUIs created by this GuiMan.
+            ArrayT<GuiI*>  Guis;
+            bool           SuppressNextChar;    ///< Whether the next character (CaKeyboardEventT::CKE_CHAR) event should be suppressed. This is true whenever the preceeding CaKeyboardEventT::CKE_KEYDOWN event was positively processed.
         };
     }
 }

@@ -36,6 +36,8 @@ class wxGLContext;
 class ClientT;
 class ServerT;
 class SvGuiCallbT;
+class ModelManagerT;
+namespace cf { namespace GuiSys { class GuiResourcesT; } }
 namespace cf { class ConsoleI; }
 
 
@@ -74,19 +76,21 @@ class MainCanvasT : public wxGLCanvas
     void OnKeyUp  (wxKeyEvent& KE);
     void OnKeyChar(wxKeyEvent& KE);
 
-    MainFrameT*   m_Parent;
-    InitStateT    m_InitState;      ///< Indicates whether initialization is still required, was attempted but failed, or completed successfully.
-    wxGLContext*  m_GLContext;      ///< The OpenGL rendering context that represents our app-global OpenGL state.
-    HMODULE       m_RendererDLL;
-    HMODULE       m_SoundSysDLL;
-    HMODULE       m_GameDLL;
-    ClientT*      m_Client;
-    ServerT*      m_Server;
-    SvGuiCallbT*  m_SvGuiCallback;
-    cf::ConsoleI* m_ConByGuiWin;    ///< This points to an instance of cf::GuiSys::ConsoleByWindowT.
-    TimerT        m_Timer;
-    double        m_TotalTime;
-    LastMousePosT m_LastMousePos;   ///< Used to prevent unwanted changes to the players heading and pitch when we're switching back from a 2D GUI to the 3D client view.
+    MainFrameT*                m_Parent;
+    InitStateT                 m_InitState;     ///< Indicates whether initialization is still required, was attempted but failed, or completed successfully.
+    wxGLContext*               m_GLContext;     ///< The OpenGL rendering context that represents our app-global OpenGL state.
+    HMODULE                    m_RendererDLL;
+    ModelManagerT*             m_ModelManager;
+    cf::GuiSys::GuiResourcesT* m_GuiResources;
+    HMODULE                    m_SoundSysDLL;
+    HMODULE                    m_GameDLL;
+    ClientT*                   m_Client;
+    ServerT*                   m_Server;
+    SvGuiCallbT*               m_SvGuiCallback;
+    cf::ConsoleI*              m_ConByGuiWin;   ///< This points to an instance of cf::GuiSys::ConsoleByWindowT.
+    TimerT                     m_Timer;
+    double                     m_TotalTime;
+    LastMousePosT              m_LastMousePos;  ///< Used to prevent unwanted changes to the players heading and pitch when we're switching back from a 2D GUI to the 3D client view.
 
     DECLARE_EVENT_TABLE()
 };

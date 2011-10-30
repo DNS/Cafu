@@ -35,6 +35,12 @@ namespace cf
 {
     namespace GuiSys
     {
+        /// Note that it is very difficult to change these constants later, because then all GUI scripts
+        /// in the world had to be changed too (and in a non-trivial way)!
+        const float VIRTUAL_SCREEN_SIZE_X=640.0f;
+        const float VIRTUAL_SCREEN_SIZE_Y=480.0f;
+
+
         /// General GUI interface.
         class GuiI
         {

@@ -104,7 +104,7 @@ class AnimPoseT
     /// The destructor.
     ~AnimPoseT();
 
-    /// @param SequenceNr   The number of the animation sequence to use, -1 for the bind pose.
+    /// @param SequNr   The number of the animation sequence to use, -1 for the bind pose.
     void SetSequNr(int SequNr);
 
     float GetFrameNr() const { return m_FrameNr; }
