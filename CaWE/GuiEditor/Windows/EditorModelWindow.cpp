@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "GuiSys/WindowModel.hpp"
 #include "GuiSys/WindowCreateParams.hpp"
+#include "Models/Model_cmdl.hpp"
 
 #include "wx/propgrid/manager.h"
 
@@ -44,7 +45,7 @@ void EditorModelWindowT::FillInPG(wxPropertyGridManager* PropMan)
 {
     EditorWindowT::FillInPG(PropMan);
 
-    PropMan->Append(new wxStringProperty("Model", wxPG_LABEL, m_ModelWindow->GetModel().GetFileName()));
+    PropMan->Append(new wxStringProperty("Model", wxPG_LABEL, m_ModelWindow->GetModel()->GetFileName()));
 
     PropMan->Append(new wxIntProperty("ModelSequNr", wxPG_LABEL, m_ModelWindow->GetModelSequNr()));
 
@@ -73,7 +74,7 @@ bool EditorModelWindowT::UpdateProperty(wxPGProperty* Property)
 
     wxString PropName=Property->GetName();
 
-         if (PropName=="Model")         Property->SetValueFromString(m_ModelWindow->GetModel().GetFileName());
+         if (PropName=="Model")         Property->SetValueFromString(m_ModelWindow->GetModel()->GetFileName());
     else if (PropName=="ModelSequNr")   Property->SetValue(m_ModelWindow->GetModelSequNr());
     else if (PropName=="ModelPos.x")    Property->SetValue(m_ModelWindow->GetModelPos().x);
     else if (PropName=="ModelPos.y")    Property->SetValue(m_ModelWindow->GetModelPos().y);
@@ -180,8 +181,8 @@ bool EditorModelWindowT::WriteInitMethod(std::ostream& OutFile)
     cf::GuiSys::WindowCreateParamsT Params(*m_GuiDoc->GetGui());
     cf::GuiSys::ModelWindowT        Default(Params);
 
-    if (m_ModelWindow->GetModel().GetFileName()!=Default.GetModel().GetFileName())
-        OutFile << "    self:SetModel(\"" << m_ModelWindow->GetModel().GetFileName() << "\");\n";
+    if (m_ModelWindow->GetModel()->GetFileName()!=Default.GetModel()->GetFileName())
+        OutFile << "    self:SetModel(\"" << m_ModelWindow->GetModel()->GetFileName() << "\");\n";
 
     if (m_ModelWindow->GetModelSequNr()!=Default.GetModelSequNr())
         OutFile << "    self:SetModelSequNr(" << m_ModelWindow->GetModelSequNr() << ");\n";

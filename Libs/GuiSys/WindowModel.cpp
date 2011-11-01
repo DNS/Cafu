@@ -24,6 +24,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "WindowCreateParams.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"
+#include "Models/AnimPose.hpp"
+#include "Models/Model_cmdl.hpp"
 
 extern "C"
 {
@@ -63,28 +65,32 @@ const cf::TypeSys::TypeInfoT ModelWindowT::TypeInfo(GetWindowTIM(), "ModelWindow
 
 ModelWindowT::ModelWindowT(const cf::GuiSys::WindowCreateParamsT& Params)
     : WindowT(Params),
-      Model(""),
-      ModelSequNr(0),
-      ModelFrameNr(0.0f),
+      m_Model(NULL),
+      m_Pose(NULL),
       ModelPos(0, 0, 0),
       ModelScale(1.0f),
       ModelAngles(0, 0, 0),
       CameraPos(0, -200.0f, 0)
 {
+    std::string ErrorMsg;
+
+    SetModel("dummy", ErrorMsg);
     FillMemberVars();
 }
 
 
 ModelWindowT::ModelWindowT(const ModelWindowT& Window, bool Recursive)
     : WindowT(Window, Recursive),
-      Model(Window.Model),
-      ModelSequNr(Window.ModelSequNr),
-      ModelFrameNr(Window.ModelFrameNr),
+      m_Model(NULL),
+      m_Pose(NULL),
       ModelPos(Window.ModelPos),
       ModelScale(Window.ModelScale),
       ModelAngles(Window.ModelAngles),
       CameraPos(Window.CameraPos)
 {
+    std::string ErrorMsg;
+
+    SetModel(Window.m_Model->GetFileName(), ErrorMsg);
     FillMemberVars();
 }
 
@@ -97,6 +103,27 @@ ModelWindowT* ModelWindowT::Clone(bool Recursive) const
 
 ModelWindowT::~ModelWindowT()
 {
+    delete m_Pose;
+}
+
+
+void ModelWindowT::SetModel(const std::string& FileName, std::string& ErrorMsg)
+{
+    const CafuModelT* PrevModel=m_Model;
+
+    m_Model=m_Gui.GetGuiResources().GetModel(FileName, ErrorMsg);
+
+    if (m_Pose==NULL || PrevModel!=m_Model)
+    {
+        delete m_Pose;
+        m_Pose=new AnimPoseT(*m_Model, 0, 0.0f);
+    }
+}
+
+
+int ModelWindowT::GetModelSequNr() const
+{
+    return m_Pose->GetSequNr();
 }
 
 
@@ -127,7 +154,7 @@ void ModelWindowT::Render() const
     MatSys::Renderer->SetCurrentAmbientLightColor(1.0f, 1.0f, 1.0f);
     MatSys::Renderer->SetCurrentEyePosition(CameraPos.x, CameraPos.y, CameraPos.z);     // Required in some ambient shaders.
 
-    Model.Draw(ModelSequNr, ModelFrameNr, 0.0f, NULL);
+    m_Pose->Draw(-1 /*default skin*/, 0.0f);
 
     MatSys::Renderer->PopMatrix(MatSys::RendererI::PROJECTION    );
     MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
@@ -137,7 +164,7 @@ void ModelWindowT::Render() const
 
 bool ModelWindowT::OnClockTickEvent(float t)
 {
-    ModelFrameNr=Model.AdvanceFrameNr(ModelSequNr, ModelFrameNr, t, true);
+    m_Pose->Advance(t, true);
 
     return WindowT::OnClockTickEvent(t);
 }
@@ -147,8 +174,6 @@ void ModelWindowT::FillMemberVars()
 {
     WindowT::FillMemberVars();
 
-    MemberVars["modelSequNr"]=MemberVarT(ModelSequNr);
-    MemberVars["modelFrameNr"]=MemberVarT(ModelFrameNr);
     MemberVars["modelPos.x"]=MemberVarT(ModelPos.x);
     MemberVars["modelPos.y"]=MemberVarT(ModelPos.y);
     MemberVars["modelPos.z"]=MemberVarT(ModelPos.z);
@@ -164,9 +189,12 @@ void ModelWindowT::FillMemberVars()
 
 int ModelWindowT::SetModel(lua_State* LuaState)
 {
+    std::string   ErrorMsg;
     ModelWindowT* ModelWin=(ModelWindowT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
 
-    ModelWin->Model=ModelProxyT(luaL_checkstring(LuaState, 2));
+    ModelWin->SetModel(luaL_checkstring(LuaState, 2), ErrorMsg);
+
+    if (ErrorMsg!="") return luaL_error(LuaState, "%s", ErrorMsg.c_str());
     return 0;
 }
 
@@ -175,7 +203,7 @@ int ModelWindowT::GetModelNrOfSequs(lua_State* LuaState)
 {
     ModelWindowT* ModelWin=(ModelWindowT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
 
-    lua_pushinteger(LuaState, ModelWin->Model.GetNrOfSequences());
+    lua_pushinteger(LuaState, ModelWin->m_Model->GetAnims().Size());
     return 1;
 }
 
@@ -184,7 +212,7 @@ int ModelWindowT::SetModelSequNr(lua_State* LuaState)
 {
     ModelWindowT* ModelWin=(ModelWindowT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
 
-    ModelWin->ModelSequNr=luaL_checkinteger(LuaState, 2);
+    ModelWin->m_Pose->SetSequNr(luaL_checkinteger(LuaState, 2));
     return 0;
 }
 

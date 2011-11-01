@@ -27,7 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GuiSys/WindowModel.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
-#include "Fonts/FontTT.hpp"
+#include "Models/Model_cmdl.hpp"
 
 
 using namespace GuiEditor;
@@ -125,14 +125,13 @@ bool CommandModifyWindowT::Do()
     }
     else if (m_PropertyName=="Model")
     {
+        std::string ErrorMsg;
         cf::GuiSys::ModelWindowT* ModelWindow=dynamic_cast<cf::GuiSys::ModelWindowT*>(m_Window);
         wxASSERT(ModelWindow!=NULL);
 
-        ModelProxyT& Model=ModelWindow->GetModel();
+        m_OldString=ModelWindow->GetModel()->GetFileName();
 
-        m_OldString=Model.GetFileName();
-
-        Model=ModelProxyT(m_NewString);
+        ModelWindow->SetModel(m_NewString, ErrorMsg);
     }
     else
     {
@@ -194,10 +193,11 @@ void CommandModifyWindowT::Undo()
     }
     else if (m_PropertyName=="Model")
     {
+        std::string ErrorMsg;
         cf::GuiSys::ModelWindowT* ModelWindow=dynamic_cast<cf::GuiSys::ModelWindowT*>(m_Window);
         wxASSERT(ModelWindow!=NULL);
 
-        ModelWindow->GetModel()=ModelProxyT(m_OldString);
+        ModelWindow->SetModel(m_OldString, ErrorMsg);
     }
     else
     {

@@ -23,7 +23,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define _CF_GUISYS_WINDOW_MODEL_HPP_
 
 #include "Window.hpp"
-#include "Models/Model_proxy.hpp"
+#include "Math3D/Vector3.hpp"
+
+
+class CafuModelT;
+class AnimPoseT;
 
 
 namespace cf
@@ -46,11 +50,9 @@ namespace cf
             /// Destructor.
             ~ModelWindowT();
 
-            /// Returns the model this window shows.
-            ModelProxyT& GetModel() { return Model; }
-
-            int              GetModelSequNr() const { return ModelSequNr; }     ///< Returns the animation sequence number that is used for the model.
-         // float            GetModelFrameNr() const { return ModelFrameNr; }   ///< Returns the frame number of the sequence. The only variable that is not set by script, but advanced automatically.
+            const CafuModelT* GetModel() const { return m_Model; }
+            void SetModel(const std::string& FileName, std::string& ErrorMsg);
+            int              GetModelSequNr() const;
             const Vector3fT& GetModelPos() const { return ModelPos; }           ///< Returns the position of the model in world space.
             float            GetModelScale() const { return ModelScale; }       ///< Returns the scale factor applied to the model coordinates when converted to world space.
             const Vector3fT& GetModelAngles() const { return ModelAngles; }     ///< Returns the angles around the axes that determine the orientation of the model in world space.
@@ -75,13 +77,12 @@ namespace cf
 
             private:
 
-            ModelProxyT Model;          ///< The model instance rendered by this window.
-            int         ModelSequNr;    ///< The animation sequence number that is used for the model.
-            float       ModelFrameNr;   ///< The frame number of the sequence. The only variable that is not set by script, but advanced automatically.
-            Vector3fT   ModelPos;       ///< The position of the model in world space.
-            float       ModelScale;     ///< The scale factor applied to the model coordinates when converted to world space.
-            Vector3fT   ModelAngles;    ///< The angles around the axes that determine the orientation of the model in world space.
-            Vector3fT   CameraPos;      ///< The position of the camera in world space.
+            const CafuModelT* m_Model;      ///< The model instance rendered by this window.
+            AnimPoseT*        m_Pose;       ///< The pose of the model.
+            Vector3fT         ModelPos;     ///< The position of the model in world space.
+            float             ModelScale;   ///< The scale factor applied to the model coordinates when converted to world space.
+            Vector3fT         ModelAngles;  ///< The angles around the axes that determine the orientation of the model in world space.
+            Vector3fT         CameraPos;    ///< The position of the camera in world space.
 
 
             // Lua script methods.
