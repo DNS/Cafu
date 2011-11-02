@@ -19,24 +19,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*********************/
-/*** Array Library ***/
-/*********************/
-
-#ifndef _CA_ARRAY_HPP_
-#define _CA_ARRAY_HPP_
+#ifndef _CF_ARRAY_HPP_
+#define _CF_ARRAY_HPP_
 
 #include <stdlib.h>
 #include <cassert>
-
-#if defined(_WIN32) && defined(_MSC_VER)
-    #if (_MSC_VER<1300)
-        #define for if (false) ; else for
-
-        // Turn off warning 4786: "Bezeichner wurde auf '255' Zeichen in den Debug-Informationen reduziert."
-        #pragma warning(disable:4786)
-    #endif
-#endif
 
 
 // These classes are intentionally not defined in ArrayT<T>,
@@ -61,6 +48,8 @@ template<class T> class ArrayT
     ArrayT(const ArrayT<T>& OldArray);                          ///< Copy  constructor
    ~ArrayT();                                                   ///< Destructor
     ArrayT<T>& operator = (const ArrayT<T>& OldArray);          ///< Assignment operator
+    bool operator == (const ArrayT<T>& Other) const;            ///< Equality operator
+    bool operator != (const ArrayT<T>& Other) const;            ///< Inequality operator
 
     unsigned long Size() const;                                 ///< Get size of array
     void          Clear();                                      ///< Clear array (and free allocated memory)
@@ -77,7 +66,8 @@ template<class T> class ArrayT
     void          InsertAt(unsigned long Index, const T Element);   // TODO: Rename to InsertAtAndKeepOrder()
     void          RemoveAt(unsigned long Index);
     void          RemoveAtAndKeepOrder(unsigned long Index);
-    void          QuickSort(bool (*IsLess)(const T& E1, const T& E2));
+    template<typename Function>
+    void          QuickSort(Function IsLess);
  // void          QuickSort(unsigned long FirstIndex, unsigned long LastIndex, bool (*IsLess)(const T& E1, const T& E2));
     int           Find(const T& Element) const;
 };
@@ -119,6 +109,25 @@ template<class T> inline ArrayT<T>& ArrayT<T>::operator = (const ArrayT<T>& OldA
     NrOfElements   =OldArray.NrOfElements;
     Elements       =NewElements;
     return *this;
+}
+
+
+template<class T> inline bool ArrayT<T>::operator == (const ArrayT<T>& Other) const
+{
+    if (NrOfElements != Other.NrOfElements)
+        return false;
+
+    for (unsigned long Nr=0; Nr<NrOfElements; Nr++)
+        if (Elements[Nr] != Other.Elements[Nr])
+            return false;
+
+    return true;
+}
+
+
+template<class T> inline bool ArrayT<T>::operator != (const ArrayT<T>& Other) const
+{
+    return !(this->operator == (Other));
 }
 
 
@@ -278,7 +287,7 @@ template<class T> inline void ArrayT<T>::RemoveAtAndKeepOrder(unsigned long Inde
 }
 
 
-template<class T> inline void ArrayT<T>::QuickSort(bool (*IsLess)(const T& E1, const T& E2))
+template<class T> template<typename Function> inline void ArrayT<T>::QuickSort(Function IsLess)
 {
     static ArrayT<unsigned long> ToDoRanges;
 

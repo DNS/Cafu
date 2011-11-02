@@ -45,7 +45,7 @@ bool CommandSetWinPropT<T>::Do()
     if (m_Done) return false;
 
     // If the new value isn't different from the old, don't put this command into the command history.
-    // if (m_NewValue==m_OldValue) return false;
+    if (m_NewValue==m_OldValue) return false;
 
     m_Value=m_NewValue;
 
