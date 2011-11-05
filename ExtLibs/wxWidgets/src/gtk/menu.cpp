@@ -49,7 +49,8 @@ static void DoCommonMenuCallbackCode(wxMenu *menu, wxMenuEvent& event)
         return;
 
     wxWindow *win = menu->GetWindow();
-    wxCHECK_RET( win, "event for a menu without associated window?" );
+    if (!win) return;
+    // wxCHECK_RET( win, "event for a menu without associated window?" );
 
     win->HandleWindowEvent( event );
 }
