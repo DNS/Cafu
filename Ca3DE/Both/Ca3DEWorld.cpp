@@ -39,8 +39,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 static WorldManT WorldMan;
 
 
-Ca3DEWorldT::Ca3DEWorldT(const char* FileName, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/
-    : World(WorldMan.LoadWorld(FileName, InitForGraphics, ProgressFunction)),
+Ca3DEWorldT::Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/
+    : World(WorldMan.LoadWorld(FileName, ModelMan, InitForGraphics, ProgressFunction)),
       BspTree(World->BspTree),
       CollModel(World->CollModel),
       InfoPlayerStarts(World->InfoPlayerStarts),

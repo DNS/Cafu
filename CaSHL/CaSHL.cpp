@@ -73,6 +73,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/MaterialManagerImpl.hpp"
+#include "Models/ModelManager.hpp"
 #include "SceneGraph/Node.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
 #include "SceneGraph/FaceNode.hpp"
@@ -1259,7 +1260,8 @@ int main(int ArgC, const char* ArgV[])
 
         const char          Save_NrOfBands=cf::SceneGraph::SHLMapManT::NrOfBands;
         const unsigned long Save_NrOfReps =cf::SceneGraph::SHLMapManT::NrOfRepres;
-        CaSHLWorldT CaSHLWorld(ArgV[1]);
+        ModelManagerT ModelMan;
+        CaSHLWorldT   CaSHLWorld(ArgV[1], ModelMan);
         cf::SceneGraph::SHLMapManT::NrOfBands =Save_NrOfBands;
         cf::SceneGraph::SHLMapManT::NrOfRepres=Save_NrOfReps;
 

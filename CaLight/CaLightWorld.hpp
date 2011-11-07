@@ -33,7 +33,7 @@ class CaLightWorldT
 {
     public:
 
-    CaLightWorldT(const char* FileName);
+    CaLightWorldT(const char* FileName, ModelManagerT& ModelMan);
 
     const cf::SceneGraph::BspTreeNodeT& GetBspTree() const { return *World.BspTree; }
     const ArrayT<PointLightT>&          GetPointLights() const { return World.PointLights; }

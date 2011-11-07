@@ -52,7 +52,7 @@ class CaSHLWorldT
 {
     public:
 
-    CaSHLWorldT(const char* FileName);
+    CaSHLWorldT(const char* FileName, ModelManagerT& ModelMan);
 
     const cf::SceneGraph::BspTreeNodeT& GetBspTree() const { return *World.BspTree; }
 

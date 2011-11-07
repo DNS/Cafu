@@ -31,8 +31,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SceneGraph/BspTreeNode.hpp"
 
 
-CaLightWorldT::CaLightWorldT(const char* FileName)
-    : World(FileName)
+CaLightWorldT::CaLightWorldT(const char* FileName, ModelManagerT& ModelMan)
+    : World(FileName, ModelMan)
 {
 }
 

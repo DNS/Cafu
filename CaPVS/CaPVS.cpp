@@ -55,6 +55,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "FileSys/FileManImpl.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/MaterialManagerImpl.hpp"
+#include "Models/ModelManager.hpp"
 #include "ClipSys/CollisionModelMan_impl.hpp"
 
 
@@ -865,7 +866,8 @@ int main(int ArgC, const char* ArgV[])
         printf("*** Load World %s ***\n", ArgV[1]);
 
         // 1. Load the 'CaPVSWorld'.
-        CaPVSWorldT* CaPVSWorld=new CaPVSWorldT(ArgV[1], MaxRecDepthSL, MinAreaSL);
+        ModelManagerT ModelMan;
+        CaPVSWorldT*  CaPVSWorld=new CaPVSWorldT(ArgV[1], ModelMan, MaxRecDepthSL, MinAreaSL);
 
         // 2. Create the 'SuperLeaves'.
         CaPVSWorld->CreateSuperLeaves(SuperLeaves);

@@ -41,7 +41,7 @@ BspTreeNodeT::BspTreeNodeT()
 
 
 BspTreeNodeT* BspTreeNodeT::CreateFromFile_cw(std::istream& InFile, aux::PoolT& Pool,
-    LightMapManT& LMM, SHLMapManT& SMM, PlantDescrManT& PDM, const ArrayT<const TerrainT*>& ShTe)
+    LightMapManT& LMM, SHLMapManT& SMM, PlantDescrManT& PDM, const ArrayT<const TerrainT*>& ShTe, ModelManagerT& ModelMan)
 {
     BspTreeNodeT* BspTree=new BspTreeNodeT();
 
@@ -50,7 +50,7 @@ BspTreeNodeT* BspTreeNodeT::CreateFromFile_cw(std::istream& InFile, aux::PoolT& 
     {
         // Don't call cf::SceneGraph::FaceNodeT::CreateFromFile_cw() directly, because it would expect
         // that the "Face" string that states the identity of this NodeT has already been read!
-        FaceNodeT* FaceNode=dynamic_cast<FaceNodeT*>(cf::SceneGraph::GenericNodeT::CreateFromFile_cw(InFile, Pool, LMM, SMM, PDM, ShTe));
+        FaceNodeT* FaceNode=dynamic_cast<FaceNodeT*>(cf::SceneGraph::GenericNodeT::CreateFromFile_cw(InFile, Pool, LMM, SMM, PDM, ShTe, ModelMan));
 
         if (FaceNode==NULL)
         {
@@ -65,7 +65,7 @@ BspTreeNodeT* BspTreeNodeT::CreateFromFile_cw(std::istream& InFile, aux::PoolT& 
     // Read the OtherChildren.
     for (unsigned long Count=aux::ReadUInt32(InFile); Count>0; Count--)
     {
-        cf::SceneGraph::GenericNodeT* Node=cf::SceneGraph::GenericNodeT::CreateFromFile_cw(InFile, Pool, LMM, SMM, PDM, ShTe);
+        cf::SceneGraph::GenericNodeT* Node=cf::SceneGraph::GenericNodeT::CreateFromFile_cw(InFile, Pool, LMM, SMM, PDM, ShTe, ModelMan);
 
         if (Node==NULL)
         {

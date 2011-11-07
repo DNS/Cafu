@@ -30,8 +30,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SceneGraph/FaceNode.hpp"
 
 
-CaPVSWorldT::CaPVSWorldT(const char* FileName, unsigned long SLC_MaxRecursionDepth_, double SLC_MinSubTreeFacesArea_)
-    : World(FileName),
+CaPVSWorldT::CaPVSWorldT(const char* FileName, ModelManagerT& ModelMan, unsigned long SLC_MaxRecursionDepth_, double SLC_MinSubTreeFacesArea_)
+    : World(FileName, ModelMan),
       SLC_MaxRecursionDepth(SLC_MaxRecursionDepth_),
       SLC_MinSubTreeFacesArea(SLC_MinSubTreeFacesArea_)
 {

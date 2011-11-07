@@ -32,7 +32,7 @@ using namespace cf::SceneGraph;
 
 
 GenericNodeT* GenericNodeT::CreateFromFile_cw(std::istream& InFile, aux::PoolT& Pool,
-    LightMapManT& LMM, SHLMapManT& SMM, PlantDescrManT& PDM, const ArrayT<const TerrainT*>& ShTe)
+    LightMapManT& LMM, SHLMapManT& SMM, PlantDescrManT& PDM, const ArrayT<const TerrainT*>& ShTe, ModelManagerT& ModelMan)
 {
     std::string ClassName=aux::ReadString(InFile);
 
@@ -41,11 +41,11 @@ GenericNodeT* GenericNodeT::CreateFromFile_cw(std::istream& InFile, aux::PoolT& 
     // added without altering the code here. Rather have them register their class names and pointer to named ctor in a std::map,
     // as suggested in the FAQ.
          if (ClassName=="BP"     ) return BezierPatchNodeT::CreateFromFile_cw(InFile, Pool, LMM, SMM);  // Named ctors.
-    else if (ClassName=="BspTree") return BspTreeNodeT::CreateFromFile_cw(InFile, Pool, LMM, SMM, PDM, ShTe);
+    else if (ClassName=="BspTree") return BspTreeNodeT::CreateFromFile_cw(InFile, Pool, LMM, SMM, PDM, ShTe, ModelMan);
     else if (ClassName=="Face"   ) return FaceNodeT::CreateFromFile_cw(InFile, Pool, LMM, SMM);
     else if (ClassName=="Terrain") return TerrainNodeT::CreateFromFile_cw(InFile, Pool, LMM, SMM, ShTe);
     else if (ClassName=="Plant"  ) return PlantNodeT::CreateFromFile_cw(InFile, Pool, LMM, SMM, PDM);
-    else if (ClassName=="Model"  ) return ModelNodeT::CreateFromFile_cw(InFile, Pool, LMM, SMM);
+    else if (ClassName=="Model"  ) return ModelNodeT::CreateFromFile_cw(InFile, Pool, ModelMan);
 
     return NULL;
 }

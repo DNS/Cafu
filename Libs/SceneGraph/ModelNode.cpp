@@ -22,10 +22,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ModelNode.hpp"
 #include "_aux.hpp"
 #include "MaterialSystem/Renderer.hpp"
+#include "Models/Model_cmdl.hpp"
+#include "Models/ModelManager.hpp"
 
 
 cf::SceneGraph::ModelNodeT::ModelNodeT()
-    : m_Model(),
+    : m_Model(NULL),
       m_Label(""),
       m_Origin(),
       m_Angles(),
@@ -40,8 +42,8 @@ cf::SceneGraph::ModelNodeT::ModelNodeT()
 }
 
 
-cf::SceneGraph::ModelNodeT::ModelNodeT(const std::string& ModelFileName, const std::string& Label, const Vector3fT& Origin, const Vector3fT& Angles, float Scale, int SeqNumber, float FrameOffset, float FrameTimeScale, bool Animate)
-    : m_Model(ModelFileName),
+cf::SceneGraph::ModelNodeT::ModelNodeT(const CafuModelT* Model, const std::string& Label, const Vector3fT& Origin, const Vector3fT& Angles, float Scale, int SeqNumber, float FrameOffset, float FrameTimeScale, bool Animate)
+    : m_Model(Model),
       m_Label(Label),
       m_Origin(Origin),
       m_Angles(Angles),
@@ -56,11 +58,12 @@ cf::SceneGraph::ModelNodeT::ModelNodeT(const std::string& ModelFileName, const s
 }
 
 
-cf::SceneGraph::ModelNodeT* cf::SceneGraph::ModelNodeT::CreateFromFile_cw(std::istream& InFile, aux::PoolT& Pool, LightMapManT& /*LMM*/, SHLMapManT& /*SMM*/)
+cf::SceneGraph::ModelNodeT* cf::SceneGraph::ModelNodeT::CreateFromFile_cw(std::istream& InFile, aux::PoolT& Pool, ModelManagerT& ModelMan)
 {
+    std::string ErrorMsg;
     ModelNodeT* ModelNode=new ModelNodeT();
 
-    ModelNode->m_Model    =ModelProxyT(Pool.ReadString(InFile));
+    ModelNode->m_Model    =ModelMan.GetModel(Pool.ReadString(InFile), ErrorMsg);
     ModelNode->m_Label    =aux::ReadString(InFile);
     ModelNode->m_Origin   =aux::ReadVector3f(InFile);
 
@@ -89,7 +92,7 @@ void cf::SceneGraph::ModelNodeT::WriteTo(std::ostream& OutFile, aux::PoolT& Pool
 {
     aux::Write(OutFile, "Model");
 
-    Pool.Write(OutFile, m_Model.GetFileName());
+    Pool.Write(OutFile, m_Model->GetFileName());
     aux::Write(OutFile, m_Label);
     aux::Write(OutFile, m_Origin);
 
@@ -109,7 +112,7 @@ const BoundingBox3T<double>& cf::SceneGraph::ModelNodeT::GetBoundingBox() const
 {
     static BoundingBox3dT BB;
 
-    BB=m_Model.GetBB(m_SeqNumber, m_FrameNumber).AsBoxOfDouble();
+    BB=m_Model->GetSharedPose(m_SeqNumber, m_FrameNumber)->GetBB().AsBoxOfDouble();
 
     return BB;
 }
@@ -118,10 +121,15 @@ const BoundingBox3T<double>& cf::SceneGraph::ModelNodeT::GetBoundingBox() const
 void cf::SceneGraph::ModelNodeT::DrawAmbientContrib(const Vector3dT& ViewerPos) const
 {
     // Calculate model distance from viewer position.
-    float Distance=length(m_Origin-ViewerPos.AsVectorOfFloat());
+    float      Distance=length(m_Origin-ViewerPos.AsVectorOfFloat());
+    AnimPoseT* Pose    =m_Model->GetSharedPose(m_SeqNumber, m_FrameNumber);
 
     if (m_Animate)
-        m_FrameNumber=m_Model.AdvanceFrameNr(m_SeqNumber, m_FrameNumber, float(m_Timer.GetSecondsSinceLastCall())*m_FrameTimeScale);
+    {
+        Pose->Advance(float(m_Timer.GetSecondsSinceLastCall())*m_FrameTimeScale);
+
+        m_FrameNumber=Pose->GetFrameNr();
+    }
 
     MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
 
@@ -131,7 +139,7 @@ void cf::SceneGraph::ModelNodeT::DrawAmbientContrib(const Vector3dT& ViewerPos) 
         MatSys::Renderer->RotateX(MatSys::RendererI::MODEL_TO_WORLD, m_Angles.x);
         MatSys::Renderer->Scale(MatSys::RendererI::MODEL_TO_WORLD, m_Scale);
 
-        m_Model.Draw(m_SeqNumber, m_FrameNumber, Distance);
+        Pose->Draw(-1 /*default skin*/, Distance);
 
     MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
 }

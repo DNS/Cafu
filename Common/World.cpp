@@ -158,7 +158,7 @@ static std::string GetModDir(const char* FileName)
 }
 
 
-WorldT::WorldT(const char* FileName, ProgressFunctionT ProgressFunction) /*throw (LoadErrorT)*/
+WorldT::WorldT(const char* FileName, ModelManagerT& ModelMan, ProgressFunctionT ProgressFunction) /*throw (LoadErrorT)*/
     : BspTree(NULL),
       CollModel(NULL)
 {
@@ -210,7 +210,7 @@ WorldT::WorldT(const char* FileName, ProgressFunctionT ProgressFunction) /*throw
     // Don't call cf::SceneGraph::BspTreeNodeT::CreateFromFile_cw() directly, because it would expect
     // that the "BspTree" string that states the identity of this NodeT has already been read!
     BspTree=dynamic_cast<cf::SceneGraph::BspTreeNodeT*>(cf::SceneGraph::GenericNodeT::CreateFromFile_cw(InFile, Pool,
-        LightMapMan, SHLMapMan, PlantDescrMan, ShTe_SceneGr));
+        LightMapMan, SHLMapMan, PlantDescrMan, ShTe_SceneGr, ModelMan));
 
     if (BspTree==NULL) throw LoadErrorT("Could not read scene graph bsp tree node!");
 
@@ -285,7 +285,7 @@ WorldT::WorldT(const char* FileName, ProgressFunctionT ProgressFunction) /*throw
         // Don't call cf::SceneGraph::BspTreeNodeT::CreateFromFile_cw() directly, because it would expect
         // that the "BspTree" string that states the identity of this NodeT has already been read!
         GE->BspTree=dynamic_cast<cf::SceneGraph::BspTreeNodeT*>(cf::SceneGraph::GenericNodeT::CreateFromFile_cw(InFile, Pool,
-            LightMapMan, SHLMapMan, PlantDescrMan, ShTe_SceneGr));
+            LightMapMan, SHLMapMan, PlantDescrMan, ShTe_SceneGr, ModelMan));
 
         if (GE->BspTree==NULL)
         {

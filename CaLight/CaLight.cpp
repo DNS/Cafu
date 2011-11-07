@@ -71,6 +71,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/MaterialManagerImpl.hpp"
+#include "Models/ModelManager.hpp"
 #include "SceneGraph/Node.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
 #include "SceneGraph/FaceNode.hpp"
@@ -1427,7 +1428,8 @@ int main(int ArgC, const char* ArgV[])
     try
     {
         printf("Loading World '%s'.\n", ArgV[1]);
-        CaLightWorldT CaLightWorld(ArgV[1]);
+        ModelManagerT ModelMan;
+        CaLightWorldT CaLightWorld(ArgV[1], ModelMan);
 
         unsigned long IterationCount=0;
 

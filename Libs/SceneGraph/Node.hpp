@@ -31,6 +31,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 class PlantDescrManT;
 class TerrainT;
+class ModelManagerT;
 
 
 namespace cf
@@ -52,7 +53,7 @@ namespace cf
 
             /// Reads a GenericNodeT from InFile.
             static GenericNodeT* CreateFromFile_cw(std::istream& InFile, aux::PoolT& Pool,
-                LightMapManT& LMM, SHLMapManT& SMM, PlantDescrManT& PDM, const ArrayT<const TerrainT*>& ShTe);
+                LightMapManT& LMM, SHLMapManT& SMM, PlantDescrManT& PDM, const ArrayT<const TerrainT*>& ShTe, ModelManagerT& ModelMan);
 
             /// The virtual destructor, so that derived classes can safely be deleted via a GenericNodeT (base class) pointer.
             virtual ~GenericNodeT() { }

@@ -63,7 +63,7 @@ class CaPVSWorldT
     public:
 
     // Constructor.
-    CaPVSWorldT(const char* FileName, unsigned long SLC_MaxRecursionDepth_, double SLC_MinSubTreeFacesArea_);
+    CaPVSWorldT(const char* FileName, ModelManagerT& ModelMan, unsigned long SLC_MaxRecursionDepth_, double SLC_MinSubTreeFacesArea_);
 
     // This functions creates the 'SuperLeaves' from the world leaves. Notes:
     // a) There is no need at all to differentiate between inner and outer leaves.

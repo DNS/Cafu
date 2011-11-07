@@ -29,7 +29,7 @@ class WorldManT
 {
     public:
 
-    const WorldT* LoadWorld(const char* FileName, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction=NULL);
+    const WorldT* LoadWorld(const char* FileName, ModelManagerT& ModelMan, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction=NULL);
     void FreeWorld(const WorldT* World);
 
     ~WorldManT();

@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*****************************/
-/*** CaClient World (Code) ***/
-/*****************************/
-
 #include "ClientWorld.hpp"
 #include "../NetConst.hpp"
 #include "../Both/EntityManager.hpp"
@@ -40,23 +36,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include <cassert>
 
-#if defined(_WIN32)
-    #if defined(_MSC_VER)
-        #if (_MSC_VER<1300)
-        #define for if (false) ; else for
-    #endif
-    #endif
-#elif __linux__ && __i386__
-    #define _stricmp strcasecmp
-#endif
 
-
-/**********************/
-/*** CaClientWorldT ***/
-/**********************/
-
-CaClientWorldT::CaClientWorldT(const char* FileName, WorldT::ProgressFunctionT ProgressFunction, unsigned long OurEntityID_) /*throw (WorldT::LoadErrorT)*/
-    : Ca3DEWorld(new Ca3DEWorldT(FileName, true, ProgressFunction)),
+CaClientWorldT::CaClientWorldT(const char* FileName, ModelManagerT& ModelMan, WorldT::ProgressFunctionT ProgressFunction, unsigned long OurEntityID_) /*throw (WorldT::LoadErrorT)*/
+    : Ca3DEWorld(new Ca3DEWorldT(FileName, ModelMan, true, ProgressFunction)),
       EntityManager(*Ca3DEWorld->EntityManager),
       OurEntityID(OurEntityID_),
       ServerFrameNr(0xDEADBEAF),

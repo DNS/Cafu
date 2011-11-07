@@ -108,7 +108,7 @@ int ServerT::ConFunc_changeLevel_Callback(lua_State* LuaState)
     // changeLevel("mapname") was called, so perform a proper map change.
     try
     {
-        NewWorld=new Ca3DEWorldT(PathName.c_str(), false, NULL);
+        NewWorld=new Ca3DEWorldT(PathName.c_str(), ServerPtr->m_ModelMan, false, NULL);
     }
     catch (const WorldT::LoadErrorT& E) { return luaL_error(LuaState, E.Msg); }
 
@@ -150,12 +150,13 @@ int ServerT::ConFunc_changeLevel_Callback(lua_State* LuaState)
 static ConFuncT ConFunc_changeLevel("changeLevel", ServerT::ConFunc_changeLevel_Callback, ConFuncT::FLAG_MAIN_EXE, "Makes the server load a new level.");
 
 
-ServerT::ServerT(const std::string& GameName_, const GuiCallbackI& GuiCallback_)
+ServerT::ServerT(const std::string& GameName_, const GuiCallbackI& GuiCallback_, ModelManagerT& ModelMan)
     : ServerSocket(g_WinSock->GetUDPSocket(Options_ServerPortNr.GetValueInt())),
       GameName(GameName_),
       WorldName(""),
       World(NULL),
-      GuiCallback(GuiCallback_)
+      GuiCallback(GuiCallback_),
+      m_ModelMan(ModelMan)
 {
     if (ServerSocket==INVALID_SOCKET) throw InitErrorT(cf::va("Unable to obtain UDP socket on port %i.", Options_ServerPortNr.GetValueInt()));
 

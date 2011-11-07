@@ -413,8 +413,8 @@ void MainCanvasT::Initialize()
 
         // Create the client and server instances.
         m_SvGuiCallback=new SvGuiCallbT();
-        m_Server=new ServerT(Options_ServerGameName.GetValueString(), *m_SvGuiCallback);
-        m_Client=new ClientT();  // The client initializes in IDLE state.
+        m_Server=new ServerT(Options_ServerGameName.GetValueString(), *m_SvGuiCallback, *m_ModelManager);
+        m_Client=new ClientT(*m_ModelManager);  // The client initializes in IDLE state.
 
 
         // Finish the initialization of the GuiSys.

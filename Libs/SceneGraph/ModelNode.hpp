@@ -23,9 +23,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define _MODEL_NODE_HPP_
 
 #include "Node.hpp"
-
-#include "Models/Model_proxy.hpp"
 #include "Util/Util.hpp"
+
+
+class CafuModelT;
+class ModelManagerT;
 
 
 namespace cf
@@ -36,14 +38,11 @@ namespace cf
         {
             public:
 
-            /// The constructor.
-            ModelNodeT();
-
             /// Constructor for creating a ModelNodeT from parameters.
-            ModelNodeT(const std::string& ModelFileName, const std::string& Label, const Vector3fT& Origin, const Vector3fT& Angles, float Scale=1.0f, int SeqNumber=0, float FrameOffset=0.0f, float FrameTimeScale=1.0f, bool Animate=false);
+            ModelNodeT(const CafuModelT* Model, const std::string& Label, const Vector3fT& Origin, const Vector3fT& Angles, float Scale=1.0f, int SeqNumber=0, float FrameOffset=0.0f, float FrameTimeScale=1.0f, bool Animate=false);
 
             /// Named constructor.
-            static ModelNodeT* CreateFromFile_cw(std::istream& InFile, aux::PoolT& Pool, LightMapManT& LMM, SHLMapManT& SMM);
+            static ModelNodeT* CreateFromFile_cw(std::istream& InFile, aux::PoolT& Pool, ModelManagerT& ModelMan);
 
             /// The destructor.
             ~ModelNodeT();
@@ -62,19 +61,22 @@ namespace cf
 
             private:
 
+            /// The constructor.
+            ModelNodeT();
+
             ModelNodeT(const ModelNodeT&);       ///< Use of the Copy    Constructor is not allowed.
             void operator = (const ModelNodeT&); ///< Use of the Assignment Operator is not allowed.
 
-            ModelProxyT   m_Model;
-            std::string   m_Label;
-            Vector3fT     m_Origin;
-            Vector3fT     m_Angles;
-            float         m_Scale;
-            int           m_SeqNumber;
-            float         m_FrameOffset;
-            float         m_FrameTimeScale;
-            mutable float m_FrameNumber;    // FIXME: See comment below. The models animation frame number is updated inside the constant DrawAmbientContrib() method...
-            bool          m_Animate;
+            const CafuModelT* m_Model;
+            std::string       m_Label;
+            Vector3fT         m_Origin;
+            Vector3fT         m_Angles;
+            float             m_Scale;
+            int               m_SeqNumber;
+            float             m_FrameOffset;
+            float             m_FrameTimeScale;
+            mutable float     m_FrameNumber;    // FIXME: See comment below. The models animation frame number is updated inside the constant DrawAmbientContrib() method...
+            bool              m_Animate;
 
             // TODO/FIXME Unfortunately a mutable timer is necessary in order to get the frame time (done via a non const method in TimerT) on each
             // DrawAmbientContrib call (which is a const method).

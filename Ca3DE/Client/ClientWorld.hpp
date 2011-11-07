@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*******************************/
-/*** CaClient World (Header) ***/
-/*******************************/
-
 #ifndef _CACLIENTWORLD_HPP_
 #define _CACLIENTWORLD_HPP_
 
@@ -56,7 +52,7 @@ class CaClientWorldT
     public:
 
     // Constructor
-    CaClientWorldT(const char* FileName, WorldT::ProgressFunctionT ProgressFunction, unsigned long OurEntityID_) /*throw (WorldT::LoadErrorT)*/;
+    CaClientWorldT(const char* FileName, ModelManagerT& ModelMan, WorldT::ProgressFunctionT ProgressFunction, unsigned long OurEntityID_) /*throw (WorldT::LoadErrorT)*/;
    ~CaClientWorldT();
 
     // Worker functions

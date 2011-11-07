@@ -45,7 +45,7 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
 
     public:
 
-    Ca3DEWorldT(const char* FileName, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/;
+    Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/;
     ~Ca3DEWorldT();
 
     // Decorator Pattern: Mimic the public interface of the original (Loadable)WorldT

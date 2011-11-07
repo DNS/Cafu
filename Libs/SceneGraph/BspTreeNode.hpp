@@ -75,7 +75,7 @@ namespace cf
 
             /// Named constructor.
             static BspTreeNodeT* CreateFromFile_cw(std::istream& InFile, aux::PoolT& Pool,
-                LightMapManT& LMM, SHLMapManT& SMM, PlantDescrManT& PDM, const ArrayT<const TerrainT*>& ShTe);
+                LightMapManT& LMM, SHLMapManT& SMM, PlantDescrManT& PDM, const ArrayT<const TerrainT*>& ShTe, ModelManagerT& ModelMan);
 
             /// The destructor.
             ~BspTreeNodeT();

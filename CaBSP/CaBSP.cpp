@@ -252,10 +252,11 @@ int main(int ArgC, const char* ArgV[])
     }
 
 
+    ModelManagerT   ModelMan;
     WorldT          World;
     ArrayT<VectorT> DrawWorldOutsidePointSamples;
 
-    LoadWorld(ArgV[1], GameDirectory, World, DrawWorldOutsidePointSamples);
+    LoadWorld(ArgV[1], GameDirectory, ModelMan, World, DrawWorldOutsidePointSamples);
 
     // What we need:
     // For each entity: The BspTree itself, OutsidePointSamples, FloodFillSources.

@@ -129,7 +129,7 @@ class WorldT
     ~WorldT();
 
     /// Constructor for creating a world from a .cw file.
-    WorldT(const char* FileName, ProgressFunctionT ProgressFunction=NULL) /*throw (LoadErrorT)*/;
+    WorldT(const char* FileName, ModelManagerT& ModelMan, ProgressFunctionT ProgressFunction=NULL) /*throw (LoadErrorT)*/;
 
     /// Saves the world to disk.
     void SaveToDisk(const char* FileName) const /*throw (SaveErrorT)*/;

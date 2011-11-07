@@ -60,6 +60,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/MaterialManagerImpl.hpp"
+#include "Models/ModelManager.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
 #include "SceneGraph/FaceNode.hpp"
 #include "ClipSys/CollisionModelMan_impl.hpp"
@@ -655,7 +656,8 @@ int main(int ArgC, char* ArgV[])
     try
     {
         if (ArgC==2) printf("Loading world %s...\n\n", ArgV[1]);
-        World=new WorldT(ArgV[1]);
+        ModelManagerT ModelMan;
+        World=new WorldT(ArgV[1], ModelMan);
 
         // Gib ggf. nur die gewünschten Infos aus
         if (ArgC==3)

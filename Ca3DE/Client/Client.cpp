@@ -42,13 +42,14 @@ static const char* StateNames[]={ "idle", "connecting", "ingame" };
 static ClientT*    ClientPtr   =NULL;
 
 
-ClientT::ClientT()
+ClientT::ClientT(ModelManagerT& ModelMan)
     : CurrentState(NULL),
       NextState(IDLE),
       Socket(INVALID_SOCKET),
       ServerAddress(0, 0, 0, 0, 0),
       PacketIDConnLess(0),
-      MainMenuGui(NULL)
+      MainMenuGui(NULL),
+      m_ModelMan(ModelMan)
 {
     // Cannot do this directly in the initializer list above, because then the
     // ClientStateIdleT ctor would try to access the not yet initialized client ("this").

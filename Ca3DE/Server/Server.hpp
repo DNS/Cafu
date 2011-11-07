@@ -32,6 +32,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 struct lua_State;
 struct ClientInfoT;
 class  CaServerWorldT;
+class  ModelManagerT;
 
 
 /// The server, like the client, is a state machine.
@@ -58,7 +59,7 @@ class ServerT
 
     /// The constructor.
     /// @throws InitErrorT if the server could not be initialized (e.g. a socket for the desired port could not be aquired).
-    ServerT(const std::string& GameName_, const GuiCallbackI& GuiCallback_);
+    ServerT(const std::string& GameName_, const GuiCallbackI& GuiCallback_, ModelManagerT& ModelMan);
 
     ~ServerT();
 
@@ -86,6 +87,7 @@ class ServerT
     std::string          WorldName;
     CaServerWorldT*      World;
     const GuiCallbackI&  GuiCallback;
+    ModelManagerT&       m_ModelMan;
 };
 
 

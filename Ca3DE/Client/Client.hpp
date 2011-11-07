@@ -29,6 +29,7 @@ namespace cf { namespace GuiSys { class GuiI; } }
 struct CaKeyboardEventT;
 struct CaMouseEventT;
 class  ClientStateT;
+class  ModelManagerT;
 struct lua_State;
 
 
@@ -36,7 +37,7 @@ class ClientT
 {
     public:
 
-    ClientT();
+    ClientT(ModelManagerT& ModelMan);
     ~ClientT();
 
     void SetMainMenuGui(cf::GuiSys::GuiI* MainMenuGui_);
@@ -84,6 +85,7 @@ class ClientT
     NetAddressT       ServerAddress;    ///< The server address we're using for the connection. Copied from the related ConVar whenever a new connection is established.
     unsigned long     PacketIDConnLess; ///< The ever increasing (and thus unique) PacketID for outgoing connection-less packets (e.g. connection requests, rcon commands, etc.).
     cf::GuiSys::GuiI* MainMenuGui;      ///< We inform the MainMenuGui whenever we enter a new state (a mini-implementation of the MVC pattern).
+    ModelManagerT&    m_ModelMan;       ///< The model manager that our client worlds load their models from.
 };
 
 #endif

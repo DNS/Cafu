@@ -34,6 +34,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SceneGraph/PlantNode.hpp"
 #include "SceneGraph/ModelNode.hpp"
 #include "MapFile.hpp"
+#include "Models/ModelManager.hpp"
 #include "Plants/PlantDescrMan.hpp"
 
 
@@ -249,7 +250,7 @@ void ComputeBrushFaces(const MapFileBrushT& MFBrush, WorldT& World, cf::SceneGra
 // Ließt ein MapFile, das die der Version entsprechenden "MapFile Specifications" erfüllen muß, in die World ein.
 // Dabei werden folgende Komponenten der World modifiziert (ausgefüllt, u.U. nur teilweise):
 // Map.Faces, Map.TexInfos, Map.PointLights, InfoPlayerStarts und GameEntities.
-void LoadWorld(const char* LoadName, const std::string& GameDirectory, WorldT& World, ArrayT<VectorT>& DrawWorldOutsidePointSamples)
+void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelManagerT& ModelMan, WorldT& World, ArrayT<VectorT>& DrawWorldOutsidePointSamples)
 {
     World.PlantDescrMan.SetModDir(GameDirectory);
 
@@ -449,9 +450,12 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, WorldT& W
 
             for (unsigned long ModelNr=0; ModelNr<E.MFModels.Size(); ModelNr++)
             {
+                std::string          ErrorMsg;
                 const MapFileModelT& Model=E.MFModels[ModelNr];
+                const CafuModelT*    CafuM=ModelMan.GetModel(GameDirectory+"/"+Model.Model, ErrorMsg);
 
-                World.BspTree->OtherChildren.PushBack(new cf::SceneGraph::ModelNodeT(GameDirectory+"/"+Model.Model, Model.Label, Model.Origin, Model.Angles, Model.Scale, Model.SeqNumber, Model.FrameOffset, Model.FrameTimeScale, Model.Animate));
+                if (ErrorMsg!="") Console->Warning(ErrorMsg);
+                World.BspTree->OtherChildren.PushBack(new cf::SceneGraph::ModelNodeT(CafuM, Model.Label, Model.Origin, Model.Angles, Model.Scale, Model.SeqNumber, Model.FrameOffset, Model.FrameTimeScale, Model.Animate));
             }
         }
         else if (ClassNamePair->second=="PointLight")
@@ -575,9 +579,12 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, WorldT& W
 
             for (unsigned long ModelNr=0; ModelNr<E.MFModels.Size(); ModelNr++)
             {
+                std::string          ErrorMsg;
                 const MapFileModelT& Model=E.MFModels[ModelNr];
+                const CafuModelT*    CafuM=ModelMan.GetModel(GameDirectory+"/"+Model.Model, ErrorMsg);
 
-                GE->BspTree->OtherChildren.PushBack(new cf::SceneGraph::ModelNodeT(Model.Model, Model.Label, Model.Origin, Model.Angles, Model.Scale, Model.SeqNumber, Model.FrameOffset, Model.FrameTimeScale, Model.Animate));
+                if (ErrorMsg!="") Console->Warning(ErrorMsg);
+                GE->BspTree->OtherChildren.PushBack(new cf::SceneGraph::ModelNodeT(CafuM, Model.Label, Model.Origin, Model.Angles, Model.Scale, Model.SeqNumber, Model.FrameOffset, Model.FrameTimeScale, Model.Animate));
             }
 
 
