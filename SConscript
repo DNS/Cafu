@@ -169,7 +169,7 @@ if sys.platform=="win32":
         envCaWE.Append(LIBPATH=["ExtLibs/fbx/lib/" +
             {"vc8": "vs2005", "vc9": "vs2008", "vc10": "vs2010"}[compiler] + "/" +
             ("x64" if envCaWE["TARGET_ARCH"] in ["x86_64", "amd64", "emt64"] else "x86")])
-        envCaWE.Append(LIBS=["fbxsdk-2012.1-mtd" if buildMode=="dbg" else "fbxsdk-2012.1-mt", "wininet"])
+        envCaWE.Append(LIBS=["fbxsdk-2012.1-mdd" if buildMode=="dbg" else "fbxsdk-2012.1-md", "wininet"])
 
 elif sys.platform=="linux2":
     envCaWE.Append(CPPPATH=['/usr/include/freetype2'])  # As of 2009-09-10, this line is to become unnecessary in the future, see /usr/include/ftbuild.h for details.

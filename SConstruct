@@ -65,16 +65,16 @@ if sys.platform=="win32":
 
         # Environment for debug builds:
         envDebug=envCommon.Clone();
-        envDebug.Append(CCFLAGS=Split("/MTd /Od /Z7 /RTC1"));
+        envDebug.Append(CCFLAGS=Split("/MDd /Od /Z7 /RTC1"));
         envDebug.Append(LINKFLAGS=["/debug"]);
 
         # Environment for release builds:
         envRelease=envCommon.Clone();
-        envRelease.Append(CCFLAGS=Split("/MT /O2 /Ob2"));
+        envRelease.Append(CCFLAGS=Split("/MD /O2 /Ob2"));
 
         # Environment for profile builds:
         envProfile=envCommon.Clone();
-        envProfile.Append(CCFLAGS=Split("/MT /O2 /Ob2 /Z7"));
+        envProfile.Append(CCFLAGS=Split("/MD /O2 /Ob2 /Z7"));
         envProfile.Append(LINKFLAGS=["/fixed:no", "/debug"]);
 
     elif envCommon["MSVC_VERSION"] in ["9.0", "9.0Exp"]:
@@ -105,16 +105,16 @@ if sys.platform=="win32":
 
         # Environment for debug builds:
         envDebug=envCommon.Clone();
-        envDebug.Append(CCFLAGS=Split("/MTd /Od /Z7 /RTC1"));
+        envDebug.Append(CCFLAGS=Split("/MDd /Od /Z7 /RTC1"));
         envDebug.Append(LINKFLAGS=["/debug"]);
 
         # Environment for release builds:
         envRelease=envCommon.Clone();
-        envRelease.Append(CCFLAGS=Split("/MT /O2 /Ob2"));
+        envRelease.Append(CCFLAGS=Split("/MD /O2 /Ob2"));
 
         # Environment for profile builds:
         envProfile=envCommon.Clone();
-        envProfile.Append(CCFLAGS=Split("/MT /O2 /Ob2 /Z7"));
+        envProfile.Append(CCFLAGS=Split("/MD /O2 /Ob2 /Z7"));
         envProfile.Append(LINKFLAGS=["/fixed:no", "/debug"]);
 
     elif envCommon["MSVC_VERSION"] in ["10.0", "10.0Exp"]:
@@ -139,16 +139,16 @@ if sys.platform=="win32":
 
         # Environment for debug builds:
         envDebug=envCommon.Clone();
-        envDebug.Append(CCFLAGS=Split("/MTd /Od /Z7 /RTC1"));
+        envDebug.Append(CCFLAGS=Split("/MDd /Od /Z7 /RTC1"));
         envDebug.Append(LINKFLAGS=["/debug"]);
 
         # Environment for release builds:
         envRelease=envCommon.Clone();
-        envRelease.Append(CCFLAGS=Split("/MT /O2 /Ob2"));
+        envRelease.Append(CCFLAGS=Split("/MD /O2 /Ob2"));
 
         # Environment for profile builds:
         envProfile=envCommon.Clone();
-        envProfile.Append(CCFLAGS=Split("/MT /O2 /Ob2 /Z7"));
+        envProfile.Append(CCFLAGS=Split("/MD /O2 /Ob2 /Z7"));
         envProfile.Append(LINKFLAGS=["/fixed:no", "/debug"]);
 
     else:
@@ -278,9 +278,9 @@ if sys.platform=="win32":
         elif envCommon["TARGET_ARCH"] in ["ia64"]:                     target_cpu=" TARGET_CPU=IA64"
         else:                                                          target_cpu=""
 
-        result=envDebug.  Execute("nmake /nologo /f makefile.vc BUILD=debug   SHARED=0 RUNTIME_LIBS=static COMPILER_PREFIX="+compiler+target_cpu, chdir="ExtLibs/wxWidgets/build/msw");
+        result=envDebug.  Execute("nmake /nologo /f makefile.vc BUILD=debug   SHARED=0 COMPILER_PREFIX="+compiler+target_cpu, chdir="ExtLibs/wxWidgets/build/msw");
         if (result!=0): envDebug.  Exit(result);
-        result=envRelease.Execute("nmake /nologo /f makefile.vc BUILD=release SHARED=0 RUNTIME_LIBS=static COMPILER_PREFIX="+compiler+target_cpu, chdir="ExtLibs/wxWidgets/build/msw");
+        result=envRelease.Execute("nmake /nologo /f makefile.vc BUILD=release SHARED=0 COMPILER_PREFIX="+compiler+target_cpu, chdir="ExtLibs/wxWidgets/build/msw");
         if (result!=0): envRelease.Exit(result);
         print "";   # Print just another empty line for better visual separation.
 
