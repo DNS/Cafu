@@ -74,30 +74,6 @@ class AnimPoseT
     };
 
 
-    /// This struct describes information about a parent or "super" model whose skeleton pose
-    /// should be used when rendering this model. For example, a player model can act as the
-    /// super model for a weapon, so that the skeleton of the weapon is copied from the
-    /// player model in order to align the weapon with the hands of the player.
-    struct SuperT
-    {
-        /// The constructor.
-        /// @param Matrices_   The draw matrices of the super model.
-        /// @param Map_        Describes how our joints map to the joints of the super model.
-        ///                    If <tt>Map_[i]</tt> is not a valid index into \c Matrices_, then our joint \c i has no match in the skeleton of the super model.
-        SuperT(const ArrayT<MatrixT>& Matrices_, const ArrayT<unsigned int>& Map_) : Matrices(Matrices_), Map(Map_) { }
-
-        /// Has our joint \c JointNr a correspondence in the super model?
-        bool HasMatrix(unsigned long JointNr) const { return Map[JointNr] < Matrices.Size(); }
-
-        /// For our joint \c JointNr, return the corresponding matrix from the super model.
-        /// Only call this if HasMatrix(JointNr) returns \c true.
-        const MatrixT& GetMatrix(unsigned long JointNr) const { return Matrices[Map[JointNr]]; }
-
-        const ArrayT<MatrixT>&      Matrices;   ///< The draw matrices of the super model.
-        const ArrayT<unsigned int>& Map;        ///< Describes how our joints map to the joints of the super model. If <tt>Map[i]</tt> is not a valid index into \c Matrices, then our joint \c i has no match in the skeleton of the super model.
-    };
-
-
     /// The constructor.
     AnimPoseT(const CafuModelT& Model, int SequNr=-1, float FrameNr=0.0f);
 
@@ -111,11 +87,17 @@ class AnimPoseT
 
     float GetFrameNr() const { return m_FrameNr; }
 
-    /// @param FrameNr      The frame number in the animation sequence to render to model at.
+    /// @param FrameNr      The frame number in the animation sequence to render the model at.
     void SetFrameNr(float FrameNr);
 
-    /// @param Super        Information about a parent or "super" model whose skeleton pose should be used when rendering this model.
-    void SetSuper(const SuperT* Super);
+    /// This method assigns a pose of a parent or "super" model that should be used when rendering this model.
+    ///
+    /// For example, a player model can act as the super model for a weapon,
+    /// so that the skeleton of the weapon is copied from the player model
+    /// in order to align the weapon with the hands of the player.
+    ///
+    /// @param SuperPose   The super model pose that should be used when rendering this model.
+    void SetSuperPose(const AnimPoseT* SuperPose);
 
     /// Advances the pose in time.
     void Advance(float Time, bool ForceLoop=false);
@@ -146,6 +128,9 @@ class AnimPoseT
     /// Returns the set of transformation matrices (one per joint) at the given sequence and frame number.
     const ArrayT<MatrixT>& GetJointMatrices() const;
 
+    /// Returns the transformation matrix for the joint with the given name, or \c NULL if there is no such joint.
+    const MatrixT* GetJointMatrix(const std::string& JointName) const;
+
     /// Returns the mesh infos with additional data for each mesh in this pose.
     const ArrayT<MeshInfoT>& GetMeshInfos() const;
 
@@ -169,7 +154,7 @@ class AnimPoseT
     const CafuModelT&             m_Model;          ///< The related model that this is a pose for.
     int                           m_SequNr;         ///< The animation sequence number at which we have computed the cache data.
     float                         m_FrameNr;        ///< The animation frame    number at which we have computed the cache data.
-    const SuperT*                 m_Super;
+    const AnimPoseT*              m_SuperPose;
     AnimPoseT*                    m_DlodPose;       ///< The next pose in the chain of dlod poses matching the chain of dlod models.
  // ArrayT<...>                   m_Def;            ///< Array of { channel, sequence, framenr, (forceloop), blendweight } tuples.
  // bool                          m_DoCache;        ///< Cache the computed data? (Set to true by the user if he want to re-use this instance.)

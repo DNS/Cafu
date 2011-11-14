@@ -378,13 +378,9 @@ void ModelEditor::SceneView3DT::RenderPass() const
             ModelDocumentT::SubmodelT* SM=ModelDoc->GetSubmodels()[SmNr];
             AnimPoseT&                 SmPose=SM->GetPose();
 
-            const AnimPoseT::SuperT Super(
-                Anim.Pose.GetJointMatrices(),
-                SM->GetJointsMap());
-
-            SmPose.SetSuper(&Super);
+            SmPose.SetSuperPose(&Anim.Pose);
             SmPose.Draw(-1 /*SkinNr*/, 0.0f /*LodDist*/);
-            SmPose.SetSuper(NULL);
+            SmPose.SetSuperPose(NULL);
         }
     }
 
@@ -399,13 +395,9 @@ void ModelEditor::SceneView3DT::RenderPass() const
             ModelDocumentT::SubmodelT* SM=ModelDoc->GetSubmodels()[SmNr];
             AnimPoseT&                 SmPose=SM->GetPose();
 
-            const AnimPoseT::SuperT Super(
-                Anim.Pose.GetJointMatrices(),
-                SM->GetJointsMap());
-
-            SmPose.SetSuper(&Super);
+            SmPose.SetSuperPose(&Anim.Pose);
             RenderSkeleton(SM->GetSubmodel()->GetJoints(), SmPose.GetJointMatrices(), true);
-            SmPose.SetSuper(NULL);
+            SmPose.SetSuperPose(NULL);
         }
     }
 

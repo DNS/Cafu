@@ -93,7 +93,7 @@ void SubmodelsListT::InitListItems()
 
     for (unsigned long ElemNr=0; ElemNr<m_ModelDoc->GetSubmodels().Size(); ElemNr++)
     {
-        wxFileName fn(m_ModelDoc->GetSubmodels()[ElemNr]->GetFilename());
+        wxFileName fn(m_ModelDoc->GetSubmodels()[ElemNr]->GetSubmodel()->GetFileName());
 
         fn.MakeRelativeTo(m_ModelDoc->GetGameConfig()->ModDir);
 

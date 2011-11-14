@@ -278,7 +278,7 @@ class CafuModelT : public ModelT
     AnimPoseT* GetSharedPose(int SequNr, float FrameNr) const;
 
     // The ModelT interface.
-    const std::string& GetFileName() const;     // TODO: Remove!?!
+    const std::string& GetFileName() const;
     void               Draw(int SequenceNr, float FrameNr, float LodDist, const ModelT* SubModel=NULL) const;
     bool               GetGuiPlane(int SequenceNr, float FrameNr, float LodDist, Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const;
     void               Print() const;

@@ -75,24 +75,20 @@ namespace ModelEditor
         {
             public:
 
-            SubmodelT(const wxString& fn, CafuModelT* sm, const ArrayT<unsigned int>& jm);
+            SubmodelT(CafuModelT* Submodel);
             ~SubmodelT();
 
-            const wxString&             GetFilename() const { return m_Filename; }
-            const CafuModelT*           GetSubmodel() const { return m_Submodel; }
-            AnimPoseT&                  GetPose() { return m_Pose; }
-            const ArrayT<unsigned int>& GetJointsMap() const { return m_JointsMap; }
+            const CafuModelT* GetSubmodel() const { return m_Submodel; }
+            AnimPoseT&        GetPose() { return m_Pose; }
 
 
             private:
 
-            wxString             m_Filename;    ///< The filename of the submodel.
-            CafuModelT*          m_Submodel;    ///< The submodel that is shown with the main model.
-            AnimPoseT            m_Pose;        ///< The pose of the submodel.
-            ArrayT<unsigned int> m_JointsMap;   ///< Describes how the joints of the m_Submodel map to the joints of the m_Model super model.
-
             SubmodelT(const SubmodelT&);        ///< Use of the Copy    Constructor is not allowed.
             void operator = (const SubmodelT&); ///< Use of the Assignment Operator is not allowed.
+
+            CafuModelT* m_Submodel;   ///< The submodel that is shown with the main model.
+            AnimPoseT   m_Pose;       ///< The pose of the submodel.
         };
 
 

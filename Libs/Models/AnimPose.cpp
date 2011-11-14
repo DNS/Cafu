@@ -32,7 +32,7 @@ AnimPoseT::AnimPoseT(const CafuModelT& Model, int SequNr, float FrameNr)
     : m_Model(Model),
       m_SequNr(SequNr),
       m_FrameNr(FrameNr),
-      m_Super(NULL),
+      m_SuperPose(NULL),
       m_DlodPose(m_Model.GetDlodModel() ? new AnimPoseT(*m_Model.GetDlodModel(), SequNr, FrameNr) : NULL),  // Recursively create the chain of dlod poses matching the chain of dlod models.
       m_NeedsRecache(true),
       m_BoundingBox()
@@ -75,16 +75,16 @@ void AnimPoseT::SetFrameNr(float FrameNr)
 }
 
 
-void AnimPoseT::SetSuper(const SuperT* Super)
+void AnimPoseT::SetSuperPose(const AnimPoseT* SuperPose)
 {
-    if (m_Super==Super) return;
+    if (m_SuperPose==SuperPose) return;
 
-    m_Super=Super;
+    m_SuperPose=SuperPose;
 
     m_NeedsRecache=true;
 
     // Recursively update the chain of dlod poses.
-    if (m_DlodPose) m_DlodPose->SetSuper(Super);
+    if (m_DlodPose) m_DlodPose->SetSuperPose(SuperPose);
 }
 
 
@@ -405,6 +405,18 @@ const ArrayT<MatrixT>& AnimPoseT::GetJointMatrices() const
 }
 
 
+const MatrixT* AnimPoseT::GetJointMatrix(const std::string& JointName) const
+{
+    Recache();
+
+    for (unsigned int JointNr=0; JointNr<m_Model.GetJoints().Size(); JointNr++)
+        if (m_Model.GetJoints()[JointNr].Name == JointName)
+            return &m_JointMatrices[JointNr];
+
+    return NULL;
+}
+
+
 const ArrayT<AnimPoseT::MeshInfoT>& AnimPoseT::GetMeshInfos() const
 {
     Recache();
@@ -525,10 +537,15 @@ void AnimPoseT::UpdateData() const
         // Don't animate, just use the bind pose defined in the model file.
         for (unsigned long JointNr=0; JointNr<Joints.Size(); JointNr++)
         {
-            if (m_Super && m_Super->HasMatrix(JointNr))
+            if (m_SuperPose)
             {
-                m_JointMatrices[JointNr]=m_Super->GetMatrix(JointNr);
-                continue;
+                const MatrixT* SuperMat=m_SuperPose->GetJointMatrix(Joints[JointNr].Name);
+
+                if (SuperMat)
+                {
+                    m_JointMatrices[JointNr]=*SuperMat;
+                    continue;
+                }
             }
 
             const JointT& J=Joints[JointNr];
@@ -547,10 +564,15 @@ void AnimPoseT::UpdateData() const
 
         for (unsigned long JointNr=0; JointNr<Joints.Size(); JointNr++)
         {
-            if (m_Super && m_Super->HasMatrix(JointNr))
+            if (m_SuperPose)
             {
-                m_JointMatrices[JointNr]=m_Super->GetMatrix(JointNr);
-                continue;
+                const MatrixT* SuperMat=m_SuperPose->GetJointMatrix(Joints[JointNr].Name);
+
+                if (SuperMat)
+                {
+                    m_JointMatrices[JointNr]=*SuperMat;
+                    continue;
+                }
             }
 
             const AnimT::AnimJointT& AJ=Anim.AnimJoints[JointNr];
@@ -819,7 +841,7 @@ void AnimPoseT::UpdateData() const
 
 void AnimPoseT::Recache() const
 {
-    if (!m_NeedsRecache && !m_Super) return;
+    if (!m_NeedsRecache && !m_SuperPose) return;
 
     SyncDimensions();
     UpdateData();

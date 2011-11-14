@@ -40,11 +40,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/confbase.h"
 
 
-ModelEditor::ModelDocumentT::SubmodelT::SubmodelT(const wxString& fn, CafuModelT* sm, const ArrayT<unsigned int>& jm)
-    : m_Filename(fn),
-      m_Submodel(sm),
-      m_Pose(*sm, -1, 0.0f),
-      m_JointsMap(jm)
+ModelEditor::ModelDocumentT::SubmodelT::SubmodelT(CafuModelT* Submodel)
+    : m_Submodel(Submodel),
+      m_Pose(*Submodel, -1, 0.0f)
 {
 }
 
@@ -166,23 +164,7 @@ void ModelEditor::ModelDocumentT::LoadSubmodel(const wxString& FileName)
 
     try
     {
-        CafuModelT*          Submodel=LoadModel(FileName);
-        ArrayT<unsigned int> JointsMap;
-
-        for (unsigned int JointNr=0; JointNr<Submodel->GetJoints().Size(); JointNr++)
-        {
-            const std::string& SubName=Submodel->GetJoints()[JointNr].Name;
-
-            unsigned int JNr;
-            for (JNr=0; JNr<m_Model->GetJoints().Size(); JNr++)
-                if (wxStricmp(SubName, m_Model->GetJoints()[JNr].Name)==0)
-                    break;
-
-            // Not found / no correspondence is indicated by a too large and thus invalid JNr.
-            JointsMap.PushBack(JNr);
-        }
-
-        m_Submodels.PushBack(new SubmodelT(FileName, Submodel, JointsMap));
+        m_Submodels.PushBack(new SubmodelT(LoadModel(FileName)));
     }
     catch (const ModelT::LoadError& /*E*/)
     {
