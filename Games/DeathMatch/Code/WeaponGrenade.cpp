@@ -28,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
 #include "EntityCreateParams.hpp"
+#include "GameImpl.hpp"
 #include "HumanPlayer.hpp"
 #include "TypeSys.hpp"
 
@@ -63,7 +64,7 @@ void EntWeaponGrenadeT::NotifyTouchedBy(BaseEntityT* Entity)
     if (State.StateOfExistance!=StateOfExistance_Active) return;
 
     // Give this weapon to the entity.
-    if (!CarriedWeaponT::GetCarriedWeapon(WEAPON_SLOT_GRENADE)->ServerSide_PickedUpByEntity(Entity)) return;
+    if (!cf::GameSys::GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_GRENADE)->ServerSide_PickedUpByEntity(Entity)) return;
 
     // And finally retire for a while.
     State.StateOfExistance=StateOfExistance_NotActive;

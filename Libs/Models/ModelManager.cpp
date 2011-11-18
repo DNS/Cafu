@@ -45,9 +45,9 @@ ModelManagerT::~ModelManagerT()
 }
 
 
-const CafuModelT* ModelManagerT::GetModel(const std::string& FileName, std::string& ErrorMsg) const
+const CafuModelT* ModelManagerT::GetModel(const std::string& FileName, std::string* ErrorMsg) const
 {
-    ErrorMsg="";
+    if (ErrorMsg) (*ErrorMsg)="";
     std::map<std::string, CafuModelT*>::const_iterator It=m_Models.find(FileName);
 
     if (It!=m_Models.end()) return It->second;
@@ -79,14 +79,14 @@ const CafuModelT* ModelManagerT::GetModel(const std::string& FileName, std::stri
         LoaderDummyT Loader(FileName);
 
         NewModel=new CafuModelT(Loader);
-        ErrorMsg="The file could not be loaded (unknown error).";
+        if (ErrorMsg) (*ErrorMsg)="The file could not be loaded (unknown error).";
     }
     catch (const ModelLoaderT::LoadErrorT& LE)
     {
         LoaderDummyT Loader(FileName);
 
         NewModel=new CafuModelT(Loader);
-        ErrorMsg=LE.what();
+        if (ErrorMsg) (*ErrorMsg)=LE.what();
     }
 
     m_Models[FileName]=NewModel;

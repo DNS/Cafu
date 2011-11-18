@@ -19,34 +19,18 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*************************************/
-/*** Carried Weapon - BattleScythe ***/
-/*************************************/
-
 #ifndef _CW_BATTLESCYTHE_HPP_
 #define _CW_BATTLESCYTHE_HPP_
 
 #include "cw.hpp"
-#include "SoundSystem/SoundSys.hpp"
-#include "SoundSystem/SoundShaderManager.hpp"
-#include "SoundSystem/Sound.hpp"
 
 
-struct CarriedWeaponBattleScytheT : public CarriedWeaponT
+class CarriedWeaponBattleScytheT : public CarriedWeaponT
 {
-    CarriedWeaponBattleScytheT()
-        : FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/BattleScythe")))
-    {
-    };
+    public:
 
-    ~CarriedWeaponBattleScytheT()
-    {
-        // Release Sound.
-        SoundSystem->DeleteSound(FireSound);
-    };
-
-    ModelProxyT& GetViewWeaponModel  () const;
-    ModelProxyT& GetPlayerWeaponModel() const;
+    CarriedWeaponBattleScytheT(ModelManagerT& ModelMan);
+    ~CarriedWeaponBattleScytheT();
 
     bool ServerSide_PickedUpByEntity(BaseEntityT* Entity) const;
     void ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;

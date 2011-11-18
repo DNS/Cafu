@@ -19,20 +19,17 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*******************************/
-/*** Carried Weapon - Pistol ***/
-/*******************************/
-
 #ifndef _CW_PISTOL_HPP_
 #define _CW_PISTOL_HPP_
 
 #include "cw.hpp"
 
 
-struct CarriedWeaponPistolT : public CarriedWeaponT
+class CarriedWeaponPistolT : public CarriedWeaponT
 {
-    ModelProxyT& GetViewWeaponModel  () const;
-    ModelProxyT& GetPlayerWeaponModel() const;
+    public:
+
+    CarriedWeaponPistolT(ModelManagerT& ModelMan);
 
     bool ServerSide_PickedUpByEntity(BaseEntityT* Entity) const;
 };

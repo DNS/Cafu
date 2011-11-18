@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/********************************/
-/*** Carried Weapon - Shotgun ***/
-/********************************/
-
 #include "cw_Shotgun.hpp"
 #include "_ResourceManager.hpp"
 #include "HumanPlayer.hpp"
@@ -31,12 +27,28 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "PhysicsWorld.hpp"
 #include "Libs/LookupTables.hpp"
 #include "../../GameWorld.hpp"
-#include "Models/Model_proxy.hpp"
+#include "Models/ModelManager.hpp"
 #include "ParticleEngine/ParticleEngineMS.hpp"
+#include "SoundSystem/SoundSys.hpp"
+#include "SoundSystem/SoundShaderManager.hpp"
+#include "SoundSystem/Sound.hpp"
 
 
-ModelProxyT& CarriedWeaponShotgunT::GetViewWeaponModel  () const { static ModelProxyT M("Games/DeathMatch/Models/Weapons/Shotgun_v.mdl"); return M; }
-ModelProxyT& CarriedWeaponShotgunT::GetPlayerWeaponModel() const { static ModelProxyT M("Games/DeathMatch/Models/Weapons/Shotgun_p.mdl"); return M; }
+CarriedWeaponShotgunT::CarriedWeaponShotgunT(ModelManagerT& ModelMan)
+    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Shotgun_v.mdl"),
+                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Shotgun_p.mdl")),
+      FireSound   (SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/Shotgun_sBarrel"))),
+      AltFireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/Shotgun_dBarrel")))
+{
+}
+
+
+CarriedWeaponShotgunT::~CarriedWeaponShotgunT()
+{
+    // Release Sound.
+    SoundSystem->DeleteSound(FireSound);
+    SoundSystem->DeleteSound(AltFireSound);
+}
 
 
 bool CarriedWeaponShotgunT::ServerSide_PickedUpByEntity(BaseEntityT* Entity) const

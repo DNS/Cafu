@@ -19,20 +19,17 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/****************************/
-/*** Carried Weapon - RPG ***/
-/****************************/
-
 #ifndef _CW_RPG_HPP_
 #define _CW_RPG_HPP_
 
 #include "cw.hpp"
 
 
-struct CarriedWeaponRPGT : public CarriedWeaponT
+class CarriedWeaponRPGT : public CarriedWeaponT
 {
-    ModelProxyT& GetViewWeaponModel  () const;
-    ModelProxyT& GetPlayerWeaponModel() const;
+    public:
+
+    CarriedWeaponRPGT(ModelManagerT& ModelMan);
 
     bool ServerSide_PickedUpByEntity(BaseEntityT* Entity) const;
     void ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;

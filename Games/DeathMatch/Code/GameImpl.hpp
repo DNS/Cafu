@@ -26,6 +26,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Templates/Array.hpp"
 
 
+class CafuModelT;
+class CarriedWeaponT;
 class PhysicsWorldT;
 class SoundI;
 
@@ -43,7 +45,7 @@ namespace cf
             public:
 
             // Implement the methods of the GameI interface.
-            void Initialize(bool AsClient, bool AsServer);
+            void Initialize(bool AsClient, bool AsServer, ModelManagerT& ModelMan);
             void Release();
             void Sv_PrepareNewWorld(const char* WorldFileName, const cf::ClipSys::CollisionModelT* WorldCollMdl);
             void Sv_FinishNewWorld(const char* WorldFileName);
@@ -56,7 +58,18 @@ namespace cf
             BaseEntityT* CreateBaseEntityFromTypeNr(unsigned long TypeNr, const std::map<std::string, std::string>& Properties, const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID, unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld);
             void FreeBaseEntity(BaseEntityT* BaseEntity);
 
+
             // Additional methods.
+
+            /// Maps a player model index to a player model instance.
+            /// Used to obtain a player model from a player entities State.ModelIndex member.
+            const CafuModelT* GetPlayerModel(unsigned int ModelIndex) const;
+
+            /// This function returns a pointer to the CarriedWeaponT instance for the desired ActiveWeaponSlot.
+            /// When no such class exists, it returns a pointer to an empty dummy implementation
+            /// (but for the convenience of the caller, it never returns NULL or an invalid pointer).
+            const CarriedWeaponT* GetCarriedWeapon(unsigned int ActiveWeaponSlot) const;
+
             bool IsSvThinking() const { return IsThinking; }
             ScriptStateT* GetScriptState() const { return ScriptState; }
 
@@ -69,16 +82,18 @@ namespace cf
             /// The constructor is private because this is a singleton class.
             GameImplT();
 
-            bool            RunningAsClient;
-            bool            RunningAsServer;
+            bool                      RunningAsClient;
+            bool                      RunningAsServer;
 
-            PhysicsWorldT*  Sv_PhysicsWorld;
-            PhysicsWorldT*  Cl_PhysicsWorld;
+            PhysicsWorldT*            Sv_PhysicsWorld;
+            PhysicsWorldT*            Cl_PhysicsWorld;
 
-            ScriptStateT*   ScriptState;        ///< Inited on Server load, deleted on Server unload.
-            bool            IsThinking;         ///< True while the server is thinking, i.e. between the calls to Sv_BeginThinking() and Sv_EndThinking().
+            ScriptStateT*             ScriptState;      ///< Inited on Server load, deleted on Server unload.
+            bool                      IsThinking;       ///< True while the server is thinking, i.e. between the calls to Sv_BeginThinking() and Sv_EndThinking().
 
-            ArrayT<SoundI*> PreCacheSounds;     ///< Array of all precached sounds.
+            ArrayT<const CafuModelT*> m_PlayerModels;   ///< The player models available in this game.
+            ArrayT<CarriedWeaponT*>   m_CarriedWeapons; ///< The set of carry-able weapons in this game.
+            ArrayT<SoundI*>           m_PreCacheSounds; ///< Array of all precached sounds.
         };
     }
 }

@@ -254,7 +254,7 @@ const EntityClassT* GameConfigT::FindClass(const wxString& Name) const
 const CafuModelT* GameConfigT::GetModel(const wxString& FileName, wxString* ErrorMsg) const
 {
     std::string       Msg;
-    const CafuModelT* Model=m_ModelMan.GetModel(std::string(ModDir + "/" + FileName), Msg);
+    const CafuModelT* Model=m_ModelMan.GetModel(std::string(ModDir + "/" + FileName), &Msg);
 
     if (ErrorMsg)
         *ErrorMsg=Msg;

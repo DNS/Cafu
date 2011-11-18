@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/**********************/
-/*** Carried Weapon ***/
-/**********************/
-
 #ifndef _CARRIEDWEAPON_HPP_
 #define _CARRIEDWEAPON_HPP_
 
@@ -32,24 +28,25 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 class  BaseEntityT;
 class  EntHumanPlayerT;
 struct PlayerCommandT;
-class  ModelProxyT;
+class  CafuModelT;
+class  ModelManagerT;
+class  SoundI;
 
 
-// The ONLY purpose of this interface is to localize (group) the code and data
-// that is related to a picked-up weapon (carried by an entity).
-// It is intended to simplify the other code (mostly of the human player entity).
-// Don't confuse this with the weapon entities that represent weapons-to-be-picked-up,
-// this code is NOT related to a specific entity!
+/// The purpose of this interface is to localize (group) the code and data
+/// that is related to a picked-up weapon (carried by an entity).
+/// It is intended to simplify the other code (mostly of the human player entity).
+/// Don't confuse this with the weapon entities that represent weapons-to-be-picked-up,
+/// whereas this code is \emph{not} related to a specific entity!
 class CarriedWeaponT
 {
     public:
 
-    // This function returns a pointer to the CarriedWeaponT class for the desired ActiveWeaponSlot.
-    // When no such class exists, it returns a pointer to an empty dummy implementation
-    // (but for the convenience of the caller, it never returns NULL or an invalid pointer).
-    static const CarriedWeaponT* GetCarriedWeapon(char ActiveWeaponSlot);
+    /// The constructor.
+    CarriedWeaponT(const CafuModelT* ViewModel, const CafuModelT* PlayerModel);
 
-
+    /// The destructor.
+    virtual ~CarriedWeaponT();
 
     // This function indicates the ammo that this weapon consumes for primary fire.
     // The returned value is an index into the State.HaveAmmo array (of the human player entity).
@@ -61,42 +58,41 @@ class CarriedWeaponT
     // THIS FUNCTION IS PROBABLY OF NO USE, BECAUSE ITS INFORMATION IS PROCESSED INTERNALLY.
     // virtual char GetAmmoSlotForSecondaryFire() const;
 
-    // This functions returns the model of the VIEW weapon model (1st persons view) of this weapon.
-    virtual ModelProxyT& GetViewWeaponModel() const=0;
+    /// This functions returns the model of the VIEW weapon model (1st persons view) of this weapon.
+    const CafuModelT* GetViewWeaponModel() const { return m_ViewModel; }
 
-    // This functions returns the model of the PLAYER weapon model (3rd persons view) of this weapon (as a submodel to the players body model).
-    virtual ModelProxyT& GetPlayerWeaponModel() const=0;
+    /// This functions returns the model of the PLAYER weapon model (3rd persons view) of this weapon (as a submodel to the players body model).
+    const CafuModelT* GetPlayerWeaponModel() const { return m_PlayerModel; }
 
 
-
-    // This function is to be called when the entity 'Entity' has just picked up this weapon.
-    // Returns true if the weapon was successfully given to (picked up by) the entity, false otherwise.
-    // Usually called by a weapon entity (that represents the weapon lying around) on detection of touch by a human player.
+    /// This function is to be called when the entity 'Entity' has just picked up this weapon.
+    /// Returns true if the weapon was successfully given to (picked up by) the entity, false otherwise.
+    /// Usually called by a weapon entity (that represents the weapon lying around) on detection of touch by a human player.
     virtual bool ServerSide_PickedUpByEntity(BaseEntityT* Entity) const;
 
-    // This functions handles the thinking for this carried weapon.
-    // Typically called from within EntHumanPlayerT::Think().
+    /// This functions handles the thinking for this carried weapon.
+    /// Typically called from within EntHumanPlayerT::Think().
     virtual void ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;
 
 
-
-    // This function handles the occurance of a "primary fire" event that was received by Entity.
+    /// This function handles the occurance of a "primary fire" event that was received by Entity.
     virtual void ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* Player, const VectorT& LastSeenAmbientColor) const;
 
-    // This function handles the occurance of a "secondary fire" event that was received by Entity.
+    /// This function handles the occurance of a "secondary fire" event that was received by Entity.
     virtual void ClientSide_HandleSecondaryFireEvent(const EntHumanPlayerT* Player, const VectorT& LastSeenAmbientColor) const;
 
-    // Function for handling state (vs. event) driven effects of the weapon of Player,
-    // e.g. drawing laser beams, keeping the sound on the weapon sound channel alive, and so on.
+    /// Function for handling state (vs. event) driven effects of the weapon of Player,
+    /// e.g. drawing laser beams, keeping the sound on the weapon sound channel alive, and so on.
     virtual void ClientSide_HandleStateDrivenEffects(const EntHumanPlayerT* Player) const;
 
  // virtual void ClientSide_DrawCrossHair(BaseEntityT* Entity, int Seed,int OpenGLWindow_Width, int OpenGLWindow_Height); //for hud effect
  // virtual void ClientSide_GetAmmoString(BaseEntityT* Entity, int Seed);
 
 
+    private:
 
-    // The destructor.
-    virtual ~CarriedWeaponT() { }
+    const CafuModelT* m_ViewModel;      ///< The first-person "view" model of this weapon.
+    const CafuModelT* m_PlayerModel;    ///< The third-person "player" model of this weapon.
 };
 
 #endif

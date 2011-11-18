@@ -19,20 +19,17 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*********************************/
-/*** Carried Weapon - CrossBow ***/
-/*********************************/
-
 #ifndef _CW_CROSSBOW_HPP_
 #define _CW_CROSSBOW_HPP_
 
 #include "cw.hpp"
 
 
-struct CarriedWeaponCrossBowT : public CarriedWeaponT
+class CarriedWeaponCrossBowT : public CarriedWeaponT
 {
-    ModelProxyT& GetViewWeaponModel  () const;
-    ModelProxyT& GetPlayerWeaponModel() const;
+    public:
+
+    CarriedWeaponCrossBowT(ModelManagerT& ModelMan);
 
     bool ServerSide_PickedUpByEntity(BaseEntityT* Entity) const;
     void ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;

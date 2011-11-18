@@ -29,7 +29,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 class EntityCreateParamsT;
 class EntStaticDetailModelT;
-class ModelProxyT;
 namespace cf { namespace GuiSys { class GuiI; } }
 
 
@@ -37,10 +36,8 @@ class EntHumanPlayerT : public BaseEntityT, public btMotionState
 {
     public:
 
-    static const char EventID_PrimaryFire;                                          // Publicly defined for access from the "carried weapons".
-    static const char EventID_SecondaryFire;                                        // Publicly defined for access from the "carried weapons".
-
-    static ModelProxyT& GetModelFromPlayerModelIndex(unsigned long ModelIndex);     // Publicly defined for access from e.g. the "corpse".
+    static const char EventID_PrimaryFire;      // Publicly defined for access from the "carried weapons".
+    static const char EventID_SecondaryFire;    // Publicly defined for access from the "carried weapons".
 
 
     EntHumanPlayerT(const EntityCreateParamsT& Params);

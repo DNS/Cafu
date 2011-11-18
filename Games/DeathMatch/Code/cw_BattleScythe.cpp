@@ -19,19 +19,29 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*************************************/
-/*** Carried Weapon - BattleScythe ***/
-/*************************************/
-
 #include "cw_BattleScythe.hpp"
 #include "HumanPlayer.hpp"
 #include "Constants_WeaponSlots.hpp"
 #include "Libs/LookupTables.hpp"
-#include "Models/Model_proxy.hpp"
+#include "Models/ModelManager.hpp"
+#include "SoundSystem/SoundSys.hpp"
+#include "SoundSystem/SoundShaderManager.hpp"
+#include "SoundSystem/Sound.hpp"
 
 
-ModelProxyT& CarriedWeaponBattleScytheT::GetViewWeaponModel  () const { static ModelProxyT M("Games/DeathMatch/Models/Weapons/BattleScythe_v.mdl"); return M; }
-ModelProxyT& CarriedWeaponBattleScytheT::GetPlayerWeaponModel() const { static ModelProxyT M("Games/DeathMatch/Models/Weapons/BattleScythe_p.mdl"); return M; }
+CarriedWeaponBattleScytheT::CarriedWeaponBattleScytheT(ModelManagerT& ModelMan)
+    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/BattleScythe_v.mdl"),
+                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/BattleScythe_p.mdl")),
+      FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/BattleScythe")))
+{
+}
+
+
+CarriedWeaponBattleScytheT::~CarriedWeaponBattleScytheT()
+{
+    // Release Sound.
+    SoundSystem->DeleteSound(FireSound);
+}
 
 
 bool CarriedWeaponBattleScytheT::ServerSide_PickedUpByEntity(BaseEntityT* Entity) const

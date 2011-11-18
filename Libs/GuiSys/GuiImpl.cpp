@@ -98,7 +98,7 @@ cf::TrueTypeFontT* GuiResourcesT::GetFont(const std::string& FontName)
 
 const CafuModelT* GuiResourcesT::GetModel(const std::string& FileName, std::string& ErrorMsg)
 {
-    return m_ModelMan.GetModel(FileName, ErrorMsg);
+    return m_ModelMan.GetModel(FileName, &ErrorMsg);
 }
 
 

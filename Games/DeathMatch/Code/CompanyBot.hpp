@@ -23,10 +23,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define _COMPANY_BOT_HPP_
 
 #include "../../BaseEntity.hpp"
-#include "Models/Model_proxy.hpp"
 #include "btBulletDynamicsCommon.h"
 
 
+class CafuModelT;
 class EntityCreateParamsT;
 
 
@@ -58,8 +58,9 @@ class EntCompanyBotT : public BaseEntityT, public btMotionState
 
     private:
 
-    const ModelProxyT CompanyBotModel;
-    float             TimeForLightSource;
+    const CafuModelT* m_CompanyBotModel;
+    const CafuModelT* m_WeaponModel;
+    float             m_TimeForLightSource;
 
     btCollisionShape* m_CollisionShape;     ///< The collision shape that is used to approximate and represent this player in the physics world.
     btRigidBody*      m_RigidBody;          ///< The rigid body (of "kinematic" type) for use in the physics world.

@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 class BaseEntityT;
+class CafuModelT;
 namespace cf { namespace ClipSys { class ClipWorldT; } }
 
 
@@ -65,6 +66,11 @@ namespace cf
 
             /// Removes the entity identified by 'EntityID' from the (server) world.
             virtual void RemoveEntity(unsigned long EntityID)=0;
+
+            /// Returns a model for the given filename.
+            /// The returned model instance is managed by the GameWorldI implementation in a ModelManagerT,
+            /// thus the caller does not have to (and if fact, must not) delete the CafuModelT instance.
+            virtual const CafuModelT* GetModel(const std::string& FileName) const=0;
         };
     }
 }

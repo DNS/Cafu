@@ -31,9 +31,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
 #include "EntityCreateParams.hpp"
+#include "GameImpl.hpp"
 #include "PhysicsWorld.hpp"
 #include "Libs/LookupTables.hpp"
 #include "Libs/Physics.hpp"
+
 #include "SoundSystem/SoundSys.hpp"
 #include "../../GameWorld.hpp"
 #include "ClipSys/ClipWorld.hpp"
@@ -45,7 +47,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Renderer.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
-#include "Models/Model_proxy.hpp"
+#include "Models/AnimPose.hpp"
+#include "Models/Model_cmdl.hpp"
 #include "OpenGL/OpenGLWindow.hpp"
 #include "ParticleEngine/ParticleEngineMS.hpp"
 #include "TypeSys.hpp"
@@ -216,29 +219,6 @@ void EntHumanPlayerT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT
     {
         State.Health-=Amount;
     }
-}
-
-
-// Maps a player model index to a player model proxy.
-// Used to obtain a player model (ModelProxyT) from State.ModelIndex.
-// Remember that ModelProxyTs are cheap and share resources.
-// Unfortunately, we cannot have a simple global static array for this purpose,
-// because that would initialize the models before the MatSys is initialized!
-// (Otherwise, GetModelFromPlayerModelIndex_[] alone would suffice.)
-ModelProxyT& EntHumanPlayerT::GetModelFromPlayerModelIndex(unsigned long ModelIndex)
-{
-    static ModelProxyT GetModelFromPlayerModelIndex_[]=
-    {
-        ModelProxyT("Games/DeathMatch/Models/Players/Alien.mdl"   ),
-        ModelProxyT("Games/DeathMatch/Models/Players/James.mdl"   ),
-        ModelProxyT("Games/DeathMatch/Models/Players/Punisher.mdl"),
-        ModelProxyT("Games/DeathMatch/Models/Players/Sentinel.mdl"),
-        ModelProxyT("Games/DeathMatch/Models/Players/Skeleton.mdl"),
-        ModelProxyT("Games/DeathMatch/Models/Players/T801.mdl"    ),
-        ModelProxyT("Games/DeathMatch/Models/Players/Trinity.mdl" )
-    };
-
-    return GetModelFromPlayerModelIndex_[ModelIndex];
 }
 
 
@@ -477,12 +457,15 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 // Handle the state machine of the "_v" (view) model of the current weapon.
                 if (State.HaveWeapons & (1 << State.ActiveWeaponSlot))
                 {
-                    const CarriedWeaponT* CarriedWeapon=CarriedWeaponT::GetCarriedWeapon(State.ActiveWeaponSlot);
+                    const CarriedWeaponT* CarriedWeapon=cf::GameSys::GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot);
 
                     // Advance the frame time of the weapon.
-                    ModelProxyT& WeaponModelView=CarriedWeapon->GetViewWeaponModel();
+                    const CafuModelT* WeaponModel=CarriedWeapon->GetViewWeaponModel();
 
-                    const float NewFrameNr      =WeaponModelView.AdvanceFrameNr(State.ActiveWeaponSequNr, State.ActiveWeaponFrameNr, PlayerCommands[PCNr].FrameTime, true);
+                    AnimPoseT* Pose=WeaponModel->GetSharedPose(State.ActiveWeaponSequNr, State.ActiveWeaponFrameNr);
+                    Pose->Advance(PlayerCommands[PCNr].FrameTime, true);
+
+                    const float NewFrameNr=Pose->GetFrameNr();
                     const bool  AnimSequenceWrap=NewFrameNr<State.ActiveWeaponFrameNr;
 
                     State.ActiveWeaponFrameNr=NewFrameNr;
@@ -710,15 +693,16 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
 
                 // Advance frame time of model sequence.
-                ModelProxyT& PlayerModel=GetModelFromPlayerModelIndex(State.ModelIndex);
+                const CafuModelT* PlayerModel=cf::GameSys::GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
+                AnimPoseT*        Pose       =PlayerModel->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
 
-                State.ModelFrameNr=PlayerModel.AdvanceFrameNr(State.ModelSequNr, State.ModelFrameNr, PlayerCommands[PCNr].FrameTime, true);
+                Pose->Advance(PlayerCommands[PCNr].FrameTime, true);
+                State.ModelFrameNr=Pose->GetFrameNr();
                 break;
             }
 
             case StateOfExistance_Dead:
             {
-                ModelProxyT& PlayerModel     =GetModelFromPlayerModelIndex(State.ModelIndex);
                 bool         DummyOldWishJump=false;
                 const double OldOriginZ      =State.Origin.z;
                 const float  OldModelFrameNr =State.ModelFrameNr;
@@ -746,7 +730,11 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 }
 
                 // Advance frame time of model sequence.
-                State.ModelFrameNr=PlayerModel.AdvanceFrameNr(State.ModelSequNr, State.ModelFrameNr, PlayerCommands[PCNr].FrameTime, false);
+                const CafuModelT* PlayerModel=cf::GameSys::GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
+                AnimPoseT*        Pose       =PlayerModel->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
+
+                Pose->Advance(PlayerCommands[PCNr].FrameTime, false);
+                State.ModelFrameNr=Pose->GetFrameNr();
 
                 // We entered this state after we died.
                 // Now leave it only after we have come to a complete halt, and the death sequence is over.
@@ -898,8 +886,8 @@ void EntHumanPlayerT::ProcessEvent(char EventID)
 
     switch (EventID)
     {
-        case EventID_PrimaryFire  : CarriedWeaponT::GetCarriedWeapon(State.ActiveWeaponSlot)->ClientSide_HandlePrimaryFireEvent  (this, LastSeenAmbientColor); break;
-        case EventID_SecondaryFire: CarriedWeaponT::GetCarriedWeapon(State.ActiveWeaponSlot)->ClientSide_HandleSecondaryFireEvent(this, LastSeenAmbientColor); break;
+        case EventID_PrimaryFire  : cf::GameSys::GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->ClientSide_HandlePrimaryFireEvent  (this, LastSeenAmbientColor); break;
+        case EventID_SecondaryFire: cf::GameSys::GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->ClientSide_HandleSecondaryFireEvent(this, LastSeenAmbientColor); break;
     }
 }
 
@@ -976,9 +964,10 @@ void EntHumanPlayerT::Draw(bool FirstPersonView, float LodDist) const
             MatSys::Renderer->SetCurrentEyePosition(EyePos.x, EyePos.y, EyePos.z);
 
 
-            ModelProxyT& WeaponModelView=CarriedWeaponT::GetCarriedWeapon(State.ActiveWeaponSlot)->GetViewWeaponModel();
+            const CafuModelT* WeaponModel=cf::GameSys::GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->GetViewWeaponModel();
+            AnimPoseT*        Pose       =WeaponModel->GetSharedPose(State.ActiveWeaponSequNr, State.ActiveWeaponFrameNr);
 
-            WeaponModelView.Draw(State.ActiveWeaponSequNr, State.ActiveWeaponFrameNr, LodDist);
+            Pose->Draw(-1 /*default skin*/, LodDist);
         }
     }
     else
@@ -992,9 +981,20 @@ void EntHumanPlayerT::Draw(bool FirstPersonView, float LodDist) const
         MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, 0.0f, 0.0f, OffsetZ);
 
         // Draw the own player body model and the "_p" (player) model of the active weapon as sub-model of the body.
-        ModelProxyT& PlayerModel=GetModelFromPlayerModelIndex(State.ModelIndex);
+        const CafuModelT* PlayerModel=cf::GameSys::GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
+        AnimPoseT*        Pose       =PlayerModel->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
 
-        PlayerModel.Draw(State.ModelSequNr, State.ModelFrameNr, LodDist, (State.HaveWeapons & (1 << State.ActiveWeaponSlot)) ? &CarriedWeaponT::GetCarriedWeapon(State.ActiveWeaponSlot)->GetPlayerWeaponModel() : NULL);
+        Pose->Draw(-1 /*default skin*/, LodDist);
+
+        if (State.HaveWeapons & (1 << State.ActiveWeaponSlot))
+        {
+            const CafuModelT* WeaponModel=cf::GameSys::GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->GetPlayerWeaponModel();
+            AnimPoseT*        WeaponPose =WeaponModel->GetSharedPose(0, 0.0f);
+
+            WeaponPose->SetSuperPose(Pose);
+            WeaponPose->Draw(-1 /*default skin*/, LodDist);
+            WeaponPose->SetSuperPose(NULL);
+        }
     }
 }
 
@@ -1003,7 +1003,7 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
 {
     // Code for state driven effects.
     if (State.HaveWeapons & (1 << State.ActiveWeaponSlot))
-        CarriedWeaponT::GetCarriedWeapon(State.ActiveWeaponSlot)->ClientSide_HandleStateDrivenEffects(this);
+        cf::GameSys::GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->ClientSide_HandleStateDrivenEffects(this);
 
 
     if (FirstPersonView)
@@ -1163,10 +1163,12 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
     }
     else
     {
-        ModelProxyT& PlayerModel=GetModelFromPlayerModelIndex(State.ModelIndex);
+        const CafuModelT* PlayerModel=cf::GameSys::GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
+        AnimPoseT*        Pose       =PlayerModel->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
 
         // Implicit simple "mini-prediction". WARNING, this does not really work...!
-        State.ModelFrameNr=PlayerModel.AdvanceFrameNr(State.ModelSequNr, State.ModelFrameNr, FrameTime, State.StateOfExistance!=StateOfExistance_Dead);
+        Pose->Advance(FrameTime, State.StateOfExistance!=StateOfExistance_Dead);
+        State.ModelFrameNr=Pose->GetFrameNr();
     }
 
     TimeForLightSource+=FrameTime;

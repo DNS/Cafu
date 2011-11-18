@@ -19,20 +19,19 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*****************************/
-/*** Carried Weapon - Egon ***/
-/*****************************/
-
 #include "cw_Egon.hpp"
 #include "HumanPlayer.hpp"
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
 #include "Libs/LookupTables.hpp"
-#include "Models/Model_proxy.hpp"
+#include "Models/ModelManager.hpp"
 
 
-ModelProxyT& CarriedWeaponEgonT::GetViewWeaponModel  () const { static ModelProxyT M("Games/DeathMatch/Models/Weapons/Egon_v.mdl"); return M; }
-ModelProxyT& CarriedWeaponEgonT::GetPlayerWeaponModel() const { static ModelProxyT M("Games/DeathMatch/Models/Weapons/Egon_p.mdl"); return M; }
+CarriedWeaponEgonT::CarriedWeaponEgonT(ModelManagerT& ModelMan)
+    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Egon_v.mdl"),
+                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Egon_p.mdl"))
+{
+}
 
 
 bool CarriedWeaponEgonT::ServerSide_PickedUpByEntity(BaseEntityT* Entity) const

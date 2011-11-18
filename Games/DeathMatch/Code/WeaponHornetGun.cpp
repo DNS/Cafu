@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
 #include "EntityCreateParams.hpp"
+#include "GameImpl.hpp"
 #include "HumanPlayer.hpp"
 #include "TypeSys.hpp"
 

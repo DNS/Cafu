@@ -19,34 +19,18 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/****************************/
-/*** Carried Weapon - 357 ***/
-/****************************/
-
 #ifndef _CW_357_HPP_
 #define _CW_357_HPP_
 
 #include "cw.hpp"
-#include "SoundSystem/SoundSys.hpp"
-#include "SoundSystem/SoundShaderManager.hpp"
-#include "SoundSystem/Sound.hpp"
 
 
-struct CarriedWeapon357T : public CarriedWeaponT
+class CarriedWeapon357T : public CarriedWeaponT
 {
-    CarriedWeapon357T()
-        : FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/DesertEagle_Shot1")))
-    {
-    };
+    public:
 
-    ~CarriedWeapon357T()
-    {
-        // Release Sound.
-        SoundSystem->DeleteSound(FireSound);
-    }
-
-    ModelProxyT& GetViewWeaponModel  () const;
-    ModelProxyT& GetPlayerWeaponModel() const;
+    CarriedWeapon357T(ModelManagerT& ModelMan);
+    ~CarriedWeapon357T();
 
     bool ServerSide_PickedUpByEntity(BaseEntityT* Entity) const;
     void ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;

@@ -22,11 +22,23 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameImpl.hpp"
 
 #include "cw.hpp"
+#include "cw_357.hpp"
+#include "cw_9mmAR.hpp"
+#include "cw_BattleScythe.hpp"
+#include "cw_CrossBow.hpp"
+#include "cw_Egon.hpp"
+#include "cw_FaceHugger.hpp"
+#include "cw_Gauss.hpp"
+#include "cw_Grenade.hpp"
+#include "cw_Pistol.hpp"
+#include "cw_RPG.hpp"
+#include "cw_Shotgun.hpp"
 #include "EntityCreateParams.hpp"
 #include "HumanPlayer.hpp"
 #include "PhysicsWorld.hpp"
 #include "ScriptState.hpp"
 #include "TypeSys.hpp"
+#include "Models/ModelManager.hpp"
 #include "SoundSystem/SoundSys.hpp"
 #include "SoundSystem/SoundShaderManager.hpp"
 #include "SoundSystem/Sound.hpp"
@@ -75,8 +87,30 @@ cf::GameSys::GameImplT::GameImplT()
 }
 
 
-void cf::GameSys::GameImplT::Initialize(bool AsClient, bool AsServer)
+void cf::GameSys::GameImplT::Initialize(bool AsClient, bool AsServer, ModelManagerT& ModelMan)
 {
+    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/Alien.mdl"   ));
+    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/James.mdl"   ));
+    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/Punisher.mdl"));
+    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/Sentinel.mdl"));
+    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/Skeleton.mdl"));
+    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/T801.mdl"    ));
+    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/Trinity.mdl" ));
+
+    m_CarriedWeapons.PushBack(new CarriedWeaponBattleScytheT(ModelMan));
+    m_CarriedWeapons.PushBack(new CarriedWeapon357T(ModelMan));     // The .357 acts as "dummy" implementation.
+    m_CarriedWeapons.PushBack(new CarriedWeaponPistolT(ModelMan));
+    m_CarriedWeapons.PushBack(new CarriedWeapon357T(ModelMan));
+    m_CarriedWeapons.PushBack(new CarriedWeaponShotgunT(ModelMan));
+    m_CarriedWeapons.PushBack(new CarriedWeapon9mmART(ModelMan));
+    m_CarriedWeapons.PushBack(new CarriedWeaponCrossBowT(ModelMan));
+    m_CarriedWeapons.PushBack(new CarriedWeaponRPGT(ModelMan));
+    m_CarriedWeapons.PushBack(new CarriedWeaponGaussT(ModelMan));
+    m_CarriedWeapons.PushBack(new CarriedWeaponEgonT(ModelMan));
+    m_CarriedWeapons.PushBack(new CarriedWeaponGrenadeT(ModelMan));
+    m_CarriedWeapons.PushBack(new CarriedWeapon357T(ModelMan));     // The .357 acts as "dummy" implementation.
+    m_CarriedWeapons.PushBack(new CarriedWeaponFaceHuggerT(ModelMan));
+
     RunningAsClient=AsClient;
     RunningAsServer=AsServer;
 
@@ -102,17 +136,6 @@ void cf::GameSys::GameImplT::Initialize(bool AsClient, bool AsServer)
         // Another curiosity that I just noticed: Not pre-caching here means not only to register the materials later (on first use),
         // but also to effectively load and initialize the models only at that later time, what might be very expensive, too!
         {
-            // Simply loop over all weapon slots for getting all possibly carried weapons, and touch their models.
-            for (char cwNr=0; cwNr<13; cwNr++)
-            {
-                CarriedWeaponT::GetCarriedWeapon(cwNr)->GetViewWeaponModel();
-                CarriedWeaponT::GetCarriedWeapon(cwNr)->GetPlayerWeaponModel();
-            }
-
-            // Simply loop over all possible player models (all valid State.ModelIndex values for EntHumanPlayerTs).
-            for (unsigned long pmNr=0; pmNr<7; pmNr++)
-                EntHumanPlayerT::GetModelFromPlayerModelIndex(pmNr);
-
             // And the rest. Observe that static detail models are NOT mentioned (how could they?).
             static ModelProxyT M01("Games/DeathMatch/Models/Items/Ammo_DartGun.mdl");
             static ModelProxyT M02("Games/DeathMatch/Models/Items/Ammo_DesertEagle.mdl");
@@ -138,16 +161,16 @@ void cf::GameSys::GameImplT::Initialize(bool AsClient, bool AsServer)
 
 
         // Precache all sounds known to be used here.
-        PreCacheSounds.PushBack(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Item/PickUp")));
-        PreCacheSounds.PushBack(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Item/Respawn")));
-        PreCacheSounds.PushBack(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Ambient/Jungle")));
-        PreCacheSounds.PushBack(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/DesertEagle_Shot1")));
-        PreCacheSounds.PushBack(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/9mmAR_GLauncher")));
-        PreCacheSounds.PushBack(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/9mmAR_Shot1")));
-        PreCacheSounds.PushBack(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/BattleScythe")));
-        PreCacheSounds.PushBack(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/FaceHugger_Throw")));
-        PreCacheSounds.PushBack(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/Shotgun_sBarrel")));
-        PreCacheSounds.PushBack(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/Shotgun_dBarrel")));
+        m_PreCacheSounds.PushBack(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Item/PickUp")));
+        m_PreCacheSounds.PushBack(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Item/Respawn")));
+        m_PreCacheSounds.PushBack(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Ambient/Jungle")));
+        m_PreCacheSounds.PushBack(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/DesertEagle_Shot1")));
+        m_PreCacheSounds.PushBack(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/9mmAR_GLauncher")));
+        m_PreCacheSounds.PushBack(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/9mmAR_Shot1")));
+        m_PreCacheSounds.PushBack(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/BattleScythe")));
+        m_PreCacheSounds.PushBack(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/FaceHugger_Throw")));
+        m_PreCacheSounds.PushBack(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/Shotgun_sBarrel")));
+        m_PreCacheSounds.PushBack(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/Shotgun_dBarrel")));
     }
 
     if (RunningAsServer)
@@ -166,13 +189,19 @@ void cf::GameSys::GameImplT::Release()
         ResMan.ShutDown();
 
         // Remove reference to precached sounds here.
-        for (unsigned long i=0; i<PreCacheSounds.Size(); i++)
-            delete PreCacheSounds[i];
+        for (unsigned long i=0; i<m_PreCacheSounds.Size(); i++)
+            delete m_PreCacheSounds[i];
     }
 
     if (RunningAsServer)
     {
     }
+
+    for (unsigned int cwNr=0; cwNr<m_CarriedWeapons.Size(); cwNr++)
+        delete m_CarriedWeapons[cwNr];
+
+    // for (unsigned int ModelNr=0; ModelNr<m_PlayerModels.Size(); ModelNr++)
+    //     delete m_PlayerModels[ModelNr];  // No, don't delete them: they're from the ModelManager!
 }
 
 
@@ -361,4 +390,16 @@ void cf::GameSys::GameImplT::FreeBaseEntity(BaseEntityT* BaseEntity)
     if (ScriptState) ScriptState->RemoveEntityInstance(BaseEntity);
 
     delete BaseEntity;
+}
+
+
+const CafuModelT* cf::GameSys::GameImplT::GetPlayerModel(unsigned int ModelIndex) const
+{
+    return m_PlayerModels[ModelIndex<m_PlayerModels.Size() ? ModelIndex : 0];
+}
+
+
+const CarriedWeaponT* cf::GameSys::GameImplT::GetCarriedWeapon(unsigned int ActiveWeaponSlot) const
+{
+    return m_CarriedWeapons[ActiveWeaponSlot<m_CarriedWeapons.Size() ? ActiveWeaponSlot : 3];
 }

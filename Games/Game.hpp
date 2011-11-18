@@ -29,6 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 // Forward declarations.
 class BaseEntityT;
 template<class T> class Vector3T;
+class ModelManagerT;
 namespace cf { namespace ClipSys { class CollisionModelT; } }
 namespace cf { namespace GameSys { class GameWorldI; } }
 namespace cf { namespace SceneGraph { class GenericNodeT; } }
@@ -50,7 +51,7 @@ namespace cf
             /// not each time a new world is about to be loaded.
             /// @param AsClient     Tells whether we're running as client.
             /// @param AsServer     Tells whether we're running as server.
-            virtual void Initialize(bool AsClient, bool AsServer)=0;
+            virtual void Initialize(bool AsClient, bool AsServer, ModelManagerT& ModelMan)=0;
 
             /// Called to shutdown the game.
             /// This function is called exactly once as the very last function before the game is released,

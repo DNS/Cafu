@@ -19,54 +19,18 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/**********************/
-/*** Carried Weapon ***/
-/**********************/
-
 #include "cw.hpp"
-#include "cw_357.hpp"
-#include "cw_9mmAR.hpp"
-#include "cw_BattleScythe.hpp"
-#include "cw_CrossBow.hpp"
-#include "cw_Egon.hpp"
-#include "cw_FaceHugger.hpp"
-#include "cw_Gauss.hpp"
-#include "cw_Grenade.hpp"
-#include "cw_Pistol.hpp"
-#include "cw_RPG.hpp"
-#include "cw_Shotgun.hpp"
 
 
-const CarriedWeaponT* CarriedWeaponT::GetCarriedWeapon(char ActiveWeaponSlot)
+CarriedWeaponT::CarriedWeaponT(const CafuModelT* ViewModel, const CafuModelT* PlayerModel)
+    : m_ViewModel(ViewModel),
+      m_PlayerModel(PlayerModel)
 {
-    static CarriedWeapon357T          CarriedWeapon_NONE_DUMMY;
-    static CarriedWeapon357T          CarriedWeapon357;
-    static CarriedWeapon9mmART        CarriedWeapon9mmAR;
-    static CarriedWeaponBattleScytheT CarriedWeaponBattleScythe;
-    static CarriedWeaponCrossBowT     CarriedWeaponCrossBow;
-    static CarriedWeaponEgonT         CarriedWeaponEgon;
-    static CarriedWeaponFaceHuggerT   CarriedWeaponFaceHugger;
-    static CarriedWeaponGaussT        CarriedWeaponGauss;
-    static CarriedWeaponGrenadeT      CarriedWeaponGrenade;
-    static CarriedWeaponPistolT       CarriedWeaponPistol;
-    static CarriedWeaponRPGT          CarriedWeaponRPG;
-    static CarriedWeaponShotgunT      CarriedWeaponShotgun;
+}
 
-    static CarriedWeaponT* CarriedWeaponPtrs[13]={ &CarriedWeaponBattleScythe,
-                                                   &CarriedWeapon_NONE_DUMMY,
-                                                   &CarriedWeaponPistol,
-                                                   &CarriedWeapon357,
-                                                   &CarriedWeaponShotgun,
-                                                   &CarriedWeapon9mmAR,
-                                                   &CarriedWeaponCrossBow,
-                                                   &CarriedWeaponRPG,
-                                                   &CarriedWeaponGauss,
-                                                   &CarriedWeaponEgon,
-                                                   &CarriedWeaponGrenade,
-                                                   &CarriedWeapon_NONE_DUMMY,
-                                                   &CarriedWeaponFaceHugger };
 
-    return ActiveWeaponSlot<13 ? CarriedWeaponPtrs[ActiveWeaponSlot] : &CarriedWeapon_NONE_DUMMY;
+CarriedWeaponT::~CarriedWeaponT()
+{
 }
 
 

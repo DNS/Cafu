@@ -19,21 +19,31 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/***********************************/
-/*** Carried Weapon - FaceHugger ***/
-/***********************************/
-
 #include "cw_FaceHugger.hpp"
 #include "HumanPlayer.hpp"
 #include "Constants_WeaponSlots.hpp"
 #include "Libs/LookupTables.hpp"
 #include "../../GameWorld.hpp"
-#include "Models/Model_proxy.hpp"
+#include "Models/ModelManager.hpp"
 #include "ParticleEngine/ParticleEngineMS.hpp"
+#include "SoundSystem/SoundSys.hpp"
+#include "SoundSystem/SoundShaderManager.hpp"
+#include "SoundSystem/Sound.hpp"
 
 
-ModelProxyT& CarriedWeaponFaceHuggerT::GetViewWeaponModel  () const { static ModelProxyT M("Games/DeathMatch/Models/Weapons/FaceHugger_v.mdl"); return M; }
-ModelProxyT& CarriedWeaponFaceHuggerT::GetPlayerWeaponModel() const { static ModelProxyT M("Games/DeathMatch/Models/Weapons/FaceHugger_p.mdl"); return M; }
+CarriedWeaponFaceHuggerT::CarriedWeaponFaceHuggerT(ModelManagerT& ModelMan)
+    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/FaceHugger_v.mdl"),
+                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/FaceHugger_p.mdl")),
+      FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/FaceHugger_Throw")))
+{
+}
+
+
+CarriedWeaponFaceHuggerT::~CarriedWeaponFaceHuggerT()
+{
+    // Release Sound.
+    SoundSystem->DeleteSound(FireSound);
+}
 
 
 bool CarriedWeaponFaceHuggerT::ServerSide_PickedUpByEntity(BaseEntityT* Entity) const

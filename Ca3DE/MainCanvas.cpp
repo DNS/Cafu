@@ -408,7 +408,8 @@ void MainCanvasT::Initialize()
             throw std::runtime_error("Could not load game "+Options_ServerGameName.GetValueString()+".");
 
         cf::GameSys::Game->Initialize(true /*(Options_RunMode.GetValueInt() & CLIENT_RUNMODE)>0*/,
-                                      true /*(Options_RunMode.GetValueInt() & SERVER_RUNMODE)>0*/);
+                                      true /*(Options_RunMode.GetValueInt() & SERVER_RUNMODE)>0*/,
+                                      *m_ModelManager);
 
 
         // Create the client and server instances.

@@ -67,12 +67,15 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
     BaseEntityT*                 GetBaseEntityByID(unsigned long EntityID) const;
     unsigned long                CreateNewEntity(const std::map<std::string, std::string>& Properties, unsigned long CreationFrameNr, const VectorT& Origin);
     void                         RemoveEntity(unsigned long EntityID);
+    const CafuModelT*            GetModel(const std::string& FileName) const;
 
 
     private:
 
     Ca3DEWorldT(const Ca3DEWorldT&);            ///< Use of the Copy Constructor    is not allowed.
     void operator = (const Ca3DEWorldT&);       ///< Use of the Assignment Operator is not allowed.
+
+    ModelManagerT& m_ModelMan;
 };
 
 #endif

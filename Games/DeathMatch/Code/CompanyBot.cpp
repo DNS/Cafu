@@ -35,6 +35,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/Renderer.hpp"
+#include "Models/AnimPose.hpp"
+#include "Models/Model_cmdl.hpp"
 
 
 // Implement the type info related code.
@@ -73,8 +75,9 @@ EntCompanyBotT::EntCompanyBotT(const EntityCreateParamsT& Params)
                                0,       // ActiveWeaponSlot
                                0,       // ActiveWeaponSequNr
                                0.0)),   // ActiveWeaponFrameNr
-      CompanyBotModel("Games/DeathMatch/Models/Players/Trinity.mdl"),
-      TimeForLightSource(0.0f)
+      m_CompanyBotModel(Params.GameWorld->GetModel("Games/DeathMatch/Models/Players/Trinity.mdl")),
+      m_WeaponModel(Params.GameWorld->GetModel("Games/DeathMatch/Models/Weapons/DesertEagle_p.mdl")),
+      m_TimeForLightSource(0.0f)
 {
     // Wir könnten im Boden stecken oder darüber schweben - korrigiere entsprechend!
     // If multiple solid entities are stacked upon each other, this code might leave gaps between them,
@@ -192,7 +195,9 @@ void EntCompanyBotT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
         bool DummyOldWishJump=false;
         Physics::MoveHuman(State, ClipModel, FrameTime, VectorT(), VectorT(), false, DummyOldWishJump, 0.0, GameWorld->GetClipWorld());
 
-        State.ModelFrameNr=CompanyBotModel.AdvanceFrameNr(State.ModelSequNr, State.ModelFrameNr, FrameTime, false);
+        AnimPoseT* Pose=m_CompanyBotModel->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
+        Pose->Advance(FrameTime);
+        State.ModelFrameNr=Pose->GetFrameNr();
 
         // As we're in "dead" state, the ClipModel is no longer registered with the clip world,
         // and there is no need to update its position or to re-register.
@@ -254,7 +259,9 @@ void EntCompanyBotT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
     XYVel.z=0;
     double NewSpeed=length(XYVel);
 
-    State.ModelFrameNr=CompanyBotModel.AdvanceFrameNr(State.ModelSequNr, State.ModelFrameNr, FrameTime, true);
+    AnimPoseT* Pose=m_CompanyBotModel->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
+    Pose->Advance(FrameTime, true);
+    State.ModelFrameNr=Pose->GetFrameNr();
 
     if (OldSpeed<1000 && NewSpeed>1000) { State.ModelSequNr=3; State.ModelFrameNr=0.0; }
     if (OldSpeed>1000 && NewSpeed<1000) { State.ModelSequNr=1; State.ModelFrameNr=0.0; }
@@ -302,10 +309,10 @@ bool EntCompanyBotT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned lo
 {
     if (!HasLight.GetValueBool()) return false;
 
-    if (TimeForLightSource<2.0f)
+    if (m_TimeForLightSource<2.0f)
     {
-        // 0.0 <= TimeForLightSource < 2.0
-        const float         Value=1.0f-0.5f*(1.0f+LookupTables::Angle16ToCos[(unsigned short)(TimeForLightSource/4.0f*65536.0f)]);
+        // 0.0 <= m_TimeForLightSource < 2.0
+        const float         Value=1.0f-0.5f*(1.0f+LookupTables::Angle16ToCos[(unsigned short)(m_TimeForLightSource/4.0f*65536.0f)]);
         const unsigned long Red  =char(255.0f*Value);
         const unsigned long Green=char(255.0f*Value*0.9f);
 
@@ -314,15 +321,15 @@ bool EntCompanyBotT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned lo
     }
     else
     {
-        // 2.0 <= TimeForLightSource < 6.0
-        const float         Value=0.5f*(1.0f+LookupTables::Angle16ToCos[(unsigned short)((TimeForLightSource-2.0f)/4.0f*65536.0f)]);
+        // 2.0 <= m_TimeForLightSource < 6.0
+        const float         Value=0.5f*(1.0f+LookupTables::Angle16ToCos[(unsigned short)((m_TimeForLightSource-2.0f)/4.0f*65536.0f)]);
         const unsigned long Green=char(255.0f*(Value*0.8f+0.1f));
 
         DiffuseColor =(Green << 8)+0xFF;
         SpecularColor=0x440000+(Green << 8);
     }
 
-    const float   Value=LookupTables::Angle16ToCos[(unsigned short)((TimeForLightSource-2.0f)/4.0f*65536.0f)];
+    const float   Value=LookupTables::Angle16ToCos[(unsigned short)((m_TimeForLightSource-2.0f)/4.0f*65536.0f)];
     const VectorT RelX =scale(VectorT(LookupTables::Angle16ToCos[State.Heading], LookupTables::Angle16ToSin[State.Heading], 0.0), 80.0*Value);
     const VectorT RelY =scale(VectorT(LookupTables::Angle16ToSin[State.Heading], LookupTables::Angle16ToCos[State.Heading], 0.0), 500.0);
     const VectorT RelZ =VectorT(0.0, 0.0, -300.0+0.5*char(DiffuseColor >> 8));
@@ -341,21 +348,26 @@ void EntCompanyBotT::Draw(bool /*FirstPersonView*/, float LodDist) const
     MatSys::Renderer->GetCurrentEyePosition        ()[2]+=32.0f;
     MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, 0.0f, 0.0f, -32.0f);
 
-    // Remember that ModelProxyTs are cheap and share resources.
-    static ModelProxyT Weapon357("Games/DeathMatch/Models/Weapons/DesertEagle_p.mdl");
+    AnimPoseT* Pose=m_CompanyBotModel->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
+    Pose->Draw(-1 /*default skin*/, LodDist);
 
-    CompanyBotModel.Draw(State.ModelSequNr, State.ModelFrameNr, LodDist, &Weapon357);
+    AnimPoseT* WeaponPose=m_WeaponModel->GetSharedPose(0, 0.0f);
+    WeaponPose->SetSuperPose(Pose);
+    WeaponPose->Draw(-1 /*default skin*/, LodDist);
+    WeaponPose->SetSuperPose(NULL);
 }
 
 
 void EntCompanyBotT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
 {
     // Implicit simple "mini-prediction".
-    State.ModelFrameNr=CompanyBotModel.AdvanceFrameNr(State.ModelSequNr, State.ModelFrameNr, FrameTime, State.ModelSequNr<18 || State.ModelSequNr>24);
+    AnimPoseT* Pose=m_CompanyBotModel->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
+    Pose->Advance(FrameTime, State.ModelSequNr<18 || State.ModelSequNr>24);
+    State.ModelFrameNr=Pose->GetFrameNr();
 
     // Advance the time for the light source.
-    TimeForLightSource+=FrameTime;
-    if (TimeForLightSource>6.0f) TimeForLightSource-=4.0f;
+    m_TimeForLightSource+=FrameTime;
+    if (m_TimeForLightSource>6.0f) m_TimeForLightSource-=4.0f;
 }
 
 

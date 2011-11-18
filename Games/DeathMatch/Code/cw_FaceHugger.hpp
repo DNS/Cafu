@@ -19,34 +19,18 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/***********************************/
-/*** Carried Weapon - FaceHugger ***/
-/***********************************/
-
 #ifndef _CW_FACEHUGGER_HPP_
 #define _CW_FACEHUGGER_HPP_
 
 #include "cw.hpp"
-#include "SoundSystem/SoundSys.hpp"
-#include "SoundSystem/SoundShaderManager.hpp"
-#include "SoundSystem/Sound.hpp"
 
 
-struct CarriedWeaponFaceHuggerT : public CarriedWeaponT
+class CarriedWeaponFaceHuggerT : public CarriedWeaponT
 {
-    CarriedWeaponFaceHuggerT()
-        : FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/FaceHugger_Throw")))
-    {
-    };
+    public:
 
-    ~CarriedWeaponFaceHuggerT()
-    {
-        // Release Sound.
-        SoundSystem->DeleteSound(FireSound);
-    };
-
-    ModelProxyT& GetViewWeaponModel  () const;
-    ModelProxyT& GetPlayerWeaponModel() const;
+    CarriedWeaponFaceHuggerT(ModelManagerT& ModelMan);
+    ~CarriedWeaponFaceHuggerT();
 
     bool ServerSide_PickedUpByEntity(BaseEntityT* Entity) const;
     void ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;

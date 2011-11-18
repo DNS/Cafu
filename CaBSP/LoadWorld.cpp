@@ -452,7 +452,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
             {
                 std::string          ErrorMsg;
                 const MapFileModelT& Model=E.MFModels[ModelNr];
-                const CafuModelT*    CafuM=ModelMan.GetModel(GameDirectory+"/"+Model.Model, ErrorMsg);
+                const CafuModelT*    CafuM=ModelMan.GetModel(GameDirectory+"/"+Model.Model, &ErrorMsg);
 
                 if (ErrorMsg!="") Console->Warning(ErrorMsg);
                 World.BspTree->OtherChildren.PushBack(new cf::SceneGraph::ModelNodeT(CafuM, Model.Label, Model.Origin, Model.Angles, Model.Scale, Model.SeqNumber, Model.FrameOffset, Model.FrameTimeScale, Model.Animate));
@@ -581,7 +581,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
             {
                 std::string          ErrorMsg;
                 const MapFileModelT& Model=E.MFModels[ModelNr];
-                const CafuModelT*    CafuM=ModelMan.GetModel(GameDirectory+"/"+Model.Model, ErrorMsg);
+                const CafuModelT*    CafuM=ModelMan.GetModel(GameDirectory+"/"+Model.Model, &ErrorMsg);
 
                 if (ErrorMsg!="") Console->Warning(ErrorMsg);
                 GE->BspTree->OtherChildren.PushBack(new cf::SceneGraph::ModelNodeT(CafuM, Model.Label, Model.Origin, Model.Angles, Model.Scale, Model.SeqNumber, Model.FrameOffset, Model.FrameTimeScale, Model.Animate));

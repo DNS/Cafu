@@ -19,20 +19,30 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/********************************/
-/*** Carried Weapon - Grenade ***/
-/********************************/
-
 #include "cw_Grenade.hpp"
 #include "HumanPlayer.hpp"
 #include "Constants_WeaponSlots.hpp"
 #include "Libs/LookupTables.hpp"
 #include "../../GameWorld.hpp"
-#include "Models/Model_proxy.hpp"
+#include "Models/ModelManager.hpp"
+#include "SoundSystem/SoundSys.hpp"
+#include "SoundSystem/SoundShaderManager.hpp"
+#include "SoundSystem/Sound.hpp"
 
 
-ModelProxyT& CarriedWeaponGrenadeT::GetViewWeaponModel  () const { static ModelProxyT M("Games/DeathMatch/Models/Weapons/Grenade_v.mdl"); return M; }
-ModelProxyT& CarriedWeaponGrenadeT::GetPlayerWeaponModel() const { static ModelProxyT M("Games/DeathMatch/Models/Weapons/Grenade_p.mdl"); return M; }
+CarriedWeaponGrenadeT::CarriedWeaponGrenadeT(ModelManagerT& ModelMan)
+    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Grenade_v.mdl"),
+                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Grenade_p.mdl")),
+      FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/FaceHugger_Throw")))
+{
+}
+
+
+CarriedWeaponGrenadeT::~CarriedWeaponGrenadeT()
+{
+    // Release Sound.
+    SoundSystem->DeleteSound(FireSound);
+}
 
 
 bool CarriedWeaponGrenadeT::ServerSide_PickedUpByEntity(BaseEntityT* Entity) const

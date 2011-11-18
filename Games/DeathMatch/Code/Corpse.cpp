@@ -25,10 +25,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Corpse.hpp"
 #include "EntityCreateParams.hpp"
-#include "HumanPlayer.hpp"
+#include "GameImpl.hpp"
 #include "TypeSys.hpp"
 #include "MaterialSystem/Renderer.hpp"
-#include "Models/Model_proxy.hpp"
+#include "Models/Model_cmdl.hpp"
 
 
 // Implement the type info related code.
@@ -84,5 +84,18 @@ void EntCorpseT::Draw(bool /*FirstPersonView*/, float LodDist) const
     MatSys::Renderer->GetCurrentEyePosition        ()[2]+=32.0f;
     MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, 0.0f, 0.0f, -32.0f);
 
-    EntHumanPlayerT::GetModelFromPlayerModelIndex(State.ModelIndex).Draw(State.ModelSequNr, State.ModelFrameNr, LodDist/*, (State.HaveWeapons & (1 << State.ActiveWeaponSlot)) ? &ModelManager::GetModelByIndex(GetModelIndexPlayerByWeaponSlot[State.ActiveWeaponSlot]) : NULL*/);
+    const CafuModelT* Model=cf::GameSys::GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
+    AnimPoseT*        Pose =Model->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
+
+    Pose->Draw(-1 /*default skin*/, LodDist);
+
+    if (State.HaveWeapons & (1 << State.ActiveWeaponSlot))
+    {
+        // const CafuModelT* WeaponModel=...;
+        // AnimPoseT*        WeaponPose =WeaponModel->GetSharedPose(0, 0.0f);
+
+        // WeaponPose->SetSuperPose(Pose);
+        // WeaponPose->Draw(-1 /*default skin*/, LodDist);
+        // WeaponPose->SetSuperPose(NULL);
+    }
 }

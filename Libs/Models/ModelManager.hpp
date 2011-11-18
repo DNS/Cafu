@@ -61,7 +61,7 @@ class ModelManagerT
     /// @param FileName   The filename to load the model from.
     /// @param ErrorMsg   Is set to the error message if there was an error loading the model,
     ///                   or the empty string \c "" when the model was successfully loaded.
-    const CafuModelT* GetModel(const std::string& FileName, std::string& ErrorMsg) const;
+    const CafuModelT* GetModel(const std::string& FileName, std::string* ErrorMsg=NULL) const;
 
 
     private:

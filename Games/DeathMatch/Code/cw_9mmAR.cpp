@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/******************************/
-/*** Carried Weapon - 9mmAR ***/
-/******************************/
-
 #include "cw_9mmAR.hpp"
 #include "_ResourceManager.hpp"
 #include "HumanPlayer.hpp"
@@ -31,12 +27,28 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "PhysicsWorld.hpp"
 #include "Libs/LookupTables.hpp"
 #include "../../GameWorld.hpp"
-#include "Models/Model_proxy.hpp"
+#include "Models/ModelManager.hpp"
 #include "ParticleEngine/ParticleEngineMS.hpp"
+#include "SoundSystem/SoundSys.hpp"
+#include "SoundSystem/SoundShaderManager.hpp"
+#include "SoundSystem/Sound.hpp"
 
 
-ModelProxyT& CarriedWeapon9mmART::GetViewWeaponModel  () const { static ModelProxyT M("Games/DeathMatch/Models/Weapons/9mmAR_v.mdl"); return M; }
-ModelProxyT& CarriedWeapon9mmART::GetPlayerWeaponModel() const { static ModelProxyT M("Games/DeathMatch/Models/Weapons/9mmAR_p.mdl"); return M; }
+CarriedWeapon9mmART::CarriedWeapon9mmART(ModelManagerT& ModelMan)
+    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/9mmAR_v.mdl"),
+                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/9mmAR_p.mdl")),
+      FireSound   (SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/9mmAR_Shot1"))),
+      AltFireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/9mmAR_GLauncher")))
+{
+}
+
+
+CarriedWeapon9mmART::~CarriedWeapon9mmART()
+{
+    // Release Sound.
+    SoundSystem->DeleteSound(FireSound);
+    SoundSystem->DeleteSound(AltFireSound);
+}
 
 
 bool CarriedWeapon9mmART::ServerSide_PickedUpByEntity(BaseEntityT* Entity) const

@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/TraceResult.hpp"
 #include "ClipSys/TraceSolid.hpp"
 #include "MaterialSystem/Material.hpp"
+#include "Models/ModelManager.hpp"
 #include "../../Common/WorldMan.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
 
@@ -49,7 +50,8 @@ Ca3DEWorldT::Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, bool Ini
       SHLMapMan(World->SHLMapMan),
       GameEntities(World->GameEntities),
       ClipWorld(new cf::ClipSys::ClipWorldT(World->CollModel)),
-      EntityManager(new EntityManagerT(*this))
+      EntityManager(new EntityManagerT(*this)),
+      m_ModelMan(ModelMan)
 {
 }
 
@@ -165,4 +167,10 @@ unsigned long Ca3DEWorldT::CreateNewEntity(const std::map<std::string, std::stri
 void Ca3DEWorldT::RemoveEntity(unsigned long EntityID)
 {
     EntityManager->RemoveEntity(EntityID);
+}
+
+
+const CafuModelT* Ca3DEWorldT::GetModel(const std::string& FileName) const
+{
+    return m_ModelMan.GetModel(FileName);
 }

@@ -19,20 +19,19 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/******************************/
-/*** Carried Weapon - Gauss ***/
-/******************************/
-
 #include "cw_Gauss.hpp"
 #include "HumanPlayer.hpp"
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
 #include "Libs/LookupTables.hpp"
-#include "Models/Model_proxy.hpp"
+#include "Models/ModelManager.hpp"
 
 
-ModelProxyT& CarriedWeaponGaussT::GetViewWeaponModel  () const { static ModelProxyT M("Games/DeathMatch/Models/Weapons/Gauss_v.mdl"); return M; }
-ModelProxyT& CarriedWeaponGaussT::GetPlayerWeaponModel() const { static ModelProxyT M("Games/DeathMatch/Models/Weapons/Gauss_p.mdl"); return M; }
+CarriedWeaponGaussT::CarriedWeaponGaussT(ModelManagerT& ModelMan)
+    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Gauss_v.mdl"),
+                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Gauss_p.mdl"))
+{
+}
 
 
 bool CarriedWeaponGaussT::ServerSide_PickedUpByEntity(BaseEntityT* Entity) const

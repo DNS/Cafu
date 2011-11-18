@@ -60,10 +60,9 @@ cf::SceneGraph::ModelNodeT::ModelNodeT(const CafuModelT* Model, const std::strin
 
 cf::SceneGraph::ModelNodeT* cf::SceneGraph::ModelNodeT::CreateFromFile_cw(std::istream& InFile, aux::PoolT& Pool, ModelManagerT& ModelMan)
 {
-    std::string ErrorMsg;
     ModelNodeT* ModelNode=new ModelNodeT();
 
-    ModelNode->m_Model    =ModelMan.GetModel(Pool.ReadString(InFile), ErrorMsg);
+    ModelNode->m_Model    =ModelMan.GetModel(Pool.ReadString(InFile));
     ModelNode->m_Label    =aux::ReadString(InFile);
     ModelNode->m_Origin   =aux::ReadVector3f(InFile);
 

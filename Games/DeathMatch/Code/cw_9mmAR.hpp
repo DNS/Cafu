@@ -19,36 +19,18 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/******************************/
-/*** Carried Weapon - 9mmAR ***/
-/******************************/
-
 #ifndef _CW_9MMAR_HPP_
 #define _CW_9MMAR_HPP_
 
 #include "cw.hpp"
-#include "SoundSystem/SoundSys.hpp"
-#include "SoundSystem/SoundShaderManager.hpp"
-#include "SoundSystem/Sound.hpp"
 
 
-struct CarriedWeapon9mmART : public CarriedWeaponT
+class CarriedWeapon9mmART : public CarriedWeaponT
 {
-    CarriedWeapon9mmART()
-        : FireSound   (SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/9mmAR_Shot1"))),
-          AltFireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/9mmAR_GLauncher")))
-    {
-    };
+    public:
 
-    ~CarriedWeapon9mmART()
-    {
-        // Release Sound.
-        SoundSystem->DeleteSound(FireSound);
-        SoundSystem->DeleteSound(AltFireSound);
-    }
-
-    ModelProxyT& GetViewWeaponModel  () const;
-    ModelProxyT& GetPlayerWeaponModel() const;
+    CarriedWeapon9mmART(ModelManagerT& ModelMan);
+    ~CarriedWeapon9mmART();
 
     bool ServerSide_PickedUpByEntity(BaseEntityT* Entity) const;
     void ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;

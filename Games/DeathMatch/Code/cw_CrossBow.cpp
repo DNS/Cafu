@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*********************************/
-/*** Carried Weapon - CrossBow ***/
-/*********************************/
-
 #include "cw_CrossBow.hpp"
 #include "HumanPlayer.hpp"
 #include "Constants_AmmoSlots.hpp"
@@ -30,11 +26,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "PhysicsWorld.hpp"
 #include "Libs/LookupTables.hpp"
 #include "../../GameWorld.hpp"
-#include "Models/Model_proxy.hpp"
+#include "Models/ModelManager.hpp"
 
 
-ModelProxyT& CarriedWeaponCrossBowT::GetViewWeaponModel  () const { static ModelProxyT M("Games/DeathMatch/Models/Weapons/DartGun_v.mdl"); return M; }
-ModelProxyT& CarriedWeaponCrossBowT::GetPlayerWeaponModel() const { static ModelProxyT M("Games/DeathMatch/Models/Weapons/DartGun_p.mdl"); return M; }
+CarriedWeaponCrossBowT::CarriedWeaponCrossBowT(ModelManagerT& ModelMan)
+    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/DartGun_v.mdl"),
+                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/DartGun_p.mdl"))
+{
+}
 
 
 bool CarriedWeaponCrossBowT::ServerSide_PickedUpByEntity(BaseEntityT* Entity) const

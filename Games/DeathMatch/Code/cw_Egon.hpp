@@ -19,20 +19,17 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*****************************/
-/*** Carried Weapon - Egon ***/
-/*****************************/
-
 #ifndef _CW_EGON_HPP_
 #define _CW_EGON_HPP_
 
 #include "cw.hpp"
 
 
-struct CarriedWeaponEgonT : public CarriedWeaponT
+class CarriedWeaponEgonT : public CarriedWeaponT
 {
-    ModelProxyT& GetViewWeaponModel  () const;
-    ModelProxyT& GetPlayerWeaponModel() const;
+    public:
+
+    CarriedWeaponEgonT(ModelManagerT& ModelMan);
 
     bool ServerSide_PickedUpByEntity(BaseEntityT* Entity) const;
     void ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;

@@ -19,36 +19,18 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/********************************/
-/*** Carried Weapon - Shotgun ***/
-/********************************/
-
 #ifndef _CW_SHOTGUN_HPP_
 #define _CW_SHOTGUN_HPP_
 
 #include "cw.hpp"
-#include "SoundSystem/SoundSys.hpp"
-#include "SoundSystem/SoundShaderManager.hpp"
-#include "SoundSystem/Sound.hpp"
 
 
-struct CarriedWeaponShotgunT : public CarriedWeaponT
+class CarriedWeaponShotgunT : public CarriedWeaponT
 {
-    CarriedWeaponShotgunT()
-        : FireSound   (SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/Shotgun_sBarrel"))),
-          AltFireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/Shotgun_dBarrel")))
-    {
-    };
+    public:
 
-    ~CarriedWeaponShotgunT()
-    {
-        // Release Sound.
-        SoundSystem->DeleteSound(FireSound);
-        SoundSystem->DeleteSound(AltFireSound);
-    };
-
-    ModelProxyT& GetViewWeaponModel  () const;
-    ModelProxyT& GetPlayerWeaponModel() const;
+    CarriedWeaponShotgunT(ModelManagerT& ModelMan);
+    ~CarriedWeaponShotgunT();
 
     bool ServerSide_PickedUpByEntity(BaseEntityT* Entity) const;
     void ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;

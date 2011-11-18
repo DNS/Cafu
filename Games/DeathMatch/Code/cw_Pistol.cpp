@@ -19,19 +19,18 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*******************************/
-/*** Carried Weapon - Pistol ***/
-/*******************************/
-
 #include "cw_Pistol.hpp"
 #include "HumanPlayer.hpp"
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
-#include "Models/Model_proxy.hpp"
+#include "Models/ModelManager.hpp"
 
 
-ModelProxyT& CarriedWeaponPistolT::GetViewWeaponModel  () const { static ModelProxyT M("Games/DeathMatch/Models/Weapons/Beretta_v.mdl"); return M; }
-ModelProxyT& CarriedWeaponPistolT::GetPlayerWeaponModel() const { static ModelProxyT M("Games/DeathMatch/Models/Weapons/Beretta_p.mdl"); return M; }
+CarriedWeaponPistolT::CarriedWeaponPistolT(ModelManagerT& ModelMan)
+    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Beretta_v.mdl"),
+                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Beretta_p.mdl"))
+{
+}
 
 
 bool CarriedWeaponPistolT::ServerSide_PickedUpByEntity(BaseEntityT* Entity) const

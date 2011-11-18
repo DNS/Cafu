@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/****************************/
-/*** Carried Weapon - 357 ***/
-/****************************/
-
 #include "cw_357.hpp"
 #include "_ResourceManager.hpp"
 #include "HumanPlayer.hpp"
@@ -31,12 +27,26 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "PhysicsWorld.hpp"
 #include "Libs/LookupTables.hpp"
 #include "../../GameWorld.hpp"
-#include "Models/Model_proxy.hpp"
+#include "Models/ModelManager.hpp"
 #include "ParticleEngine/ParticleEngineMS.hpp"
+#include "SoundSystem/SoundSys.hpp"
+#include "SoundSystem/SoundShaderManager.hpp"
+#include "SoundSystem/Sound.hpp"
 
 
-ModelProxyT& CarriedWeapon357T::GetViewWeaponModel  () const { static ModelProxyT M("Games/DeathMatch/Models/Weapons/DesertEagle_v.mdl"); return M; }
-ModelProxyT& CarriedWeapon357T::GetPlayerWeaponModel() const { static ModelProxyT M("Games/DeathMatch/Models/Weapons/DesertEagle_p.mdl"); return M; }
+CarriedWeapon357T::CarriedWeapon357T(ModelManagerT& ModelMan)
+    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/DesertEagle_v.mdl"),
+                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/DesertEagle_p.mdl")),
+      FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/DesertEagle_Shot1")))
+{
+}
+
+
+CarriedWeapon357T::~CarriedWeapon357T()
+{
+    // Release Sound.
+    SoundSystem->DeleteSound(FireSound);
+}
 
 
 bool CarriedWeapon357T::ServerSide_PickedUpByEntity(BaseEntityT* Entity) const
