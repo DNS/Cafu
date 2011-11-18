@@ -157,11 +157,12 @@ MainCanvasT::~MainCanvasT()
         cf::GameSys::Game=NULL;
     }
 
-    if (m_GameDLL)
-    {
-        FreeLibrary(m_GameDLL);
-        m_GameDLL=NULL;
-    }
+    // This code has been moved down, see there for details.
+    // if (m_GameDLL)
+    // {
+    //     FreeLibrary(m_GameDLL);
+    //     m_GameDLL=NULL;
+    // }
 
     // When the game has been unloaded, no collision models must be left in the collision model manager.
     wxASSERT(cf::ClipSys::CollModelMan->GetUniqueCMCount()==0);
@@ -222,6 +223,24 @@ MainCanvasT::~MainCanvasT()
     {
         FreeLibrary(m_RendererDLL);
         m_RendererDLL=NULL;
+    }
+
+    // This code used to be further up, but under Windows at r423, the following problem exists:
+    // Class CafuModelT is derived from class ModelT, and thus has a virtual destructor.
+    // When we call ModelManagerT::GetModel() in the game DLL, everything works all right,
+    // but the code linked to the game DLL is used to create the new model, which causes
+    // the vtable of the newly created model to point to the destructor code in the game DLL.
+    // When the call FreeLibrary(m_GameDLL); before the destructors of the models in the
+    // m_ModelManager are run, we essentially remove the code that the virtual destructors
+    // are pointing to, causing access violation.
+    // Moving the call to FreeLibrary() below the "delete m_ModelManager;" fixes the problem.
+    //
+    // Also see this report of someone else experiencing the same problem:
+    // http://social.msdn.microsoft.com/forums/en-US/vclanguage/thread/dacc7dbd-2775-4e86-a429-8dd32fae0e33
+    if (m_GameDLL)
+    {
+        FreeLibrary(m_GameDLL);
+        m_GameDLL=NULL;
     }
 }
 
