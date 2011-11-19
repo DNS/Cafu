@@ -146,10 +146,10 @@ class AnimPoseT
     AnimPoseT(const AnimPoseT&);                    ///< Use of the Copy    Constructor is not allowed.
     void operator = (const AnimPoseT&);             ///< Use of the Assignment Operator is not allowed.
 
-    void NormalizeInput();
     void SyncDimensions() const;
     void UpdateData() const;
     void Recache() const;
+    void NormalizeInput();
 
     const CafuModelT&             m_Model;          ///< The related model that this is a pose for.
     int                           m_SequNr;         ///< The animation sequence number at which we have computed the cache data.
