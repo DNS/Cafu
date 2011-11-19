@@ -19,15 +19,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/************************/
-/*** Butterfly (Code) ***/
-/************************/
-
 #include "Butterfly.hpp"
 #include "TypeSys.hpp"
 #include "EntityCreateParams.hpp"
 #include "Libs/LookupTables.hpp"
-#include "Models/Model_proxy.hpp"
+#include "../../GameWorld.hpp"
+#include "Models/Model_cmdl.hpp"
 
 
 // Implement the type info related code.
@@ -66,6 +63,7 @@ EntButterflyT::EntButterflyT(const EntityCreateParamsT& Params)
                                0,       // ActiveWeaponSlot
                                0,       // ActiveWeaponSequNr
                                0.0)),   // ActiveWeaponFrameNr
+      m_Model(Params.GameWorld->GetModel("Games/DeathMatch/Models/LifeForms/Butterfly.mdl")),
       ArcCenter(Params.Origin),
       ArcPos(0)
 {
@@ -91,19 +89,15 @@ void EntButterflyT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 
 void EntButterflyT::Draw(bool /*FirstPersonView*/, float LodDist) const
 {
-    static ModelProxyT ButterflyModel("Games/DeathMatch/Models/LifeForms/Butterfly.mdl");
-
-    ButterflyModel.Draw(State.ModelSequNr, State.ModelFrameNr, LodDist);
+    AnimPoseT* Pose=m_Model->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
+    Pose->Draw(-1 /*default skin*/, LodDist);
 }
 
 
 void EntButterflyT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
 {
-    // Note that ModelProxyTs are *very* cheap and share common resources.
-    // Thus, having here another instance of a Butterfly model is not beautiful coding, but perfectly fine otherwise.
-    // Other entities do it different, I was just intending to demonstrate the effect here.
-    static ModelProxyT ButterflyModel("Games/DeathMatch/Models/LifeForms/Butterfly.mdl");
-
     // Implicit simple "mini-prediction".
-    State.ModelFrameNr=ButterflyModel.AdvanceFrameNr(State.ModelSequNr, State.ModelFrameNr, FrameTime, true);
+    AnimPoseT* Pose=m_Model->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
+    Pose->Advance(FrameTime, true);
+    State.ModelFrameNr=Pose->GetFrameNr();
 }

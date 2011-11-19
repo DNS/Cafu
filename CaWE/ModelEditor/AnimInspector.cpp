@@ -110,6 +110,12 @@ void AnimInspectorT::RefreshPropGrid()
         DisableProperty(NumFrames);
 
         Append(new wxIntProperty("Next sequence", wxPG_LABEL, Anim.Next));
+
+        // if (Anim.IsLastFrameDup())
+        // {
+        //     wxPGProperty* Note=Append(new wxStringProperty("Note", wxPG_LABEL, "0 == last"));
+        //     DisableProperty(Note);
+        // }
     }
     else
     {

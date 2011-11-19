@@ -88,7 +88,7 @@ namespace ModelEditor
         const ModelElementTypeT GetLastUsedType() const { return m_LastUsedType; }
 
         /// Sets the type of the most recently used (clicked) model element.
-        void SetLastUsedType(ModelElementTypeT Type) { wxASSERT(Type<5); m_LastUsedType=Type; }
+        void SetLastUsedType(ModelElementTypeT Type) { wxASSERT(Type<6); m_LastUsedType=Type; }
 
         ModelDocumentT* GetModelDoc() const { return m_ModelDoc; }
         ScenePropGridT* GetScenePropGrid() const { return m_ScenePropGrid; }

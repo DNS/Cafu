@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/********************/
-/*** Eagle (Code) ***/
-/********************/
-
 #include "Eagle.hpp"
 #include "EntityCreateParams.hpp"
 #include "Libs/LookupTables.hpp"
@@ -32,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/TraceResult.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/Renderer.hpp"
+#include "Models/Model_cmdl.hpp"
 #include "SoundSystem/SoundSys.hpp"
 #include "SoundSystem/Sound.hpp"
 #include "SoundSystem/SoundShaderManager.hpp"
@@ -74,7 +71,7 @@ EntEagleT::EntEagleT(const EntityCreateParamsT& Params)
                                0,       // ActiveWeaponSlot
                                0,       // ActiveWeaponSequNr
                                0.0)),   // ActiveWeaponFrameNr
-      EagleModel("Games/DeathMatch/Models/LifeForms/Eagle.mdl"),
+      m_Model(Params.GameWorld->GetModel("Games/DeathMatch/Models/LifeForms/Eagle.mdl")),
       FlightState(CruiseFlight),
       OldOrigin(),
       LoopCenter(),
@@ -228,13 +225,16 @@ void EntEagleT::Draw(bool /*FirstPersonView*/, float LodDist) const
     MatSys::Renderer->SetCurrentLightSourcePosition(LgtPos.x, LgtPos.y, LgtPos.z);
     MatSys::Renderer->SetCurrentEyePosition(EyePos.x, EyePos.y, EyePos.z);
 
-    EagleModel.Draw(State.ModelSequNr, State.ModelFrameNr, LodDist);
+    AnimPoseT* Pose=m_Model->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
+    Pose->Draw(-1 /*default skin*/, LodDist);
 }
 
 
 void EntEagleT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
 {
-    State.ModelFrameNr=EagleModel.AdvanceFrameNr(State.ModelSequNr, State.ModelFrameNr, FrameTime, true);
+    AnimPoseT* Pose=m_Model->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
+    Pose->Advance(FrameTime, true);
+    State.ModelFrameNr=Pose->GetFrameNr();
 
     // Update sound position and velocity.
     EagleCry->SetPosition(State.Origin);

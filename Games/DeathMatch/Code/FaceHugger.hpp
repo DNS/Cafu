@@ -19,26 +19,18 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/****************************/
-/*** Face Hugger (Header) ***/
-/****************************/
-
 #ifndef _FACEHUGGER_HPP_
 #define _FACEHUGGER_HPP_
 
 #include "../../BaseEntity.hpp"
 
 
+class CafuModelT;
 class EntityCreateParamsT;
 
 
 class EntFaceHuggerT : public BaseEntityT
 {
- // private:
-
- // unsigned long TargetEntityID;   // ID of the entity that this face hugger attacks.
-
-
     public:
 
     EntFaceHuggerT(const EntityCreateParamsT& Params);
@@ -51,6 +43,12 @@ class EntFaceHuggerT : public BaseEntityT
     const cf::TypeSys::TypeInfoT* GetType() const;
     static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
     static const cf::TypeSys::TypeInfoT TypeInfo;
+
+
+    private:
+
+    const CafuModelT* m_Model;
+ // unsigned long     m_TargetEntityID;   // ID of the entity that this face hugger attacks.
 };
 
 #endif

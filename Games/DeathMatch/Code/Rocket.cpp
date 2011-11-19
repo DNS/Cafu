@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*********************/
-/*** Rocket (Code) ***/
-/*********************/
-
 #include "Rocket.hpp"
 #include "_ResourceManager.hpp"
 #include "EntityCreateParams.hpp"
@@ -31,7 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SoundSystem/Sound.hpp"
 #include "SoundSystem/SoundShaderManager.hpp"
 #include "../../GameWorld.hpp"
-#include "Models/Model_proxy.hpp"
+#include "Models/Model_cmdl.hpp"
 #include "ParticleEngine/ParticleEngineMS.hpp"
 #include "TypeSys.hpp"
 
@@ -72,16 +68,17 @@ EntRocketT::EntRocketT(const EntityCreateParamsT& Params)
                                0,       // ActiveWeaponSlot
                                0,       // ActiveWeaponSequNr
                                0.0)),   // ActiveWeaponFrameNr
-      FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/Shotgun_dBarrel")))
+      m_Model(Params.GameWorld->GetModel("Games/DeathMatch/Models/Weapons/Grenade_w.mdl")),
+      m_FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/Shotgun_dBarrel")))
 {
-    FireSound->SetPosition(Params.Origin);
+    m_FireSound->SetPosition(Params.Origin);
 }
 
 
 EntRocketT::~EntRocketT()
 {
     // Release sound.
-    SoundSystem->DeleteSound(FireSound);
+    SoundSystem->DeleteSound(m_FireSound);
 }
 
 
@@ -173,10 +170,10 @@ void EntRocketT::ProcessEvent(char /*EventID*/)
 {
     // We only receive a single event here ("Detonation!"), thus there is no need to look at 'EventID'.
     // Update souud position.
-    FireSound->SetPosition(State.Origin);
+    m_FireSound->SetPosition(State.Origin);
 
     // Play the fire sound.
-    FireSound->Play();
+    m_FireSound->Play();
 
     // Register explosion particles.
     static ParticleMST NewParticle;
@@ -256,7 +253,6 @@ void EntRocketT::Draw(bool /*FirstPersonView*/, float LodDist) const
 {
     if (State.ActiveWeaponFrameNr>0.0) return;
 
-    static ModelProxyT RocketModel("Games/DeathMatch/Models/Weapons/Grenade_w.mdl");
-
-    RocketModel.Draw(State.ModelSequNr, State.ModelFrameNr, LodDist);
+    AnimPoseT* Pose=m_Model->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
+    Pose->Draw(-1 /*default skin*/, LodDist);
 }

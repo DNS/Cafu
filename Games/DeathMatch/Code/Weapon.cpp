@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*********************/
-/*** Weapon (Code) ***/
-/*********************/
-
 #include "Weapon.hpp"
 #include "EntityCreateParams.hpp"
 #include "PhysicsWorld.hpp"
@@ -31,7 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SoundSystem/SoundShaderManager.hpp"
 #include "../../GameWorld.hpp"
 #include "ConsoleCommands/Console.hpp"
-#include "Models/Model_proxy.hpp"
+#include "Models/Model_cmdl.hpp"
 #include "TypeSys.hpp"
 
 
@@ -77,8 +73,8 @@ EntWeaponT::EntWeaponT(const EntityCreateParamsT& Params, const std::string& Mod
                                0,                           // ActiveWeaponSlot
                                0,                           // ActiveWeaponSequNr
                                0.0)),                       // ActiveWeaponFrameNr
-      WeaponModel(ModelName),
-      TimeLeftNotActive(2.0),
+      m_WeaponModel(Params.GameWorld->GetModel(ModelName)),
+      m_TimeLeftNotActive(2.0),
       PickUp(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Item/PickUp"))),
       Respawn(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Item/Respawn")))
 {
@@ -105,8 +101,8 @@ void EntWeaponT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
     switch (State.StateOfExistance)
     {
         case StateOfExistance_NotActive:
-            TimeLeftNotActive-=FrameTime;
-            if (TimeLeftNotActive<=0.0)
+            m_TimeLeftNotActive-=FrameTime;
+            if (m_TimeLeftNotActive<=0.0)
             {
                 State.StateOfExistance=StateOfExistance_Active;
                 State.Events^=(1 << EventID_Respawn);
@@ -135,7 +131,8 @@ void EntWeaponT::Draw(bool /*FirstPersonView*/, float LodDist) const
 {
     if (State.StateOfExistance==StateOfExistance_NotActive) return;
 
-    WeaponModel.Draw(0, 0.0, LodDist);
+    AnimPoseT* Pose=m_WeaponModel->GetSharedPose(0, 0.0f);
+    Pose->Draw(-1 /*default skin*/, LodDist);
 
     // RotAngle  +=  234.0*FrameTime; if (RotAngle>360.0) RotAngle-=360.0;
     // SwingAngle+=54321.0*FrameTime; // Wraps automatically!

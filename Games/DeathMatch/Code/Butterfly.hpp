@@ -19,27 +19,18 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/**************************/
-/*** Butterfly (Header) ***/
-/**************************/
-
 #ifndef _BUTTERFLY_HPP_
 #define _BUTTERFLY_HPP_
 
 #include "../../BaseEntity.hpp"
 
 
+class CafuModelT;
 class EntityCreateParamsT;
 
 
 class EntButterflyT : public BaseEntityT
 {
-    private:
-
-    VectorT        ArcCenter;
-    unsigned short ArcPos;
-
-
     public:
 
     EntButterflyT(const EntityCreateParamsT& Params);
@@ -52,6 +43,13 @@ class EntButterflyT : public BaseEntityT
     const cf::TypeSys::TypeInfoT* GetType() const;
     static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
     static const cf::TypeSys::TypeInfoT TypeInfo;
+
+
+    private:
+
+    const CafuModelT* m_Model;
+    VectorT           ArcCenter;
+    unsigned short    ArcPos;
 };
 
 #endif

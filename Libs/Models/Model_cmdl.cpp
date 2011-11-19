@@ -207,6 +207,14 @@ void CafuModelT::AnimT::RecomputeBB(unsigned int FrameNr, const ArrayT<JointT>& 
 }
 
 
+bool CafuModelT::AnimT::IsLastFrameDup() const
+{
+    if (Frames.Size() < 2) return false;
+
+    return Frames[0].AnimData == Frames[Frames.Size()-1].AnimData;
+}
+
+
 bool CafuModelT::ChannelT::IsMember(unsigned int JointNr) const
 {
     const unsigned int BlockNr=JointNr >> 5;

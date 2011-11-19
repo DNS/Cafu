@@ -19,17 +19,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/************************************/
-/*** Static Detail Model (Header) ***/
-/************************************/
-
 #ifndef _STATIC_DETAIL_MODEL_HPP_
 #define _STATIC_DETAIL_MODEL_HPP_
 
 #include "../../BaseEntity.hpp"
-#include "Models/Model_proxy.hpp"
 
 
+class CafuModelT;
 class EntityCreateParamsT;
 namespace cf { namespace GuiSys { class GuiI; } }
 struct luaL_Reg;
@@ -74,7 +70,7 @@ class EntStaticDetailModelT : public BaseEntityT
 
     enum EventIDs { EventID_RestartSequ };
 
-    ModelProxyT       Model;
+    const CafuModelT* m_Model;
     char&             m_PlayAnim;   ///< If 1, play the animation, i.e. advance the frames over time. If 0, keep still. This is a reference to State.Flags to have it sync'ed over the network.
     char&             m_SequNr;     ///< The number of the animation sequence to play. This is a reference to State.ModelSequNr to have it sync'ed over the network.
     float             m_FrameNr;    ///< The current frame of the played animation sequence. Used <em>independently</em> on the server and the clients; only a <em>restart</em> of a sequence is sync'ed over the network via the EventID_RestartSequ event.

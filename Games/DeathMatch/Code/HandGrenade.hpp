@@ -19,16 +19,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*****************************/
-/*** Hand Grenade (Header) ***/
-/*****************************/
-
 #ifndef _HANDGRENADE_HPP_
 #define _HANDGRENADE_HPP_
 
 #include "../../BaseEntity.hpp"
 
 
+class CafuModelT;
 class EntityCreateParamsT;
 class SoundI;
 
@@ -54,7 +51,8 @@ class EntHandGrenadeT : public BaseEntityT
 
     private:
 
-    SoundI* FireSound;
+    const CafuModelT* m_Model;
+    SoundI*           m_FireSound;
 };
 
 #endif

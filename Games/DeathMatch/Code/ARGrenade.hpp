@@ -19,16 +19,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/***************************/
-/*** AR Grenade (Header) ***/
-/***************************/
-
 #ifndef _ARGRENADE_HPP_
 #define _ARGRENADE_HPP_
 
 #include "../../BaseEntity.hpp"
 
 
+class CafuModelT;
 class EntityCreateParamsT;
 class SoundI;
 
@@ -54,7 +51,8 @@ class EntARGrenadeT : public BaseEntityT
 
     private:
 
-    SoundI* FireSound;
+    const CafuModelT* m_Model;
+    SoundI*           m_FireSound;
 };
 
 #endif

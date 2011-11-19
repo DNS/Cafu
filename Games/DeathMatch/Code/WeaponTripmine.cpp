@@ -86,5 +86,5 @@ void EntWeaponTripmineT::NotifyTouchedBy(BaseEntityT* Entity)
     // And finally retire for a while.
     State.StateOfExistance=StateOfExistance_NotActive;
     State.Events^=(1 << EventID_PickedUp);
-    TimeLeftNotActive=5.0;
+    m_TimeLeftNotActive=5.0;
 }

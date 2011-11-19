@@ -126,7 +126,7 @@ void cf::GameSys::GameImplT::Initialize(bool AsClient, bool AsServer, ModelManag
         // Materials that should be pre-cached (as many as possible) must be registered with the MatSys *before* the engine triggers the MatSys's pre-caching.
         // On the other hand, registering materials can only be done *after* GetGame() was called.
         // So a good place for registering materials that we need within this DLL is for example at the end of GetGame(), or right here.
-        // Registering the materials that our models will use is quite easy, because we just need to instantiate a ModelProxyT of each.
+        // Registering the materials that our models will use is quite easy, because we just need to find them in the ModelMan each.
         // (Nothing breaks if the following list is simply deleted, these models just aren't pre-cached then.)
         //
         // It *is* however quite stupid that this list is not more tighly coupled to the relevant entity classes.
@@ -137,26 +137,26 @@ void cf::GameSys::GameImplT::Initialize(bool AsClient, bool AsServer, ModelManag
         // but also to effectively load and initialize the models only at that later time, what might be very expensive, too!
         {
             // And the rest. Observe that static detail models are NOT mentioned (how could they?).
-            static ModelProxyT M01("Games/DeathMatch/Models/Items/Ammo_DartGun.mdl");
-            static ModelProxyT M02("Games/DeathMatch/Models/Items/Ammo_DesertEagle.mdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Items/Ammo_DartGun.mdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Items/Ammo_DesertEagle.mdl");
 
-            static ModelProxyT M03("Games/DeathMatch/Models/LifeForms/Butterfly.mdl");
-            static ModelProxyT M04("Games/DeathMatch/Models/LifeForms/Eagle.mdl");
-            static ModelProxyT M05("Games/DeathMatch/Models/LifeForms/FaceHugger.mdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/LifeForms/Butterfly.mdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/LifeForms/Eagle.mdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/LifeForms/FaceHugger.mdl");
 
-            static ModelProxyT M06("Games/DeathMatch/Models/Weapons/9mmAR_w.mdl");
-            static ModelProxyT M07("Games/DeathMatch/Models/Weapons/BattleScythe_w.mdl");
-            static ModelProxyT M08("Games/DeathMatch/Models/Weapons/Bazooka_w.mdl");
-            static ModelProxyT M09("Games/DeathMatch/Models/Weapons/Beretta_w.mdl");
-            static ModelProxyT M10("Games/DeathMatch/Models/Weapons/DartGun_w.mdl");
-            static ModelProxyT M11("Games/DeathMatch/Models/Weapons/DesertEagle_w.mdl");
-            static ModelProxyT M12("Games/DeathMatch/Models/Weapons/Egon_w.mdl");
-            static ModelProxyT M13("Games/DeathMatch/Models/Weapons/FaceHugger_w.mdl");
-            static ModelProxyT M14("Games/DeathMatch/Models/Weapons/Gauss_w.mdl");
-            static ModelProxyT M15("Games/DeathMatch/Models/Weapons/Grenade_w.mdl");
-            static ModelProxyT M16("Games/DeathMatch/Models/Weapons/HornetGun_w.mdl");
-            static ModelProxyT M17("Games/DeathMatch/Models/Weapons/Shotgun_w.mdl");
-            static ModelProxyT M18("Games/DeathMatch/Models/Weapons/Tripmine_w.mdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/9mmAR_w.mdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/BattleScythe_w.mdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Bazooka_w.mdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Beretta_w.mdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/DartGun_w.mdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/DesertEagle_w.mdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Egon_w.mdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/FaceHugger_w.mdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Gauss_w.mdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Grenade_w.mdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/HornetGun_w.mdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Shotgun_w.mdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Tripmine_w.mdl");
         }
 
 

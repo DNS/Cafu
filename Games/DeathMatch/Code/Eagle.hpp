@@ -19,39 +19,19 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/**********************/
-/*** Eagle (Header) ***/
-/**********************/
-
 #ifndef _EAGLE_HPP_
 #define _EAGLE_HPP_
 
 #include "../../BaseEntity.hpp"
-#include "Models/Model_proxy.hpp"
 
 
+class CafuModelT;
 class EntityCreateParamsT;
 class SoundI;
 
 
 class EntEagleT : public BaseEntityT
 {
-    private:
-
-    enum FlightStateT { CruiseFlight, ControlledCruise, HalfLoopAndRoll, ClimpBackToCruiseAlt };
-
-    const ModelProxyT EagleModel;
-    FlightStateT      FlightState;
-    VectorT           OldOrigin;
-    VectorT           LoopCenter;
-    float             FigureDistance;
-    float             FigureLeft;
-
-    float             TimeUntilNextCry;
-
-    SoundI*           EagleCry;
-
-
     public:
 
     EntEagleT(const EntityCreateParamsT& Params);
@@ -65,6 +45,21 @@ class EntEagleT : public BaseEntityT
     const cf::TypeSys::TypeInfoT* GetType() const;
     static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
     static const cf::TypeSys::TypeInfoT TypeInfo;
+
+
+    private:
+
+    enum FlightStateT { CruiseFlight, ControlledCruise, HalfLoopAndRoll, ClimpBackToCruiseAlt };
+
+    const CafuModelT* m_Model;
+    FlightStateT      FlightState;
+    VectorT           OldOrigin;
+    VectorT           LoopCenter;
+    float             FigureDistance;
+    float             FigureLeft;
+
+    float             TimeUntilNextCry;
+    SoundI*           EagleCry;
 };
 
 #endif

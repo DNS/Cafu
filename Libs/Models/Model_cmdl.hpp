@@ -209,6 +209,9 @@ class CafuModelT : public ModelT
         /// @param Meshes    The meshes of the related model.
         void RecomputeBB(unsigned int FrameNr, const ArrayT<JointT>& Joints, const ArrayT<MeshT>& Meshes);
 
+        /// Returns whether the first frame in the sequence is equal to the last.
+        /// The editor may use this to ask the user if he wishes to delete the last frame.
+        bool IsLastFrameDup() const;
 
         std::string        Name;            ///< Name of this animation sequence.
         float              FPS;             ///< Playback rate for this animation sequence.

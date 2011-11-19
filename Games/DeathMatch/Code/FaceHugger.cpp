@@ -19,17 +19,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/**************************/
-/*** Face Hugger (Code) ***/
-/**************************/
-
 #include "FaceHugger.hpp"
 #include "EntityCreateParams.hpp"
 #include "_ResourceManager.hpp"
 #include "../../GameWorld.hpp"
 #include "Libs/Physics.hpp"                         // ÜBERFLÜSSIG?
 #include "TypeSys.hpp"
-#include "Models/Model_proxy.hpp"
+#include "Models/Model_cmdl.hpp"
 #include "ParticleEngine/ParticleEngineMS.hpp"
 
 
@@ -68,7 +64,8 @@ EntFaceHuggerT::EntFaceHuggerT(const EntityCreateParamsT& Params)
                                0,       // HaveWeapons
                                0,       // ActiveWeaponSlot
                                0,       // ActiveWeaponSequNr
-                               0.0))    // ActiveWeaponFrameNr
+                               0.0)),   // ActiveWeaponFrameNr
+      m_Model(Params.GameWorld->GetModel("Games/DeathMatch/Models/LifeForms/FaceHugger.mdl"))
 {
 }
 
@@ -108,25 +105,18 @@ bool TestParticleMoveFunction(ParticleMST* Particle, float Time)
 
 void EntFaceHuggerT::Draw(bool /*FirstPersonView*/, float LodDist) const
 {
-    static ModelProxyT FaceHuggerModel("Games/DeathMatch/Models/LifeForms/FaceHugger.mdl");
-
-    FaceHuggerModel.Draw(State.ModelSequNr, State.ModelFrameNr, LodDist);
+    AnimPoseT* Pose=m_Model->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
+    Pose->Draw(-1 /*default skin*/, LodDist);
 }
 
 
 void EntFaceHuggerT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
 {
-    // Note that ModelProxyTs are *very* cheap and share common resources.
-    // Thus, having here another instance of a Butterfly model is not beautiful coding, but perfectly fine otherwise.
-    // Other entities do it different, I was just intending to demonstrate the effect here.
-    static ModelProxyT FaceHuggerModel("Games/DeathMatch/Models/LifeForms/FaceHugger.mdl");
+    AnimPoseT* Pose=m_Model->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
+    Pose->Advance(FrameTime, true);
 
-    const float OldFrameNr  =State.ModelFrameNr;
-
-    State.ModelFrameNr=FaceHuggerModel.AdvanceFrameNr(State.ModelSequNr, State.ModelFrameNr, FrameTime, true);
-
-    const float NewFrameNr  =State.ModelFrameNr;
-    const bool  SequenceWrap=NewFrameNr<OldFrameNr;
+    const bool SequenceWrap=Pose->GetFrameNr() < State.ModelFrameNr;
+    State.ModelFrameNr=Pose->GetFrameNr();
 
     if (SequenceWrap)
     {

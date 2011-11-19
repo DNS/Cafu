@@ -19,37 +19,19 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*********************/
-/*** Item (Header) ***/
-/*********************/
-
 #ifndef _ITEM_HPP_
 #define _ITEM_HPP_
 
 #include "../../BaseEntity.hpp"
-#include "Models/Model_proxy.hpp"
 
 
+class CafuModelT;
 class EntityCreateParamsT;
 class SoundI;
 
 
 class EntItemT : public BaseEntityT
 {
-    protected:
-
-    enum EventIDs { EventID_PickedUp, EventID_Respawn };
-
-    static const char StateOfExistance_Active;
-    static const char StateOfExistance_NotActive;
-
-    const ModelProxyT ItemModel;            // Could easily get rid of this member, but each item had to provide an own Draw() method then.
-    float             TimeLeftNotActive;
-
-    SoundI* PickUp;
-    SoundI* Respawn;
-
-
     public:
 
     EntItemT(const EntityCreateParamsT& Params, const std::string& ModelName);
@@ -65,6 +47,20 @@ class EntItemT : public BaseEntityT
     const cf::TypeSys::TypeInfoT* GetType() const;
     static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
     static const cf::TypeSys::TypeInfoT TypeInfo;
+
+
+    protected:
+
+    enum EventIDs { EventID_PickedUp, EventID_Respawn };
+
+    static const char StateOfExistance_Active;
+    static const char StateOfExistance_NotActive;
+
+    const CafuModelT* m_ItemModel;
+    float             m_TimeLeftNotActive;
+
+    SoundI* PickUp;
+    SoundI* Respawn;
 };
 
 #endif

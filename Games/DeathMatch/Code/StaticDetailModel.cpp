@@ -19,16 +19,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/**********************************/
-/*** Static Detail Model (Code) ***/
-/**********************************/
-
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
 
 #include "StaticDetailModel.hpp"
 #include "EntityCreateParams.hpp"
+#include "../../GameWorld.hpp"
 #include "TypeSys.hpp"
 #include "ConsoleCommands/Console.hpp"
 #include "GuiSys/GuiMan.hpp"
@@ -37,6 +34,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Mesh.hpp"   // TEMPORARY -- REMOVE!
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"
+#include "Models/Model_cmdl.hpp"
 
 
 /******************************************************************************************/
@@ -134,7 +132,7 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
                                0,       // ActiveWeaponSlot
                                0,       // ActiveWeaponSequNr
                                0.0)),   // ActiveWeaponFrameNr
-      Model(""),
+      m_Model(NULL),
       m_PlayAnim(State.Flags),
       m_SequNr(State.ModelSequNr),
       m_FrameNr(0.0f),
@@ -160,7 +158,7 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
         }
         else if (Key=="model")
         {
-            Model=ModelProxyT(std::string("Games/DeathMatch/")+Value);
+            m_Model=GameWorld->GetModel(std::string("Games/DeathMatch/")+Value);
         }
         else if (Key=="sequence") m_SequNr=atoi(Value.c_str());    // Note that the "sequence" key is NOT guaranteed to come after the "model" key!
         else if (Key=="gui"     )
@@ -188,12 +186,15 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
         }
     }
 
+    if (!m_Model)
+        m_Model=GameWorld->GetModel("");
+
 
     // Set the proper Dimensions bounding box for this model.
     // Note that the bounding box depends on the current model sequence,
     // and it must be properly scaled and rotated for world space.
     VectorT V[8];
-    Model.GetBB(m_SequNr, 0.0f).AsBoxOfDouble().GetCornerVertices(V);
+    m_Model->GetSharedPose(m_SequNr, 0.0f)->GetBB().AsBoxOfDouble().GetCornerVertices(V);
 
     for (unsigned int VertexNr=0; VertexNr<8; VertexNr++)
     {
@@ -286,7 +287,8 @@ void EntStaticDetailModelT::Draw(bool /*FirstPersonView*/, float LodDist) const
     MatSys::Renderer->SetCurrentEyePosition(EyePos.x, EyePos.y, EyePos.z);
 
 
-    Model.Draw(m_SequNr, m_FrameNr, LodDist);
+    AnimPoseT* Pose=m_Model->GetSharedPose(m_SequNr, m_FrameNr);
+    Pose->Draw(-1 /*default skin*/, LodDist);
 
 
     // Note that we could *not* render the Gui in PostDraw(), because the model-to-world transformation matrix is not properly setup there (but is here)!
@@ -296,7 +298,7 @@ void EntStaticDetailModelT::Draw(bool /*FirstPersonView*/, float LodDist) const
         Vector3fT GuiAxisX;
         Vector3fT GuiAxisY;
 
-        if (Model.GetGuiPlane(m_SequNr, m_FrameNr, LodDist, GuiOrigin, GuiAxisX, GuiAxisY))
+        if (m_Model->GetGuiPlane(m_SequNr, m_FrameNr, LodDist, GuiOrigin, GuiAxisX, GuiAxisY))
         {
 #if 1
             const MatrixT& ModelToWorld=MatSys::Renderer->GetMatrix(MatSys::RendererI::MODEL_TO_WORLD);
@@ -343,7 +345,9 @@ void EntStaticDetailModelT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
     if (m_PlayAnim)
     {
         // Advance the client-local animation.
-        m_FrameNr=Model.AdvanceFrameNr(m_SequNr, m_FrameNr, FrameTime, true);
+        AnimPoseT* Pose=m_Model->GetSharedPose(m_SequNr, m_FrameNr);
+        Pose->Advance(FrameTime, true);
+        m_FrameNr=Pose->GetFrameNr();
     }
 
 
@@ -385,7 +389,7 @@ cf::GuiSys::GuiI* EntStaticDetailModelT::GetGUI() const
 
 bool EntStaticDetailModelT::GetGuiPlane(Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const
 {
-    if (!Model.GetGuiPlane(m_SequNr, m_FrameNr, 0.0, GuiOrigin, GuiAxisX, GuiAxisY)) return false;
+    if (!m_Model->GetGuiPlane(m_SequNr, m_FrameNr, 0.0, GuiOrigin, GuiAxisX, GuiAxisY)) return false;
 
     // Okay, got the plane. Now transform it from model space into world space.
     GuiOrigin=scale(GuiOrigin, 25.4f);
@@ -451,7 +455,7 @@ int EntStaticDetailModelT::SetSequNr(lua_State* LuaState)
     Ent->m_FrameNr=0.0f;
     Ent->State.Events^=(1 << EventID_RestartSequ);
 
-    if (Ent->m_SequNr>=int(Ent->Model.GetNrOfSequences())) Ent->m_SequNr=0;
+    if (Ent->m_SequNr >= int(Ent->m_Model->GetAnims().Size())) Ent->m_SequNr=0;
     return 0;
 }
 
@@ -470,6 +474,6 @@ int EntStaticDetailModelT::GetNumSequences(lua_State* LuaState)
 {
     EntStaticDetailModelT* Ent=(EntStaticDetailModelT*)cf::GameSys::ScriptStateT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
 
-    lua_pushinteger(LuaState, Ent->Model.GetNrOfSequences());
+    lua_pushinteger(LuaState, Ent->m_Model->GetAnims().Size());
     return 1;
 }
