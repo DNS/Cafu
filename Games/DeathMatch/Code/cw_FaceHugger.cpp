@@ -129,6 +129,8 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, const P
                     else if (RandomNumber<64) State.ActiveWeaponSequNr=2;
                 }
                 else State.ActiveWeaponSequNr=0;    // Always play "Idle1" after "Idle2" or "Idle3"!
+
+                State.ActiveWeaponFrameNr=0.0;
             }
             break;
 

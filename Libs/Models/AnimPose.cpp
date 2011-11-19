@@ -462,7 +462,9 @@ void AnimPoseT::NormalizeInput()
     if (m_SequNr < -1) m_SequNr = -1;
     if (m_SequNr >= int(Anims.Size())) m_SequNr = -1;
     if (m_SequNr != -1 && (Anims[m_SequNr].FPS<0.0 || Anims[m_SequNr].Frames.Size()==0)) m_SequNr = -1;
-    if (m_SequNr == -1) m_FrameNr = 0.0f;
+
+    m_FrameNr=std::max(m_FrameNr, 0.0f);
+    m_FrameNr=(m_SequNr==-1) ? 0.0f : fmod(m_FrameNr, float(Anims[m_SequNr].Frames.Size()));
 }
 
 
@@ -510,7 +512,6 @@ void AnimPoseT::SetSuperPose(const AnimPoseT* SuperPose)
 void AnimPoseT::Advance(float Time, bool ForceLoop)
 {
     // TODO: Beachte korrekte Wrap-Regeln für mit loopen und ohne.
-    // TODO: Sollte in NormalizeInput() die m_FrameNr gegen das jeweilige Maximum begrenzt werden?
     // TODO: Loops (next vs. ForceLoop) richtig behandeln
     const ArrayT<CafuModelT::AnimT>& Anims=m_Model.GetAnims();
 

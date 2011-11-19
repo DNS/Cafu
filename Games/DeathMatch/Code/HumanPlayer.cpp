@@ -466,7 +466,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     Pose->Advance(PlayerCommands[PCNr].FrameTime, true);
 
                     const float NewFrameNr=Pose->GetFrameNr();
-                    const bool  AnimSequenceWrap=NewFrameNr<State.ActiveWeaponFrameNr;
+                    const bool  AnimSequenceWrap=NewFrameNr < State.ActiveWeaponFrameNr || NewFrameNr > WeaponModel->GetAnims()[State.ActiveWeaponSequNr].Frames.Size()-1;
 
                     State.ActiveWeaponFrameNr=NewFrameNr;
 

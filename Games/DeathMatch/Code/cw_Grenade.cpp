@@ -93,6 +93,8 @@ void CarriedWeaponGrenadeT::ServerSide_Think(EntHumanPlayerT* Player, const Play
                     State.ActiveWeaponSequNr=LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF] & 1;
                 }
                 else State.ActiveWeaponSequNr=0;     // Don't play the "Fidget" sequence repeatedly.
+
+                State.ActiveWeaponFrameNr=0.0;
             }
             break;
 

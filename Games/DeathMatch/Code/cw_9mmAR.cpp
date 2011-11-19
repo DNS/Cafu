@@ -228,6 +228,8 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, const Player
                     State.ActiveWeaponSequNr=LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF] & 1;
                 }
                 else State.ActiveWeaponSequNr=0;     // Don't play the "Idle1" sequence repeatedly.
+
+                State.ActiveWeaponFrameNr=0.0;
             }
             break;
     }

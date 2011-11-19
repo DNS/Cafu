@@ -104,6 +104,8 @@ void CarriedWeaponCrossBowT::ServerSide_Think(EntHumanPlayerT* Player, const Pla
                     State.ActiveWeaponSequNr=LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF] % 3;
                 }
                 else State.ActiveWeaponSequNr=2;    // Idle3 is the "best-looking" sequence.
+
+                State.ActiveWeaponFrameNr=0.0;
             }
             break;
 

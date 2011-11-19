@@ -174,6 +174,8 @@ void CarriedWeapon357T::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCo
                 else if (RandomNumber<192) State.ActiveWeaponSequNr=6;  // Idle 2
                 else if (RandomNumber<224) State.ActiveWeaponSequNr=7;  // Idle 3
                 else                       State.ActiveWeaponSequNr=1;  // Fidget 1
+
+                State.ActiveWeaponFrameNr=0.0;
             }
             break;
         }
