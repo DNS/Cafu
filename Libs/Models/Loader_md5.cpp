@@ -29,7 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <stdio.h>
 
 
-LoaderMd5T::LoaderMd5T(const std::string& FileName, int Flags) /*throw (ModelT::LoadError)*/
+LoaderMd5T::LoaderMd5T(const std::string& FileName, int Flags)
     : ModelLoaderT(FileName, Flags)
 {
 }
@@ -52,7 +52,7 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
         TextParserT TP(m_FileName.c_str());
 
         while (!TP.IsAtEOF()) ComponentFiles.PushBack(TP.GetNextToken());
-        if (ComponentFiles.Size()<1) throw ModelT::LoadError();
+        if (ComponentFiles.Size()<1) throw LoadErrorT("No component files found in md5 file.");
 
         size_t PrefixLength=m_FileName.length();
         while (PrefixLength>0 && m_FileName[PrefixLength-1]!='/' && m_FileName[PrefixLength-1]!='\\') PrefixLength--;
@@ -87,7 +87,7 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
         {
             const std::string Token=TP.GetNextToken();
 
-                 if (Token=="MD5Version" ) { if (TP.GetNextToken()!="10") throw ModelT::LoadError(); }
+                 if (Token=="MD5Version" ) { if (TP.GetNextToken()!="10") throw LoadErrorT("MD5Version is not 10."); }
             else if (Token=="commandline") TP.GetNextToken();       // Ignore the command line.
             else if (Token=="numJoints"  ) TP.GetNextToken();       // Ignore the given number of joints - we just load as many as we find.
             else if (Token=="numMeshes"  ) TP.GetNextToken();       // Ignore the given number of meshes - we just load as many as we find.
@@ -119,7 +119,7 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                     if (Joint.Parent>=int(Joints.Size()))
                     {
                         printf("WARNING: Bad bone order!  %lu bones read so far, and the next (name \"%s\") is referring to parent %i.\n", Joints.Size(), Joint.Name.c_str(), Joint.Parent);
-                        throw ModelT::LoadError();  // TODO: Fix this by re-sorting the joints rather than by abortion!
+                        throw LoadErrorT("The bones are not properly ordered.");  // TODO: Fix this by re-sorting the joints rather than by abortion!
                     }
 
                     const MatrixT GlobalMat(Joint.Pos, cf::math::QuaternionfT::FromXYZ(Joint.Qtr));
@@ -152,9 +152,9 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                     const std::string Token=TP.GetNextToken();
 
                          if (Token=="}"         ) break;
-                    else if (Token=="numtris"   ) { if (Mesh.Triangles.Size()>0) throw ModelT::LoadError(); Mesh.Triangles.PushBackEmpty(TP.GetNextTokenAsInt()); }
-                    else if (Token=="numverts"  ) { if (Mesh.Vertices .Size()>0) throw ModelT::LoadError(); Mesh.Vertices .PushBackEmpty(TP.GetNextTokenAsInt()); }
-                    else if (Token=="numweights") { if (Mesh.Weights  .Size()>0) throw ModelT::LoadError(); Mesh.Weights  .PushBackEmpty(TP.GetNextTokenAsInt()); }
+                    else if (Token=="numtris"   ) { if (Mesh.Triangles.Size()>0) throw LoadErrorT("Mesh.Triangles.Size()>0"); Mesh.Triangles.PushBackEmpty(TP.GetNextTokenAsInt()); }
+                    else if (Token=="numverts"  ) { if (Mesh.Vertices .Size()>0) throw LoadErrorT("Mesh.Vertices .Size()>0"); Mesh.Vertices .PushBackEmpty(TP.GetNextTokenAsInt()); }
+                    else if (Token=="numweights") { if (Mesh.Weights  .Size()>0) throw LoadErrorT("Mesh.Weights  .Size()>0"); Mesh.Weights  .PushBackEmpty(TP.GetNextTokenAsInt()); }
                     else if (Token=="shader")
                     {
                         const std::string MatName=TP.GetNextToken();
@@ -173,7 +173,7 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                     {
                         const unsigned long TriIdx=TP.GetNextTokenAsInt();
 
-                        if (TriIdx>=Mesh.Triangles.Size()) throw ModelT::LoadError();
+                        if (TriIdx>=Mesh.Triangles.Size()) throw LoadErrorT("TriIdx >= Mesh.Triangles.Size()");
 
                         Mesh.Triangles[TriIdx].VertexIdx[0]=TP.GetNextTokenAsInt();
                         Mesh.Triangles[TriIdx].VertexIdx[1]=TP.GetNextTokenAsInt();
@@ -183,7 +183,7 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                     {
                         const unsigned long VertIdx=TP.GetNextTokenAsInt();
 
-                        if (VertIdx>=Mesh.Vertices.Size()) throw ModelT::LoadError();
+                        if (VertIdx>=Mesh.Vertices.Size()) throw LoadErrorT("VertIdx >= Mesh.Vertices.Size()");
 
                         TP.AssertAndSkipToken("(");
                         Mesh.Vertices[VertIdx].u=TP.GetNextTokenAsFloat();
@@ -196,7 +196,7 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                     {
                         const unsigned long WeightIdx=TP.GetNextTokenAsInt();
 
-                        if (WeightIdx>=Mesh.Weights.Size()) throw ModelT::LoadError();
+                        if (WeightIdx>=Mesh.Weights.Size()) throw LoadErrorT("WeightIdx >= Mesh.Weights.Size()");
 
                         Mesh.Weights[WeightIdx].JointIdx=TP.GetNextTokenAsInt();
                         Mesh.Weights[WeightIdx].Weight  =TP.GetNextTokenAsFloat();
@@ -221,7 +221,7 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
     }
     catch (const TextParserT::ParseError&)
     {
-        throw ModelT::LoadError();
+        throw LoadErrorT("Could not parse the file.");
     }
 
 
@@ -242,14 +242,14 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
             {
                 const std::string Token=TP.GetNextToken();
 
-                     if (Token=="MD5Version" ) { if (TP.GetNextToken()!="10") throw ModelT::LoadError(); }
+                     if (Token=="MD5Version" ) { if (TP.GetNextToken()!="10") throw LoadErrorT("MD5Version is not 10."); }
                 else if (Token=="commandline") TP.GetNextToken();       // Ignore the command line.
                 else if (Token=="frameRate"  ) Anim.FPS=TP.GetNextTokenAsFloat();
                 else if (Token=="numFrames"  )
                 {
                     // Be stricter with numFrames than with some num* variables in the md5mesh file.
                     // This is required because for example there must be as many bounding boxes as frames.
-                    if (Anim.Frames.Size()>0) throw ModelT::LoadError();
+                    if (Anim.Frames.Size()>0) throw LoadErrorT("Anim.Frames.Size() > 0");
 
                     Anim.Frames.PushBackEmpty(TP.GetNextTokenAsInt());
                 }
@@ -258,8 +258,8 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                     // The numJoints here MUST match the numJoints in the md5mesh file!
                     const unsigned long numJoints=TP.GetNextTokenAsInt();
 
-                    if (numJoints!=Joints.Size()) { printf("%lu joints in md5anim file, %lu joints in md5mesh.\n", numJoints, Joints.Size()); throw ModelT::LoadError(); }
-                    if (Anim.AnimJoints.Size()>0) { printf("Anim.AnimJoints.Size()==%lu\n", Anim.AnimJoints.Size()); throw ModelT::LoadError(); }
+                    if (numJoints!=Joints.Size()) { printf("%lu joints in md5anim file, %lu joints in md5mesh.\n", numJoints, Joints.Size()); throw LoadErrorT("Number of joints in the md5anim file does not match number of bones in the md5mesh."); }
+                    if (Anim.AnimJoints.Size()>0) { printf("Anim.AnimJoints.Size()==%lu\n", Anim.AnimJoints.Size()); throw LoadErrorT("Anim.AnimJoints.Size() > 0"); }
 
                     Anim.AnimJoints.PushBackEmpty(numJoints);
                 }
@@ -269,7 +269,7 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
 
                     // This is the number of components that is animated in the frames (and thus so many values are stored with each frame).
                     // Therefore, the number of frames must have been specified already, so we can allocate all the memory here.
-                    if (Anim.Frames.Size()==0) throw ModelT::LoadError();
+                    if (Anim.Frames.Size()==0) throw LoadErrorT("Anim.Frames.Size() == 0");
 
                     for (unsigned long FrameNr=0; FrameNr<Anim.Frames.Size(); FrameNr++)
                         Anim.Frames[FrameNr].AnimData.PushBackEmpty(numAnimatedComponents);
@@ -281,8 +281,8 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                     for (unsigned long JointNr=0; JointNr<Anim.AnimJoints.Size(); JointNr++)
                     {
                         // Make sure that the name and parent are identical with the joint from the md5mesh file.
-                        if (Joints[JointNr].Name  !=TP.GetNextToken()) throw ModelT::LoadError();
-                        if (Joints[JointNr].Parent!=TP.GetNextTokenAsInt()) throw ModelT::LoadError();
+                        if (Joints[JointNr].Name  !=TP.GetNextToken()) throw LoadErrorT("Mismatching joint name.");
+                        if (Joints[JointNr].Parent!=TP.GetNextTokenAsInt()) throw LoadErrorT("Mismatching joint parent.");
 
                         Anim.AnimJoints[JointNr].Flags       =TP.GetNextTokenAsInt();
                         Anim.AnimJoints[JointNr].FirstDataIdx=TP.GetNextTokenAsInt();
@@ -365,7 +365,7 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
 
             printf("WARNING: Loading animation sequence file %s failed just before input byte %lu!\n", ComponentFiles[FileNr].c_str(), TP.GetReadPosByte());
         }
-        catch (const ModelT::LoadError&)
+        catch (const LoadErrorT& LE)
         {
             // Loading this animation sequence failed, but as the base mesh (the md5mesh file)
             // loaded properly, that is not reason enough to abort loading the entire model.
@@ -374,7 +374,8 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
             InvalidAnim.FPS=-1.0f;          // Use a negative FPS to flags this animation as invalid.
             Anims.PushBack(InvalidAnim);    // Note that InvalidAnim.Frames.Size()==0, too.
 
-            printf("WARNING: Loading animation sequence file %s failed just before input byte %lu!\n", ComponentFiles[FileNr].c_str(), TP.GetReadPosByte());
+            printf("WARNING: Loading animation sequence file %s failed just before input byte %lu:\n", ComponentFiles[FileNr].c_str(), TP.GetReadPosByte());
+            printf("%s", LE.what());
         }
     }
 }

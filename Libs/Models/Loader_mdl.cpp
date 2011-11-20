@@ -31,7 +31,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <string.h>
 
 
-LoaderHL1mdlT::LoaderHL1mdlT(const std::string& FileName, int Flags) /*throw (ModelT::LoadError)*/
+LoaderHL1mdlT::LoaderHL1mdlT(const std::string& FileName, int Flags)
     : ModelLoaderT(FileName, Flags |
           REMOVE_DEGEN_TRIANGLES |                          // Need this flag in order to pass all assertions in the CafuModelT code.
           REMOVE_UNUSED_VERTICES | REMOVE_UNUSED_WEIGHTS)   // The code below relies on postprocessing removing unused vertices and weights.
@@ -39,7 +39,7 @@ LoaderHL1mdlT::LoaderHL1mdlT(const std::string& FileName, int Flags) /*throw (Mo
     // 1. Initialize auxiliary variables.
     // **********************************
 
-    if (!cf::String::EndsWith(m_FileName, ".mdl")) throw ModelT::LoadError();
+    if (!cf::String::EndsWith(m_FileName, ".mdl")) throw LoadErrorT("HL1 model file name doesn't end with .mdl");
 
     const std::string BaseName(m_FileName.c_str(), m_FileName.length()-4);
 
@@ -48,7 +48,7 @@ LoaderHL1mdlT::LoaderHL1mdlT(const std::string& FileName, int Flags) /*throw (Mo
     // ***********************
 
     FILE* InFile=fopen(m_FileName.c_str(), "rb");
-    if (InFile==NULL) throw ModelT::LoadError();
+    if (InFile==NULL) throw LoadErrorT("Could not fopen() the model file.");
 
     fseek(InFile, 0, SEEK_END); ModelData.PushBackEmpty(ftell(InFile));
     fseek(InFile, 0, SEEK_SET);
@@ -73,7 +73,7 @@ LoaderHL1mdlT::LoaderHL1mdlT(const std::string& FileName, int Flags) /*throw (Mo
     if (StudioHeader->NumTextures==0)
     {
         InFile=fopen((BaseName+"T.mdl").c_str(), "rb");
-        if (InFile==NULL) throw ModelT::LoadError();
+        if (InFile==NULL) throw LoadErrorT("Could not open the textures file.");
 
         fseek(InFile, 0, SEEK_END); TextureData.PushBackEmpty(ftell(InFile));
         fseek(InFile, 0, SEEK_SET);
@@ -98,7 +98,7 @@ LoaderHL1mdlT::LoaderHL1mdlT(const std::string& FileName, int Flags) /*throw (Mo
             sprintf(NumStr, "%02d", SeqGroupNr);
 
             InFile=fopen((BaseName+NumStr+".mdl").c_str(), "rb");
-            if (InFile==NULL) throw ModelT::LoadError();
+            if (InFile==NULL) throw LoadErrorT("Could not open the file with anim sequences.");
 
             fseek(InFile, 0, SEEK_END); AnimationData[SeqGroupNr].PushBackEmpty(ftell(InFile));
             fseek(InFile, 0, SEEK_SET);

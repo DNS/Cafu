@@ -175,7 +175,7 @@ void CafuModelT::AnimT::RecomputeBB(unsigned int FrameNr, const ArrayT<JointT>& 
     // "Clear" the old bounding-box.
     Frames[FrameNr].BB=BoundingBox3fT();
 
-    // This is a modified version of the loop in CafuModelT::RecomputeBindPoseBB().
+    // This is very similar to the code in AnimPoseT::UpdateData().
     for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
     {
         const CafuModelT::MeshT& Mesh=Meshes[MeshNr];
@@ -246,7 +246,6 @@ CafuModelT::CafuModelT(ModelLoaderT& Loader)
     : m_FileName(Loader.GetFileName()),
       m_MaterialMan(),
       m_UseGivenTangentSpace(Loader.UseGivenTS()),  // Should we use the fixed, given tangent space, or recompute it ourselves here?
-      m_BindPoseBB(Vector3fT()),                    // Re-initialized in InitMeshes() calling RecomputeBindPoseBB(), but start with a valid box anyways (e.g. for testing models that have a skeleton, but no mesh).
       m_DlodModel(NULL),
       m_DlodDist(0.0f)
       , m_TEMP_Pose(NULL)
@@ -271,8 +270,8 @@ CafuModelT::CafuModelT(ModelLoaderT& Loader)
     Loader.Load(m_Channels);
     Loader.Postprocess(m_Meshes);
 
-    if (m_Joints.Size()==0) throw ModelT::LoadError();
- // if (m_Meshes.Size()==0) throw ModelT::LoadError();  // Consider models with no meshes as valid, skeleton-only meshes are sometimes useful for testing.
+    if (m_Joints.Size()==0) throw ModelLoaderT::LoadErrorT("This model has no joints.");
+ // if (m_Meshes.Size()==0) throw ModelLoaderT::LoadErrorT("This model has no meshes.");  // Consider models with no meshes as valid, skeleton-only meshes are sometimes useful for testing.
 
     // Load the chain of dlod models, if any.
     {
@@ -350,79 +349,8 @@ CafuModelT::~CafuModelT()
 }
 
 
-bool CafuModelT::IsMeshNrOK(const GuiFixtureT& GF, unsigned int PointNr) const
-{
-    return GF.Points[PointNr].MeshNr < m_Meshes.Size();
-}
-
-
-bool CafuModelT::IsVertexNrOK(const GuiFixtureT& GF, unsigned int PointNr) const
-{
-    return IsMeshNrOK(GF, PointNr) &&
-           GF.Points[PointNr].VertexNr < m_Meshes[GF.Points[PointNr].MeshNr].Vertices.Size();
-}
-
-
-AnimPoseT* CafuModelT::GetSharedPose(int SequNr, float FrameNr) const
-{
-    m_TEMP_Pose->SetSequNr(SequNr);
-    m_TEMP_Pose->SetFrameNr(FrameNr);
-
-    return m_TEMP_Pose;
-}
-
-
-void CafuModelT::RecomputeBindPoseBB()
-{
-    ArrayT<MatrixT> JointMatrices;
-    JointMatrices.PushBackEmpty(m_Joints.Size());
-
-    for (unsigned long JointNr=0; JointNr<m_Joints.Size(); JointNr++)
-    {
-        const JointT& J=m_Joints[JointNr];
-        const MatrixT RelMatrix(J.Pos, cf::math::QuaternionfT::FromXYZ(J.Qtr), J.Scale);
-
-        JointMatrices[JointNr]=(J.Parent==-1) ? RelMatrix : JointMatrices[J.Parent]*RelMatrix;
-    }
-
-    for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
-    {
-        const MeshT& Mesh=m_Meshes[MeshNr];
-
-        for (unsigned long VertexNr=0; VertexNr<Mesh.Vertices.Size(); VertexNr++)
-        {
-            const MeshT::VertexT& Vertex=Mesh.Vertices[VertexNr];
-            Vector3fT             OutVert;
-
-            if (Vertex.NumWeights==1)
-            {
-                const MeshT::WeightT& Weight=Mesh.Weights[Vertex.FirstWeightIdx];
-
-                OutVert=JointMatrices[Weight.JointIdx].Mul_xyz1(Weight.Pos);
-            }
-            else
-            {
-                for (unsigned int WeightNr=0; WeightNr<Vertex.NumWeights; WeightNr++)
-                {
-                    const MeshT::WeightT& Weight=Mesh.Weights[Vertex.FirstWeightIdx+WeightNr];
-
-                    OutVert+=JointMatrices[Weight.JointIdx].Mul_xyz1(Weight.Pos) * Weight.Weight;
-                }
-            }
-
-            if (MeshNr==0 && VertexNr==0) m_BindPoseBB=BoundingBox3fT(OutVert);
-                                     else m_BindPoseBB.Insert(OutVert);
-        }
-    }
-}
-
-
 void CafuModelT::InitMeshes()
 {
-    // Compute the bounding box for the model in bind pose (stored in m_BindPoseBB), just in case this model has no animations.
-    RecomputeBindPoseBB();
-
-
     // Compute auxiliary data for each mesh.
     for (unsigned long MeshNr=0; MeshNr<m_Meshes.Size(); MeshNr++)
     {
@@ -945,16 +873,6 @@ void CafuModelT::Save(std::ostream& OutStream) const
 }
 
 
-/***********************************************/
-/*** Implementation of the ModelT interface. ***/
-/***********************************************/
-
-const std::string& CafuModelT::GetFileName() const
-{
-    return m_FileName;
-}
-
-
 const MaterialT* CafuModelT::GetMaterial(unsigned long MeshNr, int SkinNr) const
 {
     assert(MeshNr<m_Meshes.Size());
@@ -989,16 +907,29 @@ MatSys::RenderMaterialT* CafuModelT::GetRenderMaterial(unsigned long MeshNr, int
 }
 
 
-void CafuModelT::Draw(int SequenceNr, float FrameNr, float LodDist, const ModelT* /*SubModel*/) const
+bool CafuModelT::IsMeshNrOK(const GuiFixtureT& GF, unsigned int PointNr) const
 {
-    m_TEMP_Pose->SetSequNr(SequenceNr);
-    m_TEMP_Pose->SetFrameNr(FrameNr);
-
-    m_TEMP_Pose->Draw(-1 /*default skin*/, LodDist);
+    return GF.Points[PointNr].MeshNr < m_Meshes.Size();
 }
 
 
-bool CafuModelT::GetGuiPlane(int SequenceNr, float FrameNr, float LodDist, Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const
+bool CafuModelT::IsVertexNrOK(const GuiFixtureT& GF, unsigned int PointNr) const
+{
+    return IsMeshNrOK(GF, PointNr) &&
+           GF.Points[PointNr].VertexNr < m_Meshes[GF.Points[PointNr].MeshNr].Vertices.Size();
+}
+
+
+AnimPoseT* CafuModelT::GetSharedPose(int SequNr, float FrameNr) const
+{
+    m_TEMP_Pose->SetSequNr(SequNr);
+    m_TEMP_Pose->SetFrameNr(FrameNr);
+
+    return m_TEMP_Pose;
+}
+
+
+bool CafuModelT::GetGuiPlane(Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const
 {
     if (m_GuiLocs.Size()==0) return false;
 
@@ -1048,64 +979,4 @@ void CafuModelT::Print() const
             std::cout << "\n";
         }
     }
-}
-
-
-unsigned int CafuModelT::GetNrOfSequences() const
-{
-    return m_Anims.Size();
-}
-
-
-BoundingBox3fT CafuModelT::GetBB(int SequenceNr, float FrameNr) const
-{
-    if (SequenceNr==-1 || SequenceNr>=int(m_Anims.Size()) || m_Anims[SequenceNr].Frames.Size()==0 || m_Anims[SequenceNr].FPS<0.0)
-        return m_BindPoseBB;
-
-    // Should we interpolate the bounding box between frames as we interpolate the bones?
-    const int FNr=(int(FrameNr+0.5f)) % m_Anims[SequenceNr].Frames.Size();
-
-    return m_Anims[SequenceNr].Frames[FNr].BB;
-}
-
-
-bool CafuModelT::TraceRay(int SequenceNr, float FrameNr, int SkinNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, TraceResultT& Result) const
-{
-    m_TEMP_Pose->SetSequNr(SequenceNr);
-    m_TEMP_Pose->SetFrameNr(FrameNr);
-
-    return m_TEMP_Pose->TraceRay(SkinNr, RayOrigin, RayDir, Result);
-}
-
-
-// float CafuModelT::GetNrOfFrames(int /*SequenceNr*/) const
-// {
-//     return 0.0;
-// }
-
-
-float CafuModelT::AdvanceFrameNr(int SequenceNr, float FrameNr, float DeltaTime, bool Loop) const
-{
-    if (SequenceNr<0 || SequenceNr>=int(m_Anims.Size())) return 0.0f;
-    if (m_Anims[SequenceNr].Frames.Size()<=1) return 0.0f;
-
-    const float NumFrames=float(m_Anims[SequenceNr].Frames.Size());
-
-    FrameNr+=DeltaTime*m_Anims[SequenceNr].FPS;
-
-    if (Loop)
-    {
-        // Wrap the sequence (it's a looping (repeating) sequence, like idle, walk, ...).
-        FrameNr=fmod(FrameNr, NumFrames);
-        if (FrameNr<0.0f) FrameNr+=NumFrames;
-    }
-    else
-    {
-        // Clamp the sequence (it's a play-once (non-repeating) sequence, like dying).
-        // On clamping, stop the sequence 1/100th sec before the end of the last frame.
-        if (FrameNr>=NumFrames-1.0f) FrameNr=NumFrames-1.0f-0.01f;
-        if (FrameNr<0.0f) FrameNr=0.0f;
-    }
-
-    return FrameNr;
 }

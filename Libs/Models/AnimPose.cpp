@@ -705,7 +705,7 @@ void AnimPoseT::Draw(int SkinNr, float LodDist) const
 }
 
 
-bool AnimPoseT::TraceRay(int SkinNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, ModelT::TraceResultT& Result) const
+bool AnimPoseT::TraceRay(int SkinNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, TraceResultT& Result) const
 {
     // if (m_Model.GetDlodModel() && LodDist >= m_Model.GetDlodDist())
     // {

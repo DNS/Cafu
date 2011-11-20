@@ -45,7 +45,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "_ResourceManager.hpp"
 
 #include "ConsoleCommands/Console.hpp"
-#include "Models/Model_proxy.hpp"
 
 #include <map>
 

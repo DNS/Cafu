@@ -33,7 +33,7 @@ class LoaderDlodT : public ModelLoaderT
     /// The constructor for loading a discrete-level-of-detail (.dlod) model file into a new Cafu model.
     /// @param FileName   The name of the .dlod file to load.
     /// @param Flags      The flags to load the model with. See ModelLoaderT::FlagsT for details.
-    LoaderDlodT(const std::string& FileName, int Flags=NONE) /*throw (ModelT::LoadError)*/;
+    LoaderDlodT(const std::string& FileName, int Flags=NONE);
 
     /// The destructor.
     ~LoaderDlodT();

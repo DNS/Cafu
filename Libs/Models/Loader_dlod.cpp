@@ -29,7 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "String.hpp"
 
 
-LoaderDlodT::LoaderDlodT(const std::string& FileName, int Flags) /*throw (ModelT::LoadError)*/
+LoaderDlodT::LoaderDlodT(const std::string& FileName, int Flags)
     : ModelLoaderT(FileName, Flags)
 {
     TextParserT TP(FileName.c_str());

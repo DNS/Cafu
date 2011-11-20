@@ -60,7 +60,7 @@ ModelEditor::SceneView3DT::SceneView3DT(ChildFrameT* Parent)
 }
 
 
-Vector3fT ModelEditor::SceneView3DT::TraceCameraRay(const wxPoint& RefPtWin, ModelT::TraceResultT& ModelTR) const
+Vector3fT ModelEditor::SceneView3DT::TraceCameraRay(const wxPoint& RefPtWin, AnimPoseT::TraceResultT& ModelTR) const
 {
     const ModelDocumentT* ModelDoc    =m_Parent->GetModelDoc();
     float                 BestFraction=std::numeric_limits<float>::max();
@@ -100,7 +100,7 @@ Vector3fT ModelEditor::SceneView3DT::TraceCameraRay(const wxPoint& RefPtWin, Mod
     }
 
     // Trace the ray against the model, which is a per-triangle accurate test.
-    ModelT::TraceResultT Result;
+    AnimPoseT::TraceResultT Result;
 
     if (ModelDoc->GetAnimState().Pose.TraceRay(ModelDoc->GetSelSkinNr(), RayOrigin, RayDir, Result) && Result.Fraction<BestFraction)
     {
@@ -115,7 +115,7 @@ Vector3fT ModelEditor::SceneView3DT::TraceCameraRay(const wxPoint& RefPtWin, Mod
 
 Vector3fT ModelEditor::SceneView3DT::GetRefPtWorld(const wxPoint& RefPtWin) const
 {
-    ModelT::TraceResultT ModelTR;
+    AnimPoseT::TraceResultT ModelTR;
 
     return TraceCameraRay(RefPtWin, ModelTR);
 }
@@ -230,12 +230,12 @@ void ModelEditor::SceneView3DT::OnContextMenu(wxContextMenuEvent& CE)
         ID_MENU_SET_GUIFIX_ENDPOINT_Y
     };
 
-    ModelT::TraceResultT ModelTR;
-    const Vector3fT      HitPos=TraceCameraRay(ScreenToClient(CE.GetPosition()), ModelTR);
-    const CafuModelT*    Model=m_Parent->GetModelDoc()->GetModel();
-    const AnimPoseT&     Pose=m_Parent->GetModelDoc()->GetAnimState().Pose;
-    unsigned int         BestVertexNr=0;
-    bool                 HaveModelHit=false;
+    AnimPoseT::TraceResultT ModelTR;
+    const Vector3fT         HitPos=TraceCameraRay(ScreenToClient(CE.GetPosition()), ModelTR);
+    const CafuModelT*       Model=m_Parent->GetModelDoc()->GetModel();
+    const AnimPoseT&        Pose=m_Parent->GetModelDoc()->GetAnimState().Pose;
+    unsigned int            BestVertexNr=0;
+    bool                    HaveModelHit=false;
 
     if (ModelTR.Fraction>0.0f && ModelTR.MeshNr<Model->GetMeshes().Size() && ModelTR.TriNr<Model->GetMeshes()[ModelTR.MeshNr].Triangles.Size())
     {

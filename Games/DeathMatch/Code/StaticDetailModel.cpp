@@ -298,7 +298,7 @@ void EntStaticDetailModelT::Draw(bool /*FirstPersonView*/, float LodDist) const
         Vector3fT GuiAxisX;
         Vector3fT GuiAxisY;
 
-        if (m_Model->GetGuiPlane(m_SequNr, m_FrameNr, LodDist, GuiOrigin, GuiAxisX, GuiAxisY))
+        if (m_Model->GetGuiPlane(GuiOrigin, GuiAxisX, GuiAxisY))
         {
 #if 1
             const MatrixT& ModelToWorld=MatSys::Renderer->GetMatrix(MatSys::RendererI::MODEL_TO_WORLD);
@@ -389,7 +389,7 @@ cf::GuiSys::GuiI* EntStaticDetailModelT::GetGUI() const
 
 bool EntStaticDetailModelT::GetGuiPlane(Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const
 {
-    if (!m_Model->GetGuiPlane(m_SequNr, m_FrameNr, 0.0, GuiOrigin, GuiAxisX, GuiAxisY)) return false;
+    if (!m_Model->GetGuiPlane(GuiOrigin, GuiAxisX, GuiAxisY)) return false;
 
     // Okay, got the plane. Now transform it from model space into world space.
     GuiOrigin=scale(GuiOrigin, 25.4f);

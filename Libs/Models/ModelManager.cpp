@@ -74,13 +74,6 @@ const CafuModelT* ModelManagerT::GetModel(const std::string& FileName, std::stri
             "Use CaWE in order to convert this model into a cmdl model, "
             "then load the cmdl model in place of this.");
     }
-    catch (const ModelT::LoadError&)
-    {
-        LoaderDummyT Loader(FileName);
-
-        NewModel=new CafuModelT(Loader);
-        if (ErrorMsg) (*ErrorMsg)="The file could not be loaded (unknown error).";
-    }
     catch (const ModelLoaderT::LoadErrorT& LE)
     {
         LoaderDummyT Loader(FileName);

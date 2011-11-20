@@ -26,11 +26,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Mesh.hpp"
 #include "Math3D/BoundingBox.hpp"
 #include "Math3D/Matrix.hpp"
-#include "Model.hpp"    // For ModelT::TraceResultT
 
 
 class CafuModelT;
-// class TraceResultT;
+class MaterialT;
 
 
 /// This class describes a specific pose of an associated model.
@@ -73,6 +72,19 @@ class AnimPoseT
         ArrayT<VertexT>   Vertices;
     };
 
+    /// This class describes the result of tracing a ray or a bounding box against the model.
+    struct TraceResultT
+    {
+        /// The constructor.
+        TraceResultT(float Fraction_=0.0f) : Fraction(Fraction_), Material(NULL), MeshNr(-1), TriNr(-1) { }
+
+        float            Fraction;  ///< The scalar along RayDir at which the hit occurred (RayOrigin + RayDir*Fraction).
+        Vector3fT        Normal;    ///< This is the normal vector of the hit surface.
+        const MaterialT* Material;  ///< The material at the point of impact. Can be NULL, e.g. when an edge (i.e. a bevel plane) was hit or the material is not available.
+        unsigned int     MeshNr;    ///< The number of the hit mesh. Can be -1 (that is, \emph{larger} then the number of meshes in the model) if the hit mesh cannot be determined.
+        unsigned int     TriNr;     ///< The number of the hit triangle in the hit mesh. Can be -1 (that is, \emph{larger} then the number of triangles in the mesh) if the hit triangle cannot be determined.
+    };
+
 
     /// The constructor.
     AnimPoseT(const CafuModelT& Model, int SequNr=-1, float FrameNr=0.0f);
@@ -100,12 +112,15 @@ class AnimPoseT
     void SetSuperPose(const AnimPoseT* SuperPose);
 
     /// Advances the pose in time.
+    /// Use GetFrameNr() to learn the new frame number after calling this method.
     void Advance(float Time, bool ForceLoop=false);
 
     /// Call this if something in the related model has changed.
     void SetNeedsRecache() { m_NeedsRecache=true; }
 
     /// This method renders the model in this pose.
+    /// The current MatSys model-view matrix determines the position and orientation.
+    ///
     /// @param SkinNr     The skin to render the model with, -1 for the default skin.
     /// @param LodDist    The distance to the camera for reducing the level-of-detail.
     void Draw(int SkinNr, float LodDist) const;
@@ -119,7 +134,7 @@ class AnimPoseT
     /// @param Result      If the model was hit, this struct contains additional details of the hit.
     ///
     /// @returns true if the ray hit the model, false otherwise. When the model was hit, additional details are returned via the Result parameter.
-    bool TraceRay(int SkinNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, ModelT::TraceResultT& Result) const;
+    bool TraceRay(int SkinNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, TraceResultT& Result) const;
 
     /// Considers the given triangle in the given mesh, and returns the vertex that the given point P is closest to in this pose.
     /// The returned number is the index of the vertex in the mesh, \emph{not} the (0, 1 or 2) index in the triangle.
@@ -134,10 +149,10 @@ class AnimPoseT
     /// Returns the mesh infos with additional data for each mesh in this pose.
     const ArrayT<MeshInfoT>& GetMeshInfos() const;
 
-    /// Returns the MatSys meshes for this pose.
+    /// Returns the MatSys meshes for the model in this pose.
     const ArrayT<MatSys::MeshT>& GetDrawMeshes() const;
 
-    /// Returns the bounding-box for this pose.
+    /// Returns the bounding-box for the model in this pose.
     const BoundingBox3fT& GetBB() const;
 
 

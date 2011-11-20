@@ -220,7 +220,7 @@ static Vector3fT myNormalize(const Vector3fT& A)
 // - An LWO "polygon" can also mean something more complex than a planar surface, there are several polygon types.
 // - LWOs store their vertex positions in "points", the CafuModelT class in "weights" (CafuModelT::MeshT::WeightT).
 // - LWOs store their texture-coordinates in "VMAPs" and "VMADs", the CafuModelT class in "vertices" (CafuModelT::MeshT::VertexT).
-LoaderLwoT::LoaderLwoT(const std::string& FileName, int Flags) /*throw (ModelT::LoadError)*/
+LoaderLwoT::LoaderLwoT(const std::string& FileName, int Flags)
     : ModelLoaderT(FileName, Flags | REMOVE_UNUSED_VERTICES | REMOVE_UNUSED_WEIGHTS)    // The code below relies on postprocessing removing unused vertices and weights.
 {
 }
@@ -234,8 +234,7 @@ void LoaderLwoT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
     free(fname); fname=NULL;
     if (lwo==NULL)
     {
-        Console->Warning("Model \""+m_FileName+"\" could not be loaded.\n");
-        throw ModelT::LoadError();
+        throw LoadErrorT("The model could not be loaded.\n");
     }
 
 

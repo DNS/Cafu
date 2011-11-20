@@ -41,7 +41,7 @@ namespace ModelEditor
 
         SceneView3DT(ChildFrameT* Parent);
 
-        Vector3fT TraceCameraRay(const wxPoint& RefPtWin, ModelT::TraceResultT& ModelTR) const;
+        Vector3fT TraceCameraRay(const wxPoint& RefPtWin, AnimPoseT::TraceResultT& ModelTR) const;
 
 
         private:

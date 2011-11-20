@@ -65,8 +65,8 @@ static MapBrushT* GetGroundBrush(GameConfigT* GameConfig)
 
 ModelEditor::ModelDocumentT::ModelDocumentT(GameConfigT* GameConfig, const wxString& FileName)
     : m_Model(LoadModel(FileName)),
-      m_SequenceBB(m_Model->GetBB(-1, 0.0f)),
       m_AnimState(*m_Model),
+      m_SequenceBB(m_AnimState.Pose.GetBB()),
       m_Submodels(),
       m_Gui(new cf::GuiSys::GuiImplT(GameConfig->GetGuiResources(),
           "Win1=gui:new('WindowT'); gui:SetRootWindow(Win1); gui:activate(true); "
@@ -140,7 +140,7 @@ void ModelEditor::ModelDocumentT::SetSelection(ModelElementTypeT Type, const Arr
 
         if (m_Selection[ANIM].Size()==0)
         {
-            m_SequenceBB=m_Model->GetBB(-1, 0.0f);
+            m_SequenceBB=m_AnimState.Pose.GetBB();
         }
         else
         {
@@ -166,11 +166,6 @@ void ModelEditor::ModelDocumentT::LoadSubmodel(const wxString& FileName)
     {
         m_Submodels.PushBack(new SubmodelT(LoadModel(FileName)));
     }
-    catch (const ModelT::LoadError& /*E*/)
-    {
-        // TODO: We really should have more detailed information about what exactly went wrong when loading the model...
-        wxMessageBox(wxString("The submodel file \"")+FileName+"\" could not be loaded!", "Couldn't load or import submodel");
-    }
     catch (const ModelLoaderT::LoadErrorT& LE)
     {
         wxMessageBox(wxString("The submodel file \"")+FileName+"\" could not be loaded:\n"+LE.what(), "Couldn't load or import submodel");
@@ -193,7 +188,7 @@ ArrayT<unsigned int> ModelEditor::ModelDocumentT::GetSelection_NextAnimSequ() co
     ArrayT<unsigned int> NextSel;
     const unsigned int   NextAnimSequNr=m_Selection[ANIM].Size()==0 ? 0 : m_Selection[ANIM][0]+1;
 
-    if (NextAnimSequNr < m_Model->GetNrOfSequences())
+    if (NextAnimSequNr < m_Model->GetAnims().Size())
         NextSel.PushBack(NextAnimSequNr);
 
     return NextSel;
@@ -203,9 +198,9 @@ ArrayT<unsigned int> ModelEditor::ModelDocumentT::GetSelection_NextAnimSequ() co
 ArrayT<unsigned int> ModelEditor::ModelDocumentT::GetSelection_PrevAnimSequ() const
 {
     ArrayT<unsigned int> NextSel;
-    const unsigned int   NextAnimSequNr=m_Selection[ANIM].Size()==0 ? m_Model->GetNrOfSequences()-1 : m_Selection[ANIM][0]-1;
+    const unsigned int   NextAnimSequNr=m_Selection[ANIM].Size()==0 ? m_Model->GetAnims().Size()-1 : m_Selection[ANIM][0]-1;
 
-    if (NextAnimSequNr < m_Model->GetNrOfSequences())
+    if (NextAnimSequNr < m_Model->GetAnims().Size())
         NextSel.PushBack(NextAnimSequNr);
 
     return NextSel;

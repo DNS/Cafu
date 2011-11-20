@@ -296,7 +296,7 @@ void LoaderAseT::ReadGeometry(TextParserT& TP)
 }
 
 
-LoaderAseT::LoaderAseT(const std::string& FileName, int Flags) /*throw (ModelT::LoadError)*/
+LoaderAseT::LoaderAseT(const std::string& FileName, int Flags)
     : ModelLoaderT(FileName, Flags)
 {
     TextParserT TP(FileName.c_str(), ",");  // The comma is required for SmoothGroups.
@@ -331,7 +331,7 @@ LoaderAseT::LoaderAseT(const std::string& FileName, int Flags) /*throw (ModelT::
     }
     catch (const TextParserT::ParseError&)
     {
-        throw ModelT::LoadError();
+        throw LoadErrorT("Could not parse the file.");
     }
 
 
@@ -484,7 +484,7 @@ LoaderAseT::LoaderAseT(const std::string& FileName, int Flags) /*throw (ModelT::
         if (m_GeomObjects[GONr].IndexMaterial>=m_MaterialNames.Size())
         {
             printf("ase model error (%s): GeomObject %lu refers to material index %lu, but there are only %lu materials total.\n", FileName.c_str(), GONr, m_GeomObjects[GONr].IndexMaterial, m_MaterialNames.Size());
-            throw ModelT::LoadError();
+            throw LoadErrorT("A GeomObject refers to an unknown material.");
         }
     }
 }

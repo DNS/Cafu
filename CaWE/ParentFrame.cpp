@@ -39,7 +39,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Renderer.hpp"
 #include "MaterialSystem/TextureMap.hpp"
 #include "Models/Loader.hpp"    // Needed for the ModelLoaderT::LoadErrorT exception that must be caught when model loading failed.
-#include "Models/Model.hpp"     // Needed for the ModelT::LoadError exception that must be caught when model loading failed.
 #include "TextParser/TextParser.hpp"
 #include "PlatformAux.hpp"
 
@@ -553,11 +552,6 @@ wxMDIChildFrame* ParentFrameT::OpenFile(GameConfigT* GameConfig, wxString FileNa
     catch (const MapDocumentT::LoadErrorT& /*E*/)
     {
         wxMessageBox(wxString("The map file \"")+FileName+"\" could not be loaded!", "Couldn't load the map");
-    }
-    catch (const ModelT::LoadError& /*E*/)
-    {
-        // TODO: We really should have more detailed information about what exactly went wrong when loading the model...
-        wxMessageBox(wxString("The model file \"")+FileName+"\" could not be loaded!", "Couldn't load or import model");
     }
     catch (const ModelLoaderT::LoadErrorT& LE)
     {

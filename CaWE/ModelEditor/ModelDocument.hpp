@@ -136,9 +136,9 @@ namespace ModelEditor
 
         CafuModelT*              m_Model;           ///< The model that is being edited.
         ArrayT<unsigned int>     m_Selection[6];    ///< The selected joints, meshes, animations, channels, skins and GUI fixtures.
-        BoundingBox3fT           m_SequenceBB;      ///< The bounding-box encompassing all frames of the currently selected animation sequence(s).
         ArrayT<EditorMaterialI*> m_EditorMaterials; ///< One editor material for each material in the model (its material manager).
         AnimStateT               m_AnimState;       ///< The current state of the model animation.
+        BoundingBox3fT           m_SequenceBB;      ///< The bounding-box encompassing all frames of the currently selected animation sequence(s).
         ArrayT<SubmodelT*>       m_Submodels;       ///< The submodels that are shown with the main model.
         cf::GuiSys::GuiImplT*    m_Gui;             ///< The GUI that is rendered where the model has GUI fixtures.
         MapBrushT*               m_Ground;          ///< The ground brush.

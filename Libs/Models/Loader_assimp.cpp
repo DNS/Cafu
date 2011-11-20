@@ -29,7 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <map>
 
 
-LoaderAssimpT::LoaderAssimpT(const std::string& FileName, int Flags) /*throw (ModelT::LoadError)*/
+LoaderAssimpT::LoaderAssimpT(const std::string& FileName, int Flags)
     : ModelLoaderT(FileName, Flags),
       m_Scene(NULL)
 {

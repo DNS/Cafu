@@ -28,7 +28,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/BoundingBox.hpp"
 #include "Math3D/Matrix.hpp"
 #include "AnimPose.hpp"     // Only for TEMPORARILY implementing the "old" ModelT interface methods.
-#include "Model.hpp"
 
 #if defined(_WIN32) && _MSC_VER<1600
 #include "pstdint.h"            // Paul Hsieh's portable implementation of the stdint.h header.
@@ -53,7 +52,7 @@ namespace ModelEditor { class CommandUpdateGuiFixtureT; }
 
 
 /// This class represents a native Cafu model.
-class CafuModelT : public ModelT
+class CafuModelT
 {
     public:
 
@@ -254,7 +253,7 @@ class CafuModelT : public ModelT
     void Save(std::ostream& OutStream) const;
 
     // Inspector methods.
-    bool GetUseGivenTS() const { return m_UseGivenTangentSpace; }
+    const std::string&          GetFileName() const { return m_FileName; }
     const MaterialManagerImplT& GetMaterialManager() const { return m_MaterialMan; }
     const ArrayT<JointT>&       GetJoints() const { return m_Joints; }
     const ArrayT<MeshT>&        GetMeshes() const { return m_Meshes; }
@@ -262,6 +261,7 @@ class CafuModelT : public ModelT
     const ArrayT<GuiFixtureT>&  GetGuiFixtures() const { return m_GuiFixtures; }
     const ArrayT<AnimT>&        GetAnims() const { return m_Anims; }
     const ArrayT<ChannelT>&     GetChannels() const { return m_Channels; }
+    bool                        GetUseGivenTS() const { return m_UseGivenTangentSpace; }
     const CafuModelT*           GetDlodModel() const { return m_DlodModel; }
     float                       GetDlodDist() const { return m_DlodDist; }
 
@@ -280,18 +280,14 @@ class CafuModelT : public ModelT
     /// This method is strictly for backwards-compatibility only, do not use in new code!
     AnimPoseT* GetSharedPose(int SequNr, float FrameNr) const;
 
-    // The ModelT interface.
-    const std::string& GetFileName() const;
-    void               Draw(int SequenceNr, float FrameNr, float LodDist, const ModelT* SubModel=NULL) const;
-    bool               GetGuiPlane(int SequenceNr, float FrameNr, float LodDist, Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const;
-    void               Print() const;
-    unsigned int       GetNrOfSequences() const;
-    BoundingBox3fT     GetBB(int SequenceNr, float FrameNr) const;
-    bool               TraceRay(int SequenceNr, float FrameNr, int SkinNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, TraceResultT& Result) const;
- // float              GetNrOfFrames(int SequenceNr) const;
-    float              AdvanceFrameNr(int SequenceNr, float FrameNr, float DeltaTime, bool Loop=true) const;
+    /// An obsolete method that should not be used in new code.
+    bool GetGuiPlane(Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const;
 
-    static const unsigned int CMDL_FILE_VERSION;    ///< The current version of the \c cmdl file format.
+    /// Prints some model data to stdout, used for debugging.
+    void Print() const;
+
+    /// The current version of the \c cmdl file format.
+    static const unsigned int CMDL_FILE_VERSION;
 
 
     private:
@@ -310,7 +306,6 @@ class CafuModelT : public ModelT
     CafuModelT(const CafuModelT&);                  ///< Use of the Copy    Constructor is not allowed.
     void operator = (const CafuModelT&);            ///< Use of the Assignment Operator is not allowed.
 
-    void RecomputeBindPoseBB();                     ///< Recomputes the bounding box for the model in bind pose (stored in m_BindPoseBB).
     void InitMeshes();                              ///< An auxiliary method for the constructors.
 
     const std::string    m_FileName;                ///< File name of this model.   TODO: Remove!?!
@@ -325,12 +320,11 @@ class CafuModelT : public ModelT
 
     const bool           m_UseGivenTangentSpace;    ///< Whether this model should use the fixed, given tangent space that was loaded from the model file, or it the tangent space is dynamically recomputed (useful for animated models).
  // const bool           m_CastShadows;             ///< Should this model cast shadows?
-    BoundingBox3fT       m_BindPoseBB;              ///< [REMOVE???] The bounding-box for the base pose of the model.
 
     CafuModelT*          m_DlodModel;               ///< Use the m_DlodModel instead of this when the camera is more than m_DlodDist away.
     float                m_DlodDist;                ///< The distance beyond which the m_DlodModel is used instead of this.
 
-    mutable AnimPoseT* m_TEMP_Pose;      ///< TEMPORARY!
+    mutable AnimPoseT*   m_TEMP_Pose;               ///< TEMPORARY!
 };
 
 #endif

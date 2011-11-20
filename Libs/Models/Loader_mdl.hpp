@@ -41,7 +41,7 @@ class LoaderHL1mdlT : public ModelLoaderT
     /// The constructor for importing a HL1 (.mdl) model file into a new Cafu model.
     /// @param FileName   The name of the .mdl file to import.
     /// @param Flags      The flags to load the model with. See ModelLoaderT::FlagsT for details.
-    LoaderHL1mdlT(const std::string& FileName, int Flags=NONE) /*throw (ModelT::LoadError)*/;
+    LoaderHL1mdlT(const std::string& FileName, int Flags=NONE);
 
     bool UseGivenTS() const;
     void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan);
