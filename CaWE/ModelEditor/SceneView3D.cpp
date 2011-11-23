@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ModelDocument.hpp"
 #include "ScenePropGrid.hpp"
 #include "Commands/UpdateGuiFixture.hpp"
+#include "Commands/UpdateTriangle.hpp"
 #include "../AppCaWE.hpp"
 #include "../Camera.hpp"
 #include "../EditorMaterial.hpp"
@@ -227,7 +228,9 @@ void ModelEditor::SceneView3DT::OnContextMenu(wxContextMenuEvent& CE)
         ID_MENU_GUIFIX_NONE=wxID_HIGHEST+1+100,
         ID_MENU_SET_GUIFIX_ORIGIN,
         ID_MENU_SET_GUIFIX_ENDPOINT_X,
-        ID_MENU_SET_GUIFIX_ENDPOINT_Y
+        ID_MENU_SET_GUIFIX_ENDPOINT_Y,
+        ID_MENU_TRIANGLE_INFO,
+        ID_MENU_TRIANGLE_SKIPDRAW
     };
 
     AnimPoseT::TraceResultT ModelTR;
@@ -242,6 +245,7 @@ void ModelEditor::SceneView3DT::OnContextMenu(wxContextMenuEvent& CE)
         BestVertexNr=Pose.FindClosestVertex(ModelTR.MeshNr, ModelTR.TriNr, HitPos);
         HaveModelHit=true;
     }
+
 
     wxMenu Menu;
     const ArrayT<unsigned int>& Sel=m_Parent->GetModelDoc()->GetSelection(GFIX);
@@ -268,16 +272,44 @@ void ModelEditor::SceneView3DT::OnContextMenu(wxContextMenuEvent& CE)
         Menu.AppendSubMenu(SubmenuGF, "GUI fixture");
     }
 
-    const int PointNr=GetPopupMenuSelectionFromUser(Menu)-ID_MENU_SET_GUIFIX_ORIGIN;
-
-    if (HaveModelHit && PointNr>=0 && PointNr<=2)
+    if (HaveModelHit)
     {
-        CafuModelT::GuiFixtureT GF=Model->GetGuiFixtures()[Sel[0]];
+        const bool SkipDraw=Model->GetMeshes()[ModelTR.MeshNr].Triangles[ModelTR.TriNr].SkipDraw;
 
-        GF.Points[PointNr].MeshNr  =ModelTR.MeshNr;
-        GF.Points[PointNr].VertexNr=BestVertexNr;
+        Menu.AppendSeparator();
+        Menu.Append(ID_MENU_TRIANGLE_INFO, wxString::Format("Mesh %u, Triangle %u:", ModelTR.MeshNr, ModelTR.TriNr))->Enable(false);
+        Menu.AppendCheckItem(ID_MENU_TRIANGLE_SKIPDRAW, "Hide Triangle (skip drawing)")->Check(SkipDraw);
+    }
 
-        m_Parent->SubmitCommand(new CommandUpdateGuiFixtureT(m_Parent->GetModelDoc(), Sel[0], GF));
+
+    const int MenuSelID=GetPopupMenuSelectionFromUser(Menu);
+
+    switch (MenuSelID)
+    {
+        case ID_MENU_TRIANGLE_SKIPDRAW:
+        {
+            if (HaveModelHit)
+            {
+                const bool SkipDraw=Model->GetMeshes()[ModelTR.MeshNr].Triangles[ModelTR.TriNr].SkipDraw;
+
+                m_Parent->SubmitCommand(new CommandUpdateTriangleT(m_Parent->GetModelDoc(), ModelTR.MeshNr, ModelTR.TriNr, !SkipDraw));
+            }
+        }
+
+        default:
+        {
+            const int PointNr=MenuSelID-ID_MENU_SET_GUIFIX_ORIGIN;
+
+            if (HaveModelHit && PointNr>=0 && PointNr<=2)
+            {
+                CafuModelT::GuiFixtureT GF=Model->GetGuiFixtures()[Sel[0]];
+
+                GF.Points[PointNr].MeshNr  =ModelTR.MeshNr;
+                GF.Points[PointNr].VertexNr=BestVertexNr;
+
+                m_Parent->SubmitCommand(new CommandUpdateGuiFixtureT(m_Parent->GetModelDoc(), Sel[0], GF));
+            }
+        }
     }
 }
 

@@ -49,6 +49,7 @@ namespace ModelEditor { class CommandTransformJointT; }
 namespace ModelEditor { class CommandUpdateAnimT; }
 namespace ModelEditor { class CommandUpdateChannelT; }
 namespace ModelEditor { class CommandUpdateGuiFixtureT; }
+namespace ModelEditor { class CommandUpdateTriangleT; }
 
 
 /// This class represents a native Cafu model.
@@ -81,6 +82,7 @@ class CafuModelT
 
             int          NeighbIdx[3];  ///< The array indices of the three neighbouring triangles at the edges 01, 12 and 20. -1 indicates no neighbour, -2 indicates more than one neighbour.
             bool         Polarity;      ///< True if this triangle has positive polarity (texture is not mirrored), or false if it has negative polarity (texture is mirrored, SxT points inward).
+            bool         SkipDraw;      ///< True if this triangle should be skipped when drawing the mesh (but not for casting stencil shadows and not for collision detection). This is useful for hiding triangles that are in the same plane as GUI panels and would otherwise cause z-fighting.
 
             Vector3fT    gts_Normal;    ///< The draw normal for this triangle, required for the shadow-silhouette determination.
         };
@@ -302,6 +304,7 @@ class CafuModelT
     friend class ModelEditor::CommandUpdateAnimT;
     friend class ModelEditor::CommandUpdateChannelT;
     friend class ModelEditor::CommandUpdateGuiFixtureT;
+    friend class ModelEditor::CommandUpdateTriangleT;
 
     CafuModelT(const CafuModelT&);                  ///< Use of the Copy    Constructor is not allowed.
     void operator = (const CafuModelT&);            ///< Use of the Assignment Operator is not allowed.

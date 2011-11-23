@@ -90,10 +90,15 @@ void AnimPoseT::SyncDimensions() const
         m_Draw_Meshes[MeshNr].Type   =MatSys::MeshT::Triangles;
      // m_Draw_Meshes[MeshNr].Winding=MatSys::MeshT::CW;    // CW is the default.
 
-        if (m_Draw_Meshes[MeshNr].Vertices.Size()!=Mesh.Triangles.Size()*3)
+        unsigned long NumDrawTris=0;
+        for (unsigned long TriNr=0; TriNr<Mesh.Triangles.Size(); TriNr++)
+            if (!Mesh.Triangles[TriNr].SkipDraw)
+                NumDrawTris++;
+
+        if (m_Draw_Meshes[MeshNr].Vertices.Size()!=NumDrawTris*3)
         {
             m_Draw_Meshes[MeshNr].Vertices.Overwrite();
-            m_Draw_Meshes[MeshNr].Vertices.PushBackEmptyExact(Mesh.Triangles.Size()*3);
+            m_Draw_Meshes[MeshNr].Vertices.PushBackEmptyExact(NumDrawTris*3);
         }
     }
 }
@@ -397,22 +402,28 @@ void AnimPoseT::UpdateData() const
 
     for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
     {
-        const MeshT&     Mesh    =Meshes[MeshNr];
-        const MeshInfoT& MeshInfo=m_MeshInfos[MeshNr];
+        const MeshT&     Mesh     =Meshes[MeshNr];
+        const MeshInfoT& MeshInfo =m_MeshInfos[MeshNr];
+        unsigned long    DrawTriNr=0;
 
         for (unsigned long TriNr=0; TriNr<Mesh.Triangles.Size(); TriNr++)
         {
+            if (Mesh.Triangles[TriNr].SkipDraw)
+                continue;
+
             for (unsigned long i=0; i<3; i++)
             {
                 const unsigned long       VertexIdx =Mesh.Triangles[TriNr].VertexIdx[i];
                 const MeshInfoT::VertexT& VertexInfo=MeshInfo.Vertices[VertexIdx];
 
-                m_Draw_Meshes[MeshNr].Vertices[TriNr*3+i].SetOrigin(VertexInfo.Pos.x, VertexInfo.Pos.y, VertexInfo.Pos.z);
-                m_Draw_Meshes[MeshNr].Vertices[TriNr*3+i].SetTextureCoord(Mesh.Vertices[VertexIdx].u, Mesh.Vertices[VertexIdx].v);
-                m_Draw_Meshes[MeshNr].Vertices[TriNr*3+i].SetNormal  (VertexInfo.Normal.x,   VertexInfo.Normal.y,   VertexInfo.Normal.z  );
-                m_Draw_Meshes[MeshNr].Vertices[TriNr*3+i].SetTangent (VertexInfo.Tangent.x,  VertexInfo.Tangent.y,  VertexInfo.Tangent.z );
-                m_Draw_Meshes[MeshNr].Vertices[TriNr*3+i].SetBiNormal(VertexInfo.BiNormal.x, VertexInfo.BiNormal.y, VertexInfo.BiNormal.z);
+                m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+i].SetOrigin(VertexInfo.Pos.x, VertexInfo.Pos.y, VertexInfo.Pos.z);
+                m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+i].SetTextureCoord(Mesh.Vertices[VertexIdx].u, Mesh.Vertices[VertexIdx].v);
+                m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+i].SetNormal  (VertexInfo.Normal.x,   VertexInfo.Normal.y,   VertexInfo.Normal.z  );
+                m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+i].SetTangent (VertexInfo.Tangent.x,  VertexInfo.Tangent.y,  VertexInfo.Tangent.z );
+                m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+i].SetBiNormal(VertexInfo.BiNormal.x, VertexInfo.BiNormal.y, VertexInfo.BiNormal.z);
             }
+
+            DrawTriNr++;
         }
     }
 

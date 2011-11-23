@@ -711,7 +711,14 @@ std::string MapCompositionT::GetString() const
 std::string MapCompositionT::GetStringWithOptions(bool NoCompressionDefault) const
 {
     const static MapCompositionT RefMapComp;    // Use a reference object here, just in case we ever change the defaults.
+    const std::string            BaseString=GetString();
     std::string                  OptionsString="";
+
+    if (BaseString=="")
+    {
+        // If the base string is empty, don't attempt to attach any options.
+        return "";
+    }
 
     if (MinFilter!=RefMapComp.MinFilter)
     {
@@ -778,7 +785,7 @@ std::string MapCompositionT::GetStringWithOptions(bool NoCompressionDefault) con
         OptionsString+=", useCompression";
     }
 
-    return GetString() + OptionsString;
+    return BaseString + OptionsString;
 }
 
 

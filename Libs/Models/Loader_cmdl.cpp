@@ -271,6 +271,10 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Me
                                 Triangle.VertexIdx[c]=lua_tointeger(m_LuaState, -1);
                                 lua_pop(m_LuaState, 1);
                             }
+
+                            lua_getfield(m_LuaState, -1, "skipDraw");
+                            Triangle.SkipDraw=lua_toboolean(m_LuaState, -1)!=0;
+                            lua_pop(m_LuaState, 1);
                         }
                         lua_pop(m_LuaState, 1);
                     }

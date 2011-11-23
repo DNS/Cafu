@@ -75,7 +75,7 @@ class EntStaticDetailModelT : public BaseEntityT
     char&             m_SequNr;     ///< The number of the animation sequence to play. This is a reference to State.ModelSequNr to have it sync'ed over the network.
     float             m_FrameNr;    ///< The current frame of the played animation sequence. Used <em>independently</em> on the server and the clients; only a <em>restart</em> of a sequence is sync'ed over the network via the EventID_RestartSequ event.
     std::string       GuiName;      ///< If our "gui" entity key is set, store the value here.
-    cf::GuiSys::GuiI* Gui;          ///< If the Model can display a GUI (it has a "Textures/meta/EntityGUI" surface), we load it here, *both* on the server- as well as on the client-side.
+    cf::GuiSys::GuiI* Gui;          ///< If the model has GUI fixtures, we load the GUI here, *both* on the server- as well as on the client-side.
 
 
     // Script methods (to be called from the map/entity Lua scripts).
