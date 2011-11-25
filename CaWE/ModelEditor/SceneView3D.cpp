@@ -403,6 +403,19 @@ void ModelEditor::SceneView3DT::RenderPass() const
 
     if (ScenePropGrid->m_Model_ShowMesh)
     {
+        switch (ScenePropGrid->m_Model_DebugMaterial)
+        {
+            case 1:
+                MatSys::Renderer->SetCurrentMaterial(m_Renderer.GetRMatWhite());
+                MatSys::Renderer->LockCurrentMaterial(true);
+                break;
+
+            case 2:
+                MatSys::Renderer->SetCurrentMaterial(m_Renderer.GetRMatTexturedWireframe());
+                MatSys::Renderer->LockCurrentMaterial(true);
+                break;
+        }
+
         Anim.Pose.Draw(ModelDoc->GetSelSkinNr(), 0.0f /*LodDist*/);
 
         for (unsigned long SmNr=0; SmNr<ModelDoc->GetSubmodels().Size(); SmNr++)
@@ -414,6 +427,8 @@ void ModelEditor::SceneView3DT::RenderPass() const
             SmPose.Draw(-1 /*SkinNr*/, 0.0f /*LodDist*/);
             SmPose.SetSuperPose(NULL);
         }
+
+        MatSys::Renderer->LockCurrentMaterial(false);
     }
 
 

@@ -52,6 +52,7 @@ ModelEditor::ScenePropGridT::ScenePropGridT(ChildFrameT* Parent, const wxSize& S
       m_Model_ShowSkeleton(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/Model_ShowSkeleton", 0l)!=0),
       m_Model_ShowTriangleNormals(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/Model_ShowTriangleNormals", 0l)!=0),
       m_Model_ShowTangentSpace(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/Model_ShowTangentSpace", 0l)!=0),
+      m_Model_DebugMaterial(0),
       m_AmbientLightColor(wxColour(wxConfigBase::Get()->Read("ModelEditor/SceneSetup/AmbientLightColor", "rgb(96, 96, 96)"))),
       m_AmbientTexture(NULL),
       m_Parent(Parent),
@@ -132,6 +133,9 @@ void ModelEditor::ScenePropGridT::RefreshPropGrid()
     AppendIn(ModelProps, new wxBoolProperty("Show Skeleton", wxPG_LABEL, m_Model_ShowSkeleton));
     AppendIn(ModelProps, new wxBoolProperty("Show triangle normals", wxPG_LABEL, m_Model_ShowTriangleNormals));
     AppendIn(ModelProps, new wxBoolProperty("Show tangent-space", wxPG_LABEL, m_Model_ShowTangentSpace));
+    const wxChar* DebugMaterialStrings[] = { wxT("normal/none"), wxT("plain (white)"), wxT("wire-frame"), NULL };
+    const long    DebugMaterialIndices[] = { 0, 1, 2 };
+    AppendIn(ModelProps, new wxEnumProperty("Debug material", wxPG_LABEL, DebugMaterialStrings, DebugMaterialIndices, m_Model_DebugMaterial));
 
 
     // "Anim Control" category.
@@ -223,6 +227,7 @@ void ModelEditor::ScenePropGridT::OnPropertyGridChanged(wxPropertyGridEvent& Eve
     else if (PropName=="Model.Show Skeleton")         m_Model_ShowSkeleton       =Prop->GetValue().GetBool();
     else if (PropName=="Model.Show triangle normals") m_Model_ShowTriangleNormals=Prop->GetValue().GetBool();
     else if (PropName=="Model.Show tangent-space")    m_Model_ShowTangentSpace   =Prop->GetValue().GetBool();
+    else if (PropName=="Model.Debug material")        m_Model_DebugMaterial      =Prop->GetValue().GetInteger();
     else if (PropName=="Frame No.") { AnimState.Pose.SetFrameNr(PropValueF); m_IsRecursiveSelfNotify=true; m_Parent->GetModelDoc()->UpdateAllObservers_AnimStateChanged(); m_IsRecursiveSelfNotify=false; }
     else if (PropName=="Speed")     { AnimState.Speed=PropValueF; m_IsRecursiveSelfNotify=true; m_Parent->GetModelDoc()->UpdateAllObservers_AnimStateChanged(); m_IsRecursiveSelfNotify=false; }
     else if (PropName=="Loop")      { AnimState.Loop =Prop->GetValue().GetBool(); m_IsRecursiveSelfNotify=true; m_Parent->GetModelDoc()->UpdateAllObservers_AnimStateChanged(); m_IsRecursiveSelfNotify=false; }

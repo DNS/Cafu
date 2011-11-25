@@ -55,6 +55,8 @@ namespace ModelEditor
         MatSys::RenderMaterialT* GetRMatOverlay_OffsetZ()    const { return m_RMatOverlayOZ;         }
         MatSys::RenderMaterialT* GetRMatTerrainEditorTool()  const { return m_RMatTerrainEdit;       }
         MatSys::RenderMaterialT* GetRMatTerrainEyeDropper()  const { return m_RMatTerrainEyeDropper; }
+        MatSys::RenderMaterialT* GetRMatWhite()              const { return m_RMatWhite; }
+        MatSys::RenderMaterialT* GetRMatTexturedWireframe()  const { return m_RMatTexturedWireframe; }
 
         /// Returns a "shade" according to the direction of the given normal vector.
         float GetConstShade(const Vector3T<float>& Normal) const;
@@ -89,7 +91,9 @@ namespace ModelEditor
         MatSys::RenderMaterialT* m_RMatOverlay;             ///< The render material for selection overlays (added in a second pass).
         MatSys::RenderMaterialT* m_RMatOverlayOZ;           ///< The render material for selection overlays (added in a second pass) (with polygon z-offset, e.g. for decals).
         MatSys::RenderMaterialT* m_RMatTerrainEdit;         ///< The render material overlay that is used to render the tool position in a terrain if the terrain edit tool is active.
-        MatSys::RenderMaterialT* m_RMatTerrainEyeDropper;   ///< The Render material overlay that is used to render the eyedropper tool position on a terrain.
+        MatSys::RenderMaterialT* m_RMatTerrainEyeDropper;   ///< The render material overlay that is used to render the eyedropper tool position on a terrain.
+        MatSys::RenderMaterialT* m_RMatWhite;               ///< This render material is intended as "debug" material for models in the Model Editor, so that the user can better inspect the surface lighting of the model.
+        MatSys::RenderMaterialT* m_RMatTexturedWireframe;   ///< This render material is intended as "debug" material for models in the Model Editor, so that the user can better inspect the surface details of the model, e.g. at what vertex exactly are the GUI fixture points, etc.
     };
 }
 

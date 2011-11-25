@@ -313,6 +313,18 @@ std::string ExpressionT::GetString() const
             return String.str();
         }
 
+        case SymbolTime:
+            return "time";
+
+        case SymbolALRed:
+            return "ambientLightRed";
+
+        case SymbolALGreen:
+            return "ambientLightGreen";
+
+        case SymbolALBlue:
+            return "ambientLightBlue";
+
         default:
             return "<expr>";
     }

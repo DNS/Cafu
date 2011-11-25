@@ -125,3 +125,31 @@ CaWE/TerrainEyeDropper
     green 0.0
     blue  1.0
 }
+
+
+// This material is intended as "debug" material for models in the Model Editor,
+// so that the user can better inspect the surface lighting of the model.
+CaWE/White
+{
+    diffusemap white.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+}
+
+
+// This material is intended as "debug" material for models in the Model Editor,
+// so that the user can better inspect the surface details of the model,
+// e.g. at what vertex exactly are the GUI fixture points, etc.
+CaWE/TexturedWireframe
+{
+    diffusemap white.png
+
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+
+    // twoSided
+    polygonMode wireframe
+}

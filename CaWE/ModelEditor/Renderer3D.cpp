@@ -42,6 +42,8 @@ ModelEditor::Renderer3DT::Renderer3DT()
     m_RMatOverlayOZ        =MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/OverlayOffsetZ"   ));
     m_RMatTerrainEdit      =MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/TerrainEditTool3D"));
     m_RMatTerrainEyeDropper=MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/TerrainEyeDropper"));
+    m_RMatWhite            =MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/White"            ));
+    m_RMatTexturedWireframe=MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/TexturedWireframe"));
 }
 
 
@@ -55,6 +57,8 @@ ModelEditor::Renderer3DT::~Renderer3DT()
     MatSys::Renderer->FreeMaterial(m_RMatOverlayOZ        );
     MatSys::Renderer->FreeMaterial(m_RMatTerrainEdit      );
     MatSys::Renderer->FreeMaterial(m_RMatTerrainEyeDropper);
+    MatSys::Renderer->FreeMaterial(m_RMatWhite            );
+    MatSys::Renderer->FreeMaterial(m_RMatTexturedWireframe);
 }
 
 

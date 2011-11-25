@@ -486,6 +486,7 @@ unsigned int MaterialT::GetPixelSizeY() const
 
 void MaterialT::Save(std::ostream& OutStream) const
 {
+    const static MaterialT RefMat;  // Use a reference object here, just in case we ever change the defaults.
     const char* INDENT="    ";
 
     OutStream << "\"" << Name << "\"\n";
@@ -513,12 +514,11 @@ void MaterialT::Save(std::ostream& OutStream) const
     if (PolygonMode==Wireframe) OutStream << INDENT << "polygonMode wireframe" << "\n";
     if (PolygonMode==Points)    OutStream << INDENT << "polygonMode points"    << "\n";
 
-    float f; const ExpressionT::SymbolsT ExpSym;
-    f=AlphaTestValue.Evaluate(ExpSym).GetAsFloat(); if (f>=0.0f) OutStream << INDENT << "alphaTest" << " " << f << "\n";
-    f=RedGen  .Evaluate(ExpSym).GetAsFloat(); if (f!=1.0f) OutStream << INDENT << "red"   << " " << f << "\n";
-    f=GreenGen.Evaluate(ExpSym).GetAsFloat(); if (f!=1.0f) OutStream << INDENT << "green" << " " << f << "\n";
-    f=BlueGen .Evaluate(ExpSym).GetAsFloat(); if (f!=1.0f) OutStream << INDENT << "blue"  << " " << f << "\n";
-    f=AlphaGen.Evaluate(ExpSym).GetAsFloat(); if (f!=1.0f) OutStream << INDENT << "alpha" << " " << f << "\n";
+    mcs=AlphaTestValue.GetString(); if (mcs!="<expr>" && mcs!=RefMat.AlphaTestValue.GetString()) OutStream << INDENT << "alphaTest" << " " << mcs << "\n";
+    mcs=RedGen        .GetString(); if (mcs!="<expr>" && mcs!=RefMat.RedGen        .GetString()) OutStream << INDENT << "red  "     << " " << mcs << "\n";
+    mcs=GreenGen      .GetString(); if (mcs!="<expr>" && mcs!=RefMat.GreenGen      .GetString()) OutStream << INDENT << "green"     << " " << mcs << "\n";
+    mcs=BlueGen       .GetString(); if (mcs!="<expr>" && mcs!=RefMat.BlueGen       .GetString()) OutStream << INDENT << "blue "     << " " << mcs << "\n";
+    mcs=AlphaGen      .GetString(); if (mcs!="<expr>" && mcs!=RefMat.AlphaGen      .GetString()) OutStream << INDENT << "alpha"     << " " << mcs << "\n";
 
     if (BlendFactorSrc!=None || BlendFactorDst!=None)
         OutStream << INDENT << "blendFunc" << " " << BlendFactorTokens[BlendFactorSrc] << " " << BlendFactorTokens[BlendFactorDst] << "\n";

@@ -59,6 +59,7 @@ namespace ModelEditor
         bool                 m_Model_ShowSkeleton;
         bool                 m_Model_ShowTriangleNormals;
         bool                 m_Model_ShowTangentSpace;
+        unsigned int         m_Model_DebugMaterial;   ///< 0 for "normal/none", 1 for "plain (white)", 2 for "wire-frame"
         wxColour             m_AmbientLightColor;
         MatSys::TextureMapI* m_AmbientTexture;    ///< A uniform 2x2 texture colored in the ambient light color, used as lightmap for the ground plane.
 
