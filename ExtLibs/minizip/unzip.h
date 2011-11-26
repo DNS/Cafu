@@ -119,9 +119,9 @@ typedef struct unz_file_info_s
     tm_unz tmu_date;
 } unz_file_info;
 
-extern int ZEXPORT unzStringFileNameCompare OF ((const char* fileName1,
-                                                 const char* fileName2,
-                                                 int iCaseSensitivity));
+extern int ZEXPORT unzStringFileNameCompare (const char* fileName1,
+                                             const char* fileName2,
+                                             int iCaseSensitivity);
 /*
    Compare two filename (fileName1,fileName2).
    If iCaseSenisivity = 1, comparision is case sensitivity (like strcmp)
