@@ -21,40 +21,40 @@
 #define INVALID_SET_FILE_POINTER ((DWORD)-1)
 #endif
 
-voidpf ZCALLBACK win32_open_file_func OF((
+voidpf ZCALLBACK win32_open_file_func (
    voidpf opaque,
    const char* filename,
-   int mode));
+   int mode);
 
-uLong ZCALLBACK win32_read_file_func OF((
+uLong ZCALLBACK win32_read_file_func (
    voidpf opaque,
    voidpf stream,
    void* buf,
-   uLong size));
+   uLong size);
 
-uLong ZCALLBACK win32_write_file_func OF((
+uLong ZCALLBACK win32_write_file_func (
    voidpf opaque,
    voidpf stream,
    const void* buf,
-   uLong size));
+   uLong size);
 
-long ZCALLBACK win32_tell_file_func OF((
+long ZCALLBACK win32_tell_file_func (
    voidpf opaque,
-   voidpf stream));
+   voidpf stream);
 
-long ZCALLBACK win32_seek_file_func OF((
+long ZCALLBACK win32_seek_file_func (
    voidpf opaque,
    voidpf stream,
    uLong offset,
-   int origin));
+   int origin);
 
-int ZCALLBACK win32_close_file_func OF((
+int ZCALLBACK win32_close_file_func (
    voidpf opaque,
-   voidpf stream));
+   voidpf stream);
 
-int ZCALLBACK win32_error_file_func OF((
+int ZCALLBACK win32_error_file_func (
    voidpf opaque,
-   voidpf stream));
+   voidpf stream);
 
 typedef struct
 {

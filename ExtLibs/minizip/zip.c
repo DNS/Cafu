@@ -261,8 +261,8 @@ local int add_data_in_datablock(ll,buf,len)
    nbByte == 1, 2 or 4 (byte, short or long)
 */
 
-local int ziplocal_putValue OF((const zlib_filefunc_def* pzlib_filefunc_def,
-                                voidpf filestream, uLong x, int nbByte));
+local int ziplocal_putValue (const zlib_filefunc_def* pzlib_filefunc_def,
+                             voidpf filestream, uLong x, int nbByte));
 local int ziplocal_putValue (pzlib_filefunc_def, filestream, x, nbByte)
     const zlib_filefunc_def* pzlib_filefunc_def;
     voidpf filestream;
@@ -290,7 +290,7 @@ local int ziplocal_putValue (pzlib_filefunc_def, filestream, x, nbByte)
         return ZIP_OK;
 }
 
-local void ziplocal_putValue_inmemory OF((void* dest, uLong x, int nbByte));
+local void ziplocal_putValue_inmemory (void* dest, uLong x, int nbByte);
 local void ziplocal_putValue_inmemory (dest, x, nbByte)
     void* dest;
     uLong x;
@@ -332,10 +332,10 @@ local uLong ziplocal_TmzDateToDosDate(ptm,dosDate)
 
 /****************************************************************************/
 
-local int ziplocal_getByte OF((
+local int ziplocal_getByte (
     const zlib_filefunc_def* pzlib_filefunc_def,
     voidpf filestream,
-    int *pi));
+    int *pi);
 
 local int ziplocal_getByte(pzlib_filefunc_def,filestream,pi)
     const zlib_filefunc_def* pzlib_filefunc_def;
@@ -362,10 +362,10 @@ local int ziplocal_getByte(pzlib_filefunc_def,filestream,pi)
 /* ===========================================================================
    Reads a long in LSB order from the given gz_stream. Sets
 */
-local int ziplocal_getShort OF((
+local int ziplocal_getShort (
     const zlib_filefunc_def* pzlib_filefunc_def,
     voidpf filestream,
-    uLong *pX));
+    uLong *pX);
 
 local int ziplocal_getShort (pzlib_filefunc_def,filestream,pX)
     const zlib_filefunc_def* pzlib_filefunc_def;
@@ -390,10 +390,10 @@ local int ziplocal_getShort (pzlib_filefunc_def,filestream,pX)
     return err;
 }
 
-local int ziplocal_getLong OF((
+local int ziplocal_getLong (
     const zlib_filefunc_def* pzlib_filefunc_def,
     voidpf filestream,
-    uLong *pX));
+    uLong *pX);
 
 local int ziplocal_getLong (pzlib_filefunc_def,filestream,pX)
     const zlib_filefunc_def* pzlib_filefunc_def;
@@ -433,9 +433,9 @@ local int ziplocal_getLong (pzlib_filefunc_def,filestream,pX)
   Locate the Central directory of a zipfile (at the end, just before
     the global comment)
 */
-local uLong ziplocal_SearchCentralDir OF((
+local uLong ziplocal_SearchCentralDir (
     const zlib_filefunc_def* pzlib_filefunc_def,
-    voidpf filestream));
+    voidpf filestream);
 
 local uLong ziplocal_SearchCentralDir(pzlib_filefunc_def,filestream)
     const zlib_filefunc_def* pzlib_filefunc_def;
