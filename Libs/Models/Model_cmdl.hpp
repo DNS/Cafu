@@ -50,6 +50,7 @@ namespace ModelEditor { class CommandUpdateAnimT; }
 namespace ModelEditor { class CommandUpdateChannelT; }
 namespace ModelEditor { class CommandUpdateGuiFixtureT; }
 namespace ModelEditor { class CommandUpdateTriangleT; }
+namespace ModelEditor { class CommandUpdateUVCoordsT; }
 
 
 /// This class represents a native Cafu model.
@@ -305,6 +306,7 @@ class CafuModelT
     friend class ModelEditor::CommandUpdateChannelT;
     friend class ModelEditor::CommandUpdateGuiFixtureT;
     friend class ModelEditor::CommandUpdateTriangleT;
+    friend class ModelEditor::CommandUpdateUVCoordsT;
 
     CafuModelT(const CafuModelT&);                  ///< Use of the Copy    Constructor is not allowed.
     void operator = (const CafuModelT&);            ///< Use of the Assignment Operator is not allowed.

@@ -26,10 +26,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Commands/Delete.hpp"
 #include "Commands/Rename.hpp"
 #include "Commands/Select.hpp"
+#include "Commands/UpdateUVCoords.hpp"
 #include "../ArtProvider.hpp"
 
 #include "MaterialSystem/Material.hpp"
 #include "Models/Model_cmdl.hpp"
+
+#include "wx/numdlg.h"
 
 
 using namespace ModelEditor;
@@ -292,7 +295,8 @@ void ElementsListT::OnContextMenu(wxContextMenuEvent& CE)
     {
         ID_MENU_INSPECT_EDIT=wxID_HIGHEST+1+100,
         ID_MENU_RENAME,
-        ID_MENU_ADD_NEW
+        ID_MENU_ADD_NEW,
+        ID_MENU_PROJECT_UV_COORDS
     };
 
     wxMenu Menu;
@@ -301,11 +305,13 @@ void ElementsListT::OnContextMenu(wxContextMenuEvent& CE)
     Menu.Append(ID_MENU_RENAME, "Rename\tF2");
     if (m_TYPE==GFIX || m_TYPE==SKIN || m_TYPE==CHAN) Menu.Append(ID_MENU_ADD_NEW, "Add/create new");
 
-    /* if (m_TYPE==MESH)
+    if (m_TYPE==MESH)
     {
-        Append(..., "Remove unused Vertices");
-        Append(..., "Remove unused Weights");
-    } */
+        Menu.AppendSeparator();
+        // Menu.Append(..., "Remove unused Vertices");
+        // Menu.Append(..., "Remove unused Weights");
+        Menu.Append(ID_MENU_PROJECT_UV_COORDS, "Project new UV-coords...", "Project UV-coordinates onto the mesh");
+    }
 
     switch (GetPopupMenuSelectionFromUser(Menu))
     {
@@ -332,6 +338,32 @@ void ElementsListT::OnContextMenu(wxContextMenuEvent& CE)
                 case CHAN: m_MainFrame->SubmitNewChannel();    break;
                 default: break;
             }
+            break;
+        }
+
+        case ID_MENU_PROJECT_UV_COORDS:
+        {
+            if (m_TYPE!=MESH) break;
+            if (m_ModelDoc->GetSelection(m_TYPE).Size()==0) break;
+
+            const unsigned int MeshNr=m_ModelDoc->GetSelection(m_TYPE)[0];
+
+            const long Scale=wxGetNumberFromUser(
+                "This is a tool for fixing models that did not bring proper UV-coordinates, or none at all.\n"
+                "The right solution is to assign UV-coordinates in your favourite 3D mesh modelling software\n"
+                "and then to re-import the model, whereas this tool is meant as a very quick and very simple\n"
+                "means for a hot-fix (that sometimes may suffice nevertheless).",
+                "Enter UV-vector scale:",
+                wxString::Format("Project UV-coordinates onto mesh %u", MeshNr),
+                12,
+                1,
+                1024);
+
+            m_MainFrame->SubmitCommand(new CommandUpdateUVCoordsT(m_ModelDoc,
+                MeshNr,
+                m_ModelDoc->GetAnimState().Pose,
+                Vector3fT(Scale, 0, 0),
+                Vector3fT(0, 0, Scale)));
             break;
         }
     }
