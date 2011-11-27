@@ -80,6 +80,7 @@ ModelEditor::ModelDocumentT::ModelDocumentT(GameConfigT* GameConfig, const wxStr
 {
     m_Cameras.PushBack(new CameraT);
     m_Cameras[0]->Pos.y=-500.0f;
+    m_Cameras[0]->NearPlaneDist=1.0f;
 
     m_LightSources.PushBack(new LightSourceT(true,  true, Vector3fT(200.0f,   0.0f, 200.0f), 1500.0f, wxColour(255, 235, 215)));
     m_LightSources.PushBack(new LightSourceT(false, true, Vector3fT(  0.0f, 200.0f, 200.0f), 1500.0f, wxColour(215, 235, 255)));

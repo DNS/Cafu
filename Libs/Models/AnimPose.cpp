@@ -727,7 +727,7 @@ bool AnimPoseT::TraceRay(int SkinNr, const Vector3fT& RayOrigin, const Vector3fT
 
     // If we miss the bounding-box, then we miss all the triangles as well.
     float Fraction=0.0f;
-    if (!GetBB().TraceRay(RayOrigin, RayDir, Fraction)) return false;
+    if (!GetBB()/*.GetEpsilonBox(...)*/.Contains(RayOrigin) && !GetBB().TraceRay(RayOrigin, RayDir, Fraction)) return false;
 
     typedef CafuModelT::MeshT MeshT;
 

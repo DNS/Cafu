@@ -598,7 +598,13 @@ void Generic3DWindowT::OnMouseRightUp(wxMouseEvent& ME)
 
 void Generic3DWindowT::OnMouseWheel(wxMouseEvent& ME)
 {
-    m_Camera->Pos+=normalizeOr0(WindowToWorld(ME.GetPosition()) - m_Camera->Pos)*(ME.GetWheelRotation()/2);
+    int factor=2;
+
+    // It would probably be better to use WXK_ALT here, or even better to have a "mouse sensitivity" state/member.
+    if (wxGetKeyState(WXK_SHIFT  )) factor*=4;
+    if (wxGetKeyState(WXK_CONTROL)) factor*=4;
+
+    m_Camera->Pos+=normalizeOr0(WindowToWorld(ME.GetPosition()) - m_Camera->Pos)*(ME.GetWheelRotation()/factor);
     InfoCameraChanged();
 }
 
