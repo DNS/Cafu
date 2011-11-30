@@ -1,0 +1,9 @@
+"frame/metal"
+{
+    diffusemap metal_diff.png
+    specularmap metal_spec.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    meta_editorSave
+}
