@@ -470,7 +470,7 @@ void ModelEditor::ChildFrameT::SaveMaterials(const wxString& OldBaseName, const 
             RelName.MakeRelativeTo(wxFileName(MainCmatName).GetPath());     // Make it relative to the main .cmat file.
 
             MainCmatFile << "\n";
-            MainCmatFile << "dofile(\"" << RelName.GetFullPath(wxPATH_UNIX) << "\");\n";
+            MainCmatFile << "dofile(\"" << RelName.GetFullPath(wxPATH_UNIX) << "\")\n";     // Put no semicolon at the end of the dofile() statement: cmat scripts are not (yet) in the Lua programming language.
         }
         else wxMessageBox("Unable to insert dofile() statement into main cmat file\n"+MainCmatName);
     }
