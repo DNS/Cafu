@@ -125,6 +125,11 @@ class AnimPoseT
     /// @param LodDist    The distance to the camera for reducing the level-of-detail.
     void Draw(int SkinNr, float LodDist) const;
 
+    /// Returns the origin, x-axis and y-axis vectors for the given Gui fixture.
+    /// The return value indicates whether the vectors could successfully be returned in the reference parameters
+    /// (the method can fail if e.g. the model has no such Gui fixture or the Gui fixture is improperly specified).
+    bool GetGuiPlane(unsigned int GFNr, Vector3fT& Origin, Vector3fT& AxisX, Vector3fT& AxisY) const;
+
     /// Traces a ray against this model in this pose, and returns whether it was hit.
     /// The ray for the trace is defined by RayOrigin + RayDir*Fraction, where Fraction is a scalar >= 0.
     ///

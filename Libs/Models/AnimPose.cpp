@@ -716,6 +716,42 @@ void AnimPoseT::Draw(int SkinNr, float LodDist) const
 }
 
 
+bool AnimPoseT::GetGuiPlane(unsigned int GFNr, Vector3fT& Origin, Vector3fT& AxisX, Vector3fT& AxisY) const
+{
+    // if (m_Model.GetDlodModel() && LodDist >= m_Model.GetDlodDist())
+    // {
+    //     return m_DlodPose->GetGuiPlane(GFNr, Origin, AxisX, AxisY);
+    // }
+
+    Recache();
+
+    if (GFNr >= m_Model.GetGuiFixtures().Size()) return false;
+
+    const CafuModelT::GuiFixtureT& GF=m_Model.GetGuiFixtures()[GFNr];
+    Vector3fT                      Points[3];
+
+    for (unsigned int PointNr=0; PointNr<3; PointNr++)
+    {
+        if (!m_Model.IsMeshNrOK  (GF, PointNr)) return false;
+        if (!m_Model.IsVertexNrOK(GF, PointNr)) return false;
+
+        Points[PointNr]=m_MeshInfos[GF.Points[PointNr].MeshNr].Vertices[GF.Points[PointNr].VertexNr].Pos;
+    }
+
+    AxisX =(Points[1]-Points[0])*GF.Scale[0];
+    AxisY =(Points[2]-Points[0])*GF.Scale[1];
+    Origin=Points[0] + AxisX*GF.Trans[0] + AxisY*GF.Trans[1];
+
+    // // It's pretty easy to derive this matrix geometrically, see my TechArchive note from 2006-08-22.
+    // MatrixT M(AxisX.x/640.0f, AxisY.x/480.0f, 0.0f, Origin.x,
+    //           AxisX.y/640.0f, AxisY.y/480.0f, 0.0f, Origin.y,
+    //           AxisX.z/640.0f, AxisY.z/480.0f, 0.0f, Origin.z,
+    //                     0.0f,           0.0f, 0.0f,     1.0f);
+
+    return true;
+}
+
+
 bool AnimPoseT::TraceRay(int SkinNr, const Vector3fT& RayOrigin, const Vector3fT& RayDir, TraceResultT& Result) const
 {
     // if (m_Model.GetDlodModel() && LodDist >= m_Model.GetDlodDist())

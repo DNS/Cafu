@@ -259,7 +259,7 @@ bool EntHumanPlayerT::CheckGUI(EntStaticDetailModelT* GuiEnt, Vector3fT& MousePo
     Vector3fT GuiAxisX;
     Vector3fT GuiAxisY;
 
-    if (!GuiEnt->GetGuiPlane(GuiOrigin, GuiAxisX, GuiAxisY)) return false;
+    if (!GuiEnt->GetGuiPlane(0, GuiOrigin, GuiAxisX, GuiAxisY) && !GuiEnt->GetGuiPlane(GuiOrigin, GuiAxisX, GuiAxisY)) return false;
 
 
     // 3. Are we looking roughly into the screen normal?

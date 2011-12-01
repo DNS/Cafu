@@ -59,6 +59,7 @@ class EntStaticDetailModelT : public BaseEntityT
     /// @returns whether the call was successful, i.e. whether this model has a GUI panel at all and the GuiOrigin,
     ///     GuiAxisX and GuiAxisY parameters were filled-out properly.
     bool GetGuiPlane(Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const;
+    bool GetGuiPlane(unsigned int GFNr, Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const;
 
 
     const cf::TypeSys::TypeInfoT* GetType() const;
