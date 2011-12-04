@@ -86,8 +86,12 @@ namespace cf
             virtual bool IsMouseShown() const=0;
 
             /// Renders this GUI.
-            /// Note that this method does *not* setup any of the MatSys's model, view or projection matrices: it's up to the caller to do that!
-            virtual void Render() const=0;
+            /// Note that this method does *not* setup any of the MatSys's model, view or projection matrices:
+            /// it's up to the caller to do that.
+            /// @param zLayerCoating   Whether a z-layer coating should be applied to the GUI screen when finishing the rendering.
+            ///     This is useful whenever the z-ordering of scene elements can be imperfect, e.g. in the Map Editor.
+            ///     Generally, 3D world GUIs should use \c true, 2D GUIs should use \c false.
+            virtual void Render(bool zLayerCoating=false) const=0;
 
             /// Processes a keyboard event by forwarding it to the window that currently has the input focus.
             /// The GuiMan should make the descision to call this method dependend on the result of the GetIsInteractive() method.

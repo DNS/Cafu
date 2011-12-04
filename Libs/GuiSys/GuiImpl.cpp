@@ -115,6 +115,7 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool
       m_MaterialMan(),
       m_GuiDefaultRM(NULL),
       m_GuiPointerRM(NULL),
+      m_GuiFinishZRM(NULL),
       m_GuiResources(GuiRes),
       RootWindow(NULL),
       FocusWindow(NULL),
@@ -136,7 +137,7 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool
         /*ArrayT<MaterialT*> AllMats=*/m_MaterialMan.RegisterMaterialScript(s+".cmat", cf::String::GetPath(GuiScriptName)+"/");
     }
 
-    if (!m_MaterialMan.GetMaterial("Gui/Default"))
+    if (!m_MaterialMan.HasMaterial("Gui/Default"))
     {
         // This material has either not been defined in the .cmat file, or we're dealing with inline code.
         MaterialT Mat;
@@ -150,7 +151,7 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool
         m_MaterialMan.RegisterMaterial(Mat);
     }
 
-    if (!m_MaterialMan.GetMaterial("Gui/Cursors/Pointer"))
+    if (!m_MaterialMan.HasMaterial("Gui/Cursors/Pointer"))
     {
         // This material has either not been defined in the .cmat file, or we're dealing with inline code.
         MaterialT Mat;
@@ -164,8 +165,25 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool
         m_MaterialMan.RegisterMaterial(Mat);
     }
 
+    if (!m_MaterialMan.HasMaterial("Gui/FinishZ"))
+    {
+        // This material has either not been defined in the .cmat file, or we're dealing with inline code.
+        MaterialT Mat;
+
+        Mat.Name          ="Gui/FinishZ";
+     // Mat.DiffMapComp   =...;
+        Mat.UseMeshColors =true;
+        Mat.AmbientMask[0]=false;
+        Mat.AmbientMask[1]=false;
+        Mat.AmbientMask[2]=false;
+        Mat.AmbientMask[3]=false;
+
+        m_MaterialMan.RegisterMaterial(Mat);
+    }
+
     m_GuiDefaultRM=MatSys::Renderer->RegisterMaterial(m_MaterialMan.GetMaterial("Gui/Default"));
     m_GuiPointerRM=MatSys::Renderer->RegisterMaterial(m_MaterialMan.GetMaterial("Gui/Cursors/Pointer"));
+    m_GuiFinishZRM=MatSys::Renderer->RegisterMaterial(m_MaterialMan.GetMaterial("Gui/FinishZ"));
 
 
     // Initialize Lua.
@@ -319,6 +337,7 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool
         lua_close(LuaState);
         MatSys::Renderer->FreeMaterial(m_GuiDefaultRM);
         MatSys::Renderer->FreeMaterial(m_GuiPointerRM);
+        MatSys::Renderer->FreeMaterial(m_GuiFinishZRM);
         throw InitErrorT("No root window set. Probable cause:\n"+ScriptInitResult);
     }
 
@@ -362,6 +381,7 @@ GuiImplT::~GuiImplT()
     // Free the render materials.
     MatSys::Renderer->FreeMaterial(m_GuiDefaultRM);
     MatSys::Renderer->FreeMaterial(m_GuiPointerRM);
+    MatSys::Renderer->FreeMaterial(m_GuiFinishZRM);
 }
 
 
@@ -444,25 +464,25 @@ void GuiImplT::SetShowMouse(bool ShowMouse_)
 }
 
 
-void GuiImplT::Render() const
+void GuiImplT::Render(bool zLayerCoating) const
 {
     RootWindow->Render();
 
+    static MatSys::MeshT Mesh(MatSys::MeshT::TriangleFan);
+
+    if (Mesh.Vertices.Size()<4)
+    {
+        Mesh.Vertices.PushBackEmpty(4);
+
+        for (unsigned long VNr=0; VNr<Mesh.Vertices.Size(); VNr++)
+        {
+            Mesh.Vertices[VNr].SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+            Mesh.Vertices[VNr].SetTextureCoord(VNr==0 || VNr==3 ? 0.0f : 1.0f, VNr<2 ? 0.0f : 1.0f);
+        }
+    }
+
     if (MouseIsShown)
     {
-        static MatSys::MeshT Mesh(MatSys::MeshT::TriangleFan);
-
-        if (Mesh.Vertices.Size()<4)
-        {
-            Mesh.Vertices.PushBackEmpty(4);
-
-            for (unsigned long VNr=0; VNr<Mesh.Vertices.Size(); VNr++)
-            {
-                Mesh.Vertices[VNr].SetColor(1.0f, 1.0f, 1.0f, 1.0f);
-                Mesh.Vertices[VNr].SetTextureCoord(VNr==0 || VNr==3 ? 0.0f : 1.0f, VNr<2 ? 0.0f : 1.0f);
-            }
-        }
-
         const float b=(EntityName=="") ? 20.0f : 40.0f;     // The mouse cursor size (double for world GUIs).
 
         Mesh.Vertices[0].SetOrigin(MousePosX,   MousePosY  );
@@ -471,6 +491,19 @@ void GuiImplT::Render() const
         Mesh.Vertices[3].SetOrigin(MousePosX,   MousePosY+b);
 
         MatSys::Renderer->SetCurrentMaterial(m_GuiPointerRM);
+        MatSys::Renderer->RenderMesh(Mesh);
+    }
+
+    if (zLayerCoating)
+    {
+        // Finish by applying a z-layer coating to the GUI screen.
+        // This is important whenever the z-ordering of scene elements can be imperfect, e.g. in the Map Editor.
+        Mesh.Vertices[0].SetOrigin(  0.0f,   0.0f);
+        Mesh.Vertices[1].SetOrigin(640.0f,   0.0f);
+        Mesh.Vertices[2].SetOrigin(640.0f, 480.0f);
+        Mesh.Vertices[3].SetOrigin(  0.0f, 480.0f);
+
+        MatSys::Renderer->SetCurrentMaterial(m_GuiFinishZRM);
         MatSys::Renderer->RenderMesh(Mesh);
     }
 }

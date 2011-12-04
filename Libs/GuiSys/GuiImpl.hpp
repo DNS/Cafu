@@ -130,7 +130,7 @@ namespace cf
             void SetMousePos(float MousePosX_, float MousePosY_);
             void SetShowMouse(bool ShowMouse_);
             bool IsMouseShown() const { return MouseIsShown; }
-            void Render() const;
+            void Render(bool zLayerCoating=false) const;
             bool ProcessDeviceEvent(const CaKeyboardEventT& KE);
             bool ProcessDeviceEvent(const CaMouseEventT& ME);
             void DistributeClockTickEvents(float t);
@@ -172,6 +172,7 @@ namespace cf
             MaterialManagerImplT     m_MaterialMan;     ///< The material manager for the materials that are used in this GUI.
             MatSys::RenderMaterialT* m_GuiDefaultRM;    ///< Used for the window borders and the backgrounds if no other material is specified.
             MatSys::RenderMaterialT* m_GuiPointerRM;    ///< Used for the mouse pointer.
+            MatSys::RenderMaterialT* m_GuiFinishZRM;    ///< Used for laying-down z-buffer values after all GUI elements have been rendered.
             GuiResourcesT&           m_GuiResources;    ///< The provider for resources (fonts and models) that are used in this GUI.
 
             WindowPtrT               RootWindow;        ///< The root window of the window hierarchy that forms this GUI.

@@ -311,7 +311,7 @@ void EntStaticDetailModelT::Draw(bool /*FirstPersonView*/, float LodDist) const
 
             MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, ModelToWorld*M);
 
-            Gui->Render();
+            Gui->Render();      // Set the zLayerCoating parameter to true here?
 #else
             MatSys::Renderer->SetCurrentMaterial(cf::GuiSys::GuiMan->GetDefaultRM());
 

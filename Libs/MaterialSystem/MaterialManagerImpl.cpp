@@ -353,6 +353,14 @@ ArrayT<MaterialT*> MaterialManagerImplT::RegisterMaterialScriptsInDir(const std:
 }
 
 
+bool MaterialManagerImplT::HasMaterial(const std::string& MaterialName) const
+{
+    std::map<std::string, MaterialT*>::const_iterator It=Materials.find(MaterialName);
+
+    return It!=Materials.end();
+}
+
+
 MaterialT* MaterialManagerImplT::GetMaterial(const std::string& MaterialName) const
 {
     // Note that we are *not* just writing   return Materials[MaterialName]   here, because that

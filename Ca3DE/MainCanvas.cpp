@@ -452,7 +452,7 @@ void MainCanvasT::Initialize()
         cf::GuiSys::GuiI* MainMenuGui=cf::GuiSys::GuiMan->Find("Games/"+Options_ServerGameName.GetValueString()+"/GUIs/MainMenu/MainMenu_main.cgui", true);
         if (MainMenuGui==NULL)
         {
-            MainMenuGui=new cf::GuiSys::GuiImplT(*m_GuiResources, "Err=gui:new('WindowT'); gui:SetRootWindow(Err); gui:activate(true); gui:setInteractive(true); gui:showMouse(true); Err:set('rect', 0, 0, 640, 480); Err:set('text', 'Error loading MainMenu_main.cgui,\\nsee console <F1> for details.');", true);
+            MainMenuGui=new cf::GuiSys::GuiImplT(*m_GuiResources, "Err=gui:new('WindowT'); gui:SetRootWindow(Err); gui:activate(true); gui:setInteractive(true); gui:showMouse(false); Err:set('rect', 0, 0, 640, 480); Err:set('textScale', 0.8); Err:set('text', 'Error loading MainMenu_main.cgui,\\nsee console <F1> for details.');", true);
             cf::GuiSys::GuiMan->Register(MainMenuGui);
         }
         m_Client->SetMainMenuGui(MainMenuGui);

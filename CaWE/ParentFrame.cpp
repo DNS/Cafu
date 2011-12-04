@@ -557,9 +557,9 @@ wxMDIChildFrame* ParentFrameT::OpenFile(GameConfigT* GameConfig, wxString FileNa
     {
         wxMessageBox(wxString("The model file \"")+FileName+"\" could not be loaded:\n"+LE.what(), "Couldn't load or import model");
     }
-    catch (const cf::GuiSys::GuiImplT::InitErrorT& /*E*/)
+    catch (const cf::GuiSys::GuiImplT::InitErrorT& IE)
     {
-        wxMessageBox(wxString("The GUI script \"")+FileName+"\" could not be loaded!", "Couldn't load GUI script");
+        wxMessageBox(wxString("The GUI script \"")+FileName+"\" could not be loaded:\n"+IE.what(), "Couldn't load GUI script");
     }
 
     return NULL;

@@ -32,6 +32,7 @@ class Renderer2DT;
 class Renderer3DT;
 
 class CafuModelT;
+namespace cf { namespace GuiSys { class GuiImplT; } }
 namespace cf { namespace TypeSys { class TypeInfoT; } }
 namespace cf { namespace TypeSys { class TypeInfoManT; } }
 namespace cf { namespace TypeSys { class CreateParamsT; } }
@@ -47,6 +48,9 @@ class MapHelperModelT : public MapHelperT
     /// The copy constructor for copying a model.
     /// @param Model   The model to copy-construct this model from.
     MapHelperModelT(const MapHelperModelT& Model);
+
+    /// The destructor.
+    ~MapHelperModelT();
 
 
     // Implementations and overrides for base class methods.
@@ -67,13 +71,16 @@ class MapHelperModelT : public MapHelperT
 
     protected:
 
+    void ClearGuis() const;
     void UpdateModelCache() const;
     int  GetSequenceNr() const;
 
-    const HelperInfoT*        m_HelperInfo;     ///< The HelperInfoT instance that caused the instantiation of this helper.
-    mutable const CafuModelT* m_Model;          ///< Our model (obtained from the game config's model manager).
-    mutable float             m_ModelFrameNr;   ///< The frame number of the sequence to render this model in.
-    mutable TimerT            m_Timer;
+    const HelperInfoT*                    m_HelperInfo;     ///< The HelperInfoT instance that caused the instantiation of this helper.
+    mutable const CafuModelT*             m_Model;          ///< Our model (obtained from the game config's model manager).
+    mutable float                         m_ModelFrameNr;   ///< The frame number of the sequence to render this model in.
+    mutable ArrayT<wxString>              m_GuiNames;       ///< The names of the GUIs in m_Guis.
+    mutable ArrayT<cf::GuiSys::GuiImplT*> m_Guis;           ///< The GUIs that are rendered where the model has GUI fixtures.
+    mutable TimerT                        m_Timer;
 };
 
 #endif

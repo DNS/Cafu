@@ -51,6 +51,7 @@ namespace cf
             /// not each time a new world is about to be loaded.
             /// @param AsClient     Tells whether we're running as client.
             /// @param AsServer     Tells whether we're running as server.
+            /// @param ModelMan     The manager for all models that are used in this game.
             virtual void Initialize(bool AsClient, bool AsServer, ModelManagerT& ModelMan)=0;
 
             /// Called to shutdown the game.

@@ -56,6 +56,8 @@ MapHelperModelT::MapHelperModelT(const MapEntityT* ParentEntity, const HelperInf
       m_HelperInfo(HelperInfo),
       m_Model(NULL),
       m_ModelFrameNr(0.0f),
+      m_GuiNames(),
+      m_Guis(),
       m_Timer()
 {
 }
@@ -66,8 +68,16 @@ MapHelperModelT::MapHelperModelT(const MapHelperModelT& Model)
       m_HelperInfo(Model.m_HelperInfo),
       m_Model(Model.m_Model),
       m_ModelFrameNr(0.0f),
+      m_GuiNames(),
+      m_Guis(),
       m_Timer(Model.m_Timer)
 {
+}
+
+
+MapHelperModelT::~MapHelperModelT()
+{
+    ClearGuis();
 }
 
 
@@ -92,6 +102,8 @@ void MapHelperModelT::Assign(const MapElementT* Elem)
     m_Model       =Model->m_Model;
     m_ModelFrameNr=Model->m_ModelFrameNr;
     m_Timer       =Model->m_Timer;
+
+    ClearGuis();
 }
 
 
@@ -166,6 +178,28 @@ void MapHelperModelT::Render3D(Renderer3DT& Renderer) const
 
         Pose->Draw(-1 /*default skin*/, CAFU_ENG_SCALE*ModelDist);
 
+        const MatrixT ModelToWorld=MatSys::Renderer->GetMatrix(MatSys::RendererI::MODEL_TO_WORLD);
+
+        for (unsigned long GFNr=0; GFNr<m_Model->GetGuiFixtures().Size(); GFNr++)
+        {
+            Vector3fT GuiOrigin;
+            Vector3fT GuiAxisX;
+            Vector3fT GuiAxisY;
+
+            if (Pose->GetGuiPlane(GFNr, GuiOrigin, GuiAxisX, GuiAxisY))
+            {
+                // It's pretty easy to derive this matrix geometrically, see my TechArchive note from 2006-08-22.
+                MatrixT M(GuiAxisX.x/640.0f, GuiAxisY.x/480.0f, 0.0f, GuiOrigin.x,
+                          GuiAxisX.y/640.0f, GuiAxisY.y/480.0f, 0.0f, GuiOrigin.y,
+                          GuiAxisX.z/640.0f, GuiAxisY.z/480.0f, 0.0f, GuiOrigin.z,
+                                       0.0f,              0.0f, 0.0f,        1.0f);
+
+                MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, ModelToWorld*M);
+
+                m_Guis[GFNr]->Render(true /*zLayerCoating*/);
+            }
+        }
+
         MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
 
         if (m_ParentEntity->IsSelected()) Renderer.RenderBox(GetBB(), Options.colors.Selection, false /* Solid? */);
@@ -179,8 +213,23 @@ void MapHelperModelT::Render3D(Renderer3DT& Renderer) const
 }
 
 
+void MapHelperModelT::ClearGuis() const
+{
+    for (unsigned long GuiNr=0; GuiNr<m_Guis.Size(); GuiNr++)
+    {
+        delete m_Guis[GuiNr];
+        m_Guis[GuiNr]=NULL;
+    }
+
+    m_GuiNames.Overwrite();
+    m_Guis.Overwrite();
+}
+
+
 void MapHelperModelT::UpdateModelCache() const
 {
+    GameConfigT& GameConfig=const_cast<GameConfigT&>(m_ParentEntity->GetClass()->GetGameConfig());
+
     wxString ModelName="";
     wxString ErrorMsg ="";
 
@@ -197,7 +246,7 @@ void MapHelperModelT::UpdateModelCache() const
         if (ModelProp) ModelName=ModelProp->Value;
     }
 
-    const CafuModelT* Model=m_ParentEntity->GetClass()->GetGameConfig().GetModel(ModelName, &ErrorMsg);
+    const CafuModelT* Model=GameConfig.GetModel(ModelName, &ErrorMsg);
 
     if (m_Model!=Model)
     {
@@ -207,6 +256,61 @@ void MapHelperModelT::UpdateModelCache() const
 
         m_Model       =Model;
         m_ModelFrameNr=0.0f;
+
+        ClearGuis();
+    }
+
+
+    while (m_GuiNames.Size() < m_Model->GetGuiFixtures().Size()) m_GuiNames.PushBack("");
+    while (m_Guis.Size()     < m_Model->GetGuiFixtures().Size()) m_Guis.PushBack(NULL);
+
+    for (unsigned long GFNr=0; GFNr<m_Model->GetGuiFixtures().Size(); GFNr++)
+    {
+        const EntPropertyT* GuiProp=m_ParentEntity->FindProperty("gui");
+
+        if (!GuiProp || GFNr>0)
+            GuiProp=m_ParentEntity->FindProperty(wxString::Format("gui%lu", GFNr+1));
+
+        const wxString NewGuiName=GuiProp ? GuiProp->Value : "";
+
+        if (!m_Guis[GFNr] || NewGuiName!=m_GuiNames[GFNr])
+        {
+            m_GuiNames[GFNr]=NewGuiName;
+            delete m_Guis[GFNr];
+            m_Guis[GFNr]=NULL;
+
+            try
+            {
+                if (m_GuiNames[GFNr]=="")
+                {
+                    m_Guis[GFNr]=new cf::GuiSys::GuiImplT(GameConfig.GetGuiResources(),
+                        "Win1=gui:new('WindowT'); gui:SetRootWindow(Win1); gui:activate(true); "
+                        "gui:setInteractive(true); gui:showMouse(false); Win1:set('rect', 0, 0, 640, 480); "
+                        "Win1:set('backColor', 150/255, 170/255, 204/255, 0.8); "
+                        "Win1:set('textAlignHor', 2); Win1:set('textAlignVer', 2); "
+                        "Win1:set('textColor', 15/255, 49/255, 106/255); "
+                        "Win1:set('text', 'This is a\\nfull-scale sample GUI.\\n\\n"
+                        "Set the \\\""+ std::string(GuiProp->Key) +"\\\" entity property\\nto assign the true GUI.');", true);
+                }
+                else
+                {
+                    m_Guis[GFNr]=new cf::GuiSys::GuiImplT(GameConfig.GetGuiResources(), std::string(GameConfig.ModDir + "/" + m_GuiNames[GFNr]));
+                }
+            }
+            catch (const cf::GuiSys::GuiImplT::InitErrorT& IE)
+            {
+                // This one must not throw again...
+                m_Guis[GFNr]=new cf::GuiSys::GuiImplT(GameConfig.GetGuiResources(),
+                    "Win1=gui:new('WindowT'); gui:SetRootWindow(Win1); gui:activate(true); "
+                    "gui:setInteractive(true); gui:showMouse(false); Win1:set('rect', 0, 0, 640, 480); "
+                    "Win1:set('backColor', 150/255, 170/255, 204/255, 0.8); "
+                    "Win1:set('textAlignHor', 2); Win1:set('textAlignVer', 2); "
+                    "Win1:set('textColor', 15/255, 49/255, 106/255); "
+                    "Win1:set('textScale', 0.6); "
+                    "Win1:set('text', [=====[Could not load GUI\n" +
+                    std::string(GameConfig.ModDir + "/" + m_GuiNames[GFNr]) + "\n\n" + IE.what() + "]=====]);", true);
+            }
+        }
     }
 }
 
