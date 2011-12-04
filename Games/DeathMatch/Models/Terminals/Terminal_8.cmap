@@ -1,0 +1,28 @@
+// Cafu Map File
+// Written by CaWE, the Cafu World Editor.
+Version 13
+
+
+{
+  classname "worldspawn"
+  shlmap_patchsize "200.0"
+  lightmap_patchsize "200.0"
+  mru_mat_0 "Textures/meta/collisionmodel"
+
+  {
+    ( -12 -12 3.0616218e-017 ) ( -12 8 3.0616218e-017 ) ( -12 -12 66 ) "Textures/meta/collisionmodel" ( 2 0 1.85553e-018 0 ( 0 8 0 ) ( 0 0 -16.5 ) )
+    ( -12 -12 3.0616218e-017 ) ( -12 -12 66 ) ( 12 -12 3.0616218e-017 ) "Textures/meta/collisionmodel" ( 2 -1.6888e-008 1.85553e-018 0 ( 12 0 0 ) ( 0 0 -16.5 ) )
+    ( -12 -12 3.0616218e-017 ) ( 12 -12 3.0616218e-017 ) ( -12 8 3.0616218e-017 ) "Textures/meta/collisionmodel" ( 2 -1.6888e-008 0 0 ( 12 0 0 ) ( 0 -8 0 ) )
+    ( -12 -12 66 ) ( -12 8 66 ) ( 12 -12 66 ) "Textures/meta/collisionmodel" ( 2 -1.6888e-008 0 0 ( 12 0 0 ) ( 0 -8 0 ) )
+    ( -12 8 3.0616218e-017 ) ( 12 8 3.0616218e-017 ) ( -12 8 66 ) "Textures/meta/collisionmodel" ( 2 -1.6888e-008 1.85553e-018 0 ( 12 0 0 ) ( 0 0 -16.5 ) )
+    ( 12 -12 3.0616218e-017 ) ( 12 -12 66 ) ( 12 8 3.0616218e-017 ) "Textures/meta/collisionmodel" ( 2 0 1.85553e-018 0 ( 0 8 0 ) ( 0 0 -16.5 ) )
+  }
+}
+
+{
+  classname "static_detail_model"
+  angles "-0 90 -0"
+  model "Models/Terminals/Terminal_8.cmdl"
+  scale "1.0"
+  origin "0 0 0"
+}

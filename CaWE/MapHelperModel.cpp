@@ -228,6 +228,7 @@ void MapHelperModelT::ClearGuis() const
 
 void MapHelperModelT::UpdateModelCache() const
 {
+    // This const_cast<> is a horrible hack -- we really should have a better means of getting a non-const GameConfigT here.
     GameConfigT& GameConfig=const_cast<GameConfigT&>(m_ParentEntity->GetClass()->GetGameConfig());
 
     wxString ModelName="";
