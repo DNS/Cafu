@@ -3,20 +3,20 @@
 Version 13
 
 
-{ // Entity 0 (the world)
+{
   classname "worldspawn"
-  fog_color "0 0 0"
+  shlmap_patchsize "200.0"
   lightmap_patchsize "200.0"
+  fog_color "0 0 0"
   wind_velocity "0.0"
   wind_velocity_var "0.0"
   precipitation_intensity "3"
   fog_density "0.0025"
   fog_start "0.0"
   fog_end "1.0"
-  shlmap_patchsize "200.0"
   mru_mat_0 "Textures/Kai/cemento16"
 
-  { // Brush 0
+  {
     ( -208.00002 -544 320 ) ( -208.00002 -544 0 ) ( -208.00002 127.98281 0 ) "Textures/Q1/stone1_3" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( -208.00002 127.98281 320 ) ( -208.00002 127.98281 0 ) ( -192 127.98281 0 ) "Textures/Q1/stone1_3" ( 2 1 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
     ( -192 127.98281 320 ) ( -192 127.98281 0 ) ( -192 -544 0 ) "Textures/Q1/stone1_3" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
@@ -79,20 +79,20 @@ Version 13
     ( -224 8 0 ) ( -224 -24 0 ) ( -128 -24 0 ) "Textures/Kai/met2" ( 2 -1 0.125 0 ( -64 0 0 ) ( 0 64 0 ) )
   }
 
-PatchDef    // Patch 0
+PatchDef
 {
 "Textures/Kai/metal_bord2d"
 ( 0 )
 ( 3 9 -1 -1 )
- ( -16 72 64 0 1.25 ) ( -16 72 84.00001 0 0.625 ) ( -16 72 104.00001 0 0 )
- ( -16 48 64 0.75 1.25 ) ( -16 48 84.00001 0.75 0.625 ) ( -16 48 104.00001 0.75 0 )
- ( 28 48 64 2.125 1.25 ) ( 28 48 84.00001 2.125 0.625 ) ( 28 48 104.00001 2.125 0 )
- ( 72 48 64 3.5 1.25 ) ( 72 48 84.00001 3.5 0.625 ) ( 72 48 104.00001 3.5 0 )
- ( 72 72 64 4.25 1.25 ) ( 72 72 84.00001 4.25 0.625 ) ( 72 72 104.00001 4.25 0 )
- ( 72 96 64 5 1.25 ) ( 72 96 84.00001 5 0.625 ) ( 72 96 104.00001 5 0 )
- ( 28 96 64 6.375 1.25 ) ( 28 96 84.00001 6.375 0.625 ) ( 28 96 104.00001 6.375 0 )
- ( -16 96 64 7.75 1.25 ) ( -16 96 84.00001 7.75 0.625 ) ( -16 96 104.00001 7.75 0 )
- ( -16 72 64 8.5 1.25 ) ( -16 72 84.00001 8.5 0.625 ) ( -16 72 104.00001 8.5 0 )
+ ( 0 72 64 0 1.25 ) ( 0 72 84.00001 0 0.625 ) ( 0 72 104.00001 0 0 )
+ ( 0 48 64 0.75 1.25 ) ( 0 48 84.00001 0.75 0.625 ) ( 0 48 104.00001 0.75 0 )
+ ( 44 48 64 2.125 1.25 ) ( 44 48 84.00001 2.125 0.625 ) ( 44 48 104.00001 2.125 0 )
+ ( 88 48 64 3.5 1.25 ) ( 88 48 84.00001 3.5 0.625 ) ( 88 48 104.00001 3.5 0 )
+ ( 88 72 64 4.25 1.25 ) ( 88 72 84.00001 4.25 0.625 ) ( 88 72 104.00001 4.25 0 )
+ ( 88 96 64 5 1.25 ) ( 88 96 84.00001 5 0.625 ) ( 88 96 104.00001 5 0 )
+ ( 44 96 64 6.375 1.25 ) ( 44 96 84.00001 6.375 0.625 ) ( 44 96 104.00001 6.375 0 )
+ ( 0 96 64 7.75 1.25 ) ( 0 96 84.00001 7.75 0.625 ) ( 0 96 104.00001 7.75 0 )
+ ( 0 72 64 8.5 1.25 ) ( 0 72 84.00001 8.5 0.625 ) ( 0 72 104.00001 8.5 0 )
 }
 
 PatchDef
@@ -149,16 +149,16 @@ PatchDef
   }
 }
 
-{ // Entity 1
+{
   classname "info_player_start"
   angles "0 270 0"
   origin "16 -16 56"
 }
 
-{ // Entity 2
+{
   classname "func_group"
 
-PatchDef    // Patch 0
+PatchDef
 {
 "Textures/Kai/metal_bord2d"
 ( 0 )
@@ -189,10 +189,10 @@ PatchDef
 }
 }
 
-{ // Entity 3
+{
   classname "func_group"
 
-PatchDef    // Patch 0
+PatchDef
 {
 "Textures/Kai/metal_bord2d"
 ( 0 )
@@ -223,24 +223,23 @@ PatchDef
 }
 }
 
-{ // Entity 4
+{
   classname "static_detail_model"
-  angles "-0 150 -0"
+  angles "-0 102 -0"
   rendertranslucency "255"
   rendercolor "0 0 0"
   scale "1.0"
-  model "Models/Static/television.ase"
-  collisionModel "Models/Static/television.cmap"
-  rendermode "0"
+  model "Models/Terminals/Terminal_2.cmdl"
+  collisionModel "Models/Terminals/Terminal_2.cmap"
   gui "GUIs/Test.cgui"
-  origin "-104 -104 32"
+  origin "-48 96 0"
 }
 
-{ // Entity 5
+{
   classname "func_mover"
   name "MyFirstLift"
 
-  { // Brush 0
+  {
     ( -128 24 8 ) ( -64 24 8 ) ( -64 -40 8 ) "TechDemo/floors/gho_floor1a" ( 2 0 0.375 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -128 -40 0 ) ( -64 -40 0 ) ( -64 24 0 ) "TechDemo/floors/gho_floor1a" ( 2 0 0.375 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -128 24 8 ) ( -128 -40 8 ) ( -128 -40 0 ) "TechDemo/floors/got_hallpanel2" ( 2 0.625 0 0 ( 0 64 0 ) ( 0 0 -8 ) )
@@ -250,7 +249,7 @@ PatchDef
   }
 }
 
-{ // Entity 6
+{
   classname "PointLightSource"
   name "MyLight"
   angles "-0 90 -0"
@@ -261,20 +260,19 @@ PatchDef
   origin "-160 40 145.80531"
 }
 
-{ // Entity 7
+{
   classname "static_detail_model"
   angles "-0 90 -0"
   rendertranslucency "255"
   rendercolor "0 0 0"
   scale "1.0"
-  rendermode "0"
   model "Models/Static/WeldTank_blue.mdl"
   collisionModel "Models/Static/WeldTank.cmap"
   name "LiftWeldTank"
   origin "-120 -30.947224 8"
 }
 
-{ // Entity 8
+{
   classname "PointLightSource"
   angles "-0 90 -0"
   light_radius "30"
@@ -285,14 +283,13 @@ PatchDef
   origin "-120 -16 17"
 }
 
-{ // Entity 9
+{
   classname "Trigger"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  rendermode "0"
   name "TestTrigger"
 
-  { // Brush 0
+  {
     ( -80 -240 120 ) ( 160 -240 120 ) ( 160 -280 120 ) "Textures/meta/trigger" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -80 -280 0 ) ( 160 -280 0 ) ( 160 -240 0 ) "Textures/meta/trigger" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -80 -240 120 ) ( -80 -280 120 ) ( -80 -280 0 ) "Textures/meta/trigger" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
@@ -302,12 +299,12 @@ PatchDef
   }
 }
 
-{ // Entity 10
+{
   classname "Trigger"
   name "SoundTrigger"
   rendertranslucency "255"
 
-  { // Brush 0
+  {
     ( -160 -288 128 ) ( -96 -288 128 ) ( -96 -512 128 ) "Textures/meta/trigger" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -160 -512 0 ) ( -96 -512 0 ) ( -96 -288 0 ) "Textures/meta/trigger" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -160 -288 128 ) ( -160 -512 128 ) ( -160 -512 0 ) "Textures/meta/trigger" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
@@ -317,9 +314,8 @@ PatchDef
   }
 }
 
-{ // Entity 11
+{
   classname "speaker"
-  autoplay "0"
   name "TestSpeaker"
   soundshader "Ambient/Jungle"
   interval "2.1"
@@ -329,4 +325,15 @@ PatchDef
   outerCone "90"
   outerVolume "0.2"
   origin "48 -416 72"
+}
+
+{
+  classname "PointLightSource"
+  angles "-0 90 -0"
+  light_radius "120"
+  light_color_diff "255 128 64"
+  light_color_spec "255 128 64"
+  name "PointLightSource_001"
+  light_casts_shadows "1"
+  origin "-24 88 80"
 }

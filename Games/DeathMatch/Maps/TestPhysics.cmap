@@ -121,14 +121,14 @@ PatchDef
 
 {
   classname "static_detail_model"
-  angles "-0 150 -0"
+  angles "-0 102 -0"
   rendertranslucency "255"
   rendercolor "0 0 0"
   scale "1.0"
-  model "Models/Static/television.ase"
-  collisionModel "Models/Static/television.cmap"
+  model "Models/Terminals/Terminal_2.cmdl"
   gui "GUIs/Test.cgui"
-  origin "-104 -104 32"
+  collisionModel "Models/Terminals/Terminal_2.cmap"
+  origin "-47.999992 96 0"
 }
 
 {
@@ -159,4 +159,15 @@ PatchDef
     ( -120 0 312 ) ( -176 0 312 ) ( -176 0 256 ) "Textures/OldWAD/Crates/caja06" ( 2 0.142857 0.571428 0 ( 56 0 0 ) ( 0 0 -56 ) )
     ( -120 -56 256 ) ( -176 -56 256 ) ( -176 -56 312 ) "Textures/OldWAD/Crates/caja06" ( 2 0.142857 0.571429 0 ( 56 0 0 ) ( 0 0 -56 ) )
   }
+}
+
+{
+  classname "PointLightSource"
+  angles "-0 90 -0"
+  light_radius "120"
+  light_color_diff "255 128 64"
+  light_color_spec "255 128 64"
+  name "PointLightSource_001"
+  light_casts_shadows "1"
+  origin "-24 88 80"
 }
