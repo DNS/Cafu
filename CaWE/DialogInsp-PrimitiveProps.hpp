@@ -37,7 +37,7 @@ class InspDlgPrimitivePropsT : public wxPanel, public ObserverT
 {
     public:
 
-    InspDlgPrimitivePropsT(wxWindow* Parent_, MapDocumentT* MapDoc_);
+    InspDlgPrimitivePropsT(wxWindow* Parent, MapDocumentT* MapDoc);
     ~InspDlgPrimitivePropsT();
 
     // Implementation of the ObserverT interface.
@@ -51,26 +51,15 @@ class InspDlgPrimitivePropsT : public wxPanel, public ObserverT
     private:
 
     wxSizer* InspectorPrimitivePropsInit(wxWindow* parent, bool call_fit=true, bool set_sizer=true);
-
-    void UpdateGrid();
+    void     UpdateGrid();
 
     // Event handler methods.
     void OnPropertyGridChanged(wxPropertyGridEvent& Event);
 
-    MapDocumentT*          MapDoc;
-    wxPropertyGridManager* PropMan;
-    wxStaticText*          SelectionText;  ///< Text that is displayed above the property grid. It shows the number of selected primitives.
-
-    bool IsRecursiveSelfNotify;
-
-
-    // IDs for the controls whose events we are interested in.
-    enum
-    {
-        ID_PROPERTY_GRID_MAN=wxID_HIGHEST+1
-    };
-
-    DECLARE_EVENT_TABLE()
+    MapDocumentT*          m_MapDoc;
+    wxPropertyGridManager* m_PropMan;
+    wxStaticText*          m_SelectionText;   ///< Text that is displayed above the property grid. It shows the number of selected primitives.
+    bool                   m_IsRecursiveSelfNotify;
 };
 
 #endif

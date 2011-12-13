@@ -26,7 +26,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapDocument.hpp"
 #include "ToolClip.hpp"
 #include "ToolMorph.hpp"
-#include "MapCommands/SetBPSubdivs.hpp"
 
 #include "wx/statline.h"
 #include "wx/filename.h"
@@ -233,11 +232,7 @@ OptionsBar_NewEntityToolT::OptionsBar_NewEntityToolT(wxWindow* Parent, MapDocume
 
 
 BEGIN_EVENT_TABLE(OptionsBar_NewBezierPatchToolT, wxPanel)
-    EVT_CHOICE  (OptionsBar_NewBezierPatchToolT::ID_PATCHTYPE,   OptionsBar_NewBezierPatchToolT::OnPatchTypeChoice)
-    EVT_SPINCTRL(OptionsBar_NewBezierPatchToolT::ID_SUBDIVSHORZ, OptionsBar_NewBezierPatchToolT::OnSubdivsSpinChangeHorz)
-    EVT_SPINCTRL(OptionsBar_NewBezierPatchToolT::ID_SUBDIVSVERT, OptionsBar_NewBezierPatchToolT::OnSubdivsSpinChangeVert)
-    EVT_TEXT    (OptionsBar_NewBezierPatchToolT::ID_SUBDIVSHORZ, OptionsBar_NewBezierPatchToolT::OnSubdivsManualChangeHorz)
-    EVT_TEXT    (OptionsBar_NewBezierPatchToolT::ID_SUBDIVSVERT, OptionsBar_NewBezierPatchToolT::OnSubdivsManualChangeVert)
+    EVT_CHOICE(OptionsBar_NewBezierPatchToolT::ID_PATCHTYPE, OptionsBar_NewBezierPatchToolT::OnPatchTypeChoice)
 END_EVENT_TABLE()
 
 
@@ -395,50 +390,6 @@ void OptionsBar_NewBezierPatchToolT::OnPatchTypeChoice(wxCommandEvent& Event)
             m_CheckConcave   ->Enable(false);
             break;
     }
-}
-
-
-void OptionsBar_NewBezierPatchToolT::OnSubdivsSpinChangeHorz(wxSpinEvent& Event)
-{
-    // If more objects or no BP is selected, do nothing.
-    if (m_MapDoc.GetSelection().Size()!=1) return;
-
-    // If one object is selected and this object is a bezier patch, update the BP.
-    MapBezierPatchT* selectedBP=dynamic_cast<MapBezierPatchT*>(m_MapDoc.GetSelection()[0]);
-
-    if (selectedBP!=NULL)
-        m_MapDoc.GetHistory().SubmitCommand(new CommandSetBPSubdivsT(&m_MapDoc, selectedBP, m_SpinCtrlSubdivsHorz->GetValue(), HORIZONTAL));
-}
-
-
-void OptionsBar_NewBezierPatchToolT::OnSubdivsSpinChangeVert(wxSpinEvent& Event)
-{
-    // If more objects or no BP is selected, do nothing.
-    if (m_MapDoc.GetSelection().Size()!=1) return;
-
-    // If one object is selected and this object is a bezier patch, update the BP.
-    MapBezierPatchT* selectedBP=dynamic_cast<MapBezierPatchT*>(m_MapDoc.GetSelection()[0]);
-
-    if (selectedBP!=NULL)
-        m_MapDoc.GetHistory().SubmitCommand(new CommandSetBPSubdivsT(&m_MapDoc, selectedBP, m_SpinCtrlSubdivsVert->GetValue(), VERTICAL));
-}
-
-
-void OptionsBar_NewBezierPatchToolT::OnSubdivsManualChangeHorz(wxCommandEvent& Event)
-{
-    // SpinCtrl handles manual inputs aumatically and maps them to it's own value range, so nothing to do here except
-    // call the spinchange method to update the selected BP.
-    wxSpinEvent tmpEvent;
-    OnSubdivsSpinChangeHorz(tmpEvent);
-}
-
-
-void OptionsBar_NewBezierPatchToolT::OnSubdivsManualChangeVert(wxCommandEvent& Event)
-{
-    // SpinCtrl handles manual inputs aumatically and maps them to it's own value range, so nothing to do here except
-    // call the spinchange method to update the selected BP.
-    wxSpinEvent tmpEvent;
-    OnSubdivsSpinChangeVert(tmpEvent);
 }
 
 

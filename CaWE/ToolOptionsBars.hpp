@@ -149,11 +149,7 @@ class OptionsBar_NewBezierPatchToolT : public wxPanel
     wxCheckBox*   m_CheckConvex;
     wxCheckBox*   m_CheckConcave;
 
-    void OnPatchTypeChoice(wxCommandEvent& Event);         ///< Handles events that occur, when a patch type is choosen from the patch type choice box.
-    void OnSubdivsSpinChangeHorz(wxSpinEvent& Event);      ///< Handles events that occur, when the content of the horizontal Subdivs SpinCtrl is changed using the +/- buttons.
-    void OnSubdivsSpinChangeVert(wxSpinEvent& Event);      ///< Handles events that occur, when the content of the vertical Subdivs SpinCtrl is changed using the +/- buttons.
-    void OnSubdivsManualChangeHorz(wxCommandEvent& Event); ///< Handles events that occur, when the content of the horizontal Subdivs SpinCtrl is changed entering values manually.
-    void OnSubdivsManualChangeVert(wxCommandEvent& Event); ///< Handles events that occur, when the content of the vertical Subdivs SpinCtrl is changed entering values manually.
+    void OnPatchTypeChoice(wxCommandEvent& Event);      ///< Handles events that occur when a patch type is choosen from the patch type choice box.
 
     /// IDs for the controls whose events we are interested in.
     enum
