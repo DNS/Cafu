@@ -47,7 +47,8 @@ class CommandHistoryT
 
     ArrayT<CommandT*> m_Commands;
     ArrayT<CommandT*> m_InvisCommands;    ///< Stores all commands not visible in the history until a visible command is added to the history (then they are moved into the normal history).
-    int               m_CurrentIndex;     ///< The current index inside the commands array. -1 means no valid index.
+    int               m_CurrentIndex;     ///< The index of the last done command: all commands in <code>m_Commands[0 ... m_CurrentIndex]</code> are "done" (available for undo), any commands following them are "undone" (available for redo). If m_CurrentIndex is -1, there are no "done" commands at all.
+    bool              m_Debug_IsActive;   ///< In order to facilitate debugging, this member helps with detecting recursive calls to our functions. For example, when we call a commands CommandT::Undo() method, does it erroneously cause a recursive call back to SubmitCommand()?
 
     /// The command id returned when there is no current command (when the current index is -1).
     /// On creation this value is 0. It becomes the command ID of the last command removed from the history due to

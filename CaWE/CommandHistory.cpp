@@ -29,8 +29,26 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #endif
 
 
+namespace
+{
+    class RecursionCheckerT
+    {
+        public:
+
+        RecursionCheckerT(bool& IsActive) : m_IsActive(IsActive) { wxASSERT(!m_IsActive); m_IsActive=true; }
+        ~RecursionCheckerT() { m_IsActive=false; }
+
+
+        private:
+
+        bool& m_IsActive;
+    };
+}
+
+
 CommandHistoryT::CommandHistoryT()
     : m_CurrentIndex(-1),
+      m_Debug_IsActive(false),
       m_InvalidCommandID(0)
 {
 }
@@ -80,6 +98,7 @@ void CommandHistoryT::Undo()
 {
     if (m_CurrentIndex<0) return;
     wxASSERT(m_CurrentIndex<(int)m_Commands.Size());
+    RecursionCheckerT RecCheck(m_Debug_IsActive);
 
     // Undo all commands from the invisible commands list and delete them.
     while (m_InvisCommands.Size()>0)
@@ -111,6 +130,7 @@ void CommandHistoryT::Redo()
 {
     if (m_CurrentIndex+1>=int(m_Commands.Size())) return;
     wxASSERT(m_CurrentIndex<(int)m_Commands.Size()-1);
+    RecursionCheckerT RecCheck(m_Debug_IsActive);
 
     // Undo all commands from the invisible commands list and delete them.
     while (m_InvisCommands.Size()>0)
@@ -140,6 +160,8 @@ void CommandHistoryT::Redo()
 
 bool CommandHistoryT::SubmitCommand(CommandT* Command)
 {
+    RecursionCheckerT RecCheck(m_Debug_IsActive);
+
     if (!Command->IsDone() && !Command->Do())
     {
         delete Command;
