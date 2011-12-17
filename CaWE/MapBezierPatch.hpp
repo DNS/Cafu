@@ -91,7 +91,7 @@ class MapBezierPatchT : public MapPrimitiveT
     static MapBezierPatchT* CreateSphere(EditorMaterialI* Material_, cf::SceneGraph::LightMapManT& LMM_, const Vector3fT& min, const Vector3fT& max, int SubdivsHorz_=-1, int SubdivsVert_=-1);
 
     // Endcaps for bezier patches.
-    static MapBezierPatchT* CreateConvexEndcap(EditorMaterialI* Material_, cf::SceneGraph::LightMapManT& LMM_, const Vector3fT& min, const Vector3fT& max, int SubdivsHorz_=-1, int SubdivsVert_=-1, EndCapPosE pos=TOP_RIGHT);
+    static MapBezierPatchT* CreateQuarterDisc(EditorMaterialI* Material_, cf::SceneGraph::LightMapManT& LMM_, const Vector3fT& min, const Vector3fT& max, int SubdivsHorz_=-1, int SubdivsVert_=-1, EndCapPosE pos=TOP_RIGHT, bool Inverted=false);
     static MapBezierPatchT* CreateConcaveEndcap(EditorMaterialI* Material_, cf::SceneGraph::LightMapManT& LMM_, const Vector3fT& min, const Vector3fT& max, int SubdivsHorz_=-1, int SubdivsVert_=-1, EndCapPosE pos=TOP_RIGHT);
 
 

@@ -491,121 +491,85 @@ MapBezierPatchT* MapBezierPatchT::CreateSphere(EditorMaterialI* Material_, cf::S
 }
 
 
-MapBezierPatchT* MapBezierPatchT::CreateConvexEndcap(EditorMaterialI* Material_, cf::SceneGraph::LightMapManT& LMM_, const Vector3fT& min, const Vector3fT& max, int SubdivsHorz_, int SubdivsVert_, EndCapPosE pos)
+MapBezierPatchT* MapBezierPatchT::CreateQuarterDisc(EditorMaterialI* Material_, cf::SceneGraph::LightMapManT& LMM_, const Vector3fT& min, const Vector3fT& max, int SubdivsHorz_, int SubdivsVert_, EndCapPosE pos, bool Inverted)
 {
     MapBezierPatchT* BP=new MapBezierPatchT(Material_, LMM_, SubdivsHorz_, SubdivsVert_);
 
     BP->SetSize(3, 3);
 
-    Vector3fT source;              // Source point (where most of the vertices are moved to, to build an endcap).
-    wxPoint   sourceVertices[6];   // Array of the control vertices that are moved to the sourcepoint.
-    wxPoint   outlineVertices[3];  // Array of remaining control vertices, that build up the outline of the endcap.
-    Vector3fT outlinePositions[3]; // Array of the positions for the outline vertices.
-
-    // Initialize source points z-coordinate since its the same for all endcaps.
-    source.z=max.z;
-
-    // Initialize outline points z-coordinate since its the same for all endcaps and outline points.
-    for (int i=0; i<3; i++)
-    {
-        outlinePositions[i].z=max.z;
-    }
-
-    // Choose source point and fill arrays, depending on endcap position parameter.
     switch (pos)
     {
         case TOP_RIGHT:
-            source.x=min.x; source.y=min.y;
+        {
+            const Vector3fT Center=Vector3fT(min.x, min.y, max.z);
 
-            sourceVertices[0]=wxPoint(0,2);
-            sourceVertices[1]=wxPoint(1,2);
-            sourceVertices[2]=wxPoint(2,2);
-            sourceVertices[3]=wxPoint(0,1);
-            sourceVertices[4]=wxPoint(1,1);
-            sourceVertices[5]=wxPoint(2,1);
+            BP->SetCvPos(2 /*0*/, 2,                     Vector3fT(min.x, max.y, max.z));
+            BP->SetCvPos(1 /*1*/, 2, Inverted ? Center : Vector3fT(max.x, max.y, max.z));
+            BP->SetCvPos(0 /*2*/, 2,                     Vector3fT(max.x, min.y, max.z));
 
-            outlineVertices[0]=wxPoint(0,0);
-            outlineVertices[1]=wxPoint(1,0);
-            outlineVertices[2]=wxPoint(2,0);
+            BP->SetCvPos(0, 1, Center);
+            BP->SetCvPos(1, 1, Center);
+            BP->SetCvPos(2, 1, Center);
 
-            outlinePositions[0].x=min.x; outlinePositions[0].y=max.y;
-            outlinePositions[1].x=max.x; outlinePositions[1].y=max.y;
-            outlinePositions[2].x=max.x; outlinePositions[2].y=min.y;
-
+            BP->SetCvPos(0, 0, Center);
+            BP->SetCvPos(1, 0, Center);
+            BP->SetCvPos(2, 0, Center);
             break;
+        }
 
         case TOP_LEFT:
-            source.x=max.x; source.y=min.y;
+        {
+            const Vector3fT Center=Vector3fT(max.x, min.y, max.z);
 
-            sourceVertices[0]=wxPoint(1,0);
-            sourceVertices[1]=wxPoint(1,1);
-            sourceVertices[2]=wxPoint(1,2);
-            sourceVertices[3]=wxPoint(2,0);
-            sourceVertices[4]=wxPoint(2,1);
-            sourceVertices[5]=wxPoint(2,2);
+            BP->SetCvPos(2 /*0*/, 2,                     Vector3fT(min.x, min.y, max.z));
+            BP->SetCvPos(1 /*1*/, 2, Inverted ? Center : Vector3fT(min.x, max.y, max.z));
+            BP->SetCvPos(0 /*2*/, 2,                     Vector3fT(max.x, max.y, max.z));
 
-            outlineVertices[0]=wxPoint(0,0);
-            outlineVertices[1]=wxPoint(0,1);
-            outlineVertices[2]=wxPoint(0,2);
+            BP->SetCvPos(0, 1, Center);
+            BP->SetCvPos(1, 1, Center);
+            BP->SetCvPos(2, 1, Center);
 
-            outlinePositions[0].x=max.x; outlinePositions[0].y=max.y;
-            outlinePositions[1].x=min.x; outlinePositions[1].y=max.y;
-            outlinePositions[2].x=min.x; outlinePositions[2].y=min.y;
-
+            BP->SetCvPos(0, 0, Center);
+            BP->SetCvPos(1, 0, Center);
+            BP->SetCvPos(2, 0, Center);
             break;
+        }
 
         case BOTTOM_RIGHT:
-            source.x=min.x; source.y=max.y;
+        {
+            const Vector3fT Center=Vector3fT(min.x, max.y, max.z);
 
-            sourceVertices[0]=wxPoint(0,0);
-            sourceVertices[1]=wxPoint(0,1);
-            sourceVertices[2]=wxPoint(0,2);
-            sourceVertices[3]=wxPoint(1,0);
-            sourceVertices[4]=wxPoint(1,1);
-            sourceVertices[5]=wxPoint(1,2);
+            BP->SetCvPos(0, 2, Center);
+            BP->SetCvPos(1, 2, Center);
+            BP->SetCvPos(2, 2, Center);
 
-            outlineVertices[0]=wxPoint(2,0);
-            outlineVertices[1]=wxPoint(2,1);
-            outlineVertices[2]=wxPoint(2,2);
+            BP->SetCvPos(0, 1, Center);
+            BP->SetCvPos(1, 1, Center);
+            BP->SetCvPos(2, 1, Center);
 
-            outlinePositions[0].x=max.x; outlinePositions[0].y=max.y;
-            outlinePositions[1].x=max.x; outlinePositions[1].y=min.y;
-            outlinePositions[2].x=min.x; outlinePositions[2].y=min.y;
-
+            BP->SetCvPos(2 /*0*/, 0,                     Vector3fT(min.x, min.y, max.z));
+            BP->SetCvPos(1 /*1*/, 0, Inverted ? Center : Vector3fT(max.x, min.y, max.z));
+            BP->SetCvPos(0 /*2*/, 0,                     Vector3fT(max.x, max.y, max.z));
             break;
+        }
 
-        default:    // Also handles case BOTTOM_LEFT.
-            source.x=max.x; source.y=max.y;
+        case BOTTOM_LEFT:
+        {
+            const Vector3fT Center=Vector3fT(max.x, max.y, max.z);
 
-            sourceVertices[0]=wxPoint(0,0);
-            sourceVertices[1]=wxPoint(1,0);
-            sourceVertices[2]=wxPoint(2,0);
-            sourceVertices[3]=wxPoint(0,1);
-            sourceVertices[4]=wxPoint(1,1);
-            sourceVertices[5]=wxPoint(2,1);
+            BP->SetCvPos(0, 2, Center);
+            BP->SetCvPos(1, 2, Center);
+            BP->SetCvPos(2, 2, Center);
 
-            outlineVertices[0]=wxPoint(0,2);
-            outlineVertices[1]=wxPoint(1,2);
-            outlineVertices[2]=wxPoint(2,2);
+            BP->SetCvPos(0, 1, Center);
+            BP->SetCvPos(1, 1, Center);
+            BP->SetCvPos(2, 1, Center);
 
-            outlinePositions[0].x=min.x; outlinePositions[0].y=max.y;
-            outlinePositions[1].x=min.x; outlinePositions[1].y=min.y;
-            outlinePositions[2].x=max.x; outlinePositions[2].y=min.y;
-
+            BP->SetCvPos(2 /*0*/, 0,                     Vector3fT(min.x, max.y, max.z));
+            BP->SetCvPos(1 /*1*/, 0, Inverted ? Center : Vector3fT(min.x, min.y, max.z));
+            BP->SetCvPos(0 /*2*/, 0,                     Vector3fT(max.x, min.y, max.z));
             break;
-    }
-
-
-    // Set source control vertices to source position.
-    for (int i=0; i<6; i++)
-    {
-        BP->SetCvPos(sourceVertices[i].x, sourceVertices[i].y, source);
-    }
-
-    // Set outline control vertices to their positions.
-    for (int i=0; i<3; i++)
-    {
-        BP->SetCvPos(outlineVertices[i].x, outlineVertices[i].y, outlinePositions[i]);
+        }
     }
 
     BP->SurfaceInfo.TexCoordGenMode=MatFit;
@@ -617,121 +581,17 @@ MapBezierPatchT* MapBezierPatchT::CreateConvexEndcap(EditorMaterialI* Material_,
 
 MapBezierPatchT* MapBezierPatchT::CreateConcaveEndcap(EditorMaterialI* Material_, cf::SceneGraph::LightMapManT& LMM_, const Vector3fT& min, const Vector3fT& max, int SubdivsHorz_, int SubdivsVert_, EndCapPosE pos)
 {
-    MapBezierPatchT* BP=new MapBezierPatchT(Material_, LMM_, SubdivsHorz_, SubdivsVert_);
-
-    BP->SetSize(3, 3);
-
-    Vector3fT source;              // Source point (where most of the vertices are moved to, to build an endcap).
-    wxPoint   sourceVertices[7];   // Array of the control vertices that are moved to the sourcepoint.
-    wxPoint   outlineVertices[2];  // Array of remaining control vertices, that build up the outline of the endcap.
-    Vector3fT outlinePositions[2]; // Array of the positions for the outline vertices.
-
-    // Initialize source points z-coordinate since its the same for all endcaps.
-    source.z=max.z;
-
-    // Initialize outline points z-coordinate since its the same for all endcaps and outline points.
-    for (int i=0; i<2; i++)
-    {
-        outlinePositions[i].z=max.z;
-    }
-
-    // Choose source point and fill arrays, depending on endcap position parameter.
+    // TODO: This method should be removed entirely.
+    // Instead, the user code should call CreateQuarterDisc() with Inverted=true.
     switch (pos)
     {
-        case TOP_RIGHT:
-            source.x=max.x; source.y=max.y;
-
-            sourceVertices[0]=wxPoint(0,0);
-            sourceVertices[1]=wxPoint(1,0);
-            sourceVertices[2]=wxPoint(2,0);
-            sourceVertices[3]=wxPoint(0,1);
-            sourceVertices[4]=wxPoint(1,1);
-            sourceVertices[5]=wxPoint(2,1);
-            sourceVertices[6]=wxPoint(1,2);
-
-            outlineVertices[0]=wxPoint(0,2);
-            outlineVertices[1]=wxPoint(2,2);
-
-            outlinePositions[0].x=min.x; outlinePositions[0].y=max.y;
-            outlinePositions[1].x=max.x; outlinePositions[1].y=min.y;
-
-            break;
-
-        case TOP_LEFT:
-            source.x=min.x; source.y=max.y;
-
-            sourceVertices[0]=wxPoint(0,0);
-            sourceVertices[1]=wxPoint(1,0);
-            sourceVertices[2]=wxPoint(2,0);
-            sourceVertices[3]=wxPoint(0,1);
-            sourceVertices[4]=wxPoint(1,1);
-            sourceVertices[5]=wxPoint(2,1);
-            sourceVertices[6]=wxPoint(1,2);
-
-            outlineVertices[0]=wxPoint(0,2);
-            outlineVertices[1]=wxPoint(2,2);
-
-            outlinePositions[0].x=min.x; outlinePositions[0].y=min.y;
-            outlinePositions[1].x=max.x; outlinePositions[1].y=max.y;
-
-            break;
-
-        case BOTTOM_RIGHT:
-            source.x=max.x; source.y=min.y;
-
-            sourceVertices[0]=wxPoint(1,0);
-            sourceVertices[1]=wxPoint(0,1);
-            sourceVertices[2]=wxPoint(1,1);
-            sourceVertices[3]=wxPoint(2,1);
-            sourceVertices[4]=wxPoint(0,2);
-            sourceVertices[5]=wxPoint(1,2);
-            sourceVertices[6]=wxPoint(2,2);
-
-            outlineVertices[0]=wxPoint(0,0);
-            outlineVertices[1]=wxPoint(2,0);
-
-            outlinePositions[0].x=min.x; outlinePositions[0].y=min.y;
-            outlinePositions[1].x=max.x; outlinePositions[1].y=max.y;
-
-            break;
-
-        default:    // Also handles case BOTTOM_LEFT.
-            source.x=min.x; source.y=min.y;
-
-            sourceVertices[0]=wxPoint(1,0);
-            sourceVertices[1]=wxPoint(0,1);
-            sourceVertices[2]=wxPoint(1,1);
-            sourceVertices[3]=wxPoint(2,1);
-            sourceVertices[4]=wxPoint(0,2);
-            sourceVertices[5]=wxPoint(1,2);
-            sourceVertices[6]=wxPoint(2,2);
-
-            outlineVertices[0]=wxPoint(0,0);
-            outlineVertices[1]=wxPoint(2,0);
-
-            outlinePositions[0].x=min.x; outlinePositions[0].y=max.y;
-            outlinePositions[1].x=max.x; outlinePositions[1].y=min.y;
-
-            break;
+        case TOP_RIGHT:    pos=BOTTOM_LEFT;  break;
+        case TOP_LEFT:     pos=BOTTOM_RIGHT; break;
+        case BOTTOM_RIGHT: pos=TOP_LEFT;     break;
+        case BOTTOM_LEFT:  pos=TOP_RIGHT;    break;
     }
 
-
-    // Set source control vertices to source point.
-    for (int i=0; i<7; i++)
-    {
-        BP->SetCvPos(sourceVertices[i].x, sourceVertices[i].y, source);
-    }
-
-    // Set outline control vertices to their positions.
-    for (int i=0; i<2; i++)
-    {
-        BP->SetCvPos(outlineVertices[i].x, outlineVertices[i].y, outlinePositions[i]);
-    }
-
-    BP->SurfaceInfo.TexCoordGenMode=MatFit;
-    BP->UpdateTextureSpace();
-
-    return BP;
+    return CreateQuarterDisc(Material_, LMM_, min, max, SubdivsHorz_, SubdivsVert_, pos, true);
 }
 
 
@@ -1140,8 +1000,12 @@ void MapBezierPatchT::UpdateRenderMesh() const
         // Get a collision model from the curve mesh.
         ArrayT<Vector3dT> CoordsOnly;
 
+        // wxLogDebug("%s: Vertices of CollisionBP, width %lu, height %lu:", __FUNCTION__, CollisionBP.Width, CollisionBP.Height);
         for (unsigned long VertexNr=0; VertexNr<CollisionBP.Mesh.Size(); VertexNr++)
+        {
             CoordsOnly.PushBack(CollisionBP.Mesh[VertexNr].Coord.AsVectorOfDouble());
+            // wxLogDebug("    %2lu: %s", VertexNr, convertToString(CoordsOnly[VertexNr]));
+        }
 
         // We cannot use our own Material->GetMaterial() here, because it might clip nothing (ClipFlags==0)
         // and thus would wrongly not be considered in TraceRay().

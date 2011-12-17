@@ -340,7 +340,7 @@ void ToolNewBezierPatchT::UpdateNewBPs(ViewWindow2DT& ViewWindow)
 
                     if (Convex)
                     {
-                        MapBezierPatchT* EndCap=MapBezierPatchT::CreateConvexEndcap(Material, LMM, tmp_min, tmp_max, SubdivsHorz, SubdivsVert, pos);
+                        MapBezierPatchT* EndCap=MapBezierPatchT::CreateQuarterDisc(Material, LMM, tmp_min, tmp_max, SubdivsHorz, SubdivsVert, pos);
                         if (j==1) EndCap->InvertPatch(); // Invert bottom endcaps, so their faces are visible to the outside.
                         m_NewBPs.PushBack(EndCap);
                     }
@@ -395,7 +395,7 @@ void ToolNewBezierPatchT::UpdateNewBPs(ViewWindow2DT& ViewWindow)
 
                     if (Convex)
                     {
-                        MapBezierPatchT* EndCap=MapBezierPatchT::CreateConvexEndcap(Material, LMM, tmp_min, tmp_max, SubdivsHorz, SubdivsVert, pos);
+                        MapBezierPatchT* EndCap=MapBezierPatchT::CreateQuarterDisc(Material, LMM, tmp_min, tmp_max, SubdivsHorz, SubdivsVert, pos);
                         if (j==1) EndCap->InvertPatch(); // Invert bottom endcaps, so their faces are visible to the outside.
                         m_NewBPs.PushBack(EndCap);
                     }
@@ -418,12 +418,12 @@ void ToolNewBezierPatchT::UpdateNewBPs(ViewWindow2DT& ViewWindow)
                 Vector3fT  tmp_min=PatchBB.Min;
                 Vector3fT  tmp_max=PatchBB.Max;
 
-                m_NewBPs.PushBack(MapBezierPatchT::CreateConvexEndcap(Material, LMM, tmp_min, tmp_max, SubdivsHorz, SubdivsVert, MapBezierPatchT::BOTTOM_RIGHT));
+                m_NewBPs.PushBack(MapBezierPatchT::CreateQuarterDisc(Material, LMM, tmp_min, tmp_max, SubdivsHorz, SubdivsVert, MapBezierPatchT::BOTTOM_RIGHT));
 
                 // Endcaps are always created at max.z, so max.z has to be min.z to create bottom endcap.
                 tmp_max.z=PatchBB.Min.z;
 
-                MapBezierPatchT* EndCap=MapBezierPatchT::CreateConvexEndcap(Material, LMM, tmp_min, tmp_max, SubdivsHorz, SubdivsVert, MapBezierPatchT::BOTTOM_RIGHT);
+                MapBezierPatchT* EndCap=MapBezierPatchT::CreateQuarterDisc(Material, LMM, tmp_min, tmp_max, SubdivsHorz, SubdivsVert, MapBezierPatchT::BOTTOM_RIGHT);
                 EndCap->InvertPatch(); // Invert bottom endcap, so its face is visible to the outside.
                 m_NewBPs.PushBack(EndCap);
             }
@@ -467,7 +467,7 @@ void ToolNewBezierPatchT::UpdateNewBPs(ViewWindow2DT& ViewWindow)
 
                 if (Convex)
                 {
-                    MapBezierPatchT* EndCap=MapBezierPatchT::CreateConvexEndcap(Material, LMM, tmp_min, tmp_max, SubdivsHorz, SubdivsVert, pos);
+                    MapBezierPatchT* EndCap=MapBezierPatchT::CreateQuarterDisc(Material, LMM, tmp_min, tmp_max, SubdivsHorz, SubdivsVert, pos);
                     EndCap->InvertPatch(); // Invert convex endcaps, so their faces are visible to the outside.
                     m_NewBPs.PushBack(EndCap);
                 }
@@ -493,7 +493,7 @@ void ToolNewBezierPatchT::UpdateNewBPs(ViewWindow2DT& ViewWindow)
 
                 if (Convex)
                 {
-                    MapBezierPatchT* EndCap=MapBezierPatchT::CreateConvexEndcap(Material, LMM, tmp_min, tmp_max, SubdivsHorz, SubdivsVert, pos);
+                    MapBezierPatchT* EndCap=MapBezierPatchT::CreateQuarterDisc(Material, LMM, tmp_min, tmp_max, SubdivsHorz, SubdivsVert, pos);
                     EndCap->InvertPatch(); // Invert convex endcaps, so their faces are visible to the outside.
 
                     // Rotate the created patch around the y axis.
@@ -568,7 +568,7 @@ void ToolNewBezierPatchT::UpdateNewBPs(ViewWindow2DT& ViewWindow)
 
                 if (Convex)
                 {
-                    MapBezierPatchT* EndCap=MapBezierPatchT::CreateConvexEndcap(Material, LMM, tmp_min, tmp_max, SubdivsHorz, SubdivsVert, pos);
+                    MapBezierPatchT* EndCap=MapBezierPatchT::CreateQuarterDisc(Material, LMM, tmp_min, tmp_max, SubdivsHorz, SubdivsVert, pos);
                     EndCap->InvertPatch(); // Invert bottom endcaps, so their faces are visible to the outside.
                     m_NewBPs.PushBack(EndCap);
                 }
@@ -586,7 +586,7 @@ void ToolNewBezierPatchT::UpdateNewBPs(ViewWindow2DT& ViewWindow)
             break;
 
         case 8:
-            m_NewBPs.PushBack(MapBezierPatchT::CreateConvexEndcap(Material, LMM, PatchBB.Min, PatchBB.Max, SubdivsHorz, SubdivsVert));
+            m_NewBPs.PushBack(MapBezierPatchT::CreateQuarterDisc(Material, LMM, PatchBB.Min, PatchBB.Max, SubdivsHorz, SubdivsVert));
             break;
 
         case 9:

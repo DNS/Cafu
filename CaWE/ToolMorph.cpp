@@ -39,13 +39,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapCommands/Morph.hpp"
 
 
-#if defined(_WIN32) && defined(_MSC_VER)
-    #if (_MSC_VER<1300)
-        #define for if (false) ; else for
-    #endif
-#endif
-
-
 /*** Begin of TypeSys related definitions for this class. ***/
 
 void* ToolMorphT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
@@ -466,7 +459,7 @@ void ToolMorphT::InsertVertex()
     if (dynamic_cast<MapBrushT*>(m_MorphPrims[0]->GetElem())==NULL)
     {
         wxMessageBox("The morph tool can add new vertices only to brushes (not to Bezier patches).\n"
-                     "(The resolution of Bezier patches can be changed with the Bezier patches tool.)", "Object being morphed is not a brush.");
+                     "(The number of subdivisions of Bezier patches can be changed in the Properties dialog.)", "Item being morphed is not a brush.");
         return;
     }
 
@@ -1010,12 +1003,25 @@ void ToolMorphT::NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<
 {
     if (!IsActiveTool() || m_IsRecursiveSelfNotify) return;
 
-    // Adapt the "selection" of this tool to the selection of the document.
-    MorphPrims_CommitAndClear();
+    // An external event caused a selection change, such as the user clicking "Undo".
+    //
+    //   - What we can *not* do is calling MorphPrims_CommitAndClear(), because that
+    //     would attempt to submit another command to the command history while the
+    //     command history is attempting to run the "Undo".
+    //
+    //   - Technically, it would be possible to do nothing: A change in selection
+    //     does not require any alterations of our tool state, the user can continue
+    //     to morph the objects that he previously begun to morph.
+    //
+    //   - Although the user might lose some morph work, probably the least confusion
+    //     action is to just discard and clear the tool state.
+    //
+    for (unsigned long MPNr=0; MPNr<m_MorphPrims.Size(); MPNr++)
+        delete m_MorphPrims[MPNr];
+    m_MorphPrims.Overwrite();
 
-    // For each brush or bezier patch in the documents selection, create a related instance here.
-    for (unsigned long SelNr=0; SelNr<NewSelection.Size(); SelNr++)
-        MorphPrims_ToggleElem(NewSelection[SelNr]);
+    m_ToolMan.UpdateAllObservers(this, UPDATE_SOON);
+    m_DragState=DragNothing;
 }
 
 

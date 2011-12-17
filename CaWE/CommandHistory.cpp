@@ -35,20 +35,20 @@ namespace
     {
         public:
 
-        RecursionCheckerT(bool& IsActive) : m_IsActive(IsActive) { wxASSERT(!m_IsActive); m_IsActive=true; }
-        ~RecursionCheckerT() { m_IsActive=false; }
+        RecursionCheckerT(bool& IsRecCall) : m_IsRecCall(IsRecCall) { wxASSERT(!m_IsRecCall); m_IsRecCall=true; }
+        ~RecursionCheckerT() { m_IsRecCall=false; }
 
 
         private:
 
-        bool& m_IsActive;
+        bool& m_IsRecCall;
     };
 }
 
 
 CommandHistoryT::CommandHistoryT()
     : m_CurrentIndex(-1),
-      m_Debug_IsActive(false),
+      m_IsRecursiveCall(false),
       m_InvalidCommandID(0)
 {
 }
@@ -98,7 +98,7 @@ void CommandHistoryT::Undo()
 {
     if (m_CurrentIndex<0) return;
     wxASSERT(m_CurrentIndex<(int)m_Commands.Size());
-    RecursionCheckerT RecCheck(m_Debug_IsActive);
+    RecursionCheckerT RecCheck(m_IsRecursiveCall);
 
     // Undo all commands from the invisible commands list and delete them.
     while (m_InvisCommands.Size()>0)
@@ -130,7 +130,7 @@ void CommandHistoryT::Redo()
 {
     if (m_CurrentIndex+1>=int(m_Commands.Size())) return;
     wxASSERT(m_CurrentIndex<(int)m_Commands.Size()-1);
-    RecursionCheckerT RecCheck(m_Debug_IsActive);
+    RecursionCheckerT RecCheck(m_IsRecursiveCall);
 
     // Undo all commands from the invisible commands list and delete them.
     while (m_InvisCommands.Size()>0)
@@ -160,7 +160,7 @@ void CommandHistoryT::Redo()
 
 bool CommandHistoryT::SubmitCommand(CommandT* Command)
 {
-    RecursionCheckerT RecCheck(m_Debug_IsActive);
+    RecursionCheckerT RecCheck(m_IsRecursiveCall);
 
     if (!Command->IsDone() && !Command->Do())
     {
@@ -171,7 +171,7 @@ bool CommandHistoryT::SubmitCommand(CommandT* Command)
     // Check # of undo levels and remove some.
     while (int(m_Commands.Size())>Options.general.UndoLevels)
     {
-        if (m_Commands[0]->ShowInHistory()) m_InvalidCommandID=m_Commands[0]->GetID();
+        if (m_Commands[0]->SuggestsSave()) m_InvalidCommandID=m_Commands[0]->GetID();
 
         delete m_Commands[0];
         m_Commands.RemoveAtAndKeepOrder(0);

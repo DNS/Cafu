@@ -1781,9 +1781,11 @@ CollisionModelStaticT::CollisionModelStaticT(const cf::MapFileEntityT& Entity, c
                 {
                     Plane3dT Plane(v1, v2, v3, 0.1);
 
-                    if (fabs(Plane.GetDistance(v4))<MapT::RoundEpsilon)
+                    // If v1 to v4 form a rectangle, create a single quad instead of two triangles.
+                    // Note that this test is somewhat limited, but it covers the most important cases and is a lot
+                    // less expensive than generally checking if v1 to v4 form a planar, convex, non-degenerate polygon...
+                    if ((v1+v3-v2).IsEqual(v4, 0.01))
                     {
-                        // Great, v1 to v4 are all in a common plane, so we can create a quad instead of two triangles!
                         m_Polygons.PushBack(PolygonT(this, Patch.Material, A, B, C, D));
                         continue;
                     }
@@ -1855,9 +1857,11 @@ CollisionModelStaticT::CollisionModelStaticT(const cf::MapFileEntityT& Entity, c
                 {
                     Plane3dT Plane(v1, v2, v3, 0.1);
 
-                    if (fabs(Plane.GetDistance(v4))<MapT::RoundEpsilon)
+                    // If v1 to v4 form a rectangle, create a single quad instead of two triangles.
+                    // Note that this test is somewhat limited, but it covers the most important cases and is a lot
+                    // less expensive than generally checking if v1 to v4 form a planar, convex, non-degenerate polygon...
+                    if ((v1+v3-v2).IsEqual(v4, 0.01))
                     {
-                        // Great, v1 to v4 are all in a common plane, so we can create a quad instead of two triangles!
                         m_Polygons.PushBack(PolygonT(this, Terrain.Material, A, B, C, D));
                         continue;
                     }
@@ -1962,9 +1966,11 @@ CollisionModelStaticT::CollisionModelStaticT(unsigned long Width, unsigned long 
             {
                 Plane3dT Plane(v1, v2, v3, 0.1);
 
-                if (fabs(Plane.GetDistance(v4))<MapT::RoundEpsilon)
+                // If v1 to v4 form a rectangle, create a single quad instead of two triangles.
+                // Note that this test is somewhat limited, but it covers the most important cases and is a lot
+                // less expensive than generally checking if v1 to v4 form a planar, convex, non-degenerate polygon...
+                if ((v1+v3-v2).IsEqual(v4, 0.01))
                 {
-                    // Great, v1 to v4 are all in a common plane, so we can create a quad instead of two triangles!
                     m_Polygons.PushBack(PolygonT(this, Material, A, B, C, D));
                     continue;
                 }

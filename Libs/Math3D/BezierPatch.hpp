@@ -149,17 +149,6 @@ namespace cf
             void        OptimizeFlatRowAndColumnStrips();
             bool        ComputeTangentSpaceInSubPatch(unsigned long sp_i, unsigned long sp_j, const T s, const T t, Vector3T<T> Axes[3]) const;
         };
-
-
-        /// The collision mesh of a bezier patch.
-        template<class T>
-        class CollisionMeshT
-        {
-            public:
-
-            /// Constructor.
-            CollisionMeshT(unsigned long Width, unsigned long Height, const ArrayT< Vector3T<T> >& Coords);
-        };
     }
 }
 
