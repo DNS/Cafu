@@ -37,6 +37,9 @@ class CommandDeleteT : public CommandT
 {
     public:
 
+    /// Constructor to delete an individual object.
+    CommandDeleteT(MapDocumentT& MapDoc, MapElementT* DeleteElem);
+
     /// Constructor to delete an array of objects.
     CommandDeleteT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>& DeleteElems);
 
@@ -50,6 +53,8 @@ class CommandDeleteT : public CommandT
 
 
     private:
+
+    void Init(const ArrayT<MapElementT*>& DeleteElems);
 
     MapDocumentT&           m_MapDoc;
     ArrayT<MapEntityT*>     m_DeleteEnts;           ///< The entities to delete.

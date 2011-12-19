@@ -48,12 +48,32 @@ static bool IsEntirelyDeleted(MapEntityT* Ent, const ArrayT<MapElementT*>& Delet
 }
 
 
+CommandDeleteT::CommandDeleteT(MapDocumentT& MapDoc, MapElementT* DeleteElem)
+    : m_MapDoc(MapDoc),
+      m_DeleteEnts(),
+      m_DeletePrims(),
+      m_DeletePrimsParents(),
+      m_CommandSelect(NULL)
+{
+    ArrayT<MapElementT*> DeleteElems;
+
+    DeleteElems.PushBack(DeleteElem);
+    Init(DeleteElems);
+}
+
+
 CommandDeleteT::CommandDeleteT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>& DeleteElems)
     : m_MapDoc(MapDoc),
       m_DeleteEnts(),
       m_DeletePrims(),
       m_DeletePrimsParents(),
       m_CommandSelect(NULL)
+{
+    Init(DeleteElems);
+}
+
+
+void CommandDeleteT::Init(const ArrayT<MapElementT*>& DeleteElems)
 {
     // Split the list of elements into a list of primitives and a list of entities.
     // The lists are checked for duplicates and kept free of them as well.
