@@ -32,12 +32,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/BoundingBox.hpp"
 #include "Math3D/Polygon.hpp"
 
-#if defined(_WIN32) && defined(_MSC_VER)
-    #if (_MSC_VER<1300)
-        #define for if (false) ; else for
-    #endif
-#endif
-
 
 MP_EdgeT::MP_EdgeT()
 {
@@ -49,12 +43,12 @@ MP_EdgeT::MP_EdgeT()
 }
 
 
-MorphPrimT::MorphPrimT(MapElementT* MapElem)
-    : m_MapElem(MapElem),
+MorphPrimT::MorphPrimT(MapPrimitiveT* MapPrim)
+    : m_MapPrim(MapPrim),
       m_Modified(false)
 {
-    MapBrushT*       MapBrush=dynamic_cast<MapBrushT*>      (m_MapElem);
-    MapBezierPatchT* MapPatch=dynamic_cast<MapBezierPatchT*>(m_MapElem);
+    MapBrushT*       MapBrush=dynamic_cast<MapBrushT*>      (m_MapPrim);
+    MapBezierPatchT* MapPatch=dynamic_cast<MapBezierPatchT*>(m_MapPrim);
 
     wxASSERT(MapBrush!=NULL || MapPatch!=NULL);     // Assert they are not both NULL.
     wxASSERT(MapBrush==NULL || MapPatch==NULL);     // Assert they are not both non-NULL.
@@ -104,10 +98,10 @@ MorphPrimT::~MorphPrimT()
 }
 
 
-bool MorphPrimT::ApplyMorphToMapElem()
+bool MorphPrimT::ApplyMorphToMapPrim()
 {
-    MapBrushT*       MapBrush=dynamic_cast<MapBrushT*>      (m_MapElem);
-    MapBezierPatchT* MapPatch=dynamic_cast<MapBezierPatchT*>(m_MapElem);
+    MapBrushT*       MapBrush=dynamic_cast<MapBrushT*>      (m_MapPrim);
+    MapBezierPatchT* MapPatch=dynamic_cast<MapBezierPatchT*>(m_MapPrim);
 
     wxASSERT(MapBrush!=NULL || MapPatch!=NULL);     // Assert they are not both NULL.
     wxASSERT(MapBrush==NULL || MapPatch==NULL);     // Assert they are not both non-NULL.
@@ -387,14 +381,14 @@ void MorphPrimT::MoveSelectedHandles(const Vector3fT& Delta)
     for (unsigned long VertexNr=0; VertexNr<MoveVertices.Size(); VertexNr++) MoveVertices[VertexNr]->pos+=Delta;
     m_Modified=true;
 
-    if (m_MapElem->GetType()==&MapBezierPatchT::TypeInfo) UpdatePatch();
-    if (m_MapElem->GetType()==      &MapBrushT::TypeInfo) UpdateBrushFromVertices();
+    if (m_MapPrim->GetType()==&MapBezierPatchT::TypeInfo) UpdatePatch();
+    if (m_MapPrim->GetType()==      &MapBrushT::TypeInfo) UpdateBrushFromVertices();
 }
 
 
 void MorphPrimT::UpdateBrushFromVertices()
 {
-    if (dynamic_cast<MapBrushT*>(m_MapElem)==NULL) return;
+    if (dynamic_cast<MapBrushT*>(m_MapPrim)==NULL) return;
 
     const float Epsilon=0.1f;
 
@@ -524,7 +518,7 @@ void MorphPrimT::UpdateBrushFromVertices()
 
 void MorphPrimT::UpdatePatch()
 {
-    MapBezierPatchT* MapPatch=(MapBezierPatchT*)m_MapElem;
+    MapBezierPatchT* MapPatch=(MapBezierPatchT*)m_MapPrim;
 
     for (unsigned long y=0; y<MapPatch->GetHeight(); y++)
     {

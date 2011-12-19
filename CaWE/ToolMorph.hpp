@@ -116,7 +116,7 @@ class ToolMorphT : public ToolT, public ObserverT
 
     int  MorphPrims_Find(const MapElementT* Elem) const;    ///< Returns the array index number of the MorphPrimT for the given Elem, -1 if there is none.
     void MorphPrims_CommitAndClear();                       ///< Commits all morphs in m_MorphPrims to their true map elements and resets the morph tool back to empty.
-    void MorphPrims_ToggleElem(MapElementT* Elem);          ///< Toggles the membership of Elem in the m_MorphPrims array.
+    void MorphPrims_TogglePrim(MapPrimitiveT* MapPrim);     ///< Toggles the membership of MapPrim in the m_MorphPrims array.
     void MoveSelectedHandles(const Vector3fT& Delta);       ///< WARNING: This method *DESTROYS* all handle pointers into any of the m_MorphPrims!!
     void NudgeSelectedHandles(const AxesInfoT& AxesInfo, const wxKeyEvent& KE);
     void OnEscape(ViewWindowT& ViewWindow);

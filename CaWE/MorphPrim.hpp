@@ -28,7 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 class MapBezierPatchT;
 class MapBrushT;
-class MapElementT;
+class MapPrimitiveT;
 class Renderer2DT;
 class Renderer3DT;
 class wxPoint;
@@ -100,19 +100,19 @@ class MorphPrimT
     public:
 
     /// The constructor.
-    /// @param MapElem   The original brush or bezier patch that this MorphPrimT is associated with / attached to.
-    /// Note that this MorphPrimT does not become the "owner" of the MapElem pointer, e.g. it does not attempt to delete it in its dtor.
-    /// That also means that this MorphPrimT should not live longer than the MapElem object.
-    MorphPrimT(MapElementT* MapElem);
+    /// @param MapPrim   The original brush or bezier patch that this MorphPrimT is associated with / attached to.
+    /// Note that this MorphPrimT does not become the "owner" of the MapPrim pointer, e.g. it does not attempt to delete it in its dtor.
+    /// That also means that this MorphPrimT should not live longer than the MapPrim object.
+    MorphPrimT(MapPrimitiveT* MapPrim);
 
     ~MorphPrimT();
 
-    MapElementT* GetElem() const { return m_MapElem; }
-    bool         IsModified() const { return m_Modified; }
+    MapPrimitiveT* GetMapPrim() const { return m_MapPrim; }
+    bool           IsModified() const { return m_Modified; }
 
     /// Updates the associated map element by applying the morphed geometry to it.
     /// @returns if the update was successful.
-    bool ApplyMorphToMapElem();
+    bool ApplyMorphToMapPrim();
 
     /// Moves the selected handles by Delta.
     void MoveSelectedHandles(const Vector3fT& Delta);
@@ -134,7 +134,7 @@ class MorphPrimT
 
     /// After a change of (or in) the m_Vertices array, this method computes the convex hull over them
     /// and updates (or rather, recomputes) all other member variables (the m_Edges and m_Faces).
-    /// This method should only be called if the m_MapElem member is of type MapBrushT,
+    /// This method should only be called if the m_MapPrim member is of type MapBrushT,
     /// because it also modifies the m_Vertices array, which is not desired for the MapBezierPatchT type.
     void UpdateBrushFromVertices();
     void UpdatePatch();
@@ -146,7 +146,7 @@ class MorphPrimT
     void RenderHandle(Renderer3DT& Renderer, const wxPoint& ClientPos, const float* color) const;
 
 
-    MapElementT*        m_MapElem;  ///< The "attached" map brush / bezier patch.
+    MapPrimitiveT*      m_MapPrim;  ///< The "attached" map brush / bezier patch.
     bool                m_Modified; ///< Whether the MorphPrimT contains any modifications to the "attached" map brush/bezier patch.
 };
 

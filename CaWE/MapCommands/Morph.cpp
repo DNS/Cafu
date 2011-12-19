@@ -22,7 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Morph.hpp"
 
 #include "../MapDocument.hpp"
-#include "../MapElement.hpp"
+#include "../MapPrimitive.hpp"
 #include "../MorphPrim.hpp"
 
 
@@ -32,7 +32,7 @@ CommandMorphT::CommandMorphT(MapDocumentT& MapDoc, const ArrayT<MorphPrimT*>& Mo
       m_OldStates()
 {
     for (unsigned long i=0; i<MorphPrims.Size(); i++)
-        m_OldStates.PushBack(MorphPrims[i]->GetElem()->Clone());
+        m_OldStates.PushBack(MorphPrims[i]->GetMapPrim()->Clone());
 }
 
 
@@ -58,19 +58,19 @@ bool CommandMorphT::Do()
 
     for (unsigned long i=0; i<m_MorphPrims.Size(); i++)
     {
-        MorphPrimT*  MorphPrim=m_MorphPrims[i];
-        MapElementT* MapElem  =m_MorphPrims[i]->GetElem();
+        MorphPrimT*    MorphPrim=m_MorphPrims[i];
+        MapPrimitiveT* MapPrim  =m_MorphPrims[i]->GetMapPrim();
 
-        OldBounds.PushBack(MapElem->GetBB());
+        OldBounds.PushBack(MapPrim->GetBB());
 
-        if (!MorphPrim->ApplyMorphToMapElem())
+        if (!MorphPrim->ApplyMorphToMapPrim())
         {
             // Note that we cannot veto ("return;") here, not even in case of conversion failure.
             // For example, if the user deactivates this tool, we get here, but then it's too late.
             // Therefore, the conversion must always succeed, even if that means restoring the previous primitive.
         }
 
-        UpdateObjects.PushBack(MapElem);
+        UpdateObjects.PushBack(MapPrim);
     }
 
     // Update world and views.
@@ -91,13 +91,13 @@ void CommandMorphT::Undo()
 
     for (unsigned long i=0; i<m_MorphPrims.Size(); i++)
     {
-        MapElementT* MapElem=m_MorphPrims[i]->GetElem();
+        MapPrimitiveT* MapPrim=m_MorphPrims[i]->GetMapPrim();
 
-        OldBounds.PushBack(MapElem->GetBB());
+        OldBounds.PushBack(MapPrim->GetBB());
 
-        MapElem->Assign(m_OldStates[i]);
+        MapPrim->Assign(m_OldStates[i]);
 
-        UpdateObjects.PushBack(MapElem);
+        UpdateObjects.PushBack(MapPrim);
     }
 
     // Update world and views.

@@ -26,7 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 class MapDocumentT;
-class MapElementT;
+class MapPrimitiveT;
 class MorphPrimT;
 
 
@@ -47,7 +47,7 @@ class CommandMorphT : public CommandT
 
     MapDocumentT&             m_MapDoc;
     const ArrayT<MorphPrimT*> m_MorphPrims;
-    ArrayT<MapElementT*>      m_OldStates;
+    ArrayT<MapPrimitiveT*>    m_OldStates;
 };
 
 #endif

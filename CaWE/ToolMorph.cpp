@@ -142,7 +142,12 @@ void ToolMorphT::OnActivate(ToolT* OldTool)
 
         // For each brush or bezier patch in the documents selection, create a related instance here.
         for (unsigned long SelNr=0; SelNr<m_MapDoc.GetSelection().Size(); SelNr++)
-            MorphPrims_ToggleElem(m_MapDoc.GetSelection()[SelNr]);
+        {
+            MapPrimitiveT* MapPrim=dynamic_cast<MapPrimitiveT*>(m_MapDoc.GetSelection()[SelNr]);
+
+            if (MapPrim)
+                MorphPrims_TogglePrim(MapPrim);
+        }
     }
 }
 
@@ -162,7 +167,7 @@ void ToolMorphT::OnDeactivate(ToolT* NewTool)
 int ToolMorphT::MorphPrims_Find(const MapElementT* Elem) const
 {
     for (unsigned long MPNr=0; MPNr<m_MorphPrims.Size(); MPNr++)
-        if (m_MorphPrims[MPNr]->GetElem()==Elem)
+        if (m_MorphPrims[MPNr]->GetMapPrim()==Elem)
             return MPNr;
 
     return -1;
@@ -179,7 +184,7 @@ void ToolMorphT::MorphPrims_CommitAndClear()
     {
         if (!m_MorphPrims[MPNr]->IsModified())
         {
-            UnmodifiedMapElems.PushBack(m_MorphPrims[MPNr]->GetElem());
+            UnmodifiedMapElems.PushBack(m_MorphPrims[MPNr]->GetMapPrim());
 
             delete m_MorphPrims[MPNr];
             m_MorphPrims.RemoveAt(MPNr);
@@ -207,13 +212,13 @@ void ToolMorphT::MorphPrims_CommitAndClear()
 }
 
 
-void ToolMorphT::MorphPrims_ToggleElem(MapElementT* Elem)
+void ToolMorphT::MorphPrims_TogglePrim(MapPrimitiveT* MapPrim)
 {
     // Only needed for observer message.
     ArrayT<MapElementT*> MapElements;
-    MapElements.PushBack(Elem);
+    MapElements.PushBack(MapPrim);
 
-    const int MP_Index=MorphPrims_Find(Elem);
+    const int MP_Index=MorphPrims_Find(MapPrim);
 
     if (MP_Index>=0)
     {
@@ -243,9 +248,9 @@ void ToolMorphT::MorphPrims_ToggleElem(MapElementT* Elem)
         return;
     }
 
-    if (dynamic_cast<MapBrushT*>(Elem)==NULL && dynamic_cast<MapBezierPatchT*>(Elem)==NULL) return;
+    if (dynamic_cast<MapBrushT*>(MapPrim)==NULL && dynamic_cast<MapBezierPatchT*>(MapPrim)==NULL) return;
 
-    MorphPrimT* MorphPrim=new MorphPrimT(Elem);
+    MorphPrimT* MorphPrim=new MorphPrimT(MapPrim);
     m_MorphPrims.PushBack(MorphPrim);
 
     // Elem is now mentioned in the m_MorphPrims list, and thus affected by IsHiddenByTool().
@@ -456,7 +461,7 @@ void ToolMorphT::InsertVertex()
         return;
     }
 
-    if (dynamic_cast<MapBrushT*>(m_MorphPrims[0]->GetElem())==NULL)
+    if (dynamic_cast<MapBrushT*>(m_MorphPrims[0]->GetMapPrim())==NULL)
     {
         wxMessageBox("The morph tool can add new vertices only to brushes (not to Bezier patches).\n"
                      "(The number of subdivisions of Bezier patches can be changed in the Properties dialog.)", "Item being morphed is not a brush.");
@@ -616,10 +621,12 @@ bool ToolMorphT::OnLMouseDown2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
 
     for (unsigned long HitNr=0; HitNr<HitElems.Size(); HitNr++)
     {
-        if (HitElems[HitNr]->GetType()==&MapBrushT::TypeInfo || HitElems[HitNr]->GetType()==&MapBezierPatchT::TypeInfo)
+        MapPrimitiveT* HitPrim=dynamic_cast<MapPrimitiveT*>(HitElems[HitNr]);
+
+        if (HitPrim && (HitPrim->GetType()==&MapBrushT::TypeInfo || HitPrim->GetType()==&MapBezierPatchT::TypeInfo))
         {
             if (!ME.ControlDown()) MorphPrims_CommitAndClear();
-            MorphPrims_ToggleElem(HitElems[HitNr]);
+            MorphPrims_TogglePrim(HitPrim);
 
             m_ToolMan.UpdateAllObservers(this, UPDATE_NOW);
             return true;
@@ -884,10 +891,12 @@ bool ToolMorphT::OnLMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
 
     if (HitElems.Size()>0)      // Only consider the nearest hit, if any.
     {
-        if (HitElems[0].Object->GetType()==&MapBrushT::TypeInfo || HitElems[0].Object->GetType()==&MapBezierPatchT::TypeInfo)
+        MapPrimitiveT* HitPrim=dynamic_cast<MapPrimitiveT*>(HitElems[0].Object);
+
+        if (HitPrim && (HitPrim->GetType()==&MapBrushT::TypeInfo || HitPrim->GetType()==&MapBezierPatchT::TypeInfo))
         {
             if (!ME.ControlDown()) MorphPrims_CommitAndClear();
-            MorphPrims_ToggleElem(HitElems[0].Object);
+            MorphPrims_TogglePrim(HitPrim);
 
             m_ToolMan.UpdateAllObservers(this, UPDATE_NOW);
             return true;
@@ -1031,9 +1040,13 @@ void ToolMorphT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<Ma
 
     for (unsigned long i=0; i<MapElements.Size(); i++)
     {
+        MapPrimitiveT* MapPrim=dynamic_cast<MapPrimitiveT*>(MapElements[i]);
+
+        if (!MapPrim) continue;
+
         for (unsigned long j=0; j<m_MorphPrims.Size(); j++)
         {
-            if (MapElements[i]==m_MorphPrims[j]->GetElem())
+            if (MapPrim==m_MorphPrims[j]->GetMapPrim())
             {
                 // Remove this morph primitive from our list.
                 delete m_MorphPrims[j];
@@ -1056,13 +1069,17 @@ void ToolMorphT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<M
 
     for (unsigned long i=0; i<MapElements.Size(); i++)
     {
+        MapPrimitiveT* MapPrim=dynamic_cast<MapPrimitiveT*>(MapElements[i]);
+
+        if (!MapPrim) continue;
+
         for (unsigned long j=0; j<m_MorphPrims.Size(); j++)
         {
-            if (MapElements[i]==m_MorphPrims[j]->GetElem())
+            if (MapPrim==m_MorphPrims[j]->GetMapPrim())
             {
                 // Update the morph primitive of this map element, discarding all prior changes, if any.
                 delete m_MorphPrims[j];
-                m_MorphPrims[j]=new MorphPrimT(MapElements[i]);
+                m_MorphPrims[j]=new MorphPrimT(MapPrim);
 
                 // Object has been found so we can safely break the inner loop and check the next object.
                 break;
@@ -1081,13 +1098,17 @@ void ToolMorphT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<M
 
     for (unsigned long i=0; i<MapElements.Size(); i++)
     {
+        MapPrimitiveT* MapPrim=dynamic_cast<MapPrimitiveT*>(MapElements[i]);
+
+        if (!MapPrim) continue;
+
         for (unsigned long j=0; j<m_MorphPrims.Size(); j++)
         {
-            if (MapElements[i]==m_MorphPrims[j]->GetElem())
+            if (MapPrim==m_MorphPrims[j]->GetMapPrim())
             {
                 // Update the morph primitive of this map element, discarding all prior changes, if any.
                 delete m_MorphPrims[j];
-                m_MorphPrims[j]=new MorphPrimT(MapElements[i]);
+                m_MorphPrims[j]=new MorphPrimT(MapPrim);
 
                 // Object has been found so we can safely break the inner loop and check the next object.
                 break;
