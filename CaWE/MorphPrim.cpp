@@ -43,12 +43,13 @@ MP_EdgeT::MP_EdgeT()
 }
 
 
-MorphPrimT::MorphPrimT(MapPrimitiveT* MapPrim)
+MorphPrimT::MorphPrimT(const MapPrimitiveT* MapPrim)
     : m_MapPrim(MapPrim),
-      m_Modified(false)
+      m_Modified(false),
+      m_RenderBP(NULL)
 {
-    MapBrushT*       MapBrush=dynamic_cast<MapBrushT*>      (m_MapPrim);
-    MapBezierPatchT* MapPatch=dynamic_cast<MapBezierPatchT*>(m_MapPrim);
+    const MapBrushT*       MapBrush=dynamic_cast<const MapBrushT*>      (m_MapPrim);
+    const MapBezierPatchT* MapPatch=dynamic_cast<const MapBezierPatchT*>(m_MapPrim);
 
     wxASSERT(MapBrush!=NULL || MapPatch!=NULL);     // Assert they are not both NULL.
     wxASSERT(MapBrush==NULL || MapPatch==NULL);     // Assert they are not both non-NULL.
@@ -81,12 +82,17 @@ MorphPrimT::MorphPrimT(MapPrimitiveT* MapPrim)
                 m_Vertices[m_Vertices.Size()-1]->pos=MapPatch->GetCvPos(x, y);
             }
         }
+
+        m_RenderBP=MapPatch->Clone();
     }
 }
 
 
 MorphPrimT::~MorphPrimT()
 {
+    delete m_RenderBP;
+    m_RenderBP=NULL;
+
     for (unsigned long VertexNr=0; VertexNr<m_Vertices.Size(); VertexNr++) delete m_Vertices[VertexNr];
     m_Vertices.Clear();
 
@@ -98,15 +104,13 @@ MorphPrimT::~MorphPrimT()
 }
 
 
-bool MorphPrimT::ApplyMorphToMapPrim()
+MapPrimitiveT* MorphPrimT::GetMorphedMapPrim() const
 {
-    MapBrushT*       MapBrush=dynamic_cast<MapBrushT*>      (m_MapPrim);
-    MapBezierPatchT* MapPatch=dynamic_cast<MapBezierPatchT*>(m_MapPrim);
+    const MapBrushT*       MapBrush=dynamic_cast<const MapBrushT*>      (m_MapPrim);
+    const MapBezierPatchT* MapPatch=dynamic_cast<const MapBezierPatchT*>(m_MapPrim);
 
     wxASSERT(MapBrush!=NULL || MapPatch!=NULL);     // Assert they are not both NULL.
     wxASSERT(MapBrush==NULL || MapPatch==NULL);     // Assert they are not both non-NULL.
-
-    m_Modified=false;
 
     if (MapBrush!=NULL)
     {
@@ -115,32 +119,20 @@ bool MorphPrimT::ApplyMorphToMapPrim()
         for (unsigned long VNr=0; VNr<m_Vertices.Size(); VNr++)
             HullVertices.PushBack(m_Vertices[VNr]->pos);
 
-        MapBrushT TestBrush(HullVertices, MapBrush->GetFaces()[0].GetMaterial(), Options.general.NewUVsFaceAligned, MapBrush);
+        MapBrushT* MorphedBrush=new MapBrushT(HullVertices, MapBrush->GetFaces()[0].GetMaterial(), Options.general.NewUVsFaceAligned, MapBrush);
 
-        if (!TestBrush.IsValid()) return false;
+        if (MorphedBrush->IsValid()) return MorphedBrush;
 
-        // The TestBrush worked fine, now copy the new faces into the Brush.
-        MapBrush->Assign(&TestBrush);
-        return true;
+        delete MorphedBrush;
+        return NULL;
     }
 
-    if (MapPatch!=NULL)
+    if (MapPatch!=NULL && m_RenderBP!=NULL)
     {
-     /* MapPatch->ClearCV();
-
-        for ( unsigned long i = 0 ; i < m_Vertices.Size() ; i++ )
-        {
-            Vector3fT v;
-            MP_VertexT& vertex = m_Vertices[i];
-
-            vertex.GetPosition(v);
-            MapPatch->AddCV(v);
-        } */
-
-        return true;
+        return m_RenderBP->Clone();
     }
 
-    return false;
+    return NULL;
 }
 
 
@@ -185,6 +177,12 @@ MP_VertexT* MorphPrimT::FindClosestVertex(const Vector3fT& Point) const
 
 void MorphPrimT::Render(Renderer2DT& Renderer, bool RenderVertexHandles, bool RenderEdgeHandles) const
 {
+    if (m_RenderBP)
+    {
+        m_RenderBP->Render2D(Renderer);
+    }
+
+
     // Draw the outline of the morph primitive.
     Renderer.SetLineType(wxPENSTYLE_SOLID, Renderer2DT::LINE_THIN, wxColour(255, 0, 0));
 
@@ -286,6 +284,12 @@ void MorphPrimT::RenderHandle(Renderer3DT& Renderer, const wxPoint& ClientPos, c
 
 void MorphPrimT::Render(Renderer3DT& Renderer, bool RenderVertexHandles, bool RenderEdgeHandles) const
 {
+    if (m_RenderBP)
+    {
+        m_RenderBP->Render3D(Renderer);
+    }
+
+
     for (int Pass=1; Pass<=2; Pass++)
     {
         for (unsigned long FaceNr=0; FaceNr<m_Faces.Size(); FaceNr++)
@@ -388,7 +392,7 @@ void MorphPrimT::MoveSelectedHandles(const Vector3fT& Delta)
 
 void MorphPrimT::UpdateBrushFromVertices()
 {
-    if (dynamic_cast<MapBrushT*>(m_MapPrim)==NULL) return;
+    if (dynamic_cast<const MapBrushT*>(m_MapPrim)==NULL) return;
 
     const float Epsilon=0.1f;
 
@@ -518,13 +522,11 @@ void MorphPrimT::UpdateBrushFromVertices()
 
 void MorphPrimT::UpdatePatch()
 {
-    MapBezierPatchT* MapPatch=(MapBezierPatchT*)m_MapPrim;
-
-    for (unsigned long y=0; y<MapPatch->GetHeight(); y++)
+    for (unsigned long y=0; y<m_RenderBP->GetHeight(); y++)
     {
-        for (unsigned long x=0; x<MapPatch->GetWidth(); x++)
+        for (unsigned long x=0; x<m_RenderBP->GetWidth(); x++)
         {
-            MapPatch->SetCvPos(x, y, m_Vertices[y*MapPatch->GetWidth()+x]->pos);
+            m_RenderBP->SetCvPos(x, y, m_Vertices[y*m_RenderBP->GetWidth()+x]->pos);
         }
     }
 }

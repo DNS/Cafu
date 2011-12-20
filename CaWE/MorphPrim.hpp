@@ -103,16 +103,16 @@ class MorphPrimT
     /// @param MapPrim   The original brush or bezier patch that this MorphPrimT is associated with / attached to.
     /// Note that this MorphPrimT does not become the "owner" of the MapPrim pointer, e.g. it does not attempt to delete it in its dtor.
     /// That also means that this MorphPrimT should not live longer than the MapPrim object.
-    MorphPrimT(MapPrimitiveT* MapPrim);
+    MorphPrimT(const MapPrimitiveT* MapPrim);
 
     ~MorphPrimT();
 
-    MapPrimitiveT* GetMapPrim() const { return m_MapPrim; }
-    bool           IsModified() const { return m_Modified; }
+    const MapPrimitiveT* GetMapPrim() const { return m_MapPrim; }
+    bool                 IsModified() const { return m_Modified; }
 
-    /// Updates the associated map element by applying the morphed geometry to it.
-    /// @returns if the update was successful.
-    bool ApplyMorphToMapPrim();
+    /// Returns a newly created instance matching the morphed map primitive, or NULL if reconstruction was not possible.
+    /// It does not reset the modified-flag.
+    MapPrimitiveT* GetMorphedMapPrim() const;
 
     /// Moves the selected handles by Delta.
     void MoveSelectedHandles(const Vector3fT& Delta);
@@ -146,8 +146,9 @@ class MorphPrimT
     void RenderHandle(Renderer3DT& Renderer, const wxPoint& ClientPos, const float* color) const;
 
 
-    MapPrimitiveT*      m_MapPrim;  ///< The "attached" map brush / bezier patch.
-    bool                m_Modified; ///< Whether the MorphPrimT contains any modifications to the "attached" map brush/bezier patch.
+    const MapPrimitiveT* m_MapPrim;     ///< The "attached" source/reference map brush / bezier patch.
+    bool                 m_Modified;    ///< Whether the MorphPrimT contains any modifications to the "attached" map brush/bezier patch.
+    MapBezierPatchT*     m_RenderBP;    ///< If m_MapPrim is a Bezier patch, this is the current morphed clone that we use for rendering.
 };
 
 #endif

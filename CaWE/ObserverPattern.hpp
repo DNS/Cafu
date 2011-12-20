@@ -55,7 +55,7 @@ enum MapElemModDetailE
     MEMD_TRANSFORM,                 ///< A map element has been transformed.
     MEMD_PRIMITIVE_PROPS_CHANGED,   ///< The properties of a map primitve have been modified.
     MEMD_SURFACE_INFO_CHANGED,      ///< The surface info of a map element has changed. Note that surface info changes also include the selection of faces.
-    MEMD_MORPH,                     ///< The vertices of a map primitve have been transformed.
+    MEMD_MORPH,                     ///< The vertices of a map primitive have been transformed. This is actually UNUSED now that \c CommandMorphT has been removed (r447, 2011-12-20).
     MEMD_ASSIGN_PRIM_TO_ENTITY,     ///< A map primitive has been assigned to another entity (the world or any custom entity).
     MEMD_VISIBILITY                 ///< The visibility of a map element has changed.
 };

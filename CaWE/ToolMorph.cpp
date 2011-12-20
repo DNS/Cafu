@@ -36,7 +36,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "AppCaWE.hpp"
 #include "MapBezierPatch.hpp"
 #include "ToolOptionsBars.hpp"
-#include "MapCommands/Morph.hpp"
+#include "MapCommands/AddPrim.hpp"
+#include "MapCommands/Delete.hpp"
 
 
 /*** Begin of TypeSys related definitions for this class. ***/
@@ -178,45 +179,20 @@ void ToolMorphT::MorphPrims_CommitAndClear()
 {
     // Set the map elements of all morph primitives back to "visible"
     // and remove all unmodified morph primitives from our list.
-    ArrayT<MapElementT*> UnmodifiedMapElems;
 
-    for (unsigned long MPNr=0; MPNr<m_MorphPrims.Size(); MPNr++)
+    // TODO: Doing it like this is not particularly efficient, but this is going to be refactored anyway.
+    while (m_MorphPrims.Size()>0)
     {
-        if (!m_MorphPrims[MPNr]->IsModified())
-        {
-            UnmodifiedMapElems.PushBack(m_MorphPrims[MPNr]->GetMapPrim());
-
-            delete m_MorphPrims[MPNr];
-            m_MorphPrims.RemoveAt(MPNr);
-            MPNr--;
-        }
-    }
-
-    if (m_MorphPrims.Size()>0)
-    {
-        m_IsRecursiveSelfNotify=true;
-        m_MapDoc.GetHistory().SubmitCommand(new CommandMorphT(m_MapDoc, m_MorphPrims));
-        m_IsRecursiveSelfNotify=false;
-
-        // Clear the list of morph primitives, as the remaining instances are now owned by the command.
-        m_MorphPrims.Clear();
-    }
-
-    if (UnmodifiedMapElems.Size()>0)
-    {
-        // Visibility of unmodified map elements is no longer affected by IsHiddenByTool().
-        m_IsRecursiveSelfNotify=true;
-        m_MapDoc.UpdateAllObservers_Modified(UnmodifiedMapElems, MEMD_VISIBILITY);
-        m_IsRecursiveSelfNotify=false;
+        MorphPrims_TogglePrim(m_MorphPrims[0]->GetMapPrim());
     }
 }
 
 
-void ToolMorphT::MorphPrims_TogglePrim(MapPrimitiveT* MapPrim)
+void ToolMorphT::MorphPrims_TogglePrim(const MapPrimitiveT* MapPrim)
 {
     // Only needed for observer message.
     ArrayT<MapElementT*> MapElements;
-    MapElements.PushBack(MapPrim);
+    MapElements.PushBack(const_cast<MapPrimitiveT*>(MapPrim));
 
     const int MP_Index=MorphPrims_Find(MapPrim);
 
@@ -225,30 +201,36 @@ void ToolMorphT::MorphPrims_TogglePrim(MapPrimitiveT* MapPrim)
         MorphPrimT* MorphPrim=m_MorphPrims[MP_Index];
 
         m_MorphPrims.RemoveAtAndKeepOrder(MP_Index);
+        wxASSERT(MapPrim == MorphPrim->GetMapPrim());
 
         if (MorphPrim->IsModified())
         {
-            // Only needed for command.
-            ArrayT<MorphPrimT*> MPs;
-            MPs.PushBack(MorphPrim);
+            MapPrimitiveT* MorphedMapPrim=MorphPrim->GetMorphedMapPrim();
 
-            m_IsRecursiveSelfNotify=true;
-            m_MapDoc.GetHistory().SubmitCommand(new CommandMorphT(m_MapDoc, MPs));
-            m_IsRecursiveSelfNotify=false;
+            if (MorphedMapPrim)
+            {
+                m_IsRecursiveSelfNotify=true;
+
+                ArrayT<CommandT*> Commands;
+                Commands.PushBack(new CommandDeleteT(m_MapDoc, const_cast<MapPrimitiveT*>(MorphPrim->GetMapPrim())));
+                Commands.PushBack(new CommandAddPrimT(m_MapDoc, MorphedMapPrim, MorphPrim->GetMapPrim()->GetParent()));
+
+                m_MapDoc.GetHistory().SubmitCommand(new CommandMacroT(Commands, "Edit Vertices"));
+
+                m_IsRecursiveSelfNotify=false;
+            }
         }
-        else
-        {
-            delete MorphPrim;   // Only delete the MorphPrim if it isn't kept in command.
-        }
+
+        delete MorphPrim;
 
         // Elem is now no longer mentioned in the m_MorphPrims list, and thus no longer affected by IsHiddenByTool().
         m_IsRecursiveSelfNotify=true;
-        m_MapDoc.UpdateAllObservers_Modified(MapElements, MEMD_VISIBILITY);
+        m_MapDoc.UpdateAllObservers_Modified(MapElements, MEMD_VISIBILITY);     // TODO: Is this still needed? The element was *deleted* above, after all (but only if modified, mind'ya).
         m_IsRecursiveSelfNotify=false;
         return;
     }
 
-    if (dynamic_cast<MapBrushT*>(MapPrim)==NULL && dynamic_cast<MapBezierPatchT*>(MapPrim)==NULL) return;
+    if (dynamic_cast<const MapBrushT*>(MapPrim)==NULL && dynamic_cast<const MapBezierPatchT*>(MapPrim)==NULL) return;
 
     MorphPrimT* MorphPrim=new MorphPrimT(MapPrim);
     m_MorphPrims.PushBack(MorphPrim);
@@ -388,8 +370,8 @@ void ToolMorphT::MoveSelectedHandles(const Vector3fT& Delta)
 
 bool ToolMorphT::IsHiddenByTool(const MapElementT* Elem) const
 {
-    // Only brushes that are currently being morphed are hidden by this tool from normal rendering.
-    return (Elem->GetType()==&MapBrushT::TypeInfo) && (MorphPrims_Find(Elem)>=0);
+    // Elements that are currently being morphed are hidden by this tool from normal rendering.
+    return MorphPrims_Find(Elem) >= 0;
 }
 
 
@@ -461,7 +443,7 @@ void ToolMorphT::InsertVertex()
         return;
     }
 
-    if (dynamic_cast<MapBrushT*>(m_MorphPrims[0]->GetMapPrim())==NULL)
+    if (dynamic_cast<const MapBrushT*>(m_MorphPrims[0]->GetMapPrim())==NULL)
     {
         wxMessageBox("The morph tool can add new vertices only to brushes (not to Bezier patches).\n"
                      "(The number of subdivisions of Bezier patches can be changed in the Properties dialog.)", "Item being morphed is not a brush.");
