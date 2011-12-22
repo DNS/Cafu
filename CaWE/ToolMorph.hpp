@@ -104,7 +104,7 @@ class ToolMorphT : public ToolT, public ObserverT
     /// @param ViewWindow   The window in which we should look at Point for handles.
     /// @param Point        The coordinate of interest in ViewWindow, given in Tool(!) Space.
     /// @returns the array of all morph handles "under" Point in ViewWindow.
-    ArrayT<MorphHandleT> GetMorphHandlesAt(ViewWindow2DT& ViewWindow, const wxPoint& Point);
+    ArrayT<MorphHandleT> GetMorphHandlesAt(ViewWindow2DT& ViewWindow, const wxPoint& Point) const;
 
     /// Finds the morph handle that is in ViewWindow along the ray through Point.
     /// @param ViewWindow   The window in which we should look along the ray through Point for handles.
@@ -112,13 +112,13 @@ class ToolMorphT : public ToolT, public ObserverT
     /// @param FoundMH      If a morph handle was found, it is returned via this reference.
     ///    If there is more than one morph handle along the ray through Point, the morph handle that is closest to the viewer is returned.
     /// @returns true if a morph handle was found in ViewWindow along the ray through Point, false if no such handle exists.
-    bool GetMorphHandleAt(ViewWindow3DT& ViewWindow, const wxPoint& Point, MorphHandleT& FoundMH);
+    bool GetMorphHandleAt(ViewWindow3DT& ViewWindow, const wxPoint& Point, MorphHandleT& FoundMH) const;
 
     int  MorphPrims_Find(const MapElementT* Elem) const;        ///< Returns the array index number of the MorphPrimT for the given Elem, -1 if there is none.
-    void MorphPrims_CommitAndClear();                           ///< Commits all morphs in m_MorphPrims to their true map elements and resets the morph tool back to empty.
-    void MorphPrims_TogglePrim(const MapPrimitiveT* MapPrim);   ///< Toggles the membership of MapPrim in the m_MorphPrims array.
+    void MorphPrims_SyncTo(const ArrayT<MapElementT*>& Elems);  ///< Sync's our m_MorphPrims to the given Elems, so that they correspond 1:1 to each other.
     void MoveSelectedHandles(const Vector3fT& Delta);           ///< WARNING: This method *DESTROYS* all handle pointers into any of the m_MorphPrims!!
     void NudgeSelectedHandles(const AxesInfoT& AxesInfo, const wxKeyEvent& KE);
+    void FinishDragMorphHandles();                              ///< Called from the 2D or 3D views, for morph-modified items, this function replaces the original primitives with the morphed ones in the map.
     void OnEscape(ViewWindowT& ViewWindow);
 
 

@@ -25,7 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../MapPrimitive.hpp"
 
 
-CommandAddPrimT::CommandAddPrimT(MapDocumentT& MapDoc, MapPrimitiveT* AddPrim, MapEntityBaseT* Parent, wxString Name)
+CommandAddPrimT::CommandAddPrimT(MapDocumentT& MapDoc, MapPrimitiveT* AddPrim, MapEntityBaseT* Parent, wxString Name, bool SetSel)
     : m_MapDoc(MapDoc),
       m_AddPrims(),
       m_AddElems(),
@@ -36,11 +36,12 @@ CommandAddPrimT::CommandAddPrimT(MapDocumentT& MapDoc, MapPrimitiveT* AddPrim, M
     m_AddPrims.PushBack(AddPrim);
     m_AddElems.PushBack(AddPrim);
 
-    m_CommandSelect=CommandSelectT::Set(&m_MapDoc, m_AddElems);
+    if (SetSel)
+        m_CommandSelect=CommandSelectT::Set(&m_MapDoc, m_AddElems);
 }
 
 
-CommandAddPrimT::CommandAddPrimT(MapDocumentT& MapDoc, const ArrayT<MapPrimitiveT*>& AddPrims, MapEntityBaseT* Parent, wxString Name)
+CommandAddPrimT::CommandAddPrimT(MapDocumentT& MapDoc, const ArrayT<MapPrimitiveT*>& AddPrims, MapEntityBaseT* Parent, wxString Name, bool SetSel)
     : m_MapDoc(MapDoc),
       m_AddPrims(AddPrims),
       m_AddElems(),
@@ -51,7 +52,8 @@ CommandAddPrimT::CommandAddPrimT(MapDocumentT& MapDoc, const ArrayT<MapPrimitive
     for (unsigned long PrimNr=0; PrimNr<m_AddPrims.Size(); PrimNr++)
         m_AddElems.PushBack(m_AddPrims[PrimNr]);
 
-    m_CommandSelect=CommandSelectT::Set(&m_MapDoc, m_AddElems);
+    if (SetSel)
+        m_CommandSelect=CommandSelectT::Set(&m_MapDoc, m_AddElems);
 }
 
 
@@ -80,7 +82,8 @@ bool CommandAddPrimT::Do()
 
     m_MapDoc.UpdateAllObservers_Created(m_AddElems);
 
-    m_CommandSelect->Do();
+    if (m_CommandSelect)
+        m_CommandSelect->Do();
 
     m_Done=true;
     return true;
@@ -92,7 +95,8 @@ void CommandAddPrimT::Undo()
     wxASSERT(m_Done);
     if (!m_Done) return;
 
-    m_CommandSelect->Undo();
+    if (m_CommandSelect)
+        m_CommandSelect->Undo();
 
     for (unsigned long PrimNr=0; PrimNr<m_AddPrims.Size(); PrimNr++)
     {

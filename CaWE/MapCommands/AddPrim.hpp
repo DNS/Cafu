@@ -43,11 +43,12 @@ class CommandAddPrimT : public CommandT
     /// @param AddPrim   The primitive to add. NOTE: AddPrim->GetParent()==NULL is assumed, i.e. AddPrim has no prior parent!
     /// @param Parent    The parent entity that the primitive becomes a part of and which it is added to. Can be the world or a custom entity.
     /// @param Name      The name of this command for the undo history.
-    CommandAddPrimT(MapDocumentT& MapDoc, MapPrimitiveT* AddPrim, MapEntityBaseT* Parent, wxString Name="new primitive");
+    /// @param SetSel    Whether the selection should be set to the newly added map primitive(s).
+    CommandAddPrimT(MapDocumentT& MapDoc, MapPrimitiveT* AddPrim, MapEntityBaseT* Parent, wxString Name="new primitive", bool SetSel=true);
 
     /// The constructor for creating a command for adding multiple primitives into the map.
     /// Analogous to the constructor for adding a single primitive above.
-    CommandAddPrimT(MapDocumentT& MapDoc, const ArrayT<MapPrimitiveT*>& AddPrims, MapEntityBaseT* Parent, wxString Name="new primitives");
+    CommandAddPrimT(MapDocumentT& MapDoc, const ArrayT<MapPrimitiveT*>& AddPrims, MapEntityBaseT* Parent, wxString Name="new primitives", bool SetSel=true);
 
     /// The destructor.
     ~CommandAddPrimT();

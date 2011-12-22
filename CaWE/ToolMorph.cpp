@@ -38,6 +38,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ToolOptionsBars.hpp"
 #include "MapCommands/AddPrim.hpp"
 #include "MapCommands/Delete.hpp"
+#include "MapCommands/Select.hpp"
 
 
 /*** Begin of TypeSys related definitions for this class. ***/
@@ -139,16 +140,8 @@ void ToolMorphT::OnActivate(ToolT* OldTool)
     }
     else
     {
-        MorphPrims_CommitAndClear();
-
-        // For each brush or bezier patch in the documents selection, create a related instance here.
-        for (unsigned long SelNr=0; SelNr<m_MapDoc.GetSelection().Size(); SelNr++)
-        {
-            MapPrimitiveT* MapPrim=dynamic_cast<MapPrimitiveT*>(m_MapDoc.GetSelection()[SelNr]);
-
-            if (MapPrim)
-                MorphPrims_TogglePrim(MapPrim);
-        }
+        MorphPrims_SyncTo(m_MapDoc.GetSelection());
+        m_DragState=DragNothing;
     }
 }
 
@@ -161,7 +154,11 @@ bool ToolMorphT::CanDeactivate()
 
 void ToolMorphT::OnDeactivate(ToolT* NewTool)
 {
-    MorphPrims_CommitAndClear();
+    const ArrayT<MapElementT*> Empty;
+
+    // Clear/reset the morph tool.
+    MorphPrims_SyncTo(Empty);
+    m_DragState=DragNothing;
 }
 
 
@@ -175,74 +172,51 @@ int ToolMorphT::MorphPrims_Find(const MapElementT* Elem) const
 }
 
 
-void ToolMorphT::MorphPrims_CommitAndClear()
+void ToolMorphT::MorphPrims_SyncTo(const ArrayT<MapElementT*>& Elems)
 {
-    // Set the map elements of all morph primitives back to "visible"
-    // and remove all unmodified morph primitives from our list.
+    ArrayT<MapElementT*> VisChanged;
 
-    // TODO: Doing it like this is not particularly efficient, but this is going to be refactored anyway.
-    while (m_MorphPrims.Size()>0)
+    // Remove all entries from m_MorphPrims that are not in NewSelection.
+    for (unsigned long MPNr=0; MPNr<m_MorphPrims.Size(); MPNr++)
     {
-        MorphPrims_TogglePrim(m_MorphPrims[0]->GetMapPrim());
-    }
-}
+        MapPrimitiveT* MapPrim=const_cast<MapPrimitiveT*>(m_MorphPrims[MPNr]->GetMapPrim());
 
-
-void ToolMorphT::MorphPrims_TogglePrim(const MapPrimitiveT* MapPrim)
-{
-    // Only needed for observer message.
-    ArrayT<MapElementT*> MapElements;
-    MapElements.PushBack(const_cast<MapPrimitiveT*>(MapPrim));
-
-    const int MP_Index=MorphPrims_Find(MapPrim);
-
-    if (MP_Index>=0)
-    {
-        MorphPrimT* MorphPrim=m_MorphPrims[MP_Index];
-
-        m_MorphPrims.RemoveAtAndKeepOrder(MP_Index);
-        wxASSERT(MapPrim == MorphPrim->GetMapPrim());
-
-        if (MorphPrim->IsModified())
+        if (Elems.Find(MapPrim) < 0)
         {
-            MapPrimitiveT* MorphedMapPrim=MorphPrim->GetMorphedMapPrim();
+            delete m_MorphPrims[MPNr];
+            m_MorphPrims.RemoveAt(MPNr);
+            MPNr--;
 
-            if (MorphedMapPrim)
-            {
-                m_IsRecursiveSelfNotify=true;
-
-                ArrayT<CommandT*> Commands;
-                Commands.PushBack(new CommandDeleteT(m_MapDoc, const_cast<MapPrimitiveT*>(MorphPrim->GetMapPrim())));
-                Commands.PushBack(new CommandAddPrimT(m_MapDoc, MorphedMapPrim, MorphPrim->GetMapPrim()->GetParent()));
-
-                m_MapDoc.GetHistory().SubmitCommand(new CommandMacroT(Commands, "Edit Vertices"));
-
-                m_IsRecursiveSelfNotify=false;
-            }
+            VisChanged.PushBack(MapPrim);
         }
-
-        delete MorphPrim;
-
-        // Elem is now no longer mentioned in the m_MorphPrims list, and thus no longer affected by IsHiddenByTool().
-        m_IsRecursiveSelfNotify=true;
-        m_MapDoc.UpdateAllObservers_Modified(MapElements, MEMD_VISIBILITY);     // TODO: Is this still needed? The element was *deleted* above, after all (but only if modified, mind'ya).
-        m_IsRecursiveSelfNotify=false;
-        return;
     }
 
-    if (dynamic_cast<const MapBrushT*>(MapPrim)==NULL && dynamic_cast<const MapBezierPatchT*>(MapPrim)==NULL) return;
+    // Add all entries that are in Elems but not yet in m_MorphPrims to m_MorphPrims.
+    for (unsigned long ElemNr=0; ElemNr<Elems.Size(); ElemNr++)
+    {
+        MapPrimitiveT* MapPrim=dynamic_cast<MapPrimitiveT*>(Elems[ElemNr]);
 
-    MorphPrimT* MorphPrim=new MorphPrimT(MapPrim);
-    m_MorphPrims.PushBack(MorphPrim);
+        if (!MapPrim) continue;
+        if (MapPrim->GetType()!=&MapBrushT::TypeInfo && MapPrim->GetType()!=&MapBezierPatchT::TypeInfo) continue;
+        if (MorphPrims_Find(MapPrim) >= 0) continue;
 
-    // Elem is now mentioned in the m_MorphPrims list, and thus affected by IsHiddenByTool().
-    m_IsRecursiveSelfNotify=true;
-    m_MapDoc.UpdateAllObservers_Modified(MapElements, MEMD_VISIBILITY);
-    m_IsRecursiveSelfNotify=false;
+        m_MorphPrims.PushBack(new MorphPrimT(MapPrim));
+        VisChanged.PushBack(MapPrim);
+    }
+
+    // If any changes were made, notify the observers.
+    if (VisChanged.Size() > 0)
+    {
+        m_IsRecursiveSelfNotify=true;
+        m_MapDoc.UpdateAllObservers_Modified(VisChanged, MEMD_VISIBILITY);
+        m_IsRecursiveSelfNotify=false;
+
+        m_ToolMan.UpdateAllObservers(this, UPDATE_SOON);
+    }
 }
 
 
-ArrayT<MorphHandleT> ToolMorphT::GetMorphHandlesAt(ViewWindow2DT& ViewWindow, const wxPoint& Point)
+ArrayT<MorphHandleT> ToolMorphT::GetMorphHandlesAt(ViewWindow2DT& ViewWindow, const wxPoint& Point) const
 {
     ArrayT<MorphHandleT> MorphHandles;
 
@@ -293,7 +267,7 @@ ArrayT<MorphHandleT> ToolMorphT::GetMorphHandlesAt(ViewWindow2DT& ViewWindow, co
 }
 
 
-bool ToolMorphT::GetMorphHandleAt(ViewWindow3DT& ViewWindow, const wxPoint& Point, MorphHandleT& FoundMH)
+bool ToolMorphT::GetMorphHandleAt(ViewWindow3DT& ViewWindow, const wxPoint& Point, MorphHandleT& FoundMH) const
 {
     float BestDist=1000000.0f;
 
@@ -427,10 +401,47 @@ void ToolMorphT::NudgeSelectedHandles(const AxesInfoT& AxesInfo, const wxKeyEven
 }
 
 
+void ToolMorphT::FinishDragMorphHandles()
+{
+    ArrayT<CommandT*> Commands;
+
+    for (unsigned long MPNr=0; MPNr<m_MorphPrims.Size(); MPNr++)
+    {
+        if (!m_MorphPrims[MPNr]->IsModified()) continue;
+
+        MapPrimitiveT*  MapPrim       =const_cast<MapPrimitiveT*>(m_MorphPrims[MPNr]->GetMapPrim());
+        MapEntityBaseT* ParentEntity  =MapPrim->GetParent();
+        MapPrimitiveT*  MorphedMapPrim=m_MorphPrims[MPNr]->GetMorphedMapPrim();
+
+        if (!MorphedMapPrim) continue;
+        wxASSERT(MapPrim->IsSelected());
+
+        // The delete command also unselects the MapPrim, calling NotifySubjectChanged_Selection(),
+        // followed by NotifySubjectChanged_Deleted().
+        // Thus our m_MorphPrims[MPNr] will be deleted and a new one created for MorphedMapPrim by
+        // the implicit calls to the NotifySubjectChanged_*() functions.
+        CommandDeleteT* DelCmd=new CommandDeleteT(m_MapDoc, MapPrim);
+        DelCmd->Do();
+        Commands.PushBack(DelCmd);
+
+        CommandAddPrimT* AddPrimCmd=new CommandAddPrimT(m_MapDoc, MorphedMapPrim, ParentEntity, "new prim", false /*don't set the selection*/);
+        AddPrimCmd->Do();
+        Commands.PushBack(AddPrimCmd);
+
+        CommandSelectT* SelCmd=CommandSelectT::Add(&m_MapDoc, MorphedMapPrim);
+        SelCmd->Do();
+        Commands.PushBack(SelCmd);
+    }
+
+    m_MapDoc.GetHistory().SubmitCommand(new CommandMacroT(Commands, "Edit Vertices"));
+
+    // This is somewhat redundant, but have it anyway here for clarity.
+    m_DragState=DragNothing;
+}
+
+
 void ToolMorphT::NoteEditModeChanged()
 {
-    // TODO: Clear the selection!!?!
-
     m_ToolMan.UpdateAllObservers(this, UPDATE_SOON);
 }
 
@@ -468,7 +479,7 @@ void ToolMorphT::InsertVertex()
     m_MorphPrims[0]->m_Vertices.PushBack(new MP_VertexT);
     m_MorphPrims[0]->m_Vertices[m_MorphPrims[0]->m_Vertices.Size()-1]->pos=Center;
 
-    // I *don't* bother to update the m_MorphPrims[0] geometry e.g. by a dummy-call to MoveSelectedHandles(),
+    // *Don't* bother to update the m_MorphPrims[0] geometry e.g. by a dummy-call to MoveSelectedHandles(),
     // because firstly the convex hull should not have been affected anyway, and secondly, the user is supposed
     // to trigger the update himself by dragging the new vertex.
     // We *have* to update the views, though.
@@ -607,10 +618,14 @@ bool ToolMorphT::OnLMouseDown2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
 
         if (HitPrim && (HitPrim->GetType()==&MapBrushT::TypeInfo || HitPrim->GetType()==&MapBezierPatchT::TypeInfo))
         {
-            if (!ME.ControlDown()) MorphPrims_CommitAndClear();
-            MorphPrims_TogglePrim(HitPrim);
+            // The handling of the Control key is not ideal: it would possibly be better to
+            // not account for it at all, or to route this through the selection tool somehow.
+            //
+            // The implied call to NotifySubjectChanged_Selection() will update our tool state.
+            m_MapDoc.GetHistory().SubmitCommand(ME.ControlDown()
+                ? CommandSelectT::Add(&m_MapDoc, HitPrim)
+                : CommandSelectT::Set(&m_MapDoc, HitPrim));
 
-            m_ToolMan.UpdateAllObservers(this, UPDATE_NOW);
             return true;
         }
     }
@@ -665,6 +680,7 @@ bool ToolMorphT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
             break;
 
         case DragMorphHandles:
+            FinishDragMorphHandles();
             break;
 
         case DragNothing:
@@ -877,10 +893,14 @@ bool ToolMorphT::OnLMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
 
         if (HitPrim && (HitPrim->GetType()==&MapBrushT::TypeInfo || HitPrim->GetType()==&MapBezierPatchT::TypeInfo))
         {
-            if (!ME.ControlDown()) MorphPrims_CommitAndClear();
-            MorphPrims_TogglePrim(HitPrim);
+            // The handling of the Control key is not ideal: it would possibly be better to
+            // not account for it at all, or to route this through the selection tool somehow.
+            //
+            // The implied call to NotifySubjectChanged_Selection() will update our tool state.
+            m_MapDoc.GetHistory().SubmitCommand(ME.ControlDown()
+                ? CommandSelectT::Add(&m_MapDoc, HitPrim)
+                : CommandSelectT::Set(&m_MapDoc, HitPrim));
 
-            m_ToolMan.UpdateAllObservers(this, UPDATE_NOW);
             return true;
         }
     }
@@ -974,7 +994,7 @@ bool ToolMorphT::OnLMouseUp3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
             break;
 
         case DragMorphHandles:
-            m_ToolMan.UpdateAllObservers(this, UPDATE_SOON);
+            FinishDragMorphHandles();
             break;
 
         case DragNothing:
@@ -994,25 +1014,7 @@ void ToolMorphT::NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<
 {
     if (!IsActiveTool() || m_IsRecursiveSelfNotify) return;
 
-    // An external event caused a selection change, such as the user clicking "Undo".
-    //
-    //   - What we can *not* do is calling MorphPrims_CommitAndClear(), because that
-    //     would attempt to submit another command to the command history while the
-    //     command history is attempting to run the "Undo".
-    //
-    //   - Technically, it would be possible to do nothing: A change in selection
-    //     does not require any alterations of our tool state, the user can continue
-    //     to morph the objects that he previously begun to morph.
-    //
-    //   - Although the user might lose some morph work, probably the least confusion
-    //     action is to just discard and clear the tool state.
-    //
-    for (unsigned long MPNr=0; MPNr<m_MorphPrims.Size(); MPNr++)
-        delete m_MorphPrims[MPNr];
-    m_MorphPrims.Overwrite();
-
-    m_ToolMan.UpdateAllObservers(this, UPDATE_SOON);
-    m_DragState=DragNothing;
+    MorphPrims_SyncTo(NewSelection);
 }
 
 
@@ -1020,25 +1022,23 @@ void ToolMorphT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<Ma
 {
     if (!IsActiveTool() || m_IsRecursiveSelfNotify) return;
 
-    for (unsigned long i=0; i<MapElements.Size(); i++)
+    // Remove all entries that are in MapElements and m_MorphPrims from m_MorphPrims.
+    for (unsigned long ElemNr=0; ElemNr<MapElements.Size(); ElemNr++)
     {
-        MapPrimitiveT* MapPrim=dynamic_cast<MapPrimitiveT*>(MapElements[i]);
-
+        MapPrimitiveT* MapPrim=dynamic_cast<MapPrimitiveT*>(MapElements[ElemNr]);
         if (!MapPrim) continue;
 
-        for (unsigned long j=0; j<m_MorphPrims.Size(); j++)
-        {
-            if (MapPrim==m_MorphPrims[j]->GetMapPrim())
-            {
-                // Remove this morph primitive from our list.
-                delete m_MorphPrims[j];
-                m_MorphPrims.RemoveAtAndKeepOrder(j);
+        const int MPNr=MorphPrims_Find(MapPrim);
+        if (MPNr < 0) continue;
 
-                // The element has been found so we can safely break the inner loop and check the next.
-                break;
-            }
-        }
+        delete m_MorphPrims[MPNr];
+        m_MorphPrims.RemoveAt(MPNr);
     }
+
+    // No need for this, the elements have been deleted after all.
+    // m_IsRecursiveSelfNotify=true;
+    // m_MapDoc.UpdateAllObservers_Modified(VisChanged, MEMD_VISIBILITY);
+    // m_IsRecursiveSelfNotify=false;
 
     m_ToolMan.UpdateAllObservers(this, UPDATE_SOON);
 }
@@ -1047,26 +1047,22 @@ void ToolMorphT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<Ma
 void ToolMorphT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail)
 {
     if (!IsActiveTool() || m_IsRecursiveSelfNotify) return;
-    if (Detail!=MEMD_GENERIC && Detail!=MEMD_VISIBILITY) return;
 
-    for (unsigned long i=0; i<MapElements.Size(); i++)
+    // If only the visibility changed, do nothing. In all other cases,
+    // don't further examine Detail, but just do the update.
+    if (Detail==MEMD_VISIBILITY) return;
+
+    // Update all entries that are in MapElements and m_MorphPrims.
+    for (unsigned long ElemNr=0; ElemNr<MapElements.Size(); ElemNr++)
     {
-        MapPrimitiveT* MapPrim=dynamic_cast<MapPrimitiveT*>(MapElements[i]);
-
+        MapPrimitiveT* MapPrim=dynamic_cast<MapPrimitiveT*>(MapElements[ElemNr]);
         if (!MapPrim) continue;
 
-        for (unsigned long j=0; j<m_MorphPrims.Size(); j++)
-        {
-            if (MapPrim==m_MorphPrims[j]->GetMapPrim())
-            {
-                // Update the morph primitive of this map element, discarding all prior changes, if any.
-                delete m_MorphPrims[j];
-                m_MorphPrims[j]=new MorphPrimT(MapPrim);
+        const int MPNr=MorphPrims_Find(MapPrim);
+        if (MPNr < 0) continue;
 
-                // Object has been found so we can safely break the inner loop and check the next object.
-                break;
-            }
-        }
+        delete m_MorphPrims[MPNr];
+        m_MorphPrims[MPNr]=new MorphPrimT(MapPrim);
     }
 
     m_ToolMan.UpdateAllObservers(this, UPDATE_SOON);
@@ -1075,30 +1071,7 @@ void ToolMorphT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<M
 
 void ToolMorphT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const ArrayT<BoundingBox3fT>& OldBounds)
 {
-    if (!IsActiveTool() || m_IsRecursiveSelfNotify) return;
-    if (Detail!=MEMD_GENERIC && Detail!=MEMD_TRANSFORM && Detail!=MEMD_PRIMITIVE_PROPS_CHANGED && Detail!=MEMD_MORPH) return;
-
-    for (unsigned long i=0; i<MapElements.Size(); i++)
-    {
-        MapPrimitiveT* MapPrim=dynamic_cast<MapPrimitiveT*>(MapElements[i]);
-
-        if (!MapPrim) continue;
-
-        for (unsigned long j=0; j<m_MorphPrims.Size(); j++)
-        {
-            if (MapPrim==m_MorphPrims[j]->GetMapPrim())
-            {
-                // Update the morph primitive of this map element, discarding all prior changes, if any.
-                delete m_MorphPrims[j];
-                m_MorphPrims[j]=new MorphPrimT(MapPrim);
-
-                // Object has been found so we can safely break the inner loop and check the next object.
-                break;
-            }
-        }
-    }
-
-    m_ToolMan.UpdateAllObservers(this, UPDATE_SOON);
+    NotifySubjectChanged_Modified(Subject, MapElements, Detail);
 }
 
 
