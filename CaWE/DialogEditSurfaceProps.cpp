@@ -561,35 +561,36 @@ void EditSurfacePropsDialogT::EyeDropperClick(MapElementT* Object, unsigned long
 
     if (Patch!=NULL)
     {
+        Material=Patch->GetMaterial();
+
         const SurfaceInfoT& SI=Patch->GetSurfaceInfo();
 
         if (SI.TexCoordGenMode==Custom)
         {
-            wxMessageBox("The texture information on this Bezier patch is in a custom format that cannot be picked for use in the dialog.\n"
-                "You can fix the problem by assigning new texture information (using the right mouse button) to the patch first.");
-            return;
+            wxMessageBox("The texture information on this Bezier patch is in a custom format that cannot be picked into the dialog.\n"
+                "You can fix the problem by assigning new texture information (using the right mouse button) to the patch.");
         }
-
-        m_SpinCtrlScaleX  ->SetValue((SI.TexCoordGenMode==MatFit) ? SI.Scale[0] : 1.0/SI.Scale[0]/Patch->GetMaterial()->GetWidth());
-        m_SpinCtrlScaleY  ->SetValue((SI.TexCoordGenMode==MatFit) ? SI.Scale[1] : 1.0/SI.Scale[1]/Patch->GetMaterial()->GetHeight());
-        m_SpinCtrlShiftX  ->SetValue(SI.Trans[0]*Patch->GetMaterial()->GetWidth());
-        m_SpinCtrlShiftY  ->SetValue(SI.Trans[1]*Patch->GetMaterial()->GetHeight());
-        m_SpinCtrlRotation->SetValue(SI.Rotate);
-        m_TexGenModeInfo  ->SetLabel("");   // The proper value is set below.
-
-        Material=Patch->GetMaterial();
-
-        m_CurrentTexGenMode=SI.TexCoordGenMode;
-        m_CurrentUAxis=SI.UAxis;
-        m_CurrentVAxis=SI.VAxis;
-
-        UpdateVectorInfo();
-
-        switch (m_CurrentTexGenMode)
+        else
         {
-            case Custom: m_TexGenModeInfo->SetLabel("Mode: Custom"); break;
-            case MatFit: m_TexGenModeInfo->SetLabel("Mode: Fit");    break;
-            default:     m_TexGenModeInfo->SetLabel("");             break;
+            m_SpinCtrlScaleX  ->SetValue((SI.TexCoordGenMode==MatFit) ? SI.Scale[0] : 1.0/SI.Scale[0]/Patch->GetMaterial()->GetWidth());
+            m_SpinCtrlScaleY  ->SetValue((SI.TexCoordGenMode==MatFit) ? SI.Scale[1] : 1.0/SI.Scale[1]/Patch->GetMaterial()->GetHeight());
+            m_SpinCtrlShiftX  ->SetValue(SI.Trans[0]*Patch->GetMaterial()->GetWidth());
+            m_SpinCtrlShiftY  ->SetValue(SI.Trans[1]*Patch->GetMaterial()->GetHeight());
+            m_SpinCtrlRotation->SetValue(SI.Rotate);
+            m_TexGenModeInfo  ->SetLabel("");   // The proper value is set below.
+
+            m_CurrentTexGenMode=SI.TexCoordGenMode;
+            m_CurrentUAxis=SI.UAxis;
+            m_CurrentVAxis=SI.VAxis;
+
+            UpdateVectorInfo();
+
+            switch (m_CurrentTexGenMode)
+            {
+                case Custom: m_TexGenModeInfo->SetLabel("Mode: Custom"); break;
+                case MatFit: m_TexGenModeInfo->SetLabel("Mode: Fit");    break;
+                default:     m_TexGenModeInfo->SetLabel("");             break;
+            }
         }
     }
 
