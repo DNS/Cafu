@@ -28,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/Matrix.hpp"
 
 
+class AnimExpressionT;
 class CafuModelT;
 class MaterialT;
 
@@ -92,12 +93,12 @@ class AnimPoseT
     /// The destructor.
     ~AnimPoseT();
 
-    int GetSequNr() const { return m_SequNr; }
+    int GetSequNr() const;
 
     /// @param SequNr   The number of the animation sequence to use, -1 for the bind pose.
     void SetSequNr(int SequNr);
 
-    float GetFrameNr() const { return m_FrameNr; }
+    float GetFrameNr() const;
 
     /// @param FrameNr      The frame number in the animation sequence to render the model at.
     void SetFrameNr(float FrameNr);
@@ -116,7 +117,7 @@ class AnimPoseT
     void Advance(float Time, bool ForceLoop=false);
 
     /// Call this if something in the related model has changed.
-    void SetNeedsRecache() { m_NeedsRecache=true; }
+    void SetNeedsRecache() { m_RecacheCount=0; }    // 0 is different from any value that m_AnimExpr->GetChangedCount() returns.
 
     /// This method renders the model in this pose.
     /// The current MatSys model-view matrix determines the position and orientation.
@@ -169,17 +170,15 @@ class AnimPoseT
     void SyncDimensions() const;
     void UpdateData() const;
     void Recache() const;
-    void NormalizeInput();
 
     const CafuModelT&             m_Model;          ///< The related model that this is a pose for.
-    int                           m_SequNr;         ///< The animation sequence number at which we have computed the cache data.
-    float                         m_FrameNr;        ///< The animation frame    number at which we have computed the cache data.
+    AnimExpressionT*              m_AnimExpr;       ///< The expression that describes the animation state of the joints for which we have computed the cache data.
     const AnimPoseT*              m_SuperPose;
     AnimPoseT*                    m_DlodPose;       ///< The next pose in the chain of dlod poses matching the chain of dlod models.
  // ArrayT<...>                   m_Def;            ///< Array of { channel, sequence, framenr, (forceloop), blendweight } tuples.
  // bool                          m_DoCache;        ///< Cache the computed data? (Set to true by the user if he want to re-use this instance.)
 
-    mutable bool                  m_NeedsRecache;   ///< wird auf 'true' gesetzt wann immer SetSequ(), SetFrameNr() oder AdvanceAll() o.ä. aufgerufen wird, übernimmt m_Draw_CachedDataAt*Nr Funktionalität.
+    mutable unsigned int          m_RecacheCount;   ///< Used to detect if the m_AnimExpr has changed, so that our matrices, meshes etc. can be recached.
     mutable ArrayT<MatrixT>       m_JointMatrices;  ///< The transformation matrices that represent the pose of the skeleton at the given animation sequence and frame number.
     mutable ArrayT<MeshInfoT>     m_MeshInfos;      ///< Additional data for each mesh in m_Model.
     mutable ArrayT<MatSys::MeshT> m_Draw_Meshes;    ///< The draw meshes resulting from the m_JointMatrices.

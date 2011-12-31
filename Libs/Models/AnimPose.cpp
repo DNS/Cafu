@@ -20,6 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "AnimPose.hpp"
+#include "AnimExpr.hpp"
 #include "Model_cmdl.hpp"
 
 #include "MaterialSystem/Material.hpp"
@@ -30,20 +31,20 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 AnimPoseT::AnimPoseT(const CafuModelT& Model, int SequNr, float FrameNr)
     : m_Model(Model),
-      m_SequNr(SequNr),
-      m_FrameNr(FrameNr),
+      m_AnimExpr(NULL),
       m_SuperPose(NULL),
       m_DlodPose(m_Model.GetDlodModel() ? new AnimPoseT(*m_Model.GetDlodModel(), SequNr, FrameNr) : NULL),  // Recursively create the chain of dlod poses matching the chain of dlod models.
-      m_NeedsRecache(true),
+      m_RecacheCount(0),
       m_BoundingBox()
 {
-    NormalizeInput();
+    m_AnimExpr=new AnimExprStandardT(m_Model, SequNr, FrameNr);
 }
 
 
 AnimPoseT::~AnimPoseT()
 {
     delete m_DlodPose;
+    delete m_AnimExpr;
 }
 
 
@@ -119,11 +120,9 @@ void AnimPoseT::UpdateData() const
 {
     typedef CafuModelT::JointT JointT;
     typedef CafuModelT::MeshT  MeshT;
-    typedef CafuModelT::AnimT  AnimT;
 
     const ArrayT<JointT>& Joints=m_Model.GetJoints();
     const ArrayT<MeshT>&  Meshes=m_Model.GetMeshes();
-    const ArrayT<AnimT>&  Anims =m_Model.GetAnims();
 
 
     // **************************************************************************************************************
@@ -131,79 +130,32 @@ void AnimPoseT::UpdateData() const
     //  The result will be a transformation matrix for each joint (bone).
     // **************************************************************************************************************
 
-    if (m_SequNr==-1)
+    for (unsigned long JointNr=0; JointNr<Joints.Size(); JointNr++)
     {
-        // Don't animate, just use the bind pose defined in the model file.
-        for (unsigned long JointNr=0; JointNr<Joints.Size(); JointNr++)
+        if (m_SuperPose)
         {
-            if (m_SuperPose)
+            const MatrixT* SuperMat=m_SuperPose->GetJointMatrix(Joints[JointNr].Name);
+
+            if (SuperMat)
             {
-                const MatrixT* SuperMat=m_SuperPose->GetJointMatrix(Joints[JointNr].Name);
-
-                if (SuperMat)
-                {
-                    m_JointMatrices[JointNr]=*SuperMat;
-                    continue;
-                }
+                m_JointMatrices[JointNr]=*SuperMat;
+                continue;
             }
-
-            const JointT& J=Joints[JointNr];
-            const MatrixT RelMatrix(J.Pos, cf::math::QuaternionfT::FromXYZ(J.Qtr), J.Scale);
-
-            m_JointMatrices[JointNr]=(J.Parent==-1) ? RelMatrix : m_JointMatrices[J.Parent]*RelMatrix;
         }
-    }
-    else
-    {
-        // m_SequNr is a valid index into Anims, so use that.
-        const AnimT& Anim=Anims[m_SequNr];
-        const int    Frame_0=int(m_FrameNr);                                        // If m_FrameNr == 17.83, then Frame_0 == 17
-        const float  Frame_f=m_FrameNr-Frame_0;                                     //                             Frame_f ==  0.83
-        const int    Frame_1=(Frame_0+1>=int(Anim.Frames.Size())) ? 0 : Frame_0+1;  //                             Frame_1 == 18
 
-        for (unsigned long JointNr=0; JointNr<Joints.Size(); JointNr++)
-        {
-            if (m_SuperPose)
-            {
-                const MatrixT* SuperMat=m_SuperPose->GetJointMatrix(Joints[JointNr].Name);
+        float                  Weight;
+        Vector3fT              Pos;
+        cf::math::QuaternionfT Quat;
+        Vector3fT              Scale;
 
-                if (SuperMat)
-                {
-                    m_JointMatrices[JointNr]=*SuperMat;
-                    continue;
-                }
-            }
+        m_AnimExpr->GetData(JointNr, Weight, Pos, Quat, Scale);
 
-            const AnimT::AnimJointT& AJ=Anim.AnimJoints[JointNr];
+        // Compute the matrix that is relative to the parent bone, and finally obtain the absolute matrix for that bone!
+        const MatrixT RelMatrix(Pos, Quat, Scale);
+        const JointT& J=Joints[JointNr];
 
-            Vector3fT Data_0[3]={ AJ.DefaultPos, AJ.DefaultQtr, AJ.DefaultScale };
-            Vector3fT Data_1[3]={ AJ.DefaultPos, AJ.DefaultQtr, AJ.DefaultScale };
-
-            // Determine the position, quaternion and scale for Frame_0 and Frame_1.
-            unsigned int FlagCount=0;
-
-            for (int i=0; i<9; i++)
-            {
-                if ((AJ.Flags >> i) & 1)
-                {
-                    Data_0[i/3][i % 3]=Anim.Frames[Frame_0].AnimData[AJ.FirstDataIdx+FlagCount];
-                    Data_1[i/3][i % 3]=Anim.Frames[Frame_1].AnimData[AJ.FirstDataIdx+FlagCount];
-
-                    FlagCount++;
-                }
-            }
-
-            // Interpolate the position and quaternion according to the fraction Frame_f.
-            const Vector3fT              Pos  =Data_0[0]*(1.0f-Frame_f) + Data_1[0]*Frame_f;
-            const cf::math::QuaternionfT Quat =slerp(cf::math::QuaternionfT::FromXYZ(Data_0[1]), cf::math::QuaternionfT::FromXYZ(Data_1[1]), Frame_f);
-            const Vector3fT              Scale=Data_0[2]*(1.0f-Frame_f) + Data_1[2]*Frame_f;
-
-            // Compute the matrix that is relative to the parent bone, and finally obtain the absolute matrix for that bone!
-            const MatrixT RelMatrix(Pos, Quat, Scale);
-            const JointT& J=Joints[JointNr];
-
-            m_JointMatrices[JointNr]=(J.Parent==-1) ? RelMatrix : m_JointMatrices[J.Parent]*RelMatrix;
-        }
+        // assert(Weight==1.0f);
+        m_JointMatrices[JointNr]=(J.Parent==-1) ? RelMatrix : m_JointMatrices[J.Parent]*RelMatrix;
     }
 
 
@@ -260,7 +212,7 @@ void AnimPoseT::UpdateData() const
 
     if (m_Model.GetUseGivenTS())
     {
-        assert(Anims.Size()==0);  // It doesn't make sense to have statically given tangent-space axes with *animated* geometry...
+        assert(m_Model.GetAnims().Size()==0);  // It doesn't make sense to have statically given tangent-space axes with *animated* geometry...
 
         // Copy the given tangent space details into the pose.
         for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
@@ -446,7 +398,7 @@ void AnimPoseT::UpdateData() const
 
 void AnimPoseT::Recache() const
 {
-    if (!m_NeedsRecache && !m_SuperPose) return;
+    if (!m_SuperPose && m_RecacheCount==m_AnimExpr->GetChangeCount()) return;
 
     SyncDimensions();
     UpdateData();
@@ -461,32 +413,17 @@ void AnimPoseT::Recache() const
     //     // Compute it ourselves
     //     y();
 
-    m_NeedsRecache=false;
+    m_RecacheCount=m_AnimExpr->GetChangeCount();
 }
 
 
-void AnimPoseT::NormalizeInput()
-{
-    const ArrayT<CafuModelT::AnimT>& Anims=m_Model.GetAnims();
-
-    // m_SequNr==-1 means "use the bind pose from the model file only (no anim)".
-    if (m_SequNr < -1) m_SequNr = -1;
-    if (m_SequNr >= int(Anims.Size())) m_SequNr = -1;
-    if (m_SequNr != -1 && (Anims[m_SequNr].FPS<0.0 || Anims[m_SequNr].Frames.Size()==0)) m_SequNr = -1;
-
-    m_FrameNr=std::max(m_FrameNr, 0.0f);
-    m_FrameNr=(m_SequNr==-1) ? 0.0f : fmod(m_FrameNr, float(Anims[m_SequNr].Frames.Size()));
-}
+int   AnimPoseT::GetSequNr() const { return dynamic_cast<AnimExprStandardT*>(m_AnimExpr)->GetSequNr(); }
+float AnimPoseT::GetFrameNr() const { return dynamic_cast<AnimExprStandardT*>(m_AnimExpr)->GetFrameNr(); }
 
 
 void AnimPoseT::SetSequNr(int SequNr)
 {
-    if (m_SequNr==SequNr) return;
-
-    m_SequNr=SequNr;
-    NormalizeInput();
-
-    m_NeedsRecache=true;
+    dynamic_cast<AnimExprStandardT*>(m_AnimExpr)->SetSequNr(SequNr);
 
     // Recursively update the chain of dlod poses.
     if (m_DlodPose) m_DlodPose->SetSequNr(SequNr);
@@ -495,12 +432,7 @@ void AnimPoseT::SetSequNr(int SequNr)
 
 void AnimPoseT::SetFrameNr(float FrameNr)
 {
-    if (m_FrameNr==FrameNr) return;
-
-    m_FrameNr=FrameNr;
-    NormalizeInput();
-
-    m_NeedsRecache=true;
+    dynamic_cast<AnimExprStandardT*>(m_AnimExpr)->SetFrameNr(FrameNr);
 
     // Recursively update the chain of dlod poses.
     if (m_DlodPose) m_DlodPose->SetFrameNr(FrameNr);
@@ -512,8 +444,7 @@ void AnimPoseT::SetSuperPose(const AnimPoseT* SuperPose)
     if (m_SuperPose==SuperPose) return;
 
     m_SuperPose=SuperPose;
-
-    m_NeedsRecache=true;
+    m_RecacheCount=0;
 
     // Recursively update the chain of dlod poses.
     if (m_DlodPose) m_DlodPose->SetSuperPose(SuperPose);
@@ -522,32 +453,7 @@ void AnimPoseT::SetSuperPose(const AnimPoseT* SuperPose)
 
 void AnimPoseT::Advance(float Time, bool ForceLoop)
 {
-    // TODO: Beachte korrekte Wrap-Regeln für mit loopen und ohne.
-    // TODO: Loops (next vs. ForceLoop) richtig behandeln
-    const ArrayT<CafuModelT::AnimT>& Anims=m_Model.GetAnims();
-
-    if (m_SequNr<0 || m_SequNr>=int(Anims.Size())) { SetFrameNr(0.0f); return; }
-    if (Anims[m_SequNr].Frames.Size()<=1) { SetFrameNr(0.0f); return; }
-
-    const float NumFrames=float(Anims[m_SequNr].Frames.Size());
-
-    float FrameNr=m_FrameNr + Time*Anims[m_SequNr].FPS;
-
-    if (ForceLoop)
-    {
-        // Wrap the sequence (it's a looping (repeating) sequence, like idle, walk, ...).
-        FrameNr=fmod(FrameNr, NumFrames);
-        if (FrameNr<0.0f) FrameNr+=NumFrames;
-    }
-    else
-    {
-        // Clamp the sequence (it's a play-once (non-repeating) sequence, like dying).
-        // On clamping, stop the sequence 1/100th sec before the end of the last frame.
-        if (FrameNr>=NumFrames-1.0f) FrameNr=NumFrames-1.0f-0.01f;
-        if (FrameNr<0.0f) FrameNr=0.0f;
-    }
-
-    SetFrameNr(FrameNr);
+    m_AnimExpr->AdvanceTime(Time, ForceLoop);
 
     // Recursively update the chain of dlod poses.
     if (m_DlodPose) m_DlodPose->Advance(Time, ForceLoop);
