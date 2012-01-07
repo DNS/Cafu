@@ -23,6 +23,23 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Model_cmdl.hpp"
 
 
+AnimExpressionT::AnimExpressionT(const CafuModelT& Model)
+    : m_Model(Model),
+      m_RefCount(0),
+      m_ChangeNum(0)
+{
+    UpdateChangeNum();
+}
+
+
+void AnimExpressionT::UpdateChangeNum()
+{
+    static unsigned int s_ChangeCount=0;
+
+    m_ChangeNum = ++s_ChangeCount;
+}
+
+
 /*************************/
 /*** AnimExprStandardT ***/
 /*************************/
@@ -30,8 +47,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 AnimExprStandardT::AnimExprStandardT(const CafuModelT& Model, int SequNr, float FrameNr)
     : AnimExpressionT(Model),
       m_SequNr(SequNr),
-      m_FrameNr(FrameNr),
-      m_ChangeCount(1)      // The user code inits its own count with 0.
+      m_FrameNr(FrameNr)
 {
     NormalizeInput();
 }
@@ -143,7 +159,7 @@ void AnimExprStandardT::SetSequNr(int SequNr)
     m_SequNr=SequNr;
     NormalizeInput();
 
-    m_ChangeCount++;
+    UpdateChangeNum();
 }
 
 
@@ -154,5 +170,334 @@ void AnimExprStandardT::SetFrameNr(float FrameNr)
     m_FrameNr=FrameNr;
     NormalizeInput();
 
-    m_ChangeCount++;
+    UpdateChangeNum();
+}
+
+
+/***********************/
+/*** AnimExprFilterT ***/
+/***********************/
+
+namespace
+{
+    unsigned int FindChannelByName(const CafuModelT& Model, const std::string& ChannelName)
+    {
+        unsigned int ChannelNr;
+
+        for (ChannelNr=0; ChannelNr<Model.GetChannels().Size(); ChannelNr++)
+            if (ChannelName == Model.GetChannels()[ChannelNr].Name)
+                return ChannelNr;
+
+        return ChannelNr;
+    }
+}
+
+
+AnimExprFilterT::AnimExprFilterT(const CafuModelT& Model, IntrusivePtrT<AnimExpressionT> SubExpr, unsigned int ChannelNr)
+    : AnimExpressionT(Model),
+      m_SubExpr(SubExpr),
+      m_ChannelNr(ChannelNr)
+{
+}
+
+
+AnimExprFilterT::AnimExprFilterT(const CafuModelT& Model, IntrusivePtrT<AnimExpressionT> SubExpr, const std::string& ChannelName)
+    : AnimExpressionT(Model),
+      m_SubExpr(SubExpr),
+      m_ChannelNr(FindChannelByName(Model, ChannelName))
+{
+}
+
+
+void AnimExprFilterT::ReInit(IntrusivePtrT<AnimExpressionT> SubExpr, unsigned int ChannelNr)
+{
+    if (m_SubExpr==SubExpr && m_ChannelNr==ChannelNr) return;
+
+    m_SubExpr  =SubExpr;
+    m_ChannelNr=ChannelNr;
+
+    UpdateChangeNum();
+}
+
+
+unsigned int AnimExprFilterT::GetChangeNum() const
+{
+    return std::max(GetChangeNum(), m_SubExpr->GetChangeNum());
+}
+
+
+void AnimExprFilterT::GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const
+{
+    Weight=0.0f;
+
+    if (m_ChannelNr >= GetModel().GetChannels().Size() || GetModel().GetChannels()[m_ChannelNr].IsMember(JointNr))
+    {
+        m_SubExpr->GetData(JointNr, Weight, Pos, Quat, Scale);
+    }
+}
+
+
+/************************/
+/*** AnimExprCombineT ***/
+/************************/
+
+AnimExprCombineT::AnimExprCombineT(const CafuModelT& Model, IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B)
+    : AnimExpressionT(Model),
+      m_A(A),
+      m_B(B)
+{
+}
+
+
+void AnimExprCombineT::ReInit(IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B)
+{
+    if (m_A==A && m_B==B) return;
+
+    m_A=A;
+    m_B=B;
+
+    UpdateChangeNum();
+}
+
+
+unsigned int AnimExprCombineT::GetChangeNum() const
+{
+    return std::max(GetChangeNum(),
+                    std::max(m_A->GetChangeNum(), m_B->GetChangeNum()));
+}
+
+
+void AnimExprCombineT::GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const
+{
+    m_A->GetData(JointNr, Weight, Pos, Quat, Scale);
+
+    float                  WeightB;
+    Vector3fT              PosB;
+    cf::math::QuaternionfT QuatB;
+    Vector3fT              ScaleB;
+
+    // Pick the expression with the largest weight.
+    m_B->GetData(JointNr, WeightB, PosB, QuatB, ScaleB);
+
+    if (WeightB > Weight)
+    {
+        Weight = WeightB;
+        Pos    = PosB;
+        Quat   = QuatB;
+        Scale  = ScaleB;
+    }
+}
+
+
+void AnimExprCombineT::AdvanceTime(float Time, bool ForceLoop)
+{
+    m_A->AdvanceTime(Time, ForceLoop);
+    m_B->AdvanceTime(Time, ForceLoop);
+}
+
+
+/**********************/
+/*** AnimExprBlendT ***/
+/**********************/
+
+AnimExprBlendT::AnimExprBlendT(const CafuModelT& Model, IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B, float Duration)
+    : AnimExpressionT(Model),
+      m_A(A),
+      m_B(B),
+      m_Duration(Duration),
+      m_Frac(0.0f)
+{
+}
+
+
+void AnimExprBlendT::ReInit(IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B, float Duration)
+{
+    m_A=A;
+    m_B=B;
+    m_Duration=Duration;
+    m_Frac=0.0f;
+
+    UpdateChangeNum();
+}
+
+
+unsigned int AnimExprBlendT::GetChangeNum() const
+{
+    return std::max(GetChangeNum(),
+                    std::max(m_A->GetChangeNum(), m_B->GetChangeNum()));
+}
+
+
+void AnimExprBlendT::GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const
+{
+    float                  w[2];
+    Vector3fT              p[2];
+    cf::math::QuaternionfT q[2];
+    Vector3fT              s[2];
+
+    if (m_Frac <= 0.0f)
+    {
+        m_A->GetData(JointNr, Weight, Pos, Quat, Scale);
+        return;
+    }
+
+    if (m_Frac >= 1.0f)
+    {
+        m_B->GetData(JointNr, Weight, Pos, Quat, Scale);
+        return;
+    }
+
+    m_A->GetData(JointNr, w[0], p[0], q[0], s[0]);
+    m_B->GetData(JointNr, w[1], p[1], q[1], s[1]);
+
+    const float f0 = 1.0f - m_Frac;
+    const float f1 = m_Frac;
+
+    Weight = w[0]*f0 + w[1]*f1;
+    Pos    = p[0]*f0 + p[1]*f1;
+    Quat   = slerp(q[0], q[1], f0);   // slerp() is why we cannot have generic "add" and "mul" AnimExpressionT's.
+    Scale  = s[0]*f0 + s[1]*f1;
+}
+
+
+void AnimExprBlendT::AdvanceTime(float Time, bool ForceLoop)
+{
+    // Advance the blend fraction.
+    if (m_Duration < 0.001f)
+    {
+        m_Frac = 1.0f;
+    }
+    else
+    {
+        m_Frac += Time/m_Duration;
+    }
+
+    m_Frac = std::min(m_Frac, 1.0f);
+
+
+    // Advance the sub-expressions.
+    if (m_Frac < 1.0f)
+    {
+        m_A->AdvanceTime(Time, ForceLoop);
+    }
+    else
+    {
+        m_A=NULL;   // m_A is unused now that m_Frac >= 1.0.
+    }
+
+    m_B->AdvanceTime(Time, ForceLoop);
+
+
+    UpdateChangeNum();
+}
+
+
+/*********************/
+/*** AnimExprPoolT ***/
+/*********************/
+
+void AnimExprPoolT::FlattenUnused()
+{
+    for (unsigned int AENr=0; AENr<m_Filter.Size(); AENr++)
+        if (m_Filter[AENr]->GetRefCount()==1)
+            m_Filter[AENr]->ReInit(NULL, 0);
+
+    for (unsigned int AENr=0; AENr<m_Combine.Size(); AENr++)
+        if (m_Combine[AENr]->GetRefCount()==1)
+            m_Combine[AENr]->ReInit(NULL, NULL);
+
+    for (unsigned int AENr=0; AENr<m_Blend.Size(); AENr++)
+        if (m_Blend[AENr]->GetRefCount()==1)
+            m_Blend[AENr]->ReInit(NULL, NULL, 0.0f);
+}
+
+
+IntrusivePtrT<AnimExprStandardT> AnimExprPoolT::GetStandard(int SequNr, float FrameNr)
+{
+    FlattenUnused();
+
+    for (unsigned int AENr=0; AENr<m_Standard.Size(); AENr++)
+    {
+        if (m_Standard[AENr]->GetRefCount()==1)
+        {
+            m_Standard[AENr]->SetSequNr(SequNr);
+            m_Standard[AENr]->SetFrameNr(FrameNr);
+
+            return m_Standard[AENr];
+        }
+    }
+
+    IntrusivePtrT<AnimExprStandardT> NewAE(new AnimExprStandardT(m_Model, SequNr, FrameNr));
+    m_Standard.PushBack(NewAE);
+
+    return NewAE;
+}
+
+
+IntrusivePtrT<AnimExprFilterT> AnimExprPoolT::GetFilter(IntrusivePtrT<AnimExpressionT> SubExpr, unsigned int ChannelNr)
+{
+    FlattenUnused();
+
+    for (unsigned int AENr=0; AENr<m_Filter.Size(); AENr++)
+    {
+        if (m_Filter[AENr]->GetRefCount()==1)
+        {
+            m_Filter[AENr]->ReInit(SubExpr, ChannelNr);
+
+            return m_Filter[AENr];
+        }
+    }
+
+    IntrusivePtrT<AnimExprFilterT> NewAE(new AnimExprFilterT(m_Model, SubExpr, ChannelNr));
+    m_Filter.PushBack(NewAE);
+
+    return NewAE;
+}
+
+
+IntrusivePtrT<AnimExprFilterT> AnimExprPoolT::GetFilter(IntrusivePtrT<AnimExpressionT> SubExpr, const std::string& ChannelName)
+{
+    return GetFilter(SubExpr, FindChannelByName(m_Model, ChannelName));
+}
+
+
+IntrusivePtrT<AnimExprCombineT> AnimExprPoolT::GetCombine(IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B)
+{
+    FlattenUnused();
+
+    for (unsigned int AENr=0; AENr<m_Combine.Size(); AENr++)
+    {
+        if (m_Combine[AENr]->GetRefCount()==1)
+        {
+            m_Combine[AENr]->ReInit(A, B);
+
+            return m_Combine[AENr];
+        }
+    }
+
+    IntrusivePtrT<AnimExprCombineT> NewAE(new AnimExprCombineT(m_Model, A, B));
+    m_Combine.PushBack(NewAE);
+
+    return NewAE;
+}
+
+
+IntrusivePtrT<AnimExprBlendT> AnimExprPoolT::GetBlend(IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B, float Duration)
+{
+    FlattenUnused();
+
+    for (unsigned int AENr=0; AENr<m_Blend.Size(); AENr++)
+    {
+        if (m_Blend[AENr]->GetRefCount()==1)
+        {
+            m_Blend[AENr]->ReInit(A, B, Duration);
+
+            return m_Blend[AENr];
+        }
+    }
+
+    IntrusivePtrT<AnimExprBlendT> NewAE(new AnimExprBlendT(m_Model, A, B, Duration));
+    m_Blend.PushBack(NewAE);
+
+    return NewAE;
 }

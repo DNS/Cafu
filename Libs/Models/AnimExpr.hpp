@@ -23,17 +23,32 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define _CAFU_MODEL_ANIM_EXPRESSION_HPP_
 
 #include "Math3D/Quaternion.hpp"
+#include "Templates/Array.hpp"
+#include "Templates/Pointer.hpp"
 
 
 class CafuModelT;
 
 
+/// Animation expressions describe the "skeleton pose" of a model.
+///
+/// They are used as an input to AnimPoseT instances, which use the "skeleton pose" expressed by an anim
+/// expression in order to derive the "full pose", including meshes and other features such as collision
+/// detection.
+/// In other words, AnimPoseT's refer to an AnimExpressionT for the "configuration" of its pose.
+///
+/// AnimExpressionT's can be hierarchically composed, just like mathematical expressions,
+/// which is in fact their strongest and most important feature.
+/// They are also very easy and care-free to use and have very good performance, because when obtained
+/// from an AnimExprPoolT, the pool minimizes both the number of instances as well as the penalties from
+/// memory allocations and deletes.
 class AnimExpressionT
 {
     public:
 
-    /// The constructor.        TODO: Make protected, so that only derived classes can use it?
-    AnimExpressionT(const CafuModelT& Model) : m_Model(Model) { }
+    /// The constructor.
+    /// (It's ok to have this in "public" instead of "protected": we have pure virtual methods as well.)
+    AnimExpressionT(const CafuModelT& Model);
 
     /// The (virtual) destructor.
     virtual ~AnimExpressionT() { }
@@ -41,12 +56,17 @@ class AnimExpressionT
     /// Returns the model that this is an anim expression for.
     const CafuModelT& GetModel() const { return m_Model; }
 
+    /// Returns the number of IntrusivePtrT<>'s that currently refer to this anim expression.
+    /// This is especially useful for the implementation of "pools" of AnimExpressionT's,
+    /// so that the pool implementation can learn if this instance is available for being re-used.
+    unsigned int GetRefCount() const { return m_RefCount; }
+
     /// Returns a number that changes whenever this expression changes,
     /// or more precisely, that changes whenever the data returned by GetData() changes.
     /// This is the case for example after every call to AdvanceTime() with a nonzero Time,
     /// or when a sub-expression has been modified (e.g. got a new sequence number assigned).
-    /// The caller can use this number in order to control refreshes of its mesh caches.
-    virtual unsigned int GetChangeCount() const=0;
+    /// The caller can use this number in order to control updates of its mesh caches.
+    virtual unsigned int GetChangeNum() const { return m_ChangeNum; }
 
     /// For the joint with the given JointNr, this function returns
     ///   - the joint weight,
@@ -57,12 +77,21 @@ class AnimExpressionT
     virtual void AdvanceTime(float Time, bool ForceLoop=false) { }
 
 
+    protected:
+
+    void UpdateChangeNum();
+
+
     private:
+
+    template<class T> friend class IntrusivePtrT;
 
     AnimExpressionT(const AnimExpressionT&);        ///< Use of the Copy    Constructor is not allowed.
     void operator = (const AnimExpressionT&);       ///< Use of the Assignment Operator is not allowed.
 
-    const CafuModelT& m_Model;  ///< The related model that this is an anim expression for.
+    const CafuModelT& m_Model;      ///< The related model that this is an anim expression for.
+    unsigned int      m_RefCount;   ///< How many IntrusivePtrT<>'s currently refer to this anim expression?
+    unsigned int      m_ChangeNum;  ///< Changes whenever the data returned by GetData() changes.
 };
 
 
@@ -73,7 +102,6 @@ class AnimExprStandardT : public AnimExpressionT
     AnimExprStandardT(const CafuModelT& Model, int SequNr, float FrameNr);
 
     // Implementations and overrides for base class methods.
-    virtual unsigned int GetChangeCount() const { return m_ChangeCount; }
     virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const;
     virtual void AdvanceTime(float Time, bool ForceLoop=false);
 
@@ -96,9 +124,108 @@ class AnimExprStandardT : public AnimExpressionT
 
     void NormalizeInput();
 
-    int          m_SequNr;      ///< The animation sequence number.
-    float        m_FrameNr;     ///< The frame number in the sequence.
-    unsigned int m_ChangeCount; ///< Changes whenever the data returned by GetData() might have changed.
+    int   m_SequNr;     ///< The animation sequence number.
+    float m_FrameNr;    ///< The frame number in the sequence.
+};
+
+
+/// Filters the result of another expression by a "channel".
+class AnimExprFilterT : public AnimExpressionT
+{
+    public:
+
+    AnimExprFilterT(const CafuModelT& Model, IntrusivePtrT<AnimExpressionT> SubExpr, unsigned int ChannelNr);
+    AnimExprFilterT(const CafuModelT& Model, IntrusivePtrT<AnimExpressionT> SubExpr, const std::string& ChannelName);
+
+    /// Re-initializes this anim expression, so that it can be re-used with different parameters (on the same model).
+    void ReInit(IntrusivePtrT<AnimExpressionT> SubExpr, unsigned int ChannelNr);
+
+    // Implementations and overrides for base class methods.
+    virtual unsigned int GetChangeNum() const;
+    virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const;
+    virtual void AdvanceTime(float Time, bool ForceLoop=false) { m_SubExpr->AdvanceTime(Time, ForceLoop); }
+
+
+    private:
+
+    IntrusivePtrT<AnimExpressionT> m_SubExpr;
+    unsigned int                   m_ChannelNr;
+};
+
+
+class AnimExprCombineT : public AnimExpressionT
+{
+    public:
+
+    AnimExprCombineT(const CafuModelT& Model, IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B);
+
+    /// Re-initializes this anim expression, so that it can be re-used with different parameters (on the same model).
+    void ReInit(IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B);
+
+    // Implementations and overrides for base class methods.
+    virtual unsigned int GetChangeNum() const;
+    virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const;
+    virtual void AdvanceTime(float Time, bool ForceLoop=false);
+
+
+    private:
+
+    IntrusivePtrT<AnimExpressionT> m_A;
+    IntrusivePtrT<AnimExpressionT> m_B;
+};
+
+
+class AnimExprBlendT : public AnimExpressionT
+{
+    public:
+
+    AnimExprBlendT(const CafuModelT& Model, IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B, float Duration);
+
+    /// Re-initializes this anim expression, so that it can be re-used with different parameters (on the same model).
+    /// Note that resetting \c A, \c B or \c Duration individually is not possible, because the implementation
+    /// may prune and drop \c A when the blend is complete.
+    void ReInit(IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B, float Duration);
+
+    // Implementations and overrides for base class methods.
+    virtual unsigned int GetChangeNum() const;
+    virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const;
+    virtual void AdvanceTime(float Time, bool ForceLoop=false);
+
+
+    private:
+
+    IntrusivePtrT<AnimExpressionT> m_A;
+    IntrusivePtrT<AnimExpressionT> m_B;
+    float                          m_Duration;
+    float                          m_Frac;
+};
+
+
+class AnimExprPoolT
+{
+    public:
+
+    AnimExprPoolT(const CafuModelT& Model) : m_Model(Model) { }
+
+    // These methods mimic the ctors of the anim expression classes.
+    IntrusivePtrT<AnimExprStandardT> GetStandard(int SequNr, float FrameNr);
+    IntrusivePtrT<AnimExprFilterT>   GetFilter(IntrusivePtrT<AnimExpressionT> SubExpr, unsigned int ChannelNr);
+    IntrusivePtrT<AnimExprFilterT>   GetFilter(IntrusivePtrT<AnimExpressionT> SubExpr, const std::string& ChannelName);
+    IntrusivePtrT<AnimExprCombineT>  GetCombine(IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B);
+    IntrusivePtrT<AnimExprBlendT>    GetBlend(IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B, float Duration);
+
+
+    private:
+
+    /// This function makes sure that anim expressions that are unused don't keep pointers
+    /// to subexpressions, such that the subexpressions are available as unused as well.
+    void FlattenUnused();
+
+    const CafuModelT&                          m_Model;     ///< The related model that this is an anim expression pool for.
+    ArrayT< IntrusivePtrT<AnimExprStandardT> > m_Standard;
+    ArrayT< IntrusivePtrT<AnimExprFilterT> >   m_Filter;
+    ArrayT< IntrusivePtrT<AnimExprCombineT> >  m_Combine;
+    ArrayT< IntrusivePtrT<AnimExprBlendT> >    m_Blend;
 };
 
 #endif

@@ -22,33 +22,31 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef _CAFU_MODEL_ANIM_POSE_HPP_
 #define _CAFU_MODEL_ANIM_POSE_HPP_
 
-#include "Templates/Array.hpp"
+#include "AnimExpr.hpp"
 #include "MaterialSystem/Mesh.hpp"
 #include "Math3D/BoundingBox.hpp"
 #include "Math3D/Matrix.hpp"
 
 
-class AnimExpressionT;
 class CafuModelT;
 class MaterialT;
 
 
 /// This class describes a specific pose of an associated model.
 ///
-/// A pose is defined by a set of animation sequences at given frame numbers for given channels,
-/// whose combined application to the model yields all data that is relevant for further actions
+/// A pose is defined (or "configured") by an AnimExpressionT instance
+/// whose application to the model yields all data that is relevant for further actions
 /// on the model in that pose, such as rendering, tracing rays, collision detection, etc.
 ///
-/// The data that is derived from the set of input tuples (sequence, frame number, channel)
-/// is cached within the pose instance. It comprises:
+/// The data that is derived from the anim expression is cached within the pose instance.
+/// It comprises:
 ///   - the transformation matrices for each joint in the skeleton,
 ///   - the MatSys render meshes for each mesh,
 ///   - tangent space vectors for each vertex in each mesh.
 /// In essence, this "externalizes" all data that is specific to a pose from
 /// the representation of a model (the \c CafuModelT instance).
 /// As a consequence, AnimPoseT instances should be shared whenever there are multiple users
-/// (such as "static detail model" entity instances) that all show the same model in the same
-/// pose.
+/// (such as "static detail model" entity instances) that all show the same model in the same pose.
 class AnimPoseT
 {
     public:
@@ -88,10 +86,18 @@ class AnimPoseT
 
 
     /// The constructor.
+    AnimPoseT(const CafuModelT& Model, IntrusivePtrT<AnimExpressionT> AnimExpr);
+
+    /// The constructor.
     AnimPoseT(const CafuModelT& Model, int SequNr=-1, float FrameNr=0.0f);
 
     /// The destructor.
     ~AnimPoseT();
+
+    /// Sets a new anim expression to use for this pose.
+    ///
+    /// \param AnimExpr   The new anim expression to use for this pose.
+    void SetAnimExpr(IntrusivePtrT<AnimExpressionT> AnimExpr);
 
     int GetSequNr() const;
 
@@ -171,18 +177,16 @@ class AnimPoseT
     void UpdateData() const;
     void Recache() const;
 
-    const CafuModelT&             m_Model;          ///< The related model that this is a pose for.
-    AnimExpressionT*              m_AnimExpr;       ///< The expression that describes the animation state of the joints for which we have computed the cache data.
-    const AnimPoseT*              m_SuperPose;
-    AnimPoseT*                    m_DlodPose;       ///< The next pose in the chain of dlod poses matching the chain of dlod models.
- // ArrayT<...>                   m_Def;            ///< Array of { channel, sequence, framenr, (forceloop), blendweight } tuples.
- // bool                          m_DoCache;        ///< Cache the computed data? (Set to true by the user if he want to re-use this instance.)
+    const CafuModelT&              m_Model;         ///< The related model that this is a pose for.
+    IntrusivePtrT<AnimExpressionT> m_AnimExpr;      ///< The expression that describes the skeleton pose for which we have computed the cache data.
+    const AnimPoseT*               m_SuperPose;
+    AnimPoseT*                     m_DlodPose;      ///< The next pose in the chain of dlod poses matching the chain of dlod models.
 
-    mutable unsigned int          m_RecacheCount;   ///< Used to detect if the m_AnimExpr has changed, so that our matrices, meshes etc. can be recached.
-    mutable ArrayT<MatrixT>       m_JointMatrices;  ///< The transformation matrices that represent the pose of the skeleton at the given animation sequence and frame number.
-    mutable ArrayT<MeshInfoT>     m_MeshInfos;      ///< Additional data for each mesh in m_Model.
-    mutable ArrayT<MatSys::MeshT> m_Draw_Meshes;    ///< The draw meshes resulting from the m_JointMatrices.
-    mutable BoundingBox3fT        m_BoundingBox;    ///< The bounding-box for the model in this pose.
+    mutable unsigned int           m_RecacheCount;  ///< Used to detect if the m_AnimExpr has changed, so that our matrices, meshes etc. can be recached.
+    mutable ArrayT<MatrixT>        m_JointMatrices; ///< The transformation matrices that represent the pose of the skeleton at the given animation sequence and frame number.
+    mutable ArrayT<MeshInfoT>      m_MeshInfos;     ///< Additional data for each mesh in m_Model.
+    mutable ArrayT<MatSys::MeshT>  m_Draw_Meshes;   ///< The draw meshes resulting from the m_JointMatrices.
+    mutable BoundingBox3fT         m_BoundingBox;   ///< The bounding-box for the model in this pose.
 };
 
 #endif

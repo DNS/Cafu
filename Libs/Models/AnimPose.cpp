@@ -29,22 +29,46 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/Quaternion.hpp"
 
 
-AnimPoseT::AnimPoseT(const CafuModelT& Model, int SequNr, float FrameNr)
+AnimPoseT::AnimPoseT(const CafuModelT& Model, IntrusivePtrT<AnimExpressionT> AnimExpr)
     : m_Model(Model),
-      m_AnimExpr(NULL),
+      m_AnimExpr(AnimExpr),
       m_SuperPose(NULL),
-      m_DlodPose(m_Model.GetDlodModel() ? new AnimPoseT(*m_Model.GetDlodModel(), SequNr, FrameNr) : NULL),  // Recursively create the chain of dlod poses matching the chain of dlod models.
+      m_DlodPose(NULL),
       m_RecacheCount(0),
       m_BoundingBox()
 {
-    m_AnimExpr=new AnimExprStandardT(m_Model, SequNr, FrameNr);
+    if (m_Model.GetDlodModel())
+    {
+        // Recursively create the chain of dlod poses matching the chain of dlod models.
+        // Note that all dlod poses share the *SAME* AnimExpr as the top-most pose!
+        m_DlodPose = new AnimPoseT(*m_Model.GetDlodModel(), m_AnimExpr);
+    }
+}
+
+
+AnimPoseT::AnimPoseT(const CafuModelT& Model, int SequNr, float FrameNr)
+    : m_Model(Model),
+      m_AnimExpr(new AnimExprStandardT(m_Model, SequNr, FrameNr)),
+      m_SuperPose(NULL),
+      m_DlodPose(m_Model.GetDlodModel() ? new AnimPoseT(*m_Model.GetDlodModel(), m_AnimExpr) : NULL),  // Recursively create the chain of dlod poses matching the chain of dlod models.
+      m_RecacheCount(0),
+      m_BoundingBox()
+{
 }
 
 
 AnimPoseT::~AnimPoseT()
 {
     delete m_DlodPose;
-    delete m_AnimExpr;
+}
+
+
+void AnimPoseT::SetAnimExpr(IntrusivePtrT<AnimExpressionT> AnimExpr)
+{
+    for (AnimPoseT* Pose=this; Pose; Pose=Pose->m_DlodPose)
+    {
+        Pose->m_AnimExpr = AnimExpr;
+    }
 }
 
 
@@ -398,7 +422,7 @@ void AnimPoseT::UpdateData() const
 
 void AnimPoseT::Recache() const
 {
-    if (!m_SuperPose && m_RecacheCount==m_AnimExpr->GetChangeCount()) return;
+    if (!m_SuperPose && m_RecacheCount==m_AnimExpr->GetChangeNum()) return;
 
     SyncDimensions();
     UpdateData();
@@ -413,17 +437,25 @@ void AnimPoseT::Recache() const
     //     // Compute it ourselves
     //     y();
 
-    m_RecacheCount=m_AnimExpr->GetChangeCount();
+    m_RecacheCount=m_AnimExpr->GetChangeNum();
 }
 
 
-int   AnimPoseT::GetSequNr() const { return dynamic_cast<AnimExprStandardT*>(m_AnimExpr)->GetSequNr(); }
-float AnimPoseT::GetFrameNr() const { return dynamic_cast<AnimExprStandardT*>(m_AnimExpr)->GetFrameNr(); }
+int   AnimPoseT::GetSequNr() const
+{
+    return dynamic_cast<const AnimExprStandardT*>(&*m_AnimExpr)->GetSequNr();
+}
+
+
+float AnimPoseT::GetFrameNr() const
+{
+    return dynamic_cast<const AnimExprStandardT*>(&*m_AnimExpr)->GetFrameNr();
+}
 
 
 void AnimPoseT::SetSequNr(int SequNr)
 {
-    dynamic_cast<AnimExprStandardT*>(m_AnimExpr)->SetSequNr(SequNr);
+    dynamic_cast<AnimExprStandardT*>(&*m_AnimExpr)->SetSequNr(SequNr);
 
     // Recursively update the chain of dlod poses.
     if (m_DlodPose) m_DlodPose->SetSequNr(SequNr);
@@ -432,7 +464,7 @@ void AnimPoseT::SetSequNr(int SequNr)
 
 void AnimPoseT::SetFrameNr(float FrameNr)
 {
-    dynamic_cast<AnimExprStandardT*>(m_AnimExpr)->SetFrameNr(FrameNr);
+    dynamic_cast<AnimExprStandardT*>(&*m_AnimExpr)->SetFrameNr(FrameNr);
 
     // Recursively update the chain of dlod poses.
     if (m_DlodPose) m_DlodPose->SetFrameNr(FrameNr);
