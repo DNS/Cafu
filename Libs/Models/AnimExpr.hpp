@@ -186,6 +186,15 @@ class AnimExprBlendT : public AnimExpressionT
     /// may prune and drop \c A when the blend is complete.
     void ReInit(IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B, float Duration);
 
+    /// Returns the "blend from" sub-expression.
+    IntrusivePtrT<AnimExpressionT> GetA() const { return m_A; }
+
+    /// Returns the "blend to" sub-expression.
+    IntrusivePtrT<AnimExpressionT> GetB() const { return m_B; }
+
+    /// Returns how far the blend has advanced.
+    float GetFrac() const { return m_Frac; }
+
     // Implementations and overrides for base class methods.
     virtual unsigned int GetChangeNum() const;
     virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const;

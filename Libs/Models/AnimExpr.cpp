@@ -222,7 +222,7 @@ void AnimExprFilterT::ReInit(IntrusivePtrT<AnimExpressionT> SubExpr, unsigned in
 
 unsigned int AnimExprFilterT::GetChangeNum() const
 {
-    return std::max(GetChangeNum(), m_SubExpr->GetChangeNum());
+    return std::max(AnimExpressionT::GetChangeNum(), m_SubExpr->GetChangeNum());
 }
 
 
@@ -262,7 +262,7 @@ void AnimExprCombineT::ReInit(IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<An
 
 unsigned int AnimExprCombineT::GetChangeNum() const
 {
-    return std::max(GetChangeNum(),
+    return std::max(AnimExpressionT::GetChangeNum(),
                     std::max(m_A->GetChangeNum(), m_B->GetChangeNum()));
 }
 
@@ -323,7 +323,12 @@ void AnimExprBlendT::ReInit(IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<Anim
 
 unsigned int AnimExprBlendT::GetChangeNum() const
 {
-    return std::max(GetChangeNum(),
+    if (m_Frac >= 1.0f)
+    {
+        return std::max(AnimExpressionT::GetChangeNum(), m_B->GetChangeNum());
+    }
+
+    return std::max(AnimExpressionT::GetChangeNum(),
                     std::max(m_A->GetChangeNum(), m_B->GetChangeNum()));
 }
 
@@ -355,7 +360,7 @@ void AnimExprBlendT::GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos
 
     Weight = w[0]*f0 + w[1]*f1;
     Pos    = p[0]*f0 + p[1]*f1;
-    Quat   = slerp(q[0], q[1], f0);   // slerp() is why we cannot have generic "add" and "mul" AnimExpressionT's.
+    Quat   = slerp(q[0], q[1], f1);   // slerp() is why we cannot have generic "add" and "mul" AnimExpressionT's.
     Scale  = s[0]*f0 + s[1]*f1;
 }
 

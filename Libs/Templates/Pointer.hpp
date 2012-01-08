@@ -48,6 +48,13 @@ class IntrusivePtrT
         if (m_Ptr) m_Ptr->m_RefCount++;
     }
 
+    /// The copy constructor (for Y classes that are derived from T).
+    template<class Y> IntrusivePtrT(const IntrusivePtrT<Y>& IP)
+        : m_Ptr(IP.get())
+    {
+        if (m_Ptr) m_Ptr->m_RefCount++;
+    }
+
     /// The destructor.
     ~IntrusivePtrT()
     {
@@ -77,6 +84,9 @@ class IntrusivePtrT
 
         return *this;
     }
+
+    /// Returns the stored pointer.
+    T* get() const { return m_Ptr; }
 
     /// The structure dereference operator.
     T* operator -> () { return m_Ptr; }

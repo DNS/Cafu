@@ -94,6 +94,9 @@ class AnimPoseT
     /// The destructor.
     ~AnimPoseT();
 
+    /// Returns the current anim expression of this pose.
+    IntrusivePtrT<AnimExpressionT> GetAnimExpr() const { return m_AnimExpr; }
+
     /// Sets a new anim expression to use for this pose.
     ///
     /// \param AnimExpr   The new anim expression to use for this pose.

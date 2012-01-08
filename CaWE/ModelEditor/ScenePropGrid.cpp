@@ -142,7 +142,7 @@ void ModelEditor::ScenePropGridT::RefreshPropGrid()
     const ModelDocumentT::AnimStateT& Anim=m_Parent->GetModelDoc()->GetAnimState();
 
     wxPGProperty* AnimControlCat=Append(new wxPropertyCategory("Animation Control"));
-    m_AnimFrameNrProp=AppendIn(AnimControlCat, new wxFloatProperty("Frame No.", wxPG_LABEL, Anim.Pose.GetFrameNr()));
+    m_AnimFrameNrProp=AppendIn(AnimControlCat, new wxFloatProperty("Frame No.", wxPG_LABEL, Anim.LastStdAE->GetFrameNr()));
     m_AnimSpeedProp  =AppendIn(AnimControlCat, new wxFloatProperty("Speed", wxPG_LABEL, Anim.Speed));
     m_AnimLoopProp   =AppendIn(AnimControlCat, new wxBoolProperty("Loop", wxPG_LABEL, Anim.Loop));
 
@@ -228,7 +228,7 @@ void ModelEditor::ScenePropGridT::OnPropertyGridChanged(wxPropertyGridEvent& Eve
     else if (PropName=="Model.Show triangle normals") m_Model_ShowTriangleNormals=Prop->GetValue().GetBool();
     else if (PropName=="Model.Show tangent-space")    m_Model_ShowTangentSpace   =Prop->GetValue().GetBool();
     else if (PropName=="Model.Debug material")        m_Model_DebugMaterial      =Prop->GetValue().GetInteger();
-    else if (PropName=="Frame No.") { AnimState.Pose.SetFrameNr(PropValueF); m_IsRecursiveSelfNotify=true; m_Parent->GetModelDoc()->UpdateAllObservers_AnimStateChanged(); m_IsRecursiveSelfNotify=false; }
+    else if (PropName=="Frame No.") { AnimState.LastStdAE->SetFrameNr(PropValueF); m_IsRecursiveSelfNotify=true; m_Parent->GetModelDoc()->UpdateAllObservers_AnimStateChanged(); m_IsRecursiveSelfNotify=false; }
     else if (PropName=="Speed")     { AnimState.Speed=PropValueF; m_IsRecursiveSelfNotify=true; m_Parent->GetModelDoc()->UpdateAllObservers_AnimStateChanged(); m_IsRecursiveSelfNotify=false; }
     else if (PropName=="Loop")      { AnimState.Loop =Prop->GetValue().GetBool(); m_IsRecursiveSelfNotify=true; m_Parent->GetModelDoc()->UpdateAllObservers_AnimStateChanged(); m_IsRecursiveSelfNotify=false; }
     else if (PropName=="Ambient Light Color")
@@ -285,8 +285,8 @@ void ModelEditor::ScenePropGridT::Notify_AnimStateChanged(SubjectT* Subject)
 
     const ModelDocumentT::AnimStateT& AnimState=m_Parent->GetModelDoc()->GetAnimState();
 
-    if (m_AnimFrameNrProp->GetValue().GetDouble()!=AnimState.Pose.GetFrameNr())
-        m_AnimFrameNrProp->SetValue(AnimState.Pose.GetFrameNr());
+    if (m_AnimFrameNrProp->GetValue().GetDouble()!=AnimState.LastStdAE->GetFrameNr())
+        m_AnimFrameNrProp->SetValue(AnimState.LastStdAE->GetFrameNr());
 
     if (m_AnimSpeedProp->GetValue().GetDouble()!=AnimState.Speed)
         m_AnimSpeedProp->SetValue(AnimState.Speed);

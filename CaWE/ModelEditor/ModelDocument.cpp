@@ -137,7 +137,23 @@ void ModelEditor::ModelDocumentT::SetSelection(ModelElementTypeT Type, const Arr
 
     if (Type==ANIM)
     {
-        m_AnimState.Pose.SetSequNr(m_Selection[ANIM].Size()==0 ? -1 : m_Selection[ANIM][0]);
+        IntrusivePtrT<AnimExpressionT> BlendFrom=m_AnimState.Pose.GetAnimExpr();
+
+        // If BlendFrom is a blend anim expression that has not yet begun (Frac is still 0),
+        // this means that we got another call to SetSelection() immediately before this one.
+        // This can happen when the user clicked on a new animation in the animations list,
+        // which (when CTRL is not used) issues two calls, one for the deselection of the previous
+        // anim (causing us to blend to the -1 sequence), and one for the selection of the new.
+        // In this case, just skip the intermediate "-1" blend target.
+        {
+            AnimExprBlendT* Blend=dynamic_cast<AnimExprBlendT*>(&*BlendFrom);
+
+            if (Blend && Blend->GetFrac()==0.0f)
+                BlendFrom=Blend->GetA();
+        }
+
+        m_AnimState.LastStdAE=m_AnimState.Pool.GetStandard(m_Selection[ANIM].Size()==0 ? -1 : m_Selection[ANIM][0], 0.0f);
+        m_AnimState.Pose.SetAnimExpr(m_AnimState.Pool.GetBlend(BlendFrom, m_AnimState.LastStdAE, 3.0f));
 
         if (m_Selection[ANIM].Size()==0)
         {

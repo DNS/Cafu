@@ -487,8 +487,11 @@ void AnimPoseT::Advance(float Time, bool ForceLoop)
 {
     m_AnimExpr->AdvanceTime(Time, ForceLoop);
 
-    // Recursively update the chain of dlod poses.
-    if (m_DlodPose) m_DlodPose->Advance(Time, ForceLoop);
+    // Don't do this -- the dlod models share the same anim expression as the main model.
+    // In fact, this method should be removed. Have the caller call Pose->GetAnimExpr()->AdvanceTime() instead.
+    //
+    // // Recursively update the chain of dlod poses.
+    // if (m_DlodPose) m_DlodPose->Advance(Time, ForceLoop);
 }
 
 

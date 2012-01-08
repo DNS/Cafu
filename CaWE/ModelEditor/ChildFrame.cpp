@@ -870,8 +870,9 @@ void ModelEditor::ChildFrameT::OnMenuModel(wxCommandEvent& CE)
             m_ModelDoc->SetSelection(ANIM, m_ModelDoc->GetSelection_NextAnimSequ());
             m_ModelDoc->UpdateAllObservers_SelectionChanged(ANIM, OldSel, m_ModelDoc->GetSelection(ANIM));
 
-            m_ModelDoc->GetAnimState().Pose.SetFrameNr(0.0f);
-            m_ModelDoc->UpdateAllObservers_AnimStateChanged();
+            // This is not needed: setting a new ANIM selection also sets the frame number to 0.
+            // m_ModelDoc->GetAnimState().LastStdAE->SetFrameNr(0.0f);
+            // m_ModelDoc->UpdateAllObservers_AnimStateChanged();
             break;
         }
 
@@ -881,8 +882,9 @@ void ModelEditor::ChildFrameT::OnMenuModel(wxCommandEvent& CE)
             m_ModelDoc->SetSelection(ANIM, m_ModelDoc->GetSelection_PrevAnimSequ());
             m_ModelDoc->UpdateAllObservers_SelectionChanged(ANIM, OldSel, m_ModelDoc->GetSelection(ANIM));
 
-            m_ModelDoc->GetAnimState().Pose.SetFrameNr(0.0f);
-            m_ModelDoc->UpdateAllObservers_AnimStateChanged();
+            // This is not needed: setting a new ANIM selection also sets the frame number to 0.
+            // m_ModelDoc->GetAnimState().LastStdAE->SetFrameNr(0.0f);
+            // m_ModelDoc->UpdateAllObservers_AnimStateChanged();
             break;
         }
 

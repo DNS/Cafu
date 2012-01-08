@@ -161,8 +161,9 @@ void ModelEditor::SceneView3DT::OnKeyDown(wxKeyEvent& KE)
             ModelDoc->SetSelection(ANIM, ModelDoc->GetSelection_NextAnimSequ());
             ModelDoc->UpdateAllObservers_SelectionChanged(ANIM, OldSel, ModelDoc->GetSelection(ANIM));
 
-            ModelDoc->GetAnimState().Pose.SetFrameNr(0.0f);
-            ModelDoc->UpdateAllObservers_AnimStateChanged();
+            // This is not needed: setting a new ANIM selection also sets the frame number to 0.
+            // ModelDoc->GetAnimState().LastStdAE->SetFrameNr(0.0f);
+            // ModelDoc->UpdateAllObservers_AnimStateChanged();
             break;
         }
 
@@ -173,8 +174,9 @@ void ModelEditor::SceneView3DT::OnKeyDown(wxKeyEvent& KE)
             ModelDoc->SetSelection(ANIM, ModelDoc->GetSelection_PrevAnimSequ());
             ModelDoc->UpdateAllObservers_SelectionChanged(ANIM, OldSel, ModelDoc->GetSelection(ANIM));
 
-            ModelDoc->GetAnimState().Pose.SetFrameNr(0.0f);
-            ModelDoc->UpdateAllObservers_AnimStateChanged();
+            // This is not needed: setting a new ANIM selection also sets the frame number to 0.
+            // ModelDoc->GetAnimState().LastStdAE->SetFrameNr(0.0f);
+            // ModelDoc->UpdateAllObservers_AnimStateChanged();
             break;
         }
 
