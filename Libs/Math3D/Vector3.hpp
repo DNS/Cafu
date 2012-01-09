@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Vector3 ***/
 /***************/
 
-#ifndef _CFS_MATH_VECTOR3_HPP_
-#define _CFS_MATH_VECTOR3_HPP_
+#ifndef CAFU_MATH_VECTOR3_HPP_INCLUDED
+#define CAFU_MATH_VECTOR3_HPP_INCLUDED
 
 #include <cassert>
 #include <iomanip>

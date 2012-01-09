@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _TREE_HPP_
-#define _TREE_HPP_
+#ifndef CAFU_TREE_HPP_INCLUDED
+#define CAFU_TREE_HPP_INCLUDED
 
 #include "Templates/Array.hpp"
 #include "Math3D/Vector3.hpp"

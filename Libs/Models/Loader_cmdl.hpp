@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CAFU_MODEL_LOADER_HPP_
-#define _CAFU_MODEL_LOADER_HPP_
+#ifndef CAFU_CMDL_MODEL_LOADER_HPP_INCLUDED
+#define CAFU_CMDL_MODEL_LOADER_HPP_INCLUDED
 
 #include "Loader.hpp"
 

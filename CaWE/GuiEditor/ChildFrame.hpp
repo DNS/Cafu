@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _GUIEDITOR_CHILD_FRAME_HPP_
-#define _GUIEDITOR_CHILD_FRAME_HPP_
+#ifndef CAFU_GUIEDITOR_CHILD_FRAME_HPP_INCLUDED
+#define CAFU_GUIEDITOR_CHILD_FRAME_HPP_INCLUDED
 
 #include "wx/docmdi.h"
 #include "wx/aui/framemanager.h"

@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CF_CONSOLE_INTERPRETER_IMPL_HPP_
-#define _CF_CONSOLE_INTERPRETER_IMPL_HPP_
+#ifndef CAFU_CONSOLE_INTERPRETER_IMPL_HPP_INCLUDED
+#define CAFU_CONSOLE_INTERPRETER_IMPL_HPP_INCLUDED
 
 #include "ConsoleInterpreter.hpp"
 

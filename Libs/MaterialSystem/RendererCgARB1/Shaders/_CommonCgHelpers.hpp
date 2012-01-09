@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Common Cg Helpers ***/
 /*************************/
 
-#ifndef _CA_MATSYS_COMMON_CG_HELPERS_HPP_
-#define _CA_MATSYS_COMMON_CG_HELPERS_HPP_
+#ifndef CAFU_MATSYS_COMMON_CG_HELPERS_HPP_INCLUDED
+#define CAFU_MATSYS_COMMON_CG_HELPERS_HPP_INCLUDED
 
 // This is required for cg.h to get the function calling conventions (Win32 import/export/lib) right.
 #ifdef _WIN32

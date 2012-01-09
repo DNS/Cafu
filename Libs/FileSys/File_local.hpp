@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CF_FILESYS_FILE_LOCAL_HPP_
-#define _CF_FILESYS_FILE_LOCAL_HPP_
+#ifndef CAFU_FILESYS_FILE_LOCAL_HPP_INCLUDED
+#define CAFU_FILESYS_FILE_LOCAL_HPP_INCLUDED
 
 #include <fstream>
 

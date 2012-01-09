@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Renderer Implementation ***/
 /*******************************/
 
-#ifndef _CA_MATSYS_RENDERER_IMPLEMENTATION_HPP_
-#define _CA_MATSYS_RENDERER_IMPLEMENTATION_HPP_
+#ifndef CAFU_MATSYS_RENDERER_IMPLEMENTATION_HPP_INCLUDED
+#define CAFU_MATSYS_RENDERER_IMPLEMENTATION_HPP_INCLUDED
 
 // This is required for cg.h to get the function calling conventions (Win32 import/export/lib) right.
 #ifdef _WIN32

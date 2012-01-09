@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _TOOL_CLIP_HPP_
-#define _TOOL_CLIP_HPP_
+#ifndef CAFU_TOOL_CLIP_HPP_INCLUDED
+#define CAFU_TOOL_CLIP_HPP_INCLUDED
 
 #include "Tool.hpp"
 #include "Math3D/Plane3.hpp"

@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Shader ***/
 /**************/
 
-#ifndef _CA_MATSYS_SHADER_HPP_
-#define _CA_MATSYS_SHADER_HPP_
+#ifndef CAFU_MATSYS_SHADER_HPP_INCLUDED
+#define CAFU_MATSYS_SHADER_HPP_INCLUDED
 
 #include <string>
 

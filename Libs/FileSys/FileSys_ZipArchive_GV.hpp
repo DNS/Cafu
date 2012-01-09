@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CF_FILESYS_FILESYSTEM_ZIPARCHIVE_GV_HPP_
-#define _CF_FILESYS_FILESYSTEM_ZIPARCHIVE_GV_HPP_
+#ifndef CAFU_FILESYS_FILESYSTEM_ZIPARCHIVE_GV_HPP_INCLUDED
+#define CAFU_FILESYS_FILESYSTEM_ZIPARCHIVE_GV_HPP_INCLUDED
 
 #include "FileSys.hpp"
 #include "minizip/unzip.h"

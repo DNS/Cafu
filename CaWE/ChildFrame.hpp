@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CHILDFRAME_HPP_
-#define _CHILDFRAME_HPP_
+#ifndef CAFU_CHILDFRAME_HPP_INCLUDED
+#define CAFU_CHILDFRAME_HPP_INCLUDED
 
 #include "Math3D/Vector3.hpp"
 #include "Templates/Array.hpp"

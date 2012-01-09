@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CFS_MATH_QUATERNION_HPP_
-#define _CFS_MATH_QUATERNION_HPP_
+#ifndef CAFU_MATH_QUATERNION_HPP_INCLUDED
+#define CAFU_MATH_QUATERNION_HPP_INCLUDED
 
 #include "Vector3.hpp"
 

@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CLIENT_SCROLLINFO_HPP_
-#define _CLIENT_SCROLLINFO_HPP_
+#ifndef CAFU_CLIENT_SCROLLINFO_HPP_INCLUDED
+#define CAFU_CLIENT_SCROLLINFO_HPP_INCLUDED
 
 #include "Templates/Array.hpp"
 #include <string>

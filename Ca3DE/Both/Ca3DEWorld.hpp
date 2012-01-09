@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CA3DECOMMONWORLD_HPP_
-#define _CA3DECOMMONWORLD_HPP_
+#ifndef CAFU_CA3DECOMMONWORLD_HPP_INCLUDED
+#define CAFU_CA3DECOMMONWORLD_HPP_INCLUDED
 
 #include "../../Common/World.hpp"
 #include "../../Games/GameWorld.hpp"

@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Small and Portable Utility Library (Header) ***/
 /***************************************************/
 
-#ifndef _CA_UTIL_HPP_
-#define _CA_UTIL_HPP_
+#ifndef CAFU_UTIL_HPP_INCLUDED
+#define CAFU_UTIL_HPP_INCLUDED
 
 #ifndef _WIN32
 #define _stricmp strcasecmp

@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** World (Header) ***/
 /**********************/
 
-#ifndef _WORLD_HPP_
-#define _WORLD_HPP_
+#ifndef CAFU_WORLD_HPP_INCLUDED
+#define CAFU_WORLD_HPP_INCLUDED
 
 #include "Templates/Array.hpp"
 #include "Math3D/BoundingBox.hpp"

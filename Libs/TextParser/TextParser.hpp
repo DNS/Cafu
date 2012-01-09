@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Text Parser (Header) ***/
 /****************************/
 
-#ifndef _CA_TEXT_PARSER_HPP_
-#define _CA_TEXT_PARSER_HPP_
+#ifndef CAFU_TEXT_PARSER_HPP_INCLUDED
+#define CAFU_TEXT_PARSER_HPP_INCLUDED
 
 #include "Templates/Array.hpp"
 

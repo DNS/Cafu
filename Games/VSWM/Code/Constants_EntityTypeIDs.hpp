@@ -3,8 +3,8 @@
 /****************/
 
 
-#ifndef _TYPEIDS_HPP_
-#define _TYPEIDS_HPP_
+#ifndef CAFU_TYPEIDS_HPP_INCLUDED
+#define CAFU_TYPEIDS_HPP_INCLUDED
 
 const char TYPEID_HUMANPLAYER    =0;
 const char TYPEID_INFOPLAYERSTART=1;

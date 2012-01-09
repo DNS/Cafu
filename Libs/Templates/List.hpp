@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CF_LINKED_LIST_HPP_
-#define _CF_LINKED_LIST_HPP_
+#ifndef CAFU_LINKED_LIST_HPP_INCLUDED
+#define CAFU_LINKED_LIST_HPP_INCLUDED
 
 
 /// This class represents a node of a singly-linked list.

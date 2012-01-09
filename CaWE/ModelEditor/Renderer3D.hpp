@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MODEL_EDITOR_RENDERER_3D_HPP_
-#define _MODEL_EDITOR_RENDERER_3D_HPP_
+#ifndef CAFU_MODEL_EDITOR_RENDERER_3D_HPP_INCLUDED
+#define CAFU_MODEL_EDITOR_RENDERER_3D_HPP_INCLUDED
 
 #include "Math3D/BoundingBox.hpp"
 #include "Math3D/Matrix3x3.hpp"

@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _DOCUMENT_ACCESS_HPP_
-#define _DOCUMENT_ACCESS_HPP_
+#ifndef CAFU_DOCUMENT_ACCESS_HPP_INCLUDED
+#define CAFU_DOCUMENT_ACCESS_HPP_INCLUDED
 
 #include "Templates/Array.hpp"
 

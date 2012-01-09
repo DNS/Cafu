@@ -24,8 +24,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /********************************/
 
 // TODO: REMOVE ALL THE "MATSYS" and "MS" SUFFIXES!
-#ifndef _CA_PARTICLE_ENGINE_MATSYS_HPP_
-#define _CA_PARTICLE_ENGINE_MATSYS_HPP_
+#ifndef CAFU_PARTICLE_ENGINE_MATSYS_HPP_INCLUDED
+#define CAFU_PARTICLE_ENGINE_MATSYS_HPP_INCLUDED
 
 
 namespace MatSys { class RenderMaterialT; }

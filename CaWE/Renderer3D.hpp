@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _RENDERER_3D_HPP_
-#define _RENDERER_3D_HPP_
+#ifndef CAFU_RENDERER_3D_HPP_INCLUDED
+#define CAFU_RENDERER_3D_HPP_INCLUDED
 
 #include "ChildFrameViewWin.hpp"
 #include "OrthoBspTree.hpp"

@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Brush ***/
 /*************/
 
-#ifndef _CFS_MATH_BRUSH_HPP_
-#define _CFS_MATH_BRUSH_HPP_
+#ifndef CAFU_MATH_BRUSH_HPP_INCLUDED
+#define CAFU_MATH_BRUSH_HPP_INCLUDED
 
 #include "BoundingBox.hpp"
 #include "Plane3.hpp"

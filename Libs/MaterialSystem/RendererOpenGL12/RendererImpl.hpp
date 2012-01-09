@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Renderer Implementation ***/
 /*******************************/
 
-#ifndef _CA_MATSYS_RENDERER_IMPLEMENTATION_HPP_
-#define _CA_MATSYS_RENDERER_IMPLEMENTATION_HPP_
+#ifndef CAFU_MATSYS_RENDERER_IMPLEMENTATION_HPP_INCLUDED
+#define CAFU_MATSYS_RENDERER_IMPLEMENTATION_HPP_INCLUDED
 
 #include "../Renderer.hpp"
 #include "Templates/Array.hpp"

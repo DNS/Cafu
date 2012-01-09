@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _GUIEDITOR_EDITOR_WINDOW_HPP_
-#define _GUIEDITOR_EDITOR_WINDOW_HPP_
+#ifndef CAFU_GUIEDITOR_EDITOR_WINDOW_HPP_INCLUDED
+#define CAFU_GUIEDITOR_EDITOR_WINDOW_HPP_INCLUDED
 
 #include "GuiSys/Window.hpp"
 #include "wx/wx.h"

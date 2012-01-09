@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _SOUNDSYS_SOUNDSYS_INTERFACE_HPP_
-#define _SOUNDSYS_SOUNDSYS_INTERFACE_HPP_
+#ifndef CAFU_SOUNDSYS_SOUNDSYS_INTERFACE_HPP_INCLUDED
+#define CAFU_SOUNDSYS_SOUNDSYS_INTERFACE_HPP_INCLUDED
 
 #include "Math3D/Vector3.hpp"
 

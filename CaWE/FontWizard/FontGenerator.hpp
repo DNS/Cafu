@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _FONTWIZARD_FONT_GENERATOR_HPP_
-#define _FONTWIZARD_FONT_GENERATOR_HPP_
+#ifndef CAFU_FONTWIZARD_FONT_GENERATOR_HPP_INCLUDED
+#define CAFU_FONTWIZARD_FONT_GENERATOR_HPP_INCLUDED
 
 #include <ft2build.h>
 #include FT_FREETYPE_H

@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _SPEAKER_HPP_
-#define _SPEAKER_HPP_
+#ifndef CAFU_SPEAKER_HPP_INCLUDED
+#define CAFU_SPEAKER_HPP_INCLUDED
 
 #include "../../BaseEntity.hpp"
 

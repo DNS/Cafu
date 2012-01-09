@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CF_PATCH_MESH_HPP_
-#define _CF_PATCH_MESH_HPP_
+#ifndef CAFU_PATCH_MESH_HPP_INCLUDED
+#define CAFU_PATCH_MESH_HPP_INCLUDED
 
 class MaterialT;
 

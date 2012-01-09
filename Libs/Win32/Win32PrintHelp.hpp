@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Print Help for Windows 32 (Header) ***/
 /******************************************/
 
-#ifndef _CA_WIN32_PRINTHELP_HPP_
-#define _CA_WIN32_PRINTHELP_HPP_
+#ifndef CAFU_WIN32_PRINTHELP_HPP_INCLUDED
+#define CAFU_WIN32_PRINTHELP_HPP_INCLUDED
 
 
 const char* GetString(const char* String, ...);         ///< Writes a 'variable argument string' into a temporary buffer.

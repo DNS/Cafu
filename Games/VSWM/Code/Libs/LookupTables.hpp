@@ -3,8 +3,8 @@
 /*******************************/
 
 
-#ifndef _LOOKUP_TABLES_HPP_
-#define _LOOKUP_TABLES_HPP_
+#ifndef CAFU_LOOKUP_TABLES_HPP_INCLUDED
+#define CAFU_LOOKUP_TABLES_HPP_INCLUDED
 
 
 namespace LookupTables

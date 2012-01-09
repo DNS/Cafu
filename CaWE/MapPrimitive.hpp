@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MAP_PRIMITIVE_HPP_
-#define _MAP_PRIMITIVE_HPP_
+#ifndef CAFU_MAP_PRIMITIVE_HPP_INCLUDED
+#define CAFU_MAP_PRIMITIVE_HPP_INCLUDED
 
 #include "MapElement.hpp"
 

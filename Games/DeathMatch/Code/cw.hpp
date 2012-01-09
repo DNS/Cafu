@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CARRIEDWEAPON_HPP_
-#define _CARRIEDWEAPON_HPP_
+#ifndef CAFU_CARRIEDWEAPON_HPP_INCLUDED
+#define CAFU_CARRIEDWEAPON_HPP_INCLUDED
 
 #include "Math3D/Vector3.hpp"
 

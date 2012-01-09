@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _TOOL_NEW_BEZIER_PATCH_HPP_
-#define _TOOL_NEW_BEZIER_PATCH_HPP_
+#ifndef CAFU_TOOL_NEW_BEZIER_PATCH_HPP_INCLUDED
+#define CAFU_TOOL_NEW_BEZIER_PATCH_HPP_INCLUDED
 
 #include "Tool.hpp"
 #include "Math3D/Vector3.hpp"

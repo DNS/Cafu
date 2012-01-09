@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _DIALOG_INSP_PRIMITIVE_PROPS_HPP_
-#define _DIALOG_INSP_PRIMITIVE_PROPS_HPP_
+#ifndef CAFU_DIALOG_INSP_PRIMITIVE_PROPS_HPP_INCLUDED
+#define CAFU_DIALOG_INSP_PRIMITIVE_PROPS_HPP_INCLUDED
 
 #include "ObserverPattern.hpp"
 #include "wx/panel.h"

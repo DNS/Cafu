@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _APP_CAWE_HPP_
-#define _APP_CAWE_HPP_
+#ifndef CAFU_APP_CAWE_HPP_INCLUDED
+#define CAFU_APP_CAWE_HPP_INCLUDED
 
 #include "wx/wx.h"
 

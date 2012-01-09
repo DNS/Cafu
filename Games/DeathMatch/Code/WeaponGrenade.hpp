@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Weapon Grenade (Header) ***/
 /*******************************/
 
-#ifndef _WEAPON_GRENADE_HPP_
-#define _WEAPON_GRENADE_HPP_
+#ifndef CAFU_WEAPON_GRENADE_HPP_INCLUDED
+#define CAFU_WEAPON_GRENADE_HPP_INCLUDED
 
 #include "Weapon.hpp"
 

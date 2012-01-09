@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CF_GAME_IMPLEMENTATION_HPP_
-#define _CF_GAME_IMPLEMENTATION_HPP_
+#ifndef CAFU_GAME_IMPLEMENTATION_HPP_INCLUDED
+#define CAFU_GAME_IMPLEMENTATION_HPP_INCLUDED
 
 #include "../../Game.hpp"
 #include "Templates/Array.hpp"

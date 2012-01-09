@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CONTROLS_BAR_HPP_
-#define _CONTROLS_BAR_HPP_
+#ifndef CAFU_CONTROLS_BAR_HPP_INCLUDED
+#define CAFU_CONTROLS_BAR_HPP_INCLUDED
 
 #include "wx/wx.h"
 

@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _GROUP_HPP_
-#define _GROUP_HPP_
+#ifndef CAFU_GROUP_HPP_INCLUDED
+#define CAFU_GROUP_HPP_INCLUDED
 
 #include "Templates/Array.hpp"
 #include "wx/wx.h"

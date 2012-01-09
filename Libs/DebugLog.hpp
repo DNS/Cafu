@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CF_DEBUG_LOG_HPP_
-#define _CF_DEBUG_LOG_HPP_
+#ifndef CAFU_DEBUG_LOG_HPP_INCLUDED
+#define CAFU_DEBUG_LOG_HPP_INCLUDED
 
 
 namespace cf

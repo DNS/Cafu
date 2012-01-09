@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MODEL_NODE_HPP_
-#define _MODEL_NODE_HPP_
+#ifndef CAFU_MODEL_NODE_HPP_INCLUDED
+#define CAFU_MODEL_NODE_HPP_INCLUDED
 
 #include "Node.hpp"
 #include "Util/Util.hpp"

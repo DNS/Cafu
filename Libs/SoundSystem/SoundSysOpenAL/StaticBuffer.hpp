@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _SOUNDSYS_STATIC_BUFFER_HPP_
-#define _SOUNDSYS_STATIC_BUFFER_HPP_
+#ifndef CAFU_SOUNDSYS_STATIC_BUFFER_HPP_INCLUDED
+#define CAFU_SOUNDSYS_STATIC_BUFFER_HPP_INCLUDED
 
 #include "Buffer.hpp"
 

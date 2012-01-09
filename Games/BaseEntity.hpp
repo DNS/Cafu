@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _GAMEDLL_HPP_
-#define _GAMEDLL_HPP_
+#ifndef CAFU_GAMEDLL_HPP_INCLUDED
+#define CAFU_GAMEDLL_HPP_INCLUDED
 
 #include "Math3D/Brush.hpp"
 #include "Math3D/BoundingBox.hpp"

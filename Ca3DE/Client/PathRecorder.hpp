@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CLIENT_PATH_RECORDER_HPP_
-#define _CLIENT_PATH_RECORDER_HPP_
+#ifndef CAFU_CLIENT_PATH_RECORDER_HPP_INCLUDED
+#define CAFU_CLIENT_PATH_RECORDER_HPP_INCLUDED
 
 #include "Math3D/Vector3.hpp"
 #include <fstream>

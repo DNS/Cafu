@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _TRANSFORMATION_BOX_HPP_
-#define _TRANSFORMATION_BOX_HPP_
+#ifndef CAFU_TRANSFORMATION_BOX_HPP_INCLUDED
+#define CAFU_TRANSFORMATION_BOX_HPP_INCLUDED
 
 #include "AxesInfo.hpp"
 #include "Math3D/BoundingBox.hpp"

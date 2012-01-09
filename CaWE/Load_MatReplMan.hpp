@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _LOAD_MATERIAL_REPL_MAN_HPP_
-#define _LOAD_MATERIAL_REPL_MAN_HPP_
+#ifndef CAFU_LOAD_MATERIAL_REPL_MAN_HPP_INCLUDED
+#define CAFU_LOAD_MATERIAL_REPL_MAN_HPP_INCLUDED
 
 #include "wx/string.h"
 #include "Templates/Array.hpp"

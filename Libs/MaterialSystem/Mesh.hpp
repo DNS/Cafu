@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Mesh ***/
 /************/
 
-#ifndef _CA_MATSYS_MESH_HPP_
-#define _CA_MATSYS_MESH_HPP_
+#ifndef CAFU_MATSYS_MESH_HPP_INCLUDED
+#define CAFU_MATSYS_MESH_HPP_INCLUDED
 
 #include "Templates/Array.hpp"
 #include "Math3D/Vector3.hpp"

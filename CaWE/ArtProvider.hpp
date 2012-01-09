@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CAWE_ART_PROVIDER_HPP_
-#define _CAWE_ART_PROVIDER_HPP_
+#ifndef CAFU_CAWE_ART_PROVIDER_HPP_INCLUDED
+#define CAFU_CAWE_ART_PROVIDER_HPP_INCLUDED
 
 #include "wx/artprov.h"
 #include <vector>

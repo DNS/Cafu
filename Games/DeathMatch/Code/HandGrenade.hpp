@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _HANDGRENADE_HPP_
-#define _HANDGRENADE_HPP_
+#ifndef CAFU_HANDGRENADE_HPP_INCLUDED
+#define CAFU_HANDGRENADE_HPP_INCLUDED
 
 #include "../../BaseEntity.hpp"
 

@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CA_BITMAP_LIB_HPP_
-#define _CA_BITMAP_LIB_HPP_
+#ifndef CAFU_BITMAP_LIB_HPP_INCLUDED
+#define CAFU_BITMAP_LIB_HPP_INCLUDED
 
 #include "Templates/Array.hpp"
 

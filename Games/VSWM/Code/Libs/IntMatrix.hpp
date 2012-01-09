@@ -3,8 +3,8 @@
 /*******************************/
 
 
-#ifndef _MATRIX_HPP_
-#define _MATRIX_HPP_
+#ifndef CAFU_MATRIX_HPP_INCLUDED
+#define CAFU_MATRIX_HPP_INCLUDED
 
 
 // A very specialized matrix class for node-to-node movement computations.

@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CF_CLIPSYS_COLLISION_MODEL_STATIC_BULLET_ADAPTER_HPP_
-#define _CF_CLIPSYS_COLLISION_MODEL_STATIC_BULLET_ADAPTER_HPP_
+#ifndef CAFU_CLIPSYS_COLLISION_MODEL_STATIC_BULLET_ADAPTER_HPP_INCLUDED
+#define CAFU_CLIPSYS_COLLISION_MODEL_STATIC_BULLET_ADAPTER_HPP_INCLUDED
 
 #include "CollisionModel_static.hpp"
 #include "BulletCollision/CollisionShapes/btConcaveShape.h"

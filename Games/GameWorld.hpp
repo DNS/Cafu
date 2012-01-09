@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CF_GAMESYS_GAMEWORLD_INTERFACE_HPP_
-#define _CF_GAMESYS_GAMEWORLD_INTERFACE_HPP_
+#ifndef CAFU_GAMESYS_GAMEWORLD_INTERFACE_HPP_INCLUDED
+#define CAFU_GAMESYS_GAMEWORLD_INTERFACE_HPP_INCLUDED
 
 
 class BaseEntityT;

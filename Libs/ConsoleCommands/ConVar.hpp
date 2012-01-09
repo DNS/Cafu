@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Console Variables ***/
 /*************************/
 
-#ifndef _CF_CONSOLE_VARIABLES_HPP_
-#define _CF_CONSOLE_VARIABLES_HPP_
+#ifndef CAFU_CONSOLE_VARIABLES_HPP_INCLUDED
+#define CAFU_CONSOLE_VARIABLES_HPP_INCLUDED
 
 #include <string>
 #include "Templates/Array.hpp"

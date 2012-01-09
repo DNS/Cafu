@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CHILDFRAME_VIEW_WIN_2D_HPP_
-#define _CHILDFRAME_VIEW_WIN_2D_HPP_
+#ifndef CAFU_CHILDFRAME_VIEW_WIN_2D_HPP_INCLUDED
+#define CAFU_CHILDFRAME_VIEW_WIN_2D_HPP_INCLUDED
 
 #include "AxesInfo.hpp"
 #include "ChildFrameViewWin.hpp"

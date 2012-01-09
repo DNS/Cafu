@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _SOUND_IMPL_HPP_
-#define _SOUND_IMPL_HPP_
+#ifndef CAFU_SOUND_IMPL_HPP_INCLUDED
+#define CAFU_SOUND_IMPL_HPP_INCLUDED
 
 #include "../Sound.hpp"
 

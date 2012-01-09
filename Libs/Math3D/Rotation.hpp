@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CF_MATH_ROTATION_HPP_
-#define _CF_MATH_ROTATION_HPP_
+#ifndef CAFU_MATH_ROTATION_HPP_INCLUDED
+#define CAFU_MATH_ROTATION_HPP_INCLUDED
 
 #include "Matrix3x3.hpp"
 #include "Vector3.hpp"

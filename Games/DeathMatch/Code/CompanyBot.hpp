@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _COMPANY_BOT_HPP_
-#define _COMPANY_BOT_HPP_
+#ifndef CAFU_COMPANY_BOT_HPP_INCLUDED
+#define CAFU_COMPANY_BOT_HPP_INCLUDED
 
 #include "../../BaseEntity.hpp"
 #include "btBulletDynamicsCommon.h"

@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _GAME_CONFIG_HPP_
-#define _GAME_CONFIG_HPP_
+#ifndef CAFU_GAME_CONFIG_HPP_INCLUDED
+#define CAFU_GAME_CONFIG_HPP_INCLUDED
 
 #include "EditorMaterialManager.hpp"
 #include "GuiSys/GuiImpl.hpp"

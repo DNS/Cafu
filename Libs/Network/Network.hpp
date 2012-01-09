@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Network Library (Header) ***/
 /********************************/
 
-#ifndef _NETWORK_HPP_
-#define _NETWORK_HPP_
+#ifndef CAFU_NETWORK_HPP_INCLUDED
+#define CAFU_NETWORK_HPP_INCLUDED
 
 #include <string>
 

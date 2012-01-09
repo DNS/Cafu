@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _ORTHO_BSP_TREE_HPP_
-#define _ORTHO_BSP_TREE_HPP_
+#ifndef CAFU_ORTHO_BSP_TREE_HPP_INCLUDED
+#define CAFU_ORTHO_BSP_TREE_HPP_INCLUDED
 
 #include "Math3D/BoundingBox.hpp"
 

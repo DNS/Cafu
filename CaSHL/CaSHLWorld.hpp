@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** CaSHL World (Header) ***/
 /****************************/
 
-#ifndef _CASHLWORLD_HPP_
-#define _CASHLWORLD_HPP_
+#ifndef CAFU_CASHLWORLD_HPP_INCLUDED
+#define CAFU_CASHLWORLD_HPP_INCLUDED
 
 #include "../Common/World.hpp"
 

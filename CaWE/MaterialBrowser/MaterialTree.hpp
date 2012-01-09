@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MATERIAL_TREE_HPP_
-#define _MATERIAL_TREE_HPP_
+#ifndef CAFU_MATERIAL_TREE_HPP_INCLUDED
+#define CAFU_MATERIAL_TREE_HPP_INCLUDED
 
 #include "wx/treectrl.h"
 

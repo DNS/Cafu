@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _OPENGL_WINDOW_HPP_
-#define _OPENGL_WINDOW_HPP_
+#ifndef CAFU_OPENGL_WINDOW_HPP_INCLUDED
+#define CAFU_OPENGL_WINDOW_HPP_INCLUDED
 
 #if defined(_WIN32) && _MSC_VER<1600
 #include "pstdint.h"            // Paul Hsieh's portable implementation of the stdint.h header.

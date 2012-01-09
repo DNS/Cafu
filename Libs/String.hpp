@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CF_STRING_HPP_
-#define _CF_STRING_HPP_
+#ifndef CAFU_STRING_HPP_INCLUDED
+#define CAFU_STRING_HPP_INCLUDED
 
 #include <string>
 

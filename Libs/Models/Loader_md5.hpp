@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MD5_MODEL_LOADER_HPP_
-#define _MD5_MODEL_LOADER_HPP_
+#ifndef CAFU_MD5_MODEL_LOADER_HPP_INCLUDED
+#define CAFU_MD5_MODEL_LOADER_HPP_INCLUDED
 
 #include "Loader.hpp"
 

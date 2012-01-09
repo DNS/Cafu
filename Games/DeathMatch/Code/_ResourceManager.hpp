@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Global Resource Manager ***/
 /*******************************/
 
-#ifndef _RESOURCE_MANAGER_HPP_
-#define _RESOURCE_MANAGER_HPP_
+#ifndef CAFU_RESOURCE_MANAGER_HPP_INCLUDED
+#define CAFU_RESOURCE_MANAGER_HPP_INCLUDED
 
 #include "Templates/Array.hpp"
 

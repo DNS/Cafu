@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MODELEDITOR_SET_ANIM_NEXT_HPP_
-#define _MODELEDITOR_SET_ANIM_NEXT_HPP_
+#ifndef CAFU_MODELEDITOR_SET_ANIM_NEXT_HPP_INCLUDED
+#define CAFU_MODELEDITOR_SET_ANIM_NEXT_HPP_INCLUDED
 
 #include "../../CommandPattern.hpp"
 

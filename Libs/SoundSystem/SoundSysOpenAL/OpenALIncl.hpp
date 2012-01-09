@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _SOUNDSYS_OPENAL_INCL_HPP_
-#define _SOUNDSYS_OPENAL_INCL_HPP_
+#ifndef CAFU_SOUNDSYS_OPENAL_INCL_HPP_INCLUDED
+#define CAFU_SOUNDSYS_OPENAL_INCL_HPP_INCLUDED
 
 // Include the OpenAL related header files like "alut" does:
 // apparently the subdirectory is not standardized across the platforms yet.

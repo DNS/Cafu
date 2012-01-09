@@ -3,8 +3,8 @@
 /**********************************/
 
 
-#ifndef _INFOPLAYERSTART_HPP_
-#define _INFOPLAYERSTART_HPP_
+#ifndef CAFU_INFOPLAYERSTART_HPP_INCLUDED
+#define CAFU_INFOPLAYERSTART_HPP_INCLUDED
 
 
 #include "../../BaseEntity.hpp"

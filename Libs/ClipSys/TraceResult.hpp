@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CF_CLIPSYS_TRACE_RESULT_HPP_
-#define _CF_CLIPSYS_TRACE_RESULT_HPP_
+#ifndef CAFU_CLIPSYS_TRACE_RESULT_HPP_INCLUDED
+#define CAFU_CLIPSYS_TRACE_RESULT_HPP_INCLUDED
 
 #include "Math3D/Vector3.hpp"
 

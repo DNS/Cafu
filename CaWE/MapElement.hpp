@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MAP_ELEMENT_HPP_
-#define _MAP_ELEMENT_HPP_
+#ifndef CAFU_MAP_ELEMENT_HPP_INCLUDED
+#define CAFU_MAP_ELEMENT_HPP_INCLUDED
 
 #include "Group.hpp"
 

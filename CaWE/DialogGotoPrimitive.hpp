@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _DIALOG_GOTO_PRIMITIVE_HPP_
-#define _DIALOG_GOTO_PRIMITIVE_HPP_
+#ifndef CAFU_DIALOG_GOTO_PRIMITIVE_HPP_INCLUDED
+#define CAFU_DIALOG_GOTO_PRIMITIVE_HPP_INCLUDED
 
 #include "wx/wx.h"
 

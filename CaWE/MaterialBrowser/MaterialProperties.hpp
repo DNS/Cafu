@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MATERIAL_PROPERTIES_HPP_
-#define _MATERIAL_PROPERTIES_HPP_
+#ifndef CAFU_MATERIAL_PROPERTIES_HPP_INCLUDED
+#define CAFU_MATERIAL_PROPERTIES_HPP_INCLUDED
 
 #include "wx/wx.h"
 #include "wx/propgrid/propgrid.h"

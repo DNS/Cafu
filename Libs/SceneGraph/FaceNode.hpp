@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CF_SCENEGRAPH_FACENODE_HPP_
-#define _CF_SCENEGRAPH_FACENODE_HPP_
+#ifndef CAFU_SCENEGRAPH_FACENODE_HPP_INCLUDED
+#define CAFU_SCENEGRAPH_FACENODE_HPP_INCLUDED
 
 #include "Node.hpp"
 #include "MaterialSystem/Mesh.hpp"

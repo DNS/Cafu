@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _ENTITY_CLASS_VAR_HPP_
-#define _ENTITY_CLASS_VAR_HPP_
+#ifndef CAFU_ENTITY_CLASS_VAR_HPP_INCLUDED
+#define CAFU_ENTITY_CLASS_VAR_HPP_INCLUDED
 
 #include "Templates/Array.hpp"
 #include "wx/wx.h"

@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CAFU_MODEL_ANIM_POSE_HPP_
-#define _CAFU_MODEL_ANIM_POSE_HPP_
+#ifndef CAFU_MODEL_ANIM_POSE_HPP_INCLUDED
+#define CAFU_MODEL_ANIM_POSE_HPP_INCLUDED
 
 #include "AnimExpr.hpp"
 #include "MaterialSystem/Mesh.hpp"

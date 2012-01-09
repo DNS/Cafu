@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _SCROLLED_MATERIAL_WIN_HPP_
-#define _SCROLLED_MATERIAL_WIN_HPP_
+#ifndef CAFU_SCROLLED_MATERIAL_WIN_HPP_INCLUDED
+#define CAFU_SCROLLED_MATERIAL_WIN_HPP_INCLUDED
 
 #include "Templates/Array.hpp"
 #include "wx/scrolwin.h"

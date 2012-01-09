@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Item Ammo 357 (Header) ***/
 /******************************/
 
-#ifndef _ITEM_AMMO_357_HPP_
-#define _ITEM_AMMO_357_HPP_
+#ifndef CAFU_ITEM_AMMO_357_HPP_INCLUDED
+#define CAFU_ITEM_AMMO_357_HPP_INCLUDED
 
 #include "Item.hpp"
 

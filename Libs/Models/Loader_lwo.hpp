@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _LIGHTWAVE_OBJECT_LOADER_HPP_
-#define _LIGHTWAVE_OBJECT_LOADER_HPP_
+#ifndef CAFU_LIGHTWAVE_OBJECT_LOADER_HPP_INCLUDED
+#define CAFU_LIGHTWAVE_OBJECT_LOADER_HPP_INCLUDED
 
 #include "Loader.hpp"
 

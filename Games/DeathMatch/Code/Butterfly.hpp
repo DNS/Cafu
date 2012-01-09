@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _BUTTERFLY_HPP_
-#define _BUTTERFLY_HPP_
+#ifndef CAFU_BUTTERFLY_HPP_INCLUDED
+#define CAFU_BUTTERFLY_HPP_INCLUDED
 
 #include "../../BaseEntity.hpp"
 

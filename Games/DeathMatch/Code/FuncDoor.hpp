@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _FUNC_DOOR_HPP_
-#define _FUNC_DOOR_HPP_
+#ifndef CAFU_FUNC_DOOR_HPP_INCLUDED
+#define CAFU_FUNC_DOOR_HPP_INCLUDED
 
 #include "../../BaseEntity.hpp"
 

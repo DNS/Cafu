@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MAP_HELPER_BOUNDINGBOX_HPP_
-#define _MAP_HELPER_BOUNDINGBOX_HPP_
+#ifndef CAFU_MAP_HELPER_BOUNDINGBOX_HPP_INCLUDED
+#define CAFU_MAP_HELPER_BOUNDINGBOX_HPP_INCLUDED
 
 #include "MapHelper.hpp"
 #include "Math3D/BoundingBox.hpp"

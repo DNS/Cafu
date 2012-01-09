@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** CaPVS World (Header) ***/
 /****************************/
 
-#ifndef _CAPVSWORLD_HPP_
-#define _CAPVSWORLD_HPP_
+#ifndef CAFU_CAPVSWORLD_HPP_INCLUDED
+#define CAFU_CAPVSWORLD_HPP_INCLUDED
 
 #include "../Common/World.hpp"
 

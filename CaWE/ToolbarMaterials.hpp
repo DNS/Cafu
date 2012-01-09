@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _TOOLBAR_MATERIALS_HPP_
-#define _TOOLBAR_MATERIALS_HPP_
+#ifndef CAFU_TOOLBAR_MATERIALS_HPP_INCLUDED
+#define CAFU_TOOLBAR_MATERIALS_HPP_INCLUDED
 
 #include "ObserverPattern.hpp"
 #include "Templates/Array.hpp"

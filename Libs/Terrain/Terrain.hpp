@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CA_TERRAIN_HPP_
-#define _CA_TERRAIN_HPP_
+#ifndef CAFU_TERRAIN_HPP_INCLUDED
+#define CAFU_TERRAIN_HPP_INCLUDED
 
 #include "Templates/Array.hpp"
 #include "Math3D/BoundingBox.hpp"

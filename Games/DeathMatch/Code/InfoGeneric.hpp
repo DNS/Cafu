@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _INFO_GENERIC_ENTITY_HPP_
-#define _INFO_GENERIC_ENTITY_HPP_
+#ifndef CAFU_INFO_GENERIC_ENTITY_HPP_INCLUDED
+#define CAFU_INFO_GENERIC_ENTITY_HPP_INCLUDED
 
 #include "../../BaseEntity.hpp"
 

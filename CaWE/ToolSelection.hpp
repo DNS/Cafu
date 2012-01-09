@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _TOOL_SELECTION_HPP_
-#define _TOOL_SELECTION_HPP_
+#ifndef CAFU_TOOL_SELECTION_HPP_INCLUDED
+#define CAFU_TOOL_SELECTION_HPP_INCLUDED
 
 #include "Tool.hpp"
 #include "TrafoBox.hpp"

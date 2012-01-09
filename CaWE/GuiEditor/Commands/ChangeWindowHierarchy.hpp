@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _GUIEDITOR_COMMAND_CHANGE_WINDOW_HIERARCHY_HPP_
-#define _GUIEDITOR_COMMAND_CHANGE_WINDOW_HIERARCHY_HPP_
+#ifndef CAFU_GUIEDITOR_COMMAND_CHANGE_WINDOW_HIERARCHY_HPP_INCLUDED
+#define CAFU_GUIEDITOR_COMMAND_CHANGE_WINDOW_HIERARCHY_HPP_INCLUDED
 
 #include "../../CommandPattern.hpp"
 

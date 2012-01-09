@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _WORLD_MANAGER_HPP_
-#define _WORLD_MANAGER_HPP_
+#ifndef CAFU_WORLD_MANAGER_HPP_INCLUDED
+#define CAFU_WORLD_MANAGER_HPP_INCLUDED
 
 #include "World.hpp"
 

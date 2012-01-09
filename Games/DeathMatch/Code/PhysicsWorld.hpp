@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _PHYSICS_WORLD_HPP_
-#define _PHYSICS_WORLD_HPP_
+#ifndef CAFU_PHYSICS_WORLD_HPP_INCLUDED
+#define CAFU_PHYSICS_WORLD_HPP_INCLUDED
 
 #include "Math3D/BoundingBox.hpp"   // Temporary for PhysicsWorldT::TraceBoundingBox().
 #include "Math3D/Vector3.hpp"

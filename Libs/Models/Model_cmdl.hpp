@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CAFU_MODEL_HPP_
-#define _CAFU_MODEL_HPP_
+#ifndef CAFU_MODEL_HPP_INCLUDED
+#define CAFU_MODEL_HPP_INCLUDED
 
 #include "Templates/Array.hpp"
 #include "MaterialSystem/MaterialManagerImpl.hpp"

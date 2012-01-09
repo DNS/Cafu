@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Direct Input (Header) ***/
 /*****************************/
 
-#ifndef _CA_DIRECTINPUT_HPP_
-#define _CA_DIRECTINPUT_HPP_
+#ifndef CAFU_DIRECTINPUT_HPP_INCLUDED
+#define CAFU_DIRECTINPUT_HPP_INCLUDED
 
 #define WIN32_LEAN_AND_MEAN
 

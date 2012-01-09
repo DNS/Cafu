@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CAFU_SMART_POINTER_HPP_
-#define _CAFU_SMART_POINTER_HPP_
+#ifndef CAFU_SMART_POINTER_HPP_INCLUDED
+#define CAFU_SMART_POINTER_HPP_INCLUDED
 
 
 /// This class implements smart (reference-counted) pointers.

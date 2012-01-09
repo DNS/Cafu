@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _ARGRENADE_HPP_
-#define _ARGRENADE_HPP_
+#ifndef CAFU_ARGRENADE_HPP_INCLUDED
+#define CAFU_ARGRENADE_HPP_INCLUDED
 
 #include "../../BaseEntity.hpp"
 

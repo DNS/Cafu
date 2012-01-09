@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Monster Maker (Header) ***/
 /******************************/
 
-#ifndef _MONSTERMAKER_HPP_
-#define _MONSTERMAKER_HPP_
+#ifndef CAFU_MONSTERMAKER_HPP_INCLUDED
+#define CAFU_MONSTERMAKER_HPP_INCLUDED
 
 #include "../../BaseEntity.hpp"
 

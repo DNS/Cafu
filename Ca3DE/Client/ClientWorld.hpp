@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CACLIENTWORLD_HPP_
-#define _CACLIENTWORLD_HPP_
+#ifndef CAFU_CACLIENTWORLD_HPP_INCLUDED
+#define CAFU_CACLIENTWORLD_HPP_INCLUDED
 
 #include "../Both/Ca3DEWorld.hpp"
 

@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CF_CLIPSYS_COLLISION_MODEL_STATIC_HPP_
-#define _CF_CLIPSYS_COLLISION_MODEL_STATIC_HPP_
+#ifndef CAFU_CLIPSYS_COLLISION_MODEL_STATIC_HPP_INCLUDED
+#define CAFU_CLIPSYS_COLLISION_MODEL_STATIC_HPP_INCLUDED
 
 #include "CollisionModel_base.hpp"
 #include "Templates/Array.hpp"

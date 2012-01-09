@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Look-up Tables (Header) ***/
 /*******************************/
 
-#ifndef _LOOKUP_TABLES_HPP_
-#define _LOOKUP_TABLES_HPP_
+#ifndef CAFU_LOOKUP_TABLES_HPP_INCLUDED
+#define CAFU_LOOKUP_TABLES_HPP_INCLUDED
 
 
 namespace LookupTables

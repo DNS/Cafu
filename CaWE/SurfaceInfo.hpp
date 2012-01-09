@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _SURFACE_INFO_HPP_
-#define _SURFACE_INFO_HPP_
+#ifndef CAFU_SURFACE_INFO_HPP_INCLUDED
+#define CAFU_SURFACE_INFO_HPP_INCLUDED
 
 #include "Math3D/Plane3.hpp"
 #include "Templates/Array.hpp"

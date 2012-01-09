@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CURSOR_MAN_HPP_
-#define _CURSOR_MAN_HPP_
+#ifndef CAFU_CURSOR_MAN_HPP_INCLUDED
+#define CAFU_CURSOR_MAN_HPP_INCLUDED
 
 #include "Templates/Array.hpp"
 

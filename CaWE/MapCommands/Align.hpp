@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _COMMAND_ALIGN_HPP_
-#define _COMMAND_ALIGN_HPP_
+#ifndef CAFU_COMMAND_ALIGN_HPP_INCLUDED
+#define CAFU_COMMAND_ALIGN_HPP_INCLUDED
 
 #include "../CommandPattern.hpp"
 #include "../AxesInfo.hpp"

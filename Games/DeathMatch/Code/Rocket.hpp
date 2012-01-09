@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _ROCKET_HPP_
-#define _ROCKET_HPP_
+#ifndef CAFU_ROCKET_HPP_INCLUDED
+#define CAFU_ROCKET_HPP_INCLUDED
 
 #include "../../BaseEntity.hpp"
 

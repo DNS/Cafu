@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _TOOL_MORPH_HPP_
-#define _TOOL_MORPH_HPP_
+#ifndef CAFU_TOOL_MORPH_HPP_INCLUDED
+#define CAFU_TOOL_MORPH_HPP_INCLUDED
 
 #include "Tool.hpp"
 

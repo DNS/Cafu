@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MORPH_PRIMITIVE_HPP_
-#define _MORPH_PRIMITIVE_HPP_
+#ifndef CAFU_MORPH_PRIMITIVE_HPP_INCLUDED
+#define CAFU_MORPH_PRIMITIVE_HPP_INCLUDED
 
 #include "Math3D/Vector3.hpp"
 #include "Templates/Array.hpp"

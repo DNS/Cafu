@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CAFU_CLIENT_STATE_HPP_
-#define _CAFU_CLIENT_STATE_HPP_
+#ifndef CAFU_CLIENT_STATE_HPP_INCLUDED
+#define CAFU_CLIENT_STATE_HPP_INCLUDED
 
 
 struct CaKeyboardEventT;

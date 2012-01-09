@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CF_GUISYS_WINDOW_LISTBOX_HPP_
-#define _CF_GUISYS_WINDOW_LISTBOX_HPP_
+#ifndef CAFU_GUISYS_WINDOW_LISTBOX_HPP_INCLUDED
+#define CAFU_GUISYS_WINDOW_LISTBOX_HPP_INCLUDED
 
 #include "Window.hpp"
 

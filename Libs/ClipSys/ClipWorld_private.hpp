@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CF_CLIPSYS_CLIPWORLD_PRIVATE_HPP_
-#define _CF_CLIPSYS_CLIPWORLD_PRIVATE_HPP_
+#ifndef CAFU_CLIPSYS_CLIPWORLD_PRIVATE_HPP_INCLUDED
+#define CAFU_CLIPSYS_CLIPWORLD_PRIVATE_HPP_INCLUDED
 
 /// @file
 /// This header contains declarations of classes that are privately used by the ClipWorldT and ClipModelT classes.

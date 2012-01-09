@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _PARENT_FRAME_HPP_
-#define _PARENT_FRAME_HPP_
+#ifndef CAFU_PARENT_FRAME_HPP_INCLUDED
+#define CAFU_PARENT_FRAME_HPP_INCLUDED
 
 #include "wx/docview.h"     // Needed for wxFileHistory.
 #include "wx/mdi.h"

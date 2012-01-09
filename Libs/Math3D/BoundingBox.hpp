@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Bounding Box ***/
 /********************/
 
-#ifndef _CFS_MATH_BOUNDING_BOX_HPP_
-#define _CFS_MATH_BOUNDING_BOX_HPP_
+#ifndef CAFU_MATH_BOUNDING_BOX_HPP_INCLUDED
+#define CAFU_MATH_BOUNDING_BOX_HPP_INCLUDED
 
 #include "Vector3.hpp"
 #include "Plane3.hpp"

@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CLIENTINFO_HPP_
-#define _CLIENTINFO_HPP_
+#ifndef CAFU_CLIENTINFO_HPP_INCLUDED
+#define CAFU_CLIENTINFO_HPP_INCLUDED
 
 #include "Network/Network.hpp"
 

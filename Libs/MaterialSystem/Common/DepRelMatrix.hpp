@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Dependency Relationship Matrices ***/
 /****************************************/
 
-#ifndef _CA_DEP_REL_MATRIX_HPP_
-#define _CA_DEP_REL_MATRIX_HPP_
+#ifndef CAFU_DEP_REL_MATRIX_HPP_INCLUDED
+#define CAFU_DEP_REL_MATRIX_HPP_INCLUDED
 
 #include "Math3D/Matrix.hpp"
 

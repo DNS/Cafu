@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _COMMAND_GROUP_SET_VISIBILITY_HPP_
-#define _COMMAND_GROUP_SET_VISIBILITY_HPP_
+#ifndef CAFU_COMMAND_GROUP_SET_VISIBILITY_HPP_INCLUDED
+#define CAFU_COMMAND_GROUP_SET_VISIBILITY_HPP_INCLUDED
 
 #include "../CommandPattern.hpp"
 

@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _AXES_INFO_HPP_
-#define _AXES_INFO_HPP_
+#ifndef CAFU_AXES_INFO_HPP_INCLUDED
+#define CAFU_AXES_INFO_HPP_INCLUDED
 
 
 /// This class describes how the three world-space axes are mapped to the two screen- or window-space axes.

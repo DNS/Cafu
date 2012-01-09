@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _BSPTREEBUILDER_HPP_
-#define _BSPTREEBUILDER_HPP_
+#ifndef CAFU_BSPTREEBUILDER_HPP_INCLUDED
+#define CAFU_BSPTREEBUILDER_HPP_INCLUDED
 
 #include "Math3D/Brush.hpp"
 #include "Math3D/Polygon.hpp"

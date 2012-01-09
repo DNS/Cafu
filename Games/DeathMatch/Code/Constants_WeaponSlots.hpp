@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Weapon Slots ***/
 /********************/
 
-#ifndef _WEAPONSLOTS_HPP_
-#define _WEAPONSLOTS_HPP_
+#ifndef CAFU_WEAPONSLOTS_HPP_INCLUDED
+#define CAFU_WEAPONSLOTS_HPP_INCLUDED
 
 // Bit numbers in State.HaveWeapons, indices into State.HaveAmmoInWeapons[], and for State.ActiveWeaponSlot.
 const char WEAPON_SLOT_BATTLESCYTHE= 0;

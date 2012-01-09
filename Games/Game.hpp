@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CF_GAME_GAMEINTERFACE_HPP_
-#define _CF_GAME_GAMEINTERFACE_HPP_
+#ifndef CAFU_GAME_GAMEINTERFACE_HPP_INCLUDED
+#define CAFU_GAME_GAMEINTERFACE_HPP_INCLUDED
 
 #include <map>
 #include <string>

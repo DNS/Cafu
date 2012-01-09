@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CA_MATH_MISC_HPP_
-#define _CA_MATH_MISC_HPP_
+#ifndef CAFU_MATH_MISC_HPP_INCLUDED
+#define CAFU_MATH_MISC_HPP_INCLUDED
 
 
 template<class T> class Vector3T;

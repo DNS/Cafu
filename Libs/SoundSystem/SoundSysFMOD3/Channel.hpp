@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CHANNEL_HPP_
-#define _CHANNEL_HPP_
+#ifndef CAFU_CHANNEL_HPP_INCLUDED
+#define CAFU_CHANNEL_HPP_INCLUDED
 
 
 class SoundImplT;

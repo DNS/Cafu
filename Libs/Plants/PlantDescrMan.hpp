@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _PLANT_DESCR_MAN_HPP_
-#define _PLANT_DESCR_MAN_HPP_
+#ifndef CAFU_PLANT_DESCR_MAN_HPP_INCLUDED
+#define CAFU_PLANT_DESCR_MAN_HPP_INCLUDED
 
 #include <string>
 #include <map>

@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CF_MODEL_MANAGER_HPP_
-#define _CF_MODEL_MANAGER_HPP_
+#ifndef CAFU_MODEL_MANAGER_HPP_INCLUDED
+#define CAFU_MODEL_MANAGER_HPP_INCLUDED
 
 #include <map>
 #include <string>

@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _DIALOG_CREATE_ARCH_HPP_
-#define _DIALOG_CREATE_ARCH_HPP_
+#ifndef CAFU_DIALOG_CREATE_ARCH_HPP_INCLUDED
+#define CAFU_DIALOG_CREATE_ARCH_HPP_INCLUDED
 
 #include "Math3D/Vector3.hpp"
 #include "Math3D/BoundingBox.hpp"

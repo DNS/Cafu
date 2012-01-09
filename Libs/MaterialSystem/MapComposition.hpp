@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CA_MATSYS_MAP_COMPOSITION_HPP_
-#define _CA_MATSYS_MAP_COMPOSITION_HPP_
+#ifndef CAFU_MATSYS_MAP_COMPOSITION_HPP_INCLUDED
+#define CAFU_MATSYS_MAP_COMPOSITION_HPP_INCLUDED
 
 #include "TextParser/TextParser.hpp"
 

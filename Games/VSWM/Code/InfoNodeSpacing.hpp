@@ -2,8 +2,8 @@
 /*** Info Node Spacing ***/
 /*************************/
 
-#ifndef _INFONODESPACING_HPP_
-#define _INFONODESPACING_HPP_
+#ifndef CAFU_INFONODESPACING_HPP_INCLUDED
+#define CAFU_INFONODESPACING_HPP_INCLUDED
 
 #include "../../BaseEntity.hpp"
 

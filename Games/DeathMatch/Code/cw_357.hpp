@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CW_357_HPP_
-#define _CW_357_HPP_
+#ifndef CAFU_CW_357_HPP_INCLUDED
+#define CAFU_CW_357_HPP_INCLUDED
 
 #include "cw.hpp"
 

@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Texture Map Implementation ***/
 /**********************************/
 
-#ifndef _CA_MATSYS_TEXTUREMAP_IMPLEMENTATION_HPP_
-#define _CA_MATSYS_TEXTUREMAP_IMPLEMENTATION_HPP_
+#ifndef CAFU_MATSYS_TEXTUREMAP_IMPLEMENTATION_HPP_INCLUDED
+#define CAFU_MATSYS_TEXTUREMAP_IMPLEMENTATION_HPP_INCLUDED
 
 // Required for #include <GL/gl.h> with MS VC++.
 #if defined(_WIN32) && defined(_MSC_VER)

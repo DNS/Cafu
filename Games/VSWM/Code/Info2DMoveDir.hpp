@@ -2,8 +2,8 @@
 /*** Info 2D Move Direction ***/
 /******************************/
 
-#ifndef _INFO2DMOVEDIRECTION_HPP_
-#define _INFO2DMOVEDIRECTION_HPP_
+#ifndef CAFU_INFO2DMOVEDIRECTION_HPP_INCLUDED
+#define CAFU_INFO2DMOVEDIRECTION_HPP_INCLUDED
 
 #include "../../BaseEntity.hpp"
 

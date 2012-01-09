@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _ENT_PROPERTY_HPP_
-#define _ENT_PROPERTY_HPP_
+#ifndef CAFU_ENT_PROPERTY_HPP_INCLUDED
+#define CAFU_ENT_PROPERTY_HPP_INCLUDED
 
 #include "Math3D/Vector3.hpp"
 #include "wx/string.h"

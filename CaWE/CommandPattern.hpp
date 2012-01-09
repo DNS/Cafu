@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _COMMAND_PATTERN_HPP_
-#define _COMMAND_PATTERN_HPP_
+#ifndef CAFU_COMMAND_PATTERN_HPP_INCLUDED
+#define CAFU_COMMAND_PATTERN_HPP_INCLUDED
 
 /// \file
 /// This file provides the classes for the Command pattern as described in the book by the GoF.

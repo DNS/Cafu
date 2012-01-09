@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Weapon Shotgun (Header) ***/
 /*******************************/
 
-#ifndef _WEAPON_SHOTGUN_HPP_
-#define _WEAPON_SHOTGUN_HPP_
+#ifndef CAFU_WEAPON_SHOTGUN_HPP_INCLUDED
+#define CAFU_WEAPON_SHOTGUN_HPP_INCLUDED
 
 #include "Weapon.hpp"
 

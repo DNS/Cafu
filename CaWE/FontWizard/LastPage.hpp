@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _FONTWIZARD_LAST_PAGE_HPP_
-#define _FONTWIZARD_LAST_PAGE_HPP_
+#ifndef CAFU_FONTWIZARD_LAST_PAGE_HPP_INCLUDED
+#define CAFU_FONTWIZARD_LAST_PAGE_HPP_INCLUDED
 
 #include "wx/wx.h"
 #include "wx/wizard.h"

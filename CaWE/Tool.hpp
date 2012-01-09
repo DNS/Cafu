@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _TOOL_HPP_
-#define _TOOL_HPP_
+#ifndef CAFU_TOOL_HPP_INCLUDED
+#define CAFU_TOOL_HPP_INCLUDED
 
 #include "ChildFrame.hpp"   // Make it easy for ToolT derivatives to implement the GetWxEventID() method.
 #include "TypeSys.hpp"

@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _SOUNDSYS_BUFFER_HPP_
-#define _SOUNDSYS_BUFFER_HPP_
+#ifndef CAFU_SOUNDSYS_BUFFER_HPP_INCLUDED
+#define CAFU_SOUNDSYS_BUFFER_HPP_INCLUDED
 
 #include "OpenALIncl.hpp"
 #include "Templates/Array.hpp"

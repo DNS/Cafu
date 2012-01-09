@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _PLATFORM_AUX_HPP_
-#define _PLATFORM_AUX_HPP_
+#ifndef CAFU_PLATFORM_AUX_HPP_INCLUDED
+#define CAFU_PLATFORM_AUX_HPP_INCLUDED
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN

@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Ammo Slots ***/
 /******************/
 
-#ifndef _AMMOSLOTS_HPP_
-#define _AMMOSLOTS_HPP_
+#ifndef CAFU_AMMOSLOTS_HPP_INCLUDED
+#define CAFU_AMMOSLOTS_HPP_INCLUDED
 
 // Indices into State.HaveAmmo[].
 const char AMMO_SLOT_9MM    =0;

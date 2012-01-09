@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Weapon Hornet Gun (Header) ***/
 /**********************************/
 
-#ifndef _WEAPON_HORNETGUN_HPP_
-#define _WEAPON_HORNETGUN_HPP_
+#ifndef CAFU_WEAPON_HORNETGUN_HPP_INCLUDED
+#define CAFU_WEAPON_HORNETGUN_HPP_INCLUDED
 
 #include "Weapon.hpp"
 

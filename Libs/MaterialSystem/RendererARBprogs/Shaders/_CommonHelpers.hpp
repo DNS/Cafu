@@ -32,8 +32,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <GL/gl.h>
 
 
-#ifndef _CA_MATSYS_COMMON_HELPERS_HPP_
-#define _CA_MATSYS_COMMON_HELPERS_HPP_
+#ifndef CAFU_MATSYS_COMMON_HELPERS_HPP_INCLUDED
+#define CAFU_MATSYS_COMMON_HELPERS_HPP_INCLUDED
 
 GLenum UploadProgram(GLenum ProgramTarget, const char* ProgramCode);
 

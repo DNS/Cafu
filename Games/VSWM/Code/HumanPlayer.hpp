@@ -2,8 +2,8 @@
 /*** Human Player (Header) ***/
 /*****************************/
 
-#ifndef _HUMANPLAYER_HPP_
-#define _HUMANPLAYER_HPP_
+#ifndef CAFU_HUMANPLAYER_HPP_INCLUDED
+#define CAFU_HUMANPLAYER_HPP_INCLUDED
 
 #include <stdio.h>
 

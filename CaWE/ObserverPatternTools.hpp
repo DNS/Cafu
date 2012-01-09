@@ -22,8 +22,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /// @file
 /// This file provides the classes for the Observer pattern as described in the book by the GoF.
 /// These classes are specific to the tools. See the map document related observer classes for more details.
-#ifndef _OBSERVER_PATTERN_TOOLS_HPP_
-#define _OBSERVER_PATTERN_TOOLS_HPP_
+#ifndef CAFU_OBSERVER_PATTERN_TOOLS_HPP_INCLUDED
+#define CAFU_OBSERVER_PATTERN_TOOLS_HPP_INCLUDED
 
 #include "Templates/Array.hpp"
 

@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CF_ENTITY_CREATE_PARAMS_HPP_
-#define _CF_ENTITY_CREATE_PARAMS_HPP_
+#ifndef CAFU_ENTITY_CREATE_PARAMS_HPP_INCLUDED
+#define CAFU_ENTITY_CREATE_PARAMS_HPP_INCLUDED
 
 #include "TypeSys.hpp"
 #include "Math3D/Vector3.hpp"

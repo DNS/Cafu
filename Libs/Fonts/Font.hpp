@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MATSYS_FONT_HPP_
-#define _MATSYS_FONT_HPP_
+#ifndef CAFU_MATSYS_FONT_HPP_INCLUDED
+#define CAFU_MATSYS_FONT_HPP_INCLUDED
 
 #include <string>
 

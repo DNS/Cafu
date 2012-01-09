@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CF_TYPESYS_TYPEINFO_HPP_
-#define _CF_TYPESYS_TYPEINFO_HPP_
+#ifndef CAFU_TYPESYS_TYPEINFO_HPP_INCLUDED
+#define CAFU_TYPESYS_TYPEINFO_HPP_INCLUDED
 
 #include "Templates/Array.hpp"
 #include <ostream>

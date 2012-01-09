@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _EDITOR_MATERIAL_DUMMY_HPP_
-#define _EDITOR_MATERIAL_DUMMY_HPP_
+#ifndef CAFU_EDITOR_MATERIAL_DUMMY_HPP_INCLUDED
+#define CAFU_EDITOR_MATERIAL_DUMMY_HPP_INCLUDED
 
 #include "wx/image.h"
 #include "EditorMaterial.hpp"

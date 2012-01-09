@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MODELEDITOR_JOINT_INSPECTOR_HPP_
-#define _MODELEDITOR_JOINT_INSPECTOR_HPP_
+#ifndef CAFU_MODELEDITOR_JOINT_INSPECTOR_HPP_INCLUDED
+#define CAFU_MODELEDITOR_JOINT_INSPECTOR_HPP_INCLUDED
 
 #include "ObserverPattern.hpp"
 #include "wx/wx.h"

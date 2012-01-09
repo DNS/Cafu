@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _GENERIC_3D_WINDOW_HPP_
-#define _GENERIC_3D_WINDOW_HPP_
+#ifndef CAFU_GENERIC_3D_WINDOW_HPP_INCLUDED
+#define CAFU_GENERIC_3D_WINDOW_HPP_INCLUDED
 
 #include "Math3D/Plane3.hpp"
 #include "wx/glcanvas.h"

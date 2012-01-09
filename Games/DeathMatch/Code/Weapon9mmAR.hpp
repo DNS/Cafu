@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Weapon 9mm AR (Header) ***/
 /******************************/
 
-#ifndef _WEAPON_9MMAR_HPP_
-#define _WEAPON_9MMAR_HPP_
+#ifndef CAFU_WEAPON_9MMAR_HPP_INCLUDED
+#define CAFU_WEAPON_9MMAR_HPP_INCLUDED
 
 #include "Weapon.hpp"
 

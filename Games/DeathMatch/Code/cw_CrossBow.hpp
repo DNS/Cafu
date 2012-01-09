@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CW_CROSSBOW_HPP_
-#define _CW_CROSSBOW_HPP_
+#ifndef CAFU_CW_CROSSBOW_HPP_INCLUDED
+#define CAFU_CW_CROSSBOW_HPP_INCLUDED
 
 #include "cw.hpp"
 

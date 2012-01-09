@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** OpenGL Extensions (Header) ***/
 /**********************************/
 
-#ifndef _OPENGL_EX_HPP_
-#define _OPENGL_EX_HPP_
+#ifndef CAFU_OPENGL_EX_HPP_INCLUDED
+#define CAFU_OPENGL_EX_HPP_INCLUDED
 
 #if defined(_WIN32)
     // #Including gl.h requires windows.h on Win32.

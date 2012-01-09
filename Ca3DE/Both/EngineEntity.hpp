@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Engine Entity (Header) ***/
 /******************************/
 
-#ifndef _ENGINEENTITY_HPP_
-#define _ENGINEENTITY_HPP_
+#ifndef CAFU_ENGINEENTITY_HPP_INCLUDED
+#define CAFU_ENGINEENTITY_HPP_INCLUDED
 
 #include "../../Games/BaseEntity.hpp"
 #include "../../Games/PlayerCommand.hpp"

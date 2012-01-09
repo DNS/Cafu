@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Weapon Pistol (Header) ***/
 /******************************/
 
-#ifndef _WEAPON_PISTOL_HPP_
-#define _WEAPON_PISTOL_HPP_
+#ifndef CAFU_WEAPON_PISTOL_HPP_INCLUDED
+#define CAFU_WEAPON_PISTOL_HPP_INCLUDED
 
 #include "Weapon.hpp"
 

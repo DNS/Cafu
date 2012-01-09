@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MATERIAL_BROWSER_DIALOG_HPP_
-#define _MATERIAL_BROWSER_DIALOG_HPP_
+#ifndef CAFU_MATERIAL_BROWSER_DIALOG_HPP_INCLUDED
+#define CAFU_MATERIAL_BROWSER_DIALOG_HPP_INCLUDED
 
 #include "Templates/Array.hpp"
 

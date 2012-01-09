@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _COMMAND_NEW_ENTITY_HPP_
-#define _COMMAND_NEW_ENTITY_HPP_
+#ifndef CAFU_COMMAND_NEW_ENTITY_HPP_INCLUDED
+#define CAFU_COMMAND_NEW_ENTITY_HPP_INCLUDED
 
 #include "../CommandPattern.hpp"
 #include "Math3D/Plane3.hpp"

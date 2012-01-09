@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _LUA_AUX_HPP_
-#define _LUA_AUX_HPP_
+#ifndef CAFU_LUA_AUX_HPP_INCLUDED
+#define CAFU_LUA_AUX_HPP_INCLUDED
 
 class wxString;
 

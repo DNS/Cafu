@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CAMERA_HPP_
-#define _CAMERA_HPP_
+#ifndef CAFU_CAMERA_HPP_INCLUDED
+#define CAFU_CAMERA_HPP_INCLUDED
 
 #include "Math3D/Angles.hpp"
 #include "Math3D/Matrix.hpp"

@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Player Command ***/
 /**********************/
 
-#ifndef _PLAYERCOMMAND_HPP_
-#define _PLAYERCOMMAND_HPP_
+#ifndef CAFU_PLAYERCOMMAND_HPP_INCLUDED
+#define CAFU_PLAYERCOMMAND_HPP_INCLUDED
 
 
 // Player command key flags

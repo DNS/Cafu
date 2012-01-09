@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CF_CLIPSYS_TRACESOLID_HPP_
-#define _CF_CLIPSYS_TRACESOLID_HPP_
+#ifndef CAFU_CLIPSYS_TRACESOLID_HPP_INCLUDED
+#define CAFU_CLIPSYS_TRACESOLID_HPP_INCLUDED
 
 #include "Math3D/BoundingBox.hpp"
 #include "Math3D/Plane3.hpp"

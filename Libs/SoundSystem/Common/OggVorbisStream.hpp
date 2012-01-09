@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _OGG_VORBIS_STREAM_HPP_
-#define _OGG_VORBIS_STREAM_HPP_
+#ifndef CAFU_OGG_VORBIS_STREAM_HPP_INCLUDED
+#define CAFU_OGG_VORBIS_STREAM_HPP_INCLUDED
 
 #include "SoundStream.hpp"
 

@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** CaLight World (Header) ***/
 /******************************/
 
-#ifndef _CALIGHTWORLD_HPP_
-#define _CALIGHTWORLD_HPP_
+#ifndef CAFU_CALIGHTWORLD_HPP_INCLUDED
+#define CAFU_CALIGHTWORLD_HPP_INCLUDED
 
 #include "../Common/World.hpp"
 

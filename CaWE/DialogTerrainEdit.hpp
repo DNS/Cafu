@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _DIALOG_TERRAIN_EDIT_HPP_
-#define _DIALOG_TERRAIN_EDIT_HPP_
+#ifndef CAFU_DIALOG_TERRAIN_EDIT_HPP_INCLUDED
+#define CAFU_DIALOG_TERRAIN_EDIT_HPP_INCLUDED
 
 #include "wxFB/TerrainEditorDialogs.h"
 

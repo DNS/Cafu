@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CF_MAPFILE_HPP_
-#define _CF_MAPFILE_HPP_
+#ifndef CAFU_MAPFILE_HPP_INCLUDED
+#define CAFU_MAPFILE_HPP_INCLUDED
 
 #include <map>
 

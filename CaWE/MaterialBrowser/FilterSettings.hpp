@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _FILTER_SETTINGS_HPP_
-#define _FILTER_SETTINGS_HPP_
+#ifndef CAFU_FILTER_SETTINGS_HPP_INCLUDED
+#define CAFU_FILTER_SETTINGS_HPP_INCLUDED
 
 #include "wx/wx.h"
 

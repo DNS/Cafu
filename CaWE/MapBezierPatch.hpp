@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MAP_BEZIER_PATCH_HPP_
-#define _MAP_BEZIER_PATCH_HPP_
+#ifndef CAFU_MAP_BEZIER_PATCH_HPP_INCLUDED
+#define CAFU_MAP_BEZIER_PATCH_HPP_INCLUDED
 
 #include "MapPrimitive.hpp"
 #include "SurfaceInfo.hpp"

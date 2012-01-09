@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MAP_ENTITY_BASE_HPP_
-#define _MAP_ENTITY_BASE_HPP_
+#ifndef CAFU_MAP_ENTITY_BASE_HPP_INCLUDED
+#define CAFU_MAP_ENTITY_BASE_HPP_INCLUDED
 
 #include "EntProperty.hpp"
 #include "MapElement.hpp"

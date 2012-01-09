@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CF_FILESYS_FILEMAN_IMPL_HPP_
-#define _CF_FILESYS_FILEMAN_IMPL_HPP_
+#ifndef CAFU_FILESYS_FILEMAN_IMPL_HPP_INCLUDED
+#define CAFU_FILESYS_FILEMAN_IMPL_HPP_INCLUDED
 
 #include "FileMan.hpp"
 #include "Templates/Array.hpp"

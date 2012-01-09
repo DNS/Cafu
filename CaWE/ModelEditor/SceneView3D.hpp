@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _MODELEDITOR_SCENE_VIEW_3D_HPP_
-#define _MODELEDITOR_SCENE_VIEW_3D_HPP_
+#ifndef CAFU_MODELEDITOR_SCENE_VIEW_3D_HPP_INCLUDED
+#define CAFU_MODELEDITOR_SCENE_VIEW_3D_HPP_INCLUDED
 
 #include "../Generic3DWindow.hpp"
 #include "Models/Model_cmdl.hpp"

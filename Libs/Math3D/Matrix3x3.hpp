@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _CA_MATH_MATRIX_3X3_HPP_
-#define _CA_MATH_MATRIX_3X3_HPP_
+#ifndef CAFU_MATH_MATRIX_3X3_HPP_INCLUDED
+#define CAFU_MATH_MATRIX_3X3_HPP_INCLUDED
 
 #include "Vector3.hpp"
 

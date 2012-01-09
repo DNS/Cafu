@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** Entity Manager (Header) ***/
 /*******************************/
 
-#ifndef _ENTITYMANAGER_HPP_
-#define _ENTITYMANAGER_HPP_
+#ifndef CAFU_ENTITYMANAGER_HPP_INCLUDED
+#define CAFU_ENTITYMANAGER_HPP_INCLUDED
 
 #ifdef _WIN32
     #if defined(_MSC_VER)
