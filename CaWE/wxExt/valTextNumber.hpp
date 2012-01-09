@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef __WX_CAWE_TESTVAL_HPP__
-#define __WX_CAWE_TESTVAL_HPP__
+#ifndef CAFU_WX_CAWE_TESTVAL_HPP_INCLUDED
+#define CAFU_WX_CAWE_TESTVAL_HPP_INCLUDED
 
 #include "wx/defs.h"
 #include "wx/textctrl.h"

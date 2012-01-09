@@ -26,8 +26,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 // PLEASE DO "NOT" EDIT THIS FILE!
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef __TerrainEditorDialogs__
-#define __TerrainEditorDialogs__
+#ifndef CAFU_TERRAIN_EDITOR_DIALOGS_HPP_INCLUDED
+#define CAFU_TERRAIN_EDITOR_DIALOGS_HPP_INCLUDED
 
 #include <wx/string.h>
 #include <wx/bitmap.h>

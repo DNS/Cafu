@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef _DIALOG_CUSTOM_COMPILE_H_
-#define _DIALOG_CUSTOM_COMPILE_H_
+#ifndef CAFU_DIALOG_CUSTOM_COMPILE_HPP_INCLUDED
+#define CAFU_DIALOG_CUSTOM_COMPILE_HPP_INCLUDED
 
 #include "wx/dialog.h"
 
