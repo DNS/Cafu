@@ -1257,7 +1257,7 @@ function CreditsDialog.Frame.CopyrightText:OnInit()
     self:set("rect", 10, 420, 310, 30);
     self:set("backColor", 0, 0, 0, 0);
     self:set("font", "Fonts/Impact");
-    self:set("text", "Cafu is copyright © 2001-2011 Carsten Fuchs Software.\nAll rights reserved.                       http://www.cafu.de");
+    self:set("text", "Copyright © 2002-" .. os.date("%Y") .. " Carsten Fuchs Software.\nhttp://www.cafu.de");
     self:set("textScale", 0.22);
     self:set("textColor", 0.5, 0.5, 0.5, 1);
     self:set("textAlignVer", 2);

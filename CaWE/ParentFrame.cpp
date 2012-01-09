@@ -1037,7 +1037,8 @@ void ParentFrameT::OnMenuHelp(wxCommandEvent& CE)
         case ID_MENU_HELP_ABOUT:
         {
             wxString TextTop=
-                "CaWE is copyright (c) 2002-2011 Carsten Fuchs Software.\n"
+                "CaWE, the Cafu World Editor.\n"
+                "Copyright (C) 2002-"+wxString(__DATE__+7)+" Carsten Fuchs Software.\n"
                 "\n"
                 "Please report all encountered bugs.\n";
 
