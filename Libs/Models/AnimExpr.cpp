@@ -25,18 +25,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 AnimExpressionT::AnimExpressionT(const CafuModelT& Model)
     : m_Model(Model),
-      m_RefCount(0),
-      m_ChangeNum(0)
+      m_RefCount(0)
 {
-    UpdateChangeNum();
-}
-
-
-void AnimExpressionT::UpdateChangeNum()
-{
-    static unsigned int s_ChangeCount=0;
-
-    m_ChangeNum = ++s_ChangeCount;
 }
 
 
@@ -173,8 +163,6 @@ void AnimExprStandardT::SetSequNr(int SequNr)
 
     m_SequNr=SequNr;
     NormalizeInput();
-
-    UpdateChangeNum();
 }
 
 
@@ -184,8 +172,6 @@ void AnimExprStandardT::SetFrameNr(float FrameNr)
 
     m_FrameNr=FrameNr;
     NormalizeInput();
-
-    UpdateChangeNum();
 }
 
 
@@ -230,14 +216,6 @@ void AnimExprFilterT::ReInit(IntrusivePtrT<AnimExpressionT> SubExpr, unsigned in
 
     m_SubExpr  =SubExpr;
     m_ChannelNr=ChannelNr;
-
-    UpdateChangeNum();
-}
-
-
-unsigned int AnimExprFilterT::GetChangeNum() const
-{
-    return std::max(AnimExpressionT::GetChangeNum(), m_SubExpr->GetChangeNum());
 }
 
 
@@ -285,15 +263,6 @@ void AnimExprCombineT::ReInit(IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<An
 
     m_A=A;
     m_B=B;
-
-    UpdateChangeNum();
-}
-
-
-unsigned int AnimExprCombineT::GetChangeNum() const
-{
-    return std::max(AnimExpressionT::GetChangeNum(),
-                    std::max(m_A->GetChangeNum(), m_B->GetChangeNum()));
 }
 
 
@@ -361,20 +330,6 @@ void AnimExprBlendT::ReInit(IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<Anim
     m_B=B;
     m_Duration=Duration;
     m_Frac=0.0f;
-
-    UpdateChangeNum();
-}
-
-
-unsigned int AnimExprBlendT::GetChangeNum() const
-{
-    if (m_Frac >= 1.0f)
-    {
-        return std::max(AnimExpressionT::GetChangeNum(), m_B->GetChangeNum());
-    }
-
-    return std::max(AnimExpressionT::GetChangeNum(),
-                    std::max(m_A->GetChangeNum(), m_B->GetChangeNum()));
 }
 
 
@@ -436,9 +391,6 @@ void AnimExprBlendT::AdvanceTime(float Time, bool ForceLoop)
     }
 
     m_B->AdvanceTime(Time, ForceLoop);
-
-
-    UpdateChangeNum();
 }
 
 
@@ -456,7 +408,9 @@ bool AnimExprBlendT::IsEqual(const IntrusivePtrT<AnimExpressionT>& AE) const
     AnimExprBlendT* Other=dynamic_cast<AnimExprBlendT*>(AE.get());
 
     if (!Other) return false;
-    return m_Frac==Other->m_Frac && m_Duration==Other->m_Duration && m_A->IsEqual(Other->m_A) && m_B->IsEqual(Other->m_B);
+    return m_Frac==Other->m_Frac && m_Duration==Other->m_Duration &&
+           m_B->IsEqual(Other->m_B) &&
+           (m_A==NULL ? Other->m_A==NULL : m_A->IsEqual(Other->m_A));
 }
 
 

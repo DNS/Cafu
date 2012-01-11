@@ -64,13 +64,6 @@ class AnimExpressionT
     /// so that the pool implementation can learn if this instance is available for being re-used.
     unsigned int GetRefCount() const { return m_RefCount; }
 
-    /// Returns a number that changes whenever this expression changes,
-    /// or more precisely, that changes whenever the data returned by GetData() changes.
-    /// This is the case for example after every call to AdvanceTime() with a nonzero Time,
-    /// or when a sub-expression has been modified (e.g. got a new sequence number assigned).
-    /// The caller can use this number in order to control updates of its mesh caches.
-    virtual unsigned int GetChangeNum() const { return m_ChangeNum; }
-
     /// For the joint with the given JointNr, this function returns
     ///   - the joint weight,
     ///   - the joints position, quaternion and scale values.
@@ -89,11 +82,6 @@ class AnimExpressionT
     virtual bool IsEqual(const IntrusivePtrT<AnimExpressionT>& AE) const=0;
 
 
-    protected:
-
-    void UpdateChangeNum();
-
-
     private:
 
     template<class T> friend class IntrusivePtrT;
@@ -103,7 +91,6 @@ class AnimExpressionT
 
     const CafuModelT& m_Model;      ///< The related model that this is an anim expression for.
     unsigned int      m_RefCount;   ///< How many IntrusivePtrT<>'s currently refer to this anim expression?
-    unsigned int      m_ChangeNum;  ///< Changes whenever the data returned by GetData() changes.
 };
 
 
@@ -155,7 +142,6 @@ class AnimExprFilterT : public AnimExpressionT
     void ReInit(IntrusivePtrT<AnimExpressionT> SubExpr, unsigned int ChannelNr);
 
     // Implementations and overrides for base class methods.
-    virtual unsigned int GetChangeNum() const;
     virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const;
     virtual void AdvanceTime(float Time, bool ForceLoop=false) { m_SubExpr->AdvanceTime(Time, ForceLoop); }
     virtual IntrusivePtrT<AnimExpressionT> Clone() const;   // Unfortunately, the proper covariant return type cannot be used with smart pointers.
@@ -179,7 +165,6 @@ class AnimExprCombineT : public AnimExpressionT
     void ReInit(IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B);
 
     // Implementations and overrides for base class methods.
-    virtual unsigned int GetChangeNum() const;
     virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const;
     virtual void AdvanceTime(float Time, bool ForceLoop=false);
     virtual IntrusivePtrT<AnimExpressionT> Clone() const;   // Unfortunately, the proper covariant return type cannot be used with smart pointers.
@@ -214,7 +199,6 @@ class AnimExprBlendT : public AnimExpressionT
     float GetFrac() const { return m_Frac; }
 
     // Implementations and overrides for base class methods.
-    virtual unsigned int GetChangeNum() const;
     virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const;
     virtual void AdvanceTime(float Time, bool ForceLoop=false);
     virtual IntrusivePtrT<AnimExpressionT> Clone() const;   // Unfortunately, the proper covariant return type cannot be used with smart pointers.
