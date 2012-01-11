@@ -396,7 +396,8 @@ void AnimExprBlendT::AdvanceTime(float Time, bool ForceLoop)
 
 AnimExpressionPtrT AnimExprBlendT::Clone() const
 {
-    IntrusivePtrT<AnimExprBlendT> Blend=GetModel().GetAnimExprPool().GetBlend(m_A->Clone(), m_B->Clone(), m_Duration);
+    IntrusivePtrT<AnimExprBlendT> Blend=GetModel().GetAnimExprPool().GetBlend(
+        m_A==NULL ? NULL : m_A->Clone(), m_B->Clone(), m_Duration);
 
     Blend->m_Frac=m_Frac;
     return Blend;
