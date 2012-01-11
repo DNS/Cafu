@@ -138,14 +138,14 @@ class AnimExprFilterT : public AnimExpressionT
     AnimExprFilterT(const CafuModelT& Model, AnimExpressionPtrT SubExpr, unsigned int ChannelNr);
     AnimExprFilterT(const CafuModelT& Model, AnimExpressionPtrT SubExpr, const std::string& ChannelName);
 
-    /// Re-initializes this anim expression, so that it can be re-used with different parameters (on the same model).
-    void ReInit(AnimExpressionPtrT SubExpr, unsigned int ChannelNr);
-
     // Implementations and overrides for base class methods.
     virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const;
     virtual void AdvanceTime(float Time, bool ForceLoop=false) { m_SubExpr->AdvanceTime(Time, ForceLoop); }
     virtual AnimExpressionPtrT Clone() const;   // Unfortunately, the proper covariant return type cannot be used with smart pointers.
     virtual bool IsEqual(const AnimExpressionPtrT& AE) const;
+
+    /// Re-initializes this anim expression, so that it can be re-used with different parameters (on the same model).
+    void ReInit(AnimExpressionPtrT SubExpr, unsigned int ChannelNr);
 
 
     private:
@@ -161,14 +161,14 @@ class AnimExprCombineT : public AnimExpressionT
 
     AnimExprCombineT(const CafuModelT& Model, AnimExpressionPtrT A, AnimExpressionPtrT B);
 
-    /// Re-initializes this anim expression, so that it can be re-used with different parameters (on the same model).
-    void ReInit(AnimExpressionPtrT A, AnimExpressionPtrT B);
-
     // Implementations and overrides for base class methods.
     virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const;
     virtual void AdvanceTime(float Time, bool ForceLoop=false);
     virtual AnimExpressionPtrT Clone() const;   // Unfortunately, the proper covariant return type cannot be used with smart pointers.
     virtual bool IsEqual(const AnimExpressionPtrT& AE) const;
+
+    /// Re-initializes this anim expression, so that it can be re-used with different parameters (on the same model).
+    void ReInit(AnimExpressionPtrT A, AnimExpressionPtrT B);
 
 
     private:
@@ -184,6 +184,12 @@ class AnimExprBlendT : public AnimExpressionT
 
     AnimExprBlendT(const CafuModelT& Model, AnimExpressionPtrT A, AnimExpressionPtrT B, float Duration);
 
+    // Implementations and overrides for base class methods.
+    virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const;
+    virtual void AdvanceTime(float Time, bool ForceLoop=false);
+    virtual AnimExpressionPtrT Clone() const;   // Unfortunately, the proper covariant return type cannot be used with smart pointers.
+    virtual bool IsEqual(const AnimExpressionPtrT& AE) const;
+
     /// Re-initializes this anim expression, so that it can be re-used with different parameters (on the same model).
     /// Note that resetting \c A, \c B or \c Duration individually is not possible, because the implementation
     /// may prune and drop \c A when the blend is complete.
@@ -197,12 +203,6 @@ class AnimExprBlendT : public AnimExpressionT
 
     /// Returns how far the blend has advanced.
     float GetFrac() const { return m_Frac; }
-
-    // Implementations and overrides for base class methods.
-    virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const;
-    virtual void AdvanceTime(float Time, bool ForceLoop=false);
-    virtual AnimExpressionPtrT Clone() const;   // Unfortunately, the proper covariant return type cannot be used with smart pointers.
-    virtual bool IsEqual(const AnimExpressionPtrT& AE) const;
 
 
     private:

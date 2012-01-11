@@ -43,20 +43,6 @@ AnimExprStandardT::AnimExprStandardT(const CafuModelT& Model, int SequNr, float 
 }
 
 
-void AnimExprStandardT::NormalizeInput()
-{
-    const ArrayT<CafuModelT::AnimT>& Anims=GetModel().GetAnims();
-
-    // m_SequNr==-1 means "use the bind pose from the model file only (no anim)".
-    if (m_SequNr < -1) m_SequNr = -1;
-    if (m_SequNr >= int(Anims.Size())) m_SequNr = -1;
-    if (m_SequNr != -1 && (Anims[m_SequNr].FPS<0.0 || Anims[m_SequNr].Frames.Size()==0)) m_SequNr = -1;
-
-    m_FrameNr=std::max(m_FrameNr, 0.0f);
-    m_FrameNr=(m_SequNr==-1) ? 0.0f : fmod(m_FrameNr, float(Anims[m_SequNr].Frames.Size()));
-}
-
-
 void AnimExprStandardT::GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const
 {
     typedef CafuModelT::JointT JointT;
@@ -172,6 +158,20 @@ void AnimExprStandardT::SetFrameNr(float FrameNr)
 
     m_FrameNr=FrameNr;
     NormalizeInput();
+}
+
+
+void AnimExprStandardT::NormalizeInput()
+{
+    const ArrayT<CafuModelT::AnimT>& Anims=GetModel().GetAnims();
+
+    // m_SequNr==-1 means "use the bind pose from the model file only (no anim)".
+    if (m_SequNr < -1) m_SequNr = -1;
+    if (m_SequNr >= int(Anims.Size())) m_SequNr = -1;
+    if (m_SequNr != -1 && (Anims[m_SequNr].FPS<0.0 || Anims[m_SequNr].Frames.Size()==0)) m_SequNr = -1;
+
+    m_FrameNr=std::max(m_FrameNr, 0.0f);
+    m_FrameNr=(m_SequNr==-1) ? 0.0f : fmod(m_FrameNr, float(Anims[m_SequNr].Frames.Size()));
 }
 
 
