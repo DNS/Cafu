@@ -29,6 +29,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include <iostream>
 
+#if defined(_WIN32) && defined(_MSC_VER)
+    // Turn off warning C4355: 'this' : used in base member initializer list.
+    #pragma warning(disable:4355)
+#endif
+
 
 /*static*/ const unsigned int CafuModelT::CMDL_FILE_VERSION=1;
 
@@ -248,8 +253,9 @@ CafuModelT::CafuModelT(ModelLoaderT& Loader)
       m_MaterialMan(),
       m_UseGivenTangentSpace(Loader.UseGivenTS()),  // Should we use the fixed, given tangent space, or recompute it ourselves here?
       m_DlodModel(NULL),
-      m_DlodDist(0.0f)
-      , m_TEMP_Pose(NULL)
+      m_DlodDist(0.0f),
+      m_AnimExprPool(*this),
+      m_TEMP_Pose(NULL)
 {
     // No matter the actual model file format (that is, even if the file format is not "cmdl"),
     // the model artist might have prepared materials that should be used instead of the ones the Loader would otherwise generate.

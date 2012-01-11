@@ -227,7 +227,7 @@ class CafuModelT
     /// Channels allow animations to play only on a subset of the joints,
     /// so that multiple animations can play on different parts of the model at the same time.
     /// For example, you can play a walking animation on the legs, an animation for swinging
-    /// the arms on the upper body, and an animation for moving the eyes on the head. 
+    /// the arms on the upper body, and an animation for moving the eyes on the head.
     ///
     /// Technically, a channel defines a group of joints. It is used to limit or "filter"
     /// animations such that they affect only the joints that are members of the channel.
@@ -280,6 +280,9 @@ class CafuModelT
     /// Determines if <tt>GF.Points[PointNr].VertexNr</tt> is a valid index into this model.
     bool IsVertexNrOK(const GuiFixtureT& GF, unsigned int PointNr) const;
 
+    /// This method returns the pool of anim expressions for this model.
+    AnimExprPoolT& GetAnimExprPool() const { return m_AnimExprPool; }
+
     /// This method is strictly for backwards-compatibility only, do not use in new code!
     AnimPoseT* GetSharedPose(int SequNr, float FrameNr) const;
 
@@ -313,23 +316,24 @@ class CafuModelT
 
     void InitMeshes();                              ///< An auxiliary method for the constructors.
 
-    const std::string    m_FileName;                ///< File name of this model.   TODO: Remove!?!
-    MaterialManagerImplT m_MaterialMan;             ///< The material manager for the materials that are used with the meshes of this model.
-    ArrayT<JointT>       m_Joints;                  ///< Array of joints of this model.
-    ArrayT<MeshT>        m_Meshes;                  ///< Array of (sub)meshes of this model.
-    ArrayT<SkinT>        m_Skins;                   ///< Array of additional/alternative skins for this model.
-    ArrayT<GuiFixtureT>  m_GuiFixtures;             ///< Array of GUI fixtures in the model.
-    ArrayT<GuiLocT>      m_GuiLocs;                 ///< Array of locations where GUIs can be attached to this model.
-    ArrayT<AnimT>        m_Anims;                   ///< Array of animations of this model.
-    ArrayT<ChannelT>     m_Channels;                ///< Array of channels in this model.
+    const std::string     m_FileName;               ///< File name of this model.   TODO: Remove!?!
+    MaterialManagerImplT  m_MaterialMan;            ///< The material manager for the materials that are used with the meshes of this model.
+    ArrayT<JointT>        m_Joints;                 ///< Array of joints of this model.
+    ArrayT<MeshT>         m_Meshes;                 ///< Array of (sub)meshes of this model.
+    ArrayT<SkinT>         m_Skins;                  ///< Array of additional/alternative skins for this model.
+    ArrayT<GuiFixtureT>   m_GuiFixtures;            ///< Array of GUI fixtures in the model.
+    ArrayT<GuiLocT>       m_GuiLocs;                ///< Array of locations where GUIs can be attached to this model.
+    ArrayT<AnimT>         m_Anims;                  ///< Array of animations of this model.
+    ArrayT<ChannelT>      m_Channels;               ///< Array of channels in this model.
 
-    const bool           m_UseGivenTangentSpace;    ///< Whether this model should use the fixed, given tangent space that was loaded from the model file, or it the tangent space is dynamically recomputed (useful for animated models).
- // const bool           m_CastShadows;             ///< Should this model cast shadows?
+    const bool            m_UseGivenTangentSpace;   ///< Whether this model should use the fixed, given tangent space that was loaded from the model file, or it the tangent space is dynamically recomputed (useful for animated models).
+ // const bool            m_CastShadows;            ///< Should this model cast shadows?
 
-    CafuModelT*          m_DlodModel;               ///< Use the m_DlodModel instead of this when the camera is more than m_DlodDist away.
-    float                m_DlodDist;                ///< The distance beyond which the m_DlodModel is used instead of this.
+    CafuModelT*           m_DlodModel;              ///< Use the m_DlodModel instead of this when the camera is more than m_DlodDist away.
+    float                 m_DlodDist;               ///< The distance beyond which the m_DlodModel is used instead of this.
 
-    mutable AnimPoseT*   m_TEMP_Pose;               ///< TEMPORARY!
+    mutable AnimExprPoolT m_AnimExprPool;           ///< The pool of anim expressions for this model.
+    mutable AnimPoseT*    m_TEMP_Pose;              ///< TEMPORARY!
 };
 
 #endif

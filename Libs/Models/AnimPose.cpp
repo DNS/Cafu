@@ -34,7 +34,7 @@ AnimPoseT::AnimPoseT(const CafuModelT& Model, IntrusivePtrT<AnimExpressionT> Ani
       m_AnimExpr(AnimExpr),
       m_SuperPose(NULL),
       m_DlodPose(NULL),
-      m_RecacheCount(0),
+      m_CachedAE(NULL),
       m_BoundingBox()
 {
     if (m_Model.GetDlodModel())
@@ -51,7 +51,7 @@ AnimPoseT::AnimPoseT(const CafuModelT& Model, int SequNr, float FrameNr)
       m_AnimExpr(new AnimExprStandardT(m_Model, SequNr, FrameNr)),
       m_SuperPose(NULL),
       m_DlodPose(m_Model.GetDlodModel() ? new AnimPoseT(*m_Model.GetDlodModel(), m_AnimExpr) : NULL),  // Recursively create the chain of dlod poses matching the chain of dlod models.
-      m_RecacheCount(0),
+      m_CachedAE(NULL),
       m_BoundingBox()
 {
 }
@@ -422,7 +422,7 @@ void AnimPoseT::UpdateData() const
 
 void AnimPoseT::Recache() const
 {
-    if (!m_SuperPose && m_RecacheCount==m_AnimExpr->GetChangeNum()) return;
+    if (!m_SuperPose && m_AnimExpr->IsEqual(m_CachedAE)) return;
 
     SyncDimensions();
     UpdateData();
@@ -437,7 +437,14 @@ void AnimPoseT::Recache() const
     //     // Compute it ourselves
     //     y();
 
-    m_RecacheCount=m_AnimExpr->GetChangeNum();
+    if (m_SuperPose)
+    {
+        assert(m_CachedAE==NULL);
+    }
+    else
+    {
+        m_CachedAE=m_AnimExpr->Clone();
+    }
 }
 
 
@@ -476,7 +483,7 @@ void AnimPoseT::SetSuperPose(const AnimPoseT* SuperPose)
     if (m_SuperPose==SuperPose) return;
 
     m_SuperPose=SuperPose;
-    m_RecacheCount=0;
+    m_CachedAE=NULL;
 
     // Recursively update the chain of dlod poses.
     if (m_DlodPose) m_DlodPose->SetSuperPose(SuperPose);

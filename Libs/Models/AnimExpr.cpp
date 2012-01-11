@@ -152,6 +152,21 @@ void AnimExprStandardT::AdvanceTime(float Time, bool ForceLoop)
 }
 
 
+IntrusivePtrT<AnimExpressionT> AnimExprStandardT::Clone() const
+{
+    return GetModel().GetAnimExprPool().GetStandard(m_SequNr, m_FrameNr);
+}
+
+
+bool AnimExprStandardT::IsEqual(const IntrusivePtrT<AnimExpressionT>& AE) const
+{
+    AnimExprStandardT* Other=dynamic_cast<AnimExprStandardT*>(AE.get());
+
+    if (!Other) return false;
+    return m_SequNr==Other->m_SequNr && m_FrameNr==Other->m_FrameNr;
+}
+
+
 void AnimExprStandardT::SetSequNr(int SequNr)
 {
     if (m_SequNr==SequNr) return;
@@ -237,6 +252,21 @@ void AnimExprFilterT::GetData(unsigned int JointNr, float& Weight, Vector3fT& Po
 }
 
 
+IntrusivePtrT<AnimExpressionT> AnimExprFilterT::Clone() const
+{
+    return GetModel().GetAnimExprPool().GetFilter(m_SubExpr->Clone(), m_ChannelNr);
+}
+
+
+bool AnimExprFilterT::IsEqual(const IntrusivePtrT<AnimExpressionT>& AE) const
+{
+    AnimExprFilterT* Other=dynamic_cast<AnimExprFilterT*>(AE.get());
+
+    if (!Other) return false;
+    return m_ChannelNr==Other->m_ChannelNr && m_SubExpr->IsEqual(Other->m_SubExpr);
+}
+
+
 /************************/
 /*** AnimExprCombineT ***/
 /************************/
@@ -293,6 +323,21 @@ void AnimExprCombineT::AdvanceTime(float Time, bool ForceLoop)
 {
     m_A->AdvanceTime(Time, ForceLoop);
     m_B->AdvanceTime(Time, ForceLoop);
+}
+
+
+IntrusivePtrT<AnimExpressionT> AnimExprCombineT::Clone() const
+{
+    return GetModel().GetAnimExprPool().GetCombine(m_A->Clone(), m_B->Clone());
+}
+
+
+bool AnimExprCombineT::IsEqual(const IntrusivePtrT<AnimExpressionT>& AE) const
+{
+    AnimExprCombineT* Other=dynamic_cast<AnimExprCombineT*>(AE.get());
+
+    if (!Other) return false;
+    return m_A->IsEqual(Other->m_A) && m_B->IsEqual(Other->m_B);
 }
 
 
@@ -394,6 +439,24 @@ void AnimExprBlendT::AdvanceTime(float Time, bool ForceLoop)
 
 
     UpdateChangeNum();
+}
+
+
+IntrusivePtrT<AnimExpressionT> AnimExprBlendT::Clone() const
+{
+    IntrusivePtrT<AnimExprBlendT> Blend=GetModel().GetAnimExprPool().GetBlend(m_A->Clone(), m_B->Clone(), m_Duration);
+
+    Blend->m_Frac=m_Frac;
+    return Blend;
+}
+
+
+bool AnimExprBlendT::IsEqual(const IntrusivePtrT<AnimExpressionT>& AE) const
+{
+    AnimExprBlendT* Other=dynamic_cast<AnimExprBlendT*>(AE.get());
+
+    if (!Other) return false;
+    return m_Frac==Other->m_Frac && m_Duration==Other->m_Duration && m_A->IsEqual(Other->m_A) && m_B->IsEqual(Other->m_B);
 }
 
 

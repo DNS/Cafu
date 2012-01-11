@@ -27,7 +27,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Templates/Pointer.hpp"
 
 
+class AnimExpressionT;
 class CafuModelT;
+
+typedef IntrusivePtrT<AnimExpressionT> AnimExpressionPtrT;
 
 
 /// Animation expressions describe the "skeleton pose" of a model.
@@ -76,6 +79,15 @@ class AnimExpressionT
     /// Advances the frame numbers of the referenced animation sequences, cross-fades, etc.
     virtual void AdvanceTime(float Time, bool ForceLoop=false) { }
 
+    /// The virtual copy constructor.
+    /// Creates a new anim expression that is an exact copy of this, even when called
+    /// via the base class pointer (the caller doesn't need to know the exact derived class).
+    virtual IntrusivePtrT<AnimExpressionT> Clone() const=0;
+
+    /// Returns whether this anim expression is equal to \c A.
+    /// Two anim expressions are equal if their GetData() methods return the same data.
+    virtual bool IsEqual(const IntrusivePtrT<AnimExpressionT>& AE) const=0;
+
 
     protected:
 
@@ -104,6 +116,8 @@ class AnimExprStandardT : public AnimExpressionT
     // Implementations and overrides for base class methods.
     virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const;
     virtual void AdvanceTime(float Time, bool ForceLoop=false);
+    virtual IntrusivePtrT<AnimExpressionT> Clone() const;   // Unfortunately, the proper covariant return type cannot be used with smart pointers.
+    virtual bool IsEqual(const IntrusivePtrT<AnimExpressionT>& AE) const;
 
     /// Returns the sequence number that is currently set in this expression.
     int GetSequNr() const { return m_SequNr; }
@@ -144,6 +158,8 @@ class AnimExprFilterT : public AnimExpressionT
     virtual unsigned int GetChangeNum() const;
     virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const;
     virtual void AdvanceTime(float Time, bool ForceLoop=false) { m_SubExpr->AdvanceTime(Time, ForceLoop); }
+    virtual IntrusivePtrT<AnimExpressionT> Clone() const;   // Unfortunately, the proper covariant return type cannot be used with smart pointers.
+    virtual bool IsEqual(const IntrusivePtrT<AnimExpressionT>& AE) const;
 
 
     private:
@@ -166,6 +182,8 @@ class AnimExprCombineT : public AnimExpressionT
     virtual unsigned int GetChangeNum() const;
     virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const;
     virtual void AdvanceTime(float Time, bool ForceLoop=false);
+    virtual IntrusivePtrT<AnimExpressionT> Clone() const;   // Unfortunately, the proper covariant return type cannot be used with smart pointers.
+    virtual bool IsEqual(const IntrusivePtrT<AnimExpressionT>& AE) const;
 
 
     private:
@@ -199,6 +217,8 @@ class AnimExprBlendT : public AnimExpressionT
     virtual unsigned int GetChangeNum() const;
     virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const;
     virtual void AdvanceTime(float Time, bool ForceLoop=false);
+    virtual IntrusivePtrT<AnimExpressionT> Clone() const;   // Unfortunately, the proper covariant return type cannot be used with smart pointers.
+    virtual bool IsEqual(const IntrusivePtrT<AnimExpressionT>& AE) const;
 
 
     private:
