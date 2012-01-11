@@ -142,13 +142,13 @@ void AnimExprStandardT::AdvanceTime(float Time, bool ForceLoop)
 }
 
 
-IntrusivePtrT<AnimExpressionT> AnimExprStandardT::Clone() const
+AnimExpressionPtrT AnimExprStandardT::Clone() const
 {
     return GetModel().GetAnimExprPool().GetStandard(m_SequNr, m_FrameNr);
 }
 
 
-bool AnimExprStandardT::IsEqual(const IntrusivePtrT<AnimExpressionT>& AE) const
+bool AnimExprStandardT::IsEqual(const AnimExpressionPtrT& AE) const
 {
     AnimExprStandardT* Other=dynamic_cast<AnimExprStandardT*>(AE.get());
 
@@ -194,7 +194,7 @@ namespace
 }
 
 
-AnimExprFilterT::AnimExprFilterT(const CafuModelT& Model, IntrusivePtrT<AnimExpressionT> SubExpr, unsigned int ChannelNr)
+AnimExprFilterT::AnimExprFilterT(const CafuModelT& Model, AnimExpressionPtrT SubExpr, unsigned int ChannelNr)
     : AnimExpressionT(Model),
       m_SubExpr(SubExpr),
       m_ChannelNr(ChannelNr)
@@ -202,7 +202,7 @@ AnimExprFilterT::AnimExprFilterT(const CafuModelT& Model, IntrusivePtrT<AnimExpr
 }
 
 
-AnimExprFilterT::AnimExprFilterT(const CafuModelT& Model, IntrusivePtrT<AnimExpressionT> SubExpr, const std::string& ChannelName)
+AnimExprFilterT::AnimExprFilterT(const CafuModelT& Model, AnimExpressionPtrT SubExpr, const std::string& ChannelName)
     : AnimExpressionT(Model),
       m_SubExpr(SubExpr),
       m_ChannelNr(FindChannelByName(Model, ChannelName))
@@ -210,7 +210,7 @@ AnimExprFilterT::AnimExprFilterT(const CafuModelT& Model, IntrusivePtrT<AnimExpr
 }
 
 
-void AnimExprFilterT::ReInit(IntrusivePtrT<AnimExpressionT> SubExpr, unsigned int ChannelNr)
+void AnimExprFilterT::ReInit(AnimExpressionPtrT SubExpr, unsigned int ChannelNr)
 {
     if (m_SubExpr==SubExpr && m_ChannelNr==ChannelNr) return;
 
@@ -230,13 +230,13 @@ void AnimExprFilterT::GetData(unsigned int JointNr, float& Weight, Vector3fT& Po
 }
 
 
-IntrusivePtrT<AnimExpressionT> AnimExprFilterT::Clone() const
+AnimExpressionPtrT AnimExprFilterT::Clone() const
 {
     return GetModel().GetAnimExprPool().GetFilter(m_SubExpr->Clone(), m_ChannelNr);
 }
 
 
-bool AnimExprFilterT::IsEqual(const IntrusivePtrT<AnimExpressionT>& AE) const
+bool AnimExprFilterT::IsEqual(const AnimExpressionPtrT& AE) const
 {
     AnimExprFilterT* Other=dynamic_cast<AnimExprFilterT*>(AE.get());
 
@@ -249,7 +249,7 @@ bool AnimExprFilterT::IsEqual(const IntrusivePtrT<AnimExpressionT>& AE) const
 /*** AnimExprCombineT ***/
 /************************/
 
-AnimExprCombineT::AnimExprCombineT(const CafuModelT& Model, IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B)
+AnimExprCombineT::AnimExprCombineT(const CafuModelT& Model, AnimExpressionPtrT A, AnimExpressionPtrT B)
     : AnimExpressionT(Model),
       m_A(A),
       m_B(B)
@@ -257,7 +257,7 @@ AnimExprCombineT::AnimExprCombineT(const CafuModelT& Model, IntrusivePtrT<AnimEx
 }
 
 
-void AnimExprCombineT::ReInit(IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B)
+void AnimExprCombineT::ReInit(AnimExpressionPtrT A, AnimExpressionPtrT B)
 {
     if (m_A==A && m_B==B) return;
 
@@ -295,13 +295,13 @@ void AnimExprCombineT::AdvanceTime(float Time, bool ForceLoop)
 }
 
 
-IntrusivePtrT<AnimExpressionT> AnimExprCombineT::Clone() const
+AnimExpressionPtrT AnimExprCombineT::Clone() const
 {
     return GetModel().GetAnimExprPool().GetCombine(m_A->Clone(), m_B->Clone());
 }
 
 
-bool AnimExprCombineT::IsEqual(const IntrusivePtrT<AnimExpressionT>& AE) const
+bool AnimExprCombineT::IsEqual(const AnimExpressionPtrT& AE) const
 {
     AnimExprCombineT* Other=dynamic_cast<AnimExprCombineT*>(AE.get());
 
@@ -314,7 +314,7 @@ bool AnimExprCombineT::IsEqual(const IntrusivePtrT<AnimExpressionT>& AE) const
 /*** AnimExprBlendT ***/
 /**********************/
 
-AnimExprBlendT::AnimExprBlendT(const CafuModelT& Model, IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B, float Duration)
+AnimExprBlendT::AnimExprBlendT(const CafuModelT& Model, AnimExpressionPtrT A, AnimExpressionPtrT B, float Duration)
     : AnimExpressionT(Model),
       m_A(A),
       m_B(B),
@@ -324,7 +324,7 @@ AnimExprBlendT::AnimExprBlendT(const CafuModelT& Model, IntrusivePtrT<AnimExpres
 }
 
 
-void AnimExprBlendT::ReInit(IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B, float Duration)
+void AnimExprBlendT::ReInit(AnimExpressionPtrT A, AnimExpressionPtrT B, float Duration)
 {
     m_A=A;
     m_B=B;
@@ -394,7 +394,7 @@ void AnimExprBlendT::AdvanceTime(float Time, bool ForceLoop)
 }
 
 
-IntrusivePtrT<AnimExpressionT> AnimExprBlendT::Clone() const
+AnimExpressionPtrT AnimExprBlendT::Clone() const
 {
     IntrusivePtrT<AnimExprBlendT> Blend=GetModel().GetAnimExprPool().GetBlend(m_A->Clone(), m_B->Clone(), m_Duration);
 
@@ -403,7 +403,7 @@ IntrusivePtrT<AnimExpressionT> AnimExprBlendT::Clone() const
 }
 
 
-bool AnimExprBlendT::IsEqual(const IntrusivePtrT<AnimExpressionT>& AE) const
+bool AnimExprBlendT::IsEqual(const AnimExpressionPtrT& AE) const
 {
     AnimExprBlendT* Other=dynamic_cast<AnimExprBlendT*>(AE.get());
 
@@ -456,7 +456,7 @@ IntrusivePtrT<AnimExprStandardT> AnimExprPoolT::GetStandard(int SequNr, float Fr
 }
 
 
-IntrusivePtrT<AnimExprFilterT> AnimExprPoolT::GetFilter(IntrusivePtrT<AnimExpressionT> SubExpr, unsigned int ChannelNr)
+IntrusivePtrT<AnimExprFilterT> AnimExprPoolT::GetFilter(AnimExpressionPtrT SubExpr, unsigned int ChannelNr)
 {
     FlattenUnused();
 
@@ -477,13 +477,13 @@ IntrusivePtrT<AnimExprFilterT> AnimExprPoolT::GetFilter(IntrusivePtrT<AnimExpres
 }
 
 
-IntrusivePtrT<AnimExprFilterT> AnimExprPoolT::GetFilter(IntrusivePtrT<AnimExpressionT> SubExpr, const std::string& ChannelName)
+IntrusivePtrT<AnimExprFilterT> AnimExprPoolT::GetFilter(AnimExpressionPtrT SubExpr, const std::string& ChannelName)
 {
     return GetFilter(SubExpr, FindChannelByName(m_Model, ChannelName));
 }
 
 
-IntrusivePtrT<AnimExprCombineT> AnimExprPoolT::GetCombine(IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B)
+IntrusivePtrT<AnimExprCombineT> AnimExprPoolT::GetCombine(AnimExpressionPtrT A, AnimExpressionPtrT B)
 {
     FlattenUnused();
 
@@ -504,7 +504,7 @@ IntrusivePtrT<AnimExprCombineT> AnimExprPoolT::GetCombine(IntrusivePtrT<AnimExpr
 }
 
 
-IntrusivePtrT<AnimExprBlendT> AnimExprPoolT::GetBlend(IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B, float Duration)
+IntrusivePtrT<AnimExprBlendT> AnimExprPoolT::GetBlend(AnimExpressionPtrT A, AnimExpressionPtrT B, float Duration)
 {
     FlattenUnused();
 

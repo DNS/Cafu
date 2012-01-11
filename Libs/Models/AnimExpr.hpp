@@ -75,11 +75,11 @@ class AnimExpressionT
     /// The virtual copy constructor.
     /// Creates a new anim expression that is an exact copy of this, even when called
     /// via the base class pointer (the caller doesn't need to know the exact derived class).
-    virtual IntrusivePtrT<AnimExpressionT> Clone() const=0;
+    virtual AnimExpressionPtrT Clone() const=0;
 
     /// Returns whether this anim expression is equal to \c A.
     /// Two anim expressions are equal if their GetData() methods return the same data.
-    virtual bool IsEqual(const IntrusivePtrT<AnimExpressionT>& AE) const=0;
+    virtual bool IsEqual(const AnimExpressionPtrT& AE) const=0;
 
 
     private:
@@ -103,8 +103,8 @@ class AnimExprStandardT : public AnimExpressionT
     // Implementations and overrides for base class methods.
     virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const;
     virtual void AdvanceTime(float Time, bool ForceLoop=false);
-    virtual IntrusivePtrT<AnimExpressionT> Clone() const;   // Unfortunately, the proper covariant return type cannot be used with smart pointers.
-    virtual bool IsEqual(const IntrusivePtrT<AnimExpressionT>& AE) const;
+    virtual AnimExpressionPtrT Clone() const;   // Unfortunately, the proper covariant return type cannot be used with smart pointers.
+    virtual bool IsEqual(const AnimExpressionPtrT& AE) const;
 
     /// Returns the sequence number that is currently set in this expression.
     int GetSequNr() const { return m_SequNr; }
@@ -135,23 +135,23 @@ class AnimExprFilterT : public AnimExpressionT
 {
     public:
 
-    AnimExprFilterT(const CafuModelT& Model, IntrusivePtrT<AnimExpressionT> SubExpr, unsigned int ChannelNr);
-    AnimExprFilterT(const CafuModelT& Model, IntrusivePtrT<AnimExpressionT> SubExpr, const std::string& ChannelName);
+    AnimExprFilterT(const CafuModelT& Model, AnimExpressionPtrT SubExpr, unsigned int ChannelNr);
+    AnimExprFilterT(const CafuModelT& Model, AnimExpressionPtrT SubExpr, const std::string& ChannelName);
 
     /// Re-initializes this anim expression, so that it can be re-used with different parameters (on the same model).
-    void ReInit(IntrusivePtrT<AnimExpressionT> SubExpr, unsigned int ChannelNr);
+    void ReInit(AnimExpressionPtrT SubExpr, unsigned int ChannelNr);
 
     // Implementations and overrides for base class methods.
     virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const;
     virtual void AdvanceTime(float Time, bool ForceLoop=false) { m_SubExpr->AdvanceTime(Time, ForceLoop); }
-    virtual IntrusivePtrT<AnimExpressionT> Clone() const;   // Unfortunately, the proper covariant return type cannot be used with smart pointers.
-    virtual bool IsEqual(const IntrusivePtrT<AnimExpressionT>& AE) const;
+    virtual AnimExpressionPtrT Clone() const;   // Unfortunately, the proper covariant return type cannot be used with smart pointers.
+    virtual bool IsEqual(const AnimExpressionPtrT& AE) const;
 
 
     private:
 
-    IntrusivePtrT<AnimExpressionT> m_SubExpr;
-    unsigned int                   m_ChannelNr;
+    AnimExpressionPtrT m_SubExpr;
+    unsigned int       m_ChannelNr;
 };
 
 
@@ -159,22 +159,22 @@ class AnimExprCombineT : public AnimExpressionT
 {
     public:
 
-    AnimExprCombineT(const CafuModelT& Model, IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B);
+    AnimExprCombineT(const CafuModelT& Model, AnimExpressionPtrT A, AnimExpressionPtrT B);
 
     /// Re-initializes this anim expression, so that it can be re-used with different parameters (on the same model).
-    void ReInit(IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B);
+    void ReInit(AnimExpressionPtrT A, AnimExpressionPtrT B);
 
     // Implementations and overrides for base class methods.
     virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const;
     virtual void AdvanceTime(float Time, bool ForceLoop=false);
-    virtual IntrusivePtrT<AnimExpressionT> Clone() const;   // Unfortunately, the proper covariant return type cannot be used with smart pointers.
-    virtual bool IsEqual(const IntrusivePtrT<AnimExpressionT>& AE) const;
+    virtual AnimExpressionPtrT Clone() const;   // Unfortunately, the proper covariant return type cannot be used with smart pointers.
+    virtual bool IsEqual(const AnimExpressionPtrT& AE) const;
 
 
     private:
 
-    IntrusivePtrT<AnimExpressionT> m_A;
-    IntrusivePtrT<AnimExpressionT> m_B;
+    AnimExpressionPtrT m_A;
+    AnimExpressionPtrT m_B;
 };
 
 
@@ -182,18 +182,18 @@ class AnimExprBlendT : public AnimExpressionT
 {
     public:
 
-    AnimExprBlendT(const CafuModelT& Model, IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B, float Duration);
+    AnimExprBlendT(const CafuModelT& Model, AnimExpressionPtrT A, AnimExpressionPtrT B, float Duration);
 
     /// Re-initializes this anim expression, so that it can be re-used with different parameters (on the same model).
     /// Note that resetting \c A, \c B or \c Duration individually is not possible, because the implementation
     /// may prune and drop \c A when the blend is complete.
-    void ReInit(IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B, float Duration);
+    void ReInit(AnimExpressionPtrT A, AnimExpressionPtrT B, float Duration);
 
     /// Returns the "blend from" sub-expression.
-    IntrusivePtrT<AnimExpressionT> GetA() const { return m_A; }
+    AnimExpressionPtrT GetA() const { return m_A; }
 
     /// Returns the "blend to" sub-expression.
-    IntrusivePtrT<AnimExpressionT> GetB() const { return m_B; }
+    AnimExpressionPtrT GetB() const { return m_B; }
 
     /// Returns how far the blend has advanced.
     float GetFrac() const { return m_Frac; }
@@ -201,16 +201,16 @@ class AnimExprBlendT : public AnimExpressionT
     // Implementations and overrides for base class methods.
     virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const;
     virtual void AdvanceTime(float Time, bool ForceLoop=false);
-    virtual IntrusivePtrT<AnimExpressionT> Clone() const;   // Unfortunately, the proper covariant return type cannot be used with smart pointers.
-    virtual bool IsEqual(const IntrusivePtrT<AnimExpressionT>& AE) const;
+    virtual AnimExpressionPtrT Clone() const;   // Unfortunately, the proper covariant return type cannot be used with smart pointers.
+    virtual bool IsEqual(const AnimExpressionPtrT& AE) const;
 
 
     private:
 
-    IntrusivePtrT<AnimExpressionT> m_A;
-    IntrusivePtrT<AnimExpressionT> m_B;
-    float                          m_Duration;
-    float                          m_Frac;
+    AnimExpressionPtrT m_A;
+    AnimExpressionPtrT m_B;
+    float              m_Duration;
+    float              m_Frac;
 };
 
 
@@ -222,10 +222,10 @@ class AnimExprPoolT
 
     // These methods mimic the ctors of the anim expression classes.
     IntrusivePtrT<AnimExprStandardT> GetStandard(int SequNr, float FrameNr);
-    IntrusivePtrT<AnimExprFilterT>   GetFilter(IntrusivePtrT<AnimExpressionT> SubExpr, unsigned int ChannelNr);
-    IntrusivePtrT<AnimExprFilterT>   GetFilter(IntrusivePtrT<AnimExpressionT> SubExpr, const std::string& ChannelName);
-    IntrusivePtrT<AnimExprCombineT>  GetCombine(IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B);
-    IntrusivePtrT<AnimExprBlendT>    GetBlend(IntrusivePtrT<AnimExpressionT> A, IntrusivePtrT<AnimExpressionT> B, float Duration);
+    IntrusivePtrT<AnimExprFilterT>   GetFilter(AnimExpressionPtrT SubExpr, unsigned int ChannelNr);
+    IntrusivePtrT<AnimExprFilterT>   GetFilter(AnimExpressionPtrT SubExpr, const std::string& ChannelName);
+    IntrusivePtrT<AnimExprCombineT>  GetCombine(AnimExpressionPtrT A, AnimExpressionPtrT B);
+    IntrusivePtrT<AnimExprBlendT>    GetBlend(AnimExpressionPtrT A, AnimExpressionPtrT B, float Duration);
 
 
     private:
