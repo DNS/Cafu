@@ -32,13 +32,11 @@ env.StaticLibrary(
 # and thus would involve all related external libraries as well.
 envModelLoaders = env.Clone()
 
-envModelLoaders.Append(CPPPATH=["#/ExtLibs/assimp/include"])
-
 if os.path.exists(Dir("#/ExtLibs/fbx/include").abspath):
     envModelLoaders.Append(CPPDEFINES=["HAVE_FBX_SDK"])
     envModelLoaders.Append(CPPPATH=["#/ExtLibs/fbx/include"])
 
-envModelLoaders.StaticLibrary("ModelLoaders", ["Models/Loader_assimp.cpp", "Models/Loader_fbx.cpp"])
+envModelLoaders.StaticLibrary("ModelLoaders", ["Models/Loader_fbx.cpp"])
 
 
 

@@ -27,7 +27,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "GuiSys/GuiImpl.hpp"
 #include "Models/Loader_ase.hpp"
-#include "Models/Loader_assimp.hpp"
 #include "Models/Loader_cmdl.hpp"
 #include "Models/Loader_dlod.hpp"
 #include "Models/Loader_dummy.hpp"
@@ -275,6 +274,11 @@ namespace
     else if (cf::String::EndsWith(fn, "md5mesh")) { LoaderMd5T    Loader(fn, Flags);          return new CafuModelT(Loader); }
     else if (cf::String::EndsWith(fn, "obj"    )) { LoaderFbxT    Loader(fn, UserCbs, Flags); return new CafuModelT(Loader); }
 
-    LoaderAssimpT Loader(fn, Flags);
-    return new CafuModelT(Loader);
+    throw ModelLoaderT::LoadErrorT(
+        "No loader is available for model files of this type.\n"
+        "Export or convert your model to one of the supported file formats, "
+        "or contact the support forums for additional help.");
+
+    // We never get here.
+    return NULL;
 }

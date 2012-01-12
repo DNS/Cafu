@@ -235,8 +235,7 @@ my_build_dir_rel=my_build_dir+"/release"
 my_build_dir_prf=my_build_dir+"/profile"
 
 
-ExtLibsList = ["assimp",
-               "bullet",
+ExtLibsList = ["bullet",
                "freealut",
                "freetype",
                "jpeg",

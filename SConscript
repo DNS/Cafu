@@ -151,7 +151,7 @@ if sys.platform=="linux2":
 
 envCaWE = wxEnv.Clone()
 envCaWE.Append(CPPPATH=['ExtLibs/lua/src', 'ExtLibs/noise/src'])
-envCaWE.Append(LIBS=Split("SceneGraph MatSys ClipSys cfsLib ModelLoaders cfs_jpeg assimp bulletcollision noise lua minizip lightwave freetype png z"))
+envCaWE.Append(LIBS=Split("SceneGraph MatSys ClipSys cfsLib ModelLoaders cfs_jpeg bulletcollision noise lua minizip lightwave freetype png z"))
 
 SourceFilesList = (Glob("CaWE/*.cpp")
     +Glob("CaWE/FontWizard/*.cpp")
