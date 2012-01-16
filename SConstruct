@@ -385,14 +385,11 @@ if os.path.exists("SConscript"):
     if "r" in BVs: buildMode = "rel"; SConscript('SConscript', exports=[{'env':envRelease_Cafu}, 'buildMode', 'compiler'], variant_dir=""+my_build_dir_rel, duplicate=0)
     if "p" in BVs: buildMode = "prf"; SConscript('SConscript', exports=[{'env':envProfile_Cafu}, 'buildMode', 'compiler'], variant_dir=""+my_build_dir_prf, duplicate=0)
 
-if os.path.exists("Games/DeathMatch/Code/SConscript"):
-    # Build the DeathMatch DLL.
-    if "d" in BVs: buildMode = "dbg"; SConscript('Games/DeathMatch/Code/SConscript', exports=[{'env':envDebug_Cafu},   'buildMode'], variant_dir="Games/DeathMatch/Code/"+my_build_dir_dbg, duplicate=0)
-    if "r" in BVs: buildMode = "rel"; SConscript('Games/DeathMatch/Code/SConscript', exports=[{'env':envRelease_Cafu}, 'buildMode'], variant_dir="Games/DeathMatch/Code/"+my_build_dir_rel, duplicate=0)
-    if "p" in BVs: buildMode = "prf"; SConscript('Games/DeathMatch/Code/SConscript', exports=[{'env':envProfile_Cafu}, 'buildMode'], variant_dir="Games/DeathMatch/Code/"+my_build_dir_prf, duplicate=0)
+# Build the game DLLs.
+for GameName in os.listdir("Games/"):
+    CodeDir = "Games/" + GameName + "/Code/"
 
-if os.path.exists("Games/VSWM/Code/SConscript"):
-    # Build the VSWM DLL.
-    if "d" in BVs: buildMode = "dbg"; SConscript('Games/VSWM/Code/SConscript', exports=[{'env':envDebug_Cafu},   'buildMode'], variant_dir="Games/VSWM/Code/"+my_build_dir_dbg, duplicate=0)
-    if "r" in BVs: buildMode = "rel"; SConscript('Games/VSWM/Code/SConscript', exports=[{'env':envRelease_Cafu}, 'buildMode'], variant_dir="Games/VSWM/Code/"+my_build_dir_rel, duplicate=0)
-    if "p" in BVs: buildMode = "prf"; SConscript('Games/VSWM/Code/SConscript', exports=[{'env':envProfile_Cafu}, 'buildMode'], variant_dir="Games/VSWM/Code/"+my_build_dir_prf, duplicate=0)
+    if os.path.exists(CodeDir + "SConscript"):
+        if "d" in BVs: buildMode = "dbg"; SConscript(CodeDir + "SConscript", exports=[{'env':envDebug_Cafu},   'buildMode'], variant_dir=CodeDir + my_build_dir_dbg, duplicate=0)
+        if "r" in BVs: buildMode = "rel"; SConscript(CodeDir + "SConscript", exports=[{'env':envRelease_Cafu}, 'buildMode'], variant_dir=CodeDir + my_build_dir_rel, duplicate=0)
+        if "p" in BVs: buildMode = "prf"; SConscript(CodeDir + "SConscript", exports=[{'env':envProfile_Cafu}, 'buildMode'], variant_dir=CodeDir + my_build_dir_prf, duplicate=0)
