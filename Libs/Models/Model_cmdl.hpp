@@ -284,7 +284,7 @@ class CafuModelT
     AnimExprPoolT& GetAnimExprPool() const { return m_AnimExprPool; }
 
     /// This method is strictly for backwards-compatibility only, do not use in new code!
-    AnimPoseT* GetSharedPose(int SequNr, float FrameNr) const;
+    AnimPoseT* GetSharedPose(IntrusivePtrT<AnimExpressionT> AE) const;
 
     /// An obsolete method that should not be used in new code.
     bool GetGuiPlane(Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const;

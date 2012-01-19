@@ -29,7 +29,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/CollisionModel_base.hpp"
 
 
-CommandModifyModelT::CommandModifyModelT(MapDocumentT& MapDoc, MapModelT* Model, const wxString& ModelFileName, const wxString& CollisionModelFileName, const wxString& Label, float Scale, int Sequence, float FrameTimeOff, float FrameTimeScale, bool Animated)
+CommandModifyModelT::CommandModifyModelT(MapDocumentT& MapDoc, MapModelT* Model, const wxString& ModelFileName,
+    const wxString& CollisionModelFileName, const wxString& Label, float Scale,
+    IntrusivePtrT<AnimExprStandardT> AnimExpr, float FrameTimeOff, float FrameTimeScale, bool Animated)
     : m_MapDoc(MapDoc),
       m_Model(Model),
       m_NewModelFileName(ModelFileName),
@@ -40,8 +42,8 @@ CommandModifyModelT::CommandModifyModelT(MapDocumentT& MapDoc, MapModelT* Model,
       m_OldLabel(Model->m_Label),
       m_NewScale(Scale),
       m_OldScale(Model->m_Scale),
-      m_NewSequence(Sequence),
-      m_OldSequence(Model->m_SeqNumber),
+      m_NewAnimExpr(AnimExpr),
+      m_OldAnimExpr(Model->m_AnimExpr),
       m_NewFrameTimeOff(FrameTimeOff),
       m_OldFrameTimeOff(Model->m_FrameOffset),
       m_NewFrameTimeScale(FrameTimeScale),
@@ -69,8 +71,7 @@ bool CommandModifyModelT::Do()
     m_Model->m_CollModelFileName=m_NewCollModelFileName;
     m_Model->m_Label            =m_NewLabel;
     m_Model->m_Scale            =m_NewScale;
-    m_Model->m_SeqNumber        =m_NewSequence;
-    m_Model->m_FrameNumber      =m_Model->m_FrameNumber-m_Model->m_FrameOffset+m_NewFrameTimeOff;
+    m_Model->m_AnimExpr         =m_NewAnimExpr;
     m_Model->m_FrameOffset      =m_NewFrameTimeOff,
     m_Model->m_FrameTimeScale   =m_NewFrameTimeScale,
     m_Model->m_Animated         =m_NewAnimated;
@@ -99,8 +100,7 @@ void CommandModifyModelT::Undo()
     m_Model->m_CollModelFileName=m_OldCollModelFileName;
     m_Model->m_Label            =m_OldLabel;
     m_Model->m_Scale            =m_OldScale;
-    m_Model->m_SeqNumber        =m_OldSequence;
-    m_Model->m_FrameNumber      =m_Model->m_FrameNumber-m_Model->m_FrameOffset+m_OldFrameTimeOff;
+    m_Model->m_AnimExpr         =m_OldAnimExpr;
     m_Model->m_FrameOffset      =m_OldFrameTimeOff,
     m_Model->m_FrameTimeScale   =m_OldFrameTimeScale,
     m_Model->m_Animated         =m_OldAnimated;

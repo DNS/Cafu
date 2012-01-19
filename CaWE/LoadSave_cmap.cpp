@@ -35,6 +35,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "EditorMaterialManager.hpp"
 
 #include "Math3D/Plane3.hpp"
+#include "Models/Model_cmdl.hpp"
 #include "TextParser/TextParser.hpp"
 #include "SceneGraph/LightMapMan.hpp"
 #include "ClipSys/CollisionModelMan.hpp"
@@ -522,12 +523,12 @@ void MapModelT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc)
     TP.AssertAndSkipToken(")");
 
     m_Scale         =TP.GetNextTokenAsFloat();
-    m_SeqNumber     =TP.GetNextTokenAsInt();
+    const int SequNr=TP.GetNextTokenAsInt();
     m_FrameOffset   =TP.GetNextTokenAsFloat();
     m_FrameTimeScale=TP.GetNextTokenAsFloat();
-    m_FrameNumber   =m_FrameOffset;
     m_Animated      =TP.GetNextTokenAsInt()!=0;
 
+    m_AnimExpr=m_Model->GetAnimExprPool().GetStandard(SequNr, m_FrameOffset);
     TP.AssertAndSkipToken("}");
 }
 
@@ -546,7 +547,7 @@ void MapModelT::Save_cmap(std::ostream& OutFile, unsigned long ModelNr, const Ma
     OutFile << "( " << serialize(m_Angles[ROLL]) << " " << serialize(m_Angles[PITCH]) << " " << serialize(m_Angles[YAW]) << " ) ";
 
     OutFile << serialize(m_Scale)          << " ";
-    OutFile << m_SeqNumber                 << " ";
+    OutFile << m_AnimExpr->GetSequNr()     << " ";
     OutFile << serialize(m_FrameOffset)    << " ";
     OutFile << serialize(m_FrameTimeScale) << " ";
     OutFile << int(m_Animated)             << " ";

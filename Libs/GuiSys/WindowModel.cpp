@@ -67,6 +67,7 @@ ModelWindowT::ModelWindowT(const cf::GuiSys::WindowCreateParamsT& Params)
     : WindowT(Params),
       m_Model(NULL),
       m_Pose(NULL),
+      m_LastStdAE(),
       ModelPos(0, 0, 0),
       ModelScale(1.0f),
       ModelAngles(0, 0, 0),
@@ -83,6 +84,7 @@ ModelWindowT::ModelWindowT(const ModelWindowT& Window, bool Recursive)
     : WindowT(Window, Recursive),
       m_Model(NULL),
       m_Pose(NULL),
+      m_LastStdAE(),
       ModelPos(Window.ModelPos),
       ModelScale(Window.ModelScale),
       ModelAngles(Window.ModelAngles),
@@ -115,15 +117,17 @@ void ModelWindowT::SetModel(const std::string& FileName, std::string& ErrorMsg)
 
     if (m_Pose==NULL || PrevModel!=m_Model)
     {
+        m_LastStdAE=m_Model->GetAnimExprPool().GetStandard(0, 0.0f);
+
         delete m_Pose;
-        m_Pose=new AnimPoseT(*m_Model, 0, 0.0f);
+        m_Pose=new AnimPoseT(*m_Model, m_LastStdAE);
     }
 }
 
 
 int ModelWindowT::GetModelSequNr() const
 {
-    return m_Pose->GetSequNr();
+    return m_LastStdAE->GetSequNr();
 }
 
 
@@ -164,7 +168,7 @@ void ModelWindowT::Render() const
 
 bool ModelWindowT::OnClockTickEvent(float t)
 {
-    m_Pose->Advance(t, true);
+    m_Pose->GetAnimExpr()->AdvanceTime(t, true);
 
     return WindowT::OnClockTickEvent(t);
 }
@@ -210,9 +214,14 @@ int ModelWindowT::GetModelNrOfSequs(lua_State* LuaState)
 
 int ModelWindowT::SetModelSequNr(lua_State* LuaState)
 {
-    ModelWindowT* ModelWin=(ModelWindowT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+    ModelWindowT*     ModelWin=(ModelWindowT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+    const CafuModelT* Model   =ModelWin->m_Model;
+    AnimPoseT*        Pose    =ModelWin->m_Pose;
 
-    ModelWin->m_Pose->SetSequNr(luaL_checkinteger(LuaState, 2));
+    IntrusivePtrT<AnimExpressionT> BlendFrom=Pose->GetAnimExpr();
+
+    ModelWin->m_LastStdAE=Model->GetAnimExprPool().GetStandard(luaL_checkinteger(LuaState, 2), 0.0f);
+    Pose->SetAnimExpr(Model->GetAnimExprPool().GetBlend(BlendFrom, ModelWin->m_LastStdAE, 3.0f));
     return 0;
 }
 

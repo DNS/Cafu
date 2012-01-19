@@ -32,10 +32,9 @@ cf::SceneGraph::ModelNodeT::ModelNodeT()
       m_Origin(),
       m_Angles(),
       m_Scale(0.0f),
-      m_SeqNumber(0),
+      m_AnimExpr(),
       m_FrameOffset(0.0f),
       m_FrameTimeScale(1.0f),
-      m_FrameNumber(0.0f),
       m_Animate(false),
       m_Timer()
 {
@@ -48,10 +47,9 @@ cf::SceneGraph::ModelNodeT::ModelNodeT(const CafuModelT* Model, const std::strin
       m_Origin(Origin),
       m_Angles(Angles),
       m_Scale(Scale),
-      m_SeqNumber(SeqNumber),
+      m_AnimExpr(m_Model->GetAnimExprPool().GetStandard(SeqNumber, FrameOffset)),
       m_FrameOffset(FrameOffset),
       m_FrameTimeScale(FrameTimeScale),
-      m_FrameNumber(m_FrameOffset),
       m_Animate(Animate),
       m_Timer()
 {
@@ -62,19 +60,17 @@ cf::SceneGraph::ModelNodeT* cf::SceneGraph::ModelNodeT::CreateFromFile_cw(std::i
 {
     ModelNodeT* ModelNode=new ModelNodeT();
 
-    ModelNode->m_Model    =ModelMan.GetModel(Pool.ReadString(InFile));
-    ModelNode->m_Label    =aux::ReadString(InFile);
-    ModelNode->m_Origin   =aux::ReadVector3f(InFile);
+    ModelNode->m_Model =ModelMan.GetModel(Pool.ReadString(InFile));
+    ModelNode->m_Label =aux::ReadString(InFile);
+    ModelNode->m_Origin=aux::ReadVector3f(InFile);
+    ModelNode->m_Angles=Pool.ReadVector3f(InFile);
+    ModelNode->m_Scale =aux::ReadFloat(InFile);
 
-    ModelNode->m_Angles   =Pool.ReadVector3f(InFile);
-
-    ModelNode->m_Scale    =aux::ReadFloat(InFile);
-    ModelNode->m_SeqNumber=aux::ReadInt32(InFile);
-
+    const int32_t SequNr       =aux::ReadInt32(InFile);
     ModelNode->m_FrameOffset   =aux::ReadFloat(InFile);
     ModelNode->m_FrameTimeScale=aux::ReadFloat(InFile);
 
-    ModelNode->m_FrameNumber=ModelNode->m_FrameOffset;
+    ModelNode->m_AnimExpr=ModelNode->m_Model->GetAnimExprPool().GetStandard(SequNr, ModelNode->m_FrameOffset);
 
     InFile.read((char*)&ModelNode->m_Animate, sizeof(ModelNode->m_Animate));
 
@@ -98,7 +94,7 @@ void cf::SceneGraph::ModelNodeT::WriteTo(std::ostream& OutFile, aux::PoolT& Pool
     Pool.Write(OutFile, m_Angles);
 
     aux::Write(OutFile, m_Scale);
-    aux::Write(OutFile, (int32_t)m_SeqNumber);
+    aux::Write(OutFile, (int32_t)m_AnimExpr->GetSequNr());
 
     aux::Write(OutFile, m_FrameOffset);
     aux::Write(OutFile, m_FrameTimeScale);
@@ -111,7 +107,7 @@ const BoundingBox3T<double>& cf::SceneGraph::ModelNodeT::GetBoundingBox() const
 {
     static BoundingBox3dT BB;
 
-    BB=m_Model->GetSharedPose(m_SeqNumber, m_FrameNumber)->GetBB().AsBoxOfDouble();
+    BB=m_Model->GetSharedPose(m_AnimExpr)->GetBB().AsBoxOfDouble();
 
     return BB;
 }
@@ -121,13 +117,11 @@ void cf::SceneGraph::ModelNodeT::DrawAmbientContrib(const Vector3dT& ViewerPos) 
 {
     // Calculate model distance from viewer position.
     float      Distance=length(m_Origin-ViewerPos.AsVectorOfFloat());
-    AnimPoseT* Pose    =m_Model->GetSharedPose(m_SeqNumber, m_FrameNumber);
+    AnimPoseT* Pose    =m_Model->GetSharedPose(m_AnimExpr);
 
     if (m_Animate)
     {
-        Pose->Advance(float(m_Timer.GetSecondsSinceLastCall())*m_FrameTimeScale);
-
-        m_FrameNumber=Pose->GetFrameNr();
+        m_AnimExpr->AdvanceTime(float(m_Timer.GetSecondsSinceLastCall())*m_FrameTimeScale);
     }
 
     MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);

@@ -46,17 +46,6 @@ AnimPoseT::AnimPoseT(const CafuModelT& Model, IntrusivePtrT<AnimExpressionT> Ani
 }
 
 
-AnimPoseT::AnimPoseT(const CafuModelT& Model, int SequNr, float FrameNr)
-    : m_Model(Model),
-      m_AnimExpr(new AnimExprStandardT(m_Model, SequNr, FrameNr)),
-      m_SuperPose(NULL),
-      m_DlodPose(m_Model.GetDlodModel() ? new AnimPoseT(*m_Model.GetDlodModel(), m_AnimExpr) : NULL),  // Recursively create the chain of dlod poses matching the chain of dlod models.
-      m_CachedAE(NULL),
-      m_BoundingBox()
-{
-}
-
-
 AnimPoseT::~AnimPoseT()
 {
     delete m_DlodPose;
@@ -448,36 +437,6 @@ void AnimPoseT::Recache() const
 }
 
 
-int   AnimPoseT::GetSequNr() const
-{
-    return dynamic_cast<const AnimExprStandardT*>(&*m_AnimExpr)->GetSequNr();
-}
-
-
-float AnimPoseT::GetFrameNr() const
-{
-    return dynamic_cast<const AnimExprStandardT*>(&*m_AnimExpr)->GetFrameNr();
-}
-
-
-void AnimPoseT::SetSequNr(int SequNr)
-{
-    dynamic_cast<AnimExprStandardT*>(&*m_AnimExpr)->SetSequNr(SequNr);
-
-    // Recursively update the chain of dlod poses.
-    if (m_DlodPose) m_DlodPose->SetSequNr(SequNr);
-}
-
-
-void AnimPoseT::SetFrameNr(float FrameNr)
-{
-    dynamic_cast<AnimExprStandardT*>(&*m_AnimExpr)->SetFrameNr(FrameNr);
-
-    // Recursively update the chain of dlod poses.
-    if (m_DlodPose) m_DlodPose->SetFrameNr(FrameNr);
-}
-
-
 void AnimPoseT::SetSuperPose(const AnimPoseT* SuperPose)
 {
     if (m_SuperPose==SuperPose) return;
@@ -487,18 +446,6 @@ void AnimPoseT::SetSuperPose(const AnimPoseT* SuperPose)
 
     // Recursively update the chain of dlod poses.
     if (m_DlodPose) m_DlodPose->SetSuperPose(SuperPose);
-}
-
-
-void AnimPoseT::Advance(float Time, bool ForceLoop)
-{
-    m_AnimExpr->AdvanceTime(Time, ForceLoop);
-
-    // Don't do this -- the dlod models share the same anim expression as the main model.
-    // In fact, this method should be removed. Have the caller call Pose->GetAnimExpr()->AdvanceTime() instead.
-    //
-    // // Recursively update the chain of dlod poses.
-    // if (m_DlodPose) m_DlodPose->Advance(Time, ForceLoop);
 }
 
 

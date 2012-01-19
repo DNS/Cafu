@@ -252,6 +252,6 @@ void EntHandGrenadeT::Draw(bool /*FirstPersonView*/, float LodDist) const
 {
     if (State.ActiveWeaponFrameNr>=3.0) return;
 
-    AnimPoseT* Pose=m_Model->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
+    AnimPoseT* Pose=m_Model->GetSharedPose(m_Model->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr));
     Pose->Draw(-1 /*default skin*/, LodDist);
 }

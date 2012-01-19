@@ -69,7 +69,8 @@ class AnimExpressionT
     ///   - the joints position, quaternion and scale values.
     virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const=0;
 
-    /// Advances the frame numbers of the referenced animation sequences, cross-fades, etc.
+    /// Advances the time for this anim expression,
+    /// i.e.\ frame numbers of the referenced animation sequences, cross-fades, etc.
     virtual void AdvanceTime(float Time, bool ForceLoop=false) { }
 
     /// The virtual copy constructor.

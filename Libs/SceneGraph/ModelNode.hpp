@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_MODEL_NODE_HPP_INCLUDED
 
 #include "Node.hpp"
+#include "Models/AnimExpr.hpp"
 #include "Util/Util.hpp"
 
 
@@ -72,10 +73,9 @@ namespace cf
             Vector3fT         m_Origin;
             Vector3fT         m_Angles;
             float             m_Scale;
-            int               m_SeqNumber;
+            mutable IntrusivePtrT<AnimExprStandardT> m_AnimExpr;    // FIXME: See comment below. The anim expression is updated inside the constant DrawAmbientContrib() method...
             float             m_FrameOffset;
             float             m_FrameTimeScale;
-            mutable float     m_FrameNumber;    // FIXME: See comment below. The models animation frame number is updated inside the constant DrawAmbientContrib() method...
             bool              m_Animate;
 
             // TODO/FIXME Unfortunately a mutable timer is necessary in order to get the frame time (done via a non const method in TimerT) on each

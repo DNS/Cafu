@@ -88,9 +88,6 @@ class AnimPoseT
     /// The constructor.
     AnimPoseT(const CafuModelT& Model, IntrusivePtrT<AnimExpressionT> AnimExpr);
 
-    /// The constructor.
-    AnimPoseT(const CafuModelT& Model, int SequNr=-1, float FrameNr=0.0f);
-
     /// The destructor.
     ~AnimPoseT();
 
@@ -102,16 +99,6 @@ class AnimPoseT
     /// \param AnimExpr   The new anim expression to use for this pose.
     void SetAnimExpr(IntrusivePtrT<AnimExpressionT> AnimExpr);
 
-    int GetSequNr() const;
-
-    /// @param SequNr   The number of the animation sequence to use, -1 for the bind pose.
-    void SetSequNr(int SequNr);
-
-    float GetFrameNr() const;
-
-    /// @param FrameNr      The frame number in the animation sequence to render the model at.
-    void SetFrameNr(float FrameNr);
-
     /// This method assigns a pose of a parent or "super" model that should be used when rendering this model.
     ///
     /// For example, a player model can act as the super model for a weapon,
@@ -120,10 +107,6 @@ class AnimPoseT
     ///
     /// @param SuperPose   The super model pose that should be used when rendering this model.
     void SetSuperPose(const AnimPoseT* SuperPose);
-
-    /// Advances the pose in time.
-    /// Use GetFrameNr() to learn the new frame number after calling this method.
-    void Advance(float Time, bool ForceLoop=false);
 
     /// Call this if something in the related model has changed.
     void SetNeedsRecache() { m_CachedAE=NULL; }

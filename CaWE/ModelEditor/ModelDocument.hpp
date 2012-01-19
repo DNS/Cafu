@@ -63,11 +63,9 @@ namespace ModelEditor
         {
             public:
 
-            AnimStateT(const CafuModelT& Model)
-                : Pool(Model), LastStdAE(Pool.GetStandard(-1, 0.0f)), Pose(Model, LastStdAE), Speed(1.0f), Loop(true) { }
+            AnimStateT(const CafuModelT& Model);
 
-            AnimExprPoolT                    Pool;
-            IntrusivePtrT<AnimExprStandardT> LastStdAE;
+            IntrusivePtrT<AnimExprStandardT> LastStdAE; ///< The last (most recent) "standard" anim expression that we set in the anim pose.
             AnimPoseT                        Pose;      ///< The current pose of the model, as defined by sequence and frame number.
             float                            Speed;     ///< The speed (relative to clock time) with which the animation is advanced, usually 0 for stop or 1 for playback.
             bool                             Loop;      ///< When playing the sequence, loop automatically when its end has been reached?

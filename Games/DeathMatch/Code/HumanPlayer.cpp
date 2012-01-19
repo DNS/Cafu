@@ -462,10 +462,10 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     // Advance the frame time of the weapon.
                     const CafuModelT* WeaponModel=CarriedWeapon->GetViewWeaponModel();
 
-                    AnimPoseT* Pose=WeaponModel->GetSharedPose(State.ActiveWeaponSequNr, State.ActiveWeaponFrameNr);
-                    Pose->Advance(PlayerCommands[PCNr].FrameTime, true);
+                    IntrusivePtrT<AnimExprStandardT> StdAE=WeaponModel->GetAnimExprPool().GetStandard(State.ActiveWeaponSequNr, State.ActiveWeaponFrameNr);
+                    StdAE->AdvanceTime(PlayerCommands[PCNr].FrameTime, true);
 
-                    const float NewFrameNr=Pose->GetFrameNr();
+                    const float NewFrameNr=StdAE->GetFrameNr();
                     const bool  AnimSequenceWrap=NewFrameNr < State.ActiveWeaponFrameNr || NewFrameNr > WeaponModel->GetAnims()[State.ActiveWeaponSequNr].Frames.Size()-1;
 
                     State.ActiveWeaponFrameNr=NewFrameNr;
@@ -693,11 +693,11 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
 
                 // Advance frame time of model sequence.
-                const CafuModelT* PlayerModel=cf::GameSys::GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
-                AnimPoseT*        Pose       =PlayerModel->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
+                const CafuModelT*                PlayerModel=cf::GameSys::GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
+                IntrusivePtrT<AnimExprStandardT> StdAE      =PlayerModel->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
 
-                Pose->Advance(PlayerCommands[PCNr].FrameTime, true);
-                State.ModelFrameNr=Pose->GetFrameNr();
+                StdAE->AdvanceTime(PlayerCommands[PCNr].FrameTime, true);
+                State.ModelFrameNr=StdAE->GetFrameNr();
                 break;
             }
 
@@ -730,11 +730,11 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 }
 
                 // Advance frame time of model sequence.
-                const CafuModelT* PlayerModel=cf::GameSys::GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
-                AnimPoseT*        Pose       =PlayerModel->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
+                const CafuModelT*                PlayerModel=cf::GameSys::GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
+                IntrusivePtrT<AnimExprStandardT> StdAE      =PlayerModel->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
 
-                Pose->Advance(PlayerCommands[PCNr].FrameTime, false);
-                State.ModelFrameNr=Pose->GetFrameNr();
+                StdAE->AdvanceTime(PlayerCommands[PCNr].FrameTime, false);
+                State.ModelFrameNr=StdAE->GetFrameNr();
 
                 // We entered this state after we died.
                 // Now leave it only after we have come to a complete halt, and the death sequence is over.
@@ -965,7 +965,7 @@ void EntHumanPlayerT::Draw(bool FirstPersonView, float LodDist) const
 
 
             const CafuModelT* WeaponModel=cf::GameSys::GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->GetViewWeaponModel();
-            AnimPoseT*        Pose       =WeaponModel->GetSharedPose(State.ActiveWeaponSequNr, State.ActiveWeaponFrameNr);
+            AnimPoseT*        Pose       =WeaponModel->GetSharedPose(WeaponModel->GetAnimExprPool().GetStandard(State.ActiveWeaponSequNr, State.ActiveWeaponFrameNr));
 
             Pose->Draw(-1 /*default skin*/, LodDist);
         }
@@ -982,14 +982,14 @@ void EntHumanPlayerT::Draw(bool FirstPersonView, float LodDist) const
 
         // Draw the own player body model and the "_p" (player) model of the active weapon as sub-model of the body.
         const CafuModelT* PlayerModel=cf::GameSys::GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
-        AnimPoseT*        Pose       =PlayerModel->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
+        AnimPoseT*        Pose       =PlayerModel->GetSharedPose(PlayerModel->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr));
 
         Pose->Draw(-1 /*default skin*/, LodDist);
 
         if (State.HaveWeapons & (1 << State.ActiveWeaponSlot))
         {
             const CafuModelT* WeaponModel=cf::GameSys::GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->GetPlayerWeaponModel();
-            AnimPoseT*        WeaponPose =WeaponModel->GetSharedPose(0, 0.0f);
+            AnimPoseT*        WeaponPose =WeaponModel->GetSharedPose(WeaponModel->GetAnimExprPool().GetStandard(0, 0.0f));
 
             WeaponPose->SetSuperPose(Pose);
             WeaponPose->Draw(-1 /*default skin*/, LodDist);
@@ -1163,12 +1163,12 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
     }
     else
     {
-        const CafuModelT* PlayerModel=cf::GameSys::GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
-        AnimPoseT*        Pose       =PlayerModel->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
+        const CafuModelT*                PlayerModel=cf::GameSys::GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
+        IntrusivePtrT<AnimExprStandardT> StdAE      =PlayerModel->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
 
         // Implicit simple "mini-prediction". WARNING, this does not really work...!
-        Pose->Advance(FrameTime, State.StateOfExistance!=StateOfExistance_Dead);
-        State.ModelFrameNr=Pose->GetFrameNr();
+        StdAE->AdvanceTime(FrameTime, State.StateOfExistance!=StateOfExistance_Dead);
+        State.ModelFrameNr=StdAE->GetFrameNr();
     }
 
     TimeForLightSource+=FrameTime;

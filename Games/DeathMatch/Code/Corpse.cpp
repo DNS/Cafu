@@ -85,7 +85,7 @@ void EntCorpseT::Draw(bool /*FirstPersonView*/, float LodDist) const
     MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, 0.0f, 0.0f, -32.0f);
 
     const CafuModelT* Model=cf::GameSys::GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
-    AnimPoseT*        Pose =Model->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
+    AnimPoseT*        Pose =Model->GetSharedPose(Model->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr));
 
     Pose->Draw(-1 /*default skin*/, LodDist);
 

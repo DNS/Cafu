@@ -292,7 +292,7 @@ CafuModelT::CafuModelT(ModelLoaderT& Loader)
         }
     }
 
-    m_TEMP_Pose=new AnimPoseT(*this);
+    m_TEMP_Pose=new AnimPoseT(*this, m_AnimExprPool.GetStandard(-1, 0.0f));
 
     // Make sure that each skin has as many materials as there are meshes.
     for (unsigned long SkinNr=0; SkinNr<m_Skins.Size(); SkinNr++)
@@ -929,10 +929,9 @@ bool CafuModelT::IsVertexNrOK(const GuiFixtureT& GF, unsigned int PointNr) const
 }
 
 
-AnimPoseT* CafuModelT::GetSharedPose(int SequNr, float FrameNr) const
+AnimPoseT* CafuModelT::GetSharedPose(IntrusivePtrT<AnimExpressionT> AE) const
 {
-    m_TEMP_Pose->SetSequNr(SequNr);
-    m_TEMP_Pose->SetFrameNr(FrameNr);
+    m_TEMP_Pose->SetAnimExpr(AE);
 
     return m_TEMP_Pose;
 }

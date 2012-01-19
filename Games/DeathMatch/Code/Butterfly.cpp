@@ -89,7 +89,7 @@ void EntButterflyT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 
 void EntButterflyT::Draw(bool /*FirstPersonView*/, float LodDist) const
 {
-    AnimPoseT* Pose=m_Model->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
+    AnimPoseT* Pose=m_Model->GetSharedPose(m_Model->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr));
     Pose->Draw(-1 /*default skin*/, LodDist);
 }
 
@@ -97,7 +97,8 @@ void EntButterflyT::Draw(bool /*FirstPersonView*/, float LodDist) const
 void EntButterflyT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
 {
     // Implicit simple "mini-prediction".
-    AnimPoseT* Pose=m_Model->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
-    Pose->Advance(FrameTime, true);
-    State.ModelFrameNr=Pose->GetFrameNr();
+    IntrusivePtrT<AnimExprStandardT> AnimExpr=m_Model->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
+
+    AnimExpr->AdvanceTime(FrameTime, true);
+    State.ModelFrameNr=AnimExpr->GetFrameNr();
 }

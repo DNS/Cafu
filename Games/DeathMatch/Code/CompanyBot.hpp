@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_COMPANY_BOT_HPP_INCLUDED
 
 #include "../../BaseEntity.hpp"
+#include "Models/AnimExpr.hpp"
 #include "btBulletDynamicsCommon.h"
 
 
@@ -58,7 +59,11 @@ class EntCompanyBotT : public BaseEntityT, public btMotionState
 
     private:
 
+    void AdvanceModelTime(float Time, bool Loop);
+
     const CafuModelT* m_CompanyBotModel;
+    IntrusivePtrT<AnimExpressionT>   m_AnimExpr;
+    IntrusivePtrT<AnimExprStandardT> m_LastStdAE;
     const CafuModelT* m_WeaponModel;
     float             m_TimeForLightSource;
 

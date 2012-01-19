@@ -58,10 +58,9 @@ MapModelT::MapModelT(MapDocumentT& MapDoc, const wxString& ModelFileName, const 
       m_Label(""),
       m_Angles(),
       m_Scale(1.0f),
-      m_SeqNumber(0),
+      m_AnimExpr(m_Model->GetAnimExprPool().GetStandard(0, 0.0f)),
       m_FrameOffset(0.0f),
       m_FrameTimeScale(1.0f),
-      m_FrameNumber(0.0f),
       m_Animated(false),
       m_Timer()
 {
@@ -77,13 +76,13 @@ MapModelT::MapModelT(MapDocumentT& MapDoc, const wxString& ModelFileName, const 
       m_Label(Label),
       m_Angles(Angles),
       m_Scale(Scale),
-      m_SeqNumber(Sequence),
+      m_AnimExpr(),
       m_FrameOffset(FrameOffset),
       m_FrameTimeScale(FrameTimeScale),
-      m_FrameNumber(m_FrameOffset),
       m_Animated(Animated),
       m_Timer()
 {
+    m_AnimExpr=m_Model->GetAnimExprPool().GetStandard(Sequence, m_FrameOffset);
 }
 
 
@@ -95,10 +94,9 @@ MapModelT::MapModelT(const MapModelT& Model)
       m_Label(Model.m_Label),   // Although the value should be unique, we have to copy it anyway, or else copies e.g. for the undo/redo system won't work as expected. Uniqueness must be dealt with and established elsewhere, in a more global scope.
       m_Angles(Model.m_Angles),
       m_Scale(Model.m_Scale),
-      m_SeqNumber(Model.m_SeqNumber),
+      m_AnimExpr(dynamic_cast<AnimExprStandardT*>(Model.m_AnimExpr->Clone().get())),
       m_FrameOffset(Model.m_FrameOffset),
       m_FrameTimeScale(Model.m_FrameTimeScale),
-      m_FrameNumber(Model.m_FrameNumber),
       m_Animated(Model.m_Animated),
       m_Timer()
 {
@@ -127,10 +125,9 @@ void MapModelT::Assign(const MapElementT* Elem)
     m_Label            =Model->m_Label;     // Although the value should be unique, we have to assign it anyway, or else copies e.g. for the undo/redo system won't work as expected. Uniqueness must be dealt with and established elsewhere, in a more global scope.
     m_Angles           =Model->m_Angles;
     m_Scale            =Model->m_Scale;
-    m_SeqNumber        =Model->m_SeqNumber;
+    m_AnimExpr         =dynamic_cast<AnimExprStandardT*>(Model->m_AnimExpr->Clone().get());
     m_FrameOffset      =Model->m_FrameOffset;
     m_FrameTimeScale   =Model->m_FrameTimeScale;
-    m_FrameNumber      =Model->m_FrameNumber;
     m_Animated         =Model->m_Animated;
     m_Timer            =Model->m_Timer;
 }
@@ -141,7 +138,7 @@ BoundingBox3fT MapModelT::GetBB() const
     // TODO: Cache!
     // The 3D bounds are the bounds of the oriented model's first sequence, so that frustum culling works properly in the 3D view.
     Vector3fT VerticesBB[8];
-    m_Model->GetSharedPose(m_SeqNumber, 0.0f)->GetBB().GetCornerVertices(VerticesBB);
+    m_Model->GetSharedPose(m_AnimExpr)->GetBB().GetCornerVertices(VerticesBB);
 
     // Rotate all eight vertices.
     for (unsigned long VertexNr=0; VertexNr<8; VertexNr++)
@@ -186,13 +183,11 @@ void MapModelT::Render3D(Renderer3DT& Renderer) const
 {
     const Vector3fT ViewPoint=Renderer.GetViewWin3D().GetCamera().Pos;
     const float     ModelDist=length(m_Origin-ViewPoint);
-    AnimPoseT*      Pose     =m_Model->GetSharedPose(m_SeqNumber, m_FrameNumber);
+    AnimPoseT*      Pose     =m_Model->GetSharedPose(m_AnimExpr);
 
     if (Options.view3d.AnimateModels && m_Animated)
     {
-        Pose->Advance(float(m_Timer.GetSecondsSinceLastCall())*m_FrameTimeScale);
-
-        m_FrameNumber=Pose->GetFrameNr();
+        m_AnimExpr->AdvanceTime(float(m_Timer.GetSecondsSinceLastCall())*m_FrameTimeScale);
     }
 
     if (ModelDist<float(Options.view3d.ModelDistance))

@@ -194,7 +194,7 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
     // Note that the bounding box depends on the current model sequence,
     // and it must be properly scaled and rotated for world space.
     VectorT V[8];
-    m_Model->GetSharedPose(m_SequNr, 0.0f)->GetBB().AsBoxOfDouble().GetCornerVertices(V);
+    m_Model->GetSharedPose(m_Model->GetAnimExprPool().GetStandard(m_SequNr, 0.0f))->GetBB().AsBoxOfDouble().GetCornerVertices(V);
 
     for (unsigned int VertexNr=0; VertexNr<8; VertexNr++)
     {
@@ -287,7 +287,7 @@ void EntStaticDetailModelT::Draw(bool /*FirstPersonView*/, float LodDist) const
     MatSys::Renderer->SetCurrentEyePosition(EyePos.x, EyePos.y, EyePos.z);
 
 
-    AnimPoseT* Pose=m_Model->GetSharedPose(m_SequNr, m_FrameNr);
+    AnimPoseT* Pose=m_Model->GetSharedPose(m_Model->GetAnimExprPool().GetStandard(m_SequNr, m_FrameNr));
     Pose->Draw(-1 /*default skin*/, LodDist);
 
 
@@ -345,9 +345,10 @@ void EntStaticDetailModelT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
     if (m_PlayAnim)
     {
         // Advance the client-local animation.
-        AnimPoseT* Pose=m_Model->GetSharedPose(m_SequNr, m_FrameNr);
-        Pose->Advance(FrameTime, true);
-        m_FrameNr=Pose->GetFrameNr();
+        IntrusivePtrT<AnimExprStandardT> StdAE=m_Model->GetAnimExprPool().GetStandard(m_SequNr, m_FrameNr);
+
+        StdAE->AdvanceTime(FrameTime, true);
+        m_FrameNr=StdAE->GetFrameNr();
     }
 
 
@@ -416,7 +417,7 @@ bool EntStaticDetailModelT::GetGuiPlane(Vector3fT& GuiOrigin, Vector3fT& GuiAxis
 
 bool EntStaticDetailModelT::GetGuiPlane(unsigned int GFNr, Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const
 {
-    if (!m_Model->GetSharedPose(m_SequNr, m_FrameNr)->GetGuiPlane(GFNr, GuiOrigin, GuiAxisX, GuiAxisY)) return false;
+    if (!m_Model->GetSharedPose(m_Model->GetAnimExprPool().GetStandard(m_SequNr, m_FrameNr))->GetGuiPlane(GFNr, GuiOrigin, GuiAxisX, GuiAxisY)) return false;
 
     // Okay, got the plane. Now transform it from model space into world space.
     GuiOrigin=scale(GuiOrigin, 25.4f);

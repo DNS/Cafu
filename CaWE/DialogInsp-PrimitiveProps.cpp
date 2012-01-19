@@ -279,7 +279,7 @@ void InspDlgPrimitivePropsT::UpdateGrid()
             m_PropMan->AppendIn(Cat, new GameFilePropertyT("Collision Model", wxPG_LABEL, Model->m_CollModelFileName, m_MapDoc, "Collision Model (*.cmap)|*.cmap|All Files (*.*)|*.*", "/Models/"))->SetClientData(Model);
             m_PropMan->AppendIn(Cat, new wxStringProperty ("Label",           wxPG_LABEL, Model->m_Label))->SetClientData(Model);
             m_PropMan->AppendIn(Cat, new wxFloatProperty  ("Scale",           wxPG_LABEL, Model->m_Scale))->SetClientData(Model);
-            m_PropMan->AppendIn(Cat, new wxIntProperty    ("Sequence Number", wxPG_LABEL, Model->m_SeqNumber))->SetClientData(Model);
+            m_PropMan->AppendIn(Cat, new wxIntProperty    ("Sequence Number", wxPG_LABEL, Model->m_AnimExpr->GetSequNr()))->SetClientData(Model);
             m_PropMan->AppendIn(Cat, new wxFloatProperty  ("Frame Offset",    wxPG_LABEL, Model->m_FrameOffset))->SetClientData(Model);
             m_PropMan->AppendIn(Cat, new wxFloatProperty  ("Frame Scale",     wxPG_LABEL, Model->m_FrameTimeScale))->SetClientData(Model);
 
@@ -367,21 +367,21 @@ void InspDlgPrimitivePropsT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
         CommandT*           Command =NULL;
 
         if (PropName=="Model")
-            Command=new CommandModifyModelT(*m_MapDoc, Model, Prop->GetValueAsString(), Model->m_CollModelFileName, Model->m_Label, Model->m_Scale, Model->m_SeqNumber, Model->m_FrameOffset, Model->m_FrameTimeScale, Model->m_Animated);
+            Command=new CommandModifyModelT(*m_MapDoc, Model, Prop->GetValueAsString(), Model->m_CollModelFileName, Model->m_Label, Model->m_Scale, Model->m_AnimExpr, Model->m_FrameOffset, Model->m_FrameTimeScale, Model->m_Animated);
         else if (PropName=="Collision Model")
-            Command=new CommandModifyModelT(*m_MapDoc, Model, Model->m_ModelFileName, Prop->GetValueAsString(), Model->m_Label, Model->m_Scale, Model->m_SeqNumber, Model->m_FrameOffset, Model->m_FrameTimeScale, Model->m_Animated);
+            Command=new CommandModifyModelT(*m_MapDoc, Model, Model->m_ModelFileName, Prop->GetValueAsString(), Model->m_Label, Model->m_Scale, Model->m_AnimExpr, Model->m_FrameOffset, Model->m_FrameTimeScale, Model->m_Animated);
         else if (PropName=="Label")
-            Command=new CommandModifyModelT(*m_MapDoc, Model, Model->m_ModelFileName, Model->m_CollModelFileName, Prop->GetValueAsString(), Model->m_Scale, Model->m_SeqNumber, Model->m_FrameOffset, Model->m_FrameTimeScale, Model->m_Animated);
+            Command=new CommandModifyModelT(*m_MapDoc, Model, Model->m_ModelFileName, Model->m_CollModelFileName, Prop->GetValueAsString(), Model->m_Scale, Model->m_AnimExpr, Model->m_FrameOffset, Model->m_FrameTimeScale, Model->m_Animated);
         else if (PropName=="Scale")
-            Command=new CommandModifyModelT(*m_MapDoc, Model, Model->m_ModelFileName, Model->m_CollModelFileName, Model->m_Label, PropValueF, Model->m_SeqNumber, Model->m_FrameOffset, Model->m_FrameTimeScale, Model->m_Animated);
+            Command=new CommandModifyModelT(*m_MapDoc, Model, Model->m_ModelFileName, Model->m_CollModelFileName, Model->m_Label, PropValueF, Model->m_AnimExpr, Model->m_FrameOffset, Model->m_FrameTimeScale, Model->m_Animated);
         else if (PropName=="Sequence Number")
-            Command=new CommandModifyModelT(*m_MapDoc, Model, Model->m_ModelFileName, Model->m_CollModelFileName, Model->m_Label, Model->m_Scale, Prop->GetValue().GetLong(), Model->m_FrameOffset, Model->m_FrameTimeScale, Model->m_Animated);
+            Command=new CommandModifyModelT(*m_MapDoc, Model, Model->m_ModelFileName, Model->m_CollModelFileName, Model->m_Label, Model->m_Scale, Model->m_Model->GetAnimExprPool().GetStandard(Prop->GetValue().GetLong(), 0.0f), Model->m_FrameOffset, Model->m_FrameTimeScale, Model->m_Animated);
         else if (PropName=="Frame Offset")
-            Command=new CommandModifyModelT(*m_MapDoc, Model, Model->m_ModelFileName, Model->m_CollModelFileName, Model->m_Label, Model->m_Scale, Model->m_SeqNumber, PropValueF, Model->m_FrameTimeScale, Model->m_Animated);
+            Command=new CommandModifyModelT(*m_MapDoc, Model, Model->m_ModelFileName, Model->m_CollModelFileName, Model->m_Label, Model->m_Scale, Model->m_AnimExpr, PropValueF, Model->m_FrameTimeScale, Model->m_Animated);
         else if (PropName=="Frame Scale")
-            Command=new CommandModifyModelT(*m_MapDoc, Model, Model->m_ModelFileName, Model->m_CollModelFileName, Model->m_Label, Model->m_Scale, Model->m_SeqNumber, Model->m_FrameOffset, PropValueF, Model->m_Animated);
+            Command=new CommandModifyModelT(*m_MapDoc, Model, Model->m_ModelFileName, Model->m_CollModelFileName, Model->m_Label, Model->m_Scale, Model->m_AnimExpr, Model->m_FrameOffset, PropValueF, Model->m_Animated);
         else if (PropName=="Animated")
-            Command=new CommandModifyModelT(*m_MapDoc, Model, Model->m_ModelFileName, Model->m_CollModelFileName, Model->m_Label, Model->m_Scale, Model->m_SeqNumber, Model->m_FrameOffset, Model->m_FrameTimeScale, Prop->GetValue().GetBool());
+            Command=new CommandModifyModelT(*m_MapDoc, Model, Model->m_ModelFileName, Model->m_CollModelFileName, Model->m_Label, Model->m_Scale, Model->m_AnimExpr, Model->m_FrameOffset, Model->m_FrameTimeScale, Prop->GetValue().GetBool());
 
         if (Command)
         {

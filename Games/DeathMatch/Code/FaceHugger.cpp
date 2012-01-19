@@ -105,18 +105,18 @@ bool TestParticleMoveFunction(ParticleMST* Particle, float Time)
 
 void EntFaceHuggerT::Draw(bool /*FirstPersonView*/, float LodDist) const
 {
-    AnimPoseT* Pose=m_Model->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
+    AnimPoseT* Pose=m_Model->GetSharedPose(m_Model->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr));
     Pose->Draw(-1 /*default skin*/, LodDist);
 }
 
 
 void EntFaceHuggerT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
 {
-    AnimPoseT* Pose=m_Model->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
-    Pose->Advance(FrameTime, true);
+    IntrusivePtrT<AnimExprStandardT> StdAE=m_Model->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
+    StdAE->AdvanceTime(FrameTime, true);
 
-    const bool SequenceWrap=Pose->GetFrameNr() < State.ModelFrameNr;
-    State.ModelFrameNr=Pose->GetFrameNr();
+    const bool SequenceWrap=StdAE->GetFrameNr() < State.ModelFrameNr;
+    State.ModelFrameNr=StdAE->GetFrameNr();
 
     if (SequenceWrap)
     {

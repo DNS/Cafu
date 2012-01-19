@@ -131,7 +131,7 @@ void EntWeaponT::Draw(bool /*FirstPersonView*/, float LodDist) const
 {
     if (State.StateOfExistance==StateOfExistance_NotActive) return;
 
-    AnimPoseT* Pose=m_WeaponModel->GetSharedPose(0, 0.0f);
+    AnimPoseT* Pose=m_WeaponModel->GetSharedPose(m_WeaponModel->GetAnimExprPool().GetStandard(0, 0.0f));
     Pose->Draw(-1 /*default skin*/, LodDist);
 
     // RotAngle  +=  234.0*FrameTime; if (RotAngle>360.0) RotAngle-=360.0;

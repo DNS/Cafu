@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_COMMAND_MODIFY_MODEL_HPP_INCLUDED
 
 #include "../CommandPattern.hpp"
+#include "Models/AnimExpr.hpp"
 
 
 class MapDocumentT;
@@ -33,7 +34,9 @@ class CommandModifyModelT : public CommandT
 {
     public:
 
-    CommandModifyModelT(MapDocumentT& MapDoc, MapModelT* Model, const wxString& ModelFileName, const wxString& CollisionModelFileName, const wxString& Label, float Scale, int Sequence, float FrameTimeOff, float FrameTimeScale, bool Animated);
+    CommandModifyModelT(MapDocumentT& MapDoc, MapModelT* Model, const wxString& ModelFileName,
+        const wxString& CollisionModelFileName, const wxString& Label, float Scale,
+        IntrusivePtrT<AnimExprStandardT> AnimExpr, float FrameTimeOff, float FrameTimeScale, bool Animated);
 
     // CommandT implementation.
     bool Do();
@@ -43,24 +46,24 @@ class CommandModifyModelT : public CommandT
 
     private:
 
-    MapDocumentT&  m_MapDoc;
-    MapModelT*     m_Model;
-    const wxString m_NewModelFileName;
-    const wxString m_OldModelFileName;
-    const wxString m_NewCollModelFileName;
-    const wxString m_OldCollModelFileName;
-    const wxString m_NewLabel;
-    const wxString m_OldLabel;
-    float          m_NewScale;
-    float          m_OldScale;
-    int            m_NewSequence;
-    int            m_OldSequence;
-    float          m_NewFrameTimeOff;
-    float          m_OldFrameTimeOff;
-    float          m_NewFrameTimeScale;
-    float          m_OldFrameTimeScale;
-    bool           m_NewAnimated;
-    bool           m_OldAnimated;
+    MapDocumentT&                    m_MapDoc;
+    MapModelT*                       m_Model;
+    const wxString                   m_NewModelFileName;
+    const wxString                   m_OldModelFileName;
+    const wxString                   m_NewCollModelFileName;
+    const wxString                   m_OldCollModelFileName;
+    const wxString                   m_NewLabel;
+    const wxString                   m_OldLabel;
+    float                            m_NewScale;
+    float                            m_OldScale;
+    IntrusivePtrT<AnimExprStandardT> m_NewAnimExpr;
+    IntrusivePtrT<AnimExprStandardT> m_OldAnimExpr;
+    float                            m_NewFrameTimeOff;
+    float                            m_OldFrameTimeOff;
+    float                            m_NewFrameTimeScale;
+    float                            m_OldFrameTimeScale;
+    bool                             m_NewAnimated;
+    bool                             m_OldAnimated;
 };
 
 #endif

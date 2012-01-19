@@ -76,9 +76,14 @@ EntCompanyBotT::EntCompanyBotT(const EntityCreateParamsT& Params)
                                0,       // ActiveWeaponSequNr
                                0.0)),   // ActiveWeaponFrameNr
       m_CompanyBotModel(Params.GameWorld->GetModel("Games/DeathMatch/Models/Players/Trinity.mdl")),
+      m_AnimExpr(),
+      m_LastStdAE(),
       m_WeaponModel(Params.GameWorld->GetModel("Games/DeathMatch/Models/Weapons/DesertEagle_p.mdl")),
       m_TimeForLightSource(0.0f)
 {
+    m_LastStdAE=m_CompanyBotModel->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
+    m_AnimExpr =m_LastStdAE;
+
     // Wir könnten im Boden stecken oder darüber schweben - korrigiere entsprechend!
     // If multiple solid entities are stacked upon each other, this code might leave gaps between them,
     // depending on their order. Not a serious problem, though - the physics code will correct it.
@@ -195,9 +200,7 @@ void EntCompanyBotT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
         bool DummyOldWishJump=false;
         Physics::MoveHuman(State, ClipModel, FrameTime, VectorT(), VectorT(), false, DummyOldWishJump, 0.0, GameWorld->GetClipWorld());
 
-        AnimPoseT* Pose=m_CompanyBotModel->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
-        Pose->Advance(FrameTime);
-        State.ModelFrameNr=Pose->GetFrameNr();
+        AdvanceModelTime(FrameTime, false);
 
         // As we're in "dead" state, the ClipModel is no longer registered with the clip world,
         // and there is no need to update its position or to re-register.
@@ -259,9 +262,7 @@ void EntCompanyBotT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
     XYVel.z=0;
     double NewSpeed=length(XYVel);
 
-    AnimPoseT* Pose=m_CompanyBotModel->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
-    Pose->Advance(FrameTime, true);
-    State.ModelFrameNr=Pose->GetFrameNr();
+    AdvanceModelTime(FrameTime, true);
 
     if (OldSpeed<1000 && NewSpeed>1000) { State.ModelSequNr=3; State.ModelFrameNr=0.0; }
     if (OldSpeed>1000 && NewSpeed<1000) { State.ModelSequNr=1; State.ModelFrameNr=0.0; }
@@ -348,10 +349,10 @@ void EntCompanyBotT::Draw(bool /*FirstPersonView*/, float LodDist) const
     MatSys::Renderer->GetCurrentEyePosition        ()[2]+=32.0f;
     MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, 0.0f, 0.0f, -32.0f);
 
-    AnimPoseT* Pose=m_CompanyBotModel->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
+    AnimPoseT* Pose=m_CompanyBotModel->GetSharedPose(m_AnimExpr);
     Pose->Draw(-1 /*default skin*/, LodDist);
 
-    AnimPoseT* WeaponPose=m_WeaponModel->GetSharedPose(0, 0.0f);
+    AnimPoseT* WeaponPose=m_WeaponModel->GetSharedPose(m_WeaponModel->GetAnimExprPool().GetStandard(0, 0.0f));
     WeaponPose->SetSuperPose(Pose);
     WeaponPose->Draw(-1 /*default skin*/, LodDist);
     WeaponPose->SetSuperPose(NULL);
@@ -361,9 +362,7 @@ void EntCompanyBotT::Draw(bool /*FirstPersonView*/, float LodDist) const
 void EntCompanyBotT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
 {
     // Implicit simple "mini-prediction".
-    AnimPoseT* Pose=m_CompanyBotModel->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
-    Pose->Advance(FrameTime, State.ModelSequNr<18 || State.ModelSequNr>24);
-    State.ModelFrameNr=Pose->GetFrameNr();
+    AdvanceModelTime(FrameTime, State.ModelSequNr<18 || State.ModelSequNr>24);
 
     // Advance the time for the light source.
     m_TimeForLightSource+=FrameTime;
@@ -390,4 +389,21 @@ void EntCompanyBotT::setWorldTransform(const btTransform& /*worldTrans*/)
 {
     // Never called for a kinematic rigid body.
     assert(false);
+}
+
+
+void EntCompanyBotT::AdvanceModelTime(float Time, bool Loop)
+{
+    if (State.ModelSequNr==m_LastStdAE->GetSequNr())
+    {
+        m_LastStdAE->SetFrameNr(State.ModelFrameNr);
+    }
+    else
+    {
+        m_LastStdAE=m_CompanyBotModel->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
+        m_AnimExpr =m_CompanyBotModel->GetAnimExprPool().GetBlend(m_AnimExpr, m_LastStdAE, 3.0f);
+    }
+
+    m_AnimExpr->AdvanceTime(Time, Loop);
+    State.ModelFrameNr=m_LastStdAE->GetFrameNr();
 }

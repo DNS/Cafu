@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Window.hpp"
 #include "Math3D/Vector3.hpp"
+#include "Models/AnimExpr.hpp"
 
 
 class CafuModelT;
@@ -77,12 +78,13 @@ namespace cf
 
             private:
 
-            const CafuModelT* m_Model;      ///< The model instance rendered by this window.
-            AnimPoseT*        m_Pose;       ///< The pose of the model.
-            Vector3fT         ModelPos;     ///< The position of the model in world space.
-            float             ModelScale;   ///< The scale factor applied to the model coordinates when converted to world space.
-            Vector3fT         ModelAngles;  ///< The angles around the axes that determine the orientation of the model in world space.
-            Vector3fT         CameraPos;    ///< The position of the camera in world space.
+            const CafuModelT*                m_Model;       ///< The model instance rendered by this window.
+            AnimPoseT*                       m_Pose;        ///< The pose of the model.
+            IntrusivePtrT<AnimExprStandardT> m_LastStdAE;   ///< The most recent standard expression that we set (as a subexpression of m_Pose->GetAnimExpr()).
+            Vector3fT                        ModelPos;      ///< The position of the model in world space.
+            float                            ModelScale;    ///< The scale factor applied to the model coordinates when converted to world space.
+            Vector3fT                        ModelAngles;   ///< The angles around the axes that determine the orientation of the model in world space.
+            Vector3fT                        CameraPos;     ///< The position of the camera in world space.
 
 
             // Lua script methods.

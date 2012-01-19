@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_MAP_MODEL_HPP_INCLUDED
 
 #include "MapPrimitive.hpp"
+#include "Models/AnimExpr.hpp"
 #include "Util/Util.hpp"
 
 
@@ -84,10 +85,9 @@ class MapModelT : public MapPrimitiveT
     wxString           m_Label;
     cf::math::AnglesfT m_Angles;
     float              m_Scale;
-    int                m_SeqNumber;
+    mutable IntrusivePtrT<AnimExprStandardT> m_AnimExpr;    ///< The current expression used for configuring the pose of the model.
     float              m_FrameOffset;
     float              m_FrameTimeScale;
-    mutable float      m_FrameNumber;
     bool               m_Animated;
     mutable TimerT     m_Timer;
 };

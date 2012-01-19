@@ -269,6 +269,6 @@ void EntARGrenadeT::Draw(bool /*FirstPersonView*/, float LodDist) const
     // glRotatef(float(State.Bank )/8192.0*45.0, 1.0, 0.0, 0.0);
     // glTranslatef(0.0, 0.0, 4.0);
 
-    AnimPoseT* Pose=m_Model->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
+    AnimPoseT* Pose=m_Model->GetSharedPose(m_Model->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr));
     Pose->Draw(-1 /*default skin*/, LodDist);
 }

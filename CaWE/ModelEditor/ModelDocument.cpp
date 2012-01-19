@@ -39,9 +39,18 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/confbase.h"
 
 
+ModelEditor::ModelDocumentT::AnimStateT::AnimStateT(const CafuModelT& Model)
+    : LastStdAE(Model.GetAnimExprPool().GetStandard(-1, 0.0f)),
+      Pose(Model, LastStdAE),
+      Speed(1.0f),
+      Loop(true)
+{
+}
+
+
 ModelEditor::ModelDocumentT::SubmodelT::SubmodelT(CafuModelT* Submodel)
     : m_Submodel(Submodel),
-      m_Pose(*Submodel, -1, 0.0f)
+      m_Pose(*Submodel, Submodel->GetAnimExprPool().GetStandard(-1, 0.0f))
 {
 }
 
@@ -151,8 +160,8 @@ void ModelEditor::ModelDocumentT::SetSelection(ModelElementTypeT Type, const Arr
                 BlendFrom=Blend->GetA();
         }
 
-        m_AnimState.LastStdAE=m_AnimState.Pool.GetStandard(m_Selection[ANIM].Size()==0 ? -1 : m_Selection[ANIM][0], 0.0f);
-        m_AnimState.Pose.SetAnimExpr(m_AnimState.Pool.GetBlend(BlendFrom, m_AnimState.LastStdAE, 3.0f));
+        m_AnimState.LastStdAE=m_Model->GetAnimExprPool().GetStandard(m_Selection[ANIM].Size()==0 ? -1 : m_Selection[ANIM][0], 0.0f);
+        m_AnimState.Pose.SetAnimExpr(m_Model->GetAnimExprPool().GetBlend(BlendFrom, m_AnimState.LastStdAE, 3.0f));
 
         if (m_Selection[ANIM].Size()==0)
         {
@@ -227,7 +236,7 @@ void ModelEditor::ModelDocumentT::AdvanceTime(float Time)
 {
     if (Time*m_AnimState.Speed!=0.0f)
     {
-        m_AnimState.Pose.Advance(Time*m_AnimState.Speed, m_AnimState.Loop);
+        m_AnimState.Pose.GetAnimExpr()->AdvanceTime(Time*m_AnimState.Speed, m_AnimState.Loop);
     }
 }
 

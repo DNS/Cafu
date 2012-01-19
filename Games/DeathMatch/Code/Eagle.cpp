@@ -225,16 +225,16 @@ void EntEagleT::Draw(bool /*FirstPersonView*/, float LodDist) const
     MatSys::Renderer->SetCurrentLightSourcePosition(LgtPos.x, LgtPos.y, LgtPos.z);
     MatSys::Renderer->SetCurrentEyePosition(EyePos.x, EyePos.y, EyePos.z);
 
-    AnimPoseT* Pose=m_Model->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
+    AnimPoseT* Pose=m_Model->GetSharedPose(m_Model->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr));
     Pose->Draw(-1 /*default skin*/, LodDist);
 }
 
 
 void EntEagleT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
 {
-    AnimPoseT* Pose=m_Model->GetSharedPose(State.ModelSequNr, State.ModelFrameNr);
-    Pose->Advance(FrameTime, true);
-    State.ModelFrameNr=Pose->GetFrameNr();
+    IntrusivePtrT<AnimExprStandardT> StdAE=m_Model->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
+    StdAE->AdvanceTime(FrameTime, true);
+    State.ModelFrameNr=StdAE->GetFrameNr();
 
     // Update sound position and velocity.
     EagleCry->SetPosition(State.Origin);

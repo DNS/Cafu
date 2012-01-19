@@ -55,7 +55,8 @@ MapHelperModelT::MapHelperModelT(const MapEntityT* ParentEntity, const HelperInf
     : MapHelperT(ParentEntity),
       m_HelperInfo(HelperInfo),
       m_Model(NULL),
-      m_ModelFrameNr(0.0f),
+      m_AnimExpr(),
+      m_LastStdAE(),
       m_GuiNames(),
       m_Guis(),
       m_Timer()
@@ -66,8 +67,9 @@ MapHelperModelT::MapHelperModelT(const MapEntityT* ParentEntity, const HelperInf
 MapHelperModelT::MapHelperModelT(const MapHelperModelT& Model)
     : MapHelperT(Model),
       m_HelperInfo(Model.m_HelperInfo),
-      m_Model(Model.m_Model),
-      m_ModelFrameNr(0.0f),
+      m_Model(NULL),    // Don't start with Model.m_Model, so that m_AnimExpr and m_LastStdAE are properly inited in UpdateModelCache().
+      m_AnimExpr(),
+      m_LastStdAE(),
       m_GuiNames(),
       m_Guis(),
       m_Timer(Model.m_Timer)
@@ -99,8 +101,9 @@ void MapHelperModelT::Assign(const MapElementT* Elem)
 
     m_ParentEntity=Model->m_ParentEntity;
     m_HelperInfo  =Model->m_HelperInfo;
-    m_Model       =Model->m_Model;
-    m_ModelFrameNr=Model->m_ModelFrameNr;
+    m_Model       =NULL;    // Don't assign Model->m_Model, so that m_AnimExpr and m_LastStdAE are properly inited in UpdateModelCache().
+    m_AnimExpr    =NULL;
+    m_LastStdAE   =NULL;
     m_Timer       =Model->m_Timer;
 
     ClearGuis();
@@ -118,7 +121,7 @@ BoundingBox3fT MapHelperModelT::GetBB() const
 
     // The 3D bounds are the bounds of the oriented model's first sequence, so that frustum culling works properly in the 3D view.
     Vector3fT VerticesBB[8];
-    m_Model->GetSharedPose(GetSequenceNr(), 0.0f)->GetBB().GetCornerVertices(VerticesBB);
+    m_Model->GetSharedPose(m_AnimExpr)->GetBB().GetCornerVertices(VerticesBB);
 
     // Rotate all eight vertices.
     for (unsigned long VertexNr=0; VertexNr<8; VertexNr++)
@@ -152,16 +155,30 @@ void MapHelperModelT::Render3D(Renderer3DT& Renderer) const
 
     UpdateModelCache();
 
-    const Vector3fT ViewPoint=Renderer.GetViewWin3D().GetCamera().Pos;
-    const float     ModelDist=length(Origin-ViewPoint);
-    AnimPoseT*      Pose     =m_Model->GetSharedPose(SequenceNr, m_ModelFrameNr);
+    if (SequenceNr!=m_LastStdAE->GetSequNr())
+    {
+        if (Options.view3d.AnimateModels)
+        {
+            IntrusivePtrT<AnimExpressionT> BlendFrom=m_AnimExpr;
+
+            m_LastStdAE=m_Model->GetAnimExprPool().GetStandard(SequenceNr, 0.0f);
+            m_AnimExpr =m_Model->GetAnimExprPool().GetBlend(BlendFrom, m_LastStdAE, 3.0f);
+        }
+        else
+        {
+            m_LastStdAE=m_Model->GetAnimExprPool().GetStandard(SequenceNr, 0.0f);
+            m_AnimExpr =m_LastStdAE;
+        }
+    }
 
     if (Options.view3d.AnimateModels)
     {
-        Pose->Advance(float(m_Timer.GetSecondsSinceLastCall()));
-
-        m_ModelFrameNr=Pose->GetFrameNr();
+        m_AnimExpr->AdvanceTime(float(m_Timer.GetSecondsSinceLastCall()));
     }
+
+    const Vector3fT ViewPoint=Renderer.GetViewWin3D().GetCamera().Pos;
+    const float     ModelDist=length(Origin-ViewPoint);
+    AnimPoseT*      Pose     =m_Model->GetSharedPose(m_AnimExpr);
 
     if (ModelDist < float(Options.view3d.ModelDistance))
     {
@@ -255,8 +272,9 @@ void MapHelperModelT::UpdateModelCache() const
 
         wxLogDebug("MapHelperModelT::UpdateModelCache(): Updating model from %s to %s. %s", PrevFileName, Model->GetFileName(), ErrorMsg);
 
-        m_Model       =Model;
-        m_ModelFrameNr=0.0f;
+        m_Model    =Model;
+        m_LastStdAE=m_Model->GetAnimExprPool().GetStandard(GetSequenceNr(), 0.0f);
+        m_AnimExpr =m_LastStdAE;
 
         ClearGuis();
     }
