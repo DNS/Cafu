@@ -392,6 +392,10 @@ void EntCompanyBotT::setWorldTransform(const btTransform& /*worldTrans*/)
 }
 
 
+#undef min    // See http://stackoverflow.com/questions/5004858/stdmin-gives-error
+#undef max
+
+
 void EntCompanyBotT::AdvanceModelTime(float Time, bool Loop)
 {
     if (State.ModelSequNr==m_LastStdAE->GetSequNr())
@@ -400,8 +404,24 @@ void EntCompanyBotT::AdvanceModelTime(float Time, bool Loop)
     }
     else
     {
+        const bool IsAlive=(State.ModelSequNr<18 || State.ModelSequNr>24);
+        float      BlendTime=0.3f;
+
+        if (!IsAlive)
+        {
+            BlendTime=0.2f;
+
+            if (State.ModelSequNr>=0 && State.ModelSequNr<int(m_CompanyBotModel->GetAnims().Size()))
+            {
+                const CafuModelT::AnimT& Anim=m_CompanyBotModel->GetAnims()[State.ModelSequNr];
+
+                if (Anim.Frames.Size() > 0)
+                    BlendTime=std::min(BlendTime, (Anim.Frames.Size()-1) * Anim.FPS * 0.5f);
+            }
+        }
+
         m_LastStdAE=m_CompanyBotModel->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
-        m_AnimExpr =m_CompanyBotModel->GetAnimExprPool().GetBlend(m_AnimExpr, m_LastStdAE, 3.0f);
+        m_AnimExpr =m_CompanyBotModel->GetAnimExprPool().GetBlend(m_AnimExpr, m_LastStdAE, BlendTime);
     }
 
     m_AnimExpr->AdvanceTime(Time, Loop);
