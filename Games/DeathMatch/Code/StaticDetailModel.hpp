@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_STATIC_DETAIL_MODEL_HPP_INCLUDED
 
 #include "../../BaseEntity.hpp"
+#include "Models/AnimExpr.hpp"
 
 
 class CafuModelT;
@@ -74,7 +75,10 @@ class EntStaticDetailModelT : public BaseEntityT
     const CafuModelT* m_Model;
     char&             m_PlayAnim;   ///< If 1, play the animation, i.e. advance the frames over time. If 0, keep still. This is a reference to State.Flags to have it sync'ed over the network.
     char&             m_SequNr;     ///< The number of the animation sequence to play. This is a reference to State.ModelSequNr to have it sync'ed over the network.
-    float             m_FrameNr;    ///< The current frame of the played animation sequence. Used <em>independently</em> on the server and the clients; only a <em>restart</em> of a sequence is sync'ed over the network via the EventID_RestartSequ event.
+
+    mutable IntrusivePtrT<AnimExpressionT>   m_AnimExpr;    ///< The state of the currently playing animation sequence. Used <em>independently</em> on the server and the clients; only a <em>restart</em> of a sequence is sync'ed over the network via the EventID_RestartSequ event.
+    mutable IntrusivePtrT<AnimExprStandardT> m_LastStdAE;   ///< The most recent standard expression that we set (as a subexpression of m_AnimExpr).
+
     std::string       GuiName;      ///< If our "gui" entity key is set, store the value here.
     cf::GuiSys::GuiI* Gui;          ///< If the model has GUI fixtures, we load the GUI here, *both* on the server- as well as on the client-side.
 

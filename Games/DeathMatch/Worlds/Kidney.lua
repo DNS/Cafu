@@ -10,8 +10,8 @@ function CycleAnimSequences(SDM)
     end
 end
 
-Skeleton.delay=5
+Skeleton.delay=6
 thread(CycleAnimSequences, Skeleton);
 
-FaceHugger.delay=3
+FaceHugger.delay=4
 thread(CycleAnimSequences, FaceHugger);

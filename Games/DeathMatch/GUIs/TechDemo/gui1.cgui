@@ -60,7 +60,7 @@ FarewellGUI:AddChild(TextArea2);
 function TextArea2:OnInit()
     self:set("rect", 43, 91, 558, 324);
     self:set("backColor", 1, 1, 1, 0);      -- Set alpha value to zero!
-    self:set("text", "Planned features for the next (autumn '08) release:\n"..
+    self:set("text", "Planned features for the next release:\n"..
              "    1) Vegetation for the island\n"..
              "    2) better model support\n"..
              "    3) many other improvements...\n\n"..

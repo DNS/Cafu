@@ -135,7 +135,8 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
       m_Model(NULL),
       m_PlayAnim(State.Flags),
       m_SequNr(State.ModelSequNr),
-      m_FrameNr(0.0f),
+      m_AnimExpr(),     // Inited in the ctor body below.
+      m_LastStdAE(),
       GuiName(),
       Gui(NULL)
 {
@@ -190,11 +191,16 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
         m_Model=GameWorld->GetModel("");
 
 
+    m_LastStdAE=m_Model->GetAnimExprPool().GetStandard(m_SequNr, 0.0f);
+    m_AnimExpr =m_LastStdAE;
+    m_SequNr   =m_LastStdAE->GetSequNr();   // Set m_SequNr to the m_LastStdAE's "normalized" value.
+
+
     // Set the proper Dimensions bounding box for this model.
     // Note that the bounding box depends on the current model sequence,
     // and it must be properly scaled and rotated for world space.
     VectorT V[8];
-    m_Model->GetSharedPose(m_Model->GetAnimExprPool().GetStandard(m_SequNr, 0.0f))->GetBB().AsBoxOfDouble().GetCornerVertices(V);
+    m_Model->GetSharedPose(m_AnimExpr)->GetBB().AsBoxOfDouble().GetCornerVertices(V);
 
     for (unsigned int VertexNr=0; VertexNr<8; VertexNr++)
     {
@@ -261,7 +267,7 @@ void EntStaticDetailModelT::ProcessEvent(char EventID)
     switch (EventID)
     {
         case EventID_RestartSequ:
-            m_FrameNr=0.0f;
+            m_LastStdAE->SetFrameNr(0.0f);
             break;
     }
 }
@@ -287,7 +293,7 @@ void EntStaticDetailModelT::Draw(bool /*FirstPersonView*/, float LodDist) const
     MatSys::Renderer->SetCurrentEyePosition(EyePos.x, EyePos.y, EyePos.z);
 
 
-    AnimPoseT* Pose=m_Model->GetSharedPose(m_Model->GetAnimExprPool().GetStandard(m_SequNr, m_FrameNr));
+    AnimPoseT* Pose=m_Model->GetSharedPose(m_AnimExpr);
     Pose->Draw(-1 /*default skin*/, LodDist);
 
 
@@ -333,6 +339,23 @@ void EntStaticDetailModelT::Draw(bool /*FirstPersonView*/, float LodDist) const
 
 void EntStaticDetailModelT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
 {
+    const int SequNr=(m_SequNr==255) ? -1 : m_SequNr;   // This is a hack, because m_SequNr actually has the wrong (unsigned) datatype...
+
+    if (SequNr != m_LastStdAE->GetSequNr())
+    {
+        if (m_PlayAnim)
+        {
+            m_LastStdAE=m_Model->GetAnimExprPool().GetStandard(SequNr, 0.0f);
+            m_AnimExpr =m_Model->GetAnimExprPool().GetBlend(m_AnimExpr, m_LastStdAE, 3.0f);
+        }
+        else
+        {
+            m_LastStdAE->SetSequNr(m_SequNr);
+        }
+
+        m_SequNr=m_LastStdAE->GetSequNr();  // Set m_SequNr to the m_LastStdAE's "normalized" value.
+    }
+
     if (Gui!=NULL)
     {
         // The Gui is inactive, so that the GuiMan doesn't render it (we do it ourselves above).
@@ -345,40 +368,8 @@ void EntStaticDetailModelT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
     if (m_PlayAnim)
     {
         // Advance the client-local animation.
-        IntrusivePtrT<AnimExprStandardT> StdAE=m_Model->GetAnimExprPool().GetStandard(m_SequNr, m_FrameNr);
-
-        StdAE->AdvanceTime(FrameTime, true);
-        m_FrameNr=StdAE->GetFrameNr();
+        m_AnimExpr->AdvanceTime(FrameTime, true);
     }
-
-
-    /* glColor3f(1.0, 0.0, 0.0);
-
-    VectorT V1=VectorT(State.Dimensions.Min.x, State.Dimensions.Min.y, State.Dimensions.Min.z)+State.Origin;
-    VectorT V2=VectorT(State.Dimensions.Min.x, State.Dimensions.Min.y, State.Dimensions.Max.z)+State.Origin;
-    VectorT V3=VectorT(State.Dimensions.Min.x, State.Dimensions.Max.y, State.Dimensions.Min.z)+State.Origin;
-    VectorT V4=VectorT(State.Dimensions.Min.x, State.Dimensions.Max.y, State.Dimensions.Max.z)+State.Origin;
-    VectorT V5=VectorT(State.Dimensions.Max.x, State.Dimensions.Min.y, State.Dimensions.Min.z)+State.Origin;
-    VectorT V6=VectorT(State.Dimensions.Max.x, State.Dimensions.Min.y, State.Dimensions.Max.z)+State.Origin;
-    VectorT V7=VectorT(State.Dimensions.Max.x, State.Dimensions.Max.y, State.Dimensions.Min.z)+State.Origin;
-    VectorT V8=VectorT(State.Dimensions.Max.x, State.Dimensions.Max.y, State.Dimensions.Max.z)+State.Origin;
-
-    glBegin(GL_LINES);
-        glVertex3f(V1.x, V1.z, -V1.y); glVertex3f(V2.x, V2.z, -V2.y);
-        glVertex3f(V3.x, V3.z, -V3.y); glVertex3f(V4.x, V4.z, -V4.y);
-        glVertex3f(V5.x, V5.z, -V5.y); glVertex3f(V6.x, V6.z, -V6.y);
-        glVertex3f(V7.x, V7.z, -V7.y); glVertex3f(V8.x, V8.z, -V8.y);
-
-        glVertex3f(V1.x, V1.z, -V1.y); glVertex3f(V3.x, V3.z, -V3.y);
-        glVertex3f(V3.x, V3.z, -V3.y); glVertex3f(V7.x, V7.z, -V7.y);
-        glVertex3f(V7.x, V7.z, -V7.y); glVertex3f(V5.x, V5.z, -V5.y);
-        glVertex3f(V5.x, V5.z, -V5.y); glVertex3f(V1.x, V1.z, -V1.y);
-
-        glVertex3f(V2.x, V2.z, -V2.y); glVertex3f(V4.x, V4.z, -V4.y);
-        glVertex3f(V4.x, V4.z, -V4.y); glVertex3f(V8.x, V8.z, -V8.y);
-        glVertex3f(V8.x, V8.z, -V8.y); glVertex3f(V6.x, V6.z, -V6.y);
-        glVertex3f(V6.x, V6.z, -V6.y); glVertex3f(V2.x, V2.z, -V2.y);
-    glEnd(); */
 }
 
 
@@ -417,7 +408,7 @@ bool EntStaticDetailModelT::GetGuiPlane(Vector3fT& GuiOrigin, Vector3fT& GuiAxis
 
 bool EntStaticDetailModelT::GetGuiPlane(unsigned int GFNr, Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const
 {
-    if (!m_Model->GetSharedPose(m_Model->GetAnimExprPool().GetStandard(m_SequNr, m_FrameNr))->GetGuiPlane(GFNr, GuiOrigin, GuiAxisX, GuiAxisY)) return false;
+    if (!m_Model->GetSharedPose(m_AnimExpr)->GetGuiPlane(GFNr, GuiOrigin, GuiAxisX, GuiAxisY)) return false;
 
     // Okay, got the plane. Now transform it from model space into world space.
     GuiOrigin=scale(GuiOrigin, 25.4f);
@@ -470,7 +461,7 @@ int EntStaticDetailModelT::GetSequNr(lua_State* LuaState)
 {
     EntStaticDetailModelT* Ent=(EntStaticDetailModelT*)cf::GameSys::ScriptStateT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
 
-    lua_pushinteger(LuaState, Ent->m_SequNr);
+    lua_pushinteger(LuaState, Ent->m_LastStdAE->GetSequNr());
     return 1;
 }
 
@@ -479,11 +470,9 @@ int EntStaticDetailModelT::SetSequNr(lua_State* LuaState)
 {
     EntStaticDetailModelT* Ent=(EntStaticDetailModelT*)cf::GameSys::ScriptStateT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
 
-    Ent->m_SequNr=std::max(0, luaL_checkinteger(LuaState, 2));
-    Ent->m_FrameNr=0.0f;
-    Ent->State.Events^=(1 << EventID_RestartSequ);
-
-    if (Ent->m_SequNr >= int(Ent->m_Model->GetAnims().Size())) Ent->m_SequNr=0;
+    Ent->m_LastStdAE->SetSequNr(std::max(0, luaL_checkinteger(LuaState, 2)));
+    Ent->m_LastStdAE->SetFrameNr(0.0f);
+    Ent->m_SequNr=Ent->m_LastStdAE->GetSequNr();    // Set m_SequNr to the m_LastStdAE's "normalized" value.
     return 0;
 }
 
@@ -492,7 +481,7 @@ int EntStaticDetailModelT::RestartSequ(lua_State* LuaState)
 {
     EntStaticDetailModelT* Ent=(EntStaticDetailModelT*)cf::GameSys::ScriptStateT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
 
-    Ent->m_FrameNr=0.0f;
+    Ent->m_LastStdAE->SetFrameNr(0.0f);
     Ent->State.Events^=(1 << EventID_RestartSequ);
     return 0;
 }

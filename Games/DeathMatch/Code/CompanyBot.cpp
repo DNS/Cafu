@@ -420,7 +420,7 @@ void EntCompanyBotT::AdvanceModelTime(float Time, bool Loop)
             }
         }
 
-        m_LastStdAE=m_CompanyBotModel->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
+        m_LastStdAE=m_CompanyBotModel->GetAnimExprPool().GetStandard(State.ModelSequNr, 0.0f);
         m_AnimExpr =m_CompanyBotModel->GetAnimExprPool().GetBlend(m_AnimExpr, m_LastStdAE, BlendTime);
     }
 
