@@ -45,4 +45,15 @@ class LoaderMd5T : public ModelLoaderT
     bool Load(unsigned int Level, CafuModelT*& DlodModel, float& DlodDist) { return false; }
 };
 
+
+/// This class imports animations from Doom3 .md5anim files for addition to an existing CafuModelT.
+class ImporterMd5AnimT : public AnimImporterT
+{
+    public:
+
+    ImporterMd5AnimT(const std::string& FileName);
+
+    ArrayT<CafuModelT::AnimT> Import(const ArrayT<CafuModelT::JointT>& Joints, const ArrayT<CafuModelT::MeshT>& Meshes);
+};
+
 #endif

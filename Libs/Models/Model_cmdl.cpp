@@ -356,6 +356,12 @@ CafuModelT::~CafuModelT()
 }
 
 
+void CafuModelT::Import(AnimImporterT& Importer)
+{
+    m_Anims.PushBack(Importer.Import(m_Joints, m_Meshes));
+}
+
+
 void CafuModelT::InitMeshes()
 {
     // Compute auxiliary data for each mesh.

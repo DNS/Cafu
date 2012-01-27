@@ -158,3 +158,9 @@ MaterialT ModelLoaderT::CreateDefaultMaterial(const std::string& MatName, bool E
 
     return Mat;
 }
+
+
+AnimImporterT::AnimImporterT(const std::string& FileName)
+    : m_FileName(FileName)
+{
+}

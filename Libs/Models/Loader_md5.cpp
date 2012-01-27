@@ -228,142 +228,11 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
     // Read the individual animation sequence files.
     for (unsigned long FileNr=1; FileNr<ComponentFiles.Size(); FileNr++)
     {
-        TextParserT TP(ComponentFiles[FileNr].c_str());
-
         try
         {
-            CafuModelT::AnimT Anim;
+            ImporterMd5AnimT Importer(ComponentFiles[FileNr]);
 
-            Anim.Name="Anim";
-            Anim.FPS =24.0f;
-            Anim.Next=-1;
-
-            while (!TP.IsAtEOF())
-            {
-                const std::string Token=TP.GetNextToken();
-
-                     if (Token=="MD5Version" ) { if (TP.GetNextToken()!="10") throw LoadErrorT("MD5Version is not 10."); }
-                else if (Token=="commandline") TP.GetNextToken();       // Ignore the command line.
-                else if (Token=="frameRate"  ) Anim.FPS=TP.GetNextTokenAsFloat();
-                else if (Token=="numFrames"  )
-                {
-                    // Be stricter with numFrames than with some num* variables in the md5mesh file.
-                    // This is required because for example there must be as many bounding boxes as frames.
-                    if (Anim.Frames.Size()>0) throw LoadErrorT("Anim.Frames.Size() > 0");
-
-                    Anim.Frames.PushBackEmpty(TP.GetNextTokenAsInt());
-                }
-                else if (Token=="numJoints")
-                {
-                    // The numJoints here MUST match the numJoints in the md5mesh file!
-                    const unsigned long numJoints=TP.GetNextTokenAsInt();
-
-                    if (numJoints!=Joints.Size()) { printf("%lu joints in md5anim file, %lu joints in md5mesh.\n", numJoints, Joints.Size()); throw LoadErrorT("Number of joints in the md5anim file does not match number of bones in the md5mesh."); }
-                    if (Anim.AnimJoints.Size()>0) { printf("Anim.AnimJoints.Size()==%lu\n", Anim.AnimJoints.Size()); throw LoadErrorT("Anim.AnimJoints.Size() > 0"); }
-
-                    Anim.AnimJoints.PushBackEmpty(numJoints);
-                }
-                else if (Token=="numAnimatedComponents")
-                {
-                    const unsigned long numAnimatedComponents=TP.GetNextTokenAsInt();
-
-                    // This is the number of components that is animated in the frames (and thus so many values are stored with each frame).
-                    // Therefore, the number of frames must have been specified already, so we can allocate all the memory here.
-                    if (Anim.Frames.Size()==0) throw LoadErrorT("Anim.Frames.Size() == 0");
-
-                    for (unsigned long FrameNr=0; FrameNr<Anim.Frames.Size(); FrameNr++)
-                        Anim.Frames[FrameNr].AnimData.PushBackEmpty(numAnimatedComponents);
-                }
-                else if (Token=="hierarchy")
-                {
-                    TP.AssertAndSkipToken("{");
-
-                    for (unsigned long JointNr=0; JointNr<Anim.AnimJoints.Size(); JointNr++)
-                    {
-                        // Make sure that the name and parent are identical with the joint from the md5mesh file.
-                        if (Joints[JointNr].Name  !=TP.GetNextToken()) throw LoadErrorT("Mismatching joint name.");
-                        if (Joints[JointNr].Parent!=TP.GetNextTokenAsInt()) throw LoadErrorT("Mismatching joint parent.");
-
-                        Anim.AnimJoints[JointNr].Flags       =TP.GetNextTokenAsInt();
-                        Anim.AnimJoints[JointNr].FirstDataIdx=TP.GetNextTokenAsInt();
-                    }
-
-                    TP.AssertAndSkipToken("}");
-                }
-                else if (Token=="bounds")
-                {
-                    TP.AssertAndSkipToken("{");
-
-                    for (unsigned long FrameNr=0; FrameNr<Anim.Frames.Size(); FrameNr++)
-                    {
-                        TP.AssertAndSkipToken("(");
-                        Anim.Frames[FrameNr].BB.Min.x=TP.GetNextTokenAsFloat();
-                        Anim.Frames[FrameNr].BB.Min.y=TP.GetNextTokenAsFloat();
-                        Anim.Frames[FrameNr].BB.Min.z=TP.GetNextTokenAsFloat();
-                        TP.AssertAndSkipToken(")");
-                        TP.AssertAndSkipToken("(");
-                        Anim.Frames[FrameNr].BB.Max.x=TP.GetNextTokenAsFloat();
-                        Anim.Frames[FrameNr].BB.Max.y=TP.GetNextTokenAsFloat();
-                        Anim.Frames[FrameNr].BB.Max.z=TP.GetNextTokenAsFloat();
-                        TP.AssertAndSkipToken(")");
-                    }
-
-                    TP.AssertAndSkipToken("}");
-                }
-                else if (Token=="baseframe")
-                {
-                    TP.AssertAndSkipToken("{");
-
-                    for (unsigned long JointNr=0; JointNr<Anim.AnimJoints.Size(); JointNr++)
-                    {
-                        TP.AssertAndSkipToken("(");
-                        Anim.AnimJoints[JointNr].DefaultPos.x=TP.GetNextTokenAsFloat();
-                        Anim.AnimJoints[JointNr].DefaultPos.y=TP.GetNextTokenAsFloat();
-                        Anim.AnimJoints[JointNr].DefaultPos.z=TP.GetNextTokenAsFloat();
-                        TP.AssertAndSkipToken(")");
-                        TP.AssertAndSkipToken("(");
-                        Anim.AnimJoints[JointNr].DefaultQtr.x=TP.GetNextTokenAsFloat();
-                        Anim.AnimJoints[JointNr].DefaultQtr.y=TP.GetNextTokenAsFloat();
-                        Anim.AnimJoints[JointNr].DefaultQtr.z=TP.GetNextTokenAsFloat();
-                        TP.AssertAndSkipToken(")");
-                        Anim.AnimJoints[JointNr].DefaultScale=Vector3fT(1.0f, 1.0f, 1.0f);
-                    }
-
-                    TP.AssertAndSkipToken("}");
-                }
-                else if (Token=="frame")
-                {
-                    const unsigned long FrameNr=TP.GetNextTokenAsInt();
-
-                    TP.AssertAndSkipToken("{");
-
-                    for (unsigned long ComponentNr=0; ComponentNr<Anim.Frames[FrameNr].AnimData.Size(); ComponentNr++)
-                        Anim.Frames[FrameNr].AnimData[ComponentNr]=TP.GetNextTokenAsFloat();
-
-                    TP.AssertAndSkipToken("}");
-                }
-                else
-                {
-                    // Unknown token!
-                    // If the next token is a block start, skip the block.
-                    // Otherwise it was something else that we just throw away.
-                    printf("Unknown token \"%s\", skipping...\n", Token.c_str());
-                    if (TP.GetNextToken()=="{") TP.SkipBlock("{", "}", true);
-                }
-            }
-
-            Anims.PushBack(Anim);
-        }
-        catch (const TextParserT::ParseError&)
-        {
-            // Loading this animation sequence failed, but as the base mesh (the md5mesh file)
-            // loaded properly, that is not reason enough to abort loading the entire model.
-            CafuModelT::AnimT InvalidAnim;
-
-            InvalidAnim.FPS=-1.0f;          // Use a negative FPS to flags this animation as invalid.
-            Anims.PushBack(InvalidAnim);    // Note that InvalidAnim.Frames.Size()==0, too.
-
-            printf("WARNING: Loading animation sequence file %s failed just before input byte %lu!\n", ComponentFiles[FileNr].c_str(), TP.GetReadPosByte());
+            Anims.PushBack(Importer.Import(Joints, Meshes));
         }
         catch (const LoadErrorT& LE)
         {
@@ -371,11 +240,182 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
             // loaded properly, that is not reason enough to abort loading the entire model.
             CafuModelT::AnimT InvalidAnim;
 
-            InvalidAnim.FPS=-1.0f;          // Use a negative FPS to flags this animation as invalid.
+            InvalidAnim.FPS=-1.0f;          // Use a negative FPS to flag this animation as invalid.
             Anims.PushBack(InvalidAnim);    // Note that InvalidAnim.Frames.Size()==0, too.
 
-            printf("WARNING: Loading animation sequence file %s failed just before input byte %lu:\n", ComponentFiles[FileNr].c_str(), TP.GetReadPosByte());
-            printf("%s", LE.what());
+            printf("WARNING: Loading animation sequence file %s failed:\n", ComponentFiles[FileNr].c_str());
+            printf("%s\n", LE.what());
         }
+    }
+}
+
+
+ImporterMd5AnimT::ImporterMd5AnimT(const std::string& FileName)
+    : AnimImporterT(FileName)
+{
+}
+
+
+ArrayT<CafuModelT::AnimT> ImporterMd5AnimT::Import(const ArrayT<CafuModelT::JointT>& Joints, const ArrayT<CafuModelT::MeshT>& Meshes)
+{
+    TextParserT TP(m_FileName.c_str());
+
+    try
+    {
+        CafuModelT::AnimT Anim;
+
+        Anim.Name="Anim";
+        Anim.FPS =24.0f;
+        Anim.Next=-1;
+
+        bool GotHierarchy=false;
+        bool GotBounds   =false;
+        bool GotBaseframe=false;
+        ArrayT<bool> GotFrames;
+
+        while (!TP.IsAtEOF())
+        {
+            const std::string Token=TP.GetNextToken();
+
+                 if (Token=="MD5Version" ) { if (TP.GetNextToken()!="10") throw ModelLoaderT::LoadErrorT("MD5Version is not 10."); }
+            else if (Token=="commandline") TP.GetNextToken();       // Ignore the command line.
+            else if (Token=="frameRate"  ) Anim.FPS=TP.GetNextTokenAsFloat();
+            else if (Token=="numFrames"  )
+            {
+                // Be stricter with numFrames than with some num* variables in the md5mesh file.
+                // This is required because for example there must be as many bounding boxes as frames.
+                if (Anim.Frames.Size()>0) throw ModelLoaderT::LoadErrorT("Anim.Frames.Size() > 0");
+
+                Anim.Frames.PushBackEmpty(TP.GetNextTokenAsInt());
+
+                for (unsigned long FrameNr=0; FrameNr<Anim.Frames.Size(); FrameNr++)
+                    GotFrames.PushBack(false);
+            }
+            else if (Token=="numJoints")
+            {
+                // The numJoints here MUST match the numJoints in the md5mesh file!
+                const unsigned long numJoints=TP.GetNextTokenAsInt();
+
+                if (numJoints!=Joints.Size()) { printf("%lu joints in md5anim file, %lu joints in the model.\n", numJoints, Joints.Size()); throw ModelLoaderT::LoadErrorT("The number of joints in the md5anim file does not match number of bones in the model."); }
+                if (Anim.AnimJoints.Size()>0) { printf("Anim.AnimJoints.Size()==%lu\n", Anim.AnimJoints.Size()); throw ModelLoaderT::LoadErrorT("Anim.AnimJoints.Size() > 0"); }
+
+                Anim.AnimJoints.PushBackEmpty(numJoints);
+            }
+            else if (Token=="numAnimatedComponents")
+            {
+                const unsigned long numAnimatedComponents=TP.GetNextTokenAsInt();
+
+                // This is the number of components that is animated in the frames (and thus so many values are stored with each frame).
+                // Therefore, the number of frames must have been specified already, so we can allocate all the memory here.
+                if (Anim.Frames.Size()==0) throw ModelLoaderT::LoadErrorT("Anim.Frames.Size() == 0");
+
+                for (unsigned long FrameNr=0; FrameNr<Anim.Frames.Size(); FrameNr++)
+                    Anim.Frames[FrameNr].AnimData.PushBackEmpty(numAnimatedComponents);
+            }
+            else if (Token=="hierarchy")
+            {
+                TP.AssertAndSkipToken("{");
+
+                for (unsigned long JointNr=0; JointNr<Anim.AnimJoints.Size(); JointNr++)
+                {
+                    // Make sure that the name and parent are identical with the joint from the md5mesh file.
+                    if (Joints[JointNr].Name  !=TP.GetNextToken()) throw ModelLoaderT::LoadErrorT("Mismatching joint name.");
+                    if (Joints[JointNr].Parent!=TP.GetNextTokenAsInt()) throw ModelLoaderT::LoadErrorT("Mismatching joint parent.");
+
+                    Anim.AnimJoints[JointNr].Flags       =TP.GetNextTokenAsInt();
+                    Anim.AnimJoints[JointNr].FirstDataIdx=TP.GetNextTokenAsInt();
+                }
+
+                TP.AssertAndSkipToken("}");
+                GotHierarchy=true;
+            }
+            else if (Token=="bounds")
+            {
+                TP.AssertAndSkipToken("{");
+
+                for (unsigned long FrameNr=0; FrameNr<Anim.Frames.Size(); FrameNr++)
+                {
+                    TP.AssertAndSkipToken("(");
+                    Anim.Frames[FrameNr].BB.Min.x=TP.GetNextTokenAsFloat();
+                    Anim.Frames[FrameNr].BB.Min.y=TP.GetNextTokenAsFloat();
+                    Anim.Frames[FrameNr].BB.Min.z=TP.GetNextTokenAsFloat();
+                    TP.AssertAndSkipToken(")");
+                    TP.AssertAndSkipToken("(");
+                    Anim.Frames[FrameNr].BB.Max.x=TP.GetNextTokenAsFloat();
+                    Anim.Frames[FrameNr].BB.Max.y=TP.GetNextTokenAsFloat();
+                    Anim.Frames[FrameNr].BB.Max.z=TP.GetNextTokenAsFloat();
+                    TP.AssertAndSkipToken(")");
+                }
+
+                TP.AssertAndSkipToken("}");
+                GotBounds=true;
+            }
+            else if (Token=="baseframe")
+            {
+                TP.AssertAndSkipToken("{");
+
+                for (unsigned long JointNr=0; JointNr<Anim.AnimJoints.Size(); JointNr++)
+                {
+                    TP.AssertAndSkipToken("(");
+                    Anim.AnimJoints[JointNr].DefaultPos.x=TP.GetNextTokenAsFloat();
+                    Anim.AnimJoints[JointNr].DefaultPos.y=TP.GetNextTokenAsFloat();
+                    Anim.AnimJoints[JointNr].DefaultPos.z=TP.GetNextTokenAsFloat();
+                    TP.AssertAndSkipToken(")");
+                    TP.AssertAndSkipToken("(");
+                    Anim.AnimJoints[JointNr].DefaultQtr.x=TP.GetNextTokenAsFloat();
+                    Anim.AnimJoints[JointNr].DefaultQtr.y=TP.GetNextTokenAsFloat();
+                    Anim.AnimJoints[JointNr].DefaultQtr.z=TP.GetNextTokenAsFloat();
+                    TP.AssertAndSkipToken(")");
+                    Anim.AnimJoints[JointNr].DefaultScale=Vector3fT(1.0f, 1.0f, 1.0f);
+                }
+
+                TP.AssertAndSkipToken("}");
+                GotBaseframe=true;
+            }
+            else if (Token=="frame")
+            {
+                const unsigned long FrameNr=TP.GetNextTokenAsInt();
+
+                TP.AssertAndSkipToken("{");
+
+                for (unsigned long ComponentNr=0; ComponentNr<Anim.Frames[FrameNr].AnimData.Size(); ComponentNr++)
+                    Anim.Frames[FrameNr].AnimData[ComponentNr]=TP.GetNextTokenAsFloat();
+
+                TP.AssertAndSkipToken("}");
+                GotFrames[FrameNr]=true;
+            }
+            else
+            {
+                // Unknown token!
+                // If the next token is a block start, skip the block.
+                // Otherwise it was something else that we just throw away.
+                printf("Unknown token \"%s\", skipping...\n", Token.c_str());
+                if (TP.GetNextToken()=="{") TP.SkipBlock("{", "}", true);
+            }
+        }
+
+
+        // Make sure that the imported animation sequence is valid.
+        if (Anim.AnimJoints.Size()!=Joints.Size()) throw ModelLoaderT::LoadErrorT("The number of joints in the md5anim file does not match number of bones in the model.");
+        if (!GotHierarchy) throw ModelLoaderT::LoadErrorT("There seems to be no joints hierarchy defined in this file.");
+        if (!GotBounds) throw ModelLoaderT::LoadErrorT("There seem to be no bounds in this file.");
+        if (!GotBaseframe) throw ModelLoaderT::LoadErrorT("There seems to be no baseframe data in this file.");
+        if (Anim.Frames.Size()==0) throw ModelLoaderT::LoadErrorT("The animation sequence in this file has no frames.");
+
+        for (unsigned long FrameNr=0; FrameNr<Anim.Frames.Size(); FrameNr++)
+            if (!GotFrames[FrameNr])
+                throw ModelLoaderT::LoadErrorT("Some frames in the sequence are not defined.");
+
+
+        // The animation seems ok, return it.
+        ArrayT<CafuModelT::AnimT> Anims;
+        Anims.PushBack(Anim);
+        return Anims;
+    }
+    catch (const TextParserT::ParseError&)
+    {
+        printf("WARNING: Loading animation sequence file %s failed just before input byte %lu!\n", m_FileName.c_str(), TP.GetReadPosByte());
+
+        throw ModelLoaderT::LoadErrorT("Could not parse the file.");
     }
 }

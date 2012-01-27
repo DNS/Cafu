@@ -72,6 +72,9 @@ namespace ModelEditor
         /// Creates a new GUI fixture, calls SubmitCommand() accordingly and returns its result.
         bool SubmitNewGuiFixture();
 
+        /// Imports animation sequences from a user selected file, calls SubmitCommand() accordingly and returns its result.
+        bool SubmitImportAnims();
+
         /// Creates a new animation channel, calls SubmitCommand() accordingly and returns its result.
         bool SubmitNewChannel();
 
@@ -170,6 +173,7 @@ namespace ModelEditor
             ID_MENU_MODEL_TRANSFORM,
             ID_MENU_MODEL_SKIN_ADD,
             ID_MENU_MODEL_GUIFIXTURE_ADD,
+            ID_MENU_MODEL_ANIM_IMPORT,
             ID_MENU_MODEL_CHANNEL_ADD,
             ID_MENU_MODEL_LOAD_SUBMODEL,
             ID_MENU_MODEL_UNLOAD_SUBMODELS

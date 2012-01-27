@@ -46,6 +46,14 @@ CommandAddT::CommandAddT(ModelDocumentT* ModelDoc, const ArrayT<CafuModelT::GuiF
 }
 
 
+CommandAddT::CommandAddT(ModelDocumentT* ModelDoc, const ArrayT<CafuModelT::AnimT>& Anims)
+    : m_ModelDoc(ModelDoc),
+      m_Type(ANIM),
+      m_Anims(Anims)
+{
+}
+
+
 CommandAddT::CommandAddT(ModelDocumentT* ModelDoc, const CafuModelT::ChannelT& Channel)
     : m_ModelDoc(ModelDoc),
       m_Type(CHAN),
@@ -89,15 +97,20 @@ bool CommandAddT::Do()
             }
             break;
 
+        case ANIM:
+            for (unsigned long AnimNr=0; AnimNr<m_Anims.Size(); AnimNr++)
+            {
+                Indices.PushBack(m_ModelDoc->GetModel()->m_Anims.Size());
+                m_ModelDoc->GetModel()->m_Anims.PushBack(m_Anims[AnimNr]);
+            }
+            break;
+
         case CHAN:
             for (unsigned long ChannelNr=0; ChannelNr<m_Channels.Size(); ChannelNr++)
             {
                 Indices.PushBack(m_ModelDoc->GetModel()->m_Channels.Size());
                 m_ModelDoc->GetModel()->m_Channels.PushBack(m_Channels[ChannelNr]);
             }
-            break;
-
-        default:
             break;
     }
 
@@ -145,15 +158,20 @@ void CommandAddT::Undo()
             }
             break;
 
+        case ANIM:
+            for (unsigned long AnimNr=0; AnimNr<m_Anims.Size(); AnimNr++)
+            {
+                m_ModelDoc->GetModel()->m_Anims.DeleteBack();
+                Indices.InsertAt(0, m_ModelDoc->GetModel()->m_Anims.Size());
+            }
+            break;
+
         case CHAN:
             for (unsigned long ChannelNr=0; ChannelNr<m_Channels.Size(); ChannelNr++)
             {
                 m_ModelDoc->GetModel()->m_Channels.DeleteBack();
                 Indices.InsertAt(0, m_ModelDoc->GetModel()->m_Channels.Size());
             }
-            break;
-
-        default:
             break;
     }
 
@@ -174,7 +192,6 @@ wxString CommandAddT::GetName() const
     {
         case JOINT: break;
         case MESH:  break;
-        case ANIM:  break;
 
         case SKIN:
         {
@@ -187,6 +204,12 @@ wxString CommandAddT::GetName() const
             const unsigned long Num=m_GuiFixtures.Size();
 
             Name=(Num==1) ? wxString("Add GUI fixture") : wxString::Format("Add %lu GUI fixtures", Num);
+            break;
+        }
+
+        case ANIM:
+        {
+            Name=(m_Anims.Size()==1) ? wxString("Add anim sequence") : wxString::Format("Add %lu anim sequences", m_Anims.Size());
             break;
         }
 

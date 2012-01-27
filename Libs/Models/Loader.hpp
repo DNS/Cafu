@@ -128,4 +128,26 @@ class ModelLoaderT::LoadErrorT : public std::runtime_error
     LoadErrorT(const std::string& Message);
 };
 
+
+/// The base class for importing additional animations into an existing CafuModelT.
+class AnimImporterT
+{
+    public:
+
+    /// The constructor.
+    AnimImporterT(const std::string& FileName);
+
+    /// Returns the name of the file the animations are imported from.
+    virtual const std::string& GetFileName() const { return m_FileName; }
+
+    /// Imports and returns the animation sequences from the file, optionally referring to the joints and meshes of the related model.
+    /// It is up to the caller to actually add the imported sequences to the related model instance.
+    virtual ArrayT<CafuModelT::AnimT> Import(const ArrayT<CafuModelT::JointT>& Joints, const ArrayT<CafuModelT::MeshT>& Meshes)=0;
+
+
+    protected:
+
+    const std::string m_FileName;
+};
+
 #endif

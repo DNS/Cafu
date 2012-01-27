@@ -40,6 +40,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../ParentFrame.hpp"
 
 #include "MaterialSystem/Material.hpp"
+#include "Models/Loader_md5.hpp"
 #include "Models/Model_cmdl.hpp"
 
 #include "wx/wx.h"
@@ -171,6 +172,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     ModelMenu->Append(ID_MENU_MODEL_TRANSFORM, "&Transform...\tCtrl+T", "Transform the model");
     ModelMenu->Append(ID_MENU_MODEL_SKIN_ADD, "Add skin", "Adds a new skin to the model");
     ModelMenu->Append(ID_MENU_MODEL_GUIFIXTURE_ADD, "Add GUI fixture", "Adds a new GUI fixture to the model");
+    ModelMenu->Append(ID_MENU_MODEL_ANIM_IMPORT, "Import anim sequences", "Imports additional animation sequences into the model");
     ModelMenu->Append(ID_MENU_MODEL_CHANNEL_ADD, "Add channel", "Adds a new animation channel to the model");
     ModelMenu->Append(-1, "Run benchmark", "Move the camera along a predefined path and determine the time taken")->Enable(false);
     ModelMenu->AppendSeparator();
@@ -313,6 +315,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     AnimToolbar->AddTool(ID_MENU_MODEL_TRANSFORM,      "Transform",       wxArtProvider::GetBitmap("transform-rotate-right", wxART_TOOLBAR), "Transform model");
  // AnimToolbar->AddTool(ID_MENU_MODEL_SKIN_ADD,       "Add skin",        wxArtProvider::GetBitmap("window-new", wxART_TOOLBAR), "Add skin");
     AnimToolbar->AddTool(ID_MENU_MODEL_GUIFIXTURE_ADD, "Add GUI fixture", wxArtProvider::GetBitmap("window-new", wxART_TOOLBAR), "Add GUI fixture");
+ // AnimToolbar->AddTool(ID_MENU_MODEL_ANIM_IMPORT,    "Import anim",     wxArtProvider::GetBitmap("window-new", wxART_TOOLBAR), "Import anim");
  // AnimToolbar->AddTool(ID_MENU_MODEL_CHANNEL_ADD,    "Add channel",     wxArtProvider::GetBitmap("window-new", wxART_TOOLBAR), "Add channel");
     AnimToolbar->Realize();
 
@@ -379,6 +382,58 @@ bool ModelEditor::ChildFrameT::SubmitNewGuiFixture()
     GuiFixtures[0].Name="New GUI Fixture";
 
     return SubmitCommand(new CommandAddT(m_ModelDoc, GuiFixtures));
+}
+
+
+bool ModelEditor::ChildFrameT::SubmitImportAnims()
+{
+    wxFileDialog FileDialog(this,                           // The window parent.
+                            "Import animation sequence",    // Message.
+                            "",                             // The default directory.
+                            "*.md5anim",                    // The default file name.
+                            "All files (*.*)|*.*"           // The wildcard.
+                            "|md5anim files|*.md5anim",
+                            wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE);
+
+    if (FileDialog.ShowModal()!=wxID_OK)
+        return false;
+
+    wxArrayString     Paths;
+    ArrayT<CommandT*> SubCommands;
+    wxString          Errors;
+
+    FileDialog.GetPaths(Paths);
+
+    for (size_t PathNr=0; PathNr<Paths.GetCount(); PathNr++)
+    {
+        try
+        {
+            ImporterMd5AnimT          Importer(Paths[PathNr].ToStdString());
+            ArrayT<CafuModelT::AnimT> Anims=Importer.Import(m_ModelDoc->GetModel()->GetJoints(), m_ModelDoc->GetModel()->GetMeshes());
+
+            SubCommands.PushBack(new CommandAddT(m_ModelDoc, Anims));
+        }
+        catch (const ModelLoaderT::LoadErrorT& LE)
+        {
+            Errors += "\n" + Paths[PathNr] + "\n" + LE.what() + "\n";
+        }
+    }
+
+    if (Errors!="")
+    {
+        wxMessageBox(Errors, "Couldn't import animation sequences");
+    }
+
+    if (SubCommands.Size()==1)
+    {
+        return SubmitCommand(SubCommands[0]);
+    }
+    else if (SubCommands.Size()>1)
+    {
+        return SubmitCommand(new CommandMacroT(SubCommands, "Import anim sequences"));
+    }
+
+    return false;
 }
 
 
@@ -918,6 +973,12 @@ void ModelEditor::ChildFrameT::OnMenuModel(wxCommandEvent& CE)
         case ID_MENU_MODEL_GUIFIXTURE_ADD:
         {
             SubmitNewGuiFixture();
+            break;
+        }
+
+        case ID_MENU_MODEL_ANIM_IMPORT:
+        {
+            SubmitImportAnims();
             break;
         }
 

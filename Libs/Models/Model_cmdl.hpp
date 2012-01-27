@@ -36,6 +36,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #endif
 
 
+class AnimImporterT;
 class MaterialT;
 class ModelLoaderT;
 namespace MatSys { class RenderMaterialT; }
@@ -251,6 +252,11 @@ class CafuModelT
 
     /// The destructor.
     ~CafuModelT();
+
+    /// Imports animations into this model using the given AnimImporterT.
+    /// At this time, this method is actually unused, because in the Model Editor,
+    /// the related command is a friend and thus accesses the m_Anims member directly.
+    void Import(AnimImporterT& Importer);
 
     /// Saves the model into the given stream.
     void Save(std::ostream& OutStream) const;

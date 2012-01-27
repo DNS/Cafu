@@ -304,6 +304,7 @@ void ElementsListT::OnContextMenu(wxContextMenuEvent& CE)
     if (m_TYPE!=SKIN) Menu.Append(ID_MENU_INSPECT_EDIT, "Inspect / Edit\tEnter");
     Menu.Append(ID_MENU_RENAME, "Rename\tF2");
     if (m_TYPE==GFIX || m_TYPE==SKIN || m_TYPE==CHAN) Menu.Append(ID_MENU_ADD_NEW, "Add/create new");
+    if (m_TYPE==ANIM) Menu.Append(ID_MENU_ADD_NEW, "Import more...");
 
     if (m_TYPE==MESH)
     {
@@ -335,6 +336,7 @@ void ElementsListT::OnContextMenu(wxContextMenuEvent& CE)
             {
                 case SKIN: m_MainFrame->SubmitNewSkin();       break;
                 case GFIX: m_MainFrame->SubmitNewGuiFixture(); break;
+                case ANIM: m_MainFrame->SubmitImportAnims();   break;
                 case CHAN: m_MainFrame->SubmitNewChannel();    break;
                 default: break;
             }
@@ -492,6 +494,7 @@ void ElementsPanelT::OnButton(wxCommandEvent& Event)
             {
                 case SKIN: m_MainFrame->SubmitNewSkin();       break;
                 case GFIX: m_MainFrame->SubmitNewGuiFixture(); break;
+                case ANIM: m_MainFrame->SubmitImportAnims();   break;
                 case CHAN: m_MainFrame->SubmitNewChannel();    break;
                 default: break;
             }
@@ -517,7 +520,7 @@ void ElementsPanelT::OnButtonUpdate(wxUpdateUIEvent& UE)
     {
         case ID_BUTTON_ADD:
         {
-            UE.Enable(m_TYPE==SKIN || m_TYPE==GFIX || m_TYPE==CHAN);
+            UE.Enable(m_TYPE==SKIN || m_TYPE==GFIX || m_TYPE==ANIM || m_TYPE==CHAN);
             break;
         }
 
