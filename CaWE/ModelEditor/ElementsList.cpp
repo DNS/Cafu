@@ -192,6 +192,7 @@ void ElementsListT::InitListItems()
 {
     const ArrayT<unsigned int>& Sel=m_ModelDoc->GetSelection(m_TYPE);
 
+    m_IsRecursiveSelfNotify=true;
     Freeze();
     DeleteAllItems();
 
@@ -277,6 +278,7 @@ void ElementsListT::InitListItems()
             SetColumnWidth(ColNr, wxLIST_AUTOSIZE);
 
     Thaw();
+    m_IsRecursiveSelfNotify=false;
 }
 
 
@@ -304,7 +306,7 @@ void ElementsListT::OnContextMenu(wxContextMenuEvent& CE)
     if (m_TYPE!=SKIN) Menu.Append(ID_MENU_INSPECT_EDIT, "Inspect / Edit\tEnter");
     Menu.Append(ID_MENU_RENAME, "Rename\tF2");
     if (m_TYPE==GFIX || m_TYPE==SKIN || m_TYPE==CHAN) Menu.Append(ID_MENU_ADD_NEW, "Add/create new");
-    if (m_TYPE==ANIM) Menu.Append(ID_MENU_ADD_NEW, "Import more...");
+    if (m_TYPE==ANIM) Menu.Append(ID_MENU_ADD_NEW, "Import...");
 
     if (m_TYPE==MESH)
     {

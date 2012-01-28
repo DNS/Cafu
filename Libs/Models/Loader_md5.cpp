@@ -264,9 +264,14 @@ ArrayT<CafuModelT::AnimT> ImporterMd5AnimT::Import(const ArrayT<CafuModelT::Join
     {
         CafuModelT::AnimT Anim;
 
-        Anim.Name="Anim";
+        Anim.Name=cf::String::StripExt(m_FileName);
         Anim.FPS =24.0f;
         Anim.Next=-1;
+
+        const size_t PathLength=cf::String::GetPath(Anim.Name).length() + 1;
+
+        if (PathLength < Anim.Name.length())
+            Anim.Name=std::string(Anim.Name, PathLength);
 
         bool GotHierarchy=false;
         bool GotBounds   =false;
@@ -296,7 +301,7 @@ ArrayT<CafuModelT::AnimT> ImporterMd5AnimT::Import(const ArrayT<CafuModelT::Join
                 // The numJoints here MUST match the numJoints in the md5mesh file!
                 const unsigned long numJoints=TP.GetNextTokenAsInt();
 
-                if (numJoints!=Joints.Size()) { printf("%lu joints in md5anim file, %lu joints in the model.\n", numJoints, Joints.Size()); throw ModelLoaderT::LoadErrorT("The number of joints in the md5anim file does not match number of bones in the model."); }
+                if (numJoints!=Joints.Size()) { printf("%lu joints in md5anim file, %lu joints in the model.\n", numJoints, Joints.Size()); throw ModelLoaderT::LoadErrorT("The number of joints in the md5anim file does not match number of joints in the model."); }
                 if (Anim.AnimJoints.Size()>0) { printf("Anim.AnimJoints.Size()==%lu\n", Anim.AnimJoints.Size()); throw ModelLoaderT::LoadErrorT("Anim.AnimJoints.Size() > 0"); }
 
                 Anim.AnimJoints.PushBackEmpty(numJoints);
@@ -396,7 +401,7 @@ ArrayT<CafuModelT::AnimT> ImporterMd5AnimT::Import(const ArrayT<CafuModelT::Join
 
 
         // Make sure that the imported animation sequence is valid.
-        if (Anim.AnimJoints.Size()!=Joints.Size()) throw ModelLoaderT::LoadErrorT("The number of joints in the md5anim file does not match number of bones in the model.");
+        if (Anim.AnimJoints.Size()!=Joints.Size()) throw ModelLoaderT::LoadErrorT("The number of joints in the md5anim file does not match number of joints in the model.");
         if (!GotHierarchy) throw ModelLoaderT::LoadErrorT("There seems to be no joints hierarchy defined in this file.");
         if (!GotBounds) throw ModelLoaderT::LoadErrorT("There seem to be no bounds in this file.");
         if (!GotBaseframe) throw ModelLoaderT::LoadErrorT("There seems to be no baseframe data in this file.");

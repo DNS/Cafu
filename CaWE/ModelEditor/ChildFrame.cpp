@@ -172,7 +172,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     ModelMenu->Append(ID_MENU_MODEL_TRANSFORM, "&Transform...\tCtrl+T", "Transform the model");
     ModelMenu->Append(ID_MENU_MODEL_SKIN_ADD, "Add skin", "Adds a new skin to the model");
     ModelMenu->Append(ID_MENU_MODEL_GUIFIXTURE_ADD, "Add GUI fixture", "Adds a new GUI fixture to the model");
-    ModelMenu->Append(ID_MENU_MODEL_ANIM_IMPORT, "Import anim sequences", "Imports additional animation sequences into the model");
+    ModelMenu->Append(ID_MENU_MODEL_ANIM_IMPORT, "Import animation sequences...", "Imports additional animation sequences into the model");
     ModelMenu->Append(ID_MENU_MODEL_CHANNEL_ADD, "Add channel", "Adds a new animation channel to the model");
     ModelMenu->Append(-1, "Run benchmark", "Move the camera along a predefined path and determine the time taken")->Enable(false);
     ModelMenu->AppendSeparator();
@@ -388,7 +388,7 @@ bool ModelEditor::ChildFrameT::SubmitNewGuiFixture()
 bool ModelEditor::ChildFrameT::SubmitImportAnims()
 {
     wxFileDialog FileDialog(this,                           // The window parent.
-                            "Import animation sequence",    // Message.
+                            "Import animation sequences",   // Message.
                             "",                             // The default directory.
                             "*.md5anim",                    // The default file name.
                             "All files (*.*)|*.*"           // The wildcard.
