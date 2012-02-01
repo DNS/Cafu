@@ -192,6 +192,11 @@ void ElementsListT::InitListItems()
 {
     const ArrayT<unsigned int>& Sel=m_ModelDoc->GetSelection(m_TYPE);
 
+    // When a command is done or undone, it can indirectly call our Notify_*() methods,
+    // which in turn call InitListItems(). Our calls to Select() unfortunately cause a
+    // wxEVT_COMMAND_LIST_ITEM_SELECTED event, which in turn calls our OnSelectionChanged()
+    // handler. Thus we set m_IsRecursiveSelfNotify in order to prevent the handler
+    // from inadvertently submitting another command.
     m_IsRecursiveSelfNotify=true;
     Freeze();
     DeleteAllItems();

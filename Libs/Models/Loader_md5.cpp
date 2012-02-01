@@ -178,6 +178,9 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                         Mesh.Triangles[TriIdx].VertexIdx[0]=TP.GetNextTokenAsInt();
                         Mesh.Triangles[TriIdx].VertexIdx[1]=TP.GetNextTokenAsInt();
                         Mesh.Triangles[TriIdx].VertexIdx[2]=TP.GetNextTokenAsInt();
+
+                        // All triangles are in a common smoothing group.
+                        Mesh.Triangles[TriIdx].SmoothGroups=0x01;
                     }
                     else if (Token=="vert")
                     {

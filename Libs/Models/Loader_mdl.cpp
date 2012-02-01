@@ -345,6 +345,9 @@ void LoaderHL1mdlT::Load(ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<int>& MeshSki
 
                     CafuModelT::MeshT::TriangleT CafuTri;
 
+                    // All triangles are in a common smoothing group.
+                    CafuTri.SmoothGroups=0x01;
+
                     for (unsigned int i=0; i<3; i++)
                     {
                         // TriangleVerts[i][0] -- index into the StudioVertices (or CafuMesh.Weights) array.

@@ -102,7 +102,7 @@ TransformDialogT::TransformDialogT(ChildFrameT* Parent, const wxSize& Size)
 {
     wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
 
-    wxStaticText *item1 = new wxStaticText(this, -1, wxT("The transformation is applied to the entire model in the selected animation sequence or bind pose:"), wxDefaultPosition, wxSize(220,48), 0 );
+    wxStaticText *item1 = new wxStaticText(this, -1, wxT("The transformation is applied to the currently selected animation sequence(s):"), wxDefaultPosition, wxSize(220, 32), 0 );
     item0->Add( item1, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
     m_Notebook=new wxNotebook(this, -1, wxDefaultPosition, wxDefaultSize, 0 );

@@ -81,6 +81,7 @@ class CafuModelT
             TriangleT(unsigned int v0=0, unsigned int v1=0, unsigned int v2=0);
 
             unsigned int VertexIdx[3];  ///< The indices to the three vertices that define this triangle.
+            uint32_t     SmoothGroups;  ///< The smoothing groups that this triangle is in: If bit \c i is set, the triangle is in smoothing group \c i.
 
             int          NeighbIdx[3];  ///< The array indices of the three neighbouring triangles at the edges 01, 12 and 20. -1 indicates no neighbour, -2 indicates more than one neighbour.
             bool         Polarity;      ///< True if this triangle has positive polarity (texture is not mirrored), or false if it has negative polarity (texture is mirrored, SxT points inward).

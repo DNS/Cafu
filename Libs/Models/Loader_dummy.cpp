@@ -93,6 +93,7 @@ void LoaderDummyT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::M
     for (unsigned int i=0; i<Facets; i++)
     {
         Mesh.Triangles.PushBack(CafuModelT::MeshT::TriangleT(0, ((i+1) % Facets)+1, i+1));
+        Mesh.Triangles[i].SmoothGroups=0x01;
     }
 
     for (unsigned int i=2; i<Facets; i++)

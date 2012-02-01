@@ -84,7 +84,8 @@ static std::string serialize(const Vector3fT& v)
 
 
 CafuModelT::MeshT::TriangleT::TriangleT(unsigned int v0, unsigned int v1, unsigned int v2)
-    : Polarity(false),
+    : SmoothGroups(0),
+      Polarity(false),
       SkipDraw(false)
 {
     VertexIdx[0]=v0;
@@ -718,8 +719,9 @@ void CafuModelT::Save(std::ostream& OutStream) const
 
             OutStream << "\t\t\t"
                       << "{ "
-                      << Triangle.VertexIdx[0] << ", " << Triangle.VertexIdx[1] << ", " << Triangle.VertexIdx[2];
-            if (Triangle.SkipDraw) OutStream << ", skipDraw=true;";
+                      << Triangle.VertexIdx[0] << ", " << Triangle.VertexIdx[1] << ", " << Triangle.VertexIdx[2]
+                      << ", sg=" << Triangle.SmoothGroups;
+            if (Triangle.SkipDraw) OutStream << ", skipDraw=true";
             OutStream << " "
                       << "},\n";
         }

@@ -572,12 +572,52 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes, MaterialMana
         // Create the list of triangles, also creating the list of vertices as we go.
         const KFbxLayerElement::EMappingMode        MappingMode=(Mesh->GetLayer(0) && Mesh->GetLayer(0)->GetUVs()) ? Mesh->GetLayer(0)->GetUVs()->GetMappingMode() : KFbxLayerElement::eNONE;
         KFbxLayerElementArrayTemplate<KFbxVector2>* UVArray    =NULL;
+        const KFbxLayerElementSmoothing*            SmoothingLE=NULL;
         std::map<uint64_t, unsigned int>            UniqueVertices;     // Maps tuples of (Mesh->GetPolygonVertex(), Mesh->GetTextureUVIndex()) to indices into CafuMesh.Vertices.
 
         Mesh->GetTextureUV(&UVArray, KFbxLayerElement::eDIFFUSE_TEXTURES);
 
+        if (Mesh->GetLayer(0))
+        {
+            SmoothingLE=Mesh->GetLayer(0)->GetSmoothing();
+
+            if (SmoothingLE)
+                Log << "    The mesh has a smoothing layer element with mapping mode "
+                    << SmoothingLE->GetMappingMode() << " and reference mode "
+                    << SmoothingLE->GetReferenceMode() << ".\n";
+            else
+                Log << "    The mesh has no smoothing layer element.\n";
+        }
+
         for (int PolyNr=0; PolyNr<Mesh->GetPolygonCount(); PolyNr++)
         {
+            uint32_t SmoothingGroups=0x01;    // Per default, all triangles are in a common smoothing group.
+
+            if (SmoothingLE)
+            {
+                if (SmoothingLE->GetMappingMode() == KFbxGeometryElement::eBY_POLYGON)
+                {
+                    switch (SmoothingLE->GetReferenceMode())
+                    {
+                        case KFbxGeometryElement::eDIRECT:
+                            SmoothingGroups = SmoothingLE->GetDirectArray().GetAt(PolyNr);
+                            break;
+
+                        case KFbxGeometryElement::eINDEX_TO_DIRECT:
+                            SmoothingGroups = SmoothingLE->GetDirectArray().GetAt(SmoothingLE->GetIndexArray().GetAt(PolyNr));
+                            break;
+
+                        default:
+                            // Ignore any unknown reference mode.
+                            break;
+                    }
+                }
+                else if (SmoothingLE->GetMappingMode() == KFbxGeometryElement::eBY_EDGE)
+                {
+                    // Unfortunately, we cannot deal with Maya-style smoothing info (hard vs. soft edges).
+                }
+            }
+
             for (int PolyTriNr=0; PolyTriNr < Mesh->GetPolygonSize(PolyNr)-2; PolyTriNr++)
             {
                 CafuModelT::MeshT::TriangleT Tri;
@@ -611,6 +651,7 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes, MaterialMana
                     }
                 }
 
+                Tri.SmoothGroups=SmoothingGroups;
                 CafuMesh.Triangles.PushBack(Tri);
             }
         }

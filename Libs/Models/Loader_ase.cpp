@@ -155,7 +155,15 @@ void LoaderAseT::GeomObjectT::ReadMesh(TextParserT& TP)
                     // Note 2: If we ever change this because some faces have the "*MESH_MTLID" keyword not specified at all,
                     // remeber to not ignore the "*MATERIAL_REF" keyword any longer, and fix all faces with no "*MESH_MTLID" after loading!
                     if (SmoothGroupString=="*MESH_MTLID") break;
-                    Triangles[FaceNr].SmoothGroups.PushBack(strtoul(SmoothGroupString.c_str(), NULL, 0));
+
+                    const unsigned long SG=strtoul(SmoothGroupString.c_str(), NULL, 0);
+
+                    if (SG > 31)
+                        printf("Mesh is in smoothing group %lu, but should be in 0...31.\n", SG);
+
+                    Triangles[FaceNr].SmoothGroups.PushBack(SG);
+                    Triangles[FaceNr].SmoothGrps=uint32_t(1) << SG;
+
                     if (Triangles[FaceNr].SmoothGroups.Size()>32) throw TextParserT::ParseError();   // Safe-Guard...
                 }
 
@@ -579,6 +587,7 @@ void LoaderAseT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                 CafuTri.VertexIdx[2-i]=CafuVertexNr;
             }
 
+            CafuTri.SmoothGroups=AseTri.SmoothGrps;
             CafuTri.gts_Normal=AseTri.Normal.AsVectorOfFloat();
         }
 

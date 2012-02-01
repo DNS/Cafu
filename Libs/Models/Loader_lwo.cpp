@@ -393,6 +393,10 @@ void LoaderLwoT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                     Triangle.VertexIdx[1]=PolygonMeshVertices[VertexNr+2];
                     Triangle.VertexIdx[2]=PolygonMeshVertices[VertexNr+1];
 
+                    if (Poly.smoothgrp<0 || Poly.smoothgrp>31)
+                        Console->Warning(cf::va("Polygon %i is in smoothing group %i, but should be in 0...31.\n", PolyNr, Poly.smoothgrp));
+
+                    Triangle.SmoothGroups=uint32_t(1) << Poly.smoothgrp;
                     Triangle.gts_Normal=Vector3fT(Poly.norm);
 
 

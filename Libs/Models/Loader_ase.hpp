@@ -56,6 +56,7 @@ class LoaderAseT : public ModelLoaderT
         {
             /// Constructor.
             TriangleT()
+                : SmoothGrps(0)
             {
                 for (unsigned long i=0; i<3; i++)
                 {
@@ -68,6 +69,7 @@ class LoaderAseT : public ModelLoaderT
             unsigned long         IndVertices [3];  ///< Indices into the Vertices array.
             unsigned long         IndTexCoords[3];  ///< Indices into the TexCoords array.
             ArrayT<unsigned long> SmoothGroups;     ///< The SmoothGroups this triangle is in.
+            uint32_t              SmoothGrps;       ///< The smoothing groups that this triangle is in: If bit \c i is set, the triangle is in smoothing group \c i.
 
             // This data is computed after loading.
             VectorT               Normal;           ///< The geometric per-triangle normal.
