@@ -24,6 +24,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ModelDocument.hpp"
 #include "Commands/Rename.hpp"
 #include "Commands/SetMaterial.hpp"
+#include "Commands/SetMeshShadows.hpp"
+#include "Commands/SetMeshTSMethod.hpp"
 
 #include "../EditorMaterial.hpp"
 #include "../MaterialBrowser/DocAccess.hpp"
@@ -178,11 +180,13 @@ void MeshInspectorT::RefreshPropGrid()
         Append(new MaterialPropertyT(wxString::Format("Material (%s)", m_ModelDoc->GetSelSkinString()),
             "Material", Mat ? Mat->Name : "<NULL>", m_ModelDoc));
 
-        wxPGProperty* UseGivenTS=Append(new wxBoolProperty("Use given TS", wxPG_LABEL, false));
-        DisableProperty(UseGivenTS);
+        const wxChar* TSM_Strings[] = { wxT("HARD"), wxT("GLOBAL"), wxT("SG_LOCAL"), wxT("SG_GLOBAL"), NULL };
+        const long    TSM_Indices[] = { CafuModelT::MeshT::HARD, CafuModelT::MeshT::GLOBAL, CafuModelT::MeshT::SG_LOCAL, CafuModelT::MeshT::SG_GLOBAL };
+        wxPGProperty* TSMethod=Append(new wxEnumProperty("Tangent-space method", wxPG_LABEL, TSM_Strings, TSM_Indices, Mesh.TSMethod));
+        TSMethod->SetHelpString("The method that is used for generating the tangent-space axes at the vertices of this mesh. See the documentation for details.");
 
-        wxPGProperty* CastShadows=Append(new wxBoolProperty("Cast Shadows", wxPG_LABEL, true));
-        DisableProperty(CastShadows);
+        wxPGProperty* CastShadows=Append(new wxBoolProperty("Cast Shadows", wxPG_LABEL, Mesh.CastShadows));
+        CastShadows->SetHelpString("If checked, this mesh casts shadows when lit by dynamic light sources.");
 
         wxPGProperty* NumTriangles=Append(new wxIntProperty("Num Triangles", wxPG_LABEL, Mesh.Triangles.Size()));
         DisableProperty(NumTriangles);
@@ -226,8 +230,10 @@ void MeshInspectorT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
     m_IsRecursiveSelfNotify=true;
     bool ok=true;
 
-         if (PropName=="Name"    ) ok=m_Parent->SubmitCommand(new CommandRenameT(m_ModelDoc, MESH, MeshNr, Event.GetValue().GetString()));
-    else if (PropName=="Material") ok=m_Parent->SubmitCommand(new CommandSetMaterialT(m_ModelDoc, MeshNr, m_ModelDoc->GetSelSkinNr(), Event.GetValue().GetString()));
+         if (PropName=="Name"    )             ok=m_Parent->SubmitCommand(new CommandRenameT(m_ModelDoc, MESH, MeshNr, Event.GetValue().GetString()));
+    else if (PropName=="Material")             ok=m_Parent->SubmitCommand(new CommandSetMaterialT(m_ModelDoc, MeshNr, m_ModelDoc->GetSelSkinNr(), Event.GetValue().GetString()));
+    else if (PropName=="Tangent-space method") ok=m_Parent->SubmitCommand(new CommandSetMeshTSMethodT(m_ModelDoc, MeshNr, CafuModelT::MeshT::TangentSpaceMethodT(Event.GetValue().GetInteger())));
+    else if (PropName=="Cast Shadows")         ok=m_Parent->SubmitCommand(new CommandSetMeshShadowsT(m_ModelDoc, MeshNr, Event.GetValue().GetBool()));
     else
     {
         // Changing child properties (e.g. "Pos.x" to "5") also generates events for the composite parent (e.g. "Pos" to "(5, 0, 0)")!

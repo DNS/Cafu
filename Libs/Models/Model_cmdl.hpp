@@ -46,6 +46,8 @@ namespace ModelEditor { class CommandRenameT; }
 namespace ModelEditor { class CommandSetAnimFPST; }
 namespace ModelEditor { class CommandSetAnimNextT; }
 namespace ModelEditor { class CommandSetMaterialT; }
+namespace ModelEditor { class CommandSetMeshTSMethodT; }
+namespace ModelEditor { class CommandSetMeshShadowsT; }
 namespace ModelEditor { class CommandTransformJointT; }
 namespace ModelEditor { class CommandUpdateAnimT; }
 namespace ModelEditor { class CommandUpdateChannelT; }
@@ -75,6 +77,25 @@ class CafuModelT
     /// of weighted positions that are attached to the joints of the model.
     struct MeshT
     {
+        /// The methods that can be used to generate the tangent-space axes at the vertices of a mesh.
+        ///
+        /// In this context, "global" smoothing means that when the side of a pyramid or cone is considered,
+        /// for computing the tangent-space of its tip vertex, all sides of the pyramid enter the average,
+        /// because they all share the common tip vertex.
+        /// As a result, the normal vector at the tip is straight (axial), the same for all sides, and the
+        /// interpolated "shape" in tangent-space is really a half-sphere rather than a cone.
+        ///
+        /// In contrast, "local" smoothing averages only the current side with its left and right neighbours.
+        /// The resulting tangent-space normal vectors at the tip vertices remain orthogonal to their triangle,
+        /// and the interpolated tangent-space shape is a cone rather than a half-sphere.
+        enum TangentSpaceMethodT
+        {
+            HARD,       ///< Hard edges, no smoothing: The tangent-space of the triangle is used as the tangent-space of its vertices. (Any smoothing groups info, if available, is ignored.)
+            GLOBAL,     ///< Considers all triangles in the mesh to be in the same common smoothing group, and smoothes them globally. (Any smoothing groups info, if available, is ignored.) This method is equivalent to SG_GLOBAL when all triangles are in the same smoothing group. It is also the default method, as it requires no smoothing groups info at all, provides better performance than SG_GLOBAL, and was implemented in earlier versions of Cafu.
+            SG_LOCAL,   ///< Takes the given smoothing groups into account and provides "local" smoothing.
+            SG_GLOBAL   ///< [NOT YET IMPLEMENTED! At this time, this is the same as GLOBAL.] Takes the given smoothing groups into account and provides "global" smoothing.
+        };
+
         /// A single triangle.
         struct TriangleT
         {
@@ -117,7 +138,7 @@ class CafuModelT
 
 
         /// The default constructor.
-        MeshT() : Material(NULL), RenderMaterial(NULL) {}
+        MeshT() : Material(NULL), RenderMaterial(NULL), TSMethod(GLOBAL), CastShadows(true) {}
 
         /// Determines whether the two vertices with array indices Vertex1Nr and Vertex2Nr are geometrical duplicates of each other.
         /// Two distinct vertices are geometrical duplicates of each other if
@@ -130,10 +151,20 @@ class CafuModelT
         /// @return Whether the vertices are geometrical duplicates of each other.
         bool AreGeoDups(unsigned int Vertex1Nr, unsigned int Vertex2Nr) const;
 
+        /// Returns a string representation of the TSMethod enum member.
+        std::string GetTSMethod() const;
+
+        /// Sets the TSMethod enum member by string.
+        /// The given string should be one of the strings returned by GetTSMethod().
+        /// If the string does not match a known method, TSMethod is set to GLOBAL.
+        /// @param m   The method to set TSMethod to.
+        void SetTSMethod(const std::string& m);
+
         std::string              Name;            ///< Name of this mesh.
         MaterialT*               Material;        ///< The material of this mesh.
         MatSys::RenderMaterialT* RenderMaterial;  ///< The render material used to render this mesh.
-     // bool                     CastShadows;     ///< Should this mesh cast shadows?
+        TangentSpaceMethodT      TSMethod;        ///< How to generate the tangent-space axes at the vertices of this mesh? For meshes with normal-maps, the method should match the one that was used in the program that created the normal-maps.
+        bool                     CastShadows;     ///< Should this mesh cast shadows?
         ArrayT<TriangleT>        Triangles;       ///< List of triangles this mesh consists of.
         ArrayT<VertexT>          Vertices;        ///< List of vertices this mesh consists of.
         ArrayT<WeightT>          Weights;         ///< List of weights that are attached to the skeleton (hierarchy of bones/joints).
@@ -311,6 +342,8 @@ class CafuModelT
     friend class ModelEditor::CommandSetAnimFPST;
     friend class ModelEditor::CommandSetAnimNextT;
     friend class ModelEditor::CommandSetMaterialT;
+    friend class ModelEditor::CommandSetMeshTSMethodT;
+    friend class ModelEditor::CommandSetMeshShadowsT;
     friend class ModelEditor::CommandTransformJointT;
     friend class ModelEditor::CommandUpdateAnimT;
     friend class ModelEditor::CommandUpdateChannelT;

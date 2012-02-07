@@ -513,6 +513,7 @@ void AnimPoseT::Draw(int SkinNr, float LodDist) const
                 const MeshInfoT& MeshInfo=m_MeshInfos[MeshNr];
                 const MaterialT* MeshMat =m_Model.GetMaterial(MeshNr, SkinNr);
 
+                if (!Mesh.CastShadows) continue;
                 if (MeshMat==NULL || MeshMat->NoShadows) continue;
 
                 static ArrayT<bool> TriangleIsFrontFacing;

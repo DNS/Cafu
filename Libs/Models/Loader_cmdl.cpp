@@ -199,6 +199,19 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Me
                 }
                 lua_pop(m_LuaState, 1);
 
+                lua_getfield(m_LuaState, -1, "tsMethod");
+                {
+                    const char* Method=lua_tostring(m_LuaState, -1);
+                    Mesh.SetTSMethod(Method ? Method : "default");
+                }
+                lua_pop(m_LuaState, 1);
+
+                lua_getfield(m_LuaState, -1, "castShadows");
+                {
+                    Mesh.CastShadows=lua_isnumber(m_LuaState, -1) ? (lua_tonumber(m_LuaState, -1)!=0) : (lua_toboolean(m_LuaState, -1)!=0);
+                }
+                lua_pop(m_LuaState, 1);
+
                 lua_getfield(m_LuaState, -1, "Weights");
                 {
                     Mesh.Weights.PushBackEmptyExact(lua_objlen_ul(m_LuaState, -1));

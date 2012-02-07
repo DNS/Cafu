@@ -127,6 +127,31 @@ bool CafuModelT::MeshT::AreGeoDups(unsigned int Vertex1Nr, unsigned int Vertex2N
 }
 
 
+std::string CafuModelT::MeshT::GetTSMethod() const
+{
+    switch (TSMethod)
+    {
+        case HARD:      return "HARD";
+        case GLOBAL:    return "GLOBAL";
+        case SG_LOCAL:  return "SG_LOCAL";
+        case SG_GLOBAL: return "SG_GLOBAL";
+    }
+
+    return "?";
+}
+
+
+void CafuModelT::MeshT::SetTSMethod(const std::string& m)
+{
+    TSMethod=GLOBAL;
+
+         if (m=="HARD")      TSMethod=HARD;
+    else if (m=="GLOBAL")    TSMethod=GLOBAL;
+    else if (m=="SG_LOCAL")  TSMethod=SG_LOCAL;
+    else if (m=="SG_GLOBAL") TSMethod=SG_GLOBAL;
+}
+
+
 CafuModelT::GuiFixtureT::GuiFixtureT()
     : Name("GUI Fixture")
 {
@@ -680,6 +705,8 @@ void CafuModelT::Save(std::ostream& OutStream) const
         // Write the mesh name and material.
         OutStream << "\t\t" << "name=\"" << Mesh.Name << "\";\n";
         OutStream << "\t\t" << "Material=\"" << (Mesh.Material ? Mesh.Material->Name : "") << "\";\n";
+        OutStream << "\t\t" << "tsMethod=\"" << Mesh.GetTSMethod() << "\";\n";
+        OutStream << "\t\t" << "castShadows=" << (Mesh.CastShadows ? "true" : "false") << ";\n";    // Don't rely on the proper locale being set...
 
         // Write the mesh weights.
         OutStream << "\n\t\t" << "Weights=\n\t\t{\n";

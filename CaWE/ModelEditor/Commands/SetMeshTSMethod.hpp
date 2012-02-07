@@ -19,43 +19,35 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef CAFU_MODELEDITOR_MESH_INSPECTOR_HPP_INCLUDED
-#define CAFU_MODELEDITOR_MESH_INSPECTOR_HPP_INCLUDED
+#ifndef CAFU_MODELEDITOR_SET_MESH_TANGENTSPACE_METHOD_HPP_INCLUDED
+#define CAFU_MODELEDITOR_SET_MESH_TANGENTSPACE_METHOD_HPP_INCLUDED
 
-#include "ObserverPattern.hpp"
-#include "wx/wx.h"
-#include "wx/propgrid/manager.h"
+#include "../../CommandPattern.hpp"
+#include "Models/Model_cmdl.hpp"
 
 
 namespace ModelEditor
 {
-    class ChildFrameT;
     class ModelDocumentT;
 
-    class MeshInspectorT : public wxPropertyGridManager, public ObserverT
+    class CommandSetMeshTSMethodT : public CommandT
     {
         public:
 
-        MeshInspectorT(ChildFrameT* Parent, const wxSize& Size);
-        ~MeshInspectorT();
+        CommandSetMeshTSMethodT(ModelDocumentT* ModelDoc, unsigned int MeshNr, CafuModelT::MeshT::TangentSpaceMethodT NewTSMethod);
 
-        // ObserverT implementation.
-        void Notify_SelectionChanged(SubjectT* Subject, ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel);
-        void Notify_MeshChanged(SubjectT* Subject, unsigned int MeshNr);
-        void Notify_SkinChanged(SubjectT* Subject, unsigned int SkinNr);
-        void Notify_SubjectDies(SubjectT* dyingSubject);
+        // CommandT implementation.
+        bool Do();
+        void Undo();
+        wxString GetName() const;
 
 
         private:
 
-        void RefreshPropGrid();
-        void OnPropertyGridChanging(wxPropertyGridEvent& Event);
-
-        DECLARE_EVENT_TABLE()
-
-        ModelDocumentT* m_ModelDoc;
-        ChildFrameT*    m_Parent;
-        bool            m_IsRecursiveSelfNotify;
+        ModelDocumentT*                              m_ModelDoc;
+        const unsigned int                           m_MeshNr;
+        const CafuModelT::MeshT::TangentSpaceMethodT m_NewTSMethod;
+        const CafuModelT::MeshT::TangentSpaceMethodT m_OldTSMethod;
     };
 }
 
