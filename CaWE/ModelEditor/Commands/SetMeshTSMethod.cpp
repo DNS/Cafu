@@ -49,6 +49,9 @@ bool CommandSetMeshTSMethodT::Do()
 
     Mesh.TSMethod=m_NewTSMethod;
 
+    // Make sure that the draw cache is refreshed.
+    m_ModelDoc->GetAnimState().Pose.SetNeedsRecache();
+
     m_ModelDoc->UpdateAllObservers_MeshChanged(m_MeshNr);
     m_Done=true;
     return true;
@@ -65,6 +68,9 @@ void CommandSetMeshTSMethodT::Undo()
     CafuModelT::MeshT& Mesh=m_ModelDoc->GetModel()->m_Meshes[m_MeshNr];
 
     Mesh.TSMethod=m_OldTSMethod;
+
+    // Make sure that the draw cache is refreshed.
+    m_ModelDoc->GetAnimState().Pose.SetNeedsRecache();
 
     m_ModelDoc->UpdateAllObservers_MeshChanged(m_MeshNr);
     m_Done=false;

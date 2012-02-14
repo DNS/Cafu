@@ -129,19 +129,13 @@ namespace
 }
 
 
-void AnimPoseT::UpdateData() const
+/// Obtain a joints (bone) hierarchy for the desired frame m_FrameNr of the desired animation sequence m_SequNr.
+/// The result will be a transformation matrix for each joint (bone).
+void AnimPoseT::UpdateJointMatrices() const
 {
     typedef CafuModelT::JointT JointT;
-    typedef CafuModelT::MeshT  MeshT;
 
     const ArrayT<JointT>& Joints=m_Model.GetJoints();
-    const ArrayT<MeshT>&  Meshes=m_Model.GetMeshes();
-
-
-    // **************************************************************************************************************
-    //  Obtain a joints (bone) hierarchy for the desired frame m_FrameNr of the desired animation sequence m_SequNr.
-    //  The result will be a transformation matrix for each joint (bone).
-    // **************************************************************************************************************
 
     for (unsigned long JointNr=0; JointNr<Joints.Size(); JointNr++)
     {
@@ -170,12 +164,17 @@ void AnimPoseT::UpdateData() const
         // assert(Weight==1.0f);
         m_JointMatrices[JointNr]=(J.Parent==-1) ? RelMatrix : m_JointMatrices[J.Parent]*RelMatrix;
     }
+}
 
 
-    // *******************************************************************************************************************
-    //  The JointMatrices represent now the pose of the model at the desired frame number of the desired sequence number.
-    //  For all meshes do now compute the vertices according to their weights.
-    // *******************************************************************************************************************
+/// The m_JointMatrices represent now the pose of the model at the desired frame number of the desired sequence number.
+/// For all meshes do now compute the vertices according to their weights.
+void AnimPoseT::UpdateVertexPositions() const
+{
+    typedef CafuModelT::MeshT MeshT;
+
+    const ArrayT<MeshT>& Meshes=m_Model.GetMeshes();
+    m_BoundingBox=BoundingBox3fT();
 
     for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
     {
@@ -212,8 +211,18 @@ void AnimPoseT::UpdateData() const
                     VertexInfo.Pos+=m_JointMatrices[Weight.JointIdx].Mul_xyz1(Weight.Pos) * Weight.Weight;
                 }
             }
+
+            m_BoundingBox+=MeshInfo.Vertices[VertexNr].Pos;
         }
     }
+}
+
+
+void AnimPoseT::UpdateTangentSpaceCopyGiven() const
+{
+    typedef CafuModelT::MeshT MeshT;
+
+    const ArrayT<MeshT>& Meshes=m_Model.GetMeshes();
 
 
     // *******************************************************************************************
@@ -223,141 +232,27 @@ void AnimPoseT::UpdateData() const
     //  The per-triangle normal vectors are also kept for stencil shadow silhoutte determination.
     // *******************************************************************************************
 
-    if (m_Model.GetUseGivenTS())
-    {
-        assert(m_Model.GetAnims().Size()==0);  // It doesn't make sense to have statically given tangent-space axes with *animated* geometry...
+    assert(m_Model.GetAnims().Size()==0);  // It doesn't make sense to have statically given tangent-space axes with *animated* geometry...
 
-        // Copy the given tangent space details into the pose.
-        for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
-        {
-            const MeshT& Mesh    =Meshes[MeshNr];
-            MeshInfoT&   MeshInfo=m_MeshInfos[MeshNr];
-
-            for (unsigned long TriNr=0; TriNr<Mesh.Triangles.Size(); TriNr++)
-            {
-                MeshInfo.Triangles[TriNr].Normal = Mesh.Triangles[TriNr].gts_Normal;
-            }
-
-            for (unsigned long VertexNr=0; VertexNr<Mesh.Vertices.Size(); VertexNr++)
-            {
-                MeshInfo.Vertices[VertexNr].Pos      = Mesh.Vertices[VertexNr].gts_Pos;
-                MeshInfo.Vertices[VertexNr].Normal   = Mesh.Vertices[VertexNr].gts_Normal;
-                MeshInfo.Vertices[VertexNr].Tangent  = Mesh.Vertices[VertexNr].gts_Tangent;
-                MeshInfo.Vertices[VertexNr].BiNormal = Mesh.Vertices[VertexNr].gts_BiNormal;
-            }
-        }
-
-        goto DoneComputingTS;
-    }
-
-    // For all vertices, zero the tangent-space vectors for the subsequent average accumulation.
-    for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
-    {
-        MeshInfoT& MeshInfo=m_MeshInfos[MeshNr];
-
-        for (unsigned long VertexNr=0; VertexNr<MeshInfo.Vertices.Size(); VertexNr++)
-        {
-            MeshInfoT::VertexT& VertexInfo=MeshInfo.Vertices[VertexNr];
-
-            VertexInfo.Normal  =Vector3fT(0, 0, 0);
-            VertexInfo.Tangent =Vector3fT(0, 0, 0);
-            VertexInfo.BiNormal=Vector3fT(0, 0, 0);
-        }
-    }
-
-    // Compute the per-triangle tangent-space axes and distribute them over the relevant vertices appropriately.
+    // Copy the given tangent space details into the pose.
     for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
     {
         const MeshT& Mesh    =Meshes[MeshNr];
         MeshInfoT&   MeshInfo=m_MeshInfos[MeshNr];
 
-        for (unsigned long TriangleNr=0; TriangleNr<Mesh.Triangles.Size(); TriangleNr++)
+        for (unsigned long TriNr=0; TriNr<Mesh.Triangles.Size(); TriNr++)
         {
-            const MeshT::TriangleT& Tri=Mesh.Triangles[TriangleNr];
-            const MeshT::VertexT&   V_0=Mesh.Vertices[Tri.VertexIdx[0]];
-            const MeshT::VertexT&   V_1=Mesh.Vertices[Tri.VertexIdx[1]];
-            const MeshT::VertexT&   V_2=Mesh.Vertices[Tri.VertexIdx[2]];
+            MeshInfo.Triangles[TriNr].Normal = Mesh.Triangles[TriNr].gts_Normal;
+        }
 
-            MeshInfoT::TriangleT&   TriInfo=MeshInfo.Triangles[TriangleNr];
-            MeshInfoT::VertexT&     V_0Info=MeshInfo.Vertices[Tri.VertexIdx[0]];
-            MeshInfoT::VertexT&     V_1Info=MeshInfo.Vertices[Tri.VertexIdx[1]];
-            MeshInfoT::VertexT&     V_2Info=MeshInfo.Vertices[Tri.VertexIdx[2]];
-
-            const Vector3fT         Edge01=V_1Info.Pos-V_0Info.Pos;
-            const Vector3fT         Edge02=V_2Info.Pos-V_0Info.Pos;
-
-            // Triangles are ordered CW for md5 models and CCW for ase models, so we write
-            // Normal=VectorCross(Edge02, Edge01) for md5 models and Normal=VectorCross(Edge01, Edge02) for ase models.
-            TriInfo.Normal=myNormalize(Edge02.cross(Edge01));
-
-            // Understanding what's going on here is easy. The key statement is
-            // "The tangent vector is parallel to the direction of increasing S on a parametric surface."
-            // First, there is a short explanation in "The Cg Tutorial", chapter 8.
-            // Second, I have drawn a simple figure that leads to a simple 2x2 system of Gaussian equations, see my TechArchive.
-            const Vector3fT uv01=Vector3fT(V_1.u, V_1.v, 0.0f)-Vector3fT(V_0.u, V_0.v, 0.0f);
-            const Vector3fT uv02=Vector3fT(V_2.u, V_2.v, 0.0f)-Vector3fT(V_0.u, V_0.v, 0.0f);
-            const float     f   =uv01.x*uv02.y-uv01.y*uv02.x>0.0 ? 1.0f : -1.0f;
-
-            const Vector3fT TriInfo_Tangent =myNormalize(Edge02.GetScaled(-uv01.y*f) + Edge01.GetScaled(uv02.y*f));
-            const Vector3fT TriInfo_BiNormal=myNormalize(Edge02.GetScaled( uv01.x*f) - Edge01.GetScaled(uv02.x*f));
-
-
-            // Distribute the per-triangle tangent-space over the affected vertices.
-#if 1
-            const float Pi=3.14159265358979323846f;
-
-            const float c0=dot(myNormalize(Edge01), myNormalize(Edge02));
-            const float c1=dot(myNormalize(Edge01), myNormalize(V_1Info.Pos-V_2Info.Pos));
-
-            const float w0=(c0>=1.0f) ? 0.0f : ( (c0<=-1.0f) ? Pi : acos(c0) );
-            const float w1=(c1>=1.0f) ? 0.0f : ( (c1<=-1.0f) ? Pi : acos(c1) );
-
-            const float TriWeight[3]={ w0, w1, Pi-TriWeight[0]-TriWeight[1] };
-#else
-            const float TriWeight[3]={ 1.0f, 1.0f, 1.0f };
-#endif
-
-            for (int i=0; i<3; i++)
-            {
-                const MeshT::VertexT& Vertex    =Mesh.Vertices[Tri.VertexIdx[i]];
-                MeshInfoT::VertexT&   VertexInfo=MeshInfo.Vertices[Tri.VertexIdx[i]];
-
-                assert(Tri.Polarity==Vertex.Polarity);
-
-                VertexInfo.Normal  +=TriInfo.Normal*TriWeight[i];
-                VertexInfo.Tangent +=TriInfo_Tangent*TriWeight[i];
-                VertexInfo.BiNormal+=TriInfo_BiNormal*TriWeight[i];
-
-                for (unsigned long DupNr=0; DupNr<Vertex.GeoDups.Size(); DupNr++)
-                {
-                    const MeshT::VertexT& DupVertex    =Mesh.Vertices[Vertex.GeoDups[DupNr]];
-                    MeshInfoT::VertexT&   DupVertexInfo=MeshInfo.Vertices[Vertex.GeoDups[DupNr]];
-
-                    DupVertexInfo.Normal  +=TriInfo.Normal*TriWeight[i];
-                    DupVertexInfo.Tangent +=TriInfo_Tangent*(Tri.Polarity==DupVertex.Polarity ? TriWeight[i] : -TriWeight[i]);
-                    DupVertexInfo.BiNormal+=TriInfo_BiNormal*TriWeight[i];
-                }
-            }
+        for (unsigned long VertexNr=0; VertexNr<Mesh.Vertices.Size(); VertexNr++)
+        {
+            MeshInfo.Vertices[VertexNr].Pos      = Mesh.Vertices[VertexNr].gts_Pos;
+            MeshInfo.Vertices[VertexNr].Normal   = Mesh.Vertices[VertexNr].gts_Normal;
+            MeshInfo.Vertices[VertexNr].Tangent  = Mesh.Vertices[VertexNr].gts_Tangent;
+            MeshInfo.Vertices[VertexNr].BiNormal = Mesh.Vertices[VertexNr].gts_BiNormal;
         }
     }
-
-    // Finally normalize the per-vertex tangent-space axes; this is quasi the "division" in the average computations.
-    for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
-    {
-        MeshInfoT& MeshInfo=m_MeshInfos[MeshNr];
-
-        for (unsigned long VertexNr=0; VertexNr<MeshInfo.Vertices.Size(); VertexNr++)
-        {
-            MeshInfoT::VertexT& VertexInfo=MeshInfo.Vertices[VertexNr];
-
-            // Normalize the tangent-space axes.
-            VertexInfo.Normal  =myNormalize(VertexInfo.Normal  );
-            VertexInfo.Tangent =myNormalize(VertexInfo.Tangent );
-            VertexInfo.BiNormal=myNormalize(VertexInfo.BiNormal);
-        }
-    }
-
-    DoneComputingTS:
 
 
     // ***************************************************************************************************************
@@ -391,21 +286,366 @@ void AnimPoseT::UpdateData() const
             DrawTriNr++;
         }
     }
+}
+
+
+void AnimPoseT::UpdateTangentSpaceHard(unsigned long MeshNr) const
+{
+    const CafuModelT::MeshT& Mesh     =m_Model.GetMeshes()[MeshNr];
+    MeshInfoT&               MeshInfo =m_MeshInfos[MeshNr];
+    unsigned long            DrawTriNr=0;
 
 
     // *******************************************************************************************
-    //  Update the bounding-box for this pose.
+    //  Compute the tangent-space basis vectors for all triangles and all vertices.
+    //  This is done by first computing the per-triangle axes and then having them enter
+    //  the relevant per-vertex averages as required (taking mirror corrections into account).
+    //  The per-triangle normal vectors are also kept for stencil shadow silhoutte determination.
     // *******************************************************************************************
 
-    m_BoundingBox=BoundingBox3fT();
-
-    for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
+    // For all vertices, zero the tangent-space vectors for the subsequent average accumulation.
+    for (unsigned long VertexNr=0; VertexNr<MeshInfo.Vertices.Size(); VertexNr++)
     {
-        const MeshInfoT& MeshInfo=m_MeshInfos[MeshNr];
+        MeshInfoT::VertexT& VertexInfo=MeshInfo.Vertices[VertexNr];
 
-        for (unsigned long VertexNr=0; VertexNr<MeshInfo.Vertices.Size(); VertexNr++)
-            m_BoundingBox+=MeshInfo.Vertices[VertexNr].Pos;
+        VertexInfo.Normal  =Vector3fT(0, 0, 0);
+        VertexInfo.Tangent =Vector3fT(0, 0, 0);
+        VertexInfo.BiNormal=Vector3fT(0, 0, 0);
     }
+
+    // Compute the per-triangle tangent-space axes and distribute them over the relevant vertices appropriately.
+    for (unsigned long TriangleNr=0; TriangleNr<Mesh.Triangles.Size(); TriangleNr++)
+    {
+        const CafuModelT::MeshT::TriangleT& Tri=Mesh.Triangles[TriangleNr];
+        const CafuModelT::MeshT::VertexT&   V_0=Mesh.Vertices[Tri.VertexIdx[0]];
+        const CafuModelT::MeshT::VertexT&   V_1=Mesh.Vertices[Tri.VertexIdx[1]];
+        const CafuModelT::MeshT::VertexT&   V_2=Mesh.Vertices[Tri.VertexIdx[2]];
+
+        MeshInfoT::TriangleT& TriInfo=MeshInfo.Triangles[TriangleNr];
+        MeshInfoT::VertexT&   V_0Info=MeshInfo.Vertices[Tri.VertexIdx[0]];
+        MeshInfoT::VertexT&   V_1Info=MeshInfo.Vertices[Tri.VertexIdx[1]];
+        MeshInfoT::VertexT&   V_2Info=MeshInfo.Vertices[Tri.VertexIdx[2]];
+
+        const Vector3fT       Edge01=V_1Info.Pos-V_0Info.Pos;
+        const Vector3fT       Edge02=V_2Info.Pos-V_0Info.Pos;
+
+        // Triangles are ordered CW for md5 models and CCW for ase models, so we write
+        // Normal=VectorCross(Edge02, Edge01) for md5 models and Normal=VectorCross(Edge01, Edge02) for ase models.
+        TriInfo.Normal=myNormalize(Edge02.cross(Edge01));
+
+        if (Mesh.Triangles[TriangleNr].SkipDraw)
+            continue;
+
+        // Understanding what's going on here is easy. The key statement is
+        // "The tangent vector is parallel to the direction of increasing S on a parametric surface."
+        // First, there is a short explanation in "The Cg Tutorial", chapter 8.
+        // Second, I have drawn a simple figure that leads to a simple 2x2 system of Gaussian equations, see my TechArchive.
+        const Vector3fT uv01=Vector3fT(V_1.u, V_1.v, 0.0f)-Vector3fT(V_0.u, V_0.v, 0.0f);
+        const Vector3fT uv02=Vector3fT(V_2.u, V_2.v, 0.0f)-Vector3fT(V_0.u, V_0.v, 0.0f);
+        const float     f   =uv01.x*uv02.y-uv01.y*uv02.x>0.0 ? 1.0f : -1.0f;
+
+        const Vector3fT TriInfo_Tangent =myNormalize(Edge02.GetScaled(-uv01.y*f) + Edge01.GetScaled(uv02.y*f));
+        const Vector3fT TriInfo_BiNormal=myNormalize(Edge02.GetScaled( uv01.x*f) - Edge01.GetScaled(uv02.x*f));
+
+        m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+0].SetOrigin(V_0Info.Pos.x, V_0Info.Pos.y, V_0Info.Pos.z);
+        m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+0].SetTextureCoord(V_0.u, V_0.v);
+        m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+1].SetOrigin(V_1Info.Pos.x, V_1Info.Pos.y, V_1Info.Pos.z);
+        m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+1].SetTextureCoord(V_1.u, V_1.v);
+        m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+2].SetOrigin(V_2Info.Pos.x, V_2Info.Pos.y, V_2Info.Pos.z);
+        m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+2].SetTextureCoord(V_2.u, V_2.v);
+
+        for (unsigned long i=0; i<3; i++)
+        {
+            m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+i].SetNormal  (TriInfo.Normal.x,   TriInfo.Normal.y,   TriInfo.Normal.z  );
+            m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+i].SetTangent (TriInfo_Tangent.x,  TriInfo_Tangent.y,  TriInfo_Tangent.z );
+            m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+i].SetBiNormal(TriInfo_BiNormal.x, TriInfo_BiNormal.y, TriInfo_BiNormal.z);
+        }
+
+        DrawTriNr++;
+    }
+}
+
+
+void AnimPoseT::UpdateTangentSpaceGlobal(unsigned long MeshNr) const
+{
+    const CafuModelT::MeshT& Mesh    =m_Model.GetMeshes()[MeshNr];
+    MeshInfoT&               MeshInfo=m_MeshInfos[MeshNr];
+
+
+    // *******************************************************************************************
+    //  Compute the tangent-space basis vectors for all triangles and all vertices.
+    //  This is done by first computing the per-triangle axes and then having them enter
+    //  the relevant per-vertex averages as required (taking mirror corrections into account).
+    //  The per-triangle normal vectors are also kept for stencil shadow silhoutte determination.
+    // *******************************************************************************************
+
+    // For all vertices, zero the tangent-space vectors for the subsequent average accumulation.
+    for (unsigned long VertexNr=0; VertexNr<MeshInfo.Vertices.Size(); VertexNr++)
+    {
+        MeshInfoT::VertexT& VertexInfo=MeshInfo.Vertices[VertexNr];
+
+        VertexInfo.Normal  =Vector3fT(0, 0, 0);
+        VertexInfo.Tangent =Vector3fT(0, 0, 0);
+        VertexInfo.BiNormal=Vector3fT(0, 0, 0);
+    }
+
+    // Compute the per-triangle tangent-space axes and distribute them over the relevant vertices appropriately.
+    for (unsigned long TriangleNr=0; TriangleNr<Mesh.Triangles.Size(); TriangleNr++)
+    {
+        const CafuModelT::MeshT::TriangleT& Tri=Mesh.Triangles[TriangleNr];
+        const CafuModelT::MeshT::VertexT&   V_0=Mesh.Vertices[Tri.VertexIdx[0]];
+        const CafuModelT::MeshT::VertexT&   V_1=Mesh.Vertices[Tri.VertexIdx[1]];
+        const CafuModelT::MeshT::VertexT&   V_2=Mesh.Vertices[Tri.VertexIdx[2]];
+
+        MeshInfoT::TriangleT& TriInfo=MeshInfo.Triangles[TriangleNr];
+        MeshInfoT::VertexT&   V_0Info=MeshInfo.Vertices[Tri.VertexIdx[0]];
+        MeshInfoT::VertexT&   V_1Info=MeshInfo.Vertices[Tri.VertexIdx[1]];
+        MeshInfoT::VertexT&   V_2Info=MeshInfo.Vertices[Tri.VertexIdx[2]];
+
+        const Vector3fT       Edge01=V_1Info.Pos-V_0Info.Pos;
+        const Vector3fT       Edge02=V_2Info.Pos-V_0Info.Pos;
+
+        // Triangles are ordered CW for md5 models and CCW for ase models, so we write
+        // Normal=VectorCross(Edge02, Edge01) for md5 models and Normal=VectorCross(Edge01, Edge02) for ase models.
+        TriInfo.Normal=myNormalize(Edge02.cross(Edge01));
+
+        // Understanding what's going on here is easy. The key statement is
+        // "The tangent vector is parallel to the direction of increasing S on a parametric surface."
+        // First, there is a short explanation in "The Cg Tutorial", chapter 8.
+        // Second, I have drawn a simple figure that leads to a simple 2x2 system of Gaussian equations, see my TechArchive.
+        const Vector3fT uv01=Vector3fT(V_1.u, V_1.v, 0.0f)-Vector3fT(V_0.u, V_0.v, 0.0f);
+        const Vector3fT uv02=Vector3fT(V_2.u, V_2.v, 0.0f)-Vector3fT(V_0.u, V_0.v, 0.0f);
+        const float     f   =uv01.x*uv02.y-uv01.y*uv02.x>0.0 ? 1.0f : -1.0f;
+
+        const Vector3fT TriInfo_Tangent =myNormalize(Edge02.GetScaled(-uv01.y*f) + Edge01.GetScaled(uv02.y*f));
+        const Vector3fT TriInfo_BiNormal=myNormalize(Edge02.GetScaled( uv01.x*f) - Edge01.GetScaled(uv02.x*f));
+
+
+        // Distribute the per-triangle tangent-space over the affected vertices.
+#if 1
+        const float Pi=3.14159265358979323846f;
+
+        const float c0=dot(myNormalize(Edge01), myNormalize(Edge02));
+        const float c1=dot(myNormalize(Edge01), myNormalize(V_1Info.Pos-V_2Info.Pos));
+
+        const float w0=(c0>=1.0f) ? 0.0f : ( (c0<=-1.0f) ? Pi : acos(c0) );
+        const float w1=(c1>=1.0f) ? 0.0f : ( (c1<=-1.0f) ? Pi : acos(c1) );
+
+        const float TriWeight[3]={ w0, w1, Pi-TriWeight[0]-TriWeight[1] };
+#else
+        const float TriWeight[3]={ 1.0f, 1.0f, 1.0f };
+#endif
+
+        for (int i=0; i<3; i++)
+        {
+            const CafuModelT::MeshT::VertexT& Vertex    =Mesh.Vertices[Tri.VertexIdx[i]];
+            MeshInfoT::VertexT&               VertexInfo=MeshInfo.Vertices[Tri.VertexIdx[i]];
+
+            assert(Tri.Polarity==Vertex.Polarity);
+
+            VertexInfo.Normal  +=TriInfo.Normal*TriWeight[i];
+            VertexInfo.Tangent +=TriInfo_Tangent*TriWeight[i];
+            VertexInfo.BiNormal+=TriInfo_BiNormal*TriWeight[i];
+
+            for (unsigned long DupNr=0; DupNr<Vertex.GeoDups.Size(); DupNr++)
+            {
+                const CafuModelT::MeshT::VertexT& DupVertex    =Mesh.Vertices[Vertex.GeoDups[DupNr]];
+                MeshInfoT::VertexT&               DupVertexInfo=MeshInfo.Vertices[Vertex.GeoDups[DupNr]];
+
+                DupVertexInfo.Normal  +=TriInfo.Normal*TriWeight[i];
+                DupVertexInfo.Tangent +=TriInfo_Tangent*(Tri.Polarity==DupVertex.Polarity ? TriWeight[i] : -TriWeight[i]);
+                DupVertexInfo.BiNormal+=TriInfo_BiNormal*TriWeight[i];
+            }
+        }
+    }
+
+    // Finally normalize the per-vertex tangent-space axes; this is quasi the "division" in the average computations.
+    for (unsigned long VertexNr=0; VertexNr<MeshInfo.Vertices.Size(); VertexNr++)
+    {
+        MeshInfoT::VertexT& VertexInfo=MeshInfo.Vertices[VertexNr];
+
+        // Normalize the tangent-space axes.
+        VertexInfo.Normal  =myNormalize(VertexInfo.Normal  );
+        VertexInfo.Tangent =myNormalize(VertexInfo.Tangent );
+        VertexInfo.BiNormal=myNormalize(VertexInfo.BiNormal);
+    }
+
+
+    // ***************************************************************************************************************
+    //  Construct explicit MatSys::MeshT meshes now.
+    //  Note that this is very inefficient - we REALLY should work with index arrays! (and/or vertex buffer objects!)
+    // ***************************************************************************************************************
+
+    unsigned long DrawTriNr=0;
+
+    for (unsigned long TriNr=0; TriNr<Mesh.Triangles.Size(); TriNr++)
+    {
+        if (Mesh.Triangles[TriNr].SkipDraw)
+            continue;
+
+        for (unsigned long i=0; i<3; i++)
+        {
+            const unsigned long       VertexIdx =Mesh.Triangles[TriNr].VertexIdx[i];
+            const MeshInfoT::VertexT& VertexInfo=MeshInfo.Vertices[VertexIdx];
+
+            m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+i].SetOrigin(VertexInfo.Pos.x, VertexInfo.Pos.y, VertexInfo.Pos.z);
+            m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+i].SetTextureCoord(Mesh.Vertices[VertexIdx].u, Mesh.Vertices[VertexIdx].v);
+            m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+i].SetNormal  (VertexInfo.Normal.x,   VertexInfo.Normal.y,   VertexInfo.Normal.z  );
+            m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+i].SetTangent (VertexInfo.Tangent.x,  VertexInfo.Tangent.y,  VertexInfo.Tangent.z );
+            m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+i].SetBiNormal(VertexInfo.BiNormal.x, VertexInfo.BiNormal.y, VertexInfo.BiNormal.z);
+        }
+
+        DrawTriNr++;
+    }
+}
+
+
+#if 0
+/// This method implements "local" smoothing, which, unfortunately,
+/// seems not to work well for most meshes (possibly all meshes but cones).
+///
+/// In this context, "global" smoothing means that when the side of a pyramid or cone is considered,
+/// for computing the tangent-space of its tip vertex, all sides of the pyramid enter the average,
+/// because they all share the common tip vertex.
+/// As a result, the normal vector at the tip is straight (axial), the same for all sides, and the
+/// interpolated "shape" in tangent-space is really a half-sphere rather than a cone.
+///
+/// In contrast, "local" smoothing averages only the current side with its left and right neighbours.
+/// The resulting tangent-space normal vectors at the tip vertices remain orthogonal to their triangle,
+/// and the interpolated tangent-space shape is a cone rather than a half-sphere.
+void AnimPoseT::UpdateTangentSpaceSgLocal(unsigned long MeshNr) const
+{
+    const CafuModelT::MeshT& Mesh    =m_Model.GetMeshes()[MeshNr];
+    MeshInfoT&               MeshInfo=m_MeshInfos[MeshNr];
+
+
+    // *******************************************************************************************
+    //  Compute the tangent-space basis vectors for all triangles and all vertices.
+    //  This is done by first computing the per-triangle axes and then having them enter
+    //  the relevant per-vertex averages as required (taking mirror corrections into account).
+    //  The per-triangle normal vectors are also kept for stencil shadow silhoutte determination.
+    // *******************************************************************************************
+
+    // For all vertices, zero the tangent-space vectors for the subsequent average accumulation.
+    for (unsigned long VertexNr=0; VertexNr<MeshInfo.Vertices.Size(); VertexNr++)
+    {
+        MeshInfoT::VertexT& VertexInfo=MeshInfo.Vertices[VertexNr];
+
+        VertexInfo.Normal  =Vector3fT(0, 0, 0);
+        VertexInfo.Tangent =Vector3fT(0, 0, 0);
+        VertexInfo.BiNormal=Vector3fT(0, 0, 0);
+    }
+
+    static ArrayT<Vector3fT> TriInfo_Tangents;
+    static ArrayT<Vector3fT> TriInfo_BiNormals;
+
+    TriInfo_Tangents.Overwrite();
+    TriInfo_Tangents.PushBackEmpty(Mesh.Triangles.Size());
+
+    TriInfo_BiNormals.Overwrite();
+    TriInfo_BiNormals.PushBackEmpty(Mesh.Triangles.Size());
+
+    // Compute the per-triangle tangent-space axes and distribute them over the relevant vertices appropriately.
+    for (unsigned long TriangleNr=0; TriangleNr<Mesh.Triangles.Size(); TriangleNr++)
+    {
+        const CafuModelT::MeshT::TriangleT& Tri=Mesh.Triangles[TriangleNr];
+        const CafuModelT::MeshT::VertexT&   V_0=Mesh.Vertices[Tri.VertexIdx[0]];
+        const CafuModelT::MeshT::VertexT&   V_1=Mesh.Vertices[Tri.VertexIdx[1]];
+        const CafuModelT::MeshT::VertexT&   V_2=Mesh.Vertices[Tri.VertexIdx[2]];
+
+        MeshInfoT::TriangleT& TriInfo=MeshInfo.Triangles[TriangleNr];
+        MeshInfoT::VertexT&   V_0Info=MeshInfo.Vertices[Tri.VertexIdx[0]];
+        MeshInfoT::VertexT&   V_1Info=MeshInfo.Vertices[Tri.VertexIdx[1]];
+        MeshInfoT::VertexT&   V_2Info=MeshInfo.Vertices[Tri.VertexIdx[2]];
+
+        const Vector3fT       Edge01=V_1Info.Pos-V_0Info.Pos;
+        const Vector3fT       Edge02=V_2Info.Pos-V_0Info.Pos;
+
+        // Triangles are ordered CW for md5 models and CCW for ase models, so we write
+        // Normal=VectorCross(Edge02, Edge01) for md5 models and Normal=VectorCross(Edge01, Edge02) for ase models.
+        TriInfo.Normal=myNormalize(Edge02.cross(Edge01));
+
+        // Understanding what's going on here is easy. The key statement is
+        // "The tangent vector is parallel to the direction of increasing S on a parametric surface."
+        // First, there is a short explanation in "The Cg Tutorial", chapter 8.
+        // Second, I have drawn a simple figure that leads to a simple 2x2 system of Gaussian equations, see my TechArchive.
+        const Vector3fT uv01=Vector3fT(V_1.u, V_1.v, 0.0f)-Vector3fT(V_0.u, V_0.v, 0.0f);
+        const Vector3fT uv02=Vector3fT(V_2.u, V_2.v, 0.0f)-Vector3fT(V_0.u, V_0.v, 0.0f);
+        const float     f   =uv01.x*uv02.y-uv01.y*uv02.x>0.0 ? 1.0f : -1.0f;
+
+        TriInfo_Tangents [TriangleNr]=myNormalize(Edge02.GetScaled(-uv01.y*f) + Edge01.GetScaled(uv02.y*f));
+        TriInfo_BiNormals[TriangleNr]=myNormalize(Edge02.GetScaled( uv01.x*f) - Edge01.GetScaled(uv02.x*f));
+    }
+
+
+    // ***************************************************************************************************************
+    //  Construct explicit MatSys::MeshT meshes now.
+    //  Note that this is very inefficient - we REALLY should work with index arrays! (and/or vertex buffer objects!)
+    // ***************************************************************************************************************
+
+    unsigned long DrawTriNr=0;
+
+    for (unsigned long TriNr=0; TriNr<Mesh.Triangles.Size(); TriNr++)
+    {
+        if (Mesh.Triangles[TriNr].SkipDraw)
+            continue;
+
+        Vector3fT VertexNormal[3];
+        Vector3fT VertexTangent[3];
+        Vector3fT VertexBiNormal[3];
+
+        for (unsigned int i=0; i<3; i++)
+        {
+            VertexNormal  [i]=MeshInfo.Triangles[TriNr].Normal;
+            VertexTangent [i]=TriInfo_Tangents[TriNr];
+            VertexBiNormal[i]=TriInfo_BiNormals[TriNr];
+        }
+
+        for (unsigned int i=0; i<3; i++)
+        {
+            const int NeighbIdx=Mesh.Triangles[TriNr].NeighbIdx[i];
+
+            if (NeighbIdx>=0)
+            {
+                VertexNormal  [i]+=MeshInfo.Triangles[NeighbIdx].Normal;
+                VertexTangent [i]+=TriInfo_Tangents[NeighbIdx];
+                VertexBiNormal[i]+=TriInfo_BiNormals[NeighbIdx];
+
+                VertexNormal  [(i+1) % 3]+=MeshInfo.Triangles[NeighbIdx].Normal;
+                VertexTangent [(i+1) % 3]+=TriInfo_Tangents[NeighbIdx];
+                VertexBiNormal[(i+1) % 3]+=TriInfo_BiNormals[NeighbIdx];
+            }
+        }
+
+        for (unsigned int i=0; i<3; i++)
+        {
+            VertexNormal  [i]=myNormalize(VertexNormal  [i]);
+            VertexTangent [i]=myNormalize(VertexTangent [i]);
+            VertexBiNormal[i]=myNormalize(VertexBiNormal[i]);
+        }
+
+        for (unsigned long i=0; i<3; i++)
+        {
+            const unsigned long       VertexIdx =Mesh.Triangles[TriNr].VertexIdx[i];
+            const MeshInfoT::VertexT& VertexInfo=MeshInfo.Vertices[VertexIdx];
+
+            m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+i].SetOrigin(VertexInfo.Pos.x, VertexInfo.Pos.y, VertexInfo.Pos.z);
+            m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+i].SetTextureCoord(Mesh.Vertices[VertexIdx].u, Mesh.Vertices[VertexIdx].v);
+            m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+i].SetNormal  (VertexNormal[i].x,   VertexNormal[i].y,   VertexNormal[i].z  );
+            m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+i].SetTangent (VertexTangent[i].x,  VertexTangent[i].y,  VertexTangent[i].z );
+            m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+i].SetBiNormal(VertexBiNormal[i].x, VertexBiNormal[i].y, VertexBiNormal[i].z);
+        }
+
+        DrawTriNr++;
+    }
+}
+#endif
+
+
+void AnimPoseT::UpdateTangentSpaceSmGroups(unsigned long MeshNr) const
+{
+    // TODO: At this time, this is the same as GLOBAL.
+    UpdateTangentSpaceGlobal(MeshNr);
 }
 
 
@@ -414,17 +654,35 @@ void AnimPoseT::Recache() const
     if (!m_SuperPose && m_AnimExpr->IsEqual(m_CachedAE)) return;
 
     SyncDimensions();
-    UpdateData();
+    UpdateJointMatrices();
+    UpdateVertexPositions();
 
-    // SyncDimensions();
-    // UpdateJointMatrices();
-    //
-    // if (UseGivenTangentSpace)
-    //     // Take it from the model
-    //     x();
-    // else
-    //     // Compute it ourselves
-    //     y();
+    if (m_Model.GetUseGivenTS())
+    {
+        // Copy the tangent-space from the model.
+        UpdateTangentSpaceCopyGiven();
+    }
+    else
+    {
+        for (unsigned long MeshNr=0; MeshNr<m_Model.GetMeshes().Size(); MeshNr++)
+        {
+            // Compute the tangent-space ourselves.
+            switch (m_Model.GetMeshes()[MeshNr].TSMethod)
+            {
+                case CafuModelT::MeshT::HARD:
+                    UpdateTangentSpaceHard(MeshNr);
+                    break;
+
+                case CafuModelT::MeshT::GLOBAL:
+                    UpdateTangentSpaceGlobal(MeshNr);
+                    break;
+
+                case CafuModelT::MeshT::SM_GROUPS:
+                    UpdateTangentSpaceSmGroups(MeshNr);
+                    break;
+            }
+        }
+    }
 
     if (m_SuperPose)
     {

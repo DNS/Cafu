@@ -78,22 +78,11 @@ class CafuModelT
     struct MeshT
     {
         /// The methods that can be used to generate the tangent-space axes at the vertices of a mesh.
-        ///
-        /// In this context, "global" smoothing means that when the side of a pyramid or cone is considered,
-        /// for computing the tangent-space of its tip vertex, all sides of the pyramid enter the average,
-        /// because they all share the common tip vertex.
-        /// As a result, the normal vector at the tip is straight (axial), the same for all sides, and the
-        /// interpolated "shape" in tangent-space is really a half-sphere rather than a cone.
-        ///
-        /// In contrast, "local" smoothing averages only the current side with its left and right neighbours.
-        /// The resulting tangent-space normal vectors at the tip vertices remain orthogonal to their triangle,
-        /// and the interpolated tangent-space shape is a cone rather than a half-sphere.
         enum TangentSpaceMethodT
         {
             HARD,       ///< Hard edges, no smoothing: The tangent-space of the triangle is used as the tangent-space of its vertices. (Any smoothing groups info, if available, is ignored.)
-            GLOBAL,     ///< Considers all triangles in the mesh to be in the same common smoothing group, and smoothes them globally. (Any smoothing groups info, if available, is ignored.) This method is equivalent to SG_GLOBAL when all triangles are in the same smoothing group. It is also the default method, as it requires no smoothing groups info at all, provides better performance than SG_GLOBAL, and was implemented in earlier versions of Cafu.
-            SG_LOCAL,   ///< Takes the given smoothing groups into account and provides "local" smoothing.
-            SG_GLOBAL   ///< [NOT YET IMPLEMENTED! At this time, this is the same as GLOBAL.] Takes the given smoothing groups into account and provides "global" smoothing.
+            GLOBAL,     ///< Considers all triangles in the mesh to be in the same common smoothing group, and smoothes them globally. (Any smoothing groups info, if available, is ignored.) This method is equivalent to SM_GROUPS when all triangles are in the same smoothing group. It is also the default method, as it requires no smoothing groups info at all, provides better performance than SM_GROUPS, and was implemented in earlier versions of Cafu.
+            SM_GROUPS   ///< [NOT YET IMPLEMENTED! At this time, this is the same as GLOBAL.] Like GLOBAL, but takes the given smoothing groups into account.
         };
 
         /// A single triangle.

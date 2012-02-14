@@ -160,7 +160,12 @@ class AnimPoseT
     void operator = (const AnimPoseT&);             ///< Use of the Assignment Operator is not allowed.
 
     void SyncDimensions() const;
-    void UpdateData() const;
+    void UpdateJointMatrices() const;
+    void UpdateVertexPositions() const;
+    void UpdateTangentSpaceCopyGiven() const;
+    void UpdateTangentSpaceHard(unsigned long MeshNr) const;
+    void UpdateTangentSpaceGlobal(unsigned long MeshNr) const;
+    void UpdateTangentSpaceSmGroups(unsigned long MeshNr) const;
     void Recache() const;
 
     const CafuModelT&             m_Model;          ///< The related model that this is a pose for.

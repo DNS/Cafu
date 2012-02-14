@@ -133,8 +133,7 @@ std::string CafuModelT::MeshT::GetTSMethod() const
     {
         case HARD:      return "HARD";
         case GLOBAL:    return "GLOBAL";
-        case SG_LOCAL:  return "SG_LOCAL";
-        case SG_GLOBAL: return "SG_GLOBAL";
+        case SM_GROUPS: return "SM_GROUPS";
     }
 
     return "?";
@@ -147,8 +146,7 @@ void CafuModelT::MeshT::SetTSMethod(const std::string& m)
 
          if (m=="HARD")      TSMethod=HARD;
     else if (m=="GLOBAL")    TSMethod=GLOBAL;
-    else if (m=="SG_LOCAL")  TSMethod=SG_LOCAL;
-    else if (m=="SG_GLOBAL") TSMethod=SG_GLOBAL;
+    else if (m=="SM_GROUPS") TSMethod=SM_GROUPS;
 }
 
 

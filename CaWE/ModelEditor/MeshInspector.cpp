@@ -180,8 +180,8 @@ void MeshInspectorT::RefreshPropGrid()
         Append(new MaterialPropertyT(wxString::Format("Material (%s)", m_ModelDoc->GetSelSkinString()),
             "Material", Mat ? Mat->Name : "<NULL>", m_ModelDoc));
 
-        const wxChar* TSM_Strings[] = { wxT("HARD"), wxT("GLOBAL"), wxT("SG_LOCAL"), wxT("SG_GLOBAL"), NULL };
-        const long    TSM_Indices[] = { CafuModelT::MeshT::HARD, CafuModelT::MeshT::GLOBAL, CafuModelT::MeshT::SG_LOCAL, CafuModelT::MeshT::SG_GLOBAL };
+        const wxChar* TSM_Strings[] = { wxT("HARD"), wxT("GLOBAL"), wxT("SM_GROUPS"), NULL };
+        const long    TSM_Indices[] = { CafuModelT::MeshT::HARD, CafuModelT::MeshT::GLOBAL, CafuModelT::MeshT::SM_GROUPS };
         wxPGProperty* TSMethod=Append(new wxEnumProperty("Tangent-space method", wxPG_LABEL, TSM_Strings, TSM_Indices, Mesh.TSMethod));
         TSMethod->SetHelpString("The method that is used for generating the tangent-space axes at the vertices of this mesh. See the documentation for details.");
 
