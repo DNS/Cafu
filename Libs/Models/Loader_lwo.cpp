@@ -348,7 +348,7 @@ void LoaderLwoT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                         assert(MeshVertex.FirstWeightIdx==(unsigned int)PolyVert.index);
                         assert(MeshVertex.NumWeights==1);
 
-                        if (MeshVertex.u==TexCoord.x && MeshVertex.v==TexCoord.y)
+                        if (MeshVertex.u==TexCoord.x && MeshVertex.v==1.0f-TexCoord.y)
                         {
                             PolygonMeshVertices.PushBack(MeshVertexNr);
                             break;
@@ -367,11 +367,6 @@ void LoaderLwoT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                     MeshVertex.FirstWeightIdx=PolyVert.index;
                     MeshVertex.NumWeights    =1;
 
-                    MeshVertex.gts_Pos      =Mesh.Weights[PolyVert.index].Pos;     // Normally the base class code computes this, but we also have to pre-provide a proper value here for ComputeTangents().
-                    MeshVertex.gts_Normal   =Vector3fT(PolyVert.norm);
-                 // MeshVertex.gts_Tangent  =...;      // Set below to polygon average.
-                 // MeshVertex.gts_BiNormal =...;      // Set below to polygon average.
-
                     WeightVerts[PolyVert.index].PushBack(MeshVertexNr);
                     PolygonMeshVertices.PushBack(MeshVertexNr);
                 }
@@ -380,9 +375,6 @@ void LoaderLwoT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
 
 
                 // Create the triangle list for this mesh (assuming that Poly is always convex...).
-                Vector3fT Poly_Tangent;
-                Vector3fT Poly_BiTangent;
-
                 for (unsigned long VertexNr=0; VertexNr+2<PolygonMeshVertices.Size(); VertexNr++)
                 {
                     Mesh.Triangles.PushBackEmpty();
@@ -397,39 +389,7 @@ void LoaderLwoT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                         Console->Warning(cf::va("Polygon %i is in smoothing group %i, but should be in 0...31.\n", PolyNr, Poly.smoothgrp));
 
                     Triangle.SmoothGroups=uint32_t(1) << Poly.smoothgrp;
-                    Triangle.gts_Normal=Vector3fT(Poly.norm);
-
-
-                    Vector3fT Tri_Tangent;
-                    Vector3fT Tri_BiTangent;
-
-                    ComputeTangents(Mesh, TriangleNr, Tri_Tangent, Tri_BiTangent);
-
-                    // The polygon tangents are the average of the tangents of its triangles.
-                    Poly_Tangent  +=Tri_Tangent;
-                    Poly_BiTangent+=Tri_BiTangent;
                 }
-
-                // All vertices of this polygon share the same averaged tangent and bi-tangent.
-                for (unsigned long VertexNr=0; VertexNr<PolygonMeshVertices.Size(); VertexNr++)
-                {
-                    CafuModelT::MeshT::VertexT& Vertex=Mesh.Vertices[PolygonMeshVertices[VertexNr]];
-
-                    // The vertex may be shared across multiple polygons, and we want to build the average over them.
-                    // Therefore we only accumulate the tangents here, and normalize below.
-                    Vertex.gts_Tangent +=myNormalize(Poly_Tangent);
-                    Vertex.gts_BiNormal+=myNormalize(Poly_BiTangent);
-                }
-            }
-
-
-            // Normalize (average, possibly across polygons) the tangents of the vertices.
-            for (unsigned long VertexNr=0; VertexNr<Mesh.Vertices.Size(); VertexNr++)
-            {
-                CafuModelT::MeshT::VertexT& Vertex=Mesh.Vertices[VertexNr];
-
-                Vertex.gts_Tangent =myNormalize(Vertex.gts_Tangent );
-                Vertex.gts_BiNormal=myNormalize(Vertex.gts_BiNormal);
             }
         }
     }
@@ -438,31 +398,4 @@ void LoaderLwoT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
 
     // for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
     //     Console->Print(cf::va("Mesh %lu: %lu weights, %lu vertices, %lu triangles.\n", MeshNr, Meshes[MeshNr].Weights.Size(), Meshes[MeshNr].Vertices.Size(), Meshes[MeshNr].Triangles.Size()));
-}
-
-
-void LoaderLwoT::ComputeTangents(const CafuModelT::MeshT& Mesh, const unsigned long TriangleNr, Vector3fT& Tangent, Vector3fT& BiTangent) const
-{
-    // This code is simply copied from "Model_cmdl.cpp", CafuModelT::UpdateCachedDrawData().
-    const CafuModelT::MeshT::TriangleT& Tri   =Mesh.Triangles[TriangleNr];
-    const CafuModelT::MeshT::VertexT&   V_0   =Mesh.Vertices[Tri.VertexIdx[0]];
-    const CafuModelT::MeshT::VertexT&   V_1   =Mesh.Vertices[Tri.VertexIdx[1]];
-    const CafuModelT::MeshT::VertexT&   V_2   =Mesh.Vertices[Tri.VertexIdx[2]];
-    const Vector3fT                     Edge01=V_1.gts_Pos-V_0.gts_Pos;
-    const Vector3fT                     Edge02=V_2.gts_Pos-V_0.gts_Pos;
-
-    // Triangles are ordered CW for md5 models and CCW for ase models, so we write
-    // Normal=VectorCross(Edge02, Edge01) for md5 models and Normal=VectorCross(Edge01, Edge02) for ase models.
-    // Tri.gts_Normal=myNormalize(Edge02.cross(Edge01));
-
-    // Understanding what's going on here is easy. The key statement is
-    // "The tangent vector is parallel to the direction of increasing S on a parametric surface."
-    // First, there is a short explanation in "The Cg Tutorial", chapter 8.
-    // Second, I have drawn a simple figure that leads to a simple 2x2 system of Gaussian equations, see my TechArchive.
-    const Vector3fT uv01=Vector3fT(V_1.u, V_1.v, 0.0f)-Vector3fT(V_0.u, V_0.v, 0.0f);
-    const Vector3fT uv02=Vector3fT(V_2.u, V_2.v, 0.0f)-Vector3fT(V_0.u, V_0.v, 0.0f);
-    const float     f   =uv01.x*uv02.y-uv01.y*uv02.x>0.0 ? 1.0f : -1.0f;
-
-    Tangent  =myNormalize(Edge02.GetScaled(-uv01.y*f) + Edge01.GetScaled(uv02.y*f));
-    BiTangent=myNormalize(Edge02.GetScaled( uv01.x*f) - Edge01.GetScaled(uv02.x*f));
 }
