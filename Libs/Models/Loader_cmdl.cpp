@@ -463,7 +463,7 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::SkinT>& Skins, const MaterialManagerIm
 }
 
 
-void LoaderCafuT::Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures, ArrayT<CafuModelT::GuiLocT>& GuiLocs)
+void LoaderCafuT::Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures)
 {
     // Read the GUI fixtures.
     lua_getglobal(m_LuaState, "GuiFixtures");
@@ -510,35 +510,6 @@ void LoaderCafuT::Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures, ArrayT<Cafu
                     GuiFixture.Scale[c]=float(lua_tonumber(m_LuaState, -1));
                     lua_pop(m_LuaState, 1);
                 }
-                lua_pop(m_LuaState, 1);
-            }
-            lua_pop(m_LuaState, 1);
-        }
-    }
-    lua_pop(m_LuaState, 1);
-
-    // Read the GUI locations.
-    lua_getglobal(m_LuaState, "GuiLocs");
-    {
-        GuiLocs.Overwrite();
-        GuiLocs.PushBackEmptyExact(lua_objlen_ul(m_LuaState, -1));
-
-        for (unsigned long GuiLocNr=0; GuiLocNr<GuiLocs.Size(); GuiLocNr++)
-        {
-            CafuModelT::GuiLocT& GuiLoc=GuiLocs[GuiLocNr];
-
-            lua_rawgeti(m_LuaState, -1, GuiLocNr+1);
-            {
-                lua_getfield(m_LuaState, -1, "Origin");
-                GuiLoc.Origin=ReadVector3f(m_LuaState, -1);
-                lua_pop(m_LuaState, 1);
-
-                lua_getfield(m_LuaState, -1, "AxisX");
-                GuiLoc.AxisX=ReadVector3f(m_LuaState, -1);
-                lua_pop(m_LuaState, 1);
-
-                lua_getfield(m_LuaState, -1, "AxisY");
-                GuiLoc.AxisY=ReadVector3f(m_LuaState, -1);
                 lua_pop(m_LuaState, 1);
             }
             lua_pop(m_LuaState, 1);

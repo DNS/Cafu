@@ -63,7 +63,7 @@ class ModelLoaderT
     virtual void Load(ArrayT<CafuModelT::SkinT>& Skins, const MaterialManagerImplT& MaterialMan)=0;
 
     /// Loads the GUI fixtures of the Cafu model.
-    virtual void Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures, ArrayT<CafuModelT::GuiLocT>& GuiLocs)=0;
+    virtual void Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures)=0;
 
     /// Loads the animation channels (groups of joints) of the Cafu model.
     virtual void Load(ArrayT<CafuModelT::ChannelT>& Channels)=0;

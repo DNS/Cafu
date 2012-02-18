@@ -297,7 +297,7 @@ CafuModelT::CafuModelT(ModelLoaderT& Loader)
     // Have the model loader load the model file.
     Loader.Load(m_Joints, m_Meshes, m_Anims, m_MaterialMan);
     Loader.Load(m_Skins, m_MaterialMan);
-    Loader.Load(m_GuiFixtures, m_GuiLocs);
+    Loader.Load(m_GuiFixtures);
     Loader.Load(m_Channels);
     Loader.Postprocess(m_Meshes);
 
@@ -804,24 +804,6 @@ void CafuModelT::Save(std::ostream& OutStream) const
     OutStream << "}\n";
 
 
-    // *** Write the GUI locations. ***
-    OutStream << "\nGuiLocs=\n{\n";
-
-    for (unsigned long GuiLocNr=0; GuiLocNr<m_GuiLocs.Size(); GuiLocNr++)
-    {
-        const GuiLocT& GuiLoc=m_GuiLocs[GuiLocNr];
-
-        OutStream << "\t"
-                  << "{ "
-                  << "Origin={ " << serialize(GuiLoc.Origin) << " }; "
-                  << "AxisX={ " << serialize(GuiLoc.AxisX) << " }; "
-                  << "AxisY={ " << serialize(GuiLoc.AxisY) << " }; "
-                  << "},\n";
-    }
-
-    OutStream << "}\n";
-
-
     // *** Write the animations. ***
     OutStream << "\nAnimations=\n{\n";
 
@@ -967,18 +949,6 @@ AnimPoseT* CafuModelT::GetSharedPose(IntrusivePtrT<AnimExpressionT> AE) const
     m_TEMP_Pose->SetAnimExpr(AE);
 
     return m_TEMP_Pose;
-}
-
-
-bool CafuModelT::GetGuiPlane(Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const
-{
-    if (m_GuiLocs.Size()==0) return false;
-
-    GuiOrigin=m_GuiLocs[0].Origin;
-    GuiAxisX =m_GuiLocs[0].AxisX;
-    GuiAxisY =m_GuiLocs[0].AxisY;
-
-    return true;
 }
 
 

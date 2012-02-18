@@ -108,7 +108,7 @@ void LoaderDummyT::Load(ArrayT<CafuModelT::SkinT>& Skins, const MaterialManagerI
 }
 
 
-void LoaderDummyT::Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures, ArrayT<CafuModelT::GuiLocT>& GuiLocs)
+void LoaderDummyT::Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures)
 {
 }
 

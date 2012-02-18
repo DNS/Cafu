@@ -26,20 +26,6 @@ Textures/meta/clip_all
 }
 
 
-// Note that there is special-case code somewhere in the engine to render true GUIs in place where this material is.
-// This material is still used in the TechDemo.cmap as a remainder - it should be removed first there, then here.
-Textures/meta/EntityGUI
-{
-    AmbientShader none
-    LightShader   none
-
-    // diffusemap  Textures/meta/entity_gui.png
-
-    noShadows
-    meta_editorImage Textures/meta/entity_gui.png
-}
-
-
 Textures/meta/ladder
 {
     diffusemap  Textures/meta/ladder_editor.png

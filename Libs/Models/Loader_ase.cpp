@@ -605,52 +605,8 @@ void LoaderAseT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
 }
 
 
-void LoaderAseT::Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures, ArrayT<CafuModelT::GuiLocT>& GuiLocs)
+void LoaderAseT::Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures)
 {
-    // See if we have locations for attaching a GUI.
-    for (unsigned long GONr=0; GONr<m_GeomObjects.Size(); GONr++)
-    {
-        const GeomObjectT& GO=m_GeomObjects[GONr];
-
-        if (m_MaterialNames[GO.IndexMaterial]=="Textures/meta/EntityGUI" && GO.Triangles.Size()>0)
-        {
-            const GeomObjectT::TriangleT& Tri0=GO.Triangles[0];
-
-            // As directional vectors (Richtungsvektoren), just take the first tangent and the first binormal of the first triangle
-            // -- they should be identical across all triangles and their vertices anyway.
-            // ASSUMPTION: All tangents and binormals are *unit* vectors!
-            const VectorT AxisX=Tri0.Tangents [0]; assert(length(AxisX)>0.5);
-            const VectorT AxisY=Tri0.BiNormals[0]; assert(length(AxisY)>0.5);
-
-            // As an initial, temporary origin vector (Stützvektor), just pick the first vertex of the first Triangle.
-            const VectorT Origin=GO.Vertices[Tri0.IndVertices[0]];
-
-            BoundingBox3T<double> BB;
-
-            // In order to find the proper dimensions of the GUI panel, project all vertices (of all triangles, i.e. the entire GO)
-            // into the new (temporary) plane, and build the 2D bounding rectangle of the projection.
-            for (unsigned long VertexNr=0; VertexNr<GO.Vertices.Size(); VertexNr++)
-            {
-                const VectorT Proj=VectorT(dot(GO.Vertices[VertexNr]-Origin, AxisX),
-                                           dot(GO.Vertices[VertexNr]-Origin, AxisY),
-                                           0.0);
-
-                if (VertexNr==0) BB=BoundingBox3T<double>(Proj);
-                            else BB.Insert(Proj);
-            }
-
-            // Now transform the BB.Min back into model space in order to find the *proper* origin vector (Stützvektor).
-            const VectorT Gui_ul=Origin+AxisX*BB.Min.x+AxisY*BB.Min.y;  // The upper left  of the GUI panel in object space.
-            const VectorT Gui_lr=Origin+AxisX*BB.Max.x+AxisY*BB.Max.y;  // The lower right of the GUI panel in object space.
-
-            GuiLocs.PushBackEmpty();
-            GuiLocs[GuiLocs.Size()-1].Origin=Gui_ul.AsVectorOfFloat();
-
-            // Project the "screen diagonal" (Gui_lr-Gui_ul) onto the AxisX and AxisY to find the proper lengths of the directional vectors.
-            GuiLocs[GuiLocs.Size()-1].AxisX=scale(AxisX, dot(AxisX, Gui_lr-Gui_ul)).AsVectorOfFloat();
-            GuiLocs[GuiLocs.Size()-1].AxisY=scale(AxisY, dot(AxisY, Gui_lr-Gui_ul)).AsVectorOfFloat();
-        }
-    }
 }
 
 

@@ -304,7 +304,7 @@ void EntStaticDetailModelT::Draw(bool /*FirstPersonView*/, float LodDist) const
         Vector3fT GuiAxisX;
         Vector3fT GuiAxisY;
 
-        if (Pose->GetGuiPlane(0, GuiOrigin, GuiAxisX, GuiAxisY) || m_Model->GetGuiPlane(GuiOrigin, GuiAxisX, GuiAxisY))
+        if (Pose->GetGuiPlane(0, GuiOrigin, GuiAxisX, GuiAxisY))
         {
 #if 1
             const MatrixT& ModelToWorld=MatSys::Renderer->GetMatrix(MatSys::RendererI::MODEL_TO_WORLD);
@@ -376,33 +376,6 @@ void EntStaticDetailModelT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
 cf::GuiSys::GuiI* EntStaticDetailModelT::GetGUI() const
 {
     return Gui;
-}
-
-
-bool EntStaticDetailModelT::GetGuiPlane(Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const
-{
-    if (!m_Model->GetGuiPlane(GuiOrigin, GuiAxisX, GuiAxisY)) return false;
-
-    // Okay, got the plane. Now transform it from model space into world space.
-    GuiOrigin=scale(GuiOrigin, 25.4f);
-    GuiOrigin=GuiOrigin.GetRotX(     -float(State.Pitch  )/8192.0f*45.0f);
-    GuiOrigin=GuiOrigin.GetRotY(      float(State.Bank   )/8192.0f*45.0f);
-    GuiOrigin=GuiOrigin.GetRotZ(90.0f-float(State.Heading)/8192.0f*45.0f);
-
-    GuiAxisX=scale(GuiAxisX, 25.4f);
-    GuiAxisX=GuiAxisX.GetRotX(     -float(State.Pitch  )/8192.0f*45.0f);
-    GuiAxisX=GuiAxisX.GetRotY(      float(State.Bank   )/8192.0f*45.0f);
-    GuiAxisX=GuiAxisX.GetRotZ(90.0f-float(State.Heading)/8192.0f*45.0f);
-
-    GuiAxisY=scale(GuiAxisY, 25.4f);
-    GuiAxisY=GuiAxisY.GetRotX(     -float(State.Pitch  )/8192.0f*45.0f);
-    GuiAxisY=GuiAxisY.GetRotY(      float(State.Bank   )/8192.0f*45.0f);
-    GuiAxisY=GuiAxisY.GetRotZ(90.0f-float(State.Heading)/8192.0f*45.0f);
-
-    // The GuiOrigin must also be translated.
-    GuiOrigin+=State.Origin.AsVectorOfFloat();
-
-    return true;
 }
 
 

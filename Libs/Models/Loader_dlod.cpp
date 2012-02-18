@@ -119,9 +119,9 @@ void LoaderDlodT::Load(ArrayT<CafuModelT::SkinT>& Skins, const MaterialManagerIm
 }
 
 
-void LoaderDlodT::Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures, ArrayT<CafuModelT::GuiLocT>& GuiLocs)
+void LoaderDlodT::Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures)
 {
-    m_ModelLoaders[0]->Load(GuiFixtures, GuiLocs);
+    m_ModelLoaders[0]->Load(GuiFixtures);
 }
 
 

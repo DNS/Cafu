@@ -192,17 +192,6 @@ class CafuModelT
     };
 
 
-    /// This (now obsolete) structure is used to describe the locations where GUIs can be attached to the model.
-    /// Note that the current static/fixed-position implementation (origin, x- and y-axis) is temporary though,
-    /// it should eventually be possible to attach GUIs even to animated models.
-    struct GuiLocT
-    {
-        Vector3fT Origin;
-        Vector3fT AxisX;
-        Vector3fT AxisY;
-    };
-
-
     /// This struct describes one animation sequence, e.g.\ "run", "walk", "jump", etc.
     /// We use it to obtain an array of joints (ArrayT<JointT>, just like m_Joints) for any point (frame number) in the animation sequence.
     struct AnimT
@@ -313,9 +302,6 @@ class CafuModelT
     /// This method is strictly for backwards-compatibility only, do not use in new code!
     AnimPoseT* GetSharedPose(IntrusivePtrT<AnimExpressionT> AE) const;
 
-    /// An obsolete method that should not be used in new code.
-    bool GetGuiPlane(Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const;
-
     /// Prints some model data to stdout, used for debugging.
     void Print() const;
 
@@ -351,7 +337,6 @@ class CafuModelT
     ArrayT<MeshT>         m_Meshes;                 ///< Array of (sub)meshes of this model.
     ArrayT<SkinT>         m_Skins;                  ///< Array of additional/alternative skins for this model.
     ArrayT<GuiFixtureT>   m_GuiFixtures;            ///< Array of GUI fixtures in the model.
-    ArrayT<GuiLocT>       m_GuiLocs;                ///< Array of locations where GUIs can be attached to this model.
     ArrayT<AnimT>         m_Anims;                  ///< Array of animations of this model.
     ArrayT<ChannelT>      m_Channels;               ///< Array of channels in this model.
 
