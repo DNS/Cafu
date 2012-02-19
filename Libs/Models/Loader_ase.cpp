@@ -520,6 +520,10 @@ void LoaderAseT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
 
         Mesh.Name=GO.Name;
 
+        // Set the default tangent-space method for ASE models to HARD.
+        // This helps with many older and/or simpler models that are not immediately edited in the Model Editor.
+        Mesh.TSMethod=CafuModelT::MeshT::HARD;
+
         for (unsigned long TriNr=0; TriNr<GO.Triangles.Size(); TriNr++)
         {
             Mesh.Triangles.PushBackEmpty();
@@ -538,15 +542,10 @@ void LoaderAseT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                     const CafuModelT::MeshT::VertexT& CafuVertex=Mesh.Vertices[CafuVertexNr];
 
                     assert(CafuVertex.NumWeights==1);
-                    assert(Mesh.Weights[CafuVertex.FirstWeightIdx].Pos==CafuVertex.gts_Pos);
 
-                    if (CafuVertex.gts_Pos!=AseVertexPos) continue;
+                    if (Mesh.Weights[CafuVertex.FirstWeightIdx].Pos!=AseVertexPos) continue;
                     if (CafuVertex.u!=GO.TexCoords[AseTri.IndTexCoords[i]].AsVectorOfFloat().x) continue;
                     if (CafuVertex.v!=GO.TexCoords[AseTri.IndTexCoords[i]].AsVectorOfFloat().y) continue;
-
-                    if (CafuVertex.gts_Normal!=AseTri.Normals[i].AsVectorOfFloat()) continue;
-                    if (CafuVertex.gts_Tangent!=AseTri.Tangents[i].AsVectorOfFloat()) continue;
-                    if (CafuVertex.gts_BiNormal!=AseTri.BiNormals[i].AsVectorOfFloat()) continue;
 
                     // This vertex meets all criteria - take it.
                     break;
@@ -576,10 +575,6 @@ void LoaderAseT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                     CafuVertex.v             =GO.TexCoords[AseTri.IndTexCoords[i]].AsVectorOfFloat().y;
                     CafuVertex.FirstWeightIdx=WeightNr;
                     CafuVertex.NumWeights    =1;
-                    CafuVertex.gts_Pos       =AseVertexPos;
-                    CafuVertex.gts_Normal    =AseTri.Normals[i].AsVectorOfFloat();
-                    CafuVertex.gts_Tangent   =AseTri.Tangents[i].AsVectorOfFloat();
-                    CafuVertex.gts_BiNormal  =AseTri.BiNormals[i].AsVectorOfFloat();
                 }
 
                 // Triangles are ordered CW for Cafu models and CCW for ase models,
@@ -588,7 +583,6 @@ void LoaderAseT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
             }
 
             CafuTri.SmoothGroups=AseTri.SmoothGrps;
-            CafuTri.gts_Normal=AseTri.Normal.AsVectorOfFloat();
         }
 
 
