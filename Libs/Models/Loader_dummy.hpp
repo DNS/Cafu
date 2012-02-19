@@ -45,7 +45,6 @@ class LoaderDummyT : public ModelLoaderT
     /// @param Flags      This parameter is ignored. It just exists for consistency with the other loaders.
     LoaderDummyT(const std::string& FileName, int Flags=NONE);
 
-    bool UseGivenTS() const;
     void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan);
     void Load(ArrayT<CafuModelT::SkinT>& Skins, const MaterialManagerImplT& MaterialMan);
     void Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures);

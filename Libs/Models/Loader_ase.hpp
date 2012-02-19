@@ -38,7 +38,6 @@ class LoaderAseT : public ModelLoaderT
     /// @param Flags      The flags to load the model with. See ModelLoaderT::FlagsT for details.
     LoaderAseT(const std::string& FileName, int Flags=NONE);
 
-    bool UseGivenTS() const { return false; }
     void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan);
     void Load(ArrayT<CafuModelT::SkinT>& Skins, const MaterialManagerImplT& MaterialMan) { }
     void Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures);

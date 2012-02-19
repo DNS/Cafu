@@ -275,7 +275,6 @@ void CafuModelT::ChannelT::SetMember(unsigned int JointNr, bool Member)
 CafuModelT::CafuModelT(ModelLoaderT& Loader)
     : m_FileName(Loader.GetFileName()),
       m_MaterialMan(),
-      m_UseGivenTangentSpace(Loader.UseGivenTS()),  // Should we use the fixed, given tangent space, or recompute it ourselves here?
       m_DlodModel(NULL),
       m_DlodDist(0.0f),
       m_AnimExprPool(*this),
@@ -889,11 +888,14 @@ void CafuModelT::Save(std::ostream& OutStream) const
     OutStream << "}\n";
 
 
+#if 0
+    // [No need for global model properties at this time.]
     // *** Write the global properties. ***
     OutStream << "\nProperties=\n{\n";
     OutStream << "\t" << "useGivenTS=" << (m_UseGivenTangentSpace ? "true" : "false") << ";\n";   // Don't rely on the proper locale being set...
  // OutStream << "\t" << "castShadows=" << m_CastShadows << ";\n";
     OutStream << "}\n";
+#endif
 }
 
 

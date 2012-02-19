@@ -30,12 +30,6 @@ LoaderDummyT::LoaderDummyT(const std::string& FileName, int Flags)
 }
 
 
-bool LoaderDummyT::UseGivenTS() const
-{
-    return false;
-}
-
-
 namespace
 {
     void AddVertex(CafuModelT::MeshT& Mesh, const Vector3fT& Pos, float u, float v)

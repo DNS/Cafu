@@ -37,7 +37,6 @@ class LoaderMd5T : public ModelLoaderT
     /// If FileName ends with "md5mesh", this file is loaded without any animation information (e.g. for static detail models).
     LoaderMd5T(const std::string& FileName, int Flags=NONE);
 
-    bool UseGivenTS() const;
     void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan);
     void Load(ArrayT<CafuModelT::SkinT>& Skins, const MaterialManagerImplT& MaterialMan) { }
     void Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures) { }

@@ -35,14 +35,6 @@ LoaderMd5T::LoaderMd5T(const std::string& FileName, int Flags)
 }
 
 
-bool LoaderMd5T::UseGivenTS() const
-{
-    // For md5 models, the tangent space vectors are not specified in the file.
-    // Tell the Cafu model to recompute them dynamically from spatial and texture coordinates instead.
-    return false;
-}
-
-
 void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan)
 {
     ArrayT<std::string> ComponentFiles;

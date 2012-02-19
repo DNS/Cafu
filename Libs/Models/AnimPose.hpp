@@ -162,7 +162,6 @@ class AnimPoseT
     void SyncDimensions() const;
     void UpdateJointMatrices() const;
     void UpdateVertexPositions() const;
-    void UpdateTangentSpaceCopyGiven() const;
     void UpdateTangentSpaceHard(unsigned long MeshNr) const;
     void UpdateTangentSpaceGlobal(unsigned long MeshNr) const;
     void UpdateTangentSpaceSmGroups(unsigned long MeshNr) const;

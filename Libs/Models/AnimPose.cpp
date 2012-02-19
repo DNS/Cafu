@@ -218,77 +218,6 @@ void AnimPoseT::UpdateVertexPositions() const
 }
 
 
-void AnimPoseT::UpdateTangentSpaceCopyGiven() const
-{
-    typedef CafuModelT::MeshT MeshT;
-
-    const ArrayT<MeshT>& Meshes=m_Model.GetMeshes();
-
-
-    // *******************************************************************************************
-    //  Compute the tangent-space basis vectors for all triangles and all vertices.
-    //  This is done by first computing the per-triangle axes and then having them enter
-    //  the relevant per-vertex averages as required (taking mirror corrections into account).
-    //  The per-triangle normal vectors are also kept for stencil shadow silhoutte determination.
-    // *******************************************************************************************
-
-    assert(m_Model.GetAnims().Size()==0);  // It doesn't make sense to have statically given tangent-space axes with *animated* geometry...
-
-    // Copy the given tangent space details into the pose.
-    for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
-    {
-        const MeshT& Mesh    =Meshes[MeshNr];
-        MeshInfoT&   MeshInfo=m_MeshInfos[MeshNr];
-
-        for (unsigned long TriNr=0; TriNr<Mesh.Triangles.Size(); TriNr++)
-        {
-            MeshInfo.Triangles[TriNr].Normal = Mesh.Triangles[TriNr].gts_Normal;
-        }
-
-        for (unsigned long VertexNr=0; VertexNr<Mesh.Vertices.Size(); VertexNr++)
-        {
-            MeshInfo.Vertices[VertexNr].Pos      = Mesh.Vertices[VertexNr].gts_Pos;
-            MeshInfo.Vertices[VertexNr].Normal   = Mesh.Vertices[VertexNr].gts_Normal;
-            MeshInfo.Vertices[VertexNr].Tangent  = Mesh.Vertices[VertexNr].gts_Tangent;
-            MeshInfo.Vertices[VertexNr].BiNormal = Mesh.Vertices[VertexNr].gts_BiNormal;
-        }
-    }
-
-
-    // ***************************************************************************************************************
-    //  Construct explicit MatSys::MeshT meshes now.
-    //  Note that this is very inefficient - we REALLY should work with index arrays! (and/or vertex buffer objects!)
-    // ***************************************************************************************************************
-
-    for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
-    {
-        const MeshT&     Mesh     =Meshes[MeshNr];
-        const MeshInfoT& MeshInfo =m_MeshInfos[MeshNr];
-        unsigned long    DrawTriNr=0;
-
-        for (unsigned long TriNr=0; TriNr<Mesh.Triangles.Size(); TriNr++)
-        {
-            if (Mesh.Triangles[TriNr].SkipDraw)
-                continue;
-
-            for (unsigned long i=0; i<3; i++)
-            {
-                const unsigned long       VertexIdx =Mesh.Triangles[TriNr].VertexIdx[i];
-                const MeshInfoT::VertexT& VertexInfo=MeshInfo.Vertices[VertexIdx];
-
-                m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+i].SetOrigin(VertexInfo.Pos.x, VertexInfo.Pos.y, VertexInfo.Pos.z);
-                m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+i].SetTextureCoord(Mesh.Vertices[VertexIdx].u, Mesh.Vertices[VertexIdx].v);
-                m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+i].SetNormal  (VertexInfo.Normal.x,   VertexInfo.Normal.y,   VertexInfo.Normal.z  );
-                m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+i].SetTangent (VertexInfo.Tangent.x,  VertexInfo.Tangent.y,  VertexInfo.Tangent.z );
-                m_Draw_Meshes[MeshNr].Vertices[DrawTriNr*3+i].SetBiNormal(VertexInfo.BiNormal.x, VertexInfo.BiNormal.y, VertexInfo.BiNormal.z);
-            }
-
-            DrawTriNr++;
-        }
-    }
-}
-
-
 void AnimPoseT::UpdateTangentSpaceHard(unsigned long MeshNr) const
 {
     const CafuModelT::MeshT& Mesh     =m_Model.GetMeshes()[MeshNr];
@@ -657,30 +586,22 @@ void AnimPoseT::Recache() const
     UpdateJointMatrices();
     UpdateVertexPositions();
 
-    if (m_Model.GetUseGivenTS())
+    for (unsigned long MeshNr=0; MeshNr<m_Model.GetMeshes().Size(); MeshNr++)
     {
-        // Copy the tangent-space from the model.
-        UpdateTangentSpaceCopyGiven();
-    }
-    else
-    {
-        for (unsigned long MeshNr=0; MeshNr<m_Model.GetMeshes().Size(); MeshNr++)
+        // Compute the tangent-space ourselves.
+        switch (m_Model.GetMeshes()[MeshNr].TSMethod)
         {
-            // Compute the tangent-space ourselves.
-            switch (m_Model.GetMeshes()[MeshNr].TSMethod)
-            {
-                case CafuModelT::MeshT::HARD:
-                    UpdateTangentSpaceHard(MeshNr);
-                    break;
+            case CafuModelT::MeshT::HARD:
+                UpdateTangentSpaceHard(MeshNr);
+                break;
 
-                case CafuModelT::MeshT::GLOBAL:
-                    UpdateTangentSpaceGlobal(MeshNr);
-                    break;
+            case CafuModelT::MeshT::GLOBAL:
+                UpdateTangentSpaceGlobal(MeshNr);
+                break;
 
-                case CafuModelT::MeshT::SM_GROUPS:
-                    UpdateTangentSpaceSmGroups(MeshNr);
-                    break;
-            }
+            case CafuModelT::MeshT::SM_GROUPS:
+                UpdateTangentSpaceSmGroups(MeshNr);
+                break;
         }
     }
 

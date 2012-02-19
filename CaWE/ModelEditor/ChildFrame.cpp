@@ -23,7 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "AnimInspector.hpp"
 #include "ChannelInspector.hpp"
 #include "ElementsList.hpp"
-#include "GlobalsInspector.hpp"
 #include "GuiFixtureInspector.hpp"
 #include "JointInspector.hpp"
 #include "JointsHierarchy.hpp"
@@ -60,16 +59,16 @@ namespace ModelEditor
 
 
 BEGIN_EVENT_TABLE(ModelEditor::ChildFrameT, wxMDIChildFrame)
-    EVT_MENU_RANGE     (ID_MENU_FILE_CLOSE,                     ID_MENU_FILE_SAVEAS,                   ModelEditor::ChildFrameT::OnMenuFile)
-    EVT_UPDATE_UI_RANGE(ID_MENU_FILE_CLOSE,                     ID_MENU_FILE_SAVEAS,                   ModelEditor::ChildFrameT::OnMenuFileUpdate)
-    EVT_MENU_RANGE     (wxID_UNDO,                              wxID_REDO,                             ModelEditor::ChildFrameT::OnMenuUndoRedo)
-    EVT_UPDATE_UI_RANGE(wxID_UNDO,                              wxID_REDO,                             ModelEditor::ChildFrameT::OnMenuUndoRedoUpdate)
-    EVT_MENU_RANGE     (wxID_CUT,                               wxID_DELETE,                           ModelEditor::ChildFrameT::OnMenuEdit)
-    EVT_UPDATE_UI_RANGE(wxID_CUT,                               wxID_DELETE,                           ModelEditor::ChildFrameT::OnMenuEditUpdate)
-    EVT_MENU_RANGE     (ID_MENU_VIEW_AUIPANE_GLOBALS_INSPECTOR, ID_MENU_VIEW_LOAD_DEFAULT_PERSPECTIVE, ModelEditor::ChildFrameT::OnMenuView)
-    EVT_UPDATE_UI_RANGE(ID_MENU_VIEW_AUIPANE_GLOBALS_INSPECTOR, ID_MENU_VIEW_LOAD_DEFAULT_PERSPECTIVE, ModelEditor::ChildFrameT::OnMenuViewUpdate)
-    EVT_MENU_RANGE     (ID_MENU_MODEL_ANIM_SKIP_BACKWARD,       ID_MENU_MODEL_UNLOAD_SUBMODELS,        ModelEditor::ChildFrameT::OnMenuModel)
-    EVT_UPDATE_UI_RANGE(ID_MENU_MODEL_ANIM_SKIP_BACKWARD,       ID_MENU_MODEL_UNLOAD_SUBMODELS,        ModelEditor::ChildFrameT::OnMenuModelUpdate)
+    EVT_MENU_RANGE     (ID_MENU_FILE_CLOSE,                    ID_MENU_FILE_SAVEAS,                   ModelEditor::ChildFrameT::OnMenuFile)
+    EVT_UPDATE_UI_RANGE(ID_MENU_FILE_CLOSE,                    ID_MENU_FILE_SAVEAS,                   ModelEditor::ChildFrameT::OnMenuFileUpdate)
+    EVT_MENU_RANGE     (wxID_UNDO,                             wxID_REDO,                             ModelEditor::ChildFrameT::OnMenuUndoRedo)
+    EVT_UPDATE_UI_RANGE(wxID_UNDO,                             wxID_REDO,                             ModelEditor::ChildFrameT::OnMenuUndoRedoUpdate)
+    EVT_MENU_RANGE     (wxID_CUT,                              wxID_DELETE,                           ModelEditor::ChildFrameT::OnMenuEdit)
+    EVT_UPDATE_UI_RANGE(wxID_CUT,                              wxID_DELETE,                           ModelEditor::ChildFrameT::OnMenuEditUpdate)
+    EVT_MENU_RANGE     (ID_MENU_VIEW_AUIPANE_JOINTS_HIERARCHY, ID_MENU_VIEW_LOAD_DEFAULT_PERSPECTIVE, ModelEditor::ChildFrameT::OnMenuView)
+    EVT_UPDATE_UI_RANGE(ID_MENU_VIEW_AUIPANE_JOINTS_HIERARCHY, ID_MENU_VIEW_LOAD_DEFAULT_PERSPECTIVE, ModelEditor::ChildFrameT::OnMenuViewUpdate)
+    EVT_MENU_RANGE     (ID_MENU_MODEL_ANIM_SKIP_BACKWARD,      ID_MENU_MODEL_UNLOAD_SUBMODELS,        ModelEditor::ChildFrameT::OnMenuModel)
+    EVT_UPDATE_UI_RANGE(ID_MENU_MODEL_ANIM_SKIP_BACKWARD,      ID_MENU_MODEL_UNLOAD_SUBMODELS,        ModelEditor::ChildFrameT::OnMenuModelUpdate)
     EVT_CLOSE          (ModelEditor::ChildFrameT::OnClose)
 END_EVENT_TABLE()
 
@@ -85,7 +84,6 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
       m_FileMenu(NULL),
       m_EditMenu(NULL),
       m_SceneView3D(NULL),
-      m_GlobalsInspector(NULL),
       m_JointsHierarchy(NULL),
       m_JointInspector(NULL),
       m_MeshesList(NULL),
@@ -141,7 +139,6 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     item0->Append(m_EditMenu, "&Edit");
 
     wxMenu* ViewMenu=new wxMenu;
-    ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_GLOBALS_INSPECTOR,    "Globals Inspector",     "Show or hide the global model properties");
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_JOINTS_HIERARCHY,     "Joints Hierarchy",      "Show or hide the joints hierarchy (the skeleton)");
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_JOINT_INSPECTOR,      "Joint Inspector",       "Show or hide the joint inspector");
     ViewMenu->AppendCheckItem(ID_MENU_VIEW_AUIPANE_MESHES_LIST,          "Meshes List",           "Show or hide the meshes list");
@@ -200,11 +197,6 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     m_AUIManager.AddPane(m_SceneView3D, wxAuiPaneInfo().
                          Name("SceneView").Caption("Scene View").
                          CenterPane());
-
-    m_GlobalsInspector=new GlobalsInspectorT(this, wxSize(230, 180));
-    m_AUIManager.AddPane(m_GlobalsInspector, wxAuiPaneInfo().
-                         Name("GlobalsInspector").Caption("Global Model Properties").
-                         Left().Position(0));
 
     m_JointsHierarchy=new JointsHierarchyT(this, wxSize(230, 400));
     m_AUIManager.AddPane(m_JointsHierarchy, wxAuiPaneInfo().
@@ -857,7 +849,6 @@ void ModelEditor::ChildFrameT::OnMenuView(wxCommandEvent& CE)
 {
     switch (CE.GetId())
     {
-        case ID_MENU_VIEW_AUIPANE_GLOBALS_INSPECTOR:    PaneToggleShow(m_AUIManager.GetPane(m_GlobalsInspector   )); break;
         case ID_MENU_VIEW_AUIPANE_JOINTS_HIERARCHY:     PaneToggleShow(m_AUIManager.GetPane(m_JointsHierarchy    )); break;
         case ID_MENU_VIEW_AUIPANE_JOINT_INSPECTOR:      PaneToggleShow(m_AUIManager.GetPane(m_JointInspector     )); break;
         case ID_MENU_VIEW_AUIPANE_MESHES_LIST:          PaneToggleShow(m_AUIManager.GetPane(m_MeshesList         )); break;
@@ -894,7 +885,6 @@ void ModelEditor::ChildFrameT::OnMenuViewUpdate(wxUpdateUIEvent& UE)
 {
     switch (UE.GetId())
     {
-        case ID_MENU_VIEW_AUIPANE_GLOBALS_INSPECTOR:    UE.Check(m_AUIManager.GetPane(m_GlobalsInspector   ).IsShown()); break;
         case ID_MENU_VIEW_AUIPANE_JOINTS_HIERARCHY:     UE.Check(m_AUIManager.GetPane(m_JointsHierarchy    ).IsShown()); break;
         case ID_MENU_VIEW_AUIPANE_JOINT_INSPECTOR:      UE.Check(m_AUIManager.GetPane(m_JointInspector     ).IsShown()); break;
         case ID_MENU_VIEW_AUIPANE_MESHES_LIST:          UE.Check(m_AUIManager.GetPane(m_MeshesList         ).IsShown()); break;

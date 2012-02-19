@@ -39,7 +39,6 @@ class LoaderFbxT : public ModelLoaderT
     /// The destructor.
     ~LoaderFbxT();
 
-    bool UseGivenTS() const;
     void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan);
     void Load(ArrayT<CafuModelT::SkinT>& Skins, const MaterialManagerImplT& MaterialMan);
     void Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures);

@@ -34,8 +34,7 @@ extern "C"
 LoaderCafuT::LoaderCafuT(const std::string& FileName, int Flags)
     : ModelLoaderT(FileName, Flags),
       m_LuaState(lua_open()),
-      m_Version(0),
-      m_UseGivenTS(false)
+      m_Version(0)
 {
     if (!m_LuaState) throw LoadErrorT("Couldn't open Lua state.");
 
@@ -63,6 +62,8 @@ LoaderCafuT::LoaderCafuT(const std::string& FileName, int Flags)
         throw LoadErrorT(LuaError);
     }
 
+#if 0
+    // [No need for global model properties at this time.]
     // Read the global properties.
     lua_getglobal(m_LuaState, "Properties");
     {
@@ -71,23 +72,13 @@ LoaderCafuT::LoaderCafuT(const std::string& FileName, int Flags)
         lua_pop(m_LuaState, 1);
     }
     lua_pop(m_LuaState, 1);
+#endif
 }
 
 
 LoaderCafuT::~LoaderCafuT()
 {
     lua_close(m_LuaState);
-}
-
-
-bool LoaderCafuT::UseGivenTS() const
-{
-    // TODO:
-    // For md5 models, the tangent space vectors are not specified in the file.
-    // Tell the Cafu model to recompute them dynamically from spatial and texture coordinates instead.
-    // For cmdl models, ... (?)  we have to save the tangent-space in the file ... TODO!
-
-    return m_UseGivenTS;
 }
 
 

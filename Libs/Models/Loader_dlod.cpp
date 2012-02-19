@@ -101,12 +101,6 @@ const std::string& LoaderDlodT::GetFileName() const
 }
 
 
-bool LoaderDlodT::UseGivenTS() const
-{
-    return m_ModelLoaders[0]->UseGivenTS();
-}
-
-
 void LoaderDlodT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan)
 {
     m_ModelLoaders[0]->Load(Joints, Meshes, Anims, MaterialMan);

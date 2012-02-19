@@ -126,14 +126,6 @@ LoaderHL1mdlT::LoaderHL1mdlT(const std::string& FileName, int Flags)
 }
 
 
-bool LoaderHL1mdlT::UseGivenTS() const
-{
-    // We don't provide the model with a precomputed, fixed (non-animated) tangent space.
-    // Instead, have the CafuModelT code compute it for each animation frame anew.
-    return false;
-}
-
-
 void LoaderHL1mdlT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan)
 {
     // Extract the materials.

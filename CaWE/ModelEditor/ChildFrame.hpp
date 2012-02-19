@@ -36,7 +36,6 @@ namespace ModelEditor
     class AnimInspectorT;
     class ChannelInspectorT;
     class ElementsPanelT;
-    class GlobalsInspectorT;
     class GuiFixInspectorT;
     class JointInspectorT;
     class JointsHierarchyT;
@@ -120,7 +119,6 @@ namespace ModelEditor
 
         wxAuiManager       m_AUIManager;
         SceneView3DT*      m_SceneView3D;
-        GlobalsInspectorT* m_GlobalsInspector;
         JointsHierarchyT*  m_JointsHierarchy;
         JointInspectorT*   m_JointInspector;
         ElementsPanelT*    m_MeshesList;
@@ -145,7 +143,6 @@ namespace ModelEditor
             ID_MENU_FILE_SAVE,
             ID_MENU_FILE_SAVEAS,
 
-            ID_MENU_VIEW_AUIPANE_GLOBALS_INSPECTOR,
             ID_MENU_VIEW_AUIPANE_JOINTS_HIERARCHY,
             ID_MENU_VIEW_AUIPANE_JOINT_INSPECTOR,
             ID_MENU_VIEW_AUIPANE_MESHES_LIST,

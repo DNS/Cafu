@@ -50,12 +50,6 @@ class ModelLoaderT
     /// This method is reimplemented in the \c LoaderDlodT class.
     virtual const std::string& GetFileName() const { return m_FileName; }
 
-    /// Some (static, non-animated) model file formats may bring all their tangent space data with them.
-    /// For such files, there is no need for the Cafu model to recompute that data from the vertices.
-    /// This method lets the Cafu model know whether the fixed, given tangent space should be used,
-    /// or whether the Cafu model should recompute the tangent space (possibly after animation) itself.
-    virtual bool UseGivenTS() const=0;
-
     /// Actually loads the file data into the appropriate parts of the Cafu model.
     virtual void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan)=0;
 

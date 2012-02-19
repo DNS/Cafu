@@ -845,13 +845,6 @@ LoaderFbxT::~LoaderFbxT()
 }
 
 
-bool LoaderFbxT::UseGivenTS() const
-{
-    // TODO...!
-    return false;
-}
-
-
 void LoaderFbxT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan)
 {
     // We unconditionally import all nodes in the FBX scene as joints
@@ -893,7 +886,6 @@ LoaderFbxT::LoaderFbxT(const std::string& FileName, UserCallbacksI& /*UserCallba
 }
 
 LoaderFbxT::~LoaderFbxT() { }
-bool LoaderFbxT::UseGivenTS() const { return false; }
 void LoaderFbxT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan) { }
 void LoaderFbxT::Load(ArrayT<CafuModelT::SkinT>& Skins, const MaterialManagerImplT& MaterialMan) { }
 void LoaderFbxT::Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures) { }
