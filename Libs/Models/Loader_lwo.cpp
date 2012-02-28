@@ -205,14 +205,6 @@ static Vector3fT FindTexCoordForPolygonPoint(const lwLayer* Layer, const int Pol
 } */
 
 
-static Vector3fT myNormalize(const Vector3fT& A)
-{
-    const float Length=length(A);
-
-    return (Length>0.000001f) ? A.GetScaled(1.0f/Length) : Vector3fT();
-}
-
-
 // Note that the nomenclature in the LWO context is different from the usual (Cafu) lingo:
 // - An LWO "layer" corresponds to a CafuModelT::MeshT (however, whenever multiple materials occur in an LWO layer,
 //   the current code models that layer with as many CafuModelT::MeshTs as there are materials in the layer).
