@@ -236,7 +236,8 @@ void ModelEditor::ModelDocumentT::AdvanceTime(float Time)
 {
     if (Time*m_AnimState.Speed!=0.0f)
     {
-        m_AnimState.Pose.GetAnimExpr()->AdvanceTime(Time*m_AnimState.Speed, m_AnimState.Loop);
+        m_AnimState.LastStdAE->SetForceLoop(m_AnimState.Loop);
+        m_AnimState.Pose.GetAnimExpr()->AdvanceTime(Time*m_AnimState.Speed);
     }
 }
 

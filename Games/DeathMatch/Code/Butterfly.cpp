@@ -99,6 +99,8 @@ void EntButterflyT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
     // Implicit simple "mini-prediction".
     IntrusivePtrT<AnimExprStandardT> AnimExpr=m_Model->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
 
-    AnimExpr->AdvanceTime(FrameTime, true);
+    AnimExpr->SetForceLoop(true);
+    AnimExpr->AdvanceTime(FrameTime);
+
     State.ModelFrameNr=AnimExpr->GetFrameNr();
 }

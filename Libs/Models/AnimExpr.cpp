@@ -37,7 +37,8 @@ AnimExpressionT::AnimExpressionT(const CafuModelT& Model)
 AnimExprStandardT::AnimExprStandardT(const CafuModelT& Model, int SequNr, float FrameNr)
     : AnimExpressionT(Model),
       m_SequNr(SequNr),
-      m_FrameNr(FrameNr)
+      m_FrameNr(FrameNr),
+      m_ForceLoop(false)
 {
     NormalizeInput();
 }
@@ -65,9 +66,9 @@ void AnimExprStandardT::GetData(unsigned int JointNr, float& Weight, Vector3fT& 
     {
         // m_SequNr is a valid index into Anims -- use it.
         const AnimT& Anim=Anims[m_SequNr];
-        const int    Frame_0=int(m_FrameNr);                                        // If m_FrameNr == 17.83, then Frame_0 == 17
-        const float  Frame_f=m_FrameNr-Frame_0;                                     //                             Frame_f ==  0.83
-        const int    Frame_1=(Frame_0+1>=int(Anim.Frames.Size())) ? 0 : Frame_0+1;  //                             Frame_1 == 18
+        const int    Frame_0=int(m_FrameNr);                        // If m_FrameNr == 17.83, then Frame_0 == 17
+        const float  Frame_f=m_FrameNr-Frame_0;                     //                             Frame_f ==  0.83
+        const int    Frame_1=(Frame_0+1) % int(Anim.Frames.Size()); //                             Frame_1 == 18
 
         const AnimT::AnimJointT& AJ=Anim.AnimJoints[JointNr];
 
@@ -88,40 +89,58 @@ void AnimExprStandardT::GetData(unsigned int JointNr, float& Weight, Vector3fT& 
             }
         }
 
-        // Interpolate the position and quaternion according to the fraction Frame_f.
-        Weight=1.0f;
-        Pos   =Data_0[0]*(1.0f-Frame_f) + Data_1[0]*Frame_f;
-        Quat  =slerp(cf::math::QuaternionfT::FromXYZ(Data_0[1]), cf::math::QuaternionfT::FromXYZ(Data_1[1]), Frame_f);
-        Scale =Data_0[2]*(1.0f-Frame_f) + Data_1[2]*Frame_f;
+        if (Frame_1==0 && Frame_f<0.001f)
+        {
+            // This is most likely the end of a non-wrapping sequence.
+            Weight=1.0f;
+            Pos   =Data_0[0];
+            Quat  =cf::math::QuaternionfT::FromXYZ(Data_0[1]);
+            Scale =Data_0[2];
+        }
+        else
+        {
+            // Interpolate the position and quaternion according to the fraction Frame_f.
+            Weight=1.0f;
+            Pos   =Data_0[0]*(1.0f-Frame_f) + Data_1[0]*Frame_f;
+            Quat  =slerp(cf::math::QuaternionfT::FromXYZ(Data_0[1]), cf::math::QuaternionfT::FromXYZ(Data_1[1]), Frame_f);
+            Scale =Data_0[2]*(1.0f-Frame_f) + Data_1[2]*Frame_f;
+        }
     }
 }
 
 
-void AnimExprStandardT::AdvanceTime(float Time, bool ForceLoop)
+void AnimExprStandardT::AdvanceTime(float Time)
 {
-    // TODO: Beachte korrekte Wrap-Regeln für mit loopen und ohne.
-    // TODO: Loops (next vs. ForceLoop) richtig behandeln
     const ArrayT<CafuModelT::AnimT>& Anims=GetModel().GetAnims();
 
     if (m_SequNr<0 || m_SequNr>=int(Anims.Size())) { SetFrameNr(0.0f); return; }
     if (Anims[m_SequNr].Frames.Size()<=1) { SetFrameNr(0.0f); return; }
 
     const float NumFrames=float(Anims[m_SequNr].Frames.Size());
+    const int   Next     =m_ForceLoop ? m_SequNr : Anims[m_SequNr].Next;
+    float       FrameNr  =m_FrameNr + Time*Anims[m_SequNr].FPS;
 
-    float FrameNr=m_FrameNr + Time*Anims[m_SequNr].FPS;
-
-    if (ForceLoop)
+    if (Next < 0)
     {
-        // Wrap the sequence (it's a looping (repeating) sequence, like idle, walk, ...).
-        FrameNr=fmod(FrameNr, NumFrames);
-        if (FrameNr<0.0f) FrameNr+=NumFrames;
+        // This is a play-once (non-repeating) sequence, there is no "next" sequence.
+        // Thus clamp the frame number to NumFrames-1.
+        if (FrameNr > NumFrames-1.0f) FrameNr=NumFrames-1.0f;
     }
     else
     {
-        // Clamp the sequence (it's a play-once (non-repeating) sequence, like dying).
-        // On clamping, stop the sequence 1/100th sec before the end of the last frame.
-        if (FrameNr>=NumFrames-1.0f) FrameNr=NumFrames-1.0f-0.01f;
-        if (FrameNr<0.0f) FrameNr=0.0f;
+        // There is a "next" sequence following this.
+        if (FrameNr >= NumFrames)
+        {
+            FrameNr-=NumFrames;
+
+            /* Calling SetSequNr(Next) below would technically be the right thing to do to
+             * progress to the next sequence.
+             * However, this is not supported in AnimExprStandardT for several reasons:
+             *   - Backwards-compatibility. See class documentation for details.
+             *   - Requires changes to GetData(). The implementation as-is is not sufficient.
+             */
+            // SetSequNr(Next);
+        }
     }
 
     SetFrameNr(FrameNr);
@@ -130,7 +149,10 @@ void AnimExprStandardT::AdvanceTime(float Time, bool ForceLoop)
 
 AnimExpressionPtrT AnimExprStandardT::Clone() const
 {
-    return GetModel().GetAnimExprPool().GetStandard(m_SequNr, m_FrameNr);
+    IntrusivePtrT<AnimExprStandardT> StdAE=GetModel().GetAnimExprPool().GetStandard(m_SequNr, m_FrameNr);
+
+    StdAE->SetForceLoop(m_ForceLoop);
+    return StdAE;
 }
 
 
@@ -139,7 +161,7 @@ bool AnimExprStandardT::IsEqual(const AnimExpressionPtrT& AE) const
     AnimExprStandardT* Other=dynamic_cast<AnimExprStandardT*>(AE.get());
 
     if (!Other) return false;
-    return m_SequNr==Other->m_SequNr && m_FrameNr==Other->m_FrameNr;
+    return m_SequNr==Other->m_SequNr && m_FrameNr==Other->m_FrameNr && m_ForceLoop==Other->m_ForceLoop;
 }
 
 
@@ -158,6 +180,12 @@ void AnimExprStandardT::SetFrameNr(float FrameNr)
 
     m_FrameNr=FrameNr;
     NormalizeInput();
+}
+
+
+void AnimExprStandardT::SetForceLoop(bool ForceLoop)
+{
+    m_ForceLoop=ForceLoop;
 }
 
 
@@ -288,10 +316,10 @@ void AnimExprCombineT::GetData(unsigned int JointNr, float& Weight, Vector3fT& P
 }
 
 
-void AnimExprCombineT::AdvanceTime(float Time, bool ForceLoop)
+void AnimExprCombineT::AdvanceTime(float Time)
 {
-    m_A->AdvanceTime(Time, ForceLoop);
-    m_B->AdvanceTime(Time, ForceLoop);
+    m_A->AdvanceTime(Time);
+    m_B->AdvanceTime(Time);
 }
 
 
@@ -365,7 +393,7 @@ void AnimExprBlendT::GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos
 }
 
 
-void AnimExprBlendT::AdvanceTime(float Time, bool ForceLoop)
+void AnimExprBlendT::AdvanceTime(float Time)
 {
     // Advance the blend fraction.
     if (m_Duration < 0.001f)
@@ -383,14 +411,14 @@ void AnimExprBlendT::AdvanceTime(float Time, bool ForceLoop)
     // Advance the sub-expressions.
     if (m_Frac < 1.0f)
     {
-        m_A->AdvanceTime(Time, ForceLoop);
+        m_A->AdvanceTime(Time);
     }
     else
     {
         m_A=NULL;   // m_A is unused now that m_Frac >= 1.0.
     }
 
-    m_B->AdvanceTime(Time, ForceLoop);
+    m_B->AdvanceTime(Time);
 }
 
 
@@ -445,6 +473,7 @@ IntrusivePtrT<AnimExprStandardT> AnimExprPoolT::GetStandard(int SequNr, float Fr
         {
             m_Standard[AENr]->SetSequNr(SequNr);
             m_Standard[AENr]->SetFrameNr(FrameNr);
+            m_Standard[AENr]->SetForceLoop(false);
 
             return m_Standard[AENr];
         }

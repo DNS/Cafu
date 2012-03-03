@@ -118,6 +118,7 @@ void ModelWindowT::SetModel(const std::string& FileName, std::string& ErrorMsg)
     if (m_Pose==NULL || PrevModel!=m_Model)
     {
         m_LastStdAE=m_Model->GetAnimExprPool().GetStandard(0, 0.0f);
+        m_LastStdAE->SetForceLoop(true);
 
         delete m_Pose;
         m_Pose=new AnimPoseT(*m_Model, m_LastStdAE);
@@ -168,7 +169,7 @@ void ModelWindowT::Render() const
 
 bool ModelWindowT::OnClockTickEvent(float t)
 {
-    m_Pose->GetAnimExpr()->AdvanceTime(t, true);
+    m_Pose->GetAnimExpr()->AdvanceTime(t);
 
     return WindowT::OnClockTickEvent(t);
 }
@@ -221,6 +222,8 @@ int ModelWindowT::SetModelSequNr(lua_State* LuaState)
     IntrusivePtrT<AnimExpressionT> BlendFrom=Pose->GetAnimExpr();
 
     ModelWin->m_LastStdAE=Model->GetAnimExprPool().GetStandard(luaL_checkinteger(LuaState, 2), 0.0f);
+    ModelWin->m_LastStdAE->SetForceLoop(true);
+
     Pose->SetAnimExpr(Model->GetAnimExprPool().GetBlend(BlendFrom, ModelWin->m_LastStdAE, 3.0f));
     return 0;
 }

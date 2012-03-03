@@ -113,7 +113,9 @@ void EntFaceHuggerT::Draw(bool /*FirstPersonView*/, float LodDist) const
 void EntFaceHuggerT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
 {
     IntrusivePtrT<AnimExprStandardT> StdAE=m_Model->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
-    StdAE->AdvanceTime(FrameTime, true);
+
+    StdAE->SetForceLoop(true);
+    StdAE->AdvanceTime(FrameTime);
 
     const bool SequenceWrap=StdAE->GetFrameNr() < State.ModelFrameNr;
     State.ModelFrameNr=StdAE->GetFrameNr();

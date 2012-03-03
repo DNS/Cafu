@@ -221,7 +221,7 @@ class CafuModelT
 
         std::string        Name;            ///< Name of this animation sequence.
         float              FPS;             ///< Playback rate for this animation sequence.
-        int                Next;            ///< The sequence that should play after this. Use "this" for looping sequences, "none" for none.
+        int                Next;            ///< The sequence that should play after this. Use "this" for looping sequences, -1 for none.
      // ...                Events;          ///< E.g. "call a script function at frame 3".
         ArrayT<AnimJointT> AnimJoints;      ///< AnimJoints.Size() == m_Joints.Size()
         ArrayT<FrameT>     Frames;          ///< List of keyframes this animation consists of.

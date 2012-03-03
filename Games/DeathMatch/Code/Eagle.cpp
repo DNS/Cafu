@@ -233,7 +233,10 @@ void EntEagleT::Draw(bool /*FirstPersonView*/, float LodDist) const
 void EntEagleT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
 {
     IntrusivePtrT<AnimExprStandardT> StdAE=m_Model->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
-    StdAE->AdvanceTime(FrameTime, true);
+
+    StdAE->SetForceLoop(true);
+    StdAE->AdvanceTime(FrameTime);
+
     State.ModelFrameNr=StdAE->GetFrameNr();
 
     // Update sound position and velocity.

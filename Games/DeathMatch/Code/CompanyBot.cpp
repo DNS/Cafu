@@ -424,6 +424,7 @@ void EntCompanyBotT::AdvanceModelTime(float Time, bool Loop)
         m_AnimExpr =m_CompanyBotModel->GetAnimExprPool().GetBlend(m_AnimExpr, m_LastStdAE, BlendTime);
     }
 
-    m_AnimExpr->AdvanceTime(Time, Loop);
+    m_LastStdAE->SetForceLoop(Loop);
+    m_AnimExpr->AdvanceTime(Time);
     State.ModelFrameNr=m_LastStdAE->GetFrameNr();
 }

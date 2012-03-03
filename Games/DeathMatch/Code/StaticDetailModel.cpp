@@ -192,6 +192,7 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
 
 
     m_LastStdAE=m_Model->GetAnimExprPool().GetStandard(m_SequNr, 0.0f);
+    m_LastStdAE->SetForceLoop(true);
     m_AnimExpr =m_LastStdAE;
     m_SequNr   =m_LastStdAE->GetSequNr();   // Set m_SequNr to the m_LastStdAE's "normalized" value.
 
@@ -346,6 +347,7 @@ void EntStaticDetailModelT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
         if (m_PlayAnim)
         {
             m_LastStdAE=m_Model->GetAnimExprPool().GetStandard(SequNr, 0.0f);
+            m_LastStdAE->SetForceLoop(true);
             m_AnimExpr =m_Model->GetAnimExprPool().GetBlend(m_AnimExpr, m_LastStdAE, 3.0f);
         }
         else
@@ -368,7 +370,7 @@ void EntStaticDetailModelT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
     if (m_PlayAnim)
     {
         // Advance the client-local animation.
-        m_AnimExpr->AdvanceTime(FrameTime, true);
+        m_AnimExpr->AdvanceTime(FrameTime);
     }
 }
 

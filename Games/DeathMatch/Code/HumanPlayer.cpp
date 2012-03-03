@@ -463,7 +463,9 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     const CafuModelT* WeaponModel=CarriedWeapon->GetViewWeaponModel();
 
                     IntrusivePtrT<AnimExprStandardT> StdAE=WeaponModel->GetAnimExprPool().GetStandard(State.ActiveWeaponSequNr, State.ActiveWeaponFrameNr);
-                    StdAE->AdvanceTime(PlayerCommands[PCNr].FrameTime, true);
+
+                    StdAE->SetForceLoop(true);
+                    StdAE->AdvanceTime(PlayerCommands[PCNr].FrameTime);
 
                     const float NewFrameNr=StdAE->GetFrameNr();
                     const bool  AnimSequenceWrap=NewFrameNr < State.ActiveWeaponFrameNr || NewFrameNr > WeaponModel->GetAnims()[State.ActiveWeaponSequNr].Frames.Size()-1;
@@ -696,7 +698,8 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 const CafuModelT*                PlayerModel=cf::GameSys::GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
                 IntrusivePtrT<AnimExprStandardT> StdAE      =PlayerModel->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
 
-                StdAE->AdvanceTime(PlayerCommands[PCNr].FrameTime, true);
+                StdAE->SetForceLoop(true);
+                StdAE->AdvanceTime(PlayerCommands[PCNr].FrameTime);
                 State.ModelFrameNr=StdAE->GetFrameNr();
                 break;
             }
@@ -733,7 +736,8 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 const CafuModelT*                PlayerModel=cf::GameSys::GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
                 IntrusivePtrT<AnimExprStandardT> StdAE      =PlayerModel->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
 
-                StdAE->AdvanceTime(PlayerCommands[PCNr].FrameTime, false);
+                StdAE->SetForceLoop(false);
+                StdAE->AdvanceTime(PlayerCommands[PCNr].FrameTime);
                 State.ModelFrameNr=StdAE->GetFrameNr();
 
                 // We entered this state after we died.
@@ -1167,7 +1171,9 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
         IntrusivePtrT<AnimExprStandardT> StdAE      =PlayerModel->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
 
         // Implicit simple "mini-prediction". WARNING, this does not really work...!
-        StdAE->AdvanceTime(FrameTime, State.StateOfExistance!=StateOfExistance_Dead);
+        StdAE->SetForceLoop(State.StateOfExistance!=StateOfExistance_Dead);
+        StdAE->AdvanceTime(FrameTime);
+
         State.ModelFrameNr=StdAE->GetFrameNr();
     }
 
