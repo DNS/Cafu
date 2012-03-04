@@ -1,0 +1,8 @@
+"Models/Players/James/James/low_poly_tex_outline3"
+{
+    diffusemap low_poly_tex_outline3_a.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    meta_editorSave
+}

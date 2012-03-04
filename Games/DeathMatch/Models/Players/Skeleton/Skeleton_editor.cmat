@@ -1,0 +1,108 @@
+"Models/Players/Skeleton/Skeleton/SK_Arm1"
+{
+    diffusemap SK_Arm1_k.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    meta_editorSave
+}
+
+
+"Models/Players/Skeleton/Skeleton/SK_Chest1"
+{
+    diffusemap SK_Chest1_j.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    meta_editorSave
+}
+
+
+"Models/Players/Skeleton/Skeleton/SK_Face1"
+{
+    diffusemap SK_Face1_b.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    meta_editorSave
+}
+
+
+"Models/Players/Skeleton/Skeleton/SK_Foot1"
+{
+    diffusemap SK_Foot1_e.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    meta_editorSave
+}
+
+
+"Models/Players/Skeleton/Skeleton/SK_Leg1"
+{
+    diffusemap SK_Leg1_d.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    meta_editorSave
+}
+
+
+"Models/Players/Skeleton/Skeleton/SK_Mouth1"
+{
+    diffusemap SK_Mouth1_c.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    meta_editorSave
+}
+
+
+"Models/Players/Skeleton/Skeleton/SK_Pelvis-Fnt1"
+{
+    diffusemap SK_Pelvis-Fnt1_i.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    meta_editorSave
+}
+
+
+"Models/Players/Skeleton/Skeleton/SK_Pelvis-Side1"
+{
+    diffusemap SK_Pelvis-Side1_g.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    meta_editorSave
+}
+
+
+"Models/Players/Skeleton/Skeleton/SK_Scapula1"
+{
+    diffusemap SK_Scapula1_h.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    meta_editorSave
+}
+
+
+"Models/Players/Skeleton/Skeleton/SK_Skl-side1"
+{
+    diffusemap SK_Skl-side1_a.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    meta_editorSave
+}
+
+
+"Models/Players/Skeleton/Skeleton/SK_Spine1"
+{
+    diffusemap SK_Spine1_f.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    meta_editorSave
+}

@@ -9,3 +9,5 @@ Models/Players/Alien/Alien
     meta_editorImage noEditor
 }
 
+
+dofile("Alien_editor.cmat")

@@ -42,3 +42,5 @@ Models/Players/Trinity/chrome_buckle
     meta_editorImage noEditor
 }
 
+
+dofile("Trinity_editor.cmat")

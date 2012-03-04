@@ -1,0 +1,8 @@
+"Models/Players/Sentinel/Sentinel/arm"
+{
+    diffusemap arm_a.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    meta_editorSave
+}

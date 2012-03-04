@@ -1,0 +1,8 @@
+"Models/Players/Punisher/Punisher/punisher"
+{
+    diffusemap punisher_a.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    meta_editorSave
+}

@@ -1,0 +1,18 @@
+"Models/Players/T801/T801/DM_Base"
+{
+    diffusemap DM_Base_a.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    meta_editorSave
+}
+
+
+"Models/Players/T801/T801/DM_Face"
+{
+    diffusemap DM_Face_b.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    meta_editorSave
+}

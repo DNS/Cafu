@@ -9,3 +9,5 @@ Models/Players/James/low_poly_tex_outline3
     meta_editorImage noEditor
 }
 
+
+dofile("James_editor.cmat")

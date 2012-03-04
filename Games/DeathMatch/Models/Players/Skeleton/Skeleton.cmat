@@ -119,3 +119,5 @@ Models/Players/Skeleton/SK_Spine1
     meta_editorImage noEditor
 }
 
+
+dofile("Skeleton_editor.cmat")

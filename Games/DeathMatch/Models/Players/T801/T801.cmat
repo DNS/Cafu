@@ -20,3 +20,5 @@ Models/Players/T801/DM_Face
     meta_editorImage noEditor
 }
 
+
+dofile("T801_editor.cmat")

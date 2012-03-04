@@ -9,3 +9,5 @@ Models/Players/Sentinel/arm
     meta_editorImage noEditor
 }
 
+
+dofile("Sentinel_editor.cmat")

@@ -9,3 +9,5 @@ Models/Players/Punisher/punisher
     meta_editorImage noEditor
 }
 
+
+dofile("Punisher_editor.cmat")
