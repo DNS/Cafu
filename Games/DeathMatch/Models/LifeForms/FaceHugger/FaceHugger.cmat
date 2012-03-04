@@ -9,3 +9,5 @@ Models/LifeForms/FaceHugger/FaceHuggerS1
     meta_editorImage noEditor
 }
 
+
+dofile("FaceHugger_editor.cmat")

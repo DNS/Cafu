@@ -9,3 +9,5 @@ Models/Items/Ammo_DesertEagle/w_44t_clip
     meta_editorImage noEditor
 }
 
+
+dofile("Ammo_DesertEagle_editor.cmat")

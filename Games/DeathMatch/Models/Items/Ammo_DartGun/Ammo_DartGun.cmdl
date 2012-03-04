@@ -1,0 +1,112 @@
+-- Cafu Model File
+-- Written by CaWE, the Cafu World Editor.
+Version(1)
+
+Joints=
+{
+	{ name="skin02"; parent=-1; pos={ 0.07730161, -15.283746, -0.07757161 }; qtr={ -0.7327027, -0.6805483, -0.00058105105 }; scale={ 1, 1, 1 }; },
+}
+
+Meshes=
+{
+	-- Mesh 0
+	{
+		name="studio";
+		Material="Models/Items/Ammo_DartGun/chrome";
+		tsMethod="GLOBAL";
+		castShadows=true;
+
+		Weights=
+		{
+			{ joint=0; weight=1; pos={ 15.26, -1.65, -0.01 }; },
+			{ joint=0; weight=1; pos={ 15.3, -1.08, 0.55 }; },
+			{ joint=0; weight=1; pos={ 15.3, -1.08, -0.58 }; },
+			{ joint=0; weight=1; pos={ -10.88, 0.76, -0.58 }; },
+			{ joint=0; weight=1; pos={ -10.92, 0.19, -0.01 }; },
+			{ joint=0; weight=1; pos={ -10.88, 0.76, 0.55 }; },
+			{ joint=0; weight=1; pos={ -10.84, 1.33, -0.01 }; },
+			{ joint=0; weight=1; pos={ 15.34, -0.51, -0.01 }; },
+			{ joint=0; weight=1; pos={ -11.62, 0.81, -0.85 }; },
+			{ joint=0; weight=1; pos={ -11.68, -0.02, -0.01 }; },
+			{ joint=0; weight=1; pos={ -11.62, 0.81, 0.82 }; },
+			{ joint=0; weight=1; pos={ -11.56, 1.65, -0.01 }; },
+			{ joint=0; weight=1; pos={ -15.34, 1.07, -0.01 }; },
+		};
+
+		Vertices=
+		{
+			{ firstWeight=4; numWeights=1; uv={ 0, 0.984375 }; },
+			{ firstWeight=2; numWeights=1; uv={ 0, 0.984375 }; },
+			{ firstWeight=3; numWeights=1; uv={ 0, 0.984375 }; },
+			{ firstWeight=7; numWeights=1; uv={ 0, 0.984375 }; },
+			{ firstWeight=6; numWeights=1; uv={ 0, 0.984375 }; },
+			{ firstWeight=1; numWeights=1; uv={ 0, 0.984375 }; },
+			{ firstWeight=5; numWeights=1; uv={ 0, 0.984375 }; },
+			{ firstWeight=0; numWeights=1; uv={ 0, 0.984375 }; },
+			{ firstWeight=9; numWeights=1; uv={ 0, 0.984375 }; },
+			{ firstWeight=8; numWeights=1; uv={ 0, 0.984375 }; },
+			{ firstWeight=11; numWeights=1; uv={ 0, 0.984375 }; },
+			{ firstWeight=10; numWeights=1; uv={ 0, 0.984375 }; },
+			{ firstWeight=12; numWeights=1; uv={ 0, 0.984375 }; },
+		};
+
+		Triangles=
+		{
+			{ 0, 1, 2, sg=1 },
+			{ 2, 1, 3, sg=1 },
+			{ 2, 3, 4, sg=1 },
+			{ 4, 3, 5, sg=1 },
+			{ 4, 5, 6, sg=1 },
+			{ 6, 5, 7, sg=1 },
+			{ 6, 7, 0, sg=1 },
+			{ 0, 7, 1, sg=1 },
+			{ 8, 2, 9, sg=1 },
+			{ 9, 2, 4, sg=1 },
+			{ 9, 4, 10, sg=1 },
+			{ 10, 4, 6, sg=1 },
+			{ 10, 6, 11, sg=1 },
+			{ 11, 6, 0, sg=1 },
+			{ 11, 0, 8, sg=1 },
+			{ 7, 5, 1, sg=1 },
+			{ 8, 9, 12, sg=1 },
+			{ 11, 8, 12, sg=1 },
+			{ 10, 11, 12, sg=1 },
+			{ 9, 10, 12, sg=1 },
+			{ 3, 1, 5, sg=1 },
+			{ 0, 2, 8, sg=1 },
+		};
+	},
+}
+
+Skins=
+{
+}
+
+GuiFixtures=
+{
+}
+
+Animations=
+{
+	-- Animation 0
+	{
+		name="idle";
+		FPS=30;
+		next="-1";
+
+		AnimJoints=
+		{
+			{ pos={ 15.28089, 0.07609844, -0.07757161 }; qtr={ -0.03687867, -0.9993193, -0.0009342612 }; scale={ 1, 1, 1 }; flags=0; firstData=0; },
+		};
+
+		Frames=
+		{
+			{ bb={ -0.056365926, -0.80356497, -0.89423823, 30.660883, 0.8707344, 0.7757588 };
+			  data={ }; },
+		};
+	},
+}
+
+Channels=
+{
+}

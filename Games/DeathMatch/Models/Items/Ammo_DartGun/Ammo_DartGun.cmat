@@ -9,3 +9,5 @@ Models/Items/Ammo_DartGun/chrome
     meta_editorImage noEditor
 }
 
+
+dofile("Ammo_DartGun_editor.cmat")

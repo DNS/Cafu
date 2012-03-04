@@ -108,3 +108,5 @@ Models/LifeForms/Butterfly/butterfly9
     meta_editorImage noEditor
 }
 
+
+dofile("Butterfly_editor.cmat")

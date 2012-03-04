@@ -1,0 +1,8 @@
+"Models/LifeForms/Eagle/Eagle/eagle"
+{
+    diffusemap eagle_a.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    meta_editorSave
+}

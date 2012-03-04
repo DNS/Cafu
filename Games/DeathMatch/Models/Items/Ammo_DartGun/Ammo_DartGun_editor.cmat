@@ -1,0 +1,8 @@
+"Models/Items/Ammo_DartGun/Ammo_DartGun/chrome"
+{
+    diffusemap chrome_a.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    meta_editorSave
+}

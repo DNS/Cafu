@@ -9,3 +9,5 @@ Models/LifeForms/Eagle/eagle
     meta_editorImage noEditor
 }
 
+
+dofile("Eagle_editor.cmat")

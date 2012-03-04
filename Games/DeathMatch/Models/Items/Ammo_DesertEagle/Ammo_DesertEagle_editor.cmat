@@ -1,0 +1,8 @@
+"Models/Items/Ammo_DesertEagle/Ammo_DesertEagle/w_44t_clip"
+{
+    diffusemap w_44t_clip_a.png
+    red   ambientLightRed
+    green ambientLightGreen
+    blue  ambientLightBlue
+    meta_editorSave
+}

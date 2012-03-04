@@ -20,3 +20,5 @@ Models/Items/Ammo_Gauss/sphere
     meta_editorImage noEditor
 }
 
+
+dofile("Ammo_Gauss_editor.cmat")
