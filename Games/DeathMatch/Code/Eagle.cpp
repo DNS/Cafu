@@ -71,7 +71,7 @@ EntEagleT::EntEagleT(const EntityCreateParamsT& Params)
                                0,       // ActiveWeaponSlot
                                0,       // ActiveWeaponSequNr
                                0.0)),   // ActiveWeaponFrameNr
-      m_Model(Params.GameWorld->GetModel("Games/DeathMatch/Models/LifeForms/Eagle.mdl")),
+      m_Model(Params.GameWorld->GetModel("Games/DeathMatch/Models/LifeForms/Eagle/Eagle.cmdl")),
       FlightState(CruiseFlight),
       OldOrigin(),
       LoopCenter(),

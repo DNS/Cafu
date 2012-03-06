@@ -2,24 +2,6 @@ dofile("Games/DeathMatch/GUIs/MainMenu/MainMenu_init.cgui");
 
 
 
--- If FileName is the name of a model file, returns the name with the suffix removed, or "" otherwise.
-function GetModelName(FileName)
-    if (FileName:sub(-4, -1)==".ase" or
-        FileName:sub(-4, -1)==".dae" or
-        FileName:sub(-4, -1)==".mdl" or
-        FileName:sub(-4, -1)==".md5" or
-        FileName:sub(-4, -1)==".lwo") then return FileName:sub(1, -5); end
-
-    if (FileName:sub(-5, -1)==".cmdl" or
-        FileName:sub(-5, -1)==".dlod") then return FileName:sub(1, -6); end
-
-    if (FileName:sub(-8, -1)==".collada" or
-        FileName:sub(-8, -1)==".md5anim" or
-        FileName:sub(-8, -1)==".md5mesh") then return FileName:sub(1, -9); end
-
-    return "";
-end
-
 -- Parses a string that describes a video mode. It returns the width, height, colour depth and refresh rate.
 function ParseModeStr(ModeStr)
     -- For case-insensitive matching, translate the entire string to lower case.
@@ -368,25 +350,21 @@ function MultiplayerContextMenu.Frame.JoinGame:OnMouseButtonUp()
 
 
     JoinGameDialog.Frame.ModelNameChoice:Clear();
-    JoinGameDialog.Frame.ModelList={};      -- Matches names in choice to file names, e.g. ModelList["Alien"] yields "Alien.mdl".
+    JoinGameDialog.Frame.ModelList={};      -- Matches names in choice to file names, e.g. ModelList["Alien"] yields "Alien/Alien.cmdl".
 
-    local Files=Console.GetDir("Games/DeathMatch/Models/Players", "f");
+    local Files=Console.GetDir("Games/DeathMatch/Models/Players", "d");
     table.sort(Files);
 
     for FileNum, FileName in ipairs(Files) do
-        local ModelName=GetModelName(FileName);
+        JoinGameDialog.Frame.ModelNameChoice:Append(" "..FileName);
+        JoinGameDialog.Frame.ModelList[FileName]=FileName.."/"..FileName..".cmdl";
 
-        if (ModelName~="") then
-            JoinGameDialog.Frame.ModelNameChoice:Append(" "..ModelName);
-            JoinGameDialog.Frame.ModelList[ModelName]=FileName;
+        if (FileName==ci.GetValue("dlg_dmModelName")) then
+            local SelNr=JoinGameDialog.Frame.ModelNameChoice:GetNumChoices()-1;
 
-            if (ModelName==ci.GetValue("dlg_dmModelName")) then
-                local SelNr=JoinGameDialog.Frame.ModelNameChoice:GetNumChoices()-1;
-
-                -- SetSelection() doesn't automatically trigger a call to our OnSelectionChanged() handler, so it's done manually below.
-                JoinGameDialog.Frame.ModelNameChoice:SetSelection(SelNr);
-                JoinGameDialog.Frame.ModelNameChoice:OnSelectionChanged(SelNr);
-            end
+            -- SetSelection() doesn't automatically trigger a call to our OnSelectionChanged() handler, so it's done manually below.
+            JoinGameDialog.Frame.ModelNameChoice:SetSelection(SelNr);
+            JoinGameDialog.Frame.ModelNameChoice:OnSelectionChanged(SelNr);
         end
     end
 
@@ -434,25 +412,21 @@ function MultiplayerContextMenu.Frame.HostGame:OnMouseButtonUp()
 
 
     HostGameDialog.Frame.ModelNameChoice:Clear();
-    HostGameDialog.Frame.ModelList={};      -- Matches names in choice to file names, e.g. ModelList["Alien"] yields "Alien.mdl".
+    HostGameDialog.Frame.ModelList={};      -- Matches names in choice to file names, e.g. ModelList["Alien"] yields "Alien/Alien.cmdl".
 
-    local Files=Console.GetDir("Games/DeathMatch/Models/Players", "f");
+    local Files=Console.GetDir("Games/DeathMatch/Models/Players", "d");
     table.sort(Files);
 
     for FileNum, FileName in ipairs(Files) do
-        local ModelName=GetModelName(FileName);
+        HostGameDialog.Frame.ModelNameChoice:Append(" "..FileName);
+        HostGameDialog.Frame.ModelList[FileName]=FileName.."/"..FileName..".cmdl";
 
-        if (ModelName~="") then
-            HostGameDialog.Frame.ModelNameChoice:Append(" "..ModelName);
-            HostGameDialog.Frame.ModelList[ModelName]=FileName;
+        if (FileName==ci.GetValue("dlg_dmModelName")) then
+            local SelNr=HostGameDialog.Frame.ModelNameChoice:GetNumChoices()-1;
 
-            if (ModelName==ci.GetValue("dlg_dmModelName")) then
-                local SelNr=HostGameDialog.Frame.ModelNameChoice:GetNumChoices()-1;
-
-                -- SetSelection() doesn't automatically trigger a call to our OnSelectionChanged() handler, so it's done manually below.
-                HostGameDialog.Frame.ModelNameChoice:SetSelection(SelNr);
-                HostGameDialog.Frame.ModelNameChoice:OnSelectionChanged(SelNr);
-            end
+            -- SetSelection() doesn't automatically trigger a call to our OnSelectionChanged() handler, so it's done manually below.
+            HostGameDialog.Frame.ModelNameChoice:SetSelection(SelNr);
+            HostGameDialog.Frame.ModelNameChoice:OnSelectionChanged(SelNr);
         end
     end
 
@@ -525,26 +499,22 @@ function OptionsContextMenu.Frame.Player:OnMouseButtonUp()
 
 
     PlayerOptionsDialog.Frame.ModelNameChoice:Clear();
-    PlayerOptionsDialog.Frame.ModelList={};      -- Matches names in choice to file names, e.g. ModelList["Alien"] yields "Alien.mdl".
+    PlayerOptionsDialog.Frame.ModelList={};      -- Matches names in choice to file names, e.g. ModelList["Alien"] yields "Alien/Alien.cmdl".
 
-    local Files=Console.GetDir("Games/DeathMatch/Models/Players", "f");
+    local Files=Console.GetDir("Games/DeathMatch/Models/Players", "d");
     table.sort(Files);
 
     for FileNum, FileName in ipairs(Files) do
-        local ModelName=GetModelName(FileName);
+       PlayerOptionsDialog.Frame.ModelNameChoice:Append(" "..FileName);
+       PlayerOptionsDialog.Frame.ModelList[FileName]=FileName.."/"..FileName..".cmdl";
 
-        if (ModelName~="") then
-            PlayerOptionsDialog.Frame.ModelNameChoice:Append(" "..ModelName);
-            PlayerOptionsDialog.Frame.ModelList[ModelName]=FileName;
+       if (FileName==ci.GetValue("dlg_dmModelName")) then
+           local SelNr=PlayerOptionsDialog.Frame.ModelNameChoice:GetNumChoices()-1;
 
-            if (ModelName==ci.GetValue("dlg_dmModelName")) then
-                local SelNr=PlayerOptionsDialog.Frame.ModelNameChoice:GetNumChoices()-1;
-
-                -- SetSelection() doesn't automatically trigger a call to our OnSelectionChanged() handler, so it's done manually below.
-                PlayerOptionsDialog.Frame.ModelNameChoice:SetSelection(SelNr);
-                PlayerOptionsDialog.Frame.ModelNameChoice:OnSelectionChanged(SelNr);
-            end
-        end
+           -- SetSelection() doesn't automatically trigger a call to our OnSelectionChanged() handler, so it's done manually below.
+           PlayerOptionsDialog.Frame.ModelNameChoice:SetSelection(SelNr);
+           PlayerOptionsDialog.Frame.ModelNameChoice:OnSelectionChanged(SelNr);
+       end
     end
 
 

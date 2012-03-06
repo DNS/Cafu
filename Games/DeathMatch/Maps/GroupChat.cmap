@@ -6776,7 +6776,7 @@ Version 13
   angles "-0 255 -0"
   scale "1.0"
   name "static_detail_model_001"
-  model "Models/Players/James.mdl"
+  model "Models/Players/James/James.cmdl"
   sequence "1"
   origin "-802.425 585.575 356.5438"
 }
@@ -6786,7 +6786,7 @@ Version 13
   angles "-0 195 -0"
   scale "1.0"
   name "static_detail_model_002"
-  model "Models/Players/Punisher.mdl"
+  model "Models/Players/Punisher/Punisher.cmdl"
   sequence "1"
   origin "-838.00244 634.44275 356.5438"
 }

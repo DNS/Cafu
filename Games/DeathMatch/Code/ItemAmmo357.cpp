@@ -46,7 +46,7 @@ const cf::TypeSys::TypeInfoT EntItemAmmo357T::TypeInfo(GetBaseEntTIM(), "EntItem
 
 
 EntItemAmmo357T::EntItemAmmo357T(const EntityCreateParamsT& Params)
-    : EntItemT(Params, "Games/DeathMatch/Models/Items/Ammo_DesertEagle.mdl")
+    : EntItemT(Params, "Games/DeathMatch/Models/Items/Ammo_DesertEagle/Ammo_DesertEagle.cmdl")
 {
 }
 

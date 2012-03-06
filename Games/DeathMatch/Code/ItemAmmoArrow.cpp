@@ -46,7 +46,7 @@ const cf::TypeSys::TypeInfoT EntItemAmmoArrowT::TypeInfo(GetBaseEntTIM(), "EntIt
 
 
 EntItemAmmoArrowT::EntItemAmmoArrowT(const EntityCreateParamsT& Params)
-    : EntItemT(Params, "Games/DeathMatch/Models/Items/Ammo_DartGun.mdl")
+    : EntItemT(Params, "Games/DeathMatch/Models/Items/Ammo_DartGun/Ammo_DartGun.cmdl")
 {
 }
 

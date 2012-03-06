@@ -63,7 +63,7 @@ EntButterflyT::EntButterflyT(const EntityCreateParamsT& Params)
                                0,       // ActiveWeaponSlot
                                0,       // ActiveWeaponSequNr
                                0.0)),   // ActiveWeaponFrameNr
-      m_Model(Params.GameWorld->GetModel("Games/DeathMatch/Models/LifeForms/Butterfly.mdl")),
+      m_Model(Params.GameWorld->GetModel("Games/DeathMatch/Models/LifeForms/Butterfly/Butterfly.cmdl")),
       ArcCenter(Params.Origin),
       ArcPos(0)
 {

@@ -88,13 +88,13 @@ cf::GameSys::GameImplT::GameImplT()
 
 void cf::GameSys::GameImplT::Initialize(bool AsClient, bool AsServer, ModelManagerT& ModelMan)
 {
-    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/Alien.mdl"   ));
-    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/James.mdl"   ));
-    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/Punisher.mdl"));
-    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/Sentinel.mdl"));
-    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/Skeleton.mdl"));
-    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/T801.mdl"    ));
-    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/Trinity.mdl" ));
+    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/Alien/Alien.cmdl"));
+    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/James/James.cmdl"));
+    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/Punisher/Punisher.cmdl"));
+    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/Sentinel/Sentinel.cmdl"));
+    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/Skeleton/Skeleton.cmdl"));
+    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/T801/T801.cmdl"));
+    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/Trinity/Trinity.cmdl"));
 
     m_CarriedWeapons.PushBack(new CarriedWeaponBattleScytheT(ModelMan));
     m_CarriedWeapons.PushBack(new CarriedWeapon357T(ModelMan));     // The .357 acts as "dummy" implementation.
@@ -136,12 +136,12 @@ void cf::GameSys::GameImplT::Initialize(bool AsClient, bool AsServer, ModelManag
         // but also to effectively load and initialize the models only at that later time, what might be very expensive, too!
         {
             // And the rest. Observe that static detail models are NOT mentioned (how could they?).
-            ModelMan.GetModel("Games/DeathMatch/Models/Items/Ammo_DartGun.mdl");
-            ModelMan.GetModel("Games/DeathMatch/Models/Items/Ammo_DesertEagle.mdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Items/Ammo_DartGun/Ammo_DartGun.cmdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Items/Ammo_DesertEagle/Ammo_DesertEagle.cmdl");
 
-            ModelMan.GetModel("Games/DeathMatch/Models/LifeForms/Butterfly.mdl");
-            ModelMan.GetModel("Games/DeathMatch/Models/LifeForms/Eagle.mdl");
-            ModelMan.GetModel("Games/DeathMatch/Models/LifeForms/FaceHugger.mdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/LifeForms/Butterfly/Butterfly.cmdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/LifeForms/Eagle/Eagle.cmdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/LifeForms/FaceHugger/FaceHugger.cmdl");
 
             ModelMan.GetModel("Games/DeathMatch/Models/Weapons/9mmAR_w.mdl");
             ModelMan.GetModel("Games/DeathMatch/Models/Weapons/BattleScythe_w.mdl");

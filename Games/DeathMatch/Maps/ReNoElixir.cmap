@@ -26066,7 +26066,7 @@ Version 13
   rendertranslucency "255"
   rendercolor "0 0 0"
   scale "1.0"
-  model "Models/LifeForms/FaceHugger.mdl"
+  model "Models/LifeForms/FaceHugger/FaceHugger.cmdl"
   origin "2352 -324 -507"
 }
 
@@ -26076,7 +26076,7 @@ Version 13
   rendertranslucency "255"
   rendercolor "0 0 0"
   scale "1.0"
-  model "Models/LifeForms/FaceHugger.mdl"
+  model "Models/LifeForms/FaceHugger/FaceHugger.cmdl"
   origin "1353 -432 -507"
 }
 
@@ -26086,7 +26086,7 @@ Version 13
   rendertranslucency "255"
   rendercolor "0 0 0"
   scale "1.0"
-  model "Models/LifeForms/FaceHugger.mdl"
+  model "Models/LifeForms/FaceHugger/FaceHugger.cmdl"
   origin "1165 -528 -443"
 }
 
@@ -26186,7 +26186,7 @@ Version 13
   rendertranslucency "255"
   rendercolor "0 0 0"
   scale "1.0"
-  model "Models/Players/Skeleton.mdl"
+  model "Models/Players/Skeleton/Skeleton.cmdl"
   sequence "76"
   origin "-698 -316 -305"
 }
@@ -26267,7 +26267,7 @@ Version 13
   rendertranslucency "255"
   rendercolor "0 0 0"
   scale "1.0"
-  model "Models/Players/Skeleton.mdl"
+  model "Models/Players/Skeleton/Skeleton.cmdl"
   sequence "74"
   origin "477 139 81"
 }
@@ -26296,7 +26296,7 @@ Version 13
   rendertranslucency "255"
   rendercolor "0 0 0"
   scale "1.0"
-  model "Models/LifeForms/Eagle.mdl"
+  model "Models/LifeForms/Eagle/Eagle.cmdl"
   sequence "4"
   origin "-120 1780 0"
 }

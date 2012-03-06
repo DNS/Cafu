@@ -9617,7 +9617,7 @@ Version 13
   classname "static_detail_model"
   angles "-0 120 -0"
   name "FaceHugger"
-  model "Models/LifeForms/FaceHugger.mdl"
+  model "Models/LifeForms/FaceHugger/FaceHugger.cmdl"
   scale "1.0"
   origin "-63 445 -8"
 }
@@ -9626,7 +9626,7 @@ Version 13
   classname "static_detail_model"
   angles "-0 180 -0"
   name "Skeleton"
-  model "Models/Players/Skeleton.mdl"
+  model "Models/Players/Skeleton/Skeleton.cmdl"
   scale "1.0"
   origin "-324 450 28"
 }
