@@ -1,4 +1,4 @@
-Models/Weapons/Glock17_v/g17-skin1
+Models/Weapons/Glock17/Glock17_v/g17-skin1
 {
     diffusemap  Glock17_Skin_diff.png
     specularmap Glock17_Skin_diff.png
@@ -10,9 +10,9 @@ Models/Weapons/Glock17_v/g17-skin1
     meta_editorImage noEditor
 }
 
-Models/Weapons/Glock17_v/arm
+Models/Weapons/Glock17/Glock17_v/arm
 {
-    diffusemap _CommonHands_diff.png
+    diffusemap ../common_hands_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -21,9 +21,9 @@ Models/Weapons/Glock17_v/arm
     meta_editorImage noEditor
 }
 
-Models/Weapons/Glock17_v/arm1
+Models/Weapons/Glock17/Glock17_v/arm1
 {
-    diffusemap _CommonArms_diff.png
+    diffusemap ../common_arms_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

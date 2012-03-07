@@ -1,4 +1,4 @@
-Models/Weapons/Gauss_w/barrelltop
+Models/Weapons/Gauss/Gauss_w/barrelltop
 {
     diffusemap Gauss_w_barrelltop_diff.png
 
@@ -9,7 +9,7 @@ Models/Weapons/Gauss_w/barrelltop
     meta_editorImage noEditor
 }
 
-Models/Weapons/Gauss_w/bodyback
+Models/Weapons/Gauss/Gauss_w/bodyback
 {
     diffusemap Gauss_w_bodyback_diff.png
 
@@ -20,7 +20,7 @@ Models/Weapons/Gauss_w/bodyback
     meta_editorImage noEditor
 }
 
-Models/Weapons/Gauss_w/grip
+Models/Weapons/Gauss/Gauss_w/grip
 {
     diffusemap Gauss_w_grip_diff.png
 

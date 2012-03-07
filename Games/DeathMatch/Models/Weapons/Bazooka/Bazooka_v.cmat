@@ -1,6 +1,6 @@
-Models/Weapons/Bazooka_v/arm
+Models/Weapons/Bazooka/Bazooka_v/arm
 {
-    diffusemap _CommonHands_diff.png
+    diffusemap ../common_hands_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -9,9 +9,9 @@ Models/Weapons/Bazooka_v/arm
     meta_editorImage noEditor
 }
 
-Models/Weapons/Bazooka_v/arm1
+Models/Weapons/Bazooka/Bazooka_v/arm1
 {
-    diffusemap _CommonArms_diff.png
+    diffusemap ../common_arms_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -20,7 +20,7 @@ Models/Weapons/Bazooka_v/arm1
     meta_editorImage noEditor
 }
 
-Models/Weapons/Bazooka_v/Base
+Models/Weapons/Bazooka/Bazooka_v/Base
 {
     diffusemap Bazooka_v_Base_diff.png
 
@@ -31,7 +31,7 @@ Models/Weapons/Bazooka_v/Base
     meta_editorImage noEditor
 }
 
-Models/Weapons/Bazooka_v/Detail
+Models/Weapons/Bazooka/Bazooka_v/Detail
 {
     diffusemap Bazooka_v_Detail_diff.png
 
@@ -42,7 +42,7 @@ Models/Weapons/Bazooka_v/Detail
     meta_editorImage noEditor
 }
 
-Models/Weapons/Bazooka_v/rocket
+Models/Weapons/Bazooka/Bazooka_v/rocket
 {
     diffusemap Bazooka_v_rocket_diff.png
 
@@ -53,7 +53,7 @@ Models/Weapons/Bazooka_v/rocket
     meta_editorImage noEditor
 }
 
-Models/Weapons/Bazooka_v/rocketmotor
+Models/Weapons/Bazooka/Bazooka_v/rocketmotor
 {
     diffusemap Bazooka_v_rocketmotor_diff.png
 

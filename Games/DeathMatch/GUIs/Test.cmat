@@ -26,7 +26,7 @@ Gui/Cursors/Pointer
 
 Models/Weapons/9mmAR_v/arm
 {
-    diffusemap ../Models/Weapons/_CommonHands_diff.png
+    diffusemap ../Models/Weapons/common_hands_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

@@ -1,6 +1,6 @@
-Models/Weapons/DartGun_v/arm
+Models/Weapons/DartGun/DartGun_v/arm
 {
-    diffusemap _CommonHands_diff.png
+    diffusemap ../common_hands_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -9,9 +9,9 @@ Models/Weapons/DartGun_v/arm
     meta_editorImage noEditor
 }
 
-Models/Weapons/DartGun_v/arm1
+Models/Weapons/DartGun/DartGun_v/arm1
 {
-    diffusemap _CommonArms_diff.png
+    diffusemap ../common_arms_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -20,7 +20,7 @@ Models/Weapons/DartGun_v/arm1
     meta_editorImage noEditor
 }
 
-Models/Weapons/DartGun_v/chrome
+Models/Weapons/DartGun/DartGun_v/chrome
 {
     diffusemap DartGun_v_chrome_diff.png
 
@@ -31,7 +31,7 @@ Models/Weapons/DartGun_v/chrome
     meta_editorImage noEditor
 }
 
-Models/Weapons/DartGun_v/skin1
+Models/Weapons/DartGun/DartGun_v/skin1
 {
     diffusemap DartGun_v_skin1_diff.png
 

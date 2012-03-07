@@ -1,4 +1,4 @@
-Models/Weapons/FaceHugger_w/EggCase6
+Models/Weapons/FaceHugger/FaceHugger_w/EggCase6
 {
     diffusemap FaceHugger_w_EggCase6_diff.png
 
@@ -9,7 +9,7 @@ Models/Weapons/FaceHugger_w/EggCase6
     meta_editorImage noEditor
 }
 
-Models/Weapons/FaceHugger_w/EggCase7
+Models/Weapons/FaceHugger/FaceHugger_w/EggCase7
 {
     diffusemap FaceHugger_w_EggCase7_diff.png
 

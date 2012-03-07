@@ -1,6 +1,6 @@
-Models/Weapons/Grenade_v/arm
+Models/Weapons/Grenade/Grenade_v/arm
 {
-    diffusemap _CommonHands_diff.png
+    diffusemap ../common_hands_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -9,9 +9,9 @@ Models/Weapons/Grenade_v/arm
     meta_editorImage noEditor
 }
 
-Models/Weapons/Grenade_v/arm1
+Models/Weapons/Grenade/Grenade_v/arm1
 {
-    diffusemap _CommonArms_diff.png
+    diffusemap ../common_arms_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -20,7 +20,7 @@ Models/Weapons/Grenade_v/arm1
     meta_editorImage noEditor
 }
 
-Models/Weapons/Grenade_v/m61
+Models/Weapons/Grenade/Grenade_v/m61
 {
     diffusemap Grenade_w_m61_diff.png
 
@@ -31,7 +31,7 @@ Models/Weapons/Grenade_v/m61
     meta_editorImage noEditor
 }
 
-Models/Weapons/Grenade_v/null
+Models/Weapons/Grenade/Grenade_v/null
 {
     diffusemap Grenade_w_null_diff.png
 
@@ -42,7 +42,7 @@ Models/Weapons/Grenade_v/null
     meta_editorImage noEditor
 }
 
-Models/Weapons/Grenade_v/pinCHROME
+Models/Weapons/Grenade/Grenade_v/pinCHROME
 {
     diffusemap Grenade_w_pinCHROME_diff.png
 

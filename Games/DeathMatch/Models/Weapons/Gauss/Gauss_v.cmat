@@ -1,6 +1,6 @@
-Models/Weapons/Gauss_v/arm
+Models/Weapons/Gauss/Gauss_v/arm
 {
-    diffusemap _CommonHands_diff.png
+    diffusemap ../common_hands_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -9,9 +9,9 @@ Models/Weapons/Gauss_v/arm
     meta_editorImage noEditor
 }
 
-Models/Weapons/Gauss_v/arm1
+Models/Weapons/Gauss/Gauss_v/arm1
 {
-    diffusemap _CommonArms_diff.png
+    diffusemap ../common_arms_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -20,7 +20,7 @@ Models/Weapons/Gauss_v/arm1
     meta_editorImage noEditor
 }
 
-Models/Weapons/Gauss_v/barrelltop
+Models/Weapons/Gauss/Gauss_v/barrelltop
 {
     diffusemap Gauss_w_barrelltop_diff.png
 
@@ -31,7 +31,7 @@ Models/Weapons/Gauss_v/barrelltop
     meta_editorImage noEditor
 }
 
-Models/Weapons/Gauss_v/bodyback
+Models/Weapons/Gauss/Gauss_v/bodyback
 {
     diffusemap Gauss_w_bodyback_diff.png
 
@@ -42,7 +42,7 @@ Models/Weapons/Gauss_v/bodyback
     meta_editorImage noEditor
 }
 
-Models/Weapons/Gauss_v/grip
+Models/Weapons/Gauss/Gauss_v/grip
 {
     diffusemap Gauss_w_grip_diff.png
 

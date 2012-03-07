@@ -1,4 +1,4 @@
-Models/Weapons/Beretta_v/arm
+Models/Weapons/Beretta/Beretta_v/arm
 {
     diffusemap Beretta_v_arm_diff.png
 
@@ -9,7 +9,7 @@ Models/Weapons/Beretta_v/arm
     meta_editorImage noEditor
 }
 
-Models/Weapons/Beretta_v/arm1
+Models/Weapons/Beretta/Beretta_v/arm1
 {
     diffusemap Shotgun_v_arm1_diff.png
 
@@ -20,7 +20,7 @@ Models/Weapons/Beretta_v/arm1
     meta_editorImage noEditor
 }
 
-Models/Weapons/Beretta_v/barrelCHROME
+Models/Weapons/Beretta/Beretta_v/barrelCHROME
 {
     diffusemap Beretta_v_berettaCHROME_diff.png
 
@@ -31,7 +31,7 @@ Models/Weapons/Beretta_v/barrelCHROME
     meta_editorImage noEditor
 }
 
-Models/Weapons/Beretta_v/berettaCHROME
+Models/Weapons/Beretta/Beretta_v/berettaCHROME
 {
     diffusemap Beretta_v_berettaCHROME_diff.png
 
@@ -42,7 +42,7 @@ Models/Weapons/Beretta_v/berettaCHROME
     meta_editorImage noEditor
 }
 
-Models/Weapons/Beretta_v/clip
+Models/Weapons/Beretta/Beretta_v/clip
 {
     diffusemap Beretta_v_clip_diff.png
 
@@ -53,7 +53,7 @@ Models/Weapons/Beretta_v/clip
     meta_editorImage noEditor
 }
 
-Models/Weapons/Beretta_v/grip
+Models/Weapons/Beretta/Beretta_v/grip
 {
     diffusemap Beretta_v_grip_diff.png
 
@@ -64,7 +64,7 @@ Models/Weapons/Beretta_v/grip
     meta_editorImage noEditor
 }
 
-Models/Weapons/Beretta_v/slide
+Models/Weapons/Beretta/Beretta_v/slide
 {
     diffusemap Beretta_v_slide_diff.png
 

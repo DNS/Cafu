@@ -1,6 +1,6 @@
-Models/Weapons/Egon_v/arm
+Models/Weapons/Egon/Egon_v/arm
 {
-    diffusemap _CommonHands_diff.png
+    diffusemap ../common_hands_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -9,9 +9,9 @@ Models/Weapons/Egon_v/arm
     meta_editorImage noEditor
 }
 
-Models/Weapons/Egon_v/arm1
+Models/Weapons/Egon/Egon_v/arm1
 {
-    diffusemap _CommonArms_diff.png
+    diffusemap ../common_arms_diff.png
 
     red   ambientLightRed
     green ambientLightGreen
@@ -20,7 +20,7 @@ Models/Weapons/Egon_v/arm1
     meta_editorImage noEditor
 }
 
-Models/Weapons/Egon_v/butt
+Models/Weapons/Egon/Egon_v/butt
 {
     diffusemap Egon_v_butt_diff.png
 
@@ -31,7 +31,7 @@ Models/Weapons/Egon_v/butt
     meta_editorImage noEditor
 }
 
-Models/Weapons/Egon_v/cowl_bottom
+Models/Weapons/Egon/Egon_v/cowl_bottom
 {
     diffusemap Egon_v_cowl_bottom_diff.png
 
@@ -42,7 +42,7 @@ Models/Weapons/Egon_v/cowl_bottom
     meta_editorImage noEditor
 }
 
-Models/Weapons/Egon_v/cowl
+Models/Weapons/Egon/Egon_v/cowl
 {
     diffusemap Egon_v_cowl_diff.png
 
@@ -53,7 +53,7 @@ Models/Weapons/Egon_v/cowl
     meta_editorImage noEditor
 }
 
-Models/Weapons/Egon_v/cowl_top
+Models/Weapons/Egon/Egon_v/cowl_top
 {
     diffusemap Egon_v_cowl_top_diff.png
 
@@ -64,7 +64,7 @@ Models/Weapons/Egon_v/cowl_top
     meta_editorImage noEditor
 }
 
-Models/Weapons/Egon_v/grip
+Models/Weapons/Egon/Egon_v/grip
 {
     diffusemap Egon_v_grip_diff.png
 
@@ -75,7 +75,7 @@ Models/Weapons/Egon_v/grip
     meta_editorImage noEditor
 }
 
-Models/Weapons/Egon_v/muzzle
+Models/Weapons/Egon/Egon_v/muzzle
 {
     diffusemap Egon_v_muzzle_diff.png
 
