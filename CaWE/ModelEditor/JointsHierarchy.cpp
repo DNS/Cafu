@@ -79,7 +79,7 @@ END_EVENT_TABLE()
 
 
 JointsHierarchyT::JointsHierarchyT(ChildFrameT* Parent, const wxSize& Size)
-    : wxTreeCtrl(Parent, wxID_ANY, wxDefaultPosition, Size, wxTR_HAS_BUTTONS | wxTR_LINES_AT_ROOT | wxTR_MULTIPLE | wxTR_EDIT_LABELS | ::GetCustomStyle()),
+    : wxTreeCtrl(Parent, wxID_ANY, wxDefaultPosition, Size, wxTR_HAS_BUTTONS | wxTR_HIDE_ROOT | wxTR_LINES_AT_ROOT | wxTR_MULTIPLE | wxTR_EDIT_LABELS | ::GetCustomStyle()),
       m_ModelDoc(Parent->GetModelDoc()),
       m_Parent(Parent),
       m_IsRecursiveSelfNotify(false)
@@ -102,9 +102,9 @@ const wxTreeItemId JointsHierarchyT::FindTreeItem(const wxTreeItemId& StartingIt
     if (!StartingItem.IsOk()) return StartingItem;
 
     // Starting item is valid, so check if it is related to the Window.
-    JointsTreeItemT* JointItem=(JointsTreeItemT*)GetItemData(StartingItem);
+    JointsTreeItemT* Data=(JointsTreeItemT*)GetItemData(StartingItem);
 
-    if (JointItem->GetJointNr()==JointNr) return StartingItem;
+    if (Data && Data->GetJointNr()==JointNr) return StartingItem;
 
     // No match, so recursively check all children of the starting item.
     wxTreeItemIdValue Cookie; // This cookie is needed for iteration over a trees children.
@@ -229,10 +229,16 @@ void JointsHierarchyT::RefreshTree()
 
     for (unsigned long ItemNr=0; ItemNr<TreeItems.Size(); ItemNr++)
         if (IsExpanded(TreeItems[ItemNr]))
-            ExpandedJoints.PushBack(((JointsTreeItemT*)GetItemData(TreeItems[ItemNr]))->GetJointNr());
+        {
+            wxTreeItemData* TID=GetItemData(TreeItems[ItemNr]);
+
+            if (TID)
+                ExpandedJoints.PushBack(((JointsTreeItemT*)TID)->GetJointNr());
+        }
 
     Freeze();
     DeleteAllItems();
+    AddRoot("wxTreeCtrl root");   // As we've set the wxTR_HIDE_ROOT style, this is never actually shown.
 
     // Add all joints to the tree.
     const ArrayT<CafuModelT::JointT>& Joints=m_ModelDoc->GetModel()->GetJoints();
@@ -242,9 +248,9 @@ void JointsHierarchyT::RefreshTree()
     {
         const CafuModelT::JointT& J=Joints[JointNr];
 
-        JointItemIds.PushBack(Joints[JointNr].Parent<0
-            ? AddRoot(J.Name, -1, -1, new JointsTreeItemT(JointNr))
-            : AppendItem(JointItemIds[J.Parent], J.Name, -1, -1, new JointsTreeItemT(JointNr)));
+        JointItemIds.PushBack(AppendItem(
+            J.Parent<0 ? GetRootItem() : JointItemIds[J.Parent],
+            J.Name, -1, -1, new JointsTreeItemT(JointNr)));
     }
 
     // Re-select selected joints in the tree.
@@ -252,7 +258,7 @@ void JointsHierarchyT::RefreshTree()
 
     for (unsigned long SelNr=0; SelNr<SelectedJoints.Size(); SelNr++)
     {
-        wxTreeItemId Result=FindTreeItem(JointItemIds[0], SelectedJoints[SelNr]);
+        wxTreeItemId Result=FindTreeItem(GetRootItem(), SelectedJoints[SelNr]);
 
         if (Result.IsOk())
         {
@@ -285,41 +291,6 @@ void JointsHierarchyT::RefreshTree()
 }
 
 
-/*void JointsHierarchyT::OnTreeLeftClick(wxMouseEvent& ME)
-{
-    // Check if we hit an tree item icon.
-    int HitFlag=0;
-
-    wxTreeItemId ClickedItem=HitTest(ME.GetPosition(), HitFlag);
-
-    // If a icon was hit, toggle visibility of the associated gui window.
-    if (HitFlag & wxTREE_HITTEST_ONITEMICON)
-    {
-        cf::GuiSys::WindowT* ClickedWindow=((JointsTreeItemT*)GetItemData(ClickedItem))->GetWindow();
-
-        m_IsRecursiveSelfNotify=true;
-
-        if (ClickedWindow->ShowWindow)
-        {
-            m_Parent->SubmitCommand(new CommandModifyWindowT(m_GuiDocument, ClickedWindow, "Visible", ClickedWindow->GetMemberVar("show"), 0));
-            SetItemImage(ClickedItem, 1); // Invisible icon.
-        }
-        else
-        {
-            m_Parent->SubmitCommand(new CommandModifyWindowT(m_GuiDocument, ClickedWindow, "Visible", ClickedWindow->GetMemberVar("show"), 1));
-            SetItemImage(ClickedItem, 0); // Visible icon.
-        }
-
-        m_IsRecursiveSelfNotify=false;
-    }
-    else
-    {
-        // Skip event if no icon was hit to preserve wxTreeCtrl functionality.
-        ME.Skip();
-    }
-}*/
-
-
 void JointsHierarchyT::OnFocus(wxFocusEvent& FE)
 {
     m_Parent->SetLastUsedType(JOINT);
@@ -350,7 +321,12 @@ void JointsHierarchyT::OnSelectionChanged(wxTreeEvent& TE)
 
     ArrayT<unsigned int> NewSel;
     for (size_t SelNr=0; SelNr<SelectedItems.GetCount(); SelNr++)
-        NewSel.PushBack(((JointsTreeItemT*)GetItemData(SelectedItems[SelNr]))->GetJointNr());
+    {
+        wxTreeItemData* TID=GetItemData(SelectedItems[SelNr]);
+
+        if (TID)
+            NewSel.PushBack(((JointsTreeItemT*)TID)->GetJointNr());
+    }
 
     m_Parent->SubmitCommand(CommandSelectT::Set(m_ModelDoc, JOINT, NewSel));
 
@@ -379,15 +355,17 @@ void JointsHierarchyT::OnKeyDown(wxKeyEvent& KE)
 
 void JointsHierarchyT::OnLabelChanged(wxTreeEvent& TE)
 {
+    wxTreeItemData* TID=GetItemData(TE.GetItem());
+
     // Emtpy string means the user has either not changed the label at all or
-    // deleted the whole label string.
-    if (TE.GetLabel()=="")
+    // deleted the whole label string. TID is NULL if TE is the root node.
+    if (TE.GetLabel()=="" || TID==NULL)
     {
         TE.Veto();  // Reset value.
         return;
     }
 
-    const unsigned int JointNr=((JointsTreeItemT*)GetItemData(TE.GetItem()))->GetJointNr();
+    const unsigned int JointNr=((JointsTreeItemT*)TID)->GetJointNr();
 
     m_IsRecursiveSelfNotify=true;
 

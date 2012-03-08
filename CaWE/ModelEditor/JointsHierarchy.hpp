@@ -53,7 +53,7 @@ namespace ModelEditor
         /// Redraws/re-inits the whole tree.
         void RefreshTree();
 
-        /// Recusively searches the tree for an item associated with a specified WindowT.
+        /// Recursively searches the tree for an item associated with a specified WindowT.
         /// @param StartingItem Item to start the recursive search at.
         /// @param JointNr      The number of the joint whose tree item we are interested in.
         const wxTreeItemId FindTreeItem(const wxTreeItemId& StartingItem, unsigned int JointNr) const;
