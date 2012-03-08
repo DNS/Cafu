@@ -44,6 +44,9 @@ class AppCaWE : public wxApp
 
     private:
 
+    void OnInitCmdLine(wxCmdLineParser& Parser);
+    bool OnCmdLineParsed(wxCmdLineParser& Parser);
+
     wxLocale*     m_Locale;
     wxFileConfig* m_FileConfig;
     ParentFrameT* m_ParentFrame;

@@ -20,6 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "wx/wx.h"
+#include "wx/cmdline.h"
 #include "wx/confbase.h"
 #include "wx/dir.h"
 #include "wx/fileconf.h"
@@ -262,7 +263,10 @@ bool AppCaWE::OnInit()
         wxMessageBox(wxString("Could not open auto-save directory ")+UserDataDir, "WARNING", wxOK | wxICON_ERROR);
     }
 
-    return wxApp::OnInit();
+    // Parse the command line.
+    if (!wxApp::OnInit()) { OnExit(); return false; }
+
+    return true;
 }
 
 
@@ -285,4 +289,22 @@ int AppCaWE::OnExit()
     m_Locale=NULL;
 
     return wxApp::OnExit();
+}
+
+
+void AppCaWE::OnInitCmdLine(wxCmdLineParser& Parser)
+{
+    // Parser.AddSwitch("c", "convert", ".");
+    Parser.AddParam("filename", wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL | wxCMD_LINE_PARAM_MULTIPLE);
+
+    wxApp::OnInitCmdLine(Parser);
+}
+
+
+bool AppCaWE::OnCmdLineParsed(wxCmdLineParser& Parser)
+{
+    // if (Parser.Found("c")) ...;
+    m_ParentFrame->OpenCmdLineFiles(Parser);
+
+    return wxApp::OnCmdLineParsed(Parser);
 }

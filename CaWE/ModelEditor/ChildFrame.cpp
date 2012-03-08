@@ -122,7 +122,7 @@ ModelEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& File
     m_FileMenu->Append(ID_MENU_FILE_SAVE, wxT("&Save\tCtrl+S"), wxT("") );
     m_FileMenu->Append(ID_MENU_FILE_SAVEAS, wxT("Save &As..."), wxT("") );
     m_FileMenu->AppendSeparator();
-    m_FileMenu->Append(ParentFrameT::ID_MENU_FILE_CONFIGURE, wxT("&Configure CaWE..."), wxT("") );
+    m_FileMenu->Append(ParentFrameT::ID_MENU_FILE_CONFIGURE, wxT("Conf&igure CaWE..."), wxT("") );
     m_FileMenu->Append(ParentFrameT::ID_MENU_FILE_EXIT, wxT("E&xit"), wxT("") );
     m_Parent->m_FileHistory.UseMenu(m_FileMenu);
     m_Parent->m_FileHistory.AddFilesToMenu(m_FileMenu);

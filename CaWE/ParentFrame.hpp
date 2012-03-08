@@ -88,6 +88,8 @@ class ParentFrameT : public wxMDIParentFrame
     /// The destructor.
     ~ParentFrameT();
 
+    void OpenCmdLineFiles(wxCmdLineParser& Parser);
+
     ChildFrameT*  GetActiveMapChildFrame() const;   ///< Returns the currently active child frame or NULL if no map childframe is active (e.g. no map open or GUI editor is active).
     MapDocumentT* GetActiveMapDoc() const;          ///< Returns the document of the currently active map child frame or NULL if no map document is active.
 
@@ -108,7 +110,7 @@ class ParentFrameT : public wxMDIParentFrame
 
     /// A helper function for opening or creating Cafu documents (maps, models or GUIs), for learning which game config should be used
     /// (first by extrapolating the config from the document path or (if unsuccessful) by querying it from the user).
-    GameConfigT* AskUserForGameConfig(const wxFileName& DocumentPath);
+    GameConfigT* AskUserForGameConfig(const wxFileName& DocumentPath) const;
 
     /// Using the specified game config, this method opens the specified file in a new child frame:
     /// It inspects the suffix of the given filename in order to determine the proper document type (map, model or GUI),

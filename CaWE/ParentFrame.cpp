@@ -45,6 +45,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/wx.h"
 #include "wx/aboutdlg.h"
 #include "wx/busyinfo.h"
+#include "wx/cmdline.h"
 #include "wx/confbase.h"
 #include "wx/dir.h"
 #include "wx/filename.h"
@@ -122,7 +123,7 @@ ParentFrameT::ParentFrameT()
     item1->Append(ID_MENU_FILE_OPEN, wxT("&Open...\tCtrl+O"), wxT(""));
 
     item1->AppendSeparator();
-    item1->Append(ID_MENU_FILE_CONFIGURE, wxT("&Configure CaWE..."), wxT("") );
+    item1->Append(ID_MENU_FILE_CONFIGURE, wxT("Conf&igure CaWE..."), wxT("") );
     item1->Append(ID_MENU_FILE_EXIT, wxT("E&xit"), wxT("") );
     m_FileHistory.Load(*wxConfigBase::Get());
     m_FileHistory.UseMenu(item1);
@@ -202,6 +203,31 @@ ParentFrameT::~ParentFrameT()
     {
         FreeLibrary(m_RendererDLL);
         m_RendererDLL=NULL;
+    }
+}
+
+
+void ParentFrameT::OpenCmdLineFiles(wxCmdLineParser& Parser)
+{
+    for (size_t ParamNr=0; ParamNr<Parser.GetParamCount(); ParamNr++)
+    {
+        wxString FileName=Parser.GetParam(ParamNr);
+
+        if (!wxFileExists(FileName))
+        {
+            wxMessageBox("File not found\n\n" + FileName, "Open File", wxOK | wxICON_ERROR);
+            continue;
+        }
+
+        GameConfigT*     GameConfig=AskUserForGameConfig(wxFileName(FileName));
+        wxMDIChildFrame* ChildFrame=OpenFile(GameConfig, FileName);
+
+        if (ChildFrame)
+        {
+            // The file was successfully opened, now add it to the MRU list (with the Specifier, if present).
+            // We do this both for "native" Cafu files as well as for "foreign" imported files - it's useful either way.
+            m_FileHistory.AddFileToHistory(FileName);
+        }
     }
 }
 
@@ -357,7 +383,7 @@ void ParentFrameT::OnClose(wxCloseEvent& CE)
 }
 
 
-GameConfigT* ParentFrameT::AskUserForGameConfig(const wxFileName& DocumentPath)
+GameConfigT* ParentFrameT::AskUserForGameConfig(const wxFileName& DocumentPath) const
 {
     if (Options.GameConfigs.Size()==0)
     {
@@ -370,28 +396,29 @@ GameConfigT* ParentFrameT::AskUserForGameConfig(const wxFileName& DocumentPath)
         return NULL;
     }
 
+
     // If there is only exactly one game configuration, take it.
     if (Options.GameConfigs.Size()==1) return Options.GameConfigs[0];
 
-    // If there is more than one game configuration, try to choose one using the pathname of the map.
-    unsigned int i=1;
 
-    // Find subdirectory from which we can extrapolate the configuration name.
-    for (i=1; i<DocumentPath.GetDirCount(); i++)
-    {
-        if (DocumentPath.GetExt()=="cmap" && DocumentPath.GetDirs()[i]=="Maps") break;
-        if (DocumentPath.GetExt()=="cgui" && DocumentPath.GetDirs()[i]=="GUIs") break;
-    }
+    // If there is more than one game configuration, try to choose one based on the DocumentPath.
+    ArrayT<GameConfigT*> Candidates;
 
-    // Now we got the index from the first subdirectory of our document (one directory before it lies our game directory and configuration name).
-    if (i<DocumentPath.GetDirCount())
+    for (unsigned int i=0; i+1<DocumentPath.GetDirCount(); i++)
     {
-        // Compare the game directory name with all available configurations and return if a match is found.
-        for (unsigned long CfgNr=0; CfgNr<Options.GameConfigs.Size(); CfgNr++)
+        if (DocumentPath.GetDirs()[i]=="Games")
         {
-            if (DocumentPath.GetDirs()[i-1]==Options.GameConfigs[CfgNr]->Name) return Options.GameConfigs[CfgNr];
+            for (unsigned long CfgNr=0; CfgNr<Options.GameConfigs.Size(); CfgNr++)
+            {
+                if (DocumentPath.GetDirs()[i+1]==Options.GameConfigs[CfgNr]->Name)
+                    Candidates.PushBack(Options.GameConfigs[CfgNr]);
+            }
         }
     }
+
+    // Only if there is exactly one candidate can we unambiguously pick one.
+    if (Candidates.Size()==1) return Candidates[0];
+
 
     // If there is more than one game configuration, prompt the user to select one.
     ArrayT<wxString> Choices;
