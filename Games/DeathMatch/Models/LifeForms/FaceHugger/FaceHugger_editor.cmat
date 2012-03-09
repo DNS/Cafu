@@ -1,8 +1,0 @@
-"Models/LifeForms/FaceHugger/FaceHugger/FaceHuggerS1"
-{
-    diffusemap FaceHuggerS1_a.png
-    red   ambientLightRed
-    green ambientLightGreen
-    blue  ambientLightBlue
-    meta_editorSave
-}

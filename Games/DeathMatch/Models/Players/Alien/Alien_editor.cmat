@@ -1,8 +1,0 @@
-"Models/Players/Alien/Alien/Alien"
-{
-    diffusemap Alien_a.png
-    red   ambientLightRed
-    green ambientLightGreen
-    blue  ambientLightBlue
-    meta_editorSave
-}
