@@ -64,6 +64,7 @@ class ParentFrameT : public wxMDIParentFrame
         ID_MENU_FILE_NEW_GUI,
         ID_MENU_FILE_NEW_FONT,
         ID_MENU_FILE_OPEN,
+        ID_MENU_FILE_OPEN_CMDLINE,
         ID_MENU_FILE_CONFIGURE,
         ID_MENU_FILE_EXIT,
 
@@ -83,12 +84,10 @@ class ParentFrameT : public wxMDIParentFrame
 
 
     /// The constructor.
-    ParentFrameT();
+    ParentFrameT(wxCmdLineParser& Parser);
 
     /// The destructor.
     ~ParentFrameT();
-
-    void OpenCmdLineFiles(wxCmdLineParser& Parser);
 
     ChildFrameT*  GetActiveMapChildFrame() const;   ///< Returns the currently active child frame or NULL if no map childframe is active (e.g. no map open or GUI editor is active).
     MapDocumentT* GetActiveMapDoc() const;          ///< Returns the document of the currently active map child frame or NULL if no map document is active.
@@ -128,7 +127,8 @@ class ParentFrameT : public wxMDIParentFrame
     void OnMenuFile(wxCommandEvent& CE);    ///< Event handler for File menu events.
     void OnMenuHelp(wxCommandEvent& CE);    ///< Event handler for Help menu events.
 
-    HMODULE m_RendererDLL;
+    wxCmdLineParser& m_CmdLineParser;
+    HMODULE          m_RendererDLL;
 
     DECLARE_EVENT_TABLE()
 };

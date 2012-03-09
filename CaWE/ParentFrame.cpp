@@ -95,7 +95,7 @@ int ParentFrameT::OpenGLAttributeList[]=
 };
 
 
-ParentFrameT::ParentFrameT()
+ParentFrameT::ParentFrameT(wxCmdLineParser& Parser)
 #ifdef DEBUG
       // We need the wxMAXIMIZE window style here, or else the window is not properly maximized (looks like a bug?).
     : wxMDIParentFrame(NULL /*parent*/, -1 /*id*/, wxString("Cafu World Editor ") + "[DEBUG] - " + __DATE__, wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE | wxMAXIMIZE),
@@ -106,6 +106,7 @@ ParentFrameT::ParentFrameT()
       m_GLCanvas(NULL),
       m_GLContext(NULL),
       m_WhiteTexture(NULL),
+      m_CmdLineParser(Parser),
       m_RendererDLL(NULL)
 {
     wxMenuBar *item0 = new wxMenuBar;
@@ -203,31 +204,6 @@ ParentFrameT::~ParentFrameT()
     {
         FreeLibrary(m_RendererDLL);
         m_RendererDLL=NULL;
-    }
-}
-
-
-void ParentFrameT::OpenCmdLineFiles(wxCmdLineParser& Parser)
-{
-    for (size_t ParamNr=0; ParamNr<Parser.GetParamCount(); ParamNr++)
-    {
-        wxString FileName=Parser.GetParam(ParamNr);
-
-        if (!wxFileExists(FileName))
-        {
-            wxMessageBox("File not found\n\n" + FileName, "Open File", wxOK | wxICON_ERROR);
-            continue;
-        }
-
-        GameConfigT*     GameConfig=AskUserForGameConfig(wxFileName(FileName));
-        wxMDIChildFrame* ChildFrame=OpenFile(GameConfig, FileName);
-
-        if (ChildFrame)
-        {
-            // The file was successfully opened, now add it to the MRU list (with the Specifier, if present).
-            // We do this both for "native" Cafu files as well as for "foreign" imported files - it's useful either way.
-            m_FileHistory.AddFileToHistory(FileName);
-        }
     }
 }
 
@@ -689,6 +665,33 @@ void ParentFrameT::OnMenuFile(wxCommandEvent& CE)
                 // We do this both for "native" Cafu files as well as for "foreign" imported files - it's useful either way.
                 m_FileHistory.AddFileToHistory(FileName);
             }
+            break;
+        }
+
+        case ID_MENU_FILE_OPEN_CMDLINE:
+        {
+            // Open the files specified at the command line.
+            for (size_t ParamNr=0; ParamNr<m_CmdLineParser.GetParamCount(); ParamNr++)
+            {
+                wxString FileName=m_CmdLineParser.GetParam(ParamNr);
+
+                if (!wxFileExists(FileName))
+                {
+                    wxMessageBox("File not found\n\n" + FileName, "Open File", wxOK | wxICON_ERROR);
+                    continue;
+                }
+
+                GameConfigT*     GameConfig=AskUserForGameConfig(wxFileName(FileName));
+                wxMDIChildFrame* ChildFrame=OpenFile(GameConfig, FileName);
+
+                if (ChildFrame)
+                {
+                    // The file was successfully opened, now add it to the MRU list (with the Specifier, if present).
+                    // We do this both for "native" Cafu files as well as for "foreign" imported files - it's useful either way.
+                    m_FileHistory.AddFileToHistory(FileName);
+                }
+            }
+
             break;
         }
 

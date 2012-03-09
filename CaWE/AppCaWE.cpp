@@ -20,7 +20,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "wx/wx.h"
-#include "wx/cmdline.h"
 #include "wx/confbase.h"
 #include "wx/dir.h"
 #include "wx/fileconf.h"
@@ -85,6 +84,7 @@ IMPLEMENT_APP(AppCaWE)
 AppCaWE::AppCaWE()
     : wxApp(),
       m_Locale(NULL),
+      m_CmdLineParser(),
       m_FileConfig(NULL),
       m_ParentFrame(NULL)
 {
@@ -107,6 +107,20 @@ bool AppCaWE::OnInit()
     cf::GuiSys::GetWindowTIM().Init();  // The one-time init of the Window type info manager.
     GetMapElemTIM().Init();             // The one-time init of the map elements type info manager.
     GetToolTIM().Init();                // The one-time init of the tools type info manager.
+
+    // Parse the command line.
+    // Note that this replaces (and in fact conflicts with) wxApp::OnInit().
+    m_CmdLineParser.SetCmdLine(argc, argv);
+    OnInitCmdLine(m_CmdLineParser);
+    m_CmdLineParser.AddParam("filename", wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL | wxCMD_LINE_PARAM_MULTIPLE);
+
+    if (m_CmdLineParser.Parse() != 0)
+    {
+        OnExit();
+        return false;
+    }
+
+    OnCmdLineParsed(m_CmdLineParser);   // Just for setting wxLog to verbose when "--verbose" is given.
 
     #ifndef NDEBUG
     {
@@ -222,7 +236,7 @@ bool AppCaWE::OnInit()
 
 
     // Create the MDI parent frame.
-    m_ParentFrame=new ParentFrameT();
+    m_ParentFrame=new ParentFrameT(m_CmdLineParser);
 
     SetTopWindow(m_ParentFrame);
 
@@ -263,9 +277,12 @@ bool AppCaWE::OnInit()
         wxMessageBox(wxString("Could not open auto-save directory ")+UserDataDir, "WARNING", wxOK | wxICON_ERROR);
     }
 
-    // Parse the command line.
-    if (!wxApp::OnInit()) { OnExit(); return false; }
-
+    // The files specified at the command line can only be loaded after both
+    //   - our m_ParentFrame member is set, i.e. the ParentFrameT() ctor returned,
+    //   - and the MatSys is inited, i.e. ParentFrameT::OnShow() has been called.
+    // Due to the different times things happen on Windows vs. Linux, putting this
+    // as an event into the command queue seems to be the only way to get it right.
+    m_ParentFrame->GetEventHandler()->QueueEvent(new wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED, ParentFrameT::ID_MENU_FILE_OPEN_CMDLINE));
     return true;
 }
 
@@ -289,22 +306,4 @@ int AppCaWE::OnExit()
     m_Locale=NULL;
 
     return wxApp::OnExit();
-}
-
-
-void AppCaWE::OnInitCmdLine(wxCmdLineParser& Parser)
-{
-    // Parser.AddSwitch("c", "convert", ".");
-    Parser.AddParam("filename", wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL | wxCMD_LINE_PARAM_MULTIPLE);
-
-    wxApp::OnInitCmdLine(Parser);
-}
-
-
-bool AppCaWE::OnCmdLineParsed(wxCmdLineParser& Parser)
-{
-    // if (Parser.Found("c")) ...;
-    m_ParentFrame->OpenCmdLineFiles(Parser);
-
-    return wxApp::OnCmdLineParsed(Parser);
 }

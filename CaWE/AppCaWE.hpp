@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_APP_CAWE_HPP_INCLUDED
 #define CAFU_APP_CAWE_HPP_INCLUDED
 
+#include "wx/cmdline.h"
 #include "wx/wx.h"
 
 class ParentFrameT;
@@ -44,12 +45,10 @@ class AppCaWE : public wxApp
 
     private:
 
-    void OnInitCmdLine(wxCmdLineParser& Parser);
-    bool OnCmdLineParsed(wxCmdLineParser& Parser);
-
-    wxLocale*     m_Locale;
-    wxFileConfig* m_FileConfig;
-    ParentFrameT* m_ParentFrame;
+    wxLocale*       m_Locale;
+    wxCmdLineParser m_CmdLineParser;
+    wxFileConfig*   m_FileConfig;
+    ParentFrameT*   m_ParentFrame;
 };
 
 
