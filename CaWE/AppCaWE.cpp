@@ -277,12 +277,6 @@ bool AppCaWE::OnInit()
         wxMessageBox(wxString("Could not open auto-save directory ")+UserDataDir, "WARNING", wxOK | wxICON_ERROR);
     }
 
-    // The files specified at the command line can only be loaded after both
-    //   - our m_ParentFrame member is set, i.e. the ParentFrameT() ctor returned,
-    //   - and the MatSys is inited, i.e. ParentFrameT::OnShow() has been called.
-    // Due to the different times things happen on Windows vs. Linux, putting this
-    // as an event into the command queue seems to be the only way to get it right.
-    m_ParentFrame->GetEventHandler()->QueueEvent(new wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED, ParentFrameT::ID_MENU_FILE_OPEN_CMDLINE));
     return true;
 }
 

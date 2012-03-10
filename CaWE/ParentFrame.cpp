@@ -300,6 +300,14 @@ void ParentFrameT::OnShow(wxShowEvent& SE)
 
         MatSys::Renderer->SetCurrentLightMap(m_WhiteTexture);
         MatSys::Renderer->SetCurrentLightDirMap(NULL);  // The MatSys provides a default for LightDirMaps when NULL is set.
+
+
+        // The files specified at the command line can only be loaded after both
+        //   - our m_ParentFrame member is set, i.e. the ParentFrameT() ctor returned,
+        //   - and the MatSys is inited, i.e. ParentFrameT::OnShow() has been called.
+        // Due to the different times things happen on Windows vs. Linux, putting this
+        // as an event into the command queue seems to be the only way to get it right.
+        GetEventHandler()->QueueEvent(new wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED, ID_MENU_FILE_OPEN_CMDLINE));
     }
 }
 
