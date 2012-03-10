@@ -42,3 +42,5 @@ Models/Weapons/DesertEagle/DesertEagle_v/arm1
     meta_editorImage noEditor
 }
 
+
+dofile("DesertEagle_v_editor.cmat")

@@ -1,0 +1,262 @@
+-- Cafu Model File
+-- Written by CaWE, the Cafu World Editor.
+Version(1)
+
+Joints=
+{
+	{ name="Line02"; parent=-1; pos={ -0.155646, -1.234146, 0.027448 }; qtr={ 0, 0, 0 }; scale={ 1, 1, 1 }; },
+}
+
+Meshes=
+{
+	-- Mesh 0
+	{
+		name="studio";
+		Material="Models/Weapons/DesertEagle/DesertEagle_w/w_44t";
+		tsMethod="GLOBAL";
+		castShadows=true;
+
+		Weights=
+		{
+			{ joint=0; weight=1; pos={ 1.49, 0.86, 0 }; },
+			{ joint=0; weight=1; pos={ 1.9, -0.51, 0 }; },
+			{ joint=0; weight=1; pos={ 1.9, -0.51, 2.49 }; },
+			{ joint=0; weight=1; pos={ 1.49, 0.86, 2.49 }; },
+			{ joint=0; weight=1; pos={ -1.7, -1.12, 0 }; },
+			{ joint=0; weight=1; pos={ -1.7, -1.12, 2.49 }; },
+			{ joint=0; weight=1; pos={ -1.54, 0.77, 0 }; },
+			{ joint=0; weight=1; pos={ -1.54, 0.77, 2.49 }; },
+			{ joint=0; weight=1; pos={ -12.03, 2.07, 0 }; },
+			{ joint=0; weight=1; pos={ -3.24, 2.07, 0 }; },
+			{ joint=0; weight=1; pos={ -3.24, 2.07, 2.49 }; },
+			{ joint=0; weight=1; pos={ -12.03, 2.07, 2.49 }; },
+			{ joint=0; weight=1; pos={ -2.35, 0.94, 0 }; },
+			{ joint=0; weight=1; pos={ -2.35, 0.94, 2.49 }; },
+			{ joint=0; weight=1; pos={ -2.35, -1.69, 0 }; },
+			{ joint=0; weight=1; pos={ -2.35, -1.69, 2.49 }; },
+			{ joint=0; weight=1; pos={ 2.14, -1.4, 0 }; },
+			{ joint=0; weight=1; pos={ 2.14, -1.4, 2.49 }; },
+			{ joint=0; weight=1; pos={ 2.95, -6.71, 0 }; },
+			{ joint=0; weight=1; pos={ 2.95, -6.71, 2.49 }; },
+			{ joint=0; weight=1; pos={ 8.55, -6.71, 0 }; },
+			{ joint=0; weight=1; pos={ 8.55, -6.71, 2.49 }; },
+			{ joint=0; weight=1; pos={ 6.48, 0.25, 0 }; },
+			{ joint=0; weight=1; pos={ 6.48, 0.25, 2.49 }; },
+			{ joint=0; weight=1; pos={ 10.25, 0.94, 0 }; },
+			{ joint=0; weight=1; pos={ 10.25, 0.94, 2.49 }; },
+			{ joint=0; weight=1; pos={ 8.47, 1.87, 0 }; },
+			{ joint=0; weight=1; pos={ 8.47, 1.87, 2.49 }; },
+			{ joint=0; weight=1; pos={ 7.05, 6.04, 0 }; },
+			{ joint=0; weight=1; pos={ 7.05, 6.04, 2.49 }; },
+			{ joint=0; weight=1; pos={ 7.25, 6.94, 0 }; },
+			{ joint=0; weight=1; pos={ 7.25, 6.94, 2.49 }; },
+			{ joint=0; weight=1; pos={ 6.48, 6.21, 0 }; },
+			{ joint=0; weight=1; pos={ 6.48, 6.21, 2.49 }; },
+			{ joint=0; weight=1; pos={ -12.23, 6.21, 0 }; },
+			{ joint=0; weight=1; pos={ -12.23, 6.21, 2.49 }; },
+		};
+
+		Vertices=
+		{
+			{ firstWeight=9; numWeights=1; uv={ 0.265625, 0.203125 }; },
+			{ firstWeight=12; numWeights=1; uv={ 0.296875, 0.265625 }; },
+			{ firstWeight=6; numWeights=1; uv={ 0.3203125, 0.28125 }; },
+			{ firstWeight=14; numWeights=1; uv={ 0.296875, 0.390625 }; },
+			{ firstWeight=4; numWeights=1; uv={ 0.3203125, 0.359375 }; },
+			{ firstWeight=16; numWeights=1; uv={ 0.4296875, 0.375 }; },
+			{ firstWeight=1; numWeights=1; uv={ 0.4140625, 0.328125 }; },
+			{ firstWeight=22; numWeights=1; uv={ 0.546875, 0.296875 }; },
+			{ firstWeight=0; numWeights=1; uv={ 0.4140625, 0.28125 }; },
+			{ firstWeight=32; numWeights=1; uv={ 0.546875, 0.03125 }; },
+			{ firstWeight=8; numWeights=1; uv={ 0.0078125, 0.203125 }; },
+			{ firstWeight=13; numWeights=1; uv={ 0.296875, 0.265625 }; },
+			{ firstWeight=7; numWeights=1; uv={ 0.3203125, 0.28125 }; },
+			{ firstWeight=15; numWeights=1; uv={ 0.296875, 0.390625 }; },
+			{ firstWeight=5; numWeights=1; uv={ 0.3203125, 0.359375 }; },
+			{ firstWeight=17; numWeights=1; uv={ 0.4296875, 0.375 }; },
+			{ firstWeight=2; numWeights=1; uv={ 0.4140625, 0.328125 }; },
+			{ firstWeight=23; numWeights=1; uv={ 0.546875, 0.296875 }; },
+			{ firstWeight=3; numWeights=1; uv={ 0.4140625, 0.28125 }; },
+			{ firstWeight=33; numWeights=1; uv={ 0.546875, 0.03125 }; },
+			{ firstWeight=10; numWeights=1; uv={ 0.265625, 0.203125 }; },
+			{ firstWeight=11; numWeights=1; uv={ 0.0078125, 0.203125 }; },
+			{ firstWeight=31; numWeights=1; uv={ 0.5703125, 0 }; },
+			{ firstWeight=29; numWeights=1; uv={ 0.5625, 0.03125 }; },
+			{ firstWeight=27; numWeights=1; uv={ 0.609375, 0.234375 }; },
+			{ firstWeight=25; numWeights=1; uv={ 0.65625, 0.265625 }; },
+			{ firstWeight=26; numWeights=1; uv={ 0.609375, 0.234375 }; },
+			{ firstWeight=28; numWeights=1; uv={ 0.5625, 0.03125 }; },
+			{ firstWeight=30; numWeights=1; uv={ 0.5703125, 0 }; },
+			{ firstWeight=9; numWeights=1; uv={ 0.2421875, 0.9375 }; },
+			{ firstWeight=8; numWeights=1; uv={ 0.0078125, 0.9375 }; },
+			{ firstWeight=10; numWeights=1; uv={ 0.2421875, 0.828125 }; },
+			{ firstWeight=11; numWeights=1; uv={ 0.0078125, 0.828125 }; },
+			{ firstWeight=12; numWeights=1; uv={ 0.6953125, 0.40625 }; },
+			{ firstWeight=9; numWeights=1; uv={ 0.6796875, 0.328125 }; },
+			{ firstWeight=13; numWeights=1; uv={ 0.796875, 0.40625 }; },
+			{ firstWeight=10; numWeights=1; uv={ 0.8125, 0.328125 }; },
+			{ firstWeight=14; numWeights=1; uv={ 0.6953125, 0.609375 }; },
+			{ firstWeight=15; numWeights=1; uv={ 0.796875, 0.609375 }; },
+			{ firstWeight=16; numWeights=1; uv={ 0.3828125, 0.9375 }; },
+			{ firstWeight=14; numWeights=1; uv={ 0.265625, 0.9375 }; },
+			{ firstWeight=17; numWeights=1; uv={ 0.3828125, 0.828125 }; },
+			{ firstWeight=15; numWeights=1; uv={ 0.265625, 0.828125 }; },
+			{ firstWeight=18; numWeights=1; uv={ 0.6953125, 0.984375 }; },
+			{ firstWeight=16; numWeights=1; uv={ 0.6953125, 0.59375 }; },
+			{ firstWeight=19; numWeights=1; uv={ 0.796875, 0.984375 }; },
+			{ firstWeight=17; numWeights=1; uv={ 0.796875, 0.59375 }; },
+			{ firstWeight=20; numWeights=1; uv={ 0.5546875, 0.9375 }; },
+			{ firstWeight=18; numWeights=1; uv={ 0.40625, 0.9375 }; },
+			{ firstWeight=21; numWeights=1; uv={ 0.5546875, 0.828125 }; },
+			{ firstWeight=19; numWeights=1; uv={ 0.40625, 0.828125 }; },
+			{ firstWeight=22; numWeights=1; uv={ 0.8671875, 0.484375 }; },
+			{ firstWeight=20; numWeights=1; uv={ 0.8671875, 0.984375 }; },
+			{ firstWeight=23; numWeights=1; uv={ 0.9609375, 0.484375 }; },
+			{ firstWeight=21; numWeights=1; uv={ 0.9609375, 0.984375 }; },
+			{ firstWeight=24; numWeights=1; uv={ 0.6015625, 0.9375 }; },
+			{ firstWeight=22; numWeights=1; uv={ 0.5, 0.9375 }; },
+			{ firstWeight=25; numWeights=1; uv={ 0.6015625, 0.828125 }; },
+			{ firstWeight=23; numWeights=1; uv={ 0.5, 0.828125 }; },
+			{ firstWeight=26; numWeights=1; uv={ 0.8515625, 0.375 }; },
+			{ firstWeight=24; numWeights=1; uv={ 0.8671875, 0.4375 }; },
+			{ firstWeight=27; numWeights=1; uv={ 0.96875, 0.375 }; },
+			{ firstWeight=25; numWeights=1; uv={ 0.9609375, 0.4375 }; },
+			{ firstWeight=28; numWeights=1; uv={ 0.8515625, 0.078125 }; },
+			{ firstWeight=29; numWeights=1; uv={ 0.96875, 0.078125 }; },
+			{ firstWeight=30; numWeights=1; uv={ 0.8671875, 0 }; },
+			{ firstWeight=31; numWeights=1; uv={ 0.9609375, 0 }; },
+			{ firstWeight=32; numWeights=1; uv={ 0.5625, 0.6875 }; },
+			{ firstWeight=30; numWeights=1; uv={ 0.5859375, 0.6875 }; },
+			{ firstWeight=33; numWeights=1; uv={ 0.5625, 0.765625 }; },
+			{ firstWeight=31; numWeights=1; uv={ 0.5859375, 0.765625 }; },
+			{ firstWeight=34; numWeights=1; uv={ 0.0078125, 0.6875 }; },
+			{ firstWeight=35; numWeights=1; uv={ 0.0078125, 0.765625 }; },
+			{ firstWeight=8; numWeights=1; uv={ 0.6796875, 0.328125 }; },
+			{ firstWeight=34; numWeights=1; uv={ 0.6796875, 0.0625 }; },
+			{ firstWeight=11; numWeights=1; uv={ 0.8125, 0.328125 }; },
+			{ firstWeight=35; numWeights=1; uv={ 0.8125, 0.0625 }; },
+			{ firstWeight=20; numWeights=1; uv={ 0.609375, 0.625 }; },
+			{ firstWeight=18; numWeights=1; uv={ 0.453125, 0.625 }; },
+			{ firstWeight=21; numWeights=1; uv={ 0.609375, 0.625 }; },
+			{ firstWeight=19; numWeights=1; uv={ 0.453125, 0.625 }; },
+			{ firstWeight=24; numWeights=1; uv={ 0.65625, 0.265625 }; },
+			{ firstWeight=34; numWeights=1; uv={ 0, 0.03125 }; },
+			{ firstWeight=35; numWeights=1; uv={ 0, 0.03125 }; },
+			{ firstWeight=5; numWeights=1; uv={ 0.3203125, 0.359375 }; },
+			{ firstWeight=2; numWeights=1; uv={ 0.4140625, 0.328125 }; },
+			{ firstWeight=3; numWeights=1; uv={ 0.4140625, 0.28125 }; },
+			{ firstWeight=7; numWeights=1; uv={ 0.3203125, 0.28125 }; },
+		};
+
+		Triangles=
+		{
+			{ 0, 1, 2, sg=1 },
+			{ 2, 1, 3, sg=1 },
+			{ 2, 3, 4, sg=1 },
+			{ 4, 3, 5, sg=1 },
+			{ 4, 5, 6, sg=1 },
+			{ 6, 5, 7, sg=1 },
+			{ 6, 7, 8, sg=1 },
+			{ 8, 7, 9, sg=1 },
+			{ 8, 9, 0, sg=1 },
+			{ 0, 9, 10, sg=1 },
+			{ 11, 12, 13, sg=1 },
+			{ 13, 12, 14, sg=1 },
+			{ 13, 14, 15, sg=1 },
+			{ 15, 14, 16, sg=1 },
+			{ 15, 16, 17, sg=1 },
+			{ 17, 16, 18, sg=1 },
+			{ 17, 18, 19, sg=1 },
+			{ 19, 18, 20, sg=1 },
+			{ 19, 20, 21, sg=1 },
+			{ 22, 23, 19, sg=1 },
+			{ 19, 23, 24, sg=1 },
+			{ 19, 24, 17, sg=1 },
+			{ 17, 24, 25, sg=1 },
+			{ 7, 26, 9, sg=1 },
+			{ 9, 26, 27, sg=1 },
+			{ 9, 27, 28, sg=1 },
+			{ 6, 8, 85, sg=1 },
+			{ 85, 8, 86, sg=1 },
+			{ 4, 6, 84, sg=1 },
+			{ 84, 6, 85, sg=1 },
+			{ 2, 4, 87, sg=1 },
+			{ 87, 4, 84, sg=1 },
+			{ 8, 2, 86, sg=1 },
+			{ 86, 2, 87, sg=1 },
+			{ 29, 30, 31, sg=1 },
+			{ 31, 30, 32, sg=1 },
+			{ 33, 34, 35, sg=1 },
+			{ 35, 34, 36, sg=1 },
+			{ 37, 33, 38, sg=1 },
+			{ 38, 33, 35, sg=1 },
+			{ 39, 40, 41, sg=1 },
+			{ 41, 40, 42, sg=1 },
+			{ 43, 44, 45, sg=1 },
+			{ 45, 44, 46, sg=1 },
+			{ 47, 48, 49, sg=1 },
+			{ 49, 48, 50, sg=1 },
+			{ 51, 52, 53, sg=1 },
+			{ 53, 52, 54, sg=1 },
+			{ 55, 56, 57, sg=1 },
+			{ 57, 56, 58, sg=1 },
+			{ 59, 60, 61, sg=1 },
+			{ 61, 60, 62, sg=1 },
+			{ 63, 59, 64, sg=1 },
+			{ 64, 59, 61, sg=1 },
+			{ 65, 63, 66, sg=1 },
+			{ 66, 63, 64, sg=1 },
+			{ 67, 68, 69, sg=1 },
+			{ 69, 68, 70, sg=1 },
+			{ 71, 67, 72, sg=1 },
+			{ 72, 67, 69, sg=1 },
+			{ 73, 74, 75, sg=1 },
+			{ 75, 74, 76, sg=1 },
+			{ 77, 7, 78, sg=1 },
+			{ 78, 7, 5, sg=1 },
+			{ 18, 12, 20, sg=1 },
+			{ 20, 12, 11, sg=1 },
+			{ 79, 80, 17, sg=1 },
+			{ 17, 80, 15, sg=1 },
+			{ 8, 0, 2, sg=1 },
+			{ 81, 26, 7, sg=1 },
+			{ 82, 10, 9, sg=1 },
+			{ 21, 83, 19, sg=1 },
+		};
+	},
+}
+
+Skins=
+{
+}
+
+GuiFixtures=
+{
+}
+
+Animations=
+{
+	-- Animation 0
+	{
+		name="idle";
+		FPS=1;
+		next="-1";
+
+		AnimJoints=
+		{
+			{ pos={ 1.2311151, -0.1559881, 0.027448 }; qtr={ 0, 0, -0.70710677 }; scale={ 1, 1, 1 }; flags=0; firstData=0; },
+		};
+
+		Frames=
+		{
+			{ bb={ -5.705854, -12.385646, 0.027448, 7.944146, 10.094354, 2.517448 };
+			  data={ }; },
+			{ bb={ -5.705854, -12.385646, 0.027448, 7.944146, 10.094354, 2.517448 };
+			  data={ }; },
+		};
+	},
+}
+
+Channels=
+{
+}

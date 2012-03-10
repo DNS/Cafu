@@ -42,3 +42,5 @@ Models/Weapons/BattleScythe/BattleScythe_v/base_handle
     meta_editorImage noEditor
 }
 
+
+dofile("BattleScythe_v_editor.cmat")

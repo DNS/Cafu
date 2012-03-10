@@ -75,3 +75,5 @@ Models/Weapons/Beretta/Beretta_v/slide
     meta_editorImage noEditor
 }
 
+
+dofile("Beretta_v_editor.cmat")

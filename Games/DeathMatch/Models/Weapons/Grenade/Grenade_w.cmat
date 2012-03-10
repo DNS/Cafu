@@ -31,3 +31,5 @@ Models/Weapons/Grenade/Grenade_w/pinCHROME
     meta_editorImage noEditor
 }
 
+
+dofile("Grenade_w_editor.cmat")

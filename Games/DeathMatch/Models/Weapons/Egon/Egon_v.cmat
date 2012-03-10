@@ -86,3 +86,5 @@ Models/Weapons/Egon/Egon_v/muzzle
     meta_editorImage noEditor
 }
 
+
+dofile("Egon_v_editor.cmat")

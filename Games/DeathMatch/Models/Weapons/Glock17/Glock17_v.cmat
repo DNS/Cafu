@@ -32,3 +32,5 @@ Models/Weapons/Glock17/Glock17_v/arm1
     meta_editorImage noEditor
 }
 
+
+dofile("Glock17_v_editor.cmat")

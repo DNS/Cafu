@@ -31,3 +31,5 @@ Models/Weapons/Gauss/Gauss_w/grip
     meta_editorImage noEditor
 }
 
+
+dofile("Gauss_w_editor.cmat")

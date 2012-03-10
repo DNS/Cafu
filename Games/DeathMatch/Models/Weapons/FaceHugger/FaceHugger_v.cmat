@@ -31,3 +31,5 @@ Models/Weapons/FaceHugger/FaceHugger_v/Fasehugger4
     meta_editorImage noEditor
 }
 
+
+dofile("FaceHugger_v_editor.cmat")

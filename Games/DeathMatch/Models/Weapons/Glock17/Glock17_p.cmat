@@ -10,3 +10,5 @@ Models/Weapons/Glock17/Glock17_p/g17-skin1
     meta_editorImage noEditor
 }
 
+
+dofile("Glock17_p_editor.cmat")

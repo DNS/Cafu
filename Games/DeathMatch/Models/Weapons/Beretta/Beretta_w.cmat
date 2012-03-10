@@ -9,3 +9,5 @@ Models/Weapons/Beretta/Beretta_w/beretta
     meta_editorImage noEditor
 }
 
+
+dofile("Beretta_w_editor.cmat")

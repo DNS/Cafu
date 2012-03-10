@@ -130,3 +130,5 @@ Models/Weapons/Shotgun/Shotgun_v/trigger
     meta_editorImage noEditor
 }
 
+
+dofile("Shotgun_v_editor.cmat")

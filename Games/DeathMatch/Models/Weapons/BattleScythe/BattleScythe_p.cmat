@@ -9,3 +9,5 @@ Models/Weapons/BattleScythe/BattleScythe_p/v_wep
     meta_editorImage noEditor
 }
 
+
+dofile("BattleScythe_p_editor.cmat")

@@ -9,3 +9,5 @@ Models/Weapons/DesertEagle/DesertEagle_p/w_44t
     meta_editorImage noEditor
 }
 
+
+dofile("DesertEagle_p_editor.cmat")

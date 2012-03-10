@@ -9,3 +9,5 @@ Models/Weapons/DartGun/DartGun_w/skin1
     meta_editorImage noEditor
 }
 
+
+dofile("DartGun_w_editor.cmat")

@@ -9,3 +9,5 @@ Models/Weapons/Egon/Egon_p/phaser_low_res
     meta_editorImage noEditor
 }
 
+
+dofile("Egon_p_editor.cmat")

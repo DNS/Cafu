@@ -9,3 +9,5 @@ Models/Weapons/Shotgun/Shotgun_p/spas
     meta_editorImage noEditor
 }
 
+
+dofile("Shotgun_p_editor.cmat")

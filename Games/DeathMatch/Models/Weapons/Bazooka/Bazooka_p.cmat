@@ -9,3 +9,5 @@ Models/Weapons/Bazooka/Bazooka_p/w_rpg
     meta_editorImage noEditor
 }
 
+
+dofile("Bazooka_p_editor.cmat")

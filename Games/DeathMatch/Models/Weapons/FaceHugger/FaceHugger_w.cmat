@@ -20,3 +20,5 @@ Models/Weapons/FaceHugger/FaceHugger_w/EggCase7
     meta_editorImage noEditor
 }
 
+
+dofile("FaceHugger_w_editor.cmat")

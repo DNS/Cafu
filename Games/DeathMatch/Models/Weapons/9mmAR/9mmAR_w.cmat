@@ -9,3 +9,5 @@ Models/Weapons/9mmAR/9mmAR_w/m41_lowres
     meta_editorImage noEditor
 }
 
+
+dofile("9mmAR_w_editor.cmat")

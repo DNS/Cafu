@@ -64,3 +64,5 @@ Models/Weapons/Bazooka/Bazooka_v/rocketmotor
     meta_editorImage noEditor
 }
 
+
+dofile("Bazooka_v_editor.cmat")
