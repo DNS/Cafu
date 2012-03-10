@@ -30,8 +30,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 CarriedWeaponCrossBowT::CarriedWeaponCrossBowT(ModelManagerT& ModelMan)
-    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/DartGun_v.mdl"),
-                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/DartGun_p.mdl"))
+    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/DartGun/DartGun_v.cmdl"),
+                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/DartGun/DartGun_p.cmdl"))
 {
 }
 

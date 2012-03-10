@@ -35,8 +35,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 CarriedWeaponShotgunT::CarriedWeaponShotgunT(ModelManagerT& ModelMan)
-    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Shotgun_v.mdl"),
-                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Shotgun_p.mdl")),
+    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Shotgun/Shotgun_v.cmdl"),
+                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Shotgun/Shotgun_p.cmdl")),
       FireSound   (SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/Shotgun_sBarrel"))),
       AltFireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/Shotgun_dBarrel")))
 {

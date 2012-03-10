@@ -49,7 +49,7 @@ const cf::TypeSys::TypeInfoT EntWeaponGrenadeT::TypeInfo(GetBaseEntTIM(), "EntWe
 
 
 EntWeaponGrenadeT::EntWeaponGrenadeT(const EntityCreateParamsT& Params)
-    : EntWeaponT(Params, "Games/DeathMatch/Models/Weapons/Grenade_w.mdl")
+    : EntWeaponT(Params, "Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl")
 {
 }
 

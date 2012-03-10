@@ -49,7 +49,7 @@ const cf::TypeSys::TypeInfoT EntWeaponTripmineT::TypeInfo(GetBaseEntTIM(), "EntW
 
 
 EntWeaponTripmineT::EntWeaponTripmineT(const EntityCreateParamsT& Params)
-    : EntWeaponT(Params, "Games/DeathMatch/Models/Weapons/Tripmine_w.mdl")
+    : EntWeaponT(Params, "Games/DeathMatch/Models/Weapons/Tripmine/Tripmine_w.cmdl")
 {
 }
 

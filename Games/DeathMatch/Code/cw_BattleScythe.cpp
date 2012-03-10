@@ -30,8 +30,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 CarriedWeaponBattleScytheT::CarriedWeaponBattleScytheT(ModelManagerT& ModelMan)
-    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/BattleScythe_v.mdl"),
-                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/BattleScythe_p.mdl")),
+    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/BattleScythe/BattleScythe_v.cmdl"),
+                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/BattleScythe/BattleScythe_p.cmdl")),
       FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/BattleScythe")))
 {
 }

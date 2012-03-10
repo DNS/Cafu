@@ -68,7 +68,7 @@ EntARGrenadeT::EntARGrenadeT(const EntityCreateParamsT& Params)
                                0,       // ActiveWeaponSlot
                                0,       // ActiveWeaponSequNr
                                0.0)),   // ActiveWeaponFrameNr
-      m_Model(Params.GameWorld->GetModel("Games/DeathMatch/Models/Weapons/Grenade_w.mdl")),
+      m_Model(Params.GameWorld->GetModel("Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl")),
       m_FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/Shotgun_dBarrel")))
 {
 }

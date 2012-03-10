@@ -31,8 +31,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 CarriedWeaponGrenadeT::CarriedWeaponGrenadeT(ModelManagerT& ModelMan)
-    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Grenade_v.mdl"),
-                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Grenade_p.mdl")),
+    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Grenade/Grenade_v.cmdl"),
+                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Grenade/Grenade_p.cmdl")),
       FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/FaceHugger_Throw")))
 {
 }

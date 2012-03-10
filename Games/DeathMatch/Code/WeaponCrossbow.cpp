@@ -49,7 +49,7 @@ const cf::TypeSys::TypeInfoT EntWeaponCrossbowT::TypeInfo(GetBaseEntTIM(), "EntW
 
 
 EntWeaponCrossbowT::EntWeaponCrossbowT(const EntityCreateParamsT& Params)
-    : EntWeaponT(Params, "Games/DeathMatch/Models/Weapons/DartGun_w.mdl")
+    : EntWeaponT(Params, "Games/DeathMatch/Models/Weapons/DartGun/DartGun_w.cmdl")
 {
 }
 

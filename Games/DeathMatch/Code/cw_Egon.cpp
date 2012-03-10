@@ -28,8 +28,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 CarriedWeaponEgonT::CarriedWeaponEgonT(ModelManagerT& ModelMan)
-    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Egon_v.mdl"),
-                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Egon_p.mdl"))
+    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Egon/Egon_v.cmdl"),
+                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Egon/Egon_p.cmdl"))
 {
 }
 

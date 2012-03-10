@@ -35,8 +35,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 CarriedWeapon9mmART::CarriedWeapon9mmART(ModelManagerT& ModelMan)
-    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/9mmAR_v.mdl"),
-                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/9mmAR_p.mdl")),
+    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/9mmAR/9mmAR_v.cmdl"),
+                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/9mmAR/9mmAR_p.cmdl")),
       FireSound   (SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/9mmAR_Shot1"))),
       AltFireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/9mmAR_GLauncher")))
 {

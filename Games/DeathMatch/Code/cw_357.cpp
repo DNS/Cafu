@@ -35,8 +35,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 CarriedWeapon357T::CarriedWeapon357T(ModelManagerT& ModelMan)
-    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/DesertEagle_v.mdl"),
-                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/DesertEagle_p.mdl")),
+    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/DesertEagle/DesertEagle_v.cmdl"),
+                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/DesertEagle/DesertEagle_p.cmdl")),
       FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/DesertEagle_Shot1")))
 {
 }

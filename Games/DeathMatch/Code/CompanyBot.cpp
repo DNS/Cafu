@@ -78,7 +78,7 @@ EntCompanyBotT::EntCompanyBotT(const EntityCreateParamsT& Params)
       m_CompanyBotModel(Params.GameWorld->GetModel("Games/DeathMatch/Models/Players/Trinity/Trinity.cmdl")),
       m_AnimExpr(),
       m_LastStdAE(),
-      m_WeaponModel(Params.GameWorld->GetModel("Games/DeathMatch/Models/Weapons/DesertEagle_p.mdl")),
+      m_WeaponModel(Params.GameWorld->GetModel("Games/DeathMatch/Models/Weapons/DesertEagle/DesertEagle_p.cmdl")),
       m_TimeForLightSource(0.0f)
 {
     m_LastStdAE=m_CompanyBotModel->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);

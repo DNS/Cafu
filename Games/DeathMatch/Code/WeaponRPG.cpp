@@ -49,7 +49,7 @@ const cf::TypeSys::TypeInfoT EntWeaponRPGT::TypeInfo(GetBaseEntTIM(), "EntWeapon
 
 
 EntWeaponRPGT::EntWeaponRPGT(const EntityCreateParamsT& Params)
-    : EntWeaponT(Params, "Games/DeathMatch/Models/Weapons/Bazooka_w.mdl")
+    : EntWeaponT(Params, "Games/DeathMatch/Models/Weapons/Bazooka/Bazooka_w.cmdl")
 {
 }
 

@@ -28,8 +28,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 CarriedWeaponGaussT::CarriedWeaponGaussT(ModelManagerT& ModelMan)
-    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Gauss_v.mdl"),
-                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Gauss_p.mdl"))
+    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Gauss/Gauss_v.cmdl"),
+                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Gauss/Gauss_p.cmdl"))
 {
 }
 

@@ -27,8 +27,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 CarriedWeaponPistolT::CarriedWeaponPistolT(ModelManagerT& ModelMan)
-    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Beretta_v.mdl"),
-                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Beretta_p.mdl"))
+    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Beretta/Beretta_v.cmdl"),
+                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Beretta/Beretta_p.cmdl"))
 {
 }
 

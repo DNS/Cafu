@@ -49,7 +49,7 @@ const cf::TypeSys::TypeInfoT EntWeaponBattleScytheT::TypeInfo(GetBaseEntTIM(), "
 
 
 EntWeaponBattleScytheT::EntWeaponBattleScytheT(const EntityCreateParamsT& Params)
-    : EntWeaponT(Params, "Games/DeathMatch/Models/Weapons/BattleScythe_w.mdl")
+    : EntWeaponT(Params, "Games/DeathMatch/Models/Weapons/BattleScythe/BattleScythe_w.cmdl")
 {
 }
 

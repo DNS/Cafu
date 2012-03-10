@@ -49,7 +49,7 @@ const cf::TypeSys::TypeInfoT EntWeaponShotgunT::TypeInfo(GetBaseEntTIM(), "EntWe
 
 
 EntWeaponShotgunT::EntWeaponShotgunT(const EntityCreateParamsT& Params)
-    : EntWeaponT(Params, "Games/DeathMatch/Models/Weapons/Shotgun_w.mdl")
+    : EntWeaponT(Params, "Games/DeathMatch/Models/Weapons/Shotgun/Shotgun_w.cmdl")
 {
 }
 

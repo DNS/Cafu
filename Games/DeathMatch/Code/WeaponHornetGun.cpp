@@ -48,7 +48,7 @@ const cf::TypeSys::TypeInfoT EntWeaponHornetGunT::TypeInfo(GetBaseEntTIM(), "Ent
 
 
 EntWeaponHornetGunT::EntWeaponHornetGunT(const EntityCreateParamsT& Params)
-    : EntWeaponT(Params, "Games/DeathMatch/Models/Weapons/HornetGun_w.mdl")
+    : EntWeaponT(Params, "Games/DeathMatch/Models/Weapons/HornetGun/HornetGun_w.cmdl")
 {
 }
 

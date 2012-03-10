@@ -143,19 +143,19 @@ void cf::GameSys::GameImplT::Initialize(bool AsClient, bool AsServer, ModelManag
             ModelMan.GetModel("Games/DeathMatch/Models/LifeForms/Eagle/Eagle.cmdl");
             ModelMan.GetModel("Games/DeathMatch/Models/LifeForms/FaceHugger/FaceHugger.cmdl");
 
-            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/9mmAR_w.mdl");
-            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/BattleScythe_w.mdl");
-            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Bazooka_w.mdl");
-            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Beretta_w.mdl");
-            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/DartGun_w.mdl");
-            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/DesertEagle_w.mdl");
-            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Egon_w.mdl");
-            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/FaceHugger_w.mdl");
-            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Gauss_w.mdl");
-            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Grenade_w.mdl");
-            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/HornetGun_w.mdl");
-            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Shotgun_w.mdl");
-            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Tripmine_w.mdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/9mmAR/9mmAR_w.cmdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/BattleScythe/BattleScythe_w.cmdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Bazooka/Bazooka_w.cmdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Beretta/Beretta_w.cmdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/DartGun/DartGun_w.cmdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/DesertEagle/DesertEagle_w.cmdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Egon/Egon_w.cmdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/FaceHugger/FaceHugger_w.cmdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Gauss/Gauss_w.cmdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/HornetGun/HornetGun_w.cmdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Shotgun/Shotgun_w.cmdl");
+            ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Tripmine/Tripmine_w.cmdl");
         }
 
 

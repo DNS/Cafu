@@ -49,7 +49,7 @@ const cf::TypeSys::TypeInfoT EntWeaponGaussT::TypeInfo(GetBaseEntTIM(), "EntWeap
 
 
 EntWeaponGaussT::EntWeaponGaussT(const EntityCreateParamsT& Params)
-    : EntWeaponT(Params, "Games/DeathMatch/Models/Weapons/Gauss_w.mdl")
+    : EntWeaponT(Params, "Games/DeathMatch/Models/Weapons/Gauss/Gauss_w.cmdl")
 {
 }
 

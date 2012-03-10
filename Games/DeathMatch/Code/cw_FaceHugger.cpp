@@ -32,8 +32,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 CarriedWeaponFaceHuggerT::CarriedWeaponFaceHuggerT(ModelManagerT& ModelMan)
-    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/FaceHugger_v.mdl"),
-                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/FaceHugger_p.mdl")),
+    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/FaceHugger/FaceHugger_v.cmdl"),
+                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/FaceHugger/FaceHugger_p.cmdl")),
       FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/FaceHugger_Throw")))
 {
 }

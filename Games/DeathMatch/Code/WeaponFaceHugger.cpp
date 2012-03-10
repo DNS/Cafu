@@ -49,7 +49,7 @@ const cf::TypeSys::TypeInfoT EntWeaponFaceHuggerT::TypeInfo(GetBaseEntTIM(), "En
 
 
 EntWeaponFaceHuggerT::EntWeaponFaceHuggerT(const EntityCreateParamsT& Params)
-    : EntWeaponT(Params, "Games/DeathMatch/Models/Weapons/FaceHugger_w.mdl")
+    : EntWeaponT(Params, "Games/DeathMatch/Models/Weapons/FaceHugger/FaceHugger_w.cmdl")
 {
 }
 

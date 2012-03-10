@@ -29,8 +29,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 CarriedWeaponRPGT::CarriedWeaponRPGT(ModelManagerT& ModelMan)
-    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Bazooka_v.mdl"),
-                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Bazooka_p.mdl"))
+    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Bazooka/Bazooka_v.cmdl"),
+                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Bazooka/Bazooka_p.cmdl"))
 {
 }
 

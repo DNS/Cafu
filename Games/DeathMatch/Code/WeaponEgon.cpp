@@ -49,7 +49,7 @@ const cf::TypeSys::TypeInfoT EntWeaponEgonT::TypeInfo(GetBaseEntTIM(), "EntWeapo
 
 
 EntWeaponEgonT::EntWeaponEgonT(const EntityCreateParamsT& Params)
-    : EntWeaponT(Params, "Games/DeathMatch/Models/Weapons/Egon_w.mdl")
+    : EntWeaponT(Params, "Games/DeathMatch/Models/Weapons/Egon/Egon_w.cmdl")
 {
 }
 

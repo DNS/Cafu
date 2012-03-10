@@ -49,7 +49,7 @@ const cf::TypeSys::TypeInfoT EntWeapon9mmART::TypeInfo(GetBaseEntTIM(), "EntWeap
 
 
 EntWeapon9mmART::EntWeapon9mmART(const EntityCreateParamsT& Params)
-    : EntWeaponT(Params, "Games/DeathMatch/Models/Weapons/9mmAR_w.mdl")
+    : EntWeaponT(Params, "Games/DeathMatch/Models/Weapons/9mmAR/9mmAR_w.cmdl")
 {
 }
 
