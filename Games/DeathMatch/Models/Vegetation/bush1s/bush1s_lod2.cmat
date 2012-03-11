@@ -1,6 +1,6 @@
 Models/vegetation/bush1/strauch1
 {
-    diffusemap  bush1_diff.png
+    diffusemap  ../bush1/bush1_diff.png
     red   ambientLightRed
     green ambientLightGreen
     blue  ambientLightBlue
@@ -12,3 +12,5 @@ Models/vegetation/bush1/strauch1
     meta_editorImage noEditor
 }
 
+
+dofile("bush1s_lod2_editor.cmat")

@@ -1,0 +1,87 @@
+-- Cafu Model File
+-- Written by CaWE, the Cafu World Editor.
+Version(1)
+
+Joints=
+{
+	{ name="root"; parent=-1; pos={ 0, 0, 0 }; qtr={ 0, 0, 0 }; scale={ 1, 1, 1 }; },
+}
+
+Meshes=
+{
+	-- Mesh 0
+	{
+		name="Plane";
+		Material="Models/vegetation/bush1/strauch1";
+		tsMethod="HARD";
+		castShadows=true;
+
+		Weights=
+		{
+			{ joint=0; weight=1; pos={ 43.2015, 7.7505, 26.2093 }; },
+			{ joint=0; weight=1; pos={ 14.5319, 26.8078, -30.6473 }; },
+			{ joint=0; weight=1; pos={ 6.407, -47.6025, 26.2093 }; },
+			{ joint=0; weight=1; pos={ -22.2625, -28.5452, -30.6473 }; },
+			{ joint=0; weight=1; pos={ -46.162, -2.0346, 26.2093 }; },
+			{ joint=0; weight=1; pos={ -17.8882, -21.6741, -30.6473 }; },
+			{ joint=0; weight=1; pos={ -8.2435, 52.5546, 26.2093 }; },
+			{ joint=0; weight=1; pos={ 20.0304, 32.9151, -30.6473 }; },
+			{ joint=0; weight=1; pos={ -25.4926, 18.8832, -30.8885 }; },
+			{ joint=0; weight=1; pos={ -46.1857, -12.1355, 24.1336 }; },
+			{ joint=0; weight=1; pos={ 9.1192, -49.0023, 24.1494 }; },
+			{ joint=0; weight=1; pos={ 29.8123, -17.9837, -30.8728 }; },
+			{ joint=0; weight=1; pos={ -6.4017, 47.5373, 26.2093 }; },
+			{ joint=0; weight=1; pos={ -25.4246, 18.8449, -30.6473 }; },
+			{ joint=0; weight=1; pos={ 48.9954, 10.8093, 26.2093 }; },
+			{ joint=0; weight=1; pos={ 29.9725, -17.8831, -30.6473 }; },
+		};
+
+		Vertices=
+		{
+			{ firstWeight=0; numWeights=1; uv={ 0.0321, -0.9677 }; },
+			{ firstWeight=1; numWeights=1; uv={ 0.0321, -0.0357 }; },
+			{ firstWeight=2; numWeights=1; uv={ 0.9641, -0.9677 }; },
+			{ firstWeight=3; numWeights=1; uv={ 0.9641, -0.0357 }; },
+			{ firstWeight=4; numWeights=1; uv={ 0.0321, -0.9677 }; },
+			{ firstWeight=5; numWeights=1; uv={ 0.0321, -0.0357 }; },
+			{ firstWeight=6; numWeights=1; uv={ 0.9641, -0.9677 }; },
+			{ firstWeight=7; numWeights=1; uv={ 0.9641, -0.0357 }; },
+			{ firstWeight=8; numWeights=1; uv={ 0.0321, -0.0357 }; },
+			{ firstWeight=9; numWeights=1; uv={ 0.0321, -0.9677 }; },
+			{ firstWeight=10; numWeights=1; uv={ 0.9641, -0.9677 }; },
+			{ firstWeight=11; numWeights=1; uv={ 0.9641, -0.0357 }; },
+			{ firstWeight=12; numWeights=1; uv={ 0.0321, -0.9677 }; },
+			{ firstWeight=13; numWeights=1; uv={ 0.0321, -0.0357 }; },
+			{ firstWeight=14; numWeights=1; uv={ 0.9641, -0.9677 }; },
+			{ firstWeight=15; numWeights=1; uv={ 0.9641, -0.0357 }; },
+		};
+
+		Triangles=
+		{
+			{ 2, 1, 0, sg=2 },
+			{ 2, 3, 1, sg=2 },
+			{ 6, 5, 4, sg=2 },
+			{ 6, 7, 5, sg=2 },
+			{ 10, 9, 8, sg=2 },
+			{ 10, 8, 11, sg=2 },
+			{ 14, 13, 12, sg=2 },
+			{ 14, 15, 13, sg=2 },
+		};
+	},
+}
+
+Skins=
+{
+}
+
+GuiFixtures=
+{
+}
+
+Animations=
+{
+}
+
+Channels=
+{
+}

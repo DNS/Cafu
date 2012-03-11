@@ -12,3 +12,5 @@ Models/vegetation/bush2/strauch2
     meta_editorImage noEditor
 }
 
+
+dofile("bush2_lod1_editor.cmat")

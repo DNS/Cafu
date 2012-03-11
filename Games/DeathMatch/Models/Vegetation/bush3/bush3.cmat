@@ -12,3 +12,5 @@ Models/vegetation/bush3/strauch3
     meta_editorImage noEditor
 }
 
+
+dofile("bush3_editor.cmat")

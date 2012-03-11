@@ -12,3 +12,5 @@ Models/vegetation/farn/farn1
     meta_editorImage noEditor
 }
 
+
+dofile("farn1_lod1_editor.cmat")

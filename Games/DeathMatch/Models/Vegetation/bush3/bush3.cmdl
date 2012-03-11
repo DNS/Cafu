@@ -1,0 +1,123 @@
+-- Cafu Model File
+-- Written by CaWE, the Cafu World Editor.
+Version(1)
+
+Joints=
+{
+	{ name="root"; parent=-1; pos={ 0, 0, 0 }; qtr={ 0, 0, 0 }; scale={ 1, 1, 1 }; },
+}
+
+Meshes=
+{
+	-- Mesh 0
+	{
+		name="Plane.001";
+		Material="Models/vegetation/bush3/strauch3";
+		tsMethod="HARD";
+		castShadows=true;
+
+		Weights=
+		{
+			{ joint=0; weight=1; pos={ 16.7468, -2.7661, 9.6382 }; },
+			{ joint=0; weight=1; pos={ 2.9315, -16.5799, -9.8909 }; },
+			{ joint=0; weight=1; pos={ -16.6003, 2.9542, -9.8909 }; },
+			{ joint=0; weight=1; pos={ -2.7849, 16.7679, 9.6382 }; },
+			{ joint=0; weight=1; pos={ -13.7569, -5.3106, -0.1003 }; },
+			{ joint=0; weight=1; pos={ 13.8667, -5.3106, -0.1004 }; },
+			{ joint=0; weight=1; pos={ 13.8667, 0.0756, 13.7115 }; },
+			{ joint=0; weight=1; pos={ -13.7569, 0.0756, 13.7115 }; },
+			{ joint=0; weight=1; pos={ 13.8667, 0.0756, -13.9122 }; },
+			{ joint=0; weight=1; pos={ -13.7569, 0.0756, -13.9122 }; },
+			{ joint=0; weight=1; pos={ 2.9175, -16.5939, 9.6703 }; },
+			{ joint=0; weight=1; pos={ -16.6143, 2.9401, 9.6703 }; },
+			{ joint=0; weight=1; pos={ -2.8077, 16.7451, -9.871 }; },
+			{ joint=0; weight=1; pos={ 16.7241, -2.7889, -9.871 }; },
+			{ joint=0; weight=1; pos={ -13.7569, 5.4618, -0.1004 }; },
+			{ joint=0; weight=1; pos={ 13.8667, 5.4619, -0.1004 }; },
+			{ joint=0; weight=1; pos={ 5.4442, 13.8862, -0.1004 }; },
+			{ joint=0; weight=1; pos={ 0.058, 13.8874, 13.7115 }; },
+			{ joint=0; weight=1; pos={ 0.0518, -13.7362, 13.7115 }; },
+			{ joint=0; weight=1; pos={ 5.438, -13.7374, -0.1004 }; },
+			{ joint=0; weight=1; pos={ 0.0518, -13.7362, -13.9122 }; },
+			{ joint=0; weight=1; pos={ 0.058, 13.8875, -13.9122 }; },
+			{ joint=0; weight=1; pos={ -5.3282, 13.8887, -0.1004 }; },
+			{ joint=0; weight=1; pos={ -5.3344, -13.735, -0.1004 }; },
+		};
+
+		Vertices=
+		{
+			{ firstWeight=0; numWeights=1; uv={ 0.0014, -0.0003 }; },
+			{ firstWeight=1; numWeights=1; uv={ 0.0014, -0.9977 }; },
+			{ firstWeight=2; numWeights=1; uv={ 0.9989, -0.9977 }; },
+			{ firstWeight=3; numWeights=1; uv={ 0.9989, -0.0003 }; },
+			{ firstWeight=4; numWeights=1; uv={ 0.0014, -0.5 }; },
+			{ firstWeight=5; numWeights=1; uv={ 0.9995, -0.5 }; },
+			{ firstWeight=6; numWeights=1; uv={ 0.9995, 0 }; },
+			{ firstWeight=7; numWeights=1; uv={ 0.0014, 0 }; },
+			{ firstWeight=8; numWeights=1; uv={ 0.9995, -1 }; },
+			{ firstWeight=9; numWeights=1; uv={ 0.0014, -1 }; },
+			{ firstWeight=10; numWeights=1; uv={ 0.0014, -0.0003 }; },
+			{ firstWeight=11; numWeights=1; uv={ 0.9989, -0.0003 }; },
+			{ firstWeight=12; numWeights=1; uv={ 0.9989, -0.9977 }; },
+			{ firstWeight=13; numWeights=1; uv={ 0.0014, -0.9977 }; },
+			{ firstWeight=14; numWeights=1; uv={ 0.0014, -0.5 }; },
+			{ firstWeight=15; numWeights=1; uv={ 0.9995, -0.5 }; },
+			{ firstWeight=16; numWeights=1; uv={ 0.0014, -0.5 }; },
+			{ firstWeight=17; numWeights=1; uv={ 0.0014, 0 }; },
+			{ firstWeight=18; numWeights=1; uv={ 0.9995, 0 }; },
+			{ firstWeight=19; numWeights=1; uv={ 0.9995, -0.5 }; },
+			{ firstWeight=20; numWeights=1; uv={ 0.9995, -1 }; },
+			{ firstWeight=21; numWeights=1; uv={ 0.0014, -1 }; },
+			{ firstWeight=22; numWeights=1; uv={ 0.0014, -0.5 }; },
+			{ firstWeight=23; numWeights=1; uv={ 0.9995, -0.5 }; },
+			{ firstWeight=6; numWeights=1; uv={ 0.9995, 0 }; },
+			{ firstWeight=7; numWeights=1; uv={ 0.0014, 0 }; },
+			{ firstWeight=8; numWeights=1; uv={ 0.9995, -1 }; },
+			{ firstWeight=9; numWeights=1; uv={ 0.0014, -1 }; },
+			{ firstWeight=18; numWeights=1; uv={ 0.9995, 0 }; },
+			{ firstWeight=17; numWeights=1; uv={ 0.0014, 0 }; },
+			{ firstWeight=20; numWeights=1; uv={ 0.9995, -1 }; },
+			{ firstWeight=21; numWeights=1; uv={ 0.0014, -1 }; },
+		};
+
+		Triangles=
+		{
+			{ 2, 1, 0, sg=2 },
+			{ 3, 2, 0, sg=2 },
+			{ 24, 5, 4, sg=2 },
+			{ 25, 24, 4, sg=2 },
+			{ 26, 4, 5, sg=2 },
+			{ 26, 27, 4, sg=2 },
+			{ 12, 11, 10, sg=2 },
+			{ 13, 12, 10, sg=2 },
+			{ 6, 7, 14, sg=2 },
+			{ 15, 6, 14, sg=2 },
+			{ 14, 8, 15, sg=2 },
+			{ 14, 9, 8, sg=2 },
+			{ 18, 17, 16, sg=2 },
+			{ 19, 18, 16, sg=2 },
+			{ 16, 20, 19, sg=2 },
+			{ 16, 21, 20, sg=2 },
+			{ 28, 23, 22, sg=2 },
+			{ 29, 28, 22, sg=2 },
+			{ 30, 22, 23, sg=2 },
+			{ 30, 31, 22, sg=2 },
+		};
+	},
+}
+
+Skins=
+{
+}
+
+GuiFixtures=
+{
+}
+
+Animations=
+{
+}
+
+Channels=
+{
+}
