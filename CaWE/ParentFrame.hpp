@@ -78,6 +78,7 @@ class ParentFrameT : public wxMDIParentFrame
         ID_MENU_HELP_CONTENTS,
         ID_MENU_HELP_CAFU_WEBSITE,
         ID_MENU_HELP_CAFU_FORUM,
+        ID_MENU_HELP_SET_FRAME_SIZE,
         ID_MENU_HELP_D3_MTR_CONVERTER,
         ID_MENU_HELP_ABOUT
     };

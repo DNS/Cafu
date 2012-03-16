@@ -50,6 +50,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/dir.h"
 #include "wx/filename.h"
 #include "wx/glcanvas.h"
+#include "wx/numdlg.h"
 #include "wx/progdlg.h"
 #include "wx/stdpaths.h"
 #include "wx/utils.h"
@@ -140,6 +141,7 @@ ParentFrameT::ParentFrameT(wxCmdLineParser& Parser)
     if (wxConfigBase::Get()->Read("General/Activate Hidden", 0L)==0x1978)
     {
         // "Secret, hidden" CaWE functions...
+        item2->Append(ID_MENU_HELP_SET_FRAME_SIZE, wxT("Set frame size..."), wxT("Set the size of the parent frame. Useful for taking screen-shots.") );
         item2->Append(ID_MENU_HELP_D3_MTR_CONVERTER, wxT("Doom3 materials converter"), wxT("") );
         item2->AppendSeparator();
     }
@@ -911,6 +913,16 @@ void ParentFrameT::OnMenuHelp(wxCommandEvent& CE)
             if (!wxLaunchDefaultBrowser("http://www.cafu.de/forum"))
                 wxMessageBox("Sorry, I could not open www.cafu.de/forum in your default browser automatically.");
             break;
+
+        case ID_MENU_HELP_SET_FRAME_SIZE:
+        {
+            const long w=wxGetNumberFromUser("Enter the new width for the parent frame, 0 for no change.",  "new width:",  "Set frame width",  1024, 20, 4096, this);
+            const long h=wxGetNumberFromUser("Enter the new height for the parent frame, 0 for no change.", "new height:", "Set frame height",  768, 20, 4096, this);
+
+            if (w>=20 || h>=20)
+                SetSize(w, h);
+            break;
+        }
 
         case ID_MENU_HELP_D3_MTR_CONVERTER:
         {
