@@ -1,4 +1,4 @@
-Models/Players/Trinity/trinitypantsF
+pants
 {
     diffusemap Trinity_Pants_diff.png
 
@@ -9,7 +9,7 @@ Models/Players/Trinity/trinitypantsF
     meta_editorImage noEditor
 }
 
-Models/Players/Trinity/chrome_glass
+chrome_glass
 {
     diffusemap Trinity_ChromeGlass_diff.png
 
@@ -20,7 +20,7 @@ Models/Players/Trinity/chrome_glass
     meta_editorImage noEditor
 }
 
-Models/Players/Trinity/trinityskin3
+skin
 {
     diffusemap Trinity_Skin_diff.png, minFilter bilinear, noScaleDown
 
@@ -31,7 +31,7 @@ Models/Players/Trinity/trinityskin3
     meta_editorImage noEditor
 }
 
-Models/Players/Trinity/chrome_buckle
+chrome_buckle
 {
     diffusemap Trinity_ChromeBuckle_diff.png
 

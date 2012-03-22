@@ -50,8 +50,8 @@ Meshes=
 {
 	-- Mesh 0
 	{
-		name="body";
-		Material="Models/Players/Trinity/trinitypantsF";
+		name="torso and legs";
+		Material="pants";
 		tsMethod="GLOBAL";
 		castShadows=true;
 
@@ -1028,8 +1028,8 @@ Meshes=
 	},
 	-- Mesh 1
 	{
-		name="body";
-		Material="Models/Players/Trinity/chrome_glass";
+		name="sunglasses";
+		Material="chrome_glass";
 		tsMethod="GLOBAL";
 		castShadows=true;
 
@@ -1105,8 +1105,8 @@ Meshes=
 	},
 	-- Mesh 2
 	{
-		name="body";
-		Material="Models/Players/Trinity/trinityskin3";
+		name="head and arms";
+		Material="skin";
 		tsMethod="GLOBAL";
 		castShadows=true;
 
@@ -2019,8 +2019,8 @@ Meshes=
 	},
 	-- Mesh 3
 	{
-		name="body";
-		Material="Models/Players/Trinity/chrome_buckle";
+		name="boot buckles";
+		Material="chrome_buckle";
 		tsMethod="GLOBAL";
 		castShadows=true;
 

@@ -219,39 +219,39 @@ Meshes=
 Skins=
 {
 	{
-		name="Skin";
+		name="ocean blue";
 		materials={ "Models/LifeForms/Butterfly/butterfly1" };
 	},
 	{
-		name="Skin";
+		name="orange";
 		materials={ "Models/LifeForms/Butterfly/butterfly2" };
 	},
 	{
-		name="Skin";
+		name="black-green";
 		materials={ "Models/LifeForms/Butterfly/butterfly3" };
 	},
 	{
-		name="Skin";
+		name="tiger";
 		materials={ "Models/LifeForms/Butterfly/butterfly4" };
 	},
 	{
-		name="Skin";
+		name="red-blue";
 		materials={ "Models/LifeForms/Butterfly/butterfly5" };
 	},
 	{
-		name="Skin";
+		name="purple";
 		materials={ "Models/LifeForms/Butterfly/butterfly6" };
 	},
 	{
-		name="Skin";
+		name="red-black";
 		materials={ "Models/LifeForms/Butterfly/butterfly7" };
 	},
 	{
-		name="Skin";
+		name="jungle";
 		materials={ "Models/LifeForms/Butterfly/butterfly8" };
 	},
 	{
-		name="Skin";
+		name="rainbow";
 		materials={ "Models/LifeForms/Butterfly/butterfly9" };
 	},
 }
