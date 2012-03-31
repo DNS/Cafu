@@ -1,2 +1,4 @@
-farn2_lod1.cmdl       0    10000
-farn2_lod2.cmdl   10000    75000
+// See http://www.cafu.de/wiki/modeleditor:level-of-detail_models for help about dlod models.
+
+farn1_lod1.cmdl   10000
+farn1_lod2.cmdl   75000

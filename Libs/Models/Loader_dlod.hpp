@@ -52,7 +52,6 @@ class LoaderDlodT : public ModelLoaderT
     void operator = (const LoaderDlodT&);   ///< Use of the Assignment Operator is not allowed.
 
     ArrayT<std::string>   m_ModelNames;     ///< The names of the concrete models in the dlod chain.
-    ArrayT<float>         m_StartRanges;
     ArrayT<float>         m_EndRanges;
     ArrayT<ModelLoaderT*> m_ModelLoaders;
 };

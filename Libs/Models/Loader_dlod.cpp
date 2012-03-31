@@ -39,7 +39,6 @@ LoaderDlodT::LoaderDlodT(const std::string& FileName, int Flags)
         while (!TP.IsAtEOF())
         {
             m_ModelNames .PushBack(TP.GetNextToken());
-            m_StartRanges.PushBack(TP.GetNextTokenAsFloat());
             m_EndRanges  .PushBack(TP.GetNextTokenAsFloat());
         }
     }
@@ -48,8 +47,14 @@ LoaderDlodT::LoaderDlodT(const std::string& FileName, int Flags)
         throw LoadErrorT("Could not parse the dlod file.");
     }
 
+    if (m_EndRanges.Size() < m_ModelNames.Size())
+    {
+        // The last end-range number is optional, as it is ignored:
+        // The last model is always used up to infinity.
+        m_EndRanges.PushBack(0.0f);
+    }
+
     if (m_ModelNames.Size()==0 ||
-        m_ModelNames.Size()!=m_StartRanges.Size() ||
         m_ModelNames.Size()!=m_EndRanges.Size()) throw LoadErrorT("Invalid dlod file.");
 
     // Acquire loader instances for each model in the dlod chain.

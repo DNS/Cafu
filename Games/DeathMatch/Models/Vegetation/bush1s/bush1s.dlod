@@ -1,3 +1,5 @@
-bush1s_lod1.cmdl       0    20000
-bush1s_lod2.cmdl   20000    50000
-bush3s_lod3.cmdl   50000    150000
+// See http://www.cafu.de/wiki/modeleditor:level-of-detail_models for help about dlod models.
+
+bush1s_lod1.cmdl   20000
+bush1s_lod2.cmdl   50000
+// bush3s_lod3.cmdl  150000
