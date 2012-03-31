@@ -90,7 +90,12 @@ void EntButterflyT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 void EntButterflyT::Draw(bool /*FirstPersonView*/, float LodDist) const
 {
     AnimPoseT* Pose=m_Model->GetSharedPose(m_Model->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr));
-    Pose->Draw(-1 /*default skin*/, LodDist);
+    int        SkinNr=-1;   // -1 is the default skin.
+
+    if (m_Model->GetSkins().Size() > 0)
+        SkinNr = ID % m_Model->GetSkins().Size();
+
+    Pose->Draw(SkinNr, LodDist);
 }
 
 
