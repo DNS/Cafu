@@ -35,7 +35,8 @@ FontT::FontT(const std::string& MaterialName)
 
 FontT::~FontT()
 {
-    MatSys::Renderer->FreeMaterial(RenderMaterial);
+    if (MatSys::Renderer)
+        MatSys::Renderer->FreeMaterial(RenderMaterial);
 }
 
 
