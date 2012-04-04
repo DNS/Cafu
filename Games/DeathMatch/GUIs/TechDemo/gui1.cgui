@@ -62,7 +62,7 @@ function TextArea2:OnInit()
     self:set("backColor", 1, 1, 1, 0);      -- Set alpha value to zero!
     self:set("text", "Planned features for the next release:\n"..
              "    1) Vegetation for the island\n"..
-             "    2) better model support\n"..
+             "    2) more dynamic lighting and shadows\n"..
              "    3) many other improvements...\n\n"..
              "Special thanks for help with this release to:\n    Charles Bradbury and Carsten Crede.\n\n"..
              "Oh, and please don't fall from the walkway\ninto the open space behind you.\n"..
