@@ -54,6 +54,7 @@ class ServerT
         public:
 
         virtual void OnServerStateChanged(const char* NewState) const=0;
+        virtual ~GuiCallbackI() { }
     };
 
 
