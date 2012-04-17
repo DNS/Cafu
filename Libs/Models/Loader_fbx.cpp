@@ -641,8 +641,8 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes, MaterialMana
                         const unsigned long VertexNr=CafuMesh.Vertices.Size();
                         CafuMesh.Vertices.PushBackEmpty();
 
-                        CafuMesh.Vertices[VertexNr].u=UVArray ? float(UVArray->GetAt(TexUV_Idx)[0]) : 0.0f;
-                        CafuMesh.Vertices[VertexNr].v=UVArray ? float(UVArray->GetAt(TexUV_Idx)[1]) : 0.0f;
+                        CafuMesh.Vertices[VertexNr].u=UVArray ?        float(UVArray->GetAt(TexUV_Idx)[0]) : 0.0f;
+                        CafuMesh.Vertices[VertexNr].v=UVArray ? 1.0f - float(UVArray->GetAt(TexUV_Idx)[1]) : 0.0f;
                         CafuMesh.Vertices[VertexNr].FirstWeightIdx=VertexFirstWeightIdx[VertexIdx];
                         CafuMesh.Vertices[VertexNr].NumWeights=VertexWeights[VertexIdx].Size();
 
