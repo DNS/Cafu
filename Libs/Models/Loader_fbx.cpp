@@ -40,43 +40,55 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #endif
 
 
-static std::ofstream Log("fbx-loader.log");
-// static std::ostream& Log=std::cout;
-
-
-static std::ostream& operator << (std::ostream& os, const KFbxVector4& A)
+namespace
 {
-    return os << "fbxVec4(" << A[0] << ", " << A[1] << ", " << A[2] << ", " << A[3] << ")";
+#if 0
+    std::ofstream Log("fbx-loader.log");
+#else
+    struct NullStreamT
+    {
+        void flush() { }
+    };
+
+    template<typename T> NullStreamT& operator << (NullStreamT& ns, const T& x) { return ns; }
+
+    NullStreamT Log;
+#endif
+
+    std::ostream& operator << (std::ostream& os, const KFbxVector4& A)
+    {
+        return os << "fbxVec4(" << A[0] << ", " << A[1] << ", " << A[2] << ", " << A[3] << ")";
+    }
+
+    std::ostream& operator << (std::ostream& os, const KFbxQuaternion& A)
+    {
+        return os << "fbxQuat(" << A[0] << ", " << A[1] << ", " << A[2] << ", " << A[3] << ")";
+    }
+
+    Vector3fT conv(const KFbxVector4& V)
+    {
+        return Vector3dT(V[0], V[1], V[2]).AsVectorOfFloat();
+    }
+
+    CafuModelT::MeshT::WeightT CreateWeight(unsigned int JointIdx, float w, const Vector3fT& Pos)
+    {
+        CafuModelT::MeshT::WeightT Weight;
+
+        Weight.JointIdx=JointIdx;
+        Weight.Weight  =w;
+        Weight.Pos     =Pos;
+
+        return Weight;
+    }
+
+
+    struct PosQtrScaleT
+    {
+        Vector3fT Pos;
+        Vector3fT Qtr;
+        Vector3fT Scale;
+    };
 }
-
-static std::ostream& operator << (std::ostream& os, const KFbxQuaternion& A)
-{
-    return os << "fbxQuat(" << A[0] << ", " << A[1] << ", " << A[2] << ", " << A[3] << ")";
-}
-
-static Vector3fT conv(const KFbxVector4& V)
-{
-    return Vector3dT(V[0], V[1], V[2]).AsVectorOfFloat();
-}
-
-static CafuModelT::MeshT::WeightT CreateWeight(unsigned int JointIdx, float w, const Vector3fT& Pos)
-{
-    CafuModelT::MeshT::WeightT Weight;
-
-    Weight.JointIdx=JointIdx;
-    Weight.Weight  =w;
-    Weight.Pos     =Pos;
-
-    return Weight;
-}
-
-
-struct PosQtrScaleT
-{
-    Vector3fT Pos;
-    Vector3fT Qtr;
-    Vector3fT Scale;
-};
 
 
 class LoaderFbxT::FbxSceneT
@@ -369,17 +381,20 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::JointT>& Joints, int ParentI
 }
 
 
-// This function is from file GetPosition.cxx of the Autodesk SDK ViewScene example:
-// Get the geometry deformation local to a node. It is never inherited by the children.
-static KFbxXMatrix GetGeometry(const KFbxNode* pNode)
+namespace
 {
-    KFbxXMatrix GeometryMat;
+    // This function is from file GetPosition.cxx of the Autodesk SDK ViewScene example:
+    // Get the geometry deformation local to a node. It is never inherited by the children.
+    KFbxXMatrix GetGeometry(const KFbxNode* pNode)
+    {
+        KFbxXMatrix GeometryMat;
 
-    GeometryMat.SetT(pNode->GetGeometricTranslation(KFbxNode::eSOURCE_SET));
-    GeometryMat.SetR(pNode->GetGeometricRotation   (KFbxNode::eSOURCE_SET));
-    GeometryMat.SetS(pNode->GetGeometricScaling    (KFbxNode::eSOURCE_SET));
+        GeometryMat.SetT(pNode->GetGeometricTranslation(KFbxNode::eSOURCE_SET));
+        GeometryMat.SetR(pNode->GetGeometricRotation   (KFbxNode::eSOURCE_SET));
+        GeometryMat.SetS(pNode->GetGeometricScaling    (KFbxNode::eSOURCE_SET));
 
-    return GeometryMat;
+        return GeometryMat;
+    }
 }
 
 
@@ -487,22 +502,25 @@ void LoaderFbxT::FbxSceneT::GetWeights(const KFbxMesh* Mesh, const unsigned long
 }
 
 
-static std::string GetTexFileName(const KFbxSurfaceMaterial* FbxMaterial, const char* PropName)
+namespace
 {
-    KFbxProperty Property=FbxMaterial->FindProperty(PropName);
-    if (!Property.IsValid()) return "";
+    std::string GetTexFileName(const KFbxSurfaceMaterial* FbxMaterial, const char* PropName)
+    {
+        KFbxProperty Property=FbxMaterial->FindProperty(PropName);
+        if (!Property.IsValid()) return "";
 
-    const int        TextureIndex=0;
-    KFbxFileTexture* Texture=KFbxCast<KFbxFileTexture>(Property.GetSrcObject(KFbxFileTexture::ClassId, TextureIndex));  // Must use KFbxCast<T> instead of dynamic_cast<T*> for classes of the FBX SDK.
-    if (!Texture) return "";
+        const int        TextureIndex=0;
+        KFbxFileTexture* Texture=KFbxCast<KFbxFileTexture>(Property.GetSrcObject(KFbxFileTexture::ClassId, TextureIndex));  // Must use KFbxCast<T> instead of dynamic_cast<T*> for classes of the FBX SDK.
+        if (!Texture) return "";
 
-    const char* FileName=Texture->GetRelativeFileName();
-    if (FileName!=NULL && FileName[0]!=0) return cf::String::Replace(FileName, "\\", "/");
+        const char* FileName=Texture->GetRelativeFileName();
+        if (FileName!=NULL && FileName[0]!=0) return cf::String::Replace(FileName, "\\", "/");
 
-    FileName=Texture->GetFileName();
-    if (FileName!=NULL && FileName[0]!=0) return cf::String::Replace(FileName, "\\", "/");
+        FileName=Texture->GetFileName();
+        if (FileName!=NULL && FileName[0]!=0) return cf::String::Replace(FileName, "\\", "/");
 
-    return "";
+        return "";
+    }
 }
 
 
@@ -676,30 +694,33 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::MeshT>& Meshes, MaterialMana
 }
 
 
-static ArrayT<KTime> GetFrameTimes(const KFbxAnimStack* AnimStack, const KTime& TimeStep)
+namespace
 {
-    ArrayT<KTime> FrameTimes;
-
-    const KTime TimeStart=AnimStack->GetLocalTimeSpan().GetStart();
-    const KTime TimeStop =AnimStack->GetLocalTimeSpan().GetStop();
-
-    Log << "    " << "start: " << TimeStart.Get() << " (" << TimeStart.GetSecondDouble() << ")";
-    Log <<    " " << "stop: "  << TimeStop.Get()  << " (" << TimeStop.GetSecondDouble()  << ")";
-    Log <<    " " << "step: "  << TimeStep.Get()  << " (" << TimeStep.GetSecondDouble()  << ")" << "\n";
-
-    for (KTime TimeNow=TimeStart; TimeNow<=TimeStop; TimeNow+=TimeStep)
+    ArrayT<KTime> GetFrameTimes(const KFbxAnimStack* AnimStack, const KTime& TimeStep)
     {
-        FrameTimes.PushBack(TimeNow);
+        ArrayT<KTime> FrameTimes;
 
-        if (FrameTimes.Size()>30*3600*10)
+        const KTime TimeStart=AnimStack->GetLocalTimeSpan().GetStart();
+        const KTime TimeStop =AnimStack->GetLocalTimeSpan().GetStop();
+
+        Log << "    " << "start: " << TimeStart.Get() << " (" << TimeStart.GetSecondDouble() << ")";
+        Log <<    " " << "stop: "  << TimeStop.Get()  << " (" << TimeStop.GetSecondDouble()  << ")";
+        Log <<    " " << "step: "  << TimeStep.Get()  << " (" << TimeStep.GetSecondDouble()  << ")" << "\n";
+
+        for (KTime TimeNow=TimeStart; TimeNow<=TimeStop; TimeNow+=TimeStep)
         {
-            // Frame times that are worth 10 hours at 30 FPS??
-            Log.flush();
-            throw cfSizeOverflow();
-        }
-    }
+            FrameTimes.PushBack(TimeNow);
 
-    return FrameTimes;
+            if (FrameTimes.Size()>30*3600*10)
+            {
+                // Frame times that are worth 10 hours at 30 FPS??
+                Log.flush();
+                throw cfSizeOverflow();
+            }
+        }
+
+        return FrameTimes;
+    }
 }
 
 
