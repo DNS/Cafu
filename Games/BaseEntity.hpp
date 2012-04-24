@@ -22,7 +22,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_GAMEDLL_HPP_INCLUDED
 #define CAFU_GAMEDLL_HPP_INCLUDED
 
-#include "Math3D/Brush.hpp"
 #include "Math3D/BoundingBox.hpp"
 #include "ClipSys/ClipModel.hpp"
 
@@ -30,6 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 class EntityCreateParamsT;
+class NetDataT;
 class PhysicsWorldT;
 struct lua_State;
 namespace cf { namespace ClipSys { class CollisionModelT; } }
@@ -123,6 +123,16 @@ class BaseEntityT
 
     /// The destructor.
     virtual ~BaseEntityT();
+
+    /// Writes the current state of this entity into the given stream.
+    /// This method is called to send the state of the entity over the network or to save it to disk.
+    /// Note that this method is the twin of Serialize(), whose implementation it must match.
+    virtual void Serialize(NetDataT& Stream) const;
+
+    /// Reads the state of this entity from the given stream, and updates the entity accordingly.
+    /// This method is called after the state of the entity has been received over the network or has been loaded from disk.
+    /// Note that this method is the twin of Serialize(), whose implementation it must match.
+    virtual void Deserialize(NetDataT& Stream);
 
 
     // Some convenience functions for reading the Properties.

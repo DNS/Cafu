@@ -147,6 +147,16 @@ BaseEntityT::~BaseEntityT()
 }
 
 
+void BaseEntityT::Serialize(NetDataT& Stream) const
+{
+}
+
+
+void BaseEntityT::Deserialize(NetDataT& Stream)
+{
+}
+
+
 void BaseEntityT::ProcessConfigString(const void* /*ConfigData*/, const char* /*ConfigString*/)
 {
 }

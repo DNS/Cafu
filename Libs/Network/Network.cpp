@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/**********************/
-/*** Network (Code) ***/
-/**********************/
-
 #include "Network.hpp"
 
 #include <stdio.h>

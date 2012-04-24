@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/ClipModel.hpp"
 #include "ClipSys/CollisionModelMan.hpp"
 #include "ConsoleCommands/Console.hpp"
+#include "Network/Network.hpp"
 
 extern "C"
 {
@@ -165,6 +166,84 @@ BaseEntityT::~BaseEntityT()
     ClipModel.SetCollisionModel(NULL);
     ClipModel.SetUserData(NULL);
     cf::ClipSys::CollModelMan->FreeCM(CollisionModel);
+}
+
+
+// NOTE / TODO 1:
+// This implementation is transitional only, the method should of course be implemented
+// in the derived classes and member State of type EntityStateT should be "disintegrated".
+//
+// NOTE / TODO 2:
+// NetDataT should be revised for this purpose, and optimized (e.g. treat bools and strings specially).
+void BaseEntityT::Serialize(NetDataT& Stream) const
+{
+    Stream.WriteFloat (float(State.Origin.x));
+    Stream.WriteFloat (float(State.Origin.y));
+    Stream.WriteFloat (float(State.Origin.z));
+    Stream.WriteFloat (float(State.Velocity.x));
+    Stream.WriteFloat (float(State.Velocity.y));
+    Stream.WriteFloat (float(State.Velocity.z));
+    Stream.WriteFloat (float(State.Dimensions.Min.z));
+    Stream.WriteFloat (float(State.Dimensions.Max.z));
+    Stream.WriteWord  (State.Heading);
+    Stream.WriteWord  (State.Pitch);
+    Stream.WriteWord  (State.Bank);
+    Stream.WriteByte  (State.StateOfExistance);
+    Stream.WriteByte  (State.Flags);
+    Stream.WriteString(State.PlayerName);       // TODO: In the old code, the PlayerName apparently is read/written in *baseline* messages only.
+    Stream.WriteByte  (State.ModelIndex);
+    Stream.WriteByte  (State.ModelSequNr);
+    Stream.WriteFloat (State.ModelFrameNr);
+    Stream.WriteByte  (State.Health);
+    Stream.WriteByte  (State.Armor);
+    Stream.WriteLong  (State.HaveItems);
+    Stream.WriteLong  (State.HaveWeapons);
+    Stream.WriteByte  (State.ActiveWeaponSlot);
+    Stream.WriteByte  (State.ActiveWeaponSequNr);
+    Stream.WriteFloat (State.ActiveWeaponFrameNr);
+    Stream.WriteLong  (State.Events);
+
+    for (unsigned int Nr=0; Nr<16; Nr++) Stream.WriteWord(State.HaveAmmo         [Nr]);
+    for (unsigned int Nr=0; Nr<32; Nr++) Stream.WriteByte(State.HaveAmmoInWeapons[Nr]);
+}
+
+
+// NOTE / TODO 1:
+// This implementation is transitional only, the method should of course be implemented
+// in the derived classes and member State of type EntityStateT should be "disintegrated".
+//
+// NOTE / TODO 2:
+// NetDataT should be revised for this purpose, and optimized (e.g. treat bools and strings specially).
+void BaseEntityT::Deserialize(NetDataT& Stream)
+{
+    State.Origin.x           =Stream.ReadFloat ();
+    State.Origin.y           =Stream.ReadFloat ();
+    State.Origin.z           =Stream.ReadFloat ();
+    State.Velocity.x         =Stream.ReadFloat ();
+    State.Velocity.y         =Stream.ReadFloat ();
+    State.Velocity.z         =Stream.ReadFloat ();
+    State.Dimensions.Min.z   =Stream.ReadFloat ();
+    State.Dimensions.Max.z   =Stream.ReadFloat ();
+    State.Heading            =Stream.ReadWord  ();
+    State.Pitch              =Stream.ReadWord  ();
+    State.Bank               =Stream.ReadWord  ();
+    State.StateOfExistance   =Stream.ReadByte  ();
+    State.Flags              =Stream.ReadByte  ();
+    strcpy(State.PlayerName, Stream.ReadString());  // TODO: In the old code, the PlayerName apparently is read/written in *baseline* messages only.
+    State.ModelIndex         =Stream.ReadByte  ();
+    State.ModelSequNr        =Stream.ReadByte  ();
+    State.ModelFrameNr       =Stream.ReadFloat ();
+    State.Health             =Stream.ReadByte  ();
+    State.Armor              =Stream.ReadByte  ();
+    State.HaveItems          =Stream.ReadLong  ();
+    State.HaveWeapons        =Stream.ReadLong  ();
+    State.ActiveWeaponSlot   =Stream.ReadByte  ();
+    State.ActiveWeaponSequNr =Stream.ReadByte  ();
+    State.ActiveWeaponFrameNr=Stream.ReadFloat ();
+    State.Events             =Stream.ReadLong  ();
+
+    for (unsigned int Nr=0; Nr<16; Nr++) State.HaveAmmo         [Nr]=Stream.ReadWord();
+    for (unsigned int Nr=0; Nr<32; Nr++) State.HaveAmmoInWeapons[Nr]=Stream.ReadByte();
 }
 
 

@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/********************************/
-/*** Network Library (Header) ***/
-/********************************/
-
 #ifndef CAFU_NETWORK_HPP_INCLUDED
 #define CAFU_NETWORK_HPP_INCLUDED
 
@@ -33,6 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
 #define socklen_t int
+#undef GetProp
 #else
 #include <string.h>
 #include <netinet/in.h>

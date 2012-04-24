@@ -8,7 +8,7 @@ gameEnv.Append(CPPPATH=['#/ExtLibs/bullet/src'])
 gameEnv.Append(CPPPATH=['#/ExtLibs/lua/src'])
 
 if sys.platform=="win32":
-    gameEnv.Append(LIBS = Split("ClipSys MatSys SoundSys cfsLib cfs_jpeg bulletdynamics bulletcollision bulletmath lua lightwave png z"))
+    gameEnv.Append(LIBS = Split("ClipSys MatSys SoundSys cfsLib cfs_jpeg bulletdynamics bulletcollision bulletmath lua lightwave png z wsock32"))
 elif sys.platform=="linux2":
     # The LinkerScript is required to make sure that the game DLL only exports the GetGame() symbol (like a Windows DLL),
     # rather than *all* sorts of symbols whose name strings don't need to appear in the final DSO.
