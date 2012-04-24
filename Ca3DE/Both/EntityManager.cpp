@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*****************************/
-/*** Entity Manager (Code) ***/
-/*****************************/
-
 #include "EntityManager.hpp"
 #include "EngineEntity.hpp"
 #include "Ca3DEWorld.hpp"

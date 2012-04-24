@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/******************************/
-/*** Engine Entity (Header) ***/
-/******************************/
-
 #ifndef CAFU_ENGINEENTITY_HPP_INCLUDED
 #define CAFU_ENGINEENTITY_HPP_INCLUDED
 
@@ -34,36 +30,13 @@ class NetDataT;
 
 class EngineEntityT
 {
-    private:
-
-    EngineEntityT(const EngineEntityT&);        // Use of the Copy    Constructor is not allowed
-    void operator = (const EngineEntityT&);     // Use of the Assignment Operator is not allowed
-
-    BaseEntityT*           Entity;              // Base entity as allocated via the cf::GameSys::Game interface.
-
-    unsigned long          EntityStateFrameNr;  // ==ServerFrameNr (the state number of Entity->State), used both on Client and Server side
-
-    EntityStateT           BaseLine;            // Entity state on creation
-    unsigned long          BaseLineFrameNr;     // Frame number on which the entity was created
-    ArrayT<EntityStateT*>  OldStates;           // States of the last n (server) frames, kept on both client and server side for delta compression
-
-    ArrayT<PlayerCommandT> PlayerCommands;      // For prediction, client side use only
-    EntityStateT           PredictedState;      // The current predicted state
-    unsigned long          OldEvents;           // Previous event flags, for detecting if the Entity-State.Events flags changed
-
-    // Variables for interpolating the origin of non-predicted entities (i.e. all but the local player entity).
-    EntityStateT* InterpolateState0;    ///< If non-NULL, this is the previous entity state to interpolate *from* (points into one of the OldStates). The current entity state to interpolate *to* is the usual Entity->State. If this is NULL, interpolation is not possible (e.g. because the last update of the Entity->State was not relative to one of the OldStates).
-    double        InterpolateTime0;     ///< The clients global time at which the InterpolateState0 was received.
-    double        InterpolateTime1;     ///< The clients global time at which the Entity->State     was received.
-
-
     public:
 
     /******************/
     /*** Both Sides ***/
     /******************/
 
-   ~EngineEntityT();
+    ~EngineEntityT();
 
     // Rückt einen Zeiger auf unseren BaseEntity heraus.
     // Hauptsächlich gedacht für die Aufrufkette "Konkreter Entity --> ESInterface --> EntityManager --> hier".
@@ -160,6 +133,29 @@ class EngineEntityT
 
     // Calls the 'PostDraw()' function of this entity.
     void PostDraw(float FrameTime, bool FirstPersonView, bool UsePredictedState);
+
+
+    private:
+
+    EngineEntityT(const EngineEntityT&);        // Use of the Copy    Constructor is not allowed
+    void operator = (const EngineEntityT&);     // Use of the Assignment Operator is not allowed
+
+    BaseEntityT*           Entity;              // Base entity as allocated via the cf::GameSys::Game interface.
+
+    unsigned long          EntityStateFrameNr;  // ==ServerFrameNr (the state number of Entity->State), used both on Client and Server side
+
+    EntityStateT           BaseLine;            // Entity state on creation
+    unsigned long          BaseLineFrameNr;     // Frame number on which the entity was created
+    ArrayT<EntityStateT*>  OldStates;           // States of the last n (server) frames, kept on both client and server side for delta compression
+
+    ArrayT<PlayerCommandT> PlayerCommands;      // For prediction, client side use only
+    EntityStateT           PredictedState;      // The current predicted state
+    unsigned long          OldEvents;           // Previous event flags, for detecting if the Entity-State.Events flags changed
+
+    // Variables for interpolating the origin of non-predicted entities (i.e. all but the local player entity).
+    EntityStateT*          InterpolateState0;   ///< If non-NULL, this is the previous entity state to interpolate *from* (points into one of the OldStates). The current entity state to interpolate *to* is the usual Entity->State. If this is NULL, interpolation is not possible (e.g. because the last update of the Entity->State was not relative to one of the OldStates).
+    double                 InterpolateTime0;    ///< The clients global time at which the InterpolateState0 was received.
+    double                 InterpolateTime1;    ///< The clients global time at which the Entity->State     was received.
 };
 
 #endif

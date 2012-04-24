@@ -19,24 +19,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*******************************/
-/*** Entity Manager (Header) ***/
-/*******************************/
-
 #ifndef CAFU_ENTITYMANAGER_HPP_INCLUDED
 #define CAFU_ENTITYMANAGER_HPP_INCLUDED
 
-#ifdef _WIN32
-    #if defined(_MSC_VER)
-        #if (_MSC_VER<1300)
-            #define for if (false) ; else for
-        #endif
-    #endif
-#endif
-
 #include "../../Games/BaseEntity.hpp"
 #include <map>
-
 
 class  Ca3DEWorldT;
 struct PlayerCommandT;
@@ -49,17 +36,6 @@ namespace cf { namespace SceneGraph { class GenericNodeT; } }
 
 class EntityManagerT
 {
-    private:
-
-    EntityManagerT(const EntityManagerT&);      // Use of the Copy    Constructor is not allowed
-    void operator = (const EntityManagerT&);    // Use of the Assignment Operator is not allowed
-
-    Ca3DEWorldT&           Ca3DEWorld;          // Wegen dieser Zeile wird eine Ca3DEWorld unverzichtbar bleiben!
-    ArrayT<EngineEntityT*> EngineEntities;
-    bool                   IsThinking;          // Set to true while we're thinking, so that our methods can detect recursive calls.
-    ArrayT<unsigned long>  EntityRemoveList;    // List of entity IDs that were scheduled for removal while thinking.
-
-
     public:
 
     /******************/
@@ -170,6 +146,17 @@ class EntityManagerT
     // All this provides opportunities for entities to render HUDs, employ simple "mini-prediction",
     // triggers sounds, register particles, do other server-independent eye-candy, and so on.
     void PostDrawEntities(float FrameTime, unsigned long OurEntityID, const ArrayT<unsigned long>& EntityIDs);
+
+
+    private:
+
+    EntityManagerT(const EntityManagerT&);      // Use of the Copy    Constructor is not allowed
+    void operator = (const EntityManagerT&);    // Use of the Assignment Operator is not allowed
+
+    Ca3DEWorldT&           Ca3DEWorld;          // Wegen dieser Zeile wird eine Ca3DEWorld unverzichtbar bleiben!
+    ArrayT<EngineEntityT*> EngineEntities;
+    bool                   IsThinking;          // Set to true while we're thinking, so that our methods can detect recursive calls.
+    ArrayT<unsigned long>  EntityRemoveList;    // List of entity IDs that were scheduled for removal while thinking.
 };
 
 #endif

@@ -95,20 +95,6 @@ struct EntityStateT
 // This class describes "base entities", the most central component in game<-->engine communication.
 class BaseEntityT
 {
-    private:
-
-    BaseEntityT(const BaseEntityT&);            // Use of the Copy    Constructor is not allowed.
-    void operator = (const BaseEntityT&);       // Use of the Assignment Operator is not allowed.
-
-
-    protected:
-
-    // Protected constructor such that only concrete entities can call this for creating a 'BaseEntityT', but nobody else.
-    // Concrete entities are created in the GameI::CreateBaseEntityFromMapFile() method for the server-side,
-    // and in the GameI::CreateBaseEntityFromTypeNr() method for the client-side.
-    BaseEntityT(const EntityCreateParamsT& Params, const EntityStateT& State_);
-
-
     public:
 
     const unsigned long ID;             // The unique ID of this entity.
@@ -285,6 +271,20 @@ class BaseEntityT
     static int GetName(lua_State* L);
     static int GetOrigin(lua_State* L);
     static int SetOrigin(lua_State* L);
+
+
+    protected:
+
+    // Protected constructor such that only concrete entities can call this for creating a 'BaseEntityT', but nobody else.
+    // Concrete entities are created in the GameI::CreateBaseEntityFromMapFile() method for the server-side,
+    // and in the GameI::CreateBaseEntityFromTypeNr() method for the client-side.
+    BaseEntityT(const EntityCreateParamsT& Params, const EntityStateT& State_);
+
+
+    private:
+
+    BaseEntityT(const BaseEntityT&);        ///< Use of the Copy    Constructor is not allowed.
+    void operator = (const BaseEntityT&);   ///< Use of the Assignment Operator is not allowed.
 };
 
 #endif

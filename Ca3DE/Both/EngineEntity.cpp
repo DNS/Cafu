@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/***************************/
-/*** EngineEntity (Code) ***/
-/***************************/
-
 #include "EngineEntity.hpp"
 #include "../NetConst.hpp"
 #include "ConsoleCommands/ConVar.hpp"
