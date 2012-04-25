@@ -312,9 +312,8 @@ void EntityManagerT::WriteFrameUpdateMessages(unsigned long ClientEntityID, unsi
             // Diesen Entity gibt es im neuen Frame nicht mehr.
             if (!SkipEntity)
             {
-                OutData.WriteByte(SC1_EntityUpdate);
+                OutData.WriteByte(SC1_EntityRemove);
                 OutData.WriteLong(OldEntityID);
-                OutData.WriteLong(0x80000000);      // Das "remove me!" Bit
             }
 
             OldIndex++;

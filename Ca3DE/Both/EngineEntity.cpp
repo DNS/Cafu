@@ -155,9 +155,6 @@ void EngineEntityT::WriteNewBaseLine(unsigned long SentClientBaseLineFrameNr, Ar
     if (BaseLine.Events             !=0) FieldMaskBaseLine1|=0x01000000;
     if (FieldMaskBaseLine2          !=0) FieldMaskBaseLine1|=0x02000000;
     if (FieldMaskBaseLine3          !=0) FieldMaskBaseLine1|=0x04000000;
-    // Remember that bit 0x80000000 of FieldMaskBaseLine1 is used as "remove me!" bit in SC1_EntityUpdate messages.
-    // Thus, we should never use this bit for other encoding, not even in SC1_EntityBaseLine messages.
-    // TODO: Get rid of that special bit by introducing a SC1_EntityRemove message!
 
 
     NetDataT NewBaseLineMsg;
@@ -257,9 +254,6 @@ bool EngineEntityT::WriteDeltaEntity(bool SendFromBaseLine, unsigned long Client
     if (Entity->State.Events             !=FromState.Events             ) FieldMask1|=0x01000000;
     if (FieldMask2                       !=0                            ) FieldMask1|=0x02000000;
     if (FieldMask3                       !=0                            ) FieldMask1|=0x04000000;
-    // Remember that bit 0x80000000 of FieldMaskBaseLine1 is used as "remove me!" bit in SC1_EntityUpdate messages.
-    // Thus, we should never use this bit for other encoding.
-    // TODO: Get rid of that special bit by introducing a SC1_EntityRemove message!
 
     if (FieldMask1==0 && !ForceInfo) return true;
 

@@ -124,18 +124,17 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
                                                            else DeltaFrameEntityID=DeltaFrame->EntityIDsInPVS[DeltaFrameIndex];
     }
 
-    // Lies alle 'SC1_EntityUpdate' Messages
+    // Read all 'SC1_EntityUpdate' and 'SC1_EntityRemove' messages.
     while (true)
     {
         if (InData.ReadPos>=InData.Data.Size()) break;              // InBuffer ist zu Ende
-        if (InData.Data[InData.ReadPos]!=SC1_EntityUpdate) break;   // Nächste Message ist keine 'SC1_EntityUpdate' Message
+        if (InData.Data[InData.ReadPos]!=SC1_EntityUpdate &&
+            InData.Data[InData.ReadPos]!=SC1_EntityRemove) break;   // Nächste Message ist keine 'SC1_EntityUpdate' oder 'SC1_EntityRemove' Message
 
-        InData.ReadByte();  // Überlies das 'SC1_EntityUpdate' Byte
+        const char          Msg        =InData.ReadByte();
+        const unsigned long NewEntityID=InData.ReadLong();
 
-        unsigned long NewEntityID=InData.ReadLong();
-        unsigned long FieldMask  =InData.ReadLong();
-
-        cf::LogDebug(net, "    SC1_EntityUpdate: NewEntityID==%lu, 'remove me'==%s", NewEntityID, (FieldMask & 0x80000000) ? "true" : "false");
+        cf::LogDebug(net, "    %s: NewEntityID==%lu", Msg==SC1_EntityUpdate ? "SC1_EntityUpdate" : "SC1_EntityRemove", NewEntityID);
 
         while (DeltaFrameEntityID<NewEntityID)
         {
@@ -156,7 +155,7 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
 
         // Ab hier gilt 'DeltaFrameEntityID>=NewEntityID'
 
-        if (FieldMask & 0x80000000 /* "remove me!" Bit */)
+        if (Msg==SC1_EntityRemove)
         {
             // Der Entity im DeltaFrame kommt im CurrentFrame nicht mehr vor
             if (DeltaFrameEntityID!=NewEntityID)
@@ -170,6 +169,8 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
 
         if (DeltaFrameEntityID==NewEntityID)
         {
+            const unsigned long FieldMask=InData.ReadLong();
+
             // Der Entity vom DeltaFrame kommt auch im CurrentFrame vor, Änderungen ergeben sich aus der Delta-Dekompression bzgl. des DeltaFrame
             CurrentFrame.EntityIDsInPVS.PushBack(NewEntityID);
 
@@ -184,6 +185,8 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
 
         if (DeltaFrameEntityID>NewEntityID)
         {
+            const unsigned long FieldMask=InData.ReadLong();
+
             // Der Entity kommt im CurrentFrame neu dazu, delta'en bzgl. der BaseLine
             CurrentFrame.EntityIDsInPVS.PushBack(NewEntityID);
             // EnqueueString("Frame %lu, Entity mit ID %i kam hinzu.\n", CurrentFrame.ServerFrameNr, NewEntityID);
