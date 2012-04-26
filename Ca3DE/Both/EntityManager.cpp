@@ -502,13 +502,16 @@ void EntityManagerT::Predict(unsigned long OurEntityID, const PlayerCommandT& Pl
 }
 
 
-const EntityStateT* EntityManagerT::GetPredictedState(unsigned long OurEntityID)
+bool EntityManagerT::GetCamera(unsigned long EntityID, bool UsePredictedState, Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const
 {
-    if (OurEntityID<EngineEntities.Size())
-        if (EngineEntities[OurEntityID]!=NULL)
-            return EngineEntities[OurEntityID]->GetPredictedState();
+    if (EntityID<EngineEntities.Size())
+        if (EngineEntities[EntityID]!=NULL)
+        {
+            EngineEntities[EntityID]->GetCamera(UsePredictedState, Origin, Heading, Pitch, Bank);
+            return true;
+        }
 
-    return NULL;
+    return false;
 }
 
 

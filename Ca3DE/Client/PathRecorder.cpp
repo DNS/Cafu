@@ -20,7 +20,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "PathRecorder.hpp"
-#include "../../Games/BaseEntity.hpp"
 #include "ConsoleCommands/Console.hpp"
 
 
@@ -60,26 +59,24 @@ PathRecorderT::~PathRecorderT()
 }
 
 
-void PathRecorderT::WritePath(const EntityStateT* EntityState, float FrameTime)
+void PathRecorderT::WritePath(const Vector3dT& Origin, unsigned short Heading, float FrameTime)
 {
-    if (!EntityState) return;
-
-    if (m_LineCount==0 || (m_Time-m_OldTime>=0.2f && length(EntityState->Origin-m_OldOrigin)>=250.0))
+    if (m_LineCount==0 || (m_Time-m_OldTime>=0.2f && length(Origin-m_OldOrigin)>=250.0))
     {
-        const Vector3dT WriteOrigin=EntityState->Origin/25.4;
+        const Vector3dT WriteOrigin=Origin/25.4;
 
         m_OutStream << "  { ";
-     // m_OutStream << m_LineCount          << "; ";
-        m_OutStream << m_Time               << "; " << "  ";
-        m_OutStream << WriteOrigin.x        << ", ";
-        m_OutStream << WriteOrigin.y        << ", ";
-        m_OutStream << WriteOrigin.z        << "; " << "  ";
-        m_OutStream << EntityState->Heading << "; ";
+     // m_OutStream << m_LineCount   << "; ";
+        m_OutStream << m_Time        << "; " << "  ";
+        m_OutStream << WriteOrigin.x << ", ";
+        m_OutStream << WriteOrigin.y << ", ";
+        m_OutStream << WriteOrigin.z << "; " << "  ";
+        m_OutStream << Heading       << "; ";
         m_OutStream << "\"\" },\n";
 
         m_OldTime   =m_Time;
-        m_OldOrigin =EntityState->Origin;
-        m_OldHeading=EntityState->Heading;
+        m_OldOrigin =Origin;
+        m_OldHeading=Heading;
 
         m_LineCount++;
     }

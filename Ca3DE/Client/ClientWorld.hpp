@@ -24,8 +24,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "../Both/Ca3DEWorld.hpp"
 
-
-struct EntityStateT;
 struct PlayerCommandT;
 class  NetDataT;
 
@@ -55,17 +53,16 @@ class CaClientWorldT
     CaClientWorldT(const char* FileName, ModelManagerT& ModelMan, WorldT::ProgressFunctionT ProgressFunction, unsigned long OurEntityID_) /*throw (WorldT::LoadErrorT)*/;
    ~CaClientWorldT();
 
-    // Worker functions
     unsigned long GetOurEntityID() const { return OurEntityID; }  // AUFLÖSEN!?
     void ReadEntityBaseLineMessage(NetDataT& InData);
     unsigned long ReadServerFrameMessage(NetDataT& InData);
 
     bool OurEntity_Repredict(unsigned long RemoteLastIncomingSequenceNr, unsigned long LastOutgoingSequenceNr);
     void OurEntity_Predict(const PlayerCommandT& PlayerCommand, unsigned long OutgoingSequenceNr);
-    const EntityStateT* OurEntity_GetState(bool PredictedState);
+    bool OurEntity_GetCamera(bool UsePredictedState, Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const;
 
     void ComputeBFSPath(const VectorT& Start, const VectorT& End);
-    void Draw(float FrameTime, const EntityStateT* DrawState);
+    void Draw(float FrameTime, const Vector3dT& Origin, unsigned short Heading, unsigned short Pitch, unsigned short Bank) const;
 
 
     private:

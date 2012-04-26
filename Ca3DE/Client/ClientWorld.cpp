@@ -32,6 +32,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SceneGraph/FaceNode.hpp"
 #include "Win32/Win32PrintHelp.hpp"
 #include "DebugLog.hpp"
+#include "../../Games/BaseEntity.hpp"
 #include "../../Games/Game.hpp"
 
 #include <cassert>
@@ -237,10 +238,9 @@ void CaClientWorldT::OurEntity_Predict(const PlayerCommandT& PlayerCommand, unsi
 }
 
 
-const EntityStateT* CaClientWorldT::OurEntity_GetState(bool PredictedState)
+bool CaClientWorldT::OurEntity_GetCamera(bool UsePredictedState, Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const
 {
-    return PredictedState ? EntityManager.GetPredictedState(OurEntityID)
-                          : &EntityManager.GetBaseEntityByID(OurEntityID)->State;
+    return EntityManager.GetCamera(OurEntityID, UsePredictedState, Origin, Heading, Pitch, Bank);
 }
 
 
@@ -305,21 +305,21 @@ void CaClientWorldT::ComputeBFSPath(const VectorT& Start, const VectorT& End)
 }
 
 
-void CaClientWorldT::Draw(float FrameTime, const EntityStateT* DrawState)
+void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned short DrawHeading, unsigned short DrawPitch, unsigned short DrawBank) const
 {
     MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
 
-    MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,  MatrixT::GetRotateXMatrix(-90.0f));          // Start with the global Ca3DE coordinate system (not the OpenGL coordinate system).
-    MatSys::Renderer->RotateY  (MatSys::RendererI::WORLD_TO_VIEW, -float(DrawState->Bank   )*45.0f/8192.0f);    // *360/2^16
-    MatSys::Renderer->RotateX  (MatSys::RendererI::WORLD_TO_VIEW,  float(DrawState->Pitch  )*45.0f/8192.0f);
-    MatSys::Renderer->RotateZ  (MatSys::RendererI::WORLD_TO_VIEW,  float(DrawState->Heading)*45.0f/8192.0f);
+    MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,  MatrixT::GetRotateXMatrix(-90.0f));   // Start with the global Ca3DE coordinate system (not the OpenGL coordinate system).
+    MatSys::Renderer->RotateY  (MatSys::RendererI::WORLD_TO_VIEW, -float(DrawBank   )*45.0f/8192.0f);    // *360/2^16
+    MatSys::Renderer->RotateX  (MatSys::RendererI::WORLD_TO_VIEW,  float(DrawPitch  )*45.0f/8192.0f);
+    MatSys::Renderer->RotateZ  (MatSys::RendererI::WORLD_TO_VIEW,  float(DrawHeading)*45.0f/8192.0f);
 
 
     // OBSOLETE: DrawableSkyDome.Draw();
 #if SHL_ENABLED
     MoveSHLSun(FrameTime);
 #endif
-    MatSys::Renderer->Translate(MatSys::RendererI::WORLD_TO_VIEW, -float(DrawState->Origin.x), -float(DrawState->Origin.y), -float(DrawState->Origin.z));
+    MatSys::Renderer->Translate(MatSys::RendererI::WORLD_TO_VIEW, -float(DrawOrigin.x), -float(DrawOrigin.y), -float(DrawOrigin.z));
 
 #if 0   // TODO: Move this into the scene graph.
 #ifdef DEBUG
@@ -354,9 +354,9 @@ void CaClientWorldT::Draw(float FrameTime, const EntityStateT* DrawState)
     const float EyeOffsetZ=200.0f*sinf(TotalTime);
 
     MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
-    MatSys::Renderer->SetCurrentEyePosition(float(DrawState->Origin.x), float(DrawState->Origin.y), float(DrawState->Origin.z)+EyeOffsetZ);    // Also required in some ambient shaders.
+    MatSys::Renderer->SetCurrentEyePosition(float(DrawOrigin.x), float(DrawOrigin.y), float(DrawOrigin.z)+EyeOffsetZ);    // Also required in some ambient shaders.
 
-    Ca3DEWorld->BspTree->DrawAmbientContrib(DrawState->Origin);
+    Ca3DEWorld->BspTree->DrawAmbientContrib(DrawOrigin);
 
 
     if (!CurrentFrame.IsValid)
@@ -376,7 +376,7 @@ void CaClientWorldT::Draw(float FrameTime, const EntityStateT* DrawState)
     }
 
     // Draw the ambient contribution of the entities.
-    EntityManager.DrawEntities(OurEntityID, false, DrawState->Origin, CurrentFrame.EntityIDsInPVS);
+    EntityManager.DrawEntities(OurEntityID, false, DrawOrigin, CurrentFrame.EntityIDsInPVS);
 
 
 
@@ -429,7 +429,7 @@ void CaClientWorldT::Draw(float FrameTime, const EntityStateT* DrawState)
                 // Our entity casts shadows, except when the light source is he himself.
                 EntityManager.DrawEntities(OurEntityID==BaseEntity->ID ? OurEntityID : 0xFFFFFFFF /* an ugly, dirty, kaum nachvollziehbarer hack */,
                                            OurEntityID==BaseEntity->ID,
-                                           DrawState->Origin,
+                                           DrawOrigin,
                                            CurrentFrame.EntityIDsInPVS);
          // }
          // else
@@ -438,7 +438,7 @@ void CaClientWorldT::Draw(float FrameTime, const EntityStateT* DrawState)
          //     // ### In my last test, I did not observe any performance improvements with this, in comparison with the case above... ###
          //     EntityManager.DrawEntities(OurEntityID,
          //                                true,
-         //                                DrawState->Origin,
+         //                                DrawOrigin,
          //                                CurrentFrame.EntityIDsInPVS);
          // }
         }
@@ -447,10 +447,10 @@ void CaClientWorldT::Draw(float FrameTime, const EntityStateT* DrawState)
         // Render the light-source dependent terms.
         MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::LIGHTING);
 
-        Ca3DEWorld->BspTree->DrawLightSourceContrib(DrawState->Origin, LightPosition);
+        Ca3DEWorld->BspTree->DrawLightSourceContrib(DrawOrigin, LightPosition);
         EntityManager.DrawEntities(OurEntityID,
                                    false,
-                                   DrawState->Origin,
+                                   DrawOrigin,
                                    CurrentFrame.EntityIDsInPVS);
     }
 
@@ -459,7 +459,7 @@ void CaClientWorldT::Draw(float FrameTime, const EntityStateT* DrawState)
     MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
 
     // Render translucent nodes back-to-front.
-    Ca3DEWorld->BspTree->DrawTranslucentContrib(DrawState->Origin);
+    Ca3DEWorld->BspTree->DrawTranslucentContrib(DrawOrigin);
 
     // Zuletzt halbtransparente HUD-Elemente, Fonts usw. zeichnen.
     EntityManager.PostDrawEntities(FrameTime, OurEntityID, CurrentFrame.EntityIDsInPVS);

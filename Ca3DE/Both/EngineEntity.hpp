@@ -121,9 +121,10 @@ class EngineEntityT
     // The 'OutgoingSequenceNr' is the sequence number of the packet in which the caller sends the 'PlayerCommand' to the server.
     void Predict(const PlayerCommandT& PlayerCommand, unsigned long OutgoingSequenceNr);
 
-    // Returns the currently predicted state of this entity.
-    // This is mostly useful for getting the PredictedState->Origin, from which the client is supposed to draw the world.
-    const EntityStateT* GetPredictedState();
+    /// Returns the camera details of this entity that the client should use to render the world.
+    /// This is typically called for the local human player from whose perspective the world is rendered.
+    /// @param UsePredictedState   Whether the predicted or the "unpredicted" state should provide the camera details.
+    void GetCamera(bool UsePredictedState, Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const;
 
     // Returns the light source info for this entity. If UsePredictedState is true, the light source info for the predicted entity is returned.
     bool GetLightSourceInfo(bool UsePredictedState, unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const;

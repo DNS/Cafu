@@ -563,9 +563,36 @@ void EngineEntityT::Predict(const PlayerCommandT& PlayerCommand, unsigned long O
 }
 
 
-const EntityStateT* EngineEntityT::GetPredictedState()
+void EngineEntityT::GetCamera(bool UsePredictedState, Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const
 {
-    return &PredictedState;
+#if 1
+    if (!UsePredictedState)
+    {
+        Origin =Entity->State.Origin;
+        Heading=Entity->State.Heading;
+        Pitch  =Entity->State.Pitch;
+        Bank   =Entity->State.Bank;
+    }
+    else
+    {
+        Origin =PredictedState.Origin;
+        Heading=PredictedState.Heading;
+        Pitch  =PredictedState.Pitch;
+        Bank   =PredictedState.Bank;
+    }
+#else
+    if (!UsePredictedState)
+    {
+        Entity->GetCamera(Origin, Heading, Pitch, Bank);
+        return;
+    }
+
+    // TODO: Optimize this, e.g. by caching the camera details after each update of PredictedState.
+    Entity->Serialize(BackupState);
+    Entity->Deserialize(PredictedState);
+    Entity->GetCamera(Origin, Heading, Pitch, Bank);
+    Entity->Deserialize(BackupState);
+#endif
 }
 
 

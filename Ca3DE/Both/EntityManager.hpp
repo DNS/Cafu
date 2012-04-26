@@ -22,9 +22,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_ENTITYMANAGER_HPP_INCLUDED
 #define CAFU_ENTITYMANAGER_HPP_INCLUDED
 
-#include "../../Games/BaseEntity.hpp"
+#include "Math3D/Vector3.hpp"
+#include "Templates/Array.hpp"
 #include <map>
 
+class  BaseEntityT;
 class  Ca3DEWorldT;
 struct PlayerCommandT;
 class  EngineEntityT;
@@ -126,8 +128,15 @@ class EntityManagerT
     // Please see the corresponding function in EngineEntityT for documentation.
     void Predict(unsigned long OurEntityID, const PlayerCommandT& PlayerCommand, unsigned long OutgoingSequenceNr);
 
-    // Please see the corresponding function in EngineEntityT for documentation.
-    const EntityStateT* GetPredictedState(unsigned long OurEntityID);
+    /// Returns the camera details of the given entity that the client should use to render the world.
+    /// This is typically called for the local human player from whose perspective the world is rendered.
+    ///
+    /// @param EntityID            The ID of the entity for which the camera details should be returned.
+    /// @param UsePredictedState   Whether the predicted or the "unpredicted" state should provide the camera details.
+    ///
+    /// @returns \c false if EntityID was not a valid entity ID (and no camera details could be retrieved),
+    ///          \c true in all other cases.
+    bool GetCamera(unsigned long EntityID, bool UsePredictedState, Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const;
 
     // Please see the corresponding function in EngineEntityT for documentation.
     bool GetLightSourceInfo(unsigned long EntityID, unsigned long OurEntityID, unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const;

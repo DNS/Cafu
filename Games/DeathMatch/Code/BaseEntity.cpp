@@ -115,7 +115,8 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const EntityStateT& 
       GameWorld(Params.GameWorld),
       PhysicsWorld(Params.PhysicsWorld),
       CollisionModel(Params.CollisionModel),
-      ClipModel(GameWorld->GetClipWorld())  // Creates a clip model in the given clip world with a NULL collision model.
+      ClipModel(GameWorld->GetClipWorld()),  // Creates a clip model in the given clip world with a NULL collision model.
+      m_OldEvents(0)
 {
     // Evaluate the common 'Properties'.
     std::map<std::string, std::string>::const_iterator It=Properties.find("angles");
@@ -214,7 +215,7 @@ void BaseEntityT::Serialize(NetDataT& Stream) const
 //
 // NOTE / TODO 2:
 // NetDataT should be revised for this purpose, and optimized (e.g. treat bools and strings specially).
-void BaseEntityT::Deserialize(NetDataT& Stream)
+void BaseEntityT::Deserialize(NetDataT& Stream, bool IsIniting)
 {
     State.Origin.x           =Stream.ReadFloat ();
     State.Origin.y           =Stream.ReadFloat ();
@@ -244,6 +245,23 @@ void BaseEntityT::Deserialize(NetDataT& Stream)
 
     for (unsigned int Nr=0; Nr<16; Nr++) State.HaveAmmo         [Nr]=Stream.ReadWord();
     for (unsigned int Nr=0; Nr<32; Nr++) State.HaveAmmoInWeapons[Nr]=Stream.ReadByte();
+
+
+    // TODO ???????  (Maybe we should only make "DoDeserialize()" virtual, and have pre- and post-code here...)
+    // Entity->Cl_UnserializeFrom();   // A temp. hack to get the entities ClipModel origin updated.
+
+
+    // Process events.
+    // Don't process the event counters if we're newly instantiating / constructing the entity.
+    if (!IsIniting)
+    {
+        unsigned long Events=State.Events ^ m_OldEvents;
+
+        for (char b=0; Events!=0; Events >>= 1, b++)
+            if (Events & 1) ProcessEvent(b);
+    }
+
+    m_OldEvents=State.Events;
 }
 
 

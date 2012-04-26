@@ -372,13 +372,16 @@ void ClientStateInGameT::Render(float FrameTime)
 
     if (World)
     {
-        const EntityStateT* OurEntityCurrentState=World->OurEntity_GetState(UsePrediction.GetValueBool());
+        VectorT        Current_Origin;
+        unsigned short Current_Heading;
+        unsigned short Current_Pitch;
+        unsigned short Current_Bank;
 
-        if (OurEntityCurrentState!=NULL)
+        if (World->OurEntity_GetCamera(UsePrediction.GetValueBool(), Current_Origin, Current_Heading, Current_Pitch, Current_Bank))
         {
-            Graphs.Heading[ClientFrameNr & (512-1)]=(OurEntityCurrentState->Heading >> 5) & 511;
-            Graphs.PosY   [ClientFrameNr & (512-1)]=((unsigned short)(OurEntityCurrentState->Origin.y/20.0)) & 511;
-            Graphs.PosZ   [ClientFrameNr & (512-1)]=((unsigned short)(OurEntityCurrentState->Origin.z/20.0)) & 511;
+            Graphs.Heading[ClientFrameNr & (512-1)]=(Current_Heading >> 5) & 511;
+            Graphs.PosY   [ClientFrameNr & (512-1)]=((unsigned short)(Current_Origin.y/20.0)) & 511;
+            Graphs.PosZ   [ClientFrameNr & (512-1)]=((unsigned short)(Current_Origin.z/20.0)) & 511;
 
             MatSys::Renderer->PushMatrix(MatSys::RendererI::PROJECTION    );
             MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
@@ -392,7 +395,7 @@ void ClientStateInGameT::Render(float FrameTime)
             MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
             MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,  MatrixT());
 
-            World->Draw(FrameTime, OurEntityCurrentState);
+            World->Draw(FrameTime, Current_Origin, Current_Heading, Current_Pitch, Current_Bank);
 
             MatSys::Renderer->PopMatrix(MatSys::RendererI::PROJECTION    );
             MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
@@ -406,16 +409,16 @@ void ClientStateInGameT::Render(float FrameTime)
 
             if (ShowPosition.GetValueBool())
             {
-                // unsigned long LeafNr      =World->GetCa3DEWorldP()->Map.WhatLeaf(OurEntityCurrentState->Origin);
+                // unsigned long LeafNr      =World->GetCa3DEWorldP()->Map.WhatLeaf(Current_Origin);
                 // char          LeafContents='o';
 
                 // if (World->GetCa3DEWorldP()->Map.Leaves[LeafNr].IsInnerLeaf)
                 //     LeafContents=World->GetCa3DEWorldP()->Map.Leaves[LeafNr].IsWaterLeaf ? 'w' : 'i';
 
-                Font_f.Print(FrameSize.GetWidth()-130, 15, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("X %10.1f", OurEntityCurrentState->Origin.x));
-                Font_f.Print(FrameSize.GetWidth()-130, 35, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("Y %10.1f", OurEntityCurrentState->Origin.y));
-                Font_f.Print(FrameSize.GetWidth()-130, 55, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("Z %10.1f", OurEntityCurrentState->Origin.z));
-                Font_f.Print(FrameSize.GetWidth()-130, 75, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("Hdg %8u", OurEntityCurrentState->Heading));
+                Font_f.Print(FrameSize.GetWidth()-130, 15, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("X %10.1f", Current_Origin.x));
+                Font_f.Print(FrameSize.GetWidth()-130, 35, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("Y %10.1f", Current_Origin.y));
+                Font_f.Print(FrameSize.GetWidth()-130, 55, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("Z %10.1f", Current_Origin.z));
+                Font_f.Print(FrameSize.GetWidth()-130, 75, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("Hdg %8u", Current_Heading));
              // Font_f.Print(FrameSize.GetWidth()-100, FrameSize.GetHeight()-32, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("L %4u %c", LeafNr, LeafContents));
             }
 
@@ -887,7 +890,15 @@ void ClientStateInGameT::MainLoop(float FrameTime)
         World->OurEntity_Predict(PlayerCommand, PlayerCommand.Nr /* next outgoing sequence number */);
 
         if (m_PathRecorder)
-            m_PathRecorder->WritePath(World->OurEntity_GetState(UsePrediction.GetValueBool()), FrameTime);
+        {
+            VectorT        Origin;
+            unsigned short Heading;
+            unsigned short Pitch;
+            unsigned short Bank;
+
+            if (World->OurEntity_GetCamera(UsePrediction.GetValueBool(), Origin, Heading, Pitch, Bank))
+                m_PathRecorder->WritePath(Origin, Heading, FrameTime);
+        }
 
         PlayerCommand=PlayerCommandT();     // Clear the PlayerCommand.
     }

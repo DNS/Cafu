@@ -25,8 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/Vector3.hpp"
 #include <fstream>
 
-struct EntityStateT;
-
 
 /// This class records the path that an entity takes through a level into a file.
 class PathRecorderT
@@ -37,7 +35,7 @@ class PathRecorderT
     ~PathRecorderT();
 
     const std::string& GetFileName() const { return m_FileName; }
-    void WritePath(const EntityStateT* EntityState, float FrameTime);
+    void WritePath(const Vector3dT& Origin, unsigned short Heading, float FrameTime);
 
 
     private:
