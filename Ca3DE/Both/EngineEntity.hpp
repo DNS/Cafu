@@ -154,9 +154,10 @@ class EngineEntityT
     unsigned long          OldEvents;           // Previous event flags, for detecting if the Entity-State.Events flags changed
 
     // Variables for interpolating the origin of non-predicted entities (i.e. all but the local player entity).
-    EntityStateT*          InterpolateState0;   ///< If non-NULL, this is the previous entity state to interpolate *from* (points into one of the OldStates). The current entity state to interpolate *to* is the usual Entity->State. If this is NULL, interpolation is not possible (e.g. because the last update of the Entity->State was not relative to one of the OldStates).
-    double                 InterpolateTime0;    ///< The clients global time at which the InterpolateState0 was received.
-    double                 InterpolateTime1;    ///< The clients global time at which the Entity->State     was received.
+    bool                   m_Interpolate_Ok;    ///< Is interpolation currently possible? (false e.g. when the last update of the Entity->State was not relative to one of the OldStates).
+    Vector3dT              m_InterpolateOrigin0;///< If Interpolate_Ok, this is the previous entity origin to interpolate *from* (from the most recent OldStates). The current entity state to interpolate *to* is the usual Entity->State.
+    double                 m_InterpolateTime0;  ///< The clients global time at which the InterpolateState0 was received.
+    double                 m_InterpolateTime1;  ///< The clients global time at which the Entity->State     was received.
 };
 
 #endif

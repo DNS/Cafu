@@ -74,9 +74,10 @@ EngineEntityT::EngineEntityT(BaseEntityT* Entity_, unsigned long CreationFrameNr
    // PlayerCommands,
       PredictedState(Entity->State),
       OldEvents(0),
-      InterpolateState0(NULL),
-      InterpolateTime0(0),
-      InterpolateTime1(0)
+      m_Interpolate_Ok(false),
+      m_InterpolateOrigin0(),
+      m_InterpolateTime0(0),
+      m_InterpolateTime1(0)
 {
     for (unsigned long OldStateNr=0; OldStateNr<16 /*MUST be a power of 2*/; OldStateNr++)
         OldStates.PushBack(new EntityStateT(Entity_->State));
@@ -315,9 +316,10 @@ EngineEntityT::EngineEntityT(BaseEntityT* Entity_, NetDataT& InData)
    // PlayerCommands,
       PredictedState(Entity->State),    // Unnötig, aber leider unvermeidlich (kein Default-Konstruktor vorhanden)!
       OldEvents(0),
-      InterpolateState0(NULL),
-      InterpolateTime0(0),
-      InterpolateTime1(0)
+      m_Interpolate_Ok(false),
+      m_InterpolateOrigin0(),
+      m_InterpolateTime0(0),
+      m_InterpolateTime1(0)
 {
     /***************************************************************************************************************/
     /*** EntityStateT field changes FORCE protocol changes in ALL places that are marked *like this* (use grep)! ***/
@@ -368,7 +370,7 @@ EngineEntityT::EngineEntityT(BaseEntityT* Entity_, NetDataT& InData)
     BaseLine      =Entity->State;
     PredictedState=Entity->State;
 
-    InterpolateTime1=GlobalTime.GetValueDouble();
+    m_InterpolateTime1=GlobalTime.GetValueDouble();
 }
 
 
@@ -468,17 +470,18 @@ bool EngineEntityT::ParseServerDeltaUpdateMessage(unsigned long DeltaFrameNr, un
     EntityStateT DeltaState(*DeltaStatePtr);
 
     // Trage den bisher aktuellen Entity->State in die OldStates ein, und ersetze Entity->State durch den DeltaState.
+    m_Interpolate_Ok    =true;
+    m_InterpolateOrigin0=Entity->State.Origin;
+    m_InterpolateTime0  =m_InterpolateTime1;
+    m_InterpolateTime1  =GlobalTime.GetValueDouble();
+
     *OldStates[EntityStateFrameNr & (OldStates.Size()-1)]=Entity->State;
     Entity->State=DeltaState;
 
-    InterpolateState0=OldStates[EntityStateFrameNr & (OldStates.Size()-1)];
-    InterpolateTime0 =InterpolateTime1;
-    InterpolateTime1 =GlobalTime.GetValueDouble();
-
-    if (length(Entity->State.Origin - InterpolateState0->Origin)/(InterpolateTime1-InterpolateTime0) > 50.0*1000.0)
+    if (length(Entity->State.Origin - m_InterpolateOrigin0)/(m_InterpolateTime1 - m_InterpolateTime0) > 50.0*1000.0)
     {
         // Don't interpolate if the theoretical speed is larger than 50 m/s, or 180 km/h.
-        InterpolateState0=NULL;
+        m_Interpolate_Ok=false;
     }
 
 
@@ -628,12 +631,12 @@ bool EngineEntityT::GetLightSourceInfo(bool UsePredictedState, unsigned long& Di
         // It's a non-predicted NPC entity.
         const Vector3dT BackupOrigin(Entity->State.Origin);
 
-        if (InterpolateState0!=NULL && interpolateNPCs.GetValueBool() && Entity->DrawInterpolated())
+        if (m_Interpolate_Ok && interpolateNPCs.GetValueBool() && Entity->DrawInterpolated())
         {
-            const double dt=InterpolateTime1-InterpolateTime0;
-            const double f =(dt>0) ? (GlobalTime.GetValueDouble()-InterpolateTime1)/dt : 1.0;
+            const double dt=m_InterpolateTime1-m_InterpolateTime0;
+            const double f =(dt>0) ? (GlobalTime.GetValueDouble()-m_InterpolateTime1)/dt : 1.0;
 
-            Entity->State.Origin=InterpolateState0->Origin*(1.0-f) + Entity->State.Origin*f;
+            Entity->State.Origin=m_InterpolateOrigin0*(1.0-f) + Entity->State.Origin*f;
         }
 
         const bool Result=Entity->GetLightSourceInfo(DiffuseColor, SpecularColor, Position, Radius, CastsShadows);
@@ -655,10 +658,10 @@ void EngineEntityT::Draw(bool FirstPersonView, bool UsePredictedState, const Vec
     }
     else
     {
-        if (InterpolateState0!=NULL && interpolateNPCs.GetValueBool() && Entity->DrawInterpolated())
+        if (m_Interpolate_Ok && interpolateNPCs.GetValueBool() && Entity->DrawInterpolated())
         {
-            const double dt=InterpolateTime1-InterpolateTime0;
-            const double f =(dt>0) ? (GlobalTime.GetValueDouble()-InterpolateTime1)/dt : 1.0;
+            const double dt=m_InterpolateTime1-m_InterpolateTime0;
+            const double f =(dt>0) ? (GlobalTime.GetValueDouble()-m_InterpolateTime1)/dt : 1.0;
 
             // if (Entity->State.Origin.z>10000)   // Only print information for the eagle in BpRockB.
             // {
@@ -666,7 +669,7 @@ void EngineEntityT::Draw(bool FirstPersonView, bool UsePredictedState, const Vec
             //     std::cout << "ohne Interp: " << Entity->State.Origin << "   mit Interp: " << InterpolateState0->Origin*(1.0-f) + Entity->State.Origin*f << "\n";
             // }
 
-            Entity->State.Origin=InterpolateState0->Origin*(1.0-f) + Entity->State.Origin*f;
+            Entity->State.Origin=m_InterpolateOrigin0*(1.0-f) + Entity->State.Origin*f;
         }
     }
 
