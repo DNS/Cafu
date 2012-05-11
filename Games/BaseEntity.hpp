@@ -138,6 +138,30 @@ class BaseEntityT
     ///     that the entity is newly constructed. User code should always leave this at \c false.
     virtual void Deserialize(NetDataT& Stream, bool IsIniting=false);
 
+    /// Returns the origin point of this entity. Used for
+    ///   - obtaining the camera position of the local human player entity (1st person view),
+    ///   - interpolating the origin (NPC entities) and
+    ///   - computing light source positions.
+    virtual const Vector3dT& GetOrigin() const { return State.Origin; }
+
+    /// This method is a temporary hack, used so that the caller can temporarily set the origin to the "interpolated" origin,
+    /// draw the entity or get the entity light source position, then set the origin back to the previous origin.
+    /// Interpolation of client entities needs to be thoroughly redone anyway (e.g. combined with interpolating animation sequences),
+    /// this is also when this method will be removed again.
+    void SetInterpolationOrigin(const Vector3dT& O) { State.Origin=O; }
+
+    /// Returns the dimensions of this entity.
+    virtual const BoundingBox3dT& GetDimensions() const { return State.Dimensions; }
+
+    /// Returns the camera orientation angles of this entity.
+    /// Used for setting up the camera of the local human player entity (1st person view).
+    virtual void GetCameraOrientation(unsigned short& h, unsigned short& p, unsigned short& b) const { h=State.Heading; p=State.Pitch; b=State.Bank; }
+
+    /// Returns the orientation angles of the entity itself.
+    /// Used for computing the light source and eye positions in entity (model) space.
+    /// TODO: Both the signature as well as the implementation of this method are temporary, and fully expected to change later.
+    virtual void GetBodyOrientation(unsigned short& h, unsigned short& p, unsigned short& b) const { h=State.Heading; p=State.Pitch; b=State.Bank; }
+
 
     // Some convenience functions for reading the Properties.
     // Actually, the Properties should be replaced by a PropDictT class that has these functions as its methods...

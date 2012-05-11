@@ -471,14 +471,14 @@ bool EngineEntityT::ParseServerDeltaUpdateMessage(unsigned long DeltaFrameNr, un
 
     // Trage den bisher aktuellen Entity->State in die OldStates ein, und ersetze Entity->State durch den DeltaState.
     m_Interpolate_Ok    =true;
-    m_InterpolateOrigin0=Entity->State.Origin;
+    m_InterpolateOrigin0=Entity->GetOrigin();
     m_InterpolateTime0  =m_InterpolateTime1;
     m_InterpolateTime1  =GlobalTime.GetValueDouble();
 
     *OldStates[EntityStateFrameNr & (OldStates.Size()-1)]=Entity->State;
     Entity->State=DeltaState;
 
-    if (length(Entity->State.Origin - m_InterpolateOrigin0)/(m_InterpolateTime1 - m_InterpolateTime0) > 50.0*1000.0)
+    if (length(Entity->GetOrigin() - m_InterpolateOrigin0)/(m_InterpolateTime1 - m_InterpolateTime0) > 50.0*1000.0)
     {
         // Don't interpolate if the theoretical speed is larger than 50 m/s, or 180 km/h.
         m_Interpolate_Ok=false;
@@ -568,29 +568,23 @@ void EngineEntityT::Predict(const PlayerCommandT& PlayerCommand, unsigned long O
 
 void EngineEntityT::GetCamera(bool UsePredictedState, Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const
 {
-#if 1
     if (!UsePredictedState)
     {
-        Origin =Entity->State.Origin;
-        Heading=Entity->State.Heading;
-        Pitch  =Entity->State.Pitch;
-        Bank   =Entity->State.Bank;
-    }
-    else
-    {
-        Origin =PredictedState.Origin;
-        Heading=PredictedState.Heading;
-        Pitch  =PredictedState.Pitch;
-        Bank   =PredictedState.Bank;
-    }
-#else
-    if (!UsePredictedState)
-    {
-        Entity->GetCamera(Origin, Heading, Pitch, Bank);
+        Origin =Entity->GetOrigin();
+        Entity->GetCameraOrientation(Heading, Pitch, Bank);
         return;
     }
 
     // TODO: Optimize this, e.g. by caching the camera details after each update of PredictedState.
+#if 1
+    const EntityStateT BackupState=Entity->State;
+    Entity->State=PredictedState;
+
+    Origin =Entity->GetOrigin();
+    Entity->GetCameraOrientation(Heading, Pitch, Bank);
+
+    Entity->State=BackupState;
+#else
     Entity->Serialize(BackupState);
     Entity->Deserialize(PredictedState);
     Entity->GetCamera(Origin, Heading, Pitch, Bank);
@@ -607,41 +601,30 @@ bool EngineEntityT::GetLightSourceInfo(bool UsePredictedState, unsigned long& Di
     if (UsePredictedState)
     {
         // It's the local predicted human player entity.
-        #if 0
-            const EntityStateT BackupState(Entity->State);
-            Entity->State=PredictedState;
-        #else
-            // Be lazy and only correct for the predicted origin, not everything else in the state, too.
-            const Vector3dT BackupOrigin(Entity->State.Origin);
-            Entity->State.Origin=PredictedState.Origin;
-        #endif
+        const EntityStateT BackupState(Entity->State);
+        Entity->State=PredictedState;
 
         const bool Result=Entity->GetLightSourceInfo(DiffuseColor, SpecularColor, Position, Radius, CastsShadows);
 
-        #if 0
-            Entity->State=BackupState;
-        #else
-            Entity->State.Origin=BackupOrigin;
-        #endif
-
+        Entity->State=BackupState;
         return Result;
     }
     else
     {
         // It's a non-predicted NPC entity.
-        const Vector3dT BackupOrigin(Entity->State.Origin);
+        const Vector3dT BackupOrigin(Entity->GetOrigin());
 
         if (m_Interpolate_Ok && interpolateNPCs.GetValueBool() && Entity->DrawInterpolated())
         {
             const double dt=m_InterpolateTime1-m_InterpolateTime0;
             const double f =(dt>0) ? (GlobalTime.GetValueDouble()-m_InterpolateTime1)/dt : 1.0;
 
-            Entity->State.Origin=m_InterpolateOrigin0*(1.0-f) + Entity->State.Origin*f;
+            Entity->SetInterpolationOrigin(m_InterpolateOrigin0*(1.0-f) + Entity->GetOrigin()*f);
         }
 
         const bool Result=Entity->GetLightSourceInfo(DiffuseColor, SpecularColor, Position, Radius, CastsShadows);
 
-        Entity->State.Origin=BackupOrigin;
+        Entity->SetInterpolationOrigin(BackupOrigin);
 
         return Result;
     }
@@ -663,19 +646,25 @@ void EngineEntityT::Draw(bool FirstPersonView, bool UsePredictedState, const Vec
             const double dt=m_InterpolateTime1-m_InterpolateTime0;
             const double f =(dt>0) ? (GlobalTime.GetValueDouble()-m_InterpolateTime1)/dt : 1.0;
 
-            // if (Entity->State.Origin.z>10000)   // Only print information for the eagle in BpRockB.
+            // if (Entity->GetOrigin().z>10000)   // Only print information for the eagle in BpRockB.
             // {
             //     std::cout << "Values: t0: " << InterpolateTime0 << " t1: " << InterpolateTime1 << " globalt: " << GlobalTime.GetValueDouble() << " f: " << f << " ";
-            //     std::cout << "ohne Interp: " << Entity->State.Origin << "   mit Interp: " << InterpolateState0->Origin*(1.0-f) + Entity->State.Origin*f << "\n";
+            //     std::cout << "ohne Interp: " << Entity->GetOrigin() << "   mit Interp: " << InterpolateState0->Origin*(1.0-f) + Entity->GetOrigin()*f << "\n";
             // }
 
-            Entity->State.Origin=m_InterpolateOrigin0*(1.0-f) + Entity->State.Origin*f;
+            Entity->SetInterpolationOrigin(m_InterpolateOrigin0*(1.0-f) + Entity->GetOrigin()*f);
         }
     }
 
 
     MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
     MatSys::Renderer->PushLightingParameters();
+
+    unsigned short Ent_Heading;
+    unsigned short Ent_Pitch;
+    unsigned short Ent_Bank;
+
+    Entity->GetBodyOrientation(Ent_Heading, Ent_Pitch, Ent_Bank);
 
     // Get the currently set lighting parameters.
     const float* PosL=MatSys::Renderer->GetCurrentLightSourcePosition();
@@ -694,8 +683,8 @@ void EngineEntityT::Draw(bool FirstPersonView, bool UsePredictedState, const Vec
     // (And it probably doesn't make much sense to try to get the predicted position instead.)
     // Consequently, we ALWAYS have to compute the relative light source position (i.e. the model space position)
     // wrt. the UNPREDICTED entity, even if we're actually drawing the predicted entity of the local player.
-    LightSourcePos=LightSourcePos-Entity->State.Origin;         // Convert into unrotated model space.
-    LightSourcePos=LightSourcePos.GetRotZ(-90.0+float(Entity->State.Heading)/8192.0*45.0);
+    LightSourcePos=LightSourcePos-Entity->GetOrigin();         // Convert into unrotated model space.
+    LightSourcePos=LightSourcePos.GetRotZ(-90.0+float(Ent_Heading)/8192.0*45.0);
     LightSourcePos=scale(LightSourcePos, 1.0/25.4);
 
     // Don't forget to scale the radius of the light source appropriately down (into model space), too.
@@ -709,12 +698,12 @@ void EngineEntityT::Draw(bool FirstPersonView, bool UsePredictedState, const Vec
     // The ONLY BAD CASE probably occurs if this entity is "our" entity: The local "view" weapon model might show the typical stepping behaviour
     // in specular highlights that occurs when predicted and non-predicted positions meet.
     // In this case should EyePos=PredictedOrig-PredictedOrig=(0, 0, 0).
-    // Idea: Instead of detecting *here* if this entity is "our" entity and then replace Entity->State.Origin with the predicted Origin,
+    // Idea: Instead of detecting *here* if this entity is "our" entity and then replace Entity->GetOrigin() with the predicted Origin,
     // we might also detect this in EntityManager.cpp, and hand-in the unpredicted(!) position if this is "our" entity.
     // Then we had the same result: EyePos=UnPredictedOrig-UnPredictedOrig=(0, 0, 0).
     // On the other hand: We have UsePredictedState conveniently passed as parameter already, so why not make use of it?!
-    EyePos=EyePos-Entity->State.Origin;         // Convert into unrotated model space.
-    EyePos=EyePos.GetRotZ(-90.0+float(Entity->State.Heading)/8192.0*45.0);
+    EyePos=EyePos-Entity->GetOrigin();         // Convert into unrotated model space.
+    EyePos=EyePos.GetRotZ(-90.0+float(Ent_Heading)/8192.0*45.0);
     EyePos=scale(EyePos, 1.0/25.4);
 
 
@@ -726,36 +715,21 @@ void EngineEntityT::Draw(bool FirstPersonView, bool UsePredictedState, const Vec
 
     // Set the ambient light color for this entity.
     // Paradoxically, this is not a global, but rather a per-entity value that is derived from the lightmaps that are close to that entity.
-    const Vector3fT AmbientEntityLight=Entity->GameWorld->GetAmbientLightColorFromBB(Entity->State.Dimensions, Entity->State.Origin);
+    const Vector3fT AmbientEntityLight=Entity->GameWorld->GetAmbientLightColorFromBB(Entity->GetDimensions(), Entity->GetOrigin());
     MatSys::Renderer->SetCurrentAmbientLightColor(AmbientEntityLight.x, AmbientEntityLight.y, AmbientEntityLight.z);
 
 
-    MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, float(Entity->State.Origin.x), float(Entity->State.Origin.y), float(Entity->State.Origin.z));
-    MatSys::Renderer->RotateZ  (MatSys::RendererI::MODEL_TO_WORLD, 90.0f-float(Entity->State.Heading)/8192.0f*45.0f);
+    MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, float(Entity->GetOrigin().x), float(Entity->GetOrigin().y), float(Entity->GetOrigin().z));
+    MatSys::Renderer->RotateZ  (MatSys::RendererI::MODEL_TO_WORLD, 90.0f-float(Ent_Heading)/8192.0f*45.0f);
     MatSys::Renderer->Scale    (MatSys::RendererI::MODEL_TO_WORLD, 25.4f);
 
-    Entity->Draw(FirstPersonView, (float)length(ViewerPos-Entity->State.Origin));
+    Entity->Draw(FirstPersonView, (float)length(ViewerPos-Entity->GetOrigin()));
 
 
     MatSys::Renderer->PopLightingParameters();
     MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
 
-
-#if 1
     Entity->State=BackupState;
-#else
-    if (UsePredictedState)
-    {
-        Entity->State=BackupState;
-    }
-    else
-    {
-        if (InterpolateState0!=NULL && interpolateNPCs.GetValueBool() && Entity->DrawInterpolated())
-        {
-            Entity->State.Origin=BackupState.Origin;
-        }
-    }
-#endif
 }
 
 
