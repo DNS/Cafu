@@ -29,11 +29,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 class EntityCreateParamsT;
-class NetDataT;
 class PhysicsWorldT;
 struct lua_State;
 namespace cf { namespace ClipSys { class CollisionModelT; } }
 namespace cf { namespace GameSys { class GameWorldI; } }
+namespace cf { namespace Network { class InStreamT; } }
+namespace cf { namespace Network { class OutStreamT; } }
 namespace cf { namespace TypeSys { class TypeInfoT; } }
 namespace cf { namespace TypeSys { class TypeInfoManT; } }
 namespace cf { namespace TypeSys { class CreateParamsT; } }
@@ -127,7 +128,7 @@ class BaseEntityT
     /// Writes the current state of this entity into the given stream.
     /// This method is called to send the state of the entity over the network or to save it to disk.
     /// Note that this method is the twin of Deserialize(), whose implementation it must match.
-    virtual void Serialize(NetDataT& Stream) const;
+    virtual void Serialize(cf::Network::OutStreamT& Stream) const;
 
     /// Reads the state of this entity from the given stream, and updates the entity accordingly.
     /// This method is called after the state of the entity has been received over the network,
@@ -136,7 +137,7 @@ class BaseEntityT
     ///
     /// @param IsIniting   Only used by the ctor implementation: Set to \c true in order to indicate
     ///     that the entity is newly constructed. User code should always leave this at \c false.
-    virtual void Deserialize(NetDataT& Stream, bool IsIniting=false);
+    virtual void Deserialize(cf::Network::InStreamT& Stream, bool IsIniting=false);
 
     /// Returns the origin point of this entity. Used for
     ///   - obtaining the camera position of the local human player entity (1st person view),

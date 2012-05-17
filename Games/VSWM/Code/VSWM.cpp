@@ -147,12 +147,12 @@ BaseEntityT::~BaseEntityT()
 }
 
 
-void BaseEntityT::Serialize(NetDataT& Stream) const
+void BaseEntityT::Serialize(cf::Network::OutStreamT& Stream) const
 {
 }
 
 
-void BaseEntityT::Deserialize(NetDataT& Stream, bool IsIniting)
+void BaseEntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
 {
 }
 
