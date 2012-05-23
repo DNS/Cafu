@@ -307,6 +307,18 @@ class NetDataT
         return &Data[StringStart];
     }
 
+    /// Reads a delta message for cf::Network::StateT from the data buffer.
+    /// @return Delta message read.
+    ArrayT<uint8_t> ReadDMsg()
+    {
+        ArrayT<uint8_t> DMsg;
+
+        DMsg.PushBackEmptyExact(ReadLong());
+        for (unsigned long i=0; i<DMsg.Size(); i++) DMsg[i]=ReadByte();
+
+        return DMsg;
+    }
+
     /// Writes one Byte (8 Bit) into the data buffer.
     /// @param b Byte to write.
     void WriteByte(char b)
@@ -362,6 +374,14 @@ class NetDataT
     void WriteArrayOfBytes(const ArrayT<char>& AoB)
     {
         for (unsigned long i=0; i<AoB.Size(); i++) Data.PushBack(AoB[i]);
+    }
+
+    /// Writes a delta message as created by cf::Network::StateT into the data buffer.
+    /// @param DMsg Delta message to write.
+    void WriteDMsg(const ArrayT<uint8_t>& DMsg)
+    {
+        WriteLong(DMsg.Size());
+        for (unsigned long i=0; i<DMsg.Size(); i++) Data.PushBack(DMsg[i]);
     }
 
 

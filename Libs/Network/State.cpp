@@ -55,3 +55,14 @@ ArrayT<uint8_t> StateT::GetDeltaMessage(const StateT& Other, bool Compress) cons
     // TODO: Implement RLE compression if Compress==true.
     return DeltaMessage;
 }
+
+
+/*static*/ bool StateT::IsDeltaMessageEmpty(const ArrayT<uint8_t>& DeltaMessage)
+{
+    // TODO: if (DeltaMessage[0] == 1) decompress...
+    for (unsigned long i=0; i<DeltaMessage.Size(); i++)
+        if (DeltaMessage[i])
+            return false;
+
+    return true;
+}

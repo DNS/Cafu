@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Templates/Array.hpp"
 
+#include <cstring>
 #include <string>
 
 #ifdef _WIN32
@@ -59,7 +60,7 @@ class StateT
     /// Constructor for creating an empty StateT instance.
     /// The constructed instance is typically used with an OutStreamT,
     /// filled indirectly in a call to e.g. BaseEntityT::Serialize(OutStreamT& Stream).
-    StateT();
+    StateT() { }
 
     /// Constructor for creating a state from another StateT instance and a delta message.
     /// @param Other          The other state to create this state from.
@@ -71,6 +72,9 @@ class StateT
     /// @param Other      The other state that the generated delta message is relative to.
     /// @param Compress   Whether the delta message should be RLE-compressed.
     ArrayT<uint8_t> GetDeltaMessage(const StateT& Other, bool Compress=true) const;
+
+    /// Returns whether a delta message created by GetDeltaMessage() is empty (no change to the state).
+    static bool IsDeltaMessageEmpty(const ArrayT<uint8_t>& DeltaMessage);
 
 
     private:

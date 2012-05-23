@@ -211,8 +211,8 @@ void BaseEntityT::Serialize(cf::Network::OutStreamT& Stream) const
 // in the derived classes and member State of type EntityStateT should be "disintegrated".
 void BaseEntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
 {
-    float    f;
-    uint32_t ui;
+    float    f =0.0f;
+    uint32_t ui=0;
 
     Stream >> f; State.Origin.x=f;
     Stream >> f; State.Origin.y=f;
@@ -244,10 +244,12 @@ void BaseEntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
     for (unsigned int Nr=0; Nr<32; Nr++) { Stream >> ui; State.HaveAmmoInWeapons[Nr]=ui; }
 
 
-    // TODO ???????  (Maybe we should only make "DoDeserialize()" virtual, and have pre- and post-code here...)
-    // Entity->Cl_UnserializeFrom();   // A temp. hack to get the entities ClipModel origin updated.
+    // A temp. hack to get the entities ClipModel origin updated.
+    // TODO: Maybe we should only make "DoDeserialize()" virtual, and have pre- and post-code here...
+    Cl_UnserializeFrom();
 
 
+#if 0   // Disabled at this time -- the old code in EngineEntityT::PostDraw() should still do its job.
     // Process events.
     // Don't process the event counters if we're newly instantiating / constructing the entity.
     if (!IsIniting)
@@ -257,6 +259,7 @@ void BaseEntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
         for (char b=0; Events!=0; Events >>= 1, b++)
             if (Events & 1) ProcessEvent(b);
     }
+#endif
 
     m_OldEvents=State.Events;
 }
