@@ -159,12 +159,18 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
         if (Msg==SC1_EntityRemove)
         {
             // Der Entity im DeltaFrame kommt im CurrentFrame nicht mehr vor
-            if (DeltaFrameEntityID!=NewEntityID)
+            if (DeltaFrameEntityID==NewEntityID)
+            {
+                DeltaFrameIndex++;
+                if (DeltaFrameIndex>=DeltaFrame->EntityIDsInPVS.Size()) DeltaFrameEntityID=0x99999999;
+                                                                   else DeltaFrameEntityID=DeltaFrame->EntityIDsInPVS[DeltaFrameIndex];
+            }
+            else
+            {
+                // Cannot remove an entity from the delta frame that wasn't in the delta frame in the first place.
                 EnqueueString("CLIENT WARNING: %s, L %u: DeltaFrameEntityID!=NewEntityID on removal!\n", __FILE__, __LINE__);
+            }
 
-            DeltaFrameIndex++;
-            if (DeltaFrameIndex>=DeltaFrame->EntityIDsInPVS.Size()) DeltaFrameEntityID=0x99999999;
-                                                               else DeltaFrameEntityID=DeltaFrame->EntityIDsInPVS[DeltaFrameIndex];
             continue;
         }
 
