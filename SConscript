@@ -46,11 +46,6 @@ if sys.platform!="win32" or envTools["TARGET_ARCH"]=="x86":
     envTools.Program('TerrainViewer', "CaTools/TerrainViewer.cpp")
     envTools.Program('TerrainViewerOld', "CaTools/TerrainViewerOld.cpp")
 
-if sys.platform=="win32":
-    env.Program('ReadDump', "CaTools/ReadDump.cpp", LIBS="wsock32")
-elif sys.platform=="linux2":
-    env.Program('ReadDump', "CaTools/ReadDump.cpp")
-
 
 
 # Create a common construction environment for our wxWidgets-based programs (Cafu and CaWE).
