@@ -212,11 +212,11 @@ void EntityManagerT::WriteFrameUpdateMessages(unsigned long ClientEntityID, unsi
     for (unsigned long EntityNr=0; EntityNr<EngineEntities.Size(); EntityNr++)
         if (EngineEntities[EntityNr]!=NULL)
         {
-            const EntityStateT&   EntityState=EngineEntities[EntityNr]->GetBaseEntity()->State;
-            BoundingBox3T<double> EntityBB   =EntityState.Dimensions;
+            const Vector3dT&      EntityOrigin=EngineEntities[EntityNr]->GetBaseEntity()->GetOrigin();
+            BoundingBox3T<double> EntityBB    =EngineEntities[EntityNr]->GetBaseEntity()->GetDimensions();
 
-            EntityBB.Min=EntityBB.Min+EntityState.Origin;
-            EntityBB.Max=EntityBB.Max+EntityState.Origin;
+            EntityBB.Min += EntityOrigin;
+            EntityBB.Max += EntityOrigin;
 
             if (Ca3DEWorld.BspTree->IsInPVS(EntityBB, ClientLeafNr)) NewStatePVSEntityIDs->PushBack(EntityNr);
         }
@@ -354,46 +354,8 @@ bool EntityManagerT::CreateNewEntityFromEntityBaseLineMessage(NetDataT& InData)
     // Andererseits sollte ein Disconnect dennoch nicht notwendig sein, der Fehler sollte ohnehin niemals auftreten.
     if (!NewBaseEntity)
     {
-        /***************************************************************************************************************/
-        /*** EntityStateT field changes FORCE protocol changes in ALL places that are marked *like this* (use grep)! ***/
-        /***************************************************************************************************************/
-
-        // Wir müssen die 'InData' irgendwie zu Ende lesen ("Rette, was zu retten ist!").
-        unsigned long  FieldMaskBaseLine1=InData.ReadLong();
-        unsigned short FieldMaskBaseLine2=(FieldMaskBaseLine1 & 0x02000000) ? InData.ReadWord() : 0;
-        unsigned long  FieldMaskBaseLine3=(FieldMaskBaseLine1 & 0x04000000) ? InData.ReadLong() : 0;
-
-        if (FieldMaskBaseLine1 & 0x00000001) InData.ReadFloat ();   // Origin_x
-        if (FieldMaskBaseLine1 & 0x00000002) InData.ReadFloat ();   // Origin_y
-        if (FieldMaskBaseLine1 & 0x00000004) InData.ReadFloat ();   // Origin_z
-        if (FieldMaskBaseLine1 & 0x00000008) InData.ReadFloat ();   // Velocity_x
-        if (FieldMaskBaseLine1 & 0x00000010) InData.ReadFloat ();   // Velocity_y
-        if (FieldMaskBaseLine1 & 0x00000020) InData.ReadFloat ();   // Velocity_z
-        if (FieldMaskBaseLine1 & 0x00000040) InData.ReadFloat ();   // Dim_Min_z
-        if (FieldMaskBaseLine1 & 0x00000080) InData.ReadFloat ();   // Dim_Max_z
-        if (FieldMaskBaseLine1 & 0x00000100) InData.ReadWord  ();   // Heading
-        if (FieldMaskBaseLine1 & 0x00000200) InData.ReadWord  ();   // Pitch
-        if (FieldMaskBaseLine1 & 0x00000400) InData.ReadWord  ();   // Bank
-        if (FieldMaskBaseLine1 & 0x00000800) InData.ReadByte  ();   // StateOfExistance
-        if (FieldMaskBaseLine1 & 0x00001000) InData.ReadByte  ();   // Flags
-        if (FieldMaskBaseLine1 & 0x00002000) InData.ReadString();   // PlayerName
-        if (FieldMaskBaseLine1 & 0x00004000) InData.ReadByte  ();   // ModelIndex
-        if (FieldMaskBaseLine1 & 0x00008000) InData.ReadByte  ();   // ModelSequNr
-        if (FieldMaskBaseLine1 & 0x00010000) InData.ReadFloat ();   // ModelFrameNr
-        if (FieldMaskBaseLine1 & 0x00020000) InData.ReadByte  ();   // Health
-        if (FieldMaskBaseLine1 & 0x00040000) InData.ReadByte  ();   // Armor
-        if (FieldMaskBaseLine1 & 0x00080000) InData.ReadLong  ();   // HaveItems
-        if (FieldMaskBaseLine1 & 0x00100000) InData.ReadLong  ();   // HaveWeapons
-        if (FieldMaskBaseLine1 & 0x00200000) InData.ReadByte  ();   // WeaponSlot
-        if (FieldMaskBaseLine1 & 0x00400000) InData.ReadByte  ();   // WeaponSequNr
-        if (FieldMaskBaseLine1 & 0x00800000) InData.ReadFloat ();   // WeaponFrameNr
-        if (FieldMaskBaseLine1 & 0x01000000) InData.ReadLong  ();   // Events
-
-        char Nr;
-
-        for (Nr=0; Nr<16; Nr++) if (FieldMaskBaseLine2 & (1L << Nr)) InData.ReadWord();
-        for (Nr=0; Nr<32; Nr++) if (FieldMaskBaseLine3 & (1L << Nr)) InData.ReadByte();
-
+        // Finish reading InData, so that we can gracefully continue despite the error.
+        InData.ReadDMsg();
         EnqueueString("CLIENT ERROR: %s, L %u: Cannot create entity %u from SC1_EntityBaseLine msg: unknown type ID '%u' (WorldFileIndex %lu, MapFileIndex %lu)!\n", __FILE__, __LINE__, EntityID, EntityTypeID, EntityWFI, MFIndex);
         return false;
     }
@@ -410,7 +372,7 @@ bool EntityManagerT::CreateNewEntityFromEntityBaseLineMessage(NetDataT& InData)
 }
 
 
-bool EntityManagerT::ParseServerDeltaUpdateMessage(unsigned long EntityID, unsigned long DeltaFrameNr, unsigned long ServerFrameNr, unsigned long FieldMask1, NetDataT& InData)
+bool EntityManagerT::ParseServerDeltaUpdateMessage(unsigned long EntityID, unsigned long DeltaFrameNr, unsigned long ServerFrameNr, const ArrayT<uint8_t>* DeltaMessage)
 {
     bool EntityIDIsOK=false;
 
@@ -420,49 +382,6 @@ bool EntityManagerT::ParseServerDeltaUpdateMessage(unsigned long EntityID, unsig
 
     if (!EntityIDIsOK)
     {
-        /***************************************************************************************************************/
-        /*** EntityStateT field changes FORCE protocol changes in ALL places that are marked *like this* (use grep)! ***/
-        /***************************************************************************************************************/
-
-        // Wir müssen die 'InData' irgendwie zu Ende lesen.
-        // An dieser Stelle könnten wir entweder einen Trick versuchen, und die Arbeit auf einen bestehenden EngineEntityT abwälzen,
-        // und die Parameter der ParseServerDeltaUpdateMessage() Funktion so wählen, daß sie nach getaner Arbeit scheitert.
-        // Aber: Es könnte sein, daß das EngineEntities-Array leer ist! Dann wäre unweigerlich die Spezifikation dieser Methode verletzt.
-        // Deshalb wählen wir lieber den unbequemeren, aber zur Laufzeit sichererern Weg:
-        unsigned short FieldMask2=(FieldMask1 & 0x02000000) ? InData.ReadWord() : 0;
-        unsigned long  FieldMask3=(FieldMask1 & 0x04000000) ? InData.ReadLong() : 0;
-
-        if (FieldMask1 & 0x00000001) InData.ReadFloat ();   // Origin_x
-        if (FieldMask1 & 0x00000002) InData.ReadFloat ();   // Origin_y
-        if (FieldMask1 & 0x00000004) InData.ReadFloat ();   // Origin_z
-        if (FieldMask1 & 0x00000008) InData.ReadFloat ();   // Velocity_x
-        if (FieldMask1 & 0x00000010) InData.ReadFloat ();   // Velocity_y
-        if (FieldMask1 & 0x00000020) InData.ReadFloat ();   // Velocity_z
-        if (FieldMask1 & 0x00000040) InData.ReadFloat ();   // Dim_Min_z
-        if (FieldMask1 & 0x00000080) InData.ReadFloat ();   // Dim_Max_z
-        if (FieldMask1 & 0x00000100) InData.ReadWord  ();   // Heading
-        if (FieldMask1 & 0x00000200) InData.ReadWord  ();   // Pitch
-        if (FieldMask1 & 0x00000400) InData.ReadWord  ();   // Bank
-        if (FieldMask1 & 0x00000800) InData.ReadByte  ();   // StateOfExistance
-        if (FieldMask1 & 0x00001000) InData.ReadByte  ();   // Flags
-        if (FieldMask1 & 0x00002000) InData.ReadString();   // PlayerName
-        if (FieldMask1 & 0x00004000) InData.ReadByte  ();   // ModelIndex
-        if (FieldMask1 & 0x00008000) InData.ReadByte  ();   // ModelSequNr
-        if (FieldMask1 & 0x00010000) InData.ReadFloat ();   // ModelFrameNr
-        if (FieldMask1 & 0x00020000) InData.ReadByte  ();   // Health
-        if (FieldMask1 & 0x00040000) InData.ReadByte  ();   // Armor
-        if (FieldMask1 & 0x00080000) InData.ReadLong  ();   // HaveItems
-        if (FieldMask1 & 0x00100000) InData.ReadLong  ();   // HaveWeapons
-        if (FieldMask1 & 0x00200000) InData.ReadByte  ();   // WeaponSlot
-        if (FieldMask1 & 0x00400000) InData.ReadByte  ();   // WeaponSequNr
-        if (FieldMask1 & 0x00800000) InData.ReadFloat ();   // WeaponFrameNr
-        if (FieldMask1 & 0x01000000) InData.ReadLong  ();   // Events
-
-        char Nr;
-
-        for (Nr=0; Nr<16; Nr++) if (FieldMask2 & (1L << Nr)) InData.ReadWord();
-        for (Nr=0; Nr<32; Nr++) if (FieldMask3 & (1L << Nr)) InData.ReadByte();
-
         // Gib Warnung aus. Aber nur, weil wir mit einer SC1_EntityUpdate Message nichts anfangen können, brauchen wir noch lange nicht zu disconnecten.
         // ONE reason for getting EntityID>=EngineEntities.Size() here is the way how baselines are sent:
         // When a client joins a level, there can be a LOT of entities. Usually, not all baselines of all entities fit into a single
@@ -480,7 +399,7 @@ bool EntityManagerT::ParseServerDeltaUpdateMessage(unsigned long EntityID, unsig
     // Gibt bei Scheitern Diagnose-Nachricht aus. Häufigster Grund für Scheitern dürfe eine zu alte DeltaFrameNr sein.
     // Der Calling-Code muß das erkennen und reagieren (durch Anfordern von nichtkomprimierten (gegen die BaseLine komprimierten) Messages).
     // Jedenfalls nicht Grund genug für ein Client-Disconnect.
-    return EngineEntities[EntityID]->ParseServerDeltaUpdateMessage(DeltaFrameNr, ServerFrameNr, FieldMask1, InData);
+    return EngineEntities[EntityID]->ParseServerDeltaUpdateMessage(DeltaFrameNr, ServerFrameNr, DeltaMessage);
 }
 
 

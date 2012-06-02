@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "../../Games/BaseEntity.hpp"
 #include "../../Games/PlayerCommand.hpp"
+#include "Network/State.hpp"
 
 class NetDataT;
 
@@ -96,17 +97,15 @@ class EngineEntityT
     // with the rest of the SC1_EntityBaseLine message.
     EngineEntityT(BaseEntityT* Entity_, NetDataT& InData);
 
-    // Ausgehend vom (alten) Zustand des Frames 'DeltaFrameNr' wird der Zustand 'Entity->State' des (neuen) Frames 'ServerFrameNr' bestimmt,
-    // wobei Delta-Informationen anhand der 'FieldMask' und den 'InData' eingebracht werden.
+    // Ausgehend vom (alten) Zustand des Frames 'DeltaFrameNr' wird der Entity Zustand des (neuen) Frames 'ServerFrameNr' bestimmt,
+    // wobei Delta-Informationen anhand der DeltaMessage eingebracht werden.
     // 'DeltaFrameNr' ist die Nummer des Frames, gegen dessen Zustand Delta-dekomprimiert werden soll.
-    // Ist dieser Parameter 0, so wird angenommen, daß 'FieldMask' und 'InData' gegen die BaseLine angewandt werden sollen!
+    // Ist dieser Parameter 0, so wird angenommen, daß DeltaMessage gegen die BaseLine angewandt werden sollen!
     // Gibt 'true' bei Erfolg zurück, sonst (Scheitern) 'false'.
     // Die Funktion scheitert bei "unpassenden" Parametern (wenn 'DeltaFrameNr<=EntityStateFrameNr<ServerFrameNr' verletzt ist)
     // und wenn 'DeltaFrameNr' zu alt ist (Versuch, gegen etwas zu Dekomprimieren, was wir nicht (mehr) haben).
-    // In jedem Falle wird 'InData' gemäß 'FieldMask' korrekt zu Ende gelesen, sodaß es zum Auslesen weiterer Messages verwandt werden kann.
-    // D.h. insbesondere, daß der Aufruf dieser Funktion nach Gelingen oder Scheitern NICHT wiederholt werden kann!
-    // Der Rest (das this-Objekt selbst) bleibt bei Scheitern unberührt.
-    bool ParseServerDeltaUpdateMessage(unsigned long DeltaFrameNr, unsigned long ServerFrameNr, unsigned long FieldMask, NetDataT& InData);
+    // Im Falle des Scheitersn bleibt die EngineEntityT Instanz unberührt.
+    bool ParseServerDeltaUpdateMessage(unsigned long DeltaFrameNr, unsigned long ServerFrameNr, const ArrayT<uint8_t>* DeltaMessage);
 
     // This function is called after we received any in-game message (which should always contain an SC1_FrameInfo message) from the server.
     // From such a message we know that the server has seen all PlayerCommands up to the 'RemoteLastIncomingSequenceNr' packet,
@@ -138,26 +137,33 @@ class EngineEntityT
 
     private:
 
-    EngineEntityT(const EngineEntityT&);        // Use of the Copy    Constructor is not allowed
-    void operator = (const EngineEntityT&);     // Use of the Assignment Operator is not allowed
+    EngineEntityT(const EngineEntityT&);            ///< Use of the Copy    Constructor is not allowed.
+    void operator = (const EngineEntityT&);         ///< Use of the Assignment Operator is not allowed.
 
-    BaseEntityT*           Entity;              // Base entity as allocated via the cf::GameSys::Game interface.
+    /// Returns the serialized state of our Entity.
+    cf::Network::StateT GetState() const;
 
-    unsigned long          EntityStateFrameNr;  // ==ServerFrameNr (the state number of Entity->State), used both on Client and Server side
+    /// Sets the state of our Entity to the given State.
+    void SetState(const cf::Network::StateT& State) const;
 
-    EntityStateT           BaseLine;            // Entity state on creation
-    unsigned long          BaseLineFrameNr;     // Frame number on which the entity was created
-    ArrayT<EntityStateT*>  OldStates;           // States of the last n (server) frames, kept on both client and server side for delta compression
 
-    ArrayT<PlayerCommandT> PlayerCommands;      // For prediction, client side use only
-    EntityStateT           PredictedState;      // The current predicted state
-    unsigned long          OldEvents;           // Previous event flags, for detecting if the Entity-State.Events flags changed
+    BaseEntityT*                Entity;             // Base entity as allocated via the cf::GameSys::Game interface.
+
+    unsigned long               EntityStateFrameNr; // ==ServerFrameNr (the state number of Entity->State), used both on Client and Server side
+
+    cf::Network::StateT         m_BaseLine;         ///< State of the entity immediately after it was created.
+    unsigned long               BaseLineFrameNr;    ///< Frame number on which the entity was created.
+    ArrayT<cf::Network::StateT> m_OldStates;        ///< States of the last n (server) frames, kept on both client and server side for delta compression.
+
+    ArrayT<PlayerCommandT>      PlayerCommands;     // For prediction, client side use only
+    EntityStateT                PredictedState;     // The current predicted state
+    unsigned long               OldEvents;          // Previous event flags, for detecting if the Entity->State.Events flags changed
 
     // Variables for interpolating the origin of non-predicted entities (i.e. all but the local player entity).
-    bool                   m_Interpolate_Ok;    ///< Is interpolation currently possible? (false e.g. when the last update of the Entity->State was not relative to one of the OldStates).
-    Vector3dT              m_InterpolateOrigin0;///< If Interpolate_Ok, this is the previous entity origin to interpolate *from* (from the most recent OldStates). The current entity state to interpolate *to* is the usual Entity->State.
-    double                 m_InterpolateTime0;  ///< The clients global time at which the InterpolateState0 was received.
-    double                 m_InterpolateTime1;  ///< The clients global time at which the Entity->State     was received.
+    bool                        m_Interpolate_Ok;   ///< Is interpolation currently possible? (false e.g. when the last update of the Entity->State was not relative to one of the OldStates).
+    Vector3dT                   m_InterpolateOrigin0;///< If Interpolate_Ok, this is the previous entity origin to interpolate *from* (from the most recent OldStates). The current entity state to interpolate *to* is the usual Entity->State.
+    double                      m_InterpolateTime0; ///< The clients global time at which the InterpolateState0 was received.
+    double                      m_InterpolateTime1; ///< The clients global time at which the Entity->State     was received.
 };
 
 #endif

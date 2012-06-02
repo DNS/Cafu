@@ -26,6 +26,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Templates/Array.hpp"
 #include <map>
 
+#if defined(_WIN32) && _MSC_VER<1600
+#include "pstdint.h"            // Paul Hsieh's portable implementation of the stdint.h header.
+#else
+#include <stdint.h>
+#endif
+
 class  BaseEntityT;
 class  Ca3DEWorldT;
 struct PlayerCommandT;
@@ -116,11 +122,8 @@ class EntityManagerT
 
     // Ruft 'EngineEntityT::ParseServerDeltaUpdateMessage()' für den EngineEntityT mit der ID 'EntityID' auf (siehe Dokumentation dieser Funktion!).
     // Das Rückgabeergebnis entspricht dem dieser Funktion, ein Scheitern kann nun aber zusätzlich vorkommen, falls 'EntityID' nicht existiert.
-    // 'InData' wird auf jeden Fall gemäß der 'FieldMask' weitergelesen (selbst wenn der Entity mit ID 'EntityID' nicht existiert),
-    // sodaß es zum Auslesen weiterer Messages verwandt werden kann.
-    // D.h. insbesondere, daß der Aufruf dieser Funktion nach Gelingen oder Scheitern NICHT wiederholt werden kann!
     bool ParseServerDeltaUpdateMessage(unsigned long EntityID, unsigned long DeltaFrameNr, unsigned long ServerFrameNr,
-                                       unsigned long FieldMask, NetDataT& InData);
+                                       const ArrayT<uint8_t>* DeltaMessage);
 
     // Please see the corresponding function in EngineEntityT for documentation.
     bool Repredict(unsigned long OurEntityID, unsigned long RemoteLastIncomingSequenceNr, unsigned long LastOutgoingSequenceNr);

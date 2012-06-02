@@ -147,7 +147,7 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
             // Notwendig ist es, den Zustand dieses Entities vom DeltaFrame (Nummer CurrentFrame.DeltaFrameNr) in den Zustand des
             // CurrentFrames (Nummer CurrentFrame.ServerFrameNr) zu kopieren.
             CurrentFrame.IsValid&=      // Note that operator & doesn't short-circuit, like operator && does!
-                EntityManager.ParseServerDeltaUpdateMessage(DeltaFrameEntityID, CurrentFrame.DeltaFrameNr, CurrentFrame.ServerFrameNr, 0, InData);
+                EntityManager.ParseServerDeltaUpdateMessage(DeltaFrameEntityID, CurrentFrame.DeltaFrameNr, CurrentFrame.ServerFrameNr, NULL);
 
             DeltaFrameIndex++;
             if (DeltaFrameIndex>=DeltaFrame->EntityIDsInPVS.Size()) DeltaFrameEntityID=0x99999999;
@@ -176,13 +176,13 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
 
         if (DeltaFrameEntityID==NewEntityID)
         {
-            const unsigned long FieldMask=InData.ReadLong();
+            const ArrayT<uint8_t> DeltaMessage=InData.ReadDMsg();
 
             // Der Entity vom DeltaFrame kommt auch im CurrentFrame vor, Änderungen ergeben sich aus der Delta-Dekompression bzgl. des DeltaFrame
             CurrentFrame.EntityIDsInPVS.PushBack(NewEntityID);
 
             CurrentFrame.IsValid&=      // Note that operator & doesn't short-circuit, like operator && does!
-                EntityManager.ParseServerDeltaUpdateMessage(NewEntityID, CurrentFrame.DeltaFrameNr, CurrentFrame.ServerFrameNr, FieldMask, InData);
+                EntityManager.ParseServerDeltaUpdateMessage(NewEntityID, CurrentFrame.DeltaFrameNr, CurrentFrame.ServerFrameNr, &DeltaMessage);
 
             DeltaFrameIndex++;
             if (DeltaFrameIndex>=DeltaFrame->EntityIDsInPVS.Size()) DeltaFrameEntityID=0x99999999;
@@ -192,14 +192,14 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
 
         if (DeltaFrameEntityID>NewEntityID)
         {
-            const unsigned long FieldMask=InData.ReadLong();
+            const ArrayT<uint8_t> DeltaMessage=InData.ReadDMsg();
 
             // Der Entity kommt im CurrentFrame neu dazu, delta'en bzgl. der BaseLine
             CurrentFrame.EntityIDsInPVS.PushBack(NewEntityID);
             // EnqueueString("Frame %lu, Entity mit ID %i kam hinzu.\n", CurrentFrame.ServerFrameNr, NewEntityID);
 
             CurrentFrame.IsValid&=      // Note that operator & doesn't short-circuit, like operator && does!
-                EntityManager.ParseServerDeltaUpdateMessage(NewEntityID, 0, CurrentFrame.ServerFrameNr, FieldMask, InData);
+                EntityManager.ParseServerDeltaUpdateMessage(NewEntityID, 0, CurrentFrame.ServerFrameNr, &DeltaMessage);
             continue;
         }
     }
@@ -213,7 +213,7 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
         CurrentFrame.EntityIDsInPVS.PushBack(DeltaFrameEntityID);
 
         CurrentFrame.IsValid&=      // Note that operator & doesn't short-circuit, like operator && does!
-            EntityManager.ParseServerDeltaUpdateMessage(DeltaFrameEntityID, CurrentFrame.DeltaFrameNr, CurrentFrame.ServerFrameNr, 0, InData);
+            EntityManager.ParseServerDeltaUpdateMessage(DeltaFrameEntityID, CurrentFrame.DeltaFrameNr, CurrentFrame.ServerFrameNr, NULL);
 
         DeltaFrameIndex++;
         if (DeltaFrameIndex>=DeltaFrame->EntityIDsInPVS.Size()) DeltaFrameEntityID=0x99999999;
