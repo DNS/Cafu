@@ -28,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/CollisionModel_static.hpp"
 #include "ClipSys/CollisionModelMan.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
+#include "../../Games/BaseEntity.hpp"
 #include "../../Games/Game.hpp"
 
 

@@ -22,10 +22,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_ENGINEENTITY_HPP_INCLUDED
 #define CAFU_ENGINEENTITY_HPP_INCLUDED
 
-#include "../../Games/BaseEntity.hpp"
 #include "../../Games/PlayerCommand.hpp"
+#include "Math3D/Vector3.hpp"
 #include "Network/State.hpp"
 
+class BaseEntityT;
 class NetDataT;
 
 
@@ -155,9 +156,9 @@ class EngineEntityT
     unsigned long               BaseLineFrameNr;    ///< Frame number on which the entity was created.
     ArrayT<cf::Network::StateT> m_OldStates;        ///< States of the last n (server) frames, kept on both client and server side for delta compression.
 
-    ArrayT<PlayerCommandT>      PlayerCommands;     // For prediction, client side use only
-    EntityStateT                PredictedState;     // The current predicted state
-    unsigned long               OldEvents;          // Previous event flags, for detecting if the Entity->State.Events flags changed
+    ArrayT<PlayerCommandT>      PlayerCommands;     ///< For prediction, client side use only.
+    cf::Network::StateT         m_PredictedState;   ///< The current predicted state.
+    unsigned long               OldEvents;          ///< Previous event flags, for detecting if the Entity->State.Events flags changed.
 
     // Variables for interpolating the origin of non-predicted entities (i.e. all but the local player entity).
     bool                        m_Interpolate_Ok;   ///< Is interpolation currently possible? (false e.g. when the last update of the Entity->State was not relative to one of the OldStates).

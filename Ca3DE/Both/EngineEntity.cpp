@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/Matrix.hpp"
 #include "Network/Network.hpp"
 #include "Win32/Win32PrintHelp.hpp"
+#include "../../Games/BaseEntity.hpp"
 #include "../../Games/Game.hpp"
 #include "Ca3DEWorld.hpp"   // Only for EngineEntityT::Draw().
 
@@ -89,7 +90,7 @@ EngineEntityT::EngineEntityT(BaseEntityT* Entity_, unsigned long CreationFrameNr
       BaseLineFrameNr(CreationFrameNr),
       m_OldStates(),
    // PlayerCommands,
-      PredictedState(Entity->State),
+      m_PredictedState(),
       OldEvents(0),
       m_Interpolate_Ok(false),
       m_InterpolateOrigin0(),
@@ -188,7 +189,7 @@ EngineEntityT::EngineEntityT(BaseEntityT* Entity_, NetDataT& InData)
       BaseLineFrameNr(1234),
       m_OldStates(),
    // PlayerCommands,
-      PredictedState(Entity->State),    // Unnötig, aber leider unvermeidlich (kein Default-Konstruktor vorhanden)!
+      m_PredictedState(),
       OldEvents(0),
       m_Interpolate_Ok(false),
       m_InterpolateOrigin0(),
@@ -206,8 +207,8 @@ EngineEntityT::EngineEntityT(BaseEntityT* Entity_, NetDataT& InData)
 
     PlayerCommands.PushBackEmpty(128);  // Achtung! Die Größe MUSS eine 2er-Potenz sein!
 
-    m_BaseLine    =CurrentState;
-    PredictedState=Entity->State;
+    m_BaseLine      =CurrentState;
+    m_PredictedState=CurrentState;
 
     m_InterpolateTime1=GlobalTime.GetValueDouble();
 }
@@ -302,7 +303,7 @@ bool EngineEntityT::Repredict(unsigned long RemoteLastIncomingSequenceNr, unsign
         return false;
     }
 
-    const EntityStateT BackupState=Entity->State;
+    const cf::Network::StateT BackupState = GetState();
 
     // Unseren Entity über alle relevanten (d.h. noch nicht bestätigten) PlayerCommands unterrichten.
     // Wenn wir auf dem selben Host laufen wie der Server (z.B. Single-Player Spiel oder lokaler Client bei non-dedicated-Server Spiel),
@@ -311,11 +312,11 @@ bool EngineEntityT::Repredict(unsigned long RemoteLastIncomingSequenceNr, unsign
     // was impliziert, daß dann keine Prediction stattfindet (da nicht notwendig!).
     for (unsigned long SequenceNr=RemoteLastIncomingSequenceNr+1; SequenceNr<=LastOutgoingSequenceNr; SequenceNr++)
         Entity->ProcessConfigString(&PlayerCommands[SequenceNr & (PlayerCommands.Size()-1)], "PlayerCommand");
+
     Entity->Think(-2.0, 0);
 
-    PredictedState=Entity->State;
-    Entity->State=BackupState;
-    Entity->Cl_UnserializeFrom();   // A temp. hack to get the entities ClipModel origin updated.
+    m_PredictedState = GetState();
+    SetState(BackupState);
 
     return true;
 }
@@ -326,16 +327,14 @@ void EngineEntityT::Predict(const PlayerCommandT& PlayerCommand, unsigned long O
     // PlayerCommand für die Reprediction speichern
     PlayerCommands[OutgoingSequenceNr & (PlayerCommands.Size()-1)]=PlayerCommand;
 
-    const EntityStateT BackupState=Entity->State;
-    Entity->State=PredictedState;
-    Entity->Cl_UnserializeFrom();   // A temp. hack to get the entities ClipModel origin updated.
+    const cf::Network::StateT BackupState = GetState();
+    SetState(m_PredictedState);
 
     Entity->ProcessConfigString(&PlayerCommand, "PlayerCommand");
     Entity->Think(-1.0, 0);
 
-    PredictedState=Entity->State;
-    Entity->State=BackupState;
-    Entity->Cl_UnserializeFrom();   // A temp. hack to get the entities ClipModel origin updated.
+    m_PredictedState = GetState();
+    SetState(BackupState);
 }
 
 
@@ -343,26 +342,19 @@ void EngineEntityT::GetCamera(bool UsePredictedState, Vector3dT& Origin, unsigne
 {
     if (!UsePredictedState)
     {
-        Origin =Entity->GetOrigin();
+        Origin = Entity->GetOrigin();
         Entity->GetCameraOrientation(Heading, Pitch, Bank);
         return;
     }
 
     // TODO: Optimize this, e.g. by caching the camera details after each update of PredictedState.
-#if 1
-    const EntityStateT BackupState=Entity->State;
-    Entity->State=PredictedState;
+    const cf::Network::StateT BackupState = GetState();
+    SetState(m_PredictedState);
 
-    Origin =Entity->GetOrigin();
+    Origin = Entity->GetOrigin();
     Entity->GetCameraOrientation(Heading, Pitch, Bank);
 
-    Entity->State=BackupState;
-#else
-    Entity->Serialize(BackupState);
-    Entity->Deserialize(PredictedState);
-    Entity->GetCamera(Origin, Heading, Pitch, Bank);
-    Entity->Deserialize(BackupState);
-#endif
+    SetState(BackupState);
 }
 
 
@@ -374,12 +366,12 @@ bool EngineEntityT::GetLightSourceInfo(bool UsePredictedState, unsigned long& Di
     if (UsePredictedState)
     {
         // It's the local predicted human player entity.
-        const EntityStateT BackupState(Entity->State);
-        Entity->State=PredictedState;
+        const cf::Network::StateT BackupState = GetState();
+        SetState(m_PredictedState);
 
         const bool Result=Entity->GetLightSourceInfo(DiffuseColor, SpecularColor, Position, Radius, CastsShadows);
 
-        Entity->State=BackupState;
+        SetState(BackupState);
         return Result;
     }
     else
@@ -406,11 +398,11 @@ bool EngineEntityT::GetLightSourceInfo(bool UsePredictedState, unsigned long& Di
 
 void EngineEntityT::Draw(bool FirstPersonView, bool UsePredictedState, const VectorT& ViewerPos) const
 {
-    const EntityStateT BackupState(Entity->State);
+    const cf::Network::StateT BackupState = GetState();
 
     if (UsePredictedState)
     {
-        Entity->State=PredictedState;
+        SetState(m_PredictedState);
     }
     else
     {
@@ -502,7 +494,7 @@ void EngineEntityT::Draw(bool FirstPersonView, bool UsePredictedState, const Vec
     MatSys::Renderer->PopLightingParameters();
     MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
 
-    Entity->State=BackupState;
+    SetState(BackupState);
 }
 
 
@@ -510,8 +502,8 @@ void EngineEntityT::PostDraw(float FrameTime, bool FirstPersonView, bool UsePred
 {
     if (UsePredictedState)
     {
-        const EntityStateT BackupState(Entity->State);
-        Entity->State=PredictedState;
+        const cf::Network::StateT BackupState = GetState();
+        SetState(m_PredictedState);
 
         // Code duplicated below!
         // TODO: Event processing works fine and conveniently here,
@@ -525,7 +517,7 @@ void EngineEntityT::PostDraw(float FrameTime, bool FirstPersonView, bool UsePred
 
         Entity->PostDraw(FrameTime, FirstPersonView);
 
-        Entity->State=BackupState;
+        SetState(BackupState);
     }
     else
     {
