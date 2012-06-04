@@ -147,6 +147,13 @@ ArrayT<uint8_t> StateT::GetDeltaMessage(const StateT& Other, bool Compress) cons
     {
         DeltaMessage.PushBack(1);
         PackBits(DeltaMessage, &DeltaData[0], DeltaData.Size());
+
+#ifdef DEBUG
+        // Make sure that unpacking yields the original data.
+        ArrayT<uint8_t> Check;
+        UnpackBits(Check, &DeltaMessage[1], DeltaMessage.Size()-1);
+        assert(Check == DeltaData);
+#endif
     }
     else
     {
