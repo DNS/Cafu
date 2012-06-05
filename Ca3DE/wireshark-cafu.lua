@@ -73,8 +73,8 @@ do
     f.SC1      = ProtoField.uint8("Cafu.SC1", "Message type", base.DEC, SC1)
 
     -- SC1_WorldInfo
-    f.SC1_WI_GameName  = ProtoField.string("Cafu.SC1_WI_GameName",  "Game  name")
-    f.SC1_WI_WorldName = ProtoField.string("Cafu.SC1_WI_WorldName", "World name")
+    f.SC1_WI_GameName  = ProtoField.stringz("Cafu.SC1_WI_GameName",  "Game  name")
+    f.SC1_WI_WorldName = ProtoField.stringz("Cafu.SC1_WI_WorldName", "World name")
     f.SC1_WI_OurEntID  = ProtoField.uint32("Cafu.SC1_WI_OurEntID",  "Our ent ID")
 
     -- SC1_EntityBaseLine
@@ -107,17 +107,6 @@ do
     function CafuProto.init()
         -- Called before we make a pass through a capture file and dissect all its packets.
         -- e.g.:  packet_counter = 0
-    end
-
-
-    function getStringLength(buffer, offset)
-        local l = 0
-
-        while buffer(offset + l, 1):uint() ~= 0 do
-            l = l + 1
-        end
-
-        return l + 1    -- Also count the trailing zero.
     end
 
 
@@ -157,16 +146,13 @@ do
                     pinfo.cols.info:append(", " .. SC1[MsgType])
 
                     if SC1[MsgType] == "SC1_WorldInfo" then
-                        local l = getStringLength(buffer, offset)
-                        subtree:add(f.SC1_WI_GameName, buffer(offset, l)); offset = offset + l
-
-                        local l = getStringLength(buffer, offset)
-                        subtree:add(f.SC1_WI_WorldName, buffer(offset, l)); offset = offset + l
+                        subtree:add(f.SC1_WI_GameName,  buffer(offset)); offset = offset + buffer(offset):stringz():len() + 1
+                        subtree:add(f.SC1_WI_WorldName, buffer(offset)); offset = offset + buffer(offset):stringz():len() + 1
 
                         subtree:add(f.SC1_WI_OurEntID, buffer(offset, 4)); offset = offset + 4
                     elseif SC1[MsgType] == "SC1_EntityBaseLine" then
-                        subtree:add(f.SC1_EBL_EntityID   , buffer(offset, 4)); offset = offset + 4
-                        subtree:add(f.SC1_EBL_EntityType , buffer(offset, 4)); offset = offset + 4
+                        subtree:add(f.SC1_EBL_EntityID,    buffer(offset, 4)); offset = offset + 4
+                        subtree:add(f.SC1_EBL_EntityType,  buffer(offset, 4)); offset = offset + 4
                         subtree:add(f.SC1_EBL_EntityMapID, buffer(offset, 4)); offset = offset + 4
 
                         local DeltaMsgLen = buffer(offset, 4):uint()
