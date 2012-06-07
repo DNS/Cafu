@@ -99,10 +99,9 @@ EntityStateT::EntityStateT(const VectorT& Origin_, const VectorT& Velocity_, con
       HaveWeapons(HaveWeapons_),
       ActiveWeaponSlot(ActiveWeaponSlot_),
       ActiveWeaponSequNr(ActiveWeaponSequNr_),
-      ActiveWeaponFrameNr(ActiveWeaponFrameNr_),
+      ActiveWeaponFrameNr(ActiveWeaponFrameNr_)
    // HaveAmmo[]
    // HaveAmmoInWeapons[]
-      Events(0)
 {
     PlayerName[0]=0;
 
@@ -116,7 +115,7 @@ EntityStateT::EntityStateT(const VectorT& Origin_, const VectorT& Velocity_, con
 // Base Entity
 // ***********
 
-BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const EntityStateT& State_)
+BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const unsigned int NUM_EVENT_TYPES, const EntityStateT& State_)
     : ID(Params.ID),
       Properties(Params.Properties),
       WorldFileIndex(Params.WorldFileIndex),
@@ -192,7 +191,7 @@ void BaseEntityT::Cl_UnserializeFrom()
 }
 
 
-void BaseEntityT::ProcessEvent(char /*EventID*/)
+void BaseEntityT::ProcessEvent(unsigned int /*EventType*/, unsigned int /*NumEvents*/)
 {
 }
 

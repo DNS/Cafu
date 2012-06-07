@@ -159,14 +159,14 @@ void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, const Play
 
                 if (PlayerCommand.Keys & (PCK_Fire1 | PCK_Fire2))
                 {
-                    // TODO: State.Events^=(1 << EntHumanPlayerT::EventID_PrimaryFireEmpty);    // BUT LIMIT THE "FREQUENCY" OF THIS EVENT!
+                    // TODO: Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE_EMPTY);    // BUT LIMIT THE "FREQUENCY" OF THIS EVENT!
                     break;
                 }
             }
 
             if (State.HaveAmmoInWeapons[WEAPON_SLOT_SHOTGUN]==1 && (PlayerCommand.Keys & PCK_Fire2))
             {
-                // TODO: State.Events^=(1 << EntHumanPlayerT::EventID_SecondaryFireEmpty);      // BUT LIMIT THE "FREQUENCY" OF THIS EVENT!
+                // TODO: Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_SECONDARY_FIRE_EMPTY);      // BUT LIMIT THE "FREQUENCY" OF THIS EVENT!
                 break;
             }
 
@@ -176,7 +176,8 @@ void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, const Play
                 State.ActiveWeaponSequNr =1;                // Shoot 1
                 State.ActiveWeaponFrameNr=0.0;
                 State.HaveAmmoInWeapons[WEAPON_SLOT_SHOTGUN]--;
-                State.Events^=(1 << EntHumanPlayerT::EventID_PrimaryFire);      // Flip event flag.
+
+                Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
 
                 if (ThinkingOnServerSide)
                 {
@@ -207,7 +208,8 @@ void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, const Play
                 State.ActiveWeaponSequNr =2;            // Shoot 2
                 State.ActiveWeaponFrameNr=0.0;
                 State.HaveAmmoInWeapons[WEAPON_SLOT_SHOTGUN]-=2;
-                State.Events^=(1 << EntHumanPlayerT::EventID_SecondaryFire);    // Flip event flag.
+
+                Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_SECONDARY_FIRE);
 
                 if (ThinkingOnServerSide)
                 {

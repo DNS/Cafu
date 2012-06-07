@@ -45,6 +45,7 @@ const cf::TypeSys::TypeInfoT EntInfoPlayerStartT::TypeInfo(GetBaseEntTIM(), "Ent
 
 EntInfoPlayerStartT::EntInfoPlayerStartT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  0,
                   EntityStateT(Params.Origin,
                                VectorT(),
                                BoundingBox3T<double>(VectorT( 100.0,  100.0,  100.0),

@@ -70,11 +70,11 @@ cf::Network::StateT EngineEntityT::GetState() const
 }
 
 
-void EngineEntityT::SetState(const cf::Network::StateT& State) const
+void EngineEntityT::SetState(const cf::Network::StateT& State, bool IsIniting) const
 {
     cf::Network::InStreamT Stream(State);
 
-    Entity->Deserialize(Stream);
+    Entity->Deserialize(Stream, IsIniting);
 }
 
 
@@ -91,7 +91,6 @@ EngineEntityT::EngineEntityT(BaseEntityT* Entity_, unsigned long CreationFrameNr
       m_OldStates(),
    // PlayerCommands,
       m_PredictedState(),
-      OldEvents(0),
       m_Interpolate_Ok(false),
       m_InterpolateOrigin0(),
       m_InterpolateTime0(0),
@@ -190,7 +189,6 @@ EngineEntityT::EngineEntityT(BaseEntityT* Entity_, NetDataT& InData)
       m_OldStates(),
    // PlayerCommands,
       m_PredictedState(),
-      OldEvents(0),
       m_Interpolate_Ok(false),
       m_InterpolateOrigin0(),
       m_InterpolateTime0(0),
@@ -198,9 +196,10 @@ EngineEntityT::EngineEntityT(BaseEntityT* Entity_, NetDataT& InData)
 {
     const cf::Network::StateT CurrentState(cf::Network::StateT() /*::ALL_ZEROS*/, InData.ReadDMsg());
 
-    //XXX TODO: No event processing!!!!!
     //XXX TODO: Does setting the playername work?
-    SetState(CurrentState);
+    // Pass true for the IsInited parameter in order to indicate that we're constructing the entity.
+    // This is done in order to have it not wrongly process the event counters.
+    SetState(CurrentState, true);
 
     for (unsigned long OldStateNr=0; OldStateNr<32 /*MUST be a power of 2*/; OldStateNr++)
         m_OldStates.PushBack(CurrentState);
@@ -505,32 +504,12 @@ void EngineEntityT::PostDraw(float FrameTime, bool FirstPersonView, bool UsePred
         const cf::Network::StateT BackupState = GetState();
         SetState(m_PredictedState);
 
-        // Code duplicated below!
-        // TODO: Event processing works fine and conveniently here,
-        // but should probably be moved into some 'PreDraw()' or 'ProcessEvents()' method...
-        unsigned long Events=Entity->State.Events ^ OldEvents;
-
-        for (char b=0; Events!=0; Events >>= 1, b++)
-            if (Events & 1) Entity->ProcessEvent(b);
-
-        OldEvents=Entity->State.Events;
-
         Entity->PostDraw(FrameTime, FirstPersonView);
 
         SetState(BackupState);
     }
     else
     {
-        // Code duplicated above!
-        // TODO: Event processing works fine and conveniently here,
-        // but should probably be moved into some 'PreDraw()' or 'ProcessEvents()' method...
-        unsigned long Events=Entity->State.Events ^ OldEvents;
-
-        for (char b=0; Events!=0; Events >>= 1, b++)
-            if (Events & 1) Entity->ProcessEvent(b);
-
-        OldEvents=Entity->State.Events;
-
         Entity->PostDraw(FrameTime, FirstPersonView);
     }
 }

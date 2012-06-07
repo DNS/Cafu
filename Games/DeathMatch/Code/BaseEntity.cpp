@@ -77,10 +77,9 @@ EntityStateT::EntityStateT(const VectorT& Origin_, const VectorT& Velocity_, con
       HaveWeapons(HaveWeapons_),
       ActiveWeaponSlot(ActiveWeaponSlot_),
       ActiveWeaponSequNr(ActiveWeaponSequNr_),
-      ActiveWeaponFrameNr(ActiveWeaponFrameNr_),
+      ActiveWeaponFrameNr(ActiveWeaponFrameNr_)
    // HaveAmmo[]
    // HaveAmmoInWeapons[]
-      Events(0)
 {
     PlayerName[0]=0;
 
@@ -105,7 +104,7 @@ static std::string ObtainEntityName(const std::map<std::string, std::string>& Pr
 }
 
 
-BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const EntityStateT& State_)
+BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const unsigned int NUM_EVENT_TYPES, const EntityStateT& State_)
     : ID(Params.ID),
       Name(ObtainEntityName(Params.Properties)),
       Properties(Params.Properties),
@@ -116,8 +115,18 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const EntityStateT& 
       PhysicsWorld(Params.PhysicsWorld),
       CollisionModel(Params.CollisionModel),
       ClipModel(GameWorld->GetClipWorld()),  // Creates a clip model in the given clip world with a NULL collision model.
-      m_OldEvents(0)
+      m_EventsCount(),
+      m_EventsRef()
 {
+    m_EventsCount.PushBackEmptyExact(NUM_EVENT_TYPES);
+    m_EventsRef  .PushBackEmptyExact(NUM_EVENT_TYPES);
+
+    for (unsigned int i = 0; i < NUM_EVENT_TYPES; i++)
+    {
+        m_EventsCount[i] = 0;
+        m_EventsRef  [i] = 0;
+    }
+
     // Evaluate the common 'Properties'.
     std::map<std::string, std::string>::const_iterator It=Properties.find("angles");
 
@@ -199,10 +208,12 @@ void BaseEntityT::Serialize(cf::Network::OutStreamT& Stream) const
     Stream << State.ActiveWeaponSlot;
     Stream << State.ActiveWeaponSequNr;
     Stream << State.ActiveWeaponFrameNr;
-    Stream << uint32_t(State.Events);
 
     for (unsigned int Nr=0; Nr<16; Nr++) Stream << State.HaveAmmo[Nr];
     for (unsigned int Nr=0; Nr<32; Nr++) Stream << uint32_t(State.HaveAmmoInWeapons[Nr]);
+
+    for (unsigned int i = 0; i < m_EventsCount.Size(); i++)
+        Stream << m_EventsCount[i];
 }
 
 
@@ -238,10 +249,12 @@ void BaseEntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
     Stream >> State.ActiveWeaponSlot;
     Stream >> State.ActiveWeaponSequNr;
     Stream >> State.ActiveWeaponFrameNr;
-    Stream >> ui; State.Events=ui;
 
     for (unsigned int Nr=0; Nr<16; Nr++) Stream >> State.HaveAmmo[Nr];
     for (unsigned int Nr=0; Nr<32; Nr++) { Stream >> ui; State.HaveAmmoInWeapons[Nr]=ui; }
+
+    for (unsigned int i = 0; i < m_EventsCount.Size(); i++)
+        Stream >> m_EventsCount[i];
 
 
     // A temp. hack to get the entities ClipModel origin updated.
@@ -249,19 +262,20 @@ void BaseEntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
     Cl_UnserializeFrom();
 
 
-#if 0   // Disabled at this time -- the old code in EngineEntityT::PostDraw() should still do its job.
     // Process events.
-    // Don't process the event counters if we're newly instantiating / constructing the entity.
-    if (!IsIniting)
+    // Note that events, as implemented here, are fully predictable:
+    // they work well even in the presence of client prediction.
+    for (unsigned int i = 0; i < m_EventsCount.Size(); i++)
     {
-        unsigned long Events=State.Events ^ m_OldEvents;
+        // Don't process the events if we got here as part of the
+        // construction / first-time initialization of the entity.
+        if (!IsIniting && m_EventsCount[i] > m_EventsRef[i])
+        {
+            ProcessEvent(i, m_EventsCount[i] - m_EventsRef[i]);
+        }
 
-        for (char b=0; Events!=0; Events >>= 1, b++)
-            if (Events & 1) ProcessEvent(b);
+        m_EventsRef[i] = m_EventsCount[i];
     }
-#endif
-
-    m_OldEvents=State.Events;
 }
 
 
@@ -389,7 +403,7 @@ void BaseEntityT::Cl_UnserializeFrom()
 }
 
 
-void BaseEntityT::ProcessEvent(char /*EventID*/)
+void BaseEntityT::ProcessEvent(unsigned int /*EventType*/, unsigned int /*NumEvents*/)
 {
 }
 

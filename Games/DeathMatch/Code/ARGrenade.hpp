@@ -39,7 +39,7 @@ class EntARGrenadeT : public BaseEntityT
 
     void Think(float FrameTime, unsigned long ServerFrameNr);
 
-    void ProcessEvent(char EventID);
+    void ProcessEvent(unsigned int EventType, unsigned int NumEvents);
     bool GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const;
     void Draw(bool FirstPersonView, float LodDist) const;
 
@@ -50,6 +50,8 @@ class EntARGrenadeT : public BaseEntityT
 
 
     private:
+
+    enum EventTypesT { EVENT_TYPE_EXPLODE, NUM_EVENT_TYPES };
 
     const CafuModelT* m_Model;
     SoundI*           m_FireSound;

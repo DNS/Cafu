@@ -49,6 +49,7 @@ const cf::TypeSys::TypeInfoT EntARGrenadeT::TypeInfo(GetBaseEntTIM(), "EntARGren
 
 EntARGrenadeT::EntARGrenadeT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  NUM_EVENT_TYPES,
                   EntityStateT(Params.Origin,
                                VectorT(),
                                BoundingBox3T<double>(VectorT( 60.0,  60.0, 120.0),
@@ -99,8 +100,7 @@ void EntARGrenadeT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
     {
         if (OldTimer<3.0)
         {
-            // Explode!
-            State.Events=1;     // "Flip" bit 1.
+            PostEvent(EVENT_TYPE_EXPLODE);
 
             // Damage all entities that are close enough.
             // TODO: In order to avoid damaging entities through thin walls, we should also perform a simple "visibility test".
@@ -177,7 +177,7 @@ bool ParticleFunction_ARGrenadeExplosionSmall(ParticleMST* Particle, float Time)
 }
 
 
-void EntARGrenadeT::ProcessEvent(char /*EventID*/)
+void EntARGrenadeT::ProcessEvent(unsigned int /*EventType*/, unsigned int /*NumEvents*/)
 {
     // We only receive a single event here ("Detonation!"), thus there is no need to look at 'EventID'.
     // Update sound position.

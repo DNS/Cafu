@@ -41,6 +41,7 @@ const cf::TypeSys::TypeInfoT EntInfoGenericT::TypeInfo(GetBaseEntTIM(), "EntInfo
 
 EntInfoGenericT::EntInfoGenericT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  0,
                   EntityStateT(Params.Origin,
                                VectorT(),
                                BoundingBox3T<double>(VectorT( 100.0,  100.0,  100.0),

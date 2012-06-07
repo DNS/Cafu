@@ -56,6 +56,7 @@ const cf::TypeSys::TypeInfoT EntCompanyBotT::TypeInfo(GetBaseEntTIM(), "EntCompa
 
 EntCompanyBotT::EntCompanyBotT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  0,
                   EntityStateT(Params.Origin,
                                VectorT(),
                                BoundingBox3T<double>(VectorT( 300.0,  300.0,   100.0),

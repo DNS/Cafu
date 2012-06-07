@@ -113,6 +113,7 @@ const cf::TypeSys::TypeInfoT EntStaticDetailModelT::TypeInfo(GetBaseEntTIM(), "E
 
 EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  NUM_EVENT_TYPES,
                   // Bad. Should either have a default ctor for 'EntityStateT', or even better get it passed as const reference.
                   EntityStateT(Params.Origin,
                                VectorT(),
@@ -263,11 +264,11 @@ void EntStaticDetailModelT::Cl_UnserializeFrom()
 }
 
 
-void EntStaticDetailModelT::ProcessEvent(char EventID)
+void EntStaticDetailModelT::ProcessEvent(unsigned int EventType, unsigned int /*NumEvents*/)
 {
-    switch (EventID)
+    switch (EventType)
     {
-        case EventID_RestartSequ:
+        case EVENT_TYPE_RESTART_SEQU:
             m_LastStdAE->SetFrameNr(0.0f);
             break;
     }
@@ -457,7 +458,7 @@ int EntStaticDetailModelT::RestartSequ(lua_State* LuaState)
     EntStaticDetailModelT* Ent=(EntStaticDetailModelT*)cf::GameSys::ScriptStateT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
 
     Ent->m_LastStdAE->SetFrameNr(0.0f);
-    Ent->State.Events^=(1 << EventID_RestartSequ);
+    Ent->PostEvent(EVENT_TYPE_RESTART_SEQU);
     return 0;
 }
 

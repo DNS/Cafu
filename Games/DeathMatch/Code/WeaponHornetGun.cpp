@@ -73,6 +73,6 @@ void EntWeaponHornetGunT::NotifyTouchedBy(BaseEntityT* Entity)
 
     // And finally retire for a while.
     State.StateOfExistance=StateOfExistance_NotActive;
-    State.Events^=(1 << EventID_PickedUp);
+    PostEvent(EVENT_TYPE_PICKED_UP);
     m_TimeLeftNotActive=5.0;
 }

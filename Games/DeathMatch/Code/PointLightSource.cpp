@@ -59,6 +59,7 @@ const cf::TypeSys::TypeInfoT EntPointLightSourceT::TypeInfo(GetBaseEntTIM(), "En
 
 EntPointLightSourceT::EntPointLightSourceT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  0,
                   EntityStateT(Params.Origin,
                                VectorT(),
                                BoundingBox3T<double>(VectorT(), VectorT()),

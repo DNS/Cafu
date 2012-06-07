@@ -54,6 +54,7 @@ const char EntWeaponT::StateOfExistance_NotActive=1;
 
 EntWeaponT::EntWeaponT(const EntityCreateParamsT& Params, const std::string& ModelName)
     : BaseEntityT(Params,
+                  NUM_EVENT_TYPES,
                   EntityStateT(Params.Origin,
                                VectorT(),
                                BoundingBox3T<double>(VectorT( 200.0,  200.0,  400.0),
@@ -105,22 +106,23 @@ void EntWeaponT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
             if (m_TimeLeftNotActive<=0.0)
             {
                 State.StateOfExistance=StateOfExistance_Active;
-                State.Events^=(1 << EventID_Respawn);
+
+                PostEvent(EVENT_TYPE_RESPAWN);
             }
             break;
     }
 }
 
 
-void EntWeaponT::ProcessEvent(char EventID)
+void EntWeaponT::ProcessEvent(unsigned int EventType, unsigned int /*NumEvents*/)
 {
-    switch (EventID)
+    switch (EventType)
     {
-        case EventID_PickedUp:
+        case EVENT_TYPE_PICKED_UP:
             PickUp->Play();
             break;
 
-        case EventID_Respawn:
+        case EVENT_TYPE_RESPAWN:
             Respawn->Play();
             break;
     }

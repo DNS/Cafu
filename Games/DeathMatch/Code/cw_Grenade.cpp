@@ -103,7 +103,8 @@ void CarriedWeaponGrenadeT::ServerSide_Think(EntHumanPlayerT* Player, const Play
             {
                 State.ActiveWeaponSequNr =3;
                 State.ActiveWeaponFrameNr=0.0;
-                State.Events^=(1 << EntHumanPlayerT::EventID_PrimaryFire);
+
+                Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
 
                 // Important: ONLY create (throw) a new hand grenade IF we are on the server side!
                 if (ThinkingOnServerSide)

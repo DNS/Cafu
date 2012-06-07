@@ -52,6 +52,7 @@ const cf::TypeSys::TypeInfoT EntMonsterMakerT::TypeInfo(GetBaseEntTIM(), "EntMon
 
 EntMonsterMakerT::EntMonsterMakerT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  0,
                   EntityStateT(Params.Origin,
                                VectorT(),
                                BoundingBox3T<double>(VectorT( 100.0,  100.0,  100.0),

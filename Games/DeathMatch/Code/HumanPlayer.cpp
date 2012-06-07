@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/***************************/
-/*** Human Player (Code) ***/
-/***************************/
-
 #include "HumanPlayer.hpp"
 #include "Corpse.hpp"
 #include "InfoPlayerStart.hpp"
@@ -71,10 +67,6 @@ const char StateOfExistance_FreeSpectator  =3;
 const char Flags_OldWishJump=1;
 
 
-const char EntHumanPlayerT::EventID_PrimaryFire  =0;
-const char EntHumanPlayerT::EventID_SecondaryFire=1;
-
-
 // Implement the type info related code.
 const cf::TypeSys::TypeInfoT* EntHumanPlayerT::GetType() const
 {
@@ -92,6 +84,7 @@ const cf::TypeSys::TypeInfoT EntHumanPlayerT::TypeInfo(GetBaseEntTIM(), "EntHuma
 
 EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  NUM_EVENT_TYPES,
                   EntityStateT(Params.Origin,
                                VectorT(),
                                BoundingBox3T<double>(VectorT( 400.0,  400.0,   100.0),  // Roughly 32*32*72 inches, eye height at 68 inches.
@@ -884,14 +877,14 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 }
 
 
-void EntHumanPlayerT::ProcessEvent(char EventID)
+void EntHumanPlayerT::ProcessEvent(unsigned int EventType, unsigned int /*NumEvents*/)
 {
     // GameWorld->PrintDebug("Entity %3u: ProcessEvent(%u)", TypeID, EventID);
 
-    switch (EventID)
+    switch (EventType)
     {
-        case EventID_PrimaryFire  : cf::GameSys::GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->ClientSide_HandlePrimaryFireEvent  (this, LastSeenAmbientColor); break;
-        case EventID_SecondaryFire: cf::GameSys::GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->ClientSide_HandleSecondaryFireEvent(this, LastSeenAmbientColor); break;
+        case EVENT_TYPE_PRIMARY_FIRE  : cf::GameSys::GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->ClientSide_HandlePrimaryFireEvent  (this, LastSeenAmbientColor); break;
+        case EVENT_TYPE_SECONDARY_FIRE: cf::GameSys::GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->ClientSide_HandleSecondaryFireEvent(this, LastSeenAmbientColor); break;
     }
 }
 

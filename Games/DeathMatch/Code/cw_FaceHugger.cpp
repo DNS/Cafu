@@ -85,7 +85,8 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, const P
             {
                 State.ActiveWeaponSequNr =5;
                 State.ActiveWeaponFrameNr=0.0;
-                State.Events^=(1 << EntHumanPlayerT::EventID_PrimaryFire);   // Flip event flag.
+
+                Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
 
                 // Important: ONLY create (throw) a new face-hugger IF we are on the server side!
                 if (ThinkingOnServerSide)
@@ -150,7 +151,7 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, const P
             {
                 if (PlayerCommand.Keys & (PCK_Fire1 | PCK_Fire2))
                 {
-                    State.Events^=(1 << EntHumanPlayerT::EventID_PrimaryFire);   // Flip event flag.
+                    Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
                 }
                 else
                 {

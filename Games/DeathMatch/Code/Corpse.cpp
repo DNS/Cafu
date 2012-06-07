@@ -48,6 +48,7 @@ const cf::TypeSys::TypeInfoT EntCorpseT::TypeInfo(GetBaseEntTIM(), "EntCorpseT",
 
 EntCorpseT::EntCorpseT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  0,
                   // Bad. Should either have a default ctor for 'EntityStateT', or even better get it passed as const reference.
                   EntityStateT(VectorT(),
                                VectorT(),

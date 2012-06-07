@@ -45,6 +45,7 @@ const cf::TypeSys::TypeInfoT EntFuncLadderT::TypeInfo(GetBaseEntTIM(), "EntFuncL
 
 EntFuncLadderT::EntFuncLadderT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  0,
                   EntityStateT(VectorT(),   // Origin
                                VectorT(),   // Velocity
                                BoundingBox3T<double>(Vector3dT()),

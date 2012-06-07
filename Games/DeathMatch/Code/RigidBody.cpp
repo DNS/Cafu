@@ -62,6 +62,7 @@ const cf::TypeSys::TypeInfoT EntRigidBodyT::TypeInfo(GetBaseEntTIM(), "EntRigidB
 
 EntRigidBodyT::EntRigidBodyT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  0,
                   EntityStateT(VectorT(),   // Origin
                                VectorT(),   // Velocity
                                Params.RootNode->GetBoundingBox(),

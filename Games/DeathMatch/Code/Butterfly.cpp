@@ -44,6 +44,7 @@ const cf::TypeSys::TypeInfoT EntButterflyT::TypeInfo(GetBaseEntTIM(), "EntButter
 
 EntButterflyT::EntButterflyT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  0,
                   EntityStateT(Params.Origin+VectorT(0.0, 500.0, 0.0),          // Beachte die Abhängigkeit von den in Think() definierten Konstanten!
                                VectorT(),
                                BoundingBox3T<double>(VectorT( 100.0,  100.0,  100.0),

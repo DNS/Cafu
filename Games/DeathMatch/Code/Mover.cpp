@@ -68,6 +68,7 @@ const cf::TypeSys::TypeInfoT EntFuncMoverT::TypeInfo(GetBaseEntTIM(), "EntFuncMo
 
 EntFuncMoverT::EntFuncMoverT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  0,
                   EntityStateT(VectorT(),   // Origin
                                VectorT(),   // Velocity
                                Params.RootNode->GetBoundingBox(),

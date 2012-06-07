@@ -62,6 +62,7 @@ const cf::TypeSys::TypeInfoT EntTriggerT::TypeInfo(GetBaseEntTIM(), "EntTriggerT
 
 EntTriggerT::EntTriggerT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  0,
                   EntityStateT(VectorT(),   // Origin
                                VectorT(),   // Velocity
                                BoundingBox3T<double>(Vector3dT()),

@@ -86,7 +86,7 @@ void CarriedWeaponBattleScytheT::ServerSide_Think(EntHumanPlayerT* Player, const
             {
                 if (PlayerCommand.Keys & PCK_Fire1)
                 {
-                    State.Events^=(1 << EntHumanPlayerT::EventID_PrimaryFire);   // Flip event flag.
+                    Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
                 }
                 else
                 {
@@ -102,7 +102,7 @@ void CarriedWeaponBattleScytheT::ServerSide_Think(EntHumanPlayerT* Player, const
             {
                 if (PlayerCommand.Keys & PCK_Fire2)
                 {
-                    State.Events^=(1 << EntHumanPlayerT::EventID_SecondaryFire);     // Flip event flag.
+                    Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_SECONDARY_FIRE);
                 }
                 else
                 {
@@ -131,7 +131,7 @@ void CarriedWeaponBattleScytheT::ServerSide_Think(EntHumanPlayerT* Player, const
                 // TODO: Alternate randomly with Attack 3.
                 State.ActiveWeaponSequNr =4;    // Attack 1 (miss)
                 State.ActiveWeaponFrameNr=0.0;
-                State.Events^=(1 << EntHumanPlayerT::EventID_PrimaryFire);   // Flip event flag.
+                Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
                 break;
             }
 
@@ -140,7 +140,7 @@ void CarriedWeaponBattleScytheT::ServerSide_Think(EntHumanPlayerT* Player, const
                 // TODO: Determine if this attack was a hit or miss.
                 State.ActiveWeaponSequNr =5;    // Attack 2 (miss)
                 State.ActiveWeaponFrameNr=0.0;
-                State.Events^=(1 << EntHumanPlayerT::EventID_SecondaryFire);   // Flip event flag.
+                Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_SECONDARY_FIRE);
                 break;
             }
 

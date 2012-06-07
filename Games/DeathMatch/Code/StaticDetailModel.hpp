@@ -46,7 +46,7 @@ class EntStaticDetailModelT : public BaseEntityT
     void Think(float FrameTime, unsigned long ServerFrameNr);
 
     void Cl_UnserializeFrom();
-    void ProcessEvent(char EventID);
+    void ProcessEvent(unsigned int EventType, unsigned int NumEvents);
     void Draw(bool FirstPersonView, float LodDist) const;
     void PostDraw(float FrameTime, bool FirstPersonView);
 
@@ -70,7 +70,7 @@ class EntStaticDetailModelT : public BaseEntityT
 
     protected:
 
-    enum EventIDs { EventID_RestartSequ };
+    enum EventTypesT { EVENT_TYPE_RESTART_SEQU, NUM_EVENT_TYPES };
 
     const CafuModelT* m_Model;
     char&             m_PlayAnim;   ///< If 1, play the animation, i.e. advance the frames over time. If 0, keep still. This is a reference to State.Flags to have it sync'ed over the network.

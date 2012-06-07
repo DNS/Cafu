@@ -64,6 +64,7 @@ const cf::TypeSys::TypeInfoT EntSpeakerT::TypeInfo(GetBaseEntTIM(), "EntSpeakerT
 
 EntSpeakerT::EntSpeakerT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  0,
                   EntityStateT(Params.Origin,
                                VectorT(),
                                BoundingBox3T<double>(VectorT(0.0, 0.0, 0.0),
@@ -129,13 +130,18 @@ void EntSpeakerT::PostDraw(float FrameTime, bool FirstPersonView)
 }
 
 
-void EntSpeakerT::ProcessEvent(char EventID)
+void EntSpeakerT::ProcessEvent(unsigned int EventType, unsigned int /*NumEvents*/)
 {
-    if (EventID==EventID_Play)
-        m_Sound->Play();
+    switch (EventType)
+    {
+        case EVENT_TYPE_PLAY:
+            m_Sound->Play();
+            break;
 
-    if (EventID==EventID_Stop)
-        m_Sound->Stop();
+        case EVENT_TYPE_STOP:
+            m_Sound->Stop();
+            break;
+    }
 }
 
 
@@ -144,7 +150,7 @@ int EntSpeakerT::Play(lua_State* LuaState)
     EntSpeakerT* Ent=(EntSpeakerT*)cf::GameSys::ScriptStateT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
 
     Ent->State.Flags=1;
-    Ent->State.Events^=(1 << EventID_Play);
+    Ent->PostEvent(EVENT_TYPE_PLAY);
 
     return 0;
 }
@@ -155,7 +161,7 @@ int EntSpeakerT::Stop(lua_State* LuaState)
     EntSpeakerT* Ent=(EntSpeakerT*)cf::GameSys::ScriptStateT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
 
     Ent->State.Flags=0;
-    Ent->State.Events^=(1 << EventID_Stop);
+    Ent->PostEvent(EVENT_TYPE_STOP);
 
     return 0;
 }

@@ -49,6 +49,7 @@ const cf::TypeSys::TypeInfoT EntRocketT::TypeInfo(GetBaseEntTIM(), "EntRocketT",
 
 EntRocketT::EntRocketT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  NUM_EVENT_TYPES,
                   EntityStateT(Params.Origin,
                                VectorT(),
                                BoundingBox3T<double>(VectorT( 100.0,  100.0,  100.0),
@@ -95,9 +96,9 @@ void EntRocketT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 
         if (ShapeResult.hasHit())
         {
-            // Explode!
             State.ActiveWeaponFrameNr+=FrameTime;
-            State.Events=1;     // "Flip" bit 1.
+
+            PostEvent(EVENT_TYPE_EXPLODE);
 
             // Damage all entities that are close enough.
             // TODO: In order to avoid damaging entities through thin walls, we should also perform a simple "visibility test".
@@ -166,7 +167,7 @@ bool ParticleFunction_RocketExplosionSmall(ParticleMST* Particle, float Time)
 }
 
 
-void EntRocketT::ProcessEvent(char /*EventID*/)
+void EntRocketT::ProcessEvent(unsigned int /*EventType*/, unsigned int /*NumEvents*/)
 {
     // We only receive a single event here ("Detonation!"), thus there is no need to look at 'EventID'.
     // Update souud position.

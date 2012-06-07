@@ -135,7 +135,7 @@ void CarriedWeapon357T::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCo
 
                 if (PlayerCommand.Keys & PCK_Fire1)
                 {
-                    // TODO: State.Events^=(1 << EventID_PrimaryFireEmpty);     // BUT LIMIT THE "FREQUENCY" OF THIS EVENT!
+                    // TODO: State.Events^=(1 << EVENT_TYPE_PRIMARY_FIRE_EMPTY);     // BUT LIMIT THE "FREQUENCY" OF THIS EVENT!
                     break;
                 }
             }
@@ -146,7 +146,8 @@ void CarriedWeapon357T::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCo
                 State.ActiveWeaponSequNr =2;                // Fire
                 State.ActiveWeaponFrameNr=0.0;
                 State.HaveAmmoInWeapons[WEAPON_SLOT_357]--;
-                State.Events^=(1 << EntHumanPlayerT::EventID_PrimaryFire);   // Flip event flag.
+
+                Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
 
                 if (ThinkingOnServerSide)
                 {

@@ -46,7 +46,7 @@ class EntSpeakerT : public BaseEntityT
 
     // BaseEntityT implementation.
     virtual void PostDraw(float FrameTime, bool FirstPersonView);
-    virtual void ProcessEvent(char EventID);
+    virtual void ProcessEvent(unsigned int EventType, unsigned int NumEvents);
 
     // Scripting methods.
     static int Play(lua_State* LuaState);
@@ -55,7 +55,7 @@ class EntSpeakerT : public BaseEntityT
 
     private:
 
-    enum EventIDs { EventID_Play, EventID_Stop };
+    enum EventTypesT { EVENT_TYPE_PLAY, EVENT_TYPE_STOP, NUM_EVENT_TYPES };
 
     float   m_Interval;                  ///< Interval between two sound playbacks. 0 means the sound is only played one time if triggered.
     float   m_TimeUntilNextSound;        ///< Time left until the sound is played another time.

@@ -145,7 +145,11 @@ class EngineEntityT
     cf::Network::StateT GetState() const;
 
     /// Sets the state of our Entity to the given State.
-    void SetState(const cf::Network::StateT& State) const;
+    /// @param State       The state to assign to the entity.
+    /// @param IsIniting   Used to indicate that the call is part of the construction / first-time
+    ///     initialization of the entity. The implementation will use this to not wrongly process
+    ///     the event counters.
+    void SetState(const cf::Network::StateT& State, bool IsIniting=false) const;
 
 
     BaseEntityT*                Entity;             // Base entity as allocated via the cf::GameSys::Game interface.
@@ -158,7 +162,6 @@ class EngineEntityT
 
     ArrayT<PlayerCommandT>      PlayerCommands;     ///< For prediction, client side use only.
     cf::Network::StateT         m_PredictedState;   ///< The current predicted state.
-    unsigned long               OldEvents;          ///< Previous event flags, for detecting if the Entity->State.Events flags changed.
 
     // Variables for interpolating the origin of non-predicted entities (i.e. all but the local player entity).
     bool                        m_Interpolate_Ok;   ///< Is interpolation currently possible? (false e.g. when the last update of the Entity->State was not relative to one of the OldStates).

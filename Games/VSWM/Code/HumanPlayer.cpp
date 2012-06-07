@@ -428,6 +428,7 @@ void EntHumanPlayerT::Init3DNodeSequence(const char* TrialFileName, const Vector
 
 EntHumanPlayerT::EntHumanPlayerT(char TypeID, unsigned long ID, unsigned long MapFileID, cf::GameSys::GameWorldI* GameWorld, const VectorT& Origin)
     : BaseEntityT(EntityCreateParamsT(ID, std::map<std::string, std::string>(), NULL, NULL, MapFileID, GameWorld, Origin),
+                  0,
                   EntityStateT(Origin,
                                VectorT(),
                                BoundingBox3T<double>(VectorT( 300.0,  300.0,   100.0),

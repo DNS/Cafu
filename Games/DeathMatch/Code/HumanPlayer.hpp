@@ -36,9 +36,8 @@ class EntHumanPlayerT : public BaseEntityT, public btMotionState
 {
     public:
 
-    static const char EventID_PrimaryFire;      // Publicly defined for access from the "carried weapons".
-    static const char EventID_SecondaryFire;    // Publicly defined for access from the "carried weapons".
-
+    // Publicly defined enum for access from the "carried weapons".
+    enum EventTypesT { EVENT_TYPE_PRIMARY_FIRE, EVENT_TYPE_SECONDARY_FIRE, NUM_EVENT_TYPES };
 
     EntHumanPlayerT(const EntityCreateParamsT& Params);
     ~EntHumanPlayerT();
@@ -50,7 +49,7 @@ class EntHumanPlayerT : public BaseEntityT, public btMotionState
     void ProcessConfigString(const void* ConfigData, const char* ConfigString);
     void Think(float FrameTime, unsigned long ServerFrameNr);
 
-    void ProcessEvent(char EventID);
+    void ProcessEvent(unsigned int EventType, unsigned int NumEvents);
     bool GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const;
     void Draw(bool FirstPersonView, float LodDist) const;
     void PostDraw(float FrameTime, bool FirstPersonView);

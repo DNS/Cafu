@@ -145,14 +145,14 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, const Player
 
                 if (PlayerCommand.Keys & PCK_Fire1)
                 {
-                    // TODO: State.Events^=(1 << EventID_PrimaryFireEmpty);     // BUT LIMIT THE "FREQUENCY" OF THIS EVENT!
+                    // TODO: Player->PostEvent(EVENT_TYPE_PRIMARY_FIRE_EMPTY);     // BUT LIMIT THE "FREQUENCY" OF THIS EVENT!
                     break;
                 }
             }
 
             if (!State.HaveAmmo[AMMO_SLOT_ARGREN] && (PlayerCommand.Keys & PCK_Fire2))
             {
-                // TODO: State.Events^=(1 << EventID_SecondaryFireEmpty);     // BUT LIMIT THE "FREQUENCY" OF THIS EVENT!
+                // TODO: Player->PostEvent(EVENT_TYPE_SECONDARY_FIRE_EMPTY);     // BUT LIMIT THE "FREQUENCY" OF THIS EVENT!
                 break;
             }
 
@@ -187,7 +187,8 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, const Player
                 State.ActiveWeaponSequNr =2;    // Grenade
                 State.ActiveWeaponFrameNr=0.0;
                 State.HaveAmmo[AMMO_SLOT_ARGREN]--;
-                State.Events^=(1 << EntHumanPlayerT::EventID_SecondaryFire);
+
+                Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_SECONDARY_FIRE);
 
                 // Important: ONLY create (throw) a new AR grenade IF we are on the server side!
                 if (ThinkingOnServerSide)

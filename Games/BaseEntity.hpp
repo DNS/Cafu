@@ -27,6 +27,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include <map>
 
+#if defined(_WIN32) && _MSC_VER<1600
+#include "pstdint.h"            // Paul Hsieh's portable implementation of the stdint.h header.
+#else
+#include <stdint.h>
+#endif
+
 
 class EntityCreateParamsT;
 class PhysicsWorldT;
@@ -77,14 +83,6 @@ struct EntityStateT
     unsigned short HaveAmmo[16];            // Entity can carry 16 different types of ammo (weapon independent). This is the amount of each.
     unsigned char  HaveAmmoInWeapons[32];   // Entity can carry ammo in each of the 32 weapons. This is the amount of each.
 
-    // Special variable used to notify clients about events.
-    // On server side, in 'BaseEntityT::Think()', use bit-wise XOR to toggle event flags (as in 'State.Events^=MY_EVENT_BIT').
-    // On client side, the function 'BaseEntityT::ProcessEvent(i)' is automatically called for each toggled bit i.
-    // TODO: This should be hidden in 'EngineEntityT', as 'Events' receives special treatment in the engine.
-    //       At that opportunity, also think about a proper fixed-point presentation of 'Origin', 'Velocity', ...
-    //       (Or, more generally, about the convenient types here and the requ. precision across the net.)
-    unsigned long  Events;
-
     EntityStateT(const VectorT& Origin_, const VectorT& Velocity_, const BoundingBox3T<double>& Dimensions_,
                  unsigned short Heading_, unsigned short Pitch_, unsigned short Bank_,
                  char StateOfExistance_, char Flags_, char ModelIndex_, char ModelSequNr_, float ModelFrameNr_,
@@ -132,12 +130,16 @@ class BaseEntityT
 
     /// Reads the state of this entity from the given stream, and updates the entity accordingly.
     /// This method is called after the state of the entity has been received over the network,
-    /// has been loaded from disk or must be "reset" for the purpose of (re-)prediction.
+    /// has been loaded from disk, or must be "reset" for the purpose of (re-)prediction.
     /// Note that this method is the twin of Serialize(), whose implementation it must match.
     ///
-    /// @param IsIniting   Only used by the ctor implementation: Set to \c true in order to indicate
-    ///     that the entity is newly constructed. User code should always leave this at \c false.
-    virtual void Deserialize(cf::Network::InStreamT& Stream, bool IsIniting=false);
+    /// @param Stream
+    ///   The stream to read the state data from.
+    ///
+    /// @param IsIniting
+    ///   Used to indicate that the call is part of the construction / first-time initialization of the entity.
+    ///   The implementation will use this to not wrongly process the event counters.
+    virtual void Deserialize(cf::Network::InStreamT& Stream, bool IsIniting);
 
     /// Returns the origin point of this entity. Used for
     ///   - obtaining the camera position of the local human player entity (1st person view),
@@ -232,6 +234,13 @@ class BaseEntityT
     /// or from within the Think() functions, but never on the client side.
     virtual void ProcessConfigString(const void* ConfigData, const char* ConfigString);
 
+    /// This server-side function is used for posting an event of the given type.
+    /// The event is automatically sent from the entity instance on the server to the entity instances
+    /// on the clients, and causes a matching call to ProcessEvent() there.
+    /// The meaning of the event type is specific to the concrete entity class.
+    /// Note that events are fully predictable: they work well even in the presence of client prediction.
+    void PostEvent(unsigned int EventType) { m_EventsCount[EventType]++; }
+
     /// This SERVER-SIDE function is called by the server in order to advance the world one clock-tick.
     /// That is, basing on the present (old) 'State', it is called for computing the next (new) state.
     /// 'FrameTime' is the time of the clock-tick, in seconds.
@@ -246,19 +255,12 @@ class BaseEntityT
     // /// @param NetMsg   The network message that contains the update.
     virtual void Cl_UnserializeFrom(/*TODO: Add NetMsg param here.*/);
 
-    /// This CLIENT-SIDE function is called exactly once per received event (on client-side).
-    /// Usually, the server code (in 'Think()') will trigger events like "fire current weapon"
-    /// (using event ID 'EventID'), and then this is the place to react accordingly.
-    /// Note that both the name and the prototype of this function are subject to change in the future,
-    /// in order to take also more flexible, custom network messages into account.
-    ///
-    /// Notes for future prototypes:
-    ///   - What's the difference between events and custom network messages?
-    ///     Events are fully predictable, i.e. they work well even in the presence of client prediction,
-    ///     and are always related to a certain entity.
-    ///     Custom network messages are (currently) not predictable, and not necessarily associated with an entity.
-    ///     Examples for custom messages include radar displays, and so on.
-    virtual void ProcessEvent(char EventID);
+    /// This CLIENT-SIDE function is called to process events on the client.
+    /// Events that have been posted via PostEvent() on the server (or in client prediction) are eventually
+    /// received in Deserialize(), which automatically calls this method.
+    /// In the call, Deserialize() indicates the number of new events since the last call (at least one,
+    /// or it wouldn't call ProcessEvent() at all). This way, each event can be processed exactly once.
+    virtual void ProcessEvent(unsigned int EventType, unsigned int NumEvents);
 
     /// This CLIENT-SIDE function is called in order to retrieve light source information about this entity.
     /// Returns 'true' if this entity is a light source and 'DiffuseColor', 'SpecularColor', 'Position' (in world space!), 'Radius' and 'CastsShadows' have been set.
@@ -314,10 +316,10 @@ class BaseEntityT
 
     protected:
 
-    // Protected constructor such that only concrete entities can call this for creating a 'BaseEntityT', but nobody else.
-    // Concrete entities are created in the GameI::CreateBaseEntityFromMapFile() method for the server-side,
-    // and in the GameI::CreateBaseEntityFromTypeNr() method for the client-side.
-    BaseEntityT(const EntityCreateParamsT& Params, const EntityStateT& State_);
+    /// Protected constructor such that only concrete entities can call this for creating a BaseEntityT, but nobody else.
+    /// Concrete entities are created in the GameI::CreateBaseEntityFromMapFile() method for the server-side,
+    /// and in the GameI::CreateBaseEntityFromTypeNr() method for the client-side.
+    BaseEntityT(const EntityCreateParamsT& Params, const unsigned int NUM_EVENT_TYPES, const EntityStateT& State_);
 
 
     private:
@@ -325,7 +327,8 @@ class BaseEntityT
     BaseEntityT(const BaseEntityT&);        ///< Use of the Copy    Constructor is not allowed.
     void operator = (const BaseEntityT&);   ///< Use of the Assignment Operator is not allowed.
 
-    unsigned long m_OldEvents;
+    ArrayT<uint32_t> m_EventsCount;         ///< A counter for each event type for the number of its occurrences. Serialized (and deserialized) normally along with the entity state.
+    ArrayT<uint32_t> m_EventsRef;           ///< A reference counter for each event type for the number of processed occurrences. Never serialized (or deserialized), never reset, strictly growing.
 };
 
 #endif

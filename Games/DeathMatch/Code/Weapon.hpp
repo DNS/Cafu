@@ -39,7 +39,7 @@ class EntWeaponT : public BaseEntityT
 
     virtual void Think(float FrameTime, unsigned long ServerFrameNr);
 
-    virtual void ProcessEvent(char EventID);
+    virtual void ProcessEvent(unsigned int EventType, unsigned int NumEvents);
     virtual void Draw(bool FirstPersonView, float LodDist) const;
     virtual void PostDraw(float FrameTime, bool FirstPersonView);
 
@@ -51,7 +51,7 @@ class EntWeaponT : public BaseEntityT
 
     protected:
 
-    enum EventIDs { EventID_PickedUp, EventID_Respawn };
+    enum EventTypesT { EVENT_TYPE_PICKED_UP, EVENT_TYPE_RESPAWN, NUM_EVENT_TYPES };
 
     static const char StateOfExistance_Active;
     static const char StateOfExistance_NotActive;
