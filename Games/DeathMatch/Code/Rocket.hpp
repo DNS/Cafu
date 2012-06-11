@@ -37,6 +37,9 @@ class EntRocketT : public BaseEntityT
     EntRocketT(const EntityCreateParamsT& Params);
     ~EntRocketT();
 
+    void SetHeading(unsigned short h) { State.Heading = h; }
+    void SetVelocity(const Vector3dT& v) { State.Velocity = v; }
+
     void Think(float FrameTime, unsigned long ServerFrameNr);
 
     void ProcessEvent(unsigned int EventType, unsigned int NumEvents);

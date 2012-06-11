@@ -32,7 +32,7 @@ class CarriedWeapon357T : public CarriedWeaponT
     CarriedWeapon357T(ModelManagerT& ModelMan);
     ~CarriedWeapon357T();
 
-    bool ServerSide_PickedUpByEntity(BaseEntityT* Entity) const;
+    bool ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const;
     void ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;
 
     void ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* Player, const VectorT& LastSeenAmbientColor) const;

@@ -34,7 +34,7 @@ CarriedWeaponT::~CarriedWeaponT()
 }
 
 
-bool CarriedWeaponT::ServerSide_PickedUpByEntity(BaseEntityT* /*Entity*/) const { return false; }
+bool CarriedWeaponT::ServerSide_PickedUpByEntity(EntHumanPlayerT* /*Player*/) const { return false; }
 void CarriedWeaponT::ServerSide_Think(EntHumanPlayerT* /*Player*/, const PlayerCommandT& /*PlayerCommand*/, bool /*ThinkingOnServerSide*/, unsigned long /*ServerFrameNr*/, bool /*AnimSequenceWrap*/) const { }
 void CarriedWeaponT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* /*Player*/, const VectorT& /*LastSeenAmbientColor*/) const { }
 void CarriedWeaponT::ClientSide_HandleSecondaryFireEvent(const EntHumanPlayerT* /*Player*/, const VectorT& /*LastSeenAmbientColor*/) const { }

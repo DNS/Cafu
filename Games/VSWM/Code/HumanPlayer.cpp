@@ -243,8 +243,8 @@ void EntHumanPlayerT::Init2DNodeSequence(const char* TrialFileName, const Vector
             PrevNodeCenter =ThisNodeCenter;
             PrevNodeHeading=ThisNodeHeading & 0xFFFF;   // % 65536, modulo 360°
 
-            ThisNodeCenter =ThisNodeCenter+(Sequence[NodeNr]->State.Origin-OriginIPS);
-            ThisNodeHeading=Sequence[NodeNr]->State.Heading;
+            ThisNodeCenter =ThisNodeCenter+(Sequence[NodeNr]->GetOrigin()-OriginIPS);
+            ThisNodeHeading=Sequence[NodeNr]->GetHeading();
         }
     }
 }
@@ -565,8 +565,8 @@ EntHumanPlayerT::EntHumanPlayerT(char TypeID, unsigned long ID, unsigned long Ma
         BaseEntityT* BaseEntity=GameWorld->GetBaseEntityByID(AllEntityIDs[EntityIDNr]);
         if (BaseEntity==NULL) continue;
 
-        if (BaseEntity->GetType()==&EntInfoPlayerStartT::TypeInfo) { Origin_IPS=BaseEntity->State.Origin; continue; }
-        if (BaseEntity->GetType()==&EntInfoNodeSpacingT::TypeInfo) { Origin_INS=BaseEntity->State.Origin; continue; }
+        if (BaseEntity->GetType()==&EntInfoPlayerStartT::TypeInfo) { Origin_IPS=BaseEntity->GetOrigin(); continue; }
+        if (BaseEntity->GetType()==&EntInfoNodeSpacingT::TypeInfo) { Origin_INS=BaseEntity->GetOrigin(); continue; }
         if (BaseEntity->GetType()==&EntInfo2DMoveDirT  ::TypeInfo) { AllInfo2DMoveDirEntities.PushBack((EntInfo2DMoveDirT*)BaseEntity); continue; }
 
         Console->DevWarning("Should never get here (ctor HP)!");

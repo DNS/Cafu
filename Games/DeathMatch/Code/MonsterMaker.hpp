@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/******************************/
-/*** Monster Maker (Header) ***/
-/******************************/
-
 #ifndef CAFU_MONSTERMAKER_HPP_INCLUDED
 #define CAFU_MONSTERMAKER_HPP_INCLUDED
 

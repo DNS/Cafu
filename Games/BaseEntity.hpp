@@ -102,7 +102,6 @@ class BaseEntityT
     const unsigned long WorldFileIndex; // The index of this entity into the array in the world file, -1 is no such information exists. See [1].
     unsigned long       ParentID;       // The 'ID' of the entity that created us.
  // ID[]                ChildrenIDs;    // The entities that we have created (e.g. the rockets that a human player fired).
-    EntityStateT        State;          // The current state of this entity.
 
     cf::GameSys::GameWorldI*            GameWorld;      ///< Pointer to the game world implementation.
     PhysicsWorldT*                      PhysicsWorld;   ///< Pointer to the physics world implementation.
@@ -155,6 +154,9 @@ class BaseEntityT
 
     /// Returns the dimensions of this entity.
     virtual const BoundingBox3dT& GetDimensions() const { return State.Dimensions; }
+
+    /// Returns the heading of this entity.
+    unsigned short GetHeading() const { return State.Heading; }
 
     /// Returns the camera orientation angles of this entity.
     /// Used for setting up the camera of the local human player entity (1st person view).
@@ -233,6 +235,9 @@ class BaseEntityT
     /// At a first glance, the related methods are *only* called from the server (like passing in player commands),
     /// or from within the Think() functions, but never on the client side.
     virtual void ProcessConfigString(const void* ConfigData, const char* ConfigString);
+
+    /// Increases the frag count of this entity by the given number.
+    void AddFrag(int NumFrags=1);
 
     /// This server-side function is used for posting an event of the given type.
     /// The event is automatically sent from the entity instance on the server to the entity instances
@@ -320,6 +325,8 @@ class BaseEntityT
     /// Concrete entities are created in the GameI::CreateBaseEntityFromMapFile() method for the server-side,
     /// and in the GameI::CreateBaseEntityFromTypeNr() method for the client-side.
     BaseEntityT(const EntityCreateParamsT& Params, const unsigned int NUM_EVENT_TYPES, const EntityStateT& State_);
+
+    EntityStateT State;     // The current state of this entity.
 
 
     private:

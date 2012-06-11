@@ -31,7 +31,7 @@ class CarriedWeaponPistolT : public CarriedWeaponT
 
     CarriedWeaponPistolT(ModelManagerT& ModelMan);
 
-    bool ServerSide_PickedUpByEntity(BaseEntityT* Entity) const;
+    bool ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const;
 };
 
 #endif

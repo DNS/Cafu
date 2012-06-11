@@ -20,7 +20,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "CompanyBot.hpp"
-#include "Constants_AmmoSlots.hpp"      // For 'AMMO_SLOT_FRAGS'.
 #include "EntityCreateParams.hpp"
 #include "HumanPlayer.hpp"
 #include "PhysicsWorld.hpp"
@@ -158,7 +157,7 @@ void EntCompanyBotT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT&
 
     if (State.Health<=Amount)
     {
-        unsigned short DeltaAngle=Entity->State.Heading-State.Heading;
+        unsigned short DeltaAngle=Entity->GetHeading()-State.Heading;
 
         State.Health=0;
 
@@ -185,7 +184,7 @@ void EntCompanyBotT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT&
             FraggingEntity=ParentOfFE;
         }
 
-        FraggingEntity->State.HaveAmmo[AMMO_SLOT_FRAGS]++;
+        FraggingEntity->AddFrag();
     }
     else
     {
@@ -235,7 +234,7 @@ void EntCompanyBotT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
     // Gab es so einen Entity überhaupt?
     if (EntityIDNr>=AllEntityIDs.Size()) return;
 
-    VectorT Dist=TargetEntity->State.Origin-State.Origin;
+    VectorT Dist = TargetEntity->GetOrigin() - State.Origin;
     VectorT WishVelocity;
 
     // This is really easy thinking

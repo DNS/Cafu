@@ -35,6 +35,9 @@ class EntFaceHuggerT : public BaseEntityT
 
     EntFaceHuggerT(const EntityCreateParamsT& Params);
 
+    void SetHeading(unsigned short h) { State.Heading = h; }
+    void SetVelocity(const Vector3dT& v) { State.Velocity = v; }
+
     void Think(float FrameTime, unsigned long ServerFrameNr);
     void Draw(bool FirstPersonView, float LodDist) const;
     void PostDraw(float FrameTime, bool FirstPersonView);

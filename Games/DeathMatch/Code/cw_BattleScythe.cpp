@@ -44,16 +44,18 @@ CarriedWeaponBattleScytheT::~CarriedWeaponBattleScytheT()
 }
 
 
-bool CarriedWeaponBattleScytheT::ServerSide_PickedUpByEntity(BaseEntityT* Entity) const
+bool CarriedWeaponBattleScytheT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const
 {
+    EntityStateT& State=Player->GetState();
+
     // If the touching entity already has a BattleScythe, ignore the touch.
-    if (Entity->State.HaveWeapons & (1 << WEAPON_SLOT_BATTLESCYTHE)) return false;
+    if (State.HaveWeapons & (1 << WEAPON_SLOT_BATTLESCYTHE)) return false;
 
     // Otherwise, give the touching entity this weapon.
-    Entity->State.HaveWeapons|=1 << WEAPON_SLOT_BATTLESCYTHE;
-    Entity->State.ActiveWeaponSlot   =WEAPON_SLOT_BATTLESCYTHE;
-    Entity->State.ActiveWeaponSequNr =1;    // Draw
-    Entity->State.ActiveWeaponFrameNr=0.0;
+    State.HaveWeapons|=1 << WEAPON_SLOT_BATTLESCYTHE;
+    State.ActiveWeaponSlot   =WEAPON_SLOT_BATTLESCYTHE;
+    State.ActiveWeaponSequNr =1;    // Draw
+    State.ActiveWeaponFrameNr=0.0;
 
     return true;
 }
@@ -61,7 +63,7 @@ bool CarriedWeaponBattleScytheT::ServerSide_PickedUpByEntity(BaseEntityT* Entity
 
 void CarriedWeaponBattleScytheT::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool /*ThinkingOnServerSide*/, unsigned long /*ServerFrameNr*/, bool AnimSequenceWrap) const
 {
-    EntityStateT& State=Player->State;
+    EntityStateT& State=Player->GetState();
 
     switch (State.ActiveWeaponSequNr)
     {
@@ -156,7 +158,7 @@ void CarriedWeaponBattleScytheT::ServerSide_Think(EntHumanPlayerT* Player, const
 
 void CarriedWeaponBattleScytheT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* Player, const VectorT& /*LastSeenAmbientColor*/) const
 {
-    const EntityStateT& State=Player->State;
+    const EntityStateT& State=Player->GetState();
 
     const float ViewDirZ=-LookupTables::Angle16ToSin[State.Pitch];
     const float ViewDirY= LookupTables::Angle16ToCos[State.Pitch];
@@ -174,7 +176,7 @@ void CarriedWeaponBattleScytheT::ClientSide_HandlePrimaryFireEvent(const EntHuma
 
 void CarriedWeaponBattleScytheT::ClientSide_HandleSecondaryFireEvent(const EntHumanPlayerT* Player, const VectorT& /*LastSeenAmbientColor*/) const
 {
-    const EntityStateT& State=Player->State;
+    const EntityStateT& State=Player->GetState();
 
     const float ViewDirZ=-LookupTables::Angle16ToSin[State.Pitch];
     const float ViewDirY= LookupTables::Angle16ToCos[State.Pitch];

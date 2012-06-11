@@ -21,6 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "cw_RPG.hpp"
 #include "HumanPlayer.hpp"
+#include "Rocket.hpp"
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
 #include "Libs/LookupTables.hpp"
@@ -35,31 +36,33 @@ CarriedWeaponRPGT::CarriedWeaponRPGT(ModelManagerT& ModelMan)
 }
 
 
-bool CarriedWeaponRPGT::ServerSide_PickedUpByEntity(BaseEntityT* Entity) const
+bool CarriedWeaponRPGT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const
 {
+    EntityStateT& State=Player->GetState();
+
     // Consider if the entity already has this weapon.
-    if (Entity->State.HaveWeapons & (1 << WEAPON_SLOT_RPG))
+    if (State.HaveWeapons & (1 << WEAPON_SLOT_RPG))
     {
         // If it also has the max. amount of ammo of this type, ignore the touch.
-        if (Entity->State.HaveAmmo[AMMO_SLOT_ROCKETS]==5) return false;
+        if (State.HaveAmmo[AMMO_SLOT_ROCKETS]==5) return false;
 
         // Otherwise pick the weapon up and let it have the ammo.
-        Entity->State.HaveAmmo[AMMO_SLOT_ROCKETS]+=1;
+        State.HaveAmmo[AMMO_SLOT_ROCKETS]+=1;
     }
     else
     {
         // This weapon is picked up for the first time.
-        Entity->State.HaveWeapons|=1 << WEAPON_SLOT_RPG;
-        Entity->State.ActiveWeaponSlot   =WEAPON_SLOT_RPG;
-        Entity->State.ActiveWeaponSequNr =5;    // Draw
-        Entity->State.ActiveWeaponFrameNr=0.0;
+        State.HaveWeapons|=1 << WEAPON_SLOT_RPG;
+        State.ActiveWeaponSlot   =WEAPON_SLOT_RPG;
+        State.ActiveWeaponSequNr =5;    // Draw
+        State.ActiveWeaponFrameNr=0.0;
 
-        Entity->State.HaveAmmoInWeapons[WEAPON_SLOT_RPG  ] =1;
-        Entity->State.HaveAmmo         [AMMO_SLOT_ROCKETS]+=0;
+        State.HaveAmmoInWeapons[WEAPON_SLOT_RPG  ] =1;
+        State.HaveAmmo         [AMMO_SLOT_ROCKETS]+=0;
     }
 
     // Limit the amount of carryable ammo.
-    if (Entity->State.HaveAmmo[AMMO_SLOT_ROCKETS]>5) Entity->State.HaveAmmo[AMMO_SLOT_ROCKETS]=5;
+    if (State.HaveAmmo[AMMO_SLOT_ROCKETS]>5) State.HaveAmmo[AMMO_SLOT_ROCKETS]=5;
 
     return true;
 }
@@ -67,7 +70,7 @@ bool CarriedWeaponRPGT::ServerSide_PickedUpByEntity(BaseEntityT* Entity) const
 
 void CarriedWeaponRPGT::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const
 {
-    EntityStateT& State=Player->State;
+    EntityStateT& State=Player->GetState();
 
     switch (State.ActiveWeaponSequNr)
     {
@@ -100,11 +103,11 @@ void CarriedWeaponRPGT::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCo
 
                     if (RocketID!=0xFFFFFFFF)
                     {
-                        BaseEntityT* Rocket=Player->GameWorld->GetBaseEntityByID(RocketID);
+                        EntRocketT* Rocket=dynamic_cast<EntRocketT*>(Player->GameWorld->GetBaseEntityByID(RocketID));
 
-                        Rocket->ParentID      =Player->ID;
-                        Rocket->State.Heading =State.Heading;
-                        Rocket->State.Velocity=scale(ViewDir, 14000.0);   // Rocket has own propulsion.
+                        Rocket->ParentID=Player->ID;
+                        Rocket->SetHeading(State.Heading);
+                        Rocket->SetVelocity(scale(ViewDir, 14000.0));   // Rocket has own propulsion.
                     }
                 }
                 break;

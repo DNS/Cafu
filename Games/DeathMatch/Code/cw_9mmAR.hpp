@@ -32,7 +32,7 @@ class CarriedWeapon9mmART : public CarriedWeaponT
     CarriedWeapon9mmART(ModelManagerT& ModelMan);
     ~CarriedWeapon9mmART();
 
-    bool ServerSide_PickedUpByEntity(BaseEntityT* Entity) const;
+    bool ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const;
     void ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;
 
     void ClientSide_HandleSecondaryFireEvent(const EntHumanPlayerT* Player, const VectorT& LastSeenAmbientColor) const;

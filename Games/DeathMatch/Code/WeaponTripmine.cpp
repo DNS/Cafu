@@ -63,24 +63,26 @@ void EntWeaponTripmineT::NotifyTouchedBy(BaseEntityT* Entity)
     // If we are touched when not being "active", ignore the touch.
     if (State.StateOfExistance!=StateOfExistance_Active) return;
 
+    EntityStateT& PlayerState=dynamic_cast<EntHumanPlayerT*>(Entity)->GetState();
+
     // Consider if the entity already has this weapon.
-    if (Entity->State.HaveWeapons & (1 << WEAPON_SLOT_TRIPMINE))
+    if (PlayerState.HaveWeapons & (1 << WEAPON_SLOT_TRIPMINE))
     {
         // If it also has the max. amount of ammo of this type, ignore the touch.
-        if (Entity->State.HaveAmmoInWeapons[WEAPON_SLOT_TRIPMINE]==4) return;
+        if (PlayerState.HaveAmmoInWeapons[WEAPON_SLOT_TRIPMINE]==4) return;
 
         // Otherwise pick the weapon up and let it have the ammo.
-        Entity->State.HaveAmmoInWeapons[WEAPON_SLOT_TRIPMINE]+=1;
+        PlayerState.HaveAmmoInWeapons[WEAPON_SLOT_TRIPMINE]+=1;
     }
     else
     {
         // This weapon is picked up for the first time.
-        Entity->State.HaveWeapons|=1 << WEAPON_SLOT_TRIPMINE;
-        Entity->State.ActiveWeaponSlot   =WEAPON_SLOT_TRIPMINE;
-        Entity->State.ActiveWeaponSequNr =0;    // Draw
-        Entity->State.ActiveWeaponFrameNr=0.0;
+        PlayerState.HaveWeapons|=1 << WEAPON_SLOT_TRIPMINE;
+        PlayerState.ActiveWeaponSlot   =WEAPON_SLOT_TRIPMINE;
+        PlayerState.ActiveWeaponSequNr =0;    // Draw
+        PlayerState.ActiveWeaponFrameNr=0.0;
 
-        Entity->State.HaveAmmoInWeapons[WEAPON_SLOT_TRIPMINE]=1;
+        PlayerState.HaveAmmoInWeapons[WEAPON_SLOT_TRIPMINE]=1;
     }
 
     // And finally retire for a while.

@@ -19,11 +19,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/****************************/
-/*** Monster Maker (Code) ***/
-/****************************/
-
 #include "MonsterMaker.hpp"
+#include "Eagle.hpp"
+#include "CompanyBot.hpp"
 #include "EntityCreateParams.hpp"
 #include "HumanPlayer.hpp"
 #include "InfoPlayerStart.hpp"
@@ -131,10 +129,10 @@ void EntMonsterMakerT::Think(float FrameTime, unsigned long ServerFrameNr)
         if (BaseEntity->GetType()==&EntMonsterMakerT::TypeInfo   ) continue;
         if (BaseEntity->GetType()==&EntInfoPlayerStartT::TypeInfo) continue;
 
-        BoundingBox3T<double> BaseEntityBB=BaseEntity->State.Dimensions;
+        BoundingBox3T<double> BaseEntityBB=BaseEntity->GetDimensions();
 
-        BaseEntityBB.Min=BaseEntityBB.Min+BaseEntity->State.Origin-State.Origin;
-        BaseEntityBB.Max=BaseEntityBB.Max+BaseEntity->State.Origin-State.Origin;
+        BaseEntityBB.Min=BaseEntityBB.Min+BaseEntity->GetOrigin()-State.Origin;
+        BaseEntityBB.Max=BaseEntityBB.Max+BaseEntity->GetOrigin()-State.Origin;
 
         if (OurRelPositionBB.GetEpsilonBox(1.0).Intersects(BaseEntityBB)) return;
     }
@@ -156,8 +154,8 @@ void EntMonsterMakerT::Think(float FrameTime, unsigned long ServerFrameNr)
                 BaseEntity->ProcessConfigString(&IsAlive, "IsAlive?");
                 if (!IsAlive) continue;
 
-                // Do not spawn until player is beyond safety distance (VectorDistance(BaseEntity->State.Origin, State.Origin)<5000 ohne Quadratwurzel!)
-                VectorT Dist=BaseEntity->State.Origin-State.Origin;
+                // Do not spawn until player is beyond safety distance (VectorDistance(BaseEntity->GetOrigin(), State.Origin)<5000 ohne Quadratwurzel!)
+                VectorT Dist=BaseEntity->GetOrigin()-State.Origin;
                 Dist.z=0;   // Temporary fix for broken CompanyBot constructor. See there!
                 if (dot(Dist, Dist)<6500.0*6500.0) return;
 
@@ -169,10 +167,10 @@ void EntMonsterMakerT::Think(float FrameTime, unsigned long ServerFrameNr)
             if (EntityIDNr>=AllEntityIDs.Size()) return;
 
             std::map<std::string, std::string> Props; Props["classname"]="monster_companybot";
-            unsigned long NewCompanyBotID=GameWorld->CreateNewEntity(Props, ServerFrameNr, State.Origin);
-            BaseEntityT*  NewCompanyBot  =GameWorld->GetBaseEntityByID(NewCompanyBotID);
+            unsigned long   NewCompanyBotID=GameWorld->CreateNewEntity(Props, ServerFrameNr, State.Origin);
+            EntCompanyBotT* NewCompanyBot  =dynamic_cast<EntCompanyBotT*>(GameWorld->GetBaseEntityByID(NewCompanyBotID));
 
-            if (NewCompanyBot) NewCompanyBot->State.Heading=State.Heading;
+            if (NewCompanyBot) NewCompanyBot->SetHeading(State.Heading);
             break;
         }
 
@@ -189,9 +187,9 @@ void EntMonsterMakerT::Think(float FrameTime, unsigned long ServerFrameNr)
             std::map<std::string, std::string> Props; Props["classname"]="monster_eagle";
 
             unsigned long NewEagleID=GameWorld->CreateNewEntity(Props, ServerFrameNr, State.Origin);
-            BaseEntityT*  NewEagle  =GameWorld->GetBaseEntityByID(NewEagleID);
+            EntEagleT*    NewEagle  =dynamic_cast<EntEagleT*>(GameWorld->GetBaseEntityByID(NewEagleID));
 
-            if (NewEagle) NewEagle->State.Heading=State.Heading;
+            if (NewEagle) NewEagle->SetHeading(State.Heading);
             break;
         }
 

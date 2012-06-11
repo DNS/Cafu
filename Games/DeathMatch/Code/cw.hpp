@@ -65,10 +65,10 @@ class CarriedWeaponT
     const CafuModelT* GetPlayerWeaponModel() const { return m_PlayerModel; }
 
 
-    /// This function is to be called when the entity 'Entity' has just picked up this weapon.
+    /// This function is to be called when the player has just picked up this weapon.
     /// Returns true if the weapon was successfully given to (picked up by) the entity, false otherwise.
     /// Usually called by a weapon entity (that represents the weapon lying around) on detection of touch by a human player.
-    virtual bool ServerSide_PickedUpByEntity(BaseEntityT* Entity) const;
+    virtual bool ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const;
 
     /// This functions handles the thinking for this carried weapon.
     /// Typically called from within EntHumanPlayerT::Think().

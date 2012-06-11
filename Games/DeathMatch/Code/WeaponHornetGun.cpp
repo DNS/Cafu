@@ -62,14 +62,16 @@ void EntWeaponHornetGunT::NotifyTouchedBy(BaseEntityT* Entity)
     // If we are touched when not being "active", ignore the touch.
     if (State.StateOfExistance!=StateOfExistance_Active) return;
 
+    EntityStateT& PlayerState=dynamic_cast<EntHumanPlayerT*>(Entity)->GetState();
+
     // If the touching entity already has a HornetGun, ignore the touch.
-    if (Entity->State.HaveWeapons & (1 << WEAPON_SLOT_HORNETGUN)) return;
+    if (PlayerState.HaveWeapons & (1 << WEAPON_SLOT_HORNETGUN)) return;
 
     // Otherwise, give the touching entity this weapon.
-    Entity->State.HaveWeapons|=1 << WEAPON_SLOT_HORNETGUN;
-    Entity->State.ActiveWeaponSlot   =WEAPON_SLOT_HORNETGUN;
-    Entity->State.ActiveWeaponSequNr =0;    // Draw
-    Entity->State.ActiveWeaponFrameNr=0.0;
+    PlayerState.HaveWeapons|=1 << WEAPON_SLOT_HORNETGUN;
+    PlayerState.ActiveWeaponSlot   =WEAPON_SLOT_HORNETGUN;
+    PlayerState.ActiveWeaponSequNr =0;    // Draw
+    PlayerState.ActiveWeaponFrameNr=0.0;
 
     // And finally retire for a while.
     State.StateOfExistance=StateOfExistance_NotActive;

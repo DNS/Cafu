@@ -60,14 +60,16 @@ void EntItemAmmoArrowT::NotifyTouchedBy(BaseEntityT* Entity)
     // If we are touched when not being "active", ignore the touch.
     if (State.StateOfExistance!=StateOfExistance_Active) return;
 
+    EntityStateT& PlayerState=dynamic_cast<EntHumanPlayerT*>(Entity)->GetState();
+
     // If we already have the max. amount of ammo of this type, ignore the touch.
-    if (Entity->State.HaveAmmo[AMMO_SLOT_ARROWS]==30) return;
+    if (PlayerState.HaveAmmo[AMMO_SLOT_ARROWS]==30) return;
 
     // Otherwise pick the item up and collect the ammo.
-    Entity->State.HaveAmmo[AMMO_SLOT_ARROWS]+=5;
+    PlayerState.HaveAmmo[AMMO_SLOT_ARROWS]+=5;
 
     // Limit the amount of carryable ammo.
-    if (Entity->State.HaveAmmo[AMMO_SLOT_ARROWS]>30) Entity->State.HaveAmmo[AMMO_SLOT_ARROWS]=30;
+    if (PlayerState.HaveAmmo[AMMO_SLOT_ARROWS]>30) PlayerState.HaveAmmo[AMMO_SLOT_ARROWS]=30;
 
     // And finally retire for a while.
     State.StateOfExistance=StateOfExistance_NotActive;

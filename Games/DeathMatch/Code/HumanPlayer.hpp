@@ -42,6 +42,8 @@ class EntHumanPlayerT : public BaseEntityT, public btMotionState
     EntHumanPlayerT(const EntityCreateParamsT& Params);
     ~EntHumanPlayerT();
 
+    EntityStateT& GetState() { return State; }
+    const EntityStateT& GetState() const { return State; }
     const btRigidBody* GetRigidBody() const { return m_RigidBody; }
 
     // Implement the BaseEntityT interface.

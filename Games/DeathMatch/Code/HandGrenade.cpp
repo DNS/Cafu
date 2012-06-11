@@ -117,7 +117,7 @@ void EntHandGrenadeT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
                 // Note that OtherOrigin=OtherEntity->State.Origin is not enough, it must be computed as shown in order to work in all cases:
                 // a) With (e.g.) EntHumanPlayerTs, the Dimensions are static and the Origin moves, but
                 // b) with EntRigidBodyTs, the Dimensions move while the Origin remains at (0, 0, 0).
-                const Vector3dT OtherOrigin=OtherEntity->State.Dimensions.GetCenter() + OtherEntity->State.Origin;
+                const Vector3dT OtherOrigin=OtherEntity->GetDimensions().GetCenter() + OtherEntity->GetOrigin();
                 const Vector3dT Impact     =OtherOrigin-State.Origin;
                 const double    Dist       =length(Impact);
 

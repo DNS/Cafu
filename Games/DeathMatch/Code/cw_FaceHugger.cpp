@@ -20,6 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "cw_FaceHugger.hpp"
+#include "FaceHugger.hpp"
 #include "HumanPlayer.hpp"
 #include "Constants_WeaponSlots.hpp"
 #include "Libs/LookupTables.hpp"
@@ -46,26 +47,28 @@ CarriedWeaponFaceHuggerT::~CarriedWeaponFaceHuggerT()
 }
 
 
-bool CarriedWeaponFaceHuggerT::ServerSide_PickedUpByEntity(BaseEntityT* Entity) const
+bool CarriedWeaponFaceHuggerT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const
 {
+    EntityStateT& State=Player->GetState();
+
     // Consider if the entity already has this weapon.
-    if (Entity->State.HaveWeapons & (1 << WEAPON_SLOT_FACEHUGGER))
+    if (State.HaveWeapons & (1 << WEAPON_SLOT_FACEHUGGER))
     {
         // If it also has the max. amount of ammo of this type, ignore the touch.
-        if (Entity->State.HaveAmmoInWeapons[WEAPON_SLOT_FACEHUGGER]>=35) return false;
+        if (State.HaveAmmoInWeapons[WEAPON_SLOT_FACEHUGGER]>=35) return false;
 
         // Otherwise pick the weapon up and let it have the ammo.
-        Entity->State.HaveAmmoInWeapons[WEAPON_SLOT_FACEHUGGER]+=5;
+        State.HaveAmmoInWeapons[WEAPON_SLOT_FACEHUGGER]+=5;
     }
     else
     {
         // This weapon is picked up for the first time.
-        Entity->State.HaveWeapons|=1 << WEAPON_SLOT_FACEHUGGER;
-        Entity->State.ActiveWeaponSlot   =WEAPON_SLOT_FACEHUGGER;
-        Entity->State.ActiveWeaponSequNr =4;    // Draw
-        Entity->State.ActiveWeaponFrameNr=0.0;
+        State.HaveWeapons|=1 << WEAPON_SLOT_FACEHUGGER;
+        State.ActiveWeaponSlot   =WEAPON_SLOT_FACEHUGGER;
+        State.ActiveWeaponSequNr =4;    // Draw
+        State.ActiveWeaponFrameNr=0.0;
 
-        Entity->State.HaveAmmoInWeapons[WEAPON_SLOT_FACEHUGGER]=5;
+        State.HaveAmmoInWeapons[WEAPON_SLOT_FACEHUGGER]=5;
     }
 
     return true;
@@ -74,7 +77,7 @@ bool CarriedWeaponFaceHuggerT::ServerSide_PickedUpByEntity(BaseEntityT* Entity) 
 
 void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const
 {
-    EntityStateT& State=Player->State;
+    EntityStateT& State=Player->GetState();
 
     switch (State.ActiveWeaponSequNr)
     {
@@ -110,11 +113,11 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, const P
 
                     if (FaceHuggerID!=0xFFFFFFFF)
                     {
-                        BaseEntityT* FaceHugger=Player->GameWorld->GetBaseEntityByID(FaceHuggerID);
+                        EntFaceHuggerT* FaceHugger=dynamic_cast<EntFaceHuggerT*>(Player->GameWorld->GetBaseEntityByID(FaceHuggerID));
 
-                        FaceHugger->ParentID      =Player->ID;
-                        FaceHugger->State.Heading =State.Heading;
-                        FaceHugger->State.Velocity=State.Velocity+scale(ViewDir, 7000.0);
+                        FaceHugger->ParentID=Player->ID;
+                        FaceHugger->SetHeading(State.Heading);
+                        FaceHugger->SetVelocity(State.Velocity+scale(ViewDir, 7000.0));
                     }
                 }
                 break;
@@ -166,7 +169,7 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, const P
 
 void CarriedWeaponFaceHuggerT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* Player, const VectorT& /*LastSeenAmbientColor*/) const
 {
-    const EntityStateT& State=Player->State;
+    const EntityStateT& State=Player->GetState();
 
     const float ViewDirZ=-LookupTables::Angle16ToSin[State.Pitch];
     const float ViewDirY= LookupTables::Angle16ToCos[State.Pitch];

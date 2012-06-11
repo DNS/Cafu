@@ -64,7 +64,7 @@ void EntWeaponEgonT::NotifyTouchedBy(BaseEntityT* Entity)
     if (State.StateOfExistance!=StateOfExistance_Active) return;
 
     // Give this weapon to the entity.
-    if (!cf::GameSys::GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_EGON)->ServerSide_PickedUpByEntity(Entity)) return;
+    if (!cf::GameSys::GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_EGON)->ServerSide_PickedUpByEntity(dynamic_cast<EntHumanPlayerT*>(Entity))) return;
 
     // And finally retire for a while.
     State.StateOfExistance=StateOfExistance_NotActive;

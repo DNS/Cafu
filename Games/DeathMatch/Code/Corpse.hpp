@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/***********************/
-/*** Corpse (Header) ***/
-/***********************/
-
 #ifndef CAFU_CORPSE_HPP_INCLUDED
 #define CAFU_CORPSE_HPP_INCLUDED
 
@@ -30,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 class EntityCreateParamsT;
+class EntHumanPlayerT;
 
 
 class EntCorpseT : public BaseEntityT
@@ -37,6 +34,8 @@ class EntCorpseT : public BaseEntityT
     public:
 
     EntCorpseT(const EntityCreateParamsT& Params);
+
+    void AdoptState(const EntHumanPlayerT* Player);
 
     void Think(float FrameTime, unsigned long ServerFrameNr);
     void Draw(bool FirstPersonView, float LodDist) const;

@@ -21,6 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "cw_9mmAR.hpp"
 #include "_ResourceManager.hpp"
+#include "ARGrenade.hpp"
 #include "HumanPlayer.hpp"
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
@@ -51,34 +52,36 @@ CarriedWeapon9mmART::~CarriedWeapon9mmART()
 }
 
 
-bool CarriedWeapon9mmART::ServerSide_PickedUpByEntity(BaseEntityT* Entity) const
+bool CarriedWeapon9mmART::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const
 {
+    EntityStateT& State=Player->GetState();
+
     // Consider if the entity already has this weapon.
-    if (Entity->State.HaveWeapons & (1 << WEAPON_SLOT_9MMAR))
+    if (State.HaveWeapons & (1 << WEAPON_SLOT_9MMAR))
     {
         // If it also has the max. amount of ammo of this type, ignore the touch.
-        if (Entity->State.HaveAmmo[AMMO_SLOT_9MM]==250) return false;
+        if (State.HaveAmmo[AMMO_SLOT_9MM]==250) return false;
 
         // Otherwise pick the weapon up and let it have the ammo.
-        Entity->State.HaveAmmo[AMMO_SLOT_9MM   ]+=50;
-        Entity->State.HaveAmmo[AMMO_SLOT_ARGREN]+= 2;               // Temp. solution until we have "ItemAmmoARGrenades" working.
+        State.HaveAmmo[AMMO_SLOT_9MM   ]+=50;
+        State.HaveAmmo[AMMO_SLOT_ARGREN]+= 2;               // Temp. solution until we have "ItemAmmoARGrenades" working.
     }
     else
     {
         // This weapon is picked up for the first time.
-        Entity->State.HaveWeapons|=1 << WEAPON_SLOT_9MMAR;
-        Entity->State.ActiveWeaponSlot   =WEAPON_SLOT_9MMAR;
-        Entity->State.ActiveWeaponSequNr =4;    // Draw
-        Entity->State.ActiveWeaponFrameNr=0.0;
+        State.HaveWeapons|=1 << WEAPON_SLOT_9MMAR;
+        State.ActiveWeaponSlot   =WEAPON_SLOT_9MMAR;
+        State.ActiveWeaponSequNr =4;    // Draw
+        State.ActiveWeaponFrameNr=0.0;
 
-        Entity->State.HaveAmmoInWeapons[WEAPON_SLOT_9MMAR] =25;
-        Entity->State.HaveAmmo         [AMMO_SLOT_9MM    ]+=25;
-        Entity->State.HaveAmmo         [AMMO_SLOT_ARGREN ]+= 2;     // Temp. solution until we have "ItemAmmoARGrenades" working.
+        State.HaveAmmoInWeapons[WEAPON_SLOT_9MMAR] =25;
+        State.HaveAmmo         [AMMO_SLOT_9MM    ]+=25;
+        State.HaveAmmo         [AMMO_SLOT_ARGREN ]+= 2;     // Temp. solution until we have "ItemAmmoARGrenades" working.
     }
 
     // Limit the amount of carryable ammo.
-    if (Entity->State.HaveAmmo[AMMO_SLOT_9MM   ]>250) Entity->State.HaveAmmo[AMMO_SLOT_9MM   ]=250;
-    if (Entity->State.HaveAmmo[AMMO_SLOT_ARGREN]>  4) Entity->State.HaveAmmo[AMMO_SLOT_ARGREN]=  4;
+    if (State.HaveAmmo[AMMO_SLOT_9MM   ]>250) State.HaveAmmo[AMMO_SLOT_9MM   ]=250;
+    if (State.HaveAmmo[AMMO_SLOT_ARGREN]>  4) State.HaveAmmo[AMMO_SLOT_ARGREN]=  4;
 
     return true;
 }
@@ -86,7 +89,7 @@ bool CarriedWeapon9mmART::ServerSide_PickedUpByEntity(BaseEntityT* Entity) const
 
 void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const
 {
-    EntityStateT& State=Player->State;
+    EntityStateT& State=Player->GetState();
 
     switch (State.ActiveWeaponSequNr)
     {
@@ -212,11 +215,11 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, const Player
 
                     if (ARGrenadeID!=0xFFFFFFFF)
                     {
-                        BaseEntityT* ARGrenade=Player->GameWorld->GetBaseEntityByID(ARGrenadeID);
+                        EntARGrenadeT* ARGrenade=dynamic_cast<EntARGrenadeT*>(Player->GameWorld->GetBaseEntityByID(ARGrenadeID));
 
-                        ARGrenade->ParentID      =Player->ID;
-                        ARGrenade->State.Heading =State.Heading;
-                        ARGrenade->State.Velocity=State.Velocity+scale(ViewDir, 20000.0);
+                        ARGrenade->ParentID=Player->ID;
+                        ARGrenade->SetHeading(State.Heading);
+                        ARGrenade->SetVelocity(State.Velocity+scale(ViewDir, 20000.0));
                     }
                 }
                 break;
@@ -273,7 +276,7 @@ static bool ParticleFunction_HitEntity(ParticleMST* Particle, float Time)
 
 void CarriedWeapon9mmART::ClientSide_HandleSecondaryFireEvent(const EntHumanPlayerT* Player, const VectorT& /*LastSeenAmbientColor*/) const
 {
-    const EntityStateT& State=Player->State;
+    const EntityStateT& State=Player->GetState();
 
     const float ViewDirZ=-LookupTables::Angle16ToSin[State.Pitch];
     const float ViewDirY= LookupTables::Angle16ToCos[State.Pitch];
@@ -291,7 +294,7 @@ void CarriedWeapon9mmART::ClientSide_HandleSecondaryFireEvent(const EntHumanPlay
 
 void CarriedWeapon9mmART::ClientSide_HandleStateDrivenEffects(const EntHumanPlayerT* Player) const
 {
-    const EntityStateT& State=Player->State;
+    const EntityStateT& State=Player->GetState();
 
     if (State.ActiveWeaponSequNr==5 || State.ActiveWeaponSequNr==6 || State.ActiveWeaponSequNr==7)
     {

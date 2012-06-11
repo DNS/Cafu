@@ -149,7 +149,7 @@ void EntRigidBodyT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT& 
 
     // See http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=3079 for more details,
     // especially for why we can compute rel_pos correctly as Ob-Oc, instead of having to compute the exact location of the impact!
-    const Vector3dT& Ob     =Entity->State.Origin;  // Assumes that the damage was caused / originated at Entity->State.Origin. Should this be a parameter to TakeDamage()?
+    const Vector3dT& Ob     =Entity->GetOrigin();  // Assumes that the damage was caused / originated at Entity->GetOrigin(). Should this be a parameter to TakeDamage()?
     const Vector3dT  Oc     =State.Dimensions.GetCenter() + State.Origin;
     const Vector3fT  rel_pos=(Ob-Oc).AsVectorOfFloat()/1000.0f;
 

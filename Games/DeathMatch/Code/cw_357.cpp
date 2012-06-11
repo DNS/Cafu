@@ -49,31 +49,33 @@ CarriedWeapon357T::~CarriedWeapon357T()
 }
 
 
-bool CarriedWeapon357T::ServerSide_PickedUpByEntity(BaseEntityT* Entity) const
+bool CarriedWeapon357T::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const
 {
+    EntityStateT& State=Player->GetState();
+
     // Consider if the entity already has this weapon.
-    if (Entity->State.HaveWeapons & (1 << WEAPON_SLOT_357))
+    if (State.HaveWeapons & (1 << WEAPON_SLOT_357))
     {
         // If it also has the max. amount of ammo of this type, ignore the touch.
-        if (Entity->State.HaveAmmo[AMMO_SLOT_357]==36) return false;
+        if (State.HaveAmmo[AMMO_SLOT_357]==36) return false;
 
         // Otherwise pick the weapon up and let it have the ammo.
-        Entity->State.HaveAmmo[AMMO_SLOT_357]+=12;
+        State.HaveAmmo[AMMO_SLOT_357]+=12;
     }
     else
     {
         // This weapon is picked up for the first time.
-        Entity->State.HaveWeapons|=1 << WEAPON_SLOT_357;
-        Entity->State.ActiveWeaponSlot   =WEAPON_SLOT_357;
-        Entity->State.ActiveWeaponSequNr =5;    // Draw
-        Entity->State.ActiveWeaponFrameNr=0.0;
+        State.HaveWeapons|=1 << WEAPON_SLOT_357;
+        State.ActiveWeaponSlot   =WEAPON_SLOT_357;
+        State.ActiveWeaponSequNr =5;    // Draw
+        State.ActiveWeaponFrameNr=0.0;
 
-        Entity->State.HaveAmmoInWeapons[WEAPON_SLOT_357] =6;
-        Entity->State.HaveAmmo         [AMMO_SLOT_357  ]+=6;
+        State.HaveAmmoInWeapons[WEAPON_SLOT_357] =6;
+        State.HaveAmmo         [AMMO_SLOT_357  ]+=6;
     }
 
     // Limit the amount of carryable ammo.
-    if (Entity->State.HaveAmmo[AMMO_SLOT_357]>36) Entity->State.HaveAmmo[AMMO_SLOT_357]=36;
+    if (State.HaveAmmo[AMMO_SLOT_357]>36) State.HaveAmmo[AMMO_SLOT_357]=36;
 
     return true;
 }
@@ -81,7 +83,7 @@ bool CarriedWeapon357T::ServerSide_PickedUpByEntity(BaseEntityT* Entity) const
 
 void CarriedWeapon357T::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long /*ServerFrameNr*/, bool AnimSequenceWrap) const
 {
-    EntityStateT& State=Player->State;
+    EntityStateT& State=Player->GetState();
 
     switch (State.ActiveWeaponSequNr)
     {
@@ -220,7 +222,7 @@ static bool ParticleFunction_HitEntity(ParticleMST* Particle, float Time)
 
 void CarriedWeapon357T::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* Player, const VectorT& /*LastSeenAmbientColor*/) const
 {
-    const EntityStateT& State=Player->State;
+    const EntityStateT& State=Player->GetState();
 
     const float ViewDirZ=-LookupTables::Angle16ToSin[State.Pitch];
     const float ViewDirY= LookupTables::Angle16ToCos[State.Pitch];

@@ -36,31 +36,33 @@ CarriedWeaponCrossBowT::CarriedWeaponCrossBowT(ModelManagerT& ModelMan)
 }
 
 
-bool CarriedWeaponCrossBowT::ServerSide_PickedUpByEntity(BaseEntityT* Entity) const
+bool CarriedWeaponCrossBowT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const
 {
+    EntityStateT& State=Player->GetState();
+
     // Consider if the entity already has this weapon.
-    if (Entity->State.HaveWeapons & (1 << WEAPON_SLOT_CROSSBOW))
+    if (State.HaveWeapons & (1 << WEAPON_SLOT_CROSSBOW))
     {
         // If it also has the max. amount of ammo of this type, ignore the touch.
-        if (Entity->State.HaveAmmo[AMMO_SLOT_ARROWS]==30) return false;
+        if (State.HaveAmmo[AMMO_SLOT_ARROWS]==30) return false;
 
         // Otherwise pick the weapon up and let it have the ammo.
-        Entity->State.HaveAmmo[AMMO_SLOT_ARROWS]+=10;
+        State.HaveAmmo[AMMO_SLOT_ARROWS]+=10;
     }
     else
     {
         // This weapon is picked up for the first time.
-        Entity->State.HaveWeapons|=1 << WEAPON_SLOT_CROSSBOW;
-        Entity->State.ActiveWeaponSlot   =WEAPON_SLOT_CROSSBOW;
-        Entity->State.ActiveWeaponSequNr =5;    // Draw
-        Entity->State.ActiveWeaponFrameNr=0.0;
+        State.HaveWeapons|=1 << WEAPON_SLOT_CROSSBOW;
+        State.ActiveWeaponSlot   =WEAPON_SLOT_CROSSBOW;
+        State.ActiveWeaponSequNr =5;    // Draw
+        State.ActiveWeaponFrameNr=0.0;
 
-        Entity->State.HaveAmmoInWeapons[WEAPON_SLOT_CROSSBOW] =5;
-        Entity->State.HaveAmmo         [AMMO_SLOT_ARROWS    ]+=5;
+        State.HaveAmmoInWeapons[WEAPON_SLOT_CROSSBOW] =5;
+        State.HaveAmmo         [AMMO_SLOT_ARROWS    ]+=5;
     }
 
     // Limit the amount of carryable ammo.
-    if (Entity->State.HaveAmmo[AMMO_SLOT_ARROWS]>30) Entity->State.HaveAmmo[AMMO_SLOT_ARROWS]=30;
+    if (State.HaveAmmo[AMMO_SLOT_ARROWS]>30) State.HaveAmmo[AMMO_SLOT_ARROWS]=30;
 
     return true;
 }
@@ -68,7 +70,7 @@ bool CarriedWeaponCrossBowT::ServerSide_PickedUpByEntity(BaseEntityT* Entity) co
 
 void CarriedWeaponCrossBowT::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long /*ServerFrameNr*/, bool AnimSequenceWrap) const
 {
-    EntityStateT& State=Player->State;
+    EntityStateT& State=Player->GetState();
 
     switch (State.ActiveWeaponSequNr)
     {

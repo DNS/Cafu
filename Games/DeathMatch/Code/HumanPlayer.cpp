@@ -167,7 +167,7 @@ void EntHumanPlayerT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT
 
     if (State.Health<=Amount)
     {
-        unsigned short DeltaAngle=Entity->State.Heading-State.Heading;
+        unsigned short DeltaAngle=Entity->GetHeading()-State.Heading;
 
         State.StateOfExistance=StateOfExistance_Dead;
         State.Health=0;
@@ -201,11 +201,11 @@ void EntHumanPlayerT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT
         if (FraggingEntity->ID==ID)
         {
             // Uh! This was a self-kill!
-            FraggingEntity->State.HaveAmmo[AMMO_SLOT_FRAGS]--;
+            FraggingEntity->AddFrag(-1);
         }
         else
         {
-            FraggingEntity->State.HaveAmmo[AMMO_SLOT_FRAGS]++;
+            FraggingEntity->AddFrag();
         }
     }
     else
@@ -640,10 +640,10 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     }
 
                     // If the bounding boxes don't overlap, continue with the next entity (we did not touch this one).
-                    BoundingBox3T<double> OtherEntityBB=OtherEntity->State.Dimensions;
+                    BoundingBox3T<double> OtherEntityBB=OtherEntity->GetDimensions();
 
-                    OtherEntityBB.Min=OtherEntityBB.Min+OtherEntity->State.Origin-State.Origin;
-                    OtherEntityBB.Max=OtherEntityBB.Max+OtherEntity->State.Origin-State.Origin;
+                    OtherEntityBB.Min=OtherEntityBB.Min+OtherEntity->GetOrigin()-State.Origin;
+                    OtherEntityBB.Max=OtherEntityBB.Max+OtherEntity->GetOrigin()-State.Origin;
 
                     if (!State.Dimensions.Intersects(OtherEntityBB)) continue;
 
@@ -746,11 +746,9 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                         if (CorpseID!=0xFFFFFFFF)
                         {
-                            BaseEntityT* Corpse=GameWorld->GetBaseEntityByID(CorpseID);
+                            EntCorpseT* Corpse=dynamic_cast<EntCorpseT*>(GameWorld->GetBaseEntityByID(CorpseID));
 
-                            Corpse->State=EntityStateT(State.Origin+VectorT(0.0, 0.0, State.Dimensions.Min.z+1728.8), VectorT(), BoundingBox3T<double>(Vector3dT()), State.Heading,
-                                                       0, 0, 0, 0, State.ModelIndex, State.ModelSequNr, State.ModelFrameNr, 0, 0, 0, 0,
-                                                       State.ActiveWeaponSlot, 0, 0.0);
+                            Corpse->AdoptState(this);
                         }
                     }
 
@@ -802,7 +800,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                     // This is actually an "InfoPlayerStart" entity. Now try to put our own bounding box at the origin of 'IPSEntity',
                     // but try to correct/choose the height such that we are on ground (instead of hovering above it).
-                    OurNewOrigin=IPSEntity->State.Origin;
+                    OurNewOrigin=IPSEntity->GetOrigin();
 
                     // First, create a BB of dimensions (-300.0, -300.0, -100.0) - (300.0, 300.0, 100.0).
                     const BoundingBox3T<double> ClearingBB(VectorT(State.Dimensions.Min.x, State.Dimensions.Min.y, -State.Dimensions.Max.z), State.Dimensions.Max);
@@ -846,7 +844,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 State.Origin             =OurNewOrigin;
                 State.Velocity           =VectorT();
                 State.Dimensions         =BoundingBox3T<double>(VectorT(400.0, 400.0, 100.0), VectorT(-400.0, -400.0, -1728.8));
-                State.Heading            =IPSEntity->State.Heading;
+                State.Heading            =IPSEntity->GetHeading();
                 State.Pitch              =0;
                 State.Bank               =0;
                 State.StateOfExistance   =StateOfExistance_Alive;

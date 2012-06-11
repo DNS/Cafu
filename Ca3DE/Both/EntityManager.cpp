@@ -207,7 +207,7 @@ void EntityManagerT::WriteFrameUpdateMessages(unsigned long ClientEntityID, unsi
 
     ArrayT<unsigned long>* NewStatePVSEntityIDs=&ClientOldStatesPVSEntityIDs[ClientCurrentStateIndex];
     ArrayT<unsigned long>* OldStatePVSEntityIDs=NULL;
-    unsigned long          ClientLeafNr        =(EngineEntities[ClientEntityID]!=NULL) ? Ca3DEWorld.BspTree->WhatLeaf(EngineEntities[ClientEntityID]->GetBaseEntity()->State.Origin) : 0;
+    unsigned long          ClientLeafNr        =(EngineEntities[ClientEntityID]!=NULL) ? Ca3DEWorld.BspTree->WhatLeaf(EngineEntities[ClientEntityID]->GetBaseEntity()->GetOrigin()) : 0;
 
     // Finde heraus, welche Entities im PVS von diesem Client liegen. Erhalte ein Array von EntityIDs.
     for (unsigned long EntityNr=0; EntityNr<EngineEntities.Size(); EntityNr++)

@@ -38,6 +38,8 @@ class EntCompanyBotT : public BaseEntityT, public btMotionState
     EntCompanyBotT(const EntityCreateParamsT& Params);
     ~EntCompanyBotT();
 
+    void SetHeading(unsigned short h) { State.Heading = h; }
+
     // Implement the BaseEntityT interface.
     void TakeDamage(BaseEntityT* Entity, char Amount, const VectorT& ImpactDir);
     void Think(float FrameTime, unsigned long ServerFrameNr);

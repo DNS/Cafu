@@ -19,12 +19,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*********************/
-/*** Corspe (Code) ***/
-/*********************/
-
 #include "Corpse.hpp"
 #include "EntityCreateParams.hpp"
+#include "HumanPlayer.hpp"
 #include "GameImpl.hpp"
 #include "TypeSys.hpp"
 #include "MaterialSystem/Renderer.hpp"
@@ -69,6 +66,17 @@ EntCorpseT::EntCorpseT(const EntityCreateParamsT& Params)
                                0,       // ActiveWeaponSequNr
                                0.0))    // ActiveWeaponFrameNr
 {
+}
+
+
+void EntCorpseT::AdoptState(const EntHumanPlayerT* Player)
+{
+    const EntityStateT& PS=Player->GetState();
+
+    State = EntityStateT(PS.Origin+VectorT(0.0, 0.0, PS.Dimensions.Min.z+1728.8),
+        VectorT(), BoundingBox3T<double>(Vector3dT()), PS.Heading,
+        0, 0, 0, 0, PS.ModelIndex, PS.ModelSequNr, PS.ModelFrameNr,
+        0, 0, 0, 0, PS.ActiveWeaponSlot, 0, 0.0);
 }
 
 

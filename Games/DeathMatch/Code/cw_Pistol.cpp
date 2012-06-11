@@ -33,31 +33,33 @@ CarriedWeaponPistolT::CarriedWeaponPistolT(ModelManagerT& ModelMan)
 }
 
 
-bool CarriedWeaponPistolT::ServerSide_PickedUpByEntity(BaseEntityT* Entity) const
+bool CarriedWeaponPistolT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const
 {
+    EntityStateT& State=Player->GetState();
+
     // Consider if the entity already has this weapon.
-    if (Entity->State.HaveWeapons & (1 << WEAPON_SLOT_PISTOL))
+    if (State.HaveWeapons & (1 << WEAPON_SLOT_PISTOL))
     {
         // If it also has the max. amount of ammo of this type, ignore the touch.
-        if (Entity->State.HaveAmmo[AMMO_SLOT_9MM]==250) return false;
+        if (State.HaveAmmo[AMMO_SLOT_9MM]==250) return false;
 
         // Otherwise pick the weapon up and let it have the ammo.
-        Entity->State.HaveAmmo[AMMO_SLOT_9MM]+=34;
+        State.HaveAmmo[AMMO_SLOT_9MM]+=34;
     }
     else
     {
         // This weapon is picked up for the first time.
-        Entity->State.HaveWeapons|=1 << WEAPON_SLOT_PISTOL;
-        Entity->State.ActiveWeaponSlot   =WEAPON_SLOT_PISTOL;
-        Entity->State.ActiveWeaponSequNr =7;    // Draw
-        Entity->State.ActiveWeaponFrameNr=0.0;
+        State.HaveWeapons|=1 << WEAPON_SLOT_PISTOL;
+        State.ActiveWeaponSlot   =WEAPON_SLOT_PISTOL;
+        State.ActiveWeaponSequNr =7;    // Draw
+        State.ActiveWeaponFrameNr=0.0;
 
-        Entity->State.HaveAmmoInWeapons[WEAPON_SLOT_PISTOL] =17;
-        Entity->State.HaveAmmo         [AMMO_SLOT_9MM     ]+=17;
+        State.HaveAmmoInWeapons[WEAPON_SLOT_PISTOL] =17;
+        State.HaveAmmo         [AMMO_SLOT_9MM     ]+=17;
     }
 
     // Limit the amount of carryable ammo.
-    if (Entity->State.HaveAmmo[AMMO_SLOT_9MM]>250) Entity->State.HaveAmmo[AMMO_SLOT_9MM]=250;
+    if (State.HaveAmmo[AMMO_SLOT_9MM]>250) State.HaveAmmo[AMMO_SLOT_9MM]=250;
 
     return true;
 }

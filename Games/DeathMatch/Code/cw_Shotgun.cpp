@@ -51,31 +51,33 @@ CarriedWeaponShotgunT::~CarriedWeaponShotgunT()
 }
 
 
-bool CarriedWeaponShotgunT::ServerSide_PickedUpByEntity(BaseEntityT* Entity) const
+bool CarriedWeaponShotgunT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const
 {
+    EntityStateT& State=Player->GetState();
+
     // Consider if the entity already has this weapon.
-    if (Entity->State.HaveWeapons & (1 << WEAPON_SLOT_SHOTGUN))
+    if (State.HaveWeapons & (1 << WEAPON_SLOT_SHOTGUN))
     {
         // If it also has the max. amount of ammo of this type, ignore the touch.
-        if (Entity->State.HaveAmmo[AMMO_SLOT_SHELLS]==125) return false;
+        if (State.HaveAmmo[AMMO_SLOT_SHELLS]==125) return false;
 
         // Otherwise pick the weapon up and let it have the ammo.
-        Entity->State.HaveAmmo[AMMO_SLOT_SHELLS]+=16;
+        State.HaveAmmo[AMMO_SLOT_SHELLS]+=16;
     }
     else
     {
         // This weapon is picked up for the first time.
-        Entity->State.HaveWeapons|=1 << WEAPON_SLOT_SHOTGUN;
-        Entity->State.ActiveWeaponSlot   =WEAPON_SLOT_SHOTGUN;
-        Entity->State.ActiveWeaponSequNr =6;    // Draw
-        Entity->State.ActiveWeaponFrameNr=0.0;
+        State.HaveWeapons|=1 << WEAPON_SLOT_SHOTGUN;
+        State.ActiveWeaponSlot   =WEAPON_SLOT_SHOTGUN;
+        State.ActiveWeaponSequNr =6;    // Draw
+        State.ActiveWeaponFrameNr=0.0;
 
-        Entity->State.HaveAmmoInWeapons[WEAPON_SLOT_SHOTGUN] =8;
-        Entity->State.HaveAmmo         [AMMO_SLOT_SHELLS   ]+=8;
+        State.HaveAmmoInWeapons[WEAPON_SLOT_SHOTGUN] =8;
+        State.HaveAmmo         [AMMO_SLOT_SHELLS   ]+=8;
     }
 
     // Limit the amount of carryable ammo.
-    if (Entity->State.HaveAmmo[AMMO_SLOT_SHELLS]>125) Entity->State.HaveAmmo[AMMO_SLOT_SHELLS]=125;
+    if (State.HaveAmmo[AMMO_SLOT_SHELLS]>125) State.HaveAmmo[AMMO_SLOT_SHELLS]=125;
 
     return true;
 }
@@ -83,7 +85,7 @@ bool CarriedWeaponShotgunT::ServerSide_PickedUpByEntity(BaseEntityT* Entity) con
 
 void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long /*ServerFrameNr*/, bool AnimSequenceWrap) const
 {
-    EntityStateT& State=Player->State;
+    EntityStateT& State=Player->GetState();
 
     switch (State.ActiveWeaponSequNr)
     {
@@ -300,7 +302,7 @@ static bool ParticleFunction_ShotgunWhiteSmoke(ParticleMST* Particle, float Time
 
 void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* Player, const VectorT& LastSeenAmbientColor) const
 {
-    const EntityStateT& State=Player->State;
+    const EntityStateT& State=Player->GetState();
 
     for (char i=0; i<8; i++)
     {
@@ -379,7 +381,7 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlay
 
 void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(const EntHumanPlayerT* Player, const VectorT& LastSeenAmbientColor) const
 {
-    const EntityStateT& State=Player->State;
+    const EntityStateT& State=Player->GetState();
 
     for (char i=0; i<16; i++)
     {

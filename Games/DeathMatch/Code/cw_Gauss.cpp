@@ -34,31 +34,33 @@ CarriedWeaponGaussT::CarriedWeaponGaussT(ModelManagerT& ModelMan)
 }
 
 
-bool CarriedWeaponGaussT::ServerSide_PickedUpByEntity(BaseEntityT* Entity) const
+bool CarriedWeaponGaussT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const
 {
+    EntityStateT& State=Player->GetState();
+
     // Consider if the entity already has this weapon.
-    if (Entity->State.HaveWeapons & (1 << WEAPON_SLOT_GAUSS))
+    if (State.HaveWeapons & (1 << WEAPON_SLOT_GAUSS))
     {
         // If it also has the max. amount of ammo of this type, ignore the touch.
-        if (Entity->State.HaveAmmo[AMMO_SLOT_CELLS]==200) return false;
+        if (State.HaveAmmo[AMMO_SLOT_CELLS]==200) return false;
 
         // Otherwise pick the weapon up and let it have the ammo.
-        Entity->State.HaveAmmo[AMMO_SLOT_CELLS]+=40;
+        State.HaveAmmo[AMMO_SLOT_CELLS]+=40;
     }
     else
     {
         // This weapon is picked up for the first time.
-        Entity->State.HaveWeapons|=1 << WEAPON_SLOT_GAUSS;
-        Entity->State.ActiveWeaponSlot   =WEAPON_SLOT_GAUSS;
-        Entity->State.ActiveWeaponSequNr =8;    // Draw
-        Entity->State.ActiveWeaponFrameNr=0.0;
+        State.HaveWeapons|=1 << WEAPON_SLOT_GAUSS;
+        State.ActiveWeaponSlot   =WEAPON_SLOT_GAUSS;
+        State.ActiveWeaponSequNr =8;    // Draw
+        State.ActiveWeaponFrameNr=0.0;
 
-        Entity->State.HaveAmmoInWeapons[WEAPON_SLOT_GAUSS] =20;
-        Entity->State.HaveAmmo         [AMMO_SLOT_CELLS  ]+=20;
+        State.HaveAmmoInWeapons[WEAPON_SLOT_GAUSS] =20;
+        State.HaveAmmo         [AMMO_SLOT_CELLS  ]+=20;
     }
 
     // Limit the amount of carryable ammo.
-    if (Entity->State.HaveAmmo[AMMO_SLOT_CELLS]>200) Entity->State.HaveAmmo[AMMO_SLOT_CELLS]=200;
+    if (State.HaveAmmo[AMMO_SLOT_CELLS]>200) State.HaveAmmo[AMMO_SLOT_CELLS]=200;
 
     return true;
 }
@@ -66,7 +68,7 @@ bool CarriedWeaponGaussT::ServerSide_PickedUpByEntity(BaseEntityT* Entity) const
 
 void CarriedWeaponGaussT::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool /*ThinkingOnServerSide*/, unsigned long /*ServerFrameNr*/, bool AnimSequenceWrap) const
 {
-    EntityStateT& State=Player->State;
+    EntityStateT& State=Player->GetState();
 
     enum SequenceNames
     {
