@@ -64,14 +64,10 @@ const cf::TypeSys::TypeInfoT EntSpeakerT::TypeInfo(GetBaseEntTIM(), "EntSpeakerT
 
 EntSpeakerT::EntSpeakerT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  BoundingBox3dT(Vector3dT(0.0, 0.0, 0.0),
+                                 Vector3dT(0.0, 0.0, 0.0)),
                   0,
-                  EntityStateT(Params.Origin,
-                               VectorT(),
-                               BoundingBox3T<double>(VectorT(0.0, 0.0, 0.0),
-                                                     VectorT(0.0, 0.0, 0.0)),
-                               0,                           // Heading
-                               0,                           // Pitch
-                               0,                           // Bank
+                  EntityStateT(VectorT(),
                                0,                           // StateOfExistance
                                0,                           // Flags
                                0,                           // ModelIndex

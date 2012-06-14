@@ -59,13 +59,9 @@ const cf::TypeSys::TypeInfoT EntPointLightSourceT::TypeInfo(GetBaseEntTIM(), "En
 
 EntPointLightSourceT::EntPointLightSourceT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  BoundingBox3dT(Vector3dT(), Vector3dT()),
                   0,
-                  EntityStateT(Params.Origin,
-                               VectorT(),
-                               BoundingBox3T<double>(VectorT(), VectorT()),
-                               0,       // Heading (Ergibt sich aus den "angles" in den PropertyPairs, die vom BaseEntity ausgewertet werden!)
-                               0,
-                               0,
+                  EntityStateT(VectorT(),
                                0,
                                0,
                                0,       // ModelIndex

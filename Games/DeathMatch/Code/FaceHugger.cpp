@@ -46,14 +46,10 @@ const cf::TypeSys::TypeInfoT EntFaceHuggerT::TypeInfo(GetBaseEntTIM(), "EntFaceH
 
 EntFaceHuggerT::EntFaceHuggerT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  BoundingBox3dT(Vector3dT( 100.0,  100.0,  100.0),
+                                 Vector3dT(-100.0, -100.0,    0.0)),
                   0,
-                  EntityStateT(Params.Origin,
-                               VectorT(),
-                               BoundingBox3T<double>(VectorT( 100.0,  100.0,  100.0),
-                                                     VectorT(-100.0, -100.0,    0.0)),
-                               0,       // Heading
-                               0,
-                               0,
+                  EntityStateT(VectorT(),
                                0,
                                0,
                                0,       // ModelIndex

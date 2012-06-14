@@ -49,14 +49,10 @@ const cf::TypeSys::TypeInfoT EntHandGrenadeT::TypeInfo(GetBaseEntTIM(), "EntHand
 
 EntHandGrenadeT::EntHandGrenadeT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  BoundingBox3dT(Vector3dT( 60.0,  60.0, 120.0),
+                                 Vector3dT(-60.0, -60.0,   0.0)),
                   NUM_EVENT_TYPES,
-                  EntityStateT(Params.Origin,
-                               VectorT(),
-                               BoundingBox3T<double>(VectorT( 60.0,  60.0, 120.0),
-                                                     VectorT(-60.0, -60.0,   0.0)),
-                               0,       // Heading
-                               0,       // Pitch
-                               0,       // Bank
+                  EntityStateT(VectorT(),
                                0,       // StateOfExistance
                                0,       // Flags
                                0,       // ModelIndex

@@ -84,14 +84,10 @@ const cf::TypeSys::TypeInfoT EntHumanPlayerT::TypeInfo(GetBaseEntTIM(), "EntHuma
 
 EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  BoundingBox3dT(Vector3dT( 400.0,  400.0,   100.0),    // Roughly 32*32*72 inches, eye height at 68 inches.
+                                 Vector3dT(-400.0, -400.0, -1728.8)),   // 68*25.4 == 1727.2
                   NUM_EVENT_TYPES,
-                  EntityStateT(Params.Origin,
-                               VectorT(),
-                               BoundingBox3T<double>(VectorT( 400.0,  400.0,   100.0),  // Roughly 32*32*72 inches, eye height at 68 inches.
-                                            VectorT(-400.0, -400.0, -1728.8)),  // 68*25.4 == 1727.2
-                               0,       // Heading (set/overridden by the BaseEntityT constructor by evaluating the PropertyPairs ("angles" property))
-                               0,
-                               0,
+                  EntityStateT(VectorT(),
                                StateOfExistance_FrozenSpectator,
                                0,
                                0,       // ModelIndex
@@ -754,7 +750,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                     State.Velocity.y=State.Heading;
                     State.Velocity.z=State.Bank;
-                    State.Dimensions=BoundingBox3T<double>(VectorT(400.0, 400.0, 100.0), VectorT(-400.0, -400.0, -1728.8));
+                    State.Dimensions=BoundingBox3dT(Vector3dT(400.0, 400.0, 100.0), Vector3dT(-400.0, -400.0, -1728.8));
                     State.StateOfExistance=StateOfExistance_FrozenSpectator;
                 }
 
@@ -843,7 +839,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 // Respawn!
                 State.Origin             =OurNewOrigin;
                 State.Velocity           =VectorT();
-                State.Dimensions         =BoundingBox3T<double>(VectorT(400.0, 400.0, 100.0), VectorT(-400.0, -400.0, -1728.8));
+                State.Dimensions         =BoundingBox3dT(Vector3dT(400.0, 400.0, 100.0), Vector3dT(-400.0, -400.0, -1728.8));
                 State.Heading            =IPSEntity->GetHeading();
                 State.Pitch              =0;
                 State.Bank               =0;

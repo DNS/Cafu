@@ -50,14 +50,10 @@ const cf::TypeSys::TypeInfoT EntMonsterMakerT::TypeInfo(GetBaseEntTIM(), "EntMon
 
 EntMonsterMakerT::EntMonsterMakerT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  BoundingBox3dT(Vector3dT( 100.0,  100.0,  100.0),
+                                 Vector3dT(-100.0, -100.0, -100.0)),
                   0,
-                  EntityStateT(Params.Origin,
-                               VectorT(),
-                               BoundingBox3T<double>(VectorT( 100.0,  100.0,  100.0),
-                                                     VectorT(-100.0, -100.0, -100.0)),
-                               0,       // Heading (Ergibt sich aus den "angles" in den PropertyPairs, die vom BaseEntity ausgewertet werden!)
-                               0,
-                               0,
+                  EntityStateT(VectorT(),
                                0,
                                0,
                                0,       // ModelIndex
@@ -115,9 +111,9 @@ void EntMonsterMakerT::Think(float FrameTime, unsigned long ServerFrameNr)
     switch (MonsterType)
     {
         // Das ist ein h‰ﬂlicher Hack: Muﬂ hier im voraus die Dimensions-BoundingBox des CompanyBot-Konstruktors kennen!
-        case CompanyBot: OurRelPositionBB=BoundingBox3T<double>(VectorT(300.0, 300.0, 100.0), VectorT(-300.0, -300.0, -1728.8)); break;
-        case Butterfly : OurRelPositionBB=BoundingBox3T<double>(VectorT(100.0, 600.0, 100.0), VectorT(-100.0,  400.0,  -100.0)); break;
-        case Eagle     : OurRelPositionBB=BoundingBox3T<double>(VectorT(100.0, 100.0, 100.0), VectorT(-100.0, -100.0,  -100.0)); break;
+        case CompanyBot: OurRelPositionBB=BoundingBox3dT(Vector3dT(300.0, 300.0, 100.0), Vector3dT(-300.0, -300.0, -1728.8)); break;
+        case Butterfly : OurRelPositionBB=BoundingBox3dT(Vector3dT(100.0, 600.0, 100.0), Vector3dT(-100.0,  400.0,  -100.0)); break;
+        case Eagle     : OurRelPositionBB=BoundingBox3dT(Vector3dT(100.0, 100.0, 100.0), Vector3dT(-100.0, -100.0,  -100.0)); break;
         default        : break;
     }
 

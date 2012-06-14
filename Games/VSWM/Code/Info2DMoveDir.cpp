@@ -10,14 +10,10 @@
 
 EntInfo2DMoveDirT::EntInfo2DMoveDirT(char TypeID, unsigned long ID, unsigned long MapFileID, cf::GameSys::GameWorldI* GameWorld, const VectorT& Origin)
     : BaseEntityT(EntityCreateParamsT(ID, std::map<std::string, std::string>(), NULL, NULL, MapFileID, GameWorld, Origin),
+                  BoundingBox3dT(Vector3dT( 100.0,  100.0,  100.0),
+                                 Vector3dT(-100.0, -100.0, -100.0)),
                   0,
-                  EntityStateT(Origin,
-                               VectorT(),
-                               BoundingBox3T<double>(VectorT( 100.0,  100.0,  100.0),
-                                                     VectorT(-100.0, -100.0, -100.0)),
-                               0,       // Heading (will be set when the BaseEntity evaluates the value of the "angles" property (in PropertyPairs))
-                               0,
-                               0,
+                  EntityStateT(VectorT(),
                                0,
                                0,
                                0,       // ModelIndex

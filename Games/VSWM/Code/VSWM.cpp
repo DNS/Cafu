@@ -73,19 +73,11 @@ cf::TypeSys::TypeInfoManT& GetBaseEntTIM()
 // Entity State
 // ************
 
-EntityStateT::EntityStateT(const VectorT& Origin_, const VectorT& Velocity_, const BoundingBox3T<double>& Dimensions_,
-                           unsigned short Heading_, unsigned short Pitch_, unsigned short Bank_,
+EntityStateT::EntityStateT(const VectorT& Velocity_,
                            char StateOfExistance_, char Flags_, char ModelIndex_, char ModelSequNr_, float ModelFrameNr_,
                            char Health_, char Armor_, unsigned long HaveItems_, unsigned long HaveWeapons_,
                            char ActiveWeaponSlot_, char ActiveWeaponSequNr_, float ActiveWeaponFrameNr_)
-    : Origin(Origin_),
-      Velocity(Velocity_),
-      Dimensions(Dimensions_),
-
-      Heading(Heading_),
-      Pitch(Pitch_),
-      Bank(Bank_),
-
+    : Velocity(Velocity_),
       StateOfExistance(StateOfExistance_),
       Flags(Flags_),
    // PlayerName[]
@@ -115,16 +107,40 @@ EntityStateT::EntityStateT(const VectorT& Origin_, const VectorT& Velocity_, con
 // Base Entity
 // ***********
 
-BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const unsigned int NUM_EVENT_TYPES, const EntityStateT& State_)
+BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT& Dimensions,
+                         const unsigned int NUM_EVENT_TYPES, const EntityStateT& State_)
     : ID(Params.ID),
       Properties(Params.Properties),
       WorldFileIndex(Params.WorldFileIndex),
       ParentID(0xFFFFFFFF),
-      State(State_),
       GameWorld(Params.GameWorld),
       CollisionModel(Params.CollisionModel),
-      ClipModel(GameWorld->GetClipWorld())
+      ClipModel(GameWorld->GetClipWorld()),
+
+      // m_Origin(Params.Origin),
+      // m_Dimensions(Dimensions),
+      // m_Heading(Heading),
+      // m_Pitch(Pitch),
+      // m_Bank(Bank),
+      State(State_),
+      m_EventsCount(),
+      m_EventsRef()
 {
+    State.Origin     = Params.Origin;
+    State.Dimensions = Dimensions;
+    State.Heading    = 0;
+    State.Pitch      = 0;
+    State.Bank       = 0;
+
+    m_EventsCount.PushBackEmptyExact(NUM_EVENT_TYPES);
+    m_EventsRef  .PushBackEmptyExact(NUM_EVENT_TYPES);
+
+    for (unsigned int i = 0; i < NUM_EVENT_TYPES; i++)
+    {
+        m_EventsCount[i] = 0;
+        m_EventsRef  [i] = 0;
+    }
+
     // Evaluate the common 'PropertyPairs'.
     std::map<std::string, std::string>::const_iterator It=Properties.find("angles");
 

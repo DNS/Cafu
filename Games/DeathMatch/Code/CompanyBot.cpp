@@ -55,14 +55,10 @@ const cf::TypeSys::TypeInfoT EntCompanyBotT::TypeInfo(GetBaseEntTIM(), "EntCompa
 
 EntCompanyBotT::EntCompanyBotT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  BoundingBox3dT(Vector3dT( 300.0,  300.0,   100.0),
+                                 Vector3dT(-300.0, -300.0, -1728.8)),   // 68*25.4 == 1727.2
                   0,
-                  EntityStateT(Params.Origin,
-                               VectorT(),
-                               BoundingBox3T<double>(VectorT( 300.0,  300.0,   100.0),
-                                                     VectorT(-300.0, -300.0, -1728.8)),   // 68*25.4 == 1727.2
-                               0,       // Heading (Ergibt sich aus den "angles" in den PropertyPairs, die vom BaseEntity ausgewertet werden!)
-                               0,
-                               0,
+                  EntityStateT(VectorT(),
                                0,
                                0,
                                0,       // ModelIndex

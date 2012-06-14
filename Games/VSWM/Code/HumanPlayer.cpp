@@ -428,14 +428,10 @@ void EntHumanPlayerT::Init3DNodeSequence(const char* TrialFileName, const Vector
 
 EntHumanPlayerT::EntHumanPlayerT(char TypeID, unsigned long ID, unsigned long MapFileID, cf::GameSys::GameWorldI* GameWorld, const VectorT& Origin)
     : BaseEntityT(EntityCreateParamsT(ID, std::map<std::string, std::string>(), NULL, NULL, MapFileID, GameWorld, Origin),
+                  BoundingBox3dT(Vector3dT( 300.0,  300.0,   100.0),
+                                 Vector3dT(-300.0, -300.0, -1728.8)),   // 68*25.4 == 1727.2
                   0,
-                  EntityStateT(Origin,
-                               VectorT(),
-                               BoundingBox3T<double>(VectorT( 300.0,  300.0,   100.0),
-                                                     VectorT(-300.0, -300.0, -1728.8)),   // 68*25.4 == 1727.2
-                               0,       // Heading (will be set when the BaseEntity evaluates the value of the "angles" property (even though not necessary in this case!))
-                               0,
-                               0,
+                  EntityStateT(VectorT(),
                                StateOfExistance_W4EndOfIdleTime_NoInput,
                                0,       // Flags
                                0,       // ModelIndex

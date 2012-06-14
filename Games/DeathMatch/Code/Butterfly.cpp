@@ -44,14 +44,10 @@ const cf::TypeSys::TypeInfoT EntButterflyT::TypeInfo(GetBaseEntTIM(), "EntButter
 
 EntButterflyT::EntButterflyT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  BoundingBox3dT(Vector3dT( 100.0,  100.0,  100.0),
+                                 Vector3dT(-100.0, -100.0, -100.0)),
                   0,
-                  EntityStateT(Params.Origin+VectorT(0.0, 500.0, 0.0),          // Beachte die Abhängigkeit von den in Think() definierten Konstanten!
-                               VectorT(),
-                               BoundingBox3T<double>(VectorT( 100.0,  100.0,  100.0),
-                                                     VectorT(-100.0, -100.0, -100.0)),
-                               16384,                                           // Beachte die Abhängigkeit von den in Think() definierten Konstanten!
-                               0,
-                               0,
+                  EntityStateT(VectorT(),
                                0,
                                0,
                                0,       // ModelIndex
@@ -68,6 +64,8 @@ EntButterflyT::EntButterflyT(const EntityCreateParamsT& Params)
       ArcCenter(Params.Origin),
       ArcPos(0)
 {
+    State.Origin  = Params.Origin+VectorT(0.0, 500.0, 0.0),   // Beachte die Abhängigkeit von den in Think() definierten Konstanten!
+    State.Heading = 16384;                                    // Beachte die Abhängigkeit von den in Think() definierten Konstanten!
 }
 
 

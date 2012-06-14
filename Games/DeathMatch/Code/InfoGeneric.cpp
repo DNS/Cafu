@@ -41,14 +41,10 @@ const cf::TypeSys::TypeInfoT EntInfoGenericT::TypeInfo(GetBaseEntTIM(), "EntInfo
 
 EntInfoGenericT::EntInfoGenericT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  BoundingBox3dT(Vector3dT( 100.0,  100.0,  100.0),
+                                 Vector3dT(-100.0, -100.0, -100.0)),
                   0,
-                  EntityStateT(Params.Origin,
-                               VectorT(),
-                               BoundingBox3T<double>(VectorT( 100.0,  100.0,  100.0),
-                                                     VectorT(-100.0, -100.0, -100.0)),
-                               0,       // Heading (Ergibt sich aus den "angles" in den PropertyPairs, die vom BaseEntity ausgewertet werden!)
-                               0,
-                               0,
+                  EntityStateT(VectorT(),
                                0,
                                0,
                                0,       // ModelIndex

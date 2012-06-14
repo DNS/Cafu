@@ -53,10 +53,6 @@ cf::TypeSys::TypeInfoManT& GetBaseEntTIM();
 // This structure describes each entitys state and is transmitted from the server to the clients over the network.
 struct EntityStateT
 {
-    /***************************************************************************************************************/
-    /*** EntityStateT field changes FORCE protocol changes in ALL places that are marked *like this* (use grep)! ***/
-    /***************************************************************************************************************/
-
     VectorT               Origin;           // World coordinate of (the eye of) this entity.
     VectorT               Velocity;         // Velocity of this entity.
     BoundingBox3T<double> Dimensions;       // The bounding box of this entity (relative to the eye).
@@ -83,8 +79,7 @@ struct EntityStateT
     unsigned short HaveAmmo[16];            // Entity can carry 16 different types of ammo (weapon independent). This is the amount of each.
     unsigned char  HaveAmmoInWeapons[32];   // Entity can carry ammo in each of the 32 weapons. This is the amount of each.
 
-    EntityStateT(const VectorT& Origin_, const VectorT& Velocity_, const BoundingBox3T<double>& Dimensions_,
-                 unsigned short Heading_, unsigned short Pitch_, unsigned short Bank_,
+    EntityStateT(const VectorT& Velocity_,
                  char StateOfExistance_, char Flags_, char ModelIndex_, char ModelSequNr_, float ModelFrameNr_,
                  char Health_, char Armor_, unsigned long HaveItems_, unsigned long HaveWeapons_,
                  char ActiveWeaponSlot_, char ActiveWeaponSequNr_, float ActiveWeaponFrameNr_);
@@ -247,7 +242,7 @@ class BaseEntityT
     void PostEvent(unsigned int EventType) { m_EventsCount[EventType]++; }
 
     /// This SERVER-SIDE function is called by the server in order to advance the world one clock-tick.
-    /// That is, basing on the present (old) 'State', it is called for computing the next (new) state.
+    /// That is, basing on the present (old) state, it is called for computing the next (new) state.
     /// 'FrameTime' is the time of the clock-tick, in seconds.
     /// 'ServerFrameNr' is the number of the current server frame.
     /// >>> IMPORTANT NOTE: In truth, also the CLIENT-SIDE calls this function for the purpose of predicting the local human player entity! <<<
@@ -324,9 +319,15 @@ class BaseEntityT
     /// Protected constructor such that only concrete entities can call this for creating a BaseEntityT, but nobody else.
     /// Concrete entities are created in the GameI::CreateBaseEntityFromMapFile() method for the server-side,
     /// and in the GameI::CreateBaseEntityFromTypeNr() method for the client-side.
-    BaseEntityT(const EntityCreateParamsT& Params, const unsigned int NUM_EVENT_TYPES, const EntityStateT& State_);
+    BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT& Dimensions,
+                const unsigned int NUM_EVENT_TYPES, const EntityStateT& State_);
 
-    EntityStateT State;     // The current state of this entity.
+    // Vector3dT      m_Origin;     ///< World coordinate of (the eye of) this entity.
+    // BoundingBox3dT m_Dimensions; ///< The bounding box of this entity (relative to the origin).
+    // unsigned short m_Heading;    ///< Heading (north is along the ??-axis).
+    // unsigned short m_Pitch;      ///< Pitch (for looking up/down).
+    // unsigned short m_Bank;       ///< Bank (e.g. used when dead and lying on the side).
+    EntityStateT   State;           ///< The current state of this entity.
 
 
     private:

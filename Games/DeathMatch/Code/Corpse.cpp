@@ -45,14 +45,10 @@ const cf::TypeSys::TypeInfoT EntCorpseT::TypeInfo(GetBaseEntTIM(), "EntCorpseT",
 
 EntCorpseT::EntCorpseT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  BoundingBox3dT(Vector3dT()),
                   0,
                   // Bad. Should either have a default ctor for 'EntityStateT', or even better get it passed as const reference.
                   EntityStateT(VectorT(),
-                               VectorT(),
-                               BoundingBox3T<double>(Vector3dT()),
-                               0,       // Heading
-                               0,
-                               0,
                                0,       // StateOfExistance
                                0,
                                0,       // ModelIndex
@@ -73,10 +69,16 @@ void EntCorpseT::AdoptState(const EntHumanPlayerT* Player)
 {
     const EntityStateT& PS=Player->GetState();
 
-    State = EntityStateT(PS.Origin+VectorT(0.0, 0.0, PS.Dimensions.Min.z+1728.8),
-        VectorT(), BoundingBox3T<double>(Vector3dT()), PS.Heading,
-        0, 0, 0, 0, PS.ModelIndex, PS.ModelSequNr, PS.ModelFrameNr,
+    State = EntityStateT(
+        VectorT(),
+        0, 0, PS.ModelIndex, PS.ModelSequNr, PS.ModelFrameNr,
         0, 0, 0, 0, PS.ActiveWeaponSlot, 0, 0.0);
+
+    State.Origin     = PS.Origin+VectorT(0.0, 0.0, PS.Dimensions.Min.z+1728.8);
+    State.Dimensions = BoundingBox3T<double>(Vector3dT());
+    State.Heading    = PS.Heading;
+    State.Pitch      = 0;
+    State.Bank       = 0;
 }
 
 

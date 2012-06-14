@@ -45,13 +45,9 @@ const cf::TypeSys::TypeInfoT EntFuncLadderT::TypeInfo(GetBaseEntTIM(), "EntFuncL
 
 EntFuncLadderT::EntFuncLadderT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  BoundingBox3dT(Vector3dT()),
                   0,
-                  EntityStateT(VectorT(),   // Origin
-                               VectorT(),   // Velocity
-                               BoundingBox3T<double>(Vector3dT()),
-                               0,           // Heading
-                               0,           // Pitch
-                               0,           // Bank
+                  EntityStateT(VectorT(),   // Velocity
                                0,
                                0,
                                0,           // ModelIndex

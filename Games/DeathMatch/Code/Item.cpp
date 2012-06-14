@@ -54,14 +54,10 @@ const char EntItemT::StateOfExistance_NotActive=1;
 
 EntItemT::EntItemT(const EntityCreateParamsT& Params, const std::string& ModelName)
     : BaseEntityT(Params,
+                  BoundingBox3dT(Vector3dT( 200.0,  200.0,  400.0),
+                                 Vector3dT(-200.0, -200.0, -100.0)),
                   NUM_EVENT_TYPES,
-                  EntityStateT(Params.Origin,
-                               VectorT(),
-                               BoundingBox3T<double>(VectorT( 200.0,  200.0,  400.0),
-                                                     VectorT(-200.0, -200.0, -100.0)),
-                               0,                           // Heading
-                               0,                           // Pitch
-                               0,                           // Bank
+                  EntityStateT(VectorT(),
                                StateOfExistance_Active,     // StateOfExistance
                                0,                           // Flags
                                0,                           // ModelIndex

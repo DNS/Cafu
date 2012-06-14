@@ -49,14 +49,10 @@ const cf::TypeSys::TypeInfoT EntRocketT::TypeInfo(GetBaseEntTIM(), "EntRocketT",
 
 EntRocketT::EntRocketT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
+                  BoundingBox3dT(Vector3dT( 100.0,  100.0,  100.0),
+                                 Vector3dT(-100.0, -100.0, -100.0)),
                   NUM_EVENT_TYPES,
-                  EntityStateT(Params.Origin,
-                               VectorT(),
-                               BoundingBox3T<double>(VectorT( 100.0,  100.0,  100.0),
-                                                     VectorT(-100.0, -100.0, -100.0)),
-                               0,       // Heading
-                               0,       // Pitch
-                               0,       // Bank
+                  EntityStateT(VectorT(),
                                0,       // StateOfExistance
                                0,       // Flags
                                0,       // ModelIndex
