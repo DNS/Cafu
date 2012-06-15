@@ -62,6 +62,7 @@ EntFaceHuggerT::EntFaceHuggerT(const EntityCreateParamsT& Params)
                                0,       // ActiveWeaponSlot
                                0,       // ActiveWeaponSequNr
                                0.0)),   // ActiveWeaponFrameNr
+      m_Physics(m_Origin, State.Velocity, m_Dimensions, ClipModel, GameWorld->GetClipWorld()),
       m_Model(Params.GameWorld->GetModel("Games/DeathMatch/Models/LifeForms/FaceHugger/FaceHugger.cmdl"))
 {
 }
@@ -71,7 +72,7 @@ void EntFaceHuggerT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 {
     bool OldWishJump=false;
 
-    Physics::MoveHuman(State, ClipModel, FrameTime, VectorT() /*WishVelocity*/, VectorT() /*WishVelLadder*/, false /*WishJump*/, OldWishJump, 0.0, GameWorld->GetClipWorld());
+    m_Physics.MoveHuman(FrameTime, m_Heading, VectorT() /*WishVelocity*/, VectorT() /*WishVelLadder*/, false /*WishJump*/, OldWishJump, 0.0);
 }
 
 
@@ -122,9 +123,9 @@ void EntFaceHuggerT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
         // Register a new particle.
         static ParticleMST TestParticle;
 
-        TestParticle.Origin[0]=float(State.Origin.x);
-        TestParticle.Origin[1]=float(State.Origin.y);
-        TestParticle.Origin[2]=float(State.Origin.z+200.0);
+        TestParticle.Origin[0]=float(m_Origin.x);
+        TestParticle.Origin[1]=float(m_Origin.y);
+        TestParticle.Origin[2]=float(m_Origin.z+200.0);
 
         TestParticle.Velocity[0]=0;
         TestParticle.Velocity[1]=0;

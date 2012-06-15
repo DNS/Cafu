@@ -64,8 +64,8 @@ EntButterflyT::EntButterflyT(const EntityCreateParamsT& Params)
       ArcCenter(Params.Origin),
       ArcPos(0)
 {
-    State.Origin  = Params.Origin+VectorT(0.0, 500.0, 0.0),   // Beachte die Abhängigkeit von den in Think() definierten Konstanten!
-    State.Heading = 16384;                                    // Beachte die Abhängigkeit von den in Think() definierten Konstanten!
+    m_Origin  = Params.Origin+VectorT(0.0, 500.0, 0.0), // Beachte die Abhängigkeit von den in Think() definierten Konstanten!
+    m_Heading = 16384;                                  // Beachte die Abhängigkeit von den in Think() definierten Konstanten!
 }
 
 
@@ -78,11 +78,11 @@ void EntButterflyT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 
     // Info: Die Bogenlänge zwischen 'ArcPos' und 'ArcPos+1' bei 'ArcRadius==500.0' beträgt 0.048,
     // die "Auflösung" ist also mehr als ausreichend!
-    State.Origin.x=ArcCenter.x+LookupTables::Angle16ToSin[ArcPos]*ArcRadius;
-    State.Origin.y=ArcCenter.y+LookupTables::Angle16ToCos[ArcPos]*ArcRadius;
-    State.Origin.z=ArcCenter.z+LookupTables::Angle16ToSin[(unsigned short)(ArcPos*2)]*ArcRadius*0.2;
+    m_Origin.x=ArcCenter.x+LookupTables::Angle16ToSin[ArcPos]*ArcRadius;
+    m_Origin.y=ArcCenter.y+LookupTables::Angle16ToCos[ArcPos]*ArcRadius;
+    m_Origin.z=ArcCenter.z+LookupTables::Angle16ToSin[(unsigned short)(ArcPos*2)]*ArcRadius*0.2;
 
-    State.Heading=ArcPos+16384;
+    m_Heading=ArcPos+16384;
 }
 
 

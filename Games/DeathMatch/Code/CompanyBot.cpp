@@ -71,6 +71,7 @@ EntCompanyBotT::EntCompanyBotT(const EntityCreateParamsT& Params)
                                0,       // ActiveWeaponSlot
                                0,       // ActiveWeaponSequNr
                                0.0)),   // ActiveWeaponFrameNr
+      m_Physics(m_Origin, State.Velocity, m_Dimensions, ClipModel, GameWorld->GetClipWorld()),
       m_CompanyBotModel(Params.GameWorld->GetModel("Games/DeathMatch/Models/Players/Trinity/Trinity.cmdl")),
       m_AnimExpr(),
       m_LastStdAE(),
@@ -83,18 +84,18 @@ EntCompanyBotT::EntCompanyBotT(const EntityCreateParamsT& Params)
     // Wir könnten im Boden stecken oder darüber schweben - korrigiere entsprechend!
     // If multiple solid entities are stacked upon each other, this code might leave gaps between them,
     // depending on their order. Not a serious problem, though - the physics code will correct it.
-    // Also note that if State.Dimensions is stuck, this code tries to make it un-stuck, but is not guaranteed to succeed!
+    // Also note that if m_Dimensions is stuck, this code tries to make it un-stuck, but is not guaranteed to succeed!
 
     // First, create a BB of dimensions (-300.0, -300.0, -100.0) - (300.0, 300.0, 100.0).
-    const BoundingBox3T<double> ClearingBB(VectorT(State.Dimensions.Min.x, State.Dimensions.Min.y, -State.Dimensions.Max.z), State.Dimensions.Max);
+    const BoundingBox3T<double> ClearingBB(VectorT(m_Dimensions.Min.x, m_Dimensions.Min.y, -m_Dimensions.Max.z), m_Dimensions.Max);
 
-    // Move ClearingBB up to a reasonable height (if possible!), such that the *full* BB (that is, State.Dimensions) is clear of (not stuck in) solid.
+    // Move ClearingBB up to a reasonable height (if possible!), such that the *full* BB (that is, m_Dimensions) is clear of (not stuck in) solid.
     cf::ClipSys::TraceResultT Result(1.0);
-    GameWorld->GetClipWorld().TraceBoundingBox(ClearingBB, State.Origin, VectorT(0.0, 0.0, 3000.0), MaterialT::Clip_Players, &ClipModel, Result);
+    GameWorld->GetClipWorld().TraceBoundingBox(ClearingBB, m_Origin, VectorT(0.0, 0.0, 3000.0), MaterialT::Clip_Players, &ClipModel, Result);
     const double AddHeight=3000.0*Result.Fraction;
 
     // Move ClearingBB down as far as possible.
-    GameWorld->GetClipWorld().TraceBoundingBox(ClearingBB, State.Origin+VectorT(0.0, 0.0, AddHeight), VectorT(0.0, 0.0, -999999.0), MaterialT::Clip_Players, &ClipModel, Result);
+    GameWorld->GetClipWorld().TraceBoundingBox(ClearingBB, m_Origin+VectorT(0.0, 0.0, AddHeight), VectorT(0.0, 0.0, -999999.0), MaterialT::Clip_Players, &ClipModel, Result);
     const double SubHeight=999999.0*Result.Fraction;
 
     // Beachte: Hier für Epsilon 1.0 (statt z.B. 1.23456789) zu wählen hebt u.U. GENAU den (0 0 -1) Test in
@@ -102,26 +103,26 @@ EntCompanyBotT::EntCompanyBotT(const EntityCreateParamsT& Params)
     // vorhanden sind (es werden floats übertragen, nicht doubles!), kommt CategorizePosition() u.U. auf Client- und
     // Server-Seite zu verschiedenen Ergebnissen! Der Effekt spielt sich zwar in einem Intervall der Größe 1.0 ab,
     // kann mit OpenGL aber zu deutlichem Pixel-Flimmern führen!
-    State.Origin.z=State.Origin.z+AddHeight-SubHeight+(ClearingBB.Min.z-State.Dimensions.Min.z/*1628.8*/)+1.23456789/*Epsilon (sonst Ruckeln am Anfang!)*/;
+    m_Origin.z=m_Origin.z+AddHeight-SubHeight+(ClearingBB.Min.z-m_Dimensions.Min.z/*1628.8*/)+1.23456789/*Epsilon (sonst Ruckeln am Anfang!)*/;
 
     // Old, deprecated code (can get us stuck in non-level ground).
-    // const double HeightAboveGround=GameWorld->MapClipLine(State.Origin, VectorT(0.0, 0.0, -1.0), 0.0, 999999.9);
-    // State.Origin.z=State.Origin.z-HeightAboveGround-State.Dimensions.Min.z+1.23456789/*Epsilon (sonst Ruckeln am Anfang!)*/;
+    // const double HeightAboveGround=GameWorld->MapClipLine(m_Origin, VectorT(0.0, 0.0, -1.0), 0.0, 999999.9);
+    // m_Origin.z=m_Origin.z-HeightAboveGround-m_Dimensions.Min.z+1.23456789/*Epsilon (sonst Ruckeln am Anfang!)*/;
 
 
     if (CollisionModel==NULL)
     {
         // No "normal" collision model has been set for this company bot.
         // Now simply setup a bounding box as the collision model.
-        CollisionModel=cf::ClipSys::CollModelMan->GetCM(State.Dimensions, MaterialManager->GetMaterial("Textures/meta/collisionmodel"));
+        CollisionModel=cf::ClipSys::CollModelMan->GetCM(m_Dimensions, MaterialManager->GetMaterial("Textures/meta/collisionmodel"));
         ClipModel.SetCollisionModel(CollisionModel);
-        ClipModel.SetOrigin(State.Origin);
+        ClipModel.SetOrigin(m_Origin);
         ClipModel.Register();
     }
 
 
     // The /1000 is because our physics world is in meters.
-    m_CollisionShape=new btBoxShape(conv((State.Dimensions.Max-State.Dimensions.Min)/2.0/1000.0));  // Should use a btCylinderShapeZ instead of btBoxShape?
+    m_CollisionShape=new btBoxShape(conv((m_Dimensions.Max-m_Dimensions.Min)/2.0/1000.0));  // Should use a btCylinderShapeZ instead of btBoxShape?
 
     // Our rigid body is of Bullet type "kinematic". That is, we move it ourselves, not the world dynamics.
     m_RigidBody=new btRigidBody(btRigidBody::btRigidBodyConstructionInfo(0, this /*btMotionState for this body*/, m_CollisionShape, btVector3()));
@@ -153,7 +154,7 @@ void EntCompanyBotT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT&
 
     if (State.Health<=Amount)
     {
-        unsigned short DeltaAngle=Entity->GetHeading()-State.Heading;
+        unsigned short DeltaAngle=Entity->GetHeading()-m_Heading;
 
         State.Health=0;
 
@@ -194,13 +195,13 @@ void EntCompanyBotT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
     if (State.ModelSequNr>=18 && State.ModelSequNr<=24)
     {
         bool DummyOldWishJump=false;
-        Physics::MoveHuman(State, ClipModel, FrameTime, VectorT(), VectorT(), false, DummyOldWishJump, 0.0, GameWorld->GetClipWorld());
+        m_Physics.MoveHuman(FrameTime, m_Heading, VectorT(), VectorT(), false, DummyOldWishJump, 0.0);
 
         AdvanceModelTime(FrameTime, false);
 
         // As we're in "dead" state, the ClipModel is no longer registered with the clip world,
         // and there is no need to update its position or to re-register.
-        // ClipModel.SetOrigin(State.Origin);
+        // ClipModel.SetOrigin(m_Origin);
         // ClipModel.Register();
         return;
     }
@@ -230,7 +231,7 @@ void EntCompanyBotT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
     // Gab es so einen Entity überhaupt?
     if (EntityIDNr>=AllEntityIDs.Size()) return;
 
-    VectorT Dist = TargetEntity->GetOrigin() - State.Origin;
+    VectorT Dist = TargetEntity->GetOrigin() - m_Origin;
     VectorT WishVelocity;
 
     // This is really easy thinking
@@ -240,8 +241,8 @@ void EntCompanyBotT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
         VectorT Dir=normalize(Dist, 0.0);
 
         WishVelocity=scale(Dir, /*WishSpeed*/7000.0);
-        State.Heading=(unsigned short)(acos(Dir.y)/3.1415926*32768.0);
-        if (Dir.x<0) State.Heading=/*65536*/-State.Heading;
+        m_Heading=(unsigned short)(acos(Dir.y)/3.1415926*32768.0);
+        if (Dir.x<0) m_Heading=/*65536*/-m_Heading;
     }
 
     VectorT XYVel=State.Velocity;
@@ -249,9 +250,9 @@ void EntCompanyBotT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
     double OldSpeed=length(XYVel);
 
     bool DummyOldWishJump=false;
-    Physics::MoveHuman(State, ClipModel, FrameTime, WishVelocity, VectorT(), false, DummyOldWishJump, 610.0, GameWorld->GetClipWorld());
-    // State.Origin=State.Origin+scale(WishVelocity, FrameTime); State.Velocity=WishVelocity;
-    ClipModel.SetOrigin(State.Origin);
+    m_Physics.MoveHuman(FrameTime, m_Heading, WishVelocity, VectorT(), false, DummyOldWishJump, 610.0);
+    // m_Origin=m_Origin+scale(WishVelocity, FrameTime); State.Velocity=WishVelocity;
+    ClipModel.SetOrigin(m_Origin);
     ClipModel.Register();
 
     XYVel=State.Velocity;
@@ -270,7 +271,7 @@ void EntCompanyBotT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
     // Update the position of the torch.
     // The torch should probably rather be a true *child* of the CompanyBot...
     ///BaseEntityT* Torch=GameWorld->GetBaseEntityByID(TorchID);
-    ///if (Torch) Torch->State.Origin=State.Origin+VectorT(0.0, 0.0, -300.0)+VectorT(LookupTables::Angle16ToSin[State.Heading]*500.0, LookupTables::Angle16ToCos[State.Heading]*500.0, 0.0);
+    ///if (Torch) Torch->m_Origin=m_Origin+VectorT(0.0, 0.0, -300.0)+VectorT(LookupTables::Angle16ToSin[m_Heading]*500.0, LookupTables::Angle16ToCos[m_Heading]*500.0, 0.0);
 }
 
 
@@ -284,7 +285,7 @@ void EntCompanyBotT::Cl_UnserializeFrom()
 
     if (IsAlive)
     {
-        ClipModel.SetOrigin(State.Origin);
+        ClipModel.SetOrigin(m_Origin);
         ClipModel.Register();
 
         if (!m_RigidBody->isInWorld())
@@ -327,11 +328,11 @@ bool EntCompanyBotT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned lo
     }
 
     const float   Value=LookupTables::Angle16ToCos[(unsigned short)((m_TimeForLightSource-2.0f)/4.0f*65536.0f)];
-    const VectorT RelX =scale(VectorT(LookupTables::Angle16ToCos[State.Heading], LookupTables::Angle16ToSin[State.Heading], 0.0), 80.0*Value);
-    const VectorT RelY =scale(VectorT(LookupTables::Angle16ToSin[State.Heading], LookupTables::Angle16ToCos[State.Heading], 0.0), 500.0);
+    const VectorT RelX =scale(VectorT(LookupTables::Angle16ToCos[m_Heading], LookupTables::Angle16ToSin[m_Heading], 0.0), 80.0*Value);
+    const VectorT RelY =scale(VectorT(LookupTables::Angle16ToSin[m_Heading], LookupTables::Angle16ToCos[m_Heading], 0.0), 500.0);
     const VectorT RelZ =VectorT(0.0, 0.0, -300.0+0.5*char(DiffuseColor >> 8));
 
-    Position    =State.Origin+RelX+RelY+RelZ;
+    Position    =m_Origin+RelX+RelY+RelZ;
     Radius      =10000.0;
     CastsShadows=true;
 
@@ -368,12 +369,12 @@ void EntCompanyBotT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
 
 void EntCompanyBotT::getWorldTransform(btTransform& worldTrans) const
 {
-    Vector3dT Origin=State.Origin;
+    Vector3dT Origin=m_Origin;
 
     // The box shape of our physics body is equally centered around the origin point,
-    // whereas our State.Dimensions box is "non-uniformely displaced".
-    // In order to compensate, compute how far the State.Dimensions center is away from the origin.
-    Origin.z+=(State.Dimensions.Min.z+State.Dimensions.Max.z)/2.0;
+    // whereas our m_Dimensions box is "non-uniformely displaced".
+    // In order to compensate, compute how far the m_Dimensions center is away from the origin.
+    Origin.z+=(m_Dimensions.Min.z+m_Dimensions.Max.z)/2.0;
 
     // Return the current transformation of our rigid body to the physics world.
     worldTrans.setIdentity();

@@ -37,7 +37,7 @@ class EntEagleT : public BaseEntityT
     EntEagleT(const EntityCreateParamsT& Params);
     ~EntEagleT();
 
-    void SetHeading(unsigned short h) { State.Heading = h; }
+    void SetHeading(unsigned short h) { m_Heading = h; }
 
     void Think(float FrameTime, unsigned long ServerFrameNr);
     void Draw(bool FirstPersonView, float LodDist) const;

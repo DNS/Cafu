@@ -154,13 +154,13 @@ void CarriedWeapon357T::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCo
                 if (ThinkingOnServerSide)
                 {
                     // If we are on the server-side, find out what or who we hit.
-                    const float ViewDirZ=-LookupTables::Angle16ToSin[State.Pitch];
-                    const float ViewDirY= LookupTables::Angle16ToCos[State.Pitch];
+                    const float ViewDirZ=-LookupTables::Angle16ToSin[Player->GetPitch()];
+                    const float ViewDirY= LookupTables::Angle16ToCos[Player->GetPitch()];
 
-                    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[State.Heading], ViewDirY*LookupTables::Angle16ToCos[State.Heading], ViewDirZ);
+                    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
 
                     RayResultT RayResult(Player->GetRigidBody());
-                    Player->PhysicsWorld->TraceRay(State.Origin/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
+                    Player->PhysicsWorld->TraceRay(Player->GetOrigin()/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
 
                     if (RayResult.hasHit() && RayResult.GetHitEntity()!=NULL)
                         RayResult.GetHitEntity()->TakeDamage(Player, 7, ViewDir);
@@ -224,13 +224,13 @@ void CarriedWeapon357T::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT*
 {
     const EntityStateT& State=Player->GetState();
 
-    const float ViewDirZ=-LookupTables::Angle16ToSin[State.Pitch];
-    const float ViewDirY= LookupTables::Angle16ToCos[State.Pitch];
+    const float ViewDirZ=-LookupTables::Angle16ToSin[Player->GetPitch()];
+    const float ViewDirY= LookupTables::Angle16ToCos[Player->GetPitch()];
 
-    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[State.Heading], ViewDirY*LookupTables::Angle16ToCos[State.Heading], ViewDirZ);
+    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
 
     RayResultT RayResult(Player->GetRigidBody());
-    Player->PhysicsWorld->TraceRay(State.Origin/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
+    Player->PhysicsWorld->TraceRay(Player->GetOrigin()/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
 
     if (!RayResult.hasHit()) return;
 
@@ -257,7 +257,7 @@ void CarriedWeapon357T::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT*
     ParticleEngineMS::RegisterNewParticle(NewParticle);
 
     // Update sound position and velocity.
-    FireSound->SetPosition(State.Origin+scale(ViewDir, 400.0));
+    FireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 400.0));
     FireSound->SetVelocity(State.Velocity);
 
     // Play the fire sound.

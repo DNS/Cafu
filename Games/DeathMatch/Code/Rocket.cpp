@@ -86,9 +86,9 @@ void EntRocketT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
         const VectorT WishDist=scale(State.Velocity, double(FrameTime));
 
         ShapeResultT ShapeResult;
-        PhysicsWorld->TraceBoundingBox(State.Dimensions, State.Origin, WishDist, ShapeResult);
+        PhysicsWorld->TraceBoundingBox(m_Dimensions, m_Origin, WishDist, ShapeResult);
 
-        State.Origin=State.Origin+scale(WishDist, double(ShapeResult.m_closestHitFraction));
+        m_Origin=m_Origin+scale(WishDist, double(ShapeResult.m_closestHitFraction));
 
         if (ShapeResult.hasHit())
         {
@@ -107,11 +107,11 @@ void EntRocketT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
                 if (OtherEntity    ==NULL) continue;
                 if (OtherEntity->ID==  ID) continue;    // We don't damage us ourselves.
 
-                // Note that OtherOrigin=OtherEntity->State.Origin is not enough, it must be computed as shown in order to work in all cases:
+                // Note that OtherOrigin=OtherEntity->GetOrigin() is not enough, it must be computed as shown in order to work in all cases:
                 // a) With (e.g.) EntHumanPlayerTs, the Dimensions are static and the Origin moves, but
                 // b) with EntRigidBodyTs, the Dimensions move while the Origin remains at (0, 0, 0).
                 const Vector3dT OtherOrigin=OtherEntity->GetDimensions().GetCenter() + OtherEntity->GetOrigin();
-                const Vector3dT Impact     =OtherOrigin-State.Origin;
+                const Vector3dT Impact     =OtherOrigin-m_Origin;
                 const double    Dist       =length(Impact);
 
                      if (Dist<1000.0) OtherEntity->TakeDamage(this, 100                         , scale(Impact, 1.0/Dist));
@@ -167,7 +167,7 @@ void EntRocketT::ProcessEvent(unsigned int /*EventType*/, unsigned int /*NumEven
 {
     // We only receive a single event here ("Detonation!"), thus there is no need to look at 'EventID'.
     // Update souud position.
-    m_FireSound->SetPosition(State.Origin);
+    m_FireSound->SetPosition(m_Origin);
 
     // Play the fire sound.
     m_FireSound->Play();
@@ -175,9 +175,9 @@ void EntRocketT::ProcessEvent(unsigned int /*EventType*/, unsigned int /*NumEven
     // Register explosion particles.
     static ParticleMST NewParticle;
 
-    NewParticle.Origin[0]=float(State.Origin.x);
-    NewParticle.Origin[1]=float(State.Origin.y);
-    NewParticle.Origin[2]=float(State.Origin.z);
+    NewParticle.Origin[0]=float(m_Origin.x);
+    NewParticle.Origin[1]=float(m_Origin.y);
+    NewParticle.Origin[2]=float(m_Origin.z);
 
     NewParticle.Age=0.0;
     NewParticle.Color[0]=255;
@@ -195,9 +195,9 @@ void EntRocketT::ProcessEvent(unsigned int /*EventType*/, unsigned int /*NumEven
 
     for (char i=0; i<20; i++)
     {
-        NewParticle.Origin[0]=float(State.Origin.x);
-        NewParticle.Origin[1]=float(State.Origin.y);
-        NewParticle.Origin[2]=float(State.Origin.z);
+        NewParticle.Origin[0]=float(m_Origin.x);
+        NewParticle.Origin[1]=float(m_Origin.y);
+        NewParticle.Origin[2]=float(m_Origin.z);
 
         NewParticle.Velocity[0]=float(rand()-int(RAND_MAX/2));
         NewParticle.Velocity[1]=float(rand()-int(RAND_MAX/2));
@@ -236,7 +236,7 @@ bool EntRocketT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& 
         SpecularColor=(Red << 8)+Green;
     }
 
-    Position    =State.Origin;
+    Position    =m_Origin;
     Radius      =25000.0;
     CastsShadows=true;
 

@@ -100,6 +100,7 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
                                0,       // ActiveWeaponSlot
                                0,       // ActiveWeaponSequNr
                                0.0)),   // ActiveWeaponFrameNr
+      m_Physics(m_Origin, State.Velocity, m_Dimensions, ClipModel, GameWorld->GetClipWorld()),
       m_CollisionShape(NULL),
       m_RigidBody(NULL),
       TimeForLightSource(0.0),
@@ -109,8 +110,8 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
 
     // Because 'StateOfExistance==StateOfExistance_FrozenSpectator', we mis-use the 'Velocity' member variable a little
     // for slightly turning/swaying the head in this state. See the 'Think()' code below!
-    State.Velocity.y=State.Heading;
-    State.Velocity.z=State.Bank;
+    State.Velocity.y=m_Heading;
+    State.Velocity.z=m_Bank;
 
 
     // This would be the proper way to do it, but we don't know here whether this is the local human player of a client.
@@ -122,14 +123,14 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
     assert(CollisionModel==NULL);
     // No "normal" collision model has been set for this entity.
     // Now simply setup a bounding box as the collision model.
-    CollisionModel=cf::ClipSys::CollModelMan->GetCM(State.Dimensions, MaterialManager->GetMaterial("Textures/meta/collisionmodel"));
+    CollisionModel=cf::ClipSys::CollModelMan->GetCM(m_Dimensions, MaterialManager->GetMaterial("Textures/meta/collisionmodel"));
     ClipModel.SetCollisionModel(CollisionModel);
-    ClipModel.SetOrigin(State.Origin);
+    ClipModel.SetOrigin(m_Origin);
  // ClipModel.Register();   // Do *not* register here! Registering/unregistering is done when there is a transition in State.StateOfExistance.
 
 
     // The /1000 is because our physics world is in meters.
-    m_CollisionShape=new btBoxShape(conv((State.Dimensions.Max-State.Dimensions.Min)/2.0/1000.0));  // Should use a btCylinderShapeZ instead of btBoxShape?
+    m_CollisionShape=new btBoxShape(conv((m_Dimensions.Max-m_Dimensions.Min)/2.0/1000.0));  // Should use a btCylinderShapeZ instead of btBoxShape?
 
     // Our rigid body is of Bullet type "kinematic". That is, we move it ourselves, not the world dynamics.
     m_RigidBody=new btRigidBody(btRigidBody::btRigidBodyConstructionInfo(0, this /*btMotionState for this body*/, m_CollisionShape, btVector3()));
@@ -163,7 +164,7 @@ void EntHumanPlayerT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT
 
     if (State.Health<=Amount)
     {
-        unsigned short DeltaAngle=Entity->GetHeading()-State.Heading;
+        unsigned short DeltaAngle=Entity->GetHeading()-m_Heading;
 
         State.StateOfExistance=StateOfExistance_Dead;
         State.Health=0;
@@ -255,16 +256,16 @@ bool EntHumanPlayerT::CheckGUI(EntStaticDetailModelT* GuiEnt, Vector3fT& MousePo
     const Vector3fT GuiNormal=normalize(cross(GuiAxisY, GuiAxisX), 0.0f);
     const Plane3fT  GuiPlane =Plane3fT(GuiNormal, dot(GuiOrigin, GuiNormal));
 
-    const float     ViewDirZ =-LookupTables::Angle16ToSin[State.Pitch];
-    const float     ViewDirY = LookupTables::Angle16ToCos[State.Pitch];
-    const Vector3fT ViewDir  =Vector3fT(ViewDirY*LookupTables::Angle16ToSin[State.Heading], ViewDirY*LookupTables::Angle16ToCos[State.Heading], ViewDirZ);
+    const float     ViewDirZ =-LookupTables::Angle16ToSin[m_Pitch];
+    const float     ViewDirY = LookupTables::Angle16ToCos[m_Pitch];
+    const Vector3fT ViewDir  =Vector3fT(ViewDirY*LookupTables::Angle16ToSin[m_Heading], ViewDirY*LookupTables::Angle16ToCos[m_Heading], ViewDirZ);
 
     if (-dot(ViewDir, GuiPlane.Normal)<0.001f) return false;
 
 
     // 4. Does our view ray hit the screen panel?
     // (I've obtained the equation for r by rolling the corresponding Plane3T<T>::GetIntersection() method out.)
-    const Vector3fT OurOrigin=State.Origin.AsVectorOfFloat();
+    const Vector3fT OurOrigin=m_Origin.AsVectorOfFloat();
     const float     r        =(GuiPlane.Dist-dot(GuiPlane.Normal, OurOrigin))/dot(GuiPlane.Normal, ViewDir);
 
     if (r<0.0f || r>4000.0f) return false;
@@ -352,13 +353,13 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     PhysicsWorld->AddRigidBody(m_RigidBody);
 
                 // Update Heading
-                State.Heading+=PlayerCommands[PCNr].DeltaHeading;
+                m_Heading+=PlayerCommands[PCNr].DeltaHeading;
 
-                if (PlayerCommands[PCNr].Keys & PCK_TurnLeft ) State.Heading-=(unsigned short)(21845.0*PlayerCommands[PCNr].FrameTime);
-                if (PlayerCommands[PCNr].Keys & PCK_TurnRight) State.Heading+=(unsigned short)(21845.0*PlayerCommands[PCNr].FrameTime);
+                if (PlayerCommands[PCNr].Keys & PCK_TurnLeft ) m_Heading-=(unsigned short)(21845.0*PlayerCommands[PCNr].FrameTime);
+                if (PlayerCommands[PCNr].Keys & PCK_TurnRight) m_Heading+=(unsigned short)(21845.0*PlayerCommands[PCNr].FrameTime);
 
                 // Update Pitch
-                int OldPitch=State.Pitch;                     if (OldPitch>=32768) OldPitch-=65536;
+                int OldPitch=m_Pitch;                         if (OldPitch>=32768) OldPitch-=65536;
                 int DltPitch=PlayerCommands[PCNr].DeltaPitch; if (DltPitch>=32768) DltPitch-=65536;
                 int NewPitch=OldPitch+DltPitch;
 
@@ -369,16 +370,16 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 if (NewPitch<-16384) NewPitch=-16384;
 
                 if (NewPitch<0) NewPitch+=65536;
-                State.Pitch=NewPitch;
+                m_Pitch=NewPitch;
 
                 // Update Bank
-                State.Bank+=PlayerCommands[PCNr].DeltaBank;
+                m_Bank+=PlayerCommands[PCNr].DeltaBank;
 
 
                 VectorT             WishVelocity;
                 bool                WishJump=false;
-                const double        VelX    =6000.0*LookupTables::Angle16ToSin[State.Heading];     // 6000 == Client.MoveSpeed
-                const double        VelY    =6000.0*LookupTables::Angle16ToCos[State.Heading];     // 6000 == Client.MoveSpeed
+                const double        VelX    =6000.0*LookupTables::Angle16ToSin[m_Heading];     // 6000 == Client.MoveSpeed
+                const double        VelY    =6000.0*LookupTables::Angle16ToCos[m_Heading];     // 6000 == Client.MoveSpeed
                 const unsigned long Keys    =PlayerCommands[PCNr].Keys;
 
                 if (Keys & PCK_MoveForward ) WishVelocity=             VectorT( VelX,  VelY, 0);
@@ -386,15 +387,15 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 if (Keys & PCK_StrafeLeft  ) WishVelocity=WishVelocity+VectorT(-VelY,  VelX, 0);
                 if (Keys & PCK_StrafeRight ) WishVelocity=WishVelocity+VectorT( VelY, -VelX, 0);
 
-                if (Keys & PCK_CenterView  ) { State.Pitch=0; State.Bank=0; }
+                if (Keys & PCK_CenterView  ) { m_Pitch=0; m_Bank=0; }
                 if (Keys & PCK_Jump        ) WishJump=true;
              // if (Keys & PCK_Duck        ) ;
                 if (Keys & PCK_Walk        ) WishVelocity=scale(WishVelocity, 0.5);
 
                 VectorT       WishVelLadder;
-                const double  ViewLadderZ=-LookupTables::Angle16ToSin[State.Pitch];
-                const double  ViewLadderY= LookupTables::Angle16ToCos[State.Pitch];
-                const VectorT ViewLadder =scale(VectorT(ViewLadderY*LookupTables::Angle16ToSin[State.Heading], ViewLadderY*LookupTables::Angle16ToCos[State.Heading], ViewLadderZ), 3800.0);
+                const double  ViewLadderZ=-LookupTables::Angle16ToSin[m_Pitch];
+                const double  ViewLadderY= LookupTables::Angle16ToCos[m_Pitch];
+                const VectorT ViewLadder =scale(VectorT(ViewLadderY*LookupTables::Angle16ToSin[m_Heading], ViewLadderY*LookupTables::Angle16ToCos[m_Heading], ViewLadderZ), 3800.0);
 
                 // TODO: Also take LATERAL movement into account.
                 // TODO: All this needs a HUGE clean-up! Can probably put a lot of this stuff into Physics::MoveHuman.
@@ -406,14 +407,14 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 {
                     // This code was simply changed and rewritten until it "worked".
                     // May still be buggy anyway.
-                    double RadPitch=double(State.Pitch)/32768.0*3.141592654;
-                    double Fak     =VectorDot(WishVelocity, VectorT(LookupTables::Angle16ToSin[State.Heading], LookupTables::Angle16ToCos[State.Heading], 0));
+                    double RadPitch=double(m_Pitch)/32768.0*3.141592654;
+                    double Fak     =VectorDot(WishVelocity, VectorT(LookupTables::Angle16ToSin[m_Heading], LookupTables::Angle16ToCos[m_Heading], 0));
 
                     WishVelocity.x*=cos(RadPitch);
                     WishVelocity.y*=cos(RadPitch);
                     WishVelocity.z=-sin(RadPitch)*Fak;
 
-                    State.Origin=State.Origin+scale(WishVelocity, PlayerCommands[PCNr].FrameTime);
+                    m_Origin=m_Origin+scale(WishVelocity, PlayerCommands[PCNr].FrameTime);
 
                     // TODO: If not already done on state change (--> "noclip"), set the model sequence to "swim".  ;-)
                 }
@@ -423,9 +424,9 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     double  OldSpeed   =length(XYVel);
                     bool    OldWishJump=(State.Flags & Flags_OldWishJump) ? true : false;
 
-                    Physics::MoveHuman(State, ClipModel, PlayerCommands[PCNr].FrameTime, WishVelocity, WishVelLadder, WishJump, OldWishJump, 470.0, GameWorld->GetClipWorld());
+                    m_Physics.MoveHuman(PlayerCommands[PCNr].FrameTime, m_Heading, WishVelocity, WishVelLadder, WishJump, OldWishJump, 470.0);
 
-                    ClipModel.SetOrigin(State.Origin);
+                    ClipModel.SetOrigin(m_Origin);
                     ClipModel.Register();
                     // The physics world will pick-up our new origin at the next opportunity from getWorldTransform().
 
@@ -638,10 +639,10 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     // If the bounding boxes don't overlap, continue with the next entity (we did not touch this one).
                     BoundingBox3T<double> OtherEntityBB=OtherEntity->GetDimensions();
 
-                    OtherEntityBB.Min=OtherEntityBB.Min+OtherEntity->GetOrigin()-State.Origin;
-                    OtherEntityBB.Max=OtherEntityBB.Max+OtherEntity->GetOrigin()-State.Origin;
+                    OtherEntityBB.Min=OtherEntityBB.Min+OtherEntity->GetOrigin()-m_Origin;
+                    OtherEntityBB.Max=OtherEntityBB.Max+OtherEntity->GetOrigin()-m_Origin;
 
-                    if (!State.Dimensions.Intersects(OtherEntityBB)) continue;
+                    if (!m_Dimensions.Intersects(OtherEntityBB)) continue;
 
                     // The bounding boxes overlap, so notify the 'OtherEntity' that we touched it.
                     OtherEntity->NotifyTouchedBy(this);
@@ -652,17 +653,17 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 if (ThinkingOnServerSide)
                 {
                     ArrayT<cf::ClipSys::ClipModelT*> ClipModels;
-                    BoundingBox3dT                   AbsBB(State.Dimensions);
+                    BoundingBox3dT                   AbsBB(m_Dimensions);
 
-                    AbsBB.Min+=State.Origin;
-                    AbsBB.Max+=State.Origin;
+                    AbsBB.Min+=m_Origin;
+                    AbsBB.Max+=m_Origin;
 
                     GameWorld->GetClipWorld().GetClipModelsFromBB(ClipModels, MaterialT::Clip_Trigger, AbsBB);
                     // printf("%lu clip models in AbsBB.\n", ClipModels.Size());
 
                     for (unsigned long ClipModelNr=0; ClipModelNr<ClipModels.Size(); ClipModelNr++)
                     {
-                        const unsigned long Contents=ClipModels[ClipModelNr]->GetContents(State.Origin, 0, MaterialT::Clip_Trigger);
+                        const unsigned long Contents=ClipModels[ClipModelNr]->GetContents(m_Origin, 0, MaterialT::Clip_Trigger);
                         if ((Contents & MaterialT::Clip_Trigger)==0) continue;
 
                         BaseEntityT* TriggerEntity=static_cast<BaseEntityT*>(ClipModels[ClipModelNr]->GetUserData());
@@ -696,29 +697,29 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
             case StateOfExistance_Dead:
             {
                 bool         DummyOldWishJump=false;
-                const double OldOriginZ      =State.Origin.z;
+                const double OldOriginZ      =m_Origin.z;
                 const float  OldModelFrameNr =State.ModelFrameNr;
 
                 if (m_RigidBody->isInWorld())
                     PhysicsWorld->RemoveRigidBody(m_RigidBody);
 
-                Physics::MoveHuman(State, ClipModel, PlayerCommands[PCNr].FrameTime, VectorT(), VectorT(), false, DummyOldWishJump, 0.0, GameWorld->GetClipWorld());
+                m_Physics.MoveHuman(PlayerCommands[PCNr].FrameTime, m_Heading, VectorT(), VectorT(), false, DummyOldWishJump, 0.0);
 
                 // We want to lower the view of the local client after it has been killed (in order to indicate the body collapse).
-                // Unfortunately, the problem is much harder than just decreasing the 'State.Origin.z' in some way, because
+                // Unfortunately, the problem is much harder than just decreasing the 'm_Origin.z' in some way, because
                 // a) other clients still need the original height for properly drawing the death sequence (from 3rd person view), and
                 // b) the corpse that we create on leaving this StateOfExistance must have the proper height, too.
-                // Therefore, we decrease the 'State.Origin.z', but "compensate" the 'State.Dimensions', such that the *absolute*
-                // coordinates of our bounding box (obtained by "State.Origin plus State.Dimensions") remain constant.
+                // Therefore, we decrease the 'm_Origin.z', but "compensate" the 'm_Dimensions', such that the *absolute*
+                // coordinates of our bounding box (obtained by "m_Origin plus m_Dimensions") remain constant.
                 // This way, we can re-derive the proper height in both cases a) and b).
                 const double Collapse=2000.0*PlayerCommands[PCNr].FrameTime;
 
-                if (State.Dimensions.Min.z+Collapse<-100.0)
+                if (m_Dimensions.Min.z+Collapse<-100.0)
                 {
-                    State.Origin.z        -=Collapse;
-                    State.Dimensions.Min.z+=Collapse;
-                    State.Dimensions.Max.z+=Collapse;
-                    State.Bank            +=(unsigned short)(PlayerCommands[PCNr].FrameTime*36000.0);
+                    m_Origin.z        -=Collapse;
+                    m_Dimensions.Min.z+=Collapse;
+                    m_Dimensions.Max.z+=Collapse;
+                    m_Bank            +=(unsigned short)(PlayerCommands[PCNr].FrameTime*36000.0);
                 }
 
                 // Advance frame time of model sequence.
@@ -731,7 +732,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                 // We entered this state after we died.
                 // Now leave it only after we have come to a complete halt, and the death sequence is over.
-                if (OldOriginZ>=State.Origin.z && fabs(State.Velocity.x)<0.1 && fabs(State.Velocity.y)<0.1 && fabs(State.Velocity.z)<0.1 && OldModelFrameNr==State.ModelFrameNr)
+                if (OldOriginZ>=m_Origin.z && fabs(State.Velocity.x)<0.1 && fabs(State.Velocity.y)<0.1 && fabs(State.Velocity.z)<0.1 && OldModelFrameNr==State.ModelFrameNr)
                 {
                     if (ThinkingOnServerSide)
                     {
@@ -748,9 +749,9 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                         }
                     }
 
-                    State.Velocity.y=State.Heading;
-                    State.Velocity.z=State.Bank;
-                    State.Dimensions=BoundingBox3dT(Vector3dT(400.0, 400.0, 100.0), Vector3dT(-400.0, -400.0, -1728.8));
+                    State.Velocity.y=m_Heading;
+                    State.Velocity.z=m_Bank;
+                    m_Dimensions=BoundingBox3dT(Vector3dT(400.0, 400.0, 100.0), Vector3dT(-400.0, -400.0, -1728.8));
                     State.StateOfExistance=StateOfExistance_FrozenSpectator;
                 }
 
@@ -773,8 +774,8 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                 const float SwingAngle=float(sin(State.Velocity.x)*200.0);
 
-                State.Heading=(unsigned short)(State.Velocity.y+SwingAngle);
-                State.Bank   =(unsigned short)(State.Velocity.z-SwingAngle);
+                m_Heading=(unsigned short)(State.Velocity.y+SwingAngle);
+                m_Bank   =(unsigned short)(State.Velocity.z-SwingAngle);
 
                 // TODO: We want the player to release the button between respawns in order to avoid permanent "respawn-flickering"
                 //       that otherwise may occur if the player keeps the button continuously pressed down.
@@ -799,9 +800,9 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     OurNewOrigin=IPSEntity->GetOrigin();
 
                     // First, create a BB of dimensions (-300.0, -300.0, -100.0) - (300.0, 300.0, 100.0).
-                    const BoundingBox3T<double> ClearingBB(VectorT(State.Dimensions.Min.x, State.Dimensions.Min.y, -State.Dimensions.Max.z), State.Dimensions.Max);
+                    const BoundingBox3T<double> ClearingBB(VectorT(m_Dimensions.Min.x, m_Dimensions.Min.y, -m_Dimensions.Max.z), m_Dimensions.Max);
 
-                    // Move ClearingBB up to a reasonable height (if possible!), such that the *full* BB (that is, State.Dimensions) is clear of (not stuck in) solid.
+                    // Move ClearingBB up to a reasonable height (if possible!), such that the *full* BB (that is, m_Dimensions) is clear of (not stuck in) solid.
                     cf::ClipSys::TraceResultT Result(1.0);
                     GameWorld->GetClipWorld().TraceBoundingBox(ClearingBB, OurNewOrigin, VectorT(0.0, 0.0, 3000.0), MaterialT::Clip_Players, &ClipModel, Result);
                     const double AddHeight=3000.0*Result.Fraction;
@@ -816,14 +817,14 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     // vorhanden sind (es werden floats übertragen, nicht doubles!), kommt CategorizePosition() u.U. auf Client- und
                     // Server-Seite zu verschiedenen Ergebnissen! Der Effekt spielt sich zwar in einem Intervall der Größe 1.0 ab,
                     // kann mit OpenGL aber zu deutlichem Pixel-Flimmern führen!
-                    OurNewOrigin.z=OurNewOrigin.z+AddHeight-SubHeight+(ClearingBB.Min.z-State.Dimensions.Min.z/*1628.8*/)+1.23456789/*Epsilon (sonst Ruckeln am Anfang!)*/;
+                    OurNewOrigin.z=OurNewOrigin.z+AddHeight-SubHeight+(ClearingBB.Min.z-m_Dimensions.Min.z/*1628.8*/)+1.23456789/*Epsilon (sonst Ruckeln am Anfang!)*/;
 
                     // Old, deprecated code (can get us stuck in non-level ground).
                     // const double HeightAboveGround=GameWorld->MapClipLine(OurNewOrigin, VectorT(0, 0, -1.0), 0, 999999.9);
-                    // OurNewOrigin.z=OurNewOrigin.z-HeightAboveGround-State.Dimensions.Min.z+1.23456789/*Epsilon (needed to avoid ruggy initial movement!)*/;
+                    // OurNewOrigin.z=OurNewOrigin.z-HeightAboveGround-m_Dimensions.Min.z+1.23456789/*Epsilon (needed to avoid ruggy initial movement!)*/;
 
 
-                    BoundingBox3T<double> OurBB(State.Dimensions);
+                    BoundingBox3T<double> OurBB(m_Dimensions);
 
                     OurBB.Min+=OurNewOrigin;
                     OurBB.Max+=OurNewOrigin;
@@ -837,12 +838,12 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 if (EntityIDNr>=AllEntityIDs.Size()) break;     // No suitable "InfoPlayerStart" entity found!
 
                 // Respawn!
-                State.Origin             =OurNewOrigin;
+                m_Origin                 =OurNewOrigin;
                 State.Velocity           =VectorT();
-                State.Dimensions         =BoundingBox3dT(Vector3dT(400.0, 400.0, 100.0), Vector3dT(-400.0, -400.0, -1728.8));
-                State.Heading            =IPSEntity->GetHeading();
-                State.Pitch              =0;
-                State.Bank               =0;
+                m_Dimensions             =BoundingBox3dT(Vector3dT(400.0, 400.0, 100.0), Vector3dT(-400.0, -400.0, -1728.8));
+                m_Heading                =IPSEntity->GetHeading();
+                m_Pitch                  =0;
+                m_Bank                   =0;
                 State.StateOfExistance   =StateOfExistance_Alive;
                 State.ModelSequNr        =0;
                 State.ModelFrameNr       =0.0;
@@ -854,7 +855,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 State.ActiveWeaponSequNr =0;
                 State.ActiveWeaponFrameNr=0.0;
 
-                ClipModel.SetOrigin(State.Origin);
+                ClipModel.SetOrigin(m_Origin);
                 ClipModel.Register();
 
                 for (char Nr=0; Nr<15; Nr++) State.HaveAmmo         [Nr]=0;   // IMPORTANT: Do not clear the frags value in 'HaveAmmo[AMMO_SLOT_FRAGS]'!
@@ -886,13 +887,13 @@ void EntHumanPlayerT::ProcessEvent(unsigned int EventType, unsigned int /*NumEve
 bool EntHumanPlayerT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const
 {
 #if 0
-    int Pitch    =State.Pitch; if (Pitch>=32768) Pitch-=65536;
-    int HalfPitch=Pitch/2;     if (HalfPitch<0) HalfPitch+=65536;
+    int Pitch    =m_Pitch; if (Pitch>=32768) Pitch-=65536;
+    int HalfPitch=Pitch/2; if (HalfPitch<0) HalfPitch+=65536;
 
     const float LightDirZ=-LookupTables::Angle16ToSin[(unsigned short)HalfPitch];
     const float LightDirY= LookupTables::Angle16ToCos[(unsigned short)HalfPitch];
 
-    const VectorT LightDir(LightDirY*LookupTables::Angle16ToSin[State.Heading], LightDirY*LookupTables::Angle16ToCos[State.Heading], LightDirZ);
+    const VectorT LightDir(LightDirY*LookupTables::Angle16ToSin[m_Heading], LightDirY*LookupTables::Angle16ToCos[m_Heading], LightDirZ);
 
     DiffuseColor =0x00FF3018;
     SpecularColor=0x00CCFF18;
@@ -906,7 +907,7 @@ bool EntHumanPlayerT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned l
 
     const float f=120.0f*LookupTables::Angle16ToSin[(unsigned short)(TimeForLightSource/5.0f*65536.0f)];
 
-    Position    =State.Origin+VectorT(0.0, 0.0, -150.0)+scale(LightDir, 390.0)+VectorT(LookupTables::Angle16ToCos[State.Heading]*f, LookupTables::Angle16ToSin[State.Heading]*f, 0.0);
+    Position    =m_Origin+VectorT(0.0, 0.0, -150.0)+scale(LightDir, 390.0)+VectorT(LookupTables::Angle16ToCos[m_Heading]*f, LookupTables::Angle16ToSin[m_Heading]*f, 0.0);
     Radius      =20000.0;
     CastsShadows=true;
 
@@ -945,7 +946,7 @@ void EntHumanPlayerT::Draw(bool FirstPersonView, float LodDist) const
             EyePos.z+=0.5f;
             MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, 0.0f, 0.0f, -0.5f);
 
-            const float DegPitch=float(State.Pitch)/8192.0f*45.0f;
+            const float DegPitch=float(m_Pitch)/8192.0f*45.0f;
 
             LgtPos=LgtPos.GetRotY(-DegPitch);
             EyePos=EyePos.GetRotY(-DegPitch);
@@ -965,7 +966,7 @@ void EntHumanPlayerT::Draw(bool FirstPersonView, float LodDist) const
     {
         if (State.StateOfExistance!=StateOfExistance_Alive && State.StateOfExistance!=StateOfExistance_Dead) return;
 
-        const float OffsetZ=(State.StateOfExistance!=StateOfExistance_Dead) ? -32.0f : -32.0f+float(State.Dimensions.Min.z+1728.8)/25.4f;
+        const float OffsetZ=(State.StateOfExistance!=StateOfExistance_Dead) ? -32.0f : -32.0f+float(m_Dimensions.Min.z+1728.8)/25.4f;
 
         MatSys::Renderer->GetCurrentLightSourcePosition()[2]-=OffsetZ;
         MatSys::Renderer->GetCurrentEyePosition        ()[2]-=OffsetZ;
@@ -1144,13 +1145,13 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
         }
 
         // Update listener here since this is the entity of the player.
-        const float ViewX=sin(float(State.Heading)/32768.0f*3.1415926f);
-        const float ViewY=cos(float(State.Heading)/32768.0f*3.1415926f);
+        const float ViewX=sin(float(m_Heading)/32768.0f*3.1415926f);
+        const float ViewY=cos(float(m_Heading)/32768.0f*3.1415926f);
 
         Vector3fT OrientationForward(ViewX, ViewY, 0.0f);
         Vector3fT OrientationUp     ( 0.0f,  0.0f, 1.0f);
 
-        SoundSystem->UpdateListener(State.Origin, State.Velocity, OrientationForward, OrientationUp);
+        SoundSystem->UpdateListener(m_Origin, State.Velocity, OrientationForward, OrientationUp);
     }
     else
     {
@@ -1171,12 +1172,12 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
 
 void EntHumanPlayerT::getWorldTransform(btTransform& worldTrans) const
 {
-    Vector3dT Origin=State.Origin;
+    Vector3dT Origin=m_Origin;
 
     // The box shape of our physics body is equally centered around the origin point,
-    // whereas our State.Dimensions box is "non-uniformely displaced".
-    // In order to compensate, compute how far the State.Dimensions center is away from the origin.
-    Origin.z+=(State.Dimensions.Min.z+State.Dimensions.Max.z)/2.0;
+    // whereas our m_Dimensions box is "non-uniformely displaced".
+    // In order to compensate, compute how far the m_Dimensions center is away from the origin.
+    Origin.z+=(m_Dimensions.Min.z+m_Dimensions.Max.z)/2.0;
 
     // Return the current transformation of our rigid body to the physics world.
     worldTrans.setIdentity();

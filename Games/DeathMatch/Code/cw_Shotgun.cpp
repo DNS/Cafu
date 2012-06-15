@@ -186,8 +186,8 @@ void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, const Play
                     // If we are on the server-side, find out what or who we hit.
                     for (char i=0; i<8; i++)
                     {
-                        const unsigned short Pitch  =State.Pitch  +(rand() % 910)-455;  // ca. 5°
-                        const unsigned short Heading=State.Heading+(rand() % 910)-455;  // ca. 5°
+                        const unsigned short Pitch  =Player->GetPitch()  +(rand() % 910)-455;  // ca. 5°
+                        const unsigned short Heading=Player->GetHeading()+(rand() % 910)-455;  // ca. 5°
 
                         const float ViewDirZ=-LookupTables::Angle16ToSin[Pitch];
                         const float ViewDirY= LookupTables::Angle16ToCos[Pitch];
@@ -195,7 +195,7 @@ void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, const Play
                         const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Heading], ViewDirY*LookupTables::Angle16ToCos[Heading], ViewDirZ);
 
                         RayResultT RayResult(Player->GetRigidBody());
-                        Player->PhysicsWorld->TraceRay(State.Origin/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
+                        Player->PhysicsWorld->TraceRay(Player->GetOrigin()/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
 
                         if (RayResult.hasHit() && RayResult.GetHitEntity()!=NULL)
                             RayResult.GetHitEntity()->TakeDamage(Player, 3, ViewDir);
@@ -218,8 +218,8 @@ void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, const Play
                     // If we are on the server-side, find out what or who we hit.
                     for (char i=0; i<16; i++)
                     {
-                        const unsigned short Pitch  =State.Pitch  +(rand() % 910)-455;  // ca. 5°
-                        const unsigned short Heading=State.Heading+(rand() % 910)-455;  // ca. 5°
+                        const unsigned short Pitch  =Player->GetPitch()  +(rand() % 910)-455;  // ca. 5°
+                        const unsigned short Heading=Player->GetHeading()+(rand() % 910)-455;  // ca. 5°
 
                         const float ViewDirZ=-LookupTables::Angle16ToSin[Pitch];
                         const float ViewDirY= LookupTables::Angle16ToCos[Pitch];
@@ -227,7 +227,7 @@ void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, const Play
                         const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Heading], ViewDirY*LookupTables::Angle16ToCos[Heading], ViewDirZ);
 
                         RayResultT RayResult(Player->GetRigidBody());
-                        Player->PhysicsWorld->TraceRay(State.Origin/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
+                        Player->PhysicsWorld->TraceRay(Player->GetOrigin()/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
 
                         if (RayResult.hasHit() && RayResult.GetHitEntity()!=NULL)
                             RayResult.GetHitEntity()->TakeDamage(Player, 3, ViewDir);
@@ -306,8 +306,8 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlay
 
     for (char i=0; i<8; i++)
     {
-        const unsigned short Pitch  =State.Pitch  +(rand() % 910)-455;  // ca. 5°
-        const unsigned short Heading=State.Heading+(rand() % 910)-455;  // ca. 5°
+        const unsigned short Pitch  =Player->GetPitch()  +(rand() % 910)-455;  // ca. 5°
+        const unsigned short Heading=Player->GetHeading()+(rand() % 910)-455;  // ca. 5°
 
         const float ViewDirZ=-LookupTables::Angle16ToSin[Pitch];
         const float ViewDirY= LookupTables::Angle16ToCos[Pitch];
@@ -315,7 +315,7 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlay
         const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Heading], ViewDirY*LookupTables::Angle16ToCos[Heading], ViewDirZ);
 
         RayResultT RayResult(Player->GetRigidBody());
-        Player->PhysicsWorld->TraceRay(State.Origin/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
+        Player->PhysicsWorld->TraceRay(Player->GetOrigin()/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
 
         if (!RayResult.hasHit()) break;
 
@@ -341,16 +341,16 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlay
         ParticleEngineMS::RegisterNewParticle(NewParticle);
     }
 
-    const float   ViewDirZ=-LookupTables::Angle16ToSin[State.Pitch];
-    const float   ViewDirY= LookupTables::Angle16ToCos[State.Pitch];
-    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[State.Heading], ViewDirY*LookupTables::Angle16ToCos[State.Heading], ViewDirZ);
+    const float   ViewDirZ=-LookupTables::Angle16ToSin[Player->GetPitch()];
+    const float   ViewDirY= LookupTables::Angle16ToCos[Player->GetPitch()];
+    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
 
     // Register a new particle as "muzzle flash".
     ParticleMST NewParticle;
 
-    NewParticle.Origin[0]=float(State.Origin.x+ViewDir.x*400.0);
-    NewParticle.Origin[1]=float(State.Origin.y+ViewDir.y*400.0);
-    NewParticle.Origin[2]=float(State.Origin.z+ViewDir.z*400.0-100.0);
+    NewParticle.Origin[0]=float(Player->GetOrigin().x+ViewDir.x*400.0);
+    NewParticle.Origin[1]=float(Player->GetOrigin().y+ViewDir.y*400.0);
+    NewParticle.Origin[2]=float(Player->GetOrigin().z+ViewDir.z*400.0-100.0);
 
     NewParticle.Velocity[0]=float(ViewDir.x*1000.0);
     NewParticle.Velocity[1]=float(ViewDir.y*1000.0);
@@ -371,7 +371,7 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlay
     ParticleEngineMS::RegisterNewParticle(NewParticle);
 
     // Update sound position and velocity.
-    FireSound->SetPosition(State.Origin+scale(ViewDir, 400.0));
+    FireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 400.0));
     FireSound->SetVelocity(State.Velocity);
 
     // Play the fire sound.
@@ -385,8 +385,8 @@ void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(const EntHumanPl
 
     for (char i=0; i<16; i++)
     {
-        const unsigned short Pitch  =State.Pitch  +(rand() % 910)-455;  // ca. 5°
-        const unsigned short Heading=State.Heading+(rand() % 910)-455;  // ca. 5°
+        const unsigned short Pitch  =Player->GetPitch()  +(rand() % 910)-455;  // ca. 5°
+        const unsigned short Heading=Player->GetHeading()+(rand() % 910)-455;  // ca. 5°
 
         const float ViewDirZ=-LookupTables::Angle16ToSin[Pitch];
         const float ViewDirY= LookupTables::Angle16ToCos[Pitch];
@@ -394,7 +394,7 @@ void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(const EntHumanPl
         const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Heading], ViewDirY*LookupTables::Angle16ToCos[Heading], ViewDirZ);
 
         RayResultT RayResult(Player->GetRigidBody());
-        Player->PhysicsWorld->TraceRay(State.Origin/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
+        Player->PhysicsWorld->TraceRay(Player->GetOrigin()/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
 
         if (!RayResult.hasHit()) break;
 
@@ -420,16 +420,16 @@ void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(const EntHumanPl
         ParticleEngineMS::RegisterNewParticle(NewParticle);
     }
 
-    const float   ViewDirZ=-LookupTables::Angle16ToSin[State.Pitch];
-    const float   ViewDirY= LookupTables::Angle16ToCos[State.Pitch];
-    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[State.Heading], ViewDirY*LookupTables::Angle16ToCos[State.Heading], ViewDirZ);
+    const float   ViewDirZ=-LookupTables::Angle16ToSin[Player->GetPitch()];
+    const float   ViewDirY= LookupTables::Angle16ToCos[Player->GetPitch()];
+    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
 
     // Register a new particle as "muzzle flash".
     ParticleMST NewParticle;
 
-    NewParticle.Origin[0]=float(State.Origin.x+ViewDir.x*400.0);
-    NewParticle.Origin[1]=float(State.Origin.y+ViewDir.y*400.0);
-    NewParticle.Origin[2]=float(State.Origin.z+ViewDir.z*400.0-100.0);
+    NewParticle.Origin[0]=float(Player->GetOrigin().x+ViewDir.x*400.0);
+    NewParticle.Origin[1]=float(Player->GetOrigin().y+ViewDir.y*400.0);
+    NewParticle.Origin[2]=float(Player->GetOrigin().z+ViewDir.z*400.0-100.0);
 
     NewParticle.Velocity[0]=float(ViewDir.x*1500.0);
     NewParticle.Velocity[1]=float(ViewDir.y*1500.0);
@@ -450,7 +450,7 @@ void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(const EntHumanPl
     ParticleEngineMS::RegisterNewParticle(NewParticle);
 
     // Update sound position and velocity.
-    AltFireSound->SetPosition(State.Origin+scale(ViewDir, 400.0));
+    AltFireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 400.0));
     AltFireSound->SetVelocity(State.Velocity);
 
     // Play the fire sound.

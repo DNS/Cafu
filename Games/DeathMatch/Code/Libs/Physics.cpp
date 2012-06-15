@@ -29,15 +29,23 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Material.hpp"
 
 
-enum PosCatT { InAir, OnSolid };
+PhysicsHelperT::PhysicsHelperT(Vector3dT& Origin, Vector3dT& Velocity, const BoundingBox3dT& Dimensions,
+                               const cf::ClipSys::ClipModelT& ClipModel, const cf::ClipSys::ClipWorldT& ClipWorld)
+    : m_Origin(Origin),
+      m_Velocity(Velocity),
+      m_Dimensions(Dimensions),
+      m_ClipModel(ClipModel),
+      m_ClipWorld(ClipWorld)
+{
+}
 
 
-// Bestimme unsere PosCat innerhalb der World.
-PosCatT CategorizePosition(const EntityStateT& State, const cf::ClipSys::ClipModelT& ClipModel, const cf::ClipSys::ClipWorldT& ClipWorld)
+/// Bestimme unsere PosCat innerhalb der World.
+PhysicsHelperT::PosCatT PhysicsHelperT::CategorizePosition() const
 {
     // Bestimme die Brushes in der unmittelbaren Nähe unserer BB, insb. diejenigen unter uns. Bloate gemäß unserer Dimensions-BoundingBox.
     cf::ClipSys::TraceResultT Trace(1.0);
-    ClipWorld.TraceBoundingBox(State.Dimensions, State.Origin, VectorT(0.0, 0.0, -1.0), MaterialT::Clip_Players, &ClipModel, Trace);
+    m_ClipWorld.TraceBoundingBox(m_Dimensions, m_Origin, VectorT(0.0, 0.0, -1.0), MaterialT::Clip_Players, &m_ClipModel, Trace);
 
     // OLD CODE:
     // return (Trace.Fraction==1.0 || Trace.ImpactNormal.z<0.7) ? InAir : OnSolid;
@@ -55,7 +63,7 @@ PosCatT CategorizePosition(const EntityStateT& State, const cf::ClipSys::ClipMod
         const VectorT SlideOff=VectorT(0.0, 0.0, -1.0)+scale(Trace.ImpactNormal, Trace.ImpactNormal.z);
 
         Trace=cf::ClipSys::TraceResultT(1.0);   // Very important - reset the trace results.
-        ClipWorld.TraceBoundingBox(State.Dimensions, State.Origin, SlideOff, MaterialT::Clip_Players, &ClipModel, Trace);
+        m_ClipWorld.TraceBoundingBox(m_Dimensions, m_Origin, SlideOff, MaterialT::Clip_Players, &m_ClipModel, Trace);
 
         if (Trace.Fraction==1.0) return InAir;
     }
@@ -64,21 +72,21 @@ PosCatT CategorizePosition(const EntityStateT& State, const cf::ClipSys::ClipMod
 }
 
 
-// Ändert die Velocity gemäß der Reibung
-void ApplyFriction(EntityStateT& State, double FrameTime, PosCatT PosCat)
+/// Ändert die Velocity gemäß der Reibung.
+void PhysicsHelperT::ApplyFriction(double FrameTime, PosCatT PosCat)
 {
     const double GroundFriction=4.0;
     const double AirFriction   =0.2;
     const double StopSpeed     =200;
-    double       CurrentSpeed  =length(State.Velocity);
+    double       CurrentSpeed  =length(m_Velocity);
     double       Drop          =0;
 
     // Kontrolliert zum Stillstand kommen
     if (CurrentSpeed<20)
     {
-        State.Velocity.x=0;
-        State.Velocity.y=0;
-     // State.Velocity.z=0;
+        m_Velocity.x=0;
+        m_Velocity.y=0;
+     // m_Velocity.z=0;
         return;
     }
 
@@ -95,12 +103,12 @@ void ApplyFriction(EntityStateT& State, double FrameTime, PosCatT PosCat)
 
     double NewSpeed=CurrentSpeed-Drop;
     if (NewSpeed<0) NewSpeed=0;
-    State.Velocity=scale(State.Velocity, NewSpeed/CurrentSpeed);
+    m_Velocity=scale(m_Velocity, NewSpeed/CurrentSpeed);
 }
 
 
-// Ändert die Velocity gemäß der Beschleunigung
-void ApplyAcceleration(EntityStateT& State, double FrameTime, PosCatT PosCat, const VectorT& WishVelocity)
+/// Ändert die Velocity gemäß der Beschleunigung.
+void PhysicsHelperT::ApplyAcceleration(double FrameTime, PosCatT PosCat, const VectorT& WishVelocity)
 {
     const double AirAcceleration   = 0.7;
     const double GroundAcceleration=10.0;
@@ -111,7 +119,7 @@ void ApplyAcceleration(EntityStateT& State, double FrameTime, PosCatT PosCat, co
     if (WishSpeed>0.001 /*Epsilon*/) WishDir=scale(WishVelocity, 1.0/WishSpeed);
 
     // Velocity auf WishDir projezieren um festzustellen, wie schnell wir sowieso schon in WishDir laufen
-    double CurrentSpeed=dot(State.Velocity, WishDir);
+    double CurrentSpeed=dot(m_Velocity, WishDir);
     double Acceleration=0;
     double AddSpeed    =0;
 
@@ -123,7 +131,7 @@ void ApplyAcceleration(EntityStateT& State, double FrameTime, PosCatT PosCat, co
                       break;
         case OnSolid: Acceleration=GroundAcceleration;
                       AddSpeed=WishSpeed-CurrentSpeed;
-                      // State.Velocity.z=0;
+                      // m_Velocity.z=0;
                       break;
     }
 
@@ -132,39 +140,39 @@ void ApplyAcceleration(EntityStateT& State, double FrameTime, PosCatT PosCat, co
     double AccelSpeed=WishSpeed*FrameTime*Acceleration;
     if (AccelSpeed>AddSpeed) AccelSpeed=AddSpeed;
 
-    State.Velocity=State.Velocity+scale(WishDir, AccelSpeed);
+    m_Velocity=m_Velocity+scale(WishDir, AccelSpeed);
 }
 
 
-// Changes the velocity according to gravity.
-void ApplyGravity(EntityStateT& State, double FrameTime, PosCatT PosCat)
+/// Changes the velocity according to gravity.
+void PhysicsHelperT::ApplyGravity(double FrameTime, PosCatT PosCat)
 {
-    if (PosCat==InAir) State.Velocity.z-=9810.0*FrameTime;
+    if (PosCat==InAir) m_Velocity.z-=9810.0*FrameTime;
 }
 
 
-// This is the basic solid shape movement function that slides the bounding-box of State along multiple planes, according to velocity and time left.
-void FlyMove(EntityStateT& State, double TimeLeft, const cf::ClipSys::ClipModelT& ClipModel, const cf::ClipSys::ClipWorldT& ClipWorld)
+/// This is the basic solid shape movement function that slides the m_Dimensions bounding-box along multiple planes, according to velocity and time left.
+void PhysicsHelperT::FlyMove(double TimeLeft)
 {
-    const VectorT   OriginalVelocity=State.Velocity;
+    const VectorT   OriginalVelocity=m_Velocity;
     ArrayT<VectorT> PlaneNormals;
 
     for (char BumpCount=0; BumpCount<3; BumpCount++)
     {
-        const VectorT             DistLeft=scale(State.Velocity, TimeLeft);
+        const VectorT             DistLeft=scale(m_Velocity, TimeLeft);
         cf::ClipSys::TraceResultT Trace(1.0);
 
-        ClipWorld.TraceBoundingBox(State.Dimensions, State.Origin, DistLeft, MaterialT::Clip_Players, &ClipModel, Trace);
+        m_ClipWorld.TraceBoundingBox(m_Dimensions, m_Origin, DistLeft, MaterialT::Clip_Players, &m_ClipModel, Trace);
 
         if (Trace.StartSolid)               // MassChunk is trapped in another solid
         {
             // Print_32(LFB32,10,55,0x00FFFF88,false,"Trace.StartSolid");
-            State.Velocity=VectorT(0, 0, 0);
+            m_Velocity=VectorT(0, 0, 0);
             return;
         }
 
         // Print_32(LFB32,10,55,0x00FFFF88,false,"Trace.Fraction %5.4f",Trace.Fraction);
-        State.Origin=State.Origin+scale(DistLeft, Trace.Fraction);
+        m_Origin=m_Origin+scale(DistLeft, Trace.Fraction);
         if (Trace.Fraction==1.0) break;     // Moved the entire distance left
 
         // Hit a plane, otherwise
@@ -177,11 +185,11 @@ void FlyMove(EntityStateT& State, double TimeLeft, const cf::ClipSys::ClipModelT
         for (Nr=0; Nr<PlaneNormals.Size(); Nr++)
         {
             // OriginalVelocity auf jede getroffene Plane projezieren
-            State.Velocity=OriginalVelocity-scale(PlaneNormals[Nr], dot(OriginalVelocity, PlaneNormals[Nr]));
+            m_Velocity=OriginalVelocity-scale(PlaneNormals[Nr], dot(OriginalVelocity, PlaneNormals[Nr]));
 
-            // if (fabs(State.Velocity.x)<0.1) State.Velocity.x=0;
-            // if (fabs(State.Velocity.y)<0.1) State.Velocity.y=0;
-            // if (fabs(State.Velocity.z)<0.1) State.Velocity.z=0;
+            // if (fabs(m_Velocity.x)<0.1) m_Velocity.x=0;
+            // if (fabs(m_Velocity.y)<0.1) m_Velocity.y=0;
+            // if (fabs(m_Velocity.z)<0.1) m_Velocity.z=0;
 
             // Testen, ob die Velocity nun auch von allen getroffenen Planes wegzeigt
             unsigned long Nr_;
@@ -189,7 +197,7 @@ void FlyMove(EntityStateT& State, double TimeLeft, const cf::ClipSys::ClipModelT
             for (Nr_=0; Nr_<PlaneNormals.Size(); Nr_++)
             {
                 if (Nr_==Nr) continue;
-                if (dot(State.Velocity, PlaneNormals[Nr_])<0) break;
+                if (dot(m_Velocity, PlaneNormals[Nr_])<0) break;
             }
             if (Nr_==PlaneNormals.Size()) break;
         }
@@ -203,95 +211,95 @@ void FlyMove(EntityStateT& State, double TimeLeft, const cf::ClipSys::ClipModelT
             // Keinen Ausweg gefunden
             if (PlaneNormals.Size()!=2)
             {
-                State.Velocity=VectorT(0, 0, 0);
+                m_Velocity=VectorT(0, 0, 0);
                 break;
             }
 
             // Gehe entlang des Knicks, der Falte
             VectorT Dir=cross(PlaneNormals[0], PlaneNormals[1]);
-            State.Velocity=scale(Dir, dot(Dir, State.Velocity));
+            m_Velocity=scale(Dir, dot(Dir, m_Velocity));
         }
 
         // If Velocity is against the OriginalVelocity, stop dead to avoid tiny occilations in sloping corners
         // (es scheint nicht, als das dies jemals passieren könnte und wir jemals zum if-Code kommen?!?).
-        if (dot(State.Velocity, OriginalVelocity)<=0)
+        if (dot(m_Velocity, OriginalVelocity)<=0)
         {
-            State.Velocity=VectorT(0, 0, 0);
+            m_Velocity=VectorT(0, 0, 0);
             break;
         }
     }
 }
 
 
-// MassChunk is on ground, with no upwards velocity
-void GroundMove(EntityStateT& State, double FrameTime, double StepHeight, const cf::ClipSys::ClipModelT& ClipModel, const cf::ClipSys::ClipWorldT& ClipWorld)
+/// MassChunk is on ground, with no upwards velocity
+void PhysicsHelperT::GroundMove(double FrameTime, double StepHeight)
 {
-    // State.Velocity.z=0;        // Ganz sicher gehen, daß wir an der Höhe wirklich nichts ändern
-    if (!State.Velocity.x && !State.Velocity.y && !State.Velocity.z) return;
+    // m_Velocity.z=0;        // Ganz sicher gehen, daß wir an der Höhe wirklich nichts ändern
+    if (!m_Velocity.x && !m_Velocity.y && !m_Velocity.z) return;
 
     // Zunächst versuchen, das Ziel direkt zu erreichen
-    const VectorT             DistLeft=scale(State.Velocity, FrameTime);
+    const VectorT             DistLeft=scale(m_Velocity, FrameTime);
     cf::ClipSys::TraceResultT Trace(1.0);
 
-    ClipWorld.TraceBoundingBox(State.Dimensions, State.Origin, DistLeft, MaterialT::Clip_Players, &ClipModel, Trace);
+    m_ClipWorld.TraceBoundingBox(m_Dimensions, m_Origin, DistLeft, MaterialT::Clip_Players, &m_ClipModel, Trace);
 
     if (Trace.Fraction==1.0)
     {
-        State.Origin=State.Origin+DistLeft;
+        m_Origin=m_Origin+DistLeft;
         return;
     }
 
     // Versuche auf dem Boden sowie StepHeight Units höher vorwärts zu gleiten,
     // und nimm die Bewegung, die am weitesten führt.
-    VectorT OriginalPos=State.Origin;
-    VectorT OriginalVel=State.Velocity;
+    VectorT OriginalPos=m_Origin;
+    VectorT OriginalVel=m_Velocity;
 
-    FlyMove(State, FrameTime, ClipModel, ClipWorld);    // Correctly slide along walls, just calling ClipWorld.TraceBoundingBox() is not enough.
+    FlyMove(FrameTime);     // Correctly slide along walls, just calling m_ClipWorld.TraceBoundingBox() is not enough.
 
-    VectorT GroundPos=State.Origin;
-    VectorT GroundVel=State.Velocity;
+    VectorT GroundPos=m_Origin;
+    VectorT GroundVel=m_Velocity;
 
     // Restore original position and velocity.
-    State.Origin  =OriginalPos;
-    State.Velocity=OriginalVel;
+    m_Origin  =OriginalPos;
+    m_Velocity=OriginalVel;
 
     // One step up.
     const VectorT StepUp  =VectorT(0, 0,  StepHeight);
     const VectorT StepDown=VectorT(0, 0, -StepHeight);
 
     Trace=cf::ClipSys::TraceResultT(1.0);   // Very important - reset the trace results.
-    ClipWorld.TraceBoundingBox(State.Dimensions, State.Origin, StepUp, MaterialT::Clip_Players, &ClipModel, Trace);
-    State.Origin=State.Origin+scale(StepUp, Trace.Fraction);
+    m_ClipWorld.TraceBoundingBox(m_Dimensions, m_Origin, StepUp, MaterialT::Clip_Players, &m_ClipModel, Trace);
+    m_Origin=m_Origin+scale(StepUp, Trace.Fraction);
 
     // Then forward.
-    FlyMove(State, FrameTime, ClipModel, ClipWorld);
+    FlyMove(FrameTime);
 
     // One step down again.
     Trace=cf::ClipSys::TraceResultT(1.0);   // Very important - reset the trace results.
-    ClipWorld.TraceBoundingBox(State.Dimensions, State.Origin, StepDown, MaterialT::Clip_Players, &ClipModel, Trace);
+    m_ClipWorld.TraceBoundingBox(m_Dimensions, m_Origin, StepDown, MaterialT::Clip_Players, &m_ClipModel, Trace);
 
     // Don't climb up somewhere where it is pointless.
     if (Trace.Fraction<1.0 && Trace.ImpactNormal.z<0.7)
     {
-        State.Origin  =GroundPos;
-        State.Velocity=GroundVel;
+        m_Origin  =GroundPos;
+        m_Velocity=GroundVel;
         return;
     }
 
-    State.Origin=State.Origin+scale(StepDown, Trace.Fraction);
+    m_Origin=m_Origin+scale(StepDown, Trace.Fraction);
 
-    // VectorT StepPos=State.Origin;
-    // VectorT StepVel=State.Velocity;
+    // VectorT StepPos=m_Origin;
+    // VectorT StepVel=m_Velocity;
 
     double GroundDist=length(GroundPos   -OriginalPos);
-    double StepDist  =length(State.Origin-OriginalPos);
+    double StepDist  =length(m_Origin-OriginalPos);
 
     if (GroundDist>StepDist)
     {
-        State.Origin  =GroundPos;
-        State.Velocity=GroundVel;
+        m_Origin  =GroundPos;
+        m_Velocity=GroundVel;
     }
-    // else State.Velocity.z=GroundVel.z;     // ????????
+    // else m_Velocity.z=GroundVel.z;     // ????????
 
     // StepHeight doesn't only help with walking steps up, it also helps
     // with walking down (steps or light declines/slopes, not steeper than steps).
@@ -300,25 +308,26 @@ void GroundMove(EntityStateT& State, double FrameTime, double StepHeight, const 
 }
 
 
-void Physics::MoveHuman(EntityStateT& State, const cf::ClipSys::ClipModelT& ClipModel, float FrameTime, const VectorT& WishVelocity, const VectorT& WishVelLadder, bool WishJump, bool& OldWishJump, double StepHeight, const cf::ClipSys::ClipWorldT& ClipWorld)
+void PhysicsHelperT::MoveHuman(float FrameTime, unsigned short Heading, const VectorT& WishVelocity,
+                               const VectorT& WishVelLadder, bool WishJump, bool& OldWishJump, double StepHeight)
 {
     // 1. Die Positions-Kategorie des MassChunks bestimmen:
     //    Wir können uns in der Luft befinden (im Flug/freien Fall oder schwebend im Wasser),
     //    oder auf einem Entity stehen (dazu gehören die Map, alle Objekte wie Türen usw., Monster und andere Spieler).
     //    Unabhängig davon kann in beiden Fällen das Wasser verschieden hoch stehen.
-    PosCatT PosCat=CategorizePosition(State, ClipModel, ClipWorld);
+    PosCatT PosCat=CategorizePosition();
 
 
     // 2. Determine if we are on a ladder.
     // ViewDir should probably be perpendicular to the gravity vector...
-    const Vector3dT ViewDir=Vector3dT(LookupTables::Angle16ToSin[State.Heading], LookupTables::Angle16ToCos[State.Heading], 0.0);
+    const Vector3dT ViewDir=Vector3dT(LookupTables::Angle16ToSin[Heading], LookupTables::Angle16ToCos[Heading], 0.0);
 
-    // Note that contrary to ClipWorld.TraceBoundingBox(), ClipWorld.GetContacts() doesn't consider the world,
+    // Note that contrary to m_ClipWorld.TraceBoundingBox(), m_ClipWorld.GetContacts() doesn't consider the world,
     // which is very helpful in some situations.
     cf::ClipSys::ContactsResultT Contacts;
     cf::ClipSys::TraceResultT    LadderResult(1.0);
 
-    ClipWorld.GetContacts(State.Dimensions, State.Origin, ViewDir*150.0, MaterialT::Clip_Players, &ClipModel, Contacts);
+    m_ClipWorld.GetContacts(m_Dimensions, m_Origin, ViewDir*150.0, MaterialT::Clip_Players, &m_ClipModel, Contacts);
 
     for (unsigned long ContactNr=0; LadderResult.Fraction==1.0 && ContactNr<Contacts.NrOfRepContacts; ContactNr++)
     {
@@ -337,8 +346,8 @@ void Physics::MoveHuman(EntityStateT& State, const cf::ClipSys::ClipModelT& Clip
             if (!OldWishJump)
             {
                 OldWishJump=true;
-                // TODO: Move 'State.Origin' along 'ImpactNormal' until we do not touch this brush any longer.
-                State.Velocity=scale(LadderResult.ImpactNormal, 6200.0);    // 6200 is just a guessed value.
+                // TODO: Move 'm_Origin' along 'ImpactNormal' until we do not touch this brush any longer.
+                m_Velocity=scale(LadderResult.ImpactNormal, 6200.0);    // 6200 is just a guessed value.
             }
         }
         else
@@ -357,9 +366,9 @@ void Physics::MoveHuman(EntityStateT& State, const cf::ClipSys::ClipModelT& Clip
             // that is roughly vertically perpendicular to the face of the latter.
             // Note: It IS possible to face up and move down or face down and move up, because the velocity
             // is a sum of the directional velocity and the converted velocity through the face of the ladder.
-            State.Velocity=Lateral-scale(cross(LadderResult.ImpactNormal, Perpend), Normal);
+            m_Velocity=Lateral-scale(cross(LadderResult.ImpactNormal, Perpend), Normal);
 
-            if (PosCat==OnSolid && Normal>0) State.Velocity=State.Velocity+scale(LadderResult.ImpactNormal, 4200.0);
+            if (PosCat==OnSolid && Normal>0) m_Velocity=m_Velocity+scale(LadderResult.ImpactNormal, 4200.0);
             OldWishJump=false;
         }
     }
@@ -382,7 +391,7 @@ void Physics::MoveHuman(EntityStateT& State, const cf::ClipSys::ClipModelT& Clip
         //      InAir     1  1    nothing
         //      OnGround  0  0    nothing (or OWJ=false;)
         //      OnGround  0  1    OWJ=false;
-        //      OnGround  1  0    OWJ=true; (and jump: PosCat=InAir; State.Velocity.z+=...;)
+        //      OnGround  1  0    OWJ=true; (and jump: PosCat=InAir; m_Velocity.z+=...;)
         //      OnGround  1  1    nothing
         if (WishJump)
         {
@@ -394,16 +403,16 @@ void Physics::MoveHuman(EntityStateT& State, const cf::ClipSys::ClipModelT& Clip
                 {
                     // Jump
                     PosCat=InAir;
-                    State.Velocity.z+=5624.0;   // v=sqrt(2*a*s), mit s = 44" = 44*0.026m = 1.144m für normalen Jump, und s = 62" = 1.612m für crouch-Jump.
+                    m_Velocity.z+=5624.0;   // v=sqrt(2*a*s), mit s = 44" = 44*0.026m = 1.144m für normalen Jump, und s = 62" = 1.612m für crouch-Jump.
                 }
             }
         }
         else OldWishJump=false;
 
         // 3.2. Apply Physics
-        ApplyFriction    (State, FrameTime, PosCat);
-        ApplyAcceleration(State, FrameTime, PosCat, WishVelocity);
-        ApplyGravity     (State, FrameTime, PosCat);
+        ApplyFriction    (FrameTime, PosCat);
+        ApplyAcceleration(FrameTime, PosCat, WishVelocity);
+        ApplyGravity     (FrameTime, PosCat);
     }
 
 
@@ -411,7 +420,7 @@ void Physics::MoveHuman(EntityStateT& State, const cf::ClipSys::ClipModelT& Clip
     //    Bestimme dazu alle Brushes, die unsere Bewegung evtl. behindern könnten, gebloated gemäß unserer Dimensions-BoundingBox.
     switch (PosCat)
     {
-        case InAir  : FlyMove   (State, FrameTime,             ClipModel, ClipWorld); break;
-        case OnSolid: GroundMove(State, FrameTime, StepHeight, ClipModel, ClipWorld); break;
+        case InAir:   FlyMove   (FrameTime);             break;
+        case OnSolid: GroundMove(FrameTime, StepHeight); break;
     }
 }

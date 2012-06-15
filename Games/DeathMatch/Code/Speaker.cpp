@@ -101,12 +101,12 @@ EntSpeakerT::~EntSpeakerT()
 
 void EntSpeakerT::PostDraw(float FrameTime, bool FirstPersonView)
 {
-    m_Sound->SetPosition(State.Origin);
+    m_Sound->SetPosition(m_Origin);
 
-    const float ViewDirZ=-LookupTables::Angle16ToSin[State.Pitch];
-    const float ViewDirY= LookupTables::Angle16ToCos[State.Pitch];
+    const float ViewDirZ=-LookupTables::Angle16ToSin[m_Pitch];
+    const float ViewDirY= LookupTables::Angle16ToCos[m_Pitch];
 
-    const Vector3dT Direction(ViewDirY*LookupTables::Angle16ToSin[State.Heading], ViewDirY*LookupTables::Angle16ToCos[State.Heading], ViewDirZ);
+    const Vector3dT Direction(ViewDirY*LookupTables::Angle16ToSin[m_Heading], ViewDirY*LookupTables::Angle16ToCos[m_Heading], ViewDirZ);
 
     m_Sound->SetDirection(Direction);
 

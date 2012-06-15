@@ -101,20 +101,20 @@ void EntEagleT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
         {
             case CruiseFlight:
             {
-                // State.Heading+=1820.0*FrameTime;    // Kreise mit ca. 10 Grad pro Sekunde
+                // m_Heading+=1820.0*FrameTime;    // Kreise mit ca. 10 Grad pro Sekunde
 
                 cf::ClipSys::TraceResultT Result(1.0);
-                const Vector3dT           FlightDir=Vector3dT(LookupTables::Angle16ToSin[State.Heading], LookupTables::Angle16ToCos[State.Heading], 0.0);
+                const Vector3dT           FlightDir=Vector3dT(LookupTables::Angle16ToSin[m_Heading], LookupTables::Angle16ToCos[m_Heading], 0.0);
 
-                GameWorld->GetClipWorld().TraceRay(State.Origin, FlightDir*999999.9, MaterialT::Clip_Players, NULL, Result);
+                GameWorld->GetClipWorld().TraceRay(m_Origin, FlightDir*999999.9, MaterialT::Clip_Players, NULL, Result);
 
                 const float TerrainDistance=float(999999.9*Result.Fraction);
 
                 if (TerrainDistance>ManeuverDistance+FlightDistance)
                 {
                     // Continue cruise flight
-                    State.Origin.x+=LookupTables::Angle16ToSin[State.Heading]*FlightDistance;
-                    State.Origin.y+=LookupTables::Angle16ToCos[State.Heading]*FlightDistance;
+                    m_Origin.x+=LookupTables::Angle16ToSin[m_Heading]*FlightDistance;
+                    m_Origin.y+=LookupTables::Angle16ToCos[m_Heading]*FlightDistance;
 
                     FigureLeft=1.0;     // Muß einen Wert größer 0 zuweisen, damit die while-Schleife verlassen wird!
                     break;
@@ -122,11 +122,11 @@ void EntEagleT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 
                 // Uh! Terrain ahead! Initiate emergency turn maneuver!
                 // 80% der verbleibenden Strecke für das Gesamtmanöver nutzen, und davon jeweils 1/3 für die einzelnen Figuren.
-                // State.Origin  =VectorT(5000.0, 45000.0, -4000.0);    // Activate this for debugging in JrBase1
+                // m_Origin  =VectorT(5000.0, 45000.0, -4000.0);    // Activate this for debugging in JrBase1
                 FigureDistance=TerrainDistance*0.8f/3.0f;
-                OldOrigin     =State.Origin;
-                LoopCenter    =State.Origin+VectorT(2.0*FigureDistance*LookupTables::Angle16ToSin[State.Heading],
-                                                    2.0*FigureDistance*LookupTables::Angle16ToCos[State.Heading],
+                OldOrigin     =m_Origin;
+                LoopCenter    =m_Origin+VectorT(2.0*FigureDistance*LookupTables::Angle16ToSin[m_Heading],
+                                                    2.0*FigureDistance*LookupTables::Angle16ToCos[m_Heading],
                                                        -FigureDistance);
 
                 // Zustandswechsel nach ControlledCruise vorbereiten
@@ -138,8 +138,8 @@ void EntEagleT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
             case ControlledCruise:
                 FigureLeft-=FlightDistance;
 
-                State.Origin.x+=LookupTables::Angle16ToSin[State.Heading]*FlightDistance;
-                State.Origin.y+=LookupTables::Angle16ToCos[State.Heading]*FlightDistance;
+                m_Origin.x+=LookupTables::Angle16ToSin[m_Heading]*FlightDistance;
+                m_Origin.y+=LookupTables::Angle16ToCos[m_Heading]*FlightDistance;
 
                 if (FigureLeft>0.0) break;
 
@@ -155,18 +155,18 @@ void EntEagleT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
                 const unsigned short DegreesLeft=(unsigned short)(FigureLeft/FigureDistance/Pi*32768.0);
                 const float          HorLoopPos =LookupTables::Angle16ToSin[DegreesLeft]*FigureDistance;    // Nur eine Abkürzung
 
-                State.Origin.x=LoopCenter.x+LookupTables::Angle16ToSin[State.Heading]*HorLoopPos;
-                State.Origin.y=LoopCenter.y+LookupTables::Angle16ToCos[State.Heading]*HorLoopPos;
-                State.Origin.z=LoopCenter.z-                                          LookupTables::Angle16ToCos[DegreesLeft]*FigureDistance;   // VerLoopPos
-                State.Pitch   =32768-DegreesLeft;
-                State.Bank    =State.Pitch;
+                m_Origin.x=LoopCenter.x+LookupTables::Angle16ToSin[m_Heading]*HorLoopPos;
+                m_Origin.y=LoopCenter.y+LookupTables::Angle16ToCos[m_Heading]*HorLoopPos;
+                m_Origin.z=LoopCenter.z-                                          LookupTables::Angle16ToCos[DegreesLeft]*FigureDistance;   // VerLoopPos
+                m_Pitch   =32768-DegreesLeft;
+                m_Bank    =m_Pitch;
 
                 if (FigureLeft>0.0) break;
 
                 // Zustandswechsel nach ClimpBackToCruiseAlt vorbereiten
-                State.Heading+=32768;
-                State.Pitch   =0;
-                State.Bank    =0;
+                m_Heading+=32768;
+                m_Pitch   =0;
+                m_Bank    =0;
 
                 // Die nächste Figur ist der "Cosinus-Aufschwung" auf die alte Flughöhe.
                 // Auf geradem Wege würde eine Diagonale abgeflogen, deren Länge 2.0*1.414213562373*FigureDistance beträgt.
@@ -183,15 +183,15 @@ void EntEagleT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
                 const float          GroundDistLeft=FigureLeft/1.5f;                                            // Wieviel "über Grund" noch abzufliegen ist
                 const unsigned short DegreesLeft   =(unsigned short)(GroundDistLeft/FigureDistance*16384.0f);   // Wieviel "Degrees" dies entspricht
 
-                State.Origin.x=OldOrigin.x-LookupTables::Angle16ToSin[State.Heading]*GroundDistLeft;    // Beachte: Wir sind jetzt auf Umkehrkurs!
-                State.Origin.y=OldOrigin.y-LookupTables::Angle16ToCos[State.Heading]*GroundDistLeft;
-                State.Origin.z=OldOrigin.z+FigureDistance*(LookupTables::Angle16ToCos[DegreesLeft]-1.0f);
+                m_Origin.x=OldOrigin.x-LookupTables::Angle16ToSin[m_Heading]*GroundDistLeft;    // Beachte: Wir sind jetzt auf Umkehrkurs!
+                m_Origin.y=OldOrigin.y-LookupTables::Angle16ToCos[m_Heading]*GroundDistLeft;
+                m_Origin.z=OldOrigin.z+FigureDistance*(LookupTables::Angle16ToCos[DegreesLeft]-1.0f);
 
                 if (FigureLeft>0.0) break;
 
                 // Zustandswechsel nach CruiseFlight vorbereiten
-                State.Origin  = OldOrigin;
-                // State.Heading+= rand() >> 4;
+                m_Origin  = OldOrigin;
+                // m_Heading+= rand() >> 4;
                 FlightDistance=-FigureLeft;
                 FlightState   = CruiseFlight;
                 // Intentional fall-through!
@@ -208,8 +208,8 @@ void EntEagleT::Draw(bool /*FirstPersonView*/, float LodDist) const
     Vector3fT   LgtPos(MatSys::Renderer->GetCurrentLightSourcePosition());
     Vector3fT   EyePos(MatSys::Renderer->GetCurrentEyePosition());
 
-    const float DegPitch=float(State.Pitch)/8192.0f*45.0f;
-    const float DegBank =float(State.Bank )/8192.0f*45.0f;
+    const float DegPitch=float(m_Pitch)/8192.0f*45.0f;
+    const float DegBank =float(m_Bank )/8192.0f*45.0f;
 
     LgtPos=LgtPos.GetRotY(-DegPitch);
     EyePos=EyePos.GetRotY(-DegPitch);
@@ -237,7 +237,7 @@ void EntEagleT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
     State.ModelFrameNr=StdAE->GetFrameNr();
 
     // Update sound position and velocity.
-    EagleCry->SetPosition(State.Origin);
+    EagleCry->SetPosition(m_Origin);
     EagleCry->SetVelocity(State.Velocity);
 
     TimeUntilNextCry-=FrameTime;

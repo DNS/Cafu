@@ -76,12 +76,12 @@ EntWeaponT::EntWeaponT(const EntityCreateParamsT& Params, const std::string& Mod
       Respawn(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Item/Respawn")))
 {
     // Drop weapons on ground. It doesn't look good when they hover in the air.
-    // TODO: Do this only on the server side, it doesn't make sense for clients (where State.Origin==(0, 0, 0) here).
+    // TODO: Do this only on the server side, it doesn't make sense for clients (where m_Origin==(0, 0, 0) here).
     RayResultT RayResult(NULL /*No object to ignore*/);
-    PhysicsWorld->TraceRay((State.Origin+Vector3dT(0, 0, 200.0))/1000.0, VectorT(0.0, 0.0, -999999.0/1000.0), RayResult);
+    PhysicsWorld->TraceRay((m_Origin+Vector3dT(0, 0, 200.0))/1000.0, VectorT(0.0, 0.0, -999999.0/1000.0), RayResult);
 
     if (RayResult.hasHit())
-        State.Origin=convd(RayResult.m_hitPointWorld)*1000.0;
+        m_Origin=convd(RayResult.m_hitPointWorld)*1000.0;
 }
 
 
@@ -140,6 +140,6 @@ void EntWeaponT::Draw(bool /*FirstPersonView*/, float LodDist) const
 void EntWeaponT::PostDraw(float FrameTime, bool FirstPersonView)
 {
     // Set sound position to entity origin.
-    PickUp ->SetPosition(State.Origin);
-    Respawn->SetPosition(State.Origin);
+    PickUp ->SetPosition(m_Origin);
+    Respawn->SetPosition(m_Origin);
 }

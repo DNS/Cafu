@@ -65,6 +65,7 @@ EntHandGrenadeT::EntHandGrenadeT(const EntityCreateParamsT& Params)
                                0,       // ActiveWeaponSlot
                                0,       // ActiveWeaponSequNr
                                0.0)),   // ActiveWeaponFrameNr
+      m_Physics(m_Origin, State.Velocity, m_Dimensions, ClipModel, GameWorld->GetClipWorld()),
       m_Model(Params.GameWorld->GetModel("Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl")),
       m_FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/Shotgun_dBarrel")))
 {
@@ -91,7 +92,7 @@ void EntHandGrenadeT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
     {
         bool OldWishJump=false;
 
-        Physics::MoveHuman(State, ClipModel, FrameTime, VectorT() /*WishVelocity*/, VectorT() /*WishVelLadder*/, false /*WishJump*/, OldWishJump, 0.0, GameWorld->GetClipWorld());
+        m_Physics.MoveHuman(FrameTime, m_Heading, VectorT() /*WishVelocity*/, VectorT() /*WishVelLadder*/, false /*WishJump*/, OldWishJump, 0.0);
     }
     else if (State.ActiveWeaponFrameNr<6.0)     // (3.0<=State.ActiveWeaponFrameNr<6.0)
     {
@@ -114,7 +115,7 @@ void EntHandGrenadeT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
                 // a) With (e.g.) EntHumanPlayerTs, the Dimensions are static and the Origin moves, but
                 // b) with EntRigidBodyTs, the Dimensions move while the Origin remains at (0, 0, 0).
                 const Vector3dT OtherOrigin=OtherEntity->GetDimensions().GetCenter() + OtherEntity->GetOrigin();
-                const Vector3dT Impact     =OtherOrigin-State.Origin;
+                const Vector3dT Impact     =OtherOrigin-m_Origin;
                 const double    Dist       =length(Impact);
 
                      if (Dist<1000.0) OtherEntity->TakeDamage(this, 100                         , scale(Impact, 1.0/Dist));
@@ -169,7 +170,7 @@ void EntHandGrenadeT::ProcessEvent(unsigned int /*EventType*/, unsigned int /*Nu
 {
     // We only receive a single event here ("Detonation!"), thus there is no need to look at 'EventID'.
     // Update sound position.
-    m_FireSound->SetPosition(State.Origin);
+    m_FireSound->SetPosition(m_Origin);
 
     // Play the fire sound.
     m_FireSound->Play();
@@ -177,9 +178,9 @@ void EntHandGrenadeT::ProcessEvent(unsigned int /*EventType*/, unsigned int /*Nu
     // Register explosion particles.
     static ParticleMST NewParticle;
 
-    NewParticle.Origin[0]=float(State.Origin.x);
-    NewParticle.Origin[1]=float(State.Origin.y);
-    NewParticle.Origin[2]=float(State.Origin.z+200.0);
+    NewParticle.Origin[0]=float(m_Origin.x);
+    NewParticle.Origin[1]=float(m_Origin.y);
+    NewParticle.Origin[2]=float(m_Origin.z+200.0);
 
     NewParticle.Age=0.0;
     NewParticle.Color[0]=255;
@@ -197,9 +198,9 @@ void EntHandGrenadeT::ProcessEvent(unsigned int /*EventType*/, unsigned int /*Nu
 
     for (char i=0; i<20; i++)
     {
-        NewParticle.Origin[0]=float(State.Origin.x);
-        NewParticle.Origin[1]=float(State.Origin.y);
-        NewParticle.Origin[2]=float(State.Origin.z);
+        NewParticle.Origin[0]=float(m_Origin.x);
+        NewParticle.Origin[1]=float(m_Origin.y);
+        NewParticle.Origin[2]=float(m_Origin.z);
 
         NewParticle.Velocity[0]=float(rand()-int(RAND_MAX/2));
         NewParticle.Velocity[1]=float(rand()-int(RAND_MAX/2));
@@ -236,7 +237,7 @@ bool EntHandGrenadeT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned l
 
     DiffuseColor =(Blue << 16)+(Green << 8)+Red;
     SpecularColor=DiffuseColor;
-    Position     =State.Origin;
+    Position     =m_Origin;
     Radius       =10000.0;
     CastsShadows =true;
 

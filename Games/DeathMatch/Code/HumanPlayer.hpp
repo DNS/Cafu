@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "../../BaseEntity.hpp"
 #include "../../PlayerCommand.hpp"
+#include "Libs/Physics.hpp"
 #include "btBulletDynamicsCommon.h"
 
 
@@ -44,6 +45,8 @@ class EntHumanPlayerT : public BaseEntityT, public btMotionState
 
     EntityStateT& GetState() { return State; }
     const EntityStateT& GetState() const { return State; }
+    unsigned short GetPitch() const { return m_Pitch; }
+    unsigned short GetBank() const { return m_Bank; }
     const btRigidBody* GetRigidBody() const { return m_RigidBody; }
 
     // Implement the BaseEntityT interface.
@@ -73,6 +76,7 @@ class EntHumanPlayerT : public BaseEntityT, public btMotionState
 
     ArrayT<PlayerCommandT> PlayerCommands;
 
+    PhysicsHelperT    m_Physics;
     btCollisionShape* m_CollisionShape;         ///< The collision shape that is used to approximate and represent this player in the physics world.
     btRigidBody*      m_RigidBody;              ///< The rigid body (of "kinematic" type) for use in the physics world.
 

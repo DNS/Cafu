@@ -596,11 +596,11 @@ EntHumanPlayerT::EntHumanPlayerT(char TypeID, unsigned long ID, unsigned long Ma
 
     // We finally have gathered enough information to set-up the state of this entity.
     State.Flags         =0;
-    State.Origin        =NodeSequence[State.Flags].StopCoordinate;
+    m_Origin            =NodeSequence[State.Flags].StopCoordinate;
     State.Velocity      =VectorT();
-    State.Heading       =(unsigned short)NodeSequence[State.Flags].ThisHeading;
-    State.Pitch         =(unsigned short)NodeSequence[State.Flags].ThisPitch;
-    State.Bank          =(unsigned short)NodeSequence[State.Flags].ThisBank;
+    m_Heading           =(unsigned short)NodeSequence[State.Flags].ThisHeading;
+    m_Pitch             =(unsigned short)NodeSequence[State.Flags].ThisPitch;
+    m_Bank              =(unsigned short)NodeSequence[State.Flags].ThisBank;
  // State_CountCorrect  =0;
  // State_CountIncorrect=0;
  // State_CountMissed   =0;
@@ -614,8 +614,8 @@ EntHumanPlayerT::EntHumanPlayerT(char TypeID, unsigned long ID, unsigned long Ma
 
     // LABYRINTH-SIZE TRICK, PART #0:
     // (See PART #1 and #2 for a description.)
-    State.Origin=State.Origin-NodeSequence[State.Flags].Coordinate;
-    if (ConstantHeading) State.Origin=State.Origin-VectorT(0.0, 0.15*4876.8, 0.0);
+    m_Origin=m_Origin-NodeSequence[State.Flags].Coordinate;
+    if (ConstantHeading) m_Origin=m_Origin-VectorT(0.0, 0.15*4876.8, 0.0);
 }
 
 
@@ -701,8 +701,8 @@ void EntHumanPlayerT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 
     // LABYRINTH-SIZE TRICK, PART #1:
     // The following line un-does the second part of the trick, which is at the end of this method.
-    State.Origin=State.Origin+NodeSequence[State.Flags].Coordinate;
-    if (ConstantHeading) State.Origin=State.Origin+VectorT(0.0, 0.15*4876.8, 0.0);
+    m_Origin=m_Origin+NodeSequence[State.Flags].Coordinate;
+    if (ConstantHeading) m_Origin=m_Origin+VectorT(0.0, 0.15*4876.8, 0.0);
 
     for (unsigned long PCNr=0; PCNr<PlayerCommands.Size(); PCNr++)
     {
@@ -966,11 +966,11 @@ void EntHumanPlayerT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
                 }
 
                 const double TurnRatio=State.Velocity.x/TotalTurnTime;
-                State.Origin =scale(NodeSequence[State.Flags-1].Coordinate    ,     TurnRatio)+
-                              scale(NodeSequence[State.Flags-1].StopCoordinate, 1.0-TurnRatio);
-                State.Heading=(unsigned short)(TurnRatio*NodeSequence[State.Flags].ThisHeading+(1.0-TurnRatio)*NodeSequence[State.Flags].PrevHeading);
-                State.Pitch  =(unsigned short)(TurnRatio*NodeSequence[State.Flags].ThisPitch  +(1.0-TurnRatio)*NodeSequence[State.Flags].PrevPitch);
-                State.Bank   =(unsigned short)(TurnRatio*NodeSequence[State.Flags].ThisBank   +(1.0-TurnRatio)*NodeSequence[State.Flags].PrevBank);
+                m_Origin =scale(NodeSequence[State.Flags-1].Coordinate    ,     TurnRatio)+
+                          scale(NodeSequence[State.Flags-1].StopCoordinate, 1.0-TurnRatio);
+                m_Heading=(unsigned short)(TurnRatio*NodeSequence[State.Flags].ThisHeading+(1.0-TurnRatio)*NodeSequence[State.Flags].PrevHeading);
+                m_Pitch  =(unsigned short)(TurnRatio*NodeSequence[State.Flags].ThisPitch  +(1.0-TurnRatio)*NodeSequence[State.Flags].PrevPitch);
+                m_Bank   =(unsigned short)(TurnRatio*NodeSequence[State.Flags].ThisBank   +(1.0-TurnRatio)*NodeSequence[State.Flags].PrevBank);
 
 
                 const bool YesIsPressed=(PlayerCommands[PCNr].Keys & YES_KEYS)!=0;
@@ -1019,10 +1019,10 @@ void EntHumanPlayerT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 
                 // TRANSIT TO THE NEXT STATE
                 State.Velocity.x=0.0;
-                State.Origin =NodeSequence[State.Flags-1].Coordinate;
-                State.Heading=(unsigned short)NodeSequence[State.Flags].ThisHeading;
-                State.Pitch  =(unsigned short)NodeSequence[State.Flags].ThisPitch;
-                State.Bank   =(unsigned short)NodeSequence[State.Flags].ThisBank;
+                m_Origin =NodeSequence[State.Flags-1].Coordinate;
+                m_Heading=(unsigned short)NodeSequence[State.Flags].ThisHeading;
+                m_Pitch  =(unsigned short)NodeSequence[State.Flags].ThisPitch;
+                m_Bank   =(unsigned short)NodeSequence[State.Flags].ThisBank;
                 State.StateOfExistance=StateOfExistance_InFlightToNextNode_W4Input;
                 break;
             }
@@ -1032,20 +1032,20 @@ void EntHumanPlayerT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
                 State.Velocity.x+=PlayerCommands[PCNr].FrameTime;
 
                 const double TurnRatio=State.Velocity.x/TotalTurnTime;
-                State.Origin =scale(NodeSequence[State.Flags-1].Coordinate    ,     TurnRatio)+
-                              scale(NodeSequence[State.Flags-1].StopCoordinate, 1.0-TurnRatio);
-                State.Heading=(unsigned short)(TurnRatio*NodeSequence[State.Flags].ThisHeading+(1.0-TurnRatio)*NodeSequence[State.Flags].PrevHeading);
-                State.Pitch  =(unsigned short)(TurnRatio*NodeSequence[State.Flags].ThisPitch  +(1.0-TurnRatio)*NodeSequence[State.Flags].PrevPitch);
-                State.Bank   =(unsigned short)(TurnRatio*NodeSequence[State.Flags].ThisBank   +(1.0-TurnRatio)*NodeSequence[State.Flags].PrevBank);
+                m_Origin =scale(NodeSequence[State.Flags-1].Coordinate    ,     TurnRatio)+
+                          scale(NodeSequence[State.Flags-1].StopCoordinate, 1.0-TurnRatio);
+                m_Heading=(unsigned short)(TurnRatio*NodeSequence[State.Flags].ThisHeading+(1.0-TurnRatio)*NodeSequence[State.Flags].PrevHeading);
+                m_Pitch  =(unsigned short)(TurnRatio*NodeSequence[State.Flags].ThisPitch  +(1.0-TurnRatio)*NodeSequence[State.Flags].PrevPitch);
+                m_Bank   =(unsigned short)(TurnRatio*NodeSequence[State.Flags].ThisBank   +(1.0-TurnRatio)*NodeSequence[State.Flags].PrevBank);
 
                 if (State.Velocity.x<TotalTurnTime) break;
 
                 // TRANSIT TO THE NEXT STATE
                 State.Velocity.x=0.0;
-                State.Origin =NodeSequence[State.Flags-1].Coordinate;
-                State.Heading=(unsigned short)NodeSequence[State.Flags].ThisHeading;
-                State.Pitch  =(unsigned short)NodeSequence[State.Flags].ThisPitch;
-                State.Bank   =(unsigned short)NodeSequence[State.Flags].ThisBank;
+                m_Origin =NodeSequence[State.Flags-1].Coordinate;
+                m_Heading=(unsigned short)NodeSequence[State.Flags].ThisHeading;
+                m_Pitch  =(unsigned short)NodeSequence[State.Flags].ThisPitch;
+                m_Bank   =(unsigned short)NodeSequence[State.Flags].ThisBank;
                 State.StateOfExistance=(QueryMode!=1) ? StateOfExistance_InFlightToNextNode_NoInput : StateOfExistance_InFlightToNextNode_W4Input;
                 break;
             }
@@ -1055,8 +1055,8 @@ void EntHumanPlayerT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
                 State.Velocity.x+=PlayerCommands[PCNr].FrameTime;
 
                 const double FlightPathRatio=State.Velocity.x/TotalPathTime;
-                State.Origin=scale(NodeSequence[State.Flags  ].StopCoordinate,     FlightPathRatio)+
-                             scale(NodeSequence[State.Flags-1].Coordinate    , 1.0-FlightPathRatio);
+                m_Origin=scale(NodeSequence[State.Flags  ].StopCoordinate,     FlightPathRatio)+
+                         scale(NodeSequence[State.Flags-1].Coordinate    , 1.0-FlightPathRatio);
 
 
                 const bool YesIsPressed=(PlayerCommands[PCNr].Keys & YES_KEYS)!=0;
@@ -1105,7 +1105,7 @@ void EntHumanPlayerT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 
                 // TRANSIT TO THE NEXT STATE
                 State.Velocity.x=0.0;
-                State.Origin=NodeSequence[State.Flags].StopCoordinate;
+                m_Origin=NodeSequence[State.Flags].StopCoordinate;
                 State.StateOfExistance=StateOfExistance_W4EndOfIdleTime_W4Input;
                 break;
             }
@@ -1115,14 +1115,14 @@ void EntHumanPlayerT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
                 State.Velocity.x+=PlayerCommands[PCNr].FrameTime;
 
                 const double FlightPathRatio=State.Velocity.x/TotalPathTime;
-                State.Origin=scale(NodeSequence[State.Flags  ].StopCoordinate,     FlightPathRatio)+
-                             scale(NodeSequence[State.Flags-1].Coordinate    , 1.0-FlightPathRatio);
+                m_Origin=scale(NodeSequence[State.Flags  ].StopCoordinate,     FlightPathRatio)+
+                         scale(NodeSequence[State.Flags-1].Coordinate    , 1.0-FlightPathRatio);
 
                 if (State.Velocity.x<TotalPathTime) break;
 
                 // TRANSIT TO THE NEXT STATE
                 State.Velocity.x=0.0;
-                State.Origin=NodeSequence[State.Flags].StopCoordinate;
+                m_Origin=NodeSequence[State.Flags].StopCoordinate;
                 State.StateOfExistance=(QueryMode<1) ? StateOfExistance_W4EndOfIdleTime_W4Input : StateOfExistance_W4EndOfIdleTime_NoInput;
                 break;
             }
@@ -1132,14 +1132,14 @@ void EntHumanPlayerT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
                 State.Velocity.x+=PlayerCommands[PCNr].FrameTime;
 
                 const double FlightPathRatio=(TotalPathTime-State.Velocity.x)/TotalPathTime;
-                State.Origin=scale(NodeSequence[State.Flags+1].StopCoordinate,     FlightPathRatio)+
-                             scale(NodeSequence[State.Flags  ].Coordinate    , 1.0-FlightPathRatio);
+                m_Origin=scale(NodeSequence[State.Flags+1].StopCoordinate,     FlightPathRatio)+
+                         scale(NodeSequence[State.Flags  ].Coordinate    , 1.0-FlightPathRatio);
 
                 if (State.Velocity.x<TotalPathTime) break;
 
                 // TRANSIT TO THE NEXT STATE
                 State.Velocity.x=0.0;
-                State.Origin=NodeSequence[State.Flags].Coordinate;
+                m_Origin=NodeSequence[State.Flags].Coordinate;
                 State.StateOfExistance=StateOfExistance_ReverseMove_TurnBack;
                 break;
             }
@@ -1149,20 +1149,20 @@ void EntHumanPlayerT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
                 State.Velocity.x+=PlayerCommands[PCNr].FrameTime;
 
                 const double TurnRatio=(TotalTurnTime-State.Velocity.x)/TotalTurnTime;
-                State.Origin =scale(NodeSequence[State.Flags].Coordinate    ,     TurnRatio)+
-                              scale(NodeSequence[State.Flags].StopCoordinate, 1.0-TurnRatio);
-                State.Heading=(unsigned short)(TurnRatio*NodeSequence[State.Flags+1].ThisHeading+(1.0-TurnRatio)*NodeSequence[State.Flags+1].PrevHeading);
-                State.Pitch  =(unsigned short)(TurnRatio*NodeSequence[State.Flags+1].ThisPitch  +(1.0-TurnRatio)*NodeSequence[State.Flags+1].PrevPitch);
-                State.Bank   =(unsigned short)(TurnRatio*NodeSequence[State.Flags+1].ThisBank   +(1.0-TurnRatio)*NodeSequence[State.Flags+1].PrevBank);
+                m_Origin =scale(NodeSequence[State.Flags].Coordinate    ,     TurnRatio)+
+                          scale(NodeSequence[State.Flags].StopCoordinate, 1.0-TurnRatio);
+                m_Heading=(unsigned short)(TurnRatio*NodeSequence[State.Flags+1].ThisHeading+(1.0-TurnRatio)*NodeSequence[State.Flags+1].PrevHeading);
+                m_Pitch  =(unsigned short)(TurnRatio*NodeSequence[State.Flags+1].ThisPitch  +(1.0-TurnRatio)*NodeSequence[State.Flags+1].PrevPitch);
+                m_Bank   =(unsigned short)(TurnRatio*NodeSequence[State.Flags+1].ThisBank   +(1.0-TurnRatio)*NodeSequence[State.Flags+1].PrevBank);
 
                 if (State.Velocity.x<TotalTurnTime) break;
 
                 // TRANSIT TO THE NEXT STATE
                 State.Velocity.x=(State.Flags>0) ? 0.0 : 4.0;
-                State.Origin =NodeSequence[State.Flags].StopCoordinate;
-                State.Heading=(unsigned short)NodeSequence[State.Flags].ThisHeading;
-                State.Pitch  =(unsigned short)NodeSequence[State.Flags].ThisPitch;
-                State.Bank   =(unsigned short)NodeSequence[State.Flags].ThisBank;
+                m_Origin =NodeSequence[State.Flags].StopCoordinate;
+                m_Heading=(unsigned short)NodeSequence[State.Flags].ThisHeading;
+                m_Pitch  =(unsigned short)NodeSequence[State.Flags].ThisPitch;
+                m_Bank   =(unsigned short)NodeSequence[State.Flags].ThisBank;
                 State.StateOfExistance=(State.Flags>0) ? StateOfExistance_W4EndOfIdleTime_W4Input : StateOfExistance_W4EndOfIdleTime_NoInput;
                 break;
             }
@@ -1170,14 +1170,14 @@ void EntHumanPlayerT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
     }
 
     // LABYRINTH-SIZE TRICK, PART #2:
-    // Although State.Origin and all computations take place in world space,
+    // Although m_Origin and all computations take place in world space,
     // compensate for the actual Node center position.
     // That is, reach out always from the absolute center (0,0,0) of the world.
     // All the action will then take place in the inner 3x3x3 labyrinth of the cube,
     // while the computations remain untouched in "real" world coordinates.
     // This way it is possible to have *arbitrarily* large labyrinths!
-    State.Origin=State.Origin-NodeSequence[State.Flags].Coordinate;
-    if (ConstantHeading) State.Origin=State.Origin-VectorT(0.0, 0.15*4876.8, 0.0);
+    m_Origin=m_Origin-NodeSequence[State.Flags].Coordinate;
+    if (ConstantHeading) m_Origin=m_Origin-VectorT(0.0, 0.15*4876.8, 0.0);
 
     PlayerCommands.Clear();
 }

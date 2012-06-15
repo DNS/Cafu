@@ -80,8 +80,8 @@ EntRigidBodyT::EntRigidBodyT(const EntityCreateParamsT& Params)
       m_RootNode(Params.RootNode),
       m_CollisionShape(NULL),
       m_RigidBody(NULL),
-      m_OrigOffset(State.Dimensions.GetCenter()-State.Origin),
-      m_HalfExtents((State.Dimensions.Max-State.Dimensions.Min)/2.0 - Vector3dT(100.0, 100.0, 100.0))   // FIXME !!! Where in the world does the extra 100 padding in Params.RootNode come from???
+      m_OrigOffset(m_Dimensions.GetCenter()-m_Origin),
+      m_HalfExtents((m_Dimensions.Max-m_Dimensions.Min)/2.0 - Vector3dT(100.0, 100.0, 100.0))   // FIXME !!! Where in the world does the extra 100 padding in Params.RootNode come from???
 {
     ClipModel.Register();
 
@@ -113,7 +113,7 @@ EntRigidBodyT::EntRigidBodyT(const EntityCreateParamsT& Params)
     m_CollisionShape->calculateLocalInertia(Mass, Inertia);
 
     // std::cout << __FILE__ << " (" << __LINE__ << "): TEST TEST TEST, \n"
-    //           << "Dimensions   " << State.Dimensions.Min << " - " << State.Dimensions.Max << "\n"
+    //           << "Dimensions   " << m_Dimensions.Min << " - " << m_Dimensions.Max << "\n"
     //           << "Half-Extents " << (m_HalfExtents/1000.0f) << "\n"
     //           << "OrigOffset   " << m_OrigOffset << "    Mass: " << Mass << "\n";
 
@@ -146,7 +146,7 @@ void EntRigidBodyT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT& 
     // See http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=3079 for more details,
     // especially for why we can compute rel_pos correctly as Ob-Oc, instead of having to compute the exact location of the impact!
     const Vector3dT& Ob     =Entity->GetOrigin();  // Assumes that the damage was caused / originated at Entity->GetOrigin(). Should this be a parameter to TakeDamage()?
-    const Vector3dT  Oc     =State.Dimensions.GetCenter() + State.Origin;
+    const Vector3dT  Oc     =m_Dimensions.GetCenter() + m_Origin;
     const Vector3fT  rel_pos=(Ob-Oc).AsVectorOfFloat()/1000.0f;
 
     m_RigidBody->applyImpulse(Impulse, btVector3(rel_pos.x, rel_pos.y, rel_pos.z));
@@ -164,7 +164,7 @@ void EntRigidBodyT::Think(float FrameTime, unsigned long ServerFrameNr)
 void EntRigidBodyT::Cl_UnserializeFrom()
 {
     // Client-side: Properly update the clip model of the "old" ClipSys at the new position and orientation.
-    btQuaternion Quat(State.Heading/32767.0f-1.0f, State.Pitch/32767.0f-1.0f, State.Bank/32767.0f-1.0f, State.ModelFrameNr);
+    btQuaternion Quat(m_Heading/32767.0f-1.0f, m_Pitch/32767.0f-1.0f, m_Bank/32767.0f-1.0f, State.ModelFrameNr);
     // Quat.normalize();     // Doesn't help much - need a special version that takes into account that w is correct already.
     btMatrix3x3  Basis(Quat);
     cf::math::Matrix3x3T<double> Orient;
@@ -173,7 +173,7 @@ void EntRigidBodyT::Cl_UnserializeFrom()
         for (unsigned long j=0; j<3; j++)
             Orient[i][j]=Basis[i][j];
 
-    ClipModel.SetOrigin(State.Origin);
+    ClipModel.SetOrigin(m_Origin);
     ClipModel.SetOrientation(Orient);
     ClipModel.Register();
 }
@@ -195,12 +195,12 @@ void EntRigidBodyT::Draw(bool FirstPersonView, float LodDist) const
     MatSys::Renderer->RotateZ(MatSys::RendererI::MODEL_TO_WORLD, -90.0f);
 
     // UNDO things the EngineEntityT::Draw() code did with .mdl models in mind...
- // EyePos=EyePos-Entity->State.Origin;         // Convert into unrotated model space.
+ // EyePos=EyePos-Entity->m_Origin;         // Convert into unrotated model space.
     EyePos=scale(EyePos, 25.4);
     EyePos=EyePos.GetRotZ(90.0);
 
     // UNDO things the EngineEntityT::Draw() code did with .mdl models in mind...
- // LightPos=LightPos-Entity->State.Origin;         // Convert into unrotated model space.
+ // LightPos=LightPos-Entity->m_Origin;         // Convert into unrotated model space.
     LightPos=scale(LightPos, 25.4);
     LightPos=LightPos.GetRotZ(90.0);
 
@@ -220,12 +220,12 @@ void EntRigidBodyT::Draw(bool FirstPersonView, float LodDist) const
 
     MatrixT M2W;
 
-    M2W[0][3]=float(State.Origin.x);
-    M2W[1][3]=float(State.Origin.y);
-    M2W[2][3]=float(State.Origin.z);
+    M2W[0][3]=float(m_Origin.x);
+    M2W[1][3]=float(m_Origin.y);
+    M2W[2][3]=float(m_Origin.z);
 
 
-    btQuaternion Quat(State.Heading/32767.0f-1.0f, State.Pitch/32767.0f-1.0f, State.Bank/32767.0f-1.0f, State.ModelFrameNr);
+    btQuaternion Quat(m_Heading/32767.0f-1.0f, m_Pitch/32767.0f-1.0f, m_Bank/32767.0f-1.0f, State.ModelFrameNr);
     // Quat.normalize();     // Doesn't help much - need a special version that takes into account that w is correct already.
     btMatrix3x3  Basis(Quat);
 
@@ -237,7 +237,7 @@ void EntRigidBodyT::Draw(bool FirstPersonView, float LodDist) const
 
     MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, M2W);
     // static int ccc=0;
-    // std::cout << "###################### draw " << State.Origin.z << " " << ccc++ << "\n";
+    // std::cout << "###################### draw " << m_Origin.z << " " << ccc++ << "\n";
 
 
     // RESET THE LIGHTING INFORMATION.
@@ -281,7 +281,7 @@ void EntRigidBodyT::Draw(bool FirstPersonView, float LodDist) const
 
 void EntRigidBodyT::getWorldTransform(btTransform& worldTrans) const
 {
-    const Vector3fT O=(State.Origin+m_OrigOffset).AsVectorOfFloat()/1000.0f;   // The /1000 is because our physics world unit is meters.
+    const Vector3fT O=(m_Origin+m_OrigOffset).AsVectorOfFloat()/1000.0f;   // The /1000 is because our physics world unit is meters.
 
     std::cout << __FILE__ << " (" << __LINE__ << "): getWorldTransform(), " << O << "\n";
 
@@ -304,17 +304,17 @@ void EntRigidBodyT::setWorldTransform(const btTransform& worldTrans)
     const btVector3 RotOffset=worldTrans.getBasis()*OrigOffset;
     const VectorT   RotOff(RotOffset.x(), RotOffset.y(), RotOffset.z());
 
-    State.Origin=(O2*1000.0f).AsVectorOfDouble() - RotOff;
+    m_Origin=(O2*1000.0f).AsVectorOfDouble() - RotOff;
 
 
     // Update the Dimensions box of the entity so that the server code properly determines whether we're in the clients PVS or not.
-    // TODO / FIXME: The server computes our world-space bounding-box by offsetting our State.Dimensions by State.Origin.
-    //      Thus, we update the State.Dimensions accordingly below, but actually the server code should be changed!
-    //      For example, BaseEntityTs should just have a (virtual) method GetWorldBB() - the server should never query our State.Dimensions
+    // TODO / FIXME: The server computes our world-space bounding-box by offsetting our m_Dimensions by m_Origin.
+    //      Thus, we update the m_Dimensions accordingly below, but actually the server code should be changed!
+    //      For example, BaseEntityTs should just have a (virtual) method GetWorldBB() - the server should never query our m_Dimensions
     //      member directly. Maybe the dimensions should not even be a member of State ??
     //      Also see   svn diff -c 831   for how this affects other code!
-    State.Dimensions.Min=RotOff-m_HalfExtents*1.732;    // The 1.732 is sqrt(3), for the otherwise not accounted possible rotation of the box.
-    State.Dimensions.Max=RotOff+m_HalfExtents*1.732;
+    m_Dimensions.Min=RotOff-m_HalfExtents*1.732;    // The 1.732 is sqrt(3), for the otherwise not accounted possible rotation of the box.
+    m_Dimensions.Max=RotOff+m_HalfExtents*1.732;
 
 
     // We're actually only interested in the basis vectors, but Quaternions have many advantages for representing spatial rotations
@@ -328,20 +328,20 @@ void EntRigidBodyT::setWorldTransform(const btTransform& worldTrans)
     // as is also pointed out in http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=1961
     btQuaternion Quat=worldTrans.getRotation();
 
-    State.Heading     =(unsigned short)((Quat.x()+1.0f)*32767.0f);  // Scale must be less than 2^15, or else we cannot represent value 1.0f+1.0f.
-    State.Pitch       =(unsigned short)((Quat.y()+1.0f)*32767.0f);
-    State.Bank        =(unsigned short)((Quat.z()+1.0f)*32767.0f);
+    m_Heading = (unsigned short)((Quat.x()+1.0f)*32767.0f);  // Scale must be less than 2^15, or else we cannot represent value 1.0f+1.0f.
+    m_Pitch   = (unsigned short)((Quat.y()+1.0f)*32767.0f);
+    m_Bank    = (unsigned short)((Quat.z()+1.0f)*32767.0f);
     State.ModelFrameNr=Quat.w();
 
 
 //#ifdef DEBUG
 #if 0
     // Assert that we can properly reconstruct the basis from the quaternion.
-    btQuaternion newQuat(State.Heading/32767.0f-1.0f, State.Pitch/32767.0f-1.0f, State.Bank/32767.0f-1.0f, State.ModelFrameNr);
+    btQuaternion newQuat(m_Heading/32767.0f-1.0f, m_Pitch/32767.0f-1.0f, m_Bank/32767.0f-1.0f, State.ModelFrameNr);
     // newQuat.normalize();     // Doesn't help much - need a special version that takes into account that w is correct already.
     btMatrix3x3  newBasis(newQuat);
 
-    std::cout << __FILE__ << " (" << __LINE__ << "): setWorldTransform(), " << State.Origin << ",\n"
+    std::cout << __FILE__ << " (" << __LINE__ << "): setWorldTransform(), " << m_Origin << ",\n"
     << "  Quat: "
         << " " << Quat.x()
         << " " << Quat.y()
@@ -376,7 +376,7 @@ void EntRigidBodyT::setWorldTransform(const btTransform& worldTrans)
         for (unsigned long j=0; j<3; j++)
             Orient[i][j]=worldTrans.getBasis()[i][j];
 
-    ClipModel.SetOrigin(State.Origin);
+    ClipModel.SetOrigin(m_Origin);
     ClipModel.SetOrientation(Orient);
     ClipModel.Register();
 }

@@ -37,13 +37,13 @@ EntInfo2DMoveDirT::EntInfo2DMoveDirT(char TypeID, unsigned long ID, unsigned lon
     }
 
 
-    const VectorT MoveDir =State.Origin;
+    const VectorT MoveDir =m_Origin;
     const double  MoveDist=length(MoveDir);
     const VectorT MoveDir1=MoveDist>0.1 ? scale(MoveDir, 1.0/MoveDist) : VectorT(0.0, 1.0, 0.0);
     const double  Pi      =3.14159265359;
     const double  Hdg     =MoveDir1.x>=0.0 ? acos(MoveDir1.y) : 2.0*Pi-acos(MoveDir1.y);
 
-    State.Heading=(unsigned short)(Hdg/Pi*32768.0);
+    m_Heading=(unsigned short)(Hdg/Pi*32768.0);
 
-    printf("EntInfo2DMoveDir: (%6.3f, %6.3f) %6.3f %5u  %s\n", MoveDir1.x, MoveDir1.y, Hdg, State.Heading, MoveDirName.c_str());
+    printf("EntInfo2DMoveDir: (%6.3f, %6.3f) %6.3f %5u  %s\n", MoveDir1.x, MoveDir1.y, Hdg, m_Heading, MoveDirName.c_str());
 }

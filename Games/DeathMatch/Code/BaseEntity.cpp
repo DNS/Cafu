@@ -109,21 +109,15 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT
       CollisionModel(Params.CollisionModel),
       ClipModel(GameWorld->GetClipWorld()),  // Creates a clip model in the given clip world with a NULL collision model.
 
-      // m_Origin(Params.Origin),
-      // m_Dimensions(Dimensions),
-      // m_Heading(0),
-      // m_Pitch(0),
-      // m_Bank(0),
+      m_Origin(Params.Origin),
+      m_Dimensions(Dimensions),
+      m_Heading(0),
+      m_Pitch(0),
+      m_Bank(0),
       State(State_),
       m_EventsCount(),
       m_EventsRef()
 {
-    State.Origin     = Params.Origin;
-    State.Dimensions = Dimensions;
-    State.Heading    = 0;
-    State.Pitch      = 0;
-    State.Bank       = 0;
-
     m_EventsCount.PushBackEmptyExact(NUM_EVENT_TYPES);
     m_EventsRef  .PushBackEmptyExact(NUM_EVENT_TYPES);
 
@@ -142,7 +136,7 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT
         std::istringstream iss(It->second);
 
         iss >> d; iss >> d;
-        State.Heading=(unsigned short)(d*8192.0/45.0);
+        m_Heading=(unsigned short)(d*8192.0/45.0);
     }
 
     if (CollisionModel==NULL)
@@ -190,17 +184,17 @@ BaseEntityT::~BaseEntityT()
 // in the derived classes and member State of type EntityStateT should be "disintegrated".
 void BaseEntityT::Serialize(cf::Network::OutStreamT& Stream) const
 {
-    Stream << float(State.Origin.x);
-    Stream << float(State.Origin.y);
-    Stream << float(State.Origin.z);
+    Stream << float(m_Origin.x);
+    Stream << float(m_Origin.y);
+    Stream << float(m_Origin.z);
     Stream << float(State.Velocity.x);
     Stream << float(State.Velocity.y);
     Stream << float(State.Velocity.z);
-    Stream << float(State.Dimensions.Min.z);
-    Stream << float(State.Dimensions.Max.z);
-    Stream << State.Heading;
-    Stream << State.Pitch;
-    Stream << State.Bank;
+    Stream << float(m_Dimensions.Min.z);
+    Stream << float(m_Dimensions.Max.z);
+    Stream << m_Heading;
+    Stream << m_Pitch;
+    Stream << m_Bank;
     Stream << State.StateOfExistance;
     Stream << State.Flags;
     Stream << State.PlayerName;       // TODO: In the old code, the PlayerName apparently is read/written in *baseline* messages only.
@@ -231,17 +225,17 @@ void BaseEntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
     float    f =0.0f;
     uint32_t ui=0;
 
-    Stream >> f; State.Origin.x=f;
-    Stream >> f; State.Origin.y=f;
-    Stream >> f; State.Origin.z=f;
+    Stream >> f; m_Origin.x=f;
+    Stream >> f; m_Origin.y=f;
+    Stream >> f; m_Origin.z=f;
     Stream >> f; State.Velocity.x=f;
     Stream >> f; State.Velocity.y=f;
     Stream >> f; State.Velocity.z=f;
-    Stream >> f; State.Dimensions.Min.z=f;
-    Stream >> f; State.Dimensions.Max.z=f;
-    Stream >> State.Heading;
-    Stream >> State.Pitch;
-    Stream >> State.Bank;
+    Stream >> f; m_Dimensions.Min.z=f;
+    Stream >> f; m_Dimensions.Max.z=f;
+    Stream >> m_Heading;
+    Stream >> m_Pitch;
+    Stream >> m_Bank;
     Stream >> State.StateOfExistance;
     Stream >> State.Flags;
     Stream >> State.PlayerName;     // TODO: In the old code, the PlayerName apparently is read/written in *baseline* messages only.
@@ -387,9 +381,9 @@ void BaseEntityT::OnTrigger(BaseEntityT* /*Activator*/)
 void BaseEntityT::OnPush(ArrayT<BaseEntityT*>& Pushers, const Vector3dT& PushVector)
 {
     // For now, let's just implement this method in the most trivial way.
-    State.Origin+=PushVector;
+    m_Origin+=PushVector;
 
-    ClipModel.SetOrigin(State.Origin);
+    ClipModel.SetOrigin(m_Origin);
     ClipModel.Register();  // Re-register ourselves with the clip world.
 }
 
@@ -464,9 +458,9 @@ int BaseEntityT::GetOrigin(lua_State* LuaState)
 {
     BaseEntityT* Ent=(BaseEntityT*)cf::GameSys::ScriptStateT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
 
-    lua_pushnumber(LuaState, Ent->State.Origin.x);
-    lua_pushnumber(LuaState, Ent->State.Origin.y);
-    lua_pushnumber(LuaState, Ent->State.Origin.z);
+    lua_pushnumber(LuaState, Ent->m_Origin.x);
+    lua_pushnumber(LuaState, Ent->m_Origin.y);
+    lua_pushnumber(LuaState, Ent->m_Origin.z);
 
     return 3;
 }
@@ -480,7 +474,7 @@ int BaseEntityT::SetOrigin(lua_State* LuaState)
     const double Oy=luaL_checknumber(LuaState, 3);
     const double Oz=luaL_checknumber(LuaState, 4);
 
-    Ent->State.Origin=Vector3dT(Ox, Oy, Oz);
+    Ent->m_Origin=Vector3dT(Ox, Oy, Oz);
 
     return 0;
 }

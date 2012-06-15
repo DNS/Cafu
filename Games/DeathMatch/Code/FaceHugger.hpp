@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_FACEHUGGER_HPP_INCLUDED
 
 #include "../../BaseEntity.hpp"
+#include "Libs/Physics.hpp"
 
 
 class CafuModelT;
@@ -35,7 +36,7 @@ class EntFaceHuggerT : public BaseEntityT
 
     EntFaceHuggerT(const EntityCreateParamsT& Params);
 
-    void SetHeading(unsigned short h) { State.Heading = h; }
+    void SetHeading(unsigned short h) { m_Heading = h; }
     void SetVelocity(const Vector3dT& v) { State.Velocity = v; }
 
     void Think(float FrameTime, unsigned long ServerFrameNr);
@@ -50,6 +51,7 @@ class EntFaceHuggerT : public BaseEntityT
 
     private:
 
+    PhysicsHelperT    m_Physics;
     const CafuModelT* m_Model;
  // unsigned long     m_TargetEntityID;   // ID of the entity that this face hugger attacks.
 };

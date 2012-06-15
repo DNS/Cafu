@@ -85,7 +85,7 @@ EntFuncDoorT::EntFuncDoorT(const EntityCreateParamsT& Params)
       InfraredClipMdl(GameWorld->GetClipWorld()),
       DoorState(Closed),
       OpenPos(),    // Properly initialized below.
-      ClosedPos(State.Origin),
+      ClosedPos(m_Origin),
       MoveTime(GetProp("moveTime", 1.0f)),
       MoveFraction(0),
       OpenTime(GetProp("openTime", 5.0f)),
@@ -125,7 +125,7 @@ EntFuncDoorT::EntFuncDoorT(const EntityCreateParamsT& Params)
     }
 
 
-    // FIXME: Both RootNode->GetBoundingBox() as well as State.Dimensions both have a "padding" of 100 units at each side!?!?!
+    // FIXME: Both RootNode->GetBoundingBox() as well as m_Dimensions both have a "padding" of 100 units at each side!?!?!
     BoundingBox3dT InfraredBB=ClipModel.GetAbsoluteBB();
 
     const Vector3dT DoorSize  =InfraredBB.Max-InfraredBB.Min;
@@ -202,8 +202,8 @@ void EntFuncDoorT::UpdateMovePos(float MoveFraction_)
 {
     MoveFraction=MoveFraction_;
 
-    State.Origin=OpenPos*MoveFraction + ClosedPos*(1.0f-MoveFraction);
-    ClipModel.SetOrigin(State.Origin);
+    m_Origin=OpenPos*MoveFraction + ClosedPos*(1.0f-MoveFraction);
+    ClipModel.SetOrigin(m_Origin);
     ClipModel.Register();  // Re-register ourselves with the clip world.
 }
 
@@ -282,7 +282,7 @@ void EntFuncDoorT::Think(float FrameTime, unsigned long ServerFrameNr)
         // Find out if anything touches us.
         // Some of these objects might want to ride with us.
         GameWorld->GetClipWorld()->GetContacts(Contacts, ClipModels,
-            State.Origin.AsVectorOfFloat(), (TranslationDest-TranslationSource).AsVectorOfFloat(), FrameTime/TranslationLinTimeTotal, tm, cf::math::Matrix3x3T<float>::Identity,
+            m_Origin.AsVectorOfFloat(), (TranslationDest-TranslationSource).AsVectorOfFloat(), FrameTime/TranslationLinTimeTotal, tm, cf::math::Matrix3x3T<float>::Identity,
             MaterialT::Clip_Players | MaterialT::Clip_Monsters | MaterialT::Clip_Moveables, &ClipModel);
 
         ArrayT<BaseEntityT*> AlreadySeen;   // List of entities we have already dealt with.
@@ -320,9 +320,9 @@ void EntFuncDoorT::Think(float FrameTime, unsigned long ServerFrameNr)
 
         const float t=TranslationLinTimeLeft/TranslationLinTimeTotal;
 
-        State.Origin=TranslationSource*t + TranslationDest*(1.0f-t);
+        m_Origin=TranslationSource*t + TranslationDest*(1.0f-t);
 
-        ClipModel.SetOrigin(State.Origin);
+        ClipModel.SetOrigin(m_Origin);
         ClipModel.Register();  // Re-register ourselves with the clip world.
     } */
 }
@@ -358,7 +358,7 @@ void EntFuncDoorT::OnTrigger(BaseEntityT* Activator)
 
 void EntFuncDoorT::Cl_UnserializeFrom()
 {
-    ClipModel.SetOrigin(State.Origin);
+    ClipModel.SetOrigin(m_Origin);
     ClipModel.Register();
 }
 
@@ -380,12 +380,12 @@ void EntFuncDoorT::Draw(bool FirstPersonView, float LodDist) const
     MatSys::Renderer->RotateZ(MatSys::RendererI::MODEL_TO_WORLD, -90.0f);
 
     // UNDO things the EngineEntityT::Draw() code did with .mdl models in mind...
- // EyePos=EyePos-Entity->State.Origin;         // Convert into unrotated model space.
+ // EyePos=EyePos-Entity->m_Origin;         // Convert into unrotated model space.
     EyePos=scale(EyePos, 25.4);
     EyePos=EyePos.GetRotZ(90.0);
 
     // UNDO things the EngineEntityT::Draw() code did with .mdl models in mind...
- // LightPos=LightPos-Entity->State.Origin;         // Convert into unrotated model space.
+ // LightPos=LightPos-Entity->m_Origin;         // Convert into unrotated model space.
     LightPos=scale(LightPos, 25.4);
     LightPos=LightPos.GetRotZ(90.0);
 
@@ -426,7 +426,7 @@ int EntFuncDoorT::SetOrigin(lua_State* LuaState)
 
     EntFuncDoorT* Ent=(EntFuncDoorT*)cf::GameSys::ScriptStateT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
 
-    Ent->ClipModel.SetOrigin(Ent->State.Origin);
+    Ent->ClipModel.SetOrigin(Ent->m_Origin);
     Ent->ClipModel.Register();  // Re-register ourselves with the clip world. */
     return 0;
 }

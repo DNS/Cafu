@@ -117,21 +117,15 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT
       CollisionModel(Params.CollisionModel),
       ClipModel(GameWorld->GetClipWorld()),
 
-      // m_Origin(Params.Origin),
-      // m_Dimensions(Dimensions),
-      // m_Heading(Heading),
-      // m_Pitch(Pitch),
-      // m_Bank(Bank),
+      m_Origin(Params.Origin),
+      m_Dimensions(Dimensions),
+      m_Heading(0),
+      m_Pitch(0),
+      m_Bank(0),
       State(State_),
       m_EventsCount(),
       m_EventsRef()
 {
-    State.Origin     = Params.Origin;
-    State.Dimensions = Dimensions;
-    State.Heading    = 0;
-    State.Pitch      = 0;
-    State.Bank       = 0;
-
     m_EventsCount.PushBackEmptyExact(NUM_EVENT_TYPES);
     m_EventsRef  .PushBackEmptyExact(NUM_EVENT_TYPES);
 
@@ -152,7 +146,7 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT
         s[1023]=0;
 
         /* const char* s1=*/ strtok(s, " ");
-        const char* s2=strtok(NULL, " "); if (s2) State.Heading=(unsigned short)(atof(s2)*8192.0/45.0);
+        const char* s2=strtok(NULL, " "); if (s2) m_Heading=(unsigned short)(atof(s2)*8192.0/45.0);
     }
 }
 

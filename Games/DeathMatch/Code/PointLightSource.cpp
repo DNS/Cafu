@@ -117,7 +117,7 @@ EntPointLightSourceT::EntPointLightSourceT(const EntityCreateParamsT& Params)
         }
     }
 
-    // printf("Instantiated an EntPointLightSourceT at %f %f %f, r %f, %lu %lu!\n", State.Origin.x, State.Origin.y, State.Origin.z, dls_Radius, dls_DiffuseColor, dls_SpecularColor);
+    // printf("Instantiated an EntPointLightSourceT at %f %f %f, r %f, %lu %lu!\n", m_Origin.x, m_Origin.y, m_Origin.z, dls_Radius, dls_DiffuseColor, dls_SpecularColor);
 }
 
 
@@ -125,7 +125,7 @@ bool EntPointLightSourceT::GetLightSourceInfo(unsigned long& DiffuseColor, unsig
 {
     if (dls_DiffuseColor==0 && dls_SpecularColor==0) return false;
 
-    Position     =State.Origin;
+    Position     =m_Origin;
     Radius       =dls_Radius;
     DiffuseColor =dls_DiffuseColor;
     SpecularColor=dls_SpecularColor;

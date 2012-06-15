@@ -53,14 +53,7 @@ cf::TypeSys::TypeInfoManT& GetBaseEntTIM();
 // This structure describes each entitys state and is transmitted from the server to the clients over the network.
 struct EntityStateT
 {
-    VectorT               Origin;           // World coordinate of (the eye of) this entity.
-    VectorT               Velocity;         // Velocity of this entity.
-    BoundingBox3T<double> Dimensions;       // The bounding box of this entity (relative to the eye).
-
-    unsigned short Heading;                 // Heading (North is down the ??-axis).
-    unsigned short Pitch;                   // Pitch (for looking up/down).
-    unsigned short Bank;                    // Bank (e.g. used when dead and lying on the side).
-
+    VectorT        Velocity;                // Velocity of this entity.
     char           StateOfExistance;        // For entity defined state machines, e.g. "specator, dead, alive, ...".
     char           Flags;                   // Entity defined flags.
     char           PlayerName[64];          // If it is a human player, this is its name. Usually unused otherwise.
@@ -139,28 +132,28 @@ class BaseEntityT
     ///   - obtaining the camera position of the local human player entity (1st person view),
     ///   - interpolating the origin (NPC entities) and
     ///   - computing light source positions.
-    virtual const Vector3dT& GetOrigin() const { return State.Origin; }
+    virtual const Vector3dT& GetOrigin() const { return m_Origin; }
 
     /// This method is a temporary hack, used so that the caller can temporarily set the origin to the "interpolated" origin,
     /// draw the entity or get the entity light source position, then set the origin back to the previous origin.
     /// Interpolation of client entities needs to be thoroughly redone anyway (e.g. combined with interpolating animation sequences),
     /// this is also when this method will be removed again.
-    void SetInterpolationOrigin(const Vector3dT& O) { State.Origin=O; }
+    void SetInterpolationOrigin(const Vector3dT& O) { m_Origin = O; }
 
     /// Returns the dimensions of this entity.
-    virtual const BoundingBox3dT& GetDimensions() const { return State.Dimensions; }
+    virtual const BoundingBox3dT& GetDimensions() const { return m_Dimensions; }
 
     /// Returns the heading of this entity.
-    unsigned short GetHeading() const { return State.Heading; }
+    unsigned short GetHeading() const { return m_Heading; }
 
     /// Returns the camera orientation angles of this entity.
     /// Used for setting up the camera of the local human player entity (1st person view).
-    virtual void GetCameraOrientation(unsigned short& h, unsigned short& p, unsigned short& b) const { h=State.Heading; p=State.Pitch; b=State.Bank; }
+    virtual void GetCameraOrientation(unsigned short& h, unsigned short& p, unsigned short& b) const { h=m_Heading; p=m_Pitch; b=m_Bank; }
 
     /// Returns the orientation angles of the entity itself.
     /// Used for computing the light source and eye positions in entity (model) space.
     /// TODO: Both the signature as well as the implementation of this method are temporary, and fully expected to change later.
-    virtual void GetBodyOrientation(unsigned short& h, unsigned short& p, unsigned short& b) const { h=State.Heading; p=State.Pitch; b=State.Bank; }
+    virtual void GetBodyOrientation(unsigned short& h, unsigned short& p, unsigned short& b) const { h=m_Heading; p=m_Pitch; b=m_Bank; }
 
 
     // Some convenience functions for reading the Properties.
@@ -322,11 +315,11 @@ class BaseEntityT
     BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT& Dimensions,
                 const unsigned int NUM_EVENT_TYPES, const EntityStateT& State_);
 
-    // Vector3dT      m_Origin;     ///< World coordinate of (the eye of) this entity.
-    // BoundingBox3dT m_Dimensions; ///< The bounding box of this entity (relative to the origin).
-    // unsigned short m_Heading;    ///< Heading (north is along the ??-axis).
-    // unsigned short m_Pitch;      ///< Pitch (for looking up/down).
-    // unsigned short m_Bank;       ///< Bank (e.g. used when dead and lying on the side).
+    Vector3dT      m_Origin;        ///< World coordinate of (the eye of) this entity.
+    BoundingBox3dT m_Dimensions;    ///< The bounding box of this entity (relative to the origin).
+    unsigned short m_Heading;       ///< Heading (north is along the ??-axis).
+    unsigned short m_Pitch;         ///< Pitch (for looking up/down).
+    unsigned short m_Bank;          ///< Bank (e.g. used when dead and lying on the side).
     EntityStateT   State;           ///< The current state of this entity.
 
 

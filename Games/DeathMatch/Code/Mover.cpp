@@ -102,7 +102,7 @@ void EntFuncMoverT::Think(float FrameTime, unsigned long ServerFrameNr)
         // Find out if anything touches us.
         // Some of these objects might want to ride with us.
         GameWorld->GetClipWorld().GetContacts(CollisionModel->GetBoundingBox(),
-            State.Origin, (TranslationDest-TranslationSource)*(FrameTime/TranslationLinTimeTotal),
+            m_Origin, (TranslationDest-TranslationSource)*(FrameTime/TranslationLinTimeTotal),
             MaterialT::Clip_Players | MaterialT::Clip_Monsters | MaterialT::Clip_Moveables, &ClipModel, Contacts);
 
         ArrayT<BaseEntityT*> AlreadySeen;   // List of entities we have already dealt with.
@@ -140,9 +140,9 @@ void EntFuncMoverT::Think(float FrameTime, unsigned long ServerFrameNr)
 
         const float t=TranslationLinTimeLeft/TranslationLinTimeTotal;
 
-        State.Origin=TranslationSource*t + TranslationDest*(1.0f-t);
+        m_Origin=TranslationSource*t + TranslationDest*(1.0f-t);
 
-        ClipModel.SetOrigin(State.Origin);
+        ClipModel.SetOrigin(m_Origin);
         ClipModel.Register();  // Re-register ourselves with the clip world.
     }
 }
@@ -150,7 +150,7 @@ void EntFuncMoverT::Think(float FrameTime, unsigned long ServerFrameNr)
 
 void EntFuncMoverT::Cl_UnserializeFrom()
 {
-    ClipModel.SetOrigin(State.Origin);
+    ClipModel.SetOrigin(m_Origin);
     ClipModel.Register();
 }
 
@@ -172,12 +172,12 @@ void EntFuncMoverT::Draw(bool FirstPersonView, float LodDist) const
     MatSys::Renderer->RotateZ(MatSys::RendererI::MODEL_TO_WORLD, -90.0f);
 
     // UNDO things the EngineEntityT::Draw() code did with .mdl models in mind...
- // EyePos=EyePos-Entity->State.Origin;         // Convert into unrotated model space.
+ // EyePos=EyePos-Entity->GetOrigin();         // Convert into unrotated model space.
     EyePos=scale(EyePos, 25.4);
     EyePos=EyePos.GetRotZ(90.0);
 
     // UNDO things the EngineEntityT::Draw() code did with .mdl models in mind...
- // LightPos=LightPos-Entity->State.Origin;         // Convert into unrotated model space.
+ // LightPos=LightPos-Entity->GetOrigin();         // Convert into unrotated model space.
     LightPos=scale(LightPos, 25.4);
     LightPos=LightPos.GetRotZ(90.0);
 
@@ -216,7 +216,7 @@ int EntFuncMoverT::SetOrigin(lua_State* LuaState)
 
     EntFuncMoverT* Ent=(EntFuncMoverT*)cf::GameSys::ScriptStateT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
 
-    Ent->ClipModel.SetOrigin(Ent->State.Origin);
+    Ent->ClipModel.SetOrigin(Ent->GetOrigin());
     Ent->ClipModel.Register();  // Re-register ourselves with the clip world.
     return 0;
 }
@@ -233,7 +233,7 @@ int EntFuncMoverT::Translate(lua_State* LuaState)
     const double Oy=luaL_checknumber(LuaState, 3);
     const double Oz=luaL_checknumber(LuaState, 4);
 
-    Ent->TranslationSource=Ent->State.Origin;
+    Ent->TranslationSource=Ent->GetOrigin();
     Ent->TranslationDest=Vector3dT(Ox, Oy, Oz);
     Ent->TranslationLinTimeTotal=float(luaL_checknumber(LuaState, 5));
     Ent->TranslationLinTimeLeft=Ent->TranslationLinTimeTotal;

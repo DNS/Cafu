@@ -74,11 +74,11 @@ void EntCorpseT::AdoptState(const EntHumanPlayerT* Player)
         0, 0, PS.ModelIndex, PS.ModelSequNr, PS.ModelFrameNr,
         0, 0, 0, 0, PS.ActiveWeaponSlot, 0, 0.0);
 
-    State.Origin     = PS.Origin+VectorT(0.0, 0.0, PS.Dimensions.Min.z+1728.8);
-    State.Dimensions = BoundingBox3T<double>(Vector3dT());
-    State.Heading    = PS.Heading;
-    State.Pitch      = 0;
-    State.Bank       = 0;
+    m_Origin     = Player->GetOrigin()+VectorT(0.0, 0.0, Player->GetDimensions().Min.z+1728.8);
+    m_Dimensions = BoundingBox3dT(Vector3dT());
+    m_Heading    = Player->GetHeading();
+    m_Pitch      = 0;
+    m_Bank       = 0;
 }
 
 

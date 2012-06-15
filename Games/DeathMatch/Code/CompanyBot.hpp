@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_COMPANY_BOT_HPP_INCLUDED
 
 #include "../../BaseEntity.hpp"
+#include "Libs/Physics.hpp"
 #include "Models/AnimExpr.hpp"
 #include "btBulletDynamicsCommon.h"
 
@@ -38,7 +39,7 @@ class EntCompanyBotT : public BaseEntityT, public btMotionState
     EntCompanyBotT(const EntityCreateParamsT& Params);
     ~EntCompanyBotT();
 
-    void SetHeading(unsigned short h) { State.Heading = h; }
+    void SetHeading(unsigned short h) { m_Heading = h; }
 
     // Implement the BaseEntityT interface.
     void TakeDamage(BaseEntityT* Entity, char Amount, const VectorT& ImpactDir);
@@ -63,6 +64,7 @@ class EntCompanyBotT : public BaseEntityT, public btMotionState
 
     void AdvanceModelTime(float Time, bool Loop);
 
+    PhysicsHelperT    m_Physics;
     const CafuModelT* m_CompanyBotModel;
     IntrusivePtrT<AnimExpressionT>   m_AnimExpr;
     IntrusivePtrT<AnimExprStandardT> m_LastStdAE;

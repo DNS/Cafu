@@ -150,9 +150,9 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
             strncpy(s, Value.c_str(), 1023);
             s[1023]=0;
 
-            const char* s1=strtok(s,    " "); if (s1) State.Bank   =(unsigned short)(atof(s1)*8192.0/45.0);
-            const char* s2=strtok(NULL, " "); if (s2) State.Heading=(unsigned short)(atof(s2)*8192.0/45.0);
-            const char* s3=strtok(NULL, " "); if (s3) State.Pitch  =(unsigned short)(atof(s3)*8192.0/45.0);
+            const char* s1=strtok(s,    " "); if (s1) m_Bank   =(unsigned short)(atof(s1)*8192.0/45.0);
+            const char* s2=strtok(NULL, " "); if (s2) m_Heading=(unsigned short)(atof(s2)*8192.0/45.0);
+            const char* s3=strtok(NULL, " "); if (s3) m_Pitch  =(unsigned short)(atof(s3)*8192.0/45.0);
         }
         else if (Key=="model")
         {
@@ -203,20 +203,20 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
     for (unsigned int VertexNr=0; VertexNr<8; VertexNr++)
     {
         V[VertexNr]=scale(V[VertexNr], 25.4);
-        V[VertexNr]=V[VertexNr].GetRotX(    -double(State.Pitch  )/8192.0*45.0);
-        V[VertexNr]=V[VertexNr].GetRotY(     double(State.Bank   )/8192.0*45.0);
-        V[VertexNr]=V[VertexNr].GetRotZ(90.0-double(State.Heading)/8192.0*45.0);
+        V[VertexNr]=V[VertexNr].GetRotX(    -double(m_Pitch  )/8192.0*45.0);
+        V[VertexNr]=V[VertexNr].GetRotY(     double(m_Bank   )/8192.0*45.0);
+        V[VertexNr]=V[VertexNr].GetRotZ(90.0-double(m_Heading)/8192.0*45.0);
     }
 
-    State.Dimensions=BoundingBox3T<double>(V[0]);
-    for (unsigned int VertexNr=1; VertexNr<8; VertexNr++) State.Dimensions.Insert(V[VertexNr]);
+    m_Dimensions=BoundingBox3T<double>(V[0]);
+    for (unsigned int VertexNr=1; VertexNr<8; VertexNr++) m_Dimensions.Insert(V[VertexNr]);
 
 
-    ClipModel.SetOrigin(State.Origin);
+    ClipModel.SetOrigin(m_Origin);
     // TODO: Optimize! This matrix computation takes many unnecessary muls and adds...!
-    ClipModel.SetOrientation(cf::math::Matrix3x3T<double>::GetRotateZMatrix(90.0-double(State.Heading)/8192.0*45.0)
-                           * cf::math::Matrix3x3T<double>::GetRotateYMatrix(     double(State.Bank   )/8192.0*45.0)
-                           * cf::math::Matrix3x3T<double>::GetRotateXMatrix(    -double(State.Pitch  )/8192.0*45.0));
+    ClipModel.SetOrientation(cf::math::Matrix3x3T<double>::GetRotateZMatrix(90.0-double(m_Heading)/8192.0*45.0)
+                           * cf::math::Matrix3x3T<double>::GetRotateYMatrix(     double(m_Bank   )/8192.0*45.0)
+                           * cf::math::Matrix3x3T<double>::GetRotateXMatrix(    -double(m_Pitch  )/8192.0*45.0));
     ClipModel.Register();
 
     // Let the GUI script know that its entity has now been fully initialized,
@@ -248,14 +248,14 @@ void EntStaticDetailModelT::Think(float FrameTime, unsigned long ServerFrameNr)
 
 void EntStaticDetailModelT::Cl_UnserializeFrom()
 {
-    // Even though our State.Origin is never modified in Think(),
+    // Even though our m_Origin is never modified in Think(),
     // the code below is necessary because the client first creates new entities,
     // and only sets the proper state data after the constructor in a separate step.
-    ClipModel.SetOrigin(State.Origin);
+    ClipModel.SetOrigin(m_Origin);
     // TODO: Optimize! This matrix computation takes many unnecessary muls and adds...!
-    ClipModel.SetOrientation(cf::math::Matrix3x3T<double>::GetRotateZMatrix(90.0-double(State.Heading)/8192.0*45.0)
-                           * cf::math::Matrix3x3T<double>::GetRotateYMatrix(     double(State.Bank   )/8192.0*45.0)
-                           * cf::math::Matrix3x3T<double>::GetRotateXMatrix(    -double(State.Pitch  )/8192.0*45.0));
+    ClipModel.SetOrientation(cf::math::Matrix3x3T<double>::GetRotateZMatrix(90.0-double(m_Heading)/8192.0*45.0)
+                           * cf::math::Matrix3x3T<double>::GetRotateYMatrix(     double(m_Bank   )/8192.0*45.0)
+                           * cf::math::Matrix3x3T<double>::GetRotateXMatrix(    -double(m_Pitch  )/8192.0*45.0));
     ClipModel.Register();
 }
 
@@ -276,8 +276,8 @@ void EntStaticDetailModelT::Draw(bool /*FirstPersonView*/, float LodDist) const
     Vector3fT LgtPos(MatSys::Renderer->GetCurrentLightSourcePosition());
     Vector3fT EyePos(MatSys::Renderer->GetCurrentEyePosition());
 
-    const float DegBank =float(State.Bank )/8192.0f*45.0f;
-    const float DegPitch=float(State.Pitch)/8192.0f*45.0f;
+    const float DegBank =float(m_Bank )/8192.0f*45.0f;
+    const float DegPitch=float(m_Pitch)/8192.0f*45.0f;
 
     LgtPos=LgtPos.GetRotY(-DegBank);
     EyePos=EyePos.GetRotY(-DegBank);
@@ -384,22 +384,22 @@ bool EntStaticDetailModelT::GetGuiPlane(unsigned int GFNr, Vector3fT& GuiOrigin,
 
     // Okay, got the plane. Now transform it from model space into world space.
     GuiOrigin=scale(GuiOrigin, 25.4f);
-    GuiOrigin=GuiOrigin.GetRotX(     -float(State.Pitch  )/8192.0f*45.0f);
-    GuiOrigin=GuiOrigin.GetRotY(      float(State.Bank   )/8192.0f*45.0f);
-    GuiOrigin=GuiOrigin.GetRotZ(90.0f-float(State.Heading)/8192.0f*45.0f);
+    GuiOrigin=GuiOrigin.GetRotX(     -float(m_Pitch  )/8192.0f*45.0f);
+    GuiOrigin=GuiOrigin.GetRotY(      float(m_Bank   )/8192.0f*45.0f);
+    GuiOrigin=GuiOrigin.GetRotZ(90.0f-float(m_Heading)/8192.0f*45.0f);
 
     GuiAxisX=scale(GuiAxisX, 25.4f);
-    GuiAxisX=GuiAxisX.GetRotX(     -float(State.Pitch  )/8192.0f*45.0f);
-    GuiAxisX=GuiAxisX.GetRotY(      float(State.Bank   )/8192.0f*45.0f);
-    GuiAxisX=GuiAxisX.GetRotZ(90.0f-float(State.Heading)/8192.0f*45.0f);
+    GuiAxisX=GuiAxisX.GetRotX(     -float(m_Pitch  )/8192.0f*45.0f);
+    GuiAxisX=GuiAxisX.GetRotY(      float(m_Bank   )/8192.0f*45.0f);
+    GuiAxisX=GuiAxisX.GetRotZ(90.0f-float(m_Heading)/8192.0f*45.0f);
 
     GuiAxisY=scale(GuiAxisY, 25.4f);
-    GuiAxisY=GuiAxisY.GetRotX(     -float(State.Pitch  )/8192.0f*45.0f);
-    GuiAxisY=GuiAxisY.GetRotY(      float(State.Bank   )/8192.0f*45.0f);
-    GuiAxisY=GuiAxisY.GetRotZ(90.0f-float(State.Heading)/8192.0f*45.0f);
+    GuiAxisY=GuiAxisY.GetRotX(     -float(m_Pitch  )/8192.0f*45.0f);
+    GuiAxisY=GuiAxisY.GetRotY(      float(m_Bank   )/8192.0f*45.0f);
+    GuiAxisY=GuiAxisY.GetRotZ(90.0f-float(m_Heading)/8192.0f*45.0f);
 
     // The GuiOrigin must also be translated.
-    GuiOrigin+=State.Origin.AsVectorOfFloat();
+    GuiOrigin+=m_Origin.AsVectorOfFloat();
 
     return true;
 }

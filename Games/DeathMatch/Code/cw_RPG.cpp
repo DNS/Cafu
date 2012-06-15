@@ -85,7 +85,7 @@ void CarriedWeaponRPGT::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCo
                 if (ThinkingOnServerSide)
                 {
                     // Clamp 'Pitch' values larger than 45° (==8192) to 45°.
-                    const unsigned short Pitch=(State.Pitch>8192 && State.Pitch<=16384) ? 8192 : State.Pitch;
+                    const unsigned short Pitch=(Player->GetPitch()>8192 && Player->GetPitch()<=16384) ? 8192 : Player->GetPitch();
 
                     const float ViewDirZ=-LookupTables::Angle16ToSin[Pitch];
                     const float ViewDirY= LookupTables::Angle16ToCos[Pitch];
@@ -93,8 +93,8 @@ void CarriedWeaponRPGT::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCo
                     // Note: There is a non-trivial relationship between heading, pitch, and the corresponding view vector.
                     // Especially does a heading and pitch of 45° NOT correspond to the view vector (1, 1, 1), and vice versa!
                     // Think carefully about this before changing the number 1010.0 below (which actually is 2.0*(400.0+100.0) (+10.0 for "safety")).
-                    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[State.Heading], ViewDirY*LookupTables::Angle16ToCos[State.Heading], ViewDirZ);
-                    const VectorT RocketOrigin(State.Origin-VectorT(0.0, 0.0, 200.0)+scale(ViewDir, 1010.0)+scale(State.Velocity, double(PlayerCommand.FrameTime)));
+                    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
+                    const VectorT RocketOrigin(Player->GetOrigin()-VectorT(0.0, 0.0, 200.0)+scale(ViewDir, 1010.0)+scale(State.Velocity, double(PlayerCommand.FrameTime)));
                     std::map<std::string, std::string> Props;
 
                     Props["classname"]="monster_rocket";
@@ -106,7 +106,7 @@ void CarriedWeaponRPGT::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCo
                         EntRocketT* Rocket=dynamic_cast<EntRocketT*>(Player->GameWorld->GetBaseEntityByID(RocketID));
 
                         Rocket->ParentID=Player->ID;
-                        Rocket->SetHeading(State.Heading);
+                        Rocket->SetHeading(Player->GetHeading());
                         Rocket->SetVelocity(scale(ViewDir, 14000.0));   // Rocket has own propulsion.
                     }
                 }

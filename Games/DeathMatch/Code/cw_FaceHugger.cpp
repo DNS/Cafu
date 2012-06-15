@@ -95,7 +95,7 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, const P
                 if (ThinkingOnServerSide)
                 {
                     // Clamp 'Pitch' values larger than 45° (==8192) to 45°.
-                    const unsigned short Pitch=(State.Pitch>8192 && State.Pitch<=16384) ? 8192 : State.Pitch;
+                    const unsigned short Pitch=(Player->GetPitch()>8192 && Player->GetPitch()<=16384) ? 8192 : Player->GetPitch();
 
                     const float ViewDirZ=-LookupTables::Angle16ToSin[Pitch];
                     const float ViewDirY= LookupTables::Angle16ToCos[Pitch];
@@ -103,8 +103,8 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, const P
                     // Note: There is a non-trivial relationship between heading, pitch, and the corresponding view vector.
                     // Especially does a heading and pitch of 45° NOT correspond to the view vector (1, 1, 1), and vice versa!
                     // Think carefully about this before changing the number 1010.0 below (which actually is 2.0*(400.0+100.0) (+10.0 for "safety")).
-                    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[State.Heading], ViewDirY*LookupTables::Angle16ToCos[State.Heading], ViewDirZ);
-                    const VectorT FaceHuggerOrigin(State.Origin+scale(ViewDir, 1010.0)+scale(State.Velocity, double(PlayerCommand.FrameTime)));
+                    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
+                    const VectorT FaceHuggerOrigin(Player->GetOrigin()+scale(ViewDir, 1010.0)+scale(State.Velocity, double(PlayerCommand.FrameTime)));
                     std::map<std::string, std::string> Props;
 
                     Props["classname"]="monster_facehugger";
@@ -116,7 +116,7 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, const P
                         EntFaceHuggerT* FaceHugger=dynamic_cast<EntFaceHuggerT*>(Player->GameWorld->GetBaseEntityByID(FaceHuggerID));
 
                         FaceHugger->ParentID=Player->ID;
-                        FaceHugger->SetHeading(State.Heading);
+                        FaceHugger->SetHeading(Player->GetHeading());
                         FaceHugger->SetVelocity(State.Velocity+scale(ViewDir, 7000.0));
                     }
                 }
@@ -171,13 +171,13 @@ void CarriedWeaponFaceHuggerT::ClientSide_HandlePrimaryFireEvent(const EntHumanP
 {
     const EntityStateT& State=Player->GetState();
 
-    const float ViewDirZ=-LookupTables::Angle16ToSin[State.Pitch];
-    const float ViewDirY= LookupTables::Angle16ToCos[State.Pitch];
+    const float ViewDirZ=-LookupTables::Angle16ToSin[Player->GetPitch()];
+    const float ViewDirY= LookupTables::Angle16ToCos[Player->GetPitch()];
 
-    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[State.Heading], ViewDirY*LookupTables::Angle16ToCos[State.Heading], ViewDirZ);
+    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
 
     // Update sound position and velocity.
-    FireSound->SetPosition(State.Origin+scale(ViewDir, 200.0));
+    FireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 200.0));
     FireSound->SetVelocity(State.Velocity);
 
     // Play the fire sound.
