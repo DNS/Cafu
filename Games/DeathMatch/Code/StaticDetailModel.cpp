@@ -234,19 +234,7 @@ EntStaticDetailModelT::~EntStaticDetailModelT()
 }
 
 
-void EntStaticDetailModelT::Think(float FrameTime, unsigned long ServerFrameNr)
-{
-    if (Gui)
-    {
-        // It is important that we advance the time on the server-side GUI, too,
-        // so that it can for example work off the "pending interpolations" that the GUI scripts can create.
-        // Note that we *never* get here on the client-side, and therefore the call is duplicated below in EntStaticDetailModelT::PostDraw() again.
-        Gui->DistributeClockTickEvents(FrameTime);
-    }
-}
-
-
-void EntStaticDetailModelT::Cl_UnserializeFrom()
+void EntStaticDetailModelT::DoDeserialize(cf::Network::InStreamT& Stream)
 {
     // Even though our m_Origin is never modified in Think(),
     // the code below is necessary because the client first creates new entities,
@@ -257,6 +245,18 @@ void EntStaticDetailModelT::Cl_UnserializeFrom()
                            * cf::math::Matrix3x3T<double>::GetRotateYMatrix(     double(m_Bank   )/8192.0*45.0)
                            * cf::math::Matrix3x3T<double>::GetRotateXMatrix(    -double(m_Pitch  )/8192.0*45.0));
     ClipModel.Register();
+}
+
+
+void EntStaticDetailModelT::Think(float FrameTime, unsigned long ServerFrameNr)
+{
+    if (Gui)
+    {
+        // It is important that we advance the time on the server-side GUI, too,
+        // so that it can for example work off the "pending interpolations" that the GUI scripts can create.
+        // Note that we *never* get here on the client-side, and therefore the call is duplicated below in EntStaticDetailModelT::PostDraw() again.
+        Gui->DistributeClockTickEvents(FrameTime);
+    }
 }
 
 

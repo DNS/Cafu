@@ -198,6 +198,13 @@ EntFuncDoorT::~EntFuncDoorT()
 }
 
 
+void EntFuncDoorT::DoDeserialize(cf::Network::InStreamT& Stream)
+{
+    ClipModel.SetOrigin(m_Origin);
+    ClipModel.Register();
+}
+
+
 void EntFuncDoorT::UpdateMovePos(float MoveFraction_)
 {
     MoveFraction=MoveFraction_;
@@ -353,13 +360,6 @@ void EntFuncDoorT::OnTrigger(BaseEntityT* Activator)
             DoorState=Opening;
             break;
     }
-}
-
-
-void EntFuncDoorT::Cl_UnserializeFrom()
-{
-    ClipModel.SetOrigin(m_Origin);
-    ClipModel.Register();
 }
 
 

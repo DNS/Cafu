@@ -196,11 +196,6 @@ void BaseEntityT::Think(float /*FrameTime*/, unsigned long /*ServerFrameNr*/)
 }
 
 
-void BaseEntityT::Cl_UnserializeFrom()
-{
-}
-
-
 void BaseEntityT::ProcessEvent(unsigned int /*EventType*/, unsigned int /*NumEvents*/)
 {
 }

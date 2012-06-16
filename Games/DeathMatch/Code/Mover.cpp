@@ -93,6 +93,13 @@ EntFuncMoverT::EntFuncMoverT(const EntityCreateParamsT& Params)
 }
 
 
+void EntFuncMoverT::DoDeserialize(cf::Network::InStreamT& Stream)
+{
+    ClipModel.SetOrigin(m_Origin);
+    ClipModel.Register();
+}
+
+
 void EntFuncMoverT::Think(float FrameTime, unsigned long ServerFrameNr)
 {
     if (TranslationLinTimeLeft>0.0f)
@@ -145,13 +152,6 @@ void EntFuncMoverT::Think(float FrameTime, unsigned long ServerFrameNr)
         ClipModel.SetOrigin(m_Origin);
         ClipModel.Register();  // Re-register ourselves with the clip world.
     }
-}
-
-
-void EntFuncMoverT::Cl_UnserializeFrom()
-{
-    ClipModel.SetOrigin(m_Origin);
-    ClipModel.Register();
 }
 
 

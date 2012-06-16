@@ -112,12 +112,19 @@ class BaseEntityT
 
     /// Writes the current state of this entity into the given stream.
     /// This method is called to send the state of the entity over the network or to save it to disk.
+    ///
+    /// The implementation calls DoSerialize(), that derived classes override to add their own data.
+    ///
     /// Note that this method is the twin of Deserialize(), whose implementation it must match.
     virtual void Serialize(cf::Network::OutStreamT& Stream) const;
 
     /// Reads the state of this entity from the given stream, and updates the entity accordingly.
     /// This method is called after the state of the entity has been received over the network,
     /// has been loaded from disk, or must be "reset" for the purpose of (re-)prediction.
+    ///
+    /// The implementation calls DoDeserialize(), that derived classes override to read their own data.
+    /// It also calls ProcessEvent() (overridden by derived classes) for any received events.
+    ///
     /// Note that this method is the twin of Serialize(), whose implementation it must match.
     ///
     /// @param Stream
@@ -227,7 +234,7 @@ class BaseEntityT
     /// Increases the frag count of this entity by the given number.
     void AddFrag(int NumFrags=1);
 
-    /// This server-side function is used for posting an event of the given type.
+    /// This SERVER-SIDE function is used for posting an event of the given type.
     /// The event is automatically sent from the entity instance on the server to the entity instances
     /// on the clients, and causes a matching call to ProcessEvent() there.
     /// The meaning of the event type is specific to the concrete entity class.
@@ -243,10 +250,6 @@ class BaseEntityT
     /// >>> For further details and examples, please refer to the EntHumanPlayerT::Think() function in HumanPlayer.cpp.                     <<<
     virtual void Think(float FrameTime, unsigned long ServerFrameNr);
 
-
-    /// The client calls this method when it received an update of this entitys state from the server.
-    // /// @param NetMsg   The network message that contains the update.
-    virtual void Cl_UnserializeFrom(/*TODO: Add NetMsg param here.*/);
 
     /// This CLIENT-SIDE function is called to process events on the client.
     /// Events that have been posted via PostEvent() on the server (or in client prediction) are eventually
@@ -327,6 +330,20 @@ class BaseEntityT
 
     BaseEntityT(const BaseEntityT&);        ///< Use of the Copy    Constructor is not allowed.
     void operator = (const BaseEntityT&);   ///< Use of the Assignment Operator is not allowed.
+
+    /// Derived classes override this method in order to write their state into the given stream.
+    /// The method itself is automatically called from Serialize(), see Serialize() for more details.
+    ///
+    /// (This follows the "Non-Virtual Interface Idiom" as described by Scott Meyers in
+    /// "Effective C++, 3rd Edition", item 35 ("Consider alternatives to virtual functions.").)
+    virtual void DoSerialize(cf::Network::OutStreamT& Stream) const { }
+
+    /// Derived classes override this method in order to read their state from the given stream.
+    /// The method itself is automatically called from Deserialize(), see Deserialize() for more details.
+    ///
+    /// (This follows the "Non-Virtual Interface Idiom" as described by Scott Meyers in
+    /// "Effective C++, 3rd Edition", item 35 ("Consider alternatives to virtual functions.").)
+    virtual void DoDeserialize(cf::Network::InStreamT& Stream) { }
 
     ArrayT<uint32_t> m_EventsCount;         ///< A counter for each event type for the number of its occurrences. Serialized (and deserialized) normally along with the entity state.
     ArrayT<uint32_t> m_EventsRef;           ///< A reference counter for each event type for the number of processed occurrences. Never serialized (or deserialized), never reset, strictly growing.

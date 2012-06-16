@@ -45,7 +45,6 @@ class EntCompanyBotT : public BaseEntityT, public btMotionState
     void TakeDamage(BaseEntityT* Entity, char Amount, const VectorT& ImpactDir);
     void Think(float FrameTime, unsigned long ServerFrameNr);
 
-    void Cl_UnserializeFrom();
     bool GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const;
     void Draw(bool FirstPersonView, float LodDist) const;
     void PostDraw(float FrameTime, bool FirstPersonView);
@@ -61,6 +60,8 @@ class EntCompanyBotT : public BaseEntityT, public btMotionState
 
 
     private:
+
+    void DoDeserialize(cf::Network::InStreamT& Stream);     // Override the BaseEntityT base class method.
 
     void AdvanceModelTime(float Time, bool Loop);
 

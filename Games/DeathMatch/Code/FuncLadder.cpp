@@ -67,7 +67,7 @@ EntFuncLadderT::EntFuncLadderT(const EntityCreateParamsT& Params)
     // Registering the clip model with the clip world is very important, so that we cannot run "into" ladder brushes.
     // !!! Note that ladder brushes are currently always at the origin (0, 0, 0).
     // !!! That is the only reason why we don't need to call e.g. ClipModel.SetOrigin()
-    // !!! AND don't need to provide the Cl_UnserializeFrom() method!
+    // !!! AND don't need to update the origin and re-register in DoDeserialize()!
     ClipModel.Register();
 
 

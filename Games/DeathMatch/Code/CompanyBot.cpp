@@ -145,6 +145,32 @@ EntCompanyBotT::~EntCompanyBotT()
 }
 
 
+void EntCompanyBotT::DoDeserialize(cf::Network::InStreamT& Stream)
+{
+    const bool IsAlive=(State.ModelSequNr<18 || State.ModelSequNr>24);
+
+    btTransform WorldTrafo;
+    getWorldTransform(WorldTrafo);
+    m_RigidBody->setWorldTransform(WorldTrafo);
+
+    if (IsAlive)
+    {
+        ClipModel.SetOrigin(m_Origin);
+        ClipModel.Register();
+
+        if (!m_RigidBody->isInWorld())
+            PhysicsWorld->AddRigidBody(m_RigidBody);
+    }
+    else
+    {
+        ClipModel.Unregister();
+
+        if (m_RigidBody->isInWorld())
+            PhysicsWorld->RemoveRigidBody(m_RigidBody);
+    }
+}
+
+
 void EntCompanyBotT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT& ImpactDir)
 {
     // Dead company bots can take no further damage.
@@ -272,32 +298,6 @@ void EntCompanyBotT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
     // The torch should probably rather be a true *child* of the CompanyBot...
     ///BaseEntityT* Torch=GameWorld->GetBaseEntityByID(TorchID);
     ///if (Torch) Torch->m_Origin=m_Origin+VectorT(0.0, 0.0, -300.0)+VectorT(LookupTables::Angle16ToSin[m_Heading]*500.0, LookupTables::Angle16ToCos[m_Heading]*500.0, 0.0);
-}
-
-
-void EntCompanyBotT::Cl_UnserializeFrom()
-{
-    const bool IsAlive=(State.ModelSequNr<18 || State.ModelSequNr>24);
-
-    btTransform WorldTrafo;
-    getWorldTransform(WorldTrafo);
-    m_RigidBody->setWorldTransform(WorldTrafo);
-
-    if (IsAlive)
-    {
-        ClipModel.SetOrigin(m_Origin);
-        ClipModel.Register();
-
-        if (!m_RigidBody->isInWorld())
-            PhysicsWorld->AddRigidBody(m_RigidBody);
-    }
-    else
-    {
-        ClipModel.Unregister();
-
-        if (m_RigidBody->isInWorld())
-            PhysicsWorld->RemoveRigidBody(m_RigidBody);
-    }
 }
 
 

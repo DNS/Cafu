@@ -45,7 +45,6 @@ class EntStaticDetailModelT : public BaseEntityT
 
     void Think(float FrameTime, unsigned long ServerFrameNr);
 
-    void Cl_UnserializeFrom();
     void ProcessEvent(unsigned int EventType, unsigned int NumEvents);
     void Draw(bool FirstPersonView, float LodDist) const;
     void PostDraw(float FrameTime, bool FirstPersonView);
@@ -69,6 +68,8 @@ class EntStaticDetailModelT : public BaseEntityT
 
 
     protected:
+
+    void DoDeserialize(cf::Network::InStreamT& Stream);     // Override the BaseEntityT base class method.
 
     enum EventTypesT { EVENT_TYPE_RESTART_SEQU, NUM_EVENT_TYPES };
 

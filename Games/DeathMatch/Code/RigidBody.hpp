@@ -41,7 +41,6 @@ class EntRigidBodyT : public BaseEntityT, public btMotionState
     // Implement the BaseEntityT interface.
     void TakeDamage(BaseEntityT* Entity, char Amount, const VectorT& ImpactDir);
     void Think(float FrameTime, unsigned long ServerFrameNr);
-    void Cl_UnserializeFrom();
     bool DrawInterpolated() const { return false; }     ///< Tell the engine to not use interpolation for rigid bodies, because we use some variables in our State member in a way that is not compatible with the engines interpolation.
     void Draw(bool FirstPersonView, float LodDist) const;
 
@@ -56,6 +55,8 @@ class EntRigidBodyT : public BaseEntityT, public btMotionState
 
 
     private:
+
+    void DoDeserialize(cf::Network::InStreamT& Stream);     // Override the BaseEntityT base class method.
 
     const cf::SceneGraph::GenericNodeT* m_RootNode;         ///< The root node of the scene graph of the model (brushwork) of this entity.
     btCollisionShape*                   m_CollisionShape;   ///< The collision shape for use with the rigid body.

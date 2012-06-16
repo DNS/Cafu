@@ -36,7 +36,6 @@ class EntFuncMoverT : public BaseEntityT
 
     EntFuncMoverT(const EntityCreateParamsT& Params);
     void Think(float FrameTime, unsigned long ServerFrameNr);
-    void Cl_UnserializeFrom();
     void Draw(bool FirstPersonView, float LodDist) const;
 
 
@@ -46,6 +45,8 @@ class EntFuncMoverT : public BaseEntityT
 
 
     private:
+
+    void DoDeserialize(cf::Network::InStreamT& Stream);     // Override the BaseEntityT base class method.
 
     Vector3dT TranslationSource;
     Vector3dT TranslationDest;

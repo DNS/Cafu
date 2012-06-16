@@ -137,6 +137,24 @@ EntRigidBodyT::~EntRigidBodyT()
 }
 
 
+void EntRigidBodyT::DoDeserialize(cf::Network::InStreamT& Stream)
+{
+    // Client-side: Properly update the clip model of the "old" ClipSys at the new position and orientation.
+    btQuaternion Quat(m_Heading/32767.0f-1.0f, m_Pitch/32767.0f-1.0f, m_Bank/32767.0f-1.0f, State.ModelFrameNr);
+    // Quat.normalize();     // Doesn't help much - need a special version that takes into account that w is correct already.
+    btMatrix3x3  Basis(Quat);
+    cf::math::Matrix3x3T<double> Orient;
+
+    for (unsigned long i=0; i<3; i++)
+        for (unsigned long j=0; j<3; j++)
+            Orient[i][j]=Basis[i][j];
+
+    ClipModel.SetOrigin(m_Origin);
+    ClipModel.SetOrientation(Orient);
+    ClipModel.Register();
+}
+
+
 void EntRigidBodyT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT& ImpactDir)
 {
     const float     Scale=2.0f;                                         // Just an experimentally determined number that seems to work well.
@@ -158,24 +176,6 @@ void EntRigidBodyT::Think(float FrameTime, unsigned long ServerFrameNr)
 {
     // Rigid bodies don't think by theirselves
     // - the physics world does all thinking for them.
-}
-
-
-void EntRigidBodyT::Cl_UnserializeFrom()
-{
-    // Client-side: Properly update the clip model of the "old" ClipSys at the new position and orientation.
-    btQuaternion Quat(m_Heading/32767.0f-1.0f, m_Pitch/32767.0f-1.0f, m_Bank/32767.0f-1.0f, State.ModelFrameNr);
-    // Quat.normalize();     // Doesn't help much - need a special version that takes into account that w is correct already.
-    btMatrix3x3  Basis(Quat);
-    cf::math::Matrix3x3T<double> Orient;
-
-    for (unsigned long i=0; i<3; i++)
-        for (unsigned long j=0; j<3; j++)
-            Orient[i][j]=Basis[i][j];
-
-    ClipModel.SetOrigin(m_Origin);
-    ClipModel.SetOrientation(Orient);
-    ClipModel.Register();
 }
 
 

@@ -40,7 +40,6 @@ class EntFuncDoorT : public BaseEntityT
     void Think(float FrameTime, unsigned long ServerFrameNr);
     void OnTrigger(BaseEntityT* Activator);
 
-    void Cl_UnserializeFrom();
     void Draw(bool FirstPersonView, float LodDist) const;
 
 
@@ -51,9 +50,11 @@ class EntFuncDoorT : public BaseEntityT
 
     private:
 
-    enum DoorStateT { Closed, Opening, Open, Closing };
+    void DoDeserialize(cf::Network::InStreamT& Stream);     // Override the BaseEntityT base class method.
 
     void UpdateMovePos(float MoveFraction_);
+
+    enum DoorStateT { Closed, Opening, Open, Closing };
 
     const cf::ClipSys::CollisionModelT* InfraredCollMdl;    ///< The collision model for the doors "infrared" trigger volume, covering both sides of the door (and the door itself).
     cf::ClipSys::ClipModelT             InfraredClipMdl;    ///< The related clip model for the automatic "infrared" operation of the door.

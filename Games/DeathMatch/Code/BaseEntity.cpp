@@ -179,9 +179,6 @@ BaseEntityT::~BaseEntityT()
 }
 
 
-// NOTE / TODO:
-// This implementation is transitional only, the method should of course be implemented
-// in the derived classes and member State of type EntityStateT should be "disintegrated".
 void BaseEntityT::Serialize(cf::Network::OutStreamT& Stream) const
 {
     Stream << float(m_Origin.x);
@@ -214,12 +211,12 @@ void BaseEntityT::Serialize(cf::Network::OutStreamT& Stream) const
 
     for (unsigned int i = 0; i < m_EventsCount.Size(); i++)
         Stream << m_EventsCount[i];
+
+    // Let the derived classes add their own data.
+    DoSerialize(Stream);
 }
 
 
-// NOTE / TODO:
-// This implementation is transitional only, the method should of course be implemented
-// in the derived classes and member State of type EntityStateT should be "disintegrated".
 void BaseEntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
 {
     float    f =0.0f;
@@ -256,11 +253,8 @@ void BaseEntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
     for (unsigned int i = 0; i < m_EventsCount.Size(); i++)
         Stream >> m_EventsCount[i];
 
-
-    // A temp. hack to get the entities ClipModel origin updated.
-    // TODO: Maybe we should only make "DoDeserialize()" virtual, and have pre- and post-code here...
-    Cl_UnserializeFrom();
-
+    // Let the derived classes get their own data.
+    DoDeserialize(Stream);
 
     // Process events.
     // Note that events, as implemented here, are fully predictable:
@@ -400,11 +394,6 @@ void BaseEntityT::AddFrag(int NumFrags)
 
 
 void BaseEntityT::Think(float /*FrameTime*/, unsigned long /*ServerFrameNr*/)
-{
-}
-
-
-void BaseEntityT::Cl_UnserializeFrom()
 {
 }
 
