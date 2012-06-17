@@ -36,7 +36,6 @@ class EntPointLightSourceT : public BaseEntityT
     EntPointLightSourceT(const EntityCreateParamsT& Params);
 
     bool GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const;
- // void Draw(bool FirstPersonView, float LodDist) const;
 
 
     const cf::TypeSys::TypeInfoT* GetType() const;
@@ -46,13 +45,14 @@ class EntPointLightSourceT : public BaseEntityT
 
     private:
 
-    // Dynamic light source parameters.
-    // They've been made references into the BaseEntity::State member, so that they get sync'ed over the network
-    // (except for dls_CastsShadows, which is considered constant after initialization).
-    float&         dls_Radius;
-    unsigned long& dls_DiffuseColor;
-    unsigned long& dls_SpecularColor;
-    bool           dls_CastsShadows;
+    void DoSerialize(cf::Network::OutStreamT& Stream) const;    // Override the BaseEntityT base class method.
+    void DoDeserialize(cf::Network::InStreamT& Stream);         // Override the BaseEntityT base class method.
+
+
+    float    m_Radius;
+    uint32_t m_DiffuseColor;
+    uint32_t m_SpecularColor;
+    bool     m_CastsShadows;
 
 
     // Script methods (to be called from the map/entity Lua scripts).

@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "PointLightSource.hpp"
 #include "EntityCreateParams.hpp"
 #include "ScriptState.hpp"
+#include "Network/State.hpp"
 #include "TypeSys.hpp"
 
 extern "C"
@@ -74,10 +75,10 @@ EntPointLightSourceT::EntPointLightSourceT(const EntityCreateParamsT& Params)
                                0,       // ActiveWeaponSlot
                                0,       // ActiveWeaponSequNr
                                0.0)),   // ActiveWeaponFrameNr
-      dls_Radius(State.ActiveWeaponFrameNr),
-      dls_DiffuseColor(State.HaveItems),
-      dls_SpecularColor(State.HaveWeapons),
-      dls_CastsShadows(true)
+      m_Radius(0.0f),
+      m_DiffuseColor(0),
+      m_SpecularColor(0),
+      m_CastsShadows(true)
 {
     // Werte die 'PropertyPairs' aus, die von der Basis-Klasse 'BaseEntity' noch nicht ausgewertet wurden!
     for (std::map<std::string, std::string>::const_iterator It=Properties.begin(); It!=Properties.end(); ++It)
@@ -87,7 +88,7 @@ EntPointLightSourceT::EntPointLightSourceT(const EntityCreateParamsT& Params)
 
         if (Key=="light_radius")
         {
-            dls_Radius=float(atof(Value.c_str()));
+            m_Radius=float(atof(Value.c_str()));
         }
         else if (Key=="light_color_diff")
         {
@@ -96,9 +97,9 @@ EntPointLightSourceT::EntPointLightSourceT(const EntityCreateParamsT& Params)
 
             iss >> r >> g >> b;
 
-            dls_DiffuseColor+= r;
-            dls_DiffuseColor+=(g <<  8);
-            dls_DiffuseColor+=(b << 16);
+            m_DiffuseColor+= r;
+            m_DiffuseColor+=(g <<  8);
+            m_DiffuseColor+=(b << 16);
         }
         else if (Key=="light_color_spec")
         {
@@ -107,29 +108,47 @@ EntPointLightSourceT::EntPointLightSourceT(const EntityCreateParamsT& Params)
 
             iss >> r >> g >> b;
 
-            dls_SpecularColor+= r;
-            dls_SpecularColor+=(g <<  8);
-            dls_SpecularColor+=(b << 16);
+            m_SpecularColor+= r;
+            m_SpecularColor+=(g <<  8);
+            m_SpecularColor+=(b << 16);
         }
         else if (Key=="light_casts_shadows")
         {
-            dls_CastsShadows=atoi(Value.c_str())!=0;
+            m_CastsShadows=atoi(Value.c_str())!=0;
         }
     }
 
-    // printf("Instantiated an EntPointLightSourceT at %f %f %f, r %f, %lu %lu!\n", m_Origin.x, m_Origin.y, m_Origin.z, dls_Radius, dls_DiffuseColor, dls_SpecularColor);
+    // printf("Instantiated an EntPointLightSourceT at %f %f %f, r %f, %lu %lu!\n", m_Origin.x, m_Origin.y, m_Origin.z, m_Radius, m_DiffuseColor, m_SpecularColor);
+}
+
+
+void EntPointLightSourceT::DoSerialize(cf::Network::OutStreamT& Stream) const
+{
+    Stream << m_Radius;
+    Stream << m_DiffuseColor;
+    Stream << m_SpecularColor;
+    Stream << m_CastsShadows;
+}
+
+
+void EntPointLightSourceT::DoDeserialize(cf::Network::InStreamT& Stream)
+{
+    Stream >> m_Radius;
+    Stream >> m_DiffuseColor;
+    Stream >> m_SpecularColor;
+    Stream >> m_CastsShadows;
 }
 
 
 bool EntPointLightSourceT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const
 {
-    if (dls_DiffuseColor==0 && dls_SpecularColor==0) return false;
+    if (m_DiffuseColor==0 && m_SpecularColor==0) return false;
 
     Position     =m_Origin;
-    Radius       =dls_Radius;
-    DiffuseColor =dls_DiffuseColor;
-    SpecularColor=dls_SpecularColor;
-    CastsShadows =dls_CastsShadows;
+    Radius       =m_Radius;
+    DiffuseColor =m_DiffuseColor;
+    SpecularColor=m_SpecularColor;
+    CastsShadows =m_CastsShadows;
 
     return true;
 }
@@ -139,13 +158,13 @@ int EntPointLightSourceT::GetColor(lua_State* LuaState)
 {
     EntPointLightSourceT* Ent=(EntPointLightSourceT*)cf::GameSys::ScriptStateT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
 
-    lua_pushnumber(LuaState, (Ent->dls_DiffuseColor >>  0) & 0xFF);
-    lua_pushnumber(LuaState, (Ent->dls_DiffuseColor >>  8) & 0xFF);
-    lua_pushnumber(LuaState, (Ent->dls_DiffuseColor >> 16) & 0xFF);
+    lua_pushnumber(LuaState, (Ent->m_DiffuseColor >>  0) & 0xFF);
+    lua_pushnumber(LuaState, (Ent->m_DiffuseColor >>  8) & 0xFF);
+    lua_pushnumber(LuaState, (Ent->m_DiffuseColor >> 16) & 0xFF);
 
-    lua_pushnumber(LuaState, (Ent->dls_SpecularColor >>  0) & 0xFF);
-    lua_pushnumber(LuaState, (Ent->dls_SpecularColor >>  8) & 0xFF);
-    lua_pushnumber(LuaState, (Ent->dls_SpecularColor >> 16) & 0xFF);
+    lua_pushnumber(LuaState, (Ent->m_SpecularColor >>  0) & 0xFF);
+    lua_pushnumber(LuaState, (Ent->m_SpecularColor >>  8) & 0xFF);
+    lua_pushnumber(LuaState, (Ent->m_SpecularColor >> 16) & 0xFF);
 
     return 6;
 }
@@ -159,8 +178,8 @@ int EntPointLightSourceT::SetColor(lua_State* LuaState)
     const unsigned long dg=((unsigned long)luaL_checknumber(LuaState, 3)) & 0xFF;
     const unsigned long db=((unsigned long)luaL_checknumber(LuaState, 4)) & 0xFF;
 
-    Ent->dls_DiffuseColor =(db << 16) + (dg << 8) + (dr << 0);
-    Ent->dls_SpecularColor=Ent->dls_DiffuseColor;
+    Ent->m_DiffuseColor =(db << 16) + (dg << 8) + (dr << 0);
+    Ent->m_SpecularColor=Ent->m_DiffuseColor;
 
     if (lua_gettop(LuaState)==7)
     {
@@ -168,7 +187,7 @@ int EntPointLightSourceT::SetColor(lua_State* LuaState)
         const unsigned long sg=((unsigned long)luaL_checknumber(LuaState, 6)) & 0xFF;
         const unsigned long sb=((unsigned long)luaL_checknumber(LuaState, 7)) & 0xFF;
 
-        Ent->dls_SpecularColor=(sb << 16) + (sg << 8) + (sr << 0);
+        Ent->m_SpecularColor=(sb << 16) + (sg << 8) + (sr << 0);
     }
 
     return 0;
@@ -179,7 +198,7 @@ int EntPointLightSourceT::GetRadius(lua_State* LuaState)
 {
     EntPointLightSourceT* Ent=(EntPointLightSourceT*)cf::GameSys::ScriptStateT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
 
-    lua_pushnumber(LuaState, Ent->dls_Radius);
+    lua_pushnumber(LuaState, Ent->m_Radius);
 
     return 1;
 }
@@ -189,7 +208,7 @@ int EntPointLightSourceT::SetRadius(lua_State* LuaState)
 {
     EntPointLightSourceT* Ent=(EntPointLightSourceT*)cf::GameSys::ScriptStateT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
 
-    Ent->dls_Radius=float(luaL_checknumber(LuaState, 2));
+    Ent->m_Radius=float(luaL_checknumber(LuaState, 2));
 
     return 0;
 }

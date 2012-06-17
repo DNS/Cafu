@@ -132,6 +132,13 @@ class OutStreamT
         return *this;
     }
 
+    OutStreamT& operator << (bool b)
+    {
+        m_Data.PushBack(b ? 1 : 0);
+
+        return *this;
+    }
+
     OutStreamT& operator << (const char* s)
     {
         if (!s) s="NULL";
@@ -230,6 +237,16 @@ class InStreamT
         *this >> ui;
         f = *(float*)&ui;
 
+        return *this;
+    }
+
+    InStreamT& operator >> (bool& b)
+    {
+        if (m_ReadPos+1 > m_Data.Size()) { m_ReadOfl=true; return *this; }
+
+        b = (m_Data[m_ReadPos] != 0);
+
+        m_ReadPos+=1;
         return *this;
     }
 

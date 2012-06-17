@@ -66,7 +66,7 @@ EntSpeakerT::EntSpeakerT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
                   BoundingBox3dT(Vector3dT(0.0, 0.0, 0.0),
                                  Vector3dT(0.0, 0.0, 0.0)),
-                  0,
+                  NUM_EVENT_TYPES,
                   EntityStateT(VectorT(),
                                0,                           // StateOfExistance
                                0,                           // Flags
