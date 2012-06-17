@@ -34,15 +34,15 @@ static ConVarT AutoAddCompanyBot("sv_AutoAddCompanyBot", false, ConVarT::FLAG_MA
 
 CaServerWorldT::CaServerWorldT(const char* FileName, Ca3DEWorldT* Ca3DEWorld_)
     : Ca3DEWorld(Ca3DEWorld_),
-      EntityManager(*Ca3DEWorld->EntityManager),
+      EntityManager(*Ca3DEWorld->GetEntityManager()),
       ServerFrameNr(1)  // 0 geht nicht, denn die ClientInfoT::LastKnownFrameReceived werden mit 0 initialisiert!
 {
-    cf::GameSys::Game->Sv_PrepareNewWorld(FileName, Ca3DEWorld->CollModel);
+    cf::GameSys::Game->Sv_PrepareNewWorld(FileName, Ca3DEWorld->GetWorld().CollModel);
 
     // Gehe alle GameEntities der Ca3DEWorld durch und erstelle dafür "echte" Entities.
-    for (unsigned long GENr=0; GENr<Ca3DEWorld->GameEntities.Size(); GENr++)
+    for (unsigned long GENr=0; GENr<Ca3DEWorld->GetWorld().GameEntities.Size(); GENr++)
     {
-        const GameEntityT* GE=Ca3DEWorld->GameEntities[GENr];
+        const GameEntityT* GE=Ca3DEWorld->GetWorld().GameEntities[GENr];
 
         // Register GE->CollModel also with the cf::ClipSys::CollModelMan, so that both the owner (the game entity GE)
         // as well as the game code can free/delete it in their destructors (one by "delete", the other by cf::ClipSys::CollModelMan->FreeCM()).
@@ -52,14 +52,14 @@ CaServerWorldT::CaServerWorldT(const char* FileName, Ca3DEWorldT* Ca3DEWorld_)
     }
 
     // Gehe alle InfoPlayerStarts der Ca3DEWorld durch und erstelle dafür "echte" Entities.
-    for (unsigned long IPSNr=0; IPSNr<Ca3DEWorld->InfoPlayerStarts.Size(); IPSNr++)
+    for (unsigned long IPSNr=0; IPSNr<Ca3DEWorld->GetWorld().InfoPlayerStarts.Size(); IPSNr++)
     {
         std::map<std::string, std::string> Props;
 
         Props["classname"]="info_player_start";
-        Props["angles"]   =cf::va("0 %lu 0", (unsigned long)(Ca3DEWorld->InfoPlayerStarts[IPSNr].Heading/8192.0*45.0));
+        Props["angles"]   =cf::va("0 %lu 0", (unsigned long)(Ca3DEWorld->GetWorld().InfoPlayerStarts[IPSNr].Heading/8192.0*45.0));
 
-        EntityManager.CreateNewEntityFromBasicInfo(Props, NULL, NULL, (unsigned long)-1, (unsigned long)-1, ServerFrameNr, Ca3DEWorld->InfoPlayerStarts[IPSNr].Origin);
+        EntityManager.CreateNewEntityFromBasicInfo(Props, NULL, NULL, (unsigned long)-1, (unsigned long)-1, ServerFrameNr, Ca3DEWorld->GetWorld().InfoPlayerStarts[IPSNr].Origin);
     }
 
     // Zu Demonstrationszwecken fügen wir auch noch einen MonsterMaker vom Typ CompanyBot in die World ein.
@@ -69,12 +69,12 @@ CaServerWorldT::CaServerWorldT(const char* FileName, Ca3DEWorldT* Ca3DEWorld_)
         std::map<std::string, std::string> Props;
 
         Props["classname"]         ="LifeFormMaker";
-        Props["angles"]            =cf::va("0 %lu 0", (unsigned long)(Ca3DEWorld->InfoPlayerStarts[0].Heading/8192.0*45.0));
+        Props["angles"]            =cf::va("0 %lu 0", (unsigned long)(Ca3DEWorld->GetWorld().InfoPlayerStarts[0].Heading/8192.0*45.0));
         Props["monstertype"]       ="CompanyBot";
         Props["monstercount"]      ="1";
         Props["m_imaxlivechildren"]="1";
 
-        EntityManager.CreateNewEntityFromBasicInfo(Props, NULL, NULL, (unsigned long)-1, (unsigned long)-1, ServerFrameNr, Ca3DEWorld->InfoPlayerStarts[0].Origin);
+        EntityManager.CreateNewEntityFromBasicInfo(Props, NULL, NULL, (unsigned long)-1, (unsigned long)-1, ServerFrameNr, Ca3DEWorld->GetWorld().InfoPlayerStarts[0].Origin);
     }
 
     cf::GameSys::Game->Sv_FinishNewWorld(FileName);
@@ -94,9 +94,9 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
 
     Props["classname"]="HumanPlayer";
     Props["name"]     =cf::va("Player%lu", ClientInfoNr+1);     // Setting the name is needed so that player entities can have a corresponding script instance.
-    Props["angles"]   =cf::va("0 %lu 0", (unsigned long)(Ca3DEWorld->InfoPlayerStarts[0].Heading/8192.0*45.0));
+    Props["angles"]   =cf::va("0 %lu 0", (unsigned long)(Ca3DEWorld->GetWorld().InfoPlayerStarts[0].Heading/8192.0*45.0));
 
-    return EntityManager.CreateNewEntityFromBasicInfo(Props, NULL, NULL, (unsigned long)-1, (unsigned long)-1, ServerFrameNr+1, Ca3DEWorld->InfoPlayerStarts[0].Origin+VectorT(0, 0, 1000), PlayerName, ModelName);
+    return EntityManager.CreateNewEntityFromBasicInfo(Props, NULL, NULL, (unsigned long)-1, (unsigned long)-1, ServerFrameNr+1, Ca3DEWorld->GetWorld().InfoPlayerStarts[0].Origin+VectorT(0, 0, 1000), PlayerName, ModelName);
 }
 
 

@@ -207,7 +207,7 @@ void EntityManagerT::WriteFrameUpdateMessages(unsigned long ClientEntityID, unsi
 
     ArrayT<unsigned long>* NewStatePVSEntityIDs=&ClientOldStatesPVSEntityIDs[ClientCurrentStateIndex];
     ArrayT<unsigned long>* OldStatePVSEntityIDs=NULL;
-    unsigned long          ClientLeafNr        =(EngineEntities[ClientEntityID]!=NULL) ? Ca3DEWorld.BspTree->WhatLeaf(EngineEntities[ClientEntityID]->GetBaseEntity()->GetOrigin()) : 0;
+    unsigned long          ClientLeafNr        =(EngineEntities[ClientEntityID]!=NULL) ? Ca3DEWorld.GetWorld().BspTree->WhatLeaf(EngineEntities[ClientEntityID]->GetBaseEntity()->GetOrigin()) : 0;
 
     // Finde heraus, welche Entities im PVS von diesem Client liegen. Erhalte ein Array von EntityIDs.
     for (unsigned long EntityNr=0; EntityNr<EngineEntities.Size(); EntityNr++)
@@ -219,7 +219,7 @@ void EntityManagerT::WriteFrameUpdateMessages(unsigned long ClientEntityID, unsi
             EntityBB.Min += EntityOrigin;
             EntityBB.Max += EntityOrigin;
 
-            if (Ca3DEWorld.BspTree->IsInPVS(EntityBB, ClientLeafNr)) NewStatePVSEntityIDs->PushBack(EntityNr);
+            if (Ca3DEWorld.GetWorld().BspTree->IsInPVS(EntityBB, ClientLeafNr)) NewStatePVSEntityIDs->PushBack(EntityNr);
         }
 
 
@@ -338,10 +338,10 @@ bool EntityManagerT::CreateNewEntityFromEntityBaseLineMessage(NetDataT& InData)
     unsigned long EntityWFI   =InData.ReadLong();   // Short for: EntityWorldFileIndex
 
     const std::map<std::string, std::string>  EmptyMap;
-    const unsigned long                       MFIndex =EntityWFI<Ca3DEWorld.GameEntities.Size() ? Ca3DEWorld.GameEntities[EntityWFI]->MFIndex : 0xFFFFFFFF;
-    const std::map<std::string, std::string>& Props   =EntityWFI<Ca3DEWorld.GameEntities.Size() ? Ca3DEWorld.GameEntities[EntityWFI]->Properties : EmptyMap;
-    const cf::SceneGraph::GenericNodeT*       RootNode=EntityWFI<Ca3DEWorld.GameEntities.Size() ? Ca3DEWorld.GameEntities[EntityWFI]->BspTree : NULL;
-    const cf::ClipSys::CollisionModelT*       CollMdl =EntityWFI<Ca3DEWorld.GameEntities.Size() ? Ca3DEWorld.GameEntities[EntityWFI]->CollModel : NULL;
+    const unsigned long                       MFIndex =EntityWFI<Ca3DEWorld.GetWorld().GameEntities.Size() ? Ca3DEWorld.GetWorld().GameEntities[EntityWFI]->MFIndex : 0xFFFFFFFF;
+    const std::map<std::string, std::string>& Props   =EntityWFI<Ca3DEWorld.GetWorld().GameEntities.Size() ? Ca3DEWorld.GetWorld().GameEntities[EntityWFI]->Properties : EmptyMap;
+    const cf::SceneGraph::GenericNodeT*       RootNode=EntityWFI<Ca3DEWorld.GetWorld().GameEntities.Size() ? Ca3DEWorld.GetWorld().GameEntities[EntityWFI]->BspTree : NULL;
+    const cf::ClipSys::CollisionModelT*       CollMdl =EntityWFI<Ca3DEWorld.GetWorld().GameEntities.Size() ? Ca3DEWorld.GetWorld().GameEntities[EntityWFI]->CollModel : NULL;
 
     // Register CollMdl also with the cf::ClipSys::CollModelMan, so that both the owner (Ca3DEWorld.GameEntities[EntityWFI])
     // as well as the game code can free/delete it in their destructors (one by "delete", the other by cf::ClipSys::CollModelMan->FreeCM()).

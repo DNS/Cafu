@@ -31,34 +31,15 @@ class EntityManagerT;
 
 
 // Ca3DEWorldT implementiert die Eigenschaften, die eine CaServerWorld und eine CaClientWorld gemeinsam haben.
-// Insbesondere werden wg. der 'Client-Prediction' die LeafClipBrushes und die dazugehörigen Funktionen geteilt.
-// Sollte die 'Client-Prediction' jemals wieder abgeschafft werden (Internet schnell genug), können diese Daten/Funktionen wieder Server-eigen werden!
-// Beachte: Client-Prediction bisher nicht abgeschafft, die ClipBrushes sind nun aber in der Map enthalten.
-// ==> Können wir auf eine Ca3DEWorld verzichten?? Antwort: Nein, wegen dem EntityServiceInterface! (?)
 class Ca3DEWorldT : public cf::GameSys::GameWorldI
 {
-    private:
-
-    // This must unfortunately be above the public stuff below, or else the ctor inits the members in the wrong order!
-    const WorldT* World;
-
-
     public:
 
     Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/;
     ~Ca3DEWorldT();
 
-    // Decorator Pattern: Mimic the public interface of the original (Loadable)WorldT
-    cf::SceneGraph::BspTreeNodeT* const&       BspTree;
-    cf::ClipSys::CollisionModelStaticT* const& CollModel;
-    const ArrayT<InfoPlayerStartT>&            InfoPlayerStarts;
-    const cf::SceneGraph::LightMapManT&        LightMapMan;
-    const cf::SceneGraph::SHLMapManT&          SHLMapMan;
-    const ArrayT<GameEntityT*>&                GameEntities;
-
-    // Decorations
-    cf::ClipSys::ClipWorldT*  ClipWorld;        // This should eventually be moved into the game DLL code, but as Cl & Sv still have separate worlds, we need it here.
-    EntityManagerT*           EntityManager;
+    const WorldT& GetWorld() const { return *World; }
+    EntityManagerT*          GetEntityManager() { return EntityManager; }
 
     // The virtual methods inherited from the base class GameWorldI.
     cf::ClipSys::ClipWorldT&     GetClipWorld();
@@ -75,7 +56,10 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
     Ca3DEWorldT(const Ca3DEWorldT&);            ///< Use of the Copy Constructor    is not allowed.
     void operator = (const Ca3DEWorldT&);       ///< Use of the Assignment Operator is not allowed.
 
-    ModelManagerT& m_ModelMan;
+    const WorldT*            World;
+    cf::ClipSys::ClipWorldT* ClipWorld;
+    EntityManagerT*          EntityManager;
+    ModelManagerT&           m_ModelMan;
 };
 
 #endif

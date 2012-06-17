@@ -40,18 +40,18 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 CaClientWorldT::CaClientWorldT(const char* FileName, ModelManagerT& ModelMan, WorldT::ProgressFunctionT ProgressFunction, unsigned long OurEntityID_) /*throw (WorldT::LoadErrorT)*/
     : Ca3DEWorld(new Ca3DEWorldT(FileName, ModelMan, true, ProgressFunction)),
-      EntityManager(*Ca3DEWorld->EntityManager),
+      EntityManager(*Ca3DEWorld->GetEntityManager()),
       OurEntityID(OurEntityID_),
       ServerFrameNr(0xDEADBEAF),
       MAX_FRAMES(16) /*MUST BE POWER OF 2*/
 {
-    cf::GameSys::Game->Cl_LoadWorld(FileName, Ca3DEWorld->CollModel);
+    cf::GameSys::Game->Cl_LoadWorld(FileName, Ca3DEWorld->GetWorld().CollModel);
 
     ProgressFunction(-1.0f, "InitDrawing()");
-    Ca3DEWorld->BspTree->InitDrawing();
+    Ca3DEWorld->GetWorld().BspTree->InitDrawing();
 
-    for (unsigned long EntityNr=0; EntityNr<Ca3DEWorld->GameEntities.Size(); EntityNr++)
-        Ca3DEWorld->GameEntities[EntityNr]->BspTree->InitDrawing();
+    for (unsigned long EntityNr=0; EntityNr<Ca3DEWorld->GetWorld().GameEntities.Size(); EntityNr++)
+        Ca3DEWorld->GetWorld().GameEntities[EntityNr]->BspTree->InitDrawing();
 
     Frames.PushBackEmpty(MAX_FRAMES);
 
@@ -362,7 +362,7 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
     MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
     MatSys::Renderer->SetCurrentEyePosition(float(DrawOrigin.x), float(DrawOrigin.y), float(DrawOrigin.z)+EyeOffsetZ);    // Also required in some ambient shaders.
 
-    Ca3DEWorld->BspTree->DrawAmbientContrib(DrawOrigin);
+    Ca3DEWorld->GetWorld().BspTree->DrawAmbientContrib(DrawOrigin);
 
 
     if (!CurrentFrame.IsValid)
@@ -427,7 +427,7 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
 
         if (LightCastsShadows)
         {
-            Ca3DEWorld->BspTree->DrawStencilShadowVolumes(LightPosition, LightRadius);
+            Ca3DEWorld->GetWorld().BspTree->DrawStencilShadowVolumes(LightPosition, LightRadius);
 
          // static ConVarT LocalPlayerStencilShadows("cl_LocalPlayerStencilShadows", false, ConVarT::FLAG_MAIN_EXE, "Whether the local player casts stencil shadows.");
          // if (LocalPlayerStencilShadows.GetValueBool())
@@ -453,7 +453,7 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
         // Render the light-source dependent terms.
         MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::LIGHTING);
 
-        Ca3DEWorld->BspTree->DrawLightSourceContrib(DrawOrigin, LightPosition);
+        Ca3DEWorld->GetWorld().BspTree->DrawLightSourceContrib(DrawOrigin, LightPosition);
         EntityManager.DrawEntities(OurEntityID,
                                    false,
                                    DrawOrigin,
@@ -465,7 +465,7 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
     MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
 
     // Render translucent nodes back-to-front.
-    Ca3DEWorld->BspTree->DrawTranslucentContrib(DrawOrigin);
+    Ca3DEWorld->GetWorld().BspTree->DrawTranslucentContrib(DrawOrigin);
 
     // Zuletzt halbtransparente HUD-Elemente, Fonts usw. zeichnen.
     EntityManager.PostDrawEntities(FrameTime, OurEntityID, CurrentFrame.EntityIDsInPVS);
