@@ -41,9 +41,9 @@ static WorldManT WorldMan;
 
 
 Ca3DEWorldT::Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/
-    : World(WorldMan.LoadWorld(FileName, ModelMan, InitForGraphics, ProgressFunction)),
-      ClipWorld(new cf::ClipSys::ClipWorldT(World->CollModel)),
-      EntityManager(new EntityManagerT(*this)),
+    : m_World(WorldMan.LoadWorld(FileName, ModelMan, InitForGraphics, ProgressFunction)),
+      m_ClipWorld(new cf::ClipSys::ClipWorldT(m_World->CollModel)),
+      m_EntityManager(new EntityManagerT(*this)),
       m_ModelMan(ModelMan)
 {
 }
@@ -51,20 +51,39 @@ Ca3DEWorldT::Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, bool Ini
 
 Ca3DEWorldT::~Ca3DEWorldT()
 {
+    Clear();
+}
+
+
+void Ca3DEWorldT::Clear()
+{
     // Note that the EntityManager must be destructed *before* the ClipWorld,
     // so that all entities properly remove their clip model from the clip world on destruction.
     // In fact, this (control over the order of destruction) is the only reason why the
     // EntityManager is a pointer instead of an immediate member.
-    delete EntityManager;
-    delete ClipWorld;
+    if (m_EntityManager)
+    {
+        delete m_EntityManager;
+        m_EntityManager = NULL;
+    }
 
-    WorldMan.FreeWorld(World);
+    if (m_ClipWorld)
+    {
+        delete m_ClipWorld;
+        m_ClipWorld = NULL;
+    }
+
+    if (m_World)
+    {
+        WorldMan.FreeWorld(m_World);
+        m_World = NULL;
+    }
 }
 
 
 cf::ClipSys::ClipWorldT& Ca3DEWorldT::GetClipWorld()
 {
-    return *ClipWorld;
+    return *m_ClipWorld;
 }
 
 
@@ -84,13 +103,13 @@ Vector3fT Ca3DEWorldT::GetAmbientLightColorFromBB(const BoundingBox3T<double>& D
 #else
     // We therefore revert to this call, which is similarly limited (considers faces only) but is *much* faster!
     // Note that the proper future solution is to reimplement this method to use a precomputed lighting grid!!
-    const double    Trace   =World->BspTree->ClipLine(BBCenter, Vector3dT(0.0, 0.0, -1.0), 0.0, 999999.0);
+    const double    Trace   =m_World->BspTree->ClipLine(BBCenter, Vector3dT(0.0, 0.0, -1.0), 0.0, 999999.0);
     Vector3dT       Ground  =BBCenter+Vector3dT(0.0, 0.0, -(Trace-0.2));
 #endif
-    unsigned long   LeafNr  =World->BspTree->WhatLeaf(Ground);
+    unsigned long   LeafNr  =m_World->BspTree->WhatLeaf(Ground);
 
     // This is a relatively cheap (dumb) trick for dealing with problematic input (like some static detail models).
-    if (!World->BspTree->Leaves[LeafNr].IsInnerLeaf)
+    if (!m_World->BspTree->Leaves[LeafNr].IsInnerLeaf)
     {
         const VectorT TestPoints[4]={ VectorT(Dimensions.Min.x, Dimensions.Min.y, Dimensions.Max.z)+Origin,
                                       VectorT(Dimensions.Min.x, Dimensions.Max.y, Dimensions.Max.z)+Origin,
@@ -106,12 +125,12 @@ Vector3fT Ca3DEWorldT::GetAmbientLightColorFromBB(const BoundingBox3T<double>& D
             CollModel->TraceRay(TestPoints[TestNr], Ray, MaterialT::Clip_Radiance, Result);     // BUG / FIXME: I think we have to re-init Result here!
             const Vector3dT     TestGround=TestPoints[TestNr]+Ray*Result.Fraction+Vector3dT(0, 0, 0.2);
 #else
-            const double        TestTrace =World->BspTree->ClipLine(TestPoints[TestNr], Vector3dT(0.0, 0.0, -1.0), 0.0, 999999.0);
+            const double        TestTrace =m_World->BspTree->ClipLine(TestPoints[TestNr], Vector3dT(0.0, 0.0, -1.0), 0.0, 999999.0);
             const Vector3dT     TestGround=TestPoints[TestNr]+Vector3dT(0.0, 0.0, -(TestTrace-0.2));
 #endif
-            const unsigned long TestLeafNr=World->BspTree->WhatLeaf(TestGround);
+            const unsigned long TestLeafNr=m_World->BspTree->WhatLeaf(TestGround);
 
-            if (!World->BspTree->Leaves[TestLeafNr].IsInnerLeaf) continue;
+            if (!m_World->BspTree->Leaves[TestLeafNr].IsInnerLeaf) continue;
 
             if (TestGround.z>Ground.z)
             {
@@ -121,9 +140,9 @@ Vector3fT Ca3DEWorldT::GetAmbientLightColorFromBB(const BoundingBox3T<double>& D
         }
     }
 
-    for (unsigned long FNr=0; FNr<World->BspTree->Leaves[LeafNr].FaceChildrenSet.Size(); FNr++)
+    for (unsigned long FNr=0; FNr<m_World->BspTree->Leaves[LeafNr].FaceChildrenSet.Size(); FNr++)
     {
-        cf::SceneGraph::FaceNodeT* FaceNode=World->BspTree->FaceChildren[World->BspTree->Leaves[LeafNr].FaceChildrenSet[FNr]];
+        cf::SceneGraph::FaceNodeT* FaceNode=m_World->BspTree->FaceChildren[m_World->BspTree->Leaves[LeafNr].FaceChildrenSet[FNr]];
         Vector3fT                  AmbientLightColor;
 
         if (FaceNode->GetLightmapColorNearPosition(Ground, AmbientLightColor))
@@ -139,7 +158,7 @@ const ArrayT<unsigned long>& Ca3DEWorldT::GetAllEntityIDs() const
     static ArrayT<unsigned long> AllEntityIDs;
 
     AllEntityIDs.Clear();
-    EntityManager->GetAllEntityIDs(AllEntityIDs);
+    m_EntityManager->GetAllEntityIDs(AllEntityIDs);
 
     return AllEntityIDs;
 }
@@ -147,19 +166,19 @@ const ArrayT<unsigned long>& Ca3DEWorldT::GetAllEntityIDs() const
 
 BaseEntityT* Ca3DEWorldT::GetBaseEntityByID(unsigned long EntityID) const
 {
-    return EntityManager->GetBaseEntityByID(EntityID);
+    return m_EntityManager->GetBaseEntityByID(EntityID);
 }
 
 
 unsigned long Ca3DEWorldT::CreateNewEntity(const std::map<std::string, std::string>& Properties, unsigned long CreationFrameNr, const VectorT& Origin)
 {
-    return EntityManager->CreateNewEntityFromBasicInfo(Properties, NULL, NULL, (unsigned long)(-1), (unsigned long)(-1), CreationFrameNr, Origin);
+    return m_EntityManager->CreateNewEntityFromBasicInfo(Properties, NULL, NULL, (unsigned long)(-1), (unsigned long)(-1), CreationFrameNr, Origin);
 }
 
 
 void Ca3DEWorldT::RemoveEntity(unsigned long EntityID)
 {
-    EntityManager->RemoveEntity(EntityID);
+    m_EntityManager->RemoveEntity(EntityID);
 }
 
 

@@ -45,7 +45,7 @@ class FrameT
 };
 
 
-class CaClientWorldT
+class CaClientWorldT : public Ca3DEWorldT
 {
     public:
 
@@ -69,10 +69,6 @@ class CaClientWorldT
 
     CaClientWorldT(const CaClientWorldT&);      // Use of the Copy    Constructor is not allowed.
     void operator = (const CaClientWorldT&);    // Use of the Assignment Operator is not allowed.
-
-
-    Ca3DEWorldT*          Ca3DEWorld;
-    EntityManagerT&       EntityManager;
 
     unsigned long         OurEntityID;
 

@@ -38,8 +38,7 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
     Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/;
     ~Ca3DEWorldT();
 
-    const WorldT& GetWorld() const { return *World; }
-    EntityManagerT*          GetEntityManager() { return EntityManager; }
+    const WorldT& GetWorld() const { return *m_World; }
 
     // The virtual methods inherited from the base class GameWorldI.
     cf::ClipSys::ClipWorldT&     GetClipWorld();
@@ -51,15 +50,20 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
     const CafuModelT*            GetModel(const std::string& FileName) const;
 
 
+    protected:
+
+    void Clear();
+
+    const WorldT*            m_World;
+    cf::ClipSys::ClipWorldT* m_ClipWorld;
+    EntityManagerT*          m_EntityManager;
+    ModelManagerT&           m_ModelMan;
+
+
     private:
 
     Ca3DEWorldT(const Ca3DEWorldT&);            ///< Use of the Copy Constructor    is not allowed.
     void operator = (const Ca3DEWorldT&);       ///< Use of the Assignment Operator is not allowed.
-
-    const WorldT*            World;
-    cf::ClipSys::ClipWorldT* ClipWorld;
-    EntityManagerT*          EntityManager;
-    ModelManagerT&           m_ModelMan;
 };
 
 #endif

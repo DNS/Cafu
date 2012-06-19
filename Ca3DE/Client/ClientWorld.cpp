@@ -39,19 +39,18 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 CaClientWorldT::CaClientWorldT(const char* FileName, ModelManagerT& ModelMan, WorldT::ProgressFunctionT ProgressFunction, unsigned long OurEntityID_) /*throw (WorldT::LoadErrorT)*/
-    : Ca3DEWorld(new Ca3DEWorldT(FileName, ModelMan, true, ProgressFunction)),
-      EntityManager(*Ca3DEWorld->GetEntityManager()),
+    : Ca3DEWorldT(FileName, ModelMan, true, ProgressFunction),
       OurEntityID(OurEntityID_),
       ServerFrameNr(0xDEADBEAF),
       MAX_FRAMES(16) /*MUST BE POWER OF 2*/
 {
-    cf::GameSys::Game->Cl_LoadWorld(FileName, Ca3DEWorld->GetWorld().CollModel);
+    cf::GameSys::Game->Cl_LoadWorld(FileName, m_World->CollModel);
 
     ProgressFunction(-1.0f, "InitDrawing()");
-    Ca3DEWorld->GetWorld().BspTree->InitDrawing();
+    m_World->BspTree->InitDrawing();
 
-    for (unsigned long EntityNr=0; EntityNr<Ca3DEWorld->GetWorld().GameEntities.Size(); EntityNr++)
-        Ca3DEWorld->GetWorld().GameEntities[EntityNr]->BspTree->InitDrawing();
+    for (unsigned long EntityNr=0; EntityNr<m_World->GameEntities.Size(); EntityNr++)
+        m_World->GameEntities[EntityNr]->BspTree->InitDrawing();
 
     Frames.PushBackEmpty(MAX_FRAMES);
 
@@ -62,14 +61,14 @@ CaClientWorldT::CaClientWorldT(const char* FileName, ModelManagerT& ModelMan, Wo
 
 CaClientWorldT::~CaClientWorldT()
 {
-    delete Ca3DEWorld;                      // Deletes all game entities, and thus removes all entity objects from the games physics world.
+    Clear();                                // Deletes all game entities, and thus removes all entity objects from the games physics world.
     cf::GameSys::Game->Cl_UnloadWorld();    // Deletes the games physics world.
 }
 
 
 void CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
 {
-    EntityManager.CreateNewEntityFromEntityBaseLineMessage(InData);
+    m_EntityManager->CreateNewEntityFromEntityBaseLineMessage(InData);
 }
 
 
@@ -147,7 +146,7 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
             // Notwendig ist es, den Zustand dieses Entities vom DeltaFrame (Nummer CurrentFrame.DeltaFrameNr) in den Zustand des
             // CurrentFrames (Nummer CurrentFrame.ServerFrameNr) zu kopieren.
             CurrentFrame.IsValid&=      // Note that operator & doesn't short-circuit, like operator && does!
-                EntityManager.ParseServerDeltaUpdateMessage(DeltaFrameEntityID, CurrentFrame.DeltaFrameNr, CurrentFrame.ServerFrameNr, NULL);
+                m_EntityManager->ParseServerDeltaUpdateMessage(DeltaFrameEntityID, CurrentFrame.DeltaFrameNr, CurrentFrame.ServerFrameNr, NULL);
 
             DeltaFrameIndex++;
             if (DeltaFrameIndex>=DeltaFrame->EntityIDsInPVS.Size()) DeltaFrameEntityID=0x99999999;
@@ -182,7 +181,7 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
             CurrentFrame.EntityIDsInPVS.PushBack(NewEntityID);
 
             CurrentFrame.IsValid&=      // Note that operator & doesn't short-circuit, like operator && does!
-                EntityManager.ParseServerDeltaUpdateMessage(NewEntityID, CurrentFrame.DeltaFrameNr, CurrentFrame.ServerFrameNr, &DeltaMessage);
+                m_EntityManager->ParseServerDeltaUpdateMessage(NewEntityID, CurrentFrame.DeltaFrameNr, CurrentFrame.ServerFrameNr, &DeltaMessage);
 
             DeltaFrameIndex++;
             if (DeltaFrameIndex>=DeltaFrame->EntityIDsInPVS.Size()) DeltaFrameEntityID=0x99999999;
@@ -199,7 +198,7 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
             // EnqueueString("Frame %lu, Entity mit ID %i kam hinzu.\n", CurrentFrame.ServerFrameNr, NewEntityID);
 
             CurrentFrame.IsValid&=      // Note that operator & doesn't short-circuit, like operator && does!
-                EntityManager.ParseServerDeltaUpdateMessage(NewEntityID, 0, CurrentFrame.ServerFrameNr, &DeltaMessage);
+                m_EntityManager->ParseServerDeltaUpdateMessage(NewEntityID, 0, CurrentFrame.ServerFrameNr, &DeltaMessage);
             continue;
         }
     }
@@ -213,7 +212,7 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
         CurrentFrame.EntityIDsInPVS.PushBack(DeltaFrameEntityID);
 
         CurrentFrame.IsValid&=      // Note that operator & doesn't short-circuit, like operator && does!
-            EntityManager.ParseServerDeltaUpdateMessage(DeltaFrameEntityID, CurrentFrame.DeltaFrameNr, CurrentFrame.ServerFrameNr, NULL);
+            m_EntityManager->ParseServerDeltaUpdateMessage(DeltaFrameEntityID, CurrentFrame.DeltaFrameNr, CurrentFrame.ServerFrameNr, NULL);
 
         DeltaFrameIndex++;
         if (DeltaFrameIndex>=DeltaFrame->EntityIDsInPVS.Size()) DeltaFrameEntityID=0x99999999;
@@ -234,19 +233,19 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
 
 bool CaClientWorldT::OurEntity_Repredict(unsigned long RemoteLastIncomingSequenceNr, unsigned long LastOutgoingSequenceNr)
 {
-    return EntityManager.Repredict(OurEntityID, RemoteLastIncomingSequenceNr, LastOutgoingSequenceNr);
+    return m_EntityManager->Repredict(OurEntityID, RemoteLastIncomingSequenceNr, LastOutgoingSequenceNr);
 }
 
 
 void CaClientWorldT::OurEntity_Predict(const PlayerCommandT& PlayerCommand, unsigned long OutgoingSequenceNr)
 {
-    EntityManager.Predict(OurEntityID, PlayerCommand, OutgoingSequenceNr);
+    m_EntityManager->Predict(OurEntityID, PlayerCommand, OutgoingSequenceNr);
 }
 
 
 bool CaClientWorldT::OurEntity_GetCamera(bool UsePredictedState, Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const
 {
-    return EntityManager.GetCamera(OurEntityID, UsePredictedState, Origin, Heading, Pitch, Bank);
+    return m_EntityManager->GetCamera(OurEntityID, UsePredictedState, Origin, Heading, Pitch, Bank);
 }
 
 
@@ -348,7 +347,7 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
 #endif
 
     // Es gibt zwei Möglichkeiten, das PVS zu "disablen":
-    // Entweder EntityManager.Draw() veranlassen, alle Entities des EngineEntities-Arrays zu zeichnen
+    // Entweder m_EntityManager->Draw() veranlassen, alle Entities des EngineEntities-Arrays zu zeichnen
     // (z.B. durch einen Trick, oder explizit ein Array der Größe EngineEntities.Size() übergeben, das an der Stelle i der Wert i hat),
     // oder indem die Beachtung des PVS auf Server-Seite (!) ausgeschaltet wird! Die Effekte sind jeweils verschieden!
     const FrameT& CurrentFrame=Frames[ServerFrameNr & (MAX_FRAMES-1)];
@@ -362,7 +361,7 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
     MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
     MatSys::Renderer->SetCurrentEyePosition(float(DrawOrigin.x), float(DrawOrigin.y), float(DrawOrigin.z)+EyeOffsetZ);    // Also required in some ambient shaders.
 
-    Ca3DEWorld->GetWorld().BspTree->DrawAmbientContrib(DrawOrigin);
+    m_World->BspTree->DrawAmbientContrib(DrawOrigin);
 
 
     if (!CurrentFrame.IsValid)
@@ -382,7 +381,7 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
     }
 
     // Draw the ambient contribution of the entities.
-    EntityManager.DrawEntities(OurEntityID, false, DrawOrigin, CurrentFrame.EntityIDsInPVS);
+    m_EntityManager->DrawEntities(OurEntityID, false, DrawOrigin, CurrentFrame.EntityIDsInPVS);
 
 
 
@@ -396,14 +395,14 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
         VectorT            LightPosition;
         float              LightRadius;
         bool               LightCastsShadows;
-        const BaseEntityT* BaseEntity=EntityManager.GetBaseEntityByID(CurrentFrame.EntityIDsInPVS[EntityIDNr]);
+        const BaseEntityT* BaseEntity=m_EntityManager->GetBaseEntityByID(CurrentFrame.EntityIDsInPVS[EntityIDNr]);
 
         // The light source info is not taken from the BaseEntity directly because it yields the unpredicted light source position.
         // If once human player entities have no light source any more, we might get rid of the EntityManagerT::GetLightSourceInfo()
         // function chain again altogether.
         if (!BaseEntity) continue;
         // if (!BaseEntity->GetLightSourceInfo(LightColorDiffuse, LightColorSpecular, LightPosition, LightRadius)) continue;
-        if (!EntityManager.GetLightSourceInfo(BaseEntity->ID, OurEntityID, LightColorDiffuse, LightColorSpecular, LightPosition, LightRadius, LightCastsShadows)) continue;
+        if (!m_EntityManager->GetLightSourceInfo(BaseEntity->ID, OurEntityID, LightColorDiffuse, LightColorSpecular, LightPosition, LightRadius, LightCastsShadows)) continue;
         if (!LightColorDiffuse && !LightColorSpecular) continue;
 
         // THIS IS *TEMPORARY* ONLY!
@@ -427,25 +426,25 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
 
         if (LightCastsShadows)
         {
-            Ca3DEWorld->GetWorld().BspTree->DrawStencilShadowVolumes(LightPosition, LightRadius);
+            m_World->BspTree->DrawStencilShadowVolumes(LightPosition, LightRadius);
 
          // static ConVarT LocalPlayerStencilShadows("cl_LocalPlayerStencilShadows", false, ConVarT::FLAG_MAIN_EXE, "Whether the local player casts stencil shadows.");
          // if (LocalPlayerStencilShadows.GetValueBool())
          // {
                 // Our entity casts shadows, except when the light source is he himself.
-                EntityManager.DrawEntities(OurEntityID==BaseEntity->ID ? OurEntityID : 0xFFFFFFFF /* an ugly, dirty, kaum nachvollziehbarer hack */,
-                                           OurEntityID==BaseEntity->ID,
-                                           DrawOrigin,
-                                           CurrentFrame.EntityIDsInPVS);
+                m_EntityManager->DrawEntities(OurEntityID==BaseEntity->ID ? OurEntityID : 0xFFFFFFFF /* an ugly, dirty, kaum nachvollziehbarer hack */,
+                                              OurEntityID==BaseEntity->ID,
+                                              DrawOrigin,
+                                              CurrentFrame.EntityIDsInPVS);
          // }
          // else
          // {
          //     // Our entity does not cast shadows at all, no matter if he himself or another entity is the light source.
          //     // ### In my last test, I did not observe any performance improvements with this, in comparison with the case above... ###
-         //     EntityManager.DrawEntities(OurEntityID,
-         //                                true,
-         //                                DrawOrigin,
-         //                                CurrentFrame.EntityIDsInPVS);
+         //     m_EntityManager->DrawEntities(OurEntityID,
+         //                                   true,
+         //                                   DrawOrigin,
+         //                                   CurrentFrame.EntityIDsInPVS);
          // }
         }
 
@@ -453,11 +452,11 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
         // Render the light-source dependent terms.
         MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::LIGHTING);
 
-        Ca3DEWorld->GetWorld().BspTree->DrawLightSourceContrib(DrawOrigin, LightPosition);
-        EntityManager.DrawEntities(OurEntityID,
-                                   false,
-                                   DrawOrigin,
-                                   CurrentFrame.EntityIDsInPVS);
+        m_World->BspTree->DrawLightSourceContrib(DrawOrigin, LightPosition);
+        m_EntityManager->DrawEntities(OurEntityID,
+                                      false,
+                                      DrawOrigin,
+                                      CurrentFrame.EntityIDsInPVS);
     }
 
 
@@ -465,8 +464,8 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
     MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
 
     // Render translucent nodes back-to-front.
-    Ca3DEWorld->GetWorld().BspTree->DrawTranslucentContrib(DrawOrigin);
+    m_World->BspTree->DrawTranslucentContrib(DrawOrigin);
 
     // Zuletzt halbtransparente HUD-Elemente, Fonts usw. zeichnen.
-    EntityManager.PostDrawEntities(FrameTime, OurEntityID, CurrentFrame.EntityIDsInPVS);
+    m_EntityManager->PostDrawEntities(FrameTime, OurEntityID, CurrentFrame.EntityIDsInPVS);
 }

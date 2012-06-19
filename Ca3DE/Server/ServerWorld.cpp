@@ -32,34 +32,33 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 static ConVarT AutoAddCompanyBot("sv_AutoAddCompanyBot", false, ConVarT::FLAG_MAIN_EXE, "If true, auto-inserts an entity of type \"Company Bot\" at the player start position into each newly loaded map.");
 
 
-CaServerWorldT::CaServerWorldT(const char* FileName, Ca3DEWorldT* Ca3DEWorld_)
-    : Ca3DEWorld(Ca3DEWorld_),
-      EntityManager(*Ca3DEWorld->GetEntityManager()),
+CaServerWorldT::CaServerWorldT(const char* FileName, ModelManagerT& ModelMan)
+    : Ca3DEWorldT(FileName, ModelMan, false, NULL),
       ServerFrameNr(1)  // 0 geht nicht, denn die ClientInfoT::LastKnownFrameReceived werden mit 0 initialisiert!
 {
-    cf::GameSys::Game->Sv_PrepareNewWorld(FileName, Ca3DEWorld->GetWorld().CollModel);
+    cf::GameSys::Game->Sv_PrepareNewWorld(FileName, m_World->CollModel);
 
     // Gehe alle GameEntities der Ca3DEWorld durch und erstelle dafür "echte" Entities.
-    for (unsigned long GENr=0; GENr<Ca3DEWorld->GetWorld().GameEntities.Size(); GENr++)
+    for (unsigned long GENr=0; GENr<m_World->GameEntities.Size(); GENr++)
     {
-        const GameEntityT* GE=Ca3DEWorld->GetWorld().GameEntities[GENr];
+        const GameEntityT* GE=m_World->GameEntities[GENr];
 
         // Register GE->CollModel also with the cf::ClipSys::CollModelMan, so that both the owner (the game entity GE)
         // as well as the game code can free/delete it in their destructors (one by "delete", the other by cf::ClipSys::CollModelMan->FreeCM()).
         cf::ClipSys::CollModelMan->GetCM(GE->CollModel);
 
-        EntityManager.CreateNewEntityFromBasicInfo(GE->Properties, GE->BspTree, GE->CollModel, GENr, GE->MFIndex, ServerFrameNr, GE->Origin);
+        m_EntityManager->CreateNewEntityFromBasicInfo(GE->Properties, GE->BspTree, GE->CollModel, GENr, GE->MFIndex, ServerFrameNr, GE->Origin);
     }
 
     // Gehe alle InfoPlayerStarts der Ca3DEWorld durch und erstelle dafür "echte" Entities.
-    for (unsigned long IPSNr=0; IPSNr<Ca3DEWorld->GetWorld().InfoPlayerStarts.Size(); IPSNr++)
+    for (unsigned long IPSNr=0; IPSNr<m_World->InfoPlayerStarts.Size(); IPSNr++)
     {
         std::map<std::string, std::string> Props;
 
         Props["classname"]="info_player_start";
-        Props["angles"]   =cf::va("0 %lu 0", (unsigned long)(Ca3DEWorld->GetWorld().InfoPlayerStarts[IPSNr].Heading/8192.0*45.0));
+        Props["angles"]   =cf::va("0 %lu 0", (unsigned long)(m_World->InfoPlayerStarts[IPSNr].Heading/8192.0*45.0));
 
-        EntityManager.CreateNewEntityFromBasicInfo(Props, NULL, NULL, (unsigned long)-1, (unsigned long)-1, ServerFrameNr, Ca3DEWorld->GetWorld().InfoPlayerStarts[IPSNr].Origin);
+        m_EntityManager->CreateNewEntityFromBasicInfo(Props, NULL, NULL, (unsigned long)-1, (unsigned long)-1, ServerFrameNr, m_World->InfoPlayerStarts[IPSNr].Origin);
     }
 
     // Zu Demonstrationszwecken fügen wir auch noch einen MonsterMaker vom Typ CompanyBot in die World ein.
@@ -69,12 +68,12 @@ CaServerWorldT::CaServerWorldT(const char* FileName, Ca3DEWorldT* Ca3DEWorld_)
         std::map<std::string, std::string> Props;
 
         Props["classname"]         ="LifeFormMaker";
-        Props["angles"]            =cf::va("0 %lu 0", (unsigned long)(Ca3DEWorld->GetWorld().InfoPlayerStarts[0].Heading/8192.0*45.0));
+        Props["angles"]            =cf::va("0 %lu 0", (unsigned long)(m_World->InfoPlayerStarts[0].Heading/8192.0*45.0));
         Props["monstertype"]       ="CompanyBot";
         Props["monstercount"]      ="1";
         Props["m_imaxlivechildren"]="1";
 
-        EntityManager.CreateNewEntityFromBasicInfo(Props, NULL, NULL, (unsigned long)-1, (unsigned long)-1, ServerFrameNr, Ca3DEWorld->GetWorld().InfoPlayerStarts[0].Origin);
+        m_EntityManager->CreateNewEntityFromBasicInfo(Props, NULL, NULL, (unsigned long)-1, (unsigned long)-1, ServerFrameNr, m_World->InfoPlayerStarts[0].Origin);
     }
 
     cf::GameSys::Game->Sv_FinishNewWorld(FileName);
@@ -83,7 +82,7 @@ CaServerWorldT::CaServerWorldT(const char* FileName, Ca3DEWorldT* Ca3DEWorld_)
 
 CaServerWorldT::~CaServerWorldT()
 {
-    delete Ca3DEWorld;                      // Unregisters all entities from the games script state.
+    Clear();                                // Unregisters all entities from the games script state.
     cf::GameSys::Game->Sv_UnloadWorld();    // Deletes the games script state.
 }
 
@@ -94,21 +93,21 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
 
     Props["classname"]="HumanPlayer";
     Props["name"]     =cf::va("Player%lu", ClientInfoNr+1);     // Setting the name is needed so that player entities can have a corresponding script instance.
-    Props["angles"]   =cf::va("0 %lu 0", (unsigned long)(Ca3DEWorld->GetWorld().InfoPlayerStarts[0].Heading/8192.0*45.0));
+    Props["angles"]   =cf::va("0 %lu 0", (unsigned long)(m_World->InfoPlayerStarts[0].Heading/8192.0*45.0));
 
-    return EntityManager.CreateNewEntityFromBasicInfo(Props, NULL, NULL, (unsigned long)-1, (unsigned long)-1, ServerFrameNr+1, Ca3DEWorld->GetWorld().InfoPlayerStarts[0].Origin+VectorT(0, 0, 1000), PlayerName, ModelName);
+    return m_EntityManager->CreateNewEntityFromBasicInfo(Props, NULL, NULL, (unsigned long)-1, (unsigned long)-1, ServerFrameNr+1, m_World->InfoPlayerStarts[0].Origin+VectorT(0, 0, 1000), PlayerName, ModelName);
 }
 
 
 void CaServerWorldT::RemoveHumanPlayerEntity(unsigned long HumanPlayerEntityID)
 {
-    EntityManager.RemoveEntity(HumanPlayerEntityID);
+    m_EntityManager->RemoveEntity(HumanPlayerEntityID);
 }
 
 
 void CaServerWorldT::NotifyHumanPlayerEntityOfClientCommand(unsigned long HumanPlayerEntityID, const PlayerCommandT& PlayerCommand)
 {
-    EntityManager.ProcessConfigString(HumanPlayerEntityID, &PlayerCommand, "PlayerCommand");
+    m_EntityManager->ProcessConfigString(HumanPlayerEntityID, &PlayerCommand, "PlayerCommand");
 }
 
 
@@ -121,13 +120,13 @@ void CaServerWorldT::Think(float FrameTime)
 
     // Jetzt das eigentliche Denken durchführen.
     // Herauskommen tut eine Aussage der Form: "Zum Frame Nummer 'ServerFrameNr' ist die World in diesem Zustand!"
-    EntityManager.Think(FrameTime, ServerFrameNr);
+    m_EntityManager->Think(FrameTime, ServerFrameNr);
 }
 
 
 unsigned long CaServerWorldT::WriteClientNewBaseLines(unsigned long OldBaseLineFrameNr, ArrayT< ArrayT<char> >& OutDatas) const
 {
-    EntityManager.WriteNewBaseLines(OldBaseLineFrameNr, OutDatas);
+    m_EntityManager->WriteNewBaseLines(OldBaseLineFrameNr, OutDatas);
 
     return ServerFrameNr;
 }
@@ -135,5 +134,5 @@ unsigned long CaServerWorldT::WriteClientNewBaseLines(unsigned long OldBaseLineF
 
 void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID, unsigned long ClientFrameNr, ArrayT< ArrayT<unsigned long> >& ClientOldStatesPVSEntityIDs, unsigned long& ClientCurrentStateIndex, NetDataT& OutData) const
 {
-    EntityManager.WriteFrameUpdateMessages(ClientEntityID, ServerFrameNr, ClientFrameNr, ClientOldStatesPVSEntityIDs, ClientCurrentStateIndex, OutData);
+    m_EntityManager->WriteFrameUpdateMessages(ClientEntityID, ServerFrameNr, ClientFrameNr, ClientOldStatesPVSEntityIDs, ClientCurrentStateIndex, OutData);
 }

@@ -67,9 +67,8 @@ int ServerT::ConFunc_changeLevel_Callback(lua_State* LuaState)
 {
     if (!ServerPtr) return luaL_error(LuaState, "The local server is not available.");
 
-    Ca3DEWorldT* NewWorld    =NULL;
-    std::string  NewWorldName=(lua_gettop(LuaState)<1) ? "" : luaL_checkstring(LuaState, 1);
-    std::string  PathName    ="Games/"+ServerPtr->GameName+"/Worlds/"+NewWorldName+".cw";
+    std::string NewWorldName=(lua_gettop(LuaState)<1) ? "" : luaL_checkstring(LuaState, 1);
+    std::string PathName    ="Games/"+ServerPtr->GameName+"/Worlds/"+NewWorldName+".cw";
 
     if (NewWorldName=="")
     {
@@ -106,14 +105,16 @@ int ServerT::ConFunc_changeLevel_Callback(lua_State* LuaState)
     }
 
     // changeLevel("mapname") was called, so perform a proper map change.
+    CaServerWorldT* NewWorld=NULL;
+
     try
     {
-        NewWorld=new Ca3DEWorldT(PathName.c_str(), ServerPtr->m_ModelMan, false, NULL);
+        NewWorld=new CaServerWorldT(PathName.c_str(), ServerPtr->m_ModelMan);
     }
     catch (const WorldT::LoadErrorT& E) { return luaL_error(LuaState, E.Msg); }
 
     delete ServerPtr->World;
-    ServerPtr->World    =new CaServerWorldT(PathName.c_str(), NewWorld);
+    ServerPtr->World    =NewWorld;
     ServerPtr->WorldName=NewWorldName;
 
     // Stati der verbundenen Clients auf MapTransition setzen.

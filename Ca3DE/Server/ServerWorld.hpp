@@ -29,12 +29,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 class NetDataT;
 
 
-class CaServerWorldT
+class CaServerWorldT : public Ca3DEWorldT
 {
     public:
 
     // Erstellt eine neue ServerWorld anhand des World-Files 'FileName', wobei 'FileName' den kompletten (wenn auch relativen) Pfad und Namen enthält.
-    CaServerWorldT(const char* FileName, Ca3DEWorldT* Ca3DEWorld_);
+    CaServerWorldT(const char* FileName, ModelManagerT& ModelMan);
 
     // Der Destruktor.
     ~CaServerWorldT();
@@ -70,9 +70,7 @@ class CaServerWorldT
     CaServerWorldT(const CaServerWorldT&);      ///< Use of the Copy Constructor    is not allowed.
     void operator = (const CaServerWorldT&);    ///< Use of the Assignment Operator is not allowed.
 
-    Ca3DEWorldT*    Ca3DEWorld;     // Hier findet die Action statt (ESInterface bezieht sich auf die Ca3DEWorld)
-    EntityManagerT& EntityManager;  // Decoration Pattern
-    unsigned long   ServerFrameNr;  // Nummer des aktuellen Frames/Zustands
+    unsigned long ServerFrameNr;    // Nummer des aktuellen Frames/Zustands
 };
 
 #endif
