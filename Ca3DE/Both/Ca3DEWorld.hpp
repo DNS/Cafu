@@ -27,7 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 namespace cf { namespace ClipSys { class ClipWorldT; } }
-class EntityManagerT;
+class EngineEntityT;
 
 
 // Ca3DEWorldT implementiert die Eigenschaften, die eine CaServerWorld und eine CaClientWorld gemeinsam haben.
@@ -45,8 +45,8 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
     Vector3fT                    GetAmbientLightColorFromBB(const BoundingBox3T<double>& Dimensions, const VectorT& Origin) const;
     const ArrayT<unsigned long>& GetAllEntityIDs() const;
     BaseEntityT*                 GetBaseEntityByID(unsigned long EntityID) const;
-    unsigned long                CreateNewEntity(const std::map<std::string, std::string>& Properties, unsigned long CreationFrameNr, const VectorT& Origin);
-    void                         RemoveEntity(unsigned long EntityID);
+    // unsigned long             CreateNewEntity(const std::map<std::string, std::string>& Properties, unsigned long CreationFrameNr, const VectorT& Origin);
+    // void                      RemoveEntity(unsigned long EntityID);
     const CafuModelT*            GetModel(const std::string& FileName) const;
 
 
@@ -54,9 +54,13 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
 
     void Clear();
 
+    // L‰ﬂt den EngineEntity mit der ID 'EntityID' den 'ConfigString' und die 'ConfigData' bearbeiten.
+    void ProcessConfigString(unsigned long EntityID, const void* ConfigData, const char* ConfigString);
+
+
     const WorldT*            m_World;
     cf::ClipSys::ClipWorldT* m_ClipWorld;
-    EntityManagerT*          m_EntityManager;
+    ArrayT<EngineEntityT*>   m_EngineEntities;
     ModelManagerT&           m_ModelMan;
 
 

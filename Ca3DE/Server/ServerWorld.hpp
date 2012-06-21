@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../../Games/PlayerCommand.hpp"
 
 
+namespace cf { namespace ClipSys { class CollisionModelT; } }
 class NetDataT;
 
 
@@ -38,6 +39,10 @@ class CaServerWorldT : public Ca3DEWorldT
 
     // Der Destruktor.
     ~CaServerWorldT();
+
+    // The virtual methods inherited from the base class GameWorldI.
+    unsigned long CreateNewEntity(const std::map<std::string, std::string>& Properties, unsigned long CreationFrameNr, const VectorT& Origin);
+    void          RemoveEntity(unsigned long EntityID);
 
     // Fügt einen neuen HumanPlayer-Entity zum NÄCHSTEN Frame in die World ein (idR nach Client-Join oder World-Change),
     // NICHT ins aktuelle (bzgl. der BaseLineFrameNr). Ziel: Erreiche gleiches Verhalten wie z.B. das des MonsterMakers.
@@ -70,7 +75,50 @@ class CaServerWorldT : public Ca3DEWorldT
     CaServerWorldT(const CaServerWorldT&);      ///< Use of the Copy Constructor    is not allowed.
     void operator = (const CaServerWorldT&);    ///< Use of the Assignment Operator is not allowed.
 
-    unsigned long m_ServerFrameNr;      // Nummer des aktuellen Frames/Zustands
+    // Erzeugt einen neuen Entity. IdR wird dies [1] nach dem Laden einer neuen World aufgerufen werden, mit den im World-File enthaltenen Parametern.
+    // Denkbar ist aber auch [2] ein Aufruf aus dem 'EngineServiceInterface', wenn ein Entity einen neuen Entity erzeugen möchte.
+    // Dritte Möglichkeit: [3] Aufruf aus ServerWorldT::InsertHumanPlayerEntity(), zum Anlegen von HumanPlayer-Entities für Clients.
+    // (Dies erfolgt aus ClientInfoT::InitForNewWorld(): Entweder wenn ein Client neu dazukommt, oder nach einem World-change für die vorhandenen Clients.)
+    // 'EntityMapFileID' ist ein Handle zu den Map-File-Informationen des Entities, falls vorhanden (d.h. Fall [1]), sonst (Fälle [2] und [3]) -1.
+    // 'CreationFrameNr' ist die Nummer des Frames, zu dem der Entity erzeugt wird, sollte also stets die 'ServerFrameNr' der ServerWorld sein.
+    // Der Rückgabewert ist die ID des erzeugten Entities. (Verwendung: Der Server kann den Client damit wissen lassen, welcher Entity der Client ist).
+    // Falls der Entity nicht erzeugt werden kann, wird 0xFFFFFFFF zurückgegeben.
+    unsigned long CreateNewEntityFromBasicInfo(const std::map<std::string, std::string>& Properties, const cf::SceneGraph::GenericNodeT* RootNode,
+        const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long WorldFileIndex, unsigned long MapFileIndex, unsigned long CreationFrameNr, const VectorT& Origin,
+        const char* PlayerName=NULL, const char* ModelName=NULL);
+
+    // Entfernt einen EngineEntity. Beispiele für Aufruf-Möglichkeiten:
+    // a) aus ServerWorldT::RemoveHumanPlayerEntity(), wenn ein HumanPlayer-Entity eines Clients gelöscht werden soll.
+    // b) aus dem 'EntityServiceInterface', wenn ein Entity z.B. seine Children oder sich selbst löschen will.
+    // Die Clients bekommen unabhängig davon in einer SC1_DropClient Message explizit mitgeteilt, wenn ein Client (warum auch immer) den Server verläßt.
+    // Den dazugehörigen Entity muß der Client deswegen aber nicht unbedingt sofort und komplett aus seiner World entfernen,
+    // dies sollte vielmehr durch Wiederverwendung von EntityIDs durch den Server geschehen!
+    void RemoveEntity_(unsigned long EntityID);
+
+    // Berechnet den nächsten Zustand 'ServerFrameNr' der EngineEntities, indem auf alle Entities die 'FrameTime' angewandt wird.
+    void Think(float FrameTime, unsigned long ServerFrameNr);
+
+    // Schreibt für alle EngineEntities, die seit 'SentClientBaseLineFrameNr' neu erschaffen wurden, SC1_EntityBaseLine Messages nach 'OutDatas'
+    // (d.h. für solche, deren 'BaseLineFrameNr' größer (d.h. jünger) als die 'SentClientBaseLineFrameNr' ist).
+    void WriteNewBaseLines(unsigned long SentClientBaseLineFrameNr, ArrayT< ArrayT<char> >& OutDatas) const;
+
+    // Diese Funktion nimmt folgende Parameter zu einem Client entgegen:
+    // 'ClientEntityID'              - die ID des Entities des Clients,
+    // 'ClientFrameNr'               - die Nummer des letzten ServerFrames, das der Client von uns gesehen hat,
+    // 'ClientOldStatesPVSEntityIDs' - die IDs der Entities der letzten Zustände des Clients, und
+    // 'ClientCurrentStateIndex'     - der zum Zustand des Frames 'ClientFrameNr' gehörende Index ins 'ClientOldStatesPVSEntityIDs' Array.
+    // Diese Funktion schreibt dann eine SC1_NewFrameInfo Message und die sich aus obigem ergebenden, relevanten SC1_EntityUpdate Messages nach 'OutData',
+    // sodaß die Gegenstelle aus dem Zustand des Frames 'ClientFrameNr' den Zustand des Frames 'ServerFrameNr' rekonstruieren kann.
+    // WICHTIG: Die EngineEntities befinden sich bei Funktionsaufruf schon im Zustand des Frames 'ServerFrameNr'. Die Client PVS-EntityIDs für diesen
+    // Zustand werden erst mit diesem Aufruf erstellt! Deshalb MUSS diese Funktion auch nach JEDEM Aufruf von 'Think()' für jeden Client aufgerufen werden!
+    void WriteFrameUpdateMessages(unsigned long ClientEntityID, unsigned long ServerFrameNr, unsigned long ClientFrameNr,
+                                  ArrayT< ArrayT<unsigned long> >& ClientOldStatesPVSEntityIDs,
+                                  unsigned long& ClientCurrentStateIndex, NetDataT& OutData) const;
+
+
+    unsigned long         m_ServerFrameNr;      ///< Nummer des aktuellen Frames/Zustands
+    bool                  m_IsThinking;         ///< Set to true while we're thinking, so that our methods can detect recursive calls.
+    ArrayT<unsigned long> m_EntityRemoveList;   ///< List of entity IDs that were scheduled for removal while thinking.
 };
 
 #endif

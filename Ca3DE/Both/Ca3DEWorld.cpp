@@ -20,7 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Ca3DEWorld.hpp"
-#include "EntityManager.hpp"
+#include "EngineEntity.hpp"
 #include "ClipSys/ClipWorld.hpp"
 #include "ClipSys/CollisionModel_static.hpp"
 #include "ClipSys/TraceResult.hpp"
@@ -43,7 +43,7 @@ static WorldManT WorldMan;
 Ca3DEWorldT::Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/
     : m_World(WorldMan.LoadWorld(FileName, ModelMan, InitForGraphics, ProgressFunction)),
       m_ClipWorld(new cf::ClipSys::ClipWorldT(m_World->CollModel)),
-      m_EntityManager(new EntityManagerT(*this)),
+      m_EngineEntities(),
       m_ModelMan(ModelMan)
 {
 }
@@ -57,15 +57,12 @@ Ca3DEWorldT::~Ca3DEWorldT()
 
 void Ca3DEWorldT::Clear()
 {
-    // Note that the EntityManager must be destructed *before* the ClipWorld,
-    // so that all entities properly remove their clip model from the clip world on destruction.
-    // In fact, this (control over the order of destruction) is the only reason why the
-    // EntityManager is a pointer instead of an immediate member.
-    if (m_EntityManager)
-    {
-        delete m_EntityManager;
-        m_EntityManager = NULL;
-    }
+    // Note that the engine entities must be destructed *before* the ClipWorld,
+    // so that they properly remove their clip model from the clip world on destruction.
+    for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
+        delete m_EngineEntities[EntityNr];
+
+    m_EngineEntities.Clear();
 
     if (m_ClipWorld)
     {
@@ -157,8 +154,11 @@ const ArrayT<unsigned long>& Ca3DEWorldT::GetAllEntityIDs() const
 {
     static ArrayT<unsigned long> AllEntityIDs;
 
-    AllEntityIDs.Clear();
-    m_EntityManager->GetAllEntityIDs(AllEntityIDs);
+    AllEntityIDs.Overwrite();
+
+    for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
+        if (m_EngineEntities[EntityNr]!=NULL)
+            AllEntityIDs.PushBack(EntityNr);
 
     return AllEntityIDs;
 }
@@ -166,23 +166,23 @@ const ArrayT<unsigned long>& Ca3DEWorldT::GetAllEntityIDs() const
 
 BaseEntityT* Ca3DEWorldT::GetBaseEntityByID(unsigned long EntityID) const
 {
-    return m_EntityManager->GetBaseEntityByID(EntityID);
-}
+    if (EntityID<m_EngineEntities.Size())
+        if (m_EngineEntities[EntityID]!=NULL)
+            return m_EngineEntities[EntityID]->GetBaseEntity();
 
-
-unsigned long Ca3DEWorldT::CreateNewEntity(const std::map<std::string, std::string>& Properties, unsigned long CreationFrameNr, const VectorT& Origin)
-{
-    return m_EntityManager->CreateNewEntityFromBasicInfo(Properties, NULL, NULL, (unsigned long)(-1), (unsigned long)(-1), CreationFrameNr, Origin);
-}
-
-
-void Ca3DEWorldT::RemoveEntity(unsigned long EntityID)
-{
-    m_EntityManager->RemoveEntity(EntityID);
+    return NULL;
 }
 
 
 const CafuModelT* Ca3DEWorldT::GetModel(const std::string& FileName) const
 {
     return m_ModelMan.GetModel(FileName);
+}
+
+
+void Ca3DEWorldT::ProcessConfigString(unsigned long EntityID, const void* ConfigData, const char* ConfigString)
+{
+    if (EntityID<m_EngineEntities.Size())
+        if (m_EngineEntities[EntityID]!=NULL)
+            m_EngineEntities[EntityID]->ProcessConfigString(ConfigData, ConfigString);
 }
