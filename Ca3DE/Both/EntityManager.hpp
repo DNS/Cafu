@@ -166,9 +166,9 @@ class EntityManagerT
     void operator = (const EntityManagerT&);    // Use of the Assignment Operator is not allowed
 
     Ca3DEWorldT&           Ca3DEWorld;          // Wegen dieser Zeile wird eine Ca3DEWorld unverzichtbar bleiben!
-    ArrayT<EngineEntityT*> EngineEntities;
-    bool                   IsThinking;          // Set to true while we're thinking, so that our methods can detect recursive calls.
-    ArrayT<unsigned long>  EntityRemoveList;    // List of entity IDs that were scheduled for removal while thinking.
+    ArrayT<EngineEntityT*> m_EngineEntities;
+    bool                   m_IsThinking;        // Set to true while we're thinking, so that our methods can detect recursive calls.
+    ArrayT<unsigned long>  m_EntityRemoveList;  // List of entity IDs that were scheduled for removal while thinking.
 };
 
 #endif

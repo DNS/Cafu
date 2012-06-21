@@ -70,7 +70,7 @@ class CaServerWorldT : public Ca3DEWorldT
     CaServerWorldT(const CaServerWorldT&);      ///< Use of the Copy Constructor    is not allowed.
     void operator = (const CaServerWorldT&);    ///< Use of the Assignment Operator is not allowed.
 
-    unsigned long ServerFrameNr;    // Nummer des aktuellen Frames/Zustands
+    unsigned long m_ServerFrameNr;      // Nummer des aktuellen Frames/Zustands
 };
 
 #endif

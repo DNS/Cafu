@@ -39,31 +39,31 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 EntityManagerT::EntityManagerT(Ca3DEWorldT& Ca3DEWorld_)
     : Ca3DEWorld(Ca3DEWorld_),
-      IsThinking(false)
+      m_IsThinking(false)
 {
 }
 
 
 EntityManagerT::~EntityManagerT()
 {
-    for (unsigned long EntityNr=0; EntityNr<EngineEntities.Size(); EntityNr++)
-        delete EngineEntities[EntityNr];
+    for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
+        delete m_EngineEntities[EntityNr];
 }
 
 
 void EntityManagerT::GetAllEntityIDs(ArrayT<unsigned long>& EntityIDs) const
 {
-    for (unsigned long EntityNr=0; EntityNr<EngineEntities.Size(); EntityNr++)
-        if (EngineEntities[EntityNr]!=NULL)
+    for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
+        if (m_EngineEntities[EntityNr]!=NULL)
             EntityIDs.PushBack(EntityNr);
 }
 
 
 BaseEntityT* EntityManagerT::GetBaseEntityByID(unsigned long EntityID) const
 {
-    if (EntityID<EngineEntities.Size())
-        if (EngineEntities[EntityID]!=NULL)
-            return EngineEntities[EntityID]->GetBaseEntity();
+    if (EntityID<m_EngineEntities.Size())
+        if (m_EngineEntities[EntityID]!=NULL)
+            return m_EngineEntities[EntityID]->GetBaseEntity();
 
     return NULL;
 }
@@ -71,9 +71,9 @@ BaseEntityT* EntityManagerT::GetBaseEntityByID(unsigned long EntityID) const
 
 void EntityManagerT::ProcessConfigString(unsigned long EntityID, const void* ConfigData, const char* ConfigString)
 {
-    if (EntityID<EngineEntities.Size())
-        if (EngineEntities[EntityID]!=NULL)
-            EngineEntities[EntityID]->ProcessConfigString(ConfigData, ConfigString);
+    if (EntityID<m_EngineEntities.Size())
+        if (m_EngineEntities[EntityID]!=NULL)
+            m_EngineEntities[EntityID]->ProcessConfigString(ConfigData, ConfigString);
 }
 
 
@@ -86,7 +86,7 @@ unsigned long EntityManagerT::CreateNewEntityFromBasicInfo(const std::map<std::s
     const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel,
     unsigned long WorldFileIndex, unsigned long MapFileIndex, unsigned long CreationFrameNr, const VectorT& Origin, const char* PlayerName, const char* ModelName)
 {
-    unsigned long NewEntityID  =EngineEntities.Size();
+    unsigned long NewEntityID  =m_EngineEntities.Size();
     BaseEntityT*  NewBaseEntity=cf::GameSys::Game->CreateBaseEntityFromMapFile(Properties, RootNode, CollisionModel, NewEntityID,
                                     WorldFileIndex, MapFileIndex, &Ca3DEWorld, Origin);
 
@@ -96,7 +96,7 @@ unsigned long EntityManagerT::CreateNewEntityFromBasicInfo(const std::map<std::s
         if (PlayerName!=NULL) NewBaseEntity->ProcessConfigString(PlayerName, "PlayerName");
         if (ModelName !=NULL) NewBaseEntity->ProcessConfigString(ModelName , "ModelName" );
 
-        EngineEntities.PushBack(new EngineEntityT(NewBaseEntity, CreationFrameNr));
+        m_EngineEntities.PushBack(new EngineEntityT(NewBaseEntity, CreationFrameNr));
         return NewEntityID;
     }
 
@@ -110,20 +110,20 @@ unsigned long EntityManagerT::CreateNewEntityFromBasicInfo(const std::map<std::s
 
 void EntityManagerT::RemoveEntity(unsigned long EntityID)
 {
-    if (IsThinking)
+    if (m_IsThinking)
     {
         // We're currently thinking, and EntityID might be the ID of the entity that currently thinks.
         // (That is, this entity is removing itself, as for example an exploded grenade.)
         // Thus, schedule this entity for removal until the thinking is finished.
-        EntityRemoveList.PushBack(EntityID);
+        m_EntityRemoveList.PushBack(EntityID);
     }
     else
     {
         // Currently not thinking, so it should be save to remove the entity immediately.
-        if (EntityID<EngineEntities.Size())
+        if (EntityID<m_EngineEntities.Size())
         {
-            delete EngineEntities[EntityID];
-            EngineEntities[EntityID]=NULL;
+            delete m_EngineEntities[EntityID];
+            m_EngineEntities[EntityID]=NULL;
         }
     }
 }
@@ -131,9 +131,9 @@ void EntityManagerT::RemoveEntity(unsigned long EntityID)
 
 void EntityManagerT::Think(float FrameTime, unsigned long ServerFrameNr)
 {
-    if (IsThinking) return;
+    if (m_IsThinking) return;
 
-    IsThinking=true;
+    m_IsThinking=true;
 
     // Beachte:
     // - Neu geschaffene Entities sollen nicht gleich 'Think()'en!
@@ -141,43 +141,43 @@ void EntityManagerT::Think(float FrameTime, unsigned long ServerFrameNr)
     //   DÜRFTEN sie trotzdem gleich Think()en??? (JA!) Die OldStates kämen dann evtl. durcheinander!? (NEIN!)
     //   Allerdings übertragen wir mit BaseLines grundsätzlich KEINE Events (??? PRÜFEN!), Think()en macht insofern also nur eingeschränkt Sinn.
     // - EntityIDs sollten wohl besser NICHT wiederverwendet werden, da z.B. Parents die IDs ihrer Children speichern usw.
-    // - Letzteres führt aber zu zunehmend vielen NULL-Pointern im EngineEntities-Array.
+    // - Letzteres führt aber zu zunehmend vielen NULL-Pointern im m_EngineEntities-Array.
     // - Dies könnte sich evtl. mit einem weiteren Array von 'active EntityIDs' lösen lassen.
-    for (unsigned long EntityNr=0; EntityNr<EngineEntities.Size(); EntityNr++)
-        if (EngineEntities[EntityNr]!=NULL)
-            EngineEntities[EntityNr]->PreThink(ServerFrameNr);
+    for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
+        if (m_EngineEntities[EntityNr]!=NULL)
+            m_EngineEntities[EntityNr]->PreThink(ServerFrameNr);
 
     // Must never move this above the PreThink() calls above, because the Game assumes that the entity states may
     // be modified (e.g. by map script commands) as soon as it gets this call.
     cf::GameSys::Game->Sv_BeginThinking(FrameTime);
 
-    for (unsigned long EntityNr=0; EntityNr<EngineEntities.Size(); EntityNr++)
-        if (EngineEntities[EntityNr]!=NULL)
-            EngineEntities[EntityNr]->Think(FrameTime, ServerFrameNr);
+    for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
+        if (m_EngineEntities[EntityNr]!=NULL)
+            m_EngineEntities[EntityNr]->Think(FrameTime, ServerFrameNr);
 
     cf::GameSys::Game->Sv_EndThinking();
 
-    IsThinking=false;
+    m_IsThinking=false;
 
 
     // If entities removed other entities (or even themselves!) while thinking, remove them now.
-    for (unsigned long RemoveNr=0; RemoveNr<EntityRemoveList.Size(); RemoveNr++)
+    for (unsigned long RemoveNr=0; RemoveNr<m_EntityRemoveList.Size(); RemoveNr++)
     {
-        const unsigned long EntityID=EntityRemoveList[RemoveNr];
+        const unsigned long EntityID=m_EntityRemoveList[RemoveNr];
 
-        delete EngineEntities[EntityID];
-        EngineEntities[EntityID]=NULL;
+        delete m_EngineEntities[EntityID];
+        m_EngineEntities[EntityID]=NULL;
     }
 
-    EntityRemoveList.Overwrite();
+    m_EntityRemoveList.Overwrite();
 }
 
 
 void EntityManagerT::WriteNewBaseLines(unsigned long SentClientBaseLineFrameNr, ArrayT< ArrayT<char> >& OutDatas) const
 {
-    for (unsigned long EntityNr=0; EntityNr<EngineEntities.Size(); EntityNr++)
-        if (EngineEntities[EntityNr]!=NULL)
-            EngineEntities[EntityNr]->WriteNewBaseLine(SentClientBaseLineFrameNr, OutDatas);
+    for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
+        if (m_EngineEntities[EntityNr]!=NULL)
+            m_EngineEntities[EntityNr]->WriteNewBaseLine(SentClientBaseLineFrameNr, OutDatas);
 }
 
 
@@ -185,7 +185,7 @@ void EntityManagerT::WriteFrameUpdateMessages(unsigned long ClientEntityID, unsi
                                               ArrayT< ArrayT<unsigned long> >& ClientOldStatesPVSEntityIDs,
                                               unsigned long& ClientCurrentStateIndex, NetDataT& OutData) const
 {
-    // Wenn dies hier aufgerufen wird, befinden sich sämtliche EngineEntities schon im Zustand ('Entity->State') zum Frame 'ServerFrameNr'.
+    // Wenn dies hier aufgerufen wird, befinden sich sämtliche m_EngineEntities schon im Zustand ('Entity->State') zum Frame 'ServerFrameNr'.
     // Der Client, von dem obige Parameter stammen, ist aber noch nicht soweit (sondern noch im vorherigen Zustand).
     // Update daher zuerst die PVS-EntityID Infos dieses Clients.
     const char TEMP_MAX_OLDSTATES=16+1;     // (?)
@@ -207,14 +207,14 @@ void EntityManagerT::WriteFrameUpdateMessages(unsigned long ClientEntityID, unsi
 
     ArrayT<unsigned long>* NewStatePVSEntityIDs=&ClientOldStatesPVSEntityIDs[ClientCurrentStateIndex];
     ArrayT<unsigned long>* OldStatePVSEntityIDs=NULL;
-    unsigned long          ClientLeafNr        =(EngineEntities[ClientEntityID]!=NULL) ? Ca3DEWorld.GetWorld().BspTree->WhatLeaf(EngineEntities[ClientEntityID]->GetBaseEntity()->GetOrigin()) : 0;
+    unsigned long          ClientLeafNr        =(m_EngineEntities[ClientEntityID]!=NULL) ? Ca3DEWorld.GetWorld().BspTree->WhatLeaf(m_EngineEntities[ClientEntityID]->GetBaseEntity()->GetOrigin()) : 0;
 
     // Finde heraus, welche Entities im PVS von diesem Client liegen. Erhalte ein Array von EntityIDs.
-    for (unsigned long EntityNr=0; EntityNr<EngineEntities.Size(); EntityNr++)
-        if (EngineEntities[EntityNr]!=NULL)
+    for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
+        if (m_EngineEntities[EntityNr]!=NULL)
         {
-            const Vector3dT&      EntityOrigin=EngineEntities[EntityNr]->GetBaseEntity()->GetOrigin();
-            BoundingBox3T<double> EntityBB    =EngineEntities[EntityNr]->GetBaseEntity()->GetDimensions();
+            const Vector3dT&      EntityOrigin=m_EngineEntities[EntityNr]->GetBaseEntity()->GetOrigin();
+            BoundingBox3T<double> EntityBB    =m_EngineEntities[EntityNr]->GetBaseEntity()->GetDimensions();
 
             EntityBB.Min += EntityOrigin;
             EntityBB.Max += EntityOrigin;
@@ -262,7 +262,7 @@ void EntityManagerT::WriteFrameUpdateMessages(unsigned long ClientEntityID, unsi
         unsigned long NewEntityID=NewIndex<NewStatePVSEntityIDs->Size() ? (*NewStatePVSEntityIDs)[NewIndex] : 0x99999999;
 
         // Consider the following situation:
-        // There are (or were) A REALLY BIG NUMBER of entities in the PVS of the current client entity ('EngineEntities[ClientEntityID]').
+        // There are (or were) A REALLY BIG NUMBER of entities in the PVS of the current client entity ('m_EngineEntities[ClientEntityID]').
         // Each of them would cause data to be written into 'OutData'.
         // Unfortunately, if the network protocol detects later that 'OutData.Data.Size()' exceeds the maximum possible size,
         // the entire content is dropped, as it is only considered "unreliable data".
@@ -289,7 +289,7 @@ void EntityManagerT::WriteFrameUpdateMessages(unsigned long ClientEntityID, unsi
             // Mit anderen Worten: Der folgende Aufruf sollte NIEMALS scheitern, falls doch, ist das ein fataler Fehler, der intensives Debugging erfordert.
             // Dennoch ist es wahrscheinlich (??) nicht notwendig, den Client bei Auftreten dieses Fehler zu disconnecten.
             if (!SkipEntity)
-                if (!EngineEntities[NewEntityID]->WriteDeltaEntity(false /* send from baseline? */, ClientFrameNr, OutData, false))
+                if (!m_EngineEntities[NewEntityID]->WriteDeltaEntity(false /* send from baseline? */, ClientFrameNr, OutData, false))
                     EnqueueString("SERVER ERROR: %s, L %u: NewEntityID %u, ServerFrameNr %u, ClientFrameNr %u\n", __FILE__, __LINE__, NewEntityID, ServerFrameNr, ClientFrameNr);
 
             OldIndex++;
@@ -302,7 +302,7 @@ void EntityManagerT::WriteFrameUpdateMessages(unsigned long ClientEntityID, unsi
             // Dies ist ein neuer Entity, sende ihn von der BaseLine aus.
             // Deswegen kann der folgende Aufruf (gemäß der Spezifikation von WriteDeltaEntity()) auch nicht scheitern!
             if (!SkipEntity)
-                EngineEntities[NewEntityID]->WriteDeltaEntity(true /* send from baseline? */, 0, OutData, true);
+                m_EngineEntities[NewEntityID]->WriteDeltaEntity(true /* send from baseline? */, 0, OutData, true);
 
             NewIndex++;
             continue;
@@ -362,13 +362,13 @@ bool EntityManagerT::CreateNewEntityFromEntityBaseLineMessage(NetDataT& InData)
     }
 
     // Falls notwendig, Platz für die neue EntityID schaffen.
-    while (EngineEntities.Size()<=EntityID) EngineEntities.PushBack(NULL);
+    while (m_EngineEntities.Size()<=EntityID) m_EngineEntities.PushBack(NULL);
 
     // Die EntityID könnte durchaus wiederverwendet werden - was immer der Server wünscht.
-    delete EngineEntities[EntityID];
+    delete m_EngineEntities[EntityID];
 
     // Neuen Entity tatsächlich erschaffen.
-    EngineEntities[EntityID]=new EngineEntityT(NewBaseEntity, InData);
+    m_EngineEntities[EntityID]=new EngineEntityT(NewBaseEntity, InData);
     return true;
 }
 
@@ -377,38 +377,38 @@ bool EntityManagerT::ParseServerDeltaUpdateMessage(unsigned long EntityID, unsig
 {
     bool EntityIDIsOK=false;
 
-    if (EntityID<EngineEntities.Size())
-        if (EngineEntities[EntityID]!=NULL)
+    if (EntityID<m_EngineEntities.Size())
+        if (m_EngineEntities[EntityID]!=NULL)
             EntityIDIsOK=true;
 
     if (!EntityIDIsOK)
     {
         // Gib Warnung aus. Aber nur, weil wir mit einer SC1_EntityUpdate Message nichts anfangen können, brauchen wir noch lange nicht zu disconnecten.
-        // ONE reason for getting EntityID>=EngineEntities.Size() here is the way how baselines are sent:
+        // ONE reason for getting EntityID>=m_EngineEntities.Size() here is the way how baselines are sent:
         // When a client joins a level, there can be a LOT of entities. Usually, not all baselines of all entities fit into a single
         // realiable message at once, and thus the server sends them in batches, contained in subsequent realiable messages.
         // Between realiable messages however, the server sends also SC1_EntityUpdate messages.
         // These messages can already refer to entities that the client knows nothing about, because it has not yet seen the (reliable)
         // introductory baseline message, and so we get here.
         // I turn the "WARNING" into an "INFO", so that ordinary users get a better impression. ;)
-        if (EntityID>=EngineEntities.Size()) EnqueueString("CLIENT INFO: %s, L %u: EntityID>=EngineEntities.Size()\n", __FILE__, __LINE__);
-                                        else EnqueueString("CLIENT WARNING: %s, L %u: EngineEntities[EntityID]==NULL \n", __FILE__, __LINE__);
-        EnqueueString("(EntityID==%u, EngineEntities.Size()==%u)\n", EntityID, EngineEntities.Size());
+        if (EntityID>=m_EngineEntities.Size()) EnqueueString("CLIENT INFO: %s, L %u: EntityID>=m_EngineEntities.Size()\n", __FILE__, __LINE__);
+                                          else EnqueueString("CLIENT WARNING: %s, L %u: m_EngineEntities[EntityID]==NULL \n", __FILE__, __LINE__);
+        EnqueueString("(EntityID==%u, m_EngineEntities.Size()==%u)\n", EntityID, m_EngineEntities.Size());
         return false;
     }
 
     // Gibt bei Scheitern Diagnose-Nachricht aus. Häufigster Grund für Scheitern dürfe eine zu alte DeltaFrameNr sein.
     // Der Calling-Code muß das erkennen und reagieren (durch Anfordern von nichtkomprimierten (gegen die BaseLine komprimierten) Messages).
     // Jedenfalls nicht Grund genug für ein Client-Disconnect.
-    return EngineEntities[EntityID]->ParseServerDeltaUpdateMessage(DeltaFrameNr, ServerFrameNr, DeltaMessage);
+    return m_EngineEntities[EntityID]->ParseServerDeltaUpdateMessage(DeltaFrameNr, ServerFrameNr, DeltaMessage);
 }
 
 
 bool EntityManagerT::Repredict(unsigned long OurEntityID, unsigned long RemoteLastIncomingSequenceNr, unsigned long LastOutgoingSequenceNr)
 {
-    if (OurEntityID<EngineEntities.Size())
-        if (EngineEntities[OurEntityID]!=NULL)
-            return EngineEntities[OurEntityID]->Repredict(RemoteLastIncomingSequenceNr, LastOutgoingSequenceNr);
+    if (OurEntityID<m_EngineEntities.Size())
+        if (m_EngineEntities[OurEntityID]!=NULL)
+            return m_EngineEntities[OurEntityID]->Repredict(RemoteLastIncomingSequenceNr, LastOutgoingSequenceNr);
 
     return false;
 }
@@ -416,18 +416,18 @@ bool EntityManagerT::Repredict(unsigned long OurEntityID, unsigned long RemoteLa
 
 void EntityManagerT::Predict(unsigned long OurEntityID, const PlayerCommandT& PlayerCommand, unsigned long OutgoingSequenceNr)
 {
-    if (OurEntityID<EngineEntities.Size())
-        if (EngineEntities[OurEntityID]!=NULL)
-            EngineEntities[OurEntityID]->Predict(PlayerCommand, OutgoingSequenceNr);
+    if (OurEntityID<m_EngineEntities.Size())
+        if (m_EngineEntities[OurEntityID]!=NULL)
+            m_EngineEntities[OurEntityID]->Predict(PlayerCommand, OutgoingSequenceNr);
 }
 
 
 bool EntityManagerT::GetCamera(unsigned long EntityID, bool UsePredictedState, Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const
 {
-    if (EntityID<EngineEntities.Size())
-        if (EngineEntities[EntityID]!=NULL)
+    if (EntityID<m_EngineEntities.Size())
+        if (m_EngineEntities[EntityID]!=NULL)
         {
-            EngineEntities[EntityID]->GetCamera(UsePredictedState, Origin, Heading, Pitch, Bank);
+            m_EngineEntities[EntityID]->GetCamera(UsePredictedState, Origin, Heading, Pitch, Bank);
             return true;
         }
 
@@ -437,9 +437,9 @@ bool EntityManagerT::GetCamera(unsigned long EntityID, bool UsePredictedState, V
 
 bool EntityManagerT::GetLightSourceInfo(unsigned long EntityID, unsigned long OurEntityID, unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const
 {
-    if (EntityID<EngineEntities.Size())
-        if (EngineEntities[EntityID]!=NULL)
-            return EngineEntities[EntityID]->GetLightSourceInfo(EntityID==OurEntityID, DiffuseColor, SpecularColor, Position, Radius, CastsShadows);
+    if (EntityID<m_EngineEntities.Size())
+        if (m_EngineEntities[EntityID]!=NULL)
+            return m_EngineEntities[EntityID]->GetLightSourceInfo(EntityID==OurEntityID, DiffuseColor, SpecularColor, Position, Radius, CastsShadows);
 
     return false;
 }
@@ -451,15 +451,15 @@ void EntityManagerT::DrawEntities(unsigned long OurEntityID, bool SkipOurEntity,
     {
         const unsigned long EntityID=EntityIDs[IDNr];
 
-        if (EntityID<EngineEntities.Size())
-            if (EngineEntities[EntityID]!=NULL)
+        if (EntityID<m_EngineEntities.Size())
+            if (m_EngineEntities[EntityID]!=NULL)
             {
                 const bool FirstPersonView  =(EntityID==OurEntityID);
                 const bool UsePredictedState=(EntityID==OurEntityID);   // TODO: For correctness, we should refer to a global 'UsePrediction' variable here, instead of using always 'true' for "our entity" ('OurEntityID')!
 
                 if (EntityID==OurEntityID && SkipOurEntity) continue;
 
-                EngineEntities[EntityID]->Draw(FirstPersonView, UsePredictedState, ViewerPos);
+                m_EngineEntities[EntityID]->Draw(FirstPersonView, UsePredictedState, ViewerPos);
             }
     }
 }
@@ -471,14 +471,14 @@ void EntityManagerT::PostDrawEntities(float FrameTime, unsigned long OurEntityID
     {
         const unsigned long EntityID=EntityIDs[IDNr];
 
-        if (EntityID!=OurEntityID && EntityID<EngineEntities.Size())
-            if (EngineEntities[EntityID]!=NULL)
-                EngineEntities[EntityID]->PostDraw(FrameTime, false, false);
+        if (EntityID!=OurEntityID && EntityID<m_EngineEntities.Size())
+            if (m_EngineEntities[EntityID]!=NULL)
+                m_EngineEntities[EntityID]->PostDraw(FrameTime, false, false);
     }
 
-    if (OurEntityID<EngineEntities.Size())
-        if (EngineEntities[OurEntityID]!=NULL)
-            EngineEntities[OurEntityID]->PostDraw(FrameTime, true, true);
+    if (OurEntityID<m_EngineEntities.Size())
+        if (m_EngineEntities[OurEntityID]!=NULL)
+            m_EngineEntities[OurEntityID]->PostDraw(FrameTime, true, true);
 }
 
 #endif   /* !DEDICATED */

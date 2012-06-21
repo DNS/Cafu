@@ -34,7 +34,7 @@ static ConVarT AutoAddCompanyBot("sv_AutoAddCompanyBot", false, ConVarT::FLAG_MA
 
 CaServerWorldT::CaServerWorldT(const char* FileName, ModelManagerT& ModelMan)
     : Ca3DEWorldT(FileName, ModelMan, false, NULL),
-      ServerFrameNr(1)  // 0 geht nicht, denn die ClientInfoT::LastKnownFrameReceived werden mit 0 initialisiert!
+      m_ServerFrameNr(1)  // 0 geht nicht, denn die ClientInfoT::LastKnownFrameReceived werden mit 0 initialisiert!
 {
     cf::GameSys::Game->Sv_PrepareNewWorld(FileName, m_World->CollModel);
 
@@ -47,7 +47,7 @@ CaServerWorldT::CaServerWorldT(const char* FileName, ModelManagerT& ModelMan)
         // as well as the game code can free/delete it in their destructors (one by "delete", the other by cf::ClipSys::CollModelMan->FreeCM()).
         cf::ClipSys::CollModelMan->GetCM(GE->CollModel);
 
-        m_EntityManager->CreateNewEntityFromBasicInfo(GE->Properties, GE->BspTree, GE->CollModel, GENr, GE->MFIndex, ServerFrameNr, GE->Origin);
+        m_EntityManager->CreateNewEntityFromBasicInfo(GE->Properties, GE->BspTree, GE->CollModel, GENr, GE->MFIndex, m_ServerFrameNr, GE->Origin);
     }
 
     // Gehe alle InfoPlayerStarts der Ca3DEWorld durch und erstelle dafür "echte" Entities.
@@ -58,7 +58,7 @@ CaServerWorldT::CaServerWorldT(const char* FileName, ModelManagerT& ModelMan)
         Props["classname"]="info_player_start";
         Props["angles"]   =cf::va("0 %lu 0", (unsigned long)(m_World->InfoPlayerStarts[IPSNr].Heading/8192.0*45.0));
 
-        m_EntityManager->CreateNewEntityFromBasicInfo(Props, NULL, NULL, (unsigned long)-1, (unsigned long)-1, ServerFrameNr, m_World->InfoPlayerStarts[IPSNr].Origin);
+        m_EntityManager->CreateNewEntityFromBasicInfo(Props, NULL, NULL, (unsigned long)-1, (unsigned long)-1, m_ServerFrameNr, m_World->InfoPlayerStarts[IPSNr].Origin);
     }
 
     // Zu Demonstrationszwecken fügen wir auch noch einen MonsterMaker vom Typ CompanyBot in die World ein.
@@ -73,7 +73,7 @@ CaServerWorldT::CaServerWorldT(const char* FileName, ModelManagerT& ModelMan)
         Props["monstercount"]      ="1";
         Props["m_imaxlivechildren"]="1";
 
-        m_EntityManager->CreateNewEntityFromBasicInfo(Props, NULL, NULL, (unsigned long)-1, (unsigned long)-1, ServerFrameNr, m_World->InfoPlayerStarts[0].Origin);
+        m_EntityManager->CreateNewEntityFromBasicInfo(Props, NULL, NULL, (unsigned long)-1, (unsigned long)-1, m_ServerFrameNr, m_World->InfoPlayerStarts[0].Origin);
     }
 
     cf::GameSys::Game->Sv_FinishNewWorld(FileName);
@@ -95,7 +95,7 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
     Props["name"]     =cf::va("Player%lu", ClientInfoNr+1);     // Setting the name is needed so that player entities can have a corresponding script instance.
     Props["angles"]   =cf::va("0 %lu 0", (unsigned long)(m_World->InfoPlayerStarts[0].Heading/8192.0*45.0));
 
-    return m_EntityManager->CreateNewEntityFromBasicInfo(Props, NULL, NULL, (unsigned long)-1, (unsigned long)-1, ServerFrameNr+1, m_World->InfoPlayerStarts[0].Origin+VectorT(0, 0, 1000), PlayerName, ModelName);
+    return m_EntityManager->CreateNewEntityFromBasicInfo(Props, NULL, NULL, (unsigned long)-1, (unsigned long)-1, m_ServerFrameNr+1, m_World->InfoPlayerStarts[0].Origin+VectorT(0, 0, 1000), PlayerName, ModelName);
 }
 
 
@@ -116,11 +116,11 @@ void CaServerWorldT::Think(float FrameTime)
     // Zuerst die Nummer des nächsten Frames 'errechnen'.
     // Die Reihenfolge ist wichtig, denn wenn ein neuer Entity geschaffen wird,
     // muß dieser korrekt wissen, zu welchem Frame er ins Leben gerufen wurde.
-    ServerFrameNr++;
+    m_ServerFrameNr++;
 
     // Jetzt das eigentliche Denken durchführen.
-    // Herauskommen tut eine Aussage der Form: "Zum Frame Nummer 'ServerFrameNr' ist die World in diesem Zustand!"
-    m_EntityManager->Think(FrameTime, ServerFrameNr);
+    // Herauskommen tut eine Aussage der Form: "Zum Frame Nummer 'm_ServerFrameNr' ist die World in diesem Zustand!"
+    m_EntityManager->Think(FrameTime, m_ServerFrameNr);
 }
 
 
@@ -128,11 +128,11 @@ unsigned long CaServerWorldT::WriteClientNewBaseLines(unsigned long OldBaseLineF
 {
     m_EntityManager->WriteNewBaseLines(OldBaseLineFrameNr, OutDatas);
 
-    return ServerFrameNr;
+    return m_ServerFrameNr;
 }
 
 
 void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID, unsigned long ClientFrameNr, ArrayT< ArrayT<unsigned long> >& ClientOldStatesPVSEntityIDs, unsigned long& ClientCurrentStateIndex, NetDataT& OutData) const
 {
-    m_EntityManager->WriteFrameUpdateMessages(ClientEntityID, ServerFrameNr, ClientFrameNr, ClientOldStatesPVSEntityIDs, ClientCurrentStateIndex, OutData);
+    m_EntityManager->WriteFrameUpdateMessages(ClientEntityID, m_ServerFrameNr, ClientFrameNr, ClientOldStatesPVSEntityIDs, ClientCurrentStateIndex, OutData);
 }

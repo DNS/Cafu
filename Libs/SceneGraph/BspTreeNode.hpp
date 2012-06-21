@@ -107,7 +107,6 @@ namespace cf
             private:
 
             friend class Ca3DEWorld_EntityServiceInterfaceT;
-            friend class EntityManagerT;    // Eigentlich nur für WriteFrameUpdateMessages().
             friend class BspTreeBuilderT;
 #else
             // TODO!!!  This is currently made so that CaLight and CaSHL compile...
