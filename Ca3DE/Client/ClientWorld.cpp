@@ -78,9 +78,45 @@ void CaClientWorldT::RemoveEntity(unsigned long EntityID)
 }
 
 
-void CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
+bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
 {
-    CreateNewEntityFromEntityBaseLineMessage(InData);
+    unsigned long EntityID    =InData.ReadLong();
+    unsigned long EntityTypeID=InData.ReadLong();
+    unsigned long EntityWFI   =InData.ReadLong();   // Short for: EntityWorldFileIndex
+
+    const std::map<std::string, std::string>  EmptyMap;
+    const unsigned long                       MFIndex =EntityWFI<m_World->GameEntities.Size() ? m_World->GameEntities[EntityWFI]->MFIndex : 0xFFFFFFFF;
+    const std::map<std::string, std::string>& Props   =EntityWFI<m_World->GameEntities.Size() ? m_World->GameEntities[EntityWFI]->Properties : EmptyMap;
+    const cf::SceneGraph::GenericNodeT*       RootNode=EntityWFI<m_World->GameEntities.Size() ? m_World->GameEntities[EntityWFI]->BspTree : NULL;
+    const cf::ClipSys::CollisionModelT*       CollMdl =EntityWFI<m_World->GameEntities.Size() ? m_World->GameEntities[EntityWFI]->CollModel : NULL;
+
+    // Register CollMdl also with the cf::ClipSys::CollModelMan, so that both the owner (Ca3DEWorld.GameEntities[EntityWFI])
+    // as well as the game code can free/delete it in their destructors (one by "delete", the other by cf::ClipSys::CollModelMan->FreeCM()).
+    cf::ClipSys::CollModelMan->GetCM(CollMdl);
+
+    // Es ist nicht sinnvoll, CreateBaseEntityFromTypeID() in Parametern die geparsten InData-Inhalte zu übergeben (Origin, Velocity, ...),
+    // denn spätestens bei der SequenceNr und FrameNr kommt es zu Problemen. Deshalb lieber erstmal ein BaseEntitiy mit "falschem" State erzeugen.
+    BaseEntityT* NewBaseEntity=cf::GameSys::Game->CreateBaseEntityFromTypeNr(EntityTypeID, Props, RootNode, CollMdl, EntityID, EntityWFI, MFIndex, this);
+
+    // Dies kann nur passieren, wenn EntityTypeID ein unbekannter Typ ist! Ein solcher Fehler ist also fatal.
+    // Andererseits sollte ein Disconnect dennoch nicht notwendig sein, der Fehler sollte ohnehin niemals auftreten.
+    if (!NewBaseEntity)
+    {
+        // Finish reading InData, so that we can gracefully continue despite the error.
+        InData.ReadDMsg();
+        EnqueueString("CLIENT ERROR: %s, L %u: Cannot create entity %u from SC1_EntityBaseLine msg: unknown type ID '%u' (WorldFileIndex %lu, MapFileIndex %lu)!\n", __FILE__, __LINE__, EntityID, EntityTypeID, EntityWFI, MFIndex);
+        return false;
+    }
+
+    // Falls notwendig, Platz für die neue EntityID schaffen.
+    while (m_EngineEntities.Size()<=EntityID) m_EngineEntities.PushBack(NULL);
+
+    // Die EntityID könnte durchaus wiederverwendet werden - was immer der Server wünscht.
+    delete m_EngineEntities[EntityID];
+
+    // Neuen Entity tatsächlich erschaffen.
+    m_EngineEntities[EntityID]=new EngineEntityT(NewBaseEntity, InData);
+    return true;
 }
 
 
@@ -245,19 +281,32 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
 
 bool CaClientWorldT::OurEntity_Repredict(unsigned long RemoteLastIncomingSequenceNr, unsigned long LastOutgoingSequenceNr)
 {
-    return Repredict(OurEntityID, RemoteLastIncomingSequenceNr, LastOutgoingSequenceNr);
+    if (OurEntityID<m_EngineEntities.Size())
+        if (m_EngineEntities[OurEntityID]!=NULL)
+            return m_EngineEntities[OurEntityID]->Repredict(RemoteLastIncomingSequenceNr, LastOutgoingSequenceNr);
+
+    return false;
 }
 
 
 void CaClientWorldT::OurEntity_Predict(const PlayerCommandT& PlayerCommand, unsigned long OutgoingSequenceNr)
 {
-    Predict(OurEntityID, PlayerCommand, OutgoingSequenceNr);
+    if (OurEntityID<m_EngineEntities.Size())
+        if (m_EngineEntities[OurEntityID]!=NULL)
+            m_EngineEntities[OurEntityID]->Predict(PlayerCommand, OutgoingSequenceNr);
 }
 
 
 bool CaClientWorldT::OurEntity_GetCamera(bool UsePredictedState, Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const
 {
-    return GetCamera(OurEntityID, UsePredictedState, Origin, Heading, Pitch, Bank);
+    if (OurEntityID<m_EngineEntities.Size())
+        if (m_EngineEntities[OurEntityID]!=NULL)
+        {
+            m_EngineEntities[OurEntityID]->GetCamera(UsePredictedState, Origin, Heading, Pitch, Bank);
+            return true;
+        }
+
+    return false;
 }
 
 
@@ -483,48 +532,6 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
 }
 
 
-bool CaClientWorldT::CreateNewEntityFromEntityBaseLineMessage(NetDataT& InData)
-{
-    unsigned long EntityID    =InData.ReadLong();
-    unsigned long EntityTypeID=InData.ReadLong();
-    unsigned long EntityWFI   =InData.ReadLong();   // Short for: EntityWorldFileIndex
-
-    const std::map<std::string, std::string>  EmptyMap;
-    const unsigned long                       MFIndex =EntityWFI<m_World->GameEntities.Size() ? m_World->GameEntities[EntityWFI]->MFIndex : 0xFFFFFFFF;
-    const std::map<std::string, std::string>& Props   =EntityWFI<m_World->GameEntities.Size() ? m_World->GameEntities[EntityWFI]->Properties : EmptyMap;
-    const cf::SceneGraph::GenericNodeT*       RootNode=EntityWFI<m_World->GameEntities.Size() ? m_World->GameEntities[EntityWFI]->BspTree : NULL;
-    const cf::ClipSys::CollisionModelT*       CollMdl =EntityWFI<m_World->GameEntities.Size() ? m_World->GameEntities[EntityWFI]->CollModel : NULL;
-
-    // Register CollMdl also with the cf::ClipSys::CollModelMan, so that both the owner (Ca3DEWorld.GameEntities[EntityWFI])
-    // as well as the game code can free/delete it in their destructors (one by "delete", the other by cf::ClipSys::CollModelMan->FreeCM()).
-    cf::ClipSys::CollModelMan->GetCM(CollMdl);
-
-    // Es ist nicht sinnvoll, CreateBaseEntityFromTypeID() in Parametern die geparsten InData-Inhalte zu übergeben (Origin, Velocity, ...),
-    // denn spätestens bei der SequenceNr und FrameNr kommt es zu Problemen. Deshalb lieber erstmal ein BaseEntitiy mit "falschem" State erzeugen.
-    BaseEntityT* NewBaseEntity=cf::GameSys::Game->CreateBaseEntityFromTypeNr(EntityTypeID, Props, RootNode, CollMdl, EntityID, EntityWFI, MFIndex, this);
-
-    // Dies kann nur passieren, wenn EntityTypeID ein unbekannter Typ ist! Ein solcher Fehler ist also fatal.
-    // Andererseits sollte ein Disconnect dennoch nicht notwendig sein, der Fehler sollte ohnehin niemals auftreten.
-    if (!NewBaseEntity)
-    {
-        // Finish reading InData, so that we can gracefully continue despite the error.
-        InData.ReadDMsg();
-        EnqueueString("CLIENT ERROR: %s, L %u: Cannot create entity %u from SC1_EntityBaseLine msg: unknown type ID '%u' (WorldFileIndex %lu, MapFileIndex %lu)!\n", __FILE__, __LINE__, EntityID, EntityTypeID, EntityWFI, MFIndex);
-        return false;
-    }
-
-    // Falls notwendig, Platz für die neue EntityID schaffen.
-    while (m_EngineEntities.Size()<=EntityID) m_EngineEntities.PushBack(NULL);
-
-    // Die EntityID könnte durchaus wiederverwendet werden - was immer der Server wünscht.
-    delete m_EngineEntities[EntityID];
-
-    // Neuen Entity tatsächlich erschaffen.
-    m_EngineEntities[EntityID]=new EngineEntityT(NewBaseEntity, InData);
-    return true;
-}
-
-
 bool CaClientWorldT::ParseServerDeltaUpdateMessage(unsigned long EntityID, unsigned long DeltaFrameNr, unsigned long ServerFrameNr, const ArrayT<uint8_t>* DeltaMessage)
 {
     bool EntityIDIsOK=false;
@@ -553,37 +560,6 @@ bool CaClientWorldT::ParseServerDeltaUpdateMessage(unsigned long EntityID, unsig
     // Der Calling-Code muß das erkennen und reagieren (durch Anfordern von nichtkomprimierten (gegen die BaseLine komprimierten) Messages).
     // Jedenfalls nicht Grund genug für ein Client-Disconnect.
     return m_EngineEntities[EntityID]->ParseServerDeltaUpdateMessage(DeltaFrameNr, ServerFrameNr, DeltaMessage);
-}
-
-
-bool CaClientWorldT::Repredict(unsigned long OurEntityID, unsigned long RemoteLastIncomingSequenceNr, unsigned long LastOutgoingSequenceNr)
-{
-    if (OurEntityID<m_EngineEntities.Size())
-        if (m_EngineEntities[OurEntityID]!=NULL)
-            return m_EngineEntities[OurEntityID]->Repredict(RemoteLastIncomingSequenceNr, LastOutgoingSequenceNr);
-
-    return false;
-}
-
-
-void CaClientWorldT::Predict(unsigned long OurEntityID, const PlayerCommandT& PlayerCommand, unsigned long OutgoingSequenceNr)
-{
-    if (OurEntityID<m_EngineEntities.Size())
-        if (m_EngineEntities[OurEntityID]!=NULL)
-            m_EngineEntities[OurEntityID]->Predict(PlayerCommand, OutgoingSequenceNr);
-}
-
-
-bool CaClientWorldT::GetCamera(unsigned long EntityID, bool UsePredictedState, Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const
-{
-    if (EntityID<m_EngineEntities.Size())
-        if (m_EngineEntities[EntityID]!=NULL)
-        {
-            m_EngineEntities[EntityID]->GetCamera(UsePredictedState, Origin, Heading, Pitch, Bank);
-            return true;
-        }
-
-    return false;
 }
 
 

@@ -178,11 +178,3 @@ const CafuModelT* Ca3DEWorldT::GetModel(const std::string& FileName) const
 {
     return m_ModelMan.GetModel(FileName);
 }
-
-
-void Ca3DEWorldT::ProcessConfigString(unsigned long EntityID, const void* ConfigData, const char* ConfigString)
-{
-    if (EntityID<m_EngineEntities.Size())
-        if (m_EngineEntities[EntityID]!=NULL)
-            m_EngineEntities[EntityID]->ProcessConfigString(ConfigData, ConfigString);
-}

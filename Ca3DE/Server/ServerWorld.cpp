@@ -99,9 +99,27 @@ unsigned long CaServerWorldT::CreateNewEntity(const std::map<std::string, std::s
 }
 
 
+// Die Clients bekommen unabhängig hiervon in einer SC1_DropClient Message explizit mitgeteilt, wenn ein Client (warum auch immer) den Server verläßt.
+// Den dazugehörigen Entity muß der Client deswegen aber nicht unbedingt sofort und komplett aus seiner World entfernen,
+// dies sollte vielmehr durch Wiederverwendung von EntityIDs durch den Server geschehen!
 void CaServerWorldT::RemoveEntity(unsigned long EntityID)
 {
-    RemoveEntity_(EntityID);
+    if (m_IsThinking)
+    {
+        // We're currently thinking, and EntityID might be the ID of the entity that currently thinks.
+        // (That is, this entity is removing itself, as for example an exploded grenade.)
+        // Thus, schedule this entity for removal until the thinking is finished.
+        m_EntityRemoveList.PushBack(EntityID);
+    }
+    else
+    {
+        // Currently not thinking, so it should be safe to remove the entity immediately.
+        if (EntityID < m_EngineEntities.Size())
+        {
+            delete m_EngineEntities[EntityID];
+            m_EngineEntities[EntityID]=NULL;
+        }
+    }
 }
 
 
@@ -117,15 +135,11 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
 }
 
 
-void CaServerWorldT::RemoveHumanPlayerEntity(unsigned long HumanPlayerEntityID)
-{
-    RemoveEntity(HumanPlayerEntityID);
-}
-
-
 void CaServerWorldT::NotifyHumanPlayerEntityOfClientCommand(unsigned long HumanPlayerEntityID, const PlayerCommandT& PlayerCommand)
 {
-    ProcessConfigString(HumanPlayerEntityID, &PlayerCommand, "PlayerCommand");
+    if (HumanPlayerEntityID < m_EngineEntities.Size())
+        if (m_EngineEntities[HumanPlayerEntityID]!=NULL)
+            m_EngineEntities[HumanPlayerEntityID]->ProcessConfigString(&PlayerCommand, "PlayerCommand");
 }
 
 
@@ -137,74 +151,7 @@ void CaServerWorldT::Think(float FrameTime)
     m_ServerFrameNr++;
 
     // Jetzt das eigentliche Denken durchführen.
-    // Herauskommen tut eine Aussage der Form: "Zum Frame Nummer 'm_ServerFrameNr' ist die World in diesem Zustand!"
-    Think(FrameTime, m_ServerFrameNr);
-}
-
-
-unsigned long CaServerWorldT::WriteClientNewBaseLines(unsigned long OldBaseLineFrameNr, ArrayT< ArrayT<char> >& OutDatas) const
-{
-    WriteNewBaseLines(OldBaseLineFrameNr, OutDatas);
-
-    return m_ServerFrameNr;
-}
-
-
-void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID, unsigned long ClientFrameNr, ArrayT< ArrayT<unsigned long> >& ClientOldStatesPVSEntityIDs, unsigned long& ClientCurrentStateIndex, NetDataT& OutData) const
-{
-    WriteFrameUpdateMessages(ClientEntityID, m_ServerFrameNr, ClientFrameNr, ClientOldStatesPVSEntityIDs, ClientCurrentStateIndex, OutData);
-}
-
-
-unsigned long CaServerWorldT::CreateNewEntityFromBasicInfo(const std::map<std::string, std::string>& Properties,
-    const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel,
-    unsigned long WorldFileIndex, unsigned long MapFileIndex, unsigned long CreationFrameNr, const VectorT& Origin, const char* PlayerName, const char* ModelName)
-{
-    unsigned long NewEntityID  =m_EngineEntities.Size();
-    BaseEntityT*  NewBaseEntity=cf::GameSys::Game->CreateBaseEntityFromMapFile(Properties, RootNode, CollisionModel, NewEntityID,
-                                    WorldFileIndex, MapFileIndex, this, Origin);
-
-    if (NewBaseEntity)
-    {
-        // Muß dies VOR dem Erzeugen des EngineEntitys tun, denn sonst stimmt dessen BaseLine nicht!
-        if (PlayerName!=NULL) NewBaseEntity->ProcessConfigString(PlayerName, "PlayerName");
-        if (ModelName !=NULL) NewBaseEntity->ProcessConfigString(ModelName , "ModelName" );
-
-        m_EngineEntities.PushBack(new EngineEntityT(NewBaseEntity, CreationFrameNr));
-        return NewEntityID;
-    }
-
-    // Free the collision model in place of the (never instantiated) entity destructor,
-    // so that the reference count of the CollModelMan gets right.
-    cf::ClipSys::CollModelMan->FreeCM(CollisionModel);
-
-    return 0xFFFFFFFF;  // Fehlerwert zurückgeben
-}
-
-
-void CaServerWorldT::RemoveEntity_(unsigned long EntityID)
-{
-    if (m_IsThinking)
-    {
-        // We're currently thinking, and EntityID might be the ID of the entity that currently thinks.
-        // (That is, this entity is removing itself, as for example an exploded grenade.)
-        // Thus, schedule this entity for removal until the thinking is finished.
-        m_EntityRemoveList.PushBack(EntityID);
-    }
-    else
-    {
-        // Currently not thinking, so it should be save to remove the entity immediately.
-        if (EntityID<m_EngineEntities.Size())
-        {
-            delete m_EngineEntities[EntityID];
-            m_EngineEntities[EntityID]=NULL;
-        }
-    }
-}
-
-
-void CaServerWorldT::Think(float FrameTime, unsigned long ServerFrameNr)
-{
+    // Heraus kommt eine Aussage der Form: "Zum Frame Nummer 'm_ServerFrameNr' ist die World in diesem Zustand!"
     if (m_IsThinking) return;
 
     m_IsThinking=true;
@@ -219,7 +166,7 @@ void CaServerWorldT::Think(float FrameTime, unsigned long ServerFrameNr)
     // - Dies könnte sich evtl. mit einem weiteren Array von 'active EntityIDs' lösen lassen.
     for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
         if (m_EngineEntities[EntityNr]!=NULL)
-            m_EngineEntities[EntityNr]->PreThink(ServerFrameNr);
+            m_EngineEntities[EntityNr]->PreThink(m_ServerFrameNr);
 
     // Must never move this above the PreThink() calls above, because the Game assumes that the entity states may
     // be modified (e.g. by map script commands) as soon as it gets this call.
@@ -227,7 +174,7 @@ void CaServerWorldT::Think(float FrameTime, unsigned long ServerFrameNr)
 
     for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
         if (m_EngineEntities[EntityNr]!=NULL)
-            m_EngineEntities[EntityNr]->Think(FrameTime, ServerFrameNr);
+            m_EngineEntities[EntityNr]->Think(FrameTime, m_ServerFrameNr);
 
     cf::GameSys::Game->Sv_EndThinking();
 
@@ -247,17 +194,19 @@ void CaServerWorldT::Think(float FrameTime, unsigned long ServerFrameNr)
 }
 
 
-void CaServerWorldT::WriteNewBaseLines(unsigned long SentClientBaseLineFrameNr, ArrayT< ArrayT<char> >& OutDatas) const
+unsigned long CaServerWorldT::WriteClientNewBaseLines(unsigned long OldBaseLineFrameNr, ArrayT< ArrayT<char> >& OutDatas) const
 {
-    for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
+    const unsigned long SentClientBaseLineFrameNr = OldBaseLineFrameNr;
+
+    for (unsigned long EntityNr=0; EntityNr < m_EngineEntities.Size(); EntityNr++)
         if (m_EngineEntities[EntityNr]!=NULL)
             m_EngineEntities[EntityNr]->WriteNewBaseLine(SentClientBaseLineFrameNr, OutDatas);
+
+    return m_ServerFrameNr;
 }
 
 
-void CaServerWorldT::WriteFrameUpdateMessages(unsigned long ClientEntityID, unsigned long ServerFrameNr, unsigned long ClientFrameNr,
-                                              ArrayT< ArrayT<unsigned long> >& ClientOldStatesPVSEntityIDs,
-                                              unsigned long& ClientCurrentStateIndex, NetDataT& OutData) const
+void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID, unsigned long ClientFrameNr, ArrayT< ArrayT<unsigned long> >& ClientOldStatesPVSEntityIDs, unsigned long& ClientCurrentStateIndex, NetDataT& OutData) const
 {
     // Wenn dies hier aufgerufen wird, befinden sich sämtliche m_EngineEntities schon im Zustand ('Entity->State') zum Frame 'ServerFrameNr'.
     // Der Client, von dem obige Parameter stammen, ist aber noch nicht soweit (sondern noch im vorherigen Zustand).
@@ -299,7 +248,7 @@ void CaServerWorldT::WriteFrameUpdateMessages(unsigned long ClientEntityID, unsi
 
     unsigned long DeltaFrameNr;     // Kann dies entfernen, indem der Packet-Header direkt im if-else-Teil geschrieben wird!
 
-    if (ClientFrameNr==0 || ClientFrameNr>=ServerFrameNr || ClientFrameNr+ClientOldStatesPVSEntityIDs.Size()-1<ServerFrameNr)
+    if (ClientFrameNr==0 || ClientFrameNr>=m_ServerFrameNr || ClientFrameNr+ClientOldStatesPVSEntityIDs.Size()-1<m_ServerFrameNr)
     {
         // Erläuterung der obigen if-Bedingung:
         // a) Der erste  Teil 'ClientFrameNr==0' ist klar!
@@ -315,7 +264,7 @@ void CaServerWorldT::WriteFrameUpdateMessages(unsigned long ClientEntityID, unsi
     else
     {
         // Nach obiger if-Bedingung ist FrameDiff auf jeden Fall in [1 .. ClientOldStatesPVSEntityIDs.Size()-1].
-        unsigned long FrameDiff=ServerFrameNr-ClientFrameNr;
+        unsigned long FrameDiff=m_ServerFrameNr-ClientFrameNr;
 
         DeltaFrameNr        =ClientFrameNr;
         OldStatePVSEntityIDs=&ClientOldStatesPVSEntityIDs[FrameDiff<=ClientCurrentStateIndex ? ClientCurrentStateIndex-FrameDiff : ClientOldStatesPVSEntityIDs.Size()+ClientCurrentStateIndex-FrameDiff];
@@ -323,8 +272,8 @@ void CaServerWorldT::WriteFrameUpdateMessages(unsigned long ClientEntityID, unsi
 
 
     OutData.WriteByte(SC1_FrameInfo);
-    OutData.WriteLong(ServerFrameNr);       // What we are delta'ing to   (Frame, für das wir Informationen schicken)
-    OutData.WriteLong(DeltaFrameNr );       // What we are delta'ing from (Frame, auf das wir uns beziehen (0 für BaseLine))
+    OutData.WriteLong(m_ServerFrameNr);     // What we are delta'ing to   (Frame, für das wir Informationen schicken)
+    OutData.WriteLong(DeltaFrameNr);        // What we are delta'ing from (Frame, auf das wir uns beziehen (0 für BaseLine))
 
 
     unsigned long OldIndex=0;
@@ -364,7 +313,7 @@ void CaServerWorldT::WriteFrameUpdateMessages(unsigned long ClientEntityID, unsi
             // Dennoch ist es wahrscheinlich (??) nicht notwendig, den Client bei Auftreten dieses Fehler zu disconnecten.
             if (!SkipEntity)
                 if (!m_EngineEntities[NewEntityID]->WriteDeltaEntity(false /* send from baseline? */, ClientFrameNr, OutData, false))
-                    EnqueueString("SERVER ERROR: %s, L %u: NewEntityID %u, ServerFrameNr %u, ClientFrameNr %u\n", __FILE__, __LINE__, NewEntityID, ServerFrameNr, ClientFrameNr);
+                    EnqueueString("SERVER ERROR: %s, L %u: NewEntityID %u, ServerFrameNr %u, ClientFrameNr %u\n", __FILE__, __LINE__, NewEntityID, m_ServerFrameNr, ClientFrameNr);
 
             OldIndex++;
             NewIndex++;
@@ -395,4 +344,30 @@ void CaServerWorldT::WriteFrameUpdateMessages(unsigned long ClientEntityID, unsi
             continue;
         }
     }
+}
+
+
+unsigned long CaServerWorldT::CreateNewEntityFromBasicInfo(const std::map<std::string, std::string>& Properties,
+    const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel,
+    unsigned long WorldFileIndex, unsigned long MapFileIndex, unsigned long CreationFrameNr, const VectorT& Origin, const char* PlayerName, const char* ModelName)
+{
+    unsigned long NewEntityID  =m_EngineEntities.Size();
+    BaseEntityT*  NewBaseEntity=cf::GameSys::Game->CreateBaseEntityFromMapFile(Properties, RootNode, CollisionModel, NewEntityID,
+                                    WorldFileIndex, MapFileIndex, this, Origin);
+
+    if (NewBaseEntity)
+    {
+        // Muß dies VOR dem Erzeugen des EngineEntitys tun, denn sonst stimmt dessen BaseLine nicht!
+        if (PlayerName!=NULL) NewBaseEntity->ProcessConfigString(PlayerName, "PlayerName");
+        if (ModelName !=NULL) NewBaseEntity->ProcessConfigString(ModelName , "ModelName" );
+
+        m_EngineEntities.PushBack(new EngineEntityT(NewBaseEntity, CreationFrameNr));
+        return NewEntityID;
+    }
+
+    // Free the collision model in place of the (never instantiated) entity destructor,
+    // so that the reference count of the CollModelMan gets right.
+    cf::ClipSys::CollModelMan->FreeCM(CollisionModel);
+
+    return 0xFFFFFFFF;  // Fehlerwert zurückgeben
 }

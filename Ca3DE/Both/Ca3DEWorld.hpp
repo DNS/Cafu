@@ -54,10 +54,6 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
 
     void Clear();
 
-    // L‰ﬂt den EngineEntity mit der ID 'EntityID' den 'ConfigString' und die 'ConfigData' bearbeiten.
-    void ProcessConfigString(unsigned long EntityID, const void* ConfigData, const char* ConfigString);
-
-
     const WorldT*            m_World;
     cf::ClipSys::ClipWorldT* m_ClipWorld;
     ArrayT<EngineEntityT*>   m_EngineEntities;

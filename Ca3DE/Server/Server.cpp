@@ -470,7 +470,7 @@ void ServerT::DropClient(unsigned long ClientNr, const char* Reason)
     Console->Print(cf::va("Dropped client %u (EntityID %u, PlayerName '%s'). Reason: %s\n", ClientNr, ClientInfos[ClientNr]->EntityID, ClientInfos[ClientNr]->PlayerName.c_str(), Reason));
 
     // 2. Remove the entity of the dropped client from our world.
-    World->RemoveHumanPlayerEntity(ClientInfos[ClientNr]->EntityID);
+    World->RemoveEntity(ClientInfos[ClientNr]->EntityID);
 
     // 3. The client was disconnected, but it goes into a zombie state for a few seconds to make sure
     //    any final reliable message gets resent if necessary.

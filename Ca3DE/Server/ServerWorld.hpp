@@ -49,14 +49,13 @@ class CaServerWorldT : public Ca3DEWorldT
     // Gibt bei Erfolg die ID des neuen Entities zurück, sonst 0xFFFFFFFF.
     unsigned long InsertHumanPlayerEntityForNextFrame(const char* PlayerName, const char* ModelName, unsigned long ClientInfoNr);
 
-    // Entfernt den (HumanPlayer-)Entity mit der ID 'HumanPlayerEntityID' aus der World.
-    void RemoveHumanPlayerEntity(unsigned long HumanPlayerEntityID);
-
     // Informiert den (HumanPlayer-)Entity mit der ID 'HumanPlayerEntityID' über das 'PlayerCommand' (zur Verarbeitung beim nächsten 'Think()en'.
     void NotifyHumanPlayerEntityOfClientCommand(unsigned long HumanPlayerEntityID, const PlayerCommandT& PlayerCommand);
 
     // Falls es neue Entities (und damit neue BaseLine-Messages) gibt, die jünger sind als 'OldBaseLineFrameNr',
     // schreibe entsprechende BaseLine-Messages nach 'OutDatas'.
+    // Schreibt für alle EngineEntities, die seit 'SentClientBaseLineFrameNr' (=='OldBaseLineFrameNr') neu erschaffen wurden, SC1_EntityBaseLine Messages nach 'OutDatas'
+    // (d.h. für solche, deren 'BaseLineFrameNr' größer (d.h. jünger) als die 'SentClientBaseLineFrameNr' ist).
     unsigned long WriteClientNewBaseLines(unsigned long OldBaseLineFrameNr, ArrayT< ArrayT<char> >& OutDatas) const;
 
     // Schreibt eine komplette Delta-Update-Message (FrameInfo+EntityUpdates) nach 'OutData'.
@@ -64,9 +63,20 @@ class CaServerWorldT : public Ca3DEWorldT
     // 'ClientFrameNr' die Nummer des Frames/Zustands, den der Client zuletzt bestätigt hat,
     // 'ClientOldStatesPVSEntityIDs' die von dieser Funktion gewarteteten PVS-Informationen vorangegangener Zustände und
     // 'ClientCurrentStateIndex' der (ebenfalls von dieser Funktion gewartete) Index in die PVS-Informationen.
+    //
+    // Diese Funktion nimmt folgende Parameter zu einem Client entgegen:
+    // 'ClientEntityID'              - die ID des Entities des Clients,
+    // 'ClientFrameNr'               - die Nummer des letzten ServerFrames, das der Client von uns gesehen hat,
+    // 'ClientOldStatesPVSEntityIDs' - die IDs der Entities der letzten Zustände des Clients, und
+    // 'ClientCurrentStateIndex'     - der zum Zustand des Frames 'ClientFrameNr' gehörende Index ins 'ClientOldStatesPVSEntityIDs' Array.
+    // Diese Funktion schreibt dann eine SC1_NewFrameInfo Message und die sich aus obigem ergebenden, relevanten SC1_EntityUpdate Messages nach 'OutData',
+    // sodaß die Gegenstelle aus dem Zustand des Frames 'ClientFrameNr' den Zustand des Frames 'ServerFrameNr' rekonstruieren kann.
+    // WICHTIG: Die EngineEntities befinden sich bei Funktionsaufruf schon im Zustand des Frames 'ServerFrameNr'. Die Client PVS-EntityIDs für diesen
+    // Zustand werden erst mit diesem Aufruf erstellt! Deshalb MUSS diese Funktion auch nach JEDEM Aufruf von 'Think()' für jeden Client aufgerufen werden!
     void WriteClientDeltaUpdateMessages(unsigned long ClientEntityID, unsigned long ClientFrameNr, ArrayT< ArrayT<unsigned long> >& ClientOldStatesPVSEntityIDs, unsigned long& ClientCurrentStateIndex, NetDataT& OutData) const;
 
     // Überführt die World über die Zeit 'FrameTime' in den nächsten Zustand.
+    // Berechnet den nächsten Zustand 'ServerFrameNr' der EngineEntities, indem auf alle Entities die 'FrameTime' angewandt wird.
     void Think(float FrameTime);
 
 
@@ -86,34 +96,6 @@ class CaServerWorldT : public Ca3DEWorldT
     unsigned long CreateNewEntityFromBasicInfo(const std::map<std::string, std::string>& Properties, const cf::SceneGraph::GenericNodeT* RootNode,
         const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long WorldFileIndex, unsigned long MapFileIndex, unsigned long CreationFrameNr, const VectorT& Origin,
         const char* PlayerName=NULL, const char* ModelName=NULL);
-
-    // Entfernt einen EngineEntity. Beispiele für Aufruf-Möglichkeiten:
-    // a) aus ServerWorldT::RemoveHumanPlayerEntity(), wenn ein HumanPlayer-Entity eines Clients gelöscht werden soll.
-    // b) aus dem 'EntityServiceInterface', wenn ein Entity z.B. seine Children oder sich selbst löschen will.
-    // Die Clients bekommen unabhängig davon in einer SC1_DropClient Message explizit mitgeteilt, wenn ein Client (warum auch immer) den Server verläßt.
-    // Den dazugehörigen Entity muß der Client deswegen aber nicht unbedingt sofort und komplett aus seiner World entfernen,
-    // dies sollte vielmehr durch Wiederverwendung von EntityIDs durch den Server geschehen!
-    void RemoveEntity_(unsigned long EntityID);
-
-    // Berechnet den nächsten Zustand 'ServerFrameNr' der EngineEntities, indem auf alle Entities die 'FrameTime' angewandt wird.
-    void Think(float FrameTime, unsigned long ServerFrameNr);
-
-    // Schreibt für alle EngineEntities, die seit 'SentClientBaseLineFrameNr' neu erschaffen wurden, SC1_EntityBaseLine Messages nach 'OutDatas'
-    // (d.h. für solche, deren 'BaseLineFrameNr' größer (d.h. jünger) als die 'SentClientBaseLineFrameNr' ist).
-    void WriteNewBaseLines(unsigned long SentClientBaseLineFrameNr, ArrayT< ArrayT<char> >& OutDatas) const;
-
-    // Diese Funktion nimmt folgende Parameter zu einem Client entgegen:
-    // 'ClientEntityID'              - die ID des Entities des Clients,
-    // 'ClientFrameNr'               - die Nummer des letzten ServerFrames, das der Client von uns gesehen hat,
-    // 'ClientOldStatesPVSEntityIDs' - die IDs der Entities der letzten Zustände des Clients, und
-    // 'ClientCurrentStateIndex'     - der zum Zustand des Frames 'ClientFrameNr' gehörende Index ins 'ClientOldStatesPVSEntityIDs' Array.
-    // Diese Funktion schreibt dann eine SC1_NewFrameInfo Message und die sich aus obigem ergebenden, relevanten SC1_EntityUpdate Messages nach 'OutData',
-    // sodaß die Gegenstelle aus dem Zustand des Frames 'ClientFrameNr' den Zustand des Frames 'ServerFrameNr' rekonstruieren kann.
-    // WICHTIG: Die EngineEntities befinden sich bei Funktionsaufruf schon im Zustand des Frames 'ServerFrameNr'. Die Client PVS-EntityIDs für diesen
-    // Zustand werden erst mit diesem Aufruf erstellt! Deshalb MUSS diese Funktion auch nach JEDEM Aufruf von 'Think()' für jeden Client aufgerufen werden!
-    void WriteFrameUpdateMessages(unsigned long ClientEntityID, unsigned long ServerFrameNr, unsigned long ClientFrameNr,
-                                  ArrayT< ArrayT<unsigned long> >& ClientOldStatesPVSEntityIDs,
-                                  unsigned long& ClientCurrentStateIndex, NetDataT& OutData) const;
 
 
     unsigned long         m_ServerFrameNr;      ///< Nummer des aktuellen Frames/Zustands

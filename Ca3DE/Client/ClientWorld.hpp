@@ -66,11 +66,22 @@ class CaClientWorldT : public Ca3DEWorldT
     void          RemoveEntity(unsigned long EntityID);
 
     unsigned long GetOurEntityID() const { return OurEntityID; }  // AUFLÖSEN!?
-    void ReadEntityBaseLineMessage(NetDataT& InData);
+
+    // Erzeugt einen neuen Entity durch das zu Ende Lesen einer SC1_EntityBaseLine Message. Gibt 'true' zurück bei Erfolg, sonst 'false'.
+    // Letzteres passiert nur nach einem fatalen Fehler, nämlich wenn 'InData' einen unbekannten Entity-Typ beschreibt (Entity-TypeID).
+    bool ReadEntityBaseLineMessage(NetDataT& InData);
+
     unsigned long ReadServerFrameMessage(NetDataT& InData);
 
     bool OurEntity_Repredict(unsigned long RemoteLastIncomingSequenceNr, unsigned long LastOutgoingSequenceNr);
     void OurEntity_Predict(const PlayerCommandT& PlayerCommand, unsigned long OutgoingSequenceNr);
+
+    /// Returns the camera details of "our" entity that the client should use to render the world.
+    /// This is typically called for the local human player from whose perspective the world is rendered.
+    ///
+    /// @param UsePredictedState   Whether the predicted or the "unpredicted" state should provide the camera details.
+    ///
+    /// @returns \c false if "our" entity was not available (and no camera details could be retrieved), \c true on success.
     bool OurEntity_GetCamera(bool UsePredictedState, Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const;
 
     void ComputeBFSPath(const VectorT& Start, const VectorT& End);
@@ -82,30 +93,10 @@ class CaClientWorldT : public Ca3DEWorldT
     CaClientWorldT(const CaClientWorldT&);      // Use of the Copy    Constructor is not allowed.
     void operator = (const CaClientWorldT&);    // Use of the Assignment Operator is not allowed.
 
-    // Erzeugt einen neuen Entity durch das zu Ende Lesen einer SC1_EntityBaseLine Message. Gibt 'true' zurück bei Erfolg, sonst 'false'.
-    // Letzteres passiert nur nach einem fatalen Fehler, nämlich wenn 'InData' einen unbekannten Entity-Typ beschreibt (Entity-TypeID).
-    bool CreateNewEntityFromEntityBaseLineMessage(NetDataT& InData);
-
     // Ruft 'EngineEntityT::ParseServerDeltaUpdateMessage()' für den EngineEntityT mit der ID 'EntityID' auf (siehe Dokumentation dieser Funktion!).
     // Das Rückgabeergebnis entspricht dem dieser Funktion, ein Scheitern kann nun aber zusätzlich vorkommen, falls 'EntityID' nicht existiert.
     bool ParseServerDeltaUpdateMessage(unsigned long EntityID, unsigned long DeltaFrameNr, unsigned long ServerFrameNr,
                                        const ArrayT<uint8_t>* DeltaMessage);
-
-    // Please see the corresponding function in EngineEntityT for documentation.
-    bool Repredict(unsigned long OurEntityID, unsigned long RemoteLastIncomingSequenceNr, unsigned long LastOutgoingSequenceNr);
-
-    // Please see the corresponding function in EngineEntityT for documentation.
-    void Predict(unsigned long OurEntityID, const PlayerCommandT& PlayerCommand, unsigned long OutgoingSequenceNr);
-
-    /// Returns the camera details of the given entity that the client should use to render the world.
-    /// This is typically called for the local human player from whose perspective the world is rendered.
-    ///
-    /// @param EntityID            The ID of the entity for which the camera details should be returned.
-    /// @param UsePredictedState   Whether the predicted or the "unpredicted" state should provide the camera details.
-    ///
-    /// @returns \c false if EntityID was not a valid entity ID (and no camera details could be retrieved),
-    ///          \c true in all other cases.
-    bool GetCamera(unsigned long EntityID, bool UsePredictedState, Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const;
 
     // Please see the corresponding function in EngineEntityT for documentation.
     bool GetLightSourceInfo(unsigned long EntityID, unsigned long OurEntityID, unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const;
