@@ -42,7 +42,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 CaClientWorldT::CaClientWorldT(const char* FileName, ModelManagerT& ModelMan, WorldT::ProgressFunctionT ProgressFunction, unsigned long OurEntityID_) /*throw (WorldT::LoadErrorT)*/
     : Ca3DEWorldT(FileName, ModelMan, true, ProgressFunction),
       OurEntityID(OurEntityID_),
-      ServerFrameNr(0xDEADBEAF),
+      m_ServerFrameNr(0xDEADBEEF),
       MAX_FRAMES(16) /*MUST BE POWER OF 2*/
 {
     cf::GameSys::Game->Cl_LoadWorld(FileName, m_World->CollModel);
@@ -132,7 +132,7 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
     cf::LogDebug(net, "    CurrentFrame.ServerFrameNr==%lu", CurrentFrame.ServerFrameNr);
     cf::LogDebug(net, "    CurrentFrame.DeltaFrameNr ==%lu", CurrentFrame.DeltaFrameNr);
 
-    ServerFrameNr=CurrentFrame.ServerFrameNr;
+    m_ServerFrameNr=CurrentFrame.ServerFrameNr;
 
     if (CurrentFrame.DeltaFrameNr==0)
     {
@@ -156,7 +156,7 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
             // Falls wir hier 'CurrentFrame.IsValid==false' haben, so heißt das, daß wir den Rest der Message lesen und ignorieren müssen,
             // denn er ist nicht verwertbar. Dazu arbeiten wir ganz normal mit dem ungültigen oder veralteten DeltaFrame, denn das CurrentFrame
             // ist ja eh ungültig. Danach müssen wir eine nicht-komprimierte (d.h. gegen die BaseLines komprimierte) Nachricht anfordern,
-            // indem wir ganz am Ende dieser Funktion 0 anstatt 'ServerFrameNr' zurückgeben.
+            // indem wir ganz am Ende dieser Funktion 0 anstatt 'm_ServerFrameNr' zurückgeben.
             EnqueueString("CLIENT WARNING: %s, L %u: %u %u %u!\n", __FILE__, __LINE__, DeltaFrame->IsValid, CurrentFrame.DeltaFrameNr, DeltaFrame->ServerFrameNr);
         }
     }
@@ -268,14 +268,14 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
     }
 
     // CurrentFrame speichern für die spätere Wiederverwendung
-    Frames[ServerFrameNr & (MAX_FRAMES-1)]=CurrentFrame;
+    Frames[m_ServerFrameNr & (MAX_FRAMES-1)]=CurrentFrame;
 
     // Falls das CurrentFrame die ganze Zeit nicht gültig war, müssen wir 0 zurückgeben,
     // um vom Server gegen die BaseLines komprimierte Messages zu bekommen (siehe oben)!
     if (!CurrentFrame.IsValid)
         EnqueueString("CLIENT INFO: CurrentFrame (%lu %lu) invalid, requesting baseline message.\n", CurrentFrame.ServerFrameNr, CurrentFrame.DeltaFrameNr);
 
-    return CurrentFrame.IsValid ? ServerFrameNr : 0;
+    return CurrentFrame.IsValid ? m_ServerFrameNr : 0;
 }
 
 
@@ -411,7 +411,7 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
     // Entweder DrawEntities() veranlassen, alle Entities des m_EngineEntities-Arrays zu zeichnen
     // (z.B. durch einen Trick, oder explizit ein Array der Größe m_EngineEntities.Size() übergeben, das an der Stelle i der Wert i hat),
     // oder indem die Beachtung des PVS auf Server-Seite (!) ausgeschaltet wird! Die Effekte sind jeweils verschieden!
-    const FrameT& CurrentFrame=Frames[ServerFrameNr & (MAX_FRAMES-1)];
+    const FrameT& CurrentFrame=Frames[m_ServerFrameNr & (MAX_FRAMES-1)];
 
     static float TotalTime=0.0;
     TotalTime+=FrameTime;
@@ -433,10 +433,10 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
         // Die FrameInfo-Message wird jedoch nur "unreliable" zu übertragen versucht, und daher vom Protokoll weggelassen,
         // wenn die max. Größe des Netzwerkpakets überschritten wird.
         // Somit können wir hierherkommen, ohne jemals eine FrameInfo-Message vom Server gesehen zu haben.
-        // Erkennen kann man diesen Fall daran, daß 'ServerFrameNr' noch den Initialisierungswert 0xDEAFBEAF enthält.
+        // Erkennen kann man diesen Fall daran, daß 'm_ServerFrameNr' noch den Initialisierungswert 0xDEADBEEF enthält.
         // Das Auftreten dieses Fehlers ist nicht schön, aber auch nicht sehr schlimm, solange es keine sauberere Lösung gibt.
 #ifdef DEBUG
-        EnqueueString("CLIENT WARNING: %s, L %u: Frame %lu was invalid on entity draw attempt!", __FILE__, __LINE__, ServerFrameNr);
+        EnqueueString("CLIENT WARNING: %s, L %u: Frame %lu was invalid on entity draw attempt!", __FILE__, __LINE__, m_ServerFrameNr);
 #endif
         return;
     }

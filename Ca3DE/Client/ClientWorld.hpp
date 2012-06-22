@@ -119,7 +119,7 @@ class CaClientWorldT : public Ca3DEWorldT
 
     unsigned long         OurEntityID;
 
-    unsigned long         ServerFrameNr;    // Erhalte mit Frames[ServerFrameNr & (MAX_FRAMES-1)] das Frame zur ServerFrameNr!
+    unsigned long         m_ServerFrameNr;  // Erhalte mit Frames[ServerFrameNr & (MAX_FRAMES-1)] das Frame zur ServerFrameNr!
     const char            MAX_FRAMES;
     ArrayT<FrameT>        Frames;
 
