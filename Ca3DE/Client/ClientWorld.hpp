@@ -117,15 +117,16 @@ class CaClientWorldT : public Ca3DEWorldT
     void PostDrawEntities(float FrameTime, unsigned long OurEntityID, const ArrayT<unsigned long>& EntityIDs) const;
 
 
-    unsigned long         OurEntityID;
+    unsigned long          OurEntityID;
 
-    unsigned long         m_ServerFrameNr;  // Erhalte mit Frames[ServerFrameNr & (MAX_FRAMES-1)] das Frame zur ServerFrameNr!
-    const char            MAX_FRAMES;
-    ArrayT<FrameT>        Frames;
+    unsigned long          m_ServerFrameNr;     // Erhalte mit Frames[ServerFrameNr & (MAX_FRAMES-1)] das Frame zur ServerFrameNr!
+    const char             MAX_FRAMES;
+    ArrayT<FrameT>         Frames;
+    ArrayT<PlayerCommandT> m_PlayerCommands;    ///< The last player commands, kept for prediction.
 
-    ArrayT<unsigned long> BFS_Tree;
-    ArrayT<VectorT>       BFS_TreePoints;
-    unsigned long         BFS_EndLeafNr;
+    ArrayT<unsigned long>  BFS_Tree;
+    ArrayT<VectorT>        BFS_TreePoints;
+    unsigned long          BFS_EndLeafNr;
 };
 
 #endif

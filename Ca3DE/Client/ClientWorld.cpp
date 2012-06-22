@@ -43,7 +43,9 @@ CaClientWorldT::CaClientWorldT(const char* FileName, ModelManagerT& ModelMan, Wo
     : Ca3DEWorldT(FileName, ModelMan, true, ProgressFunction),
       OurEntityID(OurEntityID_),
       m_ServerFrameNr(0xDEADBEEF),
-      MAX_FRAMES(16) /*MUST BE POWER OF 2*/
+      MAX_FRAMES(16) /*MUST BE POWER OF 2*/,
+      Frames(),
+      m_PlayerCommands()
 {
     cf::GameSys::Game->Cl_LoadWorld(FileName, m_World->CollModel);
 
@@ -54,6 +56,7 @@ CaClientWorldT::CaClientWorldT(const char* FileName, ModelManagerT& ModelMan, Wo
         m_World->GameEntities[EntityNr]->BspTree->InitDrawing();
 
     Frames.PushBackEmpty(MAX_FRAMES);
+    m_PlayerCommands.PushBackEmpty(128);    // The size MUST be a power of 2.
 
     ProgressFunction(-1.0f, "Loading Materials");
     MatSys::Renderer->PreCache();
@@ -283,7 +286,7 @@ bool CaClientWorldT::OurEntity_Repredict(unsigned long RemoteLastIncomingSequenc
 {
     if (OurEntityID<m_EngineEntities.Size())
         if (m_EngineEntities[OurEntityID]!=NULL)
-            return m_EngineEntities[OurEntityID]->Repredict(RemoteLastIncomingSequenceNr, LastOutgoingSequenceNr);
+            return m_EngineEntities[OurEntityID]->Repredict(m_PlayerCommands, RemoteLastIncomingSequenceNr, LastOutgoingSequenceNr);
 
     return false;
 }
@@ -291,6 +294,9 @@ bool CaClientWorldT::OurEntity_Repredict(unsigned long RemoteLastIncomingSequenc
 
 void CaClientWorldT::OurEntity_Predict(const PlayerCommandT& PlayerCommand, unsigned long OutgoingSequenceNr)
 {
+    // Store the PlayerCommand for the reprediction.
+    m_PlayerCommands[OutgoingSequenceNr & (m_PlayerCommands.Size()-1)] = PlayerCommand;
+
     if (OurEntityID<m_EngineEntities.Size())
         if (m_EngineEntities[OurEntityID]!=NULL)
             m_EngineEntities[OurEntityID]->Predict(PlayerCommand, OutgoingSequenceNr);

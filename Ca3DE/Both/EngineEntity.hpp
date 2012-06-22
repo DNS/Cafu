@@ -115,7 +115,7 @@ class EngineEntityT
     // Consequently, this function applies all PlayerCommands from 'RemoteLastIncomingSequenceNr+1' to 'LastOutgoingSequenceNr'
     // to the current state, and puts the result in the 'PredictedState' of this entity.
     // Returns 'true' on success, 'false' on failure. The functions fails when the RemoteLastIncomingSequenceNr becomes too old.
-    bool Repredict(unsigned long RemoteLastIncomingSequenceNr, unsigned long LastOutgoingSequenceNr);
+    bool Repredict(const ArrayT<PlayerCommandT>& PlayerCommands, unsigned long RemoteLastIncomingSequenceNr, unsigned long LastOutgoingSequenceNr);
 
     // Updates the predicted state of this entity according to the 'PlayerCommand'.
     // The 'OutgoingSequenceNr' is the sequence number of the packet in which the caller sends the 'PlayerCommand' to the server.
@@ -159,8 +159,6 @@ class EngineEntityT
     cf::Network::StateT         m_BaseLine;         ///< State of the entity immediately after it was created.
     unsigned long               BaseLineFrameNr;    ///< Frame number on which the entity was created.
     ArrayT<cf::Network::StateT> m_OldStates;        ///< States of the last n (server) frames, kept on both client and server side for delta compression.
-
-    ArrayT<PlayerCommandT>      PlayerCommands;     ///< For prediction, client side use only.
     cf::Network::StateT         m_PredictedState;   ///< The current predicted state.
 
     // Variables for interpolating the origin of non-predicted entities (i.e. all but the local player entity).

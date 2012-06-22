@@ -89,7 +89,6 @@ EngineEntityT::EngineEntityT(BaseEntityT* Entity_, unsigned long CreationFrameNr
       m_BaseLine(),
       BaseLineFrameNr(CreationFrameNr),
       m_OldStates(),
-   // PlayerCommands,
       m_PredictedState(),
       m_Interpolate_Ok(false),
       m_InterpolateOrigin0(),
@@ -100,8 +99,6 @@ EngineEntityT::EngineEntityT(BaseEntityT* Entity_, unsigned long CreationFrameNr
 
     for (unsigned long OldStateNr=0; OldStateNr<16 /*MUST be a power of 2*/; OldStateNr++)
         m_OldStates.PushBack(m_BaseLine);
-
-    // The array of PlayerCommands remains empty for server purposes.
 }
 
 
@@ -187,7 +184,6 @@ EngineEntityT::EngineEntityT(BaseEntityT* Entity_, NetDataT& InData)
       m_BaseLine(),
       BaseLineFrameNr(1234),
       m_OldStates(),
-   // PlayerCommands,
       m_PredictedState(),
       m_Interpolate_Ok(false),
       m_InterpolateOrigin0(),
@@ -203,8 +199,6 @@ EngineEntityT::EngineEntityT(BaseEntityT* Entity_, NetDataT& InData)
 
     for (unsigned long OldStateNr=0; OldStateNr<32 /*MUST be a power of 2*/; OldStateNr++)
         m_OldStates.PushBack(CurrentState);
-
-    PlayerCommands.PushBackEmpty(128);  // Achtung! Die Größe MUSS eine 2er-Potenz sein!
 
     m_BaseLine      =CurrentState;
     m_PredictedState=CurrentState;
@@ -294,7 +288,7 @@ bool EngineEntityT::ParseServerDeltaUpdateMessage(unsigned long DeltaFrameNr, un
 }
 
 
-bool EngineEntityT::Repredict(unsigned long RemoteLastIncomingSequenceNr, unsigned long LastOutgoingSequenceNr)
+bool EngineEntityT::Repredict(const ArrayT<PlayerCommandT>& PlayerCommands, unsigned long RemoteLastIncomingSequenceNr, unsigned long LastOutgoingSequenceNr)
 {
     if (LastOutgoingSequenceNr-RemoteLastIncomingSequenceNr>PlayerCommands.Size())
     {
@@ -323,9 +317,6 @@ bool EngineEntityT::Repredict(unsigned long RemoteLastIncomingSequenceNr, unsign
 
 void EngineEntityT::Predict(const PlayerCommandT& PlayerCommand, unsigned long OutgoingSequenceNr)
 {
-    // PlayerCommand für die Reprediction speichern
-    PlayerCommands[OutgoingSequenceNr & (PlayerCommands.Size()-1)]=PlayerCommand;
-
     const cf::Network::StateT BackupState = GetState();
     SetState(m_PredictedState);
 
