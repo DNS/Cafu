@@ -22,7 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_CASERVERWORLD_HPP_INCLUDED
 #define CAFU_CASERVERWORLD_HPP_INCLUDED
 
-#include "../Both/Ca3DEWorld.hpp"
+#include "../Ca3DEWorld.hpp"
 #include "../../Games/PlayerCommand.hpp"
 
 

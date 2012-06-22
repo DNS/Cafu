@@ -22,7 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_CACLIENTWORLD_HPP_INCLUDED
 #define CAFU_CACLIENTWORLD_HPP_INCLUDED
 
-#include "../Both/Ca3DEWorld.hpp"
+#include "../Ca3DEWorld.hpp"
 
 #if defined(_WIN32) && _MSC_VER<1600
 #include "pstdint.h"            // Paul Hsieh's portable implementation of the stdint.h header.

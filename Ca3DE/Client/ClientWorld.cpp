@@ -20,7 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "ClientWorld.hpp"
-#include "../Both/EngineEntity.hpp"
+#include "../EngineEntity.hpp"
 #include "../NetConst.hpp"
 #include "ClipSys/CollisionModel_static.hpp"
 #include "ClipSys/CollisionModelMan.hpp"

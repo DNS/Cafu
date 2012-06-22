@@ -20,14 +20,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "EngineEntity.hpp"
-#include "../NetConst.hpp"
+#include "NetConst.hpp"
 #include "ConsoleCommands/ConVar.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"
 #include "Network/Network.hpp"
 #include "Win32/Win32PrintHelp.hpp"
-#include "../../Games/BaseEntity.hpp"
-#include "../../Games/Game.hpp"
+#include "../Games/BaseEntity.hpp"
+#include "../Games/Game.hpp"
 #include "Ca3DEWorld.hpp"   // Only for EngineEntityT::Draw().
 
 
