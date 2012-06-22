@@ -22,7 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_ENGINEENTITY_HPP_INCLUDED
 #define CAFU_ENGINEENTITY_HPP_INCLUDED
 
-#include "../../Games/PlayerCommand.hpp"
+#include "../Games/PlayerCommand.hpp"
 #include "Math3D/Vector3.hpp"
 #include "Network/State.hpp"
 

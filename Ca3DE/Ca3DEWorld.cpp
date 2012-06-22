@@ -27,7 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/TraceSolid.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "Models/ModelManager.hpp"
-#include "../../Common/WorldMan.hpp"
+#include "../Common/WorldMan.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
 
 
