@@ -171,8 +171,7 @@ static void CreateLuaDoxygenHeader(lua_State* LuaState)
 
 
 ScriptStateT::ScriptStateT()
-    : m_ScriptState(),
-      CoroutinesCount(0)
+    : m_ScriptState()
 {
     lua_State* LuaState = m_ScriptState.GetLuaState();
 
@@ -193,11 +192,6 @@ ScriptStateT::ScriptStateT()
         Console->Print(std::string("(")+lua_tostring(LuaState, -1)+").\n");
         lua_pop(LuaState, 1);
     }
-
-    // Add an additional function "thread" that we provide for the map script.
-    lua_pushcfunction(LuaState, RegisterThread);
-    lua_setglobal(LuaState, "thread");
-
 
     // For each (entity-)class that the TypeInfoMan knows about, add a (meta-)table to the registry of the LuaState.
     // The (meta-)table holds the Lua methods that the respective class implements in C++,
@@ -380,89 +374,6 @@ bool ScriptStateT::HasEntityInstances() const
 }
 
 
-static void CountHookFunction(lua_State* CrtState, lua_Debug* ar)
-{
-    assert(ar->event==LUA_HOOKCOUNT);
-
-    luaL_error(CrtState, "Instruction count exceeds predefined limit (infinite loop error).");
-}
-
-
-void ScriptStateT::RunCmd(const char* Cmd)
-{
-    lua_State* LuaState = m_ScriptState.GetLuaState();
-
-    // Create a new coroutine for this function call (or else they cannot call coroutine.yield()).
-    // The new coroutine is pushed onto the stack of LuaState as a value of type "thread".
-    lua_State* NewThread=lua_newthread(LuaState);
-
-    assert(lua_gettop(LuaState )==1);
-    assert(lua_gettop(NewThread)==0);
-
-    // Load Cmd as a function onto the stack of NewThread.
-    if (luaL_loadstring(NewThread, Cmd)!=0)
-    {
-        // Note that we need an extra newline here, because (all?) the Lua error messages don't have one.
-        Console->Print(std::string(lua_tostring(NewThread, -1))+"\n");
-
-        lua_pop(NewThread, 1);  // Pop the error message.
-        assert(lua_gettop(NewThread)==0);
-
-        lua_pop(LuaState, 1);   // Pop the thread.
-        assert(lua_gettop(LuaState)==0);
-        return;
-    }
-
-    // Set the hook function for the "count" event, so that we can detect and prevent infinite loops.
-    lua_sethook(NewThread, CountHookFunction, LUA_MASKCOUNT, 10000);    // Should have a ConVar for the number of instruction counts!?
-
-    // Start the new coroutine.
-    switch (lua_resume(NewThread, 0))
-    {
-        case 0:
-            // The coroutine returned normally.
-            break;
-
-        case LUA_YIELD:
-            // The argument to the coroutine.yield() call is the wait time in seconds until the coroutine is supposed to be resumed.
-            // If the argument is not given (or not a number), a wait time of 0 is assumed.
-            // In any case, the earliest when the coroutine will be resumed is in the next (subsequent) server Think() frame.
-
-            // Check the argument(s).
-            if (lua_gettop(NewThread)==0) lua_pushnumber(NewThread, 0);
-            if (!lua_isnumber(NewThread, -1)) lua_pushnumber(NewThread, 0);
-
-            CoroutineT Crt;
-
-            Crt.ID          =CoroutinesCount++;
-            Crt.State       =NewThread;
-            Crt.NumParams   =0;
-            Crt.WaitTimeLeft=float(lua_tonumber(NewThread, -1));
-
-            PendingCoroutines.PushBack(Crt);
-
-            // REGISTRY["__pending_coroutines_cf"][Crt.ID]=Crt.State;
-            lua_getfield(LuaState, LUA_REGISTRYINDEX, "__pending_coroutines_cf");   // Put REGISTRY["__pending_coroutines_cf"] onto the stack (index 2).
-            assert(lua_istable(LuaState, 2));   // Make sure that REGISTRY["__pending_coroutines_cf"] really is a table.
-            lua_pushvalue(LuaState, 1);         // Duplicate the "thread" (==Ctr.State) value from index 1 to the top of the stack (index 3).
-            lua_rawseti(LuaState, 2, Crt.ID);   // table[Crt.ID]=Crt.State;    -- Pops the value from the stack.
-            lua_pop(LuaState, 1);               // Pop the table again.
-            break;
-
-        default:
-            // An error occurred when running the coroutine.
-            // Note that we need an extra newline here, because (all?) the Lua error messages don't have one.
-            Console->Print(std::string(lua_tostring(NewThread, -1))+"\n");
-            break;
-    }
-
-    // Make sure that everyone dealt properly with the LuaState stack so far,
-    // then remove the value of type "thread" from the stack, so that it is garbage collected (unless kept in the above __pending_coroutines_cf table).
-    assert(lua_gettop(LuaState)==1);
-    lua_pop(LuaState, 1);
-}
-
-
 bool ScriptStateT::CallEntityMethod(BaseEntityT* Entity, const std::string& MethodName, const char* Signature, ...)
 {
     va_list vl;
@@ -481,285 +392,56 @@ bool ScriptStateT::CallEntityMethod(BaseEntityT* Entity, const std::string& Meth
 
     assert(Entity!=NULL);
 
-    // Create a new coroutine for this function call (or else they cannot call coroutine.yield()).
-    // The new coroutine is pushed onto the stack of LuaState as a value of type "thread".
-    lua_State* NewThread=lua_newthread(LuaState);
+    // Put the Lua table that represents the Entity onto the stack.
+    lua_getglobal(LuaState, Entity->Name.c_str());
 
-    assert(lua_gettop(LuaState )==1);
-    assert(lua_gettop(NewThread)==0);
-
-
-    // Put the Lua table that represents the Entity onto the stack of NewThread.
-    lua_getglobal(NewThread, Entity->Name.c_str());
-
-    assert(ScriptStateT::GetCheckedObjectParam(NewThread, 1, *Entity->GetType())==Entity);
-    assert(lua_gettop(NewThread)==1);
+    assert(ScriptStateT::GetCheckedObjectParam(LuaState, -1, *Entity->GetType())==Entity);
 
     // For release builds, checking only lua_istable() is much cheaper than calling ScriptStateT::GetCheckedObjectParam().
     // It's also safe in the sense that it prevents crashes and working on totally false assumptions.
-    // It's not "perfect" though because somebody could substitute the entity table with a custom table of the same name and a machting function entry,
+    // It's not "perfect" though because somebody could substitute the entity table with a custom table of the same name and a matching function entry,
     // which however should never happen and even if it does, that should only be a toy problem rather than something serious.
-    if (!lua_istable(NewThread, -1))
+    if (!lua_istable(LuaState, -1))
     {
         // This should never happen, because a call to AddEntityInstance(Entity) should have created the entity table.
         Console->Warning(std::string("Lua table for entity \"")+Entity->Name+"\" does not exist.\n");
-        lua_pop(NewThread, 1);  // Pop whatever is not a table.
-        lua_pop(LuaState,  1);  // Pop the thread (it will then be garbage collected).
+        lua_pop(LuaState, 1);   // Pop whatever is not a table.
         return false;
     }
 
 
-    // Put the desired method (from the entity table) onto the stack of NewThread.
+    // Put the desired method (from the entity table) onto the stack of LuaState.
 #if 1
-    lua_getfield(NewThread, -1, MethodName.c_str());
+    lua_getfield(LuaState, -1, MethodName.c_str());
 #else
-    // lua_getfield(NewThread, -1, MethodName.c_str()); or lua_gettable() instead of lua_rawget() just doesn't work,
+    // lua_getfield(LuaState, -1, MethodName.c_str()); or lua_gettable() instead of lua_rawget() just doesn't work,
     // it results in a "PANIC: unprotected error in call to Lua API (loop in gettable)" abortion.
     // I don't know exactly why this is so.
-    lua_pushstring(NewThread, MethodName.c_str());
-    lua_rawget(NewThread, -2);
+    lua_pushstring(LuaState, MethodName.c_str());
+    lua_rawget(LuaState, -2);
 #endif
 
-    if (!lua_isfunction(NewThread, -1))
+    if (!lua_isfunction(LuaState, -1))
     {
-        // If we get here, this usually means that the function that we would like to call was just not defined in the .lua script.
+        // If we get here, this usually means that the value at -1 is just nil, i.e. the
+        // function that we would like to call was just not defined in the Lua script.
         Console->Warning(Entity->Name+"."+MethodName+" is not a function.\n");
-        lua_pop(NewThread, 2);  // Pop whatever is not a function, and the entity table.
-        lua_pop(LuaState,  1);  // Pop the thread (it will then be garbage collected).
+        lua_pop(LuaState, 2);   // Pop whatever is not a function, and the entity table.
         return false;
     }
-
 
     // Swap the entity table and the function.
     // ***************************************
 
-    // The current stack contents of NewThread is
+    // The current stack contents of LuaState is
     //      2  function to be called
     //      1  entity table
     // Now just swap the two, because the entity table is not needed any more but for the first argument to the function
     // (the "self" or "this" value for the object-oriented method call), and having the function at index 1 means that
     // after the call to lua_resume(), the stack is populated only with results (no remains from our code here).
-    lua_insert(NewThread, 1);   // Insert the function at index 1, shifting the entity table to index 2.
+    lua_insert(LuaState, -2);   // Inserting the function at index -2 shifts the entity table to index -1.
 
-
-    // Put all other arguments for the function onto the stack of NewThread.
-    // *********************************************************************
-
-    const char* Results="";
-
-    for (const char* c=Signature; *c; c++)
-    {
-        if (*c=='>')
-        {
-            Results=c+1;
-            break;
-        }
-
-        switch (*c)
-        {
-            // According to the g++ compiler, bool is promoted to int, and float is promoted to double when passed through '...',
-            // and therefore we should pass int and double to va_arg() instead of bool and float.
-            case 'b': lua_pushboolean(NewThread, va_arg(vl, /*bool*/int    )); break;
-            case 'i': lua_pushinteger(NewThread, va_arg(vl, int            )); break;
-            case 'f': lua_pushnumber (NewThread, va_arg(vl, /*float*/double)); break;
-            case 'd': lua_pushnumber (NewThread, va_arg(vl, double         )); break;
-            case 's': lua_pushstring (NewThread, va_arg(vl, char*          )); break;
-            case 'E': lua_getglobal  (NewThread, va_arg(vl, BaseEntityT*)->Name.c_str()); break;
-
-            default:
-                Console->Warning(std::string("Invalid signature \"")+Signature+"\" in call to "+Entity->Name+":"+MethodName+"().\n");
-                lua_settop(NewThread, 0);   // Clear the stack of NewThread (the function and its arguments).
-                lua_pop(LuaState,  1);      // Pop the thread (it will then be garbage collected).
-                return false;
-        }
-
-        // WARNING: Do NOT issue a call like   lua_tostring(NewThread, -1)   here!
-        // This is because "If the value is a number, then lua_tolstring also changes the actual value in the stack to a string.",
-        // as described at http://www.lua.org/manual/5.1/manual.html#lua_tolstring
-    }
-
-    const int ResCount=int(strlen(Results));
-
-
-    // Do the actual function call.
-    // ****************************
-
-    // Set the hook function for the "count" event, so that we can detect and prevent infinite loops.
-    lua_sethook(NewThread, CountHookFunction, LUA_MASKCOUNT, 10000);    // Should have a ConVar for the number of instruction counts!?
-
-    // Start the new coroutine.
-    const int ThreadResult=lua_resume(NewThread, lua_gettop(NewThread)-1);
-
-
-    // Deal with the results.
-    // **********************
-
-    if (ThreadResult==0)
-    {
-        // The coroutine returned normally, now return the results to the caller.
-        int StackIndex=1;
-
-        // If we expect more arguments back than we got, push a single nil that will help to fill-up any number of missing arguments.
-        if (ResCount>lua_gettop(NewThread)) lua_pushnil(NewThread);
-
-        for (const char* c=Results; *c; c++)
-        {
-            switch (*c)
-            {
-                case 'b': *va_arg(vl, bool*  )=lua_toboolean(NewThread, StackIndex)!=0; break;
-                case 'i': *va_arg(vl, int*   )=lua_tointeger(NewThread, StackIndex); break;
-                case 'f': *va_arg(vl, float* )=float(lua_tonumber(NewThread, StackIndex)); break;
-                case 'd': *va_arg(vl, double*)=lua_tonumber(NewThread, StackIndex); break;
-                case 'E': *va_arg(vl, BaseEntityT**)=(BaseEntityT*)ScriptStateT::GetCheckedObjectParam(NewThread, StackIndex, BaseEntityT::TypeInfo); break;
-
-                case 's':
-                {
-                    const char*        s=lua_tostring(NewThread, StackIndex);
-                    static const char* e="";
-
-                    *va_arg(vl, const char**)=(s!=NULL) ? s : e;
-                    break;
-                }
-
-                case 'S':
-                {
-                    const char* s=lua_tostring(NewThread, StackIndex);
-
-                    *va_arg(vl, std::string*)=(s!=NULL) ? s : "";
-                    break;
-                }
-
-                default:
-                    Console->Warning(std::string("Invalid results signature \"")+Signature+"\" in call to "+Entity->Name+":"+MethodName+"().\n");
-                    break;
-            }
-
-            if (StackIndex<lua_gettop(NewThread)) StackIndex++;
-        }
-
-        lua_settop(NewThread, 0);           // Pop everything (the results) from the NewThread stack.
-        assert(lua_gettop(LuaState)==1);    // Make sure that everyone dealt properly with the LuaState stack so far.
-        lua_pop(LuaState, 1);               // Pop the thread (it will then be garbage collected).
-        return true;
-    }
-
-    if (ThreadResult==LUA_YIELD)
-    {
-        // The argument to the coroutine.yield() call is the wait time in seconds until the coroutine is supposed to be resumed.
-        // If the argument is not given (or not a number), a wait time of 0 is assumed.
-        // In any case, the earliest when the coroutine will be resumed is in the next (subsequent) server Think() frame.
-
-        // Check the argument(s).
-        if (lua_gettop(NewThread)==0) lua_pushnumber(NewThread, 0);
-        if (!lua_isnumber(NewThread, -1)) lua_pushnumber(NewThread, 0);
-
-        CoroutineT Crt;
-
-        Crt.ID          =CoroutinesCount++;
-        Crt.State       =NewThread;
-        Crt.NumParams   =0;
-        Crt.WaitTimeLeft=float(lua_tonumber(NewThread, -1));
-
-        PendingCoroutines.PushBack(Crt);
-
-        // REGISTRY["__pending_coroutines_cf"][Crt.ID]=Crt.State;
-        lua_getfield(LuaState, LUA_REGISTRYINDEX, "__pending_coroutines_cf");   // Put REGISTRY["__pending_coroutines_cf"] onto the stack (index 2).
-        assert(lua_istable(LuaState, 2));   // Make sure that REGISTRY["__pending_coroutines_cf"] really is a table.
-        lua_pushvalue(LuaState, 1);         // Duplicate the "thread" (==Ctr.State) value from index 1 to the top of the stack (index 3).
-        lua_rawseti(LuaState, 2, Crt.ID);   // table[Crt.ID]=Crt.State;    -- Pops the value from the stack.
-        lua_pop(LuaState, 1);               // Pop the table again.
-
-        if (ResCount>0)
-            Console->Warning("The call to "+Entity->Name+":"+MethodName+"() yielded while return values were expected ("+Signature+").\n");
-
-        lua_settop(NewThread, 0);           // Pop everything (the parameters to coroutine.yield()) from the NewThread stack.
-        assert(lua_gettop(LuaState)==1);    // Make sure that everyone dealt properly with the LuaState stack so far.
-        lua_pop(LuaState, 1);               // Pop the thread (it's kept inside the __pending_coroutines_cf table now).
-        return ResCount==0;
-    }
-
-    // ThreadResult is not 0 and not LUA_YIELD, so an error occurred when running the coroutine.
-    // Note that we need an extra newline here, because (all?) the Lua error messages don't have one.
-    Console->Warning("Lua error in call to "+Entity->Name+":"+MethodName+"():\n");
-    Console->Print(std::string(lua_tostring(NewThread, -1))+"\n");
-
-    // Note that the stack of NewThread was not unwound after the error (but we currently have no use for it).
-    lua_settop(NewThread, 0);           // Just pop everything from the NewThread stack.
-    assert(lua_gettop(LuaState)==1);    // Make sure that everyone dealt properly with the LuaState stack so far.
-    lua_pop(LuaState, 1);               // Pop the thread (it will then be garbage collected).
-    return false;
-}
-
-
-void ScriptStateT::RunPendingCoroutines(float FrameTime)
-{
-    lua_State* LuaState = m_ScriptState.GetLuaState();
-
-    // Iterate over all elements in the REGISTRY["__pending_coroutines_cf"] table, which has all the pending coroutines.
-    const int PENDING_COROUTINES_TABLE_IDX=1;
-    lua_getfield(LuaState, LUA_REGISTRYINDEX, "__pending_coroutines_cf");   // Put REGISTRY["__pending_coroutines_cf"] onto the stack at index 1.
-    assert(lua_gettop(LuaState)==1);
-    assert(lua_istable(LuaState, PENDING_COROUTINES_TABLE_IDX));
-
-    // This variable is used to handle the occurrence of re-entrancy.
-    // Re-entrancy occurs when a script that is resumed via the call to lua_resume(Crt.State, 0) below
-    // manages to add another entry into the PendingCoroutines array, e.g. by calling the game.startNewThread() function.
-    unsigned long PendingCoroutines_Size=PendingCoroutines.Size();
-
-    for (unsigned long PendingCrtNr=0; PendingCrtNr<PendingCoroutines_Size; PendingCrtNr++)
-    {
-        CoroutineT& Crt=PendingCoroutines[PendingCrtNr];
-
-        Crt.WaitTimeLeft-=FrameTime;
-        if (Crt.WaitTimeLeft>0) continue;
-
-        // Set the hook function for the "count" event, so that we can detect and prevent infinite loops.
-        // Must do this before the next call to lua_resume, or else the instruction count is *not* reset to zero.
-        lua_sethook(Crt.State, CountHookFunction, LUA_MASKCOUNT, 10000);    // Should have a ConVar for the number of instruction counts!?
-
-        // Wait time is over, resume the coroutine.
-        const int Result=lua_resume(Crt.State, Crt.NumParams);
-
-        if (Result==LUA_YIELD)
-        {
-            // The argument to the coroutine.yield() call is the wait time in seconds until the coroutine is supposed to be resumed.
-            // If the argument is not given (or not a number), a wait time of 0 is assumed.
-            // In any case, the earliest when the coroutine will be resumed is in the next (subsequent) server Think() frame.
-
-            // Check the argument(s).
-            if (lua_gettop(Crt.State)==0) lua_pushnumber(Crt.State, 0);
-            if (!lua_isnumber(Crt.State, -1)) lua_pushnumber(Crt.State, 0);
-
-            // Re-new the wait time.
-            Crt.WaitTimeLeft=float(lua_tonumber(Crt.State, -1));
-            Crt.NumParams   =0;
-        }
-        else
-        {
-            // The coroutine either completed normally (the body function returned), or an error occurred.
-            // In both cases, we remove it from the list of pending coroutines, as it makes no sense to try to resume it once more.
-            if (Result!=0)
-            {
-                // An error occurred when running the coroutine.
-                // Note that we need an extra newline here, because (all?) the Lua error messages don't have one.
-                Console->Print(std::string(lua_tostring(Crt.State, -1))+"\n");
-            }
-
-            // Remove the Crt.State from the __pending_coroutines_cf table, so that Lua will eventually garbage collect it.
-            // __pending_coroutines_cf[Crt.ID]=nil;
-            lua_pushnil(LuaState);
-            lua_rawseti(LuaState, PENDING_COROUTINES_TABLE_IDX, Crt.ID);
-
-            PendingCoroutines.RemoveAtAndKeepOrder(PendingCrtNr);
-            PendingCrtNr--;
-            PendingCoroutines_Size--;
-        }
-    }
-
-    // Make sure that everyone dealt properly with the LuaState stack so far,
-    // then remove the remaining __pending_coroutines_cf table.
-    assert(lua_gettop(LuaState)==1);
-    lua_pop(LuaState, 1);
+    return m_ScriptState.StartNewCoroutine(1, Signature, vl, Entity->Name + ":" + MethodName + "()");
 }
 
 
@@ -770,7 +452,7 @@ void ScriptStateT::RunMapCmdsFromConsole()
 {
     // Run all the map command strings in the context of the LuaState.
     for (unsigned long MapCmdNr=0; MapCmdNr<MapCmds.Size(); MapCmdNr++)
-        RunCmd(MapCmds[MapCmdNr].c_str());
+        m_ScriptState.Run(MapCmds[MapCmdNr].c_str());
 
     MapCmds.Overwrite();
 }
@@ -857,42 +539,3 @@ void ScriptStateT::RunMapCmdsFromConsole()
 
 static ConFuncT ConFunc_runMapCmd("runMapCmd", ScriptStateT::ConFunc_runMapCmd_Callback, ConFuncT::FLAG_GAMEDLL,
     "Keeps the given command string until the server \"thinks\" next, then runs it in the context of the current map/entity script.");
-
-
-// Registers the given Lua script function as a new thread.
-/*static*/ int ScriptStateT::RegisterThread(lua_State* LuaState)
-{
-    const cf::GameSys::GameImplT& GameImpl   =cf::GameSys::GameImplT::GetInstance();
-    cf::GameSys::ScriptStateT*    ScriptState=GameImpl.GetScriptState();
-
-    // Our stack (parameter list) comes with the function to be registered as a new thread, and the parameters for its initial call.
-    luaL_argcheck(LuaState, lua_isfunction(LuaState, 1), 1, "function expected");
-    const unsigned long StackSize=lua_gettop(LuaState);
-
-    // Put the __pending_coroutines_cf table on top of the stack,
-    // where we will insert ("anchor") the new thread below.
-    lua_getfield(LuaState, LUA_REGISTRYINDEX, "__pending_coroutines_cf");   // Put REGISTRY["__pending_coroutines_cf"] onto the stack at index 1.
-    assert(lua_istable(LuaState, -1));
-
-    CoroutineT Crt;
-
-    Crt.ID          =ScriptState->CoroutinesCount++;
-    Crt.State       =lua_newthread(LuaState);   // Creates a new coroutine and puts it onto the stack of LuaState.
-    Crt.NumParams   =StackSize-1;               // The number of function parameters in the stack of Crt.State for the upcoming call of lua_resume().
-    Crt.WaitTimeLeft=0;                         // Run at next opportunity, i.e. at next server Think() frame.
-
-    ScriptState->PendingCoroutines.PushBack(Crt);
-
-    // The thread value is at the top (-1) of the stack, the __pending_coroutines_cf table directly below it at -2.
-    // Now anchor the new thread at index Crt.ID in the __pending_coroutines_cf table.
-    lua_rawseti(LuaState, -2, Crt.ID);          // __pending_coroutines_cf[Crt.ID]=Crt.State;    -- Pops the value from the stack.
-
-    // Remove the __pending_coroutines_cf table from the stack again, restoring the stack to its original state.
-    lua_pop(LuaState, 1);
-    assert(lua_gettop(LuaState)==int(StackSize));
-
-    // Preparing for the first lua_resume() call for Crt.State,
-    // move the body ("main") function plus its paramters on the stack of Crt.State.
-    lua_xmove(LuaState, Crt.State, StackSize);
-    return 0;
-}

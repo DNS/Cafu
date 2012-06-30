@@ -242,7 +242,7 @@ void cf::GameSys::GameImplT::Sv_BeginThinking(float FrameTime)
 
     Sv_PhysicsWorld->Think(FrameTime);
 
-    ScriptState->RunPendingCoroutines(FrameTime);   // Should do this early rather than in Sv_EndThinking(), because new coroutines are usually added "during" thinking.
+    ScriptState->GetScriptState().RunPendingCoroutines(FrameTime);   // Should do this early rather than in Sv_EndThinking(), because new coroutines are usually added "during" thinking.
     ScriptState->RunMapCmdsFromConsole();
 }
 

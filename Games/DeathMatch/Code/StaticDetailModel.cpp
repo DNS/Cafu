@@ -71,7 +71,7 @@ static int WorldGui_RunMapScriptCmd(lua_State* GuiLuaState)
     // Having (IsThinking==true && ScriptState==NULL) is impossible.
     assert(ScriptState!=NULL);
 
-    ScriptState->RunCmd(luaL_checkstring(GuiLuaState, 1));
+    ScriptState->GetScriptState().Run(luaL_checkstring(GuiLuaState, 1));
     return 0;
 }
 

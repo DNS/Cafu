@@ -23,7 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_GUISYS_GUI_IMPL_HPP_INCLUDED
 
 #include "Gui.hpp"
-#include "Coroutines.hpp"
 #include "UniScriptState.hpp"
 #include "MaterialSystem/MaterialManagerImpl.hpp"
 
@@ -158,16 +157,12 @@ namespace cf
             friend class WindowPtrT;
 
 
-            bool StartNewCoroutine(int NumExtraArgs, const char* Signature, va_list vl, const std::string& DbgName);
-            void RunPendingCoroutines(float FrameTime);
-
             GuiImplT(const GuiImplT&);          ///< Use of the Copy Constructor    is not allowed.
             void operator = (const GuiImplT&);  ///< Use of the Assignment Operator is not allowed.
 
 
             std::string              ScriptName;        ///< The name of the *.cgui file that contains this GUI's script.
             UniScriptStateT          m_ScriptState;     ///< The script state of this GUI.
-            CoroutineManT            CoroutineMan;      ///< This class manages (keeps track of) the pending Lua coroutines.
             std::string              ScriptInitResult;  ///< The result of loading and running the script. "" if there have been no errors, the error message otherwise.
             MaterialManagerImplT     m_MaterialMan;     ///< The material manager for the materials that are used in this GUI.
             MatSys::RenderMaterialT* m_GuiDefaultRM;    ///< Used for the window borders and the backgrounds if no other material is specified.
@@ -207,7 +202,6 @@ namespace cf
             static int SetRootWindow(lua_State* LuaState);      ///< Sets the root window for this GUI.
             static int CreateNewWindow(lua_State* LuaState);    ///< Creates and returns a new window.
             static int FindWindow(lua_State* LuaState);         ///< Finds and returns a window by pointer value. Useful for debugging when an error message referred to a window by pointer value.
-            static int RegisterThread(lua_State* LuaState);     ///< Registers the given Lua function as a new thread.
             static int toString(lua_State* LuaState);           ///< Returns a string representation of this GUI.
         };
     }

@@ -20,7 +20,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Window.hpp"
-#include "Coroutines.hpp"
 #include "WindowCreateParams.hpp"
 #include "GuiMan.hpp"
 #include "GuiImpl.hpp"      // For GuiImplT::GetCheckedObjectParam().
@@ -615,7 +614,7 @@ bool WindowT::CallLuaMethod(const char* MethodName, const char* Signature, va_li
     lua_insert(LuaState, -2);   // Inserting the function at index -2 shifts the alter ego to index -1.
 
     // The stack is now prepared according to the requirements/specs of the StartNewCoroutine() method.
-    return m_Gui.StartNewCoroutine(1, Signature, vl, std::string("method ")+MethodName+"() of window with name \""+Name+"\"");
+    return m_Gui.m_ScriptState.StartNewCoroutine(1, Signature, vl, std::string("method ")+MethodName+"() of window with name \""+Name+"\"");
 }
 
 

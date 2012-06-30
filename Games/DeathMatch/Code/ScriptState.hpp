@@ -79,33 +79,26 @@ namespace cf
             /// all entities have been removed before the script state itself is deleted.
             bool HasEntityInstances() const;
 
-            /// Runs the given command in the context of this script.
-            /// @param Cmd   The command to be run.
-            void RunCmd(const char* Cmd);
-
-            /// Calls a (Lua-script provided) entity method (or a global function) with the given parameters.
-            //   [[ THIS IS NOT YET IMPLEMENTED:
-            //      The main purpose of this method is to call entity methods, but when NULL is given as the Entity pointer,
-            //      the global function with the given MethodName is called instead. ]]
-            /// Example: If Ent is a BaseEntityT object and Ent->Name=="Barney", then   CallEntityMethod(Ent, "OnTrigger", "f", 1.0);
-            ///          calls the script method   Barney:OnTrigger(value)   where value is a number with value 1.0.
-            /// FIXME / CHECK: What happens if MethodName is a method that is not defined by the script, but by C++ code???
-            /// @param Entity       The entity instance whose Lua script method is to be called.
-            /// @param MethodName   The name of the method that is to be called.
-            /// @param Signature    The signature of the method (i.e. the in/out parameters). TODO: Explain this in greater detail!
-            /// @param ...          The (variable number of) parameters to the method.
-            /// @returns whether the method call was sucessful.
-            /// Note that when a signature was provided that expects one or more return values and the called script code yields
-            /// (calls coroutine.yield()), the returned values are undefined and thus the call is considered a failure and false is returned.
-            /// Nonetheless, the related Lua thread is added to the list of pending coroutines for later resumption.
+            /// Calls a script method with the given name of the given entity.
+            ///
+            /// @param Entity      The entity instance whose Lua script method is to be called.
+            /// @param MethodName  The name of the method that is to be called.
+            /// @param Signature   Describes the arguments to and results from the Lua method.
+            /// @param ...         The arguments to the Lua method and the variables that receive its results as described by the Signature parameter.
+            ///
+            /// Example:
+            /// If Ent is a BaseEntityT object and Ent->Name=="Barney", then   CallEntityMethod(Ent, "OnTrigger", "f", 1.0);
+            /// calls the script method   Barney:OnTrigger(value)   where value is a number with value 1.0.
+            ///
+            /// For more details about the parameters and return value, see UniScriptStateT::Call().
             bool CallEntityMethod(BaseEntityT* Entity, const std::string& MethodName, const char* Signature="", ...);
 
             /// As CallEntityMethod(), but with explicit argument list.
             /// @see CallEntityMethod().
             bool CallEntityMethod(BaseEntityT* Entity, const std::string& MethodName, const char* Signature, va_list vl);
 
-            /// Runs the pending coroutines.
-            void RunPendingCoroutines(float FrameTime);
+            /// Returns the underlying script state. (This is temporarly only.)
+            UniScriptStateT& GetScriptState() { return m_ScriptState; }
 
             /// This method loads and runs all the command strings that were entered by the user via the "runMapCmd" console function
             /// since the last call (the last server think). This method must be called once while the server is thinking.
@@ -121,20 +114,10 @@ namespace cf
 
             private:
 
-            struct CoroutineT
-            {
-                unsigned long ID;           ///< The unique ID of this coroutine, used to anchor it in a table in the Lua registry.
-                lua_State*    State;        ///< The state and stack of this coroutine.
-                unsigned long NumParams;    ///< Number of parameters on the stack of State for the next call to lua_resume(), i.e. the parameters for the initial function call or the return values for the pending yield().
-                float         WaitTimeLeft; ///< Wait time left until the next call to lua_resume().
-            };
-
             ScriptStateT(const ScriptStateT&);      ///< Use of the Copy Constructor    is not allowed.
             void operator = (const ScriptStateT&);  ///< Use of the Assignment Operator is not allowed.
 
-            UniScriptStateT    m_ScriptState;       ///< The script state of this script state. Yes, this is awkward -- temporary only!
-            ArrayT<CoroutineT> PendingCoroutines;   ///< The list of active, pending coroutines.
-            unsigned long      CoroutinesCount;     ///< Count of created coroutines, used for creating unique coroutine IDs.
+            UniScriptStateT m_ScriptState;          ///< The script state of this script state. Yes, this is awkward -- temporary only!
 
             /// List of entities added to the script state by the AddEntityInstance() method until removed by the RemoveEntityInstance() method.
             ///
@@ -145,10 +128,6 @@ namespace cf
             /// NOTE 2: On the one hand, the ScriptState is destroyed and recreated with each server map change, but on the other hand,
             ///         we cannot tolerate to *not* remove the Lua instance whose C++ instance has been deleted (dangling pointer in userdata).
             std::map<BaseEntityT*, std::string> KnownEntities;
-
-            // An additional function that we provide for the map script.
-            // It registers the given Lua script function as a new thread.
-            static int RegisterThread(lua_State* LuaState);
         };
     }
 }
