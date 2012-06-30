@@ -110,7 +110,7 @@ GuiImplT::InitErrorT::InitErrorT(const std::string& Message)
 
 GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool IsInlineCode)
     : ScriptName(IsInlineCode ? "" : GuiScriptName),
-      LuaState(NULL),
+      m_ScriptState(),
       ScriptInitResult(""),
       m_MaterialMan(),
       m_GuiDefaultRM(NULL),
@@ -186,16 +186,7 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool
     m_GuiFinishZRM=MatSys::Renderer->RegisterMaterial(m_MaterialMan.GetMaterial("Gui/FinishZ"));
 
 
-    // Initialize Lua.
-    LuaState=lua_open();
-
-    lua_pushcfunction(LuaState, luaopen_base);    lua_pushstring(LuaState, "");              lua_call(LuaState, 1, 0);  // Opens the basic library.
-    lua_pushcfunction(LuaState, luaopen_package); lua_pushstring(LuaState, LUA_LOADLIBNAME); lua_call(LuaState, 1, 0);  // Opens the package library.
-    lua_pushcfunction(LuaState, luaopen_table);   lua_pushstring(LuaState, LUA_TABLIBNAME);  lua_call(LuaState, 1, 0);  // Opens the table library.
-    lua_pushcfunction(LuaState, luaopen_io);      lua_pushstring(LuaState, LUA_IOLIBNAME);   lua_call(LuaState, 1, 0);  // Opens the I/O library.
-    lua_pushcfunction(LuaState, luaopen_os);      lua_pushstring(LuaState, LUA_OSLIBNAME);   lua_call(LuaState, 1, 0);  // Opens the OS library.
-    lua_pushcfunction(LuaState, luaopen_string);  lua_pushstring(LuaState, LUA_STRLIBNAME);  lua_call(LuaState, 1, 0);  // Opens the string lib.
-    lua_pushcfunction(LuaState, luaopen_math);    lua_pushstring(LuaState, LUA_MATHLIBNAME); lua_call(LuaState, 1, 0);  // Opens the math lib.
+    lua_State* LuaState = m_ScriptState.GetLuaState();
 
     // Load the console library. (Adds a global table with name "Console" to the LuaState with the functions of the ConsoleI interface.)
     cf::Console_RegisterLua(LuaState);
@@ -206,48 +197,10 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool
     // Adds a global (meta-)table with methods for cf::GuiSys::GuiTs to the LuaState, to be used as metatable for userdata of type cf::GuiSys::GuiT.
     GuiImplT::RegisterLua(LuaState);
 
-
     // For each (window-)class that the TypeInfoMan knows about, add a (meta-)table to the registry of the LuaState.
-    // The (meta-)table holds the Lua methods that the respective class implements in C++ and is to be used as metatable for instances of this class.
-    cf::TypeSys::TypeInfoManT& TIM=GetWindowTIM();
-
-    // ANALOGY: This code is IDENTICAL WITH that in Games/DeathMatch/Code/ScriptState.cpp.
-    for (unsigned long RootNr=0; RootNr<TIM.GetTypeInfoRoots().Size(); RootNr++)
-    {
-        for (const cf::TypeSys::TypeInfoT* TI=TIM.GetTypeInfoRoots()[RootNr]; TI!=NULL; TI=TI->GetNext())
-        {
-            assert(lua_gettop(LuaState)==0);
-
-            // Create a new table T and add it into the registry table with TI->ClassName (e.g. "cf::GuiSys::WindowT") as the key and T as the value.
-            // This also leaves T on top of the stack. See PiL2 chapter 28.2 for more details.
-            luaL_newmetatable(LuaState, TI->ClassName);
-
-            // See PiL2 chapter 28.3 for a great explanation on what is going on here.
-            // Essentially, we set T.__index = T (the luaL_newmetatable() function left T on the top of the stack).
-            lua_pushvalue(LuaState, -1);                // Pushes/duplicates the new table T on the stack.
-            lua_setfield(LuaState, -2, "__index");      // T.__index = T;
-
-            // Now insert the functions listed in TI->MethodsList into T (the table on top of the stack).
-            if (TI->MethodsList!=NULL)
-                luaL_register(LuaState, NULL, TI->MethodsList);
-
-            // If TI has a base class, model that relationship for T, too, by setting the metatable of the base class as the metatable for T.
-            // Note that this works because the for-loop (over TI) enumerates the base classes always before their child classes!
-            if (TI->Base)
-            {
-                assert(strcmp(TI->BaseClassName, TI->Base->ClassName)==0);
-
-                // Get the metatable M with name (key) TI->Base->ClassName (e.g. "cf::GameSys::BaseEntityT")
-                // from the registry, and set it as metatable of T.
-                luaL_getmetatable(LuaState, TI->Base->ClassName);
-                lua_setmetatable(LuaState, -2);
-            }
-
-            // Clear the stack.
-            assert(lua_gettop(LuaState)==1);
-            lua_pop(LuaState, 1);
-        }
-    }
+    // The (meta-)table holds the Lua methods that the respective class implements in C++,
+    // and is to be used as metatable for instances of this class.
+    m_ScriptState.Init(GetWindowTIM());
 
 
     // Add a global variable with name "gui" to the Lua state. "gui" is a table that scripts can use to call GUI methods.
@@ -292,22 +245,6 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool
 
     // Make sure that everyone dealt properly with the Lua stack so far.
     assert(lua_gettop(LuaState)==0);
-
-
-    // Add a table with name "__pending_coroutines_cf" to the registry.
-    // This table will be used to keep track of the pending coroutines, making sure that Lua doesn't garbage collect them early.
-    lua_newtable(LuaState);
-    lua_setfield(LuaState, LUA_REGISTRYINDEX, "__pending_coroutines_cf");
-
-
-    // Run the equivalent to "wait=coroutine.yield;" and "waitFrame=coroutine.yield;", that is,
-    // provide aliases for coroutine.yield as known from Doom3 map scripting.
-    lua_getglobal(LuaState, "coroutine");
-    lua_getfield(LuaState, -1, "yield");
-    lua_setglobal(LuaState, "wait");
-    lua_getfield(LuaState, -1, "yield");
-    lua_setglobal(LuaState, "waitFrame");
-    lua_pop(LuaState, 1);
 
 
     // Load the user script!
@@ -368,15 +305,11 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool
 
 GuiImplT::~GuiImplT()
 {
-    // Manually "destruct" these references before the Lua state is closed.
-    // Without this, the Lua state is closed below, *then* the compiler calls the dtors.
-    // The dtors in turn will access the already closed Lua state - crash!
+    // Manually "destruct" these references before the Lua state (m_ScriptState).
+    // This is redundant: the normal member destruction sequence achieves the same.
     RootWindow=NULL;
     FocusWindow=NULL;
     MouseOverWindow=NULL;
-
-    // Close Lua.
-    lua_close(LuaState);
 
     // Free the render materials.
     MatSys::Renderer->FreeMaterial(m_GuiDefaultRM);
@@ -632,6 +565,8 @@ void GuiImplT::DistributeClockTickEvents(float t)
 
 bool GuiImplT::CallLuaFunc(const char* FuncName, const char* Signature, ...)
 {
+    lua_State* LuaState = m_ScriptState.GetLuaState();
+
     // Note that when re-entrancy occurs, we do usually NOT have an empty stack here!
     // That is, when we first call a Lua function the stack is empty, but when the called Lua function
     // in turn calls back into our C++ code (e.g. a console function), and the C++ code in turn gets here,
@@ -681,6 +616,8 @@ void GuiImplT::SetEntityInfo(const char* EntityName_, void* /*EntityInstancePtr_
 
 void GuiImplT::RegisterScriptLib(const char* LibName, const luaL_Reg Functions[])
 {
+    lua_State* LuaState = m_ScriptState.GetLuaState();
+
     luaL_register(LuaState, LibName, Functions);
     lua_pop(LuaState, 1);   // Remove the LibName table from the stack (it was left there by the luaL_register() function).
 }
@@ -709,6 +646,8 @@ static void CountHookFunction(lua_State* CrtState, lua_Debug* ar)
  */
 bool GuiImplT::StartNewCoroutine(int NumExtraArgs, const char* Signature, va_list vl, const std::string& DbgName)
 {
+    lua_State* LuaState = m_ScriptState.GetLuaState();
+
     // Create a new coroutine for this function call (or else they cannot call coroutine.yield()).
     // The new coroutine is pushed onto the stack of LuaState as a value of type "thread".
     lua_State* NewThread=lua_newthread(LuaState);
@@ -876,6 +815,8 @@ bool GuiImplT::StartNewCoroutine(int NumExtraArgs, const char* Signature, va_lis
 
 void GuiImplT::RunPendingCoroutines(float FrameTime)
 {
+    lua_State* LuaState = m_ScriptState.GetLuaState();
+
     // Iterate over all elements in the REGISTRY["__pending_coroutines_cf"] table, which has all the pending coroutines.
     const int PENDING_COROUTINES_TABLE_IDX=1;
     lua_getfield(LuaState, LUA_REGISTRYINDEX, "__pending_coroutines_cf");   // Put REGISTRY["__pending_coroutines_cf"] onto the stack at index 1.

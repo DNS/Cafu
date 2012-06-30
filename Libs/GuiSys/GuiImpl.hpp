@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Gui.hpp"
 #include "Coroutines.hpp"
+#include "UniScriptState.hpp"
 #include "MaterialSystem/MaterialManagerImpl.hpp"
 
 #include <cstdarg>
@@ -35,7 +36,6 @@ namespace cf { class TrueTypeFontT; }
 namespace MatSys { class RenderMaterialT; }
 class CafuModelT;
 class ModelManagerT;
-struct lua_State;
 
 
 namespace cf
@@ -166,7 +166,7 @@ namespace cf
 
 
             std::string              ScriptName;        ///< The name of the *.cgui file that contains this GUI's script.
-            lua_State*               LuaState;          ///< The Lua program state of this GUI.
+            UniScriptStateT          m_ScriptState;     ///< The script state of this GUI.
             CoroutineManT            CoroutineMan;      ///< This class manages (keeps track of) the pending Lua coroutines.
             std::string              ScriptInitResult;  ///< The result of loading and running the script. "" if there have been no errors, the error message otherwise.
             MaterialManagerImplT     m_MaterialMan;     ///< The material manager for the materials that are used in this GUI.

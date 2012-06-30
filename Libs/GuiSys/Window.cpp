@@ -586,7 +586,7 @@ bool WindowT::CallLuaMethod(const char* MethodName, const char* Signature, ...)
 
 bool WindowT::CallLuaMethod(const char* MethodName, const char* Signature, va_list vl)
 {
-    lua_State* LuaState=m_Gui.LuaState;
+    lua_State* LuaState = m_Gui.m_ScriptState.GetLuaState();
 
     // Note that when re-entrancy occurs, we do usually NOT have an empty stack here!
     // That is, when we first call a Lua function the stack is empty, but when the called Lua function
@@ -621,32 +621,34 @@ bool WindowT::CallLuaMethod(const char* MethodName, const char* Signature, va_li
 
 bool WindowT::PushAlterEgo()
 {
-    lua_getfield(m_Gui.LuaState, LUA_REGISTRYINDEX, "__windows_list_cf");
+    lua_State* LuaState = m_Gui.m_ScriptState.GetLuaState();
+
+    lua_getfield(LuaState, LUA_REGISTRYINDEX, "__windows_list_cf");
 
 #ifdef DEBUG
-    if (!lua_istable(m_Gui.LuaState, -1))
+    if (!lua_istable(LuaState, -1))
     {
         // This should never happen, the __windows_list_cf table was created when the first WindowT was created!
         assert(false);
         Console->Warning("Registry table \"__windows_list_cf\" does not exist.\n");
-        lua_pop(m_Gui.LuaState, 1);
+        lua_pop(LuaState, 1);
         return false;
     }
 #endif
 
-    lua_pushlightuserdata(m_Gui.LuaState, this);
-    lua_rawget(m_Gui.LuaState, -2);
+    lua_pushlightuserdata(LuaState, this);
+    lua_rawget(LuaState, -2);
 
     // Remove the __windows_list_cf table from the stack, so that only the window table is left.
-    lua_remove(m_Gui.LuaState, -2);
+    lua_remove(LuaState, -2);
 
 #ifdef DEBUG
-    if (!lua_istable(m_Gui.LuaState, -1))
+    if (!lua_istable(LuaState, -1))
     {
         // This should never happen, or otherwise we had a WindowT instance here that was already garbage collected by Lua!
         assert(false);
         Console->Warning("Lua table for WindowT instance does not exist!\n");
-        lua_pop(m_Gui.LuaState, 1);
+        lua_pop(LuaState, 1);
         return false;
     }
 #endif

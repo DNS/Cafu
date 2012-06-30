@@ -120,7 +120,7 @@ void WindowPtrT::Anchor()
     // which doesn't seem to be very worthwhile by itself. However, note that the
     // __windows_list_cf table has weak values, whereas __have_refs_in_cpp_cf is
     // normal, and that the purposes of both tables are different by definition.
-    lua_State* LuaState=Win->m_Gui.LuaState;
+    lua_State* LuaState = Win->m_Gui.m_ScriptState.GetLuaState();
 
     lua_getfield(LuaState, LUA_REGISTRYINDEX, __have_refs_in_cpp_cf);
 
@@ -147,7 +147,7 @@ void WindowPtrT::Unanchor()
     assert(Win!=NULL);
 
     // Analogous to Anchor(), we do: REGISTRY.__have_refs_in_cpp_cf[Win]=nil;
-    lua_State* LuaState=Win->m_Gui.LuaState;
+    lua_State* LuaState = Win->m_Gui.m_ScriptState.GetLuaState();
 
     lua_getfield(LuaState, LUA_REGISTRYINDEX, __have_refs_in_cpp_cf);
 

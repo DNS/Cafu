@@ -22,15 +22,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_GAME_SCRIPTSTATE_HPP_INCLUDED
 #define CAFU_GAME_SCRIPTSTATE_HPP_INCLUDED
 
-#include "Templates/Array.hpp"
+#include "UniScriptState.hpp"
 
 #include <cstdarg>
 #include <map>
-#include <string>
 
 
-class  BaseEntityT;
-struct lua_State;
+class BaseEntityT;
 
 
 namespace cf
@@ -51,9 +49,6 @@ namespace cf
             /// The constructor.
             /// This constructor *requires* that the global interface pointers are already initialized!
             ScriptStateT();
-
-            /// The destructor.
-            ~ScriptStateT();
 
             /// This method returns the value of the Lua expression "EntityClassDefs[EntClassName].CppClass".
             /// The empty string is returned on error, that is, when one of the tables or table fields does not exist.
@@ -137,7 +132,7 @@ namespace cf
             ScriptStateT(const ScriptStateT&);      ///< Use of the Copy Constructor    is not allowed.
             void operator = (const ScriptStateT&);  ///< Use of the Assignment Operator is not allowed.
 
-            lua_State*         LuaState;            ///< State of the Lua instance. This is what "really" represents the script.
+            UniScriptStateT    m_ScriptState;       ///< The script state of this script state. Yes, this is awkward -- temporary only!
             ArrayT<CoroutineT> PendingCoroutines;   ///< The list of active, pending coroutines.
             unsigned long      CoroutinesCount;     ///< Count of created coroutines, used for creating unique coroutine IDs.
 

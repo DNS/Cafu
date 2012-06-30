@@ -170,25 +170,11 @@ static void CreateLuaDoxygenHeader(lua_State* LuaState)
 }
 
 
-// The constructor does four things to initialize the Script State:
-//   1. Open (create, init) a new LuaState.
-//   2. Open (load, init) the Lua standard libraries.
-//   3. Open (add) some "Cafu standard libaries" (e.g. the Console).
-//   4. Add a metatable for each possible entity type to the registry, taking class inheritance into account.
 ScriptStateT::ScriptStateT()
-    : LuaState(NULL),
+    : m_ScriptState(),
       CoroutinesCount(0)
 {
-    // Initialize Lua.
-    LuaState=lua_open();
-
-    lua_pushcfunction(LuaState, luaopen_base);    lua_pushstring(LuaState, "");              lua_call(LuaState, 1, 0);  // Opens the basic library.
-    lua_pushcfunction(LuaState, luaopen_package); lua_pushstring(LuaState, LUA_LOADLIBNAME); lua_call(LuaState, 1, 0);  // Opens the package library.
-    lua_pushcfunction(LuaState, luaopen_table);   lua_pushstring(LuaState, LUA_TABLIBNAME);  lua_call(LuaState, 1, 0);  // Opens the table library.
-    lua_pushcfunction(LuaState, luaopen_io);      lua_pushstring(LuaState, LUA_IOLIBNAME);   lua_call(LuaState, 1, 0);  // Opens the I/O library.
-    lua_pushcfunction(LuaState, luaopen_os);      lua_pushstring(LuaState, LUA_OSLIBNAME);   lua_call(LuaState, 1, 0);  // Opens the OS library.
-    lua_pushcfunction(LuaState, luaopen_string);  lua_pushstring(LuaState, LUA_STRLIBNAME);  lua_call(LuaState, 1, 0);  // Opens the string lib.
-    lua_pushcfunction(LuaState, luaopen_math);    lua_pushstring(LuaState, LUA_MATHLIBNAME); lua_call(LuaState, 1, 0);  // Opens the math lib.
+    lua_State* LuaState = m_ScriptState.GetLuaState();
 
     // Load the console library. (Adds a global table with name "Console" to the LuaState with the functions of the ConsoleI interface.)
     cf::Console_RegisterLua(LuaState);
@@ -214,62 +200,9 @@ ScriptStateT::ScriptStateT()
 
 
     // For each (entity-)class that the TypeInfoMan knows about, add a (meta-)table to the registry of the LuaState.
-    // The (meta-)table holds the Lua methods that the respective class implements in C++ and is to be used as metatable for instances of this class.
-    cf::TypeSys::TypeInfoManT& TIM=GetBaseEntTIM();
-
-    for (unsigned long RootNr=0; RootNr<TIM.GetTypeInfoRoots().Size(); RootNr++)
-    {
-        for (const cf::TypeSys::TypeInfoT* TI=TIM.GetTypeInfoRoots()[RootNr]; TI!=NULL; TI=TI->GetNext())
-        {
-            assert(lua_gettop(LuaState)==0);
-
-            // Create a new table T and add it into the registry table with TI->ClassName (e.g. "cf::GameSys::EntMoverT") as the key and T as the value.
-            // This also leaves T on top of the stack. See PiL2 chapter 28.2 for more details.
-            luaL_newmetatable(LuaState, TI->ClassName);
-
-            // See PiL2 chapter 28.3 for a great explanation on what is going on here.
-            // Essentially, we set T.__index = T (the luaL_newmetatable() function left T on the top of the stack).
-            lua_pushvalue(LuaState, -1);                // Pushes/duplicates the new table T on the stack.
-            lua_setfield(LuaState, -2, "__index");      // T.__index = T;
-
-            // Now insert the functions listed in TI->MethodsList into T (the table on top of the stack).
-            if (TI->MethodsList!=NULL)
-                luaL_register(LuaState, NULL, TI->MethodsList);
-
-            // If TI has a base class, model that relationship for T, too, by setting the metatable of the base class as the metatable for T.
-            // Note that this works because the for-loop (over TI) enumerates the base classes always before their child classes!
-            if (TI->Base)
-            {
-                assert(strcmp(TI->BaseClassName, TI->Base->ClassName)==0);
-
-                // Get the metatable M with name (key) TI->Base->ClassName (e.g. "cf::GameSys::BaseEntityT")
-                // from the registry, and set it as metatable of T.
-                luaL_getmetatable(LuaState, TI->Base->ClassName);
-                lua_setmetatable(LuaState, -2);
-            }
-
-            // Clear the stack.
-            assert(lua_gettop(LuaState)==1);
-            lua_pop(LuaState, 1);
-        }
-    }
-
-
-    // Add a table with name "__pending_coroutines_cf" to the registry.
-    // This table will be used to keep track of the pending coroutines, making sure that Lua doesn't garbage collect them early.
-    lua_newtable(LuaState);
-    lua_setfield(LuaState, LUA_REGISTRYINDEX, "__pending_coroutines_cf");
-
-
-    // Run the equivalent to "wait=coroutine.yield;" and "waitFrame=coroutine.yield;", that is,
-    // provide aliases for coroutine.yield as known from Doom3 map scripting.
-    lua_getglobal(LuaState, "coroutine");
-    lua_getfield(LuaState, -1, "yield");
-    lua_setglobal(LuaState, "wait");
-    lua_getfield(LuaState, -1, "yield");
-    lua_setglobal(LuaState, "waitFrame");
-    lua_pop(LuaState, 1);
-
+    // The (meta-)table holds the Lua methods that the respective class implements in C++,
+    // and is to be used as metatable for instances of this class.
+    m_ScriptState.Init(GetBaseEntTIM());
 
     // Make sure that everyone dealt properly with the Lua stack so far.
     assert(lua_gettop(LuaState)==0);
@@ -278,16 +211,11 @@ ScriptStateT::ScriptStateT()
 }
 
 
-ScriptStateT::~ScriptStateT()
-{
-    // Close Lua.
-    if (LuaState!=NULL) lua_close(LuaState);
-}
-
-
 // This method returns the equivalent of the Lua expression "EntityClassDefs[EntClassName].CppClass".
 std::string ScriptStateT::GetCppClassNameFromEntityClassName(const std::string& EntClassName) const
 {
+    lua_State* LuaState = m_ScriptState.GetLuaState();
+
     assert(lua_gettop(LuaState)==0);
 
     lua_getglobal(LuaState, "EntityClassDefs");
@@ -322,6 +250,8 @@ std::string ScriptStateT::GetCppClassNameFromEntityClassName(const std::string& 
 
 bool ScriptStateT::AddEntityInstance(BaseEntityT* EntCppInstance)
 {
+    lua_State* LuaState = m_ScriptState.GetLuaState();
+
     if (EntCppInstance->Name=="")
     {
         Console->Warning("Cannot create entity script instance with empty (\"\") name.\n");
@@ -395,6 +325,8 @@ bool ScriptStateT::AddEntityInstance(BaseEntityT* EntCppInstance)
 
 void ScriptStateT::RemoveEntityInstance(BaseEntityT* EntCppInstance)
 {
+    lua_State* LuaState = m_ScriptState.GetLuaState();
+
     std::map<BaseEntityT*, std::string>::iterator It=KnownEntities.find(EntCppInstance);
 
     // If EntCppInstance is not known, just do nothing.
@@ -409,6 +341,8 @@ void ScriptStateT::RemoveEntityInstance(BaseEntityT* EntCppInstance)
 
 void ScriptStateT::LoadMapScript(const std::string& FileName)
 {
+    lua_State* LuaState = m_ScriptState.GetLuaState();
+
     // Load the mapname.lua script!
     if (luaL_loadfile(LuaState, FileName.c_str())!=0 || lua_pcall(LuaState, 0, 0, 0)!=0)
     {
@@ -424,6 +358,8 @@ void ScriptStateT::LoadMapScript(const std::string& FileName)
 
 void ScriptStateT::PrintGlobalVars() const
 {
+    lua_State* LuaState = m_ScriptState.GetLuaState();
+
     // I'm too lazy (and in a hurry) to implement this via Luas C API right now,
     // see http://lua-users.org/lists/lua-l/2007-01/threads.html#00325 for some information
     // (we don't have to recurse into tables, of course).
@@ -454,6 +390,8 @@ static void CountHookFunction(lua_State* CrtState, lua_Debug* ar)
 
 void ScriptStateT::RunCmd(const char* Cmd)
 {
+    lua_State* LuaState = m_ScriptState.GetLuaState();
+
     // Create a new coroutine for this function call (or else they cannot call coroutine.yield()).
     // The new coroutine is pushed onto the stack of LuaState as a value of type "thread".
     lua_State* NewThread=lua_newthread(LuaState);
@@ -539,6 +477,8 @@ bool ScriptStateT::CallEntityMethod(BaseEntityT* Entity, const std::string& Meth
 
 bool ScriptStateT::CallEntityMethod(BaseEntityT* Entity, const std::string& MethodName, const char* Signature, va_list vl)
 {
+    lua_State* LuaState = m_ScriptState.GetLuaState();
+
     assert(Entity!=NULL);
 
     // Create a new coroutine for this function call (or else they cannot call coroutine.yield()).
@@ -753,6 +693,8 @@ bool ScriptStateT::CallEntityMethod(BaseEntityT* Entity, const std::string& Meth
 
 void ScriptStateT::RunPendingCoroutines(float FrameTime)
 {
+    lua_State* LuaState = m_ScriptState.GetLuaState();
+
     // Iterate over all elements in the REGISTRY["__pending_coroutines_cf"] table, which has all the pending coroutines.
     const int PENDING_COROUTINES_TABLE_IDX=1;
     lua_getfield(LuaState, LUA_REGISTRYINDEX, "__pending_coroutines_cf");   // Put REGISTRY["__pending_coroutines_cf"] onto the stack at index 1.
