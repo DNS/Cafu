@@ -112,6 +112,9 @@ namespace cf
         UniScriptStateT(const UniScriptStateT&);    ///< Use of the Copy Constructor    is not allowed.
         void operator = (const UniScriptStateT&);   ///< Use of the Assignment Operator is not allowed.
 
+        /// Like the public Run(), but can also pass parameters to the chunk, like Call().
+        bool Run(const char* Chunk, const char* Signature, ...);
+
         /// A global Lua function that registers the given Lua function as a new thread.
         static int RegisterThread(lua_State* LuaState);
 

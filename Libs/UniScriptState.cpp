@@ -155,6 +155,16 @@ namespace
 
 bool UniScriptStateT::Run(const char* Chunk)
 {
+    // This diversion to Run() with "..." in the signature is necessary, because with GCC,
+    // va_start cannot be used in functions with fixed arguments. It cannot be omitted
+    // either, because then Visual C++ then complains that vl is used uninitialized.
+    // Note that from a Lua perspective, it is even meaningful to pass parameters to chunks.
+    return Run(Chunk, "");
+}
+
+
+bool UniScriptStateT::Run(const char* Chunk, const char* Signature, ...)
+{
     // Load the chunk as a function onto the stack.
     if (luaL_loadstring(m_LuaState, Chunk) != 0)
     {
@@ -167,7 +177,11 @@ bool UniScriptStateT::Run(const char* Chunk)
 
     va_list vl;
 
-    return StartNewCoroutine(0, "", vl, std::string("custom chunk: ") + Chunk);
+    va_start(vl, Signature);
+    const bool Result=StartNewCoroutine(0, Signature, vl, std::string("custom chunk: ") + Chunk);
+    va_end(vl);
+
+    return Result;
 }
 
 
