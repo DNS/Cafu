@@ -31,6 +31,7 @@ extern "C"
 }
 
 #include <cassert>
+#include <cstring>
 
 
 using namespace cf;
@@ -164,14 +165,9 @@ bool UniScriptStateT::Run(const char* Chunk)
         return false;
     }
 
-    va_list     vl;
-    const char* Signature="";
+    va_list vl;
 
-    va_start(vl, Signature);
-    const bool Result=StartNewCoroutine(0, Signature, vl, std::string("custom chunk: ") + Chunk);
-    va_end(vl);
-
-    return Result;
+    return StartNewCoroutine(0, "", vl, std::string("custom chunk: ") + Chunk);
 }
 
 

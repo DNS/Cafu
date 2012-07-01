@@ -23,6 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_UNI_SCRIPT_STATE_HPP_INCLUDED
 
 #include "Templates/Array.hpp"
+
+#include <cstdarg>
 #include <string>
 
 

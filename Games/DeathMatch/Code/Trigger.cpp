@@ -93,7 +93,7 @@ void EntTriggerT::OnTrigger(BaseEntityT* Activator)
     assert(GameImpl.IsSvThinking());
     assert(ScriptState!=NULL);
 
-    ScriptState->CallEntityMethod(this, "OnTrigger", "G", Activator->Name);
+    ScriptState->CallEntityMethod(this, "OnTrigger", "G", Activator->Name.c_str());
 }
 
 

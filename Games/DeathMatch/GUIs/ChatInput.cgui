@@ -68,7 +68,7 @@ function ChatInput:OnKeyPress(Key)
 
             --[[ Run a scripted chat dialog, useful for recording demo videos.
             if (Command=="Hello, how are you?") then
-                gui:thread(function()   -- Start a thread here, as the main OnKeyPress() code must continue!
+                thread(function()   -- Start a thread here, as the main OnKeyPress() code must continue!
                     wait(2.3);
                     ci.RunCommand("chatPrint('John: Thanks, great!');");
                     wait(1.5);

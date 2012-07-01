@@ -623,14 +623,6 @@ void GuiImplT::RegisterScriptLib(const char* LibName, const luaL_Reg Functions[]
 }
 
 
-static void CountHookFunction(lua_State* CrtState, lua_Debug* ar)
-{
-    assert(ar->event==LUA_HOOKCOUNT);
-
-    luaL_error(CrtState, "Instruction count exceeds predefined limit (infinite loop error).");
-}
-
-
 /**********************************************/
 /*** Impementation of Lua binding functions ***/
 /**********************************************/

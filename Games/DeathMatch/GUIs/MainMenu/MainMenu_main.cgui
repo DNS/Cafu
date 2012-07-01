@@ -665,7 +665,7 @@ function NewGameDialog.Frame.ButtonOK:OnMouseButtonUp()
 
     NewGameDialog:set("show", false);
     InitServerInfoPanel:set("show", true);
-    gui:thread(StartNewGame, WorldName);
+    thread(StartNewGame, WorldName);
     return true;
 end
 
@@ -932,7 +932,7 @@ function HostGameDialog.Frame.ButtonOK:OnMouseButtonUp()
 
     HostGameDialog:set("show", false);
     InitServerInfoPanel:set("show", true);
-    gui:thread(StartNewServer, WorldName, HostGameDialog.Frame.ListenSvChoice:GetSelection()==1);   -- "no" is as position 0, "yes" is at position 1.
+    thread(StartNewServer, WorldName, HostGameDialog.Frame.ListenSvChoice:GetSelection()==1);   -- "no" is at position 0, "yes" is at position 1.
     return true;
 end
 
