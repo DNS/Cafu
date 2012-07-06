@@ -214,7 +214,8 @@ int EntFuncMoverT::SetOrigin(lua_State* LuaState)
     // Call the overridden base class implementation of this method first.
     BaseEntityT::SetOrigin(LuaState);
 
-    EntFuncMoverT* Ent=(EntFuncMoverT*)cf::GameSys::ScriptStateT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+    cf::ScriptBinderT Binder(LuaState);
+    EntFuncMoverT*    Ent=(EntFuncMoverT*)Binder.GetCheckedObjectParam(1, TypeInfo);
 
     Ent->ClipModel.SetOrigin(Ent->GetOrigin());
     Ent->ClipModel.Register();  // Re-register ourselves with the clip world.
@@ -224,7 +225,8 @@ int EntFuncMoverT::SetOrigin(lua_State* LuaState)
 
 int EntFuncMoverT::Translate(lua_State* LuaState)
 {
-    EntFuncMoverT* Ent=(EntFuncMoverT*)cf::GameSys::ScriptStateT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+    cf::ScriptBinderT Binder(LuaState);
+    EntFuncMoverT*    Ent=(EntFuncMoverT*)Binder.GetCheckedObjectParam(1, TypeInfo);
 
     // If there is already a translation in progress, ignore additional requests.
     if (Ent->TranslationLinTimeLeft>0.0f) return 0;
@@ -244,7 +246,8 @@ int EntFuncMoverT::Translate(lua_State* LuaState)
 
 int EntFuncMoverT::Rotate(lua_State* LuaState)
 {
-    // EntFuncMoverT* Ent=(EntFuncMoverT*)cf::GameSys::ScriptStateT::GetCheckedObjectParam(LuaState, TypeInfo);
+    // cf::ScriptBinderT Binder(LuaState);
+    // EntFuncMoverT*    Ent=(EntFuncMoverT*)Binder.GetCheckedObjectParam(TypeInfo);
 
     return 0;
 }

@@ -395,7 +395,7 @@ bool ScriptStateT::CallEntityMethod(BaseEntityT* Entity, const std::string& Meth
     // Put the Lua table that represents the Entity onto the stack.
     lua_getglobal(LuaState, Entity->Name.c_str());
 
-    assert(ScriptStateT::GetCheckedObjectParam(LuaState, -1, *Entity->GetType())==Entity);
+    // assert(UniScriptStateT::GetCheckedObjectParam(LuaState, -1, *Entity->GetType())==Entity);
 
     // For release builds, checking only lua_istable() is much cheaper than calling ScriptStateT::GetCheckedObjectParam().
     // It's also safe in the sense that it prevents crashes and working on totally false assumptions.
@@ -455,58 +455,6 @@ void ScriptStateT::RunMapCmdsFromConsole()
         m_ScriptState.Run(MapCmds[MapCmdNr].c_str());
 
     MapCmds.Overwrite();
-}
-
-
-// There is no compelling reason to keep this static function inside this .cpp file or as a member of the ScriptStateT class,
-// except for the fact that it relies on knowledge that is only found here: The way how metatables are metatables of each
-// other when inheritance occurs, the private "__userdata_cf" string, etc.
-/*static*/ void* ScriptStateT::GetCheckedObjectParam(lua_State* LuaState, int StackIndex, const cf::TypeSys::TypeInfoT& TypeInfo)
-{
-    // First make sure that the table that represents the entity itself is at StackIndex.
-    luaL_argcheck(LuaState, lua_istable(LuaState, StackIndex), StackIndex, "Expected a table that represents an entity." /*of type TypeInfo.ClassName*/);
-
-    // Put the contents of the "__userdata_cf" field on top of the stack (other values may be between it and the table at position StackIndex).
-    lua_getfield(LuaState, StackIndex, "__userdata_cf");
-
-#if 1
-    // This approach takes inheritance properly into account by "manually traversing up the inheriance hierarchy".
-    // See the "Game Programming Gems 6" book, page 353 for the inspiration for this code.
-
-    // Put the metatable of the desired type on top of the stack.
-    luaL_getmetatable(LuaState, TypeInfo.ClassName);
-
-    // Put the metatable for the given userdata on top of the stack (it may belong to a derived class).
-    if (!lua_getmetatable(LuaState, -2)) lua_pushnil(LuaState);     // Don't have it push nothing in case of failure.
-
-    while (lua_istable(LuaState, -1))
-    {
-        if (lua_rawequal(LuaState, -1, -2))
-        {
-            void** UserData=(void**)lua_touserdata(LuaState, -3); if (UserData==NULL) luaL_error(LuaState, "NULL userdata in entity table.");
-            void*  Entity  =(*UserData);
-
-            // Pop the two matching metatables and the userdata.
-            lua_pop(LuaState, 3);
-            return Entity;
-        }
-
-        // Replace the metatable on top of the stack with its metatable (i.e. "the metatable of the metatable").
-        if (!lua_getmetatable(LuaState, -1)) lua_pushnil(LuaState);     // Don't have it push nothing in case of failure.
-        lua_replace(LuaState, -2);
-    }
-
-    luaL_typerror(LuaState, StackIndex, TypeInfo.ClassName);
-    return NULL;
-#else
-    // This approach is too simplistic and thus doesn't work when inheritance is used.
-    void** UserData=(void**)luaL_checkudata(LuaState, -1, TypeInfo.ClassName); if (UserData==NULL) luaL_error(LuaState, "NULL userdata in entity table.");
-    void*  Entity  =(*UserData);
-
-    // Pop the userdata from the stack again. Not necessary though as it doesn't hurt there.
-    // lua_pop(LuaState, 1);
-    return Entity;
-#endif
 }
 
 

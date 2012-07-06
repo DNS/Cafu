@@ -143,7 +143,8 @@ void EntSpeakerT::ProcessEvent(unsigned int EventType, unsigned int /*NumEvents*
 
 int EntSpeakerT::Play(lua_State* LuaState)
 {
-    EntSpeakerT* Ent=(EntSpeakerT*)cf::GameSys::ScriptStateT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+    cf::ScriptBinderT Binder(LuaState);
+    EntSpeakerT*      Ent=(EntSpeakerT*)Binder.GetCheckedObjectParam(1, TypeInfo);
 
     Ent->State.Flags=1;
     Ent->PostEvent(EVENT_TYPE_PLAY);
@@ -154,7 +155,8 @@ int EntSpeakerT::Play(lua_State* LuaState)
 
 int EntSpeakerT::Stop(lua_State* LuaState)
 {
-    EntSpeakerT* Ent=(EntSpeakerT*)cf::GameSys::ScriptStateT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+    cf::ScriptBinderT Binder(LuaState);
+    EntSpeakerT*      Ent=(EntSpeakerT*)Binder.GetCheckedObjectParam(1, TypeInfo);
 
     Ent->State.Flags=0;
     Ent->PostEvent(EVENT_TYPE_STOP);

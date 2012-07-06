@@ -33,12 +33,6 @@ class BaseEntityT;
 
 namespace cf
 {
-    namespace TypeSys
-    {
-        class TypeInfoT;
-    }
-
-
     namespace GameSys
     {
         /// This class represents the state of the map/entity script of the map.
@@ -103,9 +97,6 @@ namespace cf
             /// This method loads and runs all the command strings that were entered by the user via the "runMapCmd" console function
             /// since the last call (the last server think). This method must be called once while the server is thinking.
             void RunMapCmdsFromConsole();
-
-            /// Checks if the value at the given stack index is an entity of type TypeInfo, and returns the userdata which is a pointer to the instance.
-            static void* GetCheckedObjectParam(lua_State* LuaState, int StackIndex, const cf::TypeSys::TypeInfoT& TypeInfo);
 
             /// A console function that stores the given command string until the server "thinks" next.
             /// The RunMapCmdsFromConsole() method then runs the commands in the context of the current map/entity script.

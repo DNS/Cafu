@@ -99,7 +99,8 @@ void EntTriggerT::OnTrigger(BaseEntityT* Activator)
 
 int EntTriggerT::Activate(lua_State* LuaState)
 {
-    EntTriggerT* Ent=(EntTriggerT*)cf::GameSys::ScriptStateT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+    cf::ScriptBinderT Binder(LuaState);
+    EntTriggerT*      Ent=(EntTriggerT*)Binder.GetCheckedObjectParam(1, TypeInfo);
 
     if (lua_gettop(LuaState)<2)
     {
@@ -122,7 +123,8 @@ int EntTriggerT::Deactivate(lua_State* LuaState)
 {
     Activate(LuaState);
 
-    EntTriggerT* Ent=(EntTriggerT*)cf::GameSys::ScriptStateT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+    cf::ScriptBinderT Binder(LuaState);
+    EntTriggerT*      Ent=(EntTriggerT*)Binder.GetCheckedObjectParam(1, TypeInfo);
 
     Ent->IsActive=!Ent->IsActive;
     return 0;
@@ -131,7 +133,8 @@ int EntTriggerT::Deactivate(lua_State* LuaState)
 
 int EntTriggerT::GetIsActive(lua_State* LuaState)
 {
-    EntTriggerT* Ent=(EntTriggerT*)cf::GameSys::ScriptStateT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+    cf::ScriptBinderT Binder(LuaState);
+    EntTriggerT*      Ent=(EntTriggerT*)Binder.GetCheckedObjectParam(1, TypeInfo);
 
     lua_pushboolean(LuaState, Ent->IsActive);
     return 1;

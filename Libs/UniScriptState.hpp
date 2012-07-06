@@ -28,12 +28,56 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <string>
 
 
+namespace cf { namespace TypeSys { class TypeInfoT; } }
 namespace cf { namespace TypeSys { class TypeInfoManT; } }
 struct lua_State;
 
 
 namespace cf
 {
+    /// This class implements and encapsulates the strategy with which we bind C++ objects to Lua.
+    ///
+    /// It is separate from class UniScriptStateT, because it can also be used "outside" of script states,
+    /// e.g. in the CFunctions of the bound C++ classes. Moreover, it would be possible to derive from
+    /// this class in order to implement alternative binding strategies, and to pass a concrete instance
+    /// to the UniScriptStateT constructor in order to "configure" it for a particular strategy.
+    ///
+    /// Literature:
+    ///   - "Game Programming Gems 6", chapter 4.2, "Binding C/C++ objects to Lua", W. Celes et al.
+    ///   - 2008-04-01: http://thread.gmane.org/gmane.comp.lang.lua.general/46787
+    class ScriptBinderT
+    {
+        public:
+
+        /// The constructor.
+        ScriptBinderT(lua_State* LuaState);
+
+        /// Pushes the given C++ object onto the stack.
+        /// The object must support the GetType() method (should we add a "const char* TypeName" parameter instead?).
+        template<class T> bool Push(T* Object/*, bool Recreate*/);
+
+        /// Checks if the value at the given stack index is an object of type TypeInfo,
+        /// and returns the userdata which is a pointer to the instance.
+        void* GetCheckedObjectParam(int StackIndex, const cf::TypeSys::TypeInfoT& TypeInfo);
+
+        // /// If the given object still has an alter ego in the Lua state, calling this method
+        // /// breaks the connection: Any attempt in Lua to access the C++-implemented methods
+        // /// will trigger an error message, and the C++ code is free to delete the object.
+        // void Disconnect(T* Object);
+
+
+        private:
+
+        friend class UniScriptStateT;
+
+        /// Implements the one-time initialization of the Lua state for this binder.
+        /// Called by the UniScriptStateT constructor.
+        void InitState();
+
+        lua_State* m_LuaState;  ///< The Lua state that this binder is used with.
+    };
+
+
     /// This class represents the state of a script:
     /// the underlying Lua state, pending coroutines, metatables for C++ class hierarchies, etc.
     ///
@@ -118,7 +162,7 @@ namespace cf
         /// A global Lua function that registers the given Lua function as a new thread.
         static int RegisterThread(lua_State* LuaState);
 
-        lua_State*         m_LuaState;          ///< State of the Lua instance. This is what "really" represents the script.
+        lua_State*         m_LuaState;          ///< The Lua instance. This is what "really" represents the script.
         ArrayT<CoroutineT> m_PendingCoroutines; ///< The list of active, pending coroutines.
     };
 }

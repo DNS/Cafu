@@ -40,6 +40,141 @@ using namespace cf;
 unsigned int UniScriptStateT::CoroutineT::InstCount = 0;
 
 
+ScriptBinderT::ScriptBinderT(lua_State* LuaState)
+    : m_LuaState(LuaState)
+{
+}
+
+
+void ScriptBinderT::InitState()
+{
+    // Add a table with name "__cpp_anchors_cf" to the registry:
+    // REGISTRY["__cpp_anchors_cf"] = {}
+    //
+    // This table will be used to keep track of the bound C++ objects,
+    // mapping C++ instance pointers to Lua tables/userdata.
+    // It is used to find previously created Lua objects again by C++ pointer,
+    // and to prevent Lua from collecting them as garbage: even if the table/userdata
+    // is unreachable in Lua, as long as the corresponding C++ object exists, we might
+    // be asked to look up (push onto the stack) the original table/userdata again.
+    lua_newtable(m_LuaState);
+    lua_setfield(m_LuaState, LUA_REGISTRYINDEX, "__cpp_anchors_cf");
+}
+
+
+template<class T> bool ScriptBinderT::Push(T* Object/*, bool Recreate*/)
+{
+    // Put the REGISTRY["__cpp_anchors_cf"] table onto the stack.
+    lua_getfield(m_LuaState, LUA_REGISTRYINDEX, "__cpp_anchors_cf");
+
+    // Put __cpp_anchors_cf[Object] onto the stack.
+    // This should be our table that represents the object.
+    lua_pushlightuserdata(m_LuaState, Object);
+    lua_rawget(m_LuaState, -2);
+
+    // If the object was not found in __cpp_anchors_cf, create it anew.
+    if (lua_isnil(m_LuaState, -1))
+    {
+        // Remove the nil.
+        lua_pop(m_LuaState, 1);
+
+        // Stack indices of the table and userdata that we process here.
+        const int USERDATA_INDEX=lua_gettop(LuaState) + 2;
+        const int TABLE_INDEX   =lua_gettop(LuaState) + 1;
+
+        // Create a new table T, which is pushed on the stack and thus at stack index TABLE_INDEX.
+        lua_newtable(LuaState);
+
+        // Create a new user datum UD, which is pushed on the stack and thus at stack index USERDATA_INDEX.
+        T** UserData=(T**)lua_newuserdata(LuaState, sizeof(T*));
+
+        // Initialize the memory allocated by the lua_newuserdata() function.
+        *UserData=Object;
+
+        // T["__userdata_cf"] = UD
+        lua_pushvalue(LuaState, USERDATA_INDEX);    // Duplicate the userdata on top of the stack.
+        lua_setfield(LuaState, TABLE_INDEX, "__userdata_cf");
+
+        // Get the table with name (key) Object->GetType()->ClassName from the registry,
+        // and set it as metatable of the newly created table.
+        // This is the crucial step that establishes the main functionality of our new table.
+        luaL_getmetatable(LuaState, Object->GetType()->ClassName);
+        lua_setmetatable(LuaState, TABLE_INDEX);
+
+        // Get the table with name (key) Object->GetType()->ClassName from the registry,
+        // and set it as metatable of the newly created userdata item.
+        // This is important for userdata type safety (see PiL2, chapter 28.2) and to have automatic garbage collection work
+        // (contrary to the text in the "Game Programming Gems 6" book, chapter 4.2, a __gc method in the metatable
+        //  is only called for full userdata, see my email to the Lua mailing list on 2008-Apr-01 for more details).
+        luaL_getmetatable(LuaState, Object->GetType()->ClassName);
+        lua_setmetatable(LuaState, USERDATA_INDEX);
+
+        // Remove UD from the stack, so that now the new table T is on top of the stack.
+        lua_pop(LuaState, 1);
+
+        // Anchor the table: __cpp_anchors_cf[Object] = T
+        lua_pushlightuserdata(m_LuaState, Object);
+        lua_pushvalue(LuaState, TABLE_INDEX);   // Duplicate the table on top of the stack.
+        lua_rawset(m_LuaState, -4);
+    }
+
+    // Remove the __cpp_anchors_cf table.
+    lua_remove(m_LuaState, -2);
+
+    // The requested table/userdata is now at the top of the stack.
+    return true;
+}
+
+
+void* ScriptBinderT::GetCheckedObjectParam(int StackIndex, const cf::TypeSys::TypeInfoT& TypeInfo)
+{
+    // First make sure that the table that represents the object itself is at StackIndex.
+    luaL_argcheck(m_LuaState, lua_istable(m_LuaState, StackIndex), StackIndex, "Expected a table that represents an object." /*of type TypeInfo.ClassName*/);
+
+    // Put the contents of the "__userdata_cf" field on top of the stack (other values may be between it and the table at position StackIndex).
+    lua_getfield(m_LuaState, StackIndex, "__userdata_cf");
+
+#if 1
+    // This approach takes inheritance properly into account by "manually traversing up the inheriance hierarchy".
+    // See the "Game Programming Gems 6" book, page 353 for the inspiration for this code.
+
+    // Put the metatable of the desired type on top of the stack.
+    luaL_getmetatable(m_LuaState, TypeInfo.ClassName);
+
+    // Put the metatable for the given userdata on top of the stack (it may belong to a derived class).
+    if (!lua_getmetatable(m_LuaState, -2)) lua_pushnil(m_LuaState);     // Don't have it push nothing in case of failure.
+
+    while (lua_istable(m_LuaState, -1))
+    {
+        if (lua_rawequal(m_LuaState, -1, -2))
+        {
+            void** UserData=(void**)lua_touserdata(m_LuaState, -3); if (UserData==NULL) luaL_error(m_LuaState, "NULL userdata in object table.");
+            void*  Object  =(*UserData);
+
+            // Pop the two matching metatables and the userdata.
+            lua_pop(m_LuaState, 3);
+            return Object;
+        }
+
+        // Replace the metatable on top of the stack with its metatable (i.e. "the metatable of the metatable").
+        if (!lua_getmetatable(m_LuaState, -1)) lua_pushnil(m_LuaState);     // Don't have it push nothing in case of failure.
+        lua_replace(m_LuaState, -2);
+    }
+
+    luaL_typerror(m_LuaState, StackIndex, TypeInfo.ClassName);
+    return NULL;
+#else
+    // This approach is too simplistic, it doesn't work when inheritance is used.
+    void** UserData=(void**)luaL_checkudata(m_LuaState, -1, TypeInfo.ClassName); if (UserData==NULL) luaL_error(m_LuaState, "NULL userdata in object table.");
+    void*  Object  =(*UserData);
+
+    // Pop the userdata from the stack again. Not necessary though as it doesn't hurt there.
+    // lua_pop(m_LuaState, 1);
+    return Object;
+#endif
+}
+
+
 UniScriptStateT::CoroutineT::CoroutineT()
     : ID(InstCount++),
       State(0),

@@ -384,8 +384,9 @@ void EntRigidBodyT::setWorldTransform(const btTransform& worldTrans)
 
 int EntRigidBodyT::ApplyImpulse(lua_State* LuaState)
 {
-    EntRigidBodyT* Ent=(EntRigidBodyT*)cf::GameSys::ScriptStateT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
-    btVector3      Impulse;
+    cf::ScriptBinderT Binder(LuaState);
+    EntRigidBodyT*    Ent=(EntRigidBodyT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    btVector3         Impulse;
 
     Impulse.setX(float(luaL_checknumber(LuaState, 2)));
     Impulse.setY(float(luaL_checknumber(LuaState, 3)));
@@ -399,8 +400,9 @@ int EntRigidBodyT::ApplyImpulse(lua_State* LuaState)
 
 int EntRigidBodyT::SetGravity(lua_State* LuaState)
 {
-    EntRigidBodyT* Ent=(EntRigidBodyT*)cf::GameSys::ScriptStateT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
-    btVector3      Gravity;
+    cf::ScriptBinderT Binder(LuaState);
+    EntRigidBodyT*    Ent=(EntRigidBodyT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    btVector3         Gravity;
 
     Gravity.setX(float(luaL_checknumber(LuaState, 2)));
     Gravity.setY(float(luaL_checknumber(LuaState, 3)));
