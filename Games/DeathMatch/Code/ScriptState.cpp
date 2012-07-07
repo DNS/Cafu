@@ -333,47 +333,6 @@ void ScriptStateT::RemoveEntityInstance(BaseEntityT* EntCppInstance)
 }
 
 
-void ScriptStateT::LoadMapScript(const std::string& FileName)
-{
-    lua_State* LuaState = m_ScriptState.GetLuaState();
-
-    // Load the mapname.lua script!
-    if (luaL_loadfile(LuaState, FileName.c_str())!=0 || lua_pcall(LuaState, 0, 0, 0)!=0)
-    {
-        Console->Warning(std::string("Lua script \"")+FileName+"\" could not be loaded\n");
-        Console->Print(std::string("(")+lua_tostring(LuaState, -1)+").\n");
-        lua_pop(LuaState, 1);
-    }
-
-    // Make sure that everyone dealt properly with the Lua stack so far.
-    assert(lua_gettop(LuaState)==0);
-}
-
-
-void ScriptStateT::PrintGlobalVars() const
-{
-    lua_State* LuaState = m_ScriptState.GetLuaState();
-
-    // I'm too lazy (and in a hurry) to implement this via Luas C API right now,
-    // see http://lua-users.org/lists/lua-l/2007-01/threads.html#00325 for some information
-    // (we don't have to recurse into tables, of course).
-
-    // The code below was simply copied from ConsoleInterpreterImpl.cpp, then slightly modified...
-    if (luaL_loadstring(LuaState, "for n in pairs(_G) do Console.Print(\"in _G: \" .. n .. \"\\n\"); end")!=0 || lua_pcall(LuaState, 0, 0, 0)!=0)
-    {
-        // Note that we need an extra newline here, because (all?) the Lua error messages don't have one.
-        Console->Print(std::string(lua_tostring(LuaState, -1))+"\n");
-        lua_pop(LuaState, 1);
-    }
-}
-
-
-bool ScriptStateT::HasEntityInstances() const
-{
-    return !KnownEntities.empty();
-}
-
-
 bool ScriptStateT::CallEntityMethod(BaseEntityT* Entity, const std::string& MethodName, const char* Signature, ...)
 {
     va_list vl;
@@ -452,7 +411,7 @@ void ScriptStateT::RunMapCmdsFromConsole()
 {
     // Run all the map command strings in the context of the LuaState.
     for (unsigned long MapCmdNr=0; MapCmdNr<MapCmds.Size(); MapCmdNr++)
-        m_ScriptState.Run(MapCmds[MapCmdNr].c_str());
+        m_ScriptState.DoString(MapCmds[MapCmdNr].c_str());
 
     MapCmds.Overwrite();
 }

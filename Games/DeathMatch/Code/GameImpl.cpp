@@ -224,7 +224,7 @@ void cf::GameSys::GameImplT::Sv_FinishNewWorld(const char* WorldFileName)
     if (SuffixPos==std::string::npos) LuaScriptName+=".lua";
                                  else LuaScriptName.replace(SuffixPos, 3, ".lua");
 
-    ScriptState->LoadMapScript(LuaScriptName);
+    ScriptState->GetScriptState().DoFile(LuaScriptName.c_str());
 
 
     // Call each entities OnInit() script method here???
@@ -259,7 +259,7 @@ void cf::GameSys::GameImplT::Sv_UnloadWorld()
 
     // All entities should have been deleted by now, and their dtors should have removed their Lua associated instances.
     // ScriptState->PrintGlobalVars();
-    assert(!ScriptState->HasEntityInstances());
+    // assert(!ScriptState->HasEntityInstances());
 
     delete ScriptState;
     ScriptState=NULL;

@@ -61,18 +61,6 @@ namespace cf
             /// in case of which it just does nothing. This is helpful for simplifying the caller code.
             void RemoveEntityInstance(BaseEntityT* EntCppInstance);
 
-            /// After all map entities of a map have been added to the script state (using the AddEntityInstance() method),
-            /// this method is used to load the related user provided map script into the script state.
-            void LoadMapScript(const std::string& FileName);
-
-            /// Prints the global variables of the Lua script state to the console. Used for debugging.
-            void PrintGlobalVars() const;
-
-            /// Returns whether there are entity instances known/registered to the script state.
-            /// This is mostly used for debugging, in order to make sure that on shutdown,
-            /// all entities have been removed before the script state itself is deleted.
-            bool HasEntityInstances() const;
-
             /// Calls a script method with the given name of the given entity.
             ///
             /// @param Entity      The entity instance whose Lua script method is to be called.

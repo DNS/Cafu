@@ -103,9 +103,12 @@ namespace cf
         /// access the attributes and call the methods of their base classes.
         void Init(const cf::TypeSys::TypeInfoManT& TIM);
 
-        /// Runs the chunk of Lua code that is created from the given string.
+        /// Loads the given string as a Lua chunk, then runs it.
         /// (This acts very much like the stand-alone Lua interpreter.)
-        bool Run(const char* Chunk);
+        bool DoString(const char* s);
+
+        /// Loads the given file as a Lua chunk, then runs it.
+        bool DoFile(const char* FileName);
 
         /// Calls the global script function with the given name.
         ///
@@ -156,8 +159,11 @@ namespace cf
         UniScriptStateT(const UniScriptStateT&);    ///< Use of the Copy Constructor    is not allowed.
         void operator = (const UniScriptStateT&);   ///< Use of the Assignment Operator is not allowed.
 
-        /// Like the public Run(), but can also pass parameters to the chunk, like Call().
-        bool Run(const char* Chunk, const char* Signature, ...);
+        /// Like the public DoString(), but can also pass parameters to the chunk, like Call().
+        bool DoString(const char* s, const char* Signature, ...);
+
+        /// Like the public DoFile(), but can also pass parameters to the chunk, like Call().
+        bool DoFile(const char* FileName, const char* Signature, ...);
 
         /// A global Lua function that registers the given Lua function as a new thread.
         static int RegisterThread(lua_State* LuaState);

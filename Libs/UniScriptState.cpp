@@ -288,20 +288,20 @@ namespace
 }
 
 
-bool UniScriptStateT::Run(const char* Chunk)
+bool UniScriptStateT::DoString(const char* s)
 {
-    // This diversion to Run() with "..." in the signature is necessary, because with GCC,
+    // This diversion to DoString() with "..." in the signature is necessary, because with GCC,
     // va_start cannot be used in functions with fixed arguments. It cannot be omitted
     // either, because then Visual C++ then complains that vl is used uninitialized.
     // Note that from a Lua perspective, it is even meaningful to pass parameters to chunks.
-    return Run(Chunk, "");
+    return DoString(s, "");
 }
 
 
-bool UniScriptStateT::Run(const char* Chunk, const char* Signature, ...)
+bool UniScriptStateT::DoString(const char* s, const char* Signature, ...)
 {
-    // Load the chunk as a function onto the stack.
-    if (luaL_loadstring(m_LuaState, Chunk) != 0)
+    // Load the string as a chunk, then put the compiled chunk as a function onto the stack.
+    if (luaL_loadstring(m_LuaState, s) != 0)
     {
         // Note that we need an extra newline here, because (all?) the Lua error messages don't have one.
         Console->Print(std::string(lua_tostring(m_LuaState, -1))+"\n");
@@ -313,7 +313,41 @@ bool UniScriptStateT::Run(const char* Chunk, const char* Signature, ...)
     va_list vl;
 
     va_start(vl, Signature);
-    const bool Result=StartNewCoroutine(0, Signature, vl, std::string("custom chunk: ") + Chunk);
+    const bool Result=StartNewCoroutine(0, Signature, vl, std::string("custom string: ") + s);
+    va_end(vl);
+
+    return Result;
+}
+
+
+bool UniScriptStateT::DoFile(const char* FileName)
+{
+    // This diversion to DoFile() with "..." in the signature is necessary, because with GCC,
+    // va_start cannot be used in functions with fixed arguments. It cannot be omitted
+    // either, because then Visual C++ then complains that vl is used uninitialized.
+    // Note that from a Lua perspective, it is even meaningful to pass parameters to chunks.
+    return DoFile(FileName, "");
+}
+
+
+bool UniScriptStateT::DoFile(const char* FileName, const char* Signature, ...)
+{
+    // Load the file as a chunk, then put the compiled chunk as a function onto the stack.
+    if (luaL_loadfile(m_LuaState, FileName) != 0)
+    {
+        // Note that we need an extra newline here, because (all?) the Lua error messages don't have one.
+        // Console->Warning(std::string("Lua script \"")+FileName+"\" could not be loaded\n");
+        // Console->Print(std::string("(")+lua_tostring(m_LuaState, -1)+").\n");
+        Console->Print(std::string(lua_tostring(m_LuaState, -1))+"\n");
+
+        lua_pop(m_LuaState, 1);   // Pop the error message.
+        return false;
+    }
+
+    va_list vl;
+
+    va_start(vl, Signature);
+    const bool Result=StartNewCoroutine(0, Signature, vl, std::string("custom file: ") + FileName);
     va_end(vl);
 
     return Result;
