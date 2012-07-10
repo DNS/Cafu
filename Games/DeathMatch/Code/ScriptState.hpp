@@ -97,16 +97,6 @@ namespace cf
             void operator = (const ScriptStateT&);  ///< Use of the Assignment Operator is not allowed.
 
             UniScriptStateT m_ScriptState;          ///< The script state of this script state. Yes, this is awkward -- temporary only!
-
-            /// List of entities added to the script state by the AddEntityInstance() method until removed by the RemoveEntityInstance() method.
-            ///
-            /// NOTE: This member is needed for the proper implementation of the RemoveEntityInstance() method,
-            /// because BaseEntityTs don't know themselves if they're client- or server-side, and if they have an associated script state.
-            /// However, they probably should(!?!?!), and then this member would not be needed, because only the "right" entities would call
-            /// RemoveEntityInstance(). Also see cf::GameSys::GameImplT::FreeBaseEntity() for some information.
-            /// NOTE 2: On the one hand, the ScriptState is destroyed and recreated with each server map change, but on the other hand,
-            ///         we cannot tolerate to *not* remove the Lua instance whose C++ instance has been deleted (dangling pointer in userdata).
-            std::map<BaseEntityT*, std::string> KnownEntities;
         };
     }
 }

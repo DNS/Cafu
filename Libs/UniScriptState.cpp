@@ -62,8 +62,10 @@ void ScriptBinderT::InitState()
 }
 
 
-template<class T> bool ScriptBinderT::Push(T* Object/*, bool Recreate*/)
+bool ScriptBinderT::IsBound(void* Object)
 {
+    const StackCheckerT StackChecker(m_LuaState);
+
     // Put the REGISTRY["__cpp_anchors_cf"] table onto the stack.
     lua_getfield(m_LuaState, LUA_REGISTRYINDEX, "__cpp_anchors_cf");
 
@@ -72,62 +74,20 @@ template<class T> bool ScriptBinderT::Push(T* Object/*, bool Recreate*/)
     lua_pushlightuserdata(m_LuaState, Object);
     lua_rawget(m_LuaState, -2);
 
-    // If the object was not found in __cpp_anchors_cf, create it anew.
-    if (lua_isnil(m_LuaState, -1))
-    {
-        // Remove the nil.
-        lua_pop(m_LuaState, 1);
+    // Is the object in the anchors table?
+    const bool Result = !lua_isnil(m_LuaState, -1);
 
-        // Stack indices of the table and userdata that we process here.
-        const int USERDATA_INDEX=lua_gettop(LuaState) + 2;
-        const int TABLE_INDEX   =lua_gettop(LuaState) + 1;
+    lua_pop(m_LuaState, 1);   // Pop the value.
+    lua_pop(m_LuaState, 1);   // Pop the __cpp_anchors_cf table.
 
-        // Create a new table T, which is pushed on the stack and thus at stack index TABLE_INDEX.
-        lua_newtable(LuaState);
-
-        // Create a new user datum UD, which is pushed on the stack and thus at stack index USERDATA_INDEX.
-        T** UserData=(T**)lua_newuserdata(LuaState, sizeof(T*));
-
-        // Initialize the memory allocated by the lua_newuserdata() function.
-        *UserData=Object;
-
-        // T["__userdata_cf"] = UD
-        lua_pushvalue(LuaState, USERDATA_INDEX);    // Duplicate the userdata on top of the stack.
-        lua_setfield(LuaState, TABLE_INDEX, "__userdata_cf");
-
-        // Get the table with name (key) Object->GetType()->ClassName from the registry,
-        // and set it as metatable of the newly created table.
-        // This is the crucial step that establishes the main functionality of our new table.
-        luaL_getmetatable(LuaState, Object->GetType()->ClassName);
-        lua_setmetatable(LuaState, TABLE_INDEX);
-
-        // Get the table with name (key) Object->GetType()->ClassName from the registry,
-        // and set it as metatable of the newly created userdata item.
-        // This is important for userdata type safety (see PiL2, chapter 28.2) and to have automatic garbage collection work
-        // (contrary to the text in the "Game Programming Gems 6" book, chapter 4.2, a __gc method in the metatable
-        //  is only called for full userdata, see my email to the Lua mailing list on 2008-Apr-01 for more details).
-        luaL_getmetatable(LuaState, Object->GetType()->ClassName);
-        lua_setmetatable(LuaState, USERDATA_INDEX);
-
-        // Remove UD from the stack, so that now the new table T is on top of the stack.
-        lua_pop(LuaState, 1);
-
-        // Anchor the table: __cpp_anchors_cf[Object] = T
-        lua_pushlightuserdata(m_LuaState, Object);
-        lua_pushvalue(LuaState, TABLE_INDEX);   // Duplicate the table on top of the stack.
-        lua_rawset(m_LuaState, -4);
-    }
-
-    // Remove the __cpp_anchors_cf table.
-    lua_remove(m_LuaState, -2);
-
-    // The requested table/userdata is now at the top of the stack.
-    return true;
+    return Result;
 }
 
 
 void* ScriptBinderT::GetCheckedObjectParam(int StackIndex, const cf::TypeSys::TypeInfoT& TypeInfo)
 {
+    const StackCheckerT StackChecker(m_LuaState);
+
     // First make sure that the table that represents the object itself is at StackIndex.
     luaL_argcheck(m_LuaState, lua_istable(m_LuaState, StackIndex), StackIndex, "Expected a table that represents an object." /*of type TypeInfo.ClassName*/);
 
@@ -175,6 +135,70 @@ void* ScriptBinderT::GetCheckedObjectParam(int StackIndex, const cf::TypeSys::Ty
 }
 
 
+// This is essentially the opposite of Push().
+void ScriptBinderT::Disconnect(void* Object)
+{
+    const StackCheckerT StackChecker(m_LuaState);
+
+    // Put the REGISTRY["__cpp_anchors_cf"] table onto the stack.
+    lua_getfield(m_LuaState, LUA_REGISTRYINDEX, "__cpp_anchors_cf");
+
+    // Put __cpp_anchors_cf[Object] onto the stack.
+    // This should be our table that represents the object.
+    lua_pushlightuserdata(m_LuaState, Object);
+    lua_rawget(m_LuaState, -2);
+
+    // If the object was not found in __cpp_anchors_cf, there is nothing to do.
+    if (lua_isnil(m_LuaState, -1))
+    {
+        lua_pop(m_LuaState, 1);   // Pop the nil.
+        lua_pop(m_LuaState, 1);   // Pop the __cpp_anchors_cf table.
+        return;
+    }
+
+    // Put the contents of the "__userdata_cf" field on top of the stack.
+    lua_pushstring(m_LuaState, "__userdata_cf");
+    lua_rawget(m_LuaState, -2);
+
+    // Get __gc from the metatable (cannot use lua_rawget() here).
+    lua_getfield(m_LuaState, -1, "__gc");
+
+    // Run the __gc metamethod / the destructor.
+    if (lua_iscfunction(m_LuaState, -1))
+    {
+        lua_pushvalue(m_LuaState, -2);
+        lua_call(m_LuaState, 1, 0);
+    }
+    else
+    {
+        // Remove whatever was not a function (probably nil).
+        lua_pop(m_LuaState, 1);
+    }
+
+    // Set the metatable to nil.
+    lua_pushnil(m_LuaState);
+    lua_setmetatable(m_LuaState, -2);
+
+    // Pop the userdata.
+    lua_pop(m_LuaState, 1);
+
+    // Set the metatable to nil.
+    lua_pushnil(m_LuaState);
+    lua_setmetatable(m_LuaState, -2);
+
+    // Pop the table.
+    lua_pop(m_LuaState, 1);
+
+    // Un-anchor the table: __cpp_anchors_cf[Object] = nil
+    lua_pushlightuserdata(m_LuaState, Object);
+    lua_pushnil(m_LuaState);
+    lua_rawset(m_LuaState, -3);
+
+    // Pop the __cpp_anchors_cf table.
+    lua_pop(m_LuaState, 1);
+}
+
+
 UniScriptStateT::CoroutineT::CoroutineT()
     : ID(InstCount++),
       State(0),
@@ -203,6 +227,10 @@ UniScriptStateT::UniScriptStateT()
     // so that our C++-implemented global methods (like \c thread below) can get back to it.
     lua_pushlightuserdata(m_LuaState, this);
     lua_setfield(m_LuaState, LUA_REGISTRYINDEX, "cafu_script_state");
+
+    // Run the one-time initializations of our binding strategy.
+    cf::ScriptBinderT Binder(m_LuaState);
+    Binder.InitState();
 
     // Add a table with name "__pending_coroutines_cf" to the registry.
     // This table will be used to keep track of the pending coroutines, making sure that Lua doesn't garbage collect them early.
@@ -300,6 +328,8 @@ bool UniScriptStateT::DoString(const char* s)
 
 bool UniScriptStateT::DoString(const char* s, const char* Signature, ...)
 {
+    const StackCheckerT StackChecker(m_LuaState);
+
     // Load the string as a chunk, then put the compiled chunk as a function onto the stack.
     if (luaL_loadstring(m_LuaState, s) != 0)
     {
@@ -332,6 +362,8 @@ bool UniScriptStateT::DoFile(const char* FileName)
 
 bool UniScriptStateT::DoFile(const char* FileName, const char* Signature, ...)
 {
+    const StackCheckerT StackChecker(m_LuaState);
+
     // Load the file as a chunk, then put the compiled chunk as a function onto the stack.
     if (luaL_loadfile(m_LuaState, FileName) != 0)
     {
@@ -360,8 +392,7 @@ bool UniScriptStateT::Call(const char* FuncName, const char* Signature, ...)
     // That is, when we first call a Lua function the stack is empty, but when the called Lua function
     // in turn calls back into our C++ code (e.g. a console function), and the C++ code in turn gets here,
     // we have a case of re-entrancy and the stack is not empty!
-    // That is, the assert() statement in the next line does not generally hold.
-    // assert(lua_gettop(LuaState)==0);
+    const StackCheckerT StackChecker(m_LuaState);
 
     // Get the desired global function.
     lua_getglobal(m_LuaState, FuncName);
@@ -469,6 +500,8 @@ void UniScriptStateT::RunPendingCoroutines(float FrameTime)
  */
 bool UniScriptStateT::StartNewCoroutine(int NumExtraArgs, const char* Signature, va_list vl, const std::string& DbgName)
 {
+    const StackCheckerT StackChecker(m_LuaState, -(1 + NumExtraArgs));
+
     // Create a new coroutine for this function call (or else they cannot call coroutine.yield()).
     // The new coroutine is pushed onto the stack of m_LuaState as a value of type "thread".
     lua_State* NewThread=lua_newthread(m_LuaState);

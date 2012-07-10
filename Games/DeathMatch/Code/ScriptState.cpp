@@ -245,6 +245,7 @@ std::string ScriptStateT::GetCppClassNameFromEntityClassName(const std::string& 
 bool ScriptStateT::AddEntityInstance(BaseEntityT* EntCppInstance)
 {
     lua_State* LuaState = m_ScriptState.GetLuaState();
+    cf::ScriptBinderT Binder(LuaState);
 
     if (EntCppInstance->Name=="")
     {
@@ -265,50 +266,8 @@ bool ScriptStateT::AddEntityInstance(BaseEntityT* EntCppInstance)
 
     lua_pop(LuaState, 1);
 
-
-    // Now do the actual work: add the new table that represents the entity.
-    assert(lua_gettop(LuaState)==0);
-
-    // Stack indices of the table and userdata that we create in this loop.
-    const int USERDATA_INDEX=2;
-    const int TABLE_INDEX   =1;
-
-    // Create a new table T, which is pushed on the stack and thus at stack index TABLE_INDEX.
-    lua_newtable(LuaState);
-
-    // Create a new user datum UD, which is pushed on the stack and thus at stack index USERDATA_INDEX.
-    BaseEntityT** UserData=(BaseEntityT**)lua_newuserdata(LuaState, sizeof(BaseEntityT*));
-
-    // Initialize the memory allocated by the lua_newuserdata() function.
-    *UserData=EntCppInstance;
-
-    // T["__userdata_cf"] = UD
-    lua_pushvalue(LuaState, USERDATA_INDEX);    // Duplicate the userdata on top of the stack (as the argument for lua_setfield()).
-    lua_setfield(LuaState, TABLE_INDEX, "__userdata_cf");
-
-    // Get the table with name (key) EntCppInstance->GetType()->ClassName from the registry,
-    // and set it as metatable of the newly created table.
-    // This is the crucial step that establishes the main functionality of our new table.
-    luaL_getmetatable(LuaState, EntCppInstance->GetType()->ClassName);
-    lua_setmetatable(LuaState, TABLE_INDEX);
-
-    // Get the table with name (key) EntCppInstance->GetType()->ClassName from the registry,
-    // and set it as metatable of the newly created userdata item.
-    // This is important for userdata type safety (see PiL2, chapter 28.2) and to have automatic garbage collection work
-    // (contrary to the text in the "Game Programming Gems 6" book, chapter 4.2, a __gc method in the metatable
-    //  is only called for full userdata, see my email to the Lua mailing list on 2008-Apr-01 for more details).
-    luaL_getmetatable(LuaState, EntCppInstance->GetType()->ClassName);
-    lua_setmetatable(LuaState, USERDATA_INDEX);
-
-    // Remove UD from the stack, so that only the new table T is left on top of the stack.
-    // Then add it as a global variable whose name is EntCppInstance->Name.
-    // As lua_setglobal() pops the table from the stack, the stack is left empty.
-    lua_pop(LuaState, 1);
+    Binder.Push(EntCppInstance);
     lua_setglobal(LuaState, EntCppInstance->Name.c_str());
-
-    // Register the entity among the "known" entities.
-    assert(KnownEntities[EntCppInstance]=="");
-    KnownEntities[EntCppInstance]=EntCppInstance->Name;
 
 
     // Done. Make sure that everyone dealt properly with the Lua stack so far.
@@ -320,16 +279,16 @@ bool ScriptStateT::AddEntityInstance(BaseEntityT* EntCppInstance)
 void ScriptStateT::RemoveEntityInstance(BaseEntityT* EntCppInstance)
 {
     lua_State* LuaState = m_ScriptState.GetLuaState();
+    cf::ScriptBinderT Binder(LuaState);
 
-    std::map<BaseEntityT*, std::string>::iterator It=KnownEntities.find(EntCppInstance);
+    if (Binder.IsBound(EntCppInstance))     // Trying to remove a client entity in the server script?
+    {
+        // _G[EntCppInstance->Name] = nil
+        lua_pushnil(LuaState);
+        lua_setglobal(LuaState, EntCppInstance->Name.c_str());
 
-    // If EntCppInstance is not known, just do nothing.
-    if (It==KnownEntities.end()) return;
-
-    lua_pushnil(LuaState);
-    lua_setglobal(LuaState, It->second.c_str());
-
-    KnownEntities.erase(It);
+        Binder.Disconnect(EntCppInstance);
+    }
 }
 
 
@@ -349,25 +308,9 @@ bool ScriptStateT::CallEntityMethod(BaseEntityT* Entity, const std::string& Meth
 {
     lua_State* LuaState = m_ScriptState.GetLuaState();
 
-    assert(Entity!=NULL);
+    cf::ScriptBinderT Binder(LuaState);
 
-    // Put the Lua table that represents the Entity onto the stack.
-    lua_getglobal(LuaState, Entity->Name.c_str());
-
-    // assert(UniScriptStateT::GetCheckedObjectParam(LuaState, -1, *Entity->GetType())==Entity);
-
-    // For release builds, checking only lua_istable() is much cheaper than calling ScriptStateT::GetCheckedObjectParam().
-    // It's also safe in the sense that it prevents crashes and working on totally false assumptions.
-    // It's not "perfect" though because somebody could substitute the entity table with a custom table of the same name and a matching function entry,
-    // which however should never happen and even if it does, that should only be a toy problem rather than something serious.
-    if (!lua_istable(LuaState, -1))
-    {
-        // This should never happen, because a call to AddEntityInstance(Entity) should have created the entity table.
-        Console->Warning(std::string("Lua table for entity \"")+Entity->Name+"\" does not exist.\n");
-        lua_pop(LuaState, 1);   // Pop whatever is not a table.
-        return false;
-    }
-
+    Binder.Push(Entity);
 
     // Put the desired method (from the entity table) onto the stack of LuaState.
 #if 1

@@ -24,6 +24,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Templates/Array.hpp"
 
+extern "C"
+{
+    #include <lua.h>
+    #include <lualib.h>
+    #include <lauxlib.h>
+}
+
 #include <cstdarg>
 #include <string>
 
@@ -35,6 +42,30 @@ struct lua_State;
 
 namespace cf
 {
+    /// This class checks if the Lua stack has the same size at the start and the end of a function.
+    class StackCheckerT
+    {
+        public:
+
+        StackCheckerT(lua_State* LuaState, int Change=0)
+            : m_LuaState(LuaState),
+              m_StartTop(lua_gettop(m_LuaState) + Change)
+        {
+        }
+
+        ~StackCheckerT()
+        {
+            assert(m_StartTop == lua_gettop(m_LuaState));
+        }
+
+
+        private:
+
+        lua_State* m_LuaState;  ///< The Lua state we're checking the stack for.
+        const int  m_StartTop;  ///< The initial size of the stack.
+    };
+
+
     /// This class implements and encapsulates the strategy with which we bind C++ objects to Lua.
     ///
     /// It is separate from class UniScriptStateT, because it can also be used "outside" of script states,
@@ -54,16 +85,86 @@ namespace cf
 
         /// Pushes the given C++ object onto the stack.
         /// The object must support the GetType() method (should we add a "const char* TypeName" parameter instead?).
-        template<class T> bool Push(T* Object/*, bool Recreate*/);
+        template<class T> bool Push(T* Object/*, bool Recreate*/)
+        {
+            const StackCheckerT StackChecker(m_LuaState, 1);
+
+            // Put the REGISTRY["__cpp_anchors_cf"] table onto the stack.
+            lua_getfield(m_LuaState, LUA_REGISTRYINDEX, "__cpp_anchors_cf");
+
+            // Put __cpp_anchors_cf[Object] onto the stack.
+            // This should be our table that represents the object.
+            lua_pushlightuserdata(m_LuaState, Object);
+            lua_rawget(m_LuaState, -2);
+
+            // If the object was not found in __cpp_anchors_cf, create it anew.
+            if (lua_isnil(m_LuaState, -1))
+            {
+                // Remove the nil.
+                lua_pop(m_LuaState, 1);
+
+                // Stack indices of the table and userdata that we process here.
+                const int USERDATA_INDEX=lua_gettop(m_LuaState) + 2;
+                const int TABLE_INDEX   =lua_gettop(m_LuaState) + 1;
+
+                // Create a new table T, which is pushed on the stack and thus at stack index TABLE_INDEX.
+                lua_newtable(m_LuaState);
+
+                // Create a new user datum UD, which is pushed on the stack and thus at stack index USERDATA_INDEX.
+                T** UserData=(T**)lua_newuserdata(m_LuaState, sizeof(T*));
+
+                // Initialize the memory allocated by the lua_newuserdata() function.
+                *UserData=Object;
+
+                // T["__userdata_cf"] = UD
+                lua_pushvalue(m_LuaState, USERDATA_INDEX);    // Duplicate the userdata on top of the stack.
+                lua_setfield(m_LuaState, TABLE_INDEX, "__userdata_cf");
+
+                // Get the table with name (key) Object->GetType()->ClassName from the registry,
+                // and set it as metatable of the newly created table.
+                // This is the crucial step that establishes the main functionality of our new table.
+                luaL_getmetatable(m_LuaState, Object->GetType()->ClassName);
+                lua_setmetatable(m_LuaState, TABLE_INDEX);
+
+                // Get the table with name (key) Object->GetType()->ClassName from the registry,
+                // and set it as metatable of the newly created userdata item.
+                // This is important for userdata type safety (see PiL2, chapter 28.2) and to have automatic garbage collection work
+                // (contrary to the text in the "Game Programming Gems 6" book, chapter 4.2, a __gc method in the metatable
+                //  is only called for full userdata, see my email to the Lua mailing list on 2008-Apr-01 for more details).
+                luaL_getmetatable(m_LuaState, Object->GetType()->ClassName);
+                lua_setmetatable(m_LuaState, USERDATA_INDEX);
+
+                // Remove UD from the stack, so that now the new table T is on top of the stack.
+                lua_pop(m_LuaState, 1);
+
+                // Anchor the table: __cpp_anchors_cf[Object] = T
+                lua_pushlightuserdata(m_LuaState, Object);
+                lua_pushvalue(m_LuaState, TABLE_INDEX);   // Duplicate the table on top of the stack.
+                lua_rawset(m_LuaState, -4);
+            }
+
+            // Remove the __cpp_anchors_cf table.
+            lua_remove(m_LuaState, -2);
+
+            // The requested table/userdata is now at the top of the stack.
+            return true;
+        }
+
+        /// Returns if the given object is currently bound to the Lua state,
+        /// i.e. whether for the C++ object there is an alter ego in Lua.
+        bool IsBound(void* Object);
 
         /// Checks if the value at the given stack index is an object of type TypeInfo,
         /// and returns the userdata which is a pointer to the instance.
         void* GetCheckedObjectParam(int StackIndex, const cf::TypeSys::TypeInfoT& TypeInfo);
 
-        // /// If the given object still has an alter ego in the Lua state, calling this method
-        // /// breaks the connection: Any attempt in Lua to access the C++-implemented methods
-        // /// will trigger an error message, and the C++ code is free to delete the object.
-        // void Disconnect(T* Object);
+        /// Breaks the connection between a C++ object and its alter ego in Lua.
+        /// If the given object still has an alter ego in the Lua state, calling this method
+        /// essentially removes all C++ parts from it: the metatable is reset to nil,
+        /// and the userdata's destructor is called (Lua will collect it later).
+        /// After this method, any attempt to access the C++-implemented methods in Lua
+        /// yields a (safe and well-defined) error message.
+        void Disconnect(void* Object);
 
 
         private:
