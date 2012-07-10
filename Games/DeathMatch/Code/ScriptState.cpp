@@ -206,7 +206,7 @@ ScriptStateT::ScriptStateT()
 
 
 // This method returns the equivalent of the Lua expression "EntityClassDefs[EntClassName].CppClass".
-std::string ScriptStateT::GetCppClassNameFromEntityClassName(const std::string& EntClassName) const
+std::string ScriptStateT::GetCppClassNameFromEntityClassName(const std::string& EntClassName)
 {
     lua_State* LuaState = m_ScriptState.GetLuaState();
 

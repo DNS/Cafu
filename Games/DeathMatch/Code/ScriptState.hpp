@@ -46,7 +46,7 @@ namespace cf
 
             /// This method returns the value of the Lua expression "EntityClassDefs[EntClassName].CppClass".
             /// The empty string is returned on error, that is, when one of the tables or table fields does not exist.
-            std::string GetCppClassNameFromEntityClassName(const std::string& EntClassName) const;
+            std::string GetCppClassNameFromEntityClassName(const std::string& EntClassName);
 
             /// Adds a new entity object/instance (a Lua table) to the script state.
             /// @param EntCppInstance   The pointer to (the C++ instance of) the entity for which a matching instance in the script state is to be created.
