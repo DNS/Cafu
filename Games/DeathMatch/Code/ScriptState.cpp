@@ -292,61 +292,6 @@ void ScriptStateT::RemoveEntityInstance(BaseEntityT* EntCppInstance)
 }
 
 
-bool ScriptStateT::CallEntityMethod(BaseEntityT* Entity, const std::string& MethodName, const char* Signature, ...)
-{
-    va_list vl;
-
-    va_start(vl, Signature);
-    const bool Result=CallEntityMethod(Entity, MethodName, Signature, vl);
-    va_end(vl);
-
-    return Result;
-}
-
-
-bool ScriptStateT::CallEntityMethod(BaseEntityT* Entity, const std::string& MethodName, const char* Signature, va_list vl)
-{
-    lua_State* LuaState = m_ScriptState.GetLuaState();
-
-    cf::ScriptBinderT Binder(LuaState);
-
-    Binder.Push(Entity);
-
-    // Put the desired method (from the entity table) onto the stack of LuaState.
-#if 1
-    lua_getfield(LuaState, -1, MethodName.c_str());
-#else
-    // lua_getfield(LuaState, -1, MethodName.c_str()); or lua_gettable() instead of lua_rawget() just doesn't work,
-    // it results in a "PANIC: unprotected error in call to Lua API (loop in gettable)" abortion.
-    // I don't know exactly why this is so.
-    lua_pushstring(LuaState, MethodName.c_str());
-    lua_rawget(LuaState, -2);
-#endif
-
-    if (!lua_isfunction(LuaState, -1))
-    {
-        // If we get here, this usually means that the value at -1 is just nil, i.e. the
-        // function that we would like to call was just not defined in the Lua script.
-        Console->Warning(Entity->Name+"."+MethodName+" is not a function.\n");
-        lua_pop(LuaState, 2);   // Pop whatever is not a function, and the entity table.
-        return false;
-    }
-
-    // Swap the entity table and the function.
-    // ***************************************
-
-    // The current stack contents of LuaState is
-    //      2  function to be called
-    //      1  entity table
-    // Now just swap the two, because the entity table is not needed any more but for the first argument to the function
-    // (the "self" or "this" value for the object-oriented method call), and having the function at index 1 means that
-    // after the call to lua_resume(), the stack is populated only with results (no remains from our code here).
-    lua_insert(LuaState, -2);   // Inserting the function at index -2 shifts the entity table to index -1.
-
-    return m_ScriptState.StartNewCoroutine(1, Signature, vl, Entity->Name + ":" + MethodName + "()");
-}
-
-
 static ArrayT<std::string> MapCmds;
 
 

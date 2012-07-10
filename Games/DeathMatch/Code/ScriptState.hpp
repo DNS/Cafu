@@ -61,24 +61,6 @@ namespace cf
             /// in case of which it just does nothing. This is helpful for simplifying the caller code.
             void RemoveEntityInstance(BaseEntityT* EntCppInstance);
 
-            /// Calls a script method with the given name of the given entity.
-            ///
-            /// @param Entity      The entity instance whose Lua script method is to be called.
-            /// @param MethodName  The name of the method that is to be called.
-            /// @param Signature   Describes the arguments to and results from the Lua method.
-            /// @param ...         The arguments to the Lua method and the variables that receive its results as described by the Signature parameter.
-            ///
-            /// Example:
-            /// If Ent is a BaseEntityT object and Ent->Name=="Barney", then   CallEntityMethod(Ent, "OnTrigger", "f", 1.0);
-            /// calls the script method   Barney:OnTrigger(value)   where value is a number with value 1.0.
-            ///
-            /// For more details about the parameters and return value, see UniScriptStateT::Call().
-            bool CallEntityMethod(BaseEntityT* Entity, const std::string& MethodName, const char* Signature="", ...);
-
-            /// As CallEntityMethod(), but with explicit argument list.
-            /// @see CallEntityMethod().
-            bool CallEntityMethod(BaseEntityT* Entity, const std::string& MethodName, const char* Signature, va_list vl);
-
             /// Returns the underlying script state. (This is temporarly only.)
             UniScriptStateT& GetScriptState() { return m_ScriptState; }
 

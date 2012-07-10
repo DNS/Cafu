@@ -228,6 +228,64 @@ namespace cf
         /// Nonetheless, the related Lua thread is added to the list of pending coroutines for later resumption.
         bool Call(const char* FuncName, const char* Signature="", ...);
 
+        /// Calls a method with the given name of the given object.
+        ///
+        /// @param Object      The object whose script method is to be called.
+        /// @param MethodName  The name of the method to be called.
+        /// @param Signature   Describes the arguments to and results from the Lua method.
+        /// @param ...         The arguments to the Lua method and the variables that receive its results as described by the Signature parameter.
+        ///
+        /// For more details about the parameters and return value, see Call().
+        ///
+        /// Example:
+        /// If the variable Obj is bound to Object, then   CallMethod(Object, "OnTrigger", "f", 1.0);
+        /// calls the script method   Obj:OnTrigger(value)   where value is a number with value 1.0.
+        template<class T> bool CallMethod(T* Object, const std::string& MethodName, const char* Signature="", ...)
+        {
+            const StackCheckerT StackChecker(m_LuaState);
+            cf::ScriptBinderT   Binder(m_LuaState);
+
+            Binder.Push(Object);
+
+            // Put the desired method (from the object table) onto the stack of LuaState.
+            #if 1
+                lua_getfield(m_LuaState, -1, MethodName.c_str());
+            #else
+                // lua_getfield(LuaState, -1, MethodName.c_str()); or lua_gettable() instead of lua_rawget() just doesn't work,
+                // it results in a "PANIC: unprotected error in call to Lua API (loop in gettable)" abortion.
+                // I don't know exactly why this is so.
+                lua_pushstring(m_LuaState, MethodName.c_str());
+                lua_rawget(m_LuaState, -2);
+            #endif
+
+            if (!lua_isfunction(m_LuaState, -1))
+            {
+                // If we get here, this usually means that the value at -1 is just nil, i.e. the
+                // function that we would like to call was just not defined in the Lua script.
+                lua_pop(m_LuaState, 2);   // Pop whatever is not a function, and the object table.
+                return false;
+            }
+
+            // Swap the object table and the function.
+            // ***************************************
+
+            // The current stack contents of LuaState is
+            //      2  function to be called
+            //      1  object table
+            // Now just swap the two, because the object table is not needed any more but for the first argument to the function
+            // (the "self" or "this" value for the object-oriented method call), and having the function at index 1 means that
+            // after the call to lua_resume(), the stack is populated only with results (no remains from our code here).
+            lua_insert(m_LuaState, -2);   // Inserting the function at index -2 shifts the object table to index -1.
+
+            va_list vl;
+
+            va_start(vl, Signature);
+            const bool Result=StartNewCoroutine(1, Signature, vl, std::string("method ") + MethodName + "()");
+            va_end(vl);
+
+            return Result;
+        }
+
         /// Runs the pending coroutines.
         void RunPendingCoroutines(float FrameTime);
 
@@ -235,6 +293,7 @@ namespace cf
         lua_State* GetLuaState() const { return m_LuaState; }   // TODO: Remove the "const"
 
         // TODO: This method should be private.
+        /// This method calls a Lua function in the context of the Lua state.
         bool StartNewCoroutine(int NumExtraArgs, const char* Signature, va_list vl, const std::string& DbgName);
 
 
