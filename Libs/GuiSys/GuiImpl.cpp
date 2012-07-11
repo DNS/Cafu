@@ -719,7 +719,8 @@ int GuiImplT::SetMouseIsShown(lua_State* LuaState)
 
 int GuiImplT::SetFocus(lua_State* LuaState)
 {
-    GuiImplT* Gui=CheckParams(LuaState);
+    ScriptBinderT Binder(LuaState);
+    GuiImplT*     Gui=CheckParams(LuaState);
 
     if (lua_isstring(LuaState, 2))
     {
@@ -727,7 +728,7 @@ int GuiImplT::SetFocus(lua_State* LuaState)
     }
     else if (lua_istable(LuaState, 2))
     {
-        WindowT* Win=(WindowT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 2, WindowT::TypeInfo);
+        WindowT* Win=(WindowT*)Binder.GetCheckedObjectParam(2, WindowT::TypeInfo);
 
         Gui->FocusWindow=Win;
     }
@@ -760,8 +761,9 @@ int GuiImplT::GetEntityName(lua_State* LuaState)
 
 int GuiImplT::SetRootWindow(lua_State* LuaState)
 {
-    GuiImplT* Gui=CheckParams(LuaState);
-    WindowT*  Win=(WindowT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 2, WindowT::TypeInfo);
+    ScriptBinderT Binder(LuaState);
+    GuiImplT*     Gui=CheckParams(LuaState);
+    WindowT*      Win=(WindowT*)Binder.GetCheckedObjectParam(2, WindowT::TypeInfo);
 
     // Note that Gui->RootWindow is a WindowPtrT that makes sure that the Win instance gets
     // properly anchored in the Lua state in order to prevent premature garbage collection.
@@ -933,57 +935,4 @@ void GuiImplT::RegisterLua(lua_State* LuaState)
 
     // Clear the stack.
     lua_settop(LuaState, 0);
-}
-
-
-// ANALOGY: This code is ANALOGOUS TO that in Games/DeathMatch/Code/ScriptState.cpp.
-// There is no compelling reason to keep this static function inside this .cpp file or as a member of the GuiImplT class,
-// except for the fact that it relies on knowledge that is only found here: The way how metatables are metatables of each
-// other when inheritance occurs, the private "__userdata_cf" string, etc.
-/*static*/ void* GuiImplT::GetCheckedObjectParam(lua_State* LuaState, int StackIndex, const cf::TypeSys::TypeInfoT& TypeInfo)
-{
-    // First make sure that the table that represents the window itself is at StackIndex.
-    luaL_argcheck(LuaState, lua_istable(LuaState, StackIndex), StackIndex, "Expected a table that represents a window." /*of type TypeInfo.ClassName*/);
-
-    // Put the contents of the "__userdata_cf" field on top of the stack (other values may be between it and the table at position StackIndex).
-    lua_getfield(LuaState, StackIndex, "__userdata_cf");
-
-#if 1
-    // This approach takes inheritance properly into account by "manually traversing up the inheriance hierarchy".
-    // See the "Game Programming Gems 6" book, page 353 for the inspiration for this code.
-
-    // Put the metatable of the desired type on top of the stack.
-    luaL_getmetatable(LuaState, TypeInfo.ClassName);
-
-    // Put the metatable for the given userdata on top of the stack (it may belong to a derived class).
-    if (!lua_getmetatable(LuaState, -2)) lua_pushnil(LuaState);     // Don't have it push nothing in case of failure.
-
-    while (lua_istable(LuaState, -1))
-    {
-        if (lua_rawequal(LuaState, -1, -2))
-        {
-            void** UserData=(void**)lua_touserdata(LuaState, -3); if (UserData==NULL) luaL_error(LuaState, "NULL userdata in window table.");
-            void*  Window  =(*UserData);
-
-            // Pop the two matching metatables and the userdata.
-            lua_pop(LuaState, 3);
-            return Window;
-        }
-
-        // Replace the metatable on top of the stack with its metatable (i.e. "the metatable of the metatable").
-        if (!lua_getmetatable(LuaState, -1)) lua_pushnil(LuaState);     // Don't have it push nothing in case of failure.
-        lua_replace(LuaState, -2);
-    }
-
-    luaL_typerror(LuaState, StackIndex, TypeInfo.ClassName);
-    return NULL;
-#else
-    // This approach is too simplistic and thus doesn't work when inheritance is used.
-    void** UserData=(void**)luaL_checkudata(LuaState, -1, TypeInfo.ClassName); if (UserData==NULL) luaL_error(LuaState, "NULL userdata in window table.");
-    void*  Window  =(*UserData);
-
-    // Pop the userdata from the stack again. Not necessary though as it doesn't hurt there.
-    // lua_pop(LuaState, 1);
-    return Window;
-#endif
 }

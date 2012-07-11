@@ -192,7 +192,8 @@ void ChoiceT::FillMemberVars()
 
 int ChoiceT::Clear(lua_State* LuaState)
 {
-    ChoiceT* Choice=(ChoiceT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+    ScriptBinderT Binder(LuaState);
+    ChoiceT*      Choice=(ChoiceT*)Binder.GetCheckedObjectParam(1, TypeInfo);
 
     Choice->m_Choices.Overwrite();
     Choice->Text="";
@@ -203,7 +204,8 @@ int ChoiceT::Clear(lua_State* LuaState)
 
 int ChoiceT::Append(lua_State* LuaState)
 {
-    ChoiceT* Choice=(ChoiceT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+    ScriptBinderT Binder(LuaState);
+    ChoiceT*      Choice=(ChoiceT*)Binder.GetCheckedObjectParam(1, TypeInfo);
 
     Choice->m_Choices.PushBack(luaL_checkstring(LuaState, 2));
     return 0;
@@ -212,9 +214,10 @@ int ChoiceT::Append(lua_State* LuaState)
 
 int ChoiceT::Insert(lua_State* LuaState)
 {
-    ChoiceT*    Choice=(ChoiceT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
-    const int   ChNr  =luaL_checkinteger(LuaState, 2);
-    const char* ChText=luaL_checkstring(LuaState, 3);
+    ScriptBinderT Binder(LuaState);
+    ChoiceT*      Choice=(ChoiceT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    const int     ChNr  =luaL_checkinteger(LuaState, 2);
+    const char*   ChText=luaL_checkstring(LuaState, 3);
 
     luaL_argcheck(LuaState, ChNr>=0 && ChNr<=int(Choice->m_Choices.Size()), 2, "Insertion index too large.");
     Choice->m_Choices.InsertAt(ChNr, ChText);
@@ -224,7 +227,8 @@ int ChoiceT::Insert(lua_State* LuaState)
 
 int ChoiceT::GetNumChoices(lua_State* LuaState)
 {
-    ChoiceT* Choice=(ChoiceT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+    ScriptBinderT Binder(LuaState);
+    ChoiceT*      Choice=(ChoiceT*)Binder.GetCheckedObjectParam(1, TypeInfo);
 
     lua_pushinteger(LuaState, Choice->m_Choices.Size());
     return 1;
@@ -233,8 +237,9 @@ int ChoiceT::GetNumChoices(lua_State* LuaState)
 
 int ChoiceT::GetChoice(lua_State* LuaState)
 {
-    ChoiceT*  Choice=(ChoiceT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
-    const int ChNr  =luaL_checkinteger(LuaState, 2);
+    ScriptBinderT Binder(LuaState);
+    ChoiceT*      Choice=(ChoiceT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    const int     ChNr  =luaL_checkinteger(LuaState, 2);
 
     luaL_argcheck(LuaState, ChNr>=0 && ChNr<int(Choice->m_Choices.Size()), 2, "Index out of range.");
     lua_pushstring(LuaState, Choice->m_Choices[ChNr].c_str());
@@ -244,8 +249,9 @@ int ChoiceT::GetChoice(lua_State* LuaState)
 
 int ChoiceT::SetChoice(lua_State* LuaState)
 {
-    ChoiceT*  Choice=(ChoiceT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
-    const int ChNr  =luaL_checkinteger(LuaState, 2);
+    ScriptBinderT Binder(LuaState);
+    ChoiceT*      Choice=(ChoiceT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    const int     ChNr  =luaL_checkinteger(LuaState, 2);
 
     luaL_argcheck(LuaState, ChNr>=0 && ChNr<int(Choice->m_Choices.Size()), 2, "Index out of range.");
     Choice->m_Choices[ChNr]=luaL_checkstring(LuaState, 3);
@@ -255,7 +261,8 @@ int ChoiceT::SetChoice(lua_State* LuaState)
 
 int ChoiceT::GetSelection(lua_State* LuaState)
 {
-    ChoiceT* Choice=(ChoiceT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+    ScriptBinderT Binder(LuaState);
+    ChoiceT*      Choice=(ChoiceT*)Binder.GetCheckedObjectParam(1, TypeInfo);
 
     lua_pushinteger(LuaState, Choice->m_SelectedChoice>=int(Choice->m_Choices.Size()) ? -1 : Choice->m_SelectedChoice);
     return 1;
@@ -264,7 +271,8 @@ int ChoiceT::GetSelection(lua_State* LuaState)
 
 int ChoiceT::SetSelection(lua_State* LuaState)
 {
-    ChoiceT* Choice=(ChoiceT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+    ScriptBinderT Binder(LuaState);
+    ChoiceT*      Choice=(ChoiceT*)Binder.GetCheckedObjectParam(1, TypeInfo);
 
     Choice->m_SelectedChoice=luaL_checkinteger(LuaState, 2);
 

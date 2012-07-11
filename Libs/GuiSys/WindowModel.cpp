@@ -194,8 +194,9 @@ void ModelWindowT::FillMemberVars()
 
 int ModelWindowT::SetModel(lua_State* LuaState)
 {
+    ScriptBinderT Binder(LuaState);
     std::string   ErrorMsg;
-    ModelWindowT* ModelWin=(ModelWindowT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+    ModelWindowT* ModelWin=(ModelWindowT*)Binder.GetCheckedObjectParam(1, TypeInfo);
 
     ModelWin->SetModel(luaL_checkstring(LuaState, 2), ErrorMsg);
 
@@ -206,7 +207,8 @@ int ModelWindowT::SetModel(lua_State* LuaState)
 
 int ModelWindowT::GetModelNrOfSequs(lua_State* LuaState)
 {
-    ModelWindowT* ModelWin=(ModelWindowT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+    ScriptBinderT Binder(LuaState);
+    ModelWindowT* ModelWin=(ModelWindowT*)Binder.GetCheckedObjectParam(1, TypeInfo);
 
     lua_pushinteger(LuaState, ModelWin->m_Model->GetAnims().Size());
     return 1;
@@ -215,7 +217,8 @@ int ModelWindowT::GetModelNrOfSequs(lua_State* LuaState)
 
 int ModelWindowT::SetModelSequNr(lua_State* LuaState)
 {
-    ModelWindowT*     ModelWin=(ModelWindowT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+    ScriptBinderT     Binder(LuaState);
+    ModelWindowT*     ModelWin=(ModelWindowT*)Binder.GetCheckedObjectParam(1, TypeInfo);
     const CafuModelT* Model   =ModelWin->m_Model;
     AnimPoseT*        Pose    =ModelWin->m_Pose;
 
@@ -231,7 +234,8 @@ int ModelWindowT::SetModelSequNr(lua_State* LuaState)
 
 int ModelWindowT::SetModelPos(lua_State* LuaState)
 {
-    ModelWindowT* ModelWin=(ModelWindowT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+    ScriptBinderT Binder(LuaState);
+    ModelWindowT* ModelWin=(ModelWindowT*)Binder.GetCheckedObjectParam(1, TypeInfo);
 
     ModelWin->ModelPos.x=float(lua_tonumber(LuaState, 2));
     ModelWin->ModelPos.y=float(lua_tonumber(LuaState, 3));
@@ -242,7 +246,8 @@ int ModelWindowT::SetModelPos(lua_State* LuaState)
 
 int ModelWindowT::SetModelScale(lua_State* LuaState)
 {
-    ModelWindowT* ModelWin=(ModelWindowT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+    ScriptBinderT Binder(LuaState);
+    ModelWindowT* ModelWin=(ModelWindowT*)Binder.GetCheckedObjectParam(1, TypeInfo);
 
     ModelWin->ModelScale=float(lua_tonumber(LuaState, 2));
     return 0;
@@ -251,7 +256,8 @@ int ModelWindowT::SetModelScale(lua_State* LuaState)
 
 int ModelWindowT::SetModelAngles(lua_State* LuaState)
 {
-    ModelWindowT* ModelWin=(ModelWindowT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+    ScriptBinderT Binder(LuaState);
+    ModelWindowT* ModelWin=(ModelWindowT*)Binder.GetCheckedObjectParam(1, TypeInfo);
 
     ModelWin->ModelAngles.x=float(lua_tonumber(LuaState, 2));
     ModelWin->ModelAngles.y=float(lua_tonumber(LuaState, 3));
@@ -262,7 +268,8 @@ int ModelWindowT::SetModelAngles(lua_State* LuaState)
 
 int ModelWindowT::SetCameraPos(lua_State* LuaState)
 {
-    ModelWindowT* ModelWin=(ModelWindowT*)cf::GuiSys::GuiImplT::GetCheckedObjectParam(LuaState, 1, TypeInfo);
+    ScriptBinderT Binder(LuaState);
+    ModelWindowT* ModelWin=(ModelWindowT*)Binder.GetCheckedObjectParam(1, TypeInfo);
 
     ModelWin->CameraPos.x=float(lua_tonumber(LuaState, 2));
     ModelWin->CameraPos.y=float(lua_tonumber(LuaState, 3));

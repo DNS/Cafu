@@ -147,9 +147,6 @@ namespace cf
             /// @param LuaState DOCTODO
             static void RegisterLua(lua_State* LuaState);
 
-            /// Checks if the value at the given stack index is a window of type TypeInfo, and returns the userdata which is a pointer to the instance.
-            static void* GetCheckedObjectParam(lua_State* LuaState, int StackIndex, const cf::TypeSys::TypeInfoT& TypeInfo);
-
 
             private:
 
