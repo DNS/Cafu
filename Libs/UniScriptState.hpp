@@ -74,7 +74,8 @@ namespace cf
     /// to the UniScriptStateT constructor in order to "configure" it for a particular strategy.
     ///
     /// Literature:
-    ///   - "Game Programming Gems 6", chapter 4.2, "Binding C/C++ objects to Lua", W. Celes et al.
+    ///   - Programming in Lua, 2nd edition, Roberto Ierusalimschy
+    ///   - Game Programming Gems 6, chapter 4.2, "Binding C/C++ objects to Lua", W. Celes et al.
     ///   - 2008-04-01: http://thread.gmane.org/gmane.comp.lang.lua.general/46787
     class ScriptBinderT
     {

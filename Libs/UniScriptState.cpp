@@ -116,9 +116,11 @@ void* ScriptBinderT::GetCheckedObjectParam(int StackIndex, const cf::TypeSys::Ty
             return Object;
         }
 
-        // Replace the metatable on top of the stack with its metatable (i.e. "the metatable of the metatable").
+        // Replace the metatable MT on top of the stack with the metatable of MT.__index.
+        lua_getfield(m_LuaState, -1, "__index");
         if (!lua_getmetatable(m_LuaState, -1)) lua_pushnil(m_LuaState);     // Don't have it push nothing in case of failure.
-        lua_replace(m_LuaState, -2);
+        lua_remove(m_LuaState, -2);
+        lua_remove(m_LuaState, -2);
     }
 
     luaL_typerror(m_LuaState, StackIndex, TypeInfo.ClassName);
@@ -272,30 +274,35 @@ void UniScriptStateT::Init(const cf::TypeSys::TypeInfoManT& TIM)
         {
             assert(lua_gettop(m_LuaState)==0);
 
-            // Create a new table T and add it into the registry table with TI->ClassName (e.g. "cf::GuiSys::WindowT" or "cf::GameSys::EntMoverT") as the key and T as the value.
-            // This also leaves T on top of the stack. See PiL2 chapter 28.2 for more details.
+            // Create a new table MT and add it into the registry table with TI->ClassName
+            // (e.g. "cf::GuiSys::WindowT" or "cf::GameSys::EntMoverT") as the key and MT as the value.
+            // This also leaves MT on top of the stack. See PiL2 chapter 28.2 for more details.
             luaL_newmetatable(m_LuaState, TI->ClassName);
 
-            // See PiL2 chapter 28.3 for a great explanation on what is going on here.
-            // Essentially, we set T.__index = T (the luaL_newmetatable() function left T on the top of the stack).
-            lua_pushvalue(m_LuaState, -1);              // Pushes/duplicates the new table T on the stack.
-            lua_setfield(m_LuaState, -2, "__index");    // T.__index = T;
+            // Create a new table FT and register the functions in TI->MethodsList into it.
+            // See PiL2 chapter 28.3 for more details. We intentionally don't merge FT into MT though,
+            // or else Lua code could call the __gc method! See thread "__gc visible to Lua code" at
+            // http://lua-users.org/lists/lua-l/2007-03/threads.html#00872 for more details.
+            lua_newtable(m_LuaState);
 
-            // Now insert the functions listed in TI->MethodsList into T (the table on top of the stack).
-            if (TI->MethodsList!=NULL)
+            if (TI->MethodsList != NULL)
                 luaL_register(m_LuaState, NULL, TI->MethodsList);
 
-            // If TI has a base class, model that relationship for T, too, by setting the metatable of the base class as the metatable for T.
-            // Note that this works because the for-loop (over TI) enumerates the base classes always before their child classes!
+            // If TI has a base class, model that relationship for FT, too, by setting the metatable of
+            // the base class as the metatable for FT. Note that this works because the for-loop (over TI)
+            // enumerates the base classes always before their child classes!
             if (TI->Base)
             {
-                assert(strcmp(TI->BaseClassName, TI->Base->ClassName)==0);
+                assert(strcmp(TI->BaseClassName, TI->Base->ClassName) == 0);
 
-                // Get the metatable M with name (key) TI->Base->ClassName (e.g. "cf::GameSys::BaseEntityT")
-                // from the registry, and set it as metatable of T.
+                // Get the metatable MT' with name TI->Base->ClassName (e.g. "cf::GameSys::BaseEntityT")
+                // from the registry, and set it as metatable of FT.
                 luaL_getmetatable(m_LuaState, TI->Base->ClassName);
                 lua_setmetatable(m_LuaState, -2);
             }
+
+            // MT.__index = FT
+            lua_setfield(m_LuaState, -2, "__index");
 
             // Clear the stack.
             assert(lua_gettop(m_LuaState)==1);
