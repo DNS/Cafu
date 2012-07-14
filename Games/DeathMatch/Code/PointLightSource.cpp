@@ -21,9 +21,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "PointLightSource.hpp"
 #include "EntityCreateParams.hpp"
-#include "ScriptState.hpp"
 #include "Network/State.hpp"
 #include "TypeSys.hpp"
+#include "UniScriptState.hpp"
 
 extern "C"
 {

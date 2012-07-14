@@ -36,9 +36,6 @@ namespace cf
 {
     namespace GameSys
     {
-        class ScriptStateT;
-
-
         /// This class provides the "Death-Match" implementation of the GameI interface.
         class GameImplT : public GameI
         {
@@ -47,14 +44,14 @@ namespace cf
             // Implement the methods of the GameI interface.
             void Initialize(bool AsClient, bool AsServer, ModelManagerT& ModelMan);
             void Release();
+            const cf::TypeSys::TypeInfoManT& GetEntityTIM() const;
             void Sv_PrepareNewWorld(const char* WorldFileName, const cf::ClipSys::CollisionModelT* WorldCollMdl);
-            void Sv_FinishNewWorld(const char* WorldFileName);
             void Sv_BeginThinking(float FrameTime);
             void Sv_EndThinking();
             void Sv_UnloadWorld();
             void Cl_LoadWorld(const char* WorldFileName, const cf::ClipSys::CollisionModelT* WorldCollMdl);
             void Cl_UnloadWorld();
-            BaseEntityT* CreateBaseEntityFromMapFile(const std::map<std::string, std::string>& Properties, const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID, unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld, const Vector3T<double>& Origin);
+            BaseEntityT* CreateBaseEntityFromMapFile(const cf::TypeSys::TypeInfoT* TI, const std::map<std::string, std::string>& Properties, const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID, unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld, const Vector3T<double>& Origin);
             BaseEntityT* CreateBaseEntityFromTypeNr(unsigned long TypeNr, const std::map<std::string, std::string>& Properties, const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID, unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld);
             void FreeBaseEntity(BaseEntityT* BaseEntity);
 
@@ -70,9 +67,6 @@ namespace cf
             /// (but for the convenience of the caller, it never returns NULL or an invalid pointer).
             const CarriedWeaponT* GetCarriedWeapon(unsigned int ActiveWeaponSlot) const;
 
-            bool IsSvThinking() const { return IsThinking; }
-            ScriptStateT* GetScriptState() const { return ScriptState; }
-
             /// Returns the singleton instance of this class.
             static GameImplT& GetInstance();
 
@@ -87,9 +81,6 @@ namespace cf
 
             PhysicsWorldT*            Sv_PhysicsWorld;
             PhysicsWorldT*            Cl_PhysicsWorld;
-
-            ScriptStateT*             ScriptState;      ///< Inited on Server load, deleted on Server unload.
-            bool                      IsThinking;       ///< True while the server is thinking, i.e. between the calls to Sv_BeginThinking() and Sv_EndThinking().
 
             ArrayT<const CafuModelT*> m_PlayerModels;   ///< The player models available in this game.
             ArrayT<CarriedWeaponT*>   m_CarriedWeapons; ///< The set of carry-able weapons in this game.

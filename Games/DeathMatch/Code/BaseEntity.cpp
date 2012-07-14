@@ -23,12 +23,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../../GameWorld.hpp"
 #include "EntityCreateParams.hpp"
 #include "Constants_AmmoSlots.hpp"      // For 'AMMO_SLOT_FRAGS'.
-#include "ScriptState.hpp"
 #include "TypeSys.hpp"
 #include "ClipSys/ClipModel.hpp"
 #include "ClipSys/CollisionModelMan.hpp"
 #include "ConsoleCommands/Console.hpp"
 #include "Network/State.hpp"
+#include "UniScriptState.hpp"
 
 extern "C"
 {

@@ -138,15 +138,15 @@ function Counter:OnMouseButtonDown()
     -- (If we're running a local single player game, then even all of these occur.)
     --
     -- *** Therefore, anything we do here must have side-effects *ONLY* on the server! ***
-    -- The game.runMapCmd() fulfils this requirement, because it actively checks and does nothing when being run on the client.
+    -- The gui:RunMapCmd() fulfils this requirement, because it actively checks and does nothing when being run on the client.
     -- However, a call to ci.RunCommand("xy();"); *will* run xy() multiple times in the above outlined cases.
 
     -- Call the MyFirstLift:OnTrigger() method.
  -- ci.RunCommand("runMapCmd('MyFirstLift:OnTrigger();');");
-    game.runMapCmd("MyFirstLift:OnTrigger();");
+    gui:RunMapCmd("MyFirstLift:OnTrigger();");
 
- -- game.runMapCmd("MyLight:SetColor(255, 0, 0);");
-    game.runMapCmd("MyLight:OnTrigger();");
+ -- gui:RunMapCmd("MyLight:SetColor(255, 0, 0);");
+    gui:RunMapCmd("MyLight:OnTrigger();");
     return true;
 end
 

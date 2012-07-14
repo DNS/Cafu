@@ -35,11 +35,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"
 #include "Models/Model_cmdl.hpp"
-
-
-/******************************************************************************************/
-#include "GameImpl.hpp"
-#include "ScriptState.hpp"
+#include "UniScriptState.hpp"
 
 extern "C"
 {
@@ -47,41 +43,6 @@ extern "C"
     #include <lualib.h>
     #include <lauxlib.h>
 }
-
-
-// Runs the given command (first function parameter) within the script of the current map.
-// The command is run *ONLY* while the server is thinking. That is, the call chain can only be as follows:
-//     1) HumanPlayerT::Think();           // Called during server thinking, client prediction and client repredection.
-//     2) GuiT::ProcessDeviceEvent();      // Player stands before and uses this GUI.
-//     3) call into the GUI script (event handlers).
-//     4) The script calls this game.runMapCmd(xy) function.
-//     5) The xy command is run if the server is thinking, nothing is done otherwise.
-static int WorldGui_RunMapScriptCmd(lua_State* GuiLuaState)
-{
-    // *** WARNING ***
-    // The GuiLuaState is maintained in the main executable, not in this DLL, so its probably *NOT* safe to modify it here
-    // with the CRT being *statically* linked. Inspecting the stack is probably harmless, but returning values probably
-    // implies DLL-local memory allocation and thus a corrputed heap!
-
-    const cf::GameSys::GameImplT& GameImpl   =cf::GameSys::GameImplT::GetInstance();
-    cf::GameSys::ScriptStateT*    ScriptState=GameImpl.GetScriptState();
-
-    if (!GameImpl.IsSvThinking()) return 0;
-
-    // Having (IsThinking==true && ScriptState==NULL) is impossible.
-    assert(ScriptState!=NULL);
-
-    ScriptState->GetScriptState().DoString(luaL_checkstring(GuiLuaState, 1));
-    return 0;
-}
-
-
-static const luaL_Reg GameFunctionsForWorldGUIs[]=
-{
-    { "runMapCmd", WorldGui_RunMapScriptCmd },
-    { NULL, NULL }
-};
-/******************************************************************************************/
 
 
 // Implement the type info related code.
@@ -169,12 +130,8 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
 
             if (Gui!=NULL)
             {
-                // Let the GUI know our name and instance pointer.
-                Gui->SetEntityInfo(Name.c_str(), this);
-
-                // Provide the GUI with another library that has game-specific functions,
-                // for example and most importantly a function to access the map script.
-                Gui->RegisterScriptLib("game", GameFunctionsForWorldGUIs);
+                // Let the GUI know our map script state and name.
+                Gui->SetEntityInfo(&GameWorld->GetScriptState(), Name);
             }
             else
             {

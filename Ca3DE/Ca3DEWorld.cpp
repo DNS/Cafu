@@ -64,6 +64,10 @@ void Ca3DEWorldT::Clear()
 
     m_EngineEntities.Clear();
 
+    // All entities should have been deleted by now, and their dtors should have removed their Lua associated instances.
+    // m_ScriptState.PrintGlobalVars();
+    // assert(!m_ScriptState.HasEntityInstances());
+
     if (m_ClipWorld)
     {
         delete m_ClipWorld;
@@ -81,6 +85,12 @@ void Ca3DEWorldT::Clear()
 cf::ClipSys::ClipWorldT& Ca3DEWorldT::GetClipWorld()
 {
     return *m_ClipWorld;
+}
+
+
+cf::UniScriptStateT& Ca3DEWorldT::GetScriptState()
+{
+    return m_ScriptState.GetScriptState();
 }
 
 

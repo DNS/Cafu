@@ -125,7 +125,9 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool
       IsFullCover(false),
       MousePosX(VIRTUAL_SCREEN_SIZE_X/2.0f),   // 320.0f
       MousePosY(VIRTUAL_SCREEN_SIZE_Y/2.0f),   // 240.0f
-      MouseIsShown(true)
+      MouseIsShown(true),
+      m_MapScriptState(NULL),
+      m_EntityName()
 {
     if (!IsInlineCode)
     {
@@ -416,7 +418,7 @@ void GuiImplT::Render(bool zLayerCoating) const
 
     if (MouseIsShown)
     {
-        const float b=(EntityName=="") ? 20.0f : 40.0f;     // The mouse cursor size (double for world GUIs).
+        const float b=(m_EntityName=="") ? 20.0f : 40.0f;     // The mouse cursor size (double for world GUIs).
 
         Mesh.Vertices[0].SetOrigin(MousePosX,   MousePosY  );
         Mesh.Vertices[1].SetOrigin(MousePosX+b, MousePosY  );
@@ -607,10 +609,10 @@ bool GuiImplT::CallLuaMethod(WindowPtrT Window, const char* MethodName, const ch
 }
 
 
-void GuiImplT::SetEntityInfo(const char* EntityName_, void* /*EntityInstancePtr_*/)
+void GuiImplT::SetEntityInfo(cf::UniScriptStateT* MapScriptState, const std::string& EntityName)
 {
-    EntityName=EntityName_;
- // EntityInstancePtr=EntityInstancePtr_;
+    m_MapScriptState = MapScriptState;
+    m_EntityName     = EntityName;
 }
 
 
@@ -745,7 +747,7 @@ int GuiImplT::HasValidEntity(lua_State* LuaState)
 {
     GuiImplT* Gui=CheckParams(LuaState);
 
-    lua_pushboolean(LuaState, /*Gui->EntityInstancePtr!=NULL &&*/ Gui->EntityName!="");
+    lua_pushboolean(LuaState, Gui->m_EntityName != "");
     return 1;
 }
 
@@ -754,8 +756,27 @@ int GuiImplT::GetEntityName(lua_State* LuaState)
 {
     GuiImplT* Gui=CheckParams(LuaState);
 
-    lua_pushstring(LuaState, Gui->EntityName.c_str());
+    lua_pushstring(LuaState, Gui->m_EntityName.c_str());
     return 1;
+}
+
+
+// Runs the given command within the script of the assigned map.
+// The call chain is as follows:
+//     1) HumanPlayerT::Think();           // Called during server thinking, client prediction and client repredection.
+//     2) GuiT::ProcessDeviceEvent();      // Player stands before and uses this GUI.
+//     3) call into the GUI script (event handlers).
+//     4) The script calls this gui:RunMapCmd(xy) function.
+//     5) The xy command is run in the server map script or in the client map script, respectively.
+int GuiImplT::RunMapCommand(lua_State* LuaState)
+{
+    GuiImplT* Gui=CheckParams(LuaState);
+
+    if (!Gui->m_MapScriptState)
+        luaL_error(LuaState, "This is not a 3D world GUI, it is not part of a game map.");
+
+    Gui->m_MapScriptState->DoString(luaL_checkstring(LuaState, 2));
+    return 0;
 }
 
 
@@ -923,6 +944,7 @@ void GuiImplT::RegisterLua(lua_State* LuaState)
         { "setFocus",       SetFocus },
         { "hasValidEntity", HasValidEntity },
         { "getEntityName",  GetEntityName },
+        { "RunMapCmd",      RunMapCommand },
         { "SetRootWindow",  SetRootWindow },
         { "new",            CreateNewWindow },
         { "FindWindow",     FindWindow },

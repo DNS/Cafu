@@ -21,12 +21,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Trigger.hpp"
 #include "EntityCreateParams.hpp"
-#include "GameImpl.hpp"
-#include "ScriptState.hpp"
-#include "TypeSys.hpp"
+#include "../../GameWorld.hpp"
 #include "ClipSys/ClipModel.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "SceneGraph/Node.hpp"
+#include "TypeSys.hpp"
+#include "UniScriptState.hpp"
 
 extern "C"
 {
@@ -87,13 +87,7 @@ void EntTriggerT::OnTrigger(BaseEntityT* Activator)
 {
     if (!IsActive) return;
 
-    const cf::GameSys::GameImplT& GameImpl   =cf::GameSys::GameImplT::GetInstance();
-    cf::GameSys::ScriptStateT*    ScriptState=GameImpl.GetScriptState();
-
-    assert(GameImpl.IsSvThinking());
-    assert(ScriptState!=NULL);
-
-    ScriptState->GetScriptState().CallMethod(this, "OnTrigger", "G", Activator->Name.c_str());
+    GameWorld->GetScriptState().CallMethod(this, "OnTrigger", "G", Activator->Name.c_str());
 }
 
 

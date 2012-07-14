@@ -22,10 +22,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_GAMESYS_GAMEWORLD_INTERFACE_HPP_INCLUDED
 #define CAFU_GAMESYS_GAMEWORLD_INTERFACE_HPP_INCLUDED
 
+#include "Math3D/BoundingBox.hpp"
+
 
 class BaseEntityT;
 class CafuModelT;
 namespace cf { namespace ClipSys { class ClipWorldT; } }
+namespace cf { class UniScriptStateT; }
 
 
 namespace cf
@@ -45,8 +48,11 @@ namespace cf
             /// However, with GameWorldIs that's never supposed to happen, so this destructor only exists to silence the g++ compiler warning.
             virtual ~GameWorldI() { }
 
-            /// Returns the clip world for the Cafu world.
+            /// Returns the clip world for the game world.
             virtual cf::ClipSys::ClipWorldT& GetClipWorld()=0;
+
+            /// Returns the script state for the game world.
+            virtual cf::UniScriptStateT& GetScriptState()=0;
 
             /// Returns a "good" ambient light color for an arbitrary object (i.e. a model) of size Dimensions at Origin.
             /// The return value is derived from the worlds lightmap information "close" to the Dimensions at Origin.

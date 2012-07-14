@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_CA3DECOMMONWORLD_HPP_INCLUDED
 #define CAFU_CA3DECOMMONWORLD_HPP_INCLUDED
 
+#include "ScriptState.hpp"
 #include "../Common/World.hpp"
 #include "../Games/GameWorld.hpp"
 
@@ -42,6 +43,7 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
 
     // The virtual methods inherited from the base class GameWorldI.
     cf::ClipSys::ClipWorldT&     GetClipWorld();
+    cf::UniScriptStateT&         GetScriptState();
     Vector3fT                    GetAmbientLightColorFromBB(const BoundingBox3T<double>& Dimensions, const VectorT& Origin) const;
     const ArrayT<unsigned long>& GetAllEntityIDs() const;
     BaseEntityT*                 GetBaseEntityByID(unsigned long EntityID) const;
@@ -56,6 +58,7 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
 
     const WorldT*            m_World;
     cf::ClipSys::ClipWorldT* m_ClipWorld;
+    ScriptStateT             m_ScriptState;
     ArrayT<EngineEntityT*>   m_EngineEntities;
     ModelManagerT&           m_ModelMan;
 

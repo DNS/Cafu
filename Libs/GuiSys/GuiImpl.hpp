@@ -135,7 +135,7 @@ namespace cf
             void DistributeClockTickEvents(float t);
             bool CallLuaFunc(const char* FuncName, const char* Signature="", ...);
             bool CallLuaMethod(WindowPtrT Window, const char* MethodName, const char* Signature="", ...);
-            void SetEntityInfo(const char* EntityName_, void* EntityInstancePtr_);
+            void SetEntityInfo(UniScriptStateT* MapScriptState, const std::string& EntityName);
             void RegisterScriptLib(const char* LibName, const luaL_Reg Functions[]);
 
 
@@ -178,8 +178,8 @@ namespace cf
             float                    MousePosY;         ///< The y-coordinate of the position of the mouse cursor.
             bool                     MouseIsShown;      ///< Whether the mouse cursor is shown. Non-interactive GUIs normally don't show a cursor.
 
-            std::string              EntityName;        ///< If this is a 3D world GUI, this is the name of its parent entity.
-         // void*                    EntityInstancePtr; ///< If this is a 3D world GUI, this is the pointer to the instance of its parent entity.
+            UniScriptStateT*         m_MapScriptState;  ///< If this is a 3D world GUI, this is the script state of the map that this GUI and its host entity are in.
+            std::string              m_EntityName;      ///< If this is a 3D world GUI, this is the name of its host entity.
 
             // Gui variables (general purpose)... (Maus-unabhängig, z.B. aktuelle Lift-Position............. übers Netzwerk sync'en!!)
             // ...
@@ -196,6 +196,7 @@ namespace cf
             static int SetFocus(lua_State* LuaState);           ///< Sets the keyboard input focus to the given window. Does *not* call the Lua OnFocusLose() or OnFocusGain() scripts!
             static int HasValidEntity(lua_State* LuaState);     ///< Returns true if this GUI is a 3D world GUI (an implicit requirement), it has been assigned a valid parent entity and the parent entity name is non-empty. Returns false otherwise.
             static int GetEntityName(lua_State* LuaState);      ///< Returns the non-empty name of the parent entity if HasValidEntity() returns true, an empty string otherwise.
+            static int RunMapCommand(lua_State* LuaState);      ///< Runs the given string in the map script state (if there is one).
             static int SetRootWindow(lua_State* LuaState);      ///< Sets the root window for this GUI.
             static int CreateNewWindow(lua_State* LuaState);    ///< Creates and returns a new window.
             static int FindWindow(lua_State* LuaState);         ///< Finds and returns a window by pointer value. Useful for debugging when an error message referred to a window by pointer value.

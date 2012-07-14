@@ -60,7 +60,7 @@ function ButtonGo:OnMouseButtonUp()
     local origNr=OUR_NODE_NR;
     local destNr=DestNode:get("text");
 
-    game.runMapCmd("teleport(" .. origNr .. ", " .. destNr .. ");");
+    gui:RunMapCmd("teleport(" .. origNr .. ", " .. destNr .. ");");
     return true;
 end
 

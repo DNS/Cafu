@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <string>
 
 
+namespace cf { class UniScriptStateT; }
 struct CaKeyboardEventT;
 struct CaMouseEventT;
 struct luaL_Reg;
@@ -136,11 +137,11 @@ namespace cf
             /// This method is analogous to CallLuaFunc(), see there for more details.
             virtual bool CallLuaMethod(WindowPtrT Window, const char* MethodName, const char* Signature="", ...)=0;
 
-            /// If this GUI is used as a 3D world GUI, the owner/parent entity (on which this GUI is "attached" in the world)
-            /// can call this method to let this GUI know its name and the pointer to its instance.
-            /// @param EntityName_          The name of the parent entity.
-            /// @param EntityInstancePtr_   The pointer to the instance of the parent entity.
-            virtual void SetEntityInfo(const char* EntityName_, void* EntityInstancePtr_)=0;
+            /// If this GUI is used as a 3D world GUI, the host entity (on which this GUI is "attached" in the world)
+            /// can call this method to let this GUI know the map script state and its name therein.
+            /// @param MapScriptState   The script state of the map that this GUI and its host entity are in.
+            /// @param EntityName       The name of the host entity.
+            virtual void SetEntityInfo(UniScriptStateT* MapScriptState, const std::string& EntityName)=0;
 
             // /// Same as SetEntityInfo(), but for the target entity of our owner/parent entity.
             // /// @param TargetEntityName          The name of the target entity of our parent entity.

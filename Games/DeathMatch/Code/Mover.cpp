@@ -21,8 +21,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Mover.hpp"
 #include "EntityCreateParams.hpp"
-#include "ScriptState.hpp"
 #include "TypeSys.hpp"
+#include "UniScriptState.hpp"
 #include "../../GameWorld.hpp"
 #include "ClipSys/ClipModel.hpp"
 #include "ClipSys/ClipWorld.hpp"

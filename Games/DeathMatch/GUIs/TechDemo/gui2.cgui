@@ -127,7 +127,7 @@ function CallRescueButton:OnMouseButtonDown()
     HelpText:interpolate("textColor.r", 0, 1, 50);
     HelpText:set("text", "ERROR: Invalid socket handle at port 7.");
 
-    game.runMapCmd("OnGui_CallRescueButtonPressed();");
+    gui:RunMapCmd("OnGui_CallRescueButtonPressed();");
 
     gui:setInteractive(false);
     gui:showMouse(false);

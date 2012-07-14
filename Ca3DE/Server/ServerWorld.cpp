@@ -28,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Network/Network.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
 #include "Win32/Win32PrintHelp.hpp"
+#include "TypeSys.hpp"
 #include "../NetConst.hpp"
 #include "../../Games/BaseEntity.hpp"
 #include "../../Games/Game.hpp"
@@ -82,7 +83,22 @@ CaServerWorldT::CaServerWorldT(const char* FileName, ModelManagerT& ModelMan)
         CreateNewEntityFromBasicInfo(Props, NULL, NULL, (unsigned long)-1, (unsigned long)-1, m_ServerFrameNr, m_World->InfoPlayerStarts[0].Origin);
     }
 
-    cf::GameSys::Game->Sv_FinishNewWorld(FileName);
+    /// Finished calling CreateBaseEntityFromMapFile() for all entities in the world file.
+    /// Now load/insert the user provided map script (e.g. "TechDemo.lua") to the script state.
+    std::string  LuaScriptName=FileName;
+    const size_t SuffixPos    =LuaScriptName.rfind(".cw");
+
+    if (SuffixPos==std::string::npos) LuaScriptName+=".lua";
+                                 else LuaScriptName.replace(SuffixPos, 3, ".lua");
+
+    m_ScriptState.GetScriptState().DoFile(LuaScriptName.c_str());
+
+    // Call each entities OnInit() script method here???
+    // Finally call the Lua OnInit() method of each entity.
+    //for (unsigned long ChildNr=0; ChildNr<AllChildren.Size(); ChildNr++)
+    //{
+    //    AllChildren[ChildNr]->OnLuaEventHandler(LuaState, "OnInit");
+    //}
 }
 
 
@@ -171,6 +187,9 @@ void CaServerWorldT::Think(float FrameTime)
     // Must never move this above the PreThink() calls above, because the Game assumes that the entity states may
     // be modified (e.g. by map script commands) as soon as it gets this call.
     cf::GameSys::Game->Sv_BeginThinking(FrameTime);
+
+    m_ScriptState.GetScriptState().RunPendingCoroutines(FrameTime);   // Should do this early: new coroutines are usually added "during" thinking.
+    m_ScriptState.RunMapCmdsFromConsole();
 
     for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
         if (m_EngineEntities[EntityNr]!=NULL)
@@ -351,23 +370,60 @@ unsigned long CaServerWorldT::CreateNewEntityFromBasicInfo(const std::map<std::s
     const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel,
     unsigned long WorldFileIndex, unsigned long MapFileIndex, unsigned long CreationFrameNr, const VectorT& Origin, const char* PlayerName, const char* ModelName)
 {
-    unsigned long NewEntityID  =m_EngineEntities.Size();
-    BaseEntityT*  NewBaseEntity=cf::GameSys::Game->CreateBaseEntityFromMapFile(Properties, RootNode, CollisionModel, NewEntityID,
-                                    WorldFileIndex, MapFileIndex, this, Origin);
-
-    if (NewBaseEntity)
+    try
     {
+        // 1. Determine from the entity class name (e.g. "monster_argrenade") the C++ class name (e.g. "EntARGrenadeT").
+        std::map<std::string, std::string>::const_iterator EntClassNamePair=Properties.find("classname");
+
+        if (EntClassNamePair==Properties.end())
+            throw std::runtime_error("\"classname\" property not found.\n");
+
+        const std::string EntClassName=EntClassNamePair->second;
+        const std::string CppClassName=m_ScriptState.GetCppClassNameFromEntityClassName(EntClassName);
+
+        if (CppClassName=="")
+            throw std::runtime_error("C++ class name for entity class name \""+EntClassName+"\" not found.\n");
+
+
+        // 2. Find the related type info.
+        const cf::TypeSys::TypeInfoT* TI=cf::GameSys::Game->GetEntityTIM().FindTypeInfoByName(CppClassName.c_str());
+
+        if (TI==NULL)
+            throw std::runtime_error("No type info found for entity class \""+EntClassName+"\" with C++ class name \""+CppClassName+"\".\n");
+
+
+        // 3. Create an instance of the desired entity type.
+        const unsigned long NewEntityID = m_EngineEntities.Size();
+
+        BaseEntityT* NewBaseEntity = cf::GameSys::Game->CreateBaseEntityFromMapFile(
+            TI, Properties, RootNode, CollisionModel, NewEntityID,
+            WorldFileIndex, MapFileIndex, this, Origin);
+
+        if (!NewBaseEntity)
+            throw std::runtime_error("Could not create entity of class \""+EntClassName+"\" with C++ class name \""+CppClassName+"\".\n");
+
+
+        // OPEN QUESTION:
+        // Should we copy the Properties into the Lua entity instance, into the C++ entity instance, or nowhere (just keep the std::map<> pointer around)?
+        // See   svn log -r 301   for one argument for the C++ instance.
+
         // Muß dies VOR dem Erzeugen des EngineEntitys tun, denn sonst stimmt dessen BaseLine nicht!
         if (PlayerName!=NULL) NewBaseEntity->ProcessConfigString(PlayerName, "PlayerName");
         if (ModelName !=NULL) NewBaseEntity->ProcessConfigString(ModelName , "ModelName" );
 
         m_EngineEntities.PushBack(new EngineEntityT(NewBaseEntity, CreationFrameNr));
+
         return NewEntityID;
     }
+    catch (const std::runtime_error& RE)
+    {
+        Console->Warning(RE.what());
 
-    // Free the collision model in place of the (never instantiated) entity destructor,
-    // so that the reference count of the CollModelMan gets right.
-    cf::ClipSys::CollModelMan->FreeCM(CollisionModel);
+        // Free the collision model in place of the (never instantiated) entity destructor,
+        // so that the reference count of the CollModelMan gets right.
+        cf::ClipSys::CollModelMan->FreeCM(CollisionModel);
+    }
 
-    return 0xFFFFFFFF;  // Fehlerwert zurückgeben
+    // Return error code.
+    return 0xFFFFFFFF;
 }

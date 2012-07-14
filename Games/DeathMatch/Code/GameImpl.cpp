@@ -36,7 +36,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "EntityCreateParams.hpp"
 #include "HumanPlayer.hpp"
 #include "PhysicsWorld.hpp"
-#include "ScriptState.hpp"
 #include "TypeSys.hpp"
 #include "Models/ModelManager.hpp"
 #include "SoundSystem/SoundSys.hpp"
@@ -79,9 +78,7 @@ cf::GameSys::GameImplT::GameImplT()
     : RunningAsClient(false),
       RunningAsServer(false),
       Sv_PhysicsWorld(NULL),
-      Cl_PhysicsWorld(NULL),
-      ScriptState(NULL),
-      IsThinking(false)
+      Cl_PhysicsWorld(NULL)
 {
 }
 
@@ -204,66 +201,32 @@ void cf::GameSys::GameImplT::Release()
 }
 
 
+const cf::TypeSys::TypeInfoManT& cf::GameSys::GameImplT::GetEntityTIM() const
+{
+    return GetBaseEntTIM();
+}
+
+
 void cf::GameSys::GameImplT::Sv_PrepareNewWorld(const char* /*WorldFileName*/, const cf::ClipSys::CollisionModelT* WorldCollMdl)
 {
-    assert(ScriptState==NULL);
-    ScriptState=new cf::GameSys::ScriptStateT;
-
     assert(Sv_PhysicsWorld==NULL);
     Sv_PhysicsWorld=new PhysicsWorldT(WorldCollMdl);
 }
 
 
-void cf::GameSys::GameImplT::Sv_FinishNewWorld(const char* WorldFileName)
-{
-    assert(ScriptState!=NULL);
-
-    std::string  LuaScriptName=WorldFileName;
-    const size_t SuffixPos    =LuaScriptName.rfind(".cw");
-
-    if (SuffixPos==std::string::npos) LuaScriptName+=".lua";
-                                 else LuaScriptName.replace(SuffixPos, 3, ".lua");
-
-    ScriptState->GetScriptState().DoFile(LuaScriptName.c_str());
-
-
-    // Call each entities OnInit() script method here???
-    // Finally call the Lua OnInit() method of each entity.
-    //for (unsigned long ChildNr=0; ChildNr<AllChildren.Size(); ChildNr++)
-    //{
-    //    AllChildren[ChildNr]->OnLuaEventHandler(LuaState, "OnInit");
-    //}
-}
-
-
 void cf::GameSys::GameImplT::Sv_BeginThinking(float FrameTime)
 {
-    IsThinking=true;
-
     Sv_PhysicsWorld->Think(FrameTime);
-
-    ScriptState->GetScriptState().RunPendingCoroutines(FrameTime);   // Should do this early rather than in Sv_EndThinking(), because new coroutines are usually added "during" thinking.
-    ScriptState->RunMapCmdsFromConsole();
 }
 
 
 void cf::GameSys::GameImplT::Sv_EndThinking()
 {
-    IsThinking=false;
 }
 
 
 void cf::GameSys::GameImplT::Sv_UnloadWorld()
 {
-    assert(ScriptState!=NULL);
-
-    // All entities should have been deleted by now, and their dtors should have removed their Lua associated instances.
-    // ScriptState->PrintGlobalVars();
-    // assert(!ScriptState->HasEntityInstances());
-
-    delete ScriptState;
-    ScriptState=NULL;
-
     assert(Sv_PhysicsWorld!=NULL);
     delete Sv_PhysicsWorld;
     Sv_PhysicsWorld=NULL;
@@ -289,37 +252,10 @@ void cf::GameSys::GameImplT::Cl_UnloadWorld()
 // The server also provides the ID and engine function call-backs for the new entity.
 //
 // TODO: Diese Funktion sollte einen struct-Parameter haben, der enthält: std::map<> mit EntityDef (Properties), ID, EF, ptr auf SceneNode-Root, ptr auf ClipObject.
-BaseEntityT* cf::GameSys::GameImplT::CreateBaseEntityFromMapFile(const std::map<std::string, std::string>& Properties,
+BaseEntityT* cf::GameSys::GameImplT::CreateBaseEntityFromMapFile(const cf::TypeSys::TypeInfoT* TI, const std::map<std::string, std::string>& Properties,
     const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID,
     unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld, const Vector3T<double>& Origin)
 {
-    // 1. Determine from the entity class name (e.g. "monster_argrenade") the C++ class name (e.g. "EntARGrenadeT").
-    std::map<std::string, std::string>::const_iterator EntClassNamePair=Properties.find("classname");
-
-    if (EntClassNamePair==Properties.end()) return NULL;
-    assert(ScriptState!=NULL);      // We are on the server-, not on the client-side, after all.
-
-    const std::string EntClassName=EntClassNamePair->second;
-    const std::string CppClassName=ScriptState->GetCppClassNameFromEntityClassName(EntClassName);
-
-    if (CppClassName=="")
-    {
-        Console->Warning("C++ class name for entity class name \""+EntClassName+"\" not found.\n");
-        return NULL;
-    }
-
-
-    // 2. Create an instance of the desired entity type.
-    const cf::TypeSys::TypeInfoT* TI=GetBaseEntTIM().FindTypeInfoByName(CppClassName.c_str());
-
-    if (TI==NULL)
-    {
-        Console->Warning("No type info found for entity class \""+EntClassName+"\" with C++ class name \""+CppClassName+"\".\n");
-        return NULL;
-    }
-
-    assert(TI->CreateInstance!=NULL);
-
     // YES! THIS is how it SHOULD work!
     BaseEntityT* NewEnt=static_cast<BaseEntityT*>(TI->CreateInstance(
         EntityCreateParamsT(ID, Properties, RootNode, CollisionModel, WorldFileIndex, MapFileIndex, GameWorld, Sv_PhysicsWorld, Origin)));
@@ -329,34 +265,11 @@ BaseEntityT* cf::GameSys::GameImplT::CreateBaseEntityFromMapFile(const std::map<
 
     if (NewEnt==NULL)
     {
-        Console->Warning("Could not create instance for type \""+CppClassName+"\".\n");
+        Console->Warning("Could not create instance for type \"" + std::string(TI->ClassName) + "\".\n");
         TI->Print(false /*Don't print the child classes.*/);
         return NULL;
     }
 
-
-    // 3. Create a matching entity instance in the Lua ScriptState (only if a concrete object name (e.g. "Soldier_Barney") is given).
-    if (NewEnt->Name!="")
-    {
-        assert(ScriptState!=NULL);      // We are on the server-, not on the client-side, after all.
-
-        if (!ScriptState->AddEntityInstance(NewEnt))
-        {
-            // An error message was already printed by the AddEntityInstance() function.
-            #if 1
-                Console->Warning("Could not create scripting instance for entity \""+NewEnt->Name+"\" of class \""+EntClassName+"\" (\""+CppClassName+"\").\n");
-            #else
-                delete NewEnt;
-                return NULL;
-            #endif
-        }
-
-        Console->DevPrint("Info: Entity \""+NewEnt->Name+"\" of class \""+EntClassName+"\" (\""+CppClassName+"\") instantiated.\n");
-    }
-
-    // OPEN QUESTION:
-    // Should we copy the Properties into the Lua entity instance, into the C++ entity instance, or nowhere (just keep the std::map<> pointer around)?
-    // See   svn log -r 301   for one argument for the C++ instance.
     return NewEnt;
 }
 
@@ -384,10 +297,6 @@ BaseEntityT* cf::GameSys::GameImplT::CreateBaseEntityFromTypeNr(unsigned long Ty
 // Note that simply deleting them directly is not possible (the "EXE vs. DLL boundary").
 void cf::GameSys::GameImplT::FreeBaseEntity(BaseEntityT* BaseEntity)
 {
-    // If this entity is a server entity and has a script instance (an concrete entity name was given in the map file), remove it.
-    // The RemoveEntityInstance() method makes sure that an instance for BaseEntity actually exists before it tries to remove it.
-    if (ScriptState) ScriptState->RemoveEntityInstance(BaseEntity);
-
     delete BaseEntity;
 }
 

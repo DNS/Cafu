@@ -124,12 +124,8 @@ elif sys.platform=="linux2":
 
     WinResource = []
 
-EngineCommonAndServerObjs = envCafu.StaticObject(Split("""Ca3DE/AppCafu.cpp Ca3DE/MainCanvas.cpp Ca3DE/MainFrame.cpp Ca3DE/ConDefs.cpp
-    Ca3DE/Ca3DEWorld.cpp Ca3DE/EngineEntity.cpp
-    Ca3DE/Server/Server.cpp Ca3DE/Server/ServerWorld.cpp Ca3DE/Server/ClientInfo.cpp"""))
-
 appCafu = envCafu.Program('Ca3DE/Cafu',
-    EngineCommonAndServerObjs + CommonWorldObject + ["Common/WorldMan.cpp"] + WinResource +
+    Glob("Ca3DE/*.cpp") + Glob("Ca3DE/Server/*.cpp") + CommonWorldObject + ["Common/WorldMan.cpp"] + WinResource +
     Glob("Ca3DE/Client/*.cpp"))
 
 if sys.platform=="linux2":

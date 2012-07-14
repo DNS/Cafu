@@ -41,6 +41,20 @@ extern ConVarT GlobalTime;
 
 EngineEntityT::~EngineEntityT()
 {
+    // Remove this entity from the script state.
+    cf::UniScriptStateT& ScriptState = Entity->GameWorld->GetScriptState();
+    lua_State*           LuaState    = ScriptState.GetLuaState();
+    cf::ScriptBinderT    Binder(LuaState);
+
+    if (Binder.IsBound(Entity))
+    {
+        // _G[BaseEntityT->Name] = nil
+        lua_pushnil(LuaState);
+        lua_setglobal(LuaState, Entity->Name.c_str());
+
+        Binder.Disconnect(Entity);
+    }
+
     // Wir können nicht einfach 'delete Entity;' schreiben, denn 'Entity' wurde in der GameDLL allokiert,
     // und muß dort auch wieder freigegeben werden! (The "new/delete cannot cross EXEs/DLLs" problem.)
     cf::GameSys::Game->FreeBaseEntity(Entity);
@@ -99,6 +113,25 @@ EngineEntityT::EngineEntityT(BaseEntityT* Entity_, unsigned long CreationFrameNr
 
     for (unsigned long OldStateNr=0; OldStateNr<16 /*MUST be a power of 2*/; OldStateNr++)
         m_OldStates.PushBack(m_BaseLine);
+
+    // For entities that are named in the map file (e.g. "Soldier_Barney"),
+    // assign the alter ego to a global variable in the map script with the same name.
+    if (Entity->Name != "")
+    {
+        cf::UniScriptStateT& ScriptState = Entity->GameWorld->GetScriptState();
+        lua_State*           LuaState    = ScriptState.GetLuaState();
+        cf::ScriptBinderT    Binder(LuaState);
+
+        // lua_getglobal(LuaState, Entity->Name.c_str());
+        // if (!lua_isnil(LuaState, -1))
+        //     Console->Warning("Global variable \""+Entity->Name+"\" already exists, overwriting...\n");
+        // lua_pop(LuaState, 1);
+
+        Binder.Push(Entity);
+        lua_setglobal(LuaState, Entity->Name.c_str());
+
+        // Console->DevPrint("Info: Entity \""+Entity->Name+"\" of class \""+EntClassName+"\" (\""+CppClassName+"\") instantiated.\n");
+    }
 }
 
 

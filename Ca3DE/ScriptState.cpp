@@ -25,7 +25,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/Console_Lua.hpp"
 #include "ConsoleCommands/ConsoleInterpreter.hpp"
 #include "ConsoleCommands/ConFunc.hpp"
-#include "../../BaseEntity.hpp"        // Only required so that we can call EntCppInstance->GetType().
+#include "../Games/BaseEntity.hpp"        // Only required so that we can call EntCppInstance->GetType().
+#include "../Games/Game.hpp"
 
 #include <cassert>
 #include <cstring>
@@ -123,9 +124,9 @@ static void CreateLuaDoxygenHeader(lua_State* LuaState)
 
     if (!Out.is_open()) return;
 
-    for (unsigned long RootNr=0; RootNr<GetBaseEntTIM().GetTypeInfoRoots().Size(); RootNr++)
+    for (unsigned long RootNr=0; RootNr<cf::GameSys::Game->GetEntityTIM().GetTypeInfoRoots().Size(); RootNr++)
     {
-        for (const cf::TypeSys::TypeInfoT* TI=GetBaseEntTIM().GetTypeInfoRoots()[RootNr]; TI!=NULL; TI=TI->GetNext())
+        for (const cf::TypeSys::TypeInfoT* TI=cf::GameSys::Game->GetEntityTIM().GetTypeInfoRoots()[RootNr]; TI!=NULL; TI=TI->GetNext())
         {
             const std::map<std::string, EntDefInfoT>::const_iterator It=CppToInfo.find(TI->ClassName);
 
@@ -196,7 +197,7 @@ ScriptStateT::ScriptStateT()
     // For each (entity-)class that the TypeInfoMan knows about, add a (meta-)table to the registry of the LuaState.
     // The (meta-)table holds the Lua methods that the respective class implements in C++,
     // and is to be used as metatable for instances of this class.
-    m_ScriptState.Init(GetBaseEntTIM());
+    m_ScriptState.Init(cf::GameSys::Game->GetEntityTIM());
 
     // Make sure that everyone dealt properly with the Lua stack so far.
     assert(lua_gettop(LuaState)==0);
@@ -242,56 +243,6 @@ std::string ScriptStateT::GetCppClassNameFromEntityClassName(const std::string& 
 }
 
 
-bool ScriptStateT::AddEntityInstance(BaseEntityT* EntCppInstance)
-{
-    lua_State* LuaState = m_ScriptState.GetLuaState();
-    cf::ScriptBinderT Binder(LuaState);
-
-    if (EntCppInstance->Name=="")
-    {
-        Console->Warning("Cannot create entity script instance with empty (\"\") name.\n");
-        return false;
-    }
-
-
-    // See if a global variable with name EntCppInstance->Name already exists (it shouldn't).
-    lua_getglobal(LuaState, EntCppInstance->Name.c_str());
-
-    if (!lua_isnil(LuaState, -1))
-    {
-        lua_pop(LuaState, 1);
-        Console->Warning("Global variable with name \""+EntCppInstance->Name+"\" already exists (with non-nil value).\n");
-        return false;
-    }
-
-    lua_pop(LuaState, 1);
-
-    Binder.Push(EntCppInstance);
-    lua_setglobal(LuaState, EntCppInstance->Name.c_str());
-
-
-    // Done. Make sure that everyone dealt properly with the Lua stack so far.
-    assert(lua_gettop(LuaState)==0);
-    return true;
-}
-
-
-void ScriptStateT::RemoveEntityInstance(BaseEntityT* EntCppInstance)
-{
-    lua_State* LuaState = m_ScriptState.GetLuaState();
-    cf::ScriptBinderT Binder(LuaState);
-
-    if (Binder.IsBound(EntCppInstance))     // Trying to remove a client entity in the server script?
-    {
-        // _G[EntCppInstance->Name] = nil
-        lua_pushnil(LuaState);
-        lua_setglobal(LuaState, EntCppInstance->Name.c_str());
-
-        Binder.Disconnect(EntCppInstance);
-    }
-}
-
-
 static ArrayT<std::string> MapCmds;
 
 
@@ -305,8 +256,7 @@ void ScriptStateT::RunMapCmdsFromConsole()
 }
 
 
-#include "GameImpl.hpp"
-
+#if 0   // TODO: This needs reimplementation later.
 
 // This console function is called at any time (e.g. when we're NOT thinking)...
 /*static*/ int ScriptStateT::ConFunc_runMapCmd_Callback(lua_State* LuaState)
@@ -334,3 +284,5 @@ void ScriptStateT::RunMapCmdsFromConsole()
 
 static ConFuncT ConFunc_runMapCmd("runMapCmd", ScriptStateT::ConFunc_runMapCmd_Callback, ConFuncT::FLAG_GAMEDLL,
     "Keeps the given command string until the server \"thinks\" next, then runs it in the context of the current map/entity script.");
+
+#endif

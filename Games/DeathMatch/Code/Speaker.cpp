@@ -23,12 +23,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "EntityCreateParams.hpp"
 #include "TypeSys.hpp"
-#include "ScriptState.hpp"
 #include "Libs/LookupTables.hpp"
 
 #include "SoundSystem/SoundSys.hpp"
 #include "SoundSystem/Sound.hpp"
 #include "SoundSystem/SoundShaderManager.hpp"
+#include "UniScriptState.hpp"
 
 #include <iostream>
 

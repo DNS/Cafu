@@ -22,11 +22,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "RigidBody.hpp"
 #include "EntityCreateParams.hpp"
 #include "PhysicsWorld.hpp"
-#include "ScriptState.hpp"
 
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"
 #include "SceneGraph/Node.hpp"
+#include "UniScriptState.hpp"
 
 #include <iostream>     // For std::cout debug output
 extern "C"

@@ -33,6 +33,8 @@ class ModelManagerT;
 namespace cf { namespace ClipSys { class CollisionModelT; } }
 namespace cf { namespace GameSys { class GameWorldI; } }
 namespace cf { namespace SceneGraph { class GenericNodeT; } }
+namespace cf { namespace TypeSys { class TypeInfoT; } }
+namespace cf { namespace TypeSys { class TypeInfoManT; } }
 
 
 namespace cf
@@ -60,12 +62,11 @@ namespace cf
             virtual void Release()=0;
 
 
+            /// Returns the type information manager with the entity hierarchy.
+            virtual const cf::TypeSys::TypeInfoManT& GetEntityTIM() const=0;
+
             /// Called after the server loaded a world but before any calls to CreateBaseEntityFromMapFile(), so that the game can init a new script state.
             virtual void Sv_PrepareNewWorld(const char* WorldFileName, const cf::ClipSys::CollisionModelT* WorldCollMdl)=0;
-
-            /// Called when the server finished calling CreateBaseEntityFromMapFile() for all entities in the world file.
-            /// The game can now load/insert the user provided map script (e.g. "TechDemo.lua") to the script state.
-            virtual void Sv_FinishNewWorld(const char* WorldFileName)=0;
 
             /// Called by the server when it begins thinking, i.e. before it calls the Think() method of all the entities.
             /// @param FrameTime   The time this frame is worth, in seconds.
@@ -85,8 +86,9 @@ namespace cf
             virtual void Cl_UnloadWorld()=0;
 
 
-            /// Creates a new entity of the given type (entity class name is given by the Properties parameter).
-            /// @param Properties     The properties dictionary in the map file of this entity (empty if the entity is created "dynamically"). Contains especially the "classname" key, whose value has the entity class name for which an instance is to be created.
+            /// Creates a new entity of the given type.
+            /// @param TI             The type of entity to create.
+            /// @param Properties     The properties dictionary in the map file of this entity (empty if the entity is created "dynamically"). Contains especially the "classname" key that was used by the caller to determine TI.
             /// @param RootNode       The root node of the scene graph of this entity as defined in the map file. NULL if the entity is created "dynamically".
             /// @param CollisionModel The collision model of this entity as defined by map primitives. NULL if no collision model was defined by map primitives (the entity may still have a collision model based on the Properties).
             /// @param ID             The global unique ID of this entity (in the current map).
@@ -95,7 +97,7 @@ namespace cf
             /// @param GameWorld      Pointer to the game world implementation.
             /// @param Origin         Where the new entity is supposed to be instantiated.
             /// @returns a base class pointer to the newly created entity instance.
-            virtual BaseEntityT* CreateBaseEntityFromMapFile(const std::map<std::string, std::string>& Properties,
+            virtual BaseEntityT* CreateBaseEntityFromMapFile(const cf::TypeSys::TypeInfoT* TI, const std::map<std::string, std::string>& Properties,
                 const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID,
                 unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld, const Vector3T<double>& Origin)=0;
 
