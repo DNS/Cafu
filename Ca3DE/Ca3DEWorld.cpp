@@ -43,6 +43,7 @@ static WorldManT WorldMan;
 Ca3DEWorldT::Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/
     : m_World(WorldMan.LoadWorld(FileName, ModelMan, InitForGraphics, ProgressFunction)),
       m_ClipWorld(new cf::ClipSys::ClipWorldT(m_World->CollModel)),
+      m_PhysicsWorld(m_World->CollModel),
       m_EngineEntities(),
       m_ModelMan(ModelMan)
 {
@@ -50,12 +51,6 @@ Ca3DEWorldT::Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, bool Ini
 
 
 Ca3DEWorldT::~Ca3DEWorldT()
-{
-    Clear();
-}
-
-
-void Ca3DEWorldT::Clear()
 {
     // Note that the engine entities must be destructed *before* the ClipWorld,
     // so that they properly remove their clip model from the clip world on destruction.
@@ -67,6 +62,12 @@ void Ca3DEWorldT::Clear()
     // All entities should have been deleted by now, and their dtors should have removed their Lua associated instances.
     // m_ScriptState.PrintGlobalVars();
     // assert(!m_ScriptState.HasEntityInstances());
+
+    // if (m_PhysicsWorld)
+    // {
+    //     delete m_PhysicsWorld;
+    //     m_PhysicsWorld = NULL;
+    // }
 
     if (m_ClipWorld)
     {
@@ -85,6 +86,12 @@ void Ca3DEWorldT::Clear()
 cf::ClipSys::ClipWorldT& Ca3DEWorldT::GetClipWorld()
 {
     return *m_ClipWorld;
+}
+
+
+PhysicsWorldT& Ca3DEWorldT::GetPhysicsWorld()
+{
+    return m_PhysicsWorld;
 }
 
 

@@ -21,8 +21,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "RigidBody.hpp"
 #include "EntityCreateParams.hpp"
-#include "PhysicsWorld.hpp"
+#include "../../GameWorld.hpp"
 
+#include "PhysicsWorld.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"
 #include "SceneGraph/Node.hpp"
@@ -123,14 +124,14 @@ EntRigidBodyT::EntRigidBodyT(const EntityCreateParamsT& Params)
 
     // TODO: Client-side rigid bodies should probably be "kinematic", not "dynamic", because the client doesn't actively simulate our bodies.
     //       From the pdf user manual: "every simulation frame, dynamics world will get new world transform using btMotionState::getWorldTransform"
-    PhysicsWorld->AddRigidBody(m_RigidBody);
+    GameWorld->GetPhysicsWorld().AddRigidBody(m_RigidBody);
     // m_RigidBody->setGravity(btVector3(0, 0, 0));    // for debugging; reset gravity via map script commands
 }
 
 
 EntRigidBodyT::~EntRigidBodyT()
 {
-    PhysicsWorld->RemoveRigidBody(m_RigidBody);
+    GameWorld->GetPhysicsWorld().RemoveRigidBody(m_RigidBody);
 
     delete m_RigidBody;
     delete m_CollisionShape;

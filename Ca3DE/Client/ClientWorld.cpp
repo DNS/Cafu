@@ -47,8 +47,6 @@ CaClientWorldT::CaClientWorldT(const char* FileName, ModelManagerT& ModelMan, Wo
       Frames(),
       m_PlayerCommands()
 {
-    cf::GameSys::Game->Cl_LoadWorld(FileName, m_World->CollModel);
-
     ProgressFunction(-1.0f, "InitDrawing()");
     m_World->BspTree->InitDrawing();
 
@@ -60,13 +58,6 @@ CaClientWorldT::CaClientWorldT(const char* FileName, ModelManagerT& ModelMan, Wo
 
     ProgressFunction(-1.0f, "Loading Materials");
     MatSys::Renderer->PreCache();
-}
-
-
-CaClientWorldT::~CaClientWorldT()
-{
-    Clear();                                // Deletes all game entities, and thus removes all entity objects from the games physics world.
-    cf::GameSys::Game->Cl_UnloadWorld();    // Deletes the games physics world.
 }
 
 

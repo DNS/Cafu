@@ -27,7 +27,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <map>
 
 
-class PhysicsWorldT;
 namespace cf { namespace ClipSys { class CollisionModelT; } }
 namespace cf { namespace GameSys { class GameWorldI; } }
 namespace cf { namespace SceneGraph { class GenericNodeT; } }
@@ -45,7 +44,6 @@ class EntityCreateParamsT : public cf::TypeSys::CreateParamsT
         const unsigned long                       WorldFileIndex_,
         const unsigned long                       MapFileIndex_,
         cf::GameSys::GameWorldI*                  GameWorld_,
-        PhysicsWorldT*                            PhysicsWorld_,
         const Vector3dT&                          Origin_);
 
 
@@ -56,7 +54,6 @@ class EntityCreateParamsT : public cf::TypeSys::CreateParamsT
     const unsigned long                       WorldFileIndex;
     const unsigned long                       MapFileIndex;
     cf::GameSys::GameWorldI*                  GameWorld;
-    PhysicsWorldT*                            PhysicsWorld;
     const Vector3dT&                          Origin;
 };
 

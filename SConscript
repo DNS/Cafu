@@ -86,9 +86,10 @@ elif sys.platform=="linux2":
 
 envCafu = wxEnv.Clone()
 envCafu.Append(CPPPATH=['ExtLibs/lua/src'])
+envCafu.Append(CPPPATH=['ExtLibs/bullet/src'])
 
 if sys.platform=="win32":
-    envCafu.Append(LIBS=Split("SceneGraph MatSys SoundSys cfsLib cfs_jpeg bulletcollision minizip lua ClipSys png z"))
+    envCafu.Append(LIBS=Split("SceneGraph MatSys SoundSys cfsLib cfs_jpeg bulletdynamics bulletcollision bulletmath minizip lua ClipSys png z"))
     envCafu.Append(LIBS=Split("lightwave"))     # For the GuiSys::ModelWindowT class.
 
     WinResource = envCafu.RES("Ca3DE/Cafu.rc")

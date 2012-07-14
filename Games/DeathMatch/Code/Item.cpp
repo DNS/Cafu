@@ -78,7 +78,7 @@ EntItemT::EntItemT(const EntityCreateParamsT& Params, const std::string& ModelNa
     // Drop items on ground. It doesn't look good when they hover in the air.
     // TODO: Do this only on the server side, it doesn't make sense for clients (where m_Origin==(0, 0, 0) here).
     RayResultT RayResult(NULL /*No object to ignore*/);
-    PhysicsWorld->TraceRay((m_Origin+Vector3dT(0, 0, 200.0))/1000.0, VectorT(0.0, 0.0, -999999.0/1000.0), RayResult);
+    GameWorld->GetPhysicsWorld().TraceRay((m_Origin+Vector3dT(0, 0, 200.0))/1000.0, VectorT(0.0, 0.0, -999999.0/1000.0), RayResult);
 
     if (RayResult.hasHit())
         m_Origin=convd(RayResult.m_hitPointWorld)*1000.0;

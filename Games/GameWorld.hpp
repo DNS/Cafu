@@ -51,6 +51,9 @@ namespace cf
             /// Returns the clip world for the game world.
             virtual cf::ClipSys::ClipWorldT& GetClipWorld()=0;
 
+            /// Returns the physics world for the game world.
+            virtual PhysicsWorldT& GetPhysicsWorld()=0;
+
             /// Returns the script state for the game world.
             virtual cf::UniScriptStateT& GetScriptState()=0;
 

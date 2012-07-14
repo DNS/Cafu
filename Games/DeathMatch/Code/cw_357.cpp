@@ -160,7 +160,7 @@ void CarriedWeapon357T::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCo
                     const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
 
                     RayResultT RayResult(Player->GetRigidBody());
-                    Player->PhysicsWorld->TraceRay(Player->GetOrigin()/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
+                    Player->GameWorld->GetPhysicsWorld().TraceRay(Player->GetOrigin()/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
 
                     if (RayResult.hasHit() && RayResult.GetHitEntity()!=NULL)
                         RayResult.GetHitEntity()->TakeDamage(Player, 7, ViewDir);
@@ -230,7 +230,7 @@ void CarriedWeapon357T::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT*
     const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
 
     RayResultT RayResult(Player->GetRigidBody());
-    Player->PhysicsWorld->TraceRay(Player->GetOrigin()/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
+    Player->GameWorld->GetPhysicsWorld().TraceRay(Player->GetOrigin()/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
 
     if (!RayResult.hasHit()) return;
 

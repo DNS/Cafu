@@ -30,7 +30,6 @@ EntityCreateParamsT::EntityCreateParamsT(
     const unsigned long                       WorldFileIndex_,
     const unsigned long                       MapFileIndex_,
     cf::GameSys::GameWorldI*                  GameWorld_,
-    PhysicsWorldT*                            PhysicsWorld_,
     const Vector3dT&                          Origin_)
     : ID(ID_),
       Properties(Properties_),
@@ -39,7 +38,6 @@ EntityCreateParamsT::EntityCreateParamsT(
       WorldFileIndex(WorldFileIndex_),
       MapFileIndex(MapFileIndex_),
       GameWorld(GameWorld_),
-      PhysicsWorld(PhysicsWorld_),
       Origin(Origin_)
 {
 }

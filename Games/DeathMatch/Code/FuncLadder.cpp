@@ -21,6 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "FuncLadder.hpp"
 #include "EntityCreateParams.hpp"
+#include "../../GameWorld.hpp"
 #include "PhysicsWorld.hpp"
 #include "Libs/LookupTables.hpp"
 #include "ClipSys/CollisionModel_base.hpp"
@@ -78,14 +79,14 @@ EntFuncLadderT::EntFuncLadderT(const EntityCreateParamsT& Params)
     m_RigidBody=new btRigidBody(btRigidBody::btRigidBodyConstructionInfo(0, NULL /*MotionState*/, LadderShape, btVector3(0, 0, 0)));
     m_RigidBody->setUserPointer(this);  // This entity is associated to the m_RigidBody.
 
-    PhysicsWorld->AddRigidBody(m_RigidBody);
+    GameWorld->GetPhysicsWorld().AddRigidBody(m_RigidBody);
 }
 
 
 EntFuncLadderT::~EntFuncLadderT()
 {
     // Remove our ladder body from the physics world again and then delete it.
-    PhysicsWorld->RemoveRigidBody(m_RigidBody);
+    GameWorld->GetPhysicsWorld().RemoveRigidBody(m_RigidBody);
 
     delete m_RigidBody;
 }

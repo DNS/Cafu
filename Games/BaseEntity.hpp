@@ -92,7 +92,6 @@ class BaseEntityT
  // ID[]                ChildrenIDs;    // The entities that we have created (e.g. the rockets that a human player fired).
 
     cf::GameSys::GameWorldI*            GameWorld;      ///< Pointer to the game world implementation.
-    PhysicsWorldT*                      PhysicsWorld;   ///< Pointer to the physics world implementation.
     const cf::ClipSys::CollisionModelT* CollisionModel; ///< The collision model of this entity, NULL for none.
     cf::ClipSys::ClipModelT             ClipModel;      ///< The clip model of this entity. Note that clip models can take NULL collision model pointers, so that the ClipModel instance is always non-NULL and available.
 

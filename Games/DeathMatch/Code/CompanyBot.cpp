@@ -131,14 +131,14 @@ EntCompanyBotT::EntCompanyBotT(const EntityCreateParamsT& Params)
     m_RigidBody->setCollisionFlags(m_RigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
     m_RigidBody->setActivationState(DISABLE_DEACTIVATION);
 
-    PhysicsWorld->AddRigidBody(m_RigidBody);
+    GameWorld->GetPhysicsWorld().AddRigidBody(m_RigidBody);
 }
 
 
 EntCompanyBotT::~EntCompanyBotT()
 {
     if (m_RigidBody->isInWorld())
-        PhysicsWorld->RemoveRigidBody(m_RigidBody);
+        GameWorld->GetPhysicsWorld().RemoveRigidBody(m_RigidBody);
 
     delete m_RigidBody;
     delete m_CollisionShape;
@@ -159,14 +159,14 @@ void EntCompanyBotT::DoDeserialize(cf::Network::InStreamT& Stream)
         ClipModel.Register();
 
         if (!m_RigidBody->isInWorld())
-            PhysicsWorld->AddRigidBody(m_RigidBody);
+            GameWorld->GetPhysicsWorld().AddRigidBody(m_RigidBody);
     }
     else
     {
         ClipModel.Unregister();
 
         if (m_RigidBody->isInWorld())
-            PhysicsWorld->RemoveRigidBody(m_RigidBody);
+            GameWorld->GetPhysicsWorld().RemoveRigidBody(m_RigidBody);
     }
 }
 
@@ -194,7 +194,7 @@ void EntCompanyBotT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT&
 
         State.ModelFrameNr=0.0;
         ClipModel.Unregister();     // Dead now, don't clip no more.
-        PhysicsWorld->RemoveRigidBody(m_RigidBody);
+        GameWorld->GetPhysicsWorld().RemoveRigidBody(m_RigidBody);
 
         // Count the frag at the "creator" entity.
         BaseEntityT* FraggingEntity=Entity;

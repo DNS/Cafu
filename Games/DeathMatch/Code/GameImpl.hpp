@@ -45,12 +45,7 @@ namespace cf
             void Initialize(bool AsClient, bool AsServer, ModelManagerT& ModelMan);
             void Release();
             const cf::TypeSys::TypeInfoManT& GetEntityTIM() const;
-            void Sv_PrepareNewWorld(const char* WorldFileName, const cf::ClipSys::CollisionModelT* WorldCollMdl);
-            void Sv_BeginThinking(float FrameTime);
-            void Sv_EndThinking();
-            void Sv_UnloadWorld();
-            void Cl_LoadWorld(const char* WorldFileName, const cf::ClipSys::CollisionModelT* WorldCollMdl);
-            void Cl_UnloadWorld();
+
             BaseEntityT* CreateBaseEntityFromMapFile(const cf::TypeSys::TypeInfoT* TI, const std::map<std::string, std::string>& Properties, const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID, unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld, const Vector3T<double>& Origin);
             BaseEntityT* CreateBaseEntityFromTypeNr(unsigned long TypeNr, const std::map<std::string, std::string>& Properties, const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID, unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld);
             void FreeBaseEntity(BaseEntityT* BaseEntity);
@@ -78,9 +73,6 @@ namespace cf
 
             bool                      RunningAsClient;
             bool                      RunningAsServer;
-
-            PhysicsWorldT*            Sv_PhysicsWorld;
-            PhysicsWorldT*            Cl_PhysicsWorld;
 
             ArrayT<const CafuModelT*> m_PlayerModels;   ///< The player models available in this game.
             ArrayT<CarriedWeaponT*>   m_CarriedWeapons; ///< The set of carry-able weapons in this game.

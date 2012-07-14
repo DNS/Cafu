@@ -43,8 +43,6 @@ CaServerWorldT::CaServerWorldT(const char* FileName, ModelManagerT& ModelMan)
       m_IsThinking(false),
       m_EntityRemoveList()
 {
-    cf::GameSys::Game->Sv_PrepareNewWorld(FileName, m_World->CollModel);
-
     // Gehe alle GameEntities der Ca3DEWorld durch und erstelle dafür "echte" Entities.
     for (unsigned long GENr=0; GENr<m_World->GameEntities.Size(); GENr++)
     {
@@ -104,8 +102,6 @@ CaServerWorldT::CaServerWorldT(const char* FileName, ModelManagerT& ModelMan)
 
 CaServerWorldT::~CaServerWorldT()
 {
-    Clear();                                // Unregisters all entities from the games script state.
-    cf::GameSys::Game->Sv_UnloadWorld();    // Deletes the games script state.
 }
 
 
@@ -184,9 +180,8 @@ void CaServerWorldT::Think(float FrameTime)
         if (m_EngineEntities[EntityNr]!=NULL)
             m_EngineEntities[EntityNr]->PreThink(m_ServerFrameNr);
 
-    // Must never move this above the PreThink() calls above, because the Game assumes that the entity states may
-    // be modified (e.g. by map script commands) as soon as it gets this call.
-    cf::GameSys::Game->Sv_BeginThinking(FrameTime);
+    // Must never move this above the PreThink() calls above, because ...(?)
+    m_PhysicsWorld.Think(FrameTime);
 
     m_ScriptState.GetScriptState().RunPendingCoroutines(FrameTime);   // Should do this early: new coroutines are usually added "during" thinking.
     m_ScriptState.RunMapCmdsFromConsole();
@@ -194,8 +189,6 @@ void CaServerWorldT::Think(float FrameTime)
     for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
         if (m_EngineEntities[EntityNr]!=NULL)
             m_EngineEntities[EntityNr]->Think(FrameTime, m_ServerFrameNr);
-
-    cf::GameSys::Game->Sv_EndThinking();
 
     m_IsThinking=false;
 

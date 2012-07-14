@@ -105,7 +105,6 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT
       WorldFileIndex(Params.WorldFileIndex),
       ParentID(0xFFFFFFFF),
       GameWorld(Params.GameWorld),
-      PhysicsWorld(Params.PhysicsWorld),
       CollisionModel(Params.CollisionModel),
       ClipModel(GameWorld->GetClipWorld()),  // Creates a clip model in the given clip world with a NULL collision model.
 

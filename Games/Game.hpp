@@ -65,27 +65,6 @@ namespace cf
             /// Returns the type information manager with the entity hierarchy.
             virtual const cf::TypeSys::TypeInfoManT& GetEntityTIM() const=0;
 
-            /// Called after the server loaded a world but before any calls to CreateBaseEntityFromMapFile(), so that the game can init a new script state.
-            virtual void Sv_PrepareNewWorld(const char* WorldFileName, const cf::ClipSys::CollisionModelT* WorldCollMdl)=0;
-
-            /// Called by the server when it begins thinking, i.e. before it calls the Think() method of all the entities.
-            /// @param FrameTime   The time this frame is worth, in seconds.
-            virtual void Sv_BeginThinking(float FrameTime)=0;
-
-            /// Called by the server when it finished thinking, i.e. after it called the Think() method of all the entities.
-            virtual void Sv_EndThinking()=0;
-
-            /// Called before the server unloads the world but after it freed all its base entities, so that the game can destroy the script state.
-            virtual void Sv_UnloadWorld()=0;
-
-
-            /// Called when the client loads a new world, before any calls to CreateBaseEntityFromTypeNr().
-            virtual void Cl_LoadWorld(const char* WorldFileName, const cf::ClipSys::CollisionModelT* WorldCollMdl)=0;
-
-            /// Called when the client unloads the world but after it freed all its base entities.
-            virtual void Cl_UnloadWorld()=0;
-
-
             /// Creates a new entity of the given type.
             /// @param TI             The type of entity to create.
             /// @param Properties     The properties dictionary in the map file of this entity (empty if the entity is created "dynamically"). Contains especially the "classname" key that was used by the caller to determine TI.

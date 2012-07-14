@@ -86,7 +86,7 @@ void EntRocketT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
         const VectorT WishDist=scale(State.Velocity, double(FrameTime));
 
         ShapeResultT ShapeResult;
-        PhysicsWorld->TraceBoundingBox(m_Dimensions, m_Origin, WishDist, ShapeResult);
+        GameWorld->GetPhysicsWorld().TraceBoundingBox(m_Dimensions, m_Origin, WishDist, ShapeResult);
 
         m_Origin=m_Origin+scale(WishDist, double(ShapeResult.m_closestHitFraction));
 

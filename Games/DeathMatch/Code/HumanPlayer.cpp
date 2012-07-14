@@ -139,14 +139,14 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
     m_RigidBody->setCollisionFlags(m_RigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
     m_RigidBody->setActivationState(DISABLE_DEACTIVATION);
 
-    // PhysicsWorld->AddRigidBody(m_RigidBody);     // Don't add to the world here - adding/removing is done when State.StateOfExistance changes.
+    // GameWorld->GetPhysicsWorld().AddRigidBody(m_RigidBody);     // Don't add to the world here - adding/removing is done when State.StateOfExistance changes.
 }
 
 
 EntHumanPlayerT::~EntHumanPlayerT()
 {
     if (m_RigidBody->isInWorld())
-        PhysicsWorld->RemoveRigidBody(m_RigidBody);
+        GameWorld->GetPhysicsWorld().RemoveRigidBody(m_RigidBody);
 
     delete m_RigidBody;
     delete m_CollisionShape;
@@ -350,7 +350,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
             case StateOfExistance_Alive:
             {
                 if (!m_RigidBody->isInWorld())
-                    PhysicsWorld->AddRigidBody(m_RigidBody);
+                    GameWorld->GetPhysicsWorld().AddRigidBody(m_RigidBody);
 
                 // Update Heading
                 m_Heading+=PlayerCommands[PCNr].DeltaHeading;
@@ -701,7 +701,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 const float  OldModelFrameNr =State.ModelFrameNr;
 
                 if (m_RigidBody->isInWorld())
-                    PhysicsWorld->RemoveRigidBody(m_RigidBody);
+                    GameWorld->GetPhysicsWorld().RemoveRigidBody(m_RigidBody);
 
                 m_Physics.MoveHuman(PlayerCommands[PCNr].FrameTime, m_Heading, VectorT(), VectorT(), false, DummyOldWishJump, 0.0);
 
@@ -765,7 +765,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 float       PC_FrameTime=PlayerCommands[PCNr].FrameTime;
 
                 if (m_RigidBody->isInWorld())
-                    PhysicsWorld->RemoveRigidBody(m_RigidBody);
+                    GameWorld->GetPhysicsWorld().RemoveRigidBody(m_RigidBody);
 
                 // In this 'StateOfExistance' is the 'State.Velocity' unused - thus mis-use it for other purposes!
                 if (PC_FrameTime>0.05) PC_FrameTime=0.05f;  // Avoid jumpiness with very low FPS.

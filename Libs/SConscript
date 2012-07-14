@@ -20,10 +20,10 @@ env.StaticLibrary(
                     Plants/Tree.cpp Plants/PlantDescription.cpp Plants/PlantDescrMan.cpp
                     Util/Util.cpp
                     Win32/Win32PrintHelp.cpp
-                    DebugLog.cpp TypeSys.cpp UniScriptState.cpp""")+
+                    DebugLog.cpp PhysicsWorld.cpp TypeSys.cpp UniScriptState.cpp""")+
            Glob("GuiSys/*.cpp")+
            Glob("Math3D/*.cpp"),
-    CPPPATH=env['CPPPATH'] + ["#/ExtLibs/lua/src", "#/ExtLibs/lwo", "#/ExtLibs/jpeg"])
+    CPPPATH=env['CPPPATH'] + ["#/ExtLibs/bullet/src", "#/ExtLibs/lua/src", "#/ExtLibs/lwo", "#/ExtLibs/jpeg"])
 
 
 

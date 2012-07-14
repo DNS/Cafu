@@ -76,9 +76,7 @@ cf::GameSys::GameI* cf::GameSys::Game=&cf::GameSys::GameImplT::GetInstance();
 
 cf::GameSys::GameImplT::GameImplT()
     : RunningAsClient(false),
-      RunningAsServer(false),
-      Sv_PhysicsWorld(NULL),
-      Cl_PhysicsWorld(NULL)
+      RunningAsServer(false)
 {
 }
 
@@ -177,9 +175,6 @@ void cf::GameSys::GameImplT::Initialize(bool AsClient, bool AsServer, ModelManag
 
 void cf::GameSys::GameImplT::Release()
 {
-    assert(Sv_PhysicsWorld==NULL);
-    assert(Cl_PhysicsWorld==NULL);
-
     if (RunningAsClient)
     {
         ResMan.ShutDown();
@@ -207,47 +202,6 @@ const cf::TypeSys::TypeInfoManT& cf::GameSys::GameImplT::GetEntityTIM() const
 }
 
 
-void cf::GameSys::GameImplT::Sv_PrepareNewWorld(const char* /*WorldFileName*/, const cf::ClipSys::CollisionModelT* WorldCollMdl)
-{
-    assert(Sv_PhysicsWorld==NULL);
-    Sv_PhysicsWorld=new PhysicsWorldT(WorldCollMdl);
-}
-
-
-void cf::GameSys::GameImplT::Sv_BeginThinking(float FrameTime)
-{
-    Sv_PhysicsWorld->Think(FrameTime);
-}
-
-
-void cf::GameSys::GameImplT::Sv_EndThinking()
-{
-}
-
-
-void cf::GameSys::GameImplT::Sv_UnloadWorld()
-{
-    assert(Sv_PhysicsWorld!=NULL);
-    delete Sv_PhysicsWorld;
-    Sv_PhysicsWorld=NULL;
-}
-
-
-void cf::GameSys::GameImplT::Cl_LoadWorld(const char* /*WorldFileName*/, const cf::ClipSys::CollisionModelT* WorldCollMdl)
-{
-    assert(Cl_PhysicsWorld==NULL);
-    Cl_PhysicsWorld=new PhysicsWorldT(WorldCollMdl);
-}
-
-
-void cf::GameSys::GameImplT::Cl_UnloadWorld()
-{
-    assert(Cl_PhysicsWorld!=NULL);
-    delete Cl_PhysicsWorld;
-    Cl_PhysicsWorld=NULL;
-}
-
-
 // This function is called by the server, in order to obtain a (pointer to a) 'BaseEntityT' from a map file entity.
 // The server also provides the ID and engine function call-backs for the new entity.
 //
@@ -258,7 +212,7 @@ BaseEntityT* cf::GameSys::GameImplT::CreateBaseEntityFromMapFile(const cf::TypeS
 {
     // YES! THIS is how it SHOULD work!
     BaseEntityT* NewEnt=static_cast<BaseEntityT*>(TI->CreateInstance(
-        EntityCreateParamsT(ID, Properties, RootNode, CollisionModel, WorldFileIndex, MapFileIndex, GameWorld, Sv_PhysicsWorld, Origin)));
+        EntityCreateParamsT(ID, Properties, RootNode, CollisionModel, WorldFileIndex, MapFileIndex, GameWorld, Origin)));
 
     assert(NewEnt!=NULL);
     assert(NewEnt->GetType()==TI);
@@ -289,7 +243,7 @@ BaseEntityT* cf::GameSys::GameImplT::CreateBaseEntityFromTypeNr(unsigned long Ty
     assert(TI->CreateInstance!=NULL);
 
     return static_cast<BaseEntityT*>(TI->CreateInstance(
-        EntityCreateParamsT(ID, Properties, RootNode, CollisionModel, WorldFileIndex, MapFileIndex, GameWorld, Cl_PhysicsWorld, VectorT())));
+        EntityCreateParamsT(ID, Properties, RootNode, CollisionModel, WorldFileIndex, MapFileIndex, GameWorld, VectorT())));
 }
 
 
