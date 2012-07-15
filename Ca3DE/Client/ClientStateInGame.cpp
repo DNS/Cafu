@@ -671,7 +671,7 @@ void ClientStateInGameT::ParseServerPacket(NetDataT& InData)
                 {
                     // World is deleted above.
                     IsLoadingWorld=true;
-                    World=new CaClientWorldT(PathName, Client.m_ModelMan, WorldLoadingProgressFunction, OurEntityID);
+                    World=new CaClientWorldT(Client.m_Game, PathName, Client.m_ModelMan, WorldLoadingProgressFunction, OurEntityID);
                     IsLoadingWorld=false;
 
                     ConsoleInterpreter->RunCommand("StartLevelIntroMusic()");   // This function must be provided in "config.lua".

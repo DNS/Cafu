@@ -37,12 +37,13 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
 {
     public:
 
-    Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/;
+    Ca3DEWorldT(cf::GameSys::GameI* Game, const char* FileName, ModelManagerT& ModelMan, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/;
     ~Ca3DEWorldT();
 
     const WorldT& GetWorld() const { return *m_World; }
 
     // The virtual methods inherited from the base class GameWorldI.
+    cf::GameSys::GameI*          GetGame();
     cf::ClipSys::ClipWorldT&     GetClipWorld();
     PhysicsWorldT&               GetPhysicsWorld();
     cf::UniScriptStateT&         GetScriptState();
@@ -56,6 +57,7 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
 
     protected:
 
+    cf::GameSys::GameI*      m_Game;
     const WorldT*            m_World;
     cf::ClipSys::ClipWorldT* m_ClipWorld;
     PhysicsWorldT            m_PhysicsWorld;

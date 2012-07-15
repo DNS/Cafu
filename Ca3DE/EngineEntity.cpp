@@ -57,7 +57,7 @@ EngineEntityT::~EngineEntityT()
 
     // Wir können nicht einfach 'delete Entity;' schreiben, denn 'Entity' wurde in der GameDLL allokiert,
     // und muß dort auch wieder freigegeben werden! (The "new/delete cannot cross EXEs/DLLs" problem.)
-    cf::GameSys::Game->FreeBaseEntity(Entity);
+    Entity->GameWorld->GetGame()->FreeBaseEntity(Entity);
 }
 
 

@@ -109,7 +109,7 @@ int ServerT::ConFunc_changeLevel_Callback(lua_State* LuaState)
 
     try
     {
-        NewWorld=new CaServerWorldT(PathName.c_str(), ServerPtr->m_ModelMan);
+        NewWorld=new CaServerWorldT(ServerPtr->m_Game, PathName.c_str(), ServerPtr->m_ModelMan);
     }
     catch (const WorldT::LoadErrorT& E) { return luaL_error(LuaState, E.Msg); }
 
@@ -151,8 +151,9 @@ int ServerT::ConFunc_changeLevel_Callback(lua_State* LuaState)
 static ConFuncT ConFunc_changeLevel("changeLevel", ServerT::ConFunc_changeLevel_Callback, ConFuncT::FLAG_MAIN_EXE, "Makes the server load a new level.");
 
 
-ServerT::ServerT(const std::string& GameName_, const GuiCallbackI& GuiCallback_, ModelManagerT& ModelMan)
+ServerT::ServerT(cf::GameSys::GameI* Game, const std::string& GameName_, const GuiCallbackI& GuiCallback_, ModelManagerT& ModelMan)
     : ServerSocket(g_WinSock->GetUDPSocket(Options_ServerPortNr.GetValueInt())),
+      m_Game(Game),
       GameName(GameName_),
       WorldName(""),
       World(NULL),

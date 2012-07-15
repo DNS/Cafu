@@ -39,8 +39,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <cassert>
 
 
-CaClientWorldT::CaClientWorldT(const char* FileName, ModelManagerT& ModelMan, WorldT::ProgressFunctionT ProgressFunction, unsigned long OurEntityID_) /*throw (WorldT::LoadErrorT)*/
-    : Ca3DEWorldT(FileName, ModelMan, true, ProgressFunction),
+CaClientWorldT::CaClientWorldT(cf::GameSys::GameI* Game, const char* FileName, ModelManagerT& ModelMan, WorldT::ProgressFunctionT ProgressFunction, unsigned long OurEntityID_) /*throw (WorldT::LoadErrorT)*/
+    : Ca3DEWorldT(Game, FileName, ModelMan, true, ProgressFunction),
       OurEntityID(OurEntityID_),
       m_ServerFrameNr(0xDEADBEEF),
       MAX_FRAMES(16) /*MUST BE POWER OF 2*/,
@@ -90,7 +90,7 @@ bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
 
     // Es ist nicht sinnvoll, CreateBaseEntityFromTypeID() in Parametern die geparsten InData-Inhalte zu übergeben (Origin, Velocity, ...),
     // denn spätestens bei der SequenceNr und FrameNr kommt es zu Problemen. Deshalb lieber erstmal ein BaseEntitiy mit "falschem" State erzeugen.
-    BaseEntityT* NewBaseEntity=cf::GameSys::Game->CreateBaseEntityFromTypeNr(EntityTypeID, Props, RootNode, CollMdl, EntityID, EntityWFI, MFIndex, this);
+    BaseEntityT* NewBaseEntity=m_Game->CreateBaseEntityFromTypeNr(EntityTypeID, Props, RootNode, CollMdl, EntityID, EntityWFI, MFIndex, this);
 
     // Dies kann nur passieren, wenn EntityTypeID ein unbekannter Typ ist! Ein solcher Fehler ist also fatal.
     // Andererseits sollte ein Disconnect dennoch nicht notwendig sein, der Fehler sollte ohnehin niemals auftreten.

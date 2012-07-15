@@ -117,6 +117,7 @@ MainCanvasT::MainCanvasT(MainFrameT* Parent)
       m_GuiResources(NULL),
       m_SoundSysDLL(NULL),
       m_GameDLL(NULL),
+      m_Game(NULL),
       m_Client(NULL),
       m_Server(NULL),
       m_SvGuiCallback(NULL),
@@ -151,10 +152,10 @@ MainCanvasT::~MainCanvasT()
 
 
     // Release the Game.
-    if (cf::GameSys::Game)
+    if (m_Game)
     {
-        cf::GameSys::Game->Release();
-        cf::GameSys::Game=NULL;
+        m_Game->Release();
+        m_Game=NULL;
     }
 
     // This code has been moved down, see there for details.
@@ -418,23 +419,23 @@ void MainCanvasT::Initialize()
         cf::GuiSys::GuiMan=new cf::GuiSys::GuiManImplT(*m_GuiResources);
 
 
-        // Provide a definition for Game, that is, set the global (Cafu.exe-wide) cf::GameSys::Game pointer
+        // Provide a definition for m_Game, the cf::GameSys::Game pointer
         // to a GameI implementation that is provided by a dynamically loaded game DLL.
         // This is analogous to the Material System, where Renderer DLLs provide renderer and texture manager implementations.
-        cf::GameSys::Game=LoadGameDLL(Options_ServerGameName.GetValueString(), m_GameDLL);
+        m_Game=LoadGameDLL(Options_ServerGameName.GetValueString(), m_GameDLL);
 
-        if (cf::GameSys::Game==NULL || m_GameDLL==NULL)
+        if (m_Game==NULL || m_GameDLL==NULL)
             throw std::runtime_error("Could not load game "+Options_ServerGameName.GetValueString()+".");
 
-        cf::GameSys::Game->Initialize(true /*(Options_RunMode.GetValueInt() & CLIENT_RUNMODE)>0*/,
-                                      true /*(Options_RunMode.GetValueInt() & SERVER_RUNMODE)>0*/,
-                                      *m_ModelManager);
+        m_Game->Initialize(true /*(Options_RunMode.GetValueInt() & CLIENT_RUNMODE)>0*/,
+                           true /*(Options_RunMode.GetValueInt() & SERVER_RUNMODE)>0*/,
+                           *m_ModelManager);
 
 
         // Create the client and server instances.
         m_SvGuiCallback=new SvGuiCallbT();
-        m_Server=new ServerT(Options_ServerGameName.GetValueString(), *m_SvGuiCallback, *m_ModelManager);
-        m_Client=new ClientT(*m_ModelManager);  // The client initializes in IDLE state.
+        m_Server=new ServerT(m_Game, Options_ServerGameName.GetValueString(), *m_SvGuiCallback, *m_ModelManager);
+        m_Client=new ClientT(m_Game, *m_ModelManager);  // The client initializes in IDLE state.
 
 
         // Finish the initialization of the GuiSys.

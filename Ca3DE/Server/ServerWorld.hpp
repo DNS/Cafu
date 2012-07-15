@@ -35,7 +35,7 @@ class CaServerWorldT : public Ca3DEWorldT
     public:
 
     // Erstellt eine neue ServerWorld anhand des World-Files 'FileName', wobei 'FileName' den kompletten (wenn auch relativen) Pfad und Namen enthält.
-    CaServerWorldT(const char* FileName, ModelManagerT& ModelMan);
+    CaServerWorldT(cf::GameSys::GameI* Game, const char* FileName, ModelManagerT& ModelMan);
 
     // Der Destruktor.
     ~CaServerWorldT();

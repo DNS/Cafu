@@ -70,10 +70,6 @@ cf::GameSys::GameImplT& cf::GameSys::GameImplT::GetInstance()
 }
 
 
-// Provide a definition for Game, the global (DLL-wide) pointer to a GameI implementation.
-cf::GameSys::GameI* cf::GameSys::Game=&cf::GameSys::GameImplT::GetInstance();
-
-
 cf::GameSys::GameImplT::GameImplT()
     : RunningAsClient(false),
       RunningAsServer(false)

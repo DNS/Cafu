@@ -37,6 +37,7 @@ class ClientT;
 class ServerT;
 class SvGuiCallbT;
 class ModelManagerT;
+namespace cf { namespace GameSys { class GameI; } }
 namespace cf { namespace GuiSys { class GuiResourcesT; } }
 namespace cf { class ConsoleI; }
 
@@ -84,6 +85,7 @@ class MainCanvasT : public wxGLCanvas
     cf::GuiSys::GuiResourcesT* m_GuiResources;
     HMODULE                    m_SoundSysDLL;
     HMODULE                    m_GameDLL;
+    cf::GameSys::GameI*        m_Game;
     ClientT*                   m_Client;
     ServerT*                   m_Server;
     SvGuiCallbT*               m_SvGuiCallback;

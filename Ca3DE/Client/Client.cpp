@@ -42,9 +42,10 @@ static const char* StateNames[]={ "idle", "connecting", "ingame" };
 static ClientT*    ClientPtr   =NULL;
 
 
-ClientT::ClientT(ModelManagerT& ModelMan)
+ClientT::ClientT(cf::GameSys::GameI* Game, ModelManagerT& ModelMan)
     : CurrentState(NULL),
       NextState(IDLE),
+      m_Game(Game),
       Socket(INVALID_SOCKET),
       ServerAddress(0, 0, 0, 0, 0),
       PacketIDConnLess(0),

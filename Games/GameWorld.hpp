@@ -28,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 class BaseEntityT;
 class CafuModelT;
 namespace cf { namespace ClipSys { class ClipWorldT; } }
+namespace cf { namespace GameSys { class GameI; } }
 namespace cf { class UniScriptStateT; }
 
 
@@ -47,6 +48,9 @@ namespace cf
             /// The virtual destructor, so that derived classes can safely be deleted via a GameWorldI (base class) pointer.
             /// However, with GameWorldIs that's never supposed to happen, so this destructor only exists to silence the g++ compiler warning.
             virtual ~GameWorldI() { }
+
+            /// Returns the game thae this is a world of.
+            virtual cf::GameSys::GameI* GetGame()=0;
 
             /// Returns the clip world for the game world.
             virtual cf::ClipSys::ClipWorldT& GetClipWorld()=0;

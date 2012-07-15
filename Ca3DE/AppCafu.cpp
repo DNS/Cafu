@@ -75,7 +75,6 @@ WinSockT* g_WinSock=NULL;
 // MatSys::TextureMapManagerI* MatSys::TextureMapManager=NULL;  // TODO: Don't have it predefine the global pointer instance.
 SoundSysI* SoundSystem=NULL;
 cf::GuiSys::GuiManI* cf::GuiSys::GuiMan=NULL;
-cf::GameSys::GameI* cf::GameSys::Game=NULL;
 
 
 static bool CompareModes(const wxVideoMode& Mode1, const wxVideoMode& Mode2)

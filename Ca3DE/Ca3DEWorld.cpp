@@ -40,10 +40,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 static WorldManT WorldMan;
 
 
-Ca3DEWorldT::Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/
-    : m_World(WorldMan.LoadWorld(FileName, ModelMan, InitForGraphics, ProgressFunction)),
+Ca3DEWorldT::Ca3DEWorldT(cf::GameSys::GameI* Game, const char* FileName, ModelManagerT& ModelMan, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/
+    : m_Game(Game),
+      m_World(WorldMan.LoadWorld(FileName, ModelMan, InitForGraphics, ProgressFunction)),
       m_ClipWorld(new cf::ClipSys::ClipWorldT(m_World->CollModel)),
       m_PhysicsWorld(m_World->CollModel),
+      m_ScriptState(m_Game),
       m_EngineEntities(),
       m_ModelMan(ModelMan)
 {
@@ -80,6 +82,12 @@ Ca3DEWorldT::~Ca3DEWorldT()
         WorldMan.FreeWorld(m_World);
         m_World = NULL;
     }
+}
+
+
+cf::GameSys::GameI* Ca3DEWorldT::GetGame()
+{
+    return m_Game;
 }
 
 

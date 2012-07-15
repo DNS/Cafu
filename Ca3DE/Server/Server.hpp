@@ -33,6 +33,7 @@ struct lua_State;
 struct ClientInfoT;
 class  CaServerWorldT;
 class  ModelManagerT;
+namespace cf { namespace GameSys { class GameI; } }
 
 
 /// The server, like the client, is a state machine.
@@ -60,7 +61,7 @@ class ServerT
 
     /// The constructor.
     /// @throws InitErrorT if the server could not be initialized (e.g. a socket for the desired port could not be aquired).
-    ServerT(const std::string& GameName_, const GuiCallbackI& GuiCallback_, ModelManagerT& ModelMan);
+    ServerT(cf::GameSys::GameI* Game, const std::string& GameName_, const GuiCallbackI& GuiCallback_, ModelManagerT& ModelMan);
 
     ~ServerT();
 
@@ -84,6 +85,7 @@ class ServerT
     TimerT               Timer;
     SOCKET               ServerSocket;
     ArrayT<ClientInfoT*> ClientInfos;
+    cf::GameSys::GameI*  m_Game;
     std::string          GameName;
     std::string          WorldName;
     CaServerWorldT*      World;

@@ -59,7 +59,7 @@ namespace
 
 // This function is a variant of TypeInfoManT::CreateLuaDoxygenHeader(),
 // customized for the additional information that comes with map entities.
-static void CreateLuaDoxygenHeader(lua_State* LuaState)
+static void CreateLuaDoxygenHeader(lua_State* LuaState, cf::GameSys::GameI* Game)
 {
     assert(lua_gettop(LuaState)==0);
 
@@ -124,9 +124,9 @@ static void CreateLuaDoxygenHeader(lua_State* LuaState)
 
     if (!Out.is_open()) return;
 
-    for (unsigned long RootNr=0; RootNr<cf::GameSys::Game->GetEntityTIM().GetTypeInfoRoots().Size(); RootNr++)
+    for (unsigned long RootNr=0; RootNr<Game->GetEntityTIM().GetTypeInfoRoots().Size(); RootNr++)
     {
-        for (const cf::TypeSys::TypeInfoT* TI=cf::GameSys::Game->GetEntityTIM().GetTypeInfoRoots()[RootNr]; TI!=NULL; TI=TI->GetNext())
+        for (const cf::TypeSys::TypeInfoT* TI=Game->GetEntityTIM().GetTypeInfoRoots()[RootNr]; TI!=NULL; TI=TI->GetNext())
         {
             const std::map<std::string, EntDefInfoT>::const_iterator It=CppToInfo.find(TI->ClassName);
 
@@ -171,7 +171,7 @@ static void CreateLuaDoxygenHeader(lua_State* LuaState)
 }
 
 
-ScriptStateT::ScriptStateT()
+ScriptStateT::ScriptStateT(cf::GameSys::GameI* Game)
     : m_ScriptState()
 {
     lua_State* LuaState = m_ScriptState.GetLuaState();
@@ -197,12 +197,12 @@ ScriptStateT::ScriptStateT()
     // For each (entity-)class that the TypeInfoMan knows about, add a (meta-)table to the registry of the LuaState.
     // The (meta-)table holds the Lua methods that the respective class implements in C++,
     // and is to be used as metatable for instances of this class.
-    m_ScriptState.Init(cf::GameSys::Game->GetEntityTIM());
+    m_ScriptState.Init(Game->GetEntityTIM());
 
     // Make sure that everyone dealt properly with the Lua stack so far.
     assert(lua_gettop(LuaState)==0);
 
-    CreateLuaDoxygenHeader(LuaState);
+    CreateLuaDoxygenHeader(LuaState, Game);
 }
 
 

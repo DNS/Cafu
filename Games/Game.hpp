@@ -104,13 +104,6 @@ namespace cf
             /// However, with GameIs that's never supposed to happen, so this destructor only exists to silence the g++ compiler warning.
             virtual ~GameI() { }
         };
-
-
-        /// A global pointer to an implementation of the GameI interface.
-        /// Each module (exe or dll) that uses this pointer must somewhere provide exactly one definition for it (none is provided by the GameSys library).
-        /// For more details, see the analogous comment in Libs/FileSys/FileMan.hpp, but note the with the GameSys, the roles of the exe and dll are reversed
-        /// (not the exe provides an interface for use by the dll, but the dll provides an interface for use by the exe).
-        extern GameI* Game;
     }
 }
 
