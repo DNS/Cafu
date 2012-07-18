@@ -84,7 +84,6 @@ class MainCanvasT : public wxGLCanvas
     ModelManagerT*             m_ModelManager;
     cf::GuiSys::GuiResourcesT* m_GuiResources;
     HMODULE                    m_SoundSysDLL;
-    HMODULE                    m_GameDLL;
     cf::GameSys::GameI*        m_Game;
     ClientT*                   m_Client;
     ServerT*                   m_Server;

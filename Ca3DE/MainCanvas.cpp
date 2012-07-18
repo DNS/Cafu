@@ -45,6 +45,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SoundSystem/SoundShaderManager.hpp"
 #include "SoundSystem/SoundSys.hpp"
 #include "../Games/Game.hpp"
+#include "../Games/DeathMatch/Code/GameImpl.hpp"
 #include "PlatformAux.hpp"
 
 #ifndef _WIN32
@@ -116,7 +117,6 @@ MainCanvasT::MainCanvasT(MainFrameT* Parent)
       m_ModelManager(NULL),
       m_GuiResources(NULL),
       m_SoundSysDLL(NULL),
-      m_GameDLL(NULL),
       m_Game(NULL),
       m_Client(NULL),
       m_Server(NULL),
@@ -158,12 +158,6 @@ MainCanvasT::~MainCanvasT()
         m_Game=NULL;
     }
 
-    // This code has been moved down, see there for details.
-    // if (m_GameDLL)
-    // {
-    //     FreeLibrary(m_GameDLL);
-    //     m_GameDLL=NULL;
-    // }
 
     // When the game has been unloaded, no collision models must be left in the collision model manager.
     wxASSERT(cf::ClipSys::CollModelMan->GetUniqueCMCount()==0);
@@ -225,87 +219,6 @@ MainCanvasT::~MainCanvasT()
         FreeLibrary(m_RendererDLL);
         m_RendererDLL=NULL;
     }
-
-    // This code used to be further up, but under Windows at r423, the following problem exists:
-    // Class CafuModelT is derived from class ModelT, and thus has a virtual destructor.
-    // When we call ModelManagerT::GetModel() in the game DLL, everything works all right,
-    // but the code linked to the game DLL is used to create the new model, which causes
-    // the vtable of the newly created model to point to the destructor code in the game DLL.
-    // When the call FreeLibrary(m_GameDLL); before the destructors of the models in the
-    // m_ModelManager are run, we essentially remove the code that the virtual destructors
-    // are pointing to, causing access violation.
-    // Moving the call to FreeLibrary() below the "delete m_ModelManager;" fixes the problem.
-    //
-    // Also see this report of someone else experiencing the same problem:
-    // http://social.msdn.microsoft.com/forums/en-US/vclanguage/thread/dacc7dbd-2775-4e86-a429-8dd32fae0e33
-    if (m_GameDLL)
-    {
-        FreeLibrary(m_GameDLL);
-        m_GameDLL=NULL;
-    }
-}
-
-
-// A helper function modelled analogous to the PlatformAux::GetRenderer() function.
-static cf::GameSys::GameI* LoadGameDLL(const std::string& GameDllName, HMODULE& GameDLL)
-{
-#ifdef SCONS_BUILD_DIR
-    #define QUOTE(str) QUOTE_HELPER(str)
-    #define QUOTE_HELPER(str) #str
-
-    #ifdef _WIN32
-    const std::string GameDllPathName=std::string("Games/")+GameDllName+"/Code/"+QUOTE(SCONS_BUILD_DIR)+"/"+GameDllName+".dll";
-    #else
-    const std::string GameDllPathName=std::string("Games/")+GameDllName+"/Code/"+QUOTE(SCONS_BUILD_DIR)+"/lib"+GameDllName+".so";
-    #endif
-
-    #undef QUOTE
-    #undef QUOTE_HELPER
-#else
-    const std::string GameDllPathName=std::string("Games/")+GameDllName+"/Code/"+GameDllName+PlatformAux::GetEnvFileSuffix()+".dll";
-#endif
-
-
-    #ifdef _WIN32
-        GameDLL=LoadLibraryA(GameDllPathName.c_str());
-        if (!GameDLL) { Console->Warning(cf::va("Could not load the game DLL at %s.\n", GameDllPathName.c_str())); return NULL; }
-    #else
-        // Note that RTLD_GLOBAL must *not* be passed-in here, or else we get in trouble with subsequently loaded libraries.
-        // (E.g. it causes dlsym(GameDLL, "GetGame") to return identical results for different GameDLLs.)
-        // Please refer to the man page of dlopen for more details.
-        GameDLL=dlopen(GameDllPathName.c_str(), RTLD_NOW);
-        if (!GameDLL) { Console->Warning(cf::va("Could not load the game DLL at %s (%s).\n", GameDllPathName.c_str(), dlerror())); return NULL; }
-    #endif
-
-
-    typedef cf::GameSys::GameI* (__stdcall *GetGameFuncT)(MatSys::RendererI* Renderer,
-        MatSys::TextureMapManagerI* TexMapMan, MaterialManagerI* MatMan, cf::GuiSys::GuiManI* GuiMan_, cf::ConsoleI* Console_,
-        ConsoleInterpreterI* ConInterpreter_, cf::ClipSys::CollModelManI* CollModelMan_, SoundSysI* SoundSystem_,
-        SoundShaderManagerI* SoundShaderManager_);
-
-    #if defined(_WIN32) && !defined(_WIN64)
-        GetGameFuncT GetGameFunc=(GetGameFuncT)GetProcAddress(GameDLL, "_GetGame@36");
-    #else
-        GetGameFuncT GetGameFunc=(GetGameFuncT)GetProcAddress(GameDLL, "GetGame");
-    #endif
-
-    if (!GetGameFunc) { Console->Warning("Could not get the address of the GetGame() function.\n"); FreeLibrary(GameDLL); GameDLL=NULL; return NULL; }
-
-
-    // When we get here, the other interfaces must already have been implementations assigned.
-    assert(MatSys::Renderer);
-    assert(MatSys::TextureMapManager);
-    assert(MaterialManager);
-    assert(cf::GuiSys::GuiMan);
-    assert(Console);
-    assert(ConsoleInterpreter);
-    assert(cf::ClipSys::CollModelMan);
-
-    cf::GameSys::GameI* Game=GetGameFunc(MatSys::Renderer, MatSys::TextureMapManager, MaterialManager, cf::GuiSys::GuiMan, Console, ConsoleInterpreter, cf::ClipSys::CollModelMan, SoundSystem, SoundShaderManager);
-
-    if (!Game) { Console->Warning("Could not get the game implementation.\n"); FreeLibrary(GameDLL); GameDLL=NULL; return NULL; }
-
-    return Game;
 }
 
 
@@ -422,10 +335,7 @@ void MainCanvasT::Initialize()
         // Provide a definition for m_Game, the cf::GameSys::Game pointer
         // to a GameI implementation that is provided by a dynamically loaded game DLL.
         // This is analogous to the Material System, where Renderer DLLs provide renderer and texture manager implementations.
-        m_Game=LoadGameDLL(Options_ServerGameName.GetValueString(), m_GameDLL);
-
-        if (m_Game==NULL || m_GameDLL==NULL)
-            throw std::runtime_error("Could not load game "+Options_ServerGameName.GetValueString()+".");
+        m_Game=&cf::GameSys::GameImplT::GetInstance();
 
         m_Game->Initialize(true /*(Options_RunMode.GetValueInt() & CLIENT_RUNMODE)>0*/,
                            true /*(Options_RunMode.GetValueInt() & SERVER_RUNMODE)>0*/,

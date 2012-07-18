@@ -60,6 +60,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
  * [1] For more details, see the thread "Can initialization of static class members be forced
  *     before main?" that I've begun on 2008-Apr-03 in comp.lang.c++:
  *     http://groups.google.de/group/comp.lang.c++/browse_thread/thread/e264caa531ff52a9/
+ *     Another very good explanation is at:
+ *     http://blog.copton.net/articles/linker/index.html#linker-dependencies
  */
 unsigned long cf::GuiSys::InitWindowTypes()
 {

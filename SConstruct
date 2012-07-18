@@ -348,6 +348,14 @@ envDebug_Cafu  .Append(LIBPATH=["#/ExtLibs/"+lib_name+"/"+my_build_dir_dbg for l
 envRelease_Cafu.Append(LIBPATH=["#/ExtLibs/"+lib_name+"/"+my_build_dir_rel for lib_name in ExtLibsList] + ["#/Libs/"+my_build_dir_rel]);
 envProfile_Cafu.Append(LIBPATH=["#/ExtLibs/"+lib_name+"/"+my_build_dir_prf for lib_name in ExtLibsList] + ["#/Libs/"+my_build_dir_prf]);
 
+for GameName in os.listdir("Games/"):
+    CodeDir = "Games/" + GameName + "/Code/"
+
+    if os.path.exists(CodeDir):
+        envDebug_Cafu  .Append(LIBPATH=["#/" + CodeDir + my_build_dir_dbg]);
+        envRelease_Cafu.Append(LIBPATH=["#/" + CodeDir + my_build_dir_rel]);
+        envProfile_Cafu.Append(LIBPATH=["#/" + CodeDir + my_build_dir_prf]);
+
 if compiler=="vc8":
     envDebug_Cafu  .Append(CCFLAGS=Split("/J /W3 /WX"));
     envRelease_Cafu.Append(CCFLAGS=Split("/J /W3 /WX"));

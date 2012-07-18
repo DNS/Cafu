@@ -91,6 +91,7 @@ envCafu.Append(CPPPATH=['ExtLibs/bullet/src'])
 if sys.platform=="win32":
     envCafu.Append(LIBS=Split("SceneGraph MatSys SoundSys cfsLib cfs_jpeg bulletdynamics bulletcollision bulletmath minizip lua ClipSys png z"))
     envCafu.Append(LIBS=Split("lightwave"))     # For the GuiSys::ModelWindowT class.
+    envCafu.Append(LIBS=Split("DeathMatch"))
 
     WinResource = envCafu.RES("Ca3DE/Cafu.rc")
 
