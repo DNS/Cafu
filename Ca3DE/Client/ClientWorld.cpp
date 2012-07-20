@@ -90,11 +90,11 @@ bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
 
     // Es ist nicht sinnvoll, CreateBaseEntityFromTypeID() in Parametern die geparsten InData-Inhalte zu übergeben (Origin, Velocity, ...),
     // denn spätestens bei der SequenceNr und FrameNr kommt es zu Problemen. Deshalb lieber erstmal ein BaseEntitiy mit "falschem" State erzeugen.
-    BaseEntityT* NewBaseEntity=m_Game->CreateBaseEntityFromTypeNr(EntityTypeID, Props, RootNode, CollMdl, EntityID, EntityWFI, MFIndex, this);
+    IntrusivePtrT<BaseEntityT> NewBaseEntity=m_Game->CreateBaseEntityFromTypeNr(EntityTypeID, Props, RootNode, CollMdl, EntityID, EntityWFI, MFIndex, this);
 
     // Dies kann nur passieren, wenn EntityTypeID ein unbekannter Typ ist! Ein solcher Fehler ist also fatal.
     // Andererseits sollte ein Disconnect dennoch nicht notwendig sein, der Fehler sollte ohnehin niemals auftreten.
-    if (!NewBaseEntity)
+    if (NewBaseEntity.IsNull())
     {
         // Finish reading InData, so that we can gracefully continue despite the error.
         InData.ReadDMsg();
@@ -453,12 +453,12 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
         VectorT            LightPosition;
         float              LightRadius;
         bool               LightCastsShadows;
-        const BaseEntityT* BaseEntity=GetBaseEntityByID(CurrentFrame.EntityIDsInPVS[EntityIDNr]);
+        const IntrusivePtrT<BaseEntityT> BaseEntity=GetBaseEntityByID(CurrentFrame.EntityIDsInPVS[EntityIDNr]);
 
         // The light source info is not taken from the BaseEntity directly because it yields the unpredicted light source position.
         // If once human player entities have no light source any more, we might get rid of the CaClientWorldT::GetLightSourceInfo()
         // function chain again altogether.
-        if (!BaseEntity) continue;
+        if (BaseEntity.IsNull()) continue;
         // if (!BaseEntity->GetLightSourceInfo(LightColorDiffuse, LightColorSpecular, LightPosition, LightRadius)) continue;
         if (!GetLightSourceInfo(BaseEntity->ID, OurEntityID, LightColorDiffuse, LightColorSpecular, LightPosition, LightRadius, LightCastsShadows)) continue;
         if (!LightColorDiffuse && !LightColorSpecular) continue;

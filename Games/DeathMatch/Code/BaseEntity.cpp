@@ -115,7 +115,8 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT
       m_Bank(0),
       State(State_),
       m_EventsCount(),
-      m_EventsRef()
+      m_EventsRef(),
+      m_RefCount(0)
 {
     m_EventsCount.PushBackEmptyExact(NUM_EVENT_TYPES);
     m_EventsRef  .PushBackEmptyExact(NUM_EVENT_TYPES);
@@ -436,7 +437,7 @@ const cf::TypeSys::TypeInfoT* BaseEntityT::GetType() const
 int BaseEntityT::GetName(lua_State* LuaState)
 {
     cf::ScriptBinderT Binder(LuaState);
-    BaseEntityT*      Ent=(BaseEntityT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    IntrusivePtrT<BaseEntityT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<BaseEntityT> >(1, TypeInfo);
 
     lua_pushstring(LuaState, Ent->Name.c_str());
     return 1;
@@ -446,7 +447,7 @@ int BaseEntityT::GetName(lua_State* LuaState)
 int BaseEntityT::GetOrigin(lua_State* LuaState)
 {
     cf::ScriptBinderT Binder(LuaState);
-    BaseEntityT*      Ent=(BaseEntityT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    IntrusivePtrT<BaseEntityT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<BaseEntityT> >(1, TypeInfo);
 
     lua_pushnumber(LuaState, Ent->m_Origin.x);
     lua_pushnumber(LuaState, Ent->m_Origin.y);
@@ -459,7 +460,7 @@ int BaseEntityT::GetOrigin(lua_State* LuaState)
 int BaseEntityT::SetOrigin(lua_State* LuaState)
 {
     cf::ScriptBinderT Binder(LuaState);
-    BaseEntityT*      Ent=(BaseEntityT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    IntrusivePtrT<BaseEntityT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<BaseEntityT> >(1, TypeInfo);
 
     const double Ox=luaL_checknumber(LuaState, 2);
     const double Oy=luaL_checknumber(LuaState, 3);

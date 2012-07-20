@@ -311,7 +311,7 @@ void ListBoxT::FillMemberVars()
 int ListBoxT::Clear(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    ListBoxT*     ListBox=(ListBoxT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    ListBoxT*     ListBox=Binder.GetCheckedObjectParam<ListBoxT*>(1, TypeInfo);
 
     for (unsigned long RowNr=0; RowNr<ListBox->Rows.Size(); RowNr++)
     {
@@ -327,7 +327,7 @@ int ListBoxT::Clear(lua_State* LuaState)
 int ListBoxT::Append(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    ListBoxT*     ListBox=(ListBoxT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    ListBoxT*     ListBox=Binder.GetCheckedObjectParam<ListBoxT*>(1, TypeInfo);
     unsigned long RowNr  =ListBox->Rows.Size();
     const char*   RowText=luaL_checkstring(LuaState, 2);
 
@@ -339,7 +339,7 @@ int ListBoxT::Append(lua_State* LuaState)
 int ListBoxT::Insert(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    ListBoxT*     ListBox=(ListBoxT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    ListBoxT*     ListBox=Binder.GetCheckedObjectParam<ListBoxT*>(1, TypeInfo);
     unsigned long RowNr  =luaL_checkinteger(LuaState, 2);
     const char*   RowText=luaL_checkstring(LuaState, 3);
 
@@ -352,7 +352,7 @@ int ListBoxT::Insert(lua_State* LuaState)
 int ListBoxT::GetNumRows(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    ListBoxT*     ListBox=(ListBoxT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    ListBoxT*     ListBox=Binder.GetCheckedObjectParam<ListBoxT*>(1, TypeInfo);
 
     lua_pushinteger(LuaState, ListBox->Rows.Size());
     return 1;
@@ -362,7 +362,7 @@ int ListBoxT::GetNumRows(lua_State* LuaState)
 int ListBoxT::GetRowText(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    ListBoxT*     ListBox=(ListBoxT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    ListBoxT*     ListBox=Binder.GetCheckedObjectParam<ListBoxT*>(1, TypeInfo);
     unsigned long RowNr  =luaL_checkinteger(LuaState, 2);
 
     luaL_argcheck(LuaState, RowNr<ListBox->Rows.Size(), 2, "Index out of range.");
@@ -374,7 +374,7 @@ int ListBoxT::GetRowText(lua_State* LuaState)
 int ListBoxT::SetRowText(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    ListBoxT*     ListBox=(ListBoxT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    ListBoxT*     ListBox=Binder.GetCheckedObjectParam<ListBoxT*>(1, TypeInfo);
     unsigned long RowNr  =luaL_checkinteger(LuaState, 2);
 
     luaL_argcheck(LuaState, RowNr<ListBox->Rows.Size(), 2, "Index out of range.");
@@ -386,7 +386,7 @@ int ListBoxT::SetRowText(lua_State* LuaState)
 int ListBoxT::GetSelection(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    ListBoxT*     ListBox=(ListBoxT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    ListBoxT*     ListBox=Binder.GetCheckedObjectParam<ListBoxT*>(1, TypeInfo);
 
     lua_pushinteger(LuaState, ListBox->SelectedRow>=ListBox->Rows.Size() ? -1 : ListBox->SelectedRow);
     return 1;
@@ -396,7 +396,7 @@ int ListBoxT::GetSelection(lua_State* LuaState)
 int ListBoxT::SetSelection(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    ListBoxT*     ListBox=(ListBoxT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    ListBoxT*     ListBox=Binder.GetCheckedObjectParam<ListBoxT*>(1, TypeInfo);
 
     ListBox->SelectedRow=luaL_checkinteger(LuaState, 2);
 
@@ -410,7 +410,7 @@ int ListBoxT::SetSelection(lua_State* LuaState)
 int ListBoxT::GetRowHeight(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    ListBoxT*     ListBox=(ListBoxT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    ListBoxT*     ListBox=Binder.GetCheckedObjectParam<ListBoxT*>(1, TypeInfo);
 
     lua_pushnumber(LuaState, ListBox->RowHeight);
     return 1;
@@ -420,7 +420,7 @@ int ListBoxT::GetRowHeight(lua_State* LuaState)
 int ListBoxT::SetRowHeight(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    ListBoxT*     ListBox=(ListBoxT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    ListBoxT*     ListBox=Binder.GetCheckedObjectParam<ListBoxT*>(1, TypeInfo);
 
     ListBox->RowHeight=float(lua_tonumber(LuaState, 2));
 
@@ -444,7 +444,7 @@ int ListBoxT::SetRowHeight(lua_State* LuaState)
 int ListBoxT::SetOddRowBgColor(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    ListBoxT*     ListBox=(ListBoxT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    ListBoxT*     ListBox=Binder.GetCheckedObjectParam<ListBoxT*>(1, TypeInfo);
 
     ListBox->OddRowBgColor[0]=float(lua_tonumber(LuaState, 2));
     ListBox->OddRowBgColor[1]=float(lua_tonumber(LuaState, 3));
@@ -458,7 +458,7 @@ int ListBoxT::SetOddRowBgColor(lua_State* LuaState)
 int ListBoxT::SetEvenRowBgColor(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    ListBoxT*     ListBox=(ListBoxT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    ListBoxT*     ListBox=Binder.GetCheckedObjectParam<ListBoxT*>(1, TypeInfo);
 
     ListBox->EvenRowBgColor[0]=float(lua_tonumber(LuaState, 2));
     ListBox->EvenRowBgColor[1]=float(lua_tonumber(LuaState, 3));
@@ -472,7 +472,7 @@ int ListBoxT::SetEvenRowBgColor(lua_State* LuaState)
 int ListBoxT::SetRowTextColor(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    ListBoxT*     ListBox=(ListBoxT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    ListBoxT*     ListBox=Binder.GetCheckedObjectParam<ListBoxT*>(1, TypeInfo);
 
     ListBox->RowTextColor[0]=float(lua_tonumber(LuaState, 2));
     ListBox->RowTextColor[1]=float(lua_tonumber(LuaState, 3));
@@ -486,7 +486,7 @@ int ListBoxT::SetRowTextColor(lua_State* LuaState)
 int ListBoxT::SetSelRowBgColor(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    ListBoxT*     ListBox=(ListBoxT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    ListBoxT*     ListBox=Binder.GetCheckedObjectParam<ListBoxT*>(1, TypeInfo);
 
     ListBox->SelectedRowBgColor[0]=float(lua_tonumber(LuaState, 2));
     ListBox->SelectedRowBgColor[1]=float(lua_tonumber(LuaState, 3));
@@ -500,7 +500,7 @@ int ListBoxT::SetSelRowBgColor(lua_State* LuaState)
 int ListBoxT::SetSelRowTextColor(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    ListBoxT*     ListBox=(ListBoxT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    ListBoxT*     ListBox=Binder.GetCheckedObjectParam<ListBoxT*>(1, TypeInfo);
 
     ListBox->SelectedRowTextColor[0]=float(lua_tonumber(LuaState, 2));
     ListBox->SelectedRowTextColor[1]=float(lua_tonumber(LuaState, 3));

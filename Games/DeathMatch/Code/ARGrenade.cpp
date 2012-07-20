@@ -105,10 +105,10 @@ void EntARGrenadeT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 
             for (unsigned long EntityIDNr=0; EntityIDNr<AllEntityIDs.Size(); EntityIDNr++)
             {
-                BaseEntityT* OtherEntity=GameWorld->GetBaseEntityByID(AllEntityIDs[EntityIDNr]);
+                IntrusivePtrT<BaseEntityT> OtherEntity=GameWorld->GetBaseEntityByID(AllEntityIDs[EntityIDNr]);
 
-                if (OtherEntity    ==NULL) continue;
-                if (OtherEntity->ID==  ID) continue;    // We don't damage us ourselves.
+                if (OtherEntity.IsNull())  continue;
+                if (OtherEntity->ID == ID) continue;    // We don't damage us ourselves.
 
                 // Note that OtherOrigin=OtherEntity->GetOrigin() is not enough, it must be computed as shown in order to work in all cases:
                 // a) With (e.g.) EntHumanPlayerTs, the Dimensions are static and the Origin moves, but

@@ -185,11 +185,11 @@ void EntHumanPlayerT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT
 
 
         // Count the frag at the "creator" entity.
-        BaseEntityT* FraggingEntity=Entity;
+        IntrusivePtrT<BaseEntityT> FraggingEntity=Entity;
 
         while (FraggingEntity->ParentID!=0xFFFFFFFF)
         {
-            BaseEntityT* ParentOfFE=GameWorld->GetBaseEntityByID(FraggingEntity->ParentID);
+            IntrusivePtrT<BaseEntityT> ParentOfFE=GameWorld->GetBaseEntityByID(FraggingEntity->ParentID);
 
             if (ParentOfFE==NULL) break;
             FraggingEntity=ParentOfFE;
@@ -235,7 +235,7 @@ void EntHumanPlayerT::ProcessConfigString(const void* ConfigData, const char* Co
 }
 
 
-bool EntHumanPlayerT::CheckGUI(EntStaticDetailModelT* GuiEnt, Vector3fT& MousePos) const
+bool EntHumanPlayerT::CheckGUI(IntrusivePtrT<EntStaticDetailModelT> GuiEnt, Vector3fT& MousePos) const
 {
     // 1. Has this entitiy an interactive GUI at all?
     cf::GuiSys::GuiI* Gui=GuiEnt->GetGUI();
@@ -572,7 +572,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                 for (unsigned long EntityIDNr=0; EntityIDNr<AllEntityIDs.Size(); EntityIDNr++)
                 {
-                    BaseEntityT* OtherEntity=GameWorld->GetBaseEntityByID(AllEntityIDs[EntityIDNr]);
+                    IntrusivePtrT<BaseEntityT> OtherEntity=GameWorld->GetBaseEntityByID(AllEntityIDs[EntityIDNr]);
 
                     if (OtherEntity    ==NULL) continue;
                     if (OtherEntity->ID==  ID) continue;    // We don't touch us ourselves.
@@ -603,7 +603,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                         //
                         // ==> How do we separate the two???
                         //     ...
-                        EntStaticDetailModelT* GuiEnt=(EntStaticDetailModelT*)OtherEntity;
+                        IntrusivePtrT<EntStaticDetailModelT> GuiEnt=static_pointer_cast<EntStaticDetailModelT>(OtherEntity);
 
                         Vector3fT MousePos;
                         if (CheckGUI(GuiEnt, MousePos))
@@ -743,7 +743,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                         if (CorpseID!=0xFFFFFFFF)
                         {
-                            EntCorpseT* Corpse=dynamic_cast<EntCorpseT*>(GameWorld->GetBaseEntityByID(CorpseID));
+                            IntrusivePtrT<EntCorpseT> Corpse=dynamic_pointer_cast<EntCorpseT>(GameWorld->GetBaseEntityByID(CorpseID));
 
                             Corpse->AdoptState(this);
                         }
@@ -783,7 +783,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 if ((PlayerCommands[PCNr].Keys & PCK_Fire1)==0) break;  // "Fire" button not pressed.
 
                 const ArrayT<unsigned long>& AllEntityIDs=GameWorld->GetAllEntityIDs();
-                BaseEntityT*                 IPSEntity   =NULL;
+                IntrusivePtrT<BaseEntityT>   IPSEntity;
                 VectorT                      OurNewOrigin;
                 unsigned long                EntityIDNr;
 

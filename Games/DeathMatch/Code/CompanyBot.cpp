@@ -197,13 +197,13 @@ void EntCompanyBotT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT&
         GameWorld->GetPhysicsWorld().RemoveRigidBody(m_RigidBody);
 
         // Count the frag at the "creator" entity.
-        BaseEntityT* FraggingEntity=Entity;
+        IntrusivePtrT<BaseEntityT> FraggingEntity=Entity;
 
         while (FraggingEntity->ParentID!=0xFFFFFFFF)
         {
-            BaseEntityT* ParentOfFE=GameWorld->GetBaseEntityByID(FraggingEntity->ParentID);
+            IntrusivePtrT<BaseEntityT> ParentOfFE=GameWorld->GetBaseEntityByID(FraggingEntity->ParentID);
 
-            if (ParentOfFE==NULL) break;
+            if (ParentOfFE.IsNull()) break;
             FraggingEntity=ParentOfFE;
         }
 
@@ -235,7 +235,7 @@ void EntCompanyBotT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 
     // Suche als Ziel den ersten HumanPlayer-Entity, der 'alive' ist.
     const ArrayT<unsigned long>& AllEntityIDs=GameWorld->GetAllEntityIDs();
-    BaseEntityT*                 TargetEntity=NULL;
+    IntrusivePtrT<BaseEntityT>   TargetEntity=NULL;
     unsigned long                EntityIDNr;
 
     for (EntityIDNr=0; EntityIDNr<AllEntityIDs.Size(); EntityIDNr++)

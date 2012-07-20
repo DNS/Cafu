@@ -89,10 +89,7 @@ class IntrusivePtrT
     T* get() const { return m_Ptr; }
 
     /// The structure dereference operator.
-    T* operator -> () { return m_Ptr; }
-
-    /// The structure dereference operator (const).
-    const T* operator -> () const { return m_Ptr; }
+    T* operator -> () const { return m_Ptr; }
 
     /// The dereference operator.
     T& operator * () { return *m_Ptr; }
@@ -106,10 +103,28 @@ class IntrusivePtrT
     /// The inequality operator.
     bool operator != (const IntrusivePtrT& IP) const { return m_Ptr != IP.m_Ptr; }
 
+    /// A safe alternative for the bool conversion operator.
+    /// For details, see:
+    ///   - http://stackoverflow.com/questions/7226801/how-does-shared-ptr-work-in-if-condition
+    ///   - http://stackoverflow.com/questions/6967448/does-msvc10-visual-studio-2010-support-c-explicit-conversion-operators
+    bool IsNull() const { return m_Ptr == NULL; }
+
 
     private:
 
     T* m_Ptr;   ///< The pointer to the reference-counted object.
 };
+
+
+template<class T, class U> IntrusivePtrT<T> static_pointer_cast(IntrusivePtrT<U> const& IP)
+{
+    return static_cast<T*>(IP.get());
+}
+
+
+template<class T, class U> IntrusivePtrT<T> dynamic_pointer_cast(IntrusivePtrT<U> const& IP)
+{
+    return dynamic_cast<T*>(IP.get());
+}
 
 #endif

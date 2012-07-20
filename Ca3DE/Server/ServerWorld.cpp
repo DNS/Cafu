@@ -388,11 +388,11 @@ unsigned long CaServerWorldT::CreateNewEntityFromBasicInfo(const std::map<std::s
         // 3. Create an instance of the desired entity type.
         const unsigned long NewEntityID = m_EngineEntities.Size();
 
-        BaseEntityT* NewBaseEntity = m_Game->CreateBaseEntityFromMapFile(
+        IntrusivePtrT<BaseEntityT> NewBaseEntity = m_Game->CreateBaseEntityFromMapFile(
             TI, Properties, RootNode, CollisionModel, NewEntityID,
             WorldFileIndex, MapFileIndex, this, Origin);
 
-        if (!NewBaseEntity)
+        if (NewBaseEntity.IsNull())
             throw std::runtime_error("Could not create entity of class \""+EntClassName+"\" with C++ class name \""+CppClassName+"\".\n");
 
 

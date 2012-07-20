@@ -106,12 +106,12 @@ EntFuncDoorT::EntFuncDoorT(const EntityCreateParamsT& Params)
 
         for (unsigned long EntityIDNr=0; EntityIDNr<AllEntityIDs.Size(); EntityIDNr++)
         {
-            BaseEntityT* Entity=GameWorld->GetBaseEntityByID(AllEntityIDs[EntityIDNr]);
+            IntrusivePtrT<BaseEntityT> Entity=GameWorld->GetBaseEntityByID(AllEntityIDs[EntityIDNr]);
 
             if (Entity==NULL) continue;
             if (Entity->GetType()!=&TypeInfo) continue;
 
-            const EntFuncDoorT* Door=static_cast<const EntFuncDoorT*>(Entity);
+            const IntrusivePtrT<EntFuncDoorT> Door=static_pointer_cast<EntFuncDoorT>(Entity);
 
             if (Door->GetProp("team", "")==TeamName)
             {

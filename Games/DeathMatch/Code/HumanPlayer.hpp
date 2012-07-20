@@ -72,7 +72,7 @@ class EntHumanPlayerT : public BaseEntityT, public btMotionState
     private:
 
     /// A helper function for Think().
-    bool CheckGUI(EntStaticDetailModelT* GuiEnt, Vector3fT& MousePos) const;
+    bool CheckGUI(IntrusivePtrT<EntStaticDetailModelT> GuiEnt, Vector3fT& MousePos) const;
 
     ArrayT<PlayerCommandT> PlayerCommands;
 

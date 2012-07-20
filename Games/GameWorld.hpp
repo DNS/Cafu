@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_GAMESYS_GAMEWORLD_INTERFACE_HPP_INCLUDED
 
 #include "Math3D/BoundingBox.hpp"
+#include "Templates/Pointer.hpp"
 
 
 class BaseEntityT;
@@ -70,7 +71,7 @@ namespace cf
 
             /// Returns a pointer to the entity with ID 'EntityID'.
             /// NULL is returned if that entity does not exist.
-            virtual BaseEntityT* GetBaseEntityByID(unsigned long EntityID) const=0;
+            virtual IntrusivePtrT<BaseEntityT> GetBaseEntityByID(unsigned long EntityID) const=0;
 
             /// Creates a new entity from the given parameters.
             /// The parameters are essentially what is also present in an editor map file.

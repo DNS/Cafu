@@ -22,6 +22,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_GAME_GAMEINTERFACE_HPP_INCLUDED
 #define CAFU_GAME_GAMEINTERFACE_HPP_INCLUDED
 
+#include "Templates/Pointer.hpp"
+
 #include <map>
 #include <string>
 
@@ -76,7 +78,7 @@ namespace cf
             /// @param GameWorld      Pointer to the game world implementation.
             /// @param Origin         Where the new entity is supposed to be instantiated.
             /// @returns a base class pointer to the newly created entity instance.
-            virtual BaseEntityT* CreateBaseEntityFromMapFile(const cf::TypeSys::TypeInfoT* TI, const std::map<std::string, std::string>& Properties,
+            virtual IntrusivePtrT<BaseEntityT> CreateBaseEntityFromMapFile(const cf::TypeSys::TypeInfoT* TI, const std::map<std::string, std::string>& Properties,
                 const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID,
                 unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld, const Vector3T<double>& Origin)=0;
 
@@ -91,14 +93,9 @@ namespace cf
             /// @param MapFileIndex   The index number of the entity in the map file, for obtaining the information in the map file about it later.
             /// @param GameWorld      Pointer to the game world implementation.
             /// @returns a base class pointer to the newly created entity instance.
-            virtual BaseEntityT* CreateBaseEntityFromTypeNr(unsigned long TypeNr, const std::map<std::string, std::string>& Properties,
+            virtual IntrusivePtrT<BaseEntityT> CreateBaseEntityFromTypeNr(unsigned long TypeNr, const std::map<std::string, std::string>& Properties,
                 const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID,
                 unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld)=0;
-
-            /// Called to delete the given base entity.
-            /// Note that the caller (the engine) cannot call "delete BaseEntity;" directly, because of the "exe/dll boundary".
-            /// @param BaseEntity   Pointer to the entity instance to be freed.
-            virtual void FreeBaseEntity(BaseEntityT* BaseEntity)=0;
 
             /// The virtual destructor, so that derived classes can safely be deleted via a GameI (base class) pointer.
             /// However, with GameIs that's never supposed to happen, so this destructor only exists to silence the g++ compiler warning.

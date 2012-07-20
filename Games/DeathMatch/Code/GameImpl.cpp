@@ -321,7 +321,7 @@ const cf::TypeSys::TypeInfoManT& cf::GameSys::GameImplT::GetEntityTIM() const
 // The server also provides the ID and engine function call-backs for the new entity.
 //
 // TODO: Diese Funktion sollte einen struct-Parameter haben, der enthält: std::map<> mit EntityDef (Properties), ID, EF, ptr auf SceneNode-Root, ptr auf ClipObject.
-BaseEntityT* cf::GameSys::GameImplT::CreateBaseEntityFromMapFile(const cf::TypeSys::TypeInfoT* TI, const std::map<std::string, std::string>& Properties,
+IntrusivePtrT<BaseEntityT> cf::GameSys::GameImplT::CreateBaseEntityFromMapFile(const cf::TypeSys::TypeInfoT* TI, const std::map<std::string, std::string>& Properties,
     const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID,
     unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld, const Vector3T<double>& Origin)
 {
@@ -347,7 +347,7 @@ BaseEntityT* cf::GameSys::GameImplT::CreateBaseEntityFromMapFile(const cf::TypeS
 // whose TypeNr and ID it got via a net message from the server.
 // (It initializes the 'State' of the entity directly via the returned pointer.)
 // The client also provides engine function call-backs, such that the prediction feature can work.
-BaseEntityT* cf::GameSys::GameImplT::CreateBaseEntityFromTypeNr(unsigned long TypeNr, const std::map<std::string, std::string>& Properties,
+IntrusivePtrT<BaseEntityT> cf::GameSys::GameImplT::CreateBaseEntityFromTypeNr(unsigned long TypeNr, const std::map<std::string, std::string>& Properties,
     const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel,
     unsigned long ID, unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld)
 {
@@ -359,14 +359,6 @@ BaseEntityT* cf::GameSys::GameImplT::CreateBaseEntityFromTypeNr(unsigned long Ty
 
     return static_cast<BaseEntityT*>(TI->CreateInstance(
         EntityCreateParamsT(ID, Properties, RootNode, CollisionModel, WorldFileIndex, MapFileIndex, GameWorld, VectorT())));
-}
-
-
-// Called by both the client and the server to release previously obtained 'BaseEntityT's.
-// Note that simply deleting them directly is not possible (the "EXE vs. DLL boundary").
-void cf::GameSys::GameImplT::FreeBaseEntity(BaseEntityT* BaseEntity)
-{
-    delete BaseEntity;
 }
 
 

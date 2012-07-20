@@ -215,7 +215,7 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, const Player
 
                     if (ARGrenadeID!=0xFFFFFFFF)
                     {
-                        EntARGrenadeT* ARGrenade=dynamic_cast<EntARGrenadeT*>(Player->GameWorld->GetBaseEntityByID(ARGrenadeID));
+                        IntrusivePtrT<EntARGrenadeT> ARGrenade=dynamic_pointer_cast<EntARGrenadeT>(Player->GameWorld->GetBaseEntityByID(ARGrenadeID));
 
                         ARGrenade->ParentID=Player->ID;
                         ARGrenade->SetHeading(Player->GetHeading());

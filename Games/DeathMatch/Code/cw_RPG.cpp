@@ -103,7 +103,7 @@ void CarriedWeaponRPGT::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCo
 
                     if (RocketID!=0xFFFFFFFF)
                     {
-                        EntRocketT* Rocket=dynamic_cast<EntRocketT*>(Player->GameWorld->GetBaseEntityByID(RocketID));
+                        IntrusivePtrT<EntRocketT> Rocket=dynamic_pointer_cast<EntRocketT>(Player->GameWorld->GetBaseEntityByID(RocketID));
 
                         Rocket->ParentID=Player->ID;
                         Rocket->SetHeading(Player->GetHeading());

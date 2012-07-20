@@ -703,7 +703,7 @@ void WindowT::FillMemberVars()
 int WindowT::Set(lua_State* LuaState)
 {
     ScriptBinderT     Binder(LuaState);
-    WindowT*          Win    =(WindowT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    WindowT*          Win    =Binder.GetCheckedObjectParam<WindowT*>(1, TypeInfo);
     std::string       VarName=luaL_checkstring(LuaState, 2);
     const MemberVarT& Var    =Win->MemberVars[VarName];
 
@@ -781,7 +781,7 @@ int WindowT::Set(lua_State* LuaState)
 int WindowT::Get(lua_State* LuaState)
 {
     ScriptBinderT     Binder(LuaState);
-    WindowT*          Win    =(WindowT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    WindowT*          Win    =Binder.GetCheckedObjectParam<WindowT*>(1, TypeInfo);
     std::string       VarName=luaL_checkstring(LuaState, 2);
     const MemberVarT& Var    =Win->MemberVars[VarName];
 
@@ -830,7 +830,7 @@ int WindowT::Get(lua_State* LuaState)
 int WindowT::Interpolate(lua_State* LuaState)
 {
     ScriptBinderT     Binder(LuaState);
-    WindowT*          Win    =(WindowT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    WindowT*          Win    =Binder.GetCheckedObjectParam<WindowT*>(1, TypeInfo);
     std::string       VarName=luaL_checkstring(LuaState, 2);
     const MemberVarT& Var    =Win->MemberVars[VarName];
 
@@ -895,7 +895,7 @@ int WindowT::Interpolate(lua_State* LuaState)
 int WindowT::GetName(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    WindowT*      Win=(WindowT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    WindowT*      Win=Binder.GetCheckedObjectParam<WindowT*>(1, TypeInfo);
 
     lua_pushstring(LuaState, Win->Name.c_str());
     return 1;
@@ -905,7 +905,7 @@ int WindowT::GetName(lua_State* LuaState)
 int WindowT::SetName(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    WindowT*      Win=(WindowT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    WindowT*      Win=Binder.GetCheckedObjectParam<WindowT*>(1, TypeInfo);
 
     Win->Name=luaL_checkstring(LuaState, 2);
     return 0;
@@ -915,8 +915,8 @@ int WindowT::SetName(lua_State* LuaState)
 int WindowT::AddChild(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    WindowT*      Win  =(WindowT*)Binder.GetCheckedObjectParam(1, TypeInfo);
-    WindowT*      Child=(WindowT*)Binder.GetCheckedObjectParam(2, TypeInfo);
+    WindowT*      Win  =Binder.GetCheckedObjectParam<WindowT*>(1, TypeInfo);
+    WindowT*      Child=Binder.GetCheckedObjectParam<WindowT*>(2, TypeInfo);
 
     if (Child->Parent!=NULL)        // A child window must be a root node...
         return luaL_argerror(LuaState, 2, "child window already has a parent, use RemoveChild() first");
@@ -973,8 +973,8 @@ int WindowT::AddChild(lua_State* LuaState)
 int WindowT::RemoveChild(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    WindowT*      Parent=(WindowT*)Binder.GetCheckedObjectParam(1, TypeInfo);
-    WindowT*      Child =(WindowT*)Binder.GetCheckedObjectParam(2, TypeInfo);
+    WindowT*      Parent=Binder.GetCheckedObjectParam<WindowT*>(1, TypeInfo);
+    WindowT*      Child =Binder.GetCheckedObjectParam<WindowT*>(2, TypeInfo);
 
     if (Child->Parent!=Parent)
         return luaL_argerror(LuaState, 2, "window is the child of another parent");
@@ -1024,7 +1024,7 @@ int WindowT::Destruct(lua_State* LuaState)
 {
     // This doesn't work, because we're getting the userdata item here directly,
     // not the table that represents our windows normally and has the userdata embedded.
- // WindowT* Win=(WindowT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+ // WindowT* Win=Binder.GetCheckedObjectParam<WindowT*>(1, TypeInfo);
 
     // TODO: Do we need a stricter type-check here? Contrary to the example in the PiL2 29.1,
     //       I think there *are* ways for the Lua script to call this function.
@@ -1042,7 +1042,7 @@ int WindowT::Destruct(lua_State* LuaState)
 int WindowT::toString(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    WindowT*      Win=(WindowT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    WindowT*      Win=Binder.GetCheckedObjectParam<WindowT*>(1, TypeInfo);
 
     lua_pushfstring(LuaState, "A gui window with name \"%s\".", Win->Name.c_str());
     return 1;

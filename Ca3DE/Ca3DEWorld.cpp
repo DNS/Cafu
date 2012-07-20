@@ -64,6 +64,7 @@ Ca3DEWorldT::~Ca3DEWorldT()
     // All entities should have been deleted by now, and their dtors should have removed their Lua associated instances.
     // m_ScriptState.PrintGlobalVars();
     // assert(!m_ScriptState.HasEntityInstances());
+    // lua_gc(m_ScriptState.GetScriptState().GetLuaState(), LUA_GCCOLLECT, 0);
 
     // if (m_PhysicsWorld)
     // {
@@ -189,7 +190,7 @@ const ArrayT<unsigned long>& Ca3DEWorldT::GetAllEntityIDs() const
 }
 
 
-BaseEntityT* Ca3DEWorldT::GetBaseEntityByID(unsigned long EntityID) const
+IntrusivePtrT<BaseEntityT> Ca3DEWorldT::GetBaseEntityByID(unsigned long EntityID) const
 {
     if (EntityID<m_EngineEntities.Size())
         if (m_EngineEntities[EntityID]!=NULL)

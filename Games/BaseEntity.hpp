@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Math3D/BoundingBox.hpp"
 #include "ClipSys/ClipModel.hpp"
+#include "Templates/Pointer.hpp"
 
 #include <map>
 
@@ -346,6 +347,13 @@ class BaseEntityT
 
     ArrayT<uint32_t> m_EventsCount;         ///< A counter for each event type for the number of its occurrences. Serialized (and deserialized) normally along with the entity state.
     ArrayT<uint32_t> m_EventsRef;           ///< A reference counter for each event type for the number of processed occurrences. Never serialized (or deserialized), never reset, strictly growing.
+
+
+    private:
+
+    template<class T> friend class IntrusivePtrT;
+
+    unsigned int m_RefCount;
 };
 
 #endif

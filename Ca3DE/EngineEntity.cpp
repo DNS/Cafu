@@ -25,8 +25,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"
 #include "Network/Network.hpp"
+#include "Templates/Pointer.hpp"
 #include "Win32/Win32PrintHelp.hpp"
-#include "../Games/BaseEntity.hpp"
 #include "../Games/Game.hpp"
 #include "Ca3DEWorld.hpp"   // Only for EngineEntityT::Draw().
 
@@ -46,22 +46,18 @@ EngineEntityT::~EngineEntityT()
     lua_State*           LuaState    = ScriptState.GetLuaState();
     cf::ScriptBinderT    Binder(LuaState);
 
-    if (Binder.IsBound(Entity))
+    if (Binder.IsBound(Entity.get()))
     {
         // _G[BaseEntityT->Name] = nil
         lua_pushnil(LuaState);
         lua_setglobal(LuaState, Entity->Name.c_str());
 
-        Binder.Disconnect(Entity);
+        Binder.Disconnect(Entity.get());
     }
-
-    // Wir können nicht einfach 'delete Entity;' schreiben, denn 'Entity' wurde in der GameDLL allokiert,
-    // und muß dort auch wieder freigegeben werden! (The "new/delete cannot cross EXEs/DLLs" problem.)
-    Entity->GameWorld->GetGame()->FreeBaseEntity(Entity);
 }
 
 
-BaseEntityT* EngineEntityT::GetBaseEntity() const
+IntrusivePtrT<BaseEntityT> EngineEntityT::GetBaseEntity() const
 {
     return Entity;
 }
@@ -97,7 +93,7 @@ void EngineEntityT::SetState(const cf::Network::StateT& State, bool IsIniting) c
 /*******************/
 
 
-EngineEntityT::EngineEntityT(BaseEntityT* Entity_, unsigned long CreationFrameNr)
+EngineEntityT::EngineEntityT(IntrusivePtrT<BaseEntityT> Entity_, unsigned long CreationFrameNr)
     : Entity(Entity_),
       EntityStateFrameNr(CreationFrameNr),
       m_BaseLine(),
@@ -211,7 +207,7 @@ bool EngineEntityT::WriteDeltaEntity(bool SendFromBaseLine, unsigned long Client
 /*******************/
 
 
-EngineEntityT::EngineEntityT(BaseEntityT* Entity_, NetDataT& InData)
+EngineEntityT::EngineEntityT(IntrusivePtrT<BaseEntityT> Entity_, NetDataT& InData)
     : Entity(Entity_),
       EntityStateFrameNr(0),
       m_BaseLine(),

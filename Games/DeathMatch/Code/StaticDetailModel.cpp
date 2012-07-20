@@ -364,8 +364,8 @@ bool EntStaticDetailModelT::GetGuiPlane(unsigned int GFNr, Vector3fT& GuiOrigin,
 
 int EntStaticDetailModelT::IsPlayingAnim(lua_State* LuaState)
 {
-    cf::ScriptBinderT      Binder(LuaState);
-    EntStaticDetailModelT* Ent=(EntStaticDetailModelT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    cf::ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<EntStaticDetailModelT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntStaticDetailModelT> >(1, TypeInfo);
 
     lua_pushboolean(LuaState, Ent->m_PlayAnim);
     return 1;
@@ -374,8 +374,8 @@ int EntStaticDetailModelT::IsPlayingAnim(lua_State* LuaState)
 
 int EntStaticDetailModelT::PlayAnim(lua_State* LuaState)
 {
-    cf::ScriptBinderT      Binder(LuaState);
-    EntStaticDetailModelT* Ent=(EntStaticDetailModelT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    cf::ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<EntStaticDetailModelT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntStaticDetailModelT> >(1, TypeInfo);
 
     if (lua_isboolean(LuaState, 2))
     {
@@ -390,8 +390,8 @@ int EntStaticDetailModelT::PlayAnim(lua_State* LuaState)
 
 int EntStaticDetailModelT::GetSequNr(lua_State* LuaState)
 {
-    cf::ScriptBinderT      Binder(LuaState);
-    EntStaticDetailModelT* Ent=(EntStaticDetailModelT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    cf::ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<EntStaticDetailModelT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntStaticDetailModelT> >(1, TypeInfo);
 
     lua_pushinteger(LuaState, Ent->m_LastStdAE->GetSequNr());
     return 1;
@@ -400,8 +400,8 @@ int EntStaticDetailModelT::GetSequNr(lua_State* LuaState)
 
 int EntStaticDetailModelT::SetSequNr(lua_State* LuaState)
 {
-    cf::ScriptBinderT      Binder(LuaState);
-    EntStaticDetailModelT* Ent=(EntStaticDetailModelT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    cf::ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<EntStaticDetailModelT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntStaticDetailModelT> >(1, TypeInfo);
 
     Ent->m_LastStdAE->SetSequNr(std::max(0, luaL_checkinteger(LuaState, 2)));
     Ent->m_LastStdAE->SetFrameNr(0.0f);
@@ -412,8 +412,8 @@ int EntStaticDetailModelT::SetSequNr(lua_State* LuaState)
 
 int EntStaticDetailModelT::RestartSequ(lua_State* LuaState)
 {
-    cf::ScriptBinderT      Binder(LuaState);
-    EntStaticDetailModelT* Ent=(EntStaticDetailModelT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    cf::ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<EntStaticDetailModelT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntStaticDetailModelT> >(1, TypeInfo);
 
     Ent->m_LastStdAE->SetFrameNr(0.0f);
     Ent->PostEvent(EVENT_TYPE_RESTART_SEQU);
@@ -423,8 +423,8 @@ int EntStaticDetailModelT::RestartSequ(lua_State* LuaState)
 
 int EntStaticDetailModelT::GetNumSequences(lua_State* LuaState)
 {
-    cf::ScriptBinderT      Binder(LuaState);
-    EntStaticDetailModelT* Ent=(EntStaticDetailModelT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    cf::ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<EntStaticDetailModelT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntStaticDetailModelT> >(1, TypeInfo);
 
     lua_pushinteger(LuaState, Ent->m_Model->GetAnims().Size());
     return 1;

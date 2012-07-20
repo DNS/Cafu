@@ -113,7 +113,7 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, const P
 
                     if (FaceHuggerID!=0xFFFFFFFF)
                     {
-                        EntFaceHuggerT* FaceHugger=dynamic_cast<EntFaceHuggerT*>(Player->GameWorld->GetBaseEntityByID(FaceHuggerID));
+                        IntrusivePtrT<EntFaceHuggerT> FaceHugger=dynamic_pointer_cast<EntFaceHuggerT>(Player->GameWorld->GetBaseEntityByID(FaceHuggerID));
 
                         FaceHugger->ParentID=Player->ID;
                         FaceHugger->SetHeading(Player->GetHeading());

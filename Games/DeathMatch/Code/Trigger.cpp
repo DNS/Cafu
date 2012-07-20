@@ -87,14 +87,16 @@ void EntTriggerT::OnTrigger(BaseEntityT* Activator)
 {
     if (!IsActive) return;
 
-    GameWorld->GetScriptState().CallMethod(this, "OnTrigger", "G", Activator->Name.c_str());
+    IntrusivePtrT<EntTriggerT> This(this);
+
+    GameWorld->GetScriptState().CallMethod(This, "OnTrigger", "G", Activator->Name.c_str());
 }
 
 
 int EntTriggerT::Activate(lua_State* LuaState)
 {
     cf::ScriptBinderT Binder(LuaState);
-    EntTriggerT*      Ent=(EntTriggerT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    IntrusivePtrT<EntTriggerT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntTriggerT> >(1, TypeInfo);
 
     if (lua_gettop(LuaState)<2)
     {
@@ -118,7 +120,7 @@ int EntTriggerT::Deactivate(lua_State* LuaState)
     Activate(LuaState);
 
     cf::ScriptBinderT Binder(LuaState);
-    EntTriggerT*      Ent=(EntTriggerT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    IntrusivePtrT<EntTriggerT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntTriggerT> >(1, TypeInfo);
 
     Ent->IsActive=!Ent->IsActive;
     return 0;
@@ -128,7 +130,7 @@ int EntTriggerT::Deactivate(lua_State* LuaState)
 int EntTriggerT::GetIsActive(lua_State* LuaState)
 {
     cf::ScriptBinderT Binder(LuaState);
-    EntTriggerT*      Ent=(EntTriggerT*)Binder.GetCheckedObjectParam(1, TypeInfo);
+    IntrusivePtrT<EntTriggerT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntTriggerT> >(1, TypeInfo);
 
     lua_pushboolean(LuaState, Ent->IsActive);
     return 1;

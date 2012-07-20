@@ -131,7 +131,7 @@ void CarriedWeaponGrenadeT::ServerSide_Think(EntHumanPlayerT* Player, const Play
 
                     if (HandGrenadeID!=0xFFFFFFFF)
                     {
-                        EntHandGrenadeT* HandGrenade=dynamic_cast<EntHandGrenadeT*>(Player->GameWorld->GetBaseEntityByID(HandGrenadeID));
+                        IntrusivePtrT<EntHandGrenadeT> HandGrenade=dynamic_pointer_cast<EntHandGrenadeT>(Player->GameWorld->GetBaseEntityByID(HandGrenadeID));
 
                         HandGrenade->ParentID=Player->ID;
                         HandGrenade->SetHeading(Player->GetHeading());

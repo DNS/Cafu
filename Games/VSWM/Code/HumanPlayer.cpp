@@ -154,12 +154,12 @@ void EntHumanPlayerT::ComputeAngles(const IntMatrixT& OldMatrix, const IntMatrix
 }
 
 
-void EntHumanPlayerT::Init2DNodeSequence(const char* TrialFileName, const VectorT& OriginIPS, const double NodeSpacing, const ArrayT<EntInfo2DMoveDirT*>& AllInfo2DMoveDirEntities)
+void EntHumanPlayerT::Init2DNodeSequence(const char* TrialFileName, const VectorT& OriginIPS, const double NodeSpacing, const ArrayT< IntrusivePtrT<EntInfo2DMoveDirT> >& AllInfo2DMoveDirEntities)
 {
     // In 2D trial files, the '#' is a delimiter and "//" initiates a comment.
     TextParserT TrialTP(TrialFileName, "#");
 
-    ArrayT<EntInfo2DMoveDirT*> Sequence;
+    ArrayT< IntrusivePtrT<EntInfo2DMoveDirT> > Sequence;
 
     // This code constructs a sequence from a list of absolute directions. The sequence is stored as a list of info_2d_move_direction entities.
     // Note that each info_2d_move_direction entity represents a direction (namely the unique vector from the info_player_start entity origin
@@ -554,16 +554,16 @@ EntHumanPlayerT::EntHumanPlayerT(char TypeID, unsigned long ID, unsigned long Ma
     const ArrayT<unsigned long>& AllEntityIDs=GameWorld->GetAllEntityIDs();
     VectorT                      Origin_IPS;
     VectorT                      Origin_INS;
-    ArrayT<EntInfo2DMoveDirT*>   AllInfo2DMoveDirEntities;
+    ArrayT< IntrusivePtrT<EntInfo2DMoveDirT> >   AllInfo2DMoveDirEntities;
 
     for (unsigned long EntityIDNr=0; EntityIDNr<AllEntityIDs.Size(); EntityIDNr++)
     {
-        BaseEntityT* BaseEntity=GameWorld->GetBaseEntityByID(AllEntityIDs[EntityIDNr]);
+        IntrusivePtrT<BaseEntityT> BaseEntity=GameWorld->GetBaseEntityByID(AllEntityIDs[EntityIDNr]);
         if (BaseEntity==NULL) continue;
 
         if (BaseEntity->GetType()==&EntInfoPlayerStartT::TypeInfo) { Origin_IPS=BaseEntity->GetOrigin(); continue; }
         if (BaseEntity->GetType()==&EntInfoNodeSpacingT::TypeInfo) { Origin_INS=BaseEntity->GetOrigin(); continue; }
-        if (BaseEntity->GetType()==&EntInfo2DMoveDirT  ::TypeInfo) { AllInfo2DMoveDirEntities.PushBack((EntInfo2DMoveDirT*)BaseEntity); continue; }
+        if (BaseEntity->GetType()==&EntInfo2DMoveDirT  ::TypeInfo) { AllInfo2DMoveDirEntities.PushBack(static_pointer_cast<EntInfo2DMoveDirT>(BaseEntity)); continue; }
 
         Console->DevWarning("Should never get here (ctor HP)!");
         printf("%s (%u): WARNING: Should never get here!\n", __FILE__, __LINE__);

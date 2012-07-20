@@ -79,7 +79,7 @@ class EntHumanPlayerT : public BaseEntityT
     void ComputeAngles(const IntMatrixT& OldMatrix, const IntMatrixT& NewMatrix,
                        unsigned long& OldHeading, unsigned long& OldPitch, unsigned long& OldBank,
                        unsigned long& NewHeading, unsigned long& NewPitch, unsigned long& NewBank);
-    void Init2DNodeSequence(const char* TrialFileName, const VectorT& OriginIPS, const double NodeSpacing, const ArrayT<EntInfo2DMoveDirT*>& AllInfo2DMoveDirEntities);
+    void Init2DNodeSequence(const char* TrialFileName, const VectorT& OriginIPS, const double NodeSpacing, const ArrayT< IntrusivePtrT<EntInfo2DMoveDirT> >& AllInfo2DMoveDirEntities);
     void Init3DNodeSequence(const char* TrialFileName, const VectorT& OriginIPS, const double NodeSpacing);
 
 

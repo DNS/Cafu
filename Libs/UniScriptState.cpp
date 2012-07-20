@@ -58,6 +58,13 @@ void ScriptBinderT::InitState()
     // is unreachable in Lua, as long as the corresponding C++ object exists, we might
     // be asked to look up (push onto the stack) the original table/userdata again.
     lua_newtable(m_LuaState);
+
+    // Set the new table as metatable of itself, configured for weak values.
+    lua_pushstring(m_LuaState, "v");
+    lua_setfield(m_LuaState, -2, "__mode");
+    lua_pushvalue(m_LuaState, -1);
+    lua_setmetatable(m_LuaState, -2);
+
     lua_setfield(m_LuaState, LUA_REGISTRYINDEX, "__cpp_anchors_cf");
 }
 
@@ -81,59 +88,6 @@ bool ScriptBinderT::IsBound(void* Object)
     lua_pop(m_LuaState, 1);   // Pop the __cpp_anchors_cf table.
 
     return Result;
-}
-
-
-void* ScriptBinderT::GetCheckedObjectParam(int StackIndex, const cf::TypeSys::TypeInfoT& TypeInfo)
-{
-    const StackCheckerT StackChecker(m_LuaState);
-
-    // First make sure that the table that represents the object itself is at StackIndex.
-    luaL_argcheck(m_LuaState, lua_istable(m_LuaState, StackIndex), StackIndex, "Expected a table that represents an object." /*of type TypeInfo.ClassName*/);
-
-    // Put the contents of the "__userdata_cf" field on top of the stack (other values may be between it and the table at position StackIndex).
-    lua_getfield(m_LuaState, StackIndex, "__userdata_cf");
-
-#if 1
-    // This approach takes inheritance properly into account by "manually traversing up the inheriance hierarchy".
-    // See the "Game Programming Gems 6" book, page 353 for the inspiration for this code.
-
-    // Put the metatable of the desired type on top of the stack.
-    luaL_getmetatable(m_LuaState, TypeInfo.ClassName);
-
-    // Put the metatable for the given userdata on top of the stack (it may belong to a derived class).
-    if (!lua_getmetatable(m_LuaState, -2)) lua_pushnil(m_LuaState);     // Don't have it push nothing in case of failure.
-
-    while (lua_istable(m_LuaState, -1))
-    {
-        if (lua_rawequal(m_LuaState, -1, -2))
-        {
-            void** UserData=(void**)lua_touserdata(m_LuaState, -3); if (UserData==NULL) luaL_error(m_LuaState, "NULL userdata in object table.");
-            void*  Object  =(*UserData);
-
-            // Pop the two matching metatables and the userdata.
-            lua_pop(m_LuaState, 3);
-            return Object;
-        }
-
-        // Replace the metatable MT on top of the stack with the metatable of MT.__index.
-        lua_getfield(m_LuaState, -1, "__index");
-        if (!lua_getmetatable(m_LuaState, -1)) lua_pushnil(m_LuaState);     // Don't have it push nothing in case of failure.
-        lua_remove(m_LuaState, -2);
-        lua_remove(m_LuaState, -2);
-    }
-
-    luaL_typerror(m_LuaState, StackIndex, TypeInfo.ClassName);
-    return NULL;
-#else
-    // This approach is too simplistic, it doesn't work when inheritance is used.
-    void** UserData=(void**)luaL_checkudata(m_LuaState, -1, TypeInfo.ClassName); if (UserData==NULL) luaL_error(m_LuaState, "NULL userdata in object table.");
-    void*  Object  =(*UserData);
-
-    // Pop the userdata from the stack again. Not necessary though as it doesn't hurt there.
-    // lua_pop(m_LuaState, 1);
-    return Object;
-#endif
 }
 
 
@@ -162,8 +116,11 @@ void ScriptBinderT::Disconnect(void* Object)
     lua_pushstring(m_LuaState, "__userdata_cf");
     lua_rawget(m_LuaState, -2);
 
-    // Get __gc from the metatable (cannot use lua_rawget() here).
-    lua_getfield(m_LuaState, -1, "__gc");
+    // Get __gc from the metatable.
+    lua_getmetatable(m_LuaState, -1);
+    lua_pushstring(m_LuaState, "__gc");
+    lua_rawget(m_LuaState, -2);
+    lua_remove(m_LuaState, -2);
 
     // Run the __gc metamethod / the destructor.
     if (lua_iscfunction(m_LuaState, -1))
@@ -303,6 +260,13 @@ void UniScriptStateT::Init(const cf::TypeSys::TypeInfoManT& TIM)
 
             // MT.__index = FT
             lua_setfield(m_LuaState, -2, "__index");
+
+            // This would be the right thing to do, but we don't know the proper type for Destruct<> here.
+            // Therefore, MT.__gc is only set in Push().
+            //
+            // MT.__gc = Destruct
+            // lua_pushcfunction(m_LuaState, Destruct<...>);
+            // lua_setfield(m_LuaState, -2, "__gc");
 
             // Clear the stack.
             assert(lua_gettop(m_LuaState)==1);

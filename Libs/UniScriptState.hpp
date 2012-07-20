@@ -72,6 +72,26 @@ namespace cf
     /// this class in order to implement alternative binding strategies, and to pass a concrete instance
     /// to the UniScriptStateT constructor in order to "configure" it for a particular strategy.
     ///
+    /// Key idea: we only pass by value!
+    ///   - object is copied
+    ///   - Lua "owns" it and thus determines its lifetime
+    ///   - per default, always create new userdata
+    ///     - simple and clear if the object has no identity: push an xyz-vector twice --> two different userdata
+    ///     - if the object is a smart pointer, and has identity (entities or windows):
+    ///       it would work, too, with one detail issue: per-object extensions added by Lua code (e.g. attributes or callbacks) would not be consistent:
+    ///       one userdata representing the identity would have them, but not another
+    ///       ==> no problem, treat smart pointers as special case
+    ///
+    /// Each type(name) can only be used with *one* kind of binding:
+    ///     MyClassT                A();
+    ///     IntrusivePtrT<MyClassT> B(new MyClassT());
+    ///
+    ///     Push(A);
+    ///     Push(B);    // This is not possible!
+    /// This is because we can only have one __gc function per type: for this typename, would we call
+    /// Destruct<T>(...) with T == MyClassT or with T == IntrusivePtrT<MyClassT> ?
+    /// and because the type's CFunction callbacks would similary not know with which T to call GetCheckedObjectParam<T>().
+    ///
     /// Literature:
     ///   - Programming in Lua, 2nd edition, Roberto Ierusalimschy
     ///   - Game Programming Gems 6, chapter 4.2, "Binding C/C++ objects to Lua", W. Celes et al.
@@ -85,7 +105,7 @@ namespace cf
 
         /// Pushes the given C++ object onto the stack.
         /// The object must support the GetType() method (should we add a "const char* TypeName" parameter instead?).
-        template<class T> bool Push(T* Object/*, bool Recreate*/);
+        template<class T> bool Push(T Object/*, bool Recreate*/);
 
         /// Returns if the given object is currently bound to the Lua state,
         /// i.e. whether for the C++ object there is an alter ego in Lua.
@@ -93,7 +113,7 @@ namespace cf
 
         /// Checks if the value at the given stack index is an object of type TypeInfo,
         /// and returns the userdata which is a pointer to the instance.
-        void* GetCheckedObjectParam(int StackIndex, const cf::TypeSys::TypeInfoT& TypeInfo);
+        template<class T> T GetCheckedObjectParam(int StackIndex, const cf::TypeSys::TypeInfoT& TypeInfo);
 
         /// Breaks the connection between a C++ object and its alter ego in Lua.
         /// If the given object still has an alter ego in the Lua state, calling this method
@@ -111,6 +131,9 @@ namespace cf
         /// Implements the one-time initialization of the Lua state for this binder.
         /// Called by the UniScriptStateT constructor.
         void InitState();
+
+        /// The callback for the __gc metamethod.
+        template<class T> static int Destruct(lua_State* LuaState);
 
         lua_State* m_LuaState;  ///< The Lua state that this binder is used with.
     };
@@ -177,7 +200,7 @@ namespace cf
         /// Example:
         /// If the variable Obj is bound to Object, then   CallMethod(Object, "OnTrigger", "f", 1.0);
         /// calls the script method   Obj:OnTrigger(value)   where value is a number with value 1.0.
-        template<class T> bool CallMethod(T* Object, const std::string& MethodName, const char* Signature="", ...);
+        template<class T> bool CallMethod(T Object, const std::string& MethodName, const char* Signature="", ...);
 
         /// Runs the pending coroutines.
         void RunPendingCoroutines(float FrameTime);
@@ -227,7 +250,21 @@ namespace cf
 }
 
 
-template<class T> inline bool cf::ScriptBinderT::Push(T* Object/*, bool Recreate*/)
+template<class T> int cf::ScriptBinderT::Destruct(lua_State* LuaState)
+{
+    T* UserData=(T*)lua_touserdata(LuaState, 1);
+
+    if (UserData)
+    {
+        // Explicitly call the destructor for the placed object.
+        UserData->~T();
+    }
+
+    return 0;
+}
+
+
+template<class T> inline bool cf::ScriptBinderT::Push(T Object/*, bool Recreate*/)
 {
     const StackCheckerT StackChecker(m_LuaState, 1);
 
@@ -236,7 +273,7 @@ template<class T> inline bool cf::ScriptBinderT::Push(T* Object/*, bool Recreate
 
     // Put __cpp_anchors_cf[Object] onto the stack.
     // This should be our table that represents the object.
-    lua_pushlightuserdata(m_LuaState, Object);
+    lua_pushlightuserdata(m_LuaState, Object.get());    // Need the raw "identity" pointer here.
     lua_rawget(m_LuaState, -2);
 
     // If the object was not found in __cpp_anchors_cf, create it anew.
@@ -253,16 +290,13 @@ template<class T> inline bool cf::ScriptBinderT::Push(T* Object/*, bool Recreate
         lua_newtable(m_LuaState);
 
         // Create a new user datum UD, which is pushed on the stack and thus at stack index USERDATA_INDEX.
-        T** UserData=(T**)lua_newuserdata(m_LuaState, sizeof(T*));
-
-        // Initialize the memory allocated by the lua_newuserdata() function.
-        *UserData=Object;
+        T* UserData=new (lua_newuserdata(m_LuaState, sizeof(T))) T(Object);
 
         // T["__userdata_cf"] = UD
         lua_pushvalue(m_LuaState, USERDATA_INDEX);    // Duplicate the userdata on top of the stack.
         lua_setfield(m_LuaState, TABLE_INDEX, "__userdata_cf");
 
-        // Get the table with name (key) Object->GetType()->ClassName from the registry,
+        // Get the table with name Object->GetType()->ClassName from the registry,
         // and set it as metatable of the newly created table.
         // This is the crucial step that establishes the main functionality of our new table.
         luaL_getmetatable(m_LuaState, Object->GetType()->ClassName);
@@ -276,11 +310,22 @@ template<class T> inline bool cf::ScriptBinderT::Push(T* Object/*, bool Recreate
         luaL_getmetatable(m_LuaState, Object->GetType()->ClassName);
         lua_setmetatable(m_LuaState, USERDATA_INDEX);
 
+        // Get the table with name (key) Object->GetType()->ClassName from the registry,
+        // and check if its __gc metamethod is already set.
+        luaL_getmetatable(m_LuaState, Object->GetType()->ClassName);
+        lua_getfield(m_LuaState, -1, "__gc");
+        if (lua_isnil(m_LuaState, -1))
+        {
+            lua_pushcfunction(m_LuaState, Destruct<T>);
+            lua_setfield(m_LuaState, -3, "__gc");
+        }
+        lua_pop(m_LuaState, 2);
+
         // Remove UD from the stack, so that now the new table T is on top of the stack.
         lua_pop(m_LuaState, 1);
 
         // Anchor the table: __cpp_anchors_cf[Object] = T
-        lua_pushlightuserdata(m_LuaState, Object);
+        lua_pushlightuserdata(m_LuaState, Object.get());    // Need the raw "identity" pointer here.
         lua_pushvalue(m_LuaState, TABLE_INDEX);   // Duplicate the table on top of the stack.
         lua_rawset(m_LuaState, -4);
     }
@@ -293,7 +338,62 @@ template<class T> inline bool cf::ScriptBinderT::Push(T* Object/*, bool Recreate
 }
 
 
-template<class T> inline bool cf::UniScriptStateT::CallMethod(T* Object, const std::string& MethodName, const char* Signature, ...)
+template<class T> inline T cf::ScriptBinderT::GetCheckedObjectParam(int StackIndex, const cf::TypeSys::TypeInfoT& TypeInfo)
+{
+    const StackCheckerT StackChecker(m_LuaState);
+
+    // First make sure that the table that represents the object itself is at StackIndex.
+    luaL_argcheck(m_LuaState, lua_istable(m_LuaState, StackIndex), StackIndex, "Expected a table that represents an object." /*of type TypeInfo.ClassName*/);
+
+    // Put the contents of the "__userdata_cf" field on top of the stack (other values may be between it and the table at position StackIndex).
+    lua_getfield(m_LuaState, StackIndex, "__userdata_cf");
+
+#if 1
+    // This approach takes inheritance properly into account by "manually traversing up the inheriance hierarchy".
+    // See the "Game Programming Gems 6" book, page 353 for the inspiration for this code.
+
+    // Put the metatable of the desired type on top of the stack.
+    luaL_getmetatable(m_LuaState, TypeInfo.ClassName);
+
+    // Put the metatable for the given userdata on top of the stack (it may belong to a derived class).
+    if (!lua_getmetatable(m_LuaState, -2)) lua_pushnil(m_LuaState);     // Don't have it push nothing in case of failure.
+
+    while (lua_istable(m_LuaState, -1))
+    {
+        if (lua_rawequal(m_LuaState, -1, -2))
+        {
+            T* UserData=(T*)lua_touserdata(m_LuaState, -3);
+
+            if (UserData==NULL)
+                luaL_error(m_LuaState, "NULL userdata in object table.");
+
+            // Pop the two matching metatables and the userdata.
+            lua_pop(m_LuaState, 3);
+            return *UserData;
+        }
+
+        // Replace the metatable MT on top of the stack with the metatable of MT.__index.
+        lua_getfield(m_LuaState, -1, "__index");
+        if (!lua_getmetatable(m_LuaState, -1)) lua_pushnil(m_LuaState);     // Don't have it push nothing in case of failure.
+        lua_remove(m_LuaState, -2);
+        lua_remove(m_LuaState, -2);
+    }
+
+    luaL_typerror(m_LuaState, StackIndex, TypeInfo.ClassName);
+    return NULL;
+#else
+    // This approach is too simplistic, it doesn't work when inheritance is used.
+    void** UserData=(void**)luaL_checkudata(m_LuaState, -1, TypeInfo.ClassName); if (UserData==NULL) luaL_error(m_LuaState, "NULL userdata in object table.");
+    void*  Object  =(*UserData);
+
+    // Pop the userdata from the stack again. Not necessary though as it doesn't hurt there.
+    // lua_pop(m_LuaState, 1);
+    return Object;
+#endif
+}
+
+
+template<class T> inline bool cf::UniScriptStateT::CallMethod(T Object, const std::string& MethodName, const char* Signature, ...)
 {
     const StackCheckerT StackChecker(m_LuaState);
     cf::ScriptBinderT   Binder(m_LuaState);
