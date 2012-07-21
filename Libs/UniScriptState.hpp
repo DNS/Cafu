@@ -290,7 +290,7 @@ template<class T> inline bool cf::ScriptBinderT::Push(T Object/*, bool Recreate*
         lua_newtable(m_LuaState);
 
         // Create a new user datum UD, which is pushed on the stack and thus at stack index USERDATA_INDEX.
-        T* UserData=new (lua_newuserdata(m_LuaState, sizeof(T))) T(Object);
+        new (lua_newuserdata(m_LuaState, sizeof(T))) T(Object);
 
         // T["__userdata_cf"] = UD
         lua_pushvalue(m_LuaState, USERDATA_INDEX);    // Duplicate the userdata on top of the stack.

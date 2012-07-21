@@ -35,7 +35,7 @@ class IntrusivePtrT
     public:
 
     /// The constructor.
-    IntrusivePtrT(T* Ptr=NULL)
+    IntrusivePtrT(T* Ptr = 0)
         : m_Ptr(Ptr)
     {
         if (m_Ptr) m_Ptr->m_RefCount++;
@@ -107,7 +107,7 @@ class IntrusivePtrT
     /// For details, see:
     ///   - http://stackoverflow.com/questions/7226801/how-does-shared-ptr-work-in-if-condition
     ///   - http://stackoverflow.com/questions/6967448/does-msvc10-visual-studio-2010-support-c-explicit-conversion-operators
-    bool IsNull() const { return m_Ptr == NULL; }
+    bool IsNull() const { return m_Ptr == 0; }
 
 
     private:

@@ -85,21 +85,22 @@ elif sys.platform=="linux2":
 
 
 envCafu = wxEnv.Clone()
+
 envCafu.Append(CPPPATH=['ExtLibs/lua/src'])
 envCafu.Append(CPPPATH=['ExtLibs/bullet/src'])
 
-if sys.platform=="win32":
-    envCafu.Append(LIBS=Split("SceneGraph MatSys SoundSys cfsLib cfs_jpeg bulletdynamics bulletcollision bulletmath minizip lua ClipSys png z"))
-    envCafu.Append(LIBS=Split("lightwave"))     # For the GuiSys::ModelWindowT class.
-    envCafu.Append(LIBS=Split("DeathMatch"))
+envCafu.Append(LIBS=Split("DeathMatch"))
+envCafu.Append(LIBS=Split("SceneGraph MatSys SoundSys ClipSys cfsLib cfs_jpeg bulletdynamics bulletcollision bulletmath lightwave lua minizip png z"))
 
+if sys.platform=="win32":
     WinResource = envCafu.RES("Ca3DE/Cafu.rc")
 
 elif sys.platform=="linux2":
+    WinResource = []
+
     # -Wl,-rpath,.           is so that also the . directory is searched for dynamic libraries when they're opened.
     # -Wl,--export-dynamic   is so that the exe exports its symbols so that the MatSys, SoundSys and game .so libs can in turn resolve theirs.
     envCafu.Append(LINKFLAGS=['-Wl,-rpath,.', '-Wl,--export-dynamic'])
-    envCafu.Append(LIBS=Split("MatSys SoundSys SceneGraph ClipSys"))
 
     # pthread is needed because some libraries that we load (possibly indirectly), e.g. the libCg.so and libopenal.so, use functions
     # from the pthread library, but have not been linked themselves against it. They rely on the executable to be linked appropriately
@@ -110,35 +111,9 @@ elif sys.platform=="linux2":
     # rt is required in order to resolve clock_gettime() in openal-soft.
     envCafu.Append(LIBS=Split("GL rt pthread"))
 
-    # Wrapping -lcfsLib in --whole-archive and --no-whole-archive is required so that the linker puts all symbols that are in libcfsLib.a
-    # into the executable, because otherwise, it would omit e.g. some ParticleEngine-related stuff that is not referenced by the engine,
-    # and when the game DLL later needs it, we get an "undefined symbol" error from dlopen().
-    # See my post "Having the GNU linker *not* remove unused symbols..." to the gnu.g++.help newsgroup on 2006-04-07,
-    # and the replies by Maett and Paul Pluzhnikov.
-    # Implementing this by appending to LINKCOM is a SCons-specific hack though,
-    # because SCons currently does not support such kind of "wrapping". See my post to the scons-users mailing list on 2006-04-09
-    # at http://scons.tigris.org/servlets/BrowseList?list=users&by=thread&from=455553.
-    # The "-llightwave, ..." are all needed as a direct consequence of the forced --whole-archive for cfsLib,
-    # which in turn requires these...
-    # Note that this (using --whole-archive) is actually the proper strategy under Linux (vs. Windows), because this is *the* way
-    # in order to make sure that the -fPIC can be handled correctly - otherwise we had to link .so libs with non-fPIC object files...
-    envCafu.Append(LINKCOM=" -Wl,--whole-archive -lcfsLib -lbulletdynamics -lbulletcollision -lbulletmath -Wl,--no-whole-archive -llua -llightwave -lminizip -lcfs_jpeg -lpng -lz")
-
-    WinResource = []
-
 appCafu = envCafu.Program('Ca3DE/Cafu',
     Glob("Ca3DE/*.cpp") + Glob("Ca3DE/Server/*.cpp") + CommonWorldObject + ["Common/WorldMan.cpp"] + WinResource +
     Glob("Ca3DE/Client/*.cpp"))
-
-if sys.platform=="linux2":
-    # This is a work-around for the fact that SCons doesn't automatically add dependencies for the libraries mentioned in LINKCOM.
-    for LibName in Split("""cfsLib bulletdynamics bulletcollision bulletmath
-                            lua lightwave minizip cfs_jpeg"""):   # png and z are not in the list, because we use the system libraries.
-        LibFile = envCafu.FindFile("lib" + LibName + ".so", envCafu['LIBPATH'])
-        if LibFile==None:
-            LibFile = envCafu.FindFile("lib" + LibName + ".a", envCafu['LIBPATH'])
-        # print "appCafu depends on: ", LibFile
-        envCafu.Depends(appCafu, LibFile)
 
 
 

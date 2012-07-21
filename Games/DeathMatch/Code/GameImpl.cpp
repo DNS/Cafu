@@ -190,6 +190,8 @@ cf::GameSys::GameImplT::GameImplT()
     : RunningAsClient(false),
       RunningAsServer(false)
 {
+    (void)AllTypeInfos;
+
     LookupTables::Initialize();
 
     GetBaseEntTIM().Init();
