@@ -69,6 +69,62 @@ void ScriptBinderT::InitState()
 }
 
 
+void ScriptBinderT::Init(const cf::TypeSys::TypeInfoManT& TIM)
+{
+    // For each class that the TIM knows about, add a (meta-)table to the registry of the Lua state.
+    // The (meta-)table holds the Lua methods that the respective class implements in C++,
+    // and is to be used as metatable for instances of this class.
+    for (unsigned long RootNr=0; RootNr<TIM.GetTypeInfoRoots().Size(); RootNr++)
+    {
+        for (const cf::TypeSys::TypeInfoT* TI=TIM.GetTypeInfoRoots()[RootNr]; TI!=NULL; TI=TI->GetNext())
+        {
+            assert(lua_gettop(m_LuaState)==0);
+
+            // Create a new table MT and add it into the registry table with TI->ClassName
+            // (e.g. "cf::GuiSys::WindowT" or "cf::GameSys::EntMoverT") as the key and MT as the value.
+            // This also leaves MT on top of the stack. See PiL2 chapter 28.2 for more details.
+            luaL_newmetatable(m_LuaState, TI->ClassName);
+
+            // Create a new table FT and register the functions in TI->MethodsList into it.
+            // See PiL2 chapter 28.3 for more details. We intentionally don't merge FT into MT though,
+            // or else Lua code could call the __gc method! See thread "__gc visible to Lua code" at
+            // http://lua-users.org/lists/lua-l/2007-03/threads.html#00872 for more details.
+            lua_newtable(m_LuaState);
+
+            if (TI->MethodsList != NULL)
+                luaL_register(m_LuaState, NULL, TI->MethodsList);
+
+            // If TI has a base class, model that relationship for FT, too, by setting the metatable of
+            // the base class as the metatable for FT. Note that this works because the for-loop (over TI)
+            // enumerates the base classes always before their child classes!
+            if (TI->Base)
+            {
+                assert(strcmp(TI->BaseClassName, TI->Base->ClassName) == 0);
+
+                // Get the metatable MT' with name TI->Base->ClassName (e.g. "cf::GameSys::BaseEntityT")
+                // from the registry, and set it as metatable of FT.
+                luaL_getmetatable(m_LuaState, TI->Base->ClassName);
+                lua_setmetatable(m_LuaState, -2);
+            }
+
+            // MT.__index = FT
+            lua_setfield(m_LuaState, -2, "__index");
+
+            // This would be the right thing to do, but we don't know the proper type for Destruct<> here.
+            // Therefore, MT.__gc is only set in Push().
+            //
+            // MT.__gc = Destruct
+            // lua_pushcfunction(m_LuaState, Destruct<...>);
+            // lua_setfield(m_LuaState, -2, "__gc");
+
+            // Clear the stack.
+            assert(lua_gettop(m_LuaState)==1);
+            lua_pop(m_LuaState, 1);
+        }
+    }
+}
+
+
 bool ScriptBinderT::IsBound(void* Identity)
 {
     const StackCheckerT StackChecker(m_LuaState);
@@ -217,62 +273,6 @@ UniScriptStateT::UniScriptStateT()
 UniScriptStateT::~UniScriptStateT()
 {
     lua_close(m_LuaState);
-}
-
-
-void UniScriptStateT::Init(const cf::TypeSys::TypeInfoManT& TIM)
-{
-    // For each class that the TIM knows about, add a (meta-)table to the registry of the Lua state.
-    // The (meta-)table holds the Lua methods that the respective class implements in C++,
-    // and is to be used as metatable for instances of this class.
-    for (unsigned long RootNr=0; RootNr<TIM.GetTypeInfoRoots().Size(); RootNr++)
-    {
-        for (const cf::TypeSys::TypeInfoT* TI=TIM.GetTypeInfoRoots()[RootNr]; TI!=NULL; TI=TI->GetNext())
-        {
-            assert(lua_gettop(m_LuaState)==0);
-
-            // Create a new table MT and add it into the registry table with TI->ClassName
-            // (e.g. "cf::GuiSys::WindowT" or "cf::GameSys::EntMoverT") as the key and MT as the value.
-            // This also leaves MT on top of the stack. See PiL2 chapter 28.2 for more details.
-            luaL_newmetatable(m_LuaState, TI->ClassName);
-
-            // Create a new table FT and register the functions in TI->MethodsList into it.
-            // See PiL2 chapter 28.3 for more details. We intentionally don't merge FT into MT though,
-            // or else Lua code could call the __gc method! See thread "__gc visible to Lua code" at
-            // http://lua-users.org/lists/lua-l/2007-03/threads.html#00872 for more details.
-            lua_newtable(m_LuaState);
-
-            if (TI->MethodsList != NULL)
-                luaL_register(m_LuaState, NULL, TI->MethodsList);
-
-            // If TI has a base class, model that relationship for FT, too, by setting the metatable of
-            // the base class as the metatable for FT. Note that this works because the for-loop (over TI)
-            // enumerates the base classes always before their child classes!
-            if (TI->Base)
-            {
-                assert(strcmp(TI->BaseClassName, TI->Base->ClassName) == 0);
-
-                // Get the metatable MT' with name TI->Base->ClassName (e.g. "cf::GameSys::BaseEntityT")
-                // from the registry, and set it as metatable of FT.
-                luaL_getmetatable(m_LuaState, TI->Base->ClassName);
-                lua_setmetatable(m_LuaState, -2);
-            }
-
-            // MT.__index = FT
-            lua_setfield(m_LuaState, -2, "__index");
-
-            // This would be the right thing to do, but we don't know the proper type for Destruct<> here.
-            // Therefore, MT.__gc is only set in Push().
-            //
-            // MT.__gc = Destruct
-            // lua_pushcfunction(m_LuaState, Destruct<...>);
-            // lua_setfield(m_LuaState, -2, "__gc");
-
-            // Clear the stack.
-            assert(lua_gettop(m_LuaState)==1);
-            lua_pop(m_LuaState, 1);
-        }
-    }
 }
 
 

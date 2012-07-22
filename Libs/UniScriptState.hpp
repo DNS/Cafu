@@ -37,9 +37,6 @@ extern "C"
 #include <string>
 
 
-struct lua_State;
-
-
 namespace cf
 {
     /// This class checks if the Lua stack has the same size at the start and the end of a function.
@@ -103,6 +100,14 @@ namespace cf
 
         /// The constructor.
         ScriptBinderT(lua_State* LuaState);
+
+        /// This method registers all C++ classes known to the TIM in the related Lua state.
+        ///
+        /// Subsequently created Lua instances of these classes will use the related information
+        /// so that script code can call the C++-implemented methods, e.g. "obj:myCppFunc()".
+        /// The method also takes inheritance into account: Lua instances of derived classes can
+        /// access the attributes and call the methods of their base classes.
+        void Init(const cf::TypeSys::TypeInfoManT& TIM);
 
         /// Pushes the given C++ object onto the stack.
         /// The object must support the GetType() method (should we add a "const char* TypeName" parameter instead?).
@@ -186,14 +191,6 @@ namespace cf
 
         /// The destructor.
         ~UniScriptStateT();
-
-        /// This method registers all C++ classes known to the TIM with this script state.
-        ///
-        /// Subsequently created Lua instances of these classes will use the related information
-        /// so that script code can call the C++-implemented methods, e.g. "obj:myCppFunc()".
-        /// The method also takes inheritance into account: Lua instances of derived classes can
-        /// access the attributes and call the methods of their base classes.
-        void Init(const cf::TypeSys::TypeInfoManT& TIM);
 
         /// Loads the given string as a Lua chunk, then runs it.
         /// (This acts very much like the stand-alone Lua interpreter.)

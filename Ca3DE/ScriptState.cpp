@@ -197,7 +197,8 @@ ScriptStateT::ScriptStateT(cf::GameSys::GameI* Game)
     // For each (entity-)class that the TypeInfoMan knows about, add a (meta-)table to the registry of the LuaState.
     // The (meta-)table holds the Lua methods that the respective class implements in C++,
     // and is to be used as metatable for instances of this class.
-    m_ScriptState.Init(Game->GetEntityTIM());
+    cf::ScriptBinderT Binder(LuaState);
+    Binder.Init(Game->GetEntityTIM());
 
     // Make sure that everyone dealt properly with the Lua stack so far.
     assert(lua_gettop(LuaState)==0);
