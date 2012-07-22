@@ -730,7 +730,7 @@ int GuiImplT::SetFocus(lua_State* LuaState)
     }
     else if (lua_istable(LuaState, 2))
     {
-        WindowT* Win=Binder.GetCheckedObjectParam<WindowT*>(2, WindowT::TypeInfo);
+        WindowT* Win=Binder.GetCheckedObjectParam<WindowT*>(2);
 
         Gui->FocusWindow=Win;
     }
@@ -784,7 +784,7 @@ int GuiImplT::SetRootWindow(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
     GuiImplT*     Gui=CheckParams(LuaState);
-    WindowT*      Win=Binder.GetCheckedObjectParam<WindowT*>(2, WindowT::TypeInfo);
+    WindowT*      Win=Binder.GetCheckedObjectParam<WindowT*>(2);
 
     // Note that Gui->RootWindow is a WindowPtrT that makes sure that the Win instance gets
     // properly anchored in the Lua state in order to prevent premature garbage collection.

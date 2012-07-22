@@ -215,7 +215,7 @@ int EntFuncMoverT::SetOrigin(lua_State* LuaState)
     BaseEntityT::SetOrigin(LuaState);
 
     cf::ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<EntFuncMoverT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntFuncMoverT> >(1, TypeInfo);
+    IntrusivePtrT<EntFuncMoverT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntFuncMoverT> >(1);
 
     Ent->ClipModel.SetOrigin(Ent->GetOrigin());
     Ent->ClipModel.Register();  // Re-register ourselves with the clip world.
@@ -226,7 +226,7 @@ int EntFuncMoverT::SetOrigin(lua_State* LuaState)
 int EntFuncMoverT::Translate(lua_State* LuaState)
 {
     cf::ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<EntFuncMoverT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntFuncMoverT> >(1, TypeInfo);
+    IntrusivePtrT<EntFuncMoverT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntFuncMoverT> >(1);
 
     // If there is already a translation in progress, ignore additional requests.
     if (Ent->TranslationLinTimeLeft>0.0f) return 0;

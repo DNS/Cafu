@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_UNI_SCRIPT_STATE_HPP_INCLUDED
 
 #include "Templates/Array.hpp"
+#include "Templates/Pointer.hpp"
 #include "TypeSys.hpp"
 
 extern "C"
@@ -107,24 +108,54 @@ namespace cf
         /// The object must support the GetType() method (should we add a "const char* TypeName" parameter instead?).
         template<class T> bool Push(T Object/*, bool Recreate*/);
 
-        /// Returns if the given object is currently bound to the Lua state,
-        /// i.e. whether for the C++ object there is an alter ego in Lua.
-        bool IsBound(void* Object);
+        /// Checks if the value at the given stack index is a Lua object of type T::TypeInfo,
+        /// or a subclass derived from it, and returns a reference to the related userdata.
+        /// (If T is really an IntrusivePtrT<U>, the method checks for type U::TypeInfo,
+        ///  or a subclass derived from it.)
+        template<class T> T& GetCheckedObjectParam(int StackIndex);
 
-        /// Checks if the value at the given stack index is an object of type TypeInfo,
-        /// and returns the userdata which is a pointer to the instance.
-        template<class T> T GetCheckedObjectParam(int StackIndex, const cf::TypeSys::TypeInfoT& TypeInfo);
+        /// Returns if the object with the given identity is currently bound to the Lua state,
+        /// i.e. whether for the C++ object there is an alter ego in Lua.
+        bool IsBound(void* Identity);
 
         /// Breaks the connection between a C++ object and its alter ego in Lua.
-        /// If the given object still has an alter ego in the Lua state, calling this method
-        /// essentially removes all C++ parts from it: the metatable is reset to nil,
-        /// and the userdata's destructor is called (Lua will collect it later).
+        /// If the object with the given identity still has an alter ego in the Lua state,
+        /// calling this method essentially removes all C++ parts from it: the metatable is
+        /// reset to nil, and the userdata's destructor is called (Lua will collect it later).
         /// After this method, any attempt to access the C++-implemented methods in Lua
         /// yields a (safe and well-defined) error message.
-        void Disconnect(void* Object);
+        void Disconnect(void* Identity);
 
 
         private:
+
+        /// Use traits for obtaining the static TypeInfo member for any given T.
+        /// If we have an instance of T, call GetType() instead, which returns the proper type
+        /// even if T is a base class pointer.
+        /// See http://erdani.com/publications/traits.html for a nice intro to traits.
+        template<class T> class TypeInfoTraitsT
+        {
+            public:
+
+            static const cf::TypeSys::TypeInfoT& Get() { return T::TypeInfo; }
+            static const cf::TypeSys::TypeInfoT& Get(const T& Object) { return *Object.GetType(); }
+        };
+
+        template<class T> class TypeInfoTraitsT< IntrusivePtrT<T> >
+        {
+            public:
+
+            static const cf::TypeSys::TypeInfoT& Get() { return T::TypeInfo; }
+            static const cf::TypeSys::TypeInfoT& Get(IntrusivePtrT<T> Object) { return *Object->GetType(); }
+        };
+
+        template<class T> class TypeInfoTraitsT<T*>
+        {
+            public:
+
+            static const cf::TypeSys::TypeInfoT& Get() { return T::TypeInfo; }
+            static const cf::TypeSys::TypeInfoT& Get(T* Object) { return *Object->GetType(); }
+        };
 
         friend class UniScriptStateT;
 
@@ -296,23 +327,23 @@ template<class T> inline bool cf::ScriptBinderT::Push(T Object/*, bool Recreate*
         lua_pushvalue(m_LuaState, USERDATA_INDEX);    // Duplicate the userdata on top of the stack.
         lua_setfield(m_LuaState, TABLE_INDEX, "__userdata_cf");
 
-        // Get the table with name Object->GetType()->ClassName from the registry,
+        // Get the table with name TypeInfoTraitsT<T>::Get(Object).ClassName from the registry,
         // and set it as metatable of the newly created table.
         // This is the crucial step that establishes the main functionality of our new table.
-        luaL_getmetatable(m_LuaState, Object->GetType()->ClassName);
+        luaL_getmetatable(m_LuaState, TypeInfoTraitsT<T>::Get(Object).ClassName);
         lua_setmetatable(m_LuaState, TABLE_INDEX);
 
-        // Get the table with name (key) Object->GetType()->ClassName from the registry,
+        // Get the table with name (key) TypeInfoTraitsT<T>::Get(Object).ClassName from the registry,
         // and set it as metatable of the newly created userdata item.
         // This is important for userdata type safety (see PiL2, chapter 28.2) and to have automatic garbage collection work
         // (contrary to the text in the "Game Programming Gems 6" book, chapter 4.2, a __gc method in the metatable
         //  is only called for full userdata, see my email to the Lua mailing list on 2008-Apr-01 for more details).
-        luaL_getmetatable(m_LuaState, Object->GetType()->ClassName);
+        luaL_getmetatable(m_LuaState, TypeInfoTraitsT<T>::Get(Object).ClassName);
         lua_setmetatable(m_LuaState, USERDATA_INDEX);
 
-        // Get the table with name (key) Object->GetType()->ClassName from the registry,
+        // Get the table with name (key) TypeInfoTraitsT<T>::Get(Object).ClassName from the registry,
         // and check if its __gc metamethod is already set.
-        luaL_getmetatable(m_LuaState, Object->GetType()->ClassName);
+        luaL_getmetatable(m_LuaState, TypeInfoTraitsT<T>::Get(Object).ClassName);
         lua_getfield(m_LuaState, -1, "__gc");
         if (lua_isnil(m_LuaState, -1))
         {
@@ -338,7 +369,7 @@ template<class T> inline bool cf::ScriptBinderT::Push(T Object/*, bool Recreate*
 }
 
 
-template<class T> inline T cf::ScriptBinderT::GetCheckedObjectParam(int StackIndex, const cf::TypeSys::TypeInfoT& TypeInfo)
+template<class T> inline T& cf::ScriptBinderT::GetCheckedObjectParam(int StackIndex)
 {
     const StackCheckerT StackChecker(m_LuaState);
 
@@ -353,7 +384,7 @@ template<class T> inline T cf::ScriptBinderT::GetCheckedObjectParam(int StackInd
     // See the "Game Programming Gems 6" book, page 353 for the inspiration for this code.
 
     // Put the metatable of the desired type on top of the stack.
-    luaL_getmetatable(m_LuaState, TypeInfo.ClassName);
+    luaL_getmetatable(m_LuaState, TypeInfoTraitsT<T>::Get().ClassName);
 
     // Put the metatable for the given userdata on top of the stack (it may belong to a derived class).
     if (!lua_getmetatable(m_LuaState, -2)) lua_pushnil(m_LuaState);     // Don't have it push nothing in case of failure.
@@ -379,16 +410,20 @@ template<class T> inline T cf::ScriptBinderT::GetCheckedObjectParam(int StackInd
         lua_remove(m_LuaState, -2);
     }
 
-    luaL_typerror(m_LuaState, StackIndex, TypeInfo.ClassName);
-    return NULL;
+    luaL_typerror(m_LuaState, StackIndex, TypeInfoTraitsT<T>::Get().ClassName);
+
+    static T* Invalid = NULL;
+    return *Invalid;
 #else
     // This approach is too simplistic, it doesn't work when inheritance is used.
-    void** UserData=(void**)luaL_checkudata(m_LuaState, -1, TypeInfo.ClassName); if (UserData==NULL) luaL_error(m_LuaState, "NULL userdata in object table.");
-    void*  Object  =(*UserData);
+    T* UserData=(T*)luaL_checkudata(m_LuaState, -1, TypeInfoTraitsT<T>::Get().ClassName);
+
+    if (UserData==NULL)
+        luaL_error(m_LuaState, "NULL userdata in object table.");
 
     // Pop the userdata from the stack again. Not necessary though as it doesn't hurt there.
     // lua_pop(m_LuaState, 1);
-    return Object;
+    return *UserData;
 #endif
 }
 

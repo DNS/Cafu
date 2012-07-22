@@ -69,16 +69,16 @@ void ScriptBinderT::InitState()
 }
 
 
-bool ScriptBinderT::IsBound(void* Object)
+bool ScriptBinderT::IsBound(void* Identity)
 {
     const StackCheckerT StackChecker(m_LuaState);
 
     // Put the REGISTRY["__cpp_anchors_cf"] table onto the stack.
     lua_getfield(m_LuaState, LUA_REGISTRYINDEX, "__cpp_anchors_cf");
 
-    // Put __cpp_anchors_cf[Object] onto the stack.
+    // Put __cpp_anchors_cf[Identity] onto the stack.
     // This should be our table that represents the object.
-    lua_pushlightuserdata(m_LuaState, Object);
+    lua_pushlightuserdata(m_LuaState, Identity);
     lua_rawget(m_LuaState, -2);
 
     // Is the object in the anchors table?
@@ -92,16 +92,16 @@ bool ScriptBinderT::IsBound(void* Object)
 
 
 // This is essentially the opposite of Push().
-void ScriptBinderT::Disconnect(void* Object)
+void ScriptBinderT::Disconnect(void* Identity)
 {
     const StackCheckerT StackChecker(m_LuaState);
 
     // Put the REGISTRY["__cpp_anchors_cf"] table onto the stack.
     lua_getfield(m_LuaState, LUA_REGISTRYINDEX, "__cpp_anchors_cf");
 
-    // Put __cpp_anchors_cf[Object] onto the stack.
+    // Put __cpp_anchors_cf[Identity] onto the stack.
     // This should be our table that represents the object.
-    lua_pushlightuserdata(m_LuaState, Object);
+    lua_pushlightuserdata(m_LuaState, Identity);
     lua_rawget(m_LuaState, -2);
 
     // If the object was not found in __cpp_anchors_cf, there is nothing to do.
@@ -148,8 +148,8 @@ void ScriptBinderT::Disconnect(void* Object)
     // Pop the table.
     lua_pop(m_LuaState, 1);
 
-    // Un-anchor the table: __cpp_anchors_cf[Object] = nil
-    lua_pushlightuserdata(m_LuaState, Object);
+    // Un-anchor the table: __cpp_anchors_cf[Identity] = nil
+    lua_pushlightuserdata(m_LuaState, Identity);
     lua_pushnil(m_LuaState);
     lua_rawset(m_LuaState, -3);
 

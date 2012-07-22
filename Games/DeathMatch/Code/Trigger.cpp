@@ -96,7 +96,7 @@ void EntTriggerT::OnTrigger(BaseEntityT* Activator)
 int EntTriggerT::Activate(lua_State* LuaState)
 {
     cf::ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<EntTriggerT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntTriggerT> >(1, TypeInfo);
+    IntrusivePtrT<EntTriggerT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntTriggerT> >(1);
 
     if (lua_gettop(LuaState)<2)
     {
@@ -120,7 +120,7 @@ int EntTriggerT::Deactivate(lua_State* LuaState)
     Activate(LuaState);
 
     cf::ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<EntTriggerT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntTriggerT> >(1, TypeInfo);
+    IntrusivePtrT<EntTriggerT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntTriggerT> >(1);
 
     Ent->IsActive=!Ent->IsActive;
     return 0;
@@ -130,7 +130,7 @@ int EntTriggerT::Deactivate(lua_State* LuaState)
 int EntTriggerT::GetIsActive(lua_State* LuaState)
 {
     cf::ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<EntTriggerT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntTriggerT> >(1, TypeInfo);
+    IntrusivePtrT<EntTriggerT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntTriggerT> >(1);
 
     lua_pushboolean(LuaState, Ent->IsActive);
     return 1;

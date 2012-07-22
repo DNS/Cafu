@@ -157,7 +157,7 @@ bool EntPointLightSourceT::GetLightSourceInfo(unsigned long& DiffuseColor, unsig
 int EntPointLightSourceT::GetColor(lua_State* LuaState)
 {
     cf::ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<EntPointLightSourceT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntPointLightSourceT> >(1, TypeInfo);
+    IntrusivePtrT<EntPointLightSourceT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntPointLightSourceT> >(1);
 
     lua_pushnumber(LuaState, (Ent->m_DiffuseColor >>  0) & 0xFF);
     lua_pushnumber(LuaState, (Ent->m_DiffuseColor >>  8) & 0xFF);
@@ -174,7 +174,7 @@ int EntPointLightSourceT::GetColor(lua_State* LuaState)
 int EntPointLightSourceT::SetColor(lua_State* LuaState)
 {
     cf::ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<EntPointLightSourceT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntPointLightSourceT> >(1, TypeInfo);
+    IntrusivePtrT<EntPointLightSourceT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntPointLightSourceT> >(1);
 
     const unsigned long dr=((unsigned long)luaL_checknumber(LuaState, 2)) & 0xFF;
     const unsigned long dg=((unsigned long)luaL_checknumber(LuaState, 3)) & 0xFF;
@@ -199,7 +199,7 @@ int EntPointLightSourceT::SetColor(lua_State* LuaState)
 int EntPointLightSourceT::GetRadius(lua_State* LuaState)
 {
     cf::ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<EntPointLightSourceT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntPointLightSourceT> >(1, TypeInfo);
+    IntrusivePtrT<EntPointLightSourceT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntPointLightSourceT> >(1);
 
     lua_pushnumber(LuaState, Ent->m_Radius);
 
@@ -210,7 +210,7 @@ int EntPointLightSourceT::GetRadius(lua_State* LuaState)
 int EntPointLightSourceT::SetRadius(lua_State* LuaState)
 {
     cf::ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<EntPointLightSourceT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntPointLightSourceT> >(1, TypeInfo);
+    IntrusivePtrT<EntPointLightSourceT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntPointLightSourceT> >(1);
 
     Ent->m_Radius=float(luaL_checknumber(LuaState, 2));
 

@@ -386,7 +386,7 @@ void EntRigidBodyT::setWorldTransform(const btTransform& worldTrans)
 int EntRigidBodyT::ApplyImpulse(lua_State* LuaState)
 {
     cf::ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<EntRigidBodyT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntRigidBodyT> >(1, TypeInfo);
+    IntrusivePtrT<EntRigidBodyT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntRigidBodyT> >(1);
     btVector3         Impulse;
 
     Impulse.setX(float(luaL_checknumber(LuaState, 2)));
@@ -402,7 +402,7 @@ int EntRigidBodyT::ApplyImpulse(lua_State* LuaState)
 int EntRigidBodyT::SetGravity(lua_State* LuaState)
 {
     cf::ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<EntRigidBodyT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntRigidBodyT> >(1, TypeInfo);
+    IntrusivePtrT<EntRigidBodyT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntRigidBodyT> >(1);
     btVector3         Gravity;
 
     Gravity.setX(float(luaL_checknumber(LuaState, 2)));

@@ -144,7 +144,7 @@ void EntSpeakerT::ProcessEvent(unsigned int EventType, unsigned int /*NumEvents*
 int EntSpeakerT::Play(lua_State* LuaState)
 {
     cf::ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<EntSpeakerT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntSpeakerT> >(1, TypeInfo);
+    IntrusivePtrT<EntSpeakerT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntSpeakerT> >(1);
 
     Ent->State.Flags=1;
     Ent->PostEvent(EVENT_TYPE_PLAY);
@@ -156,7 +156,7 @@ int EntSpeakerT::Play(lua_State* LuaState)
 int EntSpeakerT::Stop(lua_State* LuaState)
 {
     cf::ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<EntSpeakerT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntSpeakerT> >(1, TypeInfo);
+    IntrusivePtrT<EntSpeakerT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntSpeakerT> >(1);
 
     Ent->State.Flags=0;
     Ent->PostEvent(EVENT_TYPE_STOP);

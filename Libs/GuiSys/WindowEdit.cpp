@@ -301,7 +301,7 @@ int EditWindowT::Set(lua_State* LuaState)
     const int Result=WindowT::Set(LuaState);
 
     ScriptBinderT Binder(LuaState);
-    EditWindowT*  EditWin=Binder.GetCheckedObjectParam<EditWindowT*>(1, TypeInfo);
+    EditWindowT*  EditWin=Binder.GetCheckedObjectParam<EditWindowT*>(1);
     std::string   VarName=luaL_checkstring(LuaState, 2);
 
     // If the text of this window was changed, set the text cursor position to its end.
@@ -313,7 +313,7 @@ int EditWindowT::Set(lua_State* LuaState)
 int EditWindowT::GetTextCursorPos(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    EditWindowT*  EditWin=Binder.GetCheckedObjectParam<EditWindowT*>(1, TypeInfo);
+    EditWindowT*  EditWin=Binder.GetCheckedObjectParam<EditWindowT*>(1);
 
     lua_pushinteger(LuaState, EditWin->m_TextCursorPos);
     return 1;
@@ -323,7 +323,7 @@ int EditWindowT::GetTextCursorPos(lua_State* LuaState)
 int EditWindowT::SetTextCursorPos(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    EditWindowT*  EditWin=Binder.GetCheckedObjectParam<EditWindowT*>(1, TypeInfo);
+    EditWindowT*  EditWin=Binder.GetCheckedObjectParam<EditWindowT*>(1);
 
     EditWin->m_TextCursorPos=lua_tointeger(LuaState, 2);
     return 0;
@@ -333,7 +333,7 @@ int EditWindowT::SetTextCursorPos(lua_State* LuaState)
 int EditWindowT::SetTextCursorType(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    EditWindowT*  EditWin=Binder.GetCheckedObjectParam<EditWindowT*>(1, TypeInfo);
+    EditWindowT*  EditWin=Binder.GetCheckedObjectParam<EditWindowT*>(1);
     const char*   Type=luaL_checkstring(LuaState, 2);
 
     EditWin->m_TextCursorType=(Type[0]=='_') ? 1 : 0;
@@ -344,7 +344,7 @@ int EditWindowT::SetTextCursorType(lua_State* LuaState)
 int EditWindowT::SetTextCursorRate(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    EditWindowT*  EditWin=Binder.GetCheckedObjectParam<EditWindowT*>(1, TypeInfo);
+    EditWindowT*  EditWin=Binder.GetCheckedObjectParam<EditWindowT*>(1);
 
     EditWin->m_TextCursorRate=float(lua_tonumber(LuaState, 2));
     return 0;
@@ -354,7 +354,7 @@ int EditWindowT::SetTextCursorRate(lua_State* LuaState)
 int EditWindowT::SetTextCursorColor(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    EditWindowT*  EditWin=Binder.GetCheckedObjectParam<EditWindowT*>(1, TypeInfo);
+    EditWindowT*  EditWin=Binder.GetCheckedObjectParam<EditWindowT*>(1);
 
     EditWin->m_TextCursorColor[0]=float(lua_tonumber(LuaState, 2));
     EditWin->m_TextCursorColor[1]=float(lua_tonumber(LuaState, 3));
