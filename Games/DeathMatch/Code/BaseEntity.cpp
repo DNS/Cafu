@@ -115,8 +115,7 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT
       m_Bank(0),
       State(State_),
       m_EventsCount(),
-      m_EventsRef(),
-      m_RefCount(0)
+      m_EventsRef()
 {
     m_EventsCount.PushBackEmptyExact(NUM_EVENT_TYPES);
     m_EventsRef  .PushBackEmptyExact(NUM_EVENT_TYPES);

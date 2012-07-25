@@ -81,7 +81,7 @@ struct EntityStateT
 
 
 // This class describes "base entities", the most central component in game<-->engine communication.
-class BaseEntityT
+class BaseEntityT : public RefCountedT
 {
     public:
 
@@ -347,13 +347,6 @@ class BaseEntityT
 
     ArrayT<uint32_t> m_EventsCount;         ///< A counter for each event type for the number of its occurrences. Serialized (and deserialized) normally along with the entity state.
     ArrayT<uint32_t> m_EventsRef;           ///< A reference counter for each event type for the number of processed occurrences. Never serialized (or deserialized), never reset, strictly growing.
-
-
-    private:
-
-    template<class T> friend class IntrusivePtrT;
-
-    unsigned int m_RefCount;
 };
 
 #endif

@@ -23,6 +23,30 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_SMART_POINTER_HPP_INCLUDED
 
 
+/// A base class for IntrusivePtrT reference-counted objects.
+/// See http://www.drdobbs.com/article/print?articleId=229218807 for details.
+class RefCountedT
+{
+    public:
+
+    unsigned int GetRefCount() const { return m_RefCount; }
+
+
+    protected:
+
+    RefCountedT() : m_RefCount(0) { }
+    RefCountedT(const RefCountedT&) : m_RefCount(0) { }
+    RefCountedT& operator = (const RefCountedT&) { return *this; }
+
+
+    private:
+
+    template<class T> friend class IntrusivePtrT;
+
+    unsigned int m_RefCount;
+};
+
+
 /// This class implements smart (reference-counted) pointers.
 ///
 /// The implementation is intrusive: It requires from the class \c T that it is used with
