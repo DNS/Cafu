@@ -23,7 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_SMART_POINTER_HPP_INCLUDED
 
 
-/// A base class for IntrusivePtrT reference-counted objects.
+/// A base class for objects that are reference-counted with IntrusivePtrTs.
 /// See http://www.drdobbs.com/article/print?articleId=229218807 for details.
 class RefCountedT
 {

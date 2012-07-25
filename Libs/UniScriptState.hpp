@@ -144,6 +144,7 @@ namespace cf
 
             static const cf::TypeSys::TypeInfoT& Get() { return T::TypeInfo; }
             static const cf::TypeSys::TypeInfoT& Get(const T& Object) { return *Object.GetType(); }
+            static int GetRefCount(lua_State* LuaState) { lua_pushnil(LuaState); return 1; }
         };
 
         template<class T> class TypeInfoTraitsT< IntrusivePtrT<T> >
@@ -152,6 +153,7 @@ namespace cf
 
             static const cf::TypeSys::TypeInfoT& Get() { return T::TypeInfo; }
             static const cf::TypeSys::TypeInfoT& Get(IntrusivePtrT<T> Object) { return *Object->GetType(); }
+            static int GetRefCount(lua_State* LuaState) { cf::ScriptBinderT Binder(LuaState); lua_pushinteger(LuaState, Binder.GetCheckedObjectParam< IntrusivePtrT<T> >(1)->GetRefCount()); return 1; }
         };
 
         template<class T> class TypeInfoTraitsT<T*>
@@ -160,6 +162,7 @@ namespace cf
 
             static const cf::TypeSys::TypeInfoT& Get() { return T::TypeInfo; }
             static const cf::TypeSys::TypeInfoT& Get(T* Object) { return *Object->GetType(); }
+            static int GetRefCount(lua_State* LuaState) { lua_pushnil(LuaState); return 1; }
         };
 
         friend class UniScriptStateT;
@@ -349,6 +352,20 @@ template<class T> inline bool cf::ScriptBinderT::Push(T Object/*, bool Recreate*
         }
         lua_pop(m_LuaState, 2);
 
+        // Get the table with name (key) TypeInfoTraitsT<T>::Get().ClassName from the registry,
+        // get its __index table, and check if its GetRefCount method is already set.
+        // Note that we use Get(), not Get(Object), just in case T is a base class pointer
+        // (in which case T::TypeInfo and *Object.GetType() yield different results).
+        luaL_getmetatable(m_LuaState, TypeInfoTraitsT<T>::Get().ClassName);
+        lua_getfield(m_LuaState, -1, "__index");
+        lua_getfield(m_LuaState, -1, "GetRefCount");
+        if (lua_isnil(m_LuaState, -1))
+        {
+            lua_pushcfunction(m_LuaState, TypeInfoTraitsT<T>::GetRefCount);
+            lua_setfield(m_LuaState, -3, "GetRefCount");
+        }
+        lua_pop(m_LuaState, 3);
+
         // Remove UD from the stack, so that now the new table T is on top of the stack.
         lua_pop(m_LuaState, 1);
 
@@ -432,16 +449,9 @@ template<class T> inline bool cf::UniScriptStateT::CallMethod(T Object, const st
 
     Binder.Push(Object);
 
-    // Put the desired method (from the object table) onto the stack of LuaState.
-    #if 1
-        lua_getfield(m_LuaState, -1, MethodName.c_str());
-    #else
-        // lua_getfield(LuaState, -1, MethodName.c_str()); or lua_gettable() instead of lua_rawget() just doesn't work,
-        // it results in a "PANIC: unprotected error in call to Lua API (loop in gettable)" abortion.
-        // I don't know exactly why this is so.
-        lua_pushstring(m_LuaState, MethodName.c_str());
-        lua_rawget(m_LuaState, -2);
-    #endif
+    // Put the desired method (directly from the object's table or
+    // from its metatables __index table) onto the stack of LuaState.
+    lua_getfield(m_LuaState, -1, MethodName.c_str());
 
     if (!lua_isfunction(m_LuaState, -1))
     {
