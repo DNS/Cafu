@@ -48,15 +48,12 @@ ScriptBinderT::ScriptBinderT(lua_State* LuaState)
 
 void ScriptBinderT::InitState()
 {
-    // Add a table with name "__cpp_anchors_cf" to the registry:
-    // REGISTRY["__cpp_anchors_cf"] = {}
+    // Add a table with name "__identity_to_object" to the registry:
+    // REGISTRY["__identity_to_object"] = {}
     //
     // This table will be used to keep track of the bound C++ objects,
-    // mapping C++ instance pointers to Lua tables/userdata.
-    // It is used to find previously created Lua objects again by C++ pointer,
-    // and to prevent Lua from collecting them as garbage: even if the table/userdata
-    // is unreachable in Lua, as long as the corresponding C++ object exists, we might
-    // be asked to look up (push onto the stack) the original table/userdata again.
+    // mapping C++ instance pointers (identities) to Lua tables/userdata.
+    // It is used to find previously created Lua objects again by C++ pointer.
     lua_newtable(m_LuaState);
 
     // Set the new table as metatable of itself, configured for weak values.
@@ -65,7 +62,7 @@ void ScriptBinderT::InitState()
     lua_pushvalue(m_LuaState, -1);
     lua_setmetatable(m_LuaState, -2);
 
-    lua_setfield(m_LuaState, LUA_REGISTRYINDEX, "__cpp_anchors_cf");
+    lua_setfield(m_LuaState, LUA_REGISTRYINDEX, "__identity_to_object");
 }
 
 
@@ -129,19 +126,19 @@ bool ScriptBinderT::IsBound(void* Identity)
 {
     const StackCheckerT StackChecker(m_LuaState);
 
-    // Put the REGISTRY["__cpp_anchors_cf"] table onto the stack.
-    lua_getfield(m_LuaState, LUA_REGISTRYINDEX, "__cpp_anchors_cf");
+    // Put the REGISTRY["__identity_to_object"] table onto the stack.
+    lua_getfield(m_LuaState, LUA_REGISTRYINDEX, "__identity_to_object");
 
-    // Put __cpp_anchors_cf[Identity] onto the stack.
+    // Put __identity_to_object[Identity] onto the stack.
     // This should be our table that represents the object.
     lua_pushlightuserdata(m_LuaState, Identity);
     lua_rawget(m_LuaState, -2);
 
-    // Is the object in the anchors table?
+    // Is the object in the __identity_to_object table?
     const bool Result = !lua_isnil(m_LuaState, -1);
 
     lua_pop(m_LuaState, 1);   // Pop the value.
-    lua_pop(m_LuaState, 1);   // Pop the __cpp_anchors_cf table.
+    lua_pop(m_LuaState, 1);   // Pop the __identity_to_object table.
 
     return Result;
 }
@@ -152,19 +149,19 @@ void ScriptBinderT::Disconnect(void* Identity)
 {
     const StackCheckerT StackChecker(m_LuaState);
 
-    // Put the REGISTRY["__cpp_anchors_cf"] table onto the stack.
-    lua_getfield(m_LuaState, LUA_REGISTRYINDEX, "__cpp_anchors_cf");
+    // Put the REGISTRY["__identity_to_object"] table onto the stack.
+    lua_getfield(m_LuaState, LUA_REGISTRYINDEX, "__identity_to_object");
 
-    // Put __cpp_anchors_cf[Identity] onto the stack.
+    // Put __identity_to_object[Identity] onto the stack.
     // This should be our table that represents the object.
     lua_pushlightuserdata(m_LuaState, Identity);
     lua_rawget(m_LuaState, -2);
 
-    // If the object was not found in __cpp_anchors_cf, there is nothing to do.
+    // If the object was not found in __identity_to_object, there is nothing to do.
     if (lua_isnil(m_LuaState, -1))
     {
         lua_pop(m_LuaState, 1);   // Pop the nil.
-        lua_pop(m_LuaState, 1);   // Pop the __cpp_anchors_cf table.
+        lua_pop(m_LuaState, 1);   // Pop the __identity_to_object table.
         return;
     }
 
@@ -204,12 +201,12 @@ void ScriptBinderT::Disconnect(void* Identity)
     // Pop the table.
     lua_pop(m_LuaState, 1);
 
-    // Un-anchor the table: __cpp_anchors_cf[Identity] = nil
+    // Remove the table: __identity_to_object[Identity] = nil
     lua_pushlightuserdata(m_LuaState, Identity);
     lua_pushnil(m_LuaState);
     lua_rawset(m_LuaState, -3);
 
-    // Pop the __cpp_anchors_cf table.
+    // Pop the __identity_to_object table.
     lua_pop(m_LuaState, 1);
 }
 

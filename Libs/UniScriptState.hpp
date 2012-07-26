@@ -111,7 +111,7 @@ namespace cf
 
         /// Pushes the given C++ object onto the stack.
         /// The object must support the GetType() method (should we add a "const char* TypeName" parameter instead?).
-        template<class T> bool Push(T Object/*, bool Recreate*/);
+        template<class T> bool Push(T Object);
 
         /// Checks if the value at the given stack index is a Lua object of type T::TypeInfo,
         /// or a subclass derived from it, and returns a reference to the related userdata.
@@ -295,19 +295,19 @@ template<class T> int cf::ScriptBinderT::Destruct(lua_State* LuaState)
 }
 
 
-template<class T> inline bool cf::ScriptBinderT::Push(T Object/*, bool Recreate*/)
+template<class T> inline bool cf::ScriptBinderT::Push(T Object)
 {
     const StackCheckerT StackChecker(m_LuaState, 1);
 
-    // Put the REGISTRY["__cpp_anchors_cf"] table onto the stack.
-    lua_getfield(m_LuaState, LUA_REGISTRYINDEX, "__cpp_anchors_cf");
+    // Put the REGISTRY["__identity_to_object"] table onto the stack.
+    lua_getfield(m_LuaState, LUA_REGISTRYINDEX, "__identity_to_object");
 
-    // Put __cpp_anchors_cf[Object] onto the stack.
+    // Put __identity_to_object[Identity] onto the stack.
     // This should be our table that represents the object.
     lua_pushlightuserdata(m_LuaState, Object.get());    // Need the raw "identity" pointer here.
     lua_rawget(m_LuaState, -2);
 
-    // If the object was not found in __cpp_anchors_cf, create it anew.
+    // If the object was not found in __identity_to_object, create it anew.
     if (lua_isnil(m_LuaState, -1))
     {
         // Remove the nil.
@@ -355,7 +355,7 @@ template<class T> inline bool cf::ScriptBinderT::Push(T Object/*, bool Recreate*
         // Get the table with name (key) TypeInfoTraitsT<T>::Get().ClassName from the registry,
         // get its __index table, and check if its GetRefCount method is already set.
         // Note that we use Get(), not Get(Object), just in case T is a base class pointer
-        // (in which case T::TypeInfo and *Object.GetType() yield different results).
+        // (in case of which Get() and Get(Object) yield different results).
         luaL_getmetatable(m_LuaState, TypeInfoTraitsT<T>::Get().ClassName);
         lua_getfield(m_LuaState, -1, "__index");
         lua_getfield(m_LuaState, -1, "GetRefCount");
@@ -369,13 +369,13 @@ template<class T> inline bool cf::ScriptBinderT::Push(T Object/*, bool Recreate*
         // Remove UD from the stack, so that now the new table T is on top of the stack.
         lua_pop(m_LuaState, 1);
 
-        // Anchor the table: __cpp_anchors_cf[Object] = T
+        // Record the table: __identity_to_object[Identity] = T
         lua_pushlightuserdata(m_LuaState, Object.get());    // Need the raw "identity" pointer here.
         lua_pushvalue(m_LuaState, TABLE_INDEX);   // Duplicate the table on top of the stack.
         lua_rawset(m_LuaState, -4);
     }
 
-    // Remove the __cpp_anchors_cf table.
+    // Remove the __identity_to_object table.
     lua_remove(m_LuaState, -2);
 
     // The requested table/userdata is now at the top of the stack.
