@@ -144,7 +144,7 @@ namespace cf
 
             static const cf::TypeSys::TypeInfoT& Get() { return T::TypeInfo; }
             static const cf::TypeSys::TypeInfoT& Get(const T& Object) { return *Object.GetType(); }
-            static int GetRefCount(lua_State* LuaState) { lua_pushnil(LuaState); return 1; }
+            static bool IsRefCounted() { return false; }
         };
 
         template<class T> class TypeInfoTraitsT< IntrusivePtrT<T> >
@@ -153,7 +153,7 @@ namespace cf
 
             static const cf::TypeSys::TypeInfoT& Get() { return T::TypeInfo; }
             static const cf::TypeSys::TypeInfoT& Get(IntrusivePtrT<T> Object) { return *Object->GetType(); }
-            static int GetRefCount(lua_State* LuaState) { cf::ScriptBinderT Binder(LuaState); lua_pushinteger(LuaState, Binder.GetCheckedObjectParam< IntrusivePtrT<T> >(1)->GetRefCount()); return 1; }
+            static bool IsRefCounted() { return true; }
         };
 
         template<class T> class TypeInfoTraitsT<T*>
@@ -162,7 +162,7 @@ namespace cf
 
             static const cf::TypeSys::TypeInfoT& Get() { return T::TypeInfo; }
             static const cf::TypeSys::TypeInfoT& Get(T* Object) { return *Object->GetType(); }
-            static int GetRefCount(lua_State* LuaState) { lua_pushnil(LuaState); return 1; }
+            static bool IsRefCounted() { return false; }
         };
 
         friend class UniScriptStateT;
@@ -170,6 +170,15 @@ namespace cf
         /// Implements the one-time initialization of the Lua state for this binder.
         /// Called by the UniScriptStateT constructor.
         void InitState();
+
+        /// If i is a negative stack index (relative to the top), returns the related absolute index.
+        int abs_index(int i) const
+        {
+            return (i > 0 || i <= LUA_REGISTRYINDEX) ? i : lua_gettop(m_LuaState) + i + 1;
+        }
+
+        /// An extra object method for objects of type IntrusivePtrT<X>.
+        template<class T> static int GetRefCount(lua_State* LuaState);
 
         /// The callback for the __gc metamethod.
         template<class T> static int Destruct(lua_State* LuaState);
@@ -281,6 +290,21 @@ namespace cf
 }
 
 
+template<class T> int cf::ScriptBinderT::GetRefCount(lua_State* LuaState)
+{
+    // Cannot use Binder.GetCheckedObjectParam() here, because it would cause infinite
+    // recursion (via the call to Anchor()).
+    lua_getfield(LuaState, -1, "__userdata_cf");
+
+    // Note that T is an IntrusivePtrT<X>.
+    T* UserData=(T*)lua_touserdata(LuaState, -1);
+
+    assert(UserData);
+    lua_pushinteger(LuaState, UserData ? (*UserData)->GetRefCount() : 0);
+    return 1;
+}
+
+
 template<class T> int cf::ScriptBinderT::Destruct(lua_State* LuaState)
 {
     T* UserData=(T*)lua_touserdata(LuaState, 1);
@@ -317,13 +341,13 @@ template<class T> inline bool cf::ScriptBinderT::Push(T Object)
         const int USERDATA_INDEX=lua_gettop(m_LuaState) + 2;
         const int TABLE_INDEX   =lua_gettop(m_LuaState) + 1;
 
-        // Create a new table T, which is pushed on the stack and thus at stack index TABLE_INDEX.
+        // Create a new object table OT, which is pushed on the stack and thus at stack index TABLE_INDEX.
         lua_newtable(m_LuaState);
 
         // Create a new user datum UD, which is pushed on the stack and thus at stack index USERDATA_INDEX.
         new (lua_newuserdata(m_LuaState, sizeof(T))) T(Object);
 
-        // T["__userdata_cf"] = UD
+        // OT["__userdata_cf"] = UD
         lua_pushvalue(m_LuaState, USERDATA_INDEX);    // Duplicate the userdata on top of the stack.
         lua_setfield(m_LuaState, TABLE_INDEX, "__userdata_cf");
 
@@ -356,22 +380,25 @@ template<class T> inline bool cf::ScriptBinderT::Push(T Object)
         // get its __index table, and check if its GetRefCount method is already set.
         // Note that we use Get(), not Get(Object), just in case T is a base class pointer
         // (in case of which Get() and Get(Object) yield different results).
-        luaL_getmetatable(m_LuaState, TypeInfoTraitsT<T>::Get().ClassName);
-        lua_getfield(m_LuaState, -1, "__index");
-        lua_getfield(m_LuaState, -1, "GetRefCount");
-        if (lua_isnil(m_LuaState, -1))
+        if (TypeInfoTraitsT<T>::IsRefCounted())
         {
-            lua_pushcfunction(m_LuaState, TypeInfoTraitsT<T>::GetRefCount);
-            lua_setfield(m_LuaState, -3, "GetRefCount");
+            luaL_getmetatable(m_LuaState, TypeInfoTraitsT<T>::Get().ClassName);
+            lua_getfield(m_LuaState, -1, "__index");
+            lua_getfield(m_LuaState, -1, "GetRefCount");
+            if (lua_isnil(m_LuaState, -1))
+            {
+                lua_pushcfunction(m_LuaState, GetRefCount<T>);
+                lua_setfield(m_LuaState, -3, "GetRefCount");
+            }
+            lua_pop(m_LuaState, 3);
         }
-        lua_pop(m_LuaState, 3);
 
-        // Remove UD from the stack, so that now the new table T is on top of the stack.
+        // Remove UD from the stack, so that now the new table OT is on top of the stack.
         lua_pop(m_LuaState, 1);
 
-        // Record the table: __identity_to_object[Identity] = T
+        // Record the table: __identity_to_object[Identity] = OT
         lua_pushlightuserdata(m_LuaState, Object.get());    // Need the raw "identity" pointer here.
-        lua_pushvalue(m_LuaState, TABLE_INDEX);   // Duplicate the table on top of the stack.
+        lua_pushvalue(m_LuaState, TABLE_INDEX);             // Duplicate the table on top of the stack.
         lua_rawset(m_LuaState, -4);
     }
 
@@ -386,6 +413,8 @@ template<class T> inline bool cf::ScriptBinderT::Push(T Object)
 template<class T> inline T& cf::ScriptBinderT::GetCheckedObjectParam(int StackIndex)
 {
     const StackCheckerT StackChecker(m_LuaState);
+
+    StackIndex = abs_index(StackIndex);
 
     // First make sure that the table that represents the object itself is at StackIndex.
     luaL_argcheck(m_LuaState, lua_istable(m_LuaState, StackIndex), StackIndex, "Expected a table that represents an object." /*of type TypeInfo.ClassName*/);
