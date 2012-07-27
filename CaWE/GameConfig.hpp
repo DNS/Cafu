@@ -23,7 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_GAME_CONFIG_HPP_INCLUDED
 
 #include "EditorMaterialManager.hpp"
-#include "GuiSys/GuiImpl.hpp"
+#include "GuiSys/GuiResources.hpp"
 #include "Math3D/BoundingBox.hpp"
 #include "Models/ModelManager.hpp"
 #include "Templates/Array.hpp"

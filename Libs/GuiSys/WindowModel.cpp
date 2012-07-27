@@ -21,6 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "WindowModel.hpp"
 #include "GuiImpl.hpp"
+#include "GuiResources.hpp"
 #include "WindowCreateParams.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"

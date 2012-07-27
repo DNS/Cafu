@@ -30,6 +30,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Fonts/FontTT.hpp"
 #include "GuiSys/GuiImpl.hpp"
+#include "GuiSys/GuiResources.hpp"
 #include "GuiSys/WindowCreateParams.hpp"
 #include "MaterialSystem/Mesh.hpp"
 #include "MaterialSystem/Renderer.hpp"

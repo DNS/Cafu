@@ -22,7 +22,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Window.hpp"
 #include "WindowCreateParams.hpp"
 #include "GuiMan.hpp"
-#include "GuiImpl.hpp"      // For GuiImplT::GetCheckedObjectParam().
+#include "GuiImpl.hpp"
+#include "GuiResources.hpp"
 #include "ConsoleCommands/Console.hpp"
 #include "MaterialSystem/Mesh.hpp"
 #include "MaterialSystem/Renderer.hpp"
@@ -37,15 +38,6 @@ extern "C"
 }
 
 #include <assert.h>
-
-#if defined(_WIN32) && defined (_MSC_VER)
-    #if (_MSC_VER<1300)
-        #define for if (false) ; else for
-
-        // Turn off warning 4786: "Bezeichner wurde auf '255' Zeichen in den Debug-Informationen reduziert."
-        #pragma warning(disable:4786)
-    #endif
-#endif
 
 
 using namespace cf::GuiSys;

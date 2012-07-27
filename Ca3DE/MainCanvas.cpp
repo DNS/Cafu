@@ -36,6 +36,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GuiSys/ConsoleByWindow.hpp"
 #include "GuiSys/GuiImpl.hpp"
 #include "GuiSys/GuiManImpl.hpp"
+#include "GuiSys/GuiResources.hpp"
 #include "GuiSys/Window.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/Renderer.hpp"
