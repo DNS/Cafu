@@ -193,11 +193,19 @@ namespace cf
         void Anchor(int StackIndex);
 
         /// This method un-anchors IntrusivePtrT objects that no longer have any siblings in C++.
+        ///
         /// For such IntrusivePtrT's, the Lua instance is the only remaining reference to the C++ object.
         /// Removing such objects from the REGISTRY.__has_ref_in_cpp set ensures that they can normally be
         /// garbage collected as soon as they become unused in Lua as well.
         ///
         /// The user must call this method periodically (typically every n-th game frame).
+        ///
+        /// In summary, the key idea of the whole anchoring process is:
+        ///   1) When an object is newly pushed, anchor it.
+        ///   2) Every now and then, run our own "pseudo garbage collection":
+        ///        a) When the object becomes unused in C++, un-anchor it.
+        ///        b) If the object is passed back to C++ again, re-anchor it.
+        ///
         /// See Anchor() for the complementary method that (re-)anchors IntrusivePtrT objects.
         void CheckCppRefs();
 
