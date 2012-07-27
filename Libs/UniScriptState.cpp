@@ -63,6 +63,102 @@ void ScriptBinderT::InitState()
     lua_setmetatable(m_LuaState, -2);
 
     lua_setfield(m_LuaState, LUA_REGISTRYINDEX, "__identity_to_object");
+
+
+    // Add a table with name "__has_ref_in_cpp" to the registry:
+    // REGISTRY.__has_ref_in_cpp = {}
+    lua_newtable(m_LuaState);
+    lua_setfield(m_LuaState, LUA_REGISTRYINDEX, "__has_ref_in_cpp");
+}
+
+
+void ScriptBinderT::Anchor(int StackIndex)
+{
+    const StackCheckerT StackChecker(m_LuaState);
+
+    StackIndex = abs_index(StackIndex);
+
+    // Is the object at StackIndex eligible for anchoring?
+    // (Is object:GetRefCount() >= 1 ?)
+    lua_getfield(m_LuaState, StackIndex, "GetRefCount");
+
+    if (!lua_isfunction(m_LuaState, -1))
+    {
+        lua_pop(m_LuaState, 1);
+        return;
+    }
+
+    lua_pushvalue(m_LuaState, StackIndex);
+    lua_call(m_LuaState, 1, 1);
+    const int RefCount = lua_tointeger(m_LuaState, -1);
+    lua_pop(m_LuaState, 1);
+
+    if (RefCount < 1)
+    {
+        assert(false);
+        return;
+    }
+
+    // Put the REGISTRY.__has_ref_in_cpp set onto the stack.
+    lua_getfield(m_LuaState, LUA_REGISTRYINDEX, "__has_ref_in_cpp");
+
+    // Insert the object: __has_ref_in_cpp[Object] = true
+    lua_pushvalue(m_LuaState, StackIndex);
+    lua_pushboolean(m_LuaState, 1);
+    lua_rawset(m_LuaState, -3);
+
+    // Remove the __has_ref_in_cpp table.
+    lua_pop(m_LuaState, 1);
+}
+
+
+void ScriptBinderT::CheckCppRefs()
+{
+    const StackCheckerT StackChecker(m_LuaState);
+
+    // Put the REGISTRY.__has_ref_in_cpp set onto the stack.
+    lua_getfield(m_LuaState, LUA_REGISTRYINDEX, "__has_ref_in_cpp");
+
+    // The initial key for the traversal.
+    lua_pushnil(m_LuaState);
+
+    while (lua_next(m_LuaState, -2) != 0)
+    {
+        // The key is now at stack index -2, the value is at index -1.
+        // Remove the unneeded boolean value (true), so that the key is at index -1.
+        // The key is also needed at index -1 in order to seed the next iteration.
+        lua_pop(m_LuaState, 1);
+
+        // Should the object at index -1 remain anchored?
+        lua_getfield(m_LuaState, -1, "GetRefCount");
+
+        if (lua_isfunction(m_LuaState, -1))
+        {
+            lua_pushvalue(m_LuaState, -2);
+            lua_call(m_LuaState, 1, 1);
+            const int RefCount = lua_tointeger(m_LuaState, -1);
+            lua_pop(m_LuaState, 1);
+
+            if (RefCount > 1)
+            {
+                // Keep this object anchored.
+                continue;
+            }
+        }
+
+        // Pop whatever is not a function.
+        lua_pop(m_LuaState, 1);
+
+        // Remove the object: __has_ref_in_cpp[Object] = nil
+        lua_pushvalue(m_LuaState, -1);
+        lua_pushnil(m_LuaState);
+        lua_rawset(m_LuaState, -4);
+
+        // The key is kept for the next iteration.
+    }
+
+    // Remove the __has_ref_in_cpp table.
+    lua_pop(m_LuaState, 1);
 }
 
 
@@ -221,7 +317,8 @@ UniScriptStateT::CoroutineT::CoroutineT()
 
 
 UniScriptStateT::UniScriptStateT()
-    : m_LuaState(NULL)
+    : m_LuaState(NULL),
+      m_CheckCppRefsCount(0)
 {
     // Open (create, init) a new Lua state.
     m_LuaState=lua_open();
@@ -385,6 +482,19 @@ bool UniScriptStateT::Call(const char* FuncName, const char* Signature, ...)
 
 void UniScriptStateT::RunPendingCoroutines(float FrameTime)
 {
+    // Take the opportunity to check if the reference-counted objects are still referenced in C++ code.
+    // If not, they're un-anchored, and thus can be garbage collected when they're unused in Lua as well.
+    m_CheckCppRefsCount++;
+
+    if (m_CheckCppRefsCount > 100)
+    {
+        ScriptBinderT Binder(m_LuaState);
+
+        Binder.CheckCppRefs();
+        m_CheckCppRefsCount = 0;
+    }
+
+
     // Iterate over all elements in the REGISTRY["__pending_coroutines_cf"] table, which has all the pending coroutines.
     const int PENDING_COROUTINES_TABLE_IDX=1;
     lua_getfield(m_LuaState, LUA_REGISTRYINDEX, "__pending_coroutines_cf");   // Put REGISTRY["__pending_coroutines_cf"] onto the stack at index 1.

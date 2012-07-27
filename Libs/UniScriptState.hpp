@@ -171,6 +171,36 @@ namespace cf
         /// Called by the UniScriptStateT constructor.
         void InitState();
 
+        /// If the object at the given stack index is an IntrusivePtrT, this method anchors it in a separate table
+        /// so that it cannot be garbage collected in Lua while it has siblings in C++.
+        ///
+        /// The method first checks if the object at the given stack index is an IntrusivePtrT.
+        /// Its reference count is expected to be at least 2 if the IntrusivePtrT was just passed in from C++ code
+        /// and a copy of it was bound to Lua, or at least 1 if Lua has the only instance (that however might soon
+        /// be returned to C++ code, where it can be copied and kept, thereby increasing the reference count).
+        /// In any case, if the object is an IntrusivePtrT, it is added to the REGISTRY.__has_ref_in_cpp set.
+        ///
+        /// This prevents the object, when it becomes (otherwise) unused in Lua, from being garbage collected.
+        /// It would normally not be a problem at all for an IntrusivePtrT object being collected, and it would be
+        /// perfectly possible to push another copy of an IntrusivePtrT to the same C++ object later.
+        ///
+        /// The only downside with garbage collecting IntrusivePtrT's that are still referenced in C++ is that any
+        /// custom Lua data that is attached to it, such as event callback functions, gets lost.
+        /// See http://thread.gmane.org/gmane.comp.lang.lua.general/92550 for details.
+        ///
+        /// Addressing this problem is in fact the sole reason for this method.
+        /// See CheckCppRefs() for the complementary method that un-anchors the objects again.
+        void Anchor(int StackIndex);
+
+        /// This method un-anchors IntrusivePtrT objects that no longer have any siblings in C++.
+        /// For such IntrusivePtrT's, the Lua instance is the only remaining reference to the C++ object.
+        /// Removing such objects from the REGISTRY.__has_ref_in_cpp set ensures that they can normally be
+        /// garbage collected as soon as they become unused in Lua as well.
+        ///
+        /// The user must call this method periodically (typically every n-th game frame).
+        /// See Anchor() for the complementary method that (re-)anchors IntrusivePtrT objects.
+        void CheckCppRefs();
+
         /// If i is a negative stack index (relative to the top), returns the related absolute index.
         int abs_index(int i) const
         {
@@ -286,6 +316,7 @@ namespace cf
 
         lua_State*         m_LuaState;          ///< The Lua instance. This is what "really" represents the script.
         ArrayT<CoroutineT> m_PendingCoroutines; ///< The list of active, pending coroutines.
+        unsigned int       m_CheckCppRefsCount; ///< Call Binder.CheckCppRefs() only every n-th frame.
     };
 }
 
@@ -400,6 +431,12 @@ template<class T> inline bool cf::ScriptBinderT::Push(T Object)
         lua_pushlightuserdata(m_LuaState, Object.get());    // Need the raw "identity" pointer here.
         lua_pushvalue(m_LuaState, TABLE_INDEX);             // Duplicate the table on top of the stack.
         lua_rawset(m_LuaState, -4);
+
+        // Anchor the object (table OT).
+        // Note that this is not necessary if the object was found in __identity_to_object above,
+        // because then, clearly a copy in C++ and a copy in Lua existed beforehand, so that
+        // consequently the object must also be anchored.
+        Anchor(TABLE_INDEX);
     }
 
     // Remove the __identity_to_object table.
@@ -443,6 +480,11 @@ template<class T> inline T& cf::ScriptBinderT::GetCheckedObjectParam(int StackIn
 
             // Pop the two matching metatables and the userdata.
             lua_pop(m_LuaState, 3);
+
+            // We pass the object back to C++, fully expecting that it will keep a copy
+            // and, if it is an IntrusivePtrT, increase its reference count.
+            Anchor(StackIndex);
+
             return *UserData;
         }
 
