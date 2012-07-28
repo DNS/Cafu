@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GuiDocument.hpp"
 
 #include "Commands/ModifyGui.hpp"
+#include "GuiSys/Window.hpp"
 
 
 using namespace GuiEditor;

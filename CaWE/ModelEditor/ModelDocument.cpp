@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../MapBrush.hpp"
 
 #include "GuiSys/GuiImpl.hpp"
+#include "GuiSys/Window.hpp"
 #include "Models/Loader_ase.hpp"
 #include "Models/Loader_cmdl.hpp"
 #include "Models/Loader_dlod.hpp"

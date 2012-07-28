@@ -42,14 +42,14 @@ namespace
     {
         public:
 
-        WindowTreeItemT(cf::GuiSys::WindowT* Window) : m_Window(Window) {};
+        WindowTreeItemT(IntrusivePtrT<cf::GuiSys::WindowT> Window) : m_Window(Window) {};
 
-        cf::GuiSys::WindowT* GetWindow() { return m_Window; }
+        IntrusivePtrT<cf::GuiSys::WindowT> GetWindow() { return m_Window; }
 
 
         private:
 
-        cf::GuiSys::WindowT* m_Window;
+        IntrusivePtrT<cf::GuiSys::WindowT> m_Window;
     };
 }
 
@@ -94,7 +94,7 @@ WindowTreeT::~WindowTreeT()
 // Automatically fills children of tree item using the items client data.
 void WindowTreeT::AddChildren(const wxTreeItemId& Item, bool Recursive)
 {
-    ArrayT<cf::GuiSys::WindowT*> Children;
+    ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > Children;
 
     // Read children of this object.
     // We can safely cast this since we have set the data ourselves.
@@ -116,7 +116,7 @@ void WindowTreeT::AddChildren(const wxTreeItemId& Item, bool Recursive)
 }
 
 
-const wxTreeItemId WindowTreeT::FindTreeItem(const wxTreeItemId& StartingItem, cf::GuiSys::WindowT* Window) const
+const wxTreeItemId WindowTreeT::FindTreeItem(const wxTreeItemId& StartingItem, IntrusivePtrT<cf::GuiSys::WindowT> Window) const
 {
     // If the item to start with is invalid, return it so the result of this function call is invalid too.
     if (!StartingItem.IsOk()) return StartingItem;
@@ -163,7 +163,7 @@ void WindowTreeT::GetTreeItems(const wxTreeItemId& StartingItem, ArrayT<wxTreeIt
 }
 
 
-void WindowTreeT::NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& OldSelection, const ArrayT<cf::GuiSys::WindowT*>& NewSelection)
+void WindowTreeT::NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& OldSelection, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& NewSelection)
 {
     if (m_IsRecursiveSelfNotify) return;
 
@@ -190,7 +190,7 @@ void WindowTreeT::NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT
 }
 
 
-void WindowTreeT::NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows)
+void WindowTreeT::NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows)
 {
     if (m_IsRecursiveSelfNotify) return;
 
@@ -198,7 +198,7 @@ void WindowTreeT::NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT<c
 }
 
 
-void WindowTreeT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows)
+void WindowTreeT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows)
 {
     if (m_IsRecursiveSelfNotify) return;
 
@@ -206,7 +206,7 @@ void WindowTreeT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<c
 }
 
 
-void WindowTreeT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail)
+void WindowTreeT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail)
 {
     if (m_IsRecursiveSelfNotify) return;
 
@@ -218,7 +218,7 @@ void WindowTreeT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<
 }
 
 
-void WindowTreeT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail, const wxString& PropertyName)
+void WindowTreeT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail, const wxString& PropertyName)
 {
     if (m_IsRecursiveSelfNotify) return;
 
@@ -249,8 +249,8 @@ void WindowTreeT::RefreshTree()
     if (m_GuiDocument==NULL) return;
 
     // Get all currently opened tree items and reopen them after the refresh.
-    ArrayT<wxTreeItemId>         TreeItems;
-    ArrayT<cf::GuiSys::WindowT*> ExpandedWindows;
+    ArrayT<wxTreeItemId>                         TreeItems;
+    ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > ExpandedWindows;
 
     // Note that this may well produce TreeItems whose windows have been deleted from the document already.
     GetTreeItems(GetRootItem(), TreeItems);
@@ -272,11 +272,11 @@ void WindowTreeT::RefreshTree()
     else
         SetItemImage(ID, 1); // Invisible icon.
 
-    // Add all children of root recusively to the tree.
+    // Add all children of root recursively to the tree.
     AddChildren(ID, true);
 
     // Re-select selected windows in the tree.
-    const ArrayT<cf::GuiSys::WindowT*>& Selection=m_GuiDocument->GetSelection();
+    const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Selection=m_GuiDocument->GetSelection();
 
     for (unsigned long SelNr=0; SelNr<Selection.Size(); SelNr++)
     {
@@ -352,7 +352,7 @@ void WindowTreeT::OnTreeLeftClick(wxMouseEvent& ME)
     // If a icon was hit, toggle visibility of the associated gui window.
     if (HitFlag & wxTREE_HITTEST_ONITEMICON)
     {
-        cf::GuiSys::WindowT* ClickedWindow=((WindowTreeItemT*)GetItemData(ClickedItem))->GetWindow();
+        IntrusivePtrT<cf::GuiSys::WindowT> ClickedWindow=((WindowTreeItemT*)GetItemData(ClickedItem))->GetWindow();
 
         m_IsRecursiveSelfNotify=true;
 
@@ -387,7 +387,7 @@ void WindowTreeT::OnSelectionChanged(wxTreeEvent& TE)
     wxArrayTreeItemIds SelectedItems;
     GetSelections(SelectedItems);
 
-    ArrayT<cf::GuiSys::WindowT*> NewSelection;
+    ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > NewSelection;
     for (size_t SelNr=0; SelNr<SelectedItems.GetCount(); SelNr++)
         NewSelection.PushBack(((WindowTreeItemT*)GetItemData(SelectedItems[SelNr]))->GetWindow());
 
@@ -399,7 +399,7 @@ void WindowTreeT::OnSelectionChanged(wxTreeEvent& TE)
 
 void WindowTreeT::OnEndLabelEdit(wxTreeEvent& TE)
 {
-    cf::GuiSys::WindowT* Window=((WindowTreeItemT*)GetItemData(TE.GetItem()))->GetWindow();
+    IntrusivePtrT<cf::GuiSys::WindowT> Window=((WindowTreeItemT*)GetItemData(TE.GetItem()))->GetWindow();
 
     if (TE.IsEditCancelled()) return;
 
@@ -507,13 +507,13 @@ void WindowTreeT::OnBeginDrag(wxTreeEvent& TE)
 
 void WindowTreeT::OnEndDrag(wxTreeEvent& TE)
 {
-    wxASSERT(m_DraggedWindow);
-    if (!m_DraggedWindow) return;
-    cf::GuiSys::WindowT* SourceWindow=m_DraggedWindow;
+    wxASSERT(!m_DraggedWindow.IsNull());
+    if (m_DraggedWindow.IsNull()) return;
+    IntrusivePtrT<cf::GuiSys::WindowT> SourceWindow=m_DraggedWindow;
     m_DraggedWindow=NULL;
 
     if (!TE.GetItem().IsOk()) return;
-    cf::GuiSys::WindowT* TargetWindow=((WindowTreeItemT*)GetItemData(TE.GetItem()))->GetWindow();
+    IntrusivePtrT<cf::GuiSys::WindowT> TargetWindow=((WindowTreeItemT*)GetItemData(TE.GetItem()))->GetWindow();
 
 
     // If SourceWindow is already an immediate child of TargetWindow, do nothing.
@@ -523,7 +523,7 @@ void WindowTreeT::OnEndDrag(wxTreeEvent& TE)
     // Although the command below does the same check redundantly again, we also want to have it here for clarity.
     // Note that the TargetWindow can still be a child in a different subtree of SourceWindow->Parent.
     {
-        ArrayT<cf::GuiSys::WindowT*> SubTree;
+        ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > SubTree;
 
         SubTree.PushBack(SourceWindow);
         SourceWindow->GetChildren(SubTree, true /*recurse*/);
@@ -544,7 +544,7 @@ void WindowTreeT::OnEndDrag(wxTreeEvent& TE)
     }
     else
     {
-        wxASSERT(TargetWindow->Parent);     // This condition has been established in the if-branch above.
+        wxASSERT(!TargetWindow->Parent.IsNull());   // This condition has been established in the if-branch above.
 
         // Make SourceWindow a sibling of TargetWindow.
         const unsigned long NewPos=TargetWindow->Parent->Children.Find(TargetWindow);

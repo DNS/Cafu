@@ -29,7 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace GuiEditor;
 
 
-CommandTranslateT::CommandTranslateT(GuiDocumentT* GuiDocument, const ArrayT<cf::GuiSys::WindowT*>& Windows, const ArrayT<Vector3fT>& Positions, bool Done)
+CommandTranslateT::CommandTranslateT(GuiDocumentT* GuiDocument, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, const ArrayT<Vector3fT>& Positions, bool Done)
     : m_GuiDocument(GuiDocument),
       m_Windows(Windows)
 {

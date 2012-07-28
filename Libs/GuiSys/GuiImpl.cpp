@@ -227,9 +227,9 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool
 
 
     // Finally call the Lua OnInit() and OnInit2() methods of each window.
-    ArrayT<WindowT*> AllChildren;
+    ArrayT< IntrusivePtrT<WindowT> > AllChildren;
 
-    AllChildren.PushBack(RootWindow.GetRaw());
+    AllChildren.PushBack(RootWindow);
     RootWindow->GetChildren(AllChildren, true);
 
     for (unsigned long ChildNr=0; ChildNr<AllChildren.Size(); ChildNr++)
@@ -288,9 +288,9 @@ void GuiImplT::Activate(bool doActivate)
     IsActive=doActivate;
 
     // Call the OnActivate() or OnDeactivate() methods of all windows.
-    ArrayT<WindowT*> AllChildren;
+    ArrayT< IntrusivePtrT<WindowT> > AllChildren;
 
-    AllChildren.PushBack(RootWindow.GetRaw());
+    AllChildren.PushBack(RootWindow);
     RootWindow->GetChildren(AllChildren, true);
 
     for (unsigned long ChildNr=0; ChildNr<AllChildren.Size(); ChildNr++)
@@ -327,13 +327,13 @@ void GuiImplT::SetMousePos(float MousePosX_, float MousePosY_)
 
     // Determine if the mouse cursor has been moved into (or "over") another window,
     // that is, see if we have to run any OnMouseLeave() and OnMouseEnter() scripts.
-    WindowT* Win=RootWindow->Find(MousePosX, MousePosY);
+    IntrusivePtrT<WindowT> Win=RootWindow->Find(MousePosX, MousePosY);
 
-    if (Win!=MouseOverWindow.GetRaw())
+    if (Win != MouseOverWindow)
     {
-        if (MouseOverWindow!=NULL) MouseOverWindow->CallLuaMethod("OnMouseLeave");
-        MouseOverWindow=Win;
-        if (MouseOverWindow!=NULL) MouseOverWindow->CallLuaMethod("OnMouseEnter");
+        if (MouseOverWindow != NULL) MouseOverWindow->CallLuaMethod("OnMouseLeave");
+        MouseOverWindow = Win;
+        if (MouseOverWindow != NULL) MouseOverWindow->CallLuaMethod("OnMouseEnter");
     }
 }
 
@@ -391,7 +391,7 @@ void GuiImplT::Render(bool zLayerCoating) const
 
 bool GuiImplT::ProcessDeviceEvent(const CaKeyboardEventT& KE)
 {
-    for (WindowT* Win=FocusWindow.GetRaw(); Win!=NULL; Win=Win->GetParent())
+    for (IntrusivePtrT<WindowT> Win=FocusWindow; Win!=NULL; Win=Win->GetParent())
     {
         bool KeyWasProcessed=false;
         bool ResultOK       =false;
@@ -437,7 +437,7 @@ bool GuiImplT::ProcessDeviceEvent(const CaMouseEventT& ME)
 
             // Change the keyboard input focus, but only if the mouse button event was not handled by the script
             // (by handling the event the script signals that the default behaviour (focus change) should not take place).
-            if (!MEWasProcessed && ME.Type==CaMouseEventT::CM_BUTTON0 && ButtonDown && MouseOverWindow!=FocusWindow.GetRaw())
+            if (!MEWasProcessed && ME.Type==CaMouseEventT::CM_BUTTON0 && ButtonDown && MouseOverWindow!=FocusWindow)
             {
                 // Only "unhandled left mouse button down" events change the keyboard input focus.
                 if (FocusWindow!=NULL) FocusWindow->CallLuaMethod("OnFocusLose");
@@ -493,9 +493,9 @@ void GuiImplT::DistributeClockTickEvents(float t)
 {
     if (GetIsActive())  // Inconsistent and inconsequent, but saves performance: Only distribute clock tick events when this GUI is active.
     {
-        ArrayT<WindowT*> AllChildren;
+        ArrayT< IntrusivePtrT<WindowT> > AllChildren;
 
-        AllChildren.PushBack(RootWindow.GetRaw());
+        AllChildren.PushBack(RootWindow);
         RootWindow->GetChildren(AllChildren, true);
 
         for (unsigned long ChildNr=0; ChildNr<AllChildren.Size(); ChildNr++)
@@ -542,7 +542,7 @@ bool GuiImplT::CallLuaFunc(const char* FuncName, const char* Signature, ...)
 }
 
 
-bool GuiImplT::CallLuaMethod(WindowPtrT Window, const char* MethodName, const char* Signature, ...)
+bool GuiImplT::CallLuaMethod(IntrusivePtrT<WindowT> Window, const char* MethodName, const char* Signature, ...)
 {
     va_list vl;
 
@@ -675,9 +675,7 @@ int GuiImplT::SetFocus(lua_State* LuaState)
     }
     else if (lua_istable(LuaState, 2))
     {
-        WindowT* Win=Binder.GetCheckedObjectParam<WindowT*>(2);
-
-        Gui->FocusWindow=Win;
+        Gui->FocusWindow=Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(2);
     }
 
     // Note that we intentionally did *not* call the Lua OnFocusLose() or OnFocusGain() scripts,
@@ -728,12 +726,9 @@ int GuiImplT::RunMapCommand(lua_State* LuaState)
 int GuiImplT::SetRootWindow(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    GuiImplT*     Gui=CheckParams(LuaState);
-    WindowT*      Win=Binder.GetCheckedObjectParam<WindowT*>(2);
+    GuiImplT*     Gui = CheckParams(LuaState);
 
-    // Note that Gui->RootWindow is a WindowPtrT that makes sure that the Win instance gets
-    // properly anchored in the Lua state in order to prevent premature garbage collection.
-    Gui->RootWindow=Win;
+    Gui->RootWindow = Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(2);
     return 0;
 }
 
@@ -747,7 +742,7 @@ int GuiImplT::CreateNewWindow(lua_State* LuaState)
 
     if (!TI) return luaL_argerror(LuaState, 2, (std::string("unknown window class \"")+TypeName+"\"").c_str());
 
-    WindowT* Win=static_cast<WindowT*>(TI->CreateInstance(WindowCreateParamsT(*Gui)));  // Actually create the window instance.
+    IntrusivePtrT<WindowT> Win(static_cast<WindowT*>(TI->CreateInstance(WindowCreateParamsT(*Gui))));  // Actually create the window instance.
 
     // Console->DevPrint(cf::va("Creating window %p.\n", Win));
     assert(Win->GetType()==TI);
@@ -755,103 +750,10 @@ int GuiImplT::CreateNewWindow(lua_State* LuaState)
 
     if (WinName) Win->Name=WinName;
 
+    ScriptBinderT Binder(LuaState);
+    Binder.Push(Win);
 
-    // ANALOGY: This code is ANALOGOUS TO that in Games/DeathMatch/Code/ScriptState.cpp.
-    // Now do the actual Lua work: add the new table that represents the window.
-    // Stack indices of the table and userdata that we create in this loop.
-    const int USERDATA_INDEX=lua_gettop(LuaState)+2;
-    const int TABLE_INDEX   =lua_gettop(LuaState)+1;
-
-    // Create a new table T, which is pushed on the stack and thus at stack index TABLE_INDEX.
-    lua_newtable(LuaState);
-
-    // Create a new user datum UD, which is pushed on the stack and thus at stack index USERDATA_INDEX.
-    WindowT** UserData=(WindowT**)lua_newuserdata(LuaState, sizeof(WindowT*));
-
-    // Initialize the memory allocated by the lua_newuserdata() function.
-    *UserData=Win;
-
-    // T["__userdata_cf"] = UD
-    lua_pushvalue(LuaState, USERDATA_INDEX);    // Duplicate the userdata on top of the stack (as the argument for lua_setfield()).
-    lua_setfield(LuaState, TABLE_INDEX, "__userdata_cf");
-
-    // Get the table with name (key) Win->GetType()->ClassName (== TI->ClassName == TypeName) from the registry,
-    // and set it as metatable of the newly created table.
-    // This is the crucial step that establishes the main functionality of our new table.
-    luaL_getmetatable(LuaState, TypeName);
-    lua_setmetatable(LuaState, TABLE_INDEX);
-
-    // Get the table with name (key) Win->GetType()->ClassName (== TI->ClassName == TypeName) from the registry,
-    // and set it as metatable of the newly created userdata item.
-    // This is important for userdata type safety (see PiL2, chapter 28.2) and to have automatic garbage collection work
-    // (contrary to the text in the "Game Programming Gems 6" book, chapter 4.2, a __gc method in the metatable
-    //  is only called for full userdata, see my email to the Lua mailing list on 2008-Apr-01 for more details).
-    luaL_getmetatable(LuaState, TypeName);
-    lua_setmetatable(LuaState, USERDATA_INDEX);
-
-    // Remove UD from the stack, so that only the new table T is left on top of the stack.
-    lua_pop(LuaState, 1);
-
-
-    // There remains one final chore:
-    // Later, when given a pointer to a WindowT, we want to be able to find the table T by that pointer.
-    // For example, this occurs in WindowT::CallLuaMethod() with the "this" pointer.
-    // We therefore proceed as described in the PiL2, chapter 28.5 ("Light Userdata"):
-    // Create a table where the indices are light userdata with the WindowT pointers,
-    // and the values are the T tables and have the "weak" property.
-    // (Note that we do not have to remove this entry explicitly ever again later, because it expires automatically
-    //  when Lua garbage collects T. See the PiL2 book, chapter 17 ("Weak Tables") for more details.)
-    lua_getfield(LuaState, LUA_REGISTRYINDEX, "__windows_list_cf");
-
-    if (!lua_istable(LuaState, -1))
-    {
-        lua_pop(LuaState, 1);           // Remove whatever was not a table.
-        lua_newtable(LuaState);         // Push a new table LIST instead.
-
-        lua_newtable(LuaState);         // Push another new table. This will become the metatable for LIST.
-        lua_pushstring(LuaState, "v");
-        lua_setfield(LuaState, -2, "__mode");
-        lua_setmetatable(LuaState, -2); // Set the table   { __mode="v" }   as the metatable of LIST.
-
-        lua_pushvalue(LuaState, -1);    // Duplicate LIST for setting it as a value in the registry.
-        lua_setfield(LuaState, LUA_REGISTRYINDEX, "__windows_list_cf");
-    }
-
-    lua_pushlightuserdata(LuaState, Win);
-    lua_pushvalue(LuaState, TABLE_INDEX);
-    lua_rawset(LuaState, -3);       // __windows_list_cf[Win] = T
-    lua_pop(LuaState, 1);           // Remove __windows_list_cf from the stack top again.
-
-
-    // Finally done: return the new table T.
-    assert(lua_gettop(LuaState)==TABLE_INDEX);
     return 1;
-}
-
-
-int GuiImplT::FindWindow(lua_State* LuaState)
-{
-    GuiImplT* Gui=CheckParams(LuaState);
-    WindowT*  Find=(WindowT*)luaL_checklong(LuaState, 2);
-
-    ArrayT<WindowT*> AllChildren;
-
-    AllChildren.PushBack(Gui->RootWindow.GetRaw());
-    Gui->RootWindow->GetChildren(AllChildren, true);
-
-    for (unsigned long ChildNr=0; ChildNr<AllChildren.Size(); ChildNr++)
-        if (AllChildren[ChildNr]==Find)
-        {
-            // This is the same as Find->PushAlterEgo(). I repeat the implementation here
-            // so that I don't have to move PushAlterEgo() from private to public visibility.
-            lua_getfield(LuaState, LUA_REGISTRYINDEX, "__windows_list_cf");
-            lua_pushlightuserdata(LuaState, Find);
-            lua_rawget(LuaState, -2);
-            lua_remove(LuaState, -2);
-            return 1;
-        }
-
-    return 0;
 }
 
 
@@ -892,7 +794,6 @@ void GuiImplT::RegisterLua(lua_State* LuaState)
         { "RunMapCmd",      RunMapCommand },
         { "SetRootWindow",  SetRootWindow },
         { "new",            CreateNewWindow },
-        { "FindWindow",     FindWindow },
         { "__tostring",     toString },
         { NULL, NULL }
     };

@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_GUIEDITOR_COMMAND_SELECT_HPP_INCLUDED
 
 #include "../../CommandPattern.hpp"
+#include "Templates/Pointer.hpp"
 
 
 namespace cf { namespace GuiSys { class WindowT; } }
@@ -38,11 +39,11 @@ namespace GuiEditor
 
         // Named constructors for easier command creation.
         static CommandSelectT* Clear (GuiDocumentT* GuiDocument);
-        static CommandSelectT* Add   (GuiDocumentT* GuiDocument, const ArrayT<cf::GuiSys::WindowT*>& Windows);
-        static CommandSelectT* Add   (GuiDocumentT* GuiDocument, cf::GuiSys::WindowT* Window);
-        static CommandSelectT* Remove(GuiDocumentT* GuiDocument, const ArrayT<cf::GuiSys::WindowT*>& Windows);
-        static CommandSelectT* Remove(GuiDocumentT* GuiDocument, cf::GuiSys::WindowT* Window);
-        static CommandSelectT* Set   (GuiDocumentT* GuiDocument, const ArrayT<cf::GuiSys::WindowT*>& Windows);
+        static CommandSelectT* Add   (GuiDocumentT* GuiDocument, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows);
+        static CommandSelectT* Add   (GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Window);
+        static CommandSelectT* Remove(GuiDocumentT* GuiDocument, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows);
+        static CommandSelectT* Remove(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Window);
+        static CommandSelectT* Set   (GuiDocumentT* GuiDocument, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows);
 
         ~CommandSelectT();
 
@@ -55,12 +56,12 @@ namespace GuiEditor
         private:
 
         // Only named constructors may create this command.
-        CommandSelectT(GuiDocumentT* GuiDocument, const ArrayT<cf::GuiSys::WindowT*>& OldSelection, const ArrayT<cf::GuiSys::WindowT*>& NewSelection);
+        CommandSelectT(GuiDocumentT* GuiDocument, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& OldSelection, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& NewSelection);
 
         GuiDocumentT* m_GuiDocument;
 
-        const ArrayT<cf::GuiSys::WindowT*> m_OldSelection;
-        const ArrayT<cf::GuiSys::WindowT*> m_NewSelection;
+        const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > m_OldSelection;
+        const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > m_NewSelection;
     };
 }
 

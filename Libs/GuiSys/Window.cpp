@@ -73,7 +73,6 @@ const luaL_reg WindowT::MethodsList[]=
     { "GetName",     WindowT::GetName },
     { "AddChild",    WindowT::AddChild },
     { "RemoveChild", WindowT::RemoveChild },
-    { "__gc",        WindowT::Destruct },
     { "__tostring",  WindowT::toString },
     { NULL, NULL }
 };
@@ -103,8 +102,7 @@ WindowT::WindowT(const WindowCreateParamsT& Params)
       TextAlignHor(left),
       TextAlignVer(top),
       m_Gui(Params.Gui),
-      m_ExtData(NULL),
-      m_CppRefCount(0)
+      m_ExtData(NULL)
 {
     for (unsigned long c=0; c<4; c++)
     {
@@ -136,8 +134,7 @@ WindowT::WindowT(const WindowT& Window, bool Recursive)
       TextAlignHor(Window.TextAlignHor),
       TextAlignVer(Window.TextAlignVer),
       m_Gui(Window.m_Gui),
-      m_ExtData(NULL   /* Clone() it?? */),
-      m_CppRefCount(0)
+      m_ExtData(NULL   /* Clone() it?? */)
 {
     if (!BackRenderMatName.empty())
     {
@@ -173,31 +170,6 @@ WindowT* WindowT::Clone(bool Recursive) const
 
 WindowT::~WindowT()
 {
-    // Note that WindowT instances are only ever deleted by Lua, which is responsible for their lifetime.
-    // Thus, we only get here by the call to "delete Win;" in WindowT::Destruct().
-    // See the general documentation about the WindowT class and the comments in WindowT::Destruct() for additional details!
-
-    // Now, note that manipulating the LuaState here is OK, even if we got here as the result of a call to lua_close(),
-    // because in both cases (normal garbage collection cycle and call to lua_close()), the __gc handlers are called
-    // first, before the LuaState is changed.
-    // In this regard, also see my posting "Condition of the lua_State in __gc handler after call to lua_close()?"
-    // to the Lua mailling-list on 2008-04-09, and the answer by Roberto:
-    // http://thread.gmane.org/gmane.comp.lang.lua.general/47004
-    // (When I wrote this posting, I still thought some manual un-anchoring would be necessary here. However, it isn't,
-    //  as explained in the next paragraph.)
-
-    // Note that there is no need to do something here with our Parent and Children members, such as telling our parent
-    // that we're not among its children anymore and telling our children that we're not available as parent anymore.
-    // The same is true for the synchron __parent_cf and __children_cf fields in our alter ego.
-    // This is because when Lua removes us even though we're still connected (that is, we have a parent and/or children),
-    // the entiry hierarchy is removed (or otherwise Lua wouldn't remove us).
-
-
-    // If the reference count is not 0 at this point, this means that one or more WindowPtrTs to this window still exists.
-    // When the next of them is destructed, it will try to decrease the value of this CppReferencesCount instance,
-    // which however is in already deleted memory then.
-    assert(m_CppRefCount==0);
-
     delete m_ExtData;
     m_ExtData=NULL;
 
@@ -224,7 +196,7 @@ const std::string& WindowT::GetName() const
 }
 
 
-void WindowT::GetChildren(ArrayT<WindowT*>& Chld, bool Recurse)
+void WindowT::GetChildren(ArrayT< IntrusivePtrT<WindowT> >& Chld, bool Recurse)
 {
 #ifdef DEBUG
     // Make sure that there are no cycles in the hierarchy of children.
@@ -241,9 +213,9 @@ void WindowT::GetChildren(ArrayT<WindowT*>& Chld, bool Recurse)
 }
 
 
-WindowT* WindowT::GetRoot()
+IntrusivePtrT<WindowT> WindowT::GetRoot()
 {
-    WindowT* Root=this;
+    IntrusivePtrT<WindowT> Root=this;
 
     while (Root->Parent!=NULL)
         Root=Root->Parent;
@@ -258,7 +230,7 @@ void WindowT::GetAbsolutePos(float& x, float& y) const
     x=Rect[0];
     y=Rect[1];
 
-    for (const WindowT* P=Parent; P!=NULL; P=P->Parent)
+    for (IntrusivePtrT<const WindowT> P=Parent; P!=NULL; P=P->Parent)
     {
         x+=P->Rect[0];
         y+=P->Rect[1];
@@ -284,14 +256,14 @@ void WindowT::GetAbsolutePos(float& x, float& y) const
 }
 
 
-WindowT* WindowT::Find(const std::string& WantedName)
+IntrusivePtrT<WindowT> WindowT::Find(const std::string& WantedName)
 {
     if (WantedName==Name) return this;
 
     // Recursively see if any of the children has the desired name.
     for (unsigned long ChildNr=0; ChildNr<Children.Size(); ChildNr++)
     {
-        WindowT* Win=Children[ChildNr]->Find(WantedName);
+        IntrusivePtrT<WindowT> Win=Children[ChildNr]->Find(WantedName);
 
         if (Win!=NULL) return Win;
     }
@@ -300,7 +272,7 @@ WindowT* WindowT::Find(const std::string& WantedName)
 }
 
 
-WindowT* WindowT::Find(float x, float y, bool OnlyVisible)
+IntrusivePtrT<WindowT> WindowT::Find(float x, float y, bool OnlyVisible)
 {
     if (OnlyVisible && !ShowWindow) return NULL;
 
@@ -309,7 +281,7 @@ WindowT* WindowT::Find(float x, float y, bool OnlyVisible)
     {
         // Search the children in reverse order, because if they overlap,
         // those that are drawn last appear topmost, and so we want to find them first.
-        WindowT* Found=Children[Children.Size()-1-ChildNr]->Find(x, y, OnlyVisible);
+        IntrusivePtrT<WindowT> Found=Children[Children.Size()-1-ChildNr]->Find(x, y, OnlyVisible);
 
         if (Found!=NULL) return Found;
     }
@@ -587,7 +559,8 @@ bool WindowT::CallLuaMethod(const char* MethodName, const char* Signature, va_li
     // assert(lua_gettop(LuaState)==0);
 
     // Push our alter ego onto the stack.
-    if (!PushAlterEgo()) return false;
+    ScriptBinderT Binder(LuaState);
+    Binder.Push(IntrusivePtrT<WindowT>(this));
 
     // Push the desired method (from the alter ego) onto the stack.
     lua_pushstring(LuaState, MethodName);
@@ -607,44 +580,6 @@ bool WindowT::CallLuaMethod(const char* MethodName, const char* Signature, va_li
 
     // The stack is now prepared according to the requirements/specs of the StartNewCoroutine() method.
     return m_Gui.m_ScriptState.StartNewCoroutine(1, Signature, vl, std::string("method ")+MethodName+"() of window with name \""+Name+"\"");
-}
-
-
-bool WindowT::PushAlterEgo()
-{
-    lua_State* LuaState = m_Gui.m_ScriptState.GetLuaState();
-
-    lua_getfield(LuaState, LUA_REGISTRYINDEX, "__windows_list_cf");
-
-#ifdef DEBUG
-    if (!lua_istable(LuaState, -1))
-    {
-        // This should never happen, the __windows_list_cf table was created when the first WindowT was created!
-        assert(false);
-        Console->Warning("Registry table \"__windows_list_cf\" does not exist.\n");
-        lua_pop(LuaState, 1);
-        return false;
-    }
-#endif
-
-    lua_pushlightuserdata(LuaState, this);
-    lua_rawget(LuaState, -2);
-
-    // Remove the __windows_list_cf table from the stack, so that only the window table is left.
-    lua_remove(LuaState, -2);
-
-#ifdef DEBUG
-    if (!lua_istable(LuaState, -1))
-    {
-        // This should never happen, or otherwise we had a WindowT instance here that was already garbage collected by Lua!
-        assert(false);
-        Console->Warning("Lua table for WindowT instance does not exist!\n");
-        lua_pop(LuaState, 1);
-        return false;
-    }
-#endif
-
-    return true;
 }
 
 
@@ -695,7 +630,7 @@ void WindowT::FillMemberVars()
 int WindowT::Set(lua_State* LuaState)
 {
     ScriptBinderT     Binder(LuaState);
-    WindowT*          Win    =Binder.GetCheckedObjectParam<WindowT*>(1);
+    IntrusivePtrT<WindowT> Win=Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
     std::string       VarName=luaL_checkstring(LuaState, 2);
     const MemberVarT& Var    =Win->MemberVars[VarName];
 
@@ -773,7 +708,7 @@ int WindowT::Set(lua_State* LuaState)
 int WindowT::Get(lua_State* LuaState)
 {
     ScriptBinderT     Binder(LuaState);
-    WindowT*          Win    =Binder.GetCheckedObjectParam<WindowT*>(1);
+    IntrusivePtrT<WindowT> Win=Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
     std::string       VarName=luaL_checkstring(LuaState, 2);
     const MemberVarT& Var    =Win->MemberVars[VarName];
 
@@ -822,7 +757,7 @@ int WindowT::Get(lua_State* LuaState)
 int WindowT::Interpolate(lua_State* LuaState)
 {
     ScriptBinderT     Binder(LuaState);
-    WindowT*          Win    =Binder.GetCheckedObjectParam<WindowT*>(1);
+    IntrusivePtrT<WindowT> Win=Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
     std::string       VarName=luaL_checkstring(LuaState, 2);
     const MemberVarT& Var    =Win->MemberVars[VarName];
 
@@ -887,7 +822,7 @@ int WindowT::Interpolate(lua_State* LuaState)
 int WindowT::GetName(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    WindowT*      Win=Binder.GetCheckedObjectParam<WindowT*>(1);
+    IntrusivePtrT<WindowT> Win=Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
 
     lua_pushstring(LuaState, Win->Name.c_str());
     return 1;
@@ -897,7 +832,7 @@ int WindowT::GetName(lua_State* LuaState)
 int WindowT::SetName(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    WindowT*      Win=Binder.GetCheckedObjectParam<WindowT*>(1);
+    IntrusivePtrT<WindowT> Win=Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
 
     Win->Name=luaL_checkstring(LuaState, 2);
     return 0;
@@ -907,8 +842,8 @@ int WindowT::SetName(lua_State* LuaState)
 int WindowT::AddChild(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    WindowT*      Win  =Binder.GetCheckedObjectParam<WindowT*>(1);
-    WindowT*      Child=Binder.GetCheckedObjectParam<WindowT*>(2);
+    IntrusivePtrT<WindowT> Win  =Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
+    IntrusivePtrT<WindowT> Child=Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(2);
 
     if (Child->Parent!=NULL)        // A child window must be a root node...
         return luaL_argerror(LuaState, 2, "child window already has a parent, use RemoveChild() first");
@@ -919,45 +854,6 @@ int WindowT::AddChild(lua_State* LuaState)
     Win->Children.PushBack(Child);
     Child->Parent=Win;
 
-
-    // We must do the equivalent to   Win->Children.PushBack(Child);   now in Lua:
-    // Add the child instance to the list of children of the parent window.
-    // This is important in order to make sure that the child is not garbage-collected early
-    // if the caller chooses to not keep a reference to it after the call to AddChild().
-    // In practice, this is very likely to happen, just consider this example:
-    //     function createMyNewWindow() local myWin=gui:new("WindowT"); ...; return myWin; end
-    //     Parent:AddChild(createMyNewWindow());
-    //
-    // This is achieved by placing (a reference to) the table that represents the child
-    // into the __children_cf array of the parent. As key for indexing the array we can
-    // use almost anything we want, like a globally unique ID number of the child window,
-    // or something like a[a#+1]. Here, I use the window pointer itself as a unique ID.
-    //
-    // In summary, we do:   ParentTable.__children_cf[Child]=ChildTable
-    lua_pushstring(LuaState, "__children_cf");
-    lua_rawget(LuaState, 1);
-
-    if (!lua_istable(LuaState, -1))
-    {
-        lua_pop(LuaState, 1);       // Remove whatever was not a table.
-        lua_newtable(LuaState);     // Push a new table instead.
-
-        lua_pushstring(LuaState, "__children_cf");
-        lua_pushvalue(LuaState, -2);
-        lua_rawset(LuaState, 1);    // ParentTable.__children_cf = new_table;
-    }
-
-    lua_pushlightuserdata(LuaState, Child);
-    lua_pushvalue(LuaState, 2);
-    lua_rawset(LuaState, -3);
-
-    // And finally the equivalent of   Child->Parent=Win;
-    // This can not be omitted even though we have the __children_cf already,
-    // because otherwise Lua might garbage collect our parent, as for example in:
-    //     a=gui:new("WindowT"); b=gui:new("WindowT"); a:AddChild(b); gui:SetRootWindow(b); a=nil;    -- Yes, b is set as the root window here.
-    lua_pushstring(LuaState, "__parent_cf");
-    lua_pushvalue(LuaState, 1);
-    lua_rawset(LuaState, 2);
     return 0;
 }
 
@@ -965,8 +861,8 @@ int WindowT::AddChild(lua_State* LuaState)
 int WindowT::RemoveChild(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    WindowT*      Parent=Binder.GetCheckedObjectParam<WindowT*>(1);
-    WindowT*      Child =Binder.GetCheckedObjectParam<WindowT*>(2);
+    IntrusivePtrT<WindowT> Parent=Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
+    IntrusivePtrT<WindowT> Child =Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(2);
 
     if (Child->Parent!=Parent)
         return luaL_argerror(LuaState, 2, "window is the child of another parent");
@@ -979,54 +875,6 @@ int WindowT::RemoveChild(lua_State* LuaState)
     Parent->Children.RemoveAtAndKeepOrder(Index);
     Child->Parent=NULL;
 
-
-    // We must do the equivalent to   Win->Children.RemoveAtAndKeepOrder(Index);   now in Lua:
-    // Remove the child instance from the list of children of the window.
-    // This is important in order to make sure that the child can now be garbage-collected again
-    // (as far as the parent window is concerned).
-    //
-    // Analogous to AddChild(), we do:   ParentTable.__children_cf[Child]=nil
-    lua_pushstring(LuaState, "__children_cf");
-    lua_rawget(LuaState, 1);
-
-#ifdef DEBUG
-    if (!lua_istable(LuaState, -1))
-    {
-        // Should never get here:
-        // AddChild() should have correctly created the __children_cf table
-        // and children that are not ours should have caused Index<0 above.
-        // So the only way is if the user script fiddled with the __children_cf directly...
-        return luaL_error(LuaState, "WARNING: Could not obtain the list of children of the parent window.");
-    }
-#endif
-
-    lua_pushlightuserdata(LuaState, Child);
-    lua_pushnil(LuaState);
-    lua_rawset(LuaState, -3);
-
-    // And finally the equivalent of   Child->Parent=NULL;
-    lua_pushstring(LuaState, "__parent_cf");
-    lua_pushnil(LuaState);
-    lua_rawset(LuaState, 2);
-    return 0;
-}
-
-
-int WindowT::Destruct(lua_State* LuaState)
-{
-    // This doesn't work, because we're getting the userdata item here directly,
-    // not the table that represents our windows normally and has the userdata embedded.
- // WindowT* Win=Binder.GetCheckedObjectParam<WindowT*>(1);
-
-    // TODO: Do we need a stricter type-check here? Contrary to the example in the PiL2 29.1,
-    //       I think there *are* ways for the Lua script to call this function.
-    WindowT** UserData=(WindowT**)lua_touserdata(LuaState, 1); if (UserData==NULL) luaL_error(LuaState, "NULL userdata in __gc handler.");
-    WindowT*  Win     =(*UserData);
-
-    // Console->DevPrint(cf::va("#################### Deleting window instance at %p of type \"%s\" and name \"%s\".\n",
-    //     Win, Win->GetType()->ClassName, Win->Name.c_str()));
-
-    delete Win;
     return 0;
 }
 
@@ -1034,7 +882,7 @@ int WindowT::Destruct(lua_State* LuaState)
 int WindowT::toString(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    WindowT*      Win=Binder.GetCheckedObjectParam<WindowT*>(1);
+    IntrusivePtrT<WindowT> Win=Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
 
     lua_pushfstring(LuaState, "A gui window with name \"%s\".", Win->Name.c_str());
     return 1;

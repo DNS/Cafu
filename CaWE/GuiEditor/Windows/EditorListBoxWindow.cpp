@@ -56,7 +56,7 @@ namespace
 }
 
 
-EditorListBoxWindowT::EditorListBoxWindowT(cf::GuiSys::ListBoxT* ListBox, GuiDocumentT* GuiDoc)
+EditorListBoxWindowT::EditorListBoxWindowT(IntrusivePtrT<cf::GuiSys::ListBoxT> ListBox, GuiDocumentT* GuiDoc)
     : EditorWindowT(ListBox, GuiDoc),
       m_ListBox(ListBox)
 {

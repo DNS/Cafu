@@ -35,7 +35,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace GuiEditor;
 
 
-CommandCreateT::CommandCreateT(GuiDocumentT* GuiDocument, cf::GuiSys::WindowT* Parent, WindowTypeE Type)
+CommandCreateT::CommandCreateT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Parent, WindowTypeE Type)
     : m_GuiDocument(GuiDocument),
       m_Parent(Parent),
       m_Type(Type),
@@ -45,19 +45,12 @@ CommandCreateT::CommandCreateT(GuiDocumentT* GuiDocument, cf::GuiSys::WindowT* P
 }
 
 
-CommandCreateT::~CommandCreateT()
-{
-    if (!m_Done)
-        delete m_NewWindow;
-}
-
-
 bool CommandCreateT::Do()
 {
     wxASSERT(!m_Done);
     if (m_Done) return false;
 
-    if (!m_NewWindow)
+    if (m_NewWindow.IsNull())
     {
         cf::GuiSys::WindowCreateParamsT CreateParams(*m_GuiDocument->GetGui());
 
@@ -108,7 +101,7 @@ bool CommandCreateT::Do()
 
     m_Parent->Children.PushBack(m_NewWindow);
 
-    ArrayT<cf::GuiSys::WindowT*> NewSelection;
+    ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > NewSelection;
     NewSelection.PushBack(m_NewWindow);
 
     m_GuiDocument->SetSelection(NewSelection);
@@ -128,7 +121,7 @@ void CommandCreateT::Undo()
 
     m_Parent->Children.DeleteBack();
 
-    ArrayT<cf::GuiSys::WindowT*> NewSelection;
+    ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > NewSelection;
     NewSelection.PushBack(m_NewWindow);
 
     m_GuiDocument->SetSelection(m_OldSelection);

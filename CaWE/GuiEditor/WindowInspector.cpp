@@ -46,15 +46,15 @@ WindowInspectorT::WindowInspectorT(ChildFrameT* Parent, const wxSize& Size)
 }
 
 
-void WindowInspectorT::NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& OldSelection, const ArrayT<cf::GuiSys::WindowT*>& NewSelection)
+void WindowInspectorT::NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& OldSelection, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& NewSelection)
 {
     RefreshPropGrid();
 }
 
 
-void WindowInspectorT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows)
+void WindowInspectorT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows)
 {
-    if (!m_SelectedWindow) return;
+    if (m_SelectedWindow.IsNull()) return;
 
     // Check if our currently selected window is one of the deleted windows.
     for (unsigned long WindowNr=0; WindowNr<Windows.Size(); WindowNr++)
@@ -70,10 +70,10 @@ void WindowInspectorT::NotifySubjectChanged_Deleted(SubjectT* Subject, const Arr
 }
 
 
-void WindowInspectorT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail)
+void WindowInspectorT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail)
 {
     if (m_IsRecursiveSelfNotify) return;
-    if (!m_SelectedWindow) return;
+    if (m_SelectedWindow.IsNull()) return;
     if (Windows.Find(m_SelectedWindow)==-1) return;
 
     switch (Detail)
@@ -125,10 +125,10 @@ void WindowInspectorT::NotifySubjectChanged_Modified(SubjectT* Subject, const Ar
 }
 
 
-void WindowInspectorT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail, const wxString& PropertyName)
+void WindowInspectorT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail, const wxString& PropertyName)
 {
     if (m_IsRecursiveSelfNotify) return;
-    if (!m_SelectedWindow) return;
+    if (m_SelectedWindow.IsNull()) return;
     if (Windows.Find(m_SelectedWindow)==-1) return;
 
     wxPGProperty* Property=GetProperty(PropertyName);
@@ -142,7 +142,7 @@ void WindowInspectorT::NotifySubjectChanged_Modified(SubjectT* Subject, const Ar
 void WindowInspectorT::Notify_WinChanged(SubjectT* Subject, const EditorWindowT* Win, const wxString& PropName)
 {
     if (m_IsRecursiveSelfNotify) return;
-    if (!m_SelectedWindow) return;
+    if (m_SelectedWindow.IsNull()) return;
     if (Win->GetDual()!=m_SelectedWindow) return;
 
     wxPGProperty* Property=GetProperty(PropName);
@@ -169,7 +169,7 @@ void WindowInspectorT::RefreshPropGrid()
 
     ClearPage(0);
 
-    const ArrayT<cf::GuiSys::WindowT*>& Selection=m_GuiDocument->GetSelection();
+    const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Selection=m_GuiDocument->GetSelection();
 
     if (Selection.Size()==1)
     {

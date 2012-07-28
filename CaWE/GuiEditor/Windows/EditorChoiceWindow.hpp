@@ -35,7 +35,7 @@ namespace GuiEditor
         public:
 
         /// The constructor.
-        EditorChoiceWindowT(cf::GuiSys::ChoiceT* Choice, GuiDocumentT* GuiDoc);
+        EditorChoiceWindowT(IntrusivePtrT<cf::GuiSys::ChoiceT> Choice, GuiDocumentT* GuiDoc);
 
         // Implementations and overrides for base class methods.
         void FillInPG(wxPropertyGridManager* PropMan);
@@ -46,7 +46,7 @@ namespace GuiEditor
 
         private:
 
-        cf::GuiSys::ChoiceT* m_Choice;
+        IntrusivePtrT<cf::GuiSys::ChoiceT> m_Choice;
     };
 }
 

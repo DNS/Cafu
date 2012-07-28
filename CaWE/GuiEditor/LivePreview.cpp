@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../AppCaWE.hpp"
 
 #include "GuiSys/GuiImpl.hpp"
+#include "GuiSys/Window.hpp"
 #include "OpenGL/OpenGLWindow.hpp"  // For CaMouseEventT and CaKeyboardEventT.
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"

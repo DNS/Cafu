@@ -28,7 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace GuiEditor;
 
 
-CommandRotateT::CommandRotateT(GuiDocumentT* GuiDocument, const ArrayT<cf::GuiSys::WindowT*>& Windows, float Rotation, bool Done)
+CommandRotateT::CommandRotateT(GuiDocumentT* GuiDocument, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, float Rotation, bool Done)
     : m_GuiDocument(GuiDocument),
       m_Windows(Windows)
 {

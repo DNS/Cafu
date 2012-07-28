@@ -35,9 +35,9 @@ namespace GuiEditor
     {
         public:
 
-        CommandModifyWindowT(GuiDocumentT* GuiDocument, cf::GuiSys::WindowT* Window, const wxString& PropertyName, cf::GuiSys::WindowT::MemberVarT& MemberVar, const wxString& NewValue);
-        CommandModifyWindowT(GuiDocumentT* GuiDocument, cf::GuiSys::WindowT* Window, const wxString& PropertyName, cf::GuiSys::WindowT::MemberVarT& MemberVar, const float* NewValue);
-        CommandModifyWindowT(GuiDocumentT* GuiDocument, cf::GuiSys::WindowT* Window, const wxString& PropertyName, cf::GuiSys::WindowT::MemberVarT& MemberVar, const int NewValue);
+        CommandModifyWindowT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Window, const wxString& PropertyName, cf::GuiSys::WindowT::MemberVarT& MemberVar, const wxString& NewValue);
+        CommandModifyWindowT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Window, const wxString& PropertyName, cf::GuiSys::WindowT::MemberVarT& MemberVar, const float* NewValue);
+        CommandModifyWindowT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Window, const wxString& PropertyName, cf::GuiSys::WindowT::MemberVarT& MemberVar, const int NewValue);
 
 
         // CommandT implementation.
@@ -48,18 +48,18 @@ namespace GuiEditor
 
         private:
 
-        GuiDocumentT*                   m_GuiDocument;
-        cf::GuiSys::WindowT*            m_Window;
-        wxString                        m_PropertyName;
-        cf::GuiSys::WindowT::MemberVarT m_MemberVar;
+        GuiDocumentT*                      m_GuiDocument;
+        IntrusivePtrT<cf::GuiSys::WindowT> m_Window;
+        wxString                           m_PropertyName;
+        cf::GuiSys::WindowT::MemberVarT    m_MemberVar;
 
-        std::string                     m_NewString;
-        int                             m_NewInt;
-        float                           m_NewFloat[4];
+        std::string                        m_NewString;
+        int                                m_NewInt;
+        float                              m_NewFloat[4];
 
-        std::string                     m_OldString;
-        int                             m_OldInt;
-        float                           m_OldFloat[4];
+        std::string                        m_OldString;
+        int                                m_OldInt;
+        float                              m_OldFloat[4];
     };
 }
 

@@ -34,7 +34,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace GuiEditor;
 
 
-EditorChoiceWindowT::EditorChoiceWindowT(cf::GuiSys::ChoiceT* Choice, GuiDocumentT* GuiDoc)
+EditorChoiceWindowT::EditorChoiceWindowT(IntrusivePtrT<cf::GuiSys::ChoiceT> Choice, GuiDocumentT* GuiDoc)
     : EditorWindowT(Choice, GuiDoc),
       m_Choice(Choice)
 {

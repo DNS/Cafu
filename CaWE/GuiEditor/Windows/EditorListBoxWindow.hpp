@@ -35,7 +35,7 @@ namespace GuiEditor
         public:
 
         /// The constructor.
-        EditorListBoxWindowT(cf::GuiSys::ListBoxT* ListBox, GuiDocumentT* GuiDoc);
+        EditorListBoxWindowT(IntrusivePtrT<cf::GuiSys::ListBoxT> ListBox, GuiDocumentT* GuiDoc);
 
         // Implementations and overrides for base class methods.
         void FillInPG(wxPropertyGridManager* PropMan);
@@ -46,7 +46,7 @@ namespace GuiEditor
 
         private:
 
-        cf::GuiSys::ListBoxT* m_ListBox;
+        IntrusivePtrT<cf::GuiSys::ListBoxT> m_ListBox;
     };
 }
 

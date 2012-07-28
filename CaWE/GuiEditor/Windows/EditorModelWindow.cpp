@@ -34,7 +34,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace GuiEditor;
 
 
-EditorModelWindowT::EditorModelWindowT(cf::GuiSys::ModelWindowT* ModelWindow, GuiDocumentT* GuiDoc)
+EditorModelWindowT::EditorModelWindowT(IntrusivePtrT<cf::GuiSys::ModelWindowT> ModelWindow, GuiDocumentT* GuiDoc)
     : EditorWindowT(ModelWindow, GuiDoc),
       m_ModelWindow(ModelWindow)
 {

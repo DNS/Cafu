@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../../CommandPattern.hpp"
 
 #include "Templates/Array.hpp"
+#include "Templates/Pointer.hpp"
 
 
 namespace cf { namespace GuiSys { class WindowT; } }
@@ -38,7 +39,7 @@ namespace GuiEditor
     {
         public:
 
-        CommandAlignTextHorT(GuiDocumentT* GuiDocument, const ArrayT<cf::GuiSys::WindowT*>& Windows, int Alignment);
+        CommandAlignTextHorT(GuiDocumentT* GuiDocument, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, int Alignment);
 
         // CommandT implementation.
         bool Do();
@@ -48,10 +49,10 @@ namespace GuiEditor
 
         private:
 
-        GuiDocumentT*                m_GuiDocument;
-        ArrayT<cf::GuiSys::WindowT*> m_Windows;
-        ArrayT<int>                  m_OldAlignments;
-        int                          m_NewAlignment;
+        GuiDocumentT*                                m_GuiDocument;
+        ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > m_Windows;
+        ArrayT<int>                                  m_OldAlignments;
+        int                                          m_NewAlignment;
     };
 }
 

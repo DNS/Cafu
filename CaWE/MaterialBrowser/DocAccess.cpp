@@ -101,8 +101,8 @@ void MaterialBrowser::GuiDocAccessT::GetUsedMaterials(ArrayT<EditorMaterialI*>& 
 {
     UsedMaterials.Overwrite();
 
-    const ArrayT<EditorMaterialI*>& EditorMaterials=m_GuiDoc.GetEditorMaterials();
-    ArrayT<cf::GuiSys::WindowT*>    GuiWindows;
+    const ArrayT<EditorMaterialI*>&              EditorMaterials=m_GuiDoc.GetEditorMaterials();
+    ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > GuiWindows;
 
     GuiWindows.PushBack(m_GuiDoc.GetRootWindow());
     m_GuiDoc.GetRootWindow()->GetChildren(GuiWindows, true);

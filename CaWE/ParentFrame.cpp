@@ -35,6 +35,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/Console.hpp"
 #include "FileSys/FileManImpl.hpp"
 #include "GuiSys/GuiImpl.hpp"   // Needed to catch InitErrorT if GUI document creation fails.
+#include "GuiSys/Window.hpp"
 #include "MaterialSystem/MapComposition.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "MaterialSystem/TextureMap.hpp"

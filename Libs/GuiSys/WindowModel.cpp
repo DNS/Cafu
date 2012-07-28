@@ -55,7 +55,6 @@ const luaL_reg ModelWindowT::MethodsList[]=
     { "SetModelScale",   ModelWindowT::SetModelScale },
     { "SetModelAngles",  ModelWindowT::SetModelAngles },
     { "SetCameraPos",    ModelWindowT::SetCameraPos },
-    { "__gc",            WindowT::Destruct },
     { NULL, NULL }
 };
 
@@ -197,7 +196,7 @@ int ModelWindowT::SetModel(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
     std::string   ErrorMsg;
-    ModelWindowT* ModelWin=Binder.GetCheckedObjectParam<ModelWindowT*>(1);
+    IntrusivePtrT<ModelWindowT> ModelWin=Binder.GetCheckedObjectParam< IntrusivePtrT<ModelWindowT> >(1);
 
     ModelWin->SetModel(luaL_checkstring(LuaState, 2), ErrorMsg);
 
@@ -209,7 +208,7 @@ int ModelWindowT::SetModel(lua_State* LuaState)
 int ModelWindowT::GetModelNrOfSequs(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    ModelWindowT* ModelWin=Binder.GetCheckedObjectParam<ModelWindowT*>(1);
+    IntrusivePtrT<ModelWindowT> ModelWin=Binder.GetCheckedObjectParam< IntrusivePtrT<ModelWindowT> >(1);
 
     lua_pushinteger(LuaState, ModelWin->m_Model->GetAnims().Size());
     return 1;
@@ -218,10 +217,11 @@ int ModelWindowT::GetModelNrOfSequs(lua_State* LuaState)
 
 int ModelWindowT::SetModelSequNr(lua_State* LuaState)
 {
-    ScriptBinderT     Binder(LuaState);
-    ModelWindowT*     ModelWin=Binder.GetCheckedObjectParam<ModelWindowT*>(1);
-    const CafuModelT* Model   =ModelWin->m_Model;
-    AnimPoseT*        Pose    =ModelWin->m_Pose;
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<ModelWindowT> ModelWin=Binder.GetCheckedObjectParam< IntrusivePtrT<ModelWindowT> >(1);
+
+    const CafuModelT* Model=ModelWin->m_Model;
+    AnimPoseT*        Pose =ModelWin->m_Pose;
 
     IntrusivePtrT<AnimExpressionT> BlendFrom=Pose->GetAnimExpr();
 
@@ -236,7 +236,7 @@ int ModelWindowT::SetModelSequNr(lua_State* LuaState)
 int ModelWindowT::SetModelPos(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    ModelWindowT* ModelWin=Binder.GetCheckedObjectParam<ModelWindowT*>(1);
+    IntrusivePtrT<ModelWindowT> ModelWin=Binder.GetCheckedObjectParam< IntrusivePtrT<ModelWindowT> >(1);
 
     ModelWin->ModelPos.x=float(lua_tonumber(LuaState, 2));
     ModelWin->ModelPos.y=float(lua_tonumber(LuaState, 3));
@@ -248,7 +248,7 @@ int ModelWindowT::SetModelPos(lua_State* LuaState)
 int ModelWindowT::SetModelScale(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    ModelWindowT* ModelWin=Binder.GetCheckedObjectParam<ModelWindowT*>(1);
+    IntrusivePtrT<ModelWindowT> ModelWin=Binder.GetCheckedObjectParam< IntrusivePtrT<ModelWindowT> >(1);
 
     ModelWin->ModelScale=float(lua_tonumber(LuaState, 2));
     return 0;
@@ -258,7 +258,7 @@ int ModelWindowT::SetModelScale(lua_State* LuaState)
 int ModelWindowT::SetModelAngles(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    ModelWindowT* ModelWin=Binder.GetCheckedObjectParam<ModelWindowT*>(1);
+    IntrusivePtrT<ModelWindowT> ModelWin=Binder.GetCheckedObjectParam< IntrusivePtrT<ModelWindowT> >(1);
 
     ModelWin->ModelAngles.x=float(lua_tonumber(LuaState, 2));
     ModelWin->ModelAngles.y=float(lua_tonumber(LuaState, 3));
@@ -270,7 +270,7 @@ int ModelWindowT::SetModelAngles(lua_State* LuaState)
 int ModelWindowT::SetCameraPos(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    ModelWindowT* ModelWin=Binder.GetCheckedObjectParam<ModelWindowT*>(1);
+    IntrusivePtrT<ModelWindowT> ModelWin=Binder.GetCheckedObjectParam< IntrusivePtrT<ModelWindowT> >(1);
 
     ModelWin->CameraPos.x=float(lua_tonumber(LuaState, 2));
     ModelWin->CameraPos.y=float(lua_tonumber(LuaState, 3));

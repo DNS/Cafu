@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_GUISYS_CONSOLE_BY_WINDOW_HPP_INCLUDED
 
 #include "ConsoleCommands/Console.hpp"
+#include "Templates/Pointer.hpp"
 
 
 namespace cf
@@ -40,7 +41,7 @@ namespace cf
             public:
 
             /// Constructor for a console that is implemented by means of the given WindowT object.
-            ConsoleByWindowT(WindowT* Win_);
+            ConsoleByWindowT(IntrusivePtrT<WindowT> Win_);
 
             // Implementation of the cf::ConsoleI interface.
             void Print(const std::string& s);
@@ -51,7 +52,7 @@ namespace cf
 
             private:
 
-            WindowT* Win;   ///< The "target" window that is supposed to receive the console output.
+            IntrusivePtrT<WindowT> Win;     ///< The "target" window that is supposed to receive the console output.
         };
     }
 }

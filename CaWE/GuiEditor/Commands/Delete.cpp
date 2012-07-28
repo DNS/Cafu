@@ -28,7 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace GuiEditor;
 
 
-CommandDeleteT::CommandDeleteT(GuiDocumentT* GuiDocument, cf::GuiSys::WindowT* Window)
+CommandDeleteT::CommandDeleteT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Window)
     : m_GuiDocument(GuiDocument),
       m_CommandSelect(NULL)
 {
@@ -45,13 +45,13 @@ CommandDeleteT::CommandDeleteT(GuiDocumentT* GuiDocument, cf::GuiSys::WindowT* W
 }
 
 
-CommandDeleteT::CommandDeleteT(GuiDocumentT* GuiDocument, const ArrayT<cf::GuiSys::WindowT*>& Windows)
+CommandDeleteT::CommandDeleteT(GuiDocumentT* GuiDocument, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows)
     : m_GuiDocument(GuiDocument),
       m_CommandSelect(NULL)
 {
     for (unsigned long WinNr=0; WinNr<Windows.Size(); WinNr++)
     {
-        cf::GuiSys::WindowT* Window=Windows[WinNr];
+        IntrusivePtrT<cf::GuiSys::WindowT> Window=Windows[WinNr];
 
         // The root window cannot be deleted.
         if (Window!=Window->GetRoot())
@@ -70,10 +70,6 @@ CommandDeleteT::CommandDeleteT(GuiDocumentT* GuiDocument, const ArrayT<cf::GuiSy
 CommandDeleteT::~CommandDeleteT()
 {
     delete m_CommandSelect;
-
-    if (m_Done)
-        for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
-            delete m_Windows[WinNr];
 }
 
 
@@ -90,7 +86,7 @@ bool CommandDeleteT::Do()
 
     for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
     {
-        cf::GuiSys::WindowT* Window=m_Windows[WinNr];
+        IntrusivePtrT<cf::GuiSys::WindowT> Window=m_Windows[WinNr];
 
         m_Indices[WinNr]=Window->Parent->Children.Find(Window);
         Window->Parent->Children.RemoveAtAndKeepOrder(m_Indices[WinNr]);
@@ -110,8 +106,8 @@ void CommandDeleteT::Undo()
 
     for (unsigned long RevNr=0; RevNr<m_Windows.Size(); RevNr++)
     {
-        const unsigned long  WinNr =m_Windows.Size()-RevNr-1;
-        cf::GuiSys::WindowT* Window=m_Windows[WinNr];
+        const unsigned long                WinNr =m_Windows.Size()-RevNr-1;
+        IntrusivePtrT<cf::GuiSys::WindowT> Window=m_Windows[WinNr];
 
         Window->Parent->Children.InsertAt(m_Indices[WinNr], Window);
     }

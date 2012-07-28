@@ -56,7 +56,7 @@ namespace
 }
 
 
-EditorEditWindowT::EditorEditWindowT(cf::GuiSys::EditWindowT* EditWindow, GuiDocumentT* GuiDoc)
+EditorEditWindowT::EditorEditWindowT(IntrusivePtrT<cf::GuiSys::EditWindowT> EditWindow, GuiDocumentT* GuiDoc)
     : EditorWindowT(EditWindow, GuiDoc),
       m_EditWindow(EditWindow)
 {

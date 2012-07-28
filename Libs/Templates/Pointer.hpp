@@ -43,7 +43,8 @@ class RefCountedT
 
     template<class T> friend class IntrusivePtrT;
 
-    unsigned int m_RefCount;
+    /// m_RefCount is mutable, so that an IntrusivePtrT<const T> can still modify it.
+    mutable unsigned int m_RefCount;
 };
 
 
@@ -123,9 +124,11 @@ class IntrusivePtrT
 
     /// The equality operator.
     bool operator == (const IntrusivePtrT& IP) const { return m_Ptr == IP.m_Ptr; }
+    template<class U> bool operator == (U* b) const { return m_Ptr == b; }
 
     /// The inequality operator.
     bool operator != (const IntrusivePtrT& IP) const { return m_Ptr != IP.m_Ptr; }
+    template<class U> bool operator != (U* b) const { return m_Ptr != b; }
 
     /// A safe alternative for the bool conversion operator.
     /// For details, see:

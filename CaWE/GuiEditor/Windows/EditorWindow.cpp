@@ -43,7 +43,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace GuiEditor;
 
 
-EditorWindowT::EditorWindowT(cf::GuiSys::WindowT* Win, GuiDocumentT* GuiDoc)
+EditorWindowT::EditorWindowT(IntrusivePtrT<cf::GuiSys::WindowT> Win, GuiDocumentT* GuiDoc)
     : m_Win(Win),
       m_GuiDoc(GuiDoc),
       m_IsSelected(false)

@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_GUISYS_WINDOW_HPP_INCLUDED
 
 #include "Templates/Array.hpp"
+#include "Templates/Pointer.hpp"
 
 #include <cstdarg>
 #include <map>
@@ -61,57 +62,16 @@ namespace cf
          * This class represents a window of the GuiSys.
          * A WindowT is the most basic element of a GUI, and all other windows are derived and/or combined from this.
          *
-         * An important feature of the WindowT class and its derived classes is that their instances cannot directly
-         * be created by C++ code. Instead, WindowT instances are created by a Lua function (gui:new()) as Lua objects
-         * and it's also Lua that controls their life-time and eventually their destruction via the garbage collector.
-         * It doesn't make sense and would be difficult and illogical to implement to instantiate WindowTs "outside"
-         * of the Lua script context.
-         *
-         * Thus, as a part of the windows instance is in C++ (the WindowT instance) and another part is in Lua (the
-         * related table), windows can be considered to have a "dual life". The comments in the (C++) source code
-         * commonly refer to the same instance in the Lua state as the "alter ego" of the window - the other self
-         * of the C++ instance.
-         *
-         * A central consequence that arises from the fact that Lua manages the life-time of the WindowT instances
-         * is that we have to take special care when we keep "external" references (pointers) to such instances for a
-         * non-trivial period of time: Lua might know nothing about such external references, and thus garbage-collect
-         * the referenced window whenever it deems appropriate, pulling the rug out from under us.
-         * This invalidates the reference and thus the next access to the referenced window will crash the program.
-         * Example 1:    w=gui:new("WindowT"); gui:SetRootWindow(w); w=nil;
-         * Example 2:    w=gui:new("WindowT"); w:AddChild(gui:new("WindowT"));
-         *
-         * First of all, notice the difference between "external" and "internal" references:
-         * External references are references that are OUTSIDE OF LUA, in a DIFFERENT SCOPE, in a DIFFERENT WORLD.
-         * Lua knows not that such references exist, because they're just outside of it's scope.
-         * The gui:SetRootWindow() in example 1 above presents such a case: It lets the gui have a reference to
-         * a window, but Lua cannot "see" that.
-         * In contrast, internal references are references that exist in the Lua world: Lua "knows" about them
-         * (or more precisely: these references exist in the Lua script state).
-         * Whether a reference is an external or internal reference is a matter of software modelling and design.
-         * This is demonstrated in example 2: parent/child relationships are stored directly in the Lua state.
-         *
-         * The problem of external references has been solved by the WindowPtrT class.
-         * External C++ code that wishes to keep a reference to a window should (or in fact, must) do so by keeping
-         * a WindowPtrT rather than a plain WindowT*. The WindowPtrTs properly anchor the window in the Lua registry
-         * for the life-time of the reference. See the WindowPtrT class documentation for more details.
-         *
-         * Internal references occur only with modelling the parent/child relationships of windows.
-         * This has been correctly implemented directly in the WindowT class.
-         *
-         * Note that the WindowT::Parent and WindowT::Children members "duplicate" or "mirror" the internal references
-         * once more in C++ code. This has been done for performance reasons, and to make the WindowT class look and
-         * feel like a native "C++ only" implementation (as if there was no scripting employed in the background).
-         * The availability of these members also makes the implementation of many of the WindowT methods much easier!
-         * Having these members is perfectly valid, because they are kept in sync with the related Lua data at all
-         * times. Moreover, as they only redundantly mirror proper internal references, they can be kept as plain
-         * WindowT* rather than WindowPtrT references.
-         *
-         * Finally, all methods of the WindowT class return references as plain WindowT*'s rather than WindowPtrTs.
-         * This way, it's up to the caller to decide if he needs to access them only temporarily, or if he wants to
-         * store them for a longer period (in which case they must be converted to and kept in WindowPtrTs).
-         * The performance penalty for creating a WindowPtrT is thus only paid when needed.
+         * WindowT instances can be created in C++ code or in Lua scripts, using the gui:new() function.
+         * They can be passed from C++ code to Lua and from Lua to C++ code at will.
+         * In C++ code, all WindowT instances are kept in IntrusivePtrT's. Their lifetime is properly managed:
+         * A window is deleted automatically when it is no longer used in Lua \emph{and} in C++.
+         * That is, code like
+         *     Example 1:    w=gui:new("WindowT"); gui:SetRootWindow(w); w=nil;
+         *     Example 2:    w=gui:new("WindowT"); w:AddChild(gui:new("WindowT"));
+         * works as expected. See the cf::ScriptBinderT class for technical and implementation details.
          */
-        class WindowT
+        class WindowT : public RefCountedT
         {
             public:
 
@@ -178,13 +138,13 @@ namespace cf
             /// Returns the children of this window.
             /// @param Chld      The array to which the children of this window are appended. Note that Chld gets *not* initially cleared by this function!
             /// @param Recurse   Determines if also the grand-children, grand-grand-children etc. are returned.
-            void GetChildren(ArrayT<WindowT*>& Chld, bool Recurse=false);
+            void GetChildren(ArrayT< IntrusivePtrT<WindowT> >& Chld, bool Recurse=false);
 
             /// Returns the parent window of this window.
-            WindowT* GetParent() { return Parent; }
+            IntrusivePtrT<WindowT> GetParent() { return Parent; }
 
             /// Returns the top-most parent of this window, that is, the root of the hierarchy this window is in.
-            WindowT* GetRoot();     // Method cannot be const because return type is not const -- see implementation.
+            IntrusivePtrT<WindowT> GetRoot();     // Method cannot be const because return type is not const -- see implementation.
 
             /// Returns the position of the upper left corner of this window in absolute (vs. relative to the parent) virtual coordinates.
             /// @param x Variable to store the x coordinate of the upper left corner.
@@ -195,7 +155,7 @@ namespace cf
             /// Use GetRoot()->Find("xy") in order to search the entire GUI for the window with name "xy".
             /// @param WantedName   The name of the window that is to be found.
             /// @returns The pointer to the desired window, or NULL if no window with this name exists.
-            WindowT* Find(const std::string& WantedName);   // Method cannot be const because return type is not const -- see implementation.
+            IntrusivePtrT<WindowT> Find(const std::string& WantedName);   // Method cannot be const because return type is not const -- see implementation.
 
             /// Finds the topmost window that contains the point (x, y) in the hierachy tree of this window
             /// (with (x, y) being (absolute) virtual screen coordinates, *not* relative to this window).
@@ -204,7 +164,7 @@ namespace cf
             /// @param y   The y-coordinate of the test point.
             /// @param OnlyVisible   If true, only visible windows are reported. If false, all windows are searched.
             /// @returns The pointer to the desired window, or NULL if there is no window that contains the point (x, y).
-            WindowT* Find(float x, float y, bool OnlyVisible=true); // Method cannot be const because return type is not const -- see implementation.
+            IntrusivePtrT<WindowT> Find(float x, float y, bool OnlyVisible=true); // Method cannot be const because return type is not const -- see implementation.
 
             /// Renders this window.
             /// Note that this method does *not* setup any of the MatSys's model, view or projection matrices: it's up to the caller to do that!
@@ -264,8 +224,8 @@ namespace cf
             // "Duplicates" or "mirrors" of what we already have in Lua.
             // The main window hierarchy is directly modelled in Lua, because Lua must have that knowledge for its garbage collector.
             // We *could* get rid of the redundancy here, it only exists for performance reasons.
-            ArrayT<WindowT*>         Children;          ///< The list of children of this window.
-            WindowT*                 Parent;            ///< The parent of this window. May be NULL if there is no parent.
+            ArrayT< IntrusivePtrT<WindowT> > Children;  ///< The list of children of this window.
+            IntrusivePtrT<WindowT>           Parent;    ///< The parent of this window. May be NULL if there is no parent.
 
             std::string              Name;              ///< The name of this window. It must be unique throughout the entire GUI (hierarchy of parent and children).
             float                    Time;              ///< This windows local time (starting from 0.0).
@@ -296,7 +256,8 @@ namespace cf
             static int SetName(lua_State* LuaState);        ///< Sets the windows name.
             static int AddChild(lua_State* LuaState);       ///< Adds a child to this window.
             static int RemoveChild(lua_State* LuaState);    ///< Removes a child from this window.
-            static int Destruct(lua_State* LuaState);       ///< Destroys this window.
+         // static int GetParent(lua_State* LuaState);      ///< Returns the parent of this window (or nil if there is no parent).  TODO!
+         // static int GetChildren(lua_State* LuaState);    ///< Returns the children of this window.                               TODO!
             static int toString(lua_State* LuaState);       ///< Returns a readable string representation of this object.
 
             static const luaL_Reg MethodsList[]; ///< List of methods registered with Lua.
@@ -314,8 +275,6 @@ namespace cf
 
             private:
 
-            friend class WindowPtrT;
-
             /// A helper structure for interpolations between values.
             struct InterpolationT
             {
@@ -331,14 +290,9 @@ namespace cf
                 }
             };
 
+            void operator = (const WindowT&);           ///< Use of the Assignment Operator is not allowed.
 
-            void operator = (const WindowT&);   ///< Use of the Assignment Operator is not allowed.
-
-            bool PushAlterEgo();    ///< An auxiliary function that pushes the Lua instance (the alter ego) of this window onto the LuaState stack.
-
-
-            ArrayT<InterpolationT*> m_PendingInterp;  ///< The currently pending interpolations.
-            unsigned long           m_CppRefCount;    ///< This is a reference counter for this WindowT instance. It is for the sole use by the WindowPtrT class.
+            ArrayT<InterpolationT*> m_PendingInterp;    ///< The currently pending interpolations.
         };
     }
 }

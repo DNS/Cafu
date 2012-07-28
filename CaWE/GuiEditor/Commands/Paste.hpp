@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../../CommandPattern.hpp"
 
 #include "Templates/Array.hpp"
+#include "Templates/Pointer.hpp"
 
 
 namespace cf { namespace GuiSys { class WindowT; } }
@@ -38,8 +39,7 @@ namespace GuiEditor
     {
         public:
 
-        CommandPasteT(GuiDocumentT* GuiDocument, const ArrayT<cf::GuiSys::WindowT*>& Windows, cf::GuiSys::WindowT* NewParent);
-        ~CommandPasteT();
+        CommandPasteT(GuiDocumentT* GuiDocument, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, IntrusivePtrT<cf::GuiSys::WindowT> NewParent);
 
         // CommandT implementation.
         bool Do();
@@ -49,9 +49,9 @@ namespace GuiEditor
 
         private:
 
-        GuiDocumentT*                m_GuiDocument;
-        ArrayT<cf::GuiSys::WindowT*> m_Windows;
-        cf::GuiSys::WindowT*         m_NewParent;
+        GuiDocumentT*                                m_GuiDocument;
+        ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > m_Windows;
+        IntrusivePtrT<cf::GuiSys::WindowT>           m_NewParent;
     };
 }
 

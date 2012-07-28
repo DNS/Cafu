@@ -28,16 +28,16 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace GuiEditor;
 
 
-CommandChangeWindowHierarchyT::CommandChangeWindowHierarchyT(GuiDocumentT* GuiDocument, cf::GuiSys::WindowT* Window, cf::GuiSys::WindowT* NewParent, unsigned long NewPosition)
+CommandChangeWindowHierarchyT::CommandChangeWindowHierarchyT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Window, IntrusivePtrT<cf::GuiSys::WindowT> NewParent, unsigned long NewPosition)
     : m_GuiDocument(GuiDocument),
       m_Window(Window),
       m_NewParent(NewParent),
       m_NewPosition(NewPosition),
       m_OldParent(Window->Parent),
-      m_OldPosition(Window->Parent ? Window->Parent->Children.Find(Window) : 0)
+      m_OldPosition(!Window->Parent.IsNull() ? Window->Parent->Children.Find(Window) : 0)
 {
     wxASSERT(m_GuiDocument);
-    wxASSERT(m_Window);     // m_NewParent==NULL or m_OldParent==NULL are handled below.
+    wxASSERT(!m_Window.IsNull());   // m_NewParent==NULL or m_OldParent==NULL are handled below.
 }
 
 
@@ -51,7 +51,7 @@ bool CommandChangeWindowHierarchyT::Do()
     // Note that we don't check for the NOP case m_NewParent==m_OldParent,
     // that's up to the caller (and not really a reason to return "false"/failure).
     {
-        ArrayT<cf::GuiSys::WindowT*> SubTree;
+        ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > SubTree;
 
         SubTree.PushBack(m_Window);
         m_Window->GetChildren(SubTree, true /*recurse*/);
@@ -59,9 +59,9 @@ bool CommandChangeWindowHierarchyT::Do()
         if (SubTree.Find(m_NewParent)>=0) return false;
     }
 
-    if (m_OldParent) m_OldParent->Children.RemoveAtAndKeepOrder(m_OldPosition);
+    if (!m_OldParent.IsNull()) m_OldParent->Children.RemoveAtAndKeepOrder(m_OldPosition);
     m_Window->Parent=m_NewParent;
-    if (m_NewParent) m_NewParent->Children.InsertAt(m_NewPosition, m_Window);
+    if (!m_NewParent.IsNull()) m_NewParent->Children.InsertAt(m_NewPosition, m_Window);
 
     m_GuiDocument->UpdateAllObservers_Modified(m_Window, WMD_HIERARCHY);
     m_Done=true;
@@ -74,9 +74,9 @@ void CommandChangeWindowHierarchyT::Undo()
     wxASSERT(m_Done);
     if (!m_Done) return;
 
-    if (m_NewParent) m_NewParent->Children.RemoveAtAndKeepOrder(m_NewPosition);
+    if (!m_NewParent.IsNull()) m_NewParent->Children.RemoveAtAndKeepOrder(m_NewPosition);
     m_Window->Parent=m_OldParent;
-    if (m_OldParent) m_OldParent->Children.InsertAt(m_OldPosition, m_Window);
+    if (!m_OldParent.IsNull()) m_OldParent->Children.InsertAt(m_OldPosition, m_Window);
 
     m_GuiDocument->UpdateAllObservers_Modified(m_Window, WMD_HIERARCHY);
     m_Done=false;

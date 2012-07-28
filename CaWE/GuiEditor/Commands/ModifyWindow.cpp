@@ -33,7 +33,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace GuiEditor;
 
 
-CommandModifyWindowT::CommandModifyWindowT(GuiDocumentT* GuiDocument, cf::GuiSys::WindowT* Window, const wxString& PropertyName, cf::GuiSys::WindowT::MemberVarT& MemberVar, const wxString& NewValue)
+CommandModifyWindowT::CommandModifyWindowT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Window, const wxString& PropertyName, cf::GuiSys::WindowT::MemberVarT& MemberVar, const wxString& NewValue)
     : m_GuiDocument(GuiDocument),
       m_Window(Window),
       m_PropertyName(PropertyName),
@@ -51,7 +51,7 @@ CommandModifyWindowT::CommandModifyWindowT(GuiDocumentT* GuiDocument, cf::GuiSys
 }
 
 
-CommandModifyWindowT::CommandModifyWindowT(GuiDocumentT* GuiDocument, cf::GuiSys::WindowT* Window, const wxString& PropertyName, cf::GuiSys::WindowT::MemberVarT& MemberVar, const float* NewValue)
+CommandModifyWindowT::CommandModifyWindowT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Window, const wxString& PropertyName, cf::GuiSys::WindowT::MemberVarT& MemberVar, const float* NewValue)
     : m_GuiDocument(GuiDocument),
       m_Window(Window),
       m_PropertyName(PropertyName),
@@ -81,7 +81,7 @@ CommandModifyWindowT::CommandModifyWindowT(GuiDocumentT* GuiDocument, cf::GuiSys
 }
 
 
-CommandModifyWindowT::CommandModifyWindowT(GuiDocumentT* GuiDocument, cf::GuiSys::WindowT* Window, const wxString& PropertyName, cf::GuiSys::WindowT::MemberVarT& MemberVar, const int NewValue)
+CommandModifyWindowT::CommandModifyWindowT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Window, const wxString& PropertyName, cf::GuiSys::WindowT::MemberVarT& MemberVar, const int NewValue)
     : m_GuiDocument(GuiDocument),
       m_Window(Window),
       m_PropertyName(PropertyName),
@@ -126,7 +126,7 @@ bool CommandModifyWindowT::Do()
     else if (m_PropertyName=="Model")
     {
         std::string ErrorMsg;
-        cf::GuiSys::ModelWindowT* ModelWindow=dynamic_cast<cf::GuiSys::ModelWindowT*>(m_Window);
+        IntrusivePtrT<cf::GuiSys::ModelWindowT> ModelWindow=dynamic_pointer_cast<cf::GuiSys::ModelWindowT>(m_Window);
         wxASSERT(ModelWindow!=NULL);
 
         m_OldString=ModelWindow->GetModel()->GetFileName();
@@ -194,7 +194,7 @@ void CommandModifyWindowT::Undo()
     else if (m_PropertyName=="Model")
     {
         std::string ErrorMsg;
-        cf::GuiSys::ModelWindowT* ModelWindow=dynamic_cast<cf::GuiSys::ModelWindowT*>(m_Window);
+        IntrusivePtrT<cf::GuiSys::ModelWindowT> ModelWindow=dynamic_pointer_cast<cf::GuiSys::ModelWindowT>(m_Window);
         wxASSERT(ModelWindow!=NULL);
 
         ModelWindow->SetModel(m_OldString, ErrorMsg);

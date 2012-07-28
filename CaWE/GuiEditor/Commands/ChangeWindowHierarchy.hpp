@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_GUIEDITOR_COMMAND_CHANGE_WINDOW_HIERARCHY_HPP_INCLUDED
 
 #include "../../CommandPattern.hpp"
+#include "Templates/Pointer.hpp"
 
 
 namespace cf { namespace GuiSys { class WindowT; } }
@@ -36,7 +37,7 @@ namespace GuiEditor
     {
         public:
 
-        CommandChangeWindowHierarchyT(GuiDocumentT* GuiDocument, cf::GuiSys::WindowT* Window, cf::GuiSys::WindowT* NewParent, unsigned long NewPosition);
+        CommandChangeWindowHierarchyT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Window, IntrusivePtrT<cf::GuiSys::WindowT> NewParent, unsigned long NewPosition);
 
         // CommandT implementation.
         bool Do();
@@ -46,12 +47,12 @@ namespace GuiEditor
 
         private:
 
-        GuiDocumentT*        m_GuiDocument;
-        cf::GuiSys::WindowT* m_Window;
-        cf::GuiSys::WindowT* m_NewParent;
-        unsigned long        m_NewPosition;
-        cf::GuiSys::WindowT* m_OldParent;
-        unsigned long        m_OldPosition;
+        GuiDocumentT*                      m_GuiDocument;
+        IntrusivePtrT<cf::GuiSys::WindowT> m_Window;
+        IntrusivePtrT<cf::GuiSys::WindowT> m_NewParent;
+        unsigned long                      m_NewPosition;
+        IntrusivePtrT<cf::GuiSys::WindowT> m_OldParent;
+        unsigned long                      m_OldPosition;
     };
 }
 

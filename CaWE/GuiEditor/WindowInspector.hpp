@@ -43,10 +43,10 @@ namespace GuiEditor
         WindowInspectorT(ChildFrameT* Parent, const wxSize& Size);
 
         // ObserverT implementation.
-        void NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& OldSelection, const ArrayT<cf::GuiSys::WindowT*>& NewSelection);
-        void NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows);
-        void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail);
-        void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail, const wxString& PropertyName);
+        void NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& OldSelection, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& NewSelection);
+        void NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows);
+        void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail);
+        void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail, const wxString& PropertyName);
         void Notify_WinChanged(SubjectT* Subject, const EditorWindowT* Win, const wxString& PropName);
         void NotifySubjectDies(SubjectT* dyingSubject);
 
@@ -55,10 +55,10 @@ namespace GuiEditor
 
         private:
 
-        GuiDocumentT*        m_GuiDocument;
-        ChildFrameT*         m_Parent;
-        cf::GuiSys::WindowT* m_SelectedWindow;
-        bool                 m_IsRecursiveSelfNotify;
+        GuiDocumentT*                      m_GuiDocument;
+        ChildFrameT*                       m_Parent;
+        IntrusivePtrT<cf::GuiSys::WindowT> m_SelectedWindow;
+        bool                               m_IsRecursiveSelfNotify;
 
         void OnPropertyGridChanged(wxPropertyGridEvent& Event);
 

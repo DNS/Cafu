@@ -56,7 +56,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 namespace GuiEditor
 {
     // Static clipboard globally used in all childframes.
-    static ArrayT<cf::GuiSys::WindowT*> ClipBoard;
+    static ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > ClipBoard;
 
     // Default perspective set by the first childframe instance and used to restore default settings later.
     static wxString AUIDefaultPerspective;
@@ -485,12 +485,9 @@ void GuiEditor::ChildFrameT::OnMenuEditCut(wxCommandEvent& CE)
 
 void GuiEditor::ChildFrameT::OnMenuEditCopy(wxCommandEvent& CE)
 {
-    for (unsigned long WinNr=0; WinNr<ClipBoard.Size(); WinNr++)
-        delete ClipBoard[WinNr];
-
     ClipBoard.Clear();
 
-    const ArrayT<cf::GuiSys::WindowT*>& Selection=m_GuiDocument->GetSelection();
+    const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Selection=m_GuiDocument->GetSelection();
 
     for (unsigned long SelNr=0; SelNr<Selection.Size(); SelNr++)
         ClipBoard.PushBack(Selection[SelNr]->Clone(true));
@@ -716,7 +713,7 @@ void GuiEditor::ChildFrameT::OnToolbar(wxCommandEvent& CE)
         case ID_TOOLBAR_WINDOW_MOVE_UP:
         case ID_TOOLBAR_WINDOW_MOVE_DOWN:
         {
-            const ArrayT<cf::GuiSys::WindowT*>& Sel=m_GuiDocument->GetSelection();
+            const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Sel=m_GuiDocument->GetSelection();
 
             if (Sel.Size()==0)
             {
@@ -730,7 +727,7 @@ void GuiEditor::ChildFrameT::OnToolbar(wxCommandEvent& CE)
                 break;
             }
 
-            if (!Sel[0]->Parent)
+            if (Sel[0]->Parent.IsNull())
             {
                 wxMessageBox("Sorry, the topmost (root) window cannot be moved.");
                 break;

@@ -26,7 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace cf::GuiSys;
 
 
-ConsoleByWindowT::ConsoleByWindowT(WindowT* Win_)
+ConsoleByWindowT::ConsoleByWindowT(IntrusivePtrT<WindowT> Win_)
     : Win(Win_)
 {
 }
@@ -34,7 +34,7 @@ ConsoleByWindowT::ConsoleByWindowT(WindowT* Win_)
 
 void ConsoleByWindowT::Print(const std::string& s)
 {
-    if (!Win) return;
+    if (Win.IsNull()) return;
 
     Win->Text+=s;
 }
@@ -42,7 +42,7 @@ void ConsoleByWindowT::Print(const std::string& s)
 
 void ConsoleByWindowT::DevPrint(const std::string& s)
 {
-    if (!Win) return;
+    if (Win.IsNull()) return;
 
     Win->Text+="[Dev] ";
     Win->Text+=s;
@@ -51,7 +51,7 @@ void ConsoleByWindowT::DevPrint(const std::string& s)
 
 void ConsoleByWindowT::Warning(const std::string& s)
 {
-    if (!Win) return;
+    if (Win.IsNull()) return;
 
     Win->Text+="Warning: ";
     Win->Text+=s;
@@ -60,7 +60,7 @@ void ConsoleByWindowT::Warning(const std::string& s)
 
 void ConsoleByWindowT::DevWarning(const std::string& s)
 {
-    if (!Win) return;
+    if (Win.IsNull()) return;
 
     Win->Text+="[Dev] Warning: ";
     Win->Text+=s;

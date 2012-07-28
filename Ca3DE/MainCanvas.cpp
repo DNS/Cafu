@@ -352,12 +352,12 @@ void MainCanvasT::Initialize()
         // Finish the initialization of the GuiSys.
         // Note that in the line below, the call to gui:setMousePos() is important, because it sets "MouseOverWindow" in the GUI properly to "Cl".
         // Without this, a left mouse button click that was not preceeded by a mouse movement would erroneously remove the input focus from "Cl".
-        cf::GuiSys::GuiImplT* ClientGui   =new cf::GuiSys::GuiImplT(*m_GuiResources, "Cl=gui:new('ClientWindowT'); gui:SetRootWindow(Cl); gui:showMouse(false); gui:setMousePos(320, 240); gui:setFocus(Cl); Cl:SetName('Client');", true);
-        cf::GuiSys::WindowT*  ClientWindow=ClientGui->GetRootWindow()->Find("Client");
-        ClientWindowT*        ClWin       =dynamic_cast<ClientWindowT*>(ClientWindow);
+        cf::GuiSys::GuiImplT*              ClientGui   =new cf::GuiSys::GuiImplT(*m_GuiResources, "Cl=gui:new('ClientWindowT'); gui:SetRootWindow(Cl); gui:showMouse(false); gui:setMousePos(320, 240); gui:setFocus(Cl); Cl:SetName('Client');", true);
+        IntrusivePtrT<cf::GuiSys::WindowT> ClientWindow=ClientGui->GetRootWindow()->Find("Client");
+        IntrusivePtrT<ClientWindowT>       ClWin       =dynamic_pointer_cast<ClientWindowT>(ClientWindow);
 
         assert(ClWin!=NULL);
-        if (ClWin) ClWin->SetClient(m_Client);
+        if (!ClWin.IsNull()) ClWin->SetClient(m_Client);
         cf::GuiSys::GuiMan->Register(ClientGui);
 
 
@@ -371,8 +371,8 @@ void MainCanvasT::Initialize()
         m_SvGuiCallback->MainMenuGui=MainMenuGui;       // This is the callback for the server, so that it can let the MainMenuGui know about its state changes.
         m_SvGuiCallback->OnServerStateChanged("idle");  // Argh, this is a HACK for setting the initial state... can we move this / do it better?
 
-        cf::GuiSys::GuiI*    ConsoleGui   =cf::GuiSys::GuiMan->Find("Games/"+Options_ServerGameName.GetValueString()+"/GUIs/Console.cgui", true);
-        cf::GuiSys::WindowT* ConsoleWindow=ConsoleGui ? ConsoleGui->GetRootWindow()->Find("ConsoleOutput") : NULL;
+        cf::GuiSys::GuiI*                  ConsoleGui   =cf::GuiSys::GuiMan->Find("Games/"+Options_ServerGameName.GetValueString()+"/GUIs/Console.cgui", true);
+        IntrusivePtrT<cf::GuiSys::WindowT> ConsoleWindow=ConsoleGui ? ConsoleGui->GetRootWindow()->Find("ConsoleOutput") : NULL;
 
         // Copy the previously collected console output to the new graphical console.
         m_ConByGuiWin=new cf::GuiSys::ConsoleByWindowT(ConsoleWindow);

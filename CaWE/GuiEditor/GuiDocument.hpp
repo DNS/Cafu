@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_GUIEDITOR_GUI_DOCUMENT_HPP_INCLUDED
 
 #include "ObserverPattern.hpp"
+#include "Templates/Pointer.hpp"
 #include "wx/wx.h"
 
 
@@ -56,12 +57,12 @@ namespace GuiEditor
         ~GuiDocumentT();
 
         cf::GuiSys::GuiImplT* GetGui() { return m_Gui; }
-        cf::GuiSys::WindowT* GetRootWindow() { return m_RootWindow; }
+        IntrusivePtrT<cf::GuiSys::WindowT> GetRootWindow() { return m_RootWindow; }
 
         GuiPropertiesT& GetGuiProperties() { return m_GuiProperties; }
 
-        void SetSelection(const ArrayT<cf::GuiSys::WindowT*>& NewSelection);
-        const ArrayT<cf::GuiSys::WindowT*>& GetSelection() const { return m_Selection; }
+        void SetSelection(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& NewSelection);
+        const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& GetSelection() const { return m_Selection; }
 
         const ArrayT<EditorMaterialI*>& GetEditorMaterials() const { return m_EditorMaterials; }
         GameConfigT* GetGameConfig() { return m_GameConfig; }
@@ -75,8 +76,8 @@ namespace GuiEditor
 
         bool SaveInit_cgui(std::ostream& OutFile);
 
-        static void CreateSibling(cf::GuiSys::WindowT* Win, GuiDocumentT* GuiDoc);
-        static EditorWindowT* GetSibling(cf::GuiSys::WindowT* Win);
+        static void CreateSibling(IntrusivePtrT<cf::GuiSys::WindowT> Win, GuiDocumentT* GuiDoc);
+        static EditorWindowT* GetSibling(IntrusivePtrT<cf::GuiSys::WindowT> Win);
 
 
         private:
@@ -84,12 +85,12 @@ namespace GuiEditor
         GuiDocumentT(const GuiDocumentT&);          ///< Use of the Copy    Constructor is not allowed.
         void operator = (const GuiDocumentT&);      ///< Use of the Assignment Operator is not allowed.
 
-        cf::GuiSys::GuiImplT*        m_Gui;
-        cf::GuiSys::WindowT*         m_RootWindow;
-        ArrayT<cf::GuiSys::WindowT*> m_Selection;
-        GuiPropertiesT               m_GuiProperties;
-        ArrayT<EditorMaterialI*>     m_EditorMaterials; ///< One editor material for each material in the GUI (its material manager).
-        GameConfigT*                 m_GameConfig;
+        cf::GuiSys::GuiImplT*                        m_Gui;
+        IntrusivePtrT<cf::GuiSys::WindowT>           m_RootWindow;
+        ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > m_Selection;
+        GuiPropertiesT                               m_GuiProperties;
+        ArrayT<EditorMaterialI*>                     m_EditorMaterials; ///< One editor material for each material in the GUI (its material manager).
+        GameConfigT*                                 m_GameConfig;
     };
 }
 

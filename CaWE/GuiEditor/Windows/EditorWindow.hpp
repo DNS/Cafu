@@ -43,13 +43,13 @@ namespace GuiEditor
         public:
 
         /// The constructor.
-        EditorWindowT(cf::GuiSys::WindowT* Win, GuiDocumentT* GuiDoc);
+        EditorWindowT(IntrusivePtrT<cf::GuiSys::WindowT> Win, GuiDocumentT* GuiDoc);
 
         /// The destructor.
         virtual ~EditorWindowT() { }
 
         /// Returns the GuiSys "dual" or "sibling" of this window.
-        const cf::GuiSys::WindowT* GetDual() const { return m_Win; }
+        const IntrusivePtrT<cf::GuiSys::WindowT> GetDual() const { return m_Win; }
 
         /// Returns the GuiDocumentT instance that this window lives in.
         GuiDocumentT* GetGuiDoc() { return m_GuiDoc; }
@@ -85,9 +85,9 @@ namespace GuiEditor
 
         protected:
 
-        cf::GuiSys::WindowT* m_Win;         ///< The GuiSys's "dual" or "sibling" of this window.
-        GuiDocumentT*        m_GuiDoc;      ///< The GUI document that this window lives in.
-        bool                 m_IsSelected;  ///< Is this window selected for editing?
+        IntrusivePtrT<cf::GuiSys::WindowT> m_Win;           ///< The GuiSys's "dual" or "sibling" of this window.
+        GuiDocumentT*                      m_GuiDoc;        ///< The GUI document that this window lives in.
+        bool                               m_IsSelected;    ///< Is this window selected for editing?
     };
 }
 

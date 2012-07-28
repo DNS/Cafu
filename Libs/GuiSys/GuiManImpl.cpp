@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Gui.hpp"
 #include "GuiImpl.hpp"
 #include "InitWindowTypes.hpp"
+#include "Window.hpp"
 #include "ConsoleCommands/Console.hpp"
 #include "TextParser/TextParser.hpp"
 #include "MaterialSystem/Renderer.hpp"

@@ -61,7 +61,6 @@ const luaL_reg ListBoxT::MethodsList[]=
     { "SetRowTextColor",    ListBoxT::SetRowTextColor },
     { "SetSelRowBgColor",   ListBoxT::SetSelRowBgColor },
     { "SetSelRowTextColor", ListBoxT::SetSelRowTextColor },
-    { "__gc",               WindowT::Destruct },
     { NULL, NULL }
 };
 

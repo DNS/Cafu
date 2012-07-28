@@ -55,8 +55,6 @@ class ClientWindowT : public cf::GuiSys::WindowT
 
     ClientT* Client;
     float    LastFrameTime;
-
-    static const luaL_Reg MethodsList[];
 };
 
 #endif

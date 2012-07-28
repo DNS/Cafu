@@ -91,7 +91,7 @@ GuiDocumentT::GuiDocumentT(GameConfigT* GameConfig, const wxString& GuiInitFileN
     CreateSibling(m_RootWindow, this);
     GetSibling(m_RootWindow)->SetSelected(true);
 
-    ArrayT<cf::GuiSys::WindowT*> GuiWindows;
+    ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > GuiWindows;
     m_RootWindow->GetChildren(GuiWindows, true);
 
     for (unsigned long i=0; i<GuiWindows.Size(); i++)
@@ -112,18 +112,12 @@ GuiDocumentT::~GuiDocumentT()
     for (unsigned long MatNr=0; MatNr<m_EditorMaterials.Size(); MatNr++)
         delete m_EditorMaterials[MatNr];
 
-    ArrayT<cf::GuiSys::WindowT*> Children;
-    m_RootWindow->GetChildren(Children, true);
-
-    for (unsigned long i=0; i<Children.Size(); i++)
-        delete Children[i];
-
-    delete m_RootWindow;
+    m_RootWindow=NULL;
     delete m_Gui;
 }
 
 
-void GuiDocumentT::SetSelection(const ArrayT<cf::GuiSys::WindowT*>& NewSelection)
+void GuiDocumentT::SetSelection(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& NewSelection)
 {
     // Clear the previous selection.
     for (unsigned long SelNr=0; SelNr<m_Selection.Size(); SelNr++)
@@ -142,10 +136,11 @@ void GuiDocumentT::SetSelection(const ArrayT<cf::GuiSys::WindowT*>& NewSelection
 
 wxString GuiDocumentT::CheckWindowName(const wxString& TestName, EditorWindowT* Win) const
 {
-    const wxString               Name_  =CheckLuaIdentifier(TestName);
-    const cf::GuiSys::WindowT*   Win_   =Win ? Win->GetDual() : NULL;
-    wxString                     NewName=Name_;
-    ArrayT<cf::GuiSys::WindowT*> AllChildren;
+    const wxString                     Name_  =CheckLuaIdentifier(TestName);
+    IntrusivePtrT<cf::GuiSys::WindowT> Win_   =Win ? Win->GetDual() : NULL;
+    wxString                           NewName=Name_;
+
+    ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > AllChildren;
 
     AllChildren.PushBack(m_RootWindow);
     m_RootWindow->GetChildren(AllChildren, true);
@@ -175,7 +170,7 @@ wxString GuiDocumentT::CheckWindowName(const wxString& TestName, EditorWindowT* 
 
 
 // Recursively saves the window instantiation of the passed window and all of its children.
-static void SaveWindowInstantiation(std::ostream& OutFile, cf::GuiSys::WindowT* Window, const wxString& ParentName)
+static void SaveWindowInstantiation(std::ostream& OutFile, IntrusivePtrT<cf::GuiSys::WindowT> Window, const wxString& ParentName)
 {
     OutFile << ParentName+Window->Name << "=gui:new(\"" << Window->GetType()->ClassName << "\", \"" << Window->Name << "\");\n";
 
@@ -191,7 +186,7 @@ static void SaveWindowInstantiation(std::ostream& OutFile, cf::GuiSys::WindowT* 
 
 
 // Recursively saves the window hierarchy of the passed window and all of its children.
-static void SaveWindowHierarchy(std::ostream& OutFile, cf::GuiSys::WindowT* Window, const wxString& ParentName)
+static void SaveWindowHierarchy(std::ostream& OutFile, IntrusivePtrT<cf::GuiSys::WindowT> Window, const wxString& ParentName)
 {
     if (Window!=Window->GetRoot()) // Root window is saved separately (see Save_cgui).
     {
@@ -213,7 +208,7 @@ static void SaveWindowHierarchy(std::ostream& OutFile, cf::GuiSys::WindowT* Wind
 
 
 // Saves the window initalization method for the root window.
-static void SaveRootInitialization(std::ostream& OutFile, cf::GuiSys::WindowT* Root, const GuiPropertiesT& GuiProps)
+static void SaveRootInitialization(std::ostream& OutFile, IntrusivePtrT<cf::GuiSys::WindowT> Root, const GuiPropertiesT& GuiProps)
 {
     wxASSERT(Root==Root->GetRoot());
 
@@ -234,7 +229,7 @@ static void SaveRootInitialization(std::ostream& OutFile, cf::GuiSys::WindowT* R
 
 
 // Recursively saves the window initilization function of the window passed and all of its children.
-static void SaveWindowInitialization(std::ostream& OutFile, cf::GuiSys::WindowT* Window, const wxString& ParentName)
+static void SaveWindowInitialization(std::ostream& OutFile, IntrusivePtrT<cf::GuiSys::WindowT> Window, const wxString& ParentName)
 {
     if (Window!=Window->GetRoot())
     {
@@ -308,28 +303,28 @@ bool GuiDocumentT::SaveInit_cgui(std::ostream& OutFile)
 #include "GuiSys/WindowModel.hpp"
 
 
-/*static*/ void GuiDocumentT::CreateSibling(cf::GuiSys::WindowT* Win, GuiDocumentT* GuiDoc)
+/*static*/ void GuiDocumentT::CreateSibling(IntrusivePtrT<cf::GuiSys::WindowT> Win, GuiDocumentT* GuiDoc)
 {
-    wxASSERT(Win);
+    wxASSERT(!Win.IsNull());
 
-    cf::GuiSys::ChoiceT*      Choice     =dynamic_cast<cf::GuiSys::ChoiceT*>(Win);
-    cf::GuiSys::EditWindowT*  EditWindow =dynamic_cast<cf::GuiSys::EditWindowT*>(Win);
-    cf::GuiSys::ListBoxT*     ListBox    =dynamic_cast<cf::GuiSys::ListBoxT*>(Win);
-    cf::GuiSys::ModelWindowT* ModelWindow=dynamic_cast<cf::GuiSys::ModelWindowT*>(Win);
+    IntrusivePtrT<cf::GuiSys::ChoiceT>      Choice     =dynamic_pointer_cast<cf::GuiSys::ChoiceT>(Win);
+    IntrusivePtrT<cf::GuiSys::EditWindowT>  EditWindow =dynamic_pointer_cast<cf::GuiSys::EditWindowT>(Win);
+    IntrusivePtrT<cf::GuiSys::ListBoxT>     ListBox    =dynamic_pointer_cast<cf::GuiSys::ListBoxT>(Win);
+    IntrusivePtrT<cf::GuiSys::ModelWindowT> ModelWindow=dynamic_pointer_cast<cf::GuiSys::ModelWindowT>(Win);
 
     EditorWindowT* EditorWin=NULL;
 
-         if (Choice)      EditorWin=new EditorChoiceWindowT(Choice, GuiDoc);
-    else if (EditWindow)  EditorWin=new EditorEditWindowT(EditWindow, GuiDoc);
-    else if (ListBox)     EditorWin=new EditorListBoxWindowT(ListBox, GuiDoc);
-    else if (ModelWindow) EditorWin=new EditorModelWindowT(ModelWindow, GuiDoc);
-    else                  EditorWin=new EditorWindowT(Win, GuiDoc);
+         if (!Choice.IsNull())      EditorWin=new EditorChoiceWindowT(Choice, GuiDoc);
+    else if (!EditWindow.IsNull())  EditorWin=new EditorEditWindowT(EditWindow, GuiDoc);
+    else if (!ListBox.IsNull())     EditorWin=new EditorListBoxWindowT(ListBox, GuiDoc);
+    else if (!ModelWindow.IsNull()) EditorWin=new EditorModelWindowT(ModelWindow, GuiDoc);
+    else                            EditorWin=new EditorWindowT(Win, GuiDoc);
 
     Win->SetExtData(EditorWin);
 }
 
 
-/*static*/ EditorWindowT* GuiDocumentT::GetSibling(cf::GuiSys::WindowT* Win)
+/*static*/ EditorWindowT* GuiDocumentT::GetSibling(IntrusivePtrT<cf::GuiSys::WindowT> Win)
 {
     wxASSERT(dynamic_cast<EditorWindowT*>(Win->GetExtData()));
 

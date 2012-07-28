@@ -41,13 +41,7 @@ void* ClientWindowT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
     return new ClientWindowT(*static_cast<const cf::GuiSys::WindowCreateParamsT*>(&Params));
 }
 
-const luaL_reg ClientWindowT::MethodsList[]=
-{
-    { "__gc", WindowT::Destruct },
-    { NULL, NULL }
-};
-
-const cf::TypeSys::TypeInfoT ClientWindowT::TypeInfo(cf::GuiSys::GetWindowTIM(), "ClientWindowT", "WindowT", ClientWindowT::CreateInstance, MethodsList);
+const cf::TypeSys::TypeInfoT ClientWindowT::TypeInfo(cf::GuiSys::GetWindowTIM(), "ClientWindowT", "WindowT", ClientWindowT::CreateInstance, NULL);
 
 /*** End of TypeSys related definitions for this class. ***/
 

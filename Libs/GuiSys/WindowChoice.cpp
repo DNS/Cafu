@@ -52,7 +52,6 @@ const luaL_reg ChoiceT::MethodsList[]=
     { "SetChoice",     ChoiceT::SetChoice },
     { "GetSelection",  ChoiceT::GetSelection },
     { "SetSelection",  ChoiceT::SetSelection },
-    { "__gc",          WindowT::Destruct },
     { NULL, NULL }
 };
 

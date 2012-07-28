@@ -58,11 +58,11 @@ namespace GuiEditor
         ~WindowTreeT();
 
         // ObserverT implementation.
-        void NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& OldSelection, const ArrayT<cf::GuiSys::WindowT*>& NewSelection);
-        void NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows);
-        void NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows);
-        void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail);
-        void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail, const wxString& PropertyName);
+        void NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& OldSelection, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& NewSelection);
+        void NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows);
+        void NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows);
+        void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail);
+        void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail, const wxString& PropertyName);
         void Notify_WinChanged(SubjectT* Subject, const EditorWindowT* Win, const wxString& PropName);
         void NotifySubjectDies(SubjectT* dyingSubject);
 
@@ -77,15 +77,15 @@ namespace GuiEditor
         /// Recusively searches the tree for an item associated with a specified WindowT.
         /// @param StartingItem Item to start the recursive search at.
         /// @param EditorWindow The WindowT whose tree item we are interested in.
-        const wxTreeItemId FindTreeItem(const wxTreeItemId& StartingItem, cf::GuiSys::WindowT* EditorWindow) const;
+        const wxTreeItemId FindTreeItem(const wxTreeItemId& StartingItem, IntrusivePtrT<cf::GuiSys::WindowT> EditorWindow) const;
 
         /// Recursively gets all tree items, beginning with the passed tree item.
         void GetTreeItems(const wxTreeItemId& StartingItem, ArrayT<wxTreeItemId>& Items);
 
-        GuiDocumentT*        m_GuiDocument;
-        ChildFrameT*         m_Parent;
-        bool                 m_IsRecursiveSelfNotify;
-        cf::GuiSys::WindowT* m_DraggedWindow;
+        GuiDocumentT*                      m_GuiDocument;
+        ChildFrameT*                       m_Parent;
+        bool                               m_IsRecursiveSelfNotify;
+        IntrusivePtrT<cf::GuiSys::WindowT> m_DraggedWindow;
 
         void OnKeyDown           (wxKeyEvent&   KE);
         void OnTreeLeftClick     (wxMouseEvent& ME);

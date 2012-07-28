@@ -20,6 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "ObserverPattern.hpp"
+#include "GuiSys/Window.hpp"
 
 
 using namespace GuiEditor;
@@ -59,39 +60,39 @@ void SubjectT::UnregisterObserver(ObserverT* Obs)
 }
 
 
-void SubjectT::UpdateAllObservers_SelectionChanged(const ArrayT<cf::GuiSys::WindowT*>& OldSelection, const ArrayT<cf::GuiSys::WindowT*>& NewSelection)
+void SubjectT::UpdateAllObservers_SelectionChanged(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& OldSelection, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& NewSelection)
 {
     for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
         m_Observers[ObsNr]->NotifySubjectChanged_Selection(this, OldSelection, NewSelection);
 }
 
 
-void SubjectT::UpdateAllObservers_Created(const ArrayT<cf::GuiSys::WindowT*>& Windows)
+void SubjectT::UpdateAllObservers_Created(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows)
 {
     for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
         m_Observers[ObsNr]->NotifySubjectChanged_Created(this, Windows);
 }
 
 
-void SubjectT::UpdateAllObservers_Created(cf::GuiSys::WindowT* Window)
+void SubjectT::UpdateAllObservers_Created(IntrusivePtrT<cf::GuiSys::WindowT> Window)
 {
-    ArrayT<cf::GuiSys::WindowT*> Windows;
+    ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > Windows;
     Windows.PushBack(Window);
 
     UpdateAllObservers_Created(Windows);
 }
 
 
-void SubjectT::UpdateAllObservers_Deleted(const ArrayT<cf::GuiSys::WindowT*>& Windows)
+void SubjectT::UpdateAllObservers_Deleted(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows)
 {
     for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
         m_Observers[ObsNr]->NotifySubjectChanged_Deleted(this, Windows);
 }
 
 
-void SubjectT::UpdateAllObservers_Deleted(cf::GuiSys::WindowT* Window)
+void SubjectT::UpdateAllObservers_Deleted(IntrusivePtrT<cf::GuiSys::WindowT> Window)
 {
-    ArrayT<cf::GuiSys::WindowT*> Windows;
+    ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > Windows;
     Windows.PushBack(Window);
 
     UpdateAllObservers_Deleted(Windows);
@@ -105,32 +106,32 @@ void SubjectT::UpdateAllObservers_GuiPropertyModified()
 }
 
 
-void SubjectT::UpdateAllObservers_Modified(const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail)
+void SubjectT::UpdateAllObservers_Modified(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail)
 {
     for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
         m_Observers[ObsNr]->NotifySubjectChanged_Modified(this, Windows, Detail);
 }
 
 
-void SubjectT::UpdateAllObservers_Modified(cf::GuiSys::WindowT* Window, WindowModDetailE Detail)
+void SubjectT::UpdateAllObservers_Modified(IntrusivePtrT<cf::GuiSys::WindowT> Window, WindowModDetailE Detail)
 {
-    ArrayT<cf::GuiSys::WindowT*> Windows;
+    ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > Windows;
     Windows.PushBack(Window);
 
     UpdateAllObservers_Modified(Windows, Detail);
 }
 
 
-void SubjectT::UpdateAllObservers_Modified(const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail, const wxString& PropertyName)
+void SubjectT::UpdateAllObservers_Modified(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail, const wxString& PropertyName)
 {
     for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
         m_Observers[ObsNr]->NotifySubjectChanged_Modified(this, Windows, Detail, PropertyName);
 }
 
 
-void SubjectT::UpdateAllObservers_Modified(cf::GuiSys::WindowT* Window, WindowModDetailE Detail, const wxString& PropertyName)
+void SubjectT::UpdateAllObservers_Modified(IntrusivePtrT<cf::GuiSys::WindowT> Window, WindowModDetailE Detail, const wxString& PropertyName)
 {
-    ArrayT<cf::GuiSys::WindowT*> Windows;
+    ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > Windows;
     Windows.PushBack(Window);
 
     UpdateAllObservers_Modified(Windows, Detail, PropertyName);

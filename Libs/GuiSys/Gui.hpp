@@ -22,7 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_GUISYS_GUI_HPP_INCLUDED
 #define CAFU_GUISYS_GUI_HPP_INCLUDED
 
-#include "WindowPtr.hpp"
+#include "Templates/Pointer.hpp"
 #include <string>
 
 
@@ -36,6 +36,8 @@ namespace cf
 {
     namespace GuiSys
     {
+        class WindowT;
+
         /// Note that it is very difficult to change these constants later, because then all GUI scripts
         /// in the world had to be changed too (and in a non-trivial way)!
         const float VIRTUAL_SCREEN_SIZE_X=640.0f;
@@ -54,10 +56,10 @@ namespace cf
             virtual const std::string& GetScriptName() const=0;
 
             /// Returns the root window of this GUI.
-            virtual WindowPtrT GetRootWindow() const=0;
+            virtual IntrusivePtrT<WindowT> GetRootWindow() const=0;
 
             /// Returns the window in this GUI that has the keyboard input focus.
-            virtual WindowPtrT GetFocusWindow() const=0;
+            virtual IntrusivePtrT<WindowT> GetFocusWindow() const=0;
 
             /// Activates or deactivates this GUI.
             virtual void Activate(bool doActivate=true)=0;
@@ -135,7 +137,7 @@ namespace cf
             /// @param ...          Same as in CallLuaFunc(), see there for details.
             /// @returns whether the method call was sucessful.
             /// This method is analogous to CallLuaFunc(), see there for more details.
-            virtual bool CallLuaMethod(WindowPtrT Window, const char* MethodName, const char* Signature="", ...)=0;
+            virtual bool CallLuaMethod(IntrusivePtrT<WindowT> Window, const char* MethodName, const char* Signature="", ...)=0;
 
             /// If this GUI is used as a 3D world GUI, the host entity (on which this GUI is "attached" in the world)
             /// can call this method to let this GUI know the map script state and its name therein.

@@ -35,6 +35,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../Renderer3D.hpp"    // For class Renderer3DT::UseOrthoMatricesT.
 
 #include "GuiSys/GuiImpl.hpp"
+#include "GuiSys/Window.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/Mesh.hpp"
 #include "MaterialSystem/Renderer.hpp"

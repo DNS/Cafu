@@ -29,7 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace GuiEditor;
 
 
-CommandAlignTextHorT::CommandAlignTextHorT(GuiDocumentT* GuiDocument, const ArrayT<cf::GuiSys::WindowT*>& Windows, int Alignment)
+CommandAlignTextHorT::CommandAlignTextHorT(GuiDocumentT* GuiDocument, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, int Alignment)
     : m_GuiDocument(GuiDocument),
       m_Windows(Windows),
       m_NewAlignment(Alignment)

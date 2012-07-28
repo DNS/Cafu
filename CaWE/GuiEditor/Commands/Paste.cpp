@@ -27,7 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace GuiEditor;
 
 
-CommandPasteT::CommandPasteT(GuiDocumentT* GuiDocument, const ArrayT<cf::GuiSys::WindowT*>& Windows, cf::GuiSys::WindowT* NewParent)
+CommandPasteT::CommandPasteT(GuiDocumentT* GuiDocument, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, IntrusivePtrT<cf::GuiSys::WindowT> NewParent)
     : m_GuiDocument(GuiDocument),
       m_NewParent(NewParent)
 {
@@ -42,29 +42,11 @@ CommandPasteT::CommandPasteT(GuiDocumentT* GuiDocument, const ArrayT<cf::GuiSys:
         // Create editor data for the window itself and all of its children.
         GuiDocumentT::CreateSibling(m_Windows[WinNr], m_GuiDocument);
 
-        ArrayT<cf::GuiSys::WindowT*> Children;
+        ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > Children;
         m_Windows[WinNr]->GetChildren(Children, true);
 
         for (unsigned long ChildNr=0; ChildNr<Children.Size(); ChildNr++)
             GuiDocumentT::CreateSibling(Children[ChildNr], m_GuiDocument);
-    }
-}
-
-
-CommandPasteT::~CommandPasteT()
-{
-    if (!m_Done)
-    {
-        for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
-        {
-            ArrayT<cf::GuiSys::WindowT*> Children;
-            m_Windows[WinNr]->GetChildren(Children, true);
-
-            for (unsigned long ChildNr=0; ChildNr<Children.Size(); ChildNr++)
-                delete Children[ChildNr];
-
-            delete m_Windows[WinNr];
-        }
     }
 }
 

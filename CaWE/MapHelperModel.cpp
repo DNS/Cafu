@@ -31,6 +31,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Options.hpp"
 
 #include "GuiSys/GuiImpl.hpp"
+#include "GuiSys/Window.hpp"
 #include "MaterialSystem/Mesh.hpp"
 #include "Math3D/BoundingBox.hpp"
 #include "Math3D/Matrix3x3.hpp"

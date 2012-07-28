@@ -32,6 +32,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /// observers and subjects, not by the base classes that the Observer pattern describes and provided herein.
 
 #include "Templates/Array.hpp"
+#include "Templates/Pointer.hpp"
 
 #include "wx/string.h"
 
@@ -62,17 +63,17 @@ namespace GuiEditor
         /// @param Subject The GUI document in which the selection has been changed.
         /// @param OldSelection Array of the previously selected windows.
         /// @param NewSelection Array of the new selected windows.
-        virtual void NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& OldSelection, const ArrayT<cf::GuiSys::WindowT*>& NewSelection) { }
+        virtual void NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& OldSelection, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& NewSelection) { }
 
         /// Notifies the observer that one or more windows have been created.
         /// @param Subject The GUI document in which the windows have been created.
         /// @param Windows List of created windows.
-        virtual void NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows) { }
+        virtual void NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows) { }
 
         /// Notifies the observer that one or more windows have been deleted.
         /// @param Subject The GUI document in which the windows have been deleted.
         /// @param Windows List of deleted windows.
-        virtual void NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows) { }
+        virtual void NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows) { }
 
         /// Notifies the observer that a general  GUI property has been modified.
         /// @param Subject The GUI document whose GUI property has been modified.
@@ -88,14 +89,14 @@ namespace GuiEditor
         /// @param Windows   List of modified windows.
         /// @param Detail    Information about what has been modified:
         ///                  Can be WMD_GENERIC, WMD_TRANSFORMED, WMD_HOR_TEXT_ALIGN or WMD_HIERARCHY.
-        virtual void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail) { }
+        virtual void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail) { }
 
         /// @param Subject   The GUI document in which the elements have been modified.
         /// @param Windows   List of modified windows.
         /// @param Detail    Information about what has been modified:
         ///                  Can only be WMD_PROPERTY_CHANGED.
         /// @param PropertyName   The name of the property whose value has been modified.
-        virtual void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail, const wxString& PropertyName) { }
+        virtual void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail, const wxString& PropertyName) { }
         //@}
 
         /// Notifies the observer that a property of a window has changed.
@@ -131,16 +132,16 @@ namespace GuiEditor
         /// \param Obs   The observer that is to be unregistered.
         virtual void UnregisterObserver(ObserverT* Obs);
 
-        virtual void UpdateAllObservers_SelectionChanged(const ArrayT<cf::GuiSys::WindowT*>& OldSelection, const ArrayT<cf::GuiSys::WindowT*>& NewSelection);
-        virtual void UpdateAllObservers_Created(const ArrayT<cf::GuiSys::WindowT*>& Windows);
-        virtual void UpdateAllObservers_Created(cf::GuiSys::WindowT* Window);
-        virtual void UpdateAllObservers_Deleted(const ArrayT<cf::GuiSys::WindowT*>& Windows);
-        virtual void UpdateAllObservers_Deleted(cf::GuiSys::WindowT* Window);
+        virtual void UpdateAllObservers_SelectionChanged(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& OldSelection, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& NewSelection);
+        virtual void UpdateAllObservers_Created(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows);
+        virtual void UpdateAllObservers_Created(IntrusivePtrT<cf::GuiSys::WindowT> Window);
+        virtual void UpdateAllObservers_Deleted(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows);
+        virtual void UpdateAllObservers_Deleted(IntrusivePtrT<cf::GuiSys::WindowT> Window);
         virtual void UpdateAllObservers_GuiPropertyModified();
-        virtual void UpdateAllObservers_Modified(const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail);
-        virtual void UpdateAllObservers_Modified(cf::GuiSys::WindowT* Window, WindowModDetailE Detail);
-        virtual void UpdateAllObservers_Modified(const ArrayT<cf::GuiSys::WindowT*>& Windows, WindowModDetailE Detail, const wxString& PropertyName);
-        virtual void UpdateAllObservers_Modified(cf::GuiSys::WindowT* Window, WindowModDetailE Detail, const wxString& PropertyName);
+        virtual void UpdateAllObservers_Modified(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail);
+        virtual void UpdateAllObservers_Modified(IntrusivePtrT<cf::GuiSys::WindowT> Window, WindowModDetailE Detail);
+        virtual void UpdateAllObservers_Modified(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail, const wxString& PropertyName);
+        virtual void UpdateAllObservers_Modified(IntrusivePtrT<cf::GuiSys::WindowT> Window, WindowModDetailE Detail, const wxString& PropertyName);
         virtual void UpdateAllObservers_Modified(const EditorWindowT* Win, const wxString& PropName);
 
         /// The virtual destructor.

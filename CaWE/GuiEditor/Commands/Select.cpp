@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Select.hpp"
 
 #include "../GuiDocument.hpp"
+#include "GuiSys/Window.hpp"
 
 
 using namespace GuiEditor;
@@ -29,16 +30,16 @@ using namespace GuiEditor;
 
 CommandSelectT* CommandSelectT::Clear(GuiDocumentT* GuiDocument)
 {
-    ArrayT<cf::GuiSys::WindowT*> EmptySelection;
+    ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > EmptySelection;
 
     return new CommandSelectT(GuiDocument, GuiDocument->GetSelection(), EmptySelection);
 }
 
 
-CommandSelectT* CommandSelectT::Add(GuiDocumentT* GuiDocument, const ArrayT<cf::GuiSys::WindowT*>& Windows)
+CommandSelectT* CommandSelectT::Add(GuiDocumentT* GuiDocument, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows)
 {
-    ArrayT<cf::GuiSys::WindowT*> OldSelection(GuiDocument->GetSelection());
-    ArrayT<cf::GuiSys::WindowT*> NewSelection(GuiDocument->GetSelection());
+    ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > OldSelection(GuiDocument->GetSelection());
+    ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > NewSelection(GuiDocument->GetSelection());
 
     // For each window, check if it is already part of the current selection.
     for (unsigned long WindowNr=0; WindowNr<Windows.Size(); WindowNr++)
@@ -56,18 +57,18 @@ CommandSelectT* CommandSelectT::Add(GuiDocumentT* GuiDocument, const ArrayT<cf::
 }
 
 
-CommandSelectT* CommandSelectT::Add(GuiDocumentT* GuiDocument, cf::GuiSys::WindowT* Window)
+CommandSelectT* CommandSelectT::Add(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Window)
 {
-    ArrayT<cf::GuiSys::WindowT*> AddSelection;
+    ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > AddSelection;
     AddSelection.PushBack(Window);
 
     return CommandSelectT::Add(GuiDocument, AddSelection);
 }
 
 
-CommandSelectT* CommandSelectT::Remove(GuiDocumentT* GuiDocument, const ArrayT<cf::GuiSys::WindowT*>& Windows)
+CommandSelectT* CommandSelectT::Remove(GuiDocumentT* GuiDocument, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows)
 {
-    ArrayT<cf::GuiSys::WindowT*> NewSelection(GuiDocument->GetSelection());
+    ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > NewSelection(GuiDocument->GetSelection());
 
     // For each window, check if it is already part of the current selection.
     for (unsigned long WindowNr=0; WindowNr<Windows.Size(); WindowNr++)
@@ -88,22 +89,22 @@ CommandSelectT* CommandSelectT::Remove(GuiDocumentT* GuiDocument, const ArrayT<c
 }
 
 
-CommandSelectT* CommandSelectT::Remove(GuiDocumentT* GuiDocument, cf::GuiSys::WindowT* Window)
+CommandSelectT* CommandSelectT::Remove(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Window)
 {
-    ArrayT<cf::GuiSys::WindowT*> RemoveSelection;
+    ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > RemoveSelection;
     RemoveSelection.PushBack(Window);
 
     return CommandSelectT::Remove(GuiDocument, RemoveSelection);
 }
 
 
-CommandSelectT* CommandSelectT::Set(GuiDocumentT* GuiDocument, const ArrayT<cf::GuiSys::WindowT*>& Windows)
+CommandSelectT* CommandSelectT::Set(GuiDocumentT* GuiDocument, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows)
 {
     return new CommandSelectT(GuiDocument, GuiDocument->GetSelection(), Windows);
 }
 
 
-CommandSelectT::CommandSelectT(GuiDocumentT* GuiDocument, const ArrayT<cf::GuiSys::WindowT*>& OldSelection, const ArrayT<cf::GuiSys::WindowT*>& NewSelection)
+CommandSelectT::CommandSelectT(GuiDocumentT* GuiDocument, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& OldSelection, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& NewSelection)
     : CommandT(abs(int(OldSelection.Size())-int(NewSelection.Size()))>3, false), // Only show selection command in the undo/redo history if selection difference is greater 3.
       m_GuiDocument(GuiDocument),
       m_OldSelection(OldSelection),

@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_GUIEDITOR_COMMAND_DELETE_HPP_INCLUDED
 
 #include "../../CommandPattern.hpp"
+#include "Templates/Pointer.hpp"
 
 
 namespace cf { namespace GuiSys { class WindowT; } }
@@ -38,8 +39,8 @@ namespace GuiEditor
     {
         public:
 
-        CommandDeleteT(GuiDocumentT* GuiDocument, cf::GuiSys::WindowT* Window);
-        CommandDeleteT(GuiDocumentT* GuiDocument, const ArrayT<cf::GuiSys::WindowT*>& Windows);
+        CommandDeleteT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Window);
+        CommandDeleteT(GuiDocumentT* GuiDocument, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows);
         ~CommandDeleteT();
 
         // CommandT implementation.
@@ -52,9 +53,9 @@ namespace GuiEditor
 
         GuiDocumentT* m_GuiDocument;
 
-        ArrayT<cf::GuiSys::WindowT*> m_Windows;
-        ArrayT<unsigned long>        m_Indices;
-        CommandSelectT*              m_CommandSelect;   ///< The command that unselects all windows before they are deleted.
+        ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > m_Windows;
+        ArrayT<unsigned long>                        m_Indices;
+        CommandSelectT*                              m_CommandSelect;   ///< The command that unselects all windows before they are deleted.
     };
 }
 

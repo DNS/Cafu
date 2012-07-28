@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_GUIEDITOR_COMMAND_CREATE_HPP_INCLUDED
 
 #include "../../CommandPattern.hpp"
+#include "Templates/Pointer.hpp"
 
 
 namespace cf { namespace GuiSys { class WindowT; } }
@@ -45,8 +46,7 @@ namespace GuiEditor
             WINDOW_MODEL
         };
 
-        CommandCreateT(GuiDocumentT* GuiDocument, cf::GuiSys::WindowT* Parent, WindowTypeE Type=WINDOW_BASIC);
-        ~CommandCreateT();
+        CommandCreateT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Parent, WindowTypeE Type=WINDOW_BASIC);
 
         // CommandT implementation.
         bool Do();
@@ -58,10 +58,10 @@ namespace GuiEditor
 
         GuiDocumentT* m_GuiDocument;
 
-        cf::GuiSys::WindowT*               m_Parent;
-        WindowTypeE                        m_Type;
-        cf::GuiSys::WindowT*               m_NewWindow;
-        const ArrayT<cf::GuiSys::WindowT*> m_OldSelection;
+        IntrusivePtrT<cf::GuiSys::WindowT>                 m_Parent;
+        WindowTypeE                                        m_Type;
+        IntrusivePtrT<cf::GuiSys::WindowT>                 m_NewWindow;
+        const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > m_OldSelection;
     };
 }
 

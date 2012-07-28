@@ -41,12 +41,6 @@ namespace cf
 
 
         /// This class implements the GuiI interface.
-        /// TODO / FIXME:
-        /// - Should we use different metatables for the table representation of a window and its userdata item (contained at table index __userdata_cf)?
-        /// - Should we use for the __index value of a metatable not the metatable itself (so that __gc is not accessible from the script anymore)?
-        ///   (Search the Lua users mailing list for "__gc" in this regard.)
-        /// - How does this affect GuiImplT::GetCheckedObjectParam()?
-        /// - Employ the \emph{environment} of userdata for our private data (e.g. the __children_cf and __parent_cf fields)!
         class GuiImplT : public GuiI
         {
             public:
@@ -84,8 +78,8 @@ namespace cf
 
             // Implement all the (pure) virtual methods of the GuiI interface.
             const std::string& GetScriptName() const;
-            WindowPtrT GetRootWindow() const { return RootWindow; }
-            WindowPtrT GetFocusWindow() const { return FocusWindow; }
+            IntrusivePtrT<WindowT> GetRootWindow() const { return RootWindow; }
+            IntrusivePtrT<WindowT> GetFocusWindow() const { return FocusWindow; }
             void Activate(bool doActivate=true);
             bool GetIsActive() const { return IsActive; }
             void SetInteractive(bool IsInteractive_=true);
@@ -100,7 +94,7 @@ namespace cf
             bool ProcessDeviceEvent(const CaMouseEventT& ME);
             void DistributeClockTickEvents(float t);
             bool CallLuaFunc(const char* FuncName, const char* Signature="", ...);
-            bool CallLuaMethod(WindowPtrT Window, const char* MethodName, const char* Signature="", ...);
+            bool CallLuaMethod(IntrusivePtrT<WindowT> Window, const char* MethodName, const char* Signature="", ...);
             void SetEntityInfo(UniScriptStateT* MapScriptState, const std::string& EntityName);
             void RegisterScriptLib(const char* LibName, const luaL_Reg Functions[]);
 
@@ -117,7 +111,6 @@ namespace cf
             private:
 
             friend class WindowT;
-            friend class WindowPtrT;
 
 
             GuiImplT(const GuiImplT&);          ///< Use of the Copy Constructor    is not allowed.
@@ -133,9 +126,9 @@ namespace cf
             MatSys::RenderMaterialT* m_GuiFinishZRM;    ///< Used for laying-down z-buffer values after all GUI elements have been rendered.
             GuiResourcesT&           m_GuiResources;    ///< The provider for resources (fonts and models) that are used in this GUI.
 
-            WindowPtrT               RootWindow;        ///< The root window of the window hierarchy that forms this GUI.
-            WindowPtrT               FocusWindow;       ///< The window in the hierachy that currently has the (keyboard) input focus.
-            WindowPtrT               MouseOverWindow;   ///< The window that the mouse is currently hovering over.
+            IntrusivePtrT<WindowT>   RootWindow;        ///< The root window of the window hierarchy that forms this GUI.
+            IntrusivePtrT<WindowT>   FocusWindow;       ///< The window in the hierachy that currently has the (keyboard) input focus.
+            IntrusivePtrT<WindowT>   MouseOverWindow;   ///< The window that the mouse is currently hovering over.
 
             bool                     IsActive;          ///< Whether this GUI is active or not. This is of importance mainly for the GuiMan, which doesn't send us events and doesn't draw us if we're not active.
             bool                     IsInteractive;     ///< Whether this GUI is interactive (reacts to device events) or not. This is of importance mainly for the GuiMan, which doesn't send us device events if we are not interactive, and sends device events only to the top-most interactive GUI.
@@ -165,7 +158,6 @@ namespace cf
             static int RunMapCommand(lua_State* LuaState);      ///< Runs the given string in the map script state (if there is one).
             static int SetRootWindow(lua_State* LuaState);      ///< Sets the root window for this GUI.
             static int CreateNewWindow(lua_State* LuaState);    ///< Creates and returns a new window.
-            static int FindWindow(lua_State* LuaState);         ///< Finds and returns a window by pointer value. Useful for debugging when an error message referred to a window by pointer value.
             static int toString(lua_State* LuaState);           ///< Returns a string representation of this GUI.
         };
     }

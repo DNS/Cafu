@@ -35,7 +35,7 @@ namespace GuiEditor
         public:
 
         /// The constructor.
-        EditorModelWindowT(cf::GuiSys::ModelWindowT* ModelWindow, GuiDocumentT* GuiDoc);
+        EditorModelWindowT(IntrusivePtrT<cf::GuiSys::ModelWindowT> ModelWindow, GuiDocumentT* GuiDoc);
 
         // Implementations and overrides for base class methods.
         void FillInPG(wxPropertyGridManager* PropMan);
@@ -46,7 +46,7 @@ namespace GuiEditor
 
         private:
 
-        cf::GuiSys::ModelWindowT* m_ModelWindow;
+        IntrusivePtrT<cf::GuiSys::ModelWindowT> m_ModelWindow;
     };
 }
 

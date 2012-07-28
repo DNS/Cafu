@@ -102,9 +102,9 @@ bool ToolSelectionT::OnLMouseDown(RenderWindowT* RenderWindow, wxMouseEvent& ME)
     // Translate client mouse position to GUI mouse position.
     Vector3fT MousePosGUI=RenderWindow->ClientToGui(ME.GetX(), ME.GetY());
 
-    cf::GuiSys::WindowT* ClickedWindow=m_GuiDocument->GetRootWindow()->Find(MousePosGUI.x, MousePosGUI.y);
+    IntrusivePtrT<cf::GuiSys::WindowT> ClickedWindow=m_GuiDocument->GetRootWindow()->Find(MousePosGUI.x, MousePosGUI.y);
 
-    if (!ClickedWindow)
+    if (ClickedWindow.IsNull())
     {
         if (!ME.ControlDown()) m_Parent->SubmitCommand(CommandSelectT::Clear(m_GuiDocument));
         return true;
@@ -125,7 +125,7 @@ bool ToolSelectionT::OnLMouseDown(RenderWindowT* RenderWindow, wxMouseEvent& ME)
     }
 
     // Backup the current state (in terms of transformation) of the selected windows.
-    const ArrayT<cf::GuiSys::WindowT*>& Selection=m_GuiDocument->GetSelection();
+    const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Selection=m_GuiDocument->GetSelection();
 
     for (unsigned long SelNr=0; SelNr<Selection.Size(); SelNr++)
     {
@@ -228,7 +228,7 @@ bool ToolSelectionT::OnMouseMove(RenderWindowT* RenderWindow, wxMouseEvent& ME)
 
         if (MousePosGUI.x==m_LastMousePosX && MousePosGUI.y==m_LastMousePosY) return true;
 
-        const ArrayT<cf::GuiSys::WindowT*>& Selection=m_GuiDocument->GetSelection();
+        const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Selection=m_GuiDocument->GetSelection();
 
         float DeltaX=MousePosGUI.x-m_LastMousePosX;
         float DeltaY=MousePosGUI.y-m_LastMousePosY;
@@ -311,10 +311,10 @@ bool ToolSelectionT::OnMouseMove(RenderWindowT* RenderWindow, wxMouseEvent& ME)
     }
     else
     {
-        cf::GuiSys::WindowT* MouseOverWindow=m_GuiDocument->GetRootWindow()->Find(MousePosGUI.x, MousePosGUI.y);
+        IntrusivePtrT<cf::GuiSys::WindowT> MouseOverWindow=m_GuiDocument->GetRootWindow()->Find(MousePosGUI.x, MousePosGUI.y);
 
         // If window under the cursor is selected.
-        if (MouseOverWindow && GuiDocumentT::GetSibling(MouseOverWindow)->IsSelected())
+        if (!MouseOverWindow.IsNull() && GuiDocumentT::GetSibling(MouseOverWindow)->IsSelected())
         {
             // Get window rect for window size.
             float* Rect=&MouseOverWindow->Rect[0];
@@ -383,10 +383,10 @@ bool ToolSelectionT::OnRMouseUp(RenderWindowT* RenderWindow, wxMouseEvent& ME)
     };
 
     // Create a new window and use the top most window under the mouse cursor as parent.
-    Vector3fT MousePosGUI      =RenderWindow->ClientToGui(ME.GetX(), ME.GetY());
-    cf::GuiSys::WindowT* Parent=m_GuiDocument->GetRootWindow()->Find(MousePosGUI.x, MousePosGUI.y);
+    Vector3fT MousePosGUI=RenderWindow->ClientToGui(ME.GetX(), ME.GetY());
+    IntrusivePtrT<cf::GuiSys::WindowT> Parent=m_GuiDocument->GetRootWindow()->Find(MousePosGUI.x, MousePosGUI.y);
 
-    if (!Parent) return false;
+    if (Parent.IsNull()) return false;
 
     wxMenu Menu;
     wxMenu* SubMenuCreate=new wxMenu();
