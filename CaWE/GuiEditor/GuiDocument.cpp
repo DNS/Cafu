@@ -178,8 +178,8 @@ static void SaveWindowInstantiation(std::ostream& OutFile, IntrusivePtrT<cf::Gui
 
     wxString NewParentName=Window->GetRoot()==Window ? "" : ParentName+Window->Name+".";
 
-    for (unsigned long ChildNr=0; ChildNr<Window->Children.Size(); ChildNr++)
-        SaveWindowInstantiation(OutFile, Window->Children[ChildNr], NewParentName);
+    for (unsigned long ChildNr=0; ChildNr<Window->m_Children.Size(); ChildNr++)
+        SaveWindowInstantiation(OutFile, Window->m_Children[ChildNr], NewParentName);
 
     if (Window->GetParent()==Window->GetRoot()) OutFile << "\n";
 }
@@ -200,8 +200,8 @@ static void SaveWindowHierarchy(std::ostream& OutFile, IntrusivePtrT<cf::GuiSys:
 
     wxString NewParentName=Window->GetRoot()==Window ? "" : ParentName+Window->Name+".";
 
-    for (unsigned long ChildNr=0; ChildNr<Window->Children.Size(); ChildNr++)
-        SaveWindowHierarchy(OutFile, Window->Children[ChildNr], NewParentName);
+    for (unsigned long ChildNr=0; ChildNr<Window->m_Children.Size(); ChildNr++)
+        SaveWindowHierarchy(OutFile, Window->m_Children[ChildNr], NewParentName);
 
     if (Window->GetParent()==Window->GetRoot()) OutFile << "\n";
 }
@@ -242,8 +242,8 @@ static void SaveWindowInitialization(std::ostream& OutFile, IntrusivePtrT<cf::Gu
 
     wxString NewParentName=Window->GetRoot()==Window ? "" : ParentName+Window->Name+".";
 
-    for (unsigned long ChildNr=0; ChildNr<Window->Children.Size(); ChildNr++)
-        SaveWindowInitialization(OutFile, Window->Children[ChildNr], NewParentName);
+    for (unsigned long ChildNr=0; ChildNr<Window->m_Children.Size(); ChildNr++)
+        SaveWindowInitialization(OutFile, Window->m_Children[ChildNr], NewParentName);
 }
 
 

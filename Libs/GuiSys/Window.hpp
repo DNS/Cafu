@@ -135,13 +135,13 @@ namespace cf
             /// Returns the name of this window.
             const std::string& GetName() const;
 
+            /// Returns the parent window of this window.
+            IntrusivePtrT<WindowT> GetParent() { return m_Parent; }
+
             /// Returns the children of this window.
             /// @param Chld      The array to which the children of this window are appended. Note that Chld gets *not* initially cleared by this function!
             /// @param Recurse   Determines if also the grand-children, grand-grand-children etc. are returned.
             void GetChildren(ArrayT< IntrusivePtrT<WindowT> >& Chld, bool Recurse=false);
-
-            /// Returns the parent window of this window.
-            IntrusivePtrT<WindowT> GetParent() { return Parent; }
 
             /// Returns the top-most parent of this window, that is, the root of the hierarchy this window is in.
             IntrusivePtrT<WindowT> GetRoot();     // Method cannot be const because return type is not const -- see implementation.
@@ -221,11 +221,8 @@ namespace cf
             enum TextAlignVerT { top, bottom, middle, END_VER=0x10000000 };
 
 
-            // "Duplicates" or "mirrors" of what we already have in Lua.
-            // The main window hierarchy is directly modelled in Lua, because Lua must have that knowledge for its garbage collector.
-            // We *could* get rid of the redundancy here, it only exists for performance reasons.
-            ArrayT< IntrusivePtrT<WindowT> > Children;  ///< The list of children of this window.
-            IntrusivePtrT<WindowT>           Parent;    ///< The parent of this window. May be NULL if there is no parent.
+            IntrusivePtrT<WindowT>           m_Parent;    ///< The parent of this window. May be NULL if there is no parent.
+            ArrayT< IntrusivePtrT<WindowT> > m_Children;  ///< The list of children of this window.
 
             std::string              Name;              ///< The name of this window. It must be unique throughout the entire GUI (hierarchy of parent and children).
             float                    Time;              ///< This windows local time (starting from 0.0).

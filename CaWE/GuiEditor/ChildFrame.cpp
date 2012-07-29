@@ -727,13 +727,13 @@ void GuiEditor::ChildFrameT::OnToolbar(wxCommandEvent& CE)
                 break;
             }
 
-            if (Sel[0]->Parent.IsNull())
+            if (Sel[0]->m_Parent.IsNull())
             {
                 wxMessageBox("Sorry, the topmost (root) window cannot be moved.");
                 break;
             }
 
-            const int NewPos=Sel[0]->Parent->Children.Find(Sel[0]) + (CE.GetId()==ID_TOOLBAR_WINDOW_MOVE_UP ? -1 : 1);
+            const int NewPos=Sel[0]->m_Parent->m_Children.Find(Sel[0]) + (CE.GetId()==ID_TOOLBAR_WINDOW_MOVE_UP ? -1 : 1);
 
             if (NewPos<0)
             {
@@ -741,13 +741,13 @@ void GuiEditor::ChildFrameT::OnToolbar(wxCommandEvent& CE)
                 break;
             }
 
-            if (NewPos>=int(Sel[0]->Parent->Children.Size()))
+            if (NewPos>=int(Sel[0]->m_Parent->m_Children.Size()))
             {
                 wxMessageBox("This window is already the last child of its parent.\n\nUse cut and paste if you would like to assign the window to another parent.");
                 break;
             }
 
-            SubmitCommand(new CommandChangeWindowHierarchyT(m_GuiDocument, Sel[0], Sel[0]->Parent, NewPos));
+            SubmitCommand(new CommandChangeWindowHierarchyT(m_GuiDocument, Sel[0], Sel[0]->m_Parent, NewPos));
             break;
         }
 

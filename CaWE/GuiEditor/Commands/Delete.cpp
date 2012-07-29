@@ -35,7 +35,7 @@ CommandDeleteT::CommandDeleteT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiS
     // The root window cannot be deleted.
     if (Window!=Window->GetRoot())
     {
-        wxASSERT(Window->Parent->Children.Find(Window)>=0);
+        wxASSERT(Window->m_Parent->m_Children.Find(Window)>=0);
 
         m_Windows.PushBack(Window);
         m_Indices.PushBack(-1);
@@ -56,7 +56,7 @@ CommandDeleteT::CommandDeleteT(GuiDocumentT* GuiDocument, const ArrayT< Intrusiv
         // The root window cannot be deleted.
         if (Window!=Window->GetRoot())
         {
-            wxASSERT(Window->Parent->Children.Find(Window)>=0);
+            wxASSERT(Window->m_Parent->m_Children.Find(Window)>=0);
 
             m_Windows.PushBack(Window);
             m_Indices.PushBack(-1);
@@ -88,8 +88,8 @@ bool CommandDeleteT::Do()
     {
         IntrusivePtrT<cf::GuiSys::WindowT> Window=m_Windows[WinNr];
 
-        m_Indices[WinNr]=Window->Parent->Children.Find(Window);
-        Window->Parent->Children.RemoveAtAndKeepOrder(m_Indices[WinNr]);
+        m_Indices[WinNr]=Window->m_Parent->m_Children.Find(Window);
+        Window->m_Parent->m_Children.RemoveAtAndKeepOrder(m_Indices[WinNr]);
     }
 
     m_GuiDocument->UpdateAllObservers_Deleted(m_Windows);
@@ -109,7 +109,7 @@ void CommandDeleteT::Undo()
         const unsigned long                WinNr =m_Windows.Size()-RevNr-1;
         IntrusivePtrT<cf::GuiSys::WindowT> Window=m_Windows[WinNr];
 
-        Window->Parent->Children.InsertAt(m_Indices[WinNr], Window);
+        Window->m_Parent->m_Children.InsertAt(m_Indices[WinNr], Window);
     }
 
     m_GuiDocument->UpdateAllObservers_Created(m_Windows);

@@ -104,7 +104,7 @@ ListBoxT::ListBoxT(const ListBoxT& Window, bool Recursive)
     for (unsigned long RowNr=0; RowNr<Window.Rows.Size(); RowNr++)
     {
         Rows.PushBack(Window.Rows[RowNr]->Clone(true));
-        Rows[RowNr]->Parent=this;
+        Rows[RowNr]->m_Parent=this;
     }
 
     FillMemberVars();
@@ -132,7 +132,7 @@ void ListBoxT::Insert(unsigned long RowNr, const std::string& RowText)
     Rows.InsertAt(RowNr, new WindowT(WindowCreateParamsT(m_Gui)));
 
     // Initialize the new row window.
-    Rows[RowNr]->Parent      =this;        // Set the proper parent so that the rendering of the row is relative to this window.
+    Rows[RowNr]->m_Parent    =this;        // Set the proper parent so that the rendering of the row is relative to this window.
     Rows[RowNr]->Text        =RowText;
     Rows[RowNr]->TextScale   =TextScale;
     Rows[RowNr]->TextAlignVer=middle;

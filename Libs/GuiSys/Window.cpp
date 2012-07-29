@@ -83,8 +83,8 @@ const cf::TypeSys::TypeInfoT WindowT::TypeInfo(GetWindowTIM(), "WindowT", NULL /
 
 
 WindowT::WindowT(const WindowCreateParamsT& Params)
-    : Children(),
-      Parent(NULL),
+    : m_Parent(NULL),
+      m_Children(),
       Name(""),
       Time(0.0f),
       ShowWindow(true),
@@ -120,7 +120,8 @@ WindowT::WindowT(const WindowCreateParamsT& Params)
 
 
 WindowT::WindowT(const WindowT& Window, bool Recursive)
-    : Parent(NULL),
+    : m_Parent(NULL),
+      m_Children(),
       Name(Window.Name),
       Time(Window.Time),
       ShowWindow(Window.ShowWindow),
@@ -153,10 +154,10 @@ WindowT::WindowT(const WindowT& Window, bool Recursive)
 
     if (Recursive)
     {
-        for (unsigned long ChildNr=0; ChildNr<Window.Children.Size(); ChildNr++)
+        for (unsigned long ChildNr=0; ChildNr<Window.m_Children.Size(); ChildNr++)
         {
-            Children.PushBack(Window.Children[ChildNr]->Clone(Recursive));
-            Children[ChildNr]->Parent=this;
+            m_Children.PushBack(Window.m_Children[ChildNr]->Clone(Recursive));
+            m_Children[ChildNr]->m_Parent=this;
         }
     }
 }
@@ -200,16 +201,16 @@ void WindowT::GetChildren(ArrayT< IntrusivePtrT<WindowT> >& Chld, bool Recurse)
 {
 #ifdef DEBUG
     // Make sure that there are no cycles in the hierarchy of children.
-    for (unsigned long ChildNr=0; ChildNr<Children.Size(); ChildNr++)
-        assert(Chld.Find(Children[ChildNr]) == -1);
+    for (unsigned long ChildNr=0; ChildNr<m_Children.Size(); ChildNr++)
+        assert(Chld.Find(m_Children[ChildNr]) == -1);
 #endif
 
-    Chld.PushBack(Children);
+    Chld.PushBack(m_Children);
 
     if (!Recurse) return;
 
-    for (unsigned long ChildNr=0; ChildNr<Children.Size(); ChildNr++)
-        Children[ChildNr]->GetChildren(Chld, Recurse);
+    for (unsigned long ChildNr=0; ChildNr<m_Children.Size(); ChildNr++)
+        m_Children[ChildNr]->GetChildren(Chld, Recurse);
 }
 
 
@@ -217,8 +218,8 @@ IntrusivePtrT<WindowT> WindowT::GetRoot()
 {
     IntrusivePtrT<WindowT> Root=this;
 
-    while (Root->Parent!=NULL)
-        Root=Root->Parent;
+    while (Root->m_Parent!=NULL)
+        Root=Root->m_Parent;
 
     return Root;
 }
@@ -230,7 +231,7 @@ void WindowT::GetAbsolutePos(float& x, float& y) const
     x=Rect[0];
     y=Rect[1];
 
-    for (IntrusivePtrT<const WindowT> P=Parent; P!=NULL; P=P->Parent)
+    for (IntrusivePtrT<const WindowT> P = m_Parent; P != NULL; P = P->m_Parent)
     {
         x+=P->Rect[0];
         y+=P->Rect[1];
@@ -261,9 +262,9 @@ IntrusivePtrT<WindowT> WindowT::Find(const std::string& WantedName)
     if (WantedName==Name) return this;
 
     // Recursively see if any of the children has the desired name.
-    for (unsigned long ChildNr=0; ChildNr<Children.Size(); ChildNr++)
+    for (unsigned long ChildNr=0; ChildNr<m_Children.Size(); ChildNr++)
     {
-        IntrusivePtrT<WindowT> Win=Children[ChildNr]->Find(WantedName);
+        IntrusivePtrT<WindowT> Win=m_Children[ChildNr]->Find(WantedName);
 
         if (Win!=NULL) return Win;
     }
@@ -277,11 +278,11 @@ IntrusivePtrT<WindowT> WindowT::Find(float x, float y, bool OnlyVisible)
     if (OnlyVisible && !ShowWindow) return NULL;
 
     // Children are on top of their parents and (currently) not clipped to the parent rectangle, so we should search them first.
-    for (unsigned long ChildNr=0; ChildNr<Children.Size(); ChildNr++)
+    for (unsigned long ChildNr=0; ChildNr<m_Children.Size(); ChildNr++)
     {
         // Search the children in reverse order, because if they overlap,
         // those that are drawn last appear topmost, and so we want to find them first.
-        IntrusivePtrT<WindowT> Found=Children[Children.Size()-1-ChildNr]->Find(x, y, OnlyVisible);
+        IntrusivePtrT<WindowT> Found=m_Children[m_Children.Size()-1-ChildNr]->Find(x, y, OnlyVisible);
 
         if (Found!=NULL) return Found;
     }
@@ -447,9 +448,9 @@ void WindowT::Render() const
 
 
     // Render the children.
-    for (unsigned long ChildNr=0; ChildNr<Children.Size(); ChildNr++)
+    for (unsigned long ChildNr=0; ChildNr<m_Children.Size(); ChildNr++)
     {
-        Children[ChildNr]->Render();
+        m_Children[ChildNr]->Render();
     }
 
     // Give the external data class a chance to render additional items.
@@ -845,14 +846,14 @@ int WindowT::AddChild(lua_State* LuaState)
     IntrusivePtrT<WindowT> Win  =Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
     IntrusivePtrT<WindowT> Child=Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(2);
 
-    if (Child->Parent!=NULL)        // A child window must be a root node...
+    if (Child->m_Parent!=NULL)      // A child window must be a root node...
         return luaL_argerror(LuaState, 2, "child window already has a parent, use RemoveChild() first");
 
     if (Child==Win->GetRoot())      // ... but not the root of the hierarchy it is inserted into.
         return luaL_argerror(LuaState, 2, "a window cannot be made a child of itself");
 
-    Win->Children.PushBack(Child);
-    Child->Parent=Win;
+    Win->m_Children.PushBack(Child);
+    Child->m_Parent=Win;
 
     return 0;
 }
@@ -864,16 +865,16 @@ int WindowT::RemoveChild(lua_State* LuaState)
     IntrusivePtrT<WindowT> Parent=Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
     IntrusivePtrT<WindowT> Child =Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(2);
 
-    if (Child->Parent!=Parent)
+    if (Child->m_Parent!=Parent)
         return luaL_argerror(LuaState, 2, "window is the child of another parent");
 
-    const int Index=Parent->Children.Find(Child);
+    const int Index=Parent->m_Children.Find(Child);
 
     if (Index<0)
         return luaL_argerror(LuaState, 2, "window not found among the children of its parent");
 
-    Parent->Children.RemoveAtAndKeepOrder(Index);
-    Child->Parent=NULL;
+    Parent->m_Children.RemoveAtAndKeepOrder(Index);
+    Child->m_Parent=NULL;
 
     return 0;
 }

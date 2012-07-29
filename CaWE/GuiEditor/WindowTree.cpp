@@ -517,7 +517,7 @@ void WindowTreeT::OnEndDrag(wxTreeEvent& TE)
 
 
     // If SourceWindow is already an immediate child of TargetWindow, do nothing.
-    if (SourceWindow->Parent==TargetWindow) return;
+    if (SourceWindow->m_Parent==TargetWindow) return;
 
     // Make sure that TargetWindow is not in the subtree of SourceWindow (or else the reparenting would create invalid cycles).
     // Although the command below does the same check redundantly again, we also want to have it here for clarity.
@@ -535,20 +535,20 @@ void WindowTreeT::OnEndDrag(wxTreeEvent& TE)
     // Note that the "|| TargetWindow->Parent==NULL" half of the if-condition is actually only for safety,
     // because TargetWindow->Parent==NULL only if TargetWindow is the root, but the root window always has children.
     // If it hadn't, then SourceWindow==TargetWindow, and we had not gotten here.
-    if (TargetWindow->Children.Size()>0 || TargetWindow->Parent==NULL)
+    if (TargetWindow->m_Children.Size()>0 || TargetWindow->m_Parent==NULL)
     {
         // Make SourceWindow a child of TargetWindow.
-        const unsigned long NewPos=TargetWindow->Children.Size();
+        const unsigned long NewPos=TargetWindow->m_Children.Size();
 
         m_Parent->SubmitCommand(new CommandChangeWindowHierarchyT(m_GuiDocument, SourceWindow, TargetWindow, NewPos));
     }
     else
     {
-        wxASSERT(!TargetWindow->Parent.IsNull());   // This condition has been established in the if-branch above.
+        wxASSERT(!TargetWindow->m_Parent.IsNull());   // This condition has been established in the if-branch above.
 
         // Make SourceWindow a sibling of TargetWindow.
-        const unsigned long NewPos=TargetWindow->Parent->Children.Find(TargetWindow);
+        const unsigned long NewPos=TargetWindow->m_Parent->m_Children.Find(TargetWindow);
 
-        m_Parent->SubmitCommand(new CommandChangeWindowHierarchyT(m_GuiDocument, SourceWindow, TargetWindow->Parent, NewPos));
+        m_Parent->SubmitCommand(new CommandChangeWindowHierarchyT(m_GuiDocument, SourceWindow, TargetWindow->m_Parent, NewPos));
     }
 }
