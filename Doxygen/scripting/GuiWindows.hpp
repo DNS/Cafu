@@ -190,6 +190,12 @@ class WindowT
     /// Removes the given window from the children of this window.
     RemoveChild(window child);
 
+    /// Returns the parent of this window (or nil if there is no parent).
+    window GetParent();
+
+    /// Returns an array of the children of this window.
+    array GetChildren();
+
 
     /** @name Event Handler Callbacks
      *

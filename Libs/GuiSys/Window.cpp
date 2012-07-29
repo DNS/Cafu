@@ -73,6 +73,8 @@ const luaL_reg WindowT::MethodsList[]=
     { "GetName",     WindowT::GetName },
     { "AddChild",    WindowT::AddChild },
     { "RemoveChild", WindowT::RemoveChild },
+    { "GetParent",   WindowT::GetParent },
+    { "GetChildren", WindowT::GetChildren },
     { "__tostring",  WindowT::toString },
     { NULL, NULL }
 };
@@ -877,6 +879,41 @@ int WindowT::RemoveChild(lua_State* LuaState)
     Child->m_Parent=NULL;
 
     return 0;
+}
+
+
+int WindowT::GetParent(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<WindowT> Win=Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
+
+    if (!Win->m_Parent.IsNull())
+    {
+        Binder.Push(Win->m_Parent);
+    }
+    else
+    {
+        lua_pushnil(LuaState);
+    }
+
+    return 1;
+}
+
+
+int WindowT::GetChildren(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<WindowT> Win=Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
+
+    lua_newtable(LuaState);
+
+    for (unsigned long ChildNr=0; ChildNr<Win->m_Children.Size(); ChildNr++)
+    {
+        Binder.Push(Win->m_Children[ChildNr]);
+        lua_rawseti(LuaState, -2, ChildNr+1);
+    }
+
+    return 1;
 }
 
 
