@@ -156,15 +156,6 @@ namespace cf
             static bool IsRefCounted() { return true; }
         };
 
-        template<class T> class TypeInfoTraitsT<T*>
-        {
-            public:
-
-            static const cf::TypeSys::TypeInfoT& Get() { return T::TypeInfo; }
-            static const cf::TypeSys::TypeInfoT& Get(T* Object) { return *Object->GetType(); }
-            static bool IsRefCounted() { return false; }
-        };
-
         friend class UniScriptStateT;
 
         /// Implements the one-time initialization of the Lua state for this binder.
