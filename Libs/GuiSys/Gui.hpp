@@ -55,6 +55,9 @@ namespace cf
             /// Returns the name of the script file of this GUI.
             virtual const std::string& GetScriptName() const=0;
 
+            /// Returns the script state of this GUI.
+            virtual UniScriptStateT& GetScriptState()=0;
+
             /// Returns the root window of this GUI.
             virtual IntrusivePtrT<WindowT> GetRootWindow() const=0;
 
@@ -113,42 +116,11 @@ namespace cf
             /// @param t   The time in seconds since the last clock-tick.
             virtual void DistributeClockTickEvents(float t)=0;
 
-            /// Calls the Lua global function with name FuncName.
-            ///
-            /// @param FuncName    The name of the Lua global function to be called.
-            /// @param Signature   Describes the arguments to and results from the Lua function. See below for more details.
-            /// @param ...         The arguments to the Lua function and the variables that receive its results as described by the Signature parameter.
-            ///
-            /// The Signature parameter is a string of individual letters, where each letter represents a variable and its type.
-            /// The letters 'b' for bool, 'i' for int, 'f' for float, 'd' for double and 's' for const char* (string) can be used.
-            /// A '>' separates the arguments from the results, and is optional if the function returns no results.
-            /// For the results, additionally to the other letters, 'S' can be used for (address of) std::string.
-            ///
-            /// @returns whether the function call was sucessful.
-            /// Note that when a signature was provided that expects one or more return values and the called script code yields
-            /// (calls coroutine.yield()), the returned values are undefined and thus the call is considered a failure and false is returned.
-            /// Nonetheless, the related Lua thread is added to the list of pending coroutines for later resumption.
-            virtual bool CallLuaFunc(const char* FuncName, const char* Signature="", ...)=0;
-
-            /// Calls the Lua method with name MethodName of the given window.
-            /// @param Window       A window of this GUI for which the specified Lua method is to be called.
-            /// @param MethodName   The name of the Lua method of the specified window that is to be called.
-            /// @param Signature    Same as in CallLuaFunc(), see there for details.
-            /// @param ...          Same as in CallLuaFunc(), see there for details.
-            /// @returns whether the method call was sucessful.
-            /// This method is analogous to CallLuaFunc(), see there for more details.
-            virtual bool CallLuaMethod(IntrusivePtrT<WindowT> Window, const char* MethodName, const char* Signature="", ...)=0;
-
             /// If this GUI is used as a 3D world GUI, the host entity (on which this GUI is "attached" in the world)
             /// can call this method to let this GUI know the map script state and its name therein.
             /// @param MapScriptState   The script state of the map that this GUI and its host entity are in.
             /// @param EntityName       The name of the host entity.
             virtual void SetEntityInfo(UniScriptStateT* MapScriptState, const std::string& EntityName)=0;
-
-            // /// Same as SetEntityInfo(), but for the target entity of our owner/parent entity.
-            // /// @param TargetEntityName          The name of the target entity of our parent entity.
-            // /// @param TargetEntityInstancePtr   The pointer to the instance of the target entity of our parent entity.
-            // virtual void SetTargetEntityInfo(const char* TargetEntityName, void* TargetEntityInstancePtr);
 
             /// Registers another library of C++ implemented functions for use by the script of this GUI.
             /// This is intended for 3D world GUIs, for which the game code registers an additional set of game-specific functions.

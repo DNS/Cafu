@@ -70,7 +70,7 @@ class SvGuiCallbT : public ServerT::GuiCallbackI
     {
         if (!MainMenuGui) return;
 
-        MainMenuGui->CallLuaFunc("OnServerStateChanged", "s", NewState);
+        MainMenuGui->GetScriptState().Call("OnServerStateChanged", "s", NewState);
     }
 
     cf::GuiSys::GuiI* MainMenuGui;

@@ -78,6 +78,7 @@ namespace cf
 
             // Implement all the (pure) virtual methods of the GuiI interface.
             const std::string& GetScriptName() const;
+            UniScriptStateT& GetScriptState() { return m_ScriptState; }
             IntrusivePtrT<WindowT> GetRootWindow() const { return RootWindow; }
             IntrusivePtrT<WindowT> GetFocusWindow() const { return FocusWindow; }
             void Activate(bool doActivate=true);
@@ -93,8 +94,6 @@ namespace cf
             bool ProcessDeviceEvent(const CaKeyboardEventT& KE);
             bool ProcessDeviceEvent(const CaMouseEventT& ME);
             void DistributeClockTickEvents(float t);
-            bool CallLuaFunc(const char* FuncName, const char* Signature="", ...);
-            bool CallLuaMethod(IntrusivePtrT<WindowT> Window, const char* MethodName, const char* Signature="", ...);
             void SetEntityInfo(UniScriptStateT* MapScriptState, const std::string& EntityName);
             void RegisterScriptLib(const char* LibName, const luaL_Reg Functions[]);
 

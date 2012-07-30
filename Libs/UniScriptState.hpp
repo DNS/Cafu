@@ -271,15 +271,14 @@ namespace cf
         /// calls the script method   Obj:OnTrigger(value)   where value is a number with value 1.0.
         template<class T> bool CallMethod(T Object, const std::string& MethodName, const char* Signature="", ...);
 
+        /// As CallMethod() above, but the arguments and results are passed via vl rather than "...".
+        template<class T> bool CallMethod(T Object, const std::string& MethodName, const char* Signature, va_list vl);
+
         /// Runs the pending coroutines.
         void RunPendingCoroutines(float FrameTime);
 
         /// Returns the Lua state that implements this script state.
         lua_State* GetLuaState() { return m_LuaState; }
-
-        // TODO: This method should be private.
-        /// This method calls a Lua function in the context of the Lua state.
-        bool StartNewCoroutine(int NumExtraArgs, const char* Signature, va_list vl, const std::string& DbgName);
 
 
         private:
@@ -309,6 +308,9 @@ namespace cf
 
         /// Like the public DoFile(), but can also pass parameters to the chunk, like Call().
         bool DoFile(const char* FileName, const char* Signature, ...);
+
+        /// This method calls a Lua function in the context of the Lua state.
+        bool StartNewCoroutine(int NumExtraArgs, const char* Signature, va_list vl, const std::string& DbgName);
 
         /// A global Lua function that registers the given Lua function as a new thread.
         static int RegisterThread(lua_State* LuaState);
@@ -514,6 +516,18 @@ template<class T> inline T& cf::ScriptBinderT::GetCheckedObjectParam(int StackIn
 
 template<class T> inline bool cf::UniScriptStateT::CallMethod(T Object, const std::string& MethodName, const char* Signature, ...)
 {
+    va_list vl;
+
+    va_start(vl, Signature);
+    const bool Result=CallMethod(Object, MethodName, Signature, vl);
+    va_end(vl);
+
+    return Result;
+}
+
+
+template<class T> inline bool cf::UniScriptStateT::CallMethod(T Object, const std::string& MethodName, const char* Signature, va_list vl)
+{
     const StackCheckerT StackChecker(m_LuaState);
     cf::ScriptBinderT   Binder(m_LuaState);
 
@@ -531,24 +545,12 @@ template<class T> inline bool cf::UniScriptStateT::CallMethod(T Object, const st
         return false;
     }
 
-    // Swap the object table and the function.
-    // ***************************************
+    // Swap the object table and the function, because the object table is not needed any more but as the
+    // first argument to the function (the "self" or "this" value for the object-oriented method call).
+    lua_insert(m_LuaState, -2); // Inserting the function at index -2 shifts the object table to index -1.
 
-    // The current stack contents of LuaState is
-    //      2  function to be called
-    //      1  object table
-    // Now just swap the two, because the object table is not needed any more but for the first argument to the function
-    // (the "self" or "this" value for the object-oriented method call), and having the function at index 1 means that
-    // after the call to lua_resume(), the stack is populated only with results (no remains from our code here).
-    lua_insert(m_LuaState, -2);   // Inserting the function at index -2 shifts the object table to index -1.
-
-    va_list vl;
-
-    va_start(vl, Signature);
-    const bool Result=StartNewCoroutine(1, Signature, vl, std::string("method ") + MethodName + "()");
-    va_end(vl);
-
-    return Result;
+    // The stack is now prepared as required by the StartNewCoroutine() method.
+    return StartNewCoroutine(1, Signature, vl, std::string("method ") + MethodName + "()");
 }
 
 #endif

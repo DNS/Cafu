@@ -194,12 +194,6 @@ namespace cf
             /// @param Signature DOCTODO
             bool CallLuaMethod(const char* MethodName, const char* Signature="", ...);
 
-            /// Same as CallLuaMethod() above, except that the arguments and results are passed via vl rather than "...".
-            /// @param MethodName The name of the lua method to call.
-            /// @param Signature DOCTODO
-            /// @param vl DOCTODO
-            bool CallLuaMethod(const char* MethodName, const char* Signature, va_list vl);
-
             /// Get the a member variable of this class.
             /// @param VarName The name of the member variable.
             /// @return The member variable with the name VarName.

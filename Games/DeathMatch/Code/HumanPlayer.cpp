@@ -48,6 +48,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "OpenGL/OpenGLWindow.hpp"
 #include "ParticleEngine/ParticleEngineMS.hpp"
 #include "TypeSys.hpp"
+#include "UniScriptState.hpp"
 
 #include <cstdio>
 #include <string.h>
@@ -1050,7 +1051,7 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
         if (GuiHUD!=NULL && ActivateHUD)
         {
             // Update the health, armor and frags indicators.
-            GuiHUD->CallLuaFunc("UpdateHealthArmorFrags", "iii", State.Health, State.Armor, (signed short)(State.HaveAmmo[AMMO_SLOT_FRAGS]));
+            GuiHUD->GetScriptState().Call("UpdateHealthArmorFrags", "iii", State.Health, State.Armor, (signed short)(State.HaveAmmo[AMMO_SLOT_FRAGS]));
 
 
             // Let the HUD GUI know which material we wish to have for the crosshair, pass "" for none.
@@ -1063,23 +1064,23 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
                     case WEAPON_SLOT_CROSSBOW:
                     case WEAPON_SLOT_357:
                     case WEAPON_SLOT_9MMAR:
-                        GuiHUD->CallLuaFunc("UpdateCrosshairMaterial", "s", "Gui/CrossHair1");
+                        GuiHUD->GetScriptState().Call("UpdateCrosshairMaterial", "s", "Gui/CrossHair1");
                         break;
 
                     case WEAPON_SLOT_SHOTGUN:
                     case WEAPON_SLOT_RPG:
                     case WEAPON_SLOT_GAUSS:
                     case WEAPON_SLOT_EGON:
-                        GuiHUD->CallLuaFunc("UpdateCrosshairMaterial", "sb", "Gui/CrossHair2", true);
+                        GuiHUD->GetScriptState().Call("UpdateCrosshairMaterial", "sb", "Gui/CrossHair2", true);
                         break;
 
                     default:
                         // Some weapons just don't have a crosshair.
-                        GuiHUD->CallLuaFunc("UpdateCrosshairMaterial", "s", "");
+                        GuiHUD->GetScriptState().Call("UpdateCrosshairMaterial", "s", "");
                         break;
                 }
             }
-            else GuiHUD->CallLuaFunc("UpdateCrosshairMaterial", "s", "");
+            else GuiHUD->GetScriptState().Call("UpdateCrosshairMaterial", "s", "");
 
 
             // Update the HUDs ammo string.
@@ -1108,14 +1109,14 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
                 {
                     case WEAPON_SLOT_BATTLESCYTHE:
                     case WEAPON_SLOT_HORNETGUN:
-                        GuiHUD->CallLuaFunc("UpdateAmmoString", "s", "");
+                        GuiHUD->GetScriptState().Call("UpdateAmmoString", "s", "");
                         break;
 
                     case WEAPON_SLOT_9MMAR:
                         sprintf(PrintBuffer, " Ammo %2u (%2u) | %u Grenades", State.HaveAmmoInWeapons[WEAPON_SLOT_9MMAR],
                                 State.HaveAmmo[GetAmmoSlotForPrimaryFireByWeaponSlot[WEAPON_SLOT_9MMAR]],
                                 State.HaveAmmo[AMMO_SLOT_ARGREN]);
-                        GuiHUD->CallLuaFunc("UpdateAmmoString", "s", PrintBuffer);
+                        GuiHUD->GetScriptState().Call("UpdateAmmoString", "s", PrintBuffer);
                         break;
 
                     case WEAPON_SLOT_FACEHUGGER:
@@ -1123,7 +1124,7 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
                     case WEAPON_SLOT_RPG:
                     case WEAPON_SLOT_TRIPMINE:
                         sprintf(PrintBuffer, " Ammo %2u", State.HaveAmmoInWeapons[State.ActiveWeaponSlot]);
-                        GuiHUD->CallLuaFunc("UpdateAmmoString", "s", PrintBuffer);
+                        GuiHUD->GetScriptState().Call("UpdateAmmoString", "s", PrintBuffer);
                         break;
 
                     case WEAPON_SLOT_357:
@@ -1133,14 +1134,14 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
                     case WEAPON_SLOT_PISTOL:
                     case WEAPON_SLOT_SHOTGUN:
                         sprintf(PrintBuffer, " Ammo %2u (%2u)", State.HaveAmmoInWeapons[State.ActiveWeaponSlot], State.HaveAmmo[GetAmmoSlotForPrimaryFireByWeaponSlot[State.ActiveWeaponSlot]]);
-                        GuiHUD->CallLuaFunc("UpdateAmmoString", "s", PrintBuffer);
+                        GuiHUD->GetScriptState().Call("UpdateAmmoString", "s", PrintBuffer);
                         break;
                 }
             }
             else
             {
                 // Let the HUD know that we have no weapon.
-                GuiHUD->CallLuaFunc("UpdateAmmoString", "s", "");
+                GuiHUD->GetScriptState().Call("UpdateAmmoString", "s", "");
             }
         }
 

@@ -29,6 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/ConFunc.hpp"
 #include "ConsoleCommands/ConVar.hpp"
 #include "GuiSys/Gui.hpp"
+#include "UniScriptState.hpp"
 
 extern "C"
 {
@@ -76,7 +77,7 @@ void ClientT::SetMainMenuGui(cf::GuiSys::GuiI* MainMenuGui_)
 {
     MainMenuGui=MainMenuGui_;
 
-    MainMenuGui->CallLuaFunc("OnClientStateChanged", "s", StateNames[GetStateID()]);
+    MainMenuGui->GetScriptState().Call("OnClientStateChanged", "s", StateNames[GetStateID()]);
 }
 
 
@@ -141,7 +142,7 @@ void ClientT::UpdateCurrentState()
             case INGAME:     CurrentState=new ClientStateInGameT(*this); break;
         }
 
-        MainMenuGui->CallLuaFunc("OnClientStateChanged", "s", StateNames[NextState]);
+        MainMenuGui->GetScriptState().Call("OnClientStateChanged", "s", StateNames[NextState]);
     }
 
     assert(GetStateID()==NextState);

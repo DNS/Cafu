@@ -510,50 +510,6 @@ void GuiImplT::DistributeClockTickEvents(float t)
 }
 
 
-bool GuiImplT::CallLuaFunc(const char* FuncName, const char* Signature, ...)
-{
-    lua_State* LuaState = m_ScriptState.GetLuaState();
-
-    // Note that when re-entrancy occurs, we do usually NOT have an empty stack here!
-    // That is, when we first call a Lua function the stack is empty, but when the called Lua function
-    // in turn calls back into our C++ code (e.g. a console function), and the C++ code in turn gets here,
-    // we have a case of re-entrancy and the stack is not empty!
-    // That is, the assert() statement in the next line does not generally hold.
-    // assert(lua_gettop(LuaState)==0);
-
-    // Get the desired global function.
-    lua_getglobal(LuaState, FuncName);
-
-    if (!lua_isfunction(LuaState, -1))
-    {
-        // If we get here, this usually means that the value at -1 is just nil, i.e. the
-        // function that we would like to call was just not defined in the Lua script.
-        lua_pop(LuaState, 1);   // Pop whatever is not a function.
-        return false;
-    }
-
-    va_list vl;
-
-    va_start(vl, Signature);
-    const bool Result=m_ScriptState.StartNewCoroutine(0, Signature, vl, std::string("global function ")+FuncName+"()");
-    va_end(vl);
-
-    return Result;
-}
-
-
-bool GuiImplT::CallLuaMethod(IntrusivePtrT<WindowT> Window, const char* MethodName, const char* Signature, ...)
-{
-    va_list vl;
-
-    va_start(vl, Signature);
-    const bool Result=Window->CallLuaMethod(MethodName, Signature, vl);
-    va_end(vl);
-
-    return Result;
-}
-
-
 void GuiImplT::SetEntityInfo(cf::UniScriptStateT* MapScriptState, const std::string& EntityName)
 {
     m_MapScriptState = MapScriptState;

@@ -543,46 +543,10 @@ bool WindowT::CallLuaMethod(const char* MethodName, const char* Signature, ...)
     va_list vl;
 
     va_start(vl, Signature);
-    const bool Result=CallLuaMethod(MethodName, Signature, vl);
+    const bool Result=m_Gui.m_ScriptState.CallMethod(IntrusivePtrT<WindowT>(this), MethodName, Signature, vl);
     va_end(vl);
 
     return Result;
-}
-
-
-bool WindowT::CallLuaMethod(const char* MethodName, const char* Signature, va_list vl)
-{
-    lua_State* LuaState = m_Gui.m_ScriptState.GetLuaState();
-
-    // Note that when re-entrancy occurs, we do usually NOT have an empty stack here!
-    // That is, when we first call a Lua function the stack is empty, but when the called Lua function
-    // in turn calls back into our C++ code (e.g. a console function), and the C++ code in turn gets here,
-    // we have a case of re-entrancy and the stack is not empty!
-    // That is, the assert() statement in the next line does not generally hold.
-    // assert(lua_gettop(LuaState)==0);
-
-    // Push our alter ego onto the stack.
-    ScriptBinderT Binder(LuaState);
-    Binder.Push(IntrusivePtrT<WindowT>(this));
-
-    // Push the desired method (from the alter ego) onto the stack.
-    lua_pushstring(LuaState, MethodName);
-    lua_rawget(LuaState, -2);
-
-    if (!lua_isfunction(LuaState, -1))
-    {
-        // If we get here, this usually means that the value at -1 is just nil, i.e. the
-        // function that we would like to call was just not defined in the Lua script.
-        lua_pop(LuaState, 2);   // Pop whatever is not a function, and the alter ego.
-        return false;
-    }
-
-    // Swap the alter ego and the function, because the alter ego is not needed any more but for the
-    // first argument to the function (the "self" or "this" value for the object-oriented method call).
-    lua_insert(LuaState, -2);   // Inserting the function at index -2 shifts the alter ego to index -1.
-
-    // The stack is now prepared according to the requirements/specs of the StartNewCoroutine() method.
-    return m_Gui.m_ScriptState.StartNewCoroutine(1, Signature, vl, std::string("method ")+MethodName+"() of window with name \""+Name+"\"");
 }
 
 
