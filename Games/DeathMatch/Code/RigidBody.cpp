@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "PhysicsWorld.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"
+#include "Network/State.hpp"
 #include "SceneGraph/Node.hpp"
 #include "UniScriptState.hpp"
 
@@ -82,7 +83,8 @@ EntRigidBodyT::EntRigidBodyT(const EntityCreateParamsT& Params)
       m_CollisionShape(NULL),
       m_RigidBody(NULL),
       m_OrigOffset(m_Dimensions.GetCenter()-m_Origin),
-      m_HalfExtents((m_Dimensions.Max-m_Dimensions.Min)/2.0 - Vector3dT(100.0, 100.0, 100.0))   // FIXME !!! Where in the world does the extra 100 padding in Params.RootNode come from???
+      m_HalfExtents((m_Dimensions.Max-m_Dimensions.Min)/2.0 - Vector3dT(100.0, 100.0, 100.0)),  // FIXME !!! Where in the world does the extra 100 padding in Params.RootNode come from???
+      m_Rotation()
 {
     ClipModel.Register();
 
@@ -138,12 +140,26 @@ EntRigidBodyT::~EntRigidBodyT()
 }
 
 
+void EntRigidBodyT::DoSerialize(cf::Network::OutStreamT& Stream) const
+{
+    Stream << m_Rotation.x();
+    Stream << m_Rotation.y();
+    Stream << m_Rotation.z();
+    Stream << m_Rotation.w();
+}
+
+
 void EntRigidBodyT::DoDeserialize(cf::Network::InStreamT& Stream)
 {
+    float f = 0.0f;
+
+    Stream >> f; m_Rotation.setX(f);
+    Stream >> f; m_Rotation.setY(f);
+    Stream >> f; m_Rotation.setZ(f);
+    Stream >> f; m_Rotation.setW(f);
+
     // Client-side: Properly update the clip model of the "old" ClipSys at the new position and orientation.
-    btQuaternion Quat(m_Heading/32767.0f-1.0f, m_Pitch/32767.0f-1.0f, m_Bank/32767.0f-1.0f, State.ModelFrameNr);
-    // Quat.normalize();     // Doesn't help much - need a special version that takes into account that w is correct already.
-    btMatrix3x3  Basis(Quat);
+    const btMatrix3x3            Basis(m_Rotation);
     cf::math::Matrix3x3T<double> Orient;
 
     for (unsigned long i=0; i<3; i++)
@@ -226,11 +242,9 @@ void EntRigidBodyT::Draw(bool FirstPersonView, float LodDist) const
     M2W[2][3]=float(m_Origin.z);
 
 
-    btQuaternion Quat(m_Heading/32767.0f-1.0f, m_Pitch/32767.0f-1.0f, m_Bank/32767.0f-1.0f, State.ModelFrameNr);
-    // Quat.normalize();     // Doesn't help much - need a special version that takes into account that w is correct already.
-    btMatrix3x3  Basis(Quat);
-
     // Copy the Basis into the upper 3x3 submatrix of M2W.
+    const btMatrix3x3 Basis(m_Rotation);
+
     for (int i=0; i<3; i++)
         for (int j=0; j<3; j++)
             M2W[i][j]=Basis[i][j];
@@ -327,32 +341,20 @@ void EntRigidBodyT::setWorldTransform(const btTransform& worldTrans)
     //     C.setEulerYPR(y, p, r);
     // yields in C a basis different from B! That is, getEuler() and setEulerYPR() unexpectedly cannot be used together,
     // as is also pointed out in http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=1961
-    btQuaternion Quat=worldTrans.getRotation();
-
-    m_Heading = (unsigned short)((Quat.x()+1.0f)*32767.0f);  // Scale must be less than 2^15, or else we cannot represent value 1.0f+1.0f.
-    m_Pitch   = (unsigned short)((Quat.y()+1.0f)*32767.0f);
-    m_Bank    = (unsigned short)((Quat.z()+1.0f)*32767.0f);
-    State.ModelFrameNr=Quat.w();
+    m_Rotation = worldTrans.getRotation();
 
 
 //#ifdef DEBUG
 #if 0
     // Assert that we can properly reconstruct the basis from the quaternion.
-    btQuaternion newQuat(m_Heading/32767.0f-1.0f, m_Pitch/32767.0f-1.0f, m_Bank/32767.0f-1.0f, State.ModelFrameNr);
-    // newQuat.normalize();     // Doesn't help much - need a special version that takes into account that w is correct already.
-    btMatrix3x3  newBasis(newQuat);
+    btMatrix3x3 newBasis(m_Rotation);
 
     std::cout << __FILE__ << " (" << __LINE__ << "): setWorldTransform(), " << m_Origin << ",\n"
-    << "  Quat: "
-        << " " << Quat.x()
-        << " " << Quat.y()
-        << " " << Quat.z()
-        << " " << Quat.w() << "\n"
-    << " nQuat: "
-        << " " << newQuat.x()
-        << " " << newQuat.y()
-        << " " << newQuat.z()
-        << " " << newQuat.w() << "\n";
+    << "  m_Rotation: "
+        << " " << m_Rotation.x()
+        << " " << m_Rotation.y()
+        << " " << m_Rotation.z()
+        << " " << m_Rotation.w() << "\n";
 
     for (int RowNr=0; RowNr<3; RowNr++)
     {

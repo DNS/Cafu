@@ -56,6 +56,7 @@ class EntRigidBodyT : public BaseEntityT, public btMotionState
 
     private:
 
+    void DoSerialize(cf::Network::OutStreamT& Stream) const;
     void DoDeserialize(cf::Network::InStreamT& Stream);     // Override the BaseEntityT base class method.
 
     const cf::SceneGraph::GenericNodeT* m_RootNode;         ///< The root node of the scene graph of the model (brushwork) of this entity.
@@ -63,6 +64,7 @@ class EntRigidBodyT : public BaseEntityT, public btMotionState
     btRigidBody*                        m_RigidBody;        ///< The rigid body for use in the physics world.
     const Vector3dT                     m_OrigOffset;       ///< The offset from the entity origin to the physics model origin.
     const Vector3dT                     m_HalfExtents;      ///< Half of the extents (the "radius") of the bounding-box of this model.
+    btQuaternion                        m_Rotation;         ///< Complementing the origin, this is the spatial "orientation" of the model (the "better" alternative to heading, pitch and bank).
 
 
     // Script methods (to be called from the map/entity Lua scripts).
