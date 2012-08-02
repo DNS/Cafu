@@ -56,8 +56,9 @@ class EntRigidBodyT : public BaseEntityT, public btMotionState
 
     private:
 
+    // Override the base class methods.
     void DoSerialize(cf::Network::OutStreamT& Stream) const;
-    void DoDeserialize(cf::Network::InStreamT& Stream);     // Override the BaseEntityT base class method.
+    void DoDeserialize(cf::Network::InStreamT& Stream);
 
     const cf::SceneGraph::GenericNodeT* m_RootNode;         ///< The root node of the scene graph of the model (brushwork) of this entity.
     btCollisionShape*                   m_CollisionShape;   ///< The collision shape for use with the rigid body.

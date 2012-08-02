@@ -28,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../../GameWorld.hpp"
 #include "ConsoleCommands/Console.hpp"
 #include "Models/Model_cmdl.hpp"
+#include "Network/State.hpp"
 #include "TypeSys.hpp"
 
 
@@ -48,17 +49,13 @@ void* EntItemT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 const cf::TypeSys::TypeInfoT EntItemT::TypeInfo(GetBaseEntTIM(), "EntItemT", "BaseEntityT", EntItemT::CreateInstance, NULL /*MethodsList*/);
 
 
-const char EntItemT::StateOfExistance_Active   =0;
-const char EntItemT::StateOfExistance_NotActive=1;
-
-
 EntItemT::EntItemT(const EntityCreateParamsT& Params, const std::string& ModelName)
     : BaseEntityT(Params,
                   BoundingBox3dT(Vector3dT( 200.0,  200.0,  400.0),
                                  Vector3dT(-200.0, -200.0, -100.0)),
                   NUM_EVENT_TYPES,
                   EntityStateT(VectorT(),
-                               StateOfExistance_Active,     // StateOfExistance
+                               0,                           // StateOfExistance
                                0,                           // Flags
                                0,                           // ModelIndex
                                0,                           // ModelSequNr
@@ -70,10 +67,10 @@ EntItemT::EntItemT(const EntityCreateParamsT& Params, const std::string& ModelNa
                                0,                           // ActiveWeaponSlot
                                0,                           // ActiveWeaponSequNr
                                0.0)),                       // ActiveWeaponFrameNr
+      m_TimeLeftNotActive(0.0f),
       m_ItemModel(Params.GameWorld->GetModel(ModelName)),
-      m_TimeLeftNotActive(2.0),
-      PickUp(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Item/PickUp"))),
-      Respawn(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Item/Respawn")))
+      m_PickUp(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Item/PickUp"))),
+      m_Respawn(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Item/Respawn")))
 {
     // Drop items on ground. It doesn't look good when they hover in the air.
     // TODO: Do this only on the server side, it doesn't make sense for clients (where m_Origin==(0, 0, 0) here).
@@ -88,24 +85,33 @@ EntItemT::EntItemT(const EntityCreateParamsT& Params, const std::string& ModelNa
 EntItemT::~EntItemT()
 {
     // Release sounds.
-    SoundSystem->DeleteSound(PickUp);
-    SoundSystem->DeleteSound(Respawn);
+    SoundSystem->DeleteSound(m_PickUp);
+    SoundSystem->DeleteSound(m_Respawn);
+}
+
+
+void EntItemT::DoSerialize(cf::Network::OutStreamT& Stream) const
+{
+    Stream << m_TimeLeftNotActive;
+}
+
+
+void EntItemT::DoDeserialize(cf::Network::InStreamT& Stream)
+{
+    Stream >> m_TimeLeftNotActive;
 }
 
 
 void EntItemT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 {
-    switch (State.StateOfExistance)
+    if (!IsActive())
     {
-        case StateOfExistance_NotActive:
-            m_TimeLeftNotActive-=FrameTime;
-            if (m_TimeLeftNotActive<=0.0)
-            {
-                State.StateOfExistance=StateOfExistance_Active;
+        m_TimeLeftNotActive-=FrameTime;
 
-                PostEvent(EVENT_TYPE_RESPAWN);
-            }
-            break;
+        if (IsActive())
+        {
+            PostEvent(EVENT_TYPE_RESPAWN);
+        }
     }
 }
 
@@ -115,11 +121,11 @@ void EntItemT::ProcessEvent(unsigned int EventType, unsigned int /*NumEvents*/)
     switch (EventType)
     {
         case EVENT_TYPE_PICKED_UP:
-            PickUp->Play();
+            m_PickUp->Play();
             break;
 
         case EVENT_TYPE_RESPAWN:
-            Respawn->Play();
+            m_Respawn->Play();
             break;
     }
 }
@@ -127,7 +133,7 @@ void EntItemT::ProcessEvent(unsigned int EventType, unsigned int /*NumEvents*/)
 
 void EntItemT::Draw(bool /*FirstPersonView*/, float LodDist) const
 {
-    if (State.StateOfExistance==StateOfExistance_NotActive) return;
+    if (!IsActive()) return;
 
     AnimPoseT* Pose=m_ItemModel->GetSharedPose(m_ItemModel->GetAnimExprPool().GetStandard(0, 0.0f));
     Pose->Draw(-1 /*default skin*/, LodDist);
@@ -140,6 +146,6 @@ void EntItemT::Draw(bool /*FirstPersonView*/, float LodDist) const
 void EntItemT::PostDraw(float FrameTime, bool FirstPersonView)
 {
     // Set sound position to entity origin.
-    PickUp ->SetPosition(m_Origin);
-    Respawn->SetPosition(m_Origin);
+    m_PickUp ->SetPosition(m_Origin);
+    m_Respawn->SetPosition(m_Origin);
 }

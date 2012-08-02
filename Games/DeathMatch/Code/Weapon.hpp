@@ -34,14 +34,22 @@ class EntWeaponT : public BaseEntityT
 {
     public:
 
+    enum EventTypesT { EVENT_TYPE_PICKED_UP, EVENT_TYPE_RESPAWN, NUM_EVENT_TYPES };
+
     EntWeaponT(const EntityCreateParamsT& Params, const std::string& ModelName);
     ~EntWeaponT();
 
     virtual void Think(float FrameTime, unsigned long ServerFrameNr);
-
     virtual void ProcessEvent(unsigned int EventType, unsigned int NumEvents);
     virtual void Draw(bool FirstPersonView, float LodDist) const;
     virtual void PostDraw(float FrameTime, bool FirstPersonView);
+
+    /// Returns whether the weapon is currently active (visible and can be picked up).
+    bool IsActive() const { return m_TimeLeftNotActive <= 0.0f; }
+
+    /// Deactivates this weapon for t seconds.
+    /// While the weapon is deactivated, it is invisible and cannot be picked up.
+    void Deactivate(float t) { m_TimeLeftNotActive = t; }
 
 
     const cf::TypeSys::TypeInfoT* GetType() const;
@@ -49,18 +57,16 @@ class EntWeaponT : public BaseEntityT
     static const cf::TypeSys::TypeInfoT TypeInfo;
 
 
-    protected:
+    private:
 
-    enum EventTypesT { EVENT_TYPE_PICKED_UP, EVENT_TYPE_RESPAWN, NUM_EVENT_TYPES };
+    // Override the base class methods.
+    void DoSerialize(cf::Network::OutStreamT& Stream) const;
+    void DoDeserialize(cf::Network::InStreamT& Stream);
 
-    static const char StateOfExistance_Active;
-    static const char StateOfExistance_NotActive;
-
-    const CafuModelT* m_WeaponModel;
     float             m_TimeLeftNotActive;
-
-    SoundI* PickUp;
-    SoundI* Respawn;
+    const CafuModelT* m_WeaponModel;
+    SoundI*           m_PickUp;
+    SoundI*           m_Respawn;
 };
 
 #endif

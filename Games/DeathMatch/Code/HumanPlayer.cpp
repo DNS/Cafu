@@ -636,6 +636,12 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                             }
                         }
                     }
+                    else
+                    {
+                        // Touched not a GUI, but something else, e.g. a weapon that can be picked up.
+                        // Notify these items only on the server, though, not in prediction.
+                        if (!ThinkingOnServerSide) continue;
+                    }
 
                     // If the bounding boxes don't overlap, continue with the next entity (we did not touch this one).
                     BoundingBox3T<double> OtherEntityBB=OtherEntity->GetDimensions();

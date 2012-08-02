@@ -61,13 +61,12 @@ void EntWeaponShotgunT::NotifyTouchedBy(BaseEntityT* Entity)
     if (Entity->GetType()!=&EntHumanPlayerT::TypeInfo) return;
 
     // If we are touched when not being "active", ignore the touch.
-    if (State.StateOfExistance!=StateOfExistance_Active) return;
+    if (!IsActive()) return;
 
     // Give this weapon to the entity.
     if (!cf::GameSys::GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_SHOTGUN)->ServerSide_PickedUpByEntity(dynamic_cast<EntHumanPlayerT*>(Entity))) return;
 
     // And finally retire for a while.
-    State.StateOfExistance=StateOfExistance_NotActive;
     PostEvent(EVENT_TYPE_PICKED_UP);
-    m_TimeLeftNotActive=5.0;
+    Deactivate(5.0f);
 }

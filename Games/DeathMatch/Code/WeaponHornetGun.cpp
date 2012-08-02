@@ -60,7 +60,7 @@ void EntWeaponHornetGunT::NotifyTouchedBy(BaseEntityT* Entity)
     if (Entity->GetType()!=&EntHumanPlayerT::TypeInfo) return;
 
     // If we are touched when not being "active", ignore the touch.
-    if (State.StateOfExistance!=StateOfExistance_Active) return;
+    if (!IsActive()) return;
 
     EntityStateT& PlayerState=dynamic_cast<EntHumanPlayerT*>(Entity)->GetState();
 
@@ -74,7 +74,6 @@ void EntWeaponHornetGunT::NotifyTouchedBy(BaseEntityT* Entity)
     PlayerState.ActiveWeaponFrameNr=0.0;
 
     // And finally retire for a while.
-    State.StateOfExistance=StateOfExistance_NotActive;
     PostEvent(EVENT_TYPE_PICKED_UP);
-    m_TimeLeftNotActive=5.0;
+    Deactivate(5.0f);
 }
