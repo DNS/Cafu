@@ -61,34 +61,35 @@ EntButterflyT::EntButterflyT(const EntityCreateParamsT& Params)
                                0,       // ActiveWeaponSequNr
                                0.0)),   // ActiveWeaponFrameNr
       m_Model(Params.GameWorld->GetModel("Games/DeathMatch/Models/LifeForms/Butterfly/Butterfly.cmdl")),
-      ArcCenter(Params.Origin),
-      ArcPos(0)
+      m_ArcCenter(Params.Origin),
+      m_ArcRadius(500.0f),
+      m_ModelSequNr(0),
+      m_ArcPos(0),
+      m_ModelFrameNr(0.0f)
 {
-    m_Origin  = Params.Origin+VectorT(0.0, 500.0, 0.0), // Beachte die Abhängigkeit von den in Think() definierten Konstanten!
-    m_Heading = 16384;                                  // Beachte die Abhängigkeit von den in Think() definierten Konstanten!
+    Think(0.0f, 0);
 }
 
 
 void EntButterflyT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 {
-    const float DegPerSecond=7300.0;    // Entspricht 0.7 RadPerSecond oder 40 GradPerSecond
-    const float ArcRadius   =500.0;
+    const float DegPerSecond = 7300.0f;     // Entspricht 0.7 RadPerSecond oder 40 GradPerSecond
 
-    ArcPos+=(unsigned short)(DegPerSecond*FrameTime);   // "wraps" automagically.
+    m_ArcPos += (unsigned short)(DegPerSecond*FrameTime);   // "wraps" automatically.
 
     // Info: Die Bogenlänge zwischen 'ArcPos' und 'ArcPos+1' bei 'ArcRadius==500.0' beträgt 0.048,
     // die "Auflösung" ist also mehr als ausreichend!
-    m_Origin.x=ArcCenter.x+LookupTables::Angle16ToSin[ArcPos]*ArcRadius;
-    m_Origin.y=ArcCenter.y+LookupTables::Angle16ToCos[ArcPos]*ArcRadius;
-    m_Origin.z=ArcCenter.z+LookupTables::Angle16ToSin[(unsigned short)(ArcPos*2)]*ArcRadius*0.2;
+    m_Origin.x = m_ArcCenter.x + LookupTables::Angle16ToSin[m_ArcPos]*m_ArcRadius;
+    m_Origin.y = m_ArcCenter.y + LookupTables::Angle16ToCos[m_ArcPos]*m_ArcRadius;
+    m_Origin.z = m_ArcCenter.z + LookupTables::Angle16ToSin[(unsigned short)(m_ArcPos*2)]*m_ArcRadius*0.2f;
 
-    m_Heading=ArcPos+16384;
+    m_Heading = m_ArcPos + 16384;
 }
 
 
 void EntButterflyT::Draw(bool /*FirstPersonView*/, float LodDist) const
 {
-    AnimPoseT* Pose=m_Model->GetSharedPose(m_Model->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr));
+    AnimPoseT* Pose=m_Model->GetSharedPose(m_Model->GetAnimExprPool().GetStandard(m_ModelSequNr, m_ModelFrameNr));
     int        SkinNr=-1;   // -1 is the default skin.
 
     if (m_Model->GetSkins().Size() > 0)
@@ -101,10 +102,10 @@ void EntButterflyT::Draw(bool /*FirstPersonView*/, float LodDist) const
 void EntButterflyT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
 {
     // Implicit simple "mini-prediction".
-    IntrusivePtrT<AnimExprStandardT> AnimExpr=m_Model->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
+    IntrusivePtrT<AnimExprStandardT> AnimExpr = m_Model->GetAnimExprPool().GetStandard(m_ModelSequNr, m_ModelFrameNr);
 
     AnimExpr->SetForceLoop(true);
     AnimExpr->AdvanceTime(FrameTime);
 
-    State.ModelFrameNr=AnimExpr->GetFrameNr();
+    m_ModelFrameNr = AnimExpr->GetFrameNr();
 }

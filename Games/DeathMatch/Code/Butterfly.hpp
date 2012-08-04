@@ -48,8 +48,12 @@ class EntButterflyT : public BaseEntityT
     private:
 
     const CafuModelT* m_Model;
-    VectorT           ArcCenter;
-    unsigned short    ArcPos;
+    const VectorT     m_ArcCenter;
+    const float       m_ArcRadius;
+    const int         m_ModelSequNr;
+
+    unsigned short    m_ArcPos;
+    float             m_ModelFrameNr;
 };
 
 #endif
