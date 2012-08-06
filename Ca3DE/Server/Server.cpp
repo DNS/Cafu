@@ -151,6 +151,20 @@ int ServerT::ConFunc_changeLevel_Callback(lua_State* LuaState)
 static ConFuncT ConFunc_changeLevel("changeLevel", ServerT::ConFunc_changeLevel_Callback, ConFuncT::FLAG_MAIN_EXE, "Makes the server load a new level.");
 
 
+// This console function is called at any time (e.g. when we're NOT thinking)...
+/*static*/ int ServerT::ConFunc_runMapCmd_Callback(lua_State* LuaState)
+{
+    if (!ServerPtr) return luaL_error(LuaState, "The local server is not available.");
+    if (!ServerPtr->World) return luaL_error(LuaState, "There is no world loaded in the local server.");
+
+    ServerPtr->World->GetScriptState().DoString(luaL_checkstring(LuaState, 1));
+    return 0;
+}
+
+static ConFuncT ConFunc_runMapCmd("runMapCmd", ServerT::ConFunc_runMapCmd_Callback, ConFuncT::FLAG_MAIN_EXE,
+    "Runs the given command string in the context of the current map/entity script.");
+
+
 ServerT::ServerT(cf::GameSys::GameI* Game, const std::string& GameName_, const GuiCallbackI& GuiCallback_, ModelManagerT& ModelMan)
     : ServerSocket(g_WinSock->GetUDPSocket(Options_ServerPortNr.GetValueInt())),
       m_Game(Game),

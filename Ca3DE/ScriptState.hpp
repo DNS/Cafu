@@ -44,14 +44,6 @@ class ScriptStateT
     /// Returns the underlying script state. (This is temporarly only.)
     cf::UniScriptStateT& GetScriptState() { return m_ScriptState; }
 
-    /// This method loads and runs all the command strings that were entered by the user via the "runMapCmd" console function
-    /// since the last call (the last server think). This method must be called once while the server is thinking.
-    void RunMapCmdsFromConsole();
-
-    /// A console function that stores the given command string until the server "thinks" next.
-    /// The RunMapCmdsFromConsole() method then runs the commands in the context of the current map/entity script.
-    static int ConFunc_runMapCmd_Callback(lua_State* L);
-
 
     private:
 

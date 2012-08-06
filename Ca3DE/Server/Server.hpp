@@ -70,6 +70,10 @@ class ServerT
 
     static int ConFunc_changeLevel_Callback(lua_State* LuaState);
 
+    /// A console function that stores the given command string until the server "thinks" next.
+    /// The RunMapCmdsFromConsole() method then runs the commands in the context of the current map/entity script.
+    static int ConFunc_runMapCmd_Callback(lua_State* LuaState);
+
 
     private:
 
