@@ -118,6 +118,14 @@ class OutStreamT
         return *this;
     }
 
+    OutStreamT& operator << (int32_t i)
+    {
+        m_Data.PushBackEmpty(4);
+        *(int32_t*)&m_Data[m_Data.Size()-4]=htonl(i);
+
+        return *this;
+    }
+
     OutStreamT& operator << (uint32_t ui)
     {
         m_Data.PushBackEmpty(4);
@@ -221,9 +229,19 @@ class InStreamT
         return *this;
     }
 
+    InStreamT& operator >> (int32_t& i)
+    {
+        if (m_ReadPos+4 > m_Data.Size()) { m_ReadOfl=true; return *this; }
+
+        i = ntohl(*(int32_t*)&m_Data[m_ReadPos]);
+
+        m_ReadPos+=4;
+        return *this;
+    }
+
     InStreamT& operator >> (uint32_t& ui)
     {
-        if (m_ReadPos+4>m_Data.Size()) { m_ReadOfl=true; return *this; }
+        if (m_ReadPos+4 > m_Data.Size()) { m_ReadOfl=true; return *this; }
 
         ui = ntohl(*(uint32_t*)&m_Data[m_ReadPos]);
 
