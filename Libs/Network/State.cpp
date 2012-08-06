@@ -21,9 +21,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "State.hpp"
 
-#undef min    // See http://stackoverflow.com/questions/5004858/stdmin-gives-error
-#undef max
-
 using namespace cf::Network;
 
 

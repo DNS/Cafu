@@ -29,6 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <winsock2.h>
 #undef GetProp
 #else
