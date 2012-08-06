@@ -30,11 +30,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/Console.hpp"
 #include "GuiSys/GuiMan.hpp"
 #include "GuiSys/Gui.hpp"
-#include "GuiSys/GuiMan.hpp"        // TEMPORARY -- REMOVE!
-#include "MaterialSystem/Mesh.hpp"   // TEMPORARY -- REMOVE!
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"
 #include "Models/Model_cmdl.hpp"
+#include "Network/State.hpp"
 #include "UniScriptState.hpp"
 
 extern "C"
@@ -79,7 +78,7 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
                   // Bad. Should either have a default ctor for 'EntityStateT', or even better get it passed as const reference.
                   EntityStateT(VectorT(),
                                0,       // StateOfExistance
-                               1,       // Flags -- m_PlayAnim
+                               0,       // Flags
                                0,       // ModelIndex
                                0,       // ModelSequNr
                                0.0,     // ModelFrameNr
@@ -91,8 +90,8 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
                                0,       // ActiveWeaponSequNr
                                0.0)),   // ActiveWeaponFrameNr
       m_Model(NULL),
-      m_PlayAnim(State.Flags),
-      m_SequNr(State.ModelSequNr),
+      m_PlayAnim(true),
+      m_SequNr(0),
       m_AnimExpr(),     // Inited in the ctor body below.
       m_LastStdAE(),
       GuiName(),
@@ -191,16 +190,28 @@ EntStaticDetailModelT::~EntStaticDetailModelT()
 }
 
 
+void EntStaticDetailModelT::DoSerialize(cf::Network::OutStreamT& Stream) const
+{
+    Stream << m_PlayAnim;
+    Stream << m_SequNr;
+}
+
+
 void EntStaticDetailModelT::DoDeserialize(cf::Network::InStreamT& Stream)
 {
+    Stream >> m_PlayAnim;
+    Stream >> m_SequNr;
+
     // Even though our m_Origin is never modified in Think(),
     // the code below is necessary because the client first creates new entities,
     // and only sets the proper state data after the constructor in a separate step.
     ClipModel.SetOrigin(m_Origin);
+
     // TODO: Optimize! This matrix computation takes many unnecessary muls and adds...!
     ClipModel.SetOrientation(cf::math::Matrix3x3T<double>::GetRotateZMatrix(90.0-double(m_Heading)/8192.0*45.0)
                            * cf::math::Matrix3x3T<double>::GetRotateYMatrix(     double(m_Bank   )/8192.0*45.0)
                            * cf::math::Matrix3x3T<double>::GetRotateXMatrix(    -double(m_Pitch  )/8192.0*45.0));
+
     ClipModel.Register();
 }
 
@@ -294,13 +305,11 @@ void EntStaticDetailModelT::Draw(bool /*FirstPersonView*/, float LodDist) const
 
 void EntStaticDetailModelT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
 {
-    const int SequNr=(m_SequNr==255) ? -1 : m_SequNr;   // This is a hack, because m_SequNr actually has the wrong (unsigned) datatype...
-
-    if (SequNr != m_LastStdAE->GetSequNr())
+    if (m_SequNr != m_LastStdAE->GetSequNr())
     {
         if (m_PlayAnim)
         {
-            m_LastStdAE=m_Model->GetAnimExprPool().GetStandard(SequNr, 0.0f);
+            m_LastStdAE=m_Model->GetAnimExprPool().GetStandard(m_SequNr, 0.0f);
             m_LastStdAE->SetForceLoop(true);
             m_AnimExpr =m_Model->GetAnimExprPool().GetBlend(m_AnimExpr, m_LastStdAE, 3.0f);
         }
@@ -379,11 +388,11 @@ int EntStaticDetailModelT::PlayAnim(lua_State* LuaState)
 
     if (lua_isboolean(LuaState, 2))
     {
-        Ent->m_PlayAnim=lua_toboolean(LuaState, 2)!=0 ? 1 : 0;
+        Ent->m_PlayAnim = lua_toboolean(LuaState, 2) != 0;
         return 0;
     }
 
-    Ent->m_PlayAnim=lua_tonumber(LuaState, 2)!=0 ? 1 : 0;
+    Ent->m_PlayAnim = lua_tonumber(LuaState, 2) != 0;
     return 0;
 }
 

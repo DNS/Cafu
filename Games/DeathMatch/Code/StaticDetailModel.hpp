@@ -69,13 +69,15 @@ class EntStaticDetailModelT : public BaseEntityT
 
     protected:
 
-    void DoDeserialize(cf::Network::InStreamT& Stream);     // Override the BaseEntityT base class method.
-
     enum EventTypesT { EVENT_TYPE_RESTART_SEQU, NUM_EVENT_TYPES };
 
+    // Override the base class methods.
+    void DoSerialize(cf::Network::OutStreamT& Stream) const;
+    void DoDeserialize(cf::Network::InStreamT& Stream);
+
     const CafuModelT* m_Model;
-    char&             m_PlayAnim;   ///< If 1, play the animation, i.e. advance the frames over time. If 0, keep still. This is a reference to State.Flags to have it sync'ed over the network.
-    char&             m_SequNr;     ///< The number of the animation sequence to play. This is a reference to State.ModelSequNr to have it sync'ed over the network.
+    bool              m_PlayAnim;   ///< If 1, play the animation, i.e. advance the frames over time. If 0, keep still.
+    int               m_SequNr;     ///< The number of the animation sequence to play.
 
     mutable IntrusivePtrT<AnimExpressionT>   m_AnimExpr;    ///< The state of the currently playing animation sequence. Used <em>independently</em> on the server and the clients; only a <em>restart</em> of a sequence is sync'ed over the network via the EventID_RestartSequ event.
     mutable IntrusivePtrT<AnimExprStandardT> m_LastStdAE;   ///< The most recent standard expression that we set (as a subexpression of m_AnimExpr).
