@@ -29,6 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SoundSystem/SoundShaderManager.hpp"
 #include "../../GameWorld.hpp"
 #include "Models/Model_cmdl.hpp"
+#include "Network/State.hpp"
 #include "ParticleEngine/ParticleEngineMS.hpp"
 
 
@@ -65,7 +66,9 @@ EntARGrenadeT::EntARGrenadeT(const EntityCreateParamsT& Params)
                                0,       // ActiveWeaponSlot
                                0,       // ActiveWeaponSequNr
                                0.0)),   // ActiveWeaponFrameNr
-      m_Physics(m_Origin, State.Velocity, m_Dimensions, ClipModel, GameWorld->GetClipWorld()),
+      m_Velocity(),
+      m_LifeTime(0.0f),
+      m_Physics(m_Origin, m_Velocity, m_Dimensions, ClipModel, GameWorld->GetClipWorld()),
       m_Model(Params.GameWorld->GetModel("Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl")),
       m_FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/Shotgun_dBarrel")))
 {
@@ -79,21 +82,41 @@ EntARGrenadeT::~EntARGrenadeT()
 }
 
 
+void EntARGrenadeT::DoSerialize(cf::Network::OutStreamT& Stream) const
+{
+    Stream << float(m_Velocity.x);
+    Stream << float(m_Velocity.y);
+    Stream << float(m_Velocity.z);
+    Stream << m_LifeTime;
+}
+
+
+void EntARGrenadeT::DoDeserialize(cf::Network::InStreamT& Stream)
+{
+    float f = 0.0f;
+
+    Stream >> f; m_Velocity.x = f;
+    Stream >> f; m_Velocity.y = f;
+    Stream >> f; m_Velocity.z = f;
+    Stream >> m_LifeTime;
+}
+
+
 void EntARGrenadeT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 {
-    const float OldTimer=State.ActiveWeaponFrameNr;
+    const float OldTimer=m_LifeTime;
 
     // Let the detonation timer tick.
-    State.ActiveWeaponFrameNr+=FrameTime;
+    m_LifeTime+=FrameTime;
 
 
-    if (State.ActiveWeaponFrameNr<3.0)
+    if (m_LifeTime<3.0)
     {
         bool OldWishJump=false;
 
         m_Physics.MoveHuman(FrameTime, m_Heading, VectorT() /*WishVelocity*/, VectorT() /*WishVelLadder*/, false /*WishJump*/, OldWishJump, 0.0);
     }
-    else if (State.ActiveWeaponFrameNr<6.0)     // (3.0<=State.ActiveWeaponFrameNr<6.0)
+    else if (m_LifeTime<6.0)     // (3.0<=m_LifeTime<6.0)
     {
         if (OldTimer<3.0)
         {
@@ -234,10 +257,10 @@ bool EntARGrenadeT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned lon
 {
     const float Duration=0.8f;
 
-    if (State.ActiveWeaponFrameNr< 3.0f         ) return false;
-    if (State.ActiveWeaponFrameNr>=3.0f+Duration) return false;
+    if (m_LifeTime< 3.0f         ) return false;
+    if (m_LifeTime>=3.0f+Duration) return false;
 
-    const float Amount=1.0f-(State.ActiveWeaponFrameNr-3.0f)/Duration;
+    const float Amount=1.0f-(m_LifeTime-3.0f)/Duration;
 
     const unsigned long Red  =(unsigned long)(0xFF*Amount);
     const unsigned long Green=(unsigned long)(0xFF*Amount*Amount);
@@ -255,17 +278,8 @@ bool EntARGrenadeT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned lon
 
 void EntARGrenadeT::Draw(bool /*FirstPersonView*/, float LodDist) const
 {
-    if (State.ActiveWeaponFrameNr>=3.0) return;
+    if (m_LifeTime>=3.0) return;
 
-    // This is old code, and requires updating the MatSys lighting params
-    // (light and eye pos in model space) if you want to make it operational again.
-    // State.Pitch+=56789.0*FrameTime;
-    // State.Bank +=12345.0*FrameTime;
-    // glTranslatef(0.0, 0.0, -4.0);
-    // glRotatef(float(State.Pitch)/8192.0*45.0, 0.0, 1.0, 0.0);
-    // glRotatef(float(State.Bank )/8192.0*45.0, 1.0, 0.0, 0.0);
-    // glTranslatef(0.0, 0.0, 4.0);
-
-    AnimPoseT* Pose=m_Model->GetSharedPose(m_Model->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr));
+    AnimPoseT* Pose=m_Model->GetSharedPose(m_Model->GetAnimExprPool().GetStandard(0, 0.0f));
     Pose->Draw(-1 /*default skin*/, LodDist);
 }

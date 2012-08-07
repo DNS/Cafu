@@ -28,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SoundSystem/SoundShaderManager.hpp"
 #include "../../GameWorld.hpp"
 #include "Models/Model_cmdl.hpp"
+#include "Network/State.hpp"
 #include "ParticleEngine/ParticleEngineMS.hpp"
 #include "TypeSys.hpp"
 
@@ -66,7 +67,9 @@ EntRocketT::EntRocketT(const EntityCreateParamsT& Params)
                                0,       // ActiveWeaponSequNr
                                0.0)),   // ActiveWeaponFrameNr
       m_Model(Params.GameWorld->GetModel("Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl")),
-      m_FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/Shotgun_dBarrel")))
+      m_FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/Shotgun_dBarrel"))),
+      m_Velocity(),
+      m_TimeSinceExploded(0.0f)
 {
     m_FireSound->SetPosition(Params.Origin);
 }
@@ -79,11 +82,31 @@ EntRocketT::~EntRocketT()
 }
 
 
+void EntRocketT::DoSerialize(cf::Network::OutStreamT& Stream) const
+{
+    Stream << float(m_Velocity.x);
+    Stream << float(m_Velocity.y);
+    Stream << float(m_Velocity.z);
+    Stream << m_TimeSinceExploded;
+}
+
+
+void EntRocketT::DoDeserialize(cf::Network::InStreamT& Stream)
+{
+    float f = 0.0f;
+
+    Stream >> f; m_Velocity.x = f;
+    Stream >> f; m_Velocity.y = f;
+    Stream >> f; m_Velocity.z = f;
+    Stream >> m_TimeSinceExploded;
+}
+
+
 void EntRocketT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 {
-    if (State.ActiveWeaponFrameNr==0.0)
+    if (m_TimeSinceExploded == 0.0f)
     {
-        const VectorT WishDist=scale(State.Velocity, double(FrameTime));
+        const VectorT WishDist=scale(m_Velocity, double(FrameTime));
 
         ShapeResultT ShapeResult;
         GameWorld->GetPhysicsWorld().TraceBoundingBox(m_Dimensions, m_Origin, WishDist, ShapeResult);
@@ -92,7 +115,7 @@ void EntRocketT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 
         if (ShapeResult.hasHit())
         {
-            State.ActiveWeaponFrameNr+=FrameTime;
+            m_TimeSinceExploded += FrameTime;
 
             PostEvent(EVENT_TYPE_EXPLODE);
 
@@ -122,8 +145,8 @@ void EntRocketT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
     else
     {
         // Wait 3 seconds after explosion before this entity is finally removed (such that the explosion event can travel to the clients).
-        State.ActiveWeaponFrameNr+=FrameTime;
-        if (State.ActiveWeaponFrameNr>3.0) GameWorld->RemoveEntity(ID);
+        m_TimeSinceExploded += FrameTime;
+        if (m_TimeSinceExploded > 3.0f) GameWorld->RemoveEntity(ID);
     }
 }
 
@@ -221,14 +244,14 @@ void EntRocketT::ProcessEvent(unsigned int /*EventType*/, unsigned int /*NumEven
 
 bool EntRocketT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const
 {
-    if (State.ActiveWeaponFrameNr==0.0)
+    if (m_TimeSinceExploded == 0.0f)
     {
         DiffuseColor =0x0000FFFF;
         SpecularColor=0x000030FF;
     }
     else
     {
-        const float         Dim  =(3.0f-State.ActiveWeaponFrameNr)/3.0f;
+        const float         Dim  =(3.0f - m_TimeSinceExploded)/3.0f;
         const unsigned long Red  =(unsigned long)(0xFF*Dim);
         const unsigned long Green=(unsigned long)(0xFF*Dim*Dim);
 
@@ -240,7 +263,7 @@ bool EntRocketT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& 
     Radius      =25000.0;
     CastsShadows=true;
 
-    if (State.Velocity.GetLengthSqr()>1.0) Position-=scale(normalize(State.Velocity, 0.0), 400.0);
+    if (m_Velocity.GetLengthSqr()>1.0) Position-=scale(normalize(m_Velocity, 0.0), 400.0);
 
     return true;
 }
@@ -248,8 +271,8 @@ bool EntRocketT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& 
 
 void EntRocketT::Draw(bool /*FirstPersonView*/, float LodDist) const
 {
-    if (State.ActiveWeaponFrameNr>0.0) return;
+    if (m_TimeSinceExploded > 0.0f) return;
 
-    AnimPoseT* Pose=m_Model->GetSharedPose(m_Model->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr));
+    AnimPoseT* Pose=m_Model->GetSharedPose(m_Model->GetAnimExprPool().GetStandard(0, 0.0f));
     Pose->Draw(-1 /*default skin*/, LodDist);
 }

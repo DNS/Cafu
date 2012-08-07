@@ -37,7 +37,7 @@ class EntFaceHuggerT : public BaseEntityT
     EntFaceHuggerT(const EntityCreateParamsT& Params);
 
     void SetHeading(unsigned short h) { m_Heading = h; }
-    void SetVelocity(const Vector3dT& v) { State.Velocity = v; }
+    void SetVelocity(const Vector3dT& v) { m_Velocity = v; }
 
     void Think(float FrameTime, unsigned long ServerFrameNr);
     void Draw(bool FirstPersonView, float LodDist) const;
@@ -51,9 +51,16 @@ class EntFaceHuggerT : public BaseEntityT
 
     private:
 
+    // Override the base class methods.
+    void DoSerialize(cf::Network::OutStreamT& Stream) const;
+    void DoDeserialize(cf::Network::InStreamT& Stream);
+
+    Vector3dT         m_Velocity;
     PhysicsHelperT    m_Physics;
+
     const CafuModelT* m_Model;
- // unsigned long     m_TargetEntityID;   // ID of the entity that this face hugger attacks.
+    const int         m_ModelSequNr;
+    float             m_ModelFrameNr;
 };
 
 #endif

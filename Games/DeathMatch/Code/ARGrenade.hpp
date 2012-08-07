@@ -39,7 +39,7 @@ class EntARGrenadeT : public BaseEntityT
     ~EntARGrenadeT();
 
     void SetHeading(unsigned short h) { m_Heading = h; }
-    void SetVelocity(const Vector3dT& v) { State.Velocity = v; }
+    void SetVelocity(const Vector3dT& v) { m_Velocity = v; }
 
     void Think(float FrameTime, unsigned long ServerFrameNr);
 
@@ -55,8 +55,14 @@ class EntARGrenadeT : public BaseEntityT
 
     private:
 
+    // Override the base class methods.
+    void DoSerialize(cf::Network::OutStreamT& Stream) const;
+    void DoDeserialize(cf::Network::InStreamT& Stream);
+
     enum EventTypesT { EVENT_TYPE_EXPLODE, NUM_EVENT_TYPES };
 
+    Vector3dT         m_Velocity;
+    float             m_LifeTime;
     PhysicsHelperT    m_Physics;
     const CafuModelT* m_Model;
     SoundI*           m_FireSound;

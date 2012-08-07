@@ -23,9 +23,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "EntityCreateParams.hpp"
 #include "_ResourceManager.hpp"
 #include "../../GameWorld.hpp"
-#include "Libs/Physics.hpp"                         // ÜBERFLÜSSIG?
 #include "TypeSys.hpp"
 #include "Models/Model_cmdl.hpp"
+#include "Network/State.hpp"
 #include "ParticleEngine/ParticleEngineMS.hpp"
 
 
@@ -62,9 +62,30 @@ EntFaceHuggerT::EntFaceHuggerT(const EntityCreateParamsT& Params)
                                0,       // ActiveWeaponSlot
                                0,       // ActiveWeaponSequNr
                                0.0)),   // ActiveWeaponFrameNr
-      m_Physics(m_Origin, State.Velocity, m_Dimensions, ClipModel, GameWorld->GetClipWorld()),
-      m_Model(Params.GameWorld->GetModel("Games/DeathMatch/Models/LifeForms/FaceHugger/FaceHugger.cmdl"))
+      m_Velocity(),
+      m_Physics(m_Origin, m_Velocity, m_Dimensions, ClipModel, GameWorld->GetClipWorld()),
+      m_Model(Params.GameWorld->GetModel("Games/DeathMatch/Models/LifeForms/FaceHugger/FaceHugger.cmdl")),
+      m_ModelSequNr(0),
+      m_ModelFrameNr(0.0f)
 {
+}
+
+
+void EntFaceHuggerT::DoSerialize(cf::Network::OutStreamT& Stream) const
+{
+    Stream << float(m_Velocity.x);
+    Stream << float(m_Velocity.y);
+    Stream << float(m_Velocity.z);
+}
+
+
+void EntFaceHuggerT::DoDeserialize(cf::Network::InStreamT& Stream)
+{
+    float f = 0.0f;
+
+    Stream >> f; m_Velocity.x = f;
+    Stream >> f; m_Velocity.y = f;
+    Stream >> f; m_Velocity.z = f;
 }
 
 
@@ -103,20 +124,20 @@ bool TestParticleMoveFunction(ParticleMST* Particle, float Time)
 
 void EntFaceHuggerT::Draw(bool /*FirstPersonView*/, float LodDist) const
 {
-    AnimPoseT* Pose=m_Model->GetSharedPose(m_Model->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr));
+    AnimPoseT* Pose=m_Model->GetSharedPose(m_Model->GetAnimExprPool().GetStandard(m_ModelSequNr, m_ModelFrameNr));
     Pose->Draw(-1 /*default skin*/, LodDist);
 }
 
 
 void EntFaceHuggerT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
 {
-    IntrusivePtrT<AnimExprStandardT> StdAE=m_Model->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
+    IntrusivePtrT<AnimExprStandardT> StdAE=m_Model->GetAnimExprPool().GetStandard(m_ModelSequNr, m_ModelFrameNr);
 
     StdAE->SetForceLoop(true);
     StdAE->AdvanceTime(FrameTime);
 
-    const bool SequenceWrap=StdAE->GetFrameNr() < State.ModelFrameNr;
-    State.ModelFrameNr=StdAE->GetFrameNr();
+    const bool SequenceWrap=StdAE->GetFrameNr() < m_ModelFrameNr;
+    m_ModelFrameNr=StdAE->GetFrameNr();
 
     if (SequenceWrap)
     {

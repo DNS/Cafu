@@ -38,7 +38,7 @@ class EntRocketT : public BaseEntityT
     ~EntRocketT();
 
     void SetHeading(unsigned short h) { m_Heading = h; }
-    void SetVelocity(const Vector3dT& v) { State.Velocity = v; }
+    void SetVelocity(const Vector3dT& v) { m_Velocity = v; }
 
     void Think(float FrameTime, unsigned long ServerFrameNr);
 
@@ -54,10 +54,16 @@ class EntRocketT : public BaseEntityT
 
     private:
 
+    // Override the base class methods.
+    void DoSerialize(cf::Network::OutStreamT& Stream) const;
+    void DoDeserialize(cf::Network::InStreamT& Stream);
+
     enum EventTypesT { EVENT_TYPE_EXPLODE, NUM_EVENT_TYPES };
 
     const CafuModelT* m_Model;
     SoundI*           m_FireSound;
+    Vector3dT         m_Velocity;
+    float             m_TimeSinceExploded;
 };
 
 #endif
