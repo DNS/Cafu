@@ -74,8 +74,10 @@ EntEagleT::EntEagleT(const EntityCreateParamsT& Params)
       LoopCenter(),
       FigureDistance(0.0),
       FigureLeft(0.0),
-      TimeUntilNextCry(15.0),
-      EagleCry(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Ambient/Jungle")))
+      m_ModelSequNr(0),
+      m_ModelFrameNr(0.0f),
+      m_TimeUntilNextCry(15.0),
+      m_EagleCry(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Ambient/Jungle")))
 {
 }
 
@@ -83,7 +85,7 @@ EntEagleT::EntEagleT(const EntityCreateParamsT& Params)
 EntEagleT::~EntEagleT()
 {
     // Release sound.
-    SoundSystem->DeleteSound(EagleCry);
+    SoundSystem->DeleteSound(m_EagleCry);
 }
 
 
@@ -222,28 +224,29 @@ void EntEagleT::Draw(bool /*FirstPersonView*/, float LodDist) const
     MatSys::Renderer->SetCurrentLightSourcePosition(LgtPos.x, LgtPos.y, LgtPos.z);
     MatSys::Renderer->SetCurrentEyePosition(EyePos.x, EyePos.y, EyePos.z);
 
-    AnimPoseT* Pose=m_Model->GetSharedPose(m_Model->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr));
+    AnimPoseT* Pose=m_Model->GetSharedPose(m_Model->GetAnimExprPool().GetStandard(m_ModelSequNr, m_ModelFrameNr));
     Pose->Draw(-1 /*default skin*/, LodDist);
 }
 
 
 void EntEagleT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
 {
-    IntrusivePtrT<AnimExprStandardT> StdAE=m_Model->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
+    IntrusivePtrT<AnimExprStandardT> StdAE=m_Model->GetAnimExprPool().GetStandard(m_ModelSequNr, m_ModelFrameNr);
 
     StdAE->SetForceLoop(true);
     StdAE->AdvanceTime(FrameTime);
 
-    State.ModelFrameNr=StdAE->GetFrameNr();
+    m_ModelFrameNr=StdAE->GetFrameNr();
 
     // Update sound position and velocity.
-    EagleCry->SetPosition(m_Origin);
-    EagleCry->SetVelocity(State.Velocity);
+    m_EagleCry->SetPosition(m_Origin);
+    // m_EagleCry->SetVelocity(State.Velocity);
 
-    TimeUntilNextCry-=FrameTime;
-    if (TimeUntilNextCry<0.0)
+    m_TimeUntilNextCry-=FrameTime;
+
+    if (m_TimeUntilNextCry<0.0)
     {
-        EagleCry->Play();
-        TimeUntilNextCry=20.0;
+        m_EagleCry->Play();
+        m_TimeUntilNextCry=20.0;
     }
 }

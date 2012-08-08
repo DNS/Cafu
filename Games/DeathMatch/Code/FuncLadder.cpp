@@ -92,29 +92,6 @@ EntFuncLadderT::~EntFuncLadderT()
 }
 
 
-/* bool EntFuncLadderT::IsOnLadder(const EntityStateT& PlayerState, Vector3dT& ImpactNormal) const
-{
-    cf::ClipSys::TraceResultT Result(1.0);
-    cf::ClipSys::TraceSolidT  tm(PlayerState.Dimensions);
-
-    // ViewDir should probably be perpendicular to the gravity vector...
-    const Vector3fT ViewDir=Vector3fT(LookupTables::Angle16ToSin[PlayerState.Heading], LookupTables::Angle16ToCos[PlayerState.Heading], 0.0f);
-    const Vector3fT Start  =PlayerState.Origin.AsVectorOfFloat();
-    const Vector3fT End    =Start+ViewDir*20.0f;
-
-
-    ClipModel.Translation(&Result, Start, End, &tm, cf::math::Matrix3x3T<float>::Identity, MaterialT::Clip_Players);
-
-    if (Result.fraction<1.0f)
-    {
-        ImpactNormal=Result.c.normal.AsVectorOfDouble();
-        return true;
-    }
-
-    return false;
-} */
-
-
 /* void EntFuncLadderT::Draw(float, bool)
     const ArrayT<BrushT>* Brushes;
 

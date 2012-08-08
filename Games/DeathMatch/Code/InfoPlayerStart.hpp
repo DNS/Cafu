@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/**********************************/
-/*** Info Player Start (Header) ***/
-/**********************************/
-
 #ifndef CAFU_INFOPLAYERSTART_HPP_INCLUDED
 #define CAFU_INFOPLAYERSTART_HPP_INCLUDED
 

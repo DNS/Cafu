@@ -36,12 +36,6 @@ class EntFuncLadderT : public BaseEntityT
     EntFuncLadderT(const EntityCreateParamsT& Params);
     ~EntFuncLadderT();
 
-    /// Returns whether the bounding-box AbsBB (which is given in absolute ("world") space) is "on" this ladder.
-    /// If so, true is returned and the ImpactNormal is set to the normal of the plane of impact.
-    /// Otherwise, false is returned and the value of ImpactNormal is unchanged.
- // With svn revision 365, this method has become obsolete. It's just left in for reference for a while.
- // bool IsOnLadder(const EntityStateT& State, Vector3dT& ImpactNormal) const;
-
 
     const cf::TypeSys::TypeInfoT* GetType() const;
     static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);

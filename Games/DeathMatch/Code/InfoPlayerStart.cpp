@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/********************************/
-/*** Info Player Start (Code) ***/
-/********************************/
-
 #include "InfoPlayerStart.hpp"
 #include "EntityCreateParams.hpp"
 #include "TypeSys.hpp"

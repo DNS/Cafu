@@ -60,8 +60,10 @@ class EntEagleT : public BaseEntityT
     float             FigureDistance;
     float             FigureLeft;
 
-    float             TimeUntilNextCry;
-    SoundI*           EagleCry;
+    int               m_ModelSequNr;
+    float             m_ModelFrameNr;
+    float             m_TimeUntilNextCry;
+    SoundI*           m_EagleCry;
 };
 
 #endif
