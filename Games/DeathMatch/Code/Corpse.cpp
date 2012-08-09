@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "TypeSys.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Models/Model_cmdl.hpp"
+#include "Network/State.hpp"
 
 
 // Implement the type info related code.
@@ -60,25 +61,40 @@ EntCorpseT::EntCorpseT(const EntityCreateParamsT& Params)
                                0,       // HaveWeapons
                                0,       // ActiveWeaponSlot
                                0,       // ActiveWeaponSequNr
-                               0.0))    // ActiveWeaponFrameNr
+                               0.0)),   // ActiveWeaponFrameNr
+      m_ModelIndex(0),
+      m_ModelSequNr(0),
+      m_ModelFrameNr(0.0f)
 {
 }
 
 
 void EntCorpseT::AdoptState(const EntHumanPlayerT* Player)
 {
-    const EntityStateT& PS=Player->GetState();
+    m_Origin       = Player->GetOrigin()+VectorT(0.0, 0.0, Player->GetDimensions().Min.z+1728.8);
+    m_Dimensions   = BoundingBox3dT(Vector3dT());
+    m_Heading      = Player->GetHeading();
+    m_Pitch        = 0;
+    m_Bank         = 0;
+    m_ModelIndex   = Player->GetState().ModelIndex;
+    m_ModelSequNr  = Player->GetState().ModelSequNr;
+    m_ModelFrameNr = Player->GetState().ModelFrameNr;
+}
 
-    State = EntityStateT(
-        VectorT(),
-        0, 0, PS.ModelIndex, PS.ModelSequNr, PS.ModelFrameNr,
-        0, 0, 0, 0, PS.ActiveWeaponSlot, 0, 0.0);
 
-    m_Origin     = Player->GetOrigin()+VectorT(0.0, 0.0, Player->GetDimensions().Min.z+1728.8);
-    m_Dimensions = BoundingBox3dT(Vector3dT());
-    m_Heading    = Player->GetHeading();
-    m_Pitch      = 0;
-    m_Bank       = 0;
+void EntCorpseT::DoSerialize(cf::Network::OutStreamT& Stream) const
+{
+    Stream << m_ModelIndex;
+    Stream << m_ModelSequNr;
+    Stream << m_ModelFrameNr;
+}
+
+
+void EntCorpseT::DoDeserialize(cf::Network::InStreamT& Stream)
+{
+    Stream >> m_ModelIndex;
+    Stream >> m_ModelSequNr;
+    Stream >> m_ModelFrameNr;
 }
 
 
@@ -95,18 +111,18 @@ void EntCorpseT::Draw(bool /*FirstPersonView*/, float LodDist) const
     MatSys::Renderer->GetCurrentEyePosition        ()[2]+=32.0f;
     MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, 0.0f, 0.0f, -32.0f);
 
-    const CafuModelT* Model=cf::GameSys::GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
-    AnimPoseT*        Pose =Model->GetSharedPose(Model->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr));
+    const CafuModelT* Model=cf::GameSys::GameImplT::GetInstance().GetPlayerModel(m_ModelIndex);
+    AnimPoseT*        Pose =Model->GetSharedPose(Model->GetAnimExprPool().GetStandard(m_ModelSequNr, m_ModelFrameNr));
 
     Pose->Draw(-1 /*default skin*/, LodDist);
 
-    if (State.HaveWeapons & (1 << State.ActiveWeaponSlot))
-    {
-        // const CafuModelT* WeaponModel=...;
-        // AnimPoseT*        WeaponPose =WeaponModel->GetSharedPose(0, 0.0f);
-
-        // WeaponPose->SetSuperPose(Pose);
-        // WeaponPose->Draw(-1 /*default skin*/, LodDist);
-        // WeaponPose->SetSuperPose(NULL);
-    }
+    // if (m_HaveWeapons & (1 << m_ActiveWeaponSlot))
+    // {
+    //     const CafuModelT* WeaponModel=...;
+    //     AnimPoseT*        WeaponPose =WeaponModel->GetSharedPose(0, 0.0f);
+    //
+    //     WeaponPose->SetSuperPose(Pose);
+    //     WeaponPose->Draw(-1 /*default skin*/, LodDist);
+    //     WeaponPose->SetSuperPose(NULL);
+    // }
 }

@@ -57,6 +57,11 @@ class EntSpeakerT : public BaseEntityT
 
     enum EventTypesT { EVENT_TYPE_PLAY, EVENT_TYPE_STOP, NUM_EVENT_TYPES };
 
+    // Override the base class methods.
+    void DoSerialize(cf::Network::OutStreamT& Stream) const;
+    void DoDeserialize(cf::Network::InStreamT& Stream);
+
+    bool    m_AutoPlay;
     float   m_Interval;                  ///< Interval between two sound playbacks. 0 means the sound is only played one time if triggered.
     float   m_TimeUntilNextSound;        ///< Time left until the sound is played another time.
     SoundI* m_Sound;                     ///< The sound object to play.

@@ -44,6 +44,17 @@ class EntCorpseT : public BaseEntityT
     const cf::TypeSys::TypeInfoT* GetType() const;
     static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
     static const cf::TypeSys::TypeInfoT TypeInfo;
+
+
+    private:
+
+    // Override the base class methods.
+    void DoSerialize(cf::Network::OutStreamT& Stream) const;
+    void DoDeserialize(cf::Network::InStreamT& Stream);
+
+    int   m_ModelIndex;
+    int   m_ModelSequNr;
+    float m_ModelFrameNr;
 };
 
 #endif

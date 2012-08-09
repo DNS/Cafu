@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "TypeSys.hpp"
 #include "Libs/LookupTables.hpp"
 
+#include "Network/State.hpp"
 #include "SoundSystem/SoundSys.hpp"
 #include "SoundSystem/Sound.hpp"
 #include "SoundSystem/SoundShaderManager.hpp"
@@ -84,7 +85,7 @@ EntSpeakerT::EntSpeakerT(const EntityCreateParamsT& Params)
       m_TimeUntilNextSound(m_Interval),
       m_Sound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader(GetProp("soundshader", ""))))
 {
-    State.Flags=GetProp("autoplay", 0); // Set initial playback state.
+    m_AutoPlay=GetProp("autoplay", 0) != 0; // Set initial playback state.
 
     m_Sound->SetInnerVolume   (GetProp("innerVolume",   0.5f));
     m_Sound->SetOuterVolume   (GetProp("outerVolume",   0.0f));
@@ -99,6 +100,18 @@ EntSpeakerT::~EntSpeakerT()
 }
 
 
+void EntSpeakerT::DoSerialize(cf::Network::OutStreamT& Stream) const
+{
+    Stream << m_AutoPlay;
+}
+
+
+void EntSpeakerT::DoDeserialize(cf::Network::InStreamT& Stream)
+{
+    Stream >> m_AutoPlay;
+}
+
+
 void EntSpeakerT::PostDraw(float FrameTime, bool FirstPersonView)
 {
     m_Sound->SetPosition(m_Origin);
@@ -110,7 +123,7 @@ void EntSpeakerT::PostDraw(float FrameTime, bool FirstPersonView)
 
     m_Sound->SetDirection(Direction);
 
-    if (!State.Flags || m_Interval==0.0f)
+    if (!m_AutoPlay || m_Interval==0.0f)
     {
         m_TimeUntilNextSound=m_Interval;
         return;
@@ -120,7 +133,7 @@ void EntSpeakerT::PostDraw(float FrameTime, bool FirstPersonView)
     if (m_TimeUntilNextSound<0.0f)
     {
         m_TimeUntilNextSound=m_Interval;
-        if (m_Interval<=0.0f) State.Flags=0; // Only play this sound once per trigger if interval is 0.0f.
+        if (m_Interval<=0.0f) m_AutoPlay = false;   // Only play this sound once per trigger if interval is 0.0f.
         m_Sound->Play();
     }
 }
@@ -146,7 +159,7 @@ int EntSpeakerT::Play(lua_State* LuaState)
     cf::ScriptBinderT Binder(LuaState);
     IntrusivePtrT<EntSpeakerT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntSpeakerT> >(1);
 
-    Ent->State.Flags=1;
+    Ent->m_AutoPlay = true;
     Ent->PostEvent(EVENT_TYPE_PLAY);
 
     return 0;
@@ -158,7 +171,7 @@ int EntSpeakerT::Stop(lua_State* LuaState)
     cf::ScriptBinderT Binder(LuaState);
     IntrusivePtrT<EntSpeakerT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntSpeakerT> >(1);
 
-    Ent->State.Flags=0;
+    Ent->m_AutoPlay = false;
     Ent->PostEvent(EVENT_TYPE_STOP);
 
     return 0;
