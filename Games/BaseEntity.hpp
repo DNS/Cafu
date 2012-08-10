@@ -87,8 +87,8 @@ class BaseEntityT : public RefCountedT
 
     const unsigned long ID;             // The unique ID of this entity.
     const std::string   Name;           ///< The unique instance name of this entity, normally equal to and obtained from Properties["name"]. It's explicitly kept (possibly redundantly to Properties["name"]), because with it: a) there is no confusion when "name" is not found in the Properties list, b) its const-ness is more obvious and easier to guarantee (e.g. the ScriptStateT class relies on the name never changing throughout entity lifetime, because script objects are addressed and found by name, not by instance pointer (light userdata)!), and c) access like   MyEnt->Name   is much easier to write than using Properties.find().
-    const std::map<std::string, std::string> Properties;    ///< The properties of this entities from the map file. THIS IS UNSAFE due to the EXE/DLL boundaries (if a const operation modified memory...), but for now it seems to work on all STL implementations - TODO: revision required later!!!
-    const unsigned long WorldFileIndex; // The index of this entity into the array in the world file, -1 is no such information exists. See [1].
+    const std::map<std::string, std::string> Properties;    ///< The properties of this entities from the map file.
+    const unsigned long WorldFileIndex; // The index of this entity into the array in the world file, -1 if no such information exists. See [1].
     unsigned long       ParentID;       // The 'ID' of the entity that created us.
  // ID[]                ChildrenIDs;    // The entities that we have created (e.g. the rockets that a human player fired).
 
@@ -230,9 +230,6 @@ class BaseEntityT : public RefCountedT
     /// At a first glance, the related methods are *only* called from the server (like passing in player commands),
     /// or from within the Think() functions, but never on the client side.
     virtual void ProcessConfigString(const void* ConfigData, const char* ConfigString);
-
-    /// Increases the frag count of this entity by the given number.
-    void AddFrag(int NumFrags=1);
 
     /// This SERVER-SIDE function is used for posting an event of the given type.
     /// The event is automatically sent from the entity instance on the server to the entity instances

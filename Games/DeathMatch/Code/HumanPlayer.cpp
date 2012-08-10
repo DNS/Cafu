@@ -156,6 +156,12 @@ EntHumanPlayerT::~EntHumanPlayerT()
 }
 
 
+void EntHumanPlayerT::AddFrag(int NumFrags)
+{
+    State.HaveAmmo[AMMO_SLOT_FRAGS] += NumFrags;
+}
+
+
 void EntHumanPlayerT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT& ImpactDir)
 {
     // Only human players that are still alive can take damage.
@@ -196,14 +202,19 @@ void EntHumanPlayerT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT
             FraggingEntity=ParentOfFE;
         }
 
-        if (FraggingEntity->ID==ID)
+        IntrusivePtrT<EntHumanPlayerT> HumanFragEnt = dynamic_pointer_cast<EntHumanPlayerT>(FraggingEntity);
+
+        if (HumanFragEnt!=NULL)
         {
-            // Uh! This was a self-kill!
-            FraggingEntity->AddFrag(-1);
-        }
-        else
-        {
-            FraggingEntity->AddFrag();
+            if (HumanFragEnt->ID==ID)
+            {
+                // Uh! This was a self-kill!
+                HumanFragEnt->AddFrag(-1);
+            }
+            else
+            {
+                HumanFragEnt->AddFrag();
+            }
         }
     }
     else

@@ -49,6 +49,9 @@ class EntHumanPlayerT : public BaseEntityT, public btMotionState
     unsigned short GetBank() const { return m_Bank; }
     const btRigidBody* GetRigidBody() const { return m_RigidBody; }
 
+    /// Increases the frag count of this entity by the given number.
+    void AddFrag(int NumFrags=1);
+
     // Implement the BaseEntityT interface.
     void TakeDamage(BaseEntityT* Entity, char Amount, const VectorT& ImpactDir);
     void ProcessConfigString(const void* ConfigData, const char* ConfigString);

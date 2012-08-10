@@ -207,7 +207,10 @@ void EntCompanyBotT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT&
             FraggingEntity=ParentOfFE;
         }
 
-        FraggingEntity->AddFrag();
+        IntrusivePtrT<EntHumanPlayerT> HumanFragEnt = dynamic_pointer_cast<EntHumanPlayerT>(FraggingEntity);
+
+        if (HumanFragEnt!=NULL)
+            HumanFragEnt->AddFrag();
     }
     else
     {

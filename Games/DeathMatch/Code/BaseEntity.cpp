@@ -22,7 +22,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../../BaseEntity.hpp"
 #include "../../GameWorld.hpp"
 #include "EntityCreateParams.hpp"
-#include "Constants_AmmoSlots.hpp"      // For 'AMMO_SLOT_FRAGS'.
 #include "TypeSys.hpp"
 #include "ClipSys/ClipModel.hpp"
 #include "ClipSys/CollisionModelMan.hpp"
@@ -383,12 +382,6 @@ void BaseEntityT::OnPush(ArrayT<BaseEntityT*>& Pushers, const Vector3dT& PushVec
 
 void BaseEntityT::TakeDamage(BaseEntityT* /*Entity*/, char /*Amount*/, const VectorT& /*ImpactDir*/)
 {
-}
-
-
-void BaseEntityT::AddFrag(int NumFrags)
-{
-    State.HaveAmmo[AMMO_SLOT_FRAGS] += NumFrags;
 }
 
 
