@@ -88,33 +88,20 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
                   BoundingBox3dT(Vector3dT( 400.0,  400.0,   100.0),    // Roughly 32*32*72 inches, eye height at 68 inches.
                                  Vector3dT(-400.0, -400.0, -1728.8)),   // 68*25.4 == 1727.2
-                  NUM_EVENT_TYPES,
-                  EntityStateT(VectorT(),
-                               StateOfExistance_FrozenSpectator,
-                               0,
-                               0,       // ModelIndex
-                               0,       // ModelSequNr
-                               0.0,     // ModelFrameNr
-                               100,     // Health
-                               0,       // Armor
-                               0,       // HaveItems
-                               0,       // HaveWeapons
-                               0,       // ActiveWeaponSlot
-                               0,       // ActiveWeaponSequNr
-                               0.0)),   // ActiveWeaponFrameNr
+                  NUM_EVENT_TYPES),
       State(VectorT(),
-                               StateOfExistance_FrozenSpectator,
-                               0,
-                               0,       // ModelIndex
-                               0,       // ModelSequNr
-                               0.0,     // ModelFrameNr
-                               100,     // Health
-                               0,       // Armor
-                               0,       // HaveItems
-                               0,       // HaveWeapons
-                               0,       // ActiveWeaponSlot
-                               0,       // ActiveWeaponSequNr
-                               0.0),   // ActiveWeaponFrameNr
+            StateOfExistance_FrozenSpectator,
+            0,
+            0,      // ModelIndex
+            0,      // ModelSequNr
+            0.0,    // ModelFrameNr
+            100,    // Health
+            0,      // Armor
+            0,      // HaveItems
+            0,      // HaveWeapons
+            0,      // ActiveWeaponSlot
+            0,      // ActiveWeaponSequNr
+            0.0),   // ActiveWeaponFrameNr
       m_Physics(m_Origin, State.Velocity, m_Dimensions, ClipModel, GameWorld->GetClipWorld()),
       m_CollisionShape(NULL),
       m_RigidBody(NULL),

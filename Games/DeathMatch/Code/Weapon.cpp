@@ -53,20 +53,7 @@ EntWeaponT::EntWeaponT(const EntityCreateParamsT& Params, const std::string& Mod
     : BaseEntityT(Params,
                   BoundingBox3dT(Vector3dT( 200.0,  200.0,  400.0),
                                  Vector3dT(-200.0, -200.0, -100.0)),
-                  NUM_EVENT_TYPES,
-                  EntityStateT(VectorT(),
-                               0,                           // StateOfExistance
-                               0,                           // Flags
-                               0,                           // ModelIndex
-                               0,                           // ModelSequNr
-                               0.0,                         // ModelFrameNr
-                               0,                           // Health
-                               0,                           // Armor
-                               0,                           // HaveItems
-                               0,                           // HaveWeapons
-                               0,                           // ActiveWeaponSlot
-                               0,                           // ActiveWeaponSequNr
-                               0.0)),                       // ActiveWeaponFrameNr
+                  NUM_EVENT_TYPES),
       m_TimeLeftNotActive(0.0f),
       m_WeaponModel(Params.GameWorld->GetModel(ModelName)),
       m_PickUp(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Item/PickUp"))),

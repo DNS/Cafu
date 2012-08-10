@@ -12,20 +12,7 @@ EntInfo2DMoveDirT::EntInfo2DMoveDirT(char TypeID, unsigned long ID, unsigned lon
     : BaseEntityT(EntityCreateParamsT(ID, std::map<std::string, std::string>(), NULL, NULL, MapFileID, GameWorld, Origin),
                   BoundingBox3dT(Vector3dT( 100.0,  100.0,  100.0),
                                  Vector3dT(-100.0, -100.0, -100.0)),
-                  0,
-                  EntityStateT(VectorT(),
-                               0,
-                               0,
-                               0,       // ModelIndex
-                               0,       // ModelSequNr
-                               0.0,     // ModelFrameNr
-                               0,       // Health
-                               0,       // Armor
-                               0,       // HaveItems
-                               0,       // HaveWeapons
-                               0,       // ActiveWeaponSlot
-                               0,       // ActiveWeaponSequNr
-                               0.0))    // ActiveWeaponFrameNr
+                  0)
 {
     // Werte die 'PropertyPairs' aus, die von der Basis-Klasse 'BaseEntity' noch nicht ausgewertet wurden!
     for (std::map<std::string, std::string>::const_iterator It=Properties.begin(); It!=Properties.end(); ++It)

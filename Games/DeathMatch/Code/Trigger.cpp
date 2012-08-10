@@ -63,20 +63,7 @@ const cf::TypeSys::TypeInfoT EntTriggerT::TypeInfo(GetBaseEntTIM(), "EntTriggerT
 EntTriggerT::EntTriggerT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
                   BoundingBox3dT(Vector3dT()),
-                  0,
-                  EntityStateT(VectorT(),   // Velocity
-                               0,
-                               0,
-                               0,           // ModelIndex
-                               0,           // ModelSequNr
-                               0.0,         // ModelFrameNr
-                               0,           // Health
-                               0,           // Armor
-                               0,           // HaveItems
-                               0,           // HaveWeapons
-                               0,           // ActiveWeaponSlot
-                               0,           // ActiveWeaponSequNr
-                               0.0)),       // ActiveWeaponFrameNr
+                  0),
       IsActive(true)
 {
     ClipModel.Register();

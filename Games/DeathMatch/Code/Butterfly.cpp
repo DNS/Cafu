@@ -46,20 +46,7 @@ EntButterflyT::EntButterflyT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
                   BoundingBox3dT(Vector3dT( 100.0,  100.0,  100.0),
                                  Vector3dT(-100.0, -100.0, -100.0)),
-                  0,
-                  EntityStateT(VectorT(),
-                               0,
-                               0,
-                               0,       // ModelIndex
-                               0,       // ModelSequNr
-                               0.0,     // ModelFrameNr
-                               20,      // Health
-                               0,       // Armor
-                               0,       // HaveItems
-                               0,       // HaveWeapons
-                               0,       // ActiveWeaponSlot
-                               0,       // ActiveWeaponSequNr
-                               0.0)),   // ActiveWeaponFrameNr
+                  0),
       m_Model(Params.GameWorld->GetModel("Games/DeathMatch/Models/LifeForms/Butterfly/Butterfly.cmdl")),
       m_ArcCenter(Params.Origin),
       m_ArcRadius(500.0f),

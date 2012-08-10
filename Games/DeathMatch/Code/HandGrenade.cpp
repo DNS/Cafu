@@ -52,20 +52,7 @@ EntHandGrenadeT::EntHandGrenadeT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
                   BoundingBox3dT(Vector3dT( 60.0,  60.0, 120.0),
                                  Vector3dT(-60.0, -60.0,   0.0)),
-                  NUM_EVENT_TYPES,
-                  EntityStateT(VectorT(),
-                               0,       // StateOfExistance
-                               0,       // Flags
-                               0,       // ModelIndex
-                               0,       // ModelSequNr
-                               0.0,     // ModelFrameNr
-                               0,       // Health
-                               0,       // Armor
-                               0,       // HaveItems
-                               0,       // HaveWeapons
-                               0,       // ActiveWeaponSlot
-                               0,       // ActiveWeaponSequNr
-                               0.0)),   // ActiveWeaponFrameNr
+                  NUM_EVENT_TYPES),
       m_Velocity(),
       m_LifeTime(0.0f),
       m_Physics(m_Origin, m_Velocity, m_Dimensions, ClipModel, GameWorld->GetClipWorld()),

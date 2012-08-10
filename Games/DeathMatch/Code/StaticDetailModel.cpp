@@ -74,21 +74,7 @@ const cf::TypeSys::TypeInfoT EntStaticDetailModelT::TypeInfo(GetBaseEntTIM(), "E
 EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
                   BoundingBox3dT(Vector3dT()),
-                  NUM_EVENT_TYPES,
-                  // Bad. Should either have a default ctor for 'EntityStateT', or even better get it passed as const reference.
-                  EntityStateT(VectorT(),
-                               0,       // StateOfExistance
-                               0,       // Flags
-                               0,       // ModelIndex
-                               0,       // ModelSequNr
-                               0.0,     // ModelFrameNr
-                               0,       // Health
-                               0,       // Armor
-                               0,       // HaveItems
-                               0,       // HaveWeapons
-                               0,       // ActiveWeaponSlot
-                               0,       // ActiveWeaponSequNr
-                               0.0)),   // ActiveWeaponFrameNr
+                  NUM_EVENT_TYPES),
       m_Model(NULL),
       m_PlayAnim(true),
       m_SequNr(0),

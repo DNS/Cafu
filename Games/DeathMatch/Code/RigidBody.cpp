@@ -65,20 +65,7 @@ const cf::TypeSys::TypeInfoT EntRigidBodyT::TypeInfo(GetBaseEntTIM(), "EntRigidB
 EntRigidBodyT::EntRigidBodyT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
                   Params.RootNode->GetBoundingBox(),
-                  0,
-                  EntityStateT(VectorT(),   // Velocity
-                               0,
-                               0,
-                               0,           // ModelIndex
-                               0,           // ModelSequNr
-                               0.0,         // ModelFrameNr
-                               0,           // Health
-                               0,           // Armor
-                               0,           // HaveItems
-                               0,           // HaveWeapons
-                               0,           // ActiveWeaponSlot
-                               0,           // ActiveWeaponSequNr
-                               0.0)),       // ActiveWeaponFrameNr
+                  0),
       m_RootNode(Params.RootNode),
       m_CollisionShape(NULL),
       m_RigidBody(NULL),

@@ -58,33 +58,20 @@ EntCompanyBotT::EntCompanyBotT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
                   BoundingBox3dT(Vector3dT( 300.0,  300.0,   100.0),
                                  Vector3dT(-300.0, -300.0, -1728.8)),   // 68*25.4 == 1727.2
-                  0,
-                  EntityStateT(VectorT(),
-                               0,
-                               0,
-                               0,       // ModelIndex
-                               0,       // ModelSequNr
-                               0.0,     // ModelFrameNr
-                               80,      // Health
-                               0,       // Armor
-                               0,       // HaveItems
-                               0,       // HaveWeapons
-                               0,       // ActiveWeaponSlot
-                               0,       // ActiveWeaponSequNr
-                               0.0)),   // ActiveWeaponFrameNr
+                  0),
       State(VectorT(),
-                               0,
-                               0,
-                               0,       // ModelIndex
-                               0,       // ModelSequNr
-                               0.0,     // ModelFrameNr
-                               80,      // Health
-                               0,       // Armor
-                               0,       // HaveItems
-                               0,       // HaveWeapons
-                               0,       // ActiveWeaponSlot
-                               0,       // ActiveWeaponSequNr
-                               0.0),    // ActiveWeaponFrameNr
+            0,
+            0,
+            0,       // ModelIndex
+            0,       // ModelSequNr
+            0.0,     // ModelFrameNr
+            80,      // Health
+            0,       // Armor
+            0,       // HaveItems
+            0,       // HaveWeapons
+            0,       // ActiveWeaponSlot
+            0,       // ActiveWeaponSequNr
+            0.0),    // ActiveWeaponFrameNr
       m_Physics(m_Origin, State.Velocity, m_Dimensions, ClipModel, GameWorld->GetClipWorld()),
       m_CompanyBotModel(Params.GameWorld->GetModel("Games/DeathMatch/Models/Players/Trinity/Trinity.cmdl")),
       m_AnimExpr(),

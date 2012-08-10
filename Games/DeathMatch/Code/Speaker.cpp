@@ -67,20 +67,7 @@ EntSpeakerT::EntSpeakerT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
                   BoundingBox3dT(Vector3dT(0.0, 0.0, 0.0),
                                  Vector3dT(0.0, 0.0, 0.0)),
-                  NUM_EVENT_TYPES,
-                  EntityStateT(VectorT(),
-                               0,                           // StateOfExistance
-                               0,                           // Flags
-                               0,                           // ModelIndex
-                               0,                           // ModelSequNr
-                               0.0,                         // ModelFrameNr
-                               0,                           // Health
-                               0,                           // Armor
-                               0,                           // HaveItems
-                               0,                           // HaveWeapons
-                               0,                           // ActiveWeaponSlot
-                               0,                           // ActiveWeaponSequNr
-                               0.0)),                       // ActiveWeaponFrameNr)
+                  NUM_EVENT_TYPES),
       m_Interval(GetProp("interval", 0.0f)),
       m_TimeUntilNextSound(m_Interval),
       m_Sound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader(GetProp("soundshader", ""))))

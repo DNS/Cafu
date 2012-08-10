@@ -52,20 +52,7 @@ EntRocketT::EntRocketT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
                   BoundingBox3dT(Vector3dT( 100.0,  100.0,  100.0),
                                  Vector3dT(-100.0, -100.0, -100.0)),
-                  NUM_EVENT_TYPES,
-                  EntityStateT(VectorT(),
-                               0,       // StateOfExistance
-                               0,       // Flags
-                               0,       // ModelIndex
-                               0,       // ModelSequNr
-                               0.0,     // ModelFrameNr
-                               0,       // Health
-                               0,       // Armor
-                               0,       // HaveItems
-                               0,       // HaveWeapons
-                               0,       // ActiveWeaponSlot
-                               0,       // ActiveWeaponSequNr
-                               0.0)),   // ActiveWeaponFrameNr
+                  NUM_EVENT_TYPES),
       m_Model(Params.GameWorld->GetModel("Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl")),
       m_FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/Shotgun_dBarrel"))),
       m_Velocity(),

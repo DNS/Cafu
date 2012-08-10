@@ -478,34 +478,20 @@ EntHumanPlayerT::EntHumanPlayerT(char TypeID, unsigned long ID, unsigned long Ma
     : BaseEntityT(EntityCreateParamsT(ID, std::map<std::string, std::string>(), NULL, NULL, MapFileID, GameWorld, Origin),
                   BoundingBox3dT(Vector3dT( 300.0,  300.0,   100.0),
                                  Vector3dT(-300.0, -300.0, -1728.8)),   // 68*25.4 == 1727.2
-                  0,
-                  EntityStateT(VectorT(),
-                               StateOfExistance_W4EndOfIdleTime_NoInput,
-                               0,       // Flags
-                               0,       // ModelIndex
-                               0,       // ModelSequNr
-                               0.0,     // ModelFrameNr
-                               100,     // Health
-                               0,       // Armor
-                               0,       // HaveItems
-                               0,       // HaveWeapons
-                               0,       // ActiveWeaponSlot
-                               0,       // ActiveWeaponSequNr
-                               0.0)),   // ActiveWeaponFrameNr
+                  0),
       State(VectorT(),
-                               StateOfExistance_W4EndOfIdleTime_NoInput,
-                               0,       // Flags
-                               0,       // ModelIndex
-                               0,       // ModelSequNr
-                               0.0,     // ModelFrameNr
-                               100,     // Health
-                               0,       // Armor
-                               0,       // HaveItems
-                               0,       // HaveWeapons
-                               0,       // ActiveWeaponSlot
-                               0,       // ActiveWeaponSequNr
-                               0.0)     // ActiveWeaponFrameNr
-
+            StateOfExistance_W4EndOfIdleTime_NoInput,
+            0,       // Flags
+            0,       // ModelIndex
+            0,       // ModelSequNr
+            0.0,     // ModelFrameNr
+            100,     // Health
+            0,       // Armor
+            0,       // HaveItems
+            0,       // HaveWeapons
+            0,       // ActiveWeaponSlot
+            0,       // ActiveWeaponSequNr
+            0.0)     // ActiveWeaponFrameNr
 {
     // Read the initialisation data from the configuration file.
     // Therefore search all the CfgFileNames.

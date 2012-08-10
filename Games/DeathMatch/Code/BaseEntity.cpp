@@ -96,8 +96,7 @@ static std::string ObtainEntityName(const std::map<std::string, std::string>& Pr
 }
 
 
-BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT& Dimensions,
-                         const unsigned int NUM_EVENT_TYPES, const EntityStateT& State_)
+BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT& Dimensions, const unsigned int NUM_EVENT_TYPES)
     : ID(Params.ID),
       Name(ObtainEntityName(Params.Properties)),
       Properties(Params.Properties),

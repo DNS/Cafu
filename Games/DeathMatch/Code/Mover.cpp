@@ -69,20 +69,7 @@ const cf::TypeSys::TypeInfoT EntFuncMoverT::TypeInfo(GetBaseEntTIM(), "EntFuncMo
 EntFuncMoverT::EntFuncMoverT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
                   Params.RootNode->GetBoundingBox(),
-                  0,
-                  EntityStateT(VectorT(),   // Velocity
-                               0,
-                               0,
-                               0,           // ModelIndex
-                               0,           // ModelSequNr
-                               0.0,         // ModelFrameNr
-                               0,           // Health
-                               0,           // Armor
-                               0,           // HaveItems
-                               0,           // HaveWeapons
-                               0,           // ActiveWeaponSlot
-                               0,           // ActiveWeaponSequNr
-                               0.0)),       // ActiveWeaponFrameNr
+                  0),
       TranslationSource(),
       TranslationDest(),
       TranslationLinTimeTotal(0.0f),

@@ -108,7 +108,7 @@ EntityStateT::EntityStateT(const VectorT& Velocity_,
 // ***********
 
 BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT& Dimensions,
-                         const unsigned int NUM_EVENT_TYPES, const EntityStateT& State_)
+                         const unsigned int NUM_EVENT_TYPES)
     : ID(Params.ID),
       Properties(Params.Properties),
       WorldFileIndex(Params.WorldFileIndex),

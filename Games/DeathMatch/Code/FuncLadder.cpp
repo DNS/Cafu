@@ -47,21 +47,7 @@ const cf::TypeSys::TypeInfoT EntFuncLadderT::TypeInfo(GetBaseEntTIM(), "EntFuncL
 EntFuncLadderT::EntFuncLadderT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
                   BoundingBox3dT(Vector3dT()),
-                  0,
-                  EntityStateT(VectorT(),   // Velocity
-                               0,
-                               0,
-                               0,           // ModelIndex
-                               0,           // ModelSequNr
-                               0.0,         // ModelFrameNr
-                               0,           // Health
-                               0,           // Armor
-                               0,           // HaveItems
-                               0,           // HaveWeapons
-                               0,           // ActiveWeaponSlot
-                               0,           // ActiveWeaponSequNr
-                               0.0))        // ActiveWeaponFrameNr
-   // RootNode(Params.RootNode)
+                  0)
 {
     assert(CollisionModel!=NULL);   // A ladder entity without collision model is useless.
 

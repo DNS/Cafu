@@ -47,21 +47,7 @@ const cf::TypeSys::TypeInfoT EntCorpseT::TypeInfo(GetBaseEntTIM(), "EntCorpseT",
 EntCorpseT::EntCorpseT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
                   BoundingBox3dT(Vector3dT()),
-                  0,
-                  // Bad. Should either have a default ctor for 'EntityStateT', or even better get it passed as const reference.
-                  EntityStateT(VectorT(),
-                               0,       // StateOfExistance
-                               0,
-                               0,       // ModelIndex
-                               0,       // ModelSequNr
-                               0.0,     // ModelFrameNr
-                               0,       // Health
-                               0,       // Armor
-                               0,       // HaveItems
-                               0,       // HaveWeapons
-                               0,       // ActiveWeaponSlot
-                               0,       // ActiveWeaponSequNr
-                               0.0)),   // ActiveWeaponFrameNr
+                  0),
       m_ModelIndex(0),
       m_ModelSequNr(0),
       m_ModelFrameNr(0.0f)
