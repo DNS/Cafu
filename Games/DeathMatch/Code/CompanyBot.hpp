@@ -61,10 +61,13 @@ class EntCompanyBotT : public BaseEntityT, public btMotionState
 
     private:
 
-    void DoDeserialize(cf::Network::InStreamT& Stream);     // Override the BaseEntityT base class method.
+    // Override the base class methods.
+    void DoSerialize(cf::Network::OutStreamT& Stream) const;
+    void DoDeserialize(cf::Network::InStreamT& Stream);
 
     void AdvanceModelTime(float Time, bool Loop);
 
+    EntityStateT      State;                ///< The current state of this entity.
     PhysicsHelperT    m_Physics;
     const CafuModelT* m_CompanyBotModel;
     IntrusivePtrT<AnimExpressionT>   m_AnimExpr;

@@ -36,6 +36,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Renderer.hpp"
 #include "Models/AnimPose.hpp"
 #include "Models/Model_cmdl.hpp"
+#include "Network/State.hpp"
 
 
 // Implement the type info related code.
@@ -71,6 +72,19 @@ EntCompanyBotT::EntCompanyBotT(const EntityCreateParamsT& Params)
                                0,       // ActiveWeaponSlot
                                0,       // ActiveWeaponSequNr
                                0.0)),   // ActiveWeaponFrameNr
+      State(VectorT(),
+                               0,
+                               0,
+                               0,       // ModelIndex
+                               0,       // ModelSequNr
+                               0.0,     // ModelFrameNr
+                               80,      // Health
+                               0,       // Armor
+                               0,       // HaveItems
+                               0,       // HaveWeapons
+                               0,       // ActiveWeaponSlot
+                               0,       // ActiveWeaponSequNr
+                               0.0),    // ActiveWeaponFrameNr
       m_Physics(m_Origin, State.Velocity, m_Dimensions, ClipModel, GameWorld->GetClipWorld()),
       m_CompanyBotModel(Params.GameWorld->GetModel("Games/DeathMatch/Models/Players/Trinity/Trinity.cmdl")),
       m_AnimExpr(),
@@ -145,8 +159,56 @@ EntCompanyBotT::~EntCompanyBotT()
 }
 
 
+void EntCompanyBotT::DoSerialize(cf::Network::OutStreamT& Stream) const
+{
+    Stream << float(State.Velocity.x);
+    Stream << float(State.Velocity.y);
+    Stream << float(State.Velocity.z);
+    Stream << State.StateOfExistance;
+    Stream << State.Flags;
+    Stream << State.PlayerName;       // TODO: In the old code, the PlayerName apparently is read/written in *baseline* messages only.
+    Stream << State.ModelIndex;
+    Stream << State.ModelSequNr;
+    Stream << State.ModelFrameNr;
+    Stream << State.Health;
+    Stream << State.Armor;
+    Stream << uint32_t(State.HaveItems);
+    Stream << uint32_t(State.HaveWeapons);
+    Stream << State.ActiveWeaponSlot;
+    Stream << State.ActiveWeaponSequNr;
+    Stream << State.ActiveWeaponFrameNr;
+
+    for (unsigned int Nr=0; Nr<16; Nr++) Stream << State.HaveAmmo[Nr];
+    for (unsigned int Nr=0; Nr<32; Nr++) Stream << uint32_t(State.HaveAmmoInWeapons[Nr]);
+}
+
+
 void EntCompanyBotT::DoDeserialize(cf::Network::InStreamT& Stream)
 {
+    float    f =0.0f;
+    uint32_t ui=0;
+
+    Stream >> f; State.Velocity.x=f;
+    Stream >> f; State.Velocity.y=f;
+    Stream >> f; State.Velocity.z=f;
+    Stream >> State.StateOfExistance;
+    Stream >> State.Flags;
+    Stream >> State.PlayerName;     // TODO: In the old code, the PlayerName apparently is read/written in *baseline* messages only.
+    Stream >> State.ModelIndex;
+    Stream >> State.ModelSequNr;
+    Stream >> State.ModelFrameNr;
+    Stream >> State.Health;
+    Stream >> State.Armor;
+    Stream >> ui; State.HaveItems=ui;
+    Stream >> ui; State.HaveWeapons=ui;
+    Stream >> State.ActiveWeaponSlot;
+    Stream >> State.ActiveWeaponSequNr;
+    Stream >> State.ActiveWeaponFrameNr;
+
+    for (unsigned int Nr=0; Nr<16; Nr++) Stream >> State.HaveAmmo[Nr];
+    for (unsigned int Nr=0; Nr<32; Nr++) { Stream >> ui; State.HaveAmmoInWeapons[Nr]=ui; }
+
+
     const bool IsAlive=(State.ModelSequNr<18 || State.ModelSequNr>24);
 
     btTransform WorldTrafo;

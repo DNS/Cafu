@@ -112,7 +112,6 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT
       m_Heading(0),
       m_Pitch(0),
       m_Bank(0),
-      State(State_),
       m_EventsCount(),
       m_EventsRef()
 {
@@ -182,30 +181,11 @@ void BaseEntityT::Serialize(cf::Network::OutStreamT& Stream) const
     Stream << float(m_Origin.x);
     Stream << float(m_Origin.y);
     Stream << float(m_Origin.z);
-    Stream << float(State.Velocity.x);
-    Stream << float(State.Velocity.y);
-    Stream << float(State.Velocity.z);
     Stream << float(m_Dimensions.Min.z);
     Stream << float(m_Dimensions.Max.z);
     Stream << m_Heading;
     Stream << m_Pitch;
     Stream << m_Bank;
-    Stream << State.StateOfExistance;
-    Stream << State.Flags;
-    Stream << State.PlayerName;       // TODO: In the old code, the PlayerName apparently is read/written in *baseline* messages only.
-    Stream << State.ModelIndex;
-    Stream << State.ModelSequNr;
-    Stream << State.ModelFrameNr;
-    Stream << State.Health;
-    Stream << State.Armor;
-    Stream << uint32_t(State.HaveItems);
-    Stream << uint32_t(State.HaveWeapons);
-    Stream << State.ActiveWeaponSlot;
-    Stream << State.ActiveWeaponSequNr;
-    Stream << State.ActiveWeaponFrameNr;
-
-    for (unsigned int Nr=0; Nr<16; Nr++) Stream << State.HaveAmmo[Nr];
-    for (unsigned int Nr=0; Nr<32; Nr++) Stream << uint32_t(State.HaveAmmoInWeapons[Nr]);
 
     for (unsigned int i = 0; i < m_EventsCount.Size(); i++)
         Stream << m_EventsCount[i];
@@ -217,36 +197,16 @@ void BaseEntityT::Serialize(cf::Network::OutStreamT& Stream) const
 
 void BaseEntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
 {
-    float    f =0.0f;
-    uint32_t ui=0;
+    float f=0.0f;
 
     Stream >> f; m_Origin.x=f;
     Stream >> f; m_Origin.y=f;
     Stream >> f; m_Origin.z=f;
-    Stream >> f; State.Velocity.x=f;
-    Stream >> f; State.Velocity.y=f;
-    Stream >> f; State.Velocity.z=f;
     Stream >> f; m_Dimensions.Min.z=f;
     Stream >> f; m_Dimensions.Max.z=f;
     Stream >> m_Heading;
     Stream >> m_Pitch;
     Stream >> m_Bank;
-    Stream >> State.StateOfExistance;
-    Stream >> State.Flags;
-    Stream >> State.PlayerName;     // TODO: In the old code, the PlayerName apparently is read/written in *baseline* messages only.
-    Stream >> State.ModelIndex;
-    Stream >> State.ModelSequNr;
-    Stream >> State.ModelFrameNr;
-    Stream >> State.Health;
-    Stream >> State.Armor;
-    Stream >> ui; State.HaveItems=ui;
-    Stream >> ui; State.HaveWeapons=ui;
-    Stream >> State.ActiveWeaponSlot;
-    Stream >> State.ActiveWeaponSequNr;
-    Stream >> State.ActiveWeaponFrameNr;
-
-    for (unsigned int Nr=0; Nr<16; Nr++) Stream >> State.HaveAmmo[Nr];
-    for (unsigned int Nr=0; Nr<32; Nr++) { Stream >> ui; State.HaveAmmoInWeapons[Nr]=ui; }
 
     for (unsigned int i = 0; i < m_EventsCount.Size(); i++)
         Stream >> m_EventsCount[i];

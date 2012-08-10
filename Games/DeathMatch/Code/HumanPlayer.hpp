@@ -74,11 +74,16 @@ class EntHumanPlayerT : public BaseEntityT, public btMotionState
 
     private:
 
+    // Override the base class methods.
+    void DoSerialize(cf::Network::OutStreamT& Stream) const;
+    void DoDeserialize(cf::Network::InStreamT& Stream);
+
     /// A helper function for Think().
     bool CheckGUI(IntrusivePtrT<EntStaticDetailModelT> GuiEnt, Vector3fT& MousePos) const;
 
     ArrayT<PlayerCommandT> PlayerCommands;
 
+    EntityStateT      State;                    ///< The current state of this entity.
     PhysicsHelperT    m_Physics;
     btCollisionShape* m_CollisionShape;         ///< The collision shape that is used to approximate and represent this player in the physics world.
     btRigidBody*      m_RigidBody;              ///< The rigid body (of "kinematic" type) for use in the physics world.

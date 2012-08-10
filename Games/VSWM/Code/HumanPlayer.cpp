@@ -1,7 +1,3 @@
-/***************************/
-/*** Human Player (Code) ***/
-/***************************/
-
 // TODO: "State.Vel.x+=frametime"  GLOBALLY? (state-independent, that is)?
 // TODO: Entirely remove None-Wrapped Mode (done), use of State.Vel.y, state StateOfExistance_FrozenSpectator (done) ?
 
@@ -22,6 +18,7 @@
 #include "MaterialSystem/Mesh.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"
+#include "Network/State.hpp"
 #include "TextParser/TextParser.hpp"
 
 #ifndef _WIN32
@@ -45,6 +42,57 @@ const char StateOfExistance_TurnTowardsNextNode_W4Input=4;
 const char StateOfExistance_TurnTowardsNextNode_NoInput=5;
 const char StateOfExistance_ReverseMove_FlyBack        =6;
 const char StateOfExistance_ReverseMove_TurnBack       =7;
+
+
+void EntHumanPlayerT::DoSerialize(cf::Network::OutStreamT& Stream) const
+{
+    Stream << float(State.Velocity.x);
+    Stream << float(State.Velocity.y);
+    Stream << float(State.Velocity.z);
+    Stream << State.StateOfExistance;
+    Stream << State.Flags;
+    Stream << State.PlayerName;       // TODO: In the old code, the PlayerName apparently is read/written in *baseline* messages only.
+    Stream << State.ModelIndex;
+    Stream << State.ModelSequNr;
+    Stream << State.ModelFrameNr;
+    Stream << State.Health;
+    Stream << State.Armor;
+    Stream << uint32_t(State.HaveItems);
+    Stream << uint32_t(State.HaveWeapons);
+    Stream << State.ActiveWeaponSlot;
+    Stream << State.ActiveWeaponSequNr;
+    Stream << State.ActiveWeaponFrameNr;
+
+    for (unsigned int Nr=0; Nr<16; Nr++) Stream << State.HaveAmmo[Nr];
+    for (unsigned int Nr=0; Nr<32; Nr++) Stream << uint32_t(State.HaveAmmoInWeapons[Nr]);
+}
+
+
+void EntHumanPlayerT::DoDeserialize(cf::Network::InStreamT& Stream)
+{
+    float    f =0.0f;
+    uint32_t ui=0;
+
+    Stream >> f; State.Velocity.x=f;
+    Stream >> f; State.Velocity.y=f;
+    Stream >> f; State.Velocity.z=f;
+    Stream >> State.StateOfExistance;
+    Stream >> State.Flags;
+    Stream >> State.PlayerName;     // TODO: In the old code, the PlayerName apparently is read/written in *baseline* messages only.
+    Stream >> State.ModelIndex;
+    Stream >> State.ModelSequNr;
+    Stream >> State.ModelFrameNr;
+    Stream >> State.Health;
+    Stream >> State.Armor;
+    Stream >> ui; State.HaveItems=ui;
+    Stream >> ui; State.HaveWeapons=ui;
+    Stream >> State.ActiveWeaponSlot;
+    Stream >> State.ActiveWeaponSequNr;
+    Stream >> State.ActiveWeaponFrameNr;
+
+    for (unsigned int Nr=0; Nr<16; Nr++) Stream >> State.HaveAmmo[Nr];
+    for (unsigned int Nr=0; Nr<32; Nr++) { Stream >> ui; State.HaveAmmoInWeapons[Nr]=ui; }
+}
 
 
 // Writes a log file entry.
@@ -443,7 +491,21 @@ EntHumanPlayerT::EntHumanPlayerT(char TypeID, unsigned long ID, unsigned long Ma
                                0,       // HaveWeapons
                                0,       // ActiveWeaponSlot
                                0,       // ActiveWeaponSequNr
-                               0.0))    // ActiveWeaponFrameNr
+                               0.0)),   // ActiveWeaponFrameNr
+      State(VectorT(),
+                               StateOfExistance_W4EndOfIdleTime_NoInput,
+                               0,       // Flags
+                               0,       // ModelIndex
+                               0,       // ModelSequNr
+                               0.0,     // ModelFrameNr
+                               100,     // Health
+                               0,       // Armor
+                               0,       // HaveItems
+                               0,       // HaveWeapons
+                               0,       // ActiveWeaponSlot
+                               0,       // ActiveWeaponSequNr
+                               0.0)     // ActiveWeaponFrameNr
+
 {
     // Read the initialisation data from the configuration file.
     // Therefore search all the CfgFileNames.

@@ -1,7 +1,3 @@
-/*****************************/
-/*** Human Player (Header) ***/
-/*****************************/
-
 #ifndef CAFU_HUMANPLAYER_HPP_INCLUDED
 #define CAFU_HUMANPLAYER_HPP_INCLUDED
 
@@ -57,6 +53,7 @@ class EntHumanPlayerT : public BaseEntityT
     enum MoveDirectionT { MoveDir_Up, MoveDir_Down, MoveDir_Left, MoveDir_Right, MoveDir_Forward, MoveDir_Backward, MoveDir_None };
 
 
+    EntityStateT State;         // The current state of this entity.
     char  FileLocationIndex;    // Which set of locations for the files "VSWM.cfg", "Trial.dat" and "Eval.dat" should be used (see 'CfgFileNames', 'TrlFileNames' and 'EvlFileNames' in HumanPlayer.cpp).
     char  IgnorePCs;            // Ignore the first "IgnorePCs" PlayerCommands in ProcessConfigString
     float TotalIdleTime;        // Time that is spent at each node before the rotation towards the next node starts
@@ -73,6 +70,10 @@ class EntHumanPlayerT : public BaseEntityT
 
     ArrayT<LabyrinthNodeT> NodeSequence;    // The sequence of labyrinth nodes to visit
     ArrayT<PlayerCommandT> PlayerCommands;  // The sequence of human player commands
+
+    // Override the base class methods.
+    void DoSerialize(cf::Network::OutStreamT& Stream) const;
+    void DoDeserialize(cf::Network::InStreamT& Stream);
 
     void WriteLogFileEntry(char NodeNr, double ReactionTime, char Answer);
 

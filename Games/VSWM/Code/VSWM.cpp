@@ -122,7 +122,6 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT
       m_Heading(0),
       m_Pitch(0),
       m_Bank(0),
-      State(State_),
       m_EventsCount(),
       m_EventsRef()
 {

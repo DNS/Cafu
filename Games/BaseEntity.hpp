@@ -320,7 +320,6 @@ class BaseEntityT : public RefCountedT
     unsigned short m_Heading;       ///< Heading (north is along the ??-axis).
     unsigned short m_Pitch;         ///< Pitch (for looking up/down).
     unsigned short m_Bank;          ///< Bank (e.g. used when dead and lying on the side).
-    EntityStateT   State;           ///< The current state of this entity.
 
 
     private:
