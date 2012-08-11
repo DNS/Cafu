@@ -89,15 +89,15 @@ void EntMonsterMakerT::Think(float FrameTime, unsigned long ServerFrameNr)
     if (TimeSinceLastMake<Delay) return;    // No time to create next monster yet
 
     // Wir wollen nur dann einen neuen Entity erzeugen, wenn die geplante Position frei ist.
-    // Beachte jedoch: Das kann auch schiefgehen, wenn der erzeugte Entity in seinem Konstruktor eine andere als die geplante Position w‰hlt!
-    // Ein Beispiel daf¸r ist der CompanyBot, der nachtr‰glich seine Hˆhe ¸ber Grund korrigiert.
+    // Beachte jedoch: Das kann auch schiefgehen, wenn der erzeugte Entity in seinem Konstruktor eine andere als die geplante Position w√§hlt!
+    // Ein Beispiel daf√ºr ist der CompanyBot, der nachtr√§glich seine H√∂he √ºber Grund korrigiert.
     const ArrayT<unsigned long>& AllEntityIDs=GameWorld->GetAllEntityIDs();
     BoundingBox3T<double>        OurRelPositionBB;
     unsigned long                EntityIDNr;
 
     switch (MonsterType)
     {
-        // Das ist ein h‰ﬂlicher Hack: Muﬂ hier im voraus die Dimensions-BoundingBox des CompanyBot-Konstruktors kennen!
+        // Das ist ein h√§√ülicher Hack: Mu√ü hier im voraus die Dimensions-BoundingBox des CompanyBot-Konstruktors kennen!
         case CompanyBot: OurRelPositionBB=BoundingBox3dT(Vector3dT(300.0, 300.0, 100.0), Vector3dT(-300.0, -300.0, -1728.8)); break;
         case Butterfly : OurRelPositionBB=BoundingBox3dT(Vector3dT(100.0, 600.0, 100.0), Vector3dT(-100.0,  400.0,  -100.0)); break;
         case Eagle     : OurRelPositionBB=BoundingBox3dT(Vector3dT(100.0, 100.0, 100.0), Vector3dT(-100.0, -100.0,  -100.0)); break;
@@ -124,7 +124,7 @@ void EntMonsterMakerT::Think(float FrameTime, unsigned long ServerFrameNr)
     {
         case CompanyBot:
         {
-            // Finde den ersten HumanPlayer-Entity, der 'alive' und ein St¸ck von uns entfernt ist.
+            // Finde den ersten HumanPlayer-Entity, der 'alive' und ein St√ºck von uns entfernt ist.
             for (EntityIDNr=0; EntityIDNr<AllEntityIDs.Size(); EntityIDNr++)
             {
                 bool IsAlive=false;

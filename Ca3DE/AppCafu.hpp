@@ -24,7 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /***          Cafu Engine           ***/
 /***                                ***/
 /*** Dass ich erkenne, was die Welt ***/
-/*** im Innersten zusammenh‰lt.     ***/
+/*** im Innersten zusammenh√§lt.     ***/
 /*** (Faust)                        ***/
 /***                                ***/
 /**************************************/

@@ -172,9 +172,9 @@ void ClientStateConnectingT::ProcessConnectionLessPacket(NetDataT& InData, const
 void ClientStateConnectingT::MainLoop(float FrameTime)
 {
     // Handle incoming server packets (hopefully the desired connection acknowledgement).
-    // Prüfe auf Server-Antwort(en) und verarbeite diese. Wir holen in einer Schleife die Packets ab, bis keine mehr da sind.
-    // Dies ist insbesondere wichtig, wenn wir auf einem langsamen Computer schneller Server-Packets erhalten als wir Frames generieren können!
-    // (Würde pro Frame nur ein Packet bearbeitet werden, gäbe es in einem solchen Fall Buffer-Overflows im OS und folglich packet-loss!)
+    // PrÃ¼fe auf Server-Antwort(en) und verarbeite diese. Wir holen in einer Schleife die Packets ab, bis keine mehr da sind.
+    // Dies ist insbesondere wichtig, wenn wir auf einem langsamen Computer schneller Server-Packets erhalten als wir Frames generieren kÃ¶nnen!
+    // (WÃ¼rde pro Frame nur ein Packet bearbeitet werden, gÃ¤be es in einem solchen Fall Buffer-Overflows im OS und folglich packet-loss!)
     unsigned long MaxPacketsCount=20;
 
     while (MaxPacketsCount--)

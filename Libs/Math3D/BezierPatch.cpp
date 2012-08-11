@@ -680,7 +680,7 @@ template<class T> T BezierPatchT<T>::GetSurfaceAreaAtVertex(unsigned long i, uns
         Vector3T<T> Edge2=(GetVertex(Edge2_i, Edge2_j).Coord-Center.Coord)*0.5;
 
         Area+=length(cross(Edge1, Edge2))/2.0f;
-     // Area+=dot(Center.Normal, cross(Edge1, Edge2))/2.0f;     // Vermutung: Dies ergibt die auf die Ebene (durch Center.Normal definiert) projezierte Fl‰che! Beweis??
+     // Area+=dot(Center.Normal, cross(Edge1, Edge2))/2.0f;     // Vermutung: Dies ergibt die auf die Ebene (durch Center.Normal definiert) projezierte Fl√§che! Beweis??
     }
 
     return Area;

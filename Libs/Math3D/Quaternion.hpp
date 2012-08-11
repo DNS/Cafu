@@ -284,7 +284,7 @@ template<class T> inline cf::math::QuaternionT<T> slerp(
 
     if (SinOmega > T(0.01))
     {
-        // Omega is at least 0,57° larger than 0° or less than 180°,
+        // Omega is at least 0,57Â° larger than 0Â° or less than 180Â°,
         // thus the division below is numerically stable: implement normal slerp.
         const T tp=sin((T(1.0)-t)*Omega)/SinOmega;
         const T tq=sin(        t *Omega)/SinOmega;
@@ -294,13 +294,13 @@ template<class T> inline cf::math::QuaternionT<T> slerp(
 
     if (CosOmega>0)
     {
-        // Omega is close to 0°.
+        // Omega is close to 0Â°.
         // For numerical stability, implement normalized linear interpolation.
         return normalizeOr0(P*(T(1.0)-t) + Q*t);
     }
 
-    // Omega is close to 180°, describing a rotation of about 360°.
-    // P and Q are thus on opposite (180°) points on the unit sphere, e.g. the north and south pole.
+    // Omega is close to 180Â°, describing a rotation of about 360Â°.
+    // P and Q are thus on opposite (180Â°) points on the unit sphere, e.g. the north and south pole.
     // The problem is solved by finding an arbitrary point E on the "equator". The interpolation is
     // then done "through" that point, so that t==0 maps to P, t==0.5 to E, and t==1 to "2PE", which is Q.
     assert(!ShortPath);

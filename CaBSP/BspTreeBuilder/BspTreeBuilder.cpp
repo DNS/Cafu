@@ -198,8 +198,8 @@ void BspTreeBuilderT::Build(bool IsWorldspawn, const ArrayT<Vector3dT>& FloodFil
         // For other entities (seen from the "outside"), the outer portals are not built correctly with the current code.
         // This is not so bad, because we don't really need a PVS for those entities anyway, but if we did, we had to make sure first
         // that outer portals work right, which in turn is difficult due to their unlimited size (could limit it to the world BB though).
-        Portalize();                                                // Nur für CaPVS!
-        FloodFillInside(FloodFillSources, OutsidePointSamples);     // Nicht mehr wirklich nützlich, es gibt aber noch Zusammenhänge mit "InnerLeaf"...
+        Portalize();                                                // Nur fÃ¼r CaPVS!
+        FloodFillInside(FloodFillSources, OutsidePointSamples);     // Nicht mehr wirklich nÃ¼tzlich, es gibt aber noch ZusammenhÃ¤nge mit "InnerLeaf"...
         /*if (IsWorldspawn)*/ RemoveOuterPortals();
     }
 
@@ -231,7 +231,7 @@ void BspTreeBuilderT::Build(bool IsWorldspawn, const ArrayT<Vector3dT>& FloodFil
 } */
 
 
-// Bestimmt, ob der Brush auf der Vorderseite oder auf der Rückseite der Plane liegt.
+// Bestimmt, ob der Brush auf der Vorderseite oder auf der RÃ¼ckseite der Plane liegt.
 // Wenn beides der Fall ist, schneidet der Brush die Plane.
 // Returns the result as a Polygon3T<double>::SideT, where only the values Front, Back, Both or Empty are ever returned.
 /* This function is currently unused.

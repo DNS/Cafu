@@ -34,7 +34,7 @@ void BspTreeBuilderT::FloodFillInsideRecursive(unsigned long Leaf1Nr)
     // Dieses Leaf ist ein inneres Leaf.
     Leaves[Leaf1Nr].IsInnerLeaf=true;
 
-    // Sämtliche Nachbarn finden - ohne Adjacency Graph.
+    // SÃ¤mtliche Nachbarn finden - ohne Adjacency Graph.
     for (unsigned long Leaf2Nr=0; Leaf2Nr<Leaves.Size(); Leaf2Nr++)
     {
         if (Leaves[Leaf2Nr].IsInnerLeaf) continue;                          // Already flooded into 'Leaf2Nr' by another path.

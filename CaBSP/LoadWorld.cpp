@@ -90,7 +90,7 @@ void MapFileSanityCheck(const ArrayT<MapFileEntityT>& MFEntityList)
 }
 
 
-// Nimmt ein Token, das aus drei durch Leerzeichen voneinander getrennten Zahlen besteht und gibt sie als VectorT zurück.
+// Nimmt ein Token, das aus drei durch Leerzeichen voneinander getrennten Zahlen besteht und gibt sie als VectorT zurÃ¼ck.
 VectorT GetVectorFromTripleToken(const std::string& TripleToken)
 {
     VectorT V;
@@ -104,7 +104,7 @@ VectorT GetVectorFromTripleToken(const std::string& TripleToken)
 
 /* OBSOLETE - CaWE saves the cmap files now immediately right.
 // Nimmt ein Token, das aus drei durch Leerzeichen voneinander getrennten Zahlen besteht, die als Winkel interpretiert werden,
-// und gibt die dazugehörige Richtung als VectorT zurück.
+// und gibt die dazugehÃ¶rige Richtung als VectorT zurÃ¼ck.
 VectorT GetDirFromTripleAngleToken(const char* TripleToken)
 {
     VectorT V;
@@ -138,8 +138,8 @@ void ComputeBrushPolys(const MapFileBrushT& MFBrush, ArrayT< Polygon3T<double> >
     Polygon3T<double>::Complete(BrushPolys, MapT::RoundEpsilon);
 
 
-    // Prüfe die Gültigkeit der konstruierten Polygone.
-    // Eine explizite Gültigkeitsprüfung ist sinnvoll und notwendig um sicherzustellen, daß wir mit "sauberen" Eingabedaten anfangen!
+    // PrÃ¼fe die GÃ¼ltigkeit der konstruierten Polygone.
+    // Eine explizite GÃ¼ltigkeitsprÃ¼fung ist sinnvoll und notwendig um sicherzustellen, daÃŸ wir mit "sauberen" Eingabedaten anfangen!
     for (unsigned long MFPlaneNr=0; MFPlaneNr<BrushPolys.Size(); MFPlaneNr++)
         if (!BrushPolys[MFPlaneNr].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist))
         {
@@ -247,8 +247,8 @@ void ComputeBrushFaces(const MapFileBrushT& MFBrush, WorldT& World, cf::SceneGra
 }
 
 
-// Ließt ein MapFile, das die der Version entsprechenden "MapFile Specifications" erfüllen muß, in die World ein.
-// Dabei werden folgende Komponenten der World modifiziert (ausgefüllt, u.U. nur teilweise):
+// LieÃŸt ein MapFile, das die der Version entsprechenden "MapFile Specifications" erfÃ¼llen muÃŸ, in die World ein.
+// Dabei werden folgende Komponenten der World modifiziert (ausgefÃ¼llt, u.U. nur teilweise):
 // Map.Faces, Map.TexInfos, Map.PointLights, InfoPlayerStarts und GameEntities.
 void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelManagerT& ModelMan, WorldT& World, ArrayT<VectorT>& DrawWorldOutsidePointSamples)
 {

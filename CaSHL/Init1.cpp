@@ -19,13 +19,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-// Initialisiert die FacePVS-Matrix, für die nach Ausführung dieser Funktion folgende Eigenschaften gelten:
+// Initialisiert die FacePVS-Matrix, fÃ¼r die nach AusfÃ¼hrung dieser Funktion folgende Eigenschaften gelten:
 //
 //     1) FacePVS[i][j]==     NO_VISIBILITY   iff   Face[i] can  NOT        see Face[j]
 //        FacePVS[i][j]==PARTIAL_VISIBILITY   iff   Face[i] can (PARTIALLY) see Face[j]
 //        FacePVS[i][j]==   FULL_VISIBILITY   iff   Face[i] can  FULLY      see Face[j]
 //
-//     2) FacePVS[i][i]==NO_VISIBILITY für alle i (NO_VISIBILITY auf der Diagonalen), d.h. keine Face kann sich selbst sehen!
+//     2) FacePVS[i][i]==NO_VISIBILITY fÃ¼r alle i (NO_VISIBILITY auf der Diagonalen), d.h. keine Face kann sich selbst sehen!
 //
 //     3) FacePVS[i][j]==FacePVS[j][i], d.h. die FacePVS-Matrix ist symmetrisch
 //
@@ -36,7 +36,7 @@ void InitializeFacePVSMatrix(const CaSHLWorldT& CaSHLWorld, const bool UseFullVi
     printf("\n%-50s %s\n", "*** Initialize FacePVS matrix ***", GetTimeSinceProgramStart());
 
 
-    // 1. Allokiere neuen Speicher für die FacePVS-Matrix
+    // 1. Allokiere neuen Speicher fÃ¼r die FacePVS-Matrix
     FacePVS.Clear();
     FacePVS.PushBackEmpty(Map.FaceChildren.Size());
 
@@ -53,8 +53,8 @@ void InitializeFacePVSMatrix(const CaSHLWorldT& CaSHLWorld, const bool UseFullVi
 
 
     // 3. Setze nun die aus dem Map.PVS abgeleiteten Werte ein.
-    //    Für alle Leaves L, markiere also alle Faces aller Leaves im PVS von L als sichtbar von allen Faces von L aus.
-    //    Wichtig: Dies handhabt auch diejenigen Faces richtig, die größer sind als ein Leaf, also mehrere Leaves begrenzen!
+    //    FÃ¼r alle Leaves L, markiere also alle Faces aller Leaves im PVS von L als sichtbar von allen Faces von L aus.
+    //    Wichtig: Dies handhabt auch diejenigen Faces richtig, die grÃ¶ÃŸer sind als ein Leaf, also mehrere Leaves begrenzen!
     ArrayT<bool> FaceSetBool;
     FaceSetBool.PushBackEmpty(Map.FaceChildren.Size());
 
@@ -62,7 +62,7 @@ void InitializeFacePVSMatrix(const CaSHLWorldT& CaSHLWorld, const bool UseFullVi
     {
         for (unsigned long Face1Nr=0; Face1Nr<Map.FaceChildren.Size(); Face1Nr++) FaceSetBool[Face1Nr]=false;
 
-        // Setze für alle Faces F aller Leaves im PVS von Leaf1Nr FaceSetBool[F] auf true.
+        // Setze fÃ¼r alle Faces F aller Leaves im PVS von Leaf1Nr FaceSetBool[F] auf true.
         // Wichtig: Auch Leaf1Nr liegt im (eigenen) PVS von Leaf1Nr!
         for (unsigned long Leaf2Nr=0; Leaf2Nr<Map.Leaves.Size(); Leaf2Nr++)
         {
@@ -77,8 +77,8 @@ void InitializeFacePVSMatrix(const CaSHLWorldT& CaSHLWorld, const bool UseFullVi
         ArrayT<unsigned long> FaceSetList;
         for (unsigned long Face1Nr=0; Face1Nr<Map.FaceChildren.Size(); Face1Nr++) if (FaceSetBool[Face1Nr]) FaceSetList.PushBack(Face1Nr);
 
-        // Markiere für alle Faces F im Leaf1Nr, daß alle Faces F' aller Leaves im PVS von Leaf1Nr von F aus sichtbar sind,
-        // aber auch die umgekehrte Sichtbarkeit, also daß F von F' aus sichtbar ist, um Symmetrie zu garantieren.
+        // Markiere fÃ¼r alle Faces F im Leaf1Nr, daÃŸ alle Faces F' aller Leaves im PVS von Leaf1Nr von F aus sichtbar sind,
+        // aber auch die umgekehrte Sichtbarkeit, also daÃŸ F von F' aus sichtbar ist, um Symmetrie zu garantieren.
         for (unsigned long Face1Nr=0; Face1Nr<Map.Leaves[Leaf1Nr].FaceChildrenSet.Size(); Face1Nr++)
             for (unsigned long Face2Nr=0; Face2Nr<FaceSetList.Size(); Face2Nr++)
             {
@@ -88,7 +88,7 @@ void InitializeFacePVSMatrix(const CaSHLWorldT& CaSHLWorld, const bool UseFullVi
     }
 
 
-    // 4. Für die Statistik: Zähle die Anzahl der PARTIAL_VISIBILITY-Elemente in der FacePVS-Matrix
+    // 4. FÃ¼r die Statistik: ZÃ¤hle die Anzahl der PARTIAL_VISIBILITY-Elemente in der FacePVS-Matrix
     unsigned long VisCount=0;
 
     for (unsigned long Face1Nr=0; Face1Nr<Map.FaceChildren.Size(); Face1Nr++)
@@ -104,12 +104,12 @@ void InitializeFacePVSMatrix(const CaSHLWorldT& CaSHLWorld, const bool UseFullVi
 
 
     // 5. Optimierung der FacePVS-Matrix, Teil 1:
-    //    Beim Map.PVS handelt es sich um den Leaf-Allgemeinfall. Nutze hier den Spezialfall aus, daß wir nur die Sichtbarkeit
-    //    von einer *Face* aus bestimmen wollen und die Tatsache, daß alles unterhalb oder in der Ebene einer Face F nicht von
-    //    F aus sichtbar sein kann! (Das heißt insbesondere auch, daß F sich nicht selbst sehen kann!)
+    //    Beim Map.PVS handelt es sich um den Leaf-Allgemeinfall. Nutze hier den Spezialfall aus, daÃŸ wir nur die Sichtbarkeit
+    //    von einer *Face* aus bestimmen wollen und die Tatsache, daÃŸ alles unterhalb oder in der Ebene einer Face F nicht von
+    //    F aus sichtbar sein kann! (Das heiÃŸt insbesondere auch, daÃŸ F sich nicht selbst sehen kann!)
     for (unsigned long Face1Nr=0; Face1Nr<Map.FaceChildren.Size(); Face1Nr++)
     {
-        // Zuerst (wegen oben) muß eine Face sich noch selbst sehen können
+        // Zuerst (wegen oben) muÃŸ eine Face sich noch selbst sehen kÃ¶nnen
         if (FacePVS[Face1Nr][Face1Nr]==NO_VISIBILITY) printf("WARNING: FacePVS[i][i]==NO_VISIBILITY\n");
         FacePVS[Face1Nr][Face1Nr]=NO_VISIBILITY;
 
@@ -131,7 +131,7 @@ void InitializeFacePVSMatrix(const CaSHLWorldT& CaSHLWorld, const bool UseFullVi
     }
 
 
-    // 6. Zähle die Anzahl der PARTIAL_VISIBILITY-Elemente in der FacePVS-Matrix nach erster Optimierung
+    // 6. ZÃ¤hle die Anzahl der PARTIAL_VISIBILITY-Elemente in der FacePVS-Matrix nach erster Optimierung
     VisCount=0;
 
     for (unsigned long Face1Nr=0; Face1Nr<Map.FaceChildren.Size(); Face1Nr++)
@@ -143,7 +143,7 @@ void InitializeFacePVSMatrix(const CaSHLWorldT& CaSHLWorld, const bool UseFullVi
 
     // 7. Optimierung der FacePVS-Matrix, Teil 2:
     //    Faces ohne Lightmap (z.B. mit Sky-Materials) emitieren kein Licht (Initialisierung des Sonnenlichts folgt unten)
-    //    und reflektieren auch keins. Deshalb können sie als "unsichtbar" aus dem FacePVS entfernt werden!
+    //    und reflektieren auch keins. Deshalb kÃ¶nnen sie als "unsichtbar" aus dem FacePVS entfernt werden!
     for (unsigned long Face1Nr=0; Face1Nr<Map.FaceChildren.Size(); Face1Nr++)
     {
         if (!Map.FaceChildren[Face1Nr]->Material->UsesGeneratedSHLMap())
@@ -159,7 +159,7 @@ void InitializeFacePVSMatrix(const CaSHLWorldT& CaSHLWorld, const bool UseFullVi
     }
 
 
-    // 8. Zähle die Anzahl der PARTIAL_VISIBILITY-Elemente in der FacePVS-Matrix nach zweiter Optimierung
+    // 8. ZÃ¤hle die Anzahl der PARTIAL_VISIBILITY-Elemente in der FacePVS-Matrix nach zweiter Optimierung
     VisCount=0;
 
     for (unsigned long Face1Nr=0; Face1Nr<Map.FaceChildren.Size(); Face1Nr++)
@@ -170,11 +170,11 @@ void InitializeFacePVSMatrix(const CaSHLWorldT& CaSHLWorld, const bool UseFullVi
     printf("    (%.2f faces visible in average from each face.)\n", double(VisCount)/double(Map.FaceChildren.Size()));
 
 
-    // 9. BIS JETZT: Nur NO_VISIBILITY- und PARTIAL_VISIBILITY-Einträge.
-    //    JETZT NEU: Bestimme, welche der PARTIAL_VISIBILITY-Einträge sogar FULL_VISIBILITY-Einträge sind.
+    // 9. BIS JETZT: Nur NO_VISIBILITY- und PARTIAL_VISIBILITY-EintrÃ¤ge.
+    //    JETZT NEU: Bestimme, welche der PARTIAL_VISIBILITY-EintrÃ¤ge sogar FULL_VISIBILITY-EintrÃ¤ge sind.
     ArrayT< BoundingBox3T<double> > FaceBBs;
 
-    // Zuerst mal Bounding-Boxes für alle Faces erstellen.
+    // Zuerst mal Bounding-Boxes fÃ¼r alle Faces erstellen.
     for (unsigned long Face1Nr=0; Face1Nr<Map.FaceChildren.Size(); Face1Nr++)
         FaceBBs.PushBack(BoundingBox3T<double>(Map.FaceChildren[Face1Nr]->Polygon.Vertices));
 
@@ -185,23 +185,23 @@ void InitializeFacePVSMatrix(const CaSHLWorldT& CaSHLWorld, const bool UseFullVi
 
         for (unsigned long Face2Nr=Face1Nr+1; Face2Nr<Map.FaceChildren.Size(); Face2Nr++)
         {
-            // Faces, die sich nicht mal teilweise sehen können, können sich erst recht nicht komplett sehen.
+            // Faces, die sich nicht mal teilweise sehen kÃ¶nnen, kÃ¶nnen sich erst recht nicht komplett sehen.
             if (FacePVS[Face1Nr][Face2Nr]==NO_VISIBILITY) continue;
 
-            // Faces, die sich "schon aus sich heraus" (T-artige Anordnung) nur teilweise sehen können, können sich nicht komplett sehen.
+            // Faces, die sich "schon aus sich heraus" (T-artige Anordnung) nur teilweise sehen kÃ¶nnen, kÃ¶nnen sich nicht komplett sehen.
             if (Map.FaceChildren[Face1Nr]->Polygon.WhatSideSimple(Map.FaceChildren[Face2Nr]->Polygon.Plane, MapT::RoundEpsilon)!=Polygon3T<double>::Front) continue;
             if (Map.FaceChildren[Face2Nr]->Polygon.WhatSideSimple(Map.FaceChildren[Face1Nr]->Polygon.Plane, MapT::RoundEpsilon)!=Polygon3T<double>::Front) continue;
 
-            // Faces, zwischen denen möglicherweise ein Terrain liegt, können sich nicht komplett sehen.
+            // Faces, zwischen denen mÃ¶glicherweise ein Terrain liegt, kÃ¶nnen sich nicht komplett sehen.
             BoundingBox3T<double> ConvexHullBB(Map.FaceChildren[Face1Nr]->Polygon.Vertices);
             ConvexHullBB.Insert(Map.FaceChildren[Face2Nr]->Polygon.Vertices);
             ConvexHullBB=ConvexHullBB.GetEpsilonBox(-MapT::RoundEpsilon);
 
-            // Bilde die ConvexHull über die Faces Face1Nr und Face2Nr,
+            // Bilde die ConvexHull Ã¼ber die Faces Face1Nr und Face2Nr,
             // wobei alle Normalenvektoren dieser ConvexHull nach *INNEN* zeigen!
             ArrayT< Plane3T<double> > ConvexHull;
 
-            // Auf diese HullPlanes können wir nicht verzichten -- im Occluders-Array werden wir Occluder haben,
+            // Auf diese HullPlanes kÃ¶nnen wir nicht verzichten -- im Occluders-Array werden wir Occluder haben,
             // die von Face[Face1Nr] ODER Face[Face2Nr] aus mindestens PARTIAL sichbar sind!
             ConvexHull.PushBack(Map.FaceChildren[Face1Nr]->Polygon.Plane);
             ConvexHull.PushBack(Map.FaceChildren[Face2Nr]->Polygon.Plane);
@@ -229,7 +229,7 @@ void InitializeFacePVSMatrix(const CaSHLWorldT& CaSHLWorld, const bool UseFullVi
                 }
             }
 
-            // Teil 2: Planes von der anderen Seite aus anlegen (Notwendig! Betrachte gegenüberstehendes Dreieck und Quadrat!)
+            // Teil 2: Planes von der anderen Seite aus anlegen (Notwendig! Betrachte gegenÃ¼berstehendes Dreieck und Quadrat!)
             for (unsigned long Vertex2Nr=0; Vertex2Nr<Map.FaceChildren[Face2Nr]->Polygon.Vertices.Size(); Vertex2Nr++)
             {
                 // Beuge degenerierten und mehrfach vorkommenden HullPlanes vor
@@ -276,11 +276,11 @@ void InitializeFacePVSMatrix(const CaSHLWorldT& CaSHLWorld, const bool UseFullVi
                             break;
 
                         case Polygon3T<double>::Front:
-                            // Occluder bleibt unverändert in der Liste.
+                            // Occluder bleibt unverÃ¤ndert in der Liste.
                             break;
 
                         default:
-                            // Diesen Occluder aus der Liste löschen.
+                            // Diesen Occluder aus der Liste lÃ¶schen.
                             Occluders[OccluderNr]=Occluders[Occluders.Size()-1];
                             Occluders.DeleteBack();
                             OccluderNr--;
@@ -290,14 +290,14 @@ void InitializeFacePVSMatrix(const CaSHLWorldT& CaSHLWorld, const bool UseFullVi
             // Es sind noch Occluder in der ConvexHull, keine gegenseitige komplette Sichtbarkeit.
             if (Occluders.Size()) continue;
 
-            // Die Faces Face1Nr und Face2Nr können sich gegenseitig komplett sehen!
+            // Die Faces Face1Nr und Face2Nr kÃ¶nnen sich gegenseitig komplett sehen!
             FacePVS[Face1Nr][Face2Nr]=FULL_VISIBILITY;
             FacePVS[Face2Nr][Face1Nr]=FULL_VISIBILITY;
         }
     }
 
 
-    // 10. Zähle die Anzahl der FULL_VISIBILITY-Elemente in der FacePVS-Matrix.
+    // 10. ZÃ¤hle die Anzahl der FULL_VISIBILITY-Elemente in der FacePVS-Matrix.
     unsigned long PartialVisCount=VisCount;
     VisCount=0;
 

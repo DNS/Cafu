@@ -45,7 +45,7 @@ END_EVENT_TABLE()
 
 namespace
 {
-    const wxString g_Units[] = { "units", "°", "" };
+    const wxString g_Units[] = { "units", "Â°", "" };
     const wxString g_InitValuesStr[] = { "0.0", "0.0", "1.0" };
     const float    g_InitValuesFlt[] = { 0.0f, 0.0f, 1.0f };
 

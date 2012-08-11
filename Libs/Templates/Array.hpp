@@ -170,9 +170,9 @@ template<class T> inline const T& ArrayT<T>::operator [] (unsigned long Index) c
 }
 
 
-// Der Parameter muß hier als Kopie übergeben werden, nicht als Referenz. Wenn man einem Array mit PushBack ein eigenes
-// Element anhängen möchte (z.B. wie in Array.PushBack(Array[0]);), kann es ansonsten zu einem Fehler führen, wenn das
-// Array gleichzeitig reallokiert und verschoben werden muß!
+// Der Parameter muÃŸ hier als Kopie Ã¼bergeben werden, nicht als Referenz. Wenn man einem Array mit PushBack ein eigenes
+// Element anhÃ¤ngen mÃ¶chte (z.B. wie in Array.PushBack(Array[0]);), kann es ansonsten zu einem Fehler fÃ¼hren, wenn das
+// Array gleichzeitig reallokiert und verschoben werden muÃŸ!
 template<class T> inline void ArrayT<T>::PushBack(const T Element)
 {
     NrOfElements++;

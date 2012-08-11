@@ -309,8 +309,8 @@ void BspTreeNodeT::DrawAmbientContrib(const Vector3dT& ViewerPos) const
     for (unsigned long ChildNr=0; ChildNr<OtherChildren.Size(); ChildNr++) OtherChildIsInViewerPVS[ChildNr]=false;
 
     // Nun erstelle aus OrderedLeaves und FaceIsInViewerPVS zwei Listen:
-    // a) Eine Liste der relevanten (sichtbaren) Faces, die fully-opaque sind, und front-to-back gezeichnet werden (für beste Z-Buffer Effizienz!).
-    // b) Eine Liste der relevanten, translucent Faces, die anschließend back-to-front gezeichnet werden (für korrektes Blending).
+    // a) Eine Liste der relevanten (sichtbaren) Faces, die fully-opaque sind, und front-to-back gezeichnet werden (fÃ¼r beste Z-Buffer Effizienz!).
+    // b) Eine Liste der relevanten, translucent Faces, die anschlieÃŸend back-to-front gezeichnet werden (fÃ¼r korrektes Blending).
     BackToFrontListOpaque.Overwrite();
     BackToFrontListTranslucent.Overwrite();
 
@@ -329,7 +329,7 @@ void BspTreeNodeT::DrawAmbientContrib(const Vector3dT& ViewerPos) const
 
             FaceNodeT* FaceNode=FaceChildren[ChildNr];
 
-            //REMOVE:   if (FaceNode->TI.Alpha==0) continue;       // Insb. für Sky-Texturen haben wir auch Alpha==0 gesetzt (Konstruktor)!
+            //REMOVE:   if (FaceNode->TI.Alpha==0) continue;       // Insb. fÃ¼r Sky-Texturen haben wir auch Alpha==0 gesetzt (Konstruktor)!
             if (FaceNode->Polygon.Plane.GetDistance(ViewerPos)<0) continue;
 
             FaceChildIsInViewerPVS[ChildNr]=true;
@@ -423,7 +423,7 @@ void BspTreeNodeT::InitForNextLight() const
                 // Front-facing face wrt. the light (LIGHT RECEIVER).
                 // Here we have to apply essentially the same rules as in 'Draw_Prepare()'.
                 if (!FaceChildIsInViewerPVS[ChildNr]) continue;             // If the viewer cannot see the face, there is no need to light it.
-             // if (Map.TexInfos[FaceNode->TexInfoNr].Alpha==0) continue;   // Insb. für Sky-Texturen haben wir auch Alpha==0 gesetzt (Konstruktor)!
+             // if (Map.TexInfos[FaceNode->TexInfoNr].Alpha==0) continue;   // Insb. fÃ¼r Sky-Texturen haben wir auch Alpha==0 gesetzt (Konstruktor)!
              // if (FaceNode->TI.Alpha!=255) continue;                      // Only fully opaque surfaces receive light (even if FLAG_ISWATER is set).
              // if (FaceNode->Material->NoDynLight) continue;               // [This is not really needed here, just for symmetry. This is no meta keyword as NoShadows should be.]
 
@@ -630,7 +630,7 @@ double BspTreeNodeT::ClipLine(const VectorT& P, const VectorT& U, double Min, do
 
 void BspTreeNodeT::TraceBoundingBoxHelper(float Min, float Max, unsigned long NodeNr, bool NodeIsLeaf) const
 {
-    // Schonmal etwas getroffen, das näher gelegen hat?
+    // Schonmal etwas getroffen, das nÃ¤her gelegen hat?
     if (TBB_Trace.Fraction<=Min) return;
 
     // Ist dieser Node ein Leaf?
@@ -673,8 +673,8 @@ void BspTreeNodeT::TraceBoundingBoxHelper(float Min, float Max, unsigned long No
 
     // Hinweise zu den Bloat-Offsets:
     // a) Die Berechnung des 'BloatOffsetFront' entspricht dem Bloaten von Brushes ("<" Vergleich, nicht ">").
-    // b) Bei der Berechnung des 'BloatOffsetBack' müßte das Minuszeichen eigentlich wie folgt stehen: "...=dot(-Normal, VectorT(...))".
-    // c) Auf die Epsilons kann nicht verzichtet werden, ansonsten kann man plötzlich feststecken.
+    // b) Bei der Berechnung des 'BloatOffsetBack' mÃ¼ÃŸte das Minuszeichen eigentlich wie folgt stehen: "...=dot(-Normal, VectorT(...))".
+    // c) Auf die Epsilons kann nicht verzichtet werden, ansonsten kann man plÃ¶tzlich feststecken.
     const float    BloatOffsetFront=float(-dot(Normal, VectorT(Normal.x<0 ? TBB_BB_Helper->Max.x : TBB_BB_Helper->Min.x,
                                                                Normal.y<0 ? TBB_BB_Helper->Max.y : TBB_BB_Helper->Min.y,
                                                                Normal.z<0 ? TBB_BB_Helper->Max.z : TBB_BB_Helper->Min.z))+0.04 /*Epsilon*/);
@@ -682,18 +682,18 @@ void BspTreeNodeT::TraceBoundingBoxHelper(float Min, float Max, unsigned long No
                                                                Normal.y>0 ? TBB_BB_Helper->Max.y : TBB_BB_Helper->Min.y,
                                                                Normal.z>0 ? TBB_BB_Helper->Max.z : TBB_BB_Helper->Min.z))+0.04 /*Epsilon*/);
 
-    // Wir müssen sehr konservativ vorgehen.
-    // Prüfe zuerst, ob die trivialen Fälle vorliegen und erledige sie gegebenenfalls.
+    // Wir mÃ¼ssen sehr konservativ vorgehen.
+    // PrÃ¼fe zuerst, ob die trivialen FÃ¤lle vorliegen und erledige sie gegebenenfalls.
     if (Dist1>BloatOffsetFront && Dist2>BloatOffsetFront) { TraceBoundingBoxHelper(Min, Max, N.FrontChild, N.FrontIsLeaf); return; }
     if (Dist1<BloatOffsetBack  && Dist2<BloatOffsetBack ) { TraceBoundingBoxHelper(Min, Max, N. BackChild, N. BackIsLeaf); return; }
 
     if (Dist1<Dist2)
     {
         // Die Bewegung geht grob in die Richtung des Normalenvektors,
-        // d.h. von der Rückseite der Node-Plane hin zur Vorderseite.
+        // d.h. von der RÃ¼ckseite der Node-Plane hin zur Vorderseite.
         // Es ist also auch 'Div>0'.
 
-        // Teste den Bewegungsabschnitt von 'Min' bis zum Schnittpunkt mit der nach *vorne* gebloateten Node-Plane gegen die *Rückseite*.
+        // Teste den Bewegungsabschnitt von 'Min' bis zum Schnittpunkt mit der nach *vorne* gebloateten Node-Plane gegen die *RÃ¼ckseite*.
         float Range=-(DistP-BloatOffsetFront)/Div;
 
         if (Range<Min) Range=Min;
@@ -712,7 +712,7 @@ void BspTreeNodeT::TraceBoundingBoxHelper(float Min, float Max, unsigned long No
     else if (Dist1>Dist2)
     {
         // Die Bewegung geht grob in die Gegenrichtung des Normalenvektors,
-        // d.h. von der Vorderseite der Node-Plane hin zur Rückseite.
+        // d.h. von der Vorderseite der Node-Plane hin zur RÃ¼ckseite.
         // Es ist also auch 'Div<0'.
 
         // Teste den Bewegungsabschnitt von 'Min' bis zum Schnittpunkt mit der nach *hinten* gebloateten Node-Plane gegen die *Vorderseite*.
@@ -723,7 +723,7 @@ void BspTreeNodeT::TraceBoundingBoxHelper(float Min, float Max, unsigned long No
 
         TraceBoundingBoxHelper(Min, Range, N.FrontChild, N.FrontIsLeaf);
 
-        // Teste den Bewegungsabschnitt vom Schnittpunkt mit der nach *vorne* gebloateten Node-Plane bis 'Max' gegen die *Rückseite*.
+        // Teste den Bewegungsabschnitt vom Schnittpunkt mit der nach *vorne* gebloateten Node-Plane bis 'Max' gegen die *RÃ¼ckseite*.
         Range=-(DistP-BloatOffsetFront)/Div;
 
         if (Range<Min) Range=Min;

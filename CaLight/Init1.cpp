@@ -19,13 +19,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-// Initialisiert die PatchMeshesPVS-Matrix, für die nach Ausführung dieser Funktion folgende Eigenschaften gelten:
+// Initialisiert die PatchMeshesPVS-Matrix, fÃ¼r die nach AusfÃ¼hrung dieser Funktion folgende Eigenschaften gelten:
 //
 //     1) PatchMeshesPVS[i][j]==     NO_VISIBILITY   iff   PatchMeshes[i] can  NOT        see PatchMeshes[j]
 //        PatchMeshesPVS[i][j]==PARTIAL_VISIBILITY   iff   PatchMeshes[i] can (PARTIALLY) see PatchMeshes[j]
 //        PatchMeshesPVS[i][j]==   FULL_VISIBILITY   iff   PatchMeshes[i] can  FULLY      see PatchMeshes[j]
 //
-//     2) PatchMeshesPVS[i][i]==NO_VISIBILITY für planare PatchMeshes, d.h. kein planares Patch Mesh kann sich selbst sehen!
+//     2) PatchMeshesPVS[i][i]==NO_VISIBILITY fÃ¼r planare PatchMeshes, d.h. kein planares Patch Mesh kann sich selbst sehen!
 //
 //     3) PatchMeshesPVS[i][j]==PatchMeshesPVS[j][i], d.h. die PatchMeshesPVS-Matrix ist symmetrisch
 //
@@ -34,7 +34,7 @@ void InitializePatchMeshesPVSMatrix(const CaLightWorldT& CaLightWorld)
     printf("\n%-50s %s\n", "*** Initialize PatchMeshesPVS matrix ***", GetTimeSinceProgramStart());
 
 
-    // 1. Allokiere neuen Speicher für die PatchMeshesPVS-Matrix.
+    // 1. Allokiere neuen Speicher fÃ¼r die PatchMeshesPVS-Matrix.
     PatchMeshesPVS.SetSize(PatchMeshes.Size());
 
     printf("PatchMeshes:                                %10lu\n", PatchMeshes.Size());
@@ -48,8 +48,8 @@ void InitializePatchMeshesPVSMatrix(const CaLightWorldT& CaLightWorld)
 
 
     // 3. Setze nun die aus dem BspTree.PVS abgeleiteten Werte ein.
-    //    Für jedes Leaf L, markiere also alle Patch Meshes aller Leaves im PVS von L als sichtbar von allen PatchMeshes von L aus.
-    //    Wichtig: Dies handhabt auch diejenigen PatchMeshes richtig, die größer sind als die Abmessungen ihres Leafs!
+    //    FÃ¼r jedes Leaf L, markiere also alle Patch Meshes aller Leaves im PVS von L als sichtbar von allen PatchMeshes von L aus.
+    //    Wichtig: Dies handhabt auch diejenigen PatchMeshes richtig, die grÃ¶ÃŸer sind als die Abmessungen ihres Leafs!
     const cf::SceneGraph::BspTreeNodeT& BspTree=CaLightWorld.GetBspTree();
 
     for (unsigned long Leaf1Nr=0; Leaf1Nr<BspTree.Leaves.Size(); Leaf1Nr++)
@@ -84,14 +84,14 @@ void InitializePatchMeshesPVSMatrix(const CaLightWorldT& CaLightWorld)
 
             if (!BspTree.IsInPVS(LeafNr, Leaf1Nr)) continue;
 
-            // ACHTUNG: FacesVisible und OthersVisible können einen Index *mehrfach* enthalten!
-            // Für die folgende Anwendung ist das allerdings nicht schlimm.
+            // ACHTUNG: FacesVisible und OthersVisible kÃ¶nnen einen Index *mehrfach* enthalten!
+            // FÃ¼r die folgende Anwendung ist das allerdings nicht schlimm.
             FacesVisible.PushBack(L.FaceChildrenSet);
             OthersVisible.PushBack(L.OtherChildrenSet);
         }
 
 
-        // Wir wissen jetzt, daß von Leaf Leaf1Nr aus die Faces in FacesVisible und die anderen Nodes in OthersVisible sichtbar sind.
+        // Wir wissen jetzt, daÃŸ von Leaf Leaf1Nr aus die Faces in FacesVisible und die anderen Nodes in OthersVisible sichtbar sind.
         // Bestimme nun, welchen PatchMeshes dies entspricht, d.h. von Leaf Leaf1Nr aus sind welche PatchMeshes sichtbar?
         ArrayT<unsigned long> PatchMeshesVisibleFromLeaf1;
 
@@ -110,9 +110,9 @@ void InitializePatchMeshesPVSMatrix(const CaLightWorldT& CaLightWorld)
         }
 
 
-        // Für alle Patch Meshes in L1 (PatchMeshesInLeaf1) halte nun fest / markiere, daß man sie von all denjenigen Patch Meshes
-        // aus sehen kann, die man von L1 aus sehen kann (PatchMeshesVisibleFromLeaf1), bzw. umgekehrt, daß sie alle die von L1
-        // aus sichtbaren PatchMeshes sehen können (Symmetrie!).
+        // FÃ¼r alle Patch Meshes in L1 (PatchMeshesInLeaf1) halte nun fest / markiere, daÃŸ man sie von all denjenigen Patch Meshes
+        // aus sehen kann, die man von L1 aus sehen kann (PatchMeshesVisibleFromLeaf1), bzw. umgekehrt, daÃŸ sie alle die von L1
+        // aus sichtbaren PatchMeshes sehen kÃ¶nnen (Symmetrie!).
         for (unsigned long inNr=0; inNr<PatchMeshesInLeaf1.Size(); inNr++)
         {
             for (unsigned long fromNr=0; fromNr<PatchMeshesVisibleFromLeaf1.Size(); fromNr++)
@@ -124,7 +124,7 @@ void InitializePatchMeshesPVSMatrix(const CaLightWorldT& CaLightWorld)
     }
 
 
-    // 4. Für die Statistik: Zähle die Anzahl der PARTIAL_VISIBILITY-Elemente in der PatchMeshesPVS-Matrix.
+    // 4. FÃ¼r die Statistik: ZÃ¤hle die Anzahl der PARTIAL_VISIBILITY-Elemente in der PatchMeshesPVS-Matrix.
     unsigned long VisCount=0;
 
     for (unsigned long pm1Nr=0; pm1Nr<PatchMeshes.Size(); pm1Nr++)
@@ -141,14 +141,14 @@ void InitializePatchMeshesPVSMatrix(const CaLightWorldT& CaLightWorld)
 
     // 5. Optimierung der PatchMeshesPVS-Matrix, Teil 1:
     //    Beim BspTree.PVS handelt es sich um den Leaf-Allgemeinfall. Nutze hier den Spezialfall aus,
-    //    daß alles unterhalb oder in der Ebene eines planaren PatchMeshes PM nicht von PM aus sichtbar sein kann!
-    //    (Das heißt insbesondere auch, daß PM sich nicht selbst sehen kann!)
+    //    daÃŸ alles unterhalb oder in der Ebene eines planaren PatchMeshes PM nicht von PM aus sichtbar sein kann!
+    //    (Das heiÃŸt insbesondere auch, daÃŸ PM sich nicht selbst sehen kann!)
     for (unsigned long pm1Nr=0; pm1Nr<PatchMeshes.Size(); pm1Nr++)
     {
-        // Zuerst (wegen oben) muß jedes Patch Mesh sich noch selbst sehen können.
+        // Zuerst (wegen oben) muÃŸ jedes Patch Mesh sich noch selbst sehen kÃ¶nnen.
         if (PatchMeshesPVS.GetValue(pm1Nr, pm1Nr)==NO_VISIBILITY) printf("WARNING: PatchMeshesPVS[%lu][%lu]==NO_VISIBILITY\n", pm1Nr, pm1Nr);
 
-        // TODO: Das hier könnte man echt verallgemeinern, mit einer PatchMeshT::IsPlanar() Methode.
+        // TODO: Das hier kÃ¶nnte man echt verallgemeinern, mit einer PatchMeshT::IsPlanar() Methode.
         const cf::SceneGraph::FaceNodeT* FaceNode1=dynamic_cast<const cf::SceneGraph::FaceNodeT*>(PatchMeshes[pm1Nr].Node);
         if (FaceNode1==NULL) continue;
 
@@ -175,7 +175,7 @@ void InitializePatchMeshesPVSMatrix(const CaLightWorldT& CaLightWorld)
     }
 
 
-    // 6. Zähle die Anzahl der PARTIAL_VISIBILITY-Elemente in der PatchMeshesPVS-Matrix nach erster Optimierung.
+    // 6. ZÃ¤hle die Anzahl der PARTIAL_VISIBILITY-Elemente in der PatchMeshesPVS-Matrix nach erster Optimierung.
     VisCount=0;
 
     for (unsigned long pm1Nr=0; pm1Nr<PatchMeshes.Size(); pm1Nr++)
@@ -187,7 +187,7 @@ void InitializePatchMeshesPVSMatrix(const CaLightWorldT& CaLightWorld)
 
     // 7. Optimierung der PatchMeshesPVS-Matrix, Teil 2:
     //    PatchMeshes ohne Lightmap (z.B. mit Sky-Materials) emitieren kein Licht und reflektieren auch keins.
-    //    Deshalb können sie als "unsichtbar" aus dem PatchMeshesPVS entfernt werden!
+    //    Deshalb kÃ¶nnen sie als "unsichtbar" aus dem PatchMeshesPVS entfernt werden!
     //    Genaugenommen sollten solche patch meshes gar nicht erst erzeugt werden!
     for (unsigned long pm1Nr=0; pm1Nr<PatchMeshes.Size(); pm1Nr++)
     {
@@ -204,7 +204,7 @@ void InitializePatchMeshesPVSMatrix(const CaLightWorldT& CaLightWorld)
     }
 
 
-/*  // 8. Zähle die Anzahl der PARTIAL_VISIBILITY-Elemente in der PatchMeshesPVS-Matrix nach zweiter Optimierung.
+/*  // 8. ZÃ¤hle die Anzahl der PARTIAL_VISIBILITY-Elemente in der PatchMeshesPVS-Matrix nach zweiter Optimierung.
     VisCount=0;
 
     for (unsigned long pm1Nr=0; pm1Nr<PatchMeshes.Size(); pm1Nr++)
@@ -219,11 +219,11 @@ void InitializePatchMeshesPVSMatrix(const CaLightWorldT& CaLightWorld)
 // Precomputing "full" visibility is quasi impossible with leaves having arbitrary contents (bezier patches, terrains, detail faces, etc.)
 // Also note that the number of mutual "full" visibility used to be less than 5% in quasi all cases anyway.
 #if 0
-    // 9. BIS JETZT: Nur NO_VISIBILITY- und PARTIAL_VISIBILITY-Einträge.
-    //    JETZT NEU: Bestimme, welche der PARTIAL_VISIBILITY-Einträge sogar FULL_VISIBILITY-Einträge sind.
+    // 9. BIS JETZT: Nur NO_VISIBILITY- und PARTIAL_VISIBILITY-EintrÃ¤ge.
+    //    JETZT NEU: Bestimme, welche der PARTIAL_VISIBILITY-EintrÃ¤ge sogar FULL_VISIBILITY-EintrÃ¤ge sind.
     ArrayT< BoundingBox3T<double> > FaceBBs;
 
-    // Zuerst mal Bounding-Boxes für alle Faces erstellen.
+    // Zuerst mal Bounding-Boxes fÃ¼r alle Faces erstellen.
     for (unsigned long Face1Nr=0; Face1Nr<Map.FaceChildren.Size(); Face1Nr++)
         FaceBBs.PushBack(BoundingBox3T<double>(Map.FaceChildren[Face1Nr]->Polygon.Vertices));
 
@@ -234,14 +234,14 @@ void InitializePatchMeshesPVSMatrix(const CaLightWorldT& CaLightWorld)
 
         for (unsigned long Face2Nr=Face1Nr+1; Face2Nr<Map.FaceChildren.Size(); Face2Nr++)
         {
-            // Faces, die sich nicht mal teilweise sehen können, können sich erst recht nicht komplett sehen.
+            // Faces, die sich nicht mal teilweise sehen kÃ¶nnen, kÃ¶nnen sich erst recht nicht komplett sehen.
             if (FacePVS.GetValue(Face1Nr, Face2Nr)==NO_VISIBILITY) continue;
 
-            // Faces, die sich "schon aus sich heraus" (T-artige Anordnung) nur teilweise sehen können, können sich nicht komplett sehen.
+            // Faces, die sich "schon aus sich heraus" (T-artige Anordnung) nur teilweise sehen kÃ¶nnen, kÃ¶nnen sich nicht komplett sehen.
             if (Map.FaceChildren[Face1Nr]->Polygon.WhatSideSimple(Map.FaceChildren[Face2Nr]->Polygon.Plane, MapT::RoundEpsilon)!=Polygon3T<double>::Front) continue;
             if (Map.FaceChildren[Face2Nr]->Polygon.WhatSideSimple(Map.FaceChildren[Face1Nr]->Polygon.Plane, MapT::RoundEpsilon)!=Polygon3T<double>::Front) continue;
 
-            // Faces, zwischen denen möglicherweise ein Terrain liegt, können sich nicht komplett sehen.
+            // Faces, zwischen denen mÃ¶glicherweise ein Terrain liegt, kÃ¶nnen sich nicht komplett sehen.
             BoundingBox3T<double> ConvexHullBB(Map.FaceChildren[Face1Nr]->Polygon.Vertices);
             ConvexHullBB.Insert(Map.FaceChildren[Face2Nr]->Polygon.Vertices);
             ConvexHullBB=ConvexHullBB.GetEpsilonBox(-MapT::RoundEpsilon);
@@ -252,11 +252,11 @@ void InitializePatchMeshesPVSMatrix(const CaLightWorldT& CaLightWorld)
 
             if (TerrainNr<CaLightWorld.TerrainEntities.Size()) continue;
 
-            // Bilde die ConvexHull über die Faces Face1Nr und Face2Nr,
+            // Bilde die ConvexHull Ã¼ber die Faces Face1Nr und Face2Nr,
             // wobei alle Normalenvektoren dieser ConvexHull nach *INNEN* zeigen!
             ArrayT< Plane3T<double> > ConvexHull;
 
-            // Auf diese HullPlanes können wir nicht verzichten -- im Occluders-Array werden wir Occluder haben,
+            // Auf diese HullPlanes kÃ¶nnen wir nicht verzichten -- im Occluders-Array werden wir Occluder haben,
             // die von Face[Face1Nr] ODER Face[Face2Nr] aus mindestens PARTIAL sichbar sind!
             ConvexHull.PushBack(Map.FaceChildren[Face1Nr]->Polygon.Plane);
             ConvexHull.PushBack(Map.FaceChildren[Face2Nr]->Polygon.Plane);
@@ -284,7 +284,7 @@ void InitializePatchMeshesPVSMatrix(const CaLightWorldT& CaLightWorld)
                 }
             }
 
-            // Teil 2: Planes von der anderen Seite aus anlegen (Notwendig! Betrachte gegenüberstehendes Dreieck und Quadrat!)
+            // Teil 2: Planes von der anderen Seite aus anlegen (Notwendig! Betrachte gegenÃ¼berstehendes Dreieck und Quadrat!)
             for (unsigned long Vertex2Nr=0; Vertex2Nr<Map.FaceChildren[Face2Nr]->Polygon.Vertices.Size(); Vertex2Nr++)
             {
                 // Beuge degenerierten und mehrfach vorkommenden HullPlanes vor
@@ -331,11 +331,11 @@ void InitializePatchMeshesPVSMatrix(const CaLightWorldT& CaLightWorld)
                             break;
 
                         case Polygon3T<double>::Front:
-                            // Occluder bleibt unverändert in der Liste.
+                            // Occluder bleibt unverÃ¤ndert in der Liste.
                             break;
 
                         default:
-                            // Diesen Occluder aus der Liste löschen.
+                            // Diesen Occluder aus der Liste lÃ¶schen.
                             Occluders[OccluderNr]=Occluders[Occluders.Size()-1];
                             Occluders.DeleteBack();
                             OccluderNr--;
@@ -345,14 +345,14 @@ void InitializePatchMeshesPVSMatrix(const CaLightWorldT& CaLightWorld)
             // Es sind noch Occluder in der ConvexHull, keine gegenseitige komplette Sichtbarkeit.
             if (Occluders.Size()) continue;
 
-            // Die Faces Face1Nr und Face2Nr können sich gegenseitig komplett sehen!
+            // Die Faces Face1Nr und Face2Nr kÃ¶nnen sich gegenseitig komplett sehen!
             FacePVS.SetValue(Face1Nr, Face2Nr, FULL_VISIBILITY);
             FacePVS.SetValue(Face2Nr, Face1Nr, FULL_VISIBILITY);
         }
     }
 
 
-    // 10. Zähle die Anzahl der FULL_VISIBILITY-Elemente in der FacePVS-Matrix.
+    // 10. ZÃ¤hle die Anzahl der FULL_VISIBILITY-Elemente in der FacePVS-Matrix.
     unsigned long PartialVisCount=VisCount;
     VisCount=0;
 

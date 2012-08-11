@@ -69,7 +69,7 @@ template<class T> void Brush3T<T>::TraceBoundingBox(const BoundingBox3T<T>& BB, 
 {
     static ArrayT<T> BloatDistanceOffsets;
 
-    // Bloat-Distance-Offsets für alle Planes dieses Brushs bestimmen.
+    // Bloat-Distance-Offsets fÃ¼r alle Planes dieses Brushs bestimmen.
     while (BloatDistanceOffsets.Size()<Planes.Size()) BloatDistanceOffsets.PushBack(0.0);
 
     for (unsigned long PlaneNr=0; PlaneNr<Planes.Size(); PlaneNr++)
@@ -99,8 +99,8 @@ template<class T> void Brush3T<T>::TraceBoundingBox(const BoundingBox3T<T>& BB, 
         // Bestimmen, bei welchem Bruchteil (Fraction F) von Dir wir die Plane schneiden.
         T Nenner=dot(Planes[PlaneNr].Normal, Dir);
 
-        // Dir muß dem Normalenvektor der Ebene wirklich entgegenzeigen! Ist der Nenner==0, so ist Dir parallel zur Plane,
-        // und mit dieser Plane ex. kein Schnittpunkt. Ist der Nenner>0, nutzen wir die Konvexität des Brushs aus:
+        // Dir muÃŸ dem Normalenvektor der Ebene wirklich entgegenzeigen! Ist der Nenner==0, so ist Dir parallel zur Plane,
+        // und mit dieser Plane ex. kein Schnittpunkt. Ist der Nenner>0, nutzen wir die KonvexitÃ¤t des Brushs aus:
         // Es gibt damit nur genau einen Schnittpunkt mit dem Brush (Eintrittsstelle) und die Plane behindert nicht
         // eine Bewegung von ihr weg (Feststecken wenn Dist==0 (s.u.)).
         if (Nenner>=0) continue;
@@ -108,10 +108,10 @@ template<class T> void Brush3T<T>::TraceBoundingBox(const BoundingBox3T<T>& BB, 
         T Dist= Planes[PlaneNr].GetDistance(Origin)+BloatDistanceOffsets[PlaneNr];
         T F   =-Dist/Nenner;
 
-        // Der Schnitt macht nur Sinn, wenn F im gewünschten Intervall liegt
+        // Der Schnitt macht nur Sinn, wenn F im gewÃ¼nschten Intervall liegt
         if (F<0 || F>Trace.Fraction) continue;
 
-        // Prüfen, ob Schnittpunkt wirklich auf dem Brush liegt
+        // PrÃ¼fen, ob Schnittpunkt wirklich auf dem Brush liegt
         Vector3T<T> HitPos=Origin + Dir*F;
         unsigned long PNr;
 
@@ -121,19 +121,19 @@ template<class T> void Brush3T<T>::TraceBoundingBox(const BoundingBox3T<T>& BB, 
         if (PNr<Planes.Size()) continue;
 
         // Wir haben die einzige Eintrittsstelle gefunden!
-        // Eigentlich ist das errechete F einwandfrei. Wir wollen es jedoch nochmal etwas verringern, sodaß der sich
-        // ergebende Schnittpunkt (HitPos) in einem Abstand von 0.03125 ÜBER der Ebene liegt! Bildhaft wird dazu die
+        // Eigentlich ist das errechete F einwandfrei. Wir wollen es jedoch nochmal etwas verringern, sodaÃŸ der sich
+        // ergebende Schnittpunkt (HitPos) in einem Abstand von 0.03125 ÃœBER der Ebene liegt! Bildhaft wird dazu die
         // Schnittebene um 0.03125 in Richtung ihres Normalenvektors geschoben und F wie oben neu errechnet.
         // Dies erspart uns ansonsten ernste Probleme:
         // - Wird diese Funktion nochmals mit dem Trace-Ergebnis (HitPos) als Origin-Vektor aufgerufen,
         //   kann dieser neue Origin-Vektor nicht wegen Rundungsfehlern in den Brush geraten (Solid!).
         // - Wird unser Trace-Ergebnis (HitPos) als Origin-Vektor dieser Funktion, aber mit einem anderen
-        //   Brush benutzt, der gegenüber diesem Brush nur in der Schnittebene verschoben ist (z.B. eine lange
+        //   Brush benutzt, der gegenÃ¼ber diesem Brush nur in der Schnittebene verschoben ist (z.B. eine lange
         //   Wand, die aus mehreren "Backsteinen" besteht), kommt es auch hier nicht zum (falschen)
-        //   "Hängenbleiben" an einer gemeinsamen Brush-Kante.
-        // Aber: Die HitPos kann natürlich trotzdem näher als 0.03125 an der Ebene liegen, nämlich genau dann, wenn
-        // es nicht zu einem Schnitt kam und Dir zufällig dort endet. Wir ignorieren diese Möglichkeit: Kommt es doch
-        // noch zu einem Schnitt, wird eben F==0. Deshalb können wir uns auch in diesem Fall nicht durch Rundungsfehler
+        //   "HÃ¤ngenbleiben" an einer gemeinsamen Brush-Kante.
+        // Aber: Die HitPos kann natÃ¼rlich trotzdem nÃ¤her als 0.03125 an der Ebene liegen, nÃ¤mlich genau dann, wenn
+        // es nicht zu einem Schnitt kam und Dir zufÃ¤llig dort endet. Wir ignorieren diese MÃ¶glichkeit: Kommt es doch
+        // noch zu einem Schnitt, wird eben F==0. Deshalb kÃ¶nnen wir uns auch in diesem Fall nicht durch Rundungsfehler
         // ins Innere des Brushs schaukeln.
         F=-(Dist-(T)0.03125)/Nenner;                   // Vgl. Berechnung von F oben!
 

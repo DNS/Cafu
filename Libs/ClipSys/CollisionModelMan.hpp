@@ -67,8 +67,8 @@ namespace cf
             // /// @param InFile   The instream to load the collision model from.
             // /// @param Pool     Pool of vectors and strings used multiple times in InFile.
             // /// @returns the loaded collision model instance.
-            // /// TODO: Es wäre SUPER wenn wir in InFile irgendwie einen unique Name o. Hash speichern könnten!!!!
-            // ///       (Denn Sv und Cl laden ja unabh. voneinander dasselbe .cw world file. Ein gemeinsamer Hash würde eine einzige Instanz sharen.)
+            // /// TODO: Es wÃ¤re SUPER wenn wir in InFile irgendwie einen unique Name o. Hash speichern kÃ¶nnten!!!!
+            // ///       (Denn Sv und Cl laden ja unabh. voneinander dasselbe .cw world file. Ein gemeinsamer Hash wÃ¼rde eine einzige Instanz sharen.)
             // virtual const CollisionModelT* GetCM(std::istream& InFile, SceneGraph::aux::PoolT& Pool, const ArrayT<CollisionModelStaticT::TerrainRefT>& Terrains)=0;
 
             /// Creates a collision model from the given explicit mesh.

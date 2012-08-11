@@ -133,8 +133,8 @@ EngineEntityT::EngineEntityT(IntrusivePtrT<BaseEntityT> Entity_, unsigned long C
 
 void EngineEntityT::PreThink(unsigned long ServerFrameNr)
 {
-    // 1. Ein Entity, der f¸r dieses zu erstellende Frame 'ServerFrameNr' erst neu erzeugt wurde, soll nicht gleich denken!
-    //    Ein einfacher Vergleich '==' w‰re ausreichend, '>=' nur zur Sicherheit.
+    // 1. Ein Entity, der f√ºr dieses zu erstellende Frame 'ServerFrameNr' erst neu erzeugt wurde, soll nicht gleich denken!
+    //    Ein einfacher Vergleich '==' w√§re ausreichend, '>=' nur zur Sicherheit.
     //    Diese Zeile ist nur wg. "extern" erzeugten Entities (new-joined clients) hier.
     if (BaseLineFrameNr>=ServerFrameNr) return;
 
@@ -145,8 +145,8 @@ void EngineEntityT::PreThink(unsigned long ServerFrameNr)
 
 void EngineEntityT::Think(float FrameTime, unsigned long ServerFrameNr)
 {
-    // x. Ein Entity, der f¸r dieses zu erstellende Frame 'ServerFrameNr' erst neu erzeugt wurde, soll nicht gleich denken!
-    //    Ein einfacher Vergleich '==' w‰re ausreichend, '>=' nur zur Sicherheit.
+    // x. Ein Entity, der f√ºr dieses zu erstellende Frame 'ServerFrameNr' erst neu erzeugt wurde, soll nicht gleich denken!
+    //    Ein einfacher Vergleich '==' w√§re ausreichend, '>=' nur zur Sicherheit.
     if (BaseLineFrameNr>=ServerFrameNr) return;
 
     // 3. Jetzt neuen 'Entity->State' ausdenken.
@@ -157,7 +157,7 @@ void EngineEntityT::Think(float FrameTime, unsigned long ServerFrameNr)
 
 void EngineEntityT::WriteNewBaseLine(unsigned long SentClientBaseLineFrameNr, ArrayT< ArrayT<char> >& OutDatas) const
 {
-    // Nur dann etwas tun, wenn unsere 'BaseLineFrameNr' grˆﬂer (d.h. j¸nger) als 'SentClientBaseLineFrameNr' ist,
+    // Nur dann etwas tun, wenn unsere 'BaseLineFrameNr' gr√∂√üer (d.h. j√ºnger) als 'SentClientBaseLineFrameNr' ist,
     // d.h. unsere 'BaseLineFrameNr' noch nie / noch nicht an den Client gesendet wurde.
     if (SentClientBaseLineFrameNr>=BaseLineFrameNr) return;
 
@@ -175,11 +175,11 @@ void EngineEntityT::WriteNewBaseLine(unsigned long SentClientBaseLineFrameNr, Ar
 
 bool EngineEntityT::WriteDeltaEntity(bool SendFromBaseLine, unsigned long ClientFrameNr, NetDataT& OutData, bool ForceInfo) const
 {
-    // Pr¸fe, ob die Voraussetzungen f¸r die Parameter (insb. 'ClientFrameNr') eingehalten werden.
+    // Pr√ºfe, ob die Voraussetzungen f√ºr die Parameter (insb. 'ClientFrameNr') eingehalten werden.
     if (!SendFromBaseLine)
     {
         // EntityStateFrameNr wird in Think() gesetzt und ist gleich der ServerFrameNr!
-        // Beachte: OldStates speichert die alten Zust‰nde von ServerFrameNr-1 bis ServerFrameNr-16.
+        // Beachte: OldStates speichert die alten Zust√§nde von ServerFrameNr-1 bis ServerFrameNr-16.
         const unsigned long FrameDiff=EntityStateFrameNr-ClientFrameNr;
 
         if (FrameDiff<1 || FrameDiff>m_OldStates.Size()) return false;
@@ -238,11 +238,11 @@ EngineEntityT::EngineEntityT(IntrusivePtrT<BaseEntityT> Entity_, NetDataT& InDat
 
 bool EngineEntityT::ParseServerDeltaUpdateMessage(unsigned long DeltaFrameNr, unsigned long ServerFrameNr, const ArrayT<uint8_t>* DeltaMessage)
 {
-    // Sanity-Check: Wir wollen, daﬂ 'DeltaFrameNr<=EntityStateFrameNr<ServerFrameNr' gilt.
-    // W‰re 'DeltaFrameNr>EntityStateFrameNr', so sollten wir gegen einen State dekomprimieren, der in der Zukunft liegt.
-    // W‰re 'EntityStateFrameNr>=ServerFrameNr', so sollten wir uns in einen State begeben, der schon Vergangenheit ist.
-    // Dies h‰lt auch f¸r den Spezialfall 'DeltaFrameNr==0' (Delta-Dekompression gegen die BaseLine).
-    // Im Normalfall 'DeltaFrameNr>0' m¸ssen wir unten auﬂerdem noch sicherstellen, daﬂ der DeltaState nicht zu weit in der Vergangenheit liegt.
+    // Sanity-Check: Wir wollen, da√ü 'DeltaFrameNr<=EntityStateFrameNr<ServerFrameNr' gilt.
+    // W√§re 'DeltaFrameNr>EntityStateFrameNr', so sollten wir gegen einen State dekomprimieren, der in der Zukunft liegt.
+    // W√§re 'EntityStateFrameNr>=ServerFrameNr', so sollten wir uns in einen State begeben, der schon Vergangenheit ist.
+    // Dies h√§lt auch f√ºr den Spezialfall 'DeltaFrameNr==0' (Delta-Dekompression gegen die BaseLine).
+    // Im Normalfall 'DeltaFrameNr>0' m√ºssen wir unten au√üerdem noch sicherstellen, da√ü der DeltaState nicht zu weit in der Vergangenheit liegt.
     //
     // ONE possible reason for DeltaFrameNr>EntityStateFrameNr is related to the way how baselines are sent,
     // see EntityManager.cpp, EntityManagerT::ParseServerDeltaUpdateMessage() for a description, which is essentially repeated here:
@@ -262,8 +262,8 @@ bool EngineEntityT::ParseServerDeltaUpdateMessage(unsigned long DeltaFrameNr, un
 
     const cf::Network::StateT CurrentState = GetState();
 
-    // Wir m¸ssen den DeltaState richtig aus den OldStates kopieren (ein Zeiger darauf reicht nicht),
-    // denn es kˆnnte ansonsten passieren, daﬂ im folgenden gerade dieser OldState ¸berschrieben wird,
+    // Wir m√ºssen den DeltaState richtig aus den OldStates kopieren (ein Zeiger darauf reicht nicht),
+    // denn es k√∂nnte ansonsten passieren, da√ü im folgenden gerade dieser OldState √ºberschrieben wird,
     // bevor wir damit fertig sind!
     cf::Network::StateT DeltaState;
 
@@ -272,14 +272,14 @@ bool EngineEntityT::ParseServerDeltaUpdateMessage(unsigned long DeltaFrameNr, un
         // Normalfall: Delta-Dekomprimiere NICHT gegen die BaseLine, sondern gegen einen 'OldState'.
         if (DeltaFrameNr==EntityStateFrameNr)
         {
-            // Der Delta-State ist der gegenw‰rtige entity state.
+            // Der Delta-State ist der gegenw√§rtige entity state.
             DeltaState=CurrentState;
         }
         else
         {
-            // Der oben angek¸ndigte Test, ob der DeltaState nicht schon zu weit in der Vergangenheit liegt.
-            // Einen g¸ltigen State kˆnnen wir dann nicht mehr produzieren, und dem Calling-Code muﬂ klar sein oder klar werden,
-            // daﬂ er gegen die BaseLines komprimierte Messages anfordern muﬂ.
+            // Der oben angek√ºndigte Test, ob der DeltaState nicht schon zu weit in der Vergangenheit liegt.
+            // Einen g√ºltigen State k√∂nnen wir dann nicht mehr produzieren, und dem Calling-Code mu√ü klar sein oder klar werden,
+            // da√ü er gegen die BaseLines komprimierte Messages anfordern mu√ü.
             if (EntityStateFrameNr-DeltaFrameNr > m_OldStates.Size())
             {
                 EnqueueString("CLIENT WARNING: %s, L %u: Delta state too old!\n", __FILE__, __LINE__);
@@ -327,11 +327,11 @@ bool EngineEntityT::Repredict(const ArrayT<PlayerCommandT>& PlayerCommands, unsi
 
     const cf::Network::StateT BackupState = GetState();
 
-    // Unseren Entity ¸ber alle relevanten (d.h. noch nicht best‰tigten) PlayerCommands unterrichten.
+    // Unseren Entity √ºber alle relevanten (d.h. noch nicht best√§tigten) PlayerCommands unterrichten.
     // Wenn wir auf dem selben Host laufen wie der Server (z.B. Single-Player Spiel oder lokaler Client bei non-dedicated-Server Spiel),
-    // werden die Netzwerk-Nachrichten in Nullzeit (im Idealfall ¸ber Memory-Buffer) versandt.
-    // Falls dann auch noch der Server mit full-speed l‰uft, sollte daher immer RemoteLastIncomingSequenceNr==LastOutgoingSequenceNr sein,
-    // was impliziert, daﬂ dann keine Prediction stattfindet (da nicht notwendig!).
+    // werden die Netzwerk-Nachrichten in Nullzeit (im Idealfall √ºber Memory-Buffer) versandt.
+    // Falls dann auch noch der Server mit full-speed l√§uft, sollte daher immer RemoteLastIncomingSequenceNr==LastOutgoingSequenceNr sein,
+    // was impliziert, da√ü dann keine Prediction stattfindet (da nicht notwendig!).
     for (unsigned long SequenceNr=RemoteLastIncomingSequenceNr+1; SequenceNr<=LastOutgoingSequenceNr; SequenceNr++)
         Entity->ProcessConfigString(&PlayerCommands[SequenceNr & (PlayerCommands.Size()-1)], "PlayerCommand");
 

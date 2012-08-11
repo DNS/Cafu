@@ -95,8 +95,8 @@ namespace cf
                 unsigned short LightMapNr;  ///< In welcher LightMap liegt unsere Teil-LightMap?
                 unsigned short PosS;        ///< S-Position unserer Teil-LightMap innerhalb der LightMap.
                 unsigned short PosT;        ///< T-Position unserer Teil-LightMap innerhalb der LightMap.
-                unsigned short SizeS;       ///< S-Größe unserer Teil-LightMap.
-                unsigned short SizeT;       ///< T-Größe unserer Teil-LightMap.
+                unsigned short SizeS;       ///< S-GrÃ¶ÃŸe unserer Teil-LightMap.
+                unsigned short SizeT;       ///< T-GrÃ¶ÃŸe unserer Teil-LightMap.
             };
 
             void Init();    ///< Helper method for the constructors.

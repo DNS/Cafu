@@ -44,11 +44,11 @@ HRESULT DirectInputT::Initialize(HINSTANCE hInstance, HWND hWindow)
     if (FAILED(hResult)) return hResult;
 
 
-    // BufferSize f¸r gepufferten Keyboard-Input setzen
+    // BufferSize f√ºr gepufferten Keyboard-Input setzen
     DIPROPDWORD DIPropDW;
 
-    DIPropDW.diph.dwSize      =sizeof(DIPROPDWORD);         // Grˆﬂe der gesamten Struktur in Bytes
-    DIPropDW.diph.dwHeaderSize=sizeof(DIPROPHEADER);        // Grˆﬂe der Property-Header-Struktur in Bytes
+    DIPropDW.diph.dwSize      =sizeof(DIPROPDWORD);         // Gr√∂√üe der gesamten Struktur in Bytes
+    DIPropDW.diph.dwHeaderSize=sizeof(DIPROPHEADER);        // Gr√∂√üe der Property-Header-Struktur in Bytes
     DIPropDW.diph.dwObj       =0;                           // Keine Object-Identifier, ganzes (Keyboard-)Device
     DIPropDW.diph.dwHow       =DIPH_DEVICE;                 // Ganzes (Keyboard-)Device
     DIPropDW.dwData           =64;                          // BufferSize
@@ -77,7 +77,7 @@ HRESULT DirectInputT::Initialize(HINSTANCE hInstance, HWND hWindow)
     hResult=lpDIMouseDevice7->SetCooperativeLevel(hWindow, DISCL_FOREGROUND | DISCL_EXCLUSIVE);
     if (FAILED(hResult)) return hResult;
 
-    // BufferSize f¸r gepufferten Mouse-Input setzen
+    // BufferSize f√ºr gepufferten Mouse-Input setzen
     // Benutze einfach DIPropDW vom Keyboard nochmal!
     hResult=lpDIMouseDevice7->SetProperty(DIPROP_BUFFERSIZE, &DIPropDW.diph);
     if (FAILED(hResult)) return hResult;
@@ -115,7 +115,7 @@ DirectInputT::~DirectInputT()
 
 HRESULT DirectInputT::GetNextMouseEvent(DIDEVICEOBJECTDATA* MouseEvent, DWORD* ReadNrOfEvents)
 {
-    // Diese Schleife bricht normalerweise von selbst sp‰testens im zweiten Durchlauf ab, und kˆnnte daher auch
+    // Diese Schleife bricht normalerweise von selbst sp√§testens im zweiten Durchlauf ab, und k√∂nnte daher auch
     // durch eine Endlosschleife ersetzt werden. Der count dient nur zur Sicherheit, falls etwas wirklich schiefgeht.
     for (char count=3; count; count--)
     {
@@ -124,7 +124,7 @@ HRESULT DirectInputT::GetNextMouseEvent(DIDEVICEOBJECTDATA* MouseEvent, DWORD* R
 
         if (SUCCEEDED(hResult)) return hResult;
 
-        // Normalerweise ist sp‰testens hier beim zweiten Schleifendurchlauf alles zu Ende!
+        // Normalerweise ist sp√§testens hier beim zweiten Schleifendurchlauf alles zu Ende!
         // Andernfalls stimmt etwas ganz und gar nicht (Acquire OK, aber GetDeviceData liefert InputLost/NotAcqu).
         if (hResult!=DIERR_INPUTLOST && hResult!=DIERR_NOTACQUIRED) return hResult;
 

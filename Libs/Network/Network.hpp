@@ -24,7 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include <string>
 
-// TODO: Können wir diesen #if... Teil in das Network.cpp File verlagern?
+// TODO: KÃ¶nnen wir diesen #if... Teil in das Network.cpp File verlagern?
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>

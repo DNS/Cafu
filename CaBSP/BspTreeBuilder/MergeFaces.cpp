@@ -63,8 +63,8 @@ void BspTreeBuilderT::MergeFaces()
                 {
                     Polygon3T<double> NewPoly=Polygon3T<double>::Merge(F1->Polygon, F2->Polygon, MapT::RoundEpsilon);
 
-                    // Trotz aller Vorsicht können im neuen Poly doch Vertices weiter als +/- GeometryEpsilon von der Plane
-                    // entfernt liegen oder Vertices zusammenfallen (bei 'schwierigen' Eingabepolys (gültig, aber im Grenzbereich)).
+                    // Trotz aller Vorsicht kÃ¶nnen im neuen Poly doch Vertices weiter als +/- GeometryEpsilon von der Plane
+                    // entfernt liegen oder Vertices zusammenfallen (bei 'schwierigen' Eingabepolys (gÃ¼ltig, aber im Grenzbereich)).
                     if (!NewPoly.IsValid(MapT::RoundEpsilon, MapT::MinVertexDist)) continue;
 
                     FaceChildren[Face1Nr]->Polygon=NewPoly;

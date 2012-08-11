@@ -63,10 +63,10 @@ class BspTreeBuilderT
                const std::string& MapFileName /*for .pts pointfile*/);
 
 
-    // Alle sich schneidenden Faces werden geteilt, sodaß keine Schnitte mehr übrig bleiben.
-    // Splits werden aber nur dann durchgeführt, wenn dies nicht zu ungültigen Polygonen führt!
-    // Übergeordnetes Ziel ist es, von sich schneidenden Faces so viel wie möglich beim "FloodFillInside" loswerden zu können,
-    // sodaß am Schluß nur eine perfekt glatte Haut der Welt übrigbleibt!
+    // Alle sich schneidenden Faces werden geteilt, sodaÃŸ keine Schnitte mehr Ã¼brig bleiben.
+    // Splits werden aber nur dann durchgefÃ¼hrt, wenn dies nicht zu ungÃ¼ltigen Polygonen fÃ¼hrt!
+    // Ãœbergeordnetes Ziel ist es, von sich schneidenden Faces so viel wie mÃ¶glich beim "FloodFillInside" loswerden zu kÃ¶nnen,
+    // sodaÃŸ am SchluÃŸ nur eine perfekt glatte Haut der Welt Ã¼brigbleibt!
     void ChopUpFaces();
 
     // Prepare the world for leak detection. Must be called before 'BuildBSPTree()'.
@@ -104,7 +104,7 @@ class BspTreeBuilderT
     // The contents of the 'Nodes' and 'Leaves', if any, becomes invalid.
     void MergeFaces();
 
-    // Sortiert die Faces gemäß ihres Texture-Namens und paßt die anderen Datenstrukturen entsprechend an.
+    // Sortiert die Faces gemÃ¤ÃŸ ihres Texture-Namens und paÃŸt die anderen Datenstrukturen entsprechend an.
     // Der BSP-Baum bleibt also intakt.
     void SortFacesIntoTexNameOrder();
 

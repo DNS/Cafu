@@ -69,7 +69,7 @@ const MatrixT& CameraT::GetMatrix() const
     {
         m_MatrixPos   =Pos;
         m_MatrixAngles=Angles;
-        m_Matrix      =//trixT::GetRotateYMatrix(Angles.roll())*    // Roll is always at 0°.
+        m_Matrix      =//trixT::GetRotateYMatrix(Angles.roll())*    // Roll is always at 0Â°.
                        MatrixT::GetRotateXMatrix(Angles.pitch())*
                        MatrixT::GetRotateZMatrix(Angles.yaw())*
                        MatrixT::GetTranslateMatrix(-Pos);
@@ -101,12 +101,12 @@ void CameraT::SetLookAtPos(const Vector3fT& LookAtPos)
 
 void CameraT::LimitAngles()
 {
-    // Make sure that 0° <= Angles.yaw() < 360°.
+    // Make sure that 0Â° <= Angles.yaw() < 360Â°.
     // Could use fmod(), but it doesn't work as desired with negative values of Angles.yaw().
     while (Angles.yaw()>=360.0f) Angles.yaw()-=360.0f;
     while (Angles.yaw()<   0.0f) Angles.yaw()+=360.0f;
 
-    // Clamp Angles.pitch() to the interval from -90° to +90°.
+    // Clamp Angles.pitch() to the interval from -90Â° to +90Â°.
     if (Angles.pitch()> 90.0f) Angles.pitch()= 90.0f;
     if (Angles.pitch()<-90.0f) Angles.pitch()=-90.0f;
 }

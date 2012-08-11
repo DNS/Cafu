@@ -34,10 +34,10 @@ struct SuperLeafT
     struct NeighbourT
     {
         unsigned long     SuperLeafNr;      ///< Der Nachbar ist ein SuperLeaf, und hat die Indexnummer 'SuperLeafNr'.
-        Polygon3T<double> SubPortal;        ///< Das zum Nachbar führende (Sub-)Portal.
+        Polygon3T<double> SubPortal;        ///< Das zum Nachbar fÃ¼hrende (Sub-)Portal.
     };
 
-    ArrayT<unsigned long>       LeafSet;    ///< Die Menge der Map-Leaves, aus denen dieses SuperLeaf ursprünglich besteht.
+    ArrayT<unsigned long>       LeafSet;    ///< Die Menge der Map-Leaves, aus denen dieses SuperLeaf ursprÃ¼nglich besteht.
     ArrayT< Polygon3T<double> > Portals;    ///< Die Portals dieses SuperLeafs, d.h. ALLE Portals ALLER Leaves des LeafSet.
     BoundingBox3T<double>       BB;         ///< Die BoundingBox der BoundingBoxes der Leaves im LeafSet.
     ArrayT<NeighbourT>          Neighbours; ///< Die Nachbarn dieses SuperLeafs.

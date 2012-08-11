@@ -212,10 +212,10 @@ void CaPVSWorldT::StorePVS(const ArrayT<SuperLeafT>& SuperLeaves, const ArrayT<u
     ArrayT<cf::SceneGraph::BspTreeNodeT::LeafT>& Leaves=World.BspTree->Leaves;
     ArrayT<uint32_t>&                            PVS   =World.BspTree->PVS;
 
-    // 'PVS' zurücksetzen (völlige Blindheit).
+    // 'PVS' zurÃ¼cksetzen (vÃ¶llige Blindheit).
     for (unsigned long Vis=0; Vis<PVS.Size(); Vis++) PVS[Vis]=0;
 
-    // 'SuperLeavesPVS' ins 'PVS' übertragen.
+    // 'SuperLeavesPVS' ins 'PVS' Ã¼bertragen.
     for (unsigned long SL1Nr=0; SL1Nr<SuperLeaves.Size(); SL1Nr++)
         for (unsigned long SL2Nr=0; SL2Nr<SuperLeaves.Size(); SL2Nr++)
         {

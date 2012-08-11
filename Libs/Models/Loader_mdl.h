@@ -96,7 +96,7 @@ WATCOM_PACKED struct StudioHeaderT
     int   BodyPartIndex;
 
     int   NumAttachments;       // queryable attachable points
-    int   AttachmentIndex;      // z.B. Haltepunkt für Waffe, Sprite o.ä.
+    int   AttachmentIndex;      // z.B. Haltepunkt fÃ¼r Waffe, Sprite o.Ã¤.
 
     int   SoundTable;
     int   SoundIndex;

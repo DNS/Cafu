@@ -59,7 +59,7 @@ struct InvalidOperationE : public Math3DErrorE
     }
 };
 
-// class BadPolygonE  : public Math3DError        { };  // Ein Polygon erfüllt die Voraussetzungen nicht.
+// class BadPolygonE  : public Math3DError        { };  // Ein Polygon erfÃ¼llt die Voraussetzungen nicht.
 
 
 /// This class represents a polymorphic 3-dimensional vector.

@@ -89,7 +89,7 @@ class Polygon3T
     /// (If this polygon was valid, the mirrored polygon is valid, too.)
     Polygon3T<T> GetMirror() const;
 
-    /// Determines the spatial area (Fl‰cheninhalt) of this polygon.
+    /// Determines the spatial area (Fl√§cheninhalt) of this polygon.
     T GetArea() const;
 
     /// Determines whether this polygon has a vertex A, within Epsilon tolerance of the existing vertices.

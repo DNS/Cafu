@@ -56,7 +56,7 @@ class VB_Trace3T
 /// deren Schnitt ein konvexes, dreidimensionales Polyhedron darstellt.
 ///
 /// Eigenschaften des Brushs (Vereinbarungen):
-/// 1. Die Normalenvektoren der Ebenen müssen nach AUßEN zeigen.
+/// 1. Die Normalenvektoren der Ebenen mÃ¼ssen nach AUÃŸEN zeigen.
 template<class T>
 class Brush3T
 {

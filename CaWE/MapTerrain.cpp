@@ -67,7 +67,7 @@ MapTerrainT::MapTerrainT(const BoundingBox3fT& Box, const wxString& HeightMapFil
     // Try to load the height data from the passed height map file. Create empty terrain if it fails.
     try
     {
-        //XXX Hmmmmm.  Evtl. sollten wir eine TerrainLoaderT Klasse machen (die sp‰ter auch speichern kann)...
+        //XXX Hmmmmm.  Evtl. sollten wir eine TerrainLoaderT Klasse machen (die sp√§ter auch speichern kann)...
         LoadHeightData(HeightMapFile);
     }
     catch (const BitmapT::LoadErrorT& /*E*/)

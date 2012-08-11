@@ -44,7 +44,7 @@ class GraphsT
 
     ~GraphsT();
 
-    // Trägt für das Frame 'ClientFrameNr' für alle Graphen 0 ein.
+    // TrÃ¤gt fÃ¼r das Frame 'ClientFrameNr' fÃ¼r alle Graphen 0 ein.
     void ClearForFrame(unsigned long ClientFrameNr);
 
     // Zeichnet alle Graphen.

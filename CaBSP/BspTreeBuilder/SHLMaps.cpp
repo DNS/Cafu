@@ -34,7 +34,7 @@ void BspTreeBuilderT::ChopUpForMaxSHLMapSize()
         // (We assume that "no lightmap!" implies "no SHL-map!".)
         if (!FaceChildren[FaceNr]->Material->UsesGeneratedSHLMap()) continue;
 
-        // Bestimme die Grˆﬂe der SHLMap.
+        // Bestimme die Gr√∂√üe der SHLMap.
         VectorT U;
         VectorT V;
 
@@ -58,11 +58,11 @@ void BspTreeBuilderT::ChopUpForMaxSHLMapSize()
             if (v>MaxV) MaxV=v;
         }
 
-        // Um hier Rundungsfehler zu vermeiden (die definitive Grˆﬂe wird erst in CreateZeroBandSHLMaps() ermittelt)
-        // bestimmen wir SizeS und SizeT mit einem Sicherheitszuschlag von 1. So wird sichergestellt, daﬂ auch im Falle einer
-        // fehlerhaften Rundung in CreateZeroBandSHLMaps() keine SHLMap die zul‰ssige Grˆﬂe ¸berschreitet!
-        // Die +0.5 sind nur da, um sicherzustellen, daﬂ die Konversion von double nach unsigned short wie erwartet funktioniert.
-        // Die +2 sind f¸r den Rahmen (links und rechts bzw. oben und unten).
+        // Um hier Rundungsfehler zu vermeiden (die definitive Gr√∂√üe wird erst in CreateZeroBandSHLMaps() ermittelt)
+        // bestimmen wir SizeS und SizeT mit einem Sicherheitszuschlag von 1. So wird sichergestellt, da√ü auch im Falle einer
+        // fehlerhaften Rundung in CreateZeroBandSHLMaps() keine SHLMap die zul√§ssige Gr√∂√üe √ºberschreitet!
+        // Die +0.5 sind nur da, um sicherzustellen, da√ü die Konversion von double nach unsigned short wie erwartet funktioniert.
+        // Die +2 sind f√ºr den Rahmen (links und rechts bzw. oben und unten).
         // Die +1 sind der Sicherheitszuschlag.
         unsigned long SizeS=(unsigned long)(ceil(MaxU/cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize)-floor(MinU/cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize)+0.5)+2+1;
         unsigned long SizeT=(unsigned long)(ceil(MaxV/cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize)-floor(MinV/cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize)+0.5)+2+1;
@@ -75,7 +75,7 @@ void BspTreeBuilderT::ChopUpForMaxSHLMapSize()
                              "    Maybe you wanted to use a material with the \"meta_noLightMap\" property on that face instead?\n\n");
         }
 
-        // SHLMaps d¸rfen maximal SIZE_S*SIZE_T groﬂ sein, andernfalls teile die Face in der Mitte bzgl. der betreffenden Achse.
+        // SHLMaps d√ºrfen maximal SIZE_S*SIZE_T gro√ü sein, andernfalls teile die Face in der Mitte bzgl. der betreffenden Achse.
         if (SizeS>cf::SceneGraph::SHLMapManT::SIZE_S)
         {
             const Plane3T<double> SplitPlane(U, 0.5*(MinU+MaxU));
@@ -84,8 +84,8 @@ void BspTreeBuilderT::ChopUpForMaxSHLMapSize()
 
             ArrayT< Polygon3T<double> > SplitResult=FaceChildren[FaceNr]->Polygon.GetSplits(SplitPlane, MapT::RoundEpsilon);
 
-            // Hier sollte niemals ein Fehler erkannt werden. Falls doch: Programm so erweitern, daﬂ die Coords
-            // der betroffenen Face ausgegeben werden, sodaﬂ der User im Map-Editor das Problem selbst beheben kann!
+            // Hier sollte niemals ein Fehler erkannt werden. Falls doch: Programm so erweitern, da√ü die Coords
+            // der betroffenen Face ausgegeben werden, soda√ü der User im Map-Editor das Problem selbst beheben kann!
             if (!SplitResult[0].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist) ||
                 !SplitResult[1].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist)) Error("Split caused bad polygon!");
 
@@ -106,8 +106,8 @@ void BspTreeBuilderT::ChopUpForMaxSHLMapSize()
 
             ArrayT< Polygon3T<double> > SplitResult=FaceChildren[FaceNr]->Polygon.GetSplits(SplitPlane, MapT::RoundEpsilon);
 
-            // Hier sollte niemals ein Fehler erkannt werden. Falls doch: Programm so erweitern, daﬂ die Coords
-            // der betroffenen Face ausgegeben werden, sodaﬂ der User im Map-Editor das Problem selbst beheben kann!
+            // Hier sollte niemals ein Fehler erkannt werden. Falls doch: Programm so erweitern, da√ü die Coords
+            // der betroffenen Face ausgegeben werden, soda√ü der User im Map-Editor das Problem selbst beheben kann!
             if (!SplitResult[0].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist) ||
                 !SplitResult[1].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist)) Error("Split caused bad polygon!");
 
@@ -125,7 +125,7 @@ void BspTreeBuilderT::ChopUpForMaxSHLMapSize()
 }
 
 
-// Der Code dieser Funktion ist sehr ‰hnlich zu ChopUpForMaxSHLMapSize().
+// Der Code dieser Funktion ist sehr √§hnlich zu ChopUpForMaxSHLMapSize().
 void BspTreeBuilderT::CreateZeroBandSHLMaps()
 {
     Console->Print(cf::va("\n%-50s %s\n", "*** Create zero-band SHL maps ***", GetTimeSinceProgramStart()));
@@ -140,7 +140,7 @@ void BspTreeBuilderT::CreateZeroBandSHLMaps()
             continue;
         }
 
-        // Bestimme die Grˆﬂe der SHLMap.
+        // Bestimme die Gr√∂√üe der SHLMap.
         VectorT U;
         VectorT V;
 
@@ -164,7 +164,7 @@ void BspTreeBuilderT::CreateZeroBandSHLMaps()
             if (v>MaxV) MaxV=v;
         }
 
-        // Dies ist das einzige Mal, daﬂ die Grˆﬂen der SHLMaps rechnerisch bestimmt werden.
+        // Dies ist das einzige Mal, da√ü die Gr√∂√üen der SHLMaps rechnerisch bestimmt werden.
         // Fortan werden sie von allen Tools und der Engine direkt aus dem CW-File geladen,
         // um Rundungsfehler, die beim Speichern durch Zusammenfassung entstehen, zu vermeiden.
         cf::SceneGraph::FaceNodeT::SHLMapInfoT& SMI=FaceChildren[FaceNr]->SHLMapInfo;

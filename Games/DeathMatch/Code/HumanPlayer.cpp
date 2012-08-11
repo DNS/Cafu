@@ -230,13 +230,13 @@ void EntHumanPlayerT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT
 
         ClipModel.Unregister();
 
-             if (DeltaAngle>=57344 || DeltaAngle< 8192) State.ModelSequNr=21;   // 315° ...  45° - die forwards
-        else if (DeltaAngle>=8192  && DeltaAngle<16384) State.ModelSequNr=22;   //  45° ...  90° - headshot
-        else if (DeltaAngle>=16384 && DeltaAngle<24576) State.ModelSequNr=24;   //  90° ... 135° - gutshot
-        else if (DeltaAngle>=24576 && DeltaAngle<32768) State.ModelSequNr=19;   // 135° ... 180° - die backwards1
-        else if (DeltaAngle>=32768 && DeltaAngle<40960) State.ModelSequNr=20;   // 180° ... 225° - die backwards
-        else if (DeltaAngle>=40960 && DeltaAngle<49152) State.ModelSequNr=18;   // 225° ... 270° - die simple
-        else /* (DeltaAngle>=49152&&DeltaAngle<57344)*/ State.ModelSequNr=23;   // 270° ... 315° - die spin
+             if (DeltaAngle>=57344 || DeltaAngle< 8192) State.ModelSequNr=21;   // 315Â° ...  45Â° - die forwards
+        else if (DeltaAngle>=8192  && DeltaAngle<16384) State.ModelSequNr=22;   //  45Â° ...  90Â° - headshot
+        else if (DeltaAngle>=16384 && DeltaAngle<24576) State.ModelSequNr=24;   //  90Â° ... 135Â° - gutshot
+        else if (DeltaAngle>=24576 && DeltaAngle<32768) State.ModelSequNr=19;   // 135Â° ... 180Â° - die backwards1
+        else if (DeltaAngle>=32768 && DeltaAngle<40960) State.ModelSequNr=20;   // 180Â° ... 225Â° - die backwards
+        else if (DeltaAngle>=40960 && DeltaAngle<49152) State.ModelSequNr=18;   // 225Â° ... 270Â° - die simple
+        else /* (DeltaAngle>=49152&&DeltaAngle<57344)*/ State.ModelSequNr=23;   // 270Â° ... 315Â° - die spin
 
         State.ModelFrameNr=0.0;
 
@@ -346,8 +346,8 @@ bool EntHumanPlayerT::CheckGUI(IntrusivePtrT<EntStaticDetailModelT> GuiEnt, Vect
 
 
     // TODO: Trace gegen walls!
-    // TODO: Benutzt schon jemand anderes dieses GUI?  Sehr wichtig, um zu vermeiden, daß andauernd auf dem Server der Mauscursor umherspringt
-    //       (und damit z.B. in jedem Frame Interpolation-Einträge anlegt, die beliebig anwachsen würden).
+    // TODO: Benutzt schon jemand anderes dieses GUI?  Sehr wichtig, um zu vermeiden, daÃŸ andauernd auf dem Server der Mauscursor umherspringt
+    //       (und damit z.B. in jedem Frame Interpolation-EintrÃ¤ge anlegt, die beliebig anwachsen wÃ¼rden).
 
 
     MousePos.x=px*640.0f;
@@ -882,11 +882,11 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     GameWorld->GetClipWorld().TraceBoundingBox(ClearingBB, OurNewOrigin+VectorT(0.0, 0.0, AddHeight), VectorT(0.0, 0.0, -999999.0), MaterialT::Clip_Players, &ClipModel, Result);
                     const double SubHeight=999999.0*Result.Fraction;
 
-                    // Beachte: Hier für Epsilon 1.0 (statt z.B. 1.23456789) zu wählen hebt u.U. GENAU den (0 0 -1) Test in
-                    // Physics::CategorizePosition() auf! Nicht schlimm, wenn aber auf Client-Seite übers Netz kleine Rundungsfehler
-                    // vorhanden sind (es werden floats übertragen, nicht doubles!), kommt CategorizePosition() u.U. auf Client- und
-                    // Server-Seite zu verschiedenen Ergebnissen! Der Effekt spielt sich zwar in einem Intervall der Größe 1.0 ab,
-                    // kann mit OpenGL aber zu deutlichem Pixel-Flimmern führen!
+                    // Beachte: Hier fÃ¼r Epsilon 1.0 (statt z.B. 1.23456789) zu wÃ¤hlen hebt u.U. GENAU den (0 0 -1) Test in
+                    // Physics::CategorizePosition() auf! Nicht schlimm, wenn aber auf Client-Seite Ã¼bers Netz kleine Rundungsfehler
+                    // vorhanden sind (es werden floats Ã¼bertragen, nicht doubles!), kommt CategorizePosition() u.U. auf Client- und
+                    // Server-Seite zu verschiedenen Ergebnissen! Der Effekt spielt sich zwar in einem Intervall der GrÃ¶ÃŸe 1.0 ab,
+                    // kann mit OpenGL aber zu deutlichem Pixel-Flimmern fÃ¼hren!
                     OurNewOrigin.z=OurNewOrigin.z+AddHeight-SubHeight+(ClearingBB.Min.z-m_Dimensions.Min.z/*1628.8*/)+1.23456789/*Epsilon (sonst Ruckeln am Anfang!)*/;
 
                     // Old, deprecated code (can get us stuck in non-level ground).

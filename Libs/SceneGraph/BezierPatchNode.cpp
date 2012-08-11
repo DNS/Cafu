@@ -267,7 +267,7 @@ void BezierPatchNodeT::DrawAmbientContrib(const Vector3dT& ViewerPos) const
     }
 
     // TODO:
-    // cLOD Überlegungen sind denkbar - siehe "r_lodCurveError" convar im Q3 Quellcode.
+    // cLOD Ãœberlegungen sind denkbar - siehe "r_lodCurveError" convar im Q3 Quellcode.
     // Siehe http://xreal.sourceforge.net/xrealwiki/XMapExplanations
     // Aber: Sind wg. Tangent-Space viel aufwendiger als bei Q3... Performance?
     for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
@@ -384,7 +384,7 @@ void BezierPatchNodeT::InitDefaultLightMaps()
     LightMapInfo.PosS      =(unsigned short)LmPosS;
     LightMapInfo.PosT      =(unsigned short)LmPosT;
 
-    // Setze die ganze LightMap auf neutrales weiß.
+    // Setze die ganze LightMap auf neutrales weiÃŸ.
     for (unsigned int t=0; t<LightMapInfo.SizeT; t++)
         for (unsigned int s=0; s<LightMapInfo.SizeS; s++)
         {
@@ -611,7 +611,7 @@ void BezierPatchNodeT::BackToLightMap(const cf::PatchMeshT& PatchMesh)
     assert(LightMapMesh.Height==LightMapInfo.SizeT);
 
 
-    // Übertrage die Patches-Werte zurück in die LightMaps.
+    // Ãœbertrage die Patches-Werte zurÃ¼ck in die LightMaps.
     for (unsigned long t=0; t<LightMapInfo.SizeT; t++)
         for (unsigned long s=0; s<LightMapInfo.SizeS; s++)
         {

@@ -191,7 +191,7 @@ ClientStateInGameT::~ClientStateInGameT()
         UnreliableMessage.WriteByte(CS1_Disconnect);
         GameProtocol.GetTransmitData(EmptyReliableMessage, UnreliableMessage.Data).Send(Client.Socket, Client.ServerAddress);
     }
-    catch (const NetworkError& /*E*/) {}    // Ignoriere mögliche Network-Errors.
+    catch (const NetworkError& /*E*/) {}    // Ignoriere mÃ¶gliche Network-Errors.
 
     delete World;
     World=NULL;
@@ -401,7 +401,7 @@ void ClientStateInGameT::Render(float FrameTime)
             MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
             MatSys::Renderer->PopMatrix(MatSys::RendererI::WORLD_TO_VIEW );
 
-            // Die Framerate ist zwar World-unabhängig, ihre Anzeige hier aber besser aufgehoben (aus rein kosmetischen Gründen).
+            // Die Framerate ist zwar World-unabhÃ¤ngig, ihre Anzeige hier aber besser aufgehoben (aus rein kosmetischen GrÃ¼nden).
             static ConVarT ShowFrameRate("showFPS", false, ConVarT::FLAG_MAIN_EXE, "Toggles whether the frames-per-second number is shown.");
             static ConVarT ShowPosition("showPos", false, ConVarT::FLAG_MAIN_EXE, "Toggles whether the current players position is shown.");
 
@@ -439,7 +439,7 @@ void ClientStateInGameT::Render(float FrameTime)
     }
     else
     {
-        // Falls wir noch keine World haben (weil nach dem Starten vom Server bisher nichts kam), können wir nicht viel tun.
+        // Falls wir noch keine World haben (weil nach dem Starten vom Server bisher nichts kam), kÃ¶nnen wir nicht viel tun.
         if (IsLoadingWorld)
         {
          // MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
@@ -547,7 +547,7 @@ void ClientStateInGameT::Render(float FrameTime)
         }
     }
 
-    // Zeichne die restlichen Dinge, die unabhängig von der World sind.
+    // Zeichne die restlichen Dinge, die unabhÃ¤ngig von der World sind.
     static ConVarT ShowGraphs("showGraphs", false, ConVarT::FLAG_MAIN_EXE, "Toggles whether some FPS graphs are shown.");
 
     if (ShowGraphs.GetValueBool()) Graphs.Draw(ClientFrameNr);
@@ -693,10 +693,10 @@ void ClientStateInGameT::ParseServerPacket(NetDataT& InData)
                 LoadingFont=NULL;
 
 
-                // Wir bestätigen explizit, daß wir in der neuen Map sind, damit der Server uns von
+                // Wir bestÃ¤tigen explizit, daÃŸ wir in der neuen Map sind, damit der Server uns von
                 // MapTransition nach Dead setzt und uns wieder unreliable Data schickt.
-                // Dies ist notwendig, falls der MapChange gerade erfolgt, während der Server noch auf ein
-                // ACK von uns wartet. Erst das danach folgende ACK wäre das ACK zur MapInfo, also bestätigen
+                // Dies ist notwendig, falls der MapChange gerade erfolgt, wÃ¤hrend der Server noch auf ein
+                // ACK von uns wartet. Erst das danach folgende ACK wÃ¤re das ACK zur MapInfo, also bestÃ¤tigen
                 // wir es einfach explizit, und alles ist OK!
                 NetDataT NewReliableMsg;
 
@@ -729,8 +729,8 @@ void ClientStateInGameT::ParseServerPacket(NetDataT& InData)
             case SC1_FrameInfo:
                 cf::LogDebug(net, "SC1_FrameInfo: World==%p", World);
                 if (!World) return;
-                // Sende hier direkt eine CS1_FrameInfoACK-Message zurück.
-                // Beachte, daß dies nicht in unserer Hauptschleife geschehen muß, selbst bei Packet-Loss nicht!
+                // Sende hier direkt eine CS1_FrameInfoACK-Message zurÃ¼ck.
+                // Beachte, daÃŸ dies nicht in unserer Hauptschleife geschehen muÃŸ, selbst bei Packet-Loss nicht!
                 UnreliableData.WriteByte(CS1_FrameInfoACK);
                 UnreliableData.WriteLong(World->ReadServerFrameMessage(InData));
                 break;
@@ -780,9 +780,9 @@ void ClientStateInGameT::ParseServerPacketHelper(NetDataT& InData, unsigned long
 
 void ClientStateInGameT::MainLoop(float FrameTime)
 {
-    // Prüfe auf Server-Antwort(en) und verarbeite diese. Wir holen in einer Schleife die Packets ab, bis keine mehr da sind.
-    // Dies ist insbesondere wichtig, wenn wir auf einem langsamen Computer schneller Server-Packets erhalten als wir Frames generieren können!
-    // (Würde pro Frame nur ein Packet bearbeitet werden, gäbe es in einem solchen Fall Buffer-Overflows im OS und folglich packet-loss!)
+    // PrÃ¼fe auf Server-Antwort(en) und verarbeite diese. Wir holen in einer Schleife die Packets ab, bis keine mehr da sind.
+    // Dies ist insbesondere wichtig, wenn wir auf einem langsamen Computer schneller Server-Packets erhalten als wir Frames generieren kÃ¶nnen!
+    // (WÃ¼rde pro Frame nur ein Packet bearbeitet werden, gÃ¤be es in einem solchen Fall Buffer-Overflows im OS und folglich packet-loss!)
     unsigned long MaxPacketsCount=20;
 
     while (MaxPacketsCount--)
@@ -805,7 +805,7 @@ void ClientStateInGameT::MainLoop(float FrameTime)
 
                 if (World && UsePrediction.GetValueBool() && RemoteLastIncomingSequenceNr!=0)
                 {
-                    // Führe für unseren Entity die Reprediction durch.
+                    // FÃ¼hre fÃ¼r unseren Entity die Reprediction durch.
                     // Der zweite Parameter entspricht der 'LastOutgoingSequenceNr'.
                     World->OurEntity_Repredict(RemoteLastIncomingSequenceNr, GameProtocol.GetNextOutgoingSequenceNr()-1);
                 }
@@ -847,8 +847,8 @@ void ClientStateInGameT::MainLoop(float FrameTime)
             if (MouseState.LeftIsDown())                               PlayerCommand.Keys|=PCK_Fire1;
             if (MouseState.MiddleIsDown() || MouseState.RightIsDown()) PlayerCommand.Keys|=PCK_Fire2;
 
-            // Alle anderen Keys via KeyboardState bestimmen und über die volle Frametime anwenden.
-            // Später evtl. mal die echte Zeit vom Buffer einsetzen!
+            // Alle anderen Keys via KeyboardState bestimmen und Ã¼ber die volle Frametime anwenden.
+            // SpÃ¤ter evtl. mal die echte Zeit vom Buffer einsetzen!
             // Mit anderen Worten: Diesen Kram mit in die obige Buffer-Schleife nehmen!
             // Player movement / state
          // if (wxGetKeyState(WXK_CONTROL)     ) ;                                       // R_Strg   Run
@@ -886,7 +886,7 @@ void ClientStateInGameT::MainLoop(float FrameTime)
      // UnreliableData.WriteWord (PlayerCommand.DeltaBank);
      // UnreliableData.WriteLong (PlayerCommand.Nr);
 
-        // Führe für unseren Entity die Prediction durch
+        // FÃ¼hre fÃ¼r unseren Entity die Prediction durch
         World->OurEntity_Predict(PlayerCommand, PlayerCommand.Nr /* next outgoing sequence number */);
 
         if (m_PathRecorder)

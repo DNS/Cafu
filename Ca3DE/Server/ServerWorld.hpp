@@ -34,7 +34,7 @@ class CaServerWorldT : public Ca3DEWorldT
 {
     public:
 
-    // Erstellt eine neue ServerWorld anhand des World-Files 'FileName', wobei 'FileName' den kompletten (wenn auch relativen) Pfad und Namen enthält.
+    // Erstellt eine neue ServerWorld anhand des World-Files 'FileName', wobei 'FileName' den kompletten (wenn auch relativen) Pfad und Namen enthÃ¤lt.
     CaServerWorldT(cf::GameSys::GameI* Game, const char* FileName, ModelManagerT& ModelMan);
 
     // Der Destruktor.
@@ -44,39 +44,39 @@ class CaServerWorldT : public Ca3DEWorldT
     unsigned long CreateNewEntity(const std::map<std::string, std::string>& Properties, unsigned long CreationFrameNr, const VectorT& Origin);
     void          RemoveEntity(unsigned long EntityID);
 
-    // Fügt einen neuen HumanPlayer-Entity zum NÄCHSTEN Frame in die World ein (idR nach Client-Join oder World-Change),
+    // FÃ¼gt einen neuen HumanPlayer-Entity zum NÃ„CHSTEN Frame in die World ein (idR nach Client-Join oder World-Change),
     // NICHT ins aktuelle (bzgl. der BaseLineFrameNr). Ziel: Erreiche gleiches Verhalten wie z.B. das des MonsterMakers.
-    // Gibt bei Erfolg die ID des neuen Entities zurück, sonst 0xFFFFFFFF.
+    // Gibt bei Erfolg die ID des neuen Entities zurÃ¼ck, sonst 0xFFFFFFFF.
     unsigned long InsertHumanPlayerEntityForNextFrame(const char* PlayerName, const char* ModelName, unsigned long ClientInfoNr);
 
-    // Informiert den (HumanPlayer-)Entity mit der ID 'HumanPlayerEntityID' über das 'PlayerCommand' (zur Verarbeitung beim nächsten 'Think()en'.
+    // Informiert den (HumanPlayer-)Entity mit der ID 'HumanPlayerEntityID' Ã¼ber das 'PlayerCommand' (zur Verarbeitung beim nÃ¤chsten 'Think()en'.
     void NotifyHumanPlayerEntityOfClientCommand(unsigned long HumanPlayerEntityID, const PlayerCommandT& PlayerCommand);
 
-    // Falls es neue Entities (und damit neue BaseLine-Messages) gibt, die jünger sind als 'OldBaseLineFrameNr',
+    // Falls es neue Entities (und damit neue BaseLine-Messages) gibt, die jÃ¼nger sind als 'OldBaseLineFrameNr',
     // schreibe entsprechende BaseLine-Messages nach 'OutDatas'.
-    // Schreibt für alle EngineEntities, die seit 'SentClientBaseLineFrameNr' (=='OldBaseLineFrameNr') neu erschaffen wurden, SC1_EntityBaseLine Messages nach 'OutDatas'
-    // (d.h. für solche, deren 'BaseLineFrameNr' größer (d.h. jünger) als die 'SentClientBaseLineFrameNr' ist).
+    // Schreibt fÃ¼r alle EngineEntities, die seit 'SentClientBaseLineFrameNr' (=='OldBaseLineFrameNr') neu erschaffen wurden, SC1_EntityBaseLine Messages nach 'OutDatas'
+    // (d.h. fÃ¼r solche, deren 'BaseLineFrameNr' grÃ¶ÃŸer (d.h. jÃ¼nger) als die 'SentClientBaseLineFrameNr' ist).
     unsigned long WriteClientNewBaseLines(unsigned long OldBaseLineFrameNr, ArrayT< ArrayT<char> >& OutDatas) const;
 
     // Schreibt eine komplette Delta-Update-Message (FrameInfo+EntityUpdates) nach 'OutData'.
     // 'ClientEntityID' ist dabei die ID des Entities, dessen PVS zur Bestimmung der sichtbaren Entities herangezogen wird,
-    // 'ClientFrameNr' die Nummer des Frames/Zustands, den der Client zuletzt bestätigt hat,
-    // 'ClientOldStatesPVSEntityIDs' die von dieser Funktion gewarteteten PVS-Informationen vorangegangener Zustände und
+    // 'ClientFrameNr' die Nummer des Frames/Zustands, den der Client zuletzt bestÃ¤tigt hat,
+    // 'ClientOldStatesPVSEntityIDs' die von dieser Funktion gewarteteten PVS-Informationen vorangegangener ZustÃ¤nde und
     // 'ClientCurrentStateIndex' der (ebenfalls von dieser Funktion gewartete) Index in die PVS-Informationen.
     //
     // Diese Funktion nimmt folgende Parameter zu einem Client entgegen:
     // 'ClientEntityID'              - die ID des Entities des Clients,
     // 'ClientFrameNr'               - die Nummer des letzten ServerFrames, das der Client von uns gesehen hat,
-    // 'ClientOldStatesPVSEntityIDs' - die IDs der Entities der letzten Zustände des Clients, und
-    // 'ClientCurrentStateIndex'     - der zum Zustand des Frames 'ClientFrameNr' gehörende Index ins 'ClientOldStatesPVSEntityIDs' Array.
+    // 'ClientOldStatesPVSEntityIDs' - die IDs der Entities der letzten ZustÃ¤nde des Clients, und
+    // 'ClientCurrentStateIndex'     - der zum Zustand des Frames 'ClientFrameNr' gehÃ¶rende Index ins 'ClientOldStatesPVSEntityIDs' Array.
     // Diese Funktion schreibt dann eine SC1_NewFrameInfo Message und die sich aus obigem ergebenden, relevanten SC1_EntityUpdate Messages nach 'OutData',
-    // sodaß die Gegenstelle aus dem Zustand des Frames 'ClientFrameNr' den Zustand des Frames 'ServerFrameNr' rekonstruieren kann.
-    // WICHTIG: Die EngineEntities befinden sich bei Funktionsaufruf schon im Zustand des Frames 'ServerFrameNr'. Die Client PVS-EntityIDs für diesen
-    // Zustand werden erst mit diesem Aufruf erstellt! Deshalb MUSS diese Funktion auch nach JEDEM Aufruf von 'Think()' für jeden Client aufgerufen werden!
+    // sodaÃŸ die Gegenstelle aus dem Zustand des Frames 'ClientFrameNr' den Zustand des Frames 'ServerFrameNr' rekonstruieren kann.
+    // WICHTIG: Die EngineEntities befinden sich bei Funktionsaufruf schon im Zustand des Frames 'ServerFrameNr'. Die Client PVS-EntityIDs fÃ¼r diesen
+    // Zustand werden erst mit diesem Aufruf erstellt! Deshalb MUSS diese Funktion auch nach JEDEM Aufruf von 'Think()' fÃ¼r jeden Client aufgerufen werden!
     void WriteClientDeltaUpdateMessages(unsigned long ClientEntityID, unsigned long ClientFrameNr, ArrayT< ArrayT<unsigned long> >& ClientOldStatesPVSEntityIDs, unsigned long& ClientCurrentStateIndex, NetDataT& OutData) const;
 
-    // Überführt die World über die Zeit 'FrameTime' in den nächsten Zustand.
-    // Berechnet den nächsten Zustand 'ServerFrameNr' der EngineEntities, indem auf alle Entities die 'FrameTime' angewandt wird.
+    // ÃœberfÃ¼hrt die World Ã¼ber die Zeit 'FrameTime' in den nÃ¤chsten Zustand.
+    // Berechnet den nÃ¤chsten Zustand 'ServerFrameNr' der EngineEntities, indem auf alle Entities die 'FrameTime' angewandt wird.
     void Think(float FrameTime);
 
 
@@ -86,13 +86,13 @@ class CaServerWorldT : public Ca3DEWorldT
     void operator = (const CaServerWorldT&);    ///< Use of the Assignment Operator is not allowed.
 
     // Erzeugt einen neuen Entity. IdR wird dies [1] nach dem Laden einer neuen World aufgerufen werden, mit den im World-File enthaltenen Parametern.
-    // Denkbar ist aber auch [2] ein Aufruf aus dem 'EngineServiceInterface', wenn ein Entity einen neuen Entity erzeugen möchte.
-    // Dritte Möglichkeit: [3] Aufruf aus ServerWorldT::InsertHumanPlayerEntity(), zum Anlegen von HumanPlayer-Entities für Clients.
-    // (Dies erfolgt aus ClientInfoT::InitForNewWorld(): Entweder wenn ein Client neu dazukommt, oder nach einem World-change für die vorhandenen Clients.)
-    // 'EntityMapFileID' ist ein Handle zu den Map-File-Informationen des Entities, falls vorhanden (d.h. Fall [1]), sonst (Fälle [2] und [3]) -1.
+    // Denkbar ist aber auch [2] ein Aufruf aus dem 'EngineServiceInterface', wenn ein Entity einen neuen Entity erzeugen mÃ¶chte.
+    // Dritte MÃ¶glichkeit: [3] Aufruf aus ServerWorldT::InsertHumanPlayerEntity(), zum Anlegen von HumanPlayer-Entities fÃ¼r Clients.
+    // (Dies erfolgt aus ClientInfoT::InitForNewWorld(): Entweder wenn ein Client neu dazukommt, oder nach einem World-change fÃ¼r die vorhandenen Clients.)
+    // 'EntityMapFileID' ist ein Handle zu den Map-File-Informationen des Entities, falls vorhanden (d.h. Fall [1]), sonst (FÃ¤lle [2] und [3]) -1.
     // 'CreationFrameNr' ist die Nummer des Frames, zu dem der Entity erzeugt wird, sollte also stets die 'ServerFrameNr' der ServerWorld sein.
-    // Der Rückgabewert ist die ID des erzeugten Entities. (Verwendung: Der Server kann den Client damit wissen lassen, welcher Entity der Client ist).
-    // Falls der Entity nicht erzeugt werden kann, wird 0xFFFFFFFF zurückgegeben.
+    // Der RÃ¼ckgabewert ist die ID des erzeugten Entities. (Verwendung: Der Server kann den Client damit wissen lassen, welcher Entity der Client ist).
+    // Falls der Entity nicht erzeugt werden kann, wird 0xFFFFFFFF zurÃ¼ckgegeben.
     unsigned long CreateNewEntityFromBasicInfo(const std::map<std::string, std::string>& Properties, const cf::SceneGraph::GenericNodeT* RootNode,
         const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long WorldFileIndex, unsigned long MapFileIndex, unsigned long CreationFrameNr, const VectorT& Origin,
         const char* PlayerName=NULL, const char* ModelName=NULL);

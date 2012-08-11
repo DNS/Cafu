@@ -42,9 +42,9 @@ class EngineEntityT
 
     ~EngineEntityT();
 
-    // Rückt einen Zeiger auf unseren BaseEntity heraus.
-    // Hauptsächlich gedacht für die Aufrufkette "Konkreter Entity --> ESInterface --> EntityManager --> hier".
-    // Somit kann sich ein Entity beim Thinken z.B. Überblick über andere Entities verschaffen.
+    // RÃ¼ckt einen Zeiger auf unseren BaseEntity heraus.
+    // HauptsÃ¤chlich gedacht fÃ¼r die Aufrufkette "Konkreter Entity --> ESInterface --> EntityManager --> hier".
+    // Somit kann sich ein Entity beim Thinken z.B. Ãœberblick Ã¼ber andere Entities verschaffen.
     IntrusivePtrT<BaseEntityT> GetBaseEntity() const;
 
     // Bearbeitet den 'ConfigString' und die 'ConfigData'.
@@ -73,21 +73,21 @@ class EngineEntityT
     // are required (as detailed above), which in turn maintain 'OldStates').
     void Think(float FrameTime, unsigned long ServerFrameNr);
 
-    // Schreibt die SC1_EntityBaseLine Message für diesen EngineEntityT nach 'OutDatas', falls 'SentClientBaseLineFrameNr' kleiner (d.h. älter)
+    // Schreibt die SC1_EntityBaseLine Message fÃ¼r diesen EngineEntityT nach 'OutDatas', falls 'SentClientBaseLineFrameNr' kleiner (d.h. Ã¤lter)
     // als die 'BaseLineFrameNr' dieses EngineEntityTs ist, d.h. falls dieser EngineEntityT neu erschaffen wurde und an den Client noch keine
     // entsprechende SC1_EntityBaseLine Message geschickt wurde.
     // 'SentClientBaseLineFrameNr' ist die FrameNr, bis zu der dem Client schon alle SC1_EntityBaseLine Messages gesandt wurden
-    // (heißt aber nicht, daß er die auch schon hat!). Unabhängig davon sollten die 'OutDatas' "reliable" verschickt werden.
+    // (heiÃŸt aber nicht, daÃŸ er die auch schon hat!). UnabhÃ¤ngig davon sollten die 'OutDatas' "reliable" verschickt werden.
     void WriteNewBaseLine(unsigned long SentClientBaseLineFrameNr, ArrayT< ArrayT<char> >& OutDatas) const;
 
     // Schreibt eine SC1_EntityUpdate Message nach 'OutData'.
-    // Dabei wird der gegenwärtige 'Entity->State' gegen die BaseLine Delta-komprimiert, falls 'SendFromBaseLine==true',
+    // Dabei wird der gegenwÃ¤rtige 'Entity->State' gegen die BaseLine Delta-komprimiert, falls 'SendFromBaseLine==true',
     // ansonsten gegen den Zustand des Frames mit der Nummer 'ClientFrameNr'.
-    // Wenn der Entity-State sich überhaupt nicht geändert hat und 'ForceInfo==false', wird überhaupt keine Nachricht generiert,
+    // Wenn der Entity-State sich Ã¼berhaupt nicht geÃ¤ndert hat und 'ForceInfo==false', wird Ã¼berhaupt keine Nachricht generiert,
     // ansonsten zumindest der Header der SC1_EntityUpdate Message.
-    // Gibt 'true' bei Erfolg zurück, sonst 'false'. Der einzige Möglichkeit, weswegen diese Funktion scheitern kann ('false'),
+    // Gibt 'true' bei Erfolg zurÃ¼ck, sonst 'false'. Der einzige MÃ¶glichkeit, weswegen diese Funktion scheitern kann ('false'),
     // ist 'SendFromBaseLine==false' und eine zu kleine 'ClientFrameNr' (verlangt eine Komprimierung gegen etwas, was wir nicht (mehr) haben).
-    // Im Falle des Scheiterns bleibt 'OutData' unberührt.
+    // Im Falle des Scheiterns bleibt 'OutData' unberÃ¼hrt.
     bool WriteDeltaEntity(bool SendFromBaseLine, unsigned long ClientFrameNr, NetDataT& OutData, bool ForceInfo) const;
 
 
@@ -103,11 +103,11 @@ class EngineEntityT
     // Ausgehend vom (alten) Zustand des Frames 'DeltaFrameNr' wird der Entity Zustand des (neuen) Frames 'ServerFrameNr' bestimmt,
     // wobei Delta-Informationen anhand der DeltaMessage eingebracht werden.
     // 'DeltaFrameNr' ist die Nummer des Frames, gegen dessen Zustand Delta-dekomprimiert werden soll.
-    // Ist dieser Parameter 0, so wird angenommen, daß DeltaMessage gegen die BaseLine angewandt werden sollen!
-    // Gibt 'true' bei Erfolg zurück, sonst (Scheitern) 'false'.
+    // Ist dieser Parameter 0, so wird angenommen, daÃŸ DeltaMessage gegen die BaseLine angewandt werden sollen!
+    // Gibt 'true' bei Erfolg zurÃ¼ck, sonst (Scheitern) 'false'.
     // Die Funktion scheitert bei "unpassenden" Parametern (wenn 'DeltaFrameNr<=EntityStateFrameNr<ServerFrameNr' verletzt ist)
     // und wenn 'DeltaFrameNr' zu alt ist (Versuch, gegen etwas zu Dekomprimieren, was wir nicht (mehr) haben).
-    // Im Falle des Scheitersn bleibt die EngineEntityT Instanz unberührt.
+    // Im Falle des Scheitersn bleibt die EngineEntityT Instanz unberÃ¼hrt.
     bool ParseServerDeltaUpdateMessage(unsigned long DeltaFrameNr, unsigned long ServerFrameNr, const ArrayT<uint8_t>* DeltaMessage);
 
     // This function is called after we received any in-game message (which should always contain an SC1_FrameInfo message) from the server.

@@ -88,8 +88,8 @@ bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
     // as well as the game code can free/delete it in their destructors (one by "delete", the other by cf::ClipSys::CollModelMan->FreeCM()).
     cf::ClipSys::CollModelMan->GetCM(CollMdl);
 
-    // Es ist nicht sinnvoll, CreateBaseEntityFromTypeID() in Parametern die geparsten InData-Inhalte zu übergeben (Origin, Velocity, ...),
-    // denn spätestens bei der SequenceNr und FrameNr kommt es zu Problemen. Deshalb lieber erstmal ein BaseEntitiy mit "falschem" State erzeugen.
+    // Es ist nicht sinnvoll, CreateBaseEntityFromTypeID() in Parametern die geparsten InData-Inhalte zu Ã¼bergeben (Origin, Velocity, ...),
+    // denn spÃ¤testens bei der SequenceNr und FrameNr kommt es zu Problemen. Deshalb lieber erstmal ein BaseEntitiy mit "falschem" State erzeugen.
     IntrusivePtrT<BaseEntityT> NewBaseEntity=m_Game->CreateBaseEntityFromTypeNr(EntityTypeID, Props, RootNode, CollMdl, EntityID, EntityWFI, MFIndex, this);
 
     // Dies kann nur passieren, wenn EntityTypeID ein unbekannter Typ ist! Ein solcher Fehler ist also fatal.
@@ -102,13 +102,13 @@ bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
         return false;
     }
 
-    // Falls notwendig, Platz für die neue EntityID schaffen.
+    // Falls notwendig, Platz fÃ¼r die neue EntityID schaffen.
     while (m_EngineEntities.Size()<=EntityID) m_EngineEntities.PushBack(NULL);
 
-    // Die EntityID könnte durchaus wiederverwendet werden - was immer der Server wünscht.
+    // Die EntityID kÃ¶nnte durchaus wiederverwendet werden - was immer der Server wÃ¼nscht.
     delete m_EngineEntities[EntityID];
 
-    // Neuen Entity tatsächlich erschaffen.
+    // Neuen Entity tatsÃ¤chlich erschaffen.
     m_EngineEntities[EntityID]=new EngineEntityT(NewBaseEntity, InData);
     return true;
 }
@@ -139,18 +139,18 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
         // Das Frame ist gegen ein anderes Frame (delta-)komprimiert
         DeltaFrame=&Frames[CurrentFrame.DeltaFrameNr & (MAX_FRAMES-1)];
 
-        // Wir können nur dann richtig dekomprimieren, wenn das DeltaFrame damals gültig war (Ungültigkeit sollte hier niemals vorkommen!)
-        // und es nicht zu alt ist (andernfalls wurde es schon mit einem jüngeren Frame überschrieben und ist daher nicht mehr verfügbar).
+        // Wir kÃ¶nnen nur dann richtig dekomprimieren, wenn das DeltaFrame damals gÃ¼ltig war (UngÃ¼ltigkeit sollte hier niemals vorkommen!)
+        // und es nicht zu alt ist (andernfalls wurde es schon mit einem jÃ¼ngeren Frame Ã¼berschrieben und ist daher nicht mehr verfÃ¼gbar).
         if (DeltaFrame->IsValid && CurrentFrame.DeltaFrameNr==DeltaFrame->ServerFrameNr)
         {
             CurrentFrame.IsValid=true;
         }
         else
         {
-            // Falls wir hier 'CurrentFrame.IsValid==false' haben, so heißt das, daß wir den Rest der Message lesen und ignorieren müssen,
-            // denn er ist nicht verwertbar. Dazu arbeiten wir ganz normal mit dem ungültigen oder veralteten DeltaFrame, denn das CurrentFrame
-            // ist ja eh ungültig. Danach müssen wir eine nicht-komprimierte (d.h. gegen die BaseLines komprimierte) Nachricht anfordern,
-            // indem wir ganz am Ende dieser Funktion 0 anstatt 'm_ServerFrameNr' zurückgeben.
+            // Falls wir hier 'CurrentFrame.IsValid==false' haben, so heiÃŸt das, daÃŸ wir den Rest der Message lesen und ignorieren mÃ¼ssen,
+            // denn er ist nicht verwertbar. Dazu arbeiten wir ganz normal mit dem ungÃ¼ltigen oder veralteten DeltaFrame, denn das CurrentFrame
+            // ist ja eh ungÃ¼ltig. Danach mÃ¼ssen wir eine nicht-komprimierte (d.h. gegen die BaseLines komprimierte) Nachricht anfordern,
+            // indem wir ganz am Ende dieser Funktion 0 anstatt 'm_ServerFrameNr' zurÃ¼ckgeben.
             EnqueueString("CLIENT WARNING: %s, L %u: %u %u %u!\n", __FILE__, __LINE__, DeltaFrame->IsValid, CurrentFrame.DeltaFrameNr, DeltaFrame->ServerFrameNr);
         }
     }
@@ -171,7 +171,7 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
     {
         if (InData.ReadPos>=InData.Data.Size()) break;              // InBuffer ist zu Ende
         if (InData.Data[InData.ReadPos]!=SC1_EntityUpdate &&
-            InData.Data[InData.ReadPos]!=SC1_EntityRemove) break;   // Nächste Message ist keine 'SC1_EntityUpdate' oder 'SC1_EntityRemove' Message
+            InData.Data[InData.ReadPos]!=SC1_EntityRemove) break;   // NÃ¤chste Message ist keine 'SC1_EntityUpdate' oder 'SC1_EntityRemove' Message
 
         const char          Msg        =InData.ReadByte();
         const unsigned long NewEntityID=InData.ReadLong();
@@ -180,11 +180,11 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
 
         while (DeltaFrameEntityID<NewEntityID)
         {
-            // Ein oder mehrere Entities vom DeltaFrame finden sich unverändert im CurrentFrame wieder,
-            // für diese Entities hat der Server aber überhaupt keine Bits geschickt, d.h. noch nichtmal den Header!
+            // Ein oder mehrere Entities vom DeltaFrame finden sich unverÃ¤ndert im CurrentFrame wieder,
+            // fÃ¼r diese Entities hat der Server aber Ã¼berhaupt keine Bits geschickt, d.h. noch nichtmal den Header!
             CurrentFrame.EntityIDsInPVS.PushBack(DeltaFrameEntityID);
 
-            // Es geht nun also ganz um den Entity mit der ID 'DeltaFrameEntityID', von dem wir wissen, daß er im DeltaFrame vorkam.
+            // Es geht nun also ganz um den Entity mit der ID 'DeltaFrameEntityID', von dem wir wissen, daÃŸ er im DeltaFrame vorkam.
             // Notwendig ist es, den Zustand dieses Entities vom DeltaFrame (Nummer CurrentFrame.DeltaFrameNr) in den Zustand des
             // CurrentFrames (Nummer CurrentFrame.ServerFrameNr) zu kopieren.
             CurrentFrame.IsValid&=      // Note that operator & doesn't short-circuit, like operator && does!
@@ -219,7 +219,7 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
         {
             const ArrayT<uint8_t> DeltaMessage=InData.ReadDMsg();
 
-            // Der Entity vom DeltaFrame kommt auch im CurrentFrame vor, Änderungen ergeben sich aus der Delta-Dekompression bzgl. des DeltaFrame
+            // Der Entity vom DeltaFrame kommt auch im CurrentFrame vor, Ã„nderungen ergeben sich aus der Delta-Dekompression bzgl. des DeltaFrame
             CurrentFrame.EntityIDsInPVS.PushBack(NewEntityID);
 
             CurrentFrame.IsValid&=      // Note that operator & doesn't short-circuit, like operator && does!
@@ -245,12 +245,12 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
         }
     }
 
-    // Entities, die im DeltaFrame noch 'übrig' sind, werden ins CurrentFrame übernommen
+    // Entities, die im DeltaFrame noch 'Ã¼brig' sind, werden ins CurrentFrame Ã¼bernommen
     while (DeltaFrameEntityID!=0x99999999)
     {
         // Gleicher Fall wie oben:
-        // Ein oder mehrere Entities vom DeltaFrame finden sich unverändert im CurrentFrame wieder,
-        // für diese Entities hat der Server aber überhaupt keine Bits geschickt, d.h. noch nichtmal den Header!
+        // Ein oder mehrere Entities vom DeltaFrame finden sich unverÃ¤ndert im CurrentFrame wieder,
+        // fÃ¼r diese Entities hat der Server aber Ã¼berhaupt keine Bits geschickt, d.h. noch nichtmal den Header!
         CurrentFrame.EntityIDsInPVS.PushBack(DeltaFrameEntityID);
 
         CurrentFrame.IsValid&=      // Note that operator & doesn't short-circuit, like operator && does!
@@ -261,10 +261,10 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
                                                            else DeltaFrameEntityID=DeltaFrame->EntityIDsInPVS[DeltaFrameIndex];
     }
 
-    // CurrentFrame speichern für die spätere Wiederverwendung
+    // CurrentFrame speichern fÃ¼r die spÃ¤tere Wiederverwendung
     Frames[m_ServerFrameNr & (MAX_FRAMES-1)]=CurrentFrame;
 
-    // Falls das CurrentFrame die ganze Zeit nicht gültig war, müssen wir 0 zurückgeben,
+    // Falls das CurrentFrame die ganze Zeit nicht gÃ¼ltig war, mÃ¼ssen wir 0 zurÃ¼ckgeben,
     // um vom Server gegen die BaseLines komprimierte Messages zu bekommen (siehe oben)!
     if (!CurrentFrame.IsValid)
         EnqueueString("CLIENT INFO: CurrentFrame (%lu %lu) invalid, requesting baseline message.\n", CurrentFrame.ServerFrameNr, CurrentFrame.DeltaFrameNr);
@@ -328,12 +328,12 @@ void CaClientWorldT::ComputeBFSPath(const VectorT& Start, const VectorT& End)
         // Nimm das erste Element aus der ToDoList...
         unsigned long CurrentLeafNr=ToDoList[0];
 
-        // ...und rücke alles eins runter
+        // ...und rÃ¼cke alles eins runter
         for (LeafNr=0; LeafNr+1<ToDoList.Size(); LeafNr++) ToDoList[LeafNr]=ToDoList[LeafNr+1];
         ToDoList.DeleteBack();
 
         // Alle Nachbarn betrachten
-        // OPTIMIZE: Das geht natürlich besser, wenn man einen Adjaceny-Graph hat!
+        // OPTIMIZE: Das geht natÃ¼rlich besser, wenn man einen Adjaceny-Graph hat!
         for (LeafNr=0; LeafNr<Ca3DEWorld.Map.Leaves.Size(); LeafNr++)
         {
             if (BFS_Visited[LeafNr] || !Ca3DEWorld.Map.Leaves[CurrentLeafNr].BB.GetEpsilonBox(MapT::RoundEpsilon).Intersects(Ca3DEWorld.Map.Leaves[LeafNr].BB)) continue;
@@ -343,7 +343,7 @@ void CaClientWorldT::ComputeBFSPath(const VectorT& Start, const VectorT& End)
                     if (Ca3DEWorld.Map.Leaves[CurrentLeafNr].Portals[Portal1Nr].Overlaps(Ca3DEWorld.Map.Leaves[LeafNr].Portals[Portal2Nr], false, MapT::RoundEpsilon))
                     {
                         BFS_Visited[LeafNr]=true;           // Nachbarn 'markieren',
-                        BFS_Tree   [LeafNr]=CurrentLeafNr;  // Vorgänger von -1 auf CurrentLeaf setzen
+                        BFS_Tree   [LeafNr]=CurrentLeafNr;  // VorgÃ¤nger von -1 auf CurrentLeaf setzen
                         ToDoList.PushBack(LeafNr);          // und in ToDoList aufnehmen.
 
                         // Als Zugabe wollen wir noch den Eintrittspunkt festhalten
@@ -355,7 +355,7 @@ void CaClientWorldT::ComputeBFSPath(const VectorT& Start, const VectorT& End)
                             Center=Center+NewPolys[NewPolys.Size()-1].Vertices[VertexNr];
                         BFS_TreePoints[LeafNr]=scale(Center, 1.0/double(NewPolys[NewPolys.Size()-1].Vertices.Size()));
 
-                        // Es wäre nicht schlimm, wenn ein Leaf mehrfach in der ToDoListe landet, aber sinnvoll ist es auch nicht
+                        // Es wÃ¤re nicht schlimm, wenn ein Leaf mehrfach in der ToDoListe landet, aber sinnvoll ist es auch nicht
                         Portal1Nr=Ca3DEWorld.Map.Leaves[CurrentLeafNr].Portals.Size();
                         break;
                     }
@@ -404,9 +404,9 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
 #endif
 #endif
 
-    // Es gibt zwei Möglichkeiten, das PVS zu "disablen":
+    // Es gibt zwei MÃ¶glichkeiten, das PVS zu "disablen":
     // Entweder DrawEntities() veranlassen, alle Entities des m_EngineEntities-Arrays zu zeichnen
-    // (z.B. durch einen Trick, oder explizit ein Array der Größe m_EngineEntities.Size() übergeben, das an der Stelle i der Wert i hat),
+    // (z.B. durch einen Trick, oder explizit ein Array der GrÃ¶ÃŸe m_EngineEntities.Size() Ã¼bergeben, das an der Stelle i der Wert i hat),
     // oder indem die Beachtung des PVS auf Server-Seite (!) ausgeschaltet wird! Die Effekte sind jeweils verschieden!
     const FrameT& CurrentFrame=Frames[m_ServerFrameNr & (MAX_FRAMES-1)];
 
@@ -424,14 +424,14 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
 
     if (!CurrentFrame.IsValid)
     {
-        // Eine Möglichkeit, wie man zu diesem Fehler kommt:
+        // Eine MÃ¶glichkeit, wie man zu diesem Fehler kommt:
         // Bei einer World mit sehr vielen Entities, die auch alle vom Startpunkt aus sichtbar (d.h. im PVS) sind,
         // schickt uns der Server nach dem Join-Request die WorldInfo, die BaseLines, und auch die erste FrameInfo-Message.
-        // Die FrameInfo-Message wird jedoch nur "unreliable" zu übertragen versucht, und daher vom Protokoll weggelassen,
-        // wenn die max. Größe des Netzwerkpakets überschritten wird.
-        // Somit können wir hierherkommen, ohne jemals eine FrameInfo-Message vom Server gesehen zu haben.
-        // Erkennen kann man diesen Fall daran, daß 'm_ServerFrameNr' noch den Initialisierungswert 0xDEADBEEF enthält.
-        // Das Auftreten dieses Fehlers ist nicht schön, aber auch nicht sehr schlimm, solange es keine sauberere Lösung gibt.
+        // Die FrameInfo-Message wird jedoch nur "unreliable" zu Ã¼bertragen versucht, und daher vom Protokoll weggelassen,
+        // wenn die max. GrÃ¶ÃŸe des Netzwerkpakets Ã¼berschritten wird.
+        // Somit kÃ¶nnen wir hierherkommen, ohne jemals eine FrameInfo-Message vom Server gesehen zu haben.
+        // Erkennen kann man diesen Fall daran, daÃŸ 'm_ServerFrameNr' noch den Initialisierungswert 0xDEADBEEF enthÃ¤lt.
+        // Das Auftreten dieses Fehlers ist nicht schÃ¶n, aber auch nicht sehr schlimm, solange es keine sauberere LÃ¶sung gibt.
 #ifdef DEBUG
         EnqueueString("CLIENT WARNING: %s, L %u: Frame %lu was invalid on entity draw attempt!", __FILE__, __LINE__, m_ServerFrameNr);
 #endif
@@ -539,7 +539,7 @@ bool CaClientWorldT::ParseServerDeltaUpdateMessage(unsigned long EntityID, unsig
 
     if (!EntityIDIsOK)
     {
-        // Gib Warnung aus. Aber nur, weil wir mit einer SC1_EntityUpdate Message nichts anfangen können, brauchen wir noch lange nicht zu disconnecten.
+        // Gib Warnung aus. Aber nur, weil wir mit einer SC1_EntityUpdate Message nichts anfangen kÃ¶nnen, brauchen wir noch lange nicht zu disconnecten.
         // ONE reason for getting EntityID>=m_EngineEntities.Size() here is the way how baselines are sent:
         // When a client joins a level, there can be a LOT of entities. Usually, not all baselines of all entities fit into a single
         // realiable message at once, and thus the server sends them in batches, contained in subsequent realiable messages.
@@ -553,9 +553,9 @@ bool CaClientWorldT::ParseServerDeltaUpdateMessage(unsigned long EntityID, unsig
         return false;
     }
 
-    // Gibt bei Scheitern Diagnose-Nachricht aus. Häufigster Grund für Scheitern dürfe eine zu alte DeltaFrameNr sein.
-    // Der Calling-Code muß das erkennen und reagieren (durch Anfordern von nichtkomprimierten (gegen die BaseLine komprimierten) Messages).
-    // Jedenfalls nicht Grund genug für ein Client-Disconnect.
+    // Gibt bei Scheitern Diagnose-Nachricht aus. HÃ¤ufigster Grund fÃ¼r Scheitern dÃ¼rfe eine zu alte DeltaFrameNr sein.
+    // Der Calling-Code muÃŸ das erkennen und reagieren (durch Anfordern von nichtkomprimierten (gegen die BaseLine komprimierten) Messages).
+    // Jedenfalls nicht Grund genug fÃ¼r ein Client-Disconnect.
     return m_EngineEntities[EntityID]->ParseServerDeltaUpdateMessage(DeltaFrameNr, ServerFrameNr, DeltaMessage);
 }
 

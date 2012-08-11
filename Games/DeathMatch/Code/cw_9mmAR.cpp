@@ -168,8 +168,8 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, const Player
                 if (ThinkingOnServerSide)
                 {
                     // If we are on server-side, fire the first single shot, and find out what or who we hit.
-                    const unsigned short Pitch  =Player->GetPitch()  +(rand() % 364)-182;  // ca. 2°
-                    const unsigned short Heading=Player->GetHeading()+(rand() % 364)-182;  // ca. 2°
+                    const unsigned short Pitch  =Player->GetPitch()  +(rand() % 364)-182;  // ca. 2Â°
+                    const unsigned short Heading=Player->GetHeading()+(rand() % 364)-182;  // ca. 2Â°
 
                     const float ViewDirZ=-LookupTables::Angle16ToSin[Pitch];
                     const float ViewDirY= LookupTables::Angle16ToCos[Pitch];
@@ -196,14 +196,14 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, const Player
                 // Important: ONLY create (throw) a new AR grenade IF we are on the server side!
                 if (ThinkingOnServerSide)
                 {
-                    // Clamp 'Pitch' values larger than 45° (==8192) to 45°.
+                    // Clamp 'Pitch' values larger than 45Â° (==8192) to 45Â°.
                     const unsigned short Pitch=(Player->GetPitch()>8192 && Player->GetPitch()<=16384) ? 8192 : Player->GetPitch();
 
                     const float ViewDirZ=-LookupTables::Angle16ToSin[Pitch];
                     const float ViewDirY= LookupTables::Angle16ToCos[Pitch];
 
                     // Note: There is a non-trivial relationship between heading, pitch, and the corresponding view vector.
-                    // Especially does a heading and pitch of 45° NOT correspond to the view vector (1, 1, 1), and vice versa!
+                    // Especially does a heading and pitch of 45Â° NOT correspond to the view vector (1, 1, 1), and vice versa!
                     // Think carefully about this before changing the number 1050.0 below (which actually is 2.0*(400.0+120.0) (+10.0 for "safety")).
                     const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
                     const VectorT ARGrenadeOrigin(Player->GetOrigin()-VectorT(0.0, 0.0, 250.0)+scale(ViewDir, 1050.0)+scale(State.Velocity, double(PlayerCommand.FrameTime)));
@@ -300,8 +300,8 @@ void CarriedWeapon9mmART::ClientSide_HandleStateDrivenEffects(const EntHumanPlay
     {
         if (State.ActiveWeaponFrameNr==0.0)
         {
-            const unsigned short Pitch  =Player->GetPitch()  +(rand() % 400)-200;  // ca. 2°
-            const unsigned short Heading=Player->GetHeading()+(rand() % 400)-200;  // ca. 2°
+            const unsigned short Pitch  =Player->GetPitch()  +(rand() % 400)-200;  // ca. 2Â°
+            const unsigned short Heading=Player->GetHeading()+(rand() % 400)-200;  // ca. 2Â°
 
             const float ViewDirZ=-LookupTables::Angle16ToSin[Pitch];
             const float ViewDirY= LookupTables::Angle16ToCos[Pitch];

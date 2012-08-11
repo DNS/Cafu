@@ -322,7 +322,7 @@ const cf::TypeSys::TypeInfoManT& cf::GameSys::GameImplT::GetEntityTIM() const
 // This function is called by the server, in order to obtain a (pointer to a) 'BaseEntityT' from a map file entity.
 // The server also provides the ID and engine function call-backs for the new entity.
 //
-// TODO: Diese Funktion sollte einen struct-Parameter haben, der enth‰lt: std::map<> mit EntityDef (Properties), ID, EF, ptr auf SceneNode-Root, ptr auf ClipObject.
+// TODO: Diese Funktion sollte einen struct-Parameter haben, der enth√§lt: std::map<> mit EntityDef (Properties), ID, EF, ptr auf SceneNode-Root, ptr auf ClipObject.
 IntrusivePtrT<BaseEntityT> cf::GameSys::GameImplT::CreateBaseEntityFromMapFile(const cf::TypeSys::TypeInfoT* TI, const std::map<std::string, std::string>& Properties,
     const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID,
     unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld, const Vector3T<double>& Origin)

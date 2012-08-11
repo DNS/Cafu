@@ -139,7 +139,7 @@ namespace cf
             UniScriptStateT*         m_MapScriptState;  ///< If this is a 3D world GUI, this is the script state of the map that this GUI and its host entity are in.
             std::string              m_EntityName;      ///< If this is a 3D world GUI, this is the name of its host entity.
 
-            // Gui variables (general purpose)... (Maus-unabhängig, z.B. aktuelle Lift-Position............. übers Netzwerk sync'en!!)
+            // Gui variables (general purpose)... (Maus-unabhÃ¤ngig, z.B. aktuelle Lift-Position............. Ã¼bers Netzwerk sync'en!!)
             // ...
 
 

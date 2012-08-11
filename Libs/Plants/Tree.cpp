@@ -523,7 +523,7 @@ void TreeT::Draw() const
         gdi_BillBoardRtVec.y=ViewerXUnit.y; gdi_BillBoardUpVec.y=ViewerYUnit.y;
         gdi_BillBoardRtVec.z=ViewerXUnit.z; gdi_BillBoardUpVec.z=ViewerYUnit.z;
 
-        // Evtl. die Hoehe des Betrachters ausser acht lassen?? (Sodass nur die Entfernung ueber Grund z‰hlt.)
+        // Evtl. die Hoehe des Betrachters ausser acht lassen?? (Sodass nur die Entfernung ueber Grund z√§hlt.)
         gdi_DistanceToTreeRoot=length(ViewerPos);
 
         DrawBranch(Trunk);

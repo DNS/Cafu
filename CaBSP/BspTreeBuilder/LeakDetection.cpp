@@ -93,12 +93,12 @@ void BspTreeBuilderT::ComputeLeakPathByBFS(const VectorT& Start) const
         // Nimm das erste Element aus der ToDoList...
         unsigned long CurrentLeafNr=ToDoList[0];
 
-        // ...und rücke alles eins runter
+        // ...und rÃ¼cke alles eins runter
         for (unsigned long LeafNr=0; LeafNr+1<ToDoList.Size(); LeafNr++) ToDoList[LeafNr]=ToDoList[LeafNr+1];
         ToDoList.DeleteBack();
 
         // Alle Nachbarn betrachten
-        // OPTIMIZE: Das geht natürlich besser, wenn man einen Adjaceny-Graph hat!
+        // OPTIMIZE: Das geht natÃ¼rlich besser, wenn man einen Adjaceny-Graph hat!
         for (unsigned long LeafNr=0; LeafNr<Leaves.Size(); LeafNr++)
         {
             if (BFS_Visited[LeafNr] || !Leaves[CurrentLeafNr].BB.GetEpsilonBox(MapT::RoundEpsilon).Intersects(Leaves[LeafNr].BB)) continue;
@@ -108,7 +108,7 @@ void BspTreeBuilderT::ComputeLeakPathByBFS(const VectorT& Start) const
                     if (Leaves[CurrentLeafNr].Portals[Portal1Nr].Overlaps(Leaves[LeafNr].Portals[Portal2Nr], false, MapT::RoundEpsilon))
                     {
                         BFS_Visited[LeafNr]=true;           // Nachbarn 'markieren',
-                        BFS_Tree   [LeafNr]=CurrentLeafNr;  // Vorgänger von -1 auf CurrentLeaf setzen
+                        BFS_Tree   [LeafNr]=CurrentLeafNr;  // VorgÃ¤nger von -1 auf CurrentLeaf setzen
                         ToDoList.PushBack(LeafNr);          // und in ToDoList aufnehmen.
 
                         // Als Zugabe wollen wir noch den Eintrittspunkt festhalten
@@ -121,7 +121,7 @@ void BspTreeBuilderT::ComputeLeakPathByBFS(const VectorT& Start) const
                             Center=Center+NewPolys[NewPolys.Size()-1].Vertices[VertexNr];
                         BFS_TreePoints[LeafNr]=scale(Center, 1.0/double(NewPolys[NewPolys.Size()-1].Vertices.Size()));
 
-                        // Es wäre nicht schlimm, wenn ein Leaf mehrfach in der ToDoListe landet, aber sinnvoll ist es auch nicht
+                        // Es wÃ¤re nicht schlimm, wenn ein Leaf mehrfach in der ToDoListe landet, aber sinnvoll ist es auch nicht
                         Portal1Nr=Leaves[CurrentLeafNr].Portals.Size();
                         break;
                     }

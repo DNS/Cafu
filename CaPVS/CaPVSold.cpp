@@ -51,10 +51,10 @@ void DetermineAdjacencyGraph()
             if (SL1Nr==SL2Nr || !BoundingBoxTest(SuperLeaves[SL1Nr].BB, SuperLeaves[SL2Nr].BB)) continue;
 
             // Jedes Portal des ersten Leafs gegen jedes Portal des zweiten Leafs
-            // prüfen und testen, ob sie sich schneiden (dann sind sie durchlässig).
+            // prÃ¼fen und testen, ob sie sich schneiden (dann sind sie durchlÃ¤ssig).
             // BEACHTE: SuperLeaves haben *alle* Portale ihrer Leaves!
-            // D.h. es können sich nicht nur Portale auf ihrer konvexen Hülle befinden, sondern auch "innen drin".
-            // Wegen der Konvexität der SuperLeaves dürfte das aber keine Rolle spielen und folgendes müßte trotzdem korrekt funktionieren.
+            // D.h. es kÃ¶nnen sich nicht nur Portale auf ihrer konvexen HÃ¼lle befinden, sondern auch "innen drin".
+            // Wegen der KonvexitÃ¤t der SuperLeaves dÃ¼rfte das aber keine Rolle spielen und folgendes mÃ¼ÃŸte trotzdem korrekt funktionieren.
             for (unsigned long Portal1Nr=0; Portal1Nr<SuperLeaves[SL1Nr].Portals.Size(); Portal1Nr++)
                 for (unsigned long Portal2Nr=0; Portal2Nr<SuperLeaves[SL2Nr].Portals.Size(); Portal2Nr++)
                 {
@@ -90,8 +90,8 @@ inline void FlagVisible(unsigned long SLNr)
 
 // Bestimme die Sichtpyramide (Frustum), die eine Lichtquelle (LightSource) durch ein Loch (Hole) wirft.
 // Dabei leuchtet die Lichtquelle in die entgegengesetzte(!!) Richtung ihres Normalenvektors, und das Loch
-// läßt auch nur Licht in der Gegenrichtung seines Normalenvektors durch. Würde man das Loch zur Lichtquelle
-// und umgekehrt machen (PolygonMirror), wäre das Frustum das gleiche, die Ebenen wären aber gespiegelt!
+// lÃ¤ÃŸt auch nur Licht in der Gegenrichtung seines Normalenvektors durch. WÃ¼rde man das Loch zur Lichtquelle
+// und umgekehrt machen (PolygonMirror), wÃ¤re das Frustum das gleiche, die Ebenen wÃ¤ren aber gespiegelt!
 // Voraussetzung: Die Ebene der Lichtquelle schneidet nicht das Loch und umgekehrt. Dieser Fall wird nicht
 // abgedeckt bzw. ist gar nicht durchdacht. Da die Leaves konvex sind usw. wird dies aber immer eingehalten!
 inline void FindFrustum(const PolygonT& LightSource, const PolygonT& Hole, ArrayT<PlaneT>& Frustum)
@@ -103,17 +103,17 @@ inline void FindFrustum(const PolygonT& LightSource, const PolygonT& Hole, Array
     {
         for (unsigned long V1=0; V1<LightSource.Vertices.Size(); V1++)
         {
-            // Eigentlich würde ich hier gerne folgenden Wunsch-Code schreiben:
+            // Eigentlich wÃ¼rde ich hier gerne folgenden Wunsch-Code schreiben:
             //     try
             //     {
             //         PlaneT FrustumPlane(Hole.Vertices[V2], LightSource.Vertices[V1], Hole.Vertices[V3]);
             //
             //         // ...
             //     }
-            //     catch (DivisionByZero) { }  // Nicht mögliche FrustumPlanes einfach ignorieren.
+            //     catch (DivisionByZero) { }  // Nicht mÃ¶gliche FrustumPlanes einfach ignorieren.
             // Aus irgendeinem Grund ist die Verwendung oder das Fangen der DivisionByZero-Exception aber sehr langsam.
             // Deshalb rolle ich lieber den PlaneT-Konstruktor aus, um ohne dieses Exception-Handling auszukommen.
-            // Das Programm wird *deutlich* schneller, ca. Faktor 1,5. Ob das eine Schwäche des Watcom-Compilers ist??
+            // Das Programm wird *deutlich* schneller, ca. Faktor 1,5. Ob das eine SchwÃ¤che des Watcom-Compilers ist??
             VectorT Normal(VectorCross(Hole.Vertices[V3]-Hole.Vertices[V2], LightSource.Vertices[V1]-Hole.Vertices[V2]));
             double  NLength=VectorLength(Normal);
 
@@ -123,7 +123,7 @@ inline void FindFrustum(const PolygonT& LightSource, const PolygonT& Hole, Array
             PlaneT FrustumPlane(Normal, VectorDot(Hole.Vertices[V2], Normal));
 
             // Diese neue FrustumPlane nur dann akzeptieren, wenn das Hole auf ihrer Vorderseite liegt
-            // (konstruktionsbedingt sowieso der Fall!) und die LightSource auf ihrer Rückseite liegt.
+            // (konstruktionsbedingt sowieso der Fall!) und die LightSource auf ihrer RÃ¼ckseite liegt.
             // Wenn eine Edge des Hole in der Ebene der LightSource liegt, darf die LightSource
             // auch in der FrustumPlane liegen.
             if (PolygonWhatSide(LightSource, FrustumPlane)<0)
@@ -142,17 +142,17 @@ inline void FindFrustum(const PolygonT& LightSource, const PolygonT& Hole, Array
     {
         for (unsigned long V1=0; V1<Hole.Vertices.Size(); V1++) // Optimize: Check if edges are in already existing frustum planes!
         {
-            // Eigentlich würde ich hier gerne folgenden Wunsch-Code schreiben:
+            // Eigentlich wÃ¼rde ich hier gerne folgenden Wunsch-Code schreiben:
             //     try
             //     {
             //         PlaneT FrustumPlane(LightSource.Vertices[V2], Hole.Vertices[V1], LightSource.Vertices[V3]);
             //
             //         // ...
             //     }
-            //     catch (DivisionByZero) { }  // Nicht mögliche Ebenen einfach ignorieren.
+            //     catch (DivisionByZero) { }  // Nicht mÃ¶gliche Ebenen einfach ignorieren.
             // Aus irgendeinem Grund ist die Verwendung oder das Fangen der DivisionByZero-Exception aber sehr langsam.
             // Deshalb rolle ich lieber den PlaneT-Konstruktor aus, um ohne dieses Exception-Handling auszukommen.
-            // Das Programm wird *deutlich* schneller, ca. Faktor 1,5. Ob das eine Schwäche des Watcom-Compilers ist??
+            // Das Programm wird *deutlich* schneller, ca. Faktor 1,5. Ob das eine SchwÃ¤che des Watcom-Compilers ist??
             VectorT Normal(VectorCross(LightSource.Vertices[V3]-LightSource.Vertices[V2], Hole.Vertices[V1]-LightSource.Vertices[V2]));
             double  NLength=VectorLength(Normal);
 
@@ -161,11 +161,11 @@ inline void FindFrustum(const PolygonT& LightSource, const PolygonT& Hole, Array
 
             PlaneT FrustumPlane(Normal, VectorDot(LightSource.Vertices[V2], Normal));
 
-            // Diese neue FrustumPlane nur dann akzeptieren, wenn die LightSource auf ihrer Rückseite
+            // Diese neue FrustumPlane nur dann akzeptieren, wenn die LightSource auf ihrer RÃ¼ckseite
             // liegt (konstruktionsbedingt sowieso der Fall!) und das Hole auf ihrer Vorderseite liegt.
             // Wenn eine Edge der LightSource in der Ebene des Holes liegt, darf das Hole
             // auch in der FrustumPlane liegen.
-            const signed char Side=PolygonWhatSide(Hole, FrustumPlane);    // Wegen dem Rollentausch ist die Orientierung für diesen Test falsch, ...
+            const signed char Side=PolygonWhatSide(Hole, FrustumPlane);    // Wegen dem Rollentausch ist die Orientierung fÃ¼r diesen Test falsch, ...
 
             if (Side==1 || Side==-3)
             {
@@ -192,7 +192,7 @@ void FindVisibleLeaves(unsigned long SLNr, const PolygonT& MasterPortal, const P
     {
         PolygonT NextPortal=SuperLeaves[SLNr].Neighbours[NeighbourNr].SubPortal;
 
-        // Abkürzung: Gleiche Ebene? Dann weiter mit dem nächsten Portal!
+        // AbkÃ¼rzung: Gleiche Ebene? Dann weiter mit dem nÃ¤chsten Portal!
         if (abs(PolygonWhatSide(NextPortal, EnteringPortal.Plane))==3) continue;
 
         // Clippe 'NextPortal' gegen das Frustum MasterPortal --> EnteringPortal.
@@ -208,7 +208,7 @@ void FindVisibleLeaves(unsigned long SLNr, const PolygonT& MasterPortal, const P
         if (FrustumNr<Frustum.Size()) continue;
 
         // Clippe 'MasterPortal' gegen das Frustum NextPortal --> EnteringPortal.
-        // Um die Portale nicht spiegeln zu müssen, das gespiegelte Frustum benutzen!
+        // Um die Portale nicht spiegeln zu mÃ¼ssen, das gespiegelte Frustum benutzen!
         ArrayT<PlaneT> Frustum2;
         FindFrustum(EnteringPortal, NextPortal, Frustum2);
 
@@ -232,17 +232,17 @@ void BuildPVS()
 {
     Win32Console.FunctionID("Potentially Visibility Set");
 
-    // Für jedes SuperLeaf das PVS bestimmen.
+    // FÃ¼r jedes SuperLeaf das PVS bestimmen.
     for (MasterSuperLeafNr=0; MasterSuperLeafNr<SuperLeaves.Size(); MasterSuperLeafNr++)
     {
         Win32Console.RefreshStatusLine((double)MasterSuperLeafNr/SuperLeaves.Size());
 
         FlagVisible(MasterSuperLeafNr);
 
-        // Für den alten Algorithmus war hier vermerkt, daß "outer leaves" keine Neighbours/Portals haben,
+        // FÃ¼r den alten Algorithmus war hier vermerkt, daÃŸ "outer leaves" keine Neighbours/Portals haben,
         // wegen der Eigenschaften von Portalize() und FillInside() des CaBSP Programms.
-        // Der neue Algorithmus verwendet SuperLeaves, bei denen überhaupt nicht zwischen "inner" und "outer" unterschieden wird.
-        // Alles was zählt, sind die Portale. Deshalb setzen sich SuperLeaves korrekt aus beliebigen Leaves eines Sub-Trees zusammen.
+        // Der neue Algorithmus verwendet SuperLeaves, bei denen Ã¼berhaupt nicht zwischen "inner" und "outer" unterschieden wird.
+        // Alles was zÃ¤hlt, sind die Portale. Deshalb setzen sich SuperLeaves korrekt aus beliebigen Leaves eines Sub-Trees zusammen.
         for (unsigned long NeighbourNr=0; NeighbourNr<SuperLeaves[MasterSuperLeafNr].Neighbours.Size(); NeighbourNr++)
         {
             const unsigned long NeighbourSLNr=SuperLeaves[MasterSuperLeafNr].Neighbours[NeighbourNr].SuperLeafNr;
@@ -365,20 +365,20 @@ int main(int ArgC, const char* ArgV[])
         if (OnlySuperLeaves) return 0;
         DetermineAdjacencyGraph();
 
-        // SuperLeavesPVS erzeugen und zurücksetzen (völlige Blindheit).
+        // SuperLeavesPVS erzeugen und zurÃ¼cksetzen (vÃ¶llige Blindheit).
         SuperLeavesPVS.PushBackEmpty((SuperLeaves.Size()*SuperLeaves.Size()+31)/32);
         for (unsigned long Vis=0; Vis<SuperLeavesPVS.Size(); Vis++) SuperLeavesPVS[Vis]=0;
 
         // Berechne das PVS der SuperLeaves.
         BuildPVS();
 
-        // 'SuperLeavesPVS' ins PVS der 'CaPVSWorld' übertragen.
+        // 'SuperLeavesPVS' ins PVS der 'CaPVSWorld' Ã¼bertragen.
         CaPVSWorld->StorePVS(SuperLeaves, SuperLeavesPVS);
 
-        // Drucke Statistiken aus und erhalte eine Prüfsumme zurück.
+        // Drucke Statistiken aus und erhalte eine PrÃ¼fsumme zurÃ¼ck.
         unsigned long CheckSum=CaPVSWorld->GetChecksumAndPrintStats();
 
-        // Speichere die World zurück auf Disk.
+        // Speichere die World zurÃ¼ck auf Disk.
         Win32Console.FunctionID("Save World %s", ArgV[1]);
         CaPVSWorld->SaveToDisk(ArgV[1]);
 

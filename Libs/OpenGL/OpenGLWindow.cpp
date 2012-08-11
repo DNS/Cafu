@@ -123,7 +123,7 @@ SingleOpenGLWindowT*           SingleOpenGLWindow=&SingleWin;
 
 
 
-/// Passt den OpenGL-ViewPort an eine neue Fensterhöhe/-breite an.
+/// Passt den OpenGL-ViewPort an eine neue FensterhÃ¶he/-breite an.
 void SingleOpenGLWindowImplT::Resize(unsigned int Width_, unsigned int Height_)
 {
     Width =Width_;
@@ -134,7 +134,7 @@ void SingleOpenGLWindowImplT::Resize(unsigned int Width_, unsigned int Height_)
     glViewport(0, 0, Width, Height);  // ViewPort neu setzen.
 
 
-    glMatrixMode(GL_PROJECTION);                                // Projektionsmatrix zurücksetzen.
+    glMatrixMode(GL_PROJECTION);                                // Projektionsmatrix zurÃ¼cksetzen.
 
     const double FieldOfView=67.5;      // Field of view angle, in y-direction.
     const double AspectRatio=double(Width)/double(Height);
@@ -157,12 +157,12 @@ void SingleOpenGLWindowImplT::Resize(unsigned int Width_, unsigned int Height_)
     // gluPerspective(FieldOfView, AspectRatio, Near, Far);
 
 
-    glMatrixMode(GL_MODELVIEW);                                 // Modelview-Matrix zurücksetzen.
+    glMatrixMode(GL_MODELVIEW);                                 // Modelview-Matrix zurÃ¼cksetzen.
     glLoadIdentity();
 }
 
 
-// CallBack-Funktion für die Window-Messages.
+// CallBack-Funktion fÃ¼r die Window-Messages.
 #ifdef _WIN32
 LRESULT CALLBACK WinProc(HWND hWnd, UINT MessageID, WPARAM wParam, LPARAM lParam)
 {
@@ -183,7 +183,7 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT MessageID, WPARAM wParam, LPARAM lParam
         case WM_KEYUP:
         case WM_SYSKEYUP:
         {
-            // Für lParam vgl. Petzold S. 227 und 215.
+            // FÃ¼r lParam vgl. Petzold S. 227 und 215.
             CaKeyboardEventT CKE;
 
             CKE.Type=IsKeyDown ? CaKeyboardEventT::CKE_KEYDOWN : CaKeyboardEventT::CKE_KEYUP;
@@ -195,7 +195,7 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT MessageID, WPARAM wParam, LPARAM lParam
             // However, if I set the 8th bit whenever the extended flag is set, it turns out that the result exactly
             // matches the CaKeyboardEventT::KeyT enumaration, which in turn matches the DirectInput DIK_ constants list!
             // Also see Petzolds description about the "lParam" value for WM_*KEY* messages at pages 215-217, especially the
-            // sections about "OEM-Scancode" and "Flag für erweiterte Tasten" - it's very good!
+            // sections about "OEM-Scancode" and "Flag fÃ¼r erweiterte Tasten" - it's very good!
             if ((lParam & (1 << 24))!=0) CKE.Key|=0x80;
 
             // Store the event in the event queue.
@@ -284,22 +284,22 @@ const char* SingleOpenGLWindowImplT::Open(const std::string& Title_, unsigned in
     for (unsigned int c=0; c<256; c++) KeyboardState[c]=false;
 
 
-    // 1. Window-Klasse ausfüllen und registrieren
+    // 1. Window-Klasse ausfÃ¼llen und registrieren
     // *******************************************
 
     WNDCLASSEX MainWindowClass;
 
-    MainWindowClass.cbSize       =sizeof(WNDCLASSEX);                       // Größe dieser Struktur
+    MainWindowClass.cbSize       =sizeof(WNDCLASSEX);                       // GrÃ¶ÃŸe dieser Struktur
     MainWindowClass.style        =CS_VREDRAW | CS_HREDRAW | CS_OWNDC;       // Fensterklassenstil
     MainWindowClass.lpfnWndProc  =WinProc;                                  // Zeiger auf Handler-Funktion
-    MainWindowClass.cbClsExtra   =0;                                        // Zusätzlicher Platz für KlassenInfos
-    MainWindowClass.cbWndExtra   =0;                                        // Zusätzlicher Platz für FensterInfos
+    MainWindowClass.cbClsExtra   =0;                                        // ZusÃ¤tzlicher Platz fÃ¼r KlassenInfos
+    MainWindowClass.cbWndExtra   =0;                                        // ZusÃ¤tzlicher Platz fÃ¼r FensterInfos
     MainWindowClass.hInstance    =hInstance;                                // Unsere Programm-ID
     MainWindowClass.hIcon        =LoadIcon(NULL, IDI_APPLICATION);          // Icon
-    MainWindowClass.hIconSm      =LoadIcon(NULL, IDI_APPLICATION);          // Kleines Icon für Task-Bar
+    MainWindowClass.hIconSm      =LoadIcon(NULL, IDI_APPLICATION);          // Kleines Icon fÃ¼r Task-Bar
     MainWindowClass.hCursor      =LoadCursor(NULL, IDC_ARROW);              // Cursor
     MainWindowClass.hbrBackground=NULL;                                     // Hintergrund-Brush
-    MainWindowClass.lpszMenuName =NULL;                                     // Menü
+    MainWindowClass.lpszMenuName =NULL;                                     // MenÃ¼
     MainWindowClass.lpszClassName="CafuMain";                               // Name dieser Fensterklasse
 
     if (!RegisterClassEx(&MainWindowClass)) return "Unable to register the window class.";
@@ -360,11 +360,11 @@ const char* SingleOpenGLWindowImplT::Open(const std::string& Title_, unsigned in
                            0, // FullScreen ? 0 : CW_USEDEFAULT,       // X-Position
                            0, // FullScreen ? 0 : CW_USEDEFAULT,       // Y-Position
                            GLWindowRect.right-GLWindowRect.left,       // Breite
-                           GLWindowRect.bottom-GLWindowRect.top,       // Höhe
-                           NULL,                                       // Übergeordnetes Fenster
-                           NULL,                                       // Menü
+                           GLWindowRect.bottom-GLWindowRect.top,       // HÃ¶he
+                           NULL,                                       // Ãœbergeordnetes Fenster
+                           NULL,                                       // MenÃ¼
                            hInstance,                                  // Unsere Programm-ID
-                           NULL);                                      // Zusätzliche Parameter
+                           NULL);                                      // ZusÃ¤tzliche Parameter
 
     if (!hWindow)
     {
@@ -641,7 +641,7 @@ bool SingleOpenGLWindowImplT::HandleWindowMessages()
     {
         if (Message.message==WM_QUIT) return true;  // Programm-Ende?
 
-        TranslateMessage(&Message);                 // Tastencodes übersetzen.
+        TranslateMessage(&Message);                 // Tastencodes Ã¼bersetzen.
         DispatchMessage (&Message);                 // WindowProzedur aufrufen.
     }
 #else
@@ -909,13 +909,13 @@ uint32_t* SingleOpenGLWindowImplT::GetFrameBuffer(unsigned int& Width_, unsigned
     FrameBuffer.PushBackEmpty(Width*Height);
 
     // Pixel vom BackBuffer in den FrameBuffer lesen.
-    // Beachte: Die ersten beiden Parameter (0, 0) spezifizieren die linke UNTERE Ecke des gewünschten Bereichs!
+    // Beachte: Die ersten beiden Parameter (0, 0) spezifizieren die linke UNTERE Ecke des gewÃ¼nschten Bereichs!
     glReadPixels(0, 0, Width, Height, GL_RGBA, GL_UNSIGNED_BYTE, &FrameBuffer[0]);
 
     Width_ =Width;
     Height_=Height;
 
-    // Wie oben schon erwähnt, steht der 'FrameBuffer' leider auf dem Kopf.
+    // Wie oben schon erwÃ¤hnt, steht der 'FrameBuffer' leider auf dem Kopf.
     // Vertausche daher alle Zeilen (vertikale Spiegelung).
     for (unsigned int y=0; y<Height_/2; y++)
     {
@@ -944,10 +944,10 @@ void SingleOpenGLWindowImplT::Close()
     // Release DirectInput.
     DirectInput.Release();
 
-    // Rendering-Context zurückgeben.
+    // Rendering-Context zurÃ¼ckgeben.
     if (hRC)
     {
-        // Vorher noch prüfen, ob es OpenGL-Fehler gab.
+        // Vorher noch prÃ¼fen, ob es OpenGL-Fehler gab.
         while (true)
         {
             GLenum Error=glGetError();
@@ -973,21 +973,21 @@ void SingleOpenGLWindowImplT::Close()
         hRC=NULL;
     }
 
-    // Device-Context zurückgeben.
+    // Device-Context zurÃ¼ckgeben.
     if (hDC)
     {
         if (!ReleaseDC(hWindow, hDC)) MessageBox(NULL, "Unable to release device context.", NULL, MB_OK | MB_ICONERROR);
         hDC=NULL;
     }
 
-    // Fenster schließen.
+    // Fenster schlieÃŸen.
     if (hWindow)
     {
         if (!DestroyWindow(hWindow)) MessageBox(NULL, "Unable to destroy window.", NULL, MB_OK | MB_ICONERROR);
         hWindow=NULL;
     }
 
-    // Fensterklasse abmelden. Dabei zurückgegebene Fehlercodes ignorieren.
+    // Fensterklasse abmelden. Dabei zurÃ¼ckgegebene Fehlercodes ignorieren.
     UnregisterClass("CafuMain", hInstance);
 
     // Standard-Display wiederherstellen.

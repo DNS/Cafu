@@ -250,7 +250,7 @@ void CaSHLWorldT::PatchesToSHLMaps(const ArrayT< ArrayT<PatchT> >& Patches)
                 World.SHLMapMan.SHLMaps[SHLMapNr]->Coeffs.PushBack(0.0);
         }
 
-        // Übertrage die Patches-Werte zurück in die SHLMaps.
+        // Ãœbertrage die Patches-Werte zurÃ¼ck in die SHLMaps.
         for (unsigned long FaceNr=0; FaceNr<Map.FaceChildren.Size(); FaceNr++)
         {
             const cf::SceneGraph::FaceNodeT::SHLMapInfoT& SMI=Map.FaceChildren[FaceNr]->SHLMapInfo;

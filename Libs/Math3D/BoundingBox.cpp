@@ -253,8 +253,8 @@ template<class T> typename BoundingBox3T<T>::SideT BoundingBox3T<T>::WhatSide_OL
                              fabs((Max.z-Center.z)*P.Normal.z);
 
     // Dist2 bedeutet:
-    // "Wie weit muß ich eine Ebene, die den Normalenvektor P.Normal hat und Center enthält, parallel verschieben
-    //  (entlang ihres Normalvektors), um zu der in dieser Richtung liegenden äußersten Ecke der BB zu gelangen?"
+    // "Wie weit muÃŸ ich eine Ebene, die den Normalenvektor P.Normal hat und Center enthÃ¤lt, parallel verschieben
+    //  (entlang ihres Normalvektors), um zu der in dieser Richtung liegenden Ã¤uÃŸersten Ecke der BB zu gelangen?"
     if (DistC-Dist2>= Epsilon) return Front;
     if (DistC+Dist2<=-Epsilon) return Back;
 
@@ -335,8 +335,8 @@ template<class T> T BoundingBox3T<T>::GetDistance(const Plane3T<T>& P) const
                              fabs((Max.z-Center.z)*P.Normal.z);
 
     // Dist2 bedeutet:
-    // "Wie weit muß ich eine Ebene, die den Normalenvektor P.Normal hat und Center enthält, parallel verschieben
-    //  (entlang ihres Normalvektors), um zu der in dieser Richtung liegenden äußersten Ecke der BB zu gelangen?"
+    // "Wie weit muÃŸ ich eine Ebene, die den Normalenvektor P.Normal hat und Center enthÃ¤lt, parallel verschieben
+    //  (entlang ihres Normalvektors), um zu der in dieser Richtung liegenden Ã¤uÃŸersten Ecke der BB zu gelangen?"
     if (DistC-Dist2>0) return DistC-Dist2;
     if (DistC+Dist2<0) return DistC+Dist2;
 

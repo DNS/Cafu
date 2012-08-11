@@ -228,7 +228,7 @@ EntityClassDefs["info_player_start"]=newEntClassDef(Common, Angles,
 })
 
 
--- Für Leitern, Taue und alles, woran man klettern kann. Dieser Entity ist unsichtbar!
+-- FÃ¼r Leitern, Taue und alles, woran man klettern kann. Dieser Entity ist unsichtbar!
 EntityClassDefs["func_ladder"]=newEntClassDef(Common,
 {
     isSolid    =true;

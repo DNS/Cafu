@@ -200,10 +200,10 @@ ServerT::~ServerT()
 
 void ServerT::MainLoop()
 {
-    // Von hier bis zu World->Think() f¸hren wir ein gef‰hrliches Leben:
-    // - Arbeite auf dem AKTUELLEN Frame, ¸ber das die Clients aber schon informiert worden sind!
-    //   D.h. insbesondere, daﬂ wir nachtr‰glich nicht noch einen HumanPlayer-Entity einf¸gen kˆnnen.
-    // - F¸hre diesen Teil u.U. viel ˆfter (mit viel hˆherer Framerate) aus als einen 'Server-Tic'.
+    // Von hier bis zu World->Think() f√ºhren wir ein gef√§hrliches Leben:
+    // - Arbeite auf dem AKTUELLEN Frame, √ºber das die Clients aber schon informiert worden sind!
+    //   D.h. insbesondere, da√ü wir nachtr√§glich nicht noch einen HumanPlayer-Entity einf√ºgen k√∂nnen.
+    // - F√ºhre diesen Teil u.U. viel √∂fter (mit viel h√∂herer Framerate) aus als einen 'Server-Tic'.
 
     // Bestimme die FrameTime des letzten Frames
     float FrameTime=float(Timer.GetSecondsSinceLastCall());
@@ -286,7 +286,7 @@ void ServerT::MainLoop()
                     for (ClientNr=0; ClientNr<ClientInfos.Size(); ClientNr++)
                         if (SenderAddress==ClientInfos[ClientNr]->ClientAddress) break;
 
-                    // Pr¸fe ClientNr
+                    // Pr√ºfe ClientNr
                     if (ClientNr>=ClientInfos.Size())
                     {
                         Console->Warning(cf::va("Client %s is not connected! Packet ignored!\n", SenderAddress.ToString()));
@@ -297,7 +297,7 @@ void ServerT::MainLoop()
                     // Was Zombies senden, interessiert uns nicht mehr
                     if (ClientInfos[ClientNr]->ClientState==ClientInfoT::Zombie) continue;
 
-                    // Es ist eine g¸ltige Nachricht (eines Online- oder Wait4MapInfoACK-Client) - bearbeite sie!
+                    // Es ist eine g√ºltige Nachricht (eines Online- oder Wait4MapInfoACK-Client) - bearbeite sie!
                     GlobalClientNr=ClientNr;
                     assert(ServerPtr==this);
                     ClientInfos[ClientNr]->TimeSinceLastMessage=0.0;    // Do not time-out
@@ -366,7 +366,7 @@ void ServerT::MainLoop()
     }
 
 
-    // Pr¸fe, ob das ServerTicInterval schon um ist, und f¸hre ggf. einen "ServerTic" aus.
+    // Pr√ºfe, ob das ServerTicInterval schon um ist, und f√ºhre ggf. einen "ServerTic" aus.
     /* TimeSinceLastServerTic+=FrameTime;
 
     if (TimeSinceLastServerTic<ServerTicInterval-0.001)
@@ -390,7 +390,7 @@ void ServerT::MainLoop()
         #pragma warning 555 4;
 
         // select() bricht mit der Anzahl der lesbar gewordenen Sockets ab, 0 bei TimeOut oder SOCKET_ERROR im Fehlerfall.
-        // Wie auch immer - wir ignorieren den R¸ckgabewert.
+        // Wie auch immer - wir ignorieren den R√ºckgabewert.
         select(ServerSocket+1, &ReadabilitySocketSet, NULL, NULL, &TimeOut);
         return true;
     } */
@@ -398,31 +398,31 @@ void ServerT::MainLoop()
 
     if (World)
     {
-        // ‹berf¸hre die ServerWorld ¸ber die Zeit 'FrameTime' in den n‰chsten Zustand.
-        // Beachte 1: Der "‹berf¸hrungsprozess" beginnt eigentlich schon oben (Einf¸gen von HumanPlayer-Entities ins n‰chste Frame).
+        // √úberf√ºhre die ServerWorld √ºber die Zeit 'FrameTime' in den n√§chsten Zustand.
+        // Beachte 1: Der "√úberf√ºhrungsprozess" beginnt eigentlich schon oben (Einf√ºgen von HumanPlayer-Entities ins n√§chste Frame).
         // Beachte 2: Es werden u.a. alle bis hierhin eingegangenen PlayerCommands verarbeitet.
-        // Das ist wichtig f¸r die Prediction, weil wir unten beim Senden mit den Sequence-Nummern des Game-Protocols
-        // ja best‰tigen, daﬂ wir alles bis zur best‰tigten Sequence-Nummer gesehen UND VERARBEITET haben!
-        // Insbesondere muﬂ dieser Aufruf daher zwischen dem Empfangen der PlayerCommand-Packets und dem Senden der
-        // n‰chsten Delta-Update-Messages liegen.
+        // Das ist wichtig f√ºr die Prediction, weil wir unten beim Senden mit den Sequence-Nummern des Game-Protocols
+        // ja best√§tigen, da√ü wir alles bis zur best√§tigten Sequence-Nummer gesehen UND VERARBEITET haben!
+        // Insbesondere mu√ü dieser Aufruf daher zwischen dem Empfangen der PlayerCommand-Packets und dem Senden der
+        // n√§chsten Delta-Update-Messages liegen.
         World->Think(FrameTime /*TimeSinceLastServerTic*/);
         // TimeSinceLastServerTic=0;
 
 
-        // Hier w‰re der richtige Ort zum "externen" Einf¸gen/Entfernen von HumanPlayer-Entities ins AKTUELLE Frame.
+        // Hier w√§re der richtige Ort zum "externen" Einf√ºgen/Entfernen von HumanPlayer-Entities ins AKTUELLE Frame.
 
 
         // BaseLines neu erzeugter Entities zum reliable Senden vormerken (in die ReliableData-Buffer eintragen):
-        // Sei 'ClientInfos[ClientNr]->BaseLineFrameNr' diejenige ServerFrameNr, bis zu der (einschlieﬂlich) ein Client alle BaseLines kennt.
-        // Sende dann die BaseLines aller Entities, deren BaseLineFrameNr grˆﬂer als diese Nr ist (d.h. diejenigen BaseLines, die der Client noch nicht kennt)!
-        // Beachte die Reihenfolge: Darf nach diesem Teil keine neuen Entities mehr im AKTUELLEN Frame erzeugen, sondern erst im NƒCHSTEN Frame wieder!
+        // Sei 'ClientInfos[ClientNr]->BaseLineFrameNr' diejenige ServerFrameNr, bis zu der (einschlie√ülich) ein Client alle BaseLines kennt.
+        // Sende dann die BaseLines aller Entities, deren BaseLineFrameNr gr√∂√üer als diese Nr ist (d.h. diejenigen BaseLines, die der Client noch nicht kennt)!
+        // Beachte die Reihenfolge: Darf nach diesem Teil keine neuen Entities mehr im AKTUELLEN Frame erzeugen, sondern erst im N√ÑCHSTEN Frame wieder!
         for (unsigned long ClientNr=0; ClientNr<ClientInfos.Size(); ClientNr++)
             ClientInfos[ClientNr]->BaseLineFrameNr=World->WriteClientNewBaseLines(ClientInfos[ClientNr]->BaseLineFrameNr, ClientInfos[ClientNr]->ReliableDatas);
     }
 
 
     // Sende die aufgestauten ReliableData und die hier "dynamisch" erzeugten UnreliableData
-    // (bestehend aus den Delta-Update-Messages (FrameInfo+EntityUpdates)) an die f¸r sie bestimmten Empf‰nger.
+    // (bestehend aus den Delta-Update-Messages (FrameInfo+EntityUpdates)) an die f√ºr sie bestimmten Empf√§nger.
     for (unsigned long ClientNr=0; ClientNr<ClientInfos.Size(); ClientNr++)
     {
         NetDataT UnreliableData;
@@ -438,15 +438,15 @@ void ServerT::MainLoop()
         ClientInfos[ClientNr]->TimeSinceLastUpdate+=FrameTime;
 
         // Delta-Komprimierte Entity-Daten senden
-        // TODO: Diese Lˆsung ist nat¸rlich nicht so toll:
-        // Will / Muﬂ jedes Frame World->WriteClientDeltaUpdateMessages(...) aufrufen (PR‹FEN!),
-        // will aber auﬂerdem nur alle 0.1 sec etwas senden!!!
+        // TODO: Diese L√∂sung ist nat√ºrlich nicht so toll:
+        // Will / Mu√ü jedes Frame World->WriteClientDeltaUpdateMessages(...) aufrufen (PR√úFEN!),
+        // will aber au√üerdem nur alle 0.1 sec etwas senden!!!
         if (ClientInfos[ClientNr]->TimeSinceLastUpdate<0.05) continue;
 
         try
         {
-            // Sende bewuﬂt auch an Clients im Wait4MapInfoACK-Zustand! (Aber warum?? Eine Vermutung: Andernfalls werden RELIABLE Data auch nicht transportiert!)
-            // TODO: F¸r Zombies statt rel.+unrel. Data nur leere Buffer ¸bergeben! VORHER aber die DropMsg in ServerT::DropClient SENDEN!
+            // Sende bewu√üt auch an Clients im Wait4MapInfoACK-Zustand! (Aber warum?? Eine Vermutung: Andernfalls werden RELIABLE Data auch nicht transportiert!)
+            // TODO: F√ºr Zombies statt rel.+unrel. Data nur leere Buffer √ºbergeben! VORHER aber die DropMsg in ServerT::DropClient SENDEN!
             ClientInfos[ClientNr]->GameProtocol.GetTransmitData(ClientInfos[ClientNr]->ReliableDatas, UnreliableData.Data).Send(ServerSocket, ClientInfos[ClientNr]->ClientAddress);
         }
         catch (const GameProtocol1T::MaxMsgSizeExceeded& /*E*/) { Console->Warning(cf::va("(ClientNr==%u, EntityID==%u) caught a GameProtocol1T::MaxMsgSizeExceeded exception!", ClientNr, ClientInfos[ClientNr]->EntityID)); }
@@ -480,7 +480,7 @@ void ServerT::DropClient(unsigned long ClientNr, const char* Reason)
         ClientInfos[ClNr]->ReliableDatas.PushBack(NewReliableMsg.Data);
 
         // TODO: HIER DIE MESSAGE AUCH ABSENDEN!
-        // KANN DANN UNTEN IN DER HAUPTSCHLEIFE F‹R ZOMBIES DIE REL+UNREL. DATA KOMPLETT UNTERDRUECKEN!
+        // KANN DANN UNTEN IN DER HAUPTSCHLEIFE F√úR ZOMBIES DIE REL+UNREL. DATA KOMPLETT UNTERDRUECKEN!
     }
     Console->Print(cf::va("Dropped client %u (EntityID %u, PlayerName '%s'). Reason: %s\n", ClientNr, ClientInfos[ClientNr]->EntityID, ClientInfos[ClientNr]->PlayerName.c_str(), Reason));
 
@@ -500,7 +500,7 @@ void ServerT::ProcessConnectionLessPacket(NetDataT& InData, const NetAddressT& S
     unsigned long PacketID=InData.ReadLong();
 
     // Die Antwort auf ein "connection-less" Packet beginnt mit 0xFFFFFFFF, gefolgt von der PacketID,
-    // sodaﬂ das R¸ckpacket unten nur noch individuell beendet werden muﬂ.
+    // soda√ü das R√ºckpacket unten nur noch individuell beendet werden mu√ü.
     NetDataT OutData;
 
     OutData.WriteLong(0xFFFFFFFF);
@@ -536,7 +536,7 @@ void ServerT::ProcessConnectionLessPacket(NetDataT& InData, const NetAddressT& S
                     break;
                 }
 
-                // Pr¸fe, ob wir die IP-Adr. und Port-Nr. des Clients schon haben, d.h. ob der Client schon connected ist.
+                // Pr√ºfe, ob wir die IP-Adr. und Port-Nr. des Clients schon haben, d.h. ob der Client schon connected ist.
                 // (Dann hat z.B. der Client schonmal einen connection request geschickt, aber unser Acknowledge niemals erhalten,
                 //  oder wir haben seinen Disconnected-Request nicht erhalten und er versucht nun vor dem TimeOut einen neuen Connect.)
                 unsigned long ClientNr;
@@ -589,7 +589,7 @@ void ServerT::ProcessConnectionLessPacket(NetDataT& InData, const NetAddressT& S
                 ClientInfos.PushBack(new ClientInfoT(SenderAddress, PlayerName, ModelName));
                 ClientInfos[ClientNr]->InitForNewWorld(ClientEntityID);
 
-                // Dem Client best‰tigen, daﬂ er im Spiel ist und ab sofort in-game Packets zu erwarten hat.
+                // Dem Client best√§tigen, da√ü er im Spiel ist und ab sofort in-game Packets zu erwarten hat.
                 OutData.WriteByte(SC0_ACK);
                 OutData.WriteString(GameName);
                 OutData.Send(ServerSocket, SenderAddress);
@@ -711,8 +711,8 @@ void ServerT::ProcessInGamePacket(NetDataT& InData, unsigned long LastIncomingSe
 
                 if (InData.ReadOfl) return;     // Ignore the rest of the message!
 
-                // PlayerCommand-Messages eines Clients, der im Wait4MapInfoACK-State ist, gehˆren idR zur vorher gespielten World.
-                // Akzeptiere PlayerCommand-Messages daher erst (wieder), wenn der Client vollst‰ndig online ist.
+                // PlayerCommand-Messages eines Clients, der im Wait4MapInfoACK-State ist, geh√∂ren idR zur vorher gespielten World.
+                // Akzeptiere PlayerCommand-Messages daher erst (wieder), wenn der Client vollst√§ndig online ist.
                 if (ClientInfos[GlobalClientNr]->ClientState!=ClientInfoT::Online) break;
 
                 World->NotifyHumanPlayerEntityOfClientCommand(ClientInfos[GlobalClientNr]->EntityID, PlayerCommand);
@@ -746,7 +746,7 @@ void ServerT::ProcessInGamePacket(NetDataT& InData, unsigned long LastIncomingSe
                 for (unsigned long ClientNr=0; ClientNr<ClientInfos.Size(); ClientNr++)
                 {
                     // TODO: Statt hier ClientState!=Zombie abzufragen, lieber in DropClient schon die Drop-Message SENDEN,
-                    // und beim Senden in der Hauptschleife f¸r Zombies leere Buffer f¸r rel. + unrel. Data ¸bergeben!
+                    // und beim Senden in der Hauptschleife f√ºr Zombies leere Buffer f√ºr rel. + unrel. Data √ºbergeben!
                     if (ClientInfos[ClientNr]->ClientState!=ClientInfoT::Zombie)
                     {
                         NetDataT NewReliableMsg;
@@ -767,7 +767,7 @@ void ServerT::ProcessInGamePacket(NetDataT& InData, unsigned long LastIncomingSe
                 if (InData.ReadOfl || ClientWorldName==NULL || strlen(ClientWorldName)==0)
                 {
                     // UploadMap();
-                    // Im Moment bei einem Fehler beim Client-WorldChange den Client einfach rausschmeiﬂen!
+                    // Im Moment bei einem Fehler beim Client-WorldChange den Client einfach rausschmei√üen!
                     DropClient(GlobalClientNr, "Failure on world change!");
                     return;     // Ignore the rest of the message!
                 }

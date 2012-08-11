@@ -34,15 +34,15 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 template<class T> bool Polygon3T<T>::IsValid(const double RoundEpsilon, const double MinVertexDist) const
 {
-    // Punkt 4: Es muﬂ mindestens 3 Vertices geben.
+    // Punkt 4: Es mu√ü mindestens 3 Vertices geben.
     if (Vertices.Size()<3) return false;
 
 
-    // Punkt 4: Die Plane muﬂ halbwegs wohldefiniert sein.
+    // Punkt 4: Die Plane mu√ü halbwegs wohldefiniert sein.
     if (!Plane.IsValid()) return false;
 
 
-    // Ohne expliziten Punkt: Alle Vertices m¸ssen *in* der Ebene liegen.
+    // Ohne expliziten Punkt: Alle Vertices m√ºssen *in* der Ebene liegen.
     for (unsigned long VertexNr=0; VertexNr<Vertices.Size(); VertexNr++)
     {
         const double Dist=Plane.GetDistance(Vertices[VertexNr]);
@@ -61,7 +61,7 @@ template<class T> bool Polygon3T<T>::IsValid(const double RoundEpsilon, const do
             if (length(Vertices[VertexNr]-Vertices[VNr])<MinVertexDist) return false;
 
 
-    // Punkt 1 und Punkt 3: Stelle Konvexit‰t und Orientierung sicher.
+    // Punkt 1 und Punkt 3: Stelle Konvexit√§t und Orientierung sicher.
     for (unsigned long VertexNr=0; VertexNr<Vertices.Size(); VertexNr++)
     {
         // Intentionally don't cache any DivisionByZero exceptions here.
@@ -72,7 +72,7 @@ template<class T> bool Polygon3T<T>::IsValid(const double RoundEpsilon, const do
                              Vertices[NextVertexNr],
                              Vertices[VertexNr]-Plane.Normal, T(0.00001));   // (Assume that MinVertexDist is well larger than 1.)
 
-        // Alle Vertices des Polys auﬂer VertexNr und NextVertexNr m¸ssen mindestens RoundEpsilon ¸ber der EdgePlane liegen!
+        // Alle Vertices des Polys au√üer VertexNr und NextVertexNr m√ºssen mindestens RoundEpsilon √ºber der EdgePlane liegen!
         for (unsigned long VNr=0; VNr<Vertices.Size(); VNr++)
             if (VNr!=VertexNr && VNr!=NextVertexNr)
                 if (EdgePlane.GetDistance(Vertices[VNr])<RoundEpsilon) return false;
@@ -85,8 +85,8 @@ template<class T> bool Polygon3T<T>::IsValid(const double RoundEpsilon, const do
     const Vector3T<T> N_=cross(Vertices[1]-Vertices[0], Vertices[2]-Vertices[1]);
     const T           l_=length(N_);
 
-    // Wenn l_==0.0 tats‰chlich vork‰me, w‰re das ein schwerer Fehler!
-    // l_ darf n‰mlich sehr klein sein, aber nach obigen Tests keinesfalls 0.
+    // Wenn l_==0.0 tats√§chlich vork√§me, w√§re das ein schwerer Fehler!
+    // l_ darf n√§mlich sehr klein sein, aber nach obigen Tests keinesfalls 0.
     if (l_==0.0) return false;
 
     const T Proj=-dot(scale(N_, T(1.0)/l_), Plane.Normal);
@@ -146,7 +146,7 @@ template<class T> typename Polygon3T<T>::SideT Polygon3T<T>::WhatSide(const Plan
     {
         const double Dist=P.GetDistance(Vertices[VertexNr]);
 
-             if (Dist> HalfPlaneThickness) SideFlags|=Front;    // Setze Flag 2 - Es gibt Vertices ¸ber  der Ebene.
+             if (Dist> HalfPlaneThickness) SideFlags|=Front;    // Setze Flag 2 - Es gibt Vertices √ºber  der Ebene.
         else if (Dist<-HalfPlaneThickness) SideFlags|=Back;     // Setze Flag 1 - Es gibt Vertices unter der Ebene.
         else                               SideFlags|=On;       // Setze Flag 0 - Es gibt Vertices in    der Ebene.
     }
@@ -310,7 +310,7 @@ template<class T> void Polygon3T<T>::FillTJunctions(const Polygon3T<T>& Poly, co
     const Polygon3T& Poly2=Poly;
 
     // Betrachte jede Kante E1 von Poly1 und jede Kante E2 von Poly2.
-    // Wir suchen nach einem Kanten-Paar (E1, E2), f¸r das gilt:
+    // Wir suchen nach einem Kanten-Paar (E1, E2), f√ºr das gilt:
     // 1. E2 liegt in der Geraden von E1.
     //    1a. Die Vertices von E2 liegen in Poly1.Plane.
     //    1b. Die Vertices von E2 liegen in PolygonEdgePlane(Poly1, Vertex1Nr).
@@ -324,7 +324,7 @@ template<class T> void Polygon3T<T>::FillTJunctions(const Polygon3T<T>& Poly, co
         {
             unsigned long Vertex2NrNext=Vertex2Nr<Poly2.Vertices.Size()-1 ? Vertex2Nr+1 : 0;
 
-            // Stelle sicher, daﬂ E2 in der Geraden von E1 liegt (1a und 1b)
+            // Stelle sicher, da√ü E2 in der Geraden von E1 liegt (1a und 1b)
             if (fabs(Poly1.Plane.GetDistance(Poly2.Vertices[Vertex2Nr    ]))>EdgeThickness) continue;
             if (fabs(Poly1.Plane.GetDistance(Poly2.Vertices[Vertex2NrNext]))>EdgeThickness) continue;
             if (fabs(Edge1Plane .GetDistance(Poly2.Vertices[Vertex2Nr    ]))>EdgeThickness) continue;
@@ -335,19 +335,19 @@ template<class T> void Polygon3T<T>::FillTJunctions(const Polygon3T<T>& Poly, co
             // Sanity check
             if (LengthE1<=EdgeThickness) continue;
 
-            // Vertex2NrNext muﬂ immer rechts von Vertex2Nr liegen. Dies spielt vor allem eine Rolle, wenn sie BEIDE zwischen
-            // den Vertices von E1 liegen. Wir kˆnnten es explizit verifizieren, aber hier geht es auch sehr schˆn implizit:
+            // Vertex2NrNext mu√ü immer rechts von Vertex2Nr liegen. Dies spielt vor allem eine Rolle, wenn sie BEIDE zwischen
+            // den Vertices von E1 liegen. Wir k√∂nnten es explizit verifizieren, aber hier geht es auch sehr sch√∂n implizit:
             // Wenn Vertex2Nr schon zw. den Vertices von E1 liegt, wird E1 sowieso zur neuen Kante zwischen den Vertices
-            // Vertex2Nr (wird in Poly1 eingef¸gt) und Vertex1Nr. Damit wird im zweiten Teil die Mˆglichkeit ausgeschlossen,
-            // daﬂ Vertex2NrNext zwischen den Vertices der urspr¸nglichen E1 und links von Vertex2Nr lag!
-            // Mit diesem Hintergrund kˆnnen wir viel leichter in allen 4 mˆglichen F‰llen (Vertices von E2 zwischen oder
-            // nicht zwischen den Vertices von E1) die Array-Operationen durchf¸hren!
+            // Vertex2Nr (wird in Poly1 eingef√ºgt) und Vertex1Nr. Damit wird im zweiten Teil die M√∂glichkeit ausgeschlossen,
+            // da√ü Vertex2NrNext zwischen den Vertices der urspr√ºnglichen E1 und links von Vertex2Nr lag!
+            // Mit diesem Hintergrund k√∂nnen wir viel leichter in allen 4 m√∂glichen F√§llen (Vertices von E2 zwischen oder
+            // nicht zwischen den Vertices von E1) die Array-Operationen durchf√ºhren!
 
             // Liegt Poly2.Vertices[Vertex2Nr] zwischen den Vertices von E1?
             if (length(Poly2.Vertices[Vertex2Nr]-Poly1.Vertices[Vertex1Nr    ])<=LengthE1-EdgeThickness &&
                 length(Poly2.Vertices[Vertex2Nr]-Poly1.Vertices[Vertex1NrNext])<=LengthE1-EdgeThickness)
             {
-                // F¸ge Poly2.Vertices[Vertex2Nr] zwischen die Vertices von E1 ein.
+                // F√ºge Poly2.Vertices[Vertex2Nr] zwischen die Vertices von E1 ein.
                 Poly1.Vertices.InsertAt(Vertex1Nr+1, Poly2.Vertices[Vertex2Nr]);
 
                 Vertex1NrNext=Vertex1Nr+1;
@@ -358,7 +358,7 @@ template<class T> void Polygon3T<T>::FillTJunctions(const Polygon3T<T>& Poly, co
             if (length(Poly2.Vertices[Vertex2NrNext]-Poly1.Vertices[Vertex1Nr    ])<=LengthE1-EdgeThickness &&
                 length(Poly2.Vertices[Vertex2NrNext]-Poly1.Vertices[Vertex1NrNext])<=LengthE1-EdgeThickness)
             {
-                // F¸ge Poly2.Vertices[Vertex2NrNext] zwischen die Vertices der neuen E1 ein.
+                // F√ºge Poly2.Vertices[Vertex2NrNext] zwischen die Vertices der neuen E1 ein.
                 Poly1.Vertices.InsertAt(Vertex1Nr+1, Poly2.Vertices[Vertex2NrNext]);
 
                 Vertex1NrNext=Vertex1Nr+1;
@@ -374,9 +374,9 @@ template<class T> Polygon3T<T> Polygon3T<T>::Merge(const Polygon3T<T>& Poly1, co
 {
     if (Poly1.Vertices.Size()<3 || Poly2.Vertices.Size()<3 || Poly1.WhatSide(Poly2.Plane, EdgeThickness)!=InIdentical) throw InvalidOperationE();
 
-    // Haben Poly1 und Poly2 eine gegenl‰ufige Edge gemeinsam? Dazu f¸r jedes Polygon eine "Edge-Schlange" aus
+    // Haben Poly1 und Poly2 eine gegenl√§ufige Edge gemeinsam? Dazu f√ºr jedes Polygon eine "Edge-Schlange" aus
     // den Vertices AB, BC und CD bilden. Mit beiden Schlangen verschachtelt die Polygone ablaufen, dabei die
-    // mittleren Edges (BC) betrachten und auf Gegenl‰ufigkeit testen.
+    // mittleren Edges (BC) betrachten und auf Gegenl√§ufigkeit testen.
     unsigned long V1b=Poly1.Vertices.Size()-1; unsigned long V2b=Poly2.Vertices.Size()-1;   // V2 kann hier mitinitialisiert werden,
     unsigned long V1c=Poly1.Vertices.Size()-2; unsigned long V2c=Poly2.Vertices.Size()-2;   // da auch beim mehrfachen Durchlauf der inneren
     unsigned long V1d=Poly1.Vertices.Size()-3; unsigned long V2d=Poly2.Vertices.Size()-3;   // Schleife keine Neuinitialisierung notwendig ist!
@@ -392,7 +392,7 @@ template<class T> Polygon3T<T> Polygon3T<T>::Merge(const Polygon3T<T>& Poly1, co
 
                 if (Dist1<-EdgeThickness || Dist2<-EdgeThickness) throw InvalidOperationE();
 
-                // Endlich gr¸nes Licht zum mergen!
+                // Endlich gr√ºnes Licht zum mergen!
                 Polygon3T<T> PolyMerge=Poly1; PolyMerge.Vertices.Clear();
 
                 for (unsigned long VNr=(Dist1>EdgeThickness) ? V1b : V1a; VNr!=V1c; VNr=(VNr+1) % Poly1.Vertices.Size()) PolyMerge.Vertices.PushBack(Poly1.Vertices[VNr]);
@@ -481,7 +481,7 @@ template<class T> void Polygon3T<T>::Complete(ArrayT< Polygon3T<T> >& Polys, con
                     // Bilde den Schnittpunkt der Planes.
                     Vector3T<T> A=Plane3T<T>::GetIntersection(Polys[P1Nr].Plane, Polys[P2Nr].Plane, Polys[P3Nr].Plane);
 
-                    // Ist A g¸ltig bzw. liegt A im Brush?
+                    // Ist A g√ºltig bzw. liegt A im Brush?
                     unsigned long P4Nr;
 
                     for (P4Nr=0; P4Nr<Polys.Size(); P4Nr++)
@@ -492,10 +492,10 @@ template<class T> void Polygon3T<T>::Complete(ArrayT< Polygon3T<T> >& Polys, con
                     // Dies ist bei extrem degenerierten, beinahe-parallelen Eingabe-Planes nach Rundungsfehlern denkbar!
                     if (Polys[P1Nr].Plane.GetDistance(A)<-PlaneThickness) continue;
 
-                    // Wenn A nicht ohnehin schon im Poly vorkommt (Haus-des-Nikolaus-Effekt!), A ins Poly einf¸gen.
+                    // Wenn A nicht ohnehin schon im Poly vorkommt (Haus-des-Nikolaus-Effekt!), A ins Poly einf√ºgen.
                     if (Polys[P1Nr].HasVertex(A, PlaneThickness)) continue;
 
-                    // Aufgrund der Problemstellung (Ebenenschnitte) kˆnnen kolineare Vertices normalerweise nicht
+                    // Aufgrund der Problemstellung (Ebenenschnitte) k√∂nnen kolineare Vertices normalerweise nicht
                     // vorkommen (mehr als 2 Vertices auf einer Geraden).
 
                     // A ist ein Punkt des Polygons.
@@ -509,7 +509,7 @@ template<class T> void Polygon3T<T>::Complete(ArrayT< Polygon3T<T> >& Polys, con
         {
             unsigned long Vertex2Nr;
 
-            // Ausgehend vom Vertex1 denjenigen Vertex2 heraussuchen, mit dem sich eine Edge (im Uhrzeigersinn) bilden l‰ﬂt.
+            // Ausgehend vom Vertex1 denjenigen Vertex2 heraussuchen, mit dem sich eine Edge (im Uhrzeigersinn) bilden l√§√üt.
             for (Vertex2Nr=Vertex1Nr+1; Vertex2Nr<Polys[P1Nr].Vertices.Size(); Vertex2Nr++)
             {
                 const Vector3T<T>& N=Polys[P1Nr].Plane.Normal;
@@ -532,8 +532,8 @@ template<class T> void Polygon3T<T>::Complete(ArrayT< Polygon3T<T> >& Polys, con
             // kann (sollte niemals vorkommen, schwerer Fehler!), einfach weitermachen.
             if (Vertex1Nr+1==Vertex2Nr || Vertex2Nr==Polys[P1Nr].Vertices.Size()) continue;
 
-            // Andernfalls Vertex2 als Nachfolger f¸r Vertex1 zutauschen,
-            // damit es im n‰chsten Schleifendurchlauf damit weitergeht.
+            // Andernfalls Vertex2 als Nachfolger f√ºr Vertex1 zutauschen,
+            // damit es im n√§chsten Schleifendurchlauf damit weitergeht.
             Vector3T<T> Temp=Polys[P1Nr].Vertices[Vertex1Nr+1];
             Polys[P1Nr].Vertices[Vertex1Nr+1]=Polys[P1Nr].Vertices[Vertex2Nr];
             Polys[P1Nr].Vertices[Vertex2Nr]=Temp;

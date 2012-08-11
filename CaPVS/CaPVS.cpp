@@ -142,10 +142,10 @@ void DetermineAdjacencyGraph()
             if (SL1Nr==SL2Nr || !SuperLeaves[SL1Nr].BB.GetEpsilonBox(MapT::RoundEpsilon).Intersects(SuperLeaves[SL2Nr].BB)) continue;
 
             // Jedes Portal des ersten Leafs gegen jedes Portal des zweiten Leafs
-            // prüfen und testen, ob sie sich schneiden (dann sind sie durchlässig).
+            // prÃ¼fen und testen, ob sie sich schneiden (dann sind sie durchlÃ¤ssig).
             // BEACHTE: SuperLeaves haben *alle* Portale von *allen* ihrer Leaves!
-            // D.h. es können sich nicht nur Portale auf ihrer konvexen Hülle befinden, sondern auch "innen drin".
-            // Wegen der Konvexität der SuperLeaves dürfte das aber keine Rolle spielen und folgendes müßte trotzdem korrekt funktionieren.
+            // D.h. es kÃ¶nnen sich nicht nur Portale auf ihrer konvexen HÃ¼lle befinden, sondern auch "innen drin".
+            // Wegen der KonvexitÃ¤t der SuperLeaves dÃ¼rfte das aber keine Rolle spielen und folgendes mÃ¼ÃŸte trotzdem korrekt funktionieren.
             for (unsigned long Portal1Nr=0; Portal1Nr<SuperLeaves[SL1Nr].Portals.Size(); Portal1Nr++)
                 for (unsigned long Portal2Nr=0; Portal2Nr<SuperLeaves[SL2Nr].Portals.Size(); Portal2Nr++)
                 {
@@ -291,23 +291,23 @@ void DetermineRayPresampledVisibility(const CaPVSWorldT* CaPVSWorld)
 // Diese Funktion bestimmt die Sichtpyramide ('Frustum'), die eine Lichtquelle 'LightSource' durch ein Loch 'Hole' wirft.
 //
 // Dabei leuchtet die 'LightSource' in die *entgegengesetzte* Richtung ihres Normalenvektors,
-// und das 'Hole' läßt auch nur Licht in der Gegenrichtung seines Normalenvektors durch.
+// und das 'Hole' lÃ¤ÃŸt auch nur Licht in der Gegenrichtung seines Normalenvektors durch.
 // Beides ist sinnvoll, denn sowohl 'LightSource' als auch 'Hole' sind idR Portale von Leaves.
-// Beachte, daß die Normalenvektoren von Portalen stets zur *Mitte* ihrer Leaves hin zeigen (nicht nach außen wie bei Brushes).
+// Beachte, daÃŸ die Normalenvektoren von Portalen stets zur *Mitte* ihrer Leaves hin zeigen (nicht nach auÃŸen wie bei Brushes).
 // Die 'LightSource' ist dann ein Portal des vorangegangenen Leafs, durch das das aktuelle Leaf betreten wird.
-// Das 'Hole' ist ein Portal des aktuellen Leafs zum nächsten Leaf.
-// Bemerkung: Würde man das Loch zur Lichtquelle und umgekehrt machen (PolygonMirror),
-// wäre das Frustum das gleiche, dessen Ebenen wären aber gespiegelt!
+// Das 'Hole' ist ein Portal des aktuellen Leafs zum nÃ¤chsten Leaf.
+// Bemerkung: WÃ¼rde man das Loch zur Lichtquelle und umgekehrt machen (PolygonMirror),
+// wÃ¤re das Frustum das gleiche, dessen Ebenen wÃ¤ren aber gespiegelt!
 //
-// Es wird vorausgesetzt, daß 'LightSource' und 'Hole' gültige Polygone sind.
-// Wenn daraus erfolgreich ein Frustum konstruiert werden kann, wird dieses zurückgegeben und es gilt 'Frustum.Size()>0'.
-// Andernfalls scheitert die Funktion und es wird ein Frustum der Größe 0 zurückgegeben ('Frustum.Size()==0').
-// Die Voraussetzung für den Erfolg dieser Funktion ist eine - in unserem Sinne - "vernünftige" Anordnung der beiden Polygone:
-// a) Das 'Hole' muß komplett auf der (Licht emittierenden) Rückseite der 'LightSource'-Ebene liegen.
-// b) Die 'LightSource' muß komplett auf der (lichtdurchlässigen) Vorderseite der 'Hole'-Ebene liegen.
-// Beachte, daß im allgemeinen bzw. erweiterten Sinne andere Frustren durchaus auch sinnvoll sein können,
+// Es wird vorausgesetzt, daÃŸ 'LightSource' und 'Hole' gÃ¼ltige Polygone sind.
+// Wenn daraus erfolgreich ein Frustum konstruiert werden kann, wird dieses zurÃ¼ckgegeben und es gilt 'Frustum.Size()>0'.
+// Andernfalls scheitert die Funktion und es wird ein Frustum der GrÃ¶ÃŸe 0 zurÃ¼ckgegeben ('Frustum.Size()==0').
+// Die Voraussetzung fÃ¼r den Erfolg dieser Funktion ist eine - in unserem Sinne - "vernÃ¼nftige" Anordnung der beiden Polygone:
+// a) Das 'Hole' muÃŸ komplett auf der (Licht emittierenden) RÃ¼ckseite der 'LightSource'-Ebene liegen.
+// b) Die 'LightSource' muÃŸ komplett auf der (lichtdurchlÃ¤ssigen) Vorderseite der 'Hole'-Ebene liegen.
+// Beachte, daÃŸ im allgemeinen bzw. erweiterten Sinne andere Frustren durchaus auch sinnvoll sein kÃ¶nnen,
 // z.B. wenn die 'LightSource' und das 'Hole' sich schneiden.
-// Solche Fälle betrachten wir jedoch als ungültig und sie führen zum Scheitern der Funktion.
+// Solche FÃ¤lle betrachten wir jedoch als ungÃ¼ltig und sie fÃ¼hren zum Scheitern der Funktion.
 inline void FindFrustum(const Polygon3T<double>& LightSource, const Polygon3T<double>& Hole, ArrayT< Plane3T<double> >& Frustum)
 {
     Frustum.Overwrite();
@@ -322,17 +322,17 @@ inline void FindFrustum(const Polygon3T<double>& LightSource, const Polygon3T<do
     {
         for (unsigned long V1=0; V1<LightSource.Vertices.Size(); V1++)
         {
-            // Eigentlich würde ich hier gerne folgenden Wunsch-Code schreiben:
+            // Eigentlich wÃ¼rde ich hier gerne folgenden Wunsch-Code schreiben:
             //     try
             //     {
             //         Plane3T<double> FrustumPlane(Hole.Vertices[V2], LightSource.Vertices[V1], Hole.Vertices[V3]);
             //
             //         // ...
             //     }
-            //     catch (DivisionByZero) { }  // Nicht mögliche FrustumPlanes einfach ignorieren.
+            //     catch (DivisionByZero) { }  // Nicht mÃ¶gliche FrustumPlanes einfach ignorieren.
             // Aus irgendeinem Grund ist die Verwendung oder das Fangen der DivisionByZero-Exception aber sehr langsam.
             // Deshalb rolle ich lieber den Plane3T<double>-Konstruktor aus, um ohne dieses Exception-Handling auszukommen.
-            // Das Programm wird *deutlich* schneller, ca. Faktor 1,5. Ob das eine Schwäche des Watcom-Compilers ist??
+            // Das Programm wird *deutlich* schneller, ca. Faktor 1,5. Ob das eine SchwÃ¤che des Watcom-Compilers ist??
             VectorT Normal(cross(Hole.Vertices[V3]-Hole.Vertices[V2], LightSource.Vertices[V1]-Hole.Vertices[V2]));
             double  NLength=length(Normal);
 
@@ -342,7 +342,7 @@ inline void FindFrustum(const Polygon3T<double>& LightSource, const Polygon3T<do
             Plane3T<double> FrustumPlane(Normal, dot(Hole.Vertices[V2], Normal));
 
             // Diese neue FrustumPlane nur dann akzeptieren, wenn das Hole auf ihrer Vorderseite liegt
-            // (konstruktionsbedingt sowieso der Fall!) und die LightSource auf ihrer Rückseite liegt.
+            // (konstruktionsbedingt sowieso der Fall!) und die LightSource auf ihrer RÃ¼ckseite liegt.
             // Wenn eine Edge des Hole in der Ebene der LightSource liegt, darf die LightSource
             // auch in der FrustumPlane liegen.
             Polygon3T<double>::SideT Side=LightSource.WhatSideSimple(FrustumPlane, MapT::RoundEpsilon);
@@ -364,10 +364,10 @@ inline void FindFrustum(const Polygon3T<double>& LightSource, const Polygon3T<do
     {
         for (unsigned long V1=0; V1<Hole.Vertices.Size(); V1++) // Optimize: Check if edges are in already existing frustum planes!
         {
-            // Es bringt übrigens nichts, doppelt auftretende Planes hier vermeiden zu wollen!
-            // Messungen waren z.B. 1:09:05 ohne Prüfung, 1:08:42 mit Prüfung auf Doppelvorkommen.
-            // Könnte man aber später nochmal überprüfen...
-         /* // Prüfe, ob wir diese Plane schon im Frustum haben.
+            // Es bringt Ã¼brigens nichts, doppelt auftretende Planes hier vermeiden zu wollen!
+            // Messungen waren z.B. 1:09:05 ohne PrÃ¼fung, 1:08:42 mit PrÃ¼fung auf Doppelvorkommen.
+            // KÃ¶nnte man aber spÃ¤ter nochmal Ã¼berprÃ¼fen...
+         /* // PrÃ¼fe, ob wir diese Plane schon im Frustum haben.
             // Teste dazu, ob die drei Punkte in der Plane liegen.
             // Die Orientierung braucht dabei nicht beachtet zu werden.
             for (unsigned long FrustumNr=0; FrustumNr<FrustumSize1stPart; FrustumNr++)
@@ -380,17 +380,17 @@ inline void FindFrustum(const Polygon3T<double>& LightSource, const Polygon3T<do
             }
             if (FrustumNr<FrustumSize1stPart) continue; */
 
-            // Eigentlich würde ich hier gerne folgenden Wunsch-Code schreiben:
+            // Eigentlich wÃ¼rde ich hier gerne folgenden Wunsch-Code schreiben:
             //     try
             //     {
             //         Plane3T<double> FrustumPlane(LightSource.Vertices[V2], Hole.Vertices[V1], LightSource.Vertices[V3]);
             //
             //         // ...
             //     }
-            //     catch (DivisionByZero) { }  // Nicht mögliche Ebenen einfach ignorieren.
+            //     catch (DivisionByZero) { }  // Nicht mÃ¶gliche Ebenen einfach ignorieren.
             // Aus irgendeinem Grund ist die Verwendung oder das Fangen der DivisionByZero-Exception aber sehr langsam.
             // Deshalb rolle ich lieber den Plane3T<double>-Konstruktor aus, um ohne dieses Exception-Handling auszukommen.
-            // Das Programm wird *deutlich* schneller, ca. Faktor 1,5. Ob das eine Schwäche des Watcom-Compilers ist??
+            // Das Programm wird *deutlich* schneller, ca. Faktor 1,5. Ob das eine SchwÃ¤che des Watcom-Compilers ist??
             VectorT Normal(cross(LightSource.Vertices[V3]-LightSource.Vertices[V2], Hole.Vertices[V1]-LightSource.Vertices[V2]));
             double  NLength=length(Normal);
 
@@ -399,13 +399,13 @@ inline void FindFrustum(const Polygon3T<double>& LightSource, const Polygon3T<do
 
             Plane3T<double> FrustumPlane(Normal, dot(LightSource.Vertices[V2], Normal));
 
-            // Diese neue FrustumPlane nur dann akzeptieren, wenn die LightSource auf ihrer Rückseite
+            // Diese neue FrustumPlane nur dann akzeptieren, wenn die LightSource auf ihrer RÃ¼ckseite
             // liegt (konstruktionsbedingt sowieso der Fall!) und das Hole auf ihrer Vorderseite liegt.
             // Wenn eine Edge der LightSource in der Ebene des Holes liegt, darf das Hole
             // auch in der FrustumPlane liegen.
             Polygon3T<double>::SideT Side=Hole.WhatSideSimple(FrustumPlane, MapT::RoundEpsilon);
 
-            // Wegen dem Rollentausch ist die Orientierung für den WhatSideSimple() Test falsch, ...
+            // Wegen dem Rollentausch ist die Orientierung fÃ¼r den WhatSideSimple() Test falsch, ...
             if (Side==Polygon3T<double>::Front || Side==Polygon3T<double>::InMirrored)
             {
                 Frustum.PushBack(FrustumPlane);   // ...im Gesamten aber wieder richtig!
@@ -492,7 +492,7 @@ bool DetermineVisibility(unsigned long CurrentSL, const Polygon3T<double>& Enter
         }
     }
 
-    // Bevor wir in das nächste SuperLeaf gehen, nimm das gegenwärtige 'CurrentSL' in die Liste der Vorgänger auf.
+    // Bevor wir in das nÃ¤chste SuperLeaf gehen, nimm das gegenwÃ¤rtige 'CurrentSL' in die Liste der VorgÃ¤nger auf.
     AncestorSLs.PushBack(CurrentSL);
 
     for (unsigned long NeighbourNr=0; NeighbourNr<SuperLeaves[CurrentSL].Neighbours.Size(); NeighbourNr++)
@@ -500,10 +500,10 @@ bool DetermineVisibility(unsigned long CurrentSL, const Polygon3T<double>& Enter
         const unsigned long NextSL    =SuperLeaves[CurrentSL].Neighbours[NeighbourNr].SuperLeafNr;
         Polygon3T<double>   NextPortal=SuperLeaves[CurrentSL].Neighbours[NeighbourNr].SubPortal;
 
-        // Wenn für das 'NextSL' schon festgestellt wurde, daß das 'TargetSL' von dort aus nicht zu sehen ist, können wir direkt weitermachen.
+        // Wenn fÃ¼r das 'NextSL' schon festgestellt wurde, daÃŸ das 'TargetSL' von dort aus nicht zu sehen ist, kÃ¶nnen wir direkt weitermachen.
         if (NextSL<AncestorSLs[0]/*MasterSL*/ && !IsVisible(NextSL, TargetSL)) continue;
 
-        // Abkürzung: Gleiche Ebene? Dann weiter mit dem nächsten Portal!
+        // AbkÃ¼rzung: Gleiche Ebene? Dann weiter mit dem nÃ¤chsten Portal!
         Polygon3T<double>::SideT Side=NextPortal.WhatSide(EnteringPortal.Plane, MapT::RoundEpsilon);
 
         if (Side==Polygon3T<double>::InIdentical || Side==Polygon3T<double>::InMirrored) continue;
@@ -529,7 +529,7 @@ bool DetermineVisibility(unsigned long CurrentSL, const Polygon3T<double>& Enter
         }
 
         // Clippe 'MasterPortal' gegen das Frustum "NextPortal --> EnteringPortal".
-        // Um die Portale nicht spiegeln zu müssen, das gespiegelte Frustum benutzen!
+        // Um die Portale nicht spiegeln zu mÃ¼ssen, das gespiegelte Frustum benutzen!
         Polygon3T<double> MP=MasterPortal;
 
         for (FrustumNr=0; FrustumNr<Frustum2.Size(); FrustumNr++)
@@ -557,17 +557,17 @@ bool CanSeeFromAToB(unsigned long MasterSL, unsigned long TargetSL)
     ArrayT<unsigned long> AncestorSLs;
     AncestorSLs.PushBackEmpty(2);
 
-    // Für den alten Algorithmus war hier vermerkt, daß "outer leaves" keine Neighbours/Portals haben,
+    // FÃ¼r den alten Algorithmus war hier vermerkt, daÃŸ "outer leaves" keine Neighbours/Portals haben,
     // wegen der Eigenschaften von Portalize() und FillInside() des CaBSP Programms.
-    // Der neue Algorithmus verwendet SuperLeaves, bei denen überhaupt nicht zwischen "inner" und "outer" unterschieden wird.
-    // Alles was zählt, sind die Portale. Deshalb setzen sich SuperLeaves korrekt aus beliebigen Leaves eines Sub-Trees zusammen.
+    // Der neue Algorithmus verwendet SuperLeaves, bei denen Ã¼berhaupt nicht zwischen "inner" und "outer" unterschieden wird.
+    // Alles was zÃ¤hlt, sind die Portale. Deshalb setzen sich SuperLeaves korrekt aus beliebigen Leaves eines Sub-Trees zusammen.
     for (unsigned long NeighbourNr=0; NeighbourNr<SuperLeaves[MasterSL].Neighbours.Size(); NeighbourNr++)
     {
         const unsigned long      NeighbourSL =SuperLeaves[MasterSL].Neighbours[NeighbourNr].SuperLeafNr;
         const Polygon3T<double>& MasterPortal=SuperLeaves[MasterSL].Neighbours[NeighbourNr].SubPortal;
 
-        // Wenn für das 'NeighbourSL' schon festgestellt wurde, daß das 'TargetSL' von dort aus nicht zu sehen ist,
-        // sparen wir uns die Mühe, es trotzdem zu versuchen, und machen direkt weiter.
+        // Wenn fÃ¼r das 'NeighbourSL' schon festgestellt wurde, daÃŸ das 'TargetSL' von dort aus nicht zu sehen ist,
+        // sparen wir uns die MÃ¼he, es trotzdem zu versuchen, und machen direkt weiter.
         if (NeighbourSL<MasterSL && !IsVisible(NeighbourSL, TargetSL)) continue;
 
         AncestorSLs[0]=MasterSL;
@@ -584,12 +584,12 @@ bool CanSeeFromAToB(unsigned long MasterSL, unsigned long TargetSL)
 
             if (Side==Polygon3T<double>::InIdentical || Side==Polygon3T<double>::InMirrored) continue;
 
-            // Wenn für das 'NeighboursNeighbourSL' schon festgestellt wurde, daß das 'TargetSL' von dort aus nicht zu sehen ist,
-            // sparen wir uns die Mühe, es trotzdem zu versuchen, und machen direkt weiter.
+            // Wenn fÃ¼r das 'NeighboursNeighbourSL' schon festgestellt wurde, daÃŸ das 'TargetSL' von dort aus nicht zu sehen ist,
+            // sparen wir uns die MÃ¼he, es trotzdem zu versuchen, und machen direkt weiter.
             if (NeighboursNeighbourSL<MasterSL && !IsVisible(NeighboursNeighbourSL, TargetSL)) continue;
 
-            // Das TOLLE: Sobald wir festgestellt haben, daß "irgendeine" Sichtbarkeit von 'MasterSL' nach 'TargetSL' existiert,
-            // können wir sofort AUFHÖREN(!!!) und mit dem nächsten SuperLeaves-Paar weitermachen!
+            // Das TOLLE: Sobald wir festgestellt haben, daÃŸ "irgendeine" Sichtbarkeit von 'MasterSL' nach 'TargetSL' existiert,
+            // kÃ¶nnen wir sofort AUFHÃ–REN(!!!) und mit dem nÃ¤chsten SuperLeaves-Paar weitermachen!
             if (DetermineVisibility(NeighboursNeighbourSL, EnteringPortal, AncestorSLs, MasterPortal, TargetSL, SuperLeavesBBs[TargetSL])) return true;
         }
     }
@@ -602,24 +602,24 @@ bool CanSeeFromAToB(unsigned long MasterSL, unsigned long TargetSL)
 // A prior call to 'DetermineTrivialVisibility()' is assumed.
 void BuildPVS()
 {
-    /* // Der komplette alte, aber einfache Code. Evtl. nützlich für Debugging-Zwecke.
+    /* // Der komplette alte, aber einfache Code. Evtl. nÃ¼tzlich fÃ¼r Debugging-Zwecke.
     for (unsigned long MasterSL=0; MasterSL+1<SuperLeaves.Size(); MasterSL++)
     {
         printf("%5.1f%%\r", (double)MasterSL/SuperLeaves.Size()*100.0);
         fflush(stdout);
 
-        // Bestimme für jedes SuperLeaves-Paar, ob eine gegenseitige Sichtbarkeit besteht.
-        // Beachte, daß die folgende Schleife bei 'MasterSL+1' starten kann (statt bei '0'), da Sichtbarkeit immer wechselseitig ist.
+        // Bestimme fÃ¼r jedes SuperLeaves-Paar, ob eine gegenseitige Sichtbarkeit besteht.
+        // Beachte, daÃŸ die folgende Schleife bei 'MasterSL+1' starten kann (statt bei '0'), da Sichtbarkeit immer wechselseitig ist.
         for (unsigned long TargetSL=MasterSL+1; TargetSL<SuperLeaves.Size(); TargetSL++)
         {
             // Wenn die Sichtbarkeit zwischen 'MasterSL' und 'TargetSL' bereits festgestellt wurde,
-            // können wir direkt mit dem nächsten 'TargetSL' weitermachen. Sinnvoll für unmittelbare Nachbarn.
-            // Auch vorangegangene Iterationen für andere, aber weiter weg liegende 'TargetSL's haben u.U.
-            // "auf dem Weg" liegende SuperLeaves als sichtbar markiert, sodaß diese hier nicht nochmal getestet werden müssen.
+            // kÃ¶nnen wir direkt mit dem nÃ¤chsten 'TargetSL' weitermachen. Sinnvoll fÃ¼r unmittelbare Nachbarn.
+            // Auch vorangegangene Iterationen fÃ¼r andere, aber weiter weg liegende 'TargetSL's haben u.U.
+            // "auf dem Weg" liegende SuperLeaves als sichtbar markiert, sodaÃŸ diese hier nicht nochmal getestet werden mÃ¼ssen.
             if (IsVisible(MasterSL, TargetSL)) continue;
 
-            // Wenn das 'TargetSL' keine Nachbarn hat, können wir direkt mit dem nächsten 'TargetSL' weitermachen.
-            // Für ein solches SL ohne Nachbarn haben wir sowieso keine sinnvolle "Target Bounding Box" in den 'SuperLeavesBBs' konstruiert!
+            // Wenn das 'TargetSL' keine Nachbarn hat, kÃ¶nnen wir direkt mit dem nÃ¤chsten 'TargetSL' weitermachen.
+            // FÃ¼r ein solches SL ohne Nachbarn haben wir sowieso keine sinnvolle "Target Bounding Box" in den 'SuperLeavesBBs' konstruiert!
             if (SuperLeaves[TargetSL].Neighbours.Size()==0) continue;
 
             // Intentionally ignore the returned result.
@@ -628,13 +628,13 @@ void BuildPVS()
     } */
 
 
-    // Für jedes SuperLeaf das PVS bestimmen.
+    // FÃ¼r jedes SuperLeaf das PVS bestimmen.
     for (unsigned long MasterSL=0; MasterSL<SuperLeaves.Size(); MasterSL++)
     {
         printf("%5.1f%%\r", (double)MasterSL/SuperLeaves.Size()*100.0);
         fflush(stdout);
 
-        // Initialisiere die Hilfsarrays für das 'MasterSL'.
+        // Initialisiere die Hilfsarrays fÃ¼r das 'MasterSL'.
         ArrayT<bool> AV;    // List of "Already     Visible" SuperLeaves from 'MasterSL'.
         ArrayT<bool> PV;    // List of "Potentially Visible" SuperLeaves from 'MasterSL'.
         ArrayT<bool> NV;    // List of "Not         Visible" SuperLeaves from 'MasterSL'.
@@ -648,16 +648,16 @@ void BuildPVS()
             NV.PushBack(false);
         }
 
-        // Bestimme, welche SuperLeaves wir von 'MasterSL' aus schon sehen können.
+        // Bestimme, welche SuperLeaves wir von 'MasterSL' aus schon sehen kÃ¶nnen.
         for (SL=0; SL<SuperLeaves.Size(); SL++)
             if (IsVisible(MasterSL, SL)) AV[SL]=true;
 
         // Bilde eine Liste 'PV' aller SuperLeaves, die von 'MasterSL' aus "potentially visible" sind.
-        // Dies sind zunächst *alle* Nachbarn aller SuperLeaves in der 'AV' Liste, außer denjenigen,
+        // Dies sind zunÃ¤chst *alle* Nachbarn aller SuperLeaves in der 'AV' Liste, auÃŸer denjenigen,
         // die bereits in der 'AV' oder 'NV' Liste sind, oder deren Index-Nummern 'NeighbourSL' kleiner/gleich 'MasterSL' sind.
-        // Der Grund für letzteres: Wenn früher schon festgestellt wurde, daß wir nicht von 'NeighbourSL' nach 'MasterSL' sehen können,
-        // können wir uns jetzt den Test, ob wir von 'MasterSL' nach 'NeighbourSL' sehen können, sparen.
-        // Wäre der frühere Test dagegen positiv gewesen, wäre 'AV[NeighbourSL]==true', was auch keinen 'PV'-Eintrag verursacht.
+        // Der Grund fÃ¼r letzteres: Wenn frÃ¼her schon festgestellt wurde, daÃŸ wir nicht von 'NeighbourSL' nach 'MasterSL' sehen kÃ¶nnen,
+        // kÃ¶nnen wir uns jetzt den Test, ob wir von 'MasterSL' nach 'NeighbourSL' sehen kÃ¶nnen, sparen.
+        // WÃ¤re der frÃ¼here Test dagegen positiv gewesen, wÃ¤re 'AV[NeighbourSL]==true', was auch keinen 'PV'-Eintrag verursacht.
         for (SL=0; SL<SuperLeaves.Size(); SL++)
             if (AV[SL])
                 for (unsigned long NeighbourNr=0; NeighbourNr<SuperLeaves[SL].Neighbours.Size(); NeighbourNr++)
@@ -684,16 +684,16 @@ void BuildPVS()
                     PV[SL]=false;
                 }
 
-                // Bestimme, welche SuperLeaves wir von 'MasterSL' aus schon sehen können.
+                // Bestimme, welche SuperLeaves wir von 'MasterSL' aus schon sehen kÃ¶nnen.
                 for (SL=0; SL<SuperLeaves.Size(); SL++)
                     if (IsVisible(MasterSL, SL)) AV[SL]=true;
 
                 // Bilde eine Liste 'PV' aller SuperLeaves, die von 'MasterSL' aus "potentially visible" sind.
-                // Dies sind zunächst *alle* Nachbarn aller SuperLeaves in der 'AV' Liste, außer denjenigen,
+                // Dies sind zunÃ¤chst *alle* Nachbarn aller SuperLeaves in der 'AV' Liste, auÃŸer denjenigen,
                 // die bereits in der 'AV' oder 'NV' Liste sind, oder deren Index-Nummern 'NeighbourSL' kleiner/gleich 'MasterSL' sind.
-                // Der Grund für letzteres: Wenn früher schon festgestellt wurde, daß wir nicht von 'NeighbourSL' nach 'MasterSL' sehen können,
-                // können wir uns jetzt den Test, ob wir von 'MasterSL' nach 'NeighbourSL' sehen können, sparen.
-                // Wäre der frühere Test dagegen positiv gewesen, wäre 'AV[NeighbourSL]==true', was auch keinen 'PV'-Eintrag verursacht.
+                // Der Grund fÃ¼r letzteres: Wenn frÃ¼her schon festgestellt wurde, daÃŸ wir nicht von 'NeighbourSL' nach 'MasterSL' sehen kÃ¶nnen,
+                // kÃ¶nnen wir uns jetzt den Test, ob wir von 'MasterSL' nach 'NeighbourSL' sehen kÃ¶nnen, sparen.
+                // WÃ¤re der frÃ¼here Test dagegen positiv gewesen, wÃ¤re 'AV[NeighbourSL]==true', was auch keinen 'PV'-Eintrag verursacht.
                 for (SL=0; SL<SuperLeaves.Size(); SL++)
                     if (AV[SL])
                         for (unsigned long NeighbourNr=0; NeighbourNr<SuperLeaves[SL].Neighbours.Size(); NeighbourNr++)

@@ -64,8 +64,8 @@ void BspTreeBuilderT::QuickSortFacesIntoTexNameOrder()
 
 // Diese Funktion sortiert die Faces anhand ihres Texture-Namens in aufsteigender Reihenfolge.
 // Dank Z-Buffering kann die Engine damit die Faces in dieser Reihenfolge mit einem Minimum von State-Changes rendern.
-// Da außerdem die LightMaps der Faces in dieser Reihenfolge in die größeren LightMaps einsortiert werden
-// (CreateFullBrightLightMaps()), erhalten wir den selben positiven Effekt auch für die LightMaps!
+// Da auÃŸerdem die LightMaps der Faces in dieser Reihenfolge in die grÃ¶ÃŸeren LightMaps einsortiert werden
+// (CreateFullBrightLightMaps()), erhalten wir den selben positiven Effekt auch fÃ¼r die LightMaps!
 void BspTreeBuilderT::SortFacesIntoTexNameOrder()
 {
     if (FaceChildren.Size()==0) return;
@@ -86,8 +86,8 @@ void BspTreeBuilderT::SortFacesIntoTexNameOrder()
     for (unsigned long FaceNr=0; FaceNr+1<FaceChildren.Size(); FaceNr++)
         if (_stricmp(FaceChildren[FaceNr]->Material->Name.c_str(), FaceChildren[FaceNr+1]->Material->Name.c_str())>0) Error("Bad sorting!");
 
-    // Wir wissen nun, daß an Stelle der Face i nun die Face FaceNrs[i] steht, wollen aber wissen, an welcher
-    // Stelle nun die i-te Face steht. Führe dazu das RevFaceNrs-Array ein und fülle es entsprechend aus.
+    // Wir wissen nun, daÃŸ an Stelle der Face i nun die Face FaceNrs[i] steht, wollen aber wissen, an welcher
+    // Stelle nun die i-te Face steht. FÃ¼hre dazu das RevFaceNrs-Array ein und fÃ¼lle es entsprechend aus.
     ArrayT<unsigned long> RevFaceNrs;
 
     RevFaceNrs.PushBackEmpty(FaceChildren.Size());

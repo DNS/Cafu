@@ -265,7 +265,7 @@ void TerrainNodeT::Init()
     ArrayT<char> GammaLightMap;
 
     // Wende r_gamma_lm auf die LightMaps an.
-    // Beachte die nette Optimierung (Vorberechnung der 256 möglichen Gammawerte)!
+    // Beachte die nette Optimierung (Vorberechnung der 256 mÃ¶glichen Gammawerte)!
     // Dieser Code ist identisch zum DrawableMapT Constructor!
     {
         char GammaValuesLM[256];

@@ -169,7 +169,7 @@ void CollisionModelStaticT::PolygonT::TraceConvexSolid(
 
 /*
  * There are several resources in the internet about ray-triangle intersection.
- * Apparently the most widely referenced and acknowledged with supposedly fast code is the paper by Möller and Trumbore:
+ * Apparently the most widely referenced and acknowledged with supposedly fast code is the paper by MÃ¶ller and Trumbore:
  *     Paper: http://www.cs.virginia.edu/~gfx/Courses/2003/ImageSynthesis/papers/Acceleration/Fast%20MinimumStorage%20RayTriangle%20Intersection.pdf
  *     Code:  http://www.cs.lth.se/home/Tomas_Akenine_Moller/raytri/
  *
@@ -245,8 +245,8 @@ void CollisionModelStaticT::PolygonT::TraceRay(
     // Bestimmen, bei welchem Bruchteil (Fraction F) von Dir wir die Plane schneiden.
     const double Nenner=dot(Plane.Normal, Ray);
 
-    // Dir muß dem Normalenvektor der Ebene wirklich entgegenzeigen! Ist der Nenner==0, so ist Dir parallel zur Plane,
-    // und mit dieser Plane ex. kein Schnittpunkt. Ist der Nenner>0, nutzen wir die Konvexität des Brushs aus:
+    // Dir muÃŸ dem Normalenvektor der Ebene wirklich entgegenzeigen! Ist der Nenner==0, so ist Dir parallel zur Plane,
+    // und mit dieser Plane ex. kein Schnittpunkt. Ist der Nenner>0, nutzen wir die KonvexitÃ¤t des Brushs aus:
     // Es gibt damit nur genau einen Schnittpunkt mit dem Brush (Eintrittsstelle) und die Plane behindert nicht
     // eine Bewegung von ihr weg (Feststecken wenn Dist==0 (s.u.)).
     if (Nenner==0) return;
@@ -548,8 +548,8 @@ void CollisionModelStaticT::BrushT::TraceConvexSolid(
         // Bestimmen, bei welchem Bruchteil (Fraction F) von Ray wir die Plane schneiden.
         const double Nenner=dot(AllPlanes[PlaneNr]->Normal, Ray);
 
-        // Dir muß dem Normalenvektor der Ebene wirklich entgegenzeigen! Ist der Nenner==0, so ist Dir parallel zur Plane,
-        // und mit dieser Plane ex. kein Schnittpunkt. Ist der Nenner>0, nutzen wir die Konvexität des Brushs aus:
+        // Dir muÃŸ dem Normalenvektor der Ebene wirklich entgegenzeigen! Ist der Nenner==0, so ist Dir parallel zur Plane,
+        // und mit dieser Plane ex. kein Schnittpunkt. Ist der Nenner>0, nutzen wir die KonvexitÃ¤t des Brushs aus:
         // Es gibt damit nur genau einen Schnittpunkt mit dem Brush (Eintrittsstelle) und die Plane behindert nicht
         // eine Bewegung von ihr weg (Feststecken wenn Dist==0 (s.u.)).
         if (Nenner>=0) continue;
@@ -557,10 +557,10 @@ void CollisionModelStaticT::BrushT::TraceConvexSolid(
         const double Dist= AllPlanes[PlaneNr]->GetDistance(Start)+BloatDistanceOffsets[PlaneNr];
         double       F   =-Dist/Nenner;
 
-        // Der Schnitt macht nur Sinn, wenn F im gewünschten Intervall liegt
+        // Der Schnitt macht nur Sinn, wenn F im gewÃ¼nschten Intervall liegt
         if (F<0 || F>=Result.Fraction) continue;
 
-        // Prüfen, ob Schnittpunkt wirklich auf dem Brush liegt
+        // PrÃ¼fen, ob Schnittpunkt wirklich auf dem Brush liegt
         {
             const Vector3dT HitPos=Start + Ray*F;
             unsigned long PNr;
@@ -572,19 +572,19 @@ void CollisionModelStaticT::BrushT::TraceConvexSolid(
         }
 
         // Wir haben die einzige Eintrittsstelle gefunden!
-        // Eigentlich ist das errechete F einwandfrei. Wir wollen es jedoch nochmal etwas verringern, sodaß der sich
-        // ergebende Schnittpunkt (HitPos) in einem Abstand von 0.03125 ÜBER der Ebene liegt! Bildhaft wird dazu die
+        // Eigentlich ist das errechete F einwandfrei. Wir wollen es jedoch nochmal etwas verringern, sodaÃŸ der sich
+        // ergebende Schnittpunkt (HitPos) in einem Abstand von 0.03125 ÃœBER der Ebene liegt! Bildhaft wird dazu die
         // Schnittebene um 0.03125 in Richtung ihres Normalenvektors geschoben und F wie oben neu errechnet.
         // Dies erspart uns ansonsten ernste Probleme:
         // - Wird diese Funktion nochmals mit dem Trace-Ergebnis (HitPos) als Start-Vektor aufgerufen,
         //   kann dieser neue Start-Vektor nicht wegen Rundungsfehlern in den Brush geraten (Solid!).
         // - Wird unser Trace-Ergebnis (HitPos) als Start-Vektor dieser Funktion, aber mit einem anderen
-        //   Brush benutzt, der gegenüber diesem Brush nur in der Schnittebene verschoben ist (z.B. eine lange
+        //   Brush benutzt, der gegenÃ¼ber diesem Brush nur in der Schnittebene verschoben ist (z.B. eine lange
         //   Wand, die aus mehreren "Backsteinen" besteht), kommt es auch hier nicht zum (falschen)
-        //   "Hängenbleiben" an einer gemeinsamen Brush-Kante.
-        // Aber: Die HitPos kann natürlich trotzdem näher als 0.03125 an der Ebene liegen, nämlich genau dann, wenn
-        // es nicht zu einem Schnitt kam und Dir zufällig dort endet. Wir ignorieren diese Möglichkeit: Kommt es doch
-        // noch zu einem Schnitt, wird eben F==0. Deshalb können wir uns auch in diesem Fall nicht durch Rundungsfehler
+        //   "HÃ¤ngenbleiben" an einer gemeinsamen Brush-Kante.
+        // Aber: Die HitPos kann natÃ¼rlich trotzdem nÃ¤her als 0.03125 an der Ebene liegen, nÃ¤mlich genau dann, wenn
+        // es nicht zu einem Schnitt kam und Dir zufÃ¤llig dort endet. Wir ignorieren diese MÃ¶glichkeit: Kommt es doch
+        // noch zu einem Schnitt, wird eben F==0. Deshalb kÃ¶nnen wir uns auch in diesem Fall nicht durch Rundungsfehler
         // ins Innere des Brushs schaukeln.
         F=-(Dist-0.03125)/Nenner;                   // Vgl. Berechnung von F oben!
 
@@ -627,8 +627,8 @@ void CollisionModelStaticT::BrushT::TraceRay(
         // Bestimmen, bei welchem Bruchteil (Fraction F) von Ray wir die Plane schneiden.
         const double Nenner=dot(Sides[SideNr].Plane.Normal, Ray);
 
-        // Dir muß dem Normalenvektor der Ebene wirklich entgegenzeigen! Ist der Nenner==0, so ist Dir parallel zur Plane,
-        // und mit dieser Plane ex. kein Schnittpunkt. Ist der Nenner>0, nutzen wir die Konvexität des Brushs aus:
+        // Dir muÃŸ dem Normalenvektor der Ebene wirklich entgegenzeigen! Ist der Nenner==0, so ist Dir parallel zur Plane,
+        // und mit dieser Plane ex. kein Schnittpunkt. Ist der Nenner>0, nutzen wir die KonvexitÃ¤t des Brushs aus:
         // Es gibt damit nur genau einen Schnittpunkt mit dem Brush (Eintrittsstelle) und die Plane behindert nicht
         // eine Bewegung von ihr weg (Feststecken wenn Dist==0 (s.u.)).
         if (Nenner>=0) continue;
@@ -636,10 +636,10 @@ void CollisionModelStaticT::BrushT::TraceRay(
         const double Dist= Sides[SideNr].Plane.GetDistance(Start);
         double       F   =-Dist/Nenner;
 
-        // Der Schnitt macht nur Sinn, wenn F im gewünschten Intervall liegt
+        // Der Schnitt macht nur Sinn, wenn F im gewÃ¼nschten Intervall liegt
         if (F<0 || F>=Result.Fraction) continue;
 
-        // Prüfen, ob Schnittpunkt wirklich auf dem Brush liegt
+        // PrÃ¼fen, ob Schnittpunkt wirklich auf dem Brush liegt
         const Vector3dT HitPos=Start + Ray*F;
         unsigned long SNr;
 
@@ -649,19 +649,19 @@ void CollisionModelStaticT::BrushT::TraceRay(
         if (SNr<NrOfSides) continue;
 
         // Wir haben die einzige Eintrittsstelle gefunden!
-        // Eigentlich ist das errechete F einwandfrei. Wir wollen es jedoch nochmal etwas verringern, sodaß der sich
-        // ergebende Schnittpunkt (HitPos) in einem Abstand von 0.03125 ÜBER der Ebene liegt! Bildhaft wird dazu die
+        // Eigentlich ist das errechete F einwandfrei. Wir wollen es jedoch nochmal etwas verringern, sodaÃŸ der sich
+        // ergebende Schnittpunkt (HitPos) in einem Abstand von 0.03125 ÃœBER der Ebene liegt! Bildhaft wird dazu die
         // Schnittebene um 0.03125 in Richtung ihres Normalenvektors geschoben und F wie oben neu errechnet.
         // Dies erspart uns ansonsten ernste Probleme:
         // - Wird diese Funktion nochmals mit dem Trace-Ergebnis (HitPos) als Start-Vektor aufgerufen,
         //   kann dieser neue Start-Vektor nicht wegen Rundungsfehlern in den Brush geraten (Solid!).
         // - Wird unser Trace-Ergebnis (HitPos) als Start-Vektor dieser Funktion, aber mit einem anderen
-        //   Brush benutzt, der gegenüber diesem Brush nur in der Schnittebene verschoben ist (z.B. eine lange
+        //   Brush benutzt, der gegenÃ¼ber diesem Brush nur in der Schnittebene verschoben ist (z.B. eine lange
         //   Wand, die aus mehreren "Backsteinen" besteht), kommt es auch hier nicht zum (falschen)
-        //   "Hängenbleiben" an einer gemeinsamen Brush-Kante.
-        // Aber: Die HitPos kann natürlich trotzdem näher als 0.03125 an der Ebene liegen, nämlich genau dann, wenn
-        // es nicht zu einem Schnitt kam und Dir zufällig dort endet. Wir ignorieren diese Möglichkeit: Kommt es doch
-        // noch zu einem Schnitt, wird eben F==0. Deshalb können wir uns auch in diesem Fall nicht durch Rundungsfehler
+        //   "HÃ¤ngenbleiben" an einer gemeinsamen Brush-Kante.
+        // Aber: Die HitPos kann natÃ¼rlich trotzdem nÃ¤her als 0.03125 an der Ebene liegen, nÃ¤mlich genau dann, wenn
+        // es nicht zu einem Schnitt kam und Dir zufÃ¤llig dort endet. Wir ignorieren diese MÃ¶glichkeit: Kommt es doch
+        // noch zu einem Schnitt, wird eben F==0. Deshalb kÃ¶nnen wir uns auch in diesem Fall nicht durch Rundungsfehler
         // ins Innere des Brushs schaukeln.
         F=-(Dist-0.03125)/Nenner;                   // Vgl. Berechnung von F oben!
 
@@ -691,7 +691,7 @@ void CollisionModelStaticT::BrushT::TraceBevelBB(
 
     static ArrayT<double> BloatDistanceOffsets;
 
-    // Bloat-Distance-Offsets für alle Planes dieses Brushs bestimmen.
+    // Bloat-Distance-Offsets fÃ¼r alle Planes dieses Brushs bestimmen.
     while (BloatDistanceOffsets.Size()<NrOfSides) BloatDistanceOffsets.PushBack(0.0);
 
     for (unsigned long SideNr=0; SideNr<NrOfSides; SideNr++)
@@ -721,8 +721,8 @@ void CollisionModelStaticT::BrushT::TraceBevelBB(
         // Bestimmen, bei welchem Bruchteil (Fraction F) von Ray wir die Plane schneiden.
         const double Nenner=dot(Sides[SideNr].Plane.Normal, Ray);
 
-        // Dir muß dem Normalenvektor der Ebene wirklich entgegenzeigen! Ist der Nenner==0, so ist Dir parallel zur Plane,
-        // und mit dieser Plane ex. kein Schnittpunkt. Ist der Nenner>0, nutzen wir die Konvexität des Brushs aus:
+        // Dir muÃŸ dem Normalenvektor der Ebene wirklich entgegenzeigen! Ist der Nenner==0, so ist Dir parallel zur Plane,
+        // und mit dieser Plane ex. kein Schnittpunkt. Ist der Nenner>0, nutzen wir die KonvexitÃ¤t des Brushs aus:
         // Es gibt damit nur genau einen Schnittpunkt mit dem Brush (Eintrittsstelle) und die Plane behindert nicht
         // eine Bewegung von ihr weg (Feststecken wenn Dist==0 (s.u.)).
         if (Nenner>=0) continue;
@@ -730,10 +730,10 @@ void CollisionModelStaticT::BrushT::TraceBevelBB(
         const double Dist= Sides[SideNr].Plane.GetDistance(Start)+BloatDistanceOffsets[SideNr];
         double       F   =-Dist/Nenner;
 
-        // Der Schnitt macht nur Sinn, wenn F im gewünschten Intervall liegt
+        // Der Schnitt macht nur Sinn, wenn F im gewÃ¼nschten Intervall liegt
         if (F<0 || F>=Result.Fraction) continue;
 
-        // Prüfen, ob Schnittpunkt wirklich auf dem Brush liegt
+        // PrÃ¼fen, ob Schnittpunkt wirklich auf dem Brush liegt
         const Vector3dT HitPos=Start + Ray*F;
         unsigned long SNr;
 
@@ -743,19 +743,19 @@ void CollisionModelStaticT::BrushT::TraceBevelBB(
         if (SNr<NrOfSides) continue;
 
         // Wir haben die einzige Eintrittsstelle gefunden!
-        // Eigentlich ist das errechete F einwandfrei. Wir wollen es jedoch nochmal etwas verringern, sodaß der sich
-        // ergebende Schnittpunkt (HitPos) in einem Abstand von 0.03125 ÜBER der Ebene liegt! Bildhaft wird dazu die
+        // Eigentlich ist das errechete F einwandfrei. Wir wollen es jedoch nochmal etwas verringern, sodaÃŸ der sich
+        // ergebende Schnittpunkt (HitPos) in einem Abstand von 0.03125 ÃœBER der Ebene liegt! Bildhaft wird dazu die
         // Schnittebene um 0.03125 in Richtung ihres Normalenvektors geschoben und F wie oben neu errechnet.
         // Dies erspart uns ansonsten ernste Probleme:
         // - Wird diese Funktion nochmals mit dem Trace-Ergebnis (HitPos) als Start-Vektor aufgerufen,
         //   kann dieser neue Start-Vektor nicht wegen Rundungsfehlern in den Brush geraten (Solid!).
         // - Wird unser Trace-Ergebnis (HitPos) als Start-Vektor dieser Funktion, aber mit einem anderen
-        //   Brush benutzt, der gegenüber diesem Brush nur in der Schnittebene verschoben ist (z.B. eine lange
+        //   Brush benutzt, der gegenÃ¼ber diesem Brush nur in der Schnittebene verschoben ist (z.B. eine lange
         //   Wand, die aus mehreren "Backsteinen" besteht), kommt es auch hier nicht zum (falschen)
-        //   "Hängenbleiben" an einer gemeinsamen Brush-Kante.
-        // Aber: Die HitPos kann natürlich trotzdem näher als 0.03125 an der Ebene liegen, nämlich genau dann, wenn
-        // es nicht zu einem Schnitt kam und Dir zufällig dort endet. Wir ignorieren diese Möglichkeit: Kommt es doch
-        // noch zu einem Schnitt, wird eben F==0. Deshalb können wir uns auch in diesem Fall nicht durch Rundungsfehler
+        //   "HÃ¤ngenbleiben" an einer gemeinsamen Brush-Kante.
+        // Aber: Die HitPos kann natÃ¼rlich trotzdem nÃ¤her als 0.03125 an der Ebene liegen, nÃ¤mlich genau dann, wenn
+        // es nicht zu einem Schnitt kam und Dir zufÃ¤llig dort endet. Wir ignorieren diese MÃ¶glichkeit: Kommt es doch
+        // noch zu einem Schnitt, wird eben F==0. Deshalb kÃ¶nnen wir uns auch in diesem Fall nicht durch Rundungsfehler
         // ins Innere des Brushs schaukeln.
         F=-(Dist-0.03125)/Nenner;                   // Vgl. Berechnung von F oben!
 
@@ -1313,9 +1313,9 @@ struct LessVector3d
 };
 
 
-// Findet zu einem Vertex v heraus, welcher Index vertexNum (ins model->vertices array) dazugehört.
-// Falls es den Vertex in model->vertices noch nicht gibt, wird er eingefügt.
-// Gibt true zurück, wenn es den Vertex schon gab, false wenn er eingefügt wurde.
+// Findet zu einem Vertex v heraus, welcher Index vertexNum (ins model->vertices array) dazugehÃ¶rt.
+// Falls es den Vertex in model->vertices noch nicht gibt, wird er eingefÃ¼gt.
+// Gibt true zurÃ¼ck, wenn es den Vertex schon gab, false wenn er eingefÃ¼gt wurde.
 static unsigned long GetVertex(std::map<Vector3dT, unsigned long, LessVector3d>& VertexMap, ArrayT<Vector3dT>& Vertices, const Vector3dT& Vertex)
 {
     // const float INTEGRAL_EPSILON=0.01f;

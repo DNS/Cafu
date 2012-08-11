@@ -139,7 +139,7 @@ void ToneReproduction(const CaLightWorldT& CaLightWorld)
     // Arbeite die Ceiling in das Histogram ein
     if (HistogramCeiling(Bins, (MaxBrightness-MinBrightness)/double(NrOfBins)))
     {
-        // Bilde das Integral über Bins[0..NrOfBins-1] als einfache Summe und normalisiere
+        // Bilde das Integral Ã¼ber Bins[0..NrOfBins-1] als einfache Summe und normalisiere
         ArrayT<double> BinsNormSum;
         unsigned long  Sum=0;
 
@@ -171,7 +171,7 @@ void ToneReproduction(const CaLightWorldT& CaLightWorld)
             }
     }
 
-    // Skaliere die nun vorhandenen RGB-Werte der Patches linear in den gewünschten [0, 255] Bereich.
+    // Skaliere die nun vorhandenen RGB-Werte der Patches linear in den gewÃ¼nschten [0, 255] Bereich.
     double Max=0;
     for (unsigned long PatchMeshNr=0; PatchMeshNr<PatchMeshes.Size(); PatchMeshNr++)
         for (unsigned long PatchNr=0; PatchNr<PatchMeshes[PatchMeshNr].Patches.Size(); PatchNr++)

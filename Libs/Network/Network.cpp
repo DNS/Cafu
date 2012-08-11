@@ -51,7 +51,7 @@ WinSockT::WinSockT(unsigned short RequestedVersion) /*throw (InitFailure, BadVer
 WinSockT::~WinSockT()
 {
 #ifdef _WIN32
-    WSACleanup();   // Ignoriere das R¸ckgabeergebnis (und das mˆgliche Scheitern) von WSACleanup().
+    WSACleanup();   // Ignoriere das R√ºckgabeergebnis (und das m√∂gliche Scheitern) von WSACleanup().
 #endif
 }
 
@@ -192,7 +192,7 @@ NetAddressT::NetAddressT(const sockaddr_in& SockAddrIn)
 
 const char* NetAddressT::ToString() const
 {
-    static char String[32];     // Max. L‰nge ist 22 (23 mit abschlieﬂender Null)
+    static char String[32];     // Max. L√§nge ist 22 (23 mit abschlie√üender Null)
 
     sprintf(String, "%u.%u.%u.%u:%u", IP[0], IP[1], IP[2], IP[3], Port);
     return String;
@@ -274,7 +274,7 @@ void NetDataT::Send(SOCKET Socket, const NetAddressT& ReceiverAddress) const /*t
 
 NetAddressT NetDataT::Receive(SOCKET Socket) /*throw (WinSockAPIError)*/
 {
-    /*if (f¸r Socket gibt es Daten am LoopBack)
+    /*if (f√ºr Socket gibt es Daten am LoopBack)
     {
         return faked loopback-adress;
     }*/
@@ -320,13 +320,13 @@ GameProtocol1T::GameProtocol1T()
 
 const NetDataT& GameProtocol1T::GetTransmitData(const ArrayT< ArrayT<char> >& ReliableDatas, const ArrayT<char>& UnreliableData) /*throw (MaxMsgSizeExceeded)*/
 {
-    // Der Auftrag dieser Methode lautet, ein NetDataT Paket zu erstellen, um die 'ReliableDatas' und 'UnreliableData' an die Gegenstelle zu ¸bertragen.
-    // Die 'UnreliableData' spielen dabei kaum eine Rolle, da wir sie bei Problemen einfach unter den Tisch fallen lassen kˆnnen (s.u.).
+    // Der Auftrag dieser Methode lautet, ein NetDataT Paket zu erstellen, um die 'ReliableDatas' und 'UnreliableData' an die Gegenstelle zu √ºbertragen.
+    // Die 'UnreliableData' spielen dabei kaum eine Rolle, da wir sie bei Problemen einfach unter den Tisch fallen lassen k√∂nnen (s.u.).
     // Betrachten wir die 'ReliableDatas':
-    // Weil immer nur eine "reliable Message" unterwegs ("in flight") sein kann, kˆnnen wir die 'ReliableDatas' u.U. nicht sofort senden.
-    // Auﬂerdem kˆnnte der Gesamtinhalt von 'ReliableDatas' zu groﬂ sein f¸r ein einzelnes Netzwerk-Paket.
-    // Deshalb reihen wir alle 'ReliableDatas[i]' zun‰chst einfach mal in die 'ReliableDatasQueue' ein (durch anh‰ngen).
-    // Vorher beachte aber, daﬂ die kleinste Einheit, mit der wir uns besch‰ftigen und die wir sp‰ter auch versenden, ein 'ReliableDatas[i]' ist.
+    // Weil immer nur eine "reliable Message" unterwegs ("in flight") sein kann, k√∂nnen wir die 'ReliableDatas' u.U. nicht sofort senden.
+    // Au√üerdem k√∂nnte der Gesamtinhalt von 'ReliableDatas' zu gro√ü sein f√ºr ein einzelnes Netzwerk-Paket.
+    // Deshalb reihen wir alle 'ReliableDatas[i]' zun√§chst einfach mal in die 'ReliableDatasQueue' ein (durch anh√§ngen).
+    // Vorher beachte aber, da√ü die kleinste Einheit, mit der wir uns besch√§ftigen und die wir sp√§ter auch versenden, ein 'ReliableDatas[i]' ist.
     // Thus make sure that for all i the condition 'ReliableDatas[i].Size()<=MAX_MSG_SIZE' holds.
     unsigned long Nr;
 
@@ -339,7 +339,7 @@ const NetDataT& GameProtocol1T::GetTransmitData(const ArrayT< ArrayT<char> >& Re
         ReliableDatasQueue.PushBack(ReliableDatas[Nr]);
 
     // Falls im Moment keine reliable Daten unterwegs sind, aber in der Queue welche darauf warten,
-    // abgeschickt zu werden, schicke soviele Daten wie mˆglich vom Anfang der Queue als neue reliable Message auf den Weg.
+    // abgeschickt zu werden, schicke soviele Daten wie m√∂glich vom Anfang der Queue als neue reliable Message auf den Weg.
     if (ReliableDataInFlight.Size()==0 && ReliableDatasQueue.Size()>0)
     {
         for (Nr=0; Nr<ReliableDatasQueue.Size(); Nr++)
@@ -366,10 +366,10 @@ const NetDataT& GameProtocol1T::GetTransmitData(const ArrayT< ArrayT<char> >& Re
     }
 
     // Ein Paket unseres Protokolls besteht aus einem Header (zwei LongWords 'a' und 'b') und der Payload 'c':
-    // a1) Das oberste Bit (Bit 31) zeigt an, ob diese Nachricht best‰tigt werden soll (die Nachricht enth‰lt eine 'reliable message' als payload).
-    // a2) Die n‰chsten 31 Bits (Bits 30 bis 0) sind die gegenw‰rtige SequenceNr des Pakets ("Hey, ich sende Dir eine Nachricht mit Nummer ...!").
-    // b1) Das oberste Bit (Bit 31) des n‰chsten LongWords enth‰lt als Empfangsbest‰tigung auf eine reliable Message ein umschlagendes Odd/Even-AckFlag.
-    //     Das heiﬂt, wann immer eine zu best‰tigende Nachricht empfangen wird, wird dieses Bit umgedreht. (Es ist immer nur eine rel. Msg unterwegs!)
+    // a1) Das oberste Bit (Bit 31) zeigt an, ob diese Nachricht best√§tigt werden soll (die Nachricht enth√§lt eine 'reliable message' als payload).
+    // a2) Die n√§chsten 31 Bits (Bits 30 bis 0) sind die gegenw√§rtige SequenceNr des Pakets ("Hey, ich sende Dir eine Nachricht mit Nummer ...!").
+    // b1) Das oberste Bit (Bit 31) des n√§chsten LongWords enth√§lt als Empfangsbest√§tigung auf eine reliable Message ein umschlagendes Odd/Even-AckFlag.
+    //     Das hei√üt, wann immer eine zu best√§tigende Nachricht empfangen wird, wird dieses Bit umgedreht. (Es ist immer nur eine rel. Msg unterwegs!)
     // b2) Restliche 31 Bits: SequenceNr des zuletzt von der Gegenstelle gesehenen Pakets.
     // c)  Die 'PayLoad'.
     static NetDataT OutData;
@@ -379,7 +379,7 @@ const NetDataT& GameProtocol1T::GetTransmitData(const ArrayT< ArrayT<char> >& Re
     OutData.WriteLong(NextOutgoingSequenceNr | (ResendReliableDataInFlight ? ACK_FLAG : 0));
     OutData.WriteLong(LastIncomingSequenceNr | (ExpectedOutgoingAckBit << 31));
 
-    // Die ReliableDataInFlight ggf. als erstes im Paket einf¸gen, immer vor den UnreliableData
+    // Die ReliableDataInFlight ggf. als erstes im Paket einf√ºgen, immer vor den UnreliableData
     if (ResendReliableDataInFlight)
     {
         OutData.WriteArrayOfBytes(ReliableDataInFlight);
@@ -387,8 +387,8 @@ const NetDataT& GameProtocol1T::GetTransmitData(const ArrayT< ArrayT<char> >& Re
         ResendReliableDataInFlight=false;
     }
 
-    // Falls noch genug Platz ¸brig ist, h‰nge die UnreliableData an. Der Empf‰nger kann sp‰ter nicht mehr zwischen dem
-    // 'reliable' und 'unreliable' Teil der Nachricht unterscheiden, er bearbeitet sie einfach als eine einzige, groﬂe Nachricht.
+    // Falls noch genug Platz √ºbrig ist, h√§nge die UnreliableData an. Der Empf√§nger kann sp√§ter nicht mehr zwischen dem
+    // 'reliable' und 'unreliable' Teil der Nachricht unterscheiden, er bearbeitet sie einfach als eine einzige, gro√üe Nachricht.
     if (OutData.Data.Size()+UnreliableData.Size()<=MAX_MSG_SIZE) OutData.WriteArrayOfBytes(UnreliableData);
 
     NextOutgoingSequenceNr++;
@@ -399,13 +399,13 @@ unsigned long GameProtocol1T::ProcessIncomingMessage(NetDataT& InData, void (*Pr
 {
     unsigned long RemoteThisOutgoingSequenceNr=InData.ReadLong();                   // Die Packet-SequenceNr der Gegenstelle
     unsigned long RemoteLastIncomingSequenceNr=InData.ReadLong();                   // Die letzte SequenceNr, die die Gegenstelle von uns gesehen hat
-    unsigned long RemoteThisOutgoingAckBit    =RemoteThisOutgoingSequenceNr >> 31;  // Soll dieses Packet von uns best‰tigt werden?
-    unsigned long RemoteLastIncomingAckBit    =RemoteLastIncomingSequenceNr >> 31;  // Odd/Even Flag (Gegenstelle schl‰gt um, wenn sie von uns ein reliable Packet empfangen hat)
+    unsigned long RemoteThisOutgoingAckBit    =RemoteThisOutgoingSequenceNr >> 31;  // Soll dieses Packet von uns best√§tigt werden?
+    unsigned long RemoteLastIncomingAckBit    =RemoteLastIncomingSequenceNr >> 31;  // Odd/Even Flag (Gegenstelle schl√§gt um, wenn sie von uns ein reliable Packet empfangen hat)
 
     RemoteThisOutgoingSequenceNr&=ACK_MASK;                                         // Bereinige die RemoteThisOutgoingSequenceNr vom Flag
     RemoteLastIncomingSequenceNr&=ACK_MASK;                                         // Bereinige die RemoteLastIncomingSequenceNr vom Flag
 
-    // Werte RemoteThisOutgoingSequenceNr aus (veraltete Packets werden vollst‰ndig ignoriert)
+    // Werte RemoteThisOutgoingSequenceNr aus (veraltete Packets werden vollst√§ndig ignoriert)
  // if (RemoteThisOutgoingSequenceNr> LastIncomingSequenceNr+1) printf("Packet loss detected! (%u packet(s) lost)\n", ClientSequenceNr-LastClientSequenceNr-1);
  // if (RemoteThisOutgoingSequenceNr< LastIncomingSequenceNr  ) printf("Got an out-of-order packet! (I throw it away.)\n");
  // if (RemoteThisOutgoingSequenceNr==LastIncomingSequenceNr  ) printf("Got a  duplicate    packet! (I throw it away.)\n");
@@ -414,21 +414,21 @@ unsigned long GameProtocol1T::ProcessIncomingMessage(NetDataT& InData, void (*Pr
     // Zuletzt haben wir von der Gegenstelle dieses Packet gesehen, mit der Nummer 'RemoteThisOutgoingSequenceNr'
     LastIncomingSequenceNr=RemoteThisOutgoingSequenceNr;
 
-    // Falls die Gegenstelle von uns eine Empfangsbest‰tigung haben mˆchte, drehe das ExpectedOutgoingAckBit um!
+    // Falls die Gegenstelle von uns eine Empfangsbest√§tigung haben m√∂chte, drehe das ExpectedOutgoingAckBit um!
     if (RemoteThisOutgoingAckBit) ExpectedOutgoingAckBit^=1;
 
     // Die Gegenstelle selbst merkt nicht, ob ihr eine reliable Message durch die Lappen gegangen ist.
     // Wir merken das nur hier auf 'unserer' Seite, wenn wir eine 'RemoteLastIncomingSequenceNr' bekommen,
-    // die grˆﬂer oder gleich der zuletzt von uns gesendeten 'LastReliableSequenceNr' ist,
+    // die gr√∂√üer oder gleich der zuletzt von uns gesendeten 'LastReliableSequenceNr' ist,
     // und zugleich das falsche Ack-Bit gesetzt ist (wurde nicht 'umgeschlagen').
-    // Hat die Gegenstelle schon unser letztes reliable Packet gesehen (und evtl. sogar schon weitere 'j¸ngere')?
+    // Hat die Gegenstelle schon unser letztes reliable Packet gesehen (und evtl. sogar schon weitere 'j√ºngere')?
     if (RemoteLastIncomingSequenceNr>=LastReliableSequenceNr)
     {
         // Falls die Gegenstelle ihr Ack-Bit umgestellt hat, hat sie das aufgrund unserer reliable Message getan,
-        // und wir kˆnnen die ReliableDataInFlight lˆschen, um Platz f¸r die n‰chsten Daten (in ReliableDataQueue) zu machen.
-        // Andernfalls ging die reliable Nachricht verloren, und wir m¸ssen die alten Daten erneut senden!
-        // Wichtig: Ein erneutes Senden (retransmit) wird immer nur hier ausgelˆﬂt, d.h. immer nur dann, wenn wir merken,
-        // daﬂ die letzte reliable Nachricht eigentlich schon h‰tte angekommen sein m¸ssen, das aber nicht der Fall war
+        // und wir k√∂nnen die ReliableDataInFlight l√∂schen, um Platz f√ºr die n√§chsten Daten (in ReliableDataQueue) zu machen.
+        // Andernfalls ging die reliable Nachricht verloren, und wir m√ºssen die alten Daten erneut senden!
+        // Wichtig: Ein erneutes Senden (retransmit) wird immer nur hier ausgel√∂√üt, d.h. immer nur dann, wenn wir merken,
+        // da√ü die letzte reliable Nachricht eigentlich schon h√§tte angekommen sein m√ºssen, das aber nicht der Fall war
         // (RemoteLastIncomingSequenceNr>=LastReliableSequenceNr, aber falsches AckBit).
         if (ExpectedIncomingAckBit==RemoteLastIncomingAckBit) ReliableDataInFlight.Clear();
                                                          else ResendReliableDataInFlight=true;

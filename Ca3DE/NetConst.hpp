@@ -24,8 +24,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*****************************/
 
 
-// Dieses Header-File definiert die Konstanten für die Kommunikation zwischen Server und Client.
-// Die 0 wurde absichtlich freigehalten, um sie später evtl. als ErrorFlag verwenden zu können.
+// Dieses Header-File definiert die Konstanten fÃ¼r die Kommunikation zwischen Server und Client.
+// Die 0 wurde absichtlich freigehalten, um sie spÃ¤ter evtl. als ErrorFlag verwenden zu kÃ¶nnen.
 
 // 'connection-less' Message-Types vom Client zum Server
 const char CS0_NoOperation         =1;

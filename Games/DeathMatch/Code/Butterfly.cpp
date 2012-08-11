@@ -64,8 +64,8 @@ void EntButterflyT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 
     m_ArcPos += (unsigned short)(DegPerSecond*FrameTime);   // "wraps" automatically.
 
-    // Info: Die Bogenl‰nge zwischen 'ArcPos' und 'ArcPos+1' bei 'ArcRadius==500.0' betr‰gt 0.048,
-    // die "Auflˆsung" ist also mehr als ausreichend!
+    // Info: Die Bogenl√§nge zwischen 'ArcPos' und 'ArcPos+1' bei 'ArcRadius==500.0' betr√§gt 0.048,
+    // die "Aufl√∂sung" ist also mehr als ausreichend!
     m_Origin.x = m_ArcCenter.x + LookupTables::Angle16ToSin[m_ArcPos]*m_ArcRadius;
     m_Origin.y = m_ArcCenter.y + LookupTables::Angle16ToCos[m_ArcPos]*m_ArcRadius;
     m_Origin.z = m_ArcCenter.z + LookupTables::Angle16ToSin[(unsigned short)(m_ArcPos*2)]*m_ArcRadius*0.2f;

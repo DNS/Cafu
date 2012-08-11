@@ -55,7 +55,7 @@ void InitSunlight(cf::PatchMeshT& PatchMesh, const ArrayT< ArrayT<Vector3dT> >& 
                 {
                     const cf::SceneGraph::FaceNodeT* SkyFace=SkyFaces[FNr];
 
-                    if (SkyFace->Material!=Suns[SunNr].Material) continue;              // In diesem Durchlauf tragen nur solche SkyFaces bei, die zu Suns[SunNr] gehören.
+                    if (SkyFace->Material!=Suns[SunNr].Material) continue;              // In diesem Durchlauf tragen nur solche SkyFaces bei, die zu Suns[SunNr] gehÃ¶ren.
                     if (fabs(SkyFace->Polygon.Plane.GetDistance(Hit))>0.2) continue;    // Ist Hit zu weit von der SkyFace weg?
 
                     unsigned long VNr;
@@ -87,7 +87,7 @@ void InitializePatches(const CaLightWorldT& CaLightWorld)
     printf("\n%-50s %s\n", "*** Initialize Patches ***", GetTimeSinceProgramStart());
 
 
-    // Bilde zuerst ein LookUp-Array, das die Nummern aller Faces mit Radiosity-Sunlight Material enthält.
+    // Bilde zuerst ein LookUp-Array, das die Nummern aller Faces mit Radiosity-Sunlight Material enthÃ¤lt.
     ArrayT<const cf::SceneGraph::FaceNodeT*> SkyFaces;
 
     for (unsigned long FaceNr=0; FaceNr<Map.FaceChildren.Size(); FaceNr++)
@@ -262,7 +262,7 @@ void InitializePatches(const CaLightWorldT& CaLightWorld)
                         {
                             const FaceT& SkyFace=Map.Faces[SkyFaces[FNr]];
 
-                            if (SkyFace.Material!=Suns[SunNr].Material) continue;       // In diesem Durchlauf tragen nur solche SkyFaces bei, die zu Suns[SunNr] gehören.
+                            if (SkyFace.Material!=Suns[SunNr].Material) continue;       // In diesem Durchlauf tragen nur solche SkyFaces bei, die zu Suns[SunNr] gehÃ¶ren.
                             if (fabs(SkyFace.Plane.GetDistance(Hit))>0.2) continue;  // Ist Hit zu weit von der SkyFace weg?
 
                             unsigned long VNr;
@@ -309,8 +309,8 @@ void InitializePatches(const CaLightWorldT& CaLightWorld)
     printf("# patches allocated:%10lu\n", PatchesCount);
     printf("Patch coords and sunlight information calculated.\n");
 
-    // 3. Trotz der vielen SamplePoints für jeden Patch kann das Sonnenlicht ziemlich eckig wirken.
-    //    Deshalb filtern wir es hier vorsichtig nach, indem wir für jeden Patch das gewichtete Mittel mit den acht umliegenden Patches bilden.
+    // 3. Trotz der vielen SamplePoints fÃ¼r jeden Patch kann das Sonnenlicht ziemlich eckig wirken.
+    //    Deshalb filtern wir es hier vorsichtig nach, indem wir fÃ¼r jeden Patch das gewichtete Mittel mit den acht umliegenden Patches bilden.
     //    Die vier unmittelbar anliegenden Patches werden mit 1/4 gewichtet, die vier Ecken mit 1/16.
     for (unsigned long PatchMeshNr=0; PatchMeshNr<PatchMeshes.Size(); PatchMeshNr++)
     {
@@ -340,14 +340,14 @@ void InitializePatches(const CaLightWorldT& CaLightWorld)
                 double  CoveredArea =1.0;
 
                 // Der Patch liegt in der Mitte eines 3x3-Feldes bei Koordinate (1,1).
-                // Darüber stellen wir uns ein 2x2-Feld vor, dessen Mitte mit der Mitte des mittleren 3x3-Feldes (dem betrachteten Patch) zusammenfällt.
-                // Aus den Überlappungen der beiden Felder ergeben sich die Gewichte für die Felder des 3x3-Feldes: Die Mitte 100%, die Ecken 25%,
+                // DarÃ¼ber stellen wir uns ein 2x2-Feld vor, dessen Mitte mit der Mitte des mittleren 3x3-Feldes (dem betrachteten Patch) zusammenfÃ¤llt.
+                // Aus den Ãœberlappungen der beiden Felder ergeben sich die Gewichte fÃ¼r die Felder des 3x3-Feldes: Die Mitte 100%, die Ecken 25%,
                 // die anderen Felder (anliegend: oben, unten, links, rechts) 50%. Da wir nur wenig filtern wollen, verkleinern wir das 2x2-Feld, indem
                 // wir die Gewichte quadrieren: Mitte 100%, Ecken 6,25%, Rest 25%.
                 for (char y=0; y<=2; y++)
                     for (char x=0; x<=2; x++)
                     {
-                        if (x==1 && y==1) continue;     // Patch selbst ist schon dazugezählt, nur noch die umliegenden Patches betrachten
+                        if (x==1 && y==1) continue;     // Patch selbst ist schon dazugezÃ¤hlt, nur noch die umliegenden Patches betrachten
 
                         int Nx=int(s+x)-1;
                         int Ny=int(t+y)-1;

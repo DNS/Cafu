@@ -56,10 +56,10 @@ namespace cf
                 unsigned short LightMapNr;  ///< In welcher LightMap liegt unsere Teil-LightMap?
                 unsigned short PosS;        ///< S-Position unserer Teil-LightMap innerhalb der LightMap.
                 unsigned short PosT;        ///< T-Position unserer Teil-LightMap innerhalb der LightMap.
-                unsigned short SizeS;       ///< S-Größe unserer Teil-LightMap.
-                unsigned short SizeT;       ///< T-Größe unserer Teil-LightMap.
+                unsigned short SizeS;       ///< S-GrÃ¶ÃŸe unserer Teil-LightMap.
+                unsigned short SizeT;       ///< T-GrÃ¶ÃŸe unserer Teil-LightMap.
 
-                static float   PatchSize;   ///< Kantenlänge der Patches in World-Units. Für alle Faces gleich, ansonsten aufwendige Änderungen in CaLight notw.!
+                static float   PatchSize;   ///< KantenlÃ¤nge der Patches in World-Units. FÃ¼r alle Faces gleich, ansonsten aufwendige Ã„nderungen in CaLight notw.!
             };
 
             struct SHLMapInfoT
@@ -67,10 +67,10 @@ namespace cf
                 unsigned short SHLMapNr;    ///< In welcher SHLMap liegt unsere Teil-SHLMap?
                 unsigned short PosS;        ///< S-Position unserer Teil-SHLMap innerhalb der SHLMap.
                 unsigned short PosT;        ///< T-Position unserer Teil-SHLMap innerhalb der SHLMap.
-                unsigned short SizeS;       ///< S-Größe unserer Teil-SHLMap.
-                unsigned short SizeT;       ///< T-Größe unserer Teil-SHLMap.
+                unsigned short SizeS;       ///< S-GrÃ¶ÃŸe unserer Teil-SHLMap.
+                unsigned short SizeT;       ///< T-GrÃ¶ÃŸe unserer Teil-SHLMap.
 
-                static float   PatchSize;   ///< Kantenlänge der Patches in World-Units. Für alle Faces gleich.
+                static float   PatchSize;   ///< KantenlÃ¤nge der Patches in World-Units. FÃ¼r alle Faces gleich.
             };
 
 

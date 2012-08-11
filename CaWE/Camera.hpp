@@ -41,12 +41,12 @@ class CameraT
     const MatrixT& GetMatrix() const;   ///< Returns the matrix that represents the position and orientation of this camera.
 
     void SetLookAtPos(const Vector3fT& LookAtPos);  ///< This method automatically computes the orientation of the camera so that it looks at the given point.
-    void LimitAngles();                             ///< This method wraps the yaw into the [0°, 360°[ intervall and clamps the pitch to -90° and +90°. Call this method after each manipulation of the angles!
+    void LimitAngles();                             ///< This method wraps the yaw into the [0Â°, 360Â°[ intervall and clamps the pitch to -90Â° and +90Â°. Call this method after each manipulation of the angles!
 
 
     // Regular members that define the essential properties of the camera.
     Vector3fT          Pos;             ///< The cameras position in the world.
-    cf::math::AnglesfT Angles;          ///< The angles that describe the cameras orientation. The pitch value is limited/clamped to the interval from -90° to +90°, and roll is not used at all.
+    cf::math::AnglesfT Angles;          ///< The angles that describe the cameras orientation. The pitch value is limited/clamped to the interval from -90Â° to +90Â°, and roll is not used at all.
     float              ViewDirLength;   ///< This member defines how long the view direction vector (GetYAxis()) is drawn in the 2D views.
 
     // Additional members that augment the definition of the cameras view pyramid (frustum).

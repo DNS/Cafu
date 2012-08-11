@@ -54,7 +54,7 @@ class EntStaticDetailModelT : public BaseEntityT
 
     /// If this entity has a panel for an associated GUI, this method returns its related current plane in world space.
     /// @param GFNr         The number of the GUI fixture.
-    /// @param GuiOrigin    The origin (Stützvektor)     of the GUI plane in world space is returned in this parameter.
+    /// @param GuiOrigin    The origin (StÃ¼tzvektor)     of the GUI plane in world space is returned in this parameter.
     /// @param GuiAxisX     The x-axis (Richtungsvektor) of the GUI plane in world space is returned in this parameter.
     /// @param GuiAxisY     The y-axis (Richtungsvektor) of the GUI plane in world space is returned in this parameter.
     /// @returns whether the call was successful, i.e. whether this model has a GUI panel at all and the GuiOrigin,

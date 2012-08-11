@@ -32,11 +32,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 // ALLGEMEINE BEMERKUNGEN ZU FACES, LIGHTMAPS UND PATCHES:
 // Wir definieren eine LightMap als ein Rechteck aus s*t quadratischen Patches, die jeweils eine Face "abdecken".
-// Das Rechteck sollte bei gegebener Seitenlänge der Patches und gegebener Orientierung (entlang des UV-Koordinatensystems,
-// welches man mit Plane3T<double>::GetSpanVectors() erhält) möglichst kleine s- und t-Abmessungen haben. D.h., daß der linke Rand
+// Das Rechteck sollte bei gegebener SeitenlÃ¤nge der Patches und gegebener Orientierung (entlang des UV-Koordinatensystems,
+// welches man mit Plane3T<double>::GetSpanVectors() erhÃ¤lt) mÃ¶glichst kleine s- und t-Abmessungen haben. D.h., daÃŸ der linke Rand
 // der LightMap mit der kleinsten U-Koordinate der Vertices der Face zusammenfallen soll und der obere Rand mit der kleinsten
 // V-Koordinate.
-// Außerdem ziehen wir noch einen 1 Patch breiten Rahmen drumherum. Damit soll dem OpenGL-Renderer Rechnung getragen werden,
+// AuÃŸerdem ziehen wir noch einen 1 Patch breiten Rahmen drumherum. Damit soll dem OpenGL-Renderer Rechnung getragen werden,
 // der zu jeder (s,t)-Koordinate den Mittelwert des umliegenden 2x2-Quadrats bestimmt (bilinear Filtering).
 
 #if defined(_WIN32) && defined (_MSC_VER)
@@ -264,7 +264,7 @@ static double Max3(const VectorT& V)
 }
 
 
-const double REFLECTIVITY=0.3;  // Gleiche Reflektivität für alle Faces und für alle Wellenlängen
+const double REFLECTIVITY=0.3;  // Gleiche ReflektivitÃ¤t fÃ¼r alle Faces und fÃ¼r alle WellenlÃ¤ngen
 
 
 ArrayT<cf::PatchMeshT> PatchMeshes; // The patch meshes that we should consider for radiosity lighting.
@@ -296,7 +296,7 @@ void RadiateEnergy(const CaLightWorldT& CaLightWorld, unsigned long PM_i, unsign
     Big_P_i.Area=0;
 
     // Bilde den Positions-Durchschnitt bzw. die UnradiatedEnergy-Summe aller Patches im n*n Quadrat,
-    // wobei (s_i, t_i) die linke obere Ecke ist und nur Patches innerhalb des Patch Meshes (InsideFace) berücksichtigt werden.
+    // wobei (s_i, t_i) die linke obere Ecke ist und nur Patches innerhalb des Patch Meshes (InsideFace) berÃ¼cksichtigt werden.
     for (char y=0; y<n; y++)
         for (char x=0; x<n; x++)
         {
@@ -335,7 +335,7 @@ void RadiateEnergy(const CaLightWorldT& CaLightWorld, unsigned long PM_i, unsign
     // Note that independent of that, with Big_P_i we have the choice to either average its UnradiatedEnergy or its Area, thus thinking about
     // it the one way or the other -- the net result in DeltaRadiosity below is the same. For historical reasons, I've chosen to keep the
     // UnradiatedEnergy and average the Area.
-    Big_P_i.Coord*=1.0/Big_P_i_Count;   // TODO! Sollte   Big_P_i.Coord=P_i.Coord;   setzen, wobei P_i derjenige Patch ist der der Durchschnittsposition am nächsten kommt. Nur so kommen wir auch mit gekrümmten, twosided PatchMeshes wirklich klar!
+    Big_P_i.Coord*=1.0/Big_P_i_Count;   // TODO! Sollte   Big_P_i.Coord=P_i.Coord;   setzen, wobei P_i derjenige Patch ist der der Durchschnittsposition am nÃ¤chsten kommt. Nur so kommen wir auch mit gekrÃ¼mmten, twosided PatchMeshes wirklich klar!
     Big_P_i.Normal=(NormalLen>0.000001) ? Big_P_i.Normal/NormalLen : Vector3dT(0, 0, 1);
     Big_P_i.Area/=Big_P_i_Count;
     // printf("%f %lu blocksize=%i^2 %f\n", Big_P_i.Area, Big_P_i_Count, n, PATCH_SIZE*PATCH_SIZE);
@@ -367,9 +367,9 @@ void RadiateEnergy(const CaLightWorldT& CaLightWorld, unsigned long PM_i, unsign
     // Betrachte alle Patches aller Patch Meshes im PVS des Patch Meshes PM_i.
     for (unsigned long PM_j=0; PM_j<PatchMeshes.Size(); PM_j++)
     {
-        // Vermeide alle unnötigen und evtl. rundungsfehlergefährdeten Berechnungen.
-        // Wenn PM_i und PM_j planar sind, fängt die folgende Zeile auch alle Fälle ab, in denen PM_j in der Ebene
-        // von PM_i liegt und insb. für die PM_i==PM_j gilt. Für nichtplanare PM muß all das aber nicht unbedingt gelten
+        // Vermeide alle unnÃ¶tigen und evtl. rundungsfehlergefÃ¤hrdeten Berechnungen.
+        // Wenn PM_i und PM_j planar sind, fÃ¤ngt die folgende Zeile auch alle FÃ¤lle ab, in denen PM_j in der Ebene
+        // von PM_i liegt und insb. fÃ¼r die PM_i==PM_j gilt. FÃ¼r nichtplanare PM muÃŸ all das aber nicht unbedingt gelten
         // (z.B. Terrains und manche Bezier Patches beleuchten sich selbst)!
         // Vgl. die Erstellung und Optimierung der PatchMeshesPVS-Matrix!
         if (PatchMeshesPVS.GetValue(PM_i, PM_j)==NO_VISIBILITY) continue;
@@ -401,13 +401,13 @@ void RadiateEnergy(const CaLightWorldT& CaLightWorld, unsigned long PM_i, unsign
             if (CaLightWorld.TraceRay(Big_P_i.Coord, Ray)<1.0) continue;
 
             // 'Alternative', einfache Herleitung des Form-Faktors:
-            // Betrachte die Halbkugel über dem Patch i mit Radius RayLength. RayLength soll groß genug sein,
-            // d.h. Patch j soll problemlos als ein Teil der Halbkugeloberfläche betrachtet werden können.
-            // Die prozentuale Sichtbarkeit erhalten wir also sofort aus P_j.Area/O, wobei O der Oberflächeninhalt der Halbkugel ist,
+            // Betrachte die Halbkugel Ã¼ber dem Patch i mit Radius RayLength. RayLength soll groÃŸ genug sein,
+            // d.h. Patch j soll problemlos als ein Teil der HalbkugeloberflÃ¤che betrachtet werden kÃ¶nnen.
+            // Die prozentuale Sichtbarkeit erhalten wir also sofort aus P_j.Area/O, wobei O der OberflÃ¤cheninhalt der Halbkugel ist,
             // O=0.5*4*pi*RayLength^2.
-            // cos1 und cos2 berücksichtigen dann noch die gegenseitige Verdrehung der Patches und wir sind fertig.
-            // Einziges Problem: Obige Herleitung enthält noch einen Faktor 1/2, für den ich leider keine Erklärung habe.
-            // Noch eine Alternative: Man muß RayLength ausdrücken in Patch-Längen, nicht in Millimetern!
+            // cos1 und cos2 berÃ¼cksichtigen dann noch die gegenseitige Verdrehung der Patches und wir sind fertig.
+            // Einziges Problem: Obige Herleitung enthÃ¤lt noch einen Faktor 1/2, fÃ¼r den ich leider keine ErklÃ¤rung habe.
+            // Noch eine Alternative: Man muÃŸ RayLength ausdrÃ¼cken in Patch-LÃ¤ngen, nicht in Millimetern!
             const double SafeRayLength=(RayLength>MinRayLength) ? RayLength : MinRayLength;
 
          // const double FormFactor_ij=P_j.Area/3.14159265359*cos1*cos2/(SafeRayLength*SafeRayLength);
@@ -514,7 +514,7 @@ void DirectLighting(const CaLightWorldT& CaLightWorld, const char BLOCK_SIZE)
             {
                 cf::PatchT& Patch=PM.Patches[t*PM.Width+s];
 
-                // Ein Patch darf zum Leuchten nicht komplett außerhalb seiner Face liegen!
+                // Ein Patch darf zum Leuchten nicht komplett auÃŸerhalb seiner Face liegen!
                 if (!Patch.InsideFace) continue;
 
                 const double    Weight=ComputePatchWeight(s, PM.Width, WidthRange)*ComputePatchWeight(t, PM.Height, HeightRange);
@@ -525,8 +525,8 @@ void DirectLighting(const CaLightWorldT& CaLightWorld, const char BLOCK_SIZE)
                 Patch.EnergyFromDir   +=Patch.Normal*Max3(RadExitWeighted);
             }
 
-        // Die Patches dürfen auch gleich einmal strahlen.
-        // Könnte man hier auch weglassen, aber so ist es eigentlich im Sinne von 'direct lighting'.
+        // Die Patches dÃ¼rfen auch gleich einmal strahlen.
+        // KÃ¶nnte man hier auch weglassen, aber so ist es eigentlich im Sinne von 'direct lighting'.
         for (unsigned long t=0; t<PM.Height; t+=BLOCK_SIZE)
             for (unsigned long s=0; s<PM.Width; s+=BLOCK_SIZE)
                 RadiateEnergy(CaLightWorld, PatchMeshNr, s, t, BLOCK_SIZE);
@@ -641,9 +641,9 @@ void DirectLighting(const CaLightWorldT& CaLightWorld, const char BLOCK_SIZE)
                     }
                     else
                     {
-                        // Physikalisch korrekt wäre eine bis zur Unendlichkeit zunehmende Intensität, je kleiner LightRayLength.
-                        // Ist natürlich Blödsinn, da point light sources in der Realität nicht existieren.
-                        // Daher erzwingen wir hier einfach eine LightRayLength von cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize und vernachlässigen
+                        // Physikalisch korrekt wÃ¤re eine bis zur Unendlichkeit zunehmende IntensitÃ¤t, je kleiner LightRayLength.
+                        // Ist natÃ¼rlich BlÃ¶dsinn, da point light sources in der RealitÃ¤t nicht existieren.
+                        // Daher erzwingen wir hier einfach eine LightRayLength von cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize und vernachlÃ¤ssigen
                         // die Orientierung des Patches.
                         const double  c          =1000.0/cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize;
                         const VectorT DeltaEnergy=scale(PL.Intensity, REFLECTIVITY*c*c);
@@ -664,26 +664,26 @@ void DirectLighting(const CaLightWorldT& CaLightWorld, const char BLOCK_SIZE)
 
 void PostProcessBorders(const CaLightWorldT& CaLightWorld)
 {
-    // An dieser Stelle haben wir nun quasi drei Sorten von Patches für eine Face:
-    // a) Patches, die 'InsideFace' liegen, und das vollständig.
+    // An dieser Stelle haben wir nun quasi drei Sorten von Patches fÃ¼r eine Face:
+    // a) Patches, die 'InsideFace' liegen, und das vollstÃ¤ndig.
     // b) Patches, die 'InsideFace' liegen, aber nur teilweise (ihre Patch.Coord ist entsprechend verschoben!).
     // c) Patches, die nicht 'InsideFace' liegen.
-    // Für Patch-Sorten a) und b) hat unser Algorithmus Patch.TotalEnergy-Werte berechnet.
-    // Unsere Aufgabe hier ist im wesentlichen das sinnvolle Ausfüllen der TotalEnergy-Werte von Patches der Sorte c).
+    // FÃ¼r Patch-Sorten a) und b) hat unser Algorithmus Patch.TotalEnergy-Werte berechnet.
+    // Unsere Aufgabe hier ist im wesentlichen das sinnvolle AusfÃ¼llen der TotalEnergy-Werte von Patches der Sorte c).
     // Dies ist notwendig, da die Patches von OpenGL beim Rendern bilinear interpoliert werden (2x2-Array Durchschnitt),
-    // und deswegen ohne weitere Maßnahmen schwarze Ränder bekämen.
+    // und deswegen ohne weitere MaÃŸnahmen schwarze RÃ¤nder bekÃ¤men.
     printf("\n%-50s %s\n", "*** Post-Process Borders ***", GetTimeSinceProgramStart());
 
 
     // ERSTER TEIL
     // ***********
 
-    // Für alle Patches einer Face, die noch keine Energie abgekriegt haben (weil sie keinen SamplePoint innerhalb ihrer Face
-    // haben oder durch z.B. BezierPatches unglücklich "abgeschattet" wurden), ermittele ihren Wert aus dem
+    // FÃ¼r alle Patches einer Face, die noch keine Energie abgekriegt haben (weil sie keinen SamplePoint innerhalb ihrer Face
+    // haben oder durch z.B. BezierPatches unglÃ¼cklich "abgeschattet" wurden), ermittele ihren Wert aus dem
     // Durchschnitt ihrer acht umliegenden Patches, sofern diese Energie abgekiegt haben (d.h. mit SamplePoints innerhalb
     // der Face liegen und nicht komplett abgeschattet wurden).
     // Diese Methode ist sehr einfach und schnell, da sie immer nur eine Face gleichzeitig betrachtet,
-    // die Nachbarumgebung hat keinen Einfluß.
+    // die Nachbarumgebung hat keinen EinfluÃŸ.
     // Dennoch ist diese Schleife ein guter Anfang, und war vorher sogar der *einzige* Nachbearbeitungsschritt!
     for (unsigned long PatchMeshNr=0; PatchMeshNr<PatchMeshes.Size(); PatchMeshNr++)
     {
@@ -759,29 +759,29 @@ void PostProcessBorders(const CaLightWorldT& CaLightWorld)
     // ZWEITER TEIL
     // ************
 
-    // Betrachte im nächsten Schritt Faces, die in einer gemeinsamen Ebene nahe beieinander liegen, und versuche,
-    // den "Übergang" zu verbessern. Der vorangegangene erste Schritt eliminiert zwar Fehlfarben an den Rändern,
-    // die OpenGL's bilinear Filtering ansonsten ins Spiel gebracht hätte, an Stellen mit hohen Kontrasten
-    // ("scharfe" Schatten usw.) sieht man aber unbeabsichtigte, harte Übergänge an den Kanten solcher Faces.
-    // Der folgende Code eliminiert solche Sprünge nun größtenteils, indem er auch die Patches der anderen Faces betrachtet.
-    // Damit werden für die Ränder die "realen" Berechnungsergebnisse eingebracht, nicht einfach nur eigene Mittelwerte.
-    // Der folgende Code könnte algorithmisch effizienter geschrieben sein (z.B. Vorausberechnen von wiederkehrenden
+    // Betrachte im nÃ¤chsten Schritt Faces, die in einer gemeinsamen Ebene nahe beieinander liegen, und versuche,
+    // den "Ãœbergang" zu verbessern. Der vorangegangene erste Schritt eliminiert zwar Fehlfarben an den RÃ¤ndern,
+    // die OpenGL's bilinear Filtering ansonsten ins Spiel gebracht hÃ¤tte, an Stellen mit hohen Kontrasten
+    // ("scharfe" Schatten usw.) sieht man aber unbeabsichtigte, harte ÃœbergÃ¤nge an den Kanten solcher Faces.
+    // Der folgende Code eliminiert solche SprÃ¼nge nun grÃ¶ÃŸtenteils, indem er auch die Patches der anderen Faces betrachtet.
+    // Damit werden fÃ¼r die RÃ¤nder die "realen" Berechnungsergebnisse eingebracht, nicht einfach nur eigene Mittelwerte.
+    // Der folgende Code kÃ¶nnte algorithmisch effizienter geschrieben sein (z.B. Vorausberechnen von wiederkehrenden
     // Werten, statt diese jedesmal in einer Schleife neu zu berechnen), aber die praktische Laufzeit ist akzeptabel.
-    // Außerdem ist der Code z.T. "experimentell" oder zumindest mathematisch nicht komplett durchdacht und die zugrunde-
-    // liegende Theorie ist evtl. sogar unvollständig oder falsch. Die Ergebnisse sind aber trotzdem ein voller Erfolg!
+    // AuÃŸerdem ist der Code z.T. "experimentell" oder zumindest mathematisch nicht komplett durchdacht und die zugrunde-
+    // liegende Theorie ist evtl. sogar unvollstÃ¤ndig oder falsch. Die Ergebnisse sind aber trotzdem ein voller Erfolg!
     // Es besser zu machen ist jedenfalls SEHR schwierig. Bsp: Gewichtung und Art und Weise bei den Mittelwertbildungen usw.
-    // Bzgl. des "Light Bleeding" Problems scheint es sogar ÜBERHAUPT KEINE befriedigende, korrekte Lösung zu geben:
-    // Selbst mit Ausführung des folgenden Codes lassen sich nicht alle "Sprünge" zwischen Faces eliminieren,
+    // Bzgl. des "Light Bleeding" Problems scheint es sogar ÃœBERHAUPT KEINE befriedigende, korrekte LÃ¶sung zu geben:
+    // Selbst mit AusfÃ¼hrung des folgenden Codes lassen sich nicht alle "SprÃ¼nge" zwischen Faces eliminieren,
     // insbesondere an "Ecken" nicht. Der Grund liegt in der Natur der Patches, OpenGLs bilinear Filtering und dem
-    // Konflikt mit dem "Light Bleeding" Problem. Eine korrekte Lösung ist somit *unmöglich*!
+    // Konflikt mit dem "Light Bleeding" Problem. Eine korrekte LÃ¶sung ist somit *unmÃ¶glich*!
     // WICHTIG: Im Gegensatz z.B. zum Filtern des Sonnenlichts ist es in diesem Algorithmus *nicht* notwendig,
     // erstmal ein Backup aller TotalEnergy-Werte der Patches aller Faces anzulegen, um korrekt Mittelwerte bilden zu
-    // können. Der Grund ist, daß wir nur *äußere* Patches einer Face mit *inneren* Patches der anderen Faces modifizieren!
-    // Es kommt also niemals zu Überschneidungen: (*) Kein Patch wird gesetzt/modifiziert, und später nochmal für das Setzen
+    // kÃ¶nnen. Der Grund ist, daÃŸ wir nur *Ã¤uÃŸere* Patches einer Face mit *inneren* Patches der anderen Faces modifizieren!
+    // Es kommt also niemals zu Ãœberschneidungen: (*) Kein Patch wird gesetzt/modifiziert, und spÃ¤ter nochmal fÃ¼r das Setzen
     // bzw. die Modifikation eines anderen Patches herangezogen! Dieses Ideal wird allerdings aufgeweicht durch die
-    // Existenz von inneren Patches, die nur teilweise innerhalb ihrer Face liegen: Hier wäre eine Verletzung der Eigenschaft
-    // (*) durchaus möglich. In einigen wenigen Spezialfällen kann dies durch die Eigenschaften der Plane3T<double>::GetSpanVectors()
-    // Funktion geheilt werden (ohne weitere Begründung), im Allgemeinfall jedoch nicht!
+    // Existenz von inneren Patches, die nur teilweise innerhalb ihrer Face liegen: Hier wÃ¤re eine Verletzung der Eigenschaft
+    // (*) durchaus mÃ¶glich. In einigen wenigen SpezialfÃ¤llen kann dies durch die Eigenschaften der Plane3T<double>::GetSpanVectors()
+    // Funktion geheilt werden (ohne weitere BegrÃ¼ndung), im Allgemeinfall jedoch nicht!
     const double  PATCH_SIZE          =cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize;
     unsigned long PatchesWorkedOnCount=0;
 
@@ -826,8 +826,8 @@ void PostProcessBorders(const CaLightWorldT& CaLightWorld)
             NearPatchMeshes.PushBack(PatchMesh2Nr);
         }
 
-        // Bereite nun das Patch1Poly vor. Unten werden dann nur noch die 4 Vertices ausgefüllt.
-        // Der folgende Code ist SEHR ähnlich zu dem Code in cf::SceneGraph::FaceNodeT::CreatePatchMeshes()!
+        // Bereite nun das Patch1Poly vor. Unten werden dann nur noch die 4 Vertices ausgefÃ¼llt.
+        // Der folgende Code ist SEHR Ã¤hnlich zu dem Code in cf::SceneGraph::FaceNodeT::CreatePatchMeshes()!
 
         // Bestimme die Spannvektoren.
         VectorT Face1_U;
@@ -874,21 +874,21 @@ void PostProcessBorders(const CaLightWorldT& CaLightWorld)
                 Patch1Poly.Vertices[2]=Face1_UV_Origin+scale(Face1_U, Face1_SmallestU+ s_     *PATCH_SIZE)+scale(Face1_V, Face1_SmallestV+ t_     *PATCH_SIZE);
                 Patch1Poly.Vertices[3]=Face1_UV_Origin+scale(Face1_U, Face1_SmallestU+(s_-1.0)*PATCH_SIZE)+scale(Face1_V, Face1_SmallestV+ t_     *PATCH_SIZE);
 
-                // WICHTIG: Falls Patch1 *vollständig in* seiner Face liegt, haben wir für dessen TotalEnergy einen
+                // WICHTIG: Falls Patch1 *vollstÃ¤ndig in* seiner Face liegt, haben wir fÃ¼r dessen TotalEnergy einen
                 // einwandfreien Berechnungswert, und wir wollen daran nicht rumfummeln!
-                // Die anderen beiden Fälle für Patch1 sind:
-                // 1) 'InsideFace', aber nicht vollständig, d.h. Patch1Poly ragt etwas aus seiner Face heraus.
+                // Die anderen beiden FÃ¤lle fÃ¼r Patch1 sind:
+                // 1) 'InsideFace', aber nicht vollstÃ¤ndig, d.h. Patch1Poly ragt etwas aus seiner Face heraus.
                 // 2) Nicht 'InsideFace', der Patch hat bestenfalls oben im ersten Teil einen Wert zugewiesen bekommen.
-                // Diese beiden Fälle wollen wir also nachbearbeiten, und zwar durch Mittelwertbildung mit überlappenden,
+                // Diese beiden FÃ¤lle wollen wir also nachbearbeiten, und zwar durch Mittelwertbildung mit Ã¼berlappenden,
                 // INNEREN Patches von benachbarten Faces. Mehr dazu unten. Lasse also 1) und 2) passieren
-                // (die alte Bed. "if (Patch1.InsideFace) continue;" hätte nur 2) durchgehen lassen).
+                // (die alte Bed. "if (Patch1.InsideFace) continue;" hÃ¤tte nur 2) durchgehen lassen).
                 if (Face1.Encloses(Patch1Poly, true, MapT::RoundEpsilon)) continue;
 
-                // Den Mittelpunkt des Patch1Poly bestimmen, inkl. "Safety", sowie den Flächeninhalt
+                // Den Mittelpunkt des Patch1Poly bestimmen, inkl. "Safety", sowie den FlÃ¤cheninhalt
                 VectorT Patch1Poly_Center=scale(Patch1Poly.Vertices[0]+Patch1Poly.Vertices[1]+Patch1Poly.Vertices[2]+Patch1Poly.Vertices[3], 0.25)+Face1_Safety;
                 double  Patch1Poly_Area  =Patch1Poly.GetArea();
 
-                // Suche einen Punkt *IN* Face1 heraus, der "nahe" bei Patch1 liegt. Wird unten benötigt.
+                // Suche einen Punkt *IN* Face1 heraus, der "nahe" bei Patch1 liegt. Wird unten benÃ¶tigt.
                 double  MinDistance=3.0*PATCH_SIZE;
                 VectorT InnerPointCloseToPatch1;
 
@@ -909,7 +909,7 @@ void PostProcessBorders(const CaLightWorldT& CaLightWorld)
                     }
                 }
 
-                // Wurde auch etwas in der Nähe gefunden?
+                // Wurde auch etwas in der NÃ¤he gefunden?
                 if (MinDistance==3.0*PATCH_SIZE) continue;
 
                 // Betrachte nun die umliegenden Faces
@@ -922,8 +922,8 @@ void PostProcessBorders(const CaLightWorldT& CaLightWorld)
 
                     const Polygon3T<double>& Face2=FaceNode2->Polygon;
 
-                    // Bereite nun das Patch2Poly vor. Unten werden dann nur noch die 4 Vertices ausgefüllt.
-                    // Der folgende Code ist SEHR ähnlich zu dem Code in InitializePatches() (Init2.cpp)!
+                    // Bereite nun das Patch2Poly vor. Unten werden dann nur noch die 4 Vertices ausgefÃ¼llt.
+                    // Der folgende Code ist SEHR Ã¤hnlich zu dem Code in InitializePatches() (Init2.cpp)!
                     VectorT Face2_U;
                     VectorT Face2_V;
 
@@ -956,7 +956,7 @@ void PostProcessBorders(const CaLightWorldT& CaLightWorld)
                         {
                             const cf::PatchT& Patch2=PM2.Patches[t2*PM2.Width+s2];
 
-                            // Nur "äußere" Patches von Face1 mit "inneren" Patches von Face1 korrigieren!
+                            // Nur "Ã¤uÃŸere" Patches von Face1 mit "inneren" Patches von Face1 korrigieren!
                             if (!Patch2.InsideFace) continue;
 
                             // Rekonstruiere das Polygon zu Patch2
@@ -968,16 +968,16 @@ void PostProcessBorders(const CaLightWorldT& CaLightWorld)
                             Patch2Poly.Vertices[2]=Face2_UV_Origin+scale(Face2_U, Face2_SmallestU+ s_     *PATCH_SIZE)+scale(Face2_V, Face2_SmallestV+ t_     *PATCH_SIZE);
                             Patch2Poly.Vertices[3]=Face2_UV_Origin+scale(Face2_U, Face2_SmallestU+(s_-1.0)*PATCH_SIZE)+scale(Face2_V, Face2_SmallestV+ t_     *PATCH_SIZE);
 
-                            // Überlappen sich PatchPoly1 und PatchPoly2?
+                            // Ãœberlappen sich PatchPoly1 und PatchPoly2?
                             if (!Patch1Poly.Overlaps(Patch2Poly, false, MapT::RoundEpsilon)) continue;
 
-                            // Zerschneide Patch2Poly entlang Patch1Poly, und behalte nur das Stück, das "in" Patch1Poly liegt:
+                            // Zerschneide Patch2Poly entlang Patch1Poly, und behalte nur das StÃ¼ck, das "in" Patch1Poly liegt:
                             ArrayT< Polygon3T<double> > NewPolygons;
 
                             Patch2Poly.GetChoppedUpAlong(Patch1Poly, MapT::RoundEpsilon, NewPolygons);
                             if (NewPolygons.Size()==0) Error("PolygonChopUp failed in PostProcessBorders().");
 
-                            // Bestimme den Mittelpunkt des überlappenden Stücks in Patch1Poly (inkl. "Safety") und prüfe,
+                            // Bestimme den Mittelpunkt des Ã¼berlappenden StÃ¼cks in Patch1Poly (inkl. "Safety") und prÃ¼fe,
                             // ob von dort aus der nahe Punkt in Face1 erreichbar ist.
                             const Polygon3T<double>& OverlapPoly      =NewPolygons[NewPolygons.Size()-1];
                             VectorT                  OverlapPolyCenter=OverlapPoly.Vertices[0];
@@ -987,25 +987,25 @@ void PostProcessBorders(const CaLightWorldT& CaLightWorld)
 
                             OverlapPolyCenter=scale(OverlapPolyCenter, 1.0/double(OverlapPoly.Vertices.Size()))+Face1_Safety;
 
-                            // Begründung für den folgenden Test:
-                            // Es besteht die Gefahr, daß wir an dieser Stelle unerwünschtes "Light Bleeding" erzeugen.
+                            // BegrÃ¼ndung fÃ¼r den folgenden Test:
+                            // Es besteht die Gefahr, daÃŸ wir an dieser Stelle unerwÃ¼nschtes "Light Bleeding" erzeugen.
                             // "Light Bleeding" ist die Beeinflussung von Patches durch andere Patches, deren Faces sich
-                            // zwar nahe sind, aber in Wirklichkeit z.B. durch eine dünne "Wand" getrennt,
+                            // zwar nahe sind, aber in Wirklichkeit z.B. durch eine dÃ¼nne "Wand" getrennt,
                             // oder die Patches liegen "um die Ecke".
                             // Um das "Light Bleeding" Problem zu minimieren, erlauben wir die Beeinflussung von Patch1
                             // durch Patch2 nur dann, wenn das 'OverlapPolyCenter' vom 'InnerPointCloseToPatch1' aus
                             // sichtbar ist.
-                            // All dies ist analytisch nicht wirklich befriedigend -- eine bessere Lösung scheint es
-                            // aber auch nicht zu geben: Zu groß ist der Konflikt bzw. die gestellten Ansprüche.
+                            // All dies ist analytisch nicht wirklich befriedigend -- eine bessere LÃ¶sung scheint es
+                            // aber auch nicht zu geben: Zu groÃŸ ist der Konflikt bzw. die gestellten AnsprÃ¼che.
                             // Das praktische Ergebnis ist allerdings sehr wohl brauchbar, denn das Ziel wird,
-                            // abgesehen von kleineren "Ausreißern", erreicht.
+                            // abgesehen von kleineren "AusreiÃŸern", erreicht.
                             if (CaLightWorld.TraceRay(InnerPointCloseToPatch1, OverlapPolyCenter-InnerPointCloseToPatch1)<1.0) continue;
 
-                            // Zu wieviel Prozent überlappt das verbleibende Stück PatchPoly1?
+                            // Zu wieviel Prozent Ã¼berlappt das verbleibende StÃ¼ck PatchPoly1?
                             double OverlapRatio=OverlapPoly.GetArea()/Patch1Poly_Area;
 
                             // 'OverlapRatio*=0.5;', falls 'Patch1.InsideFace==true' ist!?
-                            // Merke das Ergebnis zur späteren Durchschnittsbildung.
+                            // Merke das Ergebnis zur spÃ¤teren Durchschnittsbildung.
                             Patch1_OverlapRatios        .PushBack(OverlapRatio        );
                             Patch1_OverlapTotalEnergies .PushBack(Patch2.TotalEnergy  );
                             Patch1_OverlapEnergyFromDirs.PushBack(Patch2.EnergyFromDir);
@@ -1013,7 +1013,7 @@ void PostProcessBorders(const CaLightWorldT& CaLightWorld)
                 }
 
 
-                // Die folgende Zeile ist nicht wirklich nötig. Der 'PatchesWorkedOnCount' wird dadurch aber sinnvoller.
+                // Die folgende Zeile ist nicht wirklich nÃ¶tig. Der 'PatchesWorkedOnCount' wird dadurch aber sinnvoller.
                 if (Patch1_OverlapRatios.Size()==0) continue;
 
                 double OverlapRatioSum=0.0;
@@ -1028,18 +1028,18 @@ void PostProcessBorders(const CaLightWorldT& CaLightWorld)
 
                 if (OverlapRatioSum>1.0)
                 {
-                    // Da eine Face an einem Vertice mit beliebig vielen anderen Faces "zusammenstoßen" kann,
-                    // kann ein Patch dieser Face dort von beliebig vielen anderen Patches überlagert werden,
-                    // die sich dann z.T. wieder unter sich überlappen.
-                    // So kann eine Abdeckung mit Patches über 100% entstehen.
-                    // Wir skalieren dann einfach wieder auf 100% zurück.
+                    // Da eine Face an einem Vertice mit beliebig vielen anderen Faces "zusammenstoÃŸen" kann,
+                    // kann ein Patch dieser Face dort von beliebig vielen anderen Patches Ã¼berlagert werden,
+                    // die sich dann z.T. wieder unter sich Ã¼berlappen.
+                    // So kann eine Abdeckung mit Patches Ã¼ber 100% entstehen.
+                    // Wir skalieren dann einfach wieder auf 100% zurÃ¼ck.
                     for (unsigned long OverlapNr=0; OverlapNr<Patch1_OverlapRatios.Size(); OverlapNr++)
                         Patch1_OverlapRatios[OverlapNr]/=OverlapRatioSum;
                 }
                 else
                 {
                     // Patch1 war nicht ganz von anderen Patches bedeckt.
-                    // Fülle daher den Rest mit dem eigenen, alten Wert auf!
+                    // FÃ¼lle daher den Rest mit dem eigenen, alten Wert auf!
                     Patch1_OverlapRatios        .PushBack(1.0-OverlapRatioSum);
                     Patch1_OverlapTotalEnergies .PushBack(Patch1.TotalEnergy);
                     Patch1_OverlapEnergyFromDirs.PushBack(Patch1.EnergyFromDir);
@@ -1076,7 +1076,7 @@ unsigned long BounceLighting(const CaLightWorldT& CaLightWorld, const char BLOCK
         unsigned long t_i   =0;
         double        BestUE=0;     // Best unradiated energy amount found
 
-        // Finde ein PatchMesh mit einem Patch mit einer großen UnradiatedEnergy (nicht notwendigerweise die größte, damit es schnell geht).
+        // Finde ein PatchMesh mit einem Patch mit einer groÃŸen UnradiatedEnergy (nicht notwendigerweise die grÃ¶ÃŸte, damit es schnell geht).
         for (unsigned long PatchMeshNr=0; PatchMeshNr<PatchMeshes.Size(); PatchMeshNr++)
         {
             // Achtung: PM.Patches.Size() kann auch 0 sein!
@@ -1127,11 +1127,11 @@ unsigned long BounceLighting(const CaLightWorldT& CaLightWorld, const char BLOCK
         }
 
         // Sollte die BestUE unter StopUE sein, wird hier nach einem besseren Wert gesucht.
-        // Beim erstbesseren Wert wird dieser genommen und abgebrochen, ansonsten gesucht bis zum Schluß.
-        // Wenn alle Faces nach dem besten Wert durchsucht werden sollen, muß "&& BestUE<StopUE" auskommentiert werden.
+        // Beim erstbesseren Wert wird dieser genommen und abgebrochen, ansonsten gesucht bis zum SchluÃŸ.
+        // Wenn alle Faces nach dem besten Wert durchsucht werden sollen, muÃŸ "&& BestUE<StopUE" auskommentiert werden.
         if (BestUE<StopUE)
         {
-            FullSearchCount++;      // Zähle, wie oft wir alles abgesucht haben!
+            FullSearchCount++;      // ZÃ¤hle, wie oft wir alles abgesucht haben!
 
             for (unsigned long PatchMeshNr=0; PatchMeshNr<PatchMeshes.Size() && BestUE<StopUE; PatchMeshNr++)
             {
@@ -1157,7 +1157,7 @@ unsigned long BounceLighting(const CaLightWorldT& CaLightWorld, const char BLOCK
         printf("Iteration%6lu, BestUE %6.2f, PM_i%6lu, FullSearch%4lu (%5.1f%%)\r", IterationCount, BestUE, PM_i, FullSearchCount, 100.0*float(FullSearchCount)/float(IterationCount+1));
         fflush(stdout);
 
-        if (BestUE<StopUE)  // Es gab keinen besseren Wert mehr -- wir können also abbrechen!
+        if (BestUE<StopUE)  // Es gab keinen besseren Wert mehr -- wir kÃ¶nnen also abbrechen!
         {
             printf("\n");
             if (!AskForMore) break;
@@ -1184,7 +1184,7 @@ unsigned long BounceLighting(const CaLightWorldT& CaLightWorld, const char BLOCK
         IterationCount++;
 
 #ifdef _WIN32
-        // TODO: Ein (sinnvolles!) 'kbhit()' Äquivalent für Linux muß erst noch gefunden werden...
+        // TODO: Ein (sinnvolles!) 'kbhit()' Ã„quivalent fÃ¼r Linux muÃŸ erst noch gefunden werden...
         if (_kbhit())
         {
             char Key=_getch(); if (Key==0) _getch();

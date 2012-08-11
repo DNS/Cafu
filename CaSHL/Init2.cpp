@@ -23,14 +23,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 // This function computes a normal vector for a patch by taking the surfaces normal-map into account.
 //
-// Dazu müssen wir eigentlich die Normal-Map dieser Face entlang des PatchPoly rasterizern, und dann den renomalisierten Mittelwert
-// der Normal-Map-Normalenvektoren im PatchPoly bilden. Allerdings ist ein PatchPoly üblicherweise *MINDESTENS* 200.0*200.0 world units groß,
-// während ein großer Normal-Map Texel idR nur (25.4*0.25)^2 world units groß ist.
-// Ein PatchPoly deckt also MINDESTENS (200.0)^2/(25.4*0.25)^2 == 6299 Normal-Map Texels ab!! Neben der Tatsache, daß das Rasterizing zur
-// Bestimmung dieser Normalen *sehr* aufwendig ist (und diese Normalen weiter aufwendig vom Tangent- in den Object-Space überführt werden müssen),
+// Dazu mÃ¼ssen wir eigentlich die Normal-Map dieser Face entlang des PatchPoly rasterizern, und dann den renomalisierten Mittelwert
+// der Normal-Map-Normalenvektoren im PatchPoly bilden. Allerdings ist ein PatchPoly Ã¼blicherweise *MINDESTENS* 200.0*200.0 world units groÃŸ,
+// wÃ¤hrend ein groÃŸer Normal-Map Texel idR nur (25.4*0.25)^2 world units groÃŸ ist.
+// Ein PatchPoly deckt also MINDESTENS (200.0)^2/(25.4*0.25)^2 == 6299 Normal-Map Texels ab!! Neben der Tatsache, daÃŸ das Rasterizing zur
+// Bestimmung dieser Normalen *sehr* aufwendig ist (und diese Normalen weiter aufwendig vom Tangent- in den Object-Space Ã¼berfÃ¼hrt werden mÃ¼ssen),
 // ergibt sich auch nahezu IMMER ein renomalisierter Mittelwert, der F.Plane.Normal entspricht. Sollte es dennoch Abweichungen geben, sind sie so klein,
-// daß man sie niemals wahrnimmt. (Die Rundungsfehler allein an anderer Stelle sind um Größenordnungen höher, z.B. die Komprimierung der Werte in "char"!!)
-// Daher würde   Patch.Normal=F.Plane.Normal;   normalerweise völlig ausreichen.
+// daÃŸ man sie niemals wahrnimmt. (Die Rundungsfehler allein an anderer Stelle sind um GrÃ¶ÃŸenordnungen hÃ¶her, z.B. die Komprimierung der Werte in "char"!!)
+// Daher wÃ¼rde   Patch.Normal=F.Plane.Normal;   normalerweise vÃ¶llig ausreichen.
 void ComputePatchNormal(PatchT& Patch, const cf::SceneGraph::FaceNodeT::TexInfoT& TI, const BitmapT& NormalMap, const VectorT& SpanU, const VectorT& SpanV)
 {
     const VectorT PlaneNormal=Patch.Normal;
@@ -52,8 +52,8 @@ void ComputePatchNormal(PatchT& Patch, const cf::SceneGraph::FaceNodeT::TexInfoT
 
      // const double TexSizeX=TexDataSizeX[TI.TexDataNr];               // Texture size in X direction.
      // const double TexSizeY=TexDataSizeY[TI.TexDataNr];               // Texture size in Y direction.
-        const double LengthU =length(TI_U);                       // Länge des U-Vektors (X-Richtung).
-        const double LengthV =length(TI_V);                       // Länge des V-Vektors (Y-Richtung).
+        const double LengthU =length(TI_U);                       // LÃ¤nge des U-Vektors (X-Richtung).
+        const double LengthV =length(TI_V);                       // LÃ¤nge des V-Vektors (Y-Richtung).
 
         double s=/*(*/ dot(SampleOrigin, TI_U)/(LengthU*LengthU)+TI.OffsetU;  // )/TexSizeX-SmallestS;
         double t=/*(*/ dot(SampleOrigin, TI_V)/(LengthV*LengthV)+TI.OffsetV;  // )/TexSizeY-SmallestT;
@@ -100,7 +100,7 @@ void InitializePatches(const cf::SceneGraph::BspTreeNodeT& Map)
     printf("\n%-50s %s\n", "*** Initialize Patches ***", GetTimeSinceProgramStart());
 
 
-    // 1. Allokiere neuen Speicher für die ganzen Patches
+    // 1. Allokiere neuen Speicher fÃ¼r die ganzen Patches
     Patches.Clear();
     Patches.PushBackEmpty(Map.FaceChildren.Size());
 
@@ -115,10 +115,10 @@ void InitializePatches(const cf::SceneGraph::BspTreeNodeT& Map)
         Patches[FaceNr].PushBackEmpty(SMI.SizeS*SMI.SizeT);
         PatchCount+=Patches[FaceNr].Size();
 
-        // Wir prüfen es besser hier, denn die Engine prüft es zur Zeit nicht! Sollte aber niemals vorkommen!
+        // Wir prÃ¼fen es besser hier, denn die Engine prÃ¼ft es zur Zeit nicht! Sollte aber niemals vorkommen!
         if (SMI.SizeS>cf::SceneGraph::SHLMapManT::SIZE_S || SMI.SizeT>cf::SceneGraph::SHLMapManT::SIZE_T) Error("SHLMAP OF FACE %u EXCEEDS LIMITS! ENGINE WILL DENY THIS MAP!", FaceNr);
 
-        // Für alle Patches auch die Coeffs allokieren.
+        // FÃ¼r alle Patches auch die Coeffs allokieren.
         for (unsigned long PatchNr=0; PatchNr<Patches[FaceNr].Size(); PatchNr++)
         {
             PatchT& P=Patches[FaceNr][PatchNr];
@@ -130,10 +130,10 @@ void InitializePatches(const cf::SceneGraph::BspTreeNodeT& Map)
     printf("# patches allocated:%10lu\n", PatchCount);
 
 
-    // 2. Bestimme, ob ein Patch zumindest ein bißchen innerhalb seiner Face liegt, und wenn ja, seinen Mittelpunkt.
+    // 2. Bestimme, ob ein Patch zumindest ein biÃŸchen innerhalb seiner Face liegt, und wenn ja, seinen Mittelpunkt.
     //    Dieser wird wegen Rundungsfehlern etwas entlang seines Normalenvektors verschoben!
 
-    // Bilde zuerst ein LookUp-Array, das die Nummern aller Faces mit Radiosity-Sunlight Material enthält.
+    // Bilde zuerst ein LookUp-Array, das die Nummern aller Faces mit Radiosity-Sunlight Material enthÃ¤lt.
     ArrayT<unsigned long> SkyFaces;
 
     for (FaceNr=0; FaceNr<Map.FaceChildren.Size(); FaceNr++)
@@ -226,9 +226,9 @@ void InitializePatches(const cf::SceneGraph::BspTreeNodeT& Map)
 
 #if USE_NORMALMAPS
                 // Zuletzt noch den Patch.Normal Vektor bestimmen.
-                // Siehe die Kommentare zur ComputePatchNormal Funktion für weitere Infos.
-                // Außerdem ist dieses Verfahren alles andere als effizient -- sollte die Normal-Map nicht für jede Face neu laden!
-                // Beachte: Die Patch.Normal muß mit der F.Plane.Normal initialisiert sein!
+                // Siehe die Kommentare zur ComputePatchNormal Funktion fÃ¼r weitere Infos.
+                // AuÃŸerdem ist dieses Verfahren alles andere als effizient -- sollte die Normal-Map nicht fÃ¼r jede Face neu laden!
+                // Beachte: Die Patch.Normal muÃŸ mit der F.Plane.Normal initialisiert sein!
                 ComputePatchNormal(Patch, FN->TI, NormalMap, U, V);
 #endif
             }

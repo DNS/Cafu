@@ -37,7 +37,7 @@ struct ClientInfoT
     // Connection-related data
     NetAddressT                     ClientAddress;          ///< IP+Port of the client.
     GameProtocol1T                  GameProtocol;           ///< The network protocol instance we use for communication with the client.
-    ArrayT< ArrayT<char> >          ReliableDatas;          ///< Puffer für wichtige, zu bestätigende Messages an den Client.
+    ArrayT< ArrayT<char> >          ReliableDatas;          ///< Puffer fÃ¼r wichtige, zu bestÃ¤tigende Messages an den Client.
     float                           TimeSinceLastMessage;   ///< Time that passed since the last message arrived (for time-outs and zombies).
     float                           TimeSinceLastUpdate;
 
@@ -48,7 +48,7 @@ struct ClientInfoT
 
     // World-related data
     unsigned long                   EntityID;               ///< ID of our HumanPlayer entity.
-    unsigned long                   LastKnownFrameReceived; ///< Für Delta-Kompression: Letztes Frame, von dem wir wissen, das der Cl es empf. hat.
+    unsigned long                   LastKnownFrameReceived; ///< FÃ¼r Delta-Kompression: Letztes Frame, von dem wir wissen, das der Cl es empf. hat.
     unsigned long                   BaseLineFrameNr;
     ArrayT< ArrayT<unsigned long> > OldStatesPVSEntityIDs;
     unsigned long                   CurrentStateIndex;

@@ -34,7 +34,7 @@ unsigned long FindVertexIndex(ArrayT<VectorT>& Vertices, const VectorT& A)
     for (VertexNr=0; VertexNr<Vertices.Size(); VertexNr++)
         if (Vertices[VertexNr].IsEqual(A, MapT::RoundEpsilon)) break;
 
-    // Falls nicht, einen neuen Vertex 'A' anh‰ngen.
+    // Falls nicht, einen neuen Vertex 'A' anh√§ngen.
     if (VertexNr==Vertices.Size()) Vertices.PushBack(A);
 
     return VertexNr;
@@ -46,7 +46,7 @@ void BspTreeBuilderT::ComputeDrawStructures()
     Console->Print(cf::va("\n%-50s %s\n", "*** Compute Draw Structures ***", GetTimeSinceProgramStart()));
 
     // Lege zuerst eine Kopie 'DrawFaces' der 'Faces' an,
-    // und erg‰nze darin die zur T-Junction-Entfernung notw. Vertices.
+    // und erg√§nze darin die zur T-Junction-Entfernung notw. Vertices.
     ArrayT< Polygon3T<double> >     DrawFaces;
     ArrayT< BoundingBox3T<double> > FaceBB;
 

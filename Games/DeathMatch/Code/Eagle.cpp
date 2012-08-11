@@ -79,9 +79,9 @@ EntEagleT::~EntEagleT()
 void EntEagleT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 {
     const float Pi              =3.14159265359f;
-    const float ManeuverDistance=7000.0;            // Wieviel Platz voraus wir gerne für unser Wendemanöver hätten
+    const float ManeuverDistance=7000.0;            // Wieviel Platz voraus wir gerne fÃ¼r unser WendemanÃ¶ver hÃ¤tten
 
-    float FlightDistance   =4000.0f*FrameTime;      // Wie weit wir gerne fliegen würden
+    float FlightDistance   =4000.0f*FrameTime;      // Wie weit wir gerne fliegen wÃ¼rden
     char  MaxManeuverRepeat=2;
 
     while (MaxManeuverRepeat--)
@@ -105,12 +105,12 @@ void EntEagleT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
                     m_Origin.x+=LookupTables::Angle16ToSin[m_Heading]*FlightDistance;
                     m_Origin.y+=LookupTables::Angle16ToCos[m_Heading]*FlightDistance;
 
-                    FigureLeft=1.0;     // Muß einen Wert größer 0 zuweisen, damit die while-Schleife verlassen wird!
+                    FigureLeft=1.0;     // MuÃŸ einen Wert grÃ¶ÃŸer 0 zuweisen, damit die while-Schleife verlassen wird!
                     break;
                 }
 
                 // Uh! Terrain ahead! Initiate emergency turn maneuver!
-                // 80% der verbleibenden Strecke für das Gesamtmanöver nutzen, und davon jeweils 1/3 für die einzelnen Figuren.
+                // 80% der verbleibenden Strecke fÃ¼r das GesamtmanÃ¶ver nutzen, und davon jeweils 1/3 fÃ¼r die einzelnen Figuren.
                 // m_Origin  =VectorT(5000.0, 45000.0, -4000.0);    // Activate this for debugging in JrBase1
                 FigureDistance=TerrainDistance*0.8f/3.0f;
                 OldOrigin     =m_Origin;
@@ -142,7 +142,7 @@ void EntEagleT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
                 FigureLeft-=FlightDistance;
 
                 const unsigned short DegreesLeft=(unsigned short)(FigureLeft/FigureDistance/Pi*32768.0);
-                const float          HorLoopPos =LookupTables::Angle16ToSin[DegreesLeft]*FigureDistance;    // Nur eine Abkürzung
+                const float          HorLoopPos =LookupTables::Angle16ToSin[DegreesLeft]*FigureDistance;    // Nur eine AbkÃ¼rzung
 
                 m_Origin.x=LoopCenter.x+LookupTables::Angle16ToSin[m_Heading]*HorLoopPos;
                 m_Origin.y=LoopCenter.y+LookupTables::Angle16ToCos[m_Heading]*HorLoopPos;
@@ -157,9 +157,9 @@ void EntEagleT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
                 m_Pitch   =0;
                 m_Bank    =0;
 
-                // Die nächste Figur ist der "Cosinus-Aufschwung" auf die alte Flughöhe.
-                // Auf geradem Wege würde eine Diagonale abgeflogen, deren Länge 2.0*1.414213562373*FigureDistance beträgt.
-                // Der Cosinus-Bogen ist aber offensichtich etwas länger, schätze ihn mit 2.0*1.5*FigureDistance ab.
+                // Die nÃ¤chste Figur ist der "Cosinus-Aufschwung" auf die alte FlughÃ¶he.
+                // Auf geradem Wege wÃ¼rde eine Diagonale abgeflogen, deren LÃ¤nge 2.0*1.414213562373*FigureDistance betrÃ¤gt.
+                // Der Cosinus-Bogen ist aber offensichtich etwas lÃ¤nger, schÃ¤tze ihn mit 2.0*1.5*FigureDistance ab.
                 FigureLeft+=FlightDistance+3.0f*FigureDistance;
                 FlightState=ClimpBackToCruiseAlt;
                 // Intentional fall-through!
@@ -169,7 +169,7 @@ void EntEagleT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
             {
                 FigureLeft-=FlightDistance;
 
-                const float          GroundDistLeft=FigureLeft/1.5f;                                            // Wieviel "über Grund" noch abzufliegen ist
+                const float          GroundDistLeft=FigureLeft/1.5f;                                            // Wieviel "Ã¼ber Grund" noch abzufliegen ist
                 const unsigned short DegreesLeft   =(unsigned short)(GroundDistLeft/FigureDistance*16384.0f);   // Wieviel "Degrees" dies entspricht
 
                 m_Origin.x=OldOrigin.x-LookupTables::Angle16ToSin[m_Heading]*GroundDistLeft;    // Beachte: Wir sind jetzt auf Umkehrkurs!

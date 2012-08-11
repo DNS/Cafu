@@ -64,10 +64,10 @@ class CaClientWorldT : public Ca3DEWorldT
     unsigned long CreateNewEntity(const std::map<std::string, std::string>& Properties, unsigned long CreationFrameNr, const VectorT& Origin);
     void          RemoveEntity(unsigned long EntityID);
 
-    unsigned long GetOurEntityID() const { return OurEntityID; }  // AUFLÖSEN!?
+    unsigned long GetOurEntityID() const { return OurEntityID; }  // AUFLÃ–SEN!?
 
-    // Erzeugt einen neuen Entity durch das zu Ende Lesen einer SC1_EntityBaseLine Message. Gibt 'true' zurück bei Erfolg, sonst 'false'.
-    // Letzteres passiert nur nach einem fatalen Fehler, nämlich wenn 'InData' einen unbekannten Entity-Typ beschreibt (Entity-TypeID).
+    // Erzeugt einen neuen Entity durch das zu Ende Lesen einer SC1_EntityBaseLine Message. Gibt 'true' zurÃ¼ck bei Erfolg, sonst 'false'.
+    // Letzteres passiert nur nach einem fatalen Fehler, nÃ¤mlich wenn 'InData' einen unbekannten Entity-Typ beschreibt (Entity-TypeID).
     bool ReadEntityBaseLineMessage(NetDataT& InData);
 
     unsigned long ReadServerFrameMessage(NetDataT& InData);
@@ -92,8 +92,8 @@ class CaClientWorldT : public Ca3DEWorldT
     CaClientWorldT(const CaClientWorldT&);      // Use of the Copy    Constructor is not allowed.
     void operator = (const CaClientWorldT&);    // Use of the Assignment Operator is not allowed.
 
-    // Ruft 'EngineEntityT::ParseServerDeltaUpdateMessage()' für den EngineEntityT mit der ID 'EntityID' auf (siehe Dokumentation dieser Funktion!).
-    // Das Rückgabeergebnis entspricht dem dieser Funktion, ein Scheitern kann nun aber zusätzlich vorkommen, falls 'EntityID' nicht existiert.
+    // Ruft 'EngineEntityT::ParseServerDeltaUpdateMessage()' fÃ¼r den EngineEntityT mit der ID 'EntityID' auf (siehe Dokumentation dieser Funktion!).
+    // Das RÃ¼ckgabeergebnis entspricht dem dieser Funktion, ein Scheitern kann nun aber zusÃ¤tzlich vorkommen, falls 'EntityID' nicht existiert.
     bool ParseServerDeltaUpdateMessage(unsigned long EntityID, unsigned long DeltaFrameNr, unsigned long ServerFrameNr,
                                        const ArrayT<uint8_t>* DeltaMessage);
 

@@ -319,7 +319,7 @@ void ViewWorld()
                 case CaKeyboardEventT::CK_L:
                     if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_LSHIFT] || SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_RSHIFT])
                     {
-                        // Großes 'L'.
+                        // GroÃŸes 'L'.
                         DrawLeafNr=World->BspTree->WhatLeaf(Viewer);
                         printf("DrawLeafNr==%lu\n", DrawLeafNr);
                         break;
@@ -339,7 +339,7 @@ void ViewWorld()
                 case CaKeyboardEventT::CK_O:
                     if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_LSHIFT] || SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_RSHIFT])
                     {
-                        // Großes 'O'.
+                        // GroÃŸes 'O'.
                         if (DrawLeafNr==0) DrawLeafNr=World->BspTree->Leaves.Size()-1;
                                       else DrawLeafNr--;
                         printf("DrawLeafNr==%lu\n", DrawLeafNr);
@@ -659,7 +659,7 @@ int main(int ArgC, char* ArgV[])
         ModelManagerT ModelMan;
         World=new WorldT(ArgV[1], ModelMan);
 
-        // Gib ggf. nur die gewünschten Infos aus
+        // Gib ggf. nur die gewÃ¼nschten Infos aus
         if (ArgC==3)
         {
                  if (!_stricmp(ArgV[2], "-ListTexNames"   )) printf("%s\n", "NOT SUPPORTED!");
@@ -686,13 +686,13 @@ int main(int ArgC, char* ArgV[])
      // printf("\n4. LightMap Patch ratios:\n");                 LightMapPatchRatios();           printf("Done. Press any key for the next test.\n\n"); _getch();
 
         // TO DO: Hier mal MapT::FillTJunctions aufrufen,
-        //        und prüfen, daß keine Vertices in einer Face doppelt vorkommen (sollte generell ein Prüfpunkt sein!)
-        //        und zählen, wieviele Vertices es vorher und nachher sind, Erhöhung in % ausgeben.
+        //        und prÃ¼fen, daÃŸ keine Vertices in einer Face doppelt vorkommen (sollte generell ein PrÃ¼fpunkt sein!)
+        //        und zÃ¤hlen, wieviele Vertices es vorher und nachher sind, ErhÃ¶hung in % ausgeben.
         // TO DO: Existieren Vertices, deren Abstand <GeometryEpsilon ist, die aber ungleich sind??
-        //        Mit anderen Worten: Vertices A und B mit VectorEqual(A, B)==true müssen BITWEISE gleich sein.
-        // TO DO: Prüfe, ob Vertices, die in einer Plane liegen, DOCH einen Abstand zur Plane haben.
-        // TO DO: Prüfe, ob Faces mit Sky-Texture wirklich LightMap.SizeS==LightMap.SizeT==LightMap.Data.Size()==0 haben!
-        // TO DO: Bestimme die maximale Lightmap.Size und prüfe, ob SizeS oder SizeT > 128 !
+        //        Mit anderen Worten: Vertices A und B mit VectorEqual(A, B)==true mÃ¼ssen BITWEISE gleich sein.
+        // TO DO: PrÃ¼fe, ob Vertices, die in einer Plane liegen, DOCH einen Abstand zur Plane haben.
+        // TO DO: PrÃ¼fe, ob Faces mit Sky-Texture wirklich LightMap.SizeS==LightMap.SizeT==LightMap.Data.Size()==0 haben!
+        // TO DO: Bestimme die maximale Lightmap.Size und prÃ¼fe, ob SizeS oder SizeT > 128 !
 
         delete World;
         printf("--- All tests are completed! Press any key to leave. ---\n");

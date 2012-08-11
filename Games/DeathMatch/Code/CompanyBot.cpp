@@ -82,7 +82,7 @@ EntCompanyBotT::EntCompanyBotT(const EntityCreateParamsT& Params)
     m_LastStdAE=m_CompanyBotModel->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
     m_AnimExpr =m_LastStdAE;
 
-    // Wir könnten im Boden stecken oder darüber schweben - korrigiere entsprechend!
+    // Wir kÃ¶nnten im Boden stecken oder darÃ¼ber schweben - korrigiere entsprechend!
     // If multiple solid entities are stacked upon each other, this code might leave gaps between them,
     // depending on their order. Not a serious problem, though - the physics code will correct it.
     // Also note that if m_Dimensions is stuck, this code tries to make it un-stuck, but is not guaranteed to succeed!
@@ -99,11 +99,11 @@ EntCompanyBotT::EntCompanyBotT(const EntityCreateParamsT& Params)
     GameWorld->GetClipWorld().TraceBoundingBox(ClearingBB, m_Origin+VectorT(0.0, 0.0, AddHeight), VectorT(0.0, 0.0, -999999.0), MaterialT::Clip_Players, &ClipModel, Result);
     const double SubHeight=999999.0*Result.Fraction;
 
-    // Beachte: Hier für Epsilon 1.0 (statt z.B. 1.23456789) zu wählen hebt u.U. GENAU den (0 0 -1) Test in
-    // Physics::CategorizePosition() auf! Nicht schlimm, wenn aber auf Client-Seite übers Netz kleine Rundungsfehler
-    // vorhanden sind (es werden floats übertragen, nicht doubles!), kommt CategorizePosition() u.U. auf Client- und
-    // Server-Seite zu verschiedenen Ergebnissen! Der Effekt spielt sich zwar in einem Intervall der Größe 1.0 ab,
-    // kann mit OpenGL aber zu deutlichem Pixel-Flimmern führen!
+    // Beachte: Hier fÃ¼r Epsilon 1.0 (statt z.B. 1.23456789) zu wÃ¤hlen hebt u.U. GENAU den (0 0 -1) Test in
+    // Physics::CategorizePosition() auf! Nicht schlimm, wenn aber auf Client-Seite Ã¼bers Netz kleine Rundungsfehler
+    // vorhanden sind (es werden floats Ã¼bertragen, nicht doubles!), kommt CategorizePosition() u.U. auf Client- und
+    // Server-Seite zu verschiedenen Ergebnissen! Der Effekt spielt sich zwar in einem Intervall der GrÃ¶ÃŸe 1.0 ab,
+    // kann mit OpenGL aber zu deutlichem Pixel-Flimmern fÃ¼hren!
     m_Origin.z=m_Origin.z+AddHeight-SubHeight+(ClearingBB.Min.z-m_Dimensions.Min.z/*1628.8*/)+1.23456789/*Epsilon (sonst Ruckeln am Anfang!)*/;
 
     // Old, deprecated code (can get us stuck in non-level ground).
@@ -233,13 +233,13 @@ void EntCompanyBotT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT&
 
         State.Health=0;
 
-             if (DeltaAngle>=57344 || DeltaAngle< 8192) State.ModelSequNr=21;   // 315° ...  45° - die forwards
-        else if (DeltaAngle>=8192  && DeltaAngle<16384) State.ModelSequNr=22;   //  45° ...  90° - headshot
-        else if (DeltaAngle>=16384 && DeltaAngle<24576) State.ModelSequNr=24;   //  90° ... 135° - gutshot
-        else if (DeltaAngle>=24576 && DeltaAngle<32768) State.ModelSequNr=19;   // 135° ... 180° - die backwards1
-        else if (DeltaAngle>=32768 && DeltaAngle<40960) State.ModelSequNr=20;   // 180° ... 225° - die backwards
-        else if (DeltaAngle>=40960 && DeltaAngle<49152) State.ModelSequNr=18;   // 225° ... 270° - die simple
-        else /* (DeltaAngle>=49152&&DeltaAngle<57344)*/ State.ModelSequNr=23;   // 270° ... 315° - die spin
+             if (DeltaAngle>=57344 || DeltaAngle< 8192) State.ModelSequNr=21;   // 315Â° ...  45Â° - die forwards
+        else if (DeltaAngle>=8192  && DeltaAngle<16384) State.ModelSequNr=22;   //  45Â° ...  90Â° - headshot
+        else if (DeltaAngle>=16384 && DeltaAngle<24576) State.ModelSequNr=24;   //  90Â° ... 135Â° - gutshot
+        else if (DeltaAngle>=24576 && DeltaAngle<32768) State.ModelSequNr=19;   // 135Â° ... 180Â° - die backwards1
+        else if (DeltaAngle>=32768 && DeltaAngle<40960) State.ModelSequNr=20;   // 180Â° ... 225Â° - die backwards
+        else if (DeltaAngle>=40960 && DeltaAngle<49152) State.ModelSequNr=18;   // 225Â° ... 270Â° - die simple
+        else /* (DeltaAngle>=49152&&DeltaAngle<57344)*/ State.ModelSequNr=23;   // 270Â° ... 315Â° - die spin
 
         State.ModelFrameNr=0.0;
         ClipModel.Unregister();     // Dead now, don't clip no more.
@@ -306,7 +306,7 @@ void EntCompanyBotT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
         break;
     }
 
-    // Gab es so einen Entity überhaupt?
+    // Gab es so einen Entity Ã¼berhaupt?
     if (EntityIDNr>=AllEntityIDs.Size()) return;
 
     VectorT Dist = TargetEntity->GetOrigin() - m_Origin;

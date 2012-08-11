@@ -785,7 +785,7 @@ bool TrafoBoxT::UpdateStatusBar(ChildFrameT* ChildFrame) const
         // That is, the user will see the same angle for the same rotation even when the rotation is performed
         // in "mirrored" (invertex axes) views (e.g. one view from "front", one view from "back").
         // Let's hope that there is no confusion when this is sometimes different from the "window space" angle.
-        ChildFrame->SetStatusText(wxString::Format(" Rotate: %.1f°", m_RotAngle), ChildFrameT::SBP_SELECTION_DIMS);
+        ChildFrame->SetStatusText(wxString::Format(" Rotate: %.1fÂ°", m_RotAngle), ChildFrameT::SBP_SELECTION_DIMS);
         return true;
     }
 

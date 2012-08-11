@@ -238,12 +238,12 @@ MapBrushT* MapBrushT::CreateSphere(const BoundingBox3fT& Box, const unsigned lon
     ArrayT<Vector3fT> HullVertices;
 
     // Examined from the side, a sphere with S sides has a north pole and floor(S/2) circles of latitude (Breitenkreise),
-    // with an elevation of 360°/S between each. Note that when S is even, the last circle of latitude is degenerate at the south pole.
+    // with an elevation of 360Â°/S between each. Note that when S is even, the last circle of latitude is degenerate at the south pole.
     HullVertices.PushBack(NorthPole);
 
     for (unsigned long BreitenkreisNr=0; BreitenkreisNr<NrOfSides/2; BreitenkreisNr++)
     {
-        const double theta=DeltaAngle*(BreitenkreisNr+1);   // Elevation, 0°...180° from positive z-axis (not -90°...+90° from equator plane).
+        const double theta=DeltaAngle*(BreitenkreisNr+1);   // Elevation, 0Â°...180Â° from positive z-axis (not -90Â°...+90Â° from equator plane).
 
         if (2*(BreitenkreisNr+1)==NrOfSides)
         {
@@ -253,7 +253,7 @@ MapBrushT* MapBrushT::CreateSphere(const BoundingBox3fT& Box, const unsigned lon
 
         for (unsigned long SliceNr=0; SliceNr<NrOfSides; SliceNr++)
         {
-            const double    phi   =DeltaAngle*SliceNr;      // Heading/azimut, 0°...360° from positive y-axis.
+            const double    phi   =DeltaAngle*SliceNr;      // Heading/azimut, 0Â°...360Â° from positive y-axis.
             const Vector3dT Vertex=Center + Vector3dT(sin(theta)*sin(phi), sin(theta)*cos(phi), cos(theta)).GetScaled(Radius);
 
             // Can unfortunately not round Vertex here, because rounding makes the quad surfaces become non-coplanar!
@@ -374,8 +374,8 @@ bool MapBrushT::TraceRay(const Vector3fT& RayOrigin, const Vector3fT& RayDir, fl
         // Bestimmen, bei welchem Bruchteil (Fraction F) von Dir wir die Plane schneiden.
         const float Nenner=dot(Plane.Normal, RayDir);
 
-        // Dir muß dem Normalenvektor der Ebene wirklich entgegenzeigen! Ist der Nenner==0, so ist Dir parallel zur Plane,
-        // und mit dieser Plane ex. kein Schnittpunkt. Ist der Nenner>0, nutzen wir die Konvexität des Brushs aus:
+        // Dir muÃŸ dem Normalenvektor der Ebene wirklich entgegenzeigen! Ist der Nenner==0, so ist Dir parallel zur Plane,
+        // und mit dieser Plane ex. kein Schnittpunkt. Ist der Nenner>0, nutzen wir die KonvexitÃ¤t des Brushs aus:
         // Es gibt damit nur genau einen Schnittpunkt mit dem Brush (Eintrittsstelle) und die Plane behindert nicht
         // eine Bewegung von ihr weg (Feststecken wenn Dist==0 (s.u.)).
         if (Nenner>=0) continue;
@@ -383,10 +383,10 @@ bool MapBrushT::TraceRay(const Vector3fT& RayOrigin, const Vector3fT& RayDir, fl
         const float Dist= Plane.GetDistance(RayOrigin);
         const float Frac=-Dist/Nenner;
 
-        // Der Schnitt macht nur Sinn, wenn F im gewünschten Intervall liegt
+        // Der Schnitt macht nur Sinn, wenn F im gewÃ¼nschten Intervall liegt
         if (Frac<0) continue;
 
-        // Prüfen, ob Schnittpunkt wirklich auf dem Brush liegt
+        // PrÃ¼fen, ob Schnittpunkt wirklich auf dem Brush liegt
         const Vector3fT HitPos=RayOrigin + RayDir*Frac;
         unsigned long   PNr;
 

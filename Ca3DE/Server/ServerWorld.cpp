@@ -43,7 +43,7 @@ CaServerWorldT::CaServerWorldT(cf::GameSys::GameI* Game, const char* FileName, M
       m_IsThinking(false),
       m_EntityRemoveList()
 {
-    // Gehe alle GameEntities der Ca3DEWorld durch und erstelle dafür "echte" Entities.
+    // Gehe alle GameEntities der Ca3DEWorld durch und erstelle dafÃ¼r "echte" Entities.
     for (unsigned long GENr=0; GENr<m_World->GameEntities.Size(); GENr++)
     {
         const GameEntityT* GE=m_World->GameEntities[GENr];
@@ -55,7 +55,7 @@ CaServerWorldT::CaServerWorldT(cf::GameSys::GameI* Game, const char* FileName, M
         CreateNewEntityFromBasicInfo(GE->Properties, GE->BspTree, GE->CollModel, GENr, GE->MFIndex, m_ServerFrameNr, GE->Origin);
     }
 
-    // Gehe alle InfoPlayerStarts der Ca3DEWorld durch und erstelle dafür "echte" Entities.
+    // Gehe alle InfoPlayerStarts der Ca3DEWorld durch und erstelle dafÃ¼r "echte" Entities.
     for (unsigned long IPSNr=0; IPSNr<m_World->InfoPlayerStarts.Size(); IPSNr++)
     {
         std::map<std::string, std::string> Props;
@@ -66,7 +66,7 @@ CaServerWorldT::CaServerWorldT(cf::GameSys::GameI* Game, const char* FileName, M
         CreateNewEntityFromBasicInfo(Props, NULL, NULL, (unsigned long)-1, (unsigned long)-1, m_ServerFrameNr, m_World->InfoPlayerStarts[IPSNr].Origin);
     }
 
-    // Zu Demonstrationszwecken fügen wir auch noch einen MonsterMaker vom Typ CompanyBot in die World ein.
+    // Zu Demonstrationszwecken fÃ¼gen wir auch noch einen MonsterMaker vom Typ CompanyBot in die World ein.
     // TODO! Dies sollte ins Map/Entity-Script wandern!!!
     if (AutoAddCompanyBot.GetValueBool())
     {
@@ -111,8 +111,8 @@ unsigned long CaServerWorldT::CreateNewEntity(const std::map<std::string, std::s
 }
 
 
-// Die Clients bekommen unabhängig hiervon in einer SC1_DropClient Message explizit mitgeteilt, wenn ein Client (warum auch immer) den Server verläßt.
-// Den dazugehörigen Entity muß der Client deswegen aber nicht unbedingt sofort und komplett aus seiner World entfernen,
+// Die Clients bekommen unabhÃ¤ngig hiervon in einer SC1_DropClient Message explizit mitgeteilt, wenn ein Client (warum auch immer) den Server verlÃ¤ÃŸt.
+// Den dazugehÃ¶rigen Entity muÃŸ der Client deswegen aber nicht unbedingt sofort und komplett aus seiner World entfernen,
 // dies sollte vielmehr durch Wiederverwendung von EntityIDs durch den Server geschehen!
 void CaServerWorldT::RemoveEntity(unsigned long EntityID)
 {
@@ -157,12 +157,12 @@ void CaServerWorldT::NotifyHumanPlayerEntityOfClientCommand(unsigned long HumanP
 
 void CaServerWorldT::Think(float FrameTime)
 {
-    // Zuerst die Nummer des nächsten Frames 'errechnen'.
+    // Zuerst die Nummer des nÃ¤chsten Frames 'errechnen'.
     // Die Reihenfolge ist wichtig, denn wenn ein neuer Entity geschaffen wird,
-    // muß dieser korrekt wissen, zu welchem Frame er ins Leben gerufen wurde.
+    // muÃŸ dieser korrekt wissen, zu welchem Frame er ins Leben gerufen wurde.
     m_ServerFrameNr++;
 
-    // Jetzt das eigentliche Denken durchführen.
+    // Jetzt das eigentliche Denken durchfÃ¼hren.
     // Heraus kommt eine Aussage der Form: "Zum Frame Nummer 'm_ServerFrameNr' ist die World in diesem Zustand!"
     if (m_IsThinking) return;
 
@@ -171,11 +171,11 @@ void CaServerWorldT::Think(float FrameTime)
     // Beachte:
     // - Neu geschaffene Entities sollen nicht gleich 'Think()'en!
     //   Zur Erreichung vergleiche dazu die Implementation von EngineEntityT::Think().
-    //   DÜRFTEN sie trotzdem gleich Think()en??? (JA!) Die OldStates kämen dann evtl. durcheinander!? (NEIN!)
-    //   Allerdings übertragen wir mit BaseLines grundsätzlich KEINE Events (??? PRÜFEN!), Think()en macht insofern also nur eingeschränkt Sinn.
+    //   DÃœRFTEN sie trotzdem gleich Think()en??? (JA!) Die OldStates kÃ¤men dann evtl. durcheinander!? (NEIN!)
+    //   Allerdings Ã¼bertragen wir mit BaseLines grundsÃ¤tzlich KEINE Events (??? PRÃœFEN!), Think()en macht insofern also nur eingeschrÃ¤nkt Sinn.
     // - EntityIDs sollten wohl besser NICHT wiederverwendet werden, da z.B. Parents die IDs ihrer Children speichern usw.
-    // - Letzteres führt aber zu zunehmend vielen NULL-Pointern im m_EngineEntities-Array.
-    // - Dies könnte sich evtl. mit einem weiteren Array von 'active EntityIDs' lösen lassen.
+    // - Letzteres fÃ¼hrt aber zu zunehmend vielen NULL-Pointern im m_EngineEntities-Array.
+    // - Dies kÃ¶nnte sich evtl. mit einem weiteren Array von 'active EntityIDs' lÃ¶sen lassen.
     for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
         if (m_EngineEntities[EntityNr]!=NULL)
             m_EngineEntities[EntityNr]->PreThink(m_ServerFrameNr);
@@ -219,7 +219,7 @@ unsigned long CaServerWorldT::WriteClientNewBaseLines(unsigned long OldBaseLineF
 
 void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID, unsigned long ClientFrameNr, ArrayT< ArrayT<unsigned long> >& ClientOldStatesPVSEntityIDs, unsigned long& ClientCurrentStateIndex, NetDataT& OutData) const
 {
-    // Wenn dies hier aufgerufen wird, befinden sich sämtliche m_EngineEntities schon im Zustand ('Entity->State') zum Frame 'ServerFrameNr'.
+    // Wenn dies hier aufgerufen wird, befinden sich sÃ¤mtliche m_EngineEntities schon im Zustand ('Entity->State') zum Frame 'ServerFrameNr'.
     // Der Client, von dem obige Parameter stammen, ist aber noch nicht soweit (sondern noch im vorherigen Zustand).
     // Update daher zuerst die PVS-EntityID Infos dieses Clients.
     const char TEMP_MAX_OLDSTATES=16+1;     // (?)
@@ -261,14 +261,14 @@ void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID
 
     if (ClientFrameNr==0 || ClientFrameNr>=m_ServerFrameNr || ClientFrameNr+ClientOldStatesPVSEntityIDs.Size()-1<m_ServerFrameNr)
     {
-        // Erläuterung der obigen if-Bedingung:
+        // ErlÃ¤uterung der obigen if-Bedingung:
         // a) Der erste  Teil 'ClientFrameNr==0' ist klar!
         // b) Der zweite Teil 'ClientFrameNr>=ServerFrameNr' ist nur zur Sicherheit und sollte NIEMALS anspringen!
-        // c) Der dritte Teil ist äquivalent zu 'ServerFrameNr-ClientFrameNr>=ClientOldStatesPVSEntityIDs.Size()'!
+        // c) Der dritte Teil ist Ã¤quivalent zu 'ServerFrameNr-ClientFrameNr>=ClientOldStatesPVSEntityIDs.Size()'!
         static ArrayT<unsigned long> EmptyArray;
 
         // Entweder will der Client explizit ein retransmit haben (bei neuer World oder auf User-Wunsch (no-delta mode) oder nach Problemen),
-        // oder beim Client ist schon länger keine verwertbare Nachricht mehr angekommen. Daher delta'en wir bzgl. der BaseLine!
+        // oder beim Client ist schon lÃ¤nger keine verwertbare Nachricht mehr angekommen. Daher delta'en wir bzgl. der BaseLine!
         DeltaFrameNr        =0;
         OldStatePVSEntityIDs=&EmptyArray;
     }
@@ -283,8 +283,8 @@ void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID
 
 
     OutData.WriteByte(SC1_FrameInfo);
-    OutData.WriteLong(m_ServerFrameNr);     // What we are delta'ing to   (Frame, für das wir Informationen schicken)
-    OutData.WriteLong(DeltaFrameNr);        // What we are delta'ing from (Frame, auf das wir uns beziehen (0 für BaseLine))
+    OutData.WriteLong(m_ServerFrameNr);     // What we are delta'ing to   (Frame, fÃ¼r das wir Informationen schicken)
+    OutData.WriteLong(DeltaFrameNr);        // What we are delta'ing from (Frame, auf das wir uns beziehen (0 fÃ¼r BaseLine))
 
 
     unsigned long OldIndex=0;
@@ -317,8 +317,8 @@ void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID
             // Diesen Entity gab es schon im alten Frame.
             // Hierhin kommen wir nur, wenn 'OldStatePVSEntityIDs' nicht leer ist, vergleiche mit obigem Code!
             // PRINZIPIELL geht dann die Differenz 'ServerFrameNr-ClientFrameNr' in Ordnung, ebenfalls nach obigem Code.
-            // TATSÄCHLICH wäre noch denkbar, daß der Entity mit ID 'NewEntityID' erst neu erschaffen wurde,
-            // d.h. jünger ist als der Client, und deshalb die Differenz doch zu groß ist!
+            // TATSÃ„CHLICH wÃ¤re noch denkbar, daÃŸ der Entity mit ID 'NewEntityID' erst neu erschaffen wurde,
+            // d.h. jÃ¼nger ist als der Client, und deshalb die Differenz doch zu groÃŸ ist!
             // Dies wird aber von der Logik hier vermieden, denn ein solcher neuer Entity kann ja nicht schon im alten Frame vorgekommen sein!
             // Mit anderen Worten: Der folgende Aufruf sollte NIEMALS scheitern, falls doch, ist das ein fataler Fehler, der intensives Debugging erfordert.
             // Dennoch ist es wahrscheinlich (??) nicht notwendig, den Client bei Auftreten dieses Fehler zu disconnecten.
@@ -334,7 +334,7 @@ void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID
         if (OldEntityID>NewEntityID)
         {
             // Dies ist ein neuer Entity, sende ihn von der BaseLine aus.
-            // Deswegen kann der folgende Aufruf (gemäß der Spezifikation von WriteDeltaEntity()) auch nicht scheitern!
+            // Deswegen kann der folgende Aufruf (gemÃ¤ÃŸ der Spezifikation von WriteDeltaEntity()) auch nicht scheitern!
             if (!SkipEntity)
                 m_EngineEntities[NewEntityID]->WriteDeltaEntity(true /* send from baseline? */, 0, OutData, true);
 
@@ -399,7 +399,7 @@ unsigned long CaServerWorldT::CreateNewEntityFromBasicInfo(const std::map<std::s
         // Should we copy the Properties into the Lua entity instance, into the C++ entity instance, or nowhere (just keep the std::map<> pointer around)?
         // See   svn log -r 301   for one argument for the C++ instance.
 
-        // Muß dies VOR dem Erzeugen des EngineEntitys tun, denn sonst stimmt dessen BaseLine nicht!
+        // MuÃŸ dies VOR dem Erzeugen des EngineEntitys tun, denn sonst stimmt dessen BaseLine nicht!
         if (PlayerName!=NULL) NewBaseEntity->ProcessConfigString(PlayerName, "PlayerName");
         if (ModelName !=NULL) NewBaseEntity->ProcessConfigString(ModelName , "ModelName" );
 

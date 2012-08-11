@@ -50,7 +50,7 @@ void BspTreeBuilderT::RemoveOuterFaces()
             FaceNr--;
         }
 
-    // Lösche den nun ohnehin unbrauchbaren BSP-Tree.
+    // LÃ¶sche den nun ohnehin unbrauchbaren BSP-Tree.
     Nodes .Clear();
     Leaves.Clear();
 

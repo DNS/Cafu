@@ -33,7 +33,7 @@ void BspTreeBuilderT::ChopUpForMaxLightMapSize()
         // FaceChildren whose materials specify that they don't want a lightmap generated can be skipped.
         if (!FaceChildren[FaceNr]->Material->UsesGeneratedLightMap()) continue;
 
-        // Bestimme die Grˆﬂe der LightMap
+        // Bestimme die Gr√∂√üe der LightMap
         VectorT U;
         VectorT V;
 
@@ -57,14 +57,14 @@ void BspTreeBuilderT::ChopUpForMaxLightMapSize()
             if (v>MaxV) MaxV=v;
         }
 
-        // KLEINER TIP: Sollte die Berechnung der LightMap-Koordinaten jemals der der SHLMap-Koordinaten angepaﬂt werden,
-        // sodaﬂ Patches sich immer integral ¸berlappen (wie es auch in der TODO-Liste steht), kann man (alle) Code-Stellen,
-        // die einer ƒnderung bed¸rfen, mit dem Durchsuchen des D:\Projects Verzeichnisses nach "SmallestU" finden.
+        // KLEINER TIP: Sollte die Berechnung der LightMap-Koordinaten jemals der der SHLMap-Koordinaten angepa√üt werden,
+        // soda√ü Patches sich immer integral √ºberlappen (wie es auch in der TODO-Liste steht), kann man (alle) Code-Stellen,
+        // die einer √Ñnderung bed√ºrfen, mit dem Durchsuchen des D:\Projects Verzeichnisses nach "SmallestU" finden.
         // Ich bin mir nicht 100% sicher, ob das wirklich ALLE Stellen findet, das ist aber ein sehr guter Anfang!
 
-        // Um hier Rundungsfehler zu vermeiden (die definitive Grˆﬂe wird erst in CalculateFullBrightLightMaps() ermittelt)
-        // bestimmen wir SizeS und SizeT mit einem Sicherheitszuschlag von 1. So wird sichergestellt, daﬂ auch im Falle einer
-        // fehlerhaften Rundung in CalculateFullBrightLightMaps() keine LightMap die zul‰ssige Grˆﬂe ¸berschreitet!
+        // Um hier Rundungsfehler zu vermeiden (die definitive Gr√∂√üe wird erst in CalculateFullBrightLightMaps() ermittelt)
+        // bestimmen wir SizeS und SizeT mit einem Sicherheitszuschlag von 1. So wird sichergestellt, da√ü auch im Falle einer
+        // fehlerhaften Rundung in CalculateFullBrightLightMaps() keine LightMap die zul√§ssige Gr√∂√üe √ºberschreitet!
         unsigned long SizeS=(unsigned long)ceil((MaxU-MinU)/cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize)+2+1;
         unsigned long SizeT=(unsigned long)ceil((MaxV-MinV)/cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize)+2+1;
 
@@ -76,7 +76,7 @@ void BspTreeBuilderT::ChopUpForMaxLightMapSize()
                              "    Maybe you wanted to use a material with a lightmap other than \"$lightmap\" (or no lightmap at all)?\n\n");
         }
 
-        // LightMaps d¸rfen maximal SIZE_S*SIZE_T groﬂ sein, andernfalls teile die Face in der Mitte bzgl. der betreffenden Achse.
+        // LightMaps d√ºrfen maximal SIZE_S*SIZE_T gro√ü sein, andernfalls teile die Face in der Mitte bzgl. der betreffenden Achse.
         if (SizeS>cf::SceneGraph::LightMapManT::SIZE_S)
         {
             const Plane3T<double> SplitPlane(U, 0.5*(MinU+MaxU));
@@ -85,8 +85,8 @@ void BspTreeBuilderT::ChopUpForMaxLightMapSize()
 
             ArrayT< Polygon3T<double> > SplitResult=FaceChildren[FaceNr]->Polygon.GetSplits(SplitPlane, MapT::RoundEpsilon);
 
-            // Hier sollte niemals ein Fehler erkannt werden. Falls doch: Programm so erweitern, daﬂ die Coords
-            // der betroffenen Face ausgegeben werden, sodaﬂ der User im Map-Editor das Problem selbst beheben kann!
+            // Hier sollte niemals ein Fehler erkannt werden. Falls doch: Programm so erweitern, da√ü die Coords
+            // der betroffenen Face ausgegeben werden, soda√ü der User im Map-Editor das Problem selbst beheben kann!
             if (!SplitResult[0].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist) ||
                 !SplitResult[1].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist)) Error("Split caused bad polygon!");
 
@@ -107,8 +107,8 @@ void BspTreeBuilderT::ChopUpForMaxLightMapSize()
 
             ArrayT< Polygon3T<double> > SplitResult=FaceChildren[FaceNr]->Polygon.GetSplits(SplitPlane, MapT::RoundEpsilon);
 
-            // Hier sollte niemals ein Fehler erkannt werden. Falls doch: Programm so erweitern, daﬂ die Coords
-            // der betroffenen Face ausgegeben werden, sodaﬂ der User im Map-Editor das Problem selbst beheben kann!
+            // Hier sollte niemals ein Fehler erkannt werden. Falls doch: Programm so erweitern, da√ü die Coords
+            // der betroffenen Face ausgegeben werden, soda√ü der User im Map-Editor das Problem selbst beheben kann!
             if (!SplitResult[0].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist) ||
                 !SplitResult[1].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist)) Error("Split caused bad polygon!");
 
@@ -126,7 +126,7 @@ void BspTreeBuilderT::ChopUpForMaxLightMapSize()
 }
 
 
-// Der Code dieser Funktion ist sehr ‰hnlich zu ChopUpForMaxLightMapSize().
+// Der Code dieser Funktion ist sehr √§hnlich zu ChopUpForMaxLightMapSize().
 void BspTreeBuilderT::CreateFullBrightLightMaps()
 {
     Console->Print(cf::va("\n%-50s %s\n", "*** Create Default LightMaps ***", GetTimeSinceProgramStart()));

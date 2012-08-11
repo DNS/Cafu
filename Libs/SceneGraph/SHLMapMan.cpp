@@ -274,7 +274,7 @@ bool SHLMapManT::AllocateHelper(unsigned long SizeS, unsigned long SizeT, unsign
 
         if (s2==SizeS)
         {
-            // Gültige Position gefunden
+            // GÃ¼ltige Position gefunden
             PosS=s;
             PosT=Best=Best2;
         }

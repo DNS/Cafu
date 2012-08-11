@@ -42,16 +42,16 @@ void BspTreeBuilderT::CreateLeafPortals(unsigned long LeafNr, const ArrayT< Plan
             NewPortals[NewPortals.Size()-1].Plane=NodeList[Nr];
         }
 
-    // Hier ist auch denkbar, daß Portals mit 0 Vertices zurückkommen (outer leaves)!
-    // (Auch ganz normale gültige Portale in outer leaves sind denkbar!)
+    // Hier ist auch denkbar, daÃŸ Portals mit 0 Vertices zurÃ¼ckkommen (outer leaves)!
+    // (Auch ganz normale gÃ¼ltige Portale in outer leaves sind denkbar!)
     Polygon3T<double>::Complete(NewPortals, MapT::RoundEpsilon);
 
     for (unsigned long PortalNr=0; PortalNr<NewPortals.Size(); PortalNr++)
     {
         const Polygon3T<double>& Portal=NewPortals[PortalNr];
 
-        // In degenerierten Grenzfällen (in Gegenwart von Splittern) können auch andere ungültige Polygone entstehen
-        // (z.B. mehrere Vertices quasi auf einer Edge), sodaß wir explizit die Gültigkeit prüfen.
+        // In degenerierten GrenzfÃ¤llen (in Gegenwart von Splittern) kÃ¶nnen auch andere ungÃ¼ltige Polygone entstehen
+        // (z.B. mehrere Vertices quasi auf einer Edge), sodaÃŸ wir explizit die GÃ¼ltigkeit prÃ¼fen.
         // if (Portal.Vertices.Size()<3) continue;    // Ist in .IsValid() enthalten!
         if (!Portal.IsValid(MapT::RoundEpsilon, MapT::MinVertexDist)) continue;
 
@@ -115,7 +115,7 @@ void BspTreeBuilderT::Portalize()
 
     unsigned long TotalNrOfPortals=0;
 
-    // Kommentare des ehem. Portalize berücksichtigen!!!
+    // Kommentare des ehem. Portalize berÃ¼cksichtigen!!!
     ArrayT< Plane3T<double> > NodeList;
 
     BuildBSPPortals(0, NodeList);
@@ -133,24 +133,24 @@ void BspTreeBuilderT::Portalize()
                 const Polygon3T<double>&         CurrentPortal=Leaves[LeafNr].Portals[PortalNr];
 
                 // Wenn das Material der CurrentFace "durchsichtig" ist, d.h. BSP Portale nicht clippt
-                // bzw. nicht solid für sie ist, mache weiter (und lasse das CurrentPortal unberührt).
+                // bzw. nicht solid fÃ¼r sie ist, mache weiter (und lasse das CurrentPortal unberÃ¼hrt).
                 if ((CurrentFace->Material->ClipFlags & MaterialT::Clip_BspPortals)==0) continue;
 
-                // Wenn die CurrentFace das CurrentPortal nicht überlappt, mache weiter.
+                // Wenn die CurrentFace das CurrentPortal nicht Ã¼berlappt, mache weiter.
                 if (!CurrentFace->Polygon.Overlaps(CurrentPortal, false, MapT::RoundEpsilon)) continue;
 
                 // Zerschneide das CurrentPortal entlang der Edges der CurrentFace.
                 ArrayT< Polygon3T<double> > NewPortals;
                 CurrentPortal.GetChoppedUpAlong(CurrentFace->Polygon, MapT::RoundEpsilon, NewPortals);
 
-                // Das letzte der NewPortals überdeckt sich mit der Face, daher löschen wir es.
+                // Das letzte der NewPortals Ã¼berdeckt sich mit der Face, daher lÃ¶schen wir es.
                 NewPortals.DeleteBack();
 
                 // Das alte Portal wird nicht mehr gebraucht.
                 Leaves[LeafNr].Portals[PortalNr]=Leaves[LeafNr].Portals[Leaves[LeafNr].Portals.Size()-1];
                 Leaves[LeafNr].Portals.DeleteBack();
 
-                // Dafür die Splitter anhängen.
+                // DafÃ¼r die Splitter anhÃ¤ngen.
                 for (unsigned long PNr=0; PNr<NewPortals.Size(); PNr++)
                     if (NewPortals[PNr].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist))
                         // Another very serious problem is the fact that we sometimes self-create leaks,

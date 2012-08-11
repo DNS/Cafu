@@ -33,10 +33,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /// This class represents a plane in three-dimensional space.
 /// Eigenschaften der Ebene (Vereinbarungen):
 /// 1. Die Ebenengleichung lautet VectorDot(UnitNormal,x)=Dist
-/// 2. Der Normalenvektor muß stets der EINHEITSnormalenvektor sein (Länge 1)
-/// 3. ==> Einen Stützvektor erhalten wir aus VectorScale(UnitNormal,Dist)
+/// 2. Der Normalenvektor muÃŸ stets der EINHEITSnormalenvektor sein (LÃ¤nge 1)
+/// 3. ==> Einen StÃ¼tzvektor erhalten wir aus VectorScale(UnitNormal,Dist)
 /// 4. Der vordere Halbraum / die Oberseite der Ebene liegt in Richtung des Normalenvektors
-///    (Siehe auch: Mathematikheft Nr. 5, 24.01.96, "Die Bedeutung des Vorzeichens", Fälle 2+4)
+///    (Siehe auch: Mathematikheft Nr. 5, 24.01.96, "Die Bedeutung des Vorzeichens", FÃ¤lle 2+4)
 template<class T>
 class Plane3T
 {
@@ -62,8 +62,8 @@ class Plane3T
     /// @throws DivisionByZeroE if cross(C-A, B-A) yields a vector shorter than Epsilon.
     Plane3T(const Vector3T<T>& A, const Vector3T<T>& B, const Vector3T<T>& C, const T Epsilon)
     {
-        // Gegenüber einer Herleitung einer solchen Ebene per Hand wurde das Vorzeichen von Dist umgedreht,
-        // da die Ebenengleichung und der Stützvektor sonst weniger schön aussähen (das entspräche der
+        // GegenÃ¼ber einer Herleitung einer solchen Ebene per Hand wurde das Vorzeichen von Dist umgedreht,
+        // da die Ebenengleichung und der StÃ¼tzvektor sonst weniger schÃ¶n aussÃ¤hen (das entsprÃ¤che der
         // Ebenengleichung UnitNormal*x+Dist=0 anstatt UnitNormal*x-Dist=0).
         Normal=normalize(cross(C-A, B-A), Epsilon);
         Dist  =dot(A, Normal);
@@ -85,16 +85,16 @@ class Plane3T
     void GetSpanVectors(Vector3T<T>& U, Vector3T<T>& V) const
     {
         // Rundungsfehler sind ein echtes Problem:
-        // Zwei Planes mit SEHR ähnlichem Normalenvektor können trotzdem völlig verschiedene Spannvektoren bekommen.
+        // Zwei Planes mit SEHR Ã¤hnlichem Normalenvektor kÃ¶nnen trotzdem vÃ¶llig verschiedene Spannvektoren bekommen.
         // Betrachte z.B. Planes mit Normalenvektor (sqrt(2)/2, sqrt(2)/2, 0).
-        // Minimale Abweichungen können bereits entstehen, wenn der Compiler zur Optimierung floating-point
-        // Zwischenergebnisse in den Registern der FPU stehen läßt (OpenWatcom mit -otexan switches).
-        // Demgegenüber werden Zwischenergebnisse ohne Optimierung (unter Linux/g++ sogar immer) in eine 8-Byte
-        // Speicherzelle geschrieben. Weil FPU Register mehr Bits (d.h. Präzision) haben, kommt es im letzteren
-        // Fall zu einer Rundung, was wiederum dazu führen kann, daß in einem Fall die x-Komponente des obigen
-        // Beispielvektors größer ist als die y-Komponente, und im anderen Fall kleiner.
-        // Das Problem tritt also verschärft mit "45° Planes" auf. Es läßt sich nicht aus der Welt schaffen,
-        // aber wir können es auf andere, ganz selten vorkommende Winkel "verschieben", indem wir nach den
+        // Minimale Abweichungen kÃ¶nnen bereits entstehen, wenn der Compiler zur Optimierung floating-point
+        // Zwischenergebnisse in den Registern der FPU stehen lÃ¤ÃŸt (OpenWatcom mit -otexan switches).
+        // DemgegenÃ¼ber werden Zwischenergebnisse ohne Optimierung (unter Linux/g++ sogar immer) in eine 8-Byte
+        // Speicherzelle geschrieben. Weil FPU Register mehr Bits (d.h. PrÃ¤zision) haben, kommt es im letzteren
+        // Fall zu einer Rundung, was wiederum dazu fÃ¼hren kann, daÃŸ in einem Fall die x-Komponente des obigen
+        // Beispielvektors grÃ¶ÃŸer ist als die y-Komponente, und im anderen Fall kleiner.
+        // Das Problem tritt also verschÃ¤rft mit "45Â° Planes" auf. Es lÃ¤ÃŸt sich nicht aus der Welt schaffen,
+        // aber wir kÃ¶nnen es auf andere, ganz selten vorkommende Winkel "verschieben", indem wir nach den
         // ersten drei Nachkommastellen wie unten gezeigt selbst runden.
         int max=-99999;
 
@@ -102,7 +102,7 @@ class Plane3T
         int y=int(fabs(Normal.y*1000.0)); if (y>max) { max=y; U=Vector3T<T>(1, 0, 0); }
         int z=int(fabs(Normal.z*1000.0)); if (z>max) { max=z; U=Vector3T<T>(1, 0, 0); }
 
-        // Projeziere U auf die durch den Ursprung verschobene Plane, um sicherzustellen, daß U in ihr liegt.
+        // Projeziere U auf die durch den Ursprung verschobene Plane, um sicherzustellen, daÃŸ U in ihr liegt.
         // VectorDot(Normal, U) entspricht PlaneDist(Plane3T(Normal, 0), U).
         U=normalize(U-scale(Normal, dot(Normal, U)), T(0.0));
 
@@ -168,7 +168,7 @@ class Plane3T
     /// @throws DivisionByZeroE if AB parallels the plane too much.
     Vector3T<T> GetIntersection(const Vector3T<T>& A, const Vector3T<T>& B, const T cosEpsilon) const
     {
-        // Die Geradengleichung x=a+r*(b-a) einfach in die Hessesche Normalenform der Ebene einsetzen und nach r auflösen.
+        // Die Geradengleichung x=a+r*(b-a) einfach in die Hessesche Normalenform der Ebene einsetzen und nach r auflÃ¶sen.
         // Das erhaltene r wird nun einfach wiederum in die Geradengleichung eingesetzt --> {S}.
         const Vector3T<T> AB=B-A;
         const T     cosAngle=dot(Normal, AB);
@@ -202,10 +202,10 @@ class Plane3T
     /// @throws DivisionByZeroE if the intersection of the three planes has not exactly one solution.
     Vector3T<T> static GetIntersection(const Plane3T& P1, const Plane3T& P2, const Plane3T& P3)
     {
-        // Ein Gaußsches Gleichungssystem erhält man aus den Koordinatenformen der Ebenen. Hier wird der Nenner genau dann Null,
-        // wenn es keine, unendlich viele bzw. NICHT genau EINE Lösung gibt. Keine Lösung gibt es, wenn mindestens zwei Ebenen
-        // parallel sind und sie nicht ineinanderliegen. Unendlich viele Lösungen gibt es, wenn mindestens zwei Ebenen parallel
-        // sind und sie ineinanderliegen. Lösung nach dem Determinantenverfahren bzw. der Cramerschen Regel.
+        // Ein GauÃŸsches Gleichungssystem erhÃ¤lt man aus den Koordinatenformen der Ebenen. Hier wird der Nenner genau dann Null,
+        // wenn es keine, unendlich viele bzw. NICHT genau EINE LÃ¶sung gibt. Keine LÃ¶sung gibt es, wenn mindestens zwei Ebenen
+        // parallel sind und sie nicht ineinanderliegen. Unendlich viele LÃ¶sungen gibt es, wenn mindestens zwei Ebenen parallel
+        // sind und sie ineinanderliegen. LÃ¶sung nach dem Determinantenverfahren bzw. der Cramerschen Regel.
         // Siehe Mathematikbuch Analytische Geometrie, Seiten 157 bis 163.
         const Vector3T<T> A(P1.Normal.x, P2.Normal.x, P3.Normal.x);
         const Vector3T<T> B(P1.Normal.y, P2.Normal.y, P3.Normal.y);

@@ -37,14 +37,14 @@ template<class T> void Plane3T<T>::ConvexHull(const ArrayT< Vector3T<T> >& Point
     HullPlanes.Overwrite();
     if (HullPlanesPIs) HullPlanesPIs->Overwrite();
 
-    // Bilde die konvexe Hülle über die Points, um neue Ebenen zu erhalten.
+    // Bilde die konvexe HÃ¼lle Ã¼ber die Points, um neue Ebenen zu erhalten.
     // Uhhh, this is essentially in O(n^4)...
     for (unsigned long P1Nr=0; P1Nr+2<Points.Size(); P1Nr++)
         for (unsigned long P2Nr=P1Nr+1; P2Nr+1<Points.Size(); P2Nr++)
             for (unsigned long P3Nr=P2Nr+1; P3Nr<Points.Size(); P3Nr++)
             {
-                // Ebenen sollen nicht doppelt eingefügt werden.
-                // Prüfe daher zuerst, ob es bereits eine Ebene gibt, die die drei Vertices enthält.
+                // Ebenen sollen nicht doppelt eingefÃ¼gt werden.
+                // PrÃ¼fe daher zuerst, ob es bereits eine Ebene gibt, die die drei Vertices enthÃ¤lt.
                 unsigned long PlaneNr;
 
                 for (PlaneNr=0; PlaneNr<HullPlanes.Size(); PlaneNr++)

@@ -32,16 +32,16 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 // ALLGEMEINE BEMERKUNGEN ZU FACES, SHLMAPS UND PATCHES:
 // Wir definieren eine SHLMap als ein Rechteck aus s*t quadratischen Patches, die jeweils eine Face "abdecken".
-// Man stelle sich die unendlich große Ebene, in der die Face liegt, als von quadratischen Patches überzogen vor,
-// wie ein kariertes Mathe-Schulheft. Wichtig ist nun, daß der Ursprung des Patch-Rasters *ganzzahlig* mit dem
-// World-Origin zusammenfällt. D.h., wenn man die Ebene entlang ihres Normalenvektors solange verschiebt, bis der
-// World-Origin in ihr liegt, muß ein Schnittpunkt des Patch-Rasters damit zusammenfallen.
-// Im Gegensatz zu einem früheren Ansatz, bei dem die Verschiebung des Patch-Rasters sich an der kleinsten s- und t-Koordinate
-// der Face orientiert hat, stellen wir mit diesem Vorgehen sicher, daß sich Patches von benachbarte Faces stets *vollständig*
-// überlappen (oder gar nicht). Beliebige teilweise Überlappungen kommen nicht mehr vor.
-// Das Rechteck sollte bei gegebener Seitenlänge der Patches und gegebener Orientierung (entlang des UV-Koordinatensystems,
-// welches man mit PlaneT::GetSpanVectors() erhält) möglichst kleine s- und t-Abmessungen haben.
-// Außerdem ziehen wir noch einen 1 Patch breiten Rahmen drumherum. Damit soll dem OpenGL-Renderer Rechnung getragen werden,
+// Man stelle sich die unendlich groÃŸe Ebene, in der die Face liegt, als von quadratischen Patches Ã¼berzogen vor,
+// wie ein kariertes Mathe-Schulheft. Wichtig ist nun, daÃŸ der Ursprung des Patch-Rasters *ganzzahlig* mit dem
+// World-Origin zusammenfÃ¤llt. D.h., wenn man die Ebene entlang ihres Normalenvektors solange verschiebt, bis der
+// World-Origin in ihr liegt, muÃŸ ein Schnittpunkt des Patch-Rasters damit zusammenfallen.
+// Im Gegensatz zu einem frÃ¼heren Ansatz, bei dem die Verschiebung des Patch-Rasters sich an der kleinsten s- und t-Koordinate
+// der Face orientiert hat, stellen wir mit diesem Vorgehen sicher, daÃŸ sich Patches von benachbarte Faces stets *vollstÃ¤ndig*
+// Ã¼berlappen (oder gar nicht). Beliebige teilweise Ãœberlappungen kommen nicht mehr vor.
+// Das Rechteck sollte bei gegebener SeitenlÃ¤nge der Patches und gegebener Orientierung (entlang des UV-Koordinatensystems,
+// welches man mit PlaneT::GetSpanVectors() erhÃ¤lt) mÃ¶glichst kleine s- und t-Abmessungen haben.
+// AuÃŸerdem ziehen wir noch einen 1 Patch breiten Rahmen drumherum. Damit soll dem OpenGL-Renderer Rechnung getragen werden,
 // der zu jeder (s,t)-Koordinate den Mittelwert des umliegenden 2x2-Quadrats bestimmt (bilinear Filtering).
 // Betrachte dazu auch die Darstellung im Cafu Tech-Archive vom 28. Oktober 2003.
 
@@ -138,7 +138,7 @@ static void Error(const char* ErrorText, ...)
 }
 
 
-const double REFLECTIVITY=0.3;  // Gleiche Reflektivität für alle Faces und für alle Wellenlängen
+const double REFLECTIVITY=0.3;  // Gleiche ReflektivitÃ¤t fÃ¼r alle Faces und fÃ¼r alle WellenlÃ¤ngen
 const double Pi          =3.14159265358979323846;
 
 // Defined in CaSHLWorld.hpp now!
@@ -179,7 +179,7 @@ void RadiateTransfer(const CaSHLWorldT& CaSHLWorld, unsigned long Face_i, unsign
     while (Big_P_i_SHCoeffs_UnradiatedTransfer.Size()<NR_OF_SH_COEFFS) Big_P_i_SHCoeffs_UnradiatedTransfer.PushBack(0.0);
 
     // Bilde den Positions-Durchschnitt bzw. die UnradiatedTransfer-Summe aller Patches im n*n Quadrat,
-    // wobei (s_i, t_i) die linke obere Ecke ist und nur Patches innerhalb der Face berücksichtigt werden.
+    // wobei (s_i, t_i) die linke obere Ecke ist und nur Patches innerhalb der Face berÃ¼cksichtigt werden.
     for (char y=0; y<n; y++)
         for (char x=0; x<n; x++)
         {
@@ -214,9 +214,9 @@ void RadiateTransfer(const CaSHLWorldT& CaSHLWorld, unsigned long Face_i, unsign
     // Betrachte alle Patches aller Faces im PVS der Face Face_i.
     for (unsigned long Face_j=0; Face_j<Map.FaceChildren.Size(); Face_j++)
     {
-        // Vermeide alle unnötigen und evtl. rundungsfehlergefährdeten Berechnungen.
-        // Die folgende Zeile fängt auch alle Fälle ab, in denen Face_j in der Ebene von Face_i liegt
-        // und insb. für die Face_i==Face_j gilt. Vgl. die Erstellung und Optimierung der FacePVS-Matrix!
+        // Vermeide alle unnÃ¶tigen und evtl. rundungsfehlergefÃ¤hrdeten Berechnungen.
+        // Die folgende Zeile fÃ¤ngt auch alle FÃ¤lle ab, in denen Face_j in der Ebene von Face_i liegt
+        // und insb. fÃ¼r die Face_i==Face_j gilt. Vgl. die Erstellung und Optimierung der FacePVS-Matrix!
         if (FacePVS[Face_i][Face_j]==NO_VISIBILITY) continue;
         if (Map.FaceChildren[Face_j]->Polygon.Plane.GetDistance(Big_P_i_Coord)<0.1) continue;
 
@@ -260,19 +260,19 @@ void RadiateTransfer(const CaSHLWorldT& CaSHLWorld, unsigned long Face_i, unsign
 #endif
 
             // 'Alternative', einfache Herleitung des Form-Faktors:
-            // Betrachte die Halbkugel über dem Patch i mit Radius RayLength. RayLength soll groß genug sein,
-            // d.h. Patch j soll problemlos als ein Teil der Halbkugeloberfläche betrachtet werden können.
-            // Die prozentuale Sichtbarkeit erhalten wir also sofort aus A_j/O, wobei A_j der Flächeninhalt des Patches j ist
-            // und O der Oberflächeninhalt der Halbkugel, O=0.5*4*pi*RayLength^2.
-            // cos1 und cos2 berücksichtigen dann noch die gegenseitige Verdrehung der Patches und wir sind fertig.
-            // Einziges Problem: Obige Herleitung enthält noch einen Faktor 1/2, für den ich leider keine Erklärung habe.
-            // Noch eine Alternative: Man muß RayLength ausdrücken in Patch-Längen, nicht in Millimetern!
+            // Betrachte die Halbkugel Ã¼ber dem Patch i mit Radius RayLength. RayLength soll groÃŸ genug sein,
+            // d.h. Patch j soll problemlos als ein Teil der HalbkugeloberflÃ¤che betrachtet werden kÃ¶nnen.
+            // Die prozentuale Sichtbarkeit erhalten wir also sofort aus A_j/O, wobei A_j der FlÃ¤cheninhalt des Patches j ist
+            // und O der OberflÃ¤cheninhalt der Halbkugel, O=0.5*4*pi*RayLength^2.
+            // cos1 und cos2 berÃ¼cksichtigen dann noch die gegenseitige Verdrehung der Patches und wir sind fertig.
+            // Einziges Problem: Obige Herleitung enthÃ¤lt noch einen Faktor 1/2, fÃ¼r den ich leider keine ErklÃ¤rung habe.
+            // Noch eine Alternative: Man muÃŸ RayLength ausdrÃ¼cken in Patch-LÃ¤ngen, nicht in Millimetern!
          // double FormFactor_ij=PATCH_SIZE*PATCH_SIZE/3.14159265359*cos1 *cos2 /(RayLength*RayLength);
             double FormFactor_ij=PATCH_SIZE*PATCH_SIZE/3.14159265359*cos1_*cos2_;
 
-            // Die Flächeninhalte scheinen sich herauszukürzen!?
+            // Die FlÃ¤cheninhalte scheinen sich herauszukÃ¼rzen!?
             // (Im FormFactor ist P_j.Area/P_i.Area enthalten, und dieser wird hier multipliziert mit P_i.Area/P_j.Area.)
-            // Wir müssen nichtmal Big_P_i_Count hineinmultiplizieren, da Big_P_i_UnradiatedEnergy schon die Summe der Einzelpatches ist!
+            // Wir mÃ¼ssen nichtmal Big_P_i_Count hineinmultiplizieren, da Big_P_i_UnradiatedEnergy schon die Summe der Einzelpatches ist!
             for (unsigned long CoeffNr=0; CoeffNr<Big_P_i_SHCoeffs_UnradiatedTransfer.Size(); CoeffNr++)
             {
                 const double DeltaTransfer=Big_P_i_SHCoeffs_UnradiatedTransfer[CoeffNr]*REFLECTIVITY*FormFactor_ij;
@@ -374,7 +374,7 @@ void DirectLighting(const CaSHLWorldT& CaSHLWorld, const unsigned long SqrtNrOfS
     const unsigned long      NR_OF_SH_COEFFS=cf::SceneGraph::SHLMapManT::NrOfBands * cf::SceneGraph::SHLMapManT::NrOfBands;
 
 
-    // Bilde zuerst ein LookUp-Array, das die Nummern aller Faces mit Sky-Texture enthält.
+    // Bilde zuerst ein LookUp-Array, das die Nummern aller Faces mit Sky-Texture enthÃ¤lt.
     for (FaceNr=0; FaceNr<Map.FaceChildren.Size(); FaceNr++)
         if (length(Vector3T<double>(Map.FaceChildren[FaceNr]->Material->meta_SunLight_Irr))>0.1 &&
             length(Vector3T<double>(Map.FaceChildren[FaceNr]->Material->meta_SunLight_Dir))>0.1) SkyFaces.PushBack(FaceNr);
@@ -510,7 +510,7 @@ unsigned long BounceLighting(const CaSHLWorldT& CaSHLWorld, const char BLOCK_SIZ
         unsigned long t_i   =0;
         double        BestUT=0;     // Best unradiated transfer amount found.
 
-        // Finde eine Face mit einem Patch mit einem großen "Unradiated Transfer" (nicht notwendigerweise die größte, damit es schnell geht).
+        // Finde eine Face mit einem Patch mit einem groÃŸen "Unradiated Transfer" (nicht notwendigerweise die grÃ¶ÃŸte, damit es schnell geht).
         unsigned long FaceNr;
 
         for (FaceNr=0; FaceNr<Map.FaceChildren.Size(); FaceNr++)
@@ -559,11 +559,11 @@ unsigned long BounceLighting(const CaSHLWorldT& CaSHLWorld, const char BLOCK_SIZ
         }
 
         // Sollte der BestUT unter StopUT sein, wird hier nach einem besseren Wert gesucht.
-        // Beim erstbesseren Wert wird dieser genommen und abgebrochen, ansonsten gesucht bis zum Schluß.
-        // Wenn alle Faces nach dem besten Wert durchsucht werden sollen, muß "&& BestUT<StopUT" auskommentiert werden.
+        // Beim erstbesseren Wert wird dieser genommen und abgebrochen, ansonsten gesucht bis zum SchluÃŸ.
+        // Wenn alle Faces nach dem besten Wert durchsucht werden sollen, muÃŸ "&& BestUT<StopUT" auskommentiert werden.
         if (BestUT<StopUT)
         {
-            FullSearchCount++;      // Zähle, wie oft wir alles abgesucht haben!
+            FullSearchCount++;      // ZÃ¤hle, wie oft wir alles abgesucht haben!
 
             for (FaceNr=0; FaceNr<Map.FaceChildren.Size() && BestUT<StopUT; FaceNr++)
             {
@@ -592,7 +592,7 @@ unsigned long BounceLighting(const CaSHLWorldT& CaSHLWorld, const char BLOCK_SIZ
         printf("Iteration%6lu, BestUT %6.2f, F_i%5lu, FullSearch%4lu (%5.1f%%)\r", IterationCount, BestUT, Face_i, FullSearchCount, 100.0*float(FullSearchCount)/float(IterationCount+1));
         fflush(stdout);
 
-        if (BestUT<StopUT)  // Es gab keinen besseren Wert mehr -- wir können also abbrechen!
+        if (BestUT<StopUT)  // Es gab keinen besseren Wert mehr -- wir kÃ¶nnen also abbrechen!
         {
             printf("\n");
             if (!AskForMore) break;
@@ -619,7 +619,7 @@ unsigned long BounceLighting(const CaSHLWorldT& CaSHLWorld, const char BLOCK_SIZ
         IterationCount++;
 
 #ifdef _WIN32
-        // TODO: Ein (sinnvolles!) 'kbhit()' Äquivalent für Linux muß erst noch gefunden werden...
+        // TODO: Ein (sinnvolles!) 'kbhit()' Ã„quivalent fÃ¼r Linux muÃŸ erst noch gefunden werden...
         if (_kbhit())
         {
             char Key=_getch(); if (Key==0) _getch();
@@ -647,28 +647,28 @@ void PostProcessBorders(const CaSHLWorldT& CaSHLWorld)
 {
     const cf::SceneGraph::BspTreeNodeT& Map=CaSHLWorld.GetBspTree();
 
-    // An dieser Stelle haben wir nun quasi drei Sorten von Patches für eine Face:
-    // a) Patches, die 'InsideFace' liegen, und das vollständig.
+    // An dieser Stelle haben wir nun quasi drei Sorten von Patches fÃ¼r eine Face:
+    // a) Patches, die 'InsideFace' liegen, und das vollstÃ¤ndig.
     // b) Patches, die 'InsideFace' liegen, aber nur teilweise (ihre Patch.Coord ist entsprechend verschoben!).
     // c) Patches, die nicht 'InsideFace' liegen.
-    // Für Patch-Sorten a) und b) hat unser Algorithmus Patch.TotalEnergy-Werte berechnet.
-    // Unsere Aufgabe hier ist im wesentlichen das sinnvolle Ausfüllen der TotalEnergy-Werte von Patches der Sorte c).
+    // FÃ¼r Patch-Sorten a) und b) hat unser Algorithmus Patch.TotalEnergy-Werte berechnet.
+    // Unsere Aufgabe hier ist im wesentlichen das sinnvolle AusfÃ¼llen der TotalEnergy-Werte von Patches der Sorte c).
     // Dies ist notwendig, da die Patches von OpenGL beim Rendern bilinear interpoliert werden (2x2-Array Durchschnitt),
-    // und deswegen ohne weitere Maßnahmen schwarze Ränder bekämen.
+    // und deswegen ohne weitere MaÃŸnahmen schwarze RÃ¤nder bekÃ¤men.
     printf("\n%-50s %s\n", "*** Post-Process Borders ***", GetTimeSinceProgramStart());
 
 
     // ERSTER TEIL
     // ***********
 
-    // Für alle Patches einer Face, die keinen SamplePoint innerhalb ihrer Face haben, ermittele ihren Wert aus dem
+    // FÃ¼r alle Patches einer Face, die keinen SamplePoint innerhalb ihrer Face haben, ermittele ihren Wert aus dem
     // Durchschnitt ihrer acht umliegenden Patches, sofern diese mit SamplePoints innerhalb der Face liegen.
     // Diese Methode ist sehr einfach und schnell, da sie immer nur eine Face gleichzeitig betrachtet,
-    // die Nachbarumgebung hat keinen Einfluß.
+    // die Nachbarumgebung hat keinen EinfluÃŸ.
     // Dennoch ist diese Schleife ein guter Anfang, und war vorher sogar der *einzige* Nachbearbeitungsschritt!
-    // TODO: Ein "Weighted Average" wäre vielleicht besser, zumindest die "Ecken" des 3x3-Feldes könnten u.U.
-    // schwächer eingebracht werden (z.B. als ob es ein Kreis mit Radius 1,5 wäre). Nochmal überdenken!
-    // Damit könnte dann wohl auch die Spezialbehandlung der Ränder entfallen!?
+    // TODO: Ein "Weighted Average" wÃ¤re vielleicht besser, zumindest die "Ecken" des 3x3-Feldes kÃ¶nnten u.U.
+    // schwÃ¤cher eingebracht werden (z.B. als ob es ein Kreis mit Radius 1,5 wÃ¤re). Nochmal Ã¼berdenken!
+    // Damit kÃ¶nnte dann wohl auch die Spezialbehandlung der RÃ¤nder entfallen!?
     for (unsigned long FaceNr=0; FaceNr<Map.FaceChildren.Size(); FaceNr++)
     {
         const cf::SceneGraph::FaceNodeT::SHLMapInfoT& SMI=Map.FaceChildren[FaceNr]->SHLMapInfo;
@@ -724,21 +724,21 @@ void PostProcessBorders(const CaSHLWorldT& CaSHLWorld)
     // ZWEITER TEIL
     // ************
 
-    // Betrachte im nächsten Schritt Faces, die in einer gemeinsamen Ebene nahe beieinander liegen, und versuche,
-    // den "Übergang" zu verbessern. Der vorangegangene erste Schritt eliminiert zwar Fehlfarben an den Rändern,
-    // die OpenGL's bilinear Filtering ansonsten ins Spiel gebracht hätte, an Stellen mit hohen Kontrasten
-    // ("scharfe" Schatten usw.) sieht man aber unbeabsichtigte, harte Übergänge an den Kanten solcher Faces.
-    // Der folgende Code eliminiert solche Sprünge nun größtenteils, indem er auch die Patches der anderen Faces betrachtet.
-    // Damit werden für die Ränder die "realen" Berechnungsergebnisse eingebracht, nicht einfach nur eigene Mittelwerte.
-    // Der folgende Code könnte algorithmisch effizienter geschrieben sein (z.B. Vorausberechnen von wiederkehrenden
+    // Betrachte im nÃ¤chsten Schritt Faces, die in einer gemeinsamen Ebene nahe beieinander liegen, und versuche,
+    // den "Ãœbergang" zu verbessern. Der vorangegangene erste Schritt eliminiert zwar Fehlfarben an den RÃ¤ndern,
+    // die OpenGL's bilinear Filtering ansonsten ins Spiel gebracht hÃ¤tte, an Stellen mit hohen Kontrasten
+    // ("scharfe" Schatten usw.) sieht man aber unbeabsichtigte, harte ÃœbergÃ¤nge an den Kanten solcher Faces.
+    // Der folgende Code eliminiert solche SprÃ¼nge nun grÃ¶ÃŸtenteils, indem er auch die Patches der anderen Faces betrachtet.
+    // Damit werden fÃ¼r die RÃ¤nder die "realen" Berechnungsergebnisse eingebracht, nicht einfach nur eigene Mittelwerte.
+    // Der folgende Code kÃ¶nnte algorithmisch effizienter geschrieben sein (z.B. Vorausberechnen von wiederkehrenden
     // Werten, statt diese jedesmal in einer Schleife neu zu berechnen), aber die praktische Laufzeit ist akzeptabel.
     //
     // Vorgehensweise:
-    // Zu jedem Patch P1 jeder Face suchen wir alle Patches Pi heraus, die irgendetwas zu P1 beitragen könnten.
-    // Dazu müssen sich P1 und die Pi insbesondere in der selben Ebene überlappen.
-    // Wegen der global einheitlichen Ausrichtung aller Patches in einer Ebene sind Überlappungen immer "ganz oder gar nicht".
-    // Jeder Patch wird klassifiziert, ob er vollständig in seiner Face liegt (INNER), auf dem Rand (PARTIAL),
-    // oder vollständig außerhalb (OUTER). Somit ergeben sich folgende Möglichkeiten:
+    // Zu jedem Patch P1 jeder Face suchen wir alle Patches Pi heraus, die irgendetwas zu P1 beitragen kÃ¶nnten.
+    // Dazu mÃ¼ssen sich P1 und die Pi insbesondere in der selben Ebene Ã¼berlappen.
+    // Wegen der global einheitlichen Ausrichtung aller Patches in einer Ebene sind Ãœberlappungen immer "ganz oder gar nicht".
+    // Jeder Patch wird klassifiziert, ob er vollstÃ¤ndig in seiner Face liegt (INNER), auf dem Rand (PARTIAL),
+    // oder vollstÃ¤ndig auÃŸerhalb (OUTER). Somit ergeben sich folgende MÃ¶glichkeiten:
     //
     // P1 \ Pi |  INNER  | PARTIAL |  OUTER
     // --------+---------+---------+---------
@@ -746,40 +746,40 @@ void PostProcessBorders(const CaSHLWorldT& CaSHLWorld)
     // PARTIAL |    21   |    22   |    23
     // OUTER   |    31   |    32   |    33
     //
-    // Die Fälle P1==INNER (11, 12, 13) interessieren uns nicht, da wir für solche P1 einwandfreie Berechnungsergebnisse haben,
+    // Die FÃ¤lle P1==INNER (11, 12, 13) interessieren uns nicht, da wir fÃ¼r solche P1 einwandfreie Berechnungsergebnisse haben,
     // und es keinen Grund gibt, mit anderen Werten (von Pi's) daran etwas herumzufummeln.
-    // Die Fälle Pi==OUTER (13, 23, 33) können wir auch direkt überspringen, weil es keinen Sinn macht, P1 irgendwie mit einem
-    // anderen OUTER-Patch zu modifizieren - dieser hat schließlich selbst keinen verwendbaren Wert.
-    // Der Fall 21 kann niemals vorkommen, denn ein Patch kann nicht vollständig in einer Face liegen, und teilweise in einer anderen
-    // (Faces überlappen sich nicht!). Es müssen also nur die Fälle 22, 31 und 32 betrachtet werden.
+    // Die FÃ¤lle Pi==OUTER (13, 23, 33) kÃ¶nnen wir auch direkt Ã¼berspringen, weil es keinen Sinn macht, P1 irgendwie mit einem
+    // anderen OUTER-Patch zu modifizieren - dieser hat schlieÃŸlich selbst keinen verwendbaren Wert.
+    // Der Fall 21 kann niemals vorkommen, denn ein Patch kann nicht vollstÃ¤ndig in einer Face liegen, und teilweise in einer anderen
+    // (Faces Ã¼berlappen sich nicht!). Es mÃ¼ssen also nur die FÃ¤lle 22, 31 und 32 betrachtet werden.
     //
-    // In allen drei verbleibenden Fällen gilt, daß ein Pi nur dann beitragen darf, wenn er damit kein "Light Bleeding" verursacht.
+    // In allen drei verbleibenden FÃ¤llen gilt, daÃŸ ein Pi nur dann beitragen darf, wenn er damit kein "Light Bleeding" verursacht.
     // "Light Bleeding" ist die Beeinflussung von P1 durch andere Patches Pi, deren Faces sich zwar nahe, aber in Wirklichkeit z.B.
-    // durch eine dünne "Wand" getrennt sind, oder die Patches liegen "um die Ecke".
+    // durch eine dÃ¼nne "Wand" getrennt sind, oder die Patches liegen "um die Ecke".
     // Um das "Light Bleeding" Problem zu minimieren, erlauben wir die Beeinflussung von P1 durch ein Pi nur dann, wenn ein Punkt,
-    // der garantiert in der Face von P1 und möglichst nahe bei P1 liegt, die Pi.Coord "sehen" kann.
+    // der garantiert in der Face von P1 und mÃ¶glichst nahe bei P1 liegt, die Pi.Coord "sehen" kann.
     // Analytisch mag das nicht 100%ig korrekt sein (???), ergibt in der Praxis aber einwandfreie Ergebnisse!
     //
-    // Fall 31 läßt sich nun leicht abhaken: Max. ein Pi ist möglich, und damit erhalten wir P1=Pi.
-    // Für Fall 32 erhalten wir P1="area-weighted average of the involved Pi".
+    // Fall 31 lÃ¤ÃŸt sich nun leicht abhaken: Max. ein Pi ist mÃ¶glich, und damit erhalten wir P1=Pi.
+    // FÃ¼r Fall 32 erhalten wir P1="area-weighted average of the involved Pi".
     //
-    // Fall 22 ist etwas schwieriger: Im Idealfall würden wir schreiben: P1="area-weighted average of the involved Pi and P1 itself".
-    // Dummerweise verändern wir damit P1, welches aber wiederum später eines der jetzigen Pi beeinflussen wird, wenn dieses Pi an der
-    // Reihe ist. Dann müßte P1 aber seinen Original-Wert haben, nicht den, den wir gerade dabei sind hineinzuschreiben.
-    // (Das sieht man auch daran, daß Fall 22 in obiger Matrix auf der Hauptdiagonalen liegt. Die beiden Fälle 31 und 32 (und 21) liegen
-    // im unteren linken Dreieck, während das rechte obere Dreieck (12, 13, 23) "inaktiv" ist. Deshalb sind 31 und 32 unproblematisch.)
-    // Lösung: Schreibe den gefundenen Wert nicht nur nach P1, sondern auch in ALLE beteiligten Pi. Das würde das Problem vollständig(!)
-    // lösen, denn spätere Mittelwertbildungen wären zwar redundant, kämen aber zu dem selben (korrekten) Ergebnis.
-    // Leider macht das "Light Bleeding"-Problem einen Strich durch die Rechnung! Wenn z.B. Pi={ P2, P3 }, dann könnte P1 von P2 beeinflußt
-    // werden, P3 aber wegen "Light Bleeding" vom Einfluß auf P1 ausgeschlossen werden. P2 könnte später aber sehr wohl von P1 UND P3 beeinflußt
-    // werden! P2 drücken wir aber nach obiger "Lösung" aber schon mal einen Mittelwert auf, und insgesamt kommt es zum falschen Ergebnis.
-    // INSGESAMT wäre die einzige WIRKLICHE Lösung, ein Backup aller Patches anzulegen, und alle Mittelwerte stets daraus zu bilden.
-    // Das verdoppelt aber sofort den Speicherbedarf, der ohnehin schon bei mehreren hundert MB liegt. Außerdem ist der bei
-    // der ersten "Lösung" entstehende Fehler wohl sehr selten und sehr klein. Konsequenz: Wir ignorieren ihn, und wenden die erste Lösung an!
+    // Fall 22 ist etwas schwieriger: Im Idealfall wÃ¼rden wir schreiben: P1="area-weighted average of the involved Pi and P1 itself".
+    // Dummerweise verÃ¤ndern wir damit P1, welches aber wiederum spÃ¤ter eines der jetzigen Pi beeinflussen wird, wenn dieses Pi an der
+    // Reihe ist. Dann mÃ¼ÃŸte P1 aber seinen Original-Wert haben, nicht den, den wir gerade dabei sind hineinzuschreiben.
+    // (Das sieht man auch daran, daÃŸ Fall 22 in obiger Matrix auf der Hauptdiagonalen liegt. Die beiden FÃ¤lle 31 und 32 (und 21) liegen
+    // im unteren linken Dreieck, wÃ¤hrend das rechte obere Dreieck (12, 13, 23) "inaktiv" ist. Deshalb sind 31 und 32 unproblematisch.)
+    // LÃ¶sung: Schreibe den gefundenen Wert nicht nur nach P1, sondern auch in ALLE beteiligten Pi. Das wÃ¼rde das Problem vollstÃ¤ndig(!)
+    // lÃ¶sen, denn spÃ¤tere Mittelwertbildungen wÃ¤ren zwar redundant, kÃ¤men aber zu dem selben (korrekten) Ergebnis.
+    // Leider macht das "Light Bleeding"-Problem einen Strich durch die Rechnung! Wenn z.B. Pi={ P2, P3 }, dann kÃ¶nnte P1 von P2 beeinfluÃŸt
+    // werden, P3 aber wegen "Light Bleeding" vom EinfluÃŸ auf P1 ausgeschlossen werden. P2 kÃ¶nnte spÃ¤ter aber sehr wohl von P1 UND P3 beeinfluÃŸt
+    // werden! P2 drÃ¼cken wir aber nach obiger "LÃ¶sung" aber schon mal einen Mittelwert auf, und insgesamt kommt es zum falschen Ergebnis.
+    // INSGESAMT wÃ¤re die einzige WIRKLICHE LÃ¶sung, ein Backup aller Patches anzulegen, und alle Mittelwerte stets daraus zu bilden.
+    // Das verdoppelt aber sofort den Speicherbedarf, der ohnehin schon bei mehreren hundert MB liegt. AuÃŸerdem ist der bei
+    // der ersten "LÃ¶sung" entstehende Fehler wohl sehr selten und sehr klein. Konsequenz: Wir ignorieren ihn, und wenden die erste LÃ¶sung an!
     //
-    // Zuletzt ist noch zu beachten, daß das Ausschließen von Patches wg. Light Bleeding dazu führen kann, daß die Summe der Gewichte beim
-    // weighted average < 1.0 wird. In diesen Fällen müssen die Gewichte "renormalisiert" werden.
-    // Zu diesen Ausführungen siehe auch die Skizze im Cafu Tech-Archive vom 10.12.2003!
+    // Zuletzt ist noch zu beachten, daÃŸ das AusschlieÃŸen von Patches wg. Light Bleeding dazu fÃ¼hren kann, daÃŸ die Summe der Gewichte beim
+    // weighted average < 1.0 wird. In diesen FÃ¤llen mÃ¼ssen die Gewichte "renormalisiert" werden.
+    // Zu diesen AusfÃ¼hrungen siehe auch die Skizze im Cafu Tech-Archive vom 10.12.2003!
     const double  PATCH_SIZE          =cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize;
     unsigned long PatchesWorkedOnCount=0;
 
@@ -812,7 +812,7 @@ void PostProcessBorders(const CaSHLWorldT& CaSHLWorld)
             if (!BB1.Intersects(BB2)) continue;
 
             // Ein Sanity-Check, wg. Rundungsfehlern.
-            // Eigentlich müssen beide Planes nämlich exakt gleich sein!
+            // Eigentlich mÃ¼ssen beide Planes nÃ¤mlich exakt gleich sein!
             if (Face1.Plane.Normal.x!=Face2.Plane.Normal.x) printf("WARNING: Face1.Plane.Normal.x!=Face2.Plane.Normal.x (%.15f != %.15f)\n", Face1.Plane.Normal.x, Face2.Plane.Normal.x);
             if (Face1.Plane.Normal.y!=Face2.Plane.Normal.y) printf("WARNING: Face1.Plane.Normal.y!=Face2.Plane.Normal.y (%.15f != %.15f)\n", Face1.Plane.Normal.y, Face2.Plane.Normal.y);
             if (Face1.Plane.Normal.z!=Face2.Plane.Normal.z) printf("WARNING: Face1.Plane.Normal.z!=Face2.Plane.Normal.z (%.15f != %.15f)\n", Face1.Plane.Normal.z, Face2.Plane.Normal.z);
@@ -822,9 +822,9 @@ void PostProcessBorders(const CaSHLWorldT& CaSHLWorld)
             NearFaces.PushBack(Face2Nr);
         }
 
-        // Bereite nun das PatchPoly vor. Unten werden dann nur noch die 4 Vertices ausgefüllt.
-        // WICHTIG: Dieses PatchPoly ist für zwei sich überlappende Patches EXAKT IDENTISCH, da alle Patches gleich ausgerichtet sind!
-        // Der folgende Code ist SEHR ähnlich zu dem Code in InitializePatches() (Init2.cpp)!
+        // Bereite nun das PatchPoly vor. Unten werden dann nur noch die 4 Vertices ausgefÃ¼llt.
+        // WICHTIG: Dieses PatchPoly ist fÃ¼r zwei sich Ã¼berlappende Patches EXAKT IDENTISCH, da alle Patches gleich ausgerichtet sind!
+        // Der folgende Code ist SEHR Ã¤hnlich zu dem Code in InitializePatches() (Init2.cpp)!
 
         // Bestimme die Spannvektoren der gemeinsamen Ebene.
         // (Face1 und die Faces2 unten liegen in einer *gemeinsamen* Ebene!)
@@ -869,8 +869,8 @@ void PostProcessBorders(const CaSHLWorldT& CaSHLWorld)
                 PatchPoly.Vertices[2]=UV_Origin+scale(U, (Face1_SmallestU+s1    )*PATCH_SIZE)+scale(V, (Face1_SmallestV+t1    )*PATCH_SIZE);
                 PatchPoly.Vertices[3]=UV_Origin+scale(U, (Face1_SmallestU+s1-1.0)*PATCH_SIZE)+scale(V, (Face1_SmallestV+t1    )*PATCH_SIZE);
 
-                // Klassifizierung: Falls Patch1 *vollständig in* seiner Face liegt, haben wir dafür einen
-                // einwandfreien Berechnungswert, und wir wollen daran nicht rumfummeln (Fälle 11, 12, 13)!
+                // Klassifizierung: Falls Patch1 *vollstÃ¤ndig in* seiner Face liegt, haben wir dafÃ¼r einen
+                // einwandfreien Berechnungswert, und wir wollen daran nicht rumfummeln (FÃ¤lle 11, 12, 13)!
                 // Ob Patch1 PARTIAL oder OUTER ist, wird weiter unten genauer klassifiziert.
                 if (Face1.Encloses(PatchPoly, true, MapT::RoundEpsilon)) continue;
 
@@ -878,7 +878,7 @@ void PostProcessBorders(const CaSHLWorldT& CaSHLWorld)
                 // Den Mittelpunkt des PatchPoly bestimmen, inkl. "Safety".
                 const VectorT PatchPoly_Center=scale(PatchPoly.Vertices[0]+PatchPoly.Vertices[1]+PatchPoly.Vertices[2]+PatchPoly.Vertices[3], 0.25)+Safety;
 
-                // Suche einen Punkt *IN* Face1 heraus, der "nahe" bei Patch1 liegt. Wird unten benötigt.
+                // Suche einen Punkt *IN* Face1 heraus, der "nahe" bei Patch1 liegt. Wird unten benÃ¶tigt.
                 double  MinDistance=3.0*PATCH_SIZE;
                 VectorT InnerPointCloseToPatch1;
 
@@ -898,14 +898,14 @@ void PostProcessBorders(const CaSHLWorldT& CaSHLWorld)
                     }
                 }
 
-                // Wurde auch etwas in der Nähe gefunden?
+                // Wurde auch etwas in der NÃ¤he gefunden?
                 if (MinDistance==3.0*PATCH_SIZE) continue;
 
 
                 // Betrachte nun die umliegenden Faces, um herauszufinden, ob sie Patches enthalten,
-                // die zu "unserem" Patch etwas beitragen könnten.
+                // die zu "unserem" Patch etwas beitragen kÃ¶nnten.
                 ArrayT<PatchT*> ContributingPatches;
-                ArrayT<double > ContributingPatchesInFace;  // Mit wieviel % seiner Fläche liegt der Patch in seiner Face?
+                ArrayT<double > ContributingPatchesInFace;  // Mit wieviel % seiner FlÃ¤che liegt der Patch in seiner Face?
 
                 for (unsigned long NearNr=0; NearNr<NearFaces.Size(); NearNr++)
                 {
@@ -930,13 +930,13 @@ void PostProcessBorders(const CaSHLWorldT& CaSHLWorld)
                     // Gehe die Patches von Face2 durch
                     for (unsigned long t2=0; t2<Face2_SMI.SizeT; t2++)
                         for (unsigned long s2=0; s2<Face2_SMI.SizeS; s2++)
-                            // Überlappen sich die Patches? Beachte: Wenn, dann ist es eine *exakte* Überlappung, wegen gleichem Patch-Alignment!
+                            // Ãœberlappen sich die Patches? Beachte: Wenn, dann ist es eine *exakte* Ãœberlappung, wegen gleichem Patch-Alignment!
                             if ((unsigned long)(Face1_SmallestU)+s1==(unsigned long)(Face2_SmallestU)+s2 &&
                                 (unsigned long)(Face1_SmallestV)+t1==(unsigned long)(Face2_SmallestV)+t2)
                             {
                                 PatchT& Patch2=Patches[NearFaces[NearNr]][t2*Face2_SMI.SizeS+s2];
 
-                                // Nur "äußere" Patches von Face1 mit "inneren" Patches von Face1 korrigieren!
+                                // Nur "Ã¤uÃŸere" Patches von Face1 mit "inneren" Patches von Face1 korrigieren!
                                 if (!Patch2.InsideFace) continue;
 
                                 // Avoid "Light Bleeding" by this simple visibility test.
@@ -948,7 +948,7 @@ void PostProcessBorders(const CaSHLWorldT& CaSHLWorld)
                                 PatchPoly.GetChoppedUpAlong(Face2, MapT::RoundEpsilon, NewPolygons);
                                 if (NewPolygons.Size()==0) Error("PolygonChopUp failed in PostProcessBorders().");
 
-                                // Mit wieviel % seiner Fläche liegt PatchPoly in Face2?
+                                // Mit wieviel % seiner FlÃ¤che liegt PatchPoly in Face2?
                                 const double AreaRatio=NewPolygons[NewPolygons.Size()-1].GetArea()/PatchPoly.GetArea();
 
                                 ContributingPatches      .PushBack(&Patch2);
@@ -968,7 +968,7 @@ void PostProcessBorders(const CaSHLWorldT& CaSHLWorld)
 
 
                 // Klassifiziere Patch1 weiter:
-                // Daß er INNER ist, haben wir oben schon ausgeschlossen.
+                // DaÃŸ er INNER ist, haben wir oben schon ausgeschlossen.
                 // Er ist PARTIAL, wenn Patch1.InsideFace==true, sonst OUTER.
                 if (Patch1.InsideFace)
                 {
@@ -979,7 +979,7 @@ void PostProcessBorders(const CaSHLWorldT& CaSHLWorld)
                     PatchPoly.GetChoppedUpAlong(Face1, MapT::RoundEpsilon, NewPolygons);
                     if (NewPolygons.Size()==0) Error("PolygonChopUp failed in PostProcessBorders().");
 
-                    // Mit wieviel % seiner Fläche liegt PatchPoly in Face1?
+                    // Mit wieviel % seiner FlÃ¤che liegt PatchPoly in Face1?
                     const double AreaRatio=NewPolygons[NewPolygons.Size()-1].GetArea()/PatchPoly.GetArea();
 
                     ContributingPatches      .PushBack(&Patch1);

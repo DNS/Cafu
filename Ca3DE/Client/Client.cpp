@@ -160,7 +160,7 @@ int ClientT::ConFunc_rcon_Callback(lua_State* LuaState)
     if (!ClientPtr) return 0;
 
     // Die Antwort auf ein "connection-less" Packet beginnt mit 0xFFFFFFFF, gefolgt von der PacketID,
-    // sodaﬂ das R¸ckpacket unten nur noch individuell beendet werden muﬂ.
+    // soda√ü das R√ºckpacket unten nur noch individuell beendet werden mu√ü.
     NetDataT OutData;
 
     OutData.WriteLong(0xFFFFFFFF);

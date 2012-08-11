@@ -267,8 +267,8 @@ void FaceNodeT::InitRenderMeshesAndMats(const ArrayT<Vector3dT>& SharedVertices)
     // The next best solution would probably be to precalculate this in CaBSP, but then CaBSP would need access to all textures files.
     const Vector3dT        TI_U   =TI.U.AsVectorOfDouble();
     const Vector3dT        TI_V   =TI.V.AsVectorOfDouble();
-    const double           LengthU=length(TI_U);            // Länge des U-Vektors (X-Richtung).
-    const double           LengthV=length(TI_V);            // Länge des V-Vektors (Y-Richtung).
+    const double           LengthU=length(TI_U);            // LÃ¤nge des U-Vektors (X-Richtung).
+    const double           LengthV=length(TI_V);            // LÃ¤nge des V-Vektors (Y-Richtung).
 
     double SmallestS=dot(SharedVertices[DrawIndices[0]], TI_U)/(LengthU*LengthU)+TI.OffsetU;
     double SmallestT=dot(SharedVertices[DrawIndices[0]], TI_V)/(LengthV*LengthV)+TI.OffsetV;
@@ -285,13 +285,13 @@ void FaceNodeT::InitRenderMeshesAndMats(const ArrayT<Vector3dT>& SharedVertices)
     SmallestS=floor(SmallestS);
     SmallestT=floor(SmallestT);
 
-    // Bestimmen der Texturkoodinaten s und t für alle Vertices (Punkte) P eines Polygons:
+    // Bestimmen der Texturkoodinaten s und t fÃ¼r alle Vertices (Punkte) P eines Polygons:
     // Seien die Vektoren U und V gegeben, die die TextureSpace-Ebene aufspannen. P ist idR Element dieser Ebene und
     // ergibt sich aus einer zu bestimmenden Linearkombination P = s * U + t * V. Mit dot(U, P)/|U| erhalten
     // wir die Projektion von P auf den Normalenvektor von U. Weil wir s (== Vielfaches von U, U skaliert die Texel
-    // und kann wesentlich größer als 1.0 sein) erhalten wollen, wird nochmals durch |U| dividiert:
-    // dot(U, P)/(|U|^2). Zu diesen Vielfachen von U wird der zugehörige Offset (Verschiebung entlang U) addiert.
-    // Analog für t.
+    // und kann wesentlich grÃ¶ÃŸer als 1.0 sein) erhalten wollen, wird nochmals durch |U| dividiert:
+    // dot(U, P)/(|U|^2). Zu diesen Vielfachen von U wird der zugehÃ¶rige Offset (Verschiebung entlang U) addiert.
+    // Analog fÃ¼r t.
     for (unsigned long VertexNr=0; VertexNr<DrawIndices.Size(); VertexNr++)
     {
         const double s=dot(SharedVertices[DrawIndices[VertexNr]], TI_U)/(LengthU*LengthU)+TI.OffsetU-SmallestS;
@@ -306,8 +306,8 @@ void FaceNodeT::InitRenderMeshesAndMats(const ArrayT<Vector3dT>& SharedVertices)
     // Calculate and fill-in the 'LightMapST' and 'SHLMapST' coordinate components of the 'FaceVertexInfos'.
     // *****************************************************************************************************
 
-    // (Dieser Teil ist ähnlich, aber nicht isomorph zu Phase 3, Berechnung der TextureST-Koordinaten.)
-    // Eigentlich wäre es aber besser, diese Dinge schon in CaBSP vorzuberechnen.
+    // (Dieser Teil ist Ã¤hnlich, aber nicht isomorph zu Phase 3, Berechnung der TextureST-Koordinaten.)
+    // Eigentlich wÃ¤re es aber besser, diese Dinge schon in CaBSP vorzuberechnen.
     VectorT U;
     VectorT V;
 
@@ -325,18 +325,18 @@ void FaceNodeT::InitRenderMeshesAndMats(const ArrayT<Vector3dT>& SharedVertices)
         if (v<SmallestV) SmallestV=v;
     }
 
-    // Bestimmen der LightMap-Koodinaten s und t für alle Vertices (Punkte) P eines Polygons:
+    // Bestimmen der LightMap-Koodinaten s und t fÃ¼r alle Vertices (Punkte) P eines Polygons:
     // (Vergleiche auch mit der Dokumentation zu Phase 3 oben!)
     // Seien die Einheitsvektoren U und V gegeben, die den UV-Space der Ebene aufspannen. P ist idR Element dieser
     // Ebene und ergibt sich aus einer zu bestimmenden Linearkombination P = u*U + v*V.
-    // (Stimmt nicht ganz, setzt nämlich voraus, daß der UV-Space nicht durch den Ursprung geht, sondern in die
-    //  tatsächliche Ebene eingebettet ist. Richtig: P = u*U + v*V + Stützvektor. Dies spielt aber keine Rolle!)
+    // (Stimmt nicht ganz, setzt nÃ¤mlich voraus, daÃŸ der UV-Space nicht durch den Ursprung geht, sondern in die
+    //  tatsÃ¤chliche Ebene eingebettet ist. Richtig: P = u*U + v*V + StÃ¼tzvektor. Dies spielt aber keine Rolle!)
     // Mit dot(U, P) erhalten wir die Projektion u von P auf den (Normalen-)Vektor U.
     // Davon subtrahieren wir SmallestU und erhalten u', was letztendlich eine Verschiebung der ganzen Face an die
     // V-Achse bewirkt, d.h. am Schleifenende wird mind. eines der P eine u'-Koordinate von 0 haben.
-    // Die Division überführt u' in den ST-Space der LightMap. Schließlich korrigieren wir die Koordinate noch,
-    // um dem Rand der LightMap sowie ihrer Position innerhalb der "großen" LightMap Rechnung zu tragen und erhalten s.
-    // Ganz zum Schluß sorgt die letzte Division für die richtige Skalierung für OpenGL. Analog für t.
+    // Die Division Ã¼berfÃ¼hrt u' in den ST-Space der LightMap. SchlieÃŸlich korrigieren wir die Koordinate noch,
+    // um dem Rand der LightMap sowie ihrer Position innerhalb der "groÃŸen" LightMap Rechnung zu tragen und erhalten s.
+    // Ganz zum SchluÃŸ sorgt die letzte Division fÃ¼r die richtige Skalierung fÃ¼r OpenGL. Analog fÃ¼r t.
     for (unsigned long VertexNr=0; VertexNr<DrawIndices.Size(); VertexNr++)
     {
         const double PosS=LightMapInfo.PosS;
@@ -350,7 +350,7 @@ void FaceNodeT::InitRenderMeshesAndMats(const ArrayT<Vector3dT>& SharedVertices)
     }
 
 #if SHL_ENABLED
-    // Bestimmen der SHLMap-Koodinaten s und t für alle Vertices (Punkte) P eines Polygons.
+    // Bestimmen der SHLMap-Koodinaten s und t fÃ¼r alle Vertices (Punkte) P eines Polygons.
     // This works analogously to the code for LightMaps, except that we use floor(SmallestU/V) instead of simply SmallestU/V.
     // Note that wrt. overlapping patches, this is the proper solution (and should be adapted for LightMaps, too).
     for (unsigned long VertexNr=0; VertexNr<DrawIndices.Size(); VertexNr++)
@@ -687,7 +687,7 @@ void FaceNodeT::InitDefaultLightMaps()
     // Einige Faces wollen keine generierte Lightmap.
     if (!Material->UsesGeneratedLightMap()) return;
 
-    // Bestimme die Größe der LightMap
+    // Bestimme die GrÃ¶ÃŸe der LightMap
     VectorT U;
     VectorT V;
 
@@ -711,7 +711,7 @@ void FaceNodeT::InitDefaultLightMaps()
         if (v>MaxV) MaxV=v;
     }
 
-    // Dies ist das einzige Mal, daß die Größen der LightMaps rechnerisch bestimmt werden.
+    // Dies ist das einzige Mal, daÃŸ die GrÃ¶ÃŸen der LightMaps rechnerisch bestimmt werden.
     // Fortan werden sie von allen Tools und der Engine direkt aus dem CW-File geladen,
     // um Rundungsfehler, die beim Speichern durch Zusammenfassung entstehen, zu vermeiden.
     LightMapInfo.SizeS=(unsigned short)ceil((MaxU-MinU)/cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize)+2;
@@ -721,7 +721,7 @@ void FaceNodeT::InitDefaultLightMaps()
     if (LightMapInfo.SizeS>cf::SceneGraph::LightMapManT::SIZE_S) { printf("LMI.SizeS exceeds maximum!\n"); LightMapInfo.SizeS=0; LightMapInfo.SizeT=0; return; }
     if (LightMapInfo.SizeT>cf::SceneGraph::LightMapManT::SIZE_T) { printf("LMI.SizeT exceeds maximum!\n"); LightMapInfo.SizeS=0; LightMapInfo.SizeT=0; return; }
 
-    // Setze die ganze LightMap auf neutrales weiß.
+    // Setze die ganze LightMap auf neutrales weiÃŸ.
     unsigned long LmNr;
     unsigned int  LmPosS;
     unsigned int  LmPosT;
@@ -770,8 +770,8 @@ void FaceNodeT::CreatePatchMeshes(ArrayT<cf::PatchMeshT>& PatchMeshes, ArrayT< A
 
 
     // Compute the details for each patch.
-    // Dieser Code ist sehr ähnlich zu dem Code in CaLights PostProcessBorders() Funktion!
-    // Änderungen hier könnten Änderungen in dieser Funktion erforderlich machen!
+    // Dieser Code ist sehr Ã¤hnlich zu dem Code in CaLights PostProcessBorders() Funktion!
+    // Ã„nderungen hier kÃ¶nnten Ã„nderungen in dieser Funktion erforderlich machen!
 
     // Bestimme die Spannvektoren.
     VectorT U;
@@ -905,7 +905,7 @@ void FaceNodeT::BackToLightMap(const cf::PatchMeshT& PatchMesh)
     const Vector3fT FaceTangentV=normalizeOr0(TI.V+scale(UxV, -dot(FaceNormal, TI.V)/dot(FaceNormal, UxV)));
 
 
-    // Übertrage die Patches-Werte zurück in die LightMaps.
+    // Ãœbertrage die Patches-Werte zurÃ¼ck in die LightMaps.
     for (unsigned long t=0; t<PatchMesh.Height; t++)
         for (unsigned long s=0; s<PatchMesh.Width; s++)
         {

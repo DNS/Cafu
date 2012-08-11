@@ -25,9 +25,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 // Hinweis zur Implementierung:
-// Eine Zusammenführung der beiden wesentlichen Schleifen in eine große ist zwar denkbar, aber nicht ratsam: Beide Schleifen
-// iterieren über das Face-Array und modifizieren es zugleich. Die bestehende Lösung ist daher erheblich einfacher zu über-
-// blicken. Es ist mir deshalb bisher nicht gelungen, eine große Schleife besser zu implementieren als die zwei bestehenden.
+// Eine ZusammenfÃ¼hrung der beiden wesentlichen Schleifen in eine groÃŸe ist zwar denkbar, aber nicht ratsam: Beide Schleifen
+// iterieren Ã¼ber das Face-Array und modifizieren es zugleich. Die bestehende LÃ¶sung ist daher erheblich einfacher zu Ã¼ber-
+// blicken. Es ist mir deshalb bisher nicht gelungen, eine groÃŸe Schleife besser zu implementieren als die zwei bestehenden.
 void BspTreeBuilderT::ChopUpFaces()
 {
     Console->Print(cf::va("\n%-50s %s\n", "*** Chop Up Interpenetrations ***", GetTimeSinceProgramStart()));
@@ -46,11 +46,11 @@ void BspTreeBuilderT::ChopUpFaces()
     }
 
     // Zuerst die sich echt schneidenden Faces (deren Ebenen sich in einer Geraden schneiden) choppen.
-    // Die folgende Schleife lief ursprünglich in O(n^2) Zeit. Man könnte sie auf O(1/2*n^2) bringen, indem man
-    // entweder eine der beiden if-Bedingungen löscht oder jede FaceNr-Kombination durch Änderung der Schleifen
-    // nur genau ein Mal betrachtet. Letzteres ist geringfügig schneller und erzielt exakt das gleiche Ergebnis
+    // Die folgende Schleife lief ursprÃ¼nglich in O(n^2) Zeit. Man kÃ¶nnte sie auf O(1/2*n^2) bringen, indem man
+    // entweder eine der beiden if-Bedingungen lÃ¶scht oder jede FaceNr-Kombination durch Ã„nderung der Schleifen
+    // nur genau ein Mal betrachtet. Letzteres ist geringfÃ¼gig schneller und erzielt exakt das gleiche Ergebnis
     // wie der O(n^2)-Algo, der beide Face-Schleifen stets von 0..FaceCounter-1 durchlief.
-    // (Die andere Methode hätte wegen anderer Reihenfolge ein geringfügig anderes Ergebnis geliefert.)
+    // (Die andere Methode hÃ¤tte wegen anderer Reihenfolge ein geringfÃ¼gig anderes Ergebnis geliefert.)
     for (unsigned long Face1Nr=0; Face1Nr+1<FaceChildren.Size(); Face1Nr++)
     {
         Console->Print(cf::va("%5.1f%%\r", (double)Face1Nr/FaceChildren.Size()*100.0));
@@ -67,7 +67,7 @@ void BspTreeBuilderT::ChopUpFaces()
                 ArrayT< Polygon3T<double> > SplitResult=FaceChildren[Face1Nr]->Polygon.GetSplits(FaceChildren[Face2Nr]->Polygon.Plane, MapT::RoundEpsilon);
 
                 if (SplitResult[0].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist) &&
-                    SplitResult[1].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist))  // Prüfe insb. zusammenfallende Vertices
+                    SplitResult[1].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist))  // PrÃ¼fe insb. zusammenfallende Vertices
                 {
                     FaceChildren.PushBack(new cf::SceneGraph::FaceNodeT(*FaceChildren[Face1Nr]));
 
@@ -84,7 +84,7 @@ void BspTreeBuilderT::ChopUpFaces()
                 ArrayT< Polygon3T<double> > SplitResult=FaceChildren[Face2Nr]->Polygon.GetSplits(FaceChildren[Face1Nr]->Polygon.Plane, MapT::RoundEpsilon);
 
                 if (SplitResult[0].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist) &&
-                    SplitResult[1].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist))  // Prüfe insb. zusammenfallende Vertices
+                    SplitResult[1].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist))  // PrÃ¼fe insb. zusammenfallende Vertices
                 {
                     FaceChildren.PushBack(new cf::SceneGraph::FaceNodeT(*FaceChildren[Face2Nr]));
 
@@ -99,15 +99,15 @@ void BspTreeBuilderT::ChopUpFaces()
     }
 
 #if 0
-    // Ich #if 0'e diesen Code aus zwei Gründen:
-    // a) Es ist quasi unmöglich zu entscheiden *welche* von zwei sich in einer Ebene überlappenden Faces entfernt und welche behalten werden soll,
-    //    denn diese Information lässt sich aus den MaterialTs der beteiligten Faces nicht sicher ableiten.
+    // Ich #if 0'e diesen Code aus zwei GrÃ¼nden:
+    // a) Es ist quasi unmÃ¶glich zu entscheiden *welche* von zwei sich in einer Ebene Ã¼berlappenden Faces entfernt und welche behalten werden soll,
+    //    denn diese Information lÃ¤sst sich aus den MaterialTs der beteiligten Faces nicht sicher ableiten.
     //    Hier ist das Wissen des Mappers gefragt, der diese Entscheidung durch die entsprechende Gestaltung seiner Geometrie treffen sollte.
-    // b) Es ist langsamer, langwieriger Code für einen Spezialfall der in einer guten Map ohnehin nie auftreten sollte.
-    //    CaBSP wird viel schlanker und die Maps bleiben gleich gut, wenn man diesen Code einfach weglässt.
+    // b) Es ist langsamer, langwieriger Code fÃ¼r einen Spezialfall der in einer guten Map ohnehin nie auftreten sollte.
+    //    CaBSP wird viel schlanker und die Maps bleiben gleich gut, wenn man diesen Code einfach weglÃ¤sst.
 
-    // Nach obiger Schleife sind jetzt fast nur noch Faces übrig, die sich im Sinne einer Überlappung (in der gleichen Ebene)
-    // schneiden. Das Entfernen unnötiger TextureInfos findet übrigens erst wieder beim nächsten InsideFill() statt.
+    // Nach obiger Schleife sind jetzt fast nur noch Faces Ã¼brig, die sich im Sinne einer Ãœberlappung (in der gleichen Ebene)
+    // schneiden. Das Entfernen unnÃ¶tiger TextureInfos findet Ã¼brigens erst wieder beim nÃ¤chsten InsideFill() statt.
     for (unsigned long Face1Nr=0; Face1Nr+1<FaceChildren.Size(); Face1Nr++)
     {
         Console->Print(cf::va("%5.1f%%\r", (double)Face1Nr/FaceChildren.Size()*100.0));
@@ -126,7 +126,7 @@ void BspTreeBuilderT::ChopUpFaces()
             const bool Face2IsOpaque=FaceChildren[Face2Nr]->TI.RenderMode==cf::SceneGraph::FaceNodeT::TexInfoT::Normal && FaceChildren[Face2Nr]->TI.Alpha==255;
 
 
-            // Wenn Poly1 Poly2 komplett umschließt (Poly2 kann kleiner oder auch genau gleich sein wie Poly1),
+            // Wenn Poly1 Poly2 komplett umschlieÃŸt (Poly2 kann kleiner oder auch genau gleich sein wie Poly1),
             // wollen wir nicht Poly1 zerschneiden usw., sondern Poly2 einfach entfernen.
             // Dies geht nur dann NICHT, wenn Poly2 undurchsichtig (opaque) ist, und Poly1 zugleich durchsichtig ist!
             if ((Face1IsOpaque || !Face2IsOpaque) && FaceChildren[Face1Nr]->Polygon.Encloses(FaceChildren[Face2Nr]->Polygon, true, MapT::RoundEpsilon))
@@ -140,7 +140,7 @@ void BspTreeBuilderT::ChopUpFaces()
                 continue;
             }
 
-            // Wenn Poly2 Poly1 komplett umschließt (Poly1 kann kleiner oder auch genau gleich sein wie Poly2),
+            // Wenn Poly2 Poly1 komplett umschlieÃŸt (Poly1 kann kleiner oder auch genau gleich sein wie Poly2),
             // wollen wir nicht Poly2 zerschneiden usw., sondern Poly1 einfach entfernen.
             // Dies geht nur dann NICHT, wenn Poly1 undurchsichtig (opaque) ist, und Poly2 zugleich durchsichtig ist!
             if ((Face2IsOpaque || !Face1IsOpaque) && FaceChildren[Face2Nr]->Polygon.Encloses(FaceChildren[Face1Nr]->Polygon, true, MapT::RoundEpsilon))
@@ -160,17 +160,17 @@ void BspTreeBuilderT::ChopUpFaces()
                 // Zerschneide Poly2 entlang der Kanten von Poly1.
                 ArrayT< Polygon3T<double> > NewPolygons;
                 FaceChildren[Face2Nr]->Polygon.GetChoppedUpAlong(FaceChildren[Face1Nr]->Polygon, MapT::RoundEpsilon, NewPolygons);
-                NewPolygons.DeleteBack();   // Das letzte NewPolygon ist das überlappende, daher löschen wir es.
+                NewPolygons.DeleteBack();   // Das letzte NewPolygon ist das Ã¼berlappende, daher lÃ¶schen wir es.
 
-                // Prüfe, ob keiner der Splitter ungültig ist. Falls doch, lassen wir Face1Nr und Face2Nr lieber so, wie sie sind!
+                // PrÃ¼fe, ob keiner der Splitter ungÃ¼ltig ist. Falls doch, lassen wir Face1Nr und Face2Nr lieber so, wie sie sind!
                 unsigned long SplitterNr;
 
                 for (SplitterNr=0; SplitterNr<NewPolygons.Size(); SplitterNr++)
                     if (!NewPolygons[SplitterNr].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist)) break;
                 if (SplitterNr<NewPolygons.Size()) continue;
 
-                // Die Splitter nun ans FaceChildren-Array anhängen, dabei TexInfo usw. nicht vergessen und neue FaceBBs erstellen.
-                // Wenn Poly1 Poly2 ganz umschlossen hat, könnte NewPolygons.Size() hier auch 0 sein!
+                // Die Splitter nun ans FaceChildren-Array anhÃ¤ngen, dabei TexInfo usw. nicht vergessen und neue FaceBBs erstellen.
+                // Wenn Poly1 Poly2 ganz umschlossen hat, kÃ¶nnte NewPolygons.Size() hier auch 0 sein!
                 for (SplitterNr=0; SplitterNr<NewPolygons.Size(); SplitterNr++)
                 {
                     FaceChildren.PushBack(new cf::SceneGraph::FaceNodeT(*FaceChildren[Face2Nr]));                   // Erst mal alte TexInfo usw. kopieren.
@@ -178,7 +178,7 @@ void BspTreeBuilderT::ChopUpFaces()
                     FaceBB.PushBack(BoundingBox3T<double>(FaceChildren[FaceChildren.Size()-1]->Polygon.Vertices));  // Neue FaceBB erstellen.
                 }
 
-                // Die ursprüngliche Face2Nr nun mit der letzten Face aus dem FaceChildren-Array überschreiben.
+                // Die ursprÃ¼ngliche Face2Nr nun mit der letzten Face aus dem FaceChildren-Array Ã¼berschreiben.
                 delete FaceChildren[Face2Nr];
 
                 FaceChildren[Face2Nr]=FaceChildren[FaceChildren.Size()-1]; FaceChildren.DeleteBack();
@@ -192,17 +192,17 @@ void BspTreeBuilderT::ChopUpFaces()
                 // Zerschneide Poly1 entlang der Kanten von Poly2.
                 ArrayT< Polygon3T<double> > NewPolygons;
                 FaceChildren[Face1Nr]->Polygon.GetChoppedUpAlong(FaceChildren[Face2Nr]->Polygon, MapT::RoundEpsilon, NewPolygons);
-                NewPolygons.DeleteBack();   // Das letzte NewPolygon ist das überlappende, daher löschen wir es.
+                NewPolygons.DeleteBack();   // Das letzte NewPolygon ist das Ã¼berlappende, daher lÃ¶schen wir es.
 
-                // Prüfe, ob keiner der Splitter ungültig ist. Falls doch, lassen wir Face2Nr und Face1Nr lieber so, wie sie sind!
+                // PrÃ¼fe, ob keiner der Splitter ungÃ¼ltig ist. Falls doch, lassen wir Face2Nr und Face1Nr lieber so, wie sie sind!
                 unsigned long SplitterNr;
 
                 for (SplitterNr=0; SplitterNr<NewPolygons.Size(); SplitterNr++)
                     if (!NewPolygons[SplitterNr].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist)) break;
                 if (SplitterNr<NewPolygons.Size()) continue;
 
-                // Die Splitter nun ans FaceChildren-Array anhängen, dabei TexInfo usw. nicht vergessen und neue FaceBBs erstellen.
-                // Wenn Poly2 Poly1 ganz umschlossen hat, könnte NewPolygons.Size() hier auch 0 sein!
+                // Die Splitter nun ans FaceChildren-Array anhÃ¤ngen, dabei TexInfo usw. nicht vergessen und neue FaceBBs erstellen.
+                // Wenn Poly2 Poly1 ganz umschlossen hat, kÃ¶nnte NewPolygons.Size() hier auch 0 sein!
                 for (SplitterNr=0; SplitterNr<NewPolygons.Size(); SplitterNr++)
                 {
                     FaceChildren.PushBack(new cf::SceneGraph::FaceNodeT(*FaceChildren[Face1Nr]));                   // Erst mal alte TexInfo usw. kopieren.
@@ -210,7 +210,7 @@ void BspTreeBuilderT::ChopUpFaces()
                     FaceBB.PushBack(BoundingBox3T<double>(FaceChildren[FaceChildren.Size()-1]->Polygon.Vertices));  // Neue FaceBB erstellen.
                 }
 
-                // Die ursprüngliche Face1Nr nun mit der letzten Face aus dem FaceChildren-Array überschreiben.
+                // Die ursprÃ¼ngliche Face1Nr nun mit der letzten Face aus dem FaceChildren-Array Ã¼berschreiben.
                 delete FaceChildren[Face1Nr];
 
                 FaceChildren[Face1Nr]=FaceChildren[FaceChildren.Size()-1]; FaceChildren.DeleteBack();

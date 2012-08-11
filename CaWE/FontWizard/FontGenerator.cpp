@@ -124,7 +124,7 @@ class RectBitmapAllocatorT
 
             if (s2==SizeS)
             {
-                // Gültige Position gefunden
+                // GÃ¼ltige Position gefunden
                 PosS=s;
                 PosT=Best=Best2;
             }

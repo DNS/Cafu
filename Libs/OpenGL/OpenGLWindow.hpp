@@ -274,8 +274,8 @@ class SingleOpenGLWindowT
     virtual char               GetBPP()=0;
     virtual bool               GetFullScreen()=0;
     virtual bool               GetIsMinimized()=0;              ///< Ist das Fenster in der Taskbar (minimiert)?
- // virtual bool               GetWindowIsOpen()=0;             ///< 'true' gdw ein erfolgreich geöffnetes Fenster besteht, sonst 'false'.
- // virtual unsigned int       GetRenderingContextCounter()=0;  ///< Wird (ab 0) mit jedem erfolreich geöffneten OpenGLWindow inkrementiert.
+ // virtual bool               GetWindowIsOpen()=0;             ///< 'true' gdw ein erfolgreich geÃ¶ffnetes Fenster besteht, sonst 'false'.
+ // virtual unsigned int       GetRenderingContextCounter()=0;  ///< Wird (ab 0) mit jedem erfolreich geÃ¶ffneten OpenGLWindow inkrementiert.
 
     ///< The function 'GetNextKeyboardEvent()' stores all keyboard events in this array.
     ///< It can therefore be used to obtain the current state of the keyboard.

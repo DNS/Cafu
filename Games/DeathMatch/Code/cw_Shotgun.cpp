@@ -186,8 +186,8 @@ void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, const Play
                     // If we are on the server-side, find out what or who we hit.
                     for (char i=0; i<8; i++)
                     {
-                        const unsigned short Pitch  =Player->GetPitch()  +(rand() % 910)-455;  // ca. 5°
-                        const unsigned short Heading=Player->GetHeading()+(rand() % 910)-455;  // ca. 5°
+                        const unsigned short Pitch  =Player->GetPitch()  +(rand() % 910)-455;  // ca. 5Â°
+                        const unsigned short Heading=Player->GetHeading()+(rand() % 910)-455;  // ca. 5Â°
 
                         const float ViewDirZ=-LookupTables::Angle16ToSin[Pitch];
                         const float ViewDirY= LookupTables::Angle16ToCos[Pitch];
@@ -218,8 +218,8 @@ void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, const Play
                     // If we are on the server-side, find out what or who we hit.
                     for (char i=0; i<16; i++)
                     {
-                        const unsigned short Pitch  =Player->GetPitch()  +(rand() % 910)-455;  // ca. 5°
-                        const unsigned short Heading=Player->GetHeading()+(rand() % 910)-455;  // ca. 5°
+                        const unsigned short Pitch  =Player->GetPitch()  +(rand() % 910)-455;  // ca. 5Â°
+                        const unsigned short Heading=Player->GetHeading()+(rand() % 910)-455;  // ca. 5Â°
 
                         const float ViewDirZ=-LookupTables::Angle16ToSin[Pitch];
                         const float ViewDirY= LookupTables::Angle16ToCos[Pitch];
@@ -306,8 +306,8 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlay
 
     for (char i=0; i<8; i++)
     {
-        const unsigned short Pitch  =Player->GetPitch()  +(rand() % 910)-455;  // ca. 5°
-        const unsigned short Heading=Player->GetHeading()+(rand() % 910)-455;  // ca. 5°
+        const unsigned short Pitch  =Player->GetPitch()  +(rand() % 910)-455;  // ca. 5Â°
+        const unsigned short Heading=Player->GetHeading()+(rand() % 910)-455;  // ca. 5Â°
 
         const float ViewDirZ=-LookupTables::Angle16ToSin[Pitch];
         const float ViewDirY= LookupTables::Angle16ToCos[Pitch];
@@ -385,8 +385,8 @@ void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(const EntHumanPl
 
     for (char i=0; i<16; i++)
     {
-        const unsigned short Pitch  =Player->GetPitch()  +(rand() % 910)-455;  // ca. 5°
-        const unsigned short Heading=Player->GetHeading()+(rand() % 910)-455;  // ca. 5°
+        const unsigned short Pitch  =Player->GetPitch()  +(rand() % 910)-455;  // ca. 5Â°
+        const unsigned short Heading=Player->GetHeading()+(rand() % 910)-455;  // ca. 5Â°
 
         const float ViewDirZ=-LookupTables::Angle16ToSin[Pitch];
         const float ViewDirY= LookupTables::Angle16ToCos[Pitch];

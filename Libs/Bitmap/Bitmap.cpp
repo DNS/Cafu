@@ -781,8 +781,8 @@ char* BitmapT::GetPalettedImage() const
     double freq    [netsize];                           // freq array for learning
 
 
-    // Warum können zu kleine Bilder scheitern?
-    // Vermutlich gar nicht, höchstens schlechtere Qualität!?
+    // Warum kÃ¶nnen zu kleine Bilder scheitern?
+    // Vermutlich gar nicht, hÃ¶chstens schlechtere QualitÃ¤t!?
     // if (SizeX*SizeY<maxprime) throw new IOException("Image is too small");
 
     // Initialize.
@@ -798,7 +798,7 @@ char* BitmapT::GetPalettedImage() const
     }
 
     // Learning phase.
-    const int samplefac   =1;       // 1 bis 30, 1 ist höchste Qualität.
+    const int samplefac   =1;       // 1 bis 30, 1 ist hÃ¶chste QualitÃ¤t.
     const int alphadec    =30+((samplefac-1)/3);
     const int lengthcount =Data.Size();
     const int samplepixels=lengthcount/samplefac;
@@ -1300,7 +1300,7 @@ bool BitmapT::SaveToDisk(const char* FileName) const
         {
             for (unsigned int x=0; x<SizeX; x++)
             {
-                // Beachte, daß Windows Bitmap Files kopfüber gespeichert werden!
+                // Beachte, daÃŸ Windows Bitmap Files kopfÃ¼ber gespeichert werden!
                 uint32_t RGBA=Data[(SizeY-y-1)*SizeX+x];
 
                 char r=char(RGBA >>  0);

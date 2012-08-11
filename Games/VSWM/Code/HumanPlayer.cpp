@@ -259,9 +259,9 @@ void EntHumanPlayerT::Init2DNodeSequence(const char* TrialFileName, const Vector
                 break;
 
         // Make sure that we always interpolate across the shortest arc,
-        // i.e. not from 350° to 10° (which is 340° to the left), but rather from 350° to 370° (which is 20° to the right).
+        // i.e. not from 350Â° to 10Â° (which is 340Â° to the left), but rather from 350Â° to 370Â° (which is 20Â° to the right).
         // The idea is simple: Compare the length of the given arc to the length of the arc when the smaller value is
-        // augmented by 360° to the "equivalent orientation". Note that we only ever have to consider the smaller angle
+        // augmented by 360Â° to the "equivalent orientation". Note that we only ever have to consider the smaller angle
         // for augmenting, because augmenting the larger one just makes the difference always larger.
         if (PrevNodeHeading>ThisNodeHeading)
         {
@@ -276,7 +276,7 @@ void EntHumanPlayerT::Init2DNodeSequence(const char* TrialFileName, const Vector
         {
             // In constant heading mode, we just travel from true center to true center of each node,
             // and (mis-)use the "Labyrinth Size Trick" for stopping early (keeping a spatial offset) for better perspective view.
-            // (A nice side effect is that this strategy also works with 2D/60° labyrinths.)
+            // (A nice side effect is that this strategy also works with 2D/60Â° labyrinths.)
             NodeSequence.PushBack(LabyrinthNodeT(ThisNodeCenter, ThisNodeCenter, NNr<NodeNr /*visited this node before?*/, 0, 0, 0, 0, 0, 0));
         }
         else
@@ -289,7 +289,7 @@ void EntHumanPlayerT::Init2DNodeSequence(const char* TrialFileName, const Vector
         if (NodeNr<Sequence.Size())     // Don't do this in the last iteration, where NodeNr==Sequence.Size().
         {
             PrevNodeCenter =ThisNodeCenter;
-            PrevNodeHeading=ThisNodeHeading & 0xFFFF;   // % 65536, modulo 360°
+            PrevNodeHeading=ThisNodeHeading & 0xFFFF;   // % 65536, modulo 360Â°
 
             ThisNodeCenter =ThisNodeCenter+(Sequence[NodeNr]->GetOrigin()-OriginIPS);
             ThisNodeHeading=Sequence[NodeNr]->GetHeading();
@@ -400,7 +400,7 @@ void EntHumanPlayerT::Init3DNodeSequence(const char* TrialFileName, const Vector
 
             // In constant heading mode, we just travel from true center to true center of each node,
             // and (mis-)use the "Labyrinth Size Trick" for stopping early (keeping a spatial offset) for better perspective view.
-            // (A nice side effect is that this strategy also works with 2D/60° labyrinths.)
+            // (A nice side effect is that this strategy also works with 2D/60Â° labyrinths.)
             NodeSequence.PushBack(LabyrinthNodeT(NewNodeCenter, NewNodeCenter, NNr<NodeNr /*visited this node before?*/, 0, 0, 0, 0, 0, 0));
         }
         else

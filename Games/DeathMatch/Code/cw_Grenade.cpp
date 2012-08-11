@@ -112,14 +112,14 @@ void CarriedWeaponGrenadeT::ServerSide_Think(EntHumanPlayerT* Player, const Play
                 // Important: ONLY create (throw) a new hand grenade IF we are on the server side!
                 if (ThinkingOnServerSide)
                 {
-                    // Clamp 'Pitch' values larger than 45° (==8192) to 45°.
+                    // Clamp 'Pitch' values larger than 45Â° (==8192) to 45Â°.
                     const unsigned short Pitch=(Player->GetPitch()>8192 && Player->GetPitch()<=16384) ? 8192 : Player->GetPitch();
 
                     const float ViewDirZ=-LookupTables::Angle16ToSin[Pitch];
                     const float ViewDirY= LookupTables::Angle16ToCos[Pitch];
 
                     // Note: There is a non-trivial relationship between heading, pitch, and the corresponding view vector.
-                    // Especially does a heading and pitch of 45° NOT correspond to the view vector (1, 1, 1), and vice versa!
+                    // Especially does a heading and pitch of 45Â° NOT correspond to the view vector (1, 1, 1), and vice versa!
                     // Think carefully about this before changing the number 1050.0 below (which actually is 2.0*(400.0+120.0) (+10.0 for "safety")).
                     const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
                     const VectorT HandGrenadeOrigin(Player->GetOrigin()+VectorT(0.0, 0.0, 250.0)+scale(ViewDir, 1050.0)+scale(State.Velocity, double(PlayerCommand.FrameTime)));
