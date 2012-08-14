@@ -98,7 +98,7 @@ class CaClientWorldT : public Ca3DEWorldT
                                        const ArrayT<uint8_t>* DeltaMessage);
 
     // Please see the corresponding function in EngineEntityT for documentation.
-    bool GetLightSourceInfo(unsigned long EntityID, unsigned long OurEntityID, unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const;
+    bool GetLightSourceInfo(unsigned long EntityID, unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const;
 
     // Draws all entities whose ID is contained in the 'EntityIDs' array.
     // The entity with ID 'OurEntityID' specifies "our" entity.
@@ -113,10 +113,10 @@ class CaClientWorldT : public Ca3DEWorldT
     // The 'FrameTime' is passed to each call of 'PostDraw()'.
     // All this provides opportunities for entities to render HUDs, employ simple "mini-prediction",
     // triggers sounds, register particles, do other server-independent eye-candy, and so on.
-    void PostDrawEntities(float FrameTime, unsigned long OurEntityID, const ArrayT<unsigned long>& EntityIDs) const;
+    void PostDrawEntities(float FrameTime, const ArrayT<unsigned long>& EntityIDs) const;
 
 
-    unsigned long          OurEntityID;
+    const unsigned long    OurEntityID;
 
     unsigned long          m_ServerFrameNr;     // Erhalte mit Frames[ServerFrameNr & (MAX_FRAMES-1)] das Frame zur ServerFrameNr!
     const char             MAX_FRAMES;

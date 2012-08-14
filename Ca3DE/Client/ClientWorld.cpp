@@ -460,7 +460,7 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
         // function chain again altogether.
         if (BaseEntity.IsNull()) continue;
         // if (!BaseEntity->GetLightSourceInfo(LightColorDiffuse, LightColorSpecular, LightPosition, LightRadius)) continue;
-        if (!GetLightSourceInfo(BaseEntity->ID, OurEntityID, LightColorDiffuse, LightColorSpecular, LightPosition, LightRadius, LightCastsShadows)) continue;
+        if (!GetLightSourceInfo(BaseEntity->ID, LightColorDiffuse, LightColorSpecular, LightPosition, LightRadius, LightCastsShadows)) continue;
         if (!LightColorDiffuse && !LightColorSpecular) continue;
 
         // THIS IS *TEMPORARY* ONLY!
@@ -525,7 +525,7 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
     m_World->BspTree->DrawTranslucentContrib(DrawOrigin);
 
     // Zuletzt halbtransparente HUD-Elemente, Fonts usw. zeichnen.
-    PostDrawEntities(FrameTime, OurEntityID, CurrentFrame.EntityIDsInPVS);
+    PostDrawEntities(FrameTime, CurrentFrame.EntityIDsInPVS);
 }
 
 
@@ -560,7 +560,7 @@ bool CaClientWorldT::ParseServerDeltaUpdateMessage(unsigned long EntityID, unsig
 }
 
 
-bool CaClientWorldT::GetLightSourceInfo(unsigned long EntityID, unsigned long OurEntityID, unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const
+bool CaClientWorldT::GetLightSourceInfo(unsigned long EntityID, unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const
 {
     if (EntityID<m_EngineEntities.Size())
         if (m_EngineEntities[EntityID]!=NULL)
@@ -590,7 +590,7 @@ void CaClientWorldT::DrawEntities(unsigned long OurEntityID, bool SkipOurEntity,
 }
 
 
-void CaClientWorldT::PostDrawEntities(float FrameTime, unsigned long OurEntityID, const ArrayT<unsigned long>& EntityIDs) const
+void CaClientWorldT::PostDrawEntities(float FrameTime, const ArrayT<unsigned long>& EntityIDs) const
 {
     for (unsigned long IDNr=0; IDNr<EntityIDs.Size(); IDNr++)
     {
