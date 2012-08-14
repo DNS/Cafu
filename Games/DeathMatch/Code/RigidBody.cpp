@@ -71,7 +71,7 @@ EntRigidBodyT::EntRigidBodyT(const EntityCreateParamsT& Params)
       m_RigidBody(NULL),
       m_OrigOffset(m_Dimensions.GetCenter()-m_Origin),
       m_HalfExtents((m_Dimensions.Max-m_Dimensions.Min)/2.0 - Vector3dT(100.0, 100.0, 100.0)),  // FIXME !!! Where in the world does the extra 100 padding in Params.RootNode come from???
-      m_Rotation()
+      m_Rotation(0, 0, 0, 1)
 {
     ClipModel.Register();
 
