@@ -260,51 +260,39 @@ bool EngineEntityT::ParseServerDeltaUpdateMessage(unsigned long DeltaFrameNr, un
     if (EntityStateFrameNr>=ServerFrameNr) { EnqueueString("CLIENT WARNING: %s, L %u: EntityStateFrameNr>=ServerFrameNr (%lu>%lu)\n", __FILE__, __LINE__, EntityStateFrameNr, ServerFrameNr); return false; }
 
 
-    const cf::Network::StateT CurrentState = GetState();
-
-    // Wir müssen den DeltaState richtig aus den OldStates kopieren (ein Zeiger darauf reicht nicht),
-    // denn es könnte ansonsten passieren, daß im folgenden gerade dieser OldState überschrieben wird,
-    // bevor wir damit fertig sind!
-    cf::Network::StateT DeltaState;
+    // Determine the source state to delta-decompress against (an old state or the baseline).
+    const cf::Network::StateT* DeltaState=NULL;
 
     if (DeltaFrameNr>0)
     {
-        // Normalfall: Delta-Dekomprimiere NICHT gegen die BaseLine, sondern gegen einen 'OldState'.
-        if (DeltaFrameNr==EntityStateFrameNr)
+        // Der oben angekündigte Test, ob der DeltaState nicht schon zu weit in der Vergangenheit liegt.
+        // Einen gültigen State können wir dann nicht mehr produzieren, und dem Calling-Code muß klar sein oder klar werden,
+        // daß er gegen die BaseLines komprimierte Messages anfordern muß.
+        if (EntityStateFrameNr-DeltaFrameNr >= m_OldStates.Size())
         {
-            // Der Delta-State ist der gegenwärtige entity state.
-            DeltaState=CurrentState;
+            EnqueueString("CLIENT WARNING: %s, L %u: Delta state too old!\n", __FILE__, __LINE__);
+            return false;
         }
-        else
-        {
-            // Der oben angekündigte Test, ob der DeltaState nicht schon zu weit in der Vergangenheit liegt.
-            // Einen gültigen State können wir dann nicht mehr produzieren, und dem Calling-Code muß klar sein oder klar werden,
-            // daß er gegen die BaseLines komprimierte Messages anfordern muß.
-            if (EntityStateFrameNr-DeltaFrameNr > m_OldStates.Size())
-            {
-                EnqueueString("CLIENT WARNING: %s, L %u: Delta state too old!\n", __FILE__, __LINE__);
-                return false;
-            }
 
-            // Ordentliche Delta-Dekompression gegen einen OldState.
-            DeltaState = m_OldStates[DeltaFrameNr & (m_OldStates.Size()-1)];
-        }
+        DeltaState = &m_OldStates[DeltaFrameNr & (m_OldStates.Size()-1)];
     }
-    else DeltaState = m_BaseLine;   // Delta-Dekomprimiere gegen die BaseLine.
+    else
+    {
+        DeltaState = &m_BaseLine;
+    }
 
-    // Trage den bisher aktuellen Entity->State in die OldStates ein, und ersetze Entity->State durch den DeltaState.
+    // Set the result as the new entity state, and record it in the m_OldStates for future reference.
     m_Interpolate_Ok    =true;
     m_InterpolateOrigin0=Entity->GetOrigin();
     m_InterpolateTime0  =m_InterpolateTime1;
     m_InterpolateTime1  =GlobalTime.GetValueDouble();
 
-    m_OldStates[EntityStateFrameNr & (m_OldStates.Size()-1)] = CurrentState;
+    EntityStateFrameNr=ServerFrameNr;
 
-    if (DeltaMessage)
-    {
-        //XXX TODO: Does setting the playername work?
-        SetState(cf::Network::StateT(DeltaState, *DeltaMessage));
-    }
+    const cf::Network::StateT NewState = DeltaMessage ? cf::Network::StateT(*DeltaState, *DeltaMessage) : *DeltaState;
+
+    m_OldStates[EntityStateFrameNr & (m_OldStates.Size()-1)] = NewState;
+    SetState(NewState);
 
     if (length(Entity->GetOrigin() - m_InterpolateOrigin0)/(m_InterpolateTime1 - m_InterpolateTime0) > 50.0*1000.0)
     {
@@ -312,7 +300,6 @@ bool EngineEntityT::ParseServerDeltaUpdateMessage(unsigned long DeltaFrameNr, un
         m_Interpolate_Ok=false;
     }
 
-    EntityStateFrameNr=ServerFrameNr;
     return true;
 }
 
