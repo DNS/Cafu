@@ -522,7 +522,7 @@ EntHumanPlayerT::EntHumanPlayerT(char TypeID, unsigned long ID, unsigned long Ma
     {
         TextParserT TP(CfgFileNames[FileLocationIndex], "", true, '#');
 
-    	while (!TP.IsAtEOF())
+        while (!TP.IsAtEOF())
         {
             std::string Token=TP.GetNextToken();
 

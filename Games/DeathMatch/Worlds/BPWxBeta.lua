@@ -1,4 +1,4 @@
--- It's more readable to call wait(x) rather than coroutine.yield(x). 
+-- It's more readable to call wait(x) rather than coroutine.yield(x).
 wait=coroutine.yield;
 
 -- This function reloads and runs this script again.

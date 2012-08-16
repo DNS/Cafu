@@ -53,10 +53,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 ///////////////////////////////////////////////////////////////////////////////
 /// Class TerrainEditorDialogFB
 ///////////////////////////////////////////////////////////////////////////////
-class TerrainEditorDialogFB : public wxPanel 
+class TerrainEditorDialogFB : public wxPanel
 {
 	private:
-	
+
 	protected:
 		enum
 		{
@@ -76,7 +76,7 @@ class TerrainEditorDialogFB : public wxPanel
 			ID_BUTTON_IMPORT,
 			ID_BUTTON_EXPORT,
 		};
-		
+
 		wxToolBar* m_ToolBar;
 		wxSpinCtrl* m_SpinCtrlRadius;
 		wxSlider* m_SliderRadius;
@@ -88,7 +88,7 @@ class TerrainEditorDialogFB : public wxPanel
 		wxButton* m_ButtonImport;
 		wxButton* m_ButtonExport;
 		wxButton* m_ButtonGenerate;
-		
+
 		// Virtual event handlers, overide them in your derived class
 		virtual void OnToolClicked( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnSpinCtrlRadius( wxSpinEvent& event ){ event.Skip(); }
@@ -101,21 +101,21 @@ class TerrainEditorDialogFB : public wxPanel
 		virtual void OnButtonImport( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnButtonExport( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnButtonGenerate( wxCommandEvent& event ){ event.Skip(); }
-		
-	
+
+
 	public:
 		TerrainEditorDialogFB( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxTAB_TRAVERSAL );
 		~TerrainEditorDialogFB();
-	
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class TerrainGenerationDialogFB
 ///////////////////////////////////////////////////////////////////////////////
-class TerrainGenerationDialogFB : public wxDialog 
+class TerrainGenerationDialogFB : public wxDialog
 {
 	private:
-	
+
 	protected:
 		wxSlider* m_SliderFrequency;
 		wxSlider* m_SliderOctaves;
@@ -123,7 +123,7 @@ class TerrainGenerationDialogFB : public wxDialog
 		wxSlider* m_SliderPersistence;
 		wxPanel* m_PreviewPanel;
 		wxButton* m_ButtonCancel;
-		
+
 		// Virtual event handlers, overide them in your derived class
 		virtual void OnSpinCtrlFrequency( wxSpinEvent& event ){ event.Skip(); }
 		virtual void OnSliderFrequency( wxScrollEvent& event ){ event.Skip(); }
@@ -134,8 +134,8 @@ class TerrainGenerationDialogFB : public wxDialog
 		virtual void OnSpinCtrlPersistence( wxSpinEvent& event ){ event.Skip(); }
 		virtual void OnSliderPersistence( wxScrollEvent& event ){ event.Skip(); }
 		virtual void OnSpinCtrlSeed( wxSpinEvent& event ){ event.Skip(); }
-		
-	
+
+
 	public:
 		wxSpinCtrl* m_SpinCtrlFrequency;
 		wxSpinCtrl* m_SpinCtrlOctaves;
@@ -144,7 +144,7 @@ class TerrainGenerationDialogFB : public wxDialog
 		wxSpinCtrl* m_SpinCtrlSeed;
 		TerrainGenerationDialogFB( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Generate Terrain"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxDEFAULT_DIALOG_STYLE );
 		~TerrainGenerationDialogFB();
-	
+
 };
 
 #endif //__TerrainEditorDialogs__

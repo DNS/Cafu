@@ -49,7 +49,7 @@ void ResourceManagerT::Init()
     // These particles are used as animated particles, but note that they are treated like normal, individual, non-animated particles.
     PARTICLE_EXPLOSION1_FRAME1=RenderMats.Size();
     for (unsigned long FrameNr=0; FrameNr<26; FrameNr++)
-    { 
+    {
         sprintf(ParticleName, "Sprites/expl1/expl_%02lu", FrameNr+1);
         RenderMats.PushBack(MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial(ParticleName)));
     }

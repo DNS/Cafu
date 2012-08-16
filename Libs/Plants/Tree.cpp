@@ -537,11 +537,11 @@ void TreeT::Draw() const
             if (LeavesAfterLoD.Size()<AllLeaves.Size()) LeavesAfterLoD.PushBackEmpty(AllLeaves.Size()-LeavesAfterLoD.Size());
 
             #if 1
-        	GetLeavesAfterLoD(Trunk, LeavesAfterLoD, NrOfLeavesAfterLoD);
+            GetLeavesAfterLoD(Trunk, LeavesAfterLoD, NrOfLeavesAfterLoD);
             #else
             #warning "LoD is OFF!"
-        	for (unsigned long LeafNr=0; LeafNr<AllLeaves.Size(); LeafNr++)
-	            LeavesAfterLoD[NrOfLeavesAfterLoD++]=LeafNr;
+            for (unsigned long LeafNr=0; LeafNr<AllLeaves.Size(); LeafNr++)
+                LeavesAfterLoD[NrOfLeavesAfterLoD++]=LeafNr;
             #endif
 
 

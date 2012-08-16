@@ -64,19 +64,19 @@ class TerrainEditorDialogT : public TerrainEditorDialogFB
     protected:
 
     void OnToolClicked           (wxCommandEvent& event);
-	void OnSpinCtrlRadius        (wxSpinEvent&    event);
-	void OnSliderScrollRadius    (wxScrollEvent&  event);
-	void OnSpinCtrlHardness      (wxSpinEvent&    event);
-	void OnSliderScrollHardness  (wxScrollEvent&  event);
-	void OnSpinCtrlToolEffect    (wxSpinEvent&    event);
-	void OnSliderScrollToolEffect(wxScrollEvent&  event);
-	void OnChoiceResolution      (wxCommandEvent& event);
-	void OnButtonImport          (wxCommandEvent& event);
-	void OnButtonExport          (wxCommandEvent& event);
-	void OnButtonGenerate        (wxCommandEvent& event);
+    void OnSpinCtrlRadius        (wxSpinEvent&    event);
+    void OnSliderScrollRadius    (wxScrollEvent&  event);
+    void OnSpinCtrlHardness      (wxSpinEvent&    event);
+    void OnSliderScrollHardness  (wxScrollEvent&  event);
+    void OnSpinCtrlToolEffect    (wxSpinEvent&    event);
+    void OnSliderScrollToolEffect(wxScrollEvent&  event);
+    void OnChoiceResolution      (wxCommandEvent& event);
+    void OnButtonImport          (wxCommandEvent& event);
+    void OnButtonExport          (wxCommandEvent& event);
+    void OnButtonGenerate        (wxCommandEvent& event);
 
 
-	private:
+    private:
 
     friend class ToolTerrainEditorT;
 

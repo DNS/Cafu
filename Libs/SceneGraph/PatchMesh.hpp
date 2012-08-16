@@ -62,7 +62,7 @@ namespace cf
         const PatchT& GetPatch(unsigned long i, unsigned long j) const { assert(i<Width && j<Height); return Patches[j*Width+i]; }
 
         /// Returns the (non-const) mesh patch at (i, j).
-        PatchT& GetPatch(unsigned long i, unsigned long j) { assert(i<Width && j<Height); return Patches[j*Width+i]; } 
+        PatchT& GetPatch(unsigned long i, unsigned long j) { assert(i<Width && j<Height); return Patches[j*Width+i]; }
     };
 }
 
