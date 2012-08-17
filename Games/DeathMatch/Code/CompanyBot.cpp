@@ -193,7 +193,7 @@ void EntCompanyBotT::DoDeserialize(cf::Network::InStreamT& Stream)
     Stream >> State.ActiveWeaponFrameNr;
 
     for (unsigned int Nr=0; Nr<16; Nr++) Stream >> State.HaveAmmo[Nr];
-    for (unsigned int Nr=0; Nr<32; Nr++) { Stream >> ui; State.HaveAmmoInWeapons[Nr]=ui; }
+    for (unsigned int Nr=0; Nr<32; Nr++) { Stream >> ui; State.HaveAmmoInWeapons[Nr]=(unsigned char)ui; }
 
 
     const bool IsAlive=(State.ModelSequNr<18 || State.ModelSequNr>24);

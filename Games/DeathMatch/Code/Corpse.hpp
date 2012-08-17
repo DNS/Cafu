@@ -52,9 +52,9 @@ class EntCorpseT : public BaseEntityT
     void DoSerialize(cf::Network::OutStreamT& Stream) const;
     void DoDeserialize(cf::Network::InStreamT& Stream);
 
-    int   m_ModelIndex;
-    int   m_ModelSequNr;
-    float m_ModelFrameNr;
+    int32_t m_ModelIndex;
+    int32_t m_ModelSequNr;
+    float   m_ModelFrameNr;
 };
 
 #endif

@@ -77,7 +77,7 @@ class EntStaticDetailModelT : public BaseEntityT
 
     const CafuModelT* m_Model;
     bool              m_PlayAnim;   ///< If 1, play the animation, i.e. advance the frames over time. If 0, keep still.
-    int               m_SequNr;     ///< The number of the animation sequence to play.
+    int32_t           m_SequNr;     ///< The number of the animation sequence to play.
 
     mutable IntrusivePtrT<AnimExpressionT>   m_AnimExpr;    ///< The state of the currently playing animation sequence. Used <em>independently</em> on the server and the clients; only a <em>restart</em> of a sequence is sync'ed over the network via the EventID_RestartSequ event.
     mutable IntrusivePtrT<AnimExprStandardT> m_LastStdAE;   ///< The most recent standard expression that we set (as a subexpression of m_AnimExpr).
