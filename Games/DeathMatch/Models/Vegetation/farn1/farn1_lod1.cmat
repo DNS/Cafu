@@ -7,7 +7,7 @@ Models/vegetation/farn/farn1
     alphaTest 0.5
     noShadows
     noDynLight
-    twoSided 
+    twoSided
 
     meta_editorImage noEditor
 }

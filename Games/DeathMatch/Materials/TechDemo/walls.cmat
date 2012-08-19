@@ -59,12 +59,12 @@ TechDemo/walls/a_rib_panel_04
 // *** Materials in "Set 2". ***
 // *****************************
 
-// Es gab hier ursprünglich drei wesentliche Gruppen von Texturen: gotbwall*, minwall* und stewall*.
-// Diese waren schon im Original einander recht ähnlich, und Charles hat sie so gemacht,
-// daß sie alle als einer einzigen Gruppe zugehörig betrachtet werden können.
-// Ich habe daher die Namensgebung durch Anpassung der Prefixe angepaßt, und das ursprüngliche
-// Präfix weiter hinten eingebaut.
-// Später sollten aber alle Namen mal neu sortiert und vereinfacht werden!!
+// Es gab hier ursprÃ¼nglich drei wesentliche Gruppen von Texturen: gotbwall*, minwall* und stewall*.
+// Diese waren schon im Original einander recht Ã¤hnlich, und Charles hat sie so gemacht,
+// daÃŸ sie alle als einer einzigen Gruppe zugehÃ¶rig betrachtet werden kÃ¶nnen.
+// Ich habe daher die Namensgebung durch Anpassung der Prefixe angepaÃŸt, und das ursprÃ¼ngliche
+// PrÃ¤fix weiter hinten eingebaut.
+// SpÃ¤ter sollten aber alle Namen mal neu sortiert und vereinfacht werden!!
 
 TechDemo/walls/stewall_gotb4
 {
@@ -159,7 +159,7 @@ TechDemo/walls/stewall6blu
 // *** Materials in "Set 3". ***
 // *****************************
 
-// Kann man als einer Gruppe zugehörig betrachten, dies waren die "lfwall*" Texturen,
+// Kann man als einer Gruppe zugehÃ¶rig betrachten, dies waren die "lfwall*" Texturen,
 // es wurde lediglich "lfwall" mit "wall-" ersetzt.
 
 TechDemo/walls/wall-10
