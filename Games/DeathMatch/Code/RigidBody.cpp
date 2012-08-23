@@ -30,7 +30,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SceneGraph/Node.hpp"
 #include "UniScriptState.hpp"
 
-#include <iostream>     // For std::cout debug output
 extern "C"
 {
     #include <lua.h>
@@ -75,6 +74,41 @@ EntRigidBodyT::EntRigidBodyT(const EntityCreateParamsT& Params)
 {
     ClipModel.Register();
 
+    /*
+     * Note that the ClipModel and the m_RootNode are defined in *world space*.
+     * That means that at this point, m_Origin is *not* at the center of the rigid body, but at (0, 0, 0),
+     * and that the m_Dimensions correspond to the bounding-box of the body (e.g. a crate) in world space.
+     *
+     * It helps to think of the m_OrigOffset vector from the origin to the body center as part of the model
+     * that is fixed to the model at its tip:
+     *
+     *                                   +---------+   body
+     *                  m_OrigOffset     |         |
+     *           0-----------------------+--->X    |
+     *                                   |         |
+     *                                   +---------+
+     *
+     * As in the code in this class we want a more natural setup where the origin is at the center of the crate
+     * and its dimensions are relative to it (in "model space"), we make the appropriate adjustments here.
+     * This setup also happens to be used in the Bullet physics library.
+     *
+     * These adjustments must be accounted for / be undone when we deal with the ClipModel or the m_RootNode:
+     * Observe how much the root of the m_OrigOffset vector changes even for tiny rotations around the body center
+     * (the vector tip). The root of the rotated m_OrigOffset vector is the proper origin for the ClipModel and
+     * the m_RootNode. This is also why this origin can *not* be interpolated across frames on the client, whereas
+     * our origin that is adjusted to the center of the body can.
+     */
+    m_Origin = m_Dimensions.GetCenter();
+
+    // Update the Dimensions box of the entity so that the server code properly determines whether we're in the clients PVS or not.
+    // TODO / FIXME: The server computes our world-space bounding-box by offsetting our m_Dimensions by m_Origin.
+    //      Thus, we update the m_Dimensions accordingly below, but actually the server code should be changed!
+    //      For example, BaseEntityTs should just have a (virtual) method GetWorldBB() - the server should never query our m_Dimensions
+    //      member directly. Maybe the dimensions should not even be a member of BaseEntityT??
+    //      Also see old   svn diff -c 831   for how this affects other code!
+    m_Dimensions.Min = -m_HalfExtents*1.732;    // The 1.732 is ca. sqrt(3), for the otherwise not accounted for possible rotation of the box.
+    m_Dimensions.Max =  m_HalfExtents*1.732;
+
 
     // Consider the properties specific to this entity.
     float Mass=0.0f;
@@ -92,20 +126,14 @@ EntRigidBodyT::EntRigidBodyT(const EntityCreateParamsT& Params)
 
 
     // No matter if on client or server side: we always initialize the m_CollisionShape on both.
-    const btVector3 HalfExtentsM=btVector3(float(m_HalfExtents.x/1000.0), float(m_HalfExtents.y/1000.0), float(m_HalfExtents.z/1000.0));   // The /1000 is because our physics world is in meters.
-
     // It seems that Bullet doesn't really support moving *concave* shapes:
     //   - No inertia is computed for them (see implementations of btConcaveShape::calculateLocalInertia()).
     //   - For collision detection, only the gimpact algorithm is available, see section "Collision Matrix" in Bullet_User_Manual.pdf.
-    m_CollisionShape=new btBoxShape(HalfExtentsM);
+    // The division by 1000.0 is because our physics world unit is meters.
+    m_CollisionShape=new btBoxShape(conv(m_HalfExtents/1000.0));
 
     btVector3 Inertia;
     m_CollisionShape->calculateLocalInertia(Mass, Inertia);
-
-    // std::cout << __FILE__ << " (" << __LINE__ << "): TEST TEST TEST, \n"
-    //           << "Dimensions   " << m_Dimensions.Min << " - " << m_Dimensions.Max << "\n"
-    //           << "Half-Extents " << (m_HalfExtents/1000.0f) << "\n"
-    //           << "OrigOffset   " << m_OrigOffset << "    Mass: " << Mass << "\n";
 
     m_RigidBody=new btRigidBody(btRigidBody::btRigidBodyConstructionInfo(Mass, this /*btMotionState for this body*/, m_CollisionShape, Inertia));
 
@@ -145,6 +173,7 @@ void EntRigidBodyT::DoDeserialize(cf::Network::InStreamT& Stream)
     Stream >> f; m_Rotation.setZ(f);
     Stream >> f; m_Rotation.setW(f);
 
+
     // Client-side: Properly update the clip model of the "old" ClipSys at the new position and orientation.
     const btMatrix3x3            Basis(m_Rotation);
     cf::math::Matrix3x3T<double> Orient;
@@ -153,7 +182,7 @@ void EntRigidBodyT::DoDeserialize(cf::Network::InStreamT& Stream)
         for (unsigned long j=0; j<3; j++)
             Orient[i][j]=Basis[i][j];
 
-    ClipModel.SetOrigin(m_Origin);
+    ClipModel.SetOrigin(m_Origin - Orient*m_OrigOffset);
     ClipModel.SetOrientation(Orient);
     ClipModel.Register();
 }
@@ -165,10 +194,10 @@ void EntRigidBodyT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT& 
     const Vector3fT Imp  =ImpactDir.AsVectorOfFloat()*(Scale*Amount);   // Imp has no meaningful unit...
     const btVector3 Impulse(Imp.x, Imp.y, Imp.z);
 
-    // See http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=3079 for more details,
-    // especially for why we can compute rel_pos correctly as Ob-Oc, instead of having to compute the exact location of the impact!
-    const Vector3dT& Ob     =Entity->GetOrigin();  // Assumes that the damage was caused / originated at Entity->GetOrigin(). Should this be a parameter to TakeDamage()?
-    const Vector3dT  Oc     =m_Dimensions.GetCenter() + m_Origin;
+    // See http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=3079 for more details, especially for
+    // why we can compute rel_pos correctly as Ob-Oc, instead of having to compute the exact location of the impact!
+    const Vector3dT& Ob     =Entity->GetOrigin();   // Assumes that the damage was caused / originated at Entity->GetOrigin(). Should this be a parameter to TakeDamage()?
+    const Vector3dT  Oc     =m_Origin;
     const Vector3fT  rel_pos=(Ob-Oc).AsVectorOfFloat()/1000.0f;
 
     m_RigidBody->applyImpulse(Impulse, btVector3(rel_pos.x, rel_pos.y, rel_pos.z));
@@ -178,8 +207,8 @@ void EntRigidBodyT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT& 
 
 void EntRigidBodyT::Think(float FrameTime, unsigned long ServerFrameNr)
 {
-    // Rigid bodies don't think by theirselves
-    // - the physics world does all thinking for them.
+    // Rigid bodies don't think by themselves:
+    // the physics world does all the thinking for them.
 }
 
 
@@ -222,24 +251,21 @@ void EntRigidBodyT::Draw(bool FirstPersonView, float LodDist) const
     MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
     MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
 
-    MatrixT M2W;
-
-    M2W[0][3]=float(m_Origin.x);
-    M2W[1][3]=float(m_Origin.y);
-    M2W[2][3]=float(m_Origin.z);
-
-
     // Copy the Basis into the upper 3x3 submatrix of M2W.
     const btMatrix3x3 Basis(m_Rotation);
+    MatrixT           M2W;
 
     for (int i=0; i<3; i++)
         for (int j=0; j<3; j++)
             M2W[i][j]=Basis[i][j];
 
+    const Vector3dT DrawOrig = m_Origin - M2W.Mul0(m_OrigOffset);
+
+    M2W[0][3]=float(DrawOrig.x);
+    M2W[1][3]=float(DrawOrig.y);
+    M2W[2][3]=float(DrawOrig.z);
 
     MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, M2W);
-    // static int ccc=0;
-    // std::cout << "###################### draw " << m_Origin.z << " " << ccc++ << "\n";
 
 
     // RESET THE LIGHTING INFORMATION.
@@ -263,6 +289,7 @@ void EntRigidBodyT::Draw(bool FirstPersonView, float LodDist) const
     const Vector3dT LightPosD=LightPos.AsVectorOfDouble();
     const Vector3dT EyePosD  =EyePos.AsVectorOfDouble();
 
+
     switch (MatSys::Renderer->GetCurrentRenderAction())
     {
         case MatSys::RendererI::AMBIENT:
@@ -283,13 +310,10 @@ void EntRigidBodyT::Draw(bool FirstPersonView, float LodDist) const
 
 void EntRigidBodyT::getWorldTransform(btTransform& worldTrans) const
 {
-    const Vector3fT O=(m_Origin+m_OrigOffset).AsVectorOfFloat()/1000.0f;   // The /1000 is because our physics world unit is meters.
-
-    std::cout << __FILE__ << " (" << __LINE__ << "): getWorldTransform(), " << O << "\n";
-
     // Return the initial transformation of our rigid body to the physics world.
+    // The division by 1000.0 is because our physics world unit is meters.
     worldTrans.setIdentity();
-    worldTrans.setOrigin(btVector3(O.x, O.y, O.z));     // TODO: Need a function     inline btVector3 toBullet(const Vector3fT& V);
+    worldTrans.setOrigin(conv(m_Origin/1000.0));
 }
 
 
@@ -298,65 +322,19 @@ void EntRigidBodyT::setWorldTransform(const btTransform& worldTrans)
     if (!m_RigidBody->isActive()) return;   // See my post at http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?t=2256 for details...
 
     // Update the transformation of our graphics object according to the physics world results.
-    const btVector3& O1=worldTrans.getOrigin();
-    const Vector3fT  O2=Vector3fT(O1.x(), O1.y(), O1.z());
+    m_Origin = convd(worldTrans.getOrigin())*1000.0;
 
-
-    const btVector3 OrigOffset(float(m_OrigOffset.x), float(m_OrigOffset.y), float(m_OrigOffset.z));
-    const btVector3 RotOffset=worldTrans.getBasis()*OrigOffset;
-    const VectorT   RotOff(RotOffset.x(), RotOffset.y(), RotOffset.z());
-
-    m_Origin=(O2*1000.0f).AsVectorOfDouble() - RotOff;
-
-
-    // Update the Dimensions box of the entity so that the server code properly determines whether we're in the clients PVS or not.
-    // TODO / FIXME: The server computes our world-space bounding-box by offsetting our m_Dimensions by m_Origin.
-    //      Thus, we update the m_Dimensions accordingly below, but actually the server code should be changed!
-    //      For example, BaseEntityTs should just have a (virtual) method GetWorldBB() - the server should never query our m_Dimensions
-    //      member directly. Maybe the dimensions should not even be a member of State ??
-    //      Also see   svn diff -c 831   for how this affects other code!
-    m_Dimensions.Min=RotOff-m_HalfExtents*1.732;    // The 1.732 is sqrt(3), for the otherwise not accounted possible rotation of the box.
-    m_Dimensions.Max=RotOff+m_HalfExtents*1.732;
-
-
-    // We're actually only interested in the basis vectors, but Quaternions have many advantages for representing spatial rotations
-    // (see great article at http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation for details), and they're great for
-    // sync'ing the orientation over the network as well (only four simple numbers rather than nine).
+    // We're actually only interested in the basis vectors, but quaternions have many advantages for representng
+    // spatial rotations (see http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation for details), and they
+    // are great for sync'ing the orientation over the network as well (only four simple numbers rather than nine).
     //
-    // Why not use Euler angles instead? They're more intuitive, but if B and C are btMatrix3x3 and B is a valid basis, then
+    // Why not use Euler angles instead? They're more intuitive, but if B and C are btMatrix3x3 and B is
+    // a valid basis, then
     //     B.getEuler(y, p, r);
     //     C.setEulerYPR(y, p, r);
-    // yields in C a basis different from B! That is, getEuler() and setEulerYPR() unexpectedly cannot be used together,
-    // as is also pointed out in http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=1961
+    // yields in C a basis different from B! That is, getEuler() and setEulerYPR() unexpectedly cannot be used
+    // together, as is also pointed out in http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=1961
     m_Rotation = worldTrans.getRotation();
-
-
-//#ifdef DEBUG
-#if 0
-    // Assert that we can properly reconstruct the basis from the quaternion.
-    btMatrix3x3 newBasis(m_Rotation);
-
-    std::cout << __FILE__ << " (" << __LINE__ << "): setWorldTransform(), " << m_Origin << ",\n"
-    << "  m_Rotation: "
-        << " " << m_Rotation.x()
-        << " " << m_Rotation.y()
-        << " " << m_Rotation.z()
-        << " " << m_Rotation.w() << "\n";
-
-    for (int RowNr=0; RowNr<3; RowNr++)
-    {
-        btVector3 Orig=worldTrans.getBasis().getRow(RowNr);
-        btVector3 New =newBasis.getRow(RowNr);
-        btVector3 Diff=Orig - New;
-
-        std::cout << "    " << Orig.x() << " " << Orig.y() << " " << Orig.z();
-        std::cout << "    " << New .x() << " " << New .y() << " " << New .z();
-        std::cout << "    " << Diff.x() << " " << Diff.y() << " " << Diff.z();
-        std::cout << "\n";
-    }
-
-    std::cout << "\n";
-#endif
 
 
     // Properly update the clip model of the "old" ClipSys at the new position and orientation.
@@ -366,7 +344,7 @@ void EntRigidBodyT::setWorldTransform(const btTransform& worldTrans)
         for (unsigned long j=0; j<3; j++)
             Orient[i][j]=worldTrans.getBasis()[i][j];
 
-    ClipModel.SetOrigin(m_Origin);
+    ClipModel.SetOrigin(m_Origin - Orient*m_OrigOffset);
     ClipModel.SetOrientation(Orient);
     ClipModel.Register();
 }
