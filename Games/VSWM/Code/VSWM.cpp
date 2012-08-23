@@ -206,12 +206,6 @@ bool BaseEntityT::GetLightSourceInfo(unsigned long& /*DiffuseColor*/, unsigned l
 }
 
 
-bool BaseEntityT::DrawInterpolated() const
-{
-    return true;
-}
-
-
 void BaseEntityT::Draw(bool /*FirstPersonView*/, float /*LodDist*/) const
 {
 }

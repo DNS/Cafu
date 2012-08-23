@@ -261,12 +261,6 @@ class BaseEntityT : public RefCountedT
     /// (In theory, this function might also be called on server-side, from within Think().)
     virtual bool GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const;
 
-    /// This CLIENT-SIDE method determines whether the engine should interpolate the origin (State.Origin) of this entity for drawing.
-    /// The normal return value is true, but e.g. rigid bodies (EntRigidBodyT) use some variables in the State member in a fashion
-    /// that doesn't work with the engines interpolation, so they can turn if off by overriding this method.
-    /// (This in turn makes this method a kind of hack for the EntRigidBodyT class...)
-    virtual bool DrawInterpolated() const;
-
     /// This CLIENT-SIDE function is called by the client in order to get this entity drawn.
     ///
     /// Note that it is usually called several times per frame, in order to gather the individual terms of the lighting equation:

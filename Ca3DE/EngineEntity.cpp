@@ -385,7 +385,7 @@ bool EngineEntityT::GetLightSourceInfo(bool UsePredictedState, unsigned long& Di
         // It's a non-predicted NPC entity.
         const Vector3dT BackupOrigin(Entity->GetOrigin());
 
-        if (m_Interpolate_Ok && interpolateNPCs.GetValueBool() && Entity->DrawInterpolated())
+        if (m_Interpolate_Ok && interpolateNPCs.GetValueBool())
         {
             const double dt=m_InterpolateTime1-m_InterpolateTime0;
             const double f =(dt>0) ? (GlobalTime.GetValueDouble()-m_InterpolateTime1)/dt : 1.0;
@@ -412,7 +412,7 @@ void EngineEntityT::Draw(bool FirstPersonView, bool UsePredictedState, const Vec
     }
     else
     {
-        if (m_Interpolate_Ok && interpolateNPCs.GetValueBool() && Entity->DrawInterpolated())
+        if (m_Interpolate_Ok && interpolateNPCs.GetValueBool())
         {
             const double dt=m_InterpolateTime1-m_InterpolateTime0;
             const double f =(dt>0) ? (GlobalTime.GetValueDouble()-m_InterpolateTime1)/dt : 1.0;
