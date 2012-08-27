@@ -99,7 +99,6 @@ EngineEntityT::EngineEntityT(IntrusivePtrT<BaseEntityT> Entity_, unsigned long C
       m_BaseLine(),
       BaseLineFrameNr(CreationFrameNr),
       m_OldStates(),
-      m_PredictedState(),
       m_Interpolate_Ok(false),
       m_InterpolateOrigin0(),
       m_InterpolateTime0(0),
@@ -213,7 +212,6 @@ EngineEntityT::EngineEntityT(IntrusivePtrT<BaseEntityT> Entity_, NetDataT& InDat
       m_BaseLine(),
       BaseLineFrameNr(1234),
       m_OldStates(),
-      m_PredictedState(),
       m_Interpolate_Ok(false),
       m_InterpolateOrigin0(),
       m_InterpolateTime0(0),
@@ -221,7 +219,6 @@ EngineEntityT::EngineEntityT(IntrusivePtrT<BaseEntityT> Entity_, NetDataT& InDat
 {
     const cf::Network::StateT CurrentState(cf::Network::StateT() /*::ALL_ZEROS*/, InData.ReadDMsg());
 
-    //XXX TODO: Does setting the playername work?
     // Pass true for the IsInited parameter in order to indicate that we're constructing the entity.
     // This is done in order to have it not wrongly process the event counters.
     SetState(CurrentState, true);
@@ -229,8 +226,7 @@ EngineEntityT::EngineEntityT(IntrusivePtrT<BaseEntityT> Entity_, NetDataT& InDat
     for (unsigned long OldStateNr=0; OldStateNr<32 /*MUST be a power of 2*/; OldStateNr++)
         m_OldStates.PushBack(CurrentState);
 
-    m_BaseLine      =CurrentState;
-    m_PredictedState=CurrentState;
+    m_BaseLine=CurrentState;
 
     m_InterpolateTime1=GlobalTime.GetValueDouble();
 }
@@ -312,7 +308,11 @@ bool EngineEntityT::Repredict(const ArrayT<PlayerCommandT>& PlayerCommands, unsi
         return false;
     }
 
-    const cf::Network::StateT BackupState = GetState();
+    /*
+     * This assumes that this method is immediately called after ParseServerDeltaUpdateMessage(),
+     * where the state of this entity has been set to the state of the latest server frame,
+     * and that every in-game packet from the server contains a delta update message for our local client!
+     */
 
     // Unseren Entity über alle relevanten (d.h. noch nicht bestätigten) PlayerCommands unterrichten.
     // Wenn wir auf dem selben Host laufen wie der Server (z.B. Single-Player Spiel oder lokaler Client bei non-dedicated-Server Spiel),
@@ -323,44 +323,21 @@ bool EngineEntityT::Repredict(const ArrayT<PlayerCommandT>& PlayerCommands, unsi
         Entity->ProcessConfigString(&PlayerCommands[SequenceNr & (PlayerCommands.Size()-1)], "PlayerCommand");
 
     Entity->Think(-2.0, 0);
-
-    m_PredictedState = GetState();
-    SetState(BackupState);
-
     return true;
 }
 
 
 void EngineEntityT::Predict(const PlayerCommandT& PlayerCommand, unsigned long OutgoingSequenceNr)
 {
-    const cf::Network::StateT BackupState = GetState();
-    SetState(m_PredictedState);
-
     Entity->ProcessConfigString(&PlayerCommand, "PlayerCommand");
     Entity->Think(-1.0, 0);
-
-    m_PredictedState = GetState();
-    SetState(BackupState);
 }
 
 
 void EngineEntityT::GetCamera(bool UsePredictedState, Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const
 {
-    if (!UsePredictedState)
-    {
-        Origin = Entity->GetOrigin();
-        Entity->GetCameraOrientation(Heading, Pitch, Bank);
-        return;
-    }
-
-    // TODO: Optimize this, e.g. by caching the camera details after each update of PredictedState.
-    const cf::Network::StateT BackupState = GetState();
-    SetState(m_PredictedState);
-
     Origin = Entity->GetOrigin();
     Entity->GetCameraOrientation(Heading, Pitch, Bank);
-
-    SetState(BackupState);
 }
 
 
@@ -372,12 +349,8 @@ bool EngineEntityT::GetLightSourceInfo(bool UsePredictedState, unsigned long& Di
     if (UsePredictedState)
     {
         // It's the local predicted human player entity.
-        const cf::Network::StateT BackupState = GetState();
-        SetState(m_PredictedState);
-
         const bool Result=Entity->GetLightSourceInfo(DiffuseColor, SpecularColor, Position, Radius, CastsShadows);
 
-        SetState(BackupState);
         return Result;
     }
     else
@@ -408,7 +381,7 @@ void EngineEntityT::Draw(bool FirstPersonView, bool UsePredictedState, const Vec
 
     if (UsePredictedState)
     {
-        SetState(m_PredictedState);
+        //SetState(m_PredictedState);
     }
     else
     {
@@ -506,19 +479,7 @@ void EngineEntityT::Draw(bool FirstPersonView, bool UsePredictedState, const Vec
 
 void EngineEntityT::PostDraw(float FrameTime, bool FirstPersonView, bool UsePredictedState)
 {
-    if (UsePredictedState)
-    {
-        const cf::Network::StateT BackupState = GetState();
-        SetState(m_PredictedState);
-
-        Entity->PostDraw(FrameTime, FirstPersonView);
-
-        SetState(BackupState);
-    }
-    else
-    {
-        Entity->PostDraw(FrameTime, FirstPersonView);
-    }
+    Entity->PostDraw(FrameTime, FirstPersonView);
 }
 
 #endif   /* !DEDICATED */

@@ -154,14 +154,13 @@ class EngineEntityT
     void SetState(const cf::Network::StateT& State, bool IsIniting=false) const;
 
 
-    IntrusivePtrT<BaseEntityT>  Entity;             // Base entity as allocated via the cf::GameSys::Game interface.
+    IntrusivePtrT<BaseEntityT>  Entity;             ///< The base entity as allocated via the cf::GameSys::Game interface. On the client, it is in the most recent state as received from the server, *plus* any extrapolations (NPCs) and predictions (local human player) that are applied until the next update arrives.
 
     unsigned long               EntityStateFrameNr; // ==ServerFrameNr (the state number of Entity->State), used both on Client and Server side
 
     cf::Network::StateT         m_BaseLine;         ///< State of the entity immediately after it was created.
     unsigned long               BaseLineFrameNr;    ///< Frame number on which the entity was created.
     ArrayT<cf::Network::StateT> m_OldStates;        ///< States of the last n (server) frames, kept on both client and server side for delta compression.
-    cf::Network::StateT         m_PredictedState;   ///< The current predicted state.
 
     // Variables for interpolating the origin of non-predicted entities (i.e. all but the local player entity).
     bool                        m_Interpolate_Ok;   ///< Is interpolation currently possible? (false e.g. when the last update of the Entity->State was not relative to one of the OldStates).
