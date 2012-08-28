@@ -33,6 +33,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 extern ConVarT GlobalTime;
 
+namespace
+{
+    ConVarT UsePrediction("usePrediction", true, ConVarT::FLAG_MAIN_EXE, "Toggles whether client prediction is used (recommended!).");
+}
+
 
 /******************/
 /*** Both Sides ***/
@@ -302,6 +307,9 @@ bool EngineEntityT::ParseServerDeltaUpdateMessage(unsigned long DeltaFrameNr, un
 
 bool EngineEntityT::Repredict(const ArrayT<PlayerCommandT>& PlayerCommands, unsigned long RemoteLastIncomingSequenceNr, unsigned long LastOutgoingSequenceNr)
 {
+    if (!UsePrediction.GetValueBool())
+        return false;
+
     if (LastOutgoingSequenceNr-RemoteLastIncomingSequenceNr>PlayerCommands.Size())
     {
         EnqueueString("WARNING - Prediction impossible: Last ack'ed PlayerCommand is too old (%u, %u)!\n", RemoteLastIncomingSequenceNr, LastOutgoingSequenceNr);
@@ -329,12 +337,15 @@ bool EngineEntityT::Repredict(const ArrayT<PlayerCommandT>& PlayerCommands, unsi
 
 void EngineEntityT::Predict(const PlayerCommandT& PlayerCommand, unsigned long OutgoingSequenceNr)
 {
+    if (!UsePrediction.GetValueBool())
+        return;
+
     Entity->ProcessConfigString(&PlayerCommand, "PlayerCommand");
     Entity->Think(-1.0, 0);
 }
 
 
-void EngineEntityT::GetCamera(bool UsePredictedState, Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const
+void EngineEntityT::GetCamera(Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const
 {
     Origin = Entity->GetOrigin();
     Entity->GetCameraOrientation(Heading, Pitch, Bank);
@@ -477,7 +488,7 @@ void EngineEntityT::Draw(bool FirstPersonView, bool UsePredictedState, const Vec
 }
 
 
-void EngineEntityT::PostDraw(float FrameTime, bool FirstPersonView, bool UsePredictedState)
+void EngineEntityT::PostDraw(float FrameTime, bool FirstPersonView)
 {
     Entity->PostDraw(FrameTime, FirstPersonView);
 }

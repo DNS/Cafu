@@ -355,9 +355,6 @@ static float                    LoadingProgressPercent=0.0f;
 static std::string              LoadingProgressText="";
 
 
-static ConVarT UsePrediction("usePrediction", true, ConVarT::FLAG_MAIN_EXE, "Toggles whether client prediction is used (recommended!).");
-
-
 void ClientStateInGameT::Render(float FrameTime)
 {
     const wxSize FrameSize=wxGetApp().GetMainFrame()->GetClientSize();
@@ -377,7 +374,7 @@ void ClientStateInGameT::Render(float FrameTime)
         unsigned short Current_Pitch;
         unsigned short Current_Bank;
 
-        if (World->OurEntity_GetCamera(UsePrediction.GetValueBool(), Current_Origin, Current_Heading, Current_Pitch, Current_Bank))
+        if (World->OurEntity_GetCamera(Current_Origin, Current_Heading, Current_Pitch, Current_Bank))
         {
             Graphs.Heading[ClientFrameNr & (512-1)]=(Current_Heading >> 5) & 511;
             Graphs.PosY   [ClientFrameNr & (512-1)]=((unsigned short)(Current_Origin.y/20.0)) & 511;
@@ -803,7 +800,7 @@ void ClientStateInGameT::MainLoop(float FrameTime)
                 assert(ClientIGSPtr==this);
                 const unsigned long RemoteLastIncomingSequenceNr=GameProtocol.ProcessIncomingMessage(InData, ParseServerPacketHelper);
 
-                if (World && UsePrediction.GetValueBool() && RemoteLastIncomingSequenceNr!=0)
+                if (World && RemoteLastIncomingSequenceNr!=0)
                 {
                     // Führe für unseren Entity die Reprediction durch.
                     // Der zweite Parameter entspricht der 'LastOutgoingSequenceNr'.
@@ -896,7 +893,7 @@ void ClientStateInGameT::MainLoop(float FrameTime)
             unsigned short Pitch;
             unsigned short Bank;
 
-            if (World->OurEntity_GetCamera(UsePrediction.GetValueBool(), Origin, Heading, Pitch, Bank))
+            if (World->OurEntity_GetCamera(Origin, Heading, Pitch, Bank))
                 m_PathRecorder->WritePath(Origin, Heading, FrameTime);
         }
 

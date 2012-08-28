@@ -78,10 +78,8 @@ class CaClientWorldT : public Ca3DEWorldT
     /// Returns the camera details of "our" entity that the client should use to render the world.
     /// This is typically called for the local human player from whose perspective the world is rendered.
     ///
-    /// @param UsePredictedState   Whether the predicted or the "unpredicted" state should provide the camera details.
-    ///
     /// @returns \c false if "our" entity was not available (and no camera details could be retrieved), \c true on success.
-    bool OurEntity_GetCamera(bool UsePredictedState, Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const;
+    bool OurEntity_GetCamera(Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const;
 
     void ComputeBFSPath(const VectorT& Start, const VectorT& End);
     void Draw(float FrameTime, const Vector3dT& Origin, unsigned short Heading, unsigned short Pitch, unsigned short Bank) const;

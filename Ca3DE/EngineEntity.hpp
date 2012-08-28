@@ -125,17 +125,16 @@ class EngineEntityT
 
     /// Returns the camera details of this entity that the client should use to render the world.
     /// This is typically called for the local human player from whose perspective the world is rendered.
-    /// @param UsePredictedState   Whether the predicted or the "unpredicted" state should provide the camera details.
-    void GetCamera(bool UsePredictedState, Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const;
+    void GetCamera(Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const;
 
-    // Returns the light source info for this entity. If UsePredictedState is true, the light source info for the predicted entity is returned.
+    /// Returns the light source info for this entity. If UsePredictedState is true, the light source info for the predicted entity is returned.
     bool GetLightSourceInfo(bool UsePredictedState, unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const;
 
-    // Draws this entity. The Ca3DEWorld parameter is only required so that we can learn about this entities' ambient color.
+    /// Draws this entity.
     void Draw(bool FirstPersonView, bool UsePredictedState, const VectorT& ViewerPos) const;
 
-    // Calls the 'PostDraw()' function of this entity.
-    void PostDraw(float FrameTime, bool FirstPersonView, bool UsePredictedState);
+    /// Calls the 'PostDraw()' function of this entity.
+    void PostDraw(float FrameTime, bool FirstPersonView);
 
 
     private:

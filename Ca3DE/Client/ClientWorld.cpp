@@ -294,12 +294,12 @@ void CaClientWorldT::OurEntity_Predict(const PlayerCommandT& PlayerCommand, unsi
 }
 
 
-bool CaClientWorldT::OurEntity_GetCamera(bool UsePredictedState, Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const
+bool CaClientWorldT::OurEntity_GetCamera(Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const
 {
     if (OurEntityID<m_EngineEntities.Size())
         if (m_EngineEntities[OurEntityID]!=NULL)
         {
-            m_EngineEntities[OurEntityID]->GetCamera(UsePredictedState, Origin, Heading, Pitch, Bank);
+            m_EngineEntities[OurEntityID]->GetCamera(Origin, Heading, Pitch, Bank);
             return true;
         }
 
@@ -598,10 +598,10 @@ void CaClientWorldT::PostDrawEntities(float FrameTime, const ArrayT<unsigned lon
 
         if (EntityID!=OurEntityID && EntityID<m_EngineEntities.Size())
             if (m_EngineEntities[EntityID]!=NULL)
-                m_EngineEntities[EntityID]->PostDraw(FrameTime, false, false);
+                m_EngineEntities[EntityID]->PostDraw(FrameTime, false);
     }
 
     if (OurEntityID<m_EngineEntities.Size())
         if (m_EngineEntities[OurEntityID]!=NULL)
-            m_EngineEntities[OurEntityID]->PostDraw(FrameTime, true, true);
+            m_EngineEntities[OurEntityID]->PostDraw(FrameTime, true);
 }
