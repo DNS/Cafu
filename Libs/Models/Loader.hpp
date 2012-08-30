@@ -46,6 +46,9 @@ class ModelLoaderT
     /// The constructor.
     ModelLoaderT(const std::string& FileName, int Flags);
 
+    /// The virtual destructor.
+    virtual ~ModelLoaderT() { }
+
     /// Returns the file name of the imported model.
     /// This method is reimplemented in the \c LoaderDlodT class.
     virtual const std::string& GetFileName() const { return m_FileName; }
