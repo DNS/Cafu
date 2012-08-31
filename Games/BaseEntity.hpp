@@ -116,7 +116,7 @@ class BaseEntityT : public RefCountedT
     /// The implementation calls DoSerialize(), that derived classes override to add their own data.
     ///
     /// Note that this method is the twin of Deserialize(), whose implementation it must match.
-    virtual void Serialize(cf::Network::OutStreamT& Stream) const;
+    void Serialize(cf::Network::OutStreamT& Stream) const;
 
     /// Reads the state of this entity from the given stream, and updates the entity accordingly.
     /// This method is called after the state of the entity has been received over the network,
@@ -133,7 +133,7 @@ class BaseEntityT : public RefCountedT
     /// @param IsIniting
     ///   Used to indicate that the call is part of the construction / first-time initialization of the entity.
     ///   The implementation will use this to not wrongly process the event counters.
-    virtual void Deserialize(cf::Network::InStreamT& Stream, bool IsIniting);
+    void Deserialize(cf::Network::InStreamT& Stream, bool IsIniting);
 
     /// Returns the origin point of this entity. Used for
     ///   - obtaining the camera position of the local human player entity (1st person view),
