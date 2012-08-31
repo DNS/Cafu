@@ -31,8 +31,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Ca3DEWorld.hpp"   // Only for EngineEntityT::Draw().
 
 
-extern ConVarT GlobalTime;
-
 namespace
 {
     ConVarT UsePrediction("usePrediction", true, ConVarT::FLAG_MAIN_EXE, "Toggles whether client prediction is used (recommended!).");
@@ -103,11 +101,7 @@ EngineEntityT::EngineEntityT(IntrusivePtrT<BaseEntityT> Entity_, unsigned long C
       EntityStateFrameNr(CreationFrameNr),
       m_BaseLine(),
       BaseLineFrameNr(CreationFrameNr),
-      m_OldStates(),
-      m_Interpolate_Ok(false),
-      m_InterpolateOrigin0(),
-      m_InterpolateTime0(0),
-      m_InterpolateTime1(0)
+      m_OldStates()
 {
     m_BaseLine=GetState();
 
@@ -216,11 +210,7 @@ EngineEntityT::EngineEntityT(IntrusivePtrT<BaseEntityT> Entity_, NetDataT& InDat
       EntityStateFrameNr(0),
       m_BaseLine(),
       BaseLineFrameNr(1234),
-      m_OldStates(),
-      m_Interpolate_Ok(false),
-      m_InterpolateOrigin0(),
-      m_InterpolateTime0(0),
-      m_InterpolateTime1(0)
+      m_OldStates()
 {
     const cf::Network::StateT CurrentState(cf::Network::StateT() /*::ALL_ZEROS*/, InData.ReadDMsg());
 
@@ -232,8 +222,6 @@ EngineEntityT::EngineEntityT(IntrusivePtrT<BaseEntityT> Entity_, NetDataT& InDat
         m_OldStates.PushBack(CurrentState);
 
     m_BaseLine=CurrentState;
-
-    m_InterpolateTime1=GlobalTime.GetValueDouble();
 }
 
 
@@ -283,24 +271,12 @@ bool EngineEntityT::ParseServerDeltaUpdateMessage(unsigned long DeltaFrameNr, un
     }
 
     // Set the result as the new entity state, and record it in the m_OldStates for future reference.
-    m_Interpolate_Ok    =true;
-    m_InterpolateOrigin0=Entity->GetOrigin();
-    m_InterpolateTime0  =m_InterpolateTime1;
-    m_InterpolateTime1  =GlobalTime.GetValueDouble();
-
     EntityStateFrameNr=ServerFrameNr;
 
     const cf::Network::StateT NewState = DeltaMessage ? cf::Network::StateT(*DeltaState, *DeltaMessage) : *DeltaState;
 
     m_OldStates[EntityStateFrameNr & (m_OldStates.Size()-1)] = NewState;
     SetState(NewState);
-
-    if (length(Entity->GetOrigin() - m_InterpolateOrigin0)/(m_InterpolateTime1 - m_InterpolateTime0) > 50.0*1000.0)
-    {
-        // Don't interpolate if the theoretical speed is larger than 50 m/s, or 180 km/h.
-        m_Interpolate_Ok=false;
-    }
-
     return true;
 }
 
@@ -352,66 +328,14 @@ void EngineEntityT::GetCamera(Vector3dT& Origin, unsigned short& Heading, unsign
 }
 
 
-static ConVarT interpolateNPCs("interpolateNPCs", true, ConVarT::FLAG_MAIN_EXE, "Toggles whether the origin of NPCs is interpolated for rendering.");
-
-
 bool EngineEntityT::GetLightSourceInfo(bool UsePredictedState, unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const
 {
-    if (UsePredictedState)
-    {
-        // It's the local predicted human player entity.
-        const bool Result=Entity->GetLightSourceInfo(DiffuseColor, SpecularColor, Position, Radius, CastsShadows);
-
-        return Result;
-    }
-    else
-    {
-        // It's a non-predicted NPC entity.
-        const Vector3dT BackupOrigin(Entity->GetOrigin());
-
-        if (m_Interpolate_Ok && interpolateNPCs.GetValueBool())
-        {
-            const double dt=m_InterpolateTime1-m_InterpolateTime0;
-            const double f =(dt>0) ? (GlobalTime.GetValueDouble()-m_InterpolateTime1)/dt : 1.0;
-
-            Entity->SetInterpolationOrigin(m_InterpolateOrigin0*(1.0-f) + Entity->GetOrigin()*f);
-        }
-
-        const bool Result=Entity->GetLightSourceInfo(DiffuseColor, SpecularColor, Position, Radius, CastsShadows);
-
-        Entity->SetInterpolationOrigin(BackupOrigin);
-
-        return Result;
-    }
+    return Entity->GetLightSourceInfo(DiffuseColor, SpecularColor, Position, Radius, CastsShadows);
 }
 
 
 void EngineEntityT::Draw(bool FirstPersonView, bool UsePredictedState, const VectorT& ViewerPos) const
 {
-    const cf::Network::StateT BackupState = GetState();
-
-    if (UsePredictedState)
-    {
-        //SetState(m_PredictedState);
-    }
-    else
-    {
-        if (m_Interpolate_Ok && interpolateNPCs.GetValueBool())
-        {
-            const double dt=m_InterpolateTime1-m_InterpolateTime0;
-            const double f =(dt>0) ? (GlobalTime.GetValueDouble()-m_InterpolateTime1)/dt : 1.0;
-
-            // if (Entity->GetOrigin().z>10000)   // Only print information for the eagle in BpRockB.
-            // {
-            //     std::cout << "Values: t0: " << InterpolateTime0 << " t1: " << InterpolateTime1 << " globalt: " << GlobalTime.GetValueDouble() << " f: " << f << " ";
-            //     std::cout << "ohne Interp: " << Entity->GetOrigin() << "   mit Interp: " << InterpolateState0->Origin*(1.0-f) + Entity->GetOrigin()*f << "\n";
-            // }
-
-            Entity->SetInterpolationOrigin(m_InterpolateOrigin0*(1.0-f) + Entity->GetOrigin()*f);
-        }
-    }
-
-
     MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
     MatSys::Renderer->PushLightingParameters();
 
@@ -483,8 +407,6 @@ void EngineEntityT::Draw(bool FirstPersonView, bool UsePredictedState, const Vec
 
     MatSys::Renderer->PopLightingParameters();
     MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
-
-    SetState(BackupState);
 }
 
 

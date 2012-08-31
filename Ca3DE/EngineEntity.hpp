@@ -160,12 +160,6 @@ class EngineEntityT
     cf::Network::StateT         m_BaseLine;         ///< State of the entity immediately after it was created.
     unsigned long               BaseLineFrameNr;    ///< Frame number on which the entity was created.
     ArrayT<cf::Network::StateT> m_OldStates;        ///< States of the last n (server) frames, kept on both client and server side for delta compression.
-
-    // Variables for interpolating the origin of non-predicted entities (i.e. all but the local player entity).
-    bool                        m_Interpolate_Ok;   ///< Is interpolation currently possible? (false e.g. when the last update of the Entity->State was not relative to one of the OldStates).
-    Vector3dT                   m_InterpolateOrigin0;///< If Interpolate_Ok, this is the previous entity origin to interpolate *from* (from the most recent OldStates). The current entity state to interpolate *to* is the usual Entity->State.
-    double                      m_InterpolateTime0; ///< The clients global time at which the InterpolateState0 was received.
-    double                      m_InterpolateTime1; ///< The clients global time at which the Entity->State     was received.
 };
 
 #endif

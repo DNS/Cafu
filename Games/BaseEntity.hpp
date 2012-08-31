@@ -141,12 +141,6 @@ class BaseEntityT : public RefCountedT
     ///   - computing light source positions.
     virtual const Vector3dT& GetOrigin() const { return m_Origin; }
 
-    /// This method is a temporary hack, used so that the caller can temporarily set the origin to the "interpolated" origin,
-    /// draw the entity or get the entity light source position, then set the origin back to the previous origin.
-    /// Interpolation of client entities needs to be thoroughly redone anyway (e.g. combined with interpolating animation sequences),
-    /// this is also when this method will be removed again.
-    void SetInterpolationOrigin(const Vector3dT& O) { m_Origin = O; }
-
     /// Returns the dimensions of this entity.
     virtual const BoundingBox3dT& GetDimensions() const { return m_Dimensions; }
 
