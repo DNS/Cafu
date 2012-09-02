@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "TypeSys.hpp"
 #include "EntityCreateParams.hpp"
 #include "Libs/LookupTables.hpp"
+#include "../../Extrapolator.hpp"
 #include "../../GameWorld.hpp"
 #include "Models/Model_cmdl.hpp"
 
@@ -54,6 +55,7 @@ EntButterflyT::EntButterflyT(const EntityCreateParamsT& Params)
       m_ArcPos(0),
       m_ModelFrameNr(0.0f)
 {
+    Register(new ExtrapolatorT<Vector3dT>(m_Origin));
     Think(0.0f, 0);
 }
 

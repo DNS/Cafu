@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Eagle.hpp"
 #include "EntityCreateParams.hpp"
 #include "Libs/LookupTables.hpp"
+#include "../../Extrapolator.hpp"
 #include "../../GameWorld.hpp"
 
 #include "ClipSys/ClipWorld.hpp"
@@ -66,6 +67,7 @@ EntEagleT::EntEagleT(const EntityCreateParamsT& Params)
       m_TimeUntilNextCry(15.0),
       m_EagleCry(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Ambient/Jungle")))
 {
+    Register(new ExtrapolatorT<Vector3dT>(m_Origin));
 }
 
 

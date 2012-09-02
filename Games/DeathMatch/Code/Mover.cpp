@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "EntityCreateParams.hpp"
 #include "TypeSys.hpp"
 #include "UniScriptState.hpp"
+#include "../../Extrapolator.hpp"
 #include "../../GameWorld.hpp"
 #include "ClipSys/ClipModel.hpp"
 #include "ClipSys/ClipWorld.hpp"
@@ -76,6 +77,7 @@ EntFuncMoverT::EntFuncMoverT(const EntityCreateParamsT& Params)
       TranslationLinTimeLeft(0.0f),
       RootNode(Params.RootNode)
 {
+    Register(new ExtrapolatorT<Vector3dT>(m_Origin));
     ClipModel.Register();
 }
 

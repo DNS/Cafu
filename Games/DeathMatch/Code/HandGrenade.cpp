@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SoundSystem/SoundSys.hpp"
 #include "SoundSystem/Sound.hpp"
 #include "SoundSystem/SoundShaderManager.hpp"
+#include "../../Extrapolator.hpp"
 #include "../../GameWorld.hpp"
 #include "Models/Model_cmdl.hpp"
 #include "Network/State.hpp"
@@ -59,6 +60,7 @@ EntHandGrenadeT::EntHandGrenadeT(const EntityCreateParamsT& Params)
       m_Model(Params.GameWorld->GetModel("Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl")),
       m_FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/Shotgun_dBarrel")))
 {
+    Register(new ExtrapolatorT<Vector3dT>(m_Origin));
     m_FireSound->SetPosition(Params.Origin);
 }
 
