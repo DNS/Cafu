@@ -20,7 +20,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "../../BaseEntity.hpp"
+#include "../../Extrapolator.hpp"
 #include "../../GameWorld.hpp"
+#include "ConsoleCommands/ConVar.hpp"
 #include "EntityCreateParams.hpp"
 #include "TypeSys.hpp"
 #include "ClipSys/ClipModel.hpp"
@@ -34,6 +36,12 @@ extern "C"
     #include <lua.h>
     #include <lualib.h>
     #include <lauxlib.h>
+}
+
+
+namespace
+{
+    ConVarT interpolateNPCs("interpolateNPCs", true, ConVarT::FLAG_MAIN_EXE, "Toggles whether the origin of NPCs is interpolated for rendering.");
 }
 
 
@@ -112,7 +120,8 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT
       m_Pitch(0),
       m_Bank(0),
       m_EventsCount(),
-      m_EventsRef()
+      m_EventsRef(),
+      m_Extrapolators()
 {
     m_EventsCount.PushBackEmptyExact(NUM_EVENT_TYPES);
     m_EventsRef  .PushBackEmptyExact(NUM_EVENT_TYPES);
@@ -169,9 +178,18 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT
 
 BaseEntityT::~BaseEntityT()
 {
+    for (unsigned int ExPolNr = 0; ExPolNr < m_Extrapolators.Size(); ExPolNr++)
+        delete m_Extrapolators[ExPolNr];
+
     ClipModel.SetCollisionModel(NULL);
     ClipModel.SetUserData(NULL);
     cf::ClipSys::CollModelMan->FreeCM(CollisionModel);
+}
+
+
+void BaseEntityT::Register(GenericExPolT* ExPol)
+{
+    m_Extrapolators.PushBack(ExPol);
 }
 
 
@@ -226,6 +244,14 @@ void BaseEntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
         }
 
         m_EventsRef[i] = m_EventsCount[i];
+    }
+
+    // Deserialization has brought new reference values for extrapolated values.
+    // (Update the m_Extrapolators even if interpolateNPCs.GetValueBool() == false.)
+    for (unsigned int ExPolNr = 0; ExPolNr < m_Extrapolators.Size(); ExPolNr++)
+    {            
+        if (IsIniting) m_Extrapolators[ExPolNr]->ReInit();
+                  else m_Extrapolators[ExPolNr]->NotifyOverwriteUpdate();
     }
 }
 
@@ -362,6 +388,14 @@ bool BaseEntityT::GetLightSourceInfo(unsigned long& /*DiffuseColor*/, unsigned l
 
 void BaseEntityT::Draw(bool /*FirstPersonView*/, float /*LodDist*/) const
 {
+}
+
+
+void BaseEntityT::Extrapolate(float FrameTime)
+{
+    if (interpolateNPCs.GetValueBool())
+        for (unsigned int ExPolNr = 0; ExPolNr < m_Extrapolators.Size(); ExPolNr++)
+            m_Extrapolators[ExPolNr]->Extrapolate(FrameTime);
 }
 
 

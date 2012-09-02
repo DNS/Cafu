@@ -412,6 +412,7 @@ void EngineEntityT::Draw(bool FirstPersonView, bool UsePredictedState, const Vec
 
 void EngineEntityT::PostDraw(float FrameTime, bool FirstPersonView)
 {
+    Entity->Extrapolate(FrameTime);
     Entity->PostDraw(FrameTime, FirstPersonView);
 }
 
