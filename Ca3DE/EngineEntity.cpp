@@ -328,13 +328,13 @@ void EngineEntityT::GetCamera(Vector3dT& Origin, unsigned short& Heading, unsign
 }
 
 
-bool EngineEntityT::GetLightSourceInfo(bool UsePredictedState, unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const
+bool EngineEntityT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const
 {
     return Entity->GetLightSourceInfo(DiffuseColor, SpecularColor, Position, Radius, CastsShadows);
 }
 
 
-void EngineEntityT::Draw(bool FirstPersonView, bool UsePredictedState, const VectorT& ViewerPos) const
+void EngineEntityT::Draw(bool FirstPersonView, const VectorT& ViewerPos) const
 {
     MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
     MatSys::Renderer->PushLightingParameters();
@@ -355,13 +355,6 @@ void EngineEntityT::Draw(bool FirstPersonView, bool UsePredictedState, const Vec
 
 
     // Starting from world space, compute the position of the light source in model space.
-    // IMPORTANT NOTE:
-    // The lighting info we get here may or may not be from the local players entity.
-    // However, we currently always get the *UNPREDICTED* position of the light source,
-    // no matter whether it comes from the local predicted entity or not.
-    // (And it probably doesn't make much sense to try to get the predicted position instead.)
-    // Consequently, we ALWAYS have to compute the relative light source position (i.e. the model space position)
-    // wrt. the UNPREDICTED entity, even if we're actually drawing the predicted entity of the local player.
     LightSourcePos=LightSourcePos-Entity->GetOrigin();         // Convert into unrotated model space.
     LightSourcePos=LightSourcePos.GetRotZ(-90.0+float(Ent_Heading)/8192.0*45.0);
     LightSourcePos=scale(LightSourcePos, 1.0/25.4);
@@ -371,16 +364,6 @@ void EngineEntityT::Draw(bool FirstPersonView, bool UsePredictedState, const Vec
 
 
     // Do the same for the eye: Starting from world space, compute the position of the eye in model space.
-    // IMPORTANT NOTE:
-    // Contrary to the above, the eye position *IS* predicted.
-    // I have not *fully* thought through all ramifications, but I think in general it is fine to compute this relative to the unpredicted positions.
-    // The ONLY BAD CASE probably occurs if this entity is "our" entity: The local "view" weapon model might show the typical stepping behaviour
-    // in specular highlights that occurs when predicted and non-predicted positions meet.
-    // In this case should EyePos=PredictedOrig-PredictedOrig=(0, 0, 0).
-    // Idea: Instead of detecting *here* if this entity is "our" entity and then replace Entity->GetOrigin() with the predicted Origin,
-    // we might also detect this in EntityManager.cpp, and hand-in the unpredicted(!) position if this is "our" entity.
-    // Then we had the same result: EyePos=UnPredictedOrig-UnPredictedOrig=(0, 0, 0).
-    // On the other hand: We have UsePredictedState conveniently passed as parameter already, so why not make use of it?!
     EyePos=EyePos-Entity->GetOrigin();         // Convert into unrotated model space.
     EyePos=EyePos.GetRotZ(-90.0+float(Ent_Heading)/8192.0*45.0);
     EyePos=scale(EyePos, 1.0/25.4);

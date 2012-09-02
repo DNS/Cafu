@@ -564,7 +564,7 @@ bool CaClientWorldT::GetLightSourceInfo(unsigned long EntityID, unsigned long& D
 {
     if (EntityID<m_EngineEntities.Size())
         if (m_EngineEntities[EntityID]!=NULL)
-            return m_EngineEntities[EntityID]->GetLightSourceInfo(EntityID==OurEntityID, DiffuseColor, SpecularColor, Position, Radius, CastsShadows);
+            return m_EngineEntities[EntityID]->GetLightSourceInfo(DiffuseColor, SpecularColor, Position, Radius, CastsShadows);
 
     return false;
 }
@@ -579,12 +579,11 @@ void CaClientWorldT::DrawEntities(unsigned long OurEntityID, bool SkipOurEntity,
         if (EntityID<m_EngineEntities.Size())
             if (m_EngineEntities[EntityID]!=NULL)
             {
-                const bool FirstPersonView  =(EntityID==OurEntityID);
-                const bool UsePredictedState=(EntityID==OurEntityID);   // TODO: For correctness, we should refer to a global 'UsePrediction' variable here, instead of using always 'true' for "our entity" ('OurEntityID')!
+                const bool FirstPersonView = (EntityID==OurEntityID);
 
                 if (EntityID==OurEntityID && SkipOurEntity) continue;
 
-                m_EngineEntities[EntityID]->Draw(FirstPersonView, UsePredictedState, ViewerPos);
+                m_EngineEntities[EntityID]->Draw(FirstPersonView, ViewerPos);
             }
     }
 }

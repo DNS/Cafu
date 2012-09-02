@@ -127,11 +127,11 @@ class EngineEntityT
     /// This is typically called for the local human player from whose perspective the world is rendered.
     void GetCamera(Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const;
 
-    /// Returns the light source info for this entity. If UsePredictedState is true, the light source info for the predicted entity is returned.
-    bool GetLightSourceInfo(bool UsePredictedState, unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const;
+    /// Returns the light source info for this entity.
+    bool GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const;
 
     /// Draws this entity.
-    void Draw(bool FirstPersonView, bool UsePredictedState, const VectorT& ViewerPos) const;
+    void Draw(bool FirstPersonView, const VectorT& ViewerPos) const;
 
     /// Calls the 'PostDraw()' function of this entity.
     void PostDraw(float FrameTime, bool FirstPersonView);
