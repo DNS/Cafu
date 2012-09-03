@@ -20,8 +20,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "../../BaseEntity.hpp"
-#include "../../Extrapolator.hpp"
 #include "../../GameWorld.hpp"
+#include "../../Interpolator.hpp"
 #include "ConsoleCommands/ConVar.hpp"
 #include "EntityCreateParams.hpp"
 #include "TypeSys.hpp"
@@ -121,7 +121,7 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT
       m_Bank(0),
       m_EventsCount(),
       m_EventsRef(),
-      m_Extrapolators()
+      m_Interpolators()
 {
     m_EventsCount.PushBackEmptyExact(NUM_EVENT_TYPES);
     m_EventsRef  .PushBackEmptyExact(NUM_EVENT_TYPES);
@@ -178,8 +178,8 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT
 
 BaseEntityT::~BaseEntityT()
 {
-    for (unsigned int ExPolNr = 0; ExPolNr < m_Extrapolators.Size(); ExPolNr++)
-        delete m_Extrapolators[ExPolNr];
+    for (unsigned int i = 0; i < m_Interpolators.Size(); i++)
+        delete m_Interpolators[i];
 
     ClipModel.SetCollisionModel(NULL);
     ClipModel.SetUserData(NULL);
@@ -187,9 +187,9 @@ BaseEntityT::~BaseEntityT()
 }
 
 
-void BaseEntityT::Register(GenericExPolT* ExPol)
+void BaseEntityT::Register(ApproxBaseT* Interp)
 {
-    m_Extrapolators.PushBack(ExPol);
+    m_Interpolators.PushBack(Interp);
 }
 
 
@@ -246,12 +246,12 @@ void BaseEntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
         m_EventsRef[i] = m_EventsCount[i];
     }
 
-    // Deserialization has brought new reference values for extrapolated values.
-    // (Update the m_Extrapolators even if interpolateNPCs.GetValueBool() == false.)
-    for (unsigned int ExPolNr = 0; ExPolNr < m_Extrapolators.Size(); ExPolNr++)
+    // Deserialization has brought new reference values for interpolated values.
+    // (Update the m_Interpolators even if interpolateNPCs.GetValueBool() == false.)
+    for (unsigned int i = 0; i < m_Interpolators.Size(); i++)
     {            
-        if (IsIniting) m_Extrapolators[ExPolNr]->ReInit();
-                  else m_Extrapolators[ExPolNr]->NotifyOverwriteUpdate();
+        if (IsIniting) m_Interpolators[i]->ReInit();
+                  else m_Interpolators[i]->NotifyOverwriteUpdate();
     }
 }
 
@@ -391,11 +391,11 @@ void BaseEntityT::Draw(bool /*FirstPersonView*/, float /*LodDist*/) const
 }
 
 
-void BaseEntityT::Extrapolate(float FrameTime)
+void BaseEntityT::Interpolate(float FrameTime)
 {
     if (interpolateNPCs.GetValueBool())
-        for (unsigned int ExPolNr = 0; ExPolNr < m_Extrapolators.Size(); ExPolNr++)
-            m_Extrapolators[ExPolNr]->Extrapolate(FrameTime);
+        for (unsigned int i = 0; i < m_Interpolators.Size(); i++)
+            m_Interpolators[i]->Interpolate(FrameTime);
 }
 
 

@@ -26,7 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "TypeSys.hpp"
 #include "Libs/LookupTables.hpp"
 #include "Libs/Physics.hpp"
-#include "../../Extrapolator.hpp"
+#include "../../Interpolator.hpp"
 #include "../../GameWorld.hpp"
 #include "ClipSys/ClipWorld.hpp"
 #include "ClipSys/CollisionModelMan.hpp"
@@ -80,7 +80,7 @@ EntCompanyBotT::EntCompanyBotT(const EntityCreateParamsT& Params)
       m_WeaponModel(Params.GameWorld->GetModel("Games/DeathMatch/Models/Weapons/DesertEagle/DesertEagle_p.cmdl")),
       m_TimeForLightSource(0.0f)
 {
-    Register(new ExtrapolatorT<Vector3dT>(m_Origin));
+    Register(new InterpolatorT<Vector3dT>(m_Origin));
 
     m_LastStdAE=m_CompanyBotModel->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
     m_AnimExpr =m_LastStdAE;

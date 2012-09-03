@@ -395,7 +395,7 @@ void EngineEntityT::Draw(bool FirstPersonView, const VectorT& ViewerPos) const
 
 void EngineEntityT::PostDraw(float FrameTime, bool FirstPersonView)
 {
-    Entity->Extrapolate(FrameTime);
+    Entity->Interpolate(FrameTime);
     Entity->PostDraw(FrameTime, FirstPersonView);
 }
 

@@ -21,8 +21,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "FuncDoor.hpp"
 #include "EntityCreateParams.hpp"
-#include "../../Extrapolator.hpp"
 #include "../../GameWorld.hpp"
+#include "../../Interpolator.hpp"
 #include "ClipSys/CollisionModelMan.hpp"
 // #include "ConsoleCommands/Console.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
@@ -82,7 +82,7 @@ EntFuncDoorT::EntFuncDoorT(const EntityCreateParamsT& Params)
       TeamNext(NULL),
       RootNode(Params.RootNode)
 {
-    Register(new ExtrapolatorT<Vector3dT>(m_Origin));
+    Register(new InterpolatorT<Vector3dT>(m_Origin));
     ClipModel.Register();   // The solid door itself.
 
 

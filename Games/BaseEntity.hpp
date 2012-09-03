@@ -36,7 +36,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 class EntityCreateParamsT;
-class GenericExPolT;
+class ApproxBaseT;
 class PhysicsWorldT;
 struct lua_State;
 namespace cf { namespace ClipSys { class CollisionModelT; } }
@@ -133,7 +133,7 @@ class BaseEntityT : public RefCountedT
     ///
     /// @param IsIniting
     ///   Used to indicate that the call is part of the construction / first-time initialization of the entity.
-    ///   The implementation will use this to not wrongly process the event counters, extrapolation, etc.
+    ///   The implementation will use this to not wrongly process the event counters, interpolation, etc.
     void Deserialize(cf::Network::InStreamT& Stream, bool IsIniting);
 
     /// Returns the origin point of this entity. Used for
@@ -273,11 +273,11 @@ class BaseEntityT : public RefCountedT
     virtual void Draw(bool FirstPersonView, float LodDist) const;
 
     /// This CLIENT-SIDE function is called by the client in order to advance all values of this entity that have
-    /// been registered for extrapolation.
-    /// Each concrete entity class determines itself which values are extrapolated (e.g. the m_Origin) by calling
+    /// been registered for interpolation.
+    /// Each concrete entity class determines itself which values are interpolated (e.g. the m_Origin) by calling
     /// Register() in its constructor: see Register() for details.
-    /// Extrapolation is a technique to "smooth" values in the client video frames between server updates.
-    void Extrapolate(float FrameTime);
+    /// Interpolation is used to "smooth" values in the client video frames between server updates.
+    void Interpolate(float FrameTime);
 
     /// This CLIENT-SIDE function is called once per frame, for each entity, after the regular rendering (calls to 'Draw()') is completed,
     /// in order to provide entities an opportunity to render the HUD, employ simple "mini-prediction", triggers sounds,
@@ -310,12 +310,12 @@ class BaseEntityT : public RefCountedT
     /// and in the GameI::CreateBaseEntityFromTypeNr() method for the client-side.
     BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT& Dimensions, const unsigned int NUM_EVENT_TYPES);
 
-    /// Concrete entities call this method in their constructors in order to have us automatically extrapolate
-    /// the value that has been specified with the ExPol instance.
-    /// Extrapolation occurs on the client only: it is advanced in the video frames between server updates.
+    /// Concrete entities call this method in their constructors in order to have us automatically interpolate
+    /// the value that has been specified with the Interp instance.
+    /// Interpolation occurs on the client only: it is advanced in the video frames between server updates.
     /// Each update received from the server (applied in DoDeserialize()) automatically updates the reference value
-    /// for the extrapolation in the next video frames.
-    void Register(GenericExPolT* ExPol);
+    /// for the interpolation in the next video frames.
+    void Register(ApproxBaseT* Interp);
 
     Vector3dT      m_Origin;        ///< World coordinate of (the eye of) this entity.
     BoundingBox3dT m_Dimensions;    ///< The bounding box of this entity (relative to the origin).
@@ -343,10 +343,10 @@ class BaseEntityT : public RefCountedT
     /// "Effective C++, 3rd Edition", item 35 ("Consider alternatives to virtual functions.").)
     virtual void DoDeserialize(cf::Network::InStreamT& Stream) { }
 
-    ArrayT<uint32_t>       m_EventsCount;   ///< A counter for each event type for the number of its occurrences. Serialized (and deserialized) normally along with the entity state.
-    ArrayT<uint32_t>       m_EventsRef;     ///< A reference counter for each event type for the number of processed occurrences. Never serialized (or deserialized), never reset, strictly growing.
+    ArrayT<uint32_t>     m_EventsCount;     ///< A counter for each event type for the number of its occurrences. Serialized (and deserialized) normally along with the entity state.
+    ArrayT<uint32_t>     m_EventsRef;       ///< A reference counter for each event type for the number of processed occurrences. Never serialized (or deserialized), never reset, strictly growing.
 
-    ArrayT<GenericExPolT*> m_Extrapolators; ///< The extrapolators for advancing values in the client video frames between server updates. The values that are extrapolated are specified by calls to Register() by the derived entity class.
+    ArrayT<ApproxBaseT*> m_Interpolators;   ///< The interpolators for advancing values in the client video frames between server updates. The values that are interpolated are specified by calls to Register() by the derived entity class.
 };
 
 #endif

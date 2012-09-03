@@ -108,6 +108,10 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
       TimeForLightSource(0.0),
       GuiHUD(NULL)
 {
+    // TODO:
+    // if (is a client entity and not "our" local entity (which is predicted))
+    //     Register(new InterpolatorT<Vector3dT>(m_Origin));
+
     // We can only hope that 'Origin' is a nice place for a "Frozen Spectator"...
 
     // Because 'StateOfExistance==StateOfExistance_FrozenSpectator', we mis-use the 'Velocity' member variable a little

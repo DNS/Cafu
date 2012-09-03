@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "TypeSys.hpp"
 #include "EntityCreateParams.hpp"
 #include "Libs/LookupTables.hpp"
-#include "../../Extrapolator.hpp"
 #include "../../GameWorld.hpp"
+#include "../../Interpolator.hpp"
 #include "Models/Model_cmdl.hpp"
 
 

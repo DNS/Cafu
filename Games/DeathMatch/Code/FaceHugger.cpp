@@ -22,8 +22,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "FaceHugger.hpp"
 #include "EntityCreateParams.hpp"
 #include "_ResourceManager.hpp"
-#include "../../Extrapolator.hpp"
 #include "../../GameWorld.hpp"
+#include "../../Interpolator.hpp"
 #include "TypeSys.hpp"
 #include "Models/Model_cmdl.hpp"
 #include "Network/State.hpp"
@@ -56,7 +56,7 @@ EntFaceHuggerT::EntFaceHuggerT(const EntityCreateParamsT& Params)
       m_ModelSequNr(0),
       m_ModelFrameNr(0.0f)
 {
-    Register(new ExtrapolatorT<Vector3dT>(m_Origin));
+    Register(new InterpolatorT<Vector3dT>(m_Origin));
 }
 
 

@@ -21,8 +21,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "RigidBody.hpp"
 #include "EntityCreateParams.hpp"
-#include "../../Extrapolator.hpp"
 #include "../../GameWorld.hpp"
+#include "../../Interpolator.hpp"
 
 #include "PhysicsWorld.hpp"
 #include "MaterialSystem/Renderer.hpp"
@@ -73,7 +73,7 @@ EntRigidBodyT::EntRigidBodyT(const EntityCreateParamsT& Params)
       m_HalfExtents((m_Dimensions.Max-m_Dimensions.Min)/2.0 - Vector3dT(100.0, 100.0, 100.0)),  // FIXME !!! Where in the world does the extra 100 padding in Params.RootNode come from???
       m_Rotation(0, 0, 0, 1)
 {
-    Register(new ExtrapolatorT<Vector3dT>(m_Origin));
+    Register(new InterpolatorT<Vector3dT>(m_Origin));
     ClipModel.Register();
 
     /*
