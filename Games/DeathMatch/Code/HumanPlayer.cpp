@@ -34,6 +34,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "SoundSystem/SoundSys.hpp"
 #include "../../GameWorld.hpp"
+#include "../../Interpolator.hpp"
 #include "ClipSys/ClipWorld.hpp"
 #include "ClipSys/CollisionModelMan.hpp"
 #include "ClipSys/TraceResult.hpp"
@@ -108,9 +109,9 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
       TimeForLightSource(0.0),
       GuiHUD(NULL)
 {
-    // TODO:
-    // if (is a client entity and not "our" local entity (which is predicted))
-    //     Register(new InterpolatorT<Vector3dT>(m_Origin));
+    // Interpolation is only required for client entities that are not "our" local entity (which is predicted).
+    // Therefore, the engine core automatically exempts "our" client from interpolation, but applies it to others.
+    Register(new InterpolatorT<Vector3dT>(m_Origin));
 
     // We can only hope that 'Origin' is a nice place for a "Frozen Spectator"...
 

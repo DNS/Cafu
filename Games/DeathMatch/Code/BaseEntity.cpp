@@ -247,11 +247,16 @@ void BaseEntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
     }
 
     // Deserialization has brought new reference values for interpolated values.
-    // (Update the m_Interpolators even if interpolateNPCs.GetValueBool() == false.)
     for (unsigned int i = 0; i < m_Interpolators.Size(); i++)
     {            
-        if (IsIniting) m_Interpolators[i]->ReInit();
-                  else m_Interpolators[i]->NotifyOverwriteUpdate();
+        if (IsIniting || !interpolateNPCs.GetValueBool())
+        {
+            m_Interpolators[i]->ReInit();
+        }
+        else
+        {
+            m_Interpolators[i]->NotifyOverwriteUpdate();
+        }
     }
 }
 

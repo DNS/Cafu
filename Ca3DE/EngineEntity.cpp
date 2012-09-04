@@ -27,8 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Network/Network.hpp"
 #include "Templates/Pointer.hpp"
 #include "Win32/Win32PrintHelp.hpp"
-#include "../Games/Game.hpp"
-#include "Ca3DEWorld.hpp"   // Only for EngineEntityT::Draw().
+#include "Ca3DEWorld.hpp"
 
 
 namespace
@@ -395,7 +394,13 @@ void EngineEntityT::Draw(bool FirstPersonView, const VectorT& ViewerPos) const
 
 void EngineEntityT::PostDraw(float FrameTime, bool FirstPersonView)
 {
-    Entity->Interpolate(FrameTime);
+    if (!FirstPersonView)
+    {
+        // Using !FirstPersonView is a hack to exclude "our" entity, which is predicted already,
+        // from being interpolated (whereas other player entities should be interpolated normally).
+        Entity->Interpolate(FrameTime);
+    }
+
     Entity->PostDraw(FrameTime, FirstPersonView);
 }
 
