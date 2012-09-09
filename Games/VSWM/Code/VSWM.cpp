@@ -292,7 +292,7 @@ DLL_EXPORT void __stdcall AdminGameDll(const char /*Reason*/)
 
 // This function is called by the server, in order to obtain a (pointer to a) 'BaseEntityT' from a map file entity.
 // The server also provides the ID and engine function call-backs for the new entity.
-DLL_EXPORT BaseEntityT* __stdcall CreateBaseEntityFromMapFile(const char* MapFileName, unsigned long ID, unsigned long MapFileID, cf::GameSys::GameWorldI* GameWorld, const VectorT& Origin)
+DLL_EXPORT BaseEntityT* __stdcall CreateGameEntityFromMapFile(const char* MapFileName, unsigned long ID, unsigned long MapFileID, cf::GameSys::GameWorldI* GameWorld, const VectorT& Origin)
 {
     if (MapFileName==0) return 0;
 
@@ -309,7 +309,7 @@ DLL_EXPORT BaseEntityT* __stdcall CreateBaseEntityFromMapFile(const char* MapFil
 // whose type and ID it got via a net message from the server.
 // (It initializes the 'State' of the entity directly via the returned pointer.)
 // The client also provides engine function call-backs, such that the prediction feature can work.
-DLL_EXPORT BaseEntityT* __stdcall CreateBaseEntityFromTypeID(char TypeID, unsigned long ID, unsigned long MapFileID, cf::GameSys::GameWorldI* GameWorld)
+DLL_EXPORT BaseEntityT* __stdcall CreateGameEntityFromTypeID(char TypeID, unsigned long ID, unsigned long MapFileID, cf::GameSys::GameWorldI* GameWorld)
 {
     if (TypeID==TYPEID_HUMANPLAYER    ) return new EntHumanPlayerT    (TypeID, ID, MapFileID, GameWorld, VectorT());
     if (TypeID==TYPEID_INFOPLAYERSTART) return new EntInfoPlayerStartT(TypeID, ID, MapFileID, GameWorld, VectorT());

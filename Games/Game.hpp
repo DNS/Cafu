@@ -77,12 +77,12 @@ namespace cf
             /// @param MapFileIndex   The index number of the entity in the map file, for obtaining the information in the map file about it later.
             /// @param GameWorld      Pointer to the game world implementation.
             /// @param Origin         Where the new entity is supposed to be instantiated.
-            /// @returns a base class pointer to the newly created entity instance.
-            virtual IntrusivePtrT<BaseEntityT> CreateBaseEntityFromMapFile(const cf::TypeSys::TypeInfoT* TI, const std::map<std::string, std::string>& Properties,
+            /// @returns a pointer to the newly created game entity.
+            virtual IntrusivePtrT<BaseEntityT> CreateGameEntityFromMapFile(const cf::TypeSys::TypeInfoT* TI, const std::map<std::string, std::string>& Properties,
                 const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID,
                 unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld, const Vector3T<double>& Origin)=0;
 
-            /// Creates a new entity of the given type (specified by TypeNr), and returns a pointer to the base class.
+            /// Creates a new entity of the given type (specified by TypeNr).
             /// This method is used by the client after it received a related network message (which also contains the TypeNr).
             /// @param TypeNr         The (number of the) type of the entity to be created.
             /// @param Properties     The properties dictionary in the map file of this entity (empty if the entity is created "dynamically").
@@ -92,13 +92,12 @@ namespace cf
             /// @param WorldFileIndex The index number of the entity in the world file.
             /// @param MapFileIndex   The index number of the entity in the map file, for obtaining the information in the map file about it later.
             /// @param GameWorld      Pointer to the game world implementation.
-            /// @returns a base class pointer to the newly created entity instance.
-            virtual IntrusivePtrT<BaseEntityT> CreateBaseEntityFromTypeNr(unsigned long TypeNr, const std::map<std::string, std::string>& Properties,
+            /// @returns a pointer to the newly created game entity.
+            virtual IntrusivePtrT<BaseEntityT> CreateGameEntityFromTypeNr(unsigned long TypeNr, const std::map<std::string, std::string>& Properties,
                 const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID,
                 unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld)=0;
 
             /// The virtual destructor, so that derived classes can safely be deleted via a GameI (base class) pointer.
-            /// However, with GameIs that's never supposed to happen, so this destructor only exists to silence the g++ compiler warning.
             virtual ~GameI() { }
         };
     }

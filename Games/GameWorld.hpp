@@ -40,7 +40,7 @@ namespace cf
         /// The game world interface, specified as an ABC so that is can be used without linked (module-local) implementation.
         /// The engine provides each entity that it creates with a pointer to an implementation of this interface
         /// (as entities can be created on the client and the server side, there can be more than one implementation).
-        /// See the GameI::CreateBaseEntityFrom*() methods for the "source" of these pointers:
+        /// See the GameI::CreateGameEntityFrom*() methods for the "source" of these pointers:
         /// When one of these methods is called, a pointer to a GameWorldI is one of the parameters.
         class GameWorldI
         {
@@ -50,7 +50,7 @@ namespace cf
             /// However, with GameWorldIs that's never supposed to happen, so this destructor only exists to silence the g++ compiler warning.
             virtual ~GameWorldI() { }
 
-            /// Returns the game thae this is a world of.
+            /// Returns the game that this is a world of.
             virtual cf::GameSys::GameI* GetGame()=0;
 
             /// Returns the clip world for the game world.
