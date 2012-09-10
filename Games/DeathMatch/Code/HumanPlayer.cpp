@@ -253,7 +253,7 @@ void EntHumanPlayerT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT
 
         while (FraggingEntity->ParentID!=0xFFFFFFFF)
         {
-            IntrusivePtrT<BaseEntityT> ParentOfFE=GameWorld->GetBaseEntityByID(FraggingEntity->ParentID);
+            IntrusivePtrT<BaseEntityT> ParentOfFE=static_pointer_cast<BaseEntityT>(GameWorld->GetGameEntityByID(FraggingEntity->ParentID));
 
             if (ParentOfFE==NULL) break;
             FraggingEntity=ParentOfFE;
@@ -641,7 +641,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                 for (unsigned long EntityIDNr=0; EntityIDNr<AllEntityIDs.Size(); EntityIDNr++)
                 {
-                    IntrusivePtrT<BaseEntityT> OtherEntity=GameWorld->GetBaseEntityByID(AllEntityIDs[EntityIDNr]);
+                    IntrusivePtrT<BaseEntityT> OtherEntity=static_pointer_cast<BaseEntityT>(GameWorld->GetGameEntityByID(AllEntityIDs[EntityIDNr]));
 
                     if (OtherEntity    ==NULL) continue;
                     if (OtherEntity->ID==  ID) continue;    // We don't touch us ourselves.
@@ -818,7 +818,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                         if (CorpseID!=0xFFFFFFFF)
                         {
-                            IntrusivePtrT<EntCorpseT> Corpse=dynamic_pointer_cast<EntCorpseT>(GameWorld->GetBaseEntityByID(CorpseID));
+                            IntrusivePtrT<EntCorpseT> Corpse=dynamic_pointer_cast<EntCorpseT>(GameWorld->GetGameEntityByID(CorpseID));
 
                             Corpse->AdoptState(this);
                         }
@@ -865,7 +865,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 // The "Fire"-button was pressed. Now try to determine a free "InfoPlayerStart" entity for respawning there.
                 for (EntityIDNr=0; EntityIDNr<AllEntityIDs.Size(); EntityIDNr++)
                 {
-                    IPSEntity=GameWorld->GetBaseEntityByID(AllEntityIDs[EntityIDNr]);
+                    IPSEntity=static_pointer_cast<BaseEntityT>(GameWorld->GetGameEntityByID(AllEntityIDs[EntityIDNr]));
                     if (IPSEntity==NULL) continue;
 
                     if (IPSEntity->GetType()!=&EntInfoPlayerStartT::TypeInfo) continue;

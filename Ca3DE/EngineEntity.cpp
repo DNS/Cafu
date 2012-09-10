@@ -59,7 +59,7 @@ EngineEntityT::~EngineEntityT()
 }
 
 
-IntrusivePtrT<BaseEntityT> EngineEntityT::GetBaseEntity() const
+IntrusivePtrT<GameEntityI> EngineEntityT::GetGameEntity() const
 {
     return Entity;
 }

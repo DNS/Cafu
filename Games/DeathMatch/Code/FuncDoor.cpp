@@ -95,7 +95,7 @@ EntFuncDoorT::EntFuncDoorT(const EntityCreateParamsT& Params)
 
         for (unsigned long EntityIDNr=0; EntityIDNr<AllEntityIDs.Size(); EntityIDNr++)
         {
-            IntrusivePtrT<BaseEntityT> Entity=GameWorld->GetBaseEntityByID(AllEntityIDs[EntityIDNr]);
+            IntrusivePtrT<GameEntityI> Entity=GameWorld->GetGameEntityByID(AllEntityIDs[EntityIDNr]);
 
             if (Entity==NULL) continue;
             if (Entity->GetType()!=&TypeInfo) continue;

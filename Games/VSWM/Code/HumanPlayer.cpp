@@ -606,7 +606,7 @@ EntHumanPlayerT::EntHumanPlayerT(char TypeID, unsigned long ID, unsigned long Ma
 
     for (unsigned long EntityIDNr=0; EntityIDNr<AllEntityIDs.Size(); EntityIDNr++)
     {
-        IntrusivePtrT<BaseEntityT> BaseEntity=GameWorld->GetBaseEntityByID(AllEntityIDs[EntityIDNr]);
+        IntrusivePtrT<GameEntityI> BaseEntity=GameWorld->GetGameEntityByID(AllEntityIDs[EntityIDNr]);
         if (BaseEntity==NULL) continue;
 
         if (BaseEntity->GetType()==&EntInfoPlayerStartT::TypeInfo) { Origin_IPS=BaseEntity->GetOrigin(); continue; }

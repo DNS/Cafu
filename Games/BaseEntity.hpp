@@ -22,9 +22,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_GAMEDLL_HPP_INCLUDED
 #define CAFU_GAMEDLL_HPP_INCLUDED
 
-#include "Math3D/BoundingBox.hpp"
+#include "GameEntity.hpp"
 #include "ClipSys/ClipModel.hpp"
-#include "Templates/Pointer.hpp"
 
 #include <map>
 
@@ -43,7 +42,6 @@ namespace cf { namespace ClipSys { class CollisionModelT; } }
 namespace cf { namespace GameSys { class GameWorldI; } }
 namespace cf { namespace Network { class InStreamT; } }
 namespace cf { namespace Network { class OutStreamT; } }
-namespace cf { namespace TypeSys { class TypeInfoT; } }
 namespace cf { namespace TypeSys { class TypeInfoManT; } }
 namespace cf { namespace TypeSys { class CreateParamsT; } }
 
@@ -82,7 +80,7 @@ struct EntityStateT
 
 
 // This class describes "base entities", the most central component in game<-->engine communication.
-class BaseEntityT : public RefCountedT
+class BaseEntityT : public GameEntityI
 {
     public:
 
@@ -136,9 +134,11 @@ class BaseEntityT : public RefCountedT
     ///   The implementation will use this to not wrongly process the event counters, interpolation, etc.
     void Deserialize(cf::Network::InStreamT& Stream, bool IsIniting);
 
+    // Implement GameEntityI base class methods.
+    virtual unsigned long GetID() const { return ID; }
+
     /// Returns the origin point of this entity. Used for
     ///   - obtaining the camera position of the local human player entity (1st person view),
-    ///   - interpolating the origin (NPC entities) and
     ///   - computing light source positions.
     virtual const Vector3dT& GetOrigin() const { return m_Origin; }
 

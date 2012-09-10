@@ -118,7 +118,7 @@ void EntHandGrenadeT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 
             for (unsigned long EntityIDNr=0; EntityIDNr<AllEntityIDs.Size(); EntityIDNr++)
             {
-                IntrusivePtrT<BaseEntityT> OtherEntity=GameWorld->GetBaseEntityByID(AllEntityIDs[EntityIDNr]);
+                IntrusivePtrT<BaseEntityT> OtherEntity=static_pointer_cast<BaseEntityT>(GameWorld->GetGameEntityByID(AllEntityIDs[EntityIDNr]));
 
                 if (OtherEntity    ==NULL) continue;
                 if (OtherEntity->ID==  ID) continue;    // We don't damage us ourselves.

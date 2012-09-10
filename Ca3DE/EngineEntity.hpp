@@ -28,7 +28,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Network/State.hpp"
 #include "Templates/Pointer.hpp"
 
-class BaseEntityT;
 class NetDataT;
 
 
@@ -42,10 +41,10 @@ class EngineEntityT
 
     ~EngineEntityT();
 
-    // Rückt einen Zeiger auf unseren BaseEntity heraus.
+    // Rückt einen Zeiger auf unser GameEntityI heraus.
     // Hauptsächlich gedacht für die Aufrufkette "Konkreter Entity --> ESInterface --> EntityManager --> hier".
     // Somit kann sich ein Entity beim Thinken z.B. Überblick über andere Entities verschaffen.
-    IntrusivePtrT<BaseEntityT> GetBaseEntity() const;
+    IntrusivePtrT<GameEntityI> GetGameEntity() const;
 
     // Bearbeitet den 'ConfigString' und die 'ConfigData'.
     void ProcessConfigString(const void* ConfigData, const char* ConfigString);

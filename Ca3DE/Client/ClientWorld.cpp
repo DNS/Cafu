@@ -453,14 +453,14 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
         VectorT            LightPosition;
         float              LightRadius;
         bool               LightCastsShadows;
-        const IntrusivePtrT<BaseEntityT> BaseEntity=GetBaseEntityByID(CurrentFrame.EntityIDsInPVS[EntityIDNr]);
+        const IntrusivePtrT<GameEntityI> BaseEntity=GetGameEntityByID(CurrentFrame.EntityIDsInPVS[EntityIDNr]);
 
         // The light source info is not taken from the BaseEntity directly because it yields the unpredicted light source position.
         // If once human player entities have no light source any more, we might get rid of the CaClientWorldT::GetLightSourceInfo()
         // function chain again altogether.
         if (BaseEntity.IsNull()) continue;
         // if (!BaseEntity->GetLightSourceInfo(LightColorDiffuse, LightColorSpecular, LightPosition, LightRadius)) continue;
-        if (!GetLightSourceInfo(BaseEntity->ID, LightColorDiffuse, LightColorSpecular, LightPosition, LightRadius, LightCastsShadows)) continue;
+        if (!GetLightSourceInfo(BaseEntity->GetID(), LightColorDiffuse, LightColorSpecular, LightPosition, LightRadius, LightCastsShadows)) continue;
         if (!LightColorDiffuse && !LightColorSpecular) continue;
 
         // THIS IS *TEMPORARY* ONLY!
@@ -490,8 +490,8 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
          // if (LocalPlayerStencilShadows.GetValueBool())
          // {
                 // Our entity casts shadows, except when the light source is he himself.
-                DrawEntities(OurEntityID==BaseEntity->ID ? OurEntityID : 0xFFFFFFFF /* an ugly, dirty, kaum nachvollziehbarer hack */,
-                             OurEntityID==BaseEntity->ID,
+                DrawEntities(OurEntityID==BaseEntity->GetID() ? OurEntityID : 0xFFFFFFFF /* an ugly, dirty, kaum nachvollziehbarer hack */,
+                             OurEntityID==BaseEntity->GetID(),
                              DrawOrigin,
                              CurrentFrame.EntityIDsInPVS);
          // }

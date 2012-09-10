@@ -190,11 +190,11 @@ const ArrayT<unsigned long>& Ca3DEWorldT::GetAllEntityIDs() const
 }
 
 
-IntrusivePtrT<BaseEntityT> Ca3DEWorldT::GetBaseEntityByID(unsigned long EntityID) const
+IntrusivePtrT<GameEntityI> Ca3DEWorldT::GetGameEntityByID(unsigned long EntityID) const
 {
     if (EntityID<m_EngineEntities.Size())
         if (m_EngineEntities[EntityID]!=NULL)
-            return m_EngineEntities[EntityID]->GetBaseEntity();
+            return m_EngineEntities[EntityID]->GetGameEntity();
 
     return NULL;
 }

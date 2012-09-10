@@ -26,8 +26,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Templates/Pointer.hpp"
 
 
-class BaseEntityT;
 class CafuModelT;
+class GameEntityI;
 namespace cf { namespace ClipSys { class ClipWorldT; } }
 namespace cf { namespace GameSys { class GameI; } }
 namespace cf { class UniScriptStateT; }
@@ -71,7 +71,7 @@ namespace cf
 
             /// Returns a pointer to the entity with ID 'EntityID'.
             /// NULL is returned if that entity does not exist.
-            virtual IntrusivePtrT<BaseEntityT> GetBaseEntityByID(unsigned long EntityID) const=0;
+            virtual IntrusivePtrT<GameEntityI> GetGameEntityByID(unsigned long EntityID) const=0;
 
             /// Creates a new entity from the given parameters.
             /// The parameters are essentially what is also present in an editor map file.

@@ -253,7 +253,7 @@ void EntCompanyBotT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT&
 
         while (FraggingEntity->ParentID!=0xFFFFFFFF)
         {
-            IntrusivePtrT<BaseEntityT> ParentOfFE=GameWorld->GetBaseEntityByID(FraggingEntity->ParentID);
+            IntrusivePtrT<BaseEntityT> ParentOfFE=static_pointer_cast<BaseEntityT>(GameWorld->GetGameEntityByID(FraggingEntity->ParentID));
 
             if (ParentOfFE.IsNull()) break;
             FraggingEntity=ParentOfFE;
@@ -297,7 +297,7 @@ void EntCompanyBotT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
     {
         bool IsAlive=false;
 
-        TargetEntity=GameWorld->GetBaseEntityByID(AllEntityIDs[EntityIDNr]);
+        TargetEntity=static_pointer_cast<BaseEntityT>(GameWorld->GetGameEntityByID(AllEntityIDs[EntityIDNr]));
         if (TargetEntity==NULL) continue;
 
         if (TargetEntity->GetType()!=&EntHumanPlayerT::TypeInfo) continue;
@@ -351,7 +351,7 @@ void EntCompanyBotT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 
     // Update the position of the torch.
     // The torch should probably rather be a true *child* of the CompanyBot...
-    ///BaseEntityT* Torch=GameWorld->GetBaseEntityByID(TorchID);
+    ///BaseEntityT* Torch=GameWorld->GetGameEntityByID(TorchID);
     ///if (Torch) Torch->m_Origin=m_Origin+VectorT(0.0, 0.0, -300.0)+VectorT(LookupTables::Angle16ToSin[m_Heading]*500.0, LookupTables::Angle16ToCos[m_Heading]*500.0, 0.0);
 }
 

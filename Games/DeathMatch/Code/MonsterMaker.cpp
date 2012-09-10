@@ -106,7 +106,7 @@ void EntMonsterMakerT::Think(float FrameTime, unsigned long ServerFrameNr)
 
     for (EntityIDNr=0; EntityIDNr<AllEntityIDs.Size(); EntityIDNr++)
     {
-        IntrusivePtrT<BaseEntityT> BaseEntity=GameWorld->GetBaseEntityByID(AllEntityIDs[EntityIDNr]);
+        IntrusivePtrT<GameEntityI> BaseEntity=GameWorld->GetGameEntityByID(AllEntityIDs[EntityIDNr]);
         if (BaseEntity==NULL) continue;
 
         if (BaseEntity->GetType()==&EntMonsterMakerT::TypeInfo   ) continue;
@@ -129,7 +129,7 @@ void EntMonsterMakerT::Think(float FrameTime, unsigned long ServerFrameNr)
             {
                 bool IsAlive=false;
 
-                IntrusivePtrT<BaseEntityT> BaseEntity=GameWorld->GetBaseEntityByID(AllEntityIDs[EntityIDNr]);
+                IntrusivePtrT<BaseEntityT> BaseEntity=static_pointer_cast<BaseEntityT>(GameWorld->GetGameEntityByID(AllEntityIDs[EntityIDNr]));
                 if (BaseEntity==NULL) continue;
 
                 if (BaseEntity->GetType()!=&EntHumanPlayerT::TypeInfo) continue;
@@ -151,7 +151,7 @@ void EntMonsterMakerT::Think(float FrameTime, unsigned long ServerFrameNr)
 
             std::map<std::string, std::string> Props; Props["classname"]="monster_companybot";
             unsigned long   NewCompanyBotID=GameWorld->CreateNewEntity(Props, ServerFrameNr, m_Origin);
-            IntrusivePtrT<EntCompanyBotT> NewCompanyBot=dynamic_pointer_cast<EntCompanyBotT>(GameWorld->GetBaseEntityByID(NewCompanyBotID));
+            IntrusivePtrT<EntCompanyBotT> NewCompanyBot=dynamic_pointer_cast<EntCompanyBotT>(GameWorld->GetGameEntityByID(NewCompanyBotID));
 
             if (!NewCompanyBot.IsNull()) NewCompanyBot->SetHeading(m_Heading);
             break;
@@ -170,7 +170,7 @@ void EntMonsterMakerT::Think(float FrameTime, unsigned long ServerFrameNr)
             std::map<std::string, std::string> Props; Props["classname"]="monster_eagle";
 
             unsigned long NewEagleID=GameWorld->CreateNewEntity(Props, ServerFrameNr, m_Origin);
-            IntrusivePtrT<EntEagleT> NewEagle=dynamic_pointer_cast<EntEagleT>(GameWorld->GetBaseEntityByID(NewEagleID));
+            IntrusivePtrT<EntEagleT> NewEagle=dynamic_pointer_cast<EntEagleT>(GameWorld->GetGameEntityByID(NewEagleID));
 
             if (!NewEagle.IsNull()) NewEagle->SetHeading(m_Heading);
             break;
