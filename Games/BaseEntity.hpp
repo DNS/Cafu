@@ -294,8 +294,6 @@ class BaseEntityT : public GameEntityI
     static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
     static const cf::TypeSys::TypeInfoT TypeInfo;     ///< The type info object for (objects/instances of) this class.
 
-    virtual unsigned long GetTypeNr() const;    ///< This method is needed only *TEMPORARILY*, because the code that needs it is still in the engine core.
-
 
     // Methods provided to be called from the map/entity Lua scripts.
     static int GetName(lua_State* L);

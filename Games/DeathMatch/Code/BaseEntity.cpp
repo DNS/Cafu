@@ -475,9 +475,3 @@ static const luaL_reg MethodsList[]=
 
 
 const cf::TypeSys::TypeInfoT BaseEntityT::TypeInfo(GetBaseEntTIM(), "BaseEntityT", NULL /*No base class.*/, BaseEntityT::CreateInstance, MethodsList);
-
-
-unsigned long BaseEntityT::GetTypeNr() const
-{
-    return GetType()->TypeNr;
-}

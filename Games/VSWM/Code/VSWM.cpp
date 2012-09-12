@@ -231,11 +231,6 @@ const cf::TypeSys::TypeInfoT* BaseEntityT::GetType() const
 
 const cf::TypeSys::TypeInfoT BaseEntityT::TypeInfo(GetBaseEntTIM(), "BaseEntityT", NULL /*No base class.*/, NULL /*BaseEntityT::CreateInstance*/, NULL /*MethodsList*/);
 
-unsigned long BaseEntityT::GetTypeNr() const
-{
-    return GetType()->TypeNr;
-}
-
 
 // Exported DLL Functions
 // **********************

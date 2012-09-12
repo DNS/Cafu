@@ -162,7 +162,7 @@ void EngineEntityT::WriteNewBaseLine(unsigned long SentClientBaseLineFrameNr, Ar
 
     NewBaseLineMsg.WriteByte(SC1_EntityBaseLine);
     NewBaseLineMsg.WriteLong(Entity->ID);
-    NewBaseLineMsg.WriteLong(Entity->GetTypeNr());
+    NewBaseLineMsg.WriteLong(Entity->GetType()->TypeNr);
     NewBaseLineMsg.WriteLong(Entity->WorldFileIndex);
     NewBaseLineMsg.WriteDMsg(m_BaseLine.GetDeltaMessage(cf::Network::StateT() /*::ALL_ZEROS*/));
 
