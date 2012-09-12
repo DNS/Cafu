@@ -408,13 +408,16 @@ template<class T> inline bool cf::ScriptBinderT::Push(T Object)
         }
         lua_pop(m_LuaState, 2);
 
-        // Get the table with name (key) TypeInfoTraitsT<T>::Get().ClassName from the registry,
+        // Get the table for the root of TypeInfoTraitsT<T>::Get(Object) from the registry,
         // get its __index table, and check if its GetRefCount method is already set.
-        // Note that we use Get(), not Get(Object), just in case T is a base class pointer
-        // (in case of which Get() and Get(Object) yield different results).
         if (TypeInfoTraitsT<T>::IsRefCounted())
         {
-            luaL_getmetatable(m_LuaState, TypeInfoTraitsT<T>::Get().ClassName);
+            const cf::TypeSys::TypeInfoT* TI = &TypeInfoTraitsT<T>::Get(Object);
+
+            while (TI->Base)
+                TI = TI->Base;
+
+            luaL_getmetatable(m_LuaState, TI->ClassName);
             lua_getfield(m_LuaState, -1, "__index");
             lua_getfield(m_LuaState, -1, "GetRefCount");
             if (lua_isnil(m_LuaState, -1))
