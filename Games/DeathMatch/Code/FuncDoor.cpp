@@ -21,10 +21,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "FuncDoor.hpp"
 #include "EntityCreateParams.hpp"
+#include "Interpolator.hpp"
 #include "../../GameWorld.hpp"
-#include "../../Interpolator.hpp"
 #include "ClipSys/CollisionModelMan.hpp"
-// #include "ConsoleCommands/Console.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "SceneGraph/Node.hpp"

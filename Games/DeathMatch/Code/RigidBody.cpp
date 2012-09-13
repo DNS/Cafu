@@ -21,8 +21,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "RigidBody.hpp"
 #include "EntityCreateParams.hpp"
+#include "Interpolator.hpp"
 #include "../../GameWorld.hpp"
-#include "../../Interpolator.hpp"
 
 #include "PhysicsWorld.hpp"
 #include "MaterialSystem/Renderer.hpp"

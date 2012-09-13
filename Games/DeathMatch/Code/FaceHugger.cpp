@@ -21,9 +21,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "FaceHugger.hpp"
 #include "EntityCreateParams.hpp"
+#include "Interpolator.hpp"
 #include "_ResourceManager.hpp"
 #include "../../GameWorld.hpp"
-#include "../../Interpolator.hpp"
 #include "TypeSys.hpp"
 #include "Models/Model_cmdl.hpp"
 #include "Network/State.hpp"

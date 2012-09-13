@@ -21,9 +21,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Eagle.hpp"
 #include "EntityCreateParams.hpp"
+#include "Interpolator.hpp"
 #include "Libs/LookupTables.hpp"
 #include "../../GameWorld.hpp"
-#include "../../Interpolator.hpp"
 
 #include "ClipSys/ClipWorld.hpp"
 #include "ClipSys/TraceResult.hpp"
