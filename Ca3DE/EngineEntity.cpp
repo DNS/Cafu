@@ -25,7 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"
 #include "Network/Network.hpp"
-#include "Templates/Pointer.hpp"
 #include "Win32/Win32PrintHelp.hpp"
 #include "Ca3DEWorld.hpp"
 
@@ -44,15 +43,15 @@ namespace
 EngineEntityT::~EngineEntityT()
 {
     // Remove this entity from the script state.
-    cf::UniScriptStateT& ScriptState = Entity->GameWorld->GetScriptState();
+    cf::UniScriptStateT& ScriptState = Entity->GetGameWorld()->GetScriptState();
     lua_State*           LuaState    = ScriptState.GetLuaState();
     cf::ScriptBinderT    Binder(LuaState);
 
     if (Binder.IsBound(Entity.get()))
     {
-        // _G[BaseEntityT->Name] = nil
+        // _G[GameEntityI->GetName()] = nil
         lua_pushnil(LuaState);
-        lua_setglobal(LuaState, Entity->Name.c_str());
+        lua_setglobal(LuaState, Entity->GetName().c_str());
 
         Binder.Disconnect(Entity.get());
     }
@@ -95,7 +94,7 @@ void EngineEntityT::SetState(const cf::Network::StateT& State, bool IsIniting) c
 /*******************/
 
 
-EngineEntityT::EngineEntityT(IntrusivePtrT<BaseEntityT> Entity_, unsigned long CreationFrameNr)
+EngineEntityT::EngineEntityT(IntrusivePtrT<GameEntityI> Entity_, unsigned long CreationFrameNr)
     : Entity(Entity_),
       EntityStateFrameNr(CreationFrameNr),
       m_BaseLine(),
@@ -109,21 +108,21 @@ EngineEntityT::EngineEntityT(IntrusivePtrT<BaseEntityT> Entity_, unsigned long C
 
     // For entities that are named in the map file (e.g. "Soldier_Barney"),
     // assign the alter ego to a global variable in the map script with the same name.
-    if (Entity->Name != "")
+    if (Entity->GetName() != "")
     {
-        cf::UniScriptStateT& ScriptState = Entity->GameWorld->GetScriptState();
+        cf::UniScriptStateT& ScriptState = Entity->GetGameWorld()->GetScriptState();
         lua_State*           LuaState    = ScriptState.GetLuaState();
         cf::ScriptBinderT    Binder(LuaState);
 
-        // lua_getglobal(LuaState, Entity->Name.c_str());
+        // lua_getglobal(LuaState, Entity->GetName().c_str());
         // if (!lua_isnil(LuaState, -1))
-        //     Console->Warning("Global variable \""+Entity->Name+"\" already exists, overwriting...\n");
+        //     Console->Warning("Global variable \""+Entity->GetName()+"\" already exists, overwriting...\n");
         // lua_pop(LuaState, 1);
 
         Binder.Push(Entity);
-        lua_setglobal(LuaState, Entity->Name.c_str());
+        lua_setglobal(LuaState, Entity->GetName().c_str());
 
-        // Console->DevPrint("Info: Entity \""+Entity->Name+"\" of class \""+EntClassName+"\" (\""+CppClassName+"\") instantiated.\n");
+        // Console->DevPrint("Info: Entity \""+Entity->GetName()+"\" of class \""+EntClassName+"\" (\""+CppClassName+"\") instantiated.\n");
     }
 }
 
@@ -161,9 +160,9 @@ void EngineEntityT::WriteNewBaseLine(unsigned long SentClientBaseLineFrameNr, Ar
     NetDataT NewBaseLineMsg;
 
     NewBaseLineMsg.WriteByte(SC1_EntityBaseLine);
-    NewBaseLineMsg.WriteLong(Entity->ID);
+    NewBaseLineMsg.WriteLong(Entity->GetID());
     NewBaseLineMsg.WriteLong(Entity->GetType()->TypeNr);
-    NewBaseLineMsg.WriteLong(Entity->WorldFileIndex);
+    NewBaseLineMsg.WriteLong(Entity->GetWorldFileIndex());
     NewBaseLineMsg.WriteDMsg(m_BaseLine.GetDeltaMessage(cf::Network::StateT() /*::ALL_ZEROS*/));
 
     OutDatas.PushBack(NewBaseLineMsg.Data);
@@ -190,7 +189,7 @@ bool EngineEntityT::WriteDeltaEntity(bool SendFromBaseLine, unsigned long Client
 
     // Write the SC1_EntityUpdate message
     OutData.WriteByte(SC1_EntityUpdate);
-    OutData.WriteLong(Entity->ID);
+    OutData.WriteLong(Entity->GetID());
     OutData.WriteDMsg(DeltaMsg);
 
     return true;
@@ -204,7 +203,7 @@ bool EngineEntityT::WriteDeltaEntity(bool SendFromBaseLine, unsigned long Client
 /*******************/
 
 
-EngineEntityT::EngineEntityT(IntrusivePtrT<BaseEntityT> Entity_, NetDataT& InData)
+EngineEntityT::EngineEntityT(IntrusivePtrT<GameEntityI> Entity_, NetDataT& InData)
     : Entity(Entity_),
       EntityStateFrameNr(0),
       m_BaseLine(),
@@ -376,7 +375,7 @@ void EngineEntityT::Draw(bool FirstPersonView, const VectorT& ViewerPos) const
 
     // Set the ambient light color for this entity.
     // Paradoxically, this is not a global, but rather a per-entity value that is derived from the lightmaps that are close to that entity.
-    const Vector3fT AmbientEntityLight=Entity->GameWorld->GetAmbientLightColorFromBB(Entity->GetDimensions(), Entity->GetOrigin());
+    const Vector3fT AmbientEntityLight=Entity->GetGameWorld()->GetAmbientLightColorFromBB(Entity->GetDimensions(), Entity->GetOrigin());
     MatSys::Renderer->SetCurrentAmbientLightColor(AmbientEntityLight.x, AmbientEntityLight.y, AmbientEntityLight.z);
 
 

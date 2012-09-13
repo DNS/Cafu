@@ -387,11 +387,11 @@ unsigned long CaServerWorldT::CreateNewEntityFromBasicInfo(const std::map<std::s
         // 3. Create an instance of the desired entity type.
         const unsigned long NewEntityID = m_EngineEntities.Size();
 
-        IntrusivePtrT<BaseEntityT> NewBaseEntity = m_Game->CreateGameEntityFromMapFile(
+        IntrusivePtrT<GameEntityI> NewEntity = m_Game->CreateGameEntityFromMapFile(
             TI, Properties, RootNode, CollisionModel, NewEntityID,
             WorldFileIndex, MapFileIndex, this, Origin);
 
-        if (NewBaseEntity.IsNull())
+        if (NewEntity.IsNull())
             throw std::runtime_error("Could not create entity of class \""+EntClassName+"\" with C++ class name \""+CppClassName+"\".\n");
 
 
@@ -400,10 +400,10 @@ unsigned long CaServerWorldT::CreateNewEntityFromBasicInfo(const std::map<std::s
         // See   svn log -r 301   for one argument for the C++ instance.
 
         // Muß dies VOR dem Erzeugen des EngineEntitys tun, denn sonst stimmt dessen BaseLine nicht!
-        if (PlayerName!=NULL) NewBaseEntity->ProcessConfigString(PlayerName, "PlayerName");
-        if (ModelName !=NULL) NewBaseEntity->ProcessConfigString(ModelName , "ModelName" );
+        if (PlayerName!=NULL) NewEntity->ProcessConfigString(PlayerName, "PlayerName");
+        if (ModelName !=NULL) NewEntity->ProcessConfigString(ModelName , "ModelName" );
 
-        m_EngineEntities.PushBack(new EngineEntityT(NewBaseEntity, CreationFrameNr));
+        m_EngineEntities.PushBack(new EngineEntityT(NewEntity, CreationFrameNr));
 
         return NewEntityID;
     }

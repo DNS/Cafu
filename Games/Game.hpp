@@ -29,7 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 // Forward declarations.
-class BaseEntityT;
+class GameEntityI;
 template<class T> class Vector3T;
 class ModelManagerT;
 namespace cf { namespace ClipSys { class CollisionModelT; } }
@@ -78,7 +78,7 @@ namespace cf
             /// @param GameWorld      Pointer to the game world implementation.
             /// @param Origin         Where the new entity is supposed to be instantiated.
             /// @returns a pointer to the newly created game entity.
-            virtual IntrusivePtrT<BaseEntityT> CreateGameEntityFromMapFile(const cf::TypeSys::TypeInfoT* TI, const std::map<std::string, std::string>& Properties,
+            virtual IntrusivePtrT<GameEntityI> CreateGameEntityFromMapFile(const cf::TypeSys::TypeInfoT* TI, const std::map<std::string, std::string>& Properties,
                 const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID,
                 unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld, const Vector3T<double>& Origin)=0;
 
@@ -93,7 +93,7 @@ namespace cf
             /// @param MapFileIndex   The index number of the entity in the map file, for obtaining the information in the map file about it later.
             /// @param GameWorld      Pointer to the game world implementation.
             /// @returns a pointer to the newly created game entity.
-            virtual IntrusivePtrT<BaseEntityT> CreateGameEntityFromTypeNr(unsigned long TypeNr, const std::map<std::string, std::string>& Properties,
+            virtual IntrusivePtrT<GameEntityI> CreateGameEntityFromTypeNr(unsigned long TypeNr, const std::map<std::string, std::string>& Properties,
                 const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID,
                 unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld)=0;
 

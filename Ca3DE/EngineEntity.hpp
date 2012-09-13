@@ -19,10 +19,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef CAFU_ENGINEENTITY_HPP_INCLUDED
-#define CAFU_ENGINEENTITY_HPP_INCLUDED
+#ifndef CAFU_ENGINE_ENTITY_HPP_INCLUDED
+#define CAFU_ENGINE_ENTITY_HPP_INCLUDED
 
-#include "../Games/BaseEntity.hpp"
+#include "../Games/GameEntity.hpp"
 #include "../Games/PlayerCommand.hpp"
 #include "Math3D/Vector3.hpp"
 #include "Network/State.hpp"
@@ -54,11 +54,11 @@ class EngineEntityT
     /*** Server Side ***/
     /*******************/
 
-    // Creates a new EngineEntityT, where 'Entity_' points to a formerly constructed BaseEntityT (with initial state properly stored in Entity_->State)
+    // Creates a new EngineEntityT, where 'Entity_' points to a formerly constructed GameEntityI
     // and 'CreationFrameNr' is the number of the server frame for which this EngineEntityT is created.
     // Server side EngineEntityT creation is always (and only) triggered by an EntityManagerT, either after a new world was loaded or
-    // when a BaseEntityT creates a new entity by calling GameWorld->CreateNewEntity() in its 'Think()' method.
-    EngineEntityT(IntrusivePtrT<BaseEntityT> Entity_, unsigned long CreationFrameNr);
+    // when a game entity creates a new entity by calling GameWorld->CreateNewEntity() in its 'Think()' method.
+    EngineEntityT(IntrusivePtrT<GameEntityI> Entity_, unsigned long CreationFrameNr);
 
     // Prepares the entity to enter the next state for frame 'ServerFrameNr'.
     // This function must be called for each entity before any entities 'Think()' function is called.
@@ -94,10 +94,10 @@ class EngineEntityT
     /*** Client Side ***/
     /*******************/
 
-    // This creates a new EngineEntityT by taking a IntrusivePtrT<BaseEntityT>, which previously must have been properly constructed from
+    // This creates a new EngineEntityT by taking a IntrusivePtrT<GameEntityI>, which previously must have been properly constructed from
     // the former parts of the SC1_EntityBaseLine in InData. It then fully constructs it by updating its non-initialized 'Entity_->State'
     // with the rest of the SC1_EntityBaseLine message.
-    EngineEntityT(IntrusivePtrT<BaseEntityT> Entity_, NetDataT& InData);
+    EngineEntityT(IntrusivePtrT<GameEntityI> Entity_, NetDataT& InData);
 
     // Ausgehend vom (alten) Zustand des Frames 'DeltaFrameNr' wird der Entity Zustand des (neuen) Frames 'ServerFrameNr' bestimmt,
     // wobei Delta-Informationen anhand der DeltaMessage eingebracht werden.
@@ -152,7 +152,7 @@ class EngineEntityT
     void SetState(const cf::Network::StateT& State, bool IsIniting=false) const;
 
 
-    IntrusivePtrT<BaseEntityT>  Entity;             ///< The base entity as allocated via the cf::GameSys::Game interface. On the client, it is in the most recent state as received from the server, *plus* any extrapolations (NPCs) and predictions (local human player) that are applied until the next update arrives.
+    IntrusivePtrT<GameEntityI>  Entity;             ///< The game entity as obtained via cf::GameSys::Game interface. On the client, it is in the most recent state as received from the server, *plus* any extrapolations (NPCs) and predictions (local human player) that are applied until the next update arrives.
 
     unsigned long               EntityStateFrameNr; // ==ServerFrameNr (the state number of Entity->State), used both on Client and Server side
 

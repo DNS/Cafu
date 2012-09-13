@@ -216,6 +216,11 @@ void BaseEntityT::PostDraw(float /*FrameTime*/, bool /*FirstPersonView*/)
 }
 
 
+void BaseEntityT::Interpolate(float FrameTime)
+{
+}
+
+
 const cf::TypeSys::TypeInfoT* BaseEntityT::GetType() const
 {
     return &TypeInfo;

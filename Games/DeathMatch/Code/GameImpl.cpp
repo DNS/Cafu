@@ -320,15 +320,12 @@ const cf::TypeSys::TypeInfoManT& cf::GameSys::GameImplT::GetEntityTIM() const
 
 
 // This function is called by the server, in order to obtain a (pointer to a) 'BaseEntityT' from a map file entity.
-// The server also provides the ID and engine function call-backs for the new entity.
-//
-// TODO: Diese Funktion sollte einen struct-Parameter haben, der enthält: std::map<> mit EntityDef (Properties), ID, EF, ptr auf SceneNode-Root, ptr auf ClipObject.
-IntrusivePtrT<BaseEntityT> cf::GameSys::GameImplT::CreateGameEntityFromMapFile(const cf::TypeSys::TypeInfoT* TI, const std::map<std::string, std::string>& Properties,
+IntrusivePtrT<GameEntityI> cf::GameSys::GameImplT::CreateGameEntityFromMapFile(const cf::TypeSys::TypeInfoT* TI, const std::map<std::string, std::string>& Properties,
     const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID,
     unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld, const Vector3T<double>& Origin)
 {
     // YES! THIS is how it SHOULD work!
-    BaseEntityT* NewEnt=static_cast<BaseEntityT*>(TI->CreateInstance(
+    GameEntityI* NewEnt=static_cast<GameEntityI*>(TI->CreateInstance(
         EntityCreateParamsT(ID, Properties, RootNode, CollisionModel, WorldFileIndex, MapFileIndex, GameWorld, Origin)));
 
     assert(NewEnt!=NULL);
@@ -347,9 +344,7 @@ IntrusivePtrT<BaseEntityT> cf::GameSys::GameImplT::CreateGameEntityFromMapFile(c
 
 // This function is called by the client, in order to obtain a (pointer to a) 'BaseEntityT' for a new entity
 // whose TypeNr and ID it got via a net message from the server.
-// (It initializes the 'State' of the entity directly via the returned pointer.)
-// The client also provides engine function call-backs, such that the prediction feature can work.
-IntrusivePtrT<BaseEntityT> cf::GameSys::GameImplT::CreateGameEntityFromTypeNr(unsigned long TypeNr, const std::map<std::string, std::string>& Properties,
+IntrusivePtrT<GameEntityI> cf::GameSys::GameImplT::CreateGameEntityFromTypeNr(unsigned long TypeNr, const std::map<std::string, std::string>& Properties,
     const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel,
     unsigned long ID, unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld)
 {
@@ -359,7 +354,7 @@ IntrusivePtrT<BaseEntityT> cf::GameSys::GameImplT::CreateGameEntityFromTypeNr(un
     assert(TI->TypeNr==TypeNr);
     assert(TI->CreateInstance!=NULL);
 
-    return static_cast<BaseEntityT*>(TI->CreateInstance(
+    return static_cast<GameEntityI*>(TI->CreateInstance(
         EntityCreateParamsT(ID, Properties, RootNode, CollisionModel, WorldFileIndex, MapFileIndex, GameWorld, VectorT())));
 }
 

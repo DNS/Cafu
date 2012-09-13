@@ -25,9 +25,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/BoundingBox.hpp"
 #include "Templates/Pointer.hpp"
 
+#include <map>
+
 
 class CafuModelT;
 class GameEntityI;
+class PhysicsWorldT;
 namespace cf { namespace ClipSys { class ClipWorldT; } }
 namespace cf { namespace GameSys { class GameI; } }
 namespace cf { class UniScriptStateT; }

@@ -39,9 +39,6 @@ class ApproxBaseT;
 class PhysicsWorldT;
 struct lua_State;
 namespace cf { namespace ClipSys { class CollisionModelT; } }
-namespace cf { namespace GameSys { class GameWorldI; } }
-namespace cf { namespace Network { class InStreamT; } }
-namespace cf { namespace Network { class OutStreamT; } }
 namespace cf { namespace TypeSys { class TypeInfoManT; } }
 namespace cf { namespace TypeSys { class CreateParamsT; } }
 
@@ -109,53 +106,25 @@ class BaseEntityT : public GameEntityI
     /// The destructor.
     virtual ~BaseEntityT();
 
-    /// Writes the current state of this entity into the given stream.
-    /// This method is called to send the state of the entity over the network or to save it to disk.
-    ///
     /// The implementation calls DoSerialize(), that derived classes override to add their own data.
-    ///
-    /// Note that this method is the twin of Deserialize(), whose implementation it must match.
-    void Serialize(cf::Network::OutStreamT& Stream) const;
+    void Serialize(cf::Network::OutStreamT& Stream) const /*final override*/;
 
-    /// Reads the state of this entity from the given stream, and updates the entity accordingly.
-    /// This method is called after the state of the entity has been received over the network,
-    /// has been loaded from disk, or must be "reset" for the purpose of (re-)prediction.
-    ///
     /// The implementation calls DoDeserialize(), that derived classes override to read their own data.
     /// It also calls ProcessEvent() (overridden by derived classes) for any received events.
-    ///
-    /// Note that this method is the twin of Serialize(), whose implementation it must match.
-    ///
-    /// @param Stream
-    ///   The stream to read the state data from.
-    ///
-    /// @param IsIniting
-    ///   Used to indicate that the call is part of the construction / first-time initialization of the entity.
-    ///   The implementation will use this to not wrongly process the event counters, interpolation, etc.
-    void Deserialize(cf::Network::InStreamT& Stream, bool IsIniting);
+    void Deserialize(cf::Network::InStreamT& Stream, bool IsIniting) /*final override*/;
 
     // Implement GameEntityI base class methods.
     virtual unsigned long GetID() const { return ID; }
-
-    /// Returns the origin point of this entity. Used for
-    ///   - obtaining the camera position of the local human player entity (1st person view),
-    ///   - computing light source positions.
+    virtual std::string GetName() const { return Name; }
+    virtual unsigned long GetWorldFileIndex() const { return WorldFileIndex; }
+    virtual cf::GameSys::GameWorldI* GetGameWorld() const { return GameWorld; }
     virtual const Vector3dT& GetOrigin() const { return m_Origin; }
-
-    /// Returns the dimensions of this entity.
     virtual const BoundingBox3dT& GetDimensions() const { return m_Dimensions; }
+    virtual void GetCameraOrientation(unsigned short& h, unsigned short& p, unsigned short& b) const { h=m_Heading; p=m_Pitch; b=m_Bank; }
+    virtual void GetBodyOrientation(unsigned short& h, unsigned short& p, unsigned short& b) const { h=m_Heading; p=m_Pitch; b=m_Bank; }
 
     /// Returns the heading of this entity.
     unsigned short GetHeading() const { return m_Heading; }
-
-    /// Returns the camera orientation angles of this entity.
-    /// Used for setting up the camera of the local human player entity (1st person view).
-    virtual void GetCameraOrientation(unsigned short& h, unsigned short& p, unsigned short& b) const { h=m_Heading; p=m_Pitch; b=m_Bank; }
-
-    /// Returns the orientation angles of the entity itself.
-    /// Used for computing the light source and eye positions in entity (model) space.
-    /// TODO: Both the signature as well as the implementation of this method are temporary, and fully expected to change later.
-    virtual void GetBodyOrientation(unsigned short& h, unsigned short& p, unsigned short& b) const { h=m_Heading; p=m_Pitch; b=m_Bank; }
 
 
     // Some convenience functions for reading the Properties.
@@ -215,17 +184,6 @@ class BaseEntityT : public GameEntityI
     /// (Unfortunately, this function cannot be declared as "protected": see "C++ FAQs, 2nd edition" by Cline, Lomow, Girou, pages 249f.)
     virtual void TakeDamage(BaseEntityT* Entity, char Amount, const VectorT& ImpactDir);
 
-    /// THIS FUNCTION IS DEPRECATED! TRY TO AVOID TO USE IT!
-    /// This DEPRECATED, SERVER-SIDE function is called in order to "communicate" with this entity.
-    /// It is probably a (bad) replacement for additional, missing member functions, so don't use it!
-    /// Mostly used for setting/querying the properties of specific, concrete entities,
-    /// e.g. the player names, player model names, player commands, or if something is solid,
-    /// alive or was picked up (and is thus "invisible" for a while), and so on.
-    /// This should most certainly be resolved as soon as possible, requires careful design considerations, however.
-    /// At a first glance, the related methods are *only* called from the server (like passing in player commands),
-    /// or from within the Think() functions, but never on the client side.
-    virtual void ProcessConfigString(const void* ConfigData, const char* ConfigString);
-
     /// This SERVER-SIDE function is used for posting an event of the given type.
     /// The event is automatically sent from the entity instance on the server to the entity instances
     /// on the clients, and causes a matching call to ProcessEvent() there.
@@ -233,14 +191,9 @@ class BaseEntityT : public GameEntityI
     /// Note that events are fully predictable: they work well even in the presence of client prediction.
     void PostEvent(unsigned int EventType) { m_EventsCount[EventType]++; }
 
-    /// This SERVER-SIDE function is called by the server in order to advance the world one clock-tick.
-    /// That is, basing on the present (old) state, it is called for computing the next (new) state.
-    /// 'FrameTime' is the time of the clock-tick, in seconds.
-    /// 'ServerFrameNr' is the number of the current server frame.
-    /// >>> IMPORTANT NOTE: In truth, also the CLIENT-SIDE calls this function for the purpose of predicting the local human player entity! <<<
-    /// >>> As a consequence, special rules apply when this function is called for predicted entities (that is, human player entities).     <<<
-    /// >>> For further details and examples, please refer to the EntHumanPlayerT::Think() function in HumanPlayer.cpp.                     <<<
-    virtual void Think(float FrameTime, unsigned long ServerFrameNr);
+    // Implement SERVER-SIDE GameEntityI base class methods.
+    virtual void ProcessConfigString(const void* ConfigData, const char* ConfigString) /*override*/;
+    virtual void Think(float FrameTime, unsigned long ServerFrameNr) /*override*/;
 
 
     /// This CLIENT-SIDE function is called to process events on the client.
@@ -248,45 +201,15 @@ class BaseEntityT : public GameEntityI
     /// received in Deserialize(), which automatically calls this method.
     /// In the call, Deserialize() indicates the number of new events since the last call (at least one,
     /// or it wouldn't call ProcessEvent() at all). This way, each event can be processed exactly once.
+    ///
+    /// TODO: Move into private section below "DoDeserialize()" ??
     virtual void ProcessEvent(unsigned int EventType, unsigned int NumEvents);
 
-    /// This CLIENT-SIDE function is called in order to retrieve light source information about this entity.
-    /// Returns 'true' if this entity is a light source and 'DiffuseColor', 'SpecularColor', 'Position' (in world space!), 'Radius' and 'CastsShadows' have been set.
-    /// Returns 'false' if this entity is no light source.
-    /// (In theory, this function might also be called on server-side, from within Think().)
-    virtual bool GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const;
-
-    /// This CLIENT-SIDE function is called by the client in order to get this entity drawn.
-    ///
-    /// Note that it is usually called several times per frame, in order to gather the individual terms of the lighting equation:
-    /// there is a call for the ambient contribution (everything that is independent of a lightsource) and for each light source there is
-    /// a call for the shadows, followed by another call for adding the lightsource-dependent contribution (diffuse and specular terms etc.).
-    ///
-    /// Also note that the calling code has properly set up the Cafu Material Systems global lighting parameters before calling.
-    /// That is, the ambient light color, light source position (in model space), radius, diff+spec color and the eye position (in model space) are set.
-    /// However, normally only those parameters that are relevant for the current Material Systems rendering action are set:
-    /// In the AMBIENT rendering action, only the ambient colors are set, in the STENCILSHADOW action only the light source position may be set,
-    /// and in the LIGHTING action all parameters except for the ambient light color are set.
-    ///
-    /// @param FirstPersonView   is true when the engine has rendered the world from this entities viewpoint, e.g. because this is the local players entity.
-    /// @param LodDist           is the world-space distance of the entity to the viewer, supposed to be used for level-of-detail reductions.
-    virtual void Draw(bool FirstPersonView, float LodDist) const;
-
-    /// This CLIENT-SIDE function is called by the client in order to advance all values of this entity that have
-    /// been registered for interpolation.
-    /// Each concrete entity class determines itself which values are interpolated (e.g. the m_Origin) by calling
-    /// Register() in its constructor: see Register() for details.
-    /// Interpolation is used to "smooth" values in the client video frames between server updates.
-    void Interpolate(float FrameTime);
-
-    /// This CLIENT-SIDE function is called once per frame, for each entity, after the regular rendering (calls to 'Draw()') is completed,
-    /// in order to provide entities an opportunity to render the HUD, employ simple "mini-prediction", triggers sounds,
-    /// register particles, do other server-independent eye-candy, and so on.
-    /// 'FrameTime' is the time in seconds that it took to render the last (previous) frame.
-    /// 'FirstPersonView' is true when the engine has rendered the world from this entities viewpoint, e.g. because this is the local players entity.
-    /// As it is convenient for current code (dealing with the particle system...), it is guaranteed that there is exactly one call to this function
-    /// with 'FirstPersonView==true', which occurs after the appropriate calls for all other entities. This behaviour may change in the future.
-    virtual void PostDraw(float FrameTime, bool FirstPersonView);
+    // Implement CLIENT-SIDE GameEntityI base class methods.
+    virtual bool GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const /*override*/;
+    virtual void Draw(bool FirstPersonView, float LodDist) const /*override*/;
+    virtual void Interpolate(float FrameTime) /*final override*/;
+    virtual void PostDraw(float FrameTime, bool FirstPersonView) /*override*/;
 
 
     /// Returns the proper type info for this entity.
