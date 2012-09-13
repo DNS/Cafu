@@ -5,7 +5,7 @@
 #ifndef CAFU_INFONODESPACING_HPP_INCLUDED
 #define CAFU_INFONODESPACING_HPP_INCLUDED
 
-#include "../../BaseEntity.hpp"
+#include "BaseEntity.hpp"
 
 
 class EntInfoNodeSpacingT : public BaseEntityT

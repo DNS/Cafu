@@ -5,7 +5,7 @@
 #ifndef CAFU_INFO2DMOVEDIRECTION_HPP_INCLUDED
 #define CAFU_INFO2DMOVEDIRECTION_HPP_INCLUDED
 
-#include "../../BaseEntity.hpp"
+#include "BaseEntity.hpp"
 
 
 class EntInfo2DMoveDirT : public BaseEntityT

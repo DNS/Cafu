@@ -22,7 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_HUMAN_PLAYER_HPP_INCLUDED
 #define CAFU_HUMAN_PLAYER_HPP_INCLUDED
 
-#include "../../BaseEntity.hpp"
+#include "BaseEntity.hpp"
 #include "../../PlayerCommand.hpp"
 #include "Libs/Physics.hpp"
 #include "btBulletDynamicsCommon.h"

@@ -22,7 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_STATIC_DETAIL_MODEL_HPP_INCLUDED
 #define CAFU_STATIC_DETAIL_MODEL_HPP_INCLUDED
 
-#include "../../BaseEntity.hpp"
+#include "BaseEntity.hpp"
 #include "Models/AnimExpr.hpp"
 
 

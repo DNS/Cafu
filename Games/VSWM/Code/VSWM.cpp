@@ -2,7 +2,7 @@
 /*** USAF Visuo Spatial Working Memory DLL (Code) ***/
 /****************************************************/
 
-#include "../../BaseEntity.hpp"
+#include "BaseEntity.hpp"
 #include "../../GameWorld.hpp"
 #include "Libs/LookupTables.hpp"
 #include "ConsoleCommands/ConsoleInterpreter.hpp"

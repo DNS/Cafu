@@ -30,7 +30,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Win32/Win32PrintHelp.hpp"
 #include "TypeSys.hpp"
 #include "../NetConst.hpp"
-#include "../../Games/BaseEntity.hpp"
 #include "../../Games/Game.hpp"
 
 

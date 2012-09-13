@@ -46,7 +46,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SceneGraph/Node.hpp"
 #include "Win32/Win32PrintHelp.hpp"
 #include "DebugLog.hpp"
-#include "../../Games/BaseEntity.hpp"
 
 extern "C"
 {

@@ -25,7 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/Console_Lua.hpp"
 #include "ConsoleCommands/ConsoleInterpreter.hpp"
 #include "ConsoleCommands/ConFunc.hpp"
-#include "../Games/BaseEntity.hpp"        // Only required so that we can call EntCppInstance->GetType().
 #include "../Games/Game.hpp"
 
 #include <cassert>

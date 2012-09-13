@@ -7,7 +7,7 @@
 #define CAFU_INFOPLAYERSTART_HPP_INCLUDED
 
 
-#include "../../BaseEntity.hpp"
+#include "BaseEntity.hpp"
 
 
 class EntInfoPlayerStartT : public BaseEntityT

@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include "../../BaseEntity.hpp"
+#include "BaseEntity.hpp"
 #include "../../PlayerCommand.hpp"
 #include "Libs/IntMatrix.hpp"
 

@@ -19,9 +19,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "../../BaseEntity.hpp"
 #include "../../GameWorld.hpp"
 #include "../../Interpolator.hpp"
+#include "BaseEntity.hpp"
 #include "ConsoleCommands/ConVar.hpp"
 #include "EntityCreateParams.hpp"
 #include "TypeSys.hpp"
