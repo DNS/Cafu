@@ -198,7 +198,7 @@ void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, const Play
                         Player->GameWorld->GetPhysicsWorld().TraceRay(Player->GetOrigin()/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
 
                         if (RayResult.hasHit() && RayResult.GetHitEntity()!=NULL)
-                            RayResult.GetHitEntity()->TakeDamage(Player, 3, ViewDir);
+                            static_cast<BaseEntityT*>(RayResult.GetHitEntity())->TakeDamage(Player, 3, ViewDir);
                     }
                 }
                 break;
@@ -230,7 +230,7 @@ void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, const Play
                         Player->GameWorld->GetPhysicsWorld().TraceRay(Player->GetOrigin()/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
 
                         if (RayResult.hasHit() && RayResult.GetHitEntity()!=NULL)
-                            RayResult.GetHitEntity()->TakeDamage(Player, 3, ViewDir);
+                            static_cast<BaseEntityT*>(RayResult.GetHitEntity())->TakeDamage(Player, 3, ViewDir);
                     }
                 }
                 break;

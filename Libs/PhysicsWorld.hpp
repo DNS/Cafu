@@ -28,7 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 namespace cf { namespace ClipSys { class CollisionModelT; } }
-class BaseEntityT;
+typedef void TraceUserEntityT;
 
 
 // Auxiliary functions for making the conversion between Bullet and Cafu vectors easier.
@@ -57,11 +57,11 @@ class RayResultT : public btCollisionWorld::ClosestRayResultCallback
     /// If something was hit (hasHit() returns true), this method returns a pointer to the entity the hit collision object belongs to.
     /// The returned pointer is NULL if the collision object belongs to the world.
     /// If nothing was hit (hasHit() returns false), NULL is always returned.
-    BaseEntityT* GetHitEntity() const
+    TraceUserEntityT* GetHitEntity() const
     {
         if (m_collisionObject==NULL) return NULL;
 
-        return static_cast<BaseEntityT*>(m_collisionObject->getUserPointer());
+        return m_collisionObject->getUserPointer();
     }
 
 
@@ -108,7 +108,7 @@ class ShapeResultT : public btCollisionWorld::ClosestConvexResultCallback
 
     /// Adds the given entity to the entities to be ignored for this trace.
     /// @param Ent   An entity to ignore for this trace. This is often the entity from which the trace emanates, or e.g. NULL (the world).
-    void Ignore(const BaseEntityT* Ent)
+    void Ignore(const TraceUserEntityT* Ent)
     {
         assert(m_IgnoreEntCount<2);
         if (m_IgnoreEntCount>=2) return;
@@ -120,11 +120,11 @@ class ShapeResultT : public btCollisionWorld::ClosestConvexResultCallback
     /// If something was hit (hasHit() returns true), this method returns a pointer to the entity the hit collision object belongs to.
     /// The returned pointer is NULL if the collision object belongs to the world.
     /// If nothing was hit (hasHit() returns false), NULL is always returned.
-    BaseEntityT* GetHitEntity() const
+    TraceUserEntityT* GetHitEntity() const
     {
         if (m_hitCollisionObject==NULL) return NULL;
 
-        return static_cast<BaseEntityT*>(m_hitCollisionObject->getUserPointer());
+        return m_hitCollisionObject->getUserPointer();
     }
 
 
@@ -146,7 +146,7 @@ class ShapeResultT : public btCollisionWorld::ClosestConvexResultCallback
     unsigned short           m_IgnoreEntCount;
 
     const btCollisionObject* m_IgnoreObjects[2];
-    const BaseEntityT*       m_IgnoreEntities[2];
+    const TraceUserEntityT*  m_IgnoreEntities[2];
 };
 
 
