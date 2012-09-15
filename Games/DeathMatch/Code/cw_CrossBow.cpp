@@ -28,6 +28,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../../GameWorld.hpp"
 #include "Models/ModelManager.hpp"
 
+using namespace GAME_NAME;
+
 
 CarriedWeaponCrossBowT::CarriedWeaponCrossBowT(ModelManagerT& ModelMan)
     : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/DartGun/DartGun_v.cmdl"),

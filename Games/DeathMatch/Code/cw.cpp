@@ -21,6 +21,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "cw.hpp"
 
+using namespace GAME_NAME;
+
 
 CarriedWeaponT::CarriedWeaponT(const CafuModelT* ViewModel, const CafuModelT* PlayerModel)
     : m_ViewModel(ViewModel),

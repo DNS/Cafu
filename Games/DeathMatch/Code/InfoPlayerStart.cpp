@@ -23,6 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "EntityCreateParams.hpp"
 #include "TypeSys.hpp"
 
+using namespace GAME_NAME;
+
 
 // Implement the type info related code.
 const cf::TypeSys::TypeInfoT* EntInfoPlayerStartT::GetType() const

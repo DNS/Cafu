@@ -27,16 +27,19 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_LOOKUP_TABLES_HPP_INCLUDED
 
 
-namespace LookupTables
+namespace GAME_NAME
 {
-    extern float Angle16ToSin[1 << 16];
-    extern float Angle16ToCos[1 << 16];
+    namespace LookupTables
+    {
+        extern float Angle16ToSin[1 << 16];
+        extern float Angle16ToCos[1 << 16];
 
-    extern unsigned short RandomUShort[1 << 12];    //   0 <= x <= 0xFFFF
-    extern float          RandomFloat [1 << 12];    // 0.0 <= x <= 1.0
+        extern unsigned short RandomUShort[1 << 12];    //   0 <= x <= 0xFFFF
+        extern float          RandomFloat [1 << 12];    // 0.0 <= x <= 1.0
 
-    // Initialisiert die Look-up Tables. Sollte aus DllMain() (bei DLL_PROCESS_ATTACH) aufgerufen werden!
-    void Initialize();
-};
+        // Initialisiert die Look-up Tables. Sollte aus DllMain() (bei DLL_PROCESS_ATTACH) aufgerufen werden!
+        void Initialize();
+    };
+}
 
 #endif

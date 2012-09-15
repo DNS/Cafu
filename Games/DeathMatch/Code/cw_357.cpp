@@ -33,6 +33,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SoundSystem/SoundShaderManager.hpp"
 #include "SoundSystem/Sound.hpp"
 
+using namespace GAME_NAME;
+
 
 CarriedWeapon357T::CarriedWeapon357T(ModelManagerT& ModelMan)
     : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/DesertEagle/DesertEagle_v.cmdl"),

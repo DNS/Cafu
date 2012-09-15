@@ -25,6 +25,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Constants_WeaponSlots.hpp"
 #include "Models/ModelManager.hpp"
 
+using namespace GAME_NAME;
+
 
 CarriedWeaponPistolT::CarriedWeaponPistolT(ModelManagerT& ModelMan)
     : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Beretta/Beretta_v.cmdl"),

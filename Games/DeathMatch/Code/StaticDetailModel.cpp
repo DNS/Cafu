@@ -43,6 +43,8 @@ extern "C"
     #include <lauxlib.h>
 }
 
+using namespace GAME_NAME;
+
 
 // Implement the type info related code.
 const cf::TypeSys::TypeInfoT* EntStaticDetailModelT::GetType() const

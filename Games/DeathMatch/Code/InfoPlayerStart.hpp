@@ -25,19 +25,19 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "BaseEntity.hpp"
 
 
-class EntityCreateParamsT;
-
-
-class EntInfoPlayerStartT : public BaseEntityT
+namespace GAME_NAME
 {
-    public:
+    class EntInfoPlayerStartT : public BaseEntityT
+    {
+        public:
 
-    EntInfoPlayerStartT(const EntityCreateParamsT& Params);
+        EntInfoPlayerStartT(const EntityCreateParamsT& Params);
 
 
-    const cf::TypeSys::TypeInfoT* GetType() const;
-    static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
-    static const cf::TypeSys::TypeInfoT TypeInfo;
-};
+        const cf::TypeSys::TypeInfoT* GetType() const;
+        static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
+        static const cf::TypeSys::TypeInfoT TypeInfo;
+    };
+}
 
 #endif

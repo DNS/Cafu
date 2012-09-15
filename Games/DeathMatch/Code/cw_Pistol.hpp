@@ -25,13 +25,16 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "cw.hpp"
 
 
-class CarriedWeaponPistolT : public CarriedWeaponT
+namespace GAME_NAME
 {
-    public:
+    class CarriedWeaponPistolT : public CarriedWeaponT
+    {
+        public:
 
-    CarriedWeaponPistolT(ModelManagerT& ModelMan);
+        CarriedWeaponPistolT(ModelManagerT& ModelMan);
 
-    bool ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const;
-};
+        bool ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const;
+    };
+}
 
 #endif

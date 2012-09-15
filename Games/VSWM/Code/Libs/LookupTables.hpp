@@ -7,13 +7,16 @@
 #define CAFU_LOOKUP_TABLES_HPP_INCLUDED
 
 
-namespace LookupTables
+namespace GAME_NAME
 {
-    extern float HeadingToSin[2 << 16];
-    extern float HeadingToCos[2 << 16];
+    namespace LookupTables
+    {
+        extern float HeadingToSin[2 << 16];
+        extern float HeadingToCos[2 << 16];
 
-    // Initialisiert die Look-up Tables. Sollte aus DllMain() aufgerufen werden!
-    void Initialize();
-};
+        // Initialisiert die Look-up Tables. Sollte aus DllMain() aufgerufen werden!
+        void Initialize();
+    };
+}
 
 #endif

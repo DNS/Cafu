@@ -29,34 +29,37 @@ namespace cf { namespace ClipSys { class ClipModelT; } }
 namespace cf { namespace ClipSys { class ClipWorldT; } }
 
 
-/// This class implements the physics for moving entities through the world.
-class PhysicsHelperT
+namespace GAME_NAME
 {
-    public:
+    /// This class implements the physics for moving entities through the world.
+    class PhysicsHelperT
+    {
+        public:
 
-    PhysicsHelperT(Vector3dT& Origin, Vector3dT& Velocity, const BoundingBox3dT& Dimensions,
-                   const cf::ClipSys::ClipModelT& ClipModel, const cf::ClipSys::ClipWorldT& ClipWorld);
+        PhysicsHelperT(Vector3dT& Origin, Vector3dT& Velocity, const BoundingBox3dT& Dimensions,
+                       const cf::ClipSys::ClipModelT& ClipModel, const cf::ClipSys::ClipWorldT& ClipWorld);
 
-    void MoveHuman(float FrameTime, unsigned short Heading, const VectorT& WishVelocity,
-                   const VectorT& WishVelLadder, bool WishJump, bool& OldWishJump, double StepHeight);
+        void MoveHuman(float FrameTime, unsigned short Heading, const VectorT& WishVelocity,
+                       const VectorT& WishVelLadder, bool WishJump, bool& OldWishJump, double StepHeight);
 
 
-    private:
+        private:
 
-    enum PosCatT { InAir, OnSolid };
+        enum PosCatT { InAir, OnSolid };
 
-    PosCatT CategorizePosition() const;
-    void    ApplyFriction(double FrameTime, PosCatT PosCat);
-    void    ApplyAcceleration(double FrameTime, PosCatT PosCat, const VectorT& WishVelocity);
-    void    ApplyGravity(double FrameTime, PosCatT PosCat);
-    void    FlyMove(double TimeLeft);
-    void    GroundMove(double FrameTime, double StepHeight);
+        PosCatT CategorizePosition() const;
+        void    ApplyFriction(double FrameTime, PosCatT PosCat);
+        void    ApplyAcceleration(double FrameTime, PosCatT PosCat, const VectorT& WishVelocity);
+        void    ApplyGravity(double FrameTime, PosCatT PosCat);
+        void    FlyMove(double TimeLeft);
+        void    GroundMove(double FrameTime, double StepHeight);
 
-    Vector3dT&                     m_Origin;
-    Vector3dT&                     m_Velocity;
-    const BoundingBox3dT&          m_Dimensions;
-    const cf::ClipSys::ClipModelT& m_ClipModel;
-    const cf::ClipSys::ClipWorldT& m_ClipWorld;
-};
+        Vector3dT&                     m_Origin;
+        Vector3dT&                     m_Velocity;
+        const BoundingBox3dT&          m_Dimensions;
+        const cf::ClipSys::ClipModelT& m_ClipModel;
+        const cf::ClipSys::ClipWorldT& m_ClipWorld;
+    };
+}
 
 #endif

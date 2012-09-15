@@ -27,7 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 class CafuModelT;
-class CarriedWeaponT;
+namespace GAME_NAME { class CarriedWeaponT; }
 class PhysicsWorldT;
 class SoundI;
 
@@ -59,7 +59,7 @@ namespace cf
             /// This function returns a pointer to the CarriedWeaponT instance for the desired ActiveWeaponSlot.
             /// When no such class exists, it returns a pointer to an empty dummy implementation
             /// (but for the convenience of the caller, it never returns NULL or an invalid pointer).
-            const CarriedWeaponT* GetCarriedWeapon(unsigned int ActiveWeaponSlot) const;
+            const GAME_NAME::CarriedWeaponT* GetCarriedWeapon(unsigned int ActiveWeaponSlot) const;
 
             /// Returns the singleton instance of this class.
             static GameImplT& GetInstance();
@@ -74,7 +74,7 @@ namespace cf
             bool                      RunningAsServer;
 
             ArrayT<const CafuModelT*> m_PlayerModels;   ///< The player models available in this game.
-            ArrayT<CarriedWeaponT*>   m_CarriedWeapons; ///< The set of carry-able weapons in this game.
+            ArrayT<GAME_NAME::CarriedWeaponT*>   m_CarriedWeapons; ///< The set of carry-able weapons in this game.
             ArrayT<SoundI*>           m_PreCacheSounds; ///< Array of all precached sounds.
         };
     }

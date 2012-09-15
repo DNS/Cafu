@@ -8,13 +8,16 @@
 #include "BaseEntity.hpp"
 
 
-class EntInfo2DMoveDirT : public BaseEntityT
+namespace GAME_NAME
 {
-    public:
+    class EntInfo2DMoveDirT : public BaseEntityT
+    {
+        public:
 
-    EntInfo2DMoveDirT(char TypeID, unsigned long ID, unsigned long MapFileID, cf::GameSys::GameWorldI* GameWorld, const VectorT& Origin);
+        EntInfo2DMoveDirT(char TypeID, unsigned long ID, unsigned long MapFileID, cf::GameSys::GameWorldI* GameWorld, const VectorT& Origin);
 
-    std::string MoveDirName;
-};
+        std::string MoveDirName;
+    };
+}
 
 #endif

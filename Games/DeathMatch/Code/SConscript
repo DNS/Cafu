@@ -4,6 +4,8 @@ Import('env', 'buildMode')
 
 gameEnv = env.Clone()
 
+gameEnv.Append(CPPDEFINES=[("GAME_NAME", "DeathMatch")]);
+
 gameEnv.Append(CPPPATH=['#/ExtLibs/bullet/src'])
 gameEnv.Append(CPPPATH=['#/ExtLibs/lua/src'])
 

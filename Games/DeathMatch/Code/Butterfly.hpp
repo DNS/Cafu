@@ -26,34 +26,36 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 class CafuModelT;
-class EntityCreateParamsT;
 
 
-class EntButterflyT : public BaseEntityT
+namespace GAME_NAME
 {
-    public:
+    class EntButterflyT : public BaseEntityT
+    {
+        public:
 
-    EntButterflyT(const EntityCreateParamsT& Params);
+        EntButterflyT(const EntityCreateParamsT& Params);
 
-    void Think(float FrameTime, unsigned long ServerFrameNr);
-    void Draw(bool FirstPersonView, float LodDist) const;
-    void PostDraw(float FrameTime, bool FirstPersonView);
-
-
-    const cf::TypeSys::TypeInfoT* GetType() const;
-    static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
-    static const cf::TypeSys::TypeInfoT TypeInfo;
+        void Think(float FrameTime, unsigned long ServerFrameNr);
+        void Draw(bool FirstPersonView, float LodDist) const;
+        void PostDraw(float FrameTime, bool FirstPersonView);
 
 
-    private:
+        const cf::TypeSys::TypeInfoT* GetType() const;
+        static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
+        static const cf::TypeSys::TypeInfoT TypeInfo;
 
-    const CafuModelT* m_Model;
-    const VectorT     m_ArcCenter;
-    const float       m_ArcRadius;
-    const int         m_ModelSequNr;
 
-    unsigned short    m_ArcPos;
-    float             m_ModelFrameNr;
-};
+        private:
+
+        const CafuModelT* m_Model;
+        const VectorT     m_ArcCenter;
+        const float       m_ArcRadius;
+        const int         m_ModelSequNr;
+
+        unsigned short    m_ArcPos;
+        float             m_ModelFrameNr;
+    };
+}
 
 #endif

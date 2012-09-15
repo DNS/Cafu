@@ -29,54 +29,56 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 class CafuModelT;
-class EntityCreateParamsT;
 
 
-class EntCompanyBotT : public BaseEntityT, public btMotionState
+namespace GAME_NAME
 {
-    public:
+    class EntCompanyBotT : public BaseEntityT, public btMotionState
+    {
+        public:
 
-    EntCompanyBotT(const EntityCreateParamsT& Params);
-    ~EntCompanyBotT();
+        EntCompanyBotT(const EntityCreateParamsT& Params);
+        ~EntCompanyBotT();
 
-    void SetHeading(unsigned short h) { m_Heading = h; }
+        void SetHeading(unsigned short h) { m_Heading = h; }
 
-    // Implement the BaseEntityT interface.
-    void TakeDamage(BaseEntityT* Entity, char Amount, const VectorT& ImpactDir);
-    void Think(float FrameTime, unsigned long ServerFrameNr);
+        // Implement the BaseEntityT interface.
+        void TakeDamage(BaseEntityT* Entity, char Amount, const VectorT& ImpactDir);
+        void Think(float FrameTime, unsigned long ServerFrameNr);
 
-    bool GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const;
-    void Draw(bool FirstPersonView, float LodDist) const;
-    void PostDraw(float FrameTime, bool FirstPersonView);
+        bool GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const;
+        void Draw(bool FirstPersonView, float LodDist) const;
+        void PostDraw(float FrameTime, bool FirstPersonView);
 
-    // Implement the btMotionState interface.
-    void getWorldTransform(btTransform& worldTrans) const;
-    void setWorldTransform(const btTransform& worldTrans);
-
-
-    const cf::TypeSys::TypeInfoT* GetType() const;
-    static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
-    static const cf::TypeSys::TypeInfoT TypeInfo;
+        // Implement the btMotionState interface.
+        void getWorldTransform(btTransform& worldTrans) const;
+        void setWorldTransform(const btTransform& worldTrans);
 
 
-    private:
+        const cf::TypeSys::TypeInfoT* GetType() const;
+        static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
+        static const cf::TypeSys::TypeInfoT TypeInfo;
 
-    // Override the base class methods.
-    void DoSerialize(cf::Network::OutStreamT& Stream) const;
-    void DoDeserialize(cf::Network::InStreamT& Stream);
 
-    void AdvanceModelTime(float Time, bool Loop);
+        private:
 
-    EntityStateT      State;                ///< The current state of this entity.
-    PhysicsHelperT    m_Physics;
-    const CafuModelT* m_CompanyBotModel;
-    IntrusivePtrT<AnimExpressionT>   m_AnimExpr;
-    IntrusivePtrT<AnimExprStandardT> m_LastStdAE;
-    const CafuModelT* m_WeaponModel;
-    float             m_TimeForLightSource;
+        // Override the base class methods.
+        void DoSerialize(cf::Network::OutStreamT& Stream) const;
+        void DoDeserialize(cf::Network::InStreamT& Stream);
 
-    btCollisionShape* m_CollisionShape;     ///< The collision shape that is used to approximate and represent this player in the physics world.
-    btRigidBody*      m_RigidBody;          ///< The rigid body (of "kinematic" type) for use in the physics world.
-};
+        void AdvanceModelTime(float Time, bool Loop);
+
+        EntityStateT      State;                ///< The current state of this entity.
+        PhysicsHelperT    m_Physics;
+        const CafuModelT* m_CompanyBotModel;
+        IntrusivePtrT<AnimExpressionT>   m_AnimExpr;
+        IntrusivePtrT<AnimExprStandardT> m_LastStdAE;
+        const CafuModelT* m_WeaponModel;
+        float             m_TimeForLightSource;
+
+        btCollisionShape* m_CollisionShape;     ///< The collision shape that is used to approximate and represent this player in the physics world.
+        btRigidBody*      m_RigidBody;          ///< The rigid body (of "kinematic" type) for use in the physics world.
+    };
+}
 
 #endif

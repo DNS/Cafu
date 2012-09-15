@@ -21,6 +21,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "EntityCreateParams.hpp"
 
+using namespace GAME_NAME;
+
 
 EntityCreateParamsT::EntityCreateParamsT(
     const unsigned long                       ID_,

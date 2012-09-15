@@ -28,6 +28,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../../GameWorld.hpp"
 #include "Models/ModelManager.hpp"
 
+using namespace GAME_NAME;
+
 
 CarriedWeaponRPGT::CarriedWeaponRPGT(ModelManagerT& ModelMan)
     : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Bazooka/Bazooka_v.cmdl"),

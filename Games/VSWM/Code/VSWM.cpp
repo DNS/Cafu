@@ -31,6 +31,8 @@
 #define DLL_EXPORT extern "C"
 #endif
 
+using namespace GAME_NAME;
+
 
 // DLL Entry Point
 // ***************
@@ -62,7 +64,7 @@ void __attribute__((constructor)) InitializeDLL()
 // Note that we cannot simply replace this method with a global TypeInfoManT instance,
 // because it is called during global static initialization time. The TIM instance being
 // embedded in the function guarantees that it is properly initialized before first use.
-cf::TypeSys::TypeInfoManT& GetBaseEntTIM()
+cf::TypeSys::TypeInfoManT& GAME_NAME::GetBaseEntTIM()
 {
     static cf::TypeSys::TypeInfoManT TIM;
 

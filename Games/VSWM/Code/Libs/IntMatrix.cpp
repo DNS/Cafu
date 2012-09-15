@@ -5,6 +5,8 @@
 
 #include "IntMatrix.hpp"
 
+using namespace GAME_NAME;
+
 
 IntMatrixT::IntMatrixT()
 {
@@ -110,7 +112,7 @@ IntMatrixT IntMatrixT::GetRotationZMatrix(int Angle)
 }
 
 
-IntMatrixT operator * (const IntMatrixT& A, const IntMatrixT& B)
+IntMatrixT GAME_NAME::operator * (const IntMatrixT& A, const IntMatrixT& B)
 {
     IntMatrixT Result;
 
@@ -126,7 +128,7 @@ IntMatrixT operator * (const IntMatrixT& A, const IntMatrixT& B)
 }
 
 
-bool operator == (const IntMatrixT& A, const IntMatrixT& B)
+bool GAME_NAME::operator == (const IntMatrixT& A, const IntMatrixT& B)
 {
     for (char i=0; i<=3; i++)
         for (char j=0; j<=3; j++)

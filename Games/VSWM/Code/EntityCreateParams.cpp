@@ -1,5 +1,7 @@
 #include "EntityCreateParams.hpp"
 
+using namespace GAME_NAME;
+
 
 EntityCreateParamsT::EntityCreateParamsT(
     const unsigned long                       ID_,

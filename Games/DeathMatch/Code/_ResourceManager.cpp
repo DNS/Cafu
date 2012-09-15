@@ -35,8 +35,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
     #endif
 #endif
 
+using namespace GAME_NAME;
 
-ResourceManagerT ResMan;
+
+ResourceManagerT GAME_NAME::ResMan;
 
 
 void ResourceManagerT::Init()

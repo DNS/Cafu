@@ -25,33 +25,33 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "BaseEntity.hpp"
 
 
-class EntityCreateParamsT;
-
-
-class EntMonsterMakerT : public BaseEntityT
+namespace GAME_NAME
 {
-    private:
+    class EntMonsterMakerT : public BaseEntityT
+    {
+        private:
 
-    enum MonsterTypeT { Unknown, CompanyBot, Butterfly, Eagle };
+        enum MonsterTypeT { Unknown, CompanyBot, Butterfly, Eagle };
 
-    MonsterTypeT  MonsterType;          // Type of monsters to create
-    unsigned long MaxCreate;            // Number of monsters the MonsterMaker can totally create
-    float         Delay;                // How often a new monster will be dookied out
-    unsigned long MaxAlive;             // Maximum number of live children allowed at one time (new ones will not be made until one dies)
-    unsigned long CurrentlyAlive;       // Number of currently alive children
-    float         TimeSinceLastMake;    // Time since the last child was made
-
-
-    public:
-
-    EntMonsterMakerT(const EntityCreateParamsT& Params);
-
-    void Think(float FrameTime, unsigned long ServerFrameNr);
+        MonsterTypeT  MonsterType;          // Type of monsters to create
+        unsigned long MaxCreate;            // Number of monsters the MonsterMaker can totally create
+        float         Delay;                // How often a new monster will be dookied out
+        unsigned long MaxAlive;             // Maximum number of live children allowed at one time (new ones will not be made until one dies)
+        unsigned long CurrentlyAlive;       // Number of currently alive children
+        float         TimeSinceLastMake;    // Time since the last child was made
 
 
-    const cf::TypeSys::TypeInfoT* GetType() const;
-    static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
-    static const cf::TypeSys::TypeInfoT TypeInfo;
-};
+        public:
+
+        EntMonsterMakerT(const EntityCreateParamsT& Params);
+
+        void Think(float FrameTime, unsigned long ServerFrameNr);
+
+
+        const cf::TypeSys::TypeInfoT* GetType() const;
+        static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
+        static const cf::TypeSys::TypeInfoT TypeInfo;
+    };
+}
 
 #endif

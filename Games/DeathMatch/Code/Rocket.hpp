@@ -26,44 +26,46 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 class CafuModelT;
-class EntityCreateParamsT;
 class SoundI;
 
 
-class EntRocketT : public BaseEntityT
+namespace GAME_NAME
 {
-    public:
+    class EntRocketT : public BaseEntityT
+    {
+        public:
 
-    EntRocketT(const EntityCreateParamsT& Params);
-    ~EntRocketT();
+        EntRocketT(const EntityCreateParamsT& Params);
+        ~EntRocketT();
 
-    void SetHeading(unsigned short h) { m_Heading = h; }
-    void SetVelocity(const Vector3dT& v) { m_Velocity = v; }
+        void SetHeading(unsigned short h) { m_Heading = h; }
+        void SetVelocity(const Vector3dT& v) { m_Velocity = v; }
 
-    void Think(float FrameTime, unsigned long ServerFrameNr);
+        void Think(float FrameTime, unsigned long ServerFrameNr);
 
-    void ProcessEvent(unsigned int EventType, unsigned int NumEvents);
-    bool GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const;
-    void Draw(bool FirstPersonView, float LodDist) const;
-
-
-    const cf::TypeSys::TypeInfoT* GetType() const;
-    static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
-    static const cf::TypeSys::TypeInfoT TypeInfo;
+        void ProcessEvent(unsigned int EventType, unsigned int NumEvents);
+        bool GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const;
+        void Draw(bool FirstPersonView, float LodDist) const;
 
 
-    private:
+        const cf::TypeSys::TypeInfoT* GetType() const;
+        static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
+        static const cf::TypeSys::TypeInfoT TypeInfo;
 
-    // Override the base class methods.
-    void DoSerialize(cf::Network::OutStreamT& Stream) const;
-    void DoDeserialize(cf::Network::InStreamT& Stream);
 
-    enum EventTypesT { EVENT_TYPE_EXPLODE, NUM_EVENT_TYPES };
+        private:
 
-    const CafuModelT* m_Model;
-    SoundI*           m_FireSound;
-    Vector3dT         m_Velocity;
-    float             m_TimeSinceExploded;
-};
+        // Override the base class methods.
+        void DoSerialize(cf::Network::OutStreamT& Stream) const;
+        void DoDeserialize(cf::Network::InStreamT& Stream);
+
+        enum EventTypesT { EVENT_TYPE_EXPLODE, NUM_EVENT_TYPES };
+
+        const CafuModelT* m_Model;
+        SoundI*           m_FireSound;
+        Vector3dT         m_Velocity;
+        float             m_TimeSinceExploded;
+    };
+}
 
 #endif

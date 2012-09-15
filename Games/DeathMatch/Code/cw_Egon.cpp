@@ -26,6 +26,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Libs/LookupTables.hpp"
 #include "Models/ModelManager.hpp"
 
+using namespace GAME_NAME;
+
 
 CarriedWeaponEgonT::CarriedWeaponEgonT(ModelManagerT& ModelMan)
     : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Egon/Egon_v.cmdl"),

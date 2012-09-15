@@ -28,6 +28,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/TraceSolid.hpp"
 #include "MaterialSystem/Material.hpp"
 
+using namespace GAME_NAME;
+
 
 PhysicsHelperT::PhysicsHelperT(Vector3dT& Origin, Vector3dT& Velocity, const BoundingBox3dT& Dimensions,
                                const cf::ClipSys::ClipModelT& ClipModel, const cf::ClipSys::ClipWorldT& ClipWorld)

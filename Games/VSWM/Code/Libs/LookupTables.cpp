@@ -6,6 +6,8 @@
 #include <math.h>
 #include "LookupTables.hpp"
 
+using namespace GAME_NAME;
+
 
 float LookupTables::HeadingToSin[2 << 16];
 float LookupTables::HeadingToCos[2 << 16];

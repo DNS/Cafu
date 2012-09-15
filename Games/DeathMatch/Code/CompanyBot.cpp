@@ -39,6 +39,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Models/Model_cmdl.hpp"
 #include "Network/State.hpp"
 
+using namespace GAME_NAME;
+
 
 // Implement the type info related code.
 const cf::TypeSys::TypeInfoT* EntCompanyBotT::GetType() const

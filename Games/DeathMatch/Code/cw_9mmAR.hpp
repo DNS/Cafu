@@ -25,24 +25,27 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "cw.hpp"
 
 
-class CarriedWeapon9mmART : public CarriedWeaponT
+namespace GAME_NAME
 {
-    public:
+    class CarriedWeapon9mmART : public CarriedWeaponT
+    {
+        public:
 
-    CarriedWeapon9mmART(ModelManagerT& ModelMan);
-    ~CarriedWeapon9mmART();
+        CarriedWeapon9mmART(ModelManagerT& ModelMan);
+        ~CarriedWeapon9mmART();
 
-    bool ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const;
-    void ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;
+        bool ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const;
+        void ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;
 
-    void ClientSide_HandleSecondaryFireEvent(const EntHumanPlayerT* Player, const VectorT& LastSeenAmbientColor) const;
-    void ClientSide_HandleStateDrivenEffects(const EntHumanPlayerT* Player) const;
+        void ClientSide_HandleSecondaryFireEvent(const EntHumanPlayerT* Player, const VectorT& LastSeenAmbientColor) const;
+        void ClientSide_HandleStateDrivenEffects(const EntHumanPlayerT* Player) const;
 
 
-    private:
+        private:
 
-    SoundI* FireSound;
-    SoundI* AltFireSound;
-};
+        SoundI* FireSound;
+        SoundI* AltFireSound;
+    };
+}
 
 #endif

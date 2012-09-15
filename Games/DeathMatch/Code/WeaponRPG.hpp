@@ -29,18 +29,21 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Weapon.hpp"
 
 
-class EntWeaponRPGT : public EntWeaponT
+namespace GAME_NAME
 {
-    public:
+    class EntWeaponRPGT : public EntWeaponT
+    {
+        public:
 
-    EntWeaponRPGT(const EntityCreateParamsT& Params);
+        EntWeaponRPGT(const EntityCreateParamsT& Params);
 
-    virtual void NotifyTouchedBy(BaseEntityT* Entity);
+        virtual void NotifyTouchedBy(BaseEntityT* Entity);
 
 
-    const cf::TypeSys::TypeInfoT* GetType() const;
-    static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
-    static const cf::TypeSys::TypeInfoT TypeInfo;
-};
+        const cf::TypeSys::TypeInfoT* GetType() const;
+        static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
+        static const cf::TypeSys::TypeInfoT TypeInfo;
+    };
+}
 
 #endif

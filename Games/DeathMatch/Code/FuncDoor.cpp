@@ -35,6 +35,8 @@ extern "C"
     #include <lauxlib.h>
 }
 
+using namespace GAME_NAME;
+
 
 #if defined(_WIN32) && defined(_MSC_VER)
 // Turn off "warning C4355: 'this' : used in base member initializer list".

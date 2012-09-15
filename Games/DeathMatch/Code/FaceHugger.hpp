@@ -27,40 +27,42 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 class CafuModelT;
-class EntityCreateParamsT;
 
 
-class EntFaceHuggerT : public BaseEntityT
+namespace GAME_NAME
 {
-    public:
+    class EntFaceHuggerT : public BaseEntityT
+    {
+        public:
 
-    EntFaceHuggerT(const EntityCreateParamsT& Params);
+        EntFaceHuggerT(const EntityCreateParamsT& Params);
 
-    void SetHeading(unsigned short h) { m_Heading = h; }
-    void SetVelocity(const Vector3dT& v) { m_Velocity = v; }
+        void SetHeading(unsigned short h) { m_Heading = h; }
+        void SetVelocity(const Vector3dT& v) { m_Velocity = v; }
 
-    void Think(float FrameTime, unsigned long ServerFrameNr);
-    void Draw(bool FirstPersonView, float LodDist) const;
-    void PostDraw(float FrameTime, bool FirstPersonView);
-
-
-    const cf::TypeSys::TypeInfoT* GetType() const;
-    static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
-    static const cf::TypeSys::TypeInfoT TypeInfo;
+        void Think(float FrameTime, unsigned long ServerFrameNr);
+        void Draw(bool FirstPersonView, float LodDist) const;
+        void PostDraw(float FrameTime, bool FirstPersonView);
 
 
-    private:
+        const cf::TypeSys::TypeInfoT* GetType() const;
+        static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
+        static const cf::TypeSys::TypeInfoT TypeInfo;
 
-    // Override the base class methods.
-    void DoSerialize(cf::Network::OutStreamT& Stream) const;
-    void DoDeserialize(cf::Network::InStreamT& Stream);
 
-    Vector3dT         m_Velocity;
-    PhysicsHelperT    m_Physics;
+        private:
 
-    const CafuModelT* m_Model;
-    const int         m_ModelSequNr;
-    float             m_ModelFrameNr;
-};
+        // Override the base class methods.
+        void DoSerialize(cf::Network::OutStreamT& Stream) const;
+        void DoDeserialize(cf::Network::InStreamT& Stream);
+
+        Vector3dT         m_Velocity;
+        PhysicsHelperT    m_Physics;
+
+        const CafuModelT* m_Model;
+        const int         m_ModelSequNr;
+        float             m_ModelFrameNr;
+    };
+}
 
 #endif

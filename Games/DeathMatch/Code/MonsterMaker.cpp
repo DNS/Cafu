@@ -32,6 +32,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define _stricmp strcasecmp
 #endif
 
+using namespace GAME_NAME;
+
 
 // Implement the type info related code.
 const cf::TypeSys::TypeInfoT* EntMonsterMakerT::GetType() const

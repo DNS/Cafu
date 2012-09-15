@@ -10,11 +10,14 @@
 #include "BaseEntity.hpp"
 
 
-class EntInfoPlayerStartT : public BaseEntityT
+namespace GAME_NAME
 {
-    public:
+    class EntInfoPlayerStartT : public BaseEntityT
+    {
+        public:
 
-    EntInfoPlayerStartT(char TypeID, unsigned long ID, unsigned long MapFileID, cf::GameSys::GameWorldI* GameWorld, const VectorT& Origin);
-};
+        EntInfoPlayerStartT(char TypeID, unsigned long ID, unsigned long MapFileID, cf::GameSys::GameWorldI* GameWorld, const VectorT& Origin);
+    };
+}
 
 #endif

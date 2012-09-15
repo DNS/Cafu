@@ -26,15 +26,19 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_AMMOSLOTS_HPP_INCLUDED
 #define CAFU_AMMOSLOTS_HPP_INCLUDED
 
-// Indices into State.HaveAmmo[].
-const char AMMO_SLOT_9MM    =0;
-const char AMMO_SLOT_357    =1;
-const char AMMO_SLOT_SHELLS =2;
-const char AMMO_SLOT_ARGREN =3;
-const char AMMO_SLOT_ARROWS =4;
-const char AMMO_SLOT_ROCKETS=5;
-const char AMMO_SLOT_CELLS  =6;
-const char AMMO_SLOT_FRAGS  =15;
-const char AMMO_SLOT_NONE   =255;
+
+namespace GAME_NAME
+{
+    // Indices into State.HaveAmmo[].
+    const char AMMO_SLOT_9MM    =0;
+    const char AMMO_SLOT_357    =1;
+    const char AMMO_SLOT_SHELLS =2;
+    const char AMMO_SLOT_ARGREN =3;
+    const char AMMO_SLOT_ARROWS =4;
+    const char AMMO_SLOT_ROCKETS=5;
+    const char AMMO_SLOT_CELLS  =6;
+    const char AMMO_SLOT_FRAGS  =15;
+    const char AMMO_SLOT_NONE   =255;
+}
 
 #endif

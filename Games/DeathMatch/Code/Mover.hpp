@@ -25,43 +25,45 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "BaseEntity.hpp"
 
 
-class EntityCreateParamsT;
 struct luaL_Reg;
 namespace cf { namespace SceneGraph { class GenericNodeT; } }
 
 
-class EntFuncMoverT : public BaseEntityT
+namespace GAME_NAME
 {
-    public:
+    class EntFuncMoverT : public BaseEntityT
+    {
+        public:
 
-    EntFuncMoverT(const EntityCreateParamsT& Params);
-    void Think(float FrameTime, unsigned long ServerFrameNr);
-    void Draw(bool FirstPersonView, float LodDist) const;
-
-
-    const cf::TypeSys::TypeInfoT* GetType() const;
-    static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
-    static const cf::TypeSys::TypeInfoT TypeInfo;
+        EntFuncMoverT(const EntityCreateParamsT& Params);
+        void Think(float FrameTime, unsigned long ServerFrameNr);
+        void Draw(bool FirstPersonView, float LodDist) const;
 
 
-    private:
-
-    void DoDeserialize(cf::Network::InStreamT& Stream);     // Override the BaseEntityT base class method.
-
-    Vector3dT TranslationSource;
-    Vector3dT TranslationDest;
-    float     TranslationLinTimeTotal;
-    float     TranslationLinTimeLeft;
-
-    const cf::SceneGraph::GenericNodeT* RootNode;   ///< The root node of the scene graph of the model (brushwork) of this entity.
+        const cf::TypeSys::TypeInfoT* GetType() const;
+        static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
+        static const cf::TypeSys::TypeInfoT TypeInfo;
 
 
-    // Script methods (to be called from the map/entity Lua scripts).
-    static int SetOrigin(lua_State* LuaState);  // Override for the base class method (we also have to update our ClipModel origin).
-    static int Translate(lua_State* LuaState);  // Translates this entity to a given position over a given time, with acceleration an deceleration.
-    static int Rotate   (lua_State* LuaState);  // Rotates this entity.
+        private:
 
-    static const luaL_Reg MethodsList[];
-};
+        void DoDeserialize(cf::Network::InStreamT& Stream);     // Override the BaseEntityT base class method.
+
+        Vector3dT TranslationSource;
+        Vector3dT TranslationDest;
+        float     TranslationLinTimeTotal;
+        float     TranslationLinTimeLeft;
+
+        const cf::SceneGraph::GenericNodeT* RootNode;   ///< The root node of the scene graph of the model (brushwork) of this entity.
+
+
+        // Script methods (to be called from the map/entity Lua scripts).
+        static int SetOrigin(lua_State* LuaState);  // Override for the base class method (we also have to update our ClipModel origin).
+        static int Translate(lua_State* LuaState);  // Translates this entity to a given position over a given time, with acceleration an deceleration.
+        static int Rotate   (lua_State* LuaState);  // Rotates this entity.
+
+        static const luaL_Reg MethodsList[];
+    };
+}
 
 #endif

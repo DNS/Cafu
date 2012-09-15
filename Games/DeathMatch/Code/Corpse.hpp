@@ -25,36 +25,38 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "BaseEntity.hpp"
 
 
-class EntityCreateParamsT;
-class EntHumanPlayerT;
-
-
-class EntCorpseT : public BaseEntityT
+namespace GAME_NAME
 {
-    public:
-
-    EntCorpseT(const EntityCreateParamsT& Params);
-
-    void AdoptState(const EntHumanPlayerT* Player);
-
-    void Think(float FrameTime, unsigned long ServerFrameNr);
-    void Draw(bool FirstPersonView, float LodDist) const;
+    class EntHumanPlayerT;
 
 
-    const cf::TypeSys::TypeInfoT* GetType() const;
-    static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
-    static const cf::TypeSys::TypeInfoT TypeInfo;
+    class EntCorpseT : public BaseEntityT
+    {
+        public:
+
+        EntCorpseT(const EntityCreateParamsT& Params);
+
+        void AdoptState(const EntHumanPlayerT* Player);
+
+        void Think(float FrameTime, unsigned long ServerFrameNr);
+        void Draw(bool FirstPersonView, float LodDist) const;
 
 
-    private:
+        const cf::TypeSys::TypeInfoT* GetType() const;
+        static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
+        static const cf::TypeSys::TypeInfoT TypeInfo;
 
-    // Override the base class methods.
-    void DoSerialize(cf::Network::OutStreamT& Stream) const;
-    void DoDeserialize(cf::Network::InStreamT& Stream);
 
-    int32_t m_ModelIndex;
-    int32_t m_ModelSequNr;
-    float   m_ModelFrameNr;
-};
+        private:
+
+        // Override the base class methods.
+        void DoSerialize(cf::Network::OutStreamT& Stream) const;
+        void DoDeserialize(cf::Network::InStreamT& Stream);
+
+        int32_t m_ModelIndex;
+        int32_t m_ModelSequNr;
+        float   m_ModelFrameNr;
+    };
+}
 
 #endif

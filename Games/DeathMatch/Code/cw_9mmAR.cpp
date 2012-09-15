@@ -34,6 +34,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SoundSystem/SoundShaderManager.hpp"
 #include "SoundSystem/Sound.hpp"
 
+using namespace GAME_NAME;
+
 
 CarriedWeapon9mmART::CarriedWeapon9mmART(ModelManagerT& ModelMan)
     : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/9mmAR/9mmAR_v.cmdl"),

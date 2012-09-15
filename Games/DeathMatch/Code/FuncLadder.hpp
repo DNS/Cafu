@@ -26,26 +26,28 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 class btRigidBody;
-class EntityCreateParamsT;
 
 
-class EntFuncLadderT : public BaseEntityT
+namespace GAME_NAME
 {
-    public:
+    class EntFuncLadderT : public BaseEntityT
+    {
+        public:
 
-    EntFuncLadderT(const EntityCreateParamsT& Params);
-    ~EntFuncLadderT();
-
-
-    const cf::TypeSys::TypeInfoT* GetType() const;
-    static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
-    static const cf::TypeSys::TypeInfoT TypeInfo;
+        EntFuncLadderT(const EntityCreateParamsT& Params);
+        ~EntFuncLadderT();
 
 
-    private:
+        const cf::TypeSys::TypeInfoT* GetType() const;
+        static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
+        static const cf::TypeSys::TypeInfoT TypeInfo;
 
- // const cf::SceneGraph::GenericNodeT* RootNode;   ///< The root node of the scene graph of the model (brushwork) of this entity.
-    btRigidBody* m_RigidBody;
-};
+
+        private:
+
+     // const cf::SceneGraph::GenericNodeT* RootNode;   ///< The root node of the scene graph of the model (brushwork) of this entity.
+        btRigidBody* m_RigidBody;
+    };
+}
 
 #endif

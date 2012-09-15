@@ -27,6 +27,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <stdlib.h>
 #include "LookupTables.hpp"
 
+using namespace GAME_NAME;
+
 
 float LookupTables::Angle16ToSin[1 << 16];
 float LookupTables::Angle16ToCos[1 << 16];

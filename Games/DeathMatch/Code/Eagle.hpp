@@ -26,44 +26,46 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 class CafuModelT;
-class EntityCreateParamsT;
 class SoundI;
 
 
-class EntEagleT : public BaseEntityT
+namespace GAME_NAME
 {
-    public:
+    class EntEagleT : public BaseEntityT
+    {
+        public:
 
-    EntEagleT(const EntityCreateParamsT& Params);
-    ~EntEagleT();
+        EntEagleT(const EntityCreateParamsT& Params);
+        ~EntEagleT();
 
-    void SetHeading(unsigned short h) { m_Heading = h; }
+        void SetHeading(unsigned short h) { m_Heading = h; }
 
-    void Think(float FrameTime, unsigned long ServerFrameNr);
-    void Draw(bool FirstPersonView, float LodDist) const;
-    void PostDraw(float FrameTime, bool FirstPersonView);
-
-
-    const cf::TypeSys::TypeInfoT* GetType() const;
-    static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
-    static const cf::TypeSys::TypeInfoT TypeInfo;
+        void Think(float FrameTime, unsigned long ServerFrameNr);
+        void Draw(bool FirstPersonView, float LodDist) const;
+        void PostDraw(float FrameTime, bool FirstPersonView);
 
 
-    private:
+        const cf::TypeSys::TypeInfoT* GetType() const;
+        static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
+        static const cf::TypeSys::TypeInfoT TypeInfo;
 
-    enum FlightStateT { CruiseFlight, ControlledCruise, HalfLoopAndRoll, ClimpBackToCruiseAlt };
 
-    const CafuModelT* m_Model;
-    FlightStateT      FlightState;
-    VectorT           OldOrigin;
-    VectorT           LoopCenter;
-    float             FigureDistance;
-    float             FigureLeft;
+        private:
 
-    int               m_ModelSequNr;
-    float             m_ModelFrameNr;
-    float             m_TimeUntilNextCry;
-    SoundI*           m_EagleCry;
-};
+        enum FlightStateT { CruiseFlight, ControlledCruise, HalfLoopAndRoll, ClimpBackToCruiseAlt };
+
+        const CafuModelT* m_Model;
+        FlightStateT      FlightState;
+        VectorT           OldOrigin;
+        VectorT           LoopCenter;
+        float             FigureDistance;
+        float             FigureLeft;
+
+        int               m_ModelSequNr;
+        float             m_ModelFrameNr;
+        float             m_TimeUntilNextCry;
+        SoundI*           m_EagleCry;
+    };
+}
 
 #endif

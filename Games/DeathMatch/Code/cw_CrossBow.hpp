@@ -25,14 +25,17 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "cw.hpp"
 
 
-class CarriedWeaponCrossBowT : public CarriedWeaponT
+namespace GAME_NAME
 {
-    public:
+    class CarriedWeaponCrossBowT : public CarriedWeaponT
+    {
+        public:
 
-    CarriedWeaponCrossBowT(ModelManagerT& ModelMan);
+        CarriedWeaponCrossBowT(ModelManagerT& ModelMan);
 
-    bool ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const;
-    void ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;
-};
+        bool ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const;
+        void ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;
+    };
+}
 
 #endif

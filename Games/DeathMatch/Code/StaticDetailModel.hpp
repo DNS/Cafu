@@ -27,74 +27,76 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 class CafuModelT;
-class EntityCreateParamsT;
 namespace cf { namespace GuiSys { class GuiI; } }
 struct luaL_Reg;
 
 
-/// This class represents a static detail model.
-/// A static detail model adds geometric detail to a map and can optionally hold a scripted GUI that the user can interact with.
-/// Despite its name, a static detail model can run animated sequences, but note that these animations are essentially a client-side
-/// effect only, as only a <em>restart</em> of a sequence is sync'ed over the network.
-class EntStaticDetailModelT : public BaseEntityT
+namespace GAME_NAME
 {
-    public:
+    /// This class represents a static detail model.
+    /// A static detail model adds geometric detail to a map and can optionally hold a scripted GUI that the user can interact with.
+    /// Despite its name, a static detail model can run animated sequences, but note that these animations are essentially a client-side
+    /// effect only, as only a <em>restart</em> of a sequence is sync'ed over the network.
+    class EntStaticDetailModelT : public BaseEntityT
+    {
+        public:
 
-    EntStaticDetailModelT(const EntityCreateParamsT& Params);
-    ~EntStaticDetailModelT();
+        EntStaticDetailModelT(const EntityCreateParamsT& Params);
+        ~EntStaticDetailModelT();
 
-    void Think(float FrameTime, unsigned long ServerFrameNr);
+        void Think(float FrameTime, unsigned long ServerFrameNr);
 
-    void ProcessEvent(unsigned int EventType, unsigned int NumEvents);
-    void Draw(bool FirstPersonView, float LodDist) const;
-    void PostDraw(float FrameTime, bool FirstPersonView);
+        void ProcessEvent(unsigned int EventType, unsigned int NumEvents);
+        void Draw(bool FirstPersonView, float LodDist) const;
+        void PostDraw(float FrameTime, bool FirstPersonView);
 
-    /// Returns the GUI of this entity, or NULL if there is none.
-    cf::GuiSys::GuiI* GetGUI() const;
+        /// Returns the GUI of this entity, or NULL if there is none.
+        cf::GuiSys::GuiI* GetGUI() const;
 
-    /// If this entity has a panel for an associated GUI, this method returns its related current plane in world space.
-    /// @param GFNr         The number of the GUI fixture.
-    /// @param GuiOrigin    The origin (Stützvektor)     of the GUI plane in world space is returned in this parameter.
-    /// @param GuiAxisX     The x-axis (Richtungsvektor) of the GUI plane in world space is returned in this parameter.
-    /// @param GuiAxisY     The y-axis (Richtungsvektor) of the GUI plane in world space is returned in this parameter.
-    /// @returns whether the call was successful, i.e. whether this model has a GUI panel at all and the GuiOrigin,
-    ///     GuiAxisX and GuiAxisY parameters were filled-out properly.
-    bool GetGuiPlane(unsigned int GFNr, Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const;
-
-
-    const cf::TypeSys::TypeInfoT* GetType() const;
-    static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
-    static const cf::TypeSys::TypeInfoT TypeInfo;
-
-
-    protected:
-
-    enum EventTypesT { EVENT_TYPE_RESTART_SEQU, NUM_EVENT_TYPES };
-
-    // Override the base class methods.
-    void DoSerialize(cf::Network::OutStreamT& Stream) const;
-    void DoDeserialize(cf::Network::InStreamT& Stream);
-
-    const CafuModelT* m_Model;
-    bool              m_PlayAnim;   ///< If 1, play the animation, i.e. advance the frames over time. If 0, keep still.
-    int32_t           m_SequNr;     ///< The number of the animation sequence to play.
-
-    mutable IntrusivePtrT<AnimExpressionT>   m_AnimExpr;    ///< The state of the currently playing animation sequence. Used <em>independently</em> on the server and the clients; only a <em>restart</em> of a sequence is sync'ed over the network via the EventID_RestartSequ event.
-    mutable IntrusivePtrT<AnimExprStandardT> m_LastStdAE;   ///< The most recent standard expression that we set (as a subexpression of m_AnimExpr).
-
-    std::string       GuiName;      ///< If our "gui" entity key is set, store the value here.
-    cf::GuiSys::GuiI* Gui;          ///< If the model has GUI fixtures, we load the GUI here, *both* on the server- as well as on the client-side.
+        /// If this entity has a panel for an associated GUI, this method returns its related current plane in world space.
+        /// @param GFNr         The number of the GUI fixture.
+        /// @param GuiOrigin    The origin (Stützvektor)     of the GUI plane in world space is returned in this parameter.
+        /// @param GuiAxisX     The x-axis (Richtungsvektor) of the GUI plane in world space is returned in this parameter.
+        /// @param GuiAxisY     The y-axis (Richtungsvektor) of the GUI plane in world space is returned in this parameter.
+        /// @returns whether the call was successful, i.e. whether this model has a GUI panel at all and the GuiOrigin,
+        ///     GuiAxisX and GuiAxisY parameters were filled-out properly.
+        bool GetGuiPlane(unsigned int GFNr, Vector3fT& GuiOrigin, Vector3fT& GuiAxisX, Vector3fT& GuiAxisY) const;
 
 
-    // Script methods (to be called from the map/entity Lua scripts).
-    static int IsPlayingAnim(lua_State* LuaState);
-    static int PlayAnim(lua_State* LuaState);
-    static int GetSequNr(lua_State* LuaState);
-    static int SetSequNr(lua_State* LuaState);
-    static int RestartSequ(lua_State* LuaState);
-    static int GetNumSequences(lua_State* LuaState);
+        const cf::TypeSys::TypeInfoT* GetType() const;
+        static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
+        static const cf::TypeSys::TypeInfoT TypeInfo;
 
-    static const luaL_Reg MethodsList[];
-};
+
+        protected:
+
+        enum EventTypesT { EVENT_TYPE_RESTART_SEQU, NUM_EVENT_TYPES };
+
+        // Override the base class methods.
+        void DoSerialize(cf::Network::OutStreamT& Stream) const;
+        void DoDeserialize(cf::Network::InStreamT& Stream);
+
+        const CafuModelT* m_Model;
+        bool              m_PlayAnim;   ///< If 1, play the animation, i.e. advance the frames over time. If 0, keep still.
+        int32_t           m_SequNr;     ///< The number of the animation sequence to play.
+
+        mutable IntrusivePtrT<AnimExpressionT>   m_AnimExpr;    ///< The state of the currently playing animation sequence. Used <em>independently</em> on the server and the clients; only a <em>restart</em> of a sequence is sync'ed over the network via the EventID_RestartSequ event.
+        mutable IntrusivePtrT<AnimExprStandardT> m_LastStdAE;   ///< The most recent standard expression that we set (as a subexpression of m_AnimExpr).
+
+        std::string       GuiName;      ///< If our "gui" entity key is set, store the value here.
+        cf::GuiSys::GuiI* Gui;          ///< If the model has GUI fixtures, we load the GUI here, *both* on the server- as well as on the client-side.
+
+
+        // Script methods (to be called from the map/entity Lua scripts).
+        static int IsPlayingAnim(lua_State* LuaState);
+        static int PlayAnim(lua_State* LuaState);
+        static int GetSequNr(lua_State* LuaState);
+        static int SetSequNr(lua_State* LuaState);
+        static int RestartSequ(lua_State* LuaState);
+        static int GetNumSequences(lua_State* LuaState);
+
+        static const luaL_Reg MethodsList[];
+    };
+}
 
 #endif

@@ -28,70 +28,74 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "btBulletDynamicsCommon.h"
 
 
-class EntityCreateParamsT;
-class EntStaticDetailModelT;
 namespace cf { namespace GuiSys { class GuiI; } }
 
 
-class EntHumanPlayerT : public BaseEntityT, public btMotionState
+namespace GAME_NAME
 {
-    public:
-
-    // Publicly defined enum for access from the "carried weapons".
-    enum EventTypesT { EVENT_TYPE_PRIMARY_FIRE, EVENT_TYPE_SECONDARY_FIRE, NUM_EVENT_TYPES };
-
-    EntHumanPlayerT(const EntityCreateParamsT& Params);
-    ~EntHumanPlayerT();
-
-    EntityStateT& GetState() { return State; }
-    const EntityStateT& GetState() const { return State; }
-    unsigned short GetPitch() const { return m_Pitch; }
-    unsigned short GetBank() const { return m_Bank; }
-    const btRigidBody* GetRigidBody() const { return m_RigidBody; }
-
-    /// Increases the frag count of this entity by the given number.
-    void AddFrag(int NumFrags=1);
-
-    // Implement the BaseEntityT interface.
-    void TakeDamage(BaseEntityT* Entity, char Amount, const VectorT& ImpactDir);
-    void ProcessConfigString(const void* ConfigData, const char* ConfigString);
-    void Think(float FrameTime, unsigned long ServerFrameNr);
-
-    void ProcessEvent(unsigned int EventType, unsigned int NumEvents);
-    bool GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const;
-    void Draw(bool FirstPersonView, float LodDist) const;
-    void PostDraw(float FrameTime, bool FirstPersonView);
-
-    // Implement the btMotionState interface.
-    void getWorldTransform(btTransform& worldTrans) const;
-    void setWorldTransform(const btTransform& worldTrans);
+    class EntStaticDetailModelT;
 
 
-    const cf::TypeSys::TypeInfoT* GetType() const;
-    static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
-    static const cf::TypeSys::TypeInfoT TypeInfo;
+    class EntHumanPlayerT : public BaseEntityT, public btMotionState
+    {
+        public:
+
+        // Publicly defined enum for access from the "carried weapons".
+        enum EventTypesT { EVENT_TYPE_PRIMARY_FIRE, EVENT_TYPE_SECONDARY_FIRE, NUM_EVENT_TYPES };
+
+        EntHumanPlayerT(const EntityCreateParamsT& Params);
+        ~EntHumanPlayerT();
+
+        EntityStateT& GetState() { return State; }
+        const EntityStateT& GetState() const { return State; }
+        unsigned short GetPitch() const { return m_Pitch; }
+        unsigned short GetBank() const { return m_Bank; }
+        const btRigidBody* GetRigidBody() const { return m_RigidBody; }
+
+        /// Increases the frag count of this entity by the given number.
+        void AddFrag(int NumFrags=1);
+
+        // Implement the BaseEntityT interface.
+        void TakeDamage(BaseEntityT* Entity, char Amount, const VectorT& ImpactDir);
+        void ProcessConfigString(const void* ConfigData, const char* ConfigString);
+        void Think(float FrameTime, unsigned long ServerFrameNr);
+
+        void ProcessEvent(unsigned int EventType, unsigned int NumEvents);
+        bool GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const;
+        void Draw(bool FirstPersonView, float LodDist) const;
+        void PostDraw(float FrameTime, bool FirstPersonView);
+
+        // Implement the btMotionState interface.
+        void getWorldTransform(btTransform& worldTrans) const;
+        void setWorldTransform(const btTransform& worldTrans);
 
 
-    private:
+        const cf::TypeSys::TypeInfoT* GetType() const;
+        static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
+        static const cf::TypeSys::TypeInfoT TypeInfo;
 
-    // Override the base class methods.
-    void DoSerialize(cf::Network::OutStreamT& Stream) const;
-    void DoDeserialize(cf::Network::InStreamT& Stream);
 
-    /// A helper function for Think().
-    bool CheckGUI(IntrusivePtrT<EntStaticDetailModelT> GuiEnt, Vector3fT& MousePos) const;
+        private:
 
-    ArrayT<PlayerCommandT> PlayerCommands;
+        // Override the base class methods.
+        void DoSerialize(cf::Network::OutStreamT& Stream) const;
+        void DoDeserialize(cf::Network::InStreamT& Stream);
 
-    EntityStateT      State;                    ///< The current state of this entity.
-    PhysicsHelperT    m_Physics;
-    btCollisionShape* m_CollisionShape;         ///< The collision shape that is used to approximate and represent this player in the physics world.
-    btRigidBody*      m_RigidBody;              ///< The rigid body (of "kinematic" type) for use in the physics world.
+        /// A helper function for Think().
+        bool CheckGUI(IntrusivePtrT<EntStaticDetailModelT> GuiEnt, Vector3fT& MousePos) const;
 
- // char              ThisHumanPlayerNum;       // The sole purpose is to help to make a good descision about the light source color in GetLightSourceInfo().
-    mutable VectorT   LastSeenAmbientColor;     // This is a client-side variable, unrelated to prediction, and thus allowed.
-    float             TimeForLightSource;
-    cf::GuiSys::GuiI* GuiHUD;                   ///< The HUD GUI for this local human player entity.
-};
+        ArrayT<PlayerCommandT> PlayerCommands;
+
+        EntityStateT      State;                    ///< The current state of this entity.
+        PhysicsHelperT    m_Physics;
+        btCollisionShape* m_CollisionShape;         ///< The collision shape that is used to approximate and represent this player in the physics world.
+        btRigidBody*      m_RigidBody;              ///< The rigid body (of "kinematic" type) for use in the physics world.
+
+     // char              ThisHumanPlayerNum;       // The sole purpose is to help to make a good descision about the light source color in GetLightSourceInfo().
+        mutable VectorT   LastSeenAmbientColor;     // This is a client-side variable, unrelated to prediction, and thus allowed.
+        float             TimeForLightSource;
+        cf::GuiSys::GuiI* GuiHUD;                   ///< The HUD GUI for this local human player entity.
+    };
+}
 
 #endif

@@ -25,6 +25,8 @@
 #define _stricmp strcasecmp
 #endif
 
+using namespace GAME_NAME;
+
 
 // These are the places for the corresponding files.
 // Keep them in sync!

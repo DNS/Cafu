@@ -29,44 +29,47 @@ class SoundI;
 struct luaL_Reg;
 
 
-class EntSpeakerT : public BaseEntityT
+namespace GAME_NAME
 {
-    public:
+    class EntSpeakerT : public BaseEntityT
+    {
+        public:
 
-    // Constructor
-    EntSpeakerT(const EntityCreateParamsT& Params);
+        // Constructor
+        EntSpeakerT(const EntityCreateParamsT& Params);
 
-    // Destructor
-    ~EntSpeakerT();
+        // Destructor
+        ~EntSpeakerT();
 
-    // TypeInfo stuff.
-    const cf::TypeSys::TypeInfoT* GetType() const;
-    static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
-    static const cf::TypeSys::TypeInfoT TypeInfo;
+        // TypeInfo stuff.
+        const cf::TypeSys::TypeInfoT* GetType() const;
+        static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
+        static const cf::TypeSys::TypeInfoT TypeInfo;
 
-    // BaseEntityT implementation.
-    virtual void PostDraw(float FrameTime, bool FirstPersonView);
-    virtual void ProcessEvent(unsigned int EventType, unsigned int NumEvents);
+        // BaseEntityT implementation.
+        virtual void PostDraw(float FrameTime, bool FirstPersonView);
+        virtual void ProcessEvent(unsigned int EventType, unsigned int NumEvents);
 
-    // Scripting methods.
-    static int Play(lua_State* LuaState);
-    static int Stop(lua_State* LuaState);
+        // Scripting methods.
+        static int Play(lua_State* LuaState);
+        static int Stop(lua_State* LuaState);
 
 
-    private:
+        private:
 
-    enum EventTypesT { EVENT_TYPE_PLAY, EVENT_TYPE_STOP, NUM_EVENT_TYPES };
+        enum EventTypesT { EVENT_TYPE_PLAY, EVENT_TYPE_STOP, NUM_EVENT_TYPES };
 
-    // Override the base class methods.
-    void DoSerialize(cf::Network::OutStreamT& Stream) const;
-    void DoDeserialize(cf::Network::InStreamT& Stream);
+        // Override the base class methods.
+        void DoSerialize(cf::Network::OutStreamT& Stream) const;
+        void DoDeserialize(cf::Network::InStreamT& Stream);
 
-    bool    m_AutoPlay;
-    float   m_Interval;                  ///< Interval between two sound playbacks. 0 means the sound is only played one time if triggered.
-    float   m_TimeUntilNextSound;        ///< Time left until the sound is played another time.
-    SoundI* m_Sound;                     ///< The sound object to play.
+        bool    m_AutoPlay;
+        float   m_Interval;                  ///< Interval between two sound playbacks. 0 means the sound is only played one time if triggered.
+        float   m_TimeUntilNextSound;        ///< Time left until the sound is played another time.
+        SoundI* m_Sound;                     ///< The sound object to play.
 
-    static const luaL_Reg MethodsList[]; ///< List of methods that can be called from Lua scripts.
-};
+        static const luaL_Reg MethodsList[]; ///< List of methods that can be called from Lua scripts.
+    };
+}
 
 #endif

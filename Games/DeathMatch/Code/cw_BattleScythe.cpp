@@ -28,6 +28,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SoundSystem/SoundShaderManager.hpp"
 #include "SoundSystem/Sound.hpp"
 
+using namespace GAME_NAME;
+
 
 CarriedWeaponBattleScytheT::CarriedWeaponBattleScytheT(ModelManagerT& ModelMan)
     : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/BattleScythe/BattleScythe_v.cmdl"),

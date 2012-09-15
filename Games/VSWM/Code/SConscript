@@ -4,6 +4,8 @@ Import('env', 'buildMode')
 
 gameEnv = env.Clone()
 
+gameEnv.Append(CPPDEFINES=[("GAME_NAME", "VSWM")]);
+
 if sys.platform=="win32":
     gameEnv.Append(LIBS=Split("MatSys cfsLib ClipSys png cfs_jpeg z lua wsock32"))
 

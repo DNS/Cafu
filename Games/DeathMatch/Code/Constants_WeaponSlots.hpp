@@ -26,19 +26,23 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_WEAPONSLOTS_HPP_INCLUDED
 #define CAFU_WEAPONSLOTS_HPP_INCLUDED
 
-// Bit numbers in State.HaveWeapons, indices into State.HaveAmmoInWeapons[], and for State.ActiveWeaponSlot.
-const char WEAPON_SLOT_BATTLESCYTHE= 0;
-const char WEAPON_SLOT_HORNETGUN   = 1;
-const char WEAPON_SLOT_PISTOL      = 2;
-const char WEAPON_SLOT_357         = 3;
-const char WEAPON_SLOT_SHOTGUN     = 4;
-const char WEAPON_SLOT_9MMAR       = 5;
-const char WEAPON_SLOT_CROSSBOW    = 6;
-const char WEAPON_SLOT_RPG         = 7;
-const char WEAPON_SLOT_GAUSS       = 8;
-const char WEAPON_SLOT_EGON        = 9;
-const char WEAPON_SLOT_GRENADE     =10;
-const char WEAPON_SLOT_TRIPMINE    =11;
-const char WEAPON_SLOT_FACEHUGGER  =12;
+
+namespace GAME_NAME
+{
+    // Bit numbers in State.HaveWeapons, indices into State.HaveAmmoInWeapons[], and for State.ActiveWeaponSlot.
+    const char WEAPON_SLOT_BATTLESCYTHE= 0;
+    const char WEAPON_SLOT_HORNETGUN   = 1;
+    const char WEAPON_SLOT_PISTOL      = 2;
+    const char WEAPON_SLOT_357         = 3;
+    const char WEAPON_SLOT_SHOTGUN     = 4;
+    const char WEAPON_SLOT_9MMAR       = 5;
+    const char WEAPON_SLOT_CROSSBOW    = 6;
+    const char WEAPON_SLOT_RPG         = 7;
+    const char WEAPON_SLOT_GAUSS       = 8;
+    const char WEAPON_SLOT_EGON        = 9;
+    const char WEAPON_SLOT_GRENADE     =10;
+    const char WEAPON_SLOT_TRIPMINE    =11;
+    const char WEAPON_SLOT_FACEHUGGER  =12;
+}
 
 #endif

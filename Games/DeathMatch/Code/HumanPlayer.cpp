@@ -59,6 +59,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define _stricmp strcasecmp
 #endif
 
+using namespace GAME_NAME;
+
 
 // Constants for State.StateOfExistance.
 const char StateOfExistance_Alive          =0;

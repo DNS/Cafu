@@ -31,6 +31,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SoundSystem/SoundShaderManager.hpp"
 #include "SoundSystem/Sound.hpp"
 
+using namespace GAME_NAME;
+
 
 CarriedWeaponFaceHuggerT::CarriedWeaponFaceHuggerT(ModelManagerT& ModelMan)
     : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/FaceHugger/FaceHugger_v.cmdl"),

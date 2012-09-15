@@ -25,22 +25,25 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "cw.hpp"
 
 
-class CarriedWeaponGrenadeT : public CarriedWeaponT
+namespace GAME_NAME
 {
-    public:
+    class CarriedWeaponGrenadeT : public CarriedWeaponT
+    {
+        public:
 
-    CarriedWeaponGrenadeT(ModelManagerT& ModelMan);
-    ~CarriedWeaponGrenadeT();
+        CarriedWeaponGrenadeT(ModelManagerT& ModelMan);
+        ~CarriedWeaponGrenadeT();
 
-    bool ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const;
-    void ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;
+        bool ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const;
+        void ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;
 
-    void ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* Player, const VectorT& LastSeenAmbientColor) const;
+        void ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* Player, const VectorT& LastSeenAmbientColor) const;
 
 
-    private:
+        private:
 
-    SoundI* FireSound;
-};
+        SoundI* FireSound;
+    };
+}
 
 #endif

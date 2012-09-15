@@ -38,6 +38,8 @@ extern "C"
     #include <lauxlib.h>
 }
 
+using namespace GAME_NAME;
+
 
 namespace
 {
@@ -48,7 +50,7 @@ namespace
 // Note that we cannot simply replace this method with a global TypeInfoManT instance,
 // because it is called during global static initialization time. The TIM instance being
 // embedded in the function guarantees that it is properly initialized before first use.
-cf::TypeSys::TypeInfoManT& GetBaseEntTIM()
+cf::TypeSys::TypeInfoManT& GAME_NAME::GetBaseEntTIM()
 {
     static cf::TypeSys::TypeInfoManT TIM;
 
