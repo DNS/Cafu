@@ -25,59 +25,62 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../../Game.hpp"
 #include "Templates/Array.hpp"
 
+#ifndef GAME_NAME
+#error Macro GAME_NAME must be defined!
+#endif
+
 
 class CafuModelT;
-namespace GAME_NAME { class CarriedWeaponT; }
 class PhysicsWorldT;
 class SoundI;
 
 
-namespace cf
+namespace GAME_NAME
 {
-    namespace GameSys
+    class CarriedWeaponT;
+
+
+    /// This class provides the "DeathMatch" implementation of the GameI interface.
+    class GameImplT : public cf::GameSys::GameI
     {
-        /// This class provides the "Death-Match" implementation of the GameI interface.
-        class GameImplT : public GameI
-        {
-            public:
+        public:
 
-            // Implement the methods of the GameI interface.
-            void Initialize(bool AsClient, bool AsServer, ModelManagerT& ModelMan);
-            void Release();
-            const cf::TypeSys::TypeInfoManT& GetEntityTIM() const;
+        // Implement the methods of the GameI interface.
+        void Initialize(bool AsClient, bool AsServer, ModelManagerT& ModelMan);
+        void Release();
+        const cf::TypeSys::TypeInfoManT& GetEntityTIM() const;
 
-            IntrusivePtrT<GameEntityI> CreateGameEntityFromMapFile(const cf::TypeSys::TypeInfoT* TI, const std::map<std::string, std::string>& Properties, const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID, unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld, const Vector3T<double>& Origin);
-            IntrusivePtrT<GameEntityI> CreateGameEntityFromTypeNr(unsigned long TypeNr, const std::map<std::string, std::string>& Properties, const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID, unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld);
+        IntrusivePtrT<GameEntityI> CreateGameEntityFromMapFile(const cf::TypeSys::TypeInfoT* TI, const std::map<std::string, std::string>& Properties, const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID, unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld, const Vector3T<double>& Origin);
+        IntrusivePtrT<GameEntityI> CreateGameEntityFromTypeNr(unsigned long TypeNr, const std::map<std::string, std::string>& Properties, const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID, unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld);
 
 
-            // Additional methods.
+        // Additional methods.
 
-            /// Maps a player model index to a player model instance.
-            /// Used to obtain a player model from a player entities State.ModelIndex member.
-            const CafuModelT* GetPlayerModel(unsigned int ModelIndex) const;
+        /// Maps a player model index to a player model instance.
+        /// Used to obtain a player model from a player entities State.ModelIndex member.
+        const CafuModelT* GetPlayerModel(unsigned int ModelIndex) const;
 
-            /// This function returns a pointer to the CarriedWeaponT instance for the desired ActiveWeaponSlot.
-            /// When no such class exists, it returns a pointer to an empty dummy implementation
-            /// (but for the convenience of the caller, it never returns NULL or an invalid pointer).
-            const GAME_NAME::CarriedWeaponT* GetCarriedWeapon(unsigned int ActiveWeaponSlot) const;
+        /// This function returns a pointer to the CarriedWeaponT instance for the desired ActiveWeaponSlot.
+        /// When no such class exists, it returns a pointer to an empty dummy implementation
+        /// (but for the convenience of the caller, it never returns NULL or an invalid pointer).
+        const CarriedWeaponT* GetCarriedWeapon(unsigned int ActiveWeaponSlot) const;
 
-            /// Returns the singleton instance of this class.
-            static GameImplT& GetInstance();
+        /// Returns the singleton instance of this class.
+        static GameImplT& GetInstance();
 
 
-            private:
+        private:
 
-            /// The constructor is private because this is a singleton class.
-            GameImplT();
+        /// The constructor is private because this is a singleton class.
+        GameImplT();
 
-            bool                      RunningAsClient;
-            bool                      RunningAsServer;
+        bool                      RunningAsClient;
+        bool                      RunningAsServer;
 
-            ArrayT<const CafuModelT*> m_PlayerModels;   ///< The player models available in this game.
-            ArrayT<GAME_NAME::CarriedWeaponT*>   m_CarriedWeapons; ///< The set of carry-able weapons in this game.
-            ArrayT<SoundI*>           m_PreCacheSounds; ///< Array of all precached sounds.
-        };
-    }
+        ArrayT<const CafuModelT*> m_PlayerModels;   ///< The player models available in this game.
+        ArrayT<CarriedWeaponT*>   m_CarriedWeapons; ///< The set of carry-able weapons in this game.
+        ArrayT<SoundI*>           m_PreCacheSounds; ///< Array of all precached sounds.
+    };
 }
 
 #endif

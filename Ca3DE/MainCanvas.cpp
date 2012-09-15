@@ -46,7 +46,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SoundSystem/SoundShaderManager.hpp"
 #include "SoundSystem/SoundSys.hpp"
 #include "../Games/Game.hpp"
+#define GAME_NAME DeathMatch
 #include "../Games/DeathMatch/Code/GameImpl.hpp"
+#undef GAME_NAME
 #include "PlatformAux.hpp"
 
 #ifndef _WIN32
@@ -336,7 +338,7 @@ void MainCanvasT::Initialize()
         // Provide a definition for m_Game, the cf::GameSys::Game pointer
         // to a GameI implementation that is provided by a dynamically loaded game DLL.
         // This is analogous to the Material System, where Renderer DLLs provide renderer and texture manager implementations.
-        m_Game=&cf::GameSys::GameImplT::GetInstance();
+        m_Game=&DeathMatch::GameImplT::GetInstance();
 
         m_Game->Initialize(true /*(Options_RunMode.GetValueInt() & CLIENT_RUNMODE)>0*/,
                            true /*(Options_RunMode.GetValueInt() & SERVER_RUNMODE)>0*/,

@@ -66,7 +66,7 @@ void EntWeaponPistolT::NotifyTouchedBy(BaseEntityT* Entity)
     if (!IsActive()) return;
 
     // Give this weapon to the entity.
-    if (!cf::GameSys::GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_PISTOL)->ServerSide_PickedUpByEntity(dynamic_cast<EntHumanPlayerT*>(Entity))) return;
+    if (!GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_PISTOL)->ServerSide_PickedUpByEntity(dynamic_cast<EntHumanPlayerT*>(Entity))) return;
 
     // And finally retire for a while.
     PostEvent(EVENT_TYPE_PICKED_UP);

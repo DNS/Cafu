@@ -518,7 +518,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 // Handle the state machine of the "_v" (view) model of the current weapon.
                 if (State.HaveWeapons & (1 << State.ActiveWeaponSlot))
                 {
-                    const CarriedWeaponT* CarriedWeapon=cf::GameSys::GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot);
+                    const CarriedWeaponT* CarriedWeapon=GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot);
 
                     // Advance the frame time of the weapon.
                     const CafuModelT* WeaponModel=CarriedWeapon->GetViewWeaponModel();
@@ -762,7 +762,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
 
                 // Advance frame time of model sequence.
-                const CafuModelT*                PlayerModel=cf::GameSys::GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
+                const CafuModelT*                PlayerModel=GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
                 IntrusivePtrT<AnimExprStandardT> StdAE      =PlayerModel->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
 
                 StdAE->SetForceLoop(true);
@@ -800,7 +800,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 }
 
                 // Advance frame time of model sequence.
-                const CafuModelT*                PlayerModel=cf::GameSys::GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
+                const CafuModelT*                PlayerModel=GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
                 IntrusivePtrT<AnimExprStandardT> StdAE      =PlayerModel->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
 
                 StdAE->SetForceLoop(false);
@@ -955,8 +955,8 @@ void EntHumanPlayerT::ProcessEvent(unsigned int EventType, unsigned int /*NumEve
 
     switch (EventType)
     {
-        case EVENT_TYPE_PRIMARY_FIRE  : cf::GameSys::GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->ClientSide_HandlePrimaryFireEvent  (this, LastSeenAmbientColor); break;
-        case EVENT_TYPE_SECONDARY_FIRE: cf::GameSys::GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->ClientSide_HandleSecondaryFireEvent(this, LastSeenAmbientColor); break;
+        case EVENT_TYPE_PRIMARY_FIRE  : GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->ClientSide_HandlePrimaryFireEvent  (this, LastSeenAmbientColor); break;
+        case EVENT_TYPE_SECONDARY_FIRE: GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->ClientSide_HandleSecondaryFireEvent(this, LastSeenAmbientColor); break;
     }
 }
 
@@ -1033,7 +1033,7 @@ void EntHumanPlayerT::Draw(bool FirstPersonView, float LodDist) const
             MatSys::Renderer->SetCurrentEyePosition(EyePos.x, EyePos.y, EyePos.z);
 
 
-            const CafuModelT* WeaponModel=cf::GameSys::GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->GetViewWeaponModel();
+            const CafuModelT* WeaponModel=GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->GetViewWeaponModel();
             AnimPoseT*        Pose       =WeaponModel->GetSharedPose(WeaponModel->GetAnimExprPool().GetStandard(State.ActiveWeaponSequNr, State.ActiveWeaponFrameNr));
 
             Pose->Draw(-1 /*default skin*/, LodDist);
@@ -1050,14 +1050,14 @@ void EntHumanPlayerT::Draw(bool FirstPersonView, float LodDist) const
         MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, 0.0f, 0.0f, OffsetZ);
 
         // Draw the own player body model and the "_p" (player) model of the active weapon as sub-model of the body.
-        const CafuModelT* PlayerModel=cf::GameSys::GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
+        const CafuModelT* PlayerModel=GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
         AnimPoseT*        Pose       =PlayerModel->GetSharedPose(PlayerModel->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr));
 
         Pose->Draw(-1 /*default skin*/, LodDist);
 
         if (State.HaveWeapons & (1 << State.ActiveWeaponSlot))
         {
-            const CafuModelT* WeaponModel=cf::GameSys::GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->GetPlayerWeaponModel();
+            const CafuModelT* WeaponModel=GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->GetPlayerWeaponModel();
             AnimPoseT*        WeaponPose =WeaponModel->GetSharedPose(WeaponModel->GetAnimExprPool().GetStandard(0, 0.0f));
 
             WeaponPose->SetSuperPose(Pose);
@@ -1072,7 +1072,7 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
 {
     // Code for state driven effects.
     if (State.HaveWeapons & (1 << State.ActiveWeaponSlot))
-        cf::GameSys::GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->ClientSide_HandleStateDrivenEffects(this);
+        GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->ClientSide_HandleStateDrivenEffects(this);
 
 
     if (FirstPersonView)
@@ -1232,7 +1232,7 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
     }
     else
     {
-        const CafuModelT*                PlayerModel=cf::GameSys::GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
+        const CafuModelT*                PlayerModel=GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
         IntrusivePtrT<AnimExprStandardT> StdAE      =PlayerModel->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
 
         // Implicit simple "mini-prediction". WARNING, this does not really work...!

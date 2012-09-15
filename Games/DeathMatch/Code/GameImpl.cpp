@@ -85,18 +85,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include <map>
 
-#if defined(_WIN32) && defined(_MSC_VER)
-    #define WIN32_LEAN_AND_MEAN
-    #include <windows.h>
-#endif
-
 #if defined(__linux__)
     #define _stricmp strcasecmp
     #include <dirent.h>
 #endif
 
-
-using namespace cf::GameSys;
 using namespace GAME_NAME;
 
 
@@ -179,7 +172,7 @@ namespace
 
 
 // Static method that returns the singleton instance.
-cf::GameSys::GameImplT& cf::GameSys::GameImplT::GetInstance()
+GameImplT& GameImplT::GetInstance()
 {
     static GameImplT GI;
 
@@ -187,7 +180,7 @@ cf::GameSys::GameImplT& cf::GameSys::GameImplT::GetInstance()
 }
 
 
-cf::GameSys::GameImplT::GameImplT()
+GameImplT::GameImplT()
     : RunningAsClient(false),
       RunningAsServer(false)
 {
@@ -199,7 +192,7 @@ cf::GameSys::GameImplT::GameImplT()
 }
 
 
-void cf::GameSys::GameImplT::Initialize(bool AsClient, bool AsServer, ModelManagerT& ModelMan)
+void GameImplT::Initialize(bool AsClient, bool AsServer, ModelManagerT& ModelMan)
 {
     m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/Alien/Alien.cmdl"));
     m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/James/James.cmdl"));
@@ -291,7 +284,7 @@ void cf::GameSys::GameImplT::Initialize(bool AsClient, bool AsServer, ModelManag
 }
 
 
-void cf::GameSys::GameImplT::Release()
+void GameImplT::Release()
 {
     if (RunningAsClient)
     {
@@ -314,14 +307,14 @@ void cf::GameSys::GameImplT::Release()
 }
 
 
-const cf::TypeSys::TypeInfoManT& cf::GameSys::GameImplT::GetEntityTIM() const
+const cf::TypeSys::TypeInfoManT& GameImplT::GetEntityTIM() const
 {
     return GetBaseEntTIM();
 }
 
 
 // This function is called by the server, in order to obtain a (pointer to a) 'BaseEntityT' from a map file entity.
-IntrusivePtrT<GameEntityI> cf::GameSys::GameImplT::CreateGameEntityFromMapFile(const cf::TypeSys::TypeInfoT* TI, const std::map<std::string, std::string>& Properties,
+IntrusivePtrT<GameEntityI> GameImplT::CreateGameEntityFromMapFile(const cf::TypeSys::TypeInfoT* TI, const std::map<std::string, std::string>& Properties,
     const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID,
     unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld, const Vector3T<double>& Origin)
 {
@@ -345,7 +338,7 @@ IntrusivePtrT<GameEntityI> cf::GameSys::GameImplT::CreateGameEntityFromMapFile(c
 
 // This function is called by the client, in order to obtain a (pointer to a) 'BaseEntityT' for a new entity
 // whose TypeNr and ID it got via a net message from the server.
-IntrusivePtrT<GameEntityI> cf::GameSys::GameImplT::CreateGameEntityFromTypeNr(unsigned long TypeNr, const std::map<std::string, std::string>& Properties,
+IntrusivePtrT<GameEntityI> GameImplT::CreateGameEntityFromTypeNr(unsigned long TypeNr, const std::map<std::string, std::string>& Properties,
     const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel,
     unsigned long ID, unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld)
 {
@@ -360,13 +353,13 @@ IntrusivePtrT<GameEntityI> cf::GameSys::GameImplT::CreateGameEntityFromTypeNr(un
 }
 
 
-const CafuModelT* cf::GameSys::GameImplT::GetPlayerModel(unsigned int ModelIndex) const
+const CafuModelT* GameImplT::GetPlayerModel(unsigned int ModelIndex) const
 {
     return m_PlayerModels[ModelIndex<m_PlayerModels.Size() ? ModelIndex : 0];
 }
 
 
-const CarriedWeaponT* cf::GameSys::GameImplT::GetCarriedWeapon(unsigned int ActiveWeaponSlot) const
+const CarriedWeaponT* GameImplT::GetCarriedWeapon(unsigned int ActiveWeaponSlot) const
 {
     return m_CarriedWeapons[ActiveWeaponSlot<m_CarriedWeapons.Size() ? ActiveWeaponSlot : 3];
 }
