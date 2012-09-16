@@ -32,13 +32,13 @@ namespace GAME_NAME
 
         // Gibt diejenige Matrix zurueck, die eine Drehung um 'Angle' (in Grad) um die Z-Achse definiert.
         static IntMatrixT GetRotationZMatrix(int Angle);
-
-        // Gibt das Ergebnis des Matrizenprodukts A*B zurueck ('operator *' waere auch denkbar...)
-        friend IntMatrixT operator * (const IntMatrixT& A, const IntMatrixT& B);
-
-        // Gibt das Ergebnis des Matrizenprodukts A*B zurueck ('operator *' waere auch denkbar...)
-        friend bool operator == (const IntMatrixT& A, const IntMatrixT& B);
     };
+
+    // Gibt das Ergebnis des Matrizenprodukts A*B zurueck ('operator *' waere auch denkbar...)
+    IntMatrixT operator * (const IntMatrixT& A, const IntMatrixT& B);
+
+    // Gibt das Ergebnis des Matrizenprodukts A*B zurueck ('operator *' waere auch denkbar...)
+    bool operator == (const IntMatrixT& A, const IntMatrixT& B);
 }
 
 #endif
