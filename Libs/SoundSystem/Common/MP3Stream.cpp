@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Templates/Array.hpp"
 
 #include <cassert>
+#include <cstdio>
 #include <iostream>
 #include <stdexcept>
 

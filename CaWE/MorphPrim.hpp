@@ -48,6 +48,8 @@ struct MP_PartT
     {
     }
 
+    virtual ~MP_PartT() { }
+
     virtual TypeT     GetType() const=0;
     virtual Vector3fT GetPos()  const=0;
 

@@ -179,8 +179,8 @@ void MapTerrainT::Render3D(Renderer3DT& Renderer) const
     // Setup texturing for the terrain, using automatic texture coordinates generation.
     const BoundingBox3fT& BB=m_TerrainBounds;
 
-    const float CoordPlane1[4]={ 1.0/(BB.Max.x-BB.Min.x),  0.0, 0.0, -BB.Min.x/(BB.Max.x-BB.Min.x) };
-    const float CoordPlane2[4]={ 0.0, -1.0/(BB.Max.y-BB.Min.y), 0.0,  BB.Max.y/(BB.Max.y-BB.Min.y) };   // Texture y-axis points top-down!
+    const float CoordPlane1[4]={ 1.0f/(BB.Max.x-BB.Min.x),  0.0f, 0.0f, -BB.Min.x/(BB.Max.x-BB.Min.x) };
+    const float CoordPlane2[4]={ 0.0f, -1.0f/(BB.Max.y-BB.Min.y), 0.0f,  BB.Max.y/(BB.Max.y-BB.Min.y) };   // Texture y-axis points top-down!
 
     MatSys::Renderer->SetGenPurposeRenderingParam( 4, CoordPlane1[0]);
     MatSys::Renderer->SetGenPurposeRenderingParam( 5, CoordPlane1[1]);
@@ -243,8 +243,8 @@ void MapTerrainT::Render3D(Renderer3DT& Renderer) const
     {
         const BoundingBox3fT& BB=m_ToolBounds;
 
-        const float CoordPlane1[4]={ 1.0/(BB.Max.x-BB.Min.x),  0.0, 0.0, -BB.Min.x/(BB.Max.x-BB.Min.x) };
-        const float CoordPlane2[4]={ 0.0, -1.0/(BB.Max.y-BB.Min.y), 0.0,  BB.Max.y/(BB.Max.y-BB.Min.y) };   // Texture y-axis points top-down!
+        const float CoordPlane1[4]={ 1.0f/(BB.Max.x-BB.Min.x),  0.0f, 0.0f, -BB.Min.x/(BB.Max.x-BB.Min.x) };
+        const float CoordPlane2[4]={ 0.0f, -1.0f/(BB.Max.y-BB.Min.y), 0.0f,  BB.Max.y/(BB.Max.y-BB.Min.y) };   // Texture y-axis points top-down!
 
         MatSys::Renderer->SetGenPurposeRenderingParam( 4, CoordPlane1[0]);
         MatSys::Renderer->SetGenPurposeRenderingParam( 5, CoordPlane1[1]);
