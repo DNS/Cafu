@@ -401,8 +401,8 @@ extern ConVarT Options_ClientFullScreen;
 extern ConVarT Options_ClientDesiredRenderer;
 extern ConVarT Options_ClientDesiredSoundSystem;
 extern ConVarT Options_ClientTextureDetail;
-extern ConVarT Options_DeathMatchPlayerName;
-extern ConVarT Options_DeathMatchModelName;
+extern ConVarT Options_PlayerName;
+extern ConVarT Options_PlayerModelName;
 
 
 #define GAME_NAME DeathMatch
@@ -441,8 +441,8 @@ void AppCafuT::OnInitCmdLine(wxCmdLineParser& Parser)
     Parser.AddOption("clWinSizeY",     "", wxString::Format("If not full-screen, this is the height of the window [%i].", Options_ClientWindowSizeY.GetValueInt()), wxCMD_LINE_VAL_NUMBER);
     Parser.AddOption("clRenderer",     "", "Override the auto-selection of the best available renderer [auto].", wxCMD_LINE_VAL_STRING);
     Parser.AddOption("clSoundSystem",  "", "Override the auto-selection of the best available sound system [auto].", wxCMD_LINE_VAL_STRING);
-    Parser.AddOption("clPlayerName",   "", "Player name ["+Options_DeathMatchPlayerName.GetValueString()+"].", wxCMD_LINE_VAL_STRING);
-    Parser.AddOption("clModelName",    "", "Name of the players model ["+Options_DeathMatchModelName.GetValueString()+"].", wxCMD_LINE_VAL_STRING);
+    Parser.AddOption("clPlayerName",   "", "Player name ["+Options_PlayerName.GetValueString()+"].", wxCMD_LINE_VAL_STRING);
+    Parser.AddOption("clModelName",    "", "Name of the players model ["+Options_PlayerModelName.GetValueString()+"].", wxCMD_LINE_VAL_STRING);
     Parser.AddOption("log",            "", "Logs all console message into the specified file.");
     Parser.AddParam("worldname", wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
 
@@ -472,8 +472,8 @@ bool AppCafuT::OnCmdLineParsed(wxCmdLineParser& Parser)
     if (Parser.Found("clWinSizeY",    &i)) Options_ClientWindowSizeY=int(i);
     if (Parser.Found("clRenderer",    &s)) Options_ClientDesiredRenderer=s.ToStdString();
     if (Parser.Found("clSoundSystem", &s)) Options_ClientDesiredSoundSystem=s.ToStdString();
-    if (Parser.Found("clPlayerName",  &s)) Options_DeathMatchPlayerName=s.ToStdString();
-    if (Parser.Found("clModelName",   &s)) Options_DeathMatchModelName=s.ToStdString();
+    if (Parser.Found("clPlayerName",  &s)) Options_PlayerName=s.ToStdString();
+    if (Parser.Found("clModelName",   &s)) Options_PlayerModelName=s.ToStdString();
 
     if (Parser.Found("svGame", &s))
     {

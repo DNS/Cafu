@@ -41,8 +41,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 const int SERVER_RUNMODE=2;
 
 extern WinSockT* g_WinSock;
-extern ConVarT Options_DeathMatchPlayerName;
-extern ConVarT Options_DeathMatchModelName;
+extern ConVarT Options_PlayerName;
+extern ConVarT Options_PlayerModelName;
 extern ConVarT Options_ClientPortNr;
 extern ConVarT Options_ClientRemoteName;
 extern ConVarT Options_ClientRemotePortNr;
@@ -75,8 +75,8 @@ ClientStateConnectingT::ClientStateConnectingT(ClientT& Client_)
     OutData.WriteLong(0xFFFFFFFF);
     OutData.WriteLong(PacketID);
     OutData.WriteByte(CS0_Connect);
-    OutData.WriteString(Options_DeathMatchPlayerName.GetValueString());
-    OutData.WriteString(Options_DeathMatchModelName.GetValueString());
+    OutData.WriteString(Options_PlayerName.GetValueString());
+    OutData.WriteString(Options_PlayerModelName.GetValueString());
 
     try
     {

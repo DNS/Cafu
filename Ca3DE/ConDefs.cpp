@@ -49,8 +49,8 @@ static const int SERVER_RUNMODE=2;
 static const int DefaultRunMode=CLIENT_RUNMODE | SERVER_RUNMODE;
 
 /*static*/ ConVarT Options_RunMode                 ("dlg_RunMode",     DefaultRunMode, ConVarT::FLAG_MAIN_EXE,                            "1 is client-only, 2 is server-only, 3 is both.", 1, 3);
-/*static*/ ConVarT Options_DeathMatchPlayerName    ("dlg_dmPlayerName",      "Player", ConVarT::FLAG_MAIN_EXE | ConVarT::FLAG_PERSISTENT, "Player name for the DeathMatch game.");
-/*static*/ ConVarT Options_DeathMatchModelName     ("dlg_dmModelName",        "James", ConVarT::FLAG_MAIN_EXE | ConVarT::FLAG_PERSISTENT, "Name of the model to use for the DeathMatch game.");
+/*static*/ ConVarT Options_PlayerName              ("dlg_dmPlayerName",      "Player", ConVarT::FLAG_MAIN_EXE | ConVarT::FLAG_PERSISTENT, "Player name.");
+/*static*/ ConVarT Options_PlayerModelName         ("dlg_dmModelName",        "James", ConVarT::FLAG_MAIN_EXE | ConVarT::FLAG_PERSISTENT, "Name of the player model.");
 /*static*/ ConVarT Options_ClientFullScreen        ("dlg_clFullScreen",          true, ConVarT::FLAG_MAIN_EXE | ConVarT::FLAG_PERSISTENT, "When true, the video mode is changed on startup and fullscreen display is used. Otherwise, Cafu runs in an application window on the desktop.");
 /*static*/ ConVarT Options_ClientWindowSizeX       ("dlg_clWindowSizeX",         1024, ConVarT::FLAG_MAIN_EXE | ConVarT::FLAG_PERSISTENT, "The size of the client window in X direction.");
 /*static*/ ConVarT Options_ClientWindowSizeY       ("dlg_clWindowSizeY",          768, ConVarT::FLAG_MAIN_EXE | ConVarT::FLAG_PERSISTENT, "The size of the client window in Y direction.");
