@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/Console.hpp"
 #include "ConsoleCommands/ConVar.hpp"
 #include "Network/Network.hpp"
+#include "../../Games/GameInfo.hpp"
 
 #ifdef _WIN32
     // #define WIN32_LEAN_AND_MEAN
@@ -142,29 +143,34 @@ void ClientStateConnectingT::ProcessConnectionLessPacket(NetDataT& InData, const
     switch (InData.ReadByte())
     {
         case SC0_ACK:
-            /* if (!RunBoth)
-            {
-                // Connection attempt was successful, register the materials.
-                const std::string GameName=InData.ReadString();   // SC0_ACK is followed by the game name.
+        {
+            const std::string SvGameName = InData.ReadString();   // SC0_ACK is followed by the game name.
 
-             // MaterialManager->ClearAllMaterials();
-                MaterialManager->RegisterMaterialScriptsInDir(std::string("Games/")+GameName+"/Materials", std::string("Games/")+GameName+"/");
-            } */
+            if (SvGameName != Client.m_GameInfo->GetName())
+            {
+                Console->Warning("Client is running game '" + Client.m_GameInfo->GetName() + "', server is running game '" + SvGameName + "' -- connection ignored.\n");
+                break;
+            }
 
             // Ok, the connection request was acknowledged.
             // Now change immediately to the "in-game" state.
             Client.NextState=ClientT::INGAME;
             break;
+        }
 
         case SC0_NACK:
+        {
             Console->Warning(cf::va("Connection denied. Reason: %s\n", InData.ReadString()));
             Client.NextState=ClientT::IDLE;     // Go back to idle state...
             break;
+        }
 
         case SC0_RccReply:
         default:
+        {
             Console->Warning("Received unexpected message type while connecting.");
             break;
+        }
     }
 }
 

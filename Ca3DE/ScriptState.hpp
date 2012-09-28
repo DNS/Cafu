@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 namespace cf { namespace GameSys { class GameI; } }
+namespace cf { namespace GameSys { class GameInfoI; } }
 
 
 /// This class represents the state of the map/entity script of the map.
@@ -35,7 +36,7 @@ class ScriptStateT
 
     /// The constructor.
     /// This constructor *requires* that the global interface pointers are already initialized!
-    ScriptStateT(cf::GameSys::GameI* Game);
+    ScriptStateT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game);
 
     /// This method returns the value of the Lua expression "EntityClassDefs[EntClassName].CppClass".
     /// The empty string is returned on error, that is, when one of the tables or table fields does not exist.

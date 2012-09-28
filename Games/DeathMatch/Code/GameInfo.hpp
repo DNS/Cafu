@@ -19,35 +19,27 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef CAFU_MAIN_FRAME_HPP_INCLUDED
-#define CAFU_MAIN_FRAME_HPP_INCLUDED
+#ifndef CAFU_DEATHMATCH_GAMEINFO_HPP_INCLUDED
+#define CAFU_DEATHMATCH_GAMEINFO_HPP_INCLUDED
 
-#include "wx/wx.h"
+#include "../../GameInfo.hpp"
+
+#ifndef GAME_NAME
+#error Macro GAME_NAME must be defined!
+#endif
 
 
-class MainCanvasT;
-namespace cf { namespace GameSys { class GameInfoI; } }
-
-
-/// This class represents the Cafu main frame.
-class MainFrameT : public wxFrame
+namespace GAME_NAME
 {
-    public:
+    /// This class provides the "DeathMatch" implementation of the GameInfoI interface.
+    class GameInfoT : public cf::GameSys::GameInfoI
+    {
+        public:
 
-    /// The constructor.
-    MainFrameT(cf::GameSys::GameInfoI* GameInfo);
-
-    /// Returns the main OpenGL 3D canvas.
-    MainCanvasT* GetMainCanvas() { return m_MainCanvas; }
-
-
-    private:
-
-    void OnClose(wxCloseEvent& CE);     ///< Event handler for close events, e.g. after a system close button or command or a call to Close(). See wx Window Deletion Overview for more details.
-
-    MainCanvasT* m_MainCanvas;
-
-    DECLARE_EVENT_TABLE()
-};
+        // Implement the methods of the GameInfoI interface.
+        std::string GetName() const;
+        cf::GameSys::GameI* CreateGame() const;
+    };
+}
 
 #endif

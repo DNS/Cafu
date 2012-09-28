@@ -37,7 +37,7 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
 {
     public:
 
-    Ca3DEWorldT(cf::GameSys::GameI* Game, const char* FileName, ModelManagerT& ModelMan, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/;
+    Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, const char* FileName, ModelManagerT& ModelMan, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/;
     ~Ca3DEWorldT();
 
     const WorldT& GetWorld() const { return *m_World; }

@@ -36,8 +36,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 static ConVarT AutoAddCompanyBot("sv_AutoAddCompanyBot", false, ConVarT::FLAG_MAIN_EXE, "If true, auto-inserts an entity of type \"Company Bot\" at the player start position into each newly loaded map.");
 
 
-CaServerWorldT::CaServerWorldT(cf::GameSys::GameI* Game, const char* FileName, ModelManagerT& ModelMan)
-    : Ca3DEWorldT(Game, FileName, ModelMan, false, NULL),
+CaServerWorldT::CaServerWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, const char* FileName, ModelManagerT& ModelMan)
+    : Ca3DEWorldT(GameInfo, Game, FileName, ModelMan, false, NULL),
       m_ServerFrameNr(1),   // 0 geht nicht, denn die ClientInfoT::LastKnownFrameReceived werden mit 0 initialisiert!
       m_IsThinking(false),
       m_EntityRemoveList()

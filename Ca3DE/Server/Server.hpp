@@ -34,6 +34,7 @@ struct ClientInfoT;
 class  CaServerWorldT;
 class  ModelManagerT;
 namespace cf { namespace GameSys { class GameI; } }
+namespace cf { namespace GameSys { class GameInfoI; } }
 
 
 /// The server, like the client, is a state machine.
@@ -61,7 +62,7 @@ class ServerT
 
     /// The constructor.
     /// @throws InitErrorT if the server could not be initialized (e.g. a socket for the desired port could not be aquired).
-    ServerT(cf::GameSys::GameI* Game, const std::string& GameName_, const GuiCallbackI& GuiCallback_, ModelManagerT& ModelMan);
+    ServerT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, const GuiCallbackI& GuiCallback_, ModelManagerT& ModelMan);
 
     ~ServerT();
 
@@ -86,15 +87,15 @@ class ServerT
     static void ProcessInGamePacketHelper(NetDataT& InData, unsigned long LastIncomingSequenceNr);
 
 
-    TimerT               Timer;
-    SOCKET               ServerSocket;
-    ArrayT<ClientInfoT*> ClientInfos;
-    cf::GameSys::GameI*  m_Game;
-    std::string          GameName;
-    std::string          WorldName;
-    CaServerWorldT*      World;
-    const GuiCallbackI&  GuiCallback;
-    ModelManagerT&       m_ModelMan;
+    TimerT                  Timer;
+    SOCKET                  ServerSocket;
+    ArrayT<ClientInfoT*>    ClientInfos;
+    cf::GameSys::GameInfoI* m_GameInfo;
+    cf::GameSys::GameI*     m_Game;
+    std::string             WorldName;
+    CaServerWorldT*         World;
+    const GuiCallbackI&     GuiCallback;
+    ModelManagerT&          m_ModelMan;
 };
 
 

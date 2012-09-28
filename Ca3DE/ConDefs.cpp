@@ -62,7 +62,6 @@ static const int DefaultRunMode=CLIENT_RUNMODE | SERVER_RUNMODE;
 /*static*/ ConVarT Options_ClientDisplayBPP        ("dlg_clDisplayBPP",            32, ConVarT::FLAG_MAIN_EXE | ConVarT::FLAG_PERSISTENT, "The display depth in bits-per-pixel. Normally use 32, or 0 for system default.", 0, 64);
 /*static*/ ConVarT Options_ClientDisplayRefresh    ("dlg_clDisplayRefresh",         0, ConVarT::FLAG_MAIN_EXE | ConVarT::FLAG_PERSISTENT, "The display refresh rate. Use 0 for system default, check with your monitor specs for any other value.");
 /*static*/ ConVarT Options_ClientTextureDetail     ("dlg_clTextureDetail",          0, ConVarT::FLAG_MAIN_EXE | ConVarT::FLAG_PERSISTENT, "0 high detail, 1 medium detail, 2 low detail", 0, 2);
-/*static*/ ConVarT Options_ServerGameName          ("dlg_svGameName",    "DeathMatch", ConVarT::FLAG_MAIN_EXE,                            "Name of the game (MOD) to load.");
 /*static*/ ConVarT Options_ServerWorldName         ("dlg_svWorldName",     "TechDemo", ConVarT::FLAG_MAIN_EXE,                            "Name of the world to load.");
 /*static*/ ConVarT Options_ServerPortNr            ("dlg_svPortNr",             30000, ConVarT::FLAG_MAIN_EXE,                            "Server port number.", 0, 0xFFFF);
 

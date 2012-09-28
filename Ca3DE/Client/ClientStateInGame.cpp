@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../MainCanvas.hpp"
 #include "../MainFrame.hpp"
 #include "../NetConst.hpp"
+#include "../../Games/GameInfo.hpp"
 
 #include "ClientStateInGame.hpp"
 #include "Client.hpp"
@@ -225,10 +226,7 @@ bool ClientStateInGameT::ProcessInputEvent(const CaKeyboardEventT& KE)
         case CaKeyboardEventT::CK_T:          // talk to other clients
         case CaKeyboardEventT::CK_Y:
         {
-#ifdef DEBUG
-            Console->DevWarning("Should replace the static string \"DeathMatch\" with the true GameName here!\n");
-#endif
-            cf::GuiSys::GuiI* ChatInputGui=cf::GuiSys::GuiMan->Find(std::string("Games/")+/*GameName*/"DeathMatch"+"/GUIs/ChatInput.cgui", true);
+            cf::GuiSys::GuiI* ChatInputGui=cf::GuiSys::GuiMan->Find(std::string("Games/") + Client.m_GameInfo->GetName() + "/GUIs/ChatInput.cgui", true);
 
             // Could be NULL on file not found, parse error, etc.
             if (ChatInputGui!=NULL)
@@ -625,12 +623,21 @@ void ClientStateInGameT::ParseServerPacket(NetDataT& InData)
         {
             case SC1_WorldInfo:
             {
-                const char*   GameName   =InData.ReadString();
-                const char*   WorldName  =InData.ReadString();
-                unsigned long OurEntityID=InData.ReadLong();
+                const std::string SvGameName  = InData.ReadString();
+                const char*       WorldName   = InData.ReadString();
+                unsigned long     OurEntityID = InData.ReadLong();
 
-                cf::LogDebug(net, "SC1_WorldInfo: %s %s %lu", GameName, WorldName, OurEntityID);
+                cf::LogDebug(net, "SC1_WorldInfo: %s %s %lu", SvGameName.c_str(), WorldName, OurEntityID);
                 // printf("    Client: Got MapInfo");
+
+                if (SvGameName != Client.m_GameInfo->GetName())
+                {
+                    const std::string msg = "Client is running game '" + Client.m_GameInfo->GetName() + "', but server sent SC1_WorldInfo message for game '" + SvGameName + "' -- ignored.";
+
+                    cf::LogDebug(net, msg);
+                    Console->Print(msg + "\n");
+                    break;
+                }
 
                 // This must be here, because if we really wanted to re-register materials here after a game change
                 // (which servers can't do anyway), we should first get rid of the old world before re-initing the MaterialManager.
@@ -657,17 +664,17 @@ void ClientStateInGameT::ParseServerPacket(NetDataT& InData)
                 LoadingFont   =&Font_v;
 
                 // BEGIN Load Map
-                cf::GuiSys::GuiMan->Find(std::string("Games/")+/*GameName*/"DeathMatch"+"/GUIs/Console.cgui", true)->Activate(false);    // Close console on map change.
+                cf::GuiSys::GuiMan->Find("Games/" + Client.m_GameInfo->GetName() + "/GUIs/Console.cgui", true)->Activate(false);    // Close console on map change.
                 Console->Print(std::string("Load World \"")+WorldName+"\".\n");
 
                 char PathName[512];
-                sprintf(PathName, "Games/%.200s/Worlds/%.200s.cw", GameName, WorldName);
+                sprintf(PathName, "Games/%.200s/Worlds/%.200s.cw", Client.m_GameInfo->GetName().c_str(), WorldName);
 
                 try
                 {
                     // World is deleted above.
                     IsLoadingWorld=true;
-                    World=new CaClientWorldT(Client.m_Game, PathName, Client.m_ModelMan, WorldLoadingProgressFunction, OurEntityID);
+                    World=new CaClientWorldT(Client.m_GameInfo, Client.m_Game, PathName, Client.m_ModelMan, WorldLoadingProgressFunction, OurEntityID);
                     IsLoadingWorld=false;
 
                     ConsoleInterpreter->RunCommand("StartLevelIntroMusic()");   // This function must be provided in "config.lua".

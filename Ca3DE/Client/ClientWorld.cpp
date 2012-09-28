@@ -38,8 +38,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <cassert>
 
 
-CaClientWorldT::CaClientWorldT(cf::GameSys::GameI* Game, const char* FileName, ModelManagerT& ModelMan, WorldT::ProgressFunctionT ProgressFunction, unsigned long OurEntityID_) /*throw (WorldT::LoadErrorT)*/
-    : Ca3DEWorldT(Game, FileName, ModelMan, true, ProgressFunction),
+CaClientWorldT::CaClientWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, const char* FileName, ModelManagerT& ModelMan, WorldT::ProgressFunctionT ProgressFunction, unsigned long OurEntityID_) /*throw (WorldT::LoadErrorT)*/
+    : Ca3DEWorldT(GameInfo, Game, FileName, ModelMan, true, ProgressFunction),
       OurEntityID(OurEntityID_),
       m_ServerFrameNr(0xDEADBEEF),
       MAX_FRAMES(16) /*MUST BE POWER OF 2*/,

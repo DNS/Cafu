@@ -28,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/ConsoleInterpreter.hpp"
 #include "ConsoleCommands/ConVar.hpp"
 #include "ConsoleCommands/ConFunc.hpp"
+#include "../../Games/GameInfo.hpp"
 #include "../../Games/PlayerCommand.hpp"
 
 #include <stdio.h>
@@ -68,7 +69,7 @@ int ServerT::ConFunc_changeLevel_Callback(lua_State* LuaState)
     if (!ServerPtr) return luaL_error(LuaState, "The local server is not available.");
 
     std::string NewWorldName=(lua_gettop(LuaState)<1) ? "" : luaL_checkstring(LuaState, 1);
-    std::string PathName    ="Games/"+ServerPtr->GameName+"/Worlds/"+NewWorldName+".cw";
+    std::string PathName    ="Games/"+ServerPtr->m_GameInfo->GetName()+"/Worlds/"+NewWorldName+".cw";
 
     if (NewWorldName=="")
     {
@@ -109,7 +110,7 @@ int ServerT::ConFunc_changeLevel_Callback(lua_State* LuaState)
 
     try
     {
-        NewWorld=new CaServerWorldT(ServerPtr->m_Game, PathName.c_str(), ServerPtr->m_ModelMan);
+        NewWorld=new CaServerWorldT(ServerPtr->m_GameInfo, ServerPtr->m_Game, PathName.c_str(), ServerPtr->m_ModelMan);
     }
     catch (const WorldT::LoadErrorT& E) { return luaL_error(LuaState, E.Msg); }
 
@@ -136,7 +137,7 @@ int ServerT::ConFunc_changeLevel_Callback(lua_State* LuaState)
 
         NetDataT NewReliableMsg;
         NewReliableMsg.WriteByte  (SC1_WorldInfo);
-        NewReliableMsg.WriteString(ServerPtr->GameName);
+        NewReliableMsg.WriteString(ServerPtr->m_GameInfo->GetName());
         NewReliableMsg.WriteString(ServerPtr->WorldName);
         NewReliableMsg.WriteLong  (ClInfo->EntityID);
 
@@ -165,10 +166,10 @@ static ConFuncT ConFunc_runMapCmd("runMapCmd", ServerT::ConFunc_runMapCmd_Callba
     "Runs the given command string in the context of the current map/entity script.");
 
 
-ServerT::ServerT(cf::GameSys::GameI* Game, const std::string& GameName_, const GuiCallbackI& GuiCallback_, ModelManagerT& ModelMan)
+ServerT::ServerT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, const GuiCallbackI& GuiCallback_, ModelManagerT& ModelMan)
     : ServerSocket(g_WinSock->GetUDPSocket(Options_ServerPortNr.GetValueInt())),
+      m_GameInfo(GameInfo),
       m_Game(Game),
-      GameName(GameName_),
       WorldName(""),
       World(NULL),
       GuiCallback(GuiCallback_),
@@ -591,7 +592,7 @@ void ServerT::ProcessConnectionLessPacket(NetDataT& InData, const NetAddressT& S
 
                 // Dem Client bestätigen, daß er im Spiel ist und ab sofort in-game Packets zu erwarten hat.
                 OutData.WriteByte(SC0_ACK);
-                OutData.WriteString(GameName);
+                OutData.WriteString(m_GameInfo->GetName());
                 OutData.Send(ServerSocket, SenderAddress);
                 Console->Print(ClientInfos[ClientNr]->PlayerName+" joined.\n");
 
@@ -599,7 +600,7 @@ void ServerT::ProcessConnectionLessPacket(NetDataT& InData, const NetAddressT& S
                 NetDataT NewReliableMsg;
 
                 NewReliableMsg.WriteByte  (SC1_WorldInfo);
-                NewReliableMsg.WriteString(GameName);
+                NewReliableMsg.WriteString(m_GameInfo->GetName());
                 NewReliableMsg.WriteString(WorldName);
                 NewReliableMsg.WriteLong  (ClientInfos[ClientNr]->EntityID);
 

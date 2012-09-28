@@ -38,6 +38,7 @@ class ServerT;
 class SvGuiCallbT;
 class ModelManagerT;
 namespace cf { namespace GameSys { class GameI; } }
+namespace cf { namespace GameSys { class GameInfoI; } }
 namespace cf { namespace GuiSys { class GuiResourcesT; } }
 namespace cf { class ConsoleI; }
 
@@ -48,7 +49,7 @@ class MainCanvasT : public wxGLCanvas
     public:
 
     /// The constructor.
-    MainCanvasT(MainFrameT* Parent);
+    MainCanvasT(MainFrameT* Parent, cf::GameSys::GameInfoI* GameInfo);
 
     /// The destructor.
     ~MainCanvasT();
@@ -78,6 +79,7 @@ class MainCanvasT : public wxGLCanvas
     void OnKeyChar(wxKeyEvent& KE);
 
     MainFrameT*                m_Parent;
+    cf::GameSys::GameInfoI*    m_GameInfo;
     InitStateT                 m_InitState;     ///< Indicates whether initialization is still required, was attempted but failed, or completed successfully.
     wxGLContext*               m_GLContext;     ///< The OpenGL rendering context that represents our app-global OpenGL state.
     HMODULE                    m_RendererDLL;

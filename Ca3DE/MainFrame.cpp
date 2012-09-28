@@ -29,7 +29,7 @@ BEGIN_EVENT_TABLE(MainFrameT, wxFrame)
 END_EVENT_TABLE()
 
 
-MainFrameT::MainFrameT()
+MainFrameT::MainFrameT(cf::GameSys::GameInfoI* GameInfo)
     : wxFrame(NULL /*parent*/, wxID_ANY, wxString("Cafu Engine - ") + __DATE__),
       m_MainCanvas(NULL)
 {
@@ -40,7 +40,7 @@ MainFrameT::MainFrameT()
     // Create sizer and insert canvas.
     wxBoxSizer* Sizer=new wxBoxSizer(wxHORIZONTAL);
 
-    m_MainCanvas=new MainCanvasT(this);
+    m_MainCanvas=new MainCanvasT(this, GameInfo);
     Sizer->Add(m_MainCanvas, 1, wxEXPAND, 0);
 
     this->SetSizer(Sizer);

@@ -19,35 +19,22 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef CAFU_MAIN_FRAME_HPP_INCLUDED
-#define CAFU_MAIN_FRAME_HPP_INCLUDED
+#include "GameInfo.hpp"
+#include "GameImpl.hpp"
 
-#include "wx/wx.h"
+#define QUOTE(str) QUOTE_HELPER(str)
+#define QUOTE_HELPER(str) #str
+
+using namespace GAME_NAME;
 
 
-class MainCanvasT;
-namespace cf { namespace GameSys { class GameInfoI; } }
-
-
-/// This class represents the Cafu main frame.
-class MainFrameT : public wxFrame
+std::string GameInfoT::GetName() const
 {
-    public:
-
-    /// The constructor.
-    MainFrameT(cf::GameSys::GameInfoI* GameInfo);
-
-    /// Returns the main OpenGL 3D canvas.
-    MainCanvasT* GetMainCanvas() { return m_MainCanvas; }
+    return QUOTE(GAME_NAME);
+}
 
 
-    private:
-
-    void OnClose(wxCloseEvent& CE);     ///< Event handler for close events, e.g. after a system close button or command or a call to Close(). See wx Window Deletion Overview for more details.
-
-    MainCanvasT* m_MainCanvas;
-
-    DECLARE_EVENT_TABLE()
-};
-
-#endif
+cf::GameSys::GameI* GameInfoT::CreateGame() const
+{
+    return &GameImplT::GetInstance();
+}
