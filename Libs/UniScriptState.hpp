@@ -94,6 +94,19 @@ namespace cf
     ///   - Programming in Lua, 2nd edition, Roberto Ierusalimschy
     ///   - Game Programming Gems 6, chapter 4.2, "Binding C/C++ objects to Lua", W. Celes et al.
     ///   - 2008-04-01: http://thread.gmane.org/gmane.comp.lang.lua.general/46787
+    ///
+    /// Appendix:
+    ///   Unfortunately, we have to support "pass by pointer" as well:
+    ///     - Only for the special case where using a smart pointer creates an unwanted cycle.
+    ///     - Forfeits the safe and automatic life-time management of the object.
+    ///   For example, game entities can have GUI instances that in turn have script states. Now,
+    ///   human player entities bind themselves to the script state of their "HUD" (head-up display) GUI,
+    ///   computer terminals (static detail models) bind themselves to the script state of their "desktop" GUI, etc.
+    ///   This gives the GUI scripts a very natural and convenient access to "their" entity.
+    ///   However, if such binding is done with a smart pointer, e.g. IntrusivePtrT<...>(this), a cyclic
+    ///   dependency is created that prevents the enity from being destroyed even after it is removed from the map:
+    ///   For this single use case only we provide support for binding objects by pointer as well,
+    ///   where the lifetime of the entity is guaranteed to exceed the lifetime of the composite GUI instance.
     class ScriptBinderT
     {
         public:
@@ -134,25 +147,26 @@ namespace cf
 
         private:
 
-        /// Use traits for obtaining the static TypeInfo member for any given T.
+        /// Use traits for obtaining information from objects of any given type T.
         /// If we have an instance of T, call GetType() instead, which returns the proper type
         /// even if T is a base class pointer.
         /// See http://erdani.com/publications/traits.html for a nice intro to traits.
-        template<class T> class TypeInfoTraitsT
+        template<class T> class TraitsT
         {
             public:
 
-            static const cf::TypeSys::TypeInfoT& Get() { return T::TypeInfo; }
-            static const cf::TypeSys::TypeInfoT& Get(const T& Object) { return *Object.GetType(); }
+            static const cf::TypeSys::TypeInfoT& GetTypeInfo() { return T::TypeInfo; }
+            static const cf::TypeSys::TypeInfoT& GetTypeInfo(const T& Object) { return *Object.GetType(); }
             static bool IsRefCounted() { return false; }
         };
 
-        template<class T> class TypeInfoTraitsT< IntrusivePtrT<T> >
+        /// Specialization of TraitsT for IntrusivePtrTs to T.
+        template<class T> class TraitsT< IntrusivePtrT<T> >
         {
             public:
 
-            static const cf::TypeSys::TypeInfoT& Get() { return T::TypeInfo; }
-            static const cf::TypeSys::TypeInfoT& Get(IntrusivePtrT<T> Object) { return *Object->GetType(); }
+            static const cf::TypeSys::TypeInfoT& GetTypeInfo() { return T::TypeInfo; }
+            static const cf::TypeSys::TypeInfoT& GetTypeInfo(IntrusivePtrT<T> Object) { return *Object->GetType(); }
             static bool IsRefCounted() { return true; }
         };
 
@@ -383,23 +397,26 @@ template<class T> inline bool cf::ScriptBinderT::Push(T Object)
         lua_pushvalue(m_LuaState, USERDATA_INDEX);    // Duplicate the userdata on top of the stack.
         lua_setfield(m_LuaState, TABLE_INDEX, "__userdata_cf");
 
-        // Get the table with name TypeInfoTraitsT<T>::Get(Object).ClassName from the registry,
+        // Get the table with name TraitsT<T>::GetTypeInfo(Object).ClassName from the registry,
         // and set it as metatable of the newly created table.
         // This is the crucial step that establishes the main functionality of our new table.
-        luaL_getmetatable(m_LuaState, TypeInfoTraitsT<T>::Get(Object).ClassName);
+        luaL_getmetatable(m_LuaState, TraitsT<T>::GetTypeInfo(Object).ClassName);
+        assert(lua_istable(m_LuaState, -1));
         lua_setmetatable(m_LuaState, TABLE_INDEX);
 
-        // Get the table with name (key) TypeInfoTraitsT<T>::Get(Object).ClassName from the registry,
+        // Get the table with name (key) TraitsT<T>::GetTypeInfo(Object).ClassName from the registry,
         // and set it as metatable of the newly created userdata item.
         // This is important for userdata type safety (see PiL2, chapter 28.2) and to have automatic garbage collection work
         // (contrary to the text in the "Game Programming Gems 6" book, chapter 4.2, a __gc method in the metatable
         //  is only called for full userdata, see my email to the Lua mailing list on 2008-Apr-01 for more details).
-        luaL_getmetatable(m_LuaState, TypeInfoTraitsT<T>::Get(Object).ClassName);
+        luaL_getmetatable(m_LuaState, TraitsT<T>::GetTypeInfo(Object).ClassName);
+        assert(lua_istable(m_LuaState, -1));
         lua_setmetatable(m_LuaState, USERDATA_INDEX);
 
-        // Get the table with name (key) TypeInfoTraitsT<T>::Get(Object).ClassName from the registry,
+        // Get the table with name (key) TraitsT<T>::GetTypeInfo(Object).ClassName from the registry,
         // and check if its __gc metamethod is already set.
-        luaL_getmetatable(m_LuaState, TypeInfoTraitsT<T>::Get(Object).ClassName);
+        luaL_getmetatable(m_LuaState, TraitsT<T>::GetTypeInfo(Object).ClassName);
+        assert(lua_istable(m_LuaState, -1));
         lua_getfield(m_LuaState, -1, "__gc");
         if (lua_isnil(m_LuaState, -1))
         {
@@ -408,11 +425,11 @@ template<class T> inline bool cf::ScriptBinderT::Push(T Object)
         }
         lua_pop(m_LuaState, 2);
 
-        // Get the table for the root of TypeInfoTraitsT<T>::Get(Object) from the registry,
+        // Get the table for the root of TraitsT<T>::GetTypeInfo(Object) from the registry,
         // get its __index table, and check if its GetRefCount method is already set.
-        if (TypeInfoTraitsT<T>::IsRefCounted())
+        if (TraitsT<T>::IsRefCounted())
         {
-            const cf::TypeSys::TypeInfoT* TI = &TypeInfoTraitsT<T>::Get(Object);
+            const cf::TypeSys::TypeInfoT* TI = &TraitsT<T>::GetTypeInfo(Object);
 
             while (TI->Base)
                 TI = TI->Base;
@@ -468,7 +485,7 @@ template<class T> inline T& cf::ScriptBinderT::GetCheckedObjectParam(int StackIn
     // See the "Game Programming Gems 6" book, page 353 for the inspiration for this code.
 
     // Put the metatable of the desired type on top of the stack.
-    luaL_getmetatable(m_LuaState, TypeInfoTraitsT<T>::Get().ClassName);
+    luaL_getmetatable(m_LuaState, TraitsT<T>::GetTypeInfo().ClassName);
 
     // Put the metatable for the given userdata on top of the stack (it may belong to a derived class).
     if (!lua_getmetatable(m_LuaState, -2)) lua_pushnil(m_LuaState);     // Don't have it push nothing in case of failure.
@@ -499,13 +516,13 @@ template<class T> inline T& cf::ScriptBinderT::GetCheckedObjectParam(int StackIn
         lua_remove(m_LuaState, -2);
     }
 
-    luaL_typerror(m_LuaState, StackIndex, TypeInfoTraitsT<T>::Get().ClassName);
+    luaL_typerror(m_LuaState, StackIndex, TraitsT<T>::GetTypeInfo().ClassName);
 
     static T* Invalid = NULL;
     return *Invalid;
 #else
     // This approach is too simplistic, it doesn't work when inheritance is used.
-    T* UserData=(T*)luaL_checkudata(m_LuaState, -1, TypeInfoTraitsT<T>::Get().ClassName);
+    T* UserData=(T*)luaL_checkudata(m_LuaState, -1, TraitsT<T>::GetTypeInfo().ClassName);
 
     if (UserData==NULL)
         luaL_error(m_LuaState, "NULL userdata in object table.");
