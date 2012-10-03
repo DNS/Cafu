@@ -96,9 +96,11 @@ namespace cf
     ///   - 2008-04-01: http://thread.gmane.org/gmane.comp.lang.lua.general/46787
     ///
     /// Appendix:
-    ///   Unfortunately, we have to support "pass by pointer" as well:
+    ///   Unfortunately, we have to support "pass by raw pointer" as well:
     ///     - Only for the special case where using a smart pointer creates an unwanted cycle.
     ///     - Forfeits the safe and automatic life-time management of the object.
+    ///     - Life-time of bound object is assumed to exceed that of the script state
+    ///       (ownership is not assumed, bound object is never deleted by script state).
     ///   For example, game entities can have GUI instances that in turn have script states. Now,
     ///   human player entities bind themselves to the script state of their "HUD" (head-up display) GUI,
     ///   computer terminals (static detail models) bind themselves to the script state of their "desktop" GUI, etc.
@@ -170,6 +172,17 @@ namespace cf
             static const cf::TypeSys::TypeInfoT& GetTypeInfo() { return T::TypeInfo; }
             static const cf::TypeSys::TypeInfoT& GetTypeInfo(IntrusivePtrT<T> Object) { return *Object->GetType(); }
             static bool IsRefCounted() { return true; }
+        };
+
+        /// Specialization of TraitsT for raw pointers to T.
+        template<class T> class TraitsT<T*>
+        {
+            public:
+
+            static T* GetIdentity(T* Object) { return Object; }
+            static const cf::TypeSys::TypeInfoT& GetTypeInfo() { return T::TypeInfo; }
+            static const cf::TypeSys::TypeInfoT& GetTypeInfo(const T* Object) { return *Object->GetType(); }
+            static bool IsRefCounted() { return false; }
         };
 
         friend class UniScriptStateT;
