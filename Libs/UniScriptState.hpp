@@ -155,6 +155,7 @@ namespace cf
         {
             public:
 
+            static T* GetIdentity(T& Object) { return &Object; }
             static const cf::TypeSys::TypeInfoT& GetTypeInfo() { return T::TypeInfo; }
             static const cf::TypeSys::TypeInfoT& GetTypeInfo(const T& Object) { return *Object.GetType(); }
             static bool IsRefCounted() { return false; }
@@ -165,6 +166,7 @@ namespace cf
         {
             public:
 
+            static T* GetIdentity(IntrusivePtrT<T> Object) { return Object.get(); }
             static const cf::TypeSys::TypeInfoT& GetTypeInfo() { return T::TypeInfo; }
             static const cf::TypeSys::TypeInfoT& GetTypeInfo(IntrusivePtrT<T> Object) { return *Object->GetType(); }
             static bool IsRefCounted() { return true; }
@@ -374,7 +376,7 @@ template<class T> inline bool cf::ScriptBinderT::Push(T Object)
 
     // Put __identity_to_object[Identity] onto the stack.
     // This should be our table that represents the object.
-    lua_pushlightuserdata(m_LuaState, Object.get());    // Need the raw "identity" pointer here.
+    lua_pushlightuserdata(m_LuaState, TraitsT<T>::GetIdentity(Object));   // Need the raw "identity" pointer here.
     lua_rawget(m_LuaState, -2);
 
     // If the object was not found in __identity_to_object, create it anew.
@@ -449,8 +451,8 @@ template<class T> inline bool cf::ScriptBinderT::Push(T Object)
         lua_pop(m_LuaState, 1);
 
         // Record the table: __identity_to_object[Identity] = OT
-        lua_pushlightuserdata(m_LuaState, Object.get());    // Need the raw "identity" pointer here.
-        lua_pushvalue(m_LuaState, TABLE_INDEX);             // Duplicate the table on top of the stack.
+        lua_pushlightuserdata(m_LuaState, TraitsT<T>::GetIdentity(Object));   // Need the raw "identity" pointer here.
+        lua_pushvalue(m_LuaState, TABLE_INDEX);                               // Duplicate the table on top of the stack.
         lua_rawset(m_LuaState, -4);
 
         // Anchor the object (table OT).
