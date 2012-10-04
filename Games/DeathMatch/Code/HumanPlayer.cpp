@@ -1111,7 +1111,27 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
 
         // This is a compromise for the not-so-great code in the constructor:
         // Obtain a pointer to our GUI if we haven't one already (so this is a one-time issue).
-        if (GuiHUD==NULL) GuiHUD=cf::GuiSys::GuiMan->Find("Games/DeathMatch/GUIs/HUD_main.cgui", true);
+        if (GuiHUD == NULL)
+        {
+            GuiHUD = cf::GuiSys::GuiMan->Find("Games/DeathMatch/GUIs/HUD_main.cgui", true);
+
+            if (GuiHUD)
+            {
+                // Bind "this" player entity instance to the global variable "Player" in the GuiHUD script.
+                cf::UniScriptStateT& ScriptState = GuiHUD->GetScriptState();
+                lua_State*           LuaState    = ScriptState.GetLuaState();
+                cf::ScriptBinderT    Binder(LuaState);
+
+                Binder.Init(GetBaseEntTIM());
+
+                // Must use the raw pointer instead of IntrusivePtrT<EntHumanPlayerT>(this) to bind this entity,
+                // because the IntrusivePtrT would create a cycle that prevented the EntHumanPlayerT from being
+                // deleted when it was removed from the map. (Consequently, the dtor would not be run and thus the
+                // EntHumanPlayerT would not unregister itself from the physics world, triggering an assertion.)
+                Binder.Push(this);
+                lua_setglobal(LuaState, "Player");
+            }
+        }
 
         // Decide whether the GuiHUD should be drawn at all.
         const bool ActivateHUD=State.StateOfExistance==StateOfExistance_Alive || State.StateOfExistance==StateOfExistance_Dead;
