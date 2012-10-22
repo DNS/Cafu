@@ -88,27 +88,12 @@ namespace cf
     ///     Push(B);    // This is not possible!
     /// This is because we can only have one __gc function per type: for this typename, would we call
     /// Destruct<T>(...) with T == MyClassT or with T == IntrusivePtrT<MyClassT> ?
-    /// and because the type's CFunction callbacks would similary not know with which T to call GetCheckedObjectParam<T>().
+    /// and because the type's CFunction callbacks (for example, BaseEntityT::GetOrigin()) would similary not know with which T to call GetCheckedObjectParam<T>().
     ///
     /// Literature:
     ///   - Programming in Lua, 2nd edition, Roberto Ierusalimschy
     ///   - Game Programming Gems 6, chapter 4.2, "Binding C/C++ objects to Lua", W. Celes et al.
     ///   - 2008-04-01: http://thread.gmane.org/gmane.comp.lang.lua.general/46787
-    ///
-    /// Appendix:
-    ///   Unfortunately, we have to support "pass by raw pointer" as well:
-    ///     - Only for the special case where using a smart pointer creates an unwanted cycle.
-    ///     - Forfeits the safe and automatic life-time management of the object.
-    ///     - Life-time of bound object is assumed to exceed that of the script state
-    ///       (ownership is not assumed, bound object is never deleted by script state).
-    ///   For example, game entities can have GUI instances that in turn have script states. Now,
-    ///   human player entities bind themselves to the script state of their "HUD" (head-up display) GUI,
-    ///   computer terminals (static detail models) bind themselves to the script state of their "desktop" GUI, etc.
-    ///   This gives the GUI scripts a very natural and convenient access to "their" entity.
-    ///   However, if such binding is done with a smart pointer, e.g. IntrusivePtrT<...>(this), a cyclic
-    ///   dependency is created that prevents the enity from being destroyed even after it is removed from the map:
-    ///   For this single use case only we provide support for binding objects by pointer as well,
-    ///   where the lifetime of the entity is guaranteed to exceed the lifetime of the composite GUI instance.
     class ScriptBinderT
     {
         public:
@@ -172,17 +157,6 @@ namespace cf
             static const cf::TypeSys::TypeInfoT& GetTypeInfo() { return T::TypeInfo; }
             static const cf::TypeSys::TypeInfoT& GetTypeInfo(IntrusivePtrT<T> Object) { return *Object->GetType(); }
             static bool IsRefCounted() { return true; }
-        };
-
-        /// Specialization of TraitsT for raw pointers to T.
-        template<class T> class TraitsT<T*>
-        {
-            public:
-
-            static T* GetIdentity(T* Object) { return Object; }
-            static const cf::TypeSys::TypeInfoT& GetTypeInfo() { return T::TypeInfo; }
-            static const cf::TypeSys::TypeInfoT& GetTypeInfo(const T* Object) { return *Object->GetType(); }
-            static bool IsRefCounted() { return false; }
         };
 
         friend class UniScriptStateT;

@@ -1124,11 +1124,11 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
 
                 Binder.Init(GetBaseEntTIM());
 
-                // Must use the raw pointer instead of IntrusivePtrT<EntHumanPlayerT>(this) to bind this entity,
-                // because the IntrusivePtrT would create a cycle that prevented the EntHumanPlayerT from being
-                // deleted when it was removed from the map. (Consequently, the dtor would not be run and thus the
-                // EntHumanPlayerT would not unregister itself from the physics world, triggering an assertion.)
-                Binder.Push(this);
+                // Note that the next line creates a cycle (this -> GuiHUD -> ScriptState -> this) that we must
+                // explicitly break in NotifyLeaveMap(). Without this, the cycle would prevent the destruction
+                // of this entity: its dtor would not run and thus the EntHumanPlayerT would not unregister itself
+                // from the physics world, triggering an assertion.
+                Binder.Push(IntrusivePtrT<EntHumanPlayerT>(this));
                 lua_setglobal(LuaState, "Player");
             }
         }
