@@ -164,6 +164,16 @@ EntHumanPlayerT::~EntHumanPlayerT()
 }
 
 
+void EntHumanPlayerT::NotifyLeaveMap()
+{
+    if (GuiHUD)
+    {
+        cf::GuiSys::GuiMan->Free(GuiHUD);
+        GuiHUD = NULL;
+    }
+}
+
+
 void EntHumanPlayerT::AddFrag(int NumFrags)
 {
     State.HaveAmmo[AMMO_SLOT_FRAGS] += NumFrags;

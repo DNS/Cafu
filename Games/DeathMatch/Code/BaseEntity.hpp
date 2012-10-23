@@ -118,6 +118,7 @@ namespace GAME_NAME
         void Deserialize(cf::Network::InStreamT& Stream, bool IsIniting) /*final override*/;
 
         // Implement GameEntityI base class methods.
+        virtual void NotifyLeaveMap() { }
         virtual unsigned long GetID() const { return ID; }
         virtual std::string GetName() const { return Name; }
         virtual unsigned long GetWorldFileIndex() const { return WorldFileIndex; }

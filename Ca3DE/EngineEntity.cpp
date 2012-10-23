@@ -55,6 +55,8 @@ EngineEntityT::~EngineEntityT()
 
         Binder.Disconnect(Entity.get());
     }
+
+    Entity->NotifyLeaveMap();
 }
 
 

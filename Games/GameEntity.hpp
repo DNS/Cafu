@@ -47,6 +47,11 @@ class GameEntityI : public RefCountedT
     /// Returns the proper type info for this entity.
     virtual const cf::TypeSys::TypeInfoT* GetType() const=0;
 
+    /// Let the entity know that it is about to be removed from the map.
+    /// At this time, the only purpose of this method is to give the entity a chance to break cycles
+    /// of IntrusivePtrT<> to itself that would otherwise prevent it from being destructed.
+    virtual void NotifyLeaveMap()=0;
+
     /// Returns the (map unique) ID of this entity.
     virtual unsigned long GetID() const=0;
 

@@ -78,6 +78,7 @@ namespace GAME_NAME
         private:
 
         // Override the base class methods.
+        void NotifyLeaveMap();
         void DoSerialize(cf::Network::OutStreamT& Stream) const;
         void DoDeserialize(cf::Network::InStreamT& Stream);
 
