@@ -119,6 +119,7 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
             {
                 // Let the GUI know our map script state and name.
                 Gui->SetEntityInfo(&GameWorld->GetScriptState(), Name);
+                Gui->SetMouseCursorSize(40.0f);
             }
             else
             {

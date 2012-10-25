@@ -69,6 +69,7 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool
       IsFullCover(false),
       MousePosX(VIRTUAL_SCREEN_SIZE_X/2.0f),   // 320.0f
       MousePosY(VIRTUAL_SCREEN_SIZE_Y/2.0f),   // 240.0f
+      m_MouseCursorSize(20.0f),
       MouseIsShown(true),
       m_MapScriptState(NULL),
       m_EntityName()
@@ -363,12 +364,10 @@ void GuiImplT::Render(bool zLayerCoating) const
 
     if (MouseIsShown)
     {
-        const float b=(m_EntityName=="") ? 20.0f : 40.0f;     // The mouse cursor size (double for world GUIs).
-
-        Mesh.Vertices[0].SetOrigin(MousePosX,   MousePosY  );
-        Mesh.Vertices[1].SetOrigin(MousePosX+b, MousePosY  );
-        Mesh.Vertices[2].SetOrigin(MousePosX+b, MousePosY+b);
-        Mesh.Vertices[3].SetOrigin(MousePosX,   MousePosY+b);
+        Mesh.Vertices[0].SetOrigin(MousePosX,                   MousePosY                  );
+        Mesh.Vertices[1].SetOrigin(MousePosX+m_MouseCursorSize, MousePosY                  );
+        Mesh.Vertices[2].SetOrigin(MousePosX+m_MouseCursorSize, MousePosY+m_MouseCursorSize);
+        Mesh.Vertices[3].SetOrigin(MousePosX,                   MousePosY+m_MouseCursorSize);
 
         MatSys::Renderer->SetCurrentMaterial(m_GuiPointerRM);
         MatSys::Renderer->RenderMesh(Mesh);
@@ -600,6 +599,16 @@ int GuiImplT::SetMousePos(lua_State* LuaState)
 }
 
 
+int GuiImplT::SetMouseCursorSize(lua_State* LuaState)
+{
+    GuiImplT* Gui=CheckParams(LuaState);
+
+    Gui->SetMouseCursorSize(float(lua_tonumber(LuaState, 2)));
+
+    return 0;
+}
+
+
 int GuiImplT::SetMouseMat(lua_State* LuaState)
 {
     // GuiImplT* Gui=CheckParams(LuaState);
@@ -737,20 +746,21 @@ void GuiImplT::RegisterLua(lua_State* LuaState)
 
     static const luaL_reg GuiMethods[]=
     {
-        { "activate",       Activate },
-        { "close",          Close },
-        { "setInteractive", SetInteractive },
-        { "setFullCover",   SetFullCover },
-        { "setMousePos",    SetMousePos },
-        { "setMouseMat",    SetMouseMat },
-        { "showMouse",      SetMouseIsShown },
-        { "setFocus",       SetFocus },
-        { "hasValidEntity", HasValidEntity },
-        { "getEntityName",  GetEntityName },
-        { "RunMapCmd",      RunMapCommand },
-        { "SetRootWindow",  SetRootWindow },
-        { "new",            CreateNewWindow },
-        { "__tostring",     toString },
+        { "activate",           Activate },
+        { "close",              Close },
+        { "setInteractive",     SetInteractive },
+        { "setFullCover",       SetFullCover },
+        { "setMousePos",        SetMousePos },
+        { "setMouseCursorSize", SetMouseCursorSize },
+        { "setMouseMat",        SetMouseMat },
+        { "showMouse",          SetMouseIsShown },
+        { "setFocus",           SetFocus },
+        { "hasValidEntity",     HasValidEntity },
+        { "getEntityName",      GetEntityName },
+        { "RunMapCmd",          RunMapCommand },
+        { "SetRootWindow",      SetRootWindow },
+        { "new",                CreateNewWindow },
+        { "__tostring",         toString },
         { NULL, NULL }
     };
 

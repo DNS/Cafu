@@ -85,6 +85,12 @@ namespace cf
             /// Sets the position of the mouse cursor.
             virtual void SetMousePos(float MousePosX_, float MousePosY_)=0;
 
+            /// Returns the size of the mouse cursor.
+            virtual float GetMouseCursorSize() const=0;
+
+            /// Sets the size of the mouse cursor.
+            virtual void SetMouseCursorSize(float s)=0;
+
             /// Sets whether this GUI shows a mouse cursor.
             virtual void SetShowMouse(bool ShowMouse_)=0;
 

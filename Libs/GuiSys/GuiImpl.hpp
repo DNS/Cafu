@@ -81,21 +81,23 @@ namespace cf
             UniScriptStateT& GetScriptState() { return m_ScriptState; }
             IntrusivePtrT<WindowT> GetRootWindow() const { return RootWindow; }
             IntrusivePtrT<WindowT> GetFocusWindow() const { return FocusWindow; }
-            void Activate(bool doActivate=true);
-            bool GetIsActive() const { return IsActive; }
-            void SetInteractive(bool IsInteractive_=true);
-            bool GetIsInteractive() const { return IsInteractive; }
-            bool GetIsFullCover() const { return IsFullCover; }
-            void GetMousePos(float& MousePosX_, float& MousePosY_) const;
-            void SetMousePos(float MousePosX_, float MousePosY_);
-            void SetShowMouse(bool ShowMouse_);
-            bool IsMouseShown() const { return MouseIsShown; }
-            void Render(bool zLayerCoating=false) const;
-            bool ProcessDeviceEvent(const CaKeyboardEventT& KE);
-            bool ProcessDeviceEvent(const CaMouseEventT& ME);
-            void DistributeClockTickEvents(float t);
-            void SetEntityInfo(UniScriptStateT* MapScriptState, const std::string& EntityName);
-            void RegisterScriptLib(const char* LibName, const luaL_Reg Functions[]);
+            void  Activate(bool doActivate=true);
+            bool  GetIsActive() const { return IsActive; }
+            void  SetInteractive(bool IsInteractive_=true);
+            bool  GetIsInteractive() const { return IsInteractive; }
+            bool  GetIsFullCover() const { return IsFullCover; }
+            void  GetMousePos(float& MousePosX_, float& MousePosY_) const;
+            void  SetMousePos(float MousePosX_, float MousePosY_);
+            float GetMouseCursorSize() const { return m_MouseCursorSize; }
+            void  SetMouseCursorSize(float s) { m_MouseCursorSize = s; }
+            void  SetShowMouse(bool ShowMouse_);
+            bool  IsMouseShown() const { return MouseIsShown; }
+            void  Render(bool zLayerCoating=false) const;
+            bool  ProcessDeviceEvent(const CaKeyboardEventT& KE);
+            bool  ProcessDeviceEvent(const CaMouseEventT& ME);
+            void  DistributeClockTickEvents(float t);
+            void  SetEntityInfo(UniScriptStateT* MapScriptState, const std::string& EntityName);
+            void  RegisterScriptLib(const char* LibName, const luaL_Reg Functions[]);
 
 
             /// Adds a new global variable of type (meta-)table and name "cf::GuiSys::GuiT" to the Lua state LuaState,
@@ -134,6 +136,7 @@ namespace cf
             bool                     IsFullCover;       ///< Whether this GUI is fullscreen and fully opaque, i.e. whether this GUI covers everything under it. If true, the GuiSys saves the rendering of the GUIs "below" this one. This can improve the GUI performance significantly if e.g. the player is at a point in the game where the world rendering FPS is low.
             float                    MousePosX;         ///< The x-coordinate of the position of the mouse cursor.
             float                    MousePosY;         ///< The y-coordinate of the position of the mouse cursor.
+            float                    m_MouseCursorSize; ///< The size of the mouse cursor.
             bool                     MouseIsShown;      ///< Whether the mouse cursor is shown. Non-interactive GUIs normally don't show a cursor.
 
             UniScriptStateT*         m_MapScriptState;  ///< If this is a 3D world GUI, this is the script state of the map that this GUI and its host entity are in.
@@ -149,6 +152,7 @@ namespace cf
             static int SetInteractive(lua_State* LuaState);     ///< Sets the IsInteractive flag of this GUI.
             static int SetFullCover(lua_State* LuaState);       ///< Sets the IsFullCover flag of this GUI.
             static int SetMousePos(lua_State* LuaState);        ///< Sets the position of the mouse cursor.
+            static int SetMouseCursorSize(lua_State* LuaState); ///< Sets the size of the mouse cursor.
             static int SetMouseMat(lua_State* LuaState);        ///< Sets the material that is used to render the mouse cursor.
             static int SetMouseIsShown(lua_State* LuaState);    ///< Determines whether the mouse cursor is shown at all.
             static int SetFocus(lua_State* LuaState);           ///< Sets the keyboard input focus to the given window. Does *not* call the Lua OnFocusLose() or OnFocusGain() scripts!
