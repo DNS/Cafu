@@ -73,6 +73,7 @@ namespace GAME_NAME
         enum EventTypesT { EVENT_TYPE_RESTART_SEQU, NUM_EVENT_TYPES };
 
         // Override the base class methods.
+        void NotifyLeaveMap();
         void DoSerialize(cf::Network::OutStreamT& Stream) const;
         void DoDeserialize(cf::Network::InStreamT& Stream);
 

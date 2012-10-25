@@ -66,12 +66,13 @@ end
 
 
 
--- This function is called as soon as the entity related to this GUI has been initialized.
+-- This function is called as soon as the entity related to this GUI has been initialized
+-- and has bound itself to the global script variable "Entity".
 -- Note that our entities must have names like "teleporter_2_of_5" for this to work.
 function OnEntityInit()
     -- Figure out the total size of the teleportation network (number of nodes)
     -- that this station is in, and which number this node/station has.
-    OUR_NODE_NR, MAX_NODES=string.match(gui:getEntityName(), "(%d+)_of_(%d+)");
+    OUR_NODE_NR, MAX_NODES=string.match(Entity:GetName(), "(%d+)_of_(%d+)");
 
     OUR_NODE_NR=tonumber(OUR_NODE_NR) or 1;
     MAX_NODES  =tonumber(MAX_NODES) or 3;

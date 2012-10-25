@@ -120,6 +120,20 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
                 // Let the GUI know our map script state and name.
                 Gui->SetEntityInfo(&GameWorld->GetScriptState(), Name);
                 Gui->SetMouseCursorSize(40.0f);
+
+                // Bind "this" entity instance to the global variable "Entity" in the Gui script.
+                cf::UniScriptStateT& ScriptState = Gui->GetScriptState();
+                lua_State*           LuaState    = ScriptState.GetLuaState();
+                cf::ScriptBinderT    Binder(LuaState);
+
+                Binder.Init(GetBaseEntTIM());
+
+                // Note that the next line creates a cycle (this -> Gui -> ScriptState -> this) that we must
+                // explicitly break in NotifyLeaveMap(). Without this, the cycle would prevent the destruction
+                // of this entity: its dtor would not run and thus the EntStaticDetailModelT would not unregister
+                // itself from the physics world, triggering an assertion.
+                Binder.Push(IntrusivePtrT<EntStaticDetailModelT>(this));
+                lua_setglobal(LuaState, "Entity");
             }
             else
             {
@@ -175,6 +189,16 @@ EntStaticDetailModelT::~EntStaticDetailModelT()
     if (Gui)
     {
         cf::GuiSys::GuiMan->Free(Gui);
+    }
+}
+
+
+void EntStaticDetailModelT::NotifyLeaveMap()
+{
+    if (Gui)
+    {
+        cf::GuiSys::GuiMan->Free(Gui);
+        Gui = NULL;
     }
 }
 
