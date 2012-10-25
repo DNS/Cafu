@@ -60,7 +60,7 @@ function ButtonGo:OnMouseButtonUp()
     local origNr=OUR_NODE_NR;
     local destNr=DestNode:get("text");
 
-    gui:RunMapCmd("teleport(" .. origNr .. ", " .. destNr .. ");");
+    Entity:RunMapCommand("teleport(" .. origNr .. ", " .. destNr .. ");");
     return true;
 end
 
