@@ -122,12 +122,6 @@ namespace cf
             /// @param t   The time in seconds since the last clock-tick.
             virtual void DistributeClockTickEvents(float t)=0;
 
-            /// If this GUI is used as a 3D world GUI, the host entity (on which this GUI is "attached" in the world)
-            /// can call this method to let this GUI know the map script state and its name therein.
-            /// @param MapScriptState   The script state of the map that this GUI and its host entity are in.
-            /// @param EntityName       The name of the host entity.
-            virtual void SetEntityInfo(UniScriptStateT* MapScriptState, const std::string& EntityName)=0;
-
             /// Registers another library of C++ implemented functions for use by the script of this GUI.
             /// This is intended for 3D world GUIs, for which the game code registers an additional set of game-specific functions.
             /// @param LibName Name of the library to register.

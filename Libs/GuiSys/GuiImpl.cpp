@@ -70,9 +70,7 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool
       MousePosX(VIRTUAL_SCREEN_SIZE_X/2.0f),   // 320.0f
       MousePosY(VIRTUAL_SCREEN_SIZE_Y/2.0f),   // 240.0f
       m_MouseCursorSize(20.0f),
-      MouseIsShown(true),
-      m_MapScriptState(NULL),
-      m_EntityName()
+      MouseIsShown(true)
 {
     if (!IsInlineCode)
     {
@@ -509,13 +507,6 @@ void GuiImplT::DistributeClockTickEvents(float t)
 }
 
 
-void GuiImplT::SetEntityInfo(cf::UniScriptStateT* MapScriptState, const std::string& EntityName)
-{
-    m_MapScriptState = MapScriptState;
-    m_EntityName     = EntityName;
-}
-
-
 void GuiImplT::RegisterScriptLib(const char* LibName, const luaL_Reg Functions[])
 {
     lua_State* LuaState = m_ScriptState.GetLuaState();
@@ -651,43 +642,6 @@ int GuiImplT::SetFocus(lua_State* LuaState)
 }
 
 
-int GuiImplT::HasValidEntity(lua_State* LuaState)
-{
-    GuiImplT* Gui=CheckParams(LuaState);
-
-    lua_pushboolean(LuaState, Gui->m_EntityName != "");
-    return 1;
-}
-
-
-int GuiImplT::GetEntityName(lua_State* LuaState)
-{
-    GuiImplT* Gui=CheckParams(LuaState);
-
-    lua_pushstring(LuaState, Gui->m_EntityName.c_str());
-    return 1;
-}
-
-
-// Runs the given command within the script of the assigned map.
-// The call chain is as follows:
-//     1) HumanPlayerT::Think();           // Called during server thinking, client prediction and client repredection.
-//     2) GuiT::ProcessDeviceEvent();      // Player stands before and uses this GUI.
-//     3) call into the GUI script (event handlers).
-//     4) The script calls this gui:RunMapCmd(xy) function.
-//     5) The xy command is run in the server map script or in the client map script, respectively.
-int GuiImplT::RunMapCommand(lua_State* LuaState)
-{
-    GuiImplT* Gui=CheckParams(LuaState);
-
-    if (!Gui->m_MapScriptState)
-        luaL_error(LuaState, "This is not a 3D world GUI, it is not part of a game map.");
-
-    Gui->m_MapScriptState->DoString(luaL_checkstring(LuaState, 2));
-    return 0;
-}
-
-
 int GuiImplT::SetRootWindow(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
@@ -755,9 +709,6 @@ void GuiImplT::RegisterLua(lua_State* LuaState)
         { "setMouseMat",        SetMouseMat },
         { "showMouse",          SetMouseIsShown },
         { "setFocus",           SetFocus },
-        { "hasValidEntity",     HasValidEntity },
-        { "getEntityName",      GetEntityName },
-        { "RunMapCmd",          RunMapCommand },
         { "SetRootWindow",      SetRootWindow },
         { "new",                CreateNewWindow },
         { "__tostring",         toString },

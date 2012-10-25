@@ -113,13 +113,11 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
             GuiName=std::string("Games/DeathMatch/")+Value;
 
             // Load the Gui. Note that this is done BOTH on the client as well as on the server.
-            assert(cf::GuiSys::GuiMan!=NULL);
-            Gui=cf::GuiSys::GuiMan->Register(GuiName);
+            assert(cf::GuiSys::GuiMan);
+            Gui = cf::GuiSys::GuiMan->Register(GuiName);
 
-            if (Gui!=NULL)
+            if (Gui)
             {
-                // Let the GUI know our map script state and name.
-                Gui->SetEntityInfo(&GameWorld->GetScriptState(), Name);
                 Gui->SetMouseCursorSize(40.0f);
 
                 // Bind "this" entity instance to the global variable "Entity" in the Gui script.

@@ -96,7 +96,6 @@ namespace cf
             bool  ProcessDeviceEvent(const CaKeyboardEventT& KE);
             bool  ProcessDeviceEvent(const CaMouseEventT& ME);
             void  DistributeClockTickEvents(float t);
-            void  SetEntityInfo(UniScriptStateT* MapScriptState, const std::string& EntityName);
             void  RegisterScriptLib(const char* LibName, const luaL_Reg Functions[]);
 
 
@@ -139,9 +138,6 @@ namespace cf
             float                    m_MouseCursorSize; ///< The size of the mouse cursor.
             bool                     MouseIsShown;      ///< Whether the mouse cursor is shown. Non-interactive GUIs normally don't show a cursor.
 
-            UniScriptStateT*         m_MapScriptState;  ///< If this is a 3D world GUI, this is the script state of the map that this GUI and its host entity are in.
-            std::string              m_EntityName;      ///< If this is a 3D world GUI, this is the name of its host entity.
-
             // Gui variables (general purpose)... (Maus-unabhängig, z.B. aktuelle Lift-Position............. übers Netzwerk sync'en!!)
             // ...
 
@@ -156,9 +152,6 @@ namespace cf
             static int SetMouseMat(lua_State* LuaState);        ///< Sets the material that is used to render the mouse cursor.
             static int SetMouseIsShown(lua_State* LuaState);    ///< Determines whether the mouse cursor is shown at all.
             static int SetFocus(lua_State* LuaState);           ///< Sets the keyboard input focus to the given window. Does *not* call the Lua OnFocusLose() or OnFocusGain() scripts!
-            static int HasValidEntity(lua_State* LuaState);     ///< Returns true if this GUI is a 3D world GUI (an implicit requirement), it has been assigned a valid parent entity and the parent entity name is non-empty. Returns false otherwise.
-            static int GetEntityName(lua_State* LuaState);      ///< Returns the non-empty name of the parent entity if HasValidEntity() returns true, an empty string otherwise.
-            static int RunMapCommand(lua_State* LuaState);      ///< Runs the given string in the map script state (if there is one).
             static int SetRootWindow(lua_State* LuaState);      ///< Sets the root window for this GUI.
             static int CreateNewWindow(lua_State* LuaState);    ///< Creates and returns a new window.
             static int toString(lua_State* LuaState);           ///< Returns a string representation of this GUI.
