@@ -29,6 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 namespace cf { namespace GuiSys { class GuiI; } }
+struct luaL_Reg;
 
 
 namespace GAME_NAME
@@ -84,6 +85,16 @@ namespace GAME_NAME
 
         /// A helper function for Think().
         bool CheckGUI(IntrusivePtrT<EntStaticDetailModelT> GuiEnt, Vector3fT& MousePos) const;
+
+        // Script methods.
+        static int GetHealth(lua_State* LuaState);
+        static int GetArmor(lua_State* LuaState);
+        static int GetFrags(lua_State* LuaState);
+        static int GetCrosshair(lua_State* LuaState);
+        static int GetAmmoString(lua_State* LuaState);
+
+        static const luaL_Reg MethodsList[];
+
 
         ArrayT<PlayerCommandT> PlayerCommands;
 

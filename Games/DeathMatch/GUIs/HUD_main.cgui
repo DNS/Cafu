@@ -1,5 +1,16 @@
 dofile("Games/DeathMatch/GUIs/HUD_init.cgui");
 
+--[[
+ This "head-up display" GUI is instantiated by the EntHumanPlayerT entity,
+ which in turn binds itself to the global script variable "Player".
+
+ That means that we can call Player methods (as defined in the EntHumanPlayerT
+ C++ code) whenever we want to communicate with "our" human player entity,
+ e.g.  h = Player:GetHealth()
+
+ Note that the inverse is also possible: The C++ code can directly call our
+ scripting functions defined here (there is an example below).
+--]]
 
 InfoFrags.NumFrags=0;
 FPS.oldTime=FPS:get("time");
@@ -20,6 +31,25 @@ function FPS:OnFrame()
 end
 
 
+-- This function is directly called from the EntHumanPlayerT code (once per frame).
+-- We could integrate it into CrossHair:OnFrame() below, using another method like
+-- Player:GetCrosshairInfo(), but keep it for demonstration of direct calls from
+-- the entity code to here.
+function UpdateCrosshairMaterial(MaterialName, Rotate)
+    -- Note that this function is currently called *every* frame by the human player entity code.
+    -- However, setting the backMaterial is implemented to be inexpensive when the material name
+    -- doesn't change, or else we had to have some code like "if (MaterialName != OldName) ..."
+    -- either here or in the entity code.
+    CrossHair:set("show", #MaterialName>0);
+    CrossHair:set("backMaterial", MaterialName);
+    CrossHair.RotateCrosshair=Rotate;
+end
+
+
+-- The OnFrame() methods are called automatically by the Gui System once per frame.
+-- While the CrossHair:OnFrame() method splits work with UpdateCrosshairMaterial(),
+-- the other OnFrame() methods below are entirely self-contained, using Player methods
+-- in order to update themselves.
 function CrossHair:OnFrame()
     if (self.RotateCrosshair) then
         self:set("rotAngle", self:get("time")*50.0);
@@ -29,40 +59,45 @@ function CrossHair:OnFrame()
 end
 
 
--- This function is called from the Human Player entity code (currently once per frame).
-function UpdateHealthArmorFrags(Health, Armor, Frags)
-    InfoHealth:set("text", " Health  "..Health);
-    InfoArmor :set("text", " Armor  "..Armor);
-    InfoFrags :set("text", " Frags  "..Frags);
+function InfoHealth:OnFrame()
+    local Health = Player:GetHealth()
 
-    -- Trigger a 360 rotation of the Frags counter whenever it increases.
-    if (Frags~=InfoFrags.NumFrags) then InfoFrags:interpolate("rotAngle", 0, 360, 500); end
-    InfoFrags.NumFrags=Frags;
+    InfoHealth:set("text", " Health  " .. Health);
 
     -- Set the text color of the Health counter linear to its value.
     if (Health>100) then Health=100; end;
     if (Health<  0) then Health=  0; end;
+
     InfoHealth:set("textColor", 1.0, Health/100, Health/100, 1.0);
 end
 
 
--- This function is called from the Human Player entity code (currently once per frame).
-function UpdateAmmoString(AmmoString)
+function InfoArmor:OnFrame()
+    InfoArmor:set("text", " Armor  " .. Player:GetArmor());
+end
+
+
+function InfoFrags:OnFrame()
+    local Frags = Player:GetFrags()
+
+    InfoFrags:set("text", " Frags  " .. Frags);
+
+    -- Trigger a 360 degrees rotation of the Frags counter whenever it changes.
+    if (Frags ~= InfoFrags.NumFrags) then
+        InfoFrags:interpolate("rotAngle", 0, 360, 500);
+    end
+
+    InfoFrags.NumFrags = Frags;
+end
+
+
+function InfoAmmo:OnFrame()
+    local AmmoString = Player:GetAmmoString()
+
     if (#AmmoString==0) then
         InfoAmmo:set("show", false);
     else
         InfoAmmo:set("show", true);
         InfoAmmo:set("text", AmmoString);
     end
-end
-
-
--- This function is called from the Human Player entity code (currently once per frame).
-function UpdateCrosshairMaterial(MaterialName, Rotate)
-    -- Note that this function is currently called *every* frame by the "Human Player" entity code.
-    -- However, setting the backMaterial is implemented to be inexpensive when the material name doesn't change
-    -- (or else we had to have some code like "if (MaterialName!=OldName) ..." either here or in the entity code).
-    CrossHair:set("show", #MaterialName>0);
-    CrossHair:set("backMaterial", MaterialName);
-    CrossHair.RotateCrosshair=Rotate;
 end

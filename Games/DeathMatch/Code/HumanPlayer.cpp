@@ -84,7 +84,17 @@ void* EntHumanPlayerT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
     return new EntHumanPlayerT(*static_cast<const EntityCreateParamsT*>(&Params));
 }
 
-const cf::TypeSys::TypeInfoT EntHumanPlayerT::TypeInfo(GetBaseEntTIM(), "EntHumanPlayerT", "BaseEntityT", EntHumanPlayerT::CreateInstance, NULL /*MethodsList*/);
+const luaL_Reg EntHumanPlayerT::MethodsList[]=
+{
+    { "GetHealth",     EntHumanPlayerT::GetHealth },
+    { "GetArmor",      EntHumanPlayerT::GetArmor },
+    { "GetFrags",      EntHumanPlayerT::GetFrags },
+    { "GetCrosshair",  EntHumanPlayerT::GetCrosshair },
+    { "GetAmmoString", EntHumanPlayerT::GetAmmoString },
+    { NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT EntHumanPlayerT::TypeInfo(GetBaseEntTIM(), "EntHumanPlayerT", "BaseEntityT", EntHumanPlayerT::CreateInstance, MethodsList);
 
 
 EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
@@ -1143,113 +1153,60 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
             }
         }
 
-        // Decide whether the GuiHUD should be drawn at all.
-        const bool ActivateHUD=State.StateOfExistance==StateOfExistance_Alive || State.StateOfExistance==StateOfExistance_Dead;
-
         // GuiHUD could still be NULL, e.g. if the HUD.cgui file could not be found, or if there was a parse error.
-        if (GuiHUD!=NULL) GuiHUD->Activate(ActivateHUD);
-
-
-        // Now update the GuiHUD, but only if we successfully acquired it earlier (GuiHUD!=NULL) *and* it gets drawn (is active).
-        // NOTE: It is *NOT* particularly great that we update the GuiHUD every frame (instead of only when the values change).
-        // However, the general structure of the game code is currently not better suitable for the task, so that it's the best
-        // for now to just do it in this place and in this way...
-        if (GuiHUD!=NULL && ActivateHUD)
+        if (GuiHUD != NULL)
         {
-            // Update the health, armor and frags indicators.
-            GuiHUD->GetScriptState().Call("UpdateHealthArmorFrags", "iii", State.Health, State.Armor, (signed short)(State.HaveAmmo[AMMO_SLOT_FRAGS]));
+            const bool WasActive = GuiHUD->GetIsActive();
 
+            GuiHUD->Activate(State.StateOfExistance==StateOfExistance_Alive || State.StateOfExistance==StateOfExistance_Dead);
 
-            // Let the HUD GUI know which material we wish to have for the crosshair, pass "" for none.
-            if (State.StateOfExistance==StateOfExistance_Alive)
+            if (!WasActive && GuiHUD->GetIsActive())
             {
-                switch (State.ActiveWeaponSlot)
-                {
-                    case WEAPON_SLOT_HORNETGUN:
-                    case WEAPON_SLOT_PISTOL:
-                    case WEAPON_SLOT_CROSSBOW:
-                    case WEAPON_SLOT_357:
-                    case WEAPON_SLOT_9MMAR:
-                        GuiHUD->GetScriptState().Call("UpdateCrosshairMaterial", "s", "Gui/CrossHair1");
-                        break;
-
-                    case WEAPON_SLOT_SHOTGUN:
-                    case WEAPON_SLOT_RPG:
-                    case WEAPON_SLOT_GAUSS:
-                    case WEAPON_SLOT_EGON:
-                        GuiHUD->GetScriptState().Call("UpdateCrosshairMaterial", "sb", "Gui/CrossHair2", true);
-                        break;
-
-                    default:
-                        // Some weapons just don't have a crosshair.
-                        GuiHUD->GetScriptState().Call("UpdateCrosshairMaterial", "s", "");
-                        break;
-                }
+                // The GuiHUD was just activated for the first time, or re-activated.
+                // As this happened at this particular location (PostDraw()), it didn't receive any calls to
+                // DistributeClockTickEvents() before, and thus its OnFrame() script methods weren't run.
+                // Make up for this now, because the OnFrame() methods possibly set important state that would
+                // otherwise be wrong for the first frame until the normal DistributeClockTickEvents() set in.
+                GuiHUD->DistributeClockTickEvents(0.0f);
             }
-            else GuiHUD->GetScriptState().Call("UpdateCrosshairMaterial", "s", "");
 
-
-            // Update the HUDs ammo string.
-            if (State.HaveWeapons & (1 << State.ActiveWeaponSlot))
+            if (GuiHUD->GetIsActive())
             {
-                char PrintBuffer[64];
-
-                // Assignment table to determine which ammo is consumed by each weapon for primary fire (given a weapon slot, determine the ammo slot).
-                // TODO: This is not optimal, ought to be static member function of each weapon???
-                const char GetAmmoSlotForPrimaryFireByWeaponSlot[13] = {
-                    AMMO_SLOT_NONE,
-                    AMMO_SLOT_NONE,
-                    AMMO_SLOT_9MM,
-                    AMMO_SLOT_357,
-                    AMMO_SLOT_SHELLS,
-                    AMMO_SLOT_9MM,
-                    AMMO_SLOT_ARROWS,
-                    AMMO_SLOT_ROCKETS,
-                    AMMO_SLOT_CELLS,
-                    AMMO_SLOT_CELLS,
-                    AMMO_SLOT_NONE,
-                    AMMO_SLOT_NONE,
-                    AMMO_SLOT_NONE };
-
-                switch (State.ActiveWeaponSlot)
+                // Update the GuiHUD by a direct call to one of its script functions.
+                // This is mostly for demonstration, and could as well be turned into the CrossHair:OnFrame()
+                // method in the script that in turn calls back using some Player:GetCrosshairInfo() function.
+                // The point is that calls are possible in both directions: from here/C++ to there/script, as
+                // well as from there/script to here/C++.
+                if (State.StateOfExistance==StateOfExistance_Alive)
                 {
-                    case WEAPON_SLOT_BATTLESCYTHE:
-                    case WEAPON_SLOT_HORNETGUN:
-                        GuiHUD->GetScriptState().Call("UpdateAmmoString", "s", "");
-                        break;
+                    switch (State.ActiveWeaponSlot)
+                    {
+                        case WEAPON_SLOT_HORNETGUN:
+                        case WEAPON_SLOT_PISTOL:
+                        case WEAPON_SLOT_CROSSBOW:
+                        case WEAPON_SLOT_357:
+                        case WEAPON_SLOT_9MMAR:
+                            GuiHUD->GetScriptState().Call("UpdateCrosshairMaterial", "s", "Gui/CrossHair1");
+                            break;
 
-                    case WEAPON_SLOT_9MMAR:
-                        sprintf(PrintBuffer, " Ammo %2u (%2u) | %u Grenades", State.HaveAmmoInWeapons[WEAPON_SLOT_9MMAR],
-                                State.HaveAmmo[GetAmmoSlotForPrimaryFireByWeaponSlot[WEAPON_SLOT_9MMAR]],
-                                State.HaveAmmo[AMMO_SLOT_ARGREN]);
-                        GuiHUD->GetScriptState().Call("UpdateAmmoString", "s", PrintBuffer);
-                        break;
+                        case WEAPON_SLOT_SHOTGUN:
+                        case WEAPON_SLOT_RPG:
+                        case WEAPON_SLOT_GAUSS:
+                        case WEAPON_SLOT_EGON:
+                            // The "true" is to have the GUI apply a continuous rotation to the crosshair image.
+                            GuiHUD->GetScriptState().Call("UpdateCrosshairMaterial", "sb", "Gui/CrossHair2", true);
+                            break;
 
-                    case WEAPON_SLOT_FACEHUGGER:
-                    case WEAPON_SLOT_GRENADE:
-                    case WEAPON_SLOT_RPG:
-                    case WEAPON_SLOT_TRIPMINE:
-                        sprintf(PrintBuffer, " Ammo %2u", State.HaveAmmoInWeapons[State.ActiveWeaponSlot]);
-                        GuiHUD->GetScriptState().Call("UpdateAmmoString", "s", PrintBuffer);
-                        break;
-
-                    case WEAPON_SLOT_357:
-                    case WEAPON_SLOT_CROSSBOW:
-                    case WEAPON_SLOT_EGON:
-                    case WEAPON_SLOT_GAUSS:
-                    case WEAPON_SLOT_PISTOL:
-                    case WEAPON_SLOT_SHOTGUN:
-                        sprintf(PrintBuffer, " Ammo %2u (%2u)", State.HaveAmmoInWeapons[State.ActiveWeaponSlot], State.HaveAmmo[GetAmmoSlotForPrimaryFireByWeaponSlot[State.ActiveWeaponSlot]]);
-                        GuiHUD->GetScriptState().Call("UpdateAmmoString", "s", PrintBuffer);
-                        break;
+                        default:
+                            // Some weapons just don't have a crosshair.
+                            GuiHUD->GetScriptState().Call("UpdateCrosshairMaterial", "s", "");
+                            break;
+                    }
                 }
-            }
-            else
-            {
-                // Let the HUD know that we have no weapon.
-                GuiHUD->GetScriptState().Call("UpdateAmmoString", "s", "");
+                else GuiHUD->GetScriptState().Call("UpdateCrosshairMaterial", "s", "");
             }
         }
+
 
         // Update listener here since this is the entity of the player.
         const float ViewX=sin(float(m_Heading)/32768.0f*3.1415926f);
@@ -1296,4 +1253,120 @@ void EntHumanPlayerT::setWorldTransform(const btTransform& /*worldTrans*/)
 {
     // Never called for a kinematic rigid body.
     assert(false);
+}
+
+
+int EntHumanPlayerT::GetHealth(lua_State* LuaState)
+{
+    cf::ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<EntHumanPlayerT> Ent = Binder.GetCheckedObjectParam< IntrusivePtrT<EntHumanPlayerT> >(1);
+
+    lua_pushnumber(LuaState, Ent->State.Health);
+    return 1;
+}
+
+
+int EntHumanPlayerT::GetArmor(lua_State* LuaState)
+{
+    cf::ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<EntHumanPlayerT> Ent = Binder.GetCheckedObjectParam< IntrusivePtrT<EntHumanPlayerT> >(1);
+
+    lua_pushnumber(LuaState, Ent->State.Armor);
+    return 1;
+}
+
+
+int EntHumanPlayerT::GetFrags(lua_State* LuaState)
+{
+    cf::ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<EntHumanPlayerT> Ent = Binder.GetCheckedObjectParam< IntrusivePtrT<EntHumanPlayerT> >(1);
+
+    lua_pushnumber(LuaState, (signed short)(Ent->State.HaveAmmo[AMMO_SLOT_FRAGS]));
+    return 1;
+}
+
+
+int EntHumanPlayerT::GetCrosshair(lua_State* LuaState)
+{
+    cf::ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<EntHumanPlayerT> Ent = Binder.GetCheckedObjectParam< IntrusivePtrT<EntHumanPlayerT> >(1);
+
+    return 0;
+}
+
+
+int EntHumanPlayerT::GetAmmoString(lua_State* LuaState)
+{
+    cf::ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<EntHumanPlayerT> Ent   = Binder.GetCheckedObjectParam< IntrusivePtrT<EntHumanPlayerT> >(1);
+    const EntityStateT&            State = Ent->State;
+
+    // Return an ammo string for the players HUD.
+    if (State.HaveWeapons & (1 << State.ActiveWeaponSlot))
+    {
+        char PrintBuffer[64];
+
+        // Assignment table to determine which ammo is consumed by each weapon for primary fire (given a weapon slot, determine the ammo slot).
+        // TODO: This is not optimal, ought to be static member function of each weapon???
+        const char GetAmmoSlotForPrimaryFireByWeaponSlot[13] =
+        {
+            AMMO_SLOT_NONE,
+            AMMO_SLOT_NONE,
+            AMMO_SLOT_9MM,
+            AMMO_SLOT_357,
+            AMMO_SLOT_SHELLS,
+            AMMO_SLOT_9MM,
+            AMMO_SLOT_ARROWS,
+            AMMO_SLOT_ROCKETS,
+            AMMO_SLOT_CELLS,
+            AMMO_SLOT_CELLS,
+            AMMO_SLOT_NONE,
+            AMMO_SLOT_NONE,
+            AMMO_SLOT_NONE
+        };
+
+        switch (State.ActiveWeaponSlot)
+        {
+            case WEAPON_SLOT_BATTLESCYTHE:
+            case WEAPON_SLOT_HORNETGUN:
+                lua_pushstring(LuaState, "");
+                break;
+
+            case WEAPON_SLOT_9MMAR:
+                sprintf(PrintBuffer, " Ammo %2u (%2u) | %u Grenades",
+                        State.HaveAmmoInWeapons[WEAPON_SLOT_9MMAR],
+                        State.HaveAmmo[GetAmmoSlotForPrimaryFireByWeaponSlot[WEAPON_SLOT_9MMAR]],
+                        State.HaveAmmo[AMMO_SLOT_ARGREN]);
+                lua_pushstring(LuaState, PrintBuffer);
+                break;
+
+            case WEAPON_SLOT_FACEHUGGER:
+            case WEAPON_SLOT_GRENADE:
+            case WEAPON_SLOT_RPG:
+            case WEAPON_SLOT_TRIPMINE:
+                sprintf(PrintBuffer, " Ammo %2u",
+                        State.HaveAmmoInWeapons[State.ActiveWeaponSlot]);
+                lua_pushstring(LuaState, PrintBuffer);
+                break;
+
+            case WEAPON_SLOT_357:
+            case WEAPON_SLOT_CROSSBOW:
+            case WEAPON_SLOT_EGON:
+            case WEAPON_SLOT_GAUSS:
+            case WEAPON_SLOT_PISTOL:
+            case WEAPON_SLOT_SHOTGUN:
+                sprintf(PrintBuffer, " Ammo %2u (%2u)",
+                        State.HaveAmmoInWeapons[State.ActiveWeaponSlot],
+                        State.HaveAmmo[GetAmmoSlotForPrimaryFireByWeaponSlot[State.ActiveWeaponSlot]]);
+                lua_pushstring(LuaState, PrintBuffer);
+                break;
+        }
+    }
+    else
+    {
+        // Let the HUD know that we have no weapon.
+        lua_pushstring(LuaState, "");
+    }
+
+    return 1;
 }
