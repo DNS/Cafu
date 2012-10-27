@@ -24,8 +24,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 // copying the related directory; there is no need to bother the user to update the include guard name here.
 #pragma once
 
-// #ifndef CAFU_DEATHMATCH_GAMEINFO_HPP_INCLUDED
-// #define CAFU_DEATHMATCH_GAMEINFO_HPP_INCLUDED
+// #ifndef CAFU_VSWM_GAMEINFO_HPP_INCLUDED
+// #define CAFU_VSWM_GAMEINFO_HPP_INCLUDED
 
 #include "../../GameInfo.hpp"
 
@@ -36,7 +36,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 namespace GAME_NAME
 {
-    /// This class provides the "DeathMatch" implementation of the GameInfoI interface.
+    /// This class provides the "VSWM" implementation of the GameInfoI interface.
     class GameInfoT : public cf::GameSys::GameInfoI
     {
         public:

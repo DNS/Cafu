@@ -19,32 +19,22 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-// The GameInfo.hpp files (one for each game/MOD) are the only files in Cafu where we prefer "#pragma once"
-// over traditional include guards. With "#pragma once", a new game can be created from another one by simply
-// copying the related directory; there is no need to bother the user to update the include guard name here.
-#pragma once
+#include "GameInfo.hpp"
 
-// #ifndef CAFU_DEATHMATCH_GAMEINFO_HPP_INCLUDED
-// #define CAFU_DEATHMATCH_GAMEINFO_HPP_INCLUDED
+#define QUOTE(str) QUOTE_HELPER(str)
+#define QUOTE_HELPER(str) #str
 
-#include "../../GameInfo.hpp"
-
-#ifndef GAME_NAME
-#error Macro GAME_NAME must be defined!
-#endif
+using namespace GAME_NAME;
 
 
-namespace GAME_NAME
+std::string GameInfoT::GetName() const
 {
-    /// This class provides the "DeathMatch" implementation of the GameInfoI interface.
-    class GameInfoT : public cf::GameSys::GameInfoI
-    {
-        public:
-
-        // Implement the methods of the GameInfoI interface.
-        std::string GetName() const;
-        cf::GameSys::GameI* CreateGame() const;
-    };
+    return QUOTE(GAME_NAME);
 }
 
-// #endif
+
+cf::GameSys::GameI* GameInfoT::CreateGame() const
+{
+    // return &GameImplT::GetInstance();
+    return NULL;
+}

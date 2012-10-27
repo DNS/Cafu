@@ -248,6 +248,13 @@ bool AppCafuT::OnInit()
         wxLogDebug("Program locale set to \"C\".");
     }
 
+    if (m_AllGameInfos.Size() == 0)
+    {
+        wxMessageBox("List \"GameLibs\" in file CompilerSetup.py is empty.", "Improperly configured");
+        OnExit();
+        return false;
+    }
+
     ConsoleInterpreter->RunCommand("dofile('config.lua');");
 
     // Parse the command line.
@@ -403,19 +410,6 @@ extern ConVarT Options_ClientDesiredSoundSystem;
 extern ConVarT Options_ClientTextureDetail;
 extern ConVarT Options_PlayerName;
 extern ConVarT Options_PlayerModelName;
-
-
-#define GAME_NAME DeathMatch
-#include "../Games/DeathMatch/Code/GameInfo.hpp"
-#undef GAME_NAME
-
-void AppCafuT::InitGameInfos()
-{
-    m_AllGameInfos.PushBack(new DeathMatch::GameInfoT());
-
-    // TODO: Make sure that m_AllGameInfos.Size() > 0.
-    // TODO: Sort m_AllGameInfos by "priority"?
-}
 
 
 void AppCafuT::OnInitCmdLine(wxCmdLineParser& Parser)

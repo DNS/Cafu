@@ -89,7 +89,7 @@ envCafu = wxEnv.Clone()
 envCafu.Append(CPPPATH=['ExtLibs/lua/src'])
 envCafu.Append(CPPPATH=['ExtLibs/bullet/src'])
 
-envCafu.Append(LIBS=Split("DeathMatch"))
+envCafu.Append(LIBS=CompilerSetup.GameLibs)
 envCafu.Append(LIBS=Split("SceneGraph MatSys SoundSys ClipSys cfsLib cfs_jpeg bulletdynamics bulletcollision bulletmath lightwave lua minizip png z"))
 
 if sys.platform=="win32":
@@ -111,9 +111,26 @@ elif sys.platform=="linux2":
     # rt is required in order to resolve clock_gettime() in openal-soft.
     envCafu.Append(LIBS=Split("GL rt pthread"))
 
+def generateInitGameInfos(target, source, env):
+    with open(str(target[0]), 'w') as f:
+        f.write("/* This is an auto-generated file -- don't edit! */\n\n")
+        f.write('#include "../../../../../../../Ca3DE/AppCafu.hpp"\n\n')
+        for Game in CompilerSetup.Games:
+            f.write('#define GAME_NAME {0}\n'.format(Game))
+            f.write('#include "../Games/{0}/Code/GameInfo.hpp"\n'.format(Game))
+            f.write('#undef GAME_NAME\n\n')
+        f.write('void AppCafuT::InitGameInfos()\n')
+        f.write('{\n')
+        for Game in CompilerSetup.Games:
+            f.write('    m_AllGameInfos.PushBack(new {0}::GameInfoT());\n'.format(Game))
+        f.write('}\n')
+
 appCafu = envCafu.Program('Ca3DE/Cafu',
-    Glob("Ca3DE/*.cpp") + Glob("Ca3DE/Server/*.cpp") + CommonWorldObject + ["Common/WorldMan.cpp"] + WinResource +
-    Glob("Ca3DE/Client/*.cpp"))
+    Glob("Ca3DE/*.cpp") +
+    Glob("Ca3DE/Client/*.cpp") +
+    Glob("Ca3DE/Server/*.cpp") +
+    envCafu.Command("Ca3DE/auto-gen/AppCafu_InitGameInfos.cpp", "", generateInitGameInfos) +
+    CommonWorldObject + ["Common/WorldMan.cpp"] + WinResource)
 
 
 

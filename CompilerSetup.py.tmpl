@@ -25,30 +25,48 @@ from SCons.Script import *
 #
 # Examples:
 #   # Auto-detect the latest installed compiler, tools, and target platform.
-#   envCommon=Environment();
+#   envCommon = Environment()
 #
 #   # Print all valid values for MSVC_VERSION on your system.
-#   envCommon=Environment(MSVC_VERSION="XXX");
+#   envCommon = Environment(MSVC_VERSION="XXX")
 #
 #   # Use Visual C/C++ version 9 (2008), Express Edition.
-#   envCommon=Environment(MSVC_VERSION="9.0Exp");
+#   envCommon = Environment(MSVC_VERSION="9.0Exp")
 #
 #   # Use the latest Visual C/C++ version for creating 32 bit binaries.
-#   envCommon=Environment(TARGET_ARCH="x86");
+#   envCommon = Environment(TARGET_ARCH="x86")
 #
 #   # Use Visual C/C++ version 9 (2008) for creating 32 bit binaries.
-#   envCommon=Environment(MSVC_VERSION="9.0", TARGET_ARCH="x86");
+#   envCommon = Environment(MSVC_VERSION="9.0", TARGET_ARCH="x86")
 #
 # See the SCons man page at
 # <http://www.scons.org/doc/2.0.0.final.0/HTML/scons-man.html> for full
 # details about possible parameters to Environment().
-envCommon=Environment();
+envCommon = Environment()
 
 
 # This string describes all program variants that should be built:
-# Insert a "d" for having all code being built in the debug   variant.
-# Insert a "p" for having all code being built in the profile variant.
-# Insert a "r" for having all code being built in the release variant.
-# This can be overridden at the command line via the "bv" parameter.
-# Example: scons -Q bv=dpr
-buildVariants="dr";
+#   - Insert a "d" for having all code being built in the debug   variant.
+#   - Insert a "p" for having all code being built in the profile variant.
+#   - Insert a "r" for having all code being built in the release variant.
+#
+# This setting can be temporarily overridden at the SCons command line via
+# the "bv" parameter, for example:  scons -Q bv=dpr
+buildVariants = "dr"
+
+
+# The GameLibs list identifies all game/MOD libraries that are to be accounted
+# for in the build process and linked to the main Cafu executable.
+# For convenience, we normally generate the list automatically:
+GameLibs = [g for g in os.listdir("Games/") if os.path.exists("Games/" + g + "/Code/SConscript")]
+#
+# If you're working with an original, unmodified copy of Cafu, the above
+# automatism produces the equivalent of the example below.
+# Note that the Cafu Engine normally runs the first game in the list.
+# You can use the -svGame command-line option to use a different game.
+#GameLibs = ["DeathMatch", "VSWM"]
+#
+# When you're developing your own game, you might want to keep game DeathMatch
+# for reference. Cafu should run your game by default (first in list), whereas
+# DeathMatch would be readily available via the -svGame command-line option:
+#GameLibs = ["MyGame", "DeathMatch"]
