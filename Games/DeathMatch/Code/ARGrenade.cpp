@@ -146,45 +146,48 @@ void EntARGrenadeT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 }
 
 
-bool ParticleFunction_ARGrenadeExplosionMain(ParticleMST* Particle, float Time)
+namespace
 {
-    const float FPS   =20.0f;        // The default value is 20.0.
-    const float MaxAge=55.0f/FPS;    // 55 frames at 20 FPS.
-
-    Particle->RenderMat=ResMan.RenderMats[ResMan.PARTICLE_EXPLOSIONVERT_FRAME1+(unsigned long)(Particle->Age*FPS)];
-
-    Particle->Age+=Time;
-    if (Particle->Age>=MaxAge) return false;
-
-    return true;
-}
-
-
-bool ParticleFunction_ARGrenadeExplosionSmall(ParticleMST* Particle, float Time)
-{
-    const float MaxAge=3.0f;
-
-    Particle->Age+=Time;
-    if (Particle->Age>MaxAge) return false;
-
-    Particle->Velocity[0]-=Particle->Velocity[0]*Time;  // Physically, this line is (mostly) nonsense.
-    Particle->Velocity[1]-=Particle->Velocity[1]*Time;  // Physically, this line is (mostly) nonsense.
-    Particle->Velocity[2]-=9810.0f*Time;                // v=a*t
-
-    Particle->Origin[0]+=Particle->Velocity[0]*Time;    // s=v*t
-    Particle->Origin[1]+=Particle->Velocity[1]*Time;
-    Particle->Origin[2]+=Particle->Velocity[2]*Time;
-
-    if (Particle->Origin[2]<Particle->AuxData[0])
+    bool ParticleFunction_ARGrenadeExplosionMain(ParticleMST* Particle, float Time)
     {
-        // Particle hit the ground.
-        Particle->Origin[2]=Particle->AuxData[0];
-        Particle->Velocity[2]=-Particle->Velocity[2]*0.5f;
+        const float FPS   =20.0f;        // The default value is 20.0.
+        const float MaxAge=55.0f/FPS;    // 55 frames at 20 FPS.
+
+        Particle->RenderMat=ResMan.RenderMats[ResMan.PARTICLE_EXPLOSIONVERT_FRAME1+(unsigned long)(Particle->Age*FPS)];
+
+        Particle->Age+=Time;
+        if (Particle->Age>=MaxAge) return false;
+
+        return true;
     }
 
-    Particle->Color[0]=char(255.0*(MaxAge-Particle->Age)/MaxAge);
-    Particle->Color[1]=char(255.0*(MaxAge-Particle->Age)/MaxAge*(MaxAge-Particle->Age)/MaxAge);
-    return true;
+
+    bool ParticleFunction_ARGrenadeExplosionSmall(ParticleMST* Particle, float Time)
+    {
+        const float MaxAge=3.0f;
+
+        Particle->Age+=Time;
+        if (Particle->Age>MaxAge) return false;
+
+        Particle->Velocity[0]-=Particle->Velocity[0]*Time;  // Physically, this line is (mostly) nonsense.
+        Particle->Velocity[1]-=Particle->Velocity[1]*Time;  // Physically, this line is (mostly) nonsense.
+        Particle->Velocity[2]-=9810.0f*Time;                // v=a*t
+
+        Particle->Origin[0]+=Particle->Velocity[0]*Time;    // s=v*t
+        Particle->Origin[1]+=Particle->Velocity[1]*Time;
+        Particle->Origin[2]+=Particle->Velocity[2]*Time;
+
+        if (Particle->Origin[2]<Particle->AuxData[0])
+        {
+            // Particle hit the ground.
+            Particle->Origin[2]=Particle->AuxData[0];
+            Particle->Velocity[2]=-Particle->Velocity[2]*0.5f;
+        }
+
+        Particle->Color[0]=char(255.0*(MaxAge-Particle->Age)/MaxAge);
+        Particle->Color[1]=char(255.0*(MaxAge-Particle->Age)/MaxAge*(MaxAge-Particle->Age)/MaxAge);
+        return true;
+    }
 }
 
 

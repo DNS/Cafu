@@ -88,28 +88,31 @@ void EntFaceHuggerT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 }
 
 
-bool TestParticleMoveFunction(ParticleMST* Particle, float Time)
+namespace
 {
-    const float MaxAge=3.0f;
-
-    Particle->Age+=Time;
-    if (Particle->Age>MaxAge) return false;
-
-    if (Particle->Age<1.0f)
+    bool TestParticleMoveFunction(ParticleMST* Particle, float Time)
     {
-        Particle->Color[2]=char(255.0f*(1.0f-Particle->Age));
-    }
-    else if (Particle->Age<2.0f)
-    {
-        Particle->Color[1]=char(255.0f*(2.0f-Particle->Age));
-    }
-    else if (Particle->Age<3.0f)
-    {
-        Particle->Color[0]=char(255.0f*(3.0f-Particle->Age));
-    }
+        const float MaxAge=3.0f;
 
-    Particle->Origin[2]+=1000.0f*Time;
-    return true;
+        Particle->Age+=Time;
+        if (Particle->Age>MaxAge) return false;
+
+        if (Particle->Age<1.0f)
+        {
+            Particle->Color[2]=char(255.0f*(1.0f-Particle->Age));
+        }
+        else if (Particle->Age<2.0f)
+        {
+            Particle->Color[1]=char(255.0f*(2.0f-Particle->Age));
+        }
+        else if (Particle->Age<3.0f)
+        {
+            Particle->Color[0]=char(255.0f*(3.0f-Particle->Age));
+        }
+
+        Particle->Origin[2]+=1000.0f*Time;
+        return true;
+    }
 }
 
 

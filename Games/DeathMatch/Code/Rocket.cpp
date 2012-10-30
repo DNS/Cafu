@@ -142,38 +142,41 @@ void EntRocketT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 }
 
 
-bool ParticleFunction_RocketExplosionMain(ParticleMST* Particle, float Time)
+namespace
 {
-    const float FPS   =15.0f;        // The default value is 20.0.
-    const float MaxAge=26.0f/FPS;    // 26 frames at 15 FPS.
+    bool ParticleFunction_RocketExplosionMain(ParticleMST* Particle, float Time)
+    {
+        const float FPS   =15.0f;        // The default value is 20.0.
+        const float MaxAge=26.0f/FPS;    // 26 frames at 15 FPS.
 
-    Particle->RenderMat=ResMan.RenderMats[ResMan.PARTICLE_EXPLOSION1_FRAME1+(unsigned long)(Particle->Age*FPS)];
+        Particle->RenderMat=ResMan.RenderMats[ResMan.PARTICLE_EXPLOSION1_FRAME1+(unsigned long)(Particle->Age*FPS)];
 
-    Particle->Age+=Time;
-    if (Particle->Age>=MaxAge) return false;
+        Particle->Age+=Time;
+        if (Particle->Age>=MaxAge) return false;
 
-    return true;
-}
+        return true;
+    }
 
 
-bool ParticleFunction_RocketExplosionSmall(ParticleMST* Particle, float Time)
-{
-    const float MaxAge=0.5f;
+    bool ParticleFunction_RocketExplosionSmall(ParticleMST* Particle, float Time)
+    {
+        const float MaxAge=0.5f;
 
-    Particle->Age+=Time;
-    if (Particle->Age>MaxAge) return false;
+        Particle->Age+=Time;
+        if (Particle->Age>MaxAge) return false;
 
-    Particle->Origin[0]+=Particle->Velocity[0]*Time;
-    Particle->Origin[1]+=Particle->Velocity[1]*Time;
-    Particle->Origin[2]+=Particle->Velocity[2]*Time;
+        Particle->Origin[0]+=Particle->Velocity[0]*Time;
+        Particle->Origin[1]+=Particle->Velocity[1]*Time;
+        Particle->Origin[2]+=Particle->Velocity[2]*Time;
 
- // Particle->Velocity[0]*=0.99;    // TODO: Deceleration should depend on 'Time'...
- // Particle->Velocity[1]*=0.99;
- // Particle->Velocity[2]*=0.90;
+     // Particle->Velocity[0]*=0.99;    // TODO: Deceleration should depend on 'Time'...
+     // Particle->Velocity[1]*=0.99;
+     // Particle->Velocity[2]*=0.90;
 
-    Particle->Color[0]=char(255.0f*(MaxAge-Particle->Age)/MaxAge);
-    Particle->Color[1]=char(255.0f*(MaxAge-Particle->Age)/MaxAge*(MaxAge-Particle->Age)/MaxAge);
-    return true;
+        Particle->Color[0]=char(255.0f*(MaxAge-Particle->Age)/MaxAge);
+        Particle->Color[1]=char(255.0f*(MaxAge-Particle->Age)/MaxAge*(MaxAge-Particle->Age)/MaxAge);
+        return true;
+    }
 }
 
 
