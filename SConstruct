@@ -23,12 +23,15 @@ if not hasattr(CompilerSetup, "GameLibs"):
     print '==============\n'
     print 'Variable "GameLibs" is not defined in file CompilerSetup.py.\n'
     print 'Please copy the definition of "GameLibs" from CompilerSetup.py.tmpl'
-    print 'to CompilerSetup.py, then try again.'
+    print 'to CompilerSetup.py, then try again.\n'
+    print 'If you experience a linker error like "undefined reference to `vtable for VSWM::GameInfoT`",'
+    print 'it is probably caused by leftover files from previous builds.'
+    print 'To fix this, delete directory "build" in "Games/VSWM/Code", then re-run SCons.\n'
     Exit(1)
 
 # Import the (user-configured) base environment from the setup file.
 # The base environment is evaluated and further refined (e.g. with compiler-specific settings) below.
-envCommon=CompilerSetup.envCommon;
+envCommon = CompilerSetup.envCommon
 
 
 # This big if-else tree has a branch for each supported platform and each supported compiler.

@@ -114,15 +114,15 @@ elif sys.platform=="linux2":
 def generateInitGameInfos(target, source, env):
     with open(str(target[0]), 'w') as f:
         f.write("/* This is an auto-generated file -- don't edit! */\n\n")
-        f.write('#include "../../../../../../../Ca3DE/AppCafu.hpp"\n\n')
-        for Game in CompilerSetup.Games:
-            f.write('#define GAME_NAME {0}\n'.format(Game))
-            f.write('#include "../Games/{0}/Code/GameInfo.hpp"\n'.format(Game))
+        f.write('#include "../Ca3DE/AppCafu.hpp"\n\n')
+        for GameLib in CompilerSetup.GameLibs:
+            f.write('#define GAME_NAME {0}\n'.format(GameLib))
+            f.write('#include "../Games/{0}/Code/GameInfo.hpp"\n'.format(GameLib))
             f.write('#undef GAME_NAME\n\n')
         f.write('void AppCafuT::InitGameInfos()\n')
         f.write('{\n')
-        for Game in CompilerSetup.Games:
-            f.write('    m_AllGameInfos.PushBack(new {0}::GameInfoT());\n'.format(Game))
+        for GameLib in CompilerSetup.GameLibs:
+            f.write('    m_AllGameInfos.PushBack(new {0}::GameInfoT());\n'.format(GameLib))
         f.write('}\n')
 
 appCafu = envCafu.Program('Ca3DE/Cafu',
