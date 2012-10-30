@@ -111,25 +111,25 @@ elif sys.platform=="linux2":
     # rt is required in order to resolve clock_gettime() in openal-soft.
     envCafu.Append(LIBS=Split("GL rt pthread"))
 
-def generateInitGameInfos(target, source, env):
-    with open(str(target[0]), 'w') as f:
-        f.write("/* This is an auto-generated file -- don't edit! */\n\n")
-        f.write('#include "../Ca3DE/AppCafu.hpp"\n\n')
-        for GameLib in CompilerSetup.GameLibs:
-            f.write('#define GAME_NAME {0}\n'.format(GameLib))
-            f.write('#include "../Games/{0}/Code/GameInfo.hpp"\n'.format(GameLib))
-            f.write('#undef GAME_NAME\n\n')
-        f.write('void AppCafuT::InitGameInfos()\n')
-        f.write('{\n')
-        for GameLib in CompilerSetup.GameLibs:
-            f.write('    m_AllGameInfos.PushBack(new {0}::GameInfoT());\n'.format(GameLib))
-        f.write('}\n')
+def genInitGameInfos():
+	s = "/* This is an auto-generated file -- don't edit! */\n\n"
+	s += '#include "../Ca3DE/AppCafu.hpp"\n\n'
+	for GameLib in CompilerSetup.GameLibs:
+		s += '#define GAME_NAME {0}\n'.format(GameLib)
+		s += '#include "../Games/{0}/Code/GameInfo.hpp"\n'.format(GameLib)
+		s += '#undef GAME_NAME\n\n'
+	s += 'void AppCafuT::InitGameInfos()\n'
+	s += '{\n'
+	for GameLib in CompilerSetup.GameLibs:
+		s += '    m_AllGameInfos.PushBack(new {0}::GameInfoT());\n'.format(GameLib)
+	s += '}\n'
+	return s
 
 appCafu = envCafu.Program('Ca3DE/Cafu',
     Glob("Ca3DE/*.cpp") +
     Glob("Ca3DE/Client/*.cpp") +
     Glob("Ca3DE/Server/*.cpp") +
-    envCafu.Command("Ca3DE/auto-gen/AppCafu_InitGameInfos.cpp", "", generateInitGameInfos) +
+    envCafu.FileFromValue("Ca3DE/auto-gen/AppCafu_InitGameInfos.cpp", envCafu.Value(genInitGameInfos())) +
     CommonWorldObject + ["Common/WorldMan.cpp"] + WinResource)
 
 

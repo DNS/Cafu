@@ -34,6 +34,16 @@ if not hasattr(CompilerSetup, "GameLibs"):
 envCommon = CompilerSetup.envCommon
 
 
+# Add a Builder to envCommon that expects a Value node as its source, and builds the target from the contents
+# of the source node: If the source value changes, the target file is re-built. See the section about Value()
+# in the SCons man page and http://thread.gmane.org/gmane.comp.programming.tools.scons.user/23752 for details.
+def BuildFileFromValue(env, target, source):
+    with open(str(target[0]), 'w') as f:
+        f.write(source[0].get_contents())
+
+envCommon['BUILDERS']['FileFromValue'] = envCommon.Builder(action=BuildFileFromValue)
+
+
 # This big if-else tree has a branch for each supported platform and each supported compiler.
 # For the chosen combination of platform and compiler, it prepares the environments envDebug, envRelease and envProfile.
 if sys.platform=="win32":
