@@ -416,6 +416,6 @@ if os.path.exists("SConscript"):
 for GameLib in CompilerSetup.GameLibs:
     CodeDir = "Games/" + GameLib + "/Code/"
 
-    if "d" in BVs: buildMode = "dbg"; SConscript(CodeDir + "SConscript", exports=[{'env':envDebug_Cafu},   'buildMode'], variant_dir=CodeDir + my_build_dir_dbg, duplicate=0)
-    if "r" in BVs: buildMode = "rel"; SConscript(CodeDir + "SConscript", exports=[{'env':envRelease_Cafu}, 'buildMode'], variant_dir=CodeDir + my_build_dir_rel, duplicate=0)
-    if "p" in BVs: buildMode = "prf"; SConscript(CodeDir + "SConscript", exports=[{'env':envProfile_Cafu}, 'buildMode'], variant_dir=CodeDir + my_build_dir_prf, duplicate=0)
+    if "d" in BVs: buildMode = "dbg"; SConscript(CodeDir + "SConscript", exports=[{'env':envDebug_Cafu},   'buildMode', 'GameLib'], variant_dir=CodeDir + my_build_dir_dbg, duplicate=0)
+    if "r" in BVs: buildMode = "rel"; SConscript(CodeDir + "SConscript", exports=[{'env':envRelease_Cafu}, 'buildMode', 'GameLib'], variant_dir=CodeDir + my_build_dir_rel, duplicate=0)
+    if "p" in BVs: buildMode = "prf"; SConscript(CodeDir + "SConscript", exports=[{'env':envProfile_Cafu}, 'buildMode', 'GameLib'], variant_dir=CodeDir + my_build_dir_prf, duplicate=0)

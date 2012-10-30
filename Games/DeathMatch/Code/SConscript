@@ -1,12 +1,16 @@
 import os, sys
 
-Import('env', 'buildMode')
+Import('env', 'buildMode', 'GameLib')
 
 gameEnv = env.Clone()
 
-gameEnv.Append(CPPDEFINES=[("GAME_NAME", "DeathMatch")]);
+# GameLib is just a string with the name of the game, e.g. "DeathMatch".
+# We use it so that a new game can easily be started as a copy of an existing game:
+# For example, if Games/DeathMatch/ is copied to Games/MyGame/, the value of GameLib
+# will be the string "DeathMatch" for game DeathMatch, and "MyGame" for MyGame.
+gameEnv.Append(CPPDEFINES=[("GAME_NAME", GameLib)])
 
 gameEnv.Append(CPPPATH=['#/ExtLibs/bullet/src'])
 gameEnv.Append(CPPPATH=['#/ExtLibs/lua/src'])
 
-gameEnv.StaticLibrary("DeathMatch", Glob("*.cpp")+Split("Libs/LookupTables.cpp Libs/Physics.cpp"))
+gameEnv.StaticLibrary(GameLib, Glob("*.cpp")+Split("Libs/LookupTables.cpp Libs/Physics.cpp"))
