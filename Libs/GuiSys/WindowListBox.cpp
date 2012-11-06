@@ -37,6 +37,25 @@ extern "C"
 using namespace cf::GuiSys;
 
 
+namespace
+{
+    class ListItemT : public WindowT
+    {
+        public:
+
+        ListItemT(const cf::GuiSys::WindowCreateParamsT& Params)
+            : WindowT(Params)
+        {
+        }
+
+        bool OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY)
+        {
+            return m_Parent->OnInputEvent(ME, Rect[0] + PosX, Rect[1] + PosY);
+        }
+    };
+}
+
+
 /*** Begin of TypeSys related definitions for this class. ***/
 
 void* ListBoxT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
@@ -101,12 +120,6 @@ ListBoxT::ListBoxT(const ListBoxT& Window, bool Recursive)
         SelectedRowTextColor[i]=Window.SelectedRowTextColor[i];
     }
 
-    for (unsigned long RowNr=0; RowNr<Window.Rows.Size(); RowNr++)
-    {
-        Rows.PushBack(Window.Rows[RowNr]->Clone(true));
-        Rows[RowNr]->m_Parent=this;
-    }
-
     FillMemberVars();
 }
 
@@ -117,76 +130,61 @@ ListBoxT* ListBoxT::Clone(bool Recursive) const
 }
 
 
-ListBoxT::~ListBoxT()
-{
-    for (unsigned long RowNr=0; RowNr<Rows.Size(); RowNr++)
-    {
-        delete Rows[RowNr];
-        Rows[RowNr]=NULL;
-    }
-}
-
-
 void ListBoxT::Insert(unsigned long RowNr, const std::string& RowText)
 {
-    Rows.InsertAt(RowNr, new WindowT(WindowCreateParamsT(m_Gui)));
+    m_Children.InsertAt(RowNr, new ListItemT(WindowCreateParamsT(m_Gui)));
+    m_Children[RowNr]->m_Parent = this;
 
     // Initialize the new row window.
-    Rows[RowNr]->m_Parent    =this;        // Set the proper parent so that the rendering of the row is relative to this window.
-    Rows[RowNr]->Text        =RowText;
-    Rows[RowNr]->TextScale   =TextScale;
-    Rows[RowNr]->TextAlignVer=middle;
-    Rows[RowNr]->Rect[2]     =Rect[2];
-    Rows[RowNr]->Rect[3]     =RowHeight;
+    m_Children[RowNr]->Text         = RowText;
+    m_Children[RowNr]->TextScale    = TextScale;
+    m_Children[RowNr]->TextAlignVer = middle;
+    m_Children[RowNr]->Rect[2]      = Rect[2];
+    m_Children[RowNr]->Rect[3]      = RowHeight;
 
     for (unsigned long c=0; c<4; c++)
     {
-        Rows[RowNr]->TextColor[c]=RowTextColor[c];
-        Rows[RowNr]->BackColor[c]=(RowNr % 2)==0 ? OddRowBgColor[c] : EvenRowBgColor[c];
+        m_Children[RowNr]->TextColor[c]=RowTextColor[c];
+        m_Children[RowNr]->BackColor[c]=(RowNr % 2)==0 ? OddRowBgColor[c] : EvenRowBgColor[c];
     }
 
 
     // Re-compute the positions of all row subwindows.
-    for (RowNr=0; RowNr<Rows.Size(); RowNr++)
+    for (RowNr = 0; RowNr < m_Children.Size(); RowNr++)
     {
-        Rows[RowNr]->Rect[1]=RowNr*RowHeight;
+        m_Children[RowNr]->Rect[1] = RowNr * RowHeight;
     }
 }
 
 
 void ListBoxT::Render() const
 {
+    float NormalBackColor[4] = { 0, 0, 0, 0 };
+    float NormalTextColor[4] = { 0, 0, 0, 0 };
+
+    if (SelectedRow < m_Children.Size())
+    {
+        // Save the normal background and text colors,
+        // the set the colors for the *selected* row.
+        for (unsigned long c=0; c<4; c++)
+        {
+            NormalBackColor[c] = m_Children[SelectedRow]->BackColor[c];
+            NormalTextColor[c] = m_Children[SelectedRow]->TextColor[c];
+
+            m_Children[SelectedRow]->BackColor[c] = SelectedRowBgColor[c];
+            m_Children[SelectedRow]->TextColor[c] = SelectedRowTextColor[c];
+        }
+    }
+
     WindowT::Render();
 
-    for (unsigned long RowNr=0; RowNr<Rows.Size(); RowNr++)
+    if (SelectedRow < m_Children.Size())
     {
-        float NormalBackColor[4]={ 0, 0, 0, 0 };
-        float NormalTextColor[4]={ 0, 0, 0, 0 };
-
-        if (RowNr==SelectedRow)
+        // Restore the normal colors for the selected row.
+        for (unsigned long c=0; c<4; c++)
         {
-            // Save the normal background and text colors,
-            // the set the colors for the *selected* row.
-            for (unsigned long c=0; c<4; c++)
-            {
-                NormalBackColor[c]=Rows[RowNr]->BackColor[c];
-                NormalTextColor[c]=Rows[RowNr]->TextColor[c];
-
-                Rows[RowNr]->BackColor[c]=SelectedRowBgColor[c];
-                Rows[RowNr]->TextColor[c]=SelectedRowTextColor[c];
-            }
-        }
-
-        Rows[RowNr]->Render();
-
-        if (RowNr==SelectedRow)
-        {
-            // Restore the normal colors for the selected row.
-            for (unsigned long c=0; c<4; c++)
-            {
-                Rows[RowNr]->BackColor[c]=NormalBackColor[c];
-                Rows[RowNr]->TextColor[c]=NormalTextColor[c];
-            }
+            m_Children[SelectedRow]->BackColor[c] = NormalBackColor[c];
+            m_Children[SelectedRow]->TextColor[c] = NormalTextColor[c];
         }
     }
 }
@@ -196,14 +194,14 @@ bool ListBoxT::OnInputEvent(const CaKeyboardEventT& KE)
 {
     // 1. The relevant Lua OnKeyDown/Up() or OnChar() methods didn't handle this event, so we got here (see GuiT::ProcessDeviceEvent()).
     // 2. Now see if we want to and can handle the event here.
-    if (KE.Type==CaKeyboardEventT::CKE_KEYDOWN)
+    if (KE.Type == CaKeyboardEventT::CKE_KEYDOWN)
     {
         switch (KE.Key)
         {
             case CaKeyboardEventT::CK_UP:       // UpArrow on arrow keypad.
             case CaKeyboardEventT::CK_LEFT:     // LeftArrow on arrow keypad.
                 // Move the selection one row up.
-                if (SelectedRow!=0xFFFFFFFF && SelectedRow>0)
+                if (SelectedRow != 0xFFFFFFFF && SelectedRow > 0)
                 {
                     SelectedRow--;
                     CallLuaMethod("OnSelectionChanged", "i", SelectedRow);
@@ -213,7 +211,7 @@ bool ListBoxT::OnInputEvent(const CaKeyboardEventT& KE)
             case CaKeyboardEventT::CK_DOWN:     // DownArrow on arrow keypad.
             case CaKeyboardEventT::CK_RIGHT:    // RightArrow on arrow keypad.
                 // Move the selection one row down.
-                if (SelectedRow!=0xFFFFFFFF && SelectedRow+1<Rows.Size())
+                if (SelectedRow != 0xFFFFFFFF && SelectedRow+1 < m_Children.Size())
                 {
                     SelectedRow++;
                     CallLuaMethod("OnSelectionChanged", "i", SelectedRow);
@@ -223,9 +221,9 @@ bool ListBoxT::OnInputEvent(const CaKeyboardEventT& KE)
             case CaKeyboardEventT::CK_HOME:     // Home on arrow keypad.
             case CaKeyboardEventT::CK_PGUP:     // PgUp on arrow keypad.
                 // Move the selection to the first row.
-                if (Rows.Size()>0 && SelectedRow>0)
+                if (m_Children.Size() > 0 && SelectedRow > 0)
                 {
-                    SelectedRow=0;
+                    SelectedRow = 0;
                     CallLuaMethod("OnSelectionChanged", "i", SelectedRow);
                 }
                 return true;
@@ -233,9 +231,9 @@ bool ListBoxT::OnInputEvent(const CaKeyboardEventT& KE)
             case CaKeyboardEventT::CK_END:      // End on arrow keypad.
             case CaKeyboardEventT::CK_PGDN:     // PgDn on arrow keypad.
                 // Move the selection to the last row.
-                if (Rows.Size()>0 && SelectedRow+1<Rows.Size())
+                if (m_Children.Size() > 0 && SelectedRow+1 < m_Children.Size())
                 {
-                    SelectedRow=Rows.Size()-1;
+                    SelectedRow = m_Children.Size()-1;
                     CallLuaMethod("OnSelectionChanged", "i", SelectedRow);
                 }
                 return true;
@@ -252,15 +250,15 @@ bool ListBoxT::OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY)
 {
     // 1. The relevant Lua OnMouse...() methods didn't handle this event, so we got here (see GuiT::ProcessDeviceEvent()).
     // 2. Now see if we want to and can handle the event here.
-    if (ME.Type==CaMouseEventT::CM_BUTTON0 && ME.Amount>0)
+    if (ME.Type == CaMouseEventT::CM_BUTTON0 && ME.Amount > 0)
     {
-        for (unsigned long RowNr=0; RowNr<Rows.Size(); RowNr++)
+        for (unsigned long RowNr=0; RowNr < m_Children.Size(); RowNr++)
         {
-            if (RowNr==SelectedRow) continue;
+            if (RowNr == SelectedRow) continue;
 
-            if (PosY>=Rows[RowNr]->Rect[1] && PosY<=Rows[RowNr]->Rect[1]+Rows[RowNr]->Rect[3])
+            if (PosY >= m_Children[RowNr]->Rect[1] && PosY <= m_Children[RowNr]->Rect[1] + m_Children[RowNr]->Rect[3])
             {
-                SelectedRow=RowNr;
+                SelectedRow = RowNr;
                 CallLuaMethod("OnSelectionChanged", "i", SelectedRow);
                 return true;
             }
@@ -310,14 +308,14 @@ void ListBoxT::FillMemberVars()
 int ListBoxT::Clear(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<ListBoxT> ListBox=Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
+    IntrusivePtrT<ListBoxT> ListBox = Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
 
-    for (unsigned long RowNr=0; RowNr<ListBox->Rows.Size(); RowNr++)
+    while (ListBox->m_Children.Size() > 0)
     {
-        delete ListBox->Rows[RowNr];
+        ListBox->m_Children[0]->m_Parent = NULL;
+        ListBox->m_Children.RemoveAtAndKeepOrder(0);
     }
 
-    ListBox->Rows.Overwrite();
     ListBox->SelectedRow=0xFFFFFFFF;
     return 0;
 }
@@ -326,9 +324,9 @@ int ListBoxT::Clear(lua_State* LuaState)
 int ListBoxT::Append(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<ListBoxT> ListBox=Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
-    unsigned long RowNr  =ListBox->Rows.Size();
-    const char*   RowText=luaL_checkstring(LuaState, 2);
+    IntrusivePtrT<ListBoxT> ListBox = Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
+    unsigned long           RowNr   = ListBox->m_Children.Size();
+    const char*             RowText = luaL_checkstring(LuaState, 2);
 
     ListBox->Insert(RowNr, RowText);
     return 0;
@@ -338,11 +336,11 @@ int ListBoxT::Append(lua_State* LuaState)
 int ListBoxT::Insert(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<ListBoxT> ListBox=Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
-    unsigned long RowNr  =luaL_checkinteger(LuaState, 2);
-    const char*   RowText=luaL_checkstring(LuaState, 3);
+    IntrusivePtrT<ListBoxT> ListBox = Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
+    unsigned long           RowNr   = luaL_checkinteger(LuaState, 2);
+    const char*             RowText = luaL_checkstring(LuaState, 3);
 
-    luaL_argcheck(LuaState, RowNr<=ListBox->Rows.Size(), 2, "Insertion index too large.");
+    luaL_argcheck(LuaState, RowNr <= ListBox->m_Children.Size(), 2, "Insertion index too large.");
     ListBox->Insert(RowNr, RowText);
     return 0;
 }
@@ -351,9 +349,9 @@ int ListBoxT::Insert(lua_State* LuaState)
 int ListBoxT::GetNumRows(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<ListBoxT> ListBox=Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
+    IntrusivePtrT<ListBoxT> ListBox = Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
 
-    lua_pushinteger(LuaState, ListBox->Rows.Size());
+    lua_pushinteger(LuaState, ListBox->m_Children.Size());
     return 1;
 }
 
@@ -361,11 +359,11 @@ int ListBoxT::GetNumRows(lua_State* LuaState)
 int ListBoxT::GetRowText(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<ListBoxT> ListBox=Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
-    unsigned long RowNr  =luaL_checkinteger(LuaState, 2);
+    IntrusivePtrT<ListBoxT> ListBox = Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
+    unsigned long           RowNr   = luaL_checkinteger(LuaState, 2);
 
-    luaL_argcheck(LuaState, RowNr<ListBox->Rows.Size(), 2, "Index out of range.");
-    lua_pushstring(LuaState, ListBox->Rows[RowNr]->Text.c_str());
+    luaL_argcheck(LuaState, RowNr < ListBox->m_Children.Size(), 2, "Index out of range.");
+    lua_pushstring(LuaState, ListBox->m_Children[RowNr]->Text.c_str());
     return 1;
 }
 
@@ -373,11 +371,11 @@ int ListBoxT::GetRowText(lua_State* LuaState)
 int ListBoxT::SetRowText(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<ListBoxT> ListBox=Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
-    unsigned long RowNr  =luaL_checkinteger(LuaState, 2);
+    IntrusivePtrT<ListBoxT> ListBox = Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
+    unsigned long           RowNr   = luaL_checkinteger(LuaState, 2);
 
-    luaL_argcheck(LuaState, RowNr<ListBox->Rows.Size(), 2, "Index out of range.");
-    ListBox->Rows[RowNr]->Text=luaL_checkstring(LuaState, 3);
+    luaL_argcheck(LuaState, RowNr < ListBox->m_Children.Size(), 2, "Index out of range.");
+    ListBox->m_Children[RowNr]->Text = luaL_checkstring(LuaState, 3);
     return 0;
 }
 
@@ -385,9 +383,9 @@ int ListBoxT::SetRowText(lua_State* LuaState)
 int ListBoxT::GetSelection(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<ListBoxT> ListBox=Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
+    IntrusivePtrT<ListBoxT> ListBox = Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
 
-    lua_pushinteger(LuaState, ListBox->SelectedRow>=ListBox->Rows.Size() ? -1 : ListBox->SelectedRow);
+    lua_pushinteger(LuaState, ListBox->SelectedRow >= ListBox->m_Children.Size() ? -1 : ListBox->SelectedRow);
     return 1;
 }
 
@@ -395,12 +393,12 @@ int ListBoxT::GetSelection(lua_State* LuaState)
 int ListBoxT::SetSelection(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<ListBoxT> ListBox=Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
+    IntrusivePtrT<ListBoxT> ListBox = Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
 
-    ListBox->SelectedRow=luaL_checkinteger(LuaState, 2);
+    ListBox->SelectedRow = luaL_checkinteger(LuaState, 2);
 
     // Anything out-of-range is a "none" selection, set them uniquely to 0xFFFFFFFF.
-    if (ListBox->SelectedRow >= ListBox->Rows.Size()) ListBox->SelectedRow=0xFFFFFFFF;
+    if (ListBox->SelectedRow >= ListBox->m_Children.Size()) ListBox->SelectedRow = 0xFFFFFFFF;
 
     return 0;
 }
@@ -409,7 +407,7 @@ int ListBoxT::SetSelection(lua_State* LuaState)
 int ListBoxT::GetRowHeight(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<ListBoxT> ListBox=Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
+    IntrusivePtrT<ListBoxT> ListBox = Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
 
     lua_pushnumber(LuaState, ListBox->RowHeight);
     return 1;
@@ -419,21 +417,21 @@ int ListBoxT::GetRowHeight(lua_State* LuaState)
 int ListBoxT::SetRowHeight(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<ListBoxT> ListBox=Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
+    IntrusivePtrT<ListBoxT> ListBox = Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
 
-    ListBox->RowHeight=float(lua_tonumber(LuaState, 2));
+    ListBox->RowHeight = float(lua_tonumber(LuaState, 2));
 
-    if (ListBox->RowHeight<0)
+    if (ListBox->RowHeight < 0)
     {
         // Reset to font default.
-        ListBox->RowHeight=ListBox->Font->GetLineSpacing(ListBox->TextScale) * -(ListBox->RowHeight);
+        ListBox->RowHeight = ListBox->Font->GetLineSpacing(ListBox->TextScale) * -(ListBox->RowHeight);
     }
 
     // Re-compute the positions of all row subwindows.
-    for (unsigned long RowNr=0; RowNr<ListBox->Rows.Size(); RowNr++)
+    for (unsigned long RowNr = 0; RowNr < ListBox->m_Children.Size(); RowNr++)
     {
-        ListBox->Rows[RowNr]->Rect[1]=RowNr*ListBox->RowHeight;
-        ListBox->Rows[RowNr]->Rect[3]=ListBox->RowHeight;
+        ListBox->m_Children[RowNr]->Rect[1] = RowNr*ListBox->RowHeight;
+        ListBox->m_Children[RowNr]->Rect[3] = ListBox->RowHeight;
     }
 
     return 0;
@@ -443,12 +441,12 @@ int ListBoxT::SetRowHeight(lua_State* LuaState)
 int ListBoxT::SetOddRowBgColor(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<ListBoxT> ListBox=Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
+    IntrusivePtrT<ListBoxT> ListBox = Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
 
-    ListBox->OddRowBgColor[0]=float(lua_tonumber(LuaState, 2));
-    ListBox->OddRowBgColor[1]=float(lua_tonumber(LuaState, 3));
-    ListBox->OddRowBgColor[2]=float(lua_tonumber(LuaState, 4));
-    ListBox->OddRowBgColor[3]=lua_isnil(LuaState, 5) ? 1.0f : float(lua_tonumber(LuaState, 5));
+    ListBox->OddRowBgColor[0] = float(lua_tonumber(LuaState, 2));
+    ListBox->OddRowBgColor[1] = float(lua_tonumber(LuaState, 3));
+    ListBox->OddRowBgColor[2] = float(lua_tonumber(LuaState, 4));
+    ListBox->OddRowBgColor[3] = lua_isnil(LuaState, 5) ? 1.0f : float(lua_tonumber(LuaState, 5));
 
     return 0;
 }
@@ -457,12 +455,12 @@ int ListBoxT::SetOddRowBgColor(lua_State* LuaState)
 int ListBoxT::SetEvenRowBgColor(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<ListBoxT> ListBox=Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
+    IntrusivePtrT<ListBoxT> ListBox = Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
 
-    ListBox->EvenRowBgColor[0]=float(lua_tonumber(LuaState, 2));
-    ListBox->EvenRowBgColor[1]=float(lua_tonumber(LuaState, 3));
-    ListBox->EvenRowBgColor[2]=float(lua_tonumber(LuaState, 4));
-    ListBox->EvenRowBgColor[3]=lua_isnil(LuaState, 5) ? 1.0f : float(lua_tonumber(LuaState, 5));
+    ListBox->EvenRowBgColor[0] = float(lua_tonumber(LuaState, 2));
+    ListBox->EvenRowBgColor[1] = float(lua_tonumber(LuaState, 3));
+    ListBox->EvenRowBgColor[2] = float(lua_tonumber(LuaState, 4));
+    ListBox->EvenRowBgColor[3] = lua_isnil(LuaState, 5) ? 1.0f : float(lua_tonumber(LuaState, 5));
 
     return 0;
 }
@@ -471,12 +469,12 @@ int ListBoxT::SetEvenRowBgColor(lua_State* LuaState)
 int ListBoxT::SetRowTextColor(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<ListBoxT> ListBox=Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
+    IntrusivePtrT<ListBoxT> ListBox = Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
 
-    ListBox->RowTextColor[0]=float(lua_tonumber(LuaState, 2));
-    ListBox->RowTextColor[1]=float(lua_tonumber(LuaState, 3));
-    ListBox->RowTextColor[2]=float(lua_tonumber(LuaState, 4));
-    ListBox->RowTextColor[3]=lua_isnil(LuaState, 5) ? 1.0f : float(lua_tonumber(LuaState, 5));
+    ListBox->RowTextColor[0] = float(lua_tonumber(LuaState, 2));
+    ListBox->RowTextColor[1] = float(lua_tonumber(LuaState, 3));
+    ListBox->RowTextColor[2] = float(lua_tonumber(LuaState, 4));
+    ListBox->RowTextColor[3] = lua_isnil(LuaState, 5) ? 1.0f : float(lua_tonumber(LuaState, 5));
 
     return 0;
 }
@@ -485,12 +483,12 @@ int ListBoxT::SetRowTextColor(lua_State* LuaState)
 int ListBoxT::SetSelRowBgColor(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<ListBoxT> ListBox=Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
+    IntrusivePtrT<ListBoxT> ListBox = Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
 
-    ListBox->SelectedRowBgColor[0]=float(lua_tonumber(LuaState, 2));
-    ListBox->SelectedRowBgColor[1]=float(lua_tonumber(LuaState, 3));
-    ListBox->SelectedRowBgColor[2]=float(lua_tonumber(LuaState, 4));
-    ListBox->SelectedRowBgColor[3]=lua_isnil(LuaState, 5) ? 1.0f : float(lua_tonumber(LuaState, 5));
+    ListBox->SelectedRowBgColor[0] = float(lua_tonumber(LuaState, 2));
+    ListBox->SelectedRowBgColor[1] = float(lua_tonumber(LuaState, 3));
+    ListBox->SelectedRowBgColor[2] = float(lua_tonumber(LuaState, 4));
+    ListBox->SelectedRowBgColor[3] = lua_isnil(LuaState, 5) ? 1.0f : float(lua_tonumber(LuaState, 5));
 
     return 0;
 }
@@ -499,12 +497,12 @@ int ListBoxT::SetSelRowBgColor(lua_State* LuaState)
 int ListBoxT::SetSelRowTextColor(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<ListBoxT> ListBox=Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
+    IntrusivePtrT<ListBoxT> ListBox = Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
 
-    ListBox->SelectedRowTextColor[0]=float(lua_tonumber(LuaState, 2));
-    ListBox->SelectedRowTextColor[1]=float(lua_tonumber(LuaState, 3));
-    ListBox->SelectedRowTextColor[2]=float(lua_tonumber(LuaState, 4));
-    ListBox->SelectedRowTextColor[3]=lua_isnil(LuaState, 5) ? 1.0f : float(lua_tonumber(LuaState, 5));
+    ListBox->SelectedRowTextColor[0] = float(lua_tonumber(LuaState, 2));
+    ListBox->SelectedRowTextColor[1] = float(lua_tonumber(LuaState, 3));
+    ListBox->SelectedRowTextColor[2] = float(lua_tonumber(LuaState, 4));
+    ListBox->SelectedRowTextColor[3] = lua_isnil(LuaState, 5) ? 1.0f : float(lua_tonumber(LuaState, 5));
 
     return 0;
 }

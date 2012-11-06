@@ -42,9 +42,6 @@ namespace cf
 
             virtual ListBoxT* Clone(bool Recursive=false) const;
 
-            /// Destructor.
-            ~ListBoxT();
-
             const float  GetRowHeight() const            { return RowHeight; }              ///< Returns the height of each row.
             const float* GetOddRowBgColor() const        { return OddRowBgColor; }          ///< Returns the background color for unselected odd  rows (for coloring, numering starts at one, not zero).
             const float* GetEvenRowBgColor() const       { return EvenRowBgColor; }         ///< Returns the background color for unselected even rows (for coloring, numering starts at one, not zero).
@@ -76,9 +73,8 @@ namespace cf
 
             private:
 
-            ArrayT<WindowT*> Rows;
-            unsigned long    SelectedRow;   ///< Number of the currently selected row, 0xFFFFFFFF for none.
-            float            RowHeight;     ///< The height of each row.
+            unsigned long SelectedRow;      ///< Number of the currently selected row, 0xFFFFFFFF for none.
+            float         RowHeight;        ///< The height of each row.
 
             float OddRowBgColor[4];         ///< Background color for unselected odd  rows (for coloring, numering starts at one, not zero).
             float EvenRowBgColor[4];        ///< Background color for unselected even rows (for coloring, numering starts at one, not zero).
