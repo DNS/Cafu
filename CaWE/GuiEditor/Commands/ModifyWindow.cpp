@@ -112,8 +112,8 @@ bool CommandModifyWindowT::Do()
 
     if (m_PropertyName=="Name")
     {
-        m_OldString=m_Window->Name;
-        m_Window->Name=m_GuiDocument->CheckWindowName(m_NewString, GuiDocumentT::GetSibling(m_Window));
+        m_OldString = m_Window->GetName();
+        m_Window->SetName(m_GuiDocument->CheckWindowName(m_NewString, GuiDocumentT::GetSibling(m_Window)).ToStdString());
     }
     else if (m_PropertyName=="BackMatName")
     {
@@ -183,7 +183,7 @@ void CommandModifyWindowT::Undo()
 
     if (m_PropertyName=="Name")
     {
-        m_Window->Name=m_OldString;
+        m_Window->SetName(m_OldString);
     }
     else if (m_PropertyName=="BackMatName")
     {

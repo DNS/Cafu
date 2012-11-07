@@ -87,7 +87,7 @@ const cf::TypeSys::TypeInfoT WindowT::TypeInfo(GetWindowTIM(), "WindowT", NULL /
 WindowT::WindowT(const WindowCreateParamsT& Params)
     : m_Parent(NULL),
       m_Children(),
-      Name(""),
+      m_Name(""),
       Time(0.0f),
       ShowWindow(true),
    // Rect(),
@@ -124,7 +124,7 @@ WindowT::WindowT(const WindowCreateParamsT& Params)
 WindowT::WindowT(const WindowT& Window, bool Recursive)
     : m_Parent(NULL),
       m_Children(),
-      Name(Window.Name),
+      m_Name(Window.m_Name),
       Time(Window.Time),
       ShowWindow(Window.ShowWindow),
       RotAngle(Window.RotAngle),
@@ -193,9 +193,9 @@ void WindowT::SetExtData(ExtDataT* ExtData)
 }
 
 
-const std::string& WindowT::GetName() const
+void WindowT::SetName(const std::string& Name)
 {
-    return Name;
+    m_Name = Name;
 }
 
 
@@ -295,7 +295,7 @@ void WindowT::GetAbsolutePos(float& x, float& y) const
 
 IntrusivePtrT<WindowT> WindowT::Find(const std::string& WantedName)
 {
-    if (WantedName==Name) return this;
+    if (WantedName == m_Name) return this;
 
     // Recursively see if any of the children has the desired name.
     for (unsigned long ChildNr=0; ChildNr<m_Children.Size(); ChildNr++)
@@ -825,7 +825,7 @@ int WindowT::GetName(lua_State* LuaState)
     ScriptBinderT Binder(LuaState);
     IntrusivePtrT<WindowT> Win=Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
 
-    lua_pushstring(LuaState, Win->Name.c_str());
+    lua_pushstring(LuaState, Win->GetName().c_str());
     return 1;
 }
 
@@ -835,7 +835,7 @@ int WindowT::SetName(lua_State* LuaState)
     ScriptBinderT Binder(LuaState);
     IntrusivePtrT<WindowT> Win=Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
 
-    Win->Name=luaL_checkstring(LuaState, 2);
+    Win->SetName(luaL_checkstring(LuaState, 2));
     return 0;
 }
 
@@ -920,6 +920,6 @@ int WindowT::toString(lua_State* LuaState)
     ScriptBinderT Binder(LuaState);
     IntrusivePtrT<WindowT> Win=Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
 
-    lua_pushfstring(LuaState, "A gui window with name \"%s\".", Win->Name.c_str());
+    lua_pushfstring(LuaState, "A gui window with name \"%s\".", Win->GetName().c_str());
     return 1;
 }

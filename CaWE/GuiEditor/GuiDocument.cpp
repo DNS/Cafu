@@ -39,7 +39,7 @@ GuiPropertiesT::GuiPropertiesT(cf::GuiSys::GuiImplT& Gui)
     : Activate(Gui.GetIsActive()),
       Interactive(Gui.GetIsInteractive()),
       ShowMouse(Gui.IsMouseShown()),
-      DefaultFocus(Gui.GetFocusWindow()!=NULL ? Gui.GetFocusWindow()->Name : "")
+      DefaultFocus(Gui.GetFocusWindow()!=NULL ? Gui.GetFocusWindow()->GetName() : "")
 {
 }
 
@@ -151,7 +151,7 @@ wxString GuiDocumentT::CheckWindowName(const wxString& TestName, EditorWindowT* 
 
         for (unsigned long ChildNr=0; ChildNr<AllChildren.Size(); ChildNr++)
         {
-            if (AllChildren[ChildNr]->Name==NewName && AllChildren[ChildNr]!=Win_)
+            if (AllChildren[ChildNr]->GetName() == NewName && AllChildren[ChildNr] != Win_)
             {
                 IsUnique=false;
                 break;
@@ -172,11 +172,11 @@ wxString GuiDocumentT::CheckWindowName(const wxString& TestName, EditorWindowT* 
 // Recursively saves the window instantiation of the passed window and all of its children.
 static void SaveWindowInstantiation(std::ostream& OutFile, IntrusivePtrT<cf::GuiSys::WindowT> Window, const wxString& ParentName)
 {
-    OutFile << ParentName+Window->Name << "=gui:new(\"" << Window->GetType()->ClassName << "\", \"" << Window->Name << "\");\n";
+    OutFile << ParentName + Window->GetName() << "=gui:new(\"" << Window->GetType()->ClassName << "\", \"" << Window->GetName() << "\");\n";
 
     if (Window==Window->GetRoot()) OutFile << "\n";
 
-    wxString NewParentName=Window->GetRoot()==Window ? "" : ParentName+Window->Name+".";
+    const wxString NewParentName = Window->GetRoot() == Window ? "" : ParentName + Window->GetName() + ".";
 
     for (unsigned long ChildNr=0; ChildNr<Window->GetChildren().Size(); ChildNr++)
         SaveWindowInstantiation(OutFile, Window->GetChildren()[ChildNr], NewParentName);
@@ -192,18 +192,18 @@ static void SaveWindowHierarchy(std::ostream& OutFile, IntrusivePtrT<cf::GuiSys:
     {
         wxString HierarchyParent=ParentName;
 
-          if (HierarchyParent=="") HierarchyParent=Window->GetRoot()->Name;
-        else                       HierarchyParent=HierarchyParent.substr(0, HierarchyParent.size()-1); // Strip parent of its last '.' character.
+        if (HierarchyParent=="") HierarchyParent=Window->GetRoot()->GetName();
+        else                     HierarchyParent=HierarchyParent.substr(0, HierarchyParent.size()-1); // Strip parent of its last '.' character.
 
-        OutFile << HierarchyParent << ":AddChild(" << ParentName+Window->Name << ");\n";
+        OutFile << HierarchyParent << ":AddChild(" << ParentName + Window->GetName() << ");\n";
     }
 
-    wxString NewParentName=Window->GetRoot()==Window ? "" : ParentName+Window->Name+".";
+    wxString NewParentName = Window->GetRoot() == Window ? "" : ParentName + Window->GetName() + ".";
 
     for (unsigned long ChildNr=0; ChildNr<Window->GetChildren().Size(); ChildNr++)
         SaveWindowHierarchy(OutFile, Window->GetChildren()[ChildNr], NewParentName);
 
-    if (Window->GetParent()==Window->GetRoot()) OutFile << "\n";
+    if (Window->GetParent() == Window->GetRoot()) OutFile << "\n";
 }
 
 
@@ -212,7 +212,7 @@ static void SaveRootInitialization(std::ostream& OutFile, IntrusivePtrT<cf::GuiS
 {
     wxASSERT(Root==Root->GetRoot());
 
-    OutFile << "function " << Root->Name << ":OnInit()\n";
+    OutFile << "function " << Root->GetName() << ":OnInit()\n";
 
     GuiDocumentT::GetSibling(Root)->WriteInitMethod(OutFile);
 
@@ -233,14 +233,14 @@ static void SaveWindowInitialization(std::ostream& OutFile, IntrusivePtrT<cf::Gu
 {
     if (Window!=Window->GetRoot())
     {
-        OutFile << "function " << ParentName+Window->Name << ":OnInit()\n";
+        OutFile << "function " << ParentName + Window->GetName() << ":OnInit()\n";
 
         GuiDocumentT::GetSibling(Window)->WriteInitMethod(OutFile);
 
         OutFile << "end\n\n";
     }
 
-    wxString NewParentName=Window->GetRoot()==Window ? "" : ParentName+Window->Name+".";
+    const wxString NewParentName = Window->GetRoot() == Window ? "" : ParentName + Window->GetName() + ".";
 
     for (unsigned long ChildNr=0; ChildNr<Window->GetChildren().Size(); ChildNr++)
         SaveWindowInitialization(OutFile, Window->GetChildren()[ChildNr], NewParentName);
@@ -265,7 +265,7 @@ bool GuiDocumentT::SaveInit_cgui(std::ostream& OutFile)
     OutFile << "-- *************************\n";
     OutFile << "\n";
 
-    OutFile << "gui:SetRootWindow(" << m_RootWindow->Name << ");\n";
+    OutFile << "gui:SetRootWindow(" << m_RootWindow->GetName() << ");\n";
 
     OutFile << "\n\n";
     OutFile << "-- Setup the window hierarchy.\n";

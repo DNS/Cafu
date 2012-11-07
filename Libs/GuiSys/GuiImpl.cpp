@@ -667,7 +667,7 @@ int GuiImplT::CreateNewWindow(lua_State* LuaState)
     assert(Win->GetType()==TI);
     assert(strcmp(TI->ClassName, TypeName)==0);
 
-    if (WinName) Win->Name=WinName;
+    if (WinName) Win->SetName(WinName);
 
     ScriptBinderT Binder(LuaState);
     Binder.Push(Win);

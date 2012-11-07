@@ -522,7 +522,7 @@ void MainCanvasT::OnIdle(wxIdleEvent& IE)
     // derive a mouse event from it, then recenter the mouse cursor.
     cf::GuiSys::GuiI* ActiveGui=cf::GuiSys::GuiMan->GetTopmostActiveAndInteractive();
 
-    if (ActiveGui && ActiveGui->GetRootWindow()->Name=="Client")
+    if (ActiveGui && ActiveGui->GetRootWindow()->GetName() == "Client")
     {
         const wxPoint MousePos  =ScreenToClient(wxGetMousePosition());  // Note: ScreenToClient() is a method of wxWindow.
         const wxSize  WinCenter =GetClientSize()/2;
@@ -578,7 +578,7 @@ void MainCanvasT::OnMouseMove(wxMouseEvent& ME)
 
     // This is equivalent to calling cf::GuiSys::GuiMan->ProcessDeviceEvent(MouseEvent),
     // but computing the amount of mouse movement is much easier (and more precise) like this.
-    if (Gui && Gui->GetRootWindow()->Name!="Client")
+    if (Gui && Gui->GetRootWindow()->GetName() != "Client")
     {
         float OldMousePosX;
         float OldMousePosY;

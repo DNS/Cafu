@@ -133,7 +133,11 @@ namespace cf
             void SetExtData(ExtDataT* ExtData);
 
             /// Returns the name of this window.
-            const std::string& GetName() const;
+            const std::string& GetName() const { return m_Name; }
+
+            /// Sets a new name for this window.
+            /// @param Name   The new name to be set for this window.
+            void SetName(const std::string& Name);
 
             /// Returns the parent window of this window.
             IntrusivePtrT<WindowT> GetParent() const { return m_Parent; }
@@ -230,7 +234,6 @@ namespace cf
             enum TextAlignVerT { top, bottom, middle, END_VER=0x10000000 };
 
 
-            std::string              Name;              ///< The name of this window. It must be unique throughout the entire GUI (hierarchy of parent and children).
             float                    Time;              ///< This windows local time (starting from 0.0).
             bool                     ShowWindow;        ///< Is this WindowT shown on screen?
             float                    Rect[4];           ///< The upper left corner of this window, relative to its parent, plus the width and height (all in virtual pixels).
@@ -271,6 +274,7 @@ namespace cf
             ExtDataT*                        m_ExtData;     ///< The GuiEditor's "dual" or "sibling" of this window.
             IntrusivePtrT<WindowT>           m_Parent;      ///< The parent of this window. May be NULL if there is no parent.
             ArrayT< IntrusivePtrT<WindowT> > m_Children;    ///< The list of children of this window.
+            std::string                      m_Name;        ///< The name of this window. It must be unique among all its siblings (the children of its parent), which is enforced in the SetName() and AddChild() methods.
 
             /// Maps strings (names) to member variables of this class.
             /// This map is needed for implementing the Lua-binding methods efficiently.

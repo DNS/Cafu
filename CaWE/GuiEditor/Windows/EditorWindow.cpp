@@ -48,20 +48,22 @@ EditorWindowT::EditorWindowT(IntrusivePtrT<cf::GuiSys::WindowT> Win, GuiDocument
       m_GuiDoc(GuiDoc),
       m_IsSelected(false)
 {
-    if (m_Win->Name=="")
+    std::string WinName = m_Win->GetName();
+
+    if (WinName == "")
     {
-        m_Win->Name=m_Win->GetType()->ClassName;
+        WinName = m_Win->GetType()->ClassName;
 
-        const size_t len=m_Win->Name.length();
+        const size_t len = WinName.length();
 
-        if (len>1 && m_Win->Name[len-1]=='T')
+        if (len > 1 && WinName[len-1] == 'T')
         {
             // Remove the trailing "T" from our class name.
-            m_Win->Name=std::string(m_Win->Name, 0, len-1);
+            WinName = std::string(WinName, 0, len-1);
         }
     }
 
-    m_Win->Name=m_GuiDoc->CheckWindowName(m_Win->Name, this);
+    m_Win->SetName(m_GuiDoc->CheckWindowName(WinName, this).ToStdString());
 }
 
 
@@ -141,7 +143,7 @@ namespace
 
 void EditorWindowT::FillInPG(wxPropertyGridManager* PropMan)
 {
-    PropMan->Append(new wxStringProperty("Name", wxPG_LABEL, m_Win->Name));
+    PropMan->Append(new wxStringProperty("Name", wxPG_LABEL, m_Win->GetName()));
     wxPGProperty* TypeInfo=PropMan->Append(new wxStringProperty("Type", wxPG_LABEL, m_Win->GetType()->ClassName));
     PropMan->DisableProperty(TypeInfo);
 
@@ -203,7 +205,7 @@ bool EditorWindowT::UpdateProperty(wxPGProperty* Property)
 {
     wxString PropName=Property->GetName();
 
-         if (PropName=="Name")             Property->SetValueFromString(m_Win->Name);
+         if (PropName=="Name")             Property->SetValueFromString(m_Win->GetName());
     else if (PropName=="Visible")          Property->SetValueFromString(m_Win->ShowWindow ? "true" : "false");
     else if (PropName=="Position.X")       Property->SetValue(m_Win->Rect[0]);
     else if (PropName=="Position.Y")       Property->SetValue(m_Win->Rect[1]);
@@ -245,7 +247,7 @@ bool EditorWindowT::HandlePGChange(wxPropertyGridEvent& Event, GuiEditor::ChildF
 
         // The command may well have set a name different from Prop->GetValueAsString().
         wxASSERT(Event.GetEventType() == wxEVT_PG_CHANGED);
-        Event.GetProperty()->SetValueFromString(m_Win->Name);
+        Event.GetProperty()->SetValueFromString(m_Win->GetName());
     }
     else if (PropName=="Visible")
     {

@@ -104,7 +104,7 @@ void WindowTreeT::AddChildren(const wxTreeItemId& Item, bool Recursive)
 
     for (unsigned long i=0; i<Children.Size(); i++)
     {
-        wxTreeItemId ID=AppendItem(Item, Children[i]->Name, -1, -1, new WindowTreeItemT(Children[i]));
+        wxTreeItemId ID=AppendItem(Item, Children[i]->GetName(), -1, -1, new WindowTreeItemT(Children[i]));
 
         if (Children[i]->ShowWindow)
             SetItemImage(ID, 0); // Visible icon.
@@ -226,7 +226,7 @@ void WindowTreeT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<
     {
         wxASSERT(Windows.Size()==1); // Can't set the name property for more windows since it must always be unique.
 
-        SetItemText(FindTreeItem(GetRootItem(), Windows[0]), Windows[0]->Name);
+        SetItemText(FindTreeItem(GetRootItem(), Windows[0]), Windows[0]->GetName());
     }
 
     if (PropertyName=="Visible")
@@ -265,7 +265,7 @@ void WindowTreeT::RefreshTree()
     DeleteAllItems();
 
     // First add root window to tree.
-    wxTreeItemId ID=AddRoot(m_GuiDocument->GetRootWindow()->Name, -1, -1, new WindowTreeItemT(m_GuiDocument->GetRootWindow()));
+    wxTreeItemId ID=AddRoot(m_GuiDocument->GetRootWindow()->GetName(), -1, -1, new WindowTreeItemT(m_GuiDocument->GetRootWindow()));
 
     if (m_GuiDocument->GetRootWindow()->ShowWindow)
         SetItemImage(ID, 0); // Visible icon.
@@ -409,7 +409,7 @@ void WindowTreeT::OnEndLabelEdit(wxTreeEvent& TE)
 
     // The command may well have set a name different from TE.GetLabel().
     TE.Veto();
-    SetItemText(TE.GetItem(), Window->Name);
+    SetItemText(TE.GetItem(), Window->GetName());
 }
 
 
@@ -464,7 +464,7 @@ void WindowTreeT::OnTreeItemRightClick(wxTreeEvent& TE)
             break;
 
         case ID_MENU_DEFAULTFOCUS:
-            m_Parent->SubmitCommand(CommandModifyGuiT::Create(m_GuiDocument, "DefaultFocus", ((WindowTreeItemT*)GetItemData(TE.GetItem()))->GetWindow()->Name));
+            m_Parent->SubmitCommand(CommandModifyGuiT::Create(m_GuiDocument, "DefaultFocus", ((WindowTreeItemT*)GetItemData(TE.GetItem()))->GetWindow()->GetName()));
             break;
 
         case ID_MENU_RENAME:
