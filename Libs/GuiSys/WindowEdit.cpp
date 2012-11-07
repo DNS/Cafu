@@ -107,7 +107,7 @@ void EditWindowT::Render() const
     // Render the text cursor.
     if (!ShowWindow) return;
     if (Font==NULL) return;
-    if (m_Gui.GetFocusWindow() != this) return;             // Only render the text cursor if we have the keyboard input focus.
+    if (GetGui().GetFocusWindow() != this) return;          // Only render the text cursor if we have the keyboard input focus.
     if (m_TextCursorTime>=0.5f*m_TextCursorRate) return;    // Only render the text cursor during one half of the blink cycle.
 
     float x1;

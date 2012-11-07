@@ -50,7 +50,7 @@ namespace
 
         bool OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY)
         {
-            return m_Parent->OnInputEvent(ME, Rect[0] + PosX, Rect[1] + PosY);
+            return GetParent()->OnInputEvent(ME, Rect[0] + PosX, Rect[1] + PosY);
         }
     };
 }
@@ -132,26 +132,26 @@ ListBoxT* ListBoxT::Clone(bool Recursive) const
 
 void ListBoxT::Insert(unsigned long RowNr, const std::string& RowText)
 {
-    AddChild(new ListItemT(WindowCreateParamsT(m_Gui)), RowNr);
+    AddChild(new ListItemT(WindowCreateParamsT(GetGui())), RowNr);
 
     // Initialize the new row window.
-    m_Children[RowNr]->Text         = RowText;
-    m_Children[RowNr]->TextScale    = TextScale;
-    m_Children[RowNr]->TextAlignVer = middle;
-    m_Children[RowNr]->Rect[2]      = Rect[2];
-    m_Children[RowNr]->Rect[3]      = RowHeight;
+    GetChildren()[RowNr]->Text         = RowText;
+    GetChildren()[RowNr]->TextScale    = TextScale;
+    GetChildren()[RowNr]->TextAlignVer = middle;
+    GetChildren()[RowNr]->Rect[2]      = Rect[2];
+    GetChildren()[RowNr]->Rect[3]      = RowHeight;
 
     for (unsigned long c=0; c<4; c++)
     {
-        m_Children[RowNr]->TextColor[c]=RowTextColor[c];
-        m_Children[RowNr]->BackColor[c]=(RowNr % 2)==0 ? OddRowBgColor[c] : EvenRowBgColor[c];
+        GetChildren()[RowNr]->TextColor[c]=RowTextColor[c];
+        GetChildren()[RowNr]->BackColor[c]=(RowNr % 2)==0 ? OddRowBgColor[c] : EvenRowBgColor[c];
     }
 
 
     // Re-compute the positions of all row subwindows.
-    for (RowNr = 0; RowNr < m_Children.Size(); RowNr++)
+    for (RowNr = 0; RowNr < GetChildren().Size(); RowNr++)
     {
-        m_Children[RowNr]->Rect[1] = RowNr * RowHeight;
+        GetChildren()[RowNr]->Rect[1] = RowNr * RowHeight;
     }
 }
 
@@ -161,29 +161,29 @@ void ListBoxT::Render() const
     float NormalBackColor[4] = { 0, 0, 0, 0 };
     float NormalTextColor[4] = { 0, 0, 0, 0 };
 
-    if (SelectedRow < m_Children.Size())
+    if (SelectedRow < GetChildren().Size())
     {
         // Save the normal background and text colors,
         // the set the colors for the *selected* row.
         for (unsigned long c=0; c<4; c++)
         {
-            NormalBackColor[c] = m_Children[SelectedRow]->BackColor[c];
-            NormalTextColor[c] = m_Children[SelectedRow]->TextColor[c];
+            NormalBackColor[c] = GetChildren()[SelectedRow]->BackColor[c];
+            NormalTextColor[c] = GetChildren()[SelectedRow]->TextColor[c];
 
-            m_Children[SelectedRow]->BackColor[c] = SelectedRowBgColor[c];
-            m_Children[SelectedRow]->TextColor[c] = SelectedRowTextColor[c];
+            GetChildren()[SelectedRow]->BackColor[c] = SelectedRowBgColor[c];
+            GetChildren()[SelectedRow]->TextColor[c] = SelectedRowTextColor[c];
         }
     }
 
     WindowT::Render();
 
-    if (SelectedRow < m_Children.Size())
+    if (SelectedRow < GetChildren().Size())
     {
         // Restore the normal colors for the selected row.
         for (unsigned long c=0; c<4; c++)
         {
-            m_Children[SelectedRow]->BackColor[c] = NormalBackColor[c];
-            m_Children[SelectedRow]->TextColor[c] = NormalTextColor[c];
+            GetChildren()[SelectedRow]->BackColor[c] = NormalBackColor[c];
+            GetChildren()[SelectedRow]->TextColor[c] = NormalTextColor[c];
         }
     }
 }
@@ -210,7 +210,7 @@ bool ListBoxT::OnInputEvent(const CaKeyboardEventT& KE)
             case CaKeyboardEventT::CK_DOWN:     // DownArrow on arrow keypad.
             case CaKeyboardEventT::CK_RIGHT:    // RightArrow on arrow keypad.
                 // Move the selection one row down.
-                if (SelectedRow != 0xFFFFFFFF && SelectedRow+1 < m_Children.Size())
+                if (SelectedRow != 0xFFFFFFFF && SelectedRow+1 < GetChildren().Size())
                 {
                     SelectedRow++;
                     CallLuaMethod("OnSelectionChanged", "i", SelectedRow);
@@ -220,7 +220,7 @@ bool ListBoxT::OnInputEvent(const CaKeyboardEventT& KE)
             case CaKeyboardEventT::CK_HOME:     // Home on arrow keypad.
             case CaKeyboardEventT::CK_PGUP:     // PgUp on arrow keypad.
                 // Move the selection to the first row.
-                if (m_Children.Size() > 0 && SelectedRow > 0)
+                if (GetChildren().Size() > 0 && SelectedRow > 0)
                 {
                     SelectedRow = 0;
                     CallLuaMethod("OnSelectionChanged", "i", SelectedRow);
@@ -230,9 +230,9 @@ bool ListBoxT::OnInputEvent(const CaKeyboardEventT& KE)
             case CaKeyboardEventT::CK_END:      // End on arrow keypad.
             case CaKeyboardEventT::CK_PGDN:     // PgDn on arrow keypad.
                 // Move the selection to the last row.
-                if (m_Children.Size() > 0 && SelectedRow+1 < m_Children.Size())
+                if (GetChildren().Size() > 0 && SelectedRow+1 < GetChildren().Size())
                 {
-                    SelectedRow = m_Children.Size()-1;
+                    SelectedRow = GetChildren().Size()-1;
                     CallLuaMethod("OnSelectionChanged", "i", SelectedRow);
                 }
                 return true;
@@ -251,11 +251,11 @@ bool ListBoxT::OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY)
     // 2. Now see if we want to and can handle the event here.
     if (ME.Type == CaMouseEventT::CM_BUTTON0 && ME.Amount > 0)
     {
-        for (unsigned long RowNr=0; RowNr < m_Children.Size(); RowNr++)
+        for (unsigned long RowNr=0; RowNr < GetChildren().Size(); RowNr++)
         {
             if (RowNr == SelectedRow) continue;
 
-            if (PosY >= m_Children[RowNr]->Rect[1] && PosY <= m_Children[RowNr]->Rect[1] + m_Children[RowNr]->Rect[3])
+            if (PosY >= GetChildren()[RowNr]->Rect[1] && PosY <= GetChildren()[RowNr]->Rect[1] + GetChildren()[RowNr]->Rect[3])
             {
                 SelectedRow = RowNr;
                 CallLuaMethod("OnSelectionChanged", "i", SelectedRow);
@@ -309,9 +309,9 @@ int ListBoxT::Clear(lua_State* LuaState)
     ScriptBinderT Binder(LuaState);
     IntrusivePtrT<ListBoxT> ListBox = Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
 
-    while (ListBox->m_Children.Size() > 0)
+    while (ListBox->GetChildren().Size() > 0)
     {
-        ListBox->RemoveChild(ListBox->m_Children[0]);
+        ListBox->RemoveChild(ListBox->GetChildren()[0]);
     }
 
     ListBox->SelectedRow=0xFFFFFFFF;
@@ -323,7 +323,7 @@ int ListBoxT::Append(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
     IntrusivePtrT<ListBoxT> ListBox = Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
-    unsigned long           RowNr   = ListBox->m_Children.Size();
+    unsigned long           RowNr   = ListBox->GetChildren().Size();
     const char*             RowText = luaL_checkstring(LuaState, 2);
 
     ListBox->Insert(RowNr, RowText);
@@ -338,7 +338,7 @@ int ListBoxT::Insert(lua_State* LuaState)
     unsigned long           RowNr   = luaL_checkinteger(LuaState, 2);
     const char*             RowText = luaL_checkstring(LuaState, 3);
 
-    luaL_argcheck(LuaState, RowNr <= ListBox->m_Children.Size(), 2, "Insertion index too large.");
+    luaL_argcheck(LuaState, RowNr <= ListBox->GetChildren().Size(), 2, "Insertion index too large.");
     ListBox->Insert(RowNr, RowText);
     return 0;
 }
@@ -349,7 +349,7 @@ int ListBoxT::GetNumRows(lua_State* LuaState)
     ScriptBinderT Binder(LuaState);
     IntrusivePtrT<ListBoxT> ListBox = Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
 
-    lua_pushinteger(LuaState, ListBox->m_Children.Size());
+    lua_pushinteger(LuaState, ListBox->GetChildren().Size());
     return 1;
 }
 
@@ -360,8 +360,8 @@ int ListBoxT::GetRowText(lua_State* LuaState)
     IntrusivePtrT<ListBoxT> ListBox = Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
     unsigned long           RowNr   = luaL_checkinteger(LuaState, 2);
 
-    luaL_argcheck(LuaState, RowNr < ListBox->m_Children.Size(), 2, "Index out of range.");
-    lua_pushstring(LuaState, ListBox->m_Children[RowNr]->Text.c_str());
+    luaL_argcheck(LuaState, RowNr < ListBox->GetChildren().Size(), 2, "Index out of range.");
+    lua_pushstring(LuaState, ListBox->GetChildren()[RowNr]->Text.c_str());
     return 1;
 }
 
@@ -372,8 +372,8 @@ int ListBoxT::SetRowText(lua_State* LuaState)
     IntrusivePtrT<ListBoxT> ListBox = Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
     unsigned long           RowNr   = luaL_checkinteger(LuaState, 2);
 
-    luaL_argcheck(LuaState, RowNr < ListBox->m_Children.Size(), 2, "Index out of range.");
-    ListBox->m_Children[RowNr]->Text = luaL_checkstring(LuaState, 3);
+    luaL_argcheck(LuaState, RowNr < ListBox->GetChildren().Size(), 2, "Index out of range.");
+    ListBox->GetChildren()[RowNr]->Text = luaL_checkstring(LuaState, 3);
     return 0;
 }
 
@@ -383,7 +383,7 @@ int ListBoxT::GetSelection(lua_State* LuaState)
     ScriptBinderT Binder(LuaState);
     IntrusivePtrT<ListBoxT> ListBox = Binder.GetCheckedObjectParam< IntrusivePtrT<ListBoxT> >(1);
 
-    lua_pushinteger(LuaState, ListBox->SelectedRow >= ListBox->m_Children.Size() ? -1 : ListBox->SelectedRow);
+    lua_pushinteger(LuaState, ListBox->SelectedRow >= ListBox->GetChildren().Size() ? -1 : ListBox->SelectedRow);
     return 1;
 }
 
@@ -396,7 +396,7 @@ int ListBoxT::SetSelection(lua_State* LuaState)
     ListBox->SelectedRow = luaL_checkinteger(LuaState, 2);
 
     // Anything out-of-range is a "none" selection, set them uniquely to 0xFFFFFFFF.
-    if (ListBox->SelectedRow >= ListBox->m_Children.Size()) ListBox->SelectedRow = 0xFFFFFFFF;
+    if (ListBox->SelectedRow >= ListBox->GetChildren().Size()) ListBox->SelectedRow = 0xFFFFFFFF;
 
     return 0;
 }
@@ -426,10 +426,10 @@ int ListBoxT::SetRowHeight(lua_State* LuaState)
     }
 
     // Re-compute the positions of all row subwindows.
-    for (unsigned long RowNr = 0; RowNr < ListBox->m_Children.Size(); RowNr++)
+    for (unsigned long RowNr = 0; RowNr < ListBox->GetChildren().Size(); RowNr++)
     {
-        ListBox->m_Children[RowNr]->Rect[1] = RowNr*ListBox->RowHeight;
-        ListBox->m_Children[RowNr]->Rect[3] = ListBox->RowHeight;
+        ListBox->GetChildren()[RowNr]->Rect[1] = RowNr*ListBox->RowHeight;
+        ListBox->GetChildren()[RowNr]->Rect[3] = ListBox->RowHeight;
     }
 
     return 0;

@@ -124,7 +124,7 @@ namespace cf
             /// The virtual destructor. Deletes this window and all its children.
             virtual ~WindowT();
 
-            const GuiImplT& GetGui() const { return m_Gui; }
+            GuiImplT& GetGui() const { return m_Gui; }
 
             /// Returns the ExtDataT instance for this window (possibly NULL).
             ExtDataT* GetExtData() { return m_ExtData; }
@@ -270,12 +270,6 @@ namespace cf
 
             void FillMemberVars();  ///< Helper method that fills the MemberVars array with entries for each class member.
 
-            GuiImplT&                        m_Gui;         ///< The GUI instance in which this window was created and exists. Useful in many regards, but especially for access to the underlying Lua state, which in turn keeps the alter ego instance of this window.
-            ExtDataT*                        m_ExtData;     ///< The GuiEditor's "dual" or "sibling" of this window.
-            IntrusivePtrT<WindowT>           m_Parent;      ///< The parent of this window. May be NULL if there is no parent.
-            ArrayT< IntrusivePtrT<WindowT> > m_Children;    ///< The list of children of this window.
-            std::string                      m_Name;        ///< The name of this window. It must be unique among all its siblings (the children of its parent), which is enforced in the SetName() and AddChild() methods.
-
             /// Maps strings (names) to member variables of this class.
             /// This map is needed for implementing the Lua-binding methods efficiently.
             /// It is also used in the GUI editor to easily modify members without the need for Get/Set methods.
@@ -299,9 +293,14 @@ namespace cf
                 }
             };
 
-            void operator = (const WindowT&);           ///< Use of the Assignment Operator is not allowed.
+            void operator = (const WindowT&);   ///< Use of the Assignment Operator is not allowed.
 
-            ArrayT<InterpolationT*> m_PendingInterp;    ///< The currently pending interpolations.
+            GuiImplT&                        m_Gui;             ///< The GUI instance in which this window was created and exists. Useful in many regards, but especially for access to the underlying Lua state.
+            ExtDataT*                        m_ExtData;         ///< The GuiEditor's "dual" or "sibling" of this window.
+            IntrusivePtrT<WindowT>           m_Parent;          ///< The parent of this window. May be NULL if there is no parent.
+            ArrayT< IntrusivePtrT<WindowT> > m_Children;        ///< The list of children of this window.
+            std::string                      m_Name;            ///< The name of this window. It must be unique among all its siblings (the children of its parent), which is enforced in the SetName() and AddChild() methods.
+            ArrayT<InterpolationT*>          m_PendingInterp;   ///< The currently pending interpolations.
         };
     }
 }

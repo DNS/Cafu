@@ -113,7 +113,7 @@ void ModelWindowT::SetModel(const std::string& FileName, std::string& ErrorMsg)
 {
     const CafuModelT* PrevModel=m_Model;
 
-    m_Model=m_Gui.GetGuiResources().GetModel(FileName, ErrorMsg);
+    m_Model=GetGui().GetGuiResources().GetModel(FileName, ErrorMsg);
 
     if (m_Pose==NULL || PrevModel!=m_Model)
     {
