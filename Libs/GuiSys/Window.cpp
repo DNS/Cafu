@@ -173,6 +173,17 @@ WindowT* WindowT::Clone(bool Recursive) const
 
 WindowT::~WindowT()
 {
+    // Cannot have a parent any more. Otherwise, the parent still had
+    // us as a child, and we should not have gotten here for destruction.
+    assert(m_Parent == NULL);
+
+    // Cleanly disconnect our children.
+    for (unsigned long ChildNr=0; ChildNr<m_Children.Size(); ChildNr++)
+        m_Children[ChildNr]->m_Parent = NULL;
+
+    m_Children.Clear();
+
+    // Delete the external data.
     delete m_ExtData;
     m_ExtData=NULL;
 
@@ -252,10 +263,10 @@ void WindowT::GetChildren(ArrayT< IntrusivePtrT<WindowT> >& Chld, bool Recurse) 
 
 IntrusivePtrT<WindowT> WindowT::GetRoot()
 {
-    IntrusivePtrT<WindowT> Root=this;
+    WindowT* Root = this;
 
-    while (Root->m_Parent!=NULL)
-        Root=Root->m_Parent;
+    while (Root->m_Parent)
+        Root = Root->m_Parent;
 
     return Root;
 }
@@ -267,7 +278,7 @@ void WindowT::GetAbsolutePos(float& x, float& y) const
     x=Rect[0];
     y=Rect[1];
 
-    for (IntrusivePtrT<const WindowT> P = m_Parent; P != NULL; P = P->m_Parent)
+    for (const WindowT* P = m_Parent; P; P = P->m_Parent)
     {
         x+=P->Rect[0];
         y+=P->Rect[1];
@@ -853,7 +864,7 @@ int WindowT::AddChild(lua_State* LuaState)
         return luaL_argerror(LuaState, 2, "a window cannot be made a child of itself");
 
     Win->m_Children.PushBack(Child);
-    Child->m_Parent=Win;
+    Child->m_Parent = Win.get();
 
     return 0;
 }
@@ -865,7 +876,7 @@ int WindowT::RemoveChild(lua_State* LuaState)
     IntrusivePtrT<WindowT> Parent=Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
     IntrusivePtrT<WindowT> Child =Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(2);
 
-    if (Child->m_Parent!=Parent)
+    if (Child->m_Parent != Parent.get())
         return luaL_argerror(LuaState, 2, "window is the child of another parent");
 
     const int Index=Parent->m_Children.Find(Child);
@@ -885,9 +896,10 @@ int WindowT::GetParent(lua_State* LuaState)
     ScriptBinderT Binder(LuaState);
     IntrusivePtrT<WindowT> Win=Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
 
-    if (!Win->m_Parent.IsNull())
+    if (Win->m_Parent)
     {
-        Binder.Push(Win->m_Parent);
+        // Be careful not to push the raw Win->m_Parent pointer here.
+        Binder.Push(IntrusivePtrT<WindowT>(Win->m_Parent));
     }
     else
     {

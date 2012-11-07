@@ -297,7 +297,7 @@ namespace cf
 
             GuiImplT&                        m_Gui;             ///< The GUI instance in which this window was created and exists. Useful in many regards, but especially for access to the underlying Lua state.
             ExtDataT*                        m_ExtData;         ///< The GuiEditor's "dual" or "sibling" of this window.
-            IntrusivePtrT<WindowT>           m_Parent;          ///< The parent of this window. May be NULL if there is no parent.
+            WindowT*                         m_Parent;          ///< The parent of this window. May be NULL if there is no parent. In order to not create cycles of IntrusivePtrT's, the type is intentionally a raw pointer only.
             ArrayT< IntrusivePtrT<WindowT> > m_Children;        ///< The list of children of this window.
             std::string                      m_Name;            ///< The name of this window. It must be unique among all its siblings (the children of its parent), which is enforced in the SetName() and AddChild() methods.
             ArrayT<InterpolationT*>          m_PendingInterp;   ///< The currently pending interpolations.
