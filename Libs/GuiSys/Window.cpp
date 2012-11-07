@@ -199,7 +199,41 @@ const std::string& WindowT::GetName() const
 }
 
 
-void WindowT::GetChildren(ArrayT< IntrusivePtrT<WindowT> >& Chld, bool Recurse)
+bool WindowT::AddChild(IntrusivePtrT<WindowT> Child, unsigned long Pos)
+{
+    assert(Child->m_Parent == NULL);
+    if (Child->m_Parent != NULL)    // A child window must be a root node...
+        return false;   // luaL_argerror(LuaState, 2, "child window already has a parent, use RemoveChild() first");
+
+    assert(Child != GetRoot());
+    if (Child == GetRoot())         // ... but not the root of the hierarchy it is inserted into.
+        return false;   // luaL_argerror(LuaState, 2, "a window cannot be made a child of itself");
+
+    m_Children.InsertAt(std::min(m_Children.Size(), Pos), Child);
+    Child->m_Parent = this;
+    return true;
+}
+
+
+bool WindowT::RemoveChild(IntrusivePtrT<WindowT> Child)
+{
+    assert(Child->m_Parent == this);
+    if (Child->m_Parent != this)
+        return false;   // luaL_argerror(LuaState, 2, "window is the child of another parent");
+
+    const int Index = m_Children.Find(Child);
+
+    assert(Index >= 0);
+    if (Index < 0)
+        return false;   // return luaL_argerror(LuaState, 2, "window not found among the children of its parent");
+
+    m_Children.RemoveAtAndKeepOrder(Index);
+    Child->m_Parent = NULL;
+    return true;
+}
+
+
+void WindowT::GetChildren(ArrayT< IntrusivePtrT<WindowT> >& Chld, bool Recurse) const
 {
 #ifdef DEBUG
     // Make sure that there are no cycles in the hierarchy of children.

@@ -126,22 +126,37 @@ namespace cf
 
             const GuiImplT& GetGui() const { return m_Gui; }
 
-            /// Assigns the editor sibling for this window.
-            void SetExtData(ExtDataT* ExtData);
-
             /// Returns the ExtDataT instance for this window (possibly NULL).
             ExtDataT* GetExtData() { return m_ExtData; }
+
+            /// Assigns the editor sibling for this window.
+            void SetExtData(ExtDataT* ExtData);
 
             /// Returns the name of this window.
             const std::string& GetName() const;
 
             /// Returns the parent window of this window.
-            IntrusivePtrT<WindowT> GetParent() { return m_Parent; }
+            IntrusivePtrT<WindowT> GetParent() const { return m_Parent; }
+
+            /// Returns the immediate children of this window.
+            /// This is analogous to calling GetChildren(Chld, false) with an initially empty Chld array.
+            const ArrayT< IntrusivePtrT<WindowT> >& GetChildren() const { return m_Children; }
 
             /// Returns the children of this window.
             /// @param Chld      The array to which the children of this window are appended. Note that Chld gets *not* initially cleared by this function!
             /// @param Recurse   Determines if also the grand-children, grand-grand-children etc. are returned.
-            void GetChildren(ArrayT< IntrusivePtrT<WindowT> >& Chld, bool Recurse=false);
+            void GetChildren(ArrayT< IntrusivePtrT<WindowT> >& Chld, bool Recurse=false) const;
+
+            /// Adds the given window to the children of this window, and sets this window as the parent of the child.
+            /// @param Child   The window to add to the children of this window.
+            /// @param Pos     The position among the children to insert the child winow at.
+            /// @returns true on success, false on failure (Child has a parent already, or is the root of this window).
+            bool AddChild(IntrusivePtrT<WindowT> Child, unsigned long Pos=0xFFFFFFFF);
+
+            /// Removes the given window from the children of this window.
+            /// @param Child   The window to remove from the children of this window.
+            /// @returns true on success, false on failure (Child is not a child of this window).
+            bool RemoveChild(IntrusivePtrT<WindowT> Child);
 
             /// Returns the top-most parent of this window, that is, the root of the hierarchy this window is in.
             IntrusivePtrT<WindowT> GetRoot();     // Method cannot be const because return type is not const -- see implementation.
@@ -215,9 +230,6 @@ namespace cf
             enum TextAlignVerT { top, bottom, middle, END_VER=0x10000000 };
 
 
-            IntrusivePtrT<WindowT>           m_Parent;    ///< The parent of this window. May be NULL if there is no parent.
-            ArrayT< IntrusivePtrT<WindowT> > m_Children;  ///< The list of children of this window.
-
             std::string              Name;              ///< The name of this window. It must be unique throughout the entire GUI (hierarchy of parent and children).
             float                    Time;              ///< This windows local time (starting from 0.0).
             bool                     ShowWindow;        ///< Is this WindowT shown on screen?
@@ -255,8 +267,10 @@ namespace cf
 
             void FillMemberVars();  ///< Helper method that fills the MemberVars array with entries for each class member.
 
-            GuiImplT&               m_Gui;            ///< The GUI instance in which this window was created and exists. Useful in many regards, but especially for access to the underlying Lua state, which in turn keeps the alter ego instance of this window.
-            ExtDataT*               m_ExtData;        ///< The GuiEditor's "dual" or "sibling" of this window.
+            GuiImplT&                        m_Gui;         ///< The GUI instance in which this window was created and exists. Useful in many regards, but especially for access to the underlying Lua state, which in turn keeps the alter ego instance of this window.
+            ExtDataT*                        m_ExtData;     ///< The GuiEditor's "dual" or "sibling" of this window.
+            IntrusivePtrT<WindowT>           m_Parent;      ///< The parent of this window. May be NULL if there is no parent.
+            ArrayT< IntrusivePtrT<WindowT> > m_Children;    ///< The list of children of this window.
 
             /// Maps strings (names) to member variables of this class.
             /// This map is needed for implementing the Lua-binding methods efficiently.

@@ -64,10 +64,7 @@ bool CommandPasteT::Do()
         }
 
     for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
-    {
-        m_Windows[WinNr]->m_Parent=m_NewParent;
-        m_NewParent->m_Children.PushBack(m_Windows[WinNr]);
-    }
+        m_NewParent->AddChild(m_Windows[WinNr]);
 
     m_GuiDocument->UpdateAllObservers_Created(m_Windows);
 
@@ -82,11 +79,7 @@ void CommandPasteT::Undo()
     if (!m_Done) return;
 
     for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
-    {
-        m_Windows[WinNr]->m_Parent=NULL;
-
-        m_NewParent->m_Children.RemoveAtAndKeepOrder(m_NewParent->m_Children.Find(m_Windows[WinNr]));
-    }
+        m_NewParent->RemoveChild(m_Windows[WinNr]);
 
     m_GuiDocument->UpdateAllObservers_Deleted(m_Windows);
 

@@ -132,8 +132,7 @@ ListBoxT* ListBoxT::Clone(bool Recursive) const
 
 void ListBoxT::Insert(unsigned long RowNr, const std::string& RowText)
 {
-    m_Children.InsertAt(RowNr, new ListItemT(WindowCreateParamsT(m_Gui)));
-    m_Children[RowNr]->m_Parent = this;
+    AddChild(new ListItemT(WindowCreateParamsT(m_Gui)), RowNr);
 
     // Initialize the new row window.
     m_Children[RowNr]->Text         = RowText;
@@ -312,8 +311,7 @@ int ListBoxT::Clear(lua_State* LuaState)
 
     while (ListBox->m_Children.Size() > 0)
     {
-        ListBox->m_Children[0]->m_Parent = NULL;
-        ListBox->m_Children.RemoveAtAndKeepOrder(0);
+        ListBox->RemoveChild(ListBox->m_Children[0]);
     }
 
     ListBox->SelectedRow=0xFFFFFFFF;

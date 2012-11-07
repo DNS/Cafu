@@ -33,8 +33,8 @@ CommandChangeWindowHierarchyT::CommandChangeWindowHierarchyT(GuiDocumentT* GuiDo
       m_Window(Window),
       m_NewParent(NewParent),
       m_NewPosition(NewPosition),
-      m_OldParent(Window->m_Parent),
-      m_OldPosition(!Window->m_Parent.IsNull() ? Window->m_Parent->m_Children.Find(Window) : 0)
+      m_OldParent(Window->GetParent()),
+      m_OldPosition(!Window->GetParent().IsNull() ? Window->GetParent()->GetChildren().Find(Window) : 0)
 {
     wxASSERT(m_GuiDocument);
     wxASSERT(!m_Window.IsNull());   // m_NewParent==NULL or m_OldParent==NULL are handled below.
@@ -59,9 +59,10 @@ bool CommandChangeWindowHierarchyT::Do()
         if (SubTree.Find(m_NewParent)>=0) return false;
     }
 
-    if (!m_OldParent.IsNull()) m_OldParent->m_Children.RemoveAtAndKeepOrder(m_OldPosition);
-    m_Window->m_Parent=m_NewParent;
-    if (!m_NewParent.IsNull()) m_NewParent->m_Children.InsertAt(m_NewPosition, m_Window);
+    if (!m_OldParent.IsNull()) m_OldParent->RemoveChild(m_Window);
+    if (!m_NewParent.IsNull()) m_NewParent->AddChild(m_Window, m_NewPosition);
+
+    // TODO: m_Window->SetName(OldName);
 
     m_GuiDocument->UpdateAllObservers_Modified(m_Window, WMD_HIERARCHY);
     m_Done=true;
@@ -74,9 +75,10 @@ void CommandChangeWindowHierarchyT::Undo()
     wxASSERT(m_Done);
     if (!m_Done) return;
 
-    if (!m_NewParent.IsNull()) m_NewParent->m_Children.RemoveAtAndKeepOrder(m_NewPosition);
-    m_Window->m_Parent=m_OldParent;
-    if (!m_OldParent.IsNull()) m_OldParent->m_Children.InsertAt(m_OldPosition, m_Window);
+    if (!m_NewParent.IsNull()) m_NewParent->RemoveChild(m_Window);
+    if (!m_OldParent.IsNull()) m_OldParent->AddChild(m_Window, m_OldPosition);
+
+    // TODO: m_Window->SetName(OldName);
 
     m_GuiDocument->UpdateAllObservers_Modified(m_Window, WMD_HIERARCHY);
     m_Done=false;

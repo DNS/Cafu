@@ -33,11 +33,12 @@ CommandDeleteT::CommandDeleteT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiS
       m_CommandSelect(NULL)
 {
     // The root window cannot be deleted.
-    if (Window!=Window->GetRoot())
+    if (Window != Window->GetRoot())
     {
-        wxASSERT(Window->m_Parent->m_Children.Find(Window)>=0);
+        wxASSERT(Window->GetParent()->GetChildren().Find(Window) >= 0);
 
         m_Windows.PushBack(Window);
+        m_Parents.PushBack(Window->GetParent());
         m_Indices.PushBack(-1);
     }
 
@@ -51,14 +52,15 @@ CommandDeleteT::CommandDeleteT(GuiDocumentT* GuiDocument, const ArrayT< Intrusiv
 {
     for (unsigned long WinNr=0; WinNr<Windows.Size(); WinNr++)
     {
-        IntrusivePtrT<cf::GuiSys::WindowT> Window=Windows[WinNr];
+        IntrusivePtrT<cf::GuiSys::WindowT> Window = Windows[WinNr];
 
         // The root window cannot be deleted.
-        if (Window!=Window->GetRoot())
+        if (Window != Window->GetRoot())
         {
-            wxASSERT(Window->m_Parent->m_Children.Find(Window)>=0);
+            wxASSERT(Window->GetParent()->GetChildren().Find(Window) >= 0);
 
             m_Windows.PushBack(Window);
+            m_Parents.PushBack(Window->GetParent());
             m_Indices.PushBack(-1);
         }
     }
@@ -86,10 +88,10 @@ bool CommandDeleteT::Do()
 
     for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
     {
-        IntrusivePtrT<cf::GuiSys::WindowT> Window=m_Windows[WinNr];
+        IntrusivePtrT<cf::GuiSys::WindowT> Window = m_Windows[WinNr];
 
-        m_Indices[WinNr]=Window->m_Parent->m_Children.Find(Window);
-        Window->m_Parent->m_Children.RemoveAtAndKeepOrder(m_Indices[WinNr]);
+        m_Indices[WinNr] = m_Parents[WinNr]->GetChildren().Find(Window);
+        m_Parents[WinNr]->RemoveChild(Window);
     }
 
     m_GuiDocument->UpdateAllObservers_Deleted(m_Windows);
@@ -106,10 +108,9 @@ void CommandDeleteT::Undo()
 
     for (unsigned long RevNr=0; RevNr<m_Windows.Size(); RevNr++)
     {
-        const unsigned long                WinNr =m_Windows.Size()-RevNr-1;
-        IntrusivePtrT<cf::GuiSys::WindowT> Window=m_Windows[WinNr];
+        const unsigned long WinNr = m_Windows.Size()-RevNr-1;
 
-        Window->m_Parent->m_Children.InsertAt(m_Indices[WinNr], Window);
+        m_Parents[WinNr]->AddChild(m_Windows[WinNr], m_Indices[WinNr]);
     }
 
     m_GuiDocument->UpdateAllObservers_Created(m_Windows);

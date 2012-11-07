@@ -78,10 +78,6 @@ bool CommandCreateT::Do()
                 break;
         }
 
-        // Set windows parent (this has to be done BEFORE creating the editor data below, so the window name can be
-        // made unique when creating the editor data).
-        m_NewWindow->m_Parent=m_Parent;
-
         GuiDocumentT::CreateSibling(m_NewWindow, m_GuiDocument);
 
         // Set a window default size and center it on its parent.
@@ -99,7 +95,7 @@ bool CommandCreateT::Do()
         m_NewWindow->Rect[3]=Size.y;
     }
 
-    m_Parent->m_Children.PushBack(m_NewWindow);
+    m_Parent->AddChild(m_NewWindow);
 
     ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > NewSelection;
     NewSelection.PushBack(m_NewWindow);
@@ -119,7 +115,7 @@ void CommandCreateT::Undo()
     wxASSERT(m_Done);
     if (!m_Done) return;
 
-    m_Parent->m_Children.DeleteBack();
+    m_Parent->RemoveChild(m_NewWindow);
 
     ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > NewSelection;
     NewSelection.PushBack(m_NewWindow);
