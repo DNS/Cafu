@@ -217,10 +217,11 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool
         // here in order to save the situation is not as easy as it seems, because running
         // this code is not guaranteed to be fail-safe and thus not guaranteed to fix the
         // problem. That is, there might still be a case left where we might want to throw.
-        lua_close(LuaState);
         MatSys::Renderer->FreeMaterial(m_GuiDefaultRM);
         MatSys::Renderer->FreeMaterial(m_GuiPointerRM);
         MatSys::Renderer->FreeMaterial(m_GuiFinishZRM);
+
+        // The LuaState will be closed by the m_ScriptState.
         throw InitErrorT("No root window set. Probable cause:\n"+ScriptInitResult);
     }
 
