@@ -53,6 +53,7 @@ namespace GuiEditor
         unsigned long                      m_NewPosition;
         IntrusivePtrT<cf::GuiSys::WindowT> m_OldParent;
         unsigned long                      m_OldPosition;
+        const std::string                  m_OldName;
     };
 }
 

@@ -21,6 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Create.hpp"
 #include "../GuiDocument.hpp"
+#include "../../LuaAux.hpp"
 
 #include "GuiSys/Window.hpp"
 #include "GuiSys/WindowChoice.hpp"
@@ -77,6 +78,17 @@ bool CommandCreateT::Do()
                 m_NewWindow=new cf::GuiSys::ModelWindowT(CreateParams);
                 break;
         }
+
+        std::string  WinName = m_NewWindow->GetType()->ClassName;
+        const size_t len     = WinName.length();
+
+        if (len > 1 && WinName[len-1] == 'T')
+        {
+            // Remove the trailing "T" from our class name.
+            WinName = std::string(WinName, 0, len-1);
+        }
+
+        m_NewWindow->SetName(CheckLuaIdentifier(WinName).ToStdString());
 
         GuiDocumentT::CreateSibling(m_NewWindow, m_GuiDocument);
 

@@ -105,20 +105,20 @@ namespace cf
             /// This constructor can *not* be declared as "protected", because even though only derived classes and
             /// the CreateInstance() function access it, having it protected would not allow derived classes to create
             /// new instances (e.g. for subwindows)! See the "C++ FAQs" by Cline etc., FAQs 18.02 and 18.03 for details.
-            /// @param Params The creation parameters for the window.
+            /// @param Params   The creation parameters for the window.
             WindowT(const WindowCreateParamsT& Params);
 
             /// The Copy Constructor.
             /// Copies a window (optionally with all of its children recursively).
             /// The parent of the copy is always NULL and it is up to the caller to put the copy into a window hierarchy.
             /// @param Window The window to construct this window from.
-            /// @param Recursive Whether to recursively copy all children.
+            /// @param Recursive   Whether to recursively copy all children.
             WindowT(const WindowT& Window, bool Recursive=false);
 
             /// Virtual Copy Constructor.
             /// Creates an exact clone of the window and due to its virtuality considers the real class not just the class
             /// on which the method is called as with the copy ctor.
-            /// @param Recursive Whether to recursively clone all children of this window.
+            /// @param Recursive   Whether to recursively clone all children of this window.
             virtual WindowT* Clone(bool Recursive=false) const;
 
             /// The virtual destructor. Deletes this window and all its children.
@@ -136,6 +136,13 @@ namespace cf
             const std::string& GetName() const { return m_Name; }
 
             /// Sets a new name for this window.
+            ///
+            /// Note that the new name that is actually set for this window is not necessarily exactly the given
+            /// string Name, but possibly a variant thereof. That is, GetName() can return a different string than
+            /// what was given to a preceeding call to SetName().
+            /// This is because the name of a window must be unique among its siblings (the children of its parent),
+            /// and SetName() modifies the given string as necessary to enforce this rule.
+            ///
             /// @param Name   The new name to be set for this window.
             void SetName(const std::string& Name);
 
@@ -152,6 +159,10 @@ namespace cf
             void GetChildren(ArrayT< IntrusivePtrT<WindowT> >& Chld, bool Recurse=false) const;
 
             /// Adds the given window to the children of this window, and sets this window as the parent of the child.
+            ///
+            /// This method also makes sure that the name of the Child is unique among its siblings,
+            /// modifying it as necessary. See SetName() for more details.
+            ///
             /// @param Child   The window to add to the children of this window.
             /// @param Pos     The position among the children to insert the child winow at.
             /// @returns true on success, false on failure (Child has a parent already, or is the root of this window).
@@ -225,11 +236,11 @@ namespace cf
             static const cf::TypeSys::TypeInfoT TypeInfo;
 
 
-            /// Enumeartion of horizontal alignments of a window.
+            /// Enumeration of horizontal alignments of a window.
             /// The purpose of END_HOR is to ensure that an int is used as the underlying type.
             enum TextAlignHorT { left, right, center, END_HOR=0x10000000 };
 
-            /// Enumeartion of vertical alignments of a window.
+            /// Enumeration of vertical alignments of a window.
             /// The purpose of END_VER is to ensure that an int is used as the underlying type.
             enum TextAlignVerT { top, bottom, middle, END_VER=0x10000000 };
 

@@ -204,9 +204,38 @@ void WindowT::SetExtData(ExtDataT* ExtData)
 }
 
 
+namespace
+{
+    bool IsNameUnique(WindowT* Win, const ArrayT< IntrusivePtrT<WindowT> >& Siblings)
+    {
+        for (unsigned long SibNr = 0; SibNr < Siblings.Size(); SibNr++)
+            if (Siblings[SibNr] != Win && Siblings[SibNr]->GetName() == Win->GetName())
+                return false;
+
+        return true;
+    }
+}
+
+
 void WindowT::SetName(const std::string& Name)
 {
     m_Name = Name;
+
+    if (m_Parent)
+    {
+        // We need a true copy of Name here, because if Name is a reference to m_Name
+        // (consider e.g. SetName(GetName())), the loop below will not properly work.
+        const std::string BaseName = Name;
+
+        for (unsigned int Count = 1; !IsNameUnique(this, m_Parent->m_Children); Count++)
+        {
+            std::ostringstream out;
+
+            out << BaseName << "_" << Count;
+
+            m_Name = out.str();
+        }
+    }
 }
 
 
@@ -222,6 +251,9 @@ bool WindowT::AddChild(IntrusivePtrT<WindowT> Child, unsigned long Pos)
 
     m_Children.InsertAt(std::min(m_Children.Size(), Pos), Child);
     Child->m_Parent = this;
+
+    // Make sure that the childs name is unique among its siblings.
+    Child->SetName(Child->GetName());
     return true;
 }
 
@@ -866,6 +898,8 @@ int WindowT::AddChild(lua_State* LuaState)
     Win->m_Children.PushBack(Child);
     Child->m_Parent = Win.get();
 
+    // Make sure that the childs name is unique among its siblings.
+    Child->SetName(Child->GetName());
     return 0;
 }
 

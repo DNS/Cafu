@@ -23,7 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Windows/EditorWindow.hpp"
 #include "../GameConfig.hpp"
 #include "../EditorMaterialEngine.hpp"
-#include "../LuaAux.hpp"
 
 #include "GuiSys/GuiImpl.hpp"
 #include "GuiSys/Window.hpp"
@@ -131,41 +130,6 @@ void GuiDocumentT::SetSelection(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT>
 
         GetSibling(NewSelection[NewSelNr])->SetSelected(true);
     }
-}
-
-
-wxString GuiDocumentT::CheckWindowName(const wxString& TestName, EditorWindowT* Win) const
-{
-    const wxString                     Name_  =CheckLuaIdentifier(TestName);
-    IntrusivePtrT<cf::GuiSys::WindowT> Win_   =Win ? Win->GetDual() : NULL;
-    wxString                           NewName=Name_;
-
-    ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > AllChildren;
-
-    AllChildren.PushBack(m_RootWindow);
-    m_RootWindow->GetChildren(AllChildren, true);
-
-    while (true)
-    {
-        bool IsUnique=true;
-
-        for (unsigned long ChildNr=0; ChildNr<AllChildren.Size(); ChildNr++)
-        {
-            if (AllChildren[ChildNr]->GetName() == NewName && AllChildren[ChildNr] != Win_)
-            {
-                IsUnique=false;
-                break;
-            }
-        }
-
-        if (IsUnique) break;
-
-        static unsigned int Count=1;
-        NewName=Name_+wxString::Format("_%u", Count);
-        Count++;
-    }
-
-    return NewName;
 }
 
 

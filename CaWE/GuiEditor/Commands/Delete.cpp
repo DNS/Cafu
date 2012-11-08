@@ -110,6 +110,8 @@ void CommandDeleteT::Undo()
     {
         const unsigned long WinNr = m_Windows.Size()-RevNr-1;
 
+        // This call to AddChild() should never see a reason to modify the name of the m_Windows[WinNr]
+        // to make it unique among its siblings -- it used to be there and was unique, after all.
         m_Parents[WinNr]->AddChild(m_Windows[WinNr], m_Indices[WinNr]);
     }
 

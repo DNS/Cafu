@@ -48,22 +48,6 @@ EditorWindowT::EditorWindowT(IntrusivePtrT<cf::GuiSys::WindowT> Win, GuiDocument
       m_GuiDoc(GuiDoc),
       m_IsSelected(false)
 {
-    std::string WinName = m_Win->GetName();
-
-    if (WinName == "")
-    {
-        WinName = m_Win->GetType()->ClassName;
-
-        const size_t len = WinName.length();
-
-        if (len > 1 && WinName[len-1] == 'T')
-        {
-            // Remove the trailing "T" from our class name.
-            WinName = std::string(WinName, 0, len-1);
-        }
-    }
-
-    m_Win->SetName(m_GuiDoc->CheckWindowName(WinName, this).ToStdString());
 }
 
 
