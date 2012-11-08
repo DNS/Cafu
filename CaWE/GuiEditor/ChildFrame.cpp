@@ -53,13 +53,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <fstream>
 
 
-namespace GuiEditor
+namespace
 {
-    // Static clipboard globally used in all childframes.
-    static ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > ClipBoard;
-
     // Default perspective set by the first childframe instance and used to restore default settings later.
-    static wxString AUIDefaultPerspective;
+    wxString AUIDefaultPerspective;
 }
 
 
@@ -485,18 +482,18 @@ void GuiEditor::ChildFrameT::OnMenuEditCut(wxCommandEvent& CE)
 
 void GuiEditor::ChildFrameT::OnMenuEditCopy(wxCommandEvent& CE)
 {
-    ClipBoard.Clear();
+    m_Parent->m_GuiClipboard.Clear();
 
     const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Selection=m_GuiDocument->GetSelection();
 
     for (unsigned long SelNr=0; SelNr<Selection.Size(); SelNr++)
-        ClipBoard.PushBack(Selection[SelNr]->Clone(true));
+        m_Parent->m_GuiClipboard.PushBack(Selection[SelNr]->Clone(true));
 }
 
 
 void GuiEditor::ChildFrameT::OnMenuEditPaste(wxCommandEvent& CE)
 {
-    SubmitCommand(new CommandPasteT(m_GuiDocument, ClipBoard,
+    SubmitCommand(new CommandPasteT(m_GuiDocument, m_Parent->m_GuiClipboard,
         m_GuiDocument->GetSelection().Size()==1 ? m_GuiDocument->GetSelection()[0] : m_GuiDocument->GetRootWindow()));
 }
 
@@ -535,7 +532,7 @@ void GuiEditor::ChildFrameT::OnMenuEditUpdate(wxUpdateUIEvent& UE)
             break;
 
         case wxID_PASTE:
-            UE.Enable(ClipBoard.Size()>0);
+            UE.Enable(m_Parent->m_GuiClipboard.Size()>0);
             break;
 
         case ID_MENU_EDIT_SNAP_TO_GRID:

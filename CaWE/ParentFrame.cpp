@@ -187,6 +187,10 @@ ParentFrameT::~ParentFrameT()
 {
     m_FileHistory.Save(*wxConfigBase::Get());
 
+    // Clear the clipboards before the MatSys::Renderer and similar resources are deleted below,
+    // because a clipboard may still contain objects that in turn have resources in the MatSys::Renderer.
+    m_GuiClipboard.Clear();
+
     // Release the resources in the game configs before releasing the material system below.
     Options.DeleteGameConfigs();
 

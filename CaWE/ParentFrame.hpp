@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/docview.h"     // Needed for wxFileHistory.
 #include "wx/mdi.h"
 #include "Templates/Array.hpp"
+#include "Templates/Pointer.hpp"
 
 #if __linux__
 #define HMODULE void*
@@ -39,6 +40,7 @@ class GameConfigT;
 class MapDocumentT;
 namespace ModelEditor { class ChildFrameT; }
 namespace GuiEditor   { class ChildFrameT; }
+namespace cf { namespace GuiSys { class WindowT; } }
 namespace MatSys { class TextureMapI; }
 
 
@@ -94,13 +96,14 @@ class ParentFrameT : public wxMDIParentFrame
     MapDocumentT* GetActiveMapDoc() const;          ///< Returns the document of the currently active map child frame or NULL if no map document is active.
 
     // These member variables are public because they must be available to other code anyway.
-    wxGLCanvas*                       m_GLCanvas;       ///< Our persistent "home" of the shared GL context. Used whenever there is no view.
-    wxGLContext*                      m_GLContext;      ///< The OpenGL rendering context that represents our app-global OpenGL state.
-    MatSys::TextureMapI*              m_WhiteTexture;   ///< A white texture map that is set as default lightmap whenever nothing else is available.
-    wxFileHistory                     m_FileHistory;    ///< The file history of our and all our childrens "File" menu.
-    ArrayT<ChildFrameT*>              m_ChildFrames;    ///< The list where all map   child frames register themselves on construction and unregister on destruction.
-    ArrayT<ModelEditor::ChildFrameT*> m_MdlChildFrames; ///< The list where all model child frames register themselves on construction and unregister on destruction.
-    ArrayT<GuiEditor::ChildFrameT*>   m_GuiChildFrames; ///< The list where all GUI   child frames register themselves on construction and unregister on destruction.
+    wxGLCanvas*                                  m_GLCanvas;       ///< Our persistent "home" of the shared GL context. Used whenever there is no view.
+    wxGLContext*                                 m_GLContext;      ///< The OpenGL rendering context that represents our app-global OpenGL state.
+    MatSys::TextureMapI*                         m_WhiteTexture;   ///< A white texture map that is set as default lightmap whenever nothing else is available.
+    wxFileHistory                                m_FileHistory;    ///< The file history of our and all our childrens "File" menu.
+    ArrayT<ChildFrameT*>                         m_ChildFrames;    ///< The list where all map   child frames register themselves on construction and unregister on destruction.
+    ArrayT<ModelEditor::ChildFrameT*>            m_MdlChildFrames; ///< The list where all model child frames register themselves on construction and unregister on destruction.
+    ArrayT<GuiEditor::ChildFrameT*>              m_GuiChildFrames; ///< The list where all GUI   child frames register themselves on construction and unregister on destruction.
+    ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > m_GuiClipboard;   ///< The common clipboard for all GUI editor child frames.
 
     /// The OpenGL attribute list for this window. The same list must be used for all child windows, so that they get identical pixel formats!
     static int OpenGLAttributeList[];
