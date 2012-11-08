@@ -39,10 +39,60 @@ using namespace GuiEditor;
 CommandCreateT::CommandCreateT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Parent, WindowTypeE Type)
     : m_GuiDocument(GuiDocument),
       m_Parent(Parent),
-      m_Type(Type),
       m_NewWindow(NULL),
       m_OldSelection(m_GuiDocument->GetSelection())
 {
+    cf::GuiSys::WindowCreateParamsT CreateParams(*m_GuiDocument->GetGui());
+
+    // Create window and editor data.
+    switch (Type)
+    {
+        case WINDOW_BASIC:
+            m_NewWindow=new cf::GuiSys::WindowT(CreateParams);
+            break;
+
+        case WINDOW_TEXTEDITOR:
+            m_NewWindow=new cf::GuiSys::EditWindowT(CreateParams);
+            break;
+
+        case WINDOW_CHOICE:
+            m_NewWindow=new cf::GuiSys::ChoiceT(CreateParams);
+            break;
+
+        case WINDOW_LISTBOX:
+            m_NewWindow=new cf::GuiSys::ListBoxT(CreateParams);
+            break;
+
+        case WINDOW_MODEL:
+            m_NewWindow=new cf::GuiSys::ModelWindowT(CreateParams);
+            break;
+    }
+
+    std::string  WinName = m_NewWindow->GetType()->ClassName;
+    const size_t len     = WinName.length();
+
+    if (len > 1 && WinName[len-1] == 'T')
+    {
+        // Remove the trailing "T" from our class name.
+        WinName = std::string(WinName, 0, len-1);
+    }
+
+    m_NewWindow->SetName(CheckLuaIdentifier(WinName).ToStdString());
+
+    GuiDocumentT::CreateSibling(m_NewWindow, m_GuiDocument);
+
+    // Set a window default size and center it on its parent.
+    // If the size is larger than parentsize/2, set it to parentsize/2.
+    const Vector3fT Size(std::min(m_Parent->Rect[2]/2.0f, 100.0f),
+                         std::min(m_Parent->Rect[3]/2.0f,  50.0f), 0.0f);
+
+    const Vector3fT Position((m_Parent->Rect[2]-Size.x)/2.0f,
+                             (m_Parent->Rect[3]-Size.y)/2.0f, 0.0f);
+
+    m_NewWindow->Rect[0] = Position.x;
+    m_NewWindow->Rect[1] = Position.y;
+    m_NewWindow->Rect[2] = Size.x;
+    m_NewWindow->Rect[3] = Size.y;
 }
 
 
@@ -50,62 +100,6 @@ bool CommandCreateT::Do()
 {
     wxASSERT(!m_Done);
     if (m_Done) return false;
-
-    if (m_NewWindow.IsNull())
-    {
-        cf::GuiSys::WindowCreateParamsT CreateParams(*m_GuiDocument->GetGui());
-
-        // Create window and editor data.
-        switch (m_Type)
-        {
-            case WINDOW_BASIC:
-                m_NewWindow=new cf::GuiSys::WindowT(CreateParams);
-                break;
-
-            case WINDOW_TEXTEDITOR:
-                m_NewWindow=new cf::GuiSys::EditWindowT(CreateParams);
-                break;
-
-            case WINDOW_CHOICE:
-                m_NewWindow=new cf::GuiSys::ChoiceT(CreateParams);
-                break;
-
-            case WINDOW_LISTBOX:
-                m_NewWindow=new cf::GuiSys::ListBoxT(CreateParams);
-                break;
-
-            case WINDOW_MODEL:
-                m_NewWindow=new cf::GuiSys::ModelWindowT(CreateParams);
-                break;
-        }
-
-        std::string  WinName = m_NewWindow->GetType()->ClassName;
-        const size_t len     = WinName.length();
-
-        if (len > 1 && WinName[len-1] == 'T')
-        {
-            // Remove the trailing "T" from our class name.
-            WinName = std::string(WinName, 0, len-1);
-        }
-
-        m_NewWindow->SetName(CheckLuaIdentifier(WinName).ToStdString());
-
-        GuiDocumentT::CreateSibling(m_NewWindow, m_GuiDocument);
-
-        // Set a window default size and center it on its parent.
-        // If the size is larger than parentsize/2, set it to parentsize/2.
-        Vector3fT Size(100.0f, 50.0f, 0.0f);
-
-        if (Size.x>m_Parent->Rect[2]/2.0f) Size.x=m_Parent->Rect[2]/2.0f;
-        if (Size.y>m_Parent->Rect[3]/2.0f) Size.y=m_Parent->Rect[3]/2.0f;
-
-        Vector3fT Position((m_Parent->Rect[2]-Size.x)/2.0f, (m_Parent->Rect[3]-Size.y)/2.0f, 0.0f);
-
-        m_NewWindow->Rect[0]=Position.x;
-        m_NewWindow->Rect[1]=Position.y;
-        m_NewWindow->Rect[2]=Size.x;
-        m_NewWindow->Rect[3]=Size.y;
-    }
 
     m_Parent->AddChild(m_NewWindow);
 

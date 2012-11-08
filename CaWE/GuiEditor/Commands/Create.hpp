@@ -59,7 +59,6 @@ namespace GuiEditor
         GuiDocumentT* m_GuiDocument;
 
         IntrusivePtrT<cf::GuiSys::WindowT>                 m_Parent;
-        WindowTypeE                                        m_Type;
         IntrusivePtrT<cf::GuiSys::WindowT>                 m_NewWindow;
         const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > m_OldSelection;
     };
