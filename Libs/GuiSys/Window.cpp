@@ -85,10 +85,7 @@ const cf::TypeSys::TypeInfoT WindowT::TypeInfo(GetWindowTIM(), "WindowT", NULL /
 
 
 WindowT::WindowT(const WindowCreateParamsT& Params)
-    : m_Parent(NULL),
-      m_Children(),
-      m_Name(""),
-      Time(0.0f),
+    : Time(0.0f),
       ShowWindow(true),
    // Rect(),
       RotAngle(0.0f),
@@ -104,7 +101,10 @@ WindowT::WindowT(const WindowCreateParamsT& Params)
       TextAlignHor(left),
       TextAlignVer(top),
       m_Gui(Params.Gui),
-      m_ExtData(NULL)
+      m_ExtData(NULL),
+      m_Parent(NULL),
+      m_Children(),
+      m_Name("")
 {
     for (unsigned long c=0; c<4; c++)
     {
@@ -114,7 +114,6 @@ WindowT::WindowT(const WindowCreateParamsT& Params)
         TextColor  [c]=(c<2) ? 0.0f : 1.0f;
     }
 
-
     // This is currently required, because this ctor is also used now for windows created
     // by Lua script (not only for windows created in C++, using "new WindowT()")...
     FillMemberVars();
@@ -122,10 +121,7 @@ WindowT::WindowT(const WindowCreateParamsT& Params)
 
 
 WindowT::WindowT(const WindowT& Window, bool Recursive)
-    : m_Parent(NULL),
-      m_Children(),
-      m_Name(Window.m_Name),
-      Time(Window.Time),
+    : Time(Window.Time),
       ShowWindow(Window.ShowWindow),
       RotAngle(Window.RotAngle),
       BackRenderMat(NULL),
@@ -137,7 +133,10 @@ WindowT::WindowT(const WindowT& Window, bool Recursive)
       TextAlignHor(Window.TextAlignHor),
       TextAlignVer(Window.TextAlignVer),
       m_Gui(Window.m_Gui),
-      m_ExtData(NULL   /* Clone() it?? */)
+      m_ExtData(NULL   /* Clone() it?? */),
+      m_Parent(NULL),
+      m_Children(),
+      m_Name(Window.m_Name)
 {
     if (!BackRenderMatName.empty())
     {

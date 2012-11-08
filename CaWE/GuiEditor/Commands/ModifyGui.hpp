@@ -25,9 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../../CommandPattern.hpp"
 
 
-namespace cf { namespace GuiSys { class WindowT; } }
-
-
 namespace GuiEditor
 {
     class GuiDocumentT;
