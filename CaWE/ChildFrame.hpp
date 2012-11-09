@@ -41,6 +41,7 @@ class ParentFrameT;
 class ToolManagerT;
 class ViewWindowT;
 class wxProcessEvent;
+namespace MapEditor { class ClipboardT; }
 
 
 class AutoSaveTimerT : public wxTimer
@@ -197,6 +198,9 @@ class ChildFrameT : public wxMDIChildFrame
     /// Returns the list of all (2D and 3D) view windows that are currently open in this frame.
     /// The returned list is always sorted in MRU (most-recently-used) order.
     const ArrayT<ViewWindowT*>& GetViewWindows() const { return m_ViewWindows; }
+
+    /// Returns the clipboard that is common to all Map Editor child frames.
+    MapEditor::ClipboardT& GetMapClipboard() const;
 
     /// Based on the most recently used views (2D or 3D), this method figures out a point in space that the user can see well.
     Vector3fT GuessUserVisiblePoint() const;

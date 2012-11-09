@@ -21,12 +21,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ChildFrame.hpp"
 #include "ChildFrameViewWin.hpp"
+#include "Clipboard.hpp"
 #include "DialogEditSurfaceProps.hpp"
 #include "DialogInspector.hpp"
 #include "EntityClass.hpp"
 #include "GameConfig.hpp"
 #include "DialogGotoPrimitive.hpp"
-#include "ParentFrame.hpp"
 #include "DialogMapCheck.hpp"
 #include "MapDocument.hpp"
 #include "MapBezierPatch.hpp"
@@ -99,30 +99,6 @@ extern "C"
     // Turn off warning 4355: "'this' : wird in Initialisierungslisten fuer Basisklasse verwendet".
     #pragma warning(disable:4355)
 #endif
-
-
-/// The class represents the "clipboard".
-/// The clipboard is a singleton, global to the application,
-/// in order to allow users to copy elements from one document and paste them into another.
-class ClipboardT
-{
-    public:
-
-    // TODO: Fully and properly implement Singleton pattern.
-    ~ClipboardT();
-
-    ArrayT<MapElementT*> Objects;
-    Vector3fT            OriginalCenter;
-};
-
-ClipboardT::~ClipboardT()
-{
-    // Make sure that we don't leak memory at application exit.
-    for (unsigned long ElemNr=0; ElemNr<Objects.Size(); ElemNr++)
-        delete Objects[ElemNr];
-}
-
-static ClipboardT s_Clipboard;
 
 
 /*static*/ const unsigned int MapDocumentT::CMAP_FILE_VERSION=13;
@@ -934,15 +910,12 @@ void MapDocumentT::OnEditCopy(wxCommandEvent& CE)
     wxBusyCursor BusyCursor;
 
     // First delete the previous contents of the clipboard.
-    for (unsigned long SelNr=0; SelNr<s_Clipboard.Objects.Size(); SelNr++)
-        delete s_Clipboard.Objects[SelNr];
-
-    s_Clipboard.Objects.Clear();
-    s_Clipboard.OriginalCenter=GetMostRecentSelBB().GetCenter();
+    m_ChildFrame->GetMapClipboard().Clear();
+    m_ChildFrame->GetMapClipboard().OriginalCenter=GetMostRecentSelBB().GetCenter();
 
     // Assign a copy of the current selection as the new clipboard contents.
     for (unsigned long SelNr=0; SelNr<m_Selection.Size(); SelNr++)
-        s_Clipboard.Objects.PushBack(m_Selection[SelNr]->Clone());
+        m_ChildFrame->GetMapClipboard().Objects.PushBack(m_Selection[SelNr]->Clone());
 }
 
 
@@ -950,7 +923,7 @@ void MapDocumentT::OnEditPaste(wxCommandEvent& CE)
 {
     wxBusyCursor BusyCursor;
 
-    GetHistory().SubmitCommand(new CommandPasteT(*this, s_Clipboard.Objects, s_Clipboard.OriginalCenter, m_ChildFrame->GuessUserVisiblePoint()));
+    GetHistory().SubmitCommand(new CommandPasteT(*this, m_ChildFrame->GetMapClipboard().Objects, m_ChildFrame->GetMapClipboard().OriginalCenter, m_ChildFrame->GuessUserVisiblePoint()));
 
     m_ChildFrame->GetToolManager().SetActiveTool(GetToolTIM().FindTypeInfoByName("ToolSelectionT"));
 }
@@ -960,10 +933,10 @@ void MapDocumentT::OnEditPasteSpecial(wxCommandEvent& CE)
 {
     BoundingBox3fT ClipboardBB;
 
-    for (unsigned long ElemNr=0; ElemNr<s_Clipboard.Objects.Size(); ElemNr++)
-        ClipboardBB.InsertValid(s_Clipboard.Objects[ElemNr]->GetBB());
+    for (unsigned long ElemNr=0; ElemNr<m_ChildFrame->GetMapClipboard().Objects.Size(); ElemNr++)
+        ClipboardBB.InsertValid(m_ChildFrame->GetMapClipboard().Objects[ElemNr]->GetBB());
 
-    if (s_Clipboard.Objects.Size()==0) return;
+    if (m_ChildFrame->GetMapClipboard().Objects.Size()==0) return;
     if (!ClipboardBB.IsInited()) return;
 
     PasteSpecialDialogT PasteSpecialDialog(ClipboardBB);
@@ -975,7 +948,7 @@ void MapDocumentT::OnEditPasteSpecial(wxCommandEvent& CE)
     const Vector3fT Translation=Vector3fT(PasteSpecialDialog.TranslateX, PasteSpecialDialog.TranslateY, PasteSpecialDialog.TranslateZ);
     const Vector3fT Rotation   =Vector3fT(PasteSpecialDialog.RotateX,    PasteSpecialDialog.RotateY,    PasteSpecialDialog.RotateZ);
 
-    CommandT* Command=new CommandPasteT(*this, s_Clipboard.Objects, s_Clipboard.OriginalCenter, m_ChildFrame->GuessUserVisiblePoint(),
+    CommandT* Command=new CommandPasteT(*this, m_ChildFrame->GetMapClipboard().Objects, m_ChildFrame->GetMapClipboard().OriginalCenter, m_ChildFrame->GuessUserVisiblePoint(),
                                         Translation, Rotation, PasteSpecialDialog.NrOfCopies, PasteSpecialDialog.GroupCopies,
                                         PasteSpecialDialog.CenterAtOriginal);
 
@@ -1789,7 +1762,7 @@ void MapDocumentT::OnUpdateToolsMaterialLock(wxUpdateUIEvent& UE)
 
 void MapDocumentT::OnUpdateEditPasteSpecial(wxUpdateUIEvent& UE)
 {
-    UE.Enable(s_Clipboard.Objects.Size()>0 && m_ChildFrame->GetToolManager().GetActiveToolType()!=&ToolEditSurfaceT::TypeInfo);
+    UE.Enable(m_ChildFrame->GetMapClipboard().Objects.Size()>0 && m_ChildFrame->GetToolManager().GetActiveToolType()!=&ToolEditSurfaceT::TypeInfo);
 }
 
 

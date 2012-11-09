@@ -22,10 +22,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_PARENT_FRAME_HPP_INCLUDED
 #define CAFU_PARENT_FRAME_HPP_INCLUDED
 
-#include "wx/docview.h"     // Needed for wxFileHistory.
-#include "wx/mdi.h"
+#include "Clipboard.hpp"
 #include "Templates/Array.hpp"
 #include "Templates/Pointer.hpp"
+#include "wx/docview.h"     // Needed for wxFileHistory.
+#include "wx/mdi.h"
 
 #if __linux__
 #define HMODULE void*
@@ -103,7 +104,8 @@ class ParentFrameT : public wxMDIParentFrame
     ArrayT<ChildFrameT*>                         m_ChildFrames;    ///< The list where all map   child frames register themselves on construction and unregister on destruction.
     ArrayT<ModelEditor::ChildFrameT*>            m_MdlChildFrames; ///< The list where all model child frames register themselves on construction and unregister on destruction.
     ArrayT<GuiEditor::ChildFrameT*>              m_GuiChildFrames; ///< The list where all GUI   child frames register themselves on construction and unregister on destruction.
-    ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > m_GuiClipboard;   ///< The common clipboard for all GUI editor child frames.
+    MapEditor::ClipboardT                        m_MapClipboard;   ///< The common clipboard for all Map Editor child frames.
+    ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > m_GuiClipboard;   ///< The common clipboard for all GUI Editor child frames.
 
     /// The OpenGL attribute list for this window. The same list must be used for all child windows, so that they get identical pixel formats!
     static int OpenGLAttributeList[];

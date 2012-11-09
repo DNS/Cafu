@@ -151,31 +151,31 @@ namespace
     {
         const float FPS   =18.0f;        // The default value is 20.0.
         const float MaxAge=27.0f/FPS;    // 27 frames at 18 FPS.
-    
+
         Particle->RenderMat=ResMan.RenderMats[ResMan.PARTICLE_EXPLOSION2_FRAME1+(unsigned long)(Particle->Age*FPS)];
-    
+
         Particle->Age+=Time;
         if (Particle->Age>=MaxAge) return false;
-    
+
         return true;
     }
-    
-    
+
+
     bool ParticleFunction_HandGrenadeExplosionSmall(ParticleMST* Particle, float Time)
     {
         const float MaxAge=0.7f;
-    
+
         Particle->Age+=Time;
         if (Particle->Age>MaxAge) return false;
-    
+
         Particle->Origin[0]+=Particle->Velocity[0]*Time;
         Particle->Origin[1]+=Particle->Velocity[1]*Time;
         Particle->Origin[2]+=Particle->Velocity[2]*Time;
-    
+
         Particle->Velocity[0]*=0.98f;   // TODO: Deceleration should depend on 'Time'...
         Particle->Velocity[1]*=0.98f;
         Particle->Velocity[2]-=2.0f*9810.0f*Time;     // double gravity...
-    
+
         Particle->Color[0]=char(255.0f*(MaxAge-Particle->Age)/MaxAge);
         Particle->Color[1]=char(255.0f*(MaxAge-Particle->Age)/MaxAge*(MaxAge-Particle->Age)/MaxAge);
         return true;

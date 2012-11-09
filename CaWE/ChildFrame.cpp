@@ -630,6 +630,12 @@ ChildFrameT::~ChildFrameT()
 }
 
 
+MapEditor::ClipboardT& ChildFrameT::GetMapClipboard() const
+{
+    return m_Parent->m_MapClipboard;
+}
+
+
 Vector3fT ChildFrameT::GuessUserVisiblePoint() const
 {
     Vector3fT     Point(0, 0, 0);   // TODO: Init along the view dir of the MRU camera instead? Or m_SelectionBB.GetCenter()?
