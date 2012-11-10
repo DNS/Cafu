@@ -20,7 +20,8 @@
 /ExtLibs/wxWidgets/lib/vc*_lib/
 /ExtLibs/zlib/build/
 
-Doxygen/out/*
+Doxygen/cpp/out/*
+Doxygen/scripting/out/*
 Doxygen/scripting/*.tmpl
 
 /.sconf_temp
