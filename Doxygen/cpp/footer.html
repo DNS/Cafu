@@ -1,10 +1,14 @@
+<!-- start footer part -->
 <!--BEGIN GENERATE_TREEVIEW-->
-    <li class="footer">Generated on $datetime by
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    $navpath
+    <li class="footer">$generatedby
     <a href="http://www.doxygen.org/index.html">
-    <img class="footer" src="doxygen.png" alt="doxygen"/></a> $doxygenversion </li>
+    <img class="footer" src="$relpath$doxygen.png" alt="doxygen"/></a> $doxygenversion </li>
     <li class="footer">Copyright &copy; 2002-$year Carsten Fuchs Software.</li>
-   </ul>
- </div>
+  </ul>
+</div>
 <!--END GENERATE_TREEVIEW-->
 <!--BEGIN !GENERATE_TREEVIEW-->
 <hr class="footer"/>

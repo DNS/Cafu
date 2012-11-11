@@ -52,7 +52,7 @@ PROJECT_LOGO           =
 # If a relative path is entered, it will be relative to the location
 # where doxygen was started. If left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = Doxygen/out/scripting
+OUTPUT_DIRECTORY       = Doxygen/scripting/out
 
 # If the CREATE_SUBDIRS tag is set to YES, then doxygen will create
 # 4096 sub-directories (in 2 levels) under the output directory of each output
@@ -686,7 +686,7 @@ INPUT                  = Doxygen/scripting
 # into libc) for the transcoding. See http://www.gnu.org/software/libiconv for
 # the list of possible encodings.
 
-INPUT_ENCODING         = ISO-8859-15
+INPUT_ENCODING         = UTF-8
 
 # If the value of the INPUT tag contains directories, you can use the
 # FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp
@@ -727,7 +727,8 @@ EXCLUDE_SYMLINKS       = NO
 # against the file with absolute path, so to exclude all test directories
 # for example use the pattern */test/*
 
-EXCLUDE_PATTERNS       = */.svn/* \
+EXCLUDE_PATTERNS       = */.git/* \
+                         */.svn/* \
                          */build/*
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
@@ -762,7 +763,7 @@ EXAMPLE_RECURSIVE      = NO
 # directories that contain image that are included in the documentation (see
 # the \image command).
 
-IMAGE_PATH             = Doxygen/images
+IMAGE_PATH             = Doxygen/scripting/images
 
 # The INPUT_FILTER tag can be used to specify a program that doxygen should
 # invoke to filter for each input file. Doxygen will invoke the filter program
@@ -911,13 +912,13 @@ HTML_FILE_EXTENSION    = .html
 # have to redo this when upgrading to a newer version of doxygen or when
 # changing the value of configuration settings such as GENERATE_TREEVIEW!
 
-HTML_HEADER            = Doxygen/header.html
+HTML_HEADER            = Doxygen/cpp/header.html
 
 # The HTML_FOOTER tag can be used to specify a personal HTML footer for
 # each generated HTML page. If it is left blank doxygen will generate a
 # standard footer.
 
-HTML_FOOTER            = Doxygen/footer.html
+HTML_FOOTER            = Doxygen/cpp/footer.html
 
 # The HTML_STYLESHEET tag can be used to specify a user-defined cascading
 # style sheet that is used by each HTML page. It can be used to
@@ -926,7 +927,7 @@ HTML_FOOTER            = Doxygen/footer.html
 # HTML_EXTRA_STYLESHEET instead of this one, as it is more robust and this
 # tag will in the future become obsolete.
 
-HTML_STYLESHEET        = Doxygen/scripting/doxygen.css
+HTML_STYLESHEET        =
 
 # The HTML_EXTRA_STYLESHEET tag can be used to specify an additional
 # user-defined cascading style sheet that is included after the standard
