@@ -85,15 +85,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include <map>
 
-#if defined(__linux__)
-    #define _stricmp strcasecmp
-    #include <dirent.h>
-#endif
 
-using namespace GAME_NAME;
-
-
-namespace
+// Intentionally use a named, non-anonymous namespace here to give AllTypeInfos[] external linkage.
+// With an anonymous namespace, the compiler might optimize AllTypeInfos[] out, defeating its purpose.
+namespace GAME_NAME
 {
     /*
      * The purpose of this code is to make sure that the constructors of all static TypeInfoT
@@ -171,6 +166,9 @@ namespace
 }
 
 
+using namespace GAME_NAME;
+
+
 // Static method that returns the singleton instance.
 GameImplT& GameImplT::GetInstance()
 {
@@ -184,8 +182,6 @@ GameImplT::GameImplT()
     : RunningAsClient(false),
       RunningAsServer(false)
 {
-    (void)AllTypeInfos;
-
     LookupTables::Initialize();
 
     GetBaseEntTIM().Init();
