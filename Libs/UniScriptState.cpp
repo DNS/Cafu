@@ -118,6 +118,7 @@ void ScriptBinderT::CheckCppRefs()
 
     // Put the REGISTRY.__has_ref_in_cpp set onto the stack.
     lua_getfield(m_LuaState, LUA_REGISTRYINDEX, "__has_ref_in_cpp");
+    assert(lua_istable(m_LuaState, -1));
 
     // The initial key for the traversal.
     lua_pushnil(m_LuaState);
@@ -128,6 +129,9 @@ void ScriptBinderT::CheckCppRefs()
         // Remove the unneeded boolean value (true), so that the key is at index -1.
         // The key is also needed at index -1 in order to seed the next iteration.
         lua_pop(m_LuaState, 1);
+
+        // The key is the table that represents our object.
+        assert(lua_istable(m_LuaState, -1));
 
         // Should the object at index -1 remain anchored?
         lua_getfield(m_LuaState, -1, "GetRefCount");
@@ -145,9 +149,13 @@ void ScriptBinderT::CheckCppRefs()
                 continue;
             }
         }
+        else
+        {
+            assert(lua_isnil(m_LuaState, -1));
 
-        // Pop whatever is not a function.
-        lua_pop(m_LuaState, 1);
+            // Pop whatever is not a function.
+            lua_pop(m_LuaState, 1);
+        }
 
         // Remove the object: __has_ref_in_cpp[Object] = nil
         lua_pushvalue(m_LuaState, -1);
