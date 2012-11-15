@@ -19,6 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
+#include "wx/msgdlg.h"
+
 #include "ServerWorld.hpp"
 #include "../EngineEntity.hpp"
 #include "ClipSys/CollisionModel_static.hpp"
@@ -380,7 +382,17 @@ unsigned long CaServerWorldT::CreateNewEntityFromBasicInfo(const std::map<std::s
         const cf::TypeSys::TypeInfoT* TI=m_Game->GetEntityTIM().FindTypeInfoByName(CppClassName.c_str());
 
         if (TI==NULL)
+        {
+            wxMessageBox("Entity with C++ class name \"" + CppClassName + "\" could not be instantiated.\n\n" +
+                "No type info for entity class \"" + EntClassName + "\" with C++ class name \"" + CppClassName +
+                "\" was found.\n\n" +
+                "If you are developing a new C++ entity class, did you update the AllTypeInfos[] list in file " +
+                "GameImpl.cpp in your game directory?\n\n" +
+                "If in doubt, please post at the Cafu forums for help.",
+                "Create new entity", wxOK | wxICON_EXCLAMATION);
+
             throw std::runtime_error("No type info found for entity class \""+EntClassName+"\" with C++ class name \""+CppClassName+"\".\n");
+        }
 
 
         // 3. Create an instance of the desired entity type.
