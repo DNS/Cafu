@@ -24,19 +24,19 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace cf::GuiSys;
 
 
-ComponentTransformT::ComponentTransformT(WindowT* Window)
+ComponentTransformT::ComponentTransformT(WindowT& Window)
     : ComponentBaseT(Window)
 {
 }
 
 
-ComponentTransformT::ComponentTransformT(const ComponentTransformT& Comp, WindowT* Window)
+ComponentTransformT::ComponentTransformT(const ComponentTransformT& Comp, WindowT& Window)
     : ComponentBaseT(Comp, Window)
 {
 }
 
 
-ComponentTransformT* ComponentTransformT::Clone(WindowT* Window) const
+ComponentTransformT* ComponentTransformT::Clone(WindowT& Window) const
 {
     return new ComponentTransformT(*this, Window);
 }

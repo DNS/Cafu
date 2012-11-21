@@ -38,24 +38,24 @@ namespace cf
 
             /// The constructor.
             /// @param Window   The window that the new component becomes a part of.
-            ComponentTransformT(WindowT* Window);
+            ComponentTransformT(WindowT& Window);
 
             /// The copy constructor.
             /// The new component can become a part of the same or a different window than the component it was copied from.
             /// @param Comp     The component to create a copy of.
             /// @param Window   The window that the new component becomes a part of.
-            ComponentTransformT(const ComponentTransformT& Comp, WindowT* Window);
+            ComponentTransformT(const ComponentTransformT& Comp, WindowT& Window);
 
             // Base class overrides.
-            ComponentTransformT* Clone(WindowT* Window) const;
+            ComponentTransformT* Clone(WindowT& Window) const;
 
             // The implementation of these methods is *temporary/transitional*
             // (the data should be here in ComponentTransformT, not in m_Window).
-            float GetPosX() const { return GetWindow()->Rect[0]; }
-            float GetPosY() const { return GetWindow()->Rect[1]; }
-            float GetWidth() const { return GetWindow()->Rect[2]; }
-            float GetHeight() const { return GetWindow()->Rect[3]; }
-            float GetRotation() const { return GetWindow()->RotAngle; }
+            float GetPosX() const { return GetWindow().Rect[0]; }
+            float GetPosY() const { return GetWindow().Rect[1]; }
+            float GetWidth() const { return GetWindow().Rect[2]; }
+            float GetHeight() const { return GetWindow().Rect[3]; }
+            float GetRotation() const { return GetWindow().RotAngle; }
 
 
             private:

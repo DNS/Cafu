@@ -38,16 +38,16 @@ namespace cf
 
             /// The constructor.
             /// @param Window   The window that the new component becomes a part of.
-            ComponentModelT(WindowT* Window);
+            ComponentModelT(WindowT& Window);
 
             /// The copy constructor.
             /// The new component can become a part of the same or a different window than the component it was copied from.
             /// @param Comp     The component to create a copy of.
             /// @param Window   The window that the new component becomes a part of.
-            ComponentModelT(const ComponentModelT& Comp, WindowT* Window);
+            ComponentModelT(const ComponentModelT& Comp, WindowT& Window);
 
             // Base class overrides.
-            ComponentModelT* Clone(WindowT* Window) const;
+            ComponentModelT* Clone(WindowT& Window) const;
             void ResolveDependencies();
 
 

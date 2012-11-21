@@ -157,7 +157,7 @@ WindowT::WindowT(const WindowT& Window, bool Recursive)
     m_Components.PushBackEmptyExact(Window.GetComponents().Size());
 
     for (unsigned int CompNr = 0; CompNr < Window.GetComponents().Size(); CompNr++)
-        m_Components[CompNr] = Window.GetComponents()[CompNr]->Clone(this);
+        m_Components[CompNr] = Window.GetComponents()[CompNr]->Clone(*this);
 
     FillMemberVars();
 

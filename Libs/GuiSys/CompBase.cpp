@@ -25,19 +25,19 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace cf::GuiSys;
 
 
-ComponentBaseT::ComponentBaseT(WindowT* Window)
+ComponentBaseT::ComponentBaseT(WindowT& Window)
     : m_Window(Window)
 {
 }
 
 
-ComponentBaseT::ComponentBaseT(const ComponentBaseT& Comp, WindowT* Window)
+ComponentBaseT::ComponentBaseT(const ComponentBaseT& Comp, WindowT& Window)
     : m_Window(Window)
 {
 }
 
 
-ComponentBaseT* ComponentBaseT::Clone(WindowT* Window) const
+ComponentBaseT* ComponentBaseT::Clone(WindowT& Window) const
 {
     return new ComponentBaseT(*this, Window);
 }

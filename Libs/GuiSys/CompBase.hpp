@@ -22,9 +22,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_GUISYS_COMPONENT_BASE_HPP_INCLUDED
 #define CAFU_GUISYS_COMPONENT_BASE_HPP_INCLUDED
 
-//#include "Templates/Array.hpp"
-#include "Templates/Pointer.hpp"
-
 
 namespace cf
 {
@@ -39,27 +36,27 @@ namespace cf
 
             /// The constructor.
             /// @param Window   The window that the new component becomes a part of.
-            ComponentBaseT(WindowT* Window);
+            ComponentBaseT(WindowT& Window);
 
             /// The copy constructor.
             /// The new component can become a part of the same or a different window than the component it was copied from.
             /// @param Comp     The component to create a copy of.
             /// @param Window   The window that the new component becomes a part of.
-            ComponentBaseT(const ComponentBaseT& Comp, WindowT* Window);
+            ComponentBaseT(const ComponentBaseT& Comp, WindowT& Window);
 
             /// The virtual copy constructor.
             /// Callers can use this method to create a copy of this component without knowing its concrete type.
             /// Overrides in derived classes use a covariant return type to facilitate use when the concrete type is known.
             /// The new component can become a part of the same or a different window than the component it was copied from.
             /// @param Window   The window that the new component becomes a part of.
-            virtual ComponentBaseT* Clone(WindowT* Window) const;
+            virtual ComponentBaseT* Clone(WindowT& Window) const;
 
             /// The virtual destructor.
             virtual ~ComponentBaseT() { }
 
 
             /// Returns the parent window that contains this component.
-            IntrusivePtrT<WindowT> GetWindow() const { return m_Window; }
+            WindowT& GetWindow() const { return m_Window; }
 
             /// This method is called after all components of the parent window have been loaded.
             /// The component can use the opportunity to search the window for "sibling" components
@@ -71,7 +68,7 @@ namespace cf
 
             void operator = (const ComponentBaseT&);    ///< Use of the Assignment Operator is not allowed.
 
-            WindowT* m_Window;    ///< The parent window that contains this component.
+            WindowT& m_Window;    ///< The parent window that contains this component.
         };
     }
 }

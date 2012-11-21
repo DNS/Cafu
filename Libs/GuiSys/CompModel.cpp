@@ -26,21 +26,21 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace cf::GuiSys;
 
 
-ComponentModelT::ComponentModelT(WindowT* Window)
+ComponentModelT::ComponentModelT(WindowT& Window)
     : ComponentBaseT(Window),
       m_Transform(NULL)
 {
 }
 
 
-ComponentModelT::ComponentModelT(const ComponentModelT& Comp, WindowT* Window)
+ComponentModelT::ComponentModelT(const ComponentModelT& Comp, WindowT& Window)
     : ComponentBaseT(Comp, Window),
       m_Transform(NULL)
 {
 }
 
 
-ComponentModelT* ComponentModelT::Clone(WindowT* Window) const
+ComponentModelT* ComponentModelT::Clone(WindowT& Window) const
 {
     return new ComponentModelT(*this, Window);
 }
@@ -51,9 +51,9 @@ void ComponentModelT::ResolveDependencies()
     // It would be possible to break this loop as soon as we have assigned a non-NULL pointer to m_Transform.
     // However, this is only because the Transform component is, at this time, the only sibling component that
     // we're interested in, whereas the loop below is suitable for resolving additional dependencies, too.
-    for (unsigned int CompNr = 0; CompNr < GetWindow()->GetComponents().Size(); CompNr++)
+    for (unsigned int CompNr = 0; CompNr < GetWindow().GetComponents().Size(); CompNr++)
     {
-        ComponentBaseT* Comp = GetWindow()->GetComponents()[CompNr];
+        ComponentBaseT* Comp = GetWindow().GetComponents()[CompNr];
 
         if (!m_Transform)
             m_Transform = dynamic_cast<ComponentTransformT*>(Comp);
