@@ -21,6 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Window.hpp"
 #include "WindowCreateParams.hpp"
+#include "CompBase.hpp"
 #include "GuiMan.hpp"
 #include "GuiImpl.hpp"
 #include "GuiResources.hpp"
@@ -185,6 +186,12 @@ WindowT::~WindowT()
     // Delete the external data.
     delete m_ExtData;
     m_ExtData=NULL;
+
+    // Delete the components.
+    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
+        delete m_Components[CompNr];
+
+    m_Components.Clear();
 
     // Even if one of these materials is explicitly assigned in the .cgui script (by name),
     // the render material is newly registered with the MatSys::Renderer as a separate instance,

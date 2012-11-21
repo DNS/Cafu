@@ -50,6 +50,7 @@ namespace cf
 
     namespace GuiSys
     {
+        class ComponentBaseT;
         class GuiImplT;
         class WindowCreateParamsT;
 
@@ -175,6 +176,9 @@ namespace cf
 
             /// Returns the top-most parent of this window, that is, the root of the hierarchy this window is in.
             IntrusivePtrT<WindowT> GetRoot();     // Method cannot be const because return type is not const -- see implementation.
+
+            /// Returns the components that this window is composed of.
+            const ArrayT<ComponentBaseT*>& GetComponents() const { return m_Components; }
 
             /// Returns the position of the upper left corner of this window in absolute (vs. relative to the parent) virtual coordinates.
             /// @param x Variable to store the x coordinate of the upper left corner.
@@ -311,6 +315,7 @@ namespace cf
             WindowT*                         m_Parent;          ///< The parent of this window. May be NULL if there is no parent. In order to not create cycles of IntrusivePtrT's, the type is intentionally a raw pointer only.
             ArrayT< IntrusivePtrT<WindowT> > m_Children;        ///< The list of children of this window.
             std::string                      m_Name;            ///< The name of this window. It must be unique among all its siblings (the children of its parent), which is enforced in the SetName() and AddChild() methods.
+            ArrayT<ComponentBaseT*>          m_Components;      ///< The components that this window is composed of.
             ArrayT<InterpolationT*>          m_PendingInterp;   ///< The currently pending interpolations.
         };
     }
