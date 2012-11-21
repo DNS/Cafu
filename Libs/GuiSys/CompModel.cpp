@@ -33,6 +33,19 @@ ComponentModelT::ComponentModelT(WindowT* Window)
 }
 
 
+ComponentModelT::ComponentModelT(const ComponentModelT& Comp, WindowT* Window)
+    : ComponentBaseT(Comp, Window),
+      m_Transform(NULL)
+{
+}
+
+
+ComponentModelT* ComponentModelT::Clone(WindowT* Window) const
+{
+    return new ComponentModelT(*this, Window);
+}
+
+
 void ComponentModelT::ResolveDependencies()
 {
     // It would be possible to break this loop as soon as we have assigned a non-NULL pointer to m_Transform.

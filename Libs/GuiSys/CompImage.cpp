@@ -33,6 +33,19 @@ ComponentImageT::ComponentImageT(WindowT* Window)
 }
 
 
+ComponentImageT::ComponentImageT(const ComponentImageT& Comp, WindowT* Window)
+    : ComponentBaseT(Comp, Window),
+      m_Transform(NULL)
+{
+}
+
+
+ComponentImageT* ComponentImageT::Clone(WindowT* Window) const
+{
+    return new ComponentImageT(*this, Window);
+}
+
+
 void ComponentImageT::ResolveDependencies()
 {
     // It would be possible to break this loop as soon as we have assigned a non-NULL pointer to m_Transform.

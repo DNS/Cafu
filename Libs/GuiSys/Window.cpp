@@ -105,7 +105,8 @@ WindowT::WindowT(const WindowCreateParamsT& Params)
       m_ExtData(NULL),
       m_Parent(NULL),
       m_Children(),
-      m_Name("")
+      m_Name(""),
+      m_Components()
 {
     for (unsigned long c=0; c<4; c++)
     {
@@ -137,7 +138,8 @@ WindowT::WindowT(const WindowT& Window, bool Recursive)
       m_ExtData(NULL   /* Clone() it?? */),
       m_Parent(NULL),
       m_Children(),
-      m_Name(Window.m_Name)
+      m_Name(Window.m_Name),
+      m_Components()
 {
     if (!BackRenderMatName.empty())
     {
@@ -151,6 +153,11 @@ WindowT::WindowT(const WindowT& Window, bool Recursive)
         BorderColor[i]=Window.BorderColor[i];
         TextColor  [i]=Window.TextColor[i];
     }
+
+    m_Components.PushBackEmptyExact(Window.GetComponents().Size());
+
+    for (unsigned int CompNr = 0; CompNr < Window.GetComponents().Size(); CompNr++)
+        m_Components[CompNr] = Window.GetComponents()[CompNr]->Clone(this);
 
     FillMemberVars();
 

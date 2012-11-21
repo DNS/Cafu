@@ -109,16 +109,16 @@ namespace cf
             /// @param Params   The creation parameters for the window.
             WindowT(const WindowCreateParamsT& Params);
 
-            /// The Copy Constructor.
+            /// The copy constructor.
             /// Copies a window (optionally with all of its children recursively).
             /// The parent of the copy is always NULL and it is up to the caller to put the copy into a window hierarchy.
-            /// @param Window The window to construct this window from.
+            /// @param Window      The window to construct this window from.
             /// @param Recursive   Whether to recursively copy all children.
             WindowT(const WindowT& Window, bool Recursive=false);
 
-            /// Virtual Copy Constructor.
-            /// Creates an exact clone of the window and due to its virtuality considers the real class not just the class
-            /// on which the method is called as with the copy ctor.
+            /// The virtual copy constructor.
+            /// Callers can use this method to create a copy of this window without knowing its concrete type.
+            /// Overrides in derived classes use a covariant return type to facilitate use when the concrete type is known.
             /// @param Recursive   Whether to recursively clone all children of this window.
             virtual WindowT* Clone(bool Recursive=false) const;
 

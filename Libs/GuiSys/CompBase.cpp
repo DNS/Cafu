@@ -29,3 +29,15 @@ ComponentBaseT::ComponentBaseT(WindowT* Window)
     : m_Window(Window)
 {
 }
+
+
+ComponentBaseT::ComponentBaseT(const ComponentBaseT& Comp, WindowT* Window)
+    : m_Window(Window)
+{
+}
+
+
+ComponentBaseT* ComponentBaseT::Clone(WindowT* Window) const
+{
+    return new ComponentBaseT(*this, Window);
+}

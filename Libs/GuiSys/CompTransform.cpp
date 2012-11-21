@@ -28,3 +28,15 @@ ComponentTransformT::ComponentTransformT(WindowT* Window)
     : ComponentBaseT(Window)
 {
 }
+
+
+ComponentTransformT::ComponentTransformT(const ComponentTransformT& Comp, WindowT* Window)
+    : ComponentBaseT(Comp, Window)
+{
+}
+
+
+ComponentTransformT* ComponentTransformT::Clone(WindowT* Window) const
+{
+    return new ComponentTransformT(*this, Window);
+}
