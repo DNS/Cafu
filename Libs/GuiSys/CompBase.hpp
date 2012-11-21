@@ -58,10 +58,12 @@ namespace cf
             /// Returns the parent window that contains this component.
             WindowT& GetWindow() const { return m_Window; }
 
-            /// This method is called after all components of the parent window have been loaded.
+            /// This method is called whenever the components in the parent window have changed,
+            /// typically after the window has been loaded for the first time, has been created
+            /// as a copy of another window, or has been edited in the GUI editor.
             /// The component can use the opportunity to search the window for "sibling" components
-            /// that it depends on, and optionally store direct pointers to them.
-            virtual void ResolveDependencies() { }
+            /// that it depends on, and store direct pointers to them.
+            virtual void UpdateDependencies() { }
 
 
             private:

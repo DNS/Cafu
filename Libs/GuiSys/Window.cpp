@@ -154,10 +154,15 @@ WindowT::WindowT(const WindowT& Window, bool Recursive)
         TextColor  [i]=Window.TextColor[i];
     }
 
+    // Copy-create all components first.
     m_Components.PushBackEmptyExact(Window.GetComponents().Size());
 
     for (unsigned int CompNr = 0; CompNr < Window.GetComponents().Size(); CompNr++)
         m_Components[CompNr] = Window.GetComponents()[CompNr]->Clone(*this);
+
+    // Now that all components have been copied, have them resolve their dependencies among themselves.
+    for (unsigned int CompNr = 0; CompNr < Window.GetComponents().Size(); CompNr++)
+        m_Components[CompNr]->UpdateDependencies();
 
     FillMemberVars();
 

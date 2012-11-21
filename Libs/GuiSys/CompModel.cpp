@@ -46,7 +46,7 @@ ComponentModelT* ComponentModelT::Clone(WindowT& Window) const
 }
 
 
-void ComponentModelT::ResolveDependencies()
+void ComponentModelT::UpdateDependencies()
 {
     // It would be possible to break this loop as soon as we have assigned a non-NULL pointer to m_Transform.
     // However, this is only because the Transform component is, at this time, the only sibling component that

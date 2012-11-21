@@ -48,7 +48,7 @@ namespace cf
 
             // Base class overrides.
             ComponentImageT* Clone(WindowT& Window) const;
-            void ResolveDependencies();
+            void UpdateDependencies();
 
 
             private:
