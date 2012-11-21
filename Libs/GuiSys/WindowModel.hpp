@@ -60,7 +60,7 @@ namespace cf
             const Vector3fT& GetCameraPos() const { return CameraPos; }         ///< Returns the position of the camera in world space.
 
 
-            // Overloaded methods from the base class.
+            // Base class overrides.
             void Render() const;
             bool OnClockTickEvent(float t);
 

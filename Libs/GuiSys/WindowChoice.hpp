@@ -59,7 +59,7 @@ namespace cf
             /// Returns the currently selected choice, -1 for none.
             int GetSelectedChoice() const { return m_SelectedChoice; }
 
-            // Overloaded methods from the base class.
+            // Base class overrides.
             void Render() const;
             bool OnInputEvent(const CaKeyboardEventT& KE);
             bool OnInputEvent(const CaMouseEventT&    ME, float PosX, float PosY);

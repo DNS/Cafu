@@ -54,7 +54,7 @@ namespace cf
             /// @param RowText   Text of the row to insert.
             void Insert(unsigned long RowNr, const std::string& RowText);
 
-            // Overloaded methods from the base class.
+            // Base class overrides.
             void Render() const;
             bool OnInputEvent(const CaKeyboardEventT& KE);
             bool OnInputEvent(const CaMouseEventT&    ME, float PosX, float PosY);

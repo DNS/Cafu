@@ -38,7 +38,7 @@ class ClientWindowT : public cf::GuiSys::WindowT
 
     void SetClient(ClientT* Cl);
 
-    // Overloaded methods of the parent class.
+    // Base class overrides.
     void Render() const;
     bool OnInputEvent(const CaKeyboardEventT& KE);
     bool OnInputEvent(const CaMouseEventT&    ME, float PosX, float PosY);

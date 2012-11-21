@@ -52,7 +52,7 @@ namespace cf
          // float        GetTextCursorTime() const { return m_TextCursorTime; }     ///< Returns the current time in the cursor blink cycle.
             const float* GetTextCursorColor() const { return m_TextCursorColor; }   ///< Returns the color of the text cursor.
 
-            // Overloaded methods from the base class.
+            // Base class overrides.
             void Render() const;
             bool OnInputEvent(const CaKeyboardEventT& KE);
             bool OnClockTickEvent(float t);
