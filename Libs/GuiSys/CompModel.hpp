@@ -53,7 +53,7 @@ namespace cf
 
             private:
 
-            ComponentTransformT*        m_Transform;
+            IntrusivePtrT<ComponentTransformT> m_Transform;
             // ...
         };
     }

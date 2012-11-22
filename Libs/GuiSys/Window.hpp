@@ -178,7 +178,7 @@ namespace cf
             IntrusivePtrT<WindowT> GetRoot();     // Method cannot be const because return type is not const -- see implementation.
 
             /// Returns the components that this window is composed of.
-            const ArrayT<ComponentBaseT*>& GetComponents() const { return m_Components; }
+            const ArrayT< IntrusivePtrT<ComponentBaseT> >& GetComponents() const { return m_Components; }
 
             /// Returns the position of the upper left corner of this window in absolute (vs. relative to the parent) virtual coordinates.
             /// @param x Variable to store the x coordinate of the upper left corner.
@@ -310,13 +310,13 @@ namespace cf
 
             void operator = (const WindowT&);   ///< Use of the Assignment Operator is not allowed.
 
-            GuiImplT&                        m_Gui;             ///< The GUI instance in which this window was created and exists. Useful in many regards, but especially for access to the underlying Lua state.
-            ExtDataT*                        m_ExtData;         ///< The GuiEditor's "dual" or "sibling" of this window.
-            WindowT*                         m_Parent;          ///< The parent of this window. May be NULL if there is no parent. In order to not create cycles of IntrusivePtrT's, the type is intentionally a raw pointer only.
-            ArrayT< IntrusivePtrT<WindowT> > m_Children;        ///< The list of children of this window.
-            std::string                      m_Name;            ///< The name of this window. It must be unique among all its siblings (the children of its parent), which is enforced in the SetName() and AddChild() methods.
-            ArrayT<ComponentBaseT*>          m_Components;      ///< The components that this window is composed of.
-            ArrayT<InterpolationT*>          m_PendingInterp;   ///< The currently pending interpolations.
+            GuiImplT&                               m_Gui;            ///< The GUI instance in which this window was created and exists. Useful in many regards, but especially for access to the underlying Lua state.
+            ExtDataT*                               m_ExtData;        ///< The GuiEditor's "dual" or "sibling" of this window.
+            WindowT*                                m_Parent;         ///< The parent of this window. May be NULL if there is no parent. In order to not create cycles of IntrusivePtrT's, the type is intentionally a raw pointer only.
+            ArrayT< IntrusivePtrT<WindowT> >        m_Children;       ///< The list of children of this window.
+            std::string                             m_Name;           ///< The name of this window. It must be unique among all its siblings (the children of its parent), which is enforced in the SetName() and AddChild() methods.
+            ArrayT< IntrusivePtrT<ComponentBaseT> > m_Components;     ///< The components that this window is composed of.
+            ArrayT<InterpolationT*>                 m_PendingInterp;  ///< The currently pending interpolations.
         };
     }
 }

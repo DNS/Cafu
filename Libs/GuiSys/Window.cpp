@@ -201,7 +201,15 @@ WindowT::~WindowT()
 
     // Delete the components.
     for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
-        delete m_Components[CompNr];
+    {
+        // No one else should still have a pointer to m_Components[CompNr] at this point.
+        // In the unlikely case that this ever triggers, possible causes include:
+        //   - A component has a cyclic dependency on another component.
+        //   - A script keeps a component, but not the related window.
+        // Note that the component in question will continue with a stale reference to this window,
+        // likely to cause a program crash soon.
+        assert(m_Components[CompNr]->GetRefCount() == 1);
+    }
 
     m_Components.Clear();
 

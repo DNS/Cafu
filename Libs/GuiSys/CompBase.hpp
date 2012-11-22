@@ -22,6 +22,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_GUISYS_COMPONENT_BASE_HPP_INCLUDED
 #define CAFU_GUISYS_COMPONENT_BASE_HPP_INCLUDED
 
+#include "Templates/Pointer.hpp"
+
 
 namespace cf
 {
@@ -30,7 +32,7 @@ namespace cf
         class WindowT;
 
         /// This is the base class for the components that a window is composed/aggregated of.
-        class ComponentBaseT
+        class ComponentBaseT : public RefCountedT
         {
             public:
 
@@ -63,6 +65,8 @@ namespace cf
             /// as a copy of another window, or has been edited in the GUI editor.
             /// The component can use the opportunity to search the window for "sibling" components
             /// that it depends on, and store direct pointers to them.
+            /// Note however that dependencies among components must not be cyclic, or else the deletion
+            /// of a window will leave a memory leak.
             virtual void UpdateDependencies() { }
 
 

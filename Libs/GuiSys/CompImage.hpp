@@ -53,7 +53,7 @@ namespace cf
 
             private:
 
-            ComponentTransformT*        m_Transform;
+            IntrusivePtrT<ComponentTransformT> m_Transform;
             // MatSys::RenderMaterialT* BackRenderMat;     ///< The render material used to render this windows background.
             // std::string              BackRenderMatName; ///< The name of the render material.
             // float                    BackColor[4];      ///< The windows background color.

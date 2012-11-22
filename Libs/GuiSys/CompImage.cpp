@@ -53,9 +53,9 @@ void ComponentImageT::UpdateDependencies()
     // we're interested in, whereas the loop below is suitable for resolving additional dependencies, too.
     for (unsigned int CompNr = 0; CompNr < GetWindow().GetComponents().Size(); CompNr++)
     {
-        ComponentBaseT* Comp = GetWindow().GetComponents()[CompNr];
+        IntrusivePtrT<ComponentBaseT> Comp = GetWindow().GetComponents()[CompNr];
 
-        if (!m_Transform)
-            m_Transform = dynamic_cast<ComponentTransformT*>(Comp);
+        if (m_Transform == NULL)
+            m_Transform = dynamic_pointer_cast<ComponentTransformT>(Comp);
     }
 }
