@@ -20,8 +20,31 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "CompTransform.hpp"
+#include "AllComponents.hpp"
+#include "UniScriptState.hpp"
+
+extern "C"
+{
+    #include <lua.h>
+    #include <lualib.h>
+    #include <lauxlib.h>
+}
 
 using namespace cf::GuiSys;
+
+
+void* ComponentTransformT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
+{
+    return new ComponentTransformT(static_cast<const cf::GuiSys::ComponentCreateParamsT&>(Params).m_Window);
+}
+
+const luaL_reg ComponentTransformT::MethodsList[] =
+{
+    { "__tostring", ComponentTransformT::toString },
+    { NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentTransformT::TypeInfo(GetComponentTIM(), "ComponentTransformT", "ComponentBaseT", ComponentTransformT::CreateInstance, MethodsList);
 
 
 ComponentTransformT::ComponentTransformT(WindowT& Window)
@@ -39,4 +62,14 @@ ComponentTransformT::ComponentTransformT(const ComponentTransformT& Comp, Window
 ComponentTransformT* ComponentTransformT::Clone(WindowT& Window) const
 {
     return new ComponentTransformT(*this, Window);
+}
+
+
+int ComponentBaseT::toString(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<ComponentBaseT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(1);
+
+    lua_pushfstring(LuaState, "transform component");
+    return 1;
 }

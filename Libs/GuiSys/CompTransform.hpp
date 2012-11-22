@@ -58,7 +58,17 @@ namespace cf
             float GetRotation() const { return GetWindow().RotAngle; }
 
 
+            // The TypeSys related declarations for this class.
+            const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
+            static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
+            static const cf::TypeSys::TypeInfoT TypeInfo;
+
+
             private:
+
+            // The Lua API methods of this class.
+            static const luaL_Reg MethodsList[];        ///< The list of Lua methods for this class.
+            static int toString(lua_State* LuaState);   ///< Returns a string representation of this object.
 
             enum SizeFlagsT { RATIO, FIXED };
 

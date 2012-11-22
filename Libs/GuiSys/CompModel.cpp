@@ -20,10 +20,33 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "CompModel.hpp"
+#include "AllComponents.hpp"
 #include "CompTransform.hpp"
 #include "Window.hpp"
+#include "UniScriptState.hpp"
+
+extern "C"
+{
+    #include <lua.h>
+    #include <lualib.h>
+    #include <lauxlib.h>
+}
 
 using namespace cf::GuiSys;
+
+
+void* ComponentModelT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
+{
+    return new ComponentModelT(static_cast<const cf::GuiSys::ComponentCreateParamsT&>(Params).m_Window);
+}
+
+const luaL_reg ComponentModelT::MethodsList[] =
+{
+    { "__tostring", ComponentModelT::toString },
+    { NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentModelT::TypeInfo(GetComponentTIM(), "ComponentModelT", "ComponentBaseT", ComponentModelT::CreateInstance, MethodsList);
 
 
 ComponentModelT::ComponentModelT(WindowT& Window)
@@ -58,4 +81,14 @@ void ComponentModelT::UpdateDependencies()
         if (m_Transform == NULL)
             m_Transform = dynamic_pointer_cast<ComponentTransformT>(Comp);
     }
+}
+
+
+int ComponentBaseT::toString(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<ComponentBaseT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(1);
+
+    lua_pushfstring(LuaState, "model component");
+    return 1;
 }

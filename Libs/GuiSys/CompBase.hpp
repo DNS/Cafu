@@ -25,6 +25,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Templates/Pointer.hpp"
 
 
+namespace cf { namespace TypeSys { class TypeInfoT; } }
+namespace cf { namespace TypeSys { class CreateParamsT; } }
+
+struct lua_State;
+struct luaL_Reg;
+
+
 namespace cf
 {
     namespace GuiSys
@@ -70,9 +77,19 @@ namespace cf
             virtual void UpdateDependencies() { }
 
 
+            // The TypeSys related declarations for this class.
+            virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
+            static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
+            static const cf::TypeSys::TypeInfoT TypeInfo;
+
+
             private:
 
             void operator = (const ComponentBaseT&);    ///< Use of the Assignment Operator is not allowed.
+
+            // The Lua API methods of this class.
+            static const luaL_Reg MethodsList[];        ///< The list of Lua methods for this class.
+            static int toString(lua_State* LuaState);   ///< Returns a string representation of this object.
 
             WindowT& m_Window;    ///< The parent window that contains this component.
         };

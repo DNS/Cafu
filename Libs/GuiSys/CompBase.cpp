@@ -20,9 +20,32 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "CompBase.hpp"
+#include "AllComponents.hpp"
 #include "Window.hpp"
+#include "UniScriptState.hpp"
+
+extern "C"
+{
+    #include <lua.h>
+    #include <lualib.h>
+    #include <lauxlib.h>
+}
 
 using namespace cf::GuiSys;
+
+
+void* ComponentBaseT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
+{
+    return new ComponentBaseT(static_cast<const cf::GuiSys::ComponentCreateParamsT&>(Params).m_Window);
+}
+
+const luaL_reg ComponentBaseT::MethodsList[] =
+{
+    { "__tostring", ComponentBaseT::toString },
+    { NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentBaseT::TypeInfo(GetComponentTIM(), "ComponentBaseT", NULL /*No base class.*/, ComponentBaseT::CreateInstance, MethodsList);
 
 
 ComponentBaseT::ComponentBaseT(WindowT& Window)
@@ -40,4 +63,14 @@ ComponentBaseT::ComponentBaseT(const ComponentBaseT& Comp, WindowT& Window)
 ComponentBaseT* ComponentBaseT::Clone(WindowT& Window) const
 {
     return new ComponentBaseT(*this, Window);
+}
+
+
+int ComponentBaseT::toString(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<ComponentBaseT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(1);
+
+    lua_pushfstring(LuaState, "base component");
+    return 1;
 }
