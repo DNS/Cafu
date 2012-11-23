@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GuiInspector.hpp"
 #include "LivePreview.hpp"
 
+#include "Commands/AddComponent.hpp"
 #include "Commands/Delete.hpp"
 #include "Commands/Select.hpp"
 #include "Commands/Rotate.hpp"
@@ -37,6 +38,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../ParentFrame.hpp"
 #include "../GameConfig.hpp"
 
+#include "GuiSys/AllComponents.hpp"
 #include "GuiSys/Window.hpp"
 #include "GuiSys/GuiImpl.hpp"
 #include "Math3D/Misc.hpp"
@@ -57,6 +59,11 @@ namespace
 {
     // Default perspective set by the first childframe instance and used to restore default settings later.
     wxString AUIDefaultPerspective;
+
+    bool CompareTypeInfoNames(const cf::TypeSys::TypeInfoT* const& TI1, const cf::TypeSys::TypeInfoT* const& TI2)
+    {
+        return wxStricmp(TI1->ClassName, TI2->ClassName) < 0;
+    }
 }
 
 
@@ -72,6 +79,7 @@ BEGIN_EVENT_TABLE(GuiEditor::ChildFrameT, wxMDIChildFrame)
     EVT_MENU           (wxID_PASTE,                                               GuiEditor::ChildFrameT::OnMenuEditPaste)
     EVT_MENU           (ID_MENU_EDIT_DELETE,                                      GuiEditor::ChildFrameT::OnMenuEditDelete)
     EVT_MENU_RANGE     (ID_MENU_EDIT_SNAP_TO_GRID, ID_MENU_EDIT_SET_GRID_SIZE,    GuiEditor::ChildFrameT::OnMenuEditGrid)
+    EVT_MENU_RANGE     (ID_MENU_COMPONENT_FIRST,   ID_MENU_COMPONENT_MAX,         GuiEditor::ChildFrameT::OnMenuComponent)
     EVT_MENU_RANGE     (ID_MENU_VIEW_WINDOWTREE,   ID_MENU_VIEW_SAVE_USER_LAYOUT, GuiEditor::ChildFrameT::OnMenuView)
     EVT_UPDATE_UI_RANGE(ID_MENU_VIEW_WINDOWTREE,   ID_MENU_VIEW_GUIINSPECTOR,     GuiEditor::ChildFrameT::OnMenuViewUpdate)
     EVT_CLOSE          (                                                          GuiEditor::ChildFrameT::OnClose)
@@ -94,6 +102,7 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
       m_WindowInspector(NULL),
       m_FileMenu(NULL),
       m_EditMenu(NULL),
+      m_CompMenu(NULL),
       m_ViewMenu(NULL)
 {
     // Register us with the parents list of children.
@@ -138,6 +147,38 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
     m_EditMenu->Append(ID_MENU_EDIT_SNAP_TO_GRID, wxString::Format("Snap to grid (%lu)\tCtrl+G", m_GridSpacing), "", wxITEM_CHECK);
     m_EditMenu->Append(ID_MENU_EDIT_SET_GRID_SIZE, "Set grid size\tCtrl+H", "");
     item0->Append(m_EditMenu, "&Edit");
+
+
+    m_CompMenu = new wxMenu;
+    const ArrayT<const cf::TypeSys::TypeInfoT*>& CompRoots = cf::GuiSys::GetComponentTIM().GetTypeInfoRoots();
+    ArrayT<const cf::TypeSys::TypeInfoT*>        CompTIs;
+
+    for (unsigned long RootNr = 0; RootNr < CompRoots.Size(); RootNr++)
+    {
+        for (const cf::TypeSys::TypeInfoT* TI = CompRoots[RootNr]; TI; TI = TI->GetNext())
+        {
+            // Skip the ComponentBaseT class.
+            if (!TI->Base) continue;
+
+            CompTIs.PushBack(TI);
+        }
+    }
+
+    CompTIs.QuickSort(CompareTypeInfoNames);
+
+    for (unsigned long TINr = 0; TINr < CompTIs.Size(); TINr++)
+    {
+        const cf::TypeSys::TypeInfoT* TI   = CompTIs[TINr];
+        wxString                      Name = TI->ClassName;
+
+        if (Name.StartsWith("Component") && Name.EndsWith("T"))
+            Name = Name.SubString(9, Name.length() - 2);
+
+        wxASSERT(ID_MENU_COMPONENT_FIRST + TI->TypeNr <= ID_MENU_COMPONENT_MAX);
+        m_CompMenu->Append(ID_MENU_COMPONENT_FIRST + TI->TypeNr, "&" + Name, "Add component to the selected window");
+    }
+
+    item0->Append(m_CompMenu, "&Component");
 
 
     m_ViewMenu=new wxMenu;
@@ -540,6 +581,27 @@ void GuiEditor::ChildFrameT::OnMenuEditUpdate(wxUpdateUIEvent& UE)
             UE.SetText(wxString::Format("Snap to grid (%lu)\tCtrl+G", m_GridSpacing));
             break;
     }
+}
+
+
+void GuiEditor::ChildFrameT::OnMenuComponent(wxCommandEvent& CE)
+{
+    const unsigned long           Nr = CE.GetId() - ID_MENU_COMPONENT_FIRST;
+    const cf::TypeSys::TypeInfoT* TI = cf::GuiSys::GetComponentTIM().FindTypeInfoByNr(Nr);
+
+    if (!TI)
+    {
+        wxMessageBox("Could not find a TypeInfo for this type number.", "Add component");
+        return;
+    }
+
+    if (m_GuiDocument->GetSelection().Size() != 1)
+    {
+        wxMessageBox("Please select exactly one window to add the component to.", "Add component");
+        return;
+    }
+
+    SubmitCommand(new CommandAddComponentT(m_GuiDocument, m_GuiDocument->GetSelection()[0], TI));
 }
 
 

@@ -161,7 +161,7 @@ WindowT::WindowT(const WindowT& Window, bool Recursive)
         m_Components[CompNr] = Window.GetComponents()[CompNr]->Clone(*this);
 
     // Now that all components have been copied, have them resolve their dependencies among themselves.
-    for (unsigned int CompNr = 0; CompNr < Window.GetComponents().Size(); CompNr++)
+    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
         m_Components[CompNr]->UpdateDependencies();
 
     FillMemberVars();
@@ -327,6 +327,26 @@ IntrusivePtrT<WindowT> WindowT::GetRoot()
         Root = Root->m_Parent;
 
     return Root;
+}
+
+
+void WindowT::AddComponent(IntrusivePtrT<ComponentBaseT> Comp)
+{
+    m_Components.PushBack(Comp);
+
+    // Have the components re-resolve their dependencies among themselves.
+    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
+        m_Components[CompNr]->UpdateDependencies();
+}
+
+
+void WindowT::DeleteComponent(unsigned long CompNr)
+{
+    m_Components.RemoveAtAndKeepOrder(CompNr);
+
+    // Have the components re-resolve their dependencies among themselves.
+    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
+        m_Components[CompNr]->UpdateDependencies();
 }
 
 

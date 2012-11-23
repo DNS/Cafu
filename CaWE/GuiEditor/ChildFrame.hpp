@@ -97,6 +97,7 @@ namespace GuiEditor
 
         wxMenu*           m_FileMenu;
         wxMenu*           m_EditMenu;
+        wxMenu*           m_CompMenu;
         wxMenu*           m_ViewMenu;
 
         wxAuiToolBar*     m_ToolbarTools;
@@ -111,6 +112,9 @@ namespace GuiEditor
             ID_MENU_EDIT_DELETE,
             ID_MENU_EDIT_SNAP_TO_GRID,
             ID_MENU_EDIT_SET_GRID_SIZE,
+
+            ID_MENU_COMPONENT_FIRST,
+            ID_MENU_COMPONENT_MAX = ID_MENU_COMPONENT_FIRST + 100,
 
             ID_MENU_VIEW_WINDOWTREE,
             ID_MENU_VIEW_WINDOWINSPECTOR,
@@ -149,6 +153,7 @@ namespace GuiEditor
         void OnMenuEditDelete(wxCommandEvent& CE);
         void OnMenuEditGrid(wxCommandEvent& CE);
         void OnMenuEditUpdate(wxUpdateUIEvent& UE);
+        void OnMenuComponent(wxCommandEvent& CE);
         void OnMenuView(wxCommandEvent& CE);
         void OnMenuViewUpdate(wxUpdateUIEvent& UE);
         void OnClose(wxCloseEvent& CE);

@@ -84,7 +84,7 @@ void ComponentImageT::UpdateDependencies()
 }
 
 
-int ComponentBaseT::toString(lua_State* LuaState)
+int ComponentImageT::toString(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
     IntrusivePtrT<ComponentBaseT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(1);

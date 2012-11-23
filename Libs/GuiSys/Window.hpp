@@ -180,6 +180,12 @@ namespace cf
             /// Returns the components that this window is composed of.
             const ArrayT< IntrusivePtrT<ComponentBaseT> >& GetComponents() const { return m_Components; }
 
+            /// Adds the given component to this window.
+            void AddComponent(IntrusivePtrT<ComponentBaseT> Comp);
+
+            /// Deletes the component at the given index from this window.
+            void DeleteComponent(unsigned long CompNr);
+
             /// Returns the position of the upper left corner of this window in absolute (vs. relative to the parent) virtual coordinates.
             /// @param x Variable to store the x coordinate of the upper left corner.
             /// @param y Variable to store the y coordinate of the upper left corner.
