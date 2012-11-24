@@ -63,12 +63,9 @@ namespace cf
             static const cf::TypeSys::TypeInfoT TypeInfo;
 
 
-            protected:
+            private:
 
             void FillMemberVars(); ///< Helper method that fills the MemberVars array with entries for each class member.
-
-
-            private:
 
             unsigned int m_TextCursorPos;       ///< The character position of the text cursor in the text. Valid values are 0 to Text.length().
             unsigned int m_TextCursorType;      ///< The type of the text cursor. 0 is a vertical bar cursor '|', 1 is an underline cursor'_'. Any other types are not supported and default to the '|' cursor type.

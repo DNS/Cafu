@@ -177,8 +177,6 @@ bool ModelWindowT::OnClockTickEvent(float t)
 
 void ModelWindowT::FillMemberVars()
 {
-    WindowT::FillMemberVars();
-
     MemberVars["modelPos.x"]=MemberVarT(ModelPos.x);
     MemberVars["modelPos.y"]=MemberVarT(ModelPos.y);
     MemberVars["modelPos.z"]=MemberVarT(ModelPos.z);

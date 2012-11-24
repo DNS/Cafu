@@ -66,12 +66,9 @@ namespace cf
             static const cf::TypeSys::TypeInfoT TypeInfo;
 
 
-            protected:
+            private:
 
             void FillMemberVars(); ///< Helper method that fills the MemberVars array with entries for each class member.
-
-
-            private:
 
             unsigned long SelectedRow;      ///< Number of the currently selected row, 0xFFFFFFFF for none.
             float         RowHeight;        ///< The height of each row.

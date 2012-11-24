@@ -183,8 +183,6 @@ bool ChoiceT::OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY)
 
 void ChoiceT::FillMemberVars()
 {
-    WindowT::FillMemberVars();
-
     MemberVars["selectedChoice"]=MemberVarT(MemberVarT(MemberVarT::TYPE_INT, &m_SelectedChoice));
 }
 

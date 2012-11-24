@@ -272,8 +272,6 @@ bool ListBoxT::OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY)
 
 void ListBoxT::FillMemberVars()
 {
-    WindowT::FillMemberVars();
-
     MemberVars["selectedRow"]=MemberVarT(MemberVarT::TYPE_INT, &SelectedRow);
     MemberVars["rowHeight"]=MemberVarT(RowHeight);
     MemberVars["oddRowBgColor"]=MemberVarT(MemberVarT::TYPE_FLOAT4, &OddRowBgColor[0]);

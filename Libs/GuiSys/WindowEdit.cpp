@@ -282,8 +282,6 @@ bool EditWindowT::OnClockTickEvent(float t)
 
 void EditWindowT::FillMemberVars()
 {
-    WindowT::FillMemberVars();
-
     MemberVars["textCursorPos"]=MemberVarT(MemberVarT::TYPE_INT, &m_TextCursorPos);
     MemberVars["textCursorType"]=MemberVarT(MemberVarT::TYPE_INT, &m_TextCursorType);
     MemberVars["textCursorRate"]=MemberVarT(m_TextCursorRate);

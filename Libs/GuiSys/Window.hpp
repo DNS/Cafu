@@ -289,8 +289,6 @@ namespace cf
 
             static const luaL_Reg MethodsList[]; ///< List of methods registered with Lua.
 
-            void FillMemberVars();  ///< Helper method that fills the MemberVars array with entries for each class member.
-
             /// Maps strings (names) to member variables of this class.
             /// This map is needed for implementing the Lua-binding methods efficiently.
             /// It is also used in the GUI editor to easily modify members without the need for Get/Set methods.
@@ -314,6 +312,7 @@ namespace cf
                 }
             };
 
+            void FillMemberVars();              ///< Helper method that fills the MemberVars array with entries for each class member.
             void operator = (const WindowT&);   ///< Use of the Assignment Operator is not allowed.
 
             GuiImplT&                               m_Gui;            ///< The GUI instance in which this window was created and exists. Useful in many regards, but especially for access to the underlying Lua state.

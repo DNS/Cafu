@@ -71,12 +71,9 @@ namespace cf
             static const cf::TypeSys::TypeInfoT TypeInfo;
 
 
-            protected:
+            private:
 
             void FillMemberVars(); ///< Helper method that fills the MemberVars array with entries for each class member.
-
-
-            private:
 
             const CafuModelT*                m_Model;       ///< The model instance rendered by this window.
             AnimPoseT*                       m_Pose;        ///< The pose of the model.
