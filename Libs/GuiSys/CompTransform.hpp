@@ -48,6 +48,7 @@ namespace cf
 
             // Base class overrides.
             ComponentTransformT* Clone(WindowT& Window) const;
+            const char* GetName() const { return "Transform"; }
 
             // The implementation of these methods is *temporary/transitional*
             // (the data should be here in ComponentTransformT, not in m_Window).

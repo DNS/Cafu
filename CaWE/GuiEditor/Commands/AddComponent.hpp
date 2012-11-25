@@ -52,6 +52,7 @@ namespace GuiEditor
         GuiDocumentT*                             m_GuiDocument;
         IntrusivePtrT<cf::GuiSys::WindowT>        m_Window;
         IntrusivePtrT<cf::GuiSys::ComponentBaseT> m_Component;
+        wxString                                  m_Name;
     };
 }
 

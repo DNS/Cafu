@@ -34,15 +34,17 @@ using namespace GuiEditor;
 CommandAddComponentT::CommandAddComponentT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Window, const cf::TypeSys::TypeInfoT* TI)
     : m_GuiDocument(GuiDocument),
       m_Window(Window),
-      m_Component(NULL)
+      m_Component(NULL),
+      m_Name("Add component")
 {
     m_Component = static_cast<cf::GuiSys::ComponentBaseT*>(
         TI->CreateInstance(
             cf::GuiSys::ComponentCreateParamsT(*m_Window.get())));
 
-    if (m_Component == NULL)
+    if (m_Component != NULL)
     {
-        wxMessageBox("Could not create the component instance from the given TypeInfo.", "Add component");
+        m_Name += ": ";
+        m_Name += m_Component->GetName();
     }
 }
 
@@ -85,5 +87,5 @@ void CommandAddComponentT::Undo()
 
 wxString CommandAddComponentT::GetName() const
 {
-    return "Add component";
+    return m_Name;
 }

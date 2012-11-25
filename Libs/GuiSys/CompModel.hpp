@@ -48,6 +48,7 @@ namespace cf
 
             // Base class overrides.
             ComponentModelT* Clone(WindowT& Window) const;
+            const char* GetName() const { return "Model"; }
             void UpdateDependencies();
 
 

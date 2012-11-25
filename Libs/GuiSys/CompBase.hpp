@@ -67,6 +67,9 @@ namespace cf
             /// Returns the parent window that contains this component.
             WindowT& GetWindow() const { return m_Window; }
 
+            /// Returns the name of this component.
+            virtual const char* GetName() const { return "Base"; }
+
             /// This method is called whenever the components in the parent window have changed,
             /// typically after the window has been loaded for the first time, has been created
             /// as a copy of another window, or has been edited in the GUI editor.
