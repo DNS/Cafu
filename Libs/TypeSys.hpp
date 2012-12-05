@@ -31,6 +31,12 @@ struct luaL_Reg;
 
 namespace cf
 {
+    /// The TypeSys ("type system") namespace provides classes for two related, but entirely independent concepts:
+    ///   - The TypeInfoT and TypeInfoManT classes provide meta-information about classes and class hierarchies.
+    ///   - The Var*T classes provide meta-information about class members.
+    /// The rest of this text talks about the TypeInfo*T classes only: see the documentation of the Var*T classes
+    /// for the second point. -- TODO: update/revise this text accordingly!
+    ///
     /// The main purpose of the Type System is to make the programmers life easier when he is working with inheritance
     /// hierarchies of C++ classes. In many such cases, "meta" knowledge about the classes is required.
     ///
