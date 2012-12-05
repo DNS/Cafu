@@ -48,20 +48,33 @@ const cf::TypeSys::TypeInfoT ComponentTransformT::TypeInfo(GetComponentTIM(), "C
 
 
 ComponentTransformT::ComponentTransformT(WindowT& Window)
-    : ComponentBaseT(Window)
+    : ComponentBaseT(Window),
+      m_RotAngle("RotAngle", 0.0f),
+      m_Test("Test", "hallo")
 {
+    FillMemberVars();
 }
 
 
 ComponentTransformT::ComponentTransformT(const ComponentTransformT& Comp, WindowT& Window)
-    : ComponentBaseT(Comp, Window)
+    : ComponentBaseT(Comp, Window),
+      m_RotAngle(Comp.m_RotAngle),
+      m_Test(Comp.m_Test)
 {
+    FillMemberVars();
 }
 
 
 ComponentTransformT* ComponentTransformT::Clone(WindowT& Window) const
 {
     return new ComponentTransformT(*this, Window);
+}
+
+
+void ComponentTransformT::FillMemberVars()
+{
+    GetMemberVars().Add(&m_RotAngle);
+    GetMemberVars().Add(&m_Test);
 }
 
 

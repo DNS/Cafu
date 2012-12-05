@@ -67,6 +67,8 @@ namespace cf
 
             private:
 
+            void FillMemberVars();      ///< A helper method for the constructors.
+
             // The Lua API methods of this class.
             static const luaL_Reg MethodsList[];        ///< The list of Lua methods for this class.
             static int toString(lua_State* LuaState);   ///< Returns a string representation of this object.
@@ -75,7 +77,8 @@ namespace cf
 
             // TODO: Should x, y, w, h be rounded to the nearest integer?? Should we have a flag for it?
             //float x, y, w, h;
-            //float RotAngle;          ///< The angle in degrees by how much this entire window is rotated. Obsolete if we have 3D transforms?
+            TypeSys::VarT<float>       m_RotAngle;      ///< The angle in degrees by how much this entire window is rotated. Obsolete if we have 3D transforms?
+            TypeSys::VarT<std::string> m_Test;
             // SizeFlagsT HorzFlags[3];
             // SizeFlagsT VertFlags[3];
         };

@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_GUISYS_COMPONENT_BASE_HPP_INCLUDED
 #define CAFU_GUISYS_COMPONENT_BASE_HPP_INCLUDED
 
+#include "Variables.hpp"
 #include "Templates/Pointer.hpp"
 
 
@@ -67,6 +68,10 @@ namespace cf
             /// Returns the parent window that contains this component.
             WindowT& GetWindow() const { return m_Window; }
 
+            /// Returns the variable manager that keeps generic references to our member variables,
+            /// providing a simple kind of "reflection" or "type introspection" feature.
+            TypeSys::VarManT& GetMemberVars() { return m_MemberVars; }
+
             /// Returns the name of this component.
             virtual const char* GetName() const { return "Base"; }
 
@@ -94,7 +99,8 @@ namespace cf
             static const luaL_Reg MethodsList[];        ///< The list of Lua methods for this class.
             static int toString(lua_State* LuaState);   ///< Returns a string representation of this object.
 
-            WindowT& m_Window;    ///< The parent window that contains this component.
+            WindowT&         m_Window;      ///< The parent window that contains this component.
+            TypeSys::VarManT m_MemberVars;  ///< The variable manager that keeps generic references to our member variables.
         };
     }
 }

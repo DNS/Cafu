@@ -49,13 +49,15 @@ const cf::TypeSys::TypeInfoT ComponentBaseT::TypeInfo(GetComponentTIM(), "Compon
 
 
 ComponentBaseT::ComponentBaseT(WindowT& Window)
-    : m_Window(Window)
+    : m_Window(Window),
+      m_MemberVars()
 {
 }
 
 
 ComponentBaseT::ComponentBaseT(const ComponentBaseT& Comp, WindowT& Window)
-    : m_Window(Window)
+    : m_Window(Window),
+      m_MemberVars()
 {
 }
 
