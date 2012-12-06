@@ -145,6 +145,13 @@ void SubjectT::UpdateAllObservers_Modified(const EditorWindowT* Win, const wxStr
 }
 
 
+void SubjectT::UpdateAllObservers_Modified(const cf::TypeSys::VarBaseT& Var)
+{
+    for (unsigned long ObsNr = 0; ObsNr < m_Observers.Size(); ObsNr++)
+        m_Observers[ObsNr]->Notify_Changed(this, Var);
+}
+
+
 SubjectT::~SubjectT()
 {
     for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)

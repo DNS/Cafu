@@ -38,6 +38,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 namespace cf { namespace GuiSys { class WindowT; } }
+namespace cf { namespace TypeSys { class VarBaseT; } }
 
 
 namespace GuiEditor
@@ -105,6 +106,11 @@ namespace GuiEditor
         /// @param PropName   The name of the property whose value has changed.
         virtual void Notify_WinChanged(SubjectT* Subject, const EditorWindowT* Win, const wxString& PropName) { }
 
+        /// Notifies the observer that a variable has changed.
+        /// @param Subject   The GUI document in which a variable has changed.
+        /// @param Var       The variable whose value has changed.
+        virtual void Notify_Changed(SubjectT* Subject, const cf::TypeSys::VarBaseT& Var) { }
+
         /// This method is called whenever a subject is about the be destroyed (and become unavailable).
         /// @param dyingSubject   The subject that is being destroyed.
         virtual void NotifySubjectDies(SubjectT* dyingSubject)=0;
@@ -143,6 +149,7 @@ namespace GuiEditor
         virtual void UpdateAllObservers_Modified(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail, const wxString& PropertyName);
         virtual void UpdateAllObservers_Modified(IntrusivePtrT<cf::GuiSys::WindowT> Window, WindowModDetailE Detail, const wxString& PropertyName);
         virtual void UpdateAllObservers_Modified(const EditorWindowT* Win, const wxString& PropName);
+        virtual void UpdateAllObservers_Modified(const cf::TypeSys::VarBaseT& Var);
 
         /// The virtual destructor.
         virtual ~SubjectT();

@@ -22,8 +22,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "WindowInspector.hpp"
 #include "ChildFrame.hpp"
 #include "GuiDocument.hpp"
+#include "VarVisitors.hpp"
 #include "Commands/ModifyWindow.hpp"
 #include "Windows/EditorWindow.hpp"
+#include "GuiSys/CompBase.hpp"
 
 
 using namespace GuiEditor;
@@ -153,6 +155,29 @@ void WindowInspectorT::Notify_WinChanged(SubjectT* Subject, const EditorWindowT*
 }
 
 
+void WindowInspectorT::Notify_Changed(SubjectT* Subject, const cf::TypeSys::VarBaseT& Var)
+{
+    if (m_IsRecursiveSelfNotify) return;
+    if (m_SelectedWindow.IsNull()) return;
+    if (!GetPage(0)) return;
+
+    // Find the property that is related to Var.
+    for (wxPropertyGridIterator it = GetPage(0)->GetIterator(); !it.AtEnd(); it++)
+    {
+        wxPGProperty* Prop = *it;
+
+        if (Prop->GetClientData() == &Var)
+        {
+            VarVisitorUpdatePropT UpdateProp(*Prop);
+
+            Var.accept(UpdateProp);
+            RefreshGrid();
+            break;
+        }
+    }
+}
+
+
 void WindowInspectorT::NotifySubjectDies(SubjectT* dyingSubject)
 {
     wxASSERT(dyingSubject==m_GuiDocument);
@@ -176,6 +201,20 @@ void WindowInspectorT::RefreshPropGrid()
         m_SelectedWindow=Selection[0];
 
         GuiDocumentT::GetSibling(m_SelectedWindow)->FillInPG(this);
+
+        VarVisitorAddPropT AddProp(*this);
+
+        for (unsigned long CompNr = 0; CompNr < m_SelectedWindow->GetComponents().Size(); CompNr++)
+        {
+            IntrusivePtrT<cf::GuiSys::ComponentBaseT> Comp       = m_SelectedWindow->GetComponents()[CompNr];
+            const ArrayT<cf::TypeSys::VarBaseT*>&     MemberVars = Comp->GetMemberVars().GetArray();
+            const wxString                            UniqueName = wxString::Format("%p", Comp.get());
+
+            Append(new wxPropertyCategory(Comp->GetName(), UniqueName));
+
+            for (unsigned long VarNr = 0; VarNr < MemberVars.Size(); VarNr++)
+                MemberVars[VarNr]->accept(AddProp);
+        }
     }
     else
     {
@@ -205,5 +244,19 @@ void WindowInspectorT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
 
     m_IsRecursiveSelfNotify=true;
     GuiDocumentT::GetSibling(m_SelectedWindow)->HandlePGChange(Event, m_Parent);
+
+    const wxPGProperty*    Prop = Event.GetProperty();
+    cf::TypeSys::VarBaseT* Var  = static_cast<cf::TypeSys::VarBaseT*>(Prop->GetClientData());
+
+    if (Var)
+    {
+        VarVisitorHandlePropChangedEventT PropChanged(Event, m_Parent);
+
+        Var->accept(PropChanged);
+
+        // wxASSERT(Event.CanVeto());  // EVT_PG_CHANGING events can be vetoed (as opposed to EVT_PG_CHANGED events).
+        // if (!PropChanged.Ok()) Event.Veto();
+    }
+
     m_IsRecursiveSelfNotify=false;
 }
