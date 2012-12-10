@@ -32,6 +32,7 @@ using namespace GuiEditor;
 
 
 BEGIN_EVENT_TABLE(WindowInspectorT, wxPropertyGridManager)
+    EVT_PG_CHANGING(wxID_ANY, WindowInspectorT::OnPropertyGridChanging)
     EVT_PG_CHANGED(wxID_ANY, WindowInspectorT::OnPropertyGridChanged)
 END_EVENT_TABLE()
 
@@ -233,6 +234,35 @@ void WindowInspectorT::RefreshPropGrid()
 }
 
 
+void WindowInspectorT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
+{
+    if (m_SelectedWindow==NULL) return;
+
+    // Changing a property by pressing ENTER doesn't change the selection. In consequence the property refresh below does not result in
+    // any change since selected properties are not updated (because the user could be in the process of editing a value).
+    // Since the user is definitely finished editing this property we can safely clear the selection.
+    // ClearSelection();
+    wxLogDebug("%s: %s value \"%s\": %s", __FUNCTION__, Event.GetValue().GetType(), Event.GetProperty()->GetLabel(), Event.GetValue().MakeString());
+
+    m_IsRecursiveSelfNotify=true;
+
+    const wxPGProperty*    Prop = Event.GetProperty();
+    cf::TypeSys::VarBaseT* Var  = static_cast<cf::TypeSys::VarBaseT*>(Prop->GetClientData());
+
+    if (Var)
+    {
+        VarVisitorHandlePropChangingEventT PropChanged(Event, m_Parent);
+
+        Var->accept(PropChanged);
+
+        wxASSERT(Event.CanVeto());  // EVT_PG_CHANGING events can be vetoed (as opposed to EVT_PG_CHANGED events).
+        if (!PropChanged.Ok()) Event.Veto();
+    }
+
+    m_IsRecursiveSelfNotify=false;
+}
+
+
 void WindowInspectorT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
 {
     if (m_SelectedWindow==NULL) return;
@@ -240,23 +270,10 @@ void WindowInspectorT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
     // Changing a property by pressing ENTER doesn't change the selection. In consequence the property refresh below does not result in
     // any change since selected properties are not updated (because the user could be in the process of editing a value).
     // Since the user is definitely finished editing this property we can safely clear the selection.
-    ClearSelection();
+    // ClearSelection();
+    wxLogDebug("%s: %s value \"%s\": %s", __FUNCTION__, Event.GetValue().GetType(), Event.GetProperty()->GetLabel(), Event.GetValue().MakeString());
 
     m_IsRecursiveSelfNotify=true;
     GuiDocumentT::GetSibling(m_SelectedWindow)->HandlePGChange(Event, m_Parent);
-
-    const wxPGProperty*    Prop = Event.GetProperty();
-    cf::TypeSys::VarBaseT* Var  = static_cast<cf::TypeSys::VarBaseT*>(Prop->GetClientData());
-
-    if (Var)
-    {
-        VarVisitorHandlePropChangedEventT PropChanged(Event, m_Parent);
-
-        Var->accept(PropChanged);
-
-        // wxASSERT(Event.CanVeto());  // EVT_PG_CHANGING events can be vetoed (as opposed to EVT_PG_CHANGED events).
-        // if (!PropChanged.Ok()) Event.Veto();
-    }
-
     m_IsRecursiveSelfNotify=false;
 }

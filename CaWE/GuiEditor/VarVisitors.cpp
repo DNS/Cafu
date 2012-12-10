@@ -119,51 +119,51 @@ void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<Vector3fT>& Var)
 }
 
 
-/*****************************************/
-/*** VarVisitorHandlePropChangedEventT ***/
-/*****************************************/
+/******************************************/
+/*** VarVisitorHandlePropChangingEventT ***/
+/******************************************/
 
-VarVisitorHandlePropChangedEventT::VarVisitorHandlePropChangedEventT(wxPropertyGridEvent& Event, ChildFrameT* ChildFrame)
+VarVisitorHandlePropChangingEventT::VarVisitorHandlePropChangingEventT(wxPropertyGridEvent& Event, ChildFrameT* ChildFrame)
     : m_Event(Event),
       m_ChildFrame(ChildFrame),
       m_GuiDoc(ChildFrame->GetGuiDoc()),
-      m_Ok(true)
+      m_Ok(false)
 {
 }
 
 
-void VarVisitorHandlePropChangedEventT::visit(cf::TypeSys::VarT<float>& Var)
+void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<float>& Var)
 {
-    const float f = m_Event.GetProperty()->GetValue().GetDouble();
+    const float f = m_Event.GetValue().GetDouble();
 
     m_Ok = m_ChildFrame->SubmitCommand(new CommandSetCompVarT<float>(m_GuiDoc, Var, f));
 }
 
 
-void VarVisitorHandlePropChangedEventT::visit(cf::TypeSys::VarT<double>& Var)
+void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<double>& Var)
 {
-    const double d = m_Event.GetProperty()->GetValue().GetDouble();
+    const double d = m_Event.GetValue().GetDouble();
 
     m_Ok = m_ChildFrame->SubmitCommand(new CommandSetCompVarT<double>(m_GuiDoc, Var, d));
 }
 
 
-void VarVisitorHandlePropChangedEventT::visit(cf::TypeSys::VarT<int>& Var)
+void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<int>& Var)
 {
-    const int i = m_Event.GetProperty()->GetValue().GetLong();
+    const int i = m_Event.GetValue().GetLong();
 
     m_Ok = m_ChildFrame->SubmitCommand(new CommandSetCompVarT<int>(m_GuiDoc, Var, i));
 }
 
 
-void VarVisitorHandlePropChangedEventT::visit(cf::TypeSys::VarT<std::string>& Var)
+void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<std::string>& Var)
 {
-    const std::string s = std::string(m_Event.GetProperty()->GetValueAsString());
+    const std::string s = std::string(m_Event.GetValue().GetString());
 
     m_Ok = m_ChildFrame->SubmitCommand(new CommandSetCompVarT<std::string>(m_GuiDoc, Var, s));
 }
 
 
-void VarVisitorHandlePropChangedEventT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
+void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
 {
 }

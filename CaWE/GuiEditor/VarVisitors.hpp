@@ -78,11 +78,11 @@ namespace GuiEditor
 
 
     /// This visitor updates the value of the visited variable according to the given EVT_PG_CHANGING event.
-    class VarVisitorHandlePropChangedEventT : public cf::TypeSys::VisitorT
+    class VarVisitorHandlePropChangingEventT : public cf::TypeSys::VisitorT
     {
         public:
 
-        VarVisitorHandlePropChangedEventT(wxPropertyGridEvent& Event, ChildFrameT* ChildFrame);
+        VarVisitorHandlePropChangingEventT(wxPropertyGridEvent& Event, ChildFrameT* ChildFrame);
 
         const bool Ok() const { return m_Ok; }
 

@@ -62,6 +62,7 @@ namespace GuiEditor
         IntrusivePtrT<cf::GuiSys::WindowT> m_SelectedWindow;
         bool                               m_IsRecursiveSelfNotify;
 
+        void OnPropertyGridChanging(wxPropertyGridEvent& Event);
         void OnPropertyGridChanged(wxPropertyGridEvent& Event);
 
         DECLARE_EVENT_TABLE()
