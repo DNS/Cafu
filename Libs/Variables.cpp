@@ -46,3 +46,4 @@ void cf::TypeSys::VarT<T>::accept(VisitorConstT& Visitor) const
 template class cf::TypeSys::VarT<float>;
 template class cf::TypeSys::VarT<double>;
 template class cf::TypeSys::VarT<std::string>;
+template class cf::TypeSys::VarT<Vector3fT>;

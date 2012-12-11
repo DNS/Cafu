@@ -79,6 +79,7 @@ namespace cf
             //float x, y, w, h;
             TypeSys::VarT<float>       m_RotAngle;      ///< The angle in degrees by how much this entire window is rotated. Obsolete if we have 3D transforms?
             TypeSys::VarT<std::string> m_Test;
+            TypeSys::VarT<Vector3fT>   m_PosTest;
             // SizeFlagsT HorzFlags[3];
             // SizeFlagsT VertFlags[3];
         };

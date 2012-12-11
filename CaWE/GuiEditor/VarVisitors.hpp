@@ -100,6 +100,33 @@ namespace GuiEditor
         GuiDocumentT*        m_GuiDoc;
         bool                 m_Ok;
     };
+
+
+    /// This visitor is similar to VarVisitorHandlePropChangingEventT:
+    /// It updates the value of the visited variable when a *sub-property* of the variable has changed.
+    /// The given EVT_PG_CHANGING event refers to the change of the sub-property.
+    class VarVisitorHandleSubChangingEventT : public cf::TypeSys::VisitorT
+    {
+        public:
+
+        VarVisitorHandleSubChangingEventT(wxPropertyGridEvent& Event, ChildFrameT* ChildFrame);
+
+        const bool Ok() const { return m_Ok; }
+
+        void visit(cf::TypeSys::VarT<float>& Var);
+        void visit(cf::TypeSys::VarT<double>& Var);
+        void visit(cf::TypeSys::VarT<int>& Var);
+        void visit(cf::TypeSys::VarT<std::string>& Var);
+        void visit(cf::TypeSys::VarT<Vector3fT>& Var);
+
+
+        private:
+
+        wxPropertyGridEvent& m_Event;
+        ChildFrameT*         m_ChildFrame;
+        GuiDocumentT*        m_GuiDoc;
+        bool                 m_Ok;
+    };
 }
 
 #endif
