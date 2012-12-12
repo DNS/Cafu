@@ -97,6 +97,8 @@ namespace cf
 
             // The Lua API methods of this class.
             static const luaL_Reg MethodsList[];        ///< The list of Lua methods for this class.
+            static int Get(lua_State* LuaState);        ///< Gets a member variable of this class.
+            static int Set(lua_State* LuaState);        ///< Sets a member variable of this class.
             static int toString(lua_State* LuaState);   ///< Returns a string representation of this object.
 
             WindowT&         m_Window;      ///< The parent window that contains this component.

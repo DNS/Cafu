@@ -21,6 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "CompBase.hpp"
 #include "AllComponents.hpp"
+#include "VarVisitorsLua.hpp"
 #include "Window.hpp"
 #include "UniScriptState.hpp"
 
@@ -41,6 +42,8 @@ void* ComponentBaseT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 
 const luaL_reg ComponentBaseT::MethodsList[] =
 {
+    { "get",        ComponentBaseT::Get },
+    { "set",        ComponentBaseT::Set },
     { "__tostring", ComponentBaseT::toString },
     { NULL, NULL }
 };
@@ -65,6 +68,36 @@ ComponentBaseT::ComponentBaseT(const ComponentBaseT& Comp, WindowT& Window)
 ComponentBaseT* ComponentBaseT::Clone(WindowT& Window) const
 {
     return new ComponentBaseT(*this, Window);
+}
+
+
+int ComponentBaseT::Get(lua_State* LuaState)
+{
+    ScriptBinderT                 Binder(LuaState);
+    VarVisitorGetToLuaT           GetToLua(LuaState);
+    IntrusivePtrT<ComponentBaseT> Comp    = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(1);
+    const char*                   VarName = luaL_checkstring(LuaState, 2);
+    const cf::TypeSys::VarBaseT*  Var     = Comp->m_MemberVars.Find(VarName);
+
+    if (Var)
+        Var->accept(GetToLua);
+
+    return GetToLua.GetNumResults();
+}
+
+
+int ComponentBaseT::Set(lua_State* LuaState)
+{
+    ScriptBinderT                 Binder(LuaState);
+    VarVisitorSetFromLuaT         SetFromLua(LuaState);
+    IntrusivePtrT<ComponentBaseT> Comp    = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(1);
+    const char*                   VarName = luaL_checkstring(LuaState, 2);
+    cf::TypeSys::VarBaseT*        Var     = Comp->m_MemberVars.Find(VarName);
+
+    if (Var)
+        Var->accept(SetFromLua);
+
+    return 0;
 }
 
 

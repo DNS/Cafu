@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef CAFU_GUIEDITOR_VAR_VIS_ADD_PROPERTY_HPP_INCLUDED
-#define CAFU_GUIEDITOR_VAR_VIS_ADD_PROPERTY_HPP_INCLUDED
+#ifndef CAFU_GUIEDITOR_VAR_VISITORS_PROPERTIES_HPP_INCLUDED
+#define CAFU_GUIEDITOR_VAR_VISITORS_PROPERTIES_HPP_INCLUDED
 
 #include "Variables.hpp"
 
