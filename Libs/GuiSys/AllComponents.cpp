@@ -37,12 +37,6 @@ cf::TypeSys::TypeInfoManT& cf::GuiSys::GetComponentTIM()
 }
 
 
-cf::GuiSys::ComponentCreateParamsT::ComponentCreateParamsT(WindowT& Window)
-    : m_Window(Window)
-{
-}
-
-
 // Intentionally use a named, non-anonymous namespace here to give AllComponentTIs[] external linkage.
 // With an anonymous namespace, the compiler might optimize AllComponentTIs[] out, defeating its purpose.
 // See the similar list in Games/DeathMatch/Code/GameImpl.cpp for more details!

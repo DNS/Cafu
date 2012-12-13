@@ -165,7 +165,7 @@ namespace cf
             /// modifying it as necessary. See SetName() for more details.
             ///
             /// @param Child   The window to add to the children of this window.
-            /// @param Pos     The position among the children to insert the child winow at.
+            /// @param Pos     The position among the children to insert the child window at.
             /// @returns true on success, false on failure (Child has a parent already, or is the root of this window).
             bool AddChild(IntrusivePtrT<WindowT> Child, unsigned long Pos=0xFFFFFFFF);
 
@@ -181,7 +181,8 @@ namespace cf
             const ArrayT< IntrusivePtrT<ComponentBaseT> >& GetComponents() const { return m_Components; }
 
             /// Adds the given component to this window.
-            void AddComponent(IntrusivePtrT<ComponentBaseT> Comp);
+            /// @returns `true` on success, `false` on failure (if `Comp` is part of a window already).
+            bool AddComponent(IntrusivePtrT<ComponentBaseT> Comp);
 
             /// Deletes the component at the given index from this window.
             void DeleteComponent(unsigned long CompNr);

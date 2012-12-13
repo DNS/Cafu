@@ -37,19 +37,17 @@ namespace cf
             public:
 
             /// The constructor.
-            /// @param Window   The window that the new component becomes a part of.
-            ComponentModelT(WindowT& Window);
+            ComponentModelT();
 
             /// The copy constructor.
             /// The new component can become a part of the same or a different window than the component it was copied from.
-            /// @param Comp     The component to create a copy of.
-            /// @param Window   The window that the new component becomes a part of.
-            ComponentModelT(const ComponentModelT& Comp, WindowT& Window);
+            /// @param Comp   The component to create a copy of.
+            ComponentModelT(const ComponentModelT& Comp);
 
             // Base class overrides.
-            ComponentModelT* Clone(WindowT& Window) const;
+            ComponentModelT* Clone() const;
             const char* GetName() const { return "Model"; }
-            void UpdateDependencies();
+            void UpdateDependencies(WindowT* Window);
 
 
             // The TypeSys related declarations for this class.

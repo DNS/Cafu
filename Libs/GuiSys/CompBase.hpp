@@ -40,33 +40,48 @@ namespace cf
         class WindowT;
 
         /// This is the base class for the components that a window is composed/aggregated of.
+        ///
+        /// Components are the basic building blocks of a window: their composition defines
+        /// the properties, the behaviour, and thus virtually every aspect of the window.
+        ///
+        /// Components can exist in two invariants:
+        ///   - Stand-alone, independent and not a part of any window.
+        ///   - Normally, as an active part of a window.
+        ///
+        /// Stand-alone components typically occur when they're newly instantiated, for example
+        /// when they are loaded from disk, when they are instantiated in scripts, or when they
+        /// are managed in the Undo/Redo system of the GUI Editor.
+        /// Newly created, copied or cloned components are initially stand-alone.
+        ///
+        /// A component becomes a part of a window via the WindowT::AddComponent() method.
+        /// The window then knows the component, because it hosts it, and reversely, the
+        /// component then knows the parent window that it is a component of.
         class ComponentBaseT : public RefCountedT
         {
             public:
 
             /// The constructor.
-            /// @param Window   The window that the new component becomes a part of.
-            ComponentBaseT(WindowT& Window);
+            /// The newly created component is initially not a part of any window.
+            ComponentBaseT();
 
             /// The copy constructor.
-            /// The new component can become a part of the same or a different window than the component it was copied from.
-            /// @param Comp     The component to create a copy of.
-            /// @param Window   The window that the new component becomes a part of.
-            ComponentBaseT(const ComponentBaseT& Comp, WindowT& Window);
+            /// The newly copied component is initially not a part of any window, even if the source component was.
+            /// @param Comp   The component to create a copy of.
+            ComponentBaseT(const ComponentBaseT& Comp);
 
             /// The virtual copy constructor.
             /// Callers can use this method to create a copy of this component without knowing its concrete type.
             /// Overrides in derived classes use a covariant return type to facilitate use when the concrete type is known.
-            /// The new component can become a part of the same or a different window than the component it was copied from.
-            /// @param Window   The window that the new component becomes a part of.
-            virtual ComponentBaseT* Clone(WindowT& Window) const;
+            /// The newly cloned component is initially not a part of any window, even if the source component was.
+            virtual ComponentBaseT* Clone() const;
 
             /// The virtual destructor.
             virtual ~ComponentBaseT() { }
 
 
-            /// Returns the parent window that contains this component.
-            WindowT& GetWindow() const { return m_Window; }
+            /// Returns the parent window that contains this component,
+            /// or `NULL` if this component is currently not a part of any window.
+            WindowT* GetWindow() const { return m_Window; }
 
             /// Returns the variable manager that keeps generic references to our member variables,
             /// providing a simple kind of "reflection" or "type introspection" feature.
@@ -75,14 +90,15 @@ namespace cf
             /// Returns the name of this component.
             virtual const char* GetName() const { return "Base"; }
 
-            /// This method is called whenever the components in the parent window have changed,
-            /// typically after the window has been loaded for the first time, has been created
-            /// as a copy of another window, or has been edited in the GUI editor.
+            /// This method is called whenever something "external" to this component has changed:
+            ///   - if the parent window has changed, because this window was added to or removed from it,
+            //    - if other components in the parent window have changed.
             /// The component can use the opportunity to search the window for "sibling" components
             /// that it depends on, and store direct pointers to them.
             /// Note however that dependencies among components must not be cyclic, or else the deletion
             /// of a window will leave a memory leak.
-            virtual void UpdateDependencies() { }
+            /// @param Window   The parent window that contains this component, or `NULL` to indicate that this component is removed from the window that it used to be a part of.
+            virtual void UpdateDependencies(WindowT* Window);
 
 
             // The TypeSys related declarations for this class.
@@ -101,7 +117,7 @@ namespace cf
             static int Set(lua_State* LuaState);        ///< Sets a member variable of this class.
             static int toString(lua_State* LuaState);   ///< Returns a string representation of this object.
 
-            WindowT&         m_Window;      ///< The parent window that contains this component.
+            WindowT*         m_Window;      ///< The parent window that contains this component, or `NULL` if this component is currently not a part of any window.
             TypeSys::VarManT m_MemberVars;  ///< The variable manager that keeps generic references to our member variables.
         };
     }

@@ -22,7 +22,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "AddComponent.hpp"
 #include "../GuiDocument.hpp"
 
-#include "GuiSys/AllComponents.hpp"
 #include "GuiSys/CompBase.hpp"
 #include "GuiSys/Window.hpp"
 #include "TypeSys.hpp"
@@ -39,7 +38,7 @@ CommandAddComponentT::CommandAddComponentT(GuiDocumentT* GuiDocument, IntrusiveP
 {
     m_Component = static_cast<cf::GuiSys::ComponentBaseT*>(
         TI->CreateInstance(
-            cf::GuiSys::ComponentCreateParamsT(*m_Window.get())));
+            cf::TypeSys::CreateParamsT()));
 
     if (m_Component != NULL)
     {
@@ -57,7 +56,7 @@ bool CommandAddComponentT::Do()
     wxASSERT(m_Component != NULL);
     if (m_Component == NULL) return false;
 
-    m_Window->AddComponent(m_Component);
+    if (!m_Window->AddComponent(m_Component)) return false;
     m_Component = NULL;
 
     // TODO: Can we be more specific?

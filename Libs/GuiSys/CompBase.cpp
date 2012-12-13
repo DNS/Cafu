@@ -37,7 +37,7 @@ using namespace cf::GuiSys;
 
 void* ComponentBaseT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 {
-    return new ComponentBaseT(static_cast<const cf::GuiSys::ComponentCreateParamsT&>(Params).m_Window);
+    return new ComponentBaseT();
 }
 
 const luaL_reg ComponentBaseT::MethodsList[] =
@@ -51,23 +51,29 @@ const luaL_reg ComponentBaseT::MethodsList[] =
 const cf::TypeSys::TypeInfoT ComponentBaseT::TypeInfo(GetComponentTIM(), "ComponentBaseT", NULL /*No base class.*/, ComponentBaseT::CreateInstance, MethodsList);
 
 
-ComponentBaseT::ComponentBaseT(WindowT& Window)
-    : m_Window(Window),
+ComponentBaseT::ComponentBaseT()
+    : m_Window(NULL),
       m_MemberVars()
 {
 }
 
 
-ComponentBaseT::ComponentBaseT(const ComponentBaseT& Comp, WindowT& Window)
-    : m_Window(Window),
+ComponentBaseT::ComponentBaseT(const ComponentBaseT& Comp)
+    : m_Window(NULL),
       m_MemberVars()
 {
 }
 
 
-ComponentBaseT* ComponentBaseT::Clone(WindowT& Window) const
+ComponentBaseT* ComponentBaseT::Clone() const
 {
-    return new ComponentBaseT(*this, Window);
+    return new ComponentBaseT(*this);
+}
+
+
+void ComponentBaseT::UpdateDependencies(WindowT* Window)
+{
+    m_Window = Window;
 }
 
 

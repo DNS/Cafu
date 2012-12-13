@@ -29,25 +29,9 @@ namespace cf
 {
     namespace GuiSys
     {
-        class WindowT;
-
-
         /// All classes in the ComponentBaseT hierarchy must register their TypeInfoT
         /// members with this TypeInfoManT instance.
         cf::TypeSys::TypeInfoManT& GetComponentTIM();
-
-
-        /// Creation parameters for window components.
-        class ComponentCreateParamsT : public cf::TypeSys::CreateParamsT
-        {
-            public:
-
-            /// The constructor.
-            /// @param Window   The window that the new component becomes a part of.
-            ComponentCreateParamsT(WindowT& Window);
-
-            WindowT& m_Window;  ///< The window that the new component becomes a part of.
-        };
     }
 }
 

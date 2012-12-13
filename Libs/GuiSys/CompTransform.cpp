@@ -35,7 +35,7 @@ using namespace cf::GuiSys;
 
 void* ComponentTransformT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 {
-    return new ComponentTransformT(static_cast<const cf::GuiSys::ComponentCreateParamsT&>(Params).m_Window);
+    return new ComponentTransformT();
 }
 
 const luaL_reg ComponentTransformT::MethodsList[] =
@@ -47,8 +47,8 @@ const luaL_reg ComponentTransformT::MethodsList[] =
 const cf::TypeSys::TypeInfoT ComponentTransformT::TypeInfo(GetComponentTIM(), "ComponentTransformT", "ComponentBaseT", ComponentTransformT::CreateInstance, MethodsList);
 
 
-ComponentTransformT::ComponentTransformT(WindowT& Window)
-    : ComponentBaseT(Window),
+ComponentTransformT::ComponentTransformT()
+    : ComponentBaseT(),
       m_RotAngle("RotAngle", 0.0f),
       m_Test("Test", "hallo"),
       m_PosTest("Pos", Vector3fT())
@@ -57,8 +57,8 @@ ComponentTransformT::ComponentTransformT(WindowT& Window)
 }
 
 
-ComponentTransformT::ComponentTransformT(const ComponentTransformT& Comp, WindowT& Window)
-    : ComponentBaseT(Comp, Window),
+ComponentTransformT::ComponentTransformT(const ComponentTransformT& Comp)
+    : ComponentBaseT(Comp),
       m_RotAngle(Comp.m_RotAngle),
       m_Test(Comp.m_Test),
       m_PosTest(Comp.m_PosTest)
@@ -67,9 +67,9 @@ ComponentTransformT::ComponentTransformT(const ComponentTransformT& Comp, Window
 }
 
 
-ComponentTransformT* ComponentTransformT::Clone(WindowT& Window) const
+ComponentTransformT* ComponentTransformT::Clone() const
 {
-    return new ComponentTransformT(*this, Window);
+    return new ComponentTransformT(*this);
 }
 
 

@@ -37,7 +37,7 @@ using namespace cf::GuiSys;
 
 void* ComponentModelT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 {
-    return new ComponentModelT(static_cast<const cf::GuiSys::ComponentCreateParamsT&>(Params).m_Window);
+    return new ComponentModelT();
 }
 
 const luaL_reg ComponentModelT::MethodsList[] =
@@ -49,34 +49,40 @@ const luaL_reg ComponentModelT::MethodsList[] =
 const cf::TypeSys::TypeInfoT ComponentModelT::TypeInfo(GetComponentTIM(), "ComponentModelT", "ComponentBaseT", ComponentModelT::CreateInstance, MethodsList);
 
 
-ComponentModelT::ComponentModelT(WindowT& Window)
-    : ComponentBaseT(Window),
+ComponentModelT::ComponentModelT()
+    : ComponentBaseT(),
       m_Transform(NULL)
 {
 }
 
 
-ComponentModelT::ComponentModelT(const ComponentModelT& Comp, WindowT& Window)
-    : ComponentBaseT(Comp, Window),
+ComponentModelT::ComponentModelT(const ComponentModelT& Comp)
+    : ComponentBaseT(Comp),
       m_Transform(NULL)
 {
 }
 
 
-ComponentModelT* ComponentModelT::Clone(WindowT& Window) const
+ComponentModelT* ComponentModelT::Clone() const
 {
-    return new ComponentModelT(*this, Window);
+    return new ComponentModelT(*this);
 }
 
 
-void ComponentModelT::UpdateDependencies()
+void ComponentModelT::UpdateDependencies(WindowT* Window)
 {
+    ComponentBaseT::UpdateDependencies(Window);
+
+    m_Transform = NULL;
+
+    if (!GetWindow()) return;
+
     // It would be possible to break this loop as soon as we have assigned a non-NULL pointer to m_Transform.
     // However, this is only because the Transform component is, at this time, the only sibling component that
     // we're interested in, whereas the loop below is suitable for resolving additional dependencies, too.
-    for (unsigned int CompNr = 0; CompNr < GetWindow().GetComponents().Size(); CompNr++)
+    for (unsigned int CompNr = 0; CompNr < GetWindow()->GetComponents().Size(); CompNr++)
     {
-        IntrusivePtrT<ComponentBaseT> Comp = GetWindow().GetComponents()[CompNr];
+        IntrusivePtrT<ComponentBaseT> Comp = GetWindow()->GetComponents()[CompNr];
 
         if (m_Transform == NULL)
             m_Transform = dynamic_pointer_cast<ComponentTransformT>(Comp);
