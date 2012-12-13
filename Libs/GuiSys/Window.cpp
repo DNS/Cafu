@@ -67,16 +67,19 @@ void* WindowT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 
 const luaL_reg WindowT::MethodsList[]=
 {
-    { "set",         WindowT::Set },
-    { "get",         WindowT::Get },
-    { "interpolate", WindowT::Interpolate },
-    { "SetName",     WindowT::SetName },
-    { "GetName",     WindowT::GetName },
-    { "AddChild",    WindowT::AddChild },
-    { "RemoveChild", WindowT::RemoveChild },
-    { "GetParent",   WindowT::GetParent },
-    { "GetChildren", WindowT::GetChildren },
-    { "__tostring",  WindowT::toString },
+    { "set",             WindowT::Set },
+    { "get",             WindowT::Get },
+    { "interpolate",     WindowT::Interpolate },
+    { "SetName",         WindowT::SetName },
+    { "GetName",         WindowT::GetName },
+    { "AddChild",        WindowT::AddChild },
+    { "RemoveChild",     WindowT::RemoveChild },
+    { "GetParent",       WindowT::GetParent },
+    { "GetChildren",     WindowT::GetChildren },
+    { "AddComponent",    WindowT::AddComponent },
+    { "RemoveComponent", WindowT::RmvComponent },
+    { "GetComponents",   WindowT::GetComponents },
+    { "__tostring",      WindowT::toString },
     { NULL, NULL }
 };
 
@@ -333,6 +336,7 @@ IntrusivePtrT<WindowT> WindowT::GetRoot()
 bool WindowT::AddComponent(IntrusivePtrT<ComponentBaseT> Comp)
 {
     if (Comp->GetWindow()) return false;
+    assert(m_Components.Find(Comp) < 0);
 
     m_Components.PushBack(Comp);
 
@@ -1008,6 +1012,52 @@ int WindowT::GetChildren(lua_State* LuaState)
     {
         Binder.Push(Win->m_Children[ChildNr]);
         lua_rawseti(LuaState, -2, ChildNr+1);
+    }
+
+    return 1;
+}
+
+
+int WindowT::AddComponent(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<WindowT>        Win  = Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
+    IntrusivePtrT<ComponentBaseT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(2);
+
+    if (!Win->AddComponent(Comp))
+        return luaL_argerror(LuaState, 2, "the component is already a part of a window");
+
+    return 0;
+}
+
+
+int WindowT::RmvComponent(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<WindowT>        Win  = Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
+    IntrusivePtrT<ComponentBaseT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(2);
+
+    const int Index = Win->m_Components.Find(Comp);
+
+    if (Index < 0)
+        return luaL_argerror(LuaState, 2, "component not found in this window");
+
+    Win->DeleteComponent(Index);
+    return 0;
+}
+
+
+int WindowT::GetComponents(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<WindowT> Win = Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
+
+    lua_newtable(LuaState);
+
+    for (unsigned long CompNr = 0; CompNr < Win->m_Components.Size(); CompNr++)
+    {
+        Binder.Push(Win->m_Components[CompNr]);
+        lua_rawseti(LuaState, -2, CompNr+1);
     }
 
     return 1;

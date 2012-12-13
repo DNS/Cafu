@@ -286,6 +286,9 @@ namespace cf
             static int RemoveChild(lua_State* LuaState);    ///< Removes a child from this window.
             static int GetParent(lua_State* LuaState);      ///< Returns the parent of this window (or nil if there is no parent).
             static int GetChildren(lua_State* LuaState);    ///< Returns an array of the children of this window.
+            static int AddComponent(lua_State* LuaState);   ///< Adds a component to this window.
+            static int RmvComponent(lua_State* LuaState);   ///< Removes a component from this window.
+            static int GetComponents(lua_State* LuaState);  ///< Returns an array of the components of this window.
             static int toString(lua_State* LuaState);       ///< Returns a readable string representation of this object.
 
             static const luaL_Reg MethodsList[]; ///< List of methods registered with Lua.
