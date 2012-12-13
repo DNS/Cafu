@@ -153,7 +153,7 @@ namespace cf
             static int SetMouseIsShown(lua_State* LuaState);    ///< Determines whether the mouse cursor is shown at all.
             static int SetFocus(lua_State* LuaState);           ///< Sets the keyboard input focus to the given window. Does *not* call the Lua OnFocusLose() or OnFocusGain() scripts!
             static int SetRootWindow(lua_State* LuaState);      ///< Sets the root window for this GUI.
-            static int CreateNewWindow(lua_State* LuaState);    ///< Creates and returns a new window.
+            static int CreateNew(lua_State* LuaState);          ///< Creates and returns a new window or component.
             static int toString(lua_State* LuaState);           ///< Returns a string representation of this GUI.
         };
     }

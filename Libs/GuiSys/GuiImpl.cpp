@@ -20,6 +20,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "GuiImpl.hpp"
+#include "AllComponents.hpp"
+#include "CompBase.hpp"
 #include "Window.hpp"
 #include "WindowCreateParams.hpp"
 #include "ConsoleCommands/Console.hpp"
@@ -653,27 +655,40 @@ int GuiImplT::SetRootWindow(lua_State* LuaState)
 }
 
 
-int GuiImplT::CreateNewWindow(lua_State* LuaState)
+int GuiImplT::CreateNew(lua_State* LuaState)
 {
-    GuiImplT*                     Gui=CheckParams(LuaState);
-    const char*                   TypeName=luaL_checkstring(LuaState, 2);
-    const char*                   WinName=lua_tostring(LuaState, 3);    // Passing a window name is optional.
-    const cf::TypeSys::TypeInfoT* TI=GetWindowTIM().FindTypeInfoByName(TypeName);
-
-    if (!TI) return luaL_argerror(LuaState, 2, (std::string("unknown window class \"")+TypeName+"\"").c_str());
-
-    IntrusivePtrT<WindowT> Win(static_cast<WindowT*>(TI->CreateInstance(WindowCreateParamsT(*Gui))));  // Actually create the window instance.
-
-    // Console->DevPrint(cf::va("Creating window %p.\n", Win));
-    assert(Win->GetType()==TI);
-    assert(strcmp(TI->ClassName, TypeName)==0);
-
-    if (WinName) Win->SetName(WinName);
-
     ScriptBinderT Binder(LuaState);
-    Binder.Push(Win);
+    GuiImplT*     Gui      = CheckParams(LuaState);
+    const char*   TypeName = luaL_checkstring(LuaState, 2);
+    const char*   ObjName  = lua_tostring(LuaState, 3);    // Passing an object name is optional.
 
-    return 1;
+    const cf::TypeSys::TypeInfoT* TI = GetWindowTIM().FindTypeInfoByName(TypeName);
+
+    if (TI)
+    {
+        IntrusivePtrT<WindowT> Win(static_cast<WindowT*>(TI->CreateInstance(WindowCreateParamsT(*Gui))));
+
+        // Console->DevPrint(cf::va("Creating window %p.\n", Win));
+        assert(Win->GetType() == TI);
+        assert(strcmp(TI->ClassName, TypeName) == 0);
+
+        if (ObjName) Win->SetName(ObjName);
+
+        Binder.Push(Win);
+        return 1;
+    }
+
+    TI = GetComponentTIM().FindTypeInfoByName(TypeName);
+
+    if (TI)
+    {
+        IntrusivePtrT<ComponentBaseT> Comp(static_cast<ComponentBaseT*>(TI->CreateInstance(cf::TypeSys::CreateParamsT())));
+
+        Binder.Push(Comp);
+        return 1;
+    }
+
+    return luaL_argerror(LuaState, 2, (std::string("unknown class name \"") + TypeName + "\"").c_str());
 }
 
 
@@ -711,7 +726,7 @@ void GuiImplT::RegisterLua(lua_State* LuaState)
         { "showMouse",          SetMouseIsShown },
         { "setFocus",           SetFocus },
         { "SetRootWindow",      SetRootWindow },
-        { "new",                CreateNewWindow },
+        { "new",                CreateNew },
         { "__tostring",         toString },
         { NULL, NULL }
     };
