@@ -27,6 +27,8 @@ extern "C"
     #include <lauxlib.h>
 }
 
+#include <cctype>
+
 
 using namespace cf::GuiSys;
 
@@ -121,4 +123,61 @@ void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
     v.z = float(luaL_checknumber(m_LuaState, -1));
 
     Var.Set(v);
+}
+
+
+/*****************************/
+/*** VarVisitorToLuaCodeT ***/
+/*****************************/
+
+VarVisitorToLuaCodeT::VarVisitorToLuaCodeT(std::ostream& Out)
+    : m_Out(Out)
+{
+}
+
+
+void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<float>& Var)
+{
+    m_Out << Var.Get();
+}
+
+
+void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<double>& Var)
+{
+    m_Out << Var.Get();
+}
+
+
+void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<int>& Var)
+{
+    m_Out << Var.Get();
+}
+
+
+void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<std::string>& Var)
+{
+    const std::string& s = Var.Get();
+
+    for (size_t i = 0; i < s.size(); i++)
+        if (iscntrl(s[i]) || s[i] == '"' || s[i] == '\\')
+        {
+            std::string Equals = "";
+
+            while (s.find("[" + Equals + "[") != std::string::npos ||
+                   s.find("]" + Equals + "]") != std::string::npos)
+                Equals += "=";
+
+            m_Out << "[" << Equals << "[";
+            m_Out << s;
+            m_Out << "]" << Equals << "]";
+            return;
+        }
+
+    m_Out << "\"" << s << "\"";
+}
+
+
+void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<Vector3fT>& Var)
+{
+    m_Out << Var.Get().x << ", " << Var.Get().y << ", " << Var.Get().z;
 }

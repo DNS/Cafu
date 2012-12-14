@@ -75,6 +75,27 @@ namespace cf
 
             lua_State* m_LuaState;
         };
+
+
+        /// This visitor writes the value of the visited variable into the given std::ostream,
+        /// formatted as Lua code.
+        class VarVisitorToLuaCodeT : public cf::TypeSys::VisitorConstT
+        {
+            public:
+
+            VarVisitorToLuaCodeT(std::ostream& Out);
+
+            void visit(const cf::TypeSys::VarT<float>& Var);
+            void visit(const cf::TypeSys::VarT<double>& Var);
+            void visit(const cf::TypeSys::VarT<int>& Var);
+            void visit(const cf::TypeSys::VarT<std::string>& Var);
+            void visit(const cf::TypeSys::VarT<Vector3fT>& Var);
+
+
+            private:
+
+            std::ostream& m_Out;
+        };
     }
 }
 

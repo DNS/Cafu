@@ -24,7 +24,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../GameConfig.hpp"
 #include "../EditorMaterialEngine.hpp"
 
+#include "GuiSys/CompBase.hpp"
 #include "GuiSys/GuiImpl.hpp"
+#include "GuiSys/VarVisitorsLua.hpp"
 #include "GuiSys/Window.hpp"
 #include "TypeSys.hpp"
 
@@ -171,7 +173,45 @@ static void SaveWindowHierarchy(std::ostream& OutFile, IntrusivePtrT<cf::GuiSys:
 }
 
 
-// Saves the window initalization method for the root window.
+static void SaveComponents(std::ostream& OutFile, IntrusivePtrT<cf::GuiSys::WindowT> Window)
+{
+    if (Window->GetComponents().Size() == 0)
+        return;
+
+    cf::GuiSys::VarVisitorToLuaCodeT ToLua(OutFile);
+
+    OutFile << "\n";
+
+    for (unsigned int CompNr = 1; CompNr <= Window->GetComponents().Size(); CompNr++)
+    {
+        IntrusivePtrT<cf::GuiSys::ComponentBaseT> Comp = Window->GetComponents()[CompNr - 1];
+        const ArrayT<cf::TypeSys::VarBaseT*>&     Vars = Comp->GetMemberVars().GetArray();
+
+        OutFile << "    local c" << CompNr << " = gui:new(\"" << Comp->GetType()->ClassName << "\")\n";
+
+        for (unsigned int VarNr = 0; VarNr < Vars.Size(); VarNr++)
+        {
+            const cf::TypeSys::VarBaseT* Var = Vars[VarNr];
+
+            OutFile << "    c" << CompNr << ":set(\"" << Var->GetName() << "\", ";
+            Var->accept(ToLua);
+            OutFile << ")\n";
+        }
+
+        OutFile << "\n";
+    }
+
+    OutFile << "    self:AddComponent(";
+    for (unsigned int CompNr = 1; CompNr <= Window->GetComponents().Size(); CompNr++)
+    {
+        OutFile << "c" << CompNr;
+        if (CompNr < Window->GetComponents().Size()) OutFile << ", ";
+    }
+    OutFile << ")\n";
+}
+
+
+// Saves the window initialization method for the root window.
 static void SaveRootInitialization(std::ostream& OutFile, IntrusivePtrT<cf::GuiSys::WindowT> Root, const GuiPropertiesT& GuiProps)
 {
     wxASSERT(Root==Root->GetRoot());
@@ -179,6 +219,7 @@ static void SaveRootInitialization(std::ostream& OutFile, IntrusivePtrT<cf::GuiS
     OutFile << "function " << Root->GetName() << ":OnInit()\n";
 
     GuiDocumentT::GetSibling(Root)->WriteInitMethod(OutFile);
+    SaveComponents(OutFile, Root);
 
     OutFile << "\n";
     OutFile << "    gui:activate      (" << (GuiProps.Activate    ? "true" : "false") << ");\n";
@@ -192,7 +233,7 @@ static void SaveRootInitialization(std::ostream& OutFile, IntrusivePtrT<cf::GuiS
 }
 
 
-// Recursively saves the window initilization function of the window passed and all of its children.
+// Recursively saves the window initialization function of the window passed and all of its children.
 static void SaveWindowInitialization(std::ostream& OutFile, IntrusivePtrT<cf::GuiSys::WindowT> Window, const wxString& ParentName)
 {
     if (Window!=Window->GetRoot())
@@ -200,6 +241,7 @@ static void SaveWindowInitialization(std::ostream& OutFile, IntrusivePtrT<cf::Gu
         OutFile << "function " << ParentName + Window->GetName() << ":OnInit()\n";
 
         GuiDocumentT::GetSibling(Window)->WriteInitMethod(OutFile);
+        SaveComponents(OutFile, Window);
 
         OutFile << "end\n\n";
     }
