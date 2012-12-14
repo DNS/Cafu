@@ -206,12 +206,11 @@ WindowT::~WindowT()
     for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
     {
         // No one else should still have a pointer to m_Components[CompNr] at this point.
-        // In the unlikely case that this ever triggers, possible causes include:
-        //   - A component has a cyclic dependency on another component.
-        //   - A script keeps a component, but not the related window.
-        // Note that the component in question will continue with a stale reference to this window,
-        // likely to cause a program crash soon.
-        assert(m_Components[CompNr]->GetRefCount() == 1);
+        // Nevertheless, it is still possible that m_Components[CompNr]->GetRefCount() > 1,
+        // for example if a script still keeps a reference to the component, or has kept
+        // one that is not yet garbage collected.
+        // To be safe, make sure that the component no longer refers back to this window.
+        m_Components[CompNr]->UpdateDependencies(NULL);
     }
 
     m_Components.Clear();
@@ -1021,11 +1020,24 @@ int WindowT::GetChildren(lua_State* LuaState)
 int WindowT::AddComponent(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<WindowT>        Win  = Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
-    IntrusivePtrT<ComponentBaseT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(2);
+    IntrusivePtrT<WindowT> Win = Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
 
-    if (!Win->AddComponent(Comp))
-        return luaL_argerror(LuaState, 2, "the component is already a part of a window");
+    for (int i = 2; i <= lua_gettop(LuaState); i++)
+    {
+        IntrusivePtrT<ComponentBaseT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(i);
+
+        if (Comp->GetWindow())
+            return luaL_argerror(LuaState, i, "the component is already a part of a window");
+
+        assert(Win->m_Components.Find(Comp) < 0);
+
+        Win->m_Components.PushBack(Comp);
+    }
+
+    // Now that the whole set of components has been added,
+    // have the components re-resolve their dependencies among themselves.
+    for (unsigned int CompNr = 0; CompNr < Win->m_Components.Size(); CompNr++)
+        Win->m_Components[CompNr]->UpdateDependencies(Win.get());
 
     return 0;
 }
