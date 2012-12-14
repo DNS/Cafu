@@ -144,11 +144,13 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool
     // Adds a global (meta-)table with methods for cf::GuiSys::GuiTs to the LuaState, to be used as metatable for userdata of type cf::GuiSys::GuiT.
     GuiImplT::RegisterLua(LuaState);
 
-    // For each (window-)class that the TypeInfoMan knows about, add a (meta-)table to the registry of the LuaState.
+    // For each class that the TypeInfoManTs know about, add a (meta-)table to the registry of the LuaState.
     // The (meta-)table holds the Lua methods that the respective class implements in C++,
     // and is to be used as metatable for instances of this class.
     ScriptBinderT Binder(LuaState);
+
     Binder.Init(GetWindowTIM());
+    Binder.Init(GetComponentTIM());
 
 
     // Add a global variable with name "gui" to the Lua state. "gui" is a table that scripts can use to call GUI methods.
