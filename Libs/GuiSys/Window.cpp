@@ -332,12 +332,12 @@ IntrusivePtrT<WindowT> WindowT::GetRoot()
 }
 
 
-bool WindowT::AddComponent(IntrusivePtrT<ComponentBaseT> Comp)
+bool WindowT::AddComponent(IntrusivePtrT<ComponentBaseT> Comp, unsigned long Index)
 {
     if (Comp->GetWindow()) return false;
     assert(m_Components.Find(Comp) < 0);
 
-    m_Components.PushBack(Comp);
+    m_Components.InsertAt(std::min(Index, m_Components.Size()), Comp);
 
     // Have the components re-resolve their dependencies among themselves.
     for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)

@@ -181,8 +181,11 @@ namespace cf
             const ArrayT< IntrusivePtrT<ComponentBaseT> >& GetComponents() const { return m_Components; }
 
             /// Adds the given component to this window.
+            ///
+            /// @param Comp    The component to add to this window.
+            /// @param Index   The position among the other components to insert `Comp` at.
             /// @returns `true` on success, `false` on failure (if `Comp` is part of a window already).
-            bool AddComponent(IntrusivePtrT<ComponentBaseT> Comp);
+            bool AddComponent(IntrusivePtrT<ComponentBaseT> Comp, unsigned long Index=ULONG_MAX);
 
             /// Deletes the component at the given index from this window.
             void DeleteComponent(unsigned long CompNr);
