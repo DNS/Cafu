@@ -39,6 +39,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../GameConfig.hpp"
 
 #include "GuiSys/AllComponents.hpp"
+#include "GuiSys/CompBase.hpp"
 #include "GuiSys/Window.hpp"
 #include "GuiSys/GuiImpl.hpp"
 #include "Math3D/Misc.hpp"
@@ -601,7 +602,17 @@ void GuiEditor::ChildFrameT::OnMenuComponent(wxCommandEvent& CE)
         return;
     }
 
-    SubmitCommand(new CommandAddComponentT(m_GuiDocument, m_GuiDocument->GetSelection()[0], TI));
+    IntrusivePtrT<cf::GuiSys::ComponentBaseT> Comp = static_cast<cf::GuiSys::ComponentBaseT*>(
+        TI->CreateInstance(
+            cf::TypeSys::CreateParamsT()));
+
+    if (Comp.IsNull())
+    {
+        wxMessageBox("Could not instantiate the component.", "Add component");
+        return;
+    }
+
+    SubmitCommand(new CommandAddComponentT(m_GuiDocument, m_GuiDocument->GetSelection()[0], Comp));
 }
 
 

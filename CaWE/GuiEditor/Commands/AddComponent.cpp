@@ -24,27 +24,17 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "GuiSys/CompBase.hpp"
 #include "GuiSys/Window.hpp"
-#include "TypeSys.hpp"
 
 
 using namespace GuiEditor;
 
 
-CommandAddComponentT::CommandAddComponentT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Window, const cf::TypeSys::TypeInfoT* TI)
+CommandAddComponentT::CommandAddComponentT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Window, IntrusivePtrT<cf::GuiSys::ComponentBaseT> Comp, unsigned long Index)
     : m_GuiDocument(GuiDocument),
       m_Window(Window),
-      m_Component(NULL),
-      m_Name("Add component")
+      m_Component(Comp),
+      m_Index(std::min(Index, m_Window->GetComponents().Size()))
 {
-    m_Component = static_cast<cf::GuiSys::ComponentBaseT*>(
-        TI->CreateInstance(
-            cf::TypeSys::CreateParamsT()));
-
-    if (m_Component != NULL)
-    {
-        m_Name += ": ";
-        m_Name += m_Component->GetName();
-    }
 }
 
 
@@ -53,11 +43,7 @@ bool CommandAddComponentT::Do()
     wxASSERT(!m_Done);
     if (m_Done) return false;
 
-    wxASSERT(m_Component != NULL);
-    if (m_Component == NULL) return false;
-
-    if (!m_Window->AddComponent(m_Component)) return false;
-    m_Component = NULL;
+    if (!m_Window->AddComponent(m_Component, m_Index)) return false;
 
     // TODO: Can we be more specific?
     m_GuiDocument->UpdateAllObservers_Modified(m_Window, WMD_GENERIC);
@@ -72,10 +58,7 @@ void CommandAddComponentT::Undo()
     wxASSERT(m_Done);
     if (!m_Done) return;
 
-    const unsigned long CompNr = m_Window->GetComponents().Size() - 1;
-
-    m_Component = m_Window->GetComponents()[CompNr];
-    m_Window->DeleteComponent(CompNr);
+    m_Window->DeleteComponent(m_Index);
 
     // TODO: Can we be more specific?
     m_GuiDocument->UpdateAllObservers_Modified(m_Window, WMD_GENERIC);
@@ -86,5 +69,5 @@ void CommandAddComponentT::Undo()
 
 wxString CommandAddComponentT::GetName() const
 {
-    return m_Name;
+    return wxString("Add component: ") + m_Component->GetName();
 }

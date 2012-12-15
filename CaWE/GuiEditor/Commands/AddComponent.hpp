@@ -28,7 +28,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 namespace cf { namespace GuiSys { class ComponentBaseT; } }
 namespace cf { namespace GuiSys { class WindowT; } }
-namespace cf { namespace TypeSys { class TypeInfoT; } }
 
 
 namespace GuiEditor
@@ -39,7 +38,7 @@ namespace GuiEditor
     {
         public:
 
-        CommandAddComponentT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Window, const cf::TypeSys::TypeInfoT* TI);
+        CommandAddComponentT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Window, IntrusivePtrT<cf::GuiSys::ComponentBaseT> Comp, unsigned long Index=ULONG_MAX);
 
         // CommandT implementation.
         bool Do();
@@ -52,7 +51,7 @@ namespace GuiEditor
         GuiDocumentT*                             m_GuiDocument;
         IntrusivePtrT<cf::GuiSys::WindowT>        m_Window;
         IntrusivePtrT<cf::GuiSys::ComponentBaseT> m_Component;
-        wxString                                  m_Name;
+        const unsigned long                       m_Index;
     };
 }
 
