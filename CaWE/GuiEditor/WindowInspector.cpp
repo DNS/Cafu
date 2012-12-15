@@ -29,6 +29,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Windows/EditorWindow.hpp"
 #include "GuiSys/CompBase.hpp"
 
+#include "wx/artprov.h"
+
 
 using namespace GuiEditor;
 
@@ -319,6 +321,20 @@ void WindowInspectorT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
 }
 
 
+static wxMenuItem* AppendMI(wxMenu& Menu, int MenuID, const wxString& Label, const wxArtID& ArtID, bool Active=true, const wxString& Help="")
+{
+    wxMenuItem* MI = new wxMenuItem(&Menu, MenuID, Label, Help);
+
+    if (ArtID != "")
+        MI->SetBitmap(wxArtProvider::GetBitmap(ArtID, wxART_MENU));
+
+    MI->Enable(Active);
+
+    Menu.Append(MI);
+    return MI;
+}
+
+
 void WindowInspectorT::OnPropertyGridRightClick(wxPropertyGridEvent& Event)
 {
     // Find the component that this right click corresponds to.
@@ -353,13 +369,13 @@ void WindowInspectorT::OnPropertyGridRightClick(wxPropertyGridEvent& Event)
 
     wxMenu Menu;
 
-    Menu.Append(ID_MENU_MOVE_COMPONENT_UP, "Move Component Up")->Enable(Index > 0);
-    Menu.Append(ID_MENU_MOVE_COMPONENT_DOWN, "Move Component Down")->Enable(Index+1 < m_SelectedWindow->GetComponents().Size());
+    AppendMI(Menu, ID_MENU_MOVE_COMPONENT_UP,   "Move Component Up",   "list-selection-up",   Index > 0);
+    AppendMI(Menu, ID_MENU_MOVE_COMPONENT_DOWN, "Move Component Down", "list-selection-down", Index+1 < m_SelectedWindow->GetComponents().Size());
     Menu.AppendSeparator();
-    Menu.Append(ID_MENU_COPY_COMPONENT, "Copy Component")->Enable(false);
-    Menu.Append(ID_MENU_PASTE_COMPONENT, "Paste Component")->Enable(false);
+    AppendMI(Menu, ID_MENU_COPY_COMPONENT,  "Copy Component",  wxART_COPY,  false);
+    AppendMI(Menu, ID_MENU_PASTE_COMPONENT, "Paste Component", wxART_PASTE, false);
     Menu.AppendSeparator();
-    Menu.Append(ID_MENU_REMOVE_COMPONENT, "Remove Component");
+    AppendMI(Menu, ID_MENU_REMOVE_COMPONENT, "Remove Component", wxART_DELETE);
 
     switch (GetPopupMenuSelectionFromUser(Menu))
     {
