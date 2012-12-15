@@ -23,6 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrame.hpp"
 #include "GuiDocument.hpp"
 #include "VarVisitors.hpp"
+#include "Commands/AddComponent.hpp"
+#include "Commands/DeleteComponent.hpp"
 #include "Commands/ModifyWindow.hpp"
 #include "Windows/EditorWindow.hpp"
 #include "GuiSys/CompBase.hpp"
@@ -34,6 +36,7 @@ using namespace GuiEditor;
 BEGIN_EVENT_TABLE(WindowInspectorT, wxPropertyGridManager)
     EVT_PG_CHANGING(wxID_ANY, WindowInspectorT::OnPropertyGridChanging)
     EVT_PG_CHANGED(wxID_ANY, WindowInspectorT::OnPropertyGridChanged)
+    EVT_PG_RIGHT_CLICK(wxID_ANY, WindowInspectorT::OnPropertyGridRightClick)
 END_EVENT_TABLE()
 
 
@@ -210,8 +213,12 @@ void WindowInspectorT::RefreshPropGrid()
             IntrusivePtrT<cf::GuiSys::ComponentBaseT> Comp       = m_SelectedWindow->GetComponents()[CompNr];
             const ArrayT<cf::TypeSys::VarBaseT*>&     MemberVars = Comp->GetMemberVars().GetArray();
             const wxString                            UniqueName = wxString::Format("%p", Comp.get());
+            wxPGProperty*                             CatProp    = new wxPropertyCategory(Comp->GetName(), UniqueName);
 
-            Append(new wxPropertyCategory(Comp->GetName(), UniqueName));
+            // With "category" properties we set the component pointer as client data,
+            // with other properties we set (in the AddProp visitor) the variable as client data.
+            CatProp->SetClientData(Comp.get());
+            Append(CatProp);
 
             for (unsigned long VarNr = 0; VarNr < MemberVars.Size(); VarNr++)
                 MemberVars[VarNr]->accept(AddProp);
@@ -236,29 +243,27 @@ void WindowInspectorT::RefreshPropGrid()
 
 /*
  * Normally, if we make a change to e.g. a "double" property and press RETURN, we see events as expected:
- * 
+ *
  *     a1) OnPropertyGridChanging: double value "RotAngle": 45
  *     a2) OnPropertyGridChanged:  double value "RotAngle": 45
- * 
+ *
  * Unfortunately, when the property is "<composed>", the sequence of events (with wxWidgets 2.9.2) is not so clear:
  * If "Pos" is a "<composed>" property with "x", "y" and "z" as sub-properties, changing "y" yields:
- * 
+ *
  *     b1) OnPropertyGridChanging: double value "y": 120
  *     b2) OnPropertyGridChanged:  double value "y": 120
  *     b3) OnPropertyGridChanged:  string value "Pos": 0; 120; 200
- * 
+ *
  * Note that there is no "changing" event for Pos!
  * If instead we directly change the "z" sub-property in the top-level "Pos" string:
- * 
+ *
  *     c1) OnPropertyGridChanging: string value "Pos": 0; 120; 240
  *     c2) OnPropertyGridChanged:  string value "Pos": 0; 120; 240
- * 
+ *
  * Note that there is no event at all related to the changed "z" value!
  */
 void WindowInspectorT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
 {
-    if (m_SelectedWindow==NULL) return;
-
     // Changing a property by pressing ENTER doesn't change the selection. In consequence the property refresh below does not result in
     // any change since selected properties are not updated (because the user could be in the process of editing a value).
     // Since the user is definitely finished editing this property we can safely clear the selection.
@@ -269,7 +274,7 @@ void WindowInspectorT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
     m_IsRecursiveSelfNotify=true;
 
     const wxPGProperty*    Prop = Event.GetProperty();
-    cf::TypeSys::VarBaseT* Var  = static_cast<cf::TypeSys::VarBaseT*>(Prop->GetClientData());
+    cf::TypeSys::VarBaseT* Var  = Prop && !Prop->IsCategory() ? static_cast<cf::TypeSys::VarBaseT*>(Prop->GetClientData()) : NULL;
 
     if (Var)
     {
@@ -283,7 +288,7 @@ void WindowInspectorT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
     {
         // Handle case b1), if applicable.
         Prop = Prop->GetParent();
-        Var  = Prop ? static_cast<cf::TypeSys::VarBaseT*>(Prop->GetClientData()) : NULL;
+        Var  = Prop && !Prop->IsCategory() ? static_cast<cf::TypeSys::VarBaseT*>(Prop->GetClientData()) : NULL;
 
         if (Var)
         {
@@ -311,4 +316,89 @@ void WindowInspectorT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
     m_IsRecursiveSelfNotify=true;
     GuiDocumentT::GetSibling(m_SelectedWindow)->HandlePGChange(Event, m_Parent);
     m_IsRecursiveSelfNotify=false;
+}
+
+
+void WindowInspectorT::OnPropertyGridRightClick(wxPropertyGridEvent& Event)
+{
+    // Find the component that this right click corresponds to.
+    if (m_SelectedWindow == NULL) return;
+
+    IntrusivePtrT<cf::GuiSys::ComponentBaseT> Comp = NULL;
+
+    for (wxPGProperty* Prop = Event.GetProperty(); Prop; Prop = Prop->GetParent())
+        if (Prop->IsCategory())
+        {
+            Comp = static_cast<cf::GuiSys::ComponentBaseT*>(Prop->GetClientData());
+            break;
+        }
+
+    if (Comp == NULL) return;
+
+    const unsigned int Index = m_SelectedWindow->GetComponents().Find(Comp);
+
+    if (Index >= m_SelectedWindow->GetComponents().Size()) return;
+
+
+    // Note that GetPopupMenuSelectionFromUser() temporarily disables UI updates for the window,
+    // so our menu IDs used below should be doubly clash-free.
+    enum
+    {
+        ID_MENU_MOVE_COMPONENT_UP=wxID_HIGHEST+1+100,
+        ID_MENU_MOVE_COMPONENT_DOWN,
+        ID_MENU_COPY_COMPONENT,
+        ID_MENU_PASTE_COMPONENT,
+        ID_MENU_REMOVE_COMPONENT
+    };
+
+    wxMenu Menu;
+
+    Menu.Append(ID_MENU_MOVE_COMPONENT_UP, "Move Component Up")->Enable(Index > 0);
+    Menu.Append(ID_MENU_MOVE_COMPONENT_DOWN, "Move Component Down")->Enable(Index+1 < m_SelectedWindow->GetComponents().Size());
+    Menu.AppendSeparator();
+    Menu.Append(ID_MENU_COPY_COMPONENT, "Copy Component")->Enable(false);
+    Menu.Append(ID_MENU_PASTE_COMPONENT, "Paste Component")->Enable(false);
+    Menu.AppendSeparator();
+    Menu.Append(ID_MENU_REMOVE_COMPONENT, "Remove Component");
+
+    switch (GetPopupMenuSelectionFromUser(Menu))
+    {
+        case ID_MENU_MOVE_COMPONENT_UP:
+        {
+            if (Index == 0) break;
+
+            ArrayT<CommandT*> Commands;
+
+            Commands.PushBack(new CommandDeleteComponentT(m_GuiDocument, m_SelectedWindow, Index));
+            Commands.PushBack(new CommandAddComponentT(m_GuiDocument, m_SelectedWindow, Comp, Index-1));
+
+            m_Parent->SubmitCommand(new CommandMacroT(Commands, "Move component up"));
+            break;
+        }
+
+        case ID_MENU_MOVE_COMPONENT_DOWN:
+        {
+            if (Index+1 >= m_SelectedWindow->GetComponents().Size()) break;
+
+            ArrayT<CommandT*> Commands;
+
+            Commands.PushBack(new CommandDeleteComponentT(m_GuiDocument, m_SelectedWindow, Index));
+            Commands.PushBack(new CommandAddComponentT(m_GuiDocument, m_SelectedWindow, Comp, Index+1));
+
+            m_Parent->SubmitCommand(new CommandMacroT(Commands, "Move component down"));
+            break;
+        }
+
+        case ID_MENU_COPY_COMPONENT:
+            break;
+
+        case ID_MENU_PASTE_COMPONENT:
+            break;
+
+        case ID_MENU_REMOVE_COMPONENT:
+        {
+            m_Parent->SubmitCommand(new CommandDeleteComponentT(m_GuiDocument, m_SelectedWindow, Index));
+            break;
+        }
+    }
 }

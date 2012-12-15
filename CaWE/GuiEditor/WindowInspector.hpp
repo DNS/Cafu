@@ -64,6 +64,7 @@ namespace GuiEditor
 
         void OnPropertyGridChanging(wxPropertyGridEvent& Event);
         void OnPropertyGridChanged(wxPropertyGridEvent& Event);
+        void OnPropertyGridRightClick(wxPropertyGridEvent& Event);
 
         DECLARE_EVENT_TABLE()
     };
