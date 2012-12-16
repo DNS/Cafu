@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Templates/Pointer.hpp"
 
 #include <cstdarg>
+#include <climits>
 #include <map>
 #include <string>
 
