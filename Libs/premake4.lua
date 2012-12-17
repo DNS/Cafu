@@ -86,3 +86,108 @@ project "SceneGraph"
     language "C++"
     cf_global_Libs()
     files { "SceneGraph/*.cpp" }
+
+
+project "MaterialSystem/RendererARBprogs"
+    kind "SharedLib"
+    language "C++"
+    cf_global_Libs()
+    files { "MaterialSystem/Common/*.cpp", "MaterialSystem/RendererARBprogs/**.cpp" }
+    configuration "windows"
+        links { "cfsLib", "png", "cfs_jpeg", "z", "MatSys", "opengl32", "glu32" }
+    -- configuration "linux"
+    --     linkoptions { "Libs/MaterialSystem/Common/linker-script" }
+
+
+project "MaterialSystem/RendererCgARB1"
+    kind "SharedLib"
+    language "C++"
+    cf_global_Libs()
+    includedirs "../ExtLibs/Cg/include"
+    files { "MaterialSystem/Common/*.cpp", "MaterialSystem/RendererCgARB1/**.cpp" }
+    libdirs { "../ExtLibs/Cg/lib" .. (os.is64bit() and ".x64" or "") }
+    links { "Cg", "CgGL" }
+    configuration "windows"
+        links { "cfsLib", "png", "cfs_jpeg", "z", "MatSys", "opengl32", "glu32" }
+    -- configuration "linux"
+    --     linkoptions { "Libs/MaterialSystem/Common/linker-script" }
+
+
+project "MaterialSystem/RendererCgNV2X"
+    kind "SharedLib"
+    language "C++"
+    cf_global_Libs()
+    includedirs "../ExtLibs/Cg/include"
+    files { "MaterialSystem/Common/*.cpp", "MaterialSystem/RendererCgNV2X/**.cpp" }
+    libdirs { "../ExtLibs/Cg/lib" .. (os.is64bit() and ".x64" or "") }
+    links { "Cg", "CgGL" }
+    configuration "windows"
+        links { "cfsLib", "png", "cfs_jpeg", "z", "MatSys", "opengl32", "glu32" }
+    -- configuration "linux"
+    --     linkoptions { "Libs/MaterialSystem/Common/linker-script" }
+
+
+project "MaterialSystem/RendererNull"
+    kind "SharedLib"
+    language "C++"
+    cf_global_Libs()
+    files { "MaterialSystem/RendererNull/**.cpp" }
+    configuration "windows"
+        links { "cfsLib", "MatSys" }
+    -- configuration "linux"
+    --     linkoptions { "Libs/MaterialSystem/Common/linker-script" }
+
+
+project "MaterialSystem/RendererOpenGL12"
+    kind "SharedLib"
+    language "C++"
+    cf_global_Libs()
+    files { "MaterialSystem/Common/*.cpp", "MaterialSystem/RendererOpenGL12/**.cpp" }
+    configuration "windows"
+        links { "cfsLib", "png", "cfs_jpeg", "z", "MatSys", "opengl32", "glu32" }
+    -- configuration "linux"
+    --     linkoptions { "Libs/MaterialSystem/Common/linker-script" }
+
+
+-- We have the FMod libraries only for 32-bit platforms...
+if not os.is64bit() then
+    project "SoundSystem/SoundSysFMOD3"
+        kind "SharedLib"
+        language "C++"
+        cf_global_Libs()
+        includedirs { "../ExtLibs/fmod/api/inc" }
+        files { "SoundSystem/SoundSysFMOD3/**.cpp" }
+        configuration "windows"
+            libdirs { "../ExtLibs/fmod/api/lib" }
+            links { "cfsLib", "SoundSys", "fmodvc" }
+        configuration "linux"
+            libdirs { "../ExtLibs/fmod/api" }
+            links { "fmod-3.75" }
+            linkoptions { "Libs/SoundSystem/Common/linker-script" }
+end
+
+
+project "SoundSystem/SoundSysNull"
+    kind "SharedLib"
+    language "C++"
+    cf_global_Libs()
+    files { "SoundSystem/SoundSysNull/**.cpp" }
+    configuration "windows"
+        links { "SoundSys" }
+    configuration "linux"
+        linkoptions { "Libs/SoundSystem/Common/linker-script" }
+
+
+project "SoundSystem/SoundSysOpenAL"
+    kind "SharedLib"
+    language "C++"
+    cf_global_Libs()
+    includedirs { "../ExtLibs/freealut/include", "../ExtLibs/mpg123/src/libmpg123", "../ExtLibs/libvorbis/include", "../ExtLibs/libogg/include" }
+    files { "SoundSystem/Common/*.cpp", "SoundSystem/SoundSysOpenAL/**.cpp" }
+    libdirs { "../ExtLibs/openal-win/libs/Win" .. (os.is64bit() and "64" or "32") }
+    configuration "windows"
+        includedirs { "../ExtLibs/openal-win/include" }
+        links { "cfsLib", "SoundSys", "OpenAL32", "alut", "mpg123", "ogg", "vorbis", "vorbisfile" }
+    configuration "linux"
+        includedirs { "../ExtLibs/openal-soft/include" }
+        linkoptions { "Libs/SoundSystem/Common/linker-script" }

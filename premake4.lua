@@ -243,6 +243,30 @@ project "CaBSP"
     links { "SceneGraph", "MatSys", "ClipSys", "cfsLib", "cfs_jpeg", "bulletcollision", "lua", "minizip", "lightwave", "png", "z" }
 
 
+project "CaPVS"
+    kind "ConsoleApp"
+    language "C++"
+    cf_global()
+    files { "CaPVS/CaPVS.cpp", "CaPVS/CaPVSWorld.cpp", "Common/World.cpp" }  -- TODO: Move Common/World.cpp into Libs/ ???
+    links { "SceneGraph", "MatSys", "ClipSys", "cfsLib", "cfs_jpeg", "bulletcollision", "lua", "minizip", "lightwave", "png", "z" }
+
+
+project "CaLight"
+    kind "ConsoleApp"
+    language "C++"
+    cf_global()
+    files { "CaLight/CaLight.cpp", "CaLight/CaLightWorld.cpp", "Common/World.cpp" }  -- TODO: Move Common/World.cpp into Libs/ ???
+    links { "SceneGraph", "MatSys", "ClipSys", "cfsLib", "cfs_jpeg", "bulletcollision", "lua", "minizip", "lightwave", "png", "z" }
+
+
+project "CaSHL"
+    kind "ConsoleApp"
+    language "C++"
+    cf_global()
+    files { "CaSHL/CaSHL.cpp", "CaSHL/CaSHLWorld.cpp", "Common/World.cpp" }  -- TODO: Move Common/World.cpp into Libs/ ???
+    links { "SceneGraph", "MatSys", "ClipSys", "cfsLib", "cfs_jpeg", "bulletcollision", "lua", "minizip", "lightwave", "png", "z" }
+
+
 if _ACTION == "clean" then
     for a in premake.action.each() do   -- action trigger is "vs2008", "gmake", etc.
         dir = "build/" .. a.trigger
