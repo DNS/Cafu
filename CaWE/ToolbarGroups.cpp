@@ -101,13 +101,7 @@ GroupsListViewT::GroupsListViewT(GroupsToolbarT* Parent, wxWindowID ID)
 
     // The order in which the bitmaps are added to the list should (must) match the ICON_* enum!!
     ListIcons->Add(wxBitmap("CaWE/res/eye.png", wxBITMAP_TYPE_PNG));
-#ifdef __WXMSW__
-    ListIcons->Add(wxBitmap("CaWE/res/eye_grey_win.png", wxBITMAP_TYPE_PNG));
-#else
-    // This is the correct image (with alpha channel), but it doesn't work correctly under (wx)MSW,
-    // see http://trac.wxwidgets.org/ticket/9050 for more information.
     ListIcons->Add(wxBitmap("CaWE/res/eye_grey.png", wxBITMAP_TYPE_PNG));
-#endif
     ListIcons->Add(wxBitmap("CaWE/res/lock.png", wxBITMAP_TYPE_PNG));
     ListIcons->Add(wxBitmap("CaWE/res/wrench.png", wxBITMAP_TYPE_PNG));
     ListIcons->Add(wxBitmap("CaWE/res/GroupSelect-Indiv.png", wxBITMAP_TYPE_PNG));
@@ -264,11 +258,7 @@ static wxMenuItem* GetMI(wxMenu* Menu, int MenuID, const wxString& Text, const w
 {
     wxMenuItem* MI=new wxMenuItem(Menu, MenuID, Text, Help);
 
-#ifndef __WXMSW__
-    // The images are correct (with alpha channel), but they don't work correctly under (wx)MSW,
-    // see http://trac.wxwidgets.org/ticket/9050 for more information.
     MI->SetBitmap(Bitmap);
-#endif
 
     return MI;
 }
