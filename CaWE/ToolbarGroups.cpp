@@ -29,6 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapCommands/Group_Reorder.hpp"
 #include "MapCommands/Group_SetVisibility.hpp"
 
+#include "wx/artprov.h"
 #include "wx/checklst.h"
 #include "wx/colordlg.h"
 #include "wx/imaglist.h"
@@ -37,7 +38,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 // Define some constants.
 enum { ICON_EYE, ICON_EYE_GREY, ICON_LOCK, ICON_EDIT, ICON_SELECT_INDIV, ICON_SELECT_ASGROUP,
-       ICON_MOUSE_CURSOR, ICON_RENAME, ICON_COLORWHEEL, ICON_DELETE, ICON_MERGE, ICON_ARROW_UP, ICON_ARROW_DOWN };
+       ICON_MOUSE_CURSOR, ICON_RENAME, ICON_COLORWHEEL, ICON_MERGE };
 
 
 /// This class implements the list view of the map editor groups.
@@ -111,10 +112,7 @@ GroupsListViewT::GroupsListViewT(GroupsToolbarT* Parent, wxWindowID ID)
     ListIcons->Add(wxBitmap("CaWE/res/GuiEditor/cursor.png", wxBITMAP_TYPE_PNG));
     ListIcons->Add(wxBitmap("CaWE/res/textfield_rename.png", wxBITMAP_TYPE_PNG));
     ListIcons->Add(wxBitmap("CaWE/res/color_wheel.png", wxBITMAP_TYPE_PNG));
-    ListIcons->Add(wxBitmap("CaWE/res/GuiEditor/delete.png", wxBITMAP_TYPE_PNG));
     ListIcons->Add(wxBitmap("CaWE/res/merge.png", wxBITMAP_TYPE_PNG));
-    ListIcons->Add(wxBitmap("CaWE/res/GuiEditor/arrow_up.png", wxBITMAP_TYPE_PNG));
-    ListIcons->Add(wxBitmap("CaWE/res/GuiEditor/arrow_down.png", wxBITMAP_TYPE_PNG));
 
     // The wxListView takes ownership of the icons list and deletes it later.
     AssignImageList(ListIcons, wxIMAGE_LIST_SMALL);
@@ -283,11 +281,11 @@ void GroupsListViewT::OnContextMenu(wxContextMenuEvent& CE)
     EditMenu->Append(GetMI(EditMenu, GroupsToolbarT::ID_MENU_EDIT_SELASGROUP, "Select as &group", "All members of the group are selected 'as one'. Clicking one member selects the entire group.", ImgList->GetBitmap(ICON_SELECT_ASGROUP)));
     EditMenu->Append(GetMI(EditMenu, GroupsToolbarT::ID_MENU_EDIT_SELASINDIV, "Select &individually", "The members of the group are selected individually, their common group membership is ignored.", ImgList->GetBitmap(ICON_SELECT_INDIV)));
     GroupsPopupMenu.AppendSubMenu(EditMenu, "&Edit", "Edits the properties of the group.");
-    GroupsPopupMenu.Append(GetMI(&GroupsPopupMenu, GroupsToolbarT::ID_MENU_DELETE, "&Dissolve", "Dissolves (breaks and deletes) the group. Its member elements become ungrouped again.", ImgList->GetBitmap(ICON_DELETE)));
+    GroupsPopupMenu.Append(GetMI(&GroupsPopupMenu, GroupsToolbarT::ID_MENU_DELETE, "&Dissolve", "Dissolves (breaks and deletes) the group. Its member elements become ungrouped again.", wxArtProvider::GetBitmap(wxART_DELETE, wxART_MENU)));
     GroupsPopupMenu.Append(GetMI(&GroupsPopupMenu, GroupsToolbarT::ID_MENU_MERGE,  "&Merge groups", "Merges all selected groups into one.", ImgList->GetBitmap(ICON_MERGE)));
     GroupsPopupMenu.AppendSeparator();
-    GroupsPopupMenu.Append(GetMI(&GroupsPopupMenu, GroupsToolbarT::ID_MENU_MOVEUP,   "Move &up", "Moves the group up in the list.", ImgList->GetBitmap(ICON_ARROW_UP)));
-    GroupsPopupMenu.Append(GetMI(&GroupsPopupMenu, GroupsToolbarT::ID_MENU_MOVEDOWN, "Move &down", "Moves the group down in the list.", ImgList->GetBitmap(ICON_ARROW_DOWN)));
+    GroupsPopupMenu.Append(GetMI(&GroupsPopupMenu, GroupsToolbarT::ID_MENU_MOVEUP,   "Move &up", "Moves the group up in the list.", wxArtProvider::GetBitmap("list-selection-up", wxART_MENU)));
+    GroupsPopupMenu.Append(GetMI(&GroupsPopupMenu, GroupsToolbarT::ID_MENU_MOVEDOWN, "Move &down", "Moves the group down in the list.", wxArtProvider::GetBitmap("list-selection-down", wxART_MENU)));
 
     PopupMenu(&GroupsPopupMenu);
 }
