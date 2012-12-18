@@ -29,6 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapCommands/Group_Reorder.hpp"
 #include "MapCommands/Group_SetVisibility.hpp"
 
+#include "wx/artprov.h"
 #include "wx/checklst.h"
 #include "wx/colordlg.h"
 #include "wx/imaglist.h"
@@ -36,8 +37,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 // Define some constants.
-enum { ICON_EYE, ICON_EYE_GREY, ICON_LOCK, ICON_EDIT, ICON_SELECT_INDIV, ICON_SELECT_ASGROUP,
-       ICON_MOUSE_CURSOR, ICON_RENAME, ICON_COLORWHEEL, ICON_DELETE, ICON_MERGE, ICON_ARROW_UP, ICON_ARROW_DOWN };
+enum { ICON_EYE, ICON_EYE_GREY, ICON_LOCK, ICON_EDIT, ICON_SELECT_INDIV, ICON_SELECT_ASGROUP };
 
 
 /// This class implements the list view of the map editor groups.
@@ -100,27 +100,12 @@ GroupsListViewT::GroupsListViewT(GroupsToolbarT* Parent, wxWindowID ID)
     wxImageList* ListIcons=new wxImageList(16, 16);
 
     // The order in which the bitmaps are added to the list should (must) match the ICON_* enum!!
-    ListIcons->Add(wxBitmap("CaWE/res/eye.png", wxBITMAP_TYPE_PNG));
-#ifdef __WXMSW__
-    ListIcons->Add(wxBitmap("CaWE/res/eye_grey_win.png", wxBITMAP_TYPE_PNG));
-#else
-    // This is the correct image (with alpha channel), but it doesn't work correctly under (wx)MSW,
-    // see http://trac.wxwidgets.org/ticket/9050 for more information.
-    ListIcons->Add(wxBitmap("CaWE/res/eye_grey.png", wxBITMAP_TYPE_PNG));
-#endif
-    ListIcons->Add(wxBitmap("CaWE/res/lock.png", wxBITMAP_TYPE_PNG));
-    ListIcons->Add(wxBitmap("CaWE/res/wrench.png", wxBITMAP_TYPE_PNG));
+    ListIcons->Add(wxArtProvider::GetBitmap("eye_open", wxART_MENU));
+    ListIcons->Add(wxArtProvider::GetBitmap("eye_grey", wxART_MENU));
+    ListIcons->Add(wxArtProvider::GetBitmap("changes-prevent", wxART_MENU));
+    ListIcons->Add(wxArtProvider::GetBitmap("changes-allow", wxART_MENU));
     ListIcons->Add(wxBitmap("CaWE/res/GroupSelect-Indiv.png", wxBITMAP_TYPE_PNG));
     ListIcons->Add(wxBitmap("CaWE/res/GroupSelect-AsOne.png", wxBITMAP_TYPE_PNG));
-
-    // And a few more for the RMB context menu.
-    ListIcons->Add(wxBitmap("CaWE/res/GuiEditor/cursor.png", wxBITMAP_TYPE_PNG));
-    ListIcons->Add(wxBitmap("CaWE/res/textfield_rename.png", wxBITMAP_TYPE_PNG));
-    ListIcons->Add(wxBitmap("CaWE/res/color_wheel.png", wxBITMAP_TYPE_PNG));
-    ListIcons->Add(wxBitmap("CaWE/res/GuiEditor/delete.png", wxBITMAP_TYPE_PNG));
-    ListIcons->Add(wxBitmap("CaWE/res/merge.png", wxBITMAP_TYPE_PNG));
-    ListIcons->Add(wxBitmap("CaWE/res/GuiEditor/arrow_up.png", wxBITMAP_TYPE_PNG));
-    ListIcons->Add(wxBitmap("CaWE/res/GuiEditor/arrow_down.png", wxBITMAP_TYPE_PNG));
 
     // The wxListView takes ownership of the icons list and deletes it later.
     AssignImageList(ListIcons, wxIMAGE_LIST_SMALL);
@@ -264,11 +249,7 @@ static wxMenuItem* GetMI(wxMenu* Menu, int MenuID, const wxString& Text, const w
 {
     wxMenuItem* MI=new wxMenuItem(Menu, MenuID, Text, Help);
 
-#ifndef __WXMSW__
-    // The images are correct (with alpha channel), but they don't work correctly under (wx)MSW,
-    // see http://trac.wxwidgets.org/ticket/9050 for more information.
     MI->SetBitmap(Bitmap);
-#endif
 
     return MI;
 }
@@ -282,22 +263,22 @@ void GroupsListViewT::OnContextMenu(wxContextMenuEvent& CE)
     const wxImageList* ImgList=GetImageList(wxIMAGE_LIST_SMALL);
 
  // GroupsPopupMenu.SetTitle("Groups menu");    // This confusingly looks just like a menu item in bold font.
-    GroupsPopupMenu.Append(GetMI(&GroupsPopupMenu, GroupsToolbarT::ID_MENU_SELECT, "&Select", "Selects all member elements of the group.", ImgList->GetBitmap(ICON_MOUSE_CURSOR)));
-    EditMenu->Append(GetMI(EditMenu, GroupsToolbarT::ID_MENU_EDIT_RENAME,     "Rename\tF2", "", ImgList->GetBitmap(ICON_RENAME)));
-    EditMenu->Append(GetMI(EditMenu, GroupsToolbarT::ID_MENU_EDIT_SETCOLOR,   "Set color", "", ImgList->GetBitmap(ICON_COLORWHEEL)));
+    GroupsPopupMenu.Append(GetMI(&GroupsPopupMenu, GroupsToolbarT::ID_MENU_SELECT, "&Select", "Selects all member elements of the group.", wxArtProvider::GetBitmap("cursor_mouse", wxART_MENU)));
+    EditMenu->Append(GetMI(EditMenu, GroupsToolbarT::ID_MENU_EDIT_RENAME,     "Rename\tF2", "", wxArtProvider::GetBitmap("textfield_rename", wxART_MENU)));
+    EditMenu->Append(GetMI(EditMenu, GroupsToolbarT::ID_MENU_EDIT_SETCOLOR,   "Set color", "", wxArtProvider::GetBitmap("color_wheel", wxART_MENU)));
     EditMenu->AppendSeparator();
-    EditMenu->Append(GetMI(EditMenu, GroupsToolbarT::ID_MENU_EDIT_SHOW,       "&Show", "Show the members of the group.", ImgList->GetBitmap(ICON_EYE)));
-    EditMenu->Append(GetMI(EditMenu, GroupsToolbarT::ID_MENU_EDIT_HIDE,       "&Hide", "Hide the members of the group.", ImgList->GetBitmap(ICON_EYE_GREY)));
-    EditMenu->Append(GetMI(EditMenu, GroupsToolbarT::ID_MENU_EDIT_CANSELECT,  "&Can select", "The members of the group can be selected normally.", ImgList->GetBitmap(ICON_EDIT)));
-    EditMenu->Append(GetMI(EditMenu, GroupsToolbarT::ID_MENU_EDIT_LOCK,       "Ca&n't select (lock)", "Lock the members of the group (exclude them from getting selected).", ImgList->GetBitmap(ICON_LOCK)));
+    EditMenu->Append(GetMI(EditMenu, GroupsToolbarT::ID_MENU_EDIT_SHOW,       "&Show", "Show the members of the group.", wxArtProvider::GetBitmap("eye_open", wxART_MENU)));
+    EditMenu->Append(GetMI(EditMenu, GroupsToolbarT::ID_MENU_EDIT_HIDE,       "&Hide", "Hide the members of the group.", wxArtProvider::GetBitmap("eye_grey", wxART_MENU)));
+    EditMenu->Append(GetMI(EditMenu, GroupsToolbarT::ID_MENU_EDIT_CANSELECT,  "&Can select", "The members of the group can be selected normally.", wxArtProvider::GetBitmap("changes-allow", wxART_MENU)));
+    EditMenu->Append(GetMI(EditMenu, GroupsToolbarT::ID_MENU_EDIT_LOCK,       "Ca&n't select (lock)", "Lock the members of the group (exclude them from getting selected).", wxArtProvider::GetBitmap("changes-prevent", wxART_MENU)));
     EditMenu->Append(GetMI(EditMenu, GroupsToolbarT::ID_MENU_EDIT_SELASGROUP, "Select as &group", "All members of the group are selected 'as one'. Clicking one member selects the entire group.", ImgList->GetBitmap(ICON_SELECT_ASGROUP)));
     EditMenu->Append(GetMI(EditMenu, GroupsToolbarT::ID_MENU_EDIT_SELASINDIV, "Select &individually", "The members of the group are selected individually, their common group membership is ignored.", ImgList->GetBitmap(ICON_SELECT_INDIV)));
     GroupsPopupMenu.AppendSubMenu(EditMenu, "&Edit", "Edits the properties of the group.");
-    GroupsPopupMenu.Append(GetMI(&GroupsPopupMenu, GroupsToolbarT::ID_MENU_DELETE, "&Dissolve", "Dissolves (breaks and deletes) the group. Its member elements become ungrouped again.", ImgList->GetBitmap(ICON_DELETE)));
-    GroupsPopupMenu.Append(GetMI(&GroupsPopupMenu, GroupsToolbarT::ID_MENU_MERGE,  "&Merge groups", "Merges all selected groups into one.", ImgList->GetBitmap(ICON_MERGE)));
+    GroupsPopupMenu.Append(GetMI(&GroupsPopupMenu, GroupsToolbarT::ID_MENU_DELETE, "&Dissolve", "Dissolves (breaks and deletes) the group. Its member elements become ungrouped again.", wxArtProvider::GetBitmap(wxART_DELETE, wxART_MENU)));
+    GroupsPopupMenu.Append(GetMI(&GroupsPopupMenu, GroupsToolbarT::ID_MENU_MERGE,  "&Merge groups", "Merges all selected groups into one.", wxArtProvider::GetBitmap("sitemap_color", wxART_MENU)));
     GroupsPopupMenu.AppendSeparator();
-    GroupsPopupMenu.Append(GetMI(&GroupsPopupMenu, GroupsToolbarT::ID_MENU_MOVEUP,   "Move &up", "Moves the group up in the list.", ImgList->GetBitmap(ICON_ARROW_UP)));
-    GroupsPopupMenu.Append(GetMI(&GroupsPopupMenu, GroupsToolbarT::ID_MENU_MOVEDOWN, "Move &down", "Moves the group down in the list.", ImgList->GetBitmap(ICON_ARROW_DOWN)));
+    GroupsPopupMenu.Append(GetMI(&GroupsPopupMenu, GroupsToolbarT::ID_MENU_MOVEUP,   "Move &up", "Moves the group up in the list.", wxArtProvider::GetBitmap("list-selection-up", wxART_MENU)));
+    GroupsPopupMenu.Append(GetMI(&GroupsPopupMenu, GroupsToolbarT::ID_MENU_MOVEDOWN, "Move &down", "Moves the group down in the list.", wxArtProvider::GetBitmap("list-selection-down", wxART_MENU)));
 
     PopupMenu(&GroupsPopupMenu);
 }

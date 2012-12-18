@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "../EditorMaterial.hpp"
 
+#include "wx/artprov.h"
 #include "wx/imaglist.h"
 #include "wx/wupdlock.h"
 
@@ -85,8 +86,8 @@ MaterialTreeT::MaterialTreeT(DialogT* Parent, const ArrayT<EditorMaterialI*>& Ma
     // Build list of material tree icons.
     wxImageList* TreeIcons=new wxImageList(16, 16);
 
-    TreeIcons->Add(wxBitmap("CaWE/res/MaterialBrowser/folder.png", wxBITMAP_TYPE_PNG));
-    TreeIcons->Add(wxBitmap("CaWE/res/MaterialBrowser/picture.png", wxBITMAP_TYPE_PNG));
+    TreeIcons->Add(wxArtProvider::GetBitmap("folder", wxART_MENU));
+    TreeIcons->Add(wxArtProvider::GetBitmap("image-x-generic", wxART_MENU));
 
     AssignImageList(TreeIcons); // Note: wxTreeCtrl takes ownership of this list and deletes it on window destroy.
 
