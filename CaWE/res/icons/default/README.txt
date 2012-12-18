@@ -6,3 +6,6 @@ It uses icons from:
 
       Kai Schadwinkel,
       http://www.mdkai.de
+
+      Mark James, "Silk" icon set, CC Attribution 2.5 License,
+      http://www.famfamfam.com/lab/icons/silk/
