@@ -103,8 +103,8 @@ GroupsListViewT::GroupsListViewT(GroupsToolbarT* Parent, wxWindowID ID)
     // The order in which the bitmaps are added to the list should (must) match the ICON_* enum!!
     ListIcons->Add(wxBitmap("CaWE/res/eye.png", wxBITMAP_TYPE_PNG));
     ListIcons->Add(wxBitmap("CaWE/res/eye_grey.png", wxBITMAP_TYPE_PNG));
-    ListIcons->Add(wxBitmap("CaWE/res/lock.png", wxBITMAP_TYPE_PNG));
-    ListIcons->Add(wxBitmap("CaWE/res/wrench.png", wxBITMAP_TYPE_PNG));
+    ListIcons->Add(wxArtProvider::GetBitmap("changes-prevent", wxART_MENU));
+    ListIcons->Add(wxArtProvider::GetBitmap("changes-allow", wxART_MENU));
     ListIcons->Add(wxBitmap("CaWE/res/GroupSelect-Indiv.png", wxBITMAP_TYPE_PNG));
     ListIcons->Add(wxBitmap("CaWE/res/GroupSelect-AsOne.png", wxBITMAP_TYPE_PNG));
 
@@ -276,8 +276,8 @@ void GroupsListViewT::OnContextMenu(wxContextMenuEvent& CE)
     EditMenu->AppendSeparator();
     EditMenu->Append(GetMI(EditMenu, GroupsToolbarT::ID_MENU_EDIT_SHOW,       "&Show", "Show the members of the group.", ImgList->GetBitmap(ICON_EYE)));
     EditMenu->Append(GetMI(EditMenu, GroupsToolbarT::ID_MENU_EDIT_HIDE,       "&Hide", "Hide the members of the group.", ImgList->GetBitmap(ICON_EYE_GREY)));
-    EditMenu->Append(GetMI(EditMenu, GroupsToolbarT::ID_MENU_EDIT_CANSELECT,  "&Can select", "The members of the group can be selected normally.", ImgList->GetBitmap(ICON_EDIT)));
-    EditMenu->Append(GetMI(EditMenu, GroupsToolbarT::ID_MENU_EDIT_LOCK,       "Ca&n't select (lock)", "Lock the members of the group (exclude them from getting selected).", ImgList->GetBitmap(ICON_LOCK)));
+    EditMenu->Append(GetMI(EditMenu, GroupsToolbarT::ID_MENU_EDIT_CANSELECT,  "&Can select", "The members of the group can be selected normally.", wxArtProvider::GetBitmap("changes-allow", wxART_MENU)));
+    EditMenu->Append(GetMI(EditMenu, GroupsToolbarT::ID_MENU_EDIT_LOCK,       "Ca&n't select (lock)", "Lock the members of the group (exclude them from getting selected).", wxArtProvider::GetBitmap("changes-prevent", wxART_MENU)));
     EditMenu->Append(GetMI(EditMenu, GroupsToolbarT::ID_MENU_EDIT_SELASGROUP, "Select as &group", "All members of the group are selected 'as one'. Clicking one member selects the entire group.", ImgList->GetBitmap(ICON_SELECT_ASGROUP)));
     EditMenu->Append(GetMI(EditMenu, GroupsToolbarT::ID_MENU_EDIT_SELASINDIV, "Select &individually", "The members of the group are selected individually, their common group membership is ignored.", ImgList->GetBitmap(ICON_SELECT_INDIV)));
     GroupsPopupMenu.AppendSubMenu(EditMenu, "&Edit", "Edits the properties of the group.");
