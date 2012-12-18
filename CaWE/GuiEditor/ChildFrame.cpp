@@ -204,7 +204,7 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
     ToolbarDocument->Realize();
 
     m_ToolbarTools=new wxAuiToolBar(this, wxID_ANY);
-    m_ToolbarTools->AddTool(ID_TOOLBAR_TOOL_SELECTION, "Selection tool", wxBitmap("CaWE/res/GuiEditor/cursor.png", wxBITMAP_TYPE_PNG), "Selection tool", wxITEM_CHECK);
+    m_ToolbarTools->AddTool(ID_TOOLBAR_TOOL_SELECTION, "Selection tool", wxArtProvider::GetBitmap("cursor_mouse", wxART_TOOLBAR, wxSize(16, 16) /*The only one that we have at this time; don't scale it.*/), "Selection tool", wxITEM_CHECK);
     m_ToolbarTools->ToggleTool(ID_TOOLBAR_TOOL_SELECTION, true); // Selection tool is active by default.
     m_ToolbarTools->AddTool(ID_TOOLBAR_TOOL_NEW_WINDOW, "Window Creation tool", wxArtProvider::GetBitmap("window-new", wxART_TOOLBAR), "Window creation tool (in this version, use right-mouse-button context menu in Window Tree or main view in order to create new windows)", wxITEM_CHECK);
     m_ToolbarTools->EnableTool(ID_TOOLBAR_TOOL_NEW_WINDOW, false);
