@@ -23,12 +23,23 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrame.hpp"
 #include "Commands/SetCompVar.hpp"
 
-//#include "wx/propgrid/property.h"
 #include "wx/propgrid/manager.h"
-//#include "wx/propgrid/advprops.h"
+#include "wx/propgrid/advprops.h"
 
 
 using namespace GuiEditor;
+
+
+namespace
+{
+    wxColour cast(const Vector3fT& v)
+    {
+        return wxColour(
+            std::min(std::max(0.0f, v.x), 1.0f) * 255.0f + 0.5f,
+            std::min(std::max(0.0f, v.y), 1.0f) * 255.0f + 0.5f,
+            std::min(std::max(0.0f, v.z), 1.0f) * 255.0f + 0.5f);
+    }
+}
 
 
 /**************************/
@@ -76,13 +87,23 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<std::string>& Var)
 
 void VarVisitorAddPropT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
 {
-    wxPGProperty* Prop = new wxStringProperty(Var.GetName(), wxString::Format("%p", &Var), "<composed>");
+    if (Var.HasFlag("IsColor"))
+    {
+        wxColour      Col  = cast(Var.Get());
+        wxPGProperty* Prop = new wxColourProperty(Var.GetName(), wxString::Format("%p", &Var), Col);
 
-    m_PropMan.Append(Prop)->SetClientData(&Var);
+        m_PropMan.Append(Prop)->SetClientData(&Var);
+    }
+    else
+    {
+        wxPGProperty* Prop = new wxStringProperty(Var.GetName(), wxString::Format("%p", &Var), "<composed>");
 
-    m_PropMan.AppendIn(Prop, new wxFloatProperty("x", wxPG_LABEL, Var.Get().x))->SetTextColour(wxColour(200, 0, 0));
-    m_PropMan.AppendIn(Prop, new wxFloatProperty("y", wxPG_LABEL, Var.Get().y))->SetTextColour(wxColour(0, 200, 0));
-    m_PropMan.AppendIn(Prop, new wxFloatProperty("z", wxPG_LABEL, Var.Get().z))->SetTextColour(wxColour(0, 0, 200));
+        m_PropMan.Append(Prop)->SetClientData(&Var);
+
+        m_PropMan.AppendIn(Prop, new wxFloatProperty("x", wxPG_LABEL, Var.Get().x))->SetTextColour(wxColour(200, 0, 0));
+        m_PropMan.AppendIn(Prop, new wxFloatProperty("y", wxPG_LABEL, Var.Get().y))->SetTextColour(wxColour(0, 200, 0));
+        m_PropMan.AppendIn(Prop, new wxFloatProperty("z", wxPG_LABEL, Var.Get().z))->SetTextColour(wxColour(0, 0, 200));
+    }
 }
 
 
@@ -122,10 +143,19 @@ void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<std::string>& Var)
 
 void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<Vector3fT>& Var)
 {
-    const unsigned int Count = std::min(3u, m_Prop.GetChildCount());
+    if (Var.HasFlag("IsColor"))
+    {
+        const wxColour Col = cast(Var.Get());
 
-    for (unsigned int i = 0; i < Count; i++)
-        m_Prop.Item(i)->SetValue(Var.Get()[i]);
+        m_Prop.SetValueFromString(wxString::Format("(%u,%u,%u)", Col.Red(), Col.Green(), Col.Blue()));
+    }
+    else
+    {
+        const unsigned int Count = std::min(3u, m_Prop.GetChildCount());
+
+        for (unsigned int i = 0; i < Count; i++)
+            m_Prop.Item(i)->SetValue(Var.Get()[i]);
+    }
 }
 
 
@@ -174,25 +204,38 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<std::string>& V
 }
 
 
-// This is a "<composed>" property, and its summary string is changing.
-// For example, the value could be changing from "100.0; 0.0; 50.0" to "100.0; 150; 200.0".
 void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
 {
-    Vector3fT         v;
-    wxStringTokenizer Tokenizer(m_Event.GetValue().GetString(), "; \t\r\n", wxTOKEN_STRTOK);
+    Vector3fT v;
 
-    for (unsigned int i = 0; i < 3; i++)
+    if (Var.HasFlag("IsColor"))
     {
-        double d = 0.0;
+        wxColour NewColor;
+        NewColor << m_Event.GetValue();
 
-        // On error, return with m_Ok == false.
-        if (!Tokenizer.HasMoreTokens()) return;
-        if (!Tokenizer.GetNextToken().ToCDouble(&d)) return;
-
-        v[i] = float(d);
+        v.x = NewColor.Red()   / 255.0f;
+        v.y = NewColor.Green() / 255.0f;
+        v.z = NewColor.Blue()  / 255.0f;
     }
+    else
+    {
+        // This is a "<composed>" property, and its summary string is changing.
+        // For example, the value could be changing from "100.0; 0.0; 50.0" to "100.0; 150; 200.0".
+        wxStringTokenizer Tokenizer(m_Event.GetValue().GetString(), "; \t\r\n", wxTOKEN_STRTOK);
 
-    if (Tokenizer.HasMoreTokens()) return;
+        for (unsigned int i = 0; i < 3; i++)
+        {
+            double d = 0.0;
+
+            // On error, return with m_Ok == false.
+            if (!Tokenizer.HasMoreTokens()) return;
+            if (!Tokenizer.GetNextToken().ToCDouble(&d)) return;
+
+            v[i] = float(d);
+        }
+
+        if (Tokenizer.HasMoreTokens()) return;
+    }
 
     m_Ok = m_ChildFrame->SubmitCommand(new CommandSetCompVarT<Vector3fT>(m_GuiDoc, Var, v));
 }
@@ -220,6 +263,8 @@ void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<std::string>& Va
 
 void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
 {
+    wxASSERT(!Var.HasFlag("IsColor"));
+
     Vector3fT          v = Var.Get();
     const unsigned int i = m_Event.GetProperty()->GetIndexInParent();
 
