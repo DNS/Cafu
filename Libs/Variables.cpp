@@ -22,6 +22,18 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Variables.hpp"
 
 
+bool cf::TypeSys::VarBaseT::HasFlag(const char* Flag) const
+{
+    if (!m_Flags) return false;
+
+    for (unsigned int i = 0; m_Flags[i]; i++)
+        if (strcmp(Flag, m_Flags[i]) == 0)
+            return true;
+
+    return false;
+}
+
+
 void cf::TypeSys::VarManT::Add(VarBaseT* Var)
 {
     m_VarsArray.PushBack(Var);

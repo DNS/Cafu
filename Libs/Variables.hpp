@@ -117,9 +117,13 @@ namespace cf
         {
             public:
 
-            VarBaseT(const char* Name) : m_Name(Name) { }
+            VarBaseT(const char* Name, const char* Flags[])
+                : m_Name(Name), m_Flags(Flags) { }
 
             const char* GetName() const { return m_Name; }
+
+            const char** GetFlags() const { return m_Flags; }
+            bool HasFlag(const char* Flag) const;
 
             virtual void accept(VisitorT&      Visitor) = 0;
             virtual void accept(VisitorConstT& Visitor) const = 0;
@@ -127,7 +131,8 @@ namespace cf
 
             private:
 
-            const char* m_Name;   ///< The name of the variable.
+            const char*  m_Name;    ///< The name of the variable.
+            const char** m_Flags;   ///< An optional list of context-dependent flags.
         };
 
 
@@ -146,7 +151,8 @@ namespace cf
             public:
 
             /// The constructor.
-            VarT(const char* Name, const T& Value) : VarBaseT(Name), m_Value(Value) { }
+            VarT(const char* Name, const T& Value, const char* Flags[]=NULL)
+                : VarBaseT(Name, Flags), m_Value(Value) { }
 
             /// Returns the value of this variable.
             const T& Get() const { return m_Value; }
