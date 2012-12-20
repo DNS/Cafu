@@ -106,6 +106,12 @@ void RenderWindowT::Notify_WinChanged(SubjectT* Subject, const EditorWindowT* Wi
 }
 
 
+void RenderWindowT::Notify_Changed(SubjectT* Subject, const cf::TypeSys::VarBaseT& Var)
+{
+    Refresh(false);
+}
+
+
 void RenderWindowT::NotifySubjectDies(SubjectT* dyingSubject)
 {
     m_GuiDocument=NULL;

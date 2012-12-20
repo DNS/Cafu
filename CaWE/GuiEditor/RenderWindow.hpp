@@ -47,6 +47,7 @@ namespace GuiEditor
         void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail);
         void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail, const wxString& PropertyName);
         void Notify_WinChanged(SubjectT* Subject, const EditorWindowT* Win, const wxString& PropName);
+        void Notify_Changed(SubjectT* Subject, const cf::TypeSys::VarBaseT& Var);
         void NotifySubjectDies(SubjectT* dyingSubject);
 
         Vector3fT ClientToGui(int x, int y);
