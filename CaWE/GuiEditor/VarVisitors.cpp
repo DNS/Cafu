@@ -21,7 +21,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "VarVisitors.hpp"
 #include "ChildFrame.hpp"
+#include "GuiDocument.hpp"
 #include "Commands/SetCompVar.hpp"
+
+#include "../EditorMaterial.hpp"
+#include "../MaterialBrowser/DocAccess.hpp"
+#include "../MaterialBrowser/MaterialBrowserDialog.hpp"
 
 #include "wx/propgrid/manager.h"
 #include "wx/propgrid/advprops.h"
@@ -39,6 +44,55 @@ namespace
             std::min(std::max(0.0f, v.y), 1.0f) * 255.0f + 0.5f,
             std::min(std::max(0.0f, v.z), 1.0f) * 255.0f + 0.5f);
     }
+
+
+    /// Custom property to select materials from the Material Browser.
+    class MaterialPropertyT : public wxLongStringProperty
+    {
+        public:
+
+        MaterialPropertyT(const wxString& label,
+                          const wxString& name,
+                          const wxString& value,
+                          GuiDocumentT* GuiDoc)
+            : wxLongStringProperty(label, name, value),
+              m_GuiDocument(GuiDoc)
+        {
+        }
+
+        // Shows the file selection dialog and makes the choosen file path relative.
+        virtual bool OnButtonClick(wxPropertyGrid* propGrid, wxString& value)
+        {
+            EditorMaterialI*                InitMat = NULL;
+            const ArrayT<EditorMaterialI*>& EditorMaterials = m_GuiDocument->GetEditorMaterials();
+
+            for (unsigned long EMNr = 0; EMNr < EditorMaterials.Size(); EMNr++)
+                if (EditorMaterials[EMNr]->GetName() == value)
+                {
+                    InitMat=EditorMaterials[EMNr];
+                    break;
+                }
+
+            MaterialBrowser::DialogT MatBrowser(GetGrid(), MaterialBrowser::GuiDocAccessT(*m_GuiDocument), MaterialBrowser::ConfigT()
+                .InitialMaterial(InitMat)
+                .NoFilterEditorMatsOnly()
+                .NoButtonMark()
+                .NoButtonReplace());
+
+            if (MatBrowser.ShowModal() != wxID_OK) return false;
+
+            EditorMaterialI* Mat = MatBrowser.GetCurrentMaterial();
+            if (Mat == NULL) return false;
+
+            value = Mat->GetName();
+            return true;
+        }
+
+
+        private:
+
+        GuiDocumentT* m_GuiDocument;
+    };
 }
 
 
@@ -46,8 +100,9 @@ namespace
 /*** VarVisitorAddPropT ***/
 /**************************/
 
-VarVisitorAddPropT::VarVisitorAddPropT(wxPropertyGridManager& PropMan)
-    : m_PropMan(PropMan)
+VarVisitorAddPropT::VarVisitorAddPropT(wxPropertyGridManager& PropMan, GuiDocumentT* GuiDoc)
+    : m_PropMan(PropMan),
+      m_GuiDoc(GuiDoc)
 {
 }
 
@@ -78,8 +133,20 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<int>& Var)
 
 void VarVisitorAddPropT::visit(cf::TypeSys::VarT<std::string>& Var)
 {
-    wxPGProperty* Prop = new wxStringProperty(Var.GetName(), wxString::Format("%p", &Var), Var.Get());
- // wxPGProperty* Prop = new wxLongStringProperty(Var.GetName(), wxString::Format("%p", &Var), Var.Get());
+    wxPGProperty* Prop = NULL;
+
+    if (Var.HasFlag("IsMaterial"))
+    {
+        Prop = new MaterialPropertyT(Var.GetName(), wxString::Format("%p", &Var), Var.Get(), m_GuiDoc);
+    }
+    else if (Var.HasFlag("IsLongString"))
+    {
+        Prop = new wxLongStringProperty(Var.GetName(), wxString::Format("%p", &Var), Var.Get());
+    }
+    else
+    {
+        Prop = new wxStringProperty(Var.GetName(), wxString::Format("%p", &Var), Var.Get());
+    }
 
     m_PropMan.Append(Prop)->SetClientData(&Var);
 }
@@ -137,7 +204,7 @@ void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<int>& Var)
 
 void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<std::string>& Var)
 {
-    m_Prop.SetValue/*FromString*/(Var.Get());
+    m_Prop.SetValue(Var.Get());
 }
 
 

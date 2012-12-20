@@ -42,7 +42,7 @@ namespace GuiEditor
     {
         public:
 
-        VarVisitorAddPropT(wxPropertyGridManager& PropMan);
+        VarVisitorAddPropT(wxPropertyGridManager& PropMan, GuiDocumentT* GuiDoc);
 
         void visit(cf::TypeSys::VarT<float>& Var);
         void visit(cf::TypeSys::VarT<double>& Var);
@@ -54,6 +54,7 @@ namespace GuiEditor
         private:
 
         wxPropertyGridManager& m_PropMan;
+        GuiDocumentT*          m_GuiDoc;
     };
 
 

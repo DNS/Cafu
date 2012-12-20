@@ -208,7 +208,7 @@ void WindowInspectorT::RefreshPropGrid()
 
         GuiDocumentT::GetSibling(m_SelectedWindow)->FillInPG(this);
 
-        VarVisitorAddPropT AddProp(*this);
+        VarVisitorAddPropT AddProp(*this, m_GuiDocument);
 
         for (unsigned long CompNr = 0; CompNr < m_SelectedWindow->GetComponents().Size(); CompNr++)
         {
