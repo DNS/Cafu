@@ -27,7 +27,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GuiSys/CompBase.hpp"
 #include "GuiSys/GuiImpl.hpp"
 #include "GuiSys/VarVisitorsLua.hpp"
-#include "GuiSys/Window.hpp"
 #include "TypeSys.hpp"
 
 #include <fstream>

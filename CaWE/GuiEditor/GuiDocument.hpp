@@ -23,11 +23,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_GUIEDITOR_GUI_DOCUMENT_HPP_INCLUDED
 
 #include "ObserverPattern.hpp"
+#include "GuiSys/Window.hpp"
 #include "Templates/Pointer.hpp"
 #include "wx/wx.h"
 
 
-namespace cf { namespace GuiSys { class WindowT; } }
 namespace cf { namespace GuiSys { class GuiImplT; } }
 class GameConfigT;
 class EditorMaterialI;
