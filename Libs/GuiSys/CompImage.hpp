@@ -25,11 +25,15 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CompBase.hpp"
 
 
+namespace MatSys { class RenderMaterialT; }
+
+
 namespace cf
 {
     namespace GuiSys
     {
         class ComponentTransformT;
+
 
         /// This component adds an image to its window.
         class ComponentImageT : public ComponentBaseT
@@ -44,10 +48,14 @@ namespace cf
             /// @param Comp   The component to create a copy of.
             ComponentImageT(const ComponentImageT& Comp);
 
+            /// The destructor.
+            ~ComponentImageT();
+
             // Base class overrides.
             ComponentImageT* Clone() const;
             const char* GetName() const { return "Image"; }
             void UpdateDependencies(WindowT* Window);
+            void Render() const;
 
 
             // The TypeSys related declarations for this class.
@@ -58,14 +66,36 @@ namespace cf
 
             private:
 
+            /// A variable of type std::string, specifically for material names. It updates the related
+            /// render material instance in the parent ComponentImageT whenever a new material name is set.
+            class VarMatNameT : public TypeSys::VarT<std::string>
+            {
+                public:
+
+                VarMatNameT(const char* Name, const std::string& Value, ComponentImageT& CompImg);
+                VarMatNameT(const VarMatNameT& Var, ComponentImageT& CompImg);
+
+                // Base class overrides.
+                void Set(const std::string& v);
+
+
+                private:
+
+                ComponentImageT& m_CompImg;     ///< The parent ComponentImageT that contains this variable.
+            };
+
+
+            void FillMemberVars();      ///< A helper method for the constructors.
+
             // The Lua API methods of this class.
             static const luaL_Reg MethodsList[];        ///< The list of Lua methods for this class.
             static int toString(lua_State* LuaState);   ///< Returns a string representation of this object.
 
             IntrusivePtrT<ComponentTransformT> m_Transform;
-            // MatSys::RenderMaterialT* BackRenderMat;     ///< The render material used to render this windows background.
-            // std::string              BackRenderMatName; ///< The name of the render material.
-            // float                    BackColor[4];      ///< The windows background color.
+            VarMatNameT                        m_MatName;   ///< The name of the image material.
+            MatSys::RenderMaterialT*           m_MatInst;   ///< The render instance of the material.
+            TypeSys::VarT<Vector3fT>           m_Color;     ///< The color with which the image is tinted.
+            TypeSys::VarT<float>               m_Alpha;     ///< The alpha component of the color.
         };
     }
 }

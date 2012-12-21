@@ -50,7 +50,7 @@ namespace cf
         ///
         /// Stand-alone components typically occur when they're newly instantiated, for example
         /// when they are loaded from disk, when they are instantiated in scripts, or when they
-        /// are managed in the Undo/Redo system of the GUI Editor.
+        /// are kept in the clipboard or managed in the Undo/Redo system of the GUI Editor.
         /// Newly created, copied or cloned components are initially stand-alone.
         ///
         /// A component becomes a part of a window via the WindowT::AddComponent() method.
@@ -92,13 +92,16 @@ namespace cf
 
             /// This method is called whenever something "external" to this component has changed:
             ///   - if the parent window has changed, because this window was added to or removed from it,
-            //    - if other components in the parent window have changed.
+            ///   - if other components in the parent window have changed.
             /// The component can use the opportunity to search the window for "sibling" components
             /// that it depends on, and store direct pointers to them.
             /// Note however that dependencies among components must not be cyclic, or else the deletion
             /// of a window will leave a memory leak.
             /// @param Window   The parent window that contains this component, or `NULL` to indicate that this component is removed from the window that it used to be a part of.
             virtual void UpdateDependencies(WindowT* Window);
+
+            /// This method implements the graphical output of this component.
+            virtual void Render() const { }
 
 
             // The TypeSys related declarations for this class.

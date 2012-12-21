@@ -22,8 +22,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CompImage.hpp"
 #include "AllComponents.hpp"
 #include "CompTransform.hpp"
+#include "GuiImpl.hpp"
 #include "Window.hpp"
 #include "UniScriptState.hpp"
+
+#include "MaterialSystem/Mesh.hpp"
+#include "MaterialSystem/Renderer.hpp"
 
 extern "C"
 {
@@ -32,7 +36,54 @@ extern "C"
     #include <lauxlib.h>
 }
 
+#if defined(_WIN32) && defined(_MSC_VER)
+    // Turn off warning C4355: 'this' : used in base member initializer list.
+    #pragma warning(disable:4355)
+#endif
+
+
 using namespace cf::GuiSys;
+
+
+namespace
+{
+    const char* FlagsIsColor[] = { "IsColor", NULL };
+    const char* FlagsIsMaterial[] = { "IsMaterial", NULL };
+}
+
+
+ComponentImageT::VarMatNameT::VarMatNameT(const char* Name, const std::string& Value, ComponentImageT& CompImg)
+    : TypeSys::VarT<std::string>(Name, Value, FlagsIsMaterial),
+      m_CompImg(CompImg)
+{
+}
+
+
+// The compiler-written copy constructor would copy m_CompImg from Var.m_CompImg,
+// but we must obviously use the reference to the proper parent instance instead.
+ComponentImageT::VarMatNameT::VarMatNameT(const VarMatNameT& Var, ComponentImageT& CompImg)
+    : TypeSys::VarT<std::string>(Var),
+      m_CompImg(CompImg)
+{
+}
+
+
+void ComponentImageT::VarMatNameT::Set(const std::string& v)
+{
+    // Make sure that m_CompImg actually refers to the ComponentImageT instance that contains us!
+    assert(this == &m_CompImg.m_MatName);
+
+    TypeSys::VarT<std::string>::Set(v);
+
+    MatSys::Renderer->FreeMaterial(m_CompImg.m_MatInst);
+    m_CompImg.m_MatInst = NULL;
+
+    if (m_CompImg.GetWindow() && !v.empty())
+    {
+        m_CompImg.m_MatInst = MatSys::Renderer->RegisterMaterial(
+            m_CompImg.GetWindow()->GetGui().GetMaterialManager().GetMaterial(v));
+    }
+}
 
 
 void* ComponentImageT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
@@ -51,15 +102,35 @@ const cf::TypeSys::TypeInfoT ComponentImageT::TypeInfo(GetComponentTIM(), "Compo
 
 ComponentImageT::ComponentImageT()
     : ComponentBaseT(),
-      m_Transform(NULL)
+      m_Transform(NULL),
+      m_MatName("Material", "", *this),
+      m_MatInst(NULL),
+      m_Color("Color", Vector3fT(1, 1, 1), FlagsIsColor),
+      m_Alpha("Alpha", 1.0f)
 {
+    FillMemberVars();
 }
 
 
 ComponentImageT::ComponentImageT(const ComponentImageT& Comp)
     : ComponentBaseT(Comp),
-      m_Transform(NULL)
+      m_Transform(NULL),
+      m_MatName(Comp.m_MatName, *this),
+      m_MatInst(NULL),
+      m_Color(Comp.m_Color),
+      m_Alpha(Comp.m_Alpha)
 {
+    // There is no need to do anything with m_MatInst here.
+    assert(GetWindow() == NULL);
+
+    FillMemberVars();
+}
+
+
+ComponentImageT::~ComponentImageT()
+{
+    MatSys::Renderer->FreeMaterial(m_MatInst);
+    m_MatInst = NULL;
 }
 
 
@@ -71,11 +142,20 @@ ComponentImageT* ComponentImageT::Clone() const
 
 void ComponentImageT::UpdateDependencies(WindowT* Window)
 {
+    const bool WindowChanged = Window != GetWindow();
+
     ComponentBaseT::UpdateDependencies(Window);
 
     m_Transform = NULL;
 
+    if (WindowChanged)
+    {
+        MatSys::Renderer->FreeMaterial(m_MatInst);
+        m_MatInst = NULL;
+    }
+
     if (!GetWindow()) return;
+
 
     // It would be possible to break this loop as soon as we have assigned a non-NULL pointer to m_Transform.
     // However, this is only because the Transform component is, at this time, the only sibling component that
@@ -87,6 +167,54 @@ void ComponentImageT::UpdateDependencies(WindowT* Window)
         if (m_Transform == NULL)
             m_Transform = dynamic_pointer_cast<ComponentTransformT>(Comp);
     }
+
+    if (WindowChanged && !m_MatName.Get().empty())
+    {
+        m_MatInst = MatSys::Renderer->RegisterMaterial(
+            GetWindow()->GetGui().GetMaterialManager().GetMaterial(m_MatName.Get()));
+    }
+}
+
+
+void ComponentImageT::Render() const
+{
+    if (!m_MatInst) return;
+
+ // MatSys::Renderer->SetCurrentAmbientLightColor(m_Color);
+    MatSys::Renderer->SetCurrentMaterial(m_MatInst);
+
+    static MatSys::MeshT BackMesh(MatSys::MeshT::Quads);
+
+    BackMesh.Vertices.Overwrite();
+    BackMesh.Vertices.PushBackEmpty(4);     // Just a single quad for the image rectangle.
+
+    for (unsigned int VertexNr = 0; VertexNr < 4; VertexNr++)
+    {
+        for (unsigned int i = 0; i < 3; i++)
+            BackMesh.Vertices[VertexNr].Color[i] = m_Color.Get()[i];
+
+        BackMesh.Vertices[VertexNr].Color[3] = m_Alpha.Get();
+    }
+
+    const float x1 = 0.0f;
+    const float y1 = 0.0f;
+    const float x2 = GetWindow()->Rect[2];
+    const float y2 = GetWindow()->Rect[3];
+
+    BackMesh.Vertices[0].SetOrigin(x1, y1); BackMesh.Vertices[0].SetTextureCoord(0.0f, 0.0f);
+    BackMesh.Vertices[1].SetOrigin(x2, y1); BackMesh.Vertices[1].SetTextureCoord(1.0f, 0.0f);
+    BackMesh.Vertices[2].SetOrigin(x2, y2); BackMesh.Vertices[2].SetTextureCoord(1.0f, 1.0f);
+    BackMesh.Vertices[3].SetOrigin(x1, y2); BackMesh.Vertices[3].SetTextureCoord(0.0f, 1.0f);
+
+    MatSys::Renderer->RenderMesh(BackMesh);
+}
+
+
+void ComponentImageT::FillMemberVars()
+{
+    GetMemberVars().Add(&m_MatName);
+    GetMemberVars().Add(&m_Color);
+    GetMemberVars().Add(&m_Alpha);
 }
 
 

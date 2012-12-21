@@ -444,6 +444,30 @@ void WindowT::Render() const
     GetAbsolutePos(x1, y1);
 
 
+    // Render the components.
+    {
+        MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
+
+        // Set the coordinate origin to the top-left corner of our window.
+        if (RotAngle == 0)
+        {
+            MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, x1, y1, 0.0f);
+        }
+        else
+        {
+            MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, x1 + Rect[2]/2.0f, y1 + Rect[3]/2.0f, 0.0f);
+            MatSys::Renderer->RotateZ  (MatSys::RendererI::MODEL_TO_WORLD, RotAngle);
+            MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD,     -Rect[2]/2.0f,     -Rect[3]/2.0f, 0.0f);
+        }
+
+        // Render components in the proper order -- bottom-up.
+        for (unsigned long CompNr = m_Components.Size(); CompNr > 0; CompNr--)
+            m_Components[CompNr-1]->Render();
+
+        MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
+    }
+
+
     // Save the current matrices.
     if (RotAngle!=0)
     {
