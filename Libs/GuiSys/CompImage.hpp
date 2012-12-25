@@ -72,7 +72,7 @@ namespace cf
             {
                 public:
 
-                VarMatNameT(const char* Name, const std::string& Value, ComponentImageT& CompImg);
+                VarMatNameT(const char* Name, const std::string& Value, const char* Flags[], ComponentImageT& CompImg);
                 VarMatNameT(const VarMatNameT& Var, ComponentImageT& CompImg);
 
                 // Base class overrides.

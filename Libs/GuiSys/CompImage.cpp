@@ -45,15 +45,8 @@ extern "C"
 using namespace cf::GuiSys;
 
 
-namespace
-{
-    const char* FlagsIsColor[] = { "IsColor", NULL };
-    const char* FlagsIsMaterial[] = { "IsMaterial", NULL };
-}
-
-
-ComponentImageT::VarMatNameT::VarMatNameT(const char* Name, const std::string& Value, ComponentImageT& CompImg)
-    : TypeSys::VarT<std::string>(Name, Value, FlagsIsMaterial),
+ComponentImageT::VarMatNameT::VarMatNameT(const char* Name, const std::string& Value, const char* Flags[], ComponentImageT& CompImg)
+    : TypeSys::VarT<std::string>(Name, Value, Flags),
       m_CompImg(CompImg)
 {
 }
@@ -100,10 +93,17 @@ const luaL_reg ComponentImageT::MethodsList[] =
 const cf::TypeSys::TypeInfoT ComponentImageT::TypeInfo(GetComponentTIM(), "ComponentImageT", "ComponentBaseT", ComponentImageT::CreateInstance, MethodsList);
 
 
+namespace
+{
+    const char* FlagsIsColor[] = { "IsColor", NULL };
+    const char* FlagsIsMaterial[] = { "IsMaterial", NULL };
+}
+
+
 ComponentImageT::ComponentImageT()
     : ComponentBaseT(),
       m_Transform(NULL),
-      m_MatName("Material", "", *this),
+      m_MatName("Material", "", FlagsIsMaterial, *this),
       m_MatInst(NULL),
       m_Color("Color", Vector3fT(1, 1, 1), FlagsIsColor),
       m_Alpha("Alpha", 1.0f)
@@ -120,7 +120,7 @@ ComponentImageT::ComponentImageT(const ComponentImageT& Comp)
       m_Color(Comp.m_Color),
       m_Alpha(Comp.m_Alpha)
 {
-    // There is no need to do anything with m_MatInst here.
+    // There is no need to do anything with m_MatInst here:
     assert(GetWindow() == NULL);
 
     FillMemberVars();
@@ -220,8 +220,8 @@ void ComponentImageT::FillMemberVars()
 
 int ComponentImageT::toString(lua_State* LuaState)
 {
-    ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<ComponentBaseT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(1);
+    // ScriptBinderT Binder(LuaState);
+    // IntrusivePtrT<ComponentImageT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentImageT> >(1);
 
     lua_pushfstring(LuaState, "image component");
     return 1;

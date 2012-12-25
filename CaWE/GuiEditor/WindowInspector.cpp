@@ -325,11 +325,12 @@ static wxMenuItem* AppendMI(wxMenu& Menu, int MenuID, const wxString& Label, con
 {
     wxMenuItem* MI = new wxMenuItem(&Menu, MenuID, Label, Help);
 
-    // Under wxGTK, the menu item must be added to the menu before we can call Enable().
-    Menu.Append(MI);
-
+    // Under wxMSW (2.9.2), the bitmap must be set before the menu item is added to the menu.
     if (ArtID != "")
         MI->SetBitmap(wxArtProvider::GetBitmap(ArtID, wxART_MENU));
+
+    // Under wxGTK (2.9.2), the menu item must be added to the menu before we can call Enable().
+    Menu.Append(MI);
 
     MI->Enable(Active);
 
