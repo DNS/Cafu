@@ -168,6 +168,14 @@ namespace cf
             /// Sets the value of this variable to the given value `v`.
             virtual void Set(const T& v) { m_Value = v; }
 
+            /// This method returns a list of acceptable input values for this variable, along with a string
+            /// representation of each.
+            /// The relevancy of the returned tuples is limited: They are intended to create helpful user interfaces
+            /// in our graphical editors and to provide extra information in scripts, but if Set() is called with a
+            /// value that is not in `Values`, it will work and is not an error.
+            /// If the method returns no tuples at all, it means that user input is free and any value is acceptable.
+            virtual void GetChoices(ArrayT<std::string>& Strings, ArrayT<T>& Values) const { }
+
             void accept(VisitorT&      Visitor);
             void accept(VisitorConstT& Visitor) const;
 

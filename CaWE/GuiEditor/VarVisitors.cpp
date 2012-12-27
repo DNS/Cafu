@@ -125,7 +125,26 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<double>& Var)
 
 void VarVisitorAddPropT::visit(cf::TypeSys::VarT<int>& Var)
 {
-    wxPGProperty* Prop = new wxIntProperty(Var.GetName(), wxString::Format("%p", &Var), Var.Get());
+    wxPGProperty*       Prop = NULL;
+    ArrayT<std::string> Strings;
+    ArrayT<int>         Values;
+
+    Var.GetChoices(Strings, Values);
+    wxASSERT(Strings.Size() == Values.Size());
+
+    if (Strings.Size() > 0)
+    {
+        wxPGChoices Choices;
+
+        for (unsigned int i = 0; i < Strings.Size(); i++)
+            Choices.Add(wxString::Format("%s (%i)", Strings[i], Values[i]), Values[i]);
+
+        Prop = new wxEnumProperty(Var.GetName(), wxString::Format("%p", &Var), Choices, Var.Get());
+    }
+    else
+    {
+        Prop = new wxIntProperty(Var.GetName(), wxString::Format("%p", &Var), Var.Get());
+    }
 
     m_PropMan.Append(Prop)->SetClientData(&Var);
 }
