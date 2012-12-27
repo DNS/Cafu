@@ -42,9 +42,10 @@ void* ComponentBaseT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 
 const luaL_reg ComponentBaseT::MethodsList[] =
 {
-    { "get",        ComponentBaseT::Get },
-    { "set",        ComponentBaseT::Set },
-    { "__tostring", ComponentBaseT::toString },
+    { "get",             ComponentBaseT::Get },
+    { "set",             ComponentBaseT::Set },
+    { "GetExtraMessage", ComponentBaseT::GetExtraMessage },
+    { "__tostring",      ComponentBaseT::toString },
     { NULL, NULL }
 };
 
@@ -102,6 +103,23 @@ int ComponentBaseT::Set(lua_State* LuaState)
 
     if (Var)
         Var->accept(SetFromLua);
+
+    return 0;
+}
+
+
+int ComponentBaseT::GetExtraMessage(lua_State* LuaState)
+{
+    ScriptBinderT                 Binder(LuaState);
+    IntrusivePtrT<ComponentBaseT> Comp    = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(1);
+    const char*                   VarName = luaL_checkstring(LuaState, 2);
+    cf::TypeSys::VarBaseT*        Var     = Comp->m_MemberVars.Find(VarName);
+
+    if (Var)
+    {
+        lua_pushstring(LuaState, Var->GetExtraMessage().c_str());
+        return 1;
+    }
 
     return 0;
 }

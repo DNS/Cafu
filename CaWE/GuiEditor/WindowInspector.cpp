@@ -30,6 +30,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GuiSys/CompBase.hpp"
 
 #include "wx/artprov.h"
+#include "wx/notifmsg.h"
 
 
 using namespace GuiEditor;
@@ -299,6 +300,14 @@ void WindowInspectorT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
             Var->accept(PropChange);
             if (!PropChange.Ok()) Event.Veto();
         }
+    }
+
+    if (!Event.WasVetoed() && Var->GetExtraMessage() != "")
+    {
+        // A wxInfoBar is a possible alternative to wxNotificationMessage.
+        wxNotificationMessage Notify(wxString("Setting \"") + Var->GetName() + "\"", Var->GetExtraMessage(), m_Parent);
+
+        Notify.Show();
     }
 
     m_IsRecursiveSelfNotify=false;

@@ -125,6 +125,14 @@ namespace cf
             const char** GetFlags() const { return m_Flags; }
             bool HasFlag(const char* Flag) const;
 
+            /// Sometimes actions on variables generate extra messages that are relevant to the user.
+            /// For example, setting a string that is interpreted as a filename can generate an extra
+            /// message with details if the related resource could not be opened.
+            /// This function returns the last extra message for this variable.
+            /// However, note that a proper logging system would be a better solution to this problem,
+            /// and we should probably replace this method with logging in the future.
+            virtual std::string GetExtraMessage() const { return ""; }
+
             virtual void accept(VisitorT&      Visitor) = 0;
             virtual void accept(VisitorConstT& Visitor) const = 0;
 
