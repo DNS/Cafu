@@ -60,7 +60,7 @@ namespace
         {
         }
 
-        // Shows the file selection dialog and makes the choosen file path relative.
+        // Shows the Material Browser and returns the name of the selected material.
         virtual bool OnButtonClick(wxPropertyGrid* propGrid, wxString& value)
         {
             EditorMaterialI*                InitMat = NULL;
@@ -92,6 +92,51 @@ namespace
         private:
 
         GuiDocumentT* m_GuiDocument;
+    };
+
+
+    /// This class represents a custom PropertyGrid property for Cafu game filenames.
+    /// A "game filename" is a filename that is relative to the Cafu main (working) directory.
+    ///
+    /// In contrast to using a wxFileProperty directly, deriving from wxLongStringProperty is much easier to
+    /// understand and to customize (e.g. for making the path relative to the Cafu main (working) directory
+    /// and for flipping the \ to / slashes).
+    /// Deriving from wxFileProperty and overloading OnButtonClick() didn't work.
+    class GameFileNamePropertyT : public wxLongStringProperty
+    {
+        public:
+
+        GameFileNamePropertyT(const wxString& label,
+                              const wxString& name,
+                              const wxString& value,
+                              const wxString& Filter="All Files (*.*)|*.*",
+                              const wxString& SubDir="")
+            : wxLongStringProperty(label, name, value),
+              m_Filter(Filter),
+              m_SubDir(SubDir)
+        {
+        }
+
+        // Shows the file selection dialog and makes the choosen file path relative.
+        virtual bool OnButtonClick(wxPropertyGrid* propGrid, wxString& value)
+        {
+            wxString InitialDir  = "";  // m_MapDoc->GetGameConfig()->ModDir + m_SubDir;
+            wxString FileNameStr = wxFileSelector("Select a file", InitialDir, "", "", m_Filter, wxFD_OPEN, propGrid->GetPanel());
+
+            if (FileNameStr == "") return false;
+
+            wxFileName FileName(FileNameStr);
+            FileName.MakeRelativeTo(".");   // Make it relative to the current working directory.
+
+            value = FileName.GetFullPath(wxPATH_UNIX);
+            return true;
+        }
+
+
+        private:
+
+        wxString m_Filter;
+        wxString m_SubDir;
     };
 }
 
@@ -161,6 +206,13 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<std::string>& Var)
     else if (Var.HasFlag("IsLongString"))
     {
         Prop = new wxLongStringProperty(Var.GetName(), wxString::Format("%p", &Var), Var.Get());
+    }
+    else if (Var.HasFlag("IsModelFileName"))
+    {
+        const wxString Wildcard = "Cafu Model Files (*.cmdl)|*.cmdl|"
+                                  "All Files (*.*)|*.*";
+
+        Prop = new GameFileNamePropertyT(Var.GetName(), wxString::Format("%p", &Var), Var.Get(), Wildcard);
     }
     else
     {

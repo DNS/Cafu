@@ -49,18 +49,16 @@ using namespace cf::GuiSys;
 /*
 TODO: some things are still awkward, and some magic is still missing:
 
-  a) m_ModelName should have flag / hint "IsFileName"
-
-  b) How do we "clean" an entered value before a "changing" event is generated from it?
+  a) How do we "clean" an entered value before a "changing" event is generated from it?
      Or said differently, what if Set(v) sets a value that is not v ??
      Can we update the property in the OnChanged() handler?? wxPGProperty::SetValueInEvent()? Or do we need a complete refresh??
      In any case, this would thoroughly be needed e.g. for making filenames relative, for flipping \ to /, clamp numeric values to min-max range, etc...
 
-  c) There is no AdvanceTime() / OnClockTickEvent() for components yet.
+  b) There is no AdvanceTime() / OnClockTickEvent() for components yet.
      That means that we currently cannot drive any animations.
      That means that setting a new animation sequence, which is implemented as a *blend* from the previous sequence, doesn't (seem to) work.
 
-  d) Changes to m_ModelName can affect *other* variables, e.g. m_ModelAnimNr and m_ModelSkinNr, both in value as well as in available choices.
+  c) Changes to m_ModelName can affect *other* variables, e.g. m_ModelAnimNr and m_ModelSkinNr, both in value as well as in available choices.
      How can we deal with it?? Flag / hint "AffectsOthers" ?  Method AffectsOthers(ArrayT<VarBaseT*>& Others) ?
      Probably needs complete refresh of the propgrid, doesn't it?
      And then it still doesn't properly work in the Undo/Redo system, does it?
@@ -193,9 +191,15 @@ const luaL_reg ComponentModelT::MethodsList[] =
 const cf::TypeSys::TypeInfoT ComponentModelT::TypeInfo(GetComponentTIM(), "ComponentModelT", "ComponentBaseT", ComponentModelT::CreateInstance, MethodsList);
 
 
+namespace
+{
+    const char* FlagsIsModelFileName[] = { "IsModelFileName", NULL };
+}
+
+
 ComponentModelT::ComponentModelT()
     : ComponentBaseT(),
-      m_ModelName("Name", "", NULL, *this),
+      m_ModelName("Name", "", FlagsIsModelFileName, *this),
       m_ModelAnimNr("Animation", 0, NULL, *this),
       m_ModelSkinNr("Skin", -1, NULL, *this),   // -1 is the default skin of the model.
       m_ModelPos("Pos", Vector3fT()),
