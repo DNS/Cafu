@@ -28,11 +28,25 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace GuiEditor;
 
 
+namespace
+{
+    cf::Network::StateT GetOldState(cf::TypeSys::VarBaseT& Var)
+    {
+        cf::Network::StateT     State;
+        cf::Network::OutStreamT Stream(State);
+
+        Var.Serialize(Stream);
+
+        return State;
+    }
+}
+
+
 template<class T>
 CommandSetCompVarT<T>::CommandSetCompVarT(GuiDocumentT* GuiDoc, cf::TypeSys::VarT<T>& Var, const T& NewValue)
     : m_GuiDoc(GuiDoc),
       m_Var(Var),
-      m_OldValue(Var.Get()),
+      m_OldState(GetOldState(Var)),
       m_NewValue(NewValue)
 {
 }
@@ -43,9 +57,6 @@ bool CommandSetCompVarT<T>::Do()
 {
     wxASSERT(!m_Done);
     if (m_Done) return false;
-
-    // If the new value isn't different from the old value, don't put this command into the command history.
-    if (m_NewValue == m_OldValue) return false;
 
     m_Var.Set(m_NewValue);
 
@@ -61,7 +72,12 @@ void CommandSetCompVarT<T>::Undo()
     wxASSERT(m_Done);
     if (!m_Done) return;
 
-    m_Var.Set(m_OldValue);
+    cf::Network::InStreamT Stream(m_OldState);
+
+    // Calling m_Var.Set() above may have caused side-effects, not only on internals (e.g. graphical resources) of the
+    // component that the variable is a part of, but also on other, sibling variables of the same component.
+    // A call like `m_Var.Set(m_OldValue);` would properly address only the former, but not the latter.
+    m_Var.Deserialize(Stream);
 
     m_GuiDoc->UpdateAllObservers_Modified(m_Var);
     m_Done=false;

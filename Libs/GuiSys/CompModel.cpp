@@ -28,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "MaterialSystem/Renderer.hpp"
 #include "Models/Model_cmdl.hpp"
+#include "Network/State.hpp"
 #include "UniScriptState.hpp"
 
 extern "C"
@@ -82,6 +83,25 @@ ComponentModelT::VarModelNameT::VarModelNameT(const VarModelNameT& Var, Componen
     : TypeSys::VarT<std::string>(Var),
       m_Comp(Comp)
 {
+}
+
+
+void ComponentModelT::VarModelNameT::Serialize(cf::Network::OutStreamT& Stream) const
+{
+    Stream << Get();
+    Stream << m_Comp.m_ModelAnimNr.Get();
+    Stream << m_Comp.m_ModelSkinNr.Get();
+}
+
+
+void ComponentModelT::VarModelNameT::Deserialize(cf::Network::InStreamT& Stream)
+{
+    std::string s = "";
+    int         i = 0;
+
+    Stream >> s; Set(s);
+    Stream >> i; m_Comp.m_ModelAnimNr.Set(i);
+    Stream >> i; m_Comp.m_ModelSkinNr.Set(i);
 }
 
 

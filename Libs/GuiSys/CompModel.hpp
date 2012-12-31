@@ -35,6 +35,7 @@ namespace cf
     {
         class ComponentTransformT;
 
+
         /// This component adds a 3D model to its window.
         class ComponentModelT : public ComponentBaseT
         {
@@ -77,6 +78,8 @@ namespace cf
 
                 // Base class overrides.
                 std::string GetExtraMessage() const { return m_ExtraMsg; }
+                void Serialize(cf::Network::OutStreamT& Stream) const;  ///< See base class documentation for details!
+                void Deserialize(cf::Network::InStreamT& Stream);
                 void Set(const std::string& v);
 
 
@@ -85,6 +88,7 @@ namespace cf
                 ComponentModelT& m_Comp;        ///< The parent ComponentModelT that contains this variable.
                 std::string      m_ExtraMsg;    ///< If the model could not be loaded in Set(), this message contains details about the problem.
             };
+
 
             /// A variable of type int, specifically for model animation sequence numbers. It updates the
             /// related model pose in the parent ComponentModelT whenever a new sequence number is set.
@@ -104,6 +108,7 @@ namespace cf
 
                 ComponentModelT& m_Comp;    ///< The parent ComponentModelT that contains this variable.
             };
+
 
             /// A variable of type int, specifically for model skin numbers.
             class VarModelSkinNrT : public TypeSys::VarT<int>

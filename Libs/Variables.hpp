@@ -101,6 +101,10 @@ operations to the cf::TypeSys::VarBaseT instances without modifying them.
 
 namespace cf
 {
+    namespace Network { class InStreamT; }
+    namespace Network { class OutStreamT; }
+
+
     namespace TypeSys
     {
         class VisitorT;
@@ -133,6 +137,20 @@ namespace cf
             /// and we should probably replace this method with logging in the future.
             virtual std::string GetExtraMessage() const { return ""; }
 
+            /// Stores the value of this variable in the given Stream.
+            /// An implementation may also store additional data, so that Deserialize() is able to recover from side-
+            /// effects where restoring the value of the variable alone does not suffice.
+            /// For example, consider the side-effects of setting a new model name in a ComponentModelT as described
+            /// at VarT::Set(): restoring the previous model name will properly restore the internal model resource,
+            /// but not undo any clamps or resets that setting the new name caused for the animation and skin numbers.
+            /// Thus, the implementation of this method for the model name would also store the values of the affected
+            /// sibling variables, so that Deserialize() can implement a proper restore / "undo".
+            virtual void Serialize(Network::OutStreamT& Stream) const = 0;
+
+            /// Restores the value of this variable from the given Stream.
+            /// See Serialize() for additional details.
+            virtual void Deserialize(Network::InStreamT& Stream) = 0;
+
             virtual void accept(VisitorT&      Visitor) = 0;
             virtual void accept(VisitorConstT& Visitor) const = 0;
 
@@ -142,6 +160,10 @@ namespace cf
             const char*  m_Name;    ///< The name of the variable.
             const char** m_Flags;   ///< An optional list of context-dependent flags.
         };
+
+
+        // template<class T> Network::InStreamT&  operator >> (Network::InStreamT&  Stream, VarBaseT& Var) { Var.Deserialize(Stream); return Stream; }
+        // template<class T> Network::OutStreamT& operator << (Network::OutStreamT& Stream, const VarBaseT& Var) { Var.Serialize(Stream); return Stream; }
 
 
         /// This is a "wrapper" around a normal C++ variable.
@@ -166,6 +188,10 @@ namespace cf
             const T& Get() const { return m_Value; }
 
             /// Sets the value of this variable to the given value `v`.
+            /// Derived classes can override this method to add "side-effects", such as updating graphical resources.
+            /// In some cases, side-effects can even affect *other* variables (siblings). For example, setting a new
+            /// model name in ComponentModelT not only updates the internal (private) model resource, but it can also
+            /// imply updates (resets or clamps) to the animation and skin number variables.
             virtual void Set(const T& v) { m_Value = v; }
 
             /// This method returns a list of acceptable input values for this variable, along with a string
@@ -175,6 +201,9 @@ namespace cf
             /// value that is not in `Values`, it will work and is not an error.
             /// If the method returns no tuples at all, it means that user input is free and any value is acceptable.
             virtual void GetChoices(ArrayT<std::string>& Strings, ArrayT<T>& Values) const { }
+
+            void Serialize(Network::OutStreamT& Stream) const;
+            void Deserialize(Network::InStreamT& Stream);
 
             void accept(VisitorT&      Visitor);
             void accept(VisitorConstT& Visitor) const;

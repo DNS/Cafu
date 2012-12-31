@@ -20,6 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Variables.hpp"
+#include "Network/State.hpp"
 
 
 bool cf::TypeSys::VarBaseT::HasFlag(const char* Flag) const
@@ -38,6 +39,50 @@ void cf::TypeSys::VarManT::Add(VarBaseT* Var)
 {
     m_VarsArray.PushBack(Var);
     m_VarsMap[Var->GetName()] = Var;
+}
+
+
+template<class T>
+void cf::TypeSys::VarT<T>::Serialize(cf::Network::OutStreamT& Stream) const
+{
+    Stream << Get();
+}
+
+
+template<>  // Must specialize, because an OutStreamT cannot take a Vector3fT directly.
+void cf::TypeSys::VarT<Vector3fT>::Serialize(cf::Network::OutStreamT& Stream) const
+{
+    Stream << Get().x;
+    Stream << Get().y;
+    Stream << Get().z;
+}
+
+
+template<class T>
+void cf::TypeSys::VarT<T>::Deserialize(cf::Network::InStreamT& Stream)
+{
+    T v;
+
+    Stream >> v;
+
+    // Derived classes may have overridden Set() to add "side-effects", such as updating graphical resources.
+    // Therefore, we cannot write `m_Value = v;` in place of `Set(v);` here.
+    Set(v);
+}
+
+
+template<>  // Must specialize, because an InStreamT cannot take a Vector3fT directly.
+void cf::TypeSys::VarT<Vector3fT>::Deserialize(cf::Network::InStreamT& Stream)
+{
+    Vector3fT v;
+
+    Stream >> v.x;
+    Stream >> v.y;
+    Stream >> v.z;
+
+    // Derived classes may have overridden Set() to add "side-effects", such as updating graphical resources.
+    // Therefore, we cannot write `m_Value = v;` in place of `Set(v);` here.
+    Set(v);
 }
 
 

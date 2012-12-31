@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_GUIEDITOR_SET_COMPONENT_VARIABLE_HPP_INCLUDED
 
 #include "../../CommandPattern.hpp"
+#include "Network/State.hpp"
 
 
 namespace cf { namespace TypeSys { template<class T> class VarT; } }
@@ -48,10 +49,10 @@ namespace GuiEditor
 
         private:
 
-        GuiDocumentT*         m_GuiDoc;
-        cf::TypeSys::VarT<T>& m_Var;
-        const T               m_OldValue;
-        const T               m_NewValue;
+        GuiDocumentT*             m_GuiDoc;
+        cf::TypeSys::VarT<T>&     m_Var;
+        const cf::Network::StateT m_OldState;
+        const T                   m_NewValue;
     };
 }
 
