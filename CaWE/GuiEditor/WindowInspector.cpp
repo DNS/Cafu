@@ -162,10 +162,32 @@ void WindowInspectorT::Notify_WinChanged(SubjectT* Subject, const EditorWindowT*
 }
 
 
+namespace
+{
+    /// Recursively updates all children of Prop, except for the one whose variable is SelfNotify.
+    void RecUpdateChildren(wxPGProperty* Prop, const cf::TypeSys::VarBaseT* SelfNotify)
+    {
+        for (unsigned int i = 0; i < Prop->GetChildCount(); i++)
+        {
+            wxPGProperty*          Child = Prop->Item(i);
+            cf::TypeSys::VarBaseT* Var   = static_cast<cf::TypeSys::VarBaseT*>(Child->GetClientData());
+
+            if (Var && Var != SelfNotify)
+            {
+                VarVisitorUpdatePropT UpdateProp(*Child);
+
+                Var->accept(UpdateProp);
+            }
+
+            RecUpdateChildren(Child, SelfNotify);
+        }
+    }
+}
+
+
 void WindowInspectorT::Notify_Changed(SubjectT* Subject, const cf::TypeSys::VarBaseT& Var)
 {
-    if (m_IsRecursiveSelfNotify) return;
-    if (m_SelectedWindow.IsNull()) return;
+    // if (m_IsRecursiveSelfNotify) return;   // Not here, see below.
     if (!GetPage(0)) return;
 
     // Find the property that is related to Var.
@@ -175,9 +197,25 @@ void WindowInspectorT::Notify_Changed(SubjectT* Subject, const cf::TypeSys::VarB
 
         if (Prop->GetClientData() == &Var)
         {
-            VarVisitorUpdatePropT UpdateProp(*Prop);
+            // Found the proper property for Var, but the straightforward update
+            //
+            //     if (m_IsRecursiveSelfNotify) return;
+            //     VarVisitorUpdatePropT UpdateProp(*Prop);
+            //
+            //     Var.accept(UpdateProp);
+            //     RefreshGrid();
+            //     break;
+            //
+            // is unfortunately not enough: Setting a new value for Var may have caused, as a side-effect, changes
+            // to other VarBaseT variables in the same component ("siblings") as well. Therefore, we first find the
+            // component (parent) property of Prop, then update all variables / properties in the component:
+            while (Prop && !Prop->IsCategory())
+                Prop = Prop->GetParent();
 
-            Var.accept(UpdateProp);
+            wxASSERT(Prop && Prop->IsCategory());
+            if (!Prop || !Prop->IsCategory()) return;
+
+            RecUpdateChildren(Prop, m_IsRecursiveSelfNotify ? &Var : NULL);
             RefreshGrid();
             break;
         }

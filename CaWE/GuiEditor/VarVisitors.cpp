@@ -269,6 +269,19 @@ void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<double>& Var)
 
 void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<int>& Var)
 {
+    ArrayT<std::string> Strings;
+    ArrayT<int>         Values;
+    wxPGChoices         Choices;
+
+    Var.GetChoices(Strings, Values);
+    wxASSERT(Strings.Size() == Values.Size());
+
+    for (unsigned int i = 0; i < Strings.Size(); i++)
+        Choices.Add(wxString::Format("%s (%i)", Strings[i], Values[i]), Values[i]);
+
+    if (Choices.GetCount() > 0)
+        m_Prop.SetChoices(Choices);
+
     m_Prop.SetValue(Var.Get());
 }
 

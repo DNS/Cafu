@@ -58,11 +58,6 @@ TODO: some things are still awkward, and some magic is still missing:
   b) There is no AdvanceTime() / OnClockTickEvent() for components yet.
      That means that we currently cannot drive any animations.
      That means that setting a new animation sequence, which is implemented as a *blend* from the previous sequence, doesn't (seem to) work.
-
-  c) Changes to m_ModelName can affect *other* variables, e.g. m_ModelAnimNr and m_ModelSkinNr, both in value as well as in available choices.
-     How can we deal with it?? Flag / hint "AffectsOthers" ?  Method AffectsOthers(ArrayT<VarBaseT*>& Others) ?
-     Probably needs complete refresh of the propgrid, doesn't it?
-     And then it still doesn't properly work in the Undo/Redo system, does it?
 */
 
 
