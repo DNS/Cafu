@@ -128,7 +128,7 @@ ComponentModelT::VarModelAnimNrT::VarModelAnimNrT(const VarModelAnimNrT& Var, Co
 
 void ComponentModelT::VarModelAnimNrT::Set(const int& v)
 {
-    TypeSys::VarT<int>::Set(m_Comp.SetAnimNr(v));
+    TypeSys::VarT<int>::Set(m_Comp.SetAnimNr(v, 0.0f, true));
 }
 
 
@@ -198,8 +198,9 @@ void* ComponentModelT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 const luaL_reg ComponentModelT::MethodsList[] =
 {
     { "GetNumAnims", ComponentModelT::GetNumAnims },
+    { "SetAnim",     ComponentModelT::SetAnim },
     { "GetNumSkins", ComponentModelT::GetNumSkins },
-    { "__tostring", ComponentModelT::toString },
+    { "__tostring",  ComponentModelT::toString },
     { NULL, NULL }
 };
 
@@ -369,13 +370,13 @@ std::string ComponentModelT::SetModel(const std::string& FileName, std::string& 
 }
 
 
-int ComponentModelT::SetAnimNr(int AnimNr)
+int ComponentModelT::SetAnimNr(int AnimNr, float BlendTime, bool ForceLoop)
 {
     // It is possible that this is called (e.g. from a script) for a component that is not yet part of a window.
     if (!m_Model) return AnimNr;
 
     IntrusivePtrT<AnimExprStandardT> StdAE = m_Model->GetAnimExprPool().GetStandard(AnimNr, 0.0f);
-    StdAE->SetForceLoop(true);
+    StdAE->SetForceLoop(ForceLoop);
 
     if (!m_Pose)
     {
@@ -383,9 +384,16 @@ int ComponentModelT::SetAnimNr(int AnimNr)
     }
     else
     {
-        IntrusivePtrT<AnimExpressionT> BlendFrom = m_Pose->GetAnimExpr();
+        if (BlendTime > 0.0f)
+        {
+            IntrusivePtrT<AnimExpressionT> BlendFrom = m_Pose->GetAnimExpr();
 
-        m_Pose->SetAnimExpr(m_Model->GetAnimExprPool().GetBlend(BlendFrom, StdAE, 3.0f));
+            m_Pose->SetAnimExpr(m_Model->GetAnimExprPool().GetBlend(BlendFrom, StdAE, BlendTime));
+        }
+        else
+        {
+            m_Pose->SetAnimExpr(StdAE);
+        }
     }
 
     return StdAE->GetSequNr();
@@ -401,6 +409,23 @@ int ComponentModelT::GetNumAnims(lua_State* LuaState)
         luaL_error(LuaState, "The component must be added to a window before this function can be called.");
 
     lua_pushinteger(LuaState, Comp->m_Model->GetAnims().Size());
+    return 1;
+}
+
+
+int ComponentModelT::SetAnim(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<ComponentModelT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentModelT> >(1);
+
+    if (!Comp->m_Model)
+        luaL_error(LuaState, "The component must be added to a window before this function can be called.");
+
+    const int   AnimNr    = luaL_checkint(LuaState, 2);
+    const float BlendTime = float(luaL_checknumber(LuaState, 3));
+    const bool  ForceLoop = lua_isnumber(LuaState, 4) ? (lua_tointeger(LuaState, 4) != 0) : (lua_toboolean(LuaState, 4) != 0);
+
+    lua_pushinteger(LuaState, Comp->SetAnimNr(AnimNr, BlendTime, ForceLoop));
     return 1;
 }
 

@@ -130,11 +130,12 @@ namespace cf
 
             void FillMemberVars();                                                ///< A helper method for the constructors.
             std::string SetModel(const std::string& FileName, std::string& Msg);  ///< m_ModelName::Set() delegates here.
-            int SetAnimNr(int AnimNr);                                            ///< m_ModelAnimNr::Set() delegates here.
+            int SetAnimNr(int AnimNr, float BlendTime, bool ForceLoop);           ///< m_ModelAnimNr::Set() and SetAnim(LuaState) delegate here.
 
             // The Lua API methods of this class.
             static const luaL_Reg MethodsList[];                ///< The list of Lua methods for this class.
             static int GetNumAnims(lua_State* LuaState);        ///< Returns the number of animation sequences in this model.
+            static int SetAnim(lua_State* LuaState);            ///< Sets a new animation sequence for the pose of this model, optionally blending from the previous sequence over a given time, and optionally setting the "force loop" flag for the new sequence. For example: `SetAnim(8, 3.0, true)`
             static int GetNumSkins(lua_State* LuaState);        ///< Returns the number of skins in this model.
             static int toString(lua_State* LuaState);           ///< Returns a string representation of this object.
 
