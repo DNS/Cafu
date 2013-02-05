@@ -227,7 +227,7 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
 
     m_AUIManager.AddPane(m_GuiInspector, wxAuiPaneInfo().
                          Name("GuiInspector").Caption("GUI Inspector").
-                         Right().Position(1));
+                         Left().Position(1));
 
     // Create AUI toolbars.
     wxAuiToolBar* ToolbarDocument=new wxAuiToolBar(this, wxID_ANY);
