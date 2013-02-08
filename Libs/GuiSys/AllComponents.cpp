@@ -21,6 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "AllComponents.hpp"
 #include "CompBase.hpp"
+#include "CompBorder.hpp"
 #include "CompImage.hpp"
 #include "CompModel.hpp"
 #include "CompTransform.hpp"
@@ -47,6 +48,7 @@ namespace cf
         const cf::TypeSys::TypeInfoT* AllComponentTIs[] =
         {
             &ComponentBaseT::TypeInfo,
+            &ComponentBorderT::TypeInfo,
             &ComponentImageT::TypeInfo,
             &ComponentModelT::TypeInfo,
             &ComponentTransformT::TypeInfo,
