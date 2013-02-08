@@ -41,9 +41,12 @@ extern "C"
     #pragma warning(disable:4355)
 #endif
 
-
 using namespace cf::GuiSys;
 
+
+/************************************/
+/*** ComponentImageT::VarMatNameT ***/
+/************************************/
 
 ComponentImageT::VarMatNameT::VarMatNameT(const char* Name, const std::string& Value, const char* Flags[], ComponentImageT& CompImg)
     : TypeSys::VarT<std::string>(Name, Value, Flags),
@@ -78,6 +81,10 @@ void ComponentImageT::VarMatNameT::Set(const std::string& v)
     }
 }
 
+
+/***********************/
+/*** ComponentImageT ***/
+/***********************/
 
 void* ComponentImageT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 {
@@ -124,6 +131,14 @@ ComponentImageT::ComponentImageT(const ComponentImageT& Comp)
     assert(GetWindow() == NULL);
 
     FillMemberVars();
+}
+
+
+void ComponentImageT::FillMemberVars()
+{
+    GetMemberVars().Add(&m_MatName);
+    GetMemberVars().Add(&m_Color);
+    GetMemberVars().Add(&m_Alpha);
 }
 
 
@@ -207,14 +222,6 @@ void ComponentImageT::Render() const
     BackMesh.Vertices[3].SetOrigin(x1, y2); BackMesh.Vertices[3].SetTextureCoord(0.0f, 1.0f);
 
     MatSys::Renderer->RenderMesh(BackMesh);
-}
-
-
-void ComponentImageT::FillMemberVars()
-{
-    GetMemberVars().Add(&m_MatName);
-    GetMemberVars().Add(&m_Color);
-    GetMemberVars().Add(&m_Alpha);
 }
 
 

@@ -43,7 +43,6 @@ extern "C"
     #pragma warning(disable:4355)
 #endif
 
-
 using namespace cf::GuiSys;
 
 
@@ -253,6 +252,18 @@ ComponentModelT::ComponentModelT(const ComponentModelT& Comp)
 }
 
 
+void ComponentModelT::FillMemberVars()
+{
+    GetMemberVars().Add(&m_ModelName);
+    GetMemberVars().Add(&m_ModelAnimNr);
+    GetMemberVars().Add(&m_ModelSkinNr);
+    GetMemberVars().Add(&m_ModelPos);
+    GetMemberVars().Add(&m_ModelScale);
+    GetMemberVars().Add(&m_ModelAngles);
+    GetMemberVars().Add(&m_CameraPos);
+}
+
+
 ComponentModelT::~ComponentModelT()
 {
     delete m_Pose;
@@ -332,18 +343,6 @@ void ComponentModelT::Render() const
     MatSys::Renderer->PopMatrix(MatSys::RendererI::PROJECTION    );
     MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
     MatSys::Renderer->PopMatrix(MatSys::RendererI::WORLD_TO_VIEW );
-}
-
-
-void ComponentModelT::FillMemberVars()
-{
-    GetMemberVars().Add(&m_ModelName);
-    GetMemberVars().Add(&m_ModelAnimNr);
-    GetMemberVars().Add(&m_ModelSkinNr);
-    GetMemberVars().Add(&m_ModelPos);
-    GetMemberVars().Add(&m_ModelScale);
-    GetMemberVars().Add(&m_ModelAngles);
-    GetMemberVars().Add(&m_CameraPos);
 }
 
 

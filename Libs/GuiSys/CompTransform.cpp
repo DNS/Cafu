@@ -67,17 +67,17 @@ ComponentTransformT::ComponentTransformT(const ComponentTransformT& Comp)
 }
 
 
-ComponentTransformT* ComponentTransformT::Clone() const
-{
-    return new ComponentTransformT(*this);
-}
-
-
 void ComponentTransformT::FillMemberVars()
 {
     GetMemberVars().Add(&m_RotAngle);
     GetMemberVars().Add(&m_Test);
     GetMemberVars().Add(&m_PosTest);
+}
+
+
+ComponentTransformT* ComponentTransformT::Clone() const
+{
+    return new ComponentTransformT(*this);
 }
 
 

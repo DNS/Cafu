@@ -44,7 +44,6 @@ namespace cf
             ComponentImageT();
 
             /// The copy constructor.
-            /// The new component can become a part of the same or a different window than the component it was copied from.
             /// @param Comp   The component to create a copy of.
             ComponentImageT(const ComponentImageT& Comp);
 
