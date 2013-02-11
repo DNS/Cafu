@@ -245,6 +245,27 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
 }
 
 
+void VarVisitorAddPropT::visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var)
+{
+    wxString Lines;
+
+    for (unsigned int i = 0; i < Var.Get().Size(); i++)
+        Lines += Var.Get()[i] + "\n";
+
+    // We use a wxLongStringProperty instead of a wxArrayStringProperty, because the latter seems to be
+    // very buggy in wx-2.9.2, and its edit dialog is cumbersome to use compared to a simple multi-line string.
+    wxPGProperty* Prop = new wxLongStringProperty(Var.GetName(), wxString::Format("%p", &Var), Lines);
+
+    // Have to disable the escaping of newlines, or otherwise our event handlers receive strings like "a\\nb" instead
+    // of "a\nb", which is clearly not what we want. With the wxPG_PROP_NO_ESCAPE flag set, we receive the desired
+    // "a\nb" form, but the value that is shown to the user in the property cell is "ab", so this clearly isn't ideal
+    // either. TODO!
+    Prop->ChangeFlag(wxPG_PROP_NO_ESCAPE, true);
+
+    m_PropMan.Append(Prop)->SetClientData(&Var);
+}
+
+
 /*****************************/
 /*** VarVisitorUpdatePropT ***/
 /*****************************/
@@ -307,6 +328,17 @@ void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<Vector3fT>& Var)
         for (unsigned int i = 0; i < Count; i++)
             m_Prop.Item(i)->SetValue(Var.Get()[i]);
     }
+}
+
+
+void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT< ArrayT<std::string> >& Var)
+{
+    wxString Lines;
+
+    for (unsigned int i = 0; i < Var.Get().Size(); i++)
+        Lines += Var.Get()[i] + "\n";
+
+    m_Prop.SetValue(Lines);
 }
 
 
@@ -392,6 +424,18 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<Vector3fT>& Var
 }
 
 
+void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var)
+{
+    ArrayT<std::string> A;
+    wxStringTokenizer   Tokenizer(m_Event.GetValue().GetString(), "\n", wxTOKEN_RET_EMPTY);
+
+    while (Tokenizer.HasMoreTokens())
+        A.PushBack(std::string(Tokenizer.GetNextToken()));
+
+    m_Ok = m_ChildFrame->SubmitCommand(new CommandSetCompVarT< ArrayT<std::string> >(m_GuiDoc, Var, A));
+}
+
+
 /*****************************************/
 /*** VarVisitorHandleSubChangingEventT ***/
 /*****************************************/
@@ -425,3 +469,6 @@ void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
     v[i] = m_Event.GetValue().GetDouble();
     m_Ok = m_ChildFrame->SubmitCommand(new CommandSetCompVarT<Vector3fT>(m_GuiDoc, Var, v));
 }
+
+
+void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var) { wxASSERT(false); }

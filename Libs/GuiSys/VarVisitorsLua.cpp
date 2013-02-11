@@ -80,6 +80,19 @@ void VarVisitorGetToLuaT::visit(const cf::TypeSys::VarT<Vector3fT>& Var)
 }
 
 
+void VarVisitorGetToLuaT::visit(const cf::TypeSys::VarT< ArrayT<std::string> >& Var)
+{
+    lua_newtable(m_LuaState);
+    m_NumResults++;
+
+    for (unsigned int i = 0; i < Var.Get().Size(); i++)
+    {
+        lua_pushstring(m_LuaState, Var.Get()[i].c_str());
+        lua_rawseti(m_LuaState, -2, i + 1);   // Lua array numbering starts per convention at 1.
+    }
+}
+
+
 /*****************************/
 /*** VarVisitorSetFromLuaT ***/
 /*****************************/
@@ -126,6 +139,38 @@ void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
 }
 
 
+void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var)
+{
+    ArrayT<std::string> A;
+
+    if (lua_istable(m_LuaState, -1))
+    {
+        const int Num = lua_objlen(m_LuaState, -1);
+
+        for (int i = 1; i <= Num; i++)
+        {
+            lua_rawgeti(m_LuaState, -1, i);
+            const char* s = lua_tostring(m_LuaState, -1);
+            A.PushBack(s ? s : "NULL");
+            lua_pop(m_LuaState, 1);
+        }
+    }
+    else
+    {
+        
+        // Stack index 1 has the "this" object,
+        // stack index 2 has the variable name.
+        for (int i = 3; i <= lua_gettop(m_LuaState); i++)
+        {
+            const char* s = lua_tostring(m_LuaState, i);
+            A.PushBack(s ? s : "NULL");
+        }
+    }
+
+    Var.Set(A);
+}
+
+
 /*****************************/
 /*** VarVisitorToLuaCodeT ***/
 /*****************************/
@@ -156,8 +201,32 @@ void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<int>& Var)
 
 void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<std::string>& Var)
 {
-    const std::string& s = Var.Get();
+    WriteString(Var.Get());
+}
 
+
+void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<Vector3fT>& Var)
+{
+    m_Out << Var.Get().x << ", " << Var.Get().y << ", " << Var.Get().z;
+}
+
+
+void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT< ArrayT<std::string> >& Var)
+{
+    m_Out << "{ ";
+
+    for (unsigned int i = 0; i < Var.Get().Size(); i++)
+    {
+        WriteString(Var.Get()[i]);
+        if (i+1 < Var.Get().Size()) m_Out << ", ";
+    }
+
+    m_Out << " }";
+}
+
+
+void VarVisitorToLuaCodeT::WriteString(const std::string& s) const
+{
     for (size_t i = 0; i < s.size(); i++)
         if (iscntrl(s[i]) || s[i] == '"' || s[i] == '\\')
         {
@@ -174,10 +243,4 @@ void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<std::string>& Var)
         }
 
     m_Out << "\"" << s << "\"";
-}
-
-
-void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<Vector3fT>& Var)
-{
-    m_Out << Var.Get().x << ", " << Var.Get().y << ", " << Var.Get().z;
 }

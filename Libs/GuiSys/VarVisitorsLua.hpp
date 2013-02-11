@@ -47,6 +47,7 @@ namespace cf
             void visit(const cf::TypeSys::VarT<int>& Var);
             void visit(const cf::TypeSys::VarT<std::string>& Var);
             void visit(const cf::TypeSys::VarT<Vector3fT>& Var);
+            void visit(const cf::TypeSys::VarT< ArrayT<std::string> >& Var);
 
 
             private:
@@ -69,6 +70,7 @@ namespace cf
             void visit(cf::TypeSys::VarT<int>& Var);
             void visit(cf::TypeSys::VarT<std::string>& Var);
             void visit(cf::TypeSys::VarT<Vector3fT>& Var);
+            void visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var);
 
 
             private:
@@ -90,9 +92,12 @@ namespace cf
             void visit(const cf::TypeSys::VarT<int>& Var);
             void visit(const cf::TypeSys::VarT<std::string>& Var);
             void visit(const cf::TypeSys::VarT<Vector3fT>& Var);
+            void visit(const cf::TypeSys::VarT< ArrayT<std::string> >& Var);
 
 
             private:
+
+            void WriteString(const std::string& s) const;
 
             std::ostream& m_Out;
         };

@@ -232,6 +232,7 @@ namespace cf
             virtual void visit(VarT<int>& Var) = 0;
             virtual void visit(VarT<std::string>& Var) = 0;
             virtual void visit(VarT<Vector3fT>& Var) = 0;
+            virtual void visit(VarT< ArrayT<std::string> >& Var) = 0;
         };
 
 
@@ -249,6 +250,7 @@ namespace cf
             virtual void visit(const VarT<int>& Var) = 0;
             virtual void visit(const VarT<std::string>& Var) = 0;
             virtual void visit(const VarT<Vector3fT>& Var) = 0;
+            virtual void visit(const VarT< ArrayT<std::string> >& Var) = 0;
         };
 
 

@@ -105,3 +105,4 @@ template class cf::TypeSys::VarT<double>;
 template class cf::TypeSys::VarT<int>;
 template class cf::TypeSys::VarT<std::string>;
 template class cf::TypeSys::VarT<Vector3fT>;
+template class cf::TypeSys::VarT< ArrayT<std::string> >;
