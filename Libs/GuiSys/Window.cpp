@@ -626,11 +626,16 @@ void WindowT::Render() const
 
 bool WindowT::OnInputEvent(const CaKeyboardEventT& KE)
 {
+    // Forward the event to the components.
+    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
+        if (m_Components[CompNr]->OnInputEvent(KE))
+            return true;
+
     return false;
 }
 
 
-bool WindowT::OnInputEvent(const CaMouseEventT& ME, float /*PosX*/, float /*PosY*/)
+bool WindowT::OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY)
 {
     // Derived classes that do *not* handle this event should return WindowT::OnInputEvent(ME)
     // (the base class result) rather than simply false. This gives the base class a chance to handle the event.
@@ -644,6 +649,11 @@ bool WindowT::OnInputEvent(const CaMouseEventT& ME, float /*PosX*/, float /*PosY
     if (Parent==NULL) return false;
     return Parent->OnInputEvent(ME, PosX, PosY);
 #else
+    // Forward the event to the components.
+    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
+        if (m_Components[CompNr]->OnInputEvent(ME, PosX, PosY))
+            return true;
+
     return false;
 #endif
 }
@@ -651,6 +661,10 @@ bool WindowT::OnInputEvent(const CaMouseEventT& ME, float /*PosX*/, float /*PosY
 
 bool WindowT::OnClockTickEvent(float t)
 {
+    // Forward the event to the components.
+    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
+        m_Components[CompNr]->OnClockTickEvent(t);
+
     // float OldTime=Time;
 
     Time+=t;

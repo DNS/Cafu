@@ -21,6 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "CompBase.hpp"
 #include "AllComponents.hpp"
+#include "GuiImpl.hpp"
 #include "VarVisitorsLua.hpp"
 #include "Window.hpp"
 #include "UniScriptState.hpp"
@@ -69,6 +70,18 @@ ComponentBaseT::ComponentBaseT(const ComponentBaseT& Comp)
 ComponentBaseT* ComponentBaseT::Clone() const
 {
     return new ComponentBaseT(*this);
+}
+
+
+bool ComponentBaseT::CallLuaMethod(const char* MethodName, const char* Signature, ...)
+{
+    va_list vl;
+
+    va_start(vl, Signature);
+    const bool Result = m_Window && m_Window->GetGui().GetScriptState().CallMethod(IntrusivePtrT<ComponentBaseT>(this), MethodName, Signature, vl);
+    va_end(vl);
+
+    return Result;
 }
 
 

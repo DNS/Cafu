@@ -29,6 +29,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 namespace cf { namespace TypeSys { class TypeInfoT; } }
 namespace cf { namespace TypeSys { class CreateParamsT; } }
 
+struct CaKeyboardEventT;
+struct CaMouseEventT;
 struct lua_State;
 struct luaL_Reg;
 
@@ -87,6 +89,12 @@ namespace cf
             /// providing a simple kind of "reflection" or "type introspection" feature.
             TypeSys::VarManT& GetMemberVars() { return m_MemberVars; }
 
+            /// Calls the given Lua method of this component.
+            /// This method is analogous to UniScriptStateT::CallMethod(), see there for details.
+            /// @param MethodName   The name of the Lua method to call.
+            /// @param Signature    See UniScriptStateT::Call() for details.
+            bool CallLuaMethod(const char* MethodName, const char* Signature="", ...);
+
             /// Returns the name of this component.
             virtual const char* GetName() const { return "Base"; }
 
@@ -102,6 +110,22 @@ namespace cf
 
             /// This method implements the graphical output of this component.
             virtual void Render() const { }
+
+            /// This method handles keyboard input events.
+            /// @param KE   Keyboard event instance.
+            /// @returns Whether the component handled ("consumed") the event.
+            virtual bool OnInputEvent(const CaKeyboardEventT& KE) { return false; }
+
+            /// This method handles mouse input events.
+            /// @param ME     Mouse event instance.
+            /// @param PosX   x-coordinate of the mouse cursor position.
+            /// @param PosY   y-coordinate of the mouse cursor position.
+            /// @returns Whether the component handled ("consumed") the event.
+            virtual bool OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY) { return false; }
+
+            /// This method handles clock-tick events.
+            /// @param t   The time in seconds since the last clock-tick.
+            virtual void OnClockTickEvent(float t) { }
 
 
             // The TypeSys related declarations for this class.
