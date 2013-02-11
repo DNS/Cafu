@@ -340,7 +340,7 @@ void WindowInspectorT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
         }
     }
 
-    if (!Event.WasVetoed() && Var->GetExtraMessage() != "")
+    if (!Event.WasVetoed() && Var && Var->GetExtraMessage() != "")
     {
         // A wxInfoBar is a possible alternative to wxNotificationMessage.
         wxNotificationMessage Notify(wxString("Setting \"") + Var->GetName() + "\"", Var->GetExtraMessage(), m_Parent);
