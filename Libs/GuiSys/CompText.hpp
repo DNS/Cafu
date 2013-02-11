@@ -44,6 +44,11 @@ namespace cf
             /// @param Comp   The component to create a copy of.
             ComponentTextT(const ComponentTextT& Comp);
 
+            /// This method sets this components text value.
+            /// Other C++ code (especially other components) would normally have to use `GetMemberVars().Find("Text")`
+            /// to set this components text value. This auxiliary method makes the task much easier.
+            void SetText(const std::string& t) { m_Text.Set(t); }
+
             // Base class overrides.
             ComponentTextT* Clone() const;
             const char* GetName() const { return "Text"; }
