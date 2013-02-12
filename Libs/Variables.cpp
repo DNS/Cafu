@@ -49,12 +49,20 @@ void cf::TypeSys::VarT<T>::Serialize(cf::Network::OutStreamT& Stream) const
 }
 
 
-template<>  // Must specialize, because an OutStreamT cannot take a Vector3fT directly.
-void cf::TypeSys::VarT<Vector3fT>::Serialize(cf::Network::OutStreamT& Stream) const
+// With g++, we cannot write cf::TypeSys::VarT<Vector3fT>::Serialize(...),
+// see search results for "g++ error specialization in different namespace" for details.
+namespace cf
 {
-    Stream << Get().x;
-    Stream << Get().y;
-    Stream << Get().z;
+    namespace TypeSys
+    {
+        template<>  // Must specialize, because an OutStreamT cannot take a Vector3fT directly.
+        void VarT<Vector3fT>::Serialize(cf::Network::OutStreamT& Stream) const
+        {
+            Stream << Get().x;
+            Stream << Get().y;
+            Stream << Get().z;
+        }
+    }
 }
 
 
@@ -71,18 +79,26 @@ void cf::TypeSys::VarT<T>::Deserialize(cf::Network::InStreamT& Stream)
 }
 
 
-template<>  // Must specialize, because an InStreamT cannot take a Vector3fT directly.
-void cf::TypeSys::VarT<Vector3fT>::Deserialize(cf::Network::InStreamT& Stream)
+// With g++, we cannot write cf::TypeSys::VarT<Vector3fT>::Deserialize(...),
+// see search results for "g++ error specialization in different namespace" for details.
+namespace cf
 {
-    Vector3fT v;
+    namespace TypeSys
+    {
+        template<>  // Must specialize, because an InStreamT cannot take a Vector3fT directly.
+        void VarT<Vector3fT>::Deserialize(cf::Network::InStreamT& Stream)
+        {
+            Vector3fT v;
 
-    Stream >> v.x;
-    Stream >> v.y;
-    Stream >> v.z;
+            Stream >> v.x;
+            Stream >> v.y;
+            Stream >> v.z;
 
-    // Derived classes may have overridden Set() to add "side-effects", such as updating graphical resources.
-    // Therefore, we cannot write `m_Value = v;` in place of `Set(v);` here.
-    Set(v);
+            // Derived classes may have overridden Set() to add "side-effects", such as updating graphical resources.
+            // Therefore, we cannot write `m_Value = v;` in place of `Set(v);` here.
+            Set(v);
+        }
+    }
 }
 
 

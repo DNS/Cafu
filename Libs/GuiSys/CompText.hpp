@@ -88,9 +88,9 @@ namespace cf
             {
                 public:
 
-                static const int LEFT   = -1;
-                static const int CENTER =  0;
-                static const int RIGHT  =  1;
+                static const int LEFT;
+                static const int CENTER;
+                static const int RIGHT;
 
                 VarTextAlignHorT(const char* Name, const int& Value, const char* Flags[]=NULL);
 
@@ -104,9 +104,9 @@ namespace cf
             {
                 public:
 
-                static const int TOP    = -1;
-                static const int MIDDLE =  0;
-                static const int BOTTOM =  1;
+                static const int TOP;
+                static const int MIDDLE;
+                static const int BOTTOM;
 
                 VarTextAlignVerT(const char* Name, const int& Value, const char* Flags[]=NULL);
 
