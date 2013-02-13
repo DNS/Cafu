@@ -40,14 +40,15 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 static WorldManT WorldMan;
 
 
-Ca3DEWorldT::Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, const char* FileName, ModelManagerT& ModelMan, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/
+Ca3DEWorldT::Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/
     : m_Game(Game),
       m_World(WorldMan.LoadWorld(FileName, ModelMan, InitForGraphics, ProgressFunction)),
       m_ClipWorld(new cf::ClipSys::ClipWorldT(m_World->CollModel)),
       m_PhysicsWorld(m_World->CollModel),
       m_ScriptState(GameInfo, m_Game),
       m_EngineEntities(),
-      m_ModelMan(ModelMan)
+      m_ModelMan(ModelMan),
+      m_GuiRes(GuiRes)
 {
 }
 
@@ -203,4 +204,10 @@ IntrusivePtrT<GameEntityI> Ca3DEWorldT::GetGameEntityByID(unsigned long EntityID
 const CafuModelT* Ca3DEWorldT::GetModel(const std::string& FileName) const
 {
     return m_ModelMan.GetModel(FileName);
+}
+
+
+cf::GuiSys::GuiResourcesT& Ca3DEWorldT::GetGuiResources() const
+{
+    return m_GuiRes;
 }

@@ -37,7 +37,7 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
 {
     public:
 
-    Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, const char* FileName, ModelManagerT& ModelMan, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/;
+    Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/;
     ~Ca3DEWorldT();
 
     const WorldT& GetWorld() const { return *m_World; }
@@ -53,17 +53,19 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
     // unsigned long             CreateNewEntity(const std::map<std::string, std::string>& Properties, unsigned long CreationFrameNr, const VectorT& Origin);
     // void                      RemoveEntity(unsigned long EntityID);
     const CafuModelT*            GetModel(const std::string& FileName) const;
+    cf::GuiSys::GuiResourcesT&   GetGuiResources() const;
 
 
     protected:
 
-    cf::GameSys::GameI*      m_Game;
-    const WorldT*            m_World;
-    cf::ClipSys::ClipWorldT* m_ClipWorld;
-    PhysicsWorldT            m_PhysicsWorld;
-    ScriptStateT             m_ScriptState;
-    ArrayT<EngineEntityT*>   m_EngineEntities;
-    ModelManagerT&           m_ModelMan;
+    cf::GameSys::GameI*        m_Game;
+    const WorldT*              m_World;
+    cf::ClipSys::ClipWorldT*   m_ClipWorld;
+    PhysicsWorldT              m_PhysicsWorld;
+    ScriptStateT               m_ScriptState;
+    ArrayT<EngineEntityT*>     m_EngineEntities;
+    ModelManagerT&             m_ModelMan;
+    cf::GuiSys::GuiResourcesT& m_GuiRes;
 
 
     private:
