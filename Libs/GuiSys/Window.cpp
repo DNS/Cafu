@@ -22,7 +22,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Window.hpp"
 #include "WindowCreateParams.hpp"
 #include "CompBase.hpp"
-#include "GuiMan.hpp"
 #include "GuiImpl.hpp"
 #include "GuiResources.hpp"
 #include "ConsoleCommands/Console.hpp"
