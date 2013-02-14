@@ -28,8 +28,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../../GameWorld.hpp"
 #include "TypeSys.hpp"
 #include "ConsoleCommands/Console.hpp"
-#include "GuiSys/GuiMan.hpp"
-#include "GuiSys/Gui.hpp"
+#include "GuiSys/GuiImpl.hpp"
+#include "GuiSys/Window.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"
 #include "Models/Model_cmdl.hpp"
@@ -113,11 +113,10 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
             GuiName=std::string("Games/DeathMatch/")+Value;
 
             // Load the Gui. Note that this is done BOTH on the client as well as on the server.
-            assert(cf::GuiSys::GuiMan);
-            Gui = cf::GuiSys::GuiMan->Register(GuiName);
-
-            if (Gui)
+            try
             {
+                Gui = new cf::GuiSys::GuiImplT(GameWorld->GetGuiResources(), GuiName);
+
                 Gui->SetMouseCursorSize(40.0f);
 
                 // Bind "this" entity instance to the global variable "Entity" in the Gui script.
@@ -134,10 +133,9 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
                 Binder.Push(IntrusivePtrT<EntStaticDetailModelT>(this));
                 lua_setglobal(LuaState, "Entity");
             }
-            else
+            catch (const cf::GuiSys::GuiImplT::InitErrorT& IE)
             {
-                // If the registration failed, don't try again.
-                Console->Warning("World GUI \""+GuiName+"\" not registered.\n");
+                Console->Warning("World GUI \"" + GuiName + "\" not registered: " + IE.what() + "\n");
             }
         }
     }
@@ -185,20 +183,15 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
 
 EntStaticDetailModelT::~EntStaticDetailModelT()
 {
-    if (Gui)
-    {
-        cf::GuiSys::GuiMan->Free(Gui);
-    }
+    delete Gui;
+    Gui = NULL;
 }
 
 
 void EntStaticDetailModelT::NotifyLeaveMap()
 {
-    if (Gui)
-    {
-        cf::GuiSys::GuiMan->Free(Gui);
-        Gui = NULL;
-    }
+    delete Gui;
+    Gui = NULL;
 }
 
 
@@ -297,7 +290,7 @@ void EntStaticDetailModelT::Draw(bool /*FirstPersonView*/, float LodDist) const
 
             Gui->Render();      // Set the zLayerCoating parameter to true here?
 #else
-            MatSys::Renderer->SetCurrentMaterial(cf::GuiSys::GuiMan->GetDefaultRM());
+            MatSys::Renderer->SetCurrentMaterial(Gui->GetDefaultRM());
 
             // Just a single triangle that indicates the position and orientation of the GUI plane.
             static MatSys::MeshT Tri(MatSys::MeshT::Triangles);
@@ -335,10 +328,7 @@ void EntStaticDetailModelT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
 
     if (Gui!=NULL)
     {
-        // The Gui is inactive, so that the GuiMan doesn't render it (we do it ourselves above).
-        // However that means that we have to drive the clock ourselves, too.
         // Note that we *never* get here on the server-side, and therefore the call is duplicated above in EntStaticDetailModelT::Think() again.
-        // assert(!Gui->GetIsActive());
         Gui->DistributeClockTickEvents(FrameTime);
     }
 
