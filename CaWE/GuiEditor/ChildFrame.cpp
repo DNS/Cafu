@@ -751,6 +751,9 @@ void GuiEditor::ChildFrameT::OnToolbar(wxCommandEvent& CE)
                                  MainScriptFileName, wxOK | wxICON_EXCLAMATION);
                 }
 
+                // Make sure that the Gui is active for the live preview, so that clock tick events are properly propagated to all windows.
+                Gui->Activate();
+
                 LivePreviewT* Preview=new LivePreviewT(this, Gui, MainScriptFileName);
                 Preview->Show();
             }

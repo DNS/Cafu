@@ -117,6 +117,7 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
             {
                 Gui = new cf::GuiSys::GuiImplT(GameWorld->GetGuiResources(), GuiName);
 
+                Gui->Activate();    // Active status is not really relevant for our Gui that is not managed by the GuiMan, but still make sure that clock tick events are properly propagated to all windows.
                 Gui->SetMouseCursorSize(40.0f);
 
                 // Bind "this" entity instance to the global variable "Entity" in the Gui script.
