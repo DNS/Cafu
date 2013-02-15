@@ -246,6 +246,12 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, int 
     {
         // The OnInit2() methods contain custom, hand-written code by the user (*_main.cgui files).
         AllChildren[ChildNr]->CallLuaMethod("OnInit2");
+
+        // Let each component know that the "static" part of initialization is now complete.
+        const ArrayT< IntrusivePtrT<ComponentBaseT> >& Components = AllChildren[ChildNr]->GetComponents();
+
+        for (unsigned int CompNr = 0; CompNr < Components.Size(); CompNr++)
+            Components[CompNr]->OnPostLoad((Flags & InitFlag_InGuiEditor) != 0);
     }
 
 

@@ -56,7 +56,7 @@ GuiDocumentT::GuiDocumentT(GameConfigT* GameConfig, const wxString& GuiInitFileN
     {
         const std::string gifn(GuiInitFileName);
 
-        m_Gui=new cf::GuiSys::GuiImplT(GameConfig->GetGuiResources(), gifn);
+        m_Gui=new cf::GuiSys::GuiImplT(GameConfig->GetGuiResources(), gifn, cf::GuiSys::GuiImplT::InitFlag_InGuiEditor);
 
         if (m_Gui->GetScriptInitResult()!="")
         {
@@ -78,7 +78,7 @@ GuiDocumentT::GuiDocumentT(GameConfigT* GameConfig, const wxString& GuiInitFileN
     {
         m_Gui=new cf::GuiSys::GuiImplT(GameConfig->GetGuiResources(),
             "Win=gui:new('WindowT'); gui:SetRootWindow(Win); gui:showMouse(false); gui:setFocus(Win); Win:SetName('Root'); Win:set(\"rect\", 0, 0, 640, 480);",
-            cf::GuiSys::GuiImplT::InitFlag_InlineCode);
+            cf::GuiSys::GuiImplT::InitFlag_InlineCode | cf::GuiSys::GuiImplT::InitFlag_InGuiEditor);
 
         m_GuiProperties=GuiPropertiesT(*m_Gui);
 

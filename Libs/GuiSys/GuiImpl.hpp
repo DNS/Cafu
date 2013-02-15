@@ -50,7 +50,8 @@ namespace cf
             /// Flags for initializing a GUI, used in the GuiImplT constructor.
             enum InitFlagsT
             {
-                InitFlag_InlineCode  = 1    ///< Normally, the `GuiScriptName` parameter to the GuiImplT ctor is a filename. If this is set, it is treated as inline script code.
+                InitFlag_InlineCode  = 1,   ///< Normally, the `GuiScriptName` parameter to the GuiImplT ctor is a filename. If this is set, it is treated as inline script code.
+                InitFlag_InGuiEditor = 2    ///< Whether the GUI is instantiated in the GUI Editor. If set, only the static data will be loaded, initial behaviour is *not* run.
             };
 
 

@@ -111,6 +111,19 @@ namespace cf
             /// This method implements the graphical output of this component.
             virtual void Render() const { }
 
+            /// This method is called after all windows and their components have been loaded.
+            ///
+            /// It is called only once when the static part of GUI initializatzion is complete, i.e. after the initial
+            /// values of all windows and their components have been set.
+            /// Components can override this method in order act / do something / add custom behaviour at that time.
+            ///
+            /// For example, a choice component can use it to set the associated text component to the initial
+            /// selection, a script component can forward it to the script by calling a related script function, etc.
+            ///
+            /// @param InEditor   `true` if this GUI is instantiated in the GUI Editor. This normally means that
+            ///     custom behaviour should *not* run. If `false`, this GUI is instantiated "live", in-game.
+            virtual void OnPostLoad(bool InEditor) { }
+
             /// This method handles keyboard input events.
             /// @param KE   Keyboard event instance.
             /// @returns Whether the component handled ("consumed") the event.
