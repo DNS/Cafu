@@ -143,6 +143,12 @@ const luaL_reg ComponentTextT::MethodsList[] =
 const cf::TypeSys::TypeInfoT ComponentTextT::TypeInfo(GetComponentTIM(), "ComponentTextT", "ComponentBaseT", ComponentTextT::CreateInstance, MethodsList);
 
 
+namespace
+{
+    const char* FlagsIsColor[] = { "IsColor", NULL };
+}
+
+
 ComponentTextT::ComponentTextT()
     : ComponentBaseT(),
       m_FontName("Name", "Fonts/Arial", NULL, *this),
@@ -150,7 +156,7 @@ ComponentTextT::ComponentTextT()
       m_Text("Text", ""),
       m_Scale("Scale", 1.0f),
       m_Padding("Padding", 0.0f),
-      m_Color("Color", Vector3fT(0.5f, 0.5f, 1.0f)),
+      m_Color("Color", Vector3fT(0.5f, 0.5f, 1.0f), FlagsIsColor),
       m_Alpha("Alpha", 1.0f),
       m_AlignHor("hor. Align", VarTextAlignHorT::LEFT),
       m_AlignVer("ver. Align", VarTextAlignVerT::TOP)
