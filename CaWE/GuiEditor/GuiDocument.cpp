@@ -77,7 +77,8 @@ GuiDocumentT::GuiDocumentT(GameConfigT* GameConfig, const wxString& GuiInitFileN
     else
     {
         m_Gui=new cf::GuiSys::GuiImplT(GameConfig->GetGuiResources(),
-            "Win=gui:new('WindowT'); gui:SetRootWindow(Win); gui:showMouse(false); gui:setFocus(Win); Win:SetName('Root'); Win:set(\"rect\", 0, 0, 640, 480);", true);
+            "Win=gui:new('WindowT'); gui:SetRootWindow(Win); gui:showMouse(false); gui:setFocus(Win); Win:SetName('Root'); Win:set(\"rect\", 0, 0, 640, 480);",
+            cf::GuiSys::GuiImplT::InitFlag_InlineCode);
 
         m_GuiProperties=GuiPropertiesT(*m_Gui);
 

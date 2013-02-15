@@ -54,8 +54,8 @@ GuiImplT::InitErrorT::InitErrorT(const std::string& Message)
 }
 
 
-GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool IsInlineCode)
-    : ScriptName(IsInlineCode ? "" : GuiScriptName),
+GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, int Flags)
+    : ScriptName((Flags & InitFlag_InlineCode) ? "" : GuiScriptName),
       m_ScriptState(),
       ScriptInitResult(""),
       m_MaterialMan(),
@@ -74,7 +74,7 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool
       m_MouseCursorSize(20.0f),
       MouseIsShown(true)
 {
-    if (!IsInlineCode)
+    if ((Flags & InitFlag_InlineCode) == 0)
     {
         std::string s=cf::String::StripExt(GuiScriptName);
 
@@ -198,8 +198,8 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool
 
 
     // Load the user script!
-    const int LoadResult=IsInlineCode ? luaL_loadstring(LuaState, GuiScriptName.c_str())
-                                      : luaL_loadfile  (LuaState, GuiScriptName.c_str());
+    const int LoadResult = (Flags & InitFlag_InlineCode) ? luaL_loadstring(LuaState, GuiScriptName.c_str())
+                                                         : luaL_loadfile  (LuaState, GuiScriptName.c_str());
 
     if (LoadResult!=0 || lua_pcall(LuaState, 0, 0, 0)!=0)
     {

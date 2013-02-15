@@ -47,13 +47,19 @@ namespace cf
 
             class InitErrorT;
 
+            /// Flags for initializing a GUI, used in the GuiImplT constructor.
+            enum InitFlagsT
+            {
+                InitFlag_InlineCode  = 1    ///< Normally, the `GuiScriptName` parameter to the GuiImplT ctor is a filename. If this is set, it is treated as inline script code.
+            };
+
 
             /// Constructor for creating a window hierarchy (=="a GUI") from the GUI script file GuiScriptName.
             /// @param GuiRes          The provider for resources (fonts and models) that are used in this GUI.
-            /// @param GuiScriptName   The file name of the GUI script to load or inline script code (depending on IsInlineCode).
-            /// @param IsInlineCode    Whether GuiScriptName is inline script code or a filename.
-            /// @throws an InitErrorT object on problems initializing the GUI.
-            GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool IsInlineCode=false);
+            /// @param GuiScriptName   The file name of the GUI script to load or inline script code (if InitFlag_InlineCode is set).
+            /// @param Flags           A combination of the flags in InitFlagsT.
+            /// @throws Throws an InitErrorT object on problems initializing the GUI.
+            GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, int Flags = 0);
 
             /// The destructor.
             ~GuiImplT();
