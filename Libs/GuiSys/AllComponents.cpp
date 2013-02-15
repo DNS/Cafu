@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "AllComponents.hpp"
 #include "CompBase.hpp"
 #include "CompBorder.hpp"
+#include "CompChoice.hpp"
 #include "CompImage.hpp"
 #include "CompModel.hpp"
 #include "CompText.hpp"
@@ -50,6 +51,7 @@ namespace cf
         {
             &ComponentBaseT::TypeInfo,
             &ComponentBorderT::TypeInfo,
+            &ComponentChoiceT::TypeInfo,
             &ComponentImageT::TypeInfo,
             &ComponentModelT::TypeInfo,
             &ComponentTextT::TypeInfo,
