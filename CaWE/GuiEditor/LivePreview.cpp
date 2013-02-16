@@ -380,8 +380,8 @@ void PreviewCanvasT::OnKeyDown(wxKeyEvent& KE)
             KeyboardEvent.Type=CaKeyboardEventT::CKE_KEYDOWN;
             KeyboardEvent.Key =KeyCodes[KeyCodeNr].CaKC;
 
-            m_Parent->GetGui()->ProcessDeviceEvent(KeyboardEvent);
-            return;
+            if (m_Parent->GetGui()->ProcessDeviceEvent(KeyboardEvent)) return;
+            break;  // Event not handled, call KE.Skip() below.
         }
     }
 
@@ -400,8 +400,8 @@ void PreviewCanvasT::OnKeyUp(wxKeyEvent& KE)
             KeyboardEvent.Type=CaKeyboardEventT::CKE_KEYUP;
             KeyboardEvent.Key =KeyCodes[KeyCodeNr].CaKC;
 
-            m_Parent->GetGui()->ProcessDeviceEvent(KeyboardEvent);
-            return;
+            if (m_Parent->GetGui()->ProcessDeviceEvent(KeyboardEvent)) return;
+            break;  // Event not handled, call KE.Skip() below.
         }
     }
 
