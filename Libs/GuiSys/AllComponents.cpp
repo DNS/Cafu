@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CompImage.hpp"
 #include "CompModel.hpp"
 #include "CompText.hpp"
+#include "CompTextEdit.hpp"
 #include "CompTransform.hpp"
 
 
@@ -55,6 +56,7 @@ namespace cf
             &ComponentImageT::TypeInfo,
             &ComponentModelT::TypeInfo,
             &ComponentTextT::TypeInfo,
+            &ComponentTextEditT::TypeInfo,
             &ComponentTransformT::TypeInfo,
         };
     }

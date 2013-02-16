@@ -64,6 +64,8 @@ namespace cf
 
             private:
 
+            friend class ComponentTextEditT;
+
             /// A variable of type std::string, specifically for font names. It updates the related
             /// font instance in the parent ComponentTextT whenever a new font name is set.
             class VarFontNameT : public TypeSys::VarT<std::string>
