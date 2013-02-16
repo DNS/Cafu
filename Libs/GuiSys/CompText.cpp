@@ -83,11 +83,6 @@ void ComponentTextT::VarFontNameT::Set(const std::string& v)
 /*** ComponentTextT::VarTextAlignHorT ***/
 /****************************************/
 
-const int ComponentTextT::VarTextAlignHorT::LEFT   = -1;
-const int ComponentTextT::VarTextAlignHorT::CENTER =  0;
-const int ComponentTextT::VarTextAlignHorT::RIGHT  =  1;
-
-
 ComponentTextT::VarTextAlignHorT::VarTextAlignHorT(const char* Name, const int& Value, const char* Flags[])
     : TypeSys::VarT<int>(Name, Value, Flags)
 {
@@ -105,11 +100,6 @@ void ComponentTextT::VarTextAlignHorT::GetChoices(ArrayT<std::string>& Strings, 
 /****************************************/
 /*** ComponentTextT::VarTextAlignVerT ***/
 /****************************************/
-
-const int ComponentTextT::VarTextAlignVerT::TOP    = -1;
-const int ComponentTextT::VarTextAlignVerT::MIDDLE =  0;
-const int ComponentTextT::VarTextAlignVerT::BOTTOM =  1;
-
 
 ComponentTextT::VarTextAlignVerT::VarTextAlignVerT(const char* Name, const int& Value, const char* Flags[])
     : TypeSys::VarT<int>(Name, Value, Flags)
