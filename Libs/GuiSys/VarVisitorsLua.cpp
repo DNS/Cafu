@@ -65,6 +65,13 @@ void VarVisitorGetToLuaT::visit(const cf::TypeSys::VarT<int>& Var)
 }
 
 
+void VarVisitorGetToLuaT::visit(const cf::TypeSys::VarT<unsigned int>& Var)
+{
+    lua_pushinteger(m_LuaState, Var.Get());
+    m_NumResults++;
+}
+
+
 void VarVisitorGetToLuaT::visit(const cf::TypeSys::VarT<std::string>& Var)
 {
     lua_pushstring(m_LuaState, Var.Get().c_str());
@@ -116,6 +123,12 @@ void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT<double>& Var)
 
 
 void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT<int>& Var)
+{
+    Var.Set(luaL_checkint(m_LuaState, -1));
+}
+
+
+void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT<unsigned int>& Var)
 {
     Var.Set(luaL_checkint(m_LuaState, -1));
 }
@@ -194,6 +207,12 @@ void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<double>& Var)
 
 
 void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<int>& Var)
+{
+    m_Out << Var.Get();
+}
+
+
+void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<unsigned int>& Var)
 {
     m_Out << Var.Get();
 }

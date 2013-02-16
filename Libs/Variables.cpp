@@ -119,6 +119,7 @@ void cf::TypeSys::VarT<T>::accept(VisitorConstT& Visitor) const
 template class cf::TypeSys::VarT<float>;
 template class cf::TypeSys::VarT<double>;
 template class cf::TypeSys::VarT<int>;
+template class cf::TypeSys::VarT<unsigned int>;
 template class cf::TypeSys::VarT<std::string>;
 template class cf::TypeSys::VarT<Vector3fT>;
 template class cf::TypeSys::VarT< ArrayT<std::string> >;

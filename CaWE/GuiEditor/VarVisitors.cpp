@@ -195,6 +195,33 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<int>& Var)
 }
 
 
+void VarVisitorAddPropT::visit(cf::TypeSys::VarT<unsigned int>& Var)
+{
+    wxPGProperty*        Prop = NULL;
+    ArrayT<std::string>  Strings;
+    ArrayT<unsigned int> Values;
+
+    Var.GetChoices(Strings, Values);
+    wxASSERT(Strings.Size() == Values.Size());
+
+    if (Strings.Size() > 0)
+    {
+        wxPGChoices Choices;
+
+        for (unsigned int i = 0; i < Strings.Size(); i++)
+            Choices.Add(wxString::Format("%s (%i)", Strings[i], Values[i]), Values[i]);
+
+        Prop = new wxEnumProperty(Var.GetName(), wxString::Format("%p", &Var), Choices, Var.Get());
+    }
+    else
+    {
+        Prop = new wxUIntProperty(Var.GetName(), wxString::Format("%p", &Var), Var.Get());
+    }
+
+    m_PropMan.Append(Prop)->SetClientData(&Var);
+}
+
+
 void VarVisitorAddPropT::visit(cf::TypeSys::VarT<std::string>& Var)
 {
     wxPGProperty* Prop = NULL;
@@ -307,6 +334,25 @@ void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<int>& Var)
 }
 
 
+void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<unsigned int>& Var)
+{
+    ArrayT<std::string>  Strings;
+    ArrayT<unsigned int> Values;
+    wxPGChoices          Choices;
+
+    Var.GetChoices(Strings, Values);
+    wxASSERT(Strings.Size() == Values.Size());
+
+    for (unsigned int i = 0; i < Strings.Size(); i++)
+        Choices.Add(wxString::Format("%s (%i)", Strings[i], Values[i]), Values[i]);
+
+    if (Choices.GetCount() > 0)
+        m_Prop.SetChoices(Choices);
+
+    m_Prop.SetValue(int(Var.Get()));    // Uh! Cannot convert to wxVariant from unsigned int.
+}
+
+
 void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<std::string>& Var)
 {
     m_Prop.SetValue(Var.Get());
@@ -376,6 +422,14 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<int>& Var)
     const int i = m_Event.GetValue().GetLong();
 
     m_Ok = m_ChildFrame->SubmitCommand(new CommandSetCompVarT<int>(m_GuiDoc, Var, i));
+}
+
+
+void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<unsigned int>& Var)
+{
+    const unsigned int ui = m_Event.GetValue().GetLong();   // Uh! There is no GetULong() method.
+
+    m_Ok = m_ChildFrame->SubmitCommand(new CommandSetCompVarT<unsigned int>(m_GuiDoc, Var, ui));
 }
 
 
@@ -453,6 +507,7 @@ VarVisitorHandleSubChangingEventT::VarVisitorHandleSubChangingEventT(wxPropertyG
 void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<float>& Var) { wxASSERT(false); }
 void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<double>& Var) { wxASSERT(false); }
 void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<int>& Var) { wxASSERT(false); }
+void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<unsigned int>& Var) { wxASSERT(false); }
 void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<std::string>& Var) { wxASSERT(false); }
 
 
