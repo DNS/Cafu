@@ -55,6 +55,13 @@ namespace cf
 {
     namespace TypeSys
     {
+        template<>  // Must specialize, because an OutStreamT cannot take a Vector2fT directly.
+        void VarT<Vector2fT>::Serialize(cf::Network::OutStreamT& Stream) const
+        {
+            Stream << Get().x;
+            Stream << Get().y;
+        }
+
         template<>  // Must specialize, because an OutStreamT cannot take a Vector3fT directly.
         void VarT<Vector3fT>::Serialize(cf::Network::OutStreamT& Stream) const
         {
@@ -85,6 +92,19 @@ namespace cf
 {
     namespace TypeSys
     {
+        template<>  // Must specialize, because an InStreamT cannot take a Vector2fT directly.
+        void VarT<Vector2fT>::Deserialize(cf::Network::InStreamT& Stream)
+        {
+            Vector2fT v;
+
+            Stream >> v.x;
+            Stream >> v.y;
+
+            // Derived classes may have overridden Set() to add "side-effects", such as updating graphical resources.
+            // Therefore, we cannot write `m_Value = v;` in place of `Set(v);` here.
+            Set(v);
+        }
+
         template<>  // Must specialize, because an InStreamT cannot take a Vector3fT directly.
         void VarT<Vector3fT>::Deserialize(cf::Network::InStreamT& Stream)
         {
@@ -121,5 +141,6 @@ template class cf::TypeSys::VarT<double>;
 template class cf::TypeSys::VarT<int>;
 template class cf::TypeSys::VarT<unsigned int>;
 template class cf::TypeSys::VarT<std::string>;
+template class cf::TypeSys::VarT<Vector2fT>;
 template class cf::TypeSys::VarT<Vector3fT>;
 template class cf::TypeSys::VarT< ArrayT<std::string> >;

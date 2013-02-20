@@ -250,6 +250,17 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<std::string>& Var)
 }
 
 
+void VarVisitorAddPropT::visit(cf::TypeSys::VarT<Vector2fT>& Var)
+{
+    wxPGProperty* Prop = new wxStringProperty(Var.GetName(), wxString::Format("%p", &Var), "<composed>");
+
+    m_PropMan.Append(Prop)->SetClientData(&Var);
+
+    m_PropMan.AppendIn(Prop, new wxFloatProperty("x", wxPG_LABEL, Var.Get().x))->SetTextColour(wxColour(200, 0, 0));
+    m_PropMan.AppendIn(Prop, new wxFloatProperty("y", wxPG_LABEL, Var.Get().y))->SetTextColour(wxColour(0, 200, 0));
+}
+
+
 void VarVisitorAddPropT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
 {
     if (Var.HasFlag("IsColor"))
@@ -359,6 +370,15 @@ void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<std::string>& Var)
 }
 
 
+void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<Vector2fT>& Var)
+{
+    const unsigned int Count = std::min(2u, m_Prop.GetChildCount());
+
+    for (unsigned int i = 0; i < Count; i++)
+        m_Prop.Item(i)->SetValue(Var.Get()[i]);
+}
+
+
 void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<Vector3fT>& Var)
 {
     if (Var.HasFlag("IsColor"))
@@ -441,6 +461,31 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<std::string>& V
 }
 
 
+void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<Vector2fT>& Var)
+{
+    Vector2fT v;
+
+    // This is a "<composed>" property, and its summary string is changing.
+    // For example, the value could be changing from "100.0; 0.0" to "100.0; 150".
+    wxStringTokenizer Tokenizer(m_Event.GetValue().GetString(), "; \t\r\n", wxTOKEN_STRTOK);
+
+    for (unsigned int i = 0; i < 2; i++)
+    {
+        double d = 0.0;
+
+        // On error, return with m_Ok == false.
+        if (!Tokenizer.HasMoreTokens()) return;
+        if (!Tokenizer.GetNextToken().ToCDouble(&d)) return;
+
+        v[i] = float(d);
+    }
+
+    if (Tokenizer.HasMoreTokens()) return;
+
+    m_Ok = m_ChildFrame->SubmitCommand(new CommandSetCompVarT<Vector2fT>(m_GuiDoc, Var, v));
+}
+
+
 void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
 {
     Vector3fT v;
@@ -509,6 +554,19 @@ void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<double>& Var) { 
 void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<int>& Var) { wxASSERT(false); }
 void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<unsigned int>& Var) { wxASSERT(false); }
 void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<std::string>& Var) { wxASSERT(false); }
+
+
+void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<Vector2fT>& Var)
+{
+    Vector2fT          v = Var.Get();
+    const unsigned int i = m_Event.GetProperty()->GetIndexInParent();
+
+    // On error, return with m_Ok == false.
+    if (i >= 2) return;
+
+    v[i] = m_Event.GetValue().GetDouble();
+    m_Ok = m_ChildFrame->SubmitCommand(new CommandSetCompVarT<Vector2fT>(m_GuiDoc, Var, v));
+}
 
 
 void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<Vector3fT>& Var)

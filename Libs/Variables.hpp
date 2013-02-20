@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_TYPESYS_VARIABLES_HPP_INCLUDED
 
 #include "Templates/Array.hpp"
+#include "Math3D/Vector2.hpp"
 #include "Math3D/Vector3.hpp"
 
 #include <cstring>
@@ -232,6 +233,7 @@ namespace cf
             virtual void visit(VarT<int>& Var) = 0;
             virtual void visit(VarT<unsigned int>& Var) = 0;
             virtual void visit(VarT<std::string>& Var) = 0;
+            virtual void visit(VarT<Vector2fT>& Var) = 0;
             virtual void visit(VarT<Vector3fT>& Var) = 0;
             virtual void visit(VarT< ArrayT<std::string> >& Var) = 0;
         };
@@ -251,6 +253,7 @@ namespace cf
             virtual void visit(const VarT<int>& Var) = 0;
             virtual void visit(const VarT<unsigned int>& Var) = 0;
             virtual void visit(const VarT<std::string>& Var) = 0;
+            virtual void visit(const VarT<Vector2fT>& Var) = 0;
             virtual void visit(const VarT<Vector3fT>& Var) = 0;
             virtual void visit(const VarT< ArrayT<std::string> >& Var) = 0;
         };

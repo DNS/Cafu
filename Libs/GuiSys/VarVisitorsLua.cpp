@@ -79,6 +79,13 @@ void VarVisitorGetToLuaT::visit(const cf::TypeSys::VarT<std::string>& Var)
 }
 
 
+void VarVisitorGetToLuaT::visit(const cf::TypeSys::VarT<Vector2fT>& Var)
+{
+    lua_pushnumber(m_LuaState, Var.Get().x); m_NumResults++;
+    lua_pushnumber(m_LuaState, Var.Get().y); m_NumResults++;
+}
+
+
 void VarVisitorGetToLuaT::visit(const cf::TypeSys::VarT<Vector3fT>& Var)
 {
     lua_pushnumber(m_LuaState, Var.Get().x); m_NumResults++;
@@ -137,6 +144,17 @@ void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT<unsigned int>& Var)
 void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT<std::string>& Var)
 {
     Var.Set(luaL_checkstring(m_LuaState, -1));
+}
+
+
+void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT<Vector2fT>& Var)
+{
+    Vector2fT v;
+
+    v.x = float(luaL_checknumber(m_LuaState, -2));
+    v.y = float(luaL_checknumber(m_LuaState, -1));
+
+    Var.Set(v);
 }
 
 
@@ -221,6 +239,12 @@ void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<unsigned int>& Var)
 void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<std::string>& Var)
 {
     WriteString(Var.Get());
+}
+
+
+void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<Vector2fT>& Var)
+{
+    m_Out << Var.Get().x << ", " << Var.Get().y;
 }
 
 

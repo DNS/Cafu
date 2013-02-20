@@ -96,5 +96,6 @@ template class CommandSetCompVarT<double>;
 template class CommandSetCompVarT<int>;
 template class CommandSetCompVarT<unsigned int>;
 template class CommandSetCompVarT<std::string>;
+template class CommandSetCompVarT<Vector2fT>;
 template class CommandSetCompVarT<Vector3fT>;
 template class CommandSetCompVarT< ArrayT<std::string> >;
