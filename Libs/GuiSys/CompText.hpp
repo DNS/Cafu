@@ -64,6 +64,7 @@ namespace cf
 
             private:
 
+            friend class ComponentListBoxT;
             friend class ComponentTextEditT;
 
             /// A variable of type std::string, specifically for font names. It updates the related
