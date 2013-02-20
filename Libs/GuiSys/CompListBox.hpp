@@ -69,7 +69,7 @@ namespace cf
 
             IntrusivePtrT<ComponentTextT>        m_TextComp;    ///< The sibling text component from which we take the text settings.
             TypeSys::VarT< ArrayT<std::string> > m_Items;       ///< The list of available items.
-            TypeSys::VarT<int>                   m_Selection;   ///< The currently selected item, or -1 for "none".
+            TypeSys::VarT<unsigned int>          m_Selection;   ///< The currently selected item (use any number beyond the last item for "none").
             TypeSys::VarT<Vector3fT>             m_BgColorOdd;  ///< The background color for odd rows.
             TypeSys::VarT<Vector3fT>             m_BgColorEven; ///< The background color for even rows.
             TypeSys::VarT<Vector3fT>             m_BgColorSel;  ///< The background color for selected rows.

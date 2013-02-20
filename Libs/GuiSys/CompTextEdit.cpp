@@ -101,8 +101,8 @@ ComponentTextEditT::ComponentTextEditT()
 ComponentTextEditT::ComponentTextEditT(const ComponentTextEditT& Comp)
     : ComponentBaseT(Comp),
       m_TextComp(NULL),
-      m_CursorPos(Comp.m_CursorPos),
       m_CursorTime(Comp.m_CursorTime),
+      m_CursorPos(Comp.m_CursorPos),
       m_CursorType(Comp.m_CursorType),
       m_CursorRate(Comp.m_CursorRate),
       m_CursorColor(Comp.m_CursorColor),

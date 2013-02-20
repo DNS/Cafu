@@ -22,12 +22,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_MATH_VECTOR2_HPP_INCLUDED
 #define CAFU_MATH_VECTOR2_HPP_INCLUDED
 
+#include "Errors.hpp"
+
 #include <cassert>
+#include <cmath>
 #include <iomanip>
 #include <limits>
-#include <stdexcept>
 #include <sstream>
-#include <math.h>
 
 
 /// This class represents a 2-dimensional vector.
@@ -74,7 +75,7 @@ class Vector2T
     /// Component access by index number (0 to 1) rather than by name.
     /// @param Index Index of the component to access. Can only be 0 or 1 (for x or y).
     /// @throws InvalidOperationE if Index is not 0 or 1.
-    const T& operator [] (unsigned long Index) const
+    const T& operator [] (unsigned int Index) const
     {
         switch (Index)
         {

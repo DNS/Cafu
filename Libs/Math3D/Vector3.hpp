@@ -19,47 +19,16 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/***************/
-/*** Vector3 ***/
-/***************/
-
 #ifndef CAFU_MATH_VECTOR3_HPP_INCLUDED
 #define CAFU_MATH_VECTOR3_HPP_INCLUDED
 
+#include "Errors.hpp"
+
 #include <cassert>
+#include <cmath>
 #include <iomanip>
 #include <limits>
-#include <stdexcept>
 #include <sstream>
-#include <math.h>
-
-
-/// General math error.
-struct Math3DErrorE : public std::runtime_error
-{
-    /// Constructor.
-    Math3DErrorE(const std::string& what_arg) : runtime_error(what_arg)
-    {
-    }
-};
-
-/// Division by zero error.
-struct DivisionByZeroE : public Math3DErrorE
-{
-    DivisionByZeroE() : Math3DErrorE("Division by 0.")
-    {
-    }
-};
-
-/// Invalid operation (invalid use of method, etc.).
-struct InvalidOperationE : public Math3DErrorE
-{
-    InvalidOperationE() : Math3DErrorE("Invalid operation.")
-    {
-    }
-};
-
-// class BadPolygonE  : public Math3DError        { };  // Ein Polygon erfüllt die Voraussetzungen nicht.
 
 
 /// This class represents a polymorphic 3-dimensional vector.
@@ -109,7 +78,7 @@ class Vector3T
     /// Component access by index number (0 to 2) rather than by name.
     /// @param Index Index of the component to access. Can only be 0, 1 or 2 (for x, y, z).
     /// @throws InvalidOperationE if Index is not 0, 1 or 2.
-    T& operator [] (unsigned long Index)
+    T& operator [] (unsigned int Index)
     {
         switch (Index)
         {
@@ -123,7 +92,7 @@ class Vector3T
     /// Component access by index number (0 to 2) rather than by name.
     /// @param Index Index of the component to access. Can only be 0, 1 or 2 (for x, y, z).
     /// @throws InvalidOperationE if Index is not 0, 1 or 2.
-    const T& operator [] (unsigned long Index) const
+    const T& operator [] (unsigned int Index) const
     {
         switch (Index)
         {

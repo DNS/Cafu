@@ -244,8 +244,8 @@ bool ComponentListBoxT::OnInputEvent(const CaKeyboardEventT& KE)
     if (m_Items.Get().Size() == 0) return false;
     if (KE.Type != CaKeyboardEventT::CKE_KEYDOWN) return false;
 
-    const int Num = m_Items.Get().Size();
-    const int Sel = m_Selection.Get();
+    const unsigned int Num = m_Items.Get().Size();
+    const unsigned int Sel = m_Selection.Get();
 
     switch (KE.Key)
     {
