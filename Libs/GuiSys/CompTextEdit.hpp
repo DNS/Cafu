@@ -62,7 +62,7 @@ namespace cf
 
             private:
 
-            /// A variable of type int, specifically for horizontal alignments of text.
+            /// A variable of type int, specifically for the cursor type, "|" vs. "_".
             class VarCursorTypeT : public TypeSys::VarT<int>
             {
                 public:

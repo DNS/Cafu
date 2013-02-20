@@ -27,9 +27,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 namespace cf
 {
-    class TrueTypeFontT;
-
-
     namespace GuiSys
     {
         class ComponentTextT;

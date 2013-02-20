@@ -135,6 +135,7 @@ const cf::TypeSys::TypeInfoT ComponentTextT::TypeInfo(GetComponentTIM(), "Compon
 
 namespace
 {
+    const char* FlagsPaddingLabels[] = { "Labels", "hor.", "vert.", NULL };
     const char* FlagsIsColor[] = { "IsColor", NULL };
 }
 
@@ -145,7 +146,7 @@ ComponentTextT::ComponentTextT()
       m_FontInst(NULL),
       m_Text("Text", ""),
       m_Scale("Scale", 1.0f),
-      m_Padding("Padding", 0.0f),
+      m_Padding("Padding", Vector2fT(0.0f, 0.0f), FlagsPaddingLabels),
       m_Color("Color", Vector3fT(0.5f, 0.5f, 1.0f), FlagsIsColor),
       m_Alpha("Alpha", 1.0f),
       m_AlignHor("hor. Align", VarTextAlignHorT::LEFT),
@@ -246,10 +247,11 @@ void ComponentTextT::Render() const
         if (m_Text.Get()[i] == '\n')
             LineCount++;
 
-    unsigned int r_ = (unsigned int)(m_Color.Get()[0]*255.0f);
-    unsigned int g_ = (unsigned int)(m_Color.Get()[1]*255.0f);
-    unsigned int b_ = (unsigned int)(m_Color.Get()[2]*255.0f);
-    unsigned int a_ = (unsigned int)(m_Alpha.Get()*255.0f);
+    unsigned int TextCol = 0;
+    TextCol |= (unsigned int)(m_Alpha.Get()    * 255.0f) << 24;
+    TextCol |= (unsigned int)(m_Color.Get()[0] * 255.0f) << 16;
+    TextCol |= (unsigned int)(m_Color.Get()[1] * 255.0f) << 8;
+    TextCol |= (unsigned int)(m_Color.Get()[2] * 255.0f) << 0;
 
     const float MaxTop      = m_FontInst->GetAscender(m_Scale.Get());
     const float LineSpacing = m_FontInst->GetLineSpacing(m_Scale.Get());
@@ -267,19 +269,19 @@ void ComponentTextT::Render() const
 
         switch (m_AlignHor.Get())
         {
-            case VarTextAlignHorT::LEFT:  AlignX = m_Padding.Get(); break;
-            case VarTextAlignHorT::RIGHT: AlignX = x2 - x1 - m_FontInst->GetWidth(Line, m_Scale.Get()) - m_Padding.Get(); break;
+            case VarTextAlignHorT::LEFT:  AlignX = m_Padding.Get().x; break;
+            case VarTextAlignHorT::RIGHT: AlignX = x2 - x1 - m_FontInst->GetWidth(Line, m_Scale.Get()) - m_Padding.Get().x; break;
             default:                      AlignX = (x2 - x1 - m_FontInst->GetWidth(Line, m_Scale.Get()))/2.0f; break;
         }
 
         switch (m_AlignVer.Get())
         {
-            case VarTextAlignVerT::TOP:    AlignY = m_Padding.Get() + MaxTop; break;   // Without the +MaxTop, the text baseline ("___") is at the top border of the window.
-            case VarTextAlignVerT::BOTTOM: AlignY = y2 - y1 - m_Padding.Get() - (LineCount-1)*LineSpacing; break;
+            case VarTextAlignVerT::TOP:    AlignY = m_Padding.Get().y + MaxTop; break;   // Without the +MaxTop, the text baseline ("___") is at the top border of the window.
+            case VarTextAlignVerT::BOTTOM: AlignY = y2 - y1 - m_Padding.Get().y - (LineCount-1)*LineSpacing; break;
             default:                       AlignY = (y2 - y1 - LineCount*LineSpacing)/2.0f + MaxTop; break;
         }
 
-        m_FontInst->Print(x1 + AlignX, y1 + AlignY + LineOffsetY, m_Scale.Get(), (a_ << 24) | (r_ << 16) | (g_ << 8) | (b_ << 0), "%s", Line.c_str());
+        m_FontInst->Print(x1 + AlignX, y1 + AlignY + LineOffsetY, m_Scale.Get(), TextCol, "%s", Line.c_str());
 
         if (LineEnd == std::string::npos) break;
         LineStart = LineEnd+1;

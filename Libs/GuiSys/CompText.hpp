@@ -123,7 +123,7 @@ namespace cf
             TrueTypeFontT*             m_FontInst;      ///< The font instance used to render text in this window.
             TypeSys::VarT<std::string> m_Text;          ///< The text to show inside this window.
             TypeSys::VarT<float>       m_Scale;         ///< Scale of this windows text.
-            TypeSys::VarT<float>       m_Padding;       ///< Padding between text and window rectangle.
+            TypeSys::VarT<Vector2fT>   m_Padding;       ///< Padding between text and window rectangle.
             TypeSys::VarT<Vector3fT>   m_Color;         ///< The text color.
             TypeSys::VarT<float>       m_Alpha;         ///< The alpha component of the color.
             VarTextAlignHorT           m_AlignHor;      ///< How the text is aligned horizontally (left, right, centered, block).

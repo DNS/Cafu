@@ -148,10 +148,11 @@ void ComponentTextEditT::Render() const
     if (m_CursorTime >= 0.5f * m_CursorRate.Get()) return;              // Only render the text cursor during one half of the blink cycle.
     if (GetWindow()->GetGui().GetFocusWindow() != GetWindow()) return;  // Only render the text cursor if we have the keyboard input focus.
 
-    const TrueTypeFontT* Font    = m_TextComp->m_FontInst;
-    const std::string&   Text    = m_TextComp->m_Text.Get();
-    const float          Scale   = m_TextComp->m_Scale.Get();
-    const float          Padding = m_TextComp->m_Padding.Get();
+    const TrueTypeFontT* Font     = m_TextComp->m_FontInst;
+    const std::string&   Text     = m_TextComp->m_Text.Get();
+    const float          Scale    = m_TextComp->m_Scale.Get();
+    const float          PaddingX = m_TextComp->m_Padding.Get().x;
+    const float          PaddingY = m_TextComp->m_Padding.Get().y;
 
     // Make sure that the cursor position is valid.
     // Not possible here though, because Render() is const.
@@ -169,10 +170,11 @@ void ComponentTextEditT::Render() const
         if (Text[i] == '\n')
             LineCount++;
 
-    unsigned int r_ = (unsigned int)(m_CursorColor.Get()[0]*255.0f);
-    unsigned int g_ = (unsigned int)(m_CursorColor.Get()[1]*255.0f);
-    unsigned int b_ = (unsigned int)(m_CursorColor.Get()[2]*255.0f);
-    unsigned int a_ = (unsigned int)(m_CursorAlpha.Get()*255.0f);
+    unsigned int CursorCol = 0;
+    CursorCol |= (unsigned int)(m_CursorAlpha.Get()    * 255.0f) << 24;
+    CursorCol |= (unsigned int)(m_CursorColor.Get()[0] * 255.0f) << 16;
+    CursorCol |= (unsigned int)(m_CursorColor.Get()[1] * 255.0f) << 8;
+    CursorCol |= (unsigned int)(m_CursorColor.Get()[2] * 255.0f) << 0;
 
     const float MaxTop      = Font->GetAscender(Scale);
     const float LineSpacing = Font->GetLineSpacing(Scale);
@@ -191,15 +193,15 @@ void ComponentTextEditT::Render() const
 
         switch (m_TextComp->m_AlignHor.Get())
         {
-            case ComponentTextT::VarTextAlignHorT::LEFT:  AlignX = Padding; break;
-            case ComponentTextT::VarTextAlignHorT::RIGHT: AlignX = x2 - x1 - Font->GetWidth(Line, Scale) - Padding; break;
+            case ComponentTextT::VarTextAlignHorT::LEFT:  AlignX = PaddingX; break;
+            case ComponentTextT::VarTextAlignHorT::RIGHT: AlignX = x2 - x1 - Font->GetWidth(Line, Scale) - PaddingX; break;
             default:                                      AlignX = (x2 - x1 - Font->GetWidth(Line, Scale))/2.0f; break;
         }
 
         switch (m_TextComp->m_AlignVer.Get())
         {
-            case ComponentTextT::VarTextAlignVerT::TOP:    AlignY = Padding + MaxTop; break;   // Without the +MaxTop, the text baseline ("___") is at the top border of the window.
-            case ComponentTextT::VarTextAlignVerT::BOTTOM: AlignY = y2 - y1 - Padding - (LineCount-1)*LineSpacing; break;
+            case ComponentTextT::VarTextAlignVerT::TOP:    AlignY = PaddingY + MaxTop; break;   // Without the +MaxTop, the text baseline ("___") is at the top border of the window.
+            case ComponentTextT::VarTextAlignVerT::BOTTOM: AlignY = y2 - y1 - PaddingY - (LineCount-1)*LineSpacing; break;
             default:                                       AlignY = (y2 - y1 - LineCount*LineSpacing)/2.0f + MaxTop; break;
         }
 
@@ -211,13 +213,13 @@ void ComponentTextEditT::Render() const
 
             if (m_CursorType.Get() == 1)
             {
-                Font->Print(x1 + AlignX + WidthUntilCursor, y1 + AlignY + LineOffsetY, Scale, (a_ << 24) | (r_ << 16) | (g_ << 8) | (b_ << 0), "_");
+                Font->Print(x1 + AlignX + WidthUntilCursor, y1 + AlignY + LineOffsetY, Scale, CursorCol, "_");
             }
             else
             {
                 const float OfsX = Font->GetWidth("|", Scale) * 0.5f;
 
-                Font->Print(x1 + AlignX + WidthUntilCursor - OfsX, y1 + AlignY + LineOffsetY, Scale, (a_ << 24) | (r_ << 16) | (g_ << 8) | (b_ << 0), "|");
+                Font->Print(x1 + AlignX + WidthUntilCursor - OfsX, y1 + AlignY + LineOffsetY, Scale, CursorCol, "|");
             }
 
             break;
