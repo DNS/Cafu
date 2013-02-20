@@ -35,6 +35,24 @@ bool cf::TypeSys::VarBaseT::HasFlag(const char* Flag) const
 }
 
 
+const char* cf::TypeSys::VarBaseT::GetFlag(const char* Flag, unsigned int Nr, const char* Default) const
+{
+    if (!m_Flags) return Default;
+
+    unsigned int i;
+
+    for (i = 0; m_Flags[i]; i++)
+        if (strcmp(Flag, m_Flags[i]) == 0)
+            break;
+
+    for (unsigned int j = i; m_Flags[j]; j++)
+        if (j == i + Nr)
+            return m_Flags[j];
+
+    return Default;
+}
+
+
 void cf::TypeSys::VarManT::Add(VarBaseT* Var)
 {
     m_VarsArray.PushBack(Var);

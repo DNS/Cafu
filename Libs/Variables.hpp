@@ -129,6 +129,7 @@ namespace cf
 
             const char** GetFlags() const { return m_Flags; }
             bool HasFlag(const char* Flag) const;
+            const char* GetFlag(const char* Flag, unsigned int Nr, const char* Default=NULL) const;
 
             /// Sometimes actions on variables generate extra messages that are relevant to the user.
             /// For example, setting a string that is interpreted as a filename can generate an extra

@@ -256,8 +256,8 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<Vector2fT>& Var)
 
     m_PropMan.Append(Prop)->SetClientData(&Var);
 
-    m_PropMan.AppendIn(Prop, new wxFloatProperty("x", wxPG_LABEL, Var.Get().x))->SetTextColour(wxColour(200, 0, 0));
-    m_PropMan.AppendIn(Prop, new wxFloatProperty("y", wxPG_LABEL, Var.Get().y))->SetTextColour(wxColour(0, 200, 0));
+    m_PropMan.AppendIn(Prop, new wxFloatProperty(Var.GetFlag("Labels", 1, "x"), wxPG_LABEL, Var.Get().x))->SetTextColour(wxColour(200, 0, 0));
+    m_PropMan.AppendIn(Prop, new wxFloatProperty(Var.GetFlag("Labels", 2, "y"), wxPG_LABEL, Var.Get().y))->SetTextColour(wxColour(0, 200, 0));
 }
 
 
