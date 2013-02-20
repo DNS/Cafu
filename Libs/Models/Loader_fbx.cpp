@@ -905,7 +905,7 @@ void LoaderFbxT::Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures)
 LoaderFbxT::LoaderFbxT(const std::string& FileName, UserCallbacksI& /*UserCallbacks*/, int Flags)
     : ModelLoaderT(FileName, Flags)
 {
-    throw LoadErrorT("This edition of the program was built without the Autodesk FBX"
+    throw LoadErrorT("This edition of the program was built without the Autodesk FBX "
                      "library that is required to import files in this file format.");
 }
 
