@@ -118,7 +118,8 @@ namespace cf
             /// Components can override this method in order act / do something / add custom behaviour at that time.
             ///
             /// For example, a choice component can use it to set the associated text component to the initial
-            /// selection, a script component can forward it to the script by calling a related script function, etc.
+            /// selection, a script component can forward it to the script by calling a related script function,
+            /// a component that for backwards-compatibility supports reading old variables can convert to new ones, etc.
             ///
             /// @param InEditor   `true` if this GUI is instantiated in the GUI Editor. This normally means that
             ///     custom behaviour should *not* run. If `false`, this GUI is instantiated "live", in-game.

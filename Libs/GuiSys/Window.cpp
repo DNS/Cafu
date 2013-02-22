@@ -331,6 +331,19 @@ IntrusivePtrT<WindowT> WindowT::GetRoot()
 }
 
 
+IntrusivePtrT<ComponentBaseT> WindowT::GetComponent(const std::string& TypeName, unsigned int n) const
+{
+    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
+        if (m_Components[CompNr]->GetName() == TypeName)
+        {
+            if (n == 0) return m_Components[CompNr];
+            n--;
+        }
+
+    return NULL;
+}
+
+
 bool WindowT::AddComponent(IntrusivePtrT<ComponentBaseT> Comp, unsigned long Index)
 {
     if (Comp->GetWindow()) return false;

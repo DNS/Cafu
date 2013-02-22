@@ -181,6 +181,9 @@ namespace cf
             /// Returns the components that this window is composed of.
             const ArrayT< IntrusivePtrT<ComponentBaseT> >& GetComponents() const { return m_Components; }
 
+            /// Returns the (n-th) component of the given (type) name.
+            IntrusivePtrT<ComponentBaseT> GetComponent(const std::string& TypeName, unsigned int n=0) const;
+
             /// Adds the given component to this window.
             ///
             /// @param Comp    The component to add to this window.

@@ -188,7 +188,6 @@ void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var)
     }
     else
     {
-        
         // Stack index 1 has the "this" object,
         // stack index 2 has the variable name.
         for (int i = 3; i <= lua_gettop(m_LuaState); i++)
@@ -202,9 +201,9 @@ void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var)
 }
 
 
-/*****************************/
+/****************************/
 /*** VarVisitorToLuaCodeT ***/
-/*****************************/
+/****************************/
 
 VarVisitorToLuaCodeT::VarVisitorToLuaCodeT(std::ostream& Out)
     : m_Out(Out)
