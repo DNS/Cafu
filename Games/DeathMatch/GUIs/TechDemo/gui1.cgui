@@ -1,4 +1,4 @@
-FarewellGUI=gui:new("WindowT");
+FarewellGUI=gui:new("WindowT", "FarewellGUI");
 gui:SetRootWindow(FarewellGUI);
 
 function FarewellGUI:OnInit()
@@ -13,7 +13,7 @@ function FarewellGUI:OnInit()
 end
 
 
-Heading1=gui:new("WindowT");
+Heading1=gui:new("WindowT", "Heading1");
 FarewellGUI:AddChild(Heading1);
 
 function Heading1:OnInit()
@@ -25,7 +25,7 @@ function Heading1:OnInit()
 end
 
 
-TextArea1=gui:new("WindowT");
+TextArea1=gui:new("WindowT", "TextArea1");
 FarewellGUI:AddChild(TextArea1);
 
 function TextArea1:OnInit()
@@ -40,7 +40,7 @@ function TextArea1:OnInit()
 end
 
 
-Heading2=gui:new("WindowT");
+Heading2=gui:new("WindowT", "Heading2");
 FarewellGUI:AddChild(Heading2);
 
 function Heading2:OnInit()
@@ -54,7 +54,7 @@ function Heading2:OnInit()
 end
 
 
-TextArea2=gui:new("WindowT");
+TextArea2=gui:new("WindowT", "TextArea2");
 FarewellGUI:AddChild(TextArea2);
 
 function TextArea2:OnInit()
@@ -75,7 +75,7 @@ function TextArea2:OnInit()
 end
 
 
-EngineLogo=gui:new("WindowT");
+EngineLogo=gui:new("WindowT", "EngineLogo");
 FarewellGUI:AddChild(EngineLogo);
 
 function EngineLogo:OnInit()
@@ -89,7 +89,7 @@ function EngineLogo:OnFrame()
 end
 
 
-LayDepthBuffer=gui:new("WindowT");
+LayDepthBuffer=gui:new("WindowT", "LayDepthBuffer");
 FarewellGUI:AddChild(LayDepthBuffer);
 
 function LayDepthBuffer:OnInit()
@@ -100,7 +100,7 @@ end
 
 
 -- Be sure to have this *after* the LayDepthBuffer window, or else it cannot be used interactively!
-BottomLine=gui:new("WindowT");
+BottomLine=gui:new("WindowT", "BottomLine");
 FarewellGUI:AddChild(BottomLine);
 
 BottomLine.PageNr=2;    -- Reset to 1 in OnInit() by call to OnMouseButtonDown().

@@ -1,4 +1,4 @@
-ElevatorMalfunctionGUI=gui:new("WindowT");
+ElevatorMalfunctionGUI=gui:new("WindowT", "ElevatorMalfunctionGUI");
 gui:SetRootWindow(ElevatorMalfunctionGUI);
 
 function ElevatorMalfunctionGUI:OnInit()
@@ -12,7 +12,7 @@ function ElevatorMalfunctionGUI:OnInit()
 end
 
 
-Heading=gui:new("WindowT");
+Heading=gui:new("WindowT", "Heading");
 ElevatorMalfunctionGUI:AddChild(Heading);
 
 function Heading:OnInit()
@@ -24,7 +24,7 @@ function Heading:OnInit()
 end
 
 
-TextArea=gui:new("WindowT");
+TextArea=gui:new("WindowT", "TextArea");
 ElevatorMalfunctionGUI:AddChild(TextArea);
 
 function TextArea:OnInit()
@@ -38,7 +38,7 @@ function TextArea:OnInit()
 end
 
 
-TextArea2=gui:new("WindowT");
+TextArea2=gui:new("WindowT", "TextArea2");
 ElevatorMalfunctionGUI:AddChild(TextArea2);
 
 function TextArea2:OnInit()
@@ -56,7 +56,7 @@ end
 
 
 --[[
-EngineLogo=gui:new("WindowT");
+EngineLogo=gui:new("WindowT", "EngineLogo");
 ElevatorMalfunctionGUI:AddChild(EngineLogo);
 
 function EngineLogo:OnInit()

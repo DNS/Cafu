@@ -1,4 +1,4 @@
-TestGUI=gui:new("WindowT");
+TestGUI=gui:new("WindowT", "TestGUI");
 gui:SetRootWindow(TestGUI);
 
 function TestGUI:OnInit()
@@ -13,7 +13,7 @@ function TestGUI:OnInit()
 end
 
 
-SomeImage=gui:new("WindowT");
+SomeImage=gui:new("WindowT", "SomeImage");
 TestGUI:AddChild(SomeImage);
 
 function SomeImage:OnInit()
@@ -27,7 +27,7 @@ function SomeImage:OnFrame()
 end
 
 
-ButtonToggleHor=gui:new("WindowT");
+ButtonToggleHor=gui:new("WindowT", "ButtonToggleHor");
 TestGUI:AddChild(ButtonToggleHor);
 
 function ButtonToggleHor:OnInit()
@@ -49,7 +49,7 @@ function ButtonToggleHor:OnMouseButtonDown()
 end
 
 
-ButtonToggleVer=gui:new("WindowT");
+ButtonToggleVer=gui:new("WindowT", "ButtonToggleVer");
 TestGUI:AddChild(ButtonToggleVer);
 
 function ButtonToggleVer:OnInit()
@@ -73,7 +73,7 @@ function ButtonToggleVer:OnMouseButtonDown()
 end
 
 
-ButtonQuit=gui:new("WindowT");
+ButtonQuit=gui:new("WindowT", "ButtonQuit");
 TestGUI:AddChild(ButtonQuit);
 
 function ButtonQuit:OnInit()
@@ -108,7 +108,7 @@ function ButtonQuit:OnMouseButtonDown()
 end
 
 
-Counter=gui:new("WindowT");
+Counter=gui:new("WindowT", "Counter");
 TestGUI:AddChild(Counter);
 
 Counter.count=0;
@@ -151,7 +151,7 @@ function Counter:OnMouseButtonDown()
 end
 
 
-FPS=gui:new("WindowT");
+FPS=gui:new("WindowT", "FPS");
 TestGUI:AddChild(FPS);
 
 FPS.oldTime=FPS:get("time");

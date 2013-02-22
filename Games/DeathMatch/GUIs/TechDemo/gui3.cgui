@@ -1,4 +1,4 @@
-EmgTunnelBeachGUI=gui:new("WindowT");
+EmgTunnelBeachGUI=gui:new("WindowT", "EmgTunnelBeachGUI");
 gui:SetRootWindow(EmgTunnelBeachGUI);
 
 function EmgTunnelBeachGUI:OnInit()
@@ -14,7 +14,7 @@ function EmgTunnelBeachGUI:OnInit()
 end
 
 
-Heading=gui:new("WindowT");
+Heading=gui:new("WindowT", "Heading");
 EmgTunnelBeachGUI:AddChild(Heading);
 
 function Heading:OnInit()
@@ -31,7 +31,7 @@ function Heading:OnInit()
 end
 
 
-TunnelLocation=gui:new("WindowT");
+TunnelLocation=gui:new("WindowT", "TunnelLocation");
 EmgTunnelBeachGUI:AddChild(TunnelLocation);
 
 function TunnelLocation:OnInit()
@@ -47,7 +47,7 @@ function TunnelLocation:OnInit()
 end
 
 
-ThirdMsg=gui:new("WindowT");
+ThirdMsg=gui:new("WindowT", "ThirdMsg");
 EmgTunnelBeachGUI:AddChild(ThirdMsg);
 
 function ThirdMsg:OnInit()
@@ -64,7 +64,7 @@ function ThirdMsg:OnInit()
 end
 
 
-EngineLogo=gui:new("WindowT");
+EngineLogo=gui:new("WindowT", "EngineLogo");
 EmgTunnelBeachGUI:AddChild(EngineLogo);
 
 function EngineLogo:OnInit()

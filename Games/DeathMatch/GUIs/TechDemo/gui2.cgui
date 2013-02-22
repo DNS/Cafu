@@ -1,4 +1,4 @@
-EmgTunnelStorageRoomGUI=gui:new("WindowT");
+EmgTunnelStorageRoomGUI=gui:new("WindowT", "EmgTunnelStorageRoomGUI");
 gui:SetRootWindow(EmgTunnelStorageRoomGUI);
 
 function EmgTunnelStorageRoomGUI:OnInit()
@@ -14,7 +14,7 @@ function EmgTunnelStorageRoomGUI:OnInit()
 end
 
 
-Heading=gui:new("WindowT");
+Heading=gui:new("WindowT", "Heading");
 EmgTunnelStorageRoomGUI:AddChild(Heading);
 
 function Heading:OnInit()
@@ -31,7 +31,7 @@ function Heading:OnInit()
 end
 
 
-TunnelLocation=gui:new("WindowT");
+TunnelLocation=gui:new("WindowT", "TunnelLocation");
 EmgTunnelStorageRoomGUI:AddChild(TunnelLocation);
 
 function TunnelLocation:OnInit()
@@ -47,7 +47,7 @@ function TunnelLocation:OnInit()
 end
 
 
-CallRescueText=gui:new("WindowT");
+CallRescueText=gui:new("WindowT", "CallRescueText");
 EmgTunnelStorageRoomGUI:AddChild(CallRescueText);
 
 function CallRescueText:OnInit()
@@ -63,7 +63,7 @@ function CallRescueText:OnInit()
 end
 
 
-HelpText=gui:new("WindowT");
+HelpText=gui:new("WindowT", "HelpText");
 CallRescueText:AddChild(HelpText);
 
 function HelpText:OnInit()
@@ -77,7 +77,7 @@ function HelpText:OnInit()
 end
 
 
-CallRescueButton=gui:new("WindowT");
+CallRescueButton=gui:new("WindowT", "CallRescueButton");
 EmgTunnelStorageRoomGUI:AddChild(CallRescueButton);
 
 function CallRescueButton:OnInit()

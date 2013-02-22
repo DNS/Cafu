@@ -1,4 +1,4 @@
-Background=gui:new("WindowT");
+Background=gui:new("WindowT", "Background");
 gui:SetRootWindow(Background);
 
 function Background:OnInit()
@@ -19,7 +19,7 @@ function Background:OnKeyPress(Key)
 end
 
 
-ChatInputFrame=gui:new("WindowT");
+ChatInputFrame=gui:new("WindowT", "ChatInputFrame");
 Background:AddChild(ChatInputFrame);
 
 function ChatInputFrame:OnInit()
@@ -93,7 +93,7 @@ function ChatInput:OnKeyPress(Key)
 end
 
 
-ButtonCancel=gui:new("WindowT");
+ButtonCancel=gui:new("WindowT", "ButtonCancel");
 ChatInputFrame:AddChild(ButtonCancel);
 
 function ButtonCancel:OnInit()

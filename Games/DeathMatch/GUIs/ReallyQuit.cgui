@@ -1,4 +1,4 @@
-Background=gui:new("WindowT");
+Background=gui:new("WindowT", "Background");
 gui:SetRootWindow(Background);
 
 function Background:OnInit()
@@ -22,7 +22,7 @@ function Background:OnKeyPress(Key)
 end
 
 
-ReallyQuit=gui:new("WindowT");
+ReallyQuit=gui:new("WindowT", "ReallyQuit");
 Background:AddChild(ReallyQuit);
 
 function ReallyQuit:OnInit()
@@ -39,7 +39,7 @@ function ReallyQuit:OnInit()
 end
 
 
-ButtonYes=gui:new("WindowT");
+ButtonYes=gui:new("WindowT", "ButtonYes");
 ReallyQuit:AddChild(ButtonYes);
 
 function ButtonYes:OnInit()
@@ -94,7 +94,7 @@ function ButtonYes:OnKeyRelease(Key)
 end
 
 
-ButtonNo=gui:new("WindowT");
+ButtonNo=gui:new("WindowT", "ButtonNo");
 ReallyQuit:AddChild(ButtonNo);
 
 function ButtonNo:OnInit()

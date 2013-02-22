@@ -1,4 +1,4 @@
-Background=gui:new("WindowT");
+Background=gui:new("WindowT", "Background");
 gui:SetRootWindow(Background);
 
 function Background:OnInit()
@@ -19,7 +19,7 @@ function Background:OnKeyPress(Key)
 end
 
 
-ConsoleFrame=gui:new("WindowT");
+ConsoleFrame=gui:new("WindowT", "ConsoleFrame");
 Background:AddChild(ConsoleFrame);
 
 function ConsoleFrame:OnInit()
@@ -31,7 +31,7 @@ function ConsoleFrame:OnInit()
 end
 
 
-ConsoleOutput=gui:new("WindowT");
+ConsoleOutput=gui:new("WindowT", "ConsoleOutput");
 ConsoleFrame:AddChild(ConsoleOutput);
 
 -- The Cafu engine searches for a window named "ConsoleOutput" for directing its
@@ -141,7 +141,7 @@ function ConsoleInput:OnKeyPress(Key)
 end
 
 
-ButtonClear=gui:new("WindowT");
+ButtonClear=gui:new("WindowT", "ButtonClear");
 ConsoleFrame:AddChild(ButtonClear);
 
 function ButtonClear:OnInit()
@@ -177,7 +177,7 @@ function ButtonClear:OnMouseButtonUp(ButtonNr)
 end
 
 
-ButtonClose=gui:new("WindowT");
+ButtonClose=gui:new("WindowT", "ButtonClose");
 ConsoleFrame:AddChild(ButtonClose);
 
 function ButtonClose:OnInit()
