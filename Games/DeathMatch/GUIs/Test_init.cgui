@@ -1,0 +1,82 @@
+TestGUI=gui:new("WindowT", "TestGUI");
+gui:SetRootWindow(TestGUI);
+
+function TestGUI:OnInit()
+    self:set("rect", 0, 0, 640, 480);
+    self:set("text", "T.W.Lewis");
+    self:set("textScale", 1.2);
+    self:set("textAlignHor", 0);
+
+    gui:activate(false);
+    gui:setInteractive(true);
+    gui:showMouse(true);
+end
+
+
+SomeImage=gui:new("WindowT", "SomeImage");
+TestGUI:AddChild(SomeImage);
+
+function SomeImage:OnInit()
+    self:set("rect", 30, 130, 200, 200);
+    self:set("backMaterial", "Models/Weapons/9mmAR_v/arm");
+    self:set("backColor", 1, 1, 1, 1);
+end
+
+
+ButtonToggleHor=gui:new("WindowT", "ButtonToggleHor");
+TestGUI:AddChild(ButtonToggleHor);
+
+function ButtonToggleHor:OnInit()
+    self:set("rect", 10, 380, 140, 80);
+    self:set("borderWidth", 5);
+    self:set("text", "Toggle hor.\nalignment");
+    self:set("textScale", 0.5);
+end
+
+
+ButtonToggleVer=gui:new("WindowT", "ButtonToggleVer");
+TestGUI:AddChild(ButtonToggleVer);
+
+function ButtonToggleVer:OnInit()
+    self:set("rect", 170, 380, 140, 80);
+    self:set("borderWidth", 5);
+    self:set("text", "Toggle ver.\nalignment");
+    self:set("textScale", 0.5);
+end
+
+
+ButtonQuit=gui:new("WindowT", "ButtonQuit");
+TestGUI:AddChild(ButtonQuit);
+
+function ButtonQuit:OnInit()
+    self:set("rect", 400, 380, 160, 80);
+    self:set("text", "Quit");
+    self:set("textScale", 1.0);
+    self:set("borderWidth", 10.0);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
+    self:set("font", "Fonts/Impact");
+end
+
+
+Counter=gui:new("WindowT", "Counter");
+TestGUI:AddChild(Counter);
+
+function Counter:OnInit()
+    self:set("rect", 400, 20, 120, 100);
+    self:set("borderWidth", 5);
+    self:set("text", "Counter\n" .. self.count);
+    self:set("textScale", 0.6);
+end
+
+
+FPS=gui:new("WindowT", "FPS");
+TestGUI:AddChild(FPS);
+
+function FPS:OnInit()
+    self:set("rect", 400, 150, 220, 160);
+    self:set("borderWidth", 5);
+    self:set("text", "FPS\n");
+    self:set("textScale", 0.8);
+    self:set("font", "Fonts/Impact");
+end

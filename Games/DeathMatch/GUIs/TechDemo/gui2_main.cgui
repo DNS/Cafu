@@ -1,0 +1,43 @@
+dofile("Games/DeathMatch/GUIs/TechDemo/gui2_init.cgui");
+
+
+function CallRescueButton:OnMouseEnter()
+    self:interpolate("backColor.r", 0.5, 1.0, 500);
+    self:interpolate("textScale", 0.6, 0.7, 500);
+end
+
+function CallRescueButton:OnMouseLeave()
+    self:interpolate("backColor.r", 1.0, 0.5, 500);
+    self:interpolate("textScale", 0.7, 0.6, 500);
+end
+
+function CallRescueButton:OnMouseButtonDown()
+    EmgTunnelStorageRoomGUI:interpolate("backColor.g", 0.25*0.4, 0.70*0.4, 500);
+    EmgTunnelStorageRoomGUI:interpolate("backColor.b", 0.70*0.4, 0.25*0.4, 500);
+
+    Heading:set("borderColor", 0.7, 0.9, 0.8, 1.0);
+    Heading:set("textColor", 0.51, 1.0, 0.8, 1.0);
+    TunnelLocation:set("borderColor", 0.7, 0.9, 0.8, 1.0);
+    TunnelLocation:set("textColor", 0.51, 1.0, 0.8, 1.0);
+
+    self:set("text", "OK");
+    self:interpolate("rotAngle", 0, 360, 500);
+    self:interpolate("backColor.r", 1, 0, 500);
+    self:interpolate("backColor.g", 0, 0.8, 500);
+
+    CallRescueText:set("text", "Opening connection to\nSAR center...");
+    CallRescueText:set("textAlignHor", 2);
+    CallRescueText:set("borderColor", 0.7, 0.9, 0.8, 1.0);
+    CallRescueText:set("textColor", 0.51, 1.0, 0.8, 1.0);
+
+    HelpText:set("textColor", 0.0, 0.7*0.4, 0.25*0.4, 0.0);
+    HelpText:interpolate("textColor.r", 0, 0, 3000);
+    HelpText:interpolate("textColor.r", 0, 1, 50);
+    HelpText:set("text", "ERROR: Invalid socket handle at port 7.");
+
+    Entity:RunMapCommand("OnGui_CallRescueButtonPressed();");
+
+    gui:setInteractive(false);
+    gui:showMouse(false);
+    return true;
+end

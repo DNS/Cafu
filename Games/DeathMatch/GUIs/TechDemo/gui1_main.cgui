@@ -1,0 +1,45 @@
+dofile("Games/DeathMatch/GUIs/TechDemo/gui1_init.cgui");
+
+
+function EngineLogo:OnFrame()
+    self:set("rotAngle", self:get("time")*50);
+end
+
+
+
+BottomLine.PageNr=2;    -- Reset to 1 in OnInit() by call to OnMouseButtonDown().
+BottomLine.String1="Click here for next page.  >>|";
+BottomLine.String2="|<<  Click here for previous page.";
+
+function BottomLine:OnInit2()
+    -- Initialize for page 1.
+    self:OnMouseButtonDown();
+end
+
+function BottomLine:OnMouseEnter()
+    self:interpolate("textColor.b", 0.0, 0.8, 500);
+    -- self:interpolate("textScale", 0.3, 0.4, 500);
+end
+
+function BottomLine:OnMouseLeave()
+    self:interpolate("textColor.b", 0.8, 0.0, 500);
+    -- self:interpolate("textScale", 0.4, 0.3, 500);
+end
+
+function BottomLine:OnMouseButtonDown()
+    if (self.PageNr==1) then self.PageNr=2; else self.PageNr=1; end
+
+    -- if (self.PageNr==1) then
+        Heading1:set("show", self.PageNr==1);
+        TextArea1:set("show", self.PageNr==1);
+
+        Heading2:set("show", self.PageNr==2);
+        TextArea2:set("show", self.PageNr==2);
+
+        if (self.PageNr==1) then BottomLine:set("text", BottomLine.String1); else BottomLine:set("text", BottomLine.String2); end
+        BottomLine:set("textAlignHor", 2-self.PageNr);
+    -- else
+
+    -- end
+    return true;
+end
