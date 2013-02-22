@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../GuiDocument.hpp"
 #include "../Commands/ModifyWindow.hpp"
 
+#include "GuiSys/CompBase.hpp"
 #include "GuiSys/WindowEdit.hpp"
 #include "GuiSys/WindowCreateParams.hpp"
 
@@ -156,21 +157,41 @@ bool EditorEditWindowT::WriteInitMethod(std::ostream& OutFile)
     cf::GuiSys::WindowCreateParamsT Params(*m_GuiDoc->GetGui());
     cf::GuiSys::EditWindowT         Default(Params);
 
-    if (m_EditWindow->GetTextCursorType()!=Default.GetTextCursorType())
-        OutFile << "    self:SetTextCursorType(\"" << m_EditWindow->GetTextCursorType() << "\");\n";
+    if (ConvertToComponent())
+    {
+        const std::string TypeName = "TextEdit";
 
-    if (m_EditWindow->GetTextCursorRate()!=Default.GetTextCursorRate())
-        OutFile << "    self:SetTextCursorRate(" << m_EditWindow->GetTextCursorRate() << ");\n";
+        if (m_EditWindow->GetComponent(TypeName) == NULL)
+        {
+            OutFile << "    -- Convert window attributes to '" << TypeName << "' component:\n";
+            OutFile << "    local Comp" << TypeName << " = gui:new(\"Component" << TypeName << "T\")\n";
 
-    if (m_EditWindow->GetTextCursorColor()[0]!=Default.GetTextCursorColor()[0] ||
-        m_EditWindow->GetTextCursorColor()[1]!=Default.GetTextCursorColor()[1] ||
-        m_EditWindow->GetTextCursorColor()[2]!=Default.GetTextCursorColor()[2] ||
-        m_EditWindow->GetTextCursorColor()[3]!=Default.GetTextCursorColor()[3])
-        OutFile << "    self:SetTextCursorColor("
-                << m_EditWindow->GetTextCursorColor()[0] << ", "
-                << m_EditWindow->GetTextCursorColor()[1] << ", "
-                << m_EditWindow->GetTextCursorColor()[2] << ", "
-                << m_EditWindow->GetTextCursorColor()[3] << ");\n";
+            OutFile << "    Comp" << TypeName << ":set('CursorType', " << m_EditWindow->GetTextCursorType() << ")\n";
+            OutFile << "    Comp" << TypeName << ":set('CursorRate', " << m_EditWindow->GetTextCursorRate() << ")\n";
+            OutFile << "    Comp" << TypeName << ":set('CursorColor', " << m_EditWindow->GetTextCursorColor()[0] << ", " << m_EditWindow->GetTextCursorColor()[1] << ", " << m_EditWindow->GetTextCursorColor()[2] << ")\n";
+            OutFile << "    Comp" << TypeName << ":set('CursorAlpha', " << m_EditWindow->GetTextCursorColor()[3] << ")\n";
+
+            OutFile << "    self:AddComponent(Comp" << TypeName << ")\n\n";
+        }
+    }
+    else
+    {
+        if (m_EditWindow->GetTextCursorType()!=Default.GetTextCursorType())
+            OutFile << "    self:SetTextCursorType(\"" << m_EditWindow->GetTextCursorType() << "\");\n";
+
+        if (m_EditWindow->GetTextCursorRate()!=Default.GetTextCursorRate())
+            OutFile << "    self:SetTextCursorRate(" << m_EditWindow->GetTextCursorRate() << ");\n";
+
+        if (m_EditWindow->GetTextCursorColor()[0]!=Default.GetTextCursorColor()[0] ||
+            m_EditWindow->GetTextCursorColor()[1]!=Default.GetTextCursorColor()[1] ||
+            m_EditWindow->GetTextCursorColor()[2]!=Default.GetTextCursorColor()[2] ||
+            m_EditWindow->GetTextCursorColor()[3]!=Default.GetTextCursorColor()[3])
+            OutFile << "    self:SetTextCursorColor("
+                    << m_EditWindow->GetTextCursorColor()[0] << ", "
+                    << m_EditWindow->GetTextCursorColor()[1] << ", "
+                    << m_EditWindow->GetTextCursorColor()[2] << ", "
+                    << m_EditWindow->GetTextCursorColor()[3] << ");\n";
+    }
 
     return true;
 }

@@ -29,6 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../../MaterialBrowser/MaterialBrowserDialog.hpp"
 
 #include "Fonts/FontTT.hpp"
+#include "GuiSys/CompBase.hpp"
 #include "GuiSys/GuiImpl.hpp"
 #include "GuiSys/GuiResources.hpp"
 #include "GuiSys/WindowCreateParams.hpp"
@@ -390,30 +391,58 @@ bool EditorWindowT::WriteInitMethod(std::ostream& OutFile)
     if (m_Win->BorderColor[0]!=Default.BorderColor[0] || m_Win->BorderColor[1]!=Default.BorderColor[1] || m_Win->BorderColor[2]!=Default.BorderColor[2] || m_Win->BorderColor[3]!=Default.BorderColor[3])
         OutFile << "    self:set(\"borderColor\", " << m_Win->BorderColor[0] << ", " << m_Win->BorderColor[1] << ", " << m_Win->BorderColor[2] << ", " << m_Win->BorderColor[3] << ");\n";
 
-    if (m_Win->Font->GetName()!=Default.Font->GetName())
-        OutFile << "    self:set(\"font\", \"" << m_Win->Font->GetName() << "\");\n";
 
-    if (m_Win->Text!=Default.Text)
+    const std::string cn = m_Win->GetType()->ClassName;
+
+    if (ConvertToComponent() && (cn == "EditWindowT" || cn == "ChoiceT" || cn == "ListBoxT"))   // At this time, restrict conversion to subclasses, add `|| m_Win->Text != ""` later.
     {
-        // Replace line breaks with \n and " with \".
-        wxString FormattedText=m_Win->Text;
-        FormattedText.Replace("\n", "\\n");
-        FormattedText.Replace("\"", "\\\"");
+        const std::string TypeName = "Text";
+        const int Map[] = { -1, 1, 0 };
 
-        OutFile << "    self:set(\"text\", \"" << FormattedText << "\");\n";
+        if (m_Win->GetComponent(TypeName) == NULL)
+        {
+            OutFile << "    -- Convert window attributes to '" << TypeName << "' component:\n";
+            OutFile << "    local Comp" << TypeName << " = gui:new(\"Component" << TypeName << "T\")\n";
+
+            OutFile << "    Comp" << TypeName << ":set('Name', '" << m_Win->Font->GetName() << "')\n";
+            OutFile << "    Comp" << TypeName << ":set('Text', [[" << m_Win->Text << "]])\n";
+            OutFile << "    Comp" << TypeName << ":set('Scale', " << m_Win->TextScale << ")\n";
+         // OutFile << "    Comp" << TypeName << ":set('Padding', " << ...values... << ")\n";
+            OutFile << "    Comp" << TypeName << ":set('Color', " << m_Win->TextColor[0] << ", " << m_Win->TextColor[1] << ", " << m_Win->TextColor[2] << ")\n";
+            OutFile << "    Comp" << TypeName << ":set('Alpha', " << m_Win->TextColor[3] << ")\n";
+            OutFile << "    Comp" << TypeName << ":set('hor. Align', " << Map[m_Win->TextAlignHor] << ")\n";
+            OutFile << "    Comp" << TypeName << ":set('ver. Align', " << Map[m_Win->TextAlignVer] << ")\n";
+
+            OutFile << "    self:AddComponent(Comp" << TypeName << ")\n\n";
+        }
     }
+    else
+    {
+        if (m_Win->Font->GetName()!=Default.Font->GetName())
+            OutFile << "    self:set(\"font\", \"" << m_Win->Font->GetName() << "\");\n";
 
-    if (m_Win->TextScale!=Default.TextScale)
-        OutFile << "    self:set(\"textScale\", " << m_Win->TextScale << ");\n";
+        if (m_Win->Text!=Default.Text)
+        {
+            // Replace line breaks with \n and " with \".
+            wxString FormattedText=m_Win->Text;
+            FormattedText.Replace("\n", "\\n");
+            FormattedText.Replace("\"", "\\\"");
 
-    if (m_Win->TextColor[0]!=Default.TextColor[0] || m_Win->TextColor[1]!=Default.TextColor[1] || m_Win->TextColor[2]!=Default.TextColor[2] || m_Win->TextColor[3]!=Default.TextColor[3])
-        OutFile << "    self:set(\"textColor\", " << m_Win->TextColor[0] << ", " << m_Win->TextColor[1] << ", " << m_Win->TextColor[2] << ", " << m_Win->TextColor[3] << ");\n";
+            OutFile << "    self:set(\"text\", \"" << FormattedText << "\");\n";
+        }
 
-    if (m_Win->TextAlignHor!=Default.TextAlignHor)
-        OutFile << "    self:set(\"textAlignHor\", " << m_Win->TextAlignHor << ");\n";
+        if (m_Win->TextScale!=Default.TextScale)
+            OutFile << "    self:set(\"textScale\", " << m_Win->TextScale << ");\n";
 
-    if (m_Win->TextAlignVer!=Default.TextAlignVer)
-        OutFile << "    self:set(\"textAlignVer\", " << m_Win->TextAlignVer << ");\n";
+        if (m_Win->TextColor[0]!=Default.TextColor[0] || m_Win->TextColor[1]!=Default.TextColor[1] || m_Win->TextColor[2]!=Default.TextColor[2] || m_Win->TextColor[3]!=Default.TextColor[3])
+            OutFile << "    self:set(\"textColor\", " << m_Win->TextColor[0] << ", " << m_Win->TextColor[1] << ", " << m_Win->TextColor[2] << ", " << m_Win->TextColor[3] << ");\n";
+
+        if (m_Win->TextAlignHor!=Default.TextAlignHor)
+            OutFile << "    self:set(\"textAlignHor\", " << m_Win->TextAlignHor << ");\n";
+
+        if (m_Win->TextAlignVer!=Default.TextAlignVer)
+            OutFile << "    self:set(\"textAlignVer\", " << m_Win->TextAlignVer << ");\n";
+    }
 
     return true;
 }

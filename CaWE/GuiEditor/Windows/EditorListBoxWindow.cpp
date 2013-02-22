@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../GuiDocument.hpp"
 #include "../Commands/ModifyWindow.hpp"
 
+#include "GuiSys/CompBase.hpp"
 #include "GuiSys/WindowListBox.hpp"
 #include "GuiSys/WindowCreateParams.hpp"
 
@@ -227,6 +228,11 @@ namespace
         if (Col[0]!=DefCol[0] || Col[1]!=DefCol[1] || Col[2]!=DefCol[2] || Col[3]!=DefCol[3])
             OutFile << "    " << func << "(" << Col[0] << ", " << Col[1] << ", " << Col[2] << ", " << Col[3] << ");\n";
     }
+
+    void WriteColors2(std::ostream& OutFile, const char* func, const float* Col)
+    {
+        OutFile << "    CompListBox:set('" << func << "', " << Col[0] << ", " << Col[1] << ", " << Col[2] << ")\n";
+    }
 }
 
 
@@ -238,14 +244,41 @@ bool EditorListBoxWindowT::WriteInitMethod(std::ostream& OutFile)
     cf::GuiSys::WindowCreateParamsT Params(*m_GuiDoc->GetGui());
     cf::GuiSys::ListBoxT            Default(Params);
 
-    if (m_ListBox->GetRowHeight()!=Default.GetRowHeight())
-        OutFile << "    self:SetRowHeight(" << m_ListBox->GetRowHeight() << ");\n";
+    if (ConvertToComponent())
+    {
+        const std::string TypeName = "ListBox";
 
-    WriteColors(OutFile, "self:SetOddRowBgColor",   m_ListBox->GetOddRowBgColor(),        Default.GetOddRowBgColor());
-    WriteColors(OutFile, "self:SetEvenRowBgColor",  m_ListBox->GetEvenRowBgColor(),       Default.GetEvenRowBgColor());
-    WriteColors(OutFile, "self:SetRowTextColor",    m_ListBox->GetRowTextColor(),         Default.GetRowTextColor());
-    WriteColors(OutFile, "self:SetSelRowBgColor",   m_ListBox->GetSelectedRowBgColor(),   Default.GetSelectedRowBgColor());
-    WriteColors(OutFile, "self:SetSelRowTextColor", m_ListBox->GetSelectedRowTextColor(), Default.GetSelectedRowTextColor());
+        if (m_ListBox->GetComponent(TypeName) == NULL)
+        {
+            OutFile << "    -- Convert window attributes to '" << TypeName << "' component:\n";
+            OutFile << "    local Comp" << TypeName << " = gui:new(\"Component" << TypeName << "T\")\n";
+
+            OutFile << "    Comp" << TypeName << ":set('RowHeight', " << m_ListBox->GetRowHeight() << ")  -- At this time, ListBox components do not support this attribute.\n";
+
+            WriteColors2(OutFile, "BgColorOdd",   m_ListBox->GetOddRowBgColor());
+            WriteColors2(OutFile, "BgColorEven",  m_ListBox->GetEvenRowBgColor());
+            WriteColors2(OutFile, "BgColorSel",   m_ListBox->GetSelectedRowBgColor());
+            OutFile << "    Comp" << TypeName << ":set('BgAlpha', " << m_ListBox->GetOddRowBgColor()[3] << ")\n";
+            WriteColors2(OutFile, "TextColorSel", m_ListBox->GetSelectedRowTextColor());
+
+            OutFile << "    self:AddComponent(Comp" << TypeName << ")\n\n";
+
+            // Rely on the base class having added CompText already...
+            OutFile << "    CompText:set('Color', " << m_ListBox->GetRowTextColor()[0] << ", " << m_ListBox->GetRowTextColor()[1] << ", " << m_ListBox->GetRowTextColor()[2] << ")\n";
+            OutFile << "    CompText:set('Alpha', " << m_ListBox->GetRowTextColor()[3] << ")\n";
+        }
+    }
+    else
+    {
+        if (m_ListBox->GetRowHeight()!=Default.GetRowHeight())
+            OutFile << "    self:SetRowHeight(" << m_ListBox->GetRowHeight() << ");\n";
+
+        WriteColors(OutFile, "self:SetOddRowBgColor",   m_ListBox->GetOddRowBgColor(),        Default.GetOddRowBgColor());
+        WriteColors(OutFile, "self:SetEvenRowBgColor",  m_ListBox->GetEvenRowBgColor(),       Default.GetEvenRowBgColor());
+        WriteColors(OutFile, "self:SetRowTextColor",    m_ListBox->GetRowTextColor(),         Default.GetRowTextColor());
+        WriteColors(OutFile, "self:SetSelRowBgColor",   m_ListBox->GetSelectedRowBgColor(),   Default.GetSelectedRowBgColor());
+        WriteColors(OutFile, "self:SetSelRowTextColor", m_ListBox->GetSelectedRowTextColor(), Default.GetSelectedRowTextColor());
+    }
 
     return true;
 }

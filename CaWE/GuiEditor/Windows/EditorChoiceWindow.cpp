@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../Commands/ModifyWindow.hpp"
 #include "../Commands/SetWinProp.hpp"
 
+#include "GuiSys/CompBase.hpp"
 #include "GuiSys/WindowChoice.hpp"
 #include "GuiSys/WindowCreateParams.hpp"
 
@@ -127,11 +128,36 @@ bool EditorChoiceWindowT::WriteInitMethod(std::ostream& OutFile)
     cf::GuiSys::WindowCreateParamsT Params(*m_GuiDoc->GetGui());
     cf::GuiSys::ChoiceT             Default(Params);
 
-    for (unsigned long ChoiceNr=0; ChoiceNr<m_Choice->GetChoices().Size(); ChoiceNr++)
-        OutFile << "    self:Append(\"" << m_Choice->GetChoices()[ChoiceNr] << "\");\n";
+    if (ConvertToComponent())
+    {
+        const std::string TypeName = "Choice";
 
-    if (m_Choice->GetSelectedChoice()!=Default.GetSelectedChoice())
-        OutFile << "    self:SetSelection(" << m_Choice->GetSelectedChoice() << ");\n";
+        if (m_Choice->GetComponent(TypeName) == NULL)
+        {
+            OutFile << "    -- Convert window attributes to '" << TypeName << "' component:\n";
+            OutFile << "    local Comp" << TypeName << " = gui:new(\"Component" << TypeName << "T\")\n";
+
+            OutFile << "    Comp" << TypeName << ":set('Choices', { ";
+            for (unsigned long ChoiceNr=0; ChoiceNr<m_Choice->GetChoices().Size(); ChoiceNr++)
+            {
+                OutFile << "'" << m_Choice->GetChoices()[ChoiceNr] << "'";
+                if (ChoiceNr+1 < m_Choice->GetChoices().Size()) OutFile << ", ";
+            }
+            OutFile << " })\n";
+
+            OutFile << "    Comp" << TypeName << ":set('Selection', " << m_Choice->GetSelectedChoice() << ")\n";
+
+            OutFile << "    self:AddComponent(Comp" << TypeName << ")\n\n";
+        }
+    }
+    else
+    {
+        for (unsigned long ChoiceNr=0; ChoiceNr<m_Choice->GetChoices().Size(); ChoiceNr++)
+            OutFile << "    self:Append(\"" << m_Choice->GetChoices()[ChoiceNr] << "\");\n";
+
+        if (m_Choice->GetSelectedChoice()!=Default.GetSelectedChoice())
+            OutFile << "    self:SetSelection(" << m_Choice->GetSelectedChoice() << ");\n";
+    }
 
     return true;
 }

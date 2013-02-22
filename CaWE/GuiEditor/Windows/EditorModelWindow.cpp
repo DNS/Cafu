@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../GuiDocument.hpp"
 #include "../Commands/ModifyWindow.hpp"
 
+#include "GuiSys/CompBase.hpp"
 #include "GuiSys/WindowModel.hpp"
 #include "GuiSys/WindowCreateParams.hpp"
 #include "Models/Model_cmdl.hpp"
@@ -181,23 +182,48 @@ bool EditorModelWindowT::WriteInitMethod(std::ostream& OutFile)
     cf::GuiSys::WindowCreateParamsT Params(*m_GuiDoc->GetGui());
     cf::GuiSys::ModelWindowT        Default(Params);
 
-    if (m_ModelWindow->GetModel()->GetFileName()!=Default.GetModel()->GetFileName())
-        OutFile << "    self:SetModel(\"" << m_ModelWindow->GetModel()->GetFileName() << "\");\n";
+    if (ConvertToComponent())
+    {
+        const std::string TypeName = "Model";
 
-    if (m_ModelWindow->GetModelSequNr()!=Default.GetModelSequNr())
-        OutFile << "    self:SetModelSequNr(" << m_ModelWindow->GetModelSequNr() << ");\n";
+        if (m_ModelWindow->GetComponent(TypeName) == NULL)
+        {
+            OutFile << "    -- Convert window attributes to '" << TypeName << "' component:\n";
+            OutFile << "    local Comp" << TypeName << " = gui:new(\"Component" << TypeName << "T\")\n";
 
-    if (m_ModelWindow->GetModelPos()!=Default.GetModelPos())
-        OutFile << "    self:SetModelPos(" << m_ModelWindow->GetModelPos().x << ", " << m_ModelWindow->GetModelPos().y << ", " << m_ModelWindow->GetModelPos().z << ");\n";
+            OutFile << "    Comp" << TypeName << ":set('Name', '" << m_ModelWindow->GetModel()->GetFileName() << "')\n";
+            OutFile << "    Comp" << TypeName << ":set('Animation', " << m_ModelWindow->GetModelSequNr() << ")\n";
+            OutFile << "    Comp" << TypeName << ":set('Skin', " << -1 << ")\n";
+            OutFile << "    Comp" << TypeName << ":set('Pos', " << m_ModelWindow->GetModelPos().x << ", " << m_ModelWindow->GetModelPos().y << ", " << m_ModelWindow->GetModelPos().z << ")\n";
+            OutFile << "    Comp" << TypeName << ":set('Scale', " << m_ModelWindow->GetModelScale() << ")\n";
+            OutFile << "    Comp" << TypeName << ":set('Angles', " << m_ModelWindow->GetModelAngles().x << ", " << m_ModelWindow->GetModelAngles().y << ", " << m_ModelWindow->GetModelAngles().z << ")\n";
+            OutFile << "    Comp" << TypeName << ":set('CameraPos', " << m_ModelWindow->GetCameraPos().x << ", " << m_ModelWindow->GetCameraPos().y << ", " << m_ModelWindow->GetCameraPos().z << ")\n";
 
-    if (m_ModelWindow->GetModelScale()!=Default.GetModelScale())
-        OutFile << "    self:SetModelScale(" << m_ModelWindow->GetModelScale() << ");\n";
+         // OutFile << "    Comp" << TypeName << ":set('...variable...', " << ...values... << ")\n";
 
-    if (m_ModelWindow->GetModelAngles()!=Default.GetModelAngles())
-        OutFile << "    self:SetModelAngles(" << m_ModelWindow->GetModelAngles().x << ", " << m_ModelWindow->GetModelAngles().y << ", " << m_ModelWindow->GetModelAngles().z << ");\n";
+            OutFile << "    self:AddComponent(Comp" << TypeName << ")\n\n";
+        }
+    }
+    else
+    {
+        if (m_ModelWindow->GetModel()->GetFileName()!=Default.GetModel()->GetFileName())
+            OutFile << "    self:SetModel(\"" << m_ModelWindow->GetModel()->GetFileName() << "\");\n";
 
-    if (m_ModelWindow->GetCameraPos()!=Default.GetCameraPos())
-        OutFile << "    self:SetCameraPos(" << m_ModelWindow->GetCameraPos().x << ", " << m_ModelWindow->GetCameraPos().y << ", " << m_ModelWindow->GetCameraPos().z << ");\n";
+        if (m_ModelWindow->GetModelSequNr()!=Default.GetModelSequNr())
+            OutFile << "    self:SetModelSequNr(" << m_ModelWindow->GetModelSequNr() << ");\n";
+
+        if (m_ModelWindow->GetModelPos()!=Default.GetModelPos())
+            OutFile << "    self:SetModelPos(" << m_ModelWindow->GetModelPos().x << ", " << m_ModelWindow->GetModelPos().y << ", " << m_ModelWindow->GetModelPos().z << ");\n";
+
+        if (m_ModelWindow->GetModelScale()!=Default.GetModelScale())
+            OutFile << "    self:SetModelScale(" << m_ModelWindow->GetModelScale() << ");\n";
+
+        if (m_ModelWindow->GetModelAngles()!=Default.GetModelAngles())
+            OutFile << "    self:SetModelAngles(" << m_ModelWindow->GetModelAngles().x << ", " << m_ModelWindow->GetModelAngles().y << ", " << m_ModelWindow->GetModelAngles().z << ");\n";
+
+        if (m_ModelWindow->GetCameraPos()!=Default.GetCameraPos())
+            OutFile << "    self:SetCameraPos(" << m_ModelWindow->GetCameraPos().x << ", " << m_ModelWindow->GetCameraPos().y << ", " << m_ModelWindow->GetCameraPos().z << ");\n";
+    }
 
     return true;
 }

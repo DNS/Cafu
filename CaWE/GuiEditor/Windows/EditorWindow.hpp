@@ -82,6 +82,9 @@ namespace GuiEditor
         /// This is used to render GUI editor specific things like e.g. selection state.
         virtual void Render() const;
 
+        /// Convert instances of this window class to the component-system?
+        virtual bool ConvertToComponent() const { return true; }
+
 
         protected:
 
