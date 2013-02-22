@@ -1,57 +1,77 @@
+-- This is a Cafu engine GUI script file, written by CaWE, the Cafu World Editor.
+-- You CAN edit this file manually, but note that CaWE may overwrite your changes.
+-- It is recommended that you place all your customizations like method overrides
+-- and effects into a separate .cgui file that calls dofile() for including this.
+
+
+-- Instantiation of all windows.
+-- *****************************
+
 Background=gui:new("WindowT", "Background");
+
+ChatInputFrame=gui:new("WindowT", "ChatInputFrame");
+ChatInputFrame.ChatInput=gui:new("EditWindowT", "ChatInput");
+ChatInputFrame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
+
+
+-- Set the GUIs root window.
+-- *************************
+
 gui:SetRootWindow(Background);
+
+
+-- Setup the window hierarchy.
+-- ***************************
+
+Background:AddChild(ChatInputFrame);
+ChatInputFrame:AddChild(ChatInputFrame.ChatInput);
+ChatInputFrame:AddChild(ChatInputFrame.ButtonCancel);
+
+
+-- Initialization of the window contents ("constructor code").
+-- ***********************************************************
 
 function Background:OnInit()
     self:set("rect", 0, 100, 640, 50);
-    self:set("backColor", 0.0, 0.0, 0.0, 0.7);
+    self:set("backColor", 0, 0, 0, 0.7);
 
-    gui:activate(false);
-    gui:setFocus(ChatInput);
+    gui:activate      (false);
+    gui:setInteractive(true);
+    gui:showMouse     (true);
+    gui:setFocus      (ChatInputFrame.ChatInput);
 end
-
-
-ChatInputFrame=gui:new("WindowT", "ChatInputFrame");
-Background:AddChild(ChatInputFrame);
 
 function ChatInputFrame:OnInit()
     self:set("rect", 5, 5, 630, 40);
-    self:set("backColor", 0.0, 0.25, 0.7, 0.4);
+    self:set("backColor", 0, 0.25, 0.7, 0.4);
     self:set("borderWidth", 0.7);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
     self:set("text", " Say:");
     self:set("textScale", 0.25);
-    self:set("textColor", 0.02, 0.36, 1.0, 1.0);
+    self:set("textColor", 0.02, 0.36, 1, 1);
     self:set("textAlignVer", 2);
 end
 
-
-ChatInput=gui:new("EditWindowT", "ChatInput");
-ChatInputFrame:AddChild(ChatInput);
-ChatInput:SetTextCursorColor(0.02, 0.36, 1.0, 1.0);
-
-function ChatInput:OnInit()
+function ChatInputFrame.ChatInput:OnInit()
     self:set("rect", 30, 10, 520, 20);
-    self:set("backColor", 0.0, 0.0, 0.0, 0.0);
+    self:set("backColor", 0, 0, 0, 0);
     self:set("borderWidth", 0.5);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
-    self:set("text", "");
-    self:set("textColor", 0.51, 0.8, 1.0, 1.0);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
     self:set("textScale", 0.25);
+    self:set("textColor", 0.51, 0.8, 1, 1);
     self:set("textAlignVer", 2);
+    self:SetTextCursorColor(0.02, 0.36, 1, 1);
 end
 
-
-ButtonCancel=gui:new("WindowT", "ButtonCancel");
-ChatInputFrame:AddChild(ButtonCancel);
-
-function ButtonCancel:OnInit()
+function ChatInputFrame.ButtonCancel:OnInit()
     self:set("rect", 560, 10, 60, 20);
-    self:set("backColor", 0.0, 0.25, 0.7, 0.5);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
     self:set("borderWidth", 0.5);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
     self:set("text", "Cancel");
-    self:set("textColor", 0.02, 0.36, 1.0, 1.0);
     self:set("textScale", 0.25);
+    self:set("textColor", 0.02, 0.36, 1, 1);
     self:set("textAlignHor", 2);
     self:set("textAlignVer", 2);
 end
+

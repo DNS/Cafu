@@ -16,17 +16,17 @@ end
 
 
 
-function ButtonYes:OnMouseEnter()
+function ReallyQuit.ButtonYes:OnMouseEnter()
     self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
     self:interpolate("textScale", 0.4, 0.45, 500);
 end
 
-function ButtonYes:OnMouseLeave()
+function ReallyQuit.ButtonYes:OnMouseLeave()
     self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
     self:interpolate("textScale", 0.45, 0.4, 500);
 end
 
-function ButtonYes:OnMouseButtonDown()
+function ReallyQuit.ButtonYes:OnMouseButtonDown()
     -- Add a nice shutdown effect.
     Background:interpolate("backColor.a", 0.7, 1.0, 700);
     ReallyQuit:interpolate("rotAngle", 0, 70, 700);
@@ -39,14 +39,14 @@ function ButtonYes:OnMouseButtonDown()
     return true;
 end
 
-function ButtonYes:OnFrame()
+function ReallyQuit.ButtonYes:OnFrame()
     if (ReallyQuit:get("pos.y")>=595) then
         -- Work around the limitation above (we have not yet   onTime xy   functions as Doom3 has).
         ci.RunCommand("quit=true;");
     end
 end
 
-function ButtonYes:OnKeyRelease(Key)
+function ReallyQuit.ButtonYes:OnKeyRelease(Key)
     if (Key==28 or Key==156) then   -- RETURN on the main keyboard or the numpad.
         self:OnMouseButtonDown(0);
         return true;                -- Return true to indicate that we processed this key press.
@@ -57,17 +57,17 @@ end
 
 
 
-function ButtonNo:OnMouseEnter()
+function ReallyQuit.ButtonNo:OnMouseEnter()
     self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
     self:interpolate("textScale", 0.4, 0.45, 500);
 end
 
-function ButtonNo:OnMouseLeave()
+function ReallyQuit.ButtonNo:OnMouseLeave()
     self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
     self:interpolate("textScale", 0.45, 0.4, 500);
 end
 
-function ButtonNo:OnMouseButtonDown()
+function ReallyQuit.ButtonNo:OnMouseButtonDown()
     -- Close this GUI.
     gui:close();    -- same as  gui:activate(false);
     return true;

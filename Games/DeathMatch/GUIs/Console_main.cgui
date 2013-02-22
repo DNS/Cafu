@@ -17,7 +17,7 @@ commandHistory.Size=0;
 commandHistory.Pos =0;
 
 
-function ConsoleInput:OnKeyPress(Key)
+function ConsoleFrame.ConsoleInput:OnKeyPress(Key)
     Command=self:get("text");
 
     if (Key==15) then   -- TAB (tabulator key).
@@ -49,13 +49,13 @@ function ConsoleInput:OnKeyPress(Key)
         if (not ci.RunCommand(Command)) then
             -- Running the command failed for some reason.
             -- Now flash the border color for a moment, just for fun.  :-)
-            local r, g, b, a=ConsoleOutput:get("borderColor");
+            local r, g, b, a=ConsoleFrame.ConsoleOutput:get("borderColor");
 
-            ConsoleOutput:interpolate("borderColor.r", 1, r, 800);
-            ConsoleOutput:interpolate("borderColor.g", 0, g, 800);
-            ConsoleOutput:interpolate("borderColor.b", 0, b, 800);
-            ConsoleOutput:interpolate("borderColor.a", 1, a, 800);
-         -- ConsoleOutput:interpolate("backColor.a",   1, 0, 800);
+            ConsoleFrame.ConsoleOutput:interpolate("borderColor.r", 1, r, 800);
+            ConsoleFrame.ConsoleOutput:interpolate("borderColor.g", 0, g, 800);
+            ConsoleFrame.ConsoleOutput:interpolate("borderColor.b", 0, b, 800);
+            ConsoleFrame.ConsoleOutput:interpolate("borderColor.a", 1, a, 800);
+         -- ConsoleFrame.ConsoleOutput:interpolate("backColor.a",   1, 0, 800);
         end
 
         -- Add the command to the command history (unless it is empty).
@@ -92,20 +92,20 @@ end
 
 
 
-function ButtonClear:OnMouseEnter()
+function ConsoleFrame.ButtonClear:OnMouseEnter()
     self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
     self:interpolate("textScale", 0.2, 0.25, 500);
 end
 
-function ButtonClear:OnMouseLeave()
+function ConsoleFrame.ButtonClear:OnMouseLeave()
     self:set("borderColor", 0.82, 0.49, 0.17, 1.0);
     self:interpolate("textScale", 0.25, 0.2, 500);
 end
 
-function ButtonClear:OnMouseButtonUp(ButtonNr)
+function ConsoleFrame.ButtonClear:OnMouseButtonUp(ButtonNr)
     if (ButtonNr==0) then
-        ConsoleOutput:set("text", "");
-        gui:setFocus(ConsoleInput);
+        ConsoleFrame.ConsoleOutput:set("text", "");
+        gui:setFocus(ConsoleFrame.ConsoleInput);
         return true;
     end
 
@@ -114,17 +114,17 @@ end
 
 
 
-function ButtonClose:OnMouseEnter()
+function ConsoleFrame.ButtonClose:OnMouseEnter()
     self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
     self:interpolate("textScale", 0.2, 0.25, 500);
 end
 
-function ButtonClose:OnMouseLeave()
+function ConsoleFrame.ButtonClose:OnMouseLeave()
     self:set("borderColor", 0.82, 0.49, 0.17, 1.0);
     self:interpolate("textScale", 0.25, 0.2, 500);
 end
 
-function ButtonClose:OnMouseButtonUp(ButtonNr)
+function ConsoleFrame.ButtonClose:OnMouseButtonUp(ButtonNr)
     if (ButtonNr==0) then
         -- Close this GUI.
         gui:close();    -- same as  gui:activate(false);

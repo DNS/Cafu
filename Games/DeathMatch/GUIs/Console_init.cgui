@@ -1,87 +1,99 @@
+-- This is a Cafu engine GUI script file, written by CaWE, the Cafu World Editor.
+-- You CAN edit this file manually, but note that CaWE may overwrite your changes.
+-- It is recommended that you place all your customizations like method overrides
+-- and effects into a separate .cgui file that calls dofile() for including this.
+
+
+-- Instantiation of all windows.
+-- *****************************
+
 Background=gui:new("WindowT", "Background");
+
+ConsoleFrame=gui:new("WindowT", "ConsoleFrame");
+ConsoleFrame.ConsoleOutput=gui:new("WindowT", "ConsoleOutput");
+ConsoleFrame.ConsoleInput=gui:new("EditWindowT", "ConsoleInput");
+ConsoleFrame.ButtonClear=gui:new("WindowT", "ButtonClear");
+ConsoleFrame.ButtonClose=gui:new("WindowT", "ButtonClose");
+
+
+-- Set the GUIs root window.
+-- *************************
+
 gui:SetRootWindow(Background);
+
+
+-- Setup the window hierarchy.
+-- ***************************
+
+Background:AddChild(ConsoleFrame);
+ConsoleFrame:AddChild(ConsoleFrame.ConsoleOutput);
+ConsoleFrame:AddChild(ConsoleFrame.ConsoleInput);
+ConsoleFrame:AddChild(ConsoleFrame.ButtonClear);
+ConsoleFrame:AddChild(ConsoleFrame.ButtonClose);
+
+
+-- Initialization of the window contents ("constructor code").
+-- ***********************************************************
 
 function Background:OnInit()
     self:set("rect", 0, 0, 640, 480);
-    self:set("backColor", 0.0, 0.0, 0.0, 0.85);
+    self:set("backColor", 0, 0, 0, 0.85);
 
-    gui:activate(false);
-    gui:setFocus(ConsoleInput);
+    gui:activate      (false);
+    gui:setInteractive(true);
+    gui:showMouse     (true);
+    gui:setFocus      (ConsoleFrame.ConsoleInput);
 end
-
-
-ConsoleFrame=gui:new("WindowT", "ConsoleFrame");
-Background:AddChild(ConsoleFrame);
 
 function ConsoleFrame:OnInit()
     self:set("rect", 20, 20, 600, 440);
     self:set("backColor", 0.82, 0.49, 0.17, 0.2);
     self:set("borderWidth", 0.7);
-    self:set("borderColor", 0.82, 0.49, 0.17, 1.0);
-    self:set("text", "");
+    self:set("borderColor", 0.82, 0.49, 0.17, 1);
 end
 
-
-ConsoleOutput=gui:new("WindowT", "ConsoleOutput");
-ConsoleFrame:AddChild(ConsoleOutput);
-
--- The Cafu engine searches for a window named "ConsoleOutput" for directing its
--- console output to, so we explicitly have to set the name of this window here.
-ConsoleOutput:SetName("ConsoleOutput");
-
-function ConsoleOutput:OnInit()
+function ConsoleFrame.ConsoleOutput:OnInit()
     self:set("rect", 10, 10, 580, 390);
-    self:set("backColor", 0.0, 0.0, 0.0, 0.0);
+    self:set("backColor", 0, 0, 0, 0);
     self:set("borderWidth", 0.5);
-    self:set("borderColor", 0.82, 0.49, 0.17, 1.0);
-    self:set("textColor", 0.82, 0.49, 0.17, 1.0);
+    self:set("borderColor", 0.82, 0.49, 0.17, 1);
     self:set("textScale", 0.2);
+    self:set("textColor", 0.82, 0.49, 0.17, 1);
     self:set("textAlignVer", 1);
 end
 
-
-ConsoleInput=gui:new("EditWindowT", "ConsoleInput");
-ConsoleFrame:AddChild(ConsoleInput);
-ConsoleInput:SetTextCursorColor(0.02, 0.36, 1.0, 1.0);
-
-function ConsoleInput:OnInit()
+function ConsoleFrame.ConsoleInput:OnInit()
     self:set("rect", 10, 410, 400, 20);
-    self:set("backColor", 0.0, 0.0, 0.0, 0.0);
+    self:set("backColor", 0, 0, 0, 0);
     self:set("borderWidth", 0.5);
-    self:set("borderColor", 0.82, 0.49, 0.17, 1.0);
-    self:set("textColor", 0.82, 0.49, 0.17, 1.0);
+    self:set("borderColor", 0.82, 0.49, 0.17, 1);
     self:set("textScale", 0.2);
+    self:set("textColor", 0.82, 0.49, 0.17, 1);
     self:set("textAlignVer", 2);
+    self:SetTextCursorColor(0.02, 0.36, 1, 1);
 end
 
-
-ButtonClear=gui:new("WindowT", "ButtonClear");
-ConsoleFrame:AddChild(ButtonClear);
-
-function ButtonClear:OnInit()
+function ConsoleFrame.ButtonClear:OnInit()
     self:set("rect", 420, 410, 80, 20);
-    self:set("backColor", 0.0, 0.0, 0.0, 0.0);
+    self:set("backColor", 0, 0, 0, 0);
     self:set("borderWidth", 0.5);
-    self:set("borderColor", 0.82, 0.49, 0.17, 1.0);
+    self:set("borderColor", 0.82, 0.49, 0.17, 1);
     self:set("text", "Clear");
-    self:set("textColor", 0.82, 0.49, 0.17, 1.0);
     self:set("textScale", 0.2);
+    self:set("textColor", 0.82, 0.49, 0.17, 1);
     self:set("textAlignHor", 2);
     self:set("textAlignVer", 2);
 end
 
-
-ButtonClose=gui:new("WindowT", "ButtonClose");
-ConsoleFrame:AddChild(ButtonClose);
-
-function ButtonClose:OnInit()
+function ConsoleFrame.ButtonClose:OnInit()
     self:set("rect", 510, 410, 80, 20);
-    self:set("backColor", 0.0, 0.0, 0.0, 0.0);
+    self:set("backColor", 0, 0, 0, 0);
     self:set("borderWidth", 0.5);
-    self:set("borderColor", 0.82, 0.49, 0.17, 1.0);
+    self:set("borderColor", 0.82, 0.49, 0.17, 1);
     self:set("text", "Close");
-    self:set("textColor", 0.82, 0.49, 0.17, 1.0);
     self:set("textScale", 0.2);
+    self:set("textColor", 0.82, 0.49, 0.17, 1);
     self:set("textAlignHor", 2);
     self:set("textAlignVer", 2);
 end
+

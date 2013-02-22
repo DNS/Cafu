@@ -12,7 +12,7 @@ end
 
 
 
-function ChatInput:OnKeyPress(Key)
+function ChatInputFrame.ChatInput:OnKeyPress(Key)
     Command=self:get("text");
 
     if (Key==1) then   -- ESC.
@@ -57,17 +57,17 @@ end
 
 
 
-function ButtonCancel:OnMouseEnter()
+function ChatInputFrame.ButtonCancel:OnMouseEnter()
     self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
     self:interpolate("textScale", 0.25, 0.3, 500);
 end
 
-function ButtonCancel:OnMouseLeave()
+function ChatInputFrame.ButtonCancel:OnMouseLeave()
     self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
     self:interpolate("textScale", 0.3, 0.25, 500);
 end
 
-function ButtonCancel:OnMouseButtonUp()
+function ChatInputFrame.ButtonCancel:OnMouseButtonUp()
     -- Close this GUI.
     gui:close();    -- same as  gui:activate(false);
     return true;

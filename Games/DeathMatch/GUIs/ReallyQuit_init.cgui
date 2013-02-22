@@ -1,58 +1,80 @@
+-- This is a Cafu engine GUI script file, written by CaWE, the Cafu World Editor.
+-- You CAN edit this file manually, but note that CaWE may overwrite your changes.
+-- It is recommended that you place all your customizations like method overrides
+-- and effects into a separate .cgui file that calls dofile() for including this.
+
+
+-- Instantiation of all windows.
+-- *****************************
+
 Background=gui:new("WindowT", "Background");
+
+ReallyQuit=gui:new("WindowT", "ReallyQuit");
+ReallyQuit.ButtonYes=gui:new("WindowT", "ButtonYes");
+ReallyQuit.ButtonNo=gui:new("WindowT", "ButtonNo");
+
+
+-- Set the GUIs root window.
+-- *************************
+
 gui:SetRootWindow(Background);
+
+
+-- Setup the window hierarchy.
+-- ***************************
+
+Background:AddChild(ReallyQuit);
+ReallyQuit:AddChild(ReallyQuit.ButtonYes);
+ReallyQuit:AddChild(ReallyQuit.ButtonNo);
+
+
+-- Initialization of the window contents ("constructor code").
+-- ***********************************************************
 
 function Background:OnInit()
     self:set("rect", 0, 0, 640, 480);
-    self:set("backColor", 0.0, 0.0, 0.0, 0.7);
+    self:set("backColor", 0, 0, 0, 0.7);
 
-    gui:setFocus(ButtonYes);
+    gui:activate      (true);
+    gui:setInteractive(true);
+    gui:showMouse     (true);
+    gui:setFocus      (ReallyQuit.ButtonYes);
 end
-
-
-ReallyQuit=gui:new("WindowT", "ReallyQuit");
-Background:AddChild(ReallyQuit);
 
 function ReallyQuit:OnInit()
     self:set("rect", 120, 90, 400, 300);
-    self:set("backColor", 0.0, 0.25, 0.7, 0.4);
+    self:set("backColor", 0, 0.25, 0.7, 0.4);
     self:set("borderWidth", 0.7);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
-    self:set("text", "Really Quit?");
-    self:set("textColor", 0.51, 0.8, 1.0, 1.0);
-    self:set("textScale", 0.7);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
     self:set("font", "Fonts/Impact");
+    self:set("text", "Really Quit?");
+    self:set("textScale", 0.7);
+    self:set("textColor", 0.51, 0.8, 1, 1);
+    self:set("textAlignHor", 2);
+    self:set("textAlignVer", 2);
 end
 
-
-ButtonYes=gui:new("WindowT", "ButtonYes");
-ReallyQuit:AddChild(ButtonYes);
-
-function ButtonYes:OnInit()
+function ReallyQuit.ButtonYes:OnInit()
     self:set("rect", 53, 250, 120, 40);
-    self:set("backColor", 0.0, 0.25, 0.7, 0.5);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
     self:set("borderWidth", 0.5);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
     self:set("text", "Yes (OK)");
-    self:set("textColor", 0.02, 0.36, 1.0, 1.0);
     self:set("textScale", 0.4);
+    self:set("textColor", 0.02, 0.36, 1, 1);
     self:set("textAlignHor", 2);
     self:set("textAlignVer", 2);
 end
 
-
-ButtonNo=gui:new("WindowT", "ButtonNo");
-ReallyQuit:AddChild(ButtonNo);
-
-function ButtonNo:OnInit()
+function ReallyQuit.ButtonNo:OnInit()
     self:set("rect", 227, 250, 120, 40);
-    self:set("backColor", 0.0, 0.25, 0.7, 0.5);
+    self:set("backColor", 0, 0.25, 0.7, 0.5);
     self:set("borderWidth", 0.5);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
     self:set("text", "No (Cancel)");
-    self:set("textColor", 0.02, 0.36, 1.0, 1.0);
     self:set("textScale", 0.4);
+    self:set("textColor", 0.02, 0.36, 1, 1);
     self:set("textAlignHor", 2);
     self:set("textAlignVer", 2);
 end
+

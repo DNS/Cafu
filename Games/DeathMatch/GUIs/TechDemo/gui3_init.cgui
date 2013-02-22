@@ -1,74 +1,94 @@
+-- This is a Cafu engine GUI script file, written by CaWE, the Cafu World Editor.
+-- You CAN edit this file manually, but note that CaWE may overwrite your changes.
+-- It is recommended that you place all your customizations like method overrides
+-- and effects into a separate .cgui file that calls dofile() for including this.
+
+
+-- Instantiation of all windows.
+-- *****************************
+
 EmgTunnelBeachGUI=gui:new("WindowT", "EmgTunnelBeachGUI");
+
+Heading=gui:new("WindowT", "Heading");
+
+TunnelLocation=gui:new("WindowT", "TunnelLocation");
+
+ThirdMsg=gui:new("WindowT", "ThirdMsg");
+
+EngineLogo=gui:new("WindowT", "EngineLogo");
+
+
+-- Set the GUIs root window.
+-- *************************
+
 gui:SetRootWindow(EmgTunnelBeachGUI);
+
+
+-- Setup the window hierarchy.
+-- ***************************
+
+EmgTunnelBeachGUI:AddChild(Heading);
+
+EmgTunnelBeachGUI:AddChild(TunnelLocation);
+
+EmgTunnelBeachGUI:AddChild(ThirdMsg);
+
+EmgTunnelBeachGUI:AddChild(EngineLogo);
+
+
+-- Initialization of the window contents ("constructor code").
+-- ***********************************************************
 
 function EmgTunnelBeachGUI:OnInit()
     self:set("rect", 0, 0, 640, 480);
- -- self:set("backColor", 0, 0, 0.3, 1);
-    self:set("backColor", 0.0, 0.25, 0.7, 1*0.4);
-    -- self:set("text", "Emergency beacon has been activated.");
-    -- self:set("textScale", 1.0);
+    self:set("backColor", 0, 0.25, 0.7, 0.4);
 
-    gui:activate(false);
+    gui:activate      (false);
     gui:setInteractive(false);
-    gui:showMouse(false);
+    gui:showMouse     (false);
 end
-
-
-Heading=gui:new("WindowT", "Heading");
-EmgTunnelBeachGUI:AddChild(Heading);
 
 function Heading:OnInit()
     self:set("rect", 50, 30, 540, 120);
-    self:set("backColor", 1, 1, 1, 0);      -- Set alpha value to zero!
-    self:set("borderWidth", 5.0);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:set("backColor", 1, 1, 1, 0);
+    self:set("borderWidth", 5);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("font", "Fonts/Impact");
     self:set("text", "Evacuation Tunnel\n\"November 2\"");
-    self:set("textColor", 0.51, 0.8, 1.0, 1.0);
     self:set("textScale", 0.7);
+    self:set("textColor", 0.51, 0.8, 1, 1);
     self:set("textAlignHor", 2);
     self:set("textAlignVer", 2);
-    self:set("font", "Fonts/Impact");
 end
-
-
-TunnelLocation=gui:new("WindowT", "TunnelLocation");
-EmgTunnelBeachGUI:AddChild(TunnelLocation);
 
 function TunnelLocation:OnInit()
     self:set("rect", 50, 180, 540, 120);
-    self:set("backColor", 1, 1, 1, 0);      -- Set alpha value to zero!
-    self:set("borderWidth", 5.0);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
-    self:set("text", "Checkpoint: Beach\n"..">>>> Escape Route >>>>\n");
-    self:set("textColor", 0.51, 0.8, 1.0, 1.0);
+    self:set("backColor", 1, 1, 1, 0);
+    self:set("borderWidth", 5);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("text", "Checkpoint: Beach\n>>>> Escape Route >>>>\n");
     self:set("textScale", 0.6);
+    self:set("textColor", 0.51, 0.8, 1, 1);
     self:set("textAlignHor", 2);
     self:set("textAlignVer", 2);
 end
-
-
-ThirdMsg=gui:new("WindowT", "ThirdMsg");
-EmgTunnelBeachGUI:AddChild(ThirdMsg);
 
 function ThirdMsg:OnInit()
     self:set("rect", 50, 330, 390, 120);
-    self:set("backColor", 1, 1, 1, 0);      -- Set alpha value to zero!
-    self:set("borderWidth", 5.0);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+    self:set("backColor", 1, 1, 1, 0);
+    self:set("borderWidth", 5);
+    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:set("font", "Fonts/Impact");
     self:set("text", "Alertion Level:\nINCERFA");
-    self:set("textColor", 1, 0, 0, 1.0);
     self:set("textScale", 0.6);
+    self:set("textColor", 1, 0, 0, 1);
     self:set("textAlignHor", 2);
     self:set("textAlignVer", 2);
-    self:set("font", "Fonts/Impact");
 end
-
-
-EngineLogo=gui:new("WindowT", "EngineLogo");
-EmgTunnelBeachGUI:AddChild(EngineLogo);
 
 function EngineLogo:OnInit()
     self:set("rect", 470, 358, 128, 64);
     self:set("backMaterial", "Gui/SmallLogo");
     self:set("backColor", 1, 1, 1, 1);
 end
+

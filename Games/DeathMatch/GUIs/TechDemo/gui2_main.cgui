@@ -30,10 +30,10 @@ function CallRescueButton:OnMouseButtonDown()
     CallRescueText:set("borderColor", 0.7, 0.9, 0.8, 1.0);
     CallRescueText:set("textColor", 0.51, 1.0, 0.8, 1.0);
 
-    HelpText:set("textColor", 0.0, 0.7*0.4, 0.25*0.4, 0.0);
-    HelpText:interpolate("textColor.r", 0, 0, 3000);
-    HelpText:interpolate("textColor.r", 0, 1, 50);
-    HelpText:set("text", "ERROR: Invalid socket handle at port 7.");
+    CallRescueText.HelpText:set("textColor", 0.0, 0.7*0.4, 0.25*0.4, 0.0);
+    CallRescueText.HelpText:interpolate("textColor.r", 0, 0, 3000);
+    CallRescueText.HelpText:interpolate("textColor.r", 0, 1, 50);
+    CallRescueText.HelpText:set("text", "ERROR: Invalid socket handle at port 7.");
 
     Entity:RunMapCommand("OnGui_CallRescueButtonPressed();");
 
