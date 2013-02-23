@@ -235,7 +235,24 @@ static void SaveRootInitialization(std::ostream& OutFile, IntrusivePtrT<cf::GuiS
     OutFile << "    gui:showMouse     (" << (GuiProps.ShowMouse   ? "true" : "false") << ");\n";
 
     if (GuiProps.DefaultFocus!="")
-        OutFile << "    gui:setFocus      (" <<  GuiProps.DefaultFocus << ");\n";
+    {
+        IntrusivePtrT<cf::GuiSys::WindowT> FocusWin = Root->Find(std::string(GuiProps.DefaultFocus));
+
+        if (FocusWin != NULL)
+        {
+            std::string FocusName = FocusWin->GetName();
+
+            while (true)
+            {
+                FocusWin = FocusWin->GetParent();
+                if (FocusWin == NULL) break;
+                if (FocusWin == Root) break;    // This is because the child windows of Root are created top-level in the script, i.e. "ChildName" instead of "RootName.ChildName".
+                FocusName = FocusWin->GetName() + "." + FocusName;
+            }
+
+            OutFile << "    gui:setFocus      (" <<  FocusName << ");\n";
+        }
+    }
 
     OutFile << "end\n\n";
 }
