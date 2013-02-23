@@ -71,10 +71,13 @@ namespace cf
             TypeSys::VarT< ArrayT<std::string> > m_Items;       ///< The list of available items.
             TypeSys::VarT<unsigned int>          m_Selection;   ///< The currently selected item (use any number beyond the last item for "none").
             TypeSys::VarT<Vector3fT>             m_BgColorOdd;  ///< The background color for odd rows.
+            TypeSys::VarT<float>                 m_BgAlphaOdd;  ///< The background alpha for odd rows.
             TypeSys::VarT<Vector3fT>             m_BgColorEven; ///< The background color for even rows.
+            TypeSys::VarT<float>                 m_BgAlphaEven; ///< The background alpha for even rows.
             TypeSys::VarT<Vector3fT>             m_BgColorSel;  ///< The background color for selected rows.
-            TypeSys::VarT<float>                 m_BgAlpha;     ///< The alpha component of the row background colors (both odd, even and selected).
+            TypeSys::VarT<float>                 m_BgAlphaSel;  ///< The background alpha for selected rows.
             TypeSys::VarT<Vector3fT>             m_TextColorSel;///< The foreground color for selected rows.
+            TypeSys::VarT<float>                 m_TextAlphaSel;///< The foreground alpha for selected rows.
         };
     }
 }

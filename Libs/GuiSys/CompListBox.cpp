@@ -76,18 +76,24 @@ ComponentListBoxT::ComponentListBoxT()
       m_Items("Items", ArrayT<std::string>()),
       m_Selection("Selection", 0),
       m_BgColorOdd("BgColorOdd", Vector3fT(0.0f, 0.396078f, 0.792157f), FlagsIsColor),
+      m_BgAlphaOdd("BgAlphaOdd", 0.9f),
       m_BgColorEven("BgColorEven", Vector3fT(0.0f, 0.5f, 1.0f), FlagsIsColor),
+      m_BgAlphaEven("BgAlphaEven", 0.9f),
       m_BgColorSel("BgColorSel", Vector3fT(1.0f, 1.0f, 0.756863f), FlagsIsColor),
-      m_BgAlpha("BgAlpha", 0.9f),
-      m_TextColorSel("TextColorSel", Vector3fT(0.5f, 0.0f, 0.0f), FlagsIsColor)
+      m_BgAlphaSel("BgAlphaSel", 1.0f),
+      m_TextColorSel("TextColorSel", Vector3fT(0.5f, 0.0f, 0.0f), FlagsIsColor),
+      m_TextAlphaSel("TextAlphaSel", 1.0f)
 {
     GetMemberVars().Add(&m_Items);
     GetMemberVars().Add(&m_Selection);
     GetMemberVars().Add(&m_BgColorOdd);
+    GetMemberVars().Add(&m_BgAlphaOdd);
     GetMemberVars().Add(&m_BgColorEven);
+    GetMemberVars().Add(&m_BgAlphaEven);
     GetMemberVars().Add(&m_BgColorSel);
-    GetMemberVars().Add(&m_BgAlpha);
+    GetMemberVars().Add(&m_BgAlphaSel);
     GetMemberVars().Add(&m_TextColorSel);
+    GetMemberVars().Add(&m_TextAlphaSel);
 }
 
 
@@ -97,18 +103,24 @@ ComponentListBoxT::ComponentListBoxT(const ComponentListBoxT& Comp)
       m_Items(Comp.m_Items),
       m_Selection(Comp.m_Selection),
       m_BgColorOdd(Comp.m_BgColorOdd),
+      m_BgAlphaOdd(Comp.m_BgAlphaOdd),
       m_BgColorEven(Comp.m_BgColorEven),
+      m_BgAlphaEven(Comp.m_BgAlphaEven),
       m_BgColorSel(Comp.m_BgColorSel),
-      m_BgAlpha(Comp.m_BgAlpha),
-      m_TextColorSel(Comp.m_TextColorSel)
+      m_BgAlphaSel(Comp.m_BgAlphaSel),
+      m_TextColorSel(Comp.m_TextColorSel),
+      m_TextAlphaSel(Comp.m_TextAlphaSel)
 {
     GetMemberVars().Add(&m_Items);
     GetMemberVars().Add(&m_Selection);
     GetMemberVars().Add(&m_BgColorOdd);
+    GetMemberVars().Add(&m_BgAlphaOdd);
     GetMemberVars().Add(&m_BgColorEven);
+    GetMemberVars().Add(&m_BgAlphaEven);
     GetMemberVars().Add(&m_BgColorSel);
-    GetMemberVars().Add(&m_BgAlpha);
+    GetMemberVars().Add(&m_BgAlphaSel);
     GetMemberVars().Add(&m_TextColorSel);
+    GetMemberVars().Add(&m_TextAlphaSel);
 }
 
 
@@ -158,10 +170,10 @@ void ComponentListBoxT::Render() const
     TextCol |= (unsigned int)(m_TextComp->m_Color.Get()[2] * 255.0f) << 0;
 
     unsigned int TextSel = 0;
-    TextSel |= (unsigned int)(m_TextComp->m_Alpha.Get() * 255.0f) << 24;
-    TextSel |= (unsigned int)(m_TextColorSel.Get()[0]   * 255.0f) << 16;
-    TextSel |= (unsigned int)(m_TextColorSel.Get()[1]   * 255.0f) << 8;
-    TextSel |= (unsigned int)(m_TextColorSel.Get()[2]   * 255.0f) << 0;
+    TextSel |= (unsigned int)(m_TextAlphaSel.Get()    * 255.0f) << 24;
+    TextSel |= (unsigned int)(m_TextColorSel.Get()[0] * 255.0f) << 16;
+    TextSel |= (unsigned int)(m_TextColorSel.Get()[1] * 255.0f) << 8;
+    TextSel |= (unsigned int)(m_TextColorSel.Get()[2] * 255.0f) << 0;
 
     const float LineSpacing = Font->GetLineSpacing(Scale);
 
@@ -194,14 +206,16 @@ void ComponentListBoxT::Render() const
                 {
                     for (unsigned int i = 0; i < 3; i++)
                         Mesh.Vertices[VertexNr].Color[i] = m_BgColorSel.Get()[i];
+
+                    Mesh.Vertices[VertexNr].Color[3] = m_BgAlphaSel.Get();
                 }
                 else
                 {
                     for (unsigned int i = 0; i < 3; i++)
                         Mesh.Vertices[VertexNr].Color[i] = (ItemNr % 2) == 0 ? m_BgColorOdd.Get()[i] : m_BgColorEven.Get()[i];
-                }
 
-                Mesh.Vertices[VertexNr].Color[3] = m_BgAlpha.Get();
+                    Mesh.Vertices[VertexNr].Color[3] = (ItemNr % 2) == 0 ? m_BgAlphaOdd.Get() : m_BgAlphaEven.Get();
+                }
             }
 
             Mesh.Vertices[0].SetOrigin(x1, yTop); Mesh.Vertices[0].SetTextureCoord(0.0f, 0.0f);

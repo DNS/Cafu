@@ -256,10 +256,13 @@ bool EditorListBoxWindowT::WriteInitMethod(std::ostream& OutFile)
             OutFile << "    Comp" << TypeName << ":set('RowHeight', " << m_ListBox->GetRowHeight() << ")  -- At this time, ListBox components do not support this attribute.\n";
 
             WriteColors2(OutFile, "BgColorOdd",   m_ListBox->GetOddRowBgColor());
+            OutFile << "    Comp" << TypeName << ":set('BgAlphaOdd', " << m_ListBox->GetOddRowBgColor()[3] << ")\n";
             WriteColors2(OutFile, "BgColorEven",  m_ListBox->GetEvenRowBgColor());
+            OutFile << "    Comp" << TypeName << ":set('BgAlphaEven', " << m_ListBox->GetEvenRowBgColor()[3] << ")\n";
             WriteColors2(OutFile, "BgColorSel",   m_ListBox->GetSelectedRowBgColor());
-            OutFile << "    Comp" << TypeName << ":set('BgAlpha', " << m_ListBox->GetOddRowBgColor()[3] << ")\n";
+            OutFile << "    Comp" << TypeName << ":set('BgAlphaSel', " << m_ListBox->GetSelectedRowBgColor()[3] << ")\n";
             WriteColors2(OutFile, "TextColorSel", m_ListBox->GetSelectedRowTextColor());
+            OutFile << "    Comp" << TypeName << ":set('TextAlphaSel', " << m_ListBox->GetSelectedRowTextColor()[3] << ")\n";
 
             OutFile << "    self:AddComponent(Comp" << TypeName << ")\n\n";
 
