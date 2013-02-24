@@ -74,7 +74,7 @@ ComponentListBoxT::ComponentListBoxT()
     : ComponentBaseT(),
       m_TextComp(NULL),
       m_Items("Items", ArrayT<std::string>()),
-      m_Selection("Selection", 0),
+      m_Selection("Selection", 1),  // 0 is "no selection", 1 is the first item.
       m_BgColorOdd("BgColorOdd", Vector3fT(0.0f, 0.396078f, 0.792157f), FlagsIsColor),
       m_BgAlphaOdd("BgAlphaOdd", 0.9f),
       m_BgColorEven("BgColorEven", Vector3fT(0.0f, 0.5f, 1.0f), FlagsIsColor),
@@ -202,7 +202,8 @@ void ComponentListBoxT::Render() const
 
             for (unsigned int VertexNr = 0; VertexNr < Mesh.Vertices.Size(); VertexNr++)
             {
-                if (ItemNr == m_Selection.Get())
+                // Note that the range of m_Selection is 1 ... Size, not 0 ... Size-1.
+                if (ItemNr+1 == m_Selection.Get())
                 {
                     for (unsigned int i = 0; i < 3; i++)
                         Mesh.Vertices[VertexNr].Color[i] = m_BgColorSel.Get()[i];
@@ -245,7 +246,7 @@ void ComponentListBoxT::Render() const
             case ComponentTextT::VarTextAlignHorT::RIGHT:  AlignX = x2 - x1 - Font->GetWidth(Item, Scale) - PaddingX; break;
         }
 
-        Font->Print(x1 + AlignX, LineOffsetY, Scale, ItemNr == m_Selection.Get() ? TextSel : TextCol, "%s", Item.c_str());
+        Font->Print(x1 + AlignX, LineOffsetY, Scale, ItemNr+1 == m_Selection.Get() ? TextSel : TextCol, "%s", Item.c_str());
 
         LineOffsetY += LineSpacing;
     }
@@ -258,6 +259,7 @@ bool ComponentListBoxT::OnInputEvent(const CaKeyboardEventT& KE)
     if (m_Items.Get().Size() == 0) return false;
     if (KE.Type != CaKeyboardEventT::CKE_KEYDOWN) return false;
 
+    // Note that the range of Sel is 1 ... Size, not 0 ... Size-1.
     const unsigned int Num = m_Items.Get().Size();
     const unsigned int Sel = m_Selection.Get();
 
@@ -266,7 +268,7 @@ bool ComponentListBoxT::OnInputEvent(const CaKeyboardEventT& KE)
         case CaKeyboardEventT::CK_UP:       // UpArrow on arrow keypad.
         case CaKeyboardEventT::CK_LEFT:     // LeftArrow on arrow keypad.
             // Select the previous item.
-            if (Sel > 0)
+            if (Sel > 1)
             {
                 m_Selection.Set(Sel-1);
                 CallLuaMethod("OnSelectionChanged", "i", m_Selection.Get());
@@ -276,7 +278,7 @@ bool ComponentListBoxT::OnInputEvent(const CaKeyboardEventT& KE)
         case CaKeyboardEventT::CK_DOWN:     // DownArrow on arrow keypad.
         case CaKeyboardEventT::CK_RIGHT:    // RightArrow on arrow keypad.
             // Select the next item.
-            if (Sel+1 < Num)
+            if (Sel < Num)
             {
                 m_Selection.Set(Sel+1);
                 CallLuaMethod("OnSelectionChanged", "i", m_Selection.Get());
@@ -286,9 +288,9 @@ bool ComponentListBoxT::OnInputEvent(const CaKeyboardEventT& KE)
         case CaKeyboardEventT::CK_HOME:     // Home on arrow keypad.
         case CaKeyboardEventT::CK_PGUP:     // PgUp on arrow keypad.
             // Move the selection to the first item.
-            if (Sel != 0)
+            if (Sel != 1)
             {
-                m_Selection.Set(0);
+                m_Selection.Set(1);
                 CallLuaMethod("OnSelectionChanged", "i", m_Selection.Get());
             }
             return true;
@@ -296,9 +298,9 @@ bool ComponentListBoxT::OnInputEvent(const CaKeyboardEventT& KE)
         case CaKeyboardEventT::CK_END:      // End on arrow keypad.
         case CaKeyboardEventT::CK_PGDN:     // PgDn on arrow keypad.
             // Move the selection to the last item.
-            if (Sel != Num-1)
+            if (Sel != Num)
             {
-                m_Selection.Set(Num-1);
+                m_Selection.Set(Num);
                 CallLuaMethod("OnSelectionChanged", "i", m_Selection.Get());
             }
             return true;
@@ -339,9 +341,10 @@ bool ComponentListBoxT::OnInputEvent(const CaMouseEventT& ME, float PosX, float 
 
     for (unsigned int ItemNr = 0; ItemNr < m_Items.Get().Size(); ItemNr++)
     {
-        if (ItemNr != m_Selection.Get() && PosX >= x1 && PosX < x2 && PosY >= LineOffsetY && PosY < LineOffsetY + LineSpacing)
+        // Note that the range of m_Selection is 1 ... Size, not 0 ... Size-1.
+        if (ItemNr+1 != m_Selection.Get() && PosX >= x1 && PosX < x2 && PosY >= LineOffsetY && PosY < LineOffsetY + LineSpacing)
         {
-            m_Selection.Set(ItemNr);
+            m_Selection.Set(ItemNr+1);
             CallLuaMethod("OnSelectionChanged", "i", m_Selection.Get());
             return true;
         }
