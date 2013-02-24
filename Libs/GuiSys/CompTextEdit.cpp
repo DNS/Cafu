@@ -67,6 +67,7 @@ void* ComponentTextEditT::CreateInstance(const cf::TypeSys::CreateParamsT& Param
 
 const luaL_reg ComponentTextEditT::MethodsList[] =
 {
+    { "SetText",    ComponentTextEditT::SetText },
     { "__tostring", ComponentTextEditT::toString },
     { NULL, NULL }
 };
@@ -322,6 +323,20 @@ void ComponentTextEditT::OnClockTickEvent(float t)
     {
         m_CursorTime = fmod(m_CursorTime + t, m_CursorRate.Get());
     }
+}
+
+
+int ComponentTextEditT::SetText(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<ComponentTextEditT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentTextEditT> >(1);
+    const char* s = luaL_checkstring(LuaState, 2);
+
+    luaL_argcheck(LuaState, Comp->m_TextComp != NULL, 1, "This component has no Text sibling component associated to it.");
+
+    Comp->m_TextComp->m_Text.Set(s);
+    Comp->m_CursorPos.Set(strlen(s));
+    return 0;
 }
 
 
