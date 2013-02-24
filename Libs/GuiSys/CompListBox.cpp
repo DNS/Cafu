@@ -57,6 +57,7 @@ void* ComponentListBoxT::CreateInstance(const cf::TypeSys::CreateParamsT& Params
 
 const luaL_reg ComponentListBoxT::MethodsList[] =
 {
+    { "GetSelItem", ComponentListBoxT::GetSelItem },
     { "__tostring", ComponentListBoxT::toString },
     { NULL, NULL }
 };
@@ -354,6 +355,20 @@ bool ComponentListBoxT::OnInputEvent(const CaMouseEventT& ME, float PosX, float 
 
     // We didn't handle this event.
     return false;
+}
+
+
+int ComponentListBoxT::GetSelItem(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<ComponentListBoxT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentListBoxT> >(1);
+
+    if (Comp->m_Selection.Get() < 1 || Comp->m_Selection.Get() > Comp->m_Items.Get().Size())
+        lua_pushnil(LuaState);
+    else
+        lua_pushstring(LuaState, Comp->m_Items.Get()[Comp->m_Selection.Get() - 1].c_str());
+
+    return 1;
 }
 
 

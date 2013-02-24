@@ -65,6 +65,7 @@ namespace cf
 
             // The Lua API methods of this class.
             static const luaL_Reg MethodsList[];        ///< The list of Lua methods for this class.
+            static int GetSelItem(lua_State* LuaState); ///< Returns the currently selected item (or nil if no item is selected).
             static int toString(lua_State* LuaState);   ///< Returns a string representation of this object.
 
             IntrusivePtrT<ComponentTextT>        m_TextComp;    ///< The sibling text component from which we take the text settings.
