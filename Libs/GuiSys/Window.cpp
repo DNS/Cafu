@@ -78,6 +78,7 @@ const luaL_reg WindowT::MethodsList[]=
     { "AddComponent",    WindowT::AddComponent },
     { "RemoveComponent", WindowT::RmvComponent },
     { "GetComponents",   WindowT::GetComponents },
+    { "GetComponent",    WindowT::GetComponent },
     { "__tostring",      WindowT::toString },
     { NULL, NULL }
 };
@@ -1121,6 +1122,19 @@ int WindowT::GetComponents(lua_State* LuaState)
         Binder.Push(Win->m_Components[CompNr]);
         lua_rawseti(LuaState, -2, CompNr+1);
     }
+
+    return 1;
+}
+
+
+int WindowT::GetComponent(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<WindowT>        Win  = Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
+    IntrusivePtrT<ComponentBaseT> Comp = Win->GetComponent(luaL_checkstring(LuaState, 2), lua_tointeger(LuaState, 3));
+
+    if (Comp == NULL) lua_pushnil(LuaState);
+                 else Binder.Push(Comp);
 
     return 1;
 }
