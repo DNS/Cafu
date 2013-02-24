@@ -70,7 +70,7 @@ namespace cf
 
             IntrusivePtrT<ComponentTextT>        m_TextComp;    ///< The sibling text component whose value we're updating.
             TypeSys::VarT< ArrayT<std::string> > m_Choices;     ///< The list of available choices.
-            TypeSys::VarT<int>                   m_Selection;   ///< The currently selected choice, or -1 for "none".
+            TypeSys::VarT<unsigned int>          m_Selection;   ///< The index number of the currently selected choice, where 1 corresponds to the first choice (as per Lua convention). Use 0 for "no selection".
         };
     }
 }

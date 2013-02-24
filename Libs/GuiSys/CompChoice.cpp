@@ -55,7 +55,7 @@ ComponentChoiceT::ComponentChoiceT()
     : ComponentBaseT(),
       m_TextComp(NULL),
       m_Choices("Choices", ArrayT<std::string>()),
-      m_Selection("Selection", -1)
+      m_Selection("Selection", 0)   // 0 is "no selection", 1 is the first choice.
 {
     GetMemberVars().Add(&m_Choices);
     GetMemberVars().Add(&m_Selection);
@@ -108,15 +108,16 @@ bool ComponentChoiceT::OnInputEvent(const CaKeyboardEventT& KE)
     if (m_Choices.Get().Size() == 0) return false;
     if (KE.Type != CaKeyboardEventT::CKE_KEYDOWN) return false;
 
-    const int Num = m_Choices.Get().Size();
-    const int Sel = m_Selection.Get();
+    // Note that the range of Sel is 1 ... Size, not 0 ... Size-1.
+    const unsigned int Num = m_Choices.Get().Size();
+    const unsigned int Sel = m_Selection.Get();
 
     switch (KE.Key)
     {
         case CaKeyboardEventT::CK_UP:       // UpArrow on arrow keypad.
         case CaKeyboardEventT::CK_LEFT:     // LeftArrow on arrow keypad.
             // Select the previous choice, wrapping.
-            m_Selection.Set(Sel >= 1 ? Sel-1 : Num-1);
+            m_Selection.Set(Sel > 1 ? Sel-1 : Num);
 
             Sync();
             CallLuaMethod("OnSelectionChanged", "i", m_Selection.Get());
@@ -125,7 +126,7 @@ bool ComponentChoiceT::OnInputEvent(const CaKeyboardEventT& KE)
         case CaKeyboardEventT::CK_DOWN:     // DownArrow on arrow keypad.
         case CaKeyboardEventT::CK_RIGHT:    // RightArrow on arrow keypad.
             // Select the next choice, wrapping.
-            m_Selection.Set(Sel+1 < Num ? Sel+1 : 0);
+            m_Selection.Set(Sel < Num ? Sel+1 : 1);
 
             Sync();
             CallLuaMethod("OnSelectionChanged", "i", m_Selection.Get());
@@ -134,9 +135,9 @@ bool ComponentChoiceT::OnInputEvent(const CaKeyboardEventT& KE)
         case CaKeyboardEventT::CK_HOME:     // Home on arrow keypad.
         case CaKeyboardEventT::CK_PGUP:     // PgUp on arrow keypad.
             // Move the selection to the first choice.
-            if (Sel != 0)
+            if (Sel != 1)
             {
-                m_Selection.Set(0);
+                m_Selection.Set(1);
 
                 Sync();
                 CallLuaMethod("OnSelectionChanged", "i", m_Selection.Get());
@@ -146,9 +147,9 @@ bool ComponentChoiceT::OnInputEvent(const CaKeyboardEventT& KE)
         case CaKeyboardEventT::CK_END:      // End on arrow keypad.
         case CaKeyboardEventT::CK_PGDN:     // PgDn on arrow keypad.
             // Move the selection to the last choice.
-            if (Sel != Num-1)
+            if (Sel != Num)
             {
-                m_Selection.Set(Num-1);
+                m_Selection.Set(Num);
 
                 Sync();
                 CallLuaMethod("OnSelectionChanged", "i", m_Selection.Get());
@@ -169,9 +170,10 @@ bool ComponentChoiceT::OnInputEvent(const CaMouseEventT& ME, float PosX, float P
 
     if (ME.Amount == 0)
     {
-        const int Sel = m_Selection.Get();
+        const unsigned int Sel = m_Selection.Get();
 
-        m_Selection.Set(Sel+1 < int(m_Choices.Get().Size()) ? Sel+1 : 0);
+        // Note that the range of Sel is 1 ... Size, not 0 ... Size-1.
+        m_Selection.Set(Sel < m_Choices.Get().Size() ? Sel+1 : 1);
 
         Sync();
         CallLuaMethod("OnSelectionChanged", "i", m_Selection.Get());
@@ -185,13 +187,14 @@ bool ComponentChoiceT::OnInputEvent(const CaMouseEventT& ME, float PosX, float P
 
 void ComponentChoiceT::Sync()
 {
-    const int Sel = m_Selection.Get();
+    const unsigned int Sel = m_Selection.Get();
 
     if (m_TextComp == NULL) return;
-    if (Sel < 0) return;
-    if (Sel >= int(m_Choices.Get().Size())) return;
+    if (Sel < 1) return;
+    if (Sel > m_Choices.Get().Size()) return;
 
-    m_TextComp->SetText(m_Choices.Get()[Sel]);
+    // Note that the range of Sel is 1 ... Size, not 0 ... Size-1.
+    m_TextComp->SetText(m_Choices.Get()[Sel-1]);
 }
 
 
