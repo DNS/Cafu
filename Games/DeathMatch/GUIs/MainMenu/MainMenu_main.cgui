@@ -1365,6 +1365,12 @@ end
 
 
 
+function CreditsDialog.Frame.CopyrightText:OnInit2()
+    self:set("text", "Copyright © 2002-" .. os.date("%Y") .. " Carsten Fuchs Software.\nhttp://www.cafu.de");
+end
+
+
+
 function CreditsDialog.Frame.ButtonOK:OnMouseEnter()
     self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
     self:interpolate("textScale", 0.4, 0.45, 500);
