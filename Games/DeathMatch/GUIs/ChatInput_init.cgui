@@ -10,7 +10,7 @@
 Background=gui:new("WindowT", "Background");
 
 ChatInputFrame=gui:new("WindowT", "ChatInputFrame");
-ChatInputFrame.ChatInput=gui:new("EditWindowT", "ChatInput");
+ChatInputFrame.ChatInput=gui:new("WindowT", "ChatInput");
 ChatInputFrame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
 
 
@@ -57,10 +57,25 @@ function ChatInputFrame.ChatInput:OnInit()
     self:set("backColor", 0, 0, 0, 0);
     self:set("borderWidth", 0.5);
     self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("textScale", 0.25);
-    self:set("textColor", 0.51, 0.8, 1, 1);
-    self:set("textAlignVer", 2);
-    self:SetTextCursorColor(0.02, 0.36, 1, 1);
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", "")
+    c1:set("Scale", 0.25)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.51, 0.8, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentTextEditT")
+    c2:set("CursorPos", 0)
+    c2:set("CursorType", 0)
+    c2:set("CursorRate", 1)
+    c2:set("CursorColor", 0.02, 0.36, 1)
+    c2:set("CursorAlpha", 1)
+
+    self:AddComponent(c1, c2)
 end
 
 function ChatInputFrame.ButtonCancel:OnInit()

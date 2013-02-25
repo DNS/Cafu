@@ -26,7 +26,7 @@ NormalControls.FPS=gui:new("WindowT", "FPS");
 
 NewGameDialog=gui:new("WindowT", "NewGameDialog");
 NewGameDialog.Frame=gui:new("WindowT", "Frame");
-NewGameDialog.Frame.MapList=gui:new("ListBoxT", "MapList");
+NewGameDialog.Frame.MapList=gui:new("WindowT", "MapList");
 NewGameDialog.Frame.MapPreview=gui:new("WindowT", "MapPreview");
 NewGameDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
 NewGameDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
@@ -46,31 +46,31 @@ OptionsContextMenu.Frame.Audio=gui:new("WindowT", "Audio");
 JoinGameDialog=gui:new("WindowT", "JoinGameDialog");
 JoinGameDialog.Frame=gui:new("WindowT", "Frame");
 JoinGameDialog.Frame.PlayerNameText=gui:new("WindowT", "PlayerNameText");
-JoinGameDialog.Frame.PlayerNameEdit=gui:new("EditWindowT", "PlayerNameEdit");
+JoinGameDialog.Frame.PlayerNameEdit=gui:new("WindowT", "PlayerNameEdit");
 JoinGameDialog.Frame.ModelNameText=gui:new("WindowT", "ModelNameText");
-JoinGameDialog.Frame.ModelNameChoice=gui:new("ChoiceT", "ModelNameChoice");
+JoinGameDialog.Frame.ModelNameChoice=gui:new("WindowT", "ModelNameChoice");
 JoinGameDialog.Frame.RemoteHostText=gui:new("WindowT", "RemoteHostText");
-JoinGameDialog.Frame.RemoteHostEdit=gui:new("EditWindowT", "RemoteHostEdit");
+JoinGameDialog.Frame.RemoteHostEdit=gui:new("WindowT", "RemoteHostEdit");
 JoinGameDialog.Frame.RemotePortText=gui:new("WindowT", "RemotePortText");
-JoinGameDialog.Frame.RemotePortEdit=gui:new("EditWindowT", "RemotePortEdit");
-JoinGameDialog.Frame.ModelPreview=gui:new("ModelWindowT", "ModelPreview");
+JoinGameDialog.Frame.RemotePortEdit=gui:new("WindowT", "RemotePortEdit");
+JoinGameDialog.Frame.ModelPreview=gui:new("WindowT", "ModelPreview");
 JoinGameDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
 JoinGameDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
 
 HostGameDialog=gui:new("WindowT", "HostGameDialog");
 HostGameDialog.Frame=gui:new("WindowT", "Frame");
 HostGameDialog.Frame.WorldNameText=gui:new("WindowT", "WorldNameText");
-HostGameDialog.Frame.WorldNameChoice=gui:new("ChoiceT", "WorldNameChoice");
+HostGameDialog.Frame.WorldNameChoice=gui:new("WindowT", "WorldNameChoice");
 HostGameDialog.Frame.LocalSvPortText=gui:new("WindowT", "LocalSvPortText");
-HostGameDialog.Frame.LocalSvPortEdit=gui:new("EditWindowT", "LocalSvPortEdit");
+HostGameDialog.Frame.LocalSvPortEdit=gui:new("WindowT", "LocalSvPortEdit");
 HostGameDialog.Frame.ListenSvText=gui:new("WindowT", "ListenSvText");
-HostGameDialog.Frame.ListenSvChoice=gui:new("ChoiceT", "ListenSvChoice");
+HostGameDialog.Frame.ListenSvChoice=gui:new("WindowT", "ListenSvChoice");
 HostGameDialog.Frame.PlayerNameText=gui:new("WindowT", "PlayerNameText");
-HostGameDialog.Frame.PlayerNameEdit=gui:new("EditWindowT", "PlayerNameEdit");
+HostGameDialog.Frame.PlayerNameEdit=gui:new("WindowT", "PlayerNameEdit");
 HostGameDialog.Frame.ModelNameText=gui:new("WindowT", "ModelNameText");
-HostGameDialog.Frame.ModelNameChoice=gui:new("ChoiceT", "ModelNameChoice");
+HostGameDialog.Frame.ModelNameChoice=gui:new("WindowT", "ModelNameChoice");
 HostGameDialog.Frame.MapPreview=gui:new("WindowT", "MapPreview");
-HostGameDialog.Frame.ModelPreview=gui:new("ModelWindowT", "ModelPreview");
+HostGameDialog.Frame.ModelPreview=gui:new("WindowT", "ModelPreview");
 HostGameDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
 HostGameDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
 
@@ -80,7 +80,7 @@ InitServerInfoPanel.Frame=gui:new("WindowT", "Frame");
 InputOptionsDialog=gui:new("WindowT", "InputOptionsDialog");
 InputOptionsDialog.Frame=gui:new("WindowT", "Frame");
 InputOptionsDialog.Frame.ReverseMouseYAxisText=gui:new("WindowT", "ReverseMouseYAxisText");
-InputOptionsDialog.Frame.ReverseMouseYAxisChoice=gui:new("ChoiceT", "ReverseMouseYAxisChoice");
+InputOptionsDialog.Frame.ReverseMouseYAxisChoice=gui:new("WindowT", "ReverseMouseYAxisChoice");
 InputOptionsDialog.Frame.InfoKeyboardText=gui:new("WindowT", "InfoKeyboardText");
 InputOptionsDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
 InputOptionsDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
@@ -88,23 +88,23 @@ InputOptionsDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
 PlayerOptionsDialog=gui:new("WindowT", "PlayerOptionsDialog");
 PlayerOptionsDialog.Frame=gui:new("WindowT", "Frame");
 PlayerOptionsDialog.Frame.PlayerNameText=gui:new("WindowT", "PlayerNameText");
-PlayerOptionsDialog.Frame.PlayerNameEdit=gui:new("EditWindowT", "PlayerNameEdit");
+PlayerOptionsDialog.Frame.PlayerNameEdit=gui:new("WindowT", "PlayerNameEdit");
 PlayerOptionsDialog.Frame.ModelNameText=gui:new("WindowT", "ModelNameText");
-PlayerOptionsDialog.Frame.ModelNameChoice=gui:new("ChoiceT", "ModelNameChoice");
-PlayerOptionsDialog.Frame.ModelPreview=gui:new("ModelWindowT", "ModelPreview");
+PlayerOptionsDialog.Frame.ModelNameChoice=gui:new("WindowT", "ModelNameChoice");
+PlayerOptionsDialog.Frame.ModelPreview=gui:new("WindowT", "ModelPreview");
 PlayerOptionsDialog.Frame.ShowHUDText=gui:new("WindowT", "ShowHUDText");
-PlayerOptionsDialog.Frame.ShowHUDChoice=gui:new("ChoiceT", "ShowHUDChoice");
+PlayerOptionsDialog.Frame.ShowHUDChoice=gui:new("WindowT", "ShowHUDChoice");
 PlayerOptionsDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
 PlayerOptionsDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
 
 VideoOptionsDialog=gui:new("WindowT", "VideoOptionsDialog");
 VideoOptionsDialog.Frame=gui:new("WindowT", "Frame");
 VideoOptionsDialog.Frame.ScreenResText=gui:new("WindowT", "ScreenResText");
-VideoOptionsDialog.Frame.ScreenResChoice=gui:new("ChoiceT", "ScreenResChoice");
+VideoOptionsDialog.Frame.ScreenResChoice=gui:new("WindowT", "ScreenResChoice");
 VideoOptionsDialog.Frame.FullScreenText=gui:new("WindowT", "FullScreenText");
-VideoOptionsDialog.Frame.FullScreenChoice=gui:new("ChoiceT", "FullScreenChoice");
+VideoOptionsDialog.Frame.FullScreenChoice=gui:new("WindowT", "FullScreenChoice");
 VideoOptionsDialog.Frame.TextureDetailText=gui:new("WindowT", "TextureDetailText");
-VideoOptionsDialog.Frame.TextureDetailChoice=gui:new("ChoiceT", "TextureDetailChoice");
+VideoOptionsDialog.Frame.TextureDetailChoice=gui:new("WindowT", "TextureDetailChoice");
 VideoOptionsDialog.Frame.InfoRestartText=gui:new("WindowT", "InfoRestartText");
 VideoOptionsDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
 VideoOptionsDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
@@ -112,7 +112,7 @@ VideoOptionsDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
 AudioOptionsDialog=gui:new("WindowT", "AudioOptionsDialog");
 AudioOptionsDialog.Frame=gui:new("WindowT", "Frame");
 AudioOptionsDialog.Frame.VolumeText=gui:new("WindowT", "VolumeText");
-AudioOptionsDialog.Frame.VolumeChoice=gui:new("ChoiceT", "VolumeChoice");
+AudioOptionsDialog.Frame.VolumeChoice=gui:new("WindowT", "VolumeChoice");
 AudioOptionsDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
 AudioOptionsDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
 
@@ -436,12 +436,30 @@ function NewGameDialog.Frame.MapList:OnInit()
     self:set("backColor", 0, 0, 0, 0);
     self:set("borderWidth", 0.6);
     self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("textScale", 0.3);
-    self:SetOddRowBgColor(0, 0, 0, 0.3);
-    self:SetEvenRowBgColor(0, 0, 0, 0.4);
-    self:SetRowTextColor(0.5, 0.7, 1, 1);
-    self:SetSelRowBgColor(1, 1, 1, 0.4);
-    self:SetSelRowTextColor(0, 0.2, 0.5, 1);
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", "")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.5, 0.7, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", -1)
+
+    local c2 = gui:new("ComponentListBoxT")
+    c2:set("Items", {  })
+    c2:set("Selection", 0)
+    c2:set("BgColorOdd", 0, 0, 0)
+    c2:set("BgAlphaOdd", 0.3)
+    c2:set("BgColorEven", 0, 0, 0)
+    c2:set("BgAlphaEven", 0.4)
+    c2:set("BgColorSel", 1, 1, 1)
+    c2:set("BgAlphaSel", 0.4)
+    c2:set("TextColorSel", 0, 0.2, 0.5)
+    c2:set("TextAlphaSel", 1)
+
+    self:AddComponent(c1, c2)
 end
 
 function NewGameDialog.Frame.MapPreview:OnInit()
@@ -599,11 +617,25 @@ function JoinGameDialog.Frame.PlayerNameEdit:OnInit()
     self:set("backColor", 1, 1, 1, 0.4);
     self:set("borderWidth", 0.6);
     self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Carsten");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
-    self:SetTextCursorColor(0.02, 0.36, 1, 1);
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", "Carsten")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0.2, 0.5)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentTextEditT")
+    c2:set("CursorPos", 0)
+    c2:set("CursorType", 0)
+    c2:set("CursorRate", 1)
+    c2:set("CursorColor", 0.02, 0.36, 1)
+    c2:set("CursorAlpha", 1)
+
+    self:AddComponent(c1, c2)
 end
 
 function JoinGameDialog.Frame.ModelNameText:OnInit()
@@ -620,9 +652,22 @@ function JoinGameDialog.Frame.ModelNameChoice:OnInit()
     self:set("backColor", 1, 1, 1, 0.4);
     self:set("borderWidth", 0.6);
     self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", "")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0.2, 0.5)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentChoiceT")
+    c2:set("Choices", {  })
+    c2:set("Selection", 0)
+
+    self:AddComponent(c1, c2)
 end
 
 function JoinGameDialog.Frame.RemoteHostText:OnInit()
@@ -639,11 +684,25 @@ function JoinGameDialog.Frame.RemoteHostEdit:OnInit()
     self:set("backColor", 1, 1, 1, 0.4);
     self:set("borderWidth", 0.6);
     self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "www.xyz.cf");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
-    self:SetTextCursorColor(0.02, 0.36, 1, 1);
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", "www.xyz.cf")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0.2, 0.5)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentTextEditT")
+    c2:set("CursorPos", 0)
+    c2:set("CursorType", 0)
+    c2:set("CursorRate", 1)
+    c2:set("CursorColor", 0.02, 0.36, 1)
+    c2:set("CursorAlpha", 1)
+
+    self:AddComponent(c1, c2)
 end
 
 function JoinGameDialog.Frame.RemotePortText:OnInit()
@@ -660,17 +719,42 @@ function JoinGameDialog.Frame.RemotePortEdit:OnInit()
     self:set("backColor", 1, 1, 1, 0.4);
     self:set("borderWidth", 0.6);
     self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "12345");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
-    self:SetTextCursorColor(0.02, 0.36, 1, 1);
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", "12345")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0.2, 0.5)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentTextEditT")
+    c2:set("CursorPos", 0)
+    c2:set("CursorType", 0)
+    c2:set("CursorRate", 1)
+    c2:set("CursorColor", 0.02, 0.36, 1)
+    c2:set("CursorAlpha", 1)
+
+    self:AddComponent(c1, c2)
 end
 
 function JoinGameDialog.Frame.ModelPreview:OnInit()
     self:set("rect", 300, 50, 80, 150);
     self:set("borderWidth", 0.6);
     self:set("borderColor", 0.7, 0.8, 0.9, 1);
+
+    local c1 = gui:new("ComponentModelT")
+    c1:set("Name", "dummy")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Pos", 0, 0, 0)
+    c1:set("Scale", 1)
+    c1:set("Angles", 0, 0, 0)
+    c1:set("CameraPos", 0, -200, 0)
+
+    self:AddComponent(c1)
 end
 
 function JoinGameDialog.Frame.ButtonOK:OnInit()
@@ -730,9 +814,22 @@ function HostGameDialog.Frame.WorldNameChoice:OnInit()
     self:set("backColor", 1, 1, 1, 0.4);
     self:set("borderWidth", 0.6);
     self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", "")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0.2, 0.5)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentChoiceT")
+    c2:set("Choices", {  })
+    c2:set("Selection", 0)
+
+    self:AddComponent(c1, c2)
 end
 
 function HostGameDialog.Frame.LocalSvPortText:OnInit()
@@ -749,11 +846,25 @@ function HostGameDialog.Frame.LocalSvPortEdit:OnInit()
     self:set("backColor", 1, 1, 1, 0.4);
     self:set("borderWidth", 0.6);
     self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "23456");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
-    self:SetTextCursorColor(0.02, 0.36, 1, 1);
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", "23456")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0.2, 0.5)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentTextEditT")
+    c2:set("CursorPos", 0)
+    c2:set("CursorType", 0)
+    c2:set("CursorRate", 1)
+    c2:set("CursorColor", 0.02, 0.36, 1)
+    c2:set("CursorAlpha", 1)
+
+    self:AddComponent(c1, c2)
 end
 
 function HostGameDialog.Frame.ListenSvText:OnInit()
@@ -770,9 +881,22 @@ function HostGameDialog.Frame.ListenSvChoice:OnInit()
     self:set("backColor", 1, 1, 1, 0.4);
     self:set("borderWidth", 0.6);
     self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", "")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0.2, 0.5)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentChoiceT")
+    c2:set("Choices", {  })
+    c2:set("Selection", 0)
+
+    self:AddComponent(c1, c2)
 end
 
 function HostGameDialog.Frame.PlayerNameText:OnInit()
@@ -789,11 +913,25 @@ function HostGameDialog.Frame.PlayerNameEdit:OnInit()
     self:set("backColor", 1, 1, 1, 0.4);
     self:set("borderWidth", 0.6);
     self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Carsten");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
-    self:SetTextCursorColor(0.02, 0.36, 1, 1);
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", "Carsten")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0.2, 0.5)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentTextEditT")
+    c2:set("CursorPos", 0)
+    c2:set("CursorType", 0)
+    c2:set("CursorRate", 1)
+    c2:set("CursorColor", 0.02, 0.36, 1)
+    c2:set("CursorAlpha", 1)
+
+    self:AddComponent(c1, c2)
 end
 
 function HostGameDialog.Frame.ModelNameText:OnInit()
@@ -810,9 +948,22 @@ function HostGameDialog.Frame.ModelNameChoice:OnInit()
     self:set("backColor", 1, 1, 1, 0.4);
     self:set("borderWidth", 0.6);
     self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", "")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0.2, 0.5)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentChoiceT")
+    c2:set("Choices", {  })
+    c2:set("Selection", 0)
+
+    self:AddComponent(c1, c2)
 end
 
 function HostGameDialog.Frame.MapPreview:OnInit()
@@ -825,6 +976,17 @@ function HostGameDialog.Frame.ModelPreview:OnInit()
     self:set("rect", 310, 130, 70, 110);
     self:set("borderWidth", 0.6);
     self:set("borderColor", 0.7, 0.8, 0.9, 1);
+
+    local c1 = gui:new("ComponentModelT")
+    c1:set("Name", "dummy")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Pos", 0, 0, 0)
+    c1:set("Scale", 1)
+    c1:set("Angles", 0, 0, 0)
+    c1:set("CameraPos", 0, -200, 0)
+
+    self:AddComponent(c1)
 end
 
 function HostGameDialog.Frame.ButtonOK:OnInit()
@@ -903,9 +1065,22 @@ function InputOptionsDialog.Frame.ReverseMouseYAxisChoice:OnInit()
     self:set("backColor", 1, 1, 1, 0.4);
     self:set("borderWidth", 0.6);
     self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", "")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0.2, 0.5)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentChoiceT")
+    c2:set("Choices", {  })
+    c2:set("Selection", 0)
+
+    self:AddComponent(c1, c2)
 end
 
 function InputOptionsDialog.Frame.InfoKeyboardText:OnInit()
@@ -968,11 +1143,25 @@ function PlayerOptionsDialog.Frame.PlayerNameEdit:OnInit()
     self:set("backColor", 1, 1, 1, 0.4);
     self:set("borderWidth", 0.6);
     self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Carsten");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
-    self:SetTextCursorColor(0.02, 0.36, 1, 1);
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", "Carsten")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0.2, 0.5)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentTextEditT")
+    c2:set("CursorPos", 0)
+    c2:set("CursorType", 0)
+    c2:set("CursorRate", 1)
+    c2:set("CursorColor", 0.02, 0.36, 1)
+    c2:set("CursorAlpha", 1)
+
+    self:AddComponent(c1, c2)
 end
 
 function PlayerOptionsDialog.Frame.ModelNameText:OnInit()
@@ -989,15 +1178,39 @@ function PlayerOptionsDialog.Frame.ModelNameChoice:OnInit()
     self:set("backColor", 1, 1, 1, 0.4);
     self:set("borderWidth", 0.6);
     self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", "")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0.2, 0.5)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentChoiceT")
+    c2:set("Choices", {  })
+    c2:set("Selection", 0)
+
+    self:AddComponent(c1, c2)
 end
 
 function PlayerOptionsDialog.Frame.ModelPreview:OnInit()
     self:set("rect", 280, 50, 100, 200);
     self:set("borderWidth", 0.6);
     self:set("borderColor", 0.7, 0.8, 0.9, 1);
+
+    local c1 = gui:new("ComponentModelT")
+    c1:set("Name", "dummy")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Pos", 0, 0, 0)
+    c1:set("Scale", 1)
+    c1:set("Angles", 0, 0, 0)
+    c1:set("CameraPos", 0, -200, 0)
+
+    self:AddComponent(c1)
 end
 
 function PlayerOptionsDialog.Frame.ShowHUDText:OnInit()
@@ -1014,9 +1227,22 @@ function PlayerOptionsDialog.Frame.ShowHUDChoice:OnInit()
     self:set("backColor", 1, 1, 1, 0.4);
     self:set("borderWidth", 0.6);
     self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.36, 0.36, 0.36, 1);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", "")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.36, 0.36, 0.36)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentChoiceT")
+    c2:set("Choices", {  })
+    c2:set("Selection", 0)
+
+    self:AddComponent(c1, c2)
 end
 
 function PlayerOptionsDialog.Frame.ButtonOK:OnInit()
@@ -1076,9 +1302,22 @@ function VideoOptionsDialog.Frame.ScreenResChoice:OnInit()
     self:set("backColor", 1, 1, 1, 0.4);
     self:set("borderWidth", 0.6);
     self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", "")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0.2, 0.5)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentChoiceT")
+    c2:set("Choices", {  })
+    c2:set("Selection", 0)
+
+    self:AddComponent(c1, c2)
 end
 
 function VideoOptionsDialog.Frame.FullScreenText:OnInit()
@@ -1095,9 +1334,22 @@ function VideoOptionsDialog.Frame.FullScreenChoice:OnInit()
     self:set("backColor", 1, 1, 1, 0.4);
     self:set("borderWidth", 0.6);
     self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", "")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0.2, 0.5)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentChoiceT")
+    c2:set("Choices", {  })
+    c2:set("Selection", 0)
+
+    self:AddComponent(c1, c2)
 end
 
 function VideoOptionsDialog.Frame.TextureDetailText:OnInit()
@@ -1114,9 +1366,22 @@ function VideoOptionsDialog.Frame.TextureDetailChoice:OnInit()
     self:set("backColor", 1, 1, 1, 0.4);
     self:set("borderWidth", 0.6);
     self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", "")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0.2, 0.5)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentChoiceT")
+    c2:set("Choices", {  })
+    c2:set("Selection", 0)
+
+    self:AddComponent(c1, c2)
 end
 
 function VideoOptionsDialog.Frame.InfoRestartText:OnInit()
@@ -1185,9 +1450,22 @@ function AudioOptionsDialog.Frame.VolumeChoice:OnInit()
     self:set("backColor", 1, 1, 1, 0.4);
     self:set("borderWidth", 0.6);
     self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", "")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0.2, 0.5)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentChoiceT")
+    c2:set("Choices", {  })
+    c2:set("Selection", 0)
+
+    self:AddComponent(c1, c2)
 end
 
 function AudioOptionsDialog.Frame.ButtonOK:OnInit()
