@@ -145,7 +145,7 @@ bool EditorChoiceWindowT::WriteInitMethod(std::ostream& OutFile)
             }
             OutFile << " })\n";
 
-            OutFile << "    Comp" << TypeName << ":set('Selection', " << m_Choice->GetSelectedChoice() << ")\n";
+            OutFile << "    Comp" << TypeName << ":set('Selection', " << (m_Choice->GetSelectedChoice() + 1) << ")\n";
 
             OutFile << "    self:AddComponent(Comp" << TypeName << ")\n\n";
         }
