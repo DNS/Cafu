@@ -121,7 +121,7 @@ bool ComponentChoiceT::OnInputEvent(const CaKeyboardEventT& KE)
             m_Selection.Set(Sel > 1 ? Sel-1 : Num);
 
             Sync();
-            CallLuaMethod("OnSelectionChanged", "i", m_Selection.Get());
+            CallLuaMethod("OnSelectionChanged");
             return true;
 
         case CaKeyboardEventT::CK_DOWN:     // DownArrow on arrow keypad.
@@ -130,7 +130,7 @@ bool ComponentChoiceT::OnInputEvent(const CaKeyboardEventT& KE)
             m_Selection.Set(Sel < Num ? Sel+1 : 1);
 
             Sync();
-            CallLuaMethod("OnSelectionChanged", "i", m_Selection.Get());
+            CallLuaMethod("OnSelectionChanged");
             return true;
 
         case CaKeyboardEventT::CK_HOME:     // Home on arrow keypad.
@@ -141,7 +141,7 @@ bool ComponentChoiceT::OnInputEvent(const CaKeyboardEventT& KE)
                 m_Selection.Set(1);
 
                 Sync();
-                CallLuaMethod("OnSelectionChanged", "i", m_Selection.Get());
+                CallLuaMethod("OnSelectionChanged");
             }
             return true;
 
@@ -153,7 +153,7 @@ bool ComponentChoiceT::OnInputEvent(const CaKeyboardEventT& KE)
                 m_Selection.Set(Num);
 
                 Sync();
-                CallLuaMethod("OnSelectionChanged", "i", m_Selection.Get());
+                CallLuaMethod("OnSelectionChanged");
             }
             return true;
     }
@@ -177,7 +177,7 @@ bool ComponentChoiceT::OnInputEvent(const CaMouseEventT& ME, float PosX, float P
         m_Selection.Set(Sel < m_Choices.Get().Size() ? Sel+1 : 1);
 
         Sync();
-        CallLuaMethod("OnSelectionChanged", "i", m_Selection.Get());
+        CallLuaMethod("OnSelectionChanged");
         return true;
     }
 
