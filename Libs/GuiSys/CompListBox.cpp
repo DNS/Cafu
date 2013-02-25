@@ -272,7 +272,7 @@ bool ComponentListBoxT::OnInputEvent(const CaKeyboardEventT& KE)
             if (Sel > 1)
             {
                 m_Selection.Set(Sel-1);
-                CallLuaMethod("OnSelectionChanged", "i", m_Selection.Get());
+                CallLuaMethod("OnSelectionChanged");
             }
             return true;
 
@@ -282,7 +282,7 @@ bool ComponentListBoxT::OnInputEvent(const CaKeyboardEventT& KE)
             if (Sel < Num)
             {
                 m_Selection.Set(Sel+1);
-                CallLuaMethod("OnSelectionChanged", "i", m_Selection.Get());
+                CallLuaMethod("OnSelectionChanged");
             }
             return true;
 
@@ -292,7 +292,7 @@ bool ComponentListBoxT::OnInputEvent(const CaKeyboardEventT& KE)
             if (Sel != 1)
             {
                 m_Selection.Set(1);
-                CallLuaMethod("OnSelectionChanged", "i", m_Selection.Get());
+                CallLuaMethod("OnSelectionChanged");
             }
             return true;
 
@@ -302,7 +302,7 @@ bool ComponentListBoxT::OnInputEvent(const CaKeyboardEventT& KE)
             if (Sel != Num)
             {
                 m_Selection.Set(Num);
-                CallLuaMethod("OnSelectionChanged", "i", m_Selection.Get());
+                CallLuaMethod("OnSelectionChanged");
             }
             return true;
     }
@@ -346,7 +346,7 @@ bool ComponentListBoxT::OnInputEvent(const CaMouseEventT& ME, float PosX, float 
         if (ItemNr+1 != m_Selection.Get() && PosX >= x1 && PosX < x2 && PosY >= LineOffsetY && PosY < LineOffsetY + LineSpacing)
         {
             m_Selection.Set(ItemNr+1);
-            CallLuaMethod("OnSelectionChanged", "i", m_Selection.Get());
+            CallLuaMethod("OnSelectionChanged");
             return true;
         }
 
