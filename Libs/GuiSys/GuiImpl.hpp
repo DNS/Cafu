@@ -123,6 +123,8 @@ namespace cf
             GuiImplT(const GuiImplT&);          ///< Use of the Copy Constructor    is not allowed.
             void operator = (const GuiImplT&);  ///< Use of the Assignment Operator is not allowed.
 
+            void Init();    ///< Calls the OnInit() script methods of all windows.
+
 
             std::string              ScriptName;        ///< The name of the *.cgui file that contains this GUI's script.
             UniScriptStateT          m_ScriptState;     ///< The script state of this GUI.
@@ -137,6 +139,7 @@ namespace cf
             IntrusivePtrT<WindowT>   FocusWindow;       ///< The window in the hierachy that currently has the (keyboard) input focus.
             IntrusivePtrT<WindowT>   MouseOverWindow;   ///< The window that the mouse is currently hovering over.
 
+            bool                     m_IsInited;        ///< Has the Init() method already been called?
             bool                     IsActive;          ///< Whether this GUI is active or not. This is of importance mainly for the GuiMan, which doesn't send us events and doesn't draw us if we're not active.
             bool                     IsInteractive;     ///< Whether this GUI is interactive (reacts to device events) or not. This is of importance mainly for the GuiMan, which doesn't send us device events if we are not interactive, and sends device events only to the top-most interactive GUI.
             bool                     IsFullCover;       ///< Whether this GUI is fullscreen and fully opaque, i.e. whether this GUI covers everything under it. If true, the GuiSys saves the rendering of the GUIs "below" this one. This can improve the GUI performance significantly if e.g. the player is at a point in the game where the world rendering FPS is low.
@@ -161,6 +164,7 @@ namespace cf
             static int SetFocus(lua_State* LuaState);           ///< Sets the keyboard input focus to the given window. Does *not* call the Lua OnFocusLose() or OnFocusGain() scripts!
             static int SetRootWindow(lua_State* LuaState);      ///< Sets the root window for this GUI.
             static int CreateNew(lua_State* LuaState);          ///< Creates and returns a new window or component.
+            static int Init(lua_State* LuaState);               ///< Calls the OnInit() script methods of all windows.
             static int toString(lua_State* LuaState);           ///< Returns a string representation of this GUI.
         };
     }

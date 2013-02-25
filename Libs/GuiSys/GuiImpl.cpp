@@ -66,6 +66,7 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, int 
       RootWindow(NULL),
       FocusWindow(NULL),
       MouseOverWindow(NULL),
+      m_IsInited(false),
       IsActive(true),
       IsInteractive(true),
       IsFullCover(false),
@@ -236,11 +237,7 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, int 
     AllChildren.PushBack(RootWindow);
     RootWindow->GetChildren(AllChildren, true);
 
-    for (unsigned long ChildNr=0; ChildNr<AllChildren.Size(); ChildNr++)
-    {
-        // The OnInit() methods are automatically written by the Cafu GUI editor (*_init.cgui files).
-        AllChildren[ChildNr]->CallLuaMethod("OnInit");
-    }
+    Init();     // The script has the option to call this itself (via gui:Init()) at an earlier time.
 
     for (unsigned long ChildNr=0; ChildNr<AllChildren.Size(); ChildNr++)
     {
@@ -272,6 +269,25 @@ GuiImplT::~GuiImplT()
     MatSys::Renderer->FreeMaterial(m_GuiDefaultRM);
     MatSys::Renderer->FreeMaterial(m_GuiPointerRM);
     MatSys::Renderer->FreeMaterial(m_GuiFinishZRM);
+}
+
+
+void GuiImplT::Init()
+{
+    if (m_IsInited) return;
+
+    ArrayT< IntrusivePtrT<WindowT> > AllChildren;
+
+    AllChildren.PushBack(RootWindow);
+    RootWindow->GetChildren(AllChildren, true);
+
+    for (unsigned long ChildNr = 0; ChildNr < AllChildren.Size(); ChildNr++)
+    {
+        // The OnInit() methods are automatically written by the Cafu GUI editor (*_init.cgui files).
+        AllChildren[ChildNr]->CallLuaMethod("OnInit");
+    }
+
+    m_IsInited = true;
 }
 
 
@@ -700,6 +716,16 @@ int GuiImplT::CreateNew(lua_State* LuaState)
 }
 
 
+int GuiImplT::Init(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    GuiImplT*     Gui = CheckParams(LuaState);
+
+    Gui->Init();
+    return 0;
+}
+
+
 int GuiImplT::toString(lua_State* LuaState)
 {
     GuiImplT* Gui=CheckParams(LuaState);
@@ -735,6 +761,7 @@ void GuiImplT::RegisterLua(lua_State* LuaState)
         { "setFocus",           SetFocus },
         { "SetRootWindow",      SetRootWindow },
         { "new",                CreateNew },
+        { "Init",               Init },
         { "__tostring",         toString },
         { NULL, NULL }
     };
