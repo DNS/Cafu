@@ -749,9 +749,9 @@ function JoinGameDialog.Frame.ModelPreview:OnInit()
     c1:set("Name", "dummy")
     c1:set("Animation", -1)
     c1:set("Skin", -1)
-    c1:set("Pos", 0, 0, 0)
+    c1:set("Pos", 72.5, 0, 13)
     c1:set("Scale", 1)
-    c1:set("Angles", 0, 0, 0)
+    c1:set("Angles", 0, 0, -130)
     c1:set("CameraPos", 0, -200, 0)
 
     self:AddComponent(c1)
@@ -893,8 +893,8 @@ function HostGameDialog.Frame.ListenSvChoice:OnInit()
     c1:set("ver. Align", 0)
 
     local c2 = gui:new("ComponentChoiceT")
-    c2:set("Choices", {  })
-    c2:set("Selection", 0)
+    c2:set("Choices", { "no", "yes" })
+    c2:set("Selection", 1)
 
     self:AddComponent(c1, c2)
 end
@@ -981,9 +981,9 @@ function HostGameDialog.Frame.ModelPreview:OnInit()
     c1:set("Name", "dummy")
     c1:set("Animation", -1)
     c1:set("Skin", -1)
-    c1:set("Pos", 0, 0, 0)
-    c1:set("Scale", 1)
-    c1:set("Angles", 0, 0, 0)
+    c1:set("Pos", 75, 0, -20)
+    c1:set("Scale", 0.7)
+    c1:set("Angles", 0, 0, -130)
     c1:set("CameraPos", 0, -200, 0)
 
     self:AddComponent(c1)
@@ -1077,8 +1077,8 @@ function InputOptionsDialog.Frame.ReverseMouseYAxisChoice:OnInit()
     c1:set("ver. Align", 0)
 
     local c2 = gui:new("ComponentChoiceT")
-    c2:set("Choices", {  })
-    c2:set("Selection", 0)
+    c2:set("Choices", { "no (normal)", "yes (aircraft-style)" })
+    c2:set("Selection", 1)
 
     self:AddComponent(c1, c2)
 end
@@ -1205,9 +1205,9 @@ function PlayerOptionsDialog.Frame.ModelPreview:OnInit()
     c1:set("Name", "dummy")
     c1:set("Animation", -1)
     c1:set("Skin", -1)
-    c1:set("Pos", 0, 0, 0)
-    c1:set("Scale", 1)
-    c1:set("Angles", 0, 0, 0)
+    c1:set("Pos", 68, 0, 0)
+    c1:set("Scale", 1.2)
+    c1:set("Angles", 0, 0, -130)
     c1:set("CameraPos", 0, -200, 0)
 
     self:AddComponent(c1)
@@ -1239,8 +1239,8 @@ function PlayerOptionsDialog.Frame.ShowHUDChoice:OnInit()
     c1:set("ver. Align", 0)
 
     local c2 = gui:new("ComponentChoiceT")
-    c2:set("Choices", {  })
-    c2:set("Selection", 0)
+    c2:set("Choices", { "yes" })
+    c2:set("Selection", 1)
 
     self:AddComponent(c1, c2)
 end
@@ -1314,8 +1314,8 @@ function VideoOptionsDialog.Frame.ScreenResChoice:OnInit()
     c1:set("ver. Align", 0)
 
     local c2 = gui:new("ComponentChoiceT")
-    c2:set("Choices", {  })
-    c2:set("Selection", 0)
+    c2:set("Choices", { "640 x 480", "800 x 600", "1024 x 768" })
+    c2:set("Selection", 1)
 
     self:AddComponent(c1, c2)
 end
@@ -1346,8 +1346,8 @@ function VideoOptionsDialog.Frame.FullScreenChoice:OnInit()
     c1:set("ver. Align", 0)
 
     local c2 = gui:new("ComponentChoiceT")
-    c2:set("Choices", {  })
-    c2:set("Selection", 0)
+    c2:set("Choices", { "yes", "no (window)" })
+    c2:set("Selection", 1)
 
     self:AddComponent(c1, c2)
 end
@@ -1378,8 +1378,8 @@ function VideoOptionsDialog.Frame.TextureDetailChoice:OnInit()
     c1:set("ver. Align", 0)
 
     local c2 = gui:new("ComponentChoiceT")
-    c2:set("Choices", {  })
-    c2:set("Selection", 0)
+    c2:set("Choices", { "high (best quality)", "medium (faster)", "low (fastest)" })
+    c2:set("Selection", 1)
 
     self:AddComponent(c1, c2)
 end
@@ -1462,8 +1462,8 @@ function AudioOptionsDialog.Frame.VolumeChoice:OnInit()
     c1:set("ver. Align", 0)
 
     local c2 = gui:new("ComponentChoiceT")
-    c2:set("Choices", {  })
-    c2:set("Selection", 0)
+    c2:set("Choices", { "0% (mute)", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%" })
+    c2:set("Selection", 6)
 
     self:AddComponent(c1, c2)
 end

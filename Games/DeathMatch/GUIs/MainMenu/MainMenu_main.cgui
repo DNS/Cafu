@@ -1,5 +1,8 @@
 dofile("Games/DeathMatch/GUIs/MainMenu/MainMenu_init.cgui");
 
+-- Make sure that all the OnInit() methods are called, so that we can rely in the rest of this script
+-- on the proper default values being set, the components being instantiated, etc.
+gui:Init()
 
 
 -- Parses a string that describes a video mode. It returns the width, height, colour depth and refresh rate.
@@ -146,29 +149,30 @@ function NormalControls.ButtonNewGame:OnMouseLeave()
 end
 
 function NormalControls.ButtonNewGame:OnMouseButtonUp()
-    -- self:interpolate("rotAngle", 0, 360, 250);
-    NewGameDialog.Frame.MapList:Clear();
-    local Files=Console.GetDir("Games/DeathMatch/Worlds", "f");
-    table.sort(Files);
+    local Files = Console.GetDir("Games/DeathMatch/Worlds", "f")
+    local Names = {}
+    local SelNr = -1
+
+    table.sort(Files)
 
     for FileNum, FileName in ipairs(Files) do
-        if (FileName:sub(-3, -1)==".cw") then
-            NewGameDialog.Frame.MapList:Append(" "..FileName:sub(1, -4));
+        if FileName:sub(-3, -1) == ".cw" then
+            Names[#Names + 1] = FileName:sub(1, -4)
 
-            if (FileName:sub(1, -4)==ci.GetValue("dlg_svWorldName")) then
-                local SelNr=NewGameDialog.Frame.MapList:GetNumRows()-1;
-
-                -- SetSelection() doesn't automatically trigger a call to our OnSelectionChanged() handler, so it's done manually below.
-                NewGameDialog.Frame.MapList:SetSelection(SelNr);
-                NewGameDialog.Frame.MapList:OnSelectionChanged(SelNr);
+            if Names[#Names] == ci.GetValue("dlg_svWorldName") then
+                SelNr = #Names
             end
         end
     end
 
+    -- Setting "Selection" doesn't automatically trigger a call to OnSelectionChanged(), so it's done manually below.
+    NewGameDialog.Frame.MapList:GetComponent("ListBox"):set("Items", Names)
+    NewGameDialog.Frame.MapList:GetComponent("ListBox"):set("Selection", SelNr)
+    NewGameDialog.Frame.MapList:GetComponent("ListBox"):OnSelectionChanged()
 
-    NewGameDialog:set("show", true);
-    gui:setFocus(NewGameDialog.Frame.MapList);
-    return true;
+    NewGameDialog:set("show", true)
+    gui:setFocus(NewGameDialog.Frame.MapList)
+    return true
 end
 
 
@@ -344,27 +348,25 @@ function MultiplayerContextMenu.Frame.JoinGame:OnMouseLeave()
 end
 
 function MultiplayerContextMenu.Frame.JoinGame:OnMouseButtonUp()
-    JoinGameDialog.Frame.PlayerNameEdit:set("text", ci.GetValue("dlg_dmPlayerName"));
-    JoinGameDialog.Frame.RemoteHostEdit:set("text", ci.GetValue("dlg_clRemoteName"));
-    JoinGameDialog.Frame.RemotePortEdit:set("text", ci.GetValue("dlg_clRemotePort"));
+    JoinGameDialog.Frame.PlayerNameEdit:GetComponent("TextEdit"):SetText(ci.GetValue("dlg_dmPlayerName"))
+    JoinGameDialog.Frame.RemoteHostEdit:GetComponent("TextEdit"):SetText(ci.GetValue("dlg_clRemoteName"))
+    JoinGameDialog.Frame.RemotePortEdit:GetComponent("TextEdit"):SetText(ci.GetValue("dlg_clRemotePort"))
 
 
-    JoinGameDialog.Frame.ModelNameChoice:Clear();
     JoinGameDialog.Frame.ModelList={};      -- Matches names in choice to file names, e.g. ModelList["Alien"] yields "Alien/Alien.cmdl".
 
     local Files=Console.GetDir("Games/DeathMatch/Models/Players", "d");
     table.sort(Files);
 
+    JoinGameDialog.Frame.ModelNameChoice:GetComponent("Choice"):set("Choices", Files)
+
     for FileNum, FileName in ipairs(Files) do
-        JoinGameDialog.Frame.ModelNameChoice:Append(" "..FileName);
         JoinGameDialog.Frame.ModelList[FileName]=FileName.."/"..FileName..".cmdl";
 
         if (FileName==ci.GetValue("dlg_dmModelName")) then
-            local SelNr=JoinGameDialog.Frame.ModelNameChoice:GetNumChoices()-1;
-
-            -- SetSelection() doesn't automatically trigger a call to our OnSelectionChanged() handler, so it's done manually below.
-            JoinGameDialog.Frame.ModelNameChoice:SetSelection(SelNr);
-            JoinGameDialog.Frame.ModelNameChoice:OnSelectionChanged(SelNr);
+            -- set("Selection", ...) doesn't automatically trigger a call to OnSelectionChanged(), so it's done manually below.
+            JoinGameDialog.Frame.ModelNameChoice:GetComponent("Choice"):set("Selection", FileNum)
+            JoinGameDialog.Frame.ModelNameChoice:GetComponent("Choice"):OnSelectionChanged()
         end
     end
 
@@ -383,50 +385,50 @@ MultiplayerContextMenu.Frame.HostGame.OnMouseEnter=MultiplayerContextMenu.Frame.
 MultiplayerContextMenu.Frame.HostGame.OnMouseLeave=MultiplayerContextMenu.Frame.JoinGame.OnMouseLeave;
 
 function MultiplayerContextMenu.Frame.HostGame:OnMouseButtonUp()
-    HostGameDialog.Frame.LocalSvPortEdit:set("text", ci.GetValue("dlg_svPortNr"));
-    HostGameDialog.Frame.PlayerNameEdit:set("text", ci.GetValue("dlg_dmPlayerName"));
+    HostGameDialog.Frame.LocalSvPortEdit:GetComponent("TextEdit"):SetText(ci.GetValue("dlg_svPortNr"))
+    HostGameDialog.Frame.PlayerNameEdit:GetComponent("TextEdit"):SetText(ci.GetValue("dlg_dmPlayerName"))
 
 
-    HostGameDialog.Frame.WorldNameChoice:Clear();
-    local Files=Console.GetDir("Games/DeathMatch/Worlds", "f");
-    table.sort(Files);
+    local Files = Console.GetDir("Games/DeathMatch/Worlds", "f")
+    local Names = {}
+    local SelNr = -1
+
+    table.sort(Files)
 
     for FileNum, FileName in ipairs(Files) do
-        if (FileName:sub(-3, -1)==".cw") then
-            HostGameDialog.Frame.WorldNameChoice:Append(" "..FileName:sub(1, -4));
+        if FileName:sub(-3, -1) == ".cw" then
+            Names[#Names + 1] = FileName:sub(1, -4)
 
-            if (FileName:sub(1, -4)==ci.GetValue("dlg_svWorldName")) then
-                local SelNr=HostGameDialog.Frame.WorldNameChoice:GetNumChoices()-1;
-
-                -- SetSelection() doesn't automatically trigger a call to our OnSelectionChanged() handler, so it's done manually below.
-                HostGameDialog.Frame.WorldNameChoice:SetSelection(SelNr);
-                HostGameDialog.Frame.WorldNameChoice:OnSelectionChanged(SelNr);
+            if Names[#Names] == ci.GetValue("dlg_svWorldName") then
+                SelNr = #Names
             end
         end
     end
 
+    -- Setting "Selection" doesn't automatically trigger a call to OnSelectionChanged(), so it's done manually below.
+    HostGameDialog.Frame.WorldNameChoice:GetComponent("Choice"):set("Choices", Names)
+    HostGameDialog.Frame.WorldNameChoice:GetComponent("Choice"):set("Selection", SelNr)
+    HostGameDialog.Frame.WorldNameChoice:GetComponent("Choice"):OnSelectionChanged()
+
 
     -- Call OnSelectionChanged() for proper initialization.
-    local SelNr=HostGameDialog.Frame.ListenSvChoice:GetSelection();
-    HostGameDialog.Frame.ListenSvChoice:OnSelectionChanged(SelNr);
+    HostGameDialog.Frame.ListenSvChoice:GetComponent("Choice"):OnSelectionChanged()
 
 
-    HostGameDialog.Frame.ModelNameChoice:Clear();
     HostGameDialog.Frame.ModelList={};      -- Matches names in choice to file names, e.g. ModelList["Alien"] yields "Alien/Alien.cmdl".
 
     local Files=Console.GetDir("Games/DeathMatch/Models/Players", "d");
     table.sort(Files);
 
+    HostGameDialog.Frame.ModelNameChoice:GetComponent("Choice"):set("Choices", Files)
+
     for FileNum, FileName in ipairs(Files) do
-        HostGameDialog.Frame.ModelNameChoice:Append(" "..FileName);
         HostGameDialog.Frame.ModelList[FileName]=FileName.."/"..FileName..".cmdl";
 
         if (FileName==ci.GetValue("dlg_dmModelName")) then
-            local SelNr=HostGameDialog.Frame.ModelNameChoice:GetNumChoices()-1;
-
-            -- SetSelection() doesn't automatically trigger a call to our OnSelectionChanged() handler, so it's done manually below.
-            HostGameDialog.Frame.ModelNameChoice:SetSelection(SelNr);
-            HostGameDialog.Frame.ModelNameChoice:OnSelectionChanged(SelNr);
+            -- set("Selection", ...) doesn't automatically trigger a call to OnSelectionChanged(), so it's done manually below.
+            HostGameDialog.Frame.ModelNameChoice:GetComponent("Choice"):set("Selection", FileNum)
+            HostGameDialog.Frame.ModelNameChoice:GetComponent("Choice"):OnSelectionChanged()
         end
     end
 
@@ -481,7 +483,7 @@ function OptionsContextMenu.Frame.Controls:OnMouseLeave()
 end
 
 function OptionsContextMenu.Frame.Controls:OnMouseButtonUp()
-    InputOptionsDialog.Frame.ReverseMouseYAxisChoice:SetSelection(ci.GetValue("mouseRevY") and 1 or 0); -- "a and b or c" in Lua is equivalent to "a ? b:c" in C (at least almost, see PiL2 for details).
+    InputOptionsDialog.Frame.ReverseMouseYAxisChoice:GetComponent("Choice"):set("Selection", ci.GetValue("mouseRevY") and 2 or 1)   -- "a and b or c" in Lua is equivalent to "a ? b:c" in C (at least almost, see PiL2 for details).
 
     OptionsContextMenu:set("show", false);
     InputOptionsDialog:set("show", true);
@@ -495,26 +497,24 @@ OptionsContextMenu.Frame.Player.OnMouseEnter=OptionsContextMenu.Frame.Controls.O
 OptionsContextMenu.Frame.Player.OnMouseLeave=OptionsContextMenu.Frame.Controls.OnMouseLeave;
 
 function OptionsContextMenu.Frame.Player:OnMouseButtonUp()
-    PlayerOptionsDialog.Frame.PlayerNameEdit:set("text", ci.GetValue("dlg_dmPlayerName"));
+    PlayerOptionsDialog.Frame.PlayerNameEdit:GetComponent("TextEdit"):SetText(ci.GetValue("dlg_dmPlayerName"))
 
 
-    PlayerOptionsDialog.Frame.ModelNameChoice:Clear();
     PlayerOptionsDialog.Frame.ModelList={};      -- Matches names in choice to file names, e.g. ModelList["Alien"] yields "Alien/Alien.cmdl".
 
     local Files=Console.GetDir("Games/DeathMatch/Models/Players", "d");
     table.sort(Files);
 
+    PlayerOptionsDialog.Frame.ModelNameChoice:GetComponent("Choice"):set("Choices", Files)
+
     for FileNum, FileName in ipairs(Files) do
-       PlayerOptionsDialog.Frame.ModelNameChoice:Append(" "..FileName);
-       PlayerOptionsDialog.Frame.ModelList[FileName]=FileName.."/"..FileName..".cmdl";
+        PlayerOptionsDialog.Frame.ModelList[FileName]=FileName.."/"..FileName..".cmdl";
 
-       if (FileName==ci.GetValue("dlg_dmModelName")) then
-           local SelNr=PlayerOptionsDialog.Frame.ModelNameChoice:GetNumChoices()-1;
-
-           -- SetSelection() doesn't automatically trigger a call to our OnSelectionChanged() handler, so it's done manually below.
-           PlayerOptionsDialog.Frame.ModelNameChoice:SetSelection(SelNr);
-           PlayerOptionsDialog.Frame.ModelNameChoice:OnSelectionChanged(SelNr);
-       end
+        if (FileName==ci.GetValue("dlg_dmModelName")) then
+            -- set("Selection", ...) doesn't automatically trigger a call to OnSelectionChanged(), so it's done manually below.
+            PlayerOptionsDialog.Frame.ModelNameChoice:GetComponent("Choice"):set("Selection", FileNum)
+            PlayerOptionsDialog.Frame.ModelNameChoice:GetComponent("Choice"):OnSelectionChanged()
+        end
     end
 
 
@@ -531,14 +531,16 @@ OptionsContextMenu.Frame.Video.OnMouseLeave=OptionsContextMenu.Frame.Controls.On
 
 function OptionsContextMenu.Frame.Video:OnMouseButtonUp()
     -- Select the screen resolution that matches the one specified in the console variables.
-    VideoOptionsDialog.Frame.ScreenResChoice:SetSelection(0);   -- Safety if the loop below fails for some reason.
+    local ModesComp = VideoOptionsDialog.Frame.ScreenResChoice:GetComponent("Choice")
 
-    for ModeNr=0, VideoOptionsDialog.Frame.ScreenResChoice:GetNumChoices()-1 do
-        local width, height, bpp, rate=ParseModeStr(VideoOptionsDialog.Frame.ScreenResChoice:GetChoice(ModeNr));
+    ModesComp:set("Selection", 1)   -- For safety, if the loop below fails for some reason.
+
+    for ModeNr, Mode in ipairs(ModesComp:get("Choices")) do
+        local width, height, bpp, rate = ParseModeStr(Mode);
 
         if width==ci.GetValue("dlg_clWindowSizeX") and height==ci.GetValue("dlg_clWindowSizeY") then
             -- The width and height match, select this mode.
-            VideoOptionsDialog.Frame.ScreenResChoice:SetSelection(ModeNr);
+            ModesComp:set("Selection", ModeNr)
 
             if bpp==ci.GetValue("dlg_clDisplayBPP") and rate==ci.GetValue("dlg_clDisplayRefresh") then
                 -- The color depth and refresh rate match, too - stop looking for a better match.
@@ -547,8 +549,9 @@ function OptionsContextMenu.Frame.Video:OnMouseButtonUp()
         end
     end
 
-    VideoOptionsDialog.Frame.FullScreenChoice:SetSelection(ci.GetValue("dlg_clFullScreen") and 1 or 0); -- "a and b or c" in Lua is equivalent to "a ? b:c" in C (at least almost, see PiL2 for details).
-    VideoOptionsDialog.Frame.TextureDetailChoice:SetSelection(ci.GetValue("dlg_clTextureDetail"));
+    -- "a and b or c" in Lua is equivalent to "a ? b:c" in C (at least almost, see PiL2 for details).
+    VideoOptionsDialog.Frame.FullScreenChoice:GetComponent("Choice"):set("Selection", ci.GetValue("dlg_clFullScreen") and 1 or 2)
+    VideoOptionsDialog.Frame.TextureDetailChoice:GetComponent("Choice"):set("Selection", ci.GetValue("dlg_clTextureDetail") + 1)
 
     OptionsContextMenu:set("show", false);
     VideoOptionsDialog:set("show", true);
@@ -562,18 +565,18 @@ OptionsContextMenu.Frame.Audio.OnMouseEnter=OptionsContextMenu.Frame.Controls.On
 OptionsContextMenu.Frame.Audio.OnMouseLeave=OptionsContextMenu.Frame.Controls.OnMouseLeave;
 
 function OptionsContextMenu.Frame.Audio:OnMouseButtonUp()
-    local Vol=ci.GetValue("snd_InitialMasterVolume");
+    local Vol = ci.GetValue("snd_InitialMasterVolume")
 
-    if (Vol<0) then Vol=0; end
-    if (Vol>1) then Vol=1; end
+    if (Vol < 0) then Vol = 0 end
+    if (Vol > 1) then Vol = 1 end
 
-    -- Convert the relative volume (float from 0...1) into the right number for our volume choice (int from 0 to 10).
-    Vol=math.floor(Vol*10+0.5);
+    -- Convert the relative volume (float from 0...1) into the right number for our volume choice (int from 1 to 11).
+    Vol = math.ceil(Vol*10 + 0.5)
 
-    if (Vol< 0) then Vol= 0; end
-    if (Vol>10) then Vol=10; end
+    if (Vol <  1) then Vol =  1 end
+    if (Vol > 11) then Vol = 11 end
 
-    AudioOptionsDialog.Frame.VolumeChoice:SetSelection(Vol);
+    AudioOptionsDialog.Frame.VolumeChoice:GetComponent("Choice"):set("Selection", Vol)
 
     OptionsContextMenu:set("show", false);
     AudioOptionsDialog:set("show", true);
@@ -597,11 +600,9 @@ end
 
 
 
-function NewGameDialog.Frame.MapList:OnSelectionChanged(SelNum)
-    local WorldName=NewGameDialog.Frame.MapList:GetRowText(SelNum);
-
+NewGameDialog.Frame.MapList:GetComponent("ListBox").OnSelectionChanged = function (self)
     -- Remove leading or trailing whitespace (but leave file names with spaces intact).
-    WorldName=WorldName:match("^%s*(.*)%s*$");
+    local WorldName = (self:GetSelItem() or "no-selection"):match("^%s*(.*)%s*$")
 
  -- NewGameDialog.Frame.MapPreview:set("text", WorldName);
     NewGameDialog.Frame.MapPreview:set("backMaterial", "Games/DeathMatch/Worlds/"..WorldName..".jpg");
@@ -650,11 +651,8 @@ function StartNewGame(WorldName)
 end
 
 function NewGameDialog.Frame.ButtonOK:OnMouseButtonUp()
-    local SelRowNr =NewGameDialog.Frame.MapList:GetSelection();
-    local WorldName=NewGameDialog.Frame.MapList:GetRowText(SelRowNr);
-
     -- Remove leading or trailing whitespace (but leave file names with spaces intact).
-    WorldName=WorldName:match("^%s*(.*)%s*$");
+    local WorldName = (NewGameDialog.Frame.MapList:GetSelItem() or "no-selection"):match("^%s*(.*)%s*$")
 
     -- Copy the contents of the edit fields back into the related convars.
     ci.SetValue("dlg_svWorldName", WorldName);  -- TODO: Do we really need the dlg_svWorldName convar after all??
@@ -711,22 +709,19 @@ end
 
 JoinGameDialog.Frame.ModelPreview.SequNr=0;
 
-function JoinGameDialog.Frame.ModelNameChoice:OnSelectionChanged(SelNum)
-    -- Set model in model preview window.
-    local ModelName=self:GetChoice(SelNum);
-
+JoinGameDialog.Frame.ModelNameChoice:GetComponent("Choice").OnSelectionChanged = function (self)
     -- Remove leading or trailing whitespace (but leave file names with spaces intact),
     -- then look up the full file name (with suffix) in ModelList.
-    ModelName=ModelName:match("^%s*(.*)%s*$");
-    ModelName=JoinGameDialog.Frame.ModelList[ModelName];
+    local ModelName = (self:GetSelItem() or "no-selection"):match("^%s*(.*)%s*$")
+    ModelName = JoinGameDialog.Frame.ModelList[ModelName]
 
     -- JoinGameDialog.Frame.ModelPreview:set("textScale", 0.2);
     -- JoinGameDialog.Frame.ModelPreview:set("text", ModelName);
-    JoinGameDialog.Frame.ModelPreview:SetModel("Games/DeathMatch/Models/Players/"..ModelName);
-    JoinGameDialog.Frame.ModelPreview:SetModelSequNr(JoinGameDialog.Frame.ModelPreview.SequNr);
-    JoinGameDialog.Frame.ModelPreview:SetModelPos(72.5, 0, 13);
-    JoinGameDialog.Frame.ModelPreview:SetModelScale(1.0);
-    JoinGameDialog.Frame.ModelPreview:SetModelAngles(0, 0, -130);
+    local ModelComp = JoinGameDialog.Frame.ModelPreview:GetComponent("Model")
+
+    -- Set model in model preview window.
+    ModelComp:set("Name",      "Games/DeathMatch/Models/Players/"..ModelName)
+    ModelComp:set("Animation", JoinGameDialog.Frame.ModelPreview.SequNr)
 end
 
 
@@ -754,10 +749,10 @@ function JoinGameDialog.Frame.ButtonOK:OnMouseLeave()
 end
 
 function JoinGameDialog.Frame.ButtonOK:OnMouseButtonUp()
-    ci.SetValue("dlg_dmPlayerName", JoinGameDialog.Frame.PlayerNameEdit:get("text"));
-    ci.SetValue("dlg_dmModelName",  JoinGameDialog.Frame.ModelNameChoice:get("text"):match("^%s*(.*)%s*$"));    -- Remove leading or trailing whitespace (but leave file names with spaces intact).
-    ci.SetValue("dlg_clRemoteName", JoinGameDialog.Frame.RemoteHostEdit:get("text"));
-    ci.SetValue("dlg_clRemotePort", JoinGameDialog.Frame.RemotePortEdit:get("text"));
+    ci.SetValue("dlg_dmPlayerName", JoinGameDialog.Frame.PlayerNameEdit:GetComponent("Text"):get("Text"))
+    ci.SetValue("dlg_dmModelName",  JoinGameDialog.Frame.ModelNameChoice:GetComponent("Text"):get("Text"):match("^%s*(.*)%s*$"))  -- Remove leading or trailing whitespace (but leave file names with spaces intact).
+    ci.SetValue("dlg_clRemoteName", JoinGameDialog.Frame.RemoteHostEdit:GetComponent("Text"):get("Text"))
+    ci.SetValue("dlg_clRemotePort", JoinGameDialog.Frame.RemotePortEdit:GetComponent("Text"):get("Text"))
 
     if (MainMenu.ServerState~="idle") then return true; end     -- TODO: Output error message!
 
@@ -811,54 +806,44 @@ end
 
 
 
-function HostGameDialog.Frame.WorldNameChoice:OnSelectionChanged(SelNum)
-    -- Set image in world preview window.
-    local WorldName=HostGameDialog.Frame.WorldNameChoice:GetChoice(SelNum);
-
+HostGameDialog.Frame.WorldNameChoice:GetComponent("Choice").OnSelectionChanged = function (self)
     -- Remove leading or trailing whitespace (but leave file names with spaces intact).
-    WorldName=WorldName:match("^%s*(.*)%s*$");
+    local WorldName = (self:GetSelItem() or "no-selection"):match("^%s*(.*)%s*$")
 
+    -- Set image in world preview window.
     HostGameDialog.Frame.MapPreview:set("backMaterial", "Games/DeathMatch/Worlds/"..WorldName..".jpg");
 end
 
 
 
--- One-time init for setting the values.
--- Move into OnInit()?
-HostGameDialog.Frame.ListenSvChoice:Clear();
-HostGameDialog.Frame.ListenSvChoice:Append(" no");
-HostGameDialog.Frame.ListenSvChoice:Append(" yes");
-HostGameDialog.Frame.ListenSvChoice:SetSelection(1);
-
-function HostGameDialog.Frame.ListenSvChoice:OnSelectionChanged(SelNum)
+HostGameDialog.Frame.ListenSvChoice:GetComponent("Choice").OnSelectionChanged = function (self)
     -- Enable/disable (show/hide) player name and model controls.
-    HostGameDialog.Frame.PlayerNameText:set("show", SelNum==1);
-    HostGameDialog.Frame.PlayerNameEdit:set("show", SelNum==1);
+    local IsListen = self:GetSelItem() == "yes"
 
-    HostGameDialog.Frame.ModelNameText  :set("show", SelNum==1);
-    HostGameDialog.Frame.ModelNameChoice:set("show", SelNum==1);
+    HostGameDialog.Frame.PlayerNameText:set("show", not IsListen)
+    HostGameDialog.Frame.PlayerNameEdit:set("show", not IsListen)
+
+    HostGameDialog.Frame.ModelNameText  :set("show", not IsListen)
+    HostGameDialog.Frame.ModelNameChoice:set("show", not IsListen)
 end
 
 
 
 HostGameDialog.Frame.ModelPreview.SequNr=0;
 
-function HostGameDialog.Frame.ModelNameChoice:OnSelectionChanged(SelNum)
-    -- Set model in model preview window.
-    local ModelName=self:GetChoice(SelNum);
-
+HostGameDialog.Frame.ModelNameChoice:GetComponent("Choice").OnSelectionChanged = function (self)
     -- Remove leading or trailing whitespace (but leave file names with spaces intact),
     -- then look up the full file name (with suffix) in ModelList.
-    ModelName=ModelName:match("^%s*(.*)%s*$");
-    ModelName=HostGameDialog.Frame.ModelList[ModelName];
+    local ModelName = (self:GetSelItem() or "no-selection"):match("^%s*(.*)%s*$")
+    ModelName = HostGameDialog.Frame.ModelList[ModelName]
 
     -- HostGameDialog.Frame.ModelPreview:set("textScale", 0.2);
     -- HostGameDialog.Frame.ModelPreview:set("text", ModelName);
-    HostGameDialog.Frame.ModelPreview:SetModel("Games/DeathMatch/Models/Players/"..ModelName);
-    HostGameDialog.Frame.ModelPreview:SetModelSequNr(HostGameDialog.Frame.ModelPreview.SequNr);
-    HostGameDialog.Frame.ModelPreview:SetModelPos(75, 0, -20);
-    HostGameDialog.Frame.ModelPreview:SetModelScale(0.7);
-    HostGameDialog.Frame.ModelPreview:SetModelAngles(0, 0, -130);
+    local ModelComp = HostGameDialog.Frame.ModelPreview:GetComponent("Model")
+
+    -- Set model in model preview window.
+    ModelComp:set("Name",      "Games/DeathMatch/Models/Players/"..ModelName)
+    ModelComp:set("Animation", HostGameDialog.Frame.ModelPreview.SequNr)
 end
 
 
@@ -914,17 +899,14 @@ function StartNewServer(WorldName, IsListen)
 end
 
 function HostGameDialog.Frame.ButtonOK:OnMouseButtonUp()
-    local SelChNr  =HostGameDialog.Frame.WorldNameChoice:GetSelection();
-    local WorldName=HostGameDialog.Frame.WorldNameChoice:GetChoice(SelChNr);
-
     -- Remove leading or trailing whitespace (but leave file names with spaces intact).
-    WorldName=WorldName:match("^%s*(.*)%s*$");
+    local WorldName = (HostGameDialog.Frame.WorldNameChoice:GetSelItem() or "no-selection"):match("^%s*(.*)%s*$")
 
     -- Copy the contents of the edit fields back into the related convars.
     ci.SetValue("dlg_svWorldName",  WorldName);     -- TODO: Do we really need the dlg_svWorldName convar after all??
-    ci.SetValue("dlg_svPortNr",     HostGameDialog.Frame.LocalSvPortEdit:get("text"));
-    ci.SetValue("dlg_dmPlayerName", HostGameDialog.Frame.PlayerNameEdit:get("text"));
-    ci.SetValue("dlg_dmModelName",  HostGameDialog.Frame.ModelNameChoice:get("text"):match("^%s*(.*)%s*$"));    -- Remove leading or trailing whitespace (but leave file names with spaces intact).
+    ci.SetValue("dlg_svPortNr",     HostGameDialog.Frame.LocalSvPortEdit:GetComponent("Text"):get("Text"))
+    ci.SetValue("dlg_dmPlayerName", HostGameDialog.Frame.PlayerNameEdit:GetComponent("Text"):get("Text"))
+    ci.SetValue("dlg_dmModelName",  HostGameDialog.Frame.ModelNameChoice:GetComponent("Text"):get("Text"):match("^%s*(.*)%s*$"))  -- Remove leading or trailing whitespace (but leave file names with spaces intact).
 
 
     -- Start the server, then optionally (if listen server) the client.
@@ -932,7 +914,7 @@ function HostGameDialog.Frame.ButtonOK:OnMouseButtonUp()
 
     HostGameDialog:set("show", false);
     InitServerInfoPanel:set("show", true);
-    thread(StartNewServer, WorldName, HostGameDialog.Frame.ListenSvChoice:GetSelection()==1);   -- "no" is at position 0, "yes" is at position 1.
+    thread(StartNewServer, WorldName, HostGameDialog.Frame.ListenSvChoice:GetComponent("Choice"):get("Selection") == 2)   -- "no" is at position 1, "yes" is at position 2.
     return true;
 end
 
@@ -976,19 +958,6 @@ end
 
 
 
--- One-time init for setting the values.
--- Move into OnInit()?
-InputOptionsDialog.Frame.ReverseMouseYAxisChoice:Clear();
-InputOptionsDialog.Frame.ReverseMouseYAxisChoice:Append(" no (normal)");
-InputOptionsDialog.Frame.ReverseMouseYAxisChoice:Append(" yes (aircraft-style)");
-InputOptionsDialog.Frame.ReverseMouseYAxisChoice:SetSelection(0);      -- Set again when the dialog is shown.
-
-function InputOptionsDialog.Frame.ReverseMouseYAxisChoice:OnSelectionChanged(SelNum)
-    -- Update related ConVar.  <-- Wrong: Do it only in ButtonOK:OnMouseButtonUp() below!
-end
-
-
-
 function InputOptionsDialog.Frame.ButtonOK:OnMouseEnter()
     self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
     self:interpolate("textScale", 0.4, 0.45, 500);
@@ -1000,7 +969,7 @@ function InputOptionsDialog.Frame.ButtonOK:OnMouseLeave()
 end
 
 function InputOptionsDialog.Frame.ButtonOK:OnMouseButtonUp()
-    ci.SetValue("mouseRevY", InputOptionsDialog.Frame.ReverseMouseYAxisChoice:GetSelection()==1);
+    ci.SetValue("mouseRevY", InputOptionsDialog.Frame.ReverseMouseYAxisChoice:GetComponent("Choice"):get("Selection") == 2)
 
     InputOptionsDialog:set("show", false);
     gui:setFocus(NormalControls);
@@ -1049,22 +1018,19 @@ end
 
 PlayerOptionsDialog.Frame.ModelPreview.SequNr=0;
 
-function PlayerOptionsDialog.Frame.ModelNameChoice:OnSelectionChanged(SelNum)
-    -- Set model in model preview window.
-    local ModelName=self:GetChoice(SelNum);
-
+PlayerOptionsDialog.Frame.ModelNameChoice:GetComponent("Choice").OnSelectionChanged = function (self)
     -- Remove leading or trailing whitespace (but leave file names with spaces intact),
     -- then look up the full file name (with suffix) in ModelList.
-    ModelName=ModelName:match("^%s*(.*)%s*$");
-    ModelName=PlayerOptionsDialog.Frame.ModelList[ModelName];
+    local ModelName = (self:GetSelItem() or "no-selection"):match("^%s*(.*)%s*$")
+    ModelName = PlayerOptionsDialog.Frame.ModelList[ModelName]
 
     -- PlayerOptionsDialog.Frame.ModelPreview:set("textScale", 0.2);
     -- PlayerOptionsDialog.Frame.ModelPreview:set("text", ModelName);
-    PlayerOptionsDialog.Frame.ModelPreview:SetModel("Games/DeathMatch/Models/Players/"..ModelName);
-    PlayerOptionsDialog.Frame.ModelPreview:SetModelSequNr(PlayerOptionsDialog.Frame.ModelPreview.SequNr);
-    PlayerOptionsDialog.Frame.ModelPreview:SetModelPos(68, 0, 0);
-    PlayerOptionsDialog.Frame.ModelPreview:SetModelScale(1.2);
-    PlayerOptionsDialog.Frame.ModelPreview:SetModelAngles(0, 0, -130);
+    local ModelComp = PlayerOptionsDialog.Frame.ModelPreview:GetComponent("Model")
+
+    -- Set model in model preview window.
+    ModelComp:set("Name",      "Games/DeathMatch/Models/Players/"..ModelName)
+    ModelComp:set("Animation", PlayerOptionsDialog.Frame.ModelPreview.SequNr)
 end
 
 
@@ -1081,14 +1047,6 @@ end
 
 
 
--- One-time init for setting the values.
--- Move into OnInit()?
-PlayerOptionsDialog.Frame.ShowHUDChoice:Clear();
-PlayerOptionsDialog.Frame.ShowHUDChoice:Append(" yes");     -- Turning the HUD off is currently not supported.
-PlayerOptionsDialog.Frame.ShowHUDChoice:SetSelection(0);
-
-
-
 function PlayerOptionsDialog.Frame.ButtonOK:OnMouseEnter()
     self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
     self:interpolate("textScale", 0.4, 0.45, 500);
@@ -1100,8 +1058,8 @@ function PlayerOptionsDialog.Frame.ButtonOK:OnMouseLeave()
 end
 
 function PlayerOptionsDialog.Frame.ButtonOK:OnMouseButtonUp()
-    ci.SetValue("dlg_dmPlayerName", PlayerOptionsDialog.Frame.PlayerNameEdit:get("text"));
-    ci.SetValue("dlg_dmModelName",  PlayerOptionsDialog.Frame.ModelNameChoice:get("text"):match("^%s*(.*)%s*$"));   -- Remove leading or trailing whitespace (but leave file names with spaces intact).
+    ci.SetValue("dlg_dmPlayerName", PlayerOptionsDialog.Frame.PlayerNameEdit:GetComponent("Text"):get("Text"))
+    ci.SetValue("dlg_dmModelName",  PlayerOptionsDialog.Frame.ModelNameChoice:GetComponent("Text"):get("Text"):match("^%s*(.*)%s*$"))   -- Remove leading or trailing whitespace (but leave file names with spaces intact).
 
     PlayerOptionsDialog:set("show", false);
     gui:setFocus(NormalControls);
@@ -1148,65 +1106,30 @@ end
 
 
 
--- One-time init for setting the values.
--- Move into OnInit()?
-VideoOptionsDialog.Frame.ScreenResChoice:Clear();
+-- Could also put this into a do ... end block (instead of OnInit2()).
+function VideoOptionsDialog.Frame.ScreenResChoice:OnInit2()
+    local modes = {}
 
--- For each video mode in console variable "VideoModes" (a multi-line string with one
--- video mode per line, separated by new-lines), append a choice to the choice window.
-for ModeStr in ci.GetValue("VideoModes"):gmatch("[^\n]+") do
-    VideoOptionsDialog.Frame.ScreenResChoice:Append(" "..ModeStr);
-end
+    -- For each video mode in console variable "VideoModes" (a multi-line string with one
+    -- video mode per line, separated by new-lines), append a choice to the choice window.
+    for ModeStr in ci.GetValue("VideoModes"):gmatch("[^\n]+") do
+        modes[#modes + 1] = ModeStr
+    end
 
--- It is possible (though normally not necessary) to add custom video modes here,
--- for example when your favorite video mode is not automatically detected and provided above.
--- There is no guarantee though that the graphics driver can set any custom modes
--- (or else the mode had been automatically included in the enumeration above).
--- Examples:
--- VideoOptionsDialog.Frame.ScreenResChoice:Append(" 1152 x 864");
--- VideoOptionsDialog.Frame.ScreenResChoice:Append(" 1440 x 900, 32 bpp, 60 Hz");
+    -- It is possible (though normally not necessary) to add custom video modes here,
+    -- for example when your favorite video mode is not automatically detected and provided above.
+    -- There is no guarantee though that the graphics driver can set any custom modes
+    -- (or else the mode had been automatically included in the enumeration above).
+    --
+    -- Examples:
+    --     modes[#modes + 1] = "1152 x 864"
+    --     modes[#modes + 1] = "1440 x 900, 32 bpp, 60 Hz"
 
--- The list of video modes above should never be totally empty,
--- but still just handle the case here to be totally sure.
-if (VideoOptionsDialog.Frame.ScreenResChoice:GetNumChoices()==0) then
-    Console.Warning("Console variable VideoModes is empty!\n");
-
-    VideoOptionsDialog.Frame.ScreenResChoice:Append(" 640 x 480");
-    VideoOptionsDialog.Frame.ScreenResChoice:Append(" 800 x 600");
-    VideoOptionsDialog.Frame.ScreenResChoice:Append(" 1024 x 768");
-end
-
-VideoOptionsDialog.Frame.ScreenResChoice:SetSelection(0);   -- Set again when the dialog is shown.
-
-function VideoOptionsDialog.Frame.ScreenResChoice:OnSelectionChanged(SelNum)
-    -- Update related ConVar.  <-- Wrong: Do it only in ButtonOK:OnMouseButtonUp() below!
-end
-
-
-
--- One-time init for setting the values.
--- Move into OnInit()?
-VideoOptionsDialog.Frame.FullScreenChoice:Clear();
-VideoOptionsDialog.Frame.FullScreenChoice:Append(" no (window)");
-VideoOptionsDialog.Frame.FullScreenChoice:Append(" yes");
-VideoOptionsDialog.Frame.FullScreenChoice:SetSelection(1);   -- Set again when the dialog is shown.
-
-function VideoOptionsDialog.Frame.FullScreenChoice:OnSelectionChanged(SelNum)
-    -- Update related ConVar.  <-- Wrong: Do it only in ButtonOK:OnMouseButtonUp() below!
-end
-
-
-
--- One-time init for setting the values.
--- Move into OnInit()?
-VideoOptionsDialog.Frame.TextureDetailChoice:Clear();
-VideoOptionsDialog.Frame.TextureDetailChoice:Append(" high (best quality)");
-VideoOptionsDialog.Frame.TextureDetailChoice:Append(" medium (faster)");
-VideoOptionsDialog.Frame.TextureDetailChoice:Append(" low (fastest)");
-VideoOptionsDialog.Frame.TextureDetailChoice:SetSelection(0);   -- Set again when the dialog is shown.
-
-function VideoOptionsDialog.Frame.TextureDetailChoice:OnSelectionChanged(SelNum)
-    -- Update related ConVar.  <-- Wrong: Do it only in ButtonOK:OnMouseButtonUp() below!
+    if #modes == 0 then
+        Console.Warning("Console variable VideoModes is empty!\n");   -- Should never happen.
+    else
+        self:GetComponent("Choice"):set("Choices", modes)
+    end
 end
 
 
@@ -1222,8 +1145,7 @@ function VideoOptionsDialog.Frame.ButtonOK:OnMouseLeave()
 end
 
 function VideoOptionsDialog.Frame.ButtonOK:OnMouseButtonUp()
-    local ModeNr =VideoOptionsDialog.Frame.ScreenResChoice:GetSelection();
-    local ModeStr=VideoOptionsDialog.Frame.ScreenResChoice:GetChoice(ModeNr);
+    local ModeStr = VideoOptionsDialog.Frame.ScreenResChoice:GetSelItem()
 
     local width, height, bpp, rate=ParseModeStr(ModeStr);
 
@@ -1232,8 +1154,8 @@ function VideoOptionsDialog.Frame.ButtonOK:OnMouseButtonUp()
     if bpp    then ci.SetValue("dlg_clDisplayBPP",     bpp   ); end
     if rate   then ci.SetValue("dlg_clDisplayRefresh", rate  ); end
 
-    ci.SetValue("dlg_clFullScreen",    VideoOptionsDialog.Frame.FullScreenChoice:GetSelection()==1);
-    ci.SetValue("dlg_clTextureDetail", VideoOptionsDialog.Frame.TextureDetailChoice:GetSelection());
+    ci.SetValue("dlg_clFullScreen",    VideoOptionsDialog.Frame.FullScreenChoice:GetComponent("Choice"):get("Selection") == 1)
+    ci.SetValue("dlg_clTextureDetail", VideoOptionsDialog.Frame.TextureDetailChoice:GetComponent("Choice"):get("Selection") - 1)
 
     VideoOptionsDialog:set("show", false);
     gui:setFocus(NormalControls);
@@ -1280,27 +1202,13 @@ end
 
 
 
--- One-time init for setting the values.
--- Move into OnInit()?
-AudioOptionsDialog.Frame.VolumeChoice:Clear();
-AudioOptionsDialog.Frame.VolumeChoice:Append(" 0% (mute)");
-AudioOptionsDialog.Frame.VolumeChoice:Append(" 10%");
-AudioOptionsDialog.Frame.VolumeChoice:Append(" 20%");
-AudioOptionsDialog.Frame.VolumeChoice:Append(" 30%");
-AudioOptionsDialog.Frame.VolumeChoice:Append(" 40%");
-AudioOptionsDialog.Frame.VolumeChoice:Append(" 50%");
-AudioOptionsDialog.Frame.VolumeChoice:Append(" 60%");
-AudioOptionsDialog.Frame.VolumeChoice:Append(" 70%");
-AudioOptionsDialog.Frame.VolumeChoice:Append(" 80%");
-AudioOptionsDialog.Frame.VolumeChoice:Append(" 90%");
-AudioOptionsDialog.Frame.VolumeChoice:Append(" 100%");
-AudioOptionsDialog.Frame.VolumeChoice:SetSelection(10);
-
-function AudioOptionsDialog.Frame.VolumeChoice:OnSelectionChanged(SelNum)
+AudioOptionsDialog.Frame.VolumeChoice:GetComponent("Choice").OnSelectionChanged = function (self)
     -- Update related ConVar (this is contrary to other options, which update
     -- the ConVar only in the related ButtonOK:OnMouseButtonUp() below)!
-    ci.SetValue("snd_InitialMasterVolume", SelNum/10);
-    ci.RunCommand("SetMasterVolume("..(SelNum/10)..");");
+    local Vol = self:get("Selection") - 1
+
+    ci.SetValue("snd_InitialMasterVolume", Vol/10)
+    ci.RunCommand("SetMasterVolume("..(Vol/10)..");")
 end
 
 
@@ -1318,8 +1226,6 @@ end
 function AudioOptionsDialog.Frame.ButtonOK:OnMouseButtonUp()
     -- Contrary to most other options, the volume is not finally copied into the convar here,
     -- but directly in the related OnSelectionChanged() method above.
-    -- ci.SetValue("snd_InitialMasterVolume", AudioOptionsDialog.Frame.VolumeChoice:GetSelection()/10.0);
-
     AudioOptionsDialog:set("show", false);
     gui:setFocus(NormalControls);
     return true;

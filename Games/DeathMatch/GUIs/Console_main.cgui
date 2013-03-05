@@ -18,7 +18,8 @@ commandHistory.Pos =0;
 
 
 function ConsoleFrame.ConsoleInput:OnKeyPress(Key)
-    Command=self:get("text");
+    local Command  = self:GetComponent("Text"):get("Text")
+    local EditComp = self:GetComponent("TextEdit")
 
     if (Key==15) then   -- TAB (tabulator key).
         -- Note that I'm *not* writing "if (Key==15 and #Command>0) then ..." above,
@@ -27,7 +28,7 @@ function ConsoleFrame.ConsoleInput:OnKeyPress(Key)
             local Expansion, Completions=ci.LineCompletion(Command);
 
             if (#Expansion>0) then
-                self:set("text", Command .. Expansion);
+                EditComp:SetText(Command .. Expansion)
             elseif (#Completions>0) then
                 for Nr=1,#Completions do
                     if (Nr>1 and ((Nr-1) % 5)==0) then Console.Print("\n"); end
@@ -39,7 +40,7 @@ function ConsoleFrame.ConsoleInput:OnKeyPress(Key)
         end
     elseif (Key==1 or Key==59) then     -- ESC or F1.
         if (Key==1 and #Command>0) then
-            self:set("text", "");
+            EditComp:SetText("")
         else
             gui:close();
         end
@@ -68,7 +69,7 @@ function ConsoleFrame.ConsoleInput:OnKeyPress(Key)
         commandHistory.Pos=commandHistory.Size;
 
         -- Clear the command buffer so that the user can enter the next command.
-        self:set("text", "");
+        EditComp:SetText("")
     elseif (Key==200 and commandHistory.Pos>0) then     -- ARROW-UP.
         -- If we are just starting to scroll into the history,
         -- save the currently typed (temporary) command at the top of the history.
@@ -77,10 +78,10 @@ function ConsoleFrame.ConsoleInput:OnKeyPress(Key)
         end
 
         commandHistory.Pos=commandHistory.Pos-1;
-        self:set("text", commandHistory[commandHistory.Pos]);
+        EditComp:SetText(commandHistory[commandHistory.Pos])
     elseif (Key==208 and commandHistory.Pos<commandHistory.Size) then   -- ARROW-DOWN.
         commandHistory.Pos=commandHistory.Pos+1;
-        self:set("text", commandHistory[commandHistory.Pos]);
+        EditComp:SetText(commandHistory[commandHistory.Pos])
     else
         -- Return false to indicate that we did not process this key press.
         -- (The C++ code for this editClass will deal with it next.)

@@ -13,12 +13,13 @@ end
 
 
 function ChatInputFrame.ChatInput:OnKeyPress(Key)
-    Command=self:get("text");
+    local Command  = self:GetComponent("Text"):get("Text")
+    local EditComp = self:GetComponent("TextEdit")
 
     if (Key==1) then   -- ESC.
         if (#Command>0) then
             -- Clear whatever the user entered as the chat text so far.
-            self:set("text", "");
+            EditComp:SetText("")
         else
             -- The ESC key has an ASCII representation, and is therefore never passed to the parent windows of an "editClass".
             -- Therefore, we cannot rely on Background:OnKeyPress() but have to close the GUI ourselves here.
@@ -44,7 +45,7 @@ function ChatInputFrame.ChatInput:OnKeyPress(Key)
         end
 
         -- Clear the input buffer so that the user can enter the next command.
-        self:set("text", "");
+        EditComp:SetText("")
         gui:close();
     else
         -- Return false to indicate that we did not process this key press.
