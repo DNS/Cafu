@@ -44,6 +44,7 @@ void* ComponentChoiceT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 
 const luaL_reg ComponentChoiceT::MethodsList[] =
 {
+    { "set",        ComponentChoiceT::Set },
     { "GetSelItem", ComponentChoiceT::GetSelItem },
     { "__tostring", ComponentChoiceT::toString },
     { NULL, NULL }
@@ -196,6 +197,19 @@ void ComponentChoiceT::Sync()
 
     // Note that the range of Sel is 1 ... Size, not 0 ... Size-1.
     m_TextComp->SetText(m_Choices.Get()[Sel-1]);
+}
+
+
+int ComponentChoiceT::Set(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<ComponentChoiceT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentChoiceT> >(1);
+
+    const int Result = ComponentBaseT::Set(LuaState);
+
+    Comp->Sync();
+
+    return Result;
 }
 
 

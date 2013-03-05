@@ -148,9 +148,7 @@ namespace cf
             static const cf::TypeSys::TypeInfoT TypeInfo;
 
 
-            private:
-
-            void operator = (const ComponentBaseT&);    ///< Use of the Assignment Operator is not allowed.
+            protected:
 
             // The Lua API methods of this class.
             static const luaL_Reg MethodsList[];              ///< The list of Lua methods for this class.
@@ -158,6 +156,11 @@ namespace cf
             static int Set(lua_State* LuaState);              ///< Sets a member variable of this class.
             static int GetExtraMessage(lua_State* LuaState);  ///< Returns the result of VarBaseT::GetExtraMessage() for the given member variable.
             static int toString(lua_State* LuaState);         ///< Returns a string representation of this object.
+
+
+            private:
+
+            void operator = (const ComponentBaseT&);    ///< Use of the Assignment Operator is not allowed.
 
             WindowT*         m_Window;      ///< The parent window that contains this component, or `NULL` if this component is currently not a part of any window.
             TypeSys::VarManT m_MemberVars;  ///< The variable manager that keeps generic references to our member variables.
