@@ -56,6 +56,7 @@ namespace cf
             const char* GetName() const { return "Model"; }
             void UpdateDependencies(WindowT* Window);
             void Render() const;
+            void OnClockTickEvent(float t);
 
 
             // The TypeSys related declarations for this class.

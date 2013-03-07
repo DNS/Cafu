@@ -53,10 +53,6 @@ TODO: some things are still awkward, and some magic is still missing:
      Or said differently, what if Set(v) sets a value that is not v ??
      Can we update the property in the OnChanged() handler?? wxPGProperty::SetValueInEvent()? Or do we need a complete refresh??
      In any case, this would thoroughly be needed e.g. for making filenames relative, for flipping \ to /, clamp numeric values to min-max range, etc...
-
-  b) There is no AdvanceTime() / OnClockTickEvent() for components yet.
-     That means that we currently cannot drive any animations.
-     That means that setting a new animation sequence, which is implemented as a *blend* from the previous sequence, doesn't (seem to) work.
 */
 
 
@@ -315,6 +311,8 @@ void ComponentModelT::UpdateDependencies(WindowT* Window)
 
 void ComponentModelT::Render() const
 {
+    if (!m_Pose) return;
+
     // Limitations:
     // Any meshes (images) in the background of this model should use only materials with "ambientMask d" set.
     MatSys::Renderer->PushMatrix(MatSys::RendererI::PROJECTION    );
@@ -343,6 +341,16 @@ void ComponentModelT::Render() const
     MatSys::Renderer->PopMatrix(MatSys::RendererI::PROJECTION    );
     MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
     MatSys::Renderer->PopMatrix(MatSys::RendererI::WORLD_TO_VIEW );
+}
+
+
+void ComponentModelT::OnClockTickEvent(float t)
+{
+    ComponentBaseT::OnClockTickEvent(t);
+
+    if (!m_Pose) return;
+
+    m_Pose->GetAnimExpr()->AdvanceTime(t);
 }
 
 
