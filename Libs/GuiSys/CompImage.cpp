@@ -193,10 +193,8 @@ void ComponentImageT::UpdateDependencies(WindowT* Window)
 
 void ComponentImageT::Render() const
 {
-    if (!m_MatInst) return;
-
  // MatSys::Renderer->SetCurrentAmbientLightColor(m_Color);
-    MatSys::Renderer->SetCurrentMaterial(m_MatInst);
+    MatSys::Renderer->SetCurrentMaterial(m_MatInst ? m_MatInst : GetWindow()->GetGui().GetDefaultRM());
 
     static MatSys::MeshT BackMesh(MatSys::MeshT::Quads);
 
