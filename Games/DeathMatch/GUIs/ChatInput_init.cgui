@@ -33,7 +33,18 @@ ChatInputFrame:AddChild(ChatInputFrame.ButtonCancel);
 
 function Background:OnInit()
     self:set("rect", 0, 100, 640, 50);
-    self:set("backColor", 0, 0, 0, 0.7);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 0, 100)
+    c1:set("Size", 640, 50)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentImageT")
+    c2:set("Material", "")
+    c2:set("Color", 0, 0, 0)
+    c2:set("Alpha", 0.7)
+
+    self:AddComponent(c1, c2)
 
     gui:activate      (false);
     gui:setInteractive(true);
@@ -43,50 +54,101 @@ end
 
 function ChatInputFrame:OnInit()
     self:set("rect", 5, 5, 630, 40);
-    self:set("backColor", 0, 0.25, 0.7, 0.4);
-    self:set("borderWidth", 0.7);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", " Say:");
-    self:set("textScale", 0.25);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 5, 5)
+    c1:set("Size", 630, 40)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Arial")
+    c2:set("Text", " Say:")
+    c2:set("Scale", 0.25)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 0.02, 0.36, 1)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentBorderT")
+    c3:set("Width", 0.7)
+    c3:set("Color", 0.7, 0.8, 0.9)
+    c3:set("Alpha", 1)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 0, 0.25, 0.7)
+    c4:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function ChatInputFrame.ChatInput:OnInit()
     self:set("rect", 30, 10, 520, 20);
-    self:set("backColor", 0, 0, 0, 0);
-    self:set("borderWidth", 0.5);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
 
-    local c1 = gui:new("ComponentTextT")
-    c1:set("Name", "Fonts/Arial")
-    c1:set("Text", "")
-    c1:set("Scale", 0.25)
-    c1:set("Padding", 0, 0)
-    c1:set("Color", 0.51, 0.8, 1)
-    c1:set("Alpha", 1)
-    c1:set("hor. Align", -1)
-    c1:set("ver. Align", 0)
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 30, 10)
+    c1:set("Size", 520, 20)
+    c1:set("Rotation", 0)
 
-    local c2 = gui:new("ComponentTextEditT")
-    c2:set("CursorPos", 0)
-    c2:set("CursorType", 0)
-    c2:set("CursorRate", 1)
-    c2:set("CursorColor", 0.02, 0.36, 1)
-    c2:set("CursorAlpha", 1)
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.5)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
 
-    self:AddComponent(c1, c2)
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0, 0)
+    c3:set("Alpha", 0)
+
+    local c4 = gui:new("ComponentTextT")
+    c4:set("Name", "Fonts/Arial")
+    c4:set("Text", "")
+    c4:set("Scale", 0.25)
+    c4:set("Padding", 0, 0)
+    c4:set("Color", 0.51, 0.8, 1)
+    c4:set("Alpha", 1)
+    c4:set("hor. Align", -1)
+    c4:set("ver. Align", 0)
+
+    local c5 = gui:new("ComponentTextEditT")
+    c5:set("CursorPos", 0)
+    c5:set("CursorType", 0)
+    c5:set("CursorRate", 1)
+    c5:set("CursorColor", 0.02, 0.36, 1)
+    c5:set("CursorAlpha", 1)
+
+    self:AddComponent(c1, c2, c3, c4, c5)
 end
 
 function ChatInputFrame.ButtonCancel:OnInit()
     self:set("rect", 560, 10, 60, 20);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.5);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Cancel");
-    self:set("textScale", 0.25);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 560, 10)
+    c1:set("Size", 60, 20)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Arial")
+    c2:set("Text", "Cancel")
+    c2:set("Scale", 0.25)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 0.02, 0.36, 1)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", 0)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentBorderT")
+    c3:set("Width", 0.5)
+    c3:set("Color", 0.7, 0.8, 0.9)
+    c3:set("Alpha", 1)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 0, 0.25, 0.7)
+    c4:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 

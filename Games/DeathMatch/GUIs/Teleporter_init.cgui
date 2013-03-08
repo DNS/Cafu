@@ -49,13 +49,30 @@ Root:AddChild(ButtonGo);
 
 function Root:OnInit()
     self:set("rect", 0, 0, 640, 480);
-    self:set("backColor", 0, 0.356863, 0.533333, 0.5);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "Wormhole Teleportation Services Inc.\n\n");
-    self:set("textScale", 0.5);
-    self:set("textColor", 0, 0.243137, 0.356863, 0.5);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 1);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 0, 0)
+    c1:set("Size", 640, 480)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Impact")
+    c2:set("Text", [[Wormhole Teleportation Services Inc.
+
+]])
+    c2:set("Scale", 0.5)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 0, 0.243137, 0.356863)
+    c2:set("Alpha", 0.5)
+    c2:set("hor. Align", 0)
+    c2:set("ver. Align", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.356863, 0.533333)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 
     gui:activate      (false);
     gui:setInteractive(true);
@@ -65,67 +82,172 @@ end
 
 function InfoStation:OnInit()
     self:set("rect", 0, 10, 640, 30);
-    self:set("backColor", 0.5, 0.5, 0.5, 0);
-    self:set("text", "Station 1");
-    self:set("textScale", 0.5);
-    self:set("textColor", 0, 0.243137, 0.356863, 1);
-    self:set("textAlignHor", 2);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 0, 10)
+    c1:set("Size", 640, 30)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Arial")
+    c2:set("Text", "Station 1")
+    c2:set("Scale", 0.5)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 0, 0.243137, 0.356863)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", 0)
+    c2:set("ver. Align", -1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0.5, 0.5, 0.5)
+    c3:set("Alpha", 0)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function InfoTextSelectNode:OnInit()
     self:set("rect", 0, 60, 640, 80);
-    self:set("backColor", 0.5, 0.5, 0.5, 0);
-    self:set("text", "Select your destination node");
-    self:set("textColor", 0, 0.501961, 0.752941, 0.5);
-    self:set("textAlignHor", 2);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 0, 60)
+    c1:set("Size", 640, 80)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Arial")
+    c2:set("Text", "Select your destination node")
+    c2:set("Scale", 1)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 0, 0.501961, 0.752941)
+    c2:set("Alpha", 0.5)
+    c2:set("hor. Align", 0)
+    c2:set("ver. Align", -1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0.5, 0.5, 0.5)
+    c3:set("Alpha", 0)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function DestNode:OnInit()
     self:set("rect", 200, 150, 240, 120);
-    self:set("backColor", 0.5, 0.5, 0.5, 0);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "1");
-    self:set("textScale", 2.5);
-    self:set("textColor", 0, 0.501961, 1, 0.5);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 200, 150)
+    c1:set("Size", 240, 120)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Impact")
+    c2:set("Text", "1")
+    c2:set("Scale", 2.5)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 0, 0.501961, 1)
+    c2:set("Alpha", 0.5)
+    c2:set("hor. Align", 0)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0.5, 0.5, 0.5)
+    c3:set("Alpha", 0)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function ButtonMinus:OnInit()
     self:set("rect", 100, 150, 100, 120);
-    self:set("backColor", 0, 0, 0, 0.117647);
-    self:set("borderWidth", 4);
-    self:set("borderColor", 0, 0.333333, 0.490196, 0.5);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "<");
-    self:set("textScale", 2.2);
-    self:set("textColor", 0, 0.501961, 0.752941, 0.498039);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 100, 150)
+    c1:set("Size", 100, 120)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Impact")
+    c2:set("Text", "<")
+    c2:set("Scale", 2.2)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 0, 0.501961, 0.752941)
+    c2:set("Alpha", 0.498039)
+    c2:set("hor. Align", 0)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentBorderT")
+    c3:set("Width", 4)
+    c3:set("Color", 0, 0.333333, 0.490196)
+    c3:set("Alpha", 0.5)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 0, 0, 0)
+    c4:set("Alpha", 0.117647)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function ButtonPlus:OnInit()
     self:set("rect", 440, 150, 100, 120);
-    self:set("backColor", 0, 0, 0, 0.117647);
-    self:set("borderWidth", 4);
-    self:set("borderColor", 0, 0.333333, 0.490196, 0.5);
-    self:set("font", "Fonts/Impact");
-    self:set("text", ">");
-    self:set("textScale", 2.2);
-    self:set("textColor", 0, 0.501961, 0.752941, 0.498039);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 440, 150)
+    c1:set("Size", 100, 120)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Impact")
+    c2:set("Text", ">")
+    c2:set("Scale", 2.2)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 0, 0.501961, 0.752941)
+    c2:set("Alpha", 0.498039)
+    c2:set("hor. Align", 0)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentBorderT")
+    c3:set("Width", 4)
+    c3:set("Color", 0, 0.333333, 0.490196)
+    c3:set("Alpha", 0.5)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 0, 0, 0)
+    c4:set("Alpha", 0.117647)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function ButtonGo:OnInit()
     self:set("rect", 20, 340, 600, 50);
-    self:set("backColor", 0, 0, 0, 0.117647);
-    self:set("borderWidth", 4);
-    self:set("borderColor", 0, 0.333333, 0.490196, 0.498039);
-    self:set("text", "Press button to activate teleportation");
-    self:set("textScale", 0.5);
-    self:set("textColor", 0, 0.501961, 0.752941, 0.5);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 20, 340)
+    c1:set("Size", 600, 50)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Arial")
+    c2:set("Text", "Press button to activate teleportation")
+    c2:set("Scale", 0.5)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 0, 0.501961, 0.752941)
+    c2:set("Alpha", 0.5)
+    c2:set("hor. Align", 0)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentBorderT")
+    c3:set("Width", 4)
+    c3:set("Color", 0, 0.333333, 0.490196)
+    c3:set("Alpha", 0.498039)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 0, 0, 0)
+    c4:set("Alpha", 0.117647)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 

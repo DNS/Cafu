@@ -43,7 +43,18 @@ EmgTunnelStorageRoomGUI:AddChild(CallRescueButton);
 
 function EmgTunnelStorageRoomGUI:OnInit()
     self:set("rect", 0, 0, 640, 480);
-    self:set("backColor", 0, 0.1, 0.28, 1);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 0, 0)
+    c1:set("Size", 640, 480)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentImageT")
+    c2:set("Material", "")
+    c2:set("Color", 0, 0.1, 0.28)
+    c2:set("Alpha", 1)
+
+    self:AddComponent(c1, c2)
 
     gui:activate      (false);
     gui:setInteractive(true);
@@ -52,59 +63,157 @@ end
 
 function Heading:OnInit()
     self:set("rect", 50, 30, 540, 120);
-    self:set("backColor", 1, 1, 1, 0);
-    self:set("borderWidth", 5);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "Evacuation Tunnel\n\"November 1\"");
-    self:set("textScale", 0.7);
-    self:set("textColor", 0.51, 0.8, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 50, 30)
+    c1:set("Size", 540, 120)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Impact")
+    c2:set("Text", [[Evacuation Tunnel
+"November 1"]])
+    c2:set("Scale", 0.7)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 0.51, 0.8, 1)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", 0)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentBorderT")
+    c3:set("Width", 5)
+    c3:set("Color", 0.7, 0.8, 0.9)
+    c3:set("Alpha", 1)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 1, 1, 1)
+    c4:set("Alpha", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function TunnelLocation:OnInit()
     self:set("rect", 50, 180, 540, 120);
-    self:set("backColor", 1, 1, 1, 0);
-    self:set("borderWidth", 5);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Checkpoint: Storage Room\n>>>> Escape Route >>>>\n");
-    self:set("textScale", 0.6);
-    self:set("textColor", 0.51, 0.8, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 50, 180)
+    c1:set("Size", 540, 120)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Arial")
+    c2:set("Text", [[Checkpoint: Storage Room
+>>>> Escape Route >>>>
+]])
+    c2:set("Scale", 0.6)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 0.51, 0.8, 1)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", 0)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentBorderT")
+    c3:set("Width", 5)
+    c3:set("Color", 0.7, 0.8, 0.9)
+    c3:set("Alpha", 1)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 1, 1, 1)
+    c4:set("Alpha", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function CallRescueText:OnInit()
     self:set("rect", 50, 330, 410, 120);
-    self:set("backColor", 1, 1, 1, 0);
-    self:set("borderWidth", 5);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Activate button to call \nrescue service! ");
-    self:set("textScale", 0.6);
-    self:set("textColor", 0.51, 0.8, 1, 1);
-    self:set("textAlignHor", 1);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 50, 330)
+    c1:set("Size", 410, 120)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Arial")
+    c2:set("Text", [[Activate button to call 
+rescue service! ]])
+    c2:set("Scale", 0.6)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 0.51, 0.8, 1)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", 1)
+    c2:set("ver. Align", -1)
+
+    local c3 = gui:new("ComponentBorderT")
+    c3:set("Width", 5)
+    c3:set("Color", 0.7, 0.8, 0.9)
+    c3:set("Alpha", 1)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 1, 1, 1)
+    c4:set("Alpha", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function CallRescueText.HelpText:OnInit()
     self:set("rect", 7, 0, 410, 111);
-    self:set("backColor", 1, 1, 1, 0);
-    self:set("text", "You can move the red crosshair cursor with the mouse and\nuse the \"0\" (zero) key on your keyboard to \"click\" the button.");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.8, 0.8, 0.8, 1);
-    self:set("textAlignVer", 1);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 7, 0)
+    c1:set("Size", 410, 111)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Arial")
+    c2:set("Text", [[You can move the red crosshair cursor with the mouse and
+use the "0" (zero) key on your keyboard to "click" the button.]])
+    c2:set("Scale", 0.3)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 0.8, 0.8, 0.8)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 1, 1, 1)
+    c3:set("Alpha", 0)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function CallRescueButton:OnInit()
     self:set("rect", 475, 330, 115, 120);
-    self:set("backColor", 0.5, 0, 0, 1);
-    self:set("borderWidth", 5);
-    self:set("borderColor", 0.8, 0.8, 0.8, 1);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "CALL\nRESCUE");
-    self:set("textScale", 0.6);
-    self:set("textColor", 1, 1, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 475, 330)
+    c1:set("Size", 115, 120)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Impact")
+    c2:set("Text", [[CALL
+RESCUE]])
+    c2:set("Scale", 0.6)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 1, 1, 1)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", 0)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentBorderT")
+    c3:set("Width", 5)
+    c3:set("Color", 0.8, 0.8, 0.8)
+    c3:set("Alpha", 1)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 0.5, 0, 0)
+    c4:set("Alpha", 1)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 

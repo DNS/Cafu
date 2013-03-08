@@ -37,8 +37,18 @@ ElevatorMalfunctionGUI:AddChild(TextArea2);
 
 function ElevatorMalfunctionGUI:OnInit()
     self:set("rect", 0, 0, 640, 480);
-    self:set("backMaterial", "Gui/Background1");
-    self:set("backColor", 1, 0, 0, 1);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 0, 0)
+    c1:set("Size", 640, 480)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentImageT")
+    c2:set("Material", "Gui/Background1")
+    c2:set("Color", 1, 0, 0)
+    c2:set("Alpha", 1)
+
+    self:AddComponent(c1, c2)
 
     gui:activate      (false);
     gui:setInteractive(false);
@@ -47,25 +57,91 @@ end
 
 function Heading:OnInit()
     self:set("rect", 43, 45, 558, 28);
-    self:set("backColor", 1, 1, 1, 0);
-    self:set("text", "System Failure #473 at 0xE782CF36");
-    self:set("textScale", 0.6);
-    self:set("textColor", 1, 0, 0, 1);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 43, 45)
+    c1:set("Size", 558, 28)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Arial")
+    c2:set("Text", "System Failure #473 at 0xE782CF36")
+    c2:set("Scale", 0.6)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 1, 0, 0)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", -1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 1, 1, 1)
+    c3:set("Alpha", 0)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function TextArea:OnInit()
     self:set("rect", 43, 91, 558, 324);
-    self:set("backColor", 1, 1, 1, 0);
-    self:set("text", "Service elevator malfunction detected.\nBasement reactor core access\nmay be compromised.\n\n\n\n\nPlease contact administration immediately.");
-    self:set("textScale", 0.55);
-    self:set("textColor", 1, 1, 0, 1);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 43, 91)
+    c1:set("Size", 558, 324)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Arial")
+    c2:set("Text", [[Service elevator malfunction detected.
+Basement reactor core access
+may be compromised.
+
+
+
+
+Please contact administration immediately.]])
+    c2:set("Scale", 0.55)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 1, 1, 0)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", -1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 1, 1, 1)
+    c3:set("Alpha", 0)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function TextArea2:OnInit()
     self:set("rect", 43, 91, 558, 324);
-    self:set("backColor", 1, 1, 1, 0);
-    self:set("text", "\n\n\n\nBeware! Stay clear of elevator shaft!\nDanger of deadly fall!");
-    self:set("textScale", 0.55);
-    self:set("textColor", 1, 1, 0, 1);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 43, 91)
+    c1:set("Size", 558, 324)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Arial")
+    c2:set("Text", [[
+
+
+
+Beware! Stay clear of elevator shaft!
+Danger of deadly fall!]])
+    c2:set("Scale", 0.55)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 1, 1, 0)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", -1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 1, 1, 1)
+    c3:set("Alpha", 0)
+
+    self:AddComponent(c1, c2, c3)
 end
 

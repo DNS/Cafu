@@ -49,8 +49,23 @@ TestGUI:AddChild(FPS);
 
 function TestGUI:OnInit()
     self:set("rect", 0, 0, 640, 480);
-    self:set("text", "T.W.Lewis");
-    self:set("textScale", 1.2);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 0, 0)
+    c1:set("Size", 640, 480)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Arial")
+    c2:set("Text", "T.W.Lewis")
+    c2:set("Scale", 1.2)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 0, 0, 1)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", -1)
+
+    self:AddComponent(c1, c2)
 
     gui:activate      (false);
     gui:setInteractive(true);
@@ -59,45 +74,151 @@ end
 
 function SomeImage:OnInit()
     self:set("rect", 30, 130, 200, 200);
-    self:set("backMaterial", "Models/Weapons/9mmAR_v/arm");
-    self:set("backColor", 1, 1, 1, 1);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 30, 130)
+    c1:set("Size", 200, 200)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentImageT")
+    c2:set("Material", "Models/Weapons/9mmAR_v/arm")
+    c2:set("Color", 1, 1, 1)
+    c2:set("Alpha", 1)
+
+    self:AddComponent(c1, c2)
 end
 
 function ButtonToggleHor:OnInit()
     self:set("rect", 10, 380, 140, 80);
-    self:set("borderWidth", 5);
-    self:set("text", "Toggle hor.\nalignment");
-    self:set("textScale", 0.5);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 10, 380)
+    c1:set("Size", 140, 80)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Arial")
+    c2:set("Text", [[Toggle hor.
+alignment]])
+    c2:set("Scale", 0.5)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 0, 0, 1)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", -1)
+
+    local c3 = gui:new("ComponentBorderT")
+    c3:set("Width", 5)
+    c3:set("Color", 1, 1, 1)
+    c3:set("Alpha", 1)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function ButtonToggleVer:OnInit()
     self:set("rect", 170, 380, 140, 80);
-    self:set("borderWidth", 5);
-    self:set("text", "Toggle ver.\nalignment");
-    self:set("textScale", 0.5);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 170, 380)
+    c1:set("Size", 140, 80)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Arial")
+    c2:set("Text", [[Toggle ver.
+alignment]])
+    c2:set("Scale", 0.5)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 0, 0, 1)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", -1)
+
+    local c3 = gui:new("ComponentBorderT")
+    c3:set("Width", 5)
+    c3:set("Color", 1, 1, 1)
+    c3:set("Alpha", 1)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function ButtonQuit:OnInit()
     self:set("rect", 400, 380, 160, 80);
-    self:set("borderWidth", 10);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "Quit");
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 400, 380)
+    c1:set("Size", 160, 80)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Impact")
+    c2:set("Text", "Quit")
+    c2:set("Scale", 1)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 0, 0, 1)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", 0)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentBorderT")
+    c3:set("Width", 10)
+    c3:set("Color", 1, 1, 1)
+    c3:set("Alpha", 1)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function Counter:OnInit()
     self:set("rect", 400, 20, 120, 100);
-    self:set("borderWidth", 5);
-    self:set("text", "Counter\n0");
-    self:set("textScale", 0.6);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 400, 20)
+    c1:set("Size", 120, 100)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Arial")
+    c2:set("Text", [[Counter
+0]])
+    c2:set("Scale", 0.6)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 0, 0, 1)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", -1)
+
+    local c3 = gui:new("ComponentBorderT")
+    c3:set("Width", 5)
+    c3:set("Color", 1, 1, 1)
+    c3:set("Alpha", 1)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function FPS:OnInit()
     self:set("rect", 400, 150, 220, 160);
-    self:set("borderWidth", 5);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "FPS\n");
-    self:set("textScale", 0.8);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 400, 150)
+    c1:set("Size", 220, 160)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Impact")
+    c2:set("Text", [[FPS
+]])
+    c2:set("Scale", 0.8)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 0, 0, 1)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", -1)
+
+    local c3 = gui:new("ComponentBorderT")
+    c3:set("Width", 5)
+    c3:set("Color", 1, 1, 1)
+    c3:set("Alpha", 1)
+
+    self:AddComponent(c1, c2, c3)
 end
 

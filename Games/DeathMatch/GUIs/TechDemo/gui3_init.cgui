@@ -41,7 +41,18 @@ EmgTunnelBeachGUI:AddChild(EngineLogo);
 
 function EmgTunnelBeachGUI:OnInit()
     self:set("rect", 0, 0, 640, 480);
-    self:set("backColor", 0, 0.25, 0.7, 0.4);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 0, 0)
+    c1:set("Size", 640, 480)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentImageT")
+    c2:set("Material", "")
+    c2:set("Color", 0, 0.25, 0.7)
+    c2:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2)
 
     gui:activate      (false);
     gui:setInteractive(false);
@@ -50,45 +61,114 @@ end
 
 function Heading:OnInit()
     self:set("rect", 50, 30, 540, 120);
-    self:set("backColor", 1, 1, 1, 0);
-    self:set("borderWidth", 5);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "Evacuation Tunnel\n\"November 2\"");
-    self:set("textScale", 0.7);
-    self:set("textColor", 0.51, 0.8, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 50, 30)
+    c1:set("Size", 540, 120)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Impact")
+    c2:set("Text", [[Evacuation Tunnel
+"November 2"]])
+    c2:set("Scale", 0.7)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 0.51, 0.8, 1)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", 0)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentBorderT")
+    c3:set("Width", 5)
+    c3:set("Color", 0.7, 0.8, 0.9)
+    c3:set("Alpha", 1)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 1, 1, 1)
+    c4:set("Alpha", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function TunnelLocation:OnInit()
     self:set("rect", 50, 180, 540, 120);
-    self:set("backColor", 1, 1, 1, 0);
-    self:set("borderWidth", 5);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Checkpoint: Beach\n>>>> Escape Route >>>>\n");
-    self:set("textScale", 0.6);
-    self:set("textColor", 0.51, 0.8, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 50, 180)
+    c1:set("Size", 540, 120)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Arial")
+    c2:set("Text", [[Checkpoint: Beach
+>>>> Escape Route >>>>
+]])
+    c2:set("Scale", 0.6)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 0.51, 0.8, 1)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", 0)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentBorderT")
+    c3:set("Width", 5)
+    c3:set("Color", 0.7, 0.8, 0.9)
+    c3:set("Alpha", 1)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 1, 1, 1)
+    c4:set("Alpha", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function ThirdMsg:OnInit()
     self:set("rect", 50, 330, 390, 120);
-    self:set("backColor", 1, 1, 1, 0);
-    self:set("borderWidth", 5);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "Alertion Level:\nINCERFA");
-    self:set("textScale", 0.6);
-    self:set("textColor", 1, 0, 0, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 50, 330)
+    c1:set("Size", 390, 120)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Impact")
+    c2:set("Text", [[Alertion Level:
+INCERFA]])
+    c2:set("Scale", 0.6)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 1, 0, 0)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", 0)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentBorderT")
+    c3:set("Width", 5)
+    c3:set("Color", 0.7, 0.8, 0.9)
+    c3:set("Alpha", 1)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 1, 1, 1)
+    c4:set("Alpha", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function EngineLogo:OnInit()
     self:set("rect", 470, 358, 128, 64);
-    self:set("backMaterial", "Gui/SmallLogo");
-    self:set("backColor", 1, 1, 1, 1);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 470, 358)
+    c1:set("Size", 128, 64)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentImageT")
+    c2:set("Material", "Gui/SmallLogo")
+    c2:set("Color", 1, 1, 1)
+    c2:set("Alpha", 1)
+
+    self:AddComponent(c1, c2)
 end
 

@@ -33,7 +33,18 @@ ReallyQuit:AddChild(ReallyQuit.ButtonNo);
 
 function Background:OnInit()
     self:set("rect", 0, 0, 640, 480);
-    self:set("backColor", 0, 0, 0, 0.7);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 0, 0)
+    c1:set("Size", 640, 480)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentImageT")
+    c2:set("Material", "")
+    c2:set("Color", 0, 0, 0)
+    c2:set("Alpha", 0.7)
+
+    self:AddComponent(c1, c2)
 
     gui:activate      (true);
     gui:setInteractive(true);
@@ -43,38 +54,94 @@ end
 
 function ReallyQuit:OnInit()
     self:set("rect", 120, 90, 400, 300);
-    self:set("backColor", 0, 0.25, 0.7, 0.4);
-    self:set("borderWidth", 0.7);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "Really Quit?");
-    self:set("textScale", 0.7);
-    self:set("textColor", 0.51, 0.8, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 120, 90)
+    c1:set("Size", 400, 300)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Impact")
+    c2:set("Text", "Really Quit?")
+    c2:set("Scale", 0.7)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 0.51, 0.8, 1)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", 0)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentBorderT")
+    c3:set("Width", 0.7)
+    c3:set("Color", 0.7, 0.8, 0.9)
+    c3:set("Alpha", 1)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 0, 0.25, 0.7)
+    c4:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function ReallyQuit.ButtonYes:OnInit()
     self:set("rect", 53, 250, 120, 40);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.5);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Yes (OK)");
-    self:set("textScale", 0.4);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 53, 250)
+    c1:set("Size", 120, 40)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Arial")
+    c2:set("Text", "Yes (OK)")
+    c2:set("Scale", 0.4)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 0.02, 0.36, 1)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", 0)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentBorderT")
+    c3:set("Width", 0.5)
+    c3:set("Color", 0.7, 0.8, 0.9)
+    c3:set("Alpha", 1)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 0, 0.25, 0.7)
+    c4:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function ReallyQuit.ButtonNo:OnInit()
     self:set("rect", 227, 250, 120, 40);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.5);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "No (Cancel)");
-    self:set("textScale", 0.4);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+
+    local c1 = gui:new("ComponentTransformT")
+    c1:set("Pos", 227, 250)
+    c1:set("Size", 120, 40)
+    c1:set("Rotation", 0)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Name", "Fonts/Arial")
+    c2:set("Text", "No (Cancel)")
+    c2:set("Scale", 0.4)
+    c2:set("Padding", 0, 0)
+    c2:set("Color", 0.02, 0.36, 1)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", 0)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentBorderT")
+    c3:set("Width", 0.5)
+    c3:set("Color", 0.7, 0.8, 0.9)
+    c3:set("Alpha", 1)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 0, 0.25, 0.7)
+    c4:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
