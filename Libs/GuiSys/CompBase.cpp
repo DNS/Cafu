@@ -46,6 +46,7 @@ const luaL_reg ComponentBaseT::MethodsList[] =
     { "get",             ComponentBaseT::Get },
     { "set",             ComponentBaseT::Set },
     { "GetExtraMessage", ComponentBaseT::GetExtraMessage },
+    { "interpolate",     ComponentBaseT::Interpolate },
     { "__tostring",      ComponentBaseT::toString },
     { NULL, NULL }
 };
@@ -91,6 +92,47 @@ void ComponentBaseT::UpdateDependencies(WindowT* Window)
 }
 
 
+void ComponentBaseT::OnClockTickEvent(float t)
+{
+    // Run the pending value interpolations.
+    for (unsigned int INr = 0; INr < m_PendingInterp.Size(); INr++)
+    {
+        InterpolationT* I = m_PendingInterp[INr];
+
+        // Run this interpolation only if there is no other interpolation that addresses the same target value.
+        unsigned int OldINr;
+
+        for (OldINr = 0; OldINr < INr; OldINr++)
+            if (m_PendingInterp[OldINr]->Var == I->Var && m_PendingInterp[OldINr]->Suffix == I->Suffix)
+                break;
+
+        if (OldINr < INr) continue;
+
+
+        // Actually run the interpolation I.
+        I->CurrentTime += t;
+
+        if (I->CurrentTime >= I->TotalTime)
+        {
+            // This interpolation reached its end value, so drop it from the pending queue.
+            VarVisitorSetFloatT SetFloat(I->Suffix, I->EndValue);
+
+            I->Var->accept(SetFloat);
+
+            delete I;
+            m_PendingInterp.RemoveAtAndKeepOrder(INr);
+            INr--;
+        }
+        else
+        {
+            VarVisitorSetFloatT SetFloat(I->Suffix, I->GetCurrentValue());
+
+            I->Var->accept(SetFloat);
+        }
+    }
+}
+
+
 int ComponentBaseT::Get(lua_State* LuaState)
 {
     ScriptBinderT                 Binder(LuaState);
@@ -99,9 +141,10 @@ int ComponentBaseT::Get(lua_State* LuaState)
     const char*                   VarName = luaL_checkstring(LuaState, 2);
     const cf::TypeSys::VarBaseT*  Var     = Comp->m_MemberVars.Find(VarName);
 
-    if (Var)
-        Var->accept(GetToLua);
+    if (!Var)
+        return luaL_argerror(LuaState, 2, (std::string("unknown variable \"") + VarName + "\"").c_str());
 
+    Var->accept(GetToLua);
     return GetToLua.GetNumResults();
 }
 
@@ -114,9 +157,10 @@ int ComponentBaseT::Set(lua_State* LuaState)
     const char*                   VarName = luaL_checkstring(LuaState, 2);
     cf::TypeSys::VarBaseT*        Var     = Comp->m_MemberVars.Find(VarName);
 
-    if (Var)
-        Var->accept(SetFromLua);
+    if (!Var)
+        return luaL_argerror(LuaState, 2, (std::string("unknown variable \"") + VarName + "\"").c_str());
 
+    Var->accept(SetFromLua);
     return 0;
 }
 
@@ -128,12 +172,83 @@ int ComponentBaseT::GetExtraMessage(lua_State* LuaState)
     const char*                   VarName = luaL_checkstring(LuaState, 2);
     cf::TypeSys::VarBaseT*        Var     = Comp->m_MemberVars.Find(VarName);
 
-    if (Var)
+    if (!Var)
+        return luaL_argerror(LuaState, 2, (std::string("unknown variable \"") + VarName + "\"").c_str());
+
+    lua_pushstring(LuaState, Var->GetExtraMessage().c_str());
+    return 1;
+}
+
+
+namespace
+{
+    unsigned int GetSuffix(lua_State* LuaState)
     {
-        lua_pushstring(LuaState, Var->GetExtraMessage().c_str());
-        return 1;
+        if (lua_gettop(LuaState) == 5)      // No suffix specified at all.
+            return 0;
+
+        if (lua_type(LuaState, 3) == LUA_TNUMBER)
+            return lua_tointeger(LuaState, 3);
+
+        const char* Suffix = lua_tostring(LuaState, 3);
+
+        if (!Suffix) return 0;
+
+        if (Suffix[0] == 'x' || Suffix[0] == 'r') return 0;
+        if (Suffix[0] == 'y' || Suffix[0] == 'g') return 1;
+        if (Suffix[0] == 'z' || Suffix[0] == 'b') return 2;
+
+        return 0;
+    }
+}
+
+
+int ComponentBaseT::Interpolate(lua_State* LuaState)
+{
+    ScriptBinderT                 Binder(LuaState);
+    IntrusivePtrT<ComponentBaseT> Comp    = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(1);
+    const char*                   VarName = luaL_checkstring(LuaState, 2);
+    cf::TypeSys::VarBaseT*        Var     = Comp->m_MemberVars.Find(VarName);
+    const unsigned int            Suffix  = GetSuffix(LuaState);
+
+    if (!Var)
+        return luaL_argerror(LuaState, 2, (std::string("unknown variable \"") + VarName + "\"").c_str());
+
+    // Make sure that there are no more than MAX_INTERPOLATIONS interpolations pending for Var already.
+    // If so, just delete the oldest ones, which effectively means to skip them (the next youngest interpolation will take over).
+    // The purpose is of course to prevent anything from adding arbitrarily many interpolations, eating up memory,
+    // which could happen from bad user code (e.g. if the Cafu game code doesn't protect multiple human players from using
+    // a GUI simultaneously, mouse cursor "position flickering" might occur on the server, which in turn might trigger the
+    // permanent addition of interpolations from OnFocusLose()/OnFocusGain() scripts).
+    const unsigned int MAX_INTERPOLATIONS = 10;
+    unsigned int       InterpolationCount =  0;
+
+    for (unsigned int INr = Comp->m_PendingInterp.Size(); INr > 0; INr--)
+    {
+        InterpolationT* I = Comp->m_PendingInterp[INr-1];
+
+        if (I->Var == Var && I->Suffix == Suffix)
+            InterpolationCount++;
+
+        if (InterpolationCount > MAX_INTERPOLATIONS)
+        {
+            delete I;
+            Comp->m_PendingInterp.RemoveAtAndKeepOrder(INr-1);
+            break;
+        }
     }
 
+    // Now add the new interpolation to the pending list.
+    InterpolationT* I = new InterpolationT;
+
+    I->Var         = Var;
+    I->Suffix      = Suffix;
+    I->StartValue  = float(lua_tonumber(LuaState, -3));
+    I->EndValue    = float(lua_tonumber(LuaState, -2));
+    I->CurrentTime = 0.0f;
+    I->TotalTime   = float(lua_tonumber(LuaState, -1)/1000.0);
+
+    Comp->m_PendingInterp.PushBack(I);
     return 0;
 }
 

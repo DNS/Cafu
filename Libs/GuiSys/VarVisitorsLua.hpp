@@ -83,6 +83,30 @@ namespace cf
         };
 
 
+        /// This visitor is used to set `float` values in variables that are of type `float`, or composed of `float`.
+        class VarVisitorSetFloatT : public cf::TypeSys::VisitorT
+        {
+            public:
+
+            VarVisitorSetFloatT(unsigned int Suffix, float Value);
+
+            void visit(cf::TypeSys::VarT<float>& Var);
+            void visit(cf::TypeSys::VarT<double>& Var);
+            void visit(cf::TypeSys::VarT<int>& Var);
+            void visit(cf::TypeSys::VarT<unsigned int>& Var);
+            void visit(cf::TypeSys::VarT<std::string>& Var);
+            void visit(cf::TypeSys::VarT<Vector2fT>& Var);
+            void visit(cf::TypeSys::VarT<Vector3fT>& Var);
+            void visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var);
+
+
+            private:
+
+            unsigned int m_Suffix;
+            float        m_Value;
+        };
+
+
         /// This visitor writes the value of the visited variable into the given std::ostream,
         /// formatted as Lua code.
         class VarVisitorToLuaCodeT : public cf::TypeSys::VisitorConstT

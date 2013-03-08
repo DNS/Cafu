@@ -319,6 +319,8 @@ bool ComponentTextEditT::OnInputEvent(const CaKeyboardEventT& KE)
 
 void ComponentTextEditT::OnClockTickEvent(float t)
 {
+    ComponentBaseT::OnClockTickEvent(t);
+
     if (m_CursorRate.Get() > 0.0f)
     {
         m_CursorTime = fmod(m_CursorTime + t, m_CursorRate.Get());

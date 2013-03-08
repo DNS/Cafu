@@ -201,6 +201,50 @@ void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var)
 }
 
 
+/***************************/
+/*** VarVisitorSetFloatT ***/
+/***************************/
+
+VarVisitorSetFloatT::VarVisitorSetFloatT(unsigned int Suffix, float Value)
+    : m_Suffix(Suffix),
+      m_Value(Value)
+{
+}
+
+
+void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<float>& Var)
+{
+    Var.Set(m_Value);
+}
+
+
+void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<Vector2fT>& Var)
+{
+    Vector2fT v = Var.Get();
+
+    v[m_Suffix % 2] = m_Value;
+
+    Var.Set(v);
+}
+
+
+void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
+{
+    Vector3fT v = Var.Get();
+
+    v[m_Suffix % 3] = m_Value;
+
+    Var.Set(v);
+}
+
+
+void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<double>& Var) { }
+void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<int>& Var) { }
+void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<unsigned int>& Var) { }
+void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<std::string>& Var) { }
+void VarVisitorSetFloatT::visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var) { }
+
+
 /****************************/
 /*** VarVisitorToLuaCodeT ***/
 /****************************/

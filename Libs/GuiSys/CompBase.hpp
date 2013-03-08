@@ -139,7 +139,7 @@ namespace cf
 
             /// This method handles clock-tick events.
             /// @param t   The time in seconds since the last clock-tick.
-            virtual void OnClockTickEvent(float t) { }
+            virtual void OnClockTickEvent(float t);
 
 
             // The TypeSys related declarations for this class.
@@ -155,15 +155,30 @@ namespace cf
             static int Get(lua_State* LuaState);              ///< Gets a member variable of this class.
             static int Set(lua_State* LuaState);              ///< Sets a member variable of this class.
             static int GetExtraMessage(lua_State* LuaState);  ///< Returns the result of VarBaseT::GetExtraMessage() for the given member variable.
+            static int Interpolate(lua_State* LuaState);      ///< Schedules a value for interpolation between a start and end value over a given period of time.
             static int toString(lua_State* LuaState);         ///< Returns a string representation of this object.
 
 
             private:
 
+            /// A helper structure for interpolations.
+            struct InterpolationT
+            {
+                cf::TypeSys::VarBaseT* Var;         ///< The variable whose value is being interpolated.
+                unsigned int           Suffix;      ///< If the variable is composed of several values, this is the index of the one being interpolated.
+                float                  StartValue;  ///< Start value of the interpolation.
+                float                  EndValue;    ///< End value of the interpolation.
+                float                  CurrentTime; ///< Current time between 0 and TotalTime.
+                float                  TotalTime;   ///< Duration of the interpolation.
+
+                float GetCurrentValue() const { return StartValue + (EndValue-StartValue)*CurrentTime/TotalTime; }
+            };
+
             void operator = (const ComponentBaseT&);    ///< Use of the Assignment Operator is not allowed.
 
-            WindowT*         m_Window;      ///< The parent window that contains this component, or `NULL` if this component is currently not a part of any window.
-            TypeSys::VarManT m_MemberVars;  ///< The variable manager that keeps generic references to our member variables.
+            WindowT*                m_Window;           ///< The parent window that contains this component, or `NULL` if this component is currently not a part of any window.
+            TypeSys::VarManT        m_MemberVars;       ///< The variable manager that keeps generic references to our member variables.
+            ArrayT<InterpolationT*> m_PendingInterp;    ///< The currently pending interpolations.
         };
     }
 }
