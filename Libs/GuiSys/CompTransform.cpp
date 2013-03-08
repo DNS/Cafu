@@ -49,29 +49,25 @@ const cf::TypeSys::TypeInfoT ComponentTransformT::TypeInfo(GetComponentTIM(), "C
 
 ComponentTransformT::ComponentTransformT()
     : ComponentBaseT(),
-      m_RotAngle("RotAngle", 0.0f),
-      m_Test("Test", "hallo"),
-      m_PosTest("Pos", Vector3fT())
+      m_Pos("Pos", Vector2fT(0.0f, 0.0f)),
+      m_Size("Size", Vector2fT(80.0f, 60.0f)),
+      m_RotAngle("Rotation", 0.0f)
 {
-    FillMemberVars();
+    GetMemberVars().Add(&m_Pos);
+    GetMemberVars().Add(&m_Size);
+    GetMemberVars().Add(&m_RotAngle);
 }
 
 
 ComponentTransformT::ComponentTransformT(const ComponentTransformT& Comp)
     : ComponentBaseT(Comp),
-      m_RotAngle(Comp.m_RotAngle),
-      m_Test(Comp.m_Test),
-      m_PosTest(Comp.m_PosTest)
+      m_Pos(Comp.m_Pos),
+      m_Size(Comp.m_Size),
+      m_RotAngle(Comp.m_RotAngle)
 {
-    FillMemberVars();
-}
-
-
-void ComponentTransformT::FillMemberVars()
-{
+    GetMemberVars().Add(&m_Pos);
+    GetMemberVars().Add(&m_Size);
     GetMemberVars().Add(&m_RotAngle);
-    GetMemberVars().Add(&m_Test);
-    GetMemberVars().Add(&m_PosTest);
 }
 
 
