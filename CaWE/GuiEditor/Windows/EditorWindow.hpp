@@ -51,8 +51,8 @@ namespace GuiEditor
         /// Returns the GuiSys "dual" or "sibling" of this window.
         const IntrusivePtrT<cf::GuiSys::WindowT> GetDual() const { return m_Win; }
 
-        /// Returns the GuiDocumentT instance that this window lives in.
-        GuiDocumentT* GetGuiDoc() { return m_GuiDoc; }
+        // /// Returns the GuiDocumentT instance that this window lives in.
+        // GuiDocumentT* GetGuiDoc() { return m_GuiDoc; }
 
         void SetSelected(bool IsSel) { m_IsSelected=IsSel; }
 

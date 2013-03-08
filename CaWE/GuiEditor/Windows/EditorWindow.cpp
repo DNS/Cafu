@@ -379,41 +379,83 @@ bool EditorWindowT::WriteInitMethod(std::ostream& OutFile)
     if (m_Win->RotAngle!=Default.RotAngle)
         OutFile << "    self:set(\"rotAngle\", " << m_Win->RotAngle << ");\n";
 
-    if (m_Win->BackRenderMatName!=Default.BackRenderMatName)
-        OutFile << "    self:set(\"backMaterial\", \"" << m_Win->BackRenderMatName << "\");\n";
-
-    if (m_Win->BackColor[0]!=Default.BackColor[0] || m_Win->BackColor[1]!=Default.BackColor[1] || m_Win->BackColor[2]!=Default.BackColor[2] || m_Win->BackColor[3]!=Default.BackColor[3])
-        OutFile << "    self:set(\"backColor\", " << m_Win->BackColor[0] << ", " << m_Win->BackColor[1] << ", " << m_Win->BackColor[2] << ", " << m_Win->BackColor[3] << ");\n";
-
-    if (m_Win->BorderWidth!=Default.BorderWidth)
-        OutFile << "    self:set(\"borderWidth\", " << m_Win->BorderWidth << ");\n";
-
-    if (m_Win->BorderColor[0]!=Default.BorderColor[0] || m_Win->BorderColor[1]!=Default.BorderColor[1] || m_Win->BorderColor[2]!=Default.BorderColor[2] || m_Win->BorderColor[3]!=Default.BorderColor[3])
-        OutFile << "    self:set(\"borderColor\", " << m_Win->BorderColor[0] << ", " << m_Win->BorderColor[1] << ", " << m_Win->BorderColor[2] << ", " << m_Win->BorderColor[3] << ");\n";
-
 
     const std::string cn = m_Win->GetType()->ClassName;
 
-    if (ConvertToComponent() && (cn == "EditWindowT" || cn == "ChoiceT" || cn == "ListBoxT"))   // At this time, restrict conversion to subclasses, add `|| m_Win->Text != ""` later.
+    if (ConvertToComponent())
     {
-        const std::string TypeName = "Text";
-        const int Map[] = { -1, 1, 0 };
-
-        if (m_Win->GetComponent(TypeName) == NULL)
+        if (true)
         {
-            OutFile << "    -- Convert window attributes to '" << TypeName << "' component:\n";
-            OutFile << "    local Comp" << TypeName << " = gui:new(\"Component" << TypeName << "T\")\n";
+            const std::string TypeName = "Transform";
 
-            OutFile << "    Comp" << TypeName << ":set('Name', '" << m_Win->Font->GetName() << "')\n";
-            OutFile << "    Comp" << TypeName << ":set('Text', [[" << m_Win->Text << "]])\n";
-            OutFile << "    Comp" << TypeName << ":set('Scale', " << m_Win->TextScale << ")\n";
-         // OutFile << "    Comp" << TypeName << ":set('Padding', " << ...values... << ")\n";
-            OutFile << "    Comp" << TypeName << ":set('Color', " << m_Win->TextColor[0] << ", " << m_Win->TextColor[1] << ", " << m_Win->TextColor[2] << ")\n";
-            OutFile << "    Comp" << TypeName << ":set('Alpha', " << m_Win->TextColor[3] << ")\n";
-            OutFile << "    Comp" << TypeName << ":set('hor. Align', " << Map[m_Win->TextAlignHor] << ")\n";
-            OutFile << "    Comp" << TypeName << ":set('ver. Align', " << Map[m_Win->TextAlignVer] << ")\n";
+            if (m_Win->GetComponent(TypeName) == NULL)
+            {
+                OutFile << "    -- Convert window attributes to '" << TypeName << "' component:\n";
+                OutFile << "    local Comp" << TypeName << " = gui:new(\"Component" << TypeName << "T\")\n";
 
-            OutFile << "    self:AddComponent(Comp" << TypeName << ")\n\n";
+                OutFile << "    Comp" << TypeName << ":set('Pos', " << m_Win->Rect[0] << ", " << m_Win->Rect[1] << ")\n";
+                OutFile << "    Comp" << TypeName << ":set('Size', " << m_Win->Rect[2] << ", " << m_Win->Rect[3] << ")\n";
+                OutFile << "    Comp" << TypeName << ":set('Rotation', " << m_Win->RotAngle << ")\n";
+
+                OutFile << "    self:AddComponent(Comp" << TypeName << ")\n\n";
+            }
+        }
+
+        if (cn == "EditWindowT" || cn == "ChoiceT" || cn == "ListBoxT" || m_Win->Text != "")
+        {
+            const std::string TypeName = "Text";
+            const int Map[] = { -1, 1, 0 };
+
+            if (m_Win->GetComponent(TypeName) == NULL)
+            {
+                OutFile << "    -- Convert window attributes to '" << TypeName << "' component:\n";
+                OutFile << "    local Comp" << TypeName << " = gui:new(\"Component" << TypeName << "T\")\n";
+
+                OutFile << "    Comp" << TypeName << ":set('Name', '" << m_Win->Font->GetName() << "')\n";
+                OutFile << "    Comp" << TypeName << ":set('Text', [==[" << m_Win->Text << "]==])\n";
+                OutFile << "    Comp" << TypeName << ":set('Scale', " << m_Win->TextScale << ")\n";
+             // OutFile << "    Comp" << TypeName << ":set('Padding', " << ...values... << ")\n";
+                OutFile << "    Comp" << TypeName << ":set('Color', " << m_Win->TextColor[0] << ", " << m_Win->TextColor[1] << ", " << m_Win->TextColor[2] << ")\n";
+                OutFile << "    Comp" << TypeName << ":set('Alpha', " << m_Win->TextColor[3] << ")\n";
+                OutFile << "    Comp" << TypeName << ":set('hor. Align', " << Map[m_Win->TextAlignHor] << ")\n";
+                OutFile << "    Comp" << TypeName << ":set('ver. Align', " << Map[m_Win->TextAlignVer] << ")\n";
+
+                OutFile << "    self:AddComponent(Comp" << TypeName << ")\n\n";
+            }
+        }
+
+        if (m_Win->BorderWidth > 0.0001f)
+        {
+            const std::string TypeName = "Border";
+
+            if (m_Win->GetComponent(TypeName) == NULL)
+            {
+                OutFile << "    -- Convert window attributes to '" << TypeName << "' component:\n";
+                OutFile << "    local Comp" << TypeName << " = gui:new(\"Component" << TypeName << "T\")\n";
+
+                OutFile << "    Comp" << TypeName << ":set('Width', " << m_Win->BorderWidth << ")\n";
+                OutFile << "    Comp" << TypeName << ":set('Color', " << m_Win->BorderColor[0] << ", " << m_Win->BorderColor[1] << ", " << m_Win->BorderColor[2] << ")\n";
+                OutFile << "    Comp" << TypeName << ":set('Alpha', " << m_Win->BorderColor[3] << ")\n";
+
+                OutFile << "    self:AddComponent(Comp" << TypeName << ")\n\n";
+            }
+        }
+
+        if (m_Win->BackRenderMatName != "" || m_Win->BackColor[0]!=Default.BackColor[0] || m_Win->BackColor[1]!=Default.BackColor[1] || m_Win->BackColor[2]!=Default.BackColor[2] || m_Win->BackColor[3]!=Default.BackColor[3])
+        {
+            const std::string TypeName = "Image";
+
+            if (m_Win->GetComponent(TypeName) == NULL)
+            {
+                OutFile << "    -- Convert window attributes to '" << TypeName << "' component:\n";
+                OutFile << "    local Comp" << TypeName << " = gui:new(\"Component" << TypeName << "T\")\n";
+
+                OutFile << "    Comp" << TypeName << ":set('Material', [[" << m_Win->BackRenderMatName << "]])\n";
+                OutFile << "    Comp" << TypeName << ":set('Color', " << m_Win->BackColor[0] << ", " << m_Win->BackColor[1] << ", " << m_Win->BackColor[2] << ")\n";
+                OutFile << "    Comp" << TypeName << ":set('Alpha', " << m_Win->BackColor[3] << ")\n";
+
+                OutFile << "    self:AddComponent(Comp" << TypeName << ")\n\n";
+            }
         }
     }
     else
@@ -442,6 +484,19 @@ bool EditorWindowT::WriteInitMethod(std::ostream& OutFile)
 
         if (m_Win->TextAlignVer!=Default.TextAlignVer)
             OutFile << "    self:set(\"textAlignVer\", " << m_Win->TextAlignVer << ");\n";
+
+
+        if (m_Win->BackRenderMatName!=Default.BackRenderMatName)
+            OutFile << "    self:set(\"backMaterial\", \"" << m_Win->BackRenderMatName << "\");\n";
+
+        if (m_Win->BackColor[0]!=Default.BackColor[0] || m_Win->BackColor[1]!=Default.BackColor[1] || m_Win->BackColor[2]!=Default.BackColor[2] || m_Win->BackColor[3]!=Default.BackColor[3])
+            OutFile << "    self:set(\"backColor\", " << m_Win->BackColor[0] << ", " << m_Win->BackColor[1] << ", " << m_Win->BackColor[2] << ", " << m_Win->BackColor[3] << ");\n";
+
+        if (m_Win->BorderWidth!=Default.BorderWidth)
+            OutFile << "    self:set(\"borderWidth\", " << m_Win->BorderWidth << ");\n";
+
+        if (m_Win->BorderColor[0]!=Default.BorderColor[0] || m_Win->BorderColor[1]!=Default.BorderColor[1] || m_Win->BorderColor[2]!=Default.BorderColor[2] || m_Win->BorderColor[3]!=Default.BorderColor[3])
+            OutFile << "    self:set(\"borderColor\", " << m_Win->BorderColor[0] << ", " << m_Win->BorderColor[1] << ", " << m_Win->BorderColor[2] << ", " << m_Win->BorderColor[3] << ");\n";
     }
 
     return true;
