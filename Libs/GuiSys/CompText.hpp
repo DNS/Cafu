@@ -37,36 +37,6 @@ namespace cf
         {
             public:
 
-            /// The constructor.
-            ComponentTextT();
-
-            /// The copy constructor.
-            /// @param Comp   The component to create a copy of.
-            ComponentTextT(const ComponentTextT& Comp);
-
-            /// This method sets this components text value.
-            /// Other C++ code (especially other components) would normally have to use `GetMemberVars().Find("Text")`
-            /// to set this components text value. This auxiliary method makes the task much easier.
-            void SetText(const std::string& t) { m_Text.Set(t); }
-
-            // Base class overrides.
-            ComponentTextT* Clone() const;
-            const char* GetName() const { return "Text"; }
-            void UpdateDependencies(WindowT* Window);
-            void Render() const;
-
-
-            // The TypeSys related declarations for this class.
-            const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
-            static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
-            static const cf::TypeSys::TypeInfoT TypeInfo;
-
-
-            private:
-
-            friend class ComponentListBoxT;
-            friend class ComponentTextEditT;
-
             /// A variable of type std::string, specifically for font names. It updates the related
             /// font instance in the parent ComponentTextT whenever a new font name is set.
             class VarFontNameT : public TypeSys::VarT<std::string>
@@ -113,6 +83,36 @@ namespace cf
                 void GetChoices(ArrayT<std::string>& Strings, ArrayT<int>& Values) const;
             };
 
+
+            /// The constructor.
+            ComponentTextT();
+
+            /// The copy constructor.
+            /// @param Comp   The component to create a copy of.
+            ComponentTextT(const ComponentTextT& Comp);
+
+            /// This method sets this components text value.
+            /// Other C++ code (especially other components) would normally have to use `GetMemberVars().Find("Text")`
+            /// to set this components text value. This auxiliary method makes the task much easier.
+            void SetText(const std::string& t) { m_Text.Set(t); }
+
+            // Base class overrides.
+            ComponentTextT* Clone() const;
+            const char* GetName() const { return "Text"; }
+            void UpdateDependencies(WindowT* Window);
+            void Render() const;
+
+
+            // The TypeSys related declarations for this class.
+            const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
+            static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
+            static const cf::TypeSys::TypeInfoT TypeInfo;
+
+
+            private:
+
+            friend class ComponentListBoxT;
+            friend class ComponentTextEditT;
 
             void FillMemberVars();      ///< A helper method for the constructors.
 
