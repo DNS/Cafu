@@ -98,12 +98,7 @@ function InfoStation:OnInit()
     c2:set("hor. Align", 0)
     c2:set("ver. Align", -1)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0.5, 0.5, 0.5)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function InfoTextSelectNode:OnInit()
@@ -124,12 +119,7 @@ function InfoTextSelectNode:OnInit()
     c2:set("hor. Align", 0)
     c2:set("ver. Align", -1)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0.5, 0.5, 0.5)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function DestNode:OnInit()
@@ -150,12 +140,7 @@ function DestNode:OnInit()
     c2:set("hor. Align", 0)
     c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0.5, 0.5, 0.5)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function ButtonMinus:OnInit()

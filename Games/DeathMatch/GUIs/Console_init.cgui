@@ -90,12 +90,7 @@ function ConsoleFrame.ConsoleOutput:OnInit()
     c2:set("Color", 0.82, 0.49, 0.17)
     c2:set("Alpha", 1)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0, 0, 0)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function ConsoleFrame.ConsoleInput:OnInit()
@@ -111,29 +106,24 @@ function ConsoleFrame.ConsoleInput:OnInit()
     c2:set("Color", 0.82, 0.49, 0.17)
     c2:set("Alpha", 1)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0, 0, 0)
-    c3:set("Alpha", 0)
+    local c3 = gui:new("ComponentTextT")
+    c3:set("Name", "Fonts/Arial")
+    c3:set("Text", "")
+    c3:set("Scale", 0.2)
+    c3:set("Padding", 0, 0)
+    c3:set("Color", 0.82, 0.49, 0.17)
+    c3:set("Alpha", 1)
+    c3:set("hor. Align", -1)
+    c3:set("ver. Align", 0)
 
-    local c4 = gui:new("ComponentTextT")
-    c4:set("Name", "Fonts/Arial")
-    c4:set("Text", "")
-    c4:set("Scale", 0.2)
-    c4:set("Padding", 0, 0)
-    c4:set("Color", 0.82, 0.49, 0.17)
-    c4:set("Alpha", 1)
-    c4:set("hor. Align", -1)
-    c4:set("ver. Align", 0)
+    local c4 = gui:new("ComponentTextEditT")
+    c4:set("CursorPos", 0)
+    c4:set("CursorType", 0)
+    c4:set("CursorRate", 1)
+    c4:set("CursorColor", 0.02, 0.36, 1)
+    c4:set("CursorAlpha", 1)
 
-    local c5 = gui:new("ComponentTextEditT")
-    c5:set("CursorPos", 0)
-    c5:set("CursorType", 0)
-    c5:set("CursorRate", 1)
-    c5:set("CursorColor", 0.02, 0.36, 1)
-    c5:set("CursorAlpha", 1)
-
-    self:AddComponent(c1, c2, c3, c4, c5)
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function ConsoleFrame.ButtonClear:OnInit()
@@ -159,12 +149,7 @@ function ConsoleFrame.ButtonClear:OnInit()
     c3:set("Color", 0.82, 0.49, 0.17)
     c3:set("Alpha", 1)
 
-    local c4 = gui:new("ComponentImageT")
-    c4:set("Material", "")
-    c4:set("Color", 0, 0, 0)
-    c4:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3, c4)
+    self:AddComponent(c1, c2, c3)
 end
 
 function ConsoleFrame.ButtonClose:OnInit()
@@ -190,11 +175,6 @@ function ConsoleFrame.ButtonClose:OnInit()
     c3:set("Color", 0.82, 0.49, 0.17)
     c3:set("Alpha", 1)
 
-    local c4 = gui:new("ComponentImageT")
-    c4:set("Material", "")
-    c4:set("Color", 0, 0, 0)
-    c4:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3, c4)
+    self:AddComponent(c1, c2, c3)
 end
 

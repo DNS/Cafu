@@ -85,12 +85,7 @@ function Heading:OnInit()
     c3:set("Color", 0.7, 0.8, 0.9)
     c3:set("Alpha", 1)
 
-    local c4 = gui:new("ComponentImageT")
-    c4:set("Material", "")
-    c4:set("Color", 1, 1, 1)
-    c4:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3, c4)
+    self:AddComponent(c1, c2, c3)
 end
 
 function TunnelLocation:OnInit()
@@ -118,12 +113,7 @@ function TunnelLocation:OnInit()
     c3:set("Color", 0.7, 0.8, 0.9)
     c3:set("Alpha", 1)
 
-    local c4 = gui:new("ComponentImageT")
-    c4:set("Material", "")
-    c4:set("Color", 1, 1, 1)
-    c4:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3, c4)
+    self:AddComponent(c1, c2, c3)
 end
 
 function CallRescueText:OnInit()
@@ -150,12 +140,7 @@ rescue service! ]])
     c3:set("Color", 0.7, 0.8, 0.9)
     c3:set("Alpha", 1)
 
-    local c4 = gui:new("ComponentImageT")
-    c4:set("Material", "")
-    c4:set("Color", 1, 1, 1)
-    c4:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3, c4)
+    self:AddComponent(c1, c2, c3)
 end
 
 function CallRescueText.HelpText:OnInit()
@@ -177,12 +162,7 @@ use the "0" (zero) key on your keyboard to "click" the button.]])
     c2:set("hor. Align", -1)
     c2:set("ver. Align", 1)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 1, 1, 1)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function CallRescueButton:OnInit()

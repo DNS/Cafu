@@ -73,12 +73,7 @@ function Heading:OnInit()
     c2:set("hor. Align", -1)
     c2:set("ver. Align", -1)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 1, 1, 1)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function TextArea:OnInit()
@@ -106,12 +101,7 @@ Please contact administration immediately.]])
     c2:set("hor. Align", -1)
     c2:set("ver. Align", -1)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 1, 1, 1)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function TextArea2:OnInit()
@@ -137,11 +127,6 @@ Danger of deadly fall!]])
     c2:set("hor. Align", -1)
     c2:set("ver. Align", -1)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 1, 1, 1)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 

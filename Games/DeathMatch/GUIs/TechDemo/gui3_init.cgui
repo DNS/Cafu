@@ -83,12 +83,7 @@ function Heading:OnInit()
     c3:set("Color", 0.7, 0.8, 0.9)
     c3:set("Alpha", 1)
 
-    local c4 = gui:new("ComponentImageT")
-    c4:set("Material", "")
-    c4:set("Color", 1, 1, 1)
-    c4:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3, c4)
+    self:AddComponent(c1, c2, c3)
 end
 
 function TunnelLocation:OnInit()
@@ -116,12 +111,7 @@ function TunnelLocation:OnInit()
     c3:set("Color", 0.7, 0.8, 0.9)
     c3:set("Alpha", 1)
 
-    local c4 = gui:new("ComponentImageT")
-    c4:set("Material", "")
-    c4:set("Color", 1, 1, 1)
-    c4:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3, c4)
+    self:AddComponent(c1, c2, c3)
 end
 
 function ThirdMsg:OnInit()
@@ -148,12 +138,7 @@ INCERFA]])
     c3:set("Color", 0.7, 0.8, 0.9)
     c3:set("Alpha", 1)
 
-    local c4 = gui:new("ComponentImageT")
-    c4:set("Material", "")
-    c4:set("Color", 1, 1, 1)
-    c4:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3, c4)
+    self:AddComponent(c1, c2, c3)
 end
 
 function EngineLogo:OnInit()

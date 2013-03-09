@@ -661,12 +661,7 @@ function NewGameDialog:OnInit()
     c1:set("Size", 640, 480)
     c1:set("Rotation", 0)
 
-    local c2 = gui:new("ComponentImageT")
-    c2:set("Material", "")
-    c2:set("Color", 0, 0, 0)
-    c2:set("Alpha", 0)
-
-    self:AddComponent(c1, c2)
+    self:AddComponent(c1)
 end
 
 function NewGameDialog.Frame:OnInit()
@@ -713,34 +708,29 @@ function NewGameDialog.Frame.MapList:OnInit()
     c2:set("Color", 0.7, 0.8, 0.9)
     c2:set("Alpha", 1)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0, 0, 0)
-    c3:set("Alpha", 0)
+    local c3 = gui:new("ComponentTextT")
+    c3:set("Name", "Fonts/Arial")
+    c3:set("Text", "")
+    c3:set("Scale", 0.3)
+    c3:set("Padding", 0, 0)
+    c3:set("Color", 0.5, 0.7, 1)
+    c3:set("Alpha", 1)
+    c3:set("hor. Align", -1)
+    c3:set("ver. Align", -1)
 
-    local c4 = gui:new("ComponentTextT")
-    c4:set("Name", "Fonts/Arial")
-    c4:set("Text", "")
-    c4:set("Scale", 0.3)
-    c4:set("Padding", 0, 0)
-    c4:set("Color", 0.5, 0.7, 1)
-    c4:set("Alpha", 1)
-    c4:set("hor. Align", -1)
-    c4:set("ver. Align", -1)
+    local c4 = gui:new("ComponentListBoxT")
+    c4:set("Items", {  })
+    c4:set("Selection", 0)
+    c4:set("BgColorOdd", 0, 0, 0)
+    c4:set("BgAlphaOdd", 0.3)
+    c4:set("BgColorEven", 0, 0, 0)
+    c4:set("BgAlphaEven", 0.4)
+    c4:set("BgColorSel", 1, 1, 1)
+    c4:set("BgAlphaSel", 0.4)
+    c4:set("TextColorSel", 0, 0.2, 0.5)
+    c4:set("TextAlphaSel", 1)
 
-    local c5 = gui:new("ComponentListBoxT")
-    c5:set("Items", {  })
-    c5:set("Selection", 0)
-    c5:set("BgColorOdd", 0, 0, 0)
-    c5:set("BgAlphaOdd", 0.3)
-    c5:set("BgColorEven", 0, 0, 0)
-    c5:set("BgAlphaEven", 0.4)
-    c5:set("BgColorSel", 1, 1, 1)
-    c5:set("BgAlphaSel", 0.4)
-    c5:set("TextColorSel", 0, 0.2, 0.5)
-    c5:set("TextAlphaSel", 1)
-
-    self:AddComponent(c1, c2, c3, c4, c5)
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function NewGameDialog.Frame.MapPreview:OnInit()
@@ -830,12 +820,7 @@ function MultiplayerContextMenu:OnInit()
     c1:set("Size", 640, 480)
     c1:set("Rotation", 0)
 
-    local c2 = gui:new("ComponentImageT")
-    c2:set("Material", "")
-    c2:set("Color", 0, 0, 0)
-    c2:set("Alpha", 0)
-
-    self:AddComponent(c1, c2)
+    self:AddComponent(c1)
 end
 
 function MultiplayerContextMenu.Frame:OnInit()
@@ -930,12 +915,7 @@ function OptionsContextMenu:OnInit()
     c1:set("Size", 640, 480)
     c1:set("Rotation", 0)
 
-    local c2 = gui:new("ComponentImageT")
-    c2:set("Material", "")
-    c2:set("Color", 0, 0, 0)
-    c2:set("Alpha", 0)
-
-    self:AddComponent(c1, c2)
+    self:AddComponent(c1)
 end
 
 function OptionsContextMenu.Frame:OnInit()
@@ -1092,12 +1072,7 @@ function JoinGameDialog:OnInit()
     c1:set("Size", 640, 480)
     c1:set("Rotation", 0)
 
-    local c2 = gui:new("ComponentImageT")
-    c2:set("Material", "")
-    c2:set("Color", 0, 0, 0)
-    c2:set("Alpha", 0)
-
-    self:AddComponent(c1, c2)
+    self:AddComponent(c1)
 end
 
 function JoinGameDialog.Frame:OnInit()
@@ -1149,12 +1124,7 @@ function JoinGameDialog.Frame.PlayerNameText:OnInit()
     c2:set("hor. Align", -1)
     c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0, 0, 0)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function JoinGameDialog.Frame.PlayerNameEdit:OnInit()
@@ -1213,12 +1183,7 @@ function JoinGameDialog.Frame.ModelNameText:OnInit()
     c2:set("hor. Align", -1)
     c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0, 0, 0)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function JoinGameDialog.Frame.ModelNameChoice:OnInit()
@@ -1274,12 +1239,7 @@ function JoinGameDialog.Frame.RemoteHostText:OnInit()
     c2:set("hor. Align", -1)
     c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0, 0, 0)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function JoinGameDialog.Frame.RemoteHostEdit:OnInit()
@@ -1338,12 +1298,7 @@ function JoinGameDialog.Frame.RemotePortText:OnInit()
     c2:set("hor. Align", -1)
     c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0, 0, 0)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function JoinGameDialog.Frame.RemotePortEdit:OnInit()
@@ -1480,12 +1435,7 @@ function HostGameDialog:OnInit()
     c1:set("Size", 640, 480)
     c1:set("Rotation", 0)
 
-    local c2 = gui:new("ComponentImageT")
-    c2:set("Material", "")
-    c2:set("Color", 0, 0, 0)
-    c2:set("Alpha", 0)
-
-    self:AddComponent(c1, c2)
+    self:AddComponent(c1)
 end
 
 function HostGameDialog.Frame:OnInit()
@@ -1537,12 +1487,7 @@ function HostGameDialog.Frame.WorldNameText:OnInit()
     c2:set("hor. Align", -1)
     c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0, 0, 0)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function HostGameDialog.Frame.WorldNameChoice:OnInit()
@@ -1598,12 +1543,7 @@ function HostGameDialog.Frame.LocalSvPortText:OnInit()
     c2:set("hor. Align", -1)
     c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0, 0, 0)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function HostGameDialog.Frame.LocalSvPortEdit:OnInit()
@@ -1662,12 +1602,7 @@ function HostGameDialog.Frame.ListenSvText:OnInit()
     c2:set("hor. Align", -1)
     c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0, 0, 0)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function HostGameDialog.Frame.ListenSvChoice:OnInit()
@@ -1723,12 +1658,7 @@ function HostGameDialog.Frame.PlayerNameText:OnInit()
     c2:set("hor. Align", -1)
     c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0, 0, 0)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function HostGameDialog.Frame.PlayerNameEdit:OnInit()
@@ -1787,12 +1717,7 @@ function HostGameDialog.Frame.ModelNameText:OnInit()
     c2:set("hor. Align", -1)
     c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0, 0, 0)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function HostGameDialog.Frame.ModelNameChoice:OnInit()
@@ -1942,12 +1867,7 @@ function InitServerInfoPanel:OnInit()
     c1:set("Size", 640, 480)
     c1:set("Rotation", 0)
 
-    local c2 = gui:new("ComponentImageT")
-    c2:set("Material", "")
-    c2:set("Color", 0, 0, 0)
-    c2:set("Alpha", 0)
-
-    self:AddComponent(c1, c2)
+    self:AddComponent(c1)
 end
 
 function InitServerInfoPanel.Frame:OnInit()
@@ -1990,12 +1910,7 @@ function InputOptionsDialog:OnInit()
     c1:set("Size", 640, 480)
     c1:set("Rotation", 0)
 
-    local c2 = gui:new("ComponentImageT")
-    c2:set("Material", "")
-    c2:set("Color", 0, 0, 0)
-    c2:set("Alpha", 0)
-
-    self:AddComponent(c1, c2)
+    self:AddComponent(c1)
 end
 
 function InputOptionsDialog.Frame:OnInit()
@@ -2047,12 +1962,7 @@ function InputOptionsDialog.Frame.ReverseMouseYAxisText:OnInit()
     c2:set("hor. Align", -1)
     c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0, 0, 0)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function InputOptionsDialog.Frame.ReverseMouseYAxisChoice:OnInit()
@@ -2171,12 +2081,7 @@ function PlayerOptionsDialog:OnInit()
     c1:set("Size", 640, 480)
     c1:set("Rotation", 0)
 
-    local c2 = gui:new("ComponentImageT")
-    c2:set("Material", "")
-    c2:set("Color", 0, 0, 0)
-    c2:set("Alpha", 0)
-
-    self:AddComponent(c1, c2)
+    self:AddComponent(c1)
 end
 
 function PlayerOptionsDialog.Frame:OnInit()
@@ -2228,12 +2133,7 @@ function PlayerOptionsDialog.Frame.PlayerNameText:OnInit()
     c2:set("hor. Align", -1)
     c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0, 0, 0)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function PlayerOptionsDialog.Frame.PlayerNameEdit:OnInit()
@@ -2292,12 +2192,7 @@ function PlayerOptionsDialog.Frame.ModelNameText:OnInit()
     c2:set("hor. Align", -1)
     c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0, 0, 0)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function PlayerOptionsDialog.Frame.ModelNameChoice:OnInit()
@@ -2378,12 +2273,7 @@ function PlayerOptionsDialog.Frame.ShowHUDText:OnInit()
     c2:set("hor. Align", -1)
     c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0, 0, 0)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function PlayerOptionsDialog.Frame.ShowHUDChoice:OnInit()
@@ -2492,12 +2382,7 @@ function VideoOptionsDialog:OnInit()
     c1:set("Size", 640, 480)
     c1:set("Rotation", 0)
 
-    local c2 = gui:new("ComponentImageT")
-    c2:set("Material", "")
-    c2:set("Color", 0, 0, 0)
-    c2:set("Alpha", 0)
-
-    self:AddComponent(c1, c2)
+    self:AddComponent(c1)
 end
 
 function VideoOptionsDialog.Frame:OnInit()
@@ -2549,12 +2434,7 @@ function VideoOptionsDialog.Frame.ScreenResText:OnInit()
     c2:set("hor. Align", -1)
     c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0, 0, 0)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function VideoOptionsDialog.Frame.ScreenResChoice:OnInit()
@@ -2610,12 +2490,7 @@ function VideoOptionsDialog.Frame.FullScreenText:OnInit()
     c2:set("hor. Align", -1)
     c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0, 0, 0)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function VideoOptionsDialog.Frame.FullScreenChoice:OnInit()
@@ -2671,12 +2546,7 @@ function VideoOptionsDialog.Frame.TextureDetailText:OnInit()
     c2:set("hor. Align", -1)
     c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0, 0, 0)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function VideoOptionsDialog.Frame.TextureDetailChoice:OnInit()
@@ -2733,12 +2603,7 @@ Setting the Texture Detail to "high" requires 256+ MB video RAM.]])
     c2:set("hor. Align", 1)
     c2:set("ver. Align", -1)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0, 0, 0)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function VideoOptionsDialog.Frame.ButtonOK:OnInit()
@@ -2812,12 +2677,7 @@ function AudioOptionsDialog:OnInit()
     c1:set("Size", 640, 480)
     c1:set("Rotation", 0)
 
-    local c2 = gui:new("ComponentImageT")
-    c2:set("Material", "")
-    c2:set("Color", 0, 0, 0)
-    c2:set("Alpha", 0)
-
-    self:AddComponent(c1, c2)
+    self:AddComponent(c1)
 end
 
 function AudioOptionsDialog.Frame:OnInit()
@@ -2869,12 +2729,7 @@ function AudioOptionsDialog.Frame.VolumeText:OnInit()
     c2:set("hor. Align", -1)
     c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0, 0, 0)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function AudioOptionsDialog.Frame.VolumeChoice:OnInit()
@@ -2983,12 +2838,7 @@ function CreditsDialog:OnInit()
     c1:set("Size", 640, 480)
     c1:set("Rotation", 0)
 
-    local c2 = gui:new("ComponentImageT")
-    c2:set("Material", "")
-    c2:set("Color", 0, 0, 0)
-    c2:set("Alpha", 0)
-
-    self:AddComponent(c1, c2)
+    self:AddComponent(c1)
 end
 
 function CreditsDialog.Frame:OnInit()
@@ -3046,12 +2896,7 @@ and many more...]])
     c2:set("hor. Align", 0)
     c2:set("ver. Align", -1)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0, 0, 0)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function CreditsDialog.Frame.ExtLibsText:OnInit()
@@ -3093,16 +2938,11 @@ For more information, refer to file LICENSE.txt
     c2:set("Scale", 0.175)
     c2:set("Padding", 0, 0)
     c2:set("Color", 0.168627, 0.666667, 1)
-    c2:set("Alpha", 0)
+    c2:set("Alpha", 1)
     c2:set("hor. Align", 1)
     c2:set("ver. Align", 1)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0, 0.25098, 0.501961)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function CreditsDialog.Frame.CopyrightText:OnInit()
@@ -3123,12 +2963,7 @@ function CreditsDialog.Frame.CopyrightText:OnInit()
     c2:set("hor. Align", -1)
     c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 0, 0, 0)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function CreditsDialog.Frame.ButtonOK:OnInit()

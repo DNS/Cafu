@@ -89,12 +89,7 @@ function Heading1:OnInit()
     c2:set("hor. Align", -1)
     c2:set("ver. Align", -1)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 1, 1, 1)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function TextArea1:OnInit()
@@ -124,12 +119,7 @@ The Cafu Team]])
     c2:set("hor. Align", -1)
     c2:set("ver. Align", -1)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 1, 1, 1)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function Heading2:OnInit()
@@ -151,12 +141,7 @@ function Heading2:OnInit()
     c2:set("hor. Align", -1)
     c2:set("ver. Align", -1)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 1, 1, 1)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function TextArea2:OnInit()
@@ -188,12 +173,7 @@ There is no way back up.  ;-)]])
     c2:set("hor. Align", -1)
     c2:set("ver. Align", -1)
 
-    local c3 = gui:new("ComponentImageT")
-    c3:set("Material", "")
-    c3:set("Color", 1, 1, 1)
-    c3:set("Alpha", 0)
-
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function EngineLogo:OnInit()
@@ -236,11 +216,6 @@ function BottomLine:OnInit()
     c1:set("Size", 568, 21)
     c1:set("Rotation", 0)
 
-    local c2 = gui:new("ComponentImageT")
-    c2:set("Material", "")
-    c2:set("Color", 1, 1, 1)
-    c2:set("Alpha", 0)
-
-    self:AddComponent(c1, c2)
+    self:AddComponent(c1)
 end
 
