@@ -90,7 +90,17 @@ function ConsoleFrame.ConsoleOutput:OnInit()
     c2:set("Color", 0.82, 0.49, 0.17)
     c2:set("Alpha", 1)
 
-    self:AddComponent(c1, c2)
+    local c3 = gui:new("ComponentTextT")
+    c3:set("Name", "Fonts/Arial")
+    c3:set("Text", "")
+    c3:set("Scale", 0.2)
+    c3:set("Padding", 0, 0)
+    c3:set("Color", 0.819608, 0.490196, 0.168627)
+    c3:set("Alpha", 1)
+    c3:set("hor. Align", -1)
+    c3:set("ver. Align", 1)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function ConsoleFrame.ConsoleInput:OnInit()
