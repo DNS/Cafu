@@ -25,7 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../../LuaAux.hpp"
 
 #include "GuiSys/GuiImpl.hpp"
-#include "GuiSys/WindowModel.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "Models/Model_cmdl.hpp"
@@ -124,16 +123,6 @@ bool CommandModifyWindowT::Do()
         MatSys::Renderer->FreeMaterial(m_Window->BackRenderMat);
         m_Window->BackRenderMat=m_Window->BackRenderMatName.empty() ? NULL : MatSys::Renderer->RegisterMaterial(m_GuiDocument->GetGui()->GetMaterialManager().GetMaterial(m_Window->BackRenderMatName));
     }
-    else if (m_PropertyName=="Model")
-    {
-        std::string ErrorMsg;
-        IntrusivePtrT<cf::GuiSys::ModelWindowT> ModelWindow=dynamic_pointer_cast<cf::GuiSys::ModelWindowT>(m_Window);
-        wxASSERT(ModelWindow!=NULL);
-
-        m_OldString=ModelWindow->GetModel()->GetFileName();
-
-        ModelWindow->SetModel(m_NewString, ErrorMsg);
-    }
     else
     {
         switch (m_MemberVar.Type)
@@ -191,14 +180,6 @@ void CommandModifyWindowT::Undo()
         m_Window->BackRenderMatName=m_OldString;
         MatSys::Renderer->FreeMaterial(m_Window->BackRenderMat);
         m_Window->BackRenderMat=m_Window->BackRenderMatName.empty() ? NULL : MatSys::Renderer->RegisterMaterial(m_GuiDocument->GetGui()->GetMaterialManager().GetMaterial(m_Window->BackRenderMatName));
-    }
-    else if (m_PropertyName=="Model")
-    {
-        std::string ErrorMsg;
-        IntrusivePtrT<cf::GuiSys::ModelWindowT> ModelWindow=dynamic_pointer_cast<cf::GuiSys::ModelWindowT>(m_Window);
-        wxASSERT(ModelWindow!=NULL);
-
-        ModelWindow->SetModel(m_OldString, ErrorMsg);
     }
     else
     {

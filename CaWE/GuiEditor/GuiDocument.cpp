@@ -323,33 +323,24 @@ bool GuiDocumentT::SaveInit_cgui(std::ostream& OutFile)
 }
 
 
-#include "Windows/EditorChoiceWindow.hpp"
-#include "Windows/EditorEditWindow.hpp"
-#include "Windows/EditorListBoxWindow.hpp"
-#include "Windows/EditorModelWindow.hpp"
-
-#include "GuiSys/WindowChoice.hpp"
-#include "GuiSys/WindowEdit.hpp"
-#include "GuiSys/WindowListBox.hpp"
-#include "GuiSys/WindowModel.hpp"
-
-
 /*static*/ void GuiDocumentT::CreateSibling(IntrusivePtrT<cf::GuiSys::WindowT> Win, GuiDocumentT* GuiDoc)
 {
     wxASSERT(!Win.IsNull());
 
-    IntrusivePtrT<cf::GuiSys::ChoiceT>      Choice     =dynamic_pointer_cast<cf::GuiSys::ChoiceT>(Win);
-    IntrusivePtrT<cf::GuiSys::EditWindowT>  EditWindow =dynamic_pointer_cast<cf::GuiSys::EditWindowT>(Win);
-    IntrusivePtrT<cf::GuiSys::ListBoxT>     ListBox    =dynamic_pointer_cast<cf::GuiSys::ListBoxT>(Win);
-    IntrusivePtrT<cf::GuiSys::ModelWindowT> ModelWindow=dynamic_pointer_cast<cf::GuiSys::ModelWindowT>(Win);
+    // IntrusivePtrT<cf::GuiSys::ChoiceT>      Choice     =dynamic_pointer_cast<cf::GuiSys::ChoiceT>(Win);
+    // IntrusivePtrT<cf::GuiSys::EditWindowT>  EditWindow =dynamic_pointer_cast<cf::GuiSys::EditWindowT>(Win);
+    // IntrusivePtrT<cf::GuiSys::ListBoxT>     ListBox    =dynamic_pointer_cast<cf::GuiSys::ListBoxT>(Win);
+    // IntrusivePtrT<cf::GuiSys::ModelWindowT> ModelWindow=dynamic_pointer_cast<cf::GuiSys::ModelWindowT>(Win);
 
-    EditorWindowT* EditorWin=NULL;
+    // EditorWindowT* EditorWin=NULL;
 
-         if (!Choice.IsNull())      EditorWin=new EditorChoiceWindowT(Choice, GuiDoc);
-    else if (!EditWindow.IsNull())  EditorWin=new EditorEditWindowT(EditWindow, GuiDoc);
-    else if (!ListBox.IsNull())     EditorWin=new EditorListBoxWindowT(ListBox, GuiDoc);
-    else if (!ModelWindow.IsNull()) EditorWin=new EditorModelWindowT(ModelWindow, GuiDoc);
-    else                            EditorWin=new EditorWindowT(Win, GuiDoc);
+    //      if (!Choice.IsNull())      EditorWin=new EditorChoiceWindowT(Choice, GuiDoc);
+    // else if (!EditWindow.IsNull())  EditorWin=new EditorEditWindowT(EditWindow, GuiDoc);
+    // else if (!ListBox.IsNull())     EditorWin=new EditorListBoxWindowT(ListBox, GuiDoc);
+    // else if (!ModelWindow.IsNull()) EditorWin=new EditorModelWindowT(ModelWindow, GuiDoc);
+    // else                            EditorWin=new EditorWindowT(Win, GuiDoc);
+
+    EditorWindowT* EditorWin = new EditorWindowT(Win, GuiDoc);
 
     Win->SetExtData(EditorWin);
 }

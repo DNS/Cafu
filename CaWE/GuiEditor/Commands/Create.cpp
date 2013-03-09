@@ -24,10 +24,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../../LuaAux.hpp"
 
 #include "GuiSys/Window.hpp"
-#include "GuiSys/WindowChoice.hpp"
-#include "GuiSys/WindowEdit.hpp"
-#include "GuiSys/WindowListBox.hpp"
-#include "GuiSys/WindowModel.hpp"
 #include "GuiSys/WindowCreateParams.hpp"
 
 #include "Math3D/Vector3.hpp"
@@ -36,7 +32,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace GuiEditor;
 
 
-CommandCreateT::CommandCreateT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Parent, WindowTypeE Type)
+CommandCreateT::CommandCreateT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Parent)
     : m_GuiDocument(GuiDocument),
       m_Parent(Parent),
       m_NewWindow(NULL),
@@ -44,29 +40,7 @@ CommandCreateT::CommandCreateT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiS
 {
     cf::GuiSys::WindowCreateParamsT CreateParams(*m_GuiDocument->GetGui());
 
-    // Create window and editor data.
-    switch (Type)
-    {
-        case WINDOW_BASIC:
-            m_NewWindow=new cf::GuiSys::WindowT(CreateParams);
-            break;
-
-        case WINDOW_TEXTEDITOR:
-            m_NewWindow=new cf::GuiSys::EditWindowT(CreateParams);
-            break;
-
-        case WINDOW_CHOICE:
-            m_NewWindow=new cf::GuiSys::ChoiceT(CreateParams);
-            break;
-
-        case WINDOW_LISTBOX:
-            m_NewWindow=new cf::GuiSys::ListBoxT(CreateParams);
-            break;
-
-        case WINDOW_MODEL:
-            m_NewWindow=new cf::GuiSys::ModelWindowT(CreateParams);
-            break;
-    }
+    m_NewWindow = new cf::GuiSys::WindowT(CreateParams);
 
     std::string  WinName = m_NewWindow->GetType()->ClassName;
     const size_t len     = WinName.length();

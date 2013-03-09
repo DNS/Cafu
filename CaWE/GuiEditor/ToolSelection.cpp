@@ -391,10 +391,10 @@ bool ToolSelectionT::OnRMouseUp(RenderWindowT* RenderWindow, wxMouseEvent& ME)
     wxMenu Menu;
     wxMenu* SubMenuCreate=new wxMenu();
     SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_BASE,    "Window");
-    SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_EDIT,    "Text Editor");
-    SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_CHOICE,  "Choice Box");
-    SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_LISTBOX, "List Box");
-    SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_MODEL,   "Model Window");
+    // SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_EDIT,    "Text Editor");
+    // SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_CHOICE,  "Choice Box");
+    // SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_LISTBOX, "List Box");
+    // SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_MODEL,   "Model Window");
     Menu.AppendSubMenu(SubMenuCreate, "Create");
 
     switch (RenderWindow->GetPopupMenuSelectionFromUser(Menu))
@@ -403,20 +403,7 @@ bool ToolSelectionT::OnRMouseUp(RenderWindowT* RenderWindow, wxMouseEvent& ME)
             m_Parent->SubmitCommand(new CommandCreateT(m_GuiDocument, Parent));
             break;
 
-        case ID_MENU_CREATE_WINDOW_EDIT:
-            m_Parent->SubmitCommand(new CommandCreateT(m_GuiDocument, Parent, CommandCreateT::WINDOW_TEXTEDITOR));
-            break;
-
-        case ID_MENU_CREATE_WINDOW_CHOICE:
-            m_Parent->SubmitCommand(new CommandCreateT(m_GuiDocument, Parent, CommandCreateT::WINDOW_CHOICE));
-            break;
-
-        case ID_MENU_CREATE_WINDOW_LISTBOX:
-            m_Parent->SubmitCommand(new CommandCreateT(m_GuiDocument, Parent, CommandCreateT::WINDOW_LISTBOX));
-            break;
-
-        case ID_MENU_CREATE_WINDOW_MODEL:
-            m_Parent->SubmitCommand(new CommandCreateT(m_GuiDocument, Parent, CommandCreateT::WINDOW_MODEL));
+        default:
             break;
     }
 
