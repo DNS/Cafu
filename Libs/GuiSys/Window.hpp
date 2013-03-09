@@ -41,14 +41,10 @@ struct luaL_Reg;
 namespace cf { namespace TypeSys { class TypeInfoT; } }
 namespace cf { namespace TypeSys { class TypeInfoManT; } }
 namespace cf { namespace TypeSys { class CreateParamsT; } }
-namespace MatSys { class RenderMaterialT; }
 
 
 namespace cf
 {
-    class TrueTypeFontT;
-
-
     namespace GuiSys
     {
         class ComponentBaseT;
@@ -254,30 +250,10 @@ namespace cf
             static const cf::TypeSys::TypeInfoT TypeInfo;
 
 
-            /// Enumeration of horizontal alignments of a window.
-            /// The purpose of END_HOR is to ensure that an int is used as the underlying type.
-            enum TextAlignHorT { left, right, center, END_HOR=0x10000000 };
-
-            /// Enumeration of vertical alignments of a window.
-            /// The purpose of END_VER is to ensure that an int is used as the underlying type.
-            enum TextAlignVerT { top, bottom, middle, END_VER=0x10000000 };
-
-
             float                    Time;              ///< This windows local time (starting from 0.0).
             bool                     ShowWindow;        ///< Is this WindowT shown on screen?
             float                    Rect[4];           ///< The upper left corner of this window, relative to its parent, plus the width and height (all in virtual pixels).
             float                    RotAngle;          ///< The angle in degrees by how much this entire window is rotated.
-            MatSys::RenderMaterialT* BackRenderMat;     ///< The render material used to render this windows background.
-            std::string              BackRenderMatName; ///< The name of the render material.
-            float                    BackColor[4];      ///< The windows background color.
-            float                    BorderWidth;       ///< The windows border width.
-            float                    BorderColor[4];    ///< The windows border color.
-            TrueTypeFontT*           Font;              ///< The font used to render text in this window.
-            std::string              Text;              ///< The text to show inside this window.
-            float                    TextScale;         ///< Scale of this windows text.
-            float                    TextColor[4];      ///< Color of the windows text.
-            TextAlignHorT            TextAlignHor;      ///< How the text is aligned horizontally (left, right, centered, block).
-            TextAlignVerT            TextAlignVer;      ///< How the text is aligned vertically (top, middle, bottom).
 
 
             protected:

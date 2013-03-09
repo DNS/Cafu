@@ -52,7 +52,6 @@ namespace GuiEditor
         WMD_GENERIC,          ///< Generic change of windows (useful if the subject doesn't know what exactly has been changed).
         WMD_PROPERTY_CHANGED, ///< A windows property has been changed.
         WMD_TRANSFORMED,      ///< A window has been transformed.
-        WMD_HOR_TEXT_ALIGN,   ///< The horizontal text alignment of a window has been changed.
         WMD_HIERARCHY         ///< The position of a window in the window hierarchy has been changed.
     };
 
@@ -89,7 +88,7 @@ namespace GuiEditor
         /// @param Subject   The GUI document in which the elements have been modified.
         /// @param Windows   List of modified windows.
         /// @param Detail    Information about what has been modified:
-        ///                  Can be WMD_GENERIC, WMD_TRANSFORMED, WMD_HOR_TEXT_ALIGN or WMD_HIERARCHY.
+        ///                  Can be WMD_GENERIC, WMD_TRANSFORMED or WMD_HIERARCHY.
         virtual void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail) { }
 
         /// @param Subject   The GUI document in which the elements have been modified.

@@ -31,15 +31,16 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Commands/Delete.hpp"
 #include "Commands/Select.hpp"
 #include "Commands/Rotate.hpp"
-#include "Commands/AlignText.hpp"
 #include "Commands/ChangeWindowHierarchy.hpp"
 #include "Commands/Paste.hpp"
+#include "Commands/SetCompVar.hpp"
 
 #include "../ParentFrame.hpp"
 #include "../GameConfig.hpp"
 
 #include "GuiSys/AllComponents.hpp"
 #include "GuiSys/CompBase.hpp"
+#include "GuiSys/CompText.hpp"
 #include "GuiSys/Window.hpp"
 #include "GuiSys/GuiImpl.hpp"
 #include "Math3D/Misc.hpp"
@@ -833,16 +834,42 @@ void GuiEditor::ChildFrameT::OnToolbar(wxCommandEvent& CE)
             break;
 
         case ID_TOOLBAR_TEXT_ALIGN_LEFT:
-            SubmitCommand(new CommandAlignTextHorT(m_GuiDocument, m_GuiDocument->GetSelection(), 0));
-            break;
-
         case ID_TOOLBAR_TEXT_ALIGN_CENTER:
-            SubmitCommand(new CommandAlignTextHorT(m_GuiDocument, m_GuiDocument->GetSelection(), 2));
-            break;
-
         case ID_TOOLBAR_TEXT_ALIGN_RIGHT:
-            SubmitCommand(new CommandAlignTextHorT(m_GuiDocument, m_GuiDocument->GetSelection(), 1));
+        {
+            const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Sel = m_GuiDocument->GetSelection();
+            ArrayT<CommandT*> SubCommands;
+
+            for (unsigned int SelNr = 0; SelNr < Sel.Size(); SelNr++)
+            {
+                IntrusivePtrT<cf::GuiSys::ComponentBaseT> CompText = Sel[SelNr]->GetComponent("Text");
+
+                if (CompText != NULL)
+                {
+                    cf::GuiSys::ComponentTextT::VarTextAlignHorT* AlignHor = dynamic_cast<cf::GuiSys::ComponentTextT::VarTextAlignHorT*>(CompText->GetMemberVars().Find("hor. Align"));
+
+                    if (AlignHor)
+                    {
+                        const int HOR_ALIGN = (CE.GetId() == ID_TOOLBAR_TEXT_ALIGN_LEFT)   ? cf::GuiSys::ComponentTextT::VarTextAlignHorT::LEFT :
+                                              (CE.GetId() == ID_TOOLBAR_TEXT_ALIGN_CENTER) ? cf::GuiSys::ComponentTextT::VarTextAlignHorT::CENTER :
+                                                                                             cf::GuiSys::ComponentTextT::VarTextAlignHorT::RIGHT;
+
+                        SubCommands.PushBack(new CommandSetCompVarT<int>(m_GuiDocument, *AlignHor, HOR_ALIGN));
+                    }
+                }
+            }
+
+            if (SubCommands.Size() == 1)
+            {
+                SubmitCommand(SubCommands[0]);
+            }
+            else if (SubCommands.Size() > 1)
+            {
+                SubmitCommand(new CommandMacroT(SubCommands, "Set hor. Align"));
+            }
+
             break;
+        }
 
         case ID_TOOLBAR_ZOOM_IN:
             m_RenderWindow->ZoomIn();

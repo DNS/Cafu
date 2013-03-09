@@ -25,9 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GuiImpl.hpp"
 #include "GuiResources.hpp"
 #include "ConsoleCommands/Console.hpp"
-#include "MaterialSystem/Mesh.hpp"
 #include "MaterialSystem/Renderer.hpp"
-#include "Fonts/FontTT.hpp"
 #include "TypeSys.hpp"
 
 extern "C"
@@ -41,9 +39,6 @@ extern "C"
 
 
 using namespace cf::GuiSys;
-
-
-static const std::string DEFAULT_FONT_NAME="Fonts/Arial";
 
 
 // Note that we cannot simply replace this method with a global TypeInfoManT instance,
@@ -93,17 +88,6 @@ WindowT::WindowT(const WindowCreateParamsT& Params)
       ShowWindow(true),
    // Rect(),
       RotAngle(0.0f),
-      BackRenderMat(NULL),
-      BackRenderMatName(""),
-   // BackColor(),
-      BorderWidth(0.0f),
-   // BorderColor(),
-      Font(Params.Gui.GetGuiResources().GetFont(DEFAULT_FONT_NAME)),
-      Text(""),
-      TextScale(1.0f),
-   // TextColor(),
-      TextAlignHor(left),
-      TextAlignVer(top),
       m_Gui(Params.Gui),
       m_ExtData(NULL),
       m_Parent(NULL),
@@ -113,10 +97,7 @@ WindowT::WindowT(const WindowCreateParamsT& Params)
 {
     for (unsigned long c=0; c<4; c++)
     {
-        Rect       [c]=0.0f;
-        BackColor  [c]=0.5f;
-        BorderColor[c]=1.0f;
-        TextColor  [c]=(c<2) ? 0.0f : 1.0f;
+        Rect[c]=0.0f;
     }
 
     // This is currently required, because this ctor is also used now for windows created
@@ -129,14 +110,6 @@ WindowT::WindowT(const WindowT& Window, bool Recursive)
     : Time(Window.Time),
       ShowWindow(Window.ShowWindow),
       RotAngle(Window.RotAngle),
-      BackRenderMat(NULL),
-      BackRenderMatName(Window.BackRenderMatName),
-      BorderWidth(Window.BorderWidth),
-      Font(Window.Font),
-      Text(Window.Text),
-      TextScale(Window.TextScale),
-      TextAlignHor(Window.TextAlignHor),
-      TextAlignVer(Window.TextAlignVer),
       m_Gui(Window.m_Gui),
       m_ExtData(NULL   /* Clone() it?? */),
       m_Parent(NULL),
@@ -144,17 +117,9 @@ WindowT::WindowT(const WindowT& Window, bool Recursive)
       m_Name(Window.m_Name),
       m_Components()
 {
-    if (!BackRenderMatName.empty())
-    {
-        BackRenderMat=MatSys::Renderer->RegisterMaterial(m_Gui.m_MaterialMan.GetMaterial(BackRenderMatName));
-    }
-
     for (unsigned int i=0; i<4; i++)
     {
-        Rect       [i]=Window.Rect[i];
-        BackColor  [i]=Window.BackColor[i];
-        BorderColor[i]=Window.BorderColor[i];
-        TextColor  [i]=Window.TextColor[i];
+        Rect[i]=Window.Rect[i];
     }
 
     // Copy-create all components first.
@@ -214,14 +179,6 @@ WindowT::~WindowT()
     }
 
     m_Components.Clear();
-
-    // Even if one of these materials is explicitly assigned in the .cgui script (by name),
-    // the render material is newly registered with the MatSys::Renderer as a separate instance,
-    // thus the two assertions below should always hold:
-    assert(BackRenderMat!=m_Gui.GetDefaultRM());
-    assert(BackRenderMat!=m_Gui.GetPointerRM());
-
-    MatSys::Renderer->FreeMaterial(BackRenderMat);
 }
 
 
@@ -620,30 +577,7 @@ void WindowT::FillMemberVars()
     MemberVars["size.x"]=MemberVarT(Rect[2]);
     MemberVars["size.y"]=MemberVarT(Rect[3]);
 
-    MemberVars["backColor"]=MemberVarT(MemberVarT::TYPE_FLOAT4, &BackColor[0]);
-    MemberVars["backColor.r"]=MemberVarT(BackColor[0]);
-    MemberVars["backColor.g"]=MemberVarT(BackColor[1]);
-    MemberVars["backColor.b"]=MemberVarT(BackColor[2]);
-    MemberVars["backColor.a"]=MemberVarT(BackColor[3]);
-
-    MemberVars["borderColor"]=MemberVarT(MemberVarT::TYPE_FLOAT4, &BorderColor[0]);
-    MemberVars["borderColor.r"]=MemberVarT(BorderColor[0]);
-    MemberVars["borderColor.g"]=MemberVarT(BorderColor[1]);
-    MemberVars["borderColor.b"]=MemberVarT(BorderColor[2]);
-    MemberVars["borderColor.a"]=MemberVarT(BorderColor[3]);
-
-    MemberVars["textColor"]=MemberVarT(MemberVarT::TYPE_FLOAT4, &TextColor[0]);
-    MemberVars["textColor.r"]=MemberVarT(TextColor[0]);
-    MemberVars["textColor.g"]=MemberVarT(TextColor[1]);
-    MemberVars["textColor.b"]=MemberVarT(TextColor[2]);
-    MemberVars["textColor.a"]=MemberVarT(TextColor[3]);
-
     MemberVars["rotAngle"]=MemberVarT(RotAngle);
-    MemberVars["borderWidth"]=MemberVarT(BorderWidth);
-    MemberVars["text"]=MemberVarT(Text);
-    MemberVars["textScale"]=MemberVarT(TextScale);
-    MemberVars["textAlignHor"]=MemberVarT(MemberVarT::TYPE_INT, &TextAlignHor);
-    MemberVars["textAlignVer"]=MemberVarT(MemberVarT::TYPE_INT, &TextAlignVer);
 }
 
 
@@ -660,29 +594,6 @@ int WindowT::Set(lua_State* LuaState)
 
     if (Var.Member==NULL)
     {
-        // Special-case treatment of the background material and font (write-only values).
-        if (VarName=="backMaterial")
-        {
-            const std::string NewMaterialName=luaL_checkstring(LuaState, 3);
-
-            if (NewMaterialName!=Win->BackRenderMatName)
-            {
-                // This code has intentionally *NOT* been made fail-safe(r), so that the script can "clear" the BackRenderMat
-                // back to NULL again by specifying an invalid material name, e.g. "", "none", "NULL", "default", etc.
-                Win->BackRenderMatName=NewMaterialName;
-                MatSys::Renderer->FreeMaterial(Win->BackRenderMat);
-                Win->BackRenderMat=Win->BackRenderMatName.empty() ? NULL : MatSys::Renderer->RegisterMaterial(Win->m_Gui.m_MaterialMan.GetMaterial(Win->BackRenderMatName));
-            }
-            return 0;
-        }
-        else if (VarName=="font")
-        {
-            const std::string FontName=luaL_checkstring(LuaState, 3);
-
-            Win->Font=Win->m_Gui.GetGuiResources().GetFont(FontName);
-            return 0;
-        }
-
         // Bad argument "VarName".
         luaL_argerror(LuaState, 2, (std::string("unknown field '")+VarName+"'").c_str());
         return 0;

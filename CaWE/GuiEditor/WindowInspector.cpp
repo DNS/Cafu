@@ -121,15 +121,6 @@ void WindowInspectorT::NotifySubjectChanged_Modified(SubjectT* Subject, const Ar
             RefreshGrid();
             break;
         }
-
-        case WMD_HOR_TEXT_ALIGN:
-        {
-            wxPGProperty* Property=GetProperty("HorizontalAlign");
-            Property->SetValueFromInt(int(m_SelectedWindow->TextAlignHor));
-
-            RefreshGrid();
-            break;
-        }
     }
 }
 

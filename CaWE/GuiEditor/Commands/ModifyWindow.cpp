@@ -115,14 +115,6 @@ bool CommandModifyWindowT::Do()
         m_OldString = m_Window->GetName();
         m_Window->SetName(CheckLuaIdentifier(m_NewString).ToStdString());
     }
-    else if (m_PropertyName=="BackMatName")
-    {
-        m_OldString=m_Window->BackRenderMatName;
-
-        m_Window->BackRenderMatName=m_NewString;
-        MatSys::Renderer->FreeMaterial(m_Window->BackRenderMat);
-        m_Window->BackRenderMat=m_Window->BackRenderMatName.empty() ? NULL : MatSys::Renderer->RegisterMaterial(m_GuiDocument->GetGui()->GetMaterialManager().GetMaterial(m_Window->BackRenderMatName));
-    }
     else
     {
         switch (m_MemberVar.Type)
@@ -174,12 +166,6 @@ void CommandModifyWindowT::Undo()
     if (m_PropertyName=="Name")
     {
         m_Window->SetName(m_OldString);
-    }
-    else if (m_PropertyName=="BackMatName")
-    {
-        m_Window->BackRenderMatName=m_OldString;
-        MatSys::Renderer->FreeMaterial(m_Window->BackRenderMat);
-        m_Window->BackRenderMat=m_Window->BackRenderMatName.empty() ? NULL : MatSys::Renderer->RegisterMaterial(m_GuiDocument->GetGui()->GetMaterialManager().GetMaterial(m_Window->BackRenderMatName));
     }
     else
     {

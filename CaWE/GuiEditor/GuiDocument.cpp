@@ -138,15 +138,7 @@ void GuiDocumentT::SetSelection(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT>
 // Recursively saves the window instantiation of the passed window and all of its children.
 static void SaveWindowInstantiation(std::ostream& OutFile, IntrusivePtrT<cf::GuiSys::WindowT> Window, const wxString& ParentName)
 {
-    if (GuiDocumentT::GetSibling(Window)->ConvertToComponent())
-    {
-        // Converting to components: use "WindowT", even for derived classes.
-        OutFile << ParentName + Window->GetName() << "=gui:new(\"" << "WindowT" << "\", \"" << Window->GetName() << "\");\n";
-    }
-    else
-    {
-        OutFile << ParentName + Window->GetName() << "=gui:new(\"" << Window->GetType()->ClassName << "\", \"" << Window->GetName() << "\");\n";
-    }
+    OutFile << ParentName + Window->GetName() << "=gui:new(\"" << Window->GetType()->ClassName << "\", \"" << Window->GetName() << "\");\n";
 
     if (Window==Window->GetRoot()) OutFile << "\n";
 
