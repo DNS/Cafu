@@ -50,6 +50,9 @@ namespace cf
             /// The destructor.
             ~ComponentImageT();
 
+            /// Returns the name of the MatSys material that is used for the image.
+            const std::string& GetMatName() const { return m_MatName.Get(); }
+
             // Base class overrides.
             ComponentImageT* Clone() const;
             const char* GetName() const { return "Image"; }

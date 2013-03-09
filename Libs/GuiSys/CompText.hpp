@@ -96,6 +96,9 @@ namespace cf
             /// to set this components text value. This auxiliary method makes the task much easier.
             void SetText(const std::string& t) { m_Text.Set(t); }
 
+            /// This method appends the given text to the components text value.
+            void AppendText(const std::string& t) { m_Text.Set(m_Text.Get() + t); }
+
             // Base class overrides.
             ComponentTextT* Clone() const;
             const char* GetName() const { return "Text"; }
