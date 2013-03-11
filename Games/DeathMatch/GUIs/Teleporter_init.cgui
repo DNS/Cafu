@@ -50,11 +50,6 @@ Root:AddChild(ButtonGo);
 function Root:OnInit()
     self:set("rect", 0, 0, 640, 480);
 
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 0, 0)
-    c1:set("Size", 640, 480)
-    c1:set("Rotation", 0)
-
     local c2 = gui:new("ComponentTextT")
     c2:set("Name", "Fonts/Impact")
     c2:set("Text", [[Wormhole Teleportation Services Inc.
@@ -72,7 +67,7 @@ function Root:OnInit()
     c3:set("Color", 0, 0.356863, 0.533333)
     c3:set("Alpha", 0.5)
 
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c2, c3)
 
     gui:activate      (false);
     gui:setInteractive(true);
@@ -82,11 +77,6 @@ end
 
 function InfoStation:OnInit()
     self:set("rect", 0, 10, 640, 30);
-
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 0, 10)
-    c1:set("Size", 640, 30)
-    c1:set("Rotation", 0)
 
     local c2 = gui:new("ComponentTextT")
     c2:set("Name", "Fonts/Arial")
@@ -98,16 +88,11 @@ function InfoStation:OnInit()
     c2:set("hor. Align", 0)
     c2:set("ver. Align", -1)
 
-    self:AddComponent(c1, c2)
+    self:AddComponent(c2)
 end
 
 function InfoTextSelectNode:OnInit()
     self:set("rect", 0, 60, 640, 80);
-
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 0, 60)
-    c1:set("Size", 640, 80)
-    c1:set("Rotation", 0)
 
     local c2 = gui:new("ComponentTextT")
     c2:set("Name", "Fonts/Arial")
@@ -119,16 +104,11 @@ function InfoTextSelectNode:OnInit()
     c2:set("hor. Align", 0)
     c2:set("ver. Align", -1)
 
-    self:AddComponent(c1, c2)
+    self:AddComponent(c2)
 end
 
 function DestNode:OnInit()
     self:set("rect", 200, 150, 240, 120);
-
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 200, 150)
-    c1:set("Size", 240, 120)
-    c1:set("Rotation", 0)
 
     local c2 = gui:new("ComponentTextT")
     c2:set("Name", "Fonts/Impact")
@@ -140,16 +120,11 @@ function DestNode:OnInit()
     c2:set("hor. Align", 0)
     c2:set("ver. Align", 0)
 
-    self:AddComponent(c1, c2)
+    self:AddComponent(c2)
 end
 
 function ButtonMinus:OnInit()
     self:set("rect", 100, 150, 100, 120);
-
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 100, 150)
-    c1:set("Size", 100, 120)
-    c1:set("Rotation", 0)
 
     local c2 = gui:new("ComponentTextT")
     c2:set("Name", "Fonts/Impact")
@@ -171,16 +146,11 @@ function ButtonMinus:OnInit()
     c4:set("Color", 0, 0, 0)
     c4:set("Alpha", 0.117647)
 
-    self:AddComponent(c1, c2, c3, c4)
+    self:AddComponent(c2, c3, c4)
 end
 
 function ButtonPlus:OnInit()
     self:set("rect", 440, 150, 100, 120);
-
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 440, 150)
-    c1:set("Size", 100, 120)
-    c1:set("Rotation", 0)
 
     local c2 = gui:new("ComponentTextT")
     c2:set("Name", "Fonts/Impact")
@@ -202,16 +172,11 @@ function ButtonPlus:OnInit()
     c4:set("Color", 0, 0, 0)
     c4:set("Alpha", 0.117647)
 
-    self:AddComponent(c1, c2, c3, c4)
+    self:AddComponent(c2, c3, c4)
 end
 
 function ButtonGo:OnInit()
     self:set("rect", 20, 340, 600, 50);
-
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 20, 340)
-    c1:set("Size", 600, 50)
-    c1:set("Rotation", 0)
 
     local c2 = gui:new("ComponentTextT")
     c2:set("Name", "Fonts/Arial")
@@ -233,6 +198,6 @@ function ButtonGo:OnInit()
     c4:set("Color", 0, 0, 0)
     c4:set("Alpha", 0.117647)
 
-    self:AddComponent(c1, c2, c3, c4)
+    self:AddComponent(c2, c3, c4)
 end
 

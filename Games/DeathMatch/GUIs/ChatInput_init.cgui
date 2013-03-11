@@ -34,17 +34,12 @@ ChatInputFrame:AddChild(ChatInputFrame.ButtonCancel);
 function Background:OnInit()
     self:set("rect", 0, 100, 640, 50);
 
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 0, 100)
-    c1:set("Size", 640, 50)
-    c1:set("Rotation", 0)
-
     local c2 = gui:new("ComponentImageT")
     c2:set("Material", "")
     c2:set("Color", 0, 0, 0)
     c2:set("Alpha", 0.7)
 
-    self:AddComponent(c1, c2)
+    self:AddComponent(c2)
 
     gui:activate      (false);
     gui:setInteractive(true);
@@ -54,11 +49,6 @@ end
 
 function ChatInputFrame:OnInit()
     self:set("rect", 5, 5, 630, 40);
-
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 5, 5)
-    c1:set("Size", 630, 40)
-    c1:set("Rotation", 0)
 
     local c2 = gui:new("ComponentTextT")
     c2:set("Name", "Fonts/Arial")
@@ -80,16 +70,11 @@ function ChatInputFrame:OnInit()
     c4:set("Color", 0, 0.25, 0.7)
     c4:set("Alpha", 0.4)
 
-    self:AddComponent(c1, c2, c3, c4)
+    self:AddComponent(c2, c3, c4)
 end
 
 function ChatInputFrame.ChatInput:OnInit()
     self:set("rect", 30, 10, 520, 20);
-
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 30, 10)
-    c1:set("Size", 520, 20)
-    c1:set("Rotation", 0)
 
     local c2 = gui:new("ComponentBorderT")
     c2:set("Width", 0.5)
@@ -113,16 +98,11 @@ function ChatInputFrame.ChatInput:OnInit()
     c4:set("CursorColor", 0.02, 0.36, 1)
     c4:set("CursorAlpha", 1)
 
-    self:AddComponent(c1, c2, c3, c4)
+    self:AddComponent(c2, c3, c4)
 end
 
 function ChatInputFrame.ButtonCancel:OnInit()
     self:set("rect", 560, 10, 60, 20);
-
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 560, 10)
-    c1:set("Size", 60, 20)
-    c1:set("Rotation", 0)
 
     local c2 = gui:new("ComponentTextT")
     c2:set("Name", "Fonts/Arial")
@@ -144,6 +124,6 @@ function ChatInputFrame.ButtonCancel:OnInit()
     c4:set("Color", 0, 0.25, 0.7)
     c4:set("Alpha", 0.5)
 
-    self:AddComponent(c1, c2, c3, c4)
+    self:AddComponent(c2, c3, c4)
 end
 

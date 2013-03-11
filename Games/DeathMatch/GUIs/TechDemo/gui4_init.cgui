@@ -38,17 +38,12 @@ ElevatorMalfunctionGUI:AddChild(TextArea2);
 function ElevatorMalfunctionGUI:OnInit()
     self:set("rect", 0, 0, 640, 480);
 
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 0, 0)
-    c1:set("Size", 640, 480)
-    c1:set("Rotation", 0)
-
     local c2 = gui:new("ComponentImageT")
     c2:set("Material", "Gui/Background1")
     c2:set("Color", 1, 0, 0)
     c2:set("Alpha", 1)
 
-    self:AddComponent(c1, c2)
+    self:AddComponent(c2)
 
     gui:activate      (false);
     gui:setInteractive(false);
@@ -57,11 +52,6 @@ end
 
 function Heading:OnInit()
     self:set("rect", 43, 45, 558, 28);
-
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 43, 45)
-    c1:set("Size", 558, 28)
-    c1:set("Rotation", 0)
 
     local c2 = gui:new("ComponentTextT")
     c2:set("Name", "Fonts/Arial")
@@ -73,16 +63,11 @@ function Heading:OnInit()
     c2:set("hor. Align", -1)
     c2:set("ver. Align", -1)
 
-    self:AddComponent(c1, c2)
+    self:AddComponent(c2)
 end
 
 function TextArea:OnInit()
     self:set("rect", 43, 91, 558, 324);
-
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 43, 91)
-    c1:set("Size", 558, 324)
-    c1:set("Rotation", 0)
 
     local c2 = gui:new("ComponentTextT")
     c2:set("Name", "Fonts/Arial")
@@ -101,16 +86,11 @@ Please contact administration immediately.]])
     c2:set("hor. Align", -1)
     c2:set("ver. Align", -1)
 
-    self:AddComponent(c1, c2)
+    self:AddComponent(c2)
 end
 
 function TextArea2:OnInit()
     self:set("rect", 43, 91, 558, 324);
-
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 43, 91)
-    c1:set("Size", 558, 324)
-    c1:set("Rotation", 0)
 
     local c2 = gui:new("ComponentTextT")
     c2:set("Name", "Fonts/Arial")
@@ -127,6 +107,6 @@ Danger of deadly fall!]])
     c2:set("hor. Align", -1)
     c2:set("ver. Align", -1)
 
-    self:AddComponent(c1, c2)
+    self:AddComponent(c2)
 end
 

@@ -42,17 +42,12 @@ EmgTunnelBeachGUI:AddChild(EngineLogo);
 function EmgTunnelBeachGUI:OnInit()
     self:set("rect", 0, 0, 640, 480);
 
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 0, 0)
-    c1:set("Size", 640, 480)
-    c1:set("Rotation", 0)
-
     local c2 = gui:new("ComponentImageT")
     c2:set("Material", "")
     c2:set("Color", 0, 0.25, 0.7)
     c2:set("Alpha", 0.4)
 
-    self:AddComponent(c1, c2)
+    self:AddComponent(c2)
 
     gui:activate      (false);
     gui:setInteractive(false);
@@ -61,11 +56,6 @@ end
 
 function Heading:OnInit()
     self:set("rect", 50, 30, 540, 120);
-
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 50, 30)
-    c1:set("Size", 540, 120)
-    c1:set("Rotation", 0)
 
     local c2 = gui:new("ComponentTextT")
     c2:set("Name", "Fonts/Impact")
@@ -83,16 +73,11 @@ function Heading:OnInit()
     c3:set("Color", 0.7, 0.8, 0.9)
     c3:set("Alpha", 1)
 
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c2, c3)
 end
 
 function TunnelLocation:OnInit()
     self:set("rect", 50, 180, 540, 120);
-
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 50, 180)
-    c1:set("Size", 540, 120)
-    c1:set("Rotation", 0)
 
     local c2 = gui:new("ComponentTextT")
     c2:set("Name", "Fonts/Arial")
@@ -111,16 +96,11 @@ function TunnelLocation:OnInit()
     c3:set("Color", 0.7, 0.8, 0.9)
     c3:set("Alpha", 1)
 
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c2, c3)
 end
 
 function ThirdMsg:OnInit()
     self:set("rect", 50, 330, 390, 120);
-
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 50, 330)
-    c1:set("Size", 390, 120)
-    c1:set("Rotation", 0)
 
     local c2 = gui:new("ComponentTextT")
     c2:set("Name", "Fonts/Impact")
@@ -138,22 +118,17 @@ INCERFA]])
     c3:set("Color", 0.7, 0.8, 0.9)
     c3:set("Alpha", 1)
 
-    self:AddComponent(c1, c2, c3)
+    self:AddComponent(c2, c3)
 end
 
 function EngineLogo:OnInit()
     self:set("rect", 470, 358, 128, 64);
-
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 470, 358)
-    c1:set("Size", 128, 64)
-    c1:set("Rotation", 0)
 
     local c2 = gui:new("ComponentImageT")
     c2:set("Material", "Gui/SmallLogo")
     c2:set("Color", 1, 1, 1)
     c2:set("Alpha", 1)
 
-    self:AddComponent(c1, c2)
+    self:AddComponent(c2)
 end
 

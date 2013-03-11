@@ -21,7 +21,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "CompTransform.hpp"
 #include "AllComponents.hpp"
-#include "UniScriptState.hpp"
 
 extern "C"
 {
@@ -79,8 +78,8 @@ ComponentTransformT* ComponentTransformT::Clone() const
 
 int ComponentTransformT::toString(lua_State* LuaState)
 {
-    ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<ComponentBaseT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(1);
+    // ScriptBinderT Binder(LuaState);
+    // IntrusivePtrT<ComponentBaseT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(1);
 
     lua_pushfstring(LuaState, "transform component");
     return 1;

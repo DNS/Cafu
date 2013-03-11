@@ -49,17 +49,12 @@ Background:AddChild(CrossHair);
 
 function Background:OnInit()
 
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 0, 0)
-    c1:set("Size", 0, 0)
-    c1:set("Rotation", 0)
-
     local c2 = gui:new("ComponentImageT")
     c2:set("Material", "")
     c2:set("Color", 1, 0, 0)
     c2:set("Alpha", 0.7)
 
-    self:AddComponent(c1, c2)
+    self:AddComponent(c2)
 
     gui:activate      (false);
     gui:setInteractive(false);
@@ -68,11 +63,6 @@ end
 
 function InfoHealth:OnInit()
     self:set("rect", 5, 430, 70, 20);
-
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 5, 430)
-    c1:set("Size", 70, 20)
-    c1:set("Rotation", 0)
 
     local c2 = gui:new("ComponentTextT")
     c2:set("Name", "Fonts/Arial")
@@ -94,16 +84,11 @@ function InfoHealth:OnInit()
     c4:set("Color", 0, 0.25, 0.7)
     c4:set("Alpha", 0.4)
 
-    self:AddComponent(c1, c2, c3, c4)
+    self:AddComponent(c2, c3, c4)
 end
 
 function InfoArmor:OnInit()
     self:set("rect", 5, 455, 70, 20);
-
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 5, 455)
-    c1:set("Size", 70, 20)
-    c1:set("Rotation", 0)
 
     local c2 = gui:new("ComponentTextT")
     c2:set("Name", "Fonts/Arial")
@@ -125,16 +110,11 @@ function InfoArmor:OnInit()
     c4:set("Color", 0, 0.25, 0.7)
     c4:set("Alpha", 0.4)
 
-    self:AddComponent(c1, c2, c3, c4)
+    self:AddComponent(c2, c3, c4)
 end
 
 function InfoFrags:OnInit()
     self:set("rect", 95, 455, 80, 20);
-
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 95, 455)
-    c1:set("Size", 80, 20)
-    c1:set("Rotation", 0)
 
     local c2 = gui:new("ComponentTextT")
     c2:set("Name", "Fonts/Arial")
@@ -156,16 +136,11 @@ function InfoFrags:OnInit()
     c4:set("Color", 0, 0.25, 0.7)
     c4:set("Alpha", 0.4)
 
-    self:AddComponent(c1, c2, c3, c4)
+    self:AddComponent(c2, c3, c4)
 end
 
 function InfoAmmo:OnInit()
     self:set("rect", 465, 455, 170, 20);
-
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 465, 455)
-    c1:set("Size", 170, 20)
-    c1:set("Rotation", 0)
 
     local c2 = gui:new("ComponentTextT")
     c2:set("Name", "Fonts/Arial")
@@ -187,16 +162,11 @@ function InfoAmmo:OnInit()
     c4:set("Color", 0, 0.25, 0.7)
     c4:set("Alpha", 0.4)
 
-    self:AddComponent(c1, c2, c3, c4)
+    self:AddComponent(c2, c3, c4)
 end
 
 function FPS:OnInit()
     self:set("rect", 580, 5, 55, 20);
-
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 580, 5)
-    c1:set("Size", 55, 20)
-    c1:set("Rotation", 0)
 
     local c2 = gui:new("ComponentTextT")
     c2:set("Name", "Fonts/Impact")
@@ -218,17 +188,12 @@ function FPS:OnInit()
     c4:set("Color", 0, 0.25, 0.7)
     c4:set("Alpha", 0.4)
 
-    self:AddComponent(c1, c2, c3, c4)
+    self:AddComponent(c2, c3, c4)
 end
 
 function CrossHair:OnInit()
     self:set("rect", 310, 230, 20, 20);
 
-    local c1 = gui:new("ComponentTransformT")
-    c1:set("Pos", 310, 230)
-    c1:set("Size", 20, 20)
-    c1:set("Rotation", 0)
-
-    self:AddComponent(c1)
+    self:AddComponent()
 end
 

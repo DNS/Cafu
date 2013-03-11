@@ -23,7 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_GUISYS_COMPONENT_TRANSFORM_HPP_INCLUDED
 
 #include "CompBase.hpp"
-#include "Window.hpp"   // For the temporary/transitional implementation of the `Get...()` methods.
 
 
 namespace cf
@@ -43,17 +42,17 @@ namespace cf
             /// @param Comp   The component to create a copy of.
             ComponentTransformT(const ComponentTransformT& Comp);
 
+            const Vector2fT& GetPos() const { return m_Pos.Get(); }
+            const Vector2fT& GetSize() const { return m_Size.Get(); }
+            float GetRotAngle() const { return m_RotAngle.Get(); }
+
+            void SetPos(const Vector2fT& Pos) { m_Pos.Set(Pos); }
+            void SetSize(const Vector2fT& Size) { m_Size.Set(Size); }
+            void SetRotAngle(float RotAngle) { m_RotAngle.Set(RotAngle); }
+
             // Base class overrides.
             ComponentTransformT* Clone() const;
             const char* GetName() const { return "Transform"; }
-
-            // The implementation of these methods is *temporary/transitional*
-            // (the data should be here in ComponentTransformT, not in m_Window).
-            float GetPosX() const { return GetWindow()->Rect[0]; }
-            float GetPosY() const { return GetWindow()->Rect[1]; }
-            float GetWidth() const { return GetWindow()->Rect[2]; }
-            float GetHeight() const { return GetWindow()->Rect[3]; }
-            float GetRotation() const { return GetWindow()->RotAngle; }
 
 
             // The TypeSys related declarations for this class.
@@ -70,9 +69,9 @@ namespace cf
 
             enum SizeFlagsT { RATIO, FIXED };
 
-            TypeSys::VarT<Vector2fT>   m_Pos;       ///< The position of the top-left corner of the window, relative to its parent.
-            TypeSys::VarT<Vector2fT>   m_Size;      ///< The size of the window.
-            TypeSys::VarT<float>       m_RotAngle;  ///< The angle in degrees by how much this entire window is rotated. Obsolete if we have 3D transforms?
+            TypeSys::VarT<Vector2fT> m_Pos;       ///< The position of the top-left corner of the window, relative to its parent.
+            TypeSys::VarT<Vector2fT> m_Size;      ///< The size of the window.
+            TypeSys::VarT<float>     m_RotAngle;  ///< The angle in degrees by how much this entire window is rotated. Obsolete if we have 3D transforms?
 
             // SizeFlagsT HorzFlags[3];
             // SizeFlagsT VertFlags[3];
