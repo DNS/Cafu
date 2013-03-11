@@ -50,17 +50,17 @@ TestGUI:AddChild(FPS);
 function TestGUI:OnInit()
     self:set("rect", 0, 0, 640, 480);
 
-    local c2 = gui:new("ComponentTextT")
-    c2:set("Name", "Fonts/Arial")
-    c2:set("Text", "T.W.Lewis")
-    c2:set("Scale", 1.2)
-    c2:set("Padding", 0, 0)
-    c2:set("Color", 0, 0, 1)
-    c2:set("Alpha", 1)
-    c2:set("hor. Align", -1)
-    c2:set("ver. Align", -1)
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", "T.W.Lewis")
+    c1:set("Scale", 1.2)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", -1)
 
-    self:AddComponent(c2)
+    self:AddComponent(c1)
 
     gui:activate      (false);
     gui:setInteractive(true);
@@ -70,120 +70,120 @@ end
 function SomeImage:OnInit()
     self:set("rect", 30, 130, 200, 200);
 
-    local c2 = gui:new("ComponentImageT")
-    c2:set("Material", "Models/Weapons/9mmAR_v/arm")
-    c2:set("Color", 1, 1, 1)
-    c2:set("Alpha", 1)
+    local c1 = gui:new("ComponentImageT")
+    c1:set("Material", "Models/Weapons/9mmAR_v/arm")
+    c1:set("Color", 1, 1, 1)
+    c1:set("Alpha", 1)
 
-    self:AddComponent(c2)
+    self:AddComponent(c1)
 end
 
 function ButtonToggleHor:OnInit()
     self:set("rect", 10, 380, 140, 80);
 
-    local c2 = gui:new("ComponentTextT")
-    c2:set("Name", "Fonts/Arial")
-    c2:set("Text", [[Toggle hor.
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", [[Toggle hor.
 alignment]])
-    c2:set("Scale", 0.5)
-    c2:set("Padding", 0, 0)
-    c2:set("Color", 0, 0, 1)
+    c1:set("Scale", 0.5)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", -1)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 5)
+    c2:set("Color", 1, 1, 1)
     c2:set("Alpha", 1)
-    c2:set("hor. Align", -1)
-    c2:set("ver. Align", -1)
 
-    local c3 = gui:new("ComponentBorderT")
-    c3:set("Width", 5)
-    c3:set("Color", 1, 1, 1)
-    c3:set("Alpha", 1)
-
-    self:AddComponent(c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function ButtonToggleVer:OnInit()
     self:set("rect", 170, 380, 140, 80);
 
-    local c2 = gui:new("ComponentTextT")
-    c2:set("Name", "Fonts/Arial")
-    c2:set("Text", [[Toggle ver.
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", [[Toggle ver.
 alignment]])
-    c2:set("Scale", 0.5)
-    c2:set("Padding", 0, 0)
-    c2:set("Color", 0, 0, 1)
+    c1:set("Scale", 0.5)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", -1)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 5)
+    c2:set("Color", 1, 1, 1)
     c2:set("Alpha", 1)
-    c2:set("hor. Align", -1)
-    c2:set("ver. Align", -1)
 
-    local c3 = gui:new("ComponentBorderT")
-    c3:set("Width", 5)
-    c3:set("Color", 1, 1, 1)
-    c3:set("Alpha", 1)
-
-    self:AddComponent(c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function ButtonQuit:OnInit()
     self:set("rect", 400, 380, 160, 80);
 
-    local c2 = gui:new("ComponentTextT")
-    c2:set("Name", "Fonts/Impact")
-    c2:set("Text", "Quit")
-    c2:set("Scale", 1)
-    c2:set("Padding", 0, 0)
-    c2:set("Color", 0, 0, 1)
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Impact")
+    c1:set("Text", "Quit")
+    c1:set("Scale", 1)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 10)
+    c2:set("Color", 1, 1, 1)
     c2:set("Alpha", 1)
-    c2:set("hor. Align", 0)
-    c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentBorderT")
-    c3:set("Width", 10)
-    c3:set("Color", 1, 1, 1)
-    c3:set("Alpha", 1)
-
-    self:AddComponent(c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function Counter:OnInit()
     self:set("rect", 400, 20, 120, 100);
 
-    local c2 = gui:new("ComponentTextT")
-    c2:set("Name", "Fonts/Arial")
-    c2:set("Text", [[Counter
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", [[Counter
 0]])
-    c2:set("Scale", 0.6)
-    c2:set("Padding", 0, 0)
-    c2:set("Color", 0, 0, 1)
+    c1:set("Scale", 0.6)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", -1)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 5)
+    c2:set("Color", 1, 1, 1)
     c2:set("Alpha", 1)
-    c2:set("hor. Align", -1)
-    c2:set("ver. Align", -1)
 
-    local c3 = gui:new("ComponentBorderT")
-    c3:set("Width", 5)
-    c3:set("Color", 1, 1, 1)
-    c3:set("Alpha", 1)
-
-    self:AddComponent(c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function FPS:OnInit()
     self:set("rect", 400, 150, 220, 160);
 
-    local c2 = gui:new("ComponentTextT")
-    c2:set("Name", "Fonts/Impact")
-    c2:set("Text", [[FPS
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Impact")
+    c1:set("Text", [[FPS
 ]])
-    c2:set("Scale", 0.8)
-    c2:set("Padding", 0, 0)
-    c2:set("Color", 0, 0, 1)
+    c1:set("Scale", 0.8)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", -1)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 5)
+    c2:set("Color", 1, 1, 1)
     c2:set("Alpha", 1)
-    c2:set("hor. Align", -1)
-    c2:set("ver. Align", -1)
 
-    local c3 = gui:new("ComponentBorderT")
-    c3:set("Width", 5)
-    c3:set("Color", 1, 1, 1)
-    c3:set("Alpha", 1)
-
-    self:AddComponent(c2, c3)
+    self:AddComponent(c1, c2)
 end
 

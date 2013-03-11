@@ -32,9 +32,6 @@ namespace cf
 {
     namespace GuiSys
     {
-        class ComponentTransformT;
-
-
         /// This component adds an image to its window.
         class ComponentImageT : public ComponentBaseT
         {
@@ -93,7 +90,6 @@ namespace cf
             static const luaL_Reg MethodsList[];        ///< The list of Lua methods for this class.
             static int toString(lua_State* LuaState);   ///< Returns a string representation of this object.
 
-            IntrusivePtrT<ComponentTransformT> m_Transform;
             VarMatNameT                        m_MatName;   ///< The name of the image material.
             MatSys::RenderMaterialT*           m_MatInst;   ///< The render instance of the material.
             TypeSys::VarT<Vector3fT>           m_Color;     ///< The color with which the image is tinted.

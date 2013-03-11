@@ -54,12 +54,12 @@ FarewellGUI:AddChild(BottomLine);
 function FarewellGUI:OnInit()
     self:set("rect", 0, 0, 640, 480);
 
-    local c2 = gui:new("ComponentImageT")
-    c2:set("Material", "Gui/Background1")
-    c2:set("Color", 0.5, 0.5, 0.5)
-    c2:set("Alpha", 0.5)
+    local c1 = gui:new("ComponentImageT")
+    c1:set("Material", "Gui/Background1")
+    c1:set("Color", 0.5, 0.5, 0.5)
+    c1:set("Alpha", 0.5)
 
-    self:AddComponent(c2)
+    self:AddComponent(c1)
 
     gui:activate      (false);
     gui:setInteractive(true);
@@ -69,25 +69,25 @@ end
 function Heading1:OnInit()
     self:set("rect", 43, 45, 558, 28);
 
-    local c2 = gui:new("ComponentTextT")
-    c2:set("Name", "Fonts/Arial")
-    c2:set("Text", "Dear Voyager!")
-    c2:set("Scale", 0.6)
-    c2:set("Padding", 0, 0)
-    c2:set("Color", 1, 0.9, 0.8)
-    c2:set("Alpha", 1)
-    c2:set("hor. Align", -1)
-    c2:set("ver. Align", -1)
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", "Dear Voyager!")
+    c1:set("Scale", 0.6)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 1, 0.9, 0.8)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", -1)
 
-    self:AddComponent(c2)
+    self:AddComponent(c1)
 end
 
 function TextArea1:OnInit()
     self:set("rect", 43, 91, 558, 324);
 
-    local c2 = gui:new("ComponentTextT")
-    c2:set("Name", "Fonts/Arial")
-    c2:set("Text", [[For now you have (almost) reached the end
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", [[For now you have (almost) reached the end
 of the Cafu Engine demo.
 We hope that you enjoyed exploring it as much
 as we enjoyed making it.
@@ -97,40 +97,40 @@ www.cafu.de to provide your feed-back.
 
 Thank you very much!
 The Cafu Team]])
-    c2:set("Scale", 0.5)
-    c2:set("Padding", 0, 0)
-    c2:set("Color", 0.8, 0.9, 1)
-    c2:set("Alpha", 1)
-    c2:set("hor. Align", -1)
-    c2:set("ver. Align", -1)
+    c1:set("Scale", 0.5)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.8, 0.9, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", -1)
 
-    self:AddComponent(c2)
+    self:AddComponent(c1)
 end
 
 function Heading2:OnInit()
     self:set("show", false);
     self:set("rect", 43, 45, 558, 28);
 
-    local c2 = gui:new("ComponentTextT")
-    c2:set("Name", "Fonts/Arial")
-    c2:set("Text", "Additional information")
-    c2:set("Scale", 0.6)
-    c2:set("Padding", 0, 0)
-    c2:set("Color", 1, 0.9, 0.8)
-    c2:set("Alpha", 1)
-    c2:set("hor. Align", -1)
-    c2:set("ver. Align", -1)
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", "Additional information")
+    c1:set("Scale", 0.6)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 1, 0.9, 0.8)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", -1)
 
-    self:AddComponent(c2)
+    self:AddComponent(c1)
 end
 
 function TextArea2:OnInit()
     self:set("show", false);
     self:set("rect", 43, 91, 558, 324);
 
-    local c2 = gui:new("ComponentTextT")
-    c2:set("Name", "Fonts/Arial")
-    c2:set("Text", [[Planned features for the next release:
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", [[Planned features for the next release:
     1) Vegetation for the island
     2) more dynamic lighting and shadows
     3) many other improvements...
@@ -141,41 +141,39 @@ Special thanks for help with this release to:
 Oh, and please don't fall from the walkway
 into the open space behind you.
 There is no way back up.  ;-)]])
-    c2:set("Scale", 0.5)
-    c2:set("Padding", 0, 0)
-    c2:set("Color", 0.8, 0.9, 1)
-    c2:set("Alpha", 1)
-    c2:set("hor. Align", -1)
-    c2:set("ver. Align", -1)
+    c1:set("Scale", 0.5)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.8, 0.9, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", -1)
 
-    self:AddComponent(c2)
+    self:AddComponent(c1)
 end
 
 function EngineLogo:OnInit()
     self:set("rect", 480, 325, 128, 64);
 
-    local c2 = gui:new("ComponentImageT")
-    c2:set("Material", "Gui/SmallLogo")
-    c2:set("Color", 0.5, 0.5, 0.5)
-    c2:set("Alpha", 0.5)
+    local c1 = gui:new("ComponentImageT")
+    c1:set("Material", "Gui/SmallLogo")
+    c1:set("Color", 0.5, 0.5, 0.5)
+    c1:set("Alpha", 0.5)
 
-    self:AddComponent(c2)
+    self:AddComponent(c1)
 end
 
 function LayDepthBuffer:OnInit()
     self:set("rect", 0, 0, 640, 480);
 
-    local c2 = gui:new("ComponentImageT")
-    c2:set("Material", "Gui/LayDepth")
-    c2:set("Color", 1, 1, 1)
-    c2:set("Alpha", 0)
+    local c1 = gui:new("ComponentImageT")
+    c1:set("Material", "Gui/LayDepth")
+    c1:set("Color", 1, 1, 1)
+    c1:set("Alpha", 0)
 
-    self:AddComponent(c2)
+    self:AddComponent(c1)
 end
 
 function BottomLine:OnInit()
     self:set("rect", 37, 428, 568, 21);
-
-    self:AddComponent()
 end
 

@@ -33,9 +33,6 @@ namespace cf
 {
     namespace GuiSys
     {
-        class ComponentTransformT;
-
-
         /// This component adds a 3D model to its window.
         class ComponentModelT : public ComponentBaseT
         {
@@ -147,7 +144,6 @@ namespace cf
             TypeSys::VarT<Vector3fT>           m_ModelAngles;   ///< The angles around the axes that determine the orientation of the model in world space.
             TypeSys::VarT<Vector3fT>           m_CameraPos;     ///< The position of the camera in world space.
 
-            IntrusivePtrT<ComponentTransformT> m_Transform;     ///< A pointer to the transform component of the parent window.
             const CafuModelT*                  m_Model;         ///< The model instance, updated by changes to m_ModelName.
             AnimPoseT*                         m_Pose;          ///< The pose of the model.
         };

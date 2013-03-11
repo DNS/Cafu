@@ -28,7 +28,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CompModel.hpp"
 #include "CompText.hpp"
 #include "CompTextEdit.hpp"
-#include "CompTransform.hpp"
 
 
 // Note that we cannot simply replace this method with a global TypeInfoManT instance,
@@ -93,7 +92,6 @@ namespace cf
             &ComponentModelT::TypeInfo,
             &ComponentTextT::TypeInfo,
             &ComponentTextEditT::TypeInfo,
-            &ComponentTransformT::TypeInfo,
         };
     }
 }

@@ -34,12 +34,12 @@ ReallyQuit:AddChild(ReallyQuit.ButtonNo);
 function Background:OnInit()
     self:set("rect", 0, 0, 640, 480);
 
-    local c2 = gui:new("ComponentImageT")
-    c2:set("Material", "")
-    c2:set("Color", 0, 0, 0)
-    c2:set("Alpha", 0.7)
+    local c1 = gui:new("ComponentImageT")
+    c1:set("Material", "")
+    c1:set("Color", 0, 0, 0)
+    c1:set("Alpha", 0.7)
 
-    self:AddComponent(c2)
+    self:AddComponent(c1)
 
     gui:activate      (true);
     gui:setInteractive(true);
@@ -50,78 +50,78 @@ end
 function ReallyQuit:OnInit()
     self:set("rect", 120, 90, 400, 300);
 
-    local c2 = gui:new("ComponentTextT")
-    c2:set("Name", "Fonts/Impact")
-    c2:set("Text", "Really Quit?")
-    c2:set("Scale", 0.7)
-    c2:set("Padding", 0, 0)
-    c2:set("Color", 0.51, 0.8, 1)
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Impact")
+    c1:set("Text", "Really Quit?")
+    c1:set("Scale", 0.7)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.51, 0.8, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.7)
+    c2:set("Color", 0.7, 0.8, 0.9)
     c2:set("Alpha", 1)
-    c2:set("hor. Align", 0)
-    c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentBorderT")
-    c3:set("Width", 0.7)
-    c3:set("Color", 0.7, 0.8, 0.9)
-    c3:set("Alpha", 1)
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.4)
 
-    local c4 = gui:new("ComponentImageT")
-    c4:set("Material", "")
-    c4:set("Color", 0, 0.25, 0.7)
-    c4:set("Alpha", 0.4)
-
-    self:AddComponent(c2, c3, c4)
+    self:AddComponent(c1, c2, c3)
 end
 
 function ReallyQuit.ButtonYes:OnInit()
     self:set("rect", 53, 250, 120, 40);
 
-    local c2 = gui:new("ComponentTextT")
-    c2:set("Name", "Fonts/Arial")
-    c2:set("Text", "Yes (OK)")
-    c2:set("Scale", 0.4)
-    c2:set("Padding", 0, 0)
-    c2:set("Color", 0.02, 0.36, 1)
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", "Yes (OK)")
+    c1:set("Scale", 0.4)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.5)
+    c2:set("Color", 0.7, 0.8, 0.9)
     c2:set("Alpha", 1)
-    c2:set("hor. Align", 0)
-    c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentBorderT")
-    c3:set("Width", 0.5)
-    c3:set("Color", 0.7, 0.8, 0.9)
-    c3:set("Alpha", 1)
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
 
-    local c4 = gui:new("ComponentImageT")
-    c4:set("Material", "")
-    c4:set("Color", 0, 0.25, 0.7)
-    c4:set("Alpha", 0.5)
-
-    self:AddComponent(c2, c3, c4)
+    self:AddComponent(c1, c2, c3)
 end
 
 function ReallyQuit.ButtonNo:OnInit()
     self:set("rect", 227, 250, 120, 40);
 
-    local c2 = gui:new("ComponentTextT")
-    c2:set("Name", "Fonts/Arial")
-    c2:set("Text", "No (Cancel)")
-    c2:set("Scale", 0.4)
-    c2:set("Padding", 0, 0)
-    c2:set("Color", 0.02, 0.36, 1)
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", "No (Cancel)")
+    c1:set("Scale", 0.4)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.5)
+    c2:set("Color", 0.7, 0.8, 0.9)
     c2:set("Alpha", 1)
-    c2:set("hor. Align", 0)
-    c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentBorderT")
-    c3:set("Width", 0.5)
-    c3:set("Color", 0.7, 0.8, 0.9)
-    c3:set("Alpha", 1)
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
 
-    local c4 = gui:new("ComponentImageT")
-    c4:set("Material", "")
-    c4:set("Color", 0, 0.25, 0.7)
-    c4:set("Alpha", 0.5)
-
-    self:AddComponent(c2, c3, c4)
+    self:AddComponent(c1, c2, c3)
 end
 

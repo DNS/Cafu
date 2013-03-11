@@ -187,10 +187,6 @@ static void SaveComponents(std::ostream& OutFile, IntrusivePtrT<cf::GuiSys::Wind
         IntrusivePtrT<cf::GuiSys::ComponentBaseT> Comp = Window->GetComponents()[CompNr - 1];
         const ArrayT<cf::TypeSys::VarBaseT*>&     Vars = Comp->GetMemberVars().GetArray();
 
-        if (std::string(Comp->GetType()->ClassName) == "ComponentTransformT")
-            // No longer write obsolete "Transform" components.
-            continue;
-
         OutFile << "    local c" << CompNr << " = gui:new(\"" << Comp->GetType()->ClassName << "\")\n";
 
         for (unsigned int VarNr = 0; VarNr < Vars.Size(); VarNr++)
@@ -208,10 +204,6 @@ static void SaveComponents(std::ostream& OutFile, IntrusivePtrT<cf::GuiSys::Wind
     OutFile << "    self:AddComponent(";
     for (unsigned int CompNr = 1; CompNr <= Window->GetComponents().Size(); CompNr++)
     {
-        if (std::string(Window->GetComponents()[CompNr - 1]->GetType()->ClassName) == "ComponentTransformT")
-            // No longer write obsolete "Transform" components.
-            continue;
-
         OutFile << "c" << CompNr;
         if (CompNr < Window->GetComponents().Size()) OutFile << ", ";
     }

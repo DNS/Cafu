@@ -38,12 +38,12 @@ ElevatorMalfunctionGUI:AddChild(TextArea2);
 function ElevatorMalfunctionGUI:OnInit()
     self:set("rect", 0, 0, 640, 480);
 
-    local c2 = gui:new("ComponentImageT")
-    c2:set("Material", "Gui/Background1")
-    c2:set("Color", 1, 0, 0)
-    c2:set("Alpha", 1)
+    local c1 = gui:new("ComponentImageT")
+    c1:set("Material", "Gui/Background1")
+    c1:set("Color", 1, 0, 0)
+    c1:set("Alpha", 1)
 
-    self:AddComponent(c2)
+    self:AddComponent(c1)
 
     gui:activate      (false);
     gui:setInteractive(false);
@@ -53,25 +53,25 @@ end
 function Heading:OnInit()
     self:set("rect", 43, 45, 558, 28);
 
-    local c2 = gui:new("ComponentTextT")
-    c2:set("Name", "Fonts/Arial")
-    c2:set("Text", "System Failure #473 at 0xE782CF36")
-    c2:set("Scale", 0.6)
-    c2:set("Padding", 0, 0)
-    c2:set("Color", 1, 0, 0)
-    c2:set("Alpha", 1)
-    c2:set("hor. Align", -1)
-    c2:set("ver. Align", -1)
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", "System Failure #473 at 0xE782CF36")
+    c1:set("Scale", 0.6)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 1, 0, 0)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", -1)
 
-    self:AddComponent(c2)
+    self:AddComponent(c1)
 end
 
 function TextArea:OnInit()
     self:set("rect", 43, 91, 558, 324);
 
-    local c2 = gui:new("ComponentTextT")
-    c2:set("Name", "Fonts/Arial")
-    c2:set("Text", [[Service elevator malfunction detected.
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", [[Service elevator malfunction detected.
 Basement reactor core access
 may be compromised.
 
@@ -79,34 +79,34 @@ may be compromised.
 
 
 Please contact administration immediately.]])
-    c2:set("Scale", 0.55)
-    c2:set("Padding", 0, 0)
-    c2:set("Color", 1, 1, 0)
-    c2:set("Alpha", 1)
-    c2:set("hor. Align", -1)
-    c2:set("ver. Align", -1)
+    c1:set("Scale", 0.55)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 1, 1, 0)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", -1)
 
-    self:AddComponent(c2)
+    self:AddComponent(c1)
 end
 
 function TextArea2:OnInit()
     self:set("rect", 43, 91, 558, 324);
 
-    local c2 = gui:new("ComponentTextT")
-    c2:set("Name", "Fonts/Arial")
-    c2:set("Text", [[
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", [[
 
 
 
 Beware! Stay clear of elevator shaft!
 Danger of deadly fall!]])
-    c2:set("Scale", 0.55)
-    c2:set("Padding", 0, 0)
-    c2:set("Color", 1, 1, 0)
-    c2:set("Alpha", 1)
-    c2:set("hor. Align", -1)
-    c2:set("ver. Align", -1)
+    c1:set("Scale", 0.55)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 1, 1, 0)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", -1)
 
-    self:AddComponent(c2)
+    self:AddComponent(c1)
 end
 

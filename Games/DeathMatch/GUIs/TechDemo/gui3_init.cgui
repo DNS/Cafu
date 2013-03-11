@@ -42,12 +42,12 @@ EmgTunnelBeachGUI:AddChild(EngineLogo);
 function EmgTunnelBeachGUI:OnInit()
     self:set("rect", 0, 0, 640, 480);
 
-    local c2 = gui:new("ComponentImageT")
-    c2:set("Material", "")
-    c2:set("Color", 0, 0.25, 0.7)
-    c2:set("Alpha", 0.4)
+    local c1 = gui:new("ComponentImageT")
+    c1:set("Material", "")
+    c1:set("Color", 0, 0.25, 0.7)
+    c1:set("Alpha", 0.4)
 
-    self:AddComponent(c2)
+    self:AddComponent(c1)
 
     gui:activate      (false);
     gui:setInteractive(false);
@@ -57,78 +57,78 @@ end
 function Heading:OnInit()
     self:set("rect", 50, 30, 540, 120);
 
-    local c2 = gui:new("ComponentTextT")
-    c2:set("Name", "Fonts/Impact")
-    c2:set("Text", [[Evacuation Tunnel
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Impact")
+    c1:set("Text", [[Evacuation Tunnel
 "November 2"]])
-    c2:set("Scale", 0.7)
-    c2:set("Padding", 0, 0)
-    c2:set("Color", 0.51, 0.8, 1)
+    c1:set("Scale", 0.7)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.51, 0.8, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 5)
+    c2:set("Color", 0.7, 0.8, 0.9)
     c2:set("Alpha", 1)
-    c2:set("hor. Align", 0)
-    c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentBorderT")
-    c3:set("Width", 5)
-    c3:set("Color", 0.7, 0.8, 0.9)
-    c3:set("Alpha", 1)
-
-    self:AddComponent(c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function TunnelLocation:OnInit()
     self:set("rect", 50, 180, 540, 120);
 
-    local c2 = gui:new("ComponentTextT")
-    c2:set("Name", "Fonts/Arial")
-    c2:set("Text", [[Checkpoint: Beach
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Arial")
+    c1:set("Text", [[Checkpoint: Beach
 >>>> Escape Route >>>>
 ]])
-    c2:set("Scale", 0.6)
-    c2:set("Padding", 0, 0)
-    c2:set("Color", 0.51, 0.8, 1)
+    c1:set("Scale", 0.6)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.51, 0.8, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 5)
+    c2:set("Color", 0.7, 0.8, 0.9)
     c2:set("Alpha", 1)
-    c2:set("hor. Align", 0)
-    c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentBorderT")
-    c3:set("Width", 5)
-    c3:set("Color", 0.7, 0.8, 0.9)
-    c3:set("Alpha", 1)
-
-    self:AddComponent(c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function ThirdMsg:OnInit()
     self:set("rect", 50, 330, 390, 120);
 
-    local c2 = gui:new("ComponentTextT")
-    c2:set("Name", "Fonts/Impact")
-    c2:set("Text", [[Alertion Level:
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Impact")
+    c1:set("Text", [[Alertion Level:
 INCERFA]])
-    c2:set("Scale", 0.6)
-    c2:set("Padding", 0, 0)
-    c2:set("Color", 1, 0, 0)
+    c1:set("Scale", 0.6)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 1, 0, 0)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 5)
+    c2:set("Color", 0.7, 0.8, 0.9)
     c2:set("Alpha", 1)
-    c2:set("hor. Align", 0)
-    c2:set("ver. Align", 0)
 
-    local c3 = gui:new("ComponentBorderT")
-    c3:set("Width", 5)
-    c3:set("Color", 0.7, 0.8, 0.9)
-    c3:set("Alpha", 1)
-
-    self:AddComponent(c2, c3)
+    self:AddComponent(c1, c2)
 end
 
 function EngineLogo:OnInit()
     self:set("rect", 470, 358, 128, 64);
 
-    local c2 = gui:new("ComponentImageT")
-    c2:set("Material", "Gui/SmallLogo")
-    c2:set("Color", 1, 1, 1)
-    c2:set("Alpha", 1)
+    local c1 = gui:new("ComponentImageT")
+    c1:set("Material", "Gui/SmallLogo")
+    c1:set("Color", 1, 1, 1)
+    c1:set("Alpha", 1)
 
-    self:AddComponent(c2)
+    self:AddComponent(c1)
 end
 

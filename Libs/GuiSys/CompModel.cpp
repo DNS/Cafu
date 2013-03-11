@@ -21,7 +21,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "CompModel.hpp"
 #include "AllComponents.hpp"
-#include "CompTransform.hpp"
 #include "GuiImpl.hpp"
 #include "GuiResources.hpp"
 #include "Window.hpp"
@@ -217,7 +216,6 @@ ComponentModelT::ComponentModelT()
       m_ModelScale("Scale", 1.0f),
       m_ModelAngles("Angles", Vector3fT()),
       m_CameraPos("CameraPos", Vector3fT()),
-      m_Transform(NULL),
       m_Model(NULL),
       m_Pose(NULL)
 {
@@ -237,7 +235,6 @@ ComponentModelT::ComponentModelT(const ComponentModelT& Comp)
       m_ModelScale(Comp.m_ModelScale),
       m_ModelAngles(Comp.m_ModelAngles),
       m_CameraPos(Comp.m_CameraPos),
-      m_Transform(NULL),
       m_Model(NULL),
       m_Pose(NULL)
 {
@@ -279,7 +276,7 @@ void ComponentModelT::UpdateDependencies(WindowT* Window)
 
     ComponentBaseT::UpdateDependencies(Window);
 
-    m_Transform = NULL;
+    // m_Transform = NULL;
 
     if (WindowChanged)
     {
@@ -291,16 +288,16 @@ void ComponentModelT::UpdateDependencies(WindowT* Window)
     if (!GetWindow()) return;
 
 
-    // It would be possible to break this loop as soon as we have assigned a non-NULL pointer to m_Transform.
-    // However, this is only because the Transform component is, at this time, the only sibling component that
-    // we're interested in, whereas the loop below is suitable for resolving additional dependencies, too.
-    for (unsigned int CompNr = 0; CompNr < GetWindow()->GetComponents().Size(); CompNr++)
-    {
-        IntrusivePtrT<ComponentBaseT> Comp = GetWindow()->GetComponents()[CompNr];
-
-        if (m_Transform == NULL)
-            m_Transform = dynamic_pointer_cast<ComponentTransformT>(Comp);
-    }
+    // // It would be possible to break this loop as soon as we have assigned a non-NULL pointer to m_Transform.
+    // // However, this is only because the Transform component is, at this time, the only sibling component that
+    // // we're interested in, whereas the loop below is suitable for resolving additional dependencies, too.
+    // for (unsigned int CompNr = 0; CompNr < GetWindow()->GetComponents().Size(); CompNr++)
+    // {
+    //     IntrusivePtrT<ComponentBaseT> Comp = GetWindow()->GetComponents()[CompNr];
+    // 
+    //     if (m_Transform == NULL)
+    //         m_Transform = dynamic_pointer_cast<ComponentTransformT>(Comp);
+    // }
 
     if (WindowChanged)
     {
