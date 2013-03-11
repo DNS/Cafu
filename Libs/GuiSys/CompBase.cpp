@@ -255,8 +255,8 @@ int ComponentBaseT::Interpolate(lua_State* LuaState)
 
 int ComponentBaseT::toString(lua_State* LuaState)
 {
-    ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<ComponentBaseT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(1);
+    // ScriptBinderT Binder(LuaState);
+    // IntrusivePtrT<ComponentBaseT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(1);
 
     lua_pushfstring(LuaState, "base component");
     return 1;

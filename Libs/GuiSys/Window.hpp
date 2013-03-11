@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_GUISYS_WINDOW_HPP_INCLUDED
 #define CAFU_GUISYS_WINDOW_HPP_INCLUDED
 
+#include "Math3D/Vector2.hpp"
 #include "Templates/Array.hpp"
 #include "Templates/Pointer.hpp"
 
@@ -174,6 +175,29 @@ namespace cf
             /// Returns the top-most parent of this window, that is, the root of the hierarchy this window is in.
             IntrusivePtrT<WindowT> GetRoot();     // Method cannot be const because return type is not const -- see implementation.
 
+
+            /// Returns `true` if this window is currently shown. Returns `false` if the window is currently hidden.
+            bool IsShown() const { return ShowWindow; }
+
+            /// Returns the position of (the top-left corner of) this window, relative to its parent.
+            Vector2fT GetPos() const { return Vector2fT(Rect[0], Rect[1]); }
+
+            /// Sets the position of (the top-left corner of) this window, relative to its parent.
+            void SetPos(const Vector2fT& Pos) { Rect[0] = Pos.x; Rect[1] = Pos.y; }
+
+            /// Returns the size of this window.
+            Vector2fT GetSize() const { return Vector2fT(Rect[2], Rect[3]); }
+
+            /// Sets the size of this window.
+            void SetSize(const Vector2fT& Size) { Rect[2] = Size.x; Rect[3] = Size.y; }
+
+            /// Returns the angle in degrees by how much this entire window is rotated.
+            float GetRotAngle() const { return RotAngle; }
+
+            /// Sets the angle in degrees by how much this entire window is rotated.
+            void SetRotAngle(float RotAngle_) { RotAngle = RotAngle_; }
+
+
             /// Returns the components that this window is composed of.
             const ArrayT< IntrusivePtrT<ComponentBaseT> >& GetComponents() const { return m_Components; }
 
@@ -250,12 +274,6 @@ namespace cf
             static const cf::TypeSys::TypeInfoT TypeInfo;
 
 
-            float                    Time;              ///< This windows local time (starting from 0.0).
-            bool                     ShowWindow;        ///< Is this WindowT shown on screen?
-            float                    Rect[4];           ///< The upper left corner of this window, relative to its parent, plus the width and height (all in virtual pixels).
-            float                    RotAngle;          ///< The angle in degrees by how much this entire window is rotated.
-
-
             protected:
 
             // Methods called from Lua scripts on cf::GuiSys::WindowTs.
@@ -308,6 +326,10 @@ namespace cf
             WindowT*                                m_Parent;         ///< The parent of this window. May be NULL if there is no parent. In order to not create cycles of IntrusivePtrT's, the type is intentionally a raw pointer only.
             ArrayT< IntrusivePtrT<WindowT> >        m_Children;       ///< The list of children of this window.
             std::string                             m_Name;           ///< The name of this window. It must be unique among all its siblings (the children of its parent), which is enforced in the SetName() and AddChild() methods.
+            float                                   Time;             ///< This windows local time (starting from 0.0).
+            bool                                    ShowWindow;       ///< Is this WindowT shown on screen?
+            float                                   Rect[4];          ///< The upper left corner of this window, relative to its parent, plus the width and height (all in virtual pixels).
+            float                                   RotAngle;         ///< The angle in degrees by how much this entire window is rotated.
             ArrayT< IntrusivePtrT<ComponentBaseT> > m_Components;     ///< The components that this window is composed of.
             ArrayT<InterpolationT*>                 m_PendingInterp;  ///< The currently pending interpolations.
         };

@@ -19,42 +19,51 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef CAFU_CLIENT_WINDOW_HPP_INCLUDED
-#define CAFU_CLIENT_WINDOW_HPP_INCLUDED
+#ifndef CAFU_GUISYS_COMPONENT_CLIENT_HPP_INCLUDED
+#define CAFU_GUISYS_COMPONENT_CLIENT_HPP_INCLUDED
 
-#include "GuiSys/Window.hpp"
+#include "GuiSys/CompBase.hpp"
 
 
 class ClientT;
 
 
-/// This class represents a window of the GuiSys into which the client renders the world.
-class ClientWindowT : public cf::GuiSys::WindowT
+/// This component connects the Cafu game client to the GUI window that houses it.
+class ComponentClientT : public cf::GuiSys::ComponentBaseT
 {
     public:
 
-    /// Creates a GuiSys window for the client Cl.
-    ClientWindowT(const cf::GuiSys::WindowCreateParamsT& Params);
+    /// The constructor.
+    ComponentClientT();
+
+    /// The copy constructor.
+    /// @param Comp   The component to create a copy of.
+    ComponentClientT(const ComponentClientT& Comp);
 
     void SetClient(ClientT* Cl);
 
     // Base class overrides.
+    ComponentClientT* Clone() const;
+    const char* GetName() const { return "Client"; }
     void Render() const;
     bool OnInputEvent(const CaKeyboardEventT& KE);
-    bool OnInputEvent(const CaMouseEventT&    ME, float PosX, float PosY);
-    bool OnClockTickEvent(float t);
-
+    bool OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY);
+    void OnClockTickEvent(float t);
 
     // The TypeSys related declarations for this class.
-    virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
+    const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
     static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
     static const cf::TypeSys::TypeInfoT TypeInfo;
 
 
     private:
 
-    ClientT* Client;
-    float    LastFrameTime;
+    // The Lua API methods of this class.
+    static const luaL_Reg MethodsList[];        ///< The list of Lua methods for this class.
+    static int toString(lua_State* LuaState);   ///< Returns a string representation of this object.
+
+    ClientT* m_Client;
+    float    m_LastFrameTime;
 };
 
 #endif

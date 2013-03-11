@@ -131,9 +131,9 @@ bool ToolSelectionT::OnLMouseDown(RenderWindowT* RenderWindow, wxMouseEvent& ME)
     {
         WindowStateT WindowState;
 
-        WindowState.Position=Vector3fT(Selection[SelNr]->Rect[0], Selection[SelNr]->Rect[1], 0.0f);
-        WindowState.Size    =Vector3fT(Selection[SelNr]->Rect[2], Selection[SelNr]->Rect[3], 0.0f);
-        WindowState.Rotation=Selection[SelNr]->RotAngle;
+        WindowState.Position = Vector2fT(Selection[SelNr]->GetPos().x,  Selection[SelNr]->GetPos().y);
+        WindowState.Size     = Vector2fT(Selection[SelNr]->GetSize().x, Selection[SelNr]->GetSize().y);
+        WindowState.Rotation = Selection[SelNr]->GetRotAngle();
 
         m_WindowStates.PushBack(WindowState);
     }
@@ -144,7 +144,7 @@ bool ToolSelectionT::OnLMouseDown(RenderWindowT* RenderWindow, wxMouseEvent& ME)
     // Start transforming the selection.
     m_TransformationStart=true;
 
-    m_RotStartAngle=GetAngle(MousePosGUI.x, MousePosGUI.y, (ClickedWindow->Rect[0]+ClickedWindow->Rect[2])/2.0f, (ClickedWindow->Rect[1]+ClickedWindow->Rect[3])/2.0f);
+    m_RotStartAngle=GetAngle(MousePosGUI.x, MousePosGUI.y, (ClickedWindow->GetPos().x+ClickedWindow->GetSize().x)/2.0f, (ClickedWindow->GetPos().y+ClickedWindow->GetSize().y)/2.0f);
     return true;
 }
 
@@ -158,7 +158,7 @@ bool ToolSelectionT::OnLMouseUp(RenderWindowT* RenderWindow, wxMouseEvent& ME)
         {
             case TRANSLATE:
             {
-                ArrayT<Vector3fT> Positions;
+                ArrayT<Vector2fT> Positions;
 
                 for (unsigned long StateNr=0; StateNr<m_WindowStates.Size(); StateNr++)
                     Positions.PushBack(m_WindowStates[StateNr].Position);
@@ -176,8 +176,8 @@ bool ToolSelectionT::OnLMouseUp(RenderWindowT* RenderWindow, wxMouseEvent& ME)
             case SCALE_W:
             case SCALE_NW:
             {
-                ArrayT<Vector3fT> Positions;
-                ArrayT<Vector3fT> Sizes;
+                ArrayT<Vector2fT> Positions;
+                ArrayT<Vector2fT> Sizes;
 
                 for (unsigned long StateNr=0; StateNr<m_WindowStates.Size(); StateNr++)
                 {
@@ -236,63 +236,62 @@ bool ToolSelectionT::OnMouseMove(RenderWindowT* RenderWindow, wxMouseEvent& ME)
         // Move the selection to the current mouse position.
         for (unsigned long SelNr=0; SelNr<Selection.Size(); SelNr++)
         {
-            float* Rect=&Selection[SelNr]->Rect[0];
+            Vector2fT Pos      = Selection[SelNr]->GetPos();
+            Vector2fT Size     = Selection[SelNr]->GetSize();
+            float     RotAngle = Selection[SelNr]->GetRotAngle();
 
             switch (m_TransState)
             {
                 case TRANSLATE:
-                    Rect[0]+=DeltaX; Rect[0]=m_Parent->SnapToGrid(Rect[0]);
-                    Rect[1]+=DeltaY; Rect[1]=m_Parent->SnapToGrid(Rect[1]);
+                    Pos.x += DeltaX; Pos.x = m_Parent->SnapToGrid(Pos.x);
+                    Pos.y += DeltaY; Pos.y = m_Parent->SnapToGrid(Pos.y);
                     break;
 
                 case SCALE_N:
-                    Rect[1]+=DeltaY; Rect[1]=m_Parent->SnapToGrid(Rect[1]);
-                    Rect[3]-=DeltaY; Rect[3]=m_Parent->SnapToGrid(Rect[3]);
+                    Pos.y  += DeltaY; Pos.y  = m_Parent->SnapToGrid(Pos.y);
+                    Size.y -= DeltaY; Size.y = m_Parent->SnapToGrid(Size.y);
                     break;
 
                 case SCALE_NE:
-                    Rect[1]+=DeltaY; Rect[1]=m_Parent->SnapToGrid(Rect[1]);
-                    Rect[2]+=DeltaX; Rect[2]=m_Parent->SnapToGrid(Rect[2]);
-                    Rect[3]-=DeltaY; Rect[3]=m_Parent->SnapToGrid(Rect[3]);
+                    Pos.y  += DeltaY; Pos.y  = m_Parent->SnapToGrid(Pos.y);
+                    Size.x += DeltaX; Size.x = m_Parent->SnapToGrid(Size.x);
+                    Size.y -= DeltaY; Size.y = m_Parent->SnapToGrid(Size.y);
                     break;
 
                 case SCALE_E:
-                    Rect[2]+=DeltaX; Rect[2]=m_Parent->SnapToGrid(Rect[2]);
+                    Size.x += DeltaX; Size.x = m_Parent->SnapToGrid(Size.x);
                     break;
 
                 case SCALE_SE:
-                    Rect[2]+=DeltaX; Rect[2]=m_Parent->SnapToGrid(Rect[2]);
-                    Rect[3]+=DeltaY; Rect[3]=m_Parent->SnapToGrid(Rect[3]);
+                    Size.x += DeltaX; Size.x = m_Parent->SnapToGrid(Size.x);
+                    Size.y += DeltaY; Size.y = m_Parent->SnapToGrid(Size.y);
                     break;
 
                 case SCALE_S:
-                    Rect[3]+=DeltaY; Rect[3]=m_Parent->SnapToGrid(Rect[3]);
+                    Size.y += DeltaY; Size.y = m_Parent->SnapToGrid(Size.y);
                     break;
 
                 case SCALE_SW:
-                    Rect[0]+=DeltaX; Rect[0]=m_Parent->SnapToGrid(Rect[0]);
-                    Rect[2]-=DeltaX; Rect[2]=m_Parent->SnapToGrid(Rect[2]);
-                    Rect[3]+=DeltaY;
+                    Pos.x  += DeltaX; Pos.x  = m_Parent->SnapToGrid(Pos.x);
+                    Size.x -= DeltaX; Size.x = m_Parent->SnapToGrid(Size.x);
+                    Size.y += DeltaY;
                     break;
 
                 case SCALE_W:
-                    Rect[0]+=DeltaX; Rect[0]=m_Parent->SnapToGrid(Rect[0]);
-                    Rect[2]-=DeltaX; Rect[2]=m_Parent->SnapToGrid(Rect[2]);
+                    Pos.x  += DeltaX; Pos.x  = m_Parent->SnapToGrid(Pos.x);
+                    Size.x -= DeltaX; Size.x = m_Parent->SnapToGrid(Size.x);
                     break;
 
                 case SCALE_NW:
-                    Rect[0]+=DeltaX; Rect[0]=m_Parent->SnapToGrid(Rect[0]);
-                    Rect[1]+=DeltaY; Rect[1]=m_Parent->SnapToGrid(Rect[1]);
-                    Rect[2]-=DeltaX; Rect[2]=m_Parent->SnapToGrid(Rect[2]);
-                    Rect[3]-=DeltaY; Rect[3]=m_Parent->SnapToGrid(Rect[3]);
+                    Pos.x  += DeltaX; Pos.x  = m_Parent->SnapToGrid(Pos.x);
+                    Pos.y  += DeltaY; Pos.y  = m_Parent->SnapToGrid(Pos.y);
+                    Size.x -= DeltaX; Size.x = m_Parent->SnapToGrid(Size.x);
+                    Size.y -= DeltaY; Size.y = m_Parent->SnapToGrid(Size.y);
                     break;
 
                 case ROTATE:
                 {
-                    // TODO.
-                    float NewAngle=GetAngle(MousePosGUI.x, MousePosGUI.y, (Rect[0]+Rect[2])/2.0f, (Rect[1]+Rect[3])/2.0f);
-                    NewAngle-=m_RotStartAngle;
-                    Selection[SelNr]->RotAngle=NewAngle;
+                    RotAngle = GetAngle(MousePosGUI.x, MousePosGUI.y, (Pos.x + Size.x)/2.0f, (Pos.y + Size.y)/2.0f) - m_RotStartAngle;
                     break;
                 }
 
@@ -301,9 +300,13 @@ bool ToolSelectionT::OnMouseMove(RenderWindowT* RenderWindow, wxMouseEvent& ME)
                     break;
             }
 
-            // Check Rect size.
-            if (Rect[2]<10.0f) Rect[2]=10.0f;
-            if (Rect[3]<10.0f) Rect[3]=10.0f;
+            // Enforce minimum size.
+            if (Size.x < 10.0f) Size.x = 10.0f;
+            if (Size.y < 10.0f) Size.y = 10.0f;
+
+            Selection[SelNr]->SetPos(Pos);
+            Selection[SelNr]->SetSize(Size);
+            Selection[SelNr]->SetRotAngle(RotAngle);
         }
 
         RenderWindow->Refresh(false);
@@ -316,33 +319,34 @@ bool ToolSelectionT::OnMouseMove(RenderWindowT* RenderWindow, wxMouseEvent& ME)
         // If window under the cursor is selected.
         if (!MouseOverWindow.IsNull() && GuiDocumentT::GetSibling(MouseOverWindow)->IsSelected())
         {
-            // Get window rect for window size.
-            float* Rect=&MouseOverWindow->Rect[0];
+            const Vector2fT WinSize = MouseOverWindow->GetSize();
 
             // Get absolute window position then get relative cursor position to this window.
             float PosX=0.0f;
             float PosY=0.0f;
+
             MouseOverWindow->GetAbsolutePos(PosX, PosY);
+
             PosX=MousePosGUI.x-PosX;
             PosY=MousePosGUI.y-PosY;
 
-            if (PosX<HANDLE_WIDTH)
+            if (PosX < HANDLE_WIDTH)
             {
-                     if (PosY<        HANDLE_WIDTH) { m_TransState=SCALE_NW; RenderWindow->SetCursor(wxCursor(wxCURSOR_SIZENWSE)); }
-                else if (PosY>Rect[3]-HANDLE_WIDTH) { m_TransState=SCALE_SW; RenderWindow->SetCursor(wxCursor(wxCURSOR_SIZENESW)); }
-                else                                { m_TransState=SCALE_W;  RenderWindow->SetCursor(wxCursor(wxCURSOR_SIZEWE  )); }
+                     if (PosY <           HANDLE_WIDTH) { m_TransState=SCALE_NW; RenderWindow->SetCursor(wxCursor(wxCURSOR_SIZENWSE)); }
+                else if (PosY > WinSize.y-HANDLE_WIDTH) { m_TransState=SCALE_SW; RenderWindow->SetCursor(wxCursor(wxCURSOR_SIZENESW)); }
+                else                                    { m_TransState=SCALE_W;  RenderWindow->SetCursor(wxCursor(wxCURSOR_SIZEWE  )); }
             }
-            else if (PosY<HANDLE_WIDTH)
+            else if (PosY < HANDLE_WIDTH)
             {
-                     if (PosX>Rect[2]-HANDLE_WIDTH) { m_TransState=SCALE_NE; RenderWindow->SetCursor(wxCursor(wxCURSOR_SIZENESW)); }
-                else                                { m_TransState=SCALE_N;  RenderWindow->SetCursor(wxCursor(wxCURSOR_SIZENS  )); }
+                     if (PosX > WinSize.x-HANDLE_WIDTH) { m_TransState=SCALE_NE; RenderWindow->SetCursor(wxCursor(wxCURSOR_SIZENESW)); }
+                else                                    { m_TransState=SCALE_N;  RenderWindow->SetCursor(wxCursor(wxCURSOR_SIZENS  )); }
             }
-            else if (PosX>Rect[2]-HANDLE_WIDTH)
+            else if (PosX > WinSize.x-HANDLE_WIDTH)
             {
-                     if (PosY>Rect[3]-HANDLE_WIDTH) { m_TransState=SCALE_SE; RenderWindow->SetCursor(wxCursor(wxCURSOR_SIZENWSE)); }
-                else                                { m_TransState=SCALE_E;  RenderWindow->SetCursor(wxCursor(wxCURSOR_SIZEWE  )); }
+                     if (PosY > WinSize.y-HANDLE_WIDTH) { m_TransState=SCALE_SE; RenderWindow->SetCursor(wxCursor(wxCURSOR_SIZENWSE)); }
+                else                                    { m_TransState=SCALE_E;  RenderWindow->SetCursor(wxCursor(wxCURSOR_SIZEWE  )); }
             }
-            else if (PosY>Rect[3]-HANDLE_WIDTH)
+            else if (PosY > WinSize.y-HANDLE_WIDTH)
             {
                 // Only this one left.
                 m_TransState=SCALE_S;

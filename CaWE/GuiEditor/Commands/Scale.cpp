@@ -29,7 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace GuiEditor;
 
 
-CommandScaleT::CommandScaleT(GuiDocumentT* GuiDocument, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, const ArrayT<Vector3fT>& Positions, const ArrayT<Vector3fT>& Sizes, bool Done)
+CommandScaleT::CommandScaleT(GuiDocumentT* GuiDocument, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, const ArrayT<Vector2fT>& Positions, const ArrayT<Vector2fT>& Sizes, bool Done)
     : m_GuiDocument(GuiDocument),
       m_Windows(Windows)
 {
@@ -42,8 +42,8 @@ CommandScaleT::CommandScaleT(GuiDocumentT* GuiDocument, const ArrayT< IntrusiveP
 
         for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
         {
-            m_NewPositions.PushBack(Vector3fT(m_Windows[WinNr]->Rect[0], m_Windows[WinNr]->Rect[1], 0.0f));
-            m_NewSizes    .PushBack(Vector3fT(m_Windows[WinNr]->Rect[2], m_Windows[WinNr]->Rect[3], 0.0f));
+            m_NewPositions.PushBack(m_Windows[WinNr]->GetPos());
+            m_NewSizes    .PushBack(m_Windows[WinNr]->GetSize());
         }
 
         // If the command has already been completed we have to send an observer message so the observers can update themselves accordingly.
@@ -56,8 +56,8 @@ CommandScaleT::CommandScaleT(GuiDocumentT* GuiDocument, const ArrayT< IntrusiveP
 
         for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
         {
-            m_OldPositions.PushBack(Vector3fT(m_Windows[WinNr]->Rect[0], m_Windows[WinNr]->Rect[1], 0.0f));
-            m_OldSizes    .PushBack(Vector3fT(m_Windows[WinNr]->Rect[2], m_Windows[WinNr]->Rect[3], 0.0f));
+            m_OldPositions.PushBack(m_Windows[WinNr]->GetPos());
+            m_OldSizes    .PushBack(m_Windows[WinNr]->GetSize());
         }
     }
 
@@ -74,10 +74,8 @@ bool CommandScaleT::Do()
 
     for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
     {
-        m_Windows[WinNr]->Rect[0]=m_NewPositions[WinNr].x;
-        m_Windows[WinNr]->Rect[1]=m_NewPositions[WinNr].y;
-        m_Windows[WinNr]->Rect[2]=m_NewSizes    [WinNr].x;
-        m_Windows[WinNr]->Rect[3]=m_NewSizes    [WinNr].y;
+        m_Windows[WinNr]->SetPos(m_NewPositions[WinNr]);
+        m_Windows[WinNr]->SetSize(m_NewSizes[WinNr]);
     }
 
     m_GuiDocument->UpdateAllObservers_Modified(m_Windows, WMD_TRANSFORMED);
@@ -96,10 +94,8 @@ void CommandScaleT::Undo()
 
     for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
     {
-        m_Windows[WinNr]->Rect[0]=m_OldPositions[WinNr].x;
-        m_Windows[WinNr]->Rect[1]=m_OldPositions[WinNr].y;
-        m_Windows[WinNr]->Rect[2]=m_OldSizes    [WinNr].x;
-        m_Windows[WinNr]->Rect[3]=m_OldSizes    [WinNr].y;
+        m_Windows[WinNr]->SetPos(m_OldPositions[WinNr]);
+        m_Windows[WinNr]->SetSize(m_OldSizes[WinNr]);
     }
 
     m_GuiDocument->UpdateAllObservers_Modified(m_Windows, WMD_TRANSFORMED);

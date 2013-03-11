@@ -161,8 +161,8 @@ void ComponentListBoxT::Render() const
 
     const float x1 = 0.0f;
     const float y1 = 0.0f;
-    const float x2 = GetWindow()->Rect[2];
-    const float y2 = GetWindow()->Rect[3];
+    const float x2 = GetWindow()->GetSize().x;
+    const float y2 = GetWindow()->GetSize().y;
 
     unsigned int TextCol = 0;
     TextCol |= (unsigned int)(m_TextComp->m_Alpha.Get()    * 255.0f) << 24;
@@ -326,8 +326,8 @@ bool ComponentListBoxT::OnInputEvent(const CaMouseEventT& ME, float PosX, float 
 
     const float x1 = 0.0f;
     const float y1 = 0.0f;
-    const float x2 = GetWindow()->Rect[2];
-    const float y2 = GetWindow()->Rect[3];
+    const float x2 = GetWindow()->GetSize().x;
+    const float y2 = GetWindow()->GetSize().y;
 
     const float LineSpacing = Font->GetLineSpacing(Scale);
 
@@ -374,8 +374,8 @@ int ComponentListBoxT::GetSelItem(lua_State* LuaState)
 
 int ComponentListBoxT::toString(lua_State* LuaState)
 {
-    ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<ComponentBaseT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(1);
+    // ScriptBinderT Binder(LuaState);
+    // IntrusivePtrT<ComponentBaseT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(1);
 
     lua_pushfstring(LuaState, "list-box component");
     return 1;

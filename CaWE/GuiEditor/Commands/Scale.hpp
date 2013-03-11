@@ -26,7 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Templates/Array.hpp"
 #include "Templates/Pointer.hpp"
-#include "Math3D/Vector3.hpp"
+#include "Math3D/Vector2.hpp"
 
 
 namespace cf { namespace GuiSys { class WindowT; } }
@@ -47,7 +47,7 @@ namespace GuiEditor
         ///                  window positions (since window origin is the top left corner of the window, scaling may change positions).
         /// @param Sizes Depending on parameter Done these are the sizes the windows should be scaled to or the original window sizes.
         /// @param Done Determines whether the windows have already been scaled or should be scaled by the command on first do.
-        CommandScaleT(GuiDocumentT* GuiDocument, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, const ArrayT<Vector3fT>& Positions, const ArrayT<Vector3fT>& Sizes, bool Done=false);
+        CommandScaleT(GuiDocumentT* GuiDocument, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, const ArrayT<Vector2fT>& Positions, const ArrayT<Vector2fT>& Sizes, bool Done=false);
 
         // CommandT implementation.
         bool Do();
@@ -61,10 +61,10 @@ namespace GuiEditor
 
         const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > m_Windows;
 
-        ArrayT<Vector3fT> m_OldPositions;
-        ArrayT<Vector3fT> m_NewPositions;
-        ArrayT<Vector3fT> m_OldSizes;
-        ArrayT<Vector3fT> m_NewSizes;
+        ArrayT<Vector2fT> m_OldPositions;
+        ArrayT<Vector2fT> m_NewPositions;
+        ArrayT<Vector2fT> m_OldSizes;
+        ArrayT<Vector2fT> m_NewSizes;
     };
 }
 

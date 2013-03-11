@@ -65,21 +65,21 @@ void EditorWindowT::FillInPG(wxPropertyGridManager* PropMan)
     wxPGProperty* TypeInfo=PropMan->Append(new wxStringProperty("Type", wxPG_LABEL, m_Win->GetType()->ClassName));
     PropMan->DisableProperty(TypeInfo);
 
-    wxPGProperty* Item=PropMan->Append(new wxBoolProperty("Visible", wxPG_LABEL, m_Win->ShowWindow));
+    wxPGProperty* Item=PropMan->Append(new wxBoolProperty("Visible", wxPG_LABEL, m_Win->IsShown()));
 
     PropMan->SetPropertyAttribute(Item, wxPG_BOOL_USE_CHECKBOX, (long)1, wxPG_RECURSE); // Use checkboxes instead of choice.
 
     wxPGProperty* Position=PropMan->Append(new wxStringProperty("Position", wxPG_LABEL, "<composed>"));
 
-    PropMan->AppendIn(Position, new wxFloatProperty("X", wxPG_LABEL, m_Win->Rect[0]));
-    PropMan->AppendIn(Position, new wxFloatProperty("Y", wxPG_LABEL, m_Win->Rect[1]));
+    PropMan->AppendIn(Position, new wxFloatProperty("X", wxPG_LABEL, m_Win->GetPos().x));
+    PropMan->AppendIn(Position, new wxFloatProperty("Y", wxPG_LABEL, m_Win->GetPos().y));
 
     wxPGProperty* Size=PropMan->Append(new wxStringProperty("Size", wxPG_LABEL, "<composed>"));
 
-    PropMan->AppendIn(Size, new wxFloatProperty("Width", wxPG_LABEL, m_Win->Rect[2]));
-    PropMan->AppendIn(Size, new wxFloatProperty("Height", wxPG_LABEL, m_Win->Rect[3]));
+    PropMan->AppendIn(Size, new wxFloatProperty("Width", wxPG_LABEL, m_Win->GetSize().x));
+    PropMan->AppendIn(Size, new wxFloatProperty("Height", wxPG_LABEL, m_Win->GetSize().y));
 
-    PropMan->Append(new wxFloatProperty("Rotation", wxPG_LABEL, m_Win->RotAngle));
+    PropMan->Append(new wxFloatProperty("Rotation", wxPG_LABEL, m_Win->GetRotAngle()));
 }
 
 
@@ -88,12 +88,12 @@ bool EditorWindowT::UpdateProperty(wxPGProperty* Property)
     wxString PropName=Property->GetName();
 
          if (PropName=="Name")             Property->SetValueFromString(m_Win->GetName());
-    else if (PropName=="Visible")          Property->SetValueFromString(m_Win->ShowWindow ? "true" : "false");
-    else if (PropName=="Position.X")       Property->SetValue(m_Win->Rect[0]);
-    else if (PropName=="Position.Y")       Property->SetValue(m_Win->Rect[1]);
-    else if (PropName=="Size.Width")       Property->SetValue(m_Win->Rect[2]);
-    else if (PropName=="Size.Height")      Property->SetValue(m_Win->Rect[3]);
-    else if (PropName=="Rotation")         Property->SetValue(m_Win->RotAngle);
+    else if (PropName=="Visible")          Property->SetValueFromString(m_Win->IsShown() ? "true" : "false");
+    else if (PropName=="Position.X")       Property->SetValue(m_Win->GetPos().x);
+    else if (PropName=="Position.Y")       Property->SetValue(m_Win->GetPos().y);
+    else if (PropName=="Size.Width")       Property->SetValue(m_Win->GetSize().x);
+    else if (PropName=="Size.Height")      Property->SetValue(m_Win->GetSize().y);
+    else if (PropName=="Rotation")         Property->SetValue(m_Win->GetRotAngle());
     else                                   return false;
 
     return true;
@@ -163,14 +163,14 @@ bool EditorWindowT::WriteInitMethod(std::ostream& OutFile)
     cf::GuiSys::WindowCreateParamsT Params(*m_GuiDoc->GetGui());
     cf::GuiSys::WindowT             Default(Params);
 
-    if (m_Win->ShowWindow!=Default.ShowWindow)
-        OutFile << "    self:set(\"show\", " << (m_Win->ShowWindow ? "true" : "false") << ");\n";
+    if (m_Win->IsShown()!=Default.IsShown())
+        OutFile << "    self:set(\"show\", " << (m_Win->IsShown() ? "true" : "false") << ");\n";
 
-    if (m_Win->Rect[0]!=Default.Rect[0] || m_Win->Rect[1]!=Default.Rect[1] || m_Win->Rect[2]!=Default.Rect[2] || m_Win->Rect[3]!=Default.Rect[3])
-        OutFile << "    self:set(\"rect\", " << m_Win->Rect[0] << ", " << m_Win->Rect[1] << ", " << m_Win->Rect[2] << ", " << m_Win->Rect[3] << ");\n";
+    if (m_Win->GetPos().x!=Default.GetPos().x || m_Win->GetPos().y!=Default.GetPos().y || m_Win->GetSize().x!=Default.GetSize().x || m_Win->GetSize().y!=Default.GetSize().y)
+        OutFile << "    self:set(\"rect\", " << m_Win->GetPos().x << ", " << m_Win->GetPos().y << ", " << m_Win->GetSize().x << ", " << m_Win->GetSize().y << ");\n";
 
-    if (m_Win->RotAngle!=Default.RotAngle)
-        OutFile << "    self:set(\"rotAngle\", " << m_Win->RotAngle << ");\n";
+    if (m_Win->GetRotAngle()!=Default.GetRotAngle())
+        OutFile << "    self:set(\"rotAngle\", " << m_Win->GetRotAngle() << ");\n";
 
     return true;
 }
@@ -187,8 +187,8 @@ void EditorWindowT::Render() const
 
         m_Win->GetAbsolutePos(x1, y1);
 
-        const float x2=x1+m_Win->Rect[2];
-        const float y2=y1+m_Win->Rect[3];
+        const float x2=x1+m_Win->GetSize().x;
+        const float y2=y1+m_Win->GetSize().y;
 
         MatSys::Renderer->SetCurrentMaterial(m_Win->GetGui().GetDefaultRM());
 

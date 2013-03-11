@@ -23,7 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "AppCafu.hpp"
 #include "MainFrame.hpp"
 #include "Client/Client.hpp"
-#include "Client/ClientWindow.hpp"
+#include "Client/CompClient.hpp"
 #include "Server/Server.hpp"
 
 #include "Bitmap/Bitmap.hpp"
@@ -350,12 +350,24 @@ void MainCanvasT::Initialize()
         // Finish the initialization of the GuiSys.
         // Note that in the line below, the call to gui:setMousePos() is important, because it sets "MouseOverWindow" in the GUI properly to "Cl".
         // Without this, a left mouse button click that was not preceeded by a mouse movement would erroneously remove the input focus from "Cl".
-        cf::GuiSys::GuiImplT*              ClientGui   =new cf::GuiSys::GuiImplT(*m_GuiResources, "Cl=gui:new('ClientWindowT'); gui:SetRootWindow(Cl); gui:showMouse(false); gui:setMousePos(320, 240); gui:setFocus(Cl); Cl:SetName('Client');", cf::GuiSys::GuiImplT::InitFlag_InlineCode);
-        IntrusivePtrT<cf::GuiSys::WindowT> ClientWindow=ClientGui->GetRootWindow()->Find("Client");
-        IntrusivePtrT<ClientWindowT>       ClWin       =dynamic_pointer_cast<ClientWindowT>(ClientWindow);
+        cf::GuiSys::GuiImplT* ClientGui = new cf::GuiSys::GuiImplT(*m_GuiResources,
+            "Cl=gui:new('WindowT', 'Client')\n"
+            "\n"
+            "gui:SetRootWindow(Cl)\n"
+            "gui:showMouse(false)\n"
+            "gui:setMousePos(320, 240)\n"
+            "gui:setFocus(Cl)\n", cf::GuiSys::GuiImplT::InitFlag_InlineCode);
 
-        assert(ClWin!=NULL);
-        if (!ClWin.IsNull()) ClWin->SetClient(m_Client);
+        IntrusivePtrT<cf::GuiSys::WindowT> ClientWindow = ClientGui->GetRootWindow()->Find("Client");
+        IntrusivePtrT<ComponentClientT>    CompClient   = new ComponentClientT;
+
+        assert(ClientWindow != NULL);
+        ClientWindow->SetPos(Vector2fT(0, 0));
+        ClientWindow->SetSize(Vector2fT(640, 480));
+
+        CompClient->SetClient(m_Client);
+        ClientWindow->AddComponent(CompClient);
+
         cf::GuiSys::GuiMan->Register(ClientGui);
 
 

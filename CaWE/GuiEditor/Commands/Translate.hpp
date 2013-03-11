@@ -24,7 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "../../CommandPattern.hpp"
 
-#include "Math3D/Vector3.hpp"
+#include "Math3D/Vector2.hpp"
 #include "Templates/Pointer.hpp"
 
 
@@ -44,7 +44,7 @@ namespace GuiEditor
         /// @param Windows     The windows to translate.
         /// @param Positions   Depending on parameter \c Done these are the positions where the windows should be moved, or the original window positions.
         /// @param Done        Determines whether the windows have already been moved or should be moved by the command on first do.
-        CommandTranslateT(GuiDocumentT* GuiDocument, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, const ArrayT<Vector3fT>& Positions, bool Done=false);
+        CommandTranslateT(GuiDocumentT* GuiDocument, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, const ArrayT<Vector2fT>& Positions, bool Done=false);
         ~CommandTranslateT();
 
         // CommandT implementation.
@@ -59,8 +59,8 @@ namespace GuiEditor
 
         const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > m_Windows;
 
-        ArrayT<Vector3fT> m_OldPositions;
-        ArrayT<Vector3fT> m_NewPositions;
+        ArrayT<Vector2fT> m_OldPositions;
+        ArrayT<Vector2fT> m_NewPositions;
     };
 }
 

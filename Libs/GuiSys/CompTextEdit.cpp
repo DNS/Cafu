@@ -161,8 +161,8 @@ void ComponentTextEditT::Render() const
 
     const float x1 = 0.0f;
     const float y1 = 0.0f;
-    const float x2 = GetWindow()->Rect[2];
-    const float y2 = GetWindow()->Rect[3];
+    const float x2 = GetWindow()->GetSize().x;
+    const float y2 = GetWindow()->GetSize().y;
 
     int LineCount = 1;
     const size_t TextLength = Text.length();

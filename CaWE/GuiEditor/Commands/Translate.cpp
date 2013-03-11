@@ -29,7 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace GuiEditor;
 
 
-CommandTranslateT::CommandTranslateT(GuiDocumentT* GuiDocument, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, const ArrayT<Vector3fT>& Positions, bool Done)
+CommandTranslateT::CommandTranslateT(GuiDocumentT* GuiDocument, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, const ArrayT<Vector2fT>& Positions, bool Done)
     : m_GuiDocument(GuiDocument),
       m_Windows(Windows)
 {
@@ -40,7 +40,7 @@ CommandTranslateT::CommandTranslateT(GuiDocumentT* GuiDocument, const ArrayT< In
         m_OldPositions=Positions;
 
         for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
-            m_NewPositions.PushBack(Vector3fT(m_Windows[WinNr]->Rect[0], m_Windows[WinNr]->Rect[1], 0.0f));
+            m_NewPositions.PushBack(m_Windows[WinNr]->GetPos());
 
         m_GuiDocument->UpdateAllObservers_Modified(m_Windows, WMD_TRANSFORMED);
     }
@@ -49,7 +49,7 @@ CommandTranslateT::CommandTranslateT(GuiDocumentT* GuiDocument, const ArrayT< In
         m_NewPositions=Positions;
 
         for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
-            m_OldPositions.PushBack(Vector3fT(m_Windows[WinNr]->Rect[0], m_Windows[WinNr]->Rect[1], 0.0f));
+            m_OldPositions.PushBack(m_Windows[WinNr]->GetPos());
     }
 
     wxASSERT(m_OldPositions.Size()==m_NewPositions.Size());
@@ -69,8 +69,7 @@ bool CommandTranslateT::Do()
 
     for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
     {
-        m_Windows[WinNr]->Rect[0]=m_NewPositions[WinNr].x;
-        m_Windows[WinNr]->Rect[1]=m_NewPositions[WinNr].y;
+        m_Windows[WinNr]->SetPos(m_NewPositions[WinNr]);
     }
 
     m_GuiDocument->UpdateAllObservers_Modified(m_Windows, WMD_TRANSFORMED);
@@ -89,8 +88,7 @@ void CommandTranslateT::Undo()
 
     for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
     {
-        m_Windows[WinNr]->Rect[0]=m_OldPositions[WinNr].x;
-        m_Windows[WinNr]->Rect[1]=m_OldPositions[WinNr].y;
+        m_Windows[WinNr]->SetPos(m_OldPositions[WinNr]);
     }
 
     m_GuiDocument->UpdateAllObservers_Modified(m_Windows, WMD_TRANSFORMED);

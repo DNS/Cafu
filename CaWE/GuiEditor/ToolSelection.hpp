@@ -24,8 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Tool.hpp"
 
-#include "Math3D/Vector3.hpp"
-
+#include "Math3D/Vector2.hpp"
 #include "Templates/Array.hpp"
 
 
@@ -87,8 +86,8 @@ namespace GuiEditor
         /// Needed for command handling.
         struct WindowStateT
         {
-            Vector3fT Position;
-            Vector3fT Size;
+            Vector2fT Position;
+            Vector2fT Size;
             float     Rotation;
         };
 

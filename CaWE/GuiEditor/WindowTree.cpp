@@ -106,7 +106,7 @@ void WindowTreeT::AddChildren(const wxTreeItemId& Item, bool Recursive)
     {
         wxTreeItemId ID=AppendItem(Item, Children[i]->GetName(), -1, -1, new WindowTreeItemT(Children[i]));
 
-        if (Children[i]->ShowWindow)
+        if (Children[i]->IsShown())
             SetItemImage(ID, 0); // Visible icon.
         else
             SetItemImage(ID, 1); // Invisible icon.
@@ -233,7 +233,7 @@ void WindowTreeT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<
     {
         for (unsigned long WindowNr=0; WindowNr<Windows.Size(); WindowNr++)
         {
-            SetItemImage(FindTreeItem(GetRootItem(), Windows[WindowNr]), Windows[WindowNr]->ShowWindow ? 0 : 1);
+            SetItemImage(FindTreeItem(GetRootItem(), Windows[WindowNr]), Windows[WindowNr]->IsShown() ? 0 : 1);
         }
     }
 }
@@ -267,7 +267,7 @@ void WindowTreeT::RefreshTree()
     // First add root window to tree.
     wxTreeItemId ID=AddRoot(m_GuiDocument->GetRootWindow()->GetName(), -1, -1, new WindowTreeItemT(m_GuiDocument->GetRootWindow()));
 
-    if (m_GuiDocument->GetRootWindow()->ShowWindow)
+    if (m_GuiDocument->GetRootWindow()->IsShown())
         SetItemImage(ID, 0); // Visible icon.
     else
         SetItemImage(ID, 1); // Invisible icon.
@@ -356,7 +356,7 @@ void WindowTreeT::OnTreeLeftClick(wxMouseEvent& ME)
 
         m_IsRecursiveSelfNotify=true;
 
-        if (ClickedWindow->ShowWindow)
+        if (ClickedWindow->IsShown())
         {
             m_Parent->SubmitCommand(new CommandModifyWindowT(m_GuiDocument, ClickedWindow, "Visible", ClickedWindow->GetMemberVar("show"), 0));
             SetItemImage(ClickedItem, 1); // Invisible icon.

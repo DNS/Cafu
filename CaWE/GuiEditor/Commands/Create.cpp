@@ -53,20 +53,15 @@ CommandCreateT::CommandCreateT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiS
 
     m_NewWindow->SetName(CheckLuaIdentifier(WinName).ToStdString());
 
-    GuiDocumentT::CreateSibling(m_NewWindow, m_GuiDocument);
-
     // Set a window default size and center it on its parent.
     // If the size is larger than parentsize/2, set it to parentsize/2.
-    const Vector3fT Size(std::min(m_Parent->Rect[2]/2.0f, 100.0f),
-                         std::min(m_Parent->Rect[3]/2.0f,  50.0f), 0.0f);
+    const Vector2fT Size(std::min(m_Parent->GetSize().x/2.0f, 100.0f),
+                         std::min(m_Parent->GetSize().y/2.0f,  50.0f));
 
-    const Vector3fT Position((m_Parent->Rect[2]-Size.x)/2.0f,
-                             (m_Parent->Rect[3]-Size.y)/2.0f, 0.0f);
+    m_NewWindow->SetPos((m_Parent->GetSize() - Size) / 2.0f);
+    m_NewWindow->SetSize(Size);
 
-    m_NewWindow->Rect[0] = Position.x;
-    m_NewWindow->Rect[1] = Position.y;
-    m_NewWindow->Rect[2] = Size.x;
-    m_NewWindow->Rect[3] = Size.y;
+    GuiDocumentT::CreateSibling(m_NewWindow, m_GuiDocument);
 }
 
 
