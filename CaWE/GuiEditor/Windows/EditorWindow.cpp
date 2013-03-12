@@ -68,18 +68,6 @@ void EditorWindowT::FillInPG(wxPropertyGridManager* PropMan)
     wxPGProperty* Item=PropMan->Append(new wxBoolProperty("Visible", wxPG_LABEL, m_Win->IsShown()));
 
     PropMan->SetPropertyAttribute(Item, wxPG_BOOL_USE_CHECKBOX, (long)1, wxPG_RECURSE); // Use checkboxes instead of choice.
-
-    wxPGProperty* Position=PropMan->Append(new wxStringProperty("Position", wxPG_LABEL, "<composed>"));
-
-    PropMan->AppendIn(Position, new wxFloatProperty("X", wxPG_LABEL, m_Win->GetTransform()->GetPos().x));
-    PropMan->AppendIn(Position, new wxFloatProperty("Y", wxPG_LABEL, m_Win->GetTransform()->GetPos().y));
-
-    wxPGProperty* Size=PropMan->Append(new wxStringProperty("Size", wxPG_LABEL, "<composed>"));
-
-    PropMan->AppendIn(Size, new wxFloatProperty("Width", wxPG_LABEL, m_Win->GetTransform()->GetSize().x));
-    PropMan->AppendIn(Size, new wxFloatProperty("Height", wxPG_LABEL, m_Win->GetTransform()->GetSize().y));
-
-    PropMan->Append(new wxFloatProperty("Rotation", wxPG_LABEL, m_Win->GetTransform()->GetRotAngle()));
 }
 
 
@@ -89,11 +77,6 @@ bool EditorWindowT::UpdateProperty(wxPGProperty* Property)
 
          if (PropName=="Name")             Property->SetValueFromString(m_Win->GetName());
     else if (PropName=="Visible")          Property->SetValueFromString(m_Win->IsShown() ? "true" : "false");
-    else if (PropName=="Position.X")       Property->SetValue(m_Win->GetTransform()->GetPos().x);
-    else if (PropName=="Position.Y")       Property->SetValue(m_Win->GetTransform()->GetPos().y);
-    else if (PropName=="Size.Width")       Property->SetValue(m_Win->GetTransform()->GetSize().x);
-    else if (PropName=="Size.Height")      Property->SetValue(m_Win->GetTransform()->GetSize().y);
-    else if (PropName=="Rotation")         Property->SetValue(m_Win->GetTransform()->GetRotAngle());
     else                                   return false;
 
     return true;
@@ -122,31 +105,6 @@ bool EditorWindowT::HandlePGChange(wxPropertyGridEvent& Event, GuiEditor::ChildF
     {
         wxASSERT(m_Win->GetMemberVar("show").Member!=NULL);
         ChildFrame->SubmitCommand(new CommandModifyWindowT(m_GuiDoc, m_Win, PropName, m_Win->GetMemberVar("show"), Prop->GetValue().GetBool()));
-    }
-    else if (PropName=="Position.X")
-    {
-        wxASSERT(m_Win->GetMemberVar("pos.x").Member!=NULL);
-        ChildFrame->SubmitCommand(new CommandModifyWindowT(m_GuiDoc, m_Win, PropName, m_Win->GetMemberVar("pos.x"), &PropValueF));
-    }
-    else if (PropName=="Position.Y")
-    {
-        wxASSERT(m_Win->GetMemberVar("pos.y").Member!=NULL);
-        ChildFrame->SubmitCommand(new CommandModifyWindowT(m_GuiDoc, m_Win, PropName, m_Win->GetMemberVar("pos.y"), &PropValueF));
-    }
-    else if (PropName=="Size.Width")
-    {
-        wxASSERT(m_Win->GetMemberVar("size.x").Member!=NULL);
-        ChildFrame->SubmitCommand(new CommandModifyWindowT(m_GuiDoc, m_Win, PropName, m_Win->GetMemberVar("size.x"), &PropValueF));
-    }
-    else if (PropName=="Size.Height")
-    {
-        wxASSERT(m_Win->GetMemberVar("size.y").Member!=NULL);
-        ChildFrame->SubmitCommand(new CommandModifyWindowT(m_GuiDoc, m_Win, PropName, m_Win->GetMemberVar("size.y"), &PropValueF));
-    }
-    else if (PropName=="Rotation")
-    {
-        wxASSERT(m_Win->GetMemberVar("rotAngle").Member!=NULL);
-        ChildFrame->SubmitCommand(new CommandModifyWindowT(m_GuiDoc, m_Win, PropName, m_Win->GetMemberVar("rotAngle"), &PropValueF));
     }
     else
     {

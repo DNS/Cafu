@@ -28,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/propgrid/manager.h"
 
 
+namespace cf { namespace GuiSys { class ComponentBaseT; } }
 namespace cf { namespace GuiSys { class WindowT; } }
 namespace cf { namespace TypeSys { class VarBaseT; } }
 
@@ -61,6 +62,8 @@ namespace GuiEditor
         ChildFrameT*                       m_Parent;
         IntrusivePtrT<cf::GuiSys::WindowT> m_SelectedWindow;
         bool                               m_IsRecursiveSelfNotify;
+
+        void AppendComponent(IntrusivePtrT<cf::GuiSys::ComponentBaseT> Comp);
 
         void OnPropertyGridChanging(wxPropertyGridEvent& Event);
         void OnPropertyGridChanged(wxPropertyGridEvent& Event);

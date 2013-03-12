@@ -102,23 +102,7 @@ void WindowInspectorT::NotifySubjectChanged_Modified(SubjectT* Subject, const Ar
 
         case WMD_TRANSFORMED:
         {
-            // Update all transformation related properties (position, size, rotation).
-            wxPGProperty* Property=GetProperty("Position.X");
-            Property->SetValue(wxVariant(m_SelectedWindow->GetTransform()->GetPos().x));
-
-            Property=GetProperty("Position.Y");
-            Property->SetValue(wxVariant(m_SelectedWindow->GetTransform()->GetPos().y));
-
-            Property=GetProperty("Size.Width");
-            Property->SetValue(wxVariant(m_SelectedWindow->GetTransform()->GetSize().x));
-
-            Property=GetProperty("Size.Height");
-            Property->SetValue(wxVariant(m_SelectedWindow->GetTransform()->GetSize().y));
-
-            Property=GetProperty("Rotation");
-            Property->SetValue(wxVariant(m_SelectedWindow->GetTransform()->GetRotAngle()));
-
-            RefreshGrid();
+            RefreshPropGrid();
             break;
         }
     }
@@ -224,6 +208,24 @@ void WindowInspectorT::NotifySubjectDies(SubjectT* dyingSubject)
 }
 
 
+void WindowInspectorT::AppendComponent(IntrusivePtrT<cf::GuiSys::ComponentBaseT> Comp)
+{
+    const ArrayT<cf::TypeSys::VarBaseT*>& MemberVars = Comp->GetMemberVars().GetArray();
+    const wxString                        UniqueName = wxString::Format("%p", Comp.get());
+    wxPGProperty*                         CatProp    = new wxPropertyCategory(Comp->GetName(), UniqueName);
+
+    // With "category" properties we set the component pointer as client data,
+    // with other properties we set (in the AddProp visitor) the variable as client data.
+    CatProp->SetClientData(Comp.get());
+    Append(CatProp);
+
+    VarVisitorAddPropT AddProp(*this, m_GuiDocument);
+
+    for (unsigned long VarNr = 0; VarNr < MemberVars.Size(); VarNr++)
+        MemberVars[VarNr]->accept(AddProp);
+}
+
+
 void WindowInspectorT::RefreshPropGrid()
 {
     if (m_GuiDocument==NULL) return;
@@ -238,23 +240,10 @@ void WindowInspectorT::RefreshPropGrid()
 
         GuiDocumentT::GetSibling(m_SelectedWindow)->FillInPG(this);
 
-        VarVisitorAddPropT AddProp(*this, m_GuiDocument);
+        AppendComponent(m_SelectedWindow->GetTransform());
 
         for (unsigned long CompNr = 0; CompNr < m_SelectedWindow->GetComponents().Size(); CompNr++)
-        {
-            IntrusivePtrT<cf::GuiSys::ComponentBaseT> Comp       = m_SelectedWindow->GetComponents()[CompNr];
-            const ArrayT<cf::TypeSys::VarBaseT*>&     MemberVars = Comp->GetMemberVars().GetArray();
-            const wxString                            UniqueName = wxString::Format("%p", Comp.get());
-            wxPGProperty*                             CatProp    = new wxPropertyCategory(Comp->GetName(), UniqueName);
-
-            // With "category" properties we set the component pointer as client data,
-            // with other properties we set (in the AddProp visitor) the variable as client data.
-            CatProp->SetClientData(Comp.get());
-            Append(CatProp);
-
-            for (unsigned long VarNr = 0; VarNr < MemberVars.Size(); VarNr++)
-                MemberVars[VarNr]->accept(AddProp);
-        }
+            AppendComponent(m_SelectedWindow->GetComponents()[CompNr]);
     }
     else
     {
