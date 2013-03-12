@@ -40,7 +40,7 @@ CommandTranslateT::CommandTranslateT(GuiDocumentT* GuiDocument, const ArrayT< In
         m_OldPositions=Positions;
 
         for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
-            m_NewPositions.PushBack(m_Windows[WinNr]->GetPos());
+            m_NewPositions.PushBack(m_Windows[WinNr]->GetTransform()->GetPos());
 
         m_GuiDocument->UpdateAllObservers_Modified(m_Windows, WMD_TRANSFORMED);
     }
@@ -49,7 +49,7 @@ CommandTranslateT::CommandTranslateT(GuiDocumentT* GuiDocument, const ArrayT< In
         m_NewPositions=Positions;
 
         for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
-            m_OldPositions.PushBack(m_Windows[WinNr]->GetPos());
+            m_OldPositions.PushBack(m_Windows[WinNr]->GetTransform()->GetPos());
     }
 
     wxASSERT(m_OldPositions.Size()==m_NewPositions.Size());
@@ -69,7 +69,7 @@ bool CommandTranslateT::Do()
 
     for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
     {
-        m_Windows[WinNr]->SetPos(m_NewPositions[WinNr]);
+        m_Windows[WinNr]->GetTransform()->SetPos(m_NewPositions[WinNr]);
     }
 
     m_GuiDocument->UpdateAllObservers_Modified(m_Windows, WMD_TRANSFORMED);
@@ -88,7 +88,7 @@ void CommandTranslateT::Undo()
 
     for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
     {
-        m_Windows[WinNr]->SetPos(m_OldPositions[WinNr]);
+        m_Windows[WinNr]->GetTransform()->SetPos(m_OldPositions[WinNr]);
     }
 
     m_GuiDocument->UpdateAllObservers_Modified(m_Windows, WMD_TRANSFORMED);

@@ -236,8 +236,8 @@ void ComponentTextT::Render() const
 
     const float x1 = 0.0f;
     const float y1 = 0.0f;
-    const float x2 = GetWindow()->GetSize().x;
-    const float y2 = GetWindow()->GetSize().y;
+    const float x2 = GetWindow()->GetTransform()->GetSize().x;
+    const float y2 = GetWindow()->GetTransform()->GetSize().y;
 
     int LineCount = 1;
     const size_t TextLength = m_Text.Get().length();

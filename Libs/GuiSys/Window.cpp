@@ -86,19 +86,15 @@ const cf::TypeSys::TypeInfoT WindowT::TypeInfo(GetWindowTIM(), "WindowT", NULL /
 WindowT::WindowT(const WindowCreateParamsT& Params)
     : Time(0.0f),
       ShowWindow(true),
-   // Rect(),
-      RotAngle(0.0f),
       m_Gui(Params.Gui),
       m_ExtData(NULL),
       m_Parent(NULL),
       m_Children(),
       m_Name(""),
+      m_Transform(new ComponentTransformT()),
       m_Components()
 {
-    for (unsigned long c=0; c<4; c++)
-    {
-        Rect[c]=0.0f;
-    }
+    m_Transform->SetSize(Vector2fT(80, 60));
 
     // This is currently required, because this ctor is also used now for windows created
     // by Lua script (not only for windows created in C++, using "new WindowT()")...
@@ -109,19 +105,14 @@ WindowT::WindowT(const WindowCreateParamsT& Params)
 WindowT::WindowT(const WindowT& Window, bool Recursive)
     : Time(Window.Time),
       ShowWindow(Window.ShowWindow),
-      RotAngle(Window.RotAngle),
       m_Gui(Window.m_Gui),
       m_ExtData(NULL   /* Clone() it?? */),
       m_Parent(NULL),
       m_Children(),
       m_Name(Window.m_Name),
+      m_Transform(Window.GetTransform()->Clone()),
       m_Components()
 {
-    for (unsigned int i=0; i<4; i++)
-    {
-        Rect[i]=Window.Rect[i];
-    }
-
     // Copy-create all components first.
     m_Components.PushBackEmptyExact(Window.GetComponents().Size());
 
@@ -333,20 +324,20 @@ void WindowT::DeleteComponent(unsigned long CompNr)
 void WindowT::GetAbsolutePos(float& x, float& y) const
 {
 #if 1
-    x=Rect[0];
-    y=Rect[1];
+    x = m_Transform->GetPos().x;
+    y = m_Transform->GetPos().y;
 
     for (const WindowT* P = m_Parent; P; P = P->m_Parent)
     {
-        x+=P->Rect[0];
-        y+=P->Rect[1];
+        x += P->m_Transform->GetPos().x;
+        y += P->m_Transform->GetPos().y;
     }
 #else
     // Recursive implementation:
     if (Parent==NULL)
     {
-        x=Rect[0];
-        y=Rect[1];
+        x = m_Transform->GetPos().x;
+        y = m_Transform->GetPos().y;
         return;
     }
 
@@ -356,8 +347,8 @@ void WindowT::GetAbsolutePos(float& x, float& y) const
     // We have a parent, so get it's absolute position first, then add our relative position.
     Parent->GetAbsolutePos(px, py);
 
-    x=px+Rect[0];
-    y=py+Rect[1];
+    x = px + m_Transform->GetPos().x;
+    y = py + m_Transform->GetPos().y;
 #endif
 }
 
@@ -397,8 +388,8 @@ IntrusivePtrT<WindowT> WindowT::Find(float x, float y, bool OnlyVisible)
 
     GetAbsolutePos(AbsX1, AbsY1);
 
-    const float SizeX=Rect[2];
-    const float SizeY=Rect[3];
+    const float SizeX = m_Transform->GetSize().x;
+    const float SizeY = m_Transform->GetSize().y;
 
     return (x<AbsX1 || y<AbsY1 || x>AbsX1+SizeX || y>AbsY1+SizeY) ? NULL : this;
 }
@@ -419,15 +410,15 @@ void WindowT::Render() const
         MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
 
         // Set the coordinate origin to the top-left corner of our window.
-        if (RotAngle == 0)
+        if (m_Transform->GetRotAngle() == 0)
         {
             MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, x1, y1, 0.0f);
         }
         else
         {
-            MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, x1 + Rect[2]/2.0f, y1 + Rect[3]/2.0f, 0.0f);
-            MatSys::Renderer->RotateZ  (MatSys::RendererI::MODEL_TO_WORLD, RotAngle);
-            MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD,     -Rect[2]/2.0f,     -Rect[3]/2.0f, 0.0f);
+            MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, x1 + m_Transform->GetSize().x/2.0f, y1 + m_Transform->GetSize().y/2.0f, 0.0f);
+            MatSys::Renderer->RotateZ  (MatSys::RendererI::MODEL_TO_WORLD, m_Transform->GetRotAngle());
+            MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD,     -m_Transform->GetSize().x/2.0f,     -m_Transform->GetSize().y/2.0f, 0.0f);
         }
 
         // Render components in the proper order -- bottom-up.
@@ -439,13 +430,13 @@ void WindowT::Render() const
 
 
     // Save the current matrices.
-    if (RotAngle!=0)
+    if (m_Transform->GetRotAngle() != 0)
     {
         MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
 
-        MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, x1+Rect[2]/2.0f, y1+Rect[3]/2.0f, 0.0f);
-        MatSys::Renderer->RotateZ  (MatSys::RendererI::MODEL_TO_WORLD, RotAngle);
-        MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, -(x1+Rect[2]/2.0f), -(y1+Rect[3]/2.0f), 0.0f);
+        MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, x1+m_Transform->GetSize().x/2.0f, y1+m_Transform->GetSize().y/2.0f, 0.0f);
+        MatSys::Renderer->RotateZ  (MatSys::RendererI::MODEL_TO_WORLD, m_Transform->GetRotAngle());
+        MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, -(x1+m_Transform->GetSize().x/2.0f), -(y1+m_Transform->GetSize().y/2.0f), 0.0f);
     }
 
 
@@ -459,7 +450,7 @@ void WindowT::Render() const
     // E.g. if m_ExtData is used in a GUI editor, it might render selection borders etc.
     if (m_ExtData) m_ExtData->Render();
 
-    if (RotAngle!=0)
+    if (m_Transform->GetRotAngle() != 0)
     {
         // Restore the previously active matrices.
         MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
@@ -568,16 +559,6 @@ void WindowT::FillMemberVars()
 {
     MemberVars["time"]=MemberVarT(Time);
     MemberVars["show"]=MemberVarT(ShowWindow);
-
-    MemberVars["rect"]=MemberVarT(MemberVarT::TYPE_FLOAT4, &Rect[0]);
-    MemberVars["pos"]=MemberVarT(MemberVarT::TYPE_FLOAT2, &Rect[0]);
-    MemberVars["size"]=MemberVarT(MemberVarT::TYPE_FLOAT2, &Rect[2]);
-    MemberVars["pos.x"]=MemberVarT(Rect[0]);
-    MemberVars["pos.y"]=MemberVarT(Rect[1]);
-    MemberVars["size.x"]=MemberVarT(Rect[2]);
-    MemberVars["size.y"]=MemberVarT(Rect[3]);
-
-    MemberVars["rotAngle"]=MemberVarT(RotAngle);
 }
 
 
@@ -591,6 +572,14 @@ int WindowT::Set(lua_State* LuaState)
     IntrusivePtrT<WindowT> Win=Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
     std::string       VarName=luaL_checkstring(LuaState, 2);
     const MemberVarT& Var    =Win->MemberVars[VarName];
+
+    if (VarName == "rect")
+    {
+        Win->m_Transform->SetPos (Vector2fT(float(lua_tonumber(LuaState, 3)), float(lua_tonumber(LuaState, 4))));
+        Win->m_Transform->SetSize(Vector2fT(float(lua_tonumber(LuaState, 5)), float(lua_tonumber(LuaState, 6))));
+
+        return 0;
+    }
 
     if (Var.Member==NULL)
     {

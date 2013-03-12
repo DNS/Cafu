@@ -131,9 +131,9 @@ bool ToolSelectionT::OnLMouseDown(RenderWindowT* RenderWindow, wxMouseEvent& ME)
     {
         WindowStateT WindowState;
 
-        WindowState.Position = Vector2fT(Selection[SelNr]->GetPos().x,  Selection[SelNr]->GetPos().y);
-        WindowState.Size     = Vector2fT(Selection[SelNr]->GetSize().x, Selection[SelNr]->GetSize().y);
-        WindowState.Rotation = Selection[SelNr]->GetRotAngle();
+        WindowState.Position = Selection[SelNr]->GetTransform()->GetPos();
+        WindowState.Size     = Selection[SelNr]->GetTransform()->GetSize();
+        WindowState.Rotation = Selection[SelNr]->GetTransform()->GetRotAngle();
 
         m_WindowStates.PushBack(WindowState);
     }
@@ -144,7 +144,9 @@ bool ToolSelectionT::OnLMouseDown(RenderWindowT* RenderWindow, wxMouseEvent& ME)
     // Start transforming the selection.
     m_TransformationStart=true;
 
-    m_RotStartAngle=GetAngle(MousePosGUI.x, MousePosGUI.y, (ClickedWindow->GetPos().x+ClickedWindow->GetSize().x)/2.0f, (ClickedWindow->GetPos().y+ClickedWindow->GetSize().y)/2.0f);
+    m_RotStartAngle=GetAngle(MousePosGUI.x, MousePosGUI.y,
+        (ClickedWindow->GetTransform()->GetPos().x + ClickedWindow->GetTransform()->GetSize().x)/2.0f,
+        (ClickedWindow->GetTransform()->GetPos().y + ClickedWindow->GetTransform()->GetSize().y)/2.0f);
     return true;
 }
 
@@ -236,9 +238,9 @@ bool ToolSelectionT::OnMouseMove(RenderWindowT* RenderWindow, wxMouseEvent& ME)
         // Move the selection to the current mouse position.
         for (unsigned long SelNr=0; SelNr<Selection.Size(); SelNr++)
         {
-            Vector2fT Pos      = Selection[SelNr]->GetPos();
-            Vector2fT Size     = Selection[SelNr]->GetSize();
-            float     RotAngle = Selection[SelNr]->GetRotAngle();
+            Vector2fT Pos      = Selection[SelNr]->GetTransform()->GetPos();
+            Vector2fT Size     = Selection[SelNr]->GetTransform()->GetSize();
+            float     RotAngle = Selection[SelNr]->GetTransform()->GetRotAngle();
 
             switch (m_TransState)
             {
@@ -304,9 +306,9 @@ bool ToolSelectionT::OnMouseMove(RenderWindowT* RenderWindow, wxMouseEvent& ME)
             if (Size.x < 10.0f) Size.x = 10.0f;
             if (Size.y < 10.0f) Size.y = 10.0f;
 
-            Selection[SelNr]->SetPos(Pos);
-            Selection[SelNr]->SetSize(Size);
-            Selection[SelNr]->SetRotAngle(RotAngle);
+            Selection[SelNr]->GetTransform()->SetPos(Pos);
+            Selection[SelNr]->GetTransform()->SetSize(Size);
+            Selection[SelNr]->GetTransform()->SetRotAngle(RotAngle);
         }
 
         RenderWindow->Refresh(false);
@@ -319,7 +321,7 @@ bool ToolSelectionT::OnMouseMove(RenderWindowT* RenderWindow, wxMouseEvent& ME)
         // If window under the cursor is selected.
         if (!MouseOverWindow.IsNull() && GuiDocumentT::GetSibling(MouseOverWindow)->IsSelected())
         {
-            const Vector2fT WinSize = MouseOverWindow->GetSize();
+            const Vector2fT WinSize = MouseOverWindow->GetTransform()->GetSize();
 
             // Get absolute window position then get relative cursor position to this window.
             float PosX=0.0f;

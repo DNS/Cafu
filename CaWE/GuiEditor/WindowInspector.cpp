@@ -104,19 +104,19 @@ void WindowInspectorT::NotifySubjectChanged_Modified(SubjectT* Subject, const Ar
         {
             // Update all transformation related properties (position, size, rotation).
             wxPGProperty* Property=GetProperty("Position.X");
-            Property->SetValue(wxVariant(m_SelectedWindow->GetPos().x));
+            Property->SetValue(wxVariant(m_SelectedWindow->GetTransform()->GetPos().x));
 
             Property=GetProperty("Position.Y");
-            Property->SetValue(wxVariant(m_SelectedWindow->GetPos().y));
+            Property->SetValue(wxVariant(m_SelectedWindow->GetTransform()->GetPos().y));
 
             Property=GetProperty("Size.Width");
-            Property->SetValue(wxVariant(m_SelectedWindow->GetSize().x));
+            Property->SetValue(wxVariant(m_SelectedWindow->GetTransform()->GetSize().x));
 
             Property=GetProperty("Size.Height");
-            Property->SetValue(wxVariant(m_SelectedWindow->GetSize().y));
+            Property->SetValue(wxVariant(m_SelectedWindow->GetTransform()->GetSize().y));
 
             Property=GetProperty("Rotation");
-            Property->SetValue(wxVariant(m_SelectedWindow->GetRotAngle()));
+            Property->SetValue(wxVariant(m_SelectedWindow->GetTransform()->GetRotAngle()));
 
             RefreshGrid();
             break;

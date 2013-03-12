@@ -362,8 +362,8 @@ void MainCanvasT::Initialize()
         IntrusivePtrT<ComponentClientT>    CompClient   = new ComponentClientT;
 
         assert(ClientWindow != NULL);
-        ClientWindow->SetPos(Vector2fT(0, 0));
-        ClientWindow->SetSize(Vector2fT(640, 480));
+        ClientWindow->GetTransform()->SetPos(Vector2fT(0, 0));
+        ClientWindow->GetTransform()->SetSize(Vector2fT(640, 480));
 
         CompClient->SetClient(m_Client);
         ClientWindow->AddComponent(CompClient);

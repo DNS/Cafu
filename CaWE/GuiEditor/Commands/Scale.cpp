@@ -42,8 +42,8 @@ CommandScaleT::CommandScaleT(GuiDocumentT* GuiDocument, const ArrayT< IntrusiveP
 
         for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
         {
-            m_NewPositions.PushBack(m_Windows[WinNr]->GetPos());
-            m_NewSizes    .PushBack(m_Windows[WinNr]->GetSize());
+            m_NewPositions.PushBack(m_Windows[WinNr]->GetTransform()->GetPos());
+            m_NewSizes    .PushBack(m_Windows[WinNr]->GetTransform()->GetSize());
         }
 
         // If the command has already been completed we have to send an observer message so the observers can update themselves accordingly.
@@ -56,8 +56,8 @@ CommandScaleT::CommandScaleT(GuiDocumentT* GuiDocument, const ArrayT< IntrusiveP
 
         for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
         {
-            m_OldPositions.PushBack(m_Windows[WinNr]->GetPos());
-            m_OldSizes    .PushBack(m_Windows[WinNr]->GetSize());
+            m_OldPositions.PushBack(m_Windows[WinNr]->GetTransform()->GetPos());
+            m_OldSizes    .PushBack(m_Windows[WinNr]->GetTransform()->GetSize());
         }
     }
 
@@ -74,8 +74,8 @@ bool CommandScaleT::Do()
 
     for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
     {
-        m_Windows[WinNr]->SetPos(m_NewPositions[WinNr]);
-        m_Windows[WinNr]->SetSize(m_NewSizes[WinNr]);
+        m_Windows[WinNr]->GetTransform()->SetPos(m_NewPositions[WinNr]);
+        m_Windows[WinNr]->GetTransform()->SetSize(m_NewSizes[WinNr]);
     }
 
     m_GuiDocument->UpdateAllObservers_Modified(m_Windows, WMD_TRANSFORMED);
@@ -94,8 +94,8 @@ void CommandScaleT::Undo()
 
     for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
     {
-        m_Windows[WinNr]->SetPos(m_OldPositions[WinNr]);
-        m_Windows[WinNr]->SetSize(m_OldSizes[WinNr]);
+        m_Windows[WinNr]->GetTransform()->SetPos(m_OldPositions[WinNr]);
+        m_Windows[WinNr]->GetTransform()->SetSize(m_OldSizes[WinNr]);
     }
 
     m_GuiDocument->UpdateAllObservers_Modified(m_Windows, WMD_TRANSFORMED);

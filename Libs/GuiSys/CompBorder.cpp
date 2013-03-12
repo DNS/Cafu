@@ -96,8 +96,8 @@ void ComponentBorderT::Render() const
     const float b  = m_Width.Get();
     const float x1 = 0.0f;
     const float y1 = 0.0f;
-    const float x2 = GetWindow()->GetSize().x;
-    const float y2 = GetWindow()->GetSize().y;
+    const float x2 = GetWindow()->GetTransform()->GetSize().x;
+    const float y2 = GetWindow()->GetTransform()->GetSize().y;
 
     if (b > 0.0f)
     {

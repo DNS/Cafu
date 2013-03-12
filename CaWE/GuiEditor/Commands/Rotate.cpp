@@ -38,16 +38,16 @@ CommandRotateT::CommandRotateT(GuiDocumentT* GuiDocument, const ArrayT< Intrusiv
     {
         for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
         {
-            m_OldRotations.PushBack(fmod(m_Windows[WinNr]->GetRotAngle() - Rotation + 360.0f, 360.0f));
-            m_NewRotations.PushBack(m_Windows[WinNr]->GetRotAngle());
+            m_OldRotations.PushBack(fmod(m_Windows[WinNr]->GetTransform()->GetRotAngle() - Rotation + 360.0f, 360.0f));
+            m_NewRotations.PushBack(m_Windows[WinNr]->GetTransform()->GetRotAngle());
         }
     }
     else
     {
         for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
         {
-            m_OldRotations.PushBack(m_Windows[WinNr]->GetRotAngle());
-            m_NewRotations.PushBack(fmod(m_Windows[WinNr]->GetRotAngle() + Rotation + 360.0f, 360.0f));
+            m_OldRotations.PushBack(m_Windows[WinNr]->GetTransform()->GetRotAngle());
+            m_NewRotations.PushBack(fmod(m_Windows[WinNr]->GetTransform()->GetRotAngle() + Rotation + 360.0f, 360.0f));
         }
     }
 }
@@ -59,7 +59,7 @@ bool CommandRotateT::Do()
     if (m_Done) return false;
 
     for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
-        m_Windows[WinNr]->SetRotAngle(m_NewRotations[WinNr]);
+        m_Windows[WinNr]->GetTransform()->SetRotAngle(m_NewRotations[WinNr]);
 
     m_GuiDocument->UpdateAllObservers_Modified(m_Windows, WMD_TRANSFORMED);
 
@@ -74,7 +74,7 @@ void CommandRotateT::Undo()
     if (!m_Done) return;
 
     for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
-        m_Windows[WinNr]->SetRotAngle(m_OldRotations[WinNr]);
+        m_Windows[WinNr]->GetTransform()->SetRotAngle(m_OldRotations[WinNr]);
 
     m_GuiDocument->UpdateAllObservers_Modified(m_Windows, WMD_TRANSFORMED);
 

@@ -71,15 +71,15 @@ void EditorWindowT::FillInPG(wxPropertyGridManager* PropMan)
 
     wxPGProperty* Position=PropMan->Append(new wxStringProperty("Position", wxPG_LABEL, "<composed>"));
 
-    PropMan->AppendIn(Position, new wxFloatProperty("X", wxPG_LABEL, m_Win->GetPos().x));
-    PropMan->AppendIn(Position, new wxFloatProperty("Y", wxPG_LABEL, m_Win->GetPos().y));
+    PropMan->AppendIn(Position, new wxFloatProperty("X", wxPG_LABEL, m_Win->GetTransform()->GetPos().x));
+    PropMan->AppendIn(Position, new wxFloatProperty("Y", wxPG_LABEL, m_Win->GetTransform()->GetPos().y));
 
     wxPGProperty* Size=PropMan->Append(new wxStringProperty("Size", wxPG_LABEL, "<composed>"));
 
-    PropMan->AppendIn(Size, new wxFloatProperty("Width", wxPG_LABEL, m_Win->GetSize().x));
-    PropMan->AppendIn(Size, new wxFloatProperty("Height", wxPG_LABEL, m_Win->GetSize().y));
+    PropMan->AppendIn(Size, new wxFloatProperty("Width", wxPG_LABEL, m_Win->GetTransform()->GetSize().x));
+    PropMan->AppendIn(Size, new wxFloatProperty("Height", wxPG_LABEL, m_Win->GetTransform()->GetSize().y));
 
-    PropMan->Append(new wxFloatProperty("Rotation", wxPG_LABEL, m_Win->GetRotAngle()));
+    PropMan->Append(new wxFloatProperty("Rotation", wxPG_LABEL, m_Win->GetTransform()->GetRotAngle()));
 }
 
 
@@ -89,11 +89,11 @@ bool EditorWindowT::UpdateProperty(wxPGProperty* Property)
 
          if (PropName=="Name")             Property->SetValueFromString(m_Win->GetName());
     else if (PropName=="Visible")          Property->SetValueFromString(m_Win->IsShown() ? "true" : "false");
-    else if (PropName=="Position.X")       Property->SetValue(m_Win->GetPos().x);
-    else if (PropName=="Position.Y")       Property->SetValue(m_Win->GetPos().y);
-    else if (PropName=="Size.Width")       Property->SetValue(m_Win->GetSize().x);
-    else if (PropName=="Size.Height")      Property->SetValue(m_Win->GetSize().y);
-    else if (PropName=="Rotation")         Property->SetValue(m_Win->GetRotAngle());
+    else if (PropName=="Position.X")       Property->SetValue(m_Win->GetTransform()->GetPos().x);
+    else if (PropName=="Position.Y")       Property->SetValue(m_Win->GetTransform()->GetPos().y);
+    else if (PropName=="Size.Width")       Property->SetValue(m_Win->GetTransform()->GetSize().x);
+    else if (PropName=="Size.Height")      Property->SetValue(m_Win->GetTransform()->GetSize().y);
+    else if (PropName=="Rotation")         Property->SetValue(m_Win->GetTransform()->GetRotAngle());
     else                                   return false;
 
     return true;
@@ -166,11 +166,11 @@ bool EditorWindowT::WriteInitMethod(std::ostream& OutFile)
     if (m_Win->IsShown()!=Default.IsShown())
         OutFile << "    self:set(\"show\", " << (m_Win->IsShown() ? "true" : "false") << ");\n";
 
-    if (m_Win->GetPos().x!=Default.GetPos().x || m_Win->GetPos().y!=Default.GetPos().y || m_Win->GetSize().x!=Default.GetSize().x || m_Win->GetSize().y!=Default.GetSize().y)
-        OutFile << "    self:set(\"rect\", " << m_Win->GetPos().x << ", " << m_Win->GetPos().y << ", " << m_Win->GetSize().x << ", " << m_Win->GetSize().y << ");\n";
+    if (m_Win->GetTransform()->GetPos().x!=Default.GetTransform()->GetPos().x || m_Win->GetTransform()->GetPos().y!=Default.GetTransform()->GetPos().y || m_Win->GetTransform()->GetSize().x!=Default.GetTransform()->GetSize().x || m_Win->GetTransform()->GetSize().y!=Default.GetTransform()->GetSize().y)
+        OutFile << "    self:set(\"rect\", " << m_Win->GetTransform()->GetPos().x << ", " << m_Win->GetTransform()->GetPos().y << ", " << m_Win->GetTransform()->GetSize().x << ", " << m_Win->GetTransform()->GetSize().y << ");\n";
 
-    if (m_Win->GetRotAngle()!=Default.GetRotAngle())
-        OutFile << "    self:set(\"rotAngle\", " << m_Win->GetRotAngle() << ");\n";
+    if (m_Win->GetTransform()->GetRotAngle()!=Default.GetTransform()->GetRotAngle())
+        OutFile << "    self:set(\"rotAngle\", " << m_Win->GetTransform()->GetRotAngle() << ");\n";
 
     return true;
 }
@@ -187,8 +187,8 @@ void EditorWindowT::Render() const
 
         m_Win->GetAbsolutePos(x1, y1);
 
-        const float x2=x1+m_Win->GetSize().x;
-        const float y2=y1+m_Win->GetSize().y;
+        const float x2=x1+m_Win->GetTransform()->GetSize().x;
+        const float y2=y1+m_Win->GetTransform()->GetSize().y;
 
         MatSys::Renderer->SetCurrentMaterial(m_Win->GetGui().GetDefaultRM());
 

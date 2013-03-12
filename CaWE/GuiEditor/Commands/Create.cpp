@@ -55,11 +55,11 @@ CommandCreateT::CommandCreateT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiS
 
     // Set a window default size and center it on its parent.
     // If the size is larger than parentsize/2, set it to parentsize/2.
-    const Vector2fT Size(std::min(m_Parent->GetSize().x/2.0f, 100.0f),
-                         std::min(m_Parent->GetSize().y/2.0f,  50.0f));
+    const Vector2fT Size(std::min(m_Parent->GetTransform()->GetSize().x/2.0f, 100.0f),
+                         std::min(m_Parent->GetTransform()->GetSize().y/2.0f,  50.0f));
 
-    m_NewWindow->SetPos((m_Parent->GetSize() - Size) / 2.0f);
-    m_NewWindow->SetSize(Size);
+    m_NewWindow->GetTransform()->SetPos((m_Parent->GetTransform()->GetSize() - Size) / 2.0f);
+    m_NewWindow->GetTransform()->SetSize(Size);
 
     GuiDocumentT::CreateSibling(m_NewWindow, m_GuiDocument);
 }
