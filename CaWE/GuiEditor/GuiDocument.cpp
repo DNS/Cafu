@@ -175,6 +175,13 @@ static void SaveWindowHierarchy(std::ostream& OutFile, IntrusivePtrT<cf::GuiSys:
 
 static void SaveComponents(std::ostream& OutFile, IntrusivePtrT<cf::GuiSys::WindowT> Window)
 {
+    OutFile << "    self:GetTransform():set(\"Pos\", " << Window->GetTransform()->GetPos().x << ", " << Window->GetTransform()->GetPos().y << ")\n";
+    OutFile << "    self:GetTransform():set(\"Size\", " << Window->GetTransform()->GetSize().x << ", " << Window->GetTransform()->GetSize().y << ")\n";
+
+    if (Window->GetTransform()->GetRotAngle() != 0.0f)
+        OutFile << "    self:GetTransform():set(\"Rotation\", " << Window->GetTransform()->GetRotAngle() << ")\n";
+
+
     if (Window->GetComponents().Size() == 0)
         return;
 

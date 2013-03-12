@@ -32,7 +32,8 @@ ChatInputFrame:AddChild(ChatInputFrame.ButtonCancel);
 -- ***********************************************************
 
 function Background:OnInit()
-    self:set("rect", 0, 100, 640, 50);
+    self:GetTransform():set("Pos", 0, 100)
+    self:GetTransform():set("Size", 640, 50)
 
     local c1 = gui:new("ComponentImageT")
     c1:set("Material", "")
@@ -48,7 +49,8 @@ function Background:OnInit()
 end
 
 function ChatInputFrame:OnInit()
-    self:set("rect", 5, 5, 630, 40);
+    self:GetTransform():set("Pos", 5, 5)
+    self:GetTransform():set("Size", 630, 40)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -74,7 +76,8 @@ function ChatInputFrame:OnInit()
 end
 
 function ChatInputFrame.ChatInput:OnInit()
-    self:set("rect", 30, 10, 520, 20);
+    self:GetTransform():set("Pos", 30, 10)
+    self:GetTransform():set("Size", 520, 20)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.5)
@@ -102,7 +105,8 @@ function ChatInputFrame.ChatInput:OnInit()
 end
 
 function ChatInputFrame.ButtonCancel:OnInit()
-    self:set("rect", 560, 10, 60, 20);
+    self:GetTransform():set("Pos", 560, 10)
+    self:GetTransform():set("Size", 60, 20)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")

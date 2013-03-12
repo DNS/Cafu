@@ -32,7 +32,8 @@ ReallyQuit:AddChild(ReallyQuit.ButtonNo);
 -- ***********************************************************
 
 function Background:OnInit()
-    self:set("rect", 0, 0, 640, 480);
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 
     local c1 = gui:new("ComponentImageT")
     c1:set("Material", "")
@@ -48,7 +49,8 @@ function Background:OnInit()
 end
 
 function ReallyQuit:OnInit()
-    self:set("rect", 120, 90, 400, 300);
+    self:GetTransform():set("Pos", 120, 90)
+    self:GetTransform():set("Size", 400, 300)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -74,7 +76,8 @@ function ReallyQuit:OnInit()
 end
 
 function ReallyQuit.ButtonYes:OnInit()
-    self:set("rect", 53, 250, 120, 40);
+    self:GetTransform():set("Pos", 53, 250)
+    self:GetTransform():set("Size", 120, 40)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -100,7 +103,8 @@ function ReallyQuit.ButtonYes:OnInit()
 end
 
 function ReallyQuit.ButtonNo:OnInit()
-    self:set("rect", 227, 250, 120, 40);
+    self:GetTransform():set("Pos", 227, 250)
+    self:GetTransform():set("Size", 120, 40)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")

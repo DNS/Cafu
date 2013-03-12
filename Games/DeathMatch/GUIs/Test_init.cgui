@@ -48,7 +48,8 @@ TestGUI:AddChild(FPS);
 -- ***********************************************************
 
 function TestGUI:OnInit()
-    self:set("rect", 0, 0, 640, 480);
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -68,7 +69,8 @@ function TestGUI:OnInit()
 end
 
 function SomeImage:OnInit()
-    self:set("rect", 30, 130, 200, 200);
+    self:GetTransform():set("Pos", 30, 130)
+    self:GetTransform():set("Size", 200, 200)
 
     local c1 = gui:new("ComponentImageT")
     c1:set("Material", "Models/Weapons/9mmAR_v/arm")
@@ -79,7 +81,8 @@ function SomeImage:OnInit()
 end
 
 function ButtonToggleHor:OnInit()
-    self:set("rect", 10, 380, 140, 80);
+    self:GetTransform():set("Pos", 10, 380)
+    self:GetTransform():set("Size", 140, 80)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -101,7 +104,8 @@ alignment]])
 end
 
 function ButtonToggleVer:OnInit()
-    self:set("rect", 170, 380, 140, 80);
+    self:GetTransform():set("Pos", 170, 380)
+    self:GetTransform():set("Size", 140, 80)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -123,7 +127,8 @@ alignment]])
 end
 
 function ButtonQuit:OnInit()
-    self:set("rect", 400, 380, 160, 80);
+    self:GetTransform():set("Pos", 400, 380)
+    self:GetTransform():set("Size", 160, 80)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -144,7 +149,8 @@ function ButtonQuit:OnInit()
 end
 
 function Counter:OnInit()
-    self:set("rect", 400, 20, 120, 100);
+    self:GetTransform():set("Pos", 400, 20)
+    self:GetTransform():set("Size", 120, 100)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -166,7 +172,8 @@ function Counter:OnInit()
 end
 
 function FPS:OnInit()
-    self:set("rect", 400, 150, 220, 160);
+    self:GetTransform():set("Pos", 400, 150)
+    self:GetTransform():set("Size", 220, 160)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")

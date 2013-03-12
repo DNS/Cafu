@@ -48,6 +48,8 @@ Background:AddChild(CrossHair);
 -- ***********************************************************
 
 function Background:OnInit()
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 80, 60)
 
     local c1 = gui:new("ComponentImageT")
     c1:set("Material", "")
@@ -62,7 +64,8 @@ function Background:OnInit()
 end
 
 function InfoHealth:OnInit()
-    self:set("rect", 5, 430, 70, 20);
+    self:GetTransform():set("Pos", 5, 430)
+    self:GetTransform():set("Size", 70, 20)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -88,7 +91,8 @@ function InfoHealth:OnInit()
 end
 
 function InfoArmor:OnInit()
-    self:set("rect", 5, 455, 70, 20);
+    self:GetTransform():set("Pos", 5, 455)
+    self:GetTransform():set("Size", 70, 20)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -114,7 +118,8 @@ function InfoArmor:OnInit()
 end
 
 function InfoFrags:OnInit()
-    self:set("rect", 95, 455, 80, 20);
+    self:GetTransform():set("Pos", 95, 455)
+    self:GetTransform():set("Size", 80, 20)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -140,7 +145,8 @@ function InfoFrags:OnInit()
 end
 
 function InfoAmmo:OnInit()
-    self:set("rect", 465, 455, 170, 20);
+    self:GetTransform():set("Pos", 465, 455)
+    self:GetTransform():set("Size", 170, 20)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -166,7 +172,8 @@ function InfoAmmo:OnInit()
 end
 
 function FPS:OnInit()
-    self:set("rect", 580, 5, 55, 20);
+    self:GetTransform():set("Pos", 580, 5)
+    self:GetTransform():set("Size", 55, 20)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -192,6 +199,7 @@ function FPS:OnInit()
 end
 
 function CrossHair:OnInit()
-    self:set("rect", 310, 230, 20, 20);
+    self:GetTransform():set("Pos", 310, 230)
+    self:GetTransform():set("Size", 20, 20)
 end
 

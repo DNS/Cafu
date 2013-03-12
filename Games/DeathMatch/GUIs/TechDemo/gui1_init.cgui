@@ -52,7 +52,8 @@ FarewellGUI:AddChild(BottomLine);
 -- ***********************************************************
 
 function FarewellGUI:OnInit()
-    self:set("rect", 0, 0, 640, 480);
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 
     local c1 = gui:new("ComponentImageT")
     c1:set("Material", "Gui/Background1")
@@ -67,7 +68,8 @@ function FarewellGUI:OnInit()
 end
 
 function Heading1:OnInit()
-    self:set("rect", 43, 45, 558, 28);
+    self:GetTransform():set("Pos", 43, 45)
+    self:GetTransform():set("Size", 558, 28)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -83,7 +85,8 @@ function Heading1:OnInit()
 end
 
 function TextArea1:OnInit()
-    self:set("rect", 43, 91, 558, 324);
+    self:GetTransform():set("Pos", 43, 91)
+    self:GetTransform():set("Size", 558, 324)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -109,7 +112,8 @@ end
 
 function Heading2:OnInit()
     self:set("show", false);
-    self:set("rect", 43, 45, 558, 28);
+    self:GetTransform():set("Pos", 43, 45)
+    self:GetTransform():set("Size", 558, 28)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -126,7 +130,8 @@ end
 
 function TextArea2:OnInit()
     self:set("show", false);
-    self:set("rect", 43, 91, 558, 324);
+    self:GetTransform():set("Pos", 43, 91)
+    self:GetTransform():set("Size", 558, 324)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -152,7 +157,8 @@ There is no way back up.  ;-)]])
 end
 
 function EngineLogo:OnInit()
-    self:set("rect", 480, 325, 128, 64);
+    self:GetTransform():set("Pos", 480, 325)
+    self:GetTransform():set("Size", 128, 64)
 
     local c1 = gui:new("ComponentImageT")
     c1:set("Material", "Gui/SmallLogo")
@@ -163,7 +169,8 @@ function EngineLogo:OnInit()
 end
 
 function LayDepthBuffer:OnInit()
-    self:set("rect", 0, 0, 640, 480);
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 
     local c1 = gui:new("ComponentImageT")
     c1:set("Material", "Gui/LayDepth")
@@ -174,6 +181,7 @@ function LayDepthBuffer:OnInit()
 end
 
 function BottomLine:OnInit()
-    self:set("rect", 37, 428, 568, 21);
+    self:GetTransform():set("Pos", 37, 428)
+    self:GetTransform():set("Size", 568, 21)
 end
 

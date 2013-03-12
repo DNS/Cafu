@@ -48,7 +48,8 @@ Root:AddChild(ButtonGo);
 -- ***********************************************************
 
 function Root:OnInit()
-    self:set("rect", 0, 0, 640, 480);
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -76,7 +77,8 @@ function Root:OnInit()
 end
 
 function InfoStation:OnInit()
-    self:set("rect", 0, 10, 640, 30);
+    self:GetTransform():set("Pos", 0, 10)
+    self:GetTransform():set("Size", 640, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -92,7 +94,8 @@ function InfoStation:OnInit()
 end
 
 function InfoTextSelectNode:OnInit()
-    self:set("rect", 0, 60, 640, 80);
+    self:GetTransform():set("Pos", 0, 60)
+    self:GetTransform():set("Size", 640, 80)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -108,7 +111,8 @@ function InfoTextSelectNode:OnInit()
 end
 
 function DestNode:OnInit()
-    self:set("rect", 200, 150, 240, 120);
+    self:GetTransform():set("Pos", 200, 150)
+    self:GetTransform():set("Size", 240, 120)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -124,7 +128,8 @@ function DestNode:OnInit()
 end
 
 function ButtonMinus:OnInit()
-    self:set("rect", 100, 150, 100, 120);
+    self:GetTransform():set("Pos", 100, 150)
+    self:GetTransform():set("Size", 100, 120)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -150,7 +155,8 @@ function ButtonMinus:OnInit()
 end
 
 function ButtonPlus:OnInit()
-    self:set("rect", 440, 150, 100, 120);
+    self:GetTransform():set("Pos", 440, 150)
+    self:GetTransform():set("Size", 100, 120)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -176,7 +182,8 @@ function ButtonPlus:OnInit()
 end
 
 function ButtonGo:OnInit()
-    self:set("rect", 20, 340, 600, 50);
+    self:GetTransform():set("Pos", 20, 340)
+    self:GetTransform():set("Size", 600, 50)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")

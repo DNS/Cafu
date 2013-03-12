@@ -166,12 +166,6 @@ bool EditorWindowT::WriteInitMethod(std::ostream& OutFile)
     if (m_Win->IsShown()!=Default.IsShown())
         OutFile << "    self:set(\"show\", " << (m_Win->IsShown() ? "true" : "false") << ");\n";
 
-    if (m_Win->GetTransform()->GetPos().x!=Default.GetTransform()->GetPos().x || m_Win->GetTransform()->GetPos().y!=Default.GetTransform()->GetPos().y || m_Win->GetTransform()->GetSize().x!=Default.GetTransform()->GetSize().x || m_Win->GetTransform()->GetSize().y!=Default.GetTransform()->GetSize().y)
-        OutFile << "    self:set(\"rect\", " << m_Win->GetTransform()->GetPos().x << ", " << m_Win->GetTransform()->GetPos().y << ", " << m_Win->GetTransform()->GetSize().x << ", " << m_Win->GetTransform()->GetSize().y << ");\n";
-
-    if (m_Win->GetTransform()->GetRotAngle()!=Default.GetTransform()->GetRotAngle())
-        OutFile << "    self:set(\"rotAngle\", " << m_Win->GetTransform()->GetRotAngle() << ");\n";
-
     return true;
 }
 

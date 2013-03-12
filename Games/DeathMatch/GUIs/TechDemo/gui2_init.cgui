@@ -42,7 +42,8 @@ EmgTunnelStorageRoomGUI:AddChild(CallRescueButton);
 -- ***********************************************************
 
 function EmgTunnelStorageRoomGUI:OnInit()
-    self:set("rect", 0, 0, 640, 480);
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 
     local c1 = gui:new("ComponentImageT")
     c1:set("Material", "")
@@ -57,7 +58,8 @@ function EmgTunnelStorageRoomGUI:OnInit()
 end
 
 function Heading:OnInit()
-    self:set("rect", 50, 30, 540, 120);
+    self:GetTransform():set("Pos", 50, 30)
+    self:GetTransform():set("Size", 540, 120)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -79,7 +81,8 @@ function Heading:OnInit()
 end
 
 function TunnelLocation:OnInit()
-    self:set("rect", 50, 180, 540, 120);
+    self:GetTransform():set("Pos", 50, 180)
+    self:GetTransform():set("Size", 540, 120)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -102,7 +105,8 @@ function TunnelLocation:OnInit()
 end
 
 function CallRescueText:OnInit()
-    self:set("rect", 50, 330, 410, 120);
+    self:GetTransform():set("Pos", 50, 330)
+    self:GetTransform():set("Size", 410, 120)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -124,7 +128,8 @@ rescue service! ]])
 end
 
 function CallRescueText.HelpText:OnInit()
-    self:set("rect", 7, 0, 410, 111);
+    self:GetTransform():set("Pos", 7, 0)
+    self:GetTransform():set("Size", 410, 111)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -141,7 +146,8 @@ use the "0" (zero) key on your keyboard to "click" the button.]])
 end
 
 function CallRescueButton:OnInit()
-    self:set("rect", 475, 330, 115, 120);
+    self:GetTransform():set("Pos", 475, 330)
+    self:GetTransform():set("Size", 115, 120)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")

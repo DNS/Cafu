@@ -36,7 +36,8 @@ ElevatorMalfunctionGUI:AddChild(TextArea2);
 -- ***********************************************************
 
 function ElevatorMalfunctionGUI:OnInit()
-    self:set("rect", 0, 0, 640, 480);
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 
     local c1 = gui:new("ComponentImageT")
     c1:set("Material", "Gui/Background1")
@@ -51,7 +52,8 @@ function ElevatorMalfunctionGUI:OnInit()
 end
 
 function Heading:OnInit()
-    self:set("rect", 43, 45, 558, 28);
+    self:GetTransform():set("Pos", 43, 45)
+    self:GetTransform():set("Size", 558, 28)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -67,7 +69,8 @@ function Heading:OnInit()
 end
 
 function TextArea:OnInit()
-    self:set("rect", 43, 91, 558, 324);
+    self:GetTransform():set("Pos", 43, 91)
+    self:GetTransform():set("Size", 558, 324)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -90,7 +93,8 @@ Please contact administration immediately.]])
 end
 
 function TextArea2:OnInit()
-    self:set("rect", 43, 91, 558, 324);
+    self:GetTransform():set("Pos", 43, 91)
+    self:GetTransform():set("Size", 558, 324)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")

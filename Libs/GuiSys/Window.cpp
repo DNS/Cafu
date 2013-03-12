@@ -70,6 +70,7 @@ const luaL_reg WindowT::MethodsList[]=
     { "RemoveChild",     WindowT::RemoveChild },
     { "GetParent",       WindowT::GetParent },
     { "GetChildren",     WindowT::GetChildren },
+    { "GetTransform",    WindowT::GetTransform },
     { "AddComponent",    WindowT::AddComponent },
     { "RemoveComponent", WindowT::RmvComponent },
     { "GetComponents",   WindowT::GetComponents },
@@ -837,6 +838,16 @@ int WindowT::GetChildren(lua_State* LuaState)
         lua_rawseti(LuaState, -2, ChildNr+1);
     }
 
+    return 1;
+}
+
+
+int WindowT::GetTransform(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<WindowT> Win = Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
+
+    Binder.Push(Win->GetTransform());
     return 1;
 }
 

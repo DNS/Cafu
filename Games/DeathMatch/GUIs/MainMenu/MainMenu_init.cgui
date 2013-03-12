@@ -266,6 +266,8 @@ ReallyQuitDialog.ReallyQuit:AddChild(ReallyQuitDialog.ReallyQuit.ButtonNo);
 -- ***********************************************************
 
 function MainMenu:OnInit()
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 80, 60)
 
     local c1 = gui:new("ComponentImageT")
     c1:set("Material", "")
@@ -281,7 +283,8 @@ function MainMenu:OnInit()
 end
 
 function PulsatingBackImage:OnInit()
-    self:set("rect", 0, 0, 640, 480);
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 
     local c1 = gui:new("ComponentImageT")
     c1:set("Material", "Gui/MainMenu/Background1")
@@ -292,7 +295,8 @@ function PulsatingBackImage:OnInit()
 end
 
 function NormalControls:OnInit()
-    self:set("rect", 0, 0, 640, 480);
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 
     local c1 = gui:new("ComponentImageT")
     c1:set("Material", "")
@@ -303,7 +307,8 @@ function NormalControls:OnInit()
 end
 
 function NormalControls.Headline:OnInit()
-    self:set("rect", 0, 10, 640, 45);
+    self:GetTransform():set("Pos", 0, 10)
+    self:GetTransform():set("Size", 640, 45)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -324,7 +329,8 @@ function NormalControls.Headline:OnInit()
 end
 
 function NormalControls.ButtonNewGame:OnInit()
-    self:set("rect", 30, 420, 130, 40);
+    self:GetTransform():set("Pos", 30, 420)
+    self:GetTransform():set("Size", 130, 40)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -350,7 +356,8 @@ function NormalControls.ButtonNewGame:OnInit()
 end
 
 function NormalControls.ButtonLoadGame:OnInit()
-    self:set("rect", 190, 420, 130, 40);
+    self:GetTransform():set("Pos", 190, 420)
+    self:GetTransform():set("Size", 130, 40)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -376,7 +383,8 @@ function NormalControls.ButtonLoadGame:OnInit()
 end
 
 function NormalControls.ButtonSaveGame:OnInit()
-    self:set("rect", 30, 420, 130, 40);
+    self:GetTransform():set("Pos", 30, 420)
+    self:GetTransform():set("Size", 130, 40)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -402,7 +410,8 @@ function NormalControls.ButtonSaveGame:OnInit()
 end
 
 function NormalControls.ButtonQuitCurrentGame:OnInit()
-    self:set("rect", 30, 340, 130, 60);
+    self:GetTransform():set("Pos", 30, 340)
+    self:GetTransform():set("Size", 130, 60)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -429,7 +438,8 @@ Game]])
 end
 
 function NormalControls.ButtonReturnToGame:OnInit()
-    self:set("rect", 30, 260, 130, 60);
+    self:GetTransform():set("Pos", 30, 260)
+    self:GetTransform():set("Size", 130, 60)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -456,7 +466,8 @@ Game]])
 end
 
 function NormalControls.ButtonMultiplayer:OnInit()
-    self:set("rect", 350, 420, 130, 40);
+    self:GetTransform():set("Pos", 350, 420)
+    self:GetTransform():set("Size", 130, 40)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -482,7 +493,8 @@ function NormalControls.ButtonMultiplayer:OnInit()
 end
 
 function NormalControls.ButtonOptions:OnInit()
-    self:set("rect", 520, 300, 90, 40);
+    self:GetTransform():set("Pos", 520, 300)
+    self:GetTransform():set("Size", 90, 40)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -508,7 +520,8 @@ function NormalControls.ButtonOptions:OnInit()
 end
 
 function NormalControls.ButtonCredits:OnInit()
-    self:set("rect", 520, 360, 90, 40);
+    self:GetTransform():set("Pos", 520, 360)
+    self:GetTransform():set("Size", 90, 40)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -534,7 +547,8 @@ function NormalControls.ButtonCredits:OnInit()
 end
 
 function NormalControls.ButtonQuit:OnInit()
-    self:set("rect", 520, 420, 90, 40);
+    self:GetTransform():set("Pos", 520, 420)
+    self:GetTransform():set("Size", 90, 40)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -561,7 +575,8 @@ end
 
 function NormalControls.FPS:OnInit()
     self:set("show", false);
-    self:set("rect", 510, 20, 100, 45);
+    self:GetTransform():set("Pos", 510, 20)
+    self:GetTransform():set("Size", 100, 45)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -584,11 +599,13 @@ end
 
 function NewGameDialog:OnInit()
     self:set("show", false);
-    self:set("rect", 0, 0, 640, 480);
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 end
 
 function NewGameDialog.Frame:OnInit()
-    self:set("rect", 120, 90, 380, 300);
+    self:GetTransform():set("Pos", 120, 90)
+    self:GetTransform():set("Size", 380, 300)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -614,7 +631,8 @@ function NewGameDialog.Frame:OnInit()
 end
 
 function NewGameDialog.Frame.MapList:OnInit()
-    self:set("rect", 10, 40, 175, 250);
+    self:GetTransform():set("Pos", 10, 40)
+    self:GetTransform():set("Size", 175, 250)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.6)
@@ -647,7 +665,8 @@ function NewGameDialog.Frame.MapList:OnInit()
 end
 
 function NewGameDialog.Frame.MapPreview:OnInit()
-    self:set("rect", 195, 40, 175, 175);
+    self:GetTransform():set("Pos", 195, 40)
+    self:GetTransform():set("Size", 175, 175)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.6)
@@ -658,7 +677,8 @@ function NewGameDialog.Frame.MapPreview:OnInit()
 end
 
 function NewGameDialog.Frame.ButtonOK:OnInit()
-    self:set("rect", 290, 260, 80, 30);
+    self:GetTransform():set("Pos", 290, 260)
+    self:GetTransform():set("Size", 80, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -684,7 +704,8 @@ function NewGameDialog.Frame.ButtonOK:OnInit()
 end
 
 function NewGameDialog.Frame.ButtonCancel:OnInit()
-    self:set("rect", 357, 8, 13, 13);
+    self:GetTransform():set("Pos", 357, 8)
+    self:GetTransform():set("Size", 13, 13)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -711,11 +732,13 @@ end
 
 function MultiplayerContextMenu:OnInit()
     self:set("show", false);
-    self:set("rect", 0, 0, 640, 480);
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 end
 
 function MultiplayerContextMenu.Frame:OnInit()
-    self:set("rect", 330, 338, 150, 80);
+    self:GetTransform():set("Pos", 330, 338)
+    self:GetTransform():set("Size", 150, 80)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.7)
@@ -731,7 +754,8 @@ function MultiplayerContextMenu.Frame:OnInit()
 end
 
 function MultiplayerContextMenu.Frame.JoinGame:OnInit()
-    self:set("rect", 10, 10, 130, 29);
+    self:GetTransform():set("Pos", 10, 10)
+    self:GetTransform():set("Size", 130, 29)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -757,7 +781,8 @@ function MultiplayerContextMenu.Frame.JoinGame:OnInit()
 end
 
 function MultiplayerContextMenu.Frame.HostGame:OnInit()
-    self:set("rect", 10, 41, 130, 29);
+    self:GetTransform():set("Pos", 10, 41)
+    self:GetTransform():set("Size", 130, 29)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -784,11 +809,13 @@ end
 
 function OptionsContextMenu:OnInit()
     self:set("show", false);
-    self:set("rect", 0, 0, 640, 480);
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 end
 
 function OptionsContextMenu.Frame:OnInit()
-    self:set("rect", 368, 225, 150, 142);
+    self:GetTransform():set("Pos", 368, 225)
+    self:GetTransform():set("Size", 150, 142)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.7)
@@ -804,7 +831,8 @@ function OptionsContextMenu.Frame:OnInit()
 end
 
 function OptionsContextMenu.Frame.Controls:OnInit()
-    self:set("rect", 10, 10, 130, 29);
+    self:GetTransform():set("Pos", 10, 10)
+    self:GetTransform():set("Size", 130, 29)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -830,7 +858,8 @@ function OptionsContextMenu.Frame.Controls:OnInit()
 end
 
 function OptionsContextMenu.Frame.Player:OnInit()
-    self:set("rect", 10, 41, 130, 29);
+    self:GetTransform():set("Pos", 10, 41)
+    self:GetTransform():set("Size", 130, 29)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -856,7 +885,8 @@ function OptionsContextMenu.Frame.Player:OnInit()
 end
 
 function OptionsContextMenu.Frame.Video:OnInit()
-    self:set("rect", 10, 72, 130, 29);
+    self:GetTransform():set("Pos", 10, 72)
+    self:GetTransform():set("Size", 130, 29)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -882,7 +912,8 @@ function OptionsContextMenu.Frame.Video:OnInit()
 end
 
 function OptionsContextMenu.Frame.Audio:OnInit()
-    self:set("rect", 10, 103, 130, 29);
+    self:GetTransform():set("Pos", 10, 103)
+    self:GetTransform():set("Size", 130, 29)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -909,11 +940,13 @@ end
 
 function JoinGameDialog:OnInit()
     self:set("show", false);
-    self:set("rect", 0, 0, 640, 480);
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 end
 
 function JoinGameDialog.Frame:OnInit()
-    self:set("rect", 110, 90, 390, 300);
+    self:GetTransform():set("Pos", 110, 90)
+    self:GetTransform():set("Size", 390, 300)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -939,7 +972,8 @@ function JoinGameDialog.Frame:OnInit()
 end
 
 function JoinGameDialog.Frame.PlayerNameText:OnInit()
-    self:set("rect", 10, 50, 190, 30);
+    self:GetTransform():set("Pos", 10, 50)
+    self:GetTransform():set("Size", 190, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -955,7 +989,8 @@ function JoinGameDialog.Frame.PlayerNameText:OnInit()
 end
 
 function JoinGameDialog.Frame.PlayerNameEdit:OnInit()
-    self:set("rect", 150, 50, 140, 30);
+    self:GetTransform():set("Pos", 150, 50)
+    self:GetTransform():set("Size", 140, 30)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.6)
@@ -988,7 +1023,8 @@ function JoinGameDialog.Frame.PlayerNameEdit:OnInit()
 end
 
 function JoinGameDialog.Frame.ModelNameText:OnInit()
-    self:set("rect", 10, 90, 190, 30);
+    self:GetTransform():set("Pos", 10, 90)
+    self:GetTransform():set("Size", 190, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -1004,7 +1040,8 @@ function JoinGameDialog.Frame.ModelNameText:OnInit()
 end
 
 function JoinGameDialog.Frame.ModelNameChoice:OnInit()
-    self:set("rect", 150, 90, 140, 30);
+    self:GetTransform():set("Pos", 150, 90)
+    self:GetTransform():set("Size", 140, 30)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.6)
@@ -1034,7 +1071,8 @@ function JoinGameDialog.Frame.ModelNameChoice:OnInit()
 end
 
 function JoinGameDialog.Frame.RemoteHostText:OnInit()
-    self:set("rect", 10, 130, 190, 30);
+    self:GetTransform():set("Pos", 10, 130)
+    self:GetTransform():set("Size", 190, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -1050,7 +1088,8 @@ function JoinGameDialog.Frame.RemoteHostText:OnInit()
 end
 
 function JoinGameDialog.Frame.RemoteHostEdit:OnInit()
-    self:set("rect", 150, 130, 140, 30);
+    self:GetTransform():set("Pos", 150, 130)
+    self:GetTransform():set("Size", 140, 30)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.6)
@@ -1083,7 +1122,8 @@ function JoinGameDialog.Frame.RemoteHostEdit:OnInit()
 end
 
 function JoinGameDialog.Frame.RemotePortText:OnInit()
-    self:set("rect", 10, 170, 190, 30);
+    self:GetTransform():set("Pos", 10, 170)
+    self:GetTransform():set("Size", 190, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -1099,7 +1139,8 @@ function JoinGameDialog.Frame.RemotePortText:OnInit()
 end
 
 function JoinGameDialog.Frame.RemotePortEdit:OnInit()
-    self:set("rect", 150, 170, 140, 30);
+    self:GetTransform():set("Pos", 150, 170)
+    self:GetTransform():set("Size", 140, 30)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.6)
@@ -1132,7 +1173,8 @@ function JoinGameDialog.Frame.RemotePortEdit:OnInit()
 end
 
 function JoinGameDialog.Frame.ModelPreview:OnInit()
-    self:set("rect", 300, 50, 80, 150);
+    self:GetTransform():set("Pos", 300, 50)
+    self:GetTransform():set("Size", 80, 150)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.6)
@@ -1152,7 +1194,8 @@ function JoinGameDialog.Frame.ModelPreview:OnInit()
 end
 
 function JoinGameDialog.Frame.ButtonOK:OnInit()
-    self:set("rect", 260, 260, 120, 30);
+    self:GetTransform():set("Pos", 260, 260)
+    self:GetTransform():set("Size", 120, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -1178,7 +1221,8 @@ function JoinGameDialog.Frame.ButtonOK:OnInit()
 end
 
 function JoinGameDialog.Frame.ButtonCancel:OnInit()
-    self:set("rect", 367, 8, 13, 13);
+    self:GetTransform():set("Pos", 367, 8)
+    self:GetTransform():set("Size", 13, 13)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -1205,11 +1249,13 @@ end
 
 function HostGameDialog:OnInit()
     self:set("show", false);
-    self:set("rect", 0, 0, 640, 480);
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 end
 
 function HostGameDialog.Frame:OnInit()
-    self:set("rect", 110, 90, 390, 300);
+    self:GetTransform():set("Pos", 110, 90)
+    self:GetTransform():set("Size", 390, 300)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -1235,7 +1281,8 @@ function HostGameDialog.Frame:OnInit()
 end
 
 function HostGameDialog.Frame.WorldNameText:OnInit()
-    self:set("rect", 10, 50, 190, 30);
+    self:GetTransform():set("Pos", 10, 50)
+    self:GetTransform():set("Size", 190, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -1251,7 +1298,8 @@ function HostGameDialog.Frame.WorldNameText:OnInit()
 end
 
 function HostGameDialog.Frame.WorldNameChoice:OnInit()
-    self:set("rect", 160, 50, 140, 30);
+    self:GetTransform():set("Pos", 160, 50)
+    self:GetTransform():set("Size", 140, 30)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.6)
@@ -1281,7 +1329,8 @@ function HostGameDialog.Frame.WorldNameChoice:OnInit()
 end
 
 function HostGameDialog.Frame.LocalSvPortText:OnInit()
-    self:set("rect", 10, 90, 190, 30);
+    self:GetTransform():set("Pos", 10, 90)
+    self:GetTransform():set("Size", 190, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -1297,7 +1346,8 @@ function HostGameDialog.Frame.LocalSvPortText:OnInit()
 end
 
 function HostGameDialog.Frame.LocalSvPortEdit:OnInit()
-    self:set("rect", 160, 90, 140, 30);
+    self:GetTransform():set("Pos", 160, 90)
+    self:GetTransform():set("Size", 140, 30)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.6)
@@ -1330,7 +1380,8 @@ function HostGameDialog.Frame.LocalSvPortEdit:OnInit()
 end
 
 function HostGameDialog.Frame.ListenSvText:OnInit()
-    self:set("rect", 10, 130, 190, 30);
+    self:GetTransform():set("Pos", 10, 130)
+    self:GetTransform():set("Size", 190, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -1346,7 +1397,8 @@ function HostGameDialog.Frame.ListenSvText:OnInit()
 end
 
 function HostGameDialog.Frame.ListenSvChoice:OnInit()
-    self:set("rect", 160, 130, 140, 30);
+    self:GetTransform():set("Pos", 160, 130)
+    self:GetTransform():set("Size", 140, 30)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.6)
@@ -1376,7 +1428,8 @@ function HostGameDialog.Frame.ListenSvChoice:OnInit()
 end
 
 function HostGameDialog.Frame.PlayerNameText:OnInit()
-    self:set("rect", 10, 170, 190, 30);
+    self:GetTransform():set("Pos", 10, 170)
+    self:GetTransform():set("Size", 190, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -1392,7 +1445,8 @@ function HostGameDialog.Frame.PlayerNameText:OnInit()
 end
 
 function HostGameDialog.Frame.PlayerNameEdit:OnInit()
-    self:set("rect", 160, 170, 140, 30);
+    self:GetTransform():set("Pos", 160, 170)
+    self:GetTransform():set("Size", 140, 30)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.6)
@@ -1425,7 +1479,8 @@ function HostGameDialog.Frame.PlayerNameEdit:OnInit()
 end
 
 function HostGameDialog.Frame.ModelNameText:OnInit()
-    self:set("rect", 10, 210, 190, 30);
+    self:GetTransform():set("Pos", 10, 210)
+    self:GetTransform():set("Size", 190, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -1441,7 +1496,8 @@ function HostGameDialog.Frame.ModelNameText:OnInit()
 end
 
 function HostGameDialog.Frame.ModelNameChoice:OnInit()
-    self:set("rect", 160, 210, 140, 30);
+    self:GetTransform():set("Pos", 160, 210)
+    self:GetTransform():set("Size", 140, 30)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.6)
@@ -1471,7 +1527,8 @@ function HostGameDialog.Frame.ModelNameChoice:OnInit()
 end
 
 function HostGameDialog.Frame.MapPreview:OnInit()
-    self:set("rect", 310, 50, 70, 70);
+    self:GetTransform():set("Pos", 310, 50)
+    self:GetTransform():set("Size", 70, 70)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.6)
@@ -1482,7 +1539,8 @@ function HostGameDialog.Frame.MapPreview:OnInit()
 end
 
 function HostGameDialog.Frame.ModelPreview:OnInit()
-    self:set("rect", 310, 130, 70, 110);
+    self:GetTransform():set("Pos", 310, 130)
+    self:GetTransform():set("Size", 70, 110)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.6)
@@ -1502,7 +1560,8 @@ function HostGameDialog.Frame.ModelPreview:OnInit()
 end
 
 function HostGameDialog.Frame.ButtonOK:OnInit()
-    self:set("rect", 300, 260, 80, 30);
+    self:GetTransform():set("Pos", 300, 260)
+    self:GetTransform():set("Size", 80, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -1528,7 +1587,8 @@ function HostGameDialog.Frame.ButtonOK:OnInit()
 end
 
 function HostGameDialog.Frame.ButtonCancel:OnInit()
-    self:set("rect", 367, 8, 13, 13);
+    self:GetTransform():set("Pos", 367, 8)
+    self:GetTransform():set("Size", 13, 13)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -1555,11 +1615,13 @@ end
 
 function InitServerInfoPanel:OnInit()
     self:set("show", false);
-    self:set("rect", 0, 0, 640, 480);
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 end
 
 function InitServerInfoPanel.Frame:OnInit()
-    self:set("rect", 120, 150, 380, 180);
+    self:GetTransform():set("Pos", 120, 150)
+    self:GetTransform():set("Size", 380, 180)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -1586,11 +1648,13 @@ end
 
 function InputOptionsDialog:OnInit()
     self:set("show", false);
-    self:set("rect", 0, 0, 640, 480);
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 end
 
 function InputOptionsDialog.Frame:OnInit()
-    self:set("rect", 150, 90, 310, 300);
+    self:GetTransform():set("Pos", 150, 90)
+    self:GetTransform():set("Size", 310, 300)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -1616,7 +1680,8 @@ function InputOptionsDialog.Frame:OnInit()
 end
 
 function InputOptionsDialog.Frame.ReverseMouseYAxisText:OnInit()
-    self:set("rect", 10, 50, 190, 30);
+    self:GetTransform():set("Pos", 10, 50)
+    self:GetTransform():set("Size", 190, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -1632,7 +1697,8 @@ function InputOptionsDialog.Frame.ReverseMouseYAxisText:OnInit()
 end
 
 function InputOptionsDialog.Frame.ReverseMouseYAxisChoice:OnInit()
-    self:set("rect", 160, 50, 140, 30);
+    self:GetTransform():set("Pos", 160, 50)
+    self:GetTransform():set("Size", 140, 30)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.6)
@@ -1662,10 +1728,13 @@ function InputOptionsDialog.Frame.ReverseMouseYAxisChoice:OnInit()
 end
 
 function InputOptionsDialog.Frame.InfoKeyboardText:OnInit()
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 80, 60)
 end
 
 function InputOptionsDialog.Frame.ButtonOK:OnInit()
-    self:set("rect", 200, 260, 100, 30);
+    self:GetTransform():set("Pos", 200, 260)
+    self:GetTransform():set("Size", 100, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -1691,7 +1760,8 @@ function InputOptionsDialog.Frame.ButtonOK:OnInit()
 end
 
 function InputOptionsDialog.Frame.ButtonCancel:OnInit()
-    self:set("rect", 287, 8, 13, 13);
+    self:GetTransform():set("Pos", 287, 8)
+    self:GetTransform():set("Size", 13, 13)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -1718,11 +1788,13 @@ end
 
 function PlayerOptionsDialog:OnInit()
     self:set("show", false);
-    self:set("rect", 0, 0, 640, 480);
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 end
 
 function PlayerOptionsDialog.Frame:OnInit()
-    self:set("rect", 110, 90, 390, 300);
+    self:GetTransform():set("Pos", 110, 90)
+    self:GetTransform():set("Size", 390, 300)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -1748,7 +1820,8 @@ function PlayerOptionsDialog.Frame:OnInit()
 end
 
 function PlayerOptionsDialog.Frame.PlayerNameText:OnInit()
-    self:set("rect", 10, 50, 190, 30);
+    self:GetTransform():set("Pos", 10, 50)
+    self:GetTransform():set("Size", 190, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -1764,7 +1837,8 @@ function PlayerOptionsDialog.Frame.PlayerNameText:OnInit()
 end
 
 function PlayerOptionsDialog.Frame.PlayerNameEdit:OnInit()
-    self:set("rect", 130, 50, 140, 30);
+    self:GetTransform():set("Pos", 130, 50)
+    self:GetTransform():set("Size", 140, 30)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.6)
@@ -1797,7 +1871,8 @@ function PlayerOptionsDialog.Frame.PlayerNameEdit:OnInit()
 end
 
 function PlayerOptionsDialog.Frame.ModelNameText:OnInit()
-    self:set("rect", 10, 90, 190, 30);
+    self:GetTransform():set("Pos", 10, 90)
+    self:GetTransform():set("Size", 190, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -1813,7 +1888,8 @@ function PlayerOptionsDialog.Frame.ModelNameText:OnInit()
 end
 
 function PlayerOptionsDialog.Frame.ModelNameChoice:OnInit()
-    self:set("rect", 130, 90, 140, 30);
+    self:GetTransform():set("Pos", 130, 90)
+    self:GetTransform():set("Size", 140, 30)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.6)
@@ -1843,7 +1919,8 @@ function PlayerOptionsDialog.Frame.ModelNameChoice:OnInit()
 end
 
 function PlayerOptionsDialog.Frame.ModelPreview:OnInit()
-    self:set("rect", 280, 50, 100, 200);
+    self:GetTransform():set("Pos", 280, 50)
+    self:GetTransform():set("Size", 100, 200)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.6)
@@ -1863,7 +1940,8 @@ function PlayerOptionsDialog.Frame.ModelPreview:OnInit()
 end
 
 function PlayerOptionsDialog.Frame.ShowHUDText:OnInit()
-    self:set("rect", 10, 130, 190, 30);
+    self:GetTransform():set("Pos", 10, 130)
+    self:GetTransform():set("Size", 190, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -1879,7 +1957,8 @@ function PlayerOptionsDialog.Frame.ShowHUDText:OnInit()
 end
 
 function PlayerOptionsDialog.Frame.ShowHUDChoice:OnInit()
-    self:set("rect", 130, 130, 140, 30);
+    self:GetTransform():set("Pos", 130, 130)
+    self:GetTransform():set("Size", 140, 30)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.6)
@@ -1909,7 +1988,8 @@ function PlayerOptionsDialog.Frame.ShowHUDChoice:OnInit()
 end
 
 function PlayerOptionsDialog.Frame.ButtonOK:OnInit()
-    self:set("rect", 280, 260, 100, 30);
+    self:GetTransform():set("Pos", 280, 260)
+    self:GetTransform():set("Size", 100, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -1935,7 +2015,8 @@ function PlayerOptionsDialog.Frame.ButtonOK:OnInit()
 end
 
 function PlayerOptionsDialog.Frame.ButtonCancel:OnInit()
-    self:set("rect", 367, 8, 13, 13);
+    self:GetTransform():set("Pos", 367, 8)
+    self:GetTransform():set("Size", 13, 13)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -1962,11 +2043,13 @@ end
 
 function VideoOptionsDialog:OnInit()
     self:set("show", false);
-    self:set("rect", 0, 0, 640, 480);
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 end
 
 function VideoOptionsDialog.Frame:OnInit()
-    self:set("rect", 110, 90, 390, 300);
+    self:GetTransform():set("Pos", 110, 90)
+    self:GetTransform():set("Size", 390, 300)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -1992,7 +2075,8 @@ function VideoOptionsDialog.Frame:OnInit()
 end
 
 function VideoOptionsDialog.Frame.ScreenResText:OnInit()
-    self:set("rect", 10, 50, 190, 30);
+    self:GetTransform():set("Pos", 10, 50)
+    self:GetTransform():set("Size", 190, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -2008,7 +2092,8 @@ function VideoOptionsDialog.Frame.ScreenResText:OnInit()
 end
 
 function VideoOptionsDialog.Frame.ScreenResChoice:OnInit()
-    self:set("rect", 160, 50, 220, 30);
+    self:GetTransform():set("Pos", 160, 50)
+    self:GetTransform():set("Size", 220, 30)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.6)
@@ -2038,7 +2123,8 @@ function VideoOptionsDialog.Frame.ScreenResChoice:OnInit()
 end
 
 function VideoOptionsDialog.Frame.FullScreenText:OnInit()
-    self:set("rect", 10, 90, 190, 30);
+    self:GetTransform():set("Pos", 10, 90)
+    self:GetTransform():set("Size", 190, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -2054,7 +2140,8 @@ function VideoOptionsDialog.Frame.FullScreenText:OnInit()
 end
 
 function VideoOptionsDialog.Frame.FullScreenChoice:OnInit()
-    self:set("rect", 160, 90, 220, 30);
+    self:GetTransform():set("Pos", 160, 90)
+    self:GetTransform():set("Size", 220, 30)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.6)
@@ -2084,7 +2171,8 @@ function VideoOptionsDialog.Frame.FullScreenChoice:OnInit()
 end
 
 function VideoOptionsDialog.Frame.TextureDetailText:OnInit()
-    self:set("rect", 10, 130, 190, 30);
+    self:GetTransform():set("Pos", 10, 130)
+    self:GetTransform():set("Size", 190, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -2100,7 +2188,8 @@ function VideoOptionsDialog.Frame.TextureDetailText:OnInit()
 end
 
 function VideoOptionsDialog.Frame.TextureDetailChoice:OnInit()
-    self:set("rect", 160, 130, 220, 30);
+    self:GetTransform():set("Pos", 160, 130)
+    self:GetTransform():set("Size", 220, 30)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.6)
@@ -2130,7 +2219,8 @@ function VideoOptionsDialog.Frame.TextureDetailChoice:OnInit()
 end
 
 function VideoOptionsDialog.Frame.InfoRestartText:OnInit()
-    self:set("rect", 10, 220, 370, 30);
+    self:GetTransform():set("Pos", 10, 220)
+    self:GetTransform():set("Size", 370, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -2147,7 +2237,8 @@ Setting the Texture Detail to "high" requires 256+ MB video RAM.]])
 end
 
 function VideoOptionsDialog.Frame.ButtonOK:OnInit()
-    self:set("rect", 280, 260, 100, 30);
+    self:GetTransform():set("Pos", 280, 260)
+    self:GetTransform():set("Size", 100, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -2173,7 +2264,8 @@ function VideoOptionsDialog.Frame.ButtonOK:OnInit()
 end
 
 function VideoOptionsDialog.Frame.ButtonCancel:OnInit()
-    self:set("rect", 367, 8, 13, 13);
+    self:GetTransform():set("Pos", 367, 8)
+    self:GetTransform():set("Size", 13, 13)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -2200,11 +2292,13 @@ end
 
 function AudioOptionsDialog:OnInit()
     self:set("show", false);
-    self:set("rect", 0, 0, 640, 480);
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 end
 
 function AudioOptionsDialog.Frame:OnInit()
-    self:set("rect", 160, 90, 290, 300);
+    self:GetTransform():set("Pos", 160, 90)
+    self:GetTransform():set("Size", 290, 300)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -2230,7 +2324,8 @@ function AudioOptionsDialog.Frame:OnInit()
 end
 
 function AudioOptionsDialog.Frame.VolumeText:OnInit()
-    self:set("rect", 10, 50, 190, 30);
+    self:GetTransform():set("Pos", 10, 50)
+    self:GetTransform():set("Size", 190, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -2246,7 +2341,8 @@ function AudioOptionsDialog.Frame.VolumeText:OnInit()
 end
 
 function AudioOptionsDialog.Frame.VolumeChoice:OnInit()
-    self:set("rect", 160, 50, 120, 30);
+    self:GetTransform():set("Pos", 160, 50)
+    self:GetTransform():set("Size", 120, 30)
 
     local c1 = gui:new("ComponentBorderT")
     c1:set("Width", 0.6)
@@ -2276,7 +2372,8 @@ function AudioOptionsDialog.Frame.VolumeChoice:OnInit()
 end
 
 function AudioOptionsDialog.Frame.ButtonOK:OnInit()
-    self:set("rect", 180, 260, 100, 30);
+    self:GetTransform():set("Pos", 180, 260)
+    self:GetTransform():set("Size", 100, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -2302,7 +2399,8 @@ function AudioOptionsDialog.Frame.ButtonOK:OnInit()
 end
 
 function AudioOptionsDialog.Frame.ButtonCancel:OnInit()
-    self:set("rect", 267, 8, 13, 13);
+    self:GetTransform():set("Pos", 267, 8)
+    self:GetTransform():set("Size", 13, 13)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -2329,11 +2427,13 @@ end
 
 function CreditsDialog:OnInit()
     self:set("show", false);
-    self:set("rect", 0, 0, 640, 480);
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 end
 
 function CreditsDialog.Frame:OnInit()
-    self:set("rect", 110, 10, 420, 460);
+    self:GetTransform():set("Pos", 110, 10)
+    self:GetTransform():set("Size", 420, 460)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -2359,7 +2459,8 @@ function CreditsDialog.Frame:OnInit()
 end
 
 function CreditsDialog.Frame.CreditsText:OnInit()
-    self:set("rect", 10, 40, 400, 140);
+    self:GetTransform():set("Pos", 10, 40)
+    self:GetTransform():set("Size", 400, 140)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -2381,7 +2482,8 @@ and many more...]])
 end
 
 function CreditsDialog.Frame.ExtLibsText:OnInit()
-    self:set("rect", 10, 160, 400, 250);
+    self:GetTransform():set("Pos", 10, 160)
+    self:GetTransform():set("Size", 400, 250)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -2422,7 +2524,8 @@ For more information, refer to file LICENSE.txt
 end
 
 function CreditsDialog.Frame.CopyrightText:OnInit()
-    self:set("rect", 10, 420, 310, 30);
+    self:GetTransform():set("Pos", 10, 420)
+    self:GetTransform():set("Size", 310, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -2438,7 +2541,8 @@ function CreditsDialog.Frame.CopyrightText:OnInit()
 end
 
 function CreditsDialog.Frame.ButtonOK:OnInit()
-    self:set("rect", 330, 420, 80, 30);
+    self:GetTransform():set("Pos", 330, 420)
+    self:GetTransform():set("Size", 80, 30)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -2464,7 +2568,8 @@ function CreditsDialog.Frame.ButtonOK:OnInit()
 end
 
 function CreditsDialog.Frame.ButtonCancel:OnInit()
-    self:set("rect", 397, 8, 13, 13);
+    self:GetTransform():set("Pos", 397, 8)
+    self:GetTransform():set("Size", 13, 13)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -2491,7 +2596,8 @@ end
 
 function ReallyQuitDialog:OnInit()
     self:set("show", false);
-    self:set("rect", 0, 0, 640, 480);
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 
     local c1 = gui:new("ComponentImageT")
     c1:set("Material", "")
@@ -2502,7 +2608,8 @@ function ReallyQuitDialog:OnInit()
 end
 
 function ReallyQuitDialog.QuitHeadline:OnInit()
-    self:set("rect", 0, 10, 640, 45);
+    self:GetTransform():set("Pos", 0, 10)
+    self:GetTransform():set("Size", 640, 45)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -2523,7 +2630,8 @@ function ReallyQuitDialog.QuitHeadline:OnInit()
 end
 
 function ReallyQuitDialog.ReallyQuit:OnInit()
-    self:set("rect", 120, 90, 400, 300);
+    self:GetTransform():set("Pos", 120, 90)
+    self:GetTransform():set("Size", 400, 300)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
@@ -2549,7 +2657,8 @@ function ReallyQuitDialog.ReallyQuit:OnInit()
 end
 
 function ReallyQuitDialog.ReallyQuit.ButtonYes:OnInit()
-    self:set("rect", 53, 250, 120, 40);
+    self:GetTransform():set("Pos", 53, 250)
+    self:GetTransform():set("Size", 120, 40)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
@@ -2575,7 +2684,8 @@ function ReallyQuitDialog.ReallyQuit.ButtonYes:OnInit()
 end
 
 function ReallyQuitDialog.ReallyQuit.ButtonNo:OnInit()
-    self:set("rect", 227, 250, 120, 40);
+    self:GetTransform():set("Pos", 227, 250)
+    self:GetTransform():set("Size", 120, 40)
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
