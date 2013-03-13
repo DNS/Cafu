@@ -83,7 +83,6 @@ namespace GuiEditor
         private:
 
         /// Window attributes that are changed by a transformation.
-        /// Needed for command handling.
         struct WindowStateT
         {
             Vector2fT Position;

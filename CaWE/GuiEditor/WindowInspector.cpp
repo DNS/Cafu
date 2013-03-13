@@ -99,12 +99,6 @@ void WindowInspectorT::NotifySubjectChanged_Modified(SubjectT* Subject, const Ar
             RefreshPropGrid();
             break;
         }
-
-        case WMD_TRANSFORMED:
-        {
-            RefreshPropGrid();
-            break;
-        }
     }
 }
 

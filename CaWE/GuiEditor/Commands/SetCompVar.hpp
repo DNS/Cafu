@@ -39,7 +39,12 @@ namespace GuiEditor
     {
         public:
 
+        /// The constructor for setting the given variable to a new value.
         CommandSetCompVarT(GuiDocumentT* GuiDoc, cf::TypeSys::VarT<T>& Var, const T& NewValue);
+
+        /// The constructor to be used when the variable has already been set to the new value.
+        /// With this constructor, the command is initialized in the "already done" state.
+        CommandSetCompVarT(GuiDocumentT* GuiDoc, cf::TypeSys::VarT<T>& Var, const cf::Network::StateT& OldState);
 
         // CommandT implementation.
         bool Do();

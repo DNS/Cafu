@@ -26,10 +26,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrame.hpp"
 
 #include "Commands/Select.hpp"
-#include "Commands/Translate.hpp"
-#include "Commands/Scale.hpp"
 #include "Commands/Create.hpp"
 #include "Commands/Delete.hpp"
+#include "Commands/SetCompVar.hpp"
 #include "Windows/EditorWindow.hpp"
 
 #include "../CursorMan.hpp"
@@ -155,50 +154,53 @@ bool ToolSelectionT::OnLMouseUp(RenderWindowT* RenderWindow, wxMouseEvent& ME)
 {
     if (m_TransformSelection)
     {
-        // Submit command according to transformation state.
-        switch (m_TransState)
+        const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Sel = m_GuiDocument->GetSelection();
+        ArrayT<CommandT*> SubCommands;
+
+        wxASSERT(Sel.Size() == m_WindowStates.Size());
+
+        for (unsigned int SelNr = 0; SelNr < Sel.Size(); SelNr++)
         {
-            case TRANSLATE:
+            cf::TypeSys::VarT<Vector2fT>* Pos      = dynamic_cast<cf::TypeSys::VarT<Vector2fT>*>(Sel[SelNr]->GetTransform()->GetMemberVars().Find("Pos"));
+            cf::TypeSys::VarT<Vector2fT>* Size     = dynamic_cast<cf::TypeSys::VarT<Vector2fT>*>(Sel[SelNr]->GetTransform()->GetMemberVars().Find("Size"));
+            cf::TypeSys::VarT<float>*     RotAngle = dynamic_cast<cf::TypeSys::VarT<float>*>    (Sel[SelNr]->GetTransform()->GetMemberVars().Find("Rotation"));
+
+            // As an alternative to restoring the old value and having the command (re-)set the new one,
+            // we could use the CommandSetCompVarT ctor that takes the variable at the new value directly.
+            // However, this ctor requires the old value to be passed in cf::Network::StateT form...
+            if (Pos && Pos->Get() != m_WindowStates[SelNr].Position)
             {
-                ArrayT<Vector2fT> Positions;
+                const Vector2fT NewValue = Pos->Get();
+                Pos->Set(m_WindowStates[SelNr].Position);
 
-                for (unsigned long StateNr=0; StateNr<m_WindowStates.Size(); StateNr++)
-                    Positions.PushBack(m_WindowStates[StateNr].Position);
-
-                m_Parent->SubmitCommand(new CommandTranslateT(m_GuiDocument, m_GuiDocument->GetSelection(), Positions, true));
-                break;
+                SubCommands.PushBack(new CommandSetCompVarT<Vector2fT>(m_GuiDocument, *Pos, NewValue));
             }
 
-            case SCALE_N:
-            case SCALE_NE:
-            case SCALE_E:
-            case SCALE_SE:
-            case SCALE_S:
-            case SCALE_SW:
-            case SCALE_W:
-            case SCALE_NW:
+            if (Size && Size->Get() != m_WindowStates[SelNr].Size)
             {
-                ArrayT<Vector2fT> Positions;
-                ArrayT<Vector2fT> Sizes;
+                const Vector2fT NewValue = Size->Get();
+                Size->Set(m_WindowStates[SelNr].Size);
 
-                for (unsigned long StateNr=0; StateNr<m_WindowStates.Size(); StateNr++)
-                {
-                    Positions.PushBack(m_WindowStates[StateNr].Position);
-                    Sizes    .PushBack(m_WindowStates[StateNr].Size);
-                }
-
-                m_Parent->SubmitCommand(new CommandScaleT(m_GuiDocument, m_GuiDocument->GetSelection(), Positions, Sizes, true));
-                break;
+                SubCommands.PushBack(new CommandSetCompVarT<Vector2fT>(m_GuiDocument, *Size, NewValue));
             }
 
-            case ROTATE:
-                // TODO
-                m_GuiDocument->UpdateAllObservers_Modified(m_GuiDocument->GetSelection(), WMD_TRANSFORMED);
-                break;
+            if (RotAngle && RotAngle->Get() != m_WindowStates[SelNr].Rotation)
+            {
+                const float NewValue = RotAngle->Get();
+                RotAngle->Set(m_WindowStates[SelNr].Rotation);
 
-            default:
-                wxASSERT(false);
-                break;
+                SubCommands.PushBack(new CommandSetCompVarT<float>(m_GuiDocument, *RotAngle, NewValue));
+            }
+        }
+
+        if (SubCommands.Size() > 0)
+        {
+            switch (m_TransState)
+            {
+                case TRANSLATE: m_Parent->SubmitCommand(new CommandMacroT(SubCommands, Sel.Size() == 1 ? "Move window"   : "Move windows"  )); break;
+                case ROTATE:    m_Parent->SubmitCommand(new CommandMacroT(SubCommands, Sel.Size() == 1 ? "Rotate window" : "Rotate windows")); break;
+                default:        m_Parent->SubmitCommand(new CommandMacroT(SubCommands, Sel.Size() == 1 ? "Scale window"  : "Scale windows" )); break;
+            }
         }
 
         m_TransformSelection=false;
@@ -206,7 +208,7 @@ bool ToolSelectionT::OnLMouseUp(RenderWindowT* RenderWindow, wxMouseEvent& ME)
         m_TransState=NONE;
     }
 
-    m_WindowStates.Clear();
+    m_WindowStates.Overwrite();
     m_TransformationStart=false;
 
     return true;

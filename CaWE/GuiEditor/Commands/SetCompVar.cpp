@@ -53,6 +53,17 @@ CommandSetCompVarT<T>::CommandSetCompVarT(GuiDocumentT* GuiDoc, cf::TypeSys::Var
 
 
 template<class T>
+CommandSetCompVarT<T>::CommandSetCompVarT(GuiDocumentT* GuiDoc, cf::TypeSys::VarT<T>& Var, const cf::Network::StateT& OldState)
+    : m_GuiDoc(GuiDoc),
+      m_Var(Var),
+      m_OldState(OldState),
+      m_NewValue(Var.Get())
+{
+    m_Done = true;
+}
+
+
+template<class T>
 bool CommandSetCompVarT<T>::Do()
 {
     wxASSERT(!m_Done);

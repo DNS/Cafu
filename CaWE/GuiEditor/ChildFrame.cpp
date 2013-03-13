@@ -30,7 +30,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Commands/AddComponent.hpp"
 #include "Commands/Delete.hpp"
 #include "Commands/Select.hpp"
-#include "Commands/Rotate.hpp"
 #include "Commands/ChangeWindowHierarchy.hpp"
 #include "Commands/Paste.hpp"
 #include "Commands/SetCompVar.hpp"
@@ -826,12 +825,34 @@ void GuiEditor::ChildFrameT::OnToolbar(wxCommandEvent& CE)
         }
 
         case ID_TOOLBAR_WINDOW_ROTATE_CW:
-            SubmitCommand(new CommandRotateT(m_GuiDocument, m_GuiDocument->GetSelection(), 15.0f));
-            break;
-
         case ID_TOOLBAR_WINDOW_ROTATE_CCW:
-            SubmitCommand(new CommandRotateT(m_GuiDocument, m_GuiDocument->GetSelection(), -15.0f));
+        {
+            const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Sel = m_GuiDocument->GetSelection();
+            ArrayT<CommandT*> SubCommands;
+
+            for (unsigned int SelNr = 0; SelNr < Sel.Size(); SelNr++)
+            {
+                cf::TypeSys::VarT<float>* Rotation = dynamic_cast<cf::TypeSys::VarT<float>*>(Sel[SelNr]->GetTransform()->GetMemberVars().Find("Rotation"));
+
+                if (Rotation)
+                {
+                    const float NewRotAngle = Rotation->Get() + (CE.GetId() == ID_TOOLBAR_WINDOW_ROTATE_CW ? 15.0f : 345.0f);
+
+                    SubCommands.PushBack(new CommandSetCompVarT<float>(m_GuiDocument, *Rotation, fmod(NewRotAngle, 360.0f)));
+                }
+            }
+
+            if (SubCommands.Size() == 1)
+            {
+                SubmitCommand(SubCommands[0]);
+            }
+            else if (SubCommands.Size() > 1)
+            {
+                SubmitCommand(new CommandMacroT(SubCommands, "Rotate windows"));
+            }
+
             break;
+        }
 
         case ID_TOOLBAR_TEXT_ALIGN_LEFT:
         case ID_TOOLBAR_TEXT_ALIGN_CENTER:
