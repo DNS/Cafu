@@ -158,6 +158,7 @@ template class cf::TypeSys::VarT<float>;
 template class cf::TypeSys::VarT<double>;
 template class cf::TypeSys::VarT<int>;
 template class cf::TypeSys::VarT<unsigned int>;
+template class cf::TypeSys::VarT<bool>;
 template class cf::TypeSys::VarT<std::string>;
 template class cf::TypeSys::VarT<Vector2fT>;
 template class cf::TypeSys::VarT<Vector3fT>;

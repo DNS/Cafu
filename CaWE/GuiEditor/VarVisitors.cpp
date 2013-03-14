@@ -222,6 +222,15 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<unsigned int>& Var)
 }
 
 
+void VarVisitorAddPropT::visit(cf::TypeSys::VarT<bool>& Var)
+{
+    wxPGProperty* Prop = new wxBoolProperty(Var.GetName(), wxString::Format("%p", &Var), Var.Get());
+
+    m_PropMan.SetPropertyAttribute(Prop, wxPG_BOOL_USE_CHECKBOX, true);   // Use a checkbox, not a choice.
+    m_PropMan.Append(Prop)->SetClientData(&Var);
+}
+
+
 void VarVisitorAddPropT::visit(cf::TypeSys::VarT<std::string>& Var)
 {
     wxPGProperty* Prop = NULL;
@@ -364,6 +373,12 @@ void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<unsigned int>& Var)
 }
 
 
+void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<bool>& Var)
+{
+    m_Prop.SetValue(Var.Get());
+}
+
+
 void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<std::string>& Var)
 {
     m_Prop.SetValue(Var.Get());
@@ -450,6 +465,14 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<unsigned int>& 
     const unsigned int ui = m_Event.GetValue().GetLong();   // Uh! There is no GetULong() method.
 
     m_Ok = m_ChildFrame->SubmitCommand(new CommandSetCompVarT<unsigned int>(m_GuiDoc, Var, ui));
+}
+
+
+void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<bool>& Var)
+{
+    const bool b = m_Event.GetValue().GetBool();
+
+    m_Ok = m_ChildFrame->SubmitCommand(new CommandSetCompVarT<bool>(m_GuiDoc, Var, b));
 }
 
 
@@ -553,6 +576,7 @@ void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<float>& Var) { w
 void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<double>& Var) { wxASSERT(false); }
 void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<int>& Var) { wxASSERT(false); }
 void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<unsigned int>& Var) { wxASSERT(false); }
+void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<bool>& Var) { wxASSERT(false); }
 void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<std::string>& Var) { wxASSERT(false); }
 
 

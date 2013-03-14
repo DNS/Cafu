@@ -72,6 +72,13 @@ void VarVisitorGetToLuaT::visit(const cf::TypeSys::VarT<unsigned int>& Var)
 }
 
 
+void VarVisitorGetToLuaT::visit(const cf::TypeSys::VarT<bool>& Var)
+{
+    lua_pushboolean(m_LuaState, Var.Get());
+    m_NumResults++;
+}
+
+
 void VarVisitorGetToLuaT::visit(const cf::TypeSys::VarT<std::string>& Var)
 {
     lua_pushstring(m_LuaState, Var.Get().c_str());
@@ -138,6 +145,16 @@ void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT<int>& Var)
 void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT<unsigned int>& Var)
 {
     Var.Set(luaL_checkint(m_LuaState, -1));
+}
+
+
+void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT<bool>& Var)
+{
+    // Also treat the number 0 as false, not just "false" and "nil".
+    if (lua_isnumber(m_LuaState, -1))
+        Var.Set(lua_tonumber(m_LuaState, -1) != 0.0);
+    else
+        Var.Set(lua_toboolean(m_LuaState, -1) != 0);
 }
 
 
@@ -241,6 +258,7 @@ void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
 void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<double>& Var) { }
 void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<int>& Var) { }
 void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<unsigned int>& Var) { }
+void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<bool>& Var) { }
 void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<std::string>& Var) { }
 void VarVisitorSetFloatT::visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var) { }
 
@@ -276,6 +294,12 @@ void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<int>& Var)
 void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<unsigned int>& Var)
 {
     m_Out << Var.Get();
+}
+
+
+void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<bool>& Var)
+{
+    m_Out << (Var.Get() ? "true" : "false");
 }
 
 

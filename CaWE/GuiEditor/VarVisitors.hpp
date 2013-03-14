@@ -48,6 +48,7 @@ namespace GuiEditor
         void visit(cf::TypeSys::VarT<double>& Var);
         void visit(cf::TypeSys::VarT<int>& Var);
         void visit(cf::TypeSys::VarT<unsigned int>& Var);
+        void visit(cf::TypeSys::VarT<bool>& Var);
         void visit(cf::TypeSys::VarT<std::string>& Var);
         void visit(cf::TypeSys::VarT<Vector2fT>& Var);
         void visit(cf::TypeSys::VarT<Vector3fT>& Var);
@@ -72,6 +73,7 @@ namespace GuiEditor
         void visit(const cf::TypeSys::VarT<double>& Var);
         void visit(const cf::TypeSys::VarT<int>& Var);
         void visit(const cf::TypeSys::VarT<unsigned int>& Var);
+        void visit(const cf::TypeSys::VarT<bool>& Var);
         void visit(const cf::TypeSys::VarT<std::string>& Var);
         void visit(const cf::TypeSys::VarT<Vector2fT>& Var);
         void visit(const cf::TypeSys::VarT<Vector3fT>& Var);
@@ -97,6 +99,7 @@ namespace GuiEditor
         void visit(cf::TypeSys::VarT<double>& Var);
         void visit(cf::TypeSys::VarT<int>& Var);
         void visit(cf::TypeSys::VarT<unsigned int>& Var);
+        void visit(cf::TypeSys::VarT<bool>& Var);
         void visit(cf::TypeSys::VarT<std::string>& Var);
         void visit(cf::TypeSys::VarT<Vector2fT>& Var);
         void visit(cf::TypeSys::VarT<Vector3fT>& Var);
@@ -127,6 +130,7 @@ namespace GuiEditor
         void visit(cf::TypeSys::VarT<double>& Var);
         void visit(cf::TypeSys::VarT<int>& Var);
         void visit(cf::TypeSys::VarT<unsigned int>& Var);
+        void visit(cf::TypeSys::VarT<bool>& Var);
         void visit(cf::TypeSys::VarT<std::string>& Var);
         void visit(cf::TypeSys::VarT<Vector2fT>& Var);
         void visit(cf::TypeSys::VarT<Vector3fT>& Var);
