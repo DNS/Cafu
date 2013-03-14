@@ -111,7 +111,7 @@ The Cafu Team]])
 end
 
 function Heading2:OnInit()
-    self:set("show", false);
+    self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 43, 45)
     self:GetTransform():set("Size", 558, 28)
 
@@ -129,7 +129,7 @@ function Heading2:OnInit()
 end
 
 function TextArea2:OnInit()
-    self:set("show", false);
+    self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 43, 91)
     self:GetTransform():set("Size", 558, 324)
 

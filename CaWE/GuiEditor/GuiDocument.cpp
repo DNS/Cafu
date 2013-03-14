@@ -175,6 +175,9 @@ static void SaveWindowHierarchy(std::ostream& OutFile, IntrusivePtrT<cf::GuiSys:
 
 static void SaveComponents(std::ostream& OutFile, IntrusivePtrT<cf::GuiSys::WindowT> Window)
 {
+    if (!Window->GetBasics()->IsShown())
+        OutFile << "    self:GetBasics():set(\"Show\", false)\n";
+
     OutFile << "    self:GetTransform():set(\"Pos\", " << Window->GetTransform()->GetPos().x << ", " << Window->GetTransform()->GetPos().y << ")\n";
     OutFile << "    self:GetTransform():set(\"Size\", " << Window->GetTransform()->GetSize().x << ", " << Window->GetTransform()->GetSize().y << ")\n";
 
@@ -225,7 +228,6 @@ static void SaveRootInitialization(std::ostream& OutFile, IntrusivePtrT<cf::GuiS
 
     OutFile << "function " << Root->GetName() << ":OnInit()\n";
 
-    GuiDocumentT::GetSibling(Root)->WriteInitMethod(OutFile);
     SaveComponents(OutFile, Root);
 
     OutFile << "\n";
@@ -264,7 +266,6 @@ static void SaveWindowInitialization(std::ostream& OutFile, IntrusivePtrT<cf::Gu
     {
         OutFile << "function " << ParentName + Window->GetName() << ":OnInit()\n";
 
-        GuiDocumentT::GetSibling(Window)->WriteInitMethod(OutFile);
         SaveComponents(OutFile, Window);
 
         OutFile << "end\n\n";

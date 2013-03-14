@@ -73,11 +73,6 @@ namespace GuiEditor
         /// @return Whether the event was handled (has a related member in this class).
         virtual bool HandlePGChange(wxPropertyGridEvent& Event, GuiEditor::ChildFrameT* ChildFrame);
 
-        /// Writes the Lua initialization function for this window into a stream.
-        /// @param OutFile   The stream to write into.
-        /// @return Whether the opration was successfull.
-        virtual bool WriteInitMethod(std::ostream& OutFile);
-
         /// Renders this window in the editor.
         /// This is used to render GUI editor specific things like e.g. selection state.
         virtual void Render() const;

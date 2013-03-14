@@ -574,7 +574,7 @@ function NormalControls.ButtonQuit:OnInit()
 end
 
 function NormalControls.FPS:OnInit()
-    self:set("show", false);
+    self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 510, 20)
     self:GetTransform():set("Size", 100, 45)
 
@@ -598,7 +598,7 @@ function NormalControls.FPS:OnInit()
 end
 
 function NewGameDialog:OnInit()
-    self:set("show", false);
+    self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 end
@@ -731,7 +731,7 @@ function NewGameDialog.Frame.ButtonCancel:OnInit()
 end
 
 function MultiplayerContextMenu:OnInit()
-    self:set("show", false);
+    self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 end
@@ -808,7 +808,7 @@ function MultiplayerContextMenu.Frame.HostGame:OnInit()
 end
 
 function OptionsContextMenu:OnInit()
-    self:set("show", false);
+    self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 end
@@ -939,7 +939,7 @@ function OptionsContextMenu.Frame.Audio:OnInit()
 end
 
 function JoinGameDialog:OnInit()
-    self:set("show", false);
+    self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 end
@@ -1248,7 +1248,7 @@ function JoinGameDialog.Frame.ButtonCancel:OnInit()
 end
 
 function HostGameDialog:OnInit()
-    self:set("show", false);
+    self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 end
@@ -1614,7 +1614,7 @@ function HostGameDialog.Frame.ButtonCancel:OnInit()
 end
 
 function InitServerInfoPanel:OnInit()
-    self:set("show", false);
+    self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 end
@@ -1647,7 +1647,7 @@ function InitServerInfoPanel.Frame:OnInit()
 end
 
 function InputOptionsDialog:OnInit()
-    self:set("show", false);
+    self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 end
@@ -1787,7 +1787,7 @@ function InputOptionsDialog.Frame.ButtonCancel:OnInit()
 end
 
 function PlayerOptionsDialog:OnInit()
-    self:set("show", false);
+    self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 end
@@ -2042,7 +2042,7 @@ function PlayerOptionsDialog.Frame.ButtonCancel:OnInit()
 end
 
 function VideoOptionsDialog:OnInit()
-    self:set("show", false);
+    self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 end
@@ -2291,7 +2291,7 @@ function VideoOptionsDialog.Frame.ButtonCancel:OnInit()
 end
 
 function AudioOptionsDialog:OnInit()
-    self:set("show", false);
+    self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 end
@@ -2426,7 +2426,7 @@ function AudioOptionsDialog.Frame.ButtonCancel:OnInit()
 end
 
 function CreditsDialog:OnInit()
-    self:set("show", false);
+    self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 end
@@ -2595,7 +2595,7 @@ function CreditsDialog.Frame.ButtonCancel:OnInit()
 end
 
 function ReallyQuitDialog:OnInit()
-    self:set("show", false);
+    self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 

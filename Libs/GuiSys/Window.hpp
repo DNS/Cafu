@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_GUISYS_WINDOW_HPP_INCLUDED
 #define CAFU_GUISYS_WINDOW_HPP_INCLUDED
 
+#include "CompBasics.hpp"
 #include "CompTransform.hpp"
 #include "Templates/Array.hpp"
 #include "Templates/Pointer.hpp"
@@ -132,7 +133,7 @@ namespace cf
             void SetExtData(ExtDataT* ExtData);
 
             /// Returns the name of this window.
-            const std::string& GetName() const { return m_Name; }
+            const std::string& GetName() const { return m_Basics->GetWindowName(); }
 
             /// Sets a new name for this window.
             ///
@@ -177,7 +178,11 @@ namespace cf
 
 
             /// Returns `true` if this window is currently shown. Returns `false` if the window is currently hidden.
-            bool IsShown() const { return ShowWindow; }
+            bool IsShown() const { return m_Basics->IsShown(); }
+
+            /// Returns the "Basics" component of this window.
+            /// The "Basics" component defines the name and the "show" flag of the window.
+            IntrusivePtrT<ComponentBasicsT> GetBasics() const { return m_Basics; }
 
             /// Returns the "Transform" component of this window.
             /// The "Transform" component defines the position, size and orientation of the window.
@@ -267,12 +272,11 @@ namespace cf
             static int Set(lua_State* LuaState);            ///< Sets a member variable of this class.
             static int Get(lua_State* LuaState);            ///< Gets a member variable of this class.
             static int Interpolate(lua_State* LuaState);    ///< Schedules a value for interpolation between a start and end value over a given period of time.
-            static int GetName(lua_State* LuaState);        ///< Gets the windows name.
-            static int SetName(lua_State* LuaState);        ///< Sets the windows name.
             static int AddChild(lua_State* LuaState);       ///< Adds a child to this window.
             static int RemoveChild(lua_State* LuaState);    ///< Removes a child from this window.
             static int GetParent(lua_State* LuaState);      ///< Returns the parent of this window (or nil if there is no parent).
             static int GetChildren(lua_State* LuaState);    ///< Returns an array of the children of this window.
+            static int GetBasics(lua_State* LuaState);      ///< Returns the "Basics" component of this window.
             static int GetTransform(lua_State* LuaState);   ///< Returns the "Transform" component of this window.
             static int AddComponent(lua_State* LuaState);   ///< Adds a component to this window.
             static int RmvComponent(lua_State* LuaState);   ///< Removes a component from this window.
@@ -312,9 +316,8 @@ namespace cf
             ExtDataT*                               m_ExtData;        ///< The GuiEditor's "dual" or "sibling" of this window.
             WindowT*                                m_Parent;         ///< The parent of this window. May be NULL if there is no parent. In order to not create cycles of IntrusivePtrT's, the type is intentionally a raw pointer only.
             ArrayT< IntrusivePtrT<WindowT> >        m_Children;       ///< The list of children of this window.
-            std::string                             m_Name;           ///< The name of this window. It must be unique among all its siblings (the children of its parent), which is enforced in the SetName() and AddChild() methods.
-            float                                   Time;             ///< This windows local time (starting from 0.0).
-            bool                                    ShowWindow;       ///< Is this WindowT shown on screen?
+            float                                   m_Time;           ///< This windows local time (starting from 0.0).
+            IntrusivePtrT<ComponentBasicsT>         m_Basics;         ///< The component that defines the name and the "show" flag of this window.
             IntrusivePtrT<ComponentTransformT>      m_Transform;      ///< The component that defines the position, size and orientation of this window.
             ArrayT< IntrusivePtrT<ComponentBaseT> > m_Components;     ///< The components that this window is composed of.
             ArrayT<InterpolationT*>                 m_PendingInterp;  ///< The currently pending interpolations.

@@ -115,19 +115,6 @@ bool EditorWindowT::HandlePGChange(wxPropertyGridEvent& Event, GuiEditor::ChildF
 }
 
 
-bool EditorWindowT::WriteInitMethod(std::ostream& OutFile)
-{
-    // Create empty window to get default values.
-    cf::GuiSys::WindowCreateParamsT Params(*m_GuiDoc->GetGui());
-    cf::GuiSys::WindowT             Default(Params);
-
-    if (m_Win->IsShown()!=Default.IsShown())
-        OutFile << "    self:set(\"show\", " << (m_Win->IsShown() ? "true" : "false") << ");\n";
-
-    return true;
-}
-
-
 void EditorWindowT::Render() const
 {
     // Render selection state of this window.

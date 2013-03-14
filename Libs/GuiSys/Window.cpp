@@ -64,12 +64,11 @@ const luaL_reg WindowT::MethodsList[]=
     { "set",             WindowT::Set },
     { "get",             WindowT::Get },
     { "interpolate",     WindowT::Interpolate },
-    { "SetName",         WindowT::SetName },
-    { "GetName",         WindowT::GetName },
     { "AddChild",        WindowT::AddChild },
     { "RemoveChild",     WindowT::RemoveChild },
     { "GetParent",       WindowT::GetParent },
     { "GetChildren",     WindowT::GetChildren },
+    { "GetBasics",       WindowT::GetBasics },
     { "GetTransform",    WindowT::GetTransform },
     { "AddComponent",    WindowT::AddComponent },
     { "RemoveComponent", WindowT::RmvComponent },
@@ -85,13 +84,12 @@ const cf::TypeSys::TypeInfoT WindowT::TypeInfo(GetWindowTIM(), "WindowT", NULL /
 
 
 WindowT::WindowT(const WindowCreateParamsT& Params)
-    : Time(0.0f),
-      ShowWindow(true),
-      m_Gui(Params.Gui),
+    : m_Gui(Params.Gui),
       m_ExtData(NULL),
       m_Parent(NULL),
       m_Children(),
-      m_Name(""),
+      m_Time(0.0f),
+      m_Basics(new ComponentBasicsT()),
       m_Transform(new ComponentTransformT()),
       m_Components()
 {
@@ -104,13 +102,12 @@ WindowT::WindowT(const WindowCreateParamsT& Params)
 
 
 WindowT::WindowT(const WindowT& Window, bool Recursive)
-    : Time(Window.Time),
-      ShowWindow(Window.ShowWindow),
-      m_Gui(Window.m_Gui),
+    : m_Gui(Window.m_Gui),
       m_ExtData(NULL   /* Clone() it?? */),
       m_Parent(NULL),
       m_Children(),
-      m_Name(Window.m_Name),
+      m_Time(Window.m_Time),
+      m_Basics(Window.GetBasics()->Clone()),
       m_Transform(Window.GetTransform()->Clone()),
       m_Components()
 {
@@ -181,38 +178,9 @@ void WindowT::SetExtData(ExtDataT* ExtData)
 }
 
 
-namespace
-{
-    bool IsNameUnique(WindowT* Win, const ArrayT< IntrusivePtrT<WindowT> >& Siblings)
-    {
-        for (unsigned long SibNr = 0; SibNr < Siblings.Size(); SibNr++)
-            if (Siblings[SibNr] != Win && Siblings[SibNr]->GetName() == Win->GetName())
-                return false;
-
-        return true;
-    }
-}
-
-
 void WindowT::SetName(const std::string& Name)
 {
-    m_Name = Name;
-
-    if (m_Parent)
-    {
-        // We need a true copy of Name here, because if Name is a reference to m_Name
-        // (consider e.g. SetName(GetName())), the loop below will not properly work.
-        const std::string BaseName = Name;
-
-        for (unsigned int Count = 1; !IsNameUnique(this, m_Parent->m_Children); Count++)
-        {
-            std::ostringstream out;
-
-            out << BaseName << "_" << Count;
-
-            m_Name = out.str();
-        }
-    }
+    m_Basics->SetWindowName(Name);
 }
 
 
@@ -356,7 +324,7 @@ void WindowT::GetAbsolutePos(float& x, float& y) const
 
 IntrusivePtrT<WindowT> WindowT::Find(const std::string& WantedName)
 {
-    if (WantedName == m_Name) return this;
+    if (WantedName == m_Basics->GetWindowName()) return this;
 
     // Recursively see if any of the children has the desired name.
     for (unsigned long ChildNr=0; ChildNr<m_Children.Size(); ChildNr++)
@@ -372,7 +340,7 @@ IntrusivePtrT<WindowT> WindowT::Find(const std::string& WantedName)
 
 IntrusivePtrT<WindowT> WindowT::Find(float x, float y, bool OnlyVisible)
 {
-    if (OnlyVisible && !ShowWindow) return NULL;
+    if (OnlyVisible && !m_Basics->IsShown()) return NULL;
 
     // Children are on top of their parents and (currently) not clipped to the parent rectangle, so we should search them first.
     for (unsigned long ChildNr=0; ChildNr<m_Children.Size(); ChildNr++)
@@ -398,7 +366,7 @@ IntrusivePtrT<WindowT> WindowT::Find(float x, float y, bool OnlyVisible)
 
 void WindowT::Render() const
 {
-    if (!ShowWindow) return;
+    if (!m_Basics->IsShown()) return;
 
     float x1;
     float y1;
@@ -502,7 +470,7 @@ bool WindowT::OnClockTickEvent(float t)
 
     // float OldTime=Time;
 
-    Time+=t;
+    m_Time += t;
 
     // See if we have to run any OnTime scripts.
     // ;
@@ -558,8 +526,7 @@ bool WindowT::CallLuaMethod(const char* MethodName, const char* Signature, ...)
 
 void WindowT::FillMemberVars()
 {
-    MemberVars["time"]=MemberVarT(Time);
-    MemberVars["show"]=MemberVarT(ShowWindow);
+    MemberVars["time"]=MemberVarT(m_Time);
 }
 
 
@@ -579,6 +546,17 @@ int WindowT::Set(lua_State* LuaState)
         Win->m_Transform->SetPos (Vector2fT(float(lua_tonumber(LuaState, 3)), float(lua_tonumber(LuaState, 4))));
         Win->m_Transform->SetSize(Vector2fT(float(lua_tonumber(LuaState, 5)), float(lua_tonumber(LuaState, 6))));
 
+        return 0;
+    }
+
+    if (VarName == "show")
+    {
+        bool b = false;
+
+        if (lua_isnumber(LuaState, 3)) b = lua_tointeger(LuaState, 3)!=0;
+                                  else b = lua_toboolean(LuaState, 3)!=0;
+
+        Win->m_Basics->Show(b);
         return 0;
     }
 
@@ -744,26 +722,6 @@ int WindowT::Interpolate(lua_State* LuaState)
 }
 
 
-int WindowT::GetName(lua_State* LuaState)
-{
-    ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<WindowT> Win=Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
-
-    lua_pushstring(LuaState, Win->GetName().c_str());
-    return 1;
-}
-
-
-int WindowT::SetName(lua_State* LuaState)
-{
-    ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<WindowT> Win=Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
-
-    Win->SetName(luaL_checkstring(LuaState, 2));
-    return 0;
-}
-
-
 int WindowT::AddChild(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
@@ -838,6 +796,16 @@ int WindowT::GetChildren(lua_State* LuaState)
         lua_rawseti(LuaState, -2, ChildNr+1);
     }
 
+    return 1;
+}
+
+
+int WindowT::GetBasics(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<WindowT> Win = Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
+
+    Binder.Push(Win->GetBasics());
     return 1;
 }
 
