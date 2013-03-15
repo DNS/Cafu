@@ -90,7 +90,8 @@ function TextArea1:OnInit()
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
-    c1:set("Text", [[For now you have (almost) reached the end
+    c1:set("Text", [[
+For now you have (almost) reached the end
 of the Cafu Engine demo.
 We hope that you enjoyed exploring it as much
 as we enjoyed making it.
@@ -135,7 +136,8 @@ function TextArea2:OnInit()
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
-    c1:set("Text", [[Planned features for the next release:
+    c1:set("Text", [[
+Planned features for the next release:
     1) Vegetation for the island
     2) more dynamic lighting and shadows
     3) many other improvements...

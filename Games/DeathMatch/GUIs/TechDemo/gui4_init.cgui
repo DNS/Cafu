@@ -74,7 +74,8 @@ function TextArea:OnInit()
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
-    c1:set("Text", [[Service elevator malfunction detected.
+    c1:set("Text", [[
+Service elevator malfunction detected.
 Basement reactor core access
 may be compromised.
 

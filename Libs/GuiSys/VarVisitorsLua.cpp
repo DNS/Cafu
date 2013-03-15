@@ -346,7 +346,16 @@ void VarVisitorToLuaCodeT::WriteString(const std::string& s) const
                    s.find("]" + Equals + "]") != std::string::npos)
                 Equals += "=";
 
-            m_Out << "[" << Equals << "[";
+            // Why do we write an extra newline following the opening long bracket?
+            // The answer is given in the Lua reference manual:
+            //
+            // > For convenience, when the opening long bracket is immediately
+            // > followed by a newline, the newline is not included in the string.
+            //
+            // That is, if s begins with a character that is *not* a newline, prepending the extra newline
+            // doesn't make a difference. But if the first character in s happened to be a newline, it would
+            // get lost if the extra newline was not written.
+            m_Out << "[" << Equals << "[\n";
             m_Out << s;
             m_Out << "]" << Equals << "]";
             return;

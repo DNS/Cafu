@@ -86,7 +86,8 @@ function ButtonToggleHor:OnInit()
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
-    c1:set("Text", [[Toggle hor.
+    c1:set("Text", [[
+Toggle hor.
 alignment]])
     c1:set("Scale", 0.5)
     c1:set("Padding", 0, 0)
@@ -109,7 +110,8 @@ function ButtonToggleVer:OnInit()
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
-    c1:set("Text", [[Toggle ver.
+    c1:set("Text", [[
+Toggle ver.
 alignment]])
     c1:set("Scale", 0.5)
     c1:set("Padding", 0, 0)
@@ -154,7 +156,8 @@ function Counter:OnInit()
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
-    c1:set("Text", [[Counter
+    c1:set("Text", [[
+Counter
 0]])
     c1:set("Scale", 0.6)
     c1:set("Padding", 0, 0)
@@ -177,7 +180,8 @@ function FPS:OnInit()
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
-    c1:set("Text", [[FPS
+    c1:set("Text", [[
+FPS
 ]])
     c1:set("Scale", 0.8)
     c1:set("Padding", 0, 0)

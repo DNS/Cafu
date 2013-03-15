@@ -61,7 +61,8 @@ function Heading:OnInit()
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
-    c1:set("Text", [[Evacuation Tunnel
+    c1:set("Text", [[
+Evacuation Tunnel
 "November 2"]])
     c1:set("Scale", 0.7)
     c1:set("Padding", 0, 0)
@@ -84,7 +85,8 @@ function TunnelLocation:OnInit()
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
-    c1:set("Text", [[Checkpoint: Beach
+    c1:set("Text", [[
+Checkpoint: Beach
 >>>> Escape Route >>>>
 ]])
     c1:set("Scale", 0.6)
@@ -108,7 +110,8 @@ function ThirdMsg:OnInit()
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
-    c1:set("Text", [[Alertion Level:
+    c1:set("Text", [[
+Alertion Level:
 INCERFA]])
     c1:set("Scale", 0.6)
     c1:set("Padding", 0, 0)

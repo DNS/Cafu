@@ -415,7 +415,8 @@ function NormalControls.ButtonQuitCurrentGame:OnInit()
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
-    c1:set("Text", [[Quit Current
+    c1:set("Text", [[
+Quit Current
 Game]])
     c1:set("Scale", 0.4)
     c1:set("Padding", 0, 0)
@@ -443,7 +444,8 @@ function NormalControls.ButtonReturnToGame:OnInit()
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
-    c1:set("Text", [[Return to
+    c1:set("Text", [[
+Return to
 Game]])
     c1:set("Scale", 0.4)
     c1:set("Padding", 0, 0)
@@ -580,7 +582,8 @@ function NormalControls.FPS:OnInit()
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
-    c1:set("Text", [[FPS
+    c1:set("Text", [[
+FPS
 ]])
     c1:set("Scale", 0.3)
     c1:set("Padding", 0, 0)
@@ -2224,7 +2227,8 @@ function VideoOptionsDialog.Frame.InfoRestartText:OnInit()
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
-    c1:set("Text", [[Changes to these settings will take effect the next time you start Cafu.
+    c1:set("Text", [[
+Changes to these settings will take effect the next time you start Cafu.
 Setting the Texture Detail to "high" requires 256+ MB video RAM.]])
     c1:set("Scale", 0.2)
     c1:set("Padding", 0, 0)
@@ -2464,7 +2468,8 @@ function CreditsDialog.Frame.CreditsText:OnInit()
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
-    c1:set("Text", [[Cafu is developed by
+    c1:set("Text", [[
+Cafu is developed by
 Carsten Fuchs Software
 
 with major contributions by:
@@ -2487,7 +2492,8 @@ function CreditsDialog.Frame.ExtLibsText:OnInit()
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
-    c1:set("Text", [[The Cafu Engine employs several external libraries that are copyrighted by their respective authors:
+    c1:set("Text", [[
+The Cafu Engine employs several external libraries that are copyrighted by their respective authors:
 
       Boost C++ Libraries, http://www.boost.org
       Bullet Physics Library, © 2003-2006 Erwin Coumans, http://continuousphysics.com/Bullet

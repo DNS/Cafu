@@ -53,7 +53,8 @@ function Root:OnInit()
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
-    c1:set("Text", [[Wormhole Teleportation Services Inc.
+    c1:set("Text", [[
+Wormhole Teleportation Services Inc.
 
 ]])
     c1:set("Scale", 0.5)

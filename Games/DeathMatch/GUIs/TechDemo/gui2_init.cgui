@@ -63,7 +63,8 @@ function Heading:OnInit()
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
-    c1:set("Text", [[Evacuation Tunnel
+    c1:set("Text", [[
+Evacuation Tunnel
 "November 1"]])
     c1:set("Scale", 0.7)
     c1:set("Padding", 0, 0)
@@ -86,7 +87,8 @@ function TunnelLocation:OnInit()
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
-    c1:set("Text", [[Checkpoint: Storage Room
+    c1:set("Text", [[
+Checkpoint: Storage Room
 >>>> Escape Route >>>>
 ]])
     c1:set("Scale", 0.6)
@@ -110,7 +112,8 @@ function CallRescueText:OnInit()
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
-    c1:set("Text", [[Activate button to call 
+    c1:set("Text", [[
+Activate button to call 
 rescue service! ]])
     c1:set("Scale", 0.6)
     c1:set("Padding", 0, 0)
@@ -133,7 +136,8 @@ function CallRescueText.HelpText:OnInit()
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Arial")
-    c1:set("Text", [[You can move the red crosshair cursor with the mouse and
+    c1:set("Text", [[
+You can move the red crosshair cursor with the mouse and
 use the "0" (zero) key on your keyboard to "click" the button.]])
     c1:set("Scale", 0.3)
     c1:set("Padding", 0, 0)
@@ -151,7 +155,8 @@ function CallRescueButton:OnInit()
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Name", "Fonts/Impact")
-    c1:set("Text", [[CALL
+    c1:set("Text", [[
+CALL
 RESCUE]])
     c1:set("Scale", 0.6)
     c1:set("Padding", 0, 0)
