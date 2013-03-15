@@ -94,18 +94,6 @@ void RenderWindowT::NotifySubjectChanged_Modified(SubjectT* Subject, const Array
 }
 
 
-void RenderWindowT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail, const wxString& PropertyName)
-{
-    Refresh(false);
-}
-
-
-void RenderWindowT::Notify_WinChanged(SubjectT* Subject, const EditorWindowT* Win, const wxString& PropName)
-{
-    Refresh(false);
-}
-
-
 void RenderWindowT::Notify_Changed(SubjectT* Subject, const cf::TypeSys::VarBaseT& Var)
 {
     Refresh(false);

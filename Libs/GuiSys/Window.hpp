@@ -85,22 +85,6 @@ namespace cf
                 virtual void Render() const { }   ///< Callback for rendering additional items, called from WindowT::Render().
             };
 
-            /// Describes the member variable of a class consisting of a variable type and a void pointer
-            /// pointing to the real member.
-            struct MemberVarT
-            {
-                enum TypeT { TYPE_FLOAT, TYPE_FLOAT2, TYPE_FLOAT4, TYPE_INT, TYPE_BOOL, TYPE_STRING };
-
-                TypeT Type;   ///< Type of the member.
-                void* Member; ///< Pointer to the member variable.
-
-                MemberVarT(TypeT t=TYPE_FLOAT, void* v=NULL) : Type(t), Member(v) { }
-                MemberVarT(float& f) : Type(TYPE_FLOAT), Member(&f) { }
-                MemberVarT(int& i) : Type(TYPE_INT), Member(&i) { }
-                MemberVarT(bool& b) : Type(TYPE_BOOL), Member(&b) { }
-                MemberVarT(std::string& s) : Type(TYPE_STRING), Member(&s) { }
-            };
-
             /// The normal constructor.
             /// This constructor can *not* be declared as "protected", because even though only derived classes and
             /// the CreateInstance() function access it, having it protected would not allow derived classes to create
@@ -132,20 +116,6 @@ namespace cf
             /// Assigns the editor sibling for this window.
             void SetExtData(ExtDataT* ExtData);
 
-            /// Returns the name of this window.
-            const std::string& GetName() const { return m_Basics->GetWindowName(); }
-
-            /// Sets a new name for this window.
-            ///
-            /// Note that the new name that is actually set for this window is not necessarily exactly the given
-            /// string Name, but possibly a variant thereof. That is, GetName() can return a different string than
-            /// what was given to a preceeding call to SetName().
-            /// This is because the name of a window must be unique among its siblings (the children of its parent),
-            /// and SetName() modifies the given string as necessary to enforce this rule.
-            ///
-            /// @param Name   The new name to be set for this window.
-            void SetName(const std::string& Name);
-
             /// Returns the parent window of this window.
             IntrusivePtrT<WindowT> GetParent() const { return m_Parent; }
 
@@ -176,9 +146,6 @@ namespace cf
             /// Returns the top-most parent of this window, that is, the root of the hierarchy this window is in.
             IntrusivePtrT<WindowT> GetRoot();     // Method cannot be const because return type is not const -- see implementation.
 
-
-            /// Returns `true` if this window is currently shown. Returns `false` if the window is currently hidden.
-            bool IsShown() const { return m_Basics->IsShown(); }
 
             /// Returns the "Basics" component of this window.
             /// The "Basics" component defines the name and the "show" flag of the window.
@@ -253,11 +220,6 @@ namespace cf
             /// @param Signature DOCTODO
             bool CallLuaMethod(const char* MethodName, const char* Signature="", ...);
 
-            /// Get the a member variable of this class.
-            /// @param VarName The name of the member variable.
-            /// @return The member variable with the name VarName.
-            MemberVarT& GetMemberVar(std::string VarName) { return MemberVars[VarName]; }
-
 
             // The TypeSys related declarations for this class.
             virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
@@ -269,13 +231,11 @@ namespace cf
 
             // Methods called from Lua scripts on cf::GuiSys::WindowTs.
             // They are protected so that derived window classes can access them when implementing overloads.
-            static int Set(lua_State* LuaState);            ///< Sets a member variable of this class.
-            static int Get(lua_State* LuaState);            ///< Gets a member variable of this class.
-            static int Interpolate(lua_State* LuaState);    ///< Schedules a value for interpolation between a start and end value over a given period of time.
             static int AddChild(lua_State* LuaState);       ///< Adds a child to this window.
             static int RemoveChild(lua_State* LuaState);    ///< Removes a child from this window.
             static int GetParent(lua_State* LuaState);      ///< Returns the parent of this window (or nil if there is no parent).
             static int GetChildren(lua_State* LuaState);    ///< Returns an array of the children of this window.
+            static int GetTime(lua_State* LuaState);        ///< Returns the windows local time (starting from 0.0).
             static int GetBasics(lua_State* LuaState);      ///< Returns the "Basics" component of this window.
             static int GetTransform(lua_State* LuaState);   ///< Returns the "Transform" component of this window.
             static int AddComponent(lua_State* LuaState);   ///< Adds a component to this window.
@@ -286,41 +246,19 @@ namespace cf
 
             static const luaL_Reg MethodsList[]; ///< List of methods registered with Lua.
 
-            /// Maps strings (names) to member variables of this class.
-            /// This map is needed for implementing the Lua-binding methods efficiently.
-            /// It is also used in the GUI editor to easily modify members without the need for Get/Set methods.
-            std::map<std::string, MemberVarT> MemberVars;
-
 
             private:
 
-            /// A helper structure for interpolations between values.
-            struct InterpolationT
-            {
-                float* Value;           ///< Value[0] = resulting value of the linear interpolation.
-                float  StartValue;      ///< Start value.
-                float  EndValue;        ///< End value.
-                float  CurrentTime;     ///< Current time between 0 and TotalTime.
-                float  TotalTime;       ///< Duration of the interpolation.
-
-                void UpdateValue()
-                {
-                    Value[0]=StartValue+(EndValue-StartValue)*CurrentTime/TotalTime;
-                }
-            };
-
-            void FillMemberVars();              ///< Helper method that fills the MemberVars array with entries for each class member.
             void operator = (const WindowT&);   ///< Use of the Assignment Operator is not allowed.
 
-            GuiImplT&                               m_Gui;            ///< The GUI instance in which this window was created and exists. Useful in many regards, but especially for access to the underlying Lua state.
-            ExtDataT*                               m_ExtData;        ///< The GuiEditor's "dual" or "sibling" of this window.
-            WindowT*                                m_Parent;         ///< The parent of this window. May be NULL if there is no parent. In order to not create cycles of IntrusivePtrT's, the type is intentionally a raw pointer only.
-            ArrayT< IntrusivePtrT<WindowT> >        m_Children;       ///< The list of children of this window.
-            float                                   m_Time;           ///< This windows local time (starting from 0.0).
-            IntrusivePtrT<ComponentBasicsT>         m_Basics;         ///< The component that defines the name and the "show" flag of this window.
-            IntrusivePtrT<ComponentTransformT>      m_Transform;      ///< The component that defines the position, size and orientation of this window.
-            ArrayT< IntrusivePtrT<ComponentBaseT> > m_Components;     ///< The components that this window is composed of.
-            ArrayT<InterpolationT*>                 m_PendingInterp;  ///< The currently pending interpolations.
+            GuiImplT&                               m_Gui;          ///< The GUI instance in which this window was created and exists. Useful in many regards, but especially for access to the underlying Lua state.
+            ExtDataT*                               m_ExtData;      ///< The GuiEditor's "dual" or "sibling" of this window.
+            WindowT*                                m_Parent;       ///< The parent of this window. May be NULL if there is no parent. In order to not create cycles of IntrusivePtrT's, the type is intentionally a raw pointer only.
+            ArrayT< IntrusivePtrT<WindowT> >        m_Children;     ///< The list of children of this window.
+            float                                   m_Time;         ///< This windows local time (starting from 0.0).
+            IntrusivePtrT<ComponentBasicsT>         m_Basics;       ///< The component that defines the name and the "show" flag of this window.
+            IntrusivePtrT<ComponentTransformT>      m_Transform;    ///< The component that defines the position, size and orientation of this window.
+            ArrayT< IntrusivePtrT<ComponentBaseT> > m_Components;   ///< The components that this window is composed of.
         };
     }
 }

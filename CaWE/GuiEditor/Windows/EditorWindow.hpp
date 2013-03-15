@@ -58,21 +58,6 @@ namespace GuiEditor
 
         bool IsSelected() const { return m_IsSelected; }
 
-        /// Fills a property grid manager with one property for each class member.
-        /// @param PropMan   The property manager grid to fill.
-        virtual void FillInPG(wxPropertyGridManager* PropMan);
-
-        /// Updates a single property with the current value of the related class member.
-        /// @param Property   Property to update.
-        /// @return Whether the property has been updated (has a related member in this class).
-        virtual bool UpdateProperty(wxPGProperty* Property);
-
-        /// Handles property grid changes and updates the related class member(s).
-        /// @param Event        The property grid event to handle.
-        /// @param ChildFrame   The GUI editor childframe in which the event happened (needed to create commands for the changes).
-        /// @return Whether the event was handled (has a related member in this class).
-        virtual bool HandlePGChange(wxPropertyGridEvent& Event, GuiEditor::ChildFrameT* ChildFrame);
-
         /// Renders this window in the editor.
         /// This is used to render GUI editor specific things like e.g. selection state.
         virtual void Render() const;

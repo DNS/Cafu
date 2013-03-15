@@ -25,7 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "VarVisitors.hpp"
 #include "Commands/AddComponent.hpp"
 #include "Commands/DeleteComponent.hpp"
-#include "Commands/ModifyWindow.hpp"
 #include "Windows/EditorWindow.hpp"
 #include "GuiSys/CompBase.hpp"
 
@@ -94,40 +93,11 @@ void WindowInspectorT::NotifySubjectChanged_Modified(SubjectT* Subject, const Ar
         }
 
         case WMD_GENERIC:           // Intentional fall-through.
-        case WMD_PROPERTY_CHANGED:
         {
             RefreshPropGrid();
             break;
         }
     }
-}
-
-
-void WindowInspectorT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail, const wxString& PropertyName)
-{
-    if (m_IsRecursiveSelfNotify) return;
-    if (m_SelectedWindow.IsNull()) return;
-    if (Windows.Find(m_SelectedWindow)==-1) return;
-
-    wxPGProperty* Property=GetProperty(PropertyName);
-    wxASSERT(Property);
-
-    GuiDocumentT::GetSibling(m_SelectedWindow)->UpdateProperty(Property);
-    RefreshGrid();
-}
-
-
-void WindowInspectorT::Notify_WinChanged(SubjectT* Subject, const EditorWindowT* Win, const wxString& PropName)
-{
-    if (m_IsRecursiveSelfNotify) return;
-    if (m_SelectedWindow.IsNull()) return;
-    if (Win->GetDual()!=m_SelectedWindow) return;
-
-    wxPGProperty* Property=GetProperty(PropName);
-    wxASSERT(Property);
-
-    GuiDocumentT::GetSibling(m_SelectedWindow)->UpdateProperty(Property);
-    RefreshGrid();
 }
 
 
@@ -232,8 +202,7 @@ void WindowInspectorT::RefreshPropGrid()
     {
         m_SelectedWindow=Selection[0];
 
-        GuiDocumentT::GetSibling(m_SelectedWindow)->FillInPG(this);
-
+        AppendComponent(m_SelectedWindow->GetBasics());
         AppendComponent(m_SelectedWindow->GetTransform());
 
         for (unsigned long CompNr = 0; CompNr < m_SelectedWindow->GetComponents().Size(); CompNr++)
@@ -336,9 +305,17 @@ void WindowInspectorT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
     // ClearSelection();
     wxLogDebug("%s: %s value \"%s\": %s", __FUNCTION__, Event.GetValue().GetType(), Event.GetProperty()->GetLabel(), Event.GetValue().MakeString());
 
-    m_IsRecursiveSelfNotify=true;
-    GuiDocumentT::GetSibling(m_SelectedWindow)->HandlePGChange(Event, m_Parent);
-    m_IsRecursiveSelfNotify=false;
+    // ****************************************************************************
+    // If we have set a variable to a value different from Event.GetValue(),
+    // here is the right opportunity to call something like:
+    //    // The command may well have set a name different from Prop->GetValueAsString().
+    //    wxASSERT(Event.GetEventType() == wxEVT_PG_CHANGED);
+    //    Event.GetProperty()->SetValueFromString(m_Win->GetName());
+    // ****************************************************************************
+
+    // m_IsRecursiveSelfNotify=true;
+    // GuiDocumentT::GetSibling(m_SelectedWindow)->HandlePGChange(Event, m_Parent);
+    // m_IsRecursiveSelfNotify=false;
 }
 
 

@@ -90,10 +90,10 @@ namespace cf
             static const luaL_Reg MethodsList[];        ///< The list of Lua methods for this class.
             static int toString(lua_State* LuaState);   ///< Returns a string representation of this object.
 
-            VarMatNameT                        m_MatName;   ///< The name of the image material.
-            MatSys::RenderMaterialT*           m_MatInst;   ///< The render instance of the material.
-            TypeSys::VarT<Vector3fT>           m_Color;     ///< The color with which the image is tinted.
-            TypeSys::VarT<float>               m_Alpha;     ///< The alpha component of the color.
+            VarMatNameT              m_MatName;   ///< The name of the image material.
+            MatSys::RenderMaterialT* m_MatInst;   ///< The render instance of the material.
+            TypeSys::VarT<Vector3fT> m_Color;     ///< The color with which the image is tinted.
+            TypeSys::VarT<float>     m_Alpha;     ///< The alpha component of the color.
         };
     }
 }

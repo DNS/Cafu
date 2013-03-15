@@ -71,7 +71,7 @@ namespace
         const ArrayT< IntrusivePtrT<WindowT> >& Siblings = Win->GetParent()->GetChildren();
 
         for (unsigned int SibNr = 0; SibNr < Siblings.Size(); SibNr++)
-            if (Siblings[SibNr] != Win && Siblings[SibNr]->GetName() == Name)
+            if (Siblings[SibNr] != Win && Siblings[SibNr]->GetBasics()->GetWindowName() == Name)
                 return false;
 
         return true;
@@ -120,7 +120,7 @@ const cf::TypeSys::TypeInfoT ComponentBasicsT::TypeInfo(GetComponentTIM(), "Comp
 
 ComponentBasicsT::ComponentBasicsT()
     : ComponentBaseT(),
-      m_Name("Name", "", NULL, *this),
+      m_Name("Name", "Window", NULL, *this),
       m_Show("Show", true)
 {
     GetMemberVars().Add(&m_Name);

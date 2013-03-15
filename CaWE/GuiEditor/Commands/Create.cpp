@@ -21,12 +21,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Create.hpp"
 #include "../GuiDocument.hpp"
-#include "../../LuaAux.hpp"
 
 #include "GuiSys/Window.hpp"
 #include "GuiSys/WindowCreateParams.hpp"
-
-#include "Math3D/Vector3.hpp"
 
 
 using namespace GuiEditor;
@@ -41,17 +38,6 @@ CommandCreateT::CommandCreateT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiS
     cf::GuiSys::WindowCreateParamsT CreateParams(*m_GuiDocument->GetGui());
 
     m_NewWindow = new cf::GuiSys::WindowT(CreateParams);
-
-    std::string  WinName = m_NewWindow->GetType()->ClassName;
-    const size_t len     = WinName.length();
-
-    if (len > 1 && WinName[len-1] == 'T')
-    {
-        // Remove the trailing "T" from our class name.
-        WinName = std::string(WinName, 0, len-1);
-    }
-
-    m_NewWindow->SetName(CheckLuaIdentifier(WinName).ToStdString());
 
     // Set a window default size and center it on its parent.
     // If the size is larger than parentsize/2, set it to parentsize/2.

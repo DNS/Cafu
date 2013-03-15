@@ -42,11 +42,17 @@ namespace cf
             /// @param Comp   The component to create a copy of.
             ComponentBasicsT(const ComponentBasicsT& Comp);
 
+            /// Returns the name of the window.
             const std::string& GetWindowName() const { return m_Name.Get(); }
+
+            /// Returns `true` if the window is currently shown. Returns `false` if the window is currently hidden.
             bool IsShown() const { return m_Show.Get(); }
 
+            /// Sets a new name for the window.
+            /// Window names must be valid Lua script identifiers and unique among their siblings, and the method
+            /// modifies the given string as necessary. As a result, GetWindowName() can return a string that is
+            /// different from the string given to a preceeding call to SetWindowName().
             void SetWindowName(const std::string& Name) { m_Name.Set(Name); }
-            void Show(bool b=true) { m_Show.Set(b); }
 
             // Base class overrides.
             ComponentBasicsT* Clone() const;

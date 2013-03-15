@@ -61,13 +61,11 @@ void* WindowT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 
 const luaL_reg WindowT::MethodsList[]=
 {
-    { "set",             WindowT::Set },
-    { "get",             WindowT::Get },
-    { "interpolate",     WindowT::Interpolate },
     { "AddChild",        WindowT::AddChild },
     { "RemoveChild",     WindowT::RemoveChild },
     { "GetParent",       WindowT::GetParent },
     { "GetChildren",     WindowT::GetChildren },
+    { "GetTime",         WindowT::GetTime },
     { "GetBasics",       WindowT::GetBasics },
     { "GetTransform",    WindowT::GetTransform },
     { "AddComponent",    WindowT::AddComponent },
@@ -94,10 +92,6 @@ WindowT::WindowT(const WindowCreateParamsT& Params)
       m_Components()
 {
     m_Transform->SetSize(Vector2fT(80, 60));
-
-    // This is currently required, because this ctor is also used now for windows created
-    // by Lua script (not only for windows created in C++, using "new WindowT()")...
-    FillMemberVars();
 }
 
 
@@ -120,8 +114,6 @@ WindowT::WindowT(const WindowT& Window, bool Recursive)
     // Now that all components have been copied, have them resolve their dependencies among themselves.
     for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
         m_Components[CompNr]->UpdateDependencies(this);
-
-    FillMemberVars();
 
     if (Recursive)
     {
@@ -178,12 +170,6 @@ void WindowT::SetExtData(ExtDataT* ExtData)
 }
 
 
-void WindowT::SetName(const std::string& Name)
-{
-    m_Basics->SetWindowName(Name);
-}
-
-
 bool WindowT::AddChild(IntrusivePtrT<WindowT> Child, unsigned long Pos)
 {
     assert(Child->m_Parent == NULL);
@@ -198,7 +184,7 @@ bool WindowT::AddChild(IntrusivePtrT<WindowT> Child, unsigned long Pos)
     Child->m_Parent = this;
 
     // Make sure that the childs name is unique among its siblings.
-    Child->SetName(Child->GetName());
+    Child->GetBasics()->SetWindowName(Child->GetBasics()->GetWindowName());
     return true;
 }
 
@@ -464,49 +450,11 @@ bool WindowT::OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY)
 
 bool WindowT::OnClockTickEvent(float t)
 {
+    m_Time += t;
+
     // Forward the event to the components.
     for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
         m_Components[CompNr]->OnClockTickEvent(t);
-
-    // float OldTime=Time;
-
-    m_Time += t;
-
-    // See if we have to run any OnTime scripts.
-    // ;
-
-    // Run the pending value interpolations.
-    for (unsigned long INr=0; INr<m_PendingInterp.Size(); INr++)
-    {
-        InterpolationT* I=m_PendingInterp[INr];
-
-        // Run this interpolation only if there is no other interpolation that addresses the same target value.
-        unsigned long OldINr;
-
-        for (OldINr=0; OldINr<INr; OldINr++)
-            if (m_PendingInterp[OldINr]->Value == I->Value)
-                break;
-
-        if (OldINr<INr) continue;
-
-
-        // Actually run the interpolation I.
-        I->CurrentTime+=t;
-
-        if (I->CurrentTime >= I->TotalTime)
-        {
-            // This interpolation reached its end value, so drop it from the pending queue.
-            I->Value[0]=I->EndValue;
-
-            delete I;
-            m_PendingInterp.RemoveAtAndKeepOrder(INr);
-            INr--;
-        }
-        else
-        {
-            I->UpdateValue();
-        }
-    }
 
     return true;
 }
@@ -524,203 +472,9 @@ bool WindowT::CallLuaMethod(const char* MethodName, const char* Signature, ...)
 }
 
 
-void WindowT::FillMemberVars()
-{
-    MemberVars["time"]=MemberVarT(m_Time);
-}
-
-
 /**********************************************/
 /*** Impementation of Lua binding functions ***/
 /**********************************************/
-
-int WindowT::Set(lua_State* LuaState)
-{
-    ScriptBinderT     Binder(LuaState);
-    IntrusivePtrT<WindowT> Win=Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
-    std::string       VarName=luaL_checkstring(LuaState, 2);
-    const MemberVarT& Var    =Win->MemberVars[VarName];
-
-    if (VarName == "rect")
-    {
-        Win->m_Transform->SetPos (Vector2fT(float(lua_tonumber(LuaState, 3)), float(lua_tonumber(LuaState, 4))));
-        Win->m_Transform->SetSize(Vector2fT(float(lua_tonumber(LuaState, 5)), float(lua_tonumber(LuaState, 6))));
-
-        return 0;
-    }
-
-    if (VarName == "show")
-    {
-        bool b = false;
-
-        if (lua_isnumber(LuaState, 3)) b = lua_tointeger(LuaState, 3)!=0;
-                                  else b = lua_toboolean(LuaState, 3)!=0;
-
-        Win->m_Basics->Show(b);
-        return 0;
-    }
-
-    if (Var.Member==NULL)
-    {
-        // Bad argument "VarName".
-        luaL_argerror(LuaState, 2, (std::string("unknown field '")+VarName+"'").c_str());
-        return 0;
-    }
-
-    switch (Var.Type)
-    {
-        case MemberVarT::TYPE_FLOAT:
-            ((float*)Var.Member)[0]=float(lua_tonumber(LuaState, 3));
-            break;
-
-        case MemberVarT::TYPE_FLOAT2:
-            ((float*)Var.Member)[0]=float(lua_tonumber(LuaState, 3));
-            ((float*)Var.Member)[1]=float(lua_tonumber(LuaState, 4));
-            break;
-
-        case MemberVarT::TYPE_FLOAT4:
-            ((float*)Var.Member)[0]=float(lua_tonumber(LuaState, 3));
-            ((float*)Var.Member)[1]=float(lua_tonumber(LuaState, 4));
-            ((float*)Var.Member)[2]=float(lua_tonumber(LuaState, 5));
-            ((float*)Var.Member)[3]=float(lua_tonumber(LuaState, 6));
-            break;
-
-        case MemberVarT::TYPE_INT:
-            ((int*)Var.Member)[0]=lua_tointeger(LuaState, 3);
-            break;
-
-        case MemberVarT::TYPE_BOOL:
-            // I also want to treat the number 0 as false, not just "false" and "nil".
-            if (lua_isnumber(LuaState, 3)) ((bool*)Var.Member)[0]=lua_tointeger(LuaState, 3)!=0;
-                                      else ((bool*)Var.Member)[0]=lua_toboolean(LuaState, 3)!=0;
-            break;
-
-        case MemberVarT::TYPE_STRING:
-        {
-            const char* s=lua_tostring(LuaState, 3);
-
-            ((std::string*)Var.Member)[0]=(s!=NULL) ? s : "";
-            break;
-        }
-    }
-
-    return 0;
-}
-
-
-int WindowT::Get(lua_State* LuaState)
-{
-    ScriptBinderT     Binder(LuaState);
-    IntrusivePtrT<WindowT> Win=Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
-    std::string       VarName=luaL_checkstring(LuaState, 2);
-    const MemberVarT& Var    =Win->MemberVars[VarName];
-
-    if (Var.Member==NULL)
-    {
-        // Bad argument "VarName".
-        luaL_argerror(LuaState, 2, (std::string("unknown field '")+VarName+"'").c_str());
-        return 0;
-    }
-
-    switch (Var.Type)
-    {
-        case MemberVarT::TYPE_FLOAT:
-            lua_pushnumber(LuaState, ((float*)Var.Member)[0]);
-            return 1;
-
-        case MemberVarT::TYPE_FLOAT2:
-            lua_pushnumber(LuaState, ((float*)Var.Member)[0]);
-            lua_pushnumber(LuaState, ((float*)Var.Member)[1]);
-            return 2;
-
-        case MemberVarT::TYPE_FLOAT4:
-            lua_pushnumber(LuaState, ((float*)Var.Member)[0]);
-            lua_pushnumber(LuaState, ((float*)Var.Member)[1]);
-            lua_pushnumber(LuaState, ((float*)Var.Member)[2]);
-            lua_pushnumber(LuaState, ((float*)Var.Member)[3]);
-            return 4;
-
-        case MemberVarT::TYPE_INT:
-            lua_pushinteger(LuaState, ((int*)Var.Member)[0]);
-            return 1;
-
-        case MemberVarT::TYPE_BOOL:
-            lua_pushboolean(LuaState, ((bool*)Var.Member)[0]);
-            return 1;
-
-        case MemberVarT::TYPE_STRING:
-            lua_pushstring(LuaState, ((std::string*)Var.Member)[0].c_str());
-            return 1;
-    }
-
-    return 0;
-}
-
-
-int WindowT::Interpolate(lua_State* LuaState)
-{
-    ScriptBinderT     Binder(LuaState);
-    IntrusivePtrT<WindowT> Win=Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
-    std::string       VarName=luaL_checkstring(LuaState, 2);
-    const MemberVarT& Var    =Win->MemberVars[VarName];
-
-    if (Var.Member==NULL)
-    {
-        // Bad argument "VarName".
-        luaL_argerror(LuaState, 2, (std::string("unknown field '")+VarName+"'").c_str());
-        return 0;
-    }
-
-    switch (Var.Type)
-    {
-        case MemberVarT::TYPE_FLOAT:
-        {
-            const unsigned long MAX_INTERPOLATIONS=10;
-            unsigned long       InterpolationCount=0;
-
-            // Make sure that there are no more than MAX_INTERPOLATIONS interpolations pending for Var already.
-            // If so, just delete the oldest ones, which effectively means to skip them (the next youngest interpolation will take over).
-            // The purpose is of course to prevent anything from adding arbitrarily many interpolations, eating up memory,
-            // which could happen from bad user code (e.g. if the Cafu game code doesn't protect multiple human players from using
-            // a GUI simultaneously, mouse cursor "position flickering" might occur on the server, which in turn might trigger the
-            // permanent addition of interpolations from OnFocusLose()/OnFocusGain() scripts).
-            for (unsigned long INr=Win->m_PendingInterp.Size(); INr>0; INr--)
-            {
-                InterpolationT* I=Win->m_PendingInterp[INr-1];
-
-                if (I->Value==(float*)Var.Member) InterpolationCount++;
-
-                if (InterpolationCount>MAX_INTERPOLATIONS)
-                {
-                    delete I;
-                    Win->m_PendingInterp.RemoveAtAndKeepOrder(INr-1);
-                    break;
-                }
-            }
-
-            // Now add the new interpolation to the pending list.
-            InterpolationT* I=new InterpolationT;
-
-            I->Value      =(float*)Var.Member;
-            I->StartValue =float(lua_tonumber(LuaState, 3));
-            I->EndValue   =float(lua_tonumber(LuaState, 4));
-            I->CurrentTime=0.0f;
-            I->TotalTime  =float(lua_tonumber(LuaState, 5)/1000.0);
-
-            Win->m_PendingInterp.PushBack(I);
-            break;
-        }
-
-        default:
-        {
-            luaL_argerror(LuaState, 2, (std::string("Cannot interpolate over field '")+VarName+"', it is not of type 'float'.").c_str());
-            break;
-        }
-    }
-
-    return 0;
-}
-
 
 int WindowT::AddChild(lua_State* LuaState)
 {
@@ -738,7 +492,7 @@ int WindowT::AddChild(lua_State* LuaState)
     Child->m_Parent = Win.get();
 
     // Make sure that the childs name is unique among its siblings.
-    Child->SetName(Child->GetName());
+    Child->GetBasics()->SetWindowName(Child->GetBasics()->GetWindowName());
     return 0;
 }
 
@@ -796,6 +550,16 @@ int WindowT::GetChildren(lua_State* LuaState)
         lua_rawseti(LuaState, -2, ChildNr+1);
     }
 
+    return 1;
+}
+
+
+int WindowT::GetTime(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<WindowT> Win = Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
+
+    lua_pushnumber(LuaState, Win->m_Time);
     return 1;
 }
 
@@ -897,6 +661,6 @@ int WindowT::toString(lua_State* LuaState)
     ScriptBinderT Binder(LuaState);
     IntrusivePtrT<WindowT> Win=Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(1);
 
-    lua_pushfstring(LuaState, "A gui window with name \"%s\".", Win->GetName().c_str());
+    lua_pushfstring(LuaState, "A gui window with name \"%s\".", Win->GetBasics()->GetWindowName().c_str());
     return 1;
 }

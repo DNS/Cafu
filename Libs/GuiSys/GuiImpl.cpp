@@ -696,7 +696,7 @@ int GuiImplT::CreateNew(lua_State* LuaState)
         assert(Win->GetType() == TI);
         assert(strcmp(TI->ClassName, TypeName) == 0);
 
-        if (ObjName) Win->SetName(ObjName);
+        if (ObjName) Win->GetBasics()->SetWindowName(ObjName);
 
         Binder.Push(Win);
         return 1;

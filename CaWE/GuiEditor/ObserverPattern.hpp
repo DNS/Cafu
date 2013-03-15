@@ -49,9 +49,8 @@ namespace GuiEditor
 
     enum WindowModDetailE
     {
-        WMD_GENERIC,          ///< Generic change of windows (useful if the subject doesn't know what exactly has been changed).
-        WMD_PROPERTY_CHANGED, ///< A windows property has been changed.
-        WMD_HIERARCHY         ///< The position of a window in the window hierarchy has been changed.
+        WMD_GENERIC,    ///< Generic change of windows (useful if the subject doesn't know what exactly has been changed).
+        WMD_HIERARCHY   ///< The position of a window in the window hierarchy has been changed.
     };
 
     class ObserverT
@@ -89,20 +88,7 @@ namespace GuiEditor
         /// @param Detail    Information about what has been modified:
         ///                  Can be WMD_GENERIC or WMD_HIERARCHY.
         virtual void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail) { }
-
-        /// @param Subject   The GUI document in which the elements have been modified.
-        /// @param Windows   List of modified windows.
-        /// @param Detail    Information about what has been modified:
-        ///                  Can only be WMD_PROPERTY_CHANGED.
-        /// @param PropertyName   The name of the property whose value has been modified.
-        virtual void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail, const wxString& PropertyName) { }
         //@}
-
-        /// Notifies the observer that a property of a window has changed.
-        /// @param Subject    The GUI document whose window has changed.
-        /// @param Win        The window whose property has changed.
-        /// @param PropName   The name of the property whose value has changed.
-        virtual void Notify_WinChanged(SubjectT* Subject, const EditorWindowT* Win, const wxString& PropName) { }
 
         /// Notifies the observer that a variable has changed.
         /// @param Subject   The GUI document in which a variable has changed.
@@ -144,9 +130,6 @@ namespace GuiEditor
         virtual void UpdateAllObservers_GuiPropertyModified();
         virtual void UpdateAllObservers_Modified(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail);
         virtual void UpdateAllObservers_Modified(IntrusivePtrT<cf::GuiSys::WindowT> Window, WindowModDetailE Detail);
-        virtual void UpdateAllObservers_Modified(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail, const wxString& PropertyName);
-        virtual void UpdateAllObservers_Modified(IntrusivePtrT<cf::GuiSys::WindowT> Window, WindowModDetailE Detail, const wxString& PropertyName);
-        virtual void UpdateAllObservers_Modified(const EditorWindowT* Win, const wxString& PropName);
         virtual void UpdateAllObservers_Modified(const cf::TypeSys::VarBaseT& Var);
 
         /// The virtual destructor.

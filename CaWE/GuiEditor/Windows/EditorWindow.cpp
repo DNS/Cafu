@@ -22,8 +22,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "EditorWindow.hpp"
 #include "../ChildFrame.hpp"
 #include "../GuiDocument.hpp"
-#include "../Commands/ModifyWindow.hpp"
-#include "../Commands/SetWinProp.hpp"
 #include "../../EditorMaterial.hpp"
 #include "../../MaterialBrowser/DocAccess.hpp"
 #include "../../MaterialBrowser/MaterialBrowserDialog.hpp"
@@ -56,62 +54,6 @@ namespace
 {
     const float SelectionColor[]={ 1.0, 0.0, 0.0, 1.0 };
     const float SelectionBorder =2;
-}
-
-
-void EditorWindowT::FillInPG(wxPropertyGridManager* PropMan)
-{
-    PropMan->Append(new wxStringProperty("Name", wxPG_LABEL, m_Win->GetName()));
-    wxPGProperty* TypeInfo=PropMan->Append(new wxStringProperty("Type", wxPG_LABEL, m_Win->GetType()->ClassName));
-    PropMan->DisableProperty(TypeInfo);
-
-    wxPGProperty* Item=PropMan->Append(new wxBoolProperty("Visible", wxPG_LABEL, m_Win->IsShown()));
-
-    PropMan->SetPropertyAttribute(Item, wxPG_BOOL_USE_CHECKBOX, (long)1, wxPG_RECURSE); // Use checkboxes instead of choice.
-}
-
-
-bool EditorWindowT::UpdateProperty(wxPGProperty* Property)
-{
-    wxString PropName=Property->GetName();
-
-         if (PropName=="Name")             Property->SetValueFromString(m_Win->GetName());
-    else if (PropName=="Visible")          Property->SetValueFromString(m_Win->IsShown() ? "true" : "false");
-    else                                   return false;
-
-    return true;
-}
-
-
-bool EditorWindowT::HandlePGChange(wxPropertyGridEvent& Event, GuiEditor::ChildFrameT* ChildFrame)
-{
-    static cf::GuiSys::WindowT::MemberVarT DummyVar;
-
-    const wxPGProperty* Prop      =Event.GetProperty();
-    const wxString      PropName  =Prop->GetName();
-    double              PropValueD=0.0;
-    const float         PropValueF=Prop->GetValue().Convert(&PropValueD) ? float(PropValueD) : 0.0f;
-
-    if (PropName=="Name")
-    {
-        // Specially treated by command.
-        ChildFrame->SubmitCommand(new CommandModifyWindowT(m_GuiDoc, m_Win, PropName, DummyVar, Prop->GetValueAsString()));
-
-        // The command may well have set a name different from Prop->GetValueAsString().
-        wxASSERT(Event.GetEventType() == wxEVT_PG_CHANGED);
-        Event.GetProperty()->SetValueFromString(m_Win->GetName());
-    }
-    else if (PropName=="Visible")
-    {
-        wxASSERT(m_Win->GetMemberVar("show").Member!=NULL);
-        ChildFrame->SubmitCommand(new CommandModifyWindowT(m_GuiDoc, m_Win, PropName, m_Win->GetMemberVar("show"), Prop->GetValue().GetBool()));
-    }
-    else
-    {
-        return false;
-    }
-
-    return true;
 }
 
 
