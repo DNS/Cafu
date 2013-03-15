@@ -45,16 +45,6 @@ extern "C"
 using namespace cf::GuiSys;
 
 
-/*
-TODO: some things are still awkward, and some magic is still missing:
-
-  a) How do we "clean" an entered value before a "changing" event is generated from it?
-     Or said differently, what if Set(v) sets a value that is not v ??
-     Can we update the property in the OnChanged() handler?? wxPGProperty::SetValueInEvent()? Or do we need a complete refresh??
-     In any case, this would thoroughly be needed e.g. for making filenames relative, for flipping \ to /, clamp numeric values to min-max range, etc...
-*/
-
-
 /**************************************/
 /*** ComponentModelT::VarModelNameT ***/
 /**************************************/

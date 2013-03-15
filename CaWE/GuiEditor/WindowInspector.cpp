@@ -297,25 +297,41 @@ void WindowInspectorT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
 
 void WindowInspectorT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
 {
-    if (m_SelectedWindow==NULL) return;
-
     // Changing a property by pressing ENTER doesn't change the selection. In consequence the property refresh below does not result in
     // any change since selected properties are not updated (because the user could be in the process of editing a value).
     // Since the user is definitely finished editing this property we can safely clear the selection.
     // ClearSelection();
     wxLogDebug("%s: %s value \"%s\": %s", __FUNCTION__, Event.GetValue().GetType(), Event.GetProperty()->GetLabel(), Event.GetValue().MakeString());
 
-    // ****************************************************************************
-    // If we have set a variable to a value different from Event.GetValue(),
-    // here is the right opportunity to call something like:
-    //    // The command may well have set a name different from Prop->GetValueAsString().
-    //    wxASSERT(Event.GetEventType() == wxEVT_PG_CHANGED);
-    //    Event.GetProperty()->SetValueFromString(m_Win->GetName());
-    // ****************************************************************************
+    // In OnPropertyGridChanging(), we essentially and eventually call code like
+    //
+    //     Var.Set(Event.GetValue());    // pseudo-code
+    //
+    // Note that if Var is of a type derived from cf::TypeSys::VarT<>, the Set() method may well set
+    // Var to a value that is different from Event.GetValue().
+    // For example, if the variable contains a filename, the Set() method may flip backslashes into
+    // forward slashes, make filenames relative, clamp numeric values to min-max range, turn arbitrary
+    // strings into valid Lua identifiers, etc.
+    // Unfortunately, there seems to be no way to pass back the actual value of Var back into the
+    // EVT_PG_CHANGING event processing directly in OnPropertyGridChanging() (at least not in wx-2.9.2),
+    // but it *is* possible here, so we take the opportunity.
+    wxPGProperty*          Prop = Event.GetProperty();
+    cf::TypeSys::VarBaseT* Var  = Prop && !Prop->IsCategory() ? static_cast<cf::TypeSys::VarBaseT*>(Prop->GetClientData()) : NULL;
 
-    // m_IsRecursiveSelfNotify=true;
-    // GuiDocumentT::GetSibling(m_SelectedWindow)->HandlePGChange(Event, m_Parent);
-    // m_IsRecursiveSelfNotify=false;
+    if (Var)
+    {
+        // Handle cases a2), b3) and c2).
+        // There is no need to handle case b2), because it is covered by b3) as well.
+        VarVisitorUpdatePropT UpdateProp(*Prop);
+
+        Var->accept(UpdateProp);
+
+        // The documentation at http://docs.wxwidgets.org/trunk/classwx_p_g_property.html states that unlike the
+        // methods in wxPropertyGrid, wxPGProperty::SetValue() does not automatically update the display.
+        // Still, it seems like an explicit call to RefreshGrid() is not needed here -- probably because RefreshGrid()
+        // is automatically called by the code that generated the event that brought us here.
+        // RefreshGrid();
+    }
 }
 
 
