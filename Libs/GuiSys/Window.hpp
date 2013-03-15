@@ -27,13 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Templates/Array.hpp"
 #include "Templates/Pointer.hpp"
 
-#include <cstdarg>
 #include <climits>
-#include <map>
-#include <string>
-
-// This macro is introduced by some header (gtk?) under Linux...
-#undef CurrentTime
 
 
 struct CaKeyboardEventT;

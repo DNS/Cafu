@@ -25,6 +25,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Variables.hpp"
 #include "Templates/Pointer.hpp"
 
+// This macro is introduced by some header (gtk?) under Linux...
+#undef CurrentTime
+
 
 namespace cf { namespace TypeSys { class TypeInfoT; } }
 namespace cf { namespace TypeSys { class CreateParamsT; } }
