@@ -29,8 +29,9 @@ namespace cf
 {
     namespace GuiSys
     {
-        /// This components adds the basics of the window (its name and the "is shown?" flag);
-        /// every window must have exactly one.
+        /// This component adds the basics of the window (its name and the "is shown?" flag).
+        /// It is one of the components that is "fundamental" to a window (cf::GuiSys::IsFundamental() returns `true`).
+        /// Every window must have exactly one.
         class ComponentBasicsT : public ComponentBaseT
         {
             public:

@@ -161,6 +161,9 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
             // Skip the ComponentBaseT class.
             if (!TI->Base) continue;
 
+            // Skip fundamental component types (each window has one instance anyway).
+            if (cf::GuiSys::IsFundamental(TI)) continue;
+
             CompTIs.PushBack(TI);
         }
     }

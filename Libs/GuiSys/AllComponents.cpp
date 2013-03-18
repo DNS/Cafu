@@ -97,5 +97,14 @@ namespace cf
             &ComponentTextEditT::TypeInfo,
             &ComponentTransformT::TypeInfo,
         };
+
+
+        bool IsFundamental(const cf::TypeSys::TypeInfoT* CompType)
+        {
+            if (CompType == &ComponentBasicsT::TypeInfo) return true;
+            if (CompType == &ComponentTransformT::TypeInfo) return true;
+
+            return false;
+        }
     }
 }

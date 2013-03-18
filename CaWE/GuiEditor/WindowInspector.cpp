@@ -370,14 +370,16 @@ void WindowInspectorT::OnPropertyGridRightClick(wxPropertyGridEvent& Event)
 
     const unsigned int Index = m_SelectedWindow->GetComponents().Find(Comp);
 
-    if (Index >= m_SelectedWindow->GetComponents().Size()) return;
+    // Fundamental components are not found in the GetComponents() list.
+    const bool IsCustom = Index < m_SelectedWindow->GetComponents().Size();
 
 
     // Note that GetPopupMenuSelectionFromUser() temporarily disables UI updates for the window,
     // so our menu IDs used below should be doubly clash-free.
     enum
     {
-        ID_MENU_MOVE_COMPONENT_UP=wxID_HIGHEST+1+100,
+        ID_MENU_COMPONENT_NAME = wxID_HIGHEST+1+100,
+        ID_MENU_MOVE_COMPONENT_UP,
         ID_MENU_MOVE_COMPONENT_DOWN,
         ID_MENU_COPY_COMPONENT,
         ID_MENU_PASTE_COMPONENT,
@@ -386,18 +388,24 @@ void WindowInspectorT::OnPropertyGridRightClick(wxPropertyGridEvent& Event)
 
     wxMenu Menu;
 
-    AppendMI(Menu, ID_MENU_MOVE_COMPONENT_UP,   "Move Component Up",   "list-selection-up",   Index > 0);
-    AppendMI(Menu, ID_MENU_MOVE_COMPONENT_DOWN, "Move Component Down", "list-selection-down", Index+1 < m_SelectedWindow->GetComponents().Size());
+    AppendMI(Menu, ID_MENU_COMPONENT_NAME, wxString(Comp->GetName()) + ":", "", false);
+    Menu.AppendSeparator();
+    AppendMI(Menu, ID_MENU_MOVE_COMPONENT_UP,   "Move Component Up",   "list-selection-up",   IsCustom && Index > 0);
+    AppendMI(Menu, ID_MENU_MOVE_COMPONENT_DOWN, "Move Component Down", "list-selection-down", IsCustom && Index+1 < m_SelectedWindow->GetComponents().Size());
     Menu.AppendSeparator();
     AppendMI(Menu, ID_MENU_COPY_COMPONENT,  "Copy Component",  wxART_COPY,  false);
     AppendMI(Menu, ID_MENU_PASTE_COMPONENT, "Paste Component", wxART_PASTE, false);
     Menu.AppendSeparator();
-    AppendMI(Menu, ID_MENU_REMOVE_COMPONENT, "Remove Component", wxART_DELETE);
+    AppendMI(Menu, ID_MENU_REMOVE_COMPONENT, "Remove Component", wxART_DELETE, IsCustom);
 
     switch (GetPopupMenuSelectionFromUser(Menu))
     {
+        case ID_MENU_COMPONENT_NAME:
+            break;
+
         case ID_MENU_MOVE_COMPONENT_UP:
         {
+            if (!IsCustom) break;
             if (Index == 0) break;
 
             ArrayT<CommandT*> Commands;
@@ -411,6 +419,7 @@ void WindowInspectorT::OnPropertyGridRightClick(wxPropertyGridEvent& Event)
 
         case ID_MENU_MOVE_COMPONENT_DOWN:
         {
+            if (!IsCustom) break;
             if (Index+1 >= m_SelectedWindow->GetComponents().Size()) break;
 
             ArrayT<CommandT*> Commands;
@@ -430,6 +439,8 @@ void WindowInspectorT::OnPropertyGridRightClick(wxPropertyGridEvent& Event)
 
         case ID_MENU_REMOVE_COMPONENT:
         {
+            if (!IsCustom) break;
+
             m_Parent->SubmitCommand(new CommandDeleteComponentT(m_GuiDocument, m_SelectedWindow, Index));
             break;
         }

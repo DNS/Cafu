@@ -29,8 +29,9 @@ namespace cf
 {
     namespace GuiSys
     {
-        /// This components adds information about the position and size of the window;
-        /// every window must have exactly one.
+        /// This component adds information about the position and size of the window.
+        /// It is one of the components that is "fundamental" to a window (cf::GuiSys::IsFundamental() returns `true`).
+        /// Every window must have exactly one.
         class ComponentTransformT : public ComponentBaseT
         {
             public:
