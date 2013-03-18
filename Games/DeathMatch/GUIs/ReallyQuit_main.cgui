@@ -2,7 +2,7 @@ dofile("Games/DeathMatch/GUIs/ReallyQuit_init.cgui");
 
 
 function Background:OnFrame()
-    self:set("backColor.r", 0.07+0.07*math.sin(self:get("time")));
+    self:GetComponent("Image"):set("Color", 0.07 + 0.07*math.sin(self:GetTime()), 0, 0)
 end
 
 function Background:OnKeyPress(Key)
@@ -17,20 +17,20 @@ end
 
 
 function ReallyQuit.ButtonYes:OnMouseEnter()
-    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
-    self:interpolate("textScale", 0.4, 0.45, 500);
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Text"):interpolate("Scale", 0.4, 0.45, 500)
 end
 
 function ReallyQuit.ButtonYes:OnMouseLeave()
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
-    self:interpolate("textScale", 0.45, 0.4, 500);
+    self:GetComponent("Border"):set("Color", 0.7, 0.8, 0.9)
+    self:GetComponent("Text"):interpolate("Scale", 0.45, 0.4, 500)
 end
 
 function ReallyQuit.ButtonYes:OnMouseButtonDown()
     -- Add a nice shutdown effect.
-    Background:interpolate("backColor.a", 0.7, 1.0, 700);
-    ReallyQuit:interpolate("rotAngle", 0, 70, 700);
-    ReallyQuit:interpolate("pos.y", 90, 600, 700);
+    Background:GetComponent("Image"):interpolate("Alpha", 0.7, 1.0, 700)
+    ReallyQuit:GetTransform():interpolate("Rotation", 0, 70, 700)
+    ReallyQuit:GetTransform():interpolate("Pos.y", 90, 600, 700)
     gui:showMouse(false);
 
     -- Now somehow quit the game.
@@ -58,13 +58,13 @@ end
 
 
 function ReallyQuit.ButtonNo:OnMouseEnter()
-    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
-    self:interpolate("textScale", 0.4, 0.45, 500);
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Text"):interpolate("Scale", 0.4, 0.45, 500)
 end
 
 function ReallyQuit.ButtonNo:OnMouseLeave()
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
-    self:interpolate("textScale", 0.45, 0.4, 500);
+    self:GetComponent("Border"):set("Color", 0.7, 0.8, 0.9)
+    self:GetComponent("Text"):interpolate("Scale", 0.45, 0.4, 500)
 end
 
 function ReallyQuit.ButtonNo:OnMouseButtonDown()

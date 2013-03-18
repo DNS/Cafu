@@ -267,7 +267,7 @@ ReallyQuitDialog.ReallyQuit:AddChild(ReallyQuitDialog.ReallyQuit.ButtonNo);
 
 function MainMenu:OnInit()
     self:GetTransform():set("Pos", 0, 0)
-    self:GetTransform():set("Size", 80, 60)
+    self:GetTransform():set("Size", 0, 0)
 
     local c1 = gui:new("ComponentImageT")
     c1:set("Material", "")
@@ -676,7 +676,12 @@ function NewGameDialog.Frame.MapPreview:OnInit()
     c1:set("Color", 0.7, 0.8, 0.9)
     c1:set("Alpha", 1)
 
-    self:AddComponent(c1)
+    local c2 = gui:new("ComponentImageT")
+    c2:set("Material", "")
+    c2:set("Color", 1, 1, 1)
+    c2:set("Alpha", 1)
+
+    self:AddComponent(c1, c2)
 end
 
 function NewGameDialog.Frame.ButtonOK:OnInit()
@@ -1538,7 +1543,12 @@ function HostGameDialog.Frame.MapPreview:OnInit()
     c1:set("Color", 0.7, 0.8, 0.9)
     c1:set("Alpha", 1)
 
-    self:AddComponent(c1)
+    local c2 = gui:new("ComponentImageT")
+    c2:set("Material", "")
+    c2:set("Color", 1, 1, 1)
+    c2:set("Alpha", 1)
+
+    self:AddComponent(c1, c2)
 end
 
 function HostGameDialog.Frame.ModelPreview:OnInit()

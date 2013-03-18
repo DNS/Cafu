@@ -2,7 +2,7 @@ dofile("Games/DeathMatch/GUIs/TechDemo/gui1_init.cgui");
 
 
 function EngineLogo:OnFrame()
-    self:set("rotAngle", self:get("time")*50);
+    self:GetTransform():set("Rotation", self:GetTime() * 50)
 end
 
 
@@ -17,27 +17,29 @@ function BottomLine:OnInit2()
 end
 
 function BottomLine:OnMouseEnter()
-    self:interpolate("textColor.b", 0.0, 0.8, 500);
-    -- self:interpolate("textScale", 0.3, 0.4, 500);
+    self:GetComponent("Text"):interpolate("Color.b", 0.0, 0.8, 500)
+    -- self:GetComponent("Text"):interpolate("Scale", 0.3, 0.4, 500)
 end
 
 function BottomLine:OnMouseLeave()
-    self:interpolate("textColor.b", 0.8, 0.0, 500);
-    -- self:interpolate("textScale", 0.4, 0.3, 500);
+    self:GetComponent("Text"):interpolate("Color.b", 0.8, 0.0, 500)
+    -- self:GetComponent("Text"):interpolate("Scale", 0.4, 0.3, 500)
 end
 
 function BottomLine:OnMouseButtonDown()
     if (self.PageNr==1) then self.PageNr=2; else self.PageNr=1; end
 
     -- if (self.PageNr==1) then
-        Heading1:set("show", self.PageNr==1);
-        TextArea1:set("show", self.PageNr==1);
+        Heading1:GetBasics():set("Show", self.PageNr == 1)
+        TextArea1:GetBasics():set("Show", self.PageNr == 1)
 
-        Heading2:set("show", self.PageNr==2);
-        TextArea2:set("show", self.PageNr==2);
+        Heading2:GetBasics():set("Show", self.PageNr == 2)
+        TextArea2:GetBasics():set("Show", self.PageNr == 2)
 
-        if (self.PageNr==1) then BottomLine:set("text", BottomLine.String1); else BottomLine:set("text", BottomLine.String2); end
-        BottomLine:set("textAlignHor", 2-self.PageNr);
+        if (self.PageNr==1) then BottomLine:GetComponent("Text"):set("Text", BottomLine.String1)
+                            else BottomLine:GetComponent("Text"):set("Text", BottomLine.String2) end
+
+        BottomLine:GetComponent("Text"):set("hor. Align", self.PageNr == 1 and 1 or -1)
     -- else
 
     -- end

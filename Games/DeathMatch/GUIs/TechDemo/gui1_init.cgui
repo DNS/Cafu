@@ -185,5 +185,17 @@ end
 function BottomLine:OnInit()
     self:GetTransform():set("Pos", 37, 428)
     self:GetTransform():set("Size", 568, 21)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Name", "Fonts/Impact")
+    c1:set("Text", "")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0, 0)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    self:AddComponent(c1)
 end
 

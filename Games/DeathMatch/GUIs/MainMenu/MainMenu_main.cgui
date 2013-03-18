@@ -31,8 +31,8 @@ function MainMenu:OnKeyPress(Key)
             gui:close();
         else
             -- Bring up "Really Quit?" dialog here.
-            NormalControls:set("show", false);
-            ReallyQuitDialog:set("show", true);
+            NormalControls:GetBasics():set("Show", false)
+            ReallyQuitDialog:GetBasics():set("Show", true)
 
             gui:setFocus(ReallyQuitDialog);
          -- gui:setFocus(ReallyQuitDialog.ReallyQuit.ButtonYes);    -- This would probably be better placed in a "ReallyQuitDialog:OnShow()" method!
@@ -51,39 +51,43 @@ function MainMenu:UpdateUI(WhoChangedState)
     if (self.ServerState==nil) then self.ServerState="idle"; end
 
     -- Set the button visibility according to the game state.
-    NormalControls.ButtonNewGame        :set("show", self.ClientState=="idle" and self.ServerState=="idle");
-    NormalControls.ButtonLoadGame       :set("show", self.ClientState=="idle" and self.ServerState=="idle");
-    NormalControls.ButtonSaveGame       :set("show", self.ClientState=="ingame" and self.ServerState=="maploaded");    -- Cannot save "client-only" games.
-    NormalControls.ButtonQuitCurrentGame:set("show", self.ClientState~="idle" or self.ServerState~="idle");            -- Whenever something is not idle, we can stop it.
-    NormalControls.ButtonReturnToGame   :set("show", self.ClientState=="ingame");
-    NormalControls.ButtonMultiplayer    :set("show", self.ClientState=="idle" and self.ServerState=="idle");
-    NormalControls.ButtonOptions        :set("show", true);
-    NormalControls.ButtonCredits        :set("show", true);
-    NormalControls.ButtonQuit           :set("show", true);
-    NormalControls.FPS                  :set("show", false);
+    NormalControls.ButtonNewGame        :GetBasics():set("Show", self.ClientState=="idle" and self.ServerState=="idle")
+    NormalControls.ButtonLoadGame       :GetBasics():set("Show", self.ClientState=="idle" and self.ServerState=="idle")
+    NormalControls.ButtonSaveGame       :GetBasics():set("Show", self.ClientState=="ingame" and self.ServerState=="maploaded")  -- Cannot save "client-only" games.
+    NormalControls.ButtonQuitCurrentGame:GetBasics():set("Show", self.ClientState~="idle" or self.ServerState~="idle")          -- Whenever something is not idle, we can stop it.
+    NormalControls.ButtonReturnToGame   :GetBasics():set("Show", self.ClientState=="ingame")
+    NormalControls.ButtonMultiplayer    :GetBasics():set("Show", self.ClientState=="idle" and self.ServerState=="idle")
+    NormalControls.ButtonOptions        :GetBasics():set("Show", true)
+    NormalControls.ButtonCredits        :GetBasics():set("Show", true)
+    NormalControls.ButtonQuit           :GetBasics():set("Show", true)
+    NormalControls.FPS                  :GetBasics():set("Show", false)
 
     -- Set the visibility of other elements according to the game state.
-    PulsatingBackImage:set("show", self.ClientState~="ingame");
-    NormalControls:set("backColor", 0, 0, 0, self.ClientState=="ingame" and 0.7 or 0.2);    -- "a and b or c" in Lua is equivalent to "a ? b:c" in C (at least almost, see PiL2 for details).
+    PulsatingBackImage:GetBasics():set("Show", self.ClientState~="ingame")
+
+    NormalControls:GetComponent("Image"):set("Color", 0, 0, 0)
+    NormalControls:GetComponent("Image"):set("Alpha", self.ClientState=="ingame" and 0.7 or 0.2)    -- "a and b or c" in Lua is equivalent to "a ? b : c" in C (at least almost, see PiL2 for details).
 
     -- Special case: Set the label (text) of the ButtonQuitCurrentGame button.
+    local ButtonText = NormalControls.ButtonQuitCurrentGame:GetComponent("Text")
+
     if (self.ClientState=="idle") then
         if (self.ServerState=="idle") then
-            NormalControls.ButtonQuitCurrentGame:set("text", "Nothing to stop.");
+            ButtonText:set("Text", "Nothing to stop.")
         else
-            NormalControls.ButtonQuitCurrentGame:set("text", "Stop\nServer...");
+            ButtonText:set("Text", "Stop\nServer...")
         end
     elseif (self.ClientState=="connecting") then
         if (self.ServerState=="idle") then
-            NormalControls.ButtonQuitCurrentGame:set("text", "Abort\nconnecting...");
+            ButtonText:set("Text", "Abort\nconnecting...")
         else
-            NormalControls.ButtonQuitCurrentGame:set("text", "Quit Current\nGame");
+            ButtonText:set("Text", "Quit Current\nGame")
         end
     else
         if (self.ServerState=="idle") then
-            NormalControls.ButtonQuitCurrentGame:set("text", "Disconnect...");
+            ButtonText:set("Text", "Disconnect...")
         else
-            NormalControls.ButtonQuitCurrentGame:set("text", "Quit Current\nGame");
+            ButtonText:set("Text", "Quit Current\nGame")
         end
     end
 
@@ -114,38 +118,36 @@ end
 
 
 function PulsatingBackImage:OnFrame()
-    -- self:set("rotAngle", self:get("time")*50);
+    -- self:GetTransform():set("Rotation", self:GetTime() * 50)
 
-    local sin01 =0.5 * (-math.cos(self:get("time")/3.0)+1);   -- The sin wave, slowly oscillating between 0 and 1.
-    local amount=20.0*sin01;
+    local sin01  = 0.5 * (-math.cos(self:GetTime()/3.0) + 1)  -- The sin wave, slowly oscillating between 0 and 1.
+    local amount = 20.0 * sin01
+    local Trafo  = self:GetTransform()
 
-    self:set("pos.x", 0-amount*4/3);
-    self:set("pos.y", 0-amount);
-
-    self:set("size.x", 640+2*amount*4/3);
-    self:set("size.y", 480+2*amount);
+    Trafo:set("Pos", 0-amount*4/3, 0-amount)
+    Trafo:set("Size", 640+2*amount*4/3, 480+2*amount)
 end
 
 
 
 function NormalControls.Headline:OnMouseEnter()
-    self:interpolate("textScale", 0.8, 0.85, 500);
+    self:GetComponent("Text"):interpolate("Scale", 0.8, 0.85, 500)
 end
 
 function NormalControls.Headline:OnMouseLeave()
-    self:interpolate("textScale", 0.85, 0.8, 500);
+    self:GetComponent("Text"):interpolate("Scale", 0.85, 0.8, 500)
 end
 
 
 
 function NormalControls.ButtonNewGame:OnMouseEnter()
-    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
-    self:interpolate("textScale", 0.4, 0.45, 500);
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Text"):interpolate("Scale", 0.4, 0.45, 500)
 end
 
 function NormalControls.ButtonNewGame:OnMouseLeave()
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
-    self:interpolate("textScale", 0.45, 0.4, 500);
+    self:GetComponent("Border"):set("Color", 0.7, 0.8, 0.9)
+    self:GetComponent("Text"):interpolate("Scale", 0.45, 0.4, 500)
 end
 
 function NormalControls.ButtonNewGame:OnMouseButtonUp()
@@ -170,7 +172,7 @@ function NormalControls.ButtonNewGame:OnMouseButtonUp()
     NewGameDialog.Frame.MapList:GetComponent("ListBox"):set("Selection", SelNr)
     NewGameDialog.Frame.MapList:GetComponent("ListBox"):OnSelectionChanged()
 
-    NewGameDialog:set("show", true)
+    NewGameDialog:GetBasics():set("Show", true)
     gui:setFocus(NewGameDialog.Frame.MapList)
     return true
 end
@@ -178,17 +180,17 @@ end
 
 
 function NormalControls.ButtonQuitCurrentGame:OnMouseEnter()
-    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
-    self:interpolate("textScale", 0.4, 0.45, 500);
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Text"):interpolate("Scale", 0.4, 0.45, 500)
 end
 
 function NormalControls.ButtonQuitCurrentGame:OnMouseLeave()
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
-    self:interpolate("textScale", 0.45, 0.4, 500);
+    self:GetComponent("Border"):set("Color", 0.7, 0.8, 0.9)
+    self:GetComponent("Text"):interpolate("Scale", 0.45, 0.4, 500)
 end
 
 function NormalControls.ButtonQuitCurrentGame:OnMouseButtonUp()
-    -- self:interpolate("rotAngle", 0, 360, 250);
+    -- self:GetTransform():interpolate("Rotation", 0, 360, 250)
     if (MainMenu.ClientState~="idle") then ci.RunCommand("disconnect();"); end
     if (MainMenu.ServerState~="idle") then ci.RunCommand("changeLevel();"); end
     return true;
@@ -197,13 +199,13 @@ end
 
 
 function NormalControls.ButtonReturnToGame:OnMouseEnter()
-    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
-    self:interpolate("textScale", 0.4, 0.45, 500);
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Text"):interpolate("Scale", 0.4, 0.45, 500)
 end
 
 function NormalControls.ButtonReturnToGame:OnMouseLeave()
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
-    self:interpolate("textScale", 0.45, 0.4, 500);
+    self:GetComponent("Border"):set("Color", 0.7, 0.8, 0.9)
+    self:GetComponent("Text"):interpolate("Scale", 0.45, 0.4, 500)
 end
 
 function NormalControls.ButtonReturnToGame:OnMouseButtonUp()
@@ -214,17 +216,17 @@ end
 
 
 function NormalControls.ButtonMultiplayer:OnMouseEnter()
-    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
-    self:interpolate("textScale", 0.4, 0.45, 500);
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Text"):interpolate("Scale", 0.4, 0.45, 500)
 end
 
 function NormalControls.ButtonMultiplayer:OnMouseLeave()
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
-    self:interpolate("textScale", 0.45, 0.4, 500);
+    self:GetComponent("Border"):set("Color", 0.7, 0.8, 0.9)
+    self:GetComponent("Text"):interpolate("Scale", 0.45, 0.4, 500)
 end
 
 function NormalControls.ButtonMultiplayer:OnMouseButtonUp()
-    MultiplayerContextMenu:set("show", true);
+    MultiplayerContextMenu:GetBasics():set("Show", true)
     gui:setFocus(MultiplayerContextMenu);
     return true;
 end
@@ -232,17 +234,17 @@ end
 
 
 function NormalControls.ButtonOptions:OnMouseEnter()
-    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
-    self:interpolate("textScale", 0.4, 0.45, 500);
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Text"):interpolate("Scale", 0.4, 0.45, 500)
 end
 
 function NormalControls.ButtonOptions:OnMouseLeave()
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
-    self:interpolate("textScale", 0.45, 0.4, 500);
+    self:GetComponent("Border"):set("Color", 0.7, 0.8, 0.9)
+    self:GetComponent("Text"):interpolate("Scale", 0.45, 0.4, 500)
 end
 
 function NormalControls.ButtonOptions:OnMouseButtonUp()
-    OptionsContextMenu:set("show", true);
+    OptionsContextMenu:GetBasics():set("Show", true)
     gui:setFocus(OptionsContextMenu);
     return true;
 end
@@ -250,18 +252,18 @@ end
 
 
 function NormalControls.ButtonCredits:OnMouseEnter()
-    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
-    self:interpolate("textScale", 0.4, 0.45, 500);
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Text"):interpolate("Scale", 0.4, 0.45, 500)
 end
 
 function NormalControls.ButtonCredits:OnMouseLeave()
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
-    self:interpolate("textScale", 0.45, 0.4, 500);
+    self:GetComponent("Border"):set("Color", 0.7, 0.8, 0.9)
+    self:GetComponent("Text"):interpolate("Scale", 0.45, 0.4, 500)
 end
 
 function NormalControls.ButtonCredits:OnMouseButtonUp()
-    NormalControls:set("show", false);
-    CreditsDialog:set("show", true);
+    NormalControls:GetBasics():set("Show", false)
+    CreditsDialog:GetBasics():set("Show", true)
     gui:setFocus(CreditsDialog);
     return true;
 end
@@ -269,18 +271,18 @@ end
 
 
 function NormalControls.ButtonQuit:OnMouseEnter()
-    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
-    self:interpolate("textScale", 0.4, 0.45, 500);
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Text"):interpolate("Scale", 0.4, 0.45, 500)
 end
 
 function NormalControls.ButtonQuit:OnMouseLeave()
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
-    self:interpolate("textScale", 0.45, 0.4, 500);
+    self:GetComponent("Border"):set("Color", 0.7, 0.8, 0.9)
+    self:GetComponent("Text"):interpolate("Scale", 0.45, 0.4, 500)
 end
 
 function NormalControls.ButtonQuit:OnMouseButtonUp()
-    NormalControls:set("show", false);
-    ReallyQuitDialog:set("show", true);
+    NormalControls:GetBasics():set("Show", false)
+    ReallyQuitDialog:GetBasics():set("Show", true)
 
     gui:setFocus(ReallyQuitDialog);
  -- gui:setFocus(ReallyQuitDialog.ReallyQuit.ButtonYes);    -- This would probably be better placed in a "ReallyQuitDialog:OnShow()" method!
@@ -289,16 +291,17 @@ end
 
 
 
-NormalControls.FPS.oldTime=NormalControls.FPS:get("time");
+NormalControls.FPS.oldTime = NormalControls.FPS:GetTime()
 
 function NormalControls.FPS:OnFrame()
-    local newTime=NormalControls.FPS:get("time");
-    local deltaTime=newTime-self.oldTime;
+    local newTime   = NormalControls.FPS:GetTime()
+    local deltaTime = newTime - self.oldTime
+    local TextComp  = self:GetComponent("Text")
 
     if (deltaTime<0.000000001) then
-        self:set("text", string.format(" FPS INF\n (%.4f sec)", deltaTime));
+        TextComp:set("Text", string.format(" FPS INF\n (%.4f sec)", deltaTime))
     else
-        self:set("text", string.format(" FPS %.2f\n (%.4f sec)", 1/deltaTime, deltaTime));
+        TextComp:set("Text", string.format(" FPS %.2f\n (%.4f sec)", 1/deltaTime, deltaTime))
     end
 
     NormalControls.FPS.oldTime=newTime;
@@ -316,7 +319,7 @@ function MultiplayerContextMenu:OnKeyPress(Key)
 end
 
 function MultiplayerContextMenu:OnMouseButtonUp()
-    MultiplayerContextMenu:set("show", false);
+    MultiplayerContextMenu:GetBasics():set("Show", false)
     gui:setFocus(NormalControls);
     return true;
 end
@@ -324,27 +327,27 @@ end
 
 
 function MultiplayerContextMenu.Frame.JoinGame:OnMouseEnter()
- -- self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+ -- self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
 
-    self:interpolate("backColor.r", 0.00, 0.5, 250);
-    self:interpolate("backColor.g", 0.25, 0.5, 250);
-    self:interpolate("backColor.b", 0.70, 1.0, 250);
+    self:GetComponent("Image"):interpolate("Color.r", 0.00, 0.5, 250)
+    self:GetComponent("Image"):interpolate("Color.g", 0.25, 0.5, 250)
+    self:GetComponent("Image"):interpolate("Color.b", 0.70, 1.0, 250)
 
-    self:interpolate("textColor.r", 0.02, 0.40, 250);
-    self:interpolate("textColor.g", 0.36, 0.72, 250);
- -- self:interpolate("textColor.b", 1.00, 0.70, 250);
+    self:GetComponent("Text"):interpolate("Color.r", 0.02, 0.40, 250)
+    self:GetComponent("Text"):interpolate("Color.g", 0.36, 0.72, 250)
+ -- self:GetComponent("Text"):interpolate("Color.b", 1.00, 0.70, 250)
 end
 
 function MultiplayerContextMenu.Frame.JoinGame:OnMouseLeave()
- -- self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+ -- self:GetComponent("Border"):set("Color", 0.7, 0.8, 0.9)
 
-    self:interpolate("backColor.r", 0.5, 0.00, 250);
-    self:interpolate("backColor.g", 0.5, 0.25, 250);
-    self:interpolate("backColor.b", 1.0, 0.70, 250);
+    self:GetComponent("Image"):interpolate("Color.r", 0.5, 0.00, 250)
+    self:GetComponent("Image"):interpolate("Color.g", 0.5, 0.25, 250)
+    self:GetComponent("Image"):interpolate("Color.b", 1.0, 0.70, 250)
 
-    self:interpolate("textColor.r", 0.40, 0.02, 250);
-    self:interpolate("textColor.g", 0.72, 0.36, 250);
- -- self:interpolate("textColor.b", 0.70, 1.00, 250);
+    self:GetComponent("Text"):interpolate("Color.r", 0.40, 0.02, 250)
+    self:GetComponent("Text"):interpolate("Color.g", 0.72, 0.36, 250)
+ -- self:GetComponent("Text"):interpolate("Color.b", 0.70, 1.00, 250)
 end
 
 function MultiplayerContextMenu.Frame.JoinGame:OnMouseButtonUp()
@@ -371,8 +374,8 @@ function MultiplayerContextMenu.Frame.JoinGame:OnMouseButtonUp()
     end
 
 
-    MultiplayerContextMenu:set("show", false);
-    JoinGameDialog:set("show", true);
+    MultiplayerContextMenu:GetBasics():set("Show", false)
+    JoinGameDialog:GetBasics():set("Show", true)
     gui:setFocus(JoinGameDialog);
     return true;
 end
@@ -433,8 +436,8 @@ function MultiplayerContextMenu.Frame.HostGame:OnMouseButtonUp()
     end
 
 
-    MultiplayerContextMenu:set("show", false);
-    HostGameDialog:set("show", true);
+    MultiplayerContextMenu:GetBasics():set("Show", false)
+    HostGameDialog:GetBasics():set("Show", true)
     gui:setFocus(HostGameDialog);
     return true;
 end
@@ -451,7 +454,7 @@ function OptionsContextMenu:OnKeyPress(Key)
 end
 
 function OptionsContextMenu:OnMouseButtonUp()
-    OptionsContextMenu:set("show", false);
+    OptionsContextMenu:GetBasics():set("Show", false)
     gui:setFocus(NormalControls);
     return true;
 end
@@ -459,34 +462,34 @@ end
 
 
 function OptionsContextMenu.Frame.Controls:OnMouseEnter()
- -- self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+ -- self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
 
-    self:interpolate("backColor.r", 0.00, 0.5, 250);
-    self:interpolate("backColor.g", 0.25, 0.5, 250);
-    self:interpolate("backColor.b", 0.70, 1.0, 250);
+    self:GetComponent("Image"):interpolate("Color.r", 0.00, 0.5, 250)
+    self:GetComponent("Image"):interpolate("Color.g", 0.25, 0.5, 250)
+    self:GetComponent("Image"):interpolate("Color.b", 0.70, 1.0, 250)
 
-    self:interpolate("textColor.r", 0.02, 0.40, 250);
-    self:interpolate("textColor.g", 0.36, 0.72, 250);
- -- self:interpolate("textColor.b", 1.00, 0.70, 250);
+    self:GetComponent("Text"):interpolate("Color.r", 0.02, 0.40, 250)
+    self:GetComponent("Text"):interpolate("Color.g", 0.36, 0.72, 250)
+ -- self:GetComponent("Text"):interpolate("Color.b", 1.00, 0.70, 250)
 end
 
 function OptionsContextMenu.Frame.Controls:OnMouseLeave()
- -- self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
+ -- self:GetComponent("Border"):set("Color", 0.7, 0.8, 0.9)
 
-    self:interpolate("backColor.r", 0.5, 0.00, 250);
-    self:interpolate("backColor.g", 0.5, 0.25, 250);
-    self:interpolate("backColor.b", 1.0, 0.70, 250);
+    self:GetComponent("Image"):interpolate("Color.r", 0.5, 0.00, 250)
+    self:GetComponent("Image"):interpolate("Color.g", 0.5, 0.25, 250)
+    self:GetComponent("Image"):interpolate("Color.b", 1.0, 0.70, 250)
 
-    self:interpolate("textColor.r", 0.40, 0.02, 250);
-    self:interpolate("textColor.g", 0.72, 0.36, 250);
- -- self:interpolate("textColor.b", 0.70, 1.00, 250);
+    self:GetComponent("Text"):interpolate("Color.r", 0.40, 0.02, 250)
+    self:GetComponent("Text"):interpolate("Color.g", 0.72, 0.36, 250)
+ -- self:GetComponent("Text"):interpolate("Color.b", 0.70, 1.00, 250)
 end
 
 function OptionsContextMenu.Frame.Controls:OnMouseButtonUp()
     InputOptionsDialog.Frame.ReverseMouseYAxisChoice:GetComponent("Choice"):set("Selection", ci.GetValue("mouseRevY") and 2 or 1)   -- "a and b or c" in Lua is equivalent to "a ? b:c" in C (at least almost, see PiL2 for details).
 
-    OptionsContextMenu:set("show", false);
-    InputOptionsDialog:set("show", true);
+    OptionsContextMenu:GetBasics():set("Show", false)
+    InputOptionsDialog:GetBasics():set("Show", true)
     gui:setFocus(InputOptionsDialog);
     return true;
 end
@@ -518,8 +521,8 @@ function OptionsContextMenu.Frame.Player:OnMouseButtonUp()
     end
 
 
-    OptionsContextMenu:set("show", false);
-    PlayerOptionsDialog:set("show", true);
+    OptionsContextMenu:GetBasics():set("Show", false)
+    PlayerOptionsDialog:GetBasics():set("Show", true)
     gui:setFocus(PlayerOptionsDialog);
     return true;
 end
@@ -553,8 +556,8 @@ function OptionsContextMenu.Frame.Video:OnMouseButtonUp()
     VideoOptionsDialog.Frame.FullScreenChoice:GetComponent("Choice"):set("Selection", ci.GetValue("dlg_clFullScreen") and 1 or 2)
     VideoOptionsDialog.Frame.TextureDetailChoice:GetComponent("Choice"):set("Selection", ci.GetValue("dlg_clTextureDetail") + 1)
 
-    OptionsContextMenu:set("show", false);
-    VideoOptionsDialog:set("show", true);
+    OptionsContextMenu:GetBasics():set("Show", false)
+    VideoOptionsDialog:GetBasics():set("Show", true)
     gui:setFocus(VideoOptionsDialog);
     return true;
 end
@@ -578,8 +581,8 @@ function OptionsContextMenu.Frame.Audio:OnMouseButtonUp()
 
     AudioOptionsDialog.Frame.VolumeChoice:GetComponent("Choice"):set("Selection", Vol)
 
-    OptionsContextMenu:set("show", false);
-    AudioOptionsDialog:set("show", true);
+    OptionsContextMenu:GetBasics():set("Show", false)
+    AudioOptionsDialog:GetBasics():set("Show", true)
     gui:setFocus(AudioOptionsDialog);
     return true;
 end
@@ -604,20 +607,20 @@ NewGameDialog.Frame.MapList:GetComponent("ListBox").OnSelectionChanged = functio
     -- Remove leading or trailing whitespace (but leave file names with spaces intact).
     local WorldName = (self:GetSelItem() or "no-selection"):match("^%s*(.*)%s*$")
 
- -- NewGameDialog.Frame.MapPreview:set("text", WorldName);
-    NewGameDialog.Frame.MapPreview:set("backMaterial", "Games/DeathMatch/Worlds/"..WorldName..".jpg");
+ -- NewGameDialog.Frame.MapPreview:GetComponent("Text"):set("Text", WorldName)
+    NewGameDialog.Frame.MapPreview:GetComponent("Image"):set("Material", "Games/DeathMatch/Worlds/" .. WorldName .. ".jpg")
 end
 
 
 
 function NewGameDialog.Frame.ButtonOK:OnMouseEnter()
-    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
-    self:interpolate("textScale", 0.4, 0.45, 500);
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Text"):interpolate("Scale", 0.4, 0.45, 500)
 end
 
 function NewGameDialog.Frame.ButtonOK:OnMouseLeave()
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
-    self:interpolate("textScale", 0.45, 0.4, 500);
+    self:GetComponent("Border"):set("Color", 0.7, 0.8, 0.9)
+    self:GetComponent("Text"):interpolate("Scale", 0.45, 0.4, 500)
 end
 
 -- Starting the new game via a thread (function StartNewGame) is necessary because we have to wait a
@@ -636,8 +639,8 @@ function StartNewGame(WorldName)
     ci.RunCommand("changeLevel('"..WorldName.."');");
 
     -- Undo showing the "Initializing Server..." and hiding the New Game dialog.
-    NewGameDialog:set("show", true);
-    InitServerInfoPanel:set("show", false);
+    NewGameDialog:GetBasics():set("Show", true)
+    InitServerInfoPanel:GetBasics():set("Show", false)
 
     if (MainMenu.ServerState~="maploaded") then return; end  -- TODO: Output error message!
 
@@ -646,13 +649,13 @@ function StartNewGame(WorldName)
     -- This is the same as connecting the client to a listen server game.
     ci.RunCommand("connect('localhost', "..ci.GetValue("dlg_svPortNr")..");");  -- How do and can we deal with failure here??
 
-    NewGameDialog:set("show", false);
+    NewGameDialog:GetBasics():set("Show", false)
     gui:setFocus(NormalControls);
 end
 
 function NewGameDialog.Frame.ButtonOK:OnMouseButtonUp()
     -- Remove leading or trailing whitespace (but leave file names with spaces intact).
-    local WorldName = (NewGameDialog.Frame.MapList:GetSelItem() or "no-selection"):match("^%s*(.*)%s*$")
+    local WorldName = (NewGameDialog.Frame.MapList:GetComponent("ListBox"):GetSelItem() or "no-selection"):match("^%s*(.*)%s*$")
 
     -- Copy the contents of the edit fields back into the related convars.
     ci.SetValue("dlg_svWorldName", WorldName);  -- TODO: Do we really need the dlg_svWorldName convar after all??
@@ -661,8 +664,8 @@ function NewGameDialog.Frame.ButtonOK:OnMouseButtonUp()
     -- Start the server, then the client.
     if (MainMenu.ServerState~="idle") then return true; end       -- TODO: Output error message!
 
-    NewGameDialog:set("show", false);
-    InitServerInfoPanel:set("show", true);
+    NewGameDialog:GetBasics():set("Show", false)
+    InitServerInfoPanel:GetBasics():set("Show", true)
     thread(StartNewGame, WorldName);
     return true;
 end
@@ -670,23 +673,23 @@ end
 
 
 function NewGameDialog.Frame.ButtonCancel:OnMouseEnter()
- -- self:set("borderColor", 0.5, 0.5, 0.5, 1.0);
+ -- self:GetComponent("Border"):set("Color", 0.5, 0.5, 0.5)
 
-    self:interpolate("textColor.r", 0.02, 0.80, 500);
-    self:interpolate("textColor.g", 0.36, 0.00, 500);
-    self:interpolate("textColor.b", 1.00, 0.00, 500);
+    self:GetComponent("Text"):interpolate("Color.r", 0.02, 0.80, 500)
+    self:GetComponent("Text"):interpolate("Color.g", 0.36, 0.00, 500)
+    self:GetComponent("Text"):interpolate("Color.b", 1.00, 0.00, 500)
 end
 
 function NewGameDialog.Frame.ButtonCancel:OnMouseLeave()
- -- self:set("borderColor", 0.7/2, 0.8/2, 0.9/2, 1.0);
+ -- self:GetComponent("Border"):set("Color", 0.7/2, 0.8/2, 0.9/2)
 
-    self:interpolate("textColor.r", 0.8, 0.02, 750);
-    self:interpolate("textColor.g", 0.0, 0.36, 750);
-    self:interpolate("textColor.b", 0.0, 1.00, 750);
+    self:GetComponent("Text"):interpolate("Color.r", 0.8, 0.02, 750)
+    self:GetComponent("Text"):interpolate("Color.g", 0.0, 0.36, 750)
+    self:GetComponent("Text"):interpolate("Color.b", 0.0, 1.00, 750)
 end
 
 function NewGameDialog.Frame.ButtonCancel:OnMouseButtonUp()
-    NewGameDialog:set("show", false);
+    NewGameDialog:GetBasics():set("Show", false)
     gui:setFocus(NormalControls);
     return true;
 end
@@ -715,8 +718,8 @@ JoinGameDialog.Frame.ModelNameChoice:GetComponent("Choice").OnSelectionChanged =
     local ModelName = (self:GetSelItem() or "no-selection"):match("^%s*(.*)%s*$")
     ModelName = JoinGameDialog.Frame.ModelList[ModelName]
 
-    -- JoinGameDialog.Frame.ModelPreview:set("textScale", 0.2);
-    -- JoinGameDialog.Frame.ModelPreview:set("text", ModelName);
+    -- JoinGameDialog.Frame.ModelPreview:GetComponent("Text"):set("Scale", 0.2)
+    -- JoinGameDialog.Frame.ModelPreview:GetComponent("Text"):set("Text", ModelName)
     local ModelComp = JoinGameDialog.Frame.ModelPreview:GetComponent("Model")
 
     -- Set model in model preview window.
@@ -739,13 +742,13 @@ end
 
 
 function JoinGameDialog.Frame.ButtonOK:OnMouseEnter()
-    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
-    self:interpolate("textScale", 0.4, 0.45, 500);
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Text"):interpolate("Scale", 0.4, 0.45, 500)
 end
 
 function JoinGameDialog.Frame.ButtonOK:OnMouseLeave()
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
-    self:interpolate("textScale", 0.45, 0.4, 500);
+    self:GetComponent("Border"):set("Color", 0.7, 0.8, 0.9)
+    self:GetComponent("Text"):interpolate("Scale", 0.45, 0.4, 500)
 end
 
 function JoinGameDialog.Frame.ButtonOK:OnMouseButtonUp()
@@ -761,7 +764,7 @@ function JoinGameDialog.Frame.ButtonOK:OnMouseButtonUp()
 
     ci.RunCommand("connect('"..SvName.."', "..SvPort..");");    -- How do and can we deal with failure here??
 
-    JoinGameDialog:set("show", false);
+    JoinGameDialog:GetBasics():set("Show", false)
     gui:setFocus(NormalControls);
     return true;
 end
@@ -769,23 +772,23 @@ end
 
 
 function JoinGameDialog.Frame.ButtonCancel:OnMouseEnter()
- -- self:set("borderColor", 0.5, 0.5, 0.5, 1.0);
+ -- self:GetComponent("Border"):set("Color", 0.5, 0.5, 0.5)
 
-    self:interpolate("textColor.r", 0.02, 0.80, 500);
-    self:interpolate("textColor.g", 0.36, 0.00, 500);
-    self:interpolate("textColor.b", 1.00, 0.00, 500);
+    self:GetComponent("Text"):interpolate("Color.r", 0.02, 0.80, 500)
+    self:GetComponent("Text"):interpolate("Color.g", 0.36, 0.00, 500)
+    self:GetComponent("Text"):interpolate("Color.b", 1.00, 0.00, 500)
 end
 
 function JoinGameDialog.Frame.ButtonCancel:OnMouseLeave()
- -- self:set("borderColor", 0.7/2, 0.8/2, 0.9/2, 1.0);
+ -- self:GetComponent("Border"):set("Color", 0.7/2, 0.8/2, 0.9/2)
 
-    self:interpolate("textColor.r", 0.8, 0.02, 750);
-    self:interpolate("textColor.g", 0.0, 0.36, 750);
-    self:interpolate("textColor.b", 0.0, 1.00, 750);
+    self:GetComponent("Text"):interpolate("Color.r", 0.8, 0.02, 750)
+    self:GetComponent("Text"):interpolate("Color.g", 0.0, 0.36, 750)
+    self:GetComponent("Text"):interpolate("Color.b", 0.0, 1.00, 750)
 end
 
 function JoinGameDialog.Frame.ButtonCancel:OnMouseButtonUp()
-    JoinGameDialog:set("show", false);
+    JoinGameDialog:GetBasics():set("Show", false)
     gui:setFocus(NormalControls);
     return true;
 end
@@ -811,7 +814,7 @@ HostGameDialog.Frame.WorldNameChoice:GetComponent("Choice").OnSelectionChanged =
     local WorldName = (self:GetSelItem() or "no-selection"):match("^%s*(.*)%s*$")
 
     -- Set image in world preview window.
-    HostGameDialog.Frame.MapPreview:set("backMaterial", "Games/DeathMatch/Worlds/"..WorldName..".jpg");
+    HostGameDialog.Frame.MapPreview:GetComponent("Image"):set("Material", "Games/DeathMatch/Worlds/" .. WorldName .. ".jpg")
 end
 
 
@@ -820,11 +823,11 @@ HostGameDialog.Frame.ListenSvChoice:GetComponent("Choice").OnSelectionChanged = 
     -- Enable/disable (show/hide) player name and model controls.
     local IsListen = self:GetSelItem() == "yes"
 
-    HostGameDialog.Frame.PlayerNameText:set("show", not IsListen)
-    HostGameDialog.Frame.PlayerNameEdit:set("show", not IsListen)
+    HostGameDialog.Frame.PlayerNameText:GetBasics():set("Show", not IsListen)
+    HostGameDialog.Frame.PlayerNameEdit:GetBasics():set("Show", not IsListen)
 
-    HostGameDialog.Frame.ModelNameText  :set("show", not IsListen)
-    HostGameDialog.Frame.ModelNameChoice:set("show", not IsListen)
+    HostGameDialog.Frame.ModelNameText  :GetBasics():set("Show", not IsListen)
+    HostGameDialog.Frame.ModelNameChoice:GetBasics():set("Show", not IsListen)
 end
 
 
@@ -837,8 +840,8 @@ HostGameDialog.Frame.ModelNameChoice:GetComponent("Choice").OnSelectionChanged =
     local ModelName = (self:GetSelItem() or "no-selection"):match("^%s*(.*)%s*$")
     ModelName = HostGameDialog.Frame.ModelList[ModelName]
 
-    -- HostGameDialog.Frame.ModelPreview:set("textScale", 0.2);
-    -- HostGameDialog.Frame.ModelPreview:set("text", ModelName);
+    -- HostGameDialog.Frame.ModelPreview:GetComponent("Text"):set("Scale", 0.2)
+    -- HostGameDialog.Frame.ModelPreview:GetComponent("Text"):set("Text", ModelName)
     local ModelComp = HostGameDialog.Frame.ModelPreview:GetComponent("Model")
 
     -- Set model in model preview window.
@@ -861,13 +864,13 @@ end
 
 
 function HostGameDialog.Frame.ButtonOK:OnMouseEnter()
-    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
-    self:interpolate("textScale", 0.4, 0.45, 500);
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Text"):interpolate("Scale", 0.4, 0.45, 500)
 end
 
 function HostGameDialog.Frame.ButtonOK:OnMouseLeave()
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
-    self:interpolate("textScale", 0.45, 0.4, 500);
+    self:GetComponent("Border"):set("Color", 0.7, 0.8, 0.9)
+    self:GetComponent("Text"):interpolate("Scale", 0.45, 0.4, 500)
 end
 
 -- This is analogous to the StartNewGame thread function, see there for more details.
@@ -883,8 +886,8 @@ function StartNewServer(WorldName, IsListen)
     ci.RunCommand("changeLevel('"..WorldName.."');");
 
     -- Undo showing the "Initializing Server..." and hiding the Host Game dialog.
-    HostGameDialog:set("show", true);
-    InitServerInfoPanel:set("show", false);
+    HostGameDialog:GetBasics():set("Show", true)
+    InitServerInfoPanel:GetBasics():set("Show", false)
 
     if (MainMenu.ServerState~="maploaded") then return; end  -- TODO: Output error message!
 
@@ -894,13 +897,13 @@ function StartNewServer(WorldName, IsListen)
         ci.RunCommand("connect('localhost', "..ci.GetValue("dlg_svPortNr")..");");  -- How do and can we deal with failure here??
     end
 
-    HostGameDialog:set("show", false);
+    HostGameDialog:GetBasics():set("Show", false)
     gui:setFocus(NormalControls);
 end
 
 function HostGameDialog.Frame.ButtonOK:OnMouseButtonUp()
     -- Remove leading or trailing whitespace (but leave file names with spaces intact).
-    local WorldName = (HostGameDialog.Frame.WorldNameChoice:GetSelItem() or "no-selection"):match("^%s*(.*)%s*$")
+    local WorldName = (HostGameDialog.Frame.WorldNameChoice:GetComponent("Choice"):GetSelItem() or "no-selection"):match("^%s*(.*)%s*$")
 
     -- Copy the contents of the edit fields back into the related convars.
     ci.SetValue("dlg_svWorldName",  WorldName);     -- TODO: Do we really need the dlg_svWorldName convar after all??
@@ -912,8 +915,8 @@ function HostGameDialog.Frame.ButtonOK:OnMouseButtonUp()
     -- Start the server, then optionally (if listen server) the client.
     if (MainMenu.ServerState~="idle") then return true; end       -- TODO: Output error message!
 
-    HostGameDialog:set("show", false);
-    InitServerInfoPanel:set("show", true);
+    HostGameDialog:GetBasics():set("Show", false)
+    InitServerInfoPanel:GetBasics():set("Show", true)
     thread(StartNewServer, WorldName, HostGameDialog.Frame.ListenSvChoice:GetComponent("Choice"):get("Selection") == 2)   -- "no" is at position 1, "yes" is at position 2.
     return true;
 end
@@ -921,23 +924,23 @@ end
 
 
 function HostGameDialog.Frame.ButtonCancel:OnMouseEnter()
- -- self:set("borderColor", 0.5, 0.5, 0.5, 1.0);
+ -- self:GetComponent("Border"):set("Color", 0.5, 0.5, 0.5)
 
-    self:interpolate("textColor.r", 0.02, 0.80, 500);
-    self:interpolate("textColor.g", 0.36, 0.00, 500);
-    self:interpolate("textColor.b", 1.00, 0.00, 500);
+    self:GetComponent("Text"):interpolate("Color.r", 0.02, 0.80, 500)
+    self:GetComponent("Text"):interpolate("Color.g", 0.36, 0.00, 500)
+    self:GetComponent("Text"):interpolate("Color.b", 1.00, 0.00, 500)
 end
 
 function HostGameDialog.Frame.ButtonCancel:OnMouseLeave()
- -- self:set("borderColor", 0.7/2, 0.8/2, 0.9/2, 1.0);
+ -- self:GetComponent("Border"):set("Color", 0.7/2, 0.8/2, 0.9/2)
 
-    self:interpolate("textColor.r", 0.8, 0.02, 750);
-    self:interpolate("textColor.g", 0.0, 0.36, 750);
-    self:interpolate("textColor.b", 0.0, 1.00, 750);
+    self:GetComponent("Text"):interpolate("Color.r", 0.8, 0.02, 750)
+    self:GetComponent("Text"):interpolate("Color.g", 0.0, 0.36, 750)
+    self:GetComponent("Text"):interpolate("Color.b", 0.0, 1.00, 750)
 end
 
 function HostGameDialog.Frame.ButtonCancel:OnMouseButtonUp()
-    HostGameDialog:set("show", false);
+    HostGameDialog:GetBasics():set("Show", false)
     gui:setFocus(NormalControls);
     return true;
 end
@@ -959,19 +962,19 @@ end
 
 
 function InputOptionsDialog.Frame.ButtonOK:OnMouseEnter()
-    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
-    self:interpolate("textScale", 0.4, 0.45, 500);
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Text"):interpolate("Scale", 0.4, 0.45, 500)
 end
 
 function InputOptionsDialog.Frame.ButtonOK:OnMouseLeave()
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
-    self:interpolate("textScale", 0.45, 0.4, 500);
+    self:GetComponent("Border"):set("Color", 0.7, 0.8, 0.9)
+    self:GetComponent("Text"):interpolate("Scale", 0.45, 0.4, 500)
 end
 
 function InputOptionsDialog.Frame.ButtonOK:OnMouseButtonUp()
     ci.SetValue("mouseRevY", InputOptionsDialog.Frame.ReverseMouseYAxisChoice:GetComponent("Choice"):get("Selection") == 2)
 
-    InputOptionsDialog:set("show", false);
+    InputOptionsDialog:GetBasics():set("Show", false)
     gui:setFocus(NormalControls);
     return true;
 end
@@ -979,23 +982,23 @@ end
 
 
 function InputOptionsDialog.Frame.ButtonCancel:OnMouseEnter()
- -- self:set("borderColor", 0.5, 0.5, 0.5, 1.0);
+ -- self:GetComponent("Border"):set("Color", 0.5, 0.5, 0.5)
 
-    self:interpolate("textColor.r", 0.02, 0.80, 500);
-    self:interpolate("textColor.g", 0.36, 0.00, 500);
-    self:interpolate("textColor.b", 1.00, 0.00, 500);
+    self:GetComponent("Text"):interpolate("Color.r", 0.02, 0.80, 500)
+    self:GetComponent("Text"):interpolate("Color.g", 0.36, 0.00, 500)
+    self:GetComponent("Text"):interpolate("Color.b", 1.00, 0.00, 500)
 end
 
 function InputOptionsDialog.Frame.ButtonCancel:OnMouseLeave()
- -- self:set("borderColor", 0.7/2, 0.8/2, 0.9/2, 1.0);
+ -- self:GetComponent("Border"):set("Color", 0.7/2, 0.8/2, 0.9/2)
 
-    self:interpolate("textColor.r", 0.8, 0.02, 750);
-    self:interpolate("textColor.g", 0.0, 0.36, 750);
-    self:interpolate("textColor.b", 0.0, 1.00, 750);
+    self:GetComponent("Text"):interpolate("Color.r", 0.8, 0.02, 750)
+    self:GetComponent("Text"):interpolate("Color.g", 0.0, 0.36, 750)
+    self:GetComponent("Text"):interpolate("Color.b", 0.0, 1.00, 750)
 end
 
 function InputOptionsDialog.Frame.ButtonCancel:OnMouseButtonUp()
-    InputOptionsDialog:set("show", false);
+    InputOptionsDialog:GetBasics():set("Show", false)
     gui:setFocus(NormalControls);
     return true;
 end
@@ -1024,8 +1027,8 @@ PlayerOptionsDialog.Frame.ModelNameChoice:GetComponent("Choice").OnSelectionChan
     local ModelName = (self:GetSelItem() or "no-selection"):match("^%s*(.*)%s*$")
     ModelName = PlayerOptionsDialog.Frame.ModelList[ModelName]
 
-    -- PlayerOptionsDialog.Frame.ModelPreview:set("textScale", 0.2);
-    -- PlayerOptionsDialog.Frame.ModelPreview:set("text", ModelName);
+    -- PlayerOptionsDialog.Frame.ModelPreview:GetComponent("Text"):set("Scale", 0.2)
+    -- PlayerOptionsDialog.Frame.ModelPreview:GetComponent("Text"):set("Text", ModelName)
     local ModelComp = PlayerOptionsDialog.Frame.ModelPreview:GetComponent("Model")
 
     -- Set model in model preview window.
@@ -1048,20 +1051,20 @@ end
 
 
 function PlayerOptionsDialog.Frame.ButtonOK:OnMouseEnter()
-    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
-    self:interpolate("textScale", 0.4, 0.45, 500);
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Text"):interpolate("Scale", 0.4, 0.45, 500)
 end
 
 function PlayerOptionsDialog.Frame.ButtonOK:OnMouseLeave()
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
-    self:interpolate("textScale", 0.45, 0.4, 500);
+    self:GetComponent("Border"):set("Color", 0.7, 0.8, 0.9)
+    self:GetComponent("Text"):interpolate("Scale", 0.45, 0.4, 500)
 end
 
 function PlayerOptionsDialog.Frame.ButtonOK:OnMouseButtonUp()
     ci.SetValue("dlg_dmPlayerName", PlayerOptionsDialog.Frame.PlayerNameEdit:GetComponent("Text"):get("Text"))
     ci.SetValue("dlg_dmModelName",  PlayerOptionsDialog.Frame.ModelNameChoice:GetComponent("Text"):get("Text"):match("^%s*(.*)%s*$"))   -- Remove leading or trailing whitespace (but leave file names with spaces intact).
 
-    PlayerOptionsDialog:set("show", false);
+    PlayerOptionsDialog:GetBasics():set("Show", false)
     gui:setFocus(NormalControls);
     return true;
 end
@@ -1069,23 +1072,23 @@ end
 
 
 function PlayerOptionsDialog.Frame.ButtonCancel:OnMouseEnter()
- -- self:set("borderColor", 0.5, 0.5, 0.5, 1.0);
+ -- self:GetComponent("Border"):set("Color", 0.5, 0.5, 0.5)
 
-    self:interpolate("textColor.r", 0.02, 0.80, 500);
-    self:interpolate("textColor.g", 0.36, 0.00, 500);
-    self:interpolate("textColor.b", 1.00, 0.00, 500);
+    self:GetComponent("Text"):interpolate("Color.r", 0.02, 0.80, 500)
+    self:GetComponent("Text"):interpolate("Color.g", 0.36, 0.00, 500)
+    self:GetComponent("Text"):interpolate("Color.b", 1.00, 0.00, 500)
 end
 
 function PlayerOptionsDialog.Frame.ButtonCancel:OnMouseLeave()
- -- self:set("borderColor", 0.7/2, 0.8/2, 0.9/2, 1.0);
+ -- self:GetComponent("Border"):set("Color", 0.7/2, 0.8/2, 0.9/2)
 
-    self:interpolate("textColor.r", 0.8, 0.02, 750);
-    self:interpolate("textColor.g", 0.0, 0.36, 750);
-    self:interpolate("textColor.b", 0.0, 1.00, 750);
+    self:GetComponent("Text"):interpolate("Color.r", 0.8, 0.02, 750)
+    self:GetComponent("Text"):interpolate("Color.g", 0.0, 0.36, 750)
+    self:GetComponent("Text"):interpolate("Color.b", 0.0, 1.00, 750)
 end
 
 function PlayerOptionsDialog.Frame.ButtonCancel:OnMouseButtonUp()
-    PlayerOptionsDialog:set("show", false);
+    PlayerOptionsDialog:GetBasics():set("Show", false)
     gui:setFocus(NormalControls);
     return true;
 end
@@ -1135,17 +1138,17 @@ end
 
 
 function VideoOptionsDialog.Frame.ButtonOK:OnMouseEnter()
-    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
-    self:interpolate("textScale", 0.4, 0.45, 500);
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Text"):interpolate("Scale", 0.4, 0.45, 500)
 end
 
 function VideoOptionsDialog.Frame.ButtonOK:OnMouseLeave()
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
-    self:interpolate("textScale", 0.45, 0.4, 500);
+    self:GetComponent("Border"):set("Color", 0.7, 0.8, 0.9)
+    self:GetComponent("Text"):interpolate("Scale", 0.45, 0.4, 500)
 end
 
 function VideoOptionsDialog.Frame.ButtonOK:OnMouseButtonUp()
-    local ModeStr = VideoOptionsDialog.Frame.ScreenResChoice:GetSelItem()
+    local ModeStr = VideoOptionsDialog.Frame.ScreenResChoice:GetComponent("Choice"):GetSelItem()
 
     local width, height, bpp, rate=ParseModeStr(ModeStr);
 
@@ -1157,7 +1160,7 @@ function VideoOptionsDialog.Frame.ButtonOK:OnMouseButtonUp()
     ci.SetValue("dlg_clFullScreen",    VideoOptionsDialog.Frame.FullScreenChoice:GetComponent("Choice"):get("Selection") == 1)
     ci.SetValue("dlg_clTextureDetail", VideoOptionsDialog.Frame.TextureDetailChoice:GetComponent("Choice"):get("Selection") - 1)
 
-    VideoOptionsDialog:set("show", false);
+    VideoOptionsDialog:GetBasics():set("Show", false)
     gui:setFocus(NormalControls);
     return true;
 end
@@ -1165,23 +1168,23 @@ end
 
 
 function VideoOptionsDialog.Frame.ButtonCancel:OnMouseEnter()
- -- self:set("borderColor", 0.5, 0.5, 0.5, 1.0);
+ -- self:GetComponent("Border"):set("Color", 0.5, 0.5, 0.5)
 
-    self:interpolate("textColor.r", 0.02, 0.80, 500);
-    self:interpolate("textColor.g", 0.36, 0.00, 500);
-    self:interpolate("textColor.b", 1.00, 0.00, 500);
+    self:GetComponent("Text"):interpolate("Color.r", 0.02, 0.80, 500)
+    self:GetComponent("Text"):interpolate("Color.g", 0.36, 0.00, 500)
+    self:GetComponent("Text"):interpolate("Color.b", 1.00, 0.00, 500)
 end
 
 function VideoOptionsDialog.Frame.ButtonCancel:OnMouseLeave()
- -- self:set("borderColor", 0.7/2, 0.8/2, 0.9/2, 1.0);
+ -- self:GetComponent("Border"):set("Color", 0.7/2, 0.8/2, 0.9/2)
 
-    self:interpolate("textColor.r", 0.8, 0.02, 750);
-    self:interpolate("textColor.g", 0.0, 0.36, 750);
-    self:interpolate("textColor.b", 0.0, 1.00, 750);
+    self:GetComponent("Text"):interpolate("Color.r", 0.8, 0.02, 750)
+    self:GetComponent("Text"):interpolate("Color.g", 0.0, 0.36, 750)
+    self:GetComponent("Text"):interpolate("Color.b", 0.0, 1.00, 750)
 end
 
 function VideoOptionsDialog.Frame.ButtonCancel:OnMouseButtonUp()
-    VideoOptionsDialog:set("show", false);
+    VideoOptionsDialog:GetBasics():set("Show", false)
     gui:setFocus(NormalControls);
     return true;
 end
@@ -1214,19 +1217,19 @@ end
 
 
 function AudioOptionsDialog.Frame.ButtonOK:OnMouseEnter()
-    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
-    self:interpolate("textScale", 0.4, 0.45, 500);
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Text"):interpolate("Scale", 0.4, 0.45, 500)
 end
 
 function AudioOptionsDialog.Frame.ButtonOK:OnMouseLeave()
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
-    self:interpolate("textScale", 0.45, 0.4, 500);
+    self:GetComponent("Border"):set("Color", 0.7, 0.8, 0.9)
+    self:GetComponent("Text"):interpolate("Scale", 0.45, 0.4, 500)
 end
 
 function AudioOptionsDialog.Frame.ButtonOK:OnMouseButtonUp()
     -- Contrary to most other options, the volume is not finally copied into the convar here,
     -- but directly in the related OnSelectionChanged() method above.
-    AudioOptionsDialog:set("show", false);
+    AudioOptionsDialog:GetBasics():set("Show", false)
     gui:setFocus(NormalControls);
     return true;
 end
@@ -1234,23 +1237,23 @@ end
 
 
 function AudioOptionsDialog.Frame.ButtonCancel:OnMouseEnter()
- -- self:set("borderColor", 0.5, 0.5, 0.5, 1.0);
+ -- self:GetComponent("Border"):set("Color", 0.5, 0.5, 0.5)
 
-    self:interpolate("textColor.r", 0.02, 0.80, 500);
-    self:interpolate("textColor.g", 0.36, 0.00, 500);
-    self:interpolate("textColor.b", 1.00, 0.00, 500);
+    self:GetComponent("Text"):interpolate("Color.r", 0.02, 0.80, 500)
+    self:GetComponent("Text"):interpolate("Color.g", 0.36, 0.00, 500)
+    self:GetComponent("Text"):interpolate("Color.b", 1.00, 0.00, 500)
 end
 
 function AudioOptionsDialog.Frame.ButtonCancel:OnMouseLeave()
- -- self:set("borderColor", 0.7/2, 0.8/2, 0.9/2, 1.0);
+ -- self:GetComponent("Border"):set("Color", 0.7/2, 0.8/2, 0.9/2)
 
-    self:interpolate("textColor.r", 0.8, 0.02, 750);
-    self:interpolate("textColor.g", 0.0, 0.36, 750);
-    self:interpolate("textColor.b", 0.0, 1.00, 750);
+    self:GetComponent("Text"):interpolate("Color.r", 0.8, 0.02, 750)
+    self:GetComponent("Text"):interpolate("Color.g", 0.0, 0.36, 750)
+    self:GetComponent("Text"):interpolate("Color.b", 0.0, 1.00, 750)
 end
 
 function AudioOptionsDialog.Frame.ButtonCancel:OnMouseButtonUp()
-    AudioOptionsDialog:set("show", false);
+    AudioOptionsDialog:GetBasics():set("Show", false)
     gui:setFocus(NormalControls);
     return true;
 end
@@ -1272,24 +1275,24 @@ end
 
 
 function CreditsDialog.Frame.CopyrightText:OnInit2()
-    self:set("text", "Copyright © 2002-" .. os.date("%Y") .. " Carsten Fuchs Software.\nhttp://www.cafu.de");
+    self:GetComponent("Text"):set("Text", "Copyright © 2002-" .. os.date("%Y") .. " Carsten Fuchs Software.\nhttp://www.cafu.de")
 end
 
 
 
 function CreditsDialog.Frame.ButtonOK:OnMouseEnter()
-    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
-    self:interpolate("textScale", 0.4, 0.45, 500);
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Text"):interpolate("Scale", 0.4, 0.45, 500)
 end
 
 function CreditsDialog.Frame.ButtonOK:OnMouseLeave()
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
-    self:interpolate("textScale", 0.45, 0.4, 500);
+    self:GetComponent("Border"):set("Color", 0.7, 0.8, 0.9)
+    self:GetComponent("Text"):interpolate("Scale", 0.45, 0.4, 500)
 end
 
 function CreditsDialog.Frame.ButtonOK:OnMouseButtonUp()
-    NormalControls:set("show", true);
-    CreditsDialog:set("show", false);
+    NormalControls:GetBasics():set("Show", true)
+    CreditsDialog:GetBasics():set("Show", false)
     gui:setFocus(NormalControls);
     return true;
 end
@@ -1297,24 +1300,24 @@ end
 
 
 function CreditsDialog.Frame.ButtonCancel:OnMouseEnter()
- -- self:set("borderColor", 0.5, 0.5, 0.5, 1.0);
+ -- self:GetComponent("Border"):set("Color", 0.5, 0.5, 0.5)
 
-    self:interpolate("textColor.r", 0.02, 0.80, 500);
-    self:interpolate("textColor.g", 0.36, 0.00, 500);
-    self:interpolate("textColor.b", 1.00, 0.00, 500);
+    self:GetComponent("Text"):interpolate("Color.r", 0.02, 0.80, 500)
+    self:GetComponent("Text"):interpolate("Color.g", 0.36, 0.00, 500)
+    self:GetComponent("Text"):interpolate("Color.b", 1.00, 0.00, 500)
 end
 
 function CreditsDialog.Frame.ButtonCancel:OnMouseLeave()
- -- self:set("borderColor", 0.7/2, 0.8/2, 0.9/2, 1.0);
+ -- self:GetComponent("Border"):set("Color", 0.7/2, 0.8/2, 0.9/2)
 
-    self:interpolate("textColor.r", 0.8, 0.02, 750);
-    self:interpolate("textColor.g", 0.0, 0.36, 750);
-    self:interpolate("textColor.b", 0.0, 1.00, 750);
+    self:GetComponent("Text"):interpolate("Color.r", 0.8, 0.02, 750)
+    self:GetComponent("Text"):interpolate("Color.g", 0.0, 0.36, 750)
+    self:GetComponent("Text"):interpolate("Color.b", 0.0, 1.00, 750)
 end
 
 function CreditsDialog.Frame.ButtonCancel:OnMouseButtonUp()
-    NormalControls:set("show", true);
-    CreditsDialog:set("show", false);
+    NormalControls:GetBasics():set("Show", true)
+    CreditsDialog:GetBasics():set("Show", false)
     gui:setFocus(NormalControls);
     return true;
 end
@@ -1322,9 +1325,11 @@ end
 
 
 function ReallyQuitDialog:OnFrame()
-    if (ReallyQuitDialog.QuitHeadline:get("pos.y")<11.0) then
+    local PosX, PosY = ReallyQuitDialog.QuitHeadline:GetTransform():get("Pos")
+
+    if (PosY < 11.0) then
         -- Only do this while the QuitHeadline is still in its place (i.e. the final shutdown sequence has not begun).
-        self:set("backColor.r", 0.05+0.05*math.sin(self:get("time")));
+        self:GetComponent("Image"):set("Color", 0.05 + 0.05*math.sin(self:GetTime()), 0, 0)
     end
 end
 
@@ -1343,23 +1348,23 @@ end
 
 
 function ReallyQuitDialog.QuitHeadline:OnMouseEnter()
-    self:interpolate("textScale", 0.8, 0.85, 500);
+    self:GetComponent("Text"):interpolate("Scale", 0.8, 0.85, 500)
 end
 
 function ReallyQuitDialog.QuitHeadline:OnMouseLeave()
-    self:interpolate("textScale", 0.85, 0.8, 500);
+    self:GetComponent("Text"):interpolate("Scale", 0.85, 0.8, 500)
 end
 
 
 
 function ReallyQuitDialog.ReallyQuit.ButtonYes:OnMouseEnter()
-    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
-    self:interpolate("textScale", 0.4, 0.45, 500);
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Text"):interpolate("Scale", 0.4, 0.45, 500)
 end
 
 function ReallyQuitDialog.ReallyQuit.ButtonYes:OnMouseLeave()
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
-    self:interpolate("textScale", 0.45, 0.4, 500);
+    self:GetComponent("Border"):set("Color", 0.7, 0.8, 0.9)
+    self:GetComponent("Text"):interpolate("Scale", 0.45, 0.4, 500)
 end
 
 function ReallyQuitDialog.ReallyQuit.ButtonYes:OnMouseButtonUp()
@@ -1368,14 +1373,18 @@ function ReallyQuitDialog.ReallyQuit.ButtonYes:OnMouseButtonUp()
     self.IsShuttingDown=true;
 
     -- Add a nice shutdown effect.
-    gui:showMouse(false);
-    ReallyQuitDialog:interpolate("backColor.a", 0.7, 1.0, 700);
-    ReallyQuitDialog:interpolate("backColor.r", ReallyQuitDialog:get("backColor.r"), 0.0, 700);
-    ReallyQuitDialog.ReallyQuit:interpolate("rotAngle", 0, 70, 700);
-    ReallyQuitDialog.ReallyQuit:interpolate("pos.y",  90, 600, 700);
+    local BackImg = ReallyQuitDialog:GetComponent("Image")
+    local bi_r, bi_g, bi_b = BackImg:get("Color")
 
-    ReallyQuitDialog.QuitHeadline:interpolate("pos.y", 10, 220, 700);
-    ReallyQuitDialog.QuitHeadline:interpolate("backColor.a", 0.5, 0, 700);
+    gui:showMouse(false);
+    BackImg:interpolate("Alpha", 0.7, 1.0, 700)
+    BackImg:interpolate("Color.r", bi_r, 0.0, 700)
+
+    ReallyQuitDialog.ReallyQuit:GetTransform():interpolate("Rotation", 0, 70, 700)
+    ReallyQuitDialog.ReallyQuit:GetTransform():interpolate("Pos.y",  90, 600, 700)
+
+    ReallyQuitDialog.QuitHeadline:GetTransform():interpolate("Pos.y", 10, 220, 700)
+    ReallyQuitDialog.QuitHeadline:GetComponent("Image"):interpolate("Alpha", 0.5, 0, 700)
 
     wait(0.7+0.25);
     ci.RunCommand("quit=true;");
@@ -1385,18 +1394,18 @@ end
 
 
 function ReallyQuitDialog.ReallyQuit.ButtonNo:OnMouseEnter()
-    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
-    self:interpolate("textScale", 0.4, 0.45, 500);
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Text"):interpolate("Scale", 0.4, 0.45, 500)
 end
 
 function ReallyQuitDialog.ReallyQuit.ButtonNo:OnMouseLeave()
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
-    self:interpolate("textScale", 0.45, 0.4, 500);
+    self:GetComponent("Border"):set("Color", 0.7, 0.8, 0.9)
+    self:GetComponent("Text"):interpolate("Scale", 0.45, 0.4, 500)
 end
 
 function ReallyQuitDialog.ReallyQuit.ButtonNo:OnMouseButtonUp()
-    NormalControls:set("show", true);
-    ReallyQuitDialog:set("show", false);
+    NormalControls:GetBasics():set("Show", true)
+    ReallyQuitDialog:GetBasics():set("Show", false)
 
     gui:setFocus(NormalControls);
  -- gui:setFocus(xyz);    -- This would probably be better placed in a "NormalControls:OnShow()" method!

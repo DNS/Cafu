@@ -2,5 +2,5 @@ dofile("Games/DeathMatch/GUIs/TechDemo/gui3_init.cgui");
 
 
 function EngineLogo:OnFrame()
-    self:set("rotAngle", self:get("time")*50);
+    self:GetTransform():set("Rotation", self:GetTime() * 50)
 end

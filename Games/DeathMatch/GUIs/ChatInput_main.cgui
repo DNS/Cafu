@@ -59,13 +59,13 @@ end
 
 
 function ChatInputFrame.ButtonCancel:OnMouseEnter()
-    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
-    self:interpolate("textScale", 0.25, 0.3, 500);
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Text"):interpolate("Scale", 0.25, 0.3, 500)
 end
 
 function ChatInputFrame.ButtonCancel:OnMouseLeave()
-    self:set("borderColor", 0.7, 0.8, 0.9, 1.0);
-    self:interpolate("textScale", 0.3, 0.25, 500);
+    self:GetComponent("Border"):set("Color", 0.7, 0.8, 0.9)
+    self:GetComponent("Text"):interpolate("Scale", 0.3, 0.25, 500)
 end
 
 function ChatInputFrame.ButtonCancel:OnMouseButtonUp()

@@ -2,54 +2,56 @@ dofile("Games/DeathMatch/GUIs/Test_init.cgui");
 
 
 function SomeImage:OnFrame()
-    self:set("rotAngle", self:get("time")*50);
+    self:GetTransform():set("Rotation", self:GetTime() * 50)
 end
 
 
 
 function ButtonToggleHor:OnMouseButtonDown()
-    local newAlign=TestGUI:get("textAlignHor")+1;
-    if (newAlign>2) then newAlign=0; end
+    local newAlign = TestGUI:GetComponent("Text"):get("hor. Align") + 1
 
-    TestGUI:set("textAlignHor", newAlign);
-    self:set("textAlignHor", newAlign);
+    if (newAlign > 1) then newAlign = -1 end
 
-    self:interpolate("rotAngle", 0, 360, 250);
+    TestGUI:GetComponent("Text"):set("hor. Align", newAlign)
+    self:GetComponent("Text"):set("hor. Align", newAlign)
+
+    self:GetTransform():interpolate("Rotation", 0, 360, 250)
     return true;
 end
 
 
 
 function ButtonToggleVer:OnMouseButtonDown()
-    local newAlign=TestGUI:get("textAlignVer")+1;
-    if (newAlign>2) then newAlign=0; end
+    local newAlign=TestGUI:GetComponent("Text"):get("ver. Align") + 1
 
-    TestGUI:set("textAlignVer", newAlign);
-    ButtonQuit:set("textAlignVer", newAlign);
-    self:set("textAlignVer", newAlign);
+    if (newAlign > 1) then newAlign = -1 end
 
-    self:interpolate("pos.y", 380, 300, 500);
-    self:interpolate("pos.y", 300, 380, 500);
+    TestGUI:GetComponent("Text"):set("ver. Align", newAlign)
+    ButtonQuit:GetComponent("Text"):set("ver. Align", newAlign)
+    self:GetComponent("Text"):set("ver. Align", newAlign)
+
+    self:GetTransform():interpolate("Pos.y", 380, 300, 500)
+    self:GetTransform():interpolate("Pos.y", 300, 380, 500)
     return true;
 end
 
 
 
 function ButtonQuit:OnMouseEnter()
-    self:set("textScale", 0.55);
-    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
+    self:GetComponent("Text"):set("Scale", 0.55)
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
 end
 
 function ButtonQuit:OnMouseLeave()
-    self:set("textScale", 1.0);
-    self:set("borderColor", 1.0, 1.0, 1.0, 1.0);
+    self:GetComponent("Text"):set("Scale", 1.0)
+    self:GetComponent("Border"):set("Color", 1.0, 1.0, 1.0)
 end
 
 function ButtonQuit:OnMouseButtonDown()
     -- Add a nice shutdown effect.
-    TestGUI:set("rotAngle", -10);
-    TestGUI:interpolate("pos.y", 30, 30, 300);
-    TestGUI:interpolate("pos.y", 30, 610, 700);
+    TestGUI:GetTransform():set("Rotation", -10)
+    TestGUI:GetTransform():interpolate("Pos.y", 30, 30, 300)
+    TestGUI:GetTransform():interpolate("Pos.y", 30, 610, 700)
 
     -- Now somehow quit the game.
     ci.RunCommand("list();");
@@ -61,13 +63,13 @@ end
 Counter.count=0;
 
 function Counter:OnMouseEnter()
-    self:interpolate("textScale", 0.6, 0.7, 250);
-    self:interpolate("textScale", 0.7, 0.6, 250);
+    self:GetComponent("Text"):interpolate("Scale", 0.6, 0.7, 250)
+    self:GetComponent("Text"):interpolate("Scale", 0.7, 0.6, 250)
 end
 
 function Counter:OnMouseButtonDown()
     self.count=self.count+1;
-    self:set("text", "Counter\n" .. self.count);
+    self:GetComponent("Text"):set("Text", "Counter\n" .. self.count)
 
     -- IMPORTANT INFORMATION:
     --
@@ -92,16 +94,17 @@ end
 
 
 
-FPS.oldTime=FPS:get("time");
+FPS.oldTime = FPS:GetTime()
 
 function FPS:OnFrame()
-    local newTime=FPS:get("time");
-    local deltaTime=newTime-self.oldTime;
+    local newTime   = FPS:GetTime()
+    local deltaTime = newTime - self.oldTime
+    local TextComp  = self:GetComponent("Text")
 
     if (deltaTime<0.000000001) then
-        self:set("text", string.format(" FPS\n INF\n (%.4f sec)", deltaTime));
+        TextComp:set("Text", string.format(" FPS\n INF\n (%.4f sec)", deltaTime))
     else
-        self:set("text", string.format(" FPS\n %.2f\n (%.4f sec)", 1/deltaTime, deltaTime));
+        TextComp:set("Text", string.format(" FPS\n %.2f\n (%.4f sec)", 1/deltaTime, deltaTime))
     end
 
     FPS.oldTime=newTime;

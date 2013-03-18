@@ -28,7 +28,7 @@ Gui/CrossHair1
 {
     diffusemap ../Textures/Sprites/crosshair1.tga
 
-    // With this we can use e.g.   self:set("backColor", 1.0, 1.0, 0.0, 1.0);   in the Gui scripts to tint the crosshair.
+    // With this we can use e.g.   self:GetComponent("Image"):set("Color", 1.0, 1.0, 0.0)   in the Gui scripts to tint the crosshair.
     // ARGH!! Unfortunately, it isn't implemented in most shaders yet, so it currently doesn't work.
     // See http://www.cafu.de/wiki/doku.php?id=matsys:cmat_manual:keywordreference for details.
     // Work-around: Tint the crosshair here, in the cmat script, using red, green, blue, etc.
@@ -46,7 +46,7 @@ Gui/CrossHair2
 {
     diffusemap ../Textures/Sprites/crosshair2.tga
 
-    // With this we can use e.g.   self:set("backColor", 1.0, 1.0, 0.0, 1.0);   in the Gui scripts to tint the crosshair.
+    // With this we can use e.g.   self:GetComponent("Image"):set("Color", 1.0, 1.0, 0.0)   in the Gui scripts to tint the crosshair.
     // ARGH!! Unfortunately, it isn't implemented in most shaders yet, so it currently doesn't work.
     // See http://www.cafu.de/wiki/doku.php?id=matsys:cmat_manual:keywordreference for details.
     // Work-around: Tint the crosshair here, in the cmat script, using red, green, blue, etc.
