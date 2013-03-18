@@ -237,6 +237,18 @@ IntrusivePtrT<WindowT> WindowT::GetRoot()
 
 IntrusivePtrT<ComponentBaseT> WindowT::GetComponent(const std::string& TypeName, unsigned int n) const
 {
+    if (TypeName == "Basics")
+    {
+        if (n == 0) return m_Basics;
+        n--;
+    }
+
+    if (TypeName == "Transform")
+    {
+        if (n == 0) return m_Transform;
+        n--;
+    }
+
     for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
         if (m_Components[CompNr]->GetName() == TypeName)
         {
@@ -415,7 +427,10 @@ void WindowT::Render() const
 
 bool WindowT::OnInputEvent(const CaKeyboardEventT& KE)
 {
-    // Forward the event to the components.
+    // m_Basics->OnInputEvent(KE);
+    // m_Transform->OnInputEvent(KE);
+
+    // Forward the event to the "custom" components.
     for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
         if (m_Components[CompNr]->OnInputEvent(KE))
             return true;
@@ -438,7 +453,10 @@ bool WindowT::OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY)
     if (Parent==NULL) return false;
     return Parent->OnInputEvent(ME, PosX, PosY);
 #else
-    // Forward the event to the components.
+    // m_Basics->OnInputEvent(ME, PosX, PosY);
+    // m_Transform->OnInputEvent(ME, PosX, PosY);
+
+    // Forward the event to the "custom" components.
     for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
         if (m_Components[CompNr]->OnInputEvent(ME, PosX, PosY))
             return true;
@@ -452,7 +470,11 @@ bool WindowT::OnClockTickEvent(float t)
 {
     m_Time += t;
 
-    // Forward the event to the components.
+    // Forward the event to the "fixed" components (or else they cannot interpolate).
+    m_Basics->OnClockTickEvent(t);
+    m_Transform->OnClockTickEvent(t);
+
+    // Forward the event to the "custom" components.
     for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
         m_Components[CompNr]->OnClockTickEvent(t);
 

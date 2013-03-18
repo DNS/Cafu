@@ -133,6 +133,58 @@ void ComponentBaseT::OnClockTickEvent(float t)
 }
 
 
+namespace
+{
+    // Returns the variable matching VarName, and a Suffix that indicates whether the whole variable or only a part of it was meant.
+    void DetermineVar(const char* VarName, const cf::TypeSys::VarManT& MemberVars, cf::TypeSys::VarBaseT*& Var, unsigned int& Suffix)
+    {
+        Var    = MemberVars.Find(VarName);
+        Suffix = UINT_MAX;
+
+        // Success: VarName was immediately found, so it did not contain a suffix.
+        if (Var) return;
+
+        const size_t len = strlen(VarName);
+        size_t i;
+
+        for (i = len; i > 0; i--)
+            if (VarName[i - 1] == '.')
+                break;
+
+        // No '.' found in VarName, so there is nothing we can do but return with Var == NULL.
+        if (i == 0) return;
+
+        // If '.' is the last character in VarName, there cannot be a suffix, so return with Var == NULL.
+        if (i == len) return;
+
+        i--;    // Adjust i to the position of the dot.
+
+        // The portion before the '.' can be at most 15 characters, so return with Var == NULL if it has 16 or more.
+        if (i >= 16) return;
+
+        char TempName[16];
+        strncpy(TempName, VarName, i);
+        TempName[i] = 0;
+
+        Var = MemberVars.Find(TempName);
+
+        // Could not find the variable even with the suffix stripped from its name, so return with Var == NULL.
+        if (!Var) return;
+
+        const char Sfx = VarName[i + 1];
+
+             if (Sfx == 'x' || Sfx == 'r') Suffix = 0;
+        else if (Sfx == 'y' || Sfx == 'g') Suffix = 1;
+        else if (Sfx == 'z' || Sfx == 'b') Suffix = 2;
+        else
+        {
+            // There is most likely something wrong if we get here, but alas, let it be.
+            Suffix = 0;
+        }
+    }
+}
+
+
 int ComponentBaseT::Get(lua_State* LuaState)
 {
     ScriptBinderT                 Binder(LuaState);
@@ -180,36 +232,15 @@ int ComponentBaseT::GetExtraMessage(lua_State* LuaState)
 }
 
 
-namespace
-{
-    unsigned int GetSuffix(lua_State* LuaState)
-    {
-        if (lua_gettop(LuaState) == 5)      // No suffix specified at all.
-            return 0;
-
-        if (lua_type(LuaState, 3) == LUA_TNUMBER)
-            return lua_tointeger(LuaState, 3);
-
-        const char* Suffix = lua_tostring(LuaState, 3);
-
-        if (!Suffix) return 0;
-
-        if (Suffix[0] == 'x' || Suffix[0] == 'r') return 0;
-        if (Suffix[0] == 'y' || Suffix[0] == 'g') return 1;
-        if (Suffix[0] == 'z' || Suffix[0] == 'b') return 2;
-
-        return 0;
-    }
-}
-
-
 int ComponentBaseT::Interpolate(lua_State* LuaState)
 {
     ScriptBinderT                 Binder(LuaState);
     IntrusivePtrT<ComponentBaseT> Comp    = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(1);
     const char*                   VarName = luaL_checkstring(LuaState, 2);
-    cf::TypeSys::VarBaseT*        Var     = Comp->m_MemberVars.Find(VarName);
-    const unsigned int            Suffix  = GetSuffix(LuaState);
+    cf::TypeSys::VarBaseT*        Var     = NULL;
+    unsigned int                  Suffix  = UINT_MAX;
+
+    DetermineVar(VarName, Comp->m_MemberVars, Var, Suffix);
 
     if (!Var)
         return luaL_argerror(LuaState, 2, (std::string("unknown variable \"") + VarName + "\"").c_str());

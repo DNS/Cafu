@@ -151,9 +151,12 @@ namespace cf
 
 
             /// Returns the components that this window is composed of.
+            /// Only the "custom" components are returned, does *not* include "Basics" and "Transform".
             const ArrayT< IntrusivePtrT<ComponentBaseT> >& GetComponents() const { return m_Components; }
 
             /// Returns the (n-th) component of the given (type) name.
+            /// Covers the "custom" components as well as "Basics" and "Transform", that is,
+            /// `GetComponent("Basics") == GetBasics()` and `GetComponent("Transform") == GetTransform()`.
             IntrusivePtrT<ComponentBaseT> GetComponent(const std::string& TypeName, unsigned int n=0) const;
 
             /// Adds the given component to this window.
