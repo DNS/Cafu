@@ -124,9 +124,9 @@ namespace cf
             static const luaL_Reg MethodsList[];        ///< The list of Lua methods for this class.
             static int toString(lua_State* LuaState);   ///< Returns a string representation of this object.
 
+            TypeSys::VarT<std::string> m_Text;          ///< The text to show inside this window.
             VarFontNameT               m_FontName;      ///< The name of the font.
             TrueTypeFontT*             m_FontInst;      ///< The font instance used to render text in this window.
-            TypeSys::VarT<std::string> m_Text;          ///< The text to show inside this window.
             TypeSys::VarT<float>       m_Scale;         ///< Scale of this windows text.
             TypeSys::VarT<Vector2fT>   m_Padding;       ///< Padding between text and window rectangle.
             TypeSys::VarT<Vector3fT>   m_Color;         ///< The text color.

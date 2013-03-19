@@ -72,8 +72,8 @@ function Heading1:OnInit()
     self:GetTransform():set("Size", 558, 28)
 
     local c1 = gui:new("ComponentTextT")
-    c1:set("Name", "Fonts/Arial")
     c1:set("Text", "Dear Voyager!")
+    c1:set("Font", "Fonts/Arial")
     c1:set("Scale", 0.6)
     c1:set("Padding", 0, 0)
     c1:set("Color", 1, 0.9, 0.8)
@@ -89,7 +89,6 @@ function TextArea1:OnInit()
     self:GetTransform():set("Size", 558, 324)
 
     local c1 = gui:new("ComponentTextT")
-    c1:set("Name", "Fonts/Arial")
     c1:set("Text", [[
 For now you have (almost) reached the end
 of the Cafu Engine demo.
@@ -101,6 +100,7 @@ www.cafu.de to provide your feed-back.
 
 Thank you very much!
 The Cafu Team]])
+    c1:set("Font", "Fonts/Arial")
     c1:set("Scale", 0.5)
     c1:set("Padding", 0, 0)
     c1:set("Color", 0.8, 0.9, 1)
@@ -117,8 +117,8 @@ function Heading2:OnInit()
     self:GetTransform():set("Size", 558, 28)
 
     local c1 = gui:new("ComponentTextT")
-    c1:set("Name", "Fonts/Arial")
     c1:set("Text", "Additional information")
+    c1:set("Font", "Fonts/Arial")
     c1:set("Scale", 0.6)
     c1:set("Padding", 0, 0)
     c1:set("Color", 1, 0.9, 0.8)
@@ -135,7 +135,6 @@ function TextArea2:OnInit()
     self:GetTransform():set("Size", 558, 324)
 
     local c1 = gui:new("ComponentTextT")
-    c1:set("Name", "Fonts/Arial")
     c1:set("Text", [[
 Planned features for the next release:
     1) Vegetation for the island
@@ -148,6 +147,7 @@ Special thanks for help with this release to:
 Oh, and please don't fall from the walkway
 into the open space behind you.
 There is no way back up.  ;-)]])
+    c1:set("Font", "Fonts/Arial")
     c1:set("Scale", 0.5)
     c1:set("Padding", 0, 0)
     c1:set("Color", 0.8, 0.9, 1)
@@ -187,8 +187,8 @@ function BottomLine:OnInit()
     self:GetTransform():set("Size", 568, 21)
 
     local c1 = gui:new("ComponentTextT")
-    c1:set("Name", "Fonts/Impact")
     c1:set("Text", "")
+    c1:set("Font", "Fonts/Impact")
     c1:set("Scale", 0.3)
     c1:set("Padding", 0, 0)
     c1:set("Color", 0, 0, 0)

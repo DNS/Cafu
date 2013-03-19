@@ -217,9 +217,9 @@ namespace
 
 ComponentTextT::ComponentTextT()
     : ComponentBaseT(),
-      m_FontName("Name", "Fonts/Arial", NULL, *this),
-      m_FontInst(NULL),
       m_Text("Text", "", FlagsIsLongString),
+      m_FontName("Font", "Fonts/Arial", NULL, *this),
+      m_FontInst(NULL),
       m_Scale("Scale", 1.0f),
       m_Padding("Padding", Vector2fT(0.0f, 0.0f), FlagsPaddingLabels),
       m_Color("Color", Vector3fT(0.5f, 0.5f, 1.0f), FlagsIsColor),
@@ -233,9 +233,9 @@ ComponentTextT::ComponentTextT()
 
 ComponentTextT::ComponentTextT(const ComponentTextT& Comp)
     : ComponentBaseT(Comp),
+      m_Text(Comp.m_Text),
       m_FontName(Comp.m_FontName, *this),
       m_FontInst(NULL),
-      m_Text(Comp.m_Text),
       m_Scale(Comp.m_Scale),
       m_Padding(Comp.m_Padding),
       m_Color(Comp.m_Color),
@@ -249,8 +249,8 @@ ComponentTextT::ComponentTextT(const ComponentTextT& Comp)
 
 void ComponentTextT::FillMemberVars()
 {
-    GetMemberVars().Add(&m_FontName);
     GetMemberVars().Add(&m_Text);
+    GetMemberVars().Add(&m_FontName);
     GetMemberVars().Add(&m_Scale);
     GetMemberVars().Add(&m_Padding);
     GetMemberVars().Add(&m_Color);

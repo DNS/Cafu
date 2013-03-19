@@ -56,8 +56,8 @@ function Heading:OnInit()
     self:GetTransform():set("Size", 558, 28)
 
     local c1 = gui:new("ComponentTextT")
-    c1:set("Name", "Fonts/Arial")
     c1:set("Text", "System Failure #473 at 0xE782CF36")
+    c1:set("Font", "Fonts/Arial")
     c1:set("Scale", 0.6)
     c1:set("Padding", 0, 0)
     c1:set("Color", 1, 0, 0)
@@ -73,7 +73,6 @@ function TextArea:OnInit()
     self:GetTransform():set("Size", 558, 324)
 
     local c1 = gui:new("ComponentTextT")
-    c1:set("Name", "Fonts/Arial")
     c1:set("Text", [[
 Service elevator malfunction detected.
 Basement reactor core access
@@ -83,6 +82,7 @@ may be compromised.
 
 
 Please contact administration immediately.]])
+    c1:set("Font", "Fonts/Arial")
     c1:set("Scale", 0.55)
     c1:set("Padding", 0, 0)
     c1:set("Color", 1, 1, 0)
@@ -98,13 +98,13 @@ function TextArea2:OnInit()
     self:GetTransform():set("Size", 558, 324)
 
     local c1 = gui:new("ComponentTextT")
-    c1:set("Name", "Fonts/Arial")
     c1:set("Text", [[
 
 
 
 Beware! Stay clear of elevator shaft!
 Danger of deadly fall!]])
+    c1:set("Font", "Fonts/Arial")
     c1:set("Scale", 0.55)
     c1:set("Padding", 0, 0)
     c1:set("Color", 1, 1, 0)

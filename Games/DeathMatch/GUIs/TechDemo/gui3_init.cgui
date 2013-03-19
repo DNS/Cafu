@@ -60,10 +60,10 @@ function Heading:OnInit()
     self:GetTransform():set("Size", 540, 120)
 
     local c1 = gui:new("ComponentTextT")
-    c1:set("Name", "Fonts/Impact")
     c1:set("Text", [[
 Evacuation Tunnel
 "November 2"]])
+    c1:set("Font", "Fonts/Impact")
     c1:set("Scale", 0.7)
     c1:set("Padding", 0, 0)
     c1:set("Color", 0.51, 0.8, 1)
@@ -84,11 +84,11 @@ function TunnelLocation:OnInit()
     self:GetTransform():set("Size", 540, 120)
 
     local c1 = gui:new("ComponentTextT")
-    c1:set("Name", "Fonts/Arial")
     c1:set("Text", [[
 Checkpoint: Beach
 >>>> Escape Route >>>>
 ]])
+    c1:set("Font", "Fonts/Arial")
     c1:set("Scale", 0.6)
     c1:set("Padding", 0, 0)
     c1:set("Color", 0.51, 0.8, 1)
@@ -109,10 +109,10 @@ function ThirdMsg:OnInit()
     self:GetTransform():set("Size", 390, 120)
 
     local c1 = gui:new("ComponentTextT")
-    c1:set("Name", "Fonts/Impact")
     c1:set("Text", [[
 Alertion Level:
 INCERFA]])
+    c1:set("Font", "Fonts/Impact")
     c1:set("Scale", 0.6)
     c1:set("Padding", 0, 0)
     c1:set("Color", 1, 0, 0)
