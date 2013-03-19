@@ -46,6 +46,39 @@ namespace
     }
 
 
+    /// I was not able to make wx(Edit)EnumProperty work with `string` values (as opposed to `int` values),
+    /// so this is a simple replacement for wxEditEnumProperty that works with strings.
+    class EditEnumPropertyT : public wxLongStringProperty
+    {
+        public:
+
+        EditEnumPropertyT(const wxString& label,
+                          const wxString& name,
+                          const wxArrayString& Choices,
+                          const wxString& value)
+            : wxLongStringProperty(label, name, value),
+              m_Choices(Choices)
+        {
+        }
+
+        // Shows the string selection dialog.
+        virtual bool OnButtonClick(wxPropertyGrid* propGrid, wxString& value)
+        {
+            const int Index = wxGetSingleChoiceIndex("Available choices:", "Select a string", m_Choices, propGrid->GetPanel());
+
+            if (Index < 0) return false;
+
+            value = m_Choices[Index];
+            return true;
+        }
+
+
+        private:
+
+        wxArrayString m_Choices;
+    };
+
+
     /// Custom property to select materials from the Material Browser.
     class MaterialPropertyT : public wxLongStringProperty
     {
@@ -242,6 +275,12 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<std::string>& Var)
     else if (Var.HasFlag("IsLongString"))
     {
         Prop = new wxLongStringProperty(Var.GetName(), wxString::Format("%p", &Var), Var.Get());
+
+        // Have to disable the escaping of newlines, or otherwise our event handlers receive strings like "a\\nb" instead
+        // of "a\nb", which is clearly not what we want. With the wxPG_PROP_NO_ESCAPE flag set, we receive the desired
+        // "a\nb" form, but the value that is shown to the user in the property cell is "ab", so this clearly isn't ideal
+        // either. TODO!
+        Prop->ChangeFlag(wxPG_PROP_NO_ESCAPE, true);
     }
     else if (Var.HasFlag("IsModelFileName"))
     {
@@ -252,7 +291,25 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<std::string>& Var)
     }
     else
     {
-        Prop = new wxStringProperty(Var.GetName(), wxString::Format("%p", &Var), Var.Get());
+        ArrayT<std::string> Strings;
+        ArrayT<std::string> Values;
+
+        Var.GetChoices(Strings, Values);
+        wxASSERT(Strings.Size() == Values.Size());
+
+        if (Strings.Size() > 0)
+        {
+            wxArrayString Choices;
+
+            for (unsigned int i = 0; i < Strings.Size(); i++)
+                Choices.Add(Strings[i]);
+
+            Prop = new EditEnumPropertyT(Var.GetName(), wxString::Format("%p", &Var), Choices, Var.Get());
+        }
+        else
+        {
+            Prop = new wxStringProperty(Var.GetName(), wxString::Format("%p", &Var), Var.Get());
+        }
     }
 
     m_PropMan.Append(Prop)->SetClientData(&Var);

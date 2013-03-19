@@ -48,6 +48,7 @@ namespace cf
 
                 // Base class overrides.
                 void Set(const std::string& v);
+                void GetChoices(ArrayT<std::string>& Strings, ArrayT<std::string>& Values) const;
 
 
                 private:

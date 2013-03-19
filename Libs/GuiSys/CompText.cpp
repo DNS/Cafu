@@ -34,6 +34,15 @@ extern "C"
     #include <lauxlib.h>
 }
 
+#ifdef _WIN32
+    #define WIN32_LEAN_AND_MEAN
+    #include <windows.h>
+//    #undef FindWindow
+#else
+//    #include <cstring>
+    #include <dirent.h>
+#endif
+
 #if defined(_WIN32) && defined(_MSC_VER)
     // Turn off warning C4355: 'this' : used in base member initializer list.
     #pragma warning(disable:4355)
@@ -75,6 +84,72 @@ void ComponentTextT::VarFontNameT::Set(const std::string& v)
     {
         m_CompText.m_FontInst = m_CompText.GetWindow()->GetGui().GetGuiResources().GetFont(v);
     }
+}
+
+
+void ComponentTextT::VarFontNameT::GetChoices(ArrayT<std::string>& Strings, ArrayT<std::string>& Values) const
+{
+    const std::string DirName   = "Fonts";
+    const char*       DirFilter = "d";
+
+#ifdef _WIN32
+    WIN32_FIND_DATA FindFileData;
+    HANDLE          FindHandle=FindFirstFile((DirName+"\\*").c_str(), &FindFileData);
+    int             EntryCount=1;   // Lua array numbering starts per convention at 1.
+
+    if (FindHandle==INVALID_HANDLE_VALUE) return;
+
+    do
+    {
+        if (strcmp(FindFileData.cFileName, "." )==0) continue;
+        if (strcmp(FindFileData.cFileName, "..")==0) continue;
+
+        if (DirFilter!=NULL)
+        {
+            const bool IsDir=(FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)!=0;
+
+            if (strcmp(DirFilter, "f")==0 &&  IsDir) continue;
+            if (strcmp(DirFilter, "d")==0 && !IsDir) continue;
+        }
+
+        Strings.PushBack(DirName + "/" + FindFileData.cFileName);
+        Values.PushBack(DirName + "/" + FindFileData.cFileName);
+    }
+    while (FindNextFile(FindHandle, &FindFileData)!=0);
+
+    // if (GetLastError()!=ERROR_NO_MORE_FILES)
+    //     Console->Warning("Error in GetDir() while enumerating directory entries.\n");
+
+    FindClose(FindHandle);
+#else
+    DIR* Dir=opendir(DirName.c_str());
+    int  EntryCount=1;  // Lua array numbering starts per convention at 1.
+
+    if (!Dir) return 1;
+
+    for (dirent* DirEnt=readdir(Dir); DirEnt!=NULL; DirEnt=readdir(Dir))
+    {
+        if (strcmp(DirEnt->d_name, "." )==0) continue;
+        if (strcmp(DirEnt->d_name, "..")==0) continue;
+
+        if (DirFilter!=NULL)
+        {
+            DIR* TempDir=opendir((DirName+"/"+DirEnt->d_name).c_str());
+            bool IsDir=(TempDir!=NULL);
+
+            if (TempDir!=NULL) closedir(TempDir);
+
+            if (strcmp(DirFilter, "f")==0 &&  IsDir) continue;
+            if (strcmp(DirFilter, "d")==0 && !IsDir) continue;
+        }
+
+        // For portability, only the 'd_name' member of a 'dirent' may be accessed.
+        Strings.PushBack(DirName + "/" + DirEnt->d_name);
+        Values.PushBack(DirName + "/" + DirEnt->d_name);
+    }
+
+    closedir(Dir);
+#endif
 }
 
 
@@ -134,6 +209,7 @@ const cf::TypeSys::TypeInfoT ComponentTextT::TypeInfo(GetComponentTIM(), "Compon
 
 namespace
 {
+    const char* FlagsIsLongString[] = { "IsLongString", NULL };
     const char* FlagsPaddingLabels[] = { "Labels", "hor.", "vert.", NULL };
     const char* FlagsIsColor[] = { "IsColor", NULL };
 }
@@ -143,7 +219,7 @@ ComponentTextT::ComponentTextT()
     : ComponentBaseT(),
       m_FontName("Name", "Fonts/Arial", NULL, *this),
       m_FontInst(NULL),
-      m_Text("Text", ""),
+      m_Text("Text", "", FlagsIsLongString),
       m_Scale("Scale", 1.0f),
       m_Padding("Padding", Vector2fT(0.0f, 0.0f), FlagsPaddingLabels),
       m_Color("Color", Vector3fT(0.5f, 0.5f, 1.0f), FlagsIsColor),
