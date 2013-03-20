@@ -25,7 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../EditorMaterialEngine.hpp"
 
 #include "GuiSys/CompBase.hpp"
-#include "GuiSys/GuiImpl.hpp"
 #include "GuiSys/VarVisitorsLua.hpp"
 #include "TypeSys.hpp"
 
@@ -46,7 +45,6 @@ GuiPropertiesT::GuiPropertiesT(cf::GuiSys::GuiImplT& Gui)
 
 GuiDocumentT::GuiDocumentT(GameConfigT* GameConfig, const wxString& GuiInitFileName)
     : m_Gui(NULL),
-      m_RootWindow(NULL),
       m_Selection(),
       m_EditorMaterials(),
       m_GameConfig(GameConfig)
@@ -70,9 +68,6 @@ GuiDocumentT::GuiDocumentT(GameConfigT* GameConfig, const wxString& GuiInitFileN
         }
 
         m_GuiProperties=GuiPropertiesT(*m_Gui);
-
-        // Clone root window and all of its children.
-        m_RootWindow=m_Gui->GetRootWindow()->Clone(true);
     }
     else
     {
@@ -81,19 +76,16 @@ GuiDocumentT::GuiDocumentT(GameConfigT* GameConfig, const wxString& GuiInitFileN
             cf::GuiSys::GuiImplT::InitFlag_InlineCode | cf::GuiSys::GuiImplT::InitFlag_InGuiEditor);
 
         m_GuiProperties=GuiPropertiesT(*m_Gui);
-
-        // Clone root window and all of its children.
-        m_RootWindow=m_Gui->GetRootWindow()->Clone(true);
     }
 
-    m_Selection.PushBack(m_RootWindow); // Make root window default selection.
+    m_Selection.PushBack(GetRootWindow()); // Make root window default selection.
 
     // Create editor windows for all GuiSys windows.
-    CreateSibling(m_RootWindow, this);
-    GetSibling(m_RootWindow)->SetSelected(true);
+    CreateSibling(GetRootWindow(), this);
+    GetSibling(GetRootWindow())->SetSelected(true);
 
     ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > GuiWindows;
-    m_RootWindow->GetChildren(GuiWindows, true);
+    GetRootWindow()->GetChildren(GuiWindows, true);
 
     for (unsigned long i=0; i<GuiWindows.Size(); i++)
         CreateSibling(GuiWindows[i], this);
@@ -113,7 +105,6 @@ GuiDocumentT::~GuiDocumentT()
     for (unsigned long MatNr=0; MatNr<m_EditorMaterials.Size(); MatNr++)
         delete m_EditorMaterials[MatNr];
 
-    m_RootWindow=NULL;
     delete m_Gui;
 }
 
@@ -289,29 +280,29 @@ bool GuiDocumentT::SaveInit_cgui(std::ostream& OutFile)
     OutFile << "-- *****************************\n";
     OutFile << "\n";
 
-    SaveWindowInstantiation(OutFile, m_RootWindow, "");
+    SaveWindowInstantiation(OutFile, GetRootWindow(), "");
 
     OutFile << "\n";
     OutFile << "-- Set the GUIs root window.\n";
     OutFile << "-- *************************\n";
     OutFile << "\n";
 
-    OutFile << "gui:SetRootWindow(" << m_RootWindow->GetBasics()->GetWindowName() << ");\n";
+    OutFile << "gui:SetRootWindow(" << GetRootWindow()->GetBasics()->GetWindowName() << ");\n";
 
     OutFile << "\n\n";
     OutFile << "-- Setup the window hierarchy.\n";
     OutFile << "-- ***************************\n";
     OutFile << "\n";
 
-    SaveWindowHierarchy(OutFile, m_RootWindow, "");
+    SaveWindowHierarchy(OutFile, GetRootWindow(), "");
 
     OutFile << "\n";
     OutFile << "-- Initialization of the window contents (\"constructor code\").\n";
     OutFile << "-- ***********************************************************\n";
     OutFile << "\n";
 
-    SaveRootInitialization(OutFile, m_RootWindow, m_GuiProperties);
-    SaveWindowInitialization(OutFile, m_RootWindow, "");
+    SaveRootInitialization(OutFile, GetRootWindow(), m_GuiProperties);
+    SaveWindowInitialization(OutFile, GetRootWindow(), "");
 
     if (OutFile.fail())
     {
