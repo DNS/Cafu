@@ -63,10 +63,9 @@ void EditorWindowT::Render() const
     if (m_IsSelected)
     {
         // Render selection border.
-        float x1;
-        float y1;
-
-        m_Win->GetAbsolutePos(x1, y1);
+        const Vector2fT AbsPos = m_Win->GetAbsolutePos();
+        const float     x1     = AbsPos.x;
+        const float     y1     = AbsPos.y;
 
         const float x2=x1+m_Win->GetTransform()->GetSize().x;
         const float y2=y1+m_Win->GetTransform()->GetSize().y;

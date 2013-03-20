@@ -353,7 +353,7 @@ void GuiImplT::SetMousePos(float MousePosX_, float MousePosY_)
 
     // Determine if the mouse cursor has been moved into (or "over") another window,
     // that is, see if we have to run any OnMouseLeave() and OnMouseEnter() scripts.
-    IntrusivePtrT<WindowT> Win=RootWindow->Find(MousePosX, MousePosY);
+    IntrusivePtrT<WindowT> Win=RootWindow->Find(Vector2fT(MousePosX, MousePosY));
 
     if (Win != MouseOverWindow)
     {
@@ -504,12 +504,9 @@ bool GuiImplT::ProcessDeviceEvent(const CaMouseEventT& ME)
     if (ResultOK && MEWasProcessed) return true;
     if (MouseOverWindow==NULL) return false;
 
-    float AbsWinPosX;
-    float AbsWinPosY;
+    const Vector2fT AbsWinPos = MouseOverWindow->GetAbsolutePos();
 
-    MouseOverWindow->GetAbsolutePos(AbsWinPosX, AbsWinPosY);
-
-    return MouseOverWindow->OnInputEvent(ME, MousePosX-AbsWinPosX, MousePosY-AbsWinPosY);
+    return MouseOverWindow->OnInputEvent(ME, MousePosX-AbsWinPos.x, MousePosY-AbsWinPos.y);
 }
 
 

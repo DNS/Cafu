@@ -55,12 +55,10 @@ ToolSelectionT::ToolSelectionT(GuiDocumentT* GuiDocument, ChildFrameT* Parent)
     : ToolI(),
       m_GuiDocument(GuiDocument),
       m_Parent(Parent),
-      m_TransformSelection(false),
-      m_TransformationStart(false),
-      m_TransState(NONE),
+      m_ToolState(TS_IDLE),
+      m_DragState(NONE),
       m_RotStartAngle(0.0f),
-      m_LastMousePosX(0.0f),
-      m_LastMousePosY(0.0f)
+      m_LastMousePos()
 {
 }
 
@@ -99,60 +97,72 @@ bool ToolSelectionT::OnKeyDown(RenderWindowT* RenderWindow, wxKeyEvent& KE)
 bool ToolSelectionT::OnLMouseDown(RenderWindowT* RenderWindow, wxMouseEvent& ME)
 {
     // Translate client mouse position to GUI mouse position.
-    Vector3fT MousePosGUI=RenderWindow->ClientToGui(ME.GetX(), ME.GetY());
+    const Vector2fT MousePosGUI = RenderWindow->ClientToGui(ME.GetX(), ME.GetY());
 
-    IntrusivePtrT<cf::GuiSys::WindowT> ClickedWindow=m_GuiDocument->GetRootWindow()->Find(MousePosGUI.x, MousePosGUI.y);
+    IntrusivePtrT<cf::GuiSys::WindowT> ClickedWindow=m_GuiDocument->GetRootWindow()->Find(MousePosGUI);
 
     if (ClickedWindow.IsNull())
     {
-        if (!ME.ControlDown()) m_Parent->SubmitCommand(CommandSelectT::Clear(m_GuiDocument));
+        if (!ME.ControlDown())
+            m_Parent->SubmitCommand(CommandSelectT::Clear(m_GuiDocument));
+
         return true;
     }
 
     if (!GuiDocumentT::GetSibling(ClickedWindow)->IsSelected())
     {
-        if (!ME.ControlDown()) m_Parent->SubmitCommand(CommandSelectT::Clear(m_GuiDocument));
+        if (!ME.ControlDown())
+            m_Parent->SubmitCommand(CommandSelectT::Clear(m_GuiDocument));
+
         m_Parent->SubmitCommand(CommandSelectT::Add(m_GuiDocument, ClickedWindow));
+        return true;
     }
     else
     {
         if (ME.ControlDown())
         {
-            m_Parent->SubmitCommand(CommandSelectT::Remove(m_GuiDocument, ClickedWindow)); // Toggle window selection.
+            m_Parent->SubmitCommand(CommandSelectT::Remove(m_GuiDocument, ClickedWindow));  // Toggle window selection.
             return true;
         }
     }
 
-    // Backup the current state (in terms of transformation) of the selected windows.
-    const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Selection=m_GuiDocument->GetSelection();
 
-    for (unsigned long SelNr=0; SelNr<Selection.Size(); SelNr++)
+    m_DragState = GetHandle(MousePosGUI);
+
+    if (m_DragState != NONE)
     {
-        WindowStateT WindowState;
+        m_ToolState = TS_DRAG_HANDLE;
 
-        WindowState.Position = Selection[SelNr]->GetTransform()->GetPos();
-        WindowState.Size     = Selection[SelNr]->GetTransform()->GetSize();
-        WindowState.Rotation = Selection[SelNr]->GetTransform()->GetRotAngle();
+        // Backup the current transformation of the selected windows.
+        const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Selection = m_GuiDocument->GetSelection();
 
-        m_WindowStates.PushBack(WindowState);
+        m_WindowStates.Overwrite();
+
+        for (unsigned long SelNr=0; SelNr<Selection.Size(); SelNr++)
+        {
+            WindowStateT WindowState;
+
+            WindowState.Position = Selection[SelNr]->GetTransform()->GetPos();
+            WindowState.Size     = Selection[SelNr]->GetTransform()->GetSize();
+            WindowState.Rotation = Selection[SelNr]->GetTransform()->GetRotAngle();
+
+            m_WindowStates.PushBack(WindowState);
+        }
+
+        m_RotStartAngle = GetAngle(MousePosGUI.x, MousePosGUI.y,
+            (ClickedWindow->GetTransform()->GetPos().x + ClickedWindow->GetTransform()->GetSize().x)/2.0f,
+            (ClickedWindow->GetTransform()->GetPos().y + ClickedWindow->GetTransform()->GetSize().y)/2.0f);
+
+        m_LastMousePos = MousePosGUI;
     }
 
-    // Send a mouse move event to make sure the transform state is set corretly (according to the position we clicked on).
-    OnMouseMove(RenderWindow, ME);
-
-    // Start transforming the selection.
-    m_TransformationStart=true;
-
-    m_RotStartAngle=GetAngle(MousePosGUI.x, MousePosGUI.y,
-        (ClickedWindow->GetTransform()->GetPos().x + ClickedWindow->GetTransform()->GetSize().x)/2.0f,
-        (ClickedWindow->GetTransform()->GetPos().y + ClickedWindow->GetTransform()->GetSize().y)/2.0f);
     return true;
 }
 
 
 bool ToolSelectionT::OnLMouseUp(RenderWindowT* RenderWindow, wxMouseEvent& ME)
 {
-    if (m_TransformSelection)
+    if (m_ToolState == TS_DRAG_HANDLE)
     {
         const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Sel = m_GuiDocument->GetSelection();
         ArrayT<CommandT*> SubCommands;
@@ -195,184 +205,129 @@ bool ToolSelectionT::OnLMouseUp(RenderWindowT* RenderWindow, wxMouseEvent& ME)
 
         if (SubCommands.Size() > 0)
         {
-            switch (m_TransState)
+            switch (m_DragState)
             {
                 case TRANSLATE: m_Parent->SubmitCommand(new CommandMacroT(SubCommands, Sel.Size() == 1 ? "Move window"   : "Move windows"  )); break;
                 case ROTATE:    m_Parent->SubmitCommand(new CommandMacroT(SubCommands, Sel.Size() == 1 ? "Rotate window" : "Rotate windows")); break;
                 default:        m_Parent->SubmitCommand(new CommandMacroT(SubCommands, Sel.Size() == 1 ? "Scale window"  : "Scale windows" )); break;
             }
         }
-
-        m_TransformSelection=false;
-        m_RotStartAngle=0.0f;
-        m_TransState=NONE;
     }
 
-    m_WindowStates.Overwrite();
-    m_TransformationStart=false;
+    m_ToolState = TS_IDLE;
+    m_DragState = NONE;
 
+    m_WindowStates.Overwrite();
     return true;
 }
 
 
 bool ToolSelectionT::OnMouseMove(RenderWindowT* RenderWindow, wxMouseEvent& ME)
 {
-    if (m_TransformationStart)
-    {
-        m_TransformSelection=true;
-        m_TransformationStart=false;
-    }
-
     // Translate client mouse position to GUI mouse position.
-    Vector3fT MousePosGUI=RenderWindow->ClientToGui(ME.GetX(), ME.GetY());
+    Vector2fT MousePosGUI = RenderWindow->ClientToGui(ME.GetX(), ME.GetY());
 
-    if (m_TransformSelection)
+    switch (m_ToolState)
     {
-        MousePosGUI=m_Parent->SnapToGrid(MousePosGUI);
-
-        if (MousePosGUI.x==m_LastMousePosX && MousePosGUI.y==m_LastMousePosY) return true;
-
-        const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Selection=m_GuiDocument->GetSelection();
-
-        float DeltaX=MousePosGUI.x-m_LastMousePosX;
-        float DeltaY=MousePosGUI.y-m_LastMousePosY;
-
-        // Move the selection to the current mouse position.
-        for (unsigned long SelNr=0; SelNr<Selection.Size(); SelNr++)
+        case TS_IDLE:
         {
-            Vector2fT Pos      = Selection[SelNr]->GetTransform()->GetPos();
-            Vector2fT Size     = Selection[SelNr]->GetTransform()->GetSize();
-            float     RotAngle = Selection[SelNr]->GetTransform()->GetRotAngle();
+            RenderWindow->SetCursor(SuggestCursor(GetHandle(MousePosGUI)));
+            break;
+        }
 
-            switch (m_TransState)
+        case TS_DRAG_HANDLE:
+        {
+            MousePosGUI = m_Parent->SnapToGrid(MousePosGUI);
+
+            if (MousePosGUI == m_LastMousePos) break;
+
+            const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Selection=m_GuiDocument->GetSelection();
+
+            const Vector2fT Delta = MousePosGUI - m_LastMousePos;
+
+            // Move the selection to the current mouse position.
+            for (unsigned long SelNr=0; SelNr<Selection.Size(); SelNr++)
             {
-                case TRANSLATE:
-                    Pos.x += DeltaX; Pos.x = m_Parent->SnapToGrid(Pos.x);
-                    Pos.y += DeltaY; Pos.y = m_Parent->SnapToGrid(Pos.y);
-                    break;
+                Vector2fT Pos      = Selection[SelNr]->GetTransform()->GetPos();
+                Vector2fT Size     = Selection[SelNr]->GetTransform()->GetSize();
+                float     RotAngle = Selection[SelNr]->GetTransform()->GetRotAngle();
 
-                case SCALE_N:
-                    Pos.y  += DeltaY; Pos.y  = m_Parent->SnapToGrid(Pos.y);
-                    Size.y -= DeltaY; Size.y = m_Parent->SnapToGrid(Size.y);
-                    break;
-
-                case SCALE_NE:
-                    Pos.y  += DeltaY; Pos.y  = m_Parent->SnapToGrid(Pos.y);
-                    Size.x += DeltaX; Size.x = m_Parent->SnapToGrid(Size.x);
-                    Size.y -= DeltaY; Size.y = m_Parent->SnapToGrid(Size.y);
-                    break;
-
-                case SCALE_E:
-                    Size.x += DeltaX; Size.x = m_Parent->SnapToGrid(Size.x);
-                    break;
-
-                case SCALE_SE:
-                    Size.x += DeltaX; Size.x = m_Parent->SnapToGrid(Size.x);
-                    Size.y += DeltaY; Size.y = m_Parent->SnapToGrid(Size.y);
-                    break;
-
-                case SCALE_S:
-                    Size.y += DeltaY; Size.y = m_Parent->SnapToGrid(Size.y);
-                    break;
-
-                case SCALE_SW:
-                    Pos.x  += DeltaX; Pos.x  = m_Parent->SnapToGrid(Pos.x);
-                    Size.x -= DeltaX; Size.x = m_Parent->SnapToGrid(Size.x);
-                    Size.y += DeltaY;
-                    break;
-
-                case SCALE_W:
-                    Pos.x  += DeltaX; Pos.x  = m_Parent->SnapToGrid(Pos.x);
-                    Size.x -= DeltaX; Size.x = m_Parent->SnapToGrid(Size.x);
-                    break;
-
-                case SCALE_NW:
-                    Pos.x  += DeltaX; Pos.x  = m_Parent->SnapToGrid(Pos.x);
-                    Pos.y  += DeltaY; Pos.y  = m_Parent->SnapToGrid(Pos.y);
-                    Size.x -= DeltaX; Size.x = m_Parent->SnapToGrid(Size.x);
-                    Size.y -= DeltaY; Size.y = m_Parent->SnapToGrid(Size.y);
-                    break;
-
-                case ROTATE:
+                switch (m_DragState)
                 {
-                    RotAngle = GetAngle(MousePosGUI.x, MousePosGUI.y, (Pos.x + Size.x)/2.0f, (Pos.y + Size.y)/2.0f) - m_RotStartAngle;
-                    break;
+                    case TRANSLATE:
+                        Pos.x += Delta.x; Pos.x = m_Parent->SnapToGrid(Pos.x);
+                        Pos.y += Delta.y; Pos.y = m_Parent->SnapToGrid(Pos.y);
+                        break;
+
+                    case SCALE_N:
+                        Pos.y  += Delta.y; Pos.y  = m_Parent->SnapToGrid(Pos.y);
+                        Size.y -= Delta.y; Size.y = m_Parent->SnapToGrid(Size.y);
+                        break;
+
+                    case SCALE_NE:
+                        Pos.y  += Delta.y; Pos.y  = m_Parent->SnapToGrid(Pos.y);
+                        Size.x += Delta.x; Size.x = m_Parent->SnapToGrid(Size.x);
+                        Size.y -= Delta.y; Size.y = m_Parent->SnapToGrid(Size.y);
+                        break;
+
+                    case SCALE_E:
+                        Size.x += Delta.x; Size.x = m_Parent->SnapToGrid(Size.x);
+                        break;
+
+                    case SCALE_SE:
+                        Size.x += Delta.x; Size.x = m_Parent->SnapToGrid(Size.x);
+                        Size.y += Delta.y; Size.y = m_Parent->SnapToGrid(Size.y);
+                        break;
+
+                    case SCALE_S:
+                        Size.y += Delta.y; Size.y = m_Parent->SnapToGrid(Size.y);
+                        break;
+
+                    case SCALE_SW:
+                        Pos.x  += Delta.x; Pos.x  = m_Parent->SnapToGrid(Pos.x);
+                        Size.x -= Delta.x; Size.x = m_Parent->SnapToGrid(Size.x);
+                        Size.y += Delta.y;
+                        break;
+
+                    case SCALE_W:
+                        Pos.x  += Delta.x; Pos.x  = m_Parent->SnapToGrid(Pos.x);
+                        Size.x -= Delta.x; Size.x = m_Parent->SnapToGrid(Size.x);
+                        break;
+
+                    case SCALE_NW:
+                        Pos.x  += Delta.x; Pos.x  = m_Parent->SnapToGrid(Pos.x);
+                        Pos.y  += Delta.y; Pos.y  = m_Parent->SnapToGrid(Pos.y);
+                        Size.x -= Delta.x; Size.x = m_Parent->SnapToGrid(Size.x);
+                        Size.y -= Delta.y; Size.y = m_Parent->SnapToGrid(Size.y);
+                        break;
+
+                    case ROTATE:
+                    {
+                        RotAngle = GetAngle(MousePosGUI.x, MousePosGUI.y, (Pos.x + Size.x)/2.0f, (Pos.y + Size.y)/2.0f) - m_RotStartAngle;
+                        break;
+                    }
+
+                    case NONE:
+                        wxASSERT(false);
+                        break;
                 }
 
-                case NONE:
-                    wxASSERT(false);
-                    break;
+                // Enforce minimum size.
+                if (Size.x < 10.0f) Size.x = 10.0f;
+                if (Size.y < 10.0f) Size.y = 10.0f;
+
+                Selection[SelNr]->GetTransform()->SetPos(Pos);
+                Selection[SelNr]->GetTransform()->SetSize(Size);
+                Selection[SelNr]->GetTransform()->SetRotAngle(RotAngle);
             }
 
-            // Enforce minimum size.
-            if (Size.x < 10.0f) Size.x = 10.0f;
-            if (Size.y < 10.0f) Size.y = 10.0f;
-
-            Selection[SelNr]->GetTransform()->SetPos(Pos);
-            Selection[SelNr]->GetTransform()->SetSize(Size);
-            Selection[SelNr]->GetTransform()->SetRotAngle(RotAngle);
-        }
-
-        RenderWindow->Refresh(false);
-        RenderWindow->Update();
-    }
-    else
-    {
-        IntrusivePtrT<cf::GuiSys::WindowT> MouseOverWindow=m_GuiDocument->GetRootWindow()->Find(MousePosGUI.x, MousePosGUI.y);
-
-        // If window under the cursor is selected.
-        if (!MouseOverWindow.IsNull() && GuiDocumentT::GetSibling(MouseOverWindow)->IsSelected())
-        {
-            const Vector2fT WinSize = MouseOverWindow->GetTransform()->GetSize();
-
-            // Get absolute window position then get relative cursor position to this window.
-            float PosX=0.0f;
-            float PosY=0.0f;
-
-            MouseOverWindow->GetAbsolutePos(PosX, PosY);
-
-            PosX=MousePosGUI.x-PosX;
-            PosY=MousePosGUI.y-PosY;
-
-            if (PosX < HANDLE_WIDTH)
-            {
-                     if (PosY <           HANDLE_WIDTH) { m_TransState=SCALE_NW; RenderWindow->SetCursor(wxCursor(wxCURSOR_SIZENWSE)); }
-                else if (PosY > WinSize.y-HANDLE_WIDTH) { m_TransState=SCALE_SW; RenderWindow->SetCursor(wxCursor(wxCURSOR_SIZENESW)); }
-                else                                    { m_TransState=SCALE_W;  RenderWindow->SetCursor(wxCursor(wxCURSOR_SIZEWE  )); }
-            }
-            else if (PosY < HANDLE_WIDTH)
-            {
-                     if (PosX > WinSize.x-HANDLE_WIDTH) { m_TransState=SCALE_NE; RenderWindow->SetCursor(wxCursor(wxCURSOR_SIZENESW)); }
-                else                                    { m_TransState=SCALE_N;  RenderWindow->SetCursor(wxCursor(wxCURSOR_SIZENS  )); }
-            }
-            else if (PosX > WinSize.x-HANDLE_WIDTH)
-            {
-                     if (PosY > WinSize.y-HANDLE_WIDTH) { m_TransState=SCALE_SE; RenderWindow->SetCursor(wxCursor(wxCURSOR_SIZENWSE)); }
-                else                                    { m_TransState=SCALE_E;  RenderWindow->SetCursor(wxCursor(wxCURSOR_SIZEWE  )); }
-            }
-            else if (PosY > WinSize.y-HANDLE_WIDTH)
-            {
-                // Only this one left.
-                m_TransState=SCALE_S;
-                RenderWindow->SetCursor(wxCursor(wxCURSOR_SIZENS));
-            }
-            else
-            {
-                // Mouse is deep inside window, so we translate the window.
-                m_TransState=TRANSLATE;
-                RenderWindow->SetCursor(wxCursor(wxCURSOR_SIZING));
-            }
-        }
-        else
-        {
-            RenderWindow->SetCursor(*wxSTANDARD_CURSOR);
-            m_TransState=NONE;
+            RenderWindow->Refresh(false);
+            RenderWindow->Update();
+            break;
         }
     }
 
-    m_LastMousePosX=MousePosGUI.x;
-    m_LastMousePosY=MousePosGUI.y;
-
+    m_LastMousePos = MousePosGUI;
     return true;
 }
 
@@ -391,8 +346,8 @@ bool ToolSelectionT::OnRMouseUp(RenderWindowT* RenderWindow, wxMouseEvent& ME)
     };
 
     // Create a new window and use the top most window under the mouse cursor as parent.
-    Vector3fT MousePosGUI=RenderWindow->ClientToGui(ME.GetX(), ME.GetY());
-    IntrusivePtrT<cf::GuiSys::WindowT> Parent=m_GuiDocument->GetRootWindow()->Find(MousePosGUI.x, MousePosGUI.y);
+    const Vector2fT                    MousePosGUI = RenderWindow->ClientToGui(ME.GetX(), ME.GetY());
+    IntrusivePtrT<cf::GuiSys::WindowT> Parent      = m_GuiDocument->GetRootWindow()->Find(MousePosGUI);
 
     if (Parent.IsNull()) return false;
 
@@ -416,4 +371,77 @@ bool ToolSelectionT::OnRMouseUp(RenderWindowT* RenderWindow, wxMouseEvent& ME)
     }
 
     return true;
+}
+
+
+ToolSelectionT::TrafoHandleT ToolSelectionT::GetHandle(const Vector2fT& GuiPos) const
+{
+    IntrusivePtrT<cf::GuiSys::WindowT> HitWin = m_GuiDocument->GetRootWindow()->Find(GuiPos);
+
+    if (HitWin.IsNull() || !GuiDocumentT::GetSibling(HitWin)->IsSelected())
+        return NONE;
+
+    const Vector2fT RelPos  = GuiPos - HitWin->GetAbsolutePos();
+    const Vector2fT WinSize = HitWin->GetTransform()->GetSize();
+
+    if (RelPos.x < HANDLE_WIDTH)
+    {
+        if (RelPos.y <             HANDLE_WIDTH) return SCALE_NW;
+        if (RelPos.y > WinSize.y - HANDLE_WIDTH) return SCALE_SW;
+        return SCALE_W;
+    }
+
+    if (RelPos.y < HANDLE_WIDTH)
+    {
+        if (RelPos.x > WinSize.x - HANDLE_WIDTH) return SCALE_NE;
+        return SCALE_N;
+    }
+
+    if (RelPos.x > WinSize.x - HANDLE_WIDTH)
+    {
+        if (RelPos.y > WinSize.y - HANDLE_WIDTH) return SCALE_SE;
+        return SCALE_E;
+    }
+
+    if (RelPos.y > WinSize.y - HANDLE_WIDTH)
+    {
+        return SCALE_S;
+    }
+
+    // Mouse is deep inside window, so we translate the window.
+    return TRANSLATE;
+}
+
+
+wxCursor ToolSelectionT::SuggestCursor(ToolSelectionT::TrafoHandleT TrafoHandle) const
+{
+    switch (TrafoHandle)
+    {
+        case NONE:
+            break;
+
+        case TRANSLATE:
+            return wxCursor(wxCURSOR_SIZING);
+
+        case SCALE_N:
+        case SCALE_S:
+            return wxCursor(wxCURSOR_SIZENS);
+
+        case SCALE_E:
+        case SCALE_W:
+            return wxCursor(wxCURSOR_SIZEWE);
+
+        case SCALE_NE:
+        case SCALE_SW:
+            return wxCursor(wxCURSOR_SIZENESW);
+
+        case SCALE_NW:
+        case SCALE_SE:
+            return wxCursor(wxCURSOR_SIZENWSE);
+
+        case ROTATE:
+            break;
+    }
+
+    return *wxSTANDARD_CURSOR;
 }

@@ -342,14 +342,13 @@ float GuiEditor::ChildFrameT::SnapToGrid(float Value) const
 }
 
 
-Vector3fT GuiEditor::ChildFrameT::SnapToGrid(const Vector3fT& Position) const
+Vector2fT GuiEditor::ChildFrameT::SnapToGrid(const Vector2fT& Position) const
 {
     const float GridSpacing=m_SnapToGrid ? m_GridSpacing : 1.0f;
-    Vector3fT NewPosition;
+    Vector2fT   NewPosition;
 
     NewPosition.x=cf::math::round(Position.x/GridSpacing)*GridSpacing;
     NewPosition.y=cf::math::round(Position.y/GridSpacing)*GridSpacing;
-    NewPosition.z=cf::math::round(Position.z/GridSpacing)*GridSpacing;
 
     return NewPosition;
 }

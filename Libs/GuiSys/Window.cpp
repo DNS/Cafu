@@ -288,34 +288,22 @@ void WindowT::DeleteComponent(unsigned long CompNr)
 }
 
 
-void WindowT::GetAbsolutePos(float& x, float& y) const
+Vector2fT WindowT::GetAbsolutePos() const
 {
 #if 1
-    x = m_Transform->GetPos().x;
-    y = m_Transform->GetPos().y;
+    Vector2fT Pos = m_Transform->GetPos();
 
     for (const WindowT* P = m_Parent; P; P = P->m_Parent)
-    {
-        x += P->m_Transform->GetPos().x;
-        y += P->m_Transform->GetPos().y;
-    }
+        Pos += P->m_Transform->GetPos();
+
+    return Pos;
 #else
     // Recursive implementation:
-    if (Parent==NULL)
-    {
-        x = m_Transform->GetPos().x;
-        y = m_Transform->GetPos().y;
-        return;
-    }
-
-    float px;
-    float py;
+    if (m_Parent==NULL)
+        return m_Transform->GetPos();
 
     // We have a parent, so get it's absolute position first, then add our relative position.
-    Parent->GetAbsolutePos(px, py);
-
-    x = px + m_Transform->GetPos().x;
-    y = py + m_Transform->GetPos().y;
+    return m_Parent->GetAbsolutePos() + m_Transform->GetPos();
 #endif
 }
 
@@ -336,7 +324,7 @@ IntrusivePtrT<WindowT> WindowT::Find(const std::string& WantedName)
 }
 
 
-IntrusivePtrT<WindowT> WindowT::Find(float x, float y, bool OnlyVisible)
+IntrusivePtrT<WindowT> WindowT::Find(const Vector2fT& Pos, bool OnlyVisible)
 {
     if (OnlyVisible && !m_Basics->IsShown()) return NULL;
 
@@ -345,20 +333,16 @@ IntrusivePtrT<WindowT> WindowT::Find(float x, float y, bool OnlyVisible)
     {
         // Search the children in reverse order, because if they overlap,
         // those that are drawn last appear topmost, and so we want to find them first.
-        IntrusivePtrT<WindowT> Found=m_Children[m_Children.Size()-1-ChildNr]->Find(x, y, OnlyVisible);
+        IntrusivePtrT<WindowT> Found = m_Children[m_Children.Size()-1-ChildNr]->Find(Pos, OnlyVisible);
 
         if (Found!=NULL) return Found;
     }
 
-    // Okay, the point (x, y) is not inside any of the children, now check this window.
-    float AbsX1, AbsY1;
+    // Okay, Pos is not inside any of the children, now check this window.
+    const Vector2fT Abs1 = GetAbsolutePos();
+    const Vector2fT Abs2 = Abs1 + m_Transform->GetSize();
 
-    GetAbsolutePos(AbsX1, AbsY1);
-
-    const float SizeX = m_Transform->GetSize().x;
-    const float SizeY = m_Transform->GetSize().y;
-
-    return (x<AbsX1 || y<AbsY1 || x>AbsX1+SizeX || y>AbsY1+SizeY) ? NULL : this;
+    return (Pos.x < Abs1.x || Pos.y < Abs1.y || Pos.x > Abs2.x || Pos.y > Abs2.y) ? NULL : this;
 }
 
 
@@ -366,10 +350,7 @@ void WindowT::Render() const
 {
     if (!m_Basics->IsShown()) return;
 
-    float x1;
-    float y1;
-
-    GetAbsolutePos(x1, y1);
+    const Vector2fT AbsPos = GetAbsolutePos();
 
 
     // Render the components.
@@ -379,13 +360,13 @@ void WindowT::Render() const
         // Set the coordinate origin to the top-left corner of our window.
         if (m_Transform->GetRotAngle() == 0)
         {
-            MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, x1, y1, 0.0f);
+            MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, AbsPos.x, AbsPos.y, 0.0f);
         }
         else
         {
-            MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, x1 + m_Transform->GetSize().x/2.0f, y1 + m_Transform->GetSize().y/2.0f, 0.0f);
+            MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, AbsPos.x + m_Transform->GetSize().x/2.0f, AbsPos.y + m_Transform->GetSize().y/2.0f, 0.0f);
             MatSys::Renderer->RotateZ  (MatSys::RendererI::MODEL_TO_WORLD, m_Transform->GetRotAngle());
-            MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD,     -m_Transform->GetSize().x/2.0f,     -m_Transform->GetSize().y/2.0f, 0.0f);
+            MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD,           -m_Transform->GetSize().x/2.0f,           -m_Transform->GetSize().y/2.0f, 0.0f);
         }
 
         // Render components in the proper order -- bottom-up.
@@ -401,9 +382,9 @@ void WindowT::Render() const
     {
         MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
 
-        MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, x1+m_Transform->GetSize().x/2.0f, y1+m_Transform->GetSize().y/2.0f, 0.0f);
+        MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD,   AbsPos.x + m_Transform->GetSize().x/2.0f,    AbsPos.y + m_Transform->GetSize().y/2.0f, 0.0f);
         MatSys::Renderer->RotateZ  (MatSys::RendererI::MODEL_TO_WORLD, m_Transform->GetRotAngle());
-        MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, -(x1+m_Transform->GetSize().x/2.0f), -(y1+m_Transform->GetSize().y/2.0f), 0.0f);
+        MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, -(AbsPos.x + m_Transform->GetSize().x/2.0f), -(AbsPos.y + m_Transform->GetSize().y/2.0f), 0.0f);
     }
 
 

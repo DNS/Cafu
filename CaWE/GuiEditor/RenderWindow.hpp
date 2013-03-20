@@ -23,9 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_GUIEDITOR_RENDER_WINDOW_HPP_INCLUDED
 
 #include "ObserverPattern.hpp"
-
-#include "Math3D/Vector3.hpp"
-
+#include "Math3D/Vector2.hpp"
 #include "wx/glcanvas.h"
 
 
@@ -48,8 +46,8 @@ namespace GuiEditor
         void Notify_Changed(SubjectT* Subject, const cf::TypeSys::VarBaseT& Var);
         void NotifySubjectDies(SubjectT* dyingSubject);
 
-        Vector3fT ClientToGui(int x, int y);
-        wxPoint   GuiToClient(float x, float y);
+        Vector2fT ClientToGui(int x, int y) const;
+        wxPoint   GuiToClient(const Vector2fT& Pos) const;
 
         void ZoomIn();
         void ZoomOut();

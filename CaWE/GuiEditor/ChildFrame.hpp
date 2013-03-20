@@ -28,7 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ToolManager.hpp"
 #include "../CommandHistory.hpp"
 
-#include "Math3D/Vector3.hpp"
+#include "Math3D/Vector2.hpp"
 
 
 class ParentFrameT;
@@ -65,7 +65,7 @@ namespace GuiEditor
         float SnapToGrid(float Value) const;
 
         /// Snaps a position in GUI space to the grid.
-        Vector3fT SnapToGrid(const Vector3fT& Position) const;
+        Vector2fT SnapToGrid(const Vector2fT& Position) const;
 
         /// [...]
         /// All(!) commands for modifying the document must be submitted via this method.

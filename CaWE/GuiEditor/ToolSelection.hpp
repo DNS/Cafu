@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Math3D/Vector2.hpp"
 #include "Templates/Array.hpp"
+#include "wx/gdicmn.h"
 
 
 namespace GuiEditor
@@ -33,35 +34,10 @@ namespace GuiEditor
     class GuiDocumentT;
     class ChildFrameT;
 
-    /// Through the selection tool the user can select, move, resize or rotate windows.
-    /// The selection tool is basically a state machine:
-    /// Initially the tool in in an idle state where the user can move the mouse around while
-    /// nothing happens.
-    /// In this state the user can select windows by clicking them and thus change the selection.
-    /// If the mouse cursor is moved over an already selected window the TransformationState of
-    /// the tool changes according to the position over the window to TRANSLATE or SCALE* (whereas
-    /// * is the scale direction).
-    /// Left clicking on an already selected window (valid TransformationState) sets the tool into
-    /// transformation mode and following mouse movements result in transformation of the currently
-    /// selected windows according to TransformationState.
+
     class ToolSelectionT : public ToolI
     {
         public:
-
-        enum TransformationStateE
-        {
-            NONE,
-            TRANSLATE,
-            SCALE_N,
-            SCALE_NE,
-            SCALE_E,
-            SCALE_SE,
-            SCALE_S,
-            SCALE_SW,
-            SCALE_W,
-            SCALE_NW,
-            ROTATE
-        };
 
         ToolSelectionT(GuiDocumentT* GuiDocument, ChildFrameT* Parent);
 
@@ -82,6 +58,33 @@ namespace GuiEditor
 
         private:
 
+        /// This enumeration defines the essential states of this tool.
+        /// Note that in each tool state, the selection can contain any number of map elements.
+        enum ToolStateT
+        {
+            /// The LMB is up and nothing is currently happening.
+            /// The mouse cursor however is updated to indicate a likely next state if the button is pressed at the current position.
+            TS_IDLE,
+
+            /// One of the window handles is currently being dragged, transforming the selected window(s).
+            TS_DRAG_HANDLE
+        };
+
+        enum TrafoHandleT
+        {
+            NONE,
+            TRANSLATE,
+            SCALE_N,
+            SCALE_NE,
+            SCALE_E,
+            SCALE_SE,
+            SCALE_S,
+            SCALE_SW,
+            SCALE_W,
+            SCALE_NW,
+            ROTATE
+        };
+
         /// Window attributes that are changed by a transformation.
         struct WindowStateT
         {
@@ -90,21 +93,19 @@ namespace GuiEditor
             float     Rotation;
         };
 
-        ArrayT<WindowStateT> m_WindowStates; ///< Holds all original window states of the currently transformed windows.
+
+        TrafoHandleT GetHandle(const Vector2fT& GuiPos) const;
+        wxCursor     SuggestCursor(TrafoHandleT TrafoHandle) const;
 
         GuiDocumentT*        m_GuiDocument;
         ChildFrameT*         m_Parent;
 
-        bool                 m_TransformSelection;  ///< Whether the selection is currently transformed (mouse moved transforms selection).
-        bool                 m_TransformationStart; ///< Whether a transformation has been triggered (left mouse down on selected window).
-        TransformationStateE m_TransState;
+        ToolStateT           m_ToolState;
+        TrafoHandleT         m_DragState;
 
-        // Rotation start angle.
-        float m_RotStartAngle;
-
-        // Last known mouse position in GUI coordinates.
-        float m_LastMousePosX;
-        float m_LastMousePosY;
+        ArrayT<WindowStateT> m_WindowStates;    ///< Holds all original window states of the currently transformed windows.
+        float                m_RotStartAngle;   ///< The rotation angle at which the transform was started.
+        Vector2fT            m_LastMousePos;    ///< Last known mouse position, in GUI coordinates.
     };
 }
 

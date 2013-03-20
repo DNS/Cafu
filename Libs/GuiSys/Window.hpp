@@ -169,10 +169,8 @@ namespace cf
             /// Deletes the component at the given index from this window.
             void DeleteComponent(unsigned long CompNr);
 
-            /// Returns the position of the upper left corner of this window in absolute (vs. relative to the parent) virtual coordinates.
-            /// @param x Variable to store the x coordinate of the upper left corner.
-            /// @param y Variable to store the y coordinate of the upper left corner.
-            void GetAbsolutePos(float& x, float& y) const;
+            /// Returns the position of the upper left corner of this window in absolute (vs. relative to the parent) coordinates.
+            Vector2fT GetAbsolutePos() const;
 
             /// Finds the window with the name WantedName in the hierachy tree of this window.
             /// Use GetRoot()->Find("xy") in order to search the entire GUI for the window with name "xy".
@@ -180,14 +178,13 @@ namespace cf
             /// @returns The pointer to the desired window, or NULL if no window with this name exists.
             IntrusivePtrT<WindowT> Find(const std::string& WantedName);   // Method cannot be const because return type is not const -- see implementation.
 
-            /// Finds the topmost window that contains the point (x, y) in the hierachy tree of this window
-            /// (with (x, y) being (absolute) virtual screen coordinates, *not* relative to this window).
-            /// Use GetRoot()->Find(x, y) in order to search the entire GUI for the window containing the point (x, y).
-            /// @param x   The x-coordinate of the test point.
-            /// @param y   The y-coordinate of the test point.
+            /// Finds the topmost window that contains the point `Pos` in the hierachy tree of this window
+            /// (with `Pos` being in (absolute) screen coordinates, *not* relative to this window).
+            /// Use `GetRoot()->Find(Pos)` in order to search the entire GUI for the window containing the point `Pos`.
+            /// @param Pos   The coordinate of the point to test.
             /// @param OnlyVisible   If true, only visible windows are reported. If false, all windows are searched.
-            /// @returns The pointer to the desired window, or NULL if there is no window that contains the point (x, y).
-            IntrusivePtrT<WindowT> Find(float x, float y, bool OnlyVisible=true); // Method cannot be const because return type is not const -- see implementation.
+            /// @returns The pointer to the desired window, or NULL if there is no window that contains `Pos`.
+            IntrusivePtrT<WindowT> Find(const Vector2fT& Pos, bool OnlyVisible=true); // Method cannot be const because return type is not const -- see implementation.
 
             /// Renders this window.
             /// Note that this method does *not* setup any of the MatSys's model, view or projection matrices: it's up to the caller to do that!
