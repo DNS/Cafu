@@ -350,59 +350,36 @@ void WindowT::Render() const
 {
     if (!m_Basics->IsShown()) return;
 
-    const Vector2fT AbsPos = GetAbsolutePos();
-
-
-    // Render the components.
+    MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
     {
-        MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
+        const Vector2fT Pos  = m_Transform->GetPos();
+        const Vector2fT Size = m_Transform->GetSize();
 
         // Set the coordinate origin to the top-left corner of our window.
         if (m_Transform->GetRotAngle() == 0)
         {
-            MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, AbsPos.x, AbsPos.y, 0.0f);
+            MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, Pos.x, Pos.y, 0.0f);
         }
         else
         {
-            MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, AbsPos.x + m_Transform->GetSize().x/2.0f, AbsPos.y + m_Transform->GetSize().y/2.0f, 0.0f);
+            MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, Pos.x + Size.x/2.0f, Pos.y + Size.y/2.0f, 0.0f);
             MatSys::Renderer->RotateZ  (MatSys::RendererI::MODEL_TO_WORLD, m_Transform->GetRotAngle());
-            MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD,           -m_Transform->GetSize().x/2.0f,           -m_Transform->GetSize().y/2.0f, 0.0f);
+            MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD,        -Size.x/2.0f,        -Size.y/2.0f, 0.0f);
         }
-
+    
         // Render components in the proper order -- bottom-up.
         for (unsigned long CompNr = m_Components.Size(); CompNr > 0; CompNr--)
             m_Components[CompNr-1]->Render();
-
-        MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
+    
+        // Render the children.
+        for (unsigned long ChildNr = 0; ChildNr < m_Children.Size(); ChildNr++)
+            m_Children[ChildNr]->Render();
+    
+        // Give the external data class a chance to render additional items.
+        // E.g. if m_ExtData is used in a GUI editor, it might render selection borders etc.
+        if (m_ExtData) m_ExtData->Render();
     }
-
-
-    // Save the current matrices.
-    if (m_Transform->GetRotAngle() != 0)
-    {
-        MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
-
-        MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD,   AbsPos.x + m_Transform->GetSize().x/2.0f,    AbsPos.y + m_Transform->GetSize().y/2.0f, 0.0f);
-        MatSys::Renderer->RotateZ  (MatSys::RendererI::MODEL_TO_WORLD, m_Transform->GetRotAngle());
-        MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, -(AbsPos.x + m_Transform->GetSize().x/2.0f), -(AbsPos.y + m_Transform->GetSize().y/2.0f), 0.0f);
-    }
-
-
-    // Render the children.
-    for (unsigned long ChildNr=0; ChildNr<m_Children.Size(); ChildNr++)
-    {
-        m_Children[ChildNr]->Render();
-    }
-
-    // Give the external data class a chance to render additional items.
-    // E.g. if m_ExtData is used in a GUI editor, it might render selection borders etc.
-    if (m_ExtData) m_ExtData->Render();
-
-    if (m_Transform->GetRotAngle() != 0)
-    {
-        // Restore the previously active matrices.
-        MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
-    }
+    MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
 }
 
 
