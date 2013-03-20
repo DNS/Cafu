@@ -23,9 +23,9 @@ function FPS:OnFrame()
     local TextComp  = self:GetComponent("Text")
 
     if (deltaTime<0.000001) then
-        TextComp:set("Text", " FPS  +inf")
+        TextComp:set("Text", "FPS  +inf")
     else
-        TextComp:set("Text", string.format(" FPS  %.2f", 1/deltaTime))
+        TextComp:set("Text", string.format("FPS  %.2f", 1/deltaTime))
     end
 
     FPS.oldTime=newTime;
@@ -63,7 +63,7 @@ end
 function InfoHealth:OnFrame()
     local Health = Player:GetHealth()
 
-    InfoHealth:GetComponent("Text"):set("Text", " Health  " .. Health)
+    InfoHealth:GetComponent("Text"):set("Text", "Health  " .. Health)
 
     -- Set the text color of the Health counter linear to its value.
     if (Health>100) then Health=100; end;
@@ -74,14 +74,14 @@ end
 
 
 function InfoArmor:OnFrame()
-    InfoArmor:GetComponent("Text"):set("Text", " Armor  " .. Player:GetArmor())
+    InfoArmor:GetComponent("Text"):set("Text", "Armor  " .. Player:GetArmor())
 end
 
 
 function InfoFrags:OnFrame()
     local Frags = Player:GetFrags()
 
-    InfoFrags:GetComponent("Text"):set("Text", " Frags  " .. Frags)
+    InfoFrags:GetComponent("Text"):set("Text", "Frags  " .. Frags)
 
     -- Trigger a 360 degrees rotation of the Frags counter whenever it changes.
     if (Frags ~= InfoFrags.NumFrags) then
