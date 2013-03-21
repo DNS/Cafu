@@ -141,6 +141,18 @@ namespace cf
             IntrusivePtrT<WindowT> GetRoot();     // Method cannot be const because return type is not const -- see implementation.
 
 
+            /// Returns the application component of this window.
+            /// This component is much like the "Basics" and "Transform" components, but it can be set by the
+            /// application (see SetApp()), and is intended for the sole use by the application, e.g. for
+            /// implementing a "selection gizmo" in the GUI Editor.
+            IntrusivePtrT<ComponentBaseT> GetApp() { return m_App; }
+
+            /// The `const` variant of the GetApp() method above. See GetApp() for details.
+            IntrusivePtrT<const ComponentBaseT> GetApp() const { return m_App; }
+
+            /// Sets the application component for this window. See GetApp() for details.
+            void SetApp(IntrusivePtrT<ComponentBaseT> App) { m_App = App; }
+
             /// Returns the "Basics" component of this window.
             /// The "Basics" component defines the name and the "show" flag of the window.
             IntrusivePtrT<ComponentBasicsT> GetBasics() const { return m_Basics; }
@@ -151,12 +163,13 @@ namespace cf
 
 
             /// Returns the components that this window is composed of.
-            /// Only the "custom" components are returned, does *not* include "Basics" and "Transform".
+            /// Only the "custom" components are returned, does *not* include the application component,
+            /// "Basics" or "Transform".
             const ArrayT< IntrusivePtrT<ComponentBaseT> >& GetComponents() const { return m_Components; }
 
             /// Returns the (n-th) component of the given (type) name.
-            /// Covers the "custom" components as well as "Basics" and "Transform", that is,
-            /// `GetComponent("Basics") == GetBasics()` and `GetComponent("Transform") == GetTransform()`.
+            /// Covers the "custom" components as well as the application component, "Basics" and "Transform".
+            /// That is, `GetComponent("Basics") == GetBasics()` and `GetComponent("Transform") == GetTransform()`.
             IntrusivePtrT<ComponentBaseT> GetComponent(const std::string& TypeName, unsigned int n=0) const;
 
             /// Adds the given component to this window.
@@ -250,6 +263,7 @@ namespace cf
             WindowT*                                m_Parent;       ///< The parent of this window. May be NULL if there is no parent. In order to not create cycles of IntrusivePtrT's, the type is intentionally a raw pointer only.
             ArrayT< IntrusivePtrT<WindowT> >        m_Children;     ///< The list of children of this window.
             float                                   m_Time;         ///< This windows local time (starting from 0.0).
+            IntrusivePtrT<ComponentBaseT>           m_App;          ///< A component for the sole use by the application / implementation.
             IntrusivePtrT<ComponentBasicsT>         m_Basics;       ///< The component that defines the name and the "show" flag of this window.
             IntrusivePtrT<ComponentTransformT>      m_Transform;    ///< The component that defines the position, size and orientation of this window.
             ArrayT< IntrusivePtrT<ComponentBaseT> > m_Components;   ///< The components that this window is composed of.

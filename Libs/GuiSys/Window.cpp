@@ -35,7 +35,7 @@ extern "C"
     #include <lauxlib.h>
 }
 
-#include <assert.h>
+#include <cassert>
 
 
 using namespace cf::GuiSys;
@@ -87,6 +87,7 @@ WindowT::WindowT(const WindowCreateParamsT& Params)
       m_Parent(NULL),
       m_Children(),
       m_Time(0.0f),
+      m_App(NULL),
       m_Basics(new ComponentBasicsT()),
       m_Transform(new ComponentTransformT()),
       m_Components()
@@ -101,6 +102,7 @@ WindowT::WindowT(const WindowT& Window, bool Recursive)
       m_Parent(NULL),
       m_Children(),
       m_Time(Window.m_Time),
+      m_App(Window.GetApp()->Clone()),
       m_Basics(Window.GetBasics()->Clone()),
       m_Transform(Window.GetTransform()->Clone()),
       m_Components()
@@ -237,13 +239,19 @@ IntrusivePtrT<WindowT> WindowT::GetRoot()
 
 IntrusivePtrT<ComponentBaseT> WindowT::GetComponent(const std::string& TypeName, unsigned int n) const
 {
-    if (TypeName == "Basics")
+    if (TypeName == m_App->GetName())
+    {
+        if (n == 0) return m_App;
+        n--;
+    }
+
+    if (TypeName == m_Basics->GetName())
     {
         if (n == 0) return m_Basics;
         n--;
     }
 
-    if (TypeName == "Transform")
+    if (TypeName == m_Transform->GetName())
     {
         if (n == 0) return m_Transform;
         n--;
@@ -367,9 +375,14 @@ void WindowT::Render() const
             MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD,        -Size.x/2.0f,        -Size.y/2.0f, 0.0f);
         }
     
-        // Render components in the proper order -- bottom-up.
+        // Render the "custom" components in the proper order -- bottom-up.
         for (unsigned long CompNr = m_Components.Size(); CompNr > 0; CompNr--)
             m_Components[CompNr-1]->Render();
+
+        // Render the "fixed" components.
+        // m_Transform->Render();
+        // m_Basics->Render();
+        m_App->Render();
     
         // Render the children.
         for (unsigned long ChildNr = 0; ChildNr < m_Children.Size(); ChildNr++)
@@ -385,6 +398,7 @@ void WindowT::Render() const
 
 bool WindowT::OnInputEvent(const CaKeyboardEventT& KE)
 {
+    m_App->OnInputEvent(KE);
     // m_Basics->OnInputEvent(KE);
     // m_Transform->OnInputEvent(KE);
 
@@ -411,6 +425,7 @@ bool WindowT::OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY)
     if (Parent==NULL) return false;
     return Parent->OnInputEvent(ME, PosX, PosY);
 #else
+    m_App->OnInputEvent(ME, PosX, PosY);
     // m_Basics->OnInputEvent(ME, PosX, PosY);
     // m_Transform->OnInputEvent(ME, PosX, PosY);
 
@@ -429,6 +444,7 @@ bool WindowT::OnClockTickEvent(float t)
     m_Time += t;
 
     // Forward the event to the "fixed" components (or else they cannot interpolate).
+    m_App->OnClockTickEvent(t);
     m_Basics->OnClockTickEvent(t);
     m_Transform->OnClockTickEvent(t);
 
