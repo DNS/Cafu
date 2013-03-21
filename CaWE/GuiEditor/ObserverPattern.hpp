@@ -34,8 +34,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Templates/Array.hpp"
 #include "Templates/Pointer.hpp"
 
-#include "wx/string.h"
-
 
 namespace cf { namespace GuiSys { class WindowT; } }
 namespace cf { namespace TypeSys { class VarBaseT; } }
@@ -43,15 +41,14 @@ namespace cf { namespace TypeSys { class VarBaseT; } }
 
 namespace GuiEditor
 {
-    class EditorWindowT;
     class SubjectT;
-    class UpdateBoxT;
 
     enum WindowModDetailE
     {
         WMD_GENERIC,    ///< Generic change of windows (useful if the subject doesn't know what exactly has been changed).
         WMD_HIERARCHY   ///< The position of a window in the window hierarchy has been changed.
     };
+
 
     class ObserverT
     {

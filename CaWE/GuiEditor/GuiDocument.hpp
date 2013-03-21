@@ -22,7 +22,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_GUIEDITOR_GUI_DOCUMENT_HPP_INCLUDED
 #define CAFU_GUIEDITOR_GUI_DOCUMENT_HPP_INCLUDED
 
+#include "CompSelection.hpp"
 #include "ObserverPattern.hpp"
+
 #include "GuiSys/GuiImpl.hpp"
 #include "GuiSys/Window.hpp"
 #include "Templates/Pointer.hpp"
@@ -71,6 +73,7 @@ namespace GuiEditor
 
         static void CreateSibling(IntrusivePtrT<cf::GuiSys::WindowT> Win, GuiDocumentT* GuiDoc);
         static EditorWindowT* GetSibling(IntrusivePtrT<cf::GuiSys::WindowT> Win);
+        static IntrusivePtrT<ComponentSelectionT> GetSelComp(IntrusivePtrT<cf::GuiSys::WindowT> Win);
 
 
         private:

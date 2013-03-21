@@ -330,3 +330,18 @@ bool GuiDocumentT::SaveInit_cgui(std::ostream& OutFile)
 
     return static_cast<EditorWindowT*>(Win->GetExtData());
 }
+
+
+/*static*/ IntrusivePtrT<ComponentSelectionT> GuiDocumentT::GetSelComp(IntrusivePtrT<cf::GuiSys::WindowT> Win)
+{
+    IntrusivePtrT<ComponentSelectionT> SelComp = dynamic_pointer_cast<ComponentSelectionT>(Win->GetApp());
+
+    if (SelComp.IsNull())
+    {
+        SelComp = new ComponentSelectionT();
+
+        Win->SetApp(SelComp);
+    }
+
+    return SelComp;
+}
