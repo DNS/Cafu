@@ -23,9 +23,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrame.hpp"
 #include "GuiDocument.hpp"
 #include "VarVisitors.hpp"
+#include "EditorWindow.hpp"
 #include "Commands/AddComponent.hpp"
 #include "Commands/DeleteComponent.hpp"
-#include "Windows/EditorWindow.hpp"
 #include "GuiSys/CompBase.hpp"
 
 #include "wx/artprov.h"

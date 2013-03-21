@@ -24,12 +24,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "RenderWindow.hpp"
 #include "GuiDocument.hpp"
 #include "ChildFrame.hpp"
+#include "EditorWindow.hpp"
 
 #include "Commands/Select.hpp"
 #include "Commands/Create.hpp"
 #include "Commands/Delete.hpp"
 #include "Commands/SetCompVar.hpp"
-#include "Windows/EditorWindow.hpp"
 
 #include "../CursorMan.hpp"
 

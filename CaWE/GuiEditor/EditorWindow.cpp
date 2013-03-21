@@ -20,40 +20,19 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "EditorWindow.hpp"
-#include "../ChildFrame.hpp"
-#include "../GuiDocument.hpp"
-#include "../../EditorMaterial.hpp"
-#include "../../MaterialBrowser/DocAccess.hpp"
-#include "../../MaterialBrowser/MaterialBrowserDialog.hpp"
 
-#include "Fonts/FontTT.hpp"
-#include "GuiSys/CompBase.hpp"
 #include "GuiSys/GuiImpl.hpp"
-#include "GuiSys/GuiResources.hpp"
-#include "GuiSys/WindowCreateParams.hpp"
 #include "MaterialSystem/Mesh.hpp"
 #include "MaterialSystem/Renderer.hpp"
-
-#include "wx/propgrid/property.h"
-#include "wx/propgrid/manager.h"
-#include "wx/propgrid/advprops.h"
 
 
 using namespace GuiEditor;
 
 
-EditorWindowT::EditorWindowT(IntrusivePtrT<cf::GuiSys::WindowT> Win, GuiDocumentT* GuiDoc)
+EditorWindowT::EditorWindowT(IntrusivePtrT<cf::GuiSys::WindowT> Win)
     : m_Win(Win),
-      m_GuiDoc(GuiDoc),
       m_IsSelected(false)
 {
-}
-
-
-namespace
-{
-    const float SelectionColor[]={ 1.0, 0.0, 0.0, 1.0 };
-    const float SelectionBorder =2;
 }
 
 
@@ -62,6 +41,9 @@ void EditorWindowT::Render() const
     // Render selection state of this window.
     if (m_IsSelected)
     {
+        const float SelectionColor[] = { 1.0, 0.0, 0.0, 1.0 };
+        const float SelectionBorder  = 2;
+
         // Render selection border.
         const float x1 = 0.0f;
         const float y1 = 0.0f;

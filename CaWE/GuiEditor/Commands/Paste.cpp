@@ -20,8 +20,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Paste.hpp"
+#include "../EditorWindow.hpp"
 #include "../GuiDocument.hpp"
-#include "../Windows/EditorWindow.hpp"
 
 
 using namespace GuiEditor;

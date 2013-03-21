@@ -20,7 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "GuiDocument.hpp"
-#include "Windows/EditorWindow.hpp"
+#include "EditorWindow.hpp"
 #include "../GameConfig.hpp"
 #include "../EditorMaterialEngine.hpp"
 
@@ -318,20 +318,7 @@ bool GuiDocumentT::SaveInit_cgui(std::ostream& OutFile)
 {
     wxASSERT(!Win.IsNull());
 
-    // IntrusivePtrT<cf::GuiSys::ChoiceT>      Choice     =dynamic_pointer_cast<cf::GuiSys::ChoiceT>(Win);
-    // IntrusivePtrT<cf::GuiSys::EditWindowT>  EditWindow =dynamic_pointer_cast<cf::GuiSys::EditWindowT>(Win);
-    // IntrusivePtrT<cf::GuiSys::ListBoxT>     ListBox    =dynamic_pointer_cast<cf::GuiSys::ListBoxT>(Win);
-    // IntrusivePtrT<cf::GuiSys::ModelWindowT> ModelWindow=dynamic_pointer_cast<cf::GuiSys::ModelWindowT>(Win);
-
-    // EditorWindowT* EditorWin=NULL;
-
-    //      if (!Choice.IsNull())      EditorWin=new EditorChoiceWindowT(Choice, GuiDoc);
-    // else if (!EditWindow.IsNull())  EditorWin=new EditorEditWindowT(EditWindow, GuiDoc);
-    // else if (!ListBox.IsNull())     EditorWin=new EditorListBoxWindowT(ListBox, GuiDoc);
-    // else if (!ModelWindow.IsNull()) EditorWin=new EditorModelWindowT(ModelWindow, GuiDoc);
-    // else                            EditorWin=new EditorWindowT(Win, GuiDoc);
-
-    EditorWindowT* EditorWin = new EditorWindowT(Win, GuiDoc);
+    EditorWindowT* EditorWin = new EditorWindowT(Win);
 
     Win->SetExtData(EditorWin);
 }

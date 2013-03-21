@@ -23,36 +23,18 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_GUIEDITOR_EDITOR_WINDOW_HPP_INCLUDED
 
 #include "GuiSys/Window.hpp"
-#include "wx/wx.h"
-
-
-class wxPGProperty;
-class wxPropertyGridEvent;
-class wxPropertyGridManager;
-namespace GuiEditor { class ChildFrameT; }
-namespace GuiEditor { class GuiDocumentT; }
 
 
 namespace GuiEditor
 {
-    /// The Gui Editor derives from \c cf::GuiSys::WindowT::ExtDataT in order to create its own
-    /// "sibling" class hierarchy of windows that parallels the hierarchy in the GuiSys, effectively
-    /// augmenting the original class hierarchy with any data or functions required for Gui Editor purposes.
+    /// This should actually be a component that is specially handled in WindowT "for the sole use by the application / implementation".
+    /// TODO!
     class EditorWindowT : public cf::GuiSys::WindowT::ExtDataT
     {
         public:
 
         /// The constructor.
-        EditorWindowT(IntrusivePtrT<cf::GuiSys::WindowT> Win, GuiDocumentT* GuiDoc);
-
-        /// The destructor.
-        virtual ~EditorWindowT() { }
-
-        /// Returns the GuiSys "dual" or "sibling" of this window.
-        const IntrusivePtrT<cf::GuiSys::WindowT> GetDual() const { return m_Win; }
-
-        // /// Returns the GuiDocumentT instance that this window lives in.
-        // GuiDocumentT* GetGuiDoc() { return m_GuiDoc; }
+        EditorWindowT(IntrusivePtrT<cf::GuiSys::WindowT> Win);
 
         void SetSelected(bool IsSel) { m_IsSelected=IsSel; }
 
@@ -66,7 +48,6 @@ namespace GuiEditor
         protected:
 
         IntrusivePtrT<cf::GuiSys::WindowT> m_Win;           ///< The GuiSys's "dual" or "sibling" of this window.
-        GuiDocumentT*                      m_GuiDoc;        ///< The GUI document that this window lives in.
         bool                               m_IsSelected;    ///< Is this window selected for editing?
     };
 }
