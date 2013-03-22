@@ -20,7 +20,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "GuiDocument.hpp"
-#include "EditorWindow.hpp"
 #include "../GameConfig.hpp"
 #include "../EditorMaterialEngine.hpp"
 
@@ -78,18 +77,11 @@ GuiDocumentT::GuiDocumentT(GameConfigT* GameConfig, const wxString& GuiInitFileN
         m_GuiProperties=GuiPropertiesT(*m_Gui);
     }
 
-    m_Selection.PushBack(GetRootWindow()); // Make root window default selection.
+    // Set the root window as the initial selection.
+    ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > NewSel;
 
-    // Create editor windows for all GuiSys windows.
-    CreateSibling(GetRootWindow(), this);
-    GetSibling(GetRootWindow())->SetSelected(true);
-
-    ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > GuiWindows;
-    GetRootWindow()->GetChildren(GuiWindows, true);
-
-    for (unsigned long i=0; i<GuiWindows.Size(); i++)
-        CreateSibling(GuiWindows[i], this);
-
+    NewSel.PushBack(GetRootWindow());
+    SetSelection(NewSel);
 
     // Init the editor materials.
     const std::map<std::string, MaterialT*>& GuiMaterials=m_Gui->GetMaterialManager().GetAllMaterials();
@@ -113,7 +105,7 @@ void GuiDocumentT::SetSelection(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT>
 {
     // Clear the previous selection.
     for (unsigned long SelNr=0; SelNr<m_Selection.Size(); SelNr++)
-        GetSibling(m_Selection[SelNr])->SetSelected(false);
+        GetSelComp(m_Selection[SelNr])->SetSelected(false);
 
     m_Selection.Clear();
 
@@ -121,7 +113,7 @@ void GuiDocumentT::SetSelection(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT>
     {
         m_Selection.PushBack(NewSelection[NewSelNr]);
 
-        GetSibling(NewSelection[NewSelNr])->SetSelected(true);
+        GetSelComp(NewSelection[NewSelNr])->SetSelected(true);
     }
 }
 
@@ -314,24 +306,6 @@ bool GuiDocumentT::SaveInit_cgui(std::ostream& OutFile)
 }
 
 
-/*static*/ void GuiDocumentT::CreateSibling(IntrusivePtrT<cf::GuiSys::WindowT> Win, GuiDocumentT* GuiDoc)
-{
-    wxASSERT(!Win.IsNull());
-
-    EditorWindowT* EditorWin = new EditorWindowT(Win);
-
-    Win->SetExtData(EditorWin);
-}
-
-
-/*static*/ EditorWindowT* GuiDocumentT::GetSibling(IntrusivePtrT<cf::GuiSys::WindowT> Win)
-{
-    wxASSERT(dynamic_cast<EditorWindowT*>(Win->GetExtData()));
-
-    return static_cast<EditorWindowT*>(Win->GetExtData());
-}
-
-
 /*static*/ IntrusivePtrT<ComponentSelectionT> GuiDocumentT::GetSelComp(IntrusivePtrT<cf::GuiSys::WindowT> Win)
 {
     IntrusivePtrT<ComponentSelectionT> SelComp = dynamic_pointer_cast<ComponentSelectionT>(Win->GetApp());
@@ -341,6 +315,7 @@ bool GuiDocumentT::SaveInit_cgui(std::ostream& OutFile)
         SelComp = new ComponentSelectionT();
 
         Win->SetApp(SelComp);
+        wxASSERT(!dynamic_pointer_cast<ComponentSelectionT>(Win->GetApp()).IsNull());
     }
 
     return SelComp;

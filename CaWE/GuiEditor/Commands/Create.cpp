@@ -46,8 +46,6 @@ CommandCreateT::CommandCreateT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiS
 
     m_NewWindow->GetTransform()->SetPos((m_Parent->GetTransform()->GetSize() - Size) / 2.0f);
     m_NewWindow->GetTransform()->SetSize(Size);
-
-    GuiDocumentT::CreateSibling(m_NewWindow, m_GuiDocument);
 }
 
 

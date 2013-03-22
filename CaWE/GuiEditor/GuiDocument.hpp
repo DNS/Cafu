@@ -37,8 +37,6 @@ class EditorMaterialI;
 
 namespace GuiEditor
 {
-    class EditorWindowT;
-
     struct GuiPropertiesT
     {
         GuiPropertiesT() {}
@@ -71,8 +69,6 @@ namespace GuiEditor
 
         bool SaveInit_cgui(std::ostream& OutFile);
 
-        static void CreateSibling(IntrusivePtrT<cf::GuiSys::WindowT> Win, GuiDocumentT* GuiDoc);
-        static EditorWindowT* GetSibling(IntrusivePtrT<cf::GuiSys::WindowT> Win);
         static IntrusivePtrT<ComponentSelectionT> GetSelComp(IntrusivePtrT<cf::GuiSys::WindowT> Win);
 
 

@@ -24,7 +24,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "RenderWindow.hpp"
 #include "GuiDocument.hpp"
 #include "ChildFrame.hpp"
-#include "EditorWindow.hpp"
 
 #include "Commands/Select.hpp"
 #include "Commands/Create.hpp"
@@ -109,7 +108,7 @@ bool ToolSelectionT::OnLMouseDown(RenderWindowT* RenderWindow, wxMouseEvent& ME)
         return true;
     }
 
-    if (!GuiDocumentT::GetSibling(ClickedWindow)->IsSelected())
+    if (!GuiDocumentT::GetSelComp(ClickedWindow)->IsSelected())
     {
         if (!ME.ControlDown())
             m_Parent->SubmitCommand(CommandSelectT::Clear(m_GuiDocument));
@@ -378,7 +377,7 @@ ToolSelectionT::TrafoHandleT ToolSelectionT::GetHandle(const Vector2fT& GuiPos) 
 {
     IntrusivePtrT<cf::GuiSys::WindowT> HitWin = m_GuiDocument->GetRootWindow()->Find(GuiPos);
 
-    if (HitWin.IsNull() || !GuiDocumentT::GetSibling(HitWin)->IsSelected())
+    if (HitWin.IsNull() || !GuiDocumentT::GetSelComp(HitWin)->IsSelected())
         return NONE;
 
     const Vector2fT RelPos  = GuiPos - HitWin->GetAbsolutePos();

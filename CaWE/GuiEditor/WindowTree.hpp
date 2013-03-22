@@ -74,9 +74,9 @@ namespace GuiEditor
         void AddChildren(const wxTreeItemId& Item, bool Recursive);
 
         /// Recusively searches the tree for an item associated with a specified WindowT.
-        /// @param StartingItem Item to start the recursive search at.
-        /// @param EditorWindow The WindowT whose tree item we are interested in.
-        const wxTreeItemId FindTreeItem(const wxTreeItemId& StartingItem, IntrusivePtrT<cf::GuiSys::WindowT> EditorWindow) const;
+        /// @param StartingItem   Item to start the recursive search at.
+        /// @param Window         The window whose tree item we are interested in.
+        const wxTreeItemId FindTreeItem(const wxTreeItemId& StartingItem, IntrusivePtrT<cf::GuiSys::WindowT> Window) const;
 
         /// Recursively gets all tree items, beginning with the passed tree item.
         void GetTreeItems(const wxTreeItemId& StartingItem, ArrayT<wxTreeItemId>& Items);

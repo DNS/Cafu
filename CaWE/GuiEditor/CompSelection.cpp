@@ -73,7 +73,9 @@ ComponentSelectionT* ComponentSelectionT::Clone() const
 
 void ComponentSelectionT::Render() const
 {
-    const float b  = 4.0f;
+    if (!m_IsSelected) return;
+
+    const float b  = 2.0f;
     const float x1 = 0.0f;
     const float y1 = 0.0f;
     const float x2 = GetWindow()->GetTransform()->GetSize().x;
@@ -92,7 +94,7 @@ void ComponentSelectionT::Render() const
         for (unsigned int VertexNr = 0; VertexNr < BorderMesh.Vertices.Size(); VertexNr++)
         {
             for (unsigned int i = 0; i < 3; i++)
-                BorderMesh.Vertices[VertexNr].Color[i] = (i == 1) ? 1.0f : 0.0f;
+                BorderMesh.Vertices[VertexNr].Color[i] = (i == 0) ? 1.0f : 0.0f;
 
             BorderMesh.Vertices[VertexNr].Color[3] = 1.0f;
         }

@@ -83,7 +83,6 @@ const cf::TypeSys::TypeInfoT WindowT::TypeInfo(GetWindowTIM(), "WindowT", NULL /
 
 WindowT::WindowT(const WindowCreateParamsT& Params)
     : m_Gui(Params.Gui),
-      m_ExtData(NULL),
       m_Parent(NULL),
       m_Children(),
       m_Time(0.0f),
@@ -92,21 +91,32 @@ WindowT::WindowT(const WindowCreateParamsT& Params)
       m_Transform(new ComponentTransformT()),
       m_Components()
 {
+    m_Basics->UpdateDependencies(this);
+    m_Transform->UpdateDependencies(this);
+
     m_Transform->SetSize(Vector2fT(80, 60));
 }
 
 
 WindowT::WindowT(const WindowT& Window, bool Recursive)
     : m_Gui(Window.m_Gui),
-      m_ExtData(NULL   /* Clone() it?? */),
       m_Parent(NULL),
       m_Children(),
       m_Time(Window.m_Time),
-      m_App(Window.GetApp()->Clone()),
+      m_App(NULL),
       m_Basics(Window.GetBasics()->Clone()),
       m_Transform(Window.GetTransform()->Clone()),
       m_Components()
 {
+    if (Window.GetApp() != NULL)
+    {
+        m_App = Window.GetApp()->Clone();
+        m_App->UpdateDependencies(this);
+    }
+
+    m_Basics->UpdateDependencies(this);
+    m_Transform->UpdateDependencies(this);
+
     // Copy-create all components first.
     m_Components.PushBackEmptyExact(Window.GetComponents().Size());
 
@@ -117,6 +127,7 @@ WindowT::WindowT(const WindowT& Window, bool Recursive)
     for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
         m_Components[CompNr]->UpdateDependencies(this);
 
+    // Recursively copy the children.
     if (Recursive)
     {
         for (unsigned long ChildNr=0; ChildNr<Window.m_Children.Size(); ChildNr++)
@@ -146,10 +157,6 @@ WindowT::~WindowT()
 
     m_Children.Clear();
 
-    // Delete the external data.
-    delete m_ExtData;
-    m_ExtData=NULL;
-
     // Delete the components.
     for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
     {
@@ -162,13 +169,10 @@ WindowT::~WindowT()
     }
 
     m_Components.Clear();
-}
 
-
-void WindowT::SetExtData(ExtDataT* ExtData)
-{
-    delete m_ExtData;
-    m_ExtData=ExtData;
+    if (!m_App.IsNull()) m_App->UpdateDependencies(NULL);
+    m_Basics->UpdateDependencies(NULL);
+    m_Transform->UpdateDependencies(NULL);
 }
 
 
@@ -237,9 +241,19 @@ IntrusivePtrT<WindowT> WindowT::GetRoot()
 }
 
 
+void WindowT::SetApp(IntrusivePtrT<ComponentBaseT> App)
+{
+    if (m_App == App) return;
+
+    if (!m_App.IsNull()) m_App->UpdateDependencies(NULL);
+    m_App = App;
+    if (!m_App.IsNull()) m_App->UpdateDependencies(this);
+}
+
+
 IntrusivePtrT<ComponentBaseT> WindowT::GetComponent(const std::string& TypeName, unsigned int n) const
 {
-    if (TypeName == m_App->GetName())
+    if (m_App != NULL && TypeName == m_App->GetName())
     {
         if (n == 0) return m_App;
         n--;
@@ -374,7 +388,7 @@ void WindowT::Render() const
             MatSys::Renderer->RotateZ  (MatSys::RendererI::MODEL_TO_WORLD, m_Transform->GetRotAngle());
             MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD,        -Size.x/2.0f,        -Size.y/2.0f, 0.0f);
         }
-    
+
         // Render the "custom" components in the proper order -- bottom-up.
         for (unsigned long CompNr = m_Components.Size(); CompNr > 0; CompNr--)
             m_Components[CompNr-1]->Render();
@@ -382,15 +396,11 @@ void WindowT::Render() const
         // Render the "fixed" components.
         // m_Transform->Render();
         // m_Basics->Render();
-        m_App->Render();
-    
+        if (m_App != NULL) m_App->Render();
+
         // Render the children.
         for (unsigned long ChildNr = 0; ChildNr < m_Children.Size(); ChildNr++)
             m_Children[ChildNr]->Render();
-    
-        // Give the external data class a chance to render additional items.
-        // E.g. if m_ExtData is used in a GUI editor, it might render selection borders etc.
-        if (m_ExtData) m_ExtData->Render();
     }
     MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
 }
@@ -398,7 +408,7 @@ void WindowT::Render() const
 
 bool WindowT::OnInputEvent(const CaKeyboardEventT& KE)
 {
-    m_App->OnInputEvent(KE);
+    if (m_App != NULL) m_App->OnInputEvent(KE);
     // m_Basics->OnInputEvent(KE);
     // m_Transform->OnInputEvent(KE);
 
@@ -425,7 +435,7 @@ bool WindowT::OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY)
     if (Parent==NULL) return false;
     return Parent->OnInputEvent(ME, PosX, PosY);
 #else
-    m_App->OnInputEvent(ME, PosX, PosY);
+    if (m_App != NULL) m_App->OnInputEvent(ME, PosX, PosY);
     // m_Basics->OnInputEvent(ME, PosX, PosY);
     // m_Transform->OnInputEvent(ME, PosX, PosY);
 
@@ -444,7 +454,7 @@ bool WindowT::OnClockTickEvent(float t)
     m_Time += t;
 
     // Forward the event to the "fixed" components (or else they cannot interpolate).
-    m_App->OnClockTickEvent(t);
+    if (m_App != NULL) m_App->OnClockTickEvent(t);
     m_Basics->OnClockTickEvent(t);
     m_Transform->OnClockTickEvent(t);
 

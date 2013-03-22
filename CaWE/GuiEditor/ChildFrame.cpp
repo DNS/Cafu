@@ -164,6 +164,9 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
             // Skip fundamental component types (each window has one instance anyway).
             if (cf::GuiSys::IsFundamental(TI)) continue;
 
+            // Skip the ComponentSelectionT class, that it specific to this GUI Editor application.
+            if (TI == &ComponentSelectionT::TypeInfo) continue;
+
             CompTIs.PushBack(TI);
         }
     }

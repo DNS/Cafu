@@ -69,16 +69,6 @@ namespace cf
         {
             public:
 
-            /// Extra / extern / extension data that user code can derive from and assign to this window
-            /// in order to "configure" it with "callbacks" (e.g.\ the \c Render() method) and to have it
-            /// store additional user-specific data and functions.
-            struct ExtDataT
-            {
-                virtual ~ExtDataT() { }
-                //virtual xy* Clone();    // ???
-                virtual void Render() const { }   ///< Callback for rendering additional items, called from WindowT::Render().
-            };
-
             /// The normal constructor.
             /// This constructor can *not* be declared as "protected", because even though only derived classes and
             /// the CreateInstance() function access it, having it protected would not allow derived classes to create
@@ -103,12 +93,6 @@ namespace cf
             virtual ~WindowT();
 
             GuiImplT& GetGui() const { return m_Gui; }
-
-            /// Returns the ExtDataT instance for this window (possibly NULL).
-            ExtDataT* GetExtData() { return m_ExtData; }
-
-            /// Assigns the editor sibling for this window.
-            void SetExtData(ExtDataT* ExtData);
 
             /// Returns the parent window of this window.
             IntrusivePtrT<WindowT> GetParent() const { return m_Parent; }
@@ -151,7 +135,7 @@ namespace cf
             IntrusivePtrT<const ComponentBaseT> GetApp() const { return m_App; }
 
             /// Sets the application component for this window. See GetApp() for details.
-            void SetApp(IntrusivePtrT<ComponentBaseT> App) { m_App = App; }
+            void SetApp(IntrusivePtrT<ComponentBaseT> App);
 
             /// Returns the "Basics" component of this window.
             /// The "Basics" component defines the name and the "show" flag of the window.
@@ -259,7 +243,6 @@ namespace cf
             void operator = (const WindowT&);   ///< Use of the Assignment Operator is not allowed.
 
             GuiImplT&                               m_Gui;          ///< The GUI instance in which this window was created and exists. Useful in many regards, but especially for access to the underlying Lua state.
-            ExtDataT*                               m_ExtData;      ///< The GuiEditor's "dual" or "sibling" of this window.
             WindowT*                                m_Parent;       ///< The parent of this window. May be NULL if there is no parent. In order to not create cycles of IntrusivePtrT's, the type is intentionally a raw pointer only.
             ArrayT< IntrusivePtrT<WindowT> >        m_Children;     ///< The list of children of this window.
             float                                   m_Time;         ///< This windows local time (starting from 0.0).

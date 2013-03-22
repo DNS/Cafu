@@ -123,9 +123,8 @@ void ComponentTextT::VarFontNameT::GetChoices(ArrayT<std::string>& Strings, Arra
     FindClose(FindHandle);
 #else
     DIR* Dir=opendir(DirName.c_str());
-    int  EntryCount=1;  // Lua array numbering starts per convention at 1.
 
-    if (!Dir) return 1;
+    if (!Dir) return;
 
     for (dirent* DirEnt=readdir(Dir); DirEnt!=NULL; DirEnt=readdir(Dir))
     {
