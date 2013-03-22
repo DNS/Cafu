@@ -33,6 +33,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Templates/Array.hpp"
 
 #include "wx/wx.h"
+#include "wx/artprov.h"
 #include "wx/imaglist.h"
 
 
@@ -410,29 +411,45 @@ void WindowTreeT::OnEndLabelEdit(wxTreeEvent& TE)
 }
 
 
+// This function has been duplicated into other modules, too... can we reconcile them?
+static wxMenuItem* AppendMI(wxMenu& Menu, int MenuID, const wxString& Label, const wxArtID& ArtID, bool Active=true, const wxString& Help="")
+{
+    wxMenuItem* MI = new wxMenuItem(&Menu, MenuID, Label, Help);
+
+    // Under wxMSW (2.9.2), the bitmap must be set before the menu item is added to the menu.
+    if (ArtID != "")
+        MI->SetBitmap(wxArtProvider::GetBitmap(ArtID, wxART_MENU));
+
+    // Under wxGTK (2.9.2), the menu item must be added to the menu before we can call Enable().
+    Menu.Append(MI);
+
+    MI->Enable(Active);
+
+    return MI;
+}
+
+
 void WindowTreeT::OnTreeItemRightClick(wxTreeEvent& TE)
 {
     // Note that GetPopupMenuSelectionFromUser() temporarily disables UI updates for the window,
     // so our menu IDs used below should be doubly clash-free.
     enum
     {
-        ID_MENU_CREATE_WINDOW_BASE=wxID_HIGHEST+1,
+        ID_MENU_CREATE_WINDOW = wxID_HIGHEST + 1,
         ID_MENU_DEFAULTFOCUS,
         ID_MENU_RENAME
     };
 
     wxMenu Menu;
-    wxMenu* SubMenuCreate=new wxMenu();
-    SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_BASE, "Window");
 
     // Create context menus.
-    Menu.AppendSubMenu(SubMenuCreate, "Create");
-    Menu.Append(ID_MENU_DEFAULTFOCUS, "Set as default focus");
-    Menu.Append(ID_MENU_RENAME,       "Rename\tF2");
+    AppendMI(Menu, ID_MENU_CREATE_WINDOW, "Create Window", "window-new");
+    AppendMI(Menu, ID_MENU_DEFAULTFOCUS,  "Set as default focus", "");
+    AppendMI(Menu, ID_MENU_RENAME,        "Rename\tF2", "" /*"textfield_rename"*/);
 
     switch (GetPopupMenuSelectionFromUser(Menu))
     {
-        case ID_MENU_CREATE_WINDOW_BASE:
+        case ID_MENU_CREATE_WINDOW:
             m_Parent->SubmitCommand(new CommandCreateT(m_GuiDocument, ((WindowTreeItemT*)GetItemData(TE.GetItem()))->GetWindow()));
             break;
 

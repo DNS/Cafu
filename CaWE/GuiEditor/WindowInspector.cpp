@@ -334,6 +334,7 @@ void WindowInspectorT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
 }
 
 
+// This function has been duplicated into other modules, too... can we reconcile them?
 static wxMenuItem* AppendMI(wxMenu& Menu, int MenuID, const wxString& Label, const wxArtID& ArtID, bool Active=true, const wxString& Help="")
 {
     wxMenuItem* MI = new wxMenuItem(&Menu, MenuID, Label, Help);

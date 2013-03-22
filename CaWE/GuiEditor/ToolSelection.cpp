@@ -34,6 +34,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Math3D/Angles.hpp"
 
+#include "wx/artprov.h"
+
 
 using namespace GuiEditor;
 
@@ -331,38 +333,45 @@ bool ToolSelectionT::OnMouseMove(RenderWindowT* RenderWindow, wxMouseEvent& ME)
 }
 
 
+// This function has been duplicated into other modules, too... can we reconcile them?
+static wxMenuItem* AppendMI(wxMenu& Menu, int MenuID, const wxString& Label, const wxArtID& ArtID, bool Active=true, const wxString& Help="")
+{
+    wxMenuItem* MI = new wxMenuItem(&Menu, MenuID, Label, Help);
+
+    // Under wxMSW (2.9.2), the bitmap must be set before the menu item is added to the menu.
+    if (ArtID != "")
+        MI->SetBitmap(wxArtProvider::GetBitmap(ArtID, wxART_MENU));
+
+    // Under wxGTK (2.9.2), the menu item must be added to the menu before we can call Enable().
+    Menu.Append(MI);
+
+    MI->Enable(Active);
+
+    return MI;
+}
+
+
 bool ToolSelectionT::OnRMouseUp(RenderWindowT* RenderWindow, wxMouseEvent& ME)
 {
     // Note that GetPopupMenuSelectionFromUser() temporarily disables UI updates for the window,
     // so our menu IDs used below should be doubly clash-free.
     enum
     {
-        ID_MENU_CREATE_WINDOW_BASE=wxID_HIGHEST+1,
-        ID_MENU_CREATE_WINDOW_EDIT,
-        ID_MENU_CREATE_WINDOW_CHOICE,
-        ID_MENU_CREATE_WINDOW_LISTBOX,
-        ID_MENU_CREATE_WINDOW_MODEL
+        ID_MENU_CREATE_WINDOW = wxID_HIGHEST + 1,
     };
 
     // Create a new window and use the top most window under the mouse cursor as parent.
     const Vector2fT                    MousePosGUI = RenderWindow->ClientToGui(ME.GetX(), ME.GetY());
     IntrusivePtrT<cf::GuiSys::WindowT> Parent      = m_GuiDocument->GetRootWindow()->Find(MousePosGUI);
 
-    if (Parent.IsNull()) return false;
-
     wxMenu Menu;
-    wxMenu* SubMenuCreate=new wxMenu();
-    SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_BASE,    "Window");
-    // SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_EDIT,    "Text Editor");
-    // SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_CHOICE,  "Choice Box");
-    // SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_LISTBOX, "List Box");
-    // SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_MODEL,   "Model Window");
-    Menu.AppendSubMenu(SubMenuCreate, "Create");
+    AppendMI(Menu, ID_MENU_CREATE_WINDOW, "Create Window", "window-new", !Parent.IsNull());
 
     switch (RenderWindow->GetPopupMenuSelectionFromUser(Menu))
     {
-        case ID_MENU_CREATE_WINDOW_BASE:
-            m_Parent->SubmitCommand(new CommandCreateT(m_GuiDocument, Parent));
+        case ID_MENU_CREATE_WINDOW:
+            if (!Parent.IsNull())
+                m_Parent->SubmitCommand(new CommandCreateT(m_GuiDocument, Parent));
             break;
 
         default:

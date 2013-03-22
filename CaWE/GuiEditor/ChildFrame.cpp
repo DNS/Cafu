@@ -28,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "LivePreview.hpp"
 
 #include "Commands/AddComponent.hpp"
+#include "Commands/Create.hpp"
 #include "Commands/Delete.hpp"
 #include "Commands/Select.hpp"
 #include "Commands/ChangeWindowHierarchy.hpp"
@@ -61,9 +62,28 @@ namespace
     // Default perspective set by the first childframe instance and used to restore default settings later.
     wxString AUIDefaultPerspective;
 
+
     bool CompareTypeInfoNames(const cf::TypeSys::TypeInfoT* const& TI1, const cf::TypeSys::TypeInfoT* const& TI2)
     {
         return wxStricmp(TI1->ClassName, TI2->ClassName) < 0;
+    }
+
+
+    // This function has been duplicated into other modules, too... can we reconcile them?
+    wxMenuItem* AppendMI(wxMenu& Menu, int MenuID, const wxString& Label, const wxArtID& ArtID, bool Active=true, const wxString& Help="")
+    {
+        wxMenuItem* MI = new wxMenuItem(&Menu, MenuID, Label, Help);
+
+        // Under wxMSW (2.9.2), the bitmap must be set before the menu item is added to the menu.
+        if (ArtID != "")
+            MI->SetBitmap(wxArtProvider::GetBitmap(ArtID, wxART_MENU));
+
+        // Under wxGTK (2.9.2), the menu item must be added to the menu before we can call Enable().
+        Menu.Append(MI);
+
+        MI->Enable(Active);
+
+        return MI;
     }
 }
 
@@ -80,7 +100,7 @@ BEGIN_EVENT_TABLE(GuiEditor::ChildFrameT, wxMDIChildFrame)
     EVT_MENU           (wxID_PASTE,                                               GuiEditor::ChildFrameT::OnMenuEditPaste)
     EVT_MENU           (ID_MENU_EDIT_DELETE,                                      GuiEditor::ChildFrameT::OnMenuEditDelete)
     EVT_MENU_RANGE     (ID_MENU_EDIT_SNAP_TO_GRID, ID_MENU_EDIT_SET_GRID_SIZE,    GuiEditor::ChildFrameT::OnMenuEditGrid)
-    EVT_MENU_RANGE     (ID_MENU_COMPONENT_FIRST,   ID_MENU_COMPONENT_MAX,         GuiEditor::ChildFrameT::OnMenuComponent)
+    EVT_MENU_RANGE     (ID_MENU_CREATE_WINDOW,     ID_MENU_CREATE_COMPONENT_MAX,  GuiEditor::ChildFrameT::OnMenuCreate)
     EVT_MENU_RANGE     (ID_MENU_VIEW_WINDOWTREE,   ID_MENU_VIEW_SAVE_USER_LAYOUT, GuiEditor::ChildFrameT::OnMenuView)
     EVT_UPDATE_UI_RANGE(ID_MENU_VIEW_WINDOWTREE,   ID_MENU_VIEW_GUIINSPECTOR,     GuiEditor::ChildFrameT::OnMenuViewUpdate)
     EVT_CLOSE          (                                                          GuiEditor::ChildFrameT::OnClose)
@@ -103,7 +123,7 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
       m_WindowInspector(NULL),
       m_FileMenu(NULL),
       m_EditMenu(NULL),
-      m_CompMenu(NULL),
+      m_CreateMenu(NULL),
       m_ViewMenu(NULL)
 {
     // Register us with the parents list of children.
@@ -150,7 +170,10 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
     item0->Append(m_EditMenu, "&Edit");
 
 
-    m_CompMenu = new wxMenu;
+    m_CreateMenu = new wxMenu;
+    AppendMI(*m_CreateMenu, ID_MENU_CREATE_WINDOW, "Window", "window-new", true, "Create new window");
+    m_CreateMenu->AppendSeparator();
+
     const ArrayT<const cf::TypeSys::TypeInfoT*>& CompRoots = cf::GuiSys::GetComponentTIM().GetTypeInfoRoots();
     ArrayT<const cf::TypeSys::TypeInfoT*>        CompTIs;
 
@@ -181,11 +204,11 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
         if (Name.StartsWith("Component") && Name.EndsWith("T"))
             Name = Name.SubString(9, Name.length() - 2);
 
-        wxASSERT(ID_MENU_COMPONENT_FIRST + TI->TypeNr <= ID_MENU_COMPONENT_MAX);
-        m_CompMenu->Append(ID_MENU_COMPONENT_FIRST + TI->TypeNr, "&" + Name, "Add component to the selected window");
+        wxASSERT(ID_MENU_CREATE_COMPONENT_FIRST + TI->TypeNr <= ID_MENU_CREATE_COMPONENT_MAX);
+        m_CreateMenu->Append(ID_MENU_CREATE_COMPONENT_FIRST + TI->TypeNr, "&" + Name, "Add component to the selected window");
     }
 
-    item0->Append(m_CompMenu, "&Component");
+    item0->Append(m_CreateMenu, "&Create");
 
 
     m_ViewMenu=new wxMenu;
@@ -254,7 +277,7 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
     m_ToolbarTools=new wxAuiToolBar(this, wxID_ANY);
     m_ToolbarTools->AddTool(ID_TOOLBAR_TOOL_SELECTION, "Selection tool", wxBitmap("CaWE/res/GuiEditor/cursor.png", wxBITMAP_TYPE_PNG), "Selection tool", wxITEM_CHECK);
     m_ToolbarTools->ToggleTool(ID_TOOLBAR_TOOL_SELECTION, true); // Selection tool is active by default.
-    m_ToolbarTools->AddTool(ID_TOOLBAR_TOOL_NEW_WINDOW, "Window Creation tool", wxArtProvider::GetBitmap("window-new", wxART_TOOLBAR), "Window creation tool (in this version, use right-mouse-button context menu in Window Tree or main view in order to create new windows)", wxITEM_CHECK);
+    m_ToolbarTools->AddTool(ID_TOOLBAR_TOOL_NEW_WINDOW, "Window Creation tool", wxArtProvider::GetBitmap("window-new", wxART_TOOLBAR), "Window creation tool (in this version, use the Create menu, or the context menu in the Window Tree or main view in order to create new windows)", wxITEM_CHECK);
     m_ToolbarTools->EnableTool(ID_TOOLBAR_TOOL_NEW_WINDOW, false);
     m_ToolbarTools->Realize();
 
@@ -590,9 +613,17 @@ void GuiEditor::ChildFrameT::OnMenuEditUpdate(wxUpdateUIEvent& UE)
 }
 
 
-void GuiEditor::ChildFrameT::OnMenuComponent(wxCommandEvent& CE)
+void GuiEditor::ChildFrameT::OnMenuCreate(wxCommandEvent& CE)
 {
-    const unsigned long           Nr = CE.GetId() - ID_MENU_COMPONENT_FIRST;
+    if (CE.GetId() == ID_MENU_CREATE_WINDOW)
+    {
+        IntrusivePtrT<cf::GuiSys::WindowT> Parent = m_GuiDocument->GetSelection().Size() > 0 ? m_GuiDocument->GetSelection()[0] : m_GuiDocument->GetRootWindow();
+
+        SubmitCommand(new CommandCreateT(m_GuiDocument, Parent));
+        return;
+    }
+
+    const unsigned long           Nr = CE.GetId() - ID_MENU_CREATE_COMPONENT_FIRST;
     const cf::TypeSys::TypeInfoT* TI = cf::GuiSys::GetComponentTIM().FindTypeInfoByNr(Nr);
 
     if (!TI)
