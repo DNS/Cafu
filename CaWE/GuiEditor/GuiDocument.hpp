@@ -22,21 +22,21 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_GUIEDITOR_GUI_DOCUMENT_HPP_INCLUDED
 #define CAFU_GUIEDITOR_GUI_DOCUMENT_HPP_INCLUDED
 
+#include "CompSelection.hpp"
 #include "ObserverPattern.hpp"
+
+#include "GuiSys/GuiImpl.hpp"
+#include "GuiSys/Window.hpp"
 #include "Templates/Pointer.hpp"
 #include "wx/wx.h"
 
 
-namespace cf { namespace GuiSys { class WindowT; } }
-namespace cf { namespace GuiSys { class GuiImplT; } }
 class GameConfigT;
 class EditorMaterialI;
 
 
 namespace GuiEditor
 {
-    class EditorWindowT;
-
     struct GuiPropertiesT
     {
         GuiPropertiesT() {}
@@ -57,7 +57,7 @@ namespace GuiEditor
         ~GuiDocumentT();
 
         cf::GuiSys::GuiImplT* GetGui() { return m_Gui; }
-        IntrusivePtrT<cf::GuiSys::WindowT> GetRootWindow() { return m_RootWindow; }
+        IntrusivePtrT<cf::GuiSys::WindowT> GetRootWindow() { return m_Gui->GetRootWindow(); }
 
         GuiPropertiesT& GetGuiProperties() { return m_GuiProperties; }
 
@@ -69,8 +69,7 @@ namespace GuiEditor
 
         bool SaveInit_cgui(std::ostream& OutFile);
 
-        static void CreateSibling(IntrusivePtrT<cf::GuiSys::WindowT> Win, GuiDocumentT* GuiDoc);
-        static EditorWindowT* GetSibling(IntrusivePtrT<cf::GuiSys::WindowT> Win);
+        static IntrusivePtrT<ComponentSelectionT> GetSelComp(IntrusivePtrT<cf::GuiSys::WindowT> Win);
 
 
         private:
@@ -79,7 +78,6 @@ namespace GuiEditor
         void operator = (const GuiDocumentT&);      ///< Use of the Assignment Operator is not allowed.
 
         cf::GuiSys::GuiImplT*                        m_Gui;
-        IntrusivePtrT<cf::GuiSys::WindowT>           m_RootWindow;
         ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > m_Selection;
         GuiPropertiesT                               m_GuiProperties;
         ArrayT<EditorMaterialI*>                     m_EditorMaterials; ///< One editor material for each material in the GUI (its material manager).

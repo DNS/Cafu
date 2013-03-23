@@ -37,16 +37,7 @@ namespace GuiEditor
     {
         public:
 
-        enum WindowTypeE
-        {
-            WINDOW_BASIC,
-            WINDOW_TEXTEDITOR,
-            WINDOW_CHOICE,
-            WINDOW_LISTBOX,
-            WINDOW_MODEL
-        };
-
-        CommandCreateT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Parent, WindowTypeE Type=WINDOW_BASIC);
+        CommandCreateT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Parent);
 
         // CommandT implementation.
         bool Do();

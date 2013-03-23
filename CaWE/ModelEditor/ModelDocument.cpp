@@ -83,7 +83,7 @@ ModelEditor::ModelDocumentT::ModelDocumentT(GameConfigT* GameConfig, const wxStr
           "Win1:set('backColor', 150/255, 170/255, 204/255, 0.8); "
           "Win1:set('textAlignHor', 2); Win1:set('textAlignVer', 2); "
           "Win1:set('textColor', 15/255, 49/255, 106/255); "
-          "Win1:set('text', 'This is a\\nfull-scale sample GUI.\\n\\nUse the Map Editor\\nto place the model and\\nto assign the true GUI.');", true)),
+          "Win1:set('text', 'This is a\\nfull-scale sample GUI.\\n\\nUse the Map Editor\\nto place the model and\\nto assign the true GUI.');", cf::GuiSys::GuiImplT::InitFlag_InlineCode)),
       m_Ground(GetGroundBrush(GameConfig)),
       m_GameConfig(GameConfig)
 {

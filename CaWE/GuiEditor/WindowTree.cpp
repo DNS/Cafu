@@ -25,14 +25,15 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Commands/Select.hpp"
 #include "Commands/Create.hpp"
-#include "Commands/ModifyWindow.hpp"
 #include "Commands/ModifyGui.hpp"
 #include "Commands/ChangeWindowHierarchy.hpp"
+#include "Commands/SetCompVar.hpp"
 
 #include "GuiSys/Window.hpp"
 #include "Templates/Array.hpp"
 
 #include "wx/wx.h"
+#include "wx/artprov.h"
 #include "wx/imaglist.h"
 
 
@@ -104,12 +105,9 @@ void WindowTreeT::AddChildren(const wxTreeItemId& Item, bool Recursive)
 
     for (unsigned long i=0; i<Children.Size(); i++)
     {
-        wxTreeItemId ID=AppendItem(Item, Children[i]->GetName(), -1, -1, new WindowTreeItemT(Children[i]));
+        wxTreeItemId ID = AppendItem(Item, Children[i]->GetBasics()->GetWindowName(), -1, -1, new WindowTreeItemT(Children[i]));
 
-        if (Children[i]->ShowWindow)
-            SetItemImage(ID, 0); // Visible icon.
-        else
-            SetItemImage(ID, 1); // Invisible icon.
+        SetItemImage(ID, Children[i]->GetBasics()->IsShown() ? 0 : 1);  // Set the "is visible" or "is invisible" icon.
 
         if (Recursive) AddChildren(ID, true);
     }
@@ -218,29 +216,30 @@ void WindowTreeT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<
 }
 
 
-void WindowTreeT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail, const wxString& PropertyName)
+void WindowTreeT::Notify_Changed(SubjectT* Subject, const cf::TypeSys::VarBaseT& Var)
 {
     if (m_IsRecursiveSelfNotify) return;
 
-    if (PropertyName=="Name")
-    {
-        wxASSERT(Windows.Size()==1); // Can't set the name property for more windows since it must always be unique.
+    ArrayT<wxTreeItemId> TreeItems;
 
-        SetItemText(FindTreeItem(GetRootItem(), Windows[0]), Windows[0]->GetName());
-    }
+    GetTreeItems(GetRootItem(), TreeItems);
 
-    if (PropertyName=="Visible")
+    for (unsigned long ItemNr = 0; ItemNr < TreeItems.Size(); ItemNr++)
     {
-        for (unsigned long WindowNr=0; WindowNr<Windows.Size(); WindowNr++)
+        IntrusivePtrT<cf::GuiSys::ComponentBasicsT> Basics = ((WindowTreeItemT*)GetItemData(TreeItems[ItemNr]))->GetWindow()->GetBasics();
+
+        if (&Var == Basics->GetMemberVars().Find("Name"))
         {
-            SetItemImage(FindTreeItem(GetRootItem(), Windows[WindowNr]), Windows[WindowNr]->ShowWindow ? 0 : 1);
+            SetItemText(TreeItems[ItemNr], Basics->GetWindowName());
+            return;
+        }
+
+        if (&Var == Basics->GetMemberVars().Find("Show"))
+        {
+            SetItemImage(TreeItems[ItemNr], Basics->IsShown() ? 0 : 1);   // Set the "is visible" or "is invisible" icon.
+            return;
         }
     }
-}
-
-
-void WindowTreeT::Notify_WinChanged(SubjectT* Subject, const EditorWindowT* Win, const wxString& PropName)
-{
 }
 
 
@@ -265,12 +264,9 @@ void WindowTreeT::RefreshTree()
     DeleteAllItems();
 
     // First add root window to tree.
-    wxTreeItemId ID=AddRoot(m_GuiDocument->GetRootWindow()->GetName(), -1, -1, new WindowTreeItemT(m_GuiDocument->GetRootWindow()));
+    wxTreeItemId ID = AddRoot(m_GuiDocument->GetRootWindow()->GetBasics()->GetWindowName(), -1, -1, new WindowTreeItemT(m_GuiDocument->GetRootWindow()));
 
-    if (m_GuiDocument->GetRootWindow()->ShowWindow)
-        SetItemImage(ID, 0); // Visible icon.
-    else
-        SetItemImage(ID, 1); // Invisible icon.
+    SetItemImage(ID, m_GuiDocument->GetRootWindow()->GetBasics()->IsShown() ? 0 : 1);  // Set the "is visible" or "is invisible" icon.
 
     // Add all children of root recursively to the tree.
     AddChildren(ID, true);
@@ -352,19 +348,15 @@ void WindowTreeT::OnTreeLeftClick(wxMouseEvent& ME)
     // If a icon was hit, toggle visibility of the associated gui window.
     if (HitFlag & wxTREE_HITTEST_ONITEMICON)
     {
-        IntrusivePtrT<cf::GuiSys::WindowT> ClickedWindow=((WindowTreeItemT*)GetItemData(ClickedItem))->GetWindow();
+        IntrusivePtrT<cf::GuiSys::WindowT> ClickedWindow = ((WindowTreeItemT*)GetItemData(ClickedItem))->GetWindow();
+        cf::TypeSys::VarT<bool>* Show = dynamic_cast<cf::TypeSys::VarT<bool>*>(ClickedWindow->GetBasics()->GetMemberVars().Find("Show"));
 
         m_IsRecursiveSelfNotify=true;
 
-        if (ClickedWindow->ShowWindow)
+        if (Show)
         {
-            m_Parent->SubmitCommand(new CommandModifyWindowT(m_GuiDocument, ClickedWindow, "Visible", ClickedWindow->GetMemberVar("show"), 0));
-            SetItemImage(ClickedItem, 1); // Invisible icon.
-        }
-        else
-        {
-            m_Parent->SubmitCommand(new CommandModifyWindowT(m_GuiDocument, ClickedWindow, "Visible", ClickedWindow->GetMemberVar("show"), 1));
-            SetItemImage(ClickedItem, 0); // Visible icon.
+            m_Parent->SubmitCommand(new CommandSetCompVarT<bool>(m_GuiDocument, *Show, !Show->Get()));
+            SetItemImage(ClickedItem, Show->Get() ? 0 : 1);   // Set the "is visible" or "is invisible" icon.
         }
 
         m_IsRecursiveSelfNotify=false;
@@ -399,17 +391,41 @@ void WindowTreeT::OnSelectionChanged(wxTreeEvent& TE)
 
 void WindowTreeT::OnEndLabelEdit(wxTreeEvent& TE)
 {
-    IntrusivePtrT<cf::GuiSys::WindowT> Window=((WindowTreeItemT*)GetItemData(TE.GetItem()))->GetWindow();
+    IntrusivePtrT<cf::GuiSys::WindowT> Window = ((WindowTreeItemT*)GetItemData(TE.GetItem()))->GetWindow();
+    cf::TypeSys::VarT<std::string>* Name = dynamic_cast<cf::TypeSys::VarT<std::string>*>(Window->GetBasics()->GetMemberVars().Find("Name"));
 
     if (TE.IsEditCancelled()) return;
 
     m_IsRecursiveSelfNotify=true;
-    m_Parent->SubmitCommand(new CommandModifyWindowT(m_GuiDocument, Window, "Name", Window->GetMemberVar("name"), TE.GetLabel()));
+
+    if (Name)
+    {
+        m_Parent->SubmitCommand(new CommandSetCompVarT<std::string>(m_GuiDocument, *Name, std::string(TE.GetLabel())));
+    }
+
     m_IsRecursiveSelfNotify=false;
 
     // The command may well have set a name different from TE.GetLabel().
     TE.Veto();
-    SetItemText(TE.GetItem(), Window->GetName());
+    SetItemText(TE.GetItem(), Window->GetBasics()->GetWindowName());
+}
+
+
+// This function has been duplicated into other modules, too... can we reconcile them?
+static wxMenuItem* AppendMI(wxMenu& Menu, int MenuID, const wxString& Label, const wxArtID& ArtID, bool Active=true, const wxString& Help="")
+{
+    wxMenuItem* MI = new wxMenuItem(&Menu, MenuID, Label, Help);
+
+    // Under wxMSW (2.9.2), the bitmap must be set before the menu item is added to the menu.
+    if (ArtID != "")
+        MI->SetBitmap(wxArtProvider::GetBitmap(ArtID, wxART_MENU));
+
+    // Under wxGTK (2.9.2), the menu item must be added to the menu before we can call Enable().
+    Menu.Append(MI);
+
+    MI->Enable(Active);
+
+    return MI;
 }
 
 
@@ -419,52 +435,26 @@ void WindowTreeT::OnTreeItemRightClick(wxTreeEvent& TE)
     // so our menu IDs used below should be doubly clash-free.
     enum
     {
-        ID_MENU_CREATE_WINDOW_BASE=wxID_HIGHEST+1,
-        ID_MENU_CREATE_WINDOW_EDIT,
-        ID_MENU_CREATE_WINDOW_CHOICE,
-        ID_MENU_CREATE_WINDOW_LISTBOX,
-        ID_MENU_CREATE_WINDOW_MODEL,
+        ID_MENU_CREATE_WINDOW = wxID_HIGHEST + 1,
         ID_MENU_DEFAULTFOCUS,
         ID_MENU_RENAME
     };
 
     wxMenu Menu;
-    wxMenu* SubMenuCreate=new wxMenu();
-    SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_BASE,    "Window");
-    SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_EDIT,    "Text Editor");
-    SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_CHOICE,  "Choice Box");
-    SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_LISTBOX, "List Box");
-    SubMenuCreate->Append(ID_MENU_CREATE_WINDOW_MODEL,   "Model Window");
 
     // Create context menus.
-    Menu.AppendSubMenu(SubMenuCreate, "Create");
-    Menu.Append(ID_MENU_DEFAULTFOCUS, "Set as default focus");
-    Menu.Append(ID_MENU_RENAME,       "Rename\tF2");
+    AppendMI(Menu, ID_MENU_CREATE_WINDOW, "Create Window", "window-new");
+    AppendMI(Menu, ID_MENU_DEFAULTFOCUS,  "Set as default focus", "");
+    AppendMI(Menu, ID_MENU_RENAME,        "Rename\tF2", "" /*"textfield_rename"*/);
 
     switch (GetPopupMenuSelectionFromUser(Menu))
     {
-        case ID_MENU_CREATE_WINDOW_BASE:
+        case ID_MENU_CREATE_WINDOW:
             m_Parent->SubmitCommand(new CommandCreateT(m_GuiDocument, ((WindowTreeItemT*)GetItemData(TE.GetItem()))->GetWindow()));
             break;
 
-        case ID_MENU_CREATE_WINDOW_EDIT:
-            m_Parent->SubmitCommand(new CommandCreateT(m_GuiDocument, ((WindowTreeItemT*)GetItemData(TE.GetItem()))->GetWindow(), CommandCreateT::WINDOW_TEXTEDITOR));
-            break;
-
-        case ID_MENU_CREATE_WINDOW_CHOICE:
-            m_Parent->SubmitCommand(new CommandCreateT(m_GuiDocument, ((WindowTreeItemT*)GetItemData(TE.GetItem()))->GetWindow(), CommandCreateT::WINDOW_CHOICE));
-            break;
-
-        case ID_MENU_CREATE_WINDOW_LISTBOX:
-            m_Parent->SubmitCommand(new CommandCreateT(m_GuiDocument, ((WindowTreeItemT*)GetItemData(TE.GetItem()))->GetWindow(), CommandCreateT::WINDOW_LISTBOX));
-            break;
-
-        case ID_MENU_CREATE_WINDOW_MODEL:
-            m_Parent->SubmitCommand(new CommandCreateT(m_GuiDocument, ((WindowTreeItemT*)GetItemData(TE.GetItem()))->GetWindow(), CommandCreateT::WINDOW_MODEL));
-            break;
-
         case ID_MENU_DEFAULTFOCUS:
-            m_Parent->SubmitCommand(CommandModifyGuiT::Create(m_GuiDocument, "DefaultFocus", ((WindowTreeItemT*)GetItemData(TE.GetItem()))->GetWindow()->GetName()));
+            m_Parent->SubmitCommand(CommandModifyGuiT::Create(m_GuiDocument, "DefaultFocus", ((WindowTreeItemT*)GetItemData(TE.GetItem()))->GetWindow()->GetBasics()->GetWindowName()));
             break;
 
         case ID_MENU_RENAME:

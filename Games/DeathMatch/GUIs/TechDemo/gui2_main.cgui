@@ -1,0 +1,43 @@
+dofile("Games/DeathMatch/GUIs/TechDemo/gui2_init.cgui");
+
+
+function CallRescueButton:OnMouseEnter()
+    self:GetComponent("Image"):interpolate("Color.r", 0.5, 1.0, 500)
+    self:GetComponent("Text"):interpolate("Scale", 0.6, 0.7, 500)
+end
+
+function CallRescueButton:OnMouseLeave()
+    self:GetComponent("Image"):interpolate("Color.r", 1.0, 0.5, 500)
+    self:GetComponent("Text"):interpolate("Scale", 0.7, 0.6, 500)
+end
+
+function CallRescueButton:OnMouseButtonDown()
+    EmgTunnelStorageRoomGUI:GetComponent("Image"):interpolate("Color.g", 0.25*0.4, 0.70*0.4, 500)
+    EmgTunnelStorageRoomGUI:GetComponent("Image"):interpolate("Color.b", 0.70*0.4, 0.25*0.4, 500)
+
+    Heading:GetComponent("Border"):set("Color", 0.7, 0.9, 0.8)
+    Heading:GetComponent("Text"):set("Color", 0.51, 1.0, 0.8)
+    TunnelLocation:GetComponent("Border"):set("Color", 0.7, 0.9, 0.8)
+    TunnelLocation:GetComponent("Text"):set("Color", 0.51, 1.0, 0.8)
+
+    self:GetComponent("Text"):set("Text", "OK")
+    self:GetTransform():interpolate("Rotation", 0, 360, 500)
+    self:GetComponent("Image"):interpolate("Color.r", 1, 0, 500)
+    self:GetComponent("Image"):interpolate("Color.g", 0, 0.8, 500)
+
+    CallRescueText:GetComponent("Text"):set("Text", "Opening connection to\nSAR center...")
+    CallRescueText:GetComponent("Text"):set("hor. Align", 0);
+    CallRescueText:GetComponent("Border"):set("Color", 0.7, 0.9, 0.8)
+    CallRescueText:GetComponent("Text"):set("Color", 0.51, 1.0, 0.8)
+
+    CallRescueText.HelpText:GetComponent("Text"):set("Color", 0.0, 0.7*0.4, 0.25*0.4)
+    CallRescueText.HelpText:GetComponent("Text"):interpolate("Color.r", 0, 0, 3000)
+    CallRescueText.HelpText:GetComponent("Text"):interpolate("Color.r", 0, 1, 50)
+    CallRescueText.HelpText:GetComponent("Text"):set("Text", "ERROR: Invalid socket handle at port 7.")
+
+    Entity:RunMapCommand("OnGui_CallRescueButtonPressed();");
+
+    gui:setInteractive(false);
+    gui:showMouse(false);
+    return true;
+end

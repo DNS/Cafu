@@ -225,7 +225,7 @@ float TrueTypeFontT::GetLineSpacing(float Scale) const
 }
 
 
-void TrueTypeFontT::Print(float PosX, float PosY, float Scale, unsigned long Color, const char* PrintString, ...)
+void TrueTypeFontT::Print(float PosX, float PosY, float Scale, unsigned long Color, const char* PrintString, ...) const
 {
     if (!PrintString) return;
 

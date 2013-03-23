@@ -122,26 +122,10 @@ void SubjectT::UpdateAllObservers_Modified(IntrusivePtrT<cf::GuiSys::WindowT> Wi
 }
 
 
-void SubjectT::UpdateAllObservers_Modified(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail, const wxString& PropertyName)
+void SubjectT::UpdateAllObservers_Modified(const cf::TypeSys::VarBaseT& Var)
 {
-    for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
-        m_Observers[ObsNr]->NotifySubjectChanged_Modified(this, Windows, Detail, PropertyName);
-}
-
-
-void SubjectT::UpdateAllObservers_Modified(IntrusivePtrT<cf::GuiSys::WindowT> Window, WindowModDetailE Detail, const wxString& PropertyName)
-{
-    ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > Windows;
-    Windows.PushBack(Window);
-
-    UpdateAllObservers_Modified(Windows, Detail, PropertyName);
-}
-
-
-void SubjectT::UpdateAllObservers_Modified(const EditorWindowT* Win, const wxString& PropName)
-{
-    for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
-        m_Observers[ObsNr]->Notify_WinChanged(this, Win, PropName);
+    for (unsigned long ObsNr = 0; ObsNr < m_Observers.Size(); ObsNr++)
+        m_Observers[ObsNr]->Notify_Changed(this, Var);
 }
 
 

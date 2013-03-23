@@ -28,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 class CafuModelT;
 namespace cf { namespace GuiSys { class GuiI; } }
+namespace cf { namespace GuiSys { class GuiImplT; } }
 struct luaL_Reg;
 
 
@@ -84,8 +85,8 @@ namespace GAME_NAME
         mutable IntrusivePtrT<AnimExpressionT>   m_AnimExpr;    ///< The state of the currently playing animation sequence. Used <em>independently</em> on the server and the clients; only a <em>restart</em> of a sequence is sync'ed over the network via the EventID_RestartSequ event.
         mutable IntrusivePtrT<AnimExprStandardT> m_LastStdAE;   ///< The most recent standard expression that we set (as a subexpression of m_AnimExpr).
 
-        std::string       GuiName;      ///< If our "gui" entity key is set, store the value here.
-        cf::GuiSys::GuiI* Gui;          ///< If the model has GUI fixtures, we load the GUI here, *both* on the server- as well as on the client-side.
+        std::string           GuiName;  ///< If our "gui" entity key is set, store the value here.
+        cf::GuiSys::GuiImplT* Gui;      ///< If the model has GUI fixtures, we load the GUI here, *both* on the server- as well as on the client-side.
 
 
         // Script methods (to be called from the map/entity Lua scripts).

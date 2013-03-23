@@ -106,7 +106,7 @@ namespace cf
 
         /// Prints PrintString at (PosX, PosY) in color Color.
         /// Note that this method does *not* setup any of the MatSys's model, view or projection matrices: it's up to the caller to do that!
-        void Print(float PosX, float PosY, float Scale, unsigned long Color, const char* PrintString, ...);
+        void Print(float PosX, float PosY, float Scale, unsigned long Color, const char* PrintString, ...) const;
 
 
         private:

@@ -110,7 +110,7 @@ int ServerT::ConFunc_changeLevel_Callback(lua_State* LuaState)
 
     try
     {
-        NewWorld=new CaServerWorldT(ServerPtr->m_GameInfo, ServerPtr->m_Game, PathName.c_str(), ServerPtr->m_ModelMan);
+        NewWorld=new CaServerWorldT(ServerPtr->m_GameInfo, ServerPtr->m_Game, PathName.c_str(), ServerPtr->m_ModelMan, ServerPtr->m_GuiRes);
     }
     catch (const WorldT::LoadErrorT& E) { return luaL_error(LuaState, E.Msg); }
 
@@ -166,14 +166,15 @@ static ConFuncT ConFunc_runMapCmd("runMapCmd", ServerT::ConFunc_runMapCmd_Callba
     "Runs the given command string in the context of the current map/entity script.");
 
 
-ServerT::ServerT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, const GuiCallbackI& GuiCallback_, ModelManagerT& ModelMan)
+ServerT::ServerT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, const GuiCallbackI& GuiCallback_, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes)
     : ServerSocket(g_WinSock->GetUDPSocket(Options_ServerPortNr.GetValueInt())),
       m_GameInfo(GameInfo),
       m_Game(Game),
       WorldName(""),
       World(NULL),
       GuiCallback(GuiCallback_),
-      m_ModelMan(ModelMan)
+      m_ModelMan(ModelMan),
+      m_GuiRes(GuiRes)
 {
     if (ServerSocket==INVALID_SOCKET) throw InitErrorT(cf::va("Unable to obtain UDP socket on port %i.", Options_ServerPortNr.GetValueInt()));
 

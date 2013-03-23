@@ -1,0 +1,131 @@
+-- This is a Cafu engine GUI script file, written by CaWE, the Cafu World Editor.
+-- You CAN edit this file manually, but note that CaWE may overwrite your changes.
+-- It is recommended that you place all your customizations like method overrides
+-- and effects into a separate .cgui file that calls dofile() for including this.
+
+
+-- Instantiation of all windows.
+-- *****************************
+
+Background=gui:new("WindowT", "Background");
+
+ReallyQuit=gui:new("WindowT", "ReallyQuit");
+ReallyQuit.ButtonYes=gui:new("WindowT", "ButtonYes");
+ReallyQuit.ButtonNo=gui:new("WindowT", "ButtonNo");
+
+
+-- Set the GUIs root window.
+-- *************************
+
+gui:SetRootWindow(Background);
+
+
+-- Setup the window hierarchy.
+-- ***************************
+
+Background:AddChild(ReallyQuit);
+ReallyQuit:AddChild(ReallyQuit.ButtonYes);
+ReallyQuit:AddChild(ReallyQuit.ButtonNo);
+
+
+-- Initialization of the window contents ("constructor code").
+-- ***********************************************************
+
+function Background:OnInit()
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
+
+    local c1 = gui:new("ComponentImageT")
+    c1:set("Material", "")
+    c1:set("Color", 0, 0, 0)
+    c1:set("Alpha", 0.7)
+
+    self:AddComponent(c1)
+
+    gui:activate      (true);
+    gui:setInteractive(true);
+    gui:showMouse     (true);
+    gui:setFocus      (ReallyQuit.ButtonYes);
+end
+
+function ReallyQuit:OnInit()
+    self:GetTransform():set("Pos", 120, 90)
+    self:GetTransform():set("Size", 400, 300)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Really Quit?")
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.7)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.51, 0.8, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.7)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3)
+end
+
+function ReallyQuit.ButtonYes:OnInit()
+    self:GetTransform():set("Pos", 53, 250)
+    self:GetTransform():set("Size", 120, 40)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Yes (OK)")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.4)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.5)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
+end
+
+function ReallyQuit.ButtonNo:OnInit()
+    self:GetTransform():set("Pos", 227, 250)
+    self:GetTransform():set("Size", 120, 40)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "No (Cancel)")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.4)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.5)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
+end
+

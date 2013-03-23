@@ -22,7 +22,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GuiManImpl.hpp"
 #include "Gui.hpp"
 #include "GuiImpl.hpp"
-#include "InitWindowTypes.hpp"
 #include "Window.hpp"
 #include "ConsoleCommands/Console.hpp"
 #include "TextParser/TextParser.hpp"
@@ -33,9 +32,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <assert.h>
 
 using namespace cf::GuiSys;
-
-
-static const unsigned long InitDummy=InitWindowTypes();
 
 
 GuiManImplT::GuiManImplT(GuiResourcesT& GuiRes)

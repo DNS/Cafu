@@ -1,0 +1,133 @@
+-- This is a Cafu engine GUI script file, written by CaWE, the Cafu World Editor.
+-- You CAN edit this file manually, but note that CaWE may overwrite your changes.
+-- It is recommended that you place all your customizations like method overrides
+-- and effects into a separate .cgui file that calls dofile() for including this.
+
+
+-- Instantiation of all windows.
+-- *****************************
+
+Background=gui:new("WindowT", "Background");
+
+ChatInputFrame=gui:new("WindowT", "ChatInputFrame");
+ChatInputFrame.ChatInput=gui:new("WindowT", "ChatInput");
+ChatInputFrame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
+
+
+-- Set the GUIs root window.
+-- *************************
+
+gui:SetRootWindow(Background);
+
+
+-- Setup the window hierarchy.
+-- ***************************
+
+Background:AddChild(ChatInputFrame);
+ChatInputFrame:AddChild(ChatInputFrame.ChatInput);
+ChatInputFrame:AddChild(ChatInputFrame.ButtonCancel);
+
+
+-- Initialization of the window contents ("constructor code").
+-- ***********************************************************
+
+function Background:OnInit()
+    self:GetTransform():set("Pos", 0, 100)
+    self:GetTransform():set("Size", 640, 50)
+
+    local c1 = gui:new("ComponentImageT")
+    c1:set("Material", "")
+    c1:set("Color", 0, 0, 0)
+    c1:set("Alpha", 0.7)
+
+    self:AddComponent(c1)
+
+    gui:activate      (false);
+    gui:setInteractive(true);
+    gui:showMouse     (true);
+    gui:setFocus      (ChatInputFrame.ChatInput);
+end
+
+function ChatInputFrame:OnInit()
+    self:GetTransform():set("Pos", 5, 5)
+    self:GetTransform():set("Size", 630, 40)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", " Say:")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.25)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.7)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3)
+end
+
+function ChatInputFrame.ChatInput:OnInit()
+    self:GetTransform():set("Pos", 30, 10)
+    self:GetTransform():set("Size", 520, 20)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.5)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Text", "")
+    c2:set("Font", "Fonts/Arial")
+    c2:set("Scale", 0.25)
+    c2:set("Padding", 3, 0)
+    c2:set("Color", 0.51, 0.8, 1)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentTextEditT")
+    c3:set("CursorPos", 0)
+    c3:set("CursorType", 0)
+    c3:set("CursorRate", 1)
+    c3:set("CursorColor", 0.02, 0.36, 1)
+    c3:set("CursorAlpha", 1)
+
+    self:AddComponent(c1, c2, c3)
+end
+
+function ChatInputFrame.ButtonCancel:OnInit()
+    self:GetTransform():set("Pos", 560, 10)
+    self:GetTransform():set("Size", 60, 20)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Cancel")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.25)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.5)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
+end
+

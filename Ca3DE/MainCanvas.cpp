@@ -23,7 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "AppCafu.hpp"
 #include "MainFrame.hpp"
 #include "Client/Client.hpp"
-#include "Client/ClientWindow.hpp"
+#include "Client/CompClient.hpp"
 #include "Server/Server.hpp"
 
 #include "Bitmap/Bitmap.hpp"
@@ -343,26 +343,38 @@ void MainCanvasT::Initialize()
 
         // Create the client and server instances.
         m_SvGuiCallback=new SvGuiCallbT();
-        m_Server=new ServerT(m_GameInfo, m_Game, *m_SvGuiCallback, *m_ModelManager);
-        m_Client=new ClientT(m_GameInfo, m_Game, *m_ModelManager);  // The client initializes in IDLE state.
+        m_Server=new ServerT(m_GameInfo, m_Game, *m_SvGuiCallback, *m_ModelManager, *m_GuiResources);
+        m_Client=new ClientT(m_GameInfo, m_Game, *m_ModelManager, *m_GuiResources);   // The client initializes in IDLE state.
 
 
         // Finish the initialization of the GuiSys.
         // Note that in the line below, the call to gui:setMousePos() is important, because it sets "MouseOverWindow" in the GUI properly to "Cl".
         // Without this, a left mouse button click that was not preceeded by a mouse movement would erroneously remove the input focus from "Cl".
-        cf::GuiSys::GuiImplT*              ClientGui   =new cf::GuiSys::GuiImplT(*m_GuiResources, "Cl=gui:new('ClientWindowT'); gui:SetRootWindow(Cl); gui:showMouse(false); gui:setMousePos(320, 240); gui:setFocus(Cl); Cl:SetName('Client');", true);
-        IntrusivePtrT<cf::GuiSys::WindowT> ClientWindow=ClientGui->GetRootWindow()->Find("Client");
-        IntrusivePtrT<ClientWindowT>       ClWin       =dynamic_pointer_cast<ClientWindowT>(ClientWindow);
+        cf::GuiSys::GuiImplT* ClientGui = new cf::GuiSys::GuiImplT(*m_GuiResources,
+            "Cl=gui:new('WindowT', 'Client')\n"
+            "\n"
+            "gui:SetRootWindow(Cl)\n"
+            "gui:showMouse(false)\n"
+            "gui:setMousePos(320, 240)\n"
+            "gui:setFocus(Cl)\n", cf::GuiSys::GuiImplT::InitFlag_InlineCode);
 
-        assert(ClWin!=NULL);
-        if (!ClWin.IsNull()) ClWin->SetClient(m_Client);
+        IntrusivePtrT<cf::GuiSys::WindowT> ClientWindow = ClientGui->GetRootWindow()->Find("Client");
+        IntrusivePtrT<ComponentClientT>    CompClient   = new ComponentClientT;
+
+        assert(ClientWindow != NULL);
+        ClientWindow->GetTransform()->SetPos(Vector2fT(0, 0));
+        ClientWindow->GetTransform()->SetSize(Vector2fT(640, 480));
+
+        CompClient->SetClient(m_Client);
+        ClientWindow->AddComponent(CompClient);
+
         cf::GuiSys::GuiMan->Register(ClientGui);
 
 
         cf::GuiSys::GuiI* MainMenuGui=cf::GuiSys::GuiMan->Find("Games/"+m_GameInfo->GetName()+"/GUIs/MainMenu/MainMenu_main.cgui", true);
         if (MainMenuGui==NULL)
         {
-            MainMenuGui=new cf::GuiSys::GuiImplT(*m_GuiResources, "Err=gui:new('WindowT'); gui:SetRootWindow(Err); gui:activate(true); gui:setInteractive(true); gui:showMouse(false); Err:set('rect', 0, 0, 640, 480); Err:set('textScale', 0.8); Err:set('text', 'Error loading MainMenu_main.cgui,\\nsee console <F1> for details.');", true);
+            MainMenuGui=new cf::GuiSys::GuiImplT(*m_GuiResources, "Err=gui:new('WindowT'); gui:SetRootWindow(Err); gui:activate(true); gui:setInteractive(true); gui:showMouse(false); Err:set('rect', 0, 0, 640, 480); Err:set('textScale', 0.8); Err:set('text', 'Error loading MainMenu_main.cgui,\\nsee console <F1> for details.');", cf::GuiSys::GuiImplT::InitFlag_InlineCode);
             cf::GuiSys::GuiMan->Register(MainMenuGui);
         }
         m_Client->SetMainMenuGui(MainMenuGui);
@@ -522,7 +534,7 @@ void MainCanvasT::OnIdle(wxIdleEvent& IE)
     // derive a mouse event from it, then recenter the mouse cursor.
     cf::GuiSys::GuiI* ActiveGui=cf::GuiSys::GuiMan->GetTopmostActiveAndInteractive();
 
-    if (ActiveGui && ActiveGui->GetRootWindow()->GetName() == "Client")
+    if (ActiveGui && ActiveGui->GetRootWindow()->GetBasics()->GetWindowName() == "Client")
     {
         const wxPoint MousePos  =ScreenToClient(wxGetMousePosition());  // Note: ScreenToClient() is a method of wxWindow.
         const wxSize  WinCenter =GetClientSize()/2;
@@ -578,7 +590,7 @@ void MainCanvasT::OnMouseMove(wxMouseEvent& ME)
 
     // This is equivalent to calling cf::GuiSys::GuiMan->ProcessDeviceEvent(MouseEvent),
     // but computing the amount of mouse movement is much easier (and more precise) like this.
-    if (Gui && Gui->GetRootWindow()->GetName() != "Client")
+    if (Gui && Gui->GetRootWindow()->GetBasics()->GetWindowName() != "Client")
     {
         float OldMousePosX;
         float OldMousePosY;

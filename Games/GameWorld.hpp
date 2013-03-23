@@ -33,6 +33,7 @@ class GameEntityI;
 class PhysicsWorldT;
 namespace cf { namespace ClipSys { class ClipWorldT; } }
 namespace cf { namespace GameSys { class GameI; } }
+namespace cf { namespace GuiSys { class GuiResourcesT; } }
 namespace cf { class UniScriptStateT; }
 
 
@@ -88,6 +89,9 @@ namespace cf
             /// The returned model instance is managed by the GameWorldI implementation in a ModelManagerT,
             /// thus the caller does not have to (and if fact, must not) delete the CafuModelT instance.
             virtual const CafuModelT* GetModel(const std::string& FileName) const=0;
+
+            /// Returns the GUI resources that are commonly used in this game world.
+            virtual cf::GuiSys::GuiResourcesT& GetGuiResources() const=0;
         };
     }
 }

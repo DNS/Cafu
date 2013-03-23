@@ -311,7 +311,7 @@ void MapHelperModelT::UpdateModelCache() const
                         "Win1:set('textAlignHor', 2); Win1:set('textAlignVer', 2); "
                         "Win1:set('textColor', 15/255, 49/255, 106/255); "
                         "Win1:set('text', 'This is a\\nfull-scale sample GUI.\\n\\n"
-                        "Set the \\\""+ std::string(GuiProp->Key) +"\\\" entity property\\nto assign the true GUI.');", true);
+                        "Set the \\\""+ std::string(GuiProp->Key) +"\\\" entity property\\nto assign the true GUI.');", cf::GuiSys::GuiImplT::InitFlag_InlineCode);
                 }
                 else
                 {
@@ -329,7 +329,7 @@ void MapHelperModelT::UpdateModelCache() const
                     "Win1:set('textColor', 15/255, 49/255, 106/255); "
                     "Win1:set('textScale', 0.6); "
                     "Win1:set('text', [=====[Could not load GUI\n" +
-                    std::string(GameConfig.ModDir + "/" + m_GuiNames[GFNr]) + "\n\n" + IE.what() + "]=====]);", true);
+                    std::string(GameConfig.ModDir + "/" + m_GuiNames[GFNr]) + "\n\n" + IE.what() + "]=====]);", cf::GuiSys::GuiImplT::InitFlag_InlineCode);
             }
         }
     }

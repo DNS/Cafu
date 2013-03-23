@@ -69,9 +69,12 @@ Gui/LayDepth
     // Example (excerpt from a .cgui GUI script):
     //
     //     function LayDepthBuffer:OnInit()
-    //         self:set("rect", 0, 0, 640, 480);
-    //         self:set("backMaterial", "Gui/LayDepth");
-    //         self:set("backColor", 1, 1, 1, 0);
+    //         self:GetTransform():set("Pos", 0, 0)
+    //         self:GetTransform():set("Size", 640, 480)
+    //
+    //         self:GetComponent("Image"):set("Material", "Gui/LayDepth")
+    //         self:GetComponent("Image"):set("Color", 1, 1, 1)
+    //         self:GetComponent("Image"):set("Alpha", 0)
     //     end
 
     meta_editorImage noEditor

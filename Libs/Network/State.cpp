@@ -106,6 +106,36 @@ namespace
 }
 
 
+uint64_t cf::Network::htonll(uint64_t value)
+{
+    // Checking the endianness at runtime and the implementation itself
+    // are certainly not optimal... better solutions are welcome!
+    if (*(char*)&MAX_VERBATIM == MAX_VERBATIM)
+    {
+        const uint32_t high_part = htonl(uint32_t(value >> 32));
+        const uint32_t low_part  = htonl(uint32_t(value));
+
+        return (uint64_t(low_part) << 32) | high_part;
+    }
+
+    return value;
+}
+
+
+uint64_t cf::Network::ntohll(uint64_t value)
+{
+    if (*(char*)&MAX_VERBATIM == MAX_VERBATIM)
+    {
+        const uint32_t high_part = ntohl(uint32_t(value >> 32));
+        const uint32_t low_part  = ntohl(uint32_t(value));
+
+        return (uint64_t(low_part) << 32) | high_part;
+    }
+
+    return value;
+}
+
+
 StateT::StateT(const StateT& Other, const ArrayT<uint8_t>& DeltaMessage)
 {
     if (DeltaMessage[0] == 1)

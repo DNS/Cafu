@@ -1,0 +1,201 @@
+-- This is a Cafu engine GUI script file, written by CaWE, the Cafu World Editor.
+-- You CAN edit this file manually, but note that CaWE may overwrite your changes.
+-- It is recommended that you place all your customizations like method overrides
+-- and effects into a separate .cgui file that calls dofile() for including this.
+
+
+-- Instantiation of all windows.
+-- *****************************
+
+FarewellGUI=gui:new("WindowT", "FarewellGUI");
+
+Heading1=gui:new("WindowT", "Heading1");
+
+TextArea1=gui:new("WindowT", "TextArea1");
+
+Heading2=gui:new("WindowT", "Heading2");
+
+TextArea2=gui:new("WindowT", "TextArea2");
+
+EngineLogo=gui:new("WindowT", "EngineLogo");
+
+LayDepthBuffer=gui:new("WindowT", "LayDepthBuffer");
+
+BottomLine=gui:new("WindowT", "BottomLine");
+
+
+-- Set the GUIs root window.
+-- *************************
+
+gui:SetRootWindow(FarewellGUI);
+
+
+-- Setup the window hierarchy.
+-- ***************************
+
+FarewellGUI:AddChild(Heading1);
+
+FarewellGUI:AddChild(TextArea1);
+
+FarewellGUI:AddChild(Heading2);
+
+FarewellGUI:AddChild(TextArea2);
+
+FarewellGUI:AddChild(EngineLogo);
+
+FarewellGUI:AddChild(LayDepthBuffer);
+
+FarewellGUI:AddChild(BottomLine);
+
+
+-- Initialization of the window contents ("constructor code").
+-- ***********************************************************
+
+function FarewellGUI:OnInit()
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
+
+    local c1 = gui:new("ComponentImageT")
+    c1:set("Material", "Gui/Background1")
+    c1:set("Color", 0.5, 0.5, 0.5)
+    c1:set("Alpha", 0.5)
+
+    self:AddComponent(c1)
+
+    gui:activate      (false);
+    gui:setInteractive(true);
+    gui:showMouse     (true);
+end
+
+function Heading1:OnInit()
+    self:GetTransform():set("Pos", 43, 45)
+    self:GetTransform():set("Size", 558, 28)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Dear Voyager!")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.6)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 1, 0.9, 0.8)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", -1)
+
+    self:AddComponent(c1)
+end
+
+function TextArea1:OnInit()
+    self:GetTransform():set("Pos", 43, 91)
+    self:GetTransform():set("Size", 558, 324)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", [[
+For now you have (almost) reached the end
+of the Cafu Engine demo.
+We hope that you enjoyed exploring it as much
+as we enjoyed making it.
+
+Please stop over at the Cafu forums at
+www.cafu.de to provide your feed-back.
+
+Thank you very much!
+The Cafu Team]])
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.5)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.8, 0.9, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", -1)
+
+    self:AddComponent(c1)
+end
+
+function Heading2:OnInit()
+    self:GetBasics():set("Show", false)
+    self:GetTransform():set("Pos", 43, 45)
+    self:GetTransform():set("Size", 558, 28)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Additional information")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.6)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 1, 0.9, 0.8)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", -1)
+
+    self:AddComponent(c1)
+end
+
+function TextArea2:OnInit()
+    self:GetBasics():set("Show", false)
+    self:GetTransform():set("Pos", 43, 91)
+    self:GetTransform():set("Size", 558, 324)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", [[
+Planned features for the next release:
+    1) Vegetation for the island
+    2) more dynamic lighting and shadows
+    3) many other improvements...
+
+Special thanks for help with this release to:
+    Charles Bradbury and Carsten Crede.
+
+Oh, and please don't fall from the walkway
+into the open space behind you.
+There is no way back up.  ;-)]])
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.5)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.8, 0.9, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", -1)
+
+    self:AddComponent(c1)
+end
+
+function EngineLogo:OnInit()
+    self:GetTransform():set("Pos", 480, 325)
+    self:GetTransform():set("Size", 128, 64)
+
+    local c1 = gui:new("ComponentImageT")
+    c1:set("Material", "Gui/SmallLogo")
+    c1:set("Color", 0.5, 0.5, 0.5)
+    c1:set("Alpha", 0.5)
+
+    self:AddComponent(c1)
+end
+
+function LayDepthBuffer:OnInit()
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
+
+    local c1 = gui:new("ComponentImageT")
+    c1:set("Material", "Gui/LayDepth")
+    c1:set("Color", 1, 1, 1)
+    c1:set("Alpha", 0)
+
+    self:AddComponent(c1)
+end
+
+function BottomLine:OnInit()
+    self:GetTransform():set("Pos", 37, 428)
+    self:GetTransform():set("Size", 568, 21)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "")
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0, 0)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    self:AddComponent(c1)
+end
+

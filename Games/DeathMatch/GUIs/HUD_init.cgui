@@ -48,7 +48,15 @@ Background:AddChild(CrossHair);
 -- ***********************************************************
 
 function Background:OnInit()
-    self:set("backColor", 1, 0, 0, 0.7);
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 0, 0)
+
+    local c1 = gui:new("ComponentImageT")
+    c1:set("Material", "")
+    c1:set("Color", 1, 0, 0)
+    c1:set("Alpha", 0.7)
+
+    self:AddComponent(c1)
 
     gui:activate      (false);
     gui:setInteractive(false);
@@ -56,61 +64,149 @@ function Background:OnInit()
 end
 
 function InfoHealth:OnInit()
-    self:set("rect", 5, 430, 70, 20);
-    self:set("backColor", 0, 0.25, 0.7, 0.4);
-    self:set("borderWidth", 0.5);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", " Health");
-    self:set("textScale", 0.25);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 5, 430)
+    self:GetTransform():set("Size", 70, 20)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Health")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.25)
+    c1:set("Padding", 3, 0)
+    c1:set("Color", 0, 0, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.5)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function InfoArmor:OnInit()
-    self:set("rect", 5, 455, 70, 20);
-    self:set("backColor", 0, 0.25, 0.7, 0.4);
-    self:set("borderWidth", 0.5);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", " Armor");
-    self:set("textScale", 0.25);
-    self:set("textColor", 0.51, 0.8, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 5, 455)
+    self:GetTransform():set("Size", 70, 20)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Armor")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.25)
+    c1:set("Padding", 3, 0)
+    c1:set("Color", 0.51, 0.8, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.5)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function InfoFrags:OnInit()
-    self:set("rect", 95, 455, 80, 20);
-    self:set("backColor", 0, 0.25, 0.7, 0.4);
-    self:set("borderWidth", 0.5);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", " Frags");
-    self:set("textScale", 0.25);
-    self:set("textColor", 0.51, 0.8, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 95, 455)
+    self:GetTransform():set("Size", 80, 20)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Frags")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.25)
+    c1:set("Padding", 3, 0)
+    c1:set("Color", 0.51, 0.8, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.5)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function InfoAmmo:OnInit()
-    self:set("rect", 465, 455, 170, 20);
-    self:set("backColor", 0, 0.25, 0.7, 0.4);
-    self:set("borderWidth", 0.5);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", " Ammo");
-    self:set("textScale", 0.25);
-    self:set("textColor", 0.51, 0.8, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 465, 455)
+    self:GetTransform():set("Size", 170, 20)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Ammo")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.25)
+    c1:set("Padding", 3, 0)
+    c1:set("Color", 0.51, 0.8, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.5)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function FPS:OnInit()
-    self:set("rect", 580, 5, 55, 20);
-    self:set("backColor", 0, 0.25, 0.7, 0.4);
-    self:set("borderWidth", 0.5);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("font", "Fonts/Impact");
-    self:set("text", " FPS");
-    self:set("textScale", 0.25);
-    self:set("textColor", 0.31, 0.6, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 580, 5)
+    self:GetTransform():set("Size", 55, 20)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "FPS")
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.25)
+    c1:set("Padding", 3, 0)
+    c1:set("Color", 0.31, 0.6, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.5)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function CrossHair:OnInit()
-    self:set("rect", 310, 230, 20, 20);
+    self:GetTransform():set("Pos", 310, 230)
+    self:GetTransform():set("Size", 20, 20)
+
+    local c1 = gui:new("ComponentImageT")
+    c1:set("Material", "")
+    c1:set("Color", 1, 1, 1)
+    c1:set("Alpha", 1)
+
+    self:AddComponent(c1)
 end
 

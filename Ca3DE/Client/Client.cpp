@@ -43,7 +43,7 @@ static const char* StateNames[]={ "idle", "connecting", "ingame" };
 static ClientT*    ClientPtr   =NULL;
 
 
-ClientT::ClientT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, ModelManagerT& ModelMan)
+ClientT::ClientT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes)
     : CurrentState(NULL),
       NextState(IDLE),
       m_GameInfo(GameInfo),
@@ -52,7 +52,8 @@ ClientT::ClientT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, Mod
       ServerAddress(0, 0, 0, 0, 0),
       PacketIDConnLess(0),
       MainMenuGui(NULL),
-      m_ModelMan(ModelMan)
+      m_ModelMan(ModelMan),
+      m_GuiRes(GuiRes)
 {
     // Cannot do this directly in the initializer list above, because then the
     // ClientStateIdleT ctor would try to access the not yet initialized client ("this").

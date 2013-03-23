@@ -26,7 +26,7 @@ NormalControls.FPS=gui:new("WindowT", "FPS");
 
 NewGameDialog=gui:new("WindowT", "NewGameDialog");
 NewGameDialog.Frame=gui:new("WindowT", "Frame");
-NewGameDialog.Frame.MapList=gui:new("ListBoxT", "MapList");
+NewGameDialog.Frame.MapList=gui:new("WindowT", "MapList");
 NewGameDialog.Frame.MapPreview=gui:new("WindowT", "MapPreview");
 NewGameDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
 NewGameDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
@@ -46,31 +46,31 @@ OptionsContextMenu.Frame.Audio=gui:new("WindowT", "Audio");
 JoinGameDialog=gui:new("WindowT", "JoinGameDialog");
 JoinGameDialog.Frame=gui:new("WindowT", "Frame");
 JoinGameDialog.Frame.PlayerNameText=gui:new("WindowT", "PlayerNameText");
-JoinGameDialog.Frame.PlayerNameEdit=gui:new("EditWindowT", "PlayerNameEdit");
+JoinGameDialog.Frame.PlayerNameEdit=gui:new("WindowT", "PlayerNameEdit");
 JoinGameDialog.Frame.ModelNameText=gui:new("WindowT", "ModelNameText");
-JoinGameDialog.Frame.ModelNameChoice=gui:new("ChoiceT", "ModelNameChoice");
+JoinGameDialog.Frame.ModelNameChoice=gui:new("WindowT", "ModelNameChoice");
 JoinGameDialog.Frame.RemoteHostText=gui:new("WindowT", "RemoteHostText");
-JoinGameDialog.Frame.RemoteHostEdit=gui:new("EditWindowT", "RemoteHostEdit");
+JoinGameDialog.Frame.RemoteHostEdit=gui:new("WindowT", "RemoteHostEdit");
 JoinGameDialog.Frame.RemotePortText=gui:new("WindowT", "RemotePortText");
-JoinGameDialog.Frame.RemotePortEdit=gui:new("EditWindowT", "RemotePortEdit");
-JoinGameDialog.Frame.ModelPreview=gui:new("ModelWindowT", "ModelPreview");
+JoinGameDialog.Frame.RemotePortEdit=gui:new("WindowT", "RemotePortEdit");
+JoinGameDialog.Frame.ModelPreview=gui:new("WindowT", "ModelPreview");
 JoinGameDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
 JoinGameDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
 
 HostGameDialog=gui:new("WindowT", "HostGameDialog");
 HostGameDialog.Frame=gui:new("WindowT", "Frame");
 HostGameDialog.Frame.WorldNameText=gui:new("WindowT", "WorldNameText");
-HostGameDialog.Frame.WorldNameChoice=gui:new("ChoiceT", "WorldNameChoice");
+HostGameDialog.Frame.WorldNameChoice=gui:new("WindowT", "WorldNameChoice");
 HostGameDialog.Frame.LocalSvPortText=gui:new("WindowT", "LocalSvPortText");
-HostGameDialog.Frame.LocalSvPortEdit=gui:new("EditWindowT", "LocalSvPortEdit");
+HostGameDialog.Frame.LocalSvPortEdit=gui:new("WindowT", "LocalSvPortEdit");
 HostGameDialog.Frame.ListenSvText=gui:new("WindowT", "ListenSvText");
-HostGameDialog.Frame.ListenSvChoice=gui:new("ChoiceT", "ListenSvChoice");
+HostGameDialog.Frame.ListenSvChoice=gui:new("WindowT", "ListenSvChoice");
 HostGameDialog.Frame.PlayerNameText=gui:new("WindowT", "PlayerNameText");
-HostGameDialog.Frame.PlayerNameEdit=gui:new("EditWindowT", "PlayerNameEdit");
+HostGameDialog.Frame.PlayerNameEdit=gui:new("WindowT", "PlayerNameEdit");
 HostGameDialog.Frame.ModelNameText=gui:new("WindowT", "ModelNameText");
-HostGameDialog.Frame.ModelNameChoice=gui:new("ChoiceT", "ModelNameChoice");
+HostGameDialog.Frame.ModelNameChoice=gui:new("WindowT", "ModelNameChoice");
 HostGameDialog.Frame.MapPreview=gui:new("WindowT", "MapPreview");
-HostGameDialog.Frame.ModelPreview=gui:new("ModelWindowT", "ModelPreview");
+HostGameDialog.Frame.ModelPreview=gui:new("WindowT", "ModelPreview");
 HostGameDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
 HostGameDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
 
@@ -80,7 +80,7 @@ InitServerInfoPanel.Frame=gui:new("WindowT", "Frame");
 InputOptionsDialog=gui:new("WindowT", "InputOptionsDialog");
 InputOptionsDialog.Frame=gui:new("WindowT", "Frame");
 InputOptionsDialog.Frame.ReverseMouseYAxisText=gui:new("WindowT", "ReverseMouseYAxisText");
-InputOptionsDialog.Frame.ReverseMouseYAxisChoice=gui:new("ChoiceT", "ReverseMouseYAxisChoice");
+InputOptionsDialog.Frame.ReverseMouseYAxisChoice=gui:new("WindowT", "ReverseMouseYAxisChoice");
 InputOptionsDialog.Frame.InfoKeyboardText=gui:new("WindowT", "InfoKeyboardText");
 InputOptionsDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
 InputOptionsDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
@@ -88,23 +88,23 @@ InputOptionsDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
 PlayerOptionsDialog=gui:new("WindowT", "PlayerOptionsDialog");
 PlayerOptionsDialog.Frame=gui:new("WindowT", "Frame");
 PlayerOptionsDialog.Frame.PlayerNameText=gui:new("WindowT", "PlayerNameText");
-PlayerOptionsDialog.Frame.PlayerNameEdit=gui:new("EditWindowT", "PlayerNameEdit");
+PlayerOptionsDialog.Frame.PlayerNameEdit=gui:new("WindowT", "PlayerNameEdit");
 PlayerOptionsDialog.Frame.ModelNameText=gui:new("WindowT", "ModelNameText");
-PlayerOptionsDialog.Frame.ModelNameChoice=gui:new("ChoiceT", "ModelNameChoice");
-PlayerOptionsDialog.Frame.ModelPreview=gui:new("ModelWindowT", "ModelPreview");
+PlayerOptionsDialog.Frame.ModelNameChoice=gui:new("WindowT", "ModelNameChoice");
+PlayerOptionsDialog.Frame.ModelPreview=gui:new("WindowT", "ModelPreview");
 PlayerOptionsDialog.Frame.ShowHUDText=gui:new("WindowT", "ShowHUDText");
-PlayerOptionsDialog.Frame.ShowHUDChoice=gui:new("ChoiceT", "ShowHUDChoice");
+PlayerOptionsDialog.Frame.ShowHUDChoice=gui:new("WindowT", "ShowHUDChoice");
 PlayerOptionsDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
 PlayerOptionsDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
 
 VideoOptionsDialog=gui:new("WindowT", "VideoOptionsDialog");
 VideoOptionsDialog.Frame=gui:new("WindowT", "Frame");
 VideoOptionsDialog.Frame.ScreenResText=gui:new("WindowT", "ScreenResText");
-VideoOptionsDialog.Frame.ScreenResChoice=gui:new("ChoiceT", "ScreenResChoice");
+VideoOptionsDialog.Frame.ScreenResChoice=gui:new("WindowT", "ScreenResChoice");
 VideoOptionsDialog.Frame.FullScreenText=gui:new("WindowT", "FullScreenText");
-VideoOptionsDialog.Frame.FullScreenChoice=gui:new("ChoiceT", "FullScreenChoice");
+VideoOptionsDialog.Frame.FullScreenChoice=gui:new("WindowT", "FullScreenChoice");
 VideoOptionsDialog.Frame.TextureDetailText=gui:new("WindowT", "TextureDetailText");
-VideoOptionsDialog.Frame.TextureDetailChoice=gui:new("ChoiceT", "TextureDetailChoice");
+VideoOptionsDialog.Frame.TextureDetailChoice=gui:new("WindowT", "TextureDetailChoice");
 VideoOptionsDialog.Frame.InfoRestartText=gui:new("WindowT", "InfoRestartText");
 VideoOptionsDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
 VideoOptionsDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
@@ -112,7 +112,7 @@ VideoOptionsDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
 AudioOptionsDialog=gui:new("WindowT", "AudioOptionsDialog");
 AudioOptionsDialog.Frame=gui:new("WindowT", "Frame");
 AudioOptionsDialog.Frame.VolumeText=gui:new("WindowT", "VolumeText");
-AudioOptionsDialog.Frame.VolumeChoice=gui:new("ChoiceT", "VolumeChoice");
+AudioOptionsDialog.Frame.VolumeChoice=gui:new("WindowT", "VolumeChoice");
 AudioOptionsDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
 AudioOptionsDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
 
@@ -266,7 +266,15 @@ ReallyQuitDialog.ReallyQuit:AddChild(ReallyQuitDialog.ReallyQuit.ButtonNo);
 -- ***********************************************************
 
 function MainMenu:OnInit()
-    self:set("backColor", 1, 1, 0, 1);
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 0, 0)
+
+    local c1 = gui:new("ComponentImageT")
+    c1:set("Material", "")
+    c1:set("Color", 1, 1, 0)
+    c1:set("Alpha", 1)
+
+    self:AddComponent(c1)
 
     gui:activate      (true);
     gui:setInteractive(true);
@@ -275,1070 +283,2446 @@ function MainMenu:OnInit()
 end
 
 function PulsatingBackImage:OnInit()
-    self:set("rect", 0, 0, 640, 480);
-    self:set("backMaterial", "Gui/MainMenu/Background1");
-    self:set("backColor", 1, 1, 1, 1);
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
+
+    local c1 = gui:new("ComponentImageT")
+    c1:set("Material", "Gui/MainMenu/Background1")
+    c1:set("Color", 1, 1, 1)
+    c1:set("Alpha", 1)
+
+    self:AddComponent(c1)
 end
 
 function NormalControls:OnInit()
-    self:set("rect", 0, 0, 640, 480);
-    self:set("backColor", 0, 0, 0, 0.2);
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
+
+    local c1 = gui:new("ComponentImageT")
+    c1:set("Material", "")
+    c1:set("Color", 0, 0, 0)
+    c1:set("Alpha", 0.2)
+
+    self:AddComponent(c1)
 end
 
 function NormalControls.Headline:OnInit()
-    self:set("rect", 0, 10, 640, 45);
-    self:set("backColor", 0, 0, 0, 0.5);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "Cafu Engine");
-    self:set("textScale", 0.8);
-    self:set("textColor", 0.466667, 0.00784314, 0, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 0, 10)
+    self:GetTransform():set("Size", 640, 45)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Cafu Engine")
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.8)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.466667, 0.00784314, 0)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentImageT")
+    c2:set("Material", "")
+    c2:set("Color", 0, 0, 0)
+    c2:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2)
 end
 
 function NormalControls.ButtonNewGame:OnInit()
-    self:set("rect", 30, 420, 130, 40);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "New Game");
-    self:set("textScale", 0.4);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 30, 420)
+    self:GetTransform():set("Size", 130, 40)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "New Game")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.4)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function NormalControls.ButtonLoadGame:OnInit()
-    self:set("rect", 190, 420, 130, 40);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Load Game");
-    self:set("textScale", 0.4);
-    self:set("textColor", 0.36, 0.36, 0.36, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 190, 420)
+    self:GetTransform():set("Size", 130, 40)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Load Game")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.4)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.36, 0.36, 0.36)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function NormalControls.ButtonSaveGame:OnInit()
-    self:set("rect", 30, 420, 130, 40);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Save Game");
-    self:set("textScale", 0.4);
-    self:set("textColor", 0.36, 0.36, 0.36, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 30, 420)
+    self:GetTransform():set("Size", 130, 40)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Save Game")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.4)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.36, 0.36, 0.36)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function NormalControls.ButtonQuitCurrentGame:OnInit()
-    self:set("rect", 30, 340, 130, 60);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Quit Current\nGame");
-    self:set("textScale", 0.4);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 30, 340)
+    self:GetTransform():set("Size", 130, 60)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", [[
+Quit Current
+Game]])
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.4)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function NormalControls.ButtonReturnToGame:OnInit()
-    self:set("rect", 30, 260, 130, 60);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Return to\nGame");
-    self:set("textScale", 0.4);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 30, 260)
+    self:GetTransform():set("Size", 130, 60)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", [[
+Return to
+Game]])
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.4)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function NormalControls.ButtonMultiplayer:OnInit()
-    self:set("rect", 350, 420, 130, 40);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Multiplayer");
-    self:set("textScale", 0.4);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 350, 420)
+    self:GetTransform():set("Size", 130, 40)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Multiplayer")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.4)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function NormalControls.ButtonOptions:OnInit()
-    self:set("rect", 520, 300, 90, 40);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Options");
-    self:set("textScale", 0.4);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 520, 300)
+    self:GetTransform():set("Size", 90, 40)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Options")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.4)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function NormalControls.ButtonCredits:OnInit()
-    self:set("rect", 520, 360, 90, 40);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Credits");
-    self:set("textScale", 0.4);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 520, 360)
+    self:GetTransform():set("Size", 90, 40)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Credits")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.4)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function NormalControls.ButtonQuit:OnInit()
-    self:set("rect", 520, 420, 90, 40);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Quit");
-    self:set("textScale", 0.4);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 520, 420)
+    self:GetTransform():set("Size", 90, 40)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Quit")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.4)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function NormalControls.FPS:OnInit()
-    self:set("show", false);
-    self:set("rect", 510, 20, 100, 45);
-    self:set("borderWidth", 3);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "FPS\n");
-    self:set("textScale", 0.3);
+    self:GetBasics():set("Show", false)
+    self:GetTransform():set("Pos", 510, 20)
+    self:GetTransform():set("Size", 100, 45)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", [[
+FPS
+]])
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", -1)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 3)
+    c2:set("Color", 1, 1, 1)
+    c2:set("Alpha", 1)
+
+    self:AddComponent(c1, c2)
 end
 
 function NewGameDialog:OnInit()
-    self:set("show", false);
-    self:set("rect", 0, 0, 640, 480);
-    self:set("backColor", 0, 0, 0, 0);
+    self:GetBasics():set("Show", false)
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 end
 
 function NewGameDialog.Frame:OnInit()
-    self:set("rect", 120, 90, 380, 300);
-    self:set("backColor", 0, 0.25, 0.7, 0.4);
-    self:set("borderWidth", 0.7);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "Choose a map:");
-    self:set("textScale", 0.5);
-    self:set("textColor", 0.51, 0.8, 1, 1);
-    self:set("textAlignHor", 2);
+    self:GetTransform():set("Pos", 120, 90)
+    self:GetTransform():set("Size", 380, 300)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Choose a map:")
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.5)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.51, 0.8, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", -1)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.7)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function NewGameDialog.Frame.MapList:OnInit()
-    self:set("rect", 10, 40, 175, 250);
-    self:set("backColor", 0, 0, 0, 0);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("textScale", 0.3);
-    self:SetOddRowBgColor(0, 0, 0, 0.3);
-    self:SetEvenRowBgColor(0, 0, 0, 0.4);
-    self:SetRowTextColor(0.5, 0.7, 1, 1);
-    self:SetSelRowBgColor(1, 1, 1, 0.4);
-    self:SetSelRowTextColor(0, 0.2, 0.5, 1);
+    self:GetTransform():set("Pos", 10, 40)
+    self:GetTransform():set("Size", 175, 250)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.6)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Text", "")
+    c2:set("Font", "Fonts/Arial")
+    c2:set("Scale", 0.3)
+    c2:set("Padding", 3, 0.6)
+    c2:set("Color", 0.5, 0.7, 1)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", -1)
+
+    local c3 = gui:new("ComponentListBoxT")
+    c3:set("Items", {  })
+    c3:set("Selection", 0)
+    c3:set("BgColorOdd", 0, 0, 0)
+    c3:set("BgAlphaOdd", 0.3)
+    c3:set("BgColorEven", 0, 0, 0)
+    c3:set("BgAlphaEven", 0.4)
+    c3:set("BgColorSel", 1, 1, 1)
+    c3:set("BgAlphaSel", 0.4)
+    c3:set("TextColorSel", 0, 0.2, 0.5)
+    c3:set("TextAlphaSel", 1)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function NewGameDialog.Frame.MapPreview:OnInit()
-    self:set("rect", 195, 40, 175, 175);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:GetTransform():set("Pos", 195, 40)
+    self:GetTransform():set("Size", 175, 175)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.6)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentImageT")
+    c2:set("Material", "")
+    c2:set("Color", 1, 1, 1)
+    c2:set("Alpha", 1)
+
+    self:AddComponent(c1, c2)
 end
 
 function NewGameDialog.Frame.ButtonOK:OnInit()
-    self:set("rect", 290, 260, 80, 30);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Go!");
-    self:set("textScale", 0.4);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 290, 260)
+    self:GetTransform():set("Size", 80, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Go!")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.4)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function NewGameDialog.Frame.ButtonCancel:OnInit()
-    self:set("rect", 357, 8, 13, 13);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.02, 0.36, 1, 1);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "X");
-    self:set("textScale", 0.31);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 1);
+    self:GetTransform():set("Pos", 357, 8)
+    self:GetTransform():set("Size", 13, 13)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "X")
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.31)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 1)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.02, 0.36, 1)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function MultiplayerContextMenu:OnInit()
-    self:set("show", false);
-    self:set("rect", 0, 0, 640, 480);
-    self:set("backColor", 0, 0, 0, 0);
+    self:GetBasics():set("Show", false)
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 end
 
 function MultiplayerContextMenu.Frame:OnInit()
-    self:set("rect", 330, 338, 150, 80);
-    self:set("backColor", 0, 0.25, 0.7, 0.4);
-    self:set("borderWidth", 0.7);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:GetTransform():set("Pos", 330, 338)
+    self:GetTransform():set("Size", 150, 80)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.7)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentImageT")
+    c2:set("Material", "")
+    c2:set("Color", 0, 0.25, 0.7)
+    c2:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2)
 end
 
 function MultiplayerContextMenu.Frame.JoinGame:OnInit()
-    self:set("rect", 10, 10, 130, 29);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", " Join Online Game");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 10, 10)
+    self:GetTransform():set("Size", 130, 29)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Join Online Game")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 4, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function MultiplayerContextMenu.Frame.HostGame:OnInit()
-    self:set("rect", 10, 41, 130, 29);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", " Host Game Server");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 10, 41)
+    self:GetTransform():set("Size", 130, 29)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Host Game Server")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 4, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function OptionsContextMenu:OnInit()
-    self:set("show", false);
-    self:set("rect", 0, 0, 640, 480);
-    self:set("backColor", 0, 0, 0, 0);
+    self:GetBasics():set("Show", false)
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 end
 
 function OptionsContextMenu.Frame:OnInit()
-    self:set("rect", 368, 225, 150, 142);
-    self:set("backColor", 0, 0.25, 0.7, 0.4);
-    self:set("borderWidth", 0.7);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:GetTransform():set("Pos", 368, 225)
+    self:GetTransform():set("Size", 150, 142)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.7)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentImageT")
+    c2:set("Material", "")
+    c2:set("Color", 0, 0.25, 0.7)
+    c2:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2)
 end
 
 function OptionsContextMenu.Frame.Controls:OnInit()
-    self:set("rect", 10, 10, 130, 29);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", " Input Controls");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 10, 10)
+    self:GetTransform():set("Size", 130, 29)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Input Controls")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 4, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function OptionsContextMenu.Frame.Player:OnInit()
-    self:set("rect", 10, 41, 130, 29);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", " Player Settings");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 10, 41)
+    self:GetTransform():set("Size", 130, 29)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Player Settings")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 4, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function OptionsContextMenu.Frame.Video:OnInit()
-    self:set("rect", 10, 72, 130, 29);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", " Video Settings");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 10, 72)
+    self:GetTransform():set("Size", 130, 29)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Video Settings")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 4, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function OptionsContextMenu.Frame.Audio:OnInit()
-    self:set("rect", 10, 103, 130, 29);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", " Audio Settings");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 10, 103)
+    self:GetTransform():set("Size", 130, 29)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Audio Settings")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 4, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function JoinGameDialog:OnInit()
-    self:set("show", false);
-    self:set("rect", 0, 0, 640, 480);
-    self:set("backColor", 0, 0, 0, 0);
+    self:GetBasics():set("Show", false)
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 end
 
 function JoinGameDialog.Frame:OnInit()
-    self:set("rect", 110, 90, 390, 300);
-    self:set("backColor", 0, 0.25, 0.7, 0.4);
-    self:set("borderWidth", 0.7);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "Join Online Game");
-    self:set("textScale", 0.5);
-    self:set("textColor", 0.51, 0.8, 1, 1);
-    self:set("textAlignHor", 2);
+    self:GetTransform():set("Pos", 110, 90)
+    self:GetTransform():set("Size", 390, 300)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Join Online Game")
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.5)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.51, 0.8, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", -1)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.7)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function JoinGameDialog.Frame.PlayerNameText:OnInit()
-    self:set("rect", 10, 50, 190, 30);
-    self:set("backColor", 0, 0, 0, 0);
-    self:set("text", "Player Name");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.5, 0.7, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 10, 50)
+    self:GetTransform():set("Size", 190, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Player Name")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.5, 0.7, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    self:AddComponent(c1)
 end
 
 function JoinGameDialog.Frame.PlayerNameEdit:OnInit()
-    self:set("rect", 150, 50, 140, 30);
-    self:set("backColor", 1, 1, 1, 0.4);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Carsten");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
-    self:SetTextCursorColor(0.02, 0.36, 1, 1);
+    self:GetTransform():set("Pos", 150, 50)
+    self:GetTransform():set("Size", 140, 30)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.6)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Text", "Carsten")
+    c2:set("Font", "Fonts/Arial")
+    c2:set("Scale", 0.3)
+    c2:set("Padding", 4, 0)
+    c2:set("Color", 0, 0.2, 0.5)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentTextEditT")
+    c3:set("CursorPos", 0)
+    c3:set("CursorType", 0)
+    c3:set("CursorRate", 1)
+    c3:set("CursorColor", 0.02, 0.36, 1)
+    c3:set("CursorAlpha", 1)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 1, 1, 1)
+    c4:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function JoinGameDialog.Frame.ModelNameText:OnInit()
-    self:set("rect", 10, 90, 190, 30);
-    self:set("backColor", 0, 0, 0, 0);
-    self:set("text", "Model");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.5, 0.7, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 10, 90)
+    self:GetTransform():set("Size", 190, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Model")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.5, 0.7, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    self:AddComponent(c1)
 end
 
 function JoinGameDialog.Frame.ModelNameChoice:OnInit()
-    self:set("rect", 150, 90, 140, 30);
-    self:set("backColor", 1, 1, 1, 0.4);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 150, 90)
+    self:GetTransform():set("Size", 140, 30)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.6)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Text", "")
+    c2:set("Font", "Fonts/Arial")
+    c2:set("Scale", 0.3)
+    c2:set("Padding", 4, 0)
+    c2:set("Color", 0, 0.2, 0.5)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentChoiceT")
+    c3:set("Choices", {  })
+    c3:set("Selection", 0)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 1, 1, 1)
+    c4:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function JoinGameDialog.Frame.RemoteHostText:OnInit()
-    self:set("rect", 10, 130, 190, 30);
-    self:set("backColor", 0, 0, 0, 0);
-    self:set("text", "Remote Host Name");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.5, 0.7, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 10, 130)
+    self:GetTransform():set("Size", 190, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Remote Host Name")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.5, 0.7, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    self:AddComponent(c1)
 end
 
 function JoinGameDialog.Frame.RemoteHostEdit:OnInit()
-    self:set("rect", 150, 130, 140, 30);
-    self:set("backColor", 1, 1, 1, 0.4);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "www.xyz.cf");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
-    self:SetTextCursorColor(0.02, 0.36, 1, 1);
+    self:GetTransform():set("Pos", 150, 130)
+    self:GetTransform():set("Size", 140, 30)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.6)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Text", "www.xyz.cf")
+    c2:set("Font", "Fonts/Arial")
+    c2:set("Scale", 0.3)
+    c2:set("Padding", 4, 0)
+    c2:set("Color", 0, 0.2, 0.5)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentTextEditT")
+    c3:set("CursorPos", 0)
+    c3:set("CursorType", 0)
+    c3:set("CursorRate", 1)
+    c3:set("CursorColor", 0.02, 0.36, 1)
+    c3:set("CursorAlpha", 1)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 1, 1, 1)
+    c4:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function JoinGameDialog.Frame.RemotePortText:OnInit()
-    self:set("rect", 10, 170, 190, 30);
-    self:set("backColor", 0, 0, 0, 0);
-    self:set("text", "Remote Port");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.5, 0.7, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 10, 170)
+    self:GetTransform():set("Size", 190, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Remote Port")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.5, 0.7, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    self:AddComponent(c1)
 end
 
 function JoinGameDialog.Frame.RemotePortEdit:OnInit()
-    self:set("rect", 150, 170, 140, 30);
-    self:set("backColor", 1, 1, 1, 0.4);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "12345");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
-    self:SetTextCursorColor(0.02, 0.36, 1, 1);
+    self:GetTransform():set("Pos", 150, 170)
+    self:GetTransform():set("Size", 140, 30)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.6)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Text", "12345")
+    c2:set("Font", "Fonts/Arial")
+    c2:set("Scale", 0.3)
+    c2:set("Padding", 4, 0)
+    c2:set("Color", 0, 0.2, 0.5)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentTextEditT")
+    c3:set("CursorPos", 0)
+    c3:set("CursorType", 0)
+    c3:set("CursorRate", 1)
+    c3:set("CursorColor", 0.02, 0.36, 1)
+    c3:set("CursorAlpha", 1)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 1, 1, 1)
+    c4:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function JoinGameDialog.Frame.ModelPreview:OnInit()
-    self:set("rect", 300, 50, 80, 150);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:GetTransform():set("Pos", 300, 50)
+    self:GetTransform():set("Size", 80, 150)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.6)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentModelT")
+    c2:set("Name", "dummy")
+    c2:set("Animation", -1)
+    c2:set("Skin", -1)
+    c2:set("Pos", 72.5, 0, 13)
+    c2:set("Scale", 1)
+    c2:set("Angles", 0, 0, -130)
+    c2:set("CameraPos", 0, -200, 0)
+
+    self:AddComponent(c1, c2)
 end
 
 function JoinGameDialog.Frame.ButtonOK:OnInit()
-    self:set("rect", 260, 260, 120, 30);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Connect...");
-    self:set("textScale", 0.4);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 260, 260)
+    self:GetTransform():set("Size", 120, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Connect...")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.4)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function JoinGameDialog.Frame.ButtonCancel:OnInit()
-    self:set("rect", 367, 8, 13, 13);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.02, 0.36, 1, 1);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "X");
-    self:set("textScale", 0.31);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 1);
+    self:GetTransform():set("Pos", 367, 8)
+    self:GetTransform():set("Size", 13, 13)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "X")
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.31)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 1)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.02, 0.36, 1)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function HostGameDialog:OnInit()
-    self:set("show", false);
-    self:set("rect", 0, 0, 640, 480);
-    self:set("backColor", 0, 0, 0, 0);
+    self:GetBasics():set("Show", false)
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 end
 
 function HostGameDialog.Frame:OnInit()
-    self:set("rect", 110, 90, 390, 300);
-    self:set("backColor", 0, 0.25, 0.7, 0.4);
-    self:set("borderWidth", 0.7);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "Host Game Server");
-    self:set("textScale", 0.5);
-    self:set("textColor", 0.51, 0.8, 1, 1);
-    self:set("textAlignHor", 2);
+    self:GetTransform():set("Pos", 110, 90)
+    self:GetTransform():set("Size", 390, 300)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Host Game Server")
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.5)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.51, 0.8, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", -1)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.7)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function HostGameDialog.Frame.WorldNameText:OnInit()
-    self:set("rect", 10, 50, 190, 30);
-    self:set("backColor", 0, 0, 0, 0);
-    self:set("text", "Map Name");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.5, 0.7, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 10, 50)
+    self:GetTransform():set("Size", 190, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Map Name")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.5, 0.7, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    self:AddComponent(c1)
 end
 
 function HostGameDialog.Frame.WorldNameChoice:OnInit()
-    self:set("rect", 160, 50, 140, 30);
-    self:set("backColor", 1, 1, 1, 0.4);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 160, 50)
+    self:GetTransform():set("Size", 140, 30)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.6)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Text", "")
+    c2:set("Font", "Fonts/Arial")
+    c2:set("Scale", 0.3)
+    c2:set("Padding", 4, 0)
+    c2:set("Color", 0, 0.2, 0.5)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentChoiceT")
+    c3:set("Choices", {  })
+    c3:set("Selection", 0)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 1, 1, 1)
+    c4:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function HostGameDialog.Frame.LocalSvPortText:OnInit()
-    self:set("rect", 10, 90, 190, 30);
-    self:set("backColor", 0, 0, 0, 0);
-    self:set("text", "Local Server Port");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.5, 0.7, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 10, 90)
+    self:GetTransform():set("Size", 190, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Local Server Port")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.5, 0.7, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    self:AddComponent(c1)
 end
 
 function HostGameDialog.Frame.LocalSvPortEdit:OnInit()
-    self:set("rect", 160, 90, 140, 30);
-    self:set("backColor", 1, 1, 1, 0.4);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "23456");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
-    self:SetTextCursorColor(0.02, 0.36, 1, 1);
+    self:GetTransform():set("Pos", 160, 90)
+    self:GetTransform():set("Size", 140, 30)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.6)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Text", "23456")
+    c2:set("Font", "Fonts/Arial")
+    c2:set("Scale", 0.3)
+    c2:set("Padding", 4, 0)
+    c2:set("Color", 0, 0.2, 0.5)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentTextEditT")
+    c3:set("CursorPos", 0)
+    c3:set("CursorType", 0)
+    c3:set("CursorRate", 1)
+    c3:set("CursorColor", 0.02, 0.36, 1)
+    c3:set("CursorAlpha", 1)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 1, 1, 1)
+    c4:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function HostGameDialog.Frame.ListenSvText:OnInit()
-    self:set("rect", 10, 130, 190, 30);
-    self:set("backColor", 0, 0, 0, 0);
-    self:set("text", "Play on this machine");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.5, 0.7, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 10, 130)
+    self:GetTransform():set("Size", 190, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Play on this machine")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.5, 0.7, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    self:AddComponent(c1)
 end
 
 function HostGameDialog.Frame.ListenSvChoice:OnInit()
-    self:set("rect", 160, 130, 140, 30);
-    self:set("backColor", 1, 1, 1, 0.4);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 160, 130)
+    self:GetTransform():set("Size", 140, 30)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.6)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Text", "")
+    c2:set("Font", "Fonts/Arial")
+    c2:set("Scale", 0.3)
+    c2:set("Padding", 4, 0)
+    c2:set("Color", 0, 0.2, 0.5)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentChoiceT")
+    c3:set("Choices", { "no", "yes" })
+    c3:set("Selection", 1)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 1, 1, 1)
+    c4:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function HostGameDialog.Frame.PlayerNameText:OnInit()
-    self:set("rect", 10, 170, 190, 30);
-    self:set("backColor", 0, 0, 0, 0);
-    self:set("text", "Player Name");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.5, 0.7, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 10, 170)
+    self:GetTransform():set("Size", 190, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Player Name")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.5, 0.7, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    self:AddComponent(c1)
 end
 
 function HostGameDialog.Frame.PlayerNameEdit:OnInit()
-    self:set("rect", 160, 170, 140, 30);
-    self:set("backColor", 1, 1, 1, 0.4);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Carsten");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
-    self:SetTextCursorColor(0.02, 0.36, 1, 1);
+    self:GetTransform():set("Pos", 160, 170)
+    self:GetTransform():set("Size", 140, 30)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.6)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Text", "Carsten")
+    c2:set("Font", "Fonts/Arial")
+    c2:set("Scale", 0.3)
+    c2:set("Padding", 4, 0)
+    c2:set("Color", 0, 0.2, 0.5)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentTextEditT")
+    c3:set("CursorPos", 0)
+    c3:set("CursorType", 0)
+    c3:set("CursorRate", 1)
+    c3:set("CursorColor", 0.02, 0.36, 1)
+    c3:set("CursorAlpha", 1)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 1, 1, 1)
+    c4:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function HostGameDialog.Frame.ModelNameText:OnInit()
-    self:set("rect", 10, 210, 190, 30);
-    self:set("backColor", 0, 0, 0, 0);
-    self:set("text", "Model");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.5, 0.7, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 10, 210)
+    self:GetTransform():set("Size", 190, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Model")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.5, 0.7, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    self:AddComponent(c1)
 end
 
 function HostGameDialog.Frame.ModelNameChoice:OnInit()
-    self:set("rect", 160, 210, 140, 30);
-    self:set("backColor", 1, 1, 1, 0.4);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 160, 210)
+    self:GetTransform():set("Size", 140, 30)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.6)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Text", "")
+    c2:set("Font", "Fonts/Arial")
+    c2:set("Scale", 0.3)
+    c2:set("Padding", 4, 0)
+    c2:set("Color", 0, 0.2, 0.5)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentChoiceT")
+    c3:set("Choices", {  })
+    c3:set("Selection", 0)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 1, 1, 1)
+    c4:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function HostGameDialog.Frame.MapPreview:OnInit()
-    self:set("rect", 310, 50, 70, 70);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:GetTransform():set("Pos", 310, 50)
+    self:GetTransform():set("Size", 70, 70)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.6)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentImageT")
+    c2:set("Material", "")
+    c2:set("Color", 1, 1, 1)
+    c2:set("Alpha", 1)
+
+    self:AddComponent(c1, c2)
 end
 
 function HostGameDialog.Frame.ModelPreview:OnInit()
-    self:set("rect", 310, 130, 70, 110);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:GetTransform():set("Pos", 310, 130)
+    self:GetTransform():set("Size", 70, 110)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.6)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentModelT")
+    c2:set("Name", "dummy")
+    c2:set("Animation", -1)
+    c2:set("Skin", -1)
+    c2:set("Pos", 75, 0, -20)
+    c2:set("Scale", 0.7)
+    c2:set("Angles", 0, 0, -130)
+    c2:set("CameraPos", 0, -200, 0)
+
+    self:AddComponent(c1, c2)
 end
 
 function HostGameDialog.Frame.ButtonOK:OnInit()
-    self:set("rect", 300, 260, 80, 30);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Go!");
-    self:set("textScale", 0.4);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 300, 260)
+    self:GetTransform():set("Size", 80, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Go!")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.4)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function HostGameDialog.Frame.ButtonCancel:OnInit()
-    self:set("rect", 367, 8, 13, 13);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.02, 0.36, 1, 1);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "X");
-    self:set("textScale", 0.31);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 1);
+    self:GetTransform():set("Pos", 367, 8)
+    self:GetTransform():set("Size", 13, 13)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "X")
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.31)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 1)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.02, 0.36, 1)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function InitServerInfoPanel:OnInit()
-    self:set("show", false);
-    self:set("rect", 0, 0, 640, 480);
-    self:set("backColor", 0, 0, 0, 0);
+    self:GetBasics():set("Show", false)
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 end
 
 function InitServerInfoPanel.Frame:OnInit()
-    self:set("rect", 120, 150, 380, 180);
-    self:set("backColor", 0, 0.25, 0.7, 0.4);
-    self:set("borderWidth", 0.7);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "Initializing Server...");
-    self:set("textScale", 0.5);
-    self:set("textColor", 0.51, 0.8, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 120, 150)
+    self:GetTransform():set("Size", 380, 180)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Initializing Server...")
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.5)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.51, 0.8, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.7)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function InputOptionsDialog:OnInit()
-    self:set("show", false);
-    self:set("rect", 0, 0, 640, 480);
-    self:set("backColor", 0, 0, 0, 0);
+    self:GetBasics():set("Show", false)
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 end
 
 function InputOptionsDialog.Frame:OnInit()
-    self:set("rect", 150, 90, 310, 300);
-    self:set("backColor", 0, 0.25, 0.7, 0.4);
-    self:set("borderWidth", 0.7);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "Input Controls");
-    self:set("textScale", 0.5);
-    self:set("textColor", 0.51, 0.8, 1, 1);
-    self:set("textAlignHor", 2);
+    self:GetTransform():set("Pos", 150, 90)
+    self:GetTransform():set("Size", 310, 300)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Input Controls")
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.5)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.51, 0.8, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", -1)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.7)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function InputOptionsDialog.Frame.ReverseMouseYAxisText:OnInit()
-    self:set("rect", 10, 50, 190, 30);
-    self:set("backColor", 0, 0, 0, 0);
-    self:set("text", "Invert Mouse Y-Axis");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.5, 0.7, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 10, 50)
+    self:GetTransform():set("Size", 190, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Invert Mouse Y-Axis")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.5, 0.7, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    self:AddComponent(c1)
 end
 
 function InputOptionsDialog.Frame.ReverseMouseYAxisChoice:OnInit()
-    self:set("rect", 160, 50, 140, 30);
-    self:set("backColor", 1, 1, 1, 0.4);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 160, 50)
+    self:GetTransform():set("Size", 140, 30)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.6)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Text", "")
+    c2:set("Font", "Fonts/Arial")
+    c2:set("Scale", 0.3)
+    c2:set("Padding", 4, 0)
+    c2:set("Color", 0, 0.2, 0.5)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentChoiceT")
+    c3:set("Choices", { "no (normal)", "yes (aircraft-style)" })
+    c3:set("Selection", 1)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 1, 1, 1)
+    c4:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function InputOptionsDialog.Frame.InfoKeyboardText:OnInit()
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 80, 60)
 end
 
 function InputOptionsDialog.Frame.ButtonOK:OnInit()
-    self:set("rect", 200, 260, 100, 30);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Apply");
-    self:set("textScale", 0.4);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 200, 260)
+    self:GetTransform():set("Size", 100, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Apply")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.4)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function InputOptionsDialog.Frame.ButtonCancel:OnInit()
-    self:set("rect", 287, 8, 13, 13);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.02, 0.36, 1, 1);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "X");
-    self:set("textScale", 0.31);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 1);
+    self:GetTransform():set("Pos", 287, 8)
+    self:GetTransform():set("Size", 13, 13)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "X")
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.31)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 1)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.02, 0.36, 1)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function PlayerOptionsDialog:OnInit()
-    self:set("show", false);
-    self:set("rect", 0, 0, 640, 480);
-    self:set("backColor", 0, 0, 0, 0);
+    self:GetBasics():set("Show", false)
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 end
 
 function PlayerOptionsDialog.Frame:OnInit()
-    self:set("rect", 110, 90, 390, 300);
-    self:set("backColor", 0, 0.25, 0.7, 0.4);
-    self:set("borderWidth", 0.7);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "Player Settings");
-    self:set("textScale", 0.5);
-    self:set("textColor", 0.51, 0.8, 1, 1);
-    self:set("textAlignHor", 2);
+    self:GetTransform():set("Pos", 110, 90)
+    self:GetTransform():set("Size", 390, 300)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Player Settings")
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.5)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.51, 0.8, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", -1)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.7)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function PlayerOptionsDialog.Frame.PlayerNameText:OnInit()
-    self:set("rect", 10, 50, 190, 30);
-    self:set("backColor", 0, 0, 0, 0);
-    self:set("text", "Player Name");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.5, 0.7, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 10, 50)
+    self:GetTransform():set("Size", 190, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Player Name")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.5, 0.7, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    self:AddComponent(c1)
 end
 
 function PlayerOptionsDialog.Frame.PlayerNameEdit:OnInit()
-    self:set("rect", 130, 50, 140, 30);
-    self:set("backColor", 1, 1, 1, 0.4);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Carsten");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
-    self:SetTextCursorColor(0.02, 0.36, 1, 1);
+    self:GetTransform():set("Pos", 130, 50)
+    self:GetTransform():set("Size", 140, 30)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.6)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Text", "Carsten")
+    c2:set("Font", "Fonts/Arial")
+    c2:set("Scale", 0.3)
+    c2:set("Padding", 4, 0)
+    c2:set("Color", 0, 0.2, 0.5)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentTextEditT")
+    c3:set("CursorPos", 0)
+    c3:set("CursorType", 0)
+    c3:set("CursorRate", 1)
+    c3:set("CursorColor", 0.02, 0.36, 1)
+    c3:set("CursorAlpha", 1)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 1, 1, 1)
+    c4:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function PlayerOptionsDialog.Frame.ModelNameText:OnInit()
-    self:set("rect", 10, 90, 190, 30);
-    self:set("backColor", 0, 0, 0, 0);
-    self:set("text", "Model");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.5, 0.7, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 10, 90)
+    self:GetTransform():set("Size", 190, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Model")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.5, 0.7, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    self:AddComponent(c1)
 end
 
 function PlayerOptionsDialog.Frame.ModelNameChoice:OnInit()
-    self:set("rect", 130, 90, 140, 30);
-    self:set("backColor", 1, 1, 1, 0.4);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 130, 90)
+    self:GetTransform():set("Size", 140, 30)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.6)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Text", "")
+    c2:set("Font", "Fonts/Arial")
+    c2:set("Scale", 0.3)
+    c2:set("Padding", 4, 0)
+    c2:set("Color", 0, 0.2, 0.5)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentChoiceT")
+    c3:set("Choices", {  })
+    c3:set("Selection", 0)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 1, 1, 1)
+    c4:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function PlayerOptionsDialog.Frame.ModelPreview:OnInit()
-    self:set("rect", 280, 50, 100, 200);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
+    self:GetTransform():set("Pos", 280, 50)
+    self:GetTransform():set("Size", 100, 200)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.6)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentModelT")
+    c2:set("Name", "dummy")
+    c2:set("Animation", -1)
+    c2:set("Skin", -1)
+    c2:set("Pos", 68, 0, 0)
+    c2:set("Scale", 1.2)
+    c2:set("Angles", 0, 0, -130)
+    c2:set("CameraPos", 0, -200, 0)
+
+    self:AddComponent(c1, c2)
 end
 
 function PlayerOptionsDialog.Frame.ShowHUDText:OnInit()
-    self:set("rect", 10, 130, 190, 30);
-    self:set("backColor", 0, 0, 0, 0);
-    self:set("text", "Show HUD");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.5, 0.7, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 10, 130)
+    self:GetTransform():set("Size", 190, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Show HUD")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.5, 0.7, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    self:AddComponent(c1)
 end
 
 function PlayerOptionsDialog.Frame.ShowHUDChoice:OnInit()
-    self:set("rect", 130, 130, 140, 30);
-    self:set("backColor", 1, 1, 1, 0.4);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.36, 0.36, 0.36, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 130, 130)
+    self:GetTransform():set("Size", 140, 30)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.6)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Text", "")
+    c2:set("Font", "Fonts/Arial")
+    c2:set("Scale", 0.3)
+    c2:set("Padding", 4, 0)
+    c2:set("Color", 0.36, 0.36, 0.36)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentChoiceT")
+    c3:set("Choices", { "yes" })
+    c3:set("Selection", 1)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 1, 1, 1)
+    c4:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function PlayerOptionsDialog.Frame.ButtonOK:OnInit()
-    self:set("rect", 280, 260, 100, 30);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Apply");
-    self:set("textScale", 0.4);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 280, 260)
+    self:GetTransform():set("Size", 100, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Apply")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.4)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function PlayerOptionsDialog.Frame.ButtonCancel:OnInit()
-    self:set("rect", 367, 8, 13, 13);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.02, 0.36, 1, 1);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "X");
-    self:set("textScale", 0.31);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 1);
+    self:GetTransform():set("Pos", 367, 8)
+    self:GetTransform():set("Size", 13, 13)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "X")
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.31)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 1)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.02, 0.36, 1)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function VideoOptionsDialog:OnInit()
-    self:set("show", false);
-    self:set("rect", 0, 0, 640, 480);
-    self:set("backColor", 0, 0, 0, 0);
+    self:GetBasics():set("Show", false)
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 end
 
 function VideoOptionsDialog.Frame:OnInit()
-    self:set("rect", 110, 90, 390, 300);
-    self:set("backColor", 0, 0.25, 0.7, 0.4);
-    self:set("borderWidth", 0.7);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "Video Settings");
-    self:set("textScale", 0.5);
-    self:set("textColor", 0.51, 0.8, 1, 1);
-    self:set("textAlignHor", 2);
+    self:GetTransform():set("Pos", 110, 90)
+    self:GetTransform():set("Size", 390, 300)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Video Settings")
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.5)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.51, 0.8, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", -1)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.7)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function VideoOptionsDialog.Frame.ScreenResText:OnInit()
-    self:set("rect", 10, 50, 190, 30);
-    self:set("backColor", 0, 0, 0, 0);
-    self:set("text", "Screen Resolution");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.5, 0.7, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 10, 50)
+    self:GetTransform():set("Size", 190, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Screen Resolution")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.5, 0.7, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    self:AddComponent(c1)
 end
 
 function VideoOptionsDialog.Frame.ScreenResChoice:OnInit()
-    self:set("rect", 160, 50, 220, 30);
-    self:set("backColor", 1, 1, 1, 0.4);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 160, 50)
+    self:GetTransform():set("Size", 220, 30)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.6)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Text", "")
+    c2:set("Font", "Fonts/Arial")
+    c2:set("Scale", 0.3)
+    c2:set("Padding", 4, 0)
+    c2:set("Color", 0, 0.2, 0.5)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentChoiceT")
+    c3:set("Choices", { "640 x 480", "800 x 600", "1024 x 768" })
+    c3:set("Selection", 1)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 1, 1, 1)
+    c4:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function VideoOptionsDialog.Frame.FullScreenText:OnInit()
-    self:set("rect", 10, 90, 190, 30);
-    self:set("backColor", 0, 0, 0, 0);
-    self:set("text", "Full-Screen");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.5, 0.7, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 10, 90)
+    self:GetTransform():set("Size", 190, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Full-Screen")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.5, 0.7, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    self:AddComponent(c1)
 end
 
 function VideoOptionsDialog.Frame.FullScreenChoice:OnInit()
-    self:set("rect", 160, 90, 220, 30);
-    self:set("backColor", 1, 1, 1, 0.4);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 160, 90)
+    self:GetTransform():set("Size", 220, 30)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.6)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Text", "")
+    c2:set("Font", "Fonts/Arial")
+    c2:set("Scale", 0.3)
+    c2:set("Padding", 4, 0)
+    c2:set("Color", 0, 0.2, 0.5)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentChoiceT")
+    c3:set("Choices", { "yes", "no (window)" })
+    c3:set("Selection", 1)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 1, 1, 1)
+    c4:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function VideoOptionsDialog.Frame.TextureDetailText:OnInit()
-    self:set("rect", 10, 130, 190, 30);
-    self:set("backColor", 0, 0, 0, 0);
-    self:set("text", "Texture Detail");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.5, 0.7, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 10, 130)
+    self:GetTransform():set("Size", 190, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Texture Detail")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.5, 0.7, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    self:AddComponent(c1)
 end
 
 function VideoOptionsDialog.Frame.TextureDetailChoice:OnInit()
-    self:set("rect", 160, 130, 220, 30);
-    self:set("backColor", 1, 1, 1, 0.4);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 160, 130)
+    self:GetTransform():set("Size", 220, 30)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.6)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Text", "")
+    c2:set("Font", "Fonts/Arial")
+    c2:set("Scale", 0.3)
+    c2:set("Padding", 4, 0)
+    c2:set("Color", 0, 0.2, 0.5)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentChoiceT")
+    c3:set("Choices", { "high (best quality)", "medium (faster)", "low (fastest)" })
+    c3:set("Selection", 1)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 1, 1, 1)
+    c4:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function VideoOptionsDialog.Frame.InfoRestartText:OnInit()
-    self:set("rect", 10, 220, 370, 30);
-    self:set("backColor", 0, 0, 0, 0);
-    self:set("text", "Changes to these settings will take effect the next time you start Cafu.\nSetting the Texture Detail to \"high\" requires 256+ MB video RAM.");
-    self:set("textScale", 0.2);
-    self:set("textColor", 0.5, 0.7, 1, 1);
-    self:set("textAlignHor", 1);
+    self:GetTransform():set("Pos", 10, 220)
+    self:GetTransform():set("Size", 370, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", [[
+Changes to these settings will take effect the next time you start Cafu.
+Setting the Texture Detail to "high" requires 256+ MB video RAM.]])
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.2)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.5, 0.7, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 1)
+    c1:set("ver. Align", -1)
+
+    self:AddComponent(c1)
 end
 
 function VideoOptionsDialog.Frame.ButtonOK:OnInit()
-    self:set("rect", 280, 260, 100, 30);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Apply");
-    self:set("textScale", 0.4);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 280, 260)
+    self:GetTransform():set("Size", 100, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Apply")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.4)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function VideoOptionsDialog.Frame.ButtonCancel:OnInit()
-    self:set("rect", 367, 8, 13, 13);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.02, 0.36, 1, 1);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "X");
-    self:set("textScale", 0.31);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 1);
+    self:GetTransform():set("Pos", 367, 8)
+    self:GetTransform():set("Size", 13, 13)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "X")
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.31)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 1)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.02, 0.36, 1)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function AudioOptionsDialog:OnInit()
-    self:set("show", false);
-    self:set("rect", 0, 0, 640, 480);
-    self:set("backColor", 0, 0, 0, 0);
+    self:GetBasics():set("Show", false)
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 end
 
 function AudioOptionsDialog.Frame:OnInit()
-    self:set("rect", 160, 90, 290, 300);
-    self:set("backColor", 0, 0.25, 0.7, 0.4);
-    self:set("borderWidth", 0.7);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "Audio Settings");
-    self:set("textScale", 0.5);
-    self:set("textColor", 0.51, 0.8, 1, 1);
-    self:set("textAlignHor", 2);
+    self:GetTransform():set("Pos", 160, 90)
+    self:GetTransform():set("Size", 290, 300)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Audio Settings")
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.5)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.51, 0.8, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", -1)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.7)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function AudioOptionsDialog.Frame.VolumeText:OnInit()
-    self:set("rect", 10, 50, 190, 30);
-    self:set("backColor", 0, 0, 0, 0);
-    self:set("text", "Volume");
-    self:set("textScale", 0.3);
-    self:set("textColor", 0.5, 0.7, 1, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 10, 50)
+    self:GetTransform():set("Size", 190, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Volume")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.3)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.5, 0.7, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    self:AddComponent(c1)
 end
 
 function AudioOptionsDialog.Frame.VolumeChoice:OnInit()
-    self:set("rect", 160, 50, 120, 30);
-    self:set("backColor", 1, 1, 1, 0.4);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("textScale", 0.3);
-    self:set("textColor", 0, 0.2, 0.5, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 160, 50)
+    self:GetTransform():set("Size", 120, 30)
+
+    local c1 = gui:new("ComponentBorderT")
+    c1:set("Width", 0.6)
+    c1:set("Color", 0.7, 0.8, 0.9)
+    c1:set("Alpha", 1)
+
+    local c2 = gui:new("ComponentTextT")
+    c2:set("Text", "")
+    c2:set("Font", "Fonts/Arial")
+    c2:set("Scale", 0.3)
+    c2:set("Padding", 4, 0)
+    c2:set("Color", 0, 0.2, 0.5)
+    c2:set("Alpha", 1)
+    c2:set("hor. Align", -1)
+    c2:set("ver. Align", 0)
+
+    local c3 = gui:new("ComponentChoiceT")
+    c3:set("Choices", { "0% (mute)", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%" })
+    c3:set("Selection", 6)
+
+    local c4 = gui:new("ComponentImageT")
+    c4:set("Material", "")
+    c4:set("Color", 1, 1, 1)
+    c4:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function AudioOptionsDialog.Frame.ButtonOK:OnInit()
-    self:set("rect", 180, 260, 100, 30);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Apply");
-    self:set("textScale", 0.4);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 180, 260)
+    self:GetTransform():set("Size", 100, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Apply")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.4)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function AudioOptionsDialog.Frame.ButtonCancel:OnInit()
-    self:set("rect", 267, 8, 13, 13);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.02, 0.36, 1, 1);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "X");
-    self:set("textScale", 0.31);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 1);
+    self:GetTransform():set("Pos", 267, 8)
+    self:GetTransform():set("Size", 13, 13)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "X")
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.31)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 1)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.02, 0.36, 1)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function CreditsDialog:OnInit()
-    self:set("show", false);
-    self:set("rect", 0, 0, 640, 480);
-    self:set("backColor", 0, 0, 0, 0);
+    self:GetBasics():set("Show", false)
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
 end
 
 function CreditsDialog.Frame:OnInit()
-    self:set("rect", 110, 10, 420, 460);
-    self:set("backColor", 0, 0.25, 0.7, 0.4);
-    self:set("borderWidth", 0.7);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "Credits");
-    self:set("textScale", 0.5);
-    self:set("textColor", 0.466667, 0.00784314, 0, 0.4);
-    self:set("textAlignHor", 2);
+    self:GetTransform():set("Pos", 110, 10)
+    self:GetTransform():set("Size", 420, 460)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Credits")
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.5)
+    c1:set("Padding", 0, 2)
+    c1:set("Color", 0.466667, 0.00784314, 0)
+    c1:set("Alpha", 0.4)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", -1)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.7)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function CreditsDialog.Frame.CreditsText:OnInit()
-    self:set("rect", 10, 40, 400, 140);
-    self:set("backColor", 0, 0, 0, 0);
-    self:set("text", "Cafu is developed by\nCarsten Fuchs Software\n\nwith major contributions by:\nJörn Koch, John Swartz\nKai Schadwinkel, Carsten Crede,\nand many more...");
-    self:set("textScale", 0.27);
-    self:set("textColor", 0.51, 0.8, 1, 1);
-    self:set("textAlignHor", 2);
+    self:GetTransform():set("Pos", 10, 40)
+    self:GetTransform():set("Size", 400, 140)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", [[
+Cafu is developed by
+Carsten Fuchs Software
+
+with major contributions by:
+Jörn Koch, John Swartz
+Kai Schadwinkel, Carsten Crede,
+and many more...]])
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.27)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.51, 0.8, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", -1)
+
+    self:AddComponent(c1)
 end
 
 function CreditsDialog.Frame.ExtLibsText:OnInit()
-    self:set("rect", 10, 160, 400, 250);
-    self:set("backColor", 0, 0.25098, 0.501961, 0);
-    self:set("borderColor", 0, 0.247059, 0.698039, 0.313726);
-    self:set("text", "The Cafu Engine employs several external libraries that are copyrighted by their respective authors:\n\n      Boost C++ Libraries, http://www.boost.org\n      Bullet Physics Library, © 2003-2006 Erwin Coumans, http://continuousphysics.com/Bullet\n      NVidia \"Cg - C for graphics\", http://developer.nvidia.com/object/cg_toolkit.html\n      Collada DOM, © 2005 Sony Computer Entertainment Inc., http://www.collada.org\n      FMOD, © 1994-2004 Firelight Technologies Pty, Ltd., http://www.fmod.org\n      freealut, http://connect.creativelabs.com/openal/default.aspx\n      FreeType Library, © 2009 The FreeType Project, http://www.freetype.org\n      libjpeg, © 1991-1998 Independent JPEG Group, http://www.ijg.org\n      libnoise, © 2003-2007 Jason Bevins, http://libnoise.sourceforge.net\n      libogg and libvorbis, © 2002 Xiph.org Foundation, http://www.xiph.org\n      libpng, © 2004 Glenn Randers-Pehrson, http://www.libpng.org/pub/png/libpng.html\n      libxml2, © 1998-2003 Daniel Veillard, http://xmlsoft.org\n      lightwave-8, http://www.newtek.com/lightwave/developers.php\n      Lua, © 1994-2006 Lua.org, PUC-Rio, http://www.lua.org\n      mpg123, © Michael Hipp, http://www.mpg123.de\n      OpenAL (for Windows), http://connect.creativelabs.com/openal/default.aspx\n      openal-soft (for Linux), http://kcat.strangesoft.net/openal.html\n      PCRE, © 1997-2007 University of Cambridge, © 2007 Google Inc. (C++ wrappers), http://www.pcre.org\n      wxWidgets cross-platform GUI library, © 1998-2005 J. Smart, R. Roebling et al, http://www.wxwidgets.org\n      zlib, © 1995-2004 Jean-loup Gailly and Mark Adler, http://www.zlib.net\n\nFor more information, refer to file LICENSE.txt\n\n");
-    self:set("textScale", 0.175);
-    self:set("textColor", 0.168627, 0.666667, 1, 0);
-    self:set("textAlignHor", 1);
-    self:set("textAlignVer", 1);
+    self:GetTransform():set("Pos", 10, 160)
+    self:GetTransform():set("Size", 400, 250)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", [[
+The Cafu Engine employs several external libraries that are copyrighted by their respective authors:
+
+      Boost C++ Libraries, http://www.boost.org
+      Bullet Physics Library, © 2003-2006 Erwin Coumans, http://continuousphysics.com/Bullet
+      NVidia "Cg - C for graphics", http://developer.nvidia.com/object/cg_toolkit.html
+      Collada DOM, © 2005 Sony Computer Entertainment Inc., http://www.collada.org
+      FMOD, © 1994-2004 Firelight Technologies Pty, Ltd., http://www.fmod.org
+      freealut, http://connect.creativelabs.com/openal/default.aspx
+      FreeType Library, © 2009 The FreeType Project, http://www.freetype.org
+      libjpeg, © 1991-1998 Independent JPEG Group, http://www.ijg.org
+      libnoise, © 2003-2007 Jason Bevins, http://libnoise.sourceforge.net
+      libogg and libvorbis, © 2002 Xiph.org Foundation, http://www.xiph.org
+      libpng, © 2004 Glenn Randers-Pehrson, http://www.libpng.org/pub/png/libpng.html
+      libxml2, © 1998-2003 Daniel Veillard, http://xmlsoft.org
+      lightwave-8, http://www.newtek.com/lightwave/developers.php
+      Lua, © 1994-2006 Lua.org, PUC-Rio, http://www.lua.org
+      mpg123, © Michael Hipp, http://www.mpg123.de
+      OpenAL (for Windows), http://connect.creativelabs.com/openal/default.aspx
+      openal-soft (for Linux), http://kcat.strangesoft.net/openal.html
+      PCRE, © 1997-2007 University of Cambridge, © 2007 Google Inc. (C++ wrappers), http://www.pcre.org
+      wxWidgets cross-platform GUI library, © 1998-2005 J. Smart, R. Roebling et al, http://www.wxwidgets.org
+      zlib, © 1995-2004 Jean-loup Gailly and Mark Adler, http://www.zlib.net
+
+For more information, refer to file LICENSE.txt
+
+]])
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.175)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.168627, 0.666667, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 1)
+    c1:set("ver. Align", 1)
+
+    self:AddComponent(c1)
 end
 
 function CreditsDialog.Frame.CopyrightText:OnInit()
-    self:set("rect", 10, 420, 310, 30);
-    self:set("backColor", 0, 0, 0, 0);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "Copyright © 2002-" .. os.date("%Y") .. " Carsten Fuchs Software.\nhttp://www.cafu.de");
-    self:set("textScale", 0.22);
-    self:set("textColor", 0.5, 0.5, 0.5, 1);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 10, 420)
+    self:GetTransform():set("Size", 310, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "[This text is set in script.]")
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.22)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.5, 0.5, 0.5)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    self:AddComponent(c1)
 end
 
 function CreditsDialog.Frame.ButtonOK:OnInit()
-    self:set("rect", 330, 420, 80, 30);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Back");
-    self:set("textScale", 0.4);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 330, 420)
+    self:GetTransform():set("Size", 80, 30)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Back")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.4)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function CreditsDialog.Frame.ButtonCancel:OnInit()
-    self:set("rect", 397, 8, 13, 13);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.02, 0.36, 1, 1);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "X");
-    self:set("textScale", 0.31);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 1);
+    self:GetTransform():set("Pos", 397, 8)
+    self:GetTransform():set("Size", 13, 13)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "X")
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.31)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 1)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.02, 0.36, 1)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function ReallyQuitDialog:OnInit()
-    self:set("show", false);
-    self:set("rect", 0, 0, 640, 480);
-    self:set("backColor", 0, 0, 0, 0.7);
+    self:GetBasics():set("Show", false)
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
+
+    local c1 = gui:new("ComponentImageT")
+    c1:set("Material", "")
+    c1:set("Color", 0, 0, 0)
+    c1:set("Alpha", 0.7)
+
+    self:AddComponent(c1)
 end
 
 function ReallyQuitDialog.QuitHeadline:OnInit()
-    self:set("rect", 0, 10, 640, 45);
-    self:set("backColor", 0, 0, 0, 0.5);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "Cafu Engine");
-    self:set("textScale", 0.8);
-    self:set("textColor", 0.466667, 0.00784314, 0, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 0, 10)
+    self:GetTransform():set("Size", 640, 45)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Cafu Engine")
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.8)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.466667, 0.00784314, 0)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentImageT")
+    c2:set("Material", "")
+    c2:set("Color", 0, 0, 0)
+    c2:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2)
 end
 
 function ReallyQuitDialog.ReallyQuit:OnInit()
-    self:set("rect", 120, 90, 400, 300);
-    self:set("backColor", 0, 0.25, 0.7, 0.4);
-    self:set("borderWidth", 0.7);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("font", "Fonts/Impact");
-    self:set("text", "Really Quit?");
-    self:set("textScale", 0.7);
-    self:set("textColor", 0.51, 0.8, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 120, 90)
+    self:GetTransform():set("Size", 400, 300)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Really Quit?")
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.7)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.51, 0.8, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.7)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.4)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function ReallyQuitDialog.ReallyQuit.ButtonYes:OnInit()
-    self:set("rect", 53, 250, 120, 40);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "Yes (OK)");
-    self:set("textScale", 0.4);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 53, 250)
+    self:GetTransform():set("Size", 120, 40)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Yes (OK)")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.4)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function ReallyQuitDialog.ReallyQuit.ButtonNo:OnInit()
-    self:set("rect", 227, 250, 120, 40);
-    self:set("backColor", 0, 0.25, 0.7, 0.5);
-    self:set("borderWidth", 0.6);
-    self:set("borderColor", 0.7, 0.8, 0.9, 1);
-    self:set("text", "No (Cancel)");
-    self:set("textScale", 0.4);
-    self:set("textColor", 0.02, 0.36, 1, 1);
-    self:set("textAlignHor", 2);
-    self:set("textAlignVer", 2);
+    self:GetTransform():set("Pos", 227, 250)
+    self:GetTransform():set("Size", 120, 40)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "No (Cancel)")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.4)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.02, 0.36, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 0.6)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0.25, 0.7)
+    c3:set("Alpha", 0.5)
+
+    self:AddComponent(c1, c2, c3)
 end
 

@@ -3,20 +3,22 @@ dofile("Games/DeathMatch/GUIs/Teleporter_init.cgui");
 
 
 function ButtonMinus:OnMouseEnter()
-    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
-    self:interpolate("textScale", 2.2, 2.4, 500);
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Border"):set("Alpha", 1.0)
+    self:GetComponent("Text"):interpolate("Scale", 2.2, 2.4, 500)
 end
 
 function ButtonMinus:OnMouseLeave()
-    self:set("borderColor", 0, 0.333333, 0.490196, 0.5);
-    self:interpolate("textScale", 2.4, 2.2, 500);
+    self:GetComponent("Border"):set("Color", 0, 0.333333, 0.490196)
+    self:GetComponent("Border"):set("Alpha", 0.5)
+    self:GetComponent("Text"):interpolate("Scale", 2.4, 2.2, 500)
 end
 
 function ButtonMinus:OnMouseButtonUp()
-    local NodeNr=tonumber(DestNode:get("text"));
+    local NodeNr = tonumber(DestNode:GetComponent("Text"):get("Text"))
 
     if (NodeNr>1) then
-        DestNode:set("text", NodeNr-1);
+        DestNode:GetComponent("Text"):set("Text", NodeNr-1)
     end
 
     return true;
@@ -25,20 +27,22 @@ end
 
 
 function ButtonPlus:OnMouseEnter()
-    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
-    self:interpolate("textScale", 2.2, 2.4, 500);
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Border"):set("Alpha", 1.0)
+    self:GetComponent("Text"):interpolate("Scale", 2.2, 2.4, 500)
 end
 
 function ButtonPlus:OnMouseLeave()
-    self:set("borderColor", 0, 0.333333, 0.490196, 0.5);
-    self:interpolate("textScale", 2.4, 2.2, 500);
+    self:GetComponent("Border"):set("Color", 0, 0.333333, 0.490196)
+    self:GetComponent("Border"):set("Alpha", 0.5)
+    self:GetComponent("Text"):interpolate("Scale", 2.4, 2.2, 500)
 end
 
 function ButtonPlus:OnMouseButtonUp()
-    local NodeNr=tonumber(DestNode:get("text"));
+    local NodeNr = tonumber(DestNode:GetComponent("Text"):get("Text"))
 
     if (NodeNr<MAX_NODES) then
-        DestNode:set("text", NodeNr+1);
+        DestNode:GetComponent("Text"):set("Text", NodeNr+1)
     end
 
     return true;
@@ -47,18 +51,20 @@ end
 
 
 function ButtonGo:OnMouseEnter()
-    self:set("borderColor", 1.0, 0.0, 0.0, 1.0);
-    self:interpolate("textScale", 0.5, 0.52, 500);
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Border"):set("Alpha", 1.0)
+    self:GetComponent("Text"):interpolate("Scale", 0.5, 0.52, 500)
 end
 
 function ButtonGo:OnMouseLeave()
-    self:set("borderColor", 0, 0.333333, 0.490196, 0.498039);
-    self:interpolate("textScale", 0.52, 0.5, 500);
+    self:GetComponent("Border"):set("Color", 0, 0.333333, 0.490196)
+    self:GetComponent("Border"):set("Alpha", 0.498039)
+    self:GetComponent("Text"):interpolate("Scale", 0.52, 0.5, 500)
 end
 
 function ButtonGo:OnMouseButtonUp()
-    local origNr=OUR_NODE_NR;
-    local destNr=DestNode:get("text");
+    local origNr = OUR_NODE_NR
+    local destNr = DestNode:GetComponent("Text"):get("Text")
 
     Entity:RunMapCommand("teleport(" .. origNr .. ", " .. destNr .. ");");
     return true;
@@ -77,6 +83,6 @@ function OnEntityInit()
     OUR_NODE_NR=tonumber(OUR_NODE_NR) or 1;
     MAX_NODES  =tonumber(MAX_NODES) or 3;
 
-    InfoStation:set("text", "Station " .. OUR_NODE_NR);
-    DestNode:set("text", (OUR_NODE_NR % MAX_NODES)+1);
+    InfoStation:GetComponent("Text"):set("Text", "Station " .. OUR_NODE_NR)
+    DestNode:GetComponent("Text"):set("Text", (OUR_NODE_NR % MAX_NODES) + 1)
 end

@@ -35,7 +35,7 @@ CommandChangeWindowHierarchyT::CommandChangeWindowHierarchyT(GuiDocumentT* GuiDo
       m_NewPosition(NewPosition),
       m_OldParent(Window->GetParent()),
       m_OldPosition(!Window->GetParent().IsNull() ? Window->GetParent()->GetChildren().Find(Window) : 0),
-      m_OldName(Window->GetName())
+      m_OldName(Window->GetBasics()->GetWindowName())
 {
     wxASSERT(m_GuiDocument);
     wxASSERT(!m_Window.IsNull());   // m_NewParent==NULL or m_OldParent==NULL are handled below.
@@ -79,7 +79,7 @@ void CommandChangeWindowHierarchyT::Undo()
 
     // The call to AddChild() in Do() might have modified the name of the m_Window as a side-effect.
     // Now that we have restored the previous hierarchy, restore the previous name as well.
-    m_Window->SetName(m_OldName);
+    m_Window->GetBasics()->SetWindowName(m_OldName);
 
     m_GuiDocument->UpdateAllObservers_Modified(m_Window, WMD_HIERARCHY);
     m_Done=false;

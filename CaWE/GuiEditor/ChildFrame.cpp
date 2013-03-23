@@ -27,16 +27,20 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GuiInspector.hpp"
 #include "LivePreview.hpp"
 
+#include "Commands/AddComponent.hpp"
+#include "Commands/Create.hpp"
 #include "Commands/Delete.hpp"
 #include "Commands/Select.hpp"
-#include "Commands/Rotate.hpp"
-#include "Commands/AlignText.hpp"
 #include "Commands/ChangeWindowHierarchy.hpp"
 #include "Commands/Paste.hpp"
+#include "Commands/SetCompVar.hpp"
 
 #include "../ParentFrame.hpp"
 #include "../GameConfig.hpp"
 
+#include "GuiSys/AllComponents.hpp"
+#include "GuiSys/CompBase.hpp"
+#include "GuiSys/CompText.hpp"
 #include "GuiSys/Window.hpp"
 #include "GuiSys/GuiImpl.hpp"
 #include "Math3D/Misc.hpp"
@@ -57,6 +61,30 @@ namespace
 {
     // Default perspective set by the first childframe instance and used to restore default settings later.
     wxString AUIDefaultPerspective;
+
+
+    bool CompareTypeInfoNames(const cf::TypeSys::TypeInfoT* const& TI1, const cf::TypeSys::TypeInfoT* const& TI2)
+    {
+        return wxStricmp(TI1->ClassName, TI2->ClassName) < 0;
+    }
+
+
+    // This function has been duplicated into other modules, too... can we reconcile them?
+    wxMenuItem* AppendMI(wxMenu& Menu, int MenuID, const wxString& Label, const wxArtID& ArtID, bool Active=true, const wxString& Help="")
+    {
+        wxMenuItem* MI = new wxMenuItem(&Menu, MenuID, Label, Help);
+
+        // Under wxMSW (2.9.2), the bitmap must be set before the menu item is added to the menu.
+        if (ArtID != "")
+            MI->SetBitmap(wxArtProvider::GetBitmap(ArtID, wxART_MENU));
+
+        // Under wxGTK (2.9.2), the menu item must be added to the menu before we can call Enable().
+        Menu.Append(MI);
+
+        MI->Enable(Active);
+
+        return MI;
+    }
 }
 
 
@@ -72,6 +100,7 @@ BEGIN_EVENT_TABLE(GuiEditor::ChildFrameT, wxMDIChildFrame)
     EVT_MENU           (wxID_PASTE,                                               GuiEditor::ChildFrameT::OnMenuEditPaste)
     EVT_MENU           (ID_MENU_EDIT_DELETE,                                      GuiEditor::ChildFrameT::OnMenuEditDelete)
     EVT_MENU_RANGE     (ID_MENU_EDIT_SNAP_TO_GRID, ID_MENU_EDIT_SET_GRID_SIZE,    GuiEditor::ChildFrameT::OnMenuEditGrid)
+    EVT_MENU_RANGE     (ID_MENU_CREATE_WINDOW,     ID_MENU_CREATE_COMPONENT_MAX,  GuiEditor::ChildFrameT::OnMenuCreate)
     EVT_MENU_RANGE     (ID_MENU_VIEW_WINDOWTREE,   ID_MENU_VIEW_SAVE_USER_LAYOUT, GuiEditor::ChildFrameT::OnMenuView)
     EVT_UPDATE_UI_RANGE(ID_MENU_VIEW_WINDOWTREE,   ID_MENU_VIEW_GUIINSPECTOR,     GuiEditor::ChildFrameT::OnMenuViewUpdate)
     EVT_CLOSE          (                                                          GuiEditor::ChildFrameT::OnClose)
@@ -94,6 +123,7 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
       m_WindowInspector(NULL),
       m_FileMenu(NULL),
       m_EditMenu(NULL),
+      m_CreateMenu(NULL),
       m_ViewMenu(NULL)
 {
     // Register us with the parents list of children.
@@ -138,6 +168,47 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
     m_EditMenu->Append(ID_MENU_EDIT_SNAP_TO_GRID, wxString::Format("Snap to grid (%lu)\tCtrl+G", m_GridSpacing), "", wxITEM_CHECK);
     m_EditMenu->Append(ID_MENU_EDIT_SET_GRID_SIZE, "Set grid size\tCtrl+H", "");
     item0->Append(m_EditMenu, "&Edit");
+
+
+    m_CreateMenu = new wxMenu;
+    AppendMI(*m_CreateMenu, ID_MENU_CREATE_WINDOW, "Window", "window-new", true, "Create new window");
+    m_CreateMenu->AppendSeparator();
+
+    const ArrayT<const cf::TypeSys::TypeInfoT*>& CompRoots = cf::GuiSys::GetComponentTIM().GetTypeInfoRoots();
+    ArrayT<const cf::TypeSys::TypeInfoT*>        CompTIs;
+
+    for (unsigned long RootNr = 0; RootNr < CompRoots.Size(); RootNr++)
+    {
+        for (const cf::TypeSys::TypeInfoT* TI = CompRoots[RootNr]; TI; TI = TI->GetNext())
+        {
+            // Skip the ComponentBaseT class.
+            if (!TI->Base) continue;
+
+            // Skip fundamental component types (each window has one instance anyway).
+            if (cf::GuiSys::IsFundamental(TI)) continue;
+
+            // Skip the ComponentSelectionT class, that it specific to this GUI Editor application.
+            if (TI == &ComponentSelectionT::TypeInfo) continue;
+
+            CompTIs.PushBack(TI);
+        }
+    }
+
+    CompTIs.QuickSort(CompareTypeInfoNames);
+
+    for (unsigned long TINr = 0; TINr < CompTIs.Size(); TINr++)
+    {
+        const cf::TypeSys::TypeInfoT* TI   = CompTIs[TINr];
+        wxString                      Name = TI->ClassName;
+
+        if (Name.StartsWith("Component") && Name.EndsWith("T"))
+            Name = Name.SubString(9, Name.length() - 2);
+
+        wxASSERT(ID_MENU_CREATE_COMPONENT_FIRST + TI->TypeNr <= ID_MENU_CREATE_COMPONENT_MAX);
+        m_CreateMenu->Append(ID_MENU_CREATE_COMPONENT_FIRST + TI->TypeNr, "&" + Name, "Add component to the selected window");
+    }
+
+    item0->Append(m_CreateMenu, "&Create");
 
 
     m_ViewMenu=new wxMenu;
@@ -185,7 +256,7 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
 
     m_AUIManager.AddPane(m_GuiInspector, wxAuiPaneInfo().
                          Name("GuiInspector").Caption("GUI Inspector").
-                         Right().Position(1));
+                         Left().Position(1));
 
     // Create AUI toolbars.
     wxAuiToolBar* ToolbarDocument=new wxAuiToolBar(this, wxID_ANY);
@@ -206,7 +277,7 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
     m_ToolbarTools=new wxAuiToolBar(this, wxID_ANY);
     m_ToolbarTools->AddTool(ID_TOOLBAR_TOOL_SELECTION, "Selection tool", wxArtProvider::GetBitmap("cursor_mouse", wxART_TOOLBAR, wxSize(16, 16) /*The only one that we have at this time; don't scale it.*/), "Selection tool", wxITEM_CHECK);
     m_ToolbarTools->ToggleTool(ID_TOOLBAR_TOOL_SELECTION, true); // Selection tool is active by default.
-    m_ToolbarTools->AddTool(ID_TOOLBAR_TOOL_NEW_WINDOW, "Window Creation tool", wxArtProvider::GetBitmap("window-new", wxART_TOOLBAR), "Window creation tool (in this version, use right-mouse-button context menu in Window Tree or main view in order to create new windows)", wxITEM_CHECK);
+    m_ToolbarTools->AddTool(ID_TOOLBAR_TOOL_NEW_WINDOW, "Window Creation tool", wxArtProvider::GetBitmap("window-new", wxART_TOOLBAR), "Window creation tool (in this version, use the Create menu, or the context menu in the Window Tree or main view in order to create new windows)", wxITEM_CHECK);
     m_ToolbarTools->EnableTool(ID_TOOLBAR_TOOL_NEW_WINDOW, false);
     m_ToolbarTools->Realize();
 
@@ -297,14 +368,13 @@ float GuiEditor::ChildFrameT::SnapToGrid(float Value) const
 }
 
 
-Vector3fT GuiEditor::ChildFrameT::SnapToGrid(const Vector3fT& Position) const
+Vector2fT GuiEditor::ChildFrameT::SnapToGrid(const Vector2fT& Position) const
 {
     const float GridSpacing=m_SnapToGrid ? m_GridSpacing : 1.0f;
-    Vector3fT NewPosition;
+    Vector2fT   NewPosition;
 
     NewPosition.x=cf::math::round(Position.x/GridSpacing)*GridSpacing;
     NewPosition.y=cf::math::round(Position.y/GridSpacing)*GridSpacing;
-    NewPosition.z=cf::math::round(Position.z/GridSpacing)*GridSpacing;
 
     return NewPosition;
 }
@@ -335,7 +405,7 @@ bool GuiEditor::ChildFrameT::Save(bool AskForFileName)
         wxFileDialog SaveFileDialog(NULL,                               // parent
                                     "Save Cafu GUI File",               // message
                                     (FN.IsOk() && wxDirExists(FN.GetPath())) ? FN.GetPath() : LastUsedDir, // default dir
-                                    "",                                 // default file
+                                    (FN.IsOk() && FN.GetExt() == "cgui") ? FN.GetFullName() : "", // default file
                                     "Cafu GUI Files (*.cgui)|*.cgui",   // wildcard
                                     wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
@@ -543,6 +613,45 @@ void GuiEditor::ChildFrameT::OnMenuEditUpdate(wxUpdateUIEvent& UE)
 }
 
 
+void GuiEditor::ChildFrameT::OnMenuCreate(wxCommandEvent& CE)
+{
+    if (CE.GetId() == ID_MENU_CREATE_WINDOW)
+    {
+        IntrusivePtrT<cf::GuiSys::WindowT> Parent = m_GuiDocument->GetSelection().Size() > 0 ? m_GuiDocument->GetSelection()[0] : m_GuiDocument->GetRootWindow();
+
+        SubmitCommand(new CommandCreateT(m_GuiDocument, Parent));
+        return;
+    }
+
+    const unsigned long           Nr = CE.GetId() - ID_MENU_CREATE_COMPONENT_FIRST;
+    const cf::TypeSys::TypeInfoT* TI = cf::GuiSys::GetComponentTIM().FindTypeInfoByNr(Nr);
+
+    if (!TI)
+    {
+        wxMessageBox("Could not find a TypeInfo for this type number.", "Add component");
+        return;
+    }
+
+    if (m_GuiDocument->GetSelection().Size() != 1)
+    {
+        wxMessageBox("Please select exactly one window to add the component to.", "Add component");
+        return;
+    }
+
+    IntrusivePtrT<cf::GuiSys::ComponentBaseT> Comp = static_cast<cf::GuiSys::ComponentBaseT*>(
+        TI->CreateInstance(
+            cf::TypeSys::CreateParamsT()));
+
+    if (Comp.IsNull())
+    {
+        wxMessageBox("Could not instantiate the component.", "Add component");
+        return;
+    }
+
+    SubmitCommand(new CommandAddComponentT(m_GuiDocument, m_GuiDocument->GetSelection()[0], Comp));
+}
+
+
 void GuiEditor::ChildFrameT::OnMenuView(wxCommandEvent& CE)
 {
     switch (CE.GetId())
@@ -678,6 +787,9 @@ void GuiEditor::ChildFrameT::OnToolbar(wxCommandEvent& CE)
                                  MainScriptFileName, wxOK | wxICON_EXCLAMATION);
                 }
 
+                // Make sure that the Gui is active for the live preview, so that clock tick events are properly propagated to all windows.
+                Gui->Activate();
+
                 LivePreviewT* Preview=new LivePreviewT(this, Gui, MainScriptFileName);
                 Preview->Show();
             }
@@ -749,24 +861,72 @@ void GuiEditor::ChildFrameT::OnToolbar(wxCommandEvent& CE)
         }
 
         case ID_TOOLBAR_WINDOW_ROTATE_CW:
-            SubmitCommand(new CommandRotateT(m_GuiDocument, m_GuiDocument->GetSelection(), 15.0f));
-            break;
-
         case ID_TOOLBAR_WINDOW_ROTATE_CCW:
-            SubmitCommand(new CommandRotateT(m_GuiDocument, m_GuiDocument->GetSelection(), -15.0f));
+        {
+            const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Sel = m_GuiDocument->GetSelection();
+            ArrayT<CommandT*> SubCommands;
+
+            for (unsigned int SelNr = 0; SelNr < Sel.Size(); SelNr++)
+            {
+                cf::TypeSys::VarT<float>* Rotation = dynamic_cast<cf::TypeSys::VarT<float>*>(Sel[SelNr]->GetTransform()->GetMemberVars().Find("Rotation"));
+
+                if (Rotation)
+                {
+                    const float NewRotAngle = Rotation->Get() + (CE.GetId() == ID_TOOLBAR_WINDOW_ROTATE_CW ? 15.0f : 345.0f);
+
+                    SubCommands.PushBack(new CommandSetCompVarT<float>(m_GuiDocument, *Rotation, fmod(NewRotAngle, 360.0f)));
+                }
+            }
+
+            if (SubCommands.Size() == 1)
+            {
+                SubmitCommand(SubCommands[0]);
+            }
+            else if (SubCommands.Size() > 1)
+            {
+                SubmitCommand(new CommandMacroT(SubCommands, "Rotate windows"));
+            }
+
             break;
+        }
 
         case ID_TOOLBAR_TEXT_ALIGN_LEFT:
-            SubmitCommand(new CommandAlignTextHorT(m_GuiDocument, m_GuiDocument->GetSelection(), 0));
-            break;
-
         case ID_TOOLBAR_TEXT_ALIGN_CENTER:
-            SubmitCommand(new CommandAlignTextHorT(m_GuiDocument, m_GuiDocument->GetSelection(), 2));
-            break;
-
         case ID_TOOLBAR_TEXT_ALIGN_RIGHT:
-            SubmitCommand(new CommandAlignTextHorT(m_GuiDocument, m_GuiDocument->GetSelection(), 1));
+        {
+            const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Sel = m_GuiDocument->GetSelection();
+            ArrayT<CommandT*> SubCommands;
+
+            for (unsigned int SelNr = 0; SelNr < Sel.Size(); SelNr++)
+            {
+                IntrusivePtrT<cf::GuiSys::ComponentBaseT> CompText = Sel[SelNr]->GetComponent("Text");
+
+                if (CompText != NULL)
+                {
+                    cf::GuiSys::ComponentTextT::VarTextAlignHorT* AlignHor = dynamic_cast<cf::GuiSys::ComponentTextT::VarTextAlignHorT*>(CompText->GetMemberVars().Find("hor. Align"));
+
+                    if (AlignHor)
+                    {
+                        const int HOR_ALIGN = (CE.GetId() == ID_TOOLBAR_TEXT_ALIGN_LEFT)   ? cf::GuiSys::ComponentTextT::VarTextAlignHorT::LEFT :
+                                              (CE.GetId() == ID_TOOLBAR_TEXT_ALIGN_CENTER) ? cf::GuiSys::ComponentTextT::VarTextAlignHorT::CENTER :
+                                                                                             cf::GuiSys::ComponentTextT::VarTextAlignHorT::RIGHT;
+
+                        SubCommands.PushBack(new CommandSetCompVarT<int>(m_GuiDocument, *AlignHor, HOR_ALIGN));
+                    }
+                }
+            }
+
+            if (SubCommands.Size() == 1)
+            {
+                SubmitCommand(SubCommands[0]);
+            }
+            else if (SubCommands.Size() > 1)
+            {
+                SubmitCommand(new CommandMacroT(SubCommands, "Set hor. Align"));
+            }
+
             break;
+        }
 
         case ID_TOOLBAR_ZOOM_IN:
             m_RenderWindow->ZoomIn();

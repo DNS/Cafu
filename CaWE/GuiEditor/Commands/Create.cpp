@@ -21,22 +21,15 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Create.hpp"
 #include "../GuiDocument.hpp"
-#include "../../LuaAux.hpp"
 
 #include "GuiSys/Window.hpp"
-#include "GuiSys/WindowChoice.hpp"
-#include "GuiSys/WindowEdit.hpp"
-#include "GuiSys/WindowListBox.hpp"
-#include "GuiSys/WindowModel.hpp"
 #include "GuiSys/WindowCreateParams.hpp"
-
-#include "Math3D/Vector3.hpp"
 
 
 using namespace GuiEditor;
 
 
-CommandCreateT::CommandCreateT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Parent, WindowTypeE Type)
+CommandCreateT::CommandCreateT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiSys::WindowT> Parent)
     : m_GuiDocument(GuiDocument),
       m_Parent(Parent),
       m_NewWindow(NULL),
@@ -44,55 +37,15 @@ CommandCreateT::CommandCreateT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiS
 {
     cf::GuiSys::WindowCreateParamsT CreateParams(*m_GuiDocument->GetGui());
 
-    // Create window and editor data.
-    switch (Type)
-    {
-        case WINDOW_BASIC:
-            m_NewWindow=new cf::GuiSys::WindowT(CreateParams);
-            break;
-
-        case WINDOW_TEXTEDITOR:
-            m_NewWindow=new cf::GuiSys::EditWindowT(CreateParams);
-            break;
-
-        case WINDOW_CHOICE:
-            m_NewWindow=new cf::GuiSys::ChoiceT(CreateParams);
-            break;
-
-        case WINDOW_LISTBOX:
-            m_NewWindow=new cf::GuiSys::ListBoxT(CreateParams);
-            break;
-
-        case WINDOW_MODEL:
-            m_NewWindow=new cf::GuiSys::ModelWindowT(CreateParams);
-            break;
-    }
-
-    std::string  WinName = m_NewWindow->GetType()->ClassName;
-    const size_t len     = WinName.length();
-
-    if (len > 1 && WinName[len-1] == 'T')
-    {
-        // Remove the trailing "T" from our class name.
-        WinName = std::string(WinName, 0, len-1);
-    }
-
-    m_NewWindow->SetName(CheckLuaIdentifier(WinName).ToStdString());
-
-    GuiDocumentT::CreateSibling(m_NewWindow, m_GuiDocument);
+    m_NewWindow = new cf::GuiSys::WindowT(CreateParams);
 
     // Set a window default size and center it on its parent.
     // If the size is larger than parentsize/2, set it to parentsize/2.
-    const Vector3fT Size(std::min(m_Parent->Rect[2]/2.0f, 100.0f),
-                         std::min(m_Parent->Rect[3]/2.0f,  50.0f), 0.0f);
+    const Vector2fT Size(std::min(m_Parent->GetTransform()->GetSize().x/2.0f, 100.0f),
+                         std::min(m_Parent->GetTransform()->GetSize().y/2.0f,  50.0f));
 
-    const Vector3fT Position((m_Parent->Rect[2]-Size.x)/2.0f,
-                             (m_Parent->Rect[3]-Size.y)/2.0f, 0.0f);
-
-    m_NewWindow->Rect[0] = Position.x;
-    m_NewWindow->Rect[1] = Position.y;
-    m_NewWindow->Rect[2] = Size.x;
-    m_NewWindow->Rect[3] = Size.y;
+    m_NewWindow->GetTransform()->SetPos((m_Parent->GetTransform()->GetSize() - Size) / 2.0f);
+    m_NewWindow->GetTransform()->SetSize(Size);
 }
 
 

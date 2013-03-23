@@ -1,0 +1,200 @@
+-- This is a Cafu engine GUI script file, written by CaWE, the Cafu World Editor.
+-- You CAN edit this file manually, but note that CaWE may overwrite your changes.
+-- It is recommended that you place all your customizations like method overrides
+-- and effects into a separate .cgui file that calls dofile() for including this.
+
+
+-- Instantiation of all windows.
+-- *****************************
+
+TestGUI=gui:new("WindowT", "TestGUI");
+
+SomeImage=gui:new("WindowT", "SomeImage");
+
+ButtonToggleHor=gui:new("WindowT", "ButtonToggleHor");
+
+ButtonToggleVer=gui:new("WindowT", "ButtonToggleVer");
+
+ButtonQuit=gui:new("WindowT", "ButtonQuit");
+
+Counter=gui:new("WindowT", "Counter");
+
+FPS=gui:new("WindowT", "FPS");
+
+
+-- Set the GUIs root window.
+-- *************************
+
+gui:SetRootWindow(TestGUI);
+
+
+-- Setup the window hierarchy.
+-- ***************************
+
+TestGUI:AddChild(SomeImage);
+
+TestGUI:AddChild(ButtonToggleHor);
+
+TestGUI:AddChild(ButtonToggleVer);
+
+TestGUI:AddChild(ButtonQuit);
+
+TestGUI:AddChild(Counter);
+
+TestGUI:AddChild(FPS);
+
+
+-- Initialization of the window contents ("constructor code").
+-- ***********************************************************
+
+function TestGUI:OnInit()
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "T.W.Lewis")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 1.2)
+    c1:set("Padding", 8, 5)
+    c1:set("Color", 0, 0, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", -1)
+
+    self:AddComponent(c1)
+
+    gui:activate      (false);
+    gui:setInteractive(true);
+    gui:showMouse     (true);
+end
+
+function SomeImage:OnInit()
+    self:GetTransform():set("Pos", 30, 130)
+    self:GetTransform():set("Size", 200, 200)
+
+    local c1 = gui:new("ComponentImageT")
+    c1:set("Material", "Models/Weapons/9mmAR_v/arm")
+    c1:set("Color", 1, 1, 1)
+    c1:set("Alpha", 1)
+
+    self:AddComponent(c1)
+end
+
+function ButtonToggleHor:OnInit()
+    self:GetTransform():set("Pos", 10, 380)
+    self:GetTransform():set("Size", 140, 80)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", [[
+Toggle hor.
+alignment]])
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.5)
+    c1:set("Padding", 6, 2)
+    c1:set("Color", 0, 0, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", -1)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 5)
+    c2:set("Color", 1, 1, 1)
+    c2:set("Alpha", 1)
+
+    self:AddComponent(c1, c2)
+end
+
+function ButtonToggleVer:OnInit()
+    self:GetTransform():set("Pos", 170, 380)
+    self:GetTransform():set("Size", 140, 80)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", [[
+Toggle ver.
+alignment]])
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.5)
+    c1:set("Padding", 6, 2)
+    c1:set("Color", 0, 0, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", -1)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 5)
+    c2:set("Color", 1, 1, 1)
+    c2:set("Alpha", 1)
+
+    self:AddComponent(c1, c2)
+end
+
+function ButtonQuit:OnInit()
+    self:GetTransform():set("Pos", 400, 380)
+    self:GetTransform():set("Size", 160, 80)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Quit")
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 1)
+    c1:set("Padding", 12, 4)
+    c1:set("Color", 0, 0, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 10)
+    c2:set("Color", 1, 1, 1)
+    c2:set("Alpha", 1)
+
+    self:AddComponent(c1, c2)
+end
+
+function Counter:OnInit()
+    self:GetTransform():set("Pos", 400, 20)
+    self:GetTransform():set("Size", 120, 100)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", [[
+Counter
+0]])
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.6)
+    c1:set("Padding", 6, 2)
+    c1:set("Color", 0, 0, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", -1)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 5)
+    c2:set("Color", 1, 1, 1)
+    c2:set("Alpha", 1)
+
+    self:AddComponent(c1, c2)
+end
+
+function FPS:OnInit()
+    self:GetTransform():set("Pos", 400, 150)
+    self:GetTransform():set("Size", 220, 160)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", [[
+FPS
+]])
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.8)
+    c1:set("Padding", 6, 2)
+    c1:set("Color", 0, 0, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", -1)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 5)
+    c2:set("Color", 1, 1, 1)
+    c2:set("Alpha", 1)
+
+    self:AddComponent(c1, c2)
+end
+

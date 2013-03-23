@@ -1,0 +1,142 @@
+-- This is a Cafu engine GUI script file, written by CaWE, the Cafu World Editor.
+-- You CAN edit this file manually, but note that CaWE may overwrite your changes.
+-- It is recommended that you place all your customizations like method overrides
+-- and effects into a separate .cgui file that calls dofile() for including this.
+
+
+-- Instantiation of all windows.
+-- *****************************
+
+EmgTunnelBeachGUI=gui:new("WindowT", "EmgTunnelBeachGUI");
+
+Heading=gui:new("WindowT", "Heading");
+
+TunnelLocation=gui:new("WindowT", "TunnelLocation");
+
+ThirdMsg=gui:new("WindowT", "ThirdMsg");
+
+EngineLogo=gui:new("WindowT", "EngineLogo");
+
+
+-- Set the GUIs root window.
+-- *************************
+
+gui:SetRootWindow(EmgTunnelBeachGUI);
+
+
+-- Setup the window hierarchy.
+-- ***************************
+
+EmgTunnelBeachGUI:AddChild(Heading);
+
+EmgTunnelBeachGUI:AddChild(TunnelLocation);
+
+EmgTunnelBeachGUI:AddChild(ThirdMsg);
+
+EmgTunnelBeachGUI:AddChild(EngineLogo);
+
+
+-- Initialization of the window contents ("constructor code").
+-- ***********************************************************
+
+function EmgTunnelBeachGUI:OnInit()
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
+
+    local c1 = gui:new("ComponentImageT")
+    c1:set("Material", "")
+    c1:set("Color", 0, 0.25, 0.7)
+    c1:set("Alpha", 0.4)
+
+    self:AddComponent(c1)
+
+    gui:activate      (false);
+    gui:setInteractive(false);
+    gui:showMouse     (false);
+end
+
+function Heading:OnInit()
+    self:GetTransform():set("Pos", 50, 30)
+    self:GetTransform():set("Size", 540, 120)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", [[
+Evacuation Tunnel
+"November 2"]])
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.7)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.51, 0.8, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 5)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    self:AddComponent(c1, c2)
+end
+
+function TunnelLocation:OnInit()
+    self:GetTransform():set("Pos", 50, 180)
+    self:GetTransform():set("Size", 540, 120)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", [[
+Checkpoint: Beach
+>>>> Escape Route >>>>
+]])
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.6)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.51, 0.8, 1)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 5)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    self:AddComponent(c1, c2)
+end
+
+function ThirdMsg:OnInit()
+    self:GetTransform():set("Pos", 50, 330)
+    self:GetTransform():set("Size", 390, 120)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", [[
+Alertion Level:
+INCERFA]])
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.6)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 1, 0, 0)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", 0)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 5)
+    c2:set("Color", 0.7, 0.8, 0.9)
+    c2:set("Alpha", 1)
+
+    self:AddComponent(c1, c2)
+end
+
+function EngineLogo:OnInit()
+    self:GetTransform():set("Pos", 470, 358)
+    self:GetTransform():set("Size", 128, 64)
+
+    local c1 = gui:new("ComponentImageT")
+    c1:set("Material", "Gui/SmallLogo")
+    c1:set("Color", 1, 1, 1)
+    c1:set("Alpha", 1)
+
+    self:AddComponent(c1)
+end
+

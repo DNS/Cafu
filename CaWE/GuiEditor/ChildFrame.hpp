@@ -28,7 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ToolManager.hpp"
 #include "../CommandHistory.hpp"
 
-#include "Math3D/Vector3.hpp"
+#include "Math3D/Vector2.hpp"
 
 
 class ParentFrameT;
@@ -65,7 +65,7 @@ namespace GuiEditor
         float SnapToGrid(float Value) const;
 
         /// Snaps a position in GUI space to the grid.
-        Vector3fT SnapToGrid(const Vector3fT& Position) const;
+        Vector2fT SnapToGrid(const Vector2fT& Position) const;
 
         /// [...]
         /// All(!) commands for modifying the document must be submitted via this method.
@@ -97,6 +97,7 @@ namespace GuiEditor
 
         wxMenu*           m_FileMenu;
         wxMenu*           m_EditMenu;
+        wxMenu*           m_CreateMenu;
         wxMenu*           m_ViewMenu;
 
         wxAuiToolBar*     m_ToolbarTools;
@@ -111,6 +112,10 @@ namespace GuiEditor
             ID_MENU_EDIT_DELETE,
             ID_MENU_EDIT_SNAP_TO_GRID,
             ID_MENU_EDIT_SET_GRID_SIZE,
+
+            ID_MENU_CREATE_WINDOW,
+            ID_MENU_CREATE_COMPONENT_FIRST,
+            ID_MENU_CREATE_COMPONENT_MAX = ID_MENU_CREATE_COMPONENT_FIRST + 100,
 
             ID_MENU_VIEW_WINDOWTREE,
             ID_MENU_VIEW_WINDOWINSPECTOR,
@@ -149,6 +154,7 @@ namespace GuiEditor
         void OnMenuEditDelete(wxCommandEvent& CE);
         void OnMenuEditGrid(wxCommandEvent& CE);
         void OnMenuEditUpdate(wxUpdateUIEvent& UE);
+        void OnMenuCreate(wxCommandEvent& CE);
         void OnMenuView(wxCommandEvent& CE);
         void OnMenuViewUpdate(wxUpdateUIEvent& UE);
         void OnClose(wxCloseEvent& CE);

@@ -30,6 +30,7 @@ namespace cf
 {
     namespace GuiSys
     {
+        class ComponentTextT;
         class WindowT;
 
 
@@ -41,7 +42,7 @@ namespace cf
             public:
 
             /// Constructor for a console that is implemented by means of the given WindowT object.
-            ConsoleByWindowT(IntrusivePtrT<WindowT> Win_);
+            ConsoleByWindowT(IntrusivePtrT<WindowT> Win);
 
             // Implementation of the cf::ConsoleI interface.
             void Print(const std::string& s);
@@ -52,7 +53,8 @@ namespace cf
 
             private:
 
-            IntrusivePtrT<WindowT> Win;     ///< The "target" window that is supposed to receive the console output.
+            IntrusivePtrT<WindowT>        m_Win;        ///< The "target" window that is supposed to receive the console output.
+            IntrusivePtrT<ComponentTextT> m_TextComp;   ///< The "Text" component of m_Win.
         };
     }
 }

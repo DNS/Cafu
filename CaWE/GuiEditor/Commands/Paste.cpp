@@ -21,7 +21,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Paste.hpp"
 #include "../GuiDocument.hpp"
-#include "../Windows/EditorWindow.hpp"
 
 
 using namespace GuiEditor;
@@ -36,17 +35,7 @@ CommandPasteT::CommandPasteT(GuiDocumentT* GuiDocument, const ArrayT< IntrusiveP
     {
         m_Windows.PushBack(Windows[WinNr]->Clone(true));
 
-        m_Windows[WinNr]->Rect[0]=(WinNr + 1) * 20.0f;
-        m_Windows[WinNr]->Rect[1]=(WinNr + 1) * 10.0f;
-
-        // Create editor data for the window itself and all of its children.
-        GuiDocumentT::CreateSibling(m_Windows[WinNr], m_GuiDocument);
-
-        ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > Children;
-        m_Windows[WinNr]->GetChildren(Children, true);
-
-        for (unsigned long ChildNr=0; ChildNr<Children.Size(); ChildNr++)
-            GuiDocumentT::CreateSibling(Children[ChildNr], m_GuiDocument);
+        m_Windows[WinNr]->GetTransform()->SetPos(Vector2fT((WinNr + 1) * 20.0f, (WinNr + 1) * 10.0f));
     }
 }
 

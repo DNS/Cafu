@@ -20,6 +20,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "GuiImpl.hpp"
+#include "AllComponents.hpp"
+#include "CompBase.hpp"
 #include "Window.hpp"
 #include "WindowCreateParams.hpp"
 #include "ConsoleCommands/Console.hpp"
@@ -52,8 +54,8 @@ GuiImplT::InitErrorT::InitErrorT(const std::string& Message)
 }
 
 
-GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool IsInlineCode)
-    : ScriptName(IsInlineCode ? "" : GuiScriptName),
+GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, int Flags)
+    : ScriptName((Flags & InitFlag_InlineCode) ? "" : GuiScriptName),
       m_ScriptState(),
       ScriptInitResult(""),
       m_MaterialMan(),
@@ -64,6 +66,7 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool
       RootWindow(NULL),
       FocusWindow(NULL),
       MouseOverWindow(NULL),
+      m_IsInited(false),
       IsActive(true),
       IsInteractive(true),
       IsFullCover(false),
@@ -72,7 +75,7 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool
       m_MouseCursorSize(20.0f),
       MouseIsShown(true)
 {
-    if (!IsInlineCode)
+    if ((Flags & InitFlag_InlineCode) == 0)
     {
         std::string s=cf::String::StripExt(GuiScriptName);
 
@@ -142,11 +145,13 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool
     // Adds a global (meta-)table with methods for cf::GuiSys::GuiTs to the LuaState, to be used as metatable for userdata of type cf::GuiSys::GuiT.
     GuiImplT::RegisterLua(LuaState);
 
-    // For each (window-)class that the TypeInfoMan knows about, add a (meta-)table to the registry of the LuaState.
+    // For each class that the TypeInfoManTs know about, add a (meta-)table to the registry of the LuaState.
     // The (meta-)table holds the Lua methods that the respective class implements in C++,
     // and is to be used as metatable for instances of this class.
     ScriptBinderT Binder(LuaState);
+
     Binder.Init(GetWindowTIM());
+    Binder.Init(GetComponentTIM());
 
 
     // Add a global variable with name "gui" to the Lua state. "gui" is a table that scripts can use to call GUI methods.
@@ -194,8 +199,8 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool
 
 
     // Load the user script!
-    const int LoadResult=IsInlineCode ? luaL_loadstring(LuaState, GuiScriptName.c_str())
-                                      : luaL_loadfile  (LuaState, GuiScriptName.c_str());
+    const int LoadResult = (Flags & InitFlag_InlineCode) ? luaL_loadstring(LuaState, GuiScriptName.c_str())
+                                                         : luaL_loadfile  (LuaState, GuiScriptName.c_str());
 
     if (LoadResult!=0 || lua_pcall(LuaState, 0, 0, 0)!=0)
     {
@@ -232,16 +237,18 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, bool
     AllChildren.PushBack(RootWindow);
     RootWindow->GetChildren(AllChildren, true);
 
-    for (unsigned long ChildNr=0; ChildNr<AllChildren.Size(); ChildNr++)
-    {
-        // The OnInit() methods are automatically written by the Cafu GUI editor (*_init.cgui files).
-        AllChildren[ChildNr]->CallLuaMethod("OnInit");
-    }
+    Init();     // The script has the option to call this itself (via gui:Init()) at an earlier time.
 
     for (unsigned long ChildNr=0; ChildNr<AllChildren.Size(); ChildNr++)
     {
         // The OnInit2() methods contain custom, hand-written code by the user (*_main.cgui files).
         AllChildren[ChildNr]->CallLuaMethod("OnInit2");
+
+        // Let each component know that the "static" part of initialization is now complete.
+        const ArrayT< IntrusivePtrT<ComponentBaseT> >& Components = AllChildren[ChildNr]->GetComponents();
+
+        for (unsigned int CompNr = 0; CompNr < Components.Size(); CompNr++)
+            Components[CompNr]->OnPostLoad((Flags & InitFlag_InGuiEditor) != 0);
     }
 
 
@@ -262,6 +269,25 @@ GuiImplT::~GuiImplT()
     MatSys::Renderer->FreeMaterial(m_GuiDefaultRM);
     MatSys::Renderer->FreeMaterial(m_GuiPointerRM);
     MatSys::Renderer->FreeMaterial(m_GuiFinishZRM);
+}
+
+
+void GuiImplT::Init()
+{
+    if (m_IsInited) return;
+
+    ArrayT< IntrusivePtrT<WindowT> > AllChildren;
+
+    AllChildren.PushBack(RootWindow);
+    RootWindow->GetChildren(AllChildren, true);
+
+    for (unsigned long ChildNr = 0; ChildNr < AllChildren.Size(); ChildNr++)
+    {
+        // The OnInit() methods are automatically written by the Cafu GUI editor (*_init.cgui files).
+        AllChildren[ChildNr]->CallLuaMethod("OnInit");
+    }
+
+    m_IsInited = true;
 }
 
 
@@ -327,7 +353,7 @@ void GuiImplT::SetMousePos(float MousePosX_, float MousePosY_)
 
     // Determine if the mouse cursor has been moved into (or "over") another window,
     // that is, see if we have to run any OnMouseLeave() and OnMouseEnter() scripts.
-    IntrusivePtrT<WindowT> Win=RootWindow->Find(MousePosX, MousePosY);
+    IntrusivePtrT<WindowT> Win=RootWindow->Find(Vector2fT(MousePosX, MousePosY));
 
     if (Win != MouseOverWindow)
     {
@@ -478,12 +504,9 @@ bool GuiImplT::ProcessDeviceEvent(const CaMouseEventT& ME)
     if (ResultOK && MEWasProcessed) return true;
     if (MouseOverWindow==NULL) return false;
 
-    float AbsWinPosX;
-    float AbsWinPosY;
+    const Vector2fT AbsWinPos = MouseOverWindow->GetAbsolutePos();
 
-    MouseOverWindow->GetAbsolutePos(AbsWinPosX, AbsWinPosY);
-
-    return MouseOverWindow->OnInputEvent(ME, MousePosX-AbsWinPosX, MousePosY-AbsWinPosY);
+    return MouseOverWindow->OnInputEvent(ME, MousePosX-AbsWinPos.x, MousePosY-AbsWinPos.y);
 }
 
 
@@ -653,27 +676,50 @@ int GuiImplT::SetRootWindow(lua_State* LuaState)
 }
 
 
-int GuiImplT::CreateNewWindow(lua_State* LuaState)
+int GuiImplT::CreateNew(lua_State* LuaState)
 {
-    GuiImplT*                     Gui=CheckParams(LuaState);
-    const char*                   TypeName=luaL_checkstring(LuaState, 2);
-    const char*                   WinName=lua_tostring(LuaState, 3);    // Passing a window name is optional.
-    const cf::TypeSys::TypeInfoT* TI=GetWindowTIM().FindTypeInfoByName(TypeName);
-
-    if (!TI) return luaL_argerror(LuaState, 2, (std::string("unknown window class \"")+TypeName+"\"").c_str());
-
-    IntrusivePtrT<WindowT> Win(static_cast<WindowT*>(TI->CreateInstance(WindowCreateParamsT(*Gui))));  // Actually create the window instance.
-
-    // Console->DevPrint(cf::va("Creating window %p.\n", Win));
-    assert(Win->GetType()==TI);
-    assert(strcmp(TI->ClassName, TypeName)==0);
-
-    if (WinName) Win->SetName(WinName);
-
     ScriptBinderT Binder(LuaState);
-    Binder.Push(Win);
+    GuiImplT*     Gui      = CheckParams(LuaState);
+    const char*   TypeName = luaL_checkstring(LuaState, 2);
+    const char*   ObjName  = lua_tostring(LuaState, 3);    // Passing an object name is optional.
 
-    return 1;
+    const cf::TypeSys::TypeInfoT* TI = GetWindowTIM().FindTypeInfoByName(TypeName);
+
+    if (TI)
+    {
+        IntrusivePtrT<WindowT> Win(static_cast<WindowT*>(TI->CreateInstance(WindowCreateParamsT(*Gui))));
+
+        // Console->DevPrint(cf::va("Creating window %p.\n", Win));
+        assert(Win->GetType() == TI);
+        assert(strcmp(TI->ClassName, TypeName) == 0);
+
+        if (ObjName) Win->GetBasics()->SetWindowName(ObjName);
+
+        Binder.Push(Win);
+        return 1;
+    }
+
+    TI = GetComponentTIM().FindTypeInfoByName(TypeName);
+
+    if (TI)
+    {
+        IntrusivePtrT<ComponentBaseT> Comp(static_cast<ComponentBaseT*>(TI->CreateInstance(cf::TypeSys::CreateParamsT())));
+
+        Binder.Push(Comp);
+        return 1;
+    }
+
+    return luaL_argerror(LuaState, 2, (std::string("unknown class name \"") + TypeName + "\"").c_str());
+}
+
+
+int GuiImplT::Init(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    GuiImplT*     Gui = CheckParams(LuaState);
+
+    Gui->Init();
+    return 0;
 }
 
 
@@ -711,7 +757,8 @@ void GuiImplT::RegisterLua(lua_State* LuaState)
         { "showMouse",          SetMouseIsShown },
         { "setFocus",           SetFocus },
         { "SetRootWindow",      SetRootWindow },
-        { "new",                CreateNewWindow },
+        { "new",                CreateNew },
+        { "Init",               Init },
         { "__tostring",         toString },
         { NULL, NULL }
     };

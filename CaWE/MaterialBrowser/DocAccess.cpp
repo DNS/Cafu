@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../GuiEditor/GuiDocument.hpp"
 #include "../MapCommands/ReplaceMat.hpp"
 #include "../ModelEditor/ModelDocument.hpp"
+#include "GuiSys/CompImage.hpp"
 #include "GuiSys/Window.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "Models/Model_cmdl.hpp"
@@ -109,11 +110,15 @@ void MaterialBrowser::GuiDocAccessT::GetUsedMaterials(ArrayT<EditorMaterialI*>& 
 
     for (unsigned long WinNr=0; WinNr<GuiWindows.Size(); WinNr++)
     {
+        IntrusivePtrT<cf::GuiSys::ComponentImageT> CompImage = dynamic_pointer_cast<cf::GuiSys::ComponentImageT>(GuiWindows[WinNr]->GetComponent("Image"));
+
+        if (CompImage == NULL) continue;
+
         for (unsigned long EMNr=0; EMNr<EditorMaterials.Size(); EMNr++)
         {
-            EditorMaterialI* EM=EditorMaterials[EMNr];
+            EditorMaterialI* EM = EditorMaterials[EMNr];
 
-            if (EM->GetMaterial()->Name == GuiWindows[WinNr]->BackRenderMatName)
+            if (EM->GetMaterial()->Name == CompImage->GetMatName())
             {
                 if (UsedMaterials.Find(EM)==-1)
                     UsedMaterials.PushBack(EM);

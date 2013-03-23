@@ -47,6 +47,10 @@ namespace cf {
 namespace Network {
 
 
+uint64_t htonll(uint64_t value);
+uint64_t ntohll(uint64_t value);
+
+
 /// This class holds the serialized state of another object (typically a game entity).
 /// It is used in combination with the OutStreamT and InStreamT classes, which handle
 /// the serialization and deserialization.
@@ -134,9 +138,29 @@ class OutStreamT
         return *this;
     }
 
+    OutStreamT& operator << (uint64_t ui)
+    {
+        assert(ntohll(htonll(ui)) == ui);
+        assert(htonll(ntohll(ui)) == ui);
+
+        m_Data.PushBackEmpty(8);
+        *(uint64_t*)&m_Data[m_Data.Size()-8]=htonll(ui);
+
+        return *this;
+    }
+
     OutStreamT& operator << (float f)
     {
+        assert(sizeof(f) == sizeof(uint32_t));
         *this << *(uint32_t*)&f;
+
+        return *this;
+    }
+
+    OutStreamT& operator << (double d)
+    {
+        assert(sizeof(d) == sizeof(uint64_t));
+        *this << *(uint64_t*)&d;
 
         return *this;
     }
@@ -249,12 +273,34 @@ class InStreamT
         return *this;
     }
 
+    InStreamT& operator >> (uint64_t& ui)
+    {
+        if (m_ReadPos+8 > m_Data.Size()) { m_ReadOfl=true; return *this; }
+
+        ui = ntohll(*(uint64_t*)&m_Data[m_ReadPos]);
+
+        m_ReadPos+=8;
+        return *this;
+    }
+
     InStreamT& operator >> (float& f)
     {
+        assert(sizeof(f) == sizeof(uint32_t));
         uint32_t ui=0;
 
         *this >> ui;
         f = *(float*)&ui;
+
+        return *this;
+    }
+
+    InStreamT& operator >> (double& d)
+    {
+        assert(sizeof(d) == sizeof(uint64_t));
+        uint64_t ui=0;
+
+        *this >> ui;
+        d = *(double*)&ui;
 
         return *this;
     }

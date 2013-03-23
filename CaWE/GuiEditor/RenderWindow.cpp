@@ -94,13 +94,7 @@ void RenderWindowT::NotifySubjectChanged_Modified(SubjectT* Subject, const Array
 }
 
 
-void RenderWindowT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail, const wxString& PropertyName)
-{
-    Refresh(false);
-}
-
-
-void RenderWindowT::Notify_WinChanged(SubjectT* Subject, const EditorWindowT* Win, const wxString& PropName)
+void RenderWindowT::Notify_Changed(SubjectT* Subject, const cf::TypeSys::VarBaseT& Var)
 {
     Refresh(false);
 }
@@ -112,19 +106,19 @@ void RenderWindowT::NotifySubjectDies(SubjectT* dyingSubject)
 }
 
 
-Vector3fT RenderWindowT::ClientToGui(int x, int y)
+Vector2fT RenderWindowT::ClientToGui(int x, int y) const
 {
-    float GuiX=(float(x)-m_OffsetX)/m_Zoom;
-    float GuiY=(float(y)-m_OffsetY)/m_Zoom;
+    const float GuiX = (float(x) - m_OffsetX) / m_Zoom;
+    const float GuiY = (float(y) - m_OffsetY) / m_Zoom;
 
-    return Vector3fT(GuiX, GuiY, 0.0f);
+    return Vector2fT(GuiX, GuiY);
 }
 
 
-wxPoint RenderWindowT::GuiToClient(float x, float y)
+wxPoint RenderWindowT::GuiToClient(const Vector2fT& Pos) const
 {
-    int ClientX=int(x*m_Zoom+m_OffsetX);
-    int ClientY=int(y*m_Zoom+m_OffsetY);
+    const int ClientX = int(Pos.x*m_Zoom + m_OffsetX);
+    const int ClientY = int(Pos.y*m_Zoom + m_OffsetY);
 
     return wxPoint(ClientX, ClientY);
 }
@@ -178,7 +172,7 @@ void RenderWindowT::ZoomSet(float ZoomFactor)
     }
 
     // Calculate mouse position in GUI. We want this position to be be the same after setting the new zoom factor.
-    const Vector3fT MouseGui=ClientToGui(MousePos.x, MousePos.y);
+    const Vector2fT MouseGui = ClientToGui(MousePos.x, MousePos.y);
 
     // Set the new zoom factor.
     m_Zoom=ZoomFactor;
@@ -315,8 +309,8 @@ void RenderWindowT::OnPaint(wxPaintEvent& PE)
     MatSys::Renderer->PushMatrix(MatSys::RendererI::WORLD_TO_VIEW );
 
     // Calculate coordinates for ortho projection.
-    Vector3fT TopLeft    =ClientToGui(0, 0);
-    Vector3fT BottomRight=ClientToGui(CanvasSize.GetWidth()-1, CanvasSize.GetHeight()-1);
+    const Vector2fT TopLeft     = ClientToGui(0, 0);
+    const Vector2fT BottomRight = ClientToGui(CanvasSize.GetWidth()-1, CanvasSize.GetHeight()-1);
 
     const float zNear=0.0f;
     const float zFar =1.0f;

@@ -1,0 +1,74 @@
+dofile("Games/DeathMatch/GUIs/ReallyQuit_init.cgui");
+
+
+function Background:OnFrame()
+    self:GetComponent("Image"):set("Color", 0.07 + 0.07*math.sin(self:GetTime()), 0, 0)
+end
+
+function Background:OnKeyPress(Key)
+    if (Key==1) then    -- Key number 1 is the ESC key (see CaKeyboardEventT struct for details).
+        gui:close();
+        return true;    -- Return true to indicate that we processed this key press.
+    end
+
+    return false;       -- Return false to indicate that we did not process this key press.
+end
+
+
+
+function ReallyQuit.ButtonYes:OnMouseEnter()
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Text"):interpolate("Scale", 0.4, 0.45, 500)
+end
+
+function ReallyQuit.ButtonYes:OnMouseLeave()
+    self:GetComponent("Border"):set("Color", 0.7, 0.8, 0.9)
+    self:GetComponent("Text"):interpolate("Scale", 0.45, 0.4, 500)
+end
+
+function ReallyQuit.ButtonYes:OnMouseButtonDown()
+    -- Add a nice shutdown effect.
+    Background:GetComponent("Image"):interpolate("Alpha", 0.7, 1.0, 700)
+    ReallyQuit:GetTransform():interpolate("Rotation", 0, 70, 700)
+    ReallyQuit:GetTransform():interpolate("Pos.y", 90, 600, 700)
+    gui:showMouse(false);
+
+    -- Now somehow quit the game.
+    -- ci.RunCommand("quit=true;");    -- Doesnt wait for the end of the interpolations...
+
+    return true;
+end
+
+function ReallyQuit.ButtonYes:OnFrame()
+    if (ReallyQuit:get("pos.y")>=595) then
+        -- Work around the limitation above (we have not yet   onTime xy   functions as Doom3 has).
+        ci.RunCommand("quit=true;");
+    end
+end
+
+function ReallyQuit.ButtonYes:OnKeyRelease(Key)
+    if (Key==28 or Key==156) then   -- RETURN on the main keyboard or the numpad.
+        self:OnMouseButtonDown(0);
+        return true;                -- Return true to indicate that we processed this key press.
+    end
+
+    return false;                   -- Return false to indicate that we did not process this key press.
+end
+
+
+
+function ReallyQuit.ButtonNo:OnMouseEnter()
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Text"):interpolate("Scale", 0.4, 0.45, 500)
+end
+
+function ReallyQuit.ButtonNo:OnMouseLeave()
+    self:GetComponent("Border"):set("Color", 0.7, 0.8, 0.9)
+    self:GetComponent("Text"):interpolate("Scale", 0.45, 0.4, 500)
+end
+
+function ReallyQuit.ButtonNo:OnMouseButtonDown()
+    -- Close this GUI.
+    gui:close();    -- same as  gui:activate(false);
+    return true;
+end

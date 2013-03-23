@@ -31,6 +31,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/ConVar.hpp"
 #include "ConsoleCommands/ConFunc.hpp"
 #include "FileSys/FileManImpl.hpp"
+#include "GuiSys/AllComponents.hpp"
 #include "GuiSys/GuiMan.hpp"
 #include "GuiSys/Window.hpp"
 #include "MaterialSystem/MaterialManagerImpl.hpp"
@@ -185,8 +186,8 @@ AppCafuT::AppCafuT()
     ConFuncT::RegisterStaticList();
     ConVarT ::RegisterStaticList();
 
-    // The one-time init of the GuiSys' windows type info manager.
-    cf::GuiSys::GetWindowTIM().Init();
+    cf::GuiSys::GetComponentTIM().Init();   // The one-time init of the components type info manager.
+    cf::GuiSys::GetWindowTIM().Init();      // The one-time init of the windows type info manager.
 
     // Gather infos about all available games.
     InitGameInfos();

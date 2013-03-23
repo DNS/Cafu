@@ -22,15 +22,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_GUISYS_WINDOW_HPP_INCLUDED
 #define CAFU_GUISYS_WINDOW_HPP_INCLUDED
 
+#include "CompBasics.hpp"
+#include "CompTransform.hpp"
 #include "Templates/Array.hpp"
 #include "Templates/Pointer.hpp"
 
-#include <cstdarg>
-#include <map>
-#include <string>
-
-// This macro is introduced by some header (gtk?) under Linux...
-#undef CurrentTime
+#include <climits>
 
 
 struct CaKeyboardEventT;
@@ -40,16 +37,13 @@ struct luaL_Reg;
 namespace cf { namespace TypeSys { class TypeInfoT; } }
 namespace cf { namespace TypeSys { class TypeInfoManT; } }
 namespace cf { namespace TypeSys { class CreateParamsT; } }
-namespace MatSys { class RenderMaterialT; }
 
 
 namespace cf
 {
-    class TrueTypeFontT;
-
-
     namespace GuiSys
     {
+        class ComponentBaseT;
         class GuiImplT;
         class WindowCreateParamsT;
 
@@ -75,32 +69,6 @@ namespace cf
         {
             public:
 
-            /// Extra / extern / extension data that user code can derive from and assign to this window
-            /// in order to "configure" it with "callbacks" (e.g.\ the \c Render() method) and to have it
-            /// store additional user-specific data and functions.
-            struct ExtDataT
-            {
-                virtual ~ExtDataT() { }
-                //virtual xy* Clone();    // ???
-                virtual void Render() const { }   ///< Callback for rendering additional items, called from WindowT::Render().
-            };
-
-            /// Describes the member variable of a class consisting of a variable type and a void pointer
-            /// pointing to the real member.
-            struct MemberVarT
-            {
-                enum TypeT { TYPE_FLOAT, TYPE_FLOAT2, TYPE_FLOAT4, TYPE_INT, TYPE_BOOL, TYPE_STRING };
-
-                TypeT Type;   ///< Type of the member.
-                void* Member; ///< Pointer to the member variable.
-
-                MemberVarT(TypeT t=TYPE_FLOAT, void* v=NULL) : Type(t), Member(v) { }
-                MemberVarT(float& f) : Type(TYPE_FLOAT), Member(&f) { }
-                MemberVarT(int& i) : Type(TYPE_INT), Member(&i) { }
-                MemberVarT(bool& b) : Type(TYPE_BOOL), Member(&b) { }
-                MemberVarT(std::string& s) : Type(TYPE_STRING), Member(&s) { }
-            };
-
             /// The normal constructor.
             /// This constructor can *not* be declared as "protected", because even though only derived classes and
             /// the CreateInstance() function access it, having it protected would not allow derived classes to create
@@ -108,16 +76,16 @@ namespace cf
             /// @param Params   The creation parameters for the window.
             WindowT(const WindowCreateParamsT& Params);
 
-            /// The Copy Constructor.
+            /// The copy constructor.
             /// Copies a window (optionally with all of its children recursively).
             /// The parent of the copy is always NULL and it is up to the caller to put the copy into a window hierarchy.
-            /// @param Window The window to construct this window from.
+            /// @param Window      The window to construct this window from.
             /// @param Recursive   Whether to recursively copy all children.
             WindowT(const WindowT& Window, bool Recursive=false);
 
-            /// Virtual Copy Constructor.
-            /// Creates an exact clone of the window and due to its virtuality considers the real class not just the class
-            /// on which the method is called as with the copy ctor.
+            /// The virtual copy constructor.
+            /// Callers can use this method to create a copy of this window without knowing its concrete type.
+            /// Overrides in derived classes use a covariant return type to facilitate use when the concrete type is known.
             /// @param Recursive   Whether to recursively clone all children of this window.
             virtual WindowT* Clone(bool Recursive=false) const;
 
@@ -125,26 +93,6 @@ namespace cf
             virtual ~WindowT();
 
             GuiImplT& GetGui() const { return m_Gui; }
-
-            /// Returns the ExtDataT instance for this window (possibly NULL).
-            ExtDataT* GetExtData() { return m_ExtData; }
-
-            /// Assigns the editor sibling for this window.
-            void SetExtData(ExtDataT* ExtData);
-
-            /// Returns the name of this window.
-            const std::string& GetName() const { return m_Name; }
-
-            /// Sets a new name for this window.
-            ///
-            /// Note that the new name that is actually set for this window is not necessarily exactly the given
-            /// string Name, but possibly a variant thereof. That is, GetName() can return a different string than
-            /// what was given to a preceeding call to SetName().
-            /// This is because the name of a window must be unique among its siblings (the children of its parent),
-            /// and SetName() modifies the given string as necessary to enforce this rule.
-            ///
-            /// @param Name   The new name to be set for this window.
-            void SetName(const std::string& Name);
 
             /// Returns the parent window of this window.
             IntrusivePtrT<WindowT> GetParent() const { return m_Parent; }
@@ -164,7 +112,7 @@ namespace cf
             /// modifying it as necessary. See SetName() for more details.
             ///
             /// @param Child   The window to add to the children of this window.
-            /// @param Pos     The position among the children to insert the child winow at.
+            /// @param Pos     The position among the children to insert the child window at.
             /// @returns true on success, false on failure (Child has a parent already, or is the root of this window).
             bool AddChild(IntrusivePtrT<WindowT> Child, unsigned long Pos=0xFFFFFFFF);
 
@@ -176,10 +124,50 @@ namespace cf
             /// Returns the top-most parent of this window, that is, the root of the hierarchy this window is in.
             IntrusivePtrT<WindowT> GetRoot();     // Method cannot be const because return type is not const -- see implementation.
 
-            /// Returns the position of the upper left corner of this window in absolute (vs. relative to the parent) virtual coordinates.
-            /// @param x Variable to store the x coordinate of the upper left corner.
-            /// @param y Variable to store the y coordinate of the upper left corner.
-            void GetAbsolutePos(float& x, float& y) const;
+
+            /// Returns the application component of this window.
+            /// This component is much like the "Basics" and "Transform" components, but it can be set by the
+            /// application (see SetApp()), and is intended for the sole use by the application, e.g. for
+            /// implementing a "selection gizmo" in the GUI Editor.
+            IntrusivePtrT<ComponentBaseT> GetApp() { return m_App; }
+
+            /// The `const` variant of the GetApp() method above. See GetApp() for details.
+            IntrusivePtrT<const ComponentBaseT> GetApp() const { return m_App; }
+
+            /// Sets the application component for this window. See GetApp() for details.
+            void SetApp(IntrusivePtrT<ComponentBaseT> App);
+
+            /// Returns the "Basics" component of this window.
+            /// The "Basics" component defines the name and the "show" flag of the window.
+            IntrusivePtrT<ComponentBasicsT> GetBasics() const { return m_Basics; }
+
+            /// Returns the "Transform" component of this window.
+            /// The "Transform" component defines the position, size and orientation of the window.
+            IntrusivePtrT<ComponentTransformT> GetTransform() const { return m_Transform; }
+
+
+            /// Returns the components that this window is composed of.
+            /// Only the "custom" components are returned, does *not* include the application component,
+            /// "Basics" or "Transform".
+            const ArrayT< IntrusivePtrT<ComponentBaseT> >& GetComponents() const { return m_Components; }
+
+            /// Returns the (n-th) component of the given (type) name.
+            /// Covers the "custom" components as well as the application component, "Basics" and "Transform".
+            /// That is, `GetComponent("Basics") == GetBasics()` and `GetComponent("Transform") == GetTransform()`.
+            IntrusivePtrT<ComponentBaseT> GetComponent(const std::string& TypeName, unsigned int n=0) const;
+
+            /// Adds the given component to this window.
+            ///
+            /// @param Comp    The component to add to this window.
+            /// @param Index   The position among the other components to insert `Comp` at.
+            /// @returns `true` on success, `false` on failure (if `Comp` is part of a window already).
+            bool AddComponent(IntrusivePtrT<ComponentBaseT> Comp, unsigned long Index=ULONG_MAX);
+
+            /// Deletes the component at the given index from this window.
+            void DeleteComponent(unsigned long CompNr);
+
+            /// Returns the position of the upper left corner of this window in absolute (vs. relative to the parent) coordinates.
+            Vector2fT GetAbsolutePos() const;
 
             /// Finds the window with the name WantedName in the hierachy tree of this window.
             /// Use GetRoot()->Find("xy") in order to search the entire GUI for the window with name "xy".
@@ -187,14 +175,13 @@ namespace cf
             /// @returns The pointer to the desired window, or NULL if no window with this name exists.
             IntrusivePtrT<WindowT> Find(const std::string& WantedName);   // Method cannot be const because return type is not const -- see implementation.
 
-            /// Finds the topmost window that contains the point (x, y) in the hierachy tree of this window
-            /// (with (x, y) being (absolute) virtual screen coordinates, *not* relative to this window).
-            /// Use GetRoot()->Find(x, y) in order to search the entire GUI for the window containing the point (x, y).
-            /// @param x   The x-coordinate of the test point.
-            /// @param y   The y-coordinate of the test point.
+            /// Finds the topmost window that contains the point `Pos` in the hierachy tree of this window
+            /// (with `Pos` being in (absolute) screen coordinates, *not* relative to this window).
+            /// Use `GetRoot()->Find(Pos)` in order to search the entire GUI for the window containing the point `Pos`.
+            /// @param Pos   The coordinate of the point to test.
             /// @param OnlyVisible   If true, only visible windows are reported. If false, all windows are searched.
-            /// @returns The pointer to the desired window, or NULL if there is no window that contains the point (x, y).
-            IntrusivePtrT<WindowT> Find(float x, float y, bool OnlyVisible=true); // Method cannot be const because return type is not const -- see implementation.
+            /// @returns The pointer to the desired window, or NULL if there is no window that contains `Pos`.
+            IntrusivePtrT<WindowT> Find(const Vector2fT& Pos, bool OnlyVisible=true); // Method cannot be const because return type is not const -- see implementation.
 
             /// Renders this window.
             /// Note that this method does *not* setup any of the MatSys's model, view or projection matrices: it's up to the caller to do that!
@@ -224,11 +211,6 @@ namespace cf
             /// @param Signature DOCTODO
             bool CallLuaMethod(const char* MethodName, const char* Signature="", ...);
 
-            /// Get the a member variable of this class.
-            /// @param VarName The name of the member variable.
-            /// @return The member variable with the name VarName.
-            MemberVarT& GetMemberVar(std::string VarName) { return MemberVars[VarName]; }
-
 
             // The TypeSys related declarations for this class.
             virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
@@ -236,82 +218,38 @@ namespace cf
             static const cf::TypeSys::TypeInfoT TypeInfo;
 
 
-            /// Enumeration of horizontal alignments of a window.
-            /// The purpose of END_HOR is to ensure that an int is used as the underlying type.
-            enum TextAlignHorT { left, right, center, END_HOR=0x10000000 };
-
-            /// Enumeration of vertical alignments of a window.
-            /// The purpose of END_VER is to ensure that an int is used as the underlying type.
-            enum TextAlignVerT { top, bottom, middle, END_VER=0x10000000 };
-
-
-            float                    Time;              ///< This windows local time (starting from 0.0).
-            bool                     ShowWindow;        ///< Is this WindowT shown on screen?
-            float                    Rect[4];           ///< The upper left corner of this window, relative to its parent, plus the width and height (all in virtual pixels).
-            float                    RotAngle;          ///< The angle in degrees by how much this entire window is rotated.
-            MatSys::RenderMaterialT* BackRenderMat;     ///< The render material used to render this windows background.
-            std::string              BackRenderMatName; ///< The name of the render material.
-            float                    BackColor[4];      ///< The windows background color.
-            float                    BorderWidth;       ///< The windows border width.
-            float                    BorderColor[4];    ///< The windows border color.
-            TrueTypeFontT*           Font;              ///< The font used to render text in this window.
-            std::string              Text;              ///< The text to show inside this window.
-            float                    TextScale;         ///< Scale of this windows text.
-            float                    TextColor[4];      ///< Color of the windows text.
-            TextAlignHorT            TextAlignHor;      ///< How the text is aligned horizontally (left, right, centered, block).
-            TextAlignVerT            TextAlignVer;      ///< How the text is aligned vertically (top, middle, bottom).
-
-
             protected:
 
             // Methods called from Lua scripts on cf::GuiSys::WindowTs.
             // They are protected so that derived window classes can access them when implementing overloads.
-            static int Set(lua_State* LuaState);            ///< Sets a member variable of this class.
-            static int Get(lua_State* LuaState);            ///< Gets a member variable of this class.
-            static int Interpolate(lua_State* LuaState);    ///< Schedules a value for interpolation between a start and end value over a given period of time.
-            static int GetName(lua_State* LuaState);        ///< Gets the windows name.
-            static int SetName(lua_State* LuaState);        ///< Sets the windows name.
             static int AddChild(lua_State* LuaState);       ///< Adds a child to this window.
             static int RemoveChild(lua_State* LuaState);    ///< Removes a child from this window.
             static int GetParent(lua_State* LuaState);      ///< Returns the parent of this window (or nil if there is no parent).
             static int GetChildren(lua_State* LuaState);    ///< Returns an array of the children of this window.
+            static int GetTime(lua_State* LuaState);        ///< Returns the windows local time (starting from 0.0).
+            static int GetBasics(lua_State* LuaState);      ///< Returns the "Basics" component of this window.
+            static int GetTransform(lua_State* LuaState);   ///< Returns the "Transform" component of this window.
+            static int AddComponent(lua_State* LuaState);   ///< Adds a component to this window.
+            static int RmvComponent(lua_State* LuaState);   ///< Removes a component from this window.
+            static int GetComponents(lua_State* LuaState);  ///< Returns an array of the components of this window.
+            static int GetComponent(lua_State* LuaState);   ///< Returns the (n-th) component of the given (type) name.
             static int toString(lua_State* LuaState);       ///< Returns a readable string representation of this object.
 
             static const luaL_Reg MethodsList[]; ///< List of methods registered with Lua.
 
-            void FillMemberVars();  ///< Helper method that fills the MemberVars array with entries for each class member.
-
-            /// Maps strings (names) to member variables of this class.
-            /// This map is needed for implementing the Lua-binding methods efficiently.
-            /// It is also used in the GUI editor to easily modify members without the need for Get/Set methods.
-            std::map<std::string, MemberVarT> MemberVars;
-
 
             private:
 
-            /// A helper structure for interpolations between values.
-            struct InterpolationT
-            {
-                float* Value;           ///< Value[0] = resulting value of the linear interpolation.
-                float  StartValue;      ///< Start value.
-                float  EndValue;        ///< End value.
-                float  CurrentTime;     ///< Current time between 0 and TotalTime.
-                float  TotalTime;       ///< Duration of the interpolation.
-
-                void UpdateValue()
-                {
-                    Value[0]=StartValue+(EndValue-StartValue)*CurrentTime/TotalTime;
-                }
-            };
-
             void operator = (const WindowT&);   ///< Use of the Assignment Operator is not allowed.
 
-            GuiImplT&                        m_Gui;             ///< The GUI instance in which this window was created and exists. Useful in many regards, but especially for access to the underlying Lua state.
-            ExtDataT*                        m_ExtData;         ///< The GuiEditor's "dual" or "sibling" of this window.
-            WindowT*                         m_Parent;          ///< The parent of this window. May be NULL if there is no parent. In order to not create cycles of IntrusivePtrT's, the type is intentionally a raw pointer only.
-            ArrayT< IntrusivePtrT<WindowT> > m_Children;        ///< The list of children of this window.
-            std::string                      m_Name;            ///< The name of this window. It must be unique among all its siblings (the children of its parent), which is enforced in the SetName() and AddChild() methods.
-            ArrayT<InterpolationT*>          m_PendingInterp;   ///< The currently pending interpolations.
+            GuiImplT&                               m_Gui;          ///< The GUI instance in which this window was created and exists. Useful in many regards, but especially for access to the underlying Lua state.
+            WindowT*                                m_Parent;       ///< The parent of this window. May be NULL if there is no parent. In order to not create cycles of IntrusivePtrT's, the type is intentionally a raw pointer only.
+            ArrayT< IntrusivePtrT<WindowT> >        m_Children;     ///< The list of children of this window.
+            float                                   m_Time;         ///< This windows local time (starting from 0.0).
+            IntrusivePtrT<ComponentBaseT>           m_App;          ///< A component for the sole use by the application / implementation.
+            IntrusivePtrT<ComponentBasicsT>         m_Basics;       ///< The component that defines the name and the "show" flag of this window.
+            IntrusivePtrT<ComponentTransformT>      m_Transform;    ///< The component that defines the position, size and orientation of this window.
+            ArrayT< IntrusivePtrT<ComponentBaseT> > m_Components;   ///< The components that this window is composed of.
         };
     }
 }

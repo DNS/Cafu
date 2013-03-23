@@ -1333,7 +1333,7 @@ int EntHumanPlayerT::GetAmmoString(lua_State* LuaState)
                 break;
 
             case WEAPON_SLOT_9MMAR:
-                sprintf(PrintBuffer, " Ammo %2u (%2u) | %u Grenades",
+                sprintf(PrintBuffer, "Ammo %2u (%2u) | %u Grenades",
                         State.HaveAmmoInWeapons[WEAPON_SLOT_9MMAR],
                         State.HaveAmmo[GetAmmoSlotForPrimaryFireByWeaponSlot[WEAPON_SLOT_9MMAR]],
                         State.HaveAmmo[AMMO_SLOT_ARGREN]);
@@ -1344,7 +1344,7 @@ int EntHumanPlayerT::GetAmmoString(lua_State* LuaState)
             case WEAPON_SLOT_GRENADE:
             case WEAPON_SLOT_RPG:
             case WEAPON_SLOT_TRIPMINE:
-                sprintf(PrintBuffer, " Ammo %2u",
+                sprintf(PrintBuffer, "Ammo %2u",
                         State.HaveAmmoInWeapons[State.ActiveWeaponSlot]);
                 lua_pushstring(LuaState, PrintBuffer);
                 break;
@@ -1355,7 +1355,7 @@ int EntHumanPlayerT::GetAmmoString(lua_State* LuaState)
             case WEAPON_SLOT_GAUSS:
             case WEAPON_SLOT_PISTOL:
             case WEAPON_SLOT_SHOTGUN:
-                sprintf(PrintBuffer, " Ammo %2u (%2u)",
+                sprintf(PrintBuffer, "Ammo %2u (%2u)",
                         State.HaveAmmoInWeapons[State.ActiveWeaponSlot],
                         State.HaveAmmo[GetAmmoSlotForPrimaryFireByWeaponSlot[State.ActiveWeaponSlot]]);
                 lua_pushstring(LuaState, PrintBuffer);
