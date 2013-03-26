@@ -112,7 +112,7 @@ function CallRescueText:OnInit()
 
     local c1 = gui:new("ComponentTextT")
     c1:set("Text", [[
-Activate button to call 
+Activate button to call
 rescue service! ]])
     c1:set("Font", "Fonts/Arial")
     c1:set("Scale", 0.6)

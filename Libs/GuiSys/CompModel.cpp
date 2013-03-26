@@ -284,7 +284,7 @@ void ComponentModelT::UpdateDependencies(WindowT* Window)
     // for (unsigned int CompNr = 0; CompNr < GetWindow()->GetComponents().Size(); CompNr++)
     // {
     //     IntrusivePtrT<ComponentBaseT> Comp = GetWindow()->GetComponents()[CompNr];
-    // 
+    //
     //     if (m_Transform == NULL)
     //         m_Transform = dynamic_pointer_cast<ComponentTransformT>(Comp);
     // }

@@ -24,7 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Loader_cmdl.hpp"
 #include "Loader_lwo.hpp"
 #include "Loader_md5.hpp"
-#include "Loader_mdl.hpp"
+#include "Loader_mdl_hl1.hpp"
 #include "TextParser/TextParser.hpp"
 #include "String.hpp"
 

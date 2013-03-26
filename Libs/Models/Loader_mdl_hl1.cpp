@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "Loader_mdl.hpp"
-#include "Loader_mdl.h"
+#include "Loader_mdl_hl1.hpp"
+#include "Loader_mdl_hl1.h"
 #include "Bitmap/Bitmap.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "Math3D/Matrix3x3.hpp"

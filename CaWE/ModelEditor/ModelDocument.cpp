@@ -34,7 +34,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Models/Loader_fbx.hpp"
 #include "Models/Loader_lwo.hpp"
 #include "Models/Loader_md5.hpp"
-#include "Models/Loader_mdl.hpp"
+#include "Models/Loader_mdl_hl1.hpp"
 #include "String.hpp"
 
 #include "wx/confbase.h"
