@@ -652,7 +652,8 @@ void AnimPoseT::Draw(int SkinNr, float LodDist) const
             const Vector3T<float>      LightPosOLD(MatSys::Renderer->GetCurrentLightSourcePosition());
             const BoundingBox3T<float> LightBB(LightPosOLD+LightBox, LightPosOLD-LightBox);
 
-            if (!LightBB.Intersects(m_BoundingBox)) return;
+            // If the model is skeleton only and has no meshes, the m_BoundingBox may not be inited.
+            if (m_BoundingBox.IsInited() && !LightBB.Intersects(m_BoundingBox)) return;
             break;
         }
     }

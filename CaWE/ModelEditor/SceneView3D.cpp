@@ -684,8 +684,10 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
     // Update the z-position of the ground plane.
     if (ScenePropGrid->m_GroundPlane_Show)
     {
-        MapBrushT*  Ground=m_Parent->GetModelDoc()->GetGround();
-        const float DeltaZ=(ScenePropGrid->m_GroundPlane_AutoZ
+        MapBrushT* Ground = m_Parent->GetModelDoc()->GetGround();
+
+        // If the model is skeleton only and has no meshes, the sequence BB may not be inited.
+        const float DeltaZ = (ScenePropGrid->m_GroundPlane_AutoZ && m_Parent->GetModelDoc()->GetSequenceBB().IsInited()
             ? m_Parent->GetModelDoc()->GetSequenceBB().Min.z
             : ScenePropGrid->m_GroundPlane_PosZ) - Ground->GetBB().Max.z;
 
