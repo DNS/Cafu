@@ -62,8 +62,17 @@ LoaderHL1mdlT::LoaderHL1mdlT(const std::string& FileName, int Flags)
 
     StudioHeader=(StudioHeaderT*)(&ModelData[0]);   // First abbreviation, simplifies the following code.
 
-    // TODO: Sanity checks (is this really a complete, valid model? NumBodyParts>0?)
-    // ...
+    const int IDST = 0x54534449;
+    const int Ca3D = 0x44336143;
+
+    if (ModelData.Size() < sizeof(StudioHeaderT))
+        throw LoadErrorT("Invalid .mdl file header.");
+
+    if (StudioHeader->ID != IDST && StudioHeader->ID != Ca3D)
+        throw LoadErrorT("Model file (.mdl) ID is not \"IDST\".");
+
+    if (StudioHeader->Version != 10)
+        throw LoadErrorT("Model file (.mdl) version is not 10.");
 
 
     // 4. Optionally load additional textures.

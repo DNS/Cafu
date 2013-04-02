@@ -19,6 +19,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
+#ifndef CAFU_HL1_MDL_FILE_FORMAT_HPP_INCLUDED
+#define CAFU_HL1_MDL_FILE_FORMAT_HPP_INCLUDED
+
 #if defined(_WIN32)
     // We are on the Win32 platform.
     #if defined(__WATCOMC__)
@@ -271,4 +274,6 @@ WATCOM_PACKED struct StudioAttachmentT
 
 #if defined(_WIN32) && defined (_MSC_VER)
     #pragma pack(pop)
+#endif
+
 #endif
