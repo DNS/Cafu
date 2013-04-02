@@ -27,7 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Loader_dummy.hpp"
 #include "Loader_lwo.hpp"
 #include "Loader_md5.hpp"
-#include "Loader_mdl_hl1.hpp"
+#include "Loader_mdl.hpp"
 #include "String.hpp"
 
 
@@ -57,18 +57,18 @@ const CafuModelT* ModelManagerT::GetModel(const std::string& FileName, std::stri
 
     try
     {
-             if (cf::String::EndsWith(FileName, "ase"    )) { LoaderAseT    Loader(FileName); NewModel=new CafuModelT(Loader); }
-        else if (cf::String::EndsWith(FileName, "cmdl"   )) { LoaderCafuT   Loader(FileName); NewModel=new CafuModelT(Loader); }
-        else if (cf::String::EndsWith(FileName, "dlod"   )) { LoaderDlodT   Loader(FileName); NewModel=new CafuModelT(Loader); }
-        else if (cf::String::EndsWith(FileName, "lwo"    )) { LoaderLwoT    Loader(FileName); NewModel=new CafuModelT(Loader); }
-        else if (cf::String::EndsWith(FileName, "mdl"    )) { LoaderHL1mdlT Loader(FileName); NewModel=new CafuModelT(Loader); }
-        else if (cf::String::EndsWith(FileName, "md5"    )) { LoaderMd5T    Loader(FileName); NewModel=new CafuModelT(Loader); }
-        else if (cf::String::EndsWith(FileName, "md5mesh")) { LoaderMd5T    Loader(FileName); NewModel=new CafuModelT(Loader); }
-     // else if (cf::String::EndsWith(FileName, "3ds"    )) { LoaderFbxT    Loader(FileName); NewModel=new CafuModelT(Loader); }
-     // else if (cf::String::EndsWith(FileName, "dae"    )) { LoaderFbxT    Loader(FileName); NewModel=new CafuModelT(Loader); }
-     // else if (cf::String::EndsWith(FileName, "dxf"    )) { LoaderFbxT    Loader(FileName); NewModel=new CafuModelT(Loader); }
-     // else if (cf::String::EndsWith(FileName, "fbx"    )) { LoaderFbxT    Loader(FileName); NewModel=new CafuModelT(Loader); }
-     // else if (cf::String::EndsWith(FileName, "obj"    )) { LoaderFbxT    Loader(FileName); NewModel=new CafuModelT(Loader); }
+             if (cf::String::EndsWith(FileName, "ase"    )) { LoaderAseT  Loader(FileName); NewModel = new CafuModelT(Loader); }
+        else if (cf::String::EndsWith(FileName, "cmdl"   )) { LoaderCafuT Loader(FileName); NewModel = new CafuModelT(Loader); }
+        else if (cf::String::EndsWith(FileName, "dlod"   )) { LoaderDlodT Loader(FileName); NewModel = new CafuModelT(Loader); }
+        else if (cf::String::EndsWith(FileName, "lwo"    )) { LoaderLwoT  Loader(FileName); NewModel = new CafuModelT(Loader); }
+        else if (cf::String::EndsWith(FileName, "mdl"    )) { LoaderMdlT  Loader(FileName); NewModel = new CafuModelT(Loader); }
+        else if (cf::String::EndsWith(FileName, "md5"    )) { LoaderMd5T  Loader(FileName); NewModel = new CafuModelT(Loader); }
+        else if (cf::String::EndsWith(FileName, "md5mesh")) { LoaderMd5T  Loader(FileName); NewModel = new CafuModelT(Loader); }
+     // else if (cf::String::EndsWith(FileName, "3ds"    )) { LoaderFbxT  Loader(FileName); NewModel = new CafuModelT(Loader); }
+     // else if (cf::String::EndsWith(FileName, "dae"    )) { LoaderFbxT  Loader(FileName); NewModel = new CafuModelT(Loader); }
+     // else if (cf::String::EndsWith(FileName, "dxf"    )) { LoaderFbxT  Loader(FileName); NewModel = new CafuModelT(Loader); }
+     // else if (cf::String::EndsWith(FileName, "fbx"    )) { LoaderFbxT  Loader(FileName); NewModel = new CafuModelT(Loader); }
+     // else if (cf::String::EndsWith(FileName, "obj"    )) { LoaderFbxT  Loader(FileName); NewModel = new CafuModelT(Loader); }
         else throw ModelLoaderT::LoadErrorT(
             "No loader is available for model files of this type.\n"
             "Use CaWE in order to convert this model into a cmdl model, "

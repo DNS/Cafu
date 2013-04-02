@@ -34,7 +34,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Models/Loader_fbx.hpp"
 #include "Models/Loader_lwo.hpp"
 #include "Models/Loader_md5.hpp"
-#include "Models/Loader_mdl_hl1.hpp"
+#include "Models/Loader_mdl.hpp"
 #include "String.hpp"
 
 #include "wx/confbase.h"
@@ -265,25 +265,25 @@ namespace
 
 /*static*/ CafuModelT* ModelEditor::ModelDocumentT::LoadModel(const wxString& FileName)
 {
-    const std::string   fn   =FileName.ToStdString();
-    const int           Flags=ModelLoaderT::REMOVE_DEGEN_TRIANGLES | ModelLoaderT::REMOVE_UNUSED_VERTICES | ModelLoaderT::REMOVE_UNUSED_WEIGHTS;
+    const std::string   fn    = FileName.ToStdString();
+    const int           Flags = ModelLoaderT::REMOVE_DEGEN_TRIANGLES | ModelLoaderT::REMOVE_UNUSED_VERTICES | ModelLoaderT::REMOVE_UNUSED_WEIGHTS;
     ModelUserCallbacksT UserCbs;
 
     // TODO: This duplicates the code in Model_proxy.cpp and should be combined elsewhere, e.g. into class ModelLoaderT.
     //       Better yet: Use the type system with the loaders, and be able to iterate over them.
-         if (cf::String::EndsWith(fn, "3ds"    )) { LoaderFbxT    Loader(fn, UserCbs, Flags); return new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(fn, "ase"    )) { LoaderAseT    Loader(fn, Flags);          return new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(fn, "cmdl"   )) { LoaderCafuT   Loader(fn, Flags);          return new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(fn, "dae"    )) { LoaderFbxT    Loader(fn, UserCbs, Flags); return new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(fn, "dummy"  )) { LoaderDummyT  Loader(fn, Flags);          return new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(fn, "dxf"    )) { LoaderFbxT    Loader(fn, UserCbs, Flags); return new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(fn, "fbx"    )) { LoaderFbxT    Loader(fn, UserCbs, Flags); return new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(fn, "dlod"   )) { LoaderDlodT   Loader(fn, Flags);          return new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(fn, "lwo"    )) { LoaderLwoT    Loader(fn, Flags);          return new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(fn, "mdl"    )) { LoaderHL1mdlT Loader(fn, Flags);          return new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(fn, "md5"    )) { LoaderMd5T    Loader(fn, Flags);          return new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(fn, "md5mesh")) { LoaderMd5T    Loader(fn, Flags);          return new CafuModelT(Loader); }
-    else if (cf::String::EndsWith(fn, "obj"    )) { LoaderFbxT    Loader(fn, UserCbs, Flags); return new CafuModelT(Loader); }
+         if (cf::String::EndsWith(fn, "3ds"    )) { LoaderFbxT   Loader(fn, UserCbs, Flags); return new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(fn, "ase"    )) { LoaderAseT   Loader(fn, Flags);          return new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(fn, "cmdl"   )) { LoaderCafuT  Loader(fn, Flags);          return new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(fn, "dae"    )) { LoaderFbxT   Loader(fn, UserCbs, Flags); return new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(fn, "dummy"  )) { LoaderDummyT Loader(fn, Flags);          return new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(fn, "dxf"    )) { LoaderFbxT   Loader(fn, UserCbs, Flags); return new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(fn, "fbx"    )) { LoaderFbxT   Loader(fn, UserCbs, Flags); return new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(fn, "dlod"   )) { LoaderDlodT  Loader(fn, Flags);          return new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(fn, "lwo"    )) { LoaderLwoT   Loader(fn, Flags);          return new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(fn, "mdl"    )) { LoaderMdlT   Loader(fn, Flags);          return new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(fn, "md5"    )) { LoaderMd5T   Loader(fn, Flags);          return new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(fn, "md5mesh")) { LoaderMd5T   Loader(fn, Flags);          return new CafuModelT(Loader); }
+    else if (cf::String::EndsWith(fn, "obj"    )) { LoaderFbxT   Loader(fn, UserCbs, Flags); return new CafuModelT(Loader); }
 
     throw ModelLoaderT::LoadErrorT(
         "No loader is available for model files of this type.\n"
