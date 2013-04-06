@@ -151,29 +151,7 @@ function NormalControls.ButtonNewGame:OnMouseLeave()
 end
 
 function NormalControls.ButtonNewGame:OnMouseButtonUp()
-    local Files = Console.GetDir("Games/DeathMatch/Worlds", "f")
-    local Names = {}
-    local SelNr = -1
-
-    table.sort(Files)
-
-    for FileNum, FileName in ipairs(Files) do
-        if FileName:sub(-3, -1) == ".cw" then
-            Names[#Names + 1] = FileName:sub(1, -4)
-
-            if Names[#Names] == ci.GetValue("dlg_svWorldName") then
-                SelNr = #Names
-            end
-        end
-    end
-
-    -- Setting "Selection" doesn't automatically trigger a call to OnSelectionChanged(), so it's done manually below.
-    NewGameDialog.Frame.MapList:GetComponent("ListBox"):set("Items", Names)
-    NewGameDialog.Frame.MapList:GetComponent("ListBox"):set("Selection", SelNr)
-    NewGameDialog.Frame.MapList:GetComponent("ListBox"):OnSelectionChanged()
-
     NewGameDialog:GetBasics():set("Show", true)
-    gui:setFocus(NewGameDialog.Frame.MapList)
     return true
 end
 
@@ -351,32 +329,8 @@ function MultiplayerContextMenu.Frame.JoinGame:OnMouseLeave()
 end
 
 function MultiplayerContextMenu.Frame.JoinGame:OnMouseButtonUp()
-    JoinGameDialog.Frame.PlayerNameEdit:GetComponent("TextEdit"):SetText(ci.GetValue("dlg_dmPlayerName"))
-    JoinGameDialog.Frame.RemoteHostEdit:GetComponent("TextEdit"):SetText(ci.GetValue("dlg_clRemoteName"))
-    JoinGameDialog.Frame.RemotePortEdit:GetComponent("TextEdit"):SetText(ci.GetValue("dlg_clRemotePort"))
-
-
-    JoinGameDialog.Frame.ModelList={};      -- Matches names in choice to file names, e.g. ModelList["Alien"] yields "Alien/Alien.cmdl".
-
-    local Files=Console.GetDir("Games/DeathMatch/Models/Players", "d");
-    table.sort(Files);
-
-    JoinGameDialog.Frame.ModelNameChoice:GetComponent("Choice"):set("Choices", Files)
-
-    for FileNum, FileName in ipairs(Files) do
-        JoinGameDialog.Frame.ModelList[FileName]=FileName.."/"..FileName..".cmdl";
-
-        if (FileName==ci.GetValue("dlg_dmModelName")) then
-            -- set("Selection", ...) doesn't automatically trigger a call to OnSelectionChanged(), so it's done manually below.
-            JoinGameDialog.Frame.ModelNameChoice:GetComponent("Choice"):set("Selection", FileNum)
-            JoinGameDialog.Frame.ModelNameChoice:GetComponent("Choice"):OnSelectionChanged()
-        end
-    end
-
-
     MultiplayerContextMenu:GetBasics():set("Show", false)
     JoinGameDialog:GetBasics():set("Show", true)
-    gui:setFocus(JoinGameDialog);
     return true;
 end
 
@@ -388,57 +342,8 @@ MultiplayerContextMenu.Frame.HostGame.OnMouseEnter=MultiplayerContextMenu.Frame.
 MultiplayerContextMenu.Frame.HostGame.OnMouseLeave=MultiplayerContextMenu.Frame.JoinGame.OnMouseLeave;
 
 function MultiplayerContextMenu.Frame.HostGame:OnMouseButtonUp()
-    HostGameDialog.Frame.LocalSvPortEdit:GetComponent("TextEdit"):SetText(ci.GetValue("dlg_svPortNr"))
-    HostGameDialog.Frame.PlayerNameEdit:GetComponent("TextEdit"):SetText(ci.GetValue("dlg_dmPlayerName"))
-
-
-    local Files = Console.GetDir("Games/DeathMatch/Worlds", "f")
-    local Names = {}
-    local SelNr = -1
-
-    table.sort(Files)
-
-    for FileNum, FileName in ipairs(Files) do
-        if FileName:sub(-3, -1) == ".cw" then
-            Names[#Names + 1] = FileName:sub(1, -4)
-
-            if Names[#Names] == ci.GetValue("dlg_svWorldName") then
-                SelNr = #Names
-            end
-        end
-    end
-
-    -- Setting "Selection" doesn't automatically trigger a call to OnSelectionChanged(), so it's done manually below.
-    HostGameDialog.Frame.WorldNameChoice:GetComponent("Choice"):set("Choices", Names)
-    HostGameDialog.Frame.WorldNameChoice:GetComponent("Choice"):set("Selection", SelNr)
-    HostGameDialog.Frame.WorldNameChoice:GetComponent("Choice"):OnSelectionChanged()
-
-
-    -- Call OnSelectionChanged() for proper initialization.
-    HostGameDialog.Frame.ListenSvChoice:GetComponent("Choice"):OnSelectionChanged()
-
-
-    HostGameDialog.Frame.ModelList={};      -- Matches names in choice to file names, e.g. ModelList["Alien"] yields "Alien/Alien.cmdl".
-
-    local Files=Console.GetDir("Games/DeathMatch/Models/Players", "d");
-    table.sort(Files);
-
-    HostGameDialog.Frame.ModelNameChoice:GetComponent("Choice"):set("Choices", Files)
-
-    for FileNum, FileName in ipairs(Files) do
-        HostGameDialog.Frame.ModelList[FileName]=FileName.."/"..FileName..".cmdl";
-
-        if (FileName==ci.GetValue("dlg_dmModelName")) then
-            -- set("Selection", ...) doesn't automatically trigger a call to OnSelectionChanged(), so it's done manually below.
-            HostGameDialog.Frame.ModelNameChoice:GetComponent("Choice"):set("Selection", FileNum)
-            HostGameDialog.Frame.ModelNameChoice:GetComponent("Choice"):OnSelectionChanged()
-        end
-    end
-
-
     MultiplayerContextMenu:GetBasics():set("Show", false)
     HostGameDialog:GetBasics():set("Show", true)
-    gui:setFocus(HostGameDialog);
     return true;
 end
 
@@ -486,11 +391,8 @@ function OptionsContextMenu.Frame.Controls:OnMouseLeave()
 end
 
 function OptionsContextMenu.Frame.Controls:OnMouseButtonUp()
-    InputOptionsDialog.Frame.ReverseMouseYAxisChoice:GetComponent("Choice"):set("Selection", ci.GetValue("mouseRevY") and 2 or 1)   -- "a and b or c" in Lua is equivalent to "a ? b:c" in C (at least almost, see PiL2 for details).
-
     OptionsContextMenu:GetBasics():set("Show", false)
     InputOptionsDialog:GetBasics():set("Show", true)
-    gui:setFocus(InputOptionsDialog);
     return true;
 end
 
@@ -500,30 +402,8 @@ OptionsContextMenu.Frame.Player.OnMouseEnter=OptionsContextMenu.Frame.Controls.O
 OptionsContextMenu.Frame.Player.OnMouseLeave=OptionsContextMenu.Frame.Controls.OnMouseLeave;
 
 function OptionsContextMenu.Frame.Player:OnMouseButtonUp()
-    PlayerOptionsDialog.Frame.PlayerNameEdit:GetComponent("TextEdit"):SetText(ci.GetValue("dlg_dmPlayerName"))
-
-
-    PlayerOptionsDialog.Frame.ModelList={};      -- Matches names in choice to file names, e.g. ModelList["Alien"] yields "Alien/Alien.cmdl".
-
-    local Files=Console.GetDir("Games/DeathMatch/Models/Players", "d");
-    table.sort(Files);
-
-    PlayerOptionsDialog.Frame.ModelNameChoice:GetComponent("Choice"):set("Choices", Files)
-
-    for FileNum, FileName in ipairs(Files) do
-        PlayerOptionsDialog.Frame.ModelList[FileName]=FileName.."/"..FileName..".cmdl";
-
-        if (FileName==ci.GetValue("dlg_dmModelName")) then
-            -- set("Selection", ...) doesn't automatically trigger a call to OnSelectionChanged(), so it's done manually below.
-            PlayerOptionsDialog.Frame.ModelNameChoice:GetComponent("Choice"):set("Selection", FileNum)
-            PlayerOptionsDialog.Frame.ModelNameChoice:GetComponent("Choice"):OnSelectionChanged()
-        end
-    end
-
-
     OptionsContextMenu:GetBasics():set("Show", false)
     PlayerOptionsDialog:GetBasics():set("Show", true)
-    gui:setFocus(PlayerOptionsDialog);
     return true;
 end
 
@@ -533,32 +413,8 @@ OptionsContextMenu.Frame.Video.OnMouseEnter=OptionsContextMenu.Frame.Controls.On
 OptionsContextMenu.Frame.Video.OnMouseLeave=OptionsContextMenu.Frame.Controls.OnMouseLeave;
 
 function OptionsContextMenu.Frame.Video:OnMouseButtonUp()
-    -- Select the screen resolution that matches the one specified in the console variables.
-    local ModesComp = VideoOptionsDialog.Frame.ScreenResChoice:GetComponent("Choice")
-
-    ModesComp:set("Selection", 1)   -- For safety, if the loop below fails for some reason.
-
-    for ModeNr, Mode in ipairs(ModesComp:get("Choices")) do
-        local width, height, bpp, rate = ParseModeStr(Mode);
-
-        if width==ci.GetValue("dlg_clWindowSizeX") and height==ci.GetValue("dlg_clWindowSizeY") then
-            -- The width and height match, select this mode.
-            ModesComp:set("Selection", ModeNr)
-
-            if bpp==ci.GetValue("dlg_clDisplayBPP") and rate==ci.GetValue("dlg_clDisplayRefresh") then
-                -- The color depth and refresh rate match, too - stop looking for a better match.
-                break;
-            end
-        end
-    end
-
-    -- "a and b or c" in Lua is equivalent to "a ? b:c" in C (at least almost, see PiL2 for details).
-    VideoOptionsDialog.Frame.FullScreenChoice:GetComponent("Choice"):set("Selection", ci.GetValue("dlg_clFullScreen") and 1 or 2)
-    VideoOptionsDialog.Frame.TextureDetailChoice:GetComponent("Choice"):set("Selection", ci.GetValue("dlg_clTextureDetail") + 1)
-
     OptionsContextMenu:GetBasics():set("Show", false)
     VideoOptionsDialog:GetBasics():set("Show", true)
-    gui:setFocus(VideoOptionsDialog);
     return true;
 end
 
@@ -568,22 +424,8 @@ OptionsContextMenu.Frame.Audio.OnMouseEnter=OptionsContextMenu.Frame.Controls.On
 OptionsContextMenu.Frame.Audio.OnMouseLeave=OptionsContextMenu.Frame.Controls.OnMouseLeave;
 
 function OptionsContextMenu.Frame.Audio:OnMouseButtonUp()
-    local Vol = ci.GetValue("snd_InitialMasterVolume")
-
-    if (Vol < 0) then Vol = 0 end
-    if (Vol > 1) then Vol = 1 end
-
-    -- Convert the relative volume (float from 0...1) into the right number for our volume choice (int from 1 to 11).
-    Vol = math.ceil(Vol*10 + 0.5)
-
-    if (Vol <  1) then Vol =  1 end
-    if (Vol > 11) then Vol = 11 end
-
-    AudioOptionsDialog.Frame.VolumeChoice:GetComponent("Choice"):set("Selection", Vol)
-
     OptionsContextMenu:GetBasics():set("Show", false)
     AudioOptionsDialog:GetBasics():set("Show", true)
-    gui:setFocus(AudioOptionsDialog);
     return true;
 end
 
@@ -599,6 +441,35 @@ function NewGameDialog:OnKeyPress(Key)
     end
 
     return false;                   -- Return false to indicate that we did not process this key press.
+end
+
+NewGameDialog:GetBasics().OnShow = function (self)
+    -- If we were shown and are hidden now, do nothing.
+    if (not self:get("Show")) then return end
+
+    local Frame = NewGameDialog.Frame   -- If components had a GetWindow() method, this would be Frame = self:GetWindow().Frame
+    local Files = Console.GetDir("Games/DeathMatch/Worlds", "f")
+    local Names = {}
+    local SelNr = -1
+
+    table.sort(Files)
+
+    for FileNum, FileName in ipairs(Files) do
+        if FileName:sub(-3, -1) == ".cw" then
+            Names[#Names + 1] = FileName:sub(1, -4)
+
+            if Names[#Names] == ci.GetValue("dlg_svWorldName") then
+                SelNr = #Names
+            end
+        end
+    end
+
+    -- Setting "Selection" doesn't automatically trigger a call to OnSelectionChanged(), so it's done manually below.
+    Frame.MapList:GetComponent("ListBox"):set("Items", Names)
+    Frame.MapList:GetComponent("ListBox"):set("Selection", SelNr)
+    Frame.MapList:GetComponent("ListBox"):OnSelectionChanged()
+
+    gui:setFocus(Frame.MapList)
 end
 
 
@@ -708,6 +579,36 @@ function JoinGameDialog:OnKeyPress(Key)
     return false;                   -- Return false to indicate that we did not process this key press.
 end
 
+JoinGameDialog:GetBasics().OnShow = function (self)
+    -- If we were shown and are hidden now, do nothing.
+    if (not self:get("Show")) then return end
+
+    local Frame = JoinGameDialog.Frame    -- If components had a GetWindow() method, this would be Frame = self:GetWindow().Frame
+
+    Frame.PlayerNameEdit:GetComponent("TextEdit"):SetText(ci.GetValue("dlg_dmPlayerName"))
+    Frame.RemoteHostEdit:GetComponent("TextEdit"):SetText(ci.GetValue("dlg_clRemoteName"))
+    Frame.RemotePortEdit:GetComponent("TextEdit"):SetText(ci.GetValue("dlg_clRemotePort"))
+
+    Frame.ModelList = {}    -- Matches names in choice to file names, e.g. ModelList["Alien"] yields "Alien/Alien.cmdl".
+
+    local Files = Console.GetDir("Games/DeathMatch/Models/Players", "d")
+    table.sort(Files)
+
+    Frame.ModelNameChoice:GetComponent("Choice"):set("Choices", Files)
+
+    for FileNum, FileName in ipairs(Files) do
+        Frame.ModelList[FileName] = FileName .. "/" .. FileName .. ".cmdl"
+
+        if (FileName == ci.GetValue("dlg_dmModelName")) then
+            -- set("Selection", ...) doesn't automatically trigger a call to OnSelectionChanged(), so it's done manually below.
+            Frame.ModelNameChoice:GetComponent("Choice"):set("Selection", FileNum)
+            Frame.ModelNameChoice:GetComponent("Choice"):OnSelectionChanged()
+        end
+    end
+
+    gui:setFocus(JoinGameDialog)
+end
+
 
 
 JoinGameDialog.Frame.ModelPreview.SequNr=0;
@@ -730,12 +631,12 @@ end
 
 
 function JoinGameDialog.Frame.ModelPreview:OnChar(ch)
-    if (ch==string.byte("+") and self.SequNr<self:GetModelNrOfSqs()-1) then
-        self.SequNr=self.SequNr+1;
-        self:SetModelSequNr(self.SequNr);
-    elseif (ch==string.byte("-") and self.SequNr>0) then
-        self.SequNr=self.SequNr-1;
-        self:SetModelSequNr(self.SequNr);
+    if (ch == string.byte("+") and self.SequNr < self:GetComponent("Model"):GetNumAnims() - 1) then
+        self.SequNr = self.SequNr + 1
+        self:GetComponent("Model"):SetAnim(self.SequNr, 2.0)
+    elseif (ch == string.byte("-") and self.SequNr > 0) then
+        self.SequNr = self.SequNr - 1
+        self:GetComponent("Model"):SetAnim(self.SequNr, 2.0)
     end
 end
 
@@ -807,6 +708,59 @@ function HostGameDialog:OnKeyPress(Key)
     return false;                   -- Return false to indicate that we did not process this key press.
 end
 
+HostGameDialog:GetBasics().OnShow = function (self)
+    local Frame = HostGameDialog.Frame
+
+    Frame.LocalSvPortEdit:GetComponent("TextEdit"):SetText(ci.GetValue("dlg_svPortNr"))
+    Frame.PlayerNameEdit:GetComponent("TextEdit"):SetText(ci.GetValue("dlg_dmPlayerName"))
+
+
+    local Files = Console.GetDir("Games/DeathMatch/Worlds", "f")
+    local Names = {}
+    local SelNr = -1
+
+    table.sort(Files)
+
+    for FileNum, FileName in ipairs(Files) do
+        if FileName:sub(-3, -1) == ".cw" then
+            Names[#Names + 1] = FileName:sub(1, -4)
+
+            if Names[#Names] == ci.GetValue("dlg_svWorldName") then
+                SelNr = #Names
+            end
+        end
+    end
+
+    -- Setting "Selection" doesn't automatically trigger a call to OnSelectionChanged(), so it's done manually below.
+    Frame.WorldNameChoice:GetComponent("Choice"):set("Choices", Names)
+    Frame.WorldNameChoice:GetComponent("Choice"):set("Selection", SelNr)
+    Frame.WorldNameChoice:GetComponent("Choice"):OnSelectionChanged()
+
+
+    -- Call OnSelectionChanged() for proper initialization.
+    Frame.ListenSvChoice:GetComponent("Choice"):OnSelectionChanged()
+
+
+    Frame.ModelList = {}    -- Matches names in choice to file names, e.g. ModelList["Alien"] yields "Alien/Alien.cmdl".
+
+    local Files = Console.GetDir("Games/DeathMatch/Models/Players", "d")
+    table.sort(Files)
+
+    Frame.ModelNameChoice:GetComponent("Choice"):set("Choices", Files)
+
+    for FileNum, FileName in ipairs(Files) do
+        Frame.ModelList[FileName] = FileName .. "/" .. FileName .. ".cmdl"
+
+        if (FileName == ci.GetValue("dlg_dmModelName")) then
+            -- set("Selection", ...) doesn't automatically trigger a call to OnSelectionChanged(), so it's done manually below.
+            Frame.ModelNameChoice:GetComponent("Choice"):set("Selection", FileNum)
+            Frame.ModelNameChoice:GetComponent("Choice"):OnSelectionChanged()
+        end
+    end
+
+    gui:setFocus(HostGameDialog);
+end
+
 
 
 HostGameDialog.Frame.WorldNameChoice:GetComponent("Choice").OnSelectionChanged = function (self)
@@ -821,13 +775,15 @@ end
 
 HostGameDialog.Frame.ListenSvChoice:GetComponent("Choice").OnSelectionChanged = function (self)
     -- Enable/disable (show/hide) player name and model controls.
+    -- Note that "listen server" means "also play on this machine".
+    -- The opposite is "dedicated server", "not playing on this machine".
     local IsListen = self:GetSelItem() == "yes"
 
-    HostGameDialog.Frame.PlayerNameText:GetBasics():set("Show", not IsListen)
-    HostGameDialog.Frame.PlayerNameEdit:GetBasics():set("Show", not IsListen)
+    HostGameDialog.Frame.PlayerNameText:GetBasics():set("Show", IsListen)
+    HostGameDialog.Frame.PlayerNameEdit:GetBasics():set("Show", IsListen)
 
-    HostGameDialog.Frame.ModelNameText  :GetBasics():set("Show", not IsListen)
-    HostGameDialog.Frame.ModelNameChoice:GetBasics():set("Show", not IsListen)
+    HostGameDialog.Frame.ModelNameText  :GetBasics():set("Show", IsListen)
+    HostGameDialog.Frame.ModelNameChoice:GetBasics():set("Show", IsListen)
 end
 
 
@@ -852,12 +808,12 @@ end
 
 
 function HostGameDialog.Frame.ModelPreview:OnChar(ch)
-    if (ch==string.byte("+") and self.SequNr<self:GetModelNrOfSqs()-1) then
-        self.SequNr=self.SequNr+1;
-        self:SetModelSequNr(self.SequNr);
-    elseif (ch==string.byte("-") and self.SequNr>0) then
-        self.SequNr=self.SequNr-1;
-        self:SetModelSequNr(self.SequNr);
+    if (ch == string.byte("+") and self.SequNr < self:GetComponent("Model"):GetNumAnims() - 1) then
+        self.SequNr = self.SequNr + 1
+        self:GetComponent("Model"):SetAnim(self.SequNr, 2.0)
+    elseif (ch == string.byte("-") and self.SequNr > 0) then
+        self.SequNr = self.SequNr - 1
+        self:GetComponent("Model"):SetAnim(self.SequNr, 2.0)
     end
 end
 
@@ -959,6 +915,18 @@ function InputOptionsDialog:OnKeyPress(Key)
     return false;                   -- Return false to indicate that we did not process this key press.
 end
 
+InputOptionsDialog:GetBasics().OnShow = function (self)
+    -- If we were shown and are hidden now, do nothing.
+    if (not self:get("Show")) then return end
+
+    local Frame = InputOptionsDialog.Frame    -- If components had a GetWindow() method, this would be Frame = self:GetWindow().Frame
+
+    -- "a and b or c" in Lua is equivalent to "a ? b : c" in C (at least almost, see PiL2 for details).
+    Frame.ReverseMouseYAxisChoice:GetComponent("Choice"):set("Selection", ci.GetValue("mouseRevY") and 2 or 1)
+
+    gui:setFocus(InputOptionsDialog);
+end
+
 
 
 function InputOptionsDialog.Frame.ButtonOK:OnMouseEnter()
@@ -1017,6 +985,34 @@ function PlayerOptionsDialog:OnKeyPress(Key)
     return false;                   -- Return false to indicate that we did not process this key press.
 end
 
+PlayerOptionsDialog:GetBasics().OnShow = function (self)
+    -- If we were shown and are hidden now, do nothing.
+    if (not self:get("Show")) then return end
+
+    local Frame = PlayerOptionsDialog.Frame    -- If components had a GetWindow() method, this would be Frame = self:GetWindow().Frame
+
+    Frame.PlayerNameEdit:GetComponent("TextEdit"):SetText(ci.GetValue("dlg_dmPlayerName"))
+
+    Frame.ModelList = {}   -- Matches names in choice to file names, e.g. ModelList["Alien"] yields "Alien/Alien.cmdl".
+
+    local Files = Console.GetDir("Games/DeathMatch/Models/Players", "d")
+    table.sort(Files)
+
+    Frame.ModelNameChoice:GetComponent("Choice"):set("Choices", Files)
+
+    for FileNum, FileName in ipairs(Files) do
+        Frame.ModelList[FileName] = FileName .. "/" .. FileName .. ".cmdl"
+
+        if (FileName == ci.GetValue("dlg_dmModelName")) then
+            -- set("Selection", ...) doesn't automatically trigger a call to OnSelectionChanged(), so it's done manually below.
+            Frame.ModelNameChoice:GetComponent("Choice"):set("Selection", FileNum)
+            Frame.ModelNameChoice:GetComponent("Choice"):OnSelectionChanged()
+        end
+    end
+
+    gui:setFocus(PlayerOptionsDialog)
+end
+
 
 
 PlayerOptionsDialog.Frame.ModelPreview.SequNr=0;
@@ -1039,12 +1035,12 @@ end
 
 
 function PlayerOptionsDialog.Frame.ModelPreview:OnChar(ch)
-    if (ch==string.byte("+") and self.SequNr<self:GetModelNrOfSqs()-1) then
-        self.SequNr=self.SequNr+1;
-        self:SetModelSequNr(self.SequNr);
-    elseif (ch==string.byte("-") and self.SequNr>0) then
-        self.SequNr=self.SequNr-1;
-        self:SetModelSequNr(self.SequNr);
+    if (ch == string.byte("+") and self.SequNr < self:GetComponent("Model"):GetNumAnims() - 1) then
+        self.SequNr = self.SequNr + 1
+        self:GetComponent("Model"):SetAnim(self.SequNr, 2.0)
+    elseif (ch == string.byte("-") and self.SequNr > 0) then
+        self.SequNr = self.SequNr - 1
+        self:GetComponent("Model"):SetAnim(self.SequNr, 2.0)
     end
 end
 
@@ -1105,6 +1101,38 @@ function VideoOptionsDialog:OnKeyPress(Key)
     end
 
     return false;                   -- Return false to indicate that we did not process this key press.
+end
+
+VideoOptionsDialog:GetBasics().OnShow = function (self)
+    -- If we were shown and are hidden now, do nothing.
+    if (not self:get("Show")) then return end
+
+    local Frame = VideoOptionsDialog.Frame    -- If components had a GetWindow() method, this would be Frame = self:GetWindow().Frame
+
+    -- Select the screen resolution that matches the one specified in the console variables.
+    local ModesComp = Frame.ScreenResChoice:GetComponent("Choice")
+
+    ModesComp:set("Selection", 1)   -- For safety, if the loop below fails for some reason.
+
+    for ModeNr, Mode in ipairs(ModesComp:get("Choices")) do
+        local width, height, bpp, rate = ParseModeStr(Mode);
+
+        if width==ci.GetValue("dlg_clWindowSizeX") and height==ci.GetValue("dlg_clWindowSizeY") then
+            -- The width and height match, select this mode.
+            ModesComp:set("Selection", ModeNr)
+
+            if bpp==ci.GetValue("dlg_clDisplayBPP") and rate==ci.GetValue("dlg_clDisplayRefresh") then
+                -- The color depth and refresh rate match, too - stop looking for a better match.
+                break;
+            end
+        end
+    end
+
+    -- "a and b or c" in Lua is equivalent to "a ? b : c" in C (at least almost, see PiL2 for details).
+    Frame.FullScreenChoice:GetComponent("Choice"):set("Selection", ci.GetValue("dlg_clFullScreen") and 1 or 2)
+    Frame.TextureDetailChoice:GetComponent("Choice"):set("Selection", ci.GetValue("dlg_clTextureDetail") + 1)
+
+    gui:setFocus(VideoOptionsDialog);
 end
 
 
@@ -1201,6 +1229,26 @@ function AudioOptionsDialog:OnKeyPress(Key)
     end
 
     return false;                   -- Return false to indicate that we did not process this key press.
+end
+
+AudioOptionsDialog:GetBasics().OnShow = function (self)
+    -- If we were shown and are hidden now, do nothing.
+    if (not self:get("Show")) then return end
+
+    local Vol = ci.GetValue("snd_InitialMasterVolume")
+
+    if (Vol < 0) then Vol = 0 end
+    if (Vol > 1) then Vol = 1 end
+
+    -- Convert the relative volume (float from 0...1) into the right number for our volume choice (int from 1 to 11).
+    Vol = math.ceil(Vol*10 + 0.5)
+
+    if (Vol <  1) then Vol =  1 end
+    if (Vol > 11) then Vol = 11 end
+
+    AudioOptionsDialog.Frame.VolumeChoice:GetComponent("Choice"):set("Selection", Vol)
+
+    gui:setFocus(AudioOptionsDialog);
 end
 
 

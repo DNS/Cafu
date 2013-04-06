@@ -1425,7 +1425,7 @@ function HostGameDialog.Frame.ListenSvChoice:OnInit()
 
     local c3 = gui:new("ComponentChoiceT")
     c3:set("Choices", { "no", "yes" })
-    c3:set("Selection", 1)
+    c3:set("Selection", 2)
 
     local c4 = gui:new("ComponentImageT")
     c4:set("Material", "")
