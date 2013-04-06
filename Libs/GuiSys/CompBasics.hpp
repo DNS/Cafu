@@ -68,7 +68,7 @@ namespace cf
 
             private:
 
-            /// A variable of type std::string, specifically for window names.
+            /// A variable of type `std::string`, specifically for window names.
             /// Window names must be valid Lua script identifiers and unique among their siblings.
             class WindowNameT : public TypeSys::VarT<std::string>
             {
@@ -86,12 +86,31 @@ namespace cf
                 ComponentBasicsT& m_CompBasics; ///< The parent ComponentBasicsT that contains this variable.
             };
 
+            /// A variable of type `bool`, indicating whether this window is currently shown or hidden.
+            /// Besides keeping the boolean flag, this variable calls the `OnShow()` script callback whenever its value changes.
+            class WindowShowT : public TypeSys::VarT<bool>
+            {
+                public:
+
+                WindowShowT(const char* Name, const bool& Value, const char* Flags[], ComponentBasicsT& CompBasics);
+                WindowShowT(const WindowShowT& Var, ComponentBasicsT& CompBasics);
+
+                // Base class overrides.
+                void Set(const bool& v);
+
+
+                private:
+
+                ComponentBasicsT& m_CompBasics; ///< The parent ComponentBasicsT that contains this variable.
+            };
+
+
             // The Lua API methods of this class.
             static const luaL_Reg MethodsList[];        ///< The list of Lua methods for this class.
             static int toString(lua_State* LuaState);   ///< Returns a string representation of this object.
 
-            WindowNameT         m_Name;     ///< The name of the window. Window names must be valid Lua script identifiers and unique among their siblings.
-            TypeSys::VarT<bool> m_Show;     ///< Is this window currently shown?
+            WindowNameT m_Name;   ///< The name of the window. Window names must be valid Lua script identifiers and unique among their siblings.
+            WindowShowT m_Show;   ///< Is this window currently shown?
         };
     }
 }

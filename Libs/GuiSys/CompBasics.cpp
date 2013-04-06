@@ -100,6 +100,40 @@ void ComponentBasicsT::WindowNameT::Set(const std::string& v)
 }
 
 
+/*************************************/
+/*** ComponentBasicsT::WindowShowT ***/
+/*************************************/
+
+ComponentBasicsT::WindowShowT::WindowShowT(const char* Name, const bool& Value, const char* Flags[], ComponentBasicsT& CompBasics)
+    : TypeSys::VarT<bool>(Name, Value, Flags),
+      m_CompBasics(CompBasics)
+{
+}
+
+
+// The compiler-written copy constructor would copy m_CompBasics from Var.m_CompBasics,
+// but we must obviously use the reference to the proper parent instance instead.
+ComponentBasicsT::WindowShowT::WindowShowT(const WindowShowT& Var, ComponentBasicsT& CompBasics)
+    : TypeSys::VarT<bool>(Var),
+      m_CompBasics(CompBasics)
+{
+}
+
+
+void ComponentBasicsT::WindowShowT::Set(const bool& v)
+{
+    // Make sure that m_CompBasics actually refers to the ComponentBasicsT instance that contains us!
+    assert(this == &m_CompBasics.m_Show);
+
+    if (v == Get()) return;
+
+    TypeSys::VarT<bool>::Set(v);
+
+    // Call `OnShow()` only after the new value has been set.
+    m_CompBasics.CallLuaMethod("OnShow");
+}
+
+
 /************************/
 /*** ComponentBasicsT ***/
 /************************/
@@ -121,7 +155,7 @@ const cf::TypeSys::TypeInfoT ComponentBasicsT::TypeInfo(GetComponentTIM(), "Comp
 ComponentBasicsT::ComponentBasicsT()
     : ComponentBaseT(),
       m_Name("Name", "Window", NULL, *this),
-      m_Show("Show", true)
+      m_Show("Show", true, NULL, *this)
 {
     GetMemberVars().Add(&m_Name);
     GetMemberVars().Add(&m_Show);
