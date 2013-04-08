@@ -45,6 +45,8 @@ class AppCaWE : public wxApp
 
     private:
 
+    void WriteLuaDoxygenHeaders() const;
+
     wxLocale*       m_Locale;
     wxCmdLineParser m_CmdLineParser;
     wxFileConfig*   m_FileConfig;

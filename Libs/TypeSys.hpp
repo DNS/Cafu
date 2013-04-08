@@ -157,12 +157,6 @@ namespace cf
          // const ArrayT<TypeInfoT*>& GetListByNr() const;      // Only call after Init().
             const ArrayT<const TypeInfoT*>& GetTypeInfoRoots() const { assert(IsInited); return TypeInfoRoots; }  // Only call after Init().
 
-            /// This is an auxiliary method for creating Lua scripting documentation for the registered classes.
-            /// Assuming that the classes registered with this type info manager provide methods for access from Lua scripts,
-            /// this method creates Doxygen input files ("fake headers") that documentation writers can complete to create
-            /// related reference documentation.
-            void CreateLuaDoxygenHeader(std::ostream& Out) const;
-
 
             private:
 

@@ -126,10 +126,7 @@ bool AppCaWE::OnInit()
 
     #ifndef NDEBUG
     {
-        std::ofstream OutFile("Doxygen/scripting/GuiWindows.tmpl");
-
-        if (OutFile.is_open())
-            cf::GuiSys::GetWindowTIM().CreateLuaDoxygenHeader(OutFile);
+        WriteLuaDoxygenHeaders();
     }
     #endif
 
@@ -302,4 +299,54 @@ int AppCaWE::OnExit()
     m_Locale=NULL;
 
     return wxApp::OnExit();
+}
+
+
+extern "C"
+{
+    #include <lua.h>
+    #include <lualib.h>
+    #include <lauxlib.h>
+}
+
+
+/// This is an auxiliary method for creating Lua scripting documentation for the registered classes.
+/// Assuming that the classes registered with this type info manager provide methods for access from Lua scripts,
+/// this method creates Doxygen input files ("fake headers") that documentation writers can complete to create
+/// related reference documentation.
+void AppCaWE::WriteLuaDoxygenHeaders() const
+{
+    std::ofstream Out("Doxygen/scripting/Gui/Windows.tmpl");
+
+    if (Out.is_open())
+    {
+        const ArrayT<const cf::TypeSys::TypeInfoT*>& TypeInfoRoots = cf::GuiSys::GetWindowTIM().GetTypeInfoRoots();
+
+        for (unsigned long RootNr = 0; RootNr < TypeInfoRoots.Size(); RootNr++)
+        {
+            for (const cf::TypeSys::TypeInfoT* TI = TypeInfoRoots[RootNr]; TI != NULL; TI = TI->GetNext())
+            {
+                Out << "\n\n";
+                Out << "/// @cppName{" << TI->ClassName << "}\n";
+                Out << "class " << TI->ClassName;
+                if (TI->Base) Out << " : public " << TI->BaseClassName;
+                Out << "\n";
+                Out << "{\n";
+                Out << "    public:\n";
+                Out << "\n";
+
+                if (TI->MethodsList)
+                {
+                    for (unsigned int MethodNr = 0; TI->MethodsList[MethodNr].name; MethodNr++)
+                    {
+                        if (strncmp(TI->MethodsList[MethodNr].name, "__", 2)==0) continue;
+
+                        Out << "    " << /*"void " <<*/ TI->MethodsList[MethodNr].name << "();\n";
+                    }
+                }
+
+                Out << "};\n";
+            }
+        }
+    }
 }
