@@ -316,7 +316,7 @@ extern "C"
 /// related reference documentation.
 void AppCaWE::WriteLuaDoxygenHeaders() const
 {
-    std::ofstream Out("Doxygen/scripting/Gui/Windows.tmpl");
+    std::ofstream Out("Doxygen/scripting/tmpl/GuiWindows.hpp");
 
     if (Out.is_open())
     {

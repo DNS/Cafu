@@ -120,7 +120,7 @@ static void CreateLuaDoxygenHeader(lua_State* LuaState, cf::GameSys::GameI* Game
     lua_pop(LuaState, 1);
 
 
-    std::ofstream Out("Doxygen/scripting/MapEntitiesDM.tmpl");
+    std::ofstream Out("Doxygen/scripting/tmpl/MapEntities.hpp");
 
     if (!Out.is_open()) return;
 

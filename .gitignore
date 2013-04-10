@@ -22,7 +22,7 @@
 
 Doxygen/cpp/out/*
 Doxygen/scripting/out/*
-Doxygen/scripting/*.tmpl
+Doxygen/scripting/tmpl/*.hpp
 
 /.sconf_temp
 /.sconsign.dblite
