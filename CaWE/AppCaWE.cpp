@@ -316,37 +316,48 @@ extern "C"
 /// related reference documentation.
 void AppCaWE::WriteLuaDoxygenHeaders() const
 {
-    std::ofstream Out("Doxygen/scripting/tmpl/GuiWindows.hpp");
-
-    if (Out.is_open())
+    // Write template file for the cf::GuiSyS::WindowT hierarchy.
     {
-        const ArrayT<const cf::TypeSys::TypeInfoT*>& TypeInfoRoots = cf::GuiSys::GetWindowTIM().GetTypeInfoRoots();
+        std::ofstream Out("Doxygen/scripting/tmpl/GuiWindows.hpp");
 
-        for (unsigned long RootNr = 0; RootNr < TypeInfoRoots.Size(); RootNr++)
+        if (Out.is_open())
         {
-            for (const cf::TypeSys::TypeInfoT* TI = TypeInfoRoots[RootNr]; TI != NULL; TI = TI->GetNext())
+            Out << "namespace GUI\n";
+            Out << "{\n";
+
+            const ArrayT<const cf::TypeSys::TypeInfoT*>& TypeInfoRoots = cf::GuiSys::GetWindowTIM().GetTypeInfoRoots();
+
+            for (unsigned long RootNr = 0; RootNr < TypeInfoRoots.Size(); RootNr++)
             {
-                Out << "\n\n";
-                Out << "/// @cppName{" << TI->ClassName << "}\n";
-                Out << "class " << TI->ClassName;
-                if (TI->Base) Out << " : public " << TI->BaseClassName;
-                Out << "\n";
-                Out << "{\n";
-                Out << "    public:\n";
-                Out << "\n";
-
-                if (TI->MethodsList)
+                for (const cf::TypeSys::TypeInfoT* TI = TypeInfoRoots[RootNr]; TI != NULL; TI = TI->GetNext())
                 {
-                    for (unsigned int MethodNr = 0; TI->MethodsList[MethodNr].name; MethodNr++)
+                    Out << "\n\n";
+                    Out << "/// @cppName{" << TI->ClassName << "}\n";
+                    Out << "class " << TI->ClassName;
+                    if (TI->Base) Out << " : public " << TI->BaseClassName;
+                    Out << "\n";
+                    Out << "{\n";
+
+                    Out << "    public:\n";
+                    Out << "\n";
+
+                    if (TI->MethodsList)
                     {
-                        if (strncmp(TI->MethodsList[MethodNr].name, "__", 2)==0) continue;
+                        for (unsigned int MethodNr = 0; TI->MethodsList[MethodNr].name; MethodNr++)
+                        {
+                            if (strncmp(TI->MethodsList[MethodNr].name, "__", 2) == 0) continue;
 
-                        Out << "    " << /*"void " <<*/ TI->MethodsList[MethodNr].name << "();\n";
+                            Out << "    " << /*"void " <<*/ TI->MethodsList[MethodNr].name << "();\n";
+                        }
                     }
-                }
 
-                Out << "};\n";
+                    Out << "};\n";
+                }
             }
+
+            Out << "\n";
+            Out << "\n";
+            Out << "}   // namespace GUI\n";
         }
     }
 }

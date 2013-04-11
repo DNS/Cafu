@@ -463,7 +463,10 @@ CASE_SENSE_NAMES       = YES
 # will show members with their full class and namespace scopes in the
 # documentation. If set to YES the scope will be hidden.
 
-HIDE_SCOPE_NAMES       = NO
+# For our scripting documentation, which not really has namespaces as in C++,
+# but only uses them for grouping, it is helpful to omit the namespace in many
+# cases. Changing this setting to YES achieves exactly that.
+HIDE_SCOPE_NAMES       = YES
 
 # If the SHOW_INCLUDE_FILES tag is set to YES (the default) then Doxygen
 # will put a list of the files that are included by a file in the documentation
@@ -587,7 +590,12 @@ SHOW_FILES             = NO
 # This will remove the Namespaces entry from the Quick Index
 # and from the Folder Tree View (if specified). The default is YES.
 
-SHOW_NAMESPACES        = YES
+# I set this to NO, because in the Folder Tree View, the "Classes" tree item
+# is hierarchically organized by namespaces already. If left at "YES", the
+# "Namespaces" tree item just duplicates the information, which in our simple
+# case seems to confuse users more than it is helpful.
+# Also see the somewhat related HIDE_SCOPE_NAMES setting.
+SHOW_NAMESPACES        = NO
 
 # The FILE_VERSION_FILTER tag can be used to specify a program or script that
 # doxygen should invoke to get the current version for each file (typically from

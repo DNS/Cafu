@@ -1,3 +1,7 @@
+namespace GUI
+{
+
+
 /**
  * This class represents the GUI that is defined in a <tt>.cgui</tt> script file as a whole.
  * It is quasi the top-level "desktop" object that contains all the windows that together form the user interface.
@@ -11,8 +15,6 @@
  *     -- The "gui" object is a predefined global variable.
  *     gui:showMouse(true)
  * @endcode
- *
- * @ingroup GUI
  */
 class GuiT
 {
@@ -173,3 +175,6 @@ class GuiT
     /// @param f   The function to be registered as a new Lua coroutine.
     thread(function f);
 };
+
+
+}   // namespace GUI

@@ -124,6 +124,9 @@ static void CreateLuaDoxygenHeader(lua_State* LuaState, cf::GameSys::GameI* Game
 
     if (!Out.is_open()) return;
 
+    Out << "namespace Map\n";
+    Out << "{\n";
+
     for (unsigned long RootNr=0; RootNr<Game->GetEntityTIM().GetTypeInfoRoots().Size(); RootNr++)
     {
         for (const cf::TypeSys::TypeInfoT* TI=Game->GetEntityTIM().GetTypeInfoRoots()[RootNr]; TI!=NULL; TI=TI->GetNext())
@@ -166,6 +169,10 @@ static void CreateLuaDoxygenHeader(lua_State* LuaState, cf::GameSys::GameI* Game
 
             Out << "};\n";
         }
+
+        Out << "\n";
+        Out << "\n";
+        Out << "}   // namespace Map\n";
     }
 #endif
 }
