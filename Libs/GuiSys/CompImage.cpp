@@ -141,8 +141,13 @@ void ComponentImageT::FillMemberVars()
 
 ComponentImageT::~ComponentImageT()
 {
-    MatSys::Renderer->FreeMaterial(m_MatInst);
-    m_MatInst = NULL;
+    // Applications can work with `ComponentImageT`s before having initialized
+    // the `MatSys::Renderer`, for example in `AppCaWE::WriteLuaDoxygenHeaders()`.
+    if (MatSys::Renderer)
+    {
+        MatSys::Renderer->FreeMaterial(m_MatInst);
+        m_MatInst = NULL;
+    }
 }
 
 
