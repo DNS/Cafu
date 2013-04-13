@@ -32,20 +32,6 @@ extern "C"
 using namespace cf::GuiSys;
 
 
-void* ComponentTransformT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
-{
-    return new ComponentTransformT();
-}
-
-const luaL_reg ComponentTransformT::MethodsList[] =
-{
-    { "__tostring", ComponentTransformT::toString },
-    { NULL, NULL }
-};
-
-const cf::TypeSys::TypeInfoT ComponentTransformT::TypeInfo(GetComponentTIM(), "ComponentTransformT", "ComponentBaseT", ComponentTransformT::CreateInstance, MethodsList);
-
-
 ComponentTransformT::ComponentTransformT()
     : ComponentBaseT(),
       m_Pos("Pos", Vector2fT(0.0f, 0.0f)),
@@ -84,3 +70,21 @@ int ComponentTransformT::toString(lua_State* LuaState)
     lua_pushfstring(LuaState, "transform component");
     return 1;
 }
+
+
+/***********************************/
+/*** TypeSys-related definitions ***/
+/***********************************/
+
+void* ComponentTransformT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
+{
+    return new ComponentTransformT();
+}
+
+const luaL_reg ComponentTransformT::MethodsList[] =
+{
+    { "__tostring", ComponentTransformT::toString },
+    { NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentTransformT::TypeInfo(GetComponentTIM(), "ComponentTransformT", "ComponentBaseT", ComponentTransformT::CreateInstance, MethodsList);

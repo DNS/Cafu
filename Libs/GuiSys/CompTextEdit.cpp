@@ -60,21 +60,6 @@ void ComponentTextEditT::VarCursorTypeT::GetChoices(ArrayT<std::string>& Strings
 /*** ComponentTextEditT ***/
 /**************************/
 
-void* ComponentTextEditT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
-{
-    return new ComponentTextEditT();
-}
-
-const luaL_reg ComponentTextEditT::MethodsList[] =
-{
-    { "SetText",    ComponentTextEditT::SetText },
-    { "__tostring", ComponentTextEditT::toString },
-    { NULL, NULL }
-};
-
-const cf::TypeSys::TypeInfoT ComponentTextEditT::TypeInfo(GetComponentTIM(), "ComponentTextEditT", "ComponentBaseT", ComponentTextEditT::CreateInstance, MethodsList);
-
-
 namespace
 {
     const char* FlagsIsColor[] = { "IsColor", NULL };
@@ -350,3 +335,22 @@ int ComponentTextEditT::toString(lua_State* LuaState)
     lua_pushfstring(LuaState, "text edit component");
     return 1;
 }
+
+
+/***********************************/
+/*** TypeSys-related definitions ***/
+/***********************************/
+
+void* ComponentTextEditT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
+{
+    return new ComponentTextEditT();
+}
+
+const luaL_reg ComponentTextEditT::MethodsList[] =
+{
+    { "SetText",    ComponentTextEditT::SetText },
+    { "__tostring", ComponentTextEditT::toString },
+    { NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentTextEditT::TypeInfo(GetComponentTIM(), "ComponentTextEditT", "ComponentBaseT", ComponentTextEditT::CreateInstance, MethodsList);

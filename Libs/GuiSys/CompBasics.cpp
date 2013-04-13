@@ -138,20 +138,6 @@ void ComponentBasicsT::WindowShowT::Set(const bool& v)
 /*** ComponentBasicsT ***/
 /************************/
 
-void* ComponentBasicsT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
-{
-    return new ComponentBasicsT();
-}
-
-const luaL_reg ComponentBasicsT::MethodsList[] =
-{
-    { "__tostring", ComponentBasicsT::toString },
-    { NULL, NULL }
-};
-
-const cf::TypeSys::TypeInfoT ComponentBasicsT::TypeInfo(GetComponentTIM(), "ComponentBasicsT", "ComponentBaseT", ComponentBasicsT::CreateInstance, MethodsList);
-
-
 ComponentBasicsT::ComponentBasicsT()
     : ComponentBaseT(),
       m_Name("Name", "Window", NULL, *this),
@@ -186,3 +172,21 @@ int ComponentBasicsT::toString(lua_State* LuaState)
     lua_pushfstring(LuaState, "window basics component");
     return 1;
 }
+
+
+/***********************************/
+/*** TypeSys-related definitions ***/
+/***********************************/
+
+void* ComponentBasicsT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
+{
+    return new ComponentBasicsT();
+}
+
+const luaL_reg ComponentBasicsT::MethodsList[] =
+{
+    { "__tostring", ComponentBasicsT::toString },
+    { NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentBasicsT::TypeInfo(GetComponentTIM(), "ComponentBasicsT", "ComponentBaseT", ComponentBasicsT::CreateInstance, MethodsList);

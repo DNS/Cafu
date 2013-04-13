@@ -192,20 +192,6 @@ void ComponentTextT::VarTextAlignVerT::GetChoices(ArrayT<std::string>& Strings, 
 /*** ComponentTextT ***/
 /**********************/
 
-void* ComponentTextT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
-{
-    return new ComponentTextT();
-}
-
-const luaL_reg ComponentTextT::MethodsList[] =
-{
-    { "__tostring", ComponentTextT::toString },
-    { NULL, NULL }
-};
-
-const cf::TypeSys::TypeInfoT ComponentTextT::TypeInfo(GetComponentTIM(), "ComponentTextT", "ComponentBaseT", ComponentTextT::CreateInstance, MethodsList);
-
-
 namespace
 {
     const char* FlagsIsLongString[] = { "IsLongString", NULL };
@@ -372,3 +358,21 @@ int ComponentTextT::toString(lua_State* LuaState)
     lua_pushfstring(LuaState, "text component");
     return 1;
 }
+
+
+/***********************************/
+/*** TypeSys-related definitions ***/
+/***********************************/
+
+void* ComponentTextT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
+{
+    return new ComponentTextT();
+}
+
+const luaL_reg ComponentTextT::MethodsList[] =
+{
+    { "__tostring", ComponentTextT::toString },
+    { NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentTextT::TypeInfo(GetComponentTIM(), "ComponentTextT", "ComponentBaseT", ComponentTextT::CreateInstance, MethodsList);

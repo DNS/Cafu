@@ -174,23 +174,6 @@ void ComponentModelT::VarModelSkinNrT::GetChoices(ArrayT<std::string>& Strings, 
 /*** ComponentModelT ***/
 /***********************/
 
-void* ComponentModelT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
-{
-    return new ComponentModelT();
-}
-
-const luaL_reg ComponentModelT::MethodsList[] =
-{
-    { "GetNumAnims", ComponentModelT::GetNumAnims },
-    { "SetAnim",     ComponentModelT::SetAnim },
-    { "GetNumSkins", ComponentModelT::GetNumSkins },
-    { "__tostring",  ComponentModelT::toString },
-    { NULL, NULL }
-};
-
-const cf::TypeSys::TypeInfoT ComponentModelT::TypeInfo(GetComponentTIM(), "ComponentModelT", "ComponentBaseT", ComponentModelT::CreateInstance, MethodsList);
-
-
 namespace
 {
     const char* FlagsIsModelFileName[] = { "IsModelFileName", NULL };
@@ -445,3 +428,24 @@ int ComponentModelT::toString(lua_State* LuaState)
     lua_pushfstring(LuaState, "model component");
     return 1;
 }
+
+
+/***********************************/
+/*** TypeSys-related definitions ***/
+/***********************************/
+
+void* ComponentModelT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
+{
+    return new ComponentModelT();
+}
+
+const luaL_reg ComponentModelT::MethodsList[] =
+{
+    { "GetNumAnims", ComponentModelT::GetNumAnims },
+    { "SetAnim",     ComponentModelT::SetAnim },
+    { "GetNumSkins", ComponentModelT::GetNumSkins },
+    { "__tostring",  ComponentModelT::toString },
+    { NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentModelT::TypeInfo(GetComponentTIM(), "ComponentModelT", "ComponentBaseT", ComponentModelT::CreateInstance, MethodsList);

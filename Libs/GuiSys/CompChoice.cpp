@@ -37,22 +37,6 @@ extern "C"
 using namespace cf::GuiSys;
 
 
-void* ComponentChoiceT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
-{
-    return new ComponentChoiceT();
-}
-
-const luaL_reg ComponentChoiceT::MethodsList[] =
-{
-    { "set",        ComponentChoiceT::Set },
-    { "GetSelItem", ComponentChoiceT::GetSelItem },
-    { "__tostring", ComponentChoiceT::toString },
-    { NULL, NULL }
-};
-
-const cf::TypeSys::TypeInfoT ComponentChoiceT::TypeInfo(GetComponentTIM(), "ComponentChoiceT", "ComponentBaseT", ComponentChoiceT::CreateInstance, MethodsList);
-
-
 ComponentChoiceT::ComponentChoiceT()
     : ComponentBaseT(),
       m_TextComp(NULL),
@@ -235,3 +219,23 @@ int ComponentChoiceT::toString(lua_State* LuaState)
     lua_pushfstring(LuaState, "choice component");
     return 1;
 }
+
+
+/***********************************/
+/*** TypeSys-related definitions ***/
+/***********************************/
+
+void* ComponentChoiceT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
+{
+    return new ComponentChoiceT();
+}
+
+const luaL_reg ComponentChoiceT::MethodsList[] =
+{
+    { "set",        ComponentChoiceT::Set },
+    { "GetSelItem", ComponentChoiceT::GetSelItem },
+    { "__tostring", ComponentChoiceT::toString },
+    { NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentChoiceT::TypeInfo(GetComponentTIM(), "ComponentChoiceT", "ComponentBaseT", ComponentChoiceT::CreateInstance, MethodsList);

@@ -50,21 +50,6 @@ using namespace cf::GuiSys;
 /*** ComponentListBoxT ***/
 /*************************/
 
-void* ComponentListBoxT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
-{
-    return new ComponentListBoxT();
-}
-
-const luaL_reg ComponentListBoxT::MethodsList[] =
-{
-    { "GetSelItem", ComponentListBoxT::GetSelItem },
-    { "__tostring", ComponentListBoxT::toString },
-    { NULL, NULL }
-};
-
-const cf::TypeSys::TypeInfoT ComponentListBoxT::TypeInfo(GetComponentTIM(), "ComponentListBoxT", "ComponentBaseT", ComponentListBoxT::CreateInstance, MethodsList);
-
-
 namespace
 {
     const char* FlagsIsColor[] = { "IsColor", NULL };
@@ -380,3 +365,22 @@ int ComponentListBoxT::toString(lua_State* LuaState)
     lua_pushfstring(LuaState, "list-box component");
     return 1;
 }
+
+
+/***********************************/
+/*** TypeSys-related definitions ***/
+/***********************************/
+
+void* ComponentListBoxT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
+{
+    return new ComponentListBoxT();
+}
+
+const luaL_reg ComponentListBoxT::MethodsList[] =
+{
+    { "GetSelItem", ComponentListBoxT::GetSelItem },
+    { "__tostring", ComponentListBoxT::toString },
+    { NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentListBoxT::TypeInfo(GetComponentTIM(), "ComponentListBoxT", "ComponentBaseT", ComponentListBoxT::CreateInstance, MethodsList);

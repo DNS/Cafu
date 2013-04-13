@@ -37,20 +37,6 @@ extern "C"
 using namespace cf::GuiSys;
 
 
-void* ComponentBorderT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
-{
-    return new ComponentBorderT();
-}
-
-const luaL_reg ComponentBorderT::MethodsList[] =
-{
-    { "__tostring", ComponentBorderT::toString },
-    { NULL, NULL }
-};
-
-const cf::TypeSys::TypeInfoT ComponentBorderT::TypeInfo(GetComponentTIM(), "ComponentBorderT", "ComponentBaseT", ComponentBorderT::CreateInstance, MethodsList);
-
-
 namespace
 {
     const char* FlagsIsColor[] = { "IsColor", NULL };
@@ -154,3 +140,21 @@ int ComponentBorderT::toString(lua_State* LuaState)
     lua_pushfstring(LuaState, "border component");
     return 1;
 }
+
+
+/***********************************/
+/*** TypeSys-related definitions ***/
+/***********************************/
+
+void* ComponentBorderT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
+{
+    return new ComponentBorderT();
+}
+
+const luaL_reg ComponentBorderT::MethodsList[] =
+{
+    { "__tostring", ComponentBorderT::toString },
+    { NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentBorderT::TypeInfo(GetComponentTIM(), "ComponentBorderT", "ComponentBaseT", ComponentBorderT::CreateInstance, MethodsList);

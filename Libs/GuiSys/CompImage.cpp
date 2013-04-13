@@ -85,20 +85,6 @@ void ComponentImageT::VarMatNameT::Set(const std::string& v)
 /*** ComponentImageT ***/
 /***********************/
 
-void* ComponentImageT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
-{
-    return new ComponentImageT();
-}
-
-const luaL_reg ComponentImageT::MethodsList[] =
-{
-    { "__tostring", ComponentImageT::toString },
-    { NULL, NULL }
-};
-
-const cf::TypeSys::TypeInfoT ComponentImageT::TypeInfo(GetComponentTIM(), "ComponentImageT", "ComponentBaseT", ComponentImageT::CreateInstance, MethodsList);
-
-
 namespace
 {
     const char* FlagsIsColor[] = { "IsColor", NULL };
@@ -233,3 +219,21 @@ int ComponentImageT::toString(lua_State* LuaState)
     lua_pushfstring(LuaState, "image component");
     return 1;
 }
+
+
+/***********************************/
+/*** TypeSys-related definitions ***/
+/***********************************/
+
+void* ComponentImageT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
+{
+    return new ComponentImageT();
+}
+
+const luaL_reg ComponentImageT::MethodsList[] =
+{
+    { "__tostring", ComponentImageT::toString },
+    { NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentImageT::TypeInfo(GetComponentTIM(), "ComponentImageT", "ComponentBaseT", ComponentImageT::CreateInstance, MethodsList);

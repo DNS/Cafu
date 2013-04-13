@@ -52,35 +52,6 @@ cf::TypeSys::TypeInfoManT& cf::GuiSys::GetWindowTIM()
 }
 
 
-/*** Begin of TypeSys related definitions for this class. ***/
-
-void* WindowT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
-{
-    return new WindowT(*static_cast<const cf::GuiSys::WindowCreateParamsT*>(&Params));
-}
-
-const luaL_reg WindowT::MethodsList[]=
-{
-    { "AddChild",        WindowT::AddChild },
-    { "RemoveChild",     WindowT::RemoveChild },
-    { "GetParent",       WindowT::GetParent },
-    { "GetChildren",     WindowT::GetChildren },
-    { "GetTime",         WindowT::GetTime },
-    { "GetBasics",       WindowT::GetBasics },
-    { "GetTransform",    WindowT::GetTransform },
-    { "AddComponent",    WindowT::AddComponent },
-    { "RemoveComponent", WindowT::RmvComponent },
-    { "GetComponents",   WindowT::GetComponents },
-    { "GetComponent",    WindowT::GetComponent },
-    { "__tostring",      WindowT::toString },
-    { NULL, NULL }
-};
-
-const cf::TypeSys::TypeInfoT WindowT::TypeInfo(GetWindowTIM(), "WindowT", NULL /*No base class.*/, WindowT::CreateInstance, MethodsList);
-
-/*** End of TypeSys related definitions for this class. ***/
-
-
 WindowT::WindowT(const WindowCreateParamsT& Params)
     : m_Gui(Params.Gui),
       m_Parent(NULL),
@@ -670,3 +641,32 @@ int WindowT::toString(lua_State* LuaState)
     lua_pushfstring(LuaState, "A gui window with name \"%s\".", Win->GetBasics()->GetWindowName().c_str());
     return 1;
 }
+
+
+/***********************************/
+/*** TypeSys-related definitions ***/
+/***********************************/
+
+void* WindowT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
+{
+    return new WindowT(*static_cast<const cf::GuiSys::WindowCreateParamsT*>(&Params));
+}
+
+const luaL_reg WindowT::MethodsList[]=
+{
+    { "AddChild",        WindowT::AddChild },
+    { "RemoveChild",     WindowT::RemoveChild },
+    { "GetParent",       WindowT::GetParent },
+    { "GetChildren",     WindowT::GetChildren },
+    { "GetTime",         WindowT::GetTime },
+    { "GetBasics",       WindowT::GetBasics },
+    { "GetTransform",    WindowT::GetTransform },
+    { "AddComponent",    WindowT::AddComponent },
+    { "RemoveComponent", WindowT::RmvComponent },
+    { "GetComponents",   WindowT::GetComponents },
+    { "GetComponent",    WindowT::GetComponent },
+    { "__tostring",      WindowT::toString },
+    { NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT WindowT::TypeInfo(GetWindowTIM(), "WindowT", NULL /*No base class.*/, WindowT::CreateInstance, MethodsList);

@@ -36,24 +36,6 @@ extern "C"
 using namespace cf::GuiSys;
 
 
-void* ComponentBaseT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
-{
-    return new ComponentBaseT();
-}
-
-const luaL_reg ComponentBaseT::MethodsList[] =
-{
-    { "get",             ComponentBaseT::Get },
-    { "set",             ComponentBaseT::Set },
-    { "GetExtraMessage", ComponentBaseT::GetExtraMessage },
-    { "interpolate",     ComponentBaseT::Interpolate },
-    { "__tostring",      ComponentBaseT::toString },
-    { NULL, NULL }
-};
-
-const cf::TypeSys::TypeInfoT ComponentBaseT::TypeInfo(GetComponentTIM(), "ComponentBaseT", NULL /*No base class.*/, ComponentBaseT::CreateInstance, MethodsList);
-
-
 ComponentBaseT::ComponentBaseT()
     : m_Window(NULL),
       m_MemberVars()
@@ -292,3 +274,25 @@ int ComponentBaseT::toString(lua_State* LuaState)
     lua_pushfstring(LuaState, "base component");
     return 1;
 }
+
+
+/***********************************/
+/*** TypeSys-related definitions ***/
+/***********************************/
+
+void* ComponentBaseT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
+{
+    return new ComponentBaseT();
+}
+
+const luaL_reg ComponentBaseT::MethodsList[] =
+{
+    { "get",             ComponentBaseT::Get },
+    { "set",             ComponentBaseT::Set },
+    { "GetExtraMessage", ComponentBaseT::GetExtraMessage },
+    { "interpolate",     ComponentBaseT::Interpolate },
+    { "__tostring",      ComponentBaseT::toString },
+    { NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentBaseT::TypeInfo(GetComponentTIM(), "ComponentBaseT", NULL /*No base class.*/, ComponentBaseT::CreateInstance, MethodsList);
