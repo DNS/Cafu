@@ -310,6 +310,198 @@ extern "C"
 }
 
 
+namespace
+{
+    class VarVisitorGetLuaTypeStringT : public cf::TypeSys::VisitorConstT
+    {
+        public:
+
+        VarVisitorGetLuaTypeStringT() { }
+
+        const std::string& GetCppType() const { return m_CppType; }
+        const std::string& GetLuaType() const { return m_LuaType; }
+        const std::string& GetChoices() const { return m_Choices; }
+
+        void visit(const cf::TypeSys::VarT<float>& Var)                 { m_CppType = "float";               m_LuaType = "number";  m_Choices = GetChoicesString(Var); }
+        void visit(const cf::TypeSys::VarT<double>& Var)                { m_CppType = "double";              m_LuaType = "number";  m_Choices = GetChoicesString(Var); }
+        void visit(const cf::TypeSys::VarT<int>& Var)                   { m_CppType = "int";                 m_LuaType = "number";  m_Choices = GetChoicesString(Var); }
+        void visit(const cf::TypeSys::VarT<unsigned int>& Var)          { m_CppType = "unsigned int";        m_LuaType = "number";  m_Choices = GetChoicesString(Var); }
+        void visit(const cf::TypeSys::VarT<bool>& Var)                  { m_CppType = "bool";                m_LuaType = "boolean"; m_Choices = GetChoicesString(Var); }
+        void visit(const cf::TypeSys::VarT<std::string>& Var)           { m_CppType = "std::string";         m_LuaType = "string";  m_Choices = GetChoicesString(Var); }
+        void visit(const cf::TypeSys::VarT<Vector2fT>& Var)             { m_CppType = "Vector2fT";           m_LuaType = "tuple";   m_Choices = GetChoicesString(Var); }
+        void visit(const cf::TypeSys::VarT<Vector3fT>& Var)             { m_CppType = "Vector3fT";           m_LuaType = "tuple";   m_Choices = GetChoicesString(Var); }
+        void visit(const cf::TypeSys::VarT< ArrayT<std::string> >& Var) { m_CppType = "ArrayT<std::string>"; m_LuaType = "table";   m_Choices = GetChoicesString(Var); }
+
+
+        private:
+
+        template<class T> static std::string GetChoicesString(const cf::TypeSys::VarT<T>& Var)
+        {
+            std::ostringstream  out;
+            ArrayT<std::string> Strings;
+            ArrayT<T>           Values;
+
+            Var.GetChoices(Strings, Values);
+
+            for (unsigned int i = 0; i < Strings.Size(); i++)
+            {
+                out << "<tr>";
+                out << "<td>" << Values[i]  << "</td>";
+                out << "<td>" << Strings[i] << "</td>";
+                out << "</tr>";
+                if (i+1 < Strings.Size()) out << "\n";
+            }
+
+            return out.str();
+        }
+
+        template<> static std::string GetChoicesString(const cf::TypeSys::VarT< ArrayT<std::string> >& Var)
+        {
+            // We have no operator << that could take entire ArrayT<std::string> as input,
+            // so just specialize in order to ignore this case at this time.
+            return "";
+        }
+
+        std::string m_CppType;
+        std::string m_LuaType;
+        std::string m_Choices;
+    };
+
+
+    wxString FormatDoxyComment(const char* s, const char* Indent)
+    {
+        if (s && s[0])
+        {
+            // std::string d = DocMethods[MethodNr].Doc;
+            // d = cf::String::Replace(d, "\n", std::string("\n") + Indent + "/// ");
+
+            wxString d = s;
+            d.Replace("\n", wxString("\n") + Indent + "/// ");
+
+            // First line must be indented and commented, too.
+            d = wxString(Indent) + "/// " + d;
+
+            // Last line must be followed by newline.
+            d = d + "\n";
+
+            // Remove trailing whitespace.
+            d.Replace(" \n", "\n");
+
+            return d;
+        }
+
+        return "";
+    }
+
+
+    void WriteDoxyMethods(std::ofstream& Out, const cf::TypeSys::TypeInfoT* TI)
+    {
+        if (!TI->MethodsList) return;
+
+        const cf::TypeSys::MethsDocT* DocMethods = TI->DocMethods;
+
+        Out << "    public:\n";
+
+        for (unsigned int MethodNr = 0; TI->MethodsList[MethodNr].name; MethodNr++)
+        {
+            const char* MethName = TI->MethodsList[MethodNr].name;
+
+            if (strncmp(MethName, "__", 2) == 0) continue;
+
+            Out << "\n";
+
+            if (!DocMethods)
+            {
+                Out << "    // WARNING: No method documentation strings for this class!\n";
+                Out << "    " << MethName << "();\n";
+
+                continue;
+            }
+
+            if (!DocMethods[MethodNr].Name)
+            {
+                Out << "    // WARNING: Unexpected end of method documentation strings encountered!\n";
+                Out << "    " << MethName << "();\n";
+
+                DocMethods = NULL;
+                continue;
+            }
+
+            if (strcmp(MethName, DocMethods[MethodNr].Name) != 0)
+            {
+                Out << "    // WARNING: Mismatching method documentation strings encountered!\n";
+                Out << "    " << MethName << "();\n";
+
+                DocMethods = NULL;
+                continue;
+            }
+
+            Out << FormatDoxyComment(DocMethods[MethodNr].Doc, "    ");
+            Out << "    ";
+            if (DocMethods[MethodNr].ReturnType && DocMethods[MethodNr].ReturnType[0]) Out << DocMethods[MethodNr].ReturnType << " ";
+            Out << MethName;
+            if (DocMethods[MethodNr].Parameters && DocMethods[MethodNr].Parameters[0])
+            {
+                Out << DocMethods[MethodNr].Parameters;
+            }
+            else
+            {
+                Out << "()";
+            }
+            Out << ";\n";
+        }
+    }
+
+
+    void WriteDoxyVars(std::ofstream& Out, const cf::TypeSys::VarManT& VarMan, const cf::TypeSys::TypeInfoT* TI=NULL)
+    {
+        const ArrayT<cf::TypeSys::VarBaseT*>& Vars    = VarMan.GetArray();
+        const cf::TypeSys::VarsDocT*          DocVars = TI->DocVars;
+
+        // Note that the Vars are the driving data structure, not the DocVars.
+        if (Vars.Size() == 0) return;
+
+        VarVisitorGetLuaTypeStringT Visitor;
+
+        if (TI->MethodsList) Out << "\n\n";
+        Out << "    public:\n";
+
+        for (unsigned int VarNr = 0; VarNr < Vars.Size(); VarNr++)
+        {
+            const cf::TypeSys::VarBaseT& Var = *Vars[VarNr];
+
+            Var.accept(Visitor);
+
+            Out << "\n";
+
+            if (DocVars && DocVars[VarNr].Name && strcmp(Var.GetName(), DocVars[VarNr].Name) == 0)
+            {
+                Out << FormatDoxyComment(DocVars[VarNr].Doc, "    ");
+            }
+            else
+            {
+                Out << "    // WARNING: No, mismatching or incomplete variables documentation strings for this class!\n";
+                DocVars = NULL;
+            }
+
+            if (Visitor.GetChoices() != "")
+            {
+                Out << "    ///\n";
+                Out << "    /// @par Typical values:\n";
+                Out << "    /// <table>\n";
+                Out << "    /// <tr><th>Value</th><th>Description</th></tr>\n";
+                Out << FormatDoxyComment(Visitor.GetChoices().c_str(), "    ");
+                Out << "    /// </table>\n";
+                Out << "    ///\n";
+            }
+
+            Out << "    " << "/// @cppType{" << Visitor.GetCppType() << "}\n";
+            Out << "    " << Visitor.GetLuaType() << " " << Var.GetName() << ";\n";
+        }
+    }
+}
+
+
 /// This is an auxiliary method for creating Lua scripting documentation for the registered classes.
 /// Assuming that the classes registered with this type info manager provide methods for access from Lua scripts,
 /// this method creates Doxygen input files ("fake headers") that documentation writers can complete to create
@@ -325,34 +517,94 @@ void AppCaWE::WriteLuaDoxygenHeaders() const
             Out << "namespace GUI\n";
             Out << "{\n";
 
-            const ArrayT<const cf::TypeSys::TypeInfoT*>& TypeInfoRoots = cf::GuiSys::GetWindowTIM().GetTypeInfoRoots();
+            const ArrayT<const cf::TypeSys::TypeInfoT*>& TIs = cf::GuiSys::GetWindowTIM().GetTypeInfosByName();
 
-            for (unsigned long RootNr = 0; RootNr < TypeInfoRoots.Size(); RootNr++)
+            for (unsigned int TypeNr = 0; TypeNr < TIs.Size(); TypeNr++)
             {
-                for (const cf::TypeSys::TypeInfoT* TI = TypeInfoRoots[RootNr]; TI != NULL; TI = TI->GetNext())
-                {
-                    Out << "\n\n";
-                    Out << "/// @cppName{" << TI->ClassName << "}\n";
-                    Out << "class " << TI->ClassName;
-                    if (TI->Base) Out << " : public " << TI->BaseClassName;
-                    Out << "\n";
-                    Out << "{\n";
+                const cf::TypeSys::TypeInfoT* TI = TIs[TypeNr];
 
-                    Out << "    public:\n";
-                    Out << "\n";
+                Out << "\n\n";
+                Out << FormatDoxyComment(TI->DocClass, "");
 
-                    if (TI->MethodsList)
-                    {
-                        for (unsigned int MethodNr = 0; TI->MethodsList[MethodNr].name; MethodNr++)
-                        {
-                            if (strncmp(TI->MethodsList[MethodNr].name, "__", 2) == 0) continue;
+                const std::string InfoNew = std::string(
+                    "\n"
+                    "If you would like to create a new window explicitly "
+                    "(those defined in the CaWE %GUI Editor are instantiated automatically),"   // Don't auto-link "GUI".
+                    "use GuiT::new():\n"
+                    "\\code{.lua}\n"
+                    "    local win = gui:new(\"") + TI->ClassName + std::string("\", \"my_window\")\n"
+                    "\\endcode\n");
 
-                            Out << "    " << /*"void " <<*/ TI->MethodsList[MethodNr].name << "();\n";
-                        }
-                    }
+                Out << FormatDoxyComment(InfoNew.c_str(), "");
 
-                    Out << "};\n";
-                }
+                Out << "/// @cppName{" << TI->ClassName << "}\n";
+                Out << "class " << TI->ClassName;
+                if (TI->Base) Out << " : public " << TI->BaseClassName;
+                Out << "\n";
+                Out << "{\n";
+
+                WriteDoxyMethods(Out, TI);
+
+                Out << "};\n";
+            }
+
+            Out << "\n";
+            Out << "\n";
+            Out << "}   // namespace GUI\n";
+        }
+    }
+
+    // Write template file for the cf::GuiSyS::ComponentBaseT hierarchy.
+    {
+        std::ofstream Out("Doxygen/scripting/tmpl/GuiComponents.hpp");
+
+        if (Out.is_open())
+        {
+            Out << "namespace GUI\n";
+            Out << "{\n";
+
+            const ArrayT<const cf::TypeSys::TypeInfoT*>& TIs = cf::GuiSys::GetComponentTIM().GetTypeInfosByName();
+
+            for (unsigned int TypeNr = 0; TypeNr < TIs.Size(); TypeNr++)
+            {
+                const cf::TypeSys::TypeInfoT* TI = TIs[TypeNr];
+
+                // Skip the CaWE implementation-specific component.
+                if (strcmp(TI->ClassName, "ComponentSelectionT") == 0)
+                    continue;
+
+                Out << "\n\n";
+                Out << FormatDoxyComment(TI->DocClass, "");
+
+                const std::string InfoNew = std::string(
+                    "\n"
+                    "If you would like to create a new component of this type explicitly "
+                    "(those defined in the CaWE %GUI Editor are instantiated automatically),"   // Don't auto-link "GUI".
+                    "use GuiT::new():\n"
+                    "\\code{.lua}\n"
+                    "    local comp = gui:new(\"") + TI->ClassName + std::string("\")\n"
+                    "\\endcode\n");
+
+                Out << FormatDoxyComment(InfoNew.c_str(), "");
+
+                Out << "/// @cppName{" << TI->ClassName << "}\n";
+                Out << "class " << TI->ClassName;
+                if (TI->Base) Out << " : public " << TI->BaseClassName;
+                Out << "\n";
+                Out << "{\n";
+
+                WriteDoxyMethods(Out, TI);
+
+                // Write variables.
+                IntrusivePtrT<cf::GuiSys::ComponentBaseT> Comp = static_cast<cf::GuiSys::ComponentBaseT*>(
+                    TI->CreateInstance(
+                        cf::TypeSys::CreateParamsT()));
+
+                cf::TypeSys::VarManT& VarMan = Comp->GetMemberVars();
+
+                WriteDoxyVars(Out, VarMan, TI);
+
+                Out << "};\n"; Out.flush();
             }
 
             Out << "\n";
