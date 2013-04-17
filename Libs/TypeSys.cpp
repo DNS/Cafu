@@ -33,7 +33,8 @@ using namespace cf::TypeSys;
 /*** TypeInfoT ***/
 /*****************/
 
-TypeInfoT::TypeInfoT(TypeInfoManT& TIM, const char* ClassName_, const char* BaseClassName_, CreateInstanceT CreateInstance_, const luaL_Reg MethodsList_[])
+TypeInfoT::TypeInfoT(TypeInfoManT& TIM, const char* ClassName_, const char* BaseClassName_, CreateInstanceT CreateInstance_, const luaL_Reg MethodsList_[],
+                     const char* DocClass_, const MethsDocT DocMethods_[], const VarsDocT DocVars_[])
     : ClassName(ClassName_),
       BaseClassName(BaseClassName_),
       CreateInstance(CreateInstance_),
@@ -42,7 +43,10 @@ TypeInfoT::TypeInfoT(TypeInfoManT& TIM, const char* ClassName_, const char* Base
       Sibling(NULL),
       Child(NULL),
       TypeNr(0),
-      LastChildNr(0)
+      LastChildNr(0),
+      DocClass(DocClass_),
+      DocMethods(DocMethods_),
+      DocVars(DocVars_)
 {
     assert(ClassName_!=NULL);                               // Is not NULL.
     assert(ClassName_[0]!=0);                               // Is not the empty string ("").

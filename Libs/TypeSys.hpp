@@ -70,6 +70,26 @@ namespace cf
         };
 
 
+        class MethsDocT
+        {
+            public:
+
+            const char* Name;
+            const char* Doc;
+            const char* ReturnType;
+            const char* Parameters;
+        };
+
+
+        class VarsDocT
+        {
+            public:
+
+            const char* Name;
+            const char* Doc;
+        };
+
+
         /// This class keeps type information (about an entity class that occurs in the game).
         /// (Supports single, but not multiple inheritance.)
         class TypeInfoT
@@ -86,7 +106,8 @@ namespace cf
 
             /// The constructor.
             /// This is supposed to be called only by the static TypeInfoT member of each entity class.
-            TypeInfoT(TypeInfoManT& TIM, const char* ClassName_, const char* BaseClassName_, CreateInstanceT CreateInstance_, const luaL_Reg MethodsList_[]);
+            TypeInfoT(TypeInfoManT& TIM, const char* ClassName_, const char* BaseClassName_, CreateInstanceT CreateInstance_, const luaL_Reg MethodsList_[],
+                      const char* DocClass_=NULL, const MethsDocT DocMethods_[]=NULL, const VarsDocT DocVars_[]=NULL);
 
             /// Prints the contents of this node to the console.
             /// @param Recurse    Whether the children (derived classes) of this node should be printed.
@@ -111,6 +132,14 @@ namespace cf
             const TypeInfoT* Child;             ///< The type info for the first child class.
             unsigned long    TypeNr;            ///< The unique and "robust" number of this type, obtained by enumerating the hierarchy nodes in depth-first order.
             unsigned long    LastChildNr;       ///< The highest TypeNr in the subhierarchy of this type. Depth-first enumeration guarantees that for all type numbers T in this subhierarchy, TypeNr<=T<=LastChildNr holds.
+
+            // The next three members provide documentation about the class that this TypeInfoT is about.
+            // They are intended to provide the user with live help in CaWE (e.g. as tool-tips), with live
+            // help in scripts (e.g. `window:help()`), and to automatically generate "fake" header files
+            // that are processed by Doxygen in order to create online scripting reference documentation.
+            const char*      DocClass;          ///< Documentation for this class.
+            const MethsDocT* DocMethods;        ///< Documentation for the Lua methods in MethodsList.
+            const VarsDocT*  DocVars;           ///< Documentation for the variables in this class. (Used in classes that have `cf::TypeSys::VarT<>` instances.)
 
 
             private:
