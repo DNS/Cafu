@@ -153,9 +153,15 @@ namespace cf
             /// @returns the (pointer to the) TypeInfoT T, so that T->TypeNr==TypeNr.
             const TypeInfoT* FindTypeInfoByNr(unsigned long TypeNr) const;
 
-         // const ArrayT<TypeInfoT*>& GetListByName() const;    // Only call after Init().
-         // const ArrayT<TypeInfoT*>& GetListByNr() const;      // Only call after Init().
-            const ArrayT<const TypeInfoT*>& GetTypeInfoRoots() const { assert(IsInited); return TypeInfoRoots; }  // Only call after Init().
+            /// Returns all type infos registered with this TypeInfoManT, ordered by name.
+            const ArrayT<const TypeInfoT*>& GetTypeInfosByName() const { assert(IsInited); return TypeInfosByName; }
+
+            /// Returns all type infos registered with this TypeInfoManT, ordered by type number.
+            /// `GetTypeInfosByNr()[i]->TypeNr == i`
+            const ArrayT<const TypeInfoT*>& GetTypeInfosByNr() const { assert(IsInited); return TypeInfosByNr; }
+
+            /// Returns the roots of the inheritance trees. (Normally there should only be one root.)
+            const ArrayT<const TypeInfoT*>& GetTypeInfoRoots() const { assert(IsInited); return TypeInfoRoots; }
 
 
             private:
