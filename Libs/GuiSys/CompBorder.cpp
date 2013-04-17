@@ -43,6 +43,19 @@ namespace
 }
 
 
+const char* ComponentBorderT::DocClass =
+    "This components adds a border to its window.";
+
+
+const cf::TypeSys::VarsDocT ComponentBorderT::DocVars[] =
+{
+    { "Width", "The width of the border." },
+    { "Color", "The border color." },
+    { "Alpha", "The alpha component of the color." },
+    { NULL, NULL }
+};
+
+
 ComponentBorderT::ComponentBorderT()
     : ComponentBaseT(),
       m_Width("Width", 0.0f),
@@ -132,6 +145,13 @@ void ComponentBorderT::Render() const
 }
 
 
+static const cf::TypeSys::MethsDocT META_toString =
+{
+    "__toString",
+    "This method returns a readable string representation of this object.",
+    "string", "()"
+};
+
 int ComponentBorderT::toString(lua_State* LuaState)
 {
     // ScriptBinderT Binder(LuaState);
@@ -157,4 +177,10 @@ const luaL_reg ComponentBorderT::MethodsList[] =
     { NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentBorderT::TypeInfo(GetComponentTIM(), "ComponentBorderT", "ComponentBaseT", ComponentBorderT::CreateInstance, MethodsList);
+const cf::TypeSys::MethsDocT ComponentBorderT::DocMethods[] =
+{
+    META_toString,
+    { NULL, NULL, NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentBorderT::TypeInfo(GetComponentTIM(), "ComponentBorderT", "ComponentBaseT", ComponentBorderT::CreateInstance, MethodsList, DocClass, DocMethods, DocVars);

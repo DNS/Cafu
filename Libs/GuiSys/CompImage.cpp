@@ -92,6 +92,19 @@ namespace
 }
 
 
+const char* ComponentImageT::DocClass =
+    "This component adds an image to its window.";
+
+
+const cf::TypeSys::VarsDocT ComponentImageT::DocVars[] =
+{
+    { "Material", "The name of the image material." },
+    { "Color",    "The color with which the image is tinted." },
+    { "Alpha",    "The alpha component of the color." },
+    { NULL, NULL }
+};
+
+
 ComponentImageT::ComponentImageT()
     : ComponentBaseT(),
       m_MatName("Material", "", FlagsIsMaterial, *this),
@@ -211,6 +224,13 @@ void ComponentImageT::Render() const
 }
 
 
+static const cf::TypeSys::MethsDocT META_toString =
+{
+    "__toString",
+    "This method returns a readable string representation of this object.",
+    "string", "()"
+};
+
 int ComponentImageT::toString(lua_State* LuaState)
 {
     // ScriptBinderT Binder(LuaState);
@@ -236,4 +256,10 @@ const luaL_reg ComponentImageT::MethodsList[] =
     { NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentImageT::TypeInfo(GetComponentTIM(), "ComponentImageT", "ComponentBaseT", ComponentImageT::CreateInstance, MethodsList);
+const cf::TypeSys::MethsDocT ComponentImageT::DocMethods[] =
+{
+    META_toString,
+    { NULL, NULL, NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentImageT::TypeInfo(GetComponentTIM(), "ComponentImageT", "ComponentBaseT", ComponentImageT::CreateInstance, MethodsList, DocClass, DocMethods, DocVars);

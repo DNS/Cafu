@@ -113,6 +113,17 @@ namespace cf
             static const cf::TypeSys::TypeInfoT TypeInfo;
 
 
+            protected:
+
+            // The Lua API methods of this class.
+            static int toString(lua_State* LuaState);
+
+            static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.
+            static const char*                  DocClass;
+            static const cf::TypeSys::MethsDocT DocMethods[];
+            static const cf::TypeSys::VarsDocT  DocVars[];
+
+
             private:
 
             friend class ComponentListBoxT;
@@ -120,19 +131,15 @@ namespace cf
 
             void FillMemberVars();      ///< A helper method for the constructors.
 
-            // The Lua API methods of this class.
-            static const luaL_Reg MethodsList[];        ///< The list of Lua methods for this class.
-            static int toString(lua_State* LuaState);   ///< Returns a string representation of this object.
-
-            TypeSys::VarT<std::string> m_Text;          ///< The text to show inside this window.
-            VarFontNameT               m_FontName;      ///< The name of the font.
-            TrueTypeFontT*             m_FontInst;      ///< The font instance used to render text in this window.
-            TypeSys::VarT<float>       m_Scale;         ///< Scale of this windows text.
-            TypeSys::VarT<Vector2fT>   m_Padding;       ///< Padding between text and window rectangle.
-            TypeSys::VarT<Vector3fT>   m_Color;         ///< The text color.
-            TypeSys::VarT<float>       m_Alpha;         ///< The alpha component of the color.
-            VarTextAlignHorT           m_AlignHor;      ///< How the text is aligned horizontally (left, right, centered, block).
-            VarTextAlignVerT           m_AlignVer;      ///< How the text is aligned vertically (top, middle, bottom).
+            TypeSys::VarT<std::string> m_Text;      ///< The text to show in this window.
+            VarFontNameT               m_FontName;  ///< The name of the font.
+            TrueTypeFontT*             m_FontInst;  ///< The font instance used to render text in this window.
+            TypeSys::VarT<float>       m_Scale;     ///< The scale that is applied for rendering the text.
+            TypeSys::VarT<Vector2fT>   m_Padding;   ///< Padding between text and window rectangle.
+            TypeSys::VarT<Vector3fT>   m_Color;     ///< The text color.
+            TypeSys::VarT<float>       m_Alpha;     ///< The alpha component of the color.
+            VarTextAlignHorT           m_AlignHor;  ///< How the text is aligned horizontally (left, center, right).
+            VarTextAlignVerT           m_AlignVer;  ///< How the text is aligned vertically (top, middle, bottom).
         };
     }
 }

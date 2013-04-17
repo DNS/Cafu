@@ -31,6 +31,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 namespace cf { namespace TypeSys { class TypeInfoT; } }
 namespace cf { namespace TypeSys { class CreateParamsT; } }
+namespace cf { namespace TypeSys { class MethsDocT; } }
+namespace cf { namespace TypeSys { class VarsDocT; } }
 
 struct CaKeyboardEventT;
 struct CaMouseEventT;
@@ -154,12 +156,15 @@ namespace cf
             protected:
 
             // The Lua API methods of this class.
-            static const luaL_Reg MethodsList[];              ///< The list of Lua methods for this class.
-            static int Get(lua_State* LuaState);              ///< Gets a member variable of this class.
-            static int Set(lua_State* LuaState);              ///< Sets a member variable of this class.
-            static int GetExtraMessage(lua_State* LuaState);  ///< Returns the result of VarBaseT::GetExtraMessage() for the given member variable.
-            static int Interpolate(lua_State* LuaState);      ///< Schedules a value for interpolation between a start and end value over a given period of time.
-            static int toString(lua_State* LuaState);         ///< Returns a string representation of this object.
+            static int Get(lua_State* LuaState);
+            static int Set(lua_State* LuaState);
+            static int GetExtraMessage(lua_State* LuaState);
+            static int Interpolate(lua_State* LuaState);
+            static int toString(lua_State* LuaState);
+
+            static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.
+            static const char*                  DocClass;
+            static const cf::TypeSys::MethsDocT DocMethods[];
 
 
             private:
@@ -176,6 +181,7 @@ namespace cf
 
                 float GetCurrentValue() const { return StartValue + (EndValue-StartValue)*CurrentTime/TotalTime; }
             };
+
 
             void operator = (const ComponentBaseT&);    ///< Use of the Assignment Operator is not allowed.
 

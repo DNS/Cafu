@@ -200,6 +200,24 @@ namespace
 }
 
 
+const char* ComponentTextT::DocClass =
+    "This components adds text to its window.";
+
+
+const cf::TypeSys::VarsDocT ComponentTextT::DocVars[] =
+{
+    { "Text",       "The text to show in this window." },
+    { "Font",       "The name of the font." },
+    { "Scale",      "The scale that is applied for rendering the text." },
+    { "Padding",    "Padding between text and window rectangle." },
+    { "Color",      "The text color." },
+    { "Alpha",      "The alpha component of the color." },
+    { "hor. Align", "How the text is aligned horizontally (left, center, right)." },
+    { "ver. Align", "How the text is aligned vertically (top, middle, bottom)." },
+    { NULL, NULL }
+};
+
+
 ComponentTextT::ComponentTextT()
     : ComponentBaseT(),
       m_Text("Text", "", FlagsIsLongString),
@@ -350,6 +368,13 @@ void ComponentTextT::Render() const
 }
 
 
+static const cf::TypeSys::MethsDocT META_toString =
+{
+    "__toString",
+    "This method returns a readable string representation of this object.",
+    "string", "()"
+};
+
 int ComponentTextT::toString(lua_State* LuaState)
 {
     // ScriptBinderT Binder(LuaState);
@@ -375,4 +400,10 @@ const luaL_reg ComponentTextT::MethodsList[] =
     { NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentTextT::TypeInfo(GetComponentTIM(), "ComponentTextT", "ComponentBaseT", ComponentTextT::CreateInstance, MethodsList);
+const cf::TypeSys::MethsDocT ComponentTextT::DocMethods[] =
+{
+    META_toString,
+    { NULL, NULL, NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentTextT::TypeInfo(GetComponentTIM(), "ComponentTextT", "ComponentBaseT", ComponentTextT::CreateInstance, MethodsList, DocClass, DocMethods, DocVars);

@@ -60,15 +60,22 @@ namespace cf
             static const cf::TypeSys::TypeInfoT TypeInfo;
 
 
+            protected:
+
+            // The Lua API methods of this class.
+            static int Set(lua_State* LuaState);
+            static int GetSelItem(lua_State* LuaState);
+            static int toString(lua_State* LuaState);
+
+            static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.
+            static const char*                  DocClass;
+            static const cf::TypeSys::MethsDocT DocMethods[];
+            static const cf::TypeSys::VarsDocT  DocVars[];
+
+
             private:
 
             void Sync();    ///< Sets the text component to the currently selected choice.
-
-            // The Lua API methods of this class.
-            static const luaL_Reg MethodsList[];        ///< The list of Lua methods for this class.
-            static int Set(lua_State* LuaState);        ///< An override of the base class method that also calls Sync().
-            static int GetSelItem(lua_State* LuaState); ///< Returns the currently selected item (or nil if no item is selected).
-            static int toString(lua_State* LuaState);   ///< Returns a string representation of this object.
 
             IntrusivePtrT<ComponentTextT>        m_TextComp;    ///< The sibling text component whose value we're updating.
             TypeSys::VarT< ArrayT<std::string> > m_Choices;     ///< The list of available choices.

@@ -37,6 +37,20 @@ extern "C"
 using namespace cf::GuiSys;
 
 
+const char* ComponentChoiceT::DocClass =
+    "This components add the behaviour of a choice field to its window.\n"
+    "It requires that the window also has a text component, whose value it\n"
+    "updates according to user interaction to one of the available choices.";
+
+
+const cf::TypeSys::VarsDocT ComponentChoiceT::DocVars[] =
+{
+    { "Choices",   "The list of available choices." },
+    { "Selection", "The index number of the currently selected choice, where 1 corresponds to the first choice (as per Lua convention). Use 0 for \"no selection\"." },
+    { NULL, NULL }
+};
+
+
 ComponentChoiceT::ComponentChoiceT()
     : ComponentBaseT(),
       m_TextComp(NULL),
@@ -184,6 +198,13 @@ void ComponentChoiceT::Sync()
 }
 
 
+static const cf::TypeSys::MethsDocT META_Set =
+{
+    "set",
+    "An override of the base class method that also calls Sync().",
+    "", "(string var_name, any)"
+};
+
 int ComponentChoiceT::Set(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
@@ -196,6 +217,13 @@ int ComponentChoiceT::Set(lua_State* LuaState)
     return Result;
 }
 
+
+static const cf::TypeSys::MethsDocT META_GetSelItem =
+{
+    "GetSelItem",
+    "Returns the currently selected item (or `nil` if no item is selected).",
+    "string", "()"
+};
 
 int ComponentChoiceT::GetSelItem(lua_State* LuaState)
 {
@@ -210,6 +238,13 @@ int ComponentChoiceT::GetSelItem(lua_State* LuaState)
     return 1;
 }
 
+
+static const cf::TypeSys::MethsDocT META_toString =
+{
+    "__toString",
+    "This method returns a readable string representation of this object.",
+    "string", "()"
+};
 
 int ComponentChoiceT::toString(lua_State* LuaState)
 {
@@ -238,4 +273,12 @@ const luaL_reg ComponentChoiceT::MethodsList[] =
     { NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentChoiceT::TypeInfo(GetComponentTIM(), "ComponentChoiceT", "ComponentBaseT", ComponentChoiceT::CreateInstance, MethodsList);
+const cf::TypeSys::MethsDocT ComponentChoiceT::DocMethods[] =
+{
+    META_Set,
+    META_GetSelItem,
+    META_toString,
+    { NULL, NULL, NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentChoiceT::TypeInfo(GetComponentTIM(), "ComponentChoiceT", "ComponentBaseT", ComponentChoiceT::CreateInstance, MethodsList, DocClass, DocMethods, DocVars);

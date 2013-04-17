@@ -62,6 +62,20 @@ namespace cf
             static const cf::TypeSys::TypeInfoT TypeInfo;
 
 
+            protected:
+
+            // The Lua API methods of this class.
+            static int GetNumAnims(lua_State* LuaState);
+            static int SetAnim(lua_State* LuaState);
+            static int GetNumSkins(lua_State* LuaState);
+            static int toString(lua_State* LuaState);
+
+            static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.
+            static const char*                  DocClass;
+            static const cf::TypeSys::MethsDocT DocMethods[];
+            static const cf::TypeSys::VarsDocT  DocVars[];
+
+
             private:
 
             /// A variable of type std::string, specifically for model file names. It updates the related
@@ -129,23 +143,16 @@ namespace cf
             std::string SetModel(const std::string& FileName, std::string& Msg);  ///< m_ModelName::Set() delegates here.
             int SetAnimNr(int AnimNr, float BlendTime, bool ForceLoop);           ///< m_ModelAnimNr::Set() and SetAnim(LuaState) delegate here.
 
-            // The Lua API methods of this class.
-            static const luaL_Reg MethodsList[];                ///< The list of Lua methods for this class.
-            static int GetNumAnims(lua_State* LuaState);        ///< Returns the number of animation sequences in this model.
-            static int SetAnim(lua_State* LuaState);            ///< Sets a new animation sequence for the pose of this model, optionally blending from the previous sequence over a given time, and optionally setting the "force loop" flag for the new sequence. For example: `SetAnim(8, 3.0, true)`
-            static int GetNumSkins(lua_State* LuaState);        ///< Returns the number of skins in this model.
-            static int toString(lua_State* LuaState);           ///< Returns a string representation of this object.
+            VarModelNameT            m_ModelName;   ///< The file name of the model.
+            VarModelAnimNrT          m_ModelAnimNr; ///< The animation sequence number of the model.
+            VarModelSkinNrT          m_ModelSkinNr; ///< The skin used for rendering the model.
+            TypeSys::VarT<Vector3fT> m_ModelPos;    ///< The position of the model in world space.
+            TypeSys::VarT<float>     m_ModelScale;  ///< The scale factor applied to the model coordinates when converted to world space.
+            TypeSys::VarT<Vector3fT> m_ModelAngles; ///< The angles around the axes that determine the orientation of the model in world space.
+            TypeSys::VarT<Vector3fT> m_CameraPos;   ///< The position of the camera in world space.
 
-            VarModelNameT                      m_ModelName;     ///< The file name of the model.
-            VarModelAnimNrT                    m_ModelAnimNr;   ///< The animation sequence number of the model.
-            VarModelSkinNrT                    m_ModelSkinNr;   ///< The skin used for rendering the model.
-            TypeSys::VarT<Vector3fT>           m_ModelPos;      ///< The position of the model in world space.
-            TypeSys::VarT<float>               m_ModelScale;    ///< The scale factor applied to the model coordinates when converted to world space.
-            TypeSys::VarT<Vector3fT>           m_ModelAngles;   ///< The angles around the axes that determine the orientation of the model in world space.
-            TypeSys::VarT<Vector3fT>           m_CameraPos;     ///< The position of the camera in world space.
-
-            const CafuModelT*                  m_Model;         ///< The model instance, updated by changes to m_ModelName.
-            AnimPoseT*                         m_Pose;          ///< The pose of the model.
+            const CafuModelT*        m_Model;       ///< The model instance, updated by changes to m_ModelName.
+            AnimPoseT*               m_Pose;        ///< The pose of the model.
         };
     }
 }

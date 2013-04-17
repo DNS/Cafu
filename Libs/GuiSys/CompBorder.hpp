@@ -53,17 +53,24 @@ namespace cf
             static const cf::TypeSys::TypeInfoT TypeInfo;
 
 
-            private:
-
-            void FillMemberVars();                      ///< A helper method for the constructors.
+            protected:
 
             // The Lua API methods of this class.
-            static const luaL_Reg MethodsList[];        ///< The list of Lua methods for this class.
-            static int toString(lua_State* LuaState);   ///< Returns a string representation of this object.
+            static int toString(lua_State* LuaState);
 
-            TypeSys::VarT<float>     m_Width;           ///< The width of the border.
-            TypeSys::VarT<Vector3fT> m_Color;           ///< The border color.
-            TypeSys::VarT<float>     m_Alpha;           ///< The alpha component of the color.
+            static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.
+            static const char*                  DocClass;
+            static const cf::TypeSys::MethsDocT DocMethods[];
+            static const cf::TypeSys::VarsDocT  DocVars[];
+
+
+            private:
+
+            void FillMemberVars();  ///< A helper method for the constructors.
+
+            TypeSys::VarT<float>     m_Width;   ///< The width of the border.
+            TypeSys::VarT<Vector3fT> m_Color;   ///< The border color.
+            TypeSys::VarT<float>     m_Alpha;   ///< The alpha component of the color.
         };
     }
 }

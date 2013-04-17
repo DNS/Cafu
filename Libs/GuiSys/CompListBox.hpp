@@ -61,12 +61,19 @@ namespace cf
             static const cf::TypeSys::TypeInfoT TypeInfo;
 
 
-            private:
+            protected:
 
             // The Lua API methods of this class.
-            static const luaL_Reg MethodsList[];        ///< The list of Lua methods for this class.
-            static int GetSelItem(lua_State* LuaState); ///< Returns the currently selected item (or nil if no item is selected).
-            static int toString(lua_State* LuaState);   ///< Returns a string representation of this object.
+            static int GetSelItem(lua_State* LuaState);
+            static int toString(lua_State* LuaState);
+
+            static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.
+            static const char*                  DocClass;
+            static const cf::TypeSys::MethsDocT DocMethods[];
+            static const cf::TypeSys::VarsDocT  DocVars[];
+
+
+            private:
 
             IntrusivePtrT<ComponentTextT>        m_TextComp;    ///< The sibling text component from which we take the text settings.
             TypeSys::VarT< ArrayT<std::string> > m_Items;       ///< The list of available items.

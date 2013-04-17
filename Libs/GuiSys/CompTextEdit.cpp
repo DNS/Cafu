@@ -66,6 +66,23 @@ namespace
 }
 
 
+const char* ComponentTextEditT::DocClass =
+    "With this component, the user can edit the text in a sibling text component.\n"
+    "The component requires that the window also has a text component, whose value it updates according to\n"
+    "user edits.";
+
+
+const cf::TypeSys::VarsDocT ComponentTextEditT::DocVars[] =
+{
+    { "CursorPos",   "The character position of the text cursor in the text. Valid values are 0 to Text.length()." },
+    { "CursorType",  "The type of the text cursor. 0 is a vertical bar cursor '|', 1 is an underline cursor '_'. Any other values default to the '|' cursor type." },
+    { "CursorRate",  "The rate in seconds at which the text cursor completes one blink cycle (on/off)." },
+    { "CursorColor", "The color of the text cursor." },
+    { "CursorAlpha", "The alpha component of the color." },
+    { NULL, NULL }
+};
+
+
 ComponentTextEditT::ComponentTextEditT()
     : ComponentBaseT(),
       m_TextComp(NULL),
@@ -313,6 +330,13 @@ void ComponentTextEditT::OnClockTickEvent(float t)
 }
 
 
+static const cf::TypeSys::MethsDocT META_SetText =
+{
+    "SetText",
+    "Sets the given text in the related Text sibling component and moves the cursor position to its end.",
+    "", "(string text)"
+};
+
 int ComponentTextEditT::SetText(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
@@ -326,6 +350,13 @@ int ComponentTextEditT::SetText(lua_State* LuaState)
     return 0;
 }
 
+
+static const cf::TypeSys::MethsDocT META_toString =
+{
+    "__toString",
+    "This method returns a readable string representation of this object.",
+    "string", "()"
+};
 
 int ComponentTextEditT::toString(lua_State* LuaState)
 {
@@ -353,4 +384,11 @@ const luaL_reg ComponentTextEditT::MethodsList[] =
     { NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentTextEditT::TypeInfo(GetComponentTIM(), "ComponentTextEditT", "ComponentBaseT", ComponentTextEditT::CreateInstance, MethodsList);
+const cf::TypeSys::MethsDocT ComponentTextEditT::DocMethods[] =
+{
+    META_SetText,
+    META_toString,
+    { NULL, NULL, NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentTextEditT::TypeInfo(GetComponentTIM(), "ComponentTextEditT", "ComponentBaseT", ComponentTextEditT::CreateInstance, MethodsList, DocClass, DocMethods, DocVars);

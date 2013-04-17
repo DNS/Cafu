@@ -138,6 +138,18 @@ void ComponentBasicsT::WindowShowT::Set(const bool& v)
 /*** ComponentBasicsT ***/
 /************************/
 
+const char* ComponentBasicsT::DocClass =
+    "This component adds the basics of the window (its name and the \"is shown?\" flag).";
+
+
+const cf::TypeSys::VarsDocT ComponentBasicsT::DocVars[] =
+{
+    { "Name", "The name of the window. Window names must be valid Lua script identifiers and unique among their siblings." },
+    { "Show", "Is this window currently shown?" },
+    { NULL, NULL }
+};
+
+
 ComponentBasicsT::ComponentBasicsT()
     : ComponentBaseT(),
       m_Name("Name", "Window", NULL, *this),
@@ -164,6 +176,13 @@ ComponentBasicsT* ComponentBasicsT::Clone() const
 }
 
 
+static const cf::TypeSys::MethsDocT META_toString =
+{
+    "__toString",
+    "This method returns a readable string representation of this object.",
+    "string", "()"
+};
+
 int ComponentBasicsT::toString(lua_State* LuaState)
 {
     // ScriptBinderT Binder(LuaState);
@@ -189,4 +208,10 @@ const luaL_reg ComponentBasicsT::MethodsList[] =
     { NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentBasicsT::TypeInfo(GetComponentTIM(), "ComponentBasicsT", "ComponentBaseT", ComponentBasicsT::CreateInstance, MethodsList);
+const cf::TypeSys::MethsDocT ComponentBasicsT::DocMethods[] =
+{
+    META_toString,
+    { NULL, NULL, NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentBasicsT::TypeInfo(GetComponentTIM(), "ComponentBasicsT", "ComponentBaseT", ComponentBasicsT::CreateInstance, MethodsList, DocClass, DocMethods, DocVars);

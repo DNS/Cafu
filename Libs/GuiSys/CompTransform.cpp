@@ -32,6 +32,19 @@ extern "C"
 using namespace cf::GuiSys;
 
 
+const char* ComponentTransformT::DocClass =
+    "This component adds information about the position and size of the window.";
+
+
+const cf::TypeSys::VarsDocT ComponentTransformT::DocVars[] =
+{
+    { "Pos",      "The position of the top-left corner of the window, relative to its parent." },
+    { "Size",     "The size of the window." },
+    { "Rotation", "The angle in degrees by how much this entire window is rotated." },
+    { NULL, NULL }
+};
+
+
 ComponentTransformT::ComponentTransformT()
     : ComponentBaseT(),
       m_Pos("Pos", Vector2fT(0.0f, 0.0f)),
@@ -62,6 +75,13 @@ ComponentTransformT* ComponentTransformT::Clone() const
 }
 
 
+static const cf::TypeSys::MethsDocT META_toString =
+{
+    "__toString",
+    "This method returns a readable string representation of this object.",
+    "string", "()"
+};
+
 int ComponentTransformT::toString(lua_State* LuaState)
 {
     // ScriptBinderT Binder(LuaState);
@@ -87,4 +107,10 @@ const luaL_reg ComponentTransformT::MethodsList[] =
     { NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentTransformT::TypeInfo(GetComponentTIM(), "ComponentTransformT", "ComponentBaseT", ComponentTransformT::CreateInstance, MethodsList);
+const cf::TypeSys::MethsDocT ComponentTransformT::DocMethods[] =
+{
+    META_toString,
+    { NULL, NULL, NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentTransformT::TypeInfo(GetComponentTIM(), "ComponentTransformT", "ComponentBaseT", ComponentTransformT::CreateInstance, MethodsList, DocClass, DocMethods, DocVars);

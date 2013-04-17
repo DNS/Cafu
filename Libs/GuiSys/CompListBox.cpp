@@ -56,6 +56,28 @@ namespace
 }
 
 
+const char* ComponentListBoxT::DocClass =
+    "This components turns its window into a list-box control.\n"
+    "It requires that in the same window a text component is available where the aspects of text rendering are\n"
+    "configured (but that has empty text contents itself).";
+
+
+const cf::TypeSys::VarsDocT ComponentListBoxT::DocVars[] =
+{
+    { "Items",        "The list of available items." },
+    { "Selection",    "The index number of the currently selected item, where 1 corresponds to the first item (as per Lua convention). Use 0 for \"no selection\"." },
+    { "BgColorOdd",   "The background color for odd rows." },
+    { "BgAlphaOdd",   "The background alpha for odd rows." },
+    { "BgColorEven",  "The background color for even rows." },
+    { "BgAlphaEven",  "The background alpha for even rows." },
+    { "BgColorSel",   "The background color for selected rows." },
+    { "BgAlphaSel",   "The background alpha for selected rows." },
+    { "TextColorSel", "The foreground color for selected rows." },
+    { "TextAlphaSel", "The foreground alpha for selected rows." },
+    { NULL, NULL }
+};
+
+
 ComponentListBoxT::ComponentListBoxT()
     : ComponentBaseT(),
       m_TextComp(NULL),
@@ -343,6 +365,13 @@ bool ComponentListBoxT::OnInputEvent(const CaMouseEventT& ME, float PosX, float 
 }
 
 
+static const cf::TypeSys::MethsDocT META_GetSelItem =
+{
+    "GetSelItem",
+    "Returns the currently selected item (or nil if no item is selected).",
+    "string", "()"
+};
+
 int ComponentListBoxT::GetSelItem(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
@@ -356,6 +385,13 @@ int ComponentListBoxT::GetSelItem(lua_State* LuaState)
     return 1;
 }
 
+
+static const cf::TypeSys::MethsDocT META_toString =
+{
+    "__toString",
+    "This method returns a readable string representation of this object.",
+    "string", "()"
+};
 
 int ComponentListBoxT::toString(lua_State* LuaState)
 {
@@ -383,4 +419,11 @@ const luaL_reg ComponentListBoxT::MethodsList[] =
     { NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentListBoxT::TypeInfo(GetComponentTIM(), "ComponentListBoxT", "ComponentBaseT", ComponentListBoxT::CreateInstance, MethodsList);
+const cf::TypeSys::MethsDocT ComponentListBoxT::DocMethods[] =
+{
+    META_GetSelItem,
+    META_toString,
+    { NULL, NULL, NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentListBoxT::TypeInfo(GetComponentTIM(), "ComponentListBoxT", "ComponentBaseT", ComponentListBoxT::CreateInstance, MethodsList, DocClass, DocMethods, DocVars);

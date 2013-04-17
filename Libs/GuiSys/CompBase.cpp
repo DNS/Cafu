@@ -36,6 +36,12 @@ extern "C"
 using namespace cf::GuiSys;
 
 
+const char* ComponentBaseT::DocClass =
+    "This is the base class for the components that a window is composed/aggregated of.\n"
+    "Components are the basic building blocks of a window: their composition defines\n"
+    "the properties, the behaviour, and thus virtually every aspect of the window.";
+
+
 ComponentBaseT::ComponentBaseT()
     : m_Window(NULL),
       m_MemberVars()
@@ -167,6 +173,13 @@ namespace
 }
 
 
+static const cf::TypeSys::MethsDocT META_Get =
+{
+    "get",
+    "Gets a member variable of this class.",
+    "any", "(string var_name)"
+};
+
 int ComponentBaseT::Get(lua_State* LuaState)
 {
     ScriptBinderT                 Binder(LuaState);
@@ -182,6 +195,13 @@ int ComponentBaseT::Get(lua_State* LuaState)
     return GetToLua.GetNumResults();
 }
 
+
+static const cf::TypeSys::MethsDocT META_Set =
+{
+    "set",
+    "Sets a member variable of this class.",
+    "", "(string var_name, any)"
+};
 
 int ComponentBaseT::Set(lua_State* LuaState)
 {
@@ -199,6 +219,13 @@ int ComponentBaseT::Set(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_GetExtraMessage =
+{
+    "GetExtraMessage",
+    "Returns the result of `VarBaseT::GetExtraMessage()` for the given member variable.",
+    "string", "(string var_name)"
+};
+
 int ComponentBaseT::GetExtraMessage(lua_State* LuaState)
 {
     ScriptBinderT                 Binder(LuaState);
@@ -213,6 +240,14 @@ int ComponentBaseT::GetExtraMessage(lua_State* LuaState)
     return 1;
 }
 
+
+static const cf::TypeSys::MethsDocT META_Interpolate =
+{
+    "interpolate",
+    "Schedules a value for interpolation between a start and end value over a given period of time.",
+    // TODO: explain suffixes .x, .y, .r ..., provide examples
+    "", "(string var_name, number start_value, number end_value, number time)"
+};
 
 int ComponentBaseT::Interpolate(lua_State* LuaState)
 {
@@ -266,6 +301,13 @@ int ComponentBaseT::Interpolate(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_toString =
+{
+    "__toString",
+    "This method returns a readable string representation of this object.",
+    "string", "()"
+};
+
 int ComponentBaseT::toString(lua_State* LuaState)
 {
     // ScriptBinderT Binder(LuaState);
@@ -295,4 +337,14 @@ const luaL_reg ComponentBaseT::MethodsList[] =
     { NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentBaseT::TypeInfo(GetComponentTIM(), "ComponentBaseT", NULL /*No base class.*/, ComponentBaseT::CreateInstance, MethodsList);
+const cf::TypeSys::MethsDocT ComponentBaseT::DocMethods[] =
+{
+    META_Get,
+    META_Set,
+    META_GetExtraMessage,
+    META_Interpolate,
+    META_toString,
+    { NULL, NULL, NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentBaseT::TypeInfo(GetComponentTIM(), "ComponentBaseT", NULL /*No base class.*/, ComponentBaseT::CreateInstance, MethodsList, DocClass, DocMethods);

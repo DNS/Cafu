@@ -52,6 +52,15 @@ cf::TypeSys::TypeInfoManT& cf::GuiSys::GetWindowTIM()
 }
 
 
+const char* WindowT::DocClass =
+    "A window is the basic element of a graphical user interface.\n"
+    "\n"
+    "Windows are hierarchically arranged in parent/child relationships to form complex user interfaces.\n"
+    "\n"
+    "Each window essentially represents a rectangular shape, but only has very little features of its own.\n"
+    "Instead, a window contains a set of components, each of which implements a specific feature for the window.\n";
+
+
 WindowT::WindowT(const WindowCreateParamsT& Params)
     : m_Gui(Params.Gui),
       m_Parent(NULL),
@@ -453,6 +462,13 @@ bool WindowT::CallLuaMethod(const char* MethodName, const char* Signature, ...)
 /*** Impementation of Lua binding functions ***/
 /**********************************************/
 
+static const cf::TypeSys::MethsDocT META_AddChild =
+{
+    "AddChild",
+    "This method adds the given window to the children of this window.",
+    "", "(window child)"
+};
+
 int WindowT::AddChild(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
@@ -473,6 +489,14 @@ int WindowT::AddChild(lua_State* LuaState)
     return 0;
 }
 
+
+static const cf::TypeSys::MethsDocT META_RemoveChild =
+{
+    "RemoveChild",
+    "This method removes the given window from the children of this window.\n"
+    "@param child   The window that is to be removed from the children of this window.",
+    "", "(window child)"
+};
 
 int WindowT::RemoveChild(lua_State* LuaState)
 {
@@ -495,6 +519,13 @@ int WindowT::RemoveChild(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_GetParent =
+{
+    "GetParent",
+    "This method returns the parent of this window (or `nil` if there is no parent).",
+    "window", "()"
+};
+
 int WindowT::GetParent(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
@@ -514,6 +545,13 @@ int WindowT::GetParent(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_GetChildren =
+{
+    "GetChildren",
+    "This method returns an array of the children of this window.",
+    "table", "()"
+};
+
 int WindowT::GetChildren(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
@@ -531,6 +569,13 @@ int WindowT::GetChildren(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_GetTime =
+{
+    "GetTime",
+    "This method returns the windows local time (starting from 0.0).",
+    "number", "()"
+};
+
 int WindowT::GetTime(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
@@ -540,6 +585,13 @@ int WindowT::GetTime(lua_State* LuaState)
     return 1;
 }
 
+
+static const cf::TypeSys::MethsDocT META_GetBasics =
+{
+    "GetBasics",
+    "This method returns the \"Basics\" component of this window.",
+    "ComponentBasicsT", "()"
+};
 
 int WindowT::GetBasics(lua_State* LuaState)
 {
@@ -551,6 +603,13 @@ int WindowT::GetBasics(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_GetTransform =
+{
+    "GetTransform",
+    "This method returns the \"Transform\" component of this window.",
+    "ComponentTransformT", "()"
+};
+
 int WindowT::GetTransform(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
@@ -560,6 +619,13 @@ int WindowT::GetTransform(lua_State* LuaState)
     return 1;
 }
 
+
+static const cf::TypeSys::MethsDocT META_AddComponent =
+{
+    "AddComponent",
+    "This method adds a component to this window.",
+    "", "(ComponentBaseT component)"
+};
 
 int WindowT::AddComponent(lua_State* LuaState)
 {
@@ -587,6 +653,13 @@ int WindowT::AddComponent(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_RemoveComponent =
+{
+    "RemoveComponent",
+    "This method removes a component from this window.",
+    "", "(ComponentBaseT component)"
+};
+
 int WindowT::RmvComponent(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
@@ -602,6 +675,13 @@ int WindowT::RmvComponent(lua_State* LuaState)
     return 0;
 }
 
+
+static const cf::TypeSys::MethsDocT META_GetComponents =
+{
+    "GetComponents",
+    "This method returns an array of the components of this window.",
+    "table", "()"
+};
 
 int WindowT::GetComponents(lua_State* LuaState)
 {
@@ -620,6 +700,17 @@ int WindowT::GetComponents(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_GetComponent =
+{
+    "GetComponent",
+    "This method returns the (n-th) component of the given (type) name.\n"
+    "Covers the \"custom\" components as well as the application components, \"Basics\" and \"Transform\".\n"
+    "That is, `GetComponent(\"Basics\") == GetBasics()` and `GetComponent(\"Transform\") == GetTransform()`.\n"
+    "@param type_name   The (type) name of the component to get, e.g. \"Image\".\n"
+    "@param n           This parameter is optional, it defaults to 0 if not given.",
+    "ComponentBaseT", "(string type_name, number n)"
+};
+
 int WindowT::GetComponent(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
@@ -632,6 +723,13 @@ int WindowT::GetComponent(lua_State* LuaState)
     return 1;
 }
 
+
+static const cf::TypeSys::MethsDocT META_toString =
+{
+    "__toString",
+    "This method returns a readable string representation of this object.",
+    "string", "()"
+};
 
 int WindowT::toString(lua_State* LuaState)
 {
@@ -669,4 +767,21 @@ const luaL_reg WindowT::MethodsList[]=
     { NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT WindowT::TypeInfo(GetWindowTIM(), "WindowT", NULL /*No base class.*/, WindowT::CreateInstance, MethodsList);
+const cf::TypeSys::MethsDocT WindowT::DocMethods[] =
+{
+    META_AddChild,
+    META_RemoveChild,
+    META_GetParent,
+    META_GetChildren,
+    META_GetTime,
+    META_GetBasics,
+    META_GetTransform,
+    META_AddComponent,
+    META_RemoveComponent,
+    META_GetComponents,
+    META_GetComponent,
+    META_toString,
+    { NULL, NULL, NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT WindowT::TypeInfo(GetWindowTIM(), "WindowT", NULL /*No base class.*/, WindowT::CreateInstance, MethodsList, DocClass, DocMethods);

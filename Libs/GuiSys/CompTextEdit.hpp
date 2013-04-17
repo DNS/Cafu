@@ -60,6 +60,18 @@ namespace cf
             static const cf::TypeSys::TypeInfoT TypeInfo;
 
 
+            protected:
+
+            // The Lua API methods of this class.
+            static int SetText(lua_State* LuaState);
+            static int toString(lua_State* LuaState);
+
+            static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.
+            static const char*                  DocClass;
+            static const cf::TypeSys::MethsDocT DocMethods[];
+            static const cf::TypeSys::VarsDocT  DocVars[];
+
+
             private:
 
             /// A variable of type int, specifically for the cursor type, "|" vs. "_".
@@ -74,16 +86,11 @@ namespace cf
             };
 
 
-            // The Lua API methods of this class.
-            static const luaL_Reg MethodsList[];        ///< The list of Lua methods for this class.
-            static int SetText(lua_State* LuaState);    ///< Sets the given text in the related Text sibling component and moves the cursor position to its end.
-            static int toString(lua_State* LuaState);   ///< Returns a string representation of this object.
-
             IntrusivePtrT<ComponentTextT> m_TextComp;       ///< The sibling text component whose value we're editing.
             float                         m_CursorTime;     ///< The current time in the cursor blink cycle.
 
             TypeSys::VarT<unsigned int>   m_CursorPos;      ///< The character position of the text cursor in the text. Valid values are 0 to Text.length().
-            VarCursorTypeT                m_CursorType;     ///< The type of the text cursor. 0 is a vertical bar cursor '|', 1 is an underline cursor'_'. Any other types default to the '|' cursor type.
+            VarCursorTypeT                m_CursorType;     ///< The type of the text cursor. 0 is a vertical bar cursor '|', 1 is an underline cursor '_'. Any other values default to the '|' cursor type.
             TypeSys::VarT<float>          m_CursorRate;     ///< The rate in seconds at which the text cursor completes one blink cycle (on/off).
             TypeSys::VarT<Vector3fT>      m_CursorColor;    ///< The color of the text cursor.
             TypeSys::VarT<float>          m_CursorAlpha;    ///< The alpha component of the color.

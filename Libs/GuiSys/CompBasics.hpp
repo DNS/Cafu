@@ -66,6 +66,17 @@ namespace cf
             static const cf::TypeSys::TypeInfoT TypeInfo;
 
 
+            protected:
+
+            // The Lua API methods of this class.
+            static int toString(lua_State* LuaState);
+
+            static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.
+            static const char*                  DocClass;
+            static const cf::TypeSys::MethsDocT DocMethods[];
+            static const cf::TypeSys::VarsDocT  DocVars[];
+
+
             private:
 
             /// A variable of type `std::string`, specifically for window names.
@@ -104,10 +115,6 @@ namespace cf
                 ComponentBasicsT& m_CompBasics; ///< The parent ComponentBasicsT that contains this variable.
             };
 
-
-            // The Lua API methods of this class.
-            static const luaL_Reg MethodsList[];        ///< The list of Lua methods for this class.
-            static int toString(lua_State* LuaState);   ///< Returns a string representation of this object.
 
             WindowNameT m_Name;   ///< The name of the window. Window names must be valid Lua script identifiers and unique among their siblings.
             WindowShowT m_Show;   ///< Is this window currently shown?

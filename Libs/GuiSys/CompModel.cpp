@@ -180,6 +180,23 @@ namespace
 }
 
 
+const char* ComponentModelT::DocClass =
+    "This component adds a 3D model to its window.";
+
+
+const cf::TypeSys::VarsDocT ComponentModelT::DocVars[] =
+{
+    { "Name",      "The file name of the model." },
+    { "Animation", "The animation sequence number of the model." },
+    { "Skin",      "The skin used for rendering the model." },
+    { "Pos",       "The position of the model in world space." },
+    { "Scale",     "The scale factor applied to the model coordinates when converted to world space." },
+    { "Angles",    "The angles around the axes that determine the orientation of the model in world space." },
+    { "CameraPos", "The position of the camera in world space." },
+    { NULL, NULL }
+};
+
+
 ComponentModelT::ComponentModelT()
     : ComponentBaseT(),
       m_ModelName("Name", "", FlagsIsModelFileName, *this),
@@ -324,6 +341,13 @@ void ComponentModelT::OnClockTickEvent(float t)
 }
 
 
+static const cf::TypeSys::MethsDocT META_ =
+{
+    "",
+    "",
+    "", "()"
+};
+
 std::string ComponentModelT::SetModel(const std::string& FileName, std::string& Msg)
 {
     // It is possible that this is called (e.g. from a script) for a component that is not yet part of a window.
@@ -377,6 +401,13 @@ int ComponentModelT::SetAnimNr(int AnimNr, float BlendTime, bool ForceLoop)
 }
 
 
+static const cf::TypeSys::MethsDocT META_GetNumAnims =
+{
+    "GetNumAnims",
+    "Returns the number of animation sequences in this model.",
+    "number", "()"
+};
+
 int ComponentModelT::GetNumAnims(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
@@ -389,6 +420,16 @@ int ComponentModelT::GetNumAnims(lua_State* LuaState)
     return 1;
 }
 
+
+static const cf::TypeSys::MethsDocT META_SetAnim =
+{
+    "SetAnim",
+    "Sets a new animation sequence for the pose of this model.\n"
+    "Optionally, there is a blending from the previous sequence over a given time.\n"
+    "Also optionally, the \"force loop\" flag for the new sequence can be set.\n"
+    "For example: `SetAnim(8, 3.0, true)`",
+    "number", "(number anim, number blend_time=0.0, boolean force_loop=false)"
+};
 
 int ComponentModelT::SetAnim(lua_State* LuaState)
 {
@@ -407,6 +448,13 @@ int ComponentModelT::SetAnim(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_GetNumSkins =
+{
+    "GetNumSkins",
+    "Returns the number of skins in this model.",
+    "number", "()"
+};
+
 int ComponentModelT::GetNumSkins(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
@@ -419,6 +467,13 @@ int ComponentModelT::GetNumSkins(lua_State* LuaState)
     return 1;
 }
 
+
+static const cf::TypeSys::MethsDocT META_toString =
+{
+    "__toString",
+    "This method returns a readable string representation of this object.",
+    "string", "()"
+};
 
 int ComponentModelT::toString(lua_State* LuaState)
 {
@@ -448,4 +503,13 @@ const luaL_reg ComponentModelT::MethodsList[] =
     { NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentModelT::TypeInfo(GetComponentTIM(), "ComponentModelT", "ComponentBaseT", ComponentModelT::CreateInstance, MethodsList);
+const cf::TypeSys::MethsDocT ComponentModelT::DocMethods[] =
+{
+    META_GetNumAnims,
+    META_SetAnim,
+    META_GetNumSkins,
+    META_toString,
+    { NULL, NULL, NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentModelT::TypeInfo(GetComponentTIM(), "ComponentModelT", "ComponentBaseT", ComponentModelT::CreateInstance, MethodsList, DocClass, DocMethods, DocVars);

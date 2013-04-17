@@ -37,6 +37,7 @@ struct luaL_Reg;
 namespace cf { namespace TypeSys { class TypeInfoT; } }
 namespace cf { namespace TypeSys { class TypeInfoManT; } }
 namespace cf { namespace TypeSys { class CreateParamsT; } }
+namespace cf { namespace TypeSys { class MethsDocT; } }
 
 
 namespace cf
@@ -152,7 +153,7 @@ namespace cf
             const ArrayT< IntrusivePtrT<ComponentBaseT> >& GetComponents() const { return m_Components; }
 
             /// Returns the (n-th) component of the given (type) name.
-            /// Covers the "custom" components as well as the application component, "Basics" and "Transform".
+            /// Covers the "custom" components as well as the application components, "Basics" and "Transform".
             /// That is, `GetComponent("Basics") == GetBasics()` and `GetComponent("Transform") == GetTransform()`.
             IntrusivePtrT<ComponentBaseT> GetComponent(const std::string& TypeName, unsigned int n=0) const;
 
@@ -222,20 +223,22 @@ namespace cf
 
             // Methods called from Lua scripts on cf::GuiSys::WindowTs.
             // They are protected so that derived window classes can access them when implementing overloads.
-            static int AddChild(lua_State* LuaState);       ///< Adds a child to this window.
-            static int RemoveChild(lua_State* LuaState);    ///< Removes a child from this window.
-            static int GetParent(lua_State* LuaState);      ///< Returns the parent of this window (or nil if there is no parent).
-            static int GetChildren(lua_State* LuaState);    ///< Returns an array of the children of this window.
-            static int GetTime(lua_State* LuaState);        ///< Returns the windows local time (starting from 0.0).
-            static int GetBasics(lua_State* LuaState);      ///< Returns the "Basics" component of this window.
-            static int GetTransform(lua_State* LuaState);   ///< Returns the "Transform" component of this window.
-            static int AddComponent(lua_State* LuaState);   ///< Adds a component to this window.
-            static int RmvComponent(lua_State* LuaState);   ///< Removes a component from this window.
-            static int GetComponents(lua_State* LuaState);  ///< Returns an array of the components of this window.
-            static int GetComponent(lua_State* LuaState);   ///< Returns the (n-th) component of the given (type) name.
-            static int toString(lua_State* LuaState);       ///< Returns a readable string representation of this object.
+            static int AddChild(lua_State* LuaState);
+            static int RemoveChild(lua_State* LuaState);
+            static int GetParent(lua_State* LuaState);
+            static int GetChildren(lua_State* LuaState);
+            static int GetTime(lua_State* LuaState);
+            static int GetBasics(lua_State* LuaState);
+            static int GetTransform(lua_State* LuaState);
+            static int AddComponent(lua_State* LuaState);
+            static int RmvComponent(lua_State* LuaState);
+            static int GetComponents(lua_State* LuaState);
+            static int GetComponent(lua_State* LuaState);
+            static int toString(lua_State* LuaState);
 
-            static const luaL_Reg MethodsList[]; ///< List of methods registered with Lua.
+            static const luaL_Reg               MethodsList[];  ///< List of methods registered with Lua.
+            static const char*                  DocClass;
+            static const cf::TypeSys::MethsDocT DocMethods[];
 
 
             private:
