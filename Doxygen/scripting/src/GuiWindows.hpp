@@ -2,11 +2,18 @@ namespace GUI
 {
 
 
-/// This class represents a basic, rectangular window.
-/// Each window has attributes like position, size, border, color, text, animations, effects, and more.
-/// The built-in behaviour of a window is generally determined by its \emph{class} (WindowT or one of its subclasses)
-/// when the window is created, and can optionally be augmented by custom script code.
-/// Windows also have parent and child windows, and the entire window hierarchy forms the GUI.
+/// A window is the basic element of a graphical user interface.
+///
+/// Windows are hierarchically arranged in parent/child relationships to form complex user interfaces.
+///
+/// Each window essentially represents a rectangular shape, but only has very little features of its own.
+/// Instead, a window contains a set of components, each of which implements a specific feature for the window.
+///
+///
+/// If you would like to create a new window explicitly (those defined in the CaWE %GUI Editor are instantiated automatically),use GuiT::new():
+/// \code{.lua}
+///     local win = gui:new("WindowT", "my_window")
+/// \endcode
 ///
 /// <h3>Event Handler Callbacks</h3>
 /// The methods that are listed in this group are \emph{event handlers}:
@@ -164,17 +171,43 @@ class WindowT
     /// It can be set with SetName(), but is usually assigned when the window is created.
     string GetName();
 
-    /// Adds the given window to the children of this window.
+    /// This method adds the given window to the children of this window.
     AddChild(window child);
 
-    /// Removes the given window from the children of this window.
+    /// This method removes the given window from the children of this window.
+    /// @param child   The window that is to be removed from the children of this window.
     RemoveChild(window child);
 
-    /// Returns the parent of this window (or nil if there is no parent).
+    /// This method returns the parent of this window (or `nil` if there is no parent).
     window GetParent();
 
-    /// Returns an array of the children of this window.
-    array GetChildren();
+    /// This method returns an array of the children of this window.
+    table GetChildren();
+
+    /// This method returns the windows local time (starting from 0.0).
+    number GetTime();
+
+    /// This method returns the "Basics" component of this window.
+    ComponentBasicsT GetBasics();
+
+    /// This method returns the "Transform" component of this window.
+    ComponentTransformT GetTransform();
+
+    /// This method adds a component to this window.
+    AddComponent(ComponentBaseT component);
+
+    /// This method removes a component from this window.
+    RemoveComponent(ComponentBaseT component);
+
+    /// This method returns an array of the components of this window.
+    table GetComponents();
+
+    /// This method returns the (n-th) component of the given (type) name.
+    /// Covers the "custom" components as well as the application components, "Basics" and "Transform".
+    /// That is, `GetComponent("Basics") == GetBasics()` and `GetComponent("Transform") == GetTransform()`.
+    /// @param type_name   The (type) name of the component to get, e.g. "Image".
+    /// @param n           This parameter is optional, it defaults to 0 if not given.
+    ComponentBaseT GetComponent(string type_name, number n);
 
 
     /** @name Event Handler Callbacks
@@ -277,74 +310,6 @@ class WindowT
     OnMouseLeave();
 
     /** @} */
-};
-
-
-/// @cppName{ModelWindowT}
-class ModelWindowT : public WindowT
-{
-    public:
-
-    SetModel();
-    GetModelNrOfSqs();
-    SetModelSequNr();
-    SetModelPos();
-    SetModelScale();
-    SetModelAngles();
-    SetCameraPos();
-};
-
-
-/// @cppName{ListBoxT}
-class ListBoxT : public WindowT
-{
-    public:
-
-    Clear();
-    Append();
-    Insert();
-    GetNumRows();
-    GetRowText();
-    SetRowText();
-    GetSelection();
-    SetSelection();
-    GetRowHeight();
-    SetRowHeight();
-    SetOddRowBgColor();
-    SetEvenRowBgColor();
-    SetRowTextColor();
-    SetSelRowBgColor();
-    SetSelRowTextColor();
-};
-
-
-/// @cppName{EditWindowT}
-class EditWindowT : public WindowT
-{
-    public:
-
-    set();
-    GetTextCursorPos();
-    SetTextCursorPos();
-    SetTextCursorType();
-    SetTextCursorRate();
-    SetTextCursorColor();
-};
-
-
-/// @cppName{ChoiceT}
-class ChoiceT : public WindowT
-{
-    public:
-
-    Clear();
-    Append();
-    Insert();
-    GetNumChoices();
-    GetChoice();
-    SetChoice();
-    GetSelection();
-    SetSelection();
 };
 
 
