@@ -550,7 +550,8 @@ void AppCaWE::WriteLuaDoxygenHeaders() const
                     "    local win = gui:new(\"") + TI->ClassName + std::string("\", \"my_window\")\n"
                     "\\endcode\n");
 
-                Out << FormatDoxyComment(InfoNew.c_str(), "");
+                if (!TI->Child)   // Only do this for "leaf" classes.
+                    Out << FormatDoxyComment(InfoNew.c_str(), "");
 
                 Out << "/// @cppName{" << TI->ClassName << "}\n";
                 Out << "class " << TI->ClassName;
@@ -591,6 +592,13 @@ void AppCaWE::WriteLuaDoxygenHeaders() const
                 Out << "\n\n";
                 Out << FormatDoxyComment(TI->DocClass, "");
 
+                if (TI->DocVars)
+                {
+                    Out << FormatDoxyComment("\n"
+                        "Note that the variables of this class (also referred to as \"Public Attributes\" or \"Member Data\")\n"
+                        "must be used with the get() and set() methods at this time -- see get() and set() for details.", "");
+                }
+
                 const std::string InfoNew = std::string(
                     "\n"
                     "If you would like to create a new component of this type explicitly "
@@ -600,7 +608,8 @@ void AppCaWE::WriteLuaDoxygenHeaders() const
                     "    local comp = gui:new(\"") + TI->ClassName + std::string("\")\n"
                     "\\endcode\n");
 
-                Out << FormatDoxyComment(InfoNew.c_str(), "");
+                if (!TI->Child)   // Only do this for "leaf" classes.
+                    Out << FormatDoxyComment(InfoNew.c_str(), "");
 
                 Out << "/// @cppName{" << TI->ClassName << "}\n";
                 Out << "class " << TI->ClassName;

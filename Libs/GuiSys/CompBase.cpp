@@ -176,7 +176,7 @@ namespace
 static const cf::TypeSys::MethsDocT META_Get =
 {
     "get",
-    "Gets a member variable of this class.",
+    "Returns the value of an attribute (a member variable) of this class.",
     "any", "(string var_name)"
 };
 
@@ -199,8 +199,8 @@ int ComponentBaseT::Get(lua_State* LuaState)
 static const cf::TypeSys::MethsDocT META_Set =
 {
     "set",
-    "Sets a member variable of this class.",
-    "", "(string var_name, any)"
+    "Sets an attribute (a member variable) of this class to a new value.",
+    "", "(string var_name, any new_value)"
 };
 
 int ComponentBaseT::Set(lua_State* LuaState)
@@ -244,8 +244,13 @@ int ComponentBaseT::GetExtraMessage(lua_State* LuaState)
 static const cf::TypeSys::MethsDocT META_Interpolate =
 {
     "interpolate",
-    "Schedules a value for interpolation between a start and end value over a given period of time.",
-    // TODO: explain suffixes .x, .y, .r ..., provide examples
+    "Schedules a value for interpolation between a start and end value over a given period of time.\n"
+    "Only variables that are floating-point numbers and variables that are tuples whose elements are\n"
+    "floating-point numbers can be interpolated. (These are the variables whose underlying C++ type\n"
+    "is `float`, `double`, `Vector2fT` or `Vector3fT`.)\n"
+    "For variables that are tuples, you must append one of the suffixes `.x`, `.y`, `.z` to determine\n"
+    "the first, second or third element for interpolation. Alternatively, the suffixes `.r`, `.g`, `.b`\n"
+    "are more naturally used with color tuples, and work exactly alike.",
     "", "(string var_name, number start_value, number end_value, number time)"
 };
 

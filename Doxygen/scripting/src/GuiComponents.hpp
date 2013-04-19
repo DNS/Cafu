@@ -6,31 +6,101 @@ namespace GUI
 /// Components are the basic building blocks of a window: their composition defines
 /// the properties, the behaviour, and thus virtually every aspect of the window.
 ///
-/// If you would like to create a new component of this type explicitly (those defined in the CaWE %GUI Editor are instantiated automatically),use GuiT::new():
-/// \code{.lua}
-///     local comp = gui:new("ComponentBaseT")
-/// \endcode
+/// Components of this type are never instantiated directly, but always indirectly through one of the derived classes.
 ///
 /// @cppName{ComponentBaseT}
 class ComponentBaseT
 {
     public:
 
-    /// Gets a member variable of this class.
+    /// Returns the value of an attribute (a member variable) of this class.
+    ///
+    /// The variables of this class are also referred to as "Public Attributes" or "Member Data",
+    /// and include the variables of the concrete, derived component class as well as those of its base classes.
+    /// (However, there is currently only one base class, ComponentBaseT, which adds methods such as get() and set(),
+    ///  but adds no additional variables to its derived classes.)
+    ///
+    /// At this time, it is not yet possible to write script code like this:
+    /// \code{.lua}
+    ///     local w       = border_component.Width    --// We're working on it, but at this time,
+    ///     local r, g, b = border_component.Color    --// these two lines are not valid code.
+    /// \endcode
+    /// but instead, we have to write it like this:
+    /// \code{.lua}
+    ///     local w       = border_component:get("Width")
+    ///     local r, g, b = border_component:get("Color")
+    /// \endcode
+    ///
+    /// @param var_name   The name of the variable whose value is to be retrieved.
+    /// @returns The value of the queried variable (possibly a tuple if the value itself is a tuple, see the text above for an example).
     any get(string var_name);
 
-    /// Sets a member variable of this class.
-    set(string var_name, any);
+    /// Sets an attribute (a member variable) of this class to a new value.
+    ///
+    /// The variables of this class are also referred to as "Public Attributes" or "Member Data",
+    /// and include the variables of the concrete, derived component class as well as those of its base classes.
+    /// (However, there is currently only one base class, ComponentBaseT, which adds methods such as get() and set(),
+    ///  but adds no additional variables to its derived classes.)
+    ///
+    /// At this time, it is not yet possible to write script code like this:
+    /// \code{.lua}
+    ///     border_component.Width = w          --// We're working on it, but at this time,
+    ///     border_component.Color = r, g, b    --// these two lines are not valid code.
+    /// \endcode
+    /// but instead, we have to write it like this:
+    /// \code{.lua}
+    ///     border_component:set("Width", w)
+    ///     border_component:set("Color", r, g, b)
+    /// \endcode
+    ///
+    /// @param var_name    The name of the variable whose value is to be set.
+    /// @param new_value   The new value that is assigned to the variable. Note that this can be a tuple if the value itself is a tuple as shown in the example above.
+    set(string var_name, any new_value);
 
     /// Returns the result of `VarBaseT::GetExtraMessage()` for the given member variable.
+    ///
+    /// This is currently only used with ComponentModelT components, in order to learn why loading a specific model may have failed:
+    /// \code{.lua}
+    ///     model_component:set("Name", "Players/Trinity/Trinity.cmdl")
+    ///
+    ///     local msg = model_component:GetExtraMessage("Name")
+    ///
+    ///     if (msg != "") then
+    ///         print("There was an error when loading this model: " .. msg)
+    ///     end
+    /// \endcode
     string GetExtraMessage(string var_name);
 
     /// Schedules a value for interpolation between a start and end value over a given period of time.
+    /// Only variables that are floating-point numbers and variables that are tuples whose elements are
+    /// floating-point numbers can be interpolated. (These are the variables whose underlying C++ type
+    /// is `float`, `double`, `Vector2fT` or `Vector3fT`.)
+    /// For variables that are tuples, you must append one of the suffixes `.x`, `.y`, `.z` to determine
+    /// the first, second or third element for interpolation. Alternatively, the suffixes `.r`, `.g`, `.b`
+    /// are more naturally used with color tuples, and work exactly alike.
+    ///
+    /// \par Example
+    /// \code{.lua}
+    ///     function ButtonOK:OnMouseEnter()
+    ///         self:GetComponent("Text"):interpolate("Scale", 0.4, 0.45, 500)
+    ///         self:GetComponent("Border"):interpolate("Color.r", 0.2, 1.0, 750)
+    ///         self:GetComponent("Image"):interpolate("Alpha", 1.0, 0.0, 750)
+    ///         self:GetTransform():interpolate("Pos.y", 10, 220, 700)
+    ///     end
+    /// \endcode
+    ///
+    /// \param var_name      The name of the window attribute to interpolate. Also see set() for details.
+    /// \param start_value   The start value.
+    /// \param end_value     The end value.
+    /// \param time          The time in milliseconds to interpolate the variable from `start_value` to `end_value`.
     interpolate(string var_name, number start_value, number end_value, number time);
 };
 
 
 /// This component adds the basics of the window (its name and the "is shown?" flag).
+///
+/// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
+/// must be used with the get() and set() methods at this time -- see get() and set() for details.
 ///
 /// If you would like to create a new component of this type explicitly (those defined in the CaWE %GUI Editor are instantiated automatically),use GuiT::new():
 /// \code{.lua}
@@ -56,6 +126,9 @@ class ComponentBasicsT : public ComponentBaseT
 
 
 /// This components adds a border to its window.
+///
+/// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
+/// must be used with the get() and set() methods at this time -- see get() and set() for details.
 ///
 /// If you would like to create a new component of this type explicitly (those defined in the CaWE %GUI Editor are instantiated automatically),use GuiT::new():
 /// \code{.lua}
@@ -88,6 +161,9 @@ class ComponentBorderT : public ComponentBaseT
 /// It requires that the window also has a text component, whose value it
 /// updates according to user interaction to one of the available choices.
 ///
+/// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
+/// must be used with the get() and set() methods at this time -- see get() and set() for details.
+///
 /// If you would like to create a new component of this type explicitly (those defined in the CaWE %GUI Editor are instantiated automatically),use GuiT::new():
 /// \code{.lua}
 ///     local comp = gui:new("ComponentChoiceT")
@@ -119,6 +195,9 @@ class ComponentChoiceT : public ComponentBaseT
 
 /// This component adds an image to its window.
 ///
+/// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
+/// must be used with the get() and set() methods at this time -- see get() and set() for details.
+///
 /// If you would like to create a new component of this type explicitly (those defined in the CaWE %GUI Editor are instantiated automatically),use GuiT::new():
 /// \code{.lua}
 ///     local comp = gui:new("ComponentImageT")
@@ -149,6 +228,9 @@ class ComponentImageT : public ComponentBaseT
 /// This components turns its window into a list-box control.
 /// It requires that in the same window a text component is available where the aspects of text rendering are
 /// configured (but that has empty text contents itself).
+///
+/// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
+/// must be used with the get() and set() methods at this time -- see get() and set() for details.
 ///
 /// If you would like to create a new component of this type explicitly (those defined in the CaWE %GUI Editor are instantiated automatically),use GuiT::new():
 /// \code{.lua}
@@ -210,6 +292,9 @@ class ComponentListBoxT : public ComponentBaseT
 
 /// This component adds a 3D model to its window.
 ///
+/// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
+/// must be used with the get() and set() methods at this time -- see get() and set() for details.
+///
 /// If you would like to create a new component of this type explicitly (those defined in the CaWE %GUI Editor are instantiated automatically),use GuiT::new():
 /// \code{.lua}
 ///     local comp = gui:new("ComponentModelT")
@@ -269,6 +354,9 @@ class ComponentModelT : public ComponentBaseT
 /// The component requires that the window also has a text component, whose value it updates according to
 /// user edits.
 ///
+/// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
+/// must be used with the get() and set() methods at this time -- see get() and set() for details.
+///
 /// If you would like to create a new component of this type explicitly (those defined in the CaWE %GUI Editor are instantiated automatically),use GuiT::new():
 /// \code{.lua}
 ///     local comp = gui:new("ComponentTextEditT")
@@ -316,6 +404,9 @@ class ComponentTextEditT : public ComponentBaseT
 
 
 /// This components adds text to its window.
+///
+/// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
+/// must be used with the get() and set() methods at this time -- see get() and set() for details.
 ///
 /// If you would like to create a new component of this type explicitly (those defined in the CaWE %GUI Editor are instantiated automatically),use GuiT::new():
 /// \code{.lua}
@@ -391,6 +482,9 @@ class ComponentTextT : public ComponentBaseT
 
 
 /// This component adds information about the position and size of the window.
+///
+/// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
+/// must be used with the get() and set() methods at this time -- see get() and set() for details.
 ///
 /// If you would like to create a new component of this type explicitly (those defined in the CaWE %GUI Editor are instantiated automatically),use GuiT::new():
 /// \code{.lua}

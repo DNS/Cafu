@@ -2,6 +2,38 @@ namespace Common
 {
 
 
+// Yes, wrapping the global functions in "class globals" looks strange.
+// I do it because otherwise, Doxygen generates an extra item "Namespace Members" in the navigation tree (above "Classes").
+// The "Namespace Members" gets subitems "All" and "Functions", which in turn have our global functions.
+// This is really ugly and confusing, so I rather use this small trick than attempt to achieve the same by fiddling with
+// the Doxygen XML layout file.
+
+/// The functions in this group are globals, and are used exactly like the functions from the basic Lua library.
+class globals
+{
+    public:
+
+    /// This function registers the given Lua function as a new thread (a Lua coroutine).
+    /// Also see wait() for a closely related function.
+    thread(function f);
+
+    /// This is an alias for `coroutine.yield()` from the Lua standard library.
+    ///
+    /// It is used in threads (Lua coroutines) in order to suspend the execution of the thread.
+    /// When called, control is given back to other parts of the program, and the thread will
+    /// automatically be resumed later.
+    ///
+    /// Note that the parameter `t` is optional: calling `%wait()` is the same as calling `wait(0)`.
+    ///
+    /// @param t   The time in seconds to wait before the thread is resumed. If omitted or 0, the thread is resumed in the next frame.
+    wait(number t);
+
+    /// This is another alias for `coroutine.yield()` from the Lua standard library.
+    /// See wait() for details.
+    waitFrame(number t);
+};
+
+
 /// Use the methods of this library for printing strings to the Cafu
 /// <a href="http://www.cafu.de/wiki/usermanual:running#the_command_console">in-game console</a>.
 ///
@@ -15,7 +47,7 @@ class Console
     /// Prints a message to the in-game console.
     ///
     /// \par Example:
-    /// \code
+    /// \code{.lua}
     ///     Console.Print("Hello world!\n")     -- Prints "Hello world!" to the in-game console.
     /// \endcode
     ///
@@ -27,7 +59,7 @@ class Console
     /// to the Cafu in-game console. If the \c "developer" console variable is not set, nothing is printed.
     ///
     /// \par Example:
-    /// \code
+    /// \code{.lua}
     ///     Console.DevPrint("Hello world!\n")  -- Prints "[Dev] Hello world!" to the in-game console (in developer mode).
     /// \endcode
     ///
@@ -38,7 +70,7 @@ class Console
     /// This is similar to Print(), except that the text \c "Warning: " is automatically prepended to the output.
     ///
     /// \par Example:
-    /// \code
+    /// \code{.lua}
     ///     Console.Warning("Problem here!\n")  -- Prints "Warning: Problem here!" to the in-game console.
     /// \endcode
     ///
@@ -50,7 +82,7 @@ class Console
     /// to the Cafu in-game console. If the \c "developer" console variable is not set, nothing is printed.
     ///
     /// \par Example:
-    /// \code
+    /// \code{.lua}
     ///     Console.DevWarning("Hello world!\n")    -- Prints "[Dev] Warning: Hello world!"
     ///                                             -- to the in-game console (in developer mode).
     /// \endcode
@@ -92,8 +124,8 @@ class ci
     /// Retrieves the value of the specified console variable.
     ///
     /// \par Example:
-    /// \code
-    ///     showFPS=ci.GetValue("showFPS")
+    /// \code{.lua}
+    ///     local showFPS = ci.GetValue("showFPS")
     /// \endcode
     ///
     /// @param name   The name of the console variable whose value is to be retrieved.
@@ -107,7 +139,7 @@ class ci
     /// Sets the console variable of the given name to the given value.
     ///
     /// \par Example:
-    /// \code
+    /// \code{.lua}
     ///     ci.SetValue("showFPS", true)
     /// \endcode
     ///
@@ -135,8 +167,8 @@ class ci
     /// Use this to run console functions and to set the values of console variables.
     ///
     /// \par Examples:
-    /// \code
-    ///     ci.RunCommand("quit=true")                  -- Same as ci.SetValue("quit", true)
+    /// \code{.lua}
+    ///     ci.RunCommand("quit = true")                -- Same as ci.SetValue("quit", true)
     ///     ci.RunCommand("changeLevel('TechDemo')")
     ///     ci.RunCommand("SetMasterVolume(0.8)")
     /// \endcode

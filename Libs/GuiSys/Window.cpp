@@ -58,7 +58,7 @@ const char* WindowT::DocClass =
     "Windows are hierarchically arranged in parent/child relationships to form complex user interfaces.\n"
     "\n"
     "Each window essentially represents a rectangular shape, but only has very little features of its own.\n"
-    "Instead, a window contains a set of components, each of which implements a specific feature for the window.\n";
+    "Instead, a window contains a set of components, each of which implements a specific feature for the window.";
 
 
 WindowT::WindowT(const WindowCreateParamsT& Params)
