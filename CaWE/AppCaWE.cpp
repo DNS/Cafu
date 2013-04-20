@@ -578,7 +578,7 @@ void AppCaWE::WriteLuaDoxygenHeaders() const
                 // "Public Member Functions", but at the same level (next to it) instead.
                 Out << "/// @nosubgrouping\n";
 
-                Out << "/// @cppName{" << TI->ClassName << "}\n";
+                Out << "/// @cppName{cf,GuiSys," << TI->ClassName << "}\n";
                 Out << "class " << TI->ClassName;
                 if (TI->Base) Out << " : public " << TI->BaseClassName;
                 Out << "\n";
@@ -641,7 +641,7 @@ void AppCaWE::WriteLuaDoxygenHeaders() const
                 // "Public Member Functions", but at the same level (next to it) instead.
                 Out << "/// @nosubgrouping\n";
 
-                Out << "/// @cppName{" << TI->ClassName << "}\n";
+                Out << "/// @cppName{cf,GuiSys," << TI->ClassName << "}\n";
                 Out << "class " << TI->ClassName;
                 if (TI->Base) Out << " : public " << TI->BaseClassName;
                 Out << "\n";

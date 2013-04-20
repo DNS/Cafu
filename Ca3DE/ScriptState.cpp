@@ -149,7 +149,7 @@ static void CreateLuaDoxygenHeader(lua_State* LuaState, cf::GameSys::GameI* Game
                 Out << "///\n";
                 Out << "/// @mapName{" << It->second.MapName << "}\n";
             }
-            Out << "/// @cppName{" << TI->ClassName << "}\n";
+            Out << "/// @cppName{DeathMatch," << TI->ClassName << "}\n";
             Out << "class " << TI->ClassName;
             if (TI->Base) Out << " : public " << TI->BaseClassName;
             Out << "\n";

@@ -9,7 +9,7 @@ namespace GUI
 /// Components of this type are never instantiated directly, but always indirectly through one of the derived classes.
 ///
 /// @nosubgrouping
-/// @cppName{ComponentBaseT}
+/// @cppName{cf,GuiSys,ComponentBaseT}
 class ComponentBaseT
 {
     public:
@@ -121,7 +121,7 @@ class ComponentBaseT
 /// \endcode
 ///
 /// @nosubgrouping
-/// @cppName{ComponentBasicsT}
+/// @cppName{cf,GuiSys,ComponentBasicsT}
 class ComponentBasicsT : public ComponentBaseT
 {
     public:
@@ -167,7 +167,7 @@ class ComponentBasicsT : public ComponentBaseT
 /// \endcode
 ///
 /// @nosubgrouping
-/// @cppName{ComponentBorderT}
+/// @cppName{cf,GuiSys,ComponentBorderT}
 class ComponentBorderT : public ComponentBaseT
 {
     public:
@@ -214,7 +214,7 @@ class ComponentBorderT : public ComponentBaseT
 /// \endcode
 ///
 /// @nosubgrouping
-/// @cppName{ComponentChoiceT}
+/// @cppName{cf,GuiSys,ComponentChoiceT}
 class ComponentChoiceT : public ComponentBaseT
 {
     public:
@@ -269,7 +269,7 @@ class ComponentChoiceT : public ComponentBaseT
 /// \endcode
 ///
 /// @nosubgrouping
-/// @cppName{ComponentImageT}
+/// @cppName{cf,GuiSys,ComponentImageT}
 class ComponentImageT : public ComponentBaseT
 {
     public:
@@ -316,7 +316,7 @@ class ComponentImageT : public ComponentBaseT
 /// \endcode
 ///
 /// @nosubgrouping
-/// @cppName{ComponentListBoxT}
+/// @cppName{cf,GuiSys,ComponentListBoxT}
 class ComponentListBoxT : public ComponentBaseT
 {
     public:
@@ -400,7 +400,7 @@ class ComponentListBoxT : public ComponentBaseT
 /// \endcode
 ///
 /// @nosubgrouping
-/// @cppName{ComponentModelT}
+/// @cppName{cf,GuiSys,ComponentModelT}
 class ComponentModelT : public ComponentBaseT
 {
     public:
@@ -475,7 +475,7 @@ class ComponentModelT : public ComponentBaseT
 /// \endcode
 ///
 /// @nosubgrouping
-/// @cppName{ComponentTextEditT}
+/// @cppName{cf,GuiSys,ComponentTextEditT}
 class ComponentTextEditT : public ComponentBaseT
 {
     public:
@@ -539,7 +539,7 @@ class ComponentTextEditT : public ComponentBaseT
 /// \endcode
 ///
 /// @nosubgrouping
-/// @cppName{ComponentTextT}
+/// @cppName{cf,GuiSys,ComponentTextT}
 class ComponentTextT : public ComponentBaseT
 {
     public:
@@ -630,7 +630,7 @@ class ComponentTextT : public ComponentBaseT
 /// \endcode
 ///
 /// @nosubgrouping
-/// @cppName{ComponentTransformT}
+/// @cppName{cf,GuiSys,ComponentTransformT}
 class ComponentTransformT : public ComponentBaseT
 {
     public:

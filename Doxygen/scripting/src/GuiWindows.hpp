@@ -15,7 +15,7 @@ namespace GUI
 /// \endcode
 ///
 /// @nosubgrouping
-/// @cppName{WindowT}
+/// @cppName{cf,GuiSys,WindowT}
 class WindowT
 {
     public:

@@ -6,7 +6,7 @@ namespace Map
 /// The functionality that this class provides is shared by all entities.
 /// Entities of this class cannot be created in map files directly, but they're always created via one of the derived classes.
 ///
-/// @cppName{BaseEntityT}
+/// @cppName{DeathMatch,BaseEntityT}
 class BaseEntityT
 {
     public:
@@ -51,7 +51,7 @@ class BaseEntityT
 };
 
 
-/// @cppName{EntWeaponT}
+/// @cppName{DeathMatch,EntWeaponT}
 class EntWeaponT : public BaseEntityT
 {
     public:
@@ -62,7 +62,7 @@ class EntWeaponT : public BaseEntityT
 /// Tripmine Ammo
 ///
 /// @mapName{weapon_tripmine}
-/// @cppName{EntWeaponTripmineT}
+/// @cppName{DeathMatch,EntWeaponTripmineT}
 class EntWeaponTripmineT : public EntWeaponT
 {
     public:
@@ -73,7 +73,7 @@ class EntWeaponTripmineT : public EntWeaponT
 /// Shotgun
 ///
 /// @mapName{weapon_shotgun}
-/// @cppName{EntWeaponShotgunT}
+/// @cppName{DeathMatch,EntWeaponShotgunT}
 class EntWeaponShotgunT : public EntWeaponT
 {
     public:
@@ -84,7 +84,7 @@ class EntWeaponShotgunT : public EntWeaponT
 /// RPG
 ///
 /// @mapName{weapon_rpg}
-/// @cppName{EntWeaponRPGT}
+/// @cppName{DeathMatch,EntWeaponRPGT}
 class EntWeaponRPGT : public EntWeaponT
 {
     public:
@@ -95,7 +95,7 @@ class EntWeaponRPGT : public EntWeaponT
 /// 9mm Handgun
 ///
 /// @mapName{weapon_9mmhandgun}
-/// @cppName{EntWeaponPistolT}
+/// @cppName{DeathMatch,EntWeaponPistolT}
 class EntWeaponPistolT : public EntWeaponT
 {
     public:
@@ -106,7 +106,7 @@ class EntWeaponPistolT : public EntWeaponT
 /// Hornet Gun
 ///
 /// @mapName{weapon_hornetgun}
-/// @cppName{EntWeaponHornetGunT}
+/// @cppName{DeathMatch,EntWeaponHornetGunT}
 class EntWeaponHornetGunT : public EntWeaponT
 {
     public:
@@ -117,7 +117,7 @@ class EntWeaponHornetGunT : public EntWeaponT
 /// Handgrenade Ammo
 ///
 /// @mapName{weapon_handgrenade}
-/// @cppName{EntWeaponGrenadeT}
+/// @cppName{DeathMatch,EntWeaponGrenadeT}
 class EntWeaponGrenadeT : public EntWeaponT
 {
     public:
@@ -128,7 +128,7 @@ class EntWeaponGrenadeT : public EntWeaponT
 /// Gauss Gun
 ///
 /// @mapName{weapon_gauss}
-/// @cppName{EntWeaponGaussT}
+/// @cppName{DeathMatch,EntWeaponGaussT}
 class EntWeaponGaussT : public EntWeaponT
 {
     public:
@@ -139,7 +139,7 @@ class EntWeaponGaussT : public EntWeaponT
 /// Face Hugger (Squeak)
 ///
 /// @mapName{weapon_facehugger}
-/// @cppName{EntWeaponFaceHuggerT}
+/// @cppName{DeathMatch,EntWeaponFaceHuggerT}
 class EntWeaponFaceHuggerT : public EntWeaponT
 {
     public:
@@ -150,7 +150,7 @@ class EntWeaponFaceHuggerT : public EntWeaponT
 /// Egon Gun
 ///
 /// @mapName{weapon_egon}
-/// @cppName{EntWeaponEgonT}
+/// @cppName{DeathMatch,EntWeaponEgonT}
 class EntWeaponEgonT : public EntWeaponT
 {
     public:
@@ -161,7 +161,7 @@ class EntWeaponEgonT : public EntWeaponT
 /// Crossbow
 ///
 /// @mapName{weapon_crossbow}
-/// @cppName{EntWeaponCrossbowT}
+/// @cppName{DeathMatch,EntWeaponCrossbowT}
 class EntWeaponCrossbowT : public EntWeaponT
 {
     public:
@@ -172,7 +172,7 @@ class EntWeaponCrossbowT : public EntWeaponT
 /// Battle Scythe
 ///
 /// @mapName{weapon_battlescythe}
-/// @cppName{EntWeaponBattleScytheT}
+/// @cppName{DeathMatch,EntWeaponBattleScytheT}
 class EntWeaponBattleScytheT : public EntWeaponT
 {
     public:
@@ -183,7 +183,7 @@ class EntWeaponBattleScytheT : public EntWeaponT
 /// 9mm Assault Rifle
 ///
 /// @mapName{weapon_9mmAR}
-/// @cppName{EntWeapon9mmART}
+/// @cppName{DeathMatch,EntWeapon9mmART}
 class EntWeapon9mmART : public EntWeaponT
 {
     public:
@@ -194,7 +194,7 @@ class EntWeapon9mmART : public EntWeaponT
 /// 357 Handgun
 ///
 /// @mapName{weapon_357handgun}
-/// @cppName{EntWeapon357T}
+/// @cppName{DeathMatch,EntWeapon357T}
 class EntWeapon357T : public EntWeaponT
 {
     public:
@@ -214,7 +214,7 @@ class EntWeapon357T : public EntWeaponT
 /// Newly created triggers are active by default.
 ///
 /// @mapName{Trigger}
-/// @cppName{EntTriggerT}
+/// @cppName{DeathMatch,EntTriggerT}
 class EntTriggerT : public BaseEntityT
 {
     public:
@@ -248,7 +248,7 @@ class EntTriggerT : public BaseEntityT
 /// effect only, as only a <em>restart</em> of a sequence is sync'ed over the network.
 ///
 /// @mapName{static_detail_model}
-/// @cppName{EntStaticDetailModelT}
+/// @cppName{DeathMatch,EntStaticDetailModelT}
 class EntStaticDetailModelT : public BaseEntityT
 {
     public:
@@ -297,7 +297,7 @@ class EntStaticDetailModelT : public BaseEntityT
 /// TODO: Expose more scripting control.
 ///
 /// @mapName{speaker}
-/// @cppName{EntSpeakerT}
+/// @cppName{DeathMatch,EntSpeakerT}
 class EntSpeakerT : public BaseEntityT
 {
     public:
@@ -313,7 +313,7 @@ class EntSpeakerT : public BaseEntityT
 /// Rocket
 ///
 /// @mapName{monster_rocket}
-/// @cppName{EntRocketT}
+/// @cppName{DeathMatch,EntRocketT}
 class EntRocketT : public BaseEntityT
 {
     public:
@@ -324,7 +324,7 @@ class EntRocketT : public BaseEntityT
 /// A rigid body whose motion is controlled by rigid body dynamics as implemented by the physics engine.
 ///
 /// @mapName{Rigid Body}
-/// @cppName{EntRigidBodyT}
+/// @cppName{DeathMatch,EntRigidBodyT}
 class EntRigidBodyT : public BaseEntityT
 {
     public:
@@ -353,7 +353,7 @@ class EntRigidBodyT : public BaseEntityT
 /// See http://www.cafu.de/wiki/mapping:cawe:lighting for more details about the available kinds of light sources and their characteristics.
 ///
 /// @mapName{PointLightSource}
-/// @cppName{EntPointLightSourceT}
+/// @cppName{DeathMatch,EntPointLightSourceT}
 class EntPointLightSourceT : public BaseEntityT
 {
     public:
@@ -403,7 +403,7 @@ class EntPointLightSourceT : public BaseEntityT
 /// This entity creates other entities ("life forms").
 ///
 /// @mapName{LifeFormMaker}
-/// @cppName{EntMonsterMakerT}
+/// @cppName{DeathMatch,EntMonsterMakerT}
 class EntMonsterMakerT : public BaseEntityT
 {
     public:
@@ -411,7 +411,7 @@ class EntMonsterMakerT : public BaseEntityT
 };
 
 
-/// @cppName{EntItemT}
+/// @cppName{DeathMatch,EntItemT}
 class EntItemT : public BaseEntityT
 {
     public:
@@ -422,7 +422,7 @@ class EntItemT : public BaseEntityT
 /// Crossbow Arrows
 ///
 /// @mapName{ammo_crossbow_arrows}
-/// @cppName{EntItemAmmoArrowT}
+/// @cppName{DeathMatch,EntItemAmmoArrowT}
 class EntItemAmmoArrowT : public EntItemT
 {
     public:
@@ -433,7 +433,7 @@ class EntItemAmmoArrowT : public EntItemT
 /// 357 Pistol Ammo
 ///
 /// @mapName{ammo_357}
-/// @cppName{EntItemAmmo357T}
+/// @cppName{DeathMatch,EntItemAmmo357T}
 class EntItemAmmo357T : public EntItemT
 {
     public:
@@ -444,7 +444,7 @@ class EntItemAmmo357T : public EntItemT
 /// A starting location for the player.
 ///
 /// @mapName{info_player_start}
-/// @cppName{EntInfoPlayerStartT}
+/// @cppName{DeathMatch,EntInfoPlayerStartT}
 class EntInfoPlayerStartT : public BaseEntityT
 {
     public:
@@ -457,7 +457,7 @@ class EntInfoPlayerStartT : public BaseEntityT
 /// using the methods of the base class BaseEntityT.
 ///
 /// @mapName{info_generic}
-/// @cppName{EntInfoGenericT}
+/// @cppName{DeathMatch,EntInfoGenericT}
 class EntInfoGenericT : public BaseEntityT
 {
     public:
@@ -469,7 +469,7 @@ class EntInfoGenericT : public BaseEntityT
 /// Should never be placed in a map or even shown in the editor, it just doesn't make sense.
 ///
 /// @mapName{HumanPlayer}
-/// @cppName{EntHumanPlayerT}
+/// @cppName{DeathMatch,EntHumanPlayerT}
 class EntHumanPlayerT : public BaseEntityT
 {
     public:
@@ -480,7 +480,7 @@ class EntHumanPlayerT : public BaseEntityT
 /// Handgrenade
 ///
 /// @mapName{monster_handgrenade}
-/// @cppName{EntHandGrenadeT}
+/// @cppName{DeathMatch,EntHandGrenadeT}
 class EntHandGrenadeT : public BaseEntityT
 {
     public:
@@ -491,7 +491,7 @@ class EntHandGrenadeT : public BaseEntityT
 /// An entity for moving objects like doors, lifts, platforms, etc. To be used with scripting.
 ///
 /// @mapName{func_mover}
-/// @cppName{EntFuncMoverT}
+/// @cppName{DeathMatch,EntFuncMoverT}
 class EntFuncMoverT : public BaseEntityT
 {
     public:
@@ -516,7 +516,7 @@ class EntFuncMoverT : public BaseEntityT
 /// Ladder (for climbing)
 ///
 /// @mapName{func_ladder}
-/// @cppName{EntFuncLadderT}
+/// @cppName{DeathMatch,EntFuncLadderT}
 class EntFuncLadderT : public BaseEntityT
 {
     public:
@@ -527,7 +527,7 @@ class EntFuncLadderT : public BaseEntityT
 /// This entity implements fully automatic doors.
 ///
 /// @mapName{func_door}
-/// @cppName{EntFuncDoorT}
+/// @cppName{DeathMatch,EntFuncDoorT}
 class EntFuncDoorT : public BaseEntityT
 {
     public:
@@ -541,7 +541,7 @@ class EntFuncDoorT : public BaseEntityT
 /// Facehugger
 ///
 /// @mapName{monster_facehugger}
-/// @cppName{EntFaceHuggerT}
+/// @cppName{DeathMatch,EntFaceHuggerT}
 class EntFaceHuggerT : public BaseEntityT
 {
     public:
@@ -552,7 +552,7 @@ class EntFaceHuggerT : public BaseEntityT
 /// Eagle
 ///
 /// @mapName{monster_eagle}
-/// @cppName{EntEagleT}
+/// @cppName{DeathMatch,EntEagleT}
 class EntEagleT : public BaseEntityT
 {
     public:
@@ -563,7 +563,7 @@ class EntEagleT : public BaseEntityT
 /// A corpse entity. Usually created by code.
 ///
 /// @mapName{corpse}
-/// @cppName{EntCorpseT}
+/// @cppName{DeathMatch,EntCorpseT}
 class EntCorpseT : public BaseEntityT
 {
     public:
@@ -574,7 +574,7 @@ class EntCorpseT : public BaseEntityT
 /// Company Bot (Trinity)
 ///
 /// @mapName{monster_companybot}
-/// @cppName{EntCompanyBotT}
+/// @cppName{DeathMatch,EntCompanyBotT}
 class EntCompanyBotT : public BaseEntityT
 {
     public:
@@ -585,7 +585,7 @@ class EntCompanyBotT : public BaseEntityT
 /// Butterfly
 ///
 /// @mapName{monster_butterfly}
-/// @cppName{EntButterflyT}
+/// @cppName{DeathMatch,EntButterflyT}
 class EntButterflyT : public BaseEntityT
 {
     public:
@@ -596,7 +596,7 @@ class EntButterflyT : public BaseEntityT
 /// AR Grenade
 ///
 /// @mapName{monster_argrenade}
-/// @cppName{EntARGrenadeT}
+/// @cppName{DeathMatch,EntARGrenadeT}
 class EntARGrenadeT : public BaseEntityT
 {
     public:
