@@ -468,6 +468,27 @@ namespace
     }
 
 
+    void WriteDoxyCallbacks(std::ofstream& Out, const cf::TypeSys::TypeInfoT* TI)
+    {
+        if (TI->MethodsList) Out << "\n\n";
+
+        // This group is created empty, we no items inside it.
+        // Good news is that if this group remains empty (no manually added callbacks in the src/ files),
+        // Doxygen will not generate any output for it. That is, there is no harm in creating it universally
+        // for every class.
+        Out << "    public:\n";
+        Out << "\n";
+        Out << "    /** @name Event Handlers (Callbacks)\n";
+        Out << "     *\n";
+        Out << "     * See the \\ref eventhandlers overview page for additional information about the methods in this group.\n";
+        Out << "     *\n";
+        Out << "     * @{\n";
+        Out << "     */\n";
+        Out << "\n";
+        Out << "    /** @} */\n";
+    }
+
+
     void WriteDoxyVars(std::ofstream& Out, const cf::TypeSys::VarManT& VarMan, const cf::TypeSys::TypeInfoT* TI=NULL)
     {
         const ArrayT<cf::TypeSys::VarBaseT*>& Vars    = VarMan.GetArray();
@@ -553,6 +574,10 @@ void AppCaWE::WriteLuaDoxygenHeaders() const
                 if (!TI->Child)   // Only do this for "leaf" classes.
                     Out << FormatDoxyComment(InfoNew.c_str(), "");
 
+                // We need this so that the "Event Handlers (Callbacks)" group is not made a sub-group of
+                // "Public Member Functions", but at the same level (next to it) instead.
+                Out << "/// @nosubgrouping\n";
+
                 Out << "/// @cppName{" << TI->ClassName << "}\n";
                 Out << "class " << TI->ClassName;
                 if (TI->Base) Out << " : public " << TI->BaseClassName;
@@ -560,6 +585,7 @@ void AppCaWE::WriteLuaDoxygenHeaders() const
                 Out << "{\n";
 
                 WriteDoxyMethods(Out, TI);
+                WriteDoxyCallbacks(Out, TI);
 
                 Out << "};\n";
             }
@@ -611,6 +637,10 @@ void AppCaWE::WriteLuaDoxygenHeaders() const
                 if (!TI->Child)   // Only do this for "leaf" classes.
                     Out << FormatDoxyComment(InfoNew.c_str(), "");
 
+                // We need this so that the "Event Handlers (Callbacks)" group is not made a sub-group of
+                // "Public Member Functions", but at the same level (next to it) instead.
+                Out << "/// @nosubgrouping\n";
+
                 Out << "/// @cppName{" << TI->ClassName << "}\n";
                 Out << "class " << TI->ClassName;
                 if (TI->Base) Out << " : public " << TI->BaseClassName;
@@ -618,6 +648,7 @@ void AppCaWE::WriteLuaDoxygenHeaders() const
                 Out << "{\n";
 
                 WriteDoxyMethods(Out, TI);
+                WriteDoxyCallbacks(Out, TI);
 
                 // Write variables.
                 IntrusivePtrT<cf::GuiSys::ComponentBaseT> Comp = static_cast<cf::GuiSys::ComponentBaseT*>(

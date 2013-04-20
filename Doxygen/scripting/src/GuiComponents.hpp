@@ -8,6 +8,7 @@ namespace GUI
 ///
 /// Components of this type are never instantiated directly, but always indirectly through one of the derived classes.
 ///
+/// @nosubgrouping
 /// @cppName{ComponentBaseT}
 class ComponentBaseT
 {
@@ -94,6 +95,18 @@ class ComponentBaseT
     /// \param end_value     The end value.
     /// \param time          The time in milliseconds to interpolate the variable from `start_value` to `end_value`.
     interpolate(string var_name, number start_value, number end_value, number time);
+
+
+    public:
+
+    /** @name Event Handlers (Callbacks)
+     *
+     * See the \ref eventhandlers overview page for additional information about the methods in this group.
+     *
+     * @{
+     */
+
+    /** @} */
 };
 
 
@@ -107,10 +120,28 @@ class ComponentBaseT
 ///     local comp = gui:new("ComponentBasicsT")
 /// \endcode
 ///
+/// @nosubgrouping
 /// @cppName{ComponentBasicsT}
 class ComponentBasicsT : public ComponentBaseT
 {
     public:
+
+
+    public:
+
+    /** @name Event Handlers (Callbacks)
+     *
+     * See the \ref eventhandlers overview page for additional information about the methods in this group.
+     *
+     * @{
+     */
+
+    /// This method is called whenever the value of the `Show` member has changed.
+    /// The method has no parameters -- use `self:get("Show")` in order to learn whether the window
+    /// has been shown or hidden.
+    OnShow();
+
+    /** @} */
 
 
     public:
@@ -135,10 +166,23 @@ class ComponentBasicsT : public ComponentBaseT
 ///     local comp = gui:new("ComponentBorderT")
 /// \endcode
 ///
+/// @nosubgrouping
 /// @cppName{ComponentBorderT}
 class ComponentBorderT : public ComponentBaseT
 {
     public:
+
+
+    public:
+
+    /** @name Event Handlers (Callbacks)
+     *
+     * See the \ref eventhandlers overview page for additional information about the methods in this group.
+     *
+     * @{
+     */
+
+    /** @} */
 
 
     public:
@@ -169,6 +213,7 @@ class ComponentBorderT : public ComponentBaseT
 ///     local comp = gui:new("ComponentChoiceT")
 /// \endcode
 ///
+/// @nosubgrouping
 /// @cppName{ComponentChoiceT}
 class ComponentChoiceT : public ComponentBaseT
 {
@@ -179,6 +224,26 @@ class ComponentChoiceT : public ComponentBaseT
 
     /// Returns the currently selected item (or `nil` if no item is selected).
     string GetSelItem();
+
+
+    public:
+
+    /** @name Event Handlers (Callbacks)
+     *
+     * See the \ref eventhandlers overview page for additional information about the methods in this group.
+     *
+     * @{
+     */
+
+    /// This method is called whenever the selection in this has changed.
+    ///
+    /// The selection may have changed as the result of a mouse click or a key press,
+    /// whereas calling `self:set("Selection", ...)` does *not* trigger this event.
+    ///
+    /// Use `self:GetSelItem()` or `self:get("Selection")` in order to learn which item has recently been selected.
+    OnSelectionChanged();
+
+    /** @} */
 
 
     public:
@@ -203,10 +268,23 @@ class ComponentChoiceT : public ComponentBaseT
 ///     local comp = gui:new("ComponentImageT")
 /// \endcode
 ///
+/// @nosubgrouping
 /// @cppName{ComponentImageT}
 class ComponentImageT : public ComponentBaseT
 {
     public:
+
+
+    public:
+
+    /** @name Event Handlers (Callbacks)
+     *
+     * See the \ref eventhandlers overview page for additional information about the methods in this group.
+     *
+     * @{
+     */
+
+    /** @} */
 
 
     public:
@@ -237,6 +315,7 @@ class ComponentImageT : public ComponentBaseT
 ///     local comp = gui:new("ComponentListBoxT")
 /// \endcode
 ///
+/// @nosubgrouping
 /// @cppName{ComponentListBoxT}
 class ComponentListBoxT : public ComponentBaseT
 {
@@ -244,6 +323,26 @@ class ComponentListBoxT : public ComponentBaseT
 
     /// Returns the currently selected item (or nil if no item is selected).
     string GetSelItem();
+
+
+    public:
+
+    /** @name Event Handlers (Callbacks)
+     *
+     * See the \ref eventhandlers overview page for additional information about the methods in this group.
+     *
+     * @{
+     */
+
+    /// This method is called whenever the selection in this has changed.
+    ///
+    /// The selection may have changed as the result of a mouse click or a key press,
+    /// whereas calling `self:set("Selection", ...)` does *not* trigger this event.
+    ///
+    /// Use `self:GetSelItem()` or `self:get("Selection")` in order to learn which item has recently been selected.
+    OnSelectionChanged();
+
+    /** @} */
 
 
     public:
@@ -300,6 +399,7 @@ class ComponentListBoxT : public ComponentBaseT
 ///     local comp = gui:new("ComponentModelT")
 /// \endcode
 ///
+/// @nosubgrouping
 /// @cppName{ComponentModelT}
 class ComponentModelT : public ComponentBaseT
 {
@@ -316,6 +416,18 @@ class ComponentModelT : public ComponentBaseT
 
     /// Returns the number of skins in this model.
     number GetNumSkins();
+
+
+    public:
+
+    /** @name Event Handlers (Callbacks)
+     *
+     * See the \ref eventhandlers overview page for additional information about the methods in this group.
+     *
+     * @{
+     */
+
+    /** @} */
 
 
     public:
@@ -362,6 +474,7 @@ class ComponentModelT : public ComponentBaseT
 ///     local comp = gui:new("ComponentTextEditT")
 /// \endcode
 ///
+/// @nosubgrouping
 /// @cppName{ComponentTextEditT}
 class ComponentTextEditT : public ComponentBaseT
 {
@@ -369,6 +482,18 @@ class ComponentTextEditT : public ComponentBaseT
 
     /// Sets the given text in the related Text sibling component and moves the cursor position to its end.
     SetText(string text);
+
+
+    public:
+
+    /** @name Event Handlers (Callbacks)
+     *
+     * See the \ref eventhandlers overview page for additional information about the methods in this group.
+     *
+     * @{
+     */
+
+    /** @} */
 
 
     public:
@@ -413,10 +538,23 @@ class ComponentTextEditT : public ComponentBaseT
 ///     local comp = gui:new("ComponentTextT")
 /// \endcode
 ///
+/// @nosubgrouping
 /// @cppName{ComponentTextT}
 class ComponentTextT : public ComponentBaseT
 {
     public:
+
+
+    public:
+
+    /** @name Event Handlers (Callbacks)
+     *
+     * See the \ref eventhandlers overview page for additional information about the methods in this group.
+     *
+     * @{
+     */
+
+    /** @} */
 
 
     public:
@@ -491,10 +629,23 @@ class ComponentTextT : public ComponentBaseT
 ///     local comp = gui:new("ComponentTransformT")
 /// \endcode
 ///
+/// @nosubgrouping
 /// @cppName{ComponentTransformT}
 class ComponentTransformT : public ComponentBaseT
 {
     public:
+
+
+    public:
+
+    /** @name Event Handlers (Callbacks)
+     *
+     * See the \ref eventhandlers overview page for additional information about the methods in this group.
+     *
+     * @{
+     */
+
+    /** @} */
 
 
     public:

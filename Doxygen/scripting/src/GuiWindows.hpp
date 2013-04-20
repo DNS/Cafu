@@ -14,23 +14,6 @@ namespace GUI
 ///     local win = gui:new("WindowT", "my_window")
 /// \endcode
 ///
-/// <h3>Event Handler Callbacks</h3>
-/// The methods that are listed in this group are \emph{event handlers}:
-/// They are called automatically by the Cafu GUI system whenever the related event occurs.
-///
-/// Contrary to "normal" methods, none of these methods is predefined by or implemented by the Cafu GUI system,
-/// and you normally don't call these methods yourself (although you can).
-///
-/// Instead, with these methods, the roles are reversed:
-/// If you're interested in handling a specific event, define (write) the related event handler method.
-/// The Cafu GUI system will call it when the related event occurs, using the appropriate function parameters
-/// for the event (this is similar to overriding virtual methods in C++).
-/// Your own implementation code then determines how the event is handled.
-///
-/// This list documents all callback methods that are available,
-/// but you have to provide an implementation only if you wish to handle the related event.
-/// Methods for events that you do not require need not be implemented at all.
-///
 /// @nosubgrouping
 /// @cppName{WindowT}
 class WindowT
@@ -76,23 +59,20 @@ class WindowT
     ComponentBaseT GetComponent(string type_name, number n);
 
 
-    /** @name Event Handler Callbacks
+    public:
+
+    /** @name Event Handlers (Callbacks)
+     *
+     * See the \ref eventhandlers overview page for additional information about the methods in this group.
      *
      * @{
      */
 
-    /// This method is called when the user presses the "action" button inside the window.
-    /// This is normally the left mouse button, but could also be the appropriate joystick button etc.
-    ///
-    ///   - When the GuiSys calls this method, it also calls to the OnFocusLose() and OnFocusGain() methods,
-    ///     if appropriate (that is, when the keyboard input focus changes as a result of the mouse click).
-    OnAction();
-
-    /// Called for each window when the GUI is activated (i.e.\ switched on for rendering).
-    /// For example, when the user toggles the in-game console, this method is called every time the console GUI comes up.
+    /// Called for each window when the %GUI is activated (i.e.\ switched on for rendering).
+    /// For example, when the user toggles the in-game console, this method is called every time the console %GUI comes up.
     OnActivate();
 
-    /// Called for each window when the GUI is deactivated.
+    /// Called for each window when the %GUI is deactivated.
     ///
     ///   - This method mainly exists for symmetry with OnActivate(), it has little practical use.
     OnDeactivate();
@@ -118,9 +98,18 @@ class WindowT
     ///   - Obviously, expensive computations cannot be run in this method &mdash; they would directly impact the framerate!
     OnFrame();
 
-    /// This is the first method that is called for each window after a GUI has been loaded.
+    /// This is the first method that is called for each window after a %GUI has been loaded.
     /// It is only called once for each window.
+    ///
+    /// Note that OnInit() callbacks are special: They're automatically written by the CaWE GUI Editor as part of the
+    /// `_init.cgui` file whenever it saves a file. That is, you can normally not write an OnInit() callback yourself,
+    /// because it has been used already in the normal init code of the GUI. See OnInit2() for a callback with the
+    /// same purpose that is available for your customizations.
     OnInit();
+
+    /// This method is very much like OnInit(), but intended for your own custom use in the `_main.cgui` file.
+    /// It is only called once for each window.
+    OnInit2();
 
     /// This method is called if a key was pressed and the window has the keyboard input focus.
     ///
@@ -142,26 +131,36 @@ class WindowT
     ///   <tr><td>       208 </td><td> Arrow Down                </td></tr>
     /// </table>
     ///
-    /// @returns The method must return @c true if it handled this key press, @c false otherwise.
-    bool OnKeyPress(number Key);
+    /// @returns The method should return `true` if it handled ("consumed") this event, `false` otherwise.
+    boolean OnKeyPress(number Key);
 
     /// Like OnKeyPress(), but for key releases.
-    bool OnKeyRelease(number Key);
+    boolean OnKeyRelease(number Key);
 
     /// This method is called when a character event occurred and the window has the keyboard input focus.
     ///
-    /// The difference to OnKeyPress() and OnKeyRelease is that these two just deals with plain keys,
+    /// The difference to OnKeyPress() and OnKeyRelease() is that these two just deals with plain keys,
     /// which is useful for example to work with the arrow keys.
     /// OnChar() however deals with entered \emph{characters}, which for example take the state of the SHIFT key into account,
     /// language specific keyboard settings and layout, etc. Therefore, OnChar() is the preferred choice for text input.
     ///
-    ///   - Characters are represented as ASCII codes. That is, the integer values that @c ch may assume match the ASCII table.
+    ///   - Characters are represented as ASCII codes. That is, the integer values that `ch` may assume match the ASCII table.
     ///   - You can use the <tt>string.char(ch)</tt> Lua library function in order to obtain a string that consist
-    ///     of the character that corresponds to the numeric value of @c ch.
+    ///     of the character that corresponds to the numeric value of `ch`.
     ///
     /// @param ch   The integer number that represents the character.
-    /// @returns The method must return @c true if it handled this key press, @c false otherwise.
-    bool OnChar(number ch);
+    /// @returns The method should return `true` if it handled ("consumed") this event, `false` otherwise.
+    boolean OnChar(number ch);
+
+    /// This method is called when a mouse button went down (was pressed).
+    /// @param button   The number of the mouse button that went down. (Typically 0 for the left, 1 for the right, 2 for the middle, and 3 for extra mouse button.)
+    /// @returns The method should return `true` if it handled ("consumed") this event, `false` otherwise.
+    boolean OnMouseButtonDown(number button);
+
+    /// This method is called when a mouse button went up (was released).
+    /// @param button   The number of the mouse button that went up. (Typically 0 for the left, 1 for the right, 2 for the middle, and 3 for extra mouse button.)
+    /// @returns The method should return `true` if it handled ("consumed") this event, `false` otherwise.
+    boolean OnMouseButtonUp(number button);
 
     /// This method is called when the mouse cursor enters the rectangle of the window.
     ///
@@ -174,6 +173,9 @@ class WindowT
     /// \note This does currently not take rotation into account, i.e. it acts as if the rotation was always 0,
     /// even if the window rectangle is actually rotating.
     OnMouseLeave();
+
+    // This method is currently not called (commented out in C++ code).
+    // boolean OnMouseMove(number amount_x, number amount_y);
 
     /** @} */
 };
