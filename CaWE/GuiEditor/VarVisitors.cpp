@@ -178,10 +178,38 @@ namespace
 /*** VarVisitorAddPropT ***/
 /**************************/
 
-VarVisitorAddPropT::VarVisitorAddPropT(wxPropertyGridManager& PropMan, GuiDocumentT* GuiDoc)
+VarVisitorAddPropT::VarVisitorAddPropT(wxPropertyGridManager& PropMan, GuiDocumentT* GuiDoc, const cf::TypeSys::TypeInfoT* TI)
     : m_PropMan(PropMan),
-      m_GuiDoc(GuiDoc)
+      m_GuiDoc(GuiDoc),
+      m_TI(TI)
 {
+}
+
+
+void VarVisitorAddPropT::SetHelpString(wxPGProperty* Prop, wxPGProperty* SourceProp) const
+{
+    if (!m_TI->DocVars) return;
+
+    if (!SourceProp)
+    {
+        // Prop is a normal property.
+        for (unsigned int DocNr = 0; m_TI->DocVars[DocNr].Name; DocNr++)
+            if (Prop->GetLabel() == m_TI->DocVars[DocNr].Name)
+            {
+                Prop->SetHelpString(m_TI->DocVars[DocNr].Doc);
+                return;
+            }
+    }
+    else
+    {
+        // Prop is a sub-property of composed property SourceProp.
+        for (unsigned int DocNr = 0; m_TI->DocVars[DocNr].Name; DocNr++)
+            if (SourceProp->GetLabel() == m_TI->DocVars[DocNr].Name)
+            {
+                Prop->SetHelpString("An element of " + SourceProp->GetLabel() + ": " + m_TI->DocVars[DocNr].Doc);
+                return;
+            }
+    }
 }
 
 
@@ -189,6 +217,7 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<float>& Var)
 {
     wxPGProperty* Prop = new wxFloatProperty(Var.GetName(), wxString::Format("%p", &Var), Var.Get());
 
+    SetHelpString(Prop);
     m_PropMan.Append(Prop)->SetClientData(&Var);
 }
 
@@ -197,6 +226,7 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<double>& Var)
 {
     wxPGProperty* Prop = new wxFloatProperty(Var.GetName(), wxString::Format("%p", &Var), Var.Get());
 
+    SetHelpString(Prop);
     m_PropMan.Append(Prop)->SetClientData(&Var);
 }
 
@@ -224,6 +254,7 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<int>& Var)
         Prop = new wxIntProperty(Var.GetName(), wxString::Format("%p", &Var), Var.Get());
     }
 
+    SetHelpString(Prop);
     m_PropMan.Append(Prop)->SetClientData(&Var);
 }
 
@@ -251,6 +282,7 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<unsigned int>& Var)
         Prop = new wxUIntProperty(Var.GetName(), wxString::Format("%p", &Var), Var.Get());
     }
 
+    SetHelpString(Prop);
     m_PropMan.Append(Prop)->SetClientData(&Var);
 }
 
@@ -259,6 +291,7 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<bool>& Var)
 {
     wxPGProperty* Prop = new wxBoolProperty(Var.GetName(), wxString::Format("%p", &Var), Var.Get());
 
+    SetHelpString(Prop);
     m_PropMan.SetPropertyAttribute(Prop, wxPG_BOOL_USE_CHECKBOX, true);   // Use a checkbox, not a choice.
     m_PropMan.Append(Prop)->SetClientData(&Var);
 }
@@ -312,6 +345,7 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<std::string>& Var)
         }
     }
 
+    SetHelpString(Prop);
     m_PropMan.Append(Prop)->SetClientData(&Var);
 }
 
@@ -320,10 +354,21 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<Vector2fT>& Var)
 {
     wxPGProperty* Prop = new wxStringProperty(Var.GetName(), wxString::Format("%p", &Var), "<composed>");
 
+    SetHelpString(Prop);
     m_PropMan.Append(Prop)->SetClientData(&Var);
 
-    m_PropMan.AppendIn(Prop, new wxFloatProperty(Var.GetFlag("Labels", 1, "x"), wxPG_LABEL, Var.Get().x))->SetTextColour(wxColour(200, 0, 0));
-    m_PropMan.AppendIn(Prop, new wxFloatProperty(Var.GetFlag("Labels", 2, "y"), wxPG_LABEL, Var.Get().y))->SetTextColour(wxColour(0, 200, 0));
+    wxPGProperty* px = new wxFloatProperty(Var.GetFlag("Labels", 1, "x"), wxPG_LABEL, Var.Get().x);
+    wxPGProperty* py = new wxFloatProperty(Var.GetFlag("Labels", 2, "y"), wxPG_LABEL, Var.Get().y);
+
+    SetHelpString(px, Prop);
+    SetHelpString(py, Prop);
+
+    m_PropMan.AppendIn(Prop, px);
+    m_PropMan.AppendIn(Prop, py);
+
+    // For unknown reasons, the text color can only be set *after* AppendIn() has been called.
+    px->SetTextColour(wxColour(200, 0, 0));
+    py->SetTextColour(wxColour(0, 200, 0));
 }
 
 
@@ -334,17 +379,32 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
         wxColour      Col  = cast(Var.Get());
         wxPGProperty* Prop = new wxColourProperty(Var.GetName(), wxString::Format("%p", &Var), Col);
 
+        SetHelpString(Prop);
         m_PropMan.Append(Prop)->SetClientData(&Var);
     }
     else
     {
         wxPGProperty* Prop = new wxStringProperty(Var.GetName(), wxString::Format("%p", &Var), "<composed>");
 
+        SetHelpString(Prop);
         m_PropMan.Append(Prop)->SetClientData(&Var);
 
-        m_PropMan.AppendIn(Prop, new wxFloatProperty("x", wxPG_LABEL, Var.Get().x))->SetTextColour(wxColour(200, 0, 0));
-        m_PropMan.AppendIn(Prop, new wxFloatProperty("y", wxPG_LABEL, Var.Get().y))->SetTextColour(wxColour(0, 200, 0));
-        m_PropMan.AppendIn(Prop, new wxFloatProperty("z", wxPG_LABEL, Var.Get().z))->SetTextColour(wxColour(0, 0, 200));
+        wxPGProperty* px = new wxFloatProperty("x", wxPG_LABEL, Var.Get().x);
+        wxPGProperty* py = new wxFloatProperty("y", wxPG_LABEL, Var.Get().y);
+        wxPGProperty* pz = new wxFloatProperty("z", wxPG_LABEL, Var.Get().z);
+
+        SetHelpString(px, Prop);
+        SetHelpString(py, Prop);
+        SetHelpString(pz, Prop);
+
+        m_PropMan.AppendIn(Prop, px);
+        m_PropMan.AppendIn(Prop, py);
+        m_PropMan.AppendIn(Prop, pz);
+
+        // For unknown reasons, the text color can only be set *after* AppendIn() has been called.
+        px->SetTextColour(wxColour(200, 0, 0));
+        py->SetTextColour(wxColour(0, 200, 0));
+        pz->SetTextColour(wxColour(0, 0, 200));
     }
 }
 
@@ -366,6 +426,7 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var)
     // either. TODO!
     Prop->ChangeFlag(wxPG_PROP_NO_ESCAPE, true);
 
+    SetHelpString(Prop);
     m_PropMan.Append(Prop)->SetClientData(&Var);
 }
 

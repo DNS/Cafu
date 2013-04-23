@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Variables.hpp"
 
 
+namespace cf { namespace TypeSys { class TypeInfoT; } }
 class wxPGProperty;
 class wxPropertyGridEvent;
 class wxPropertyGridManager;
@@ -42,7 +43,7 @@ namespace GuiEditor
     {
         public:
 
-        VarVisitorAddPropT(wxPropertyGridManager& PropMan, GuiDocumentT* GuiDoc);
+        VarVisitorAddPropT(wxPropertyGridManager& PropMan, GuiDocumentT* GuiDoc, const cf::TypeSys::TypeInfoT* TI);
 
         void visit(cf::TypeSys::VarT<float>& Var);
         void visit(cf::TypeSys::VarT<double>& Var);
@@ -57,8 +58,11 @@ namespace GuiEditor
 
         private:
 
-        wxPropertyGridManager& m_PropMan;
-        GuiDocumentT*          m_GuiDoc;
+        void SetHelpString(wxPGProperty* Prop, wxPGProperty* SourceProp = NULL) const;
+
+        wxPropertyGridManager&        m_PropMan;
+        GuiDocumentT*                 m_GuiDoc;
+        const cf::TypeSys::TypeInfoT* m_TI;
     };
 
 

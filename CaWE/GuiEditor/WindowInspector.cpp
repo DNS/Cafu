@@ -42,13 +42,17 @@ END_EVENT_TABLE()
 
 
 WindowInspectorT::WindowInspectorT(ChildFrameT* Parent, const wxSize& Size)
-    : wxPropertyGridManager(Parent, wxID_ANY, wxDefaultPosition, Size, wxPG_BOLD_MODIFIED | wxPG_SPLITTER_AUTO_CENTER), // | wxPG_DESCRIPTION
+    : wxPropertyGridManager(Parent, wxID_ANY, wxDefaultPosition, Size, wxPG_BOLD_MODIFIED | wxPG_SPLITTER_AUTO_CENTER | wxPG_DESCRIPTION),
       m_GuiDocument(Parent->GetGuiDoc()),
       m_Parent(Parent),
       m_SelectedWindow(NULL),
       m_IsRecursiveSelfNotify(false)
 {
-    SetExtraStyle(wxPG_EX_HELP_AS_TOOLTIPS | wxPG_EX_MODE_BUTTONS);
+    // Using wxPG_EX_HELP_AS_TOOLTIPS is an alternative to wxPG_DESCRIPTION above,
+    // but tooltips seemed to be too intrusive and nervous for permanent use...
+    // Moreover, tooltips don't seem to work with wxPropertyCategory properties.
+    // SetExtraStyle(wxPG_EX_HELP_AS_TOOLTIPS);
+
     AddPage("Window Properties");
 }
 
@@ -180,9 +184,10 @@ void WindowInspectorT::AppendComponent(IntrusivePtrT<cf::GuiSys::ComponentBaseT>
     // With "category" properties we set the component pointer as client data,
     // with other properties we set (in the AddProp visitor) the variable as client data.
     CatProp->SetClientData(Comp.get());
+    CatProp->SetHelpString(Comp->GetType()->DocClass ? Comp->GetType()->DocClass : "");
     Append(CatProp);
 
-    VarVisitorAddPropT AddProp(*this, m_GuiDocument);
+    VarVisitorAddPropT AddProp(*this, m_GuiDocument, Comp->GetType());
 
     for (unsigned long VarNr = 0; VarNr < MemberVars.Size(); VarNr++)
         MemberVars[VarNr]->accept(AddProp);
