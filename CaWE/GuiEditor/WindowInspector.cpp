@@ -383,7 +383,8 @@ void WindowInspectorT::OnPropertyGridRightClick(wxPropertyGridEvent& Event)
         ID_MENU_MOVE_COMPONENT_DOWN,
         ID_MENU_COPY_COMPONENT,
         ID_MENU_PASTE_COMPONENT,
-        ID_MENU_REMOVE_COMPONENT
+        ID_MENU_REMOVE_COMPONENT,
+        ID_MENU_HELP_COMPONENT
     };
 
     wxMenu Menu;
@@ -397,6 +398,7 @@ void WindowInspectorT::OnPropertyGridRightClick(wxPropertyGridEvent& Event)
     AppendMI(Menu, ID_MENU_PASTE_COMPONENT, "Paste Component", wxART_PASTE, false);
     Menu.AppendSeparator();
     AppendMI(Menu, ID_MENU_REMOVE_COMPONENT, "Remove Component", wxART_DELETE, IsCustom);
+    AppendMI(Menu, ID_MENU_HELP_COMPONENT, "Help", "help-browser", true);
 
     switch (GetPopupMenuSelectionFromUser(Menu))
     {
@@ -442,6 +444,16 @@ void WindowInspectorT::OnPropertyGridRightClick(wxPropertyGridEvent& Event)
             if (!IsCustom) break;
 
             m_Parent->SubmitCommand(new CommandDeleteComponentT(m_GuiDocument, m_SelectedWindow, Index));
+            break;
+        }
+
+        case ID_MENU_HELP_COMPONENT:
+        {
+            const wxString URL = wxString("http://api.cafu.de/scripting/classGUI_1_1") + wxString(Comp->GetType()->ClassName) + ".html";
+
+            if (!wxLaunchDefaultBrowser(URL))
+                wxMessageBox("Could not open the help URL in your default browser.", URL, wxOK | wxICON_ERROR);
+
             break;
         }
     }
