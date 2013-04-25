@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef CAFU_GUISYS_VAR_VISITORS_LUA_HPP_INCLUDED
-#define CAFU_GUISYS_VAR_VISITORS_LUA_HPP_INCLUDED
+#ifndef CAFU_TYPESYS_VAR_VISITORS_LUA_HPP_INCLUDED
+#define CAFU_TYPESYS_VAR_VISITORS_LUA_HPP_INCLUDED
 
 #include "Variables.hpp"
 
@@ -30,7 +30,7 @@ struct lua_State;
 
 namespace cf
 {
-    namespace GuiSys
+    namespace TypeSys
     {
         /// This visitor is used to implement a "get()" function in Lua:
         /// It pushes the value(s) of the visited variable onto the Lua stack.

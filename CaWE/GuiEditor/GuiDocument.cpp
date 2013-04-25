@@ -24,8 +24,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../EditorMaterialEngine.hpp"
 
 #include "GuiSys/CompBase.hpp"
-#include "GuiSys/VarVisitorsLua.hpp"
 #include "TypeSys.hpp"
+#include "VarVisitorsLua.hpp"
 
 #include <fstream>
 
@@ -171,7 +171,7 @@ static void SaveComponents(std::ostream& OutFile, IntrusivePtrT<cf::GuiSys::Wind
     if (Window->GetComponents().Size() == 0)
         return;
 
-    cf::GuiSys::VarVisitorToLuaCodeT ToLua(OutFile);
+    cf::TypeSys::VarVisitorToLuaCodeT ToLua(OutFile);
 
     OutFile << "\n";
 

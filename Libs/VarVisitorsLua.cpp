@@ -30,7 +30,7 @@ extern "C"
 #include <cctype>
 
 
-using namespace cf::GuiSys;
+using namespace cf::TypeSys;
 
 
 /***************************/

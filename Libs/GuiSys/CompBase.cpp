@@ -22,9 +22,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CompBase.hpp"
 #include "AllComponents.hpp"
 #include "GuiImpl.hpp"
-#include "VarVisitorsLua.hpp"
 #include "Window.hpp"
 #include "UniScriptState.hpp"
+#include "VarVisitorsLua.hpp"
 
 extern "C"
 {
@@ -103,7 +103,7 @@ void ComponentBaseT::OnClockTickEvent(float t)
         if (I->CurrentTime >= I->TotalTime)
         {
             // This interpolation reached its end value, so drop it from the pending queue.
-            VarVisitorSetFloatT SetFloat(I->Suffix, I->EndValue);
+            cf::TypeSys::VarVisitorSetFloatT SetFloat(I->Suffix, I->EndValue);
 
             I->Var->accept(SetFloat);
 
@@ -113,7 +113,7 @@ void ComponentBaseT::OnClockTickEvent(float t)
         }
         else
         {
-            VarVisitorSetFloatT SetFloat(I->Suffix, I->GetCurrentValue());
+            cf::TypeSys::VarVisitorSetFloatT SetFloat(I->Suffix, I->GetCurrentValue());
 
             I->Var->accept(SetFloat);
         }
@@ -182,11 +182,11 @@ static const cf::TypeSys::MethsDocT META_Get =
 
 int ComponentBaseT::Get(lua_State* LuaState)
 {
-    ScriptBinderT                 Binder(LuaState);
-    VarVisitorGetToLuaT           GetToLua(LuaState);
-    IntrusivePtrT<ComponentBaseT> Comp    = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(1);
-    const char*                   VarName = luaL_checkstring(LuaState, 2);
-    const cf::TypeSys::VarBaseT*  Var     = Comp->m_MemberVars.Find(VarName);
+    ScriptBinderT                    Binder(LuaState);
+    cf::TypeSys::VarVisitorGetToLuaT GetToLua(LuaState);
+    IntrusivePtrT<ComponentBaseT>    Comp    = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(1);
+    const char*                      VarName = luaL_checkstring(LuaState, 2);
+    const cf::TypeSys::VarBaseT*     Var     = Comp->m_MemberVars.Find(VarName);
 
     if (!Var)
         return luaL_argerror(LuaState, 2, (std::string("unknown variable \"") + VarName + "\"").c_str());
@@ -205,11 +205,11 @@ static const cf::TypeSys::MethsDocT META_Set =
 
 int ComponentBaseT::Set(lua_State* LuaState)
 {
-    ScriptBinderT                 Binder(LuaState);
-    VarVisitorSetFromLuaT         SetFromLua(LuaState);
-    IntrusivePtrT<ComponentBaseT> Comp    = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(1);
-    const char*                   VarName = luaL_checkstring(LuaState, 2);
-    cf::TypeSys::VarBaseT*        Var     = Comp->m_MemberVars.Find(VarName);
+    ScriptBinderT                      Binder(LuaState);
+    cf::TypeSys::VarVisitorSetFromLuaT SetFromLua(LuaState);
+    IntrusivePtrT<ComponentBaseT>      Comp    = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(1);
+    const char*                        VarName = luaL_checkstring(LuaState, 2);
+    cf::TypeSys::VarBaseT*             Var     = Comp->m_MemberVars.Find(VarName);
 
     if (!Var)
         return luaL_argerror(LuaState, 2, (std::string("unknown variable \"") + VarName + "\"").c_str());
