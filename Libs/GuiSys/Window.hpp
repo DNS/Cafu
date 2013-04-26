@@ -206,7 +206,7 @@ namespace cf
             virtual bool OnClockTickEvent(float t);
 
 
-            /// Calls the Lua method with name MethodName of this window.
+            /// Calls the Lua method with name `MethodName` of this window.
             /// This method is analogous to GuiI::CallLuaFunc(), see there for more details.
             /// @param MethodName The name of the lua method to call.
             /// @param Signature DOCTODO

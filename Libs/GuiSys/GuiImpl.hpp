@@ -26,7 +26,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "UniScriptState.hpp"
 #include "MaterialSystem/MaterialManagerImpl.hpp"
 
-#include <cstdarg>
 #include <stdexcept>
 
 
@@ -116,9 +115,6 @@ namespace cf
 
 
             private:
-
-            friend class WindowT;
-
 
             GuiImplT(const GuiImplT&);          ///< Use of the Copy Constructor    is not allowed.
             void operator = (const GuiImplT&);  ///< Use of the Assignment Operator is not allowed.

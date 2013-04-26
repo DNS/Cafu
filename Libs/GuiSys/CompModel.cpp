@@ -341,13 +341,6 @@ void ComponentModelT::OnClockTickEvent(float t)
 }
 
 
-static const cf::TypeSys::MethsDocT META_ =
-{
-    "",
-    "",
-    "", "()"
-};
-
 std::string ComponentModelT::SetModel(const std::string& FileName, std::string& Msg)
 {
     // It is possible that this is called (e.g. from a script) for a component that is not yet part of a window.
