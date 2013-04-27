@@ -103,6 +103,7 @@ namespace cf
             /// Returns the name of this component.
             virtual const char* GetName() const { return "Base"; }
 
+
             /// This method is called whenever something "external" to this component has changed:
             ///   - if the parent window has changed, because this component was added to or removed from it,
             ///   - if other components in the parent window have changed.

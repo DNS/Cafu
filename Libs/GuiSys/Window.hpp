@@ -71,9 +71,6 @@ namespace cf
             public:
 
             /// The normal constructor.
-            /// This constructor can *not* be declared as "protected", because even though only derived classes and
-            /// the CreateInstance() function access it, having it protected would not allow derived classes to create
-            /// new instances (e.g. for subwindows)! See the "C++ FAQs" by Cline etc., FAQs 18.02 and 18.03 for details.
             /// @param Params   The creation parameters for the window.
             WindowT(const WindowCreateParamsT& Params);
 
@@ -92,6 +89,7 @@ namespace cf
 
             /// The virtual destructor. Deletes this window and all its children.
             virtual ~WindowT();
+
 
             GuiImplT& GetGui() const { return m_Gui; }
 
@@ -167,6 +165,7 @@ namespace cf
             /// Deletes the component at the given index from this window.
             void DeleteComponent(unsigned long CompNr);
 
+
             /// Returns the position of the upper left corner of this window in absolute (vs. relative to the parent) coordinates.
             Vector2fT GetAbsolutePos() const;
 
@@ -188,9 +187,6 @@ namespace cf
             /// Note that this method does *not* setup any of the MatSys's model, view or projection matrices: it's up to the caller to do that!
             virtual void Render() const;
 
-
-            // Event handler methods.
-
             /// Keyboard input event handler.
             /// @param KE Keyboard event.
             virtual bool OnInputEvent(const CaKeyboardEventT& KE);
@@ -204,7 +200,6 @@ namespace cf
             /// The clock-tick event handler.
             /// @param t The time in seconds since the last clock-tick.
             virtual bool OnClockTickEvent(float t);
-
 
             /// Calls the Lua method with name `MethodName` of this window.
             /// This method is analogous to GuiI::CallLuaFunc(), see there for more details.
