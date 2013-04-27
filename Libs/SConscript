@@ -21,6 +21,7 @@ env.StaticLibrary(
                     Util/Util.cpp
                     Win32/Win32PrintHelp.cpp
                     DebugLog.cpp PhysicsWorld.cpp TypeSys.cpp UniScriptState.cpp Variables.cpp VarVisitorsLua.cpp""")+
+           Glob("GameSys/*.cpp")+
            Glob("GuiSys/*.cpp")+
            Glob("Math3D/*.cpp"),
     CPPPATH=env['CPPPATH'] + ["#/ExtLibs/bullet/src", "#/ExtLibs/lua/src", "#/ExtLibs/lwo", "#/ExtLibs/jpeg"])
