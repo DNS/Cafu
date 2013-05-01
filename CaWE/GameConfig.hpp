@@ -60,6 +60,8 @@ class GameConfigT
     EditorMatManT& GetMatMan() { return m_MatMan; }
     const EditorMatManT& GetMatMan() const { return m_MatMan; }
 
+    ModelManagerT& GetModelMan() { return m_ModelMan; }
+
     /// Returns the model for the given FileName that is relative to ModDir.
     const CafuModelT* GetModel(const wxString& FileName, wxString* ErrorMsg=NULL) const;
 
