@@ -32,3 +32,5 @@ Doxygen/scripting/tmpl/*.hpp
 /config_p.lua
 /*.dll
 /*.so
+
+*.dia~
