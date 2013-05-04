@@ -44,6 +44,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "OrthoBspTree.hpp"
 #include "DialogPasteSpecial.hpp"
 #include "DialogReplaceMaterials.hpp"
+#include "VarVisitorsLua.hpp"
 #include "MapCommands/Transform.hpp"
 #include "MapCommands/AddPrim.hpp"
 #include "MapCommands/Align.hpp"
@@ -104,7 +105,7 @@ extern "C"
 using namespace MapEditor;
 
 
-/*static*/ const unsigned int MapDocumentT::CMAP_FILE_VERSION=13;
+/*static*/ const unsigned int MapDocumentT::CMAP_FILE_VERSION = 14;
 
 
 BEGIN_EVENT_TABLE(MapDocumentT, wxEvtHandler)
@@ -508,45 +509,209 @@ MapDocumentT::~MapDocumentT()
 }
 
 
-bool MapDocumentT::OnSaveDocument(const wxString& FileName, bool IsAutoSave)
+namespace
 {
+    // Recursively saves the entity instantiation of the passed entity and all of its children.
+    void SaveEntityInstantiation(std::ostream& OutFile, IntrusivePtrT<cf::GameSys::EntityT> Entity, const wxString& ParentName)
+    {
+        OutFile << ParentName << Entity->GetBasics()->GetEntityName() << " = world:new(\"" << Entity->GetType()->ClassName << "\", \"" << Entity->GetBasics()->GetEntityName() << "\")\n";
+
+        const wxString NewParentName = ParentName + Entity->GetBasics()->GetEntityName() + ".";
+
+        for (unsigned long ChildNr = 0; ChildNr < Entity->GetChildren().Size(); ChildNr++)
+            SaveEntityInstantiation(OutFile, Entity->GetChildren()[ChildNr], NewParentName);
+    }
+
+
+    // Recursively saves the entity hierarchy of the passed entity and all of its children.
+    void SaveEntityHierarchy(std::ostream& OutFile, IntrusivePtrT<cf::GameSys::EntityT> Entity, const wxString& ParentName)
+    {
+        if (ParentName != "")
+            OutFile << ParentName << ":AddChild(" << ParentName << "." << Entity->GetBasics()->GetEntityName() << ")\n";
+
+        const wxString NewParentName = (ParentName != "" ? ParentName + "." : "") + Entity->GetBasics()->GetEntityName();
+
+        for (unsigned long ChildNr = 0; ChildNr < Entity->GetChildren().Size(); ChildNr++)
+            SaveEntityHierarchy(OutFile, Entity->GetChildren()[ChildNr], NewParentName);
+    }
+
+
+    void SaveComponents(std::ostream& OutFile, IntrusivePtrT<cf::GameSys::EntityT> Entity)
+    {
+        if (!Entity->GetBasics()->IsShown())
+            OutFile << "    self:GetBasics():set(\"Show\", false)\n";
+
+        OutFile << "    self:GetTransform():set(\"Pos\", " << Entity->GetTransform()->GetPos().x << ", " << Entity->GetTransform()->GetPos().y << ")\n";
+        OutFile << "    self:GetTransform():set(\"Size\", " << Entity->GetTransform()->GetSize().x << ", " << Entity->GetTransform()->GetSize().y << ")\n";
+
+        if (Entity->GetTransform()->GetRotAngle() != 0.0f)
+            OutFile << "    self:GetTransform():set(\"Rotation\", " << Entity->GetTransform()->GetRotAngle() << ")\n";
+
+
+        if (Entity->GetComponents().Size() == 0)
+            return;
+
+        cf::TypeSys::VarVisitorToLuaCodeT ToLua(OutFile);
+
+        OutFile << "\n";
+
+        for (unsigned int CompNr = 1; CompNr <= Entity->GetComponents().Size(); CompNr++)
+        {
+            IntrusivePtrT<cf::GameSys::ComponentBaseT> Comp = Entity->GetComponents()[CompNr - 1];
+            const ArrayT<cf::TypeSys::VarBaseT*>&      Vars = Comp->GetMemberVars().GetArray();
+
+            OutFile << "    local c" << CompNr << " = world:new(\"" << Comp->GetType()->ClassName << "\")\n";
+
+            for (unsigned int VarNr = 0; VarNr < Vars.Size(); VarNr++)
+            {
+                const cf::TypeSys::VarBaseT* Var = Vars[VarNr];
+
+                OutFile << "    c" << CompNr << ":set(\"" << Var->GetName() << "\", ";
+                Var->accept(ToLua);
+                OutFile << ")\n";
+            }
+
+            OutFile << "\n";
+        }
+
+        OutFile << "    self:AddComponent(";
+        for (unsigned int CompNr = 1; CompNr <= Entity->GetComponents().Size(); CompNr++)
+        {
+            OutFile << "c" << CompNr;
+            if (CompNr < Entity->GetComponents().Size()) OutFile << ", ";
+        }
+        OutFile << ")\n";
+    }
+
+
+    // Recursively saves the entity initialization function of the entity passed and all of its children.
+    void SaveEntityInitialization(std::ostream& OutFile, IntrusivePtrT<cf::GameSys::EntityT> Entity, const wxString& ParentName)
+    {
+        OutFile << "\nfunction " << ParentName + Entity->GetBasics()->GetEntityName() << ":OnInit()\n";
+
+        SaveComponents(OutFile, Entity);
+
+        OutFile << "end\n";
+
+        const wxString NewParentName = ParentName + Entity->GetBasics()->GetEntityName() + ".";
+
+        for (unsigned long ChildNr=0; ChildNr<Entity->GetChildren().Size(); ChildNr++)
+            SaveEntityInitialization(OutFile, Entity->GetChildren()[ChildNr], NewParentName);
+    }
+
+
+    void SaveCafuEntities(std::ostream& OutFile, IntrusivePtrT<cf::GameSys::EntityT> RootEntity)
+    {
+        OutFile << "-- This is a Cafu Entities file, written by the CaWE Map Editor.\n";
+        OutFile << "-- The file defines the entity hierarchy and properties of the related game world;\n";
+        OutFile << "-- it is used both by the CaWE Map Editor as well as by the Cafu Engine.\n";
+        OutFile << "--\n";
+        OutFile << "-- You CAN edit this file manually, but note that CaWE may overwrite your changes.\n";
+        OutFile << "-- Also note that structural changes to the entity hierarchy will bring this file\n";
+        OutFile << "-- out of sync with the related map (cmap) and world (cw) files, effectively\n";
+        OutFile << "-- causing LOSS OF WORK (see the documentation for details).\n";
+        OutFile << "-- It is therefore recommended that you use CaWE for all changes to this file.\n";
+        OutFile << "\n\n";
+        OutFile << "-- Instantiation of all entities.\n";
+        OutFile << "-- ******************************\n";
+        OutFile << "\n";
+
+        SaveEntityInstantiation(OutFile, RootEntity, "");
+
+        OutFile << "\n\n";
+        OutFile << "-- Set the worlds root entity.\n";
+        OutFile << "-- ***************************\n";
+        OutFile << "\n";
+        OutFile << "world:SetRootEntity(" << RootEntity->GetBasics()->GetEntityName() << ")\n";
+
+        OutFile << "\n\n";
+        OutFile << "-- Setup the entity hierarchy.\n";
+        OutFile << "-- ***************************\n";
+        OutFile << "\n";
+
+        SaveEntityHierarchy(OutFile, RootEntity, "");
+
+        OutFile << "\n\n";
+        OutFile << "-- Initialization of the entity contents (\"constructors\").\n";
+        OutFile << "-- *******************************************************\n";
+
+        SaveEntityInitialization(OutFile, RootEntity, "");
+    }
+}
+
+
+bool MapDocumentT::OnSaveDocument(const wxString& cmapFileName, bool IsAutoSave)
+{
+    // if (cmapFileName.Right(4).MakeLower() == ".map") ...;    // Export to different file format.
+
+    if (cmapFileName.Right(5).MakeLower() != ".cmap")
+    {
+        wxMessageBox(
+            "Maps can only be saved as `.cmap` files.\n"
+            "Export to other map formats is currently not supported.",
+            "File not saved!", wxOK | wxICON_ERROR);
+        return false;
+    }
+
+    const wxString centFileName = cmapFileName.Left(cmapFileName.length() - 5) + ".cent";
+
+    // Backup the previous file before overwriting it.
+    if (!IsAutoSave)
+    {
+        const char* Msg =
+            "Creating the backup file \"%s_bak\" before saving the map to \"%s\" didn't work out.\n"
+            "Please check the path and file permissions, or use 'File -> Save As...' to save the current "
+            "map elsewhere.";
+
+        if (wxFileExists(cmapFileName) && !wxCopyFile(cmapFileName, cmapFileName + "_bak"))
+        {
+            wxMessageBox(wxString::Format(Msg, cmapFileName, cmapFileName), "File not saved!", wxOK | wxICON_ERROR);
+            return false;
+        }
+
+        if (wxFileExists(centFileName) && !wxCopyFile(centFileName, centFileName + "_bak"))
+        {
+            wxMessageBox(wxString::Format(Msg, centFileName, centFileName), "File not saved!", wxOK | wxICON_ERROR);
+            return false;
+        }
+    }
+
+    std::ofstream cmapOutFile(cmapFileName.fn_str());
+    std::ofstream centOutFile(centFileName.fn_str());
+
+    if (!cmapOutFile.is_open())
+    {
+        wxMessageBox("The file \"" + cmapFileName + "\" could not be opened for writing.\nPlease check the path and file permissions, "
+                     "or use 'File -> Save As...' to save the current map elsewhere.", "File not saved!", wxOK | wxICON_ERROR);
+        return false;
+    }
+
+    if (!centOutFile.is_open())
+    {
+        wxMessageBox("The file \"" + centFileName + "\" could not be opened for writing.\nPlease check the path and file permissions, "
+                     "or use 'File -> Save As...' to save the current map elsewhere.", "File not saved!", wxOK | wxICON_ERROR);
+        return false;
+    }
+
+    // From MSDN documentation: "digits10 returns the number of decimal digits that the type can represent without loss of precision."
+    // For floats, that's usually 6, for doubles, that's usually 15. However, we want to use the number of *significant* decimal digits here,
+    // that is, max_digits10. See http://www.open-std.org/JTC1/sc22/wg21/docs/papers/2006/n2005.pdf for details.
+    cmapOutFile.precision(std::numeric_limits<float>::digits10 + 3);
+    centOutFile.precision(std::numeric_limits<float>::digits10 + 3);
+
     // This sets the cursor to the busy cursor in its ctor, and back to the default cursor in the dtor.
     wxBusyCursor BusyCursor;
 
-    // Backup the previous file before overwriting it.
-    if (!IsAutoSave && wxFileExists(FileName))
-        if (!wxCopyFile(FileName, FileName+"_bak"))
-        {
-            wxMessageBox("Sorry, creating the backup file \""+FileName+"_bak\" before saving the map to \""+FileName+"\" didn't work out.\n"
-                         "Please check the path and file permissions, "
-                         "or use 'File -> Save As...' to save the current map elsewhere.", "File not saved!", wxOK | wxICON_ERROR);
-            return false;
-        }
-
-    if (FileName.Right(5).MakeLower()==".cmap")
+    // Save the `.cmap` file.
     {
-        std::ofstream OutFile(FileName.fn_str());
-
-        if (!OutFile.is_open())
-        {
-            wxMessageBox("The file \""+FileName+"\" could not be opened for writing.\nPlease check the path and file permissions, "
-                         "or use 'File -> Save As...' to save the current map elsewhere.", "File not saved!", wxOK | wxICON_ERROR);
-            return false;
-        }
-
-        // From MSDN documentation: "digits10 returns the number of decimal digits that the type can represent without loss of precision."
-        // For floats, that's usually 6, for doubles, that's usually 15. However, we want to use the number of *significant* decimal digits here,
-        // that is, max_digits10. See http://www.open-std.org/JTC1/sc22/wg21/docs/papers/2006/n2005.pdf for details.
-        OutFile.precision(std::numeric_limits<float>::digits10 + 3);
-
-        OutFile << "// Cafu Map File\n"
-                << "// Written by CaWE, the Cafu World Editor.\n"
-                << "Version " << CMAP_FILE_VERSION << "\n"
-                << "\n";
+        cmapOutFile << "// Cafu Map File\n"
+                    << "// Written by CaWE, the Cafu World Editor.\n"
+                    << "Version " << CMAP_FILE_VERSION << "\n"
+                    << "\n";
 
         // Save groups.
         for (unsigned long GroupNr=0; GroupNr<m_Groups.Size(); GroupNr++)
-            m_Groups[GroupNr]->Save_cmap(OutFile, GroupNr);
+            m_Groups[GroupNr]->Save_cmap(cmapOutFile, GroupNr);
 
         // Save entities.
         const ArrayT<MapEntityBaseT*>& MapEntities = GetEntities();
@@ -558,27 +723,33 @@ bool MapDocumentT::OnSaveDocument(const wxString& FileName, bool IsAutoSave)
 
             if (!Intersecting || Ent->GetElemsBB().Intersects(*Intersecting))
             {
-                Ent->Save_cmap(*this, OutFile, EntNr, Intersecting);
+                Ent->Save_cmap(*this, cmapOutFile, EntNr, Intersecting);
             }
         }
 
-        if (OutFile.fail())
+        if (cmapOutFile.fail())
         {
-            wxMessageBox("There was an error when saving the file. Please try again.", "File not saved!", wxOK | wxICON_ERROR);
+            wxMessageBox("There was an error saving the file. Please try again.", "File not saved!", wxOK | wxICON_ERROR);
             return false;
         }
-
-        // If this was an auto-save, do not change the filename (nor set the document as "not modified").
-        if (IsAutoSave) return true;
-
-        m_FileName=FileName;
-        return true;
     }
 
-    // if (FileName.Right(4).MakeLower()==".map") ...;      // Export to different file format.
+    // Save the `.cent` file.
+    {
+        SaveCafuEntities(centOutFile, m_ScriptWorld->GetRootEntity());
 
-    wxMessageBox("Sorry, extension of this filename not recognized.", FileName);
-    return false;
+        if (centOutFile.fail())
+        {
+            wxMessageBox("There was an error saving the file. Please try again.", "File not saved!", wxOK | wxICON_ERROR);
+            return false;
+        }
+    }
+
+    // If this was an auto-save, do not change the filename (nor set the document as "not modified").
+    if (IsAutoSave) return true;
+
+    m_FileName = cmapFileName;
+    return true;
 }
 
 
