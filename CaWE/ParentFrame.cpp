@@ -34,6 +34,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ConsoleCommands/Console.hpp"
 #include "FileSys/FileManImpl.hpp"
+#include "GameSys/Entity.hpp"
+#include "GameSys/World.hpp"    // Needed to catch InitErrorT if map document creation fails.
 #include "GuiSys/GuiImpl.hpp"   // Needed to catch InitErrorT if GUI document creation fails.
 #include "GuiSys/Window.hpp"
 #include "MaterialSystem/MapComposition.hpp"
@@ -571,6 +573,10 @@ wxMDIChildFrame* ParentFrameT::OpenFile(GameConfigT* GameConfig, wxString FileNa
     catch (const MapDocumentT::LoadErrorT& /*E*/)
     {
         wxMessageBox(wxString("The map file \"")+FileName+"\" could not be loaded!", "Couldn't load the map");
+    }
+    catch (const cf::GameSys::WorldT::InitErrorT& IE)
+    {
+        wxMessageBox(wxString("The map file \"")+FileName+"\" could not be loaded:\n"+IE.what(), "Couldn't load map file");
     }
     catch (const ModelLoaderT::LoadErrorT& LE)
     {
