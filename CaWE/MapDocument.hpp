@@ -58,9 +58,6 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
 
     static const unsigned int CMAP_FILE_VERSION;
 
-    // A class for throwing exceptions on load errors.
-    class LoadErrorT { };
-
 
     /// The constructor for creating a new, clean, empty map.
     /// @param GameConfig   The game configuration that will be used for the map.

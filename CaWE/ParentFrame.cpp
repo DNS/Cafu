@@ -570,10 +570,6 @@ wxMDIChildFrame* ParentFrameT::OpenFile(GameConfigT* GameConfig, wxString FileNa
 
         return new ModelEditor::ChildFrameT(this, FileName, new ModelEditor::ModelDocumentT(GameConfig, FileName));
     }
-    catch (const MapDocumentT::LoadErrorT& /*E*/)
-    {
-        wxMessageBox(wxString("The map file \"")+FileName+"\" could not be loaded!", "Couldn't load the map");
-    }
     catch (const cf::GameSys::WorldT::InitErrorT& IE)
     {
         wxMessageBox(wxString("The map file \"")+FileName+"\" could not be loaded:\n"+IE.what(), "Couldn't load map file");

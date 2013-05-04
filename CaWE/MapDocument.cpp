@@ -261,7 +261,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         delete m_ScriptWorld;
         m_ScriptWorld = NULL;
 
-        throw LoadErrorT();
+        throw cf::GameSys::WorldT::InitErrorT("The file could not be opened.");
     }
 
     unsigned int            cmapFileVersion = 0;
@@ -306,7 +306,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         delete m_ScriptWorld;   //XXX TODO: Call Cleanup() method instead (same code as dtor).
         m_ScriptWorld = NULL;
 
-        throw LoadErrorT();
+        throw cf::GameSys::WorldT::InitErrorT("The file could not be parsed.");
     }
 
 
@@ -395,7 +395,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     TextParserT  TP(FileName.c_str(), "({})");
 
     if (TP.IsAtEOF())
-        throw LoadErrorT();
+        throw cf::GameSys::WorldT::InitErrorT("The file could not be opened.");
 
     MapDocumentT* Doc = new MapDocumentT(GameConfig);
     IntrusivePtrT<cf::GameSys::EntityT> ScriptRootEnt = Doc->m_ScriptWorld->GetRootEntity();
@@ -429,7 +429,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
 
         delete Doc;
         Doc=NULL;
-        throw LoadErrorT();
+        throw cf::GameSys::WorldT::InitErrorT("The file could not be parsed.");
     }
 
 
@@ -451,7 +451,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     TextParserT  TP(FileName.c_str(), "{}");
 
     if (TP.IsAtEOF())
-        throw LoadErrorT();
+        throw cf::GameSys::WorldT::InitErrorT("The file could not be opened.");
 
     MapDocumentT* Doc = new MapDocumentT(GameConfig);
     IntrusivePtrT<cf::GameSys::EntityT> ScriptRootEnt = Doc->m_ScriptWorld->GetRootEntity();
@@ -497,7 +497,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
 
         delete Doc;
         Doc=NULL;
-        throw LoadErrorT();
+        throw cf::GameSys::WorldT::InitErrorT("The file could not be parsed.");
     }
 
 
@@ -519,7 +519,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     TextParserT  TP(FileName.c_str(), "({})");
 
     if (TP.IsAtEOF())
-        throw LoadErrorT();
+        throw cf::GameSys::WorldT::InitErrorT("The file could not be opened.");
 
     MapDocumentT* Doc = new MapDocumentT(GameConfig);
     IntrusivePtrT<cf::GameSys::EntityT> ScriptRootEnt = Doc->m_ScriptWorld->GetRootEntity();
@@ -553,7 +553,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
 
         delete Doc;
         Doc=NULL;
-        throw LoadErrorT();
+        throw cf::GameSys::WorldT::InitErrorT("The file could not be parsed.");
     }
 
 
