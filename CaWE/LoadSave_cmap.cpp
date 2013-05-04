@@ -622,7 +622,24 @@ void EntPropertyT::Save_cmap(std::ostream& OutFile) const
 }
 
 
-void MapEntityBaseT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, wxProgressDialog* ProgressDialog, unsigned long EntityNr)
+namespace
+{
+    void CheckVersion()
+    {
+        if (MapFileVersion < 6 || MapFileVersion > MapDocumentT::CMAP_FILE_VERSION)
+        {
+            wxMessageBox(
+                wxString::Format("Expected cmap file version 6 to %u, but found version %u.",
+                    MapDocumentT::CMAP_FILE_VERSION, MapFileVersion),
+                "Could not load cmap file.");
+
+            throw TextParserT::ParseError();
+        }
+    }
+}
+
+
+void MapEntityBaseT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, wxProgressDialog* ProgressDialog, unsigned long EntityNr, unsigned int& cmapVersion)
 {
     if (EntityNr==0)
     {
@@ -632,6 +649,10 @@ void MapEntityBaseT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, wxProgress
         {
             TP.GetNextToken();
             MapFileVersion=TP.GetNextTokenAsInt();
+            CheckVersion();
+
+            wxASSERT(cmapVersion == 0 || cmapVersion == MapFileVersion);
+            cmapVersion = MapFileVersion;
         }
 
         while (TP.PeekNextToken()=="GroupDef")
@@ -712,11 +733,7 @@ void MapEntityBaseT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, wxProgress
             {
                 if (MapFileVersion<13) MapFileVersion=wxAtoi(NewProp.Value);
 
-                if (MapFileVersion<6 || MapFileVersion>MapDocumentT::CMAP_FILE_VERSION)
-                {
-                    wxMessageBox(wxString::Format("Expected cmap file version 6 to %u, but found version %u.", MapDocumentT::CMAP_FILE_VERSION, MapFileVersion), "Could not load cmap file. Sorry.");
-                    throw TextParserT::ParseError();
-                }
+                CheckVersion();
                 continue;
             }
 

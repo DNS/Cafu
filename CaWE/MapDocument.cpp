@@ -270,16 +270,18 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         throw LoadErrorT();
     }
 
+    unsigned int cmapFileVersion = 0;
+
     try
     {
-        World->Load_cmap(TP, *this, ProgressDialog, 0);
+        World->Load_cmap(TP, *this, ProgressDialog, 0, cmapFileVersion);
 
         // Load the entities.
         while (!TP.IsAtEOF())
         {
             MapEntityBaseT* Entity = new MapEntityBaseT(*this);
 
-            Entity->Load_cmap(TP, *this, ProgressDialog, ScriptRootEnt->GetChildren().Size() + 1);
+            Entity->Load_cmap(TP, *this, ProgressDialog, ScriptRootEnt->GetChildren().Size() + 1, cmapFileVersion);
 
             IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
 
