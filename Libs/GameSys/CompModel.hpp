@@ -48,6 +48,9 @@ namespace cf
             /// The destructor.
             ~ComponentModelT();
 
+            /// The Map Editor uses this method to initialize this component from old or imported key/value property pairs.
+            void Set(const std::string& Name, const std::string& CollMdl, int AnimNr, float Scale, const std::string& GuiName);
+
             // Base class overrides.
             ComponentModelT* Clone() const;
             const char* GetName() const { return "Model"; }

@@ -254,6 +254,16 @@ ComponentModelT::~ComponentModelT()
 }
 
 
+void ComponentModelT::Set(const std::string& Name, const std::string& CollMdl, int AnimNr, float Scale, const std::string& GuiName)
+{
+    m_ModelName.Set(Name);
+ // m_CollMdlName.Set(CollMdl);     // TODO!!!
+    m_ModelAnimNr.Set(AnimNr);
+    m_ModelScale.Set(Scale);
+ // m_ModelGuiName.Set(GuiName);    // TODO!!!
+}
+
+
 ComponentModelT* ComponentModelT::Clone() const
 {
     return new ComponentModelT(*this);
