@@ -43,13 +43,11 @@ namespace cf
             /// @param Comp   The component to create a copy of.
             ComponentTransformT(const ComponentTransformT& Comp);
 
-            const Vector2fT& GetPos() const { return m_Pos.Get(); }
-            const Vector2fT& GetSize() const { return m_Size.Get(); }
-            float GetRotAngle() const { return m_RotAngle.Get(); }
+            const Vector3fT& GetOrigin() const { return m_Origin.Get(); }
+         // const AnglesfT& GetAngles() const { return m_Angles.Get(); }
 
-            void SetPos(const Vector2fT& Pos) { m_Pos.Set(Pos); }
-            void SetSize(const Vector2fT& Size) { m_Size.Set(Size); }
-            void SetRotAngle(float RotAngle) { m_RotAngle.Set(RotAngle); }
+            void SetOrigin(const Vector3fT& Origin) { m_Origin.Set(Origin); }
+         // void SetAngles(const AnglesfT& Angles) { m_Angles.Set(Angles); }
 
             // Base class overrides.
             ComponentTransformT* Clone() const;
@@ -75,14 +73,10 @@ namespace cf
 
             private:
 
-            enum SizeFlagsT { RATIO, FIXED };
-
-            TypeSys::VarT<Vector2fT> m_Pos;       ///< The position of the entity, relative to its parent.
-            TypeSys::VarT<Vector2fT> m_Size;      ///< The size of the entity.
-            TypeSys::VarT<float>     m_RotAngle;  ///< The angle in degrees by how much this entire entity is rotated.
-
-            // SizeFlagsT HorzFlags[3];
-            // SizeFlagsT VertFlags[3];
+            TypeSys::VarT<Vector3fT> m_Origin;  ///< The origin of the entity (in the coordinate system of its parent).
+         // TypeSys::VarT<AnglesfT>  m_Angles;  ///< The orientation of the entity (in the coordinate system of its parent).
+         // TODO: The orientation should rather be kept in a *quaternion* (corresponding to a 3x3 rotation matrix; as e.g.
+         // in cmdl model code) in order to remove the ambiguity regarding the order of application of the invididual angles.
         };
     }
 }

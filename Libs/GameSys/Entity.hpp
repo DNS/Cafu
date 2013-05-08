@@ -165,7 +165,7 @@ namespace cf
 
 
             /// Returns the position of this entity in absolute (vs. relative to the parent) coordinates.
-            Vector2fT GetAbsolutePos() const;
+            Vector3fT GetAbsoluteOrigin() const;
 
             /// Finds the entity with the name WantedName in the hierachy tree of this entity.
             /// Use `GetRoot()->Find("xy")` in order to search the entire world for the entity with name `xy`.

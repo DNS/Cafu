@@ -38,34 +38,25 @@ const char* ComponentTransformT::DocClass =
 
 const cf::TypeSys::VarsDocT ComponentTransformT::DocVars[] =
 {
-    { "Pos",      "The position of the entity, relative to its parent." },
-    { "Size",     "The size of the entity." },
-    { "Rotation", "The angle in degrees by how much this entire entity is rotated." },
+    { "Origin",      "The origin of the entity (in the coordinate system of its parent)." },
+ // { "Orientation", "The orientation of the entity (in the coordinate system of its parent)." },
     { NULL, NULL }
 };
 
 
 ComponentTransformT::ComponentTransformT()
     : ComponentBaseT(),
-      m_Pos("Pos", Vector2fT(0.0f, 0.0f)),
-      m_Size("Size", Vector2fT(80.0f, 60.0f)),
-      m_RotAngle("Rotation", 0.0f)
+      m_Origin("Origin", Vector3fT(0.0f, 0.0f, 0.0f))
 {
-    GetMemberVars().Add(&m_Pos);
-    GetMemberVars().Add(&m_Size);
-    GetMemberVars().Add(&m_RotAngle);
+    GetMemberVars().Add(&m_Origin);
 }
 
 
 ComponentTransformT::ComponentTransformT(const ComponentTransformT& Comp)
     : ComponentBaseT(Comp),
-      m_Pos(Comp.m_Pos),
-      m_Size(Comp.m_Size),
-      m_RotAngle(Comp.m_RotAngle)
+      m_Origin(Comp.m_Origin)
 {
-    GetMemberVars().Add(&m_Pos);
-    GetMemberVars().Add(&m_Size);
-    GetMemberVars().Add(&m_RotAngle);
+    GetMemberVars().Add(&m_Origin);
 }
 
 

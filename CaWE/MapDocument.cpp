@@ -618,11 +618,8 @@ namespace
         if (!Entity->GetBasics()->IsShown())
             OutFile << "    self:GetBasics():set(\"Show\", false)\n";
 
-        OutFile << "    self:GetTransform():set(\"Pos\", " << Entity->GetTransform()->GetPos().x << ", " << Entity->GetTransform()->GetPos().y << ")\n";
-        OutFile << "    self:GetTransform():set(\"Size\", " << Entity->GetTransform()->GetSize().x << ", " << Entity->GetTransform()->GetSize().y << ")\n";
-
-        if (Entity->GetTransform()->GetRotAngle() != 0.0f)
-            OutFile << "    self:GetTransform():set(\"Rotation\", " << Entity->GetTransform()->GetRotAngle() << ")\n";
+        OutFile << "    self:GetTransform():set(\"Origin\", " << Entity->GetTransform()->GetOrigin().x << ", " << Entity->GetTransform()->GetOrigin().y << ", " << Entity->GetTransform()->GetOrigin().z << ")\n";
+     // OutFile << "    self:GetTransform():set(\"Size\", " << Entity->GetTransform()->GetSize().x << ", " << Entity->GetTransform()->GetSize().y << ")\n";
 
 
         if (Entity->GetComponents().Size() == 0)

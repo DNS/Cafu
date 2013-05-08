@@ -70,7 +70,7 @@ EntityT::EntityT(const EntityCreateParamsT& Params)
     m_Basics->UpdateDependencies(this);
     m_Transform->UpdateDependencies(this);
 
-    m_Transform->SetSize(Vector2fT(80, 60));
+    // m_Transform->SetOrigin(Vector3fT(0.0f, 0.0f, 0.0f));
 }
 
 
@@ -285,15 +285,15 @@ void EntityT::DeleteComponent(unsigned long CompNr)
 }
 
 
-Vector2fT EntityT::GetAbsolutePos() const
+Vector3fT EntityT::GetAbsoluteOrigin() const
 {
 #if 1
-    Vector2fT Pos = m_Transform->GetPos();
+    Vector3fT Origin = m_Transform->GetOrigin();
 
     for (const EntityT* P = m_Parent; P; P = P->m_Parent)
-        Pos += P->m_Transform->GetPos();
+        Origin += P->m_Transform->GetOrigin();
 
-    return Pos;
+    return Origin;
 #else
     // Recursive implementation:
     if (m_Parent==NULL)
