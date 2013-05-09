@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "EntityClass.hpp"
 #include "EntityClassVar.hpp"
 #include "LuaAux.hpp"
+#include "MapEntRepres.hpp"
 #include "MapPrimitive.hpp"
 
 #include "wx/wx.h"
@@ -46,8 +47,12 @@ MapEntityBaseT::MapEntityBaseT(const wxColour& Color)
     : MapElementT(Color),
       m_Class(NULL),
       m_Properties(),
-      m_Primitives()
+      m_Primitives(),
+      m_Repres(NULL)
 {
+    m_Repres = new MapEntRepresT;
+    m_Repres->SetParent(this);
+    m_Repres->Update();
 }
 
 
@@ -55,7 +60,8 @@ MapEntityBaseT::MapEntityBaseT(const MapEntityBaseT& Ent)
     : MapElementT(Ent),
       m_Class(Ent.m_Class),
       m_Properties(Ent.m_Properties),
-      m_Primitives()
+      m_Primitives(),
+      m_Repres(NULL)
 {
     // Deep-copy all primitives of Ent.
     for (unsigned long PrimNr=0; PrimNr<Ent.m_Primitives.Size(); PrimNr++)
@@ -63,6 +69,10 @@ MapEntityBaseT::MapEntityBaseT(const MapEntityBaseT& Ent)
         m_Primitives.PushBack(Ent.m_Primitives[PrimNr]->Clone());
         m_Primitives[PrimNr]->SetParent(this);
     }
+
+    m_Repres = Ent.m_Repres->Clone();
+    m_Repres->SetParent(this);
+    m_Repres->Update();
 }
 
 
@@ -71,6 +81,8 @@ MapEntityBaseT::~MapEntityBaseT()
     // Delete all our primitives.
     for (unsigned long PrimNr=0; PrimNr<m_Primitives.Size(); PrimNr++)
         delete m_Primitives[PrimNr];
+
+    delete m_Repres;
 }
 
 
@@ -107,6 +119,11 @@ void MapEntityBaseT::Assign(const MapElementT* Elem)
         m_Primitives.PushBack(Entity->m_Primitives[PrimNr]->Clone());
         m_Primitives[PrimNr]->SetParent(this);
     }
+
+
+    // Now that we (possibly) have a new class, update the entity representation in the map.
+    m_Repres->SetParent(this);
+    m_Repres->Update();
 }
 
 
@@ -124,6 +141,11 @@ void MapEntityBaseT::SetClass(const EntityClassT* NewClass)
         if (FindProperty(ClassVar->GetName())==NULL)
             m_Properties.PushBack(ClassVar->GetInstance());
     }
+
+
+    // Now that we have a new class, update the entity representation in the map.
+    m_Repres->SetParent(this);
+    m_Repres->Update();
 }
 
 

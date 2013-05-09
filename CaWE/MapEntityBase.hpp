@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 class EntityClassT;
+class MapEntRepresT;
 class MapPrimitiveT;
 class wxProgressDialog;
 
@@ -86,6 +87,7 @@ class MapEntityBaseT : public MapElementT
     const EntityClassT*    m_Class;         ///< The "entity class" of this entity.
     ArrayT<EntPropertyT>   m_Properties;    ///< The concrete, instantiated properties for this entity, according to its entity class.
     ArrayT<MapPrimitiveT*> m_Primitives;    ///< The primitive, atomic elements of this entity (brushes, patches, terrains, models, plants, ...).
+    MapEntRepresT*         m_Repres;        ///< The graphical representation of this entity in the map.
 };
 
 #endif
