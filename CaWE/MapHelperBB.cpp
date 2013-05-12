@@ -23,19 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapEntity.hpp"
 #include "Options.hpp"
 #include "Renderer3D.hpp"
-#include "TypeSys.hpp"
-
-
-/*** Begin of TypeSys related definitions for this class. ***/
-
-void* MapHelperBoundingBoxT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
-{
-    return NULL;
-}
-
-const cf::TypeSys::TypeInfoT MapHelperBoundingBoxT::TypeInfo(GetMapElemTIM(), "MapHelperBoundingBoxT", "MapHelperT", MapHelperBoundingBoxT::CreateInstance, NULL);
-
-/*** End of TypeSys related definitions for this class. ***/
 
 
 MapHelperBoundingBoxT::MapHelperBoundingBoxT(const MapEntityT* ParentEntity, const BoundingBox3fT& BB, bool Wireframe)
@@ -51,28 +38,6 @@ MapHelperBoundingBoxT::MapHelperBoundingBoxT(const MapHelperBoundingBoxT& Box)
       m_BB(Box.m_BB),
       m_Wireframe(Box.m_Wireframe)
 {
-}
-
-
-MapHelperBoundingBoxT* MapHelperBoundingBoxT::Clone() const
-{
-    return new MapHelperBoundingBoxT(*this);
-}
-
-
-void MapHelperBoundingBoxT::Assign(const MapElementT* Elem)
-{
-    if (Elem==this) return;
-
-    MapHelperT::Assign(Elem);
-
-    const MapHelperBoundingBoxT* Box=dynamic_cast<const MapHelperBoundingBoxT*>(Elem);
-    wxASSERT(Box!=NULL);
-    if (Box==NULL) return;
-
-    m_ParentEntity=Box->m_ParentEntity;
-    m_BB          =Box->m_BB;
-    m_Wireframe   =Box->m_Wireframe;
 }
 
 

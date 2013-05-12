@@ -19,53 +19,22 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "wx/wx.h"
 #include "MapHelper.hpp"
-
-#include "TypeSys.hpp"
-
-
-/*** Begin of TypeSys related definitions for this class. ***/
-
-void* MapHelperT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
-{
-    return NULL;
-}
-
-const cf::TypeSys::TypeInfoT MapHelperT::TypeInfo(GetMapElemTIM(), "MapHelperT", "MapElementT", MapHelperT::CreateInstance, NULL);
-
-/*** End of TypeSys related definitions for this class. ***/
 
 
 MapHelperT::MapHelperT(const MapEntityT* ParentEntity)
-    : MapElementT(wxColour(128, 128, 128)),
-      m_ParentEntity(ParentEntity)
+    : m_ParentEntity(ParentEntity)
 {
 }
 
 
 MapHelperT::MapHelperT(const MapHelperT& Helper)
-    : MapElementT(Helper),
-      m_ParentEntity(Helper.m_ParentEntity)
+    : m_ParentEntity(Helper.m_ParentEntity)
 {
 }
 
 
 void MapHelperT::SetParentEntity(const MapEntityT* ParentEntity)
 {
-    m_ParentEntity=ParentEntity;
-}
-
-
-void MapHelperT::Assign(const MapElementT* Elem)
-{
-    if (Elem==this) return;
-
-    MapElementT::Assign(Elem);
-
-    const MapHelperT* Helper=dynamic_cast<const MapHelperT*>(Elem);
-    wxASSERT(Helper!=NULL);
-    if (Helper==NULL) return;
-
-    m_ParentEntity=Helper->m_ParentEntity;
+    m_ParentEntity = ParentEntity;
 }

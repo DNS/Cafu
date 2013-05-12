@@ -25,18 +25,15 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapHelper.hpp"
 #include "Models/AnimExpr.hpp"
 #include "Util/Util.hpp"
+#include "wx/string.h"
 
 
 class HelperInfoT;
-class MapEntityT;
 class Renderer2DT;
 class Renderer3DT;
 
 class CafuModelT;
 namespace cf { namespace GuiSys { class GuiImplT; } }
-namespace cf { namespace TypeSys { class TypeInfoT; } }
-namespace cf { namespace TypeSys { class TypeInfoManT; } }
-namespace cf { namespace TypeSys { class CreateParamsT; } }
 
 
 class MapHelperModelT : public MapHelperT
@@ -55,19 +52,10 @@ class MapHelperModelT : public MapHelperT
 
 
     // Implementations and overrides for base class methods.
-    MapHelperModelT* Clone() const;
-    void             Assign(const MapElementT* Elem);
-
-    wxString GetDescription() const { return "model"; }
     BoundingBox3fT GetBB() const;
 
     void Render2D(Renderer2DT& Renderer) const;
     void Render3D(Renderer3DT& Renderer) const;
-
-    // The TypeSys related declarations for this class.
-    virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
-    static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
-    static const cf::TypeSys::TypeInfoT TypeInfo;
 
 
     protected:

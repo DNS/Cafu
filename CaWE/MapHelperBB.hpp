@@ -23,15 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_MAP_HELPER_BOUNDINGBOX_HPP_INCLUDED
 
 #include "MapHelper.hpp"
-#include "Math3D/BoundingBox.hpp"
-
-
-class MapEntityT;
-class Renderer2DT;
-class Renderer3DT;
-namespace cf { namespace TypeSys { class TypeInfoT; } }
-namespace cf { namespace TypeSys { class TypeInfoManT; } }
-namespace cf { namespace TypeSys { class CreateParamsT; } }
 
 
 class MapHelperBoundingBoxT : public MapHelperT
@@ -47,21 +38,10 @@ class MapHelperBoundingBoxT : public MapHelperT
 
 
     // Implementations and overrides for base class methods.
-    MapHelperBoundingBoxT* Clone() const;
-    void                   Assign(const MapElementT* Elem);
-
-
     BoundingBox3fT GetBB() const;
 
     void Render2D(Renderer2DT& Renderer) const;
     void Render3D(Renderer3DT& Renderer) const;
-
-    wxString GetDescription() const { return "Bounding box"; }
-
-    // The TypeSys related declarations for this class.
-    virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
-    static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
-    static const cf::TypeSys::TypeInfoT TypeInfo;
 
 
     private:

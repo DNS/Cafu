@@ -38,19 +38,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Models/Model_cmdl.hpp"
 #include "EditorMaterialManager.hpp"
 #include "MaterialSystem/Renderer.hpp"
-#include "TypeSys.hpp"
-
-
-/*** Begin of TypeSys related definitions for this class. ***/
-
-void* MapHelperModelT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
-{
-    return NULL;
-}
-
-const cf::TypeSys::TypeInfoT MapHelperModelT::TypeInfo(GetMapElemTIM(), "MapHelperModelT", "MapHelperT", MapHelperModelT::CreateInstance, NULL);
-
-/*** End of TypeSys related definitions for this class. ***/
 
 
 MapHelperModelT::MapHelperModelT(const MapEntityT* ParentEntity, const HelperInfoT* HelperInfo)
@@ -81,33 +68,6 @@ MapHelperModelT::MapHelperModelT(const MapHelperModelT& Model)
 
 MapHelperModelT::~MapHelperModelT()
 {
-    ClearGuis();
-}
-
-
-MapHelperModelT* MapHelperModelT::Clone() const
-{
-    return new MapHelperModelT(*this);
-}
-
-
-void MapHelperModelT::Assign(const MapElementT* Elem)
-{
-    if (Elem==this) return;
-
-    MapHelperT::Assign(Elem);
-
-    const MapHelperModelT* Model=dynamic_cast<const MapHelperModelT*>(Elem);
-    wxASSERT(Model!=NULL);
-    if (Model==NULL) return;
-
-    m_ParentEntity=Model->m_ParentEntity;
-    m_HelperInfo  =Model->m_HelperInfo;
-    m_Model       =NULL;    // Don't assign Model->m_Model, so that m_AnimExpr and m_LastStdAE are properly inited in UpdateModelCache().
-    m_AnimExpr    =NULL;
-    m_LastStdAE   =NULL;
-    m_Timer       =Model->m_Timer;
-
     ClearGuis();
 }
 

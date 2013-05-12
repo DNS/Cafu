@@ -22,15 +22,15 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_MAP_HELPER_HPP_INCLUDED
 #define CAFU_MAP_HELPER_HPP_INCLUDED
 
-#include "MapElement.hpp"
+#include "Math3D/BoundingBox.hpp"
 
 
 class MapEntityT;
-namespace cf { namespace TypeSys { class TypeInfoT; } }
-namespace cf { namespace TypeSys { class TypeInfoManT; } }
+class Renderer2DT;
+class Renderer3DT;
 
 
-class MapHelperT : public MapElementT
+class MapHelperT
 {
     public:
 
@@ -45,16 +45,11 @@ class MapHelperT : public MapElementT
     /// for use after an entity (with all its helpers) has been cloned.
     void SetParentEntity(const MapEntityT* ParentEntity);
 
+    /// Returns the spatial bounding-box of this map element.
+    virtual BoundingBox3fT GetBB() const=0;
 
-    // Implementations and overrides for base class methods.
-    MapHelperT* Clone() const=0;
-    void        Assign(const MapElementT* Elem);
-
-
-    // The TypeSys related declarations for this class.
-    virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
-    static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
-    static const cf::TypeSys::TypeInfoT TypeInfo;
+    virtual void Render2D(Renderer2DT& Renderer) const { }
+    virtual void Render3D(Renderer3DT& Renderer) const { }
 
 
     protected:
