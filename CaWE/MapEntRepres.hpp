@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef CAFU_MAP_BRUSH_HPP_INCLUDED
-#define CAFU_MAP_BRUSH_HPP_INCLUDED
+#ifndef CAFU_MAP_ENTITY_REPRES_HPP_INCLUDED
+#define CAFU_MAP_ENTITY_REPRES_HPP_INCLUDED
 
 #include "MapPrimitive.hpp"
 
