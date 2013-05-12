@@ -75,6 +75,8 @@ class MapEntityBaseT : public MapElementT
     void AddPrim(MapPrimitiveT* Prim);
     void RemovePrim(MapPrimitiveT* Prim);
 
+    MapEntRepresT* GetRepres() const { return m_Repres; }
+
 
     // The TypeSys related declarations for this class.
     virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }

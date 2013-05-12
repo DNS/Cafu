@@ -31,6 +31,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapDocument.hpp"
 #include "MapBezierPatch.hpp"
 #include "MapEntity.hpp"
+#include "MapEntRepres.hpp"
 #include "MapModel.hpp"         // Only needed for some TypeInfo test...
 #include "MapPlant.hpp"         // Only needed for some TypeInfo test...
 #include "MapTerrain.hpp"       // Only needed for some TypeInfo test...
@@ -624,6 +625,7 @@ void MapDocumentT::GetAllElems(ArrayT<MapElementT*>& Elems) const
 
         // Add the entity itself...
         Elems.PushBack(Ent);
+        Elems.PushBack(Ent->GetRepres());
 
         // ... and all of its primitives.
         for (unsigned long PrimNr=0; PrimNr<Primitives.Size(); PrimNr++)
@@ -688,6 +690,7 @@ void MapDocumentT::Insert(MapEntityT* Ent)
     for (unsigned long PrimNr=0; PrimNr<Ent->GetPrimitives().Size(); PrimNr++)
         m_BspTree->Insert(Ent->GetPrimitives()[PrimNr]);
 
+    m_BspTree->Insert(Ent->GetRepres());
     m_BspTree->Insert(Ent);
 }
 
@@ -746,6 +749,7 @@ void MapDocumentT::Remove(MapElementT* Elem)
         for (unsigned long PrimNr=0; PrimNr<Ent->GetPrimitives().Size(); PrimNr++)
             m_BspTree->Remove(Ent->GetPrimitives()[PrimNr]);
 
+        m_BspTree->Remove(Ent->GetRepres());
         m_BspTree->Remove(Ent);
         return;
     }
