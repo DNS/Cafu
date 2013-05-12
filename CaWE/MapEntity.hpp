@@ -25,9 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapEntityBase.hpp"
 
 
-class MapHelperT;
-
-
 class MapEntityT : public MapEntityBaseT
 {
     public:
@@ -38,9 +35,6 @@ class MapEntityT : public MapEntityBaseT
     /// The copy constructor for copying an entity.
     /// @param Entity   The entity to copy-construct this entity from.
     MapEntityT(const MapEntityT& Entity);
-
-    /// The destructor.
-    ~MapEntityT();
 
 
     // Implementations and overrides for base class methods.
@@ -81,10 +75,7 @@ class MapEntityT : public MapEntityBaseT
 
     private:
 
-    void UpdateHelpers();
-
-    Vector3fT           m_Origin;
-    ArrayT<MapHelperT*> m_Helpers;
+    Vector3fT m_Origin;
 };
 
 #endif

@@ -25,8 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "EntityClassVar.hpp"
 #include "LuaAux.hpp"
 #include "MapDocument.hpp"
-#include "MapHelperBB.hpp"
-#include "MapHelperModel.hpp"
 #include "MapPrimitive.hpp"
 #include "Options.hpp"
 #include "Renderer2D.hpp"
@@ -50,29 +48,15 @@ const cf::TypeSys::TypeInfoT MapEntityT::TypeInfo(GetMapElemTIM(), "MapEntityT",
 
 MapEntityT::MapEntityT()
     : MapEntityBaseT(Options.colors.Entity),
-      m_Origin(),
-      m_Helpers()
+      m_Origin()
 {
 }
 
 
 MapEntityT::MapEntityT(const MapEntityT& Entity)
     : MapEntityBaseT(Entity),
-      m_Origin(Entity.m_Origin),
-      m_Helpers()
+      m_Origin(Entity.m_Origin)
 {
-    for (unsigned long HelperNr=0; HelperNr<Entity.m_Helpers.Size(); HelperNr++)
-    {
-        m_Helpers.PushBack(Entity.m_Helpers[HelperNr]->Clone());
-        m_Helpers[HelperNr]->SetParentEntity(this);
-    }
-}
-
-
-MapEntityT::~MapEntityT()
-{
-    for (unsigned long HelperNr=0; HelperNr<m_Helpers.Size(); HelperNr++)
-        delete m_Helpers[HelperNr];
 }
 
 
@@ -93,17 +77,6 @@ void MapEntityT::Assign(const MapElementT* Elem)
     if (Ent==NULL) return;
 
     m_Origin=Ent->m_Origin;
-
-    for (unsigned long HelperNr=0; HelperNr<m_Helpers.Size(); HelperNr++)
-        delete m_Helpers[HelperNr];
-
-    m_Helpers.Overwrite();
-
-    for (unsigned long HelperNr=0; HelperNr<Ent->m_Helpers.Size(); HelperNr++)
-    {
-        m_Helpers.PushBack(Ent->m_Helpers[HelperNr]->Clone());
-        m_Helpers[HelperNr]->SetParentEntity(this);
-    }
 }
 
 
@@ -183,9 +156,9 @@ void MapEntityT::Render2D(Renderer2DT& Renderer) const
     if (IsSelected() && FindProperty("angles")!=NULL)
         Renderer.BasisVectors(GetOrigin(), cf::math::Matrix3x3fT::GetFromAngles_COMPAT(GetAngles()));
 
-    // Render all helpers.
-    for (unsigned long HelperNr=0; HelperNr<m_Helpers.Size(); HelperNr++)
-        m_Helpers[HelperNr]->Render2D(Renderer);
+    // // Render all helpers.
+    // for (unsigned long HelperNr=0; HelperNr<m_Helpers.Size(); HelperNr++)
+    //     m_Helpers[HelperNr]->Render2D(Renderer);
 }
 
 
@@ -195,9 +168,9 @@ void MapEntityT::Render3D(Renderer3DT& Renderer) const
     if (IsSelected() && FindProperty("angles")!=NULL)
         Renderer.BasisVectors(GetOrigin(), cf::math::Matrix3x3fT::GetFromAngles_COMPAT(GetAngles()));
 
-    // Render all helpers.
-    for (unsigned long HelperNr=0; HelperNr<m_Helpers.Size(); HelperNr++)
-        m_Helpers[HelperNr]->Render3D(Renderer);
+    // // Render all helpers.
+    // for (unsigned long HelperNr=0; HelperNr<m_Helpers.Size(); HelperNr++)
+    //     m_Helpers[HelperNr]->Render3D(Renderer);
 }
 
 
@@ -224,8 +197,8 @@ BoundingBox3fT MapEntityT::GetBB() const
     for (unsigned long PrimNr=0; PrimNr<m_Primitives.Size(); PrimNr++)
         BB+=m_Primitives[PrimNr]->GetBB();
 
-    for (unsigned long HelperNr=0; HelperNr<m_Helpers.Size(); HelperNr++)
-        BB+=m_Helpers[HelperNr]->GetBB();
+    // for (unsigned long HelperNr=0; HelperNr<m_Helpers.Size(); HelperNr++)
+    //     BB+=m_Helpers[HelperNr]->GetBB();
 
     if (!BB.IsInited()) BB+=m_Origin;
     return BB;
@@ -234,28 +207,9 @@ BoundingBox3fT MapEntityT::GetBB() const
 
 bool MapEntityT::TraceRay(const Vector3fT& RayOrigin, const Vector3fT& RayDir, float& Fraction, unsigned long& FaceNr) const
 {
-    // Entities are either hit indirectly via their primitives (brushes, Bezier patches, terrains, etc.),
-    // or directly via their helpers.
-    unsigned long HitCount=0;
-
-    for (unsigned long HelperNr=0; HelperNr<m_Helpers.Size(); HelperNr++)
-    {
-        float         Fraction_;
-        unsigned long FaceNr_;
-
-        if (m_Helpers[HelperNr]->TraceRay(RayOrigin, RayDir, Fraction_, FaceNr_))
-        {
-            if (HitCount==0 || Fraction_<Fraction)
-            {
-                Fraction=Fraction_;
-                FaceNr  =FaceNr_;
-            }
-
-            HitCount++;
-        }
-    }
-
-    return HitCount>0;
+    // Entities are hit indirectly via their MapEntRepresT,
+    // or via their primitives (brushes, Bezier patches, terrains, etc.).
+    return false;
 }
 
 
@@ -348,8 +302,8 @@ void MapEntityT::SetClass(const EntityClassT* NewClass)
     // Assign the new class (m_Class=NewClass) and instantiate the variables (properties) of the new class.
     MapEntityBaseT::SetClass(NewClass);
 
-    // Our entity class changed, so update our helpers.
-    UpdateHelpers();
+    // // Our entity class changed, so update our helpers.
+    // UpdateHelpers();
 }
 
 
@@ -459,46 +413,4 @@ Vector3fT MapEntityT::GetOrigin() const
 void MapEntityT::SetOrigin(const Vector3fT& Origin)
 {
     m_Origin=Origin;
-}
-
-
-void MapEntityT::UpdateHelpers()
-{
-    for (unsigned long HelperNr=0; HelperNr<m_Helpers.Size(); HelperNr++)
-        delete m_Helpers[HelperNr];
-
-    m_Helpers.Overwrite();
-
-    if (m_Class!=NULL)
-    {
-        // Add all the helpers that this class declares in the EntityClassDefs.lua file.
-        for (unsigned long HelperNr=0; HelperNr<m_Class->GetHelpers().Size(); HelperNr++)
-        {
-            const HelperInfoT* HelperInfo=m_Class->GetHelpers()[HelperNr];
-            MapHelperT*        Helper    =NULL;
-
-            // It would be ideal if we could somehow better employ the type system here:
-            //     Helper=GetMapElemTIM().FindTypeInfoByName(HelperInfo->Name)->CreateInstance(Params);
-            if (HelperInfo->Name=="model")
-            {
-                Helper=new MapHelperModelT(this, HelperInfo);
-            }
-            else if (HelperInfo->Name=="iconsprite")
-            {
-                // TODO: Implement!
-            }
-            else wxMessageBox(wxString("Helper \"")+HelperInfo->Name+"\" not found!", "CaWE WARNING");
-
-            if (Helper!=NULL)
-                m_Helpers.PushBack(Helper);
-        }
-    }
-
-    // If the class definition does not specify any helpers, or none of the helpers could be added,
-    // a box helper is added so that the entity has some visual representation.
-    if (m_Primitives.Size()==0 && m_Helpers.Size()==0)
-    {
-        m_Helpers.PushBack(new MapHelperBoundingBoxT(this,
-            m_Class!=NULL ? m_Class->GetBoundingBox() : BoundingBox3fT(Vector3fT(-8, -8, -8), Vector3fT(8, 8, 8))));
-    }
 }
