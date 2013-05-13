@@ -755,8 +755,8 @@ void MapDocumentT::Remove(MapElementT* Elem)
 }
 
 
-// Hmmm. This would make a wonderful member function...   (TODO!)
-static bool IsElemInBox(const MapElementT* Elem, const BoundingBox3fT& Box, bool InsideOnly, bool CenterOnly)
+// Hmmm. This would make a nice member function...   (TODO!)
+static bool IsElemInBox(const MapPrimitiveT* Elem, const BoundingBox3fT& Box, bool InsideOnly, bool CenterOnly)
 {
     const BoundingBox3fT ElemBB=Elem->GetBB();
 
@@ -767,22 +767,22 @@ static bool IsElemInBox(const MapElementT* Elem, const BoundingBox3fT& Box, bool
 }
 
 
-ArrayT<MapElementT*> MapDocumentT::GetElementsIn(const BoundingBox3fT& Box, bool InsideOnly, bool CenterOnly) const
+ArrayT<MapPrimitiveT*> MapDocumentT::GetPrimitivesIn(const BoundingBox3fT& Box, bool InsideOnly, bool CenterOnly) const
 {
-    ArrayT<MapElementT*> Result;
+    ArrayT<MapPrimitiveT*> Result;
 
-    for (unsigned long EntNr=0; EntNr<m_Entities.Size(); EntNr++)
+    for (unsigned int EntNr = 0; EntNr < m_Entities.Size(); EntNr++)
     {
-        MapEntityBaseT*               Ent=m_Entities[EntNr];
-        const ArrayT<MapPrimitiveT*>& Primitives=Ent->GetPrimitives();
+        MapEntityBaseT* Ent = m_Entities[EntNr];
 
-        // If not the world, have the entity itself handled...
-        if (EntNr>0)
-            if (IsElemInBox(Ent, Box, InsideOnly, CenterOnly)) Result.PushBack(Ent);
+        // Add the entity representation...
+        if (IsElemInBox(Ent->GetRepres(), Box, InsideOnly, CenterOnly))
+            Result.PushBack(Ent->GetRepres());
 
-        // ... then all of its primitives.
-        for (unsigned long PrimNr=0; PrimNr<Primitives.Size(); PrimNr++)
-            if (IsElemInBox(Primitives[PrimNr], Box, InsideOnly, CenterOnly)) Result.PushBack(Primitives[PrimNr]);
+        // ... and all of its primitives.
+        for (unsigned int PrimNr = 0; PrimNr < Ent->GetPrimitives().Size(); PrimNr++)
+            if (IsElemInBox(Ent->GetPrimitives()[PrimNr], Box, InsideOnly, CenterOnly))
+                Result.PushBack(Ent->GetPrimitives()[PrimNr]);
     }
 
     return Result;

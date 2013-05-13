@@ -127,7 +127,7 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     /// The element can be any primitive or custom entity (but never the MapWorldT instance).
     void Remove(MapElementT* Elem);
 
-    ArrayT<MapElementT*> GetElementsIn(const BoundingBox3fT& Box, bool InsideOnly, bool CenterOnly) const;
+    ArrayT<MapPrimitiveT*> GetPrimitivesIn(const BoundingBox3fT& Box, bool InsideOnly, bool CenterOnly) const;
 
     /// Determines all materials that are currently being used in the world (in brushes, Bezier patches and terrains),
     /// and returns the whole list via the UsedMaterials reference parameter.
