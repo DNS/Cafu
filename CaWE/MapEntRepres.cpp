@@ -20,10 +20,15 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "MapEntRepres.hpp"
+#include "ChildFrameViewWin2D.hpp"
+#include "EntityClass.hpp"
 #include "MapEntity.hpp"
+#include "MapDocument.hpp"
 #include "MapHelperBB.hpp"
 #include "MapHelperModel.hpp"
-#include "EntityClass.hpp"
+#include "Options.hpp"
+#include "Renderer2D.hpp"
+#include "Renderer3D.hpp"
 
 
 /*** Begin of TypeSys related definitions for this class. ***/
@@ -39,7 +44,7 @@ const cf::TypeSys::TypeInfoT MapEntRepresT::TypeInfo(GetMapElemTIM(), "MapEntRep
 
 
 MapEntRepresT::MapEntRepresT()
-    : MapPrimitiveT(wxColour(100 + (rand() % 156), 80, 100 + (rand() % 156))),
+    : MapPrimitiveT(wxColour(255, 255, 255)),
       m_Helper(NULL)
 {
 }
@@ -97,19 +102,112 @@ void MapEntRepresT::Assign(const MapElementT* Elem)
 }
 
 
+wxColour MapEntRepresT::GetColor(bool ConsiderGroup) const
+{
+    if (m_Group && ConsiderGroup)
+        return m_Group->Color;
+
+    return m_Parent->GetClass()->GetColor();
+}
+
+
+wxString MapEntRepresT::GetDescription() const
+{
+    wxString Desc = "The representation of an entity in the map";
+
+    Desc += ", class \"" + m_Parent->GetClass()->GetName() + "\"";
+
+    const EntPropertyT* NameProp = m_Parent->FindProperty("name");
+
+    if (NameProp)
+        Desc += ", name \"" + NameProp->Value + "\"";
+
+    return Desc + ".";
+}
+
+
 void MapEntRepresT::Render2D(Renderer2DT& Renderer) const
 {
-    // The helpers don't implement this:
-    //
-    //      "Render nothing in 2D, as the parent entity already renders its bounding box,
-    //       center cross, orientation (angles), etc. by itself."
-    //
-    // ... so we have to move the code from the parent entity here!
+    const BoundingBox3fT BB     = GetBB();
+    const wxPoint        Point1 = Renderer.GetViewWin2D().WorldToTool(BB.Min);
+    const wxPoint        Point2 = Renderer.GetViewWin2D().WorldToTool(BB.Max);
+    const wxPoint        Center = Renderer.GetViewWin2D().WorldToTool(BB.GetCenter());
+    const wxColour       Color  = IsSelected() ? Options.colors.Selection : GetColor(Options.view2d.UseGroupColors);
+
+    Renderer.SetLineType(wxPENSTYLE_SOLID, Renderer2DT::LINE_THIN, Color);
+
+    // Render the entities bounding box.
+    Renderer.Rectangle(wxRect(Point1, Point2), false);
+
+    // Render the center X handle.
+    Renderer.XHandle(Center);
+
+
+    if (Options.view2d.ShowEntityInfo && (Renderer.GetViewWin2D().GetZoom() >= 1))
+    {
+        Renderer.SetTextColor(Color, Options.Grid.ColorBackground);
+        Renderer.DrawText(m_Parent->GetClass()->GetName(), Point1 + wxPoint(2, 1));
+
+        const EntPropertyT* NameProp = m_Parent->FindProperty("name");
+        if (NameProp!=NULL) Renderer.DrawText(NameProp->Value, Point1 + wxPoint(2, 12));
+    }
+
+    if (Options.view2d.ShowEntityTargets)
+    {
+        const EntPropertyT* TargetProp = m_Parent->FindProperty("target");
+
+        if (TargetProp!=NULL)
+        {
+            const ArrayT<MapEntityBaseT*>& Entities = Renderer.GetViewWin2D().GetMapDoc().GetEntities();
+            ArrayT<MapEntityT*>            FoundEntities;
+
+            for (unsigned long EntNr = 1/*skip world*/; EntNr < Entities.Size(); EntNr++)
+            {
+                const EntPropertyT* FoundProp = Entities[EntNr]->FindProperty("name");
+
+                wxASSERT(dynamic_cast<MapEntityT*>(Entities[EntNr])!=NULL);
+                if (FoundProp!=NULL && FoundProp->Value == TargetProp->Value && Entities[EntNr]->GetType() == &MapEntityT::TypeInfo)
+                {
+                    FoundEntities.PushBack(static_cast<MapEntityT*>(Entities[EntNr]));
+                }
+            }
+
+            for (unsigned long EntNr = 0; EntNr < FoundEntities.Size(); EntNr++)
+            {
+                const wxPoint OtherCenter = Renderer.GetViewWin2D().WorldToTool(FoundEntities[EntNr]->GetOrigin());
+
+                Renderer.DrawLine(Center, OtherCenter);
+            }
+        }
+    }
+
+    // Render the coordinate axes of our local system.
+    if (IsSelected() && m_Parent->FindProperty("angles") != NULL)
+    {
+        const MapEntityT* Ent = dynamic_cast<const MapEntityT*>(m_Parent);
+
+        if (Ent)
+            Renderer.BasisVectors(Ent->GetOrigin(), cf::math::Matrix3x3fT::GetFromAngles_COMPAT(Ent->GetAngles()));
+    }
+
+    // Render the helper.
+    if (m_Helper)
+        m_Helper->Render2D(Renderer);
 }
 
 
 void MapEntRepresT::Render3D(Renderer3DT& Renderer) const
 {
+    // Render the coordinate axes of our local system.
+    if (IsSelected() && m_Parent->FindProperty("angles") != NULL)
+    {
+        const MapEntityT* Ent = dynamic_cast<const MapEntityT*>(m_Parent);
+
+        if (Ent)
+            Renderer.BasisVectors(Ent->GetOrigin(), cf::math::Matrix3x3fT::GetFromAngles_COMPAT(Ent->GetAngles()));
+    }
+
+    // Render the helper.
     if (m_Helper)
         m_Helper->Render3D(Renderer);
 }
@@ -137,13 +235,27 @@ BoundingBox3fT MapEntRepresT::GetBB() const
 
 bool MapEntRepresT::TraceRay(const Vector3fT& RayOrigin, const Vector3fT& RayDir, float& Fraction, unsigned long& FaceNr) const
 {
-    return false;
+    return GetBB().TraceRay(RayOrigin, RayDir, Fraction);
 }
 
 
 bool MapEntRepresT::TracePixel(const wxPoint& Pixel, int Radius, const ViewWindow2DT& ViewWin) const
 {
-    return false;
+    // Note that entities in 2D views are always indicated (drawn) and selected
+    //   - via their bounding-box,
+    //   - via their center handle, and
+    //   - if they have an origin, via their origin.
+    const BoundingBox3fT BB   = GetBB();
+    const wxRect         Disc = wxRect(Pixel, Pixel).Inflate(Radius, Radius);
+    const wxRect         Rect = wxRect(ViewWin.WorldToWindow(BB.Min), ViewWin.WorldToWindow(BB.Max));
+
+    // Note that the check against the Rect frame (that has a width of 2*Radius) is done in two steps:
+    // First by checking if Disc is entirely outside of Rect, then below by checking if Disc is entirely inside Rect.
+    if (!Rect.Intersects(Disc)) return false;
+    if (Disc.Contains(ViewWin.WorldToWindow(BB.GetCenter()))) return true;
+    if (Options.view2d.SelectByHandles) return false;
+
+    return !Rect.Contains(Disc);
 }
 
 
@@ -151,12 +263,6 @@ void MapEntRepresT::Save_cmap(std::ostream& OutFile, unsigned long EntRepNr, con
 {
     // MapEntRepresT are always created dynamically,
     // and thus are never saved to disk.
-}
-
-
-wxString MapEntRepresT::GetDescription() const
-{
-    return "The representation of an entity in the map.";
 }
 
 

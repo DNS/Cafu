@@ -47,6 +47,10 @@ class MapEntRepresT : public MapPrimitiveT
     // Implementations and overrides for base class methods.
     MapEntRepresT* Clone() const;
     void           Assign(const MapElementT* Elem);
+
+    wxColour       GetColor(bool ConsiderGroup=true) const;
+    wxString       GetDescription() const;
+
     void           Render2D(Renderer2DT& Renderer) const;
     void           Render3D(Renderer3DT& Renderer) const;
     bool           IsTranslucent() const;
@@ -54,7 +58,6 @@ class MapEntRepresT : public MapPrimitiveT
     bool           TraceRay(const Vector3fT& RayOrigin, const Vector3fT& RayDir, float& Fraction, unsigned long& FaceNr) const;
     bool           TracePixel(const wxPoint& Pixel, int Radius, const ViewWindow2DT& ViewWin) const;
     void           Save_cmap(std::ostream& OutFile, unsigned long EntRepNr, const MapDocumentT& MapDoc) const;
-    wxString       GetDescription() const;
 
     // Implement the MapElementT transformation methods.
     void TrafoMove(const Vector3fT& Delta);

@@ -20,17 +20,15 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "MapEntity.hpp"
-#include "ChildFrameViewWin2D.hpp"
 #include "EntityClass.hpp"
 #include "EntityClassVar.hpp"
 #include "LuaAux.hpp"
 #include "MapDocument.hpp"
 #include "MapPrimitive.hpp"
 #include "Options.hpp"
-#include "Renderer2D.hpp"
-#include "Renderer3D.hpp"
 
 #include "Math3D/Matrix.hpp"
+#include "Math3D/Matrix3x3.hpp"
 #include "TypeSys.hpp"
 
 
@@ -97,83 +95,6 @@ wxString MapEntityT::GetDescription() const
 }
 
 
-void MapEntityT::Render2D(Renderer2DT& Renderer) const
-{
-    const BoundingBox3fT BB    =GetBB();
-    const wxPoint        Point1=Renderer.GetViewWin2D().WorldToTool(BB.Min);
-    const wxPoint        Point2=Renderer.GetViewWin2D().WorldToTool(BB.Max);
-    const wxPoint        Center=Renderer.GetViewWin2D().WorldToTool(BB.GetCenter());
-    const wxColour       Color =IsSelected() ? Options.colors.Selection : GetColor(Options.view2d.UseGroupColors);
-
-    Renderer.SetLineType(wxPENSTYLE_SOLID, Renderer2DT::LINE_THIN, Color);
-
-    // Render the entities bounding box.
-    Renderer.Rectangle(wxRect(Point1, Point2), false);
-
-    // Render the center X handle.
-    Renderer.XHandle(Center);
-
-
-    if (Options.view2d.ShowEntityInfo && (Renderer.GetViewWin2D().GetZoom() >= 1))
-    {
-        Renderer.SetTextColor(Color, Options.Grid.ColorBackground);
-        Renderer.DrawText(m_Class->GetName(), Point1+wxPoint(2,  1));
-
-        const EntPropertyT* NameProp=FindProperty("name");
-        if (NameProp!=NULL) Renderer.DrawText(NameProp->Value, Point1+wxPoint(2, 12));
-    }
-
-    if (Options.view2d.ShowEntityTargets)
-    {
-        const EntPropertyT* TargetProp=FindProperty("target");
-
-        if (TargetProp!=NULL)
-        {
-            const ArrayT<MapEntityBaseT*>& Entities=Renderer.GetViewWin2D().GetMapDoc().GetEntities();
-            ArrayT<MapEntityT*>            FoundEntities;
-
-            for (unsigned long EntNr=1/*skip world*/; EntNr<Entities.Size(); EntNr++)
-            {
-                const EntPropertyT* FoundProp=Entities[EntNr]->FindProperty("name");
-
-                wxASSERT(dynamic_cast<MapEntityT*>(Entities[EntNr])!=NULL);
-                if (FoundProp!=NULL && FoundProp->Value==TargetProp->Value && Entities[EntNr]->GetType()==&MapEntityT::TypeInfo)
-                {
-                    FoundEntities.PushBack(static_cast<MapEntityT*>(Entities[EntNr]));
-                }
-            }
-
-            for (unsigned long EntNr=0; EntNr<FoundEntities.Size(); EntNr++)
-            {
-                const wxPoint OtherCenter=Renderer.GetViewWin2D().WorldToTool(FoundEntities[EntNr]->GetOrigin());
-
-                Renderer.DrawLine(Center, OtherCenter);
-            }
-        }
-    }
-
-    // Render the coordinate axes of our local system.
-    if (IsSelected() && FindProperty("angles")!=NULL)
-        Renderer.BasisVectors(GetOrigin(), cf::math::Matrix3x3fT::GetFromAngles_COMPAT(GetAngles()));
-
-    // // Render all helpers.
-    // for (unsigned long HelperNr=0; HelperNr<m_Helpers.Size(); HelperNr++)
-    //     m_Helpers[HelperNr]->Render2D(Renderer);
-}
-
-
-void MapEntityT::Render3D(Renderer3DT& Renderer) const
-{
-    // Render the coordinate axes of our local system.
-    if (IsSelected() && FindProperty("angles")!=NULL)
-        Renderer.BasisVectors(GetOrigin(), cf::math::Matrix3x3fT::GetFromAngles_COMPAT(GetAngles()));
-
-    // // Render all helpers.
-    // for (unsigned long HelperNr=0; HelperNr<m_Helpers.Size(); HelperNr++)
-    //     m_Helpers[HelperNr]->Render3D(Renderer);
-}
-
-
 /// Entities dilemma: What should the bounding-box of an entity comprise?
 ///    a) Only its origin (plus some margin)?
 ///    b) Its origin plus all of its primitives children?
@@ -215,20 +136,7 @@ bool MapEntityT::TraceRay(const Vector3fT& RayOrigin, const Vector3fT& RayDir, f
 
 bool MapEntityT::TracePixel(const wxPoint& Pixel, int Radius, const ViewWindow2DT& ViewWin) const
 {
-    // Note that entities in 2D views are always indicated (drawn) and selected
-    //   - via their bounding-box,
-    //   - via their center handle, and
-    //   - if they have an origin, via their origin.
-    const BoundingBox3fT BB  =GetBB();
-    const wxRect         Disc=wxRect(Pixel, Pixel).Inflate(Radius, Radius);
-    const wxRect         Rect=wxRect(ViewWin.WorldToWindow(BB.Min), ViewWin.WorldToWindow(BB.Max));
-
-    // Note that the check against the Rect frame (that has a width of 2*Radius) is done in two steps:
-    // First by checking if Disc is entirely outside of Rect, then below by checking if Disc is entirely inside Rect.
-    if (!Rect.Intersects(Disc)) return false;
-    if (Disc.Contains(ViewWin.WorldToWindow(BB.GetCenter()))) return true;
-    if (Options.view2d.SelectByHandles) return false;
-    return !Rect.Contains(Disc);
+    return false;
 }
 
 

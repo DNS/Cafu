@@ -44,8 +44,6 @@ class MapEntityT : public MapEntityBaseT
     wxColour GetColor(bool ConsiderGroup=true) const;
     wxString GetDescription() const;
 
-    void Render2D(Renderer2DT& Renderer) const;
-    void Render3D(Renderer3DT& Renderer) const;
     BoundingBox3fT GetBB() const;
 
     bool TraceRay(const Vector3fT& RayOrigin, const Vector3fT& RayDir, float& Fraction, unsigned long& FaceNr) const;
