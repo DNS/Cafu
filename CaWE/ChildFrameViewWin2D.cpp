@@ -692,10 +692,10 @@ void ViewWindow2DT::Render(const wxRect& UpdateRect)
         dc.SetBackgroundMode(wxSOLID);      // Should be dc.SetTEXTBackgroundMode(wxSOLID).
         dc.SetTextBackground(Options.Grid.ColorBackground);
 
-        static ArrayT<MapElementT*> Elems;  // This is obviously not thread safe...
+        static ArrayT<MapPrimitiveT*> Elems;    // This is obviously not thread safe...
 
         Elems.Overwrite();
-        GetMapDoc().GetAllElems(Elems);
+        GetMapDoc().GetAllPrimitives(Elems);
 
         ToolT*      ActiveTool=m_ChildFrame->GetToolManager().GetActiveTool();
         Renderer2DT Renderer(*this, dc);
