@@ -650,26 +650,6 @@ void MapDocumentT::GetAllElems(ArrayT<MapElementT*>& Elems) const
 }
 
 
-bool MapDocumentT::IterateElems(IterationHandlerI& IH)
-{
-    for (unsigned long EntNr=0; EntNr<m_Entities.Size(); EntNr++)
-    {
-        MapEntityBaseT*               Ent=m_Entities[EntNr];
-        const ArrayT<MapPrimitiveT*>& Primitives=Ent->GetPrimitives();
-
-        // If not the world, have the entity itself handled...
-        if (EntNr>0)
-            if (!IH.Handle(Ent)) return false;
-
-        // ... then all of its primitives.
-        for (unsigned long PrimNr=0; PrimNr<Primitives.Size(); PrimNr++)
-            if (!IH.Handle(Primitives[PrimNr])) return false;
-    }
-
-    return true;
-}
-
-
 const EntityClassT* MapDocumentT::FindOrCreateUnknownClass(const wxString& Name, bool HasOrigin)
 {
     wxASSERT(m_GameConfig->FindClass(Name)==NULL);
@@ -1338,44 +1318,22 @@ void MapDocumentT::OnViewHideSelectedObjects(wxCommandEvent& CE)
 }
 
 
-/// An iteration handler that collects all map elements that are unselected (and not in a group).
-class CollectUnselectedT : public IterationHandlerI
-{
-    public:
-
-    CollectUnselectedT()
-        : m_Unselected()
-    {
-    }
-
-    bool Handle(MapElementT* Child)
-    {
-        if (Child->IsSelected() || Child->GetGroup()) return true;
-
-        m_Unselected.PushBack(Child);
-        return true;
-    }
-
-    const ArrayT<MapElementT*>& GetUnselected() const
-    {
-        return m_Unselected;
-    }
-
-
-    private:
-
-    ArrayT<MapElementT*> m_Unselected;
-};
-
-
 void MapDocumentT::OnViewHideUnselectedObjects(wxCommandEvent& CE)
 {
     // Find all unselected map elements that are not in a group already.
-    CollectUnselectedT CollectUnselectedCallBack;
+    ArrayT<MapElementT*>   HideElems;
+    ArrayT<MapPrimitiveT*> Prims;
 
-    IterateElems(CollectUnselectedCallBack);
+    GetAllPrimitives(Prims);
 
-    const ArrayT<MapElementT*>& HideElems=CollectUnselectedCallBack.GetUnselected();
+    for (unsigned int PrimNr = 0; PrimNr < Prims.Size(); PrimNr++)
+    {
+        MapPrimitiveT* Prim = Prims[PrimNr];
+
+        if (Prim->IsSelected() || Prim->GetGroup()) continue;
+
+        HideElems.PushBack(Prim);
+    }
 
     // If no relevant elements were found, do nothing.
     if (HideElems.Size()==0) return;

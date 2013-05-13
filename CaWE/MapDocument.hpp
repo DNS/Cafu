@@ -41,21 +41,6 @@ class OrthoBspTreeT;
 class wxProgressDialog;
 
 
-/// This class handles each iteration element when the children of a MapElementT object are iterated.
-/// It quasi serves as a call-back function that is called on the element in each iteration.
-/// User code is supposed to derive from this class in order to implement custom behaviour.
-class IterationHandlerI
-{
-    public:
-
-    /// The actual method that is called back on each element of the iteration.
-    virtual bool Handle(MapElementT* Child)=0;
-
-    /// The virtual destructor.
-    virtual ~IterationHandlerI() { }
-};
-
-
 struct PtsPointT
 {
     float          Time;
@@ -127,14 +112,6 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     /// Adds all elements (entities and primitives) in this map to the given array.
     /// Note that the world entity is always the first element that is added to the list.
     void GetAllElems(ArrayT<MapElementT*>& Elems) const;
-
-    /// Iterates over all elements (entities and primitives) in this map, calling the IH.Handle() call-back method for each.
-    /// Note that for backwards-compatibility, the world entity itself is *skipped*: IH.Handle() is called for all its
-    /// primitives, but not the world entity itself.
-    /// @param IH   The iteration handler whose Handle() method is called once per map element.
-    ///             User code is expected to pass a derived class instance in order to achieve custom behaviour.
-    /// @returns true if the iteration completed fully, or false if it was aborted early.
-    bool IterateElems(IterationHandlerI& IH);
 
     /// Inserts the given entity into the map.
     /// Callers should never attempt to insert an element into the world in a way other than calling this method,
