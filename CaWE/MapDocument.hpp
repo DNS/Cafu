@@ -120,6 +120,10 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     /// Returns all entities in the map. The world is always at index 0, followed by the "regular" entities.
     const ArrayT<MapEntityBaseT*>& GetEntities() const { return m_Entities; }
 
+    /// Adds all primitives in this map (including the `MapEntRepresT` instances) to the given array.
+    /// The `MapEntRepresT` instance of the world entity is always the first element that is added to the list.
+    void GetAllPrimitives(ArrayT<MapPrimitiveT*>& Prims) const;
+
     /// Adds all elements (entities and primitives) in this map to the given array.
     /// Note that the world entity is always the first element that is added to the list.
     void GetAllElems(ArrayT<MapElementT*>& Elems) const;

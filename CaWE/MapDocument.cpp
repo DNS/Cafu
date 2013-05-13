@@ -616,6 +616,22 @@ bool MapDocumentT::Save()
 }
 
 
+void MapDocumentT::GetAllPrimitives(ArrayT<MapPrimitiveT*>& Prims) const
+{
+    for (unsigned int EntNr = 0; EntNr < m_Entities.Size(); EntNr++)
+    {
+        MapEntityBaseT* Ent = m_Entities[EntNr];
+
+        // Add the entity representation...
+        Prims.PushBack(Ent->GetRepres());
+
+        // ... and all of its primitives.
+        for (unsigned int PrimNr = 0; PrimNr < Ent->GetPrimitives().Size(); PrimNr++)
+            Prims.PushBack(Ent->GetPrimitives()[PrimNr]);
+    }
+}
+
+
 void MapDocumentT::GetAllElems(ArrayT<MapElementT*>& Elems) const
 {
     for (unsigned long EntNr=0; EntNr<m_Entities.Size(); EntNr++)
