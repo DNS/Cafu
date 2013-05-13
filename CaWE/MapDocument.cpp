@@ -197,9 +197,10 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
 {
     m_Entities.PushBack(new MapWorldT(*this));
 
-    ArrayT<MapElementT*> AllElems;
-    GetAllElems(AllElems);    // There are none at this time...
-    m_BspTree=new OrthoBspTreeT(AllElems, m_GameConfig->GetMaxMapBB());
+    ArrayT<MapPrimitiveT*> AllPrims;
+    GetAllPrimitives(AllPrims);
+
+    m_BspTree = new OrthoBspTreeT(AllPrims, m_GameConfig->GetMaxMapBB());
 }
 
 
@@ -263,18 +264,10 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     }
 
 
-    ArrayT<MapElementT*> AllElems;
-    GetAllElems(AllElems);
+    ArrayT<MapPrimitiveT*> AllPrims;
+    GetAllPrimitives(AllPrims);
 
-    if (AllElems.Size()>0)
-    {
-        // The world itself is never inserted into the BSP tree.
-        wxASSERT(AllElems[0]==World);
-        wxASSERT(AllElems[0]->GetType()==&MapWorldT::TypeInfo);
-        AllElems.RemoveAt(0);
-    }
-
-    m_BspTree=new OrthoBspTreeT(AllElems, m_GameConfig->GetMaxMapBB());
+    m_BspTree = new OrthoBspTreeT(AllPrims, m_GameConfig->GetMaxMapBB());
 }
 
 
@@ -322,19 +315,11 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     }
 
 
-    ArrayT<MapElementT*> AllElems;
-    Doc->GetAllElems(AllElems);
-
-    if (AllElems.Size()>0)
-    {
-        // The world itself is never inserted into the BSP tree.
-        wxASSERT(AllElems[0]==Doc->GetEntities()[0]);
-        wxASSERT(AllElems[0]->GetType()==&MapWorldT::TypeInfo);
-        AllElems.RemoveAt(0);
-    }
+    ArrayT<MapPrimitiveT*> AllPrims;
+    Doc->GetAllPrimitives(AllPrims);
 
     delete Doc->m_BspTree;
-    Doc->m_BspTree=new OrthoBspTreeT(AllElems, Doc->m_GameConfig->GetMaxMapBB());
+    Doc->m_BspTree = new OrthoBspTreeT(AllPrims, Doc->m_GameConfig->GetMaxMapBB());
 
     Doc->m_FileName=FileName;
     return Doc;
@@ -397,19 +382,11 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     }
 
 
-    ArrayT<MapElementT*> AllElems;
-    Doc->GetAllElems(AllElems);
-
-    if (AllElems.Size()>0)
-    {
-        // The world itself is never inserted into the BSP tree.
-        wxASSERT(AllElems[0]==Doc->GetEntities()[0]);
-        wxASSERT(AllElems[0]->GetType()==&MapWorldT::TypeInfo);
-        AllElems.RemoveAt(0);
-    }
+    ArrayT<MapPrimitiveT*> AllPrims;
+    Doc->GetAllPrimitives(AllPrims);
 
     delete Doc->m_BspTree;
-    Doc->m_BspTree=new OrthoBspTreeT(AllElems, Doc->m_GameConfig->GetMaxMapBB());
+    Doc->m_BspTree = new OrthoBspTreeT(AllPrims, Doc->m_GameConfig->GetMaxMapBB());
 
     Doc->m_FileName=FileName;
     return Doc;
@@ -460,19 +437,11 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     }
 
 
-    ArrayT<MapElementT*> AllElems;
-    Doc->GetAllElems(AllElems);
-
-    if (AllElems.Size()>0)
-    {
-        // The world itself is never inserted into the BSP tree.
-        wxASSERT(AllElems[0]==Doc->GetEntities()[0]);
-        wxASSERT(AllElems[0]->GetType()==&MapWorldT::TypeInfo);
-        AllElems.RemoveAt(0);
-    }
+    ArrayT<MapPrimitiveT*> AllPrims;
+    Doc->GetAllPrimitives(AllPrims);
 
     delete Doc->m_BspTree;
-    Doc->m_BspTree=new OrthoBspTreeT(AllElems, Doc->m_GameConfig->GetMaxMapBB());
+    Doc->m_BspTree = new OrthoBspTreeT(AllPrims, Doc->m_GameConfig->GetMaxMapBB());
 
     Doc->m_FileName=FileName;
     return Doc;
@@ -687,7 +656,6 @@ void MapDocumentT::Insert(MapEntityT* Ent)
         m_BspTree->Insert(Ent->GetPrimitives()[PrimNr]);
 
     m_BspTree->Insert(Ent->GetRepres());
-    m_BspTree->Insert(Ent);
 }
 
 
@@ -746,7 +714,6 @@ void MapDocumentT::Remove(MapElementT* Elem)
             m_BspTree->Remove(Ent->GetPrimitives()[PrimNr]);
 
         m_BspTree->Remove(Ent->GetRepres());
-        m_BspTree->Remove(Ent);
         return;
     }
 

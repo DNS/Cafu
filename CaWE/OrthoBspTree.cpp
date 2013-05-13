@@ -20,7 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "OrthoBspTree.hpp"
-#include "MapElement.hpp"
+#include "MapPrimitive.hpp"
 
 
 OrthoBspTreeT::NodeT::NodeT(const BoundingBox3fT& BB)
@@ -156,7 +156,7 @@ bool OrthoBspTreeT::NodeT::IntersectsAllChildren(const BoundingBox3fT& BB) const
 }
 
 
-void OrthoBspTreeT::NodeT::FindMismatches(ArrayT<MapElementT*>& Mismatches) const
+void OrthoBspTreeT::NodeT::FindMismatches(ArrayT<MapPrimitiveT*>& Mismatches) const
 {
     const NodeT* Node=this;
 
@@ -164,7 +164,7 @@ void OrthoBspTreeT::NodeT::FindMismatches(ArrayT<MapElementT*>& Mismatches) cons
     {
         for (unsigned long ElemNr=0; ElemNr<Node->m_Elems.Size(); ElemNr++)
         {
-            MapElementT*         Elem  =Node->m_Elems[ElemNr];
+            MapPrimitiveT*       Elem  =Node->m_Elems[ElemNr];
             const BoundingBox3fT ElemBB=Elem->GetBB();
 
             // If ElemBB intersects (or touches) the bounding-box of the node as well as all of the nodes children,
@@ -186,7 +186,7 @@ void OrthoBspTreeT::NodeT::FindMismatches(ArrayT<MapElementT*>& Mismatches) cons
 }
 
 
-void OrthoBspTreeT::NodeT::Insert(MapElementT* Elem)
+void OrthoBspTreeT::NodeT::Insert(MapPrimitiveT* Elem)
 {
     NodeT*               Node  =this;
     const BoundingBox3fT ElemBB=Elem->GetBB();
@@ -213,7 +213,7 @@ void OrthoBspTreeT::NodeT::Insert(MapElementT* Elem)
 }
 
 
-void OrthoBspTreeT::NodeT::Remove(MapElementT* Elem)
+void OrthoBspTreeT::NodeT::Remove(MapPrimitiveT* Elem)
 {
     NodeT* Node=this;
 
@@ -237,7 +237,7 @@ void OrthoBspTreeT::NodeT::Remove(MapElementT* Elem)
 }
 
 
-OrthoBspTreeT::OrthoBspTreeT(const ArrayT<MapElementT*>& Elems, const BoundingBox3fT& BB)
+OrthoBspTreeT::OrthoBspTreeT(const ArrayT<MapPrimitiveT*>& Elems, const BoundingBox3fT& BB)
     : m_RootNode(new NodeT(BB))
 {
     m_RootNode->m_Elems=Elems;
@@ -256,7 +256,7 @@ OrthoBspTreeT::~OrthoBspTreeT()
 
 unsigned long OrthoBspTreeT::Update()
 {
-    static ArrayT<MapElementT*> Mismatches;
+    static ArrayT<MapPrimitiveT*> Mismatches;
 
     Mismatches.Overwrite();
     m_RootNode->FindMismatches(Mismatches);
@@ -300,7 +300,7 @@ void OrthoBspTreeT::BuildTree(NodeT* Node)
     {
         for (unsigned long ElemNr=0; ElemNr<Ancestor->m_Elems.Size(); ElemNr++)
         {
-            MapElementT* Elem=Ancestor->m_Elems[ElemNr];
+            MapPrimitiveT* Elem=Ancestor->m_Elems[ElemNr];
 
             if (!Ancestor->IntersectsAllChildren(Elem->GetBB()))
             {

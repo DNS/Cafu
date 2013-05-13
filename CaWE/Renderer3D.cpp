@@ -25,7 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrameViewWin3D.hpp"
 #include "EditorMaterialManager.hpp"
 #include "MapDocument.hpp"
-#include "MapElement.hpp"
+#include "MapPrimitive.hpp"
 #include "Tool.hpp"
 #include "ToolManager.hpp"
 
@@ -400,7 +400,7 @@ void Renderer3DT::GetRenderList(const OrthoBspTreeT::NodeT* Node, RelLocT Parent
     // 2. Render the map elements in the node.
     for (unsigned long ElemNr=0; ElemNr<Node->GetElems().Size(); ElemNr++)
     {
-        MapElementT* Elem=Node->GetElems()[ElemNr];
+        MapPrimitiveT* Elem = Node->GetElems()[ElemNr];
 
         if (Elem->GetFrameCount()==Renderer3D_FrameCount) continue;     // Already rendered in this frame?
         Elem->SetFrameCount(Renderer3D_FrameCount);                     // Flag as processed (rendered or found invisible) in this frame.
