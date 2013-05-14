@@ -27,8 +27,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapPrimitive.hpp"
 #include "Options.hpp"
 
-#include "Math3D/Matrix.hpp"
-#include "Math3D/Matrix3x3.hpp"
 #include "TypeSys.hpp"
 
 
@@ -133,69 +131,6 @@ bool MapEntityT::TraceRay(const Vector3fT& RayOrigin, const Vector3fT& RayDir, f
 bool MapEntityT::TracePixel(const wxPoint& Pixel, int Radius, const ViewWindow2DT& ViewWin) const
 {
     return false;
-}
-
-
-void MapEntityT::TrafoMove(const Vector3fT& delta)
-{
-    m_Origin+=delta;
-
-    MapElementT::TrafoMove(delta);
-}
-
-
-void MapEntityT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& RotAngles)
-{
-    // Rotate the origin.
-    m_Origin-=RefPoint;
-
-    if (RotAngles.x!=0.0f) m_Origin=m_Origin.GetRotX( RotAngles.x);
-    if (RotAngles.y!=0.0f) m_Origin=m_Origin.GetRotY(-RotAngles.y);
-    if (RotAngles.z!=0.0f) m_Origin=m_Origin.GetRotZ( RotAngles.z);
-
-    m_Origin+=RefPoint;
-
-
-    // Convert the existing orientation (expressed in m_Angles) and the additionally to be applied delta rotation
-    // (expressed in Angles) to 3x3 rotation matrixes (for backwards-compatibility, both conversions require extra code).
-    // Then multiply the matrices in order to obtain the new orientation, and convert that (again bw.-comp.) back to m_Angles.
-    const cf::math::Matrix3x3fT OldMatrix=cf::math::Matrix3x3fT::GetFromAngles_COMPAT(GetAngles());
-    const cf::math::Matrix3x3fT RotMatrix=cf::math::Matrix3x3fT::GetFromAngles_COMPAT(cf::math::AnglesfT(-RotAngles[1], RotAngles[2], RotAngles[0]));
-
-    cf::math::AnglesfT NewAngles=(RotMatrix*OldMatrix).ToAngles_COMPAT();
-
-    // Carefully round and normalize the angles.
-    if (fabs(NewAngles[PITCH])<0.001f) NewAngles[PITCH]=0;
-    if (fabs(NewAngles[YAW  ])<0.001f) NewAngles[YAW  ]=0; if (NewAngles[YAW]<0) NewAngles[YAW]+=360.0f;
-    if (fabs(NewAngles[ROLL ])<0.001f) NewAngles[ROLL ]=0;
-
-    SetAngles(NewAngles);
-
-    MapElementT::TrafoRotate(RefPoint, RotAngles);
-}
-
-
-void MapEntityT::TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale)
-{
-    m_Origin=RefPoint + (m_Origin-RefPoint).GetScaled(Scale);
-
-    MapElementT::TrafoScale(RefPoint, Scale);
-}
-
-
-void MapEntityT::TrafoMirror(unsigned int NormalAxis, float Dist)
-{
-    m_Origin[NormalAxis]=Dist-(m_Origin[NormalAxis]-Dist);
-
-    MapElementT::TrafoMirror(NormalAxis, Dist);
-}
-
-
-void MapEntityT::Transform(const MatrixT& Matrix)
-{
-    m_Origin=Matrix.Mul1(m_Origin);
-
-    MapElementT::Transform(Matrix);
 }
 
 

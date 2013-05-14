@@ -48,11 +48,6 @@ class MapEntityT : public MapEntityBaseT
 
     bool TraceRay(const Vector3fT& RayOrigin, const Vector3fT& RayDir, float& Fraction, unsigned long& FaceNr) const;
     bool TracePixel(const wxPoint& Pixel, int Radius, const ViewWindow2DT& ViewWin) const;
-    void TrafoMove(const Vector3fT& Delta);
-    void TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles);
-    void TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale);
-    void TrafoMirror(unsigned int NormalAxis, float Dist);
-    void Transform(const MatrixT& Matrix);
 
 
     /// Checks if unique values are set and unique inside the world and changes/sets them if bool Repair is true (default).

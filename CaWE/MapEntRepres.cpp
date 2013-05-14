@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapEntRepres.hpp"
 #include "ChildFrameViewWin2D.hpp"
 #include "EntityClass.hpp"
+#include "LuaAux.hpp"
 #include "MapEntity.hpp"
 #include "MapDocument.hpp"
 #include "MapHelperBB.hpp"
@@ -29,6 +30,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Options.hpp"
 #include "Renderer2D.hpp"
 #include "Renderer3D.hpp"
+
+#include "Math3D/Matrix.hpp"
 
 
 /*** Begin of TypeSys related definitions for this class. ***/
@@ -268,29 +271,75 @@ void MapEntRepresT::Save_cmap(std::ostream& OutFile, unsigned long EntRepNr, con
 
 void MapEntRepresT::TrafoMove(const Vector3fT& Delta)
 {
+    const Vector3fT Origin = m_Parent->GetOrigin();
+
+    m_Parent->SetOrigin(Origin + Delta);
+
     MapPrimitiveT::TrafoMove(Delta);
 }
 
 
 void MapEntRepresT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles)
 {
+    Vector3fT Origin = m_Parent->GetOrigin();
+
+    // Rotate the origin.
+    Origin -= RefPoint;
+
+    if (Angles.x != 0.0f) Origin = Origin.GetRotX( Angles.x);
+    if (Angles.y != 0.0f) Origin = Origin.GetRotY(-Angles.y);
+    if (Angles.z != 0.0f) Origin = Origin.GetRotZ( Angles.z);
+
+    Origin += RefPoint;
+
+
+    // Convert the existing orientation (expressed in m_Angles) and the additionally to be applied delta rotation
+    // (expressed in Angles) to 3x3 rotation matrixes (for backwards-compatibility, both conversions require extra code).
+    // Then multiply the matrices in order to obtain the new orientation, and convert that (again bw.-comp.) back to m_Angles.
+    const cf::math::Matrix3x3fT OldMatrix = cf::math::Matrix3x3fT::GetFromAngles_COMPAT(m_Parent->GetAngles());
+    const cf::math::Matrix3x3fT RotMatrix = cf::math::Matrix3x3fT::GetFromAngles_COMPAT(cf::math::AnglesfT(-Angles[1], Angles[2], Angles[0]));
+
+    cf::math::AnglesfT NewAngles = (RotMatrix*OldMatrix).ToAngles_COMPAT();
+
+    // Carefully round and normalize the angles.
+    if (fabs(NewAngles[PITCH]) < 0.001f) NewAngles[PITCH] = 0;
+    if (fabs(NewAngles[YAW  ]) < 0.001f) NewAngles[YAW  ] = 0; if (NewAngles[YAW] < 0) NewAngles[YAW] += 360.0f;
+    if (fabs(NewAngles[ROLL ]) < 0.001f) NewAngles[ROLL ] = 0;
+
+    m_Parent->SetOrigin(Origin);
+    m_Parent->SetAngles(NewAngles);
+
     MapPrimitiveT::TrafoRotate(RefPoint, Angles);
 }
 
 
 void MapEntRepresT::TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale)
 {
+    const Vector3fT Origin = m_Parent->GetOrigin();
+
+    m_Parent->SetOrigin(RefPoint + (Origin - RefPoint).GetScaled(Scale));
+
     MapPrimitiveT::TrafoScale(RefPoint, Scale);
 }
 
 
 void MapEntRepresT::TrafoMirror(unsigned int NormalAxis, float Dist)
 {
+    Vector3fT Origin = m_Parent->GetOrigin();
+
+    Origin[NormalAxis] = Dist - (Origin[NormalAxis] - Dist);
+
+    m_Parent->SetOrigin(Origin);
+
     MapPrimitiveT::TrafoMirror(NormalAxis, Dist);
 }
 
 
 void MapEntRepresT::Transform(const MatrixT& Matrix)
 {
+    const Vector3fT Origin = m_Parent->GetOrigin();
+
+    m_Parent->SetOrigin(Matrix.Mul1(Origin));
+
     MapPrimitiveT::Transform(Matrix);
 }
