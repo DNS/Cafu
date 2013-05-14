@@ -61,19 +61,11 @@ class MapEntityT : public MapEntityBaseT
     /// @return Properties that are flagged as unique, but haven't (or hadn't, if repaired) unique values.
     ArrayT<EntPropertyT> CheckUniqueValues(MapDocumentT& MapDoc, bool Repair=true);
 
-    Vector3fT GetOrigin() const;
-    void SetOrigin(const Vector3fT& Origin);
-
 
     // The TypeSys related declarations for this class.
     virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
     static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
     static const cf::TypeSys::TypeInfoT TypeInfo;
-
-
-    private:
-
-    Vector3fT m_Origin;
 };
 
 #endif

@@ -62,6 +62,9 @@ class MapEntityBaseT : public MapElementT
     virtual void SetClass(const EntityClassT* NewClass);
     const EntityClassT* GetClass() const { return m_Class; }
 
+    Vector3fT GetOrigin() const;
+    void SetOrigin(const Vector3fT& Origin);
+
     const ArrayT<EntPropertyT>& GetProperties() const { return m_Properties; }
           ArrayT<EntPropertyT>& GetProperties()       { return m_Properties; }
 
@@ -90,6 +93,7 @@ class MapEntityBaseT : public MapElementT
 
     MapDocumentT&          m_MapDoc;        ///< The document that contains, keeps and manages this world.
     const EntityClassT*    m_Class;         ///< The "entity class" of this entity.
+    Vector3fT              m_Origin;        ///< The origin of this entity.
     ArrayT<EntPropertyT>   m_Properties;    ///< The concrete, instantiated properties for this entity, according to its entity class.
     ArrayT<MapPrimitiveT*> m_Primitives;    ///< The primitive, atomic elements of this entity (brushes, patches, terrains, models, plants, ...).
     MapEntRepresT*         m_Repres;        ///< The graphical representation of this entity in the map.

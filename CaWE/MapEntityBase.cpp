@@ -47,6 +47,7 @@ MapEntityBaseT::MapEntityBaseT(MapDocumentT& MapDoc, const wxColour& Color)
     : MapElementT(Color),
       m_MapDoc(MapDoc),
       m_Class(NULL),
+      m_Origin(),
       m_Properties(),
       m_Primitives(),
       m_Repres(NULL)
@@ -61,6 +62,7 @@ MapEntityBaseT::MapEntityBaseT(const MapEntityBaseT& Ent)
     : MapElementT(Ent),
       m_MapDoc(Ent.m_MapDoc),
       m_Class(Ent.m_Class),
+      m_Origin(Ent.m_Origin),
       m_Properties(Ent.m_Properties),
       m_Primitives(),
       m_Repres(NULL)
@@ -107,6 +109,7 @@ void MapEntityBaseT::Assign(const MapElementT* Elem)
     if (Entity==NULL) return;
 
     m_Class     =Entity->m_Class;
+    m_Origin    =Entity->m_Origin;
     m_Properties=Entity->m_Properties;
 
     // Delete all our previous primitives.
@@ -148,6 +151,29 @@ void MapEntityBaseT::SetClass(const EntityClassT* NewClass)
     // Now that we have a new class, update the entity representation in the map.
     m_Repres->SetParent(this);
     m_Repres->Update();
+}
+
+
+
+
+Vector3fT MapEntityBaseT::GetOrigin() const
+{
+    if (!m_Class->IsSolidClass()) return m_Origin;
+
+    // This is very similar to GetBB().GetCenter(), but without accounting for the helpers.
+    // The helpers GetBB() methods call m_ParentEntity->GetOrigin(), possibly creating an infinite recursion.
+    BoundingBox3fT BB;
+
+    for (unsigned long PrimNr=0; PrimNr<m_Primitives.Size(); PrimNr++)
+        BB+=m_Primitives[PrimNr]->GetBB();
+
+    return BB.IsInited() ? BB.GetCenter() : m_Origin;
+}
+
+
+void MapEntityBaseT::SetOrigin(const Vector3fT& Origin)
+{
+    m_Origin=Origin;
 }
 
 

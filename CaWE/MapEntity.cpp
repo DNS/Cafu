@@ -45,15 +45,13 @@ const cf::TypeSys::TypeInfoT MapEntityT::TypeInfo(GetMapElemTIM(), "MapEntityT",
 
 
 MapEntityT::MapEntityT(MapDocumentT& MapDoc)
-    : MapEntityBaseT(MapDoc, Options.colors.Entity),
-      m_Origin()
+    : MapEntityBaseT(MapDoc, Options.colors.Entity)
 {
 }
 
 
 MapEntityT::MapEntityT(const MapEntityT& Entity)
-    : MapEntityBaseT(Entity),
-      m_Origin(Entity.m_Origin)
+    : MapEntityBaseT(Entity)
 {
 }
 
@@ -73,8 +71,6 @@ void MapEntityT::Assign(const MapElementT* Elem)
     const MapEntityT* Ent=dynamic_cast<const MapEntityT*>(Elem);
     wxASSERT(Ent!=NULL);
     if (Ent==NULL) return;
-
-    m_Origin=Ent->m_Origin;
 }
 
 
@@ -300,25 +296,4 @@ ArrayT<EntPropertyT> MapEntityT::CheckUniqueValues(MapDocumentT& MapDoc, bool Re
     }
 
     return FoundVars;
-}
-
-
-Vector3fT MapEntityT::GetOrigin() const
-{
-    if (!m_Class->IsSolidClass()) return m_Origin;
-
-    // This is very similar to GetBB().GetCenter(), but without accounting for the helpers.
-    // The helpers GetBB() methods call m_ParentEntity->GetOrigin(), possibly creating an infinite recursion.
-    BoundingBox3fT BB;
-
-    for (unsigned long PrimNr=0; PrimNr<m_Primitives.Size(); PrimNr++)
-        BB+=m_Primitives[PrimNr]->GetBB();
-
-    return BB.IsInited() ? BB.GetCenter() : m_Origin;
-}
-
-
-void MapEntityT::SetOrigin(const Vector3fT& Origin)
-{
-    m_Origin=Origin;
 }
