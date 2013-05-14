@@ -54,8 +54,6 @@ class MapEntityT : public MapEntityBaseT
     void TrafoMirror(unsigned int NormalAxis, float Dist);
     void Transform(const MatrixT& Matrix);
 
-    void SetClass(const EntityClassT* NewClass);
-
 
     /// Checks if unique values are set and unique inside the world and changes/sets them if bool Repair is true (default).
     /// @return Properties that are flagged as unique, but haven't (or hadn't, if repaired) unique values.

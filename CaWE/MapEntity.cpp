@@ -199,18 +199,6 @@ void MapEntityT::Transform(const MatrixT& Matrix)
 }
 
 
-void MapEntityT::SetClass(const EntityClassT* NewClass)
-{
-    if (m_Class==NewClass) return;
-
-    // Assign the new class (m_Class=NewClass) and instantiate the variables (properties) of the new class.
-    MapEntityBaseT::SetClass(NewClass);
-
-    // // Our entity class changed, so update our helpers.
-    // UpdateHelpers();
-}
-
-
 ArrayT<EntPropertyT> MapEntityT::CheckUniqueValues(MapDocumentT& MapDoc, bool Repair)
 {
     // All nonunique properties that are found (and repaired if Repair is true).

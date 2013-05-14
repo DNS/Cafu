@@ -134,6 +134,8 @@ void MapEntityBaseT::Assign(const MapElementT* Elem)
 
 void MapEntityBaseT::SetClass(const EntityClassT* NewClass)
 {
+    if (m_Class == NewClass) return;
+
     m_Class=NewClass;
 
     // Instantiate the variables declared in the entity class in the conrete entity.
