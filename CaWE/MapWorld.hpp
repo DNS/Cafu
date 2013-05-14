@@ -34,9 +34,7 @@ class MapWorldT : public MapEntityBaseT
 {
     public:
 
-    /// The constructor. The world is given a reference to the document it is contained within / managed by.
-    /// It is aesthetically unpleasing to have the world know about its document, but sometimes
-    /// (e.g. for learning about the game config), it's simply required.
+    /// The constructor.
     MapWorldT(MapDocumentT& MapDoc);
 
     /// The copy constructor for copying a world.
@@ -48,8 +46,6 @@ class MapWorldT : public MapEntityBaseT
     MapWorldT* Clone() const;
     void       Assign(const MapElementT* Elem);
 
-
-    MapDocumentT& GetDoc() const { return m_MapDoc; }
 
     // MapElementT virtual overrides.
     BoundingBox3fT GetBB() const;
@@ -63,8 +59,6 @@ class MapWorldT : public MapEntityBaseT
     private:
 
     void operator = (const MapWorldT&);     ///< Use of the Assignment Operator is not allowed.
-
-    MapDocumentT& m_MapDoc;                 ///< The document that contains, keeps and manages this world.
 };
 
 #endif

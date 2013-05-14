@@ -29,7 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, const EntityClassT* EntityClass, const Vector3fT& Position, const Plane3fT* AdjustPlane)
     : m_MapDoc(MapDoc),
-      m_NewEntity(new MapEntityT()),
+      m_NewEntity(new MapEntityT(MapDoc)),
       m_CommandSelect(NULL)
 {
     m_NewEntity->SetOrigin(Position);

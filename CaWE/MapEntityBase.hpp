@@ -37,7 +37,7 @@ class MapEntityBaseT : public MapElementT
     public:
 
     /// The default constructor.
-    MapEntityBaseT(const wxColour& Color);
+    MapEntityBaseT(MapDocumentT& MapDoc, const wxColour& Color);
 
     /// The copy constructor for copying a base entity.
     /// @param Ent   The base entity to copy-construct this base entity from.
@@ -56,6 +56,8 @@ class MapEntityBaseT : public MapElementT
     void Load_D3_map (TextParserT& TP, MapDocumentT& MapDoc, wxProgressDialog* ProgressDialog, unsigned long EntityNr);
     void Save_cmap(const MapDocumentT& MapDoc, std::ostream& OutFile, unsigned long EntityNr, const BoundingBox3fT* Intersecting) const;
 
+
+    MapDocumentT& GetDoc() const { return m_MapDoc; }
 
     virtual void SetClass(const EntityClassT* NewClass);
     const EntityClassT* GetClass() const { return m_Class; }
@@ -86,6 +88,7 @@ class MapEntityBaseT : public MapElementT
 
     protected:
 
+    MapDocumentT&          m_MapDoc;        ///< The document that contains, keeps and manages this world.
     const EntityClassT*    m_Class;         ///< The "entity class" of this entity.
     ArrayT<EntPropertyT>   m_Properties;    ///< The concrete, instantiated properties for this entity, according to its entity class.
     ArrayT<MapPrimitiveT*> m_Primitives;    ///< The primitive, atomic elements of this entity (brushes, patches, terrains, models, plants, ...).

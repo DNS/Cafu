@@ -43,8 +43,9 @@ const cf::TypeSys::TypeInfoT MapEntityBaseT::TypeInfo(GetMapElemTIM(), "MapEntit
 /*** End of TypeSys related definitions for this class. ***/
 
 
-MapEntityBaseT::MapEntityBaseT(const wxColour& Color)
+MapEntityBaseT::MapEntityBaseT(MapDocumentT& MapDoc, const wxColour& Color)
     : MapElementT(Color),
+      m_MapDoc(MapDoc),
       m_Class(NULL),
       m_Properties(),
       m_Primitives(),
@@ -58,6 +59,7 @@ MapEntityBaseT::MapEntityBaseT(const wxColour& Color)
 
 MapEntityBaseT::MapEntityBaseT(const MapEntityBaseT& Ent)
     : MapElementT(Ent),
+      m_MapDoc(Ent.m_MapDoc),
       m_Class(Ent.m_Class),
       m_Properties(Ent.m_Properties),
       m_Primitives(),

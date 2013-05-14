@@ -44,8 +44,8 @@ const cf::TypeSys::TypeInfoT MapEntityT::TypeInfo(GetMapElemTIM(), "MapEntityT",
 /*** End of TypeSys related definitions for this class. ***/
 
 
-MapEntityT::MapEntityT()
-    : MapEntityBaseT(Options.colors.Entity),
+MapEntityT::MapEntityT(MapDocumentT& MapDoc)
+    : MapEntityBaseT(MapDoc, Options.colors.Entity),
       m_Origin()
 {
 }

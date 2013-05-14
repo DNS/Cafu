@@ -42,19 +42,17 @@ const cf::TypeSys::TypeInfoT MapWorldT::TypeInfo(GetMapElemTIM(), "MapWorldT", "
 
 
 MapWorldT::MapWorldT(MapDocumentT& MapDoc)
-    : MapEntityBaseT(wxColour(255, 255, 255)),
-      m_MapDoc(MapDoc)
+    : MapEntityBaseT(MapDoc, wxColour(255, 255, 255))
 {
-    const EntityClassT* WorldSpawnClass=m_MapDoc.GetGameConfig()->FindClass("worldspawn");
+    const EntityClassT* WorldSpawnClass = MapDoc.GetGameConfig()->FindClass("worldspawn");
 
     wxASSERT(WorldSpawnClass);
-    SetClass(WorldSpawnClass!=NULL ? WorldSpawnClass : m_MapDoc.FindOrCreateUnknownClass("worldspawn", false /*HasOrigin*/));
+    SetClass(WorldSpawnClass!=NULL ? WorldSpawnClass : MapDoc.FindOrCreateUnknownClass("worldspawn", false /*HasOrigin*/));
 }
 
 
 MapWorldT::MapWorldT(const MapWorldT& World)
-    : MapEntityBaseT(World),
-      m_MapDoc(World.m_MapDoc)
+    : MapEntityBaseT(World)
 {
     // Worlds should never be copied...
     wxASSERT(false);

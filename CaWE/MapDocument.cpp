@@ -243,7 +243,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         // Load the entities.
         while (!TP.IsAtEOF())
         {
-            MapEntityT* Entity=new MapEntityT;
+            MapEntityT* Entity = new MapEntityT(*this);
 
             Entity->Load_cmap(TP, *this, ProgressDialog, m_Entities.Size());
             m_Entities.PushBack(Entity);
@@ -293,7 +293,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         // Load the entities.
         while (!TP.IsAtEOF())
         {
-            MapEntityT* Entity=new MapEntityT;
+            MapEntityT* Entity = new MapEntityT(*Doc);
 
             Entity->Load_HL1_map(TP, *Doc, ProgressDialog, Doc->m_Entities.Size());
             Doc->m_Entities.PushBack(Entity);
@@ -354,7 +354,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
             }
             else if (ChunkName=="entity")
             {
-                MapEntityT* Entity=new MapEntityT;
+                MapEntityT* Entity = new MapEntityT(*Doc);
 
                 Entity->Load_HL2_vmf(TP, *Doc, ProgressDialog, Doc->m_Entities.Size());
                 Doc->m_Entities.PushBack(Entity);
@@ -415,7 +415,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         // Load the entities.
         while (!TP.IsAtEOF())
         {
-            MapEntityT* Entity=new MapEntityT;
+            MapEntityT* Entity = new MapEntityT(*Doc);
 
             Entity->Load_D3_map(TP, *Doc, ProgressDialog, Doc->m_Entities.Size());
             Doc->m_Entities.PushBack(Entity);

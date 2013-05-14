@@ -30,7 +30,7 @@ class MapEntityT : public MapEntityBaseT
     public:
 
     /// The default constructor.
-    MapEntityT();
+    MapEntityT(MapDocumentT& MapDoc);
 
     /// The copy constructor for copying an entity.
     /// @param Entity   The entity to copy-construct this entity from.
