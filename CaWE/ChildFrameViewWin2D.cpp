@@ -131,8 +131,8 @@ ViewWindow2DT::ViewWindow2DT(wxWindow* Parent, ChildFrameT* ChildFrame, ViewType
     SetViewType(InitialViewType);   // Checks if InitialViewType (which was read from a config file) is valid. Also sets member m_AxesInfo.
 
     // Center on the center of the map.
-    const MapEntityBaseT* World=GetMapDoc().GetEntities()[0];
-    CenterView(World->GetBB().GetCenter());     // Calls SetScrollPos(), then Refresh().
+    const MapEntityBaseT* World = GetMapDoc().GetEntities()[0];
+    CenterView(World->GetPrimsBB().GetCenter());    // Calls SetScrollPos(), then Refresh().
 }
 
 

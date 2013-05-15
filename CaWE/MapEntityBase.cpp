@@ -285,3 +285,14 @@ void MapEntityBaseT::RemovePrim(MapPrimitiveT* Prim)
     // Keeping the order helps when map files are diff'ed or manually compared.
     m_Primitives.RemoveAtAndKeepOrder(Index);
 }
+
+
+BoundingBox3fT MapEntityBaseT::GetPrimsBB() const
+{
+    BoundingBox3fT BB = m_Repres->GetBB();
+
+    for (unsigned int PrimNr = 0; PrimNr < m_Primitives.Size(); PrimNr++)
+        BB += m_Primitives[PrimNr]->GetBB();
+
+    return BB;
+}

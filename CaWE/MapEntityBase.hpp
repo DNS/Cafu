@@ -82,6 +82,10 @@ class MapEntityBaseT : public MapElementT
 
     MapEntRepresT* GetRepres() const { return m_Repres; }
 
+    /// Returns the "overall" bounding-box of this entity.
+    /// The returned bounding-box contains all primitives (including the representation) of this entity.
+    BoundingBox3fT GetPrimsBB() const;
+
 
     // The TypeSys related declarations for this class.
     virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }

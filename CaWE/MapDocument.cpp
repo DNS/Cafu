@@ -512,7 +512,7 @@ bool MapDocumentT::OnSaveDocument(const wxString& FileName, bool IsAutoSave)
             const BoundingBox3fT* Intersecting=NULL;
             const MapEntityBaseT* Ent=m_Entities[EntNr];
 
-            if (!Intersecting || Ent->GetBB().Intersects(*Intersecting))
+            if (!Intersecting || Ent->GetPrimsBB().Intersects(*Intersecting))
             {
                 Ent->Save_cmap(*this, OutFile, EntNr, Intersecting);
             }
