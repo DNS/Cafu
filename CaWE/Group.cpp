@@ -88,18 +88,13 @@ void GroupT::Save_cmap(std::ostream& OutFile, unsigned long GroupNr) const
 
 ArrayT<MapElementT*> GroupT::GetMembers(const MapDocumentT& MapDoc) const
 {
-    ArrayT<MapElementT*> Members;
+    ArrayT<MapElementT*>   Members;
+    ArrayT<MapPrimitiveT*> Prims;
 
-    for (unsigned long EntNr=0; EntNr<MapDoc.GetEntities().Size(); EntNr++)
-    {
-        MapEntityBaseT*               Ent       =MapDoc.GetEntities()[EntNr];
-        const ArrayT<MapPrimitiveT*>& Primitives=Ent->GetPrimitives();
+    MapDoc.GetAllPrimitives(Prims);
 
-        if (Ent->GetGroup()==this) Members.PushBack(Ent);
-
-        for (unsigned long PrimNr=0; PrimNr<Primitives.Size(); PrimNr++)
-            if (Primitives[PrimNr]->GetGroup()==this) Members.PushBack(Primitives[PrimNr]);
-    }
+    for (unsigned int PrimNr = 0; PrimNr < Prims.Size(); PrimNr++)
+        if (Prims[PrimNr]->GetGroup() == this) Members.PushBack(Prims[PrimNr]);
 
     return Members;
 }
@@ -107,16 +102,12 @@ ArrayT<MapElementT*> GroupT::GetMembers(const MapDocumentT& MapDoc) const
 
 bool GroupT::HasMembers(const MapDocumentT& MapDoc) const
 {
-    for (unsigned long EntNr=0; EntNr<MapDoc.GetEntities().Size(); EntNr++)
-    {
-        MapEntityBaseT*               Ent       =MapDoc.GetEntities()[EntNr];
-        const ArrayT<MapPrimitiveT*>& Primitives=Ent->GetPrimitives();
+    ArrayT<MapPrimitiveT*> Prims;
 
-        if (Ent->GetGroup()==this) return true;
+    MapDoc.GetAllPrimitives(Prims);
 
-        for (unsigned long PrimNr=0; PrimNr<Primitives.Size(); PrimNr++)
-            if (Primitives[PrimNr]->GetGroup()==this) return true;
-    }
+    for (unsigned int PrimNr = 0; PrimNr < Prims.Size(); PrimNr++)
+        if (Prims[PrimNr]->GetGroup() == this) return true;
 
     return false;
 }

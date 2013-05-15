@@ -338,24 +338,17 @@ ArrayT<MapElementT*> ViewWindow2DT::GetElementsAt(const wxPoint& Pixel, int Radi
 {
     wxASSERT(&GetMapDoc());     // Can be NULL between Destroy() and the dtor, but between those we should never get here.
 
-    ArrayT<MapElementT*> Hits;
-    const ArrayT<MapEntityBaseT*>& Entities=GetMapDoc().GetEntities();
+    ArrayT<MapElementT*>   Hits;
+    ArrayT<MapPrimitiveT*> Prims;
 
-    for (unsigned long EntNr=0; EntNr<Entities.Size(); EntNr++)
+    GetMapDoc().GetAllPrimitives(Prims);
+
+    for (unsigned int PrimNr = 0; PrimNr < Prims.Size(); PrimNr++)
     {
-        MapEntityBaseT*               Ent       =Entities[EntNr];
-        const ArrayT<MapPrimitiveT*>& Primitives=Ent->GetPrimitives();
+        MapPrimitiveT* Prim = Prims[PrimNr];
 
-        // Test the non-world entities just like the primitives (the world entity at EntNr==0 is skipped).
-        if (EntNr>0 && Ent->IsVisible() && Ent->TracePixel(Pixel, Radius, *this)) Hits.PushBack(Ent);
-
-        for (unsigned long PrimNr=0; PrimNr<Primitives.Size(); PrimNr++)
-        {
-            MapPrimitiveT* Prim=Primitives[PrimNr];
-
-            // Radius is the "epsilon" tolerance in each direction that we allow ourselves for inaccurate clicks.
-            if (Prim->IsVisible() && Prim->TracePixel(Pixel, Radius, *this)) Hits.PushBack(Prim);
-        }
+        // Radius is the "epsilon" tolerance in each direction that we allow ourselves for inaccurate clicks.
+        if (Prim->IsVisible() && Prim->TracePixel(Pixel, Radius, *this)) Hits.PushBack(Prim);
     }
 
     return Hits;
