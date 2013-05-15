@@ -39,6 +39,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 class SubjectT;
 class MapElementT;
+class MapEntityBaseT;
 
 
 //#####################################
@@ -124,14 +125,13 @@ class ObserverT
     /// @param OldBounds     Holds the bounds of each objects BEFORE the modification (has the same size as MapElements).
     virtual void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const ArrayT<BoundingBox3fT>& OldBounds) { }
 
-    /// Since this overload is used exclusively for entities, one can assume that all map elements are entities.
-    /// @param Subject       The map document in which the elements have been modified.
-    /// @param MapElements   List of modified map elements.
-    /// @param Detail        Information about what has been modified:
-    ///                      Can be one of MEMD_ENTITY_PROPERTY_CREATED, MEMD_ENTITY_PROPERTY_DELETED, MEMD_ENTITY_PROPERTY_MODIFIED or MEMD_ENTITY_CLASS_CHANGED.
-    /// @param Key           Holds the keyname of the changed property or an empty string if Detail is MEMD_ENTITY_CLASS_CHANGED.
+    /// @param Subject    The map document in which the entities have been modified.
+    /// @param Entities   List of modified map entities.
+    /// @param Detail     Information about what has been modified:
+    ///                   Can be one of MEMD_ENTITY_PROPERTY_CREATED, MEMD_ENTITY_PROPERTY_DELETED, MEMD_ENTITY_PROPERTY_MODIFIED or MEMD_ENTITY_CLASS_CHANGED.
+    /// @param Key        Holds the keyname of the changed property or an empty string if Detail is MEMD_ENTITY_CLASS_CHANGED.
     /// @todo move MEMD_ENTITY_CLASS_CHANGED into general modification method.
-    virtual void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const wxString& Key) { }
+    virtual void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities, MapElemModDetailE Detail, const wxString& Key) { }
     //@}
 
     //############################################
@@ -178,7 +178,7 @@ class SubjectT
     virtual void UpdateAllObservers_Deleted(const ArrayT<MapElementT*>& MapElements);
     virtual void UpdateAllObservers_Modified(const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail);
     virtual void UpdateAllObservers_Modified(const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const ArrayT<BoundingBox3fT>& OldBounds);
-    virtual void UpdateAllObservers_Modified(const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const wxString& Key);
+    virtual void UpdateAllObservers_Modified(const ArrayT<MapEntityBaseT*>& Entities, MapElemModDetailE Detail, const wxString& Key);
     //############################################
     //# End of new observer notification methods #
     //############################################

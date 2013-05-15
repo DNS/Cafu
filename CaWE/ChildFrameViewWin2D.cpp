@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameConfig.hpp"
 #include "MapDocument.hpp"
 #include "MapEntityBase.hpp"
+#include "MapEntRepres.hpp"
 #include "MapPrimitive.hpp"
 #include "Options.hpp"
 #include "Renderer2D.hpp"
@@ -233,17 +234,17 @@ void ViewWindow2DT::NotifySubjectChanged_Modified(SubjectT* Subject, const Array
 }
 
 
-void ViewWindow2DT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const wxString& Key)
+void ViewWindow2DT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities, MapElemModDetailE Detail, const wxString& Key)
 {
     if ((Detail==MEMD_ENTITY_PROPERTY_CREATED || Detail==MEMD_ENTITY_PROPERTY_DELETED || Detail==MEMD_ENTITY_PROPERTY_MODIFIED) && (Key=="angles" || Key=="name"))
     {
-        wxASSERT(MapElements.Size()>0);
+        wxASSERT(Entities.Size() > 0);
 
         // Build bounding box of all elements.
-        BoundingBox3fT ElementBounds=MapElements[0]->GetBB();
+        BoundingBox3fT ElementBounds = Entities[0]->GetRepres()->GetBB();
 
-        for (unsigned long i=1; i<MapElements.Size(); i++)
-            ElementBounds.InsertValid(MapElements[i]->GetBB());
+        for (unsigned long i = 1; i < Entities.Size(); i++)
+            ElementBounds.InsertValid(Entities[i]->GetRepres()->GetBB());
 
         // Increase bounds since the angle line and names are outside the entities bounds.
         // Note: 24 is the length of the angle vector drawn in the 2D views.

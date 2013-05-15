@@ -45,7 +45,7 @@ class InspDlgEntityTreeT : public wxPanel, public ObserverT
     void NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<MapElementT*>& OldSelection, const ArrayT<MapElementT*>& NewSelection);
     void NotifySubjectChanged_Created(const ArrayT<MapElementT*>& MapElements);
     void NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements);
-    void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const wxString& Key);
+    void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities, MapElemModDetailE Detail, const wxString& Key);
     void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail);
     void NotifySubjectDies(SubjectT* dyingSubject);
 

@@ -811,7 +811,7 @@ void ToolSelectionT::NotifySubjectChanged_Modified(SubjectT* Subject, const Arra
 /// This is called when a property of an entity changed, such as the "model" property.
 /// As changes of such properties can have broad effects, such as changes in the bounding-boxes of the affected elements,
 /// we update accordingly.
-void ToolSelectionT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const wxString& Key)
+void ToolSelectionT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities, MapElemModDetailE Detail, const wxString& Key)
 {
     if (!IsActiveTool()) return;
 

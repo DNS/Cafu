@@ -53,7 +53,7 @@ bool CommandDeletePropertyT::Do()
 
     // FIXME Note that when a property of multiple entities is deleted, this observer notification is created
     // for EACH of these entities. We should change the command to accept an array of entities...
-    ArrayT<MapElementT*> MapElements;
+    ArrayT<MapEntityBaseT*> MapElements;
     MapElements.PushBack(m_Entity);
 
     m_MapDoc.UpdateAllObservers_Modified(MapElements, MEMD_ENTITY_PROPERTY_DELETED, m_PropBackup.Key);
@@ -70,7 +70,7 @@ void CommandDeletePropertyT::Undo()
 
     m_Entity->GetProperties().InsertAt(m_Index, m_PropBackup);
 
-    ArrayT<MapElementT*> MapElements;
+    ArrayT<MapEntityBaseT*> MapElements;
     MapElements.PushBack(m_Entity);
 
     m_MapDoc.UpdateAllObservers_Modified(MapElements, MEMD_ENTITY_PROPERTY_CREATED, m_PropBackup.Key);

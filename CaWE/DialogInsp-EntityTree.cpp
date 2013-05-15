@@ -232,7 +232,7 @@ void InspDlgEntityTreeT::NotifySubjectChanged_Deleted(SubjectT* Subject, const A
 }
 
 
-void InspDlgEntityTreeT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const wxString& Key)
+void InspDlgEntityTreeT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities, MapElemModDetailE Detail, const wxString& Key)
 {
     UpdateEntityListBox();
 }

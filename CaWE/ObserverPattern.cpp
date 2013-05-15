@@ -102,10 +102,10 @@ void SubjectT::UpdateAllObservers_Modified(const ArrayT<MapElementT*>& MapElemen
 }
 
 
-void SubjectT::UpdateAllObservers_Modified(const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const wxString& Key)
+void SubjectT::UpdateAllObservers_Modified(const ArrayT<MapEntityBaseT*>& Entities, MapElemModDetailE Detail, const wxString& Key)
 {
     for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
-        m_Observers[ObsNr]->NotifySubjectChanged_Modified(this, MapElements, Detail, Key);
+        m_Observers[ObsNr]->NotifySubjectChanged_Modified(this, Entities, Detail, Key);
 }
 
 

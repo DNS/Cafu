@@ -48,7 +48,7 @@ bool CommandSetPropertyT::Do()
     //
     // FIXME Note that when a property of multiple entities is modified, this observer notification is created
     // for EACH of these entities. We really should change the command to accept an array of entities...
-    ArrayT<MapElementT*> MapElements;
+    ArrayT<MapEntityBaseT*> MapElements;
     MapElements.PushBack(m_Ent);
 
     m_MapDoc.UpdateAllObservers_Modified(MapElements, m_CreatedProp ? MEMD_ENTITY_PROPERTY_CREATED : MEMD_ENTITY_PROPERTY_MODIFIED, m_Key);
@@ -72,7 +72,7 @@ void CommandSetPropertyT::Undo()
         m_Ent->GetProperties().RemoveAtAndKeepOrder(m_Ent->FindPropertyIndex(m_Key));
     }
 
-    ArrayT<MapElementT*> MapElements;
+    ArrayT<MapEntityBaseT*> MapElements;
     MapElements.PushBack(m_Ent);
 
     m_MapDoc.UpdateAllObservers_Modified(MapElements, m_CreatedProp ? MEMD_ENTITY_PROPERTY_DELETED : MEMD_ENTITY_PROPERTY_MODIFIED, m_Key);

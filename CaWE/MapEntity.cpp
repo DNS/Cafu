@@ -208,7 +208,7 @@ ArrayT<EntPropertyT> MapEntityT::CheckUniqueValues(MapDocumentT& MapDoc, bool Re
                 {
                     FindProperty("name", NULL, true)->Value=UniqueValue;
 
-                    ArrayT<MapElementT*> MapElements;
+                    ArrayT<MapEntityBaseT*> MapElements;
                     MapElements.PushBack(this);
 
                     MapDoc.UpdateAllObservers_Modified(MapElements, MEMD_ENTITY_PROPERTY_MODIFIED, "name");
