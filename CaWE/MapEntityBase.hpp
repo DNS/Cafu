@@ -83,6 +83,10 @@ class MapEntityBaseT
     /// The returned bounding-box contains all primitives (including the representation) of this entity.
     BoundingBox3fT GetPrimsBB() const;
 
+    /// Checks if unique values are set and unique inside the world and changes/sets them if bool Repair is true (default).
+    /// @return Properties that are flagged as unique, but haven't (or hadn't, if repaired) unique values.
+    ArrayT<EntPropertyT> CheckUniqueValues(bool Repair=true);
+
 
     // The TypeSys related declarations for this class.
     virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }

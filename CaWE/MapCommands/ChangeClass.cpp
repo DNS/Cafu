@@ -43,7 +43,7 @@ bool CommandChangeClassT::Do()
 
     // For now a simple implementation of class change is implemented: We change the class and check for new unique keys.
     m_Entity->SetClass(m_NewClass);
-    m_Entity->CheckUniqueValues(m_MapDoc);
+    m_Entity->CheckUniqueValues();
 
     ArrayT<MapElementT*> MapElements;
     MapElements.PushBack(m_Entity->GetRepres());

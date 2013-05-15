@@ -42,14 +42,6 @@ class MapEntityT : public MapEntityBaseT
 
     BoundingBox3fT GetBB() const;
 
-    bool TraceRay(const Vector3fT& RayOrigin, const Vector3fT& RayDir, float& Fraction, unsigned long& FaceNr) const;
-    bool TracePixel(const wxPoint& Pixel, int Radius, const ViewWindow2DT& ViewWin) const;
-
-
-    /// Checks if unique values are set and unique inside the world and changes/sets them if bool Repair is true (default).
-    /// @return Properties that are flagged as unique, but haven't (or hadn't, if repaired) unique values.
-    ArrayT<EntPropertyT> CheckUniqueValues(MapDocumentT& MapDoc, bool Repair=true);
-
 
     // The TypeSys related declarations for this class.
     virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
