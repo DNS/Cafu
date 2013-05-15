@@ -609,7 +609,7 @@ void MapDocumentT::GetAllElems(ArrayT<MapElementT*>& Elems) const
         const ArrayT<MapPrimitiveT*>& Primitives=Ent->GetPrimitives();
 
         // Add the entity itself...
-        Elems.PushBack(Ent);
+     // Elems.PushBack(Ent);
         Elems.PushBack(Ent->GetRepres());
 
         // ... and all of its primitives.
@@ -639,13 +639,10 @@ const EntityClassT* MapDocumentT::FindOrCreateUnknownClass(const wxString& Name,
 }
 
 
-void MapDocumentT::Insert(MapEntityT* Ent)
+void MapDocumentT::Insert(MapEntityBaseT* Ent)
 {
     wxASSERT(Ent!=NULL);
     if (Ent==NULL) return;
-
-    // FIXME: Just drop this here, and add another check into the MapCheckDialogT.
-    Ent->CheckUniqueValues(*this);
 
     // Should not have Ent already.
     wxASSERT(m_Entities.Find(Ent)==-1);
@@ -672,53 +669,50 @@ void MapDocumentT::Insert(MapPrimitiveT* Prim, MapEntityBaseT* ParentEnt)
 }
 
 
+void MapDocumentT::Remove(MapEntityBaseT* Ent)
+{
+    wxASSERT(Ent != NULL);
+    if (Ent == NULL) return;
+
+    const int Index = m_Entities.Find(Ent);
+
+    // -1 means not found, 0 means the world. Both should not happen.
+    wxASSERT(Index > 0);
+    if (Index > 0)
+    {
+        // Keeping the order helps when map files are diff'ed or manually compared.
+        m_Entities.RemoveAtAndKeepOrder(Index);
+    }
+
+    // Remove all primitives of Ent from the BSP tree.
+    for (unsigned long PrimNr = 0; PrimNr < Ent->GetPrimitives().Size(); PrimNr++)
+        m_BspTree->Remove(Ent->GetPrimitives()[PrimNr]);
+
+    // Remove the representation of Ent from the BSP tree.
+    m_BspTree->Remove(Ent->GetRepres());
+}
+
+
 void MapDocumentT::Remove(MapElementT* Elem)
 {
-    wxASSERT(Elem!=NULL);
-    if (Elem==NULL) return;
+    MapPrimitiveT* Prim = dynamic_cast<MapPrimitiveT*>(Elem);
 
-    MapPrimitiveT* Prim=dynamic_cast<MapPrimitiveT*>(Elem);
-    if (Prim)
+    wxASSERT(Prim != NULL);
+    if (Prim == NULL) return;
+
+    MapEntityBaseT* ParentEnt = Prim->GetParent();
+
+    // The first assert is actually redundant in the second, but keep it for clarity.
+    wxASSERT(ParentEnt != NULL);
+    wxASSERT(m_Entities.Find(ParentEnt) >= 0);
+
+    if (ParentEnt != NULL)
     {
-        MapEntityBaseT* ParentEnt=Prim->GetParent();
-
-        // The first assert is actually redundant in the second, but keep it for clarity.
-        wxASSERT(ParentEnt!=NULL);
-        wxASSERT(m_Entities.Find(ParentEnt)>=0);
-
-        if (ParentEnt!=NULL)
-        {
-            ParentEnt->RemovePrim(Prim);
-            wxASSERT(Prim->GetParent()==NULL);
-        }
-
-        m_BspTree->Remove(Prim);
-        return;
+        ParentEnt->RemovePrim(Prim);
+        wxASSERT(Prim->GetParent() == NULL);
     }
 
-    MapEntityT* Ent=dynamic_cast<MapEntityT*>(Elem);
-    if (Ent)
-    {
-        const int Index=m_Entities.Find(Ent);
-
-        // -1 means not found, 0 means the world. Both should not happen.
-        wxASSERT(Index>0);
-        if (Index>0)
-        {
-            // Keeping the order helps when map files are diff'ed or manually compared.
-            m_Entities.RemoveAtAndKeepOrder(Index);
-        }
-
-        // Remove all primitives of Ent and Ent itself from the BSP tree.
-        for (unsigned long PrimNr=0; PrimNr<Ent->GetPrimitives().Size(); PrimNr++)
-            m_BspTree->Remove(Ent->GetPrimitives()[PrimNr]);
-
-        m_BspTree->Remove(Ent->GetRepres());
-        return;
-    }
-
-    // We should never get here, because then Elem is neither a MapPrimitiveT nor a MapEntityT.
-    wxASSERT(false);
+    m_BspTree->Remove(Prim);
 }
 
 
@@ -1091,7 +1085,7 @@ void MapDocumentT::OnMapCheckForProblems(wxCommandEvent& CE)
 void MapDocumentT::OnMapProperties(wxCommandEvent& CE)
 {
     // Select the worldspawn entity, then open the inspector dialog.
-    m_History.SubmitCommand(CommandSelectT::Set(this, m_Entities[0]));
+    m_History.SubmitCommand(CommandSelectT::Set(this, m_Entities[0]->GetRepres()));
 
     GetChildFrame()->GetInspectorDialog()->ChangePage(1);
     GetChildFrame()->ShowPane(GetChildFrame()->GetInspectorDialog());
@@ -1440,19 +1434,21 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
     ToolT*           NewEntityTool=m_ChildFrame->GetToolManager().GetTool(*GetToolTIM().FindTypeInfoByName("ToolNewEntityT")); if (!NewEntityTool) return;
     OptionsBar_NewEntityToolT* Bar=dynamic_cast<OptionsBar_NewEntityToolT*>(NewEntityTool->GetOptionsBar()); if (!Bar) return;
 
-    ArrayT<MapEntityT*>    SelEntities;     // All entities   that are in the selection.
-    ArrayT<MapPrimitiveT*> SelPrimitives;   // All primitives that are in the selection.
+    ArrayT<MapEntityBaseT*> SelEntities;    // All entities   that are in the selection.
+    ArrayT<MapPrimitiveT*>  SelPrimitives;  // All primitives that are in the selection.
 
     for (unsigned long SelNr=0; SelNr<m_Selection.Size(); SelNr++)
     {
-        MapElementT* Elem=m_Selection[SelNr];
+        MapElementT*   Elem   = m_Selection[SelNr];
+        MapEntRepresT* Repres = dynamic_cast<MapEntRepresT*>(Elem);
 
-        if (MapEntityT::TypeInfo.HierarchyHas(Elem->GetType()))
+        if (Repres)
         {
-            SelEntities.PushBack(static_cast<MapEntityT*>(Elem));
+            SelEntities.PushBack(Repres->GetParent());
         }
-        else if (MapPrimitiveT::TypeInfo.HierarchyHas(Elem->GetType()))
+        else
         {
+            wxASSERT(dynamic_cast<MapPrimitiveT*>(Elem));
             SelPrimitives.PushBack(static_cast<MapPrimitiveT*>(Elem));
         }
     }
@@ -1783,7 +1779,7 @@ ArrayT<GroupT*> MapDocumentT::GetAbandonedGroups() const
             // Check the entity first...
             const MapEntityBaseT* Ent=m_Entities[EntNr];
 
-            if (Ent->GetGroup()==m_Groups[GroupNr])
+            if (Ent->GetRepres()->GetGroup() == m_Groups[GroupNr])
             {
                 IsEmpty=false;
                 break;

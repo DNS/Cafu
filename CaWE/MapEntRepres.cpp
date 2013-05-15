@@ -47,7 +47,7 @@ const cf::TypeSys::TypeInfoT MapEntRepresT::TypeInfo(GetMapElemTIM(), "MapEntRep
 
 
 MapEntRepresT::MapEntRepresT()
-    : MapPrimitiveT(wxColour(255, 255, 255)),
+    : MapPrimitiveT(Options.colors.Entity),
       m_Helper(NULL)
 {
 }
@@ -110,7 +110,10 @@ wxColour MapEntRepresT::GetColor(bool ConsiderGroup) const
     if (m_Group && ConsiderGroup)
         return m_Group->Color;
 
-    return m_Parent->GetClass()->GetColor();
+    if (m_Parent && m_Parent->GetClass())
+        return m_Parent->GetClass()->GetColor();
+
+    return m_Color;
 }
 
 
@@ -259,13 +262,6 @@ bool MapEntRepresT::TracePixel(const wxPoint& Pixel, int Radius, const ViewWindo
     if (Options.view2d.SelectByHandles) return false;
 
     return !Rect.Contains(Disc);
-}
-
-
-void MapEntRepresT::Save_cmap(std::ostream& OutFile, unsigned long EntRepNr, const MapDocumentT& MapDoc) const
-{
-    // MapEntRepresT are always created dynamically,
-    // and thus are never saved to disk.
 }
 
 

@@ -43,7 +43,7 @@ const cf::TypeSys::TypeInfoT MapEntityT::TypeInfo(GetMapElemTIM(), "MapEntityT",
 
 
 MapEntityT::MapEntityT(MapDocumentT& MapDoc)
-    : MapEntityBaseT(MapDoc, Options.colors.Entity)
+    : MapEntityBaseT(MapDoc)
 {
 }
 
@@ -57,35 +57,6 @@ MapEntityT::MapEntityT(const MapEntityT& Entity)
 MapEntityT* MapEntityT::Clone() const
 {
     return new MapEntityT(*this);
-}
-
-
-void MapEntityT::Assign(const MapElementT* Elem)
-{
-    if (Elem==this) return;
-
-    MapEntityBaseT::Assign(Elem);
-
-    const MapEntityT* Ent=dynamic_cast<const MapEntityT*>(Elem);
-    wxASSERT(Ent!=NULL);
-    if (Ent==NULL) return;
-}
-
-
-wxColour MapEntityT::GetColor(bool ConsiderGroup) const
-{
-    if (m_Group && ConsiderGroup)
-        return m_Group->Color;
-
-    return m_Class->GetColor();
-}
-
-
-wxString MapEntityT::GetDescription() const
-{
-    const EntPropertyT* NameProp=FindProperty("name");
-
-    return m_Class->GetName()+" entity"+(NameProp ? " ("+NameProp->Value+")" : "");
 }
 
 

@@ -32,12 +32,12 @@ class MapPrimitiveT;
 class wxProgressDialog;
 
 
-class MapEntityBaseT : public MapElementT
+class MapEntityBaseT
 {
     public:
 
     /// The default constructor.
-    MapEntityBaseT(MapDocumentT& MapDoc, const wxColour& Color);
+    MapEntityBaseT(MapDocumentT& MapDoc);
 
     /// The copy constructor for copying a base entity.
     /// @param Ent   The base entity to copy-construct this base entity from.
@@ -47,9 +47,6 @@ class MapEntityBaseT : public MapElementT
     ~MapEntityBaseT();
 
     // Implementations and overrides for base class methods.
- // MapEntityBaseT* Clone() const;
-    void            Assign(const MapElementT* Elem);
-
     void Load_cmap   (TextParserT& TP, MapDocumentT& MapDoc, wxProgressDialog* ProgressDialog, unsigned long EntityNr);
     void Load_HL1_map(TextParserT& TP, MapDocumentT& MapDoc, wxProgressDialog* ProgressDialog, unsigned long EntityNr);
     void Load_HL2_vmf(TextParserT& TP, MapDocumentT& MapDoc, wxProgressDialog* ProgressDialog, unsigned long EntityNr);

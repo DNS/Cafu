@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameConfig.hpp"
 #include "MapDocument.hpp"
 #include "MapEntity.hpp"
+#include "MapEntRepres.hpp"
 #include "MapBrush.hpp"
 #include "ChildFrame.hpp"
 #include "ChildFrameViewWin2D.hpp"
@@ -447,7 +448,7 @@ void MapCheckDialogT::OnListBoxProblemsSelChange(wxCommandEvent& Event)
     ButtonFix      ->Enable(Problem->HasProblem() && Problem->CanFix());
     ButtonFixAll   ->Enable(Problem->CanFix());
 
-    if (ProbEnt && ProbEnt->GetType() != &MapWorldT::TypeInfo) m_MapDoc.GetHistory().SubmitCommand(CommandSelectT::Set(&m_MapDoc, ProbEnt));
+    if (ProbEnt && ProbEnt->GetType() != &MapWorldT::TypeInfo) m_MapDoc.GetHistory().SubmitCommand(CommandSelectT::Set(&m_MapDoc, ProbEnt->GetRepres()));
                                                           else m_MapDoc.GetHistory().SubmitCommand(CommandSelectT::Clear(&m_MapDoc));
 }
 
@@ -462,7 +463,7 @@ void MapCheckDialogT::OnButtonGoToError(wxCommandEvent& Event)
     MapEntityBaseT* ProbEnt = Problem->GetEnt();
 
     // m_MapDoc.GetChildFrame()->GetToolManager().SetActiveTool(GetToolTIM().FindTypeInfoByName("ToolSelectionT"));
-    m_MapDoc.GetChildFrame()->All2DViews_Center(ProbEnt->GetBB().GetCenter());
+    m_MapDoc.GetChildFrame()->All2DViews_Center(ProbEnt->GetRepres()->GetBB().GetCenter());
 }
 
 

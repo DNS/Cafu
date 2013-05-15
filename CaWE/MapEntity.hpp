@@ -39,10 +39,6 @@ class MapEntityT : public MapEntityBaseT
 
     // Implementations and overrides for base class methods.
     MapEntityT* Clone() const;
-    void        Assign(const MapElementT* Elem);
-
-    wxColour GetColor(bool ConsiderGroup=true) const;
-    wxString GetDescription() const;
 
     BoundingBox3fT GetBB() const;
 

@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapBrush.hpp"
 #include "MapDocument.hpp"
 #include "MapEntity.hpp"
+#include "MapEntRepres.hpp"
 #include "MapFace.hpp"
 #include "MapModel.hpp"
 #include "MapPlant.hpp"
@@ -642,7 +643,9 @@ void MapEntityBaseT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, wxProgress
     unsigned long NrOfPrimitives=0;
 
     TP.AssertAndSkipToken("{");
-    MapElementT::Load_cmap(TP, MapDoc);
+
+    // Load the groups info.
+    m_Repres->Load_cmap(TP, MapDoc);
 
     while (true)
     {
@@ -813,7 +816,7 @@ void MapEntityBaseT::Save_cmap(const MapDocumentT& MapDoc, std::ostream& OutFile
             << "{"; if (WriteComments) OutFile << " // Entity " << EntityNr; OutFile << "\n";
 
     // Save the groups info.
-    MapElementT::Save_cmap(OutFile, EntityNr, MapDoc);
+    m_Repres->Save_cmap(OutFile, EntityNr, MapDoc);
 
     // Save the properties.
     if (FindProperty("classname")==NULL)

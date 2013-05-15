@@ -116,15 +116,18 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     /// Inserts the given entity into the map.
     /// Callers should never attempt to insert an element into the world in a way other than calling this method,
     /// as it also inserts the element into the internal BSP tree that is used for rendering and culling.
-    void Insert(MapEntityT* Ent);
+    void Insert(MapEntityBaseT* Ent);
 
     /// Inserts the given primitive into the map, as a child of the given entity (the world or a custom entity).
     /// Callers should never attempt to insert an element into the world in a way other than calling this method,
     /// as it also inserts the element into the internal BSP tree that is used for rendering and culling.
     void Insert(MapPrimitiveT* Prim, MapEntityBaseT* ParentEnt=NULL);
 
+    /// Removes the given entity from the map.
+    /// The entity cannot be entity 0, the world.
+    void Remove(MapEntityBaseT* Ent);
+
     /// Removes the given element from the map.
-    /// The element can be any primitive or custom entity (but never the MapWorldT instance).
     void Remove(MapElementT* Elem);
 
     ArrayT<MapPrimitiveT*> GetPrimitivesIn(const BoundingBox3fT& Box, bool InsideOnly, bool CenterOnly) const;

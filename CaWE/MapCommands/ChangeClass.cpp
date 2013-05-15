@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "../MapDocument.hpp"
 #include "../MapEntity.hpp"
+#include "../MapEntRepres.hpp"
 
 
 CommandChangeClassT::CommandChangeClassT(MapDocumentT& MapDoc, MapEntityT* Entity, const EntityClassT* NewClass)
@@ -45,8 +46,9 @@ bool CommandChangeClassT::Do()
     m_Entity->CheckUniqueValues(m_MapDoc);
 
     ArrayT<MapElementT*> MapElements;
-    MapElements.PushBack(m_Entity);
+    MapElements.PushBack(m_Entity->GetRepres());
 
+    // This is a bit hacky: Should have a separate UpdateAllObservers_* method that takes a (array-of-)MapEntityBaseT parameter!
     m_MapDoc.UpdateAllObservers_Modified(MapElements, MEMD_ENTITY_CLASS_CHANGED);
 
     m_Done=true;
@@ -65,8 +67,9 @@ void CommandChangeClassT::Undo()
     m_Entity->GetProperties()=m_PrevProps;
 
     ArrayT<MapElementT*> MapElements;
-    MapElements.PushBack(m_Entity);
+    MapElements.PushBack(m_Entity->GetRepres());
 
+    // This is a bit hacky: Should have a separate UpdateAllObservers_* method that takes a (array-of-)MapEntityBaseT parameter!
     m_MapDoc.UpdateAllObservers_Modified(MapElements, MEMD_ENTITY_CLASS_CHANGED);
 
     m_Done=false;

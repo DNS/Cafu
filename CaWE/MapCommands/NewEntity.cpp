@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../EntityClass.hpp"
 #include "../MapDocument.hpp"
 #include "../MapEntity.hpp"
+#include "../MapEntRepres.hpp"
 
 
 CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, const EntityClassT* EntityClass, const Vector3fT& Position, const Plane3fT* AdjustPlane)
@@ -63,11 +64,11 @@ bool CommandNewEntityT::Do()
     m_MapDoc.Insert(m_NewEntity);
 
     ArrayT<MapElementT*> Elems;
-    Elems.PushBack(m_NewEntity);
+    Elems.PushBack(m_NewEntity->GetRepres());
 
     m_MapDoc.UpdateAllObservers_Created(Elems);
 
-    if (!m_CommandSelect) m_CommandSelect=CommandSelectT::Set(&m_MapDoc, m_NewEntity);
+    if (!m_CommandSelect) m_CommandSelect=CommandSelectT::Set(&m_MapDoc, m_NewEntity->GetRepres());
     m_CommandSelect->Do();
 
     m_Done=true;
@@ -87,7 +88,7 @@ void CommandNewEntityT::Undo()
     m_MapDoc.Remove(m_NewEntity);
 
     ArrayT<MapElementT*> Elems;
-    Elems.PushBack(m_NewEntity);
+    Elems.PushBack(m_NewEntity->GetRepres());
 
     m_MapDoc.UpdateAllObservers_Deleted(Elems);
 

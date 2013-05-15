@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CommandHistory.hpp"
 #include "MapDocument.hpp"
 #include "MapEntityBase.hpp"
+#include "MapEntRepres.hpp"
 #include "ChildFrame.hpp"
 
 #include "MapCommands/Select.hpp"
@@ -265,7 +266,7 @@ void InspDlgEntityTreeT::UpdateEntityListBox()
 
         if (!ShowSolidEntitiesCheckBox ->IsChecked() &&  NewEntity->GetClass()->IsSolidClass()) continue;
         if (!ShowPointEntitiesCheckBox ->IsChecked() && !NewEntity->GetClass()->IsSolidClass()) continue;
-        if (!ShowHiddenEntitiesCheckBox->IsChecked() && !NewEntity->IsVisible()) continue;
+        if (!ShowHiddenEntitiesCheckBox->IsChecked() && !NewEntity->GetRepres()->IsVisible()) continue;
 
         if (FilterByPropCheckBox->IsChecked())
         {
@@ -303,7 +304,7 @@ void InspDlgEntityTreeT::UpdateEntityListBox()
         const int NewID=EntityListBox->Append(NewEntityDescription, NewEntity);
 
         // Select the selected entities also in the ListBox!
-        if (NewEntity->IsSelected()) EntityListBox->Select(NewID);
+        if (NewEntity->GetRepres()->IsSelected()) EntityListBox->Select(NewID);
     }
 }
 
@@ -385,7 +386,7 @@ void InspDlgEntityTreeT::OnListBox_SelectionChanged(wxCommandEvent& Event)
     ArrayT<MapElementT*> EntitySelection;
 
     for (int SelNr=0; SelNr<NrOfSelections; SelNr++)
-        EntitySelection.PushBack((MapEntityBaseT*)EntityListBox->GetClientData(SelEntries[SelNr]));
+        EntitySelection.PushBack(((MapEntityBaseT*)EntityListBox->GetClientData(SelEntries[SelNr]))->GetRepres());
 
     MapDoc->GetHistory().SubmitCommand(CommandSelectT::Set(MapDoc, EntitySelection));
 

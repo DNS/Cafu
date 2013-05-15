@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameConfig.hpp"
 #include "LuaAux.hpp"
 #include "MapEntity.hpp"
+#include "MapEntRepres.hpp"
 #include "Renderer2D.hpp"
 #include "Renderer3D.hpp"
 #include "Options.hpp"
@@ -181,13 +182,13 @@ void MapHelperModelT::Render3D(Renderer3DT& Renderer) const
 
         MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
 
-        if (m_ParentEntity->IsSelected()) Renderer.RenderBox(GetBB(), Options.colors.Selection, false /* Solid? */);
+        if (m_ParentEntity->GetRepres()->IsSelected()) Renderer.RenderBox(GetBB(), Options.colors.Selection, false /* Solid? */);
     }
     else
     {
         // Did not render the real model (the distance was too great), thus render a replacement bounding-box.
         Renderer.RenderBox(GetBB(),
-            m_ParentEntity->IsSelected() ? Options.colors.Selection : m_ParentEntity->GetColor(Options.view2d.UseGroupColors), true /* Solid? */);
+            m_ParentEntity->GetRepres()->IsSelected() ? Options.colors.Selection : m_ParentEntity->GetRepres()->GetColor(Options.view2d.UseGroupColors), true /* Solid? */);
     }
 }
 

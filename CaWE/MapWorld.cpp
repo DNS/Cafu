@@ -42,7 +42,7 @@ const cf::TypeSys::TypeInfoT MapWorldT::TypeInfo(GetMapElemTIM(), "MapWorldT", "
 
 
 MapWorldT::MapWorldT(MapDocumentT& MapDoc)
-    : MapEntityBaseT(MapDoc, wxColour(255, 255, 255))
+    : MapEntityBaseT(MapDoc)
 {
     const EntityClassT* WorldSpawnClass = MapDoc.GetGameConfig()->FindClass("worldspawn");
 

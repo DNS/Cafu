@@ -28,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "DialogInspector.hpp"
 #include "MapDocument.hpp"
 #include "MapEntity.hpp"
+#include "MapEntRepres.hpp"
 #include "MapModel.hpp"
 #include "MapPlant.hpp"
 #include "ChildFrame.hpp"
@@ -437,9 +438,9 @@ bool ToolSelectionT::OnMouseMove2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
 
                 // When exactly one entity is selected and that entity has an origin, use its origin
                 // as the reference point for the transformation, not the transformation boxes center.
-                if (m_MapDoc.GetSelection().Size()==1 && m_MapDoc.GetSelection()[0]->GetType()==&MapEntityT::TypeInfo)
+                if (m_MapDoc.GetSelection().Size() == 1 && m_MapDoc.GetSelection()[0]->GetType() == &MapEntRepresT::TypeInfo)
                 {
-                    MapEntityT* Entity=static_cast<MapEntityT*>(m_MapDoc.GetSelection()[0]);
+                    MapEntityBaseT* Entity = static_cast<MapEntRepresT*>(m_MapDoc.GetSelection()[0])->GetParent();
 
                     if (!Entity->GetClass()->IsSolidClass() /*Entity->GetClass()->HasOrigin()*/)
                     {
@@ -925,35 +926,31 @@ void ToolSelectionT::NudgeSelection(const AxesInfoT& AxesInfo, const wxKeyEvent&
 /// when the elements entity and group memberships are taken into account.
 void ToolSelectionT::GetToggleEffects(MapElementT* Elem, ArrayT<MapElementT*>& RemoveFromSel, ArrayT<MapElementT*>& AddToSel) const
 {
-    MapEntityT* Entity=NULL;
+    MapPrimitiveT* Prim = dynamic_cast<MapPrimitiveT*>(Elem);
 
-    if (MapEntityT::TypeInfo.HierarchyHas(Elem->GetType()))
-    {
-        Entity=static_cast<MapEntityT*>(Elem);
-    }
-    else if (MapPrimitiveT::TypeInfo.HierarchyHas(Elem->GetType()))
-    {
-        MapPrimitiveT* Prim=static_cast<MapPrimitiveT*>(Elem);
+    wxASSERT(Prim);
 
-        if (Prim->GetParent()->GetType()==&MapEntityT::TypeInfo)    // A custom entity. Not the world.
-            Entity=static_cast<MapEntityT*>(Prim->GetParent());
-    }
+    MapEntityBaseT* Entity = Prim->GetParent();
 
-    // If Elem is an entity or a member of an entity, put the entity and all members of the entity into the appropriate lists.
-    if (Entity /*&& m_OptionsBar->SelectWholeEntities() / TreatEntitiesAsGroups*/)
+ // const bool IsWorld = Entity->IsWorld();
+    const bool IsWorld = dynamic_cast<MapEntityT*>(Entity) == NULL;
+
+    // If Prim belongs to a non-world entity, put all primitives of the entity into the appropriate lists.
+    if (!IsWorld /*&& m_OptionsBar->SelectWholeEntities() / TreatEntitiesAsGroups*/)
     {
-        // Toggle the entity by inserting it into one of the lists, but only if it isn't mentioned there already.
-        // Note that this can NOT be omitted, as generally Entity!=Elem, so that this special-case is NOT covered at the bottom of this method.
-        if (RemoveFromSel.Find(Entity)==-1 && AddToSel.Find(Entity)==-1)
+        MapEntRepresT* Repres = Entity->GetRepres();
+
+        // Toggle the Repres by inserting it into one of the lists, but only if it isn't mentioned there already.
+        if (RemoveFromSel.Find(Repres)==-1 && AddToSel.Find(Repres)==-1)
         {
-            if (Entity->IsSelected()) RemoveFromSel.PushBack(Entity);
-                                 else AddToSel.PushBack(Entity);
+            if (Repres->IsSelected()) RemoveFromSel.PushBack(Repres);
+                                 else AddToSel.PushBack(Repres);
         }
 
         // Toggle the entities primitives analogously.
-        for (unsigned long MemberNr=0; MemberNr<Entity->GetPrimitives().Size(); MemberNr++)
+        for (unsigned long MemberNr = 0; MemberNr < Entity->GetPrimitives().Size(); MemberNr++)
         {
-            MapElementT* Member=Entity->GetPrimitives()[MemberNr];
+            MapElementT* Member = Entity->GetPrimitives()[MemberNr];
 
             // Insert Member into one of the lists, but only if it isn't mentioned there already.
             if (RemoveFromSel.Find(Member)==-1 && AddToSel.Find(Member)==-1)

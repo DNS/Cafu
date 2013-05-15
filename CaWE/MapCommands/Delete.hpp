@@ -27,7 +27,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 class MapDocumentT;
 class MapElementT;
-class MapEntityT;
 class MapEntityBaseT;
 class MapPrimitiveT;
 class CommandSelectT;
@@ -57,7 +56,7 @@ class CommandDeleteT : public CommandT
     void Init(const ArrayT<MapElementT*>& DeleteElems);
 
     MapDocumentT&           m_MapDoc;
-    ArrayT<MapEntityT*>     m_DeleteEnts;           ///< The entities to delete.
+    ArrayT<MapEntityBaseT*> m_DeleteEnts;           ///< The entities to delete.
     ArrayT<MapPrimitiveT*>  m_DeletePrims;          ///< The primitives to delete.
     ArrayT<MapEntityBaseT*> m_DeletePrimsParents;   ///< The parents of the above primitives (the world or any custom entity).
     CommandSelectT*         m_CommandSelect;        ///< The command that unselects all elements before they are deleted.

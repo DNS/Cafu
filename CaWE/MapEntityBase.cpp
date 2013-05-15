@@ -43,9 +43,8 @@ const cf::TypeSys::TypeInfoT MapEntityBaseT::TypeInfo(GetMapElemTIM(), "MapEntit
 /*** End of TypeSys related definitions for this class. ***/
 
 
-MapEntityBaseT::MapEntityBaseT(MapDocumentT& MapDoc, const wxColour& Color)
-    : MapElementT(Color),
-      m_MapDoc(MapDoc),
+MapEntityBaseT::MapEntityBaseT(MapDocumentT& MapDoc)
+    : m_MapDoc(MapDoc),
       m_Class(NULL),
       m_Origin(),
       m_Properties(),
@@ -59,8 +58,7 @@ MapEntityBaseT::MapEntityBaseT(MapDocumentT& MapDoc, const wxColour& Color)
 
 
 MapEntityBaseT::MapEntityBaseT(const MapEntityBaseT& Ent)
-    : MapElementT(Ent),
-      m_MapDoc(Ent.m_MapDoc),
+    : m_MapDoc(Ent.m_MapDoc),
       m_Class(Ent.m_Class),
       m_Origin(Ent.m_Origin),
       m_Properties(Ent.m_Properties),
@@ -90,48 +88,6 @@ MapEntityBaseT::~MapEntityBaseT()
 }
 
 
-// MapEntityBaseT* MapEntityBaseT::Clone() const
-// {
-//     // Cannot instantiate an abstract class - we had to provide implementations for all pure virtual
-//     // methods (like e.g. GetBB()) in order to be able to explicitly create MapEntityBaseT instances.
-//     return new MapEntityBaseT(*this);
-// }
-
-
-void MapEntityBaseT::Assign(const MapElementT* Elem)
-{
-    if (Elem==this) return;
-
-    MapElementT::Assign(Elem);
-
-    const MapEntityBaseT* Entity=dynamic_cast<const MapEntityBaseT*>(Elem);
-    wxASSERT(Entity!=NULL);
-    if (Entity==NULL) return;
-
-    m_Class     =Entity->m_Class;
-    m_Origin    =Entity->m_Origin;
-    m_Properties=Entity->m_Properties;
-
-    // Delete all our previous primitives.
-    for (unsigned long PrimNr=0; PrimNr<m_Primitives.Size(); PrimNr++)
-        delete m_Primitives[PrimNr];
-
-    m_Primitives.Overwrite();
-
-    // Deep-copy all primitives of Entity.
-    for (unsigned long PrimNr=0; PrimNr<Entity->m_Primitives.Size(); PrimNr++)
-    {
-        m_Primitives.PushBack(Entity->m_Primitives[PrimNr]->Clone());
-        m_Primitives[PrimNr]->SetParent(this);
-    }
-
-
-    // Now that we (possibly) have a new class, update the entity representation in the map.
-    m_Repres->SetParent(this);
-    m_Repres->Update();
-}
-
-
 void MapEntityBaseT::SetClass(const EntityClassT* NewClass)
 {
     if (m_Class == NewClass) return;
@@ -154,8 +110,6 @@ void MapEntityBaseT::SetClass(const EntityClassT* NewClass)
     m_Repres->SetParent(this);
     m_Repres->Update();
 }
-
-
 
 
 Vector3fT MapEntityBaseT::GetOrigin() const

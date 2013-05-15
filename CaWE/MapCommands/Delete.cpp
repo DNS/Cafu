@@ -25,27 +25,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../EntityClass.hpp"
 #include "../MapDocument.hpp"
 #include "../MapEntity.hpp"
+#include "../MapEntRepres.hpp"
 #include "../MapPrimitive.hpp"
-
-
-// An entity is deleted entirely if it is among the DeleteElems itself,
-// or if it is of solid class and all of its primitives are among the DeleteElems.
-static bool IsEntirelyDeleted(MapEntityT* Ent, const ArrayT<MapElementT*>& DeleteElems)
-{
-    // If the entity is among the elements to delete, it is deleted entirely.
-    if (DeleteElems.Find(Ent)>=0) return true;
-
-    // If the entity is non-solid (it has an origin and acts as a placeholder, e.g. a lightsource),
-    // and is not among the elements to delete, it is not deleted entirely.
-    if (!Ent->GetClass()->IsSolidClass() /*Entity->GetClass()->HasOrigin()*/) return false;
-
-    // The entity is not among the elements to delete, but it is solid.
-    // If all its primitives are among the elements to delete, the entity is deleted as well.
-    for (unsigned long PrimNr=0; PrimNr<Ent->GetPrimitives().Size(); PrimNr++)
-        if (DeleteElems.Find(Ent->GetPrimitives()[PrimNr])==-1) return false;
-
-    return true;
-}
 
 
 CommandDeleteT::CommandDeleteT(MapDocumentT& MapDoc, MapElementT* DeleteElem)
@@ -76,38 +57,40 @@ CommandDeleteT::CommandDeleteT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>&
 void CommandDeleteT::Init(const ArrayT<MapElementT*>& DeleteElems)
 {
     // Split the list of elements into a list of primitives and a list of entities.
-    // The lists are checked for duplicates and kept free of them as well.
-    for (unsigned long ElemNr=0; ElemNr<DeleteElems.Size(); ElemNr++)
+    // The lists are checked for duplicates (and kept free of them).
+    for (unsigned long ElemNr = 0; ElemNr < DeleteElems.Size(); ElemNr++)
     {
-        MapElementT*   Elem=DeleteElems[ElemNr];
-        MapPrimitiveT* Prim=dynamic_cast<MapPrimitiveT*>(Elem);
-        MapEntityT*    Ent =dynamic_cast<MapEntityT*>(Elem);
+        MapPrimitiveT* Prim = dynamic_cast<MapPrimitiveT*>(DeleteElems[ElemNr]);
 
-        if (Prim)
+        wxASSERT(Prim);
+
+        if (Prim->GetType() == &MapEntRepresT::TypeInfo)
         {
-            MapEntityT* Parent=dynamic_cast<MapEntityT*>(Prim->GetParent());
+            wxASSERT(Prim->GetParent()->GetRepres() == Prim);
 
-            if (Parent && IsEntirelyDeleted(Parent, DeleteElems))
+            // Don't delete entity 0, the world.
+            if (Prim->GetParent() == m_MapDoc.GetEntities()[0])
+                continue;
+
+            if (m_DeleteEnts.Find(Prim->GetParent()) == -1)
             {
-                // If the parent is a regular entity (not the world!) that is entirely deleted anyway,
-                // add the parent to the records instead of the individual primitive.
-                if (m_DeleteEnts.Find(Parent)==-1) m_DeleteEnts.PushBack(Parent);
+                m_DeleteEnts.PushBack(Prim->GetParent());
             }
-            else
-            {
-                if (m_DeletePrims.Find(Prim)==-1)
-                {
-                    m_DeletePrims.PushBack(Prim);
-                    m_DeletePrimsParents.PushBack(Prim->GetParent());
-                }
-            }
-            continue;
         }
-
-        if (Ent)
+        else
         {
-            if (m_DeleteEnts.Find(Ent)==-1) m_DeleteEnts.PushBack(Ent);
-            continue;
+            wxASSERT(Prim->GetParent()->GetRepres() != Prim);
+
+            // If the primitive's whole entity is deleted anyway, we can drop it here.
+            if (Prim->GetParent() != m_MapDoc.GetEntities()[0])
+                if (DeleteElems.Find(Prim->GetParent()->GetRepres()) >= 0)
+                    continue;
+
+            if (m_DeletePrims.Find(Prim) == -1)
+            {
+                m_DeletePrims.PushBack(Prim);
+                m_DeletePrimsParents.PushBack(Prim->GetParent());
+            }
         }
     }
 
@@ -120,7 +103,7 @@ void CommandDeleteT::Init(const ArrayT<MapElementT*>& DeleteElems)
 
     for (unsigned long EntNr=0; EntNr<m_DeleteEnts.Size(); EntNr++)
     {
-        Unselect.PushBack(m_DeleteEnts[EntNr]);
+        Unselect.PushBack(m_DeleteEnts[EntNr]->GetRepres());
 
         for (unsigned long PrimNr=0; PrimNr<m_DeleteEnts[EntNr]->GetPrimitives().Size(); PrimNr++)
             Unselect.PushBack(m_DeleteEnts[EntNr]->GetPrimitives()[PrimNr]);
@@ -158,7 +141,7 @@ bool CommandDeleteT::Do()
     for (unsigned long EntNr=0; EntNr<m_DeleteEnts.Size(); EntNr++)
     {
         m_MapDoc.Remove(m_DeleteEnts[EntNr]);
-        DeletedElems.PushBack(m_DeleteEnts[EntNr]);
+        DeletedElems.PushBack(m_DeleteEnts[EntNr]->GetRepres());
     }
 
     for (unsigned long PrimNr=0; PrimNr<m_DeletePrims.Size(); PrimNr++)
@@ -191,7 +174,7 @@ void CommandDeleteT::Undo()
     for (unsigned long EntNr=0; EntNr<m_DeleteEnts.Size(); EntNr++)
     {
         m_MapDoc.Insert(m_DeleteEnts[EntNr]);
-        InsertedElems.PushBack(m_DeleteEnts[EntNr]);
+        InsertedElems.PushBack(m_DeleteEnts[EntNr]->GetRepres());
     }
 
     // Update all observers.

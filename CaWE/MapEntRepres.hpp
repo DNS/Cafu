@@ -57,7 +57,6 @@ class MapEntRepresT : public MapPrimitiveT
     BoundingBox3fT GetBB() const;
     bool           TraceRay(const Vector3fT& RayOrigin, const Vector3fT& RayDir, float& Fraction, unsigned long& FaceNr) const;
     bool           TracePixel(const wxPoint& Pixel, int Radius, const ViewWindow2DT& ViewWin) const;
-    void           Save_cmap(std::ostream& OutFile, unsigned long EntRepNr, const MapDocumentT& MapDoc) const;
 
     // Implement the MapElementT transformation methods.
     void TrafoMove(const Vector3fT& Delta);

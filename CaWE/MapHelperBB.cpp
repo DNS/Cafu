@@ -21,6 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "MapHelperBB.hpp"
 #include "MapEntity.hpp"
+#include "MapEntRepres.hpp"
 #include "Options.hpp"
 #include "Renderer3D.hpp"
 
@@ -59,5 +60,5 @@ void MapHelperBoundingBoxT::Render2D(Renderer2DT& Renderer) const
 void MapHelperBoundingBoxT::Render3D(Renderer3DT& Renderer) const
 {
     Renderer.RenderBox(GetBB(),
-        m_ParentEntity->IsSelected() ? Options.colors.Selection : m_ParentEntity->GetColor(Options.view2d.UseGroupColors), !m_Wireframe /* Solid? */);
+        m_ParentEntity->GetRepres()->IsSelected() ? Options.colors.Selection : m_ParentEntity->GetRepres()->GetColor(Options.view2d.UseGroupColors), !m_Wireframe /* Solid? */);
 }
