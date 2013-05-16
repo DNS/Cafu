@@ -19,12 +19,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "wx/wx.h"
-#include "ChildFrameViewWin2D.hpp"
 #include "MapElement.hpp"
+#include "ChildFrameViewWin2D.hpp"
 #include "MapDocument.hpp"
+#include "MapEntityBase.hpp"
+#include "MapEntRepres.hpp"
 
 #include "TypeSys.hpp"
+#include "wx/wx.h"
 
 
 // Note that we cannot simply replace this method with a global TypeInfoManT instance,
@@ -51,7 +53,8 @@ const cf::TypeSys::TypeInfoT MapElementT::TypeInfo(GetMapElemTIM(), "MapElementT
 
 
 MapElementT::MapElementT(const wxColour& Color)
-    : m_IsSelected(false),
+    : m_Parent(NULL),
+      m_IsSelected(false),
       m_Color(Color),
       m_Group(NULL),
       m_FrameCount(0)
@@ -60,7 +63,8 @@ MapElementT::MapElementT(const wxColour& Color)
 
 
 MapElementT::MapElementT(const MapElementT& Elem)
-    : m_IsSelected(false),    // The copied element cannot initially be selected: It is not a member of the selection array (kept in the map document).
+    : m_Parent(NULL),
+      m_IsSelected(false),    // The copied element cannot initially be selected: It is not a member of the selection array (kept in the map document).
       m_Color(Elem.m_Color),
       m_Group(NULL),
       m_FrameCount(Elem.m_FrameCount)
@@ -70,12 +74,13 @@ MapElementT::MapElementT(const MapElementT& Elem)
 
 void MapElementT::Assign(const MapElementT* Elem)
 {
-    if (Elem==this) return;
+    if (Elem == this) return;
 
- // m_IsSelected=Elem->m_IsSelected;    // The selection status cannot be changed by the assignment: It is kept in the map document and up to the caller to change.
-    m_Color     =Elem->m_Color;
- // m_Group     =...;                   // Not changed by this method, it's up to the caller to change.
- // m_FrameCount=Elem->m_FrameCount;
+ // m_Parent     = ...;                 // Not changed by this method, per definition.
+ // m_IsSelected = Elem->m_IsSelected;  // The selection status cannot be changed by the assignment: It is kept in the map document and up to the caller to change.
+    m_Color      = Elem->m_Color;
+ // m_Group      = ...;                 // Not changed by this method, it's up to the caller to change.
+ // m_FrameCount = Elem->m_FrameCount;
 }
 
 
@@ -84,6 +89,10 @@ wxColour MapElementT::GetColor(bool ConsiderGroup) const
     if (m_Group && ConsiderGroup)
         return m_Group->Color;
 
+    if (m_Parent && !m_Parent->IsWorld())
+        return m_Parent->GetRepres()->GetColor(false);
+
+    // The primitive has no parent, or the parent is the world.
     return m_Color;
 }
 

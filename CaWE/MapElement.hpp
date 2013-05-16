@@ -34,7 +34,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <ostream>
 
 
-class MapElementT;
+class MapEntityBaseT;
 class Renderer2DT;
 class Renderer3DT;
 class TextParserT;
@@ -92,6 +92,15 @@ class MapElementT
 
     virtual void Load_cmap(TextParserT& TP, MapDocumentT& MapDoc);
     virtual void Save_cmap(std::ostream& OutFile, unsigned long ElemNr, const MapDocumentT& MapDoc) const;
+
+
+    /// Assigns the parent entity for this primitive.
+    void SetParent(MapEntityBaseT* Ent) { m_Parent = Ent; }
+
+    /// Returns the parent entity of this primitive.
+    /// The returned pointer can be NULL when the primitive is not anchored in the world
+    /// (this can happen when the primitive is kept in the clipboard, in a command, etc.).
+    MapEntityBaseT* GetParent() const { return m_Parent; }
 
 
     /// Returns whether this element is currently selected in the map document.
@@ -200,10 +209,11 @@ class MapElementT
 
     protected:
 
-    bool         m_IsSelected;  ///< Is this element currently selected in the map document?
-    wxColour     m_Color;       ///< The color of this element.
-    GroupT*      m_Group;       ///< The group this element is in, NULL if in no group.
-    unsigned int m_FrameCount;  ///< The number of the frame in which this element was last rendered in a 3D view, used in order to avoid processing/rendering it twice.
+    MapEntityBaseT* m_Parent;       ///< The entity that this element is a part of.
+    bool            m_IsSelected;   ///< Is this element currently selected in the map document?
+    wxColour        m_Color;        ///< The color of this element.
+    GroupT*         m_Group;        ///< The group this element is in, NULL if in no group.
+    unsigned int    m_FrameCount;   ///< The number of the frame in which this element was last rendered in a 3D view, used in order to avoid processing/rendering it twice.
 };
 
 #endif

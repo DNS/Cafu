@@ -20,8 +20,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "MapPrimitive.hpp"
-#include "MapEntityBase.hpp"
-#include "MapEntRepres.hpp"
 #include "TypeSys.hpp"
 
 
@@ -38,41 +36,12 @@ const cf::TypeSys::TypeInfoT MapPrimitiveT::TypeInfo(GetMapElemTIM(), "MapPrimit
 
 
 MapPrimitiveT::MapPrimitiveT(const wxColour& Color)
-    : MapElementT(Color),
-      m_Parent(NULL)
+    : MapElementT(Color)
 {
 }
 
 
 MapPrimitiveT::MapPrimitiveT(const MapPrimitiveT& Prim)
-    : MapElementT(Prim),
-      m_Parent(NULL)
+    : MapElementT(Prim)
 {
-}
-
-
-void MapPrimitiveT::Assign(const MapElementT* Elem)
-{
-    if (Elem==this) return;
-
-    MapElementT::Assign(Elem);
-
-    // const MapPrimitiveT* Prim=dynamic_cast<const MapPrimitiveT*>(Elem);
-    // wxASSERT(Prim!=NULL);
-    // if (Prim==NULL) return;
-
-    // m_Parent=...;       // Not changed by this method, per definition.
-}
-
-
-wxColour MapPrimitiveT::GetColor(bool ConsiderGroup) const
-{
-    if (m_Group && ConsiderGroup)
-        return m_Group->Color;
-
-    if (m_Parent && !m_Parent->IsWorld())
-        return m_Parent->GetRepres()->GetColor(false);
-
-    // The primitive has no parent, or the parent is the world.
-    return m_Color;
 }
