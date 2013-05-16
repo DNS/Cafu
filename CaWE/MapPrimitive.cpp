@@ -20,7 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "MapPrimitive.hpp"
-#include "MapEntity.hpp"
+#include "MapEntityBase.hpp"
 #include "MapEntRepres.hpp"
 #include "TypeSys.hpp"
 
@@ -70,7 +70,7 @@ wxColour MapPrimitiveT::GetColor(bool ConsiderGroup) const
     if (m_Group && ConsiderGroup)
         return m_Group->Color;
 
-    if (m_Parent && m_Parent->GetType()==&MapEntityT::TypeInfo)
+    if (m_Parent && !m_Parent->IsWorld())
         return m_Parent->GetRepres()->GetColor(false);
 
     // The primitive has no parent, or the parent is the world.

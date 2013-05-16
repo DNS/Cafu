@@ -48,7 +48,7 @@ bool CommandDeletePropertyT::Do()
     if (m_Done) return false;
     if (m_Index<0) return false;
 
-    // Note that only non-class keys can be deleted here, so we don't need to call anything MapEntityT specific here - children don't need to be notified.
+    // Note that only non-class keys can be deleted here, so we don't need to call anything entity-specific here - children don't need to be notified.
     m_Entity->GetProperties().RemoveAtAndKeepOrder(m_Index);
 
     // FIXME Note that when a property of multiple entities is deleted, this observer notification is created

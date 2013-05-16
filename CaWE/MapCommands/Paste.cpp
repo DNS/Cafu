@@ -25,7 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Group_New.hpp"
 
 #include "../MapDocument.hpp"
-#include "../MapEntity.hpp"
 #include "../MapPrimitive.hpp"
 #include "../Options.hpp"
 
@@ -134,12 +133,13 @@ bool CommandPasteT::Do()
             continue;
         }
 
-        MapEntityT* Ent=dynamic_cast<MapEntityT*>(m_PastedElems[ElemNr]);
-        if (Ent)
-        {
-            m_MapDoc.Insert(Ent);
-            continue;
-        }
+        // TODO / FIXME
+        // MapEntityT* Ent=dynamic_cast<MapEntityT*>(m_PastedElems[ElemNr]);
+        // if (Ent)
+        // {
+        //     m_MapDoc.Insert(Ent);
+        //     continue;
+        // }
     }
 
     m_MapDoc.UpdateAllObservers_Created(m_PastedElems);

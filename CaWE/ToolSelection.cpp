@@ -27,7 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CommandHistory.hpp"
 #include "DialogInspector.hpp"
 #include "MapDocument.hpp"
-#include "MapEntity.hpp"
+#include "MapEntityBase.hpp"
 #include "MapEntRepres.hpp"
 #include "MapModel.hpp"
 #include "MapPlant.hpp"
@@ -932,11 +932,8 @@ void ToolSelectionT::GetToggleEffects(MapElementT* Elem, ArrayT<MapElementT*>& R
 
     MapEntityBaseT* Entity = Prim->GetParent();
 
- // const bool IsWorld = Entity->IsWorld();
-    const bool IsWorld = dynamic_cast<MapEntityT*>(Entity) == NULL;
-
     // If Prim belongs to a non-world entity, put all primitives of the entity into the appropriate lists.
-    if (!IsWorld /*&& m_OptionsBar->SelectWholeEntities() / TreatEntitiesAsGroups*/)
+    if (!Entity->IsWorld() /*&& m_OptionsBar->SelectWholeEntities() / TreatEntitiesAsGroups*/)
     {
         MapEntRepresT* Repres = Entity->GetRepres();
 

@@ -26,7 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapBezierPatch.hpp"
 #include "MapBrush.hpp"
 #include "MapDocument.hpp"
-#include "MapEntity.hpp"
+#include "MapEntityBase.hpp"
 #include "MapEntRepres.hpp"
 #include "MapFace.hpp"
 #include "MapModel.hpp"
@@ -749,13 +749,12 @@ void MapEntityBaseT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, wxProgress
 
         // Set our origin from the "origin" property, then remove it from the properties list:
         // the origin is a special-case that is not defined by the EntityClassDefs.lua scripts.
-        MapEntityT*   Ent =dynamic_cast<MapEntityT*>(this);
         EntPropertyT* Prop=FindProperty("origin", &Index);
         const bool    FoundOrigin=(Prop!=NULL);
 
-        if (Ent!=NULL && Prop!=NULL)
+        if (Prop!=NULL)
         {
-            Ent->SetOrigin(Prop->GetVector3f());
+            SetOrigin(Prop->GetVector3f());
             m_Properties.RemoveAtAndKeepOrder(Index);
         }
 
@@ -829,10 +828,8 @@ void MapEntityBaseT::Save_cmap(const MapDocumentT& MapDoc, std::ostream& OutFile
 
     if (EntityNr>0 && !m_Class->IsSolidClass())
     {
-        const MapEntityT* Ent=dynamic_cast<const MapEntityT*>(this);
-
         // Note that convertToString(m_Origin) returns not "x y z" but "(x, y, z)".
-        EntPropertyT("origin", serialize(Ent->GetOrigin())).Save_cmap(OutFile);
+        EntPropertyT("origin", serialize(GetOrigin())).Save_cmap(OutFile);
     }
 
     // Save the primitives.

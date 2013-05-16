@@ -25,7 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/BoundingBox.hpp"
 
 
-class MapEntityT;
+class MapEntRepresT;
 class Renderer2DT;
 class Renderer3DT;
 
@@ -35,15 +35,11 @@ class MapHelperT
     public:
 
     /// The default constructor.
-    MapHelperT(const MapEntityT* ParentEntity);
+    MapHelperT(MapEntRepresT& Repres);
 
     /// The copy constructor for copying a helper.
     /// @param Helper   The helper to copy-construct this helper from.
     MapHelperT(const MapHelperT& Helper);
-
-    /// This method (re-)sets the parent entity that we are a helper for,
-    /// for use after an entity (with all its helpers) has been cloned.
-    void SetParentEntity(const MapEntityT* ParentEntity);
 
     /// Returns the spatial bounding-box of this map element.
     virtual BoundingBox3fT GetBB() const=0;
@@ -54,7 +50,7 @@ class MapHelperT
 
     protected:
 
-    const MapEntityT* m_ParentEntity;   ///< Our parent entity that we are a helper for.
+    MapEntRepresT& m_Repres;    ///< The entity representation instance that we are a helper for.
 };
 
 #endif

@@ -23,7 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Select.hpp"
 
 #include "../MapDocument.hpp"
-#include "../MapEntity.hpp"
 #include "../MapPrimitive.hpp"
 
 
@@ -124,12 +123,13 @@ bool CommandTransformT::Do()
         // Insert cloned objects into the document, attaching them to the same parents as the respective source element.
         for (unsigned long CloneNr=0; CloneNr<m_ClonedElems.Size(); CloneNr++)
         {
-            MapEntityT* Ent=dynamic_cast<MapEntityT*>(m_ClonedElems[CloneNr]);
-            if (Ent)
-            {
-                m_MapDoc.Insert(Ent);
-                continue;
-            }
+            // TODO / FIXME
+            // MapEntityT* Ent=dynamic_cast<MapEntityT*>(m_ClonedElems[CloneNr]);
+            // if (Ent)
+            // {
+            //     m_MapDoc.Insert(Ent);
+            //     continue;
+            // }
 
             MapPrimitiveT* ClonedPrim=dynamic_cast<MapPrimitiveT*>(m_ClonedElems[CloneNr]);
             MapPrimitiveT* OrigPrim  =dynamic_cast<MapPrimitiveT*>(m_TransElems[CloneNr]);

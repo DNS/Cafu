@@ -22,19 +22,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapHelper.hpp"
 
 
-MapHelperT::MapHelperT(const MapEntityT* ParentEntity)
-    : m_ParentEntity(ParentEntity)
+MapHelperT::MapHelperT(MapEntRepresT& Repres)
+    : m_Repres(Repres)
 {
 }
 
 
 MapHelperT::MapHelperT(const MapHelperT& Helper)
-    : m_ParentEntity(Helper.m_ParentEntity)
+    : m_Repres(Helper.m_Repres)
 {
-}
-
-
-void MapHelperT::SetParentEntity(const MapEntityT* ParentEntity)
-{
-    m_ParentEntity = ParentEntity;
 }

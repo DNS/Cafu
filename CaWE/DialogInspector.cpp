@@ -25,8 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "DialogInsp-PrimitiveProps.hpp"
 #include "DialogInsp-MapScript.hpp"
 #include "MapDocument.hpp"
-#include "MapElement.hpp"
-#include "MapEntity.hpp"
+#include "MapEntRepres.hpp"
 
 #include "wx/notebook.h"
 
@@ -75,7 +74,7 @@ int InspectorDialogT::GetBestPage(const ArrayT<MapElementT*>& Selection) const
     {
         MapElementT* MapElement=Selection[0];
 
-        return (MapElement->GetType()==&MapEntityT::TypeInfo) ? 1 : 2;
+        return (MapElement->GetType() == &MapEntRepresT::TypeInfo) ? 1 : 2;
     }
     else
     {
@@ -89,7 +88,7 @@ int InspectorDialogT::GetBestPage(const ArrayT<MapElementT*>& Selection) const
         {
             MapElementT* MapElement=Selection[SelNr];
 
-            if (MapElement->GetType()==&MapEntityT::TypeInfo)
+            if (MapElement->GetType() == &MapEntRepresT::TypeInfo)
             {
                 HaveEntities=true;
                 break;

@@ -24,13 +24,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "../EntityClass.hpp"
 #include "../MapDocument.hpp"
-#include "../MapEntity.hpp"
+#include "../MapEntityBase.hpp"
 #include "../MapEntRepres.hpp"
 
 
 CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, const EntityClassT* EntityClass, const Vector3fT& Position, const Plane3fT* AdjustPlane)
     : m_MapDoc(MapDoc),
-      m_NewEntity(new MapEntityT(MapDoc)),
+      m_NewEntity(new MapEntityBaseT(MapDoc)),
       m_CommandSelect(NULL)
 {
     m_NewEntity->SetOrigin(Position);
@@ -38,7 +38,7 @@ CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, const EntityClassT* E
 
     if (AdjustPlane)
     {
-        const BoundingBox3fT EntBB  =m_NewEntity->GetBB();
+        const BoundingBox3fT EntBB  =m_NewEntity->GetRepres()->GetBB();
         const float          OffsetZ=(AdjustPlane->Normal.z>0.0f) ? Position.z-EntBB.Min.z : EntBB.Max.z-Position.z;
 
         m_NewEntity->SetOrigin(Position+AdjustPlane->Normal*(OffsetZ+1.0f));  // The +1.0f is some additional epsilon for the OffsetZ.

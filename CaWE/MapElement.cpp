@@ -22,7 +22,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/wx.h"
 #include "ChildFrameViewWin2D.hpp"
 #include "MapElement.hpp"
-#include "MapEntity.hpp"
 #include "MapDocument.hpp"
 
 #include "TypeSys.hpp"

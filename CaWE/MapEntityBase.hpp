@@ -56,6 +56,8 @@ class MapEntityBaseT
 
     MapDocumentT& GetDoc() const { return m_MapDoc; }
 
+    bool IsWorld() const;
+
     virtual void SetClass(const EntityClassT* NewClass);
     const EntityClassT* GetClass() const { return m_Class; }
 

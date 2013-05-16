@@ -23,8 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrameViewWin2D.hpp"
 #include "EntityClass.hpp"
 #include "LuaAux.hpp"
-#include "MapEntity.hpp"
 #include "MapDocument.hpp"
+#include "MapEntityBase.hpp"
 #include "MapHelperBB.hpp"
 #include "MapHelperModel.hpp"
 #include "Options.hpp"
@@ -67,19 +67,15 @@ void MapEntRepresT::Update()
 
     if (!m_Parent) return;
 
-    const MapEntityT* Ent = dynamic_cast<const MapEntityT*>(m_Parent);
-
-    if (!Ent) return;
-
     if (m_Parent->FindProperty("model"))
     {
         static const HelperInfoT HelperInfo;
 
-        m_Helper = new MapHelperModelT(Ent, &HelperInfo);
+        m_Helper = new MapHelperModelT(*this, &HelperInfo);
     }
     else
     {
-        m_Helper = new MapHelperBoundingBoxT(Ent,
+        m_Helper = new MapHelperBoundingBoxT(*this,
             m_Parent->GetClass() ? m_Parent->GetClass()->GetBoundingBox() : BoundingBox3fT(Vector3fT(-8, -8, -8), Vector3fT(8, 8, 8)));
     }
 }
@@ -165,16 +161,15 @@ void MapEntRepresT::Render2D(Renderer2DT& Renderer) const
         if (TargetProp!=NULL)
         {
             const ArrayT<MapEntityBaseT*>& Entities = Renderer.GetViewWin2D().GetMapDoc().GetEntities();
-            ArrayT<MapEntityT*>            FoundEntities;
+            ArrayT<MapEntityBaseT*>        FoundEntities;
 
             for (unsigned long EntNr = 1/*skip world*/; EntNr < Entities.Size(); EntNr++)
             {
                 const EntPropertyT* FoundProp = Entities[EntNr]->FindProperty("name");
 
-                wxASSERT(dynamic_cast<MapEntityT*>(Entities[EntNr])!=NULL);
-                if (FoundProp!=NULL && FoundProp->Value == TargetProp->Value && Entities[EntNr]->GetType() == &MapEntityT::TypeInfo)
+                if (FoundProp!=NULL && FoundProp->Value == TargetProp->Value)
                 {
-                    FoundEntities.PushBack(static_cast<MapEntityT*>(Entities[EntNr]));
+                    FoundEntities.PushBack(Entities[EntNr]);
                 }
             }
 
@@ -190,10 +185,7 @@ void MapEntRepresT::Render2D(Renderer2DT& Renderer) const
     // Render the coordinate axes of our local system.
     if (IsSelected() && m_Parent->FindProperty("angles") != NULL)
     {
-        const MapEntityT* Ent = dynamic_cast<const MapEntityT*>(m_Parent);
-
-        if (Ent)
-            Renderer.BasisVectors(Ent->GetOrigin(), cf::math::Matrix3x3fT::GetFromAngles_COMPAT(Ent->GetAngles()));
+        Renderer.BasisVectors(m_Parent->GetOrigin(), cf::math::Matrix3x3fT::GetFromAngles_COMPAT(m_Parent->GetAngles()));
     }
 
     // Render the helper.
@@ -207,10 +199,7 @@ void MapEntRepresT::Render3D(Renderer3DT& Renderer) const
     // Render the coordinate axes of our local system.
     if (IsSelected() && m_Parent->FindProperty("angles") != NULL)
     {
-        const MapEntityT* Ent = dynamic_cast<const MapEntityT*>(m_Parent);
-
-        if (Ent)
-            Renderer.BasisVectors(Ent->GetOrigin(), cf::math::Matrix3x3fT::GetFromAngles_COMPAT(Ent->GetAngles()));
+        Renderer.BasisVectors(m_Parent->GetOrigin(), cf::math::Matrix3x3fT::GetFromAngles_COMPAT(m_Parent->GetAngles()));
     }
 
     // Render the helper.
@@ -230,12 +219,7 @@ BoundingBox3fT MapEntRepresT::GetBB() const
     if (m_Helper)
         return m_Helper->GetBB();
 
-    const MapEntityT* Ent = dynamic_cast<const MapEntityT*>(m_Parent);
-
-    if (!Ent)
-        return BoundingBox3fT(Vector3fT(0.0f, 0.0f, 0.0f));
-
-    return BoundingBox3fT(Ent->GetOrigin());
+    return BoundingBox3fT(m_Parent->GetOrigin()).GetEpsilonBox(8.0f);
 }
 
 

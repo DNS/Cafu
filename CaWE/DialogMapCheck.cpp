@@ -26,12 +26,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "EntityClass.hpp"
 #include "GameConfig.hpp"
 #include "MapDocument.hpp"
-#include "MapEntity.hpp"
+#include "MapEntityBase.hpp"
 #include "MapEntRepres.hpp"
 #include "MapBrush.hpp"
 #include "ChildFrame.hpp"
 #include "ChildFrameViewWin2D.hpp"
-#include "MapWorld.hpp"
 #include "Options.hpp"
 #include "Tool.hpp"
 #include "ToolManager.hpp"
@@ -104,11 +103,7 @@ class MC_UnknownTargetT : public MapCheckerT
 
     bool HasProblem() const
     {
-        // If m_Ent is not an entity, we don't have a problem here.
-        if (m_Ent->GetType() != &MapEntityT::TypeInfo) return false;
-
-        const MapEntityT*   Ent1      =static_cast<MapEntityT*>(m_Ent);
-        const EntPropertyT* TargetProp=Ent1->FindProperty("target");
+        const EntPropertyT* TargetProp = m_Ent->FindProperty("target");
 
         // If this entity doesn't have the "target" property or an empty value, we don't have a problem.
         if (TargetProp==NULL) return false;
@@ -128,10 +123,7 @@ class MC_UnknownTargetT : public MapCheckerT
 
     wxString GetTargetValue() const
     {
-        if (m_Ent->GetType() != &MapEntityT::TypeInfo) return "";
-
-        const MapEntityT*   Ent       =static_cast<MapEntityT*>(m_Ent);
-        const EntPropertyT* TargetProp=Ent->FindProperty("target");
+        const EntPropertyT* TargetProp = m_Ent->FindProperty("target");
 
         return TargetProp ? TargetProp->Value : "";
     }
@@ -242,10 +234,7 @@ class MC_DuplicateKeysT : public MapCheckerT
 
     bool HasProblem() const
     {
-        if (m_Ent->GetType() != &MapEntityT::TypeInfo) return false;
-
-        const MapEntityT*           Ent   = static_cast<MapEntityT*>(m_Ent);
-        const ArrayT<EntPropertyT>& Props = Ent->GetProperties();
+        const ArrayT<EntPropertyT>& Props = m_Ent->GetProperties();
 
         for (unsigned long i=0; i<Props.Size(); i++)
             for (unsigned long j=i+1; j<Props.Size(); j++)
@@ -259,10 +248,7 @@ class MC_DuplicateKeysT : public MapCheckerT
 
     CommandT* GetFix() const
     {
-        if (m_Ent->GetType() != &MapEntityT::TypeInfo) return NULL;
-
-        MapEntityT*                 Ent   = static_cast<MapEntityT*>(m_Ent);
-        const ArrayT<EntPropertyT>& Props = Ent->GetProperties();
+        const ArrayT<EntPropertyT>& Props = m_Ent->GetProperties();
         ArrayT<int>                 DelIndices;
 
         for (unsigned long i=0; i<Props.Size(); i++)
@@ -272,12 +258,12 @@ class MC_DuplicateKeysT : public MapCheckerT
                         DelIndices.PushBack(j);
 
         if (DelIndices.Size()==0) return NULL;
-        if (DelIndices.Size()==1) return new CommandDeletePropertyT(m_MapDoc, Ent, DelIndices[0]);
+        if (DelIndices.Size()==1) return new CommandDeletePropertyT(m_MapDoc, m_Ent, DelIndices[0]);
 
         ArrayT<CommandT*> Commands;
         DelIndices.QuickSort(LargestFirst);     // Must delete by index strictly in largest-first order!
         for (unsigned long iNr=0; iNr<DelIndices.Size(); iNr++)
-            Commands.PushBack(new CommandDeletePropertyT(m_MapDoc, Ent, DelIndices[iNr]));
+            Commands.PushBack(new CommandDeletePropertyT(m_MapDoc, m_Ent, DelIndices[iNr]));
 
         return new CommandMacroT(Commands, "Delete duplicate entity keys.");
     }
@@ -295,11 +281,7 @@ class MC_EmptySolidEntityT : public MapCheckerT
 
     bool HasProblem() const
     {
-        if (m_Ent->GetType() != &MapEntityT::TypeInfo) return false;
-
-        const MapEntityT* Ent = static_cast<MapEntityT*>(m_Ent);
-
-        return Ent->GetClass()->IsSolidClass() && Ent->GetPrimitives().Size()==0;
+        return m_Ent->GetClass()->IsSolidClass() && m_Ent->GetPrimitives().Size() == 0;
     }
 
     wxString GetInfo() const { return "Empty solid entity."; }
@@ -315,7 +297,7 @@ class MC_WorldHasPlayerStartT : public MapCheckerT
 
     bool HasProblem() const
     {
-        if (m_Ent->GetType() != &MapWorldT::TypeInfo) return false;
+        if (!m_Ent->IsWorld()) return false;
 
         for (unsigned long EntNr=1/*skip world*/; EntNr<m_MapDoc.GetEntities().Size(); EntNr++)
             if (m_MapDoc.GetEntities()[EntNr]->GetClass()->GetName()=="info_player_start") return false;
@@ -448,8 +430,8 @@ void MapCheckDialogT::OnListBoxProblemsSelChange(wxCommandEvent& Event)
     ButtonFix      ->Enable(Problem->HasProblem() && Problem->CanFix());
     ButtonFixAll   ->Enable(Problem->CanFix());
 
-    if (ProbEnt && ProbEnt->GetType() != &MapWorldT::TypeInfo) m_MapDoc.GetHistory().SubmitCommand(CommandSelectT::Set(&m_MapDoc, ProbEnt->GetRepres()));
-                                                          else m_MapDoc.GetHistory().SubmitCommand(CommandSelectT::Clear(&m_MapDoc));
+    if (ProbEnt && !ProbEnt->IsWorld()) m_MapDoc.GetHistory().SubmitCommand(CommandSelectT::Set(&m_MapDoc, ProbEnt->GetRepres()));
+                                   else m_MapDoc.GetHistory().SubmitCommand(CommandSelectT::Clear(&m_MapDoc));
 }
 
 

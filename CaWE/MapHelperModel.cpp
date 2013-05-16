@@ -25,7 +25,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "EntityClass.hpp"
 #include "GameConfig.hpp"
 #include "LuaAux.hpp"
-#include "MapEntity.hpp"
+#include "MapDocument.hpp"
+#include "MapEntityBase.hpp"
 #include "MapEntRepres.hpp"
 #include "Renderer2D.hpp"
 #include "Renderer3D.hpp"
@@ -41,8 +42,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Renderer.hpp"
 
 
-MapHelperModelT::MapHelperModelT(const MapEntityT* ParentEntity, const HelperInfoT* HelperInfo)
-    : MapHelperT(ParentEntity),
+MapHelperModelT::MapHelperModelT(MapEntRepresT& Repres, const HelperInfoT* HelperInfo)
+    : MapHelperT(Repres),
       m_HelperInfo(HelperInfo),
       m_Model(NULL),
       m_AnimExpr(),
@@ -75,12 +76,12 @@ MapHelperModelT::~MapHelperModelT()
 
 BoundingBox3fT MapHelperModelT::GetBB() const
 {
-    const Vector3fT Origin=m_ParentEntity->GetOrigin();
+    const Vector3fT Origin = m_Repres.GetParent()->GetOrigin();
 
     UpdateModelCache();
 
     // TODO: Cache!
-    const cf::math::AnglesfT Angles=m_ParentEntity->GetAngles();
+    const cf::math::AnglesfT Angles = m_Repres.GetParent()->GetAngles();
 
     // The 3D bounds are the bounds of the oriented model's first sequence, so that frustum culling works properly in the 3D view.
     Vector3fT VerticesBB[8];
@@ -113,8 +114,8 @@ void MapHelperModelT::Render2D(Renderer2DT& Renderer) const
 
 void MapHelperModelT::Render3D(Renderer3DT& Renderer) const
 {
-    const Vector3fT Origin    =m_ParentEntity->GetOrigin();
-    const int       SequenceNr=GetSequenceNr();
+    const Vector3fT Origin     = m_Repres.GetParent()->GetOrigin();
+    const int       SequenceNr = GetSequenceNr();
 
     UpdateModelCache();
 
@@ -145,8 +146,8 @@ void MapHelperModelT::Render3D(Renderer3DT& Renderer) const
 
     if (ModelDist < float(Options.view3d.ModelDistance))
     {
-        const cf::math::AnglesfT Angles=m_ParentEntity->GetAngles();
-        const float              CAFU_ENG_SCALE=25.4f;
+        const cf::math::AnglesfT Angles = m_Repres.GetParent()->GetAngles();
+        const float              CAFU_ENG_SCALE = 25.4f;
 
         MatSys::Renderer->SetCurrentAmbientLightColor(1.0f, 1.0f, 1.0f);
         MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
@@ -182,13 +183,13 @@ void MapHelperModelT::Render3D(Renderer3DT& Renderer) const
 
         MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
 
-        if (m_ParentEntity->GetRepres()->IsSelected()) Renderer.RenderBox(GetBB(), Options.colors.Selection, false /* Solid? */);
+        if (m_Repres.IsSelected()) Renderer.RenderBox(GetBB(), Options.colors.Selection, false /* Solid? */);
     }
     else
     {
         // Did not render the real model (the distance was too great), thus render a replacement bounding-box.
         Renderer.RenderBox(GetBB(),
-            m_ParentEntity->GetRepres()->IsSelected() ? Options.colors.Selection : m_ParentEntity->GetRepres()->GetColor(Options.view2d.UseGroupColors), true /* Solid? */);
+            m_Repres.IsSelected() ? Options.colors.Selection : m_Repres.GetColor(Options.view2d.UseGroupColors), true /* Solid? */);
     }
 }
 
@@ -208,8 +209,7 @@ void MapHelperModelT::ClearGuis() const
 
 void MapHelperModelT::UpdateModelCache() const
 {
-    // This const_cast<> is a horrible hack -- we really should have a better means of getting a non-const GameConfigT here.
-    GameConfigT& GameConfig=const_cast<GameConfigT&>(m_ParentEntity->GetClass()->GetGameConfig());
+    GameConfigT& GameConfig = *m_Repres.GetParent()->GetDoc().GetGameConfig();
 
     wxString ModelName="";
     wxString ErrorMsg ="";
@@ -222,7 +222,7 @@ void MapHelperModelT::UpdateModelCache() const
     {
         // If we weren't passed a model name as an argument, get it from our parent entity's "model" property.
         // Calling FindProperty() each render frame is not particularly efficient...
-        const EntPropertyT* ModelProp=m_ParentEntity->FindProperty("model");
+        const EntPropertyT* ModelProp = m_Repres.GetParent()->FindProperty("model");
 
         if (ModelProp) ModelName=ModelProp->Value;
     }
@@ -248,10 +248,10 @@ void MapHelperModelT::UpdateModelCache() const
 
     for (unsigned long GFNr=0; GFNr<m_Model->GetGuiFixtures().Size(); GFNr++)
     {
-        const EntPropertyT* GuiProp=m_ParentEntity->FindProperty("gui");
+        const EntPropertyT* GuiProp = m_Repres.GetParent()->FindProperty("gui");
 
         if (!GuiProp || GFNr>0)
-            GuiProp=m_ParentEntity->FindProperty(wxString::Format("gui%lu", GFNr+1));
+            GuiProp = m_Repres.GetParent()->FindProperty(wxString::Format("gui%lu", GFNr+1));
 
         const wxString NewGuiName=GuiProp ? GuiProp->Value : "";
 
@@ -300,7 +300,7 @@ void MapHelperModelT::UpdateModelCache() const
 int MapHelperModelT::GetSequenceNr() const
 {
     // Calling FindProperty() each render frame is not particularly efficient...
-    const EntPropertyT* Prop=m_ParentEntity->FindProperty("sequence");
+    const EntPropertyT* Prop = m_Repres.GetParent()->FindProperty("sequence");
 
     return Prop ? wxAtoi(Prop->Value) : 0;
 }

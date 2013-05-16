@@ -41,7 +41,7 @@ class MapHelperModelT : public MapHelperT
     public:
 
     /// The constructor.
-    MapHelperModelT(const MapEntityT* ParentEntity, const HelperInfoT* HelperInfo);
+    MapHelperModelT(MapEntRepresT& Repres, const HelperInfoT* HelperInfo);
 
     /// The copy constructor for copying a model.
     /// @param Model   The model to copy-construct this model from.

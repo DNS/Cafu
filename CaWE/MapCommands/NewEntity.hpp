@@ -29,7 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 class CommandSelectT;
 class EntityClassT;
 class MapDocumentT;
-class MapEntityT;
+class MapEntityBaseT;
 
 
 class CommandNewEntityT : public CommandT
@@ -47,7 +47,7 @@ class CommandNewEntityT : public CommandT
     ~CommandNewEntityT();
 
     /// Returns the new entity created by this command.
-    MapEntityT* GetEntity() const { return m_NewEntity; }
+    MapEntityBaseT* GetEntity() const { return m_NewEntity; }
 
     // Implementation of the CommandT interface.
     bool     Do();
@@ -58,7 +58,7 @@ class CommandNewEntityT : public CommandT
     private:
 
     MapDocumentT&   m_MapDoc;
-    MapEntityT*     m_NewEntity;
+    MapEntityBaseT* m_NewEntity;
     CommandSelectT* m_CommandSelect;    ///< Subcommand for changing the selection.
 };
 

@@ -30,7 +30,7 @@ class MapHelperBoundingBoxT : public MapHelperT
     public:
 
     /// The constructor.
-    MapHelperBoundingBoxT(const MapEntityT* ParentEntity, const BoundingBox3fT& BB, bool Wireframe=false);
+    MapHelperBoundingBoxT(MapEntRepresT& Repres, const BoundingBox3fT& BB, bool Wireframe=false);
 
     /// The copy constructor for copying a box.
     /// @param Box   The box to copy-construct this box from.

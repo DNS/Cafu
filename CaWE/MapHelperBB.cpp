@@ -20,14 +20,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "MapHelperBB.hpp"
-#include "MapEntity.hpp"
+#include "MapEntityBase.hpp"
 #include "MapEntRepres.hpp"
 #include "Options.hpp"
 #include "Renderer3D.hpp"
 
 
-MapHelperBoundingBoxT::MapHelperBoundingBoxT(const MapEntityT* ParentEntity, const BoundingBox3fT& BB, bool Wireframe)
-    : MapHelperT(ParentEntity),
+MapHelperBoundingBoxT::MapHelperBoundingBoxT(MapEntRepresT& Repres, const BoundingBox3fT& BB, bool Wireframe)
+    : MapHelperT(Repres),
       m_BB(BB),
       m_Wireframe(Wireframe)
 {
@@ -44,9 +44,9 @@ MapHelperBoundingBoxT::MapHelperBoundingBoxT(const MapHelperBoundingBoxT& Box)
 
 BoundingBox3fT MapHelperBoundingBoxT::GetBB() const
 {
-    const Vector3fT Origin=m_ParentEntity->GetOrigin();
+    const Vector3fT Origin = m_Repres.GetParent()->GetOrigin();
 
-    return BoundingBox3fT(Origin+m_BB.Min, Origin+m_BB.Max);
+    return BoundingBox3fT(Origin + m_BB.Min, Origin + m_BB.Max);
 }
 
 
@@ -60,5 +60,5 @@ void MapHelperBoundingBoxT::Render2D(Renderer2DT& Renderer) const
 void MapHelperBoundingBoxT::Render3D(Renderer3DT& Renderer) const
 {
     Renderer.RenderBox(GetBB(),
-        m_ParentEntity->GetRepres()->IsSelected() ? Options.colors.Selection : m_ParentEntity->GetRepres()->GetColor(Options.view2d.UseGroupColors), !m_Wireframe /* Solid? */);
+        m_Repres.IsSelected() ? Options.colors.Selection : m_Repres.GetColor(Options.view2d.UseGroupColors), !m_Wireframe /* Solid? */);
 }

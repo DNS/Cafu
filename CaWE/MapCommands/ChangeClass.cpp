@@ -22,11 +22,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChangeClass.hpp"
 
 #include "../MapDocument.hpp"
-#include "../MapEntity.hpp"
+#include "../MapEntityBase.hpp"
 #include "../MapEntRepres.hpp"
 
 
-CommandChangeClassT::CommandChangeClassT(MapDocumentT& MapDoc, MapEntityT* Entity, const EntityClassT* NewClass)
+CommandChangeClassT::CommandChangeClassT(MapDocumentT& MapDoc, MapEntityBaseT* Entity, const EntityClassT* NewClass)
     : m_Entity(Entity),
       m_PrevProps(Entity->GetProperties()),
       m_MapDoc(MapDoc),

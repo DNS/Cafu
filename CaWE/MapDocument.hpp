@@ -35,7 +35,6 @@ class EntityClassT;
 class GameConfigT;
 class GroupT;
 class MapEntityBaseT;
-class MapEntityT;
 class MapPrimitiveT;
 class OrthoBspTreeT;
 class wxProgressDialog;

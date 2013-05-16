@@ -27,7 +27,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrameViewWin3D.hpp"
 #include "LuaAux.hpp"
 #include "Options.hpp"
-#include "MapEntity.hpp"
 
 #include "MaterialSystem/Renderer.hpp"
 #include "Plants/PlantDescription.hpp"

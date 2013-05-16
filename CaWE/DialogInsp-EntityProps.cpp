@@ -25,7 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameConfig.hpp"
 #include "LuaAux.hpp"
 #include "MapDocument.hpp"
-#include "MapEntity.hpp"
+#include "MapEntityBase.hpp"
 #include "MapEntRepres.hpp"
 #include "MapPrimitive.hpp"
 
@@ -577,8 +577,7 @@ void InspDlgEntityPropsT::UpdatePropertyGrid()
                 }
 
                 // Get entity (to check if it has primitive children) and exclude other MapEntityBaseT derivatives such as the world.
-                MapEntityT* EntityTmp=dynamic_cast<MapEntityT*>(SelectedEntities[0]);
-                if (EntityTmp!=NULL)
+                if (!SelectedEntities[0]->IsWorld())
                 {
                     const ArrayT<const EntityClassT*>& Classes=MapDoc->GetGameConfig()->GetEntityClasses();
 
@@ -587,7 +586,7 @@ void InspDlgEntityPropsT::UpdatePropertyGrid()
                         // Entities that have an origin but no primitive children can only be assigned other entities classes that have an origin as well.
                         // Every other combination (entity has no origin (then it has children) or entity has an origin *and* primitive children) can be
                         // assigned *any* entity class.
-                        if (EntityTmp->GetClass()->IsSolidClass() || EntityTmp->GetPrimitives().Size()>0 || !Classes[ClassNr]->IsSolidClass())
+                        if (SelectedEntities[0]->GetClass()->IsSolidClass() || SelectedEntities[0]->GetPrimitives().Size()>0 || !Classes[ClassNr]->IsSolidClass())
                             EntClassesList.Add(Classes[ClassNr]->GetName());
                     }
 
@@ -603,12 +602,12 @@ void InspDlgEntityPropsT::UpdatePropertyGrid()
 
                     EntClassesList.Sort(SortNoCaseT::Compare);  // Can unfortunately not use wxStricmp function directly.
 
-                    Selection=EntClassesList.Index(EntityTmp->GetClass()->GetName());
+                    Selection=EntClassesList.Index(SelectedEntities[0]->GetClass()->GetName());
                     if (Selection<0 || Selection==wxNOT_FOUND) Selection=0;
                 }
                 else
                 {
-                    // The entity class is no MapEntityT class (but e.g. the world): Add class name of entity to array.
+                    // Its the world: Add class name of entity to array.
                     EntClassesList.Add(SelectedEntities[0]->GetClass()->GetName());
                 }
 
@@ -898,10 +897,8 @@ void InspDlgEntityPropsT::OnPropertyGridChanged(wxPropertyGridEvent& event)
 
         for (unsigned long i=0; i<SelectedEntities.Size(); i++)
         {
-            MapEntityT* Ent=dynamic_cast<MapEntityT*>(SelectedEntities[i]);
-
-            if (Ent)
-                Commands.PushBack(new CommandChangeClassT(*MapDoc, Ent, NewEntityClass));
+            if (!SelectedEntities[i]->IsWorld())
+                Commands.PushBack(new CommandChangeClassT(*MapDoc, SelectedEntities[i], NewEntityClass));
         }
 
         MacroCommand=new CommandMacroT(Commands, "Change entity class");

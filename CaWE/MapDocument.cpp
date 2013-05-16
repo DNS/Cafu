@@ -30,7 +30,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "DialogMapCheck.hpp"
 #include "MapDocument.hpp"
 #include "MapBezierPatch.hpp"
-#include "MapEntity.hpp"
+#include "MapEntityBase.hpp"
 #include "MapEntRepres.hpp"
 #include "MapModel.hpp"         // Only needed for some TypeInfo test...
 #include "MapPlant.hpp"         // Only needed for some TypeInfo test...
@@ -38,7 +38,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "EntityClassVar.hpp"
 #include "DialogMapInfo.hpp"
 #include "MapBrush.hpp"
-#include "MapWorld.hpp"
 #include "DialogOptions.hpp"
 #include "Options.hpp"
 #include "OrthoBspTree.hpp"
@@ -195,7 +194,12 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
       m_GridSpacing(Options.Grid.InitialSpacing),
       m_ShowGrid(true)
 {
-    m_Entities.PushBack(new MapWorldT(*this));
+    m_Entities.PushBack(new MapEntityBaseT(*this));
+
+    const EntityClassT* WorldSpawnClass = GameConfig->FindClass("worldspawn");
+    wxASSERT(WorldSpawnClass);
+    m_Entities[0]->SetClass(WorldSpawnClass!=NULL ? WorldSpawnClass : FindOrCreateUnknownClass("worldspawn", false /*HasOrigin*/));
+
 
     ArrayT<MapPrimitiveT*> AllPrims;
     GetAllPrimitives(AllPrims);
@@ -225,7 +229,12 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     // This sets the cursor to the busy cursor in its ctor, and back to the default cursor in the dtor.
     wxBusyCursor BusyCursor;
 
-    MapWorldT* World=new MapWorldT(*this);
+    MapEntityBaseT* World = new MapEntityBaseT(*this);
+
+    const EntityClassT* WorldSpawnClass = GameConfig->FindClass("worldspawn");
+    wxASSERT(WorldSpawnClass);
+    World->SetClass(WorldSpawnClass!=NULL ? WorldSpawnClass : FindOrCreateUnknownClass("worldspawn", false /*HasOrigin*/));
+
     m_Entities.PushBack(World);
 
     TextParserT TP(FileName.c_str(), "({})");
@@ -243,7 +252,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         // Load the entities.
         while (!TP.IsAtEOF())
         {
-            MapEntityT* Entity = new MapEntityT(*this);
+            MapEntityBaseT* Entity = new MapEntityBaseT(*this);
 
             Entity->Load_cmap(TP, *this, ProgressDialog, m_Entities.Size());
             m_Entities.PushBack(Entity);
@@ -293,7 +302,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         // Load the entities.
         while (!TP.IsAtEOF())
         {
-            MapEntityT* Entity = new MapEntityT(*Doc);
+            MapEntityBaseT* Entity = new MapEntityBaseT(*Doc);
 
             Entity->Load_HL1_map(TP, *Doc, ProgressDialog, Doc->m_Entities.Size());
             Doc->m_Entities.PushBack(Entity);
@@ -354,7 +363,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
             }
             else if (ChunkName=="entity")
             {
-                MapEntityT* Entity = new MapEntityT(*Doc);
+                MapEntityBaseT* Entity = new MapEntityBaseT(*Doc);
 
                 Entity->Load_HL2_vmf(TP, *Doc, ProgressDialog, Doc->m_Entities.Size());
                 Doc->m_Entities.PushBack(Entity);
@@ -415,7 +424,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         // Load the entities.
         while (!TP.IsAtEOF())
         {
-            MapEntityT* Entity = new MapEntityT(*Doc);
+            MapEntityBaseT* Entity = new MapEntityBaseT(*Doc);
 
             Entity->Load_D3_map(TP, *Doc, ProgressDialog, Doc->m_Entities.Size());
             Doc->m_Entities.PushBack(Entity);
@@ -964,12 +973,13 @@ void MapDocumentT::OnEditSelectAll(wxCommandEvent& CE)
     ArrayT<MapElementT*> NewSelection;
     GetAllElems(NewSelection);
 
-    // Remove the world entity at index 0.
-    if (NewSelection.Size()>0)
-    {
-        wxASSERT(NewSelection[0]->GetType()==&MapWorldT::TypeInfo);
-        NewSelection.RemoveAt(0);
-    }
+    // This used to remove the world entity (representation) at index 0,
+    // but we don't want to make this exception any longer.
+    // if (NewSelection.Size()>0)
+    // {
+    //     wxASSERT(NewSelection[0]->GetType() == &MapEntRepresT::TypeInfo);
+    //     NewSelection.RemoveAt(0);
+    // }
 
     // Remove all invisible elements.
     for (unsigned long ElemNr=0; ElemNr<NewSelection.Size(); ElemNr++)

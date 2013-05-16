@@ -23,7 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "EntityClass.hpp"
 #include "EntityClassVar.hpp"
 #include "LuaAux.hpp"
-#include "MapDocument.hpp"      // just for CheckUniqueValues()
+#include "MapDocument.hpp"
 #include "MapEntRepres.hpp"
 #include "MapPrimitive.hpp"
 
@@ -86,6 +86,12 @@ MapEntityBaseT::~MapEntityBaseT()
         delete m_Primitives[PrimNr];
 
     delete m_Repres;
+}
+
+
+bool MapEntityBaseT::IsWorld() const
+{
+    return m_MapDoc.GetEntities()[0] == this;
 }
 
 
