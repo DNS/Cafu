@@ -32,25 +32,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/txtstrm.h"
 
 
-/*** Begin of TypeSys related definitions for this class. ***/
-
-void* MapEntityBaseT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
-{
-    return NULL;
-}
-
-const cf::TypeSys::TypeInfoT MapEntityBaseT::TypeInfo(GetMapElemTIM(), "MapEntityBaseT", "MapElementT", MapEntityBaseT::CreateInstance, NULL);
-
-/*** End of TypeSys related definitions for this class. ***/
-
-
 MapEntityBaseT::MapEntityBaseT(MapDocumentT& MapDoc)
     : m_MapDoc(MapDoc),
       m_Class(NULL),
       m_Origin(),
       m_Properties(),
-      m_Primitives(),
-      m_Repres(NULL)
+      m_Repres(NULL),
+      m_Primitives()
 {
     m_Repres = new MapEntRepresT;
     m_Repres->SetParent(this);
@@ -63,8 +51,8 @@ MapEntityBaseT::MapEntityBaseT(const MapEntityBaseT& Ent)
       m_Class(Ent.m_Class),
       m_Origin(Ent.m_Origin),
       m_Properties(Ent.m_Properties),
-      m_Primitives(),
-      m_Repres(NULL)
+      m_Repres(NULL),
+      m_Primitives()
 {
     // Deep-copy all primitives of Ent.
     for (unsigned long PrimNr=0; PrimNr<Ent.m_Primitives.Size(); PrimNr++)
@@ -248,7 +236,7 @@ void MapEntityBaseT::RemovePrim(MapPrimitiveT* Prim)
 }
 
 
-BoundingBox3fT MapEntityBaseT::GetPrimsBB() const
+BoundingBox3fT MapEntityBaseT::GetElemsBB() const
 {
     BoundingBox3fT BB = m_Repres->GetBB();
 

@@ -25,10 +25,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/BoundingBox.hpp"
 
 
-class MapPrimitiveT;
+class MapElementT;
 
 
-/// This class represents an orthogonal BSP tree (axis-aligned split planes) that spatially organizes MapPrimitiveT instances.
+/// This class represents an orthogonal BSP tree (axis-aligned split planes) that spatially organizes MapElementT instances.
 ///
 /// A map element is generally linked in each leaf that it intersects, or instead whenever possible in the node closest to the
 /// root where the element intersects *all* children.
@@ -80,11 +80,11 @@ class OrthoBspTreeT
         /// The destructor.
         ~NodeT();
 
-        PlaneTypeE                    GetPlaneType() const { return m_PlaneType; }
-        float                         GetPlaneDist() const { return m_PlaneDist; }
-        const NodeT*                  GetChild(unsigned int ChildNr) const { return m_Children[ChildNr]; }
-        const ArrayT<MapPrimitiveT*>& GetElems() const { return m_Elems; }
-        const BoundingBox3fT&         GetBB() const { return m_BB; }
+        PlaneTypeE                  GetPlaneType() const { return m_PlaneType; }
+        float                       GetPlaneDist() const { return m_PlaneDist; }
+        const NodeT*                GetChild(unsigned int ChildNr) const { return m_Children[ChildNr]; }
+        const ArrayT<MapElementT*>& GetElems() const { return m_Elems; }
+        const BoundingBox3fT&       GetBB() const { return m_BB; }
 
         /// Returns the number of nodes in the (sub-)tree at and below this node.
         unsigned long GetNumNodes() const;
@@ -102,13 +102,13 @@ class OrthoBspTreeT
         bool IntersectsAllChildren(const BoundingBox3fT& BB) const;
 
         /// Finds any map elements in the (sub-)tree whose spatial position disagrees with their position in the tree.
-        void FindMismatches(ArrayT<MapPrimitiveT*>& Mismatches) const;
+        void FindMismatches(ArrayT<MapElementT*>& Mismatches) const;
 
         /// Recursively inserts the given element into the (sub-)tree at and below this node.
-        void Insert(MapPrimitiveT* Elem);
+        void Insert(MapElementT* Elem);
 
         /// Removes the given element from the (sub-)tree at and below this node (the structure of the tree remains unchanged).
-        void Remove(MapPrimitiveT* Elem);
+        void Remove(MapElementT* Elem);
 
 
         private:
@@ -122,13 +122,13 @@ class OrthoBspTreeT
         float                m_PlaneDist;   ///< The distance of the plane to the origin. Corresponds to the Plane3fT::Dist member in a full plane.
         NodeT*               m_Parent;      ///< The parent of this node, NULL if this is the root node.
         NodeT*               m_Children[2]; ///< The children of this node at each side of the plane (NULL if there is no plane / the node is a leaf).
-        ArrayT<MapPrimitiveT*> m_Elems;     ///< The list of map elements in this node.
+        ArrayT<MapElementT*> m_Elems;       ///< The list of map elements in this node.
         const BoundingBox3fT m_BB;          ///< The bounding-box of this node.
     };
 
 
     /// The constructor.
-    OrthoBspTreeT(const ArrayT<MapPrimitiveT*>& Elems, const BoundingBox3fT& BB);
+    OrthoBspTreeT(const ArrayT<MapElementT*>& Elems, const BoundingBox3fT& BB);
 
     /// The destructor.
     ~OrthoBspTreeT();
@@ -137,10 +137,10 @@ class OrthoBspTreeT
     const NodeT* GetRootNode() const { return m_RootNode; }
 
     /// Inserts the given element into the tree (the structure of the tree remains unchanged).
-    void Insert(MapPrimitiveT* Elem) { m_RootNode->Insert(Elem); }
+    void Insert(MapElementT* Elem) { m_RootNode->Insert(Elem); }
 
     /// Removes the given element from the tree (the structure of the tree remains unchanged).
-    void Remove(MapPrimitiveT* Elem) { m_RootNode->Remove(Elem); }
+    void Remove(MapElementT* Elem) { m_RootNode->Remove(Elem); }
 
     /// Removes and re-inserts map elements from and into the tree whose bounding-box changed so that it disagrees with the tree structure.
     /// This method is called once per "document frame" in ChildFrameT::OnIdle().

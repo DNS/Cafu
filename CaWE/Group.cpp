@@ -88,13 +88,13 @@ void GroupT::Save_cmap(std::ostream& OutFile, unsigned long GroupNr) const
 
 ArrayT<MapElementT*> GroupT::GetMembers(const MapDocumentT& MapDoc) const
 {
-    ArrayT<MapElementT*>   Members;
-    ArrayT<MapPrimitiveT*> Prims;
+    ArrayT<MapElementT*> Members;
+    ArrayT<MapElementT*> Elems;
 
-    MapDoc.GetAllPrimitives(Prims);
+    MapDoc.GetAllElems(Elems);
 
-    for (unsigned int PrimNr = 0; PrimNr < Prims.Size(); PrimNr++)
-        if (Prims[PrimNr]->GetGroup() == this) Members.PushBack(Prims[PrimNr]);
+    for (unsigned int ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
+        if (Elems[ElemNr]->GetGroup() == this) Members.PushBack(Elems[ElemNr]);
 
     return Members;
 }
@@ -102,12 +102,12 @@ ArrayT<MapElementT*> GroupT::GetMembers(const MapDocumentT& MapDoc) const
 
 bool GroupT::HasMembers(const MapDocumentT& MapDoc) const
 {
-    ArrayT<MapPrimitiveT*> Prims;
+    ArrayT<MapElementT*> Elems;
 
-    MapDoc.GetAllPrimitives(Prims);
+    MapDoc.GetAllElems(Elems);
 
-    for (unsigned int PrimNr = 0; PrimNr < Prims.Size(); PrimNr++)
-        if (Prims[PrimNr]->GetGroup() == this) return true;
+    for (unsigned int ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
+        if (Elems[ElemNr]->GetGroup() == this) return true;
 
     return false;
 }

@@ -23,10 +23,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_MAP_ENTITY_BASE_HPP_INCLUDED
 
 #include "EntProperty.hpp"
-#include "MapElement.hpp"
+#include "Math3D/Angles.hpp"
+#include "Math3D/BoundingBox.hpp"
 
 
 class EntityClassT;
+class MapDocumentT;
 class MapEntRepresT;
 class MapPrimitiveT;
 class wxProgressDialog;
@@ -82,28 +84,22 @@ class MapEntityBaseT
     MapEntRepresT* GetRepres() const { return m_Repres; }
 
     /// Returns the "overall" bounding-box of this entity.
-    /// The returned bounding-box contains all primitives (including the representation) of this entity.
-    BoundingBox3fT GetPrimsBB() const;
+    /// The returned bounding-box contains all elements (the representation and all primitives) of this entity.
+    BoundingBox3fT GetElemsBB() const;
 
     /// Checks if unique values are set and unique inside the world and changes/sets them if bool Repair is true (default).
     /// @return Properties that are flagged as unique, but haven't (or hadn't, if repaired) unique values.
     ArrayT<EntPropertyT> CheckUniqueValues(bool Repair=true);
 
 
-    // The TypeSys related declarations for this class.
-    virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
-    static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
-    static const cf::TypeSys::TypeInfoT TypeInfo;
-
-
-    protected:
+    private:
 
     MapDocumentT&          m_MapDoc;        ///< The document that contains, keeps and manages this world.
     const EntityClassT*    m_Class;         ///< The "entity class" of this entity.
     Vector3fT              m_Origin;        ///< The origin of this entity.
     ArrayT<EntPropertyT>   m_Properties;    ///< The concrete, instantiated properties for this entity, according to its entity class.
-    ArrayT<MapPrimitiveT*> m_Primitives;    ///< The primitive, atomic elements of this entity (brushes, patches, terrains, models, plants, ...).
     MapEntRepresT*         m_Repres;        ///< The graphical representation of this entity in the map.
+    ArrayT<MapPrimitiveT*> m_Primitives;    ///< The primitive, atomic elements of this entity (brushes, patches, terrains, models, plants, ...).
 };
 
 #endif

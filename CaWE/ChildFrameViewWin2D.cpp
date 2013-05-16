@@ -133,7 +133,7 @@ ViewWindow2DT::ViewWindow2DT(wxWindow* Parent, ChildFrameT* ChildFrame, ViewType
 
     // Center on the center of the map.
     const MapEntityBaseT* World = GetMapDoc().GetEntities()[0];
-    CenterView(World->GetPrimsBB().GetCenter());    // Calls SetScrollPos(), then Refresh().
+    CenterView(World->GetElemsBB().GetCenter());    // Calls SetScrollPos(), then Refresh().
 }
 
 
@@ -339,17 +339,17 @@ ArrayT<MapElementT*> ViewWindow2DT::GetElementsAt(const wxPoint& Pixel, int Radi
 {
     wxASSERT(&GetMapDoc());     // Can be NULL between Destroy() and the dtor, but between those we should never get here.
 
-    ArrayT<MapElementT*>   Hits;
-    ArrayT<MapPrimitiveT*> Prims;
+    ArrayT<MapElementT*> Hits;
+    ArrayT<MapElementT*> Elems;
 
-    GetMapDoc().GetAllPrimitives(Prims);
+    GetMapDoc().GetAllElems(Elems);
 
-    for (unsigned int PrimNr = 0; PrimNr < Prims.Size(); PrimNr++)
+    for (unsigned int ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
     {
-        MapPrimitiveT* Prim = Prims[PrimNr];
+        MapElementT* Elem = Elems[ElemNr];
 
         // Radius is the "epsilon" tolerance in each direction that we allow ourselves for inaccurate clicks.
-        if (Prim->IsVisible() && Prim->TracePixel(Pixel, Radius, *this)) Hits.PushBack(Prim);
+        if (Elem->IsVisible() && Elem->TracePixel(Pixel, Radius, *this)) Hits.PushBack(Elem);
     }
 
     return Hits;
@@ -686,10 +686,10 @@ void ViewWindow2DT::Render(const wxRect& UpdateRect)
         dc.SetBackgroundMode(wxSOLID);      // Should be dc.SetTEXTBackgroundMode(wxSOLID).
         dc.SetTextBackground(Options.Grid.ColorBackground);
 
-        static ArrayT<MapPrimitiveT*> Elems;    // This is obviously not thread safe...
+        static ArrayT<MapElementT*> Elems;  // This is obviously not thread safe...
 
         Elems.Overwrite();
-        GetMapDoc().GetAllPrimitives(Elems);
+        GetMapDoc().GetAllElems(Elems);
 
         ToolT*      ActiveTool=m_ChildFrame->GetToolManager().GetActiveTool();
         Renderer2DT Renderer(*this, dc);

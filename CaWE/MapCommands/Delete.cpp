@@ -60,31 +60,33 @@ void CommandDeleteT::Init(const ArrayT<MapElementT*>& DeleteElems)
     // The lists are checked for duplicates (and kept free of them).
     for (unsigned long ElemNr = 0; ElemNr < DeleteElems.Size(); ElemNr++)
     {
-        MapPrimitiveT* Prim = dynamic_cast<MapPrimitiveT*>(DeleteElems[ElemNr]);
+        MapElementT* Elem = DeleteElems[ElemNr];
 
-        wxASSERT(Prim);
-
-        if (Prim->GetType() == &MapEntRepresT::TypeInfo)
+        if (Elem->GetType() == &MapEntRepresT::TypeInfo)
         {
-            wxASSERT(Prim->GetParent()->GetRepres() == Prim);
+            wxASSERT(Elem->GetParent()->GetRepres() == Elem);
 
             // Don't delete entity 0, the world.
-            if (Prim->GetParent() == m_MapDoc.GetEntities()[0])
+            if (Elem->GetParent() == m_MapDoc.GetEntities()[0])
                 continue;
 
-            if (m_DeleteEnts.Find(Prim->GetParent()) == -1)
+            if (m_DeleteEnts.Find(Elem->GetParent()) == -1)
             {
-                m_DeleteEnts.PushBack(Prim->GetParent());
+                m_DeleteEnts.PushBack(Elem->GetParent());
             }
         }
         else
         {
-            wxASSERT(Prim->GetParent()->GetRepres() != Prim);
+            wxASSERT(Elem->GetParent()->GetRepres() != Elem);
 
             // If the primitive's whole entity is deleted anyway, we can drop it here.
-            if (Prim->GetParent() != m_MapDoc.GetEntities()[0])
-                if (DeleteElems.Find(Prim->GetParent()->GetRepres()) >= 0)
+            if (Elem->GetParent() != m_MapDoc.GetEntities()[0])
+                if (DeleteElems.Find(Elem->GetParent()->GetRepres()) >= 0)
                     continue;
+
+            MapPrimitiveT* Prim = dynamic_cast<MapPrimitiveT*>(Elem);
+
+            wxASSERT(Prim);
 
             if (m_DeletePrims.Find(Prim) == -1)
             {

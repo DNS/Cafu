@@ -201,10 +201,10 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
     m_Entities[0]->SetClass(WorldSpawnClass!=NULL ? WorldSpawnClass : FindOrCreateUnknownClass("worldspawn", false /*HasOrigin*/));
 
 
-    ArrayT<MapPrimitiveT*> AllPrims;
-    GetAllPrimitives(AllPrims);
+    ArrayT<MapElementT*> AllElems;
+    GetAllElems(AllElems);
 
-    m_BspTree = new OrthoBspTreeT(AllPrims, m_GameConfig->GetMaxMapBB());
+    m_BspTree = new OrthoBspTreeT(AllElems, m_GameConfig->GetMaxMapBB());
 }
 
 
@@ -273,10 +273,10 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     }
 
 
-    ArrayT<MapPrimitiveT*> AllPrims;
-    GetAllPrimitives(AllPrims);
+    ArrayT<MapElementT*> AllElems;
+    GetAllElems(AllElems);
 
-    m_BspTree = new OrthoBspTreeT(AllPrims, m_GameConfig->GetMaxMapBB());
+    m_BspTree = new OrthoBspTreeT(AllElems, m_GameConfig->GetMaxMapBB());
 }
 
 
@@ -324,11 +324,11 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     }
 
 
-    ArrayT<MapPrimitiveT*> AllPrims;
-    Doc->GetAllPrimitives(AllPrims);
+    ArrayT<MapElementT*> AllElems;
+    Doc->GetAllElems(AllElems);
 
     delete Doc->m_BspTree;
-    Doc->m_BspTree = new OrthoBspTreeT(AllPrims, Doc->m_GameConfig->GetMaxMapBB());
+    Doc->m_BspTree = new OrthoBspTreeT(AllElems, Doc->m_GameConfig->GetMaxMapBB());
 
     Doc->m_FileName=FileName;
     return Doc;
@@ -391,11 +391,11 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     }
 
 
-    ArrayT<MapPrimitiveT*> AllPrims;
-    Doc->GetAllPrimitives(AllPrims);
+    ArrayT<MapElementT*> AllElems;
+    Doc->GetAllElems(AllElems);
 
     delete Doc->m_BspTree;
-    Doc->m_BspTree = new OrthoBspTreeT(AllPrims, Doc->m_GameConfig->GetMaxMapBB());
+    Doc->m_BspTree = new OrthoBspTreeT(AllElems, Doc->m_GameConfig->GetMaxMapBB());
 
     Doc->m_FileName=FileName;
     return Doc;
@@ -446,11 +446,11 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     }
 
 
-    ArrayT<MapPrimitiveT*> AllPrims;
-    Doc->GetAllPrimitives(AllPrims);
+    ArrayT<MapElementT*> AllElems;
+    Doc->GetAllElems(AllElems);
 
     delete Doc->m_BspTree;
-    Doc->m_BspTree = new OrthoBspTreeT(AllPrims, Doc->m_GameConfig->GetMaxMapBB());
+    Doc->m_BspTree = new OrthoBspTreeT(AllElems, Doc->m_GameConfig->GetMaxMapBB());
 
     Doc->m_FileName=FileName;
     return Doc;
@@ -521,7 +521,7 @@ bool MapDocumentT::OnSaveDocument(const wxString& FileName, bool IsAutoSave)
             const BoundingBox3fT* Intersecting=NULL;
             const MapEntityBaseT* Ent=m_Entities[EntNr];
 
-            if (!Intersecting || Ent->GetPrimsBB().Intersects(*Intersecting))
+            if (!Intersecting || Ent->GetElemsBB().Intersects(*Intersecting))
             {
                 Ent->Save_cmap(*this, OutFile, EntNr, Intersecting);
             }
@@ -594,36 +594,18 @@ bool MapDocumentT::Save()
 }
 
 
-void MapDocumentT::GetAllPrimitives(ArrayT<MapPrimitiveT*>& Prims) const
+void MapDocumentT::GetAllElems(ArrayT<MapElementT*>& Elems) const
 {
     for (unsigned int EntNr = 0; EntNr < m_Entities.Size(); EntNr++)
     {
         MapEntityBaseT* Ent = m_Entities[EntNr];
 
         // Add the entity representation...
-        Prims.PushBack(Ent->GetRepres());
-
-        // ... and all of its primitives.
-        for (unsigned int PrimNr = 0; PrimNr < Ent->GetPrimitives().Size(); PrimNr++)
-            Prims.PushBack(Ent->GetPrimitives()[PrimNr]);
-    }
-}
-
-
-void MapDocumentT::GetAllElems(ArrayT<MapElementT*>& Elems) const
-{
-    for (unsigned long EntNr=0; EntNr<m_Entities.Size(); EntNr++)
-    {
-        MapEntityBaseT*               Ent=m_Entities[EntNr];
-        const ArrayT<MapPrimitiveT*>& Primitives=Ent->GetPrimitives();
-
-        // Add the entity itself...
-     // Elems.PushBack(Ent);
         Elems.PushBack(Ent->GetRepres());
 
         // ... and all of its primitives.
-        for (unsigned long PrimNr=0; PrimNr<Primitives.Size(); PrimNr++)
-            Elems.PushBack(Primitives[PrimNr]);
+        for (unsigned int PrimNr = 0; PrimNr < Ent->GetPrimitives().Size(); PrimNr++)
+            Elems.PushBack(Ent->GetPrimitives()[PrimNr]);
     }
 }
 
@@ -726,9 +708,9 @@ void MapDocumentT::Remove(MapElementT* Elem)
 
 
 // Hmmm. This would make a nice member function...   (TODO!)
-static bool IsElemInBox(const MapPrimitiveT* Elem, const BoundingBox3fT& Box, bool InsideOnly, bool CenterOnly)
+static bool IsElemInBox(const MapElementT* Elem, const BoundingBox3fT& Box, bool InsideOnly, bool CenterOnly)
 {
-    const BoundingBox3fT ElemBB=Elem->GetBB();
+    const BoundingBox3fT ElemBB = Elem->GetBB();
 
     if (CenterOnly) return Box.Contains(ElemBB.GetCenter());
     if (InsideOnly) return Box.Contains(ElemBB.Min) && Box.Contains(ElemBB.Max);
@@ -737,9 +719,9 @@ static bool IsElemInBox(const MapPrimitiveT* Elem, const BoundingBox3fT& Box, bo
 }
 
 
-ArrayT<MapPrimitiveT*> MapDocumentT::GetPrimitivesIn(const BoundingBox3fT& Box, bool InsideOnly, bool CenterOnly) const
+ArrayT<MapElementT*> MapDocumentT::GetElementsIn(const BoundingBox3fT& Box, bool InsideOnly, bool CenterOnly) const
 {
-    ArrayT<MapPrimitiveT*> Result;
+    ArrayT<MapElementT*> Result;
 
     for (unsigned int EntNr = 0; EntNr < m_Entities.Size(); EntNr++)
     {
@@ -1292,18 +1274,18 @@ void MapDocumentT::OnViewHideSelectedObjects(wxCommandEvent& CE)
 void MapDocumentT::OnViewHideUnselectedObjects(wxCommandEvent& CE)
 {
     // Find all unselected map elements that are not in a group already.
-    ArrayT<MapElementT*>   HideElems;
-    ArrayT<MapPrimitiveT*> Prims;
+    ArrayT<MapElementT*> HideElems;
+    ArrayT<MapElementT*> Elems;
 
-    GetAllPrimitives(Prims);
+    GetAllElems(Elems);
 
-    for (unsigned int PrimNr = 0; PrimNr < Prims.Size(); PrimNr++)
+    for (unsigned int ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
     {
-        MapPrimitiveT* Prim = Prims[PrimNr];
+        MapElementT* Elem = Elems[ElemNr];
 
-        if (Prim->IsSelected() || Prim->GetGroup()) continue;
+        if (Elem->IsSelected() || Elem->GetGroup()) continue;
 
-        HideElems.PushBack(Prim);
+        HideElems.PushBack(Elem);
     }
 
     // If no relevant elements were found, do nothing.

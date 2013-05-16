@@ -134,23 +134,23 @@ ArrayT<ViewWindow3DT::HitInfoT> ViewWindow3DT::GetElementsAt(const wxPoint& Pixe
     // Make sure that the ray is valid. It should never be invalid though.
     if (length(RayDir) < 0.9f) return Hits;
 
-    // This just iterates over all primitives in the world (including the `MapEntRepresT` instances) in a brute force manner.
+    // This just iterates over all elements in the world (including the `MapEntRepresT` instances) in a brute force manner.
     // It would certainly be nice to optimize this in some way, e.g. by making use of the BSP tree,
     // but our Ray-AABB intersection tests are really fast, so this is OK for now.
-    ArrayT<MapPrimitiveT*> Prims;
-    GetMapDoc().GetAllPrimitives(Prims);
+    ArrayT<MapElementT*> Elems;
+    GetMapDoc().GetAllElems(Elems);
 
-    for (unsigned int PrimNr = 0; PrimNr < Prims.Size(); PrimNr++)
+    for (unsigned int ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
     {
-        MapPrimitiveT* Prim     = Prims[PrimNr];
+        MapElementT*   Elem     = Elems[ElemNr];
         float          Fraction = 0.0f;
         unsigned long  FaceNr   = 0;
 
-        if (Prim->IsVisible() && Prim->TraceRay(RayOrigin, RayDir, Fraction, FaceNr))
+        if (Elem->IsVisible() && Elem->TraceRay(RayOrigin, RayDir, Fraction, FaceNr))
         {
             ViewWindow3DT::HitInfoT Hit;
 
-            Hit.Object = Prim;
+            Hit.Object = Elem;
             Hit.FaceNr = FaceNr;
             Hit.Depth  = Fraction;
             Hit.Pos    = RayOrigin + RayDir*Fraction;

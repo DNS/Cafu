@@ -41,20 +41,20 @@ void* MapEntRepresT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
     return NULL;
 }
 
-const cf::TypeSys::TypeInfoT MapEntRepresT::TypeInfo(GetMapElemTIM(), "MapEntRepresT", "MapPrimitiveT", MapEntRepresT::CreateInstance, NULL);
+const cf::TypeSys::TypeInfoT MapEntRepresT::TypeInfo(GetMapElemTIM(), "MapEntRepresT", "MapElementT", MapEntRepresT::CreateInstance, NULL);
 
 /*** End of TypeSys related definitions for this class. ***/
 
 
 MapEntRepresT::MapEntRepresT()
-    : MapPrimitiveT(Options.colors.Entity),
+    : MapElementT(Options.colors.Entity),
       m_Helper(NULL)
 {
 }
 
 
 MapEntRepresT::MapEntRepresT(const MapEntRepresT& EntRepres)
-    : MapPrimitiveT(EntRepres),
+    : MapElementT(EntRepres),
       m_Helper(NULL)
 {
 }
@@ -91,7 +91,7 @@ void MapEntRepresT::Assign(const MapElementT* Elem)
 {
     if (Elem==this) return;
 
-    MapPrimitiveT::Assign(Elem);
+    MapElementT::Assign(Elem);
 
     const MapEntRepresT* MapRepres=dynamic_cast<const MapEntRepresT*>(Elem);
     wxASSERT(MapRepres!=NULL);
@@ -255,7 +255,7 @@ void MapEntRepresT::TrafoMove(const Vector3fT& Delta)
 
     m_Parent->SetOrigin(Origin + Delta);
 
-    MapPrimitiveT::TrafoMove(Delta);
+    MapElementT::TrafoMove(Delta);
 }
 
 
@@ -289,7 +289,7 @@ void MapEntRepresT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::Angle
     m_Parent->SetOrigin(Origin);
     m_Parent->SetAngles(NewAngles);
 
-    MapPrimitiveT::TrafoRotate(RefPoint, Angles);
+    MapElementT::TrafoRotate(RefPoint, Angles);
 }
 
 
@@ -299,7 +299,7 @@ void MapEntRepresT::TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale
 
     m_Parent->SetOrigin(RefPoint + (Origin - RefPoint).GetScaled(Scale));
 
-    MapPrimitiveT::TrafoScale(RefPoint, Scale);
+    MapElementT::TrafoScale(RefPoint, Scale);
 }
 
 
@@ -311,7 +311,7 @@ void MapEntRepresT::TrafoMirror(unsigned int NormalAxis, float Dist)
 
     m_Parent->SetOrigin(Origin);
 
-    MapPrimitiveT::TrafoMirror(NormalAxis, Dist);
+    MapElementT::TrafoMirror(NormalAxis, Dist);
 }
 
 
@@ -321,5 +321,5 @@ void MapEntRepresT::Transform(const MatrixT& Matrix)
 
     m_Parent->SetOrigin(Matrix.Mul1(Origin));
 
-    MapPrimitiveT::Transform(Matrix);
+    MapElementT::Transform(Matrix);
 }

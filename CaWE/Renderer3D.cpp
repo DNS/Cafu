@@ -400,7 +400,7 @@ void Renderer3DT::GetRenderList(const OrthoBspTreeT::NodeT* Node, RelLocT Parent
     // 2. Render the map elements in the node.
     for (unsigned long ElemNr=0; ElemNr<Node->GetElems().Size(); ElemNr++)
     {
-        MapPrimitiveT* Elem = Node->GetElems()[ElemNr];
+        MapElementT* Elem = Node->GetElems()[ElemNr];
 
         if (Elem->GetFrameCount()==Renderer3D_FrameCount) continue;     // Already rendered in this frame?
         Elem->SetFrameCount(Renderer3D_FrameCount);                     // Flag as processed (rendered or found invisible) in this frame.

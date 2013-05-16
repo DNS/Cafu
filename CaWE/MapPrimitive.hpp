@@ -25,7 +25,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapElement.hpp"
 
 
-/// A common base class for all the basic, atomic map elements in the world and the entities.
+/// This class adds no functionality of its own, but only exists for proper type separation.
+/// Especially MapBaseEntityT keeps a MapEntRepresT and an array of MapPrimitiveT%s, and the two
+/// "sets" must not overlap (we don't want MapEntRepresT instances among the "regular" primitives,
+/// and no regular primitive should ever be in place of the m_Repres member).
+/// In many other regards, all derived classes are considered equivalent and treated the same;
+/// then we use arrays of MapElementT%s.
+/// The clear distinction between MapElementT%s and MapPrimitiveT%s (the former can also contain
+/// MapEntRepresT%s, the latter cannot) is also a great help in documentation and communication.
 class MapPrimitiveT : public MapElementT
 {
     public:
@@ -40,8 +47,8 @@ class MapPrimitiveT : public MapElementT
     /// Explicitly declare the override for MapElementT::Clone().
     /// Without this declaration, a statement like
     ///     MapPrimitiveT* NewPrim = Prim->Clone();
-    /// would call the Clone() method of MapElementT, return a `MapElementT*`,
-    /// and then fail, because a `MapElementT*` cannot be assigned to `NewPrim`.
+    /// would call the Clone() method of MapElementT, return a `MapElementT*`, and
+    /// thus fail to compile, because a `MapElementT*` cannot be assigned to `NewPrim`.
     MapPrimitiveT* Clone() const=0;
 
 

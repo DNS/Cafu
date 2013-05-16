@@ -294,16 +294,16 @@ bool ToolSelectionT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
         case TS_DRAG_SEL:
         {
             // Select (or toggle) all elements in the dragged rectangle.
-            const BoundingBox3fT         DragBB(m_LDownPosWorld, m_LDragPosWorld);
-            const bool                   InsideOnly = ME.ShiftDown();
-            const ArrayT<MapPrimitiveT*> ElemsInBB = m_MapDoc.GetPrimitivesIn(DragBB, InsideOnly, Options.view2d.SelectByHandles);
+            const BoundingBox3fT       DragBB(m_LDownPosWorld, m_LDragPosWorld);
+            const bool                 InsideOnly = ME.ShiftDown();
+            const ArrayT<MapElementT*> ElemsInBB = m_MapDoc.GetElementsIn(DragBB, InsideOnly, Options.view2d.SelectByHandles);
 
             ArrayT<MapElementT*> RemoveFromSel;
             ArrayT<MapElementT*> AddToSel;
 
             for (unsigned long ElemNr=0; ElemNr<ElemsInBB.Size(); ElemNr++)
             {
-                MapPrimitiveT* Elem = ElemsInBB[ElemNr];
+                MapElementT* Elem = ElemsInBB[ElemNr];
 
                 // Skip hidden (invisible) elements.
                 if (!Elem->IsVisible()) continue;

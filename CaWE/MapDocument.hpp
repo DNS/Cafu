@@ -104,12 +104,8 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     /// Returns all entities in the map. The world is always at index 0, followed by the "regular" entities.
     const ArrayT<MapEntityBaseT*>& GetEntities() const { return m_Entities; }
 
-    /// Adds all primitives in this map (including the `MapEntRepresT` instances) to the given array.
+    /// Adds all elements in this map (entity representations and primitives) to the given array.
     /// The `MapEntRepresT` instance of the world entity is always the first element that is added to the list.
-    void GetAllPrimitives(ArrayT<MapPrimitiveT*>& Prims) const;
-
-    /// Adds all elements (entities and primitives) in this map to the given array.
-    /// Note that the world entity is always the first element that is added to the list.
     void GetAllElems(ArrayT<MapElementT*>& Elems) const;
 
     /// Inserts the given entity into the map.
@@ -129,7 +125,7 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     /// Removes the given element from the map.
     void Remove(MapElementT* Elem);
 
-    ArrayT<MapPrimitiveT*> GetPrimitivesIn(const BoundingBox3fT& Box, bool InsideOnly, bool CenterOnly) const;
+    ArrayT<MapElementT*> GetElementsIn(const BoundingBox3fT& Box, bool InsideOnly, bool CenterOnly) const;
 
     /// Determines all materials that are currently being used in the world (in brushes, Bezier patches and terrains),
     /// and returns the whole list via the UsedMaterials reference parameter.

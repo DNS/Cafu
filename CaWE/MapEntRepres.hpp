@@ -29,7 +29,7 @@ class MapHelperT;
 
 
 /// This class provides a graphical representation of an entity in the Map Editor.
-class MapEntRepresT : public MapPrimitiveT
+class MapEntRepresT : public MapElementT
 {
     public:
 
