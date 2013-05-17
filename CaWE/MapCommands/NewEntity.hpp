@@ -23,31 +23,25 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_COMMAND_NEW_ENTITY_HPP_INCLUDED
 
 #include "../CommandPattern.hpp"
-#include "Math3D/Plane3.hpp"
 
 
 class CommandSelectT;
-class EntityClassT;
 class MapDocumentT;
 class MapEntityBaseT;
 
 
+/// This commands inserts a new entity into the map.
 class CommandNewEntityT : public CommandT
 {
     public:
 
-    /// Constructor to create a new entity.
-    /// @param MapDoc        Map document in which the entity is created.
-    /// @param EntityClass   Class of the entity that is created.
-    /// @param Position      Position at which the entity is created.
-    /// @param AdjustPlane   The (optional) plane the new entities origin is adjusted to.
-    CommandNewEntityT(MapDocumentT& MapDoc, const EntityClassT* EntityClass, const Vector3fT& Position, const Plane3fT* AdjustPlane=NULL);
+    /// The constructor.
+    /// @param MapDoc   Map document into which the entity is inserted.
+    /// @param Entity   The entity to insert.
+    CommandNewEntityT(MapDocumentT& MapDoc, MapEntityBaseT* Entity);
 
     /// The destructor.
     ~CommandNewEntityT();
-
-    /// Returns the new entity created by this command.
-    MapEntityBaseT* GetEntity() const { return m_NewEntity; }
 
     // Implementation of the CommandT interface.
     bool     Do();
@@ -58,7 +52,7 @@ class CommandNewEntityT : public CommandT
     private:
 
     MapDocumentT&   m_MapDoc;
-    MapEntityBaseT* m_NewEntity;
+    MapEntityBaseT* m_Entity;
     CommandSelectT* m_CommandSelect;    ///< Subcommand for changing the selection.
 };
 

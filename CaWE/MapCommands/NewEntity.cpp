@@ -28,28 +28,18 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../MapEntRepres.hpp"
 
 
-CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, const EntityClassT* EntityClass, const Vector3fT& Position, const Plane3fT* AdjustPlane)
+CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, MapEntityBaseT* Entity)
     : m_MapDoc(MapDoc),
-      m_NewEntity(new MapEntityBaseT(MapDoc)),
+      m_Entity(Entity),
       m_CommandSelect(NULL)
 {
-    m_NewEntity->SetOrigin(Position);
-    m_NewEntity->SetClass(EntityClass);
-
-    if (AdjustPlane)
-    {
-        const BoundingBox3fT EntBB  =m_NewEntity->GetRepres()->GetBB();
-        const float          OffsetZ=(AdjustPlane->Normal.z>0.0f) ? Position.z-EntBB.Min.z : EntBB.Max.z-Position.z;
-
-        m_NewEntity->SetOrigin(Position+AdjustPlane->Normal*(OffsetZ+1.0f));  // The +1.0f is some additional epsilon for the OffsetZ.
-    }
 }
 
 
 CommandNewEntityT::~CommandNewEntityT()
 {
     if (!m_Done)
-        delete m_NewEntity;
+        delete m_Entity;
 
     delete m_CommandSelect;
 }
@@ -60,15 +50,15 @@ bool CommandNewEntityT::Do()
     wxASSERT(!m_Done);
     if (m_Done) return false;
 
-    // Insert the new entity into the map.
-    m_MapDoc.Insert(m_NewEntity);
+    // Insert the entity into the map.
+    m_MapDoc.Insert(m_Entity);
 
     ArrayT<MapElementT*> Elems;
-    Elems.PushBack(m_NewEntity->GetRepres());
+    Elems.PushBack(m_Entity->GetRepres());
 
     m_MapDoc.UpdateAllObservers_Created(Elems);
 
-    if (!m_CommandSelect) m_CommandSelect=CommandSelectT::Set(&m_MapDoc, m_NewEntity->GetRepres());
+    if (!m_CommandSelect) m_CommandSelect = CommandSelectT::Set(&m_MapDoc, m_Entity->GetRepres());
     m_CommandSelect->Do();
 
     m_Done=true;
@@ -85,10 +75,10 @@ void CommandNewEntityT::Undo()
     m_CommandSelect->Undo();
 
     // Remove the entity from the map again.
-    m_MapDoc.Remove(m_NewEntity);
+    m_MapDoc.Remove(m_Entity);
 
     ArrayT<MapElementT*> Elems;
-    Elems.PushBack(m_NewEntity->GetRepres());
+    Elems.PushBack(m_Entity->GetRepres());
 
     m_MapDoc.UpdateAllObservers_Deleted(Elems);
 
@@ -98,5 +88,5 @@ void CommandNewEntityT::Undo()
 
 wxString CommandNewEntityT::GetName() const
 {
-    return "new \""+m_NewEntity->GetClass()->GetName()+"\" entity";
+    return "add \""+m_Entity->GetClass()->GetName()+"\" entity";
 }

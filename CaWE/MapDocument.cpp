@@ -1500,13 +1500,18 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
         ArrayT<CommandT*> SubCommands;
 
         // 1. Create a new entity.
-        CommandNewEntityT* CmdNewEnt=new CommandNewEntityT(*this, NewEntityClass, SnapToGrid(GetMostRecentSelBB().GetCenter(), false /*Toggle*/, -1 /*AxisNoSnap*/));
+        MapEntityBaseT* NewEnt = new MapEntityBaseT(*this);
+
+        NewEnt->SetOrigin(SnapToGrid(GetMostRecentSelBB().GetCenter(), false /*Toggle*/, -1 /*AxisNoSnap*/));
+        NewEnt->SetClass(NewEntityClass);
+
+        CommandNewEntityT* CmdNewEnt = new CommandNewEntityT(*this, NewEnt);
 
         CmdNewEnt->Do();
         SubCommands.PushBack(CmdNewEnt);
 
         // 2. Assign the primitives to the new entity.
-        CommandAssignPrimToEntT* CmdAssignToEnt=new CommandAssignPrimToEntT(*this, SelPrimitives, CmdNewEnt->GetEntity());
+        CommandAssignPrimToEntT* CmdAssignToEnt = new CommandAssignPrimToEntT(*this, SelPrimitives, NewEnt);
 
         CmdAssignToEnt->Do();
         SubCommands.PushBack(CmdAssignToEnt);
