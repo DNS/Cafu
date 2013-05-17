@@ -28,32 +28,26 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 CommandAddPrimT::CommandAddPrimT(MapDocumentT& MapDoc, MapPrimitiveT* AddPrim, MapEntityBaseT* Parent, wxString Name, bool SetSel)
     : m_MapDoc(MapDoc),
       m_AddPrims(),
-      m_AddElems(),
       m_Parent(Parent),
       m_CommandSelect(NULL),
       m_Name(Name)
 {
     m_AddPrims.PushBack(AddPrim);
-    m_AddElems.PushBack(AddPrim);
 
     if (SetSel)
-        m_CommandSelect=CommandSelectT::Set(&m_MapDoc, m_AddElems);
+        m_CommandSelect = CommandSelectT::Set(&m_MapDoc, m_AddPrims);
 }
 
 
 CommandAddPrimT::CommandAddPrimT(MapDocumentT& MapDoc, const ArrayT<MapPrimitiveT*>& AddPrims, MapEntityBaseT* Parent, wxString Name, bool SetSel)
     : m_MapDoc(MapDoc),
       m_AddPrims(AddPrims),
-      m_AddElems(),
       m_Parent(Parent),
       m_CommandSelect(NULL),
       m_Name(Name)
 {
-    for (unsigned long PrimNr=0; PrimNr<m_AddPrims.Size(); PrimNr++)
-        m_AddElems.PushBack(m_AddPrims[PrimNr]);
-
     if (SetSel)
-        m_CommandSelect=CommandSelectT::Set(&m_MapDoc, m_AddElems);
+        m_CommandSelect = CommandSelectT::Set(&m_MapDoc, m_AddPrims);
 }
 
 
@@ -80,7 +74,7 @@ bool CommandAddPrimT::Do()
         m_MapDoc.Insert(m_AddPrims[PrimNr], m_Parent);
     }
 
-    m_MapDoc.UpdateAllObservers_Created(m_AddElems);
+    m_MapDoc.UpdateAllObservers_Created(m_AddPrims);
 
     if (m_CommandSelect)
         m_CommandSelect->Do();
@@ -104,7 +98,7 @@ void CommandAddPrimT::Undo()
         wxASSERT(m_AddPrims[PrimNr]->GetParent()==NULL);
     }
 
-    m_MapDoc.UpdateAllObservers_Deleted(m_AddElems);
+    m_MapDoc.UpdateAllObservers_Deleted(m_AddPrims);
 
     m_Done=false;
 }

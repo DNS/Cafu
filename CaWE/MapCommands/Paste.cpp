@@ -142,7 +142,8 @@ bool CommandPasteT::Do()
         // }
     }
 
-    m_MapDoc.UpdateAllObservers_Created(m_PastedElems);
+    // TODO / FIXME
+    // m_MapDoc.UpdateAllObservers_Created(m_PastedElems);
 
     // Select the newly pasted elements.
     m_CommandSelect->Do();
@@ -170,7 +171,8 @@ void CommandPasteT::Undo()
     for (unsigned long ElemNr=0; ElemNr<m_PastedElems.Size(); ElemNr++)
         m_MapDoc.Remove(m_PastedElems[ElemNr]);
 
-    m_MapDoc.UpdateAllObservers_Deleted(m_PastedElems);
+    // TODO / FIXME
+    // m_MapDoc.UpdateAllObservers_Deleted(m_PastedElems);
     m_Done=false;
 }
 

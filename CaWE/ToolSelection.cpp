@@ -769,7 +769,15 @@ void ToolSelectionT::NotifySubjectChanged_Selection(SubjectT* Subject, const Arr
 }
 
 
-void ToolSelectionT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements)
+void ToolSelectionT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities)
+{
+    // Clean-up the hit list.
+    m_HitList.Overwrite();
+    m_CurHitNr=-1;
+}
+
+
+void ToolSelectionT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapPrimitiveT*>& Primitives)
 {
     // Clean-up the hit list.
     m_HitList.Overwrite();

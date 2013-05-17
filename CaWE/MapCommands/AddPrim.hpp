@@ -63,7 +63,6 @@ class CommandAddPrimT : public CommandT
 
     MapDocumentT&          m_MapDoc;
     ArrayT<MapPrimitiveT*> m_AddPrims;
-    ArrayT<MapElementT*>   m_AddElems;      ///< The same pointers as in m_AddPrims with the type of the base class.
     MapEntityBaseT*        m_Parent;
     CommandSelectT*        m_CommandSelect; ///< Subcommand for changing the selection.
     wxString               m_Name;

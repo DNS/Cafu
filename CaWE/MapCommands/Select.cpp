@@ -22,7 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Select.hpp"
 
 #include "../MapDocument.hpp"
-#include "../MapElement.hpp"
+#include "../MapPrimitive.hpp"
 
 
 CommandSelectT* CommandSelectT::Clear(MapDocumentT* MapDocument)
@@ -107,6 +107,17 @@ CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, MapElementT* MapE
     SetSelection.PushBack(MapElement);
 
     return CommandSelectT::Set(MapDocument, SetSelection);
+}
+
+
+CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, const ArrayT<MapPrimitiveT*>& MapPrimitives)
+{
+    ArrayT<MapElementT*> Elems;
+
+    for (unsigned long PrimNr = 0; PrimNr < MapPrimitives.Size(); PrimNr++)
+        Elems.PushBack(MapPrimitives[PrimNr]);
+
+    return CommandSelectT::Set(MapDocument, Elems);
 }
 
 

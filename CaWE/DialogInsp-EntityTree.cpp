@@ -221,13 +221,13 @@ void InspDlgEntityTreeT::NotifySubjectChanged_Selection(SubjectT* Subject, const
 }
 
 
-void InspDlgEntityTreeT::NotifySubjectChanged_Created(const ArrayT<MapElementT*>& MapElements)
+void InspDlgEntityTreeT::NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities)
 {
     UpdateEntityListBox();
 }
 
 
-void InspDlgEntityTreeT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements)
+void InspDlgEntityTreeT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities)
 {
     UpdateEntityListBox();
 }

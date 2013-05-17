@@ -143,7 +143,8 @@ bool CommandTransformT::Do()
             // TODO(?): Insert m_ClonedElems[CloneNr] into the same group as m_TransElems[CloneNr]?
         }
 
-        m_MapDoc.UpdateAllObservers_Created(m_ClonedElems);
+        // TODO / FIXME
+        // m_MapDoc.UpdateAllObservers_Created(m_ClonedElems);
         m_CommandSelect->Do();
     }
     else
@@ -185,7 +186,8 @@ void CommandTransformT::Undo()
         for (unsigned long CloneNr=0; CloneNr<m_ClonedElems.Size(); CloneNr++)
             m_MapDoc.Remove(m_ClonedElems[CloneNr]);
 
-        m_MapDoc.UpdateAllObservers_Deleted(m_ClonedElems);
+        // TODO / FIXME
+        // m_MapDoc.UpdateAllObservers_Deleted(m_ClonedElems);
     }
     else
     {

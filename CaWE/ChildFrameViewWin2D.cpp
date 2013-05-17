@@ -163,35 +163,42 @@ void ViewWindow2DT::NotifySubjectChanged_Selection(SubjectT* Subject, const Arra
 }
 
 
-void ViewWindow2DT::NotifySubjectChanged_Created(const ArrayT<MapElementT*>& MapElements)
+void ViewWindow2DT::NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities)
 {
-    BoundingBox3fT CreationBounds;
+    BoundingBox3fT BB;
 
-    for (unsigned long i=0; i<MapElements.Size(); i++)
-        CreationBounds.InsertValid(MapElements[i]->GetBB());
+    for (unsigned long i = 0; i < Entities.Size(); i++)
+        BB.InsertValid(Entities[i]->GetElemsBB());
 
-    // Increase bounds since the angle line and names of entities lie outside element bounds.
-    // Note: 24 is the length of the angle vector drawn in the 2D views.
-    CreationBounds.Min-=Vector3fT(24.0f, 24.0f, 24.0f);
-    CreationBounds.Max+=Vector3fT(24.0f, 24.0f, 24.0f);
+    // Add an extra margin to the BB, because the angle lines and names of entities are rendered
+    // outside of the entity bounding-box (24 is the length of the angle vector drawn in the 2D views).
+    BB.Min -= Vector3fT(24.0f, 24.0f, 24.0f);
+    BB.Max += Vector3fT(24.0f, 24.0f, 24.0f);
 
-    RefreshRect(wxRect(WorldToWindow(CreationBounds.Min), WorldToWindow(CreationBounds.Max)));
+    RefreshRect(wxRect(WorldToWindow(BB.Min), WorldToWindow(BB.Max)));
 }
 
 
-void ViewWindow2DT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements)
+void ViewWindow2DT::NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT<MapPrimitiveT*>& Primitives)
 {
-    BoundingBox3fT DeletionBounds;
+    BoundingBox3fT BB;
 
-    for (unsigned long i=0; i<MapElements.Size(); i++)
-        DeletionBounds.InsertValid(MapElements[i]->GetBB());
+    for (unsigned long i = 0; i < Primitives.Size(); i++)
+        BB.InsertValid(Primitives[i]->GetBB());
 
-    // Increase bounds since the angle line and names of entities lie outside element bounds.
-    // Note: 24 is the length of the angle vector drawn in the 2D views.
-    DeletionBounds.Min-=Vector3fT(24.0f, 24.0f, 24.0f);
-    DeletionBounds.Max+=Vector3fT(24.0f, 24.0f, 24.0f);
+    RefreshRect(wxRect(WorldToWindow(BB.Min), WorldToWindow(BB.Max)));
+}
 
-    RefreshRect(wxRect(WorldToWindow(DeletionBounds.Min), WorldToWindow(DeletionBounds.Max)));
+
+void ViewWindow2DT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities)
+{
+    NotifySubjectChanged_Created(Subject, Entities);
+}
+
+
+void ViewWindow2DT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapPrimitiveT*>& Primitives)
+{
+    NotifySubjectChanged_Created(Subject, Primitives);
 }
 
 

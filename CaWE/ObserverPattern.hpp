@@ -40,6 +40,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 class SubjectT;
 class MapElementT;
 class MapEntityBaseT;
+class MapPrimitiveT;
 
 
 //#####################################
@@ -94,15 +95,25 @@ class ObserverT
     /// @param Subject The map document in which the group inventory has been changed.
     virtual void NotifySubjectChanged_Groups(SubjectT* Subject) { }
 
-    /// Notifies the observer that one or more map elements have been created.
-    /// @param Subject The map document in which the elements have been created.
-    /// @param MapElements List of created map elements.
-    virtual void NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements) { }
+    /// Notifies the observer that one or more entities have been created.
+    /// @param Subject    The map document in which the entities have been created.
+    /// @param Entities   List of created entities.
+    virtual void NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities) { }
 
-    /// Notifies the observer that one or more map elements have been deleted.
-    /// @param Subject The map document in which the elements have been deleted.
-    /// @param MapElements List of deleted map elements.
-    virtual void NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements) { }
+    /// Notifies the observer that one or more map primitives have been created.
+    /// @param Subject      The map document in which the primitives have been created.
+    /// @param Primitives   List of created map primitives.
+    virtual void NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT<MapPrimitiveT*>& Primitives) { }
+
+    /// Notifies the observer that one or more entities have been deleted.
+    /// @param Subject    The map document in which the entities have been deleted.
+    /// @param Entities   List of deleted entities.
+    virtual void NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities) { }
+
+    /// Notifies the observer that one or more map primitives have been deleted.
+    /// @param Subject      The map document in which the primitives have been deleted.
+    /// @param Primitives   List of deleted map primitives.
+    virtual void NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapPrimitiveT*>& Primitives) { }
 
     /// @name Modification notification method and overloads.
     /// These methods notify the observer that one or more map elements have been modified.
@@ -174,8 +185,10 @@ class SubjectT
     virtual void UpdateAllObservers(MapDocOtherDetailT OtherDetail);
     virtual void UpdateAllObservers_SelectionChanged(const ArrayT<MapElementT*>& OldSelection, const ArrayT<MapElementT*>& NewSelection);
     virtual void UpdateAllObservers_GroupsChanged();
-    virtual void UpdateAllObservers_Created(const ArrayT<MapElementT*>& MapElements);
-    virtual void UpdateAllObservers_Deleted(const ArrayT<MapElementT*>& MapElements);
+    virtual void UpdateAllObservers_Created(const ArrayT<MapEntityBaseT*>& Entities);
+    virtual void UpdateAllObservers_Created(const ArrayT<MapPrimitiveT*>& Primitives);
+    virtual void UpdateAllObservers_Deleted(const ArrayT<MapEntityBaseT*>& Entites);
+    virtual void UpdateAllObservers_Deleted(const ArrayT<MapPrimitiveT*>& Primitives);
     virtual void UpdateAllObservers_Modified(const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail);
     virtual void UpdateAllObservers_Modified(const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const ArrayT<BoundingBox3fT>& OldBounds);
     virtual void UpdateAllObservers_Modified(const ArrayT<MapEntityBaseT*>& Entities, MapElemModDetailE Detail, const wxString& Key);

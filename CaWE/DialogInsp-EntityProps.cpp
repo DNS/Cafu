@@ -281,9 +281,9 @@ void InspDlgEntityPropsT::NotifySubjectChanged_Selection(SubjectT* Subject, cons
 }
 
 
-void InspDlgEntityPropsT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements)
+void InspDlgEntityPropsT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities)
 {
-    // No need to react on deleted objects.
+    // No need to act on deleted objects.
     // If the deletion of an object changes the current selection the inspector is notified in the NotifySubjectChanged_Selection method.
 }
 

@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 class MapDocumentT;
 class MapElementT;
+class MapPrimitiveT;
 
 
 class CommandSelectT : public CommandT
@@ -41,6 +42,7 @@ class CommandSelectT : public CommandT
     static CommandSelectT* Remove(MapDocumentT* MapDocument, MapElementT* MapElement);
     static CommandSelectT* Set   (MapDocumentT* MapDocument, const ArrayT<MapElementT*>& MapElements);
     static CommandSelectT* Set   (MapDocumentT* MapDocument, MapElementT* MapElement);
+    static CommandSelectT* Set   (MapDocumentT* MapDocument, const ArrayT<MapPrimitiveT*>& MapPrimitives);
 
     ~CommandSelectT();
 

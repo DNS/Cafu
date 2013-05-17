@@ -37,7 +37,7 @@ class MapEntRepresT : public MapElementT
     MapEntRepresT();
 
     /// The copy constructor.
-    /// @param MapRepres   The entity representation to copy-construct the new instance from.
+    /// @param EntRepres   The entity representation to copy-construct the new instance from.
     MapEntRepresT(const MapEntRepresT& EntRepres);
 
     /// Called by the hosting entity instance whenever it has changed.

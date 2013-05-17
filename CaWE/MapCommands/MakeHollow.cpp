@@ -171,8 +171,8 @@ bool CommandMakeHollowT::Do()
     }
 
     // Replace the brushes with the (walls of the) hollows.
-    ArrayT<MapElementT*> BrushElems;
-    ArrayT<MapElementT*> WallElems;
+    ArrayT<MapElementT*>   BrushElems;
+    ArrayT<MapPrimitiveT*> WallElems;
 
     for (unsigned long BrushNr=0; BrushNr<m_Brushes.Size(); BrushNr++)
     {
@@ -212,7 +212,7 @@ void CommandMakeHollowT::Undo()
     m_CmdDelete->Undo();
 
     // Replace the (walls of the) hollows with the brushes again.
-    ArrayT<MapElementT*> WallElems;
+    ArrayT<MapPrimitiveT*> WallElems;
 
     for (unsigned long HollowNr=0; HollowNr<m_Hollows.Size(); HollowNr++)
     {

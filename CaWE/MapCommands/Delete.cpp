@@ -145,22 +145,15 @@ bool CommandDeleteT::Do()
     // Deselect any affected elements that are selected.
     m_CommandSelect->Do();
 
-    ArrayT<MapElementT*> DeletedElems;
-
     for (unsigned long EntNr=0; EntNr<m_DeleteEnts.Size(); EntNr++)
-    {
         m_MapDoc.Remove(m_DeleteEnts[EntNr]);
-        DeletedElems.PushBack(m_DeleteEnts[EntNr]->GetRepres());
-    }
 
     for (unsigned long PrimNr=0; PrimNr<m_DeletePrims.Size(); PrimNr++)
-    {
         m_MapDoc.Remove(m_DeletePrims[PrimNr]);
-        DeletedElems.PushBack(m_DeletePrims[PrimNr]);
-    }
 
     // Update all observers.
-    m_MapDoc.UpdateAllObservers_Deleted(DeletedElems);
+    m_MapDoc.UpdateAllObservers_Deleted(m_DeleteEnts);
+    m_MapDoc.UpdateAllObservers_Deleted(m_DeletePrims);
 
     m_Done=true;
     return true;
@@ -172,22 +165,15 @@ void CommandDeleteT::Undo()
     wxASSERT(m_Done);
     if (!m_Done) return;
 
-    ArrayT<MapElementT*> InsertedElems;
-
     for (unsigned long PrimNr=0; PrimNr<m_DeletePrims.Size(); PrimNr++)
-    {
         m_MapDoc.Insert(m_DeletePrims[PrimNr], m_DeletePrimsParents[PrimNr]);
-        InsertedElems.PushBack(m_DeletePrims[PrimNr]);
-    }
 
     for (unsigned long EntNr=0; EntNr<m_DeleteEnts.Size(); EntNr++)
-    {
         m_MapDoc.Insert(m_DeleteEnts[EntNr]);
-        InsertedElems.PushBack(m_DeleteEnts[EntNr]->GetRepres());
-    }
 
     // Update all observers.
-    m_MapDoc.UpdateAllObservers_Created(InsertedElems);
+    m_MapDoc.UpdateAllObservers_Created(m_DeletePrims);
+    m_MapDoc.UpdateAllObservers_Created(m_DeleteEnts);
 
     // Select the previously selected elements again.
     m_CommandSelect->Undo();

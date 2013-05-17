@@ -53,10 +53,10 @@ bool CommandNewEntityT::Do()
     // Insert the entity into the map.
     m_MapDoc.Insert(m_Entity);
 
-    ArrayT<MapElementT*> Elems;
-    Elems.PushBack(m_Entity->GetRepres());
+    ArrayT<MapEntityBaseT*> Entities;
+    Entities.PushBack(m_Entity);
 
-    m_MapDoc.UpdateAllObservers_Created(Elems);
+    m_MapDoc.UpdateAllObservers_Created(Entities);
 
     if (!m_CommandSelect) m_CommandSelect = CommandSelectT::Set(&m_MapDoc, m_Entity->GetRepres());
     m_CommandSelect->Do();
@@ -77,10 +77,10 @@ void CommandNewEntityT::Undo()
     // Remove the entity from the map again.
     m_MapDoc.Remove(m_Entity);
 
-    ArrayT<MapElementT*> Elems;
-    Elems.PushBack(m_Entity->GetRepres());
+    ArrayT<MapEntityBaseT*> Entities;
+    Entities.PushBack(m_Entity);
 
-    m_MapDoc.UpdateAllObservers_Deleted(Elems);
+    m_MapDoc.UpdateAllObservers_Deleted(Entities);
 
     m_Done=false;
 }
