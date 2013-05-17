@@ -168,8 +168,9 @@ void CommandPasteT::Undo()
     if (m_CommandCreateGroup) m_CommandCreateGroup->Undo();
     m_CommandSelect->Undo();
 
-    for (unsigned long ElemNr=0; ElemNr<m_PastedElems.Size(); ElemNr++)
-        m_MapDoc.Remove(m_PastedElems[ElemNr]);
+    // TODO / FIXME
+    // for (unsigned long ElemNr=0; ElemNr<m_PastedElems.Size(); ElemNr++)
+    //     m_MapDoc.Remove(m_PastedElems[ElemNr]);
 
     // TODO / FIXME
     // m_MapDoc.UpdateAllObservers_Deleted(m_PastedElems);

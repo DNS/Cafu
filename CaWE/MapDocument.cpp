@@ -684,10 +684,8 @@ void MapDocumentT::Remove(MapEntityBaseT* Ent)
 }
 
 
-void MapDocumentT::Remove(MapElementT* Elem)
+void MapDocumentT::Remove(MapPrimitiveT* Prim)
 {
-    MapPrimitiveT* Prim = dynamic_cast<MapPrimitiveT*>(Elem);
-
     wxASSERT(Prim != NULL);
     if (Prim == NULL) return;
 

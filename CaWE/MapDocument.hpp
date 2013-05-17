@@ -122,8 +122,8 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     /// The entity cannot be entity 0, the world.
     void Remove(MapEntityBaseT* Ent);
 
-    /// Removes the given element from the map.
-    void Remove(MapElementT* Elem);
+    /// Removes the given primitive from the map.
+    void Remove(MapPrimitiveT* Prim);
 
     ArrayT<MapElementT*> GetElementsIn(const BoundingBox3fT& Box, bool InsideOnly, bool CenterOnly) const;
 

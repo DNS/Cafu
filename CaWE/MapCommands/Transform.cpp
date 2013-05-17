@@ -182,9 +182,10 @@ void CommandTransformT::Undo()
     {
         m_CommandSelect->Undo();
 
-        // Remove cloned objects from world again.
-        for (unsigned long CloneNr=0; CloneNr<m_ClonedElems.Size(); CloneNr++)
-            m_MapDoc.Remove(m_ClonedElems[CloneNr]);
+        // TODO / FIXME
+        // // Remove cloned objects from world again.
+        // for (unsigned long CloneNr=0; CloneNr<m_ClonedElems.Size(); CloneNr++)
+        //     m_MapDoc.Remove(m_ClonedElems[CloneNr]);
 
         // TODO / FIXME
         // m_MapDoc.UpdateAllObservers_Deleted(m_ClonedElems);
