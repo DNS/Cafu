@@ -67,7 +67,7 @@ void CommandDeleteT::Init(const ArrayT<MapElementT*>& DeleteElems)
             wxASSERT(Elem->GetParent()->GetRepres() == Elem);
 
             // Don't delete entity 0, the world.
-            if (Elem->GetParent() == m_MapDoc.GetEntities()[0])
+            if (Elem->GetParent()->IsWorld())
                 continue;
 
             if (m_DeleteEnts.Find(Elem->GetParent()) == -1)
@@ -80,7 +80,7 @@ void CommandDeleteT::Init(const ArrayT<MapElementT*>& DeleteElems)
             wxASSERT(Elem->GetParent()->GetRepres() != Elem);
 
             // If the primitive's whole entity is deleted anyway, we can drop it here.
-            if (Elem->GetParent() != m_MapDoc.GetEntities()[0])
+            if (!Elem->GetParent()->IsWorld())
                 if (DeleteElems.Find(Elem->GetParent()->GetRepres()) >= 0)
                     continue;
 
@@ -134,6 +134,13 @@ bool CommandDeleteT::Do()
 {
     wxASSERT(!m_Done);
     if (m_Done) return false;
+
+    if (m_DeleteEnts.Size() == 0 && m_DeletePrims.Size() == 0)
+    {
+        // If there is nothing to delete, e.g. because only the world representation
+        // was selected (and dropped in Init()), bail out early.
+        return false;
+    }
 
     // Deselect any affected elements that are selected.
     m_CommandSelect->Do();
