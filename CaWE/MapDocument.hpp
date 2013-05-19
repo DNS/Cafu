@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ObserverPattern.hpp"
 #include "CommandHistory.hpp"
+#include "Math3D/Angles.hpp"
 #include "Plants/PlantDescrMan.hpp"
 #include "Templates/Array.hpp"
 #include "SceneGraph/LightMapMan.hpp"
@@ -166,6 +167,9 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
 
     MapDocumentT(const MapDocumentT&);          ///< Use of the Copy    Constructor is not allowed.
     void operator = (const MapDocumentT&);      ///< Use of the Assignment Operator is not allowed.
+
+    ArrayT<CommandT*> CreatePasteCommands(const Vector3fT& DeltaTranslation=Vector3fT(), const cf::math::AnglesfT& DeltaRotation=cf::math::AnglesfT(),
+        unsigned int NrOfCopies=1, bool PasteGrouped=false, bool CenterAtOriginals=false);
 
     ChildFrameT*                 m_ChildFrame;          ///< The child frame within which this document lives.
     wxString                     m_FileName;            ///< This documents file name.

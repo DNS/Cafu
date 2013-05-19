@@ -26,6 +26,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/Vector3.hpp"
 
 class MapElementT;
+class MapEntityBaseT;
+class MapPrimitiveT;
 
 
 /// The class represents the Map Editors clipboard.
@@ -38,16 +40,23 @@ namespace MapEditor
         ClipboardT() { }
         ~ClipboardT();
 
+        void CopyFrom(const ArrayT<MapElementT*>& Elems);
         void Clear();
+        void SetOriginalCenter(const Vector3fT& Center) { m_OriginalCenter = Center; }
 
-        ArrayT<MapElementT*> Objects;
-        Vector3fT            OriginalCenter;
+        const ArrayT<MapEntityBaseT*>& GetEntities() const { return m_Entities; }
+        const ArrayT<MapPrimitiveT*>& GetPrimitives() const { return m_Primitives; }
+        const Vector3fT& GetOriginalCenter() const { return m_OriginalCenter; }
 
 
         private:
 
         ClipboardT(const ClipboardT&);          ///< Use of the Copy    Constructor is not allowed.
         void operator = (const ClipboardT&);    ///< Use of the Assignment Operator is not allowed.
+
+        ArrayT<MapEntityBaseT*> m_Entities;
+        ArrayT<MapPrimitiveT*>  m_Primitives;
+        Vector3fT               m_OriginalCenter;
     };
 }
 

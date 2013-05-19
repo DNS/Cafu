@@ -44,6 +44,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "DialogPasteSpecial.hpp"
 #include "DialogReplaceMaterials.hpp"
 #include "MapCommands/Transform.hpp"
+#include "MapCommands/AddPrim.hpp"
 #include "MapCommands/Align.hpp"
 #include "MapCommands/ApplyMaterial.hpp"
 #include "MapCommands/AssignPrimToEnt.hpp"
@@ -53,7 +54,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapCommands/SnapToGrid.hpp"
 #include "MapCommands/MakeHollow.hpp"
 #include "MapCommands/NewEntity.hpp"
-#include "MapCommands/Paste.hpp"
 #include "MapCommands/Select.hpp"
 #include "MapCommands/Group_Assign.hpp"
 #include "MapCommands/Group_Delete.hpp"
@@ -859,21 +859,177 @@ void MapDocumentT::OnEditCopy(wxCommandEvent& CE)
 {
     wxBusyCursor BusyCursor;
 
-    // First delete the previous contents of the clipboard.
-    m_ChildFrame->GetMapClipboard().Clear();
-    m_ChildFrame->GetMapClipboard().OriginalCenter=GetMostRecentSelBB().GetCenter();
+    m_ChildFrame->GetMapClipboard().CopyFrom(m_Selection);
+    m_ChildFrame->GetMapClipboard().SetOriginalCenter(GetMostRecentSelBB().GetCenter());
+}
 
-    // Assign a copy of the current selection as the new clipboard contents.
-    for (unsigned long SelNr=0; SelNr<m_Selection.Size(); SelNr++)
-        m_ChildFrame->GetMapClipboard().Objects.PushBack(m_Selection[SelNr]->Clone());
+
+/// Helper function to paste the clipboard contents into the map.
+/// @param DeltaTranslation    Translation offset for each pasted copy (only relevant if NumberOfCopies > 1).
+/// @param DeltaRotation       Rotation offset for each pasted copy (only relevant if NumberOfCopies > 1).
+/// @param NrOfCopies          Number of times the objects are pasted into the world.
+/// @param PasteGrouped        Should all pasted objects be grouped?
+/// @param CenterAtOriginals   Should pasted objects be centered at position of original objects?
+ArrayT<CommandT*> MapDocumentT::CreatePasteCommands(const Vector3fT& DeltaTranslation, const cf::math::AnglesfT& DeltaRotation,
+    unsigned int NrOfCopies, bool PasteGrouped, bool CenterAtOriginals)
+{
+    // Initialize the total translation and rotation for the first paste operation.
+    // Note that a TotalTranslation of zero pastes each object in the exact same place as its original.
+    Vector3fT          TotalTranslation = DeltaTranslation;
+    cf::math::AnglesfT TotalRotation    = DeltaRotation;
+
+    if (!CenterAtOriginals)
+    {
+        const Vector3fT GoodPastePos    = m_ChildFrame->GuessUserVisiblePoint();
+        const Vector3fT OriginalsCenter = m_ChildFrame->GetMapClipboard().GetOriginalCenter();
+
+        static Vector3fT    LastPastePoint(0, 0, 0);
+        static unsigned int LastPasteCount = 0;
+
+        if (GoodPastePos != LastPastePoint)
+        {
+            LastPastePoint = GoodPastePos;
+            LastPasteCount = 0;
+        }
+
+        int PasteOffset = std::max(GetGridSpacing(), 1);
+
+        while (PasteOffset < 8)
+            PasteOffset *= 2;   // Make PasteOffset some multiple of the grid spacing larger than 8.0.
+
+        TotalTranslation = SnapToGrid(LastPastePoint + Vector3fT(((LastPasteCount % 8)+(LastPasteCount/8))*PasteOffset, (LastPasteCount % 8)*PasteOffset, 0.0f) - OriginalsCenter, false, -1 /*Snap all axes.*/);
+
+        LastPasteCount++;
+    }
+
+
+    // FIXME: This should probably be a param to the Trafo*() methods, rather than having these methods query it from the global Options.general.LockingTextures.
+    const bool PrevLockMats = Options.general.LockingTextures;
+    Options.general.LockingTextures = true;
+
+    const ArrayT<MapEntityBaseT*>& SrcEnts  = m_ChildFrame->GetMapClipboard().GetEntities();
+    const ArrayT<MapPrimitiveT*>&  SrcPrims = m_ChildFrame->GetMapClipboard().GetPrimitives();
+
+    ArrayT<MapEntityBaseT*> NewEnts;
+    ArrayT<MapPrimitiveT*>  NewPrims;
+
+    for (unsigned int CopyNr = 0; CopyNr < NrOfCopies; CopyNr++)
+    {
+        for (unsigned long EntNr = 0; EntNr < SrcEnts.Size(); EntNr++)
+        {
+            MapEntityBaseT* NewEnt = new MapEntityBaseT(*SrcEnts[EntNr]);
+
+            if (TotalTranslation != Vector3fT())
+            {
+                NewEnt->GetRepres()->TrafoMove(TotalTranslation);
+
+                for (unsigned long PrimNr = 0; PrimNr < NewEnt->GetPrimitives().Size(); PrimNr++)
+                    NewEnt->GetPrimitives()[PrimNr]->TrafoMove(TotalTranslation);
+            }
+
+            if (TotalRotation != cf::math::AnglesfT())
+            {
+                NewEnt->GetRepres()->TrafoRotate(NewEnt->GetRepres()->GetBB().GetCenter(), TotalRotation);
+
+                for (unsigned long PrimNr = 0; PrimNr < NewEnt->GetPrimitives().Size(); PrimNr++)
+                    NewEnt->GetPrimitives()[PrimNr]->TrafoRotate(NewEnt->GetPrimitives()[PrimNr]->GetBB().GetCenter(), TotalRotation);
+            }
+
+            NewEnts.PushBack(NewEnt);
+        }
+
+        for (unsigned long PrimNr = 0; PrimNr < SrcPrims.Size(); PrimNr++)
+        {
+            MapPrimitiveT* NewPrim = SrcPrims[PrimNr]->Clone();
+
+            if (TotalTranslation != Vector3fT())
+                NewPrim->TrafoMove(TotalTranslation);
+
+            if (TotalRotation != cf::math::AnglesfT())
+                NewPrim->TrafoRotate(NewPrim->GetBB().GetCenter(), TotalRotation);
+
+            NewPrims.PushBack(NewPrim);
+        }
+
+        // Advance the total translation and rotation.
+        TotalTranslation += DeltaTranslation;
+        TotalRotation    += DeltaRotation;
+    }
+
+    Options.general.LockingTextures = PrevLockMats;
+
+
+    ArrayT<CommandT*> SubCommands;
+
+    if (NewEnts.Size() > 0)
+    {
+        CommandNewEntityT* CmdNewEnt = new CommandNewEntityT(*this, NewEnts, false /*don't select*/);
+
+        CmdNewEnt->Do();
+        SubCommands.PushBack(CmdNewEnt);
+    }
+
+    if (NewPrims.Size() > 0)
+    {
+        CommandAddPrimT* CmdAddPrim = new CommandAddPrimT(*this, NewPrims, m_Entities[0], "insert prims", false /*don't select*/);
+
+        CmdAddPrim->Do();
+        SubCommands.PushBack(CmdAddPrim);
+    }
+
+    if (SubCommands.Size() > 0)
+    {
+        CommandSelectT* CmdSel = CommandSelectT::Set(this, NewEnts, NewPrims);
+
+        CmdSel->Do();
+        SubCommands.PushBack(CmdSel);
+
+        if (PasteGrouped)
+        {
+            ArrayT<MapElementT*> NewElems;
+
+            for (unsigned long EntNr = 0; EntNr < NewEnts.Size(); EntNr++)
+            {
+                MapEntityBaseT* NewEnt = NewEnts[EntNr];
+
+                NewElems.PushBack(NewEnt->GetRepres());
+
+                for (unsigned long PrimNr = 0; PrimNr < NewEnt->GetPrimitives().Size(); PrimNr++)
+                    NewElems.PushBack(NewEnt->GetPrimitives()[PrimNr]);
+            }
+
+            for (unsigned long PrimNr = 0; PrimNr < NewPrims.Size(); PrimNr++)
+                NewElems.PushBack(NewPrims[PrimNr]);
+
+
+            CommandNewGroupT* CmdNewGroup = new CommandNewGroupT(*this,
+                wxString::Format("paste group (%lu element%s)", NewElems.Size(), NewElems.Size() == 1 ? "" : "s"));
+
+            CmdNewGroup->GetGroup()->SelectAsGroup = true;
+            CmdNewGroup->Do();
+            SubCommands.PushBack(CmdNewGroup);
+
+            CommandAssignGroupT* CmdAssignGroup = new CommandAssignGroupT(*this, NewElems, CmdNewGroup->GetGroup());
+
+            CmdAssignGroup->Do();
+            SubCommands.PushBack(CmdAssignGroup);
+        }
+    }
+
+    return SubCommands;
 }
 
 
 void MapDocumentT::OnEditPaste(wxCommandEvent& CE)
 {
-    wxBusyCursor BusyCursor;
+    wxBusyCursor      BusyCursor;
+    ArrayT<CommandT*> SubCommands = CreatePasteCommands();
 
-    GetHistory().SubmitCommand(new CommandPasteT(*this, m_ChildFrame->GetMapClipboard().Objects, m_ChildFrame->GetMapClipboard().OriginalCenter, m_ChildFrame->GuessUserVisiblePoint()));
+    if (SubCommands.Size() > 0)
+    {
+        // Submit the composite macro command.
+        GetHistory().SubmitCommand(new CommandMacroT(SubCommands, "Paste"));
+    }
 
     m_ChildFrame->GetToolManager().SetActiveTool(GetToolTIM().FindTypeInfoByName("ToolSelectionT"));
 }
@@ -881,28 +1037,35 @@ void MapDocumentT::OnEditPaste(wxCommandEvent& CE)
 
 void MapDocumentT::OnEditPasteSpecial(wxCommandEvent& CE)
 {
+    const ArrayT<MapEntityBaseT*>& SrcEnts  = m_ChildFrame->GetMapClipboard().GetEntities();
+    const ArrayT<MapPrimitiveT*>&  SrcPrims = m_ChildFrame->GetMapClipboard().GetPrimitives();
+
     BoundingBox3fT ClipboardBB;
 
-    for (unsigned long ElemNr=0; ElemNr<m_ChildFrame->GetMapClipboard().Objects.Size(); ElemNr++)
-        ClipboardBB.InsertValid(m_ChildFrame->GetMapClipboard().Objects[ElemNr]->GetBB());
+    for (unsigned long EntNr = 0; EntNr < SrcEnts.Size(); EntNr++)
+        ClipboardBB.InsertValid(SrcEnts[EntNr]->GetElemsBB());
 
-    if (m_ChildFrame->GetMapClipboard().Objects.Size()==0) return;
+    for (unsigned long PrimNr = 0; PrimNr < SrcPrims.Size(); PrimNr++)
+        ClipboardBB.InsertValid(SrcPrims[PrimNr]->GetBB());
+
+    if (SrcEnts.Size() == 0 && SrcPrims.Size() == 0) return;
     if (!ClipboardBB.IsInited()) return;
 
     PasteSpecialDialogT PasteSpecialDialog(ClipboardBB);
 
-    if (PasteSpecialDialog.ShowModal()==wxID_CANCEL) return;
+    if (PasteSpecialDialog.ShowModal() == wxID_CANCEL) return;
 
-    wxBusyCursor BusyCursor;
+    wxBusyCursor      BusyCursor;
+    const Vector3fT   Translation = Vector3fT(PasteSpecialDialog.TranslateX, PasteSpecialDialog.TranslateY, PasteSpecialDialog.TranslateZ);
+    const Vector3fT   Rotation    = Vector3fT(PasteSpecialDialog.RotateX,    PasteSpecialDialog.RotateY,    PasteSpecialDialog.RotateZ);
+    ArrayT<CommandT*> SubCommands = CreatePasteCommands(Translation, Rotation, PasteSpecialDialog.NrOfCopies,
+                                        PasteSpecialDialog.GroupCopies, PasteSpecialDialog.CenterAtOriginal);
 
-    const Vector3fT Translation=Vector3fT(PasteSpecialDialog.TranslateX, PasteSpecialDialog.TranslateY, PasteSpecialDialog.TranslateZ);
-    const Vector3fT Rotation   =Vector3fT(PasteSpecialDialog.RotateX,    PasteSpecialDialog.RotateY,    PasteSpecialDialog.RotateZ);
-
-    CommandT* Command=new CommandPasteT(*this, m_ChildFrame->GetMapClipboard().Objects, m_ChildFrame->GetMapClipboard().OriginalCenter, m_ChildFrame->GuessUserVisiblePoint(),
-                                        Translation, Rotation, PasteSpecialDialog.NrOfCopies, PasteSpecialDialog.GroupCopies,
-                                        PasteSpecialDialog.CenterAtOriginal);
-
-    GetHistory().SubmitCommand(Command);
+    if (SubCommands.Size() > 0)
+    {
+        // Submit the composite macro command.
+        GetHistory().SubmitCommand(new CommandMacroT(SubCommands, "Paste Special"));
+    }
 
     m_ChildFrame->GetToolManager().SetActiveTool(GetToolTIM().FindTypeInfoByName("ToolSelectionT"));
 }
@@ -1698,7 +1861,11 @@ void MapDocumentT::OnUpdateToolsMaterialLock(wxUpdateUIEvent& UE)
 
 void MapDocumentT::OnUpdateEditPasteSpecial(wxUpdateUIEvent& UE)
 {
-    UE.Enable(m_ChildFrame->GetMapClipboard().Objects.Size()>0 && m_ChildFrame->GetToolManager().GetActiveToolType()!=&ToolEditSurfaceT::TypeInfo);
+    const ArrayT<MapEntityBaseT*>& SrcEnts  = m_ChildFrame->GetMapClipboard().GetEntities();
+    const ArrayT<MapPrimitiveT*>&  SrcPrims = m_ChildFrame->GetMapClipboard().GetPrimitives();
+
+    UE.Enable((SrcEnts.Size() > 0 || SrcPrims.Size() > 0) &&
+              m_ChildFrame->GetToolManager().GetActiveToolType() != &ToolEditSurfaceT::TypeInfo);
 }
 
 
