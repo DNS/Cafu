@@ -38,12 +38,12 @@ class CommandNewEntityT : public CommandT
     /// The constructor.
     /// @param MapDoc   Map document into which the entity is inserted.
     /// @param Entity   The entity to insert.
-    CommandNewEntityT(MapDocumentT& MapDoc, MapEntityBaseT* Entity);
+    CommandNewEntityT(MapDocumentT& MapDoc, MapEntityBaseT* Entity, bool SetSel=true);
 
     /// The constructor.
     /// @param MapDoc     Map document into which the entities are inserted.
     /// @param Entities   The entities to insert.
-    CommandNewEntityT(MapDocumentT& MapDoc, const ArrayT<MapEntityBaseT*>& Entities);
+    CommandNewEntityT(MapDocumentT& MapDoc, const ArrayT<MapEntityBaseT*>& Entities, bool SetSel=true);
 
     /// The destructor.
     ~CommandNewEntityT();
@@ -58,6 +58,7 @@ class CommandNewEntityT : public CommandT
 
     MapDocumentT&           m_MapDoc;
     ArrayT<MapEntityBaseT*> m_Entities;
+    const bool              m_SetSel;
     CommandSelectT*         m_CommandSelect;    ///< Subcommand for changing the selection.
 };
 

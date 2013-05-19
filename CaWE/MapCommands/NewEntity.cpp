@@ -28,18 +28,20 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../MapEntRepres.hpp"
 
 
-CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, MapEntityBaseT* Entity)
+CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, MapEntityBaseT* Entity, bool SetSel)
     : m_MapDoc(MapDoc),
       m_Entities(),
+      m_SetSel(SetSel),
       m_CommandSelect(NULL)
 {
     m_Entities.PushBack(Entity);
 }
 
 
-CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, const ArrayT<MapEntityBaseT*>& Entities)
+CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, const ArrayT<MapEntityBaseT*>& Entities, bool SetSel)
     : m_MapDoc(MapDoc),
       m_Entities(Entities),
+      m_SetSel(SetSel),
       m_CommandSelect(NULL)
 {
 }
@@ -67,8 +69,11 @@ bool CommandNewEntityT::Do()
 
     m_MapDoc.UpdateAllObservers_Created(m_Entities);
 
-    if (!m_CommandSelect) m_CommandSelect = CommandSelectT::Set(&m_MapDoc, m_Entities);
-    m_CommandSelect->Do();
+    if (m_SetSel && !m_CommandSelect)
+        m_CommandSelect = CommandSelectT::Set(&m_MapDoc, m_Entities);
+
+    if (m_CommandSelect)
+        m_CommandSelect->Do();
 
     m_Done=true;
     return true;
@@ -80,8 +85,8 @@ void CommandNewEntityT::Undo()
     wxASSERT(m_Done);
     if (!m_Done) return;
 
-    wxASSERT(m_CommandSelect);
-    m_CommandSelect->Undo();
+    if (m_CommandSelect)
+        m_CommandSelect->Undo();
 
     // Remove the entities from the map again.
     for (unsigned long EntNr = 0; EntNr < m_Entities.Size(); EntNr++)
