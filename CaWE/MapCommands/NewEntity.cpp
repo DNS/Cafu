@@ -30,7 +30,16 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, MapEntityBaseT* Entity)
     : m_MapDoc(MapDoc),
-      m_Entity(Entity),
+      m_Entities(),
+      m_CommandSelect(NULL)
+{
+    m_Entities.PushBack(Entity);
+}
+
+
+CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, const ArrayT<MapEntityBaseT*>& Entities)
+    : m_MapDoc(MapDoc),
+      m_Entities(Entities),
       m_CommandSelect(NULL)
 {
 }
@@ -39,7 +48,8 @@ CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, MapEntityBaseT* Entit
 CommandNewEntityT::~CommandNewEntityT()
 {
     if (!m_Done)
-        delete m_Entity;
+        for (unsigned long EntNr = 0; EntNr < m_Entities.Size(); EntNr++)
+            delete m_Entities[EntNr];
 
     delete m_CommandSelect;
 }
@@ -49,16 +59,15 @@ bool CommandNewEntityT::Do()
 {
     wxASSERT(!m_Done);
     if (m_Done) return false;
+    if (m_Entities.Size() == 0) return false;
 
-    // Insert the entity into the map.
-    m_MapDoc.Insert(m_Entity);
+    // Insert the entities into the map.
+    for (unsigned long EntNr = 0; EntNr < m_Entities.Size(); EntNr++)
+        m_MapDoc.Insert(m_Entities[EntNr]);
 
-    ArrayT<MapEntityBaseT*> Entities;
-    Entities.PushBack(m_Entity);
+    m_MapDoc.UpdateAllObservers_Created(m_Entities);
 
-    m_MapDoc.UpdateAllObservers_Created(Entities);
-
-    if (!m_CommandSelect) m_CommandSelect = CommandSelectT::Set(&m_MapDoc, m_Entity->GetRepres());
+    if (!m_CommandSelect) m_CommandSelect = CommandSelectT::Set(&m_MapDoc, m_Entities);
     m_CommandSelect->Do();
 
     m_Done=true;
@@ -74,13 +83,11 @@ void CommandNewEntityT::Undo()
     wxASSERT(m_CommandSelect);
     m_CommandSelect->Undo();
 
-    // Remove the entity from the map again.
-    m_MapDoc.Remove(m_Entity);
+    // Remove the entities from the map again.
+    for (unsigned long EntNr = 0; EntNr < m_Entities.Size(); EntNr++)
+        m_MapDoc.Remove(m_Entities[EntNr]);
 
-    ArrayT<MapEntityBaseT*> Entities;
-    Entities.PushBack(m_Entity);
-
-    m_MapDoc.UpdateAllObservers_Deleted(Entities);
+    m_MapDoc.UpdateAllObservers_Deleted(m_Entities);
 
     m_Done=false;
 }
@@ -88,5 +95,8 @@ void CommandNewEntityT::Undo()
 
 wxString CommandNewEntityT::GetName() const
 {
-    return "add \""+m_Entity->GetClass()->GetName()+"\" entity";
+    if (m_Entities.Size() == 1)
+        return "add \"" + m_Entities[0]->GetClass()->GetName() + "\" entity";
+
+    return wxString::Format("add %lu entities", m_Entities.Size());
 }
