@@ -22,6 +22,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Select.hpp"
 
 #include "../MapDocument.hpp"
+#include "../MapEntityBase.hpp"
+#include "../MapEntRepres.hpp"
 #include "../MapPrimitive.hpp"
 
 
@@ -110,12 +112,51 @@ CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, MapElementT* MapE
 }
 
 
-CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, const ArrayT<MapPrimitiveT*>& MapPrimitives)
+CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, const ArrayT<MapEntityBaseT*>& Entities)
 {
     ArrayT<MapElementT*> Elems;
 
-    for (unsigned long PrimNr = 0; PrimNr < MapPrimitives.Size(); PrimNr++)
-        Elems.PushBack(MapPrimitives[PrimNr]);
+    for (unsigned long EntNr = 0; EntNr < Entities.Size(); EntNr++)
+    {
+        MapEntityBaseT* Ent = Entities[EntNr];
+
+        Elems.PushBack(Ent->GetRepres());
+
+        for (unsigned long PrimNr = 0; PrimNr < Ent->GetPrimitives().Size(); PrimNr++)
+            Elems.PushBack(Ent->GetPrimitives()[PrimNr]);
+    }
+
+    return CommandSelectT::Set(MapDocument, Elems);
+}
+
+
+CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, const ArrayT<MapPrimitiveT*>& Primitives)
+{
+    ArrayT<MapElementT*> Elems;
+
+    for (unsigned long PrimNr = 0; PrimNr < Primitives.Size(); PrimNr++)
+        Elems.PushBack(Primitives[PrimNr]);
+
+    return CommandSelectT::Set(MapDocument, Elems);
+}
+
+
+CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, const ArrayT<MapEntityBaseT*>& Entities, const ArrayT<MapPrimitiveT*>& Primitives)
+{
+    ArrayT<MapElementT*> Elems;
+
+    for (unsigned long EntNr = 0; EntNr < Entities.Size(); EntNr++)
+    {
+        MapEntityBaseT* Ent = Entities[EntNr];
+
+        Elems.PushBack(Ent->GetRepres());
+
+        for (unsigned long PrimNr = 0; PrimNr < Ent->GetPrimitives().Size(); PrimNr++)
+            Elems.PushBack(Ent->GetPrimitives()[PrimNr]);
+    }
+
+    for (unsigned long PrimNr = 0; PrimNr < Primitives.Size(); PrimNr++)
+        Elems.PushBack(Primitives[PrimNr]);
 
     return CommandSelectT::Set(MapDocument, Elems);
 }
