@@ -692,51 +692,36 @@ void ToolSelectionT::RenderTool2D(Renderer2DT& Renderer) const
         {
             // Draw a preview of the selected objects ONLY if they're currently being modified (translated, scaled, rotated or sheared).
             // Objects that are selected but resting need not be drawn here - such objects already render themselves properly.
-            //
+            wxASSERT(m_TrafoBox.GetDragState() != TrafoBoxT::TH_NONE);  // A requirement for calling TrafoBoxT::ApplyTrafo().
+            if (m_TrafoBox.GetDragState() == TrafoBoxT::TH_NONE) return;
+
             // If too many individual elements are selected, do not draw them, for performance reasons.
             // The user will then only see the transformed box rectangle as rendered above.
-            {
-                const ArrayT<MapElementT*>& Selection=m_MapDoc.GetSelection();
-                unsigned long               Count    =0;
-
-                for (unsigned long SelNr=0; SelNr<Selection.Size(); SelNr++)
-                {
-                    if (MapPrimitiveT::TypeInfo.HierarchyHas(Selection[SelNr]->GetType()))
-                    {
-                        Count++;
-                        continue;
-                    }
-
-                    MapEntityBaseT* Ent=dynamic_cast<MapEntityBaseT*>(Selection[SelNr]);
-
-                    if (Ent)
-                    {
-                        Count+=Ent->GetPrimitives().Size();
-                        continue;
-                    }
-                }
-
-                if (Count>32) return;
-                if (Count==0) return;
-            }
+            if (m_MapDoc.GetSelection().Size() > 32) return;
 
             // Create copies of the currently selected elements, transform them, render them, then delete them again.
-            // The first, second and fourth steps are achieved by employing an appropriate transform command.
-            // Note that we force the cloning of elements and that the Do() method of TrafoCmd is never called!
-            wxASSERT(m_TrafoBox.GetDragState()!=TrafoBoxT::TH_NONE);   // A requirement for calling TrafoBoxT::GetTransformCommand().
-            CommandTransformT* TrafoCmd=m_TrafoBox.GetTrafoCommand(m_MapDoc, false, true);
+            ArrayT<MapElementT*> Elems;
 
-            if (!TrafoCmd) return;
-
-            const ArrayT<MapElementT*>& TransElems=TrafoCmd->GetClones();
-
-            for (unsigned long ElemNr=0; ElemNr<TransElems.Size(); ElemNr++)
+            for (unsigned long SelNr = 0; SelNr < m_MapDoc.GetSelection().Size(); SelNr++)
             {
-                TransElems[ElemNr]->SetSelected();
-                TransElems[ElemNr]->Render2D(Renderer);
+                Elems.PushBack(m_MapDoc.GetSelection()[SelNr]->Clone());
             }
 
-            delete TrafoCmd;
+            for (unsigned long ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
+            {
+                m_TrafoBox.ApplyTrafo(Elems[ElemNr]);
+
+                Elems[ElemNr]->SetSelected();
+                Elems[ElemNr]->Render2D(Renderer);
+            }
+
+            for (unsigned long ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
+            {
+                delete Elems[ElemNr];
+                Elems[ElemNr] = NULL;
+            }
+
+            Elems.Overwrite();
             break;
         }
     }
@@ -934,11 +919,7 @@ void ToolSelectionT::NudgeSelection(const AxesInfoT& AxesInfo, const wxKeyEvent&
 /// when the elements entity and group memberships are taken into account.
 void ToolSelectionT::GetToggleEffects(MapElementT* Elem, ArrayT<MapElementT*>& RemoveFromSel, ArrayT<MapElementT*>& AddToSel) const
 {
-    MapPrimitiveT* Prim = dynamic_cast<MapPrimitiveT*>(Elem);
-
-    wxASSERT(Prim);
-
-    MapEntityBaseT* Entity = Prim->GetParent();
+    MapEntityBaseT* Entity = Elem->GetParent();
 
     // If Prim belongs to a non-world entity, put all primitives of the entity into the appropriate lists.
     if (!Entity->IsWorld() /*&& m_OptionsBar->SelectWholeEntities() / TreatEntitiesAsGroups*/)
