@@ -350,7 +350,7 @@ bool ToolSelectionT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
 
             // Transform the selected map elements, possibly cloning if SHIFT is pressed.
             wxASSERT(m_TrafoBox.GetDragState()!=TrafoBoxT::TH_NONE);   // A requirement for calling TrafoBoxT::GetTrafoCommand().
-            CommandTransformT* TrafoCmd=m_TrafoBox.GetTrafoCommand(m_MapDoc, ME.ShiftDown(), false);
+            CommandTransformT* TrafoCmd=m_TrafoBox.GetTrafoCommand(m_MapDoc, ME.ShiftDown());
 
             // Now finish the box transformation (makes m_TrafoBox.GetDragState() return TrafoBoxT::TH_NONE again).
             m_TrafoBox.FinishTrafo();

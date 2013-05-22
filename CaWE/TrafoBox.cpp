@@ -410,7 +410,7 @@ bool TrafoBoxT::UpdateTrafo(const ViewWindow2DT& ViewWindow, const wxPoint& Poin
 }
 
 
-CommandTransformT* TrafoBoxT::GetTrafoCommand(MapDocumentT& MapDoc, bool UserWishClone, bool ForceClone) const
+CommandTransformT* TrafoBoxT::GetTrafoCommand(MapDocumentT& MapDoc, bool UserWishClone) const
 {
     const int HorzAxis  = m_DragAxes.HorzAxis;
     const int VertAxis  = m_DragAxes.VertAxis;
@@ -424,7 +424,7 @@ CommandTransformT* TrafoBoxT::GetTrafoCommand(MapDocumentT& MapDoc, bool UserWis
 
         if (m_Translate[HorzAxis] != 0 || m_Translate[VertAxis] != 0)
             return new CommandTransformT(MapDoc, MapDoc.GetSelection(), CommandTransformT::MODE_TRANSLATE,
-                                         Vector3fT(), m_Translate, UserWishClone || ForceClone);
+                                         Vector3fT(), m_Translate, UserWishClone);
     }
     else
     {
@@ -437,7 +437,7 @@ CommandTransformT* TrafoBoxT::GetTrafoCommand(MapDocumentT& MapDoc, bool UserWis
                 wxASSERT(m_Scale[ThirdAxis] == 1.0f);
 
                 if (m_Scale[HorzAxis] != 1.0f || m_Scale[VertAxis] != 1.0f)
-                    return new CommandTransformT(MapDoc, MapDoc.GetSelection(), CommandTransformT::MODE_SCALE, m_RefPos, m_Scale, ForceClone);
+                    return new CommandTransformT(MapDoc, MapDoc.GetSelection(), CommandTransformT::MODE_SCALE, m_RefPos, m_Scale, false /*DoClone*/);
                 break;
             }
 
@@ -447,7 +447,7 @@ CommandTransformT* TrafoBoxT::GetTrafoCommand(MapDocumentT& MapDoc, bool UserWis
                 Angles[ThirdAxis]=m_RotAngle;
 
                 if (Angles[ThirdAxis] != 0)
-                    return new CommandTransformT(MapDoc, MapDoc.GetSelection(), CommandTransformT::MODE_ROTATE, m_RefPos, Angles, ForceClone);
+                    return new CommandTransformT(MapDoc, MapDoc.GetSelection(), CommandTransformT::MODE_ROTATE, m_RefPos, Angles, false /*DoClone*/);
                 break;
             }
 
@@ -456,7 +456,7 @@ CommandTransformT* TrafoBoxT::GetTrafoCommand(MapDocumentT& MapDoc, bool UserWis
                 MatrixT ShearMatrix;
 
                 if (GetShearMatrix(ShearMatrix))
-                    return new CommandTransformT(MapDoc, MapDoc.GetSelection(), ShearMatrix, ForceClone);
+                    return new CommandTransformT(MapDoc, MapDoc.GetSelection(), ShearMatrix, false /*DoClone*/);
                 break;
             }
         }
