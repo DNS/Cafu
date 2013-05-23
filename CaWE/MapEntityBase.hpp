@@ -42,8 +42,10 @@ class MapEntityBaseT
     MapEntityBaseT(MapDocumentT& MapDoc);
 
     /// The copy constructor for copying a base entity.
-    /// @param Ent   The base entity to copy-construct this base entity from.
-    MapEntityBaseT(const MapEntityBaseT& Ent);
+    /// @param Ent         The base entity to copy-construct this base entity from.
+    /// @param CopyPrims   Whether the primitives of `Ent` should be copied into the new entity as well.
+    ///                    If `false`, the new entity will be created without any primitives.
+    MapEntityBaseT(const MapEntityBaseT& Ent, bool CopyPrims=true);
 
     /// The destructor.
     ~MapEntityBaseT();

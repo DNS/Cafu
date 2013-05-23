@@ -46,7 +46,7 @@ MapEntityBaseT::MapEntityBaseT(MapDocumentT& MapDoc)
 }
 
 
-MapEntityBaseT::MapEntityBaseT(const MapEntityBaseT& Ent)
+MapEntityBaseT::MapEntityBaseT(const MapEntityBaseT& Ent, bool CopyPrims)
     : m_MapDoc(Ent.m_MapDoc),
       m_Class(Ent.m_Class),
       m_Origin(Ent.m_Origin),
@@ -55,10 +55,13 @@ MapEntityBaseT::MapEntityBaseT(const MapEntityBaseT& Ent)
       m_Primitives()
 {
     // Deep-copy all primitives of Ent.
-    for (unsigned long PrimNr=0; PrimNr<Ent.m_Primitives.Size(); PrimNr++)
+    if (CopyPrims)
     {
-        m_Primitives.PushBack(Ent.m_Primitives[PrimNr]->Clone());
-        m_Primitives[PrimNr]->SetParent(this);
+        for (unsigned long PrimNr = 0; PrimNr < Ent.m_Primitives.Size(); PrimNr++)
+        {
+            m_Primitives.PushBack(Ent.m_Primitives[PrimNr]->Clone());
+            m_Primitives[PrimNr]->SetParent(this);
+        }
     }
 
     m_Repres = Ent.m_Repres->Clone();
