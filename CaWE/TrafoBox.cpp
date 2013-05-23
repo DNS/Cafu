@@ -423,8 +423,7 @@ CommandTransformT* TrafoBoxT::GetTrafoCommand(MapDocumentT& MapDoc) const
         wxASSERT(m_Translate[ThirdAxis] == 0.0f);   // Don't change anything along the third axis.
 
         if (m_Translate[HorzAxis] != 0 || m_Translate[VertAxis] != 0)
-            return new CommandTransformT(MapDoc, MapDoc.GetSelection(), CommandTransformT::MODE_TRANSLATE,
-                                         Vector3fT(), m_Translate, false /*DoClone*/);
+            return new CommandTransformT(MapDoc, MapDoc.GetSelection(), CommandTransformT::MODE_TRANSLATE, Vector3fT(), m_Translate);
     }
     else
     {
@@ -437,7 +436,7 @@ CommandTransformT* TrafoBoxT::GetTrafoCommand(MapDocumentT& MapDoc) const
                 wxASSERT(m_Scale[ThirdAxis] == 1.0f);
 
                 if (m_Scale[HorzAxis] != 1.0f || m_Scale[VertAxis] != 1.0f)
-                    return new CommandTransformT(MapDoc, MapDoc.GetSelection(), CommandTransformT::MODE_SCALE, m_RefPos, m_Scale, false /*DoClone*/);
+                    return new CommandTransformT(MapDoc, MapDoc.GetSelection(), CommandTransformT::MODE_SCALE, m_RefPos, m_Scale);
                 break;
             }
 
@@ -447,7 +446,7 @@ CommandTransformT* TrafoBoxT::GetTrafoCommand(MapDocumentT& MapDoc) const
                 Angles[ThirdAxis]=m_RotAngle;
 
                 if (Angles[ThirdAxis] != 0)
-                    return new CommandTransformT(MapDoc, MapDoc.GetSelection(), CommandTransformT::MODE_ROTATE, m_RefPos, Angles, false /*DoClone*/);
+                    return new CommandTransformT(MapDoc, MapDoc.GetSelection(), CommandTransformT::MODE_ROTATE, m_RefPos, Angles);
                 break;
             }
 
@@ -456,7 +455,7 @@ CommandTransformT* TrafoBoxT::GetTrafoCommand(MapDocumentT& MapDoc) const
                 MatrixT ShearMatrix;
 
                 if (GetShearMatrix(ShearMatrix))
-                    return new CommandTransformT(MapDoc, MapDoc.GetSelection(), ShearMatrix, false /*DoClone*/);
+                    return new CommandTransformT(MapDoc, MapDoc.GetSelection(), ShearMatrix);
                 break;
             }
         }

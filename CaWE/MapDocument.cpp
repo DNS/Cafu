@@ -1803,7 +1803,7 @@ void MapDocumentT::OnToolsTransform(wxCommandEvent& CE)
         }
 
         GetHistory().SubmitCommand(
-            new CommandTransformT(*this, m_Selection, Mode, RefPoint, Value, false /*don't clone*/));
+            new CommandTransformT(*this, m_Selection, Mode, RefPoint, Value));
     }
 }
 

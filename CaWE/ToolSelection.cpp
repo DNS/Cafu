@@ -1004,7 +1004,7 @@ void ToolSelectionT::NudgeSelection(const AxesInfoT& AxesInfo, const wxKeyEvent&
     }
 
     m_MapDoc.GetHistory().SubmitCommand(
-        new CommandTransformT(m_MapDoc, m_MapDoc.GetSelection(), CommandTransformT::MODE_TRANSLATE, Vector3fT(), NudgeVec, false /*don't clone*/));
+        new CommandTransformT(m_MapDoc, m_MapDoc.GetSelection(), CommandTransformT::MODE_TRANSLATE, Vector3fT(), NudgeVec));
 }
 
 
