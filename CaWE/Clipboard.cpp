@@ -47,7 +47,11 @@ void ClipboardT::CopyFrom(const ArrayT<MapElementT*>& Elems)
         if (Repres)
         {
             SourceEnts.PushBack(Repres->GetParent());
-            m_Entities.PushBack(new MapEntityBaseT(*Repres->GetParent()));  // TODO: The new instance is still referring to the original MapDoc and its entity classes!!!!!
+
+            // TODO: The new instance is referring to the original MapDoc and its entity classes!!!!!
+
+            // Note that we don't want the primitives of the source entity copied!
+            m_Entities.PushBack(new MapEntityBaseT(*Repres->GetParent(), false /*CopyPrims*/));
         }
     }
 

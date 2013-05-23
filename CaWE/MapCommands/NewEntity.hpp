@@ -38,11 +38,13 @@ class CommandNewEntityT : public CommandT
     /// The constructor.
     /// @param MapDoc   Map document into which the entity is inserted.
     /// @param Entity   The entity to insert.
+    /// @param SetSel   Whether the inserted entity should automatically be selected.
     CommandNewEntityT(MapDocumentT& MapDoc, MapEntityBaseT* Entity, bool SetSel=true);
 
     /// The constructor.
     /// @param MapDoc     Map document into which the entities are inserted.
     /// @param Entities   The entities to insert.
+    /// @param SetSel     Whether the inserted entities should automatically be selected.
     CommandNewEntityT(MapDocumentT& MapDoc, const ArrayT<MapEntityBaseT*>& Entities, bool SetSel=true);
 
     /// The destructor.

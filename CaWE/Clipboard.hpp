@@ -30,9 +30,9 @@ class MapEntityBaseT;
 class MapPrimitiveT;
 
 
-/// The class represents the Map Editors clipboard.
 namespace MapEditor
 {
+    /// This class represents the Map Editors clipboard.
     class ClipboardT
     {
         public:
