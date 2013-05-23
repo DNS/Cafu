@@ -42,6 +42,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "DialogEditSurfaceProps.hpp"
 
 #include "MapCommands/AddPrim.hpp"
+#include "MapCommands/NewEntity.hpp"
 #include "MapCommands/Transform.hpp"
 #include "MapCommands/SetProp.hpp"
 #include "MapCommands/Select.hpp"
@@ -246,6 +247,53 @@ bool ToolSelectionT::OnLMouseDown2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
 }
 
 
+namespace
+{
+    void DeepCopy(const ArrayT<MapElementT*>& SourceElems, ArrayT<MapEntityBaseT*>& NewEnts, ArrayT<MapPrimitiveT*>& NewPrims, ArrayT<MapElementT*>& NewElems)
+    {
+        ArrayT<MapEntityBaseT*> SourceEnts;
+
+        // First pass: Consider the MapEntRepresT instances.
+        for (unsigned long ElemNr = 0; ElemNr < SourceElems.Size(); ElemNr++)
+        {
+            MapEntRepresT* Repres = dynamic_cast<MapEntRepresT*>(SourceElems[ElemNr]);
+
+            if (Repres)
+            {
+                SourceEnts.PushBack(Repres->GetParent());
+
+                // The new instance is referring to the same MapDoc as the source entity (ok),
+                // and to the same entity class (also ok).
+                // Note that we don't want the primitives of the source entity copied!
+                NewEnts.PushBack(new MapEntityBaseT(*Repres->GetParent(), false /*CopyPrims*/));
+            }
+        }
+
+        // Second pass: Consider the MapPrimitiveT instances.
+        for (unsigned long ElemNr = 0; ElemNr < SourceElems.Size(); ElemNr++)
+        {
+            MapPrimitiveT* Prim = dynamic_cast<MapPrimitiveT*>(SourceElems[ElemNr]);
+
+            if (Prim)
+            {
+                const int EntNr = SourceEnts.Find(Prim->GetParent());
+
+                if (EntNr >= 0)
+                {
+                    NewEnts[EntNr]->AddPrim(Prim->Clone());
+                }
+                else
+                {
+                    NewPrims.PushBack(Prim->Clone());
+                }
+            }
+        }
+
+        // For each element in NewEnts and NewPrims, add a pointer to NewElems.
+    }
+}
+
+
 bool ToolSelectionT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
 {
     m_CycleHitsTimer.Stop();
@@ -349,8 +397,53 @@ bool ToolSelectionT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
             //      allowed when *no* transformation is active.
 
             // Transform the selected map elements, possibly cloning if SHIFT is pressed.
-            wxASSERT(m_TrafoBox.GetDragState()!=TrafoBoxT::TH_NONE);   // A requirement for calling TrafoBoxT::GetTrafoCommand().
-            CommandTransformT* TrafoCmd=m_TrafoBox.GetTrafoCommand(m_MapDoc, ME.ShiftDown());
+            wxASSERT(m_TrafoBox.GetDragState() != TrafoBoxT::TH_NONE);   // A requirement for calling TrafoBoxT::GetTrafoCommand().
+
+            CommandT* TrafoCmd = NULL;
+
+            if (ME.ShiftDown())
+            {
+                ArrayT<MapEntityBaseT*> NewEnts;
+                ArrayT<MapPrimitiveT*>  NewPrims;
+                ArrayT<MapElementT*>    NewElems;
+
+                DeepCopy(m_MapDoc.GetSelection(), NewEnts, NewPrims, NewElems);
+
+                for (unsigned long ElemNr = 0; ElemNr < NewElems.Size(); ElemNr++)
+                    m_TrafoBox.ApplyTrafo(NewElems[ElemNr]);
+
+                ArrayT<CommandT*> SubCommands;
+
+                if (NewEnts.Size() > 0)
+                {
+                    CommandNewEntityT* CmdNewEnt = new CommandNewEntityT(m_MapDoc, NewEnts, false /*don't select*/);
+
+                    CmdNewEnt->Do();
+                    SubCommands.PushBack(CmdNewEnt);
+                }
+
+                if (NewPrims.Size() > 0)
+                {
+                    CommandAddPrimT* CmdAddPrim = new CommandAddPrimT(m_MapDoc, NewPrims, m_MapDoc.GetEntities()[0], "insert prims", false /*don't select*/);
+
+                    CmdAddPrim->Do();
+                    SubCommands.PushBack(CmdAddPrim);
+                }
+
+                if (SubCommands.Size() > 0)
+                {
+                    CommandSelectT* CmdSel = CommandSelectT::Set(&m_MapDoc, NewEnts, NewPrims);
+
+                    CmdSel->Do();
+                    SubCommands.PushBack(CmdSel);
+
+                    TrafoCmd = new CommandMacroT(SubCommands, "Clone");
+                }
+            }
+            else
+            {
+                TrafoCmd = m_TrafoBox.GetTrafoCommand(m_MapDoc, false /*UserWishClone*/ /*This param should be REMOVED!*/);
+            }
 
             // Now finish the box transformation (makes m_TrafoBox.GetDragState() return TrafoBoxT::TH_NONE again).
             m_TrafoBox.FinishTrafo();
