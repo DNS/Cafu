@@ -410,7 +410,7 @@ bool TrafoBoxT::UpdateTrafo(const ViewWindow2DT& ViewWindow, const wxPoint& Poin
 }
 
 
-CommandTransformT* TrafoBoxT::GetTrafoCommand(MapDocumentT& MapDoc, bool UserWishClone) const
+CommandTransformT* TrafoBoxT::GetTrafoCommand(MapDocumentT& MapDoc) const
 {
     const int HorzAxis  = m_DragAxes.HorzAxis;
     const int VertAxis  = m_DragAxes.VertAxis;
@@ -424,7 +424,7 @@ CommandTransformT* TrafoBoxT::GetTrafoCommand(MapDocumentT& MapDoc, bool UserWis
 
         if (m_Translate[HorzAxis] != 0 || m_Translate[VertAxis] != 0)
             return new CommandTransformT(MapDoc, MapDoc.GetSelection(), CommandTransformT::MODE_TRANSLATE,
-                                         Vector3fT(), m_Translate, UserWishClone);
+                                         Vector3fT(), m_Translate, false /*DoClone*/);
     }
     else
     {

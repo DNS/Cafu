@@ -442,7 +442,7 @@ bool ToolSelectionT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
             }
             else
             {
-                TrafoCmd = m_TrafoBox.GetTrafoCommand(m_MapDoc, false /*UserWishClone*/ /*This param should be REMOVED!*/);
+                TrafoCmd = m_TrafoBox.GetTrafoCommand(m_MapDoc);
             }
 
             // Now finish the box transformation (makes m_TrafoBox.GetDragState() return TrafoBoxT::TH_NONE again).

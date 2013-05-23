@@ -105,7 +105,7 @@ class TrafoBoxT
     /// This method creates a transform command, according to the current state of the box.
     /// IMPORTANT NOTE: This method must be called after a call to BeginTrafo() and *before* the matching call to EndTrafo()!
     /// @returns the generated transform command, or NULL if no command could be generated.
-    CommandTransformT* GetTrafoCommand(MapDocumentT& MapDoc, bool UserWishClone) const;
+    CommandTransformT* GetTrafoCommand(MapDocumentT& MapDoc) const;
 
     /// Like GetTrafoCommand(), but applies the transformation to the given element immediately.
     void ApplyTrafo(MapElementT* Elem) const;
