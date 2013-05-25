@@ -20,22 +20,78 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Clipboard.hpp"
-#include "MapElement.hpp"
+#include "MapEntityBase.hpp"
+#include "MapEntRepres.hpp"
 
 
-void MapEditor::ClipboardT::Clear()
+using namespace MapEditor;
+
+
+ClipboardT::~ClipboardT()
 {
-    for (unsigned long ElemNr = 0; ElemNr < Objects.Size(); ElemNr++)
-    {
-        delete Objects[ElemNr];
-        Objects[ElemNr] = NULL;
-    }
-
-    Objects.Overwrite();
+    Clear();
 }
 
 
-MapEditor::ClipboardT::~ClipboardT()
+void ClipboardT::CopyFrom(const ArrayT<MapElementT*>& Elems)
 {
     Clear();
+
+    ArrayT<MapEntityBaseT*> SourceEnts;
+
+    // First pass: Consider the MapEntRepresT instances.
+    for (unsigned long ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
+    {
+        MapEntRepresT* Repres = dynamic_cast<MapEntRepresT*>(Elems[ElemNr]);
+
+        if (Repres)
+        {
+            SourceEnts.PushBack(Repres->GetParent());
+
+            // TODO: The new instance is referring to the original MapDoc and its entity classes!!!!!
+
+            // Note that we don't want the primitives of the source entity copied!
+            m_Entities.PushBack(new MapEntityBaseT(*Repres->GetParent(), false /*CopyPrims*/));
+        }
+    }
+
+    // Second pass: Consider the MapPrimitiveT instances.
+    for (unsigned long ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
+    {
+        MapPrimitiveT* Prim = dynamic_cast<MapPrimitiveT*>(Elems[ElemNr]);
+
+        if (Prim)
+        {
+            const int EntNr = SourceEnts.Find(Prim->GetParent());
+
+            if (EntNr >= 0)
+            {
+                m_Entities[EntNr]->AddPrim(Prim->Clone());
+            }
+            else
+            {
+                m_Primitives.PushBack(Prim->Clone());
+            }
+        }
+    }
+}
+
+
+void ClipboardT::Clear()
+{
+    for (unsigned long EntNr = 0; EntNr < m_Entities.Size(); EntNr++)
+    {
+        delete m_Entities[EntNr];
+        m_Entities[EntNr] = NULL;
+    }
+
+    m_Entities.Overwrite();
+
+    for (unsigned long PrimNr = 0; PrimNr < m_Primitives.Size(); PrimNr++)
+    {
+        delete m_Primitives[PrimNr];
+        m_Primitives[PrimNr] = NULL;
+    }
+
+    m_Primitives.Overwrite();
 }

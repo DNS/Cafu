@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../EntityClass.hpp"
 #include "../MapDocument.hpp"
 #include "../MapEntityBase.hpp"
+#include "../MapEntRepres.hpp"
 #include "../MapPrimitive.hpp"
 
 
@@ -95,7 +96,7 @@ bool CommandAssignPrimToEntT::Do()
             // If the entity is not the world, has no origin and is empty now, just delete it.
             if (Ent->GetClass()->IsSolidClass() /*!Ent->HasOrigin()*/ && Ent->GetPrimitives().Size()==0)
             {
-                EmptyEntities.PushBack(Ent);
+                EmptyEntities.PushBack(Ent->GetRepres());
             }
         }
 
@@ -108,7 +109,7 @@ bool CommandAssignPrimToEntT::Do()
     {
         ArrayT<MapElementT*> EntElems;
 
-        EntElems.PushBack(m_Entity);
+        EntElems.PushBack(m_Entity->GetRepres());
         for (unsigned long PrimNr=0; PrimNr<m_Entity->GetPrimitives().Size(); PrimNr++)
             EntElems.PushBack(m_Entity->GetPrimitives()[PrimNr]);
 

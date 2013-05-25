@@ -26,7 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 class MapDocumentT;
-class MapEntityT;
+class MapEntityBaseT;
 class EntityClassT;
 class EntPropertyT;
 
@@ -39,7 +39,7 @@ class CommandChangeClassT : public CommandT
     /// @param MapDoc     The map document that the entity lives in.
     /// @param Entity     Cannot be NULL.
     /// @param NewClass   The new class for the entity.
-    CommandChangeClassT(MapDocumentT& MapDoc, MapEntityT* Entity, const EntityClassT* NewClass);
+    CommandChangeClassT(MapDocumentT& MapDoc, MapEntityBaseT* Entity, const EntityClassT* NewClass);
 
     // Implementation of the CommandT interface.
     bool Do();
@@ -49,7 +49,7 @@ class CommandChangeClassT : public CommandT
 
     private:
 
-    MapEntityT*                m_Entity;
+    MapEntityBaseT*            m_Entity;
     const ArrayT<EntPropertyT> m_PrevProps; ///< Changing the class of an entity can update (alter) the properties as well, so we need to remember previous properties for restoring them on Undo().
     MapDocumentT&              m_MapDoc;
     const EntityClassT*        m_NewClass;

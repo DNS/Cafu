@@ -142,7 +142,7 @@ void InspDlgPrimitivePropsT::NotifySubjectChanged_Selection(SubjectT* Subject, c
 }
 
 
-void InspDlgPrimitivePropsT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements)
+void InspDlgPrimitivePropsT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapPrimitiveT*>& Primitives)
 {
     // No need to act on deleted objects.
     // If the deletion of an object changes the current selection the inspector is notified in the NotifySubjectChanged_Selection method.

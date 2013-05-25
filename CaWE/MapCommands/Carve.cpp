@@ -178,7 +178,7 @@ bool CommandCarveT::Do()
     }
 
     // Replace affected brushes by the results of the carve operation.
-    ArrayT<MapElementT*> AllPieces;
+    ArrayT<MapPrimitiveT*> AllPieces;
 
     for (unsigned long BrushNr=0; BrushNr<m_OriginalBrushes.Size(); BrushNr++)
     {
@@ -206,7 +206,7 @@ void CommandCarveT::Undo()
     // Remove carved brushes from world.
     // Note that we do not need to use a delete command here, because the carved brushes are never selected
     // and their parent is always the world.
-    ArrayT<MapElementT*> AllPieces;
+    ArrayT<MapPrimitiveT*> AllPieces;
 
     for (unsigned long BrushNr=0; BrushNr<m_OriginalBrushes.Size(); BrushNr++)
     {

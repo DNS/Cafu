@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrameViewWin2D.hpp"
 #include "CursorMan.hpp"
 #include "MapDocument.hpp"
+#include "MapElement.hpp"
 #include "Options.hpp"
 #include "Renderer2D.hpp"
 #include "Renderer3D.hpp"
@@ -409,21 +410,20 @@ bool TrafoBoxT::UpdateTrafo(const ViewWindow2DT& ViewWindow, const wxPoint& Poin
 }
 
 
-CommandTransformT* TrafoBoxT::GetTrafoCommand(MapDocumentT& MapDoc, bool UserWishClone, bool ForceClone) const
+CommandTransformT* TrafoBoxT::GetTrafoCommand(MapDocumentT& MapDoc) const
 {
-    const int HorzAxis =m_DragAxes.HorzAxis;
-    const int VertAxis =m_DragAxes.VertAxis;
-    const int ThirdAxis=m_DragAxes.ThirdAxis;
+    const int HorzAxis  = m_DragAxes.HorzAxis;
+    const int VertAxis  = m_DragAxes.VertAxis;
+    const int ThirdAxis = m_DragAxes.ThirdAxis;
 
-    if (m_DragState==TH_NONE) return NULL;
+    if (m_DragState == TH_NONE) return NULL;
 
-    if (m_DragState==TH_BODY)
+    if (m_DragState == TH_BODY)
     {
-        wxASSERT(m_Translate[ThirdAxis]==0.0f);   // Don't change anything along the third axis.
+        wxASSERT(m_Translate[ThirdAxis] == 0.0f);   // Don't change anything along the third axis.
 
-        if (m_Translate[HorzAxis]!=0 || m_Translate[VertAxis]!=0)
-            return new CommandTransformT(MapDoc, MapDoc.GetSelection(), CommandTransformT::MODE_TRANSLATE,
-                                         Vector3fT(), m_Translate, UserWishClone || ForceClone);
+        if (m_Translate[HorzAxis] != 0 || m_Translate[VertAxis] != 0)
+            return new CommandTransformT(MapDoc, MapDoc.GetSelection(), CommandTransformT::MODE_TRANSLATE, Vector3fT(), m_Translate);
     }
     else
     {
@@ -431,12 +431,12 @@ CommandTransformT* TrafoBoxT::GetTrafoCommand(MapDocumentT& MapDoc, bool UserWis
         {
             case TM_SCALE:
             {
-                wxASSERT((m_DragState & (TH_LEFT | TH_RIGHT )) || m_Scale[HorzAxis]==1.0f);
-                wxASSERT((m_DragState & (TH_TOP  | TH_BOTTOM)) || m_Scale[VertAxis]==1.0f);
-                wxASSERT(m_Scale[ThirdAxis]==1.0f);
+                wxASSERT((m_DragState & (TH_LEFT | TH_RIGHT )) || m_Scale[HorzAxis] == 1.0f);
+                wxASSERT((m_DragState & (TH_TOP  | TH_BOTTOM)) || m_Scale[VertAxis] == 1.0f);
+                wxASSERT(m_Scale[ThirdAxis] == 1.0f);
 
-                if (m_Scale[HorzAxis]!=1.0f || m_Scale[VertAxis]!=1.0f)
-                    return new CommandTransformT(MapDoc, MapDoc.GetSelection(), CommandTransformT::MODE_SCALE, m_RefPos, m_Scale, ForceClone);
+                if (m_Scale[HorzAxis] != 1.0f || m_Scale[VertAxis] != 1.0f)
+                    return new CommandTransformT(MapDoc, MapDoc.GetSelection(), CommandTransformT::MODE_SCALE, m_RefPos, m_Scale);
                 break;
             }
 
@@ -445,8 +445,8 @@ CommandTransformT* TrafoBoxT::GetTrafoCommand(MapDocumentT& MapDoc, bool UserWis
                 Vector3fT Angles;
                 Angles[ThirdAxis]=m_RotAngle;
 
-                if (Angles[ThirdAxis]!=0)
-                    return new CommandTransformT(MapDoc, MapDoc.GetSelection(), CommandTransformT::MODE_ROTATE, m_RefPos, Angles, ForceClone);
+                if (Angles[ThirdAxis] != 0)
+                    return new CommandTransformT(MapDoc, MapDoc.GetSelection(), CommandTransformT::MODE_ROTATE, m_RefPos, Angles);
                 break;
             }
 
@@ -455,13 +455,66 @@ CommandTransformT* TrafoBoxT::GetTrafoCommand(MapDocumentT& MapDoc, bool UserWis
                 MatrixT ShearMatrix;
 
                 if (GetShearMatrix(ShearMatrix))
-                    return new CommandTransformT(MapDoc, MapDoc.GetSelection(), ShearMatrix, ForceClone);
+                    return new CommandTransformT(MapDoc, MapDoc.GetSelection(), ShearMatrix);
                 break;
             }
         }
     }
 
     return NULL;
+}
+
+
+void TrafoBoxT::ApplyTrafo(MapElementT* Elem) const
+{
+    const int HorzAxis  = m_DragAxes.HorzAxis;
+    const int VertAxis  = m_DragAxes.VertAxis;
+    const int ThirdAxis = m_DragAxes.ThirdAxis;
+
+    if (m_DragState == TH_NONE) return;
+
+    if (m_DragState == TH_BODY)
+    {
+        wxASSERT(m_Translate[ThirdAxis] == 0.0f);   // Don't change anything along the third axis.
+
+        if (m_Translate[HorzAxis] != 0 || m_Translate[VertAxis] != 0)
+            Elem->TrafoMove(m_Translate);
+    }
+    else
+    {
+        switch (m_TrafoMode)
+        {
+            case TM_SCALE:
+            {
+                wxASSERT((m_DragState & (TH_LEFT | TH_RIGHT )) || m_Scale[HorzAxis] == 1.0f);
+                wxASSERT((m_DragState & (TH_TOP  | TH_BOTTOM)) || m_Scale[VertAxis] == 1.0f);
+                wxASSERT(m_Scale[ThirdAxis] == 1.0f);
+
+                if (m_Scale[HorzAxis] != 1.0f || m_Scale[VertAxis] != 1.0f)
+                    Elem->TrafoScale(m_RefPos, m_Scale);
+                break;
+            }
+
+            case TM_ROTATE:
+            {
+                Vector3fT Angles;
+                Angles[ThirdAxis]=m_RotAngle;
+
+                if (Angles[ThirdAxis] != 0)
+                    Elem->TrafoRotate(m_RefPos, Angles);
+                break;
+            }
+
+            case TM_SHEAR:
+            {
+                MatrixT ShearMatrix;
+
+                if (GetShearMatrix(ShearMatrix))
+                    Elem->Transform(ShearMatrix);
+                break;
+            }
+        }
+    }
 }
 
 

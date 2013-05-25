@@ -27,7 +27,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CommandHistory.hpp"
 #include "DialogInspector.hpp"
 #include "MapDocument.hpp"
-#include "MapEntity.hpp"
+#include "MapEntityBase.hpp"
+#include "MapEntRepres.hpp"
 #include "MapModel.hpp"
 #include "MapPlant.hpp"
 #include "ChildFrame.hpp"
@@ -41,6 +42,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "DialogEditSurfaceProps.hpp"
 
 #include "MapCommands/AddPrim.hpp"
+#include "MapCommands/NewEntity.hpp"
 #include "MapCommands/Transform.hpp"
 #include "MapCommands/SetProp.hpp"
 #include "MapCommands/Select.hpp"
@@ -245,6 +247,63 @@ bool ToolSelectionT::OnLMouseDown2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
 }
 
 
+namespace
+{
+    void DeepCopy(const ArrayT<MapElementT*>& SourceElems, ArrayT<MapEntityBaseT*>& NewEnts, ArrayT<MapPrimitiveT*>& NewPrims, ArrayT<MapElementT*>& NewElems)
+    {
+        ArrayT<MapEntityBaseT*> SourceEnts;
+
+        // First pass: Consider the MapEntRepresT instances.
+        for (unsigned long ElemNr = 0; ElemNr < SourceElems.Size(); ElemNr++)
+        {
+            MapEntRepresT* Repres = dynamic_cast<MapEntRepresT*>(SourceElems[ElemNr]);
+
+            if (Repres)
+            {
+                SourceEnts.PushBack(Repres->GetParent());
+
+                // The new instance is referring to the same MapDoc as the source entity (ok),
+                // and to the same entity class (also ok).
+                // Note that we don't want the primitives of the source entity copied!
+                NewEnts.PushBack(new MapEntityBaseT(*Repres->GetParent(), false /*CopyPrims*/));
+            }
+        }
+
+        // Second pass: Consider the MapPrimitiveT instances.
+        for (unsigned long ElemNr = 0; ElemNr < SourceElems.Size(); ElemNr++)
+        {
+            MapPrimitiveT* Prim = dynamic_cast<MapPrimitiveT*>(SourceElems[ElemNr]);
+
+            if (Prim)
+            {
+                const int EntNr = SourceEnts.Find(Prim->GetParent());
+
+                if (EntNr >= 0)
+                {
+                    NewEnts[EntNr]->AddPrim(Prim->Clone());
+                }
+                else
+                {
+                    NewPrims.PushBack(Prim->Clone());
+                }
+            }
+        }
+
+        // For each element in NewEnts and NewPrims, add a pointer to NewElems.
+        for (unsigned long EntNr = 0; EntNr < NewEnts.Size(); EntNr++)
+        {
+            NewElems.PushBack(NewEnts[EntNr]->GetRepres());
+
+            for (unsigned long PrimNr = 0; PrimNr < NewEnts[EntNr]->GetPrimitives().Size(); PrimNr++)
+                NewElems.PushBack(NewEnts[EntNr]->GetPrimitives()[PrimNr]);
+        }
+
+        for (unsigned long PrimNr = 0; PrimNr < NewPrims.Size(); PrimNr++)
+            NewElems.PushBack(NewPrims[PrimNr]);
+    }
+}
+
+
 bool ToolSelectionT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
 {
     m_CycleHitsTimer.Stop();
@@ -294,15 +353,15 @@ bool ToolSelectionT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
         {
             // Select (or toggle) all elements in the dragged rectangle.
             const BoundingBox3fT       DragBB(m_LDownPosWorld, m_LDragPosWorld);
-            const bool                 InsideOnly=ME.ShiftDown();
-            const ArrayT<MapElementT*> ElemsInBB=m_MapDoc.GetElementsIn(DragBB, InsideOnly, Options.view2d.SelectByHandles);
+            const bool                 InsideOnly = ME.ShiftDown();
+            const ArrayT<MapElementT*> ElemsInBB = m_MapDoc.GetElementsIn(DragBB, InsideOnly, Options.view2d.SelectByHandles);
 
             ArrayT<MapElementT*> RemoveFromSel;
             ArrayT<MapElementT*> AddToSel;
 
             for (unsigned long ElemNr=0; ElemNr<ElemsInBB.Size(); ElemNr++)
             {
-                MapElementT* Elem=ElemsInBB[ElemNr];
+                MapElementT* Elem = ElemsInBB[ElemNr];
 
                 // Skip hidden (invisible) elements.
                 if (!Elem->IsVisible()) continue;
@@ -348,18 +407,73 @@ bool ToolSelectionT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
             //      allowed when *no* transformation is active.
 
             // Transform the selected map elements, possibly cloning if SHIFT is pressed.
-            wxASSERT(m_TrafoBox.GetDragState()!=TrafoBoxT::TH_NONE);   // A requirement for calling TrafoBoxT::GetTrafoCommand().
-            CommandTransformT* TrafoCmd=m_TrafoBox.GetTrafoCommand(m_MapDoc, ME.ShiftDown(), false);
+            wxASSERT(m_TrafoBox.GetDragState() != TrafoBoxT::TH_NONE);   // A requirement for calling TrafoBoxT::GetTrafoCommand().
 
-            // Now finish the box transformation (makes m_TrafoBox.GetDragState() return TrafoBoxT::TH_NONE again).
-            m_TrafoBox.FinishTrafo();
+            CommandT* TrafoCmd = NULL;
 
-            // I don't understand exactly why, but we have to atomically set both the m_TrafoBox as well as the m_ToolState here
-            // (m_ToolState is set to TS_IDLE universally below again, which normally appears to be sufficient).
-            // However, it seems that somewhere in the call to SubmitCommand(), wxMSW finds an opportunity to dispatch more
-            // (mouse) events; so without the following line, we enter OnMouseMove2D() in m_ToolState TS_BOX_TRAFO while
-            // m_TrafoBox.GetDragState() yields the mismatching TH_NONE.
-            m_ToolState=TS_IDLE;
+            if (ME.ShiftDown())
+            {
+                ArrayT<MapEntityBaseT*> NewEnts;
+                ArrayT<MapPrimitiveT*>  NewPrims;
+                ArrayT<MapElementT*>    NewElems;
+
+                DeepCopy(m_MapDoc.GetSelection(), NewEnts, NewPrims, NewElems);
+
+                for (unsigned long ElemNr = 0; ElemNr < NewElems.Size(); ElemNr++)
+                    m_TrafoBox.ApplyTrafo(NewElems[ElemNr]);
+
+                // Now finish the box transformation (makes m_TrafoBox.GetDragState() return TrafoBoxT::TH_NONE again).
+                m_TrafoBox.FinishTrafo();
+
+                // I don't understand exactly why, but we have to atomically set both the m_TrafoBox as well as the m_ToolState here
+                // (m_ToolState is set to TS_IDLE universally below again, which normally appears to be sufficient).
+                // However, it seems that somewhere in the call to SubmitCommand(), wxMSW finds an opportunity to dispatch more
+                // (mouse) events; so without the following line, we enter OnMouseMove2D() in m_ToolState TS_BOX_TRAFO while
+                // m_TrafoBox.GetDragState() yields the mismatching TH_NONE.
+                m_ToolState = TS_IDLE;
+
+                ArrayT<CommandT*> SubCommands;
+
+                if (NewEnts.Size() > 0)
+                {
+                    CommandNewEntityT* CmdNewEnt = new CommandNewEntityT(m_MapDoc, NewEnts, false /*don't select*/);
+
+                    CmdNewEnt->Do();
+                    SubCommands.PushBack(CmdNewEnt);
+                }
+
+                if (NewPrims.Size() > 0)
+                {
+                    CommandAddPrimT* CmdAddPrim = new CommandAddPrimT(m_MapDoc, NewPrims, m_MapDoc.GetEntities()[0], "insert prims", false /*don't select*/);
+
+                    CmdAddPrim->Do();
+                    SubCommands.PushBack(CmdAddPrim);
+                }
+
+                if (SubCommands.Size() > 0)
+                {
+                    CommandSelectT* CmdSel = CommandSelectT::Set(&m_MapDoc, NewEnts, NewPrims);
+
+                    CmdSel->Do();
+                    SubCommands.PushBack(CmdSel);
+
+                    TrafoCmd = new CommandMacroT(SubCommands, "Clone");
+                }
+            }
+            else
+            {
+                TrafoCmd = m_TrafoBox.GetTrafoCommand(m_MapDoc);
+
+                // Now finish the box transformation (makes m_TrafoBox.GetDragState() return TrafoBoxT::TH_NONE again).
+                m_TrafoBox.FinishTrafo();
+
+                // I don't understand exactly why, but we have to atomically set both the m_TrafoBox as well as the m_ToolState here
+                // (m_ToolState is set to TS_IDLE universally below again, which normally appears to be sufficient).
+                // However, it seems that somewhere in the call to SubmitCommand(), wxMSW finds an opportunity to dispatch more
+                // (mouse) events; so without the following line, we enter OnMouseMove2D() in m_ToolState TS_BOX_TRAFO while
+                // m_TrafoBox.GetDragState() yields the mismatching TH_NONE.
+                m_ToolState = TS_IDLE;
+            }
 
             if (TrafoCmd) m_MapDoc.GetHistory().SubmitCommand(TrafoCmd);
             break;
@@ -437,9 +551,9 @@ bool ToolSelectionT::OnMouseMove2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
 
                 // When exactly one entity is selected and that entity has an origin, use its origin
                 // as the reference point for the transformation, not the transformation boxes center.
-                if (m_MapDoc.GetSelection().Size()==1 && m_MapDoc.GetSelection()[0]->GetType()==&MapEntityT::TypeInfo)
+                if (m_MapDoc.GetSelection().Size() == 1 && m_MapDoc.GetSelection()[0]->GetType() == &MapEntRepresT::TypeInfo)
                 {
-                    MapEntityT* Entity=static_cast<MapEntityT*>(m_MapDoc.GetSelection()[0]);
+                    MapEntityBaseT* Entity = static_cast<MapEntRepresT*>(m_MapDoc.GetSelection()[0])->GetParent();
 
                     if (!Entity->GetClass()->IsSolidClass() /*Entity->GetClass()->HasOrigin()*/)
                     {
@@ -691,51 +805,36 @@ void ToolSelectionT::RenderTool2D(Renderer2DT& Renderer) const
         {
             // Draw a preview of the selected objects ONLY if they're currently being modified (translated, scaled, rotated or sheared).
             // Objects that are selected but resting need not be drawn here - such objects already render themselves properly.
-            //
+            wxASSERT(m_TrafoBox.GetDragState() != TrafoBoxT::TH_NONE);  // A requirement for calling TrafoBoxT::ApplyTrafo().
+            if (m_TrafoBox.GetDragState() == TrafoBoxT::TH_NONE) return;
+
             // If too many individual elements are selected, do not draw them, for performance reasons.
             // The user will then only see the transformed box rectangle as rendered above.
-            {
-                const ArrayT<MapElementT*>& Selection=m_MapDoc.GetSelection();
-                unsigned long               Count    =0;
-
-                for (unsigned long SelNr=0; SelNr<Selection.Size(); SelNr++)
-                {
-                    if (MapPrimitiveT::TypeInfo.HierarchyHas(Selection[SelNr]->GetType()))
-                    {
-                        Count++;
-                        continue;
-                    }
-
-                    MapEntityBaseT* Ent=dynamic_cast<MapEntityBaseT*>(Selection[SelNr]);
-
-                    if (Ent)
-                    {
-                        Count+=Ent->GetPrimitives().Size();
-                        continue;
-                    }
-                }
-
-                if (Count>32) return;
-                if (Count==0) return;
-            }
+            if (m_MapDoc.GetSelection().Size() > 32) return;
 
             // Create copies of the currently selected elements, transform them, render them, then delete them again.
-            // The first, second and fourth steps are achieved by employing an appropriate transform command.
-            // Note that we force the cloning of elements and that the Do() method of TrafoCmd is never called!
-            wxASSERT(m_TrafoBox.GetDragState()!=TrafoBoxT::TH_NONE);   // A requirement for calling TrafoBoxT::GetTransformCommand().
-            CommandTransformT* TrafoCmd=m_TrafoBox.GetTrafoCommand(m_MapDoc, false, true);
+            ArrayT<MapElementT*> Elems;
 
-            if (!TrafoCmd) return;
-
-            const ArrayT<MapElementT*>& TransElems=TrafoCmd->GetClones();
-
-            for (unsigned long ElemNr=0; ElemNr<TransElems.Size(); ElemNr++)
+            for (unsigned long SelNr = 0; SelNr < m_MapDoc.GetSelection().Size(); SelNr++)
             {
-                TransElems[ElemNr]->SetSelected();
-                TransElems[ElemNr]->Render2D(Renderer);
+                Elems.PushBack(m_MapDoc.GetSelection()[SelNr]->Clone());
             }
 
-            delete TrafoCmd;
+            for (unsigned long ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
+            {
+                m_TrafoBox.ApplyTrafo(Elems[ElemNr]);
+
+                Elems[ElemNr]->SetSelected();
+                Elems[ElemNr]->Render2D(Renderer);
+            }
+
+            for (unsigned long ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
+            {
+                delete Elems[ElemNr];
+                Elems[ElemNr] = NULL;
+            }
+
+            Elems.Overwrite();
             break;
         }
     }
@@ -768,7 +867,15 @@ void ToolSelectionT::NotifySubjectChanged_Selection(SubjectT* Subject, const Arr
 }
 
 
-void ToolSelectionT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements)
+void ToolSelectionT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities)
+{
+    // Clean-up the hit list.
+    m_HitList.Overwrite();
+    m_CurHitNr=-1;
+}
+
+
+void ToolSelectionT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapPrimitiveT*>& Primitives)
 {
     // Clean-up the hit list.
     m_HitList.Overwrite();
@@ -811,7 +918,7 @@ void ToolSelectionT::NotifySubjectChanged_Modified(SubjectT* Subject, const Arra
 /// This is called when a property of an entity changed, such as the "model" property.
 /// As changes of such properties can have broad effects, such as changes in the bounding-boxes of the affected elements,
 /// we update accordingly.
-void ToolSelectionT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const wxString& Key)
+void ToolSelectionT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities, MapElemModDetailE Detail, const wxString& Key)
 {
     if (!IsActiveTool()) return;
 
@@ -917,7 +1024,7 @@ void ToolSelectionT::NudgeSelection(const AxesInfoT& AxesInfo, const wxKeyEvent&
     }
 
     m_MapDoc.GetHistory().SubmitCommand(
-        new CommandTransformT(m_MapDoc, m_MapDoc.GetSelection(), CommandTransformT::MODE_TRANSLATE, Vector3fT(), NudgeVec, false /*don't clone*/));
+        new CommandTransformT(m_MapDoc, m_MapDoc.GetSelection(), CommandTransformT::MODE_TRANSLATE, Vector3fT(), NudgeVec));
 }
 
 
@@ -925,35 +1032,24 @@ void ToolSelectionT::NudgeSelection(const AxesInfoT& AxesInfo, const wxKeyEvent&
 /// when the elements entity and group memberships are taken into account.
 void ToolSelectionT::GetToggleEffects(MapElementT* Elem, ArrayT<MapElementT*>& RemoveFromSel, ArrayT<MapElementT*>& AddToSel) const
 {
-    MapEntityT* Entity=NULL;
+    MapEntityBaseT* Entity = Elem->GetParent();
 
-    if (MapEntityT::TypeInfo.HierarchyHas(Elem->GetType()))
+    // If Prim belongs to a non-world entity, put all primitives of the entity into the appropriate lists.
+    if (!Entity->IsWorld() /*&& m_OptionsBar->SelectWholeEntities() / TreatEntitiesAsGroups*/)
     {
-        Entity=static_cast<MapEntityT*>(Elem);
-    }
-    else if (MapPrimitiveT::TypeInfo.HierarchyHas(Elem->GetType()))
-    {
-        MapPrimitiveT* Prim=static_cast<MapPrimitiveT*>(Elem);
+        MapEntRepresT* Repres = Entity->GetRepres();
 
-        if (Prim->GetParent()->GetType()==&MapEntityT::TypeInfo)    // A custom entity. Not the world.
-            Entity=static_cast<MapEntityT*>(Prim->GetParent());
-    }
-
-    // If Elem is an entity or a member of an entity, put the entity and all members of the entity into the appropriate lists.
-    if (Entity /*&& m_OptionsBar->SelectWholeEntities() / TreatEntitiesAsGroups*/)
-    {
-        // Toggle the entity by inserting it into one of the lists, but only if it isn't mentioned there already.
-        // Note that this can NOT be omitted, as generally Entity!=Elem, so that this special-case is NOT covered at the bottom of this method.
-        if (RemoveFromSel.Find(Entity)==-1 && AddToSel.Find(Entity)==-1)
+        // Toggle the Repres by inserting it into one of the lists, but only if it isn't mentioned there already.
+        if (RemoveFromSel.Find(Repres)==-1 && AddToSel.Find(Repres)==-1)
         {
-            if (Entity->IsSelected()) RemoveFromSel.PushBack(Entity);
-                                 else AddToSel.PushBack(Entity);
+            if (Repres->IsSelected()) RemoveFromSel.PushBack(Repres);
+                                 else AddToSel.PushBack(Repres);
         }
 
         // Toggle the entities primitives analogously.
-        for (unsigned long MemberNr=0; MemberNr<Entity->GetPrimitives().Size(); MemberNr++)
+        for (unsigned long MemberNr = 0; MemberNr < Entity->GetPrimitives().Size(); MemberNr++)
         {
-            MapElementT* Member=Entity->GetPrimitives()[MemberNr];
+            MapElementT* Member = Entity->GetPrimitives()[MemberNr];
 
             // Insert Member into one of the lists, but only if it isn't mentioned there already.
             if (RemoveFromSel.Find(Member)==-1 && AddToSel.Find(Member)==-1)

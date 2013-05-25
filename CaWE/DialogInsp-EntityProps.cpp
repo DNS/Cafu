@@ -25,7 +25,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameConfig.hpp"
 #include "LuaAux.hpp"
 #include "MapDocument.hpp"
-#include "MapEntity.hpp"
+#include "MapEntityBase.hpp"
+#include "MapEntRepres.hpp"
 #include "MapPrimitive.hpp"
 
 #include "wx/notebook.h"
@@ -280,21 +281,21 @@ void InspDlgEntityPropsT::NotifySubjectChanged_Selection(SubjectT* Subject, cons
 }
 
 
-void InspDlgEntityPropsT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements)
+void InspDlgEntityPropsT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities)
 {
-    // No need to react on deleted objects.
+    // No need to act on deleted objects.
     // If the deletion of an object changes the current selection the inspector is notified in the NotifySubjectChanged_Selection method.
 }
 
 
-void InspDlgEntityPropsT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const wxString& Key)
+void InspDlgEntityPropsT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities, MapElemModDetailE Detail, const wxString& Key)
 {
     if (IsRecursiveSelfNotify) return;
 
     // If one of the changed entities is part of the current selection, update the grid.
-    for (unsigned long i=0; i<MapElements.Size(); i++)
+    for (unsigned long i = 0; i < Entities.Size(); i++)
     {
-        if (MapElements[i]->IsSelected())
+        if (Entities[i]->GetRepres()->IsSelected())
         {
             UpdatePropertyGrid();
             break;
@@ -576,8 +577,7 @@ void InspDlgEntityPropsT::UpdatePropertyGrid()
                 }
 
                 // Get entity (to check if it has primitive children) and exclude other MapEntityBaseT derivatives such as the world.
-                MapEntityT* EntityTmp=dynamic_cast<MapEntityT*>(SelectedEntities[0]);
-                if (EntityTmp!=NULL)
+                if (!SelectedEntities[0]->IsWorld())
                 {
                     const ArrayT<const EntityClassT*>& Classes=MapDoc->GetGameConfig()->GetEntityClasses();
 
@@ -586,7 +586,7 @@ void InspDlgEntityPropsT::UpdatePropertyGrid()
                         // Entities that have an origin but no primitive children can only be assigned other entities classes that have an origin as well.
                         // Every other combination (entity has no origin (then it has children) or entity has an origin *and* primitive children) can be
                         // assigned *any* entity class.
-                        if (EntityTmp->GetClass()->IsSolidClass() || EntityTmp->GetPrimitives().Size()>0 || !Classes[ClassNr]->IsSolidClass())
+                        if (SelectedEntities[0]->GetClass()->IsSolidClass() || SelectedEntities[0]->GetPrimitives().Size()>0 || !Classes[ClassNr]->IsSolidClass())
                             EntClassesList.Add(Classes[ClassNr]->GetName());
                     }
 
@@ -602,12 +602,12 @@ void InspDlgEntityPropsT::UpdatePropertyGrid()
 
                     EntClassesList.Sort(SortNoCaseT::Compare);  // Can unfortunately not use wxStricmp function directly.
 
-                    Selection=EntClassesList.Index(EntityTmp->GetClass()->GetName());
+                    Selection=EntClassesList.Index(SelectedEntities[0]->GetClass()->GetName());
                     if (Selection<0 || Selection==wxNOT_FOUND) Selection=0;
                 }
                 else
                 {
-                    // The entity class is no MapEntityT class (but e.g. the world): Add class name of entity to array.
+                    // Its the world: Add class name of entity to array.
                     EntClassesList.Add(SelectedEntities[0]->GetClass()->GetName());
                 }
 
@@ -864,12 +864,6 @@ void InspDlgEntityPropsT::OnPropertyGridChanged(wxPropertyGridEvent& event)
     }
 
 
-    // Have the selected entities available as a set of MapElementTs as well.
-    ArrayT<MapElementT*> MapElements;
-
-    for (unsigned long i=0; i<SelectedEntities.Size(); i++)
-        MapElements.PushBack(SelectedEntities[i]);
-
     CommandT* MacroCommand=NULL;
 
     // Changing the class of an entity.
@@ -883,7 +877,7 @@ void InspDlgEntityPropsT::OnPropertyGridChanged(wxPropertyGridEvent& event)
                 wxMessageBox("Entities have different entity classes.", "Error: Couldn't change entity class.", wxOK | wxICON_ERROR);
 
                 // Intentionally update also this dialog to restore previous property value. TODO: Can the event be vetoed instead?
-                NotifySubjectChanged_Modified(MapDoc, MapElements, MEMD_ENTITY_PROPERTY_MODIFIED, "");
+                NotifySubjectChanged_Modified(MapDoc, SelectedEntities, MEMD_ENTITY_PROPERTY_MODIFIED, "");
                 return;
             }
         }
@@ -895,7 +889,7 @@ void InspDlgEntityPropsT::OnPropertyGridChanged(wxPropertyGridEvent& event)
             wxMessageBox("Could not find entity class \""+NewValue+"\" in the game config.", "Error: Couldn't change entity class.", wxOK | wxICON_ERROR);
 
             // Intentionally update also this dialog to restore previous property value. TODO: Can the event be vetoed instead?
-            NotifySubjectChanged_Modified(MapDoc, MapElements, MEMD_ENTITY_PROPERTY_MODIFIED, "");
+            NotifySubjectChanged_Modified(MapDoc, SelectedEntities, MEMD_ENTITY_PROPERTY_MODIFIED, "");
             return;
         }
 
@@ -903,10 +897,8 @@ void InspDlgEntityPropsT::OnPropertyGridChanged(wxPropertyGridEvent& event)
 
         for (unsigned long i=0; i<SelectedEntities.Size(); i++)
         {
-            MapEntityT* Ent=dynamic_cast<MapEntityT*>(SelectedEntities[i]);
-
-            if (Ent)
-                Commands.PushBack(new CommandChangeClassT(*MapDoc, Ent, NewEntityClass));
+            if (!SelectedEntities[i]->IsWorld())
+                Commands.PushBack(new CommandChangeClassT(*MapDoc, SelectedEntities[i], NewEntityClass));
         }
 
         MacroCommand=new CommandMacroT(Commands, "Change entity class");
@@ -929,7 +921,7 @@ void InspDlgEntityPropsT::OnPropertyGridChanged(wxPropertyGridEvent& event)
                     || SelectedEntities[i]->FindProperty(Key)==NULL)
                 {
                     wxMessageBox("Value is not defined by all entities.", "Error: Couldn't change property value.", wxOK | wxICON_ERROR);
-                    NotifySubjectChanged_Modified(MapDoc, MapElements, MEMD_ENTITY_PROPERTY_MODIFIED, ""); // Intentionally update also this dialog to restore previous property value.
+                    NotifySubjectChanged_Modified(MapDoc, SelectedEntities, MEMD_ENTITY_PROPERTY_MODIFIED, ""); // Intentionally update also this dialog to restore previous property value.
                     return;
                 }
             }
@@ -940,7 +932,7 @@ void InspDlgEntityPropsT::OnPropertyGridChanged(wxPropertyGridEvent& event)
                     || SelectedEntities[i]->GetClass()->FindVar(Key)->GetType()!=SelectedEntities[0]->GetClass()->FindVar(Key)->GetType())
                 {
                     wxMessageBox("Value is not defined by all entities or hasn't the same type.", "Error: Couldn't change property value.", wxOK | wxICON_ERROR);
-                    NotifySubjectChanged_Modified(MapDoc, MapElements, MEMD_ENTITY_PROPERTY_MODIFIED, ""); // Intentionally update also this dialog to restore previous property value.
+                    NotifySubjectChanged_Modified(MapDoc, SelectedEntities, MEMD_ENTITY_PROPERTY_MODIFIED, ""); // Intentionally update also this dialog to restore previous property value.
                     return;
                 }
             }
@@ -954,7 +946,7 @@ void InspDlgEntityPropsT::OnPropertyGridChanged(wxPropertyGridEvent& event)
                 "not beginning with a digit and is not a reserved Lua keyword or global variable.",
                 "Entity name is not a valid script identifier.", wxOK | wxICON_ERROR);
 
-            NotifySubjectChanged_Modified(MapDoc, MapElements, MEMD_ENTITY_PROPERTY_MODIFIED, ""); // Intentionally update also this dialog to restore previous property value.
+            NotifySubjectChanged_Modified(MapDoc, SelectedEntities, MEMD_ENTITY_PROPERTY_MODIFIED, ""); // Intentionally update also this dialog to restore previous property value.
             return;
         }
 
@@ -969,7 +961,7 @@ void InspDlgEntityPropsT::OnPropertyGridChanged(wxPropertyGridEvent& event)
             if (SelectedEntities.Size()>1)
             {
                 wxMessageBox("Unique keys can only be changed if one entity is selected.", "Error: Couldn't change unique key.", wxOK | wxICON_ERROR);
-                NotifySubjectChanged_Modified(MapDoc, MapElements, MEMD_ENTITY_PROPERTY_MODIFIED, ""); // Intentionally update also this dialog to restore previous property value.
+                NotifySubjectChanged_Modified(MapDoc, SelectedEntities, MEMD_ENTITY_PROPERTY_MODIFIED, ""); // Intentionally update also this dialog to restore previous property value.
                 return;
             }
 
@@ -988,7 +980,7 @@ void InspDlgEntityPropsT::OnPropertyGridChanged(wxPropertyGridEvent& event)
                 {
                     // Set value in property grid to old value and return.
                     wxMessageBox("This unique value is already used by another entity.", "Error: Couldn't change unique key.", wxOK | wxICON_ERROR);
-                    NotifySubjectChanged_Modified(MapDoc, MapElements, MEMD_ENTITY_PROPERTY_MODIFIED, ""); // Intentionally update also this dialog to restore previous property value.
+                    NotifySubjectChanged_Modified(MapDoc, SelectedEntities, MEMD_ENTITY_PROPERTY_MODIFIED, ""); // Intentionally update also this dialog to restore previous property value.
                     return;
                 }
             }
@@ -1011,7 +1003,7 @@ void InspDlgEntityPropsT::OnPropertyGridChanged(wxPropertyGridEvent& event)
     if (!MapDoc->GetHistory().SubmitCommand(MacroCommand) || event.GetProperty()->GetName()=="classname")
     {
         IsRecursiveSelfNotify=false;
-        NotifySubjectChanged_Modified(MapDoc, MapElements, MEMD_ENTITY_PROPERTY_MODIFIED, "");
+        NotifySubjectChanged_Modified(MapDoc, SelectedEntities, MEMD_ENTITY_PROPERTY_MODIFIED, "");
         return;
     }
 

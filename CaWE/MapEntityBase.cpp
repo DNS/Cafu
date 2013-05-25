@@ -23,6 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "EntityClass.hpp"
 #include "EntityClassVar.hpp"
 #include "LuaAux.hpp"
+#include "MapDocument.hpp"
+#include "MapEntRepres.hpp"
 #include "MapPrimitive.hpp"
 
 #include "wx/wx.h"
@@ -30,39 +32,49 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/txtstrm.h"
 
 
-/*** Begin of TypeSys related definitions for this class. ***/
-
-void* MapEntityBaseT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
-{
-    return NULL;
-}
-
-const cf::TypeSys::TypeInfoT MapEntityBaseT::TypeInfo(GetMapElemTIM(), "MapEntityBaseT", "MapElementT", MapEntityBaseT::CreateInstance, NULL);
-
-/*** End of TypeSys related definitions for this class. ***/
-
-
-MapEntityBaseT::MapEntityBaseT(const wxColour& Color)
-    : MapElementT(Color),
+MapEntityBaseT::MapEntityBaseT(MapDocumentT& MapDoc)
+    : m_MapDoc(MapDoc),
       m_Class(NULL),
+      m_Origin(),
       m_Properties(),
+      m_Repres(NULL),
       m_Primitives()
 {
+    m_Repres = new MapEntRepresT(this);
 }
 
 
-MapEntityBaseT::MapEntityBaseT(const MapEntityBaseT& Ent)
-    : MapElementT(Ent),
+MapEntityBaseT::MapEntityBaseT(const MapEntityBaseT& Ent, bool CopyPrims)
+    : m_MapDoc(Ent.m_MapDoc),
       m_Class(Ent.m_Class),
+      m_Origin(Ent.m_Origin),
       m_Properties(Ent.m_Properties),
+      m_Repres(NULL),
       m_Primitives()
 {
     // Deep-copy all primitives of Ent.
-    for (unsigned long PrimNr=0; PrimNr<Ent.m_Primitives.Size(); PrimNr++)
+    if (CopyPrims)
     {
-        m_Primitives.PushBack(Ent.m_Primitives[PrimNr]->Clone());
-        m_Primitives[PrimNr]->SetParent(this);
+        for (unsigned long PrimNr = 0; PrimNr < Ent.m_Primitives.Size(); PrimNr++)
+        {
+            m_Primitives.PushBack(Ent.m_Primitives[PrimNr]->Clone());
+            m_Primitives[PrimNr]->SetParent(this);
+        }
     }
+
+    m_Repres = new MapEntRepresT(this);
+}
+
+
+MapEntityBaseT::MapEntityBaseT(const MapEntityBaseT& Ent, MapEntRepresT* Repres)
+    : m_MapDoc(Ent.m_MapDoc),
+      m_Class(Ent.m_Class),
+      m_Origin(Ent.m_Origin),
+      m_Properties(Ent.m_Properties),
+      m_Repres(Repres),     // Use the given instance for the representation.
+      m_Primitives()        // The primitives are intentionally *not* copied.
+{
+    wxASSERT(m_Repres);
 }
 
 
@@ -71,47 +83,29 @@ MapEntityBaseT::~MapEntityBaseT()
     // Delete all our primitives.
     for (unsigned long PrimNr=0; PrimNr<m_Primitives.Size(); PrimNr++)
         delete m_Primitives[PrimNr];
+
+    // Note that the *only* chance for m_Repres getting NULL is when the MapEntRepresT dtor has set it so.
+    if (m_Repres)
+    {
+        // m_Repres's dtor must not in turn attempt to delete *us*.
+        m_Repres->SetParent(NULL);
+
+        delete m_Repres;
+        m_Repres = NULL;
+    }
 }
 
 
-// MapEntityBaseT* MapEntityBaseT::Clone() const
-// {
-//     // Cannot instantiate an abstract class - we had to provide implementations for all pure virtual
-//     // methods (like e.g. GetBB()) in order to be able to explicitly create MapEntityBaseT instances.
-//     return new MapEntityBaseT(*this);
-// }
-
-
-void MapEntityBaseT::Assign(const MapElementT* Elem)
+bool MapEntityBaseT::IsWorld() const
 {
-    if (Elem==this) return;
-
-    MapElementT::Assign(Elem);
-
-    const MapEntityBaseT* Entity=dynamic_cast<const MapEntityBaseT*>(Elem);
-    wxASSERT(Entity!=NULL);
-    if (Entity==NULL) return;
-
-    m_Class     =Entity->m_Class;
-    m_Properties=Entity->m_Properties;
-
-    // Delete all our previous primitives.
-    for (unsigned long PrimNr=0; PrimNr<m_Primitives.Size(); PrimNr++)
-        delete m_Primitives[PrimNr];
-
-    m_Primitives.Overwrite();
-
-    // Deep-copy all primitives of Entity.
-    for (unsigned long PrimNr=0; PrimNr<Entity->m_Primitives.Size(); PrimNr++)
-    {
-        m_Primitives.PushBack(Entity->m_Primitives[PrimNr]->Clone());
-        m_Primitives[PrimNr]->SetParent(this);
-    }
+    return m_MapDoc.GetEntities()[0] == this;
 }
 
 
 void MapEntityBaseT::SetClass(const EntityClassT* NewClass)
 {
+    if (m_Class == NewClass) return;
+
     m_Class=NewClass;
 
     // Instantiate the variables declared in the entity class in the conrete entity.
@@ -124,6 +118,31 @@ void MapEntityBaseT::SetClass(const EntityClassT* NewClass)
         if (FindProperty(ClassVar->GetName())==NULL)
             m_Properties.PushBack(ClassVar->GetInstance());
     }
+
+
+    // Now that we have a new class, update the entity representation in the map.
+    m_Repres->Update();
+}
+
+
+Vector3fT MapEntityBaseT::GetOrigin() const
+{
+    if (!m_Class->IsSolidClass()) return m_Origin;
+
+    // This is very similar to GetBB().GetCenter(), but without accounting for the helpers.
+    // The helpers GetBB() methods call m_ParentEntity->GetOrigin(), possibly creating an infinite recursion.
+    BoundingBox3fT BB;
+
+    for (unsigned long PrimNr=0; PrimNr<m_Primitives.Size(); PrimNr++)
+        BB+=m_Primitives[PrimNr]->GetBB();
+
+    return BB.IsInited() ? BB.GetCenter() : m_Origin;
+}
+
+
+void MapEntityBaseT::SetOrigin(const Vector3fT& Origin)
+{
+    m_Origin=Origin;
 }
 
 
@@ -232,4 +251,103 @@ void MapEntityBaseT::RemovePrim(MapPrimitiveT* Prim)
 
     // Keeping the order helps when map files are diff'ed or manually compared.
     m_Primitives.RemoveAtAndKeepOrder(Index);
+}
+
+
+BoundingBox3fT MapEntityBaseT::GetElemsBB() const
+{
+    BoundingBox3fT BB = m_Repres->GetBB();
+
+    for (unsigned int PrimNr = 0; PrimNr < m_Primitives.Size(); PrimNr++)
+        BB += m_Primitives[PrimNr]->GetBB();
+
+    return BB;
+}
+
+
+ArrayT<EntPropertyT> MapEntityBaseT::CheckUniqueValues(bool Repair)
+{
+    // All nonunique properties that are found (and repaired if Repair is true).
+    ArrayT<EntPropertyT> FoundVars;
+
+    // Only handle entities that have a class.
+    if (m_Class==NULL) return FoundVars;
+
+    const ArrayT<const EntClassVarT*>& ClassVars=m_Class->GetVariables();
+
+    // For all class vars (only class vars can be unique).
+    for (unsigned long i=0; i<ClassVars.Size(); i++)
+    {
+        // Check if class var is unique.
+        // FIXME: At the moment only the "name" variable is supported, as this is the only unique variable at this time.
+        if (ClassVars[i]->IsUnique() && ClassVars[i]->GetName()=="name")
+        {
+            // Remember current value.
+            EntPropertyT*         FoundProp=FindProperty("name");
+            const MapEntityBaseT* FoundEnt =NULL;
+
+            // If value is set.
+            if (FoundProp!=NULL)
+            {
+                for (unsigned long EntNr=1/*skip world*/; EntNr<m_MapDoc.GetEntities().Size(); EntNr++)
+                {
+                    const MapEntityBaseT* Ent    =m_MapDoc.GetEntities()[EntNr];
+                    const EntPropertyT*   EntProp=Ent->FindProperty("name");
+
+                    if (Ent!=this && EntProp && EntProp->Value==FoundProp->Value)
+                    {
+                        FoundEnt=Ent;
+                        break;
+                    }
+                }
+            }
+
+            // Found a faulty value.
+            if (FoundEnt!=NULL || FoundProp==NULL)
+            {
+                // Set property value to default.
+                wxString ValueTmp=ClassVars[i]->GetDefault();
+
+                // Overwrite default value by concrete value if property is set.
+                if (FoundProp!=NULL) ValueTmp=FoundProp->Value;
+
+                FoundVars.PushBack(EntPropertyT("name", ValueTmp));
+            }
+
+            // User doesn't want the faulty value to be repaired or there is nothing to repair.
+            if (!Repair || (FoundEnt==NULL && FoundProp!=NULL)) continue;
+
+            // Repair faulty value.
+            for (unsigned long Count=1; true; Count++)
+            {
+                const wxString UniqueValue=CheckLuaIdentifier(m_Class->GetName())+wxString::Format("_%03lu", Count);
+                unsigned long  EntNr;
+
+                for (EntNr=1/*skip world*/; EntNr<m_MapDoc.GetEntities().Size(); EntNr++)
+                {
+                    const MapEntityBaseT* Ent    =m_MapDoc.GetEntities()[EntNr];
+                    const EntPropertyT*   EntProp=Ent->FindProperty("name");
+
+                    if (Ent!=this && EntProp && EntProp->Value==UniqueValue)
+                    {
+                        FoundEnt=Ent;
+                        break;
+                    }
+                }
+
+                if (EntNr>=m_MapDoc.GetEntities().Size())
+                {
+                    FindProperty("name", NULL, true)->Value=UniqueValue;
+
+                    ArrayT<MapEntityBaseT*> MapElements;
+                    MapElements.PushBack(this);
+
+                    m_MapDoc.UpdateAllObservers_Modified(MapElements, MEMD_ENTITY_PROPERTY_MODIFIED, "name");
+                    break;
+                }
+            }
+        }
+    }
+
+    return FoundVars;
 }

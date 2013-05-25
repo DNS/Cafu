@@ -20,26 +20,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "MapHelperBB.hpp"
-#include "MapEntity.hpp"
+#include "MapEntityBase.hpp"
+#include "MapEntRepres.hpp"
 #include "Options.hpp"
 #include "Renderer3D.hpp"
-#include "TypeSys.hpp"
 
 
-/*** Begin of TypeSys related definitions for this class. ***/
-
-void* MapHelperBoundingBoxT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
-{
-    return NULL;
-}
-
-const cf::TypeSys::TypeInfoT MapHelperBoundingBoxT::TypeInfo(GetMapElemTIM(), "MapHelperBoundingBoxT", "MapHelperT", MapHelperBoundingBoxT::CreateInstance, NULL);
-
-/*** End of TypeSys related definitions for this class. ***/
-
-
-MapHelperBoundingBoxT::MapHelperBoundingBoxT(const MapEntityT* ParentEntity, const BoundingBox3fT& BB, bool Wireframe)
-    : MapHelperT(ParentEntity),
+MapHelperBoundingBoxT::MapHelperBoundingBoxT(MapEntRepresT& Repres, const BoundingBox3fT& BB, bool Wireframe)
+    : MapHelperT(Repres),
       m_BB(BB),
       m_Wireframe(Wireframe)
 {
@@ -54,33 +42,11 @@ MapHelperBoundingBoxT::MapHelperBoundingBoxT(const MapHelperBoundingBoxT& Box)
 }
 
 
-MapHelperBoundingBoxT* MapHelperBoundingBoxT::Clone() const
-{
-    return new MapHelperBoundingBoxT(*this);
-}
-
-
-void MapHelperBoundingBoxT::Assign(const MapElementT* Elem)
-{
-    if (Elem==this) return;
-
-    MapHelperT::Assign(Elem);
-
-    const MapHelperBoundingBoxT* Box=dynamic_cast<const MapHelperBoundingBoxT*>(Elem);
-    wxASSERT(Box!=NULL);
-    if (Box==NULL) return;
-
-    m_ParentEntity=Box->m_ParentEntity;
-    m_BB          =Box->m_BB;
-    m_Wireframe   =Box->m_Wireframe;
-}
-
-
 BoundingBox3fT MapHelperBoundingBoxT::GetBB() const
 {
-    const Vector3fT Origin=m_ParentEntity->GetOrigin();
+    const Vector3fT Origin = m_Repres.GetParent()->GetOrigin();
 
-    return BoundingBox3fT(Origin+m_BB.Min, Origin+m_BB.Max);
+    return BoundingBox3fT(Origin + m_BB.Min, Origin + m_BB.Max);
 }
 
 
@@ -94,5 +60,5 @@ void MapHelperBoundingBoxT::Render2D(Renderer2DT& Renderer) const
 void MapHelperBoundingBoxT::Render3D(Renderer3DT& Renderer) const
 {
     Renderer.RenderBox(GetBB(),
-        m_ParentEntity->IsSelected() ? Options.colors.Selection : m_ParentEntity->GetColor(Options.view2d.UseGroupColors), !m_Wireframe /* Solid? */);
+        m_Repres.IsSelected() ? Options.colors.Selection : m_Repres.GetColor(Options.view2d.UseGroupColors), !m_Wireframe /* Solid? */);
 }

@@ -1264,13 +1264,13 @@ void ToolTerrainEditorT::RenderTool3D(Renderer3DT& Renderer) const
 }
 
 
-void ToolTerrainEditorT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements)
+void ToolTerrainEditorT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapPrimitiveT*>& Primitives)
 {
     if (!IsActiveTool() || m_IsRecSelfNotify) return;
 
-    for (unsigned long ElemNr=0; ElemNr<MapElements.Size(); ElemNr++)
+    for (unsigned long PrimNr = 0; PrimNr < Primitives.Size(); PrimNr++)
     {
-        if (MapElements[ElemNr]==m_TerrainOrig)
+        if (Primitives[PrimNr] == m_TerrainOrig)
         {
             // The "false" is for *not* having all the observers informed that the visibility of m_TerrainOrig changed.
             SetTerrain(NULL, false);

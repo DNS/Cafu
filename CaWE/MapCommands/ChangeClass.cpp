@@ -22,10 +22,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChangeClass.hpp"
 
 #include "../MapDocument.hpp"
-#include "../MapEntity.hpp"
+#include "../MapEntityBase.hpp"
+#include "../MapEntRepres.hpp"
 
 
-CommandChangeClassT::CommandChangeClassT(MapDocumentT& MapDoc, MapEntityT* Entity, const EntityClassT* NewClass)
+CommandChangeClassT::CommandChangeClassT(MapDocumentT& MapDoc, MapEntityBaseT* Entity, const EntityClassT* NewClass)
     : m_Entity(Entity),
       m_PrevProps(Entity->GetProperties()),
       m_MapDoc(MapDoc),
@@ -42,11 +43,12 @@ bool CommandChangeClassT::Do()
 
     // For now a simple implementation of class change is implemented: We change the class and check for new unique keys.
     m_Entity->SetClass(m_NewClass);
-    m_Entity->CheckUniqueValues(m_MapDoc);
+    m_Entity->CheckUniqueValues();
 
     ArrayT<MapElementT*> MapElements;
-    MapElements.PushBack(m_Entity);
+    MapElements.PushBack(m_Entity->GetRepres());
 
+    // This is a bit hacky: Should have a separate UpdateAllObservers_* method that takes a (array-of-)MapEntityBaseT parameter!
     m_MapDoc.UpdateAllObservers_Modified(MapElements, MEMD_ENTITY_CLASS_CHANGED);
 
     m_Done=true;
@@ -65,8 +67,9 @@ void CommandChangeClassT::Undo()
     m_Entity->GetProperties()=m_PrevProps;
 
     ArrayT<MapElementT*> MapElements;
-    MapElements.PushBack(m_Entity);
+    MapElements.PushBack(m_Entity->GetRepres());
 
+    // This is a bit hacky: Should have a separate UpdateAllObservers_* method that takes a (array-of-)MapEntityBaseT parameter!
     m_MapDoc.UpdateAllObservers_Modified(MapElements, MEMD_ENTITY_CLASS_CHANGED);
 
     m_Done=false;

@@ -324,6 +324,7 @@ PatchDef
   innerVolume "1"
   outerCone "90"
   outerVolume "0.2"
+  autoplay "1"
   origin "48 -416 72"
 }
 

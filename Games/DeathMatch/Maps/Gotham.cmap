@@ -3,10 +3,10 @@
 Version 13
 
 
-{ // Entity 0 (the world)
+{
   classname "worldspawn"
   message "CityCF"
-  gametitle "0"
+  shlmap_patchsize "200.0"
   lightmap_patchsize "250.0"
   wind_velocity "0.0"
   wind_velocity_var "0.0"
@@ -15,10 +15,9 @@ Version 13
   fog_start "0.0"
   fog_end "1.0"
   fog_color "0 0 0"
-  shlmap_patchsize "200.0"
   mru_mat_0 "TechDemo/walls/wall-13b"
 
-  { // Brush 0
+  {
     ( -1600 1728 3840 ) ( -1600 1728 192 ) ( -1600 1856 192 ) "Textures/SkyDomes/PK_Night" ( 2 0 0 0 ( 0 512 0 ) ( 0 0 -512 ) )
     ( 1536 1856 3840 ) ( 1536 1856 192 ) ( 1536 1728 192 ) "Textures/SkyDomes/PK_Night" ( 2 0 0 0 ( 0 512 0 ) ( 0 0 -512 ) )
     ( 1536 1728 3840 ) ( 1536 1728 192 ) ( -1600 1728 192 ) "Textures/SkyDomes/PK_Night" ( 2 0 0 0 ( 512 0 0 ) ( 0 0 -512 ) )
@@ -198,7 +197,7 @@ Version 13
     ( -968 504 1416 ) ( -968 904 1416 ) ( -504 904 1416 ) "Textures/Frank/pavement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
   }
 
-  { // Brush 20
+  {
     ( -456.00003 1032 384 ) ( -456.00003 1032 382 ) ( -456.00003 1048 382 ) "Textures/Industri/flat_dk" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
     ( -440 1048 384 ) ( -440 1048 382 ) ( -440 1032 382 ) "Textures/Industri/flat_dk" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
     ( -440 1032 384 ) ( -440 1032 382 ) ( -456.00003 1032 382 ) "Textures/Industri/flat_dk" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
@@ -378,7 +377,7 @@ Version 13
     ( -968 368 384 ) ( -968 384 384 ) ( -952.00006 384 384 ) "Textures/Industri/flat_dk" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
   }
 
-  { // Brush 40
+  {
     ( -1188 240 1944.0001 ) ( -1188 240 232 ) ( -1188 272 232 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 0 176 0 ) ( 0 0 -160 ) )
     ( -1088 272 1944.0001 ) ( -1088 272 232 ) ( -1088 240 232 ) "Textures/OldWAD/Lights/lightwhite" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
     ( -1088 240 1944.0001 ) ( -1088 240 232 ) ( -1188 240 232 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 176 0 0 ) ( 0 0 -160 ) )
@@ -558,7 +557,7 @@ Version 13
     ( -768 -144 1944.0001 ) ( -768 -128 1944.0001 ) ( -512 -128 1944.0001 ) "Textures/Frank/pavement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
   }
 
-  { // Brush 60
+  {
     ( -1088 -288 1944.0001 ) ( -1088 -288 1920 ) ( -1088 288 1920 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 0 176 0 ) ( 0 0 -160 ) )
     ( -960 288 1944.0001 ) ( -960 288 1920 ) ( -960 -288 1920 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 0 176 0 ) ( 0 0 -160 ) )
     ( -960 -288 1944.0001 ) ( -960 -288 1920 ) ( -1088 -288 1920 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 176 0 0 ) ( 0 0 -160 ) )
@@ -738,7 +737,7 @@ Version 13
     ( -456.00003 -1048 384 ) ( -456.00003 -1032 384 ) ( -440 -1032 384 ) "Textures/Industri/flat_dk" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
   }
 
-  { // Brush 80
+  {
     ( -584 -1048 384 ) ( -584 -1048 382 ) ( -584 -1032 382 ) "Textures/Industri/flat_dk" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
     ( -568 -1032 384 ) ( -568 -1032 382 ) ( -568 -1048 382 ) "Textures/Industri/flat_dk" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
     ( -568 -1048 384 ) ( -568 -1048 382 ) ( -584 -1048 382 ) "Textures/Industri/flat_dk" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
@@ -918,7 +917,7 @@ Version 13
     ( -384 1280 3456 ) ( -384 1536 3456 ) ( 384 1536 3456 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 320 0 0 ) ( 0 -160 0 ) )
   }
 
-  { // Brush 100
+  {
     ( -960 32 1946 ) ( -960 32 1918 ) ( -960 48 1918 ) "Textures/OldWAD/Lights/lightwhite" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
     ( -608 48 1946 ) ( -608 48 1918 ) ( -608 32 1918 ) "Textures/OldWAD/Lights/lightwhite" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
     ( -608 32 1946 ) ( -608 32 1918 ) ( -960 32 1918 ) "Textures/OldWAD/Lights/lightwhite" ( 2 0 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -1098,7 +1097,7 @@ Version 13
     ( -1248 -272 1944.0001 ) ( -1248 272 1944.0001 ) ( -1188 272 1944.0001 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 176 0 0 ) ( 0 -160 0 ) )
   }
 
-  { // Brush 120
+  {
     ( -1248 -1184 1008 ) ( -1248 -1184 992.00006 ) ( -1248 -272 992.00006 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 0 320 0 ) ( 0 0 -160 ) )
     ( -1216 -272 1008 ) ( -1216 -272 992.00006 ) ( -1216 -1184 992.00006 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 0 320 0 ) ( 0 0 -160 ) )
     ( -1216 -1184 1008 ) ( -1216 -1184 992.00006 ) ( -1248 -1184 992.00006 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 320 0 0 ) ( 0 0 -160 ) )
@@ -1278,7 +1277,7 @@ Version 13
     ( -356.00003 -1056 1432 ) ( -356.00003 -352 1432 ) ( -352 -352 1432 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 320 0 0 ) ( 0 -160 0 ) )
   }
 
-  { // Brush 140
+  {
     ( -1056 -1056 1432 ) ( -1056 -1056 1428 ) ( -1056 -352 1428 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 0 320 0 ) ( 0 0 -160 ) )
     ( -1052 -352 1432 ) ( -1052 -352 1428 ) ( -1052 -1056 1428 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 0 320 0 ) ( 0 0 -160 ) )
     ( -1052 -1056 1432 ) ( -1052 -1056 1428 ) ( -1056 -1056 1428 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 320 0 0 ) ( 0 0 -160 ) )
@@ -1458,7 +1457,7 @@ Version 13
     ( -1056 -272 1664.0001 ) ( -1088 -272 1664.0001 ) ( -1088 -272 1760 ) "Textures/Kai/met2" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
   }
 
-  { // Brush 160
+  {
     ( -1088 -272 1568 ) ( -1056 0 1568 ) ( -1024 0 1568 ) "Textures/Kai/met2" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -1056 0 1512 ) ( -1088 -272 1512 ) ( -1056 -272 1512 ) "Textures/Kai/met2" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -1024 0 1512 ) ( -1056 -272 1512 ) ( -1056 -272 1568 ) "Textures/Kai/met2" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
@@ -1638,7 +1637,7 @@ Version 13
     ( 884 -1118 240 ) ( 884 -1112 240 ) ( 884 -1112 250 ) "Textures/Kai/met2" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
   }
 
-  { // Brush 180
+  {
     ( -514 -892.00006 1967 ) ( -514 892.00006 1967 ) ( -512 892.00006 1967 ) "Textures/Q1/metal5_1" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -514 892.00006 1963 ) ( -514 -892.00006 1963 ) ( -512 -892.00006 1963 ) "Textures/Q1/metal5_1" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -514 -892.00006 1963 ) ( -514 892.00006 1963 ) ( -514 892.00006 1967 ) "Textures/Q1/metal5_1" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
@@ -1818,7 +1817,7 @@ Version 13
     ( 1408 320 768 ) ( 1280 320 768 ) ( 1280 192 768 ) "Textures/Frank/pavement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
   }
 
-  { // Brush 200
+  {
     ( 1120 64 3328.0002 ) ( 1120 112 3328.0002 ) ( 1184 112 3328.0002 ) "Textures/Frank/pavement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 1120 112 240 ) ( 1120 64 240 ) ( 1184 64 240 ) "Textures/Frank/pavement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 1120 64 240 ) ( 1120 112 240 ) ( 1120 112 3328.0002 ) "Textures/Frank/pavement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
@@ -1998,7 +1997,7 @@ Version 13
     ( -384 -1760 1664.0001 ) ( -384 -1280 1664.0001 ) ( -280 -1280 1664.0001 ) "Textures/OldWAD/Lights/lightwhite" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
   }
 
-  { // Brush 220
+  {
     ( 288 -1760 1664.0001 ) ( 288 -1760 240 ) ( 288 -1280 240 ) "Textures/Frank/pavement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
     ( 384 -1280 1664.0001 ) ( 384 -1280 240 ) ( 384 -1760 240 ) "Textures/Frank/pavement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
     ( 384 -1760 1664.0001 ) ( 384 -1760 240 ) ( 288 -1760 240 ) "Textures/Frank/pavement" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
@@ -2175,7 +2174,7 @@ Version 13
     ( 960 960 1792 ) ( 960 1008 1792 ) ( 1008 1008 1792 ) "Textures/Industri/flat_dk" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
   }
 
-  { // Brush 240
+  {
     ( 960 368 1792 ) ( 960 368 240 ) ( 960 416.00003 240 ) "Textures/Industri/flat_dk" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
     ( 1008 416.00003 1792 ) ( 1008 416.00003 240 ) ( 1008 368 240 ) "Textures/Industri/flat_dk" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
     ( 1008 368 1792 ) ( 1008 368 240 ) ( 960 368 240 ) "Textures/Industri/flat_dk" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
@@ -2347,7 +2346,7 @@ Version 13
     ( 45 256 45 ) ( 0 256 64 ) ( 0 240 64 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 176 0 0 ) ( 0 -160 0 ) )
   }
 
-  { // Brush 260
+  {
     ( 0 56 160 ) ( 0 40 160 ) ( 20 35 160 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 176 0 0 ) ( 0 -160 0 ) )
     ( 0 40 224 ) ( 0 56 224 ) ( 28 48 224 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 176 0 0 ) ( 0 -160 0 ) )
     ( 0 40 160 ) ( 0 56 160 ) ( 0 56 224 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 0 176 0 ) ( 0 0 -160 ) )
@@ -2542,7 +2541,7 @@ Version 13
     ( -240 -256 192 ) ( -240 -240 192 ) ( 240 -240 192 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 176 0 0 ) ( 0 -160 0 ) )
   }
 
-  { // Brush 280
+  {
     ( -384 -1184 248.00002 ) ( -384 -1184 240 ) ( -384 -992.00006 240 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 0 176 0 ) ( 0 0 -160 ) )
     ( 384 -992.00006 248.00002 ) ( 384 -992.00006 240 ) ( 384 -1184 240 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 0 176 0 ) ( 0 0 -160 ) )
     ( 384 -1184 248.00002 ) ( 384 -1184 240 ) ( -384 -1184 240 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 176 0 0 ) ( 0 0 -160 ) )
@@ -2722,7 +2721,7 @@ Version 13
     ( 56 0 232 ) ( 56 0 192 ) ( 48 28 192 ) "Textures/Industri/flat_dk" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
   }
 
-  { // Brush 300
+  {
     ( 56 56 232 ) ( 56 56 192 ) ( 56 33 192 ) "Textures/Industri/flat_dk" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
     ( 33 56 192 ) ( 56 56 192 ) ( 56 56 232 ) "Textures/Industri/flat_dk" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
     ( 56 33 192 ) ( 56 56 192 ) ( 33 56 192 ) "Textures/Industri/flat_dk" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
@@ -2902,7 +2901,7 @@ Version 13
     ( -1056 1052 1428 ) ( -1056 1056 1428 ) ( -1052 1056 1428 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 320 0 0 ) ( 0 -160 0 ) )
   }
 
-  { // Brush 320
+  {
     ( -356.00003 1052 1428 ) ( -356.00003 1052 1408 ) ( -356.00003 1056 1408 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 0 320 0 ) ( 0 0 -160 ) )
     ( -352 1056 1428 ) ( -352 1056 1408 ) ( -352 1052 1408 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 0 320 0 ) ( 0 0 -160 ) )
     ( -352 1052 1428 ) ( -352 1052 1408 ) ( -356.00003 1052 1408 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 320 0 0 ) ( 0 0 -160 ) )
@@ -3083,7 +3082,7 @@ Version 13
     ( -816 -508.00003 1948 ) ( -816 -402 1956 ) ( -814 -402 1956 ) "Textures/Industri/flat_dk" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
   }
 
-  { // Brush 340
+  {
     ( -816 -508.00003 1958 ) ( -816 -508.00003 1954.0001 ) ( -816 -402 1962 ) "Textures/Industri/flat_dk" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
     ( -814 -402 1966 ) ( -814 -402 1962 ) ( -814 -508.00003 1954.0001 ) "Textures/Industri/flat_dk" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
     ( -814 -508.00003 1958 ) ( -814 -508.00003 1954.0001 ) ( -816 -508.00003 1954.0001 ) "Textures/Industri/flat_dk" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
@@ -3263,7 +3262,7 @@ Version 13
     ( -816 512 1920 ) ( -814 512 1920 ) ( -814 512 1958 ) "Textures/Industri/flat_dk" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
   }
 
-  { // Brush 360
+  {
     ( -816 402 1956 ) ( -816 402 1952 ) ( -816 508.00003 1944.0001 ) "Textures/Industri/flat_dk" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
     ( -814 508.00003 1948 ) ( -814 508.00003 1944.0001 ) ( -814 402 1952 ) "Textures/Industri/flat_dk" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
     ( -816 508.00003 1948 ) ( -816 508.00003 1944.0001 ) ( -814 508.00003 1944.0001 ) "Textures/Industri/flat_dk" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
@@ -3443,7 +3442,7 @@ Version 13
     ( -224 960 504 ) ( -288 960 504 ) ( -288 960 528 ) "Textures/Kai/met2" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
   }
 
-  { // Brush 380
+  {
     ( -288 984 528 ) ( -288 1008 528 ) ( -280 1008 528 ) "Textures/Kai/met2" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -288 1008 504 ) ( -288 984 504 ) ( -280 984 504 ) "Textures/Kai/met2" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -288 984 504 ) ( -288 1008 504 ) ( -288 1008 528 ) "Textures/Kai/met2" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
@@ -3624,7 +3623,7 @@ Version 13
     ( -376.00003 -264 408 ) ( -392 -264 408 ) ( -392 -264 416.00003 ) "Textures/meta/clip" ( 2 0 0 0 ( 32 0 0 ) ( 0 0 -32 ) )
   }
 
-  { // Brush 400
+  {
     ( -776 -280 416.00003 ) ( -776 -264 416.00003 ) ( -760 -264 416.00003 ) "Textures/meta/clip" ( 2 0 0 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( -776 -264 240 ) ( -776 -280 240 ) ( -760 -280 240 ) "Textures/meta/clip" ( 2 0 0 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( -776 -280 240 ) ( -776 -264 240 ) ( -776 -264 416.00003 ) "Textures/meta/clip" ( 2 0 0 0 ( 0 32 0 ) ( 0 0 -32 ) )
@@ -3804,7 +3803,7 @@ Version 13
     ( -264 376.00003 408 ) ( -264 392 408 ) ( -264 392 416.00003 ) "Textures/meta/clip" ( 2 0 0 0 ( 0 32 0 ) ( 0 0 -32 ) )
   }
 
-  { // Brush 420
+  {
     ( -264 760 416.00003 ) ( -280 760 416.00003 ) ( -280 776 416.00003 ) "Textures/meta/clip" ( 2 0 0 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( -264 776 240 ) ( -280 776 240 ) ( -280 760 240 ) "Textures/meta/clip" ( 2 0 0 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( -264 760 240 ) ( -280 760 240 ) ( -280 760 416.00003 ) "Textures/meta/clip" ( 2 0 0 0 ( 32 0 0 ) ( 0 0 -32 ) )
@@ -3930,241 +3929,241 @@ Version 13
   }
 }
 
-{ // Entity 1
+{
   classname "info_player_start"
   angles "0 90 0"
   origin "0 80 392"
 }
 
-{ // Entity 2
+{
   classname "info_player_start"
   angles "0 180 0"
   origin "0 1024 320"
 }
 
-{ // Entity 3
+{
   classname "info_player_start"
   angles "0 0 0"
   origin "0 -1024 344"
 }
 
-{ // Entity 4
+{
   classname "info_player_start"
   angles "0 270 0"
   origin "1024 4 320"
 }
 
-{ // Entity 5
+{
   classname "info_player_start"
   angles "0 90 0"
   origin "-1000 0 320"
 }
 
-{ // Entity 6
+{
   classname "weapon_shotgun"
   angles "0 90 0"
   origin "0 80 320"
 }
 
-{ // Entity 7
+{
   classname "weapon_shotgun"
   angles "0 90 0"
   origin "-1000 0 248"
 }
 
-{ // Entity 8
+{
   classname "weapon_shotgun"
   angles "0 90 0"
   origin "1024 4 248"
 }
 
-{ // Entity 9
+{
   classname "weapon_shotgun"
   angles "0 90 0"
   origin "0 -1024 272"
 }
 
-{ // Entity 10
+{
   classname "weapon_shotgun"
   angles "0 90 0"
   origin "0 1024 248"
 }
 
-{ // Entity 11
+{
   classname "ammo_shotgun_shells"
   angles "0 90 0"
   origin "-1072 1104 320"
 }
 
-{ // Entity 12
+{
   classname "item_healthkit_small"
   angles "0 90 0"
   origin "1040 1104 320"
 }
 
-{ // Entity 13
+{
   classname "item_healthkit_small"
   angles "0 90 0"
   origin "1104 1104 320"
 }
 
-{ // Entity 14
+{
   classname "item_armor_green"
   angles "0 90 0"
   origin "1104 -1040 320"
 }
 
-{ // Entity 15
+{
   classname "item_armor_green"
   angles "0 90 0"
   origin "1104 -1136 320"
 }
 
-{ // Entity 16
+{
   classname "weapon_357handgun"
   angles "0 90 0"
   origin "-1168 -1136 320"
 }
 
-{ // Entity 17
+{
   classname "weapon_rpg"
   angles "0 0 0"
   origin "0 -160 -144"
 }
 
-{ // Entity 18
+{
   classname "ammo_rpg_rocket"
   angles "0 90 0"
   origin "40 -160 -144"
 }
 
-{ // Entity 19
+{
   classname "ammo_rpg_rocket"
   angles "0 90 0"
   origin "-40 -160 -144"
 }
 
-{ // Entity 20
+{
   classname "weapon_crossbow"
   angles "0 90 0"
   origin "-288 1000 1085"
 }
 
-{ // Entity 21
+{
   classname "ammo_crossbow_arrows"
   angles "0 90 0"
   origin "-261 798 840"
 }
 
-{ // Entity 22
+{
   classname "ammo_crossbow_arrows"
   angles "0 90 0"
   origin "-261 846 840"
 }
 
-{ // Entity 23
+{
   classname "weapon_9mmAR"
   angles "270 90 0"
   origin "0 1632 2032"
 }
 
-{ // Entity 24
+{
   classname "ammo_ARgrenades"
   angles "270 90 0"
   origin "-48 1632 2032"
 }
 
-{ // Entity 25
+{
   classname "ammo_ARgrenades"
   angles "270 90 0"
   origin "48 1632 2032"
 }
 
-{ // Entity 26
+{
   classname "weapon_hornetgun"
   angles "0 90 0"
   origin "-992 992 1472"
 }
 
-{ // Entity 27
+{
   classname "weapon_handgrenade"
   angles "0 90 0"
   origin "-992 -992 1472"
 }
 
-{ // Entity 28
+{
   classname "weapon_handgrenade"
   angles "0 90 0"
   origin "-944 -992 1472"
 }
 
-{ // Entity 29
+{
   classname "weapon_handgrenade"
   angles "0 90 0"
   origin "-896 -992 1472"
 }
 
-{ // Entity 30
+{
   classname "weapon_tripmine"
   angles "0 90 0"
   origin "-944 992 1472"
 }
 
-{ // Entity 31
+{
   classname "weapon_battlescythe"
   angles "0 90 0"
   origin "-896 992 1472"
 }
 
-{ // Entity 32
+{
   classname "item_healthkit_small"
   angles "0 90 0"
   origin "-912 848 1984"
 }
 
-{ // Entity 33
+{
   classname "item_healthkit_small"
   angles "0 90 0"
   origin "-848 848 1984"
 }
 
-{ // Entity 34
+{
   classname "item_armor_green"
   angles "0 90 0"
   origin "-848 -848 1984"
 }
 
-{ // Entity 35
+{
   classname "item_armor_green"
   angles "0 90 0"
   origin "-912 -848 1984"
 }
 
-{ // Entity 36
+{
   classname "weapon_tripmine"
   angles "0 90 0"
   origin "0 464 -4"
 }
 
-{ // Entity 37
+{
   classname "weapon_tripmine"
   angles "0 90 0"
   origin "0 424 0"
 }
 
-{ // Entity 38
+{
   classname "weapon_handgrenade"
   angles "0 90 0"
   origin "0 384 0"
 }
 
-{ // Entity 39
+{
   classname "weapon_crossbow"
   angles "0 45 0"
   origin "392 392 1928"
 }
 
-{ // Entity 40
+{
   classname "PointLight"
   intensity_r "10"
   intensity_g "10"
@@ -4177,7 +4176,7 @@ Version 13
   origin "1232 80 304"
 }
 
-{ // Entity 41
+{
   classname "PointLight"
   intensity_r "10"
   intensity_g "10"
@@ -4190,61 +4189,61 @@ Version 13
   origin "1224 -64 304"
 }
 
-{ // Entity 42
+{
   classname "weapon_facehugger"
   angles "0 90 0"
   origin "-1168 -1008 320"
 }
 
-{ // Entity 43
+{
   classname "weapon_hornetgun"
   angles "0 90 0"
   origin "-1040 -1136 320"
 }
 
-{ // Entity 44
+{
   classname "weapon_egon"
   angles "0 145 0"
   origin "-992 0 2016"
 }
 
-{ // Entity 45
+{
   classname "item_armor_green"
   angles "0 90 0"
   origin "1008 -1136 320"
 }
 
-{ // Entity 46
+{
   classname "item_healthkit_small"
   angles "0 90 0"
   origin "1104 1040 320"
 }
 
-{ // Entity 47
+{
   classname "ammo_shotgun_shells"
   angles "0 90 0"
   origin "-1168 1008 320"
 }
 
-{ // Entity 48
+{
   classname "ammo_shotgun_shells"
   angles "0 90 0"
   origin "-1168 1104 320"
 }
 
-{ // Entity 49
+{
   classname "ammo_crossbow_arrows"
   angles "0 215 0"
   origin "464 464 1928"
 }
 
-{ // Entity 50
+{
   classname "ammo_crossbow_arrows"
   angles "0 215 0"
   origin "432 432 1928"
 }
 
-{ // Entity 51
+{
   classname "PointLight"
   intensity_r "40"
   intensity_g "20"
@@ -4257,61 +4256,61 @@ Version 13
   origin "0 1632 1984"
 }
 
-{ // Entity 52
+{
   classname "ammo_gausscells"
   angles "0 145 0"
   origin "-992 -48 2016"
 }
 
-{ // Entity 53
+{
   classname "ammo_gausscells"
   angles "0 145 0"
   origin "-992 48 2016"
 }
 
-{ // Entity 54
+{
   classname "item_longjump"
   angles "0 90 0"
   origin "-448 448 1472"
 }
 
-{ // Entity 55
+{
   classname "item_longjump"
   angles "0 90 0"
   origin "-448 -448 1472"
 }
 
-{ // Entity 56
+{
   classname "weapon_gauss"
   angles "0 180 0"
   origin "1104 824 260"
 }
 
-{ // Entity 57
+{
   classname "weapon_tripmine"
   angles "0 90 0"
   origin "-184 1112 248"
 }
 
-{ // Entity 58
+{
   classname "weapon_tripmine"
   angles "0 90 0"
   origin "176 1112 248"
 }
 
-{ // Entity 59
+{
   classname "ammo_crossbow_arrows"
   angles "0 90 0"
   origin "-336 -1224 272"
 }
 
-{ // Entity 60
+{
   classname "weapon_handgrenade"
   angles "0 90 0"
   origin "336 -1224 272"
 }
 
-{ // Entity 61
+{
   classname "LifeFormMaker"
   angles "0 90 0"
   monstercount "2"
@@ -4321,37 +4320,37 @@ Version 13
   origin "768 191 384"
 }
 
-{ // Entity 62
+{
   classname "monster_eagle"
   angles "0 32 0"
   origin "-880 -936 3696"
 }
 
-{ // Entity 63
+{
   classname "monster_eagle"
   angles "0 305 0"
   origin "456 -1152 2328"
 }
 
-{ // Entity 64
+{
   classname "monster_eagle"
   angles "0 196 0"
   origin "256 1016 1080"
 }
 
-{ // Entity 65
+{
   classname "monster_butterfly"
   angles "0 90 0"
   origin "-384 -200 392"
 }
 
-{ // Entity 66
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( -16 -40 216 ) ( -16 -40 -160 ) ( -16 -36 -160 ) "Textures/Kai/ladder_chrm" ( 2 0.1875 0 0 ( 0 32 0 ) ( 0 0 -32 ) )
     ( 16 -36 216 ) ( 16 -36 -160 ) ( 16 -40 -160 ) "Textures/Kai/ladder_chrm" ( 2 0.1875 0 0 ( 0 32 0 ) ( 0 0 -32 ) )
     ( 16 -40 216 ) ( 16 -40 -160 ) ( -16 -40 -160 ) "Textures/Kai/ladder_chrm" ( 2 0.5 0 0 ( 32 0 0 ) ( 0 0 -32 ) )
@@ -4361,13 +4360,13 @@ Version 13
   }
 }
 
-{ // Entity 67
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( -352 -1024 1408 ) ( -352 -1024 248.00002 ) ( -352 -992.00006 248.00002 ) "Textures/Kai/ladder_chrm" ( 2 0 0 0 ( 0 32 0 ) ( 0 0 -32 ) )
     ( -348 -992.00006 1408 ) ( -348 -992.00006 248.00002 ) ( -348 -1024 248.00002 ) "Textures/Kai/ladder_chrm" ( 2 0 0 0 ( 0 32 0 ) ( 0 0 -32 ) )
     ( -348 -1024 1408 ) ( -348 -1024 248.00002 ) ( -352 -1024 248.00002 ) "Textures/Kai/ladder_chrm" ( 2 -0.09375 0 0 ( 32 0 0 ) ( 0 0 -32 ) )
@@ -4377,13 +4376,13 @@ Version 13
   }
 }
 
-{ // Entity 68
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( -352 984 1408 ) ( -352 984 1048 ) ( -352 1016.00006 1048 ) "Textures/Kai/ladder_chrm" ( 2 0 0 0 ( 0 32 0 ) ( 0 0 -32 ) )
     ( -348 1016.00006 1408 ) ( -348 1016.00006 1048 ) ( -348 984 1048 ) "Textures/Kai/ladder_chrm" ( 2 0.25 0 0 ( 0 32 0 ) ( 0 0 -32 ) )
     ( -348 984 1408 ) ( -348 984 1048 ) ( -352 984 1048 ) "Textures/Kai/ladder_chrm" ( 2 -0.0625 0 0 ( 32 0 0 ) ( 0 0 -32 ) )
@@ -4393,13 +4392,13 @@ Version 13
   }
 }
 
-{ // Entity 69
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( -864 508.00003 1920 ) ( -864 508.00003 1416 ) ( -864 512 1416 ) "Textures/Kai/ladder_chrm" ( 2 0.0625 0 0 ( 0 32 0 ) ( 0 0 -32 ) )
     ( -832.00006 512 1920 ) ( -832.00006 512 1416 ) ( -832.00006 508.00003 1416 ) "Textures/Kai/ladder_chrm" ( 2 0.0625 0 0 ( 0 32 0 ) ( 0 0 -32 ) )
     ( -832.00006 508.00003 1920 ) ( -832.00006 508.00003 1416 ) ( -864 508.00003 1416 ) "Textures/Kai/ladder_chrm" ( 2 0 0 0 ( 32 0 0 ) ( 0 0 -32 ) )
@@ -4409,13 +4408,13 @@ Version 13
   }
 }
 
-{ // Entity 70
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( -864 -512 1920 ) ( -864 -512 1416 ) ( -864 -508.00003 1416 ) "Textures/Kai/ladder_chrm" ( 2 0 0 0 ( 0 32 0 ) ( 0 0 -32 ) )
     ( -832.00006 -508.00003 1920 ) ( -832.00006 -508.00003 1416 ) ( -832.00006 -512 1416 ) "Textures/Kai/ladder_chrm" ( 2 0 0 0 ( 0 32 0 ) ( 0 0 -32 ) )
     ( -832.00006 -512 1920 ) ( -832.00006 -512 1416 ) ( -864 -512 1416 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 176 0 0 ) ( 0 0 -160 ) )
@@ -4425,7 +4424,7 @@ Version 13
   }
 }
 
-{ // Entity 71
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
@@ -4433,7 +4432,7 @@ Version 13
   health "20"
   material "2"
 
-  { // Brush 0
+  {
     ( -45 232 -45 ) ( 0 232 -64 ) ( 45 232 -45 ) "Textures/Kai/fireescape" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
     ( 0 224 64 ) ( 45 224 45 ) ( 64 224 0 ) "Textures/Kai/fireescape" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
     ( 45 224 45 ) ( 0 224 64 ) ( 0 232 64 ) "Textures/Kai/fireescape" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
@@ -4447,13 +4446,13 @@ Version 13
   }
 }
 
-{ // Entity 72
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( -356.00003 -1052 1428 ) ( -356.00003 -356.00003 1428 ) ( -352 -356.00003 1428 ) "Textures/meta/nonexistent" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -356.00003 -356.00003 1408 ) ( -356.00003 -1052 1408 ) ( -352 -1052 1408 ) "Textures/meta/nonexistent" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -356.00003 -1052 1408 ) ( -356.00003 -356.00003 1408 ) ( -356.00003 -356.00003 1428 ) "Textures/Kai/vent_front" ( 2 0 -0.0208594 0 ( 0 64 0 ) ( 0 0 -48 ) )
@@ -4490,13 +4489,13 @@ Version 13
   }
 }
 
-{ // Entity 73
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( -1056 356.00003 1428 ) ( -1056 1052 1428 ) ( -1052 1052 1428 ) "Textures/meta/nonexistent" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -1056 1052 1408 ) ( -1056 356.00003 1408 ) ( -1052 356.00003 1408 ) "Textures/meta/nonexistent" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -1056 356.00003 1408 ) ( -1056 1052 1408 ) ( -1056 1052 1428 ) "Textures/Kai/vent_front" ( 2 0 -0.0208594 0 ( 0 64 0 ) ( 0 0 -48 ) )
@@ -4533,12 +4532,12 @@ Version 13
   }
 }
 
-{ // Entity 74
+{
   classname "func_water"
   rendertranslucency "200"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -240 -240 -32 ) ( -240 512 -32 ) ( 240 512 -32 ) "Textures/liquids/sewage" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -240 512 -160 ) ( -240 -240 -160 ) ( 240 -240 -160 ) "Textures/liquids/sewage" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -240 -240 -160 ) ( -240 512 -160 ) ( -240 512 -32 ) "Textures/liquids/sewage" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
@@ -4548,10 +4547,10 @@ Version 13
   }
 }
 
-{ // Entity 75
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( -348 -1024 1408 ) ( -348 -1024 248.00002 ) ( -348 -992.00006 248.00002 ) "Textures/generic/_orange" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
     ( -340 -992.00006 1408 ) ( -340 -992.00006 248.00002 ) ( -340 -1024 248.00002 ) "Textures/generic/_orange" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
     ( -340 -1024 1408 ) ( -340 -1024 248.00002 ) ( -348 -1024 248.00002 ) "Textures/generic/_orange" ( 2 -0.1875 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -4561,10 +4560,10 @@ Version 13
   }
 }
 
-{ // Entity 76
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( -864 500 1920 ) ( -864 500 1416 ) ( -864 508.00003 1416 ) "Textures/generic/_orange" ( 2 0.125 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
     ( -832.00006 508.00003 1920 ) ( -832.00006 508.00003 1416 ) ( -832.00006 500 1416 ) "Textures/generic/_orange" ( 2 0.125 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
     ( -832.00006 500 1920 ) ( -832.00006 500 1416 ) ( -864 500 1416 ) "Textures/generic/_orange" ( 2 0 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -4574,10 +4573,10 @@ Version 13
   }
 }
 
-{ // Entity 77
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( -864 -508.00003 1920 ) ( -864 -508.00003 1416 ) ( -864 -500 1416 ) "Textures/generic/_orange" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
     ( -832.00006 -500 1920 ) ( -832.00006 -500 1416 ) ( -832.00006 -508.00003 1416 ) "Textures/generic/_orange" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
     ( -832.00006 -508.00003 1920 ) ( -832.00006 -508.00003 1416 ) ( -864 -508.00003 1416 ) "Textures/generic/_orange" ( 2 0 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -4587,10 +4586,10 @@ Version 13
   }
 }
 
-{ // Entity 78
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( -348 984 1408 ) ( -348 984 1048 ) ( -348 1016.00006 1048 ) "Textures/generic/_orange" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
     ( -340 1016.00006 1408 ) ( -340 1016.00006 1048 ) ( -340 984 1048 ) "Textures/generic/_orange" ( 2 0.5 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
     ( -340 984 1408 ) ( -340 984 1048 ) ( -348 984 1048 ) "Textures/generic/_orange" ( 2 -0.125 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -4600,10 +4599,10 @@ Version 13
   }
 }
 
-{ // Entity 79
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( -16 -36 216 ) ( -16 -36 -160 ) ( -16 -28 -160 ) "Textures/generic/_orange" ( 2 0.375 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
     ( 16 -28 216 ) ( 16 -28 -160 ) ( 16 -36 -160 ) "Textures/generic/_orange" ( 2 0.375 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
     ( 16 -36 216 ) ( 16 -36 -160 ) ( -16 -36 -160 ) "Textures/generic/_orange" ( 2 1 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -4613,10 +4612,10 @@ Version 13
   }
 }
 
-{ // Entity 80
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( -348 864 1048 ) ( -348 872.00006 1048 ) ( -288 872.00006 1048 ) "Textures/generic/_orange" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -348 816 784 ) ( -348 808 784 ) ( -288 808 784 ) "Textures/generic/_orange" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -348 808 784 ) ( -348 816 784 ) ( -348 872.00006 1048 ) "Textures/generic/_orange" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -4626,13 +4625,13 @@ Version 13
   }
 }
 
-{ // Entity 81
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( -348 872.00006 1048 ) ( -348 880 1048 ) ( -288 880 1048 ) "Textures/meta/nonexistent" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -348 824 784 ) ( -348 816 784 ) ( -288 816 784 ) "Textures/meta/nonexistent" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -348 816 784 ) ( -348 824 784 ) ( -348 880 1048 ) "Textures/meta/nonexistent" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
@@ -4642,13 +4641,13 @@ Version 13
   }
 }
 
-{ // Entity 82
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( -284 904 784 ) ( -284 912.00006 784 ) ( -228.00002 912.00006 784 ) "Textures/meta/nonexistent" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -284 968 528 ) ( -284 960 528 ) ( -228.00002 960 528 ) "Textures/meta/nonexistent" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -284 960 528 ) ( -284 968 528 ) ( -284 912.00006 784 ) "Textures/meta/nonexistent" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
@@ -4658,13 +4657,13 @@ Version 13
   }
 }
 
-{ // Entity 83
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( -348 872.00006 528 ) ( -348 880 528 ) ( -288 880 528 ) "Textures/meta/nonexistent" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -348 824 240 ) ( -348 816 240 ) ( -288 816 240 ) "Textures/meta/nonexistent" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -348 816 240 ) ( -348 824 240 ) ( -348 880 528 ) "Textures/meta/nonexistent" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
@@ -4674,10 +4673,10 @@ Version 13
   }
 }
 
-{ // Entity 84
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( -348 864 528 ) ( -348 872.00006 528 ) ( -288 872.00006 528 ) "Textures/generic/_orange" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -348 816 240 ) ( -348 808 240 ) ( -288 808 240 ) "Textures/generic/_orange" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -348 808 240 ) ( -348 816 240 ) ( -348 872.00006 528 ) "Textures/generic/_orange" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -4687,10 +4686,10 @@ Version 13
   }
 }
 
-{ // Entity 85
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( -284 912.00006 784 ) ( -284 920 784 ) ( -228.00002 920 784 ) "Textures/generic/_orange" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -284 976 528 ) ( -284 968 528 ) ( -228.00002 968 528 ) "Textures/generic/_orange" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -284 968 528 ) ( -284 976 528 ) ( -284 920 784 ) "Textures/generic/_orange" ( 2 0 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -4700,10 +4699,10 @@ Version 13
   }
 }
 
-{ // Entity 86
+{
   classname "func_wall"
 
-  { // Brush 0
+  {
     ( 770 -280 416.00003 ) ( 766 -280 416.00003 ) ( 764 -275 416.00003 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 770 -270 241 ) ( 766 -270 241 ) ( 764 -275 241 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 766 -270 241 ) ( 770 -270 241 ) ( 770 -270 416.00003 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
@@ -4737,10 +4736,10 @@ Version 13
   }
 }
 
-{ // Entity 87
+{
   classname "func_wall"
 
-  { // Brush 0
+  {
     ( 768 186 404 ) ( 779 191 404 ) ( 784 202 404 ) "Textures/OldWAD/Lights/lightwhite" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 779 191 404 ) ( 768 186 404 ) ( 768 202 412 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 784 202 404 ) ( 779 191 404 ) ( 768 202 412 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
@@ -4774,10 +4773,10 @@ Version 13
   }
 }
 
-{ // Entity 88
+{
   classname "func_wall"
 
-  { // Brush 0
+  {
     ( 384 186 404 ) ( 395 191 404 ) ( 400 202 404 ) "Textures/OldWAD/Lights/lightwhite" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 395 191 404 ) ( 384 186 404 ) ( 384 202 412 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 400 202 404 ) ( 395 191 404 ) ( 384 202 412 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
@@ -4811,10 +4810,10 @@ Version 13
   }
 }
 
-{ // Entity 89
+{
   classname "func_wall"
 
-  { // Brush 0
+  {
     ( 386.00003 -280 416.00003 ) ( 382 -280 416.00003 ) ( 380 -275 416.00003 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 386.00003 -270 241 ) ( 382 -270 241 ) ( 380 -275 241 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 382 -270 241 ) ( 386.00003 -270 241 ) ( 386.00003 -270 416.00003 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
@@ -4848,10 +4847,10 @@ Version 13
   }
 }
 
-{ // Entity 90
+{
   classname "func_wall"
 
-  { // Brush 0
+  {
     ( 186 768 404 ) ( 191 757.00006 404 ) ( 202 752.00006 404 ) "Textures/OldWAD/Lights/lightwhite" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 191 757.00006 404 ) ( 186 768 404 ) ( 202 768 412 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 202 752.00006 404 ) ( 191 757.00006 404 ) ( 202 768 412 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
@@ -4885,10 +4884,10 @@ Version 13
   }
 }
 
-{ // Entity 91
+{
   classname "func_wall"
 
-  { // Brush 0
+  {
     ( 186 384 404 ) ( 191 373 404 ) ( 202 368 404 ) "Textures/OldWAD/Lights/lightwhite" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 191 373 404 ) ( 186 384 404 ) ( 202 384 412 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 202 368 404 ) ( 191 373 404 ) ( 202 384 412 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
@@ -4922,10 +4921,10 @@ Version 13
   }
 }
 
-{ // Entity 92
+{
   classname "func_wall"
 
-  { // Brush 0
+  {
     ( -186 768 404 ) ( -191 779 404 ) ( -202 784 404 ) "Textures/OldWAD/Lights/lightwhite" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -202 768 412 ) ( -191 779 404 ) ( -186 768 404 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -202 784 404 ) ( -191 779 404 ) ( -202 768 412 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
@@ -4959,10 +4958,10 @@ Version 13
   }
 }
 
-{ // Entity 93
+{
   classname "func_wall"
 
-  { // Brush 0
+  {
     ( -186 384 404 ) ( -191 395 404 ) ( -202 400 404 ) "Textures/OldWAD/Lights/lightwhite" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -202 384 412 ) ( -191 395 404 ) ( -186 384 404 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -202 400 404 ) ( -191 395 404 ) ( -202 384 412 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
@@ -4996,10 +4995,10 @@ Version 13
   }
 }
 
-{ // Entity 94
+{
   classname "func_wall"
 
-  { // Brush 0
+  {
     ( -382 270 416.00003 ) ( -386.00003 270 416.00003 ) ( -388 275 416.00003 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -382 280 241 ) ( -386.00003 280 241 ) ( -388 275 241 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -382 270 241 ) ( -386.00003 270 241 ) ( -386.00003 270 416.00003 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
@@ -5033,10 +5032,10 @@ Version 13
   }
 }
 
-{ // Entity 95
+{
   classname "func_wall"
 
-  { // Brush 0
+  {
     ( -766 270 416.00003 ) ( -770 270 416.00003 ) ( -772.00006 275 416.00003 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -766 280 241 ) ( -770 280 241 ) ( -772.00006 275 241 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -766 270 241 ) ( -770 270 241 ) ( -770 270 416.00003 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
@@ -5070,10 +5069,10 @@ Version 13
   }
 }
 
-{ // Entity 96
+{
   classname "func_wall"
 
-  { // Brush 0
+  {
     ( -757.00006 -191 404 ) ( -768 -186 404 ) ( -779 -191 404 ) "Textures/OldWAD/Lights/lightwhite" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -768 -186 404 ) ( -757.00006 -191 404 ) ( -768 -202 412 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -768 -202 412 ) ( -757.00006 -191 404 ) ( -752.00006 -202 404 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
@@ -5107,10 +5106,10 @@ Version 13
   }
 }
 
-{ // Entity 97
+{
   classname "func_wall"
 
-  { // Brush 0
+  {
     ( -373 -191 404 ) ( -384 -186 404 ) ( -395 -191 404 ) "Textures/OldWAD/Lights/lightwhite" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -384 -186 404 ) ( -373 -191 404 ) ( -384 -202 412 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -384 -202 412 ) ( -373 -191 404 ) ( -368 -202 404 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
@@ -5144,10 +5143,10 @@ Version 13
   }
 }
 
-{ // Entity 98
+{
   classname "func_wall"
 
-  { // Brush 0
+  {
     ( -280 -386.00003 416.00003 ) ( -280 -382 416.00003 ) ( -275 -380 416.00003 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -280 -382 241 ) ( -280 -386.00003 241 ) ( -275 -388 241 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -270 -382 241 ) ( -270 -386.00003 241 ) ( -270 -386.00003 416.00003 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
@@ -5181,10 +5180,10 @@ Version 13
   }
 }
 
-{ // Entity 99
+{
   classname "func_wall"
 
-  { // Brush 0
+  {
     ( -186 -768 404 ) ( -191 -757.00006 404 ) ( -202 -752.00006 404 ) "Textures/OldWAD/Lights/lightwhite" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -202 -768 412 ) ( -191 -757.00006 404 ) ( -186 -768 404 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -202 -752.00006 404 ) ( -191 -757.00006 404 ) ( -202 -768 412 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
@@ -5218,10 +5217,10 @@ Version 13
   }
 }
 
-{ // Entity 100
+{
   classname "func_wall"
 
-  { // Brush 0
+  {
     ( 186 -768 404 ) ( 191 -779 404 ) ( 202 -784 404 ) "Textures/OldWAD/Lights/lightwhite" ( 2 0 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 202 -768 412 ) ( 191 -779 404 ) ( 186 -768 404 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 202 -784 404 ) ( 191 -779 404 ) ( 202 -768 412 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
@@ -5255,10 +5254,10 @@ Version 13
   }
 }
 
-{ // Entity 101
+{
   classname "func_wall"
 
-  { // Brush 0
+  {
     ( 270 -386.00003 416.00003 ) ( 270 -382 416.00003 ) ( 275 -380 416.00003 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 270 -382 241 ) ( 270 -386.00003 241 ) ( 275 -388 241 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 270 -386.00003 241 ) ( 270 -382 241 ) ( 270 -382 416.00003 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
@@ -5292,10 +5291,10 @@ Version 13
   }
 }
 
-{ // Entity 102
+{
   classname "func_wall"
 
-  { // Brush 0
+  {
     ( 1146 1142 416.00003 ) ( 1143 1145 416.00003 ) ( 1145 1150 416.00003 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 1153 1149 240 ) ( 1150 1152 240 ) ( 1145 1150 240 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 1146 1142 240 ) ( 1143 1145 240 ) ( 1143 1145 416.00003 ) "Textures/Frank/metal_wall2" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )

@@ -25,7 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Load_MatReplMan.hpp"
 #include "MapBrush.hpp"
 #include "MapDocument.hpp"
-#include "MapEntity.hpp"
+#include "MapEntityBase.hpp"
 #include "MapFace.hpp"
 
 #include "TextParser/TextParser.hpp"
@@ -199,13 +199,12 @@ void MapEntityBaseT::Load_HL1_map(TextParserT& TP, MapDocumentT& MapDoc, wxProgr
 
         // Set our origin from the "origin" property, then remove it from the properties list:
         // the origin is a special-case that is not defined by the EntityClassDefs.lua scripts.
-        MapEntityT*   Ent =dynamic_cast<MapEntityT*>(this);
         EntPropertyT* Prop=FindProperty("origin", &Index);
         const bool    FoundOrigin=(Prop!=NULL);
 
-        if (Ent!=NULL && Prop!=NULL)
+        if (Prop!=NULL)
         {
-            Ent->SetOrigin(Prop->GetVector3f());
+            SetOrigin(Prop->GetVector3f());
             m_Properties.RemoveAtAndKeepOrder(Index);
         }
 

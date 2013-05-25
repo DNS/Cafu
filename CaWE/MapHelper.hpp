@@ -22,44 +22,38 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_MAP_HELPER_HPP_INCLUDED
 #define CAFU_MAP_HELPER_HPP_INCLUDED
 
-#include "MapElement.hpp"
+#include "Math3D/BoundingBox.hpp"
 
 
-class MapEntityT;
-namespace cf { namespace TypeSys { class TypeInfoT; } }
-namespace cf { namespace TypeSys { class TypeInfoManT; } }
+class MapEntRepresT;
+class Renderer2DT;
+class Renderer3DT;
 
 
-class MapHelperT : public MapElementT
+class MapHelperT
 {
     public:
 
     /// The default constructor.
-    MapHelperT(const MapEntityT* ParentEntity);
+    MapHelperT(MapEntRepresT& Repres);
 
     /// The copy constructor for copying a helper.
     /// @param Helper   The helper to copy-construct this helper from.
     MapHelperT(const MapHelperT& Helper);
 
-    /// This method (re-)sets the parent entity that we are a helper for,
-    /// for use after an entity (with all its helpers) has been cloned.
-    void SetParentEntity(const MapEntityT* ParentEntity);
+    /// The virtual destructor, so that derived classes can be deleted via a MapHelperT pointer.
+    virtual ~MapHelperT() { }
 
+    /// Returns the spatial bounding-box of this map element.
+    virtual BoundingBox3fT GetBB() const=0;
 
-    // Implementations and overrides for base class methods.
-    MapHelperT* Clone() const=0;
-    void        Assign(const MapElementT* Elem);
-
-
-    // The TypeSys related declarations for this class.
-    virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
-    static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
-    static const cf::TypeSys::TypeInfoT TypeInfo;
+    virtual void Render2D(Renderer2DT& Renderer) const { }
+    virtual void Render3D(Renderer3DT& Renderer) const { }
 
 
     protected:
 
-    const MapEntityT* m_ParentEntity;   ///< Our parent entity that we are a helper for.
+    MapEntRepresT& m_Repres;    ///< The entity representation instance that we are a helper for.
 };
 
 #endif

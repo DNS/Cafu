@@ -1018,17 +1018,14 @@ void ToolMorphT::NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<
 }
 
 
-void ToolMorphT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements)
+void ToolMorphT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapPrimitiveT*>& Primitives)
 {
     if (!IsActiveTool() || m_IsRecursiveSelfNotify) return;
 
-    // Remove all entries that are in MapElements and m_MorphPrims from m_MorphPrims.
-    for (unsigned long ElemNr=0; ElemNr<MapElements.Size(); ElemNr++)
+    // Remove all entries that are in Primitives and m_MorphPrims from m_MorphPrims.
+    for (unsigned long PrimNr = 0; PrimNr < Primitives.Size(); PrimNr++)
     {
-        MapPrimitiveT* MapPrim=dynamic_cast<MapPrimitiveT*>(MapElements[ElemNr]);
-        if (!MapPrim) continue;
-
-        const int MPNr=MorphPrims_Find(MapPrim);
+        const int MPNr = MorphPrims_Find(Primitives[PrimNr]);
         if (MPNr < 0) continue;
 
         delete m_MorphPrims[MPNr];

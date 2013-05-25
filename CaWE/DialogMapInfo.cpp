@@ -21,10 +21,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "DialogMapInfo.hpp"
 #include "EntityClass.hpp"
-#include "MapEntity.hpp"
 #include "MapFace.hpp"
 #include "MapBrush.hpp"
 #include "MapDocument.hpp"
+#include "MapEntityBase.hpp"
+#include "MapEntRepres.hpp"
 #include "Templates/Array.hpp"
 #include "EditorMaterial.hpp"
 
@@ -43,7 +44,7 @@ MapInfoDialogT::MapInfoDialogT(MapDocumentT& MapDoc)
     {
         const MapEntityBaseT* Ent=MapDoc.GetEntities()[EntNr];
 
-        Stats[Ent->GetType()]++;
+        Stats[Ent->GetRepres()->GetType()]++;
 
         for (unsigned long PrimNr=0; PrimNr<Ent->GetPrimitives().Size(); PrimNr++)
         {

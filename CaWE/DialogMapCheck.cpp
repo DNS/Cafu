@@ -26,11 +26,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "EntityClass.hpp"
 #include "GameConfig.hpp"
 #include "MapDocument.hpp"
-#include "MapEntity.hpp"
+#include "MapEntityBase.hpp"
+#include "MapEntRepres.hpp"
 #include "MapBrush.hpp"
 #include "ChildFrame.hpp"
 #include "ChildFrameViewWin2D.hpp"
-#include "MapWorld.hpp"
 #include "Options.hpp"
 #include "Tool.hpp"
 #include "ToolManager.hpp"
@@ -48,10 +48,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
  * TODO:
  *   1. This dialog should be modeless and an observer of the world, just like our other dialogs/views/observers!
  *   2. VERY IMPORTANT: The "Fix All" button is currently dangerous - batches of commands are submitted, but what if several
- *      commands process the same element, and e.g. the first command deletes the elem?
+ *      commands process the same entity, and e.g. the first command deletes the entity?
  *      Or the first command manipulates the properties that the subsequent commands directly or indirectly referred to?
  *      Have the ObserverT::Notify*() handlers deal with the issue? Special case code? ...?
- *      One very important requirement seems to be to only ever find and keep at most ONE problem per map element!
+ *      One very important requirement seems to be to only ever find and keep at most ONE problem per map entity!
  *   3. Add an MP_CheckUniqueValuesT checker, to find all entity properties that are supposed to be unique, but aren't.
  *   4. This needs WAY MORE testing - make a problem-cmap test file...
  */
@@ -63,15 +63,15 @@ class MapCheckerT
     public:
 
     /// The constructor.
-    MapCheckerT(MapDocumentT& MapDoc, MapElementT* Elem) : m_MapDoc(MapDoc), m_Elem(Elem) { }
+    MapCheckerT(MapDocumentT& MapDoc, MapEntityBaseT* Ent) : m_MapDoc(MapDoc), m_Ent(Ent) { }
 
     /// The virtual destructor.
     virtual ~MapCheckerT() { }
 
-    /// Returns the element that is checker is assigned to.
-    MapElementT* GetElem() const { return m_Elem; }
+    /// Returns the entity that this checker is assigned to.
+    MapEntityBaseT* GetEnt() const { return m_Ent; }
 
-    /// Returns whether this map checker has actually identified a problem with the element it is assigned to.
+    /// Returns whether this map checker has actually identified a problem with the entity it is assigned to.
     /// When false, there either never was a problem in the first place, or it has been fixed already.
     virtual bool HasProblem() const { return false; }
 
@@ -90,8 +90,8 @@ class MapCheckerT
 
     protected:
 
-    MapDocumentT& m_MapDoc;
-    MapElementT*  m_Elem;
+    MapDocumentT&   m_MapDoc;
+    MapEntityBaseT* m_Ent;
 };
 
 
@@ -99,15 +99,11 @@ class MC_UnknownTargetT : public MapCheckerT
 {
     public:
 
-    MC_UnknownTargetT(MapDocumentT& MapDoc, MapElementT* Elem) : MapCheckerT(MapDoc, Elem) { }
+    MC_UnknownTargetT(MapDocumentT& MapDoc, MapEntityBaseT* Ent) : MapCheckerT(MapDoc, Ent) { }
 
     bool HasProblem() const
     {
-        // If m_Elem is not an entity, we don't have a problem here.
-        if (m_Elem->GetType()!=&MapEntityT::TypeInfo) return false;
-
-        const MapEntityT*   Ent1      =static_cast<MapEntityT*>(m_Elem);
-        const EntPropertyT* TargetProp=Ent1->FindProperty("target");
+        const EntPropertyT* TargetProp = m_Ent->FindProperty("target");
 
         // If this entity doesn't have the "target" property or an empty value, we don't have a problem.
         if (TargetProp==NULL) return false;
@@ -127,10 +123,7 @@ class MC_UnknownTargetT : public MapCheckerT
 
     wxString GetTargetValue() const
     {
-        if (m_Elem->GetType()!=&MapEntityT::TypeInfo) return "";
-
-        const MapEntityT*   Ent       =static_cast<MapEntityT*>(m_Elem);
-        const EntPropertyT* TargetProp=Ent->FindProperty("target");
+        const EntPropertyT* TargetProp = m_Ent->FindProperty("target");
 
         return TargetProp ? TargetProp->Value : "";
     }
@@ -150,12 +143,7 @@ class MC_UndefinedClassOrKeysT : public MapCheckerT
 {
     public:
 
-    MC_UndefinedClassOrKeysT(MapDocumentT& MapDoc, MapElementT* Elem)
-        : MapCheckerT(MapDoc, Elem),
-          m_Ent(NULL)
-    {
-        m_Ent=dynamic_cast<MapEntityT*>(m_Elem);
-    }
+    MC_UndefinedClassOrKeysT(MapDocumentT& MapDoc, MapEntityBaseT* Ent) : MapCheckerT(MapDoc, Ent) { }
 
     bool HasProblem() const
     {
@@ -235,11 +223,6 @@ class MC_UndefinedClassOrKeysT : public MapCheckerT
         Text+="\n\nThis problem is often a harmless by-product of importing maps from other games.";
         return Text;
     }
-
-
-    private:
-
-    MapEntityT* m_Ent;
 };
 
 
@@ -247,14 +230,11 @@ class MC_DuplicateKeysT : public MapCheckerT
 {
     public:
 
-    MC_DuplicateKeysT(MapDocumentT& MapDoc, MapElementT* Elem) : MapCheckerT(MapDoc, Elem) { }
+    MC_DuplicateKeysT(MapDocumentT& MapDoc, MapEntityBaseT* Ent) : MapCheckerT(MapDoc, Ent) { }
 
     bool HasProblem() const
     {
-        if (m_Elem->GetType()!=&MapEntityT::TypeInfo) return false;
-
-        const MapEntityT*           Ent  =static_cast<MapEntityT*>(m_Elem);
-        const ArrayT<EntPropertyT>& Props=Ent->GetProperties();
+        const ArrayT<EntPropertyT>& Props = m_Ent->GetProperties();
 
         for (unsigned long i=0; i<Props.Size(); i++)
             for (unsigned long j=i+1; j<Props.Size(); j++)
@@ -268,10 +248,7 @@ class MC_DuplicateKeysT : public MapCheckerT
 
     CommandT* GetFix() const
     {
-        if (m_Elem->GetType()!=&MapEntityT::TypeInfo) return NULL;
-
-        MapEntityT*                 Ent  =static_cast<MapEntityT*>(m_Elem);
-        const ArrayT<EntPropertyT>& Props=Ent->GetProperties();
+        const ArrayT<EntPropertyT>& Props = m_Ent->GetProperties();
         ArrayT<int>                 DelIndices;
 
         for (unsigned long i=0; i<Props.Size(); i++)
@@ -281,12 +258,12 @@ class MC_DuplicateKeysT : public MapCheckerT
                         DelIndices.PushBack(j);
 
         if (DelIndices.Size()==0) return NULL;
-        if (DelIndices.Size()==1) return new CommandDeletePropertyT(m_MapDoc, Ent, DelIndices[0]);
+        if (DelIndices.Size()==1) return new CommandDeletePropertyT(m_MapDoc, m_Ent, DelIndices[0]);
 
         ArrayT<CommandT*> Commands;
         DelIndices.QuickSort(LargestFirst);     // Must delete by index strictly in largest-first order!
         for (unsigned long iNr=0; iNr<DelIndices.Size(); iNr++)
-            Commands.PushBack(new CommandDeletePropertyT(m_MapDoc, Ent, DelIndices[iNr]));
+            Commands.PushBack(new CommandDeletePropertyT(m_MapDoc, m_Ent, DelIndices[iNr]));
 
         return new CommandMacroT(Commands, "Delete duplicate entity keys.");
     }
@@ -300,15 +277,11 @@ class MC_EmptySolidEntityT : public MapCheckerT
 {
     public:
 
-    MC_EmptySolidEntityT(MapDocumentT& MapDoc, MapElementT* Elem) : MapCheckerT(MapDoc, Elem) { }
+    MC_EmptySolidEntityT(MapDocumentT& MapDoc, MapEntityBaseT* Ent) : MapCheckerT(MapDoc, Ent) { }
 
     bool HasProblem() const
     {
-        if (m_Elem->GetType()!=&MapEntityT::TypeInfo) return false;
-
-        const MapEntityT* Ent=static_cast<MapEntityT*>(m_Elem);
-
-        return Ent->GetClass()->IsSolidClass() && Ent->GetPrimitives().Size()==0;
+        return m_Ent->GetClass()->IsSolidClass() && m_Ent->GetPrimitives().Size() == 0;
     }
 
     wxString GetInfo() const { return "Empty solid entity."; }
@@ -320,11 +293,11 @@ class MC_WorldHasPlayerStartT : public MapCheckerT
 {
     public:
 
-    MC_WorldHasPlayerStartT(MapDocumentT& MapDoc, MapElementT* Elem) : MapCheckerT(MapDoc, Elem) { }
+    MC_WorldHasPlayerStartT(MapDocumentT& MapDoc, MapEntityBaseT* Ent) : MapCheckerT(MapDoc, Ent) { }
 
     bool HasProblem() const
     {
-        if (m_Elem->GetType()!=&MapWorldT::TypeInfo) return false;
+        if (!m_Ent->IsWorld()) return false;
 
         for (unsigned long EntNr=1/*skip world*/; EntNr<m_MapDoc.GetEntities().Size(); EntNr++)
             if (m_MapDoc.GetEntities()[EntNr]->GetClass()->GetName()=="info_player_start") return false;
@@ -406,20 +379,17 @@ void MapCheckDialogT::UpdateProblems()
         delete m_Problems[ProblemNr];
     m_Problems.Overwrite();
 
-    ArrayT<MapElementT*> Elems;
-    m_MapDoc.GetAllElems(Elems);
-
-    for (unsigned long ElemNr=0; ElemNr<Elems.Size(); ElemNr++)
+    for (unsigned long EntNr = 0; EntNr < m_MapDoc.GetEntities().Size(); EntNr++)
     {
-        MapElementT* Elem=Elems[ElemNr];
+        MapEntityBaseT* Ent = m_MapDoc.GetEntities()[EntNr];
 
-        // IMPORTANT NOTE: Register at most ONE problem for each Elem.
+        // IMPORTANT NOTE: Register at most ONE problem for each Ent.
         // This is supposed to avoid problems with CommandTs...
-        MC_UnknownTargetT        MC1(m_MapDoc, Elem); if (MC1.HasProblem()) { m_Problems.PushBack(new MC_UnknownTargetT       (MC1)); continue; }
-        MC_UndefinedClassOrKeysT MC2(m_MapDoc, Elem); if (MC2.HasProblem()) { m_Problems.PushBack(new MC_UndefinedClassOrKeysT(MC2)); continue; }
-        MC_DuplicateKeysT        MC3(m_MapDoc, Elem); if (MC3.HasProblem()) { m_Problems.PushBack(new MC_DuplicateKeysT       (MC3)); continue; }
-        MC_EmptySolidEntityT     MC4(m_MapDoc, Elem); if (MC4.HasProblem()) { m_Problems.PushBack(new MC_EmptySolidEntityT    (MC4)); continue; }
-        MC_WorldHasPlayerStartT  MC5(m_MapDoc, Elem); if (MC5.HasProblem()) { m_Problems.PushBack(new MC_WorldHasPlayerStartT (MC5)); continue; }
+        MC_UnknownTargetT        MC1(m_MapDoc, Ent); if (MC1.HasProblem()) { m_Problems.PushBack(new MC_UnknownTargetT       (MC1)); continue; }
+        MC_UndefinedClassOrKeysT MC2(m_MapDoc, Ent); if (MC2.HasProblem()) { m_Problems.PushBack(new MC_UndefinedClassOrKeysT(MC2)); continue; }
+        MC_DuplicateKeysT        MC3(m_MapDoc, Ent); if (MC3.HasProblem()) { m_Problems.PushBack(new MC_DuplicateKeysT       (MC3)); continue; }
+        MC_EmptySolidEntityT     MC4(m_MapDoc, Ent); if (MC4.HasProblem()) { m_Problems.PushBack(new MC_EmptySolidEntityT    (MC4)); continue; }
+        MC_WorldHasPlayerStartT  MC5(m_MapDoc, Ent); if (MC5.HasProblem()) { m_Problems.PushBack(new MC_WorldHasPlayerStartT (MC5)); continue; }
     }
 
     // If no problems were found, add the "no problem" problem.
@@ -450,18 +420,18 @@ void MapCheckDialogT::OnListBoxProblemsSelChange(wxCommandEvent& Event)
         return;
     }
 
-    MapCheckerT* Problem =m_Problems[SelectionNr];
-    MapElementT* ProbElem=Problem->GetElem();
+    MapCheckerT*    Problem = m_Problems[SelectionNr];
+    MapEntityBaseT* ProbEnt = Problem->GetEnt();
 
     ButtonFix->SetLabel(!Problem->HasProblem() ? "(is fixed)" : (Problem->CanFix() ? "Fix" : "(Can't fix)"));
     StaticTextProblemDescription->SetLabel(Problem->GetHelpText());
 
-    ButtonGoToError->Enable(ProbElem!=NULL);
+    ButtonGoToError->Enable(ProbEnt != NULL);
     ButtonFix      ->Enable(Problem->HasProblem() && Problem->CanFix());
     ButtonFixAll   ->Enable(Problem->CanFix());
 
-    if (ProbElem && ProbElem->GetType()!=&MapWorldT::TypeInfo) m_MapDoc.GetHistory().SubmitCommand(CommandSelectT::Set(&m_MapDoc, ProbElem));
-                                                          else m_MapDoc.GetHistory().SubmitCommand(CommandSelectT::Clear(&m_MapDoc));
+    if (ProbEnt && !ProbEnt->IsWorld()) m_MapDoc.GetHistory().SubmitCommand(CommandSelectT::Set(&m_MapDoc, ProbEnt->GetRepres()));
+                                   else m_MapDoc.GetHistory().SubmitCommand(CommandSelectT::Clear(&m_MapDoc));
 }
 
 
@@ -471,11 +441,11 @@ void MapCheckDialogT::OnButtonGoToError(wxCommandEvent& Event)
 
     if (SelectionNr<0) return;
 
-    MapCheckerT* Problem =m_Problems[SelectionNr];
-    MapElementT* ProbElem=Problem->GetElem();
+    MapCheckerT*    Problem = m_Problems[SelectionNr];
+    MapEntityBaseT* ProbEnt = Problem->GetEnt();
 
     // m_MapDoc.GetChildFrame()->GetToolManager().SetActiveTool(GetToolTIM().FindTypeInfoByName("ToolSelectionT"));
-    m_MapDoc.GetChildFrame()->All2DViews_Center(ProbElem->GetBB().GetCenter());
+    m_MapDoc.GetChildFrame()->All2DViews_Center(ProbEnt->GetRepres()->GetBB().GetCenter());
 }
 
 

@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ObserverPattern.hpp"
 #include "CommandHistory.hpp"
+#include "Math3D/Angles.hpp"
 #include "Plants/PlantDescrMan.hpp"
 #include "Templates/Array.hpp"
 #include "SceneGraph/LightMapMan.hpp"
@@ -35,25 +36,9 @@ class EntityClassT;
 class GameConfigT;
 class GroupT;
 class MapEntityBaseT;
-class MapEntityT;
 class MapPrimitiveT;
 class OrthoBspTreeT;
 class wxProgressDialog;
-
-
-/// This class handles each iteration element when the children of a MapElementT object are iterated.
-/// It quasi serves as a call-back function that is called on the element in each iteration.
-/// User code is supposed to derive from this class in order to implement custom behaviour.
-class IterationHandlerI
-{
-    public:
-
-    /// The actual method that is called back on each element of the iteration.
-    virtual bool Handle(MapElementT* Child)=0;
-
-    /// The virtual destructor.
-    virtual ~IterationHandlerI() { }
-};
 
 
 struct PtsPointT
@@ -120,31 +105,26 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     /// Returns all entities in the map. The world is always at index 0, followed by the "regular" entities.
     const ArrayT<MapEntityBaseT*>& GetEntities() const { return m_Entities; }
 
-    /// Adds all elements (entities and primitives) in this map to the given array.
-    /// Note that the world entity is always the first element that is added to the list.
+    /// Adds all elements in this map (entity representations and primitives) to the given array.
+    /// The `MapEntRepresT` instance of the world entity is always the first element that is added to the list.
     void GetAllElems(ArrayT<MapElementT*>& Elems) const;
-
-    /// Iterates over all elements (entities and primitives) in this map, calling the IH.Handle() call-back method for each.
-    /// Note that for backwards-compatibility, the world entity itself is *skipped*: IH.Handle() is called for all its
-    /// primitives, but not the world entity itself.
-    /// @param IH   The iteration handler whose Handle() method is called once per map element.
-    ///             User code is expected to pass a derived class instance in order to achieve custom behaviour.
-    /// @returns true if the iteration completed fully, or false if it was aborted early.
-    bool IterateElems(IterationHandlerI& IH);
 
     /// Inserts the given entity into the map.
     /// Callers should never attempt to insert an element into the world in a way other than calling this method,
     /// as it also inserts the element into the internal BSP tree that is used for rendering and culling.
-    void Insert(MapEntityT* Ent);
+    void Insert(MapEntityBaseT* Ent);
 
     /// Inserts the given primitive into the map, as a child of the given entity (the world or a custom entity).
     /// Callers should never attempt to insert an element into the world in a way other than calling this method,
     /// as it also inserts the element into the internal BSP tree that is used for rendering and culling.
     void Insert(MapPrimitiveT* Prim, MapEntityBaseT* ParentEnt=NULL);
 
-    /// Removes the given element from the map.
-    /// The element can be any primitive or custom entity (but never the MapWorldT instance).
-    void Remove(MapElementT* Elem);
+    /// Removes the given entity from the map.
+    /// The entity cannot be entity 0, the world.
+    void Remove(MapEntityBaseT* Ent);
+
+    /// Removes the given primitive from the map.
+    void Remove(MapPrimitiveT* Prim);
 
     ArrayT<MapElementT*> GetElementsIn(const BoundingBox3fT& Box, bool InsideOnly, bool CenterOnly) const;
 
@@ -187,6 +167,9 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
 
     MapDocumentT(const MapDocumentT&);          ///< Use of the Copy    Constructor is not allowed.
     void operator = (const MapDocumentT&);      ///< Use of the Assignment Operator is not allowed.
+
+    ArrayT<CommandT*> CreatePasteCommands(const Vector3fT& DeltaTranslation=Vector3fT(), const cf::math::AnglesfT& DeltaRotation=cf::math::AnglesfT(),
+        unsigned int NrOfCopies=1, bool PasteGrouped=false, bool CenterAtOriginals=false);
 
     ChildFrameT*                 m_ChildFrame;          ///< The child frame within which this document lives.
     wxString                     m_FileName;            ///< This documents file name.

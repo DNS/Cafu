@@ -30,20 +30,21 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "DialogMapCheck.hpp"
 #include "MapDocument.hpp"
 #include "MapBezierPatch.hpp"
-#include "MapEntity.hpp"
+#include "MapEntityBase.hpp"
+#include "MapEntRepres.hpp"
 #include "MapModel.hpp"         // Only needed for some TypeInfo test...
 #include "MapPlant.hpp"         // Only needed for some TypeInfo test...
 #include "MapTerrain.hpp"       // Only needed for some TypeInfo test...
 #include "EntityClassVar.hpp"
 #include "DialogMapInfo.hpp"
 #include "MapBrush.hpp"
-#include "MapWorld.hpp"
 #include "DialogOptions.hpp"
 #include "Options.hpp"
 #include "OrthoBspTree.hpp"
 #include "DialogPasteSpecial.hpp"
 #include "DialogReplaceMaterials.hpp"
 #include "MapCommands/Transform.hpp"
+#include "MapCommands/AddPrim.hpp"
 #include "MapCommands/Align.hpp"
 #include "MapCommands/ApplyMaterial.hpp"
 #include "MapCommands/AssignPrimToEnt.hpp"
@@ -53,7 +54,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapCommands/SnapToGrid.hpp"
 #include "MapCommands/MakeHollow.hpp"
 #include "MapCommands/NewEntity.hpp"
-#include "MapCommands/Paste.hpp"
 #include "MapCommands/Select.hpp"
 #include "MapCommands/Group_Assign.hpp"
 #include "MapCommands/Group_Delete.hpp"
@@ -194,11 +194,17 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
       m_GridSpacing(Options.Grid.InitialSpacing),
       m_ShowGrid(true)
 {
-    m_Entities.PushBack(new MapWorldT(*this));
+    m_Entities.PushBack(new MapEntityBaseT(*this));
+
+    const EntityClassT* WorldSpawnClass = GameConfig->FindClass("worldspawn");
+    wxASSERT(WorldSpawnClass);
+    m_Entities[0]->SetClass(WorldSpawnClass!=NULL ? WorldSpawnClass : FindOrCreateUnknownClass("worldspawn", false /*HasOrigin*/));
+
 
     ArrayT<MapElementT*> AllElems;
-    GetAllElems(AllElems);    // There are none at this time...
-    m_BspTree=new OrthoBspTreeT(AllElems, m_GameConfig->GetMaxMapBB());
+    GetAllElems(AllElems);
+
+    m_BspTree = new OrthoBspTreeT(AllElems, m_GameConfig->GetMaxMapBB());
 }
 
 
@@ -223,7 +229,12 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     // This sets the cursor to the busy cursor in its ctor, and back to the default cursor in the dtor.
     wxBusyCursor BusyCursor;
 
-    MapWorldT* World=new MapWorldT(*this);
+    MapEntityBaseT* World = new MapEntityBaseT(*this);
+
+    const EntityClassT* WorldSpawnClass = GameConfig->FindClass("worldspawn");
+    wxASSERT(WorldSpawnClass);
+    World->SetClass(WorldSpawnClass!=NULL ? WorldSpawnClass : FindOrCreateUnknownClass("worldspawn", false /*HasOrigin*/));
+
     m_Entities.PushBack(World);
 
     TextParserT TP(FileName.c_str(), "({})");
@@ -241,7 +252,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         // Load the entities.
         while (!TP.IsAtEOF())
         {
-            MapEntityT* Entity=new MapEntityT;
+            MapEntityBaseT* Entity = new MapEntityBaseT(*this);
 
             Entity->Load_cmap(TP, *this, ProgressDialog, m_Entities.Size());
             m_Entities.PushBack(Entity);
@@ -265,15 +276,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     ArrayT<MapElementT*> AllElems;
     GetAllElems(AllElems);
 
-    if (AllElems.Size()>0)
-    {
-        // The world itself is never inserted into the BSP tree.
-        wxASSERT(AllElems[0]==World);
-        wxASSERT(AllElems[0]->GetType()==&MapWorldT::TypeInfo);
-        AllElems.RemoveAt(0);
-    }
-
-    m_BspTree=new OrthoBspTreeT(AllElems, m_GameConfig->GetMaxMapBB());
+    m_BspTree = new OrthoBspTreeT(AllElems, m_GameConfig->GetMaxMapBB());
 }
 
 
@@ -299,7 +302,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         // Load the entities.
         while (!TP.IsAtEOF())
         {
-            MapEntityT* Entity=new MapEntityT;
+            MapEntityBaseT* Entity = new MapEntityBaseT(*Doc);
 
             Entity->Load_HL1_map(TP, *Doc, ProgressDialog, Doc->m_Entities.Size());
             Doc->m_Entities.PushBack(Entity);
@@ -324,16 +327,8 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     ArrayT<MapElementT*> AllElems;
     Doc->GetAllElems(AllElems);
 
-    if (AllElems.Size()>0)
-    {
-        // The world itself is never inserted into the BSP tree.
-        wxASSERT(AllElems[0]==Doc->GetEntities()[0]);
-        wxASSERT(AllElems[0]->GetType()==&MapWorldT::TypeInfo);
-        AllElems.RemoveAt(0);
-    }
-
     delete Doc->m_BspTree;
-    Doc->m_BspTree=new OrthoBspTreeT(AllElems, Doc->m_GameConfig->GetMaxMapBB());
+    Doc->m_BspTree = new OrthoBspTreeT(AllElems, Doc->m_GameConfig->GetMaxMapBB());
 
     Doc->m_FileName=FileName;
     return Doc;
@@ -368,7 +363,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
             }
             else if (ChunkName=="entity")
             {
-                MapEntityT* Entity=new MapEntityT;
+                MapEntityBaseT* Entity = new MapEntityBaseT(*Doc);
 
                 Entity->Load_HL2_vmf(TP, *Doc, ProgressDialog, Doc->m_Entities.Size());
                 Doc->m_Entities.PushBack(Entity);
@@ -399,16 +394,8 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     ArrayT<MapElementT*> AllElems;
     Doc->GetAllElems(AllElems);
 
-    if (AllElems.Size()>0)
-    {
-        // The world itself is never inserted into the BSP tree.
-        wxASSERT(AllElems[0]==Doc->GetEntities()[0]);
-        wxASSERT(AllElems[0]->GetType()==&MapWorldT::TypeInfo);
-        AllElems.RemoveAt(0);
-    }
-
     delete Doc->m_BspTree;
-    Doc->m_BspTree=new OrthoBspTreeT(AllElems, Doc->m_GameConfig->GetMaxMapBB());
+    Doc->m_BspTree = new OrthoBspTreeT(AllElems, Doc->m_GameConfig->GetMaxMapBB());
 
     Doc->m_FileName=FileName;
     return Doc;
@@ -437,7 +424,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         // Load the entities.
         while (!TP.IsAtEOF())
         {
-            MapEntityT* Entity=new MapEntityT;
+            MapEntityBaseT* Entity = new MapEntityBaseT(*Doc);
 
             Entity->Load_D3_map(TP, *Doc, ProgressDialog, Doc->m_Entities.Size());
             Doc->m_Entities.PushBack(Entity);
@@ -462,16 +449,8 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     ArrayT<MapElementT*> AllElems;
     Doc->GetAllElems(AllElems);
 
-    if (AllElems.Size()>0)
-    {
-        // The world itself is never inserted into the BSP tree.
-        wxASSERT(AllElems[0]==Doc->GetEntities()[0]);
-        wxASSERT(AllElems[0]->GetType()==&MapWorldT::TypeInfo);
-        AllElems.RemoveAt(0);
-    }
-
     delete Doc->m_BspTree;
-    Doc->m_BspTree=new OrthoBspTreeT(AllElems, Doc->m_GameConfig->GetMaxMapBB());
+    Doc->m_BspTree = new OrthoBspTreeT(AllElems, Doc->m_GameConfig->GetMaxMapBB());
 
     Doc->m_FileName=FileName;
     return Doc;
@@ -542,7 +521,7 @@ bool MapDocumentT::OnSaveDocument(const wxString& FileName, bool IsAutoSave)
             const BoundingBox3fT* Intersecting=NULL;
             const MapEntityBaseT* Ent=m_Entities[EntNr];
 
-            if (!Intersecting || Ent->GetBB().Intersects(*Intersecting))
+            if (!Intersecting || Ent->GetElemsBB().Intersects(*Intersecting))
             {
                 Ent->Save_cmap(*this, OutFile, EntNr, Intersecting);
             }
@@ -617,38 +596,17 @@ bool MapDocumentT::Save()
 
 void MapDocumentT::GetAllElems(ArrayT<MapElementT*>& Elems) const
 {
-    for (unsigned long EntNr=0; EntNr<m_Entities.Size(); EntNr++)
+    for (unsigned int EntNr = 0; EntNr < m_Entities.Size(); EntNr++)
     {
-        MapEntityBaseT*               Ent=m_Entities[EntNr];
-        const ArrayT<MapPrimitiveT*>& Primitives=Ent->GetPrimitives();
+        MapEntityBaseT* Ent = m_Entities[EntNr];
 
-        // Add the entity itself...
-        Elems.PushBack(Ent);
+        // Add the entity representation...
+        Elems.PushBack(Ent->GetRepres());
 
         // ... and all of its primitives.
-        for (unsigned long PrimNr=0; PrimNr<Primitives.Size(); PrimNr++)
-            Elems.PushBack(Primitives[PrimNr]);
+        for (unsigned int PrimNr = 0; PrimNr < Ent->GetPrimitives().Size(); PrimNr++)
+            Elems.PushBack(Ent->GetPrimitives()[PrimNr]);
     }
-}
-
-
-bool MapDocumentT::IterateElems(IterationHandlerI& IH)
-{
-    for (unsigned long EntNr=0; EntNr<m_Entities.Size(); EntNr++)
-    {
-        MapEntityBaseT*               Ent=m_Entities[EntNr];
-        const ArrayT<MapPrimitiveT*>& Primitives=Ent->GetPrimitives();
-
-        // If not the world, have the entity itself handled...
-        if (EntNr>0)
-            if (!IH.Handle(Ent)) return false;
-
-        // ... then all of its primitives.
-        for (unsigned long PrimNr=0; PrimNr<Primitives.Size(); PrimNr++)
-            if (!IH.Handle(Primitives[PrimNr])) return false;
-    }
-
-    return true;
 }
 
 
@@ -672,13 +630,10 @@ const EntityClassT* MapDocumentT::FindOrCreateUnknownClass(const wxString& Name,
 }
 
 
-void MapDocumentT::Insert(MapEntityT* Ent)
+void MapDocumentT::Insert(MapEntityBaseT* Ent)
 {
     wxASSERT(Ent!=NULL);
     if (Ent==NULL) return;
-
-    // FIXME: Just drop this here, and add another check into the MapCheckDialogT.
-    Ent->CheckUniqueValues(*this);
 
     // Should not have Ent already.
     wxASSERT(m_Entities.Find(Ent)==-1);
@@ -688,7 +643,7 @@ void MapDocumentT::Insert(MapEntityT* Ent)
     for (unsigned long PrimNr=0; PrimNr<Ent->GetPrimitives().Size(); PrimNr++)
         m_BspTree->Insert(Ent->GetPrimitives()[PrimNr]);
 
-    m_BspTree->Insert(Ent);
+    m_BspTree->Insert(Ent->GetRepres());
 }
 
 
@@ -705,60 +660,55 @@ void MapDocumentT::Insert(MapPrimitiveT* Prim, MapEntityBaseT* ParentEnt)
 }
 
 
-void MapDocumentT::Remove(MapElementT* Elem)
+void MapDocumentT::Remove(MapEntityBaseT* Ent)
 {
-    wxASSERT(Elem!=NULL);
-    if (Elem==NULL) return;
+    wxASSERT(Ent != NULL);
+    if (Ent == NULL) return;
 
-    MapPrimitiveT* Prim=dynamic_cast<MapPrimitiveT*>(Elem);
-    if (Prim)
+    const int Index = m_Entities.Find(Ent);
+
+    // -1 means not found, 0 means the world. Both should not happen.
+    wxASSERT(Index > 0);
+    if (Index > 0)
     {
-        MapEntityBaseT* ParentEnt=Prim->GetParent();
-
-        // The first assert is actually redundant in the second, but keep it for clarity.
-        wxASSERT(ParentEnt!=NULL);
-        wxASSERT(m_Entities.Find(ParentEnt)>=0);
-
-        if (ParentEnt!=NULL)
-        {
-            ParentEnt->RemovePrim(Prim);
-            wxASSERT(Prim->GetParent()==NULL);
-        }
-
-        m_BspTree->Remove(Prim);
-        return;
+        // Keeping the order helps when map files are diff'ed or manually compared.
+        m_Entities.RemoveAtAndKeepOrder(Index);
     }
 
-    MapEntityT* Ent=dynamic_cast<MapEntityT*>(Elem);
-    if (Ent)
-    {
-        const int Index=m_Entities.Find(Ent);
+    // Remove all primitives of Ent from the BSP tree.
+    for (unsigned long PrimNr = 0; PrimNr < Ent->GetPrimitives().Size(); PrimNr++)
+        m_BspTree->Remove(Ent->GetPrimitives()[PrimNr]);
 
-        // -1 means not found, 0 means the world. Both should not happen.
-        wxASSERT(Index>0);
-        if (Index>0)
-        {
-            // Keeping the order helps when map files are diff'ed or manually compared.
-            m_Entities.RemoveAtAndKeepOrder(Index);
-        }
-
-        // Remove all primitives of Ent and Ent itself from the BSP tree.
-        for (unsigned long PrimNr=0; PrimNr<Ent->GetPrimitives().Size(); PrimNr++)
-            m_BspTree->Remove(Ent->GetPrimitives()[PrimNr]);
-
-        m_BspTree->Remove(Ent);
-        return;
-    }
-
-    // We should never get here, because then Elem is neither a MapPrimitiveT nor a MapEntityT.
-    wxASSERT(false);
+    // Remove the representation of Ent from the BSP tree.
+    m_BspTree->Remove(Ent->GetRepres());
 }
 
 
-// Hmmm. This would make a wonderful member function...   (TODO!)
+void MapDocumentT::Remove(MapPrimitiveT* Prim)
+{
+    wxASSERT(Prim != NULL);
+    if (Prim == NULL) return;
+
+    MapEntityBaseT* ParentEnt = Prim->GetParent();
+
+    // The first assert is actually redundant in the second, but keep it for clarity.
+    wxASSERT(ParentEnt != NULL);
+    wxASSERT(m_Entities.Find(ParentEnt) >= 0);
+
+    if (ParentEnt != NULL)
+    {
+        ParentEnt->RemovePrim(Prim);
+        wxASSERT(Prim->GetParent() == NULL);
+    }
+
+    m_BspTree->Remove(Prim);
+}
+
+
+// Hmmm. This would make a nice member function...   (TODO!)
 static bool IsElemInBox(const MapElementT* Elem, const BoundingBox3fT& Box, bool InsideOnly, bool CenterOnly)
 {
-    const BoundingBox3fT ElemBB=Elem->GetBB();
+    const BoundingBox3fT ElemBB = Elem->GetBB();
 
     if (CenterOnly) return Box.Contains(ElemBB.GetCenter());
     if (InsideOnly) return Box.Contains(ElemBB.Min) && Box.Contains(ElemBB.Max);
@@ -771,18 +721,18 @@ ArrayT<MapElementT*> MapDocumentT::GetElementsIn(const BoundingBox3fT& Box, bool
 {
     ArrayT<MapElementT*> Result;
 
-    for (unsigned long EntNr=0; EntNr<m_Entities.Size(); EntNr++)
+    for (unsigned int EntNr = 0; EntNr < m_Entities.Size(); EntNr++)
     {
-        MapEntityBaseT*               Ent=m_Entities[EntNr];
-        const ArrayT<MapPrimitiveT*>& Primitives=Ent->GetPrimitives();
+        MapEntityBaseT* Ent = m_Entities[EntNr];
 
-        // If not the world, have the entity itself handled...
-        if (EntNr>0)
-            if (IsElemInBox(Ent, Box, InsideOnly, CenterOnly)) Result.PushBack(Ent);
+        // Add the entity representation...
+        if (IsElemInBox(Ent->GetRepres(), Box, InsideOnly, CenterOnly))
+            Result.PushBack(Ent->GetRepres());
 
-        // ... then all of its primitives.
-        for (unsigned long PrimNr=0; PrimNr<Primitives.Size(); PrimNr++)
-            if (IsElemInBox(Primitives[PrimNr], Box, InsideOnly, CenterOnly)) Result.PushBack(Primitives[PrimNr]);
+        // ... and all of its primitives.
+        for (unsigned int PrimNr = 0; PrimNr < Ent->GetPrimitives().Size(); PrimNr++)
+            if (IsElemInBox(Ent->GetPrimitives()[PrimNr], Box, InsideOnly, CenterOnly))
+                Result.PushBack(Ent->GetPrimitives()[PrimNr]);
     }
 
     return Result;
@@ -909,21 +859,177 @@ void MapDocumentT::OnEditCopy(wxCommandEvent& CE)
 {
     wxBusyCursor BusyCursor;
 
-    // First delete the previous contents of the clipboard.
-    m_ChildFrame->GetMapClipboard().Clear();
-    m_ChildFrame->GetMapClipboard().OriginalCenter=GetMostRecentSelBB().GetCenter();
+    m_ChildFrame->GetMapClipboard().CopyFrom(m_Selection);
+    m_ChildFrame->GetMapClipboard().SetOriginalCenter(GetMostRecentSelBB().GetCenter());
+}
 
-    // Assign a copy of the current selection as the new clipboard contents.
-    for (unsigned long SelNr=0; SelNr<m_Selection.Size(); SelNr++)
-        m_ChildFrame->GetMapClipboard().Objects.PushBack(m_Selection[SelNr]->Clone());
+
+/// Helper function to paste the clipboard contents into the map.
+/// @param DeltaTranslation    Translation offset for each pasted copy (only relevant if NumberOfCopies > 1).
+/// @param DeltaRotation       Rotation offset for each pasted copy (only relevant if NumberOfCopies > 1).
+/// @param NrOfCopies          Number of times the objects are pasted into the world.
+/// @param PasteGrouped        Should all pasted objects be grouped?
+/// @param CenterAtOriginals   Should pasted objects be centered at position of original objects?
+ArrayT<CommandT*> MapDocumentT::CreatePasteCommands(const Vector3fT& DeltaTranslation, const cf::math::AnglesfT& DeltaRotation,
+    unsigned int NrOfCopies, bool PasteGrouped, bool CenterAtOriginals)
+{
+    // Initialize the total translation and rotation for the first paste operation.
+    // Note that a TotalTranslation of zero pastes each object in the exact same place as its original.
+    Vector3fT          TotalTranslation = DeltaTranslation;
+    cf::math::AnglesfT TotalRotation    = DeltaRotation;
+
+    if (!CenterAtOriginals)
+    {
+        const Vector3fT GoodPastePos    = m_ChildFrame->GuessUserVisiblePoint();
+        const Vector3fT OriginalsCenter = m_ChildFrame->GetMapClipboard().GetOriginalCenter();
+
+        static Vector3fT    LastPastePoint(0, 0, 0);
+        static unsigned int LastPasteCount = 0;
+
+        if (GoodPastePos != LastPastePoint)
+        {
+            LastPastePoint = GoodPastePos;
+            LastPasteCount = 0;
+        }
+
+        int PasteOffset = std::max(GetGridSpacing(), 1);
+
+        while (PasteOffset < 8)
+            PasteOffset *= 2;   // Make PasteOffset some multiple of the grid spacing larger than 8.0.
+
+        TotalTranslation = SnapToGrid(LastPastePoint + Vector3fT(((LastPasteCount % 8)+(LastPasteCount/8))*PasteOffset, (LastPasteCount % 8)*PasteOffset, 0.0f) - OriginalsCenter, false, -1 /*Snap all axes.*/);
+
+        LastPasteCount++;
+    }
+
+
+    // FIXME: This should probably be a param to the Trafo*() methods, rather than having these methods query it from the global Options.general.LockingTextures.
+    const bool PrevLockMats = Options.general.LockingTextures;
+    Options.general.LockingTextures = true;
+
+    const ArrayT<MapEntityBaseT*>& SrcEnts  = m_ChildFrame->GetMapClipboard().GetEntities();
+    const ArrayT<MapPrimitiveT*>&  SrcPrims = m_ChildFrame->GetMapClipboard().GetPrimitives();
+
+    ArrayT<MapEntityBaseT*> NewEnts;
+    ArrayT<MapPrimitiveT*>  NewPrims;
+
+    for (unsigned int CopyNr = 0; CopyNr < NrOfCopies; CopyNr++)
+    {
+        for (unsigned long EntNr = 0; EntNr < SrcEnts.Size(); EntNr++)
+        {
+            MapEntityBaseT* NewEnt = new MapEntityBaseT(*SrcEnts[EntNr]);
+
+            if (TotalTranslation != Vector3fT())
+            {
+                NewEnt->GetRepres()->TrafoMove(TotalTranslation);
+
+                for (unsigned long PrimNr = 0; PrimNr < NewEnt->GetPrimitives().Size(); PrimNr++)
+                    NewEnt->GetPrimitives()[PrimNr]->TrafoMove(TotalTranslation);
+            }
+
+            if (TotalRotation != cf::math::AnglesfT())
+            {
+                NewEnt->GetRepres()->TrafoRotate(NewEnt->GetRepres()->GetBB().GetCenter(), TotalRotation);
+
+                for (unsigned long PrimNr = 0; PrimNr < NewEnt->GetPrimitives().Size(); PrimNr++)
+                    NewEnt->GetPrimitives()[PrimNr]->TrafoRotate(NewEnt->GetPrimitives()[PrimNr]->GetBB().GetCenter(), TotalRotation);
+            }
+
+            NewEnts.PushBack(NewEnt);
+        }
+
+        for (unsigned long PrimNr = 0; PrimNr < SrcPrims.Size(); PrimNr++)
+        {
+            MapPrimitiveT* NewPrim = SrcPrims[PrimNr]->Clone();
+
+            if (TotalTranslation != Vector3fT())
+                NewPrim->TrafoMove(TotalTranslation);
+
+            if (TotalRotation != cf::math::AnglesfT())
+                NewPrim->TrafoRotate(NewPrim->GetBB().GetCenter(), TotalRotation);
+
+            NewPrims.PushBack(NewPrim);
+        }
+
+        // Advance the total translation and rotation.
+        TotalTranslation += DeltaTranslation;
+        TotalRotation    += DeltaRotation;
+    }
+
+    Options.general.LockingTextures = PrevLockMats;
+
+
+    ArrayT<CommandT*> SubCommands;
+
+    if (NewEnts.Size() > 0)
+    {
+        CommandNewEntityT* CmdNewEnt = new CommandNewEntityT(*this, NewEnts, false /*don't select*/);
+
+        CmdNewEnt->Do();
+        SubCommands.PushBack(CmdNewEnt);
+    }
+
+    if (NewPrims.Size() > 0)
+    {
+        CommandAddPrimT* CmdAddPrim = new CommandAddPrimT(*this, NewPrims, m_Entities[0], "insert prims", false /*don't select*/);
+
+        CmdAddPrim->Do();
+        SubCommands.PushBack(CmdAddPrim);
+    }
+
+    if (SubCommands.Size() > 0)
+    {
+        CommandSelectT* CmdSel = CommandSelectT::Set(this, NewEnts, NewPrims);
+
+        CmdSel->Do();
+        SubCommands.PushBack(CmdSel);
+
+        if (PasteGrouped)
+        {
+            ArrayT<MapElementT*> NewElems;
+
+            for (unsigned long EntNr = 0; EntNr < NewEnts.Size(); EntNr++)
+            {
+                MapEntityBaseT* NewEnt = NewEnts[EntNr];
+
+                NewElems.PushBack(NewEnt->GetRepres());
+
+                for (unsigned long PrimNr = 0; PrimNr < NewEnt->GetPrimitives().Size(); PrimNr++)
+                    NewElems.PushBack(NewEnt->GetPrimitives()[PrimNr]);
+            }
+
+            for (unsigned long PrimNr = 0; PrimNr < NewPrims.Size(); PrimNr++)
+                NewElems.PushBack(NewPrims[PrimNr]);
+
+
+            CommandNewGroupT* CmdNewGroup = new CommandNewGroupT(*this,
+                wxString::Format("paste group (%lu element%s)", NewElems.Size(), NewElems.Size() == 1 ? "" : "s"));
+
+            CmdNewGroup->GetGroup()->SelectAsGroup = true;
+            CmdNewGroup->Do();
+            SubCommands.PushBack(CmdNewGroup);
+
+            CommandAssignGroupT* CmdAssignGroup = new CommandAssignGroupT(*this, NewElems, CmdNewGroup->GetGroup());
+
+            CmdAssignGroup->Do();
+            SubCommands.PushBack(CmdAssignGroup);
+        }
+    }
+
+    return SubCommands;
 }
 
 
 void MapDocumentT::OnEditPaste(wxCommandEvent& CE)
 {
-    wxBusyCursor BusyCursor;
+    wxBusyCursor      BusyCursor;
+    ArrayT<CommandT*> SubCommands = CreatePasteCommands();
 
-    GetHistory().SubmitCommand(new CommandPasteT(*this, m_ChildFrame->GetMapClipboard().Objects, m_ChildFrame->GetMapClipboard().OriginalCenter, m_ChildFrame->GuessUserVisiblePoint()));
+    if (SubCommands.Size() > 0)
+    {
+        // Submit the composite macro command.
+        GetHistory().SubmitCommand(new CommandMacroT(SubCommands, "Paste"));
+    }
 
     m_ChildFrame->GetToolManager().SetActiveTool(GetToolTIM().FindTypeInfoByName("ToolSelectionT"));
 }
@@ -931,28 +1037,35 @@ void MapDocumentT::OnEditPaste(wxCommandEvent& CE)
 
 void MapDocumentT::OnEditPasteSpecial(wxCommandEvent& CE)
 {
+    const ArrayT<MapEntityBaseT*>& SrcEnts  = m_ChildFrame->GetMapClipboard().GetEntities();
+    const ArrayT<MapPrimitiveT*>&  SrcPrims = m_ChildFrame->GetMapClipboard().GetPrimitives();
+
     BoundingBox3fT ClipboardBB;
 
-    for (unsigned long ElemNr=0; ElemNr<m_ChildFrame->GetMapClipboard().Objects.Size(); ElemNr++)
-        ClipboardBB.InsertValid(m_ChildFrame->GetMapClipboard().Objects[ElemNr]->GetBB());
+    for (unsigned long EntNr = 0; EntNr < SrcEnts.Size(); EntNr++)
+        ClipboardBB.InsertValid(SrcEnts[EntNr]->GetElemsBB());
 
-    if (m_ChildFrame->GetMapClipboard().Objects.Size()==0) return;
+    for (unsigned long PrimNr = 0; PrimNr < SrcPrims.Size(); PrimNr++)
+        ClipboardBB.InsertValid(SrcPrims[PrimNr]->GetBB());
+
+    if (SrcEnts.Size() == 0 && SrcPrims.Size() == 0) return;
     if (!ClipboardBB.IsInited()) return;
 
     PasteSpecialDialogT PasteSpecialDialog(ClipboardBB);
 
-    if (PasteSpecialDialog.ShowModal()==wxID_CANCEL) return;
+    if (PasteSpecialDialog.ShowModal() == wxID_CANCEL) return;
 
-    wxBusyCursor BusyCursor;
+    wxBusyCursor      BusyCursor;
+    const Vector3fT   Translation = Vector3fT(PasteSpecialDialog.TranslateX, PasteSpecialDialog.TranslateY, PasteSpecialDialog.TranslateZ);
+    const Vector3fT   Rotation    = Vector3fT(PasteSpecialDialog.RotateX,    PasteSpecialDialog.RotateY,    PasteSpecialDialog.RotateZ);
+    ArrayT<CommandT*> SubCommands = CreatePasteCommands(Translation, Rotation, PasteSpecialDialog.NrOfCopies,
+                                        PasteSpecialDialog.GroupCopies, PasteSpecialDialog.CenterAtOriginal);
 
-    const Vector3fT Translation=Vector3fT(PasteSpecialDialog.TranslateX, PasteSpecialDialog.TranslateY, PasteSpecialDialog.TranslateZ);
-    const Vector3fT Rotation   =Vector3fT(PasteSpecialDialog.RotateX,    PasteSpecialDialog.RotateY,    PasteSpecialDialog.RotateZ);
-
-    CommandT* Command=new CommandPasteT(*this, m_ChildFrame->GetMapClipboard().Objects, m_ChildFrame->GetMapClipboard().OriginalCenter, m_ChildFrame->GuessUserVisiblePoint(),
-                                        Translation, Rotation, PasteSpecialDialog.NrOfCopies, PasteSpecialDialog.GroupCopies,
-                                        PasteSpecialDialog.CenterAtOriginal);
-
-    GetHistory().SubmitCommand(Command);
+    if (SubCommands.Size() > 0)
+    {
+        // Submit the composite macro command.
+        GetHistory().SubmitCommand(new CommandMacroT(SubCommands, "Paste Special"));
+    }
 
     m_ChildFrame->GetToolManager().SetActiveTool(GetToolTIM().FindTypeInfoByName("ToolSelectionT"));
 }
@@ -1003,12 +1116,13 @@ void MapDocumentT::OnEditSelectAll(wxCommandEvent& CE)
     ArrayT<MapElementT*> NewSelection;
     GetAllElems(NewSelection);
 
-    // Remove the world entity at index 0.
-    if (NewSelection.Size()>0)
-    {
-        wxASSERT(NewSelection[0]->GetType()==&MapWorldT::TypeInfo);
-        NewSelection.RemoveAt(0);
-    }
+    // This used to remove the world entity (representation) at index 0,
+    // but we don't want to make this exception any longer.
+    // if (NewSelection.Size()>0)
+    // {
+    //     wxASSERT(NewSelection[0]->GetType() == &MapEntRepresT::TypeInfo);
+    //     NewSelection.RemoveAt(0);
+    // }
 
     // Remove all invisible elements.
     for (unsigned long ElemNr=0; ElemNr<NewSelection.Size(); ElemNr++)
@@ -1124,7 +1238,7 @@ void MapDocumentT::OnMapCheckForProblems(wxCommandEvent& CE)
 void MapDocumentT::OnMapProperties(wxCommandEvent& CE)
 {
     // Select the worldspawn entity, then open the inspector dialog.
-    m_History.SubmitCommand(CommandSelectT::Set(this, m_Entities[0]));
+    m_History.SubmitCommand(CommandSelectT::Set(this, m_Entities[0]->GetRepres()));
 
     GetChildFrame()->GetInspectorDialog()->ChangePage(1);
     GetChildFrame()->ShowPane(GetChildFrame()->GetInspectorDialog());
@@ -1318,44 +1432,22 @@ void MapDocumentT::OnViewHideSelectedObjects(wxCommandEvent& CE)
 }
 
 
-/// An iteration handler that collects all map elements that are unselected (and not in a group).
-class CollectUnselectedT : public IterationHandlerI
-{
-    public:
-
-    CollectUnselectedT()
-        : m_Unselected()
-    {
-    }
-
-    bool Handle(MapElementT* Child)
-    {
-        if (Child->IsSelected() || Child->GetGroup()) return true;
-
-        m_Unselected.PushBack(Child);
-        return true;
-    }
-
-    const ArrayT<MapElementT*>& GetUnselected() const
-    {
-        return m_Unselected;
-    }
-
-
-    private:
-
-    ArrayT<MapElementT*> m_Unselected;
-};
-
-
 void MapDocumentT::OnViewHideUnselectedObjects(wxCommandEvent& CE)
 {
     // Find all unselected map elements that are not in a group already.
-    CollectUnselectedT CollectUnselectedCallBack;
+    ArrayT<MapElementT*> HideElems;
+    ArrayT<MapElementT*> Elems;
 
-    IterateElems(CollectUnselectedCallBack);
+    GetAllElems(Elems);
 
-    const ArrayT<MapElementT*>& HideElems=CollectUnselectedCallBack.GetUnselected();
+    for (unsigned int ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
+    {
+        MapElementT* Elem = Elems[ElemNr];
+
+        if (Elem->IsSelected() || Elem->GetGroup()) continue;
+
+        HideElems.PushBack(Elem);
+    }
 
     // If no relevant elements were found, do nothing.
     if (HideElems.Size()==0) return;
@@ -1495,19 +1587,21 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
     ToolT*           NewEntityTool=m_ChildFrame->GetToolManager().GetTool(*GetToolTIM().FindTypeInfoByName("ToolNewEntityT")); if (!NewEntityTool) return;
     OptionsBar_NewEntityToolT* Bar=dynamic_cast<OptionsBar_NewEntityToolT*>(NewEntityTool->GetOptionsBar()); if (!Bar) return;
 
-    ArrayT<MapEntityT*>    SelEntities;     // All entities   that are in the selection.
-    ArrayT<MapPrimitiveT*> SelPrimitives;   // All primitives that are in the selection.
+    ArrayT<MapEntityBaseT*> SelEntities;    // All entities   that are in the selection.
+    ArrayT<MapPrimitiveT*>  SelPrimitives;  // All primitives that are in the selection.
 
     for (unsigned long SelNr=0; SelNr<m_Selection.Size(); SelNr++)
     {
-        MapElementT* Elem=m_Selection[SelNr];
+        MapElementT*   Elem   = m_Selection[SelNr];
+        MapEntRepresT* Repres = dynamic_cast<MapEntRepresT*>(Elem);
 
-        if (MapEntityT::TypeInfo.HierarchyHas(Elem->GetType()))
+        if (Repres)
         {
-            SelEntities.PushBack(static_cast<MapEntityT*>(Elem));
+            SelEntities.PushBack(Repres->GetParent());
         }
-        else if (MapPrimitiveT::TypeInfo.HierarchyHas(Elem->GetType()))
+        else
         {
+            wxASSERT(dynamic_cast<MapPrimitiveT*>(Elem));
             SelPrimitives.PushBack(static_cast<MapPrimitiveT*>(Elem));
         }
     }
@@ -1567,13 +1661,18 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
         ArrayT<CommandT*> SubCommands;
 
         // 1. Create a new entity.
-        CommandNewEntityT* CmdNewEnt=new CommandNewEntityT(*this, NewEntityClass, SnapToGrid(GetMostRecentSelBB().GetCenter(), false /*Toggle*/, -1 /*AxisNoSnap*/));
+        MapEntityBaseT* NewEnt = new MapEntityBaseT(*this);
+
+        NewEnt->SetOrigin(SnapToGrid(GetMostRecentSelBB().GetCenter(), false /*Toggle*/, -1 /*AxisNoSnap*/));
+        NewEnt->SetClass(NewEntityClass);
+
+        CommandNewEntityT* CmdNewEnt = new CommandNewEntityT(*this, NewEnt);
 
         CmdNewEnt->Do();
         SubCommands.PushBack(CmdNewEnt);
 
         // 2. Assign the primitives to the new entity.
-        CommandAssignPrimToEntT* CmdAssignToEnt=new CommandAssignPrimToEntT(*this, SelPrimitives, CmdNewEnt->GetEntity());
+        CommandAssignPrimToEntT* CmdAssignToEnt = new CommandAssignPrimToEntT(*this, SelPrimitives, NewEnt);
 
         CmdAssignToEnt->Do();
         SubCommands.PushBack(CmdAssignToEnt);
@@ -1704,7 +1803,7 @@ void MapDocumentT::OnToolsTransform(wxCommandEvent& CE)
         }
 
         GetHistory().SubmitCommand(
-            new CommandTransformT(*this, m_Selection, Mode, RefPoint, Value, false /*don't clone*/));
+            new CommandTransformT(*this, m_Selection, Mode, RefPoint, Value));
     }
 }
 
@@ -1762,7 +1861,11 @@ void MapDocumentT::OnUpdateToolsMaterialLock(wxUpdateUIEvent& UE)
 
 void MapDocumentT::OnUpdateEditPasteSpecial(wxUpdateUIEvent& UE)
 {
-    UE.Enable(m_ChildFrame->GetMapClipboard().Objects.Size()>0 && m_ChildFrame->GetToolManager().GetActiveToolType()!=&ToolEditSurfaceT::TypeInfo);
+    const ArrayT<MapEntityBaseT*>& SrcEnts  = m_ChildFrame->GetMapClipboard().GetEntities();
+    const ArrayT<MapPrimitiveT*>&  SrcPrims = m_ChildFrame->GetMapClipboard().GetPrimitives();
+
+    UE.Enable((SrcEnts.Size() > 0 || SrcPrims.Size() > 0) &&
+              m_ChildFrame->GetToolManager().GetActiveToolType() != &ToolEditSurfaceT::TypeInfo);
 }
 
 
@@ -1838,7 +1941,7 @@ ArrayT<GroupT*> MapDocumentT::GetAbandonedGroups() const
             // Check the entity first...
             const MapEntityBaseT* Ent=m_Entities[EntNr];
 
-            if (Ent->GetGroup()==m_Groups[GroupNr])
+            if (Ent->GetRepres()->GetGroup() == m_Groups[GroupNr])
             {
                 IsEmpty=false;
                 break;

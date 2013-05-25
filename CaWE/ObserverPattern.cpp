@@ -75,16 +75,28 @@ void SubjectT::UpdateAllObservers_GroupsChanged()
         m_Observers[ObsNr]->NotifySubjectChanged_Groups(this);
 }
 
-void SubjectT::UpdateAllObservers_Created(const ArrayT<MapElementT*>& MapElements)
+void SubjectT::UpdateAllObservers_Created(const ArrayT<MapEntityBaseT*>& Entities)
 {
-    for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
-        m_Observers[ObsNr]->NotifySubjectChanged_Created(this, MapElements);
+    for (unsigned long ObsNr = 0; ObsNr < m_Observers.Size(); ObsNr++)
+        m_Observers[ObsNr]->NotifySubjectChanged_Created(this, Entities);
 }
 
-void SubjectT::UpdateAllObservers_Deleted(const ArrayT<MapElementT*>& MapElements)
+void SubjectT::UpdateAllObservers_Created(const ArrayT<MapPrimitiveT*>& Primitives)
 {
-    for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
-        m_Observers[ObsNr]->NotifySubjectChanged_Deleted(this, MapElements);
+    for (unsigned long ObsNr = 0; ObsNr < m_Observers.Size(); ObsNr++)
+        m_Observers[ObsNr]->NotifySubjectChanged_Created(this, Primitives);
+}
+
+void SubjectT::UpdateAllObservers_Deleted(const ArrayT<MapEntityBaseT*>& Entities)
+{
+    for (unsigned long ObsNr = 0; ObsNr < m_Observers.Size(); ObsNr++)
+        m_Observers[ObsNr]->NotifySubjectChanged_Deleted(this, Entities);
+}
+
+void SubjectT::UpdateAllObservers_Deleted(const ArrayT<MapPrimitiveT*>& Primitives)
+{
+    for (unsigned long ObsNr = 0; ObsNr < m_Observers.Size(); ObsNr++)
+        m_Observers[ObsNr]->NotifySubjectChanged_Deleted(this, Primitives);
 }
 
 
@@ -102,10 +114,10 @@ void SubjectT::UpdateAllObservers_Modified(const ArrayT<MapElementT*>& MapElemen
 }
 
 
-void SubjectT::UpdateAllObservers_Modified(const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const wxString& Key)
+void SubjectT::UpdateAllObservers_Modified(const ArrayT<MapEntityBaseT*>& Entities, MapElemModDetailE Detail, const wxString& Key)
 {
     for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
-        m_Observers[ObsNr]->NotifySubjectChanged_Modified(this, MapElements, Detail, Key);
+        m_Observers[ObsNr]->NotifySubjectChanged_Modified(this, Entities, Detail, Key);
 }
 
 

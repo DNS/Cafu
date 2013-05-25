@@ -62,8 +62,8 @@ bool CommandClipT::Do()
 
     if (m_Done) return false;
 
-    ArrayT<MapElementT*> InsertedBrushes;   // The list of brushes that are newly inserted into the world.
-    ArrayT<MapElementT*> RemovedBrushes;    // The list of originator brushes that are removed from the world.
+    ArrayT<MapPrimitiveT*> InsertedBrushes;   // The list of brushes that are newly inserted into the world.
+    ArrayT<MapElementT*>   RemovedBrushes;    // The list of originator brushes that are removed from the world.
 
     // Replace the originating workpieces with their clipped front/back brushes.
     for (unsigned long ClipNr=0; ClipNr<ClipResults.Size(); ClipNr++)
@@ -119,7 +119,7 @@ void CommandClipT::Undo()
 
     for (unsigned long ClipNr=0; ClipNr<ClipResults.Size(); ClipNr++)
     {
-        ArrayT<MapElementT*> DeletedBrushes;
+        ArrayT<MapPrimitiveT*> DeletedBrushes;
 
         if (ClipResults[ClipNr]->Front)
         {

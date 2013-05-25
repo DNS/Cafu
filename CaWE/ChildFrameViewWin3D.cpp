@@ -25,7 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrame.hpp"
 #include "ParentFrame.hpp"
 #include "MapDocument.hpp"
-#include "MapElement.hpp"
+#include "MapPrimitive.hpp"
 #include "Options.hpp"
 #include "ToolManager.hpp"
 #include "ToolCamera.hpp"
@@ -120,59 +120,48 @@ static bool CompareHitDepths(const ViewWindow3DT::HitInfoT& Hit1, const ViewWind
 }
 
 
-class RayIntersectionTestT : public IterationHandlerI
-{
-    public:
-
-    /// The method that is called back on each element of the iteration.
-    bool Handle(MapElementT* Child)
-    {
-        float         Fraction=0;
-        unsigned long FaceNr=0;
-
-        if (Child->IsVisible() && Child->TraceRay(RayOrigin, RayDir, Fraction, FaceNr))
-        {
-            ViewWindow3DT::HitInfoT Hit;
-
-            Hit.Object=Child;
-            Hit.FaceNr=FaceNr;
-            Hit.Depth =Fraction;
-            Hit.Pos   =RayOrigin + RayDir*Fraction;
-
-            Hits.PushBack(Hit);
-        }
-
-        return true;
-    }
-
-
-    ArrayT<ViewWindow3DT::HitInfoT> Hits;
-    Vector3fT                       RayOrigin;
-    Vector3fT                       RayDir;
-};
-
-
 ArrayT<ViewWindow3DT::HitInfoT> ViewWindow3DT::GetElementsAt(const wxPoint& Pixel) const
 {
     wxASSERT(&GetMapDoc());     // Can be NULL between Destroy() and the dtor, but between those we should never get here.
 
-    RayIntersectionTestT RayIntTest;
+    ArrayT<ViewWindow3DT::HitInfoT> Hits;
 
     // Note that our ray does intentionally not start at GetCamera().Pos,
     // but at the point of intersection with the near clipping plane!
-    RayIntTest.RayOrigin=WindowToWorld(Pixel);
-    RayIntTest.RayDir   =normalizeOr0(RayIntTest.RayOrigin - GetCamera().Pos);
+    const Vector3fT RayOrigin = WindowToWorld(Pixel);
+    const Vector3fT RayDir    = normalizeOr0(RayOrigin - GetCamera().Pos);
 
     // Make sure that the ray is valid. It should never be invalid though.
-    if (length(RayIntTest.RayDir)<0.9f) return RayIntTest.Hits;
+    if (length(RayDir) < 0.9f) return Hits;
 
-    // This just iterates over all elements in the world (entities and primitives, but not the bare world entity itself) in a brute force manner.
+    // This just iterates over all elements in the world (including the `MapEntRepresT` instances) in a brute force manner.
     // It would certainly be nice to optimize this in some way, e.g. by making use of the BSP tree,
     // but our Ray-AABB intersection tests are really fast, so this is OK for now.
-    GetMapDoc().IterateElems(RayIntTest);
+    ArrayT<MapElementT*> Elems;
+    GetMapDoc().GetAllElems(Elems);
 
-    RayIntTest.Hits.QuickSort(CompareHitDepths);
-    return RayIntTest.Hits;
+    for (unsigned int ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
+    {
+        MapElementT*   Elem     = Elems[ElemNr];
+        float          Fraction = 0.0f;
+        unsigned long  FaceNr   = 0;
+
+        if (Elem->IsVisible() && Elem->TraceRay(RayOrigin, RayDir, Fraction, FaceNr))
+        {
+            ViewWindow3DT::HitInfoT Hit;
+
+            Hit.Object = Elem;
+            Hit.FaceNr = FaceNr;
+            Hit.Depth  = Fraction;
+            Hit.Pos    = RayOrigin + RayDir*Fraction;
+
+            Hits.PushBack(Hit);
+        }
+    }
+
+    Hits.QuickSort(CompareHitDepths);
+
+    return Hits;
 }
 
 

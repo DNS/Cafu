@@ -30,6 +30,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 class ChildFrameT;
 class CommandTransformT;
 class MapDocumentT;
+class MapElementT;
 class Renderer2DT;
 class Renderer3DT;
 class ViewWindow2DT;
@@ -37,7 +38,7 @@ class MatrixT;
 
 
 /// This class implements a spatial box that can be used to define a transformation (translation, rotation, scale or shear).
-/// A command for the command hierarchy can be created (see method GetTransformCommand()) that actually applies the
+/// A command for the command history can be created (see method GetTransformCommand()) that actually applies the
 /// transformation to a set of map elements.
 class TrafoBoxT
 {
@@ -104,7 +105,10 @@ class TrafoBoxT
     /// This method creates a transform command, according to the current state of the box.
     /// IMPORTANT NOTE: This method must be called after a call to BeginTrafo() and *before* the matching call to EndTrafo()!
     /// @returns the generated transform command, or NULL if no command could be generated.
-    CommandTransformT* GetTrafoCommand(MapDocumentT& MapDoc, bool UserWishClone, bool ForceClone) const;
+    CommandTransformT* GetTrafoCommand(MapDocumentT& MapDoc) const;
+
+    /// Like GetTrafoCommand(), but applies the transformation to the given element immediately.
+    void ApplyTrafo(MapElementT* Elem) const;
 
     void FinishTrafo();
 

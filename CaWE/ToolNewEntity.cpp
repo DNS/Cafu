@@ -26,6 +26,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameConfig.hpp"
 #include "MapBrush.hpp"
 #include "MapDocument.hpp"
+#include "MapEntityBase.hpp"
+#include "MapEntRepres.hpp"
 #include "ChildFrame.hpp"
 #include "ChildFrameViewWin2D.hpp"
 #include "ChildFrameViewWin3D.hpp"
@@ -78,13 +80,18 @@ bool ToolNewEntityT::OnKeyDown2D(ViewWindow2DT& ViewWindow, wxKeyEvent& KE)
 
 bool ToolNewEntityT::OnLMouseDown2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
 {
-    const Vector3fT     WorldPos=m_MapDoc.SnapToGrid(ViewWindow.WindowToWorld(ME.GetPosition(), m_MapDoc.GetMostRecentSelBB().GetCenter().z), ME.AltDown(), -1 /*Snap all axes.*/);
-    const EntityClassT* EntClass=GetNewEntClass();
+    const Vector3fT     WorldPos = m_MapDoc.SnapToGrid(ViewWindow.WindowToWorld(ME.GetPosition(), m_MapDoc.GetMostRecentSelBB().GetCenter().z), ME.AltDown(), -1 /*Snap all axes.*/);
+    const EntityClassT* EntClass = GetNewEntClass();
 
     wxASSERT(EntClass);
     if (!EntClass) return true;
 
-    m_MapDoc.GetHistory().SubmitCommand(new CommandNewEntityT(m_MapDoc, EntClass, WorldPos));
+    MapEntityBaseT* NewEnt = new MapEntityBaseT(m_MapDoc);
+
+    NewEnt->SetOrigin(WorldPos);
+    NewEnt->SetClass(EntClass);
+
+    m_MapDoc.GetHistory().SubmitCommand(new CommandNewEntityT(m_MapDoc, NewEnt));
 
     // m_ToolMan.SetActiveTool(GetToolTIM().FindTypeInfoByName("ToolSelectionT"));
     return true;
@@ -125,14 +132,19 @@ bool ToolNewEntityT::OnLMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
 
     try
     {
-        const MapFaceT& HitFace =Brush->GetFaces()[Hits[0].FaceNr];
-        const Plane3fT& HitPlane=HitFace.GetPlane();
-        const Vector3fT HitPos  =HitPlane.GetIntersection(ViewWindow.GetCamera().Pos, ViewWindow.WindowToWorld(ME.GetPosition()), 0);
+        const MapFaceT& HitFace  = Brush->GetFaces()[Hits[0].FaceNr];
+        const Plane3fT& HitPlane = HitFace.GetPlane();
+        const Vector3fT HitPos   = HitPlane.GetIntersection(ViewWindow.GetCamera().Pos, ViewWindow.WindowToWorld(ME.GetPosition()), 0);
+        MapEntityBaseT* NewEnt   = new MapEntityBaseT(m_MapDoc);
 
-        m_MapDoc.GetHistory().SubmitCommand(new CommandNewEntityT(m_MapDoc,
-            EntClass,
-            HitPos,
-            &HitFace.GetPlane()));
+        NewEnt->SetClass(EntClass);
+
+        const BoundingBox3fT EntBB   = NewEnt->GetRepres()->GetBB();
+        const float          OffsetZ = (HitPlane.Normal.z > 0.0f) ? HitPos.z - EntBB.Min.z : EntBB.Max.z - HitPos.z;
+
+        NewEnt->SetOrigin(HitPos + HitPlane.Normal*(OffsetZ + 1.0f));   // The +1.0f is some additional epsilon for the OffsetZ.
+
+        m_MapDoc.GetHistory().SubmitCommand(new CommandNewEntityT(m_MapDoc, NewEnt));
     }
     catch (const DivisionByZeroE&)
     {

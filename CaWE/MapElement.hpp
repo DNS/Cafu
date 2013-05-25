@@ -34,7 +34,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <ostream>
 
 
-class MapElementT;
+class MapEntityBaseT;
 class Renderer2DT;
 class Renderer3DT;
 class TextParserT;
@@ -46,6 +46,16 @@ class MatrixT;
 cf::TypeSys::TypeInfoManT& GetMapElemTIM();
 
 
+/// This is the base class for all elements ("objects") that can exist in a map.
+///
+/// Generally, elements can exist stand-alone, without being assigned to a parent entity;
+/// they are intended to be fully functional even without a parent entity.
+/// Examples include newly created elements, elements in the clipboard, temporary copies (e.g. for preview
+/// rendering in Selection tool), and elements inside commands (e.g. state before or after a transform).
+/// For stand-alone elements, GetParent() returns `NULL`.
+///
+/// Usually though, elements are kept by an entity. The entity that an element is a part of can be learned
+/// with the GetParent() method.
 class MapElementT
 {
     public:
@@ -92,6 +102,15 @@ class MapElementT
 
     virtual void Load_cmap(TextParserT& TP, MapDocumentT& MapDoc);
     virtual void Save_cmap(std::ostream& OutFile, unsigned long ElemNr, const MapDocumentT& MapDoc) const;
+
+
+    /// Returns the entity that this element is a part of, or `NULL` if the element has no parent entity.
+    /// See the MapElementT class documentation for additional information.
+    MapEntityBaseT* GetParent() const { return m_Parent; }
+
+    /// Sets the parent entity that is element is a part of.
+    /// See the MapElementT class documentation for additional information.
+    void SetParent(MapEntityBaseT* Ent) { m_Parent = Ent; }
 
 
     /// Returns whether this element is currently selected in the map document.
@@ -200,10 +219,11 @@ class MapElementT
 
     protected:
 
-    bool         m_IsSelected;  ///< Is this element currently selected in the map document?
-    wxColour     m_Color;       ///< The color of this element.
-    GroupT*      m_Group;       ///< The group this element is in, NULL if in no group.
-    unsigned int m_FrameCount;  ///< The number of the frame in which this element was last rendered in a 3D view, used in order to avoid processing/rendering it twice.
+    MapEntityBaseT* m_Parent;       ///< The entity that this element is a part of.
+    bool            m_IsSelected;   ///< Is this element currently selected in the map document?
+    wxColour        m_Color;        ///< The color of this element.
+    GroupT*         m_Group;        ///< The group this element is in, NULL if in no group.
+    unsigned int    m_FrameCount;   ///< The number of the frame in which this element was last rendered in a 3D view, used in order to avoid processing/rendering it twice.
 };
 
 #endif

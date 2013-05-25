@@ -19,58 +19,58 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef CAFU_MAP_ENTITY_HPP_INCLUDED
-#define CAFU_MAP_ENTITY_HPP_INCLUDED
+#ifndef CAFU_MAP_ENTITY_REPRES_HPP_INCLUDED
+#define CAFU_MAP_ENTITY_REPRES_HPP_INCLUDED
 
-#include "MapEntityBase.hpp"
+#include "MapPrimitive.hpp"
 
 
 class MapHelperT;
 
 
-class MapEntityT : public MapEntityBaseT
+/// This class provides a graphical representation of an entity in the Map Editor.
+/// Contrary to all other MapElementT-derived classes, the parent entity of a MapEntRepresT can never be `NULL`,
+/// because a representation cannot exist without the object that it represents.
+class MapEntRepresT : public MapElementT
 {
     public:
 
-    /// The default constructor.
-    MapEntityT();
+    /// The constructor.
+    MapEntRepresT(MapEntityBaseT* Parent);
 
-    /// The copy constructor for copying an entity.
-    /// @param Entity   The entity to copy-construct this entity from.
-    MapEntityT(const MapEntityT& Entity);
+    /// The copy constructor.
+    /// It copies the entire team, that is, the representation as well as the related parent entity.
+    /// The parent entity's primitives are however not copied.
+    /// @param EntRepres   The entity representation to copy-construct the new instance from.
+    MapEntRepresT(const MapEntRepresT& EntRepres);
 
     /// The destructor.
-    ~MapEntityT();
+    ~MapEntRepresT();
+
+    /// Called by the hosting entity instance whenever it has changed.
+    void Update();
 
 
     // Implementations and overrides for base class methods.
-    MapEntityT* Clone() const;
-    void        Assign(const MapElementT* Elem);
+    MapEntRepresT* Clone() const;
+    void           Assign(const MapElementT* Elem);
 
-    wxColour GetColor(bool ConsiderGroup=true) const;
-    wxString GetDescription() const;
+    wxColour       GetColor(bool ConsiderGroup=true) const;
+    wxString       GetDescription() const;
 
-    void Render2D(Renderer2DT& Renderer) const;
-    void Render3D(Renderer3DT& Renderer) const;
+    void           Render2D(Renderer2DT& Renderer) const;
+    void           Render3D(Renderer3DT& Renderer) const;
+    bool           IsTranslucent() const;
     BoundingBox3fT GetBB() const;
+    bool           TraceRay(const Vector3fT& RayOrigin, const Vector3fT& RayDir, float& Fraction, unsigned long& FaceNr) const;
+    bool           TracePixel(const wxPoint& Pixel, int Radius, const ViewWindow2DT& ViewWin) const;
 
-    bool TraceRay(const Vector3fT& RayOrigin, const Vector3fT& RayDir, float& Fraction, unsigned long& FaceNr) const;
-    bool TracePixel(const wxPoint& Pixel, int Radius, const ViewWindow2DT& ViewWin) const;
+    // Implement the MapElementT transformation methods.
     void TrafoMove(const Vector3fT& Delta);
     void TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles);
     void TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale);
     void TrafoMirror(unsigned int NormalAxis, float Dist);
     void Transform(const MatrixT& Matrix);
-
-    void SetClass(const EntityClassT* NewClass);
-
-
-    /// Checks if unique values are set and unique inside the world and changes/sets them if bool Repair is true (default).
-    /// @return Properties that are flagged as unique, but haven't (or hadn't, if repaired) unique values.
-    ArrayT<EntPropertyT> CheckUniqueValues(MapDocumentT& MapDoc, bool Repair=true);
-
-    Vector3fT GetOrigin() const;
-    void SetOrigin(const Vector3fT& Origin);
 
 
     // The TypeSys related declarations for this class.
@@ -81,10 +81,7 @@ class MapEntityT : public MapEntityBaseT
 
     private:
 
-    void UpdateHelpers();
-
-    Vector3fT           m_Origin;
-    ArrayT<MapHelperT*> m_Helpers;
+    MapHelperT* m_Helper;
 };
 
 #endif

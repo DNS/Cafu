@@ -103,11 +103,13 @@ class ChildFrameT::UpdaterT : public ObserverT, public ToolsObserverT
     // Methods inherited from ObserverT.
     void NotifySubjectChanged(SubjectT* Subject, MapDocOtherDetailT OtherDetail);
     void NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<MapElementT*>& OldSelection, const ArrayT<MapElementT*>& NewSelection);
- // void NotifySubjectChanged_Created(const ArrayT<MapElementT*>& MapElements);
- // void NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements);
+ // void NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities);
+ // void NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT<MapPrimitiveT*>& Primitives);
+ // void NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities);
+ // void NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapPrimitiveT*>& Primitives);
  // void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail);
  // void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const ArrayT<BoundingBox3fT>& OldBounds);
- // void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const wxString& Key);
+ // void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities, MapElemModDetailE Detail, const wxString& Key);
     void NotifySubjectDies(SubjectT* dyingSubject) { }  // The subjects always live longer than this updater (in contrast to the view windows etc.).
 
     // Methods inherited from ToolsObserverT.

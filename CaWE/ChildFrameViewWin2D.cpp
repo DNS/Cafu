@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameConfig.hpp"
 #include "MapDocument.hpp"
 #include "MapEntityBase.hpp"
+#include "MapEntRepres.hpp"
 #include "MapPrimitive.hpp"
 #include "Options.hpp"
 #include "Renderer2D.hpp"
@@ -131,8 +132,8 @@ ViewWindow2DT::ViewWindow2DT(wxWindow* Parent, ChildFrameT* ChildFrame, ViewType
     SetViewType(InitialViewType);   // Checks if InitialViewType (which was read from a config file) is valid. Also sets member m_AxesInfo.
 
     // Center on the center of the map.
-    const MapEntityBaseT* World=GetMapDoc().GetEntities()[0];
-    CenterView(World->GetBB().GetCenter());     // Calls SetScrollPos(), then Refresh().
+    const MapEntityBaseT* World = GetMapDoc().GetEntities()[0];
+    CenterView(World->GetElemsBB().GetCenter());    // Calls SetScrollPos(), then Refresh().
 }
 
 
@@ -162,35 +163,42 @@ void ViewWindow2DT::NotifySubjectChanged_Selection(SubjectT* Subject, const Arra
 }
 
 
-void ViewWindow2DT::NotifySubjectChanged_Created(const ArrayT<MapElementT*>& MapElements)
+void ViewWindow2DT::NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities)
 {
-    BoundingBox3fT CreationBounds;
+    BoundingBox3fT BB;
 
-    for (unsigned long i=0; i<MapElements.Size(); i++)
-        CreationBounds.InsertValid(MapElements[i]->GetBB());
+    for (unsigned long i = 0; i < Entities.Size(); i++)
+        BB.InsertValid(Entities[i]->GetElemsBB());
 
-    // Increase bounds since the angle line and names of entities lie outside element bounds.
-    // Note: 24 is the length of the angle vector drawn in the 2D views.
-    CreationBounds.Min-=Vector3fT(24.0f, 24.0f, 24.0f);
-    CreationBounds.Max+=Vector3fT(24.0f, 24.0f, 24.0f);
+    // Add an extra margin to the BB, because the angle lines and names of entities are rendered
+    // outside of the entity bounding-box (24 is the length of the angle vector drawn in the 2D views).
+    BB.Min -= Vector3fT(24.0f, 24.0f, 24.0f);
+    BB.Max += Vector3fT(24.0f, 24.0f, 24.0f);
 
-    RefreshRect(wxRect(WorldToWindow(CreationBounds.Min), WorldToWindow(CreationBounds.Max)));
+    RefreshRect(wxRect(WorldToWindow(BB.Min), WorldToWindow(BB.Max)));
 }
 
 
-void ViewWindow2DT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements)
+void ViewWindow2DT::NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT<MapPrimitiveT*>& Primitives)
 {
-    BoundingBox3fT DeletionBounds;
+    BoundingBox3fT BB;
 
-    for (unsigned long i=0; i<MapElements.Size(); i++)
-        DeletionBounds.InsertValid(MapElements[i]->GetBB());
+    for (unsigned long i = 0; i < Primitives.Size(); i++)
+        BB.InsertValid(Primitives[i]->GetBB());
 
-    // Increase bounds since the angle line and names of entities lie outside element bounds.
-    // Note: 24 is the length of the angle vector drawn in the 2D views.
-    DeletionBounds.Min-=Vector3fT(24.0f, 24.0f, 24.0f);
-    DeletionBounds.Max+=Vector3fT(24.0f, 24.0f, 24.0f);
+    RefreshRect(wxRect(WorldToWindow(BB.Min), WorldToWindow(BB.Max)));
+}
 
-    RefreshRect(wxRect(WorldToWindow(DeletionBounds.Min), WorldToWindow(DeletionBounds.Max)));
+
+void ViewWindow2DT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities)
+{
+    NotifySubjectChanged_Created(Subject, Entities);
+}
+
+
+void ViewWindow2DT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapPrimitiveT*>& Primitives)
+{
+    NotifySubjectChanged_Created(Subject, Primitives);
 }
 
 
@@ -233,17 +241,17 @@ void ViewWindow2DT::NotifySubjectChanged_Modified(SubjectT* Subject, const Array
 }
 
 
-void ViewWindow2DT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const wxString& Key)
+void ViewWindow2DT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities, MapElemModDetailE Detail, const wxString& Key)
 {
     if ((Detail==MEMD_ENTITY_PROPERTY_CREATED || Detail==MEMD_ENTITY_PROPERTY_DELETED || Detail==MEMD_ENTITY_PROPERTY_MODIFIED) && (Key=="angles" || Key=="name"))
     {
-        wxASSERT(MapElements.Size()>0);
+        wxASSERT(Entities.Size() > 0);
 
         // Build bounding box of all elements.
-        BoundingBox3fT ElementBounds=MapElements[0]->GetBB();
+        BoundingBox3fT ElementBounds = Entities[0]->GetRepres()->GetBB();
 
-        for (unsigned long i=1; i<MapElements.Size(); i++)
-            ElementBounds.InsertValid(MapElements[i]->GetBB());
+        for (unsigned long i = 1; i < Entities.Size(); i++)
+            ElementBounds.InsertValid(Entities[i]->GetRepres()->GetBB());
 
         // Increase bounds since the angle line and names are outside the entities bounds.
         // Note: 24 is the length of the angle vector drawn in the 2D views.
@@ -339,23 +347,16 @@ ArrayT<MapElementT*> ViewWindow2DT::GetElementsAt(const wxPoint& Pixel, int Radi
     wxASSERT(&GetMapDoc());     // Can be NULL between Destroy() and the dtor, but between those we should never get here.
 
     ArrayT<MapElementT*> Hits;
-    const ArrayT<MapEntityBaseT*>& Entities=GetMapDoc().GetEntities();
+    ArrayT<MapElementT*> Elems;
 
-    for (unsigned long EntNr=0; EntNr<Entities.Size(); EntNr++)
+    GetMapDoc().GetAllElems(Elems);
+
+    for (unsigned int ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
     {
-        MapEntityBaseT*               Ent       =Entities[EntNr];
-        const ArrayT<MapPrimitiveT*>& Primitives=Ent->GetPrimitives();
+        MapElementT* Elem = Elems[ElemNr];
 
-        // Test the non-world entities just like the primitives (the world entity at EntNr==0 is skipped).
-        if (EntNr>0 && Ent->IsVisible() && Ent->TracePixel(Pixel, Radius, *this)) Hits.PushBack(Ent);
-
-        for (unsigned long PrimNr=0; PrimNr<Primitives.Size(); PrimNr++)
-        {
-            MapPrimitiveT* Prim=Primitives[PrimNr];
-
-            // Radius is the "epsilon" tolerance in each direction that we allow ourselves for inaccurate clicks.
-            if (Prim->IsVisible() && Prim->TracePixel(Pixel, Radius, *this)) Hits.PushBack(Prim);
-        }
+        // Radius is the "epsilon" tolerance in each direction that we allow ourselves for inaccurate clicks.
+        if (Elem->IsVisible() && Elem->TracePixel(Pixel, Radius, *this)) Hits.PushBack(Elem);
     }
 
     return Hits;

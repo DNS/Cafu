@@ -25,10 +25,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapElement.hpp"
 
 
-class MapEntityBaseT;
-
-
-/// A common base class for all the basic, atomic map elements in the world and the entities.
+/// This class adds no functionality of its own, but only exists for proper type separation.
+/// Especially MapBaseEntityT keeps a MapEntRepresT and an array of MapPrimitiveT%s, and the two
+/// "sets" must not overlap (we don't want MapEntRepresT instances among the "regular" primitives,
+/// and no regular primitive should ever be in place of the m_Repres member).
+/// In many other regards, all derived classes are considered equivalent and treated the same;
+/// then we use arrays of MapElementT%s.
+/// The clear distinction between MapElementT%s and MapPrimitiveT%s (the former can also contain
+/// MapEntRepresT%s, the latter cannot) is also a great help in documentation and communication.
 class MapPrimitiveT : public MapElementT
 {
     public:
@@ -40,31 +44,18 @@ class MapPrimitiveT : public MapElementT
     /// @param Prim   The primitive to copy-construct this primitive from.
     MapPrimitiveT(const MapPrimitiveT& Prim);
 
-
-    // Implementations and overrides for base class methods.
+    /// Explicitly declare the override for MapElementT::Clone().
+    /// Without this declaration, a statement like
+    ///     MapPrimitiveT* NewPrim = Prim->Clone();
+    /// would call the Clone() method of MapElementT, return a `MapElementT*`, and
+    /// thus fail to compile, because a `MapElementT*` cannot be assigned to `NewPrim`.
     MapPrimitiveT* Clone() const=0;
-    void           Assign(const MapElementT* Elem);
-    wxColour       GetColor(bool ConsiderGroup=true) const;
-
-
-    /// Assigns the parent entity for this primitive.
-    void SetParent(MapEntityBaseT* Ent) { m_Parent=Ent; }
-
-    /// Returns the parent entity of this primitive.
-    /// The returned pointer can be NULL when the primitive is not anchored in the world
-    /// (this can happen when the primitive is kept in the clipboard, in a command, etc.).
-    MapEntityBaseT* GetParent() const { return m_Parent; }
 
 
     // The TypeSys related declarations for this class.
     virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
     static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
     static const cf::TypeSys::TypeInfoT TypeInfo;
-
-
-    protected:
-
-    MapEntityBaseT* m_Parent;
 };
 
 #endif

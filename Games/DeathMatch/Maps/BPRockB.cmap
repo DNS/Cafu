@@ -4,7 +4,7 @@ Version 13
 
 GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
 
-{ // Entity 0 (the world)
+{
   classname "worldspawn"
   shlmap_patchsize "200.0"
   lightmap_patchsize "200.0"
@@ -20,7 +20,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
   fog_color "0 0 0"
   mru_mat_0 "TechDemo/walls/wall-13b"
 
-  { // Brush 0
+  {
     ( 97 -1273 230 ) ( 97 -1271 230 ) ( 98 -1271 230 ) "Textures/Kai/lightsmall1don" ( 2 -0.6875 -0.0625 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 97 -1271 228.00002 ) ( 97 -1273 228.00002 ) ( 98 -1273 228.00002 ) "Textures/Kai/lightsmall1don" ( 2 -0.6875 -0.0625 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 98 -1271 228.00002 ) ( 98 -1273 228.00002 ) ( 98 -1273 230 ) "Textures/Kai/lightsmall1don" ( 2 -0.1875 0.75 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -203,7 +203,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( -288 216 188.00002 ) ( -288 216 184 ) ( -368 216 184 ) "Textures/Kai/vent_side" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -80 ) )
   }
 
-  { // Brush 20
+  {
     ( -368 216 188.00002 ) ( -368 728 188.00002 ) ( -368 728 236 ) "Textures/Kai/vent_side" ( 2 0.625 -0.2 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( -368 728 236 ) ( -368 728 188.00002 ) ( -364 728 188.00002 ) "Textures/Kai/vent_side" ( 2 0.75 -0.2 0 ( 64 0 0 ) ( 0 0 -64 ) )
     ( -368 216 236 ) ( -368 728 236 ) ( -364 728 236 ) "Textures/Kai/vent_side" ( 2 0.375 0 0 ( 64 0 0 ) ( 0 -80 0 ) )
@@ -384,7 +384,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( -256 728 236 ) ( -256 728 188.00002 ) ( -256 724 188.00002 ) "Textures/Kai/vent_side" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -48 ) )
   }
 
-  { // Brush 40
+  {
     ( -256 640 188.00002 ) ( -288 640 188.00002 ) ( -288 640 236 ) "Textures/Kai/vent_side" ( 2 0.625 -0.16668 0 ( 64 0 0 ) ( 0 0 -48 ) )
     ( -256 640 236 ) ( -288 640 236 ) ( -288 644 236 ) "Textures/Kai/vent_side" ( 2 0 0 0 ( 64 0 0 ) ( 0 -48 0 ) )
     ( -256 644 188.00002 ) ( -288 644 188.00002 ) ( -288 640 188.00002 ) "Textures/Kai/vent_side" ( 2 0 0 0 ( 64 0 0 ) ( 0 -48 0 ) )
@@ -573,7 +573,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( 1888 -432 -256 ) ( 1928 -412 -256 ) ( 1928 -380 32 ) "Textures/WilliH/rock01b" ( 2 0 0 0 ( 512 0 0 ) ( 0 0 -512 ) )
   }
 
-  { // Brush 60
+  {
     ( 1984.0001 -320 -256 ) ( 1984.0001 -384 -256 ) ( 2004.0001 -432 -256 ) "Textures/WilliH/rock01b" ( 2 0.0625 0 0 ( 512 0 0 ) ( 0 -512 0 ) )
     ( 2016 -288 32 ) ( 2016 -448 32 ) ( 1972 -432 32 ) "Textures/WilliH/rock01b" ( 2 0.0625 0 0 ( 512 0 0 ) ( 0 -512 0 ) )
     ( 2048 -288 -256 ) ( 2048 -448 -256 ) ( 2016 -448 32 ) "Textures/WilliH/rock01b" ( 2 0.0625 0 0 ( 0 512 0 ) ( 0 0 -512 ) )
@@ -793,7 +793,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( 1280 344 -415 ) ( 1280 384 -415 ) ( 1280 416.00003 -272 ) "Textures/WilliH/rock01b" ( 2 0.21875 -0.125 0 ( 0 256 0 ) ( 0 0 -256 ) )
   }
 
-  { // Brush 80
+  {
     ( 1408 80 -270 ) ( 1408 64 -278 ) ( 1408 26.000002 -240 ) "Textures/Frank/crete33" ( 2 0.0625 0.2 0 ( 0 256 0 ) ( 0 0 -160 ) )
     ( 464 64 -278 ) ( 1408 64 -278 ) ( 1408 80 -270 ) "Textures/Frank/crete33" ( 2 0.375 -0.1 0 ( 256 0 0 ) ( 0 -160 0 ) )
     ( 1408 34 -224 ) ( 1408 26.000002 -240 ) ( 426.00003 26.000002 -240 ) "Textures/Frank/crete33" ( 2 0.375 0.2 0 ( 256 0 0 ) ( 0 0 -160 ) )
@@ -973,7 +973,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( 1152 160 -96 ) ( 1152 160 -224 ) ( 832.00006 160 -224 ) "Textures/WilliH/rock01b" ( 2 0 0 0 ( 256 0 0 ) ( 0 0 -256 ) )
   }
 
-  { // Brush 100
+  {
     ( 1152 80 -288 ) ( 1152 256 -288 ) ( 832.00006 256 -288 ) "Textures/Frank/pavement" ( 2 0 0.5 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 1152 256 -224 ) ( 1152 256 -288 ) ( 1152 80 -288 ) "Textures/WilliH/rock01b" ( 2 0 0.25 0 ( 0 256 0 ) ( 0 0 -256 ) )
     ( 832.00006 256 -224 ) ( 832.00006 256 -288 ) ( 1152 256 -288 ) "Textures/Frank/trimmtlpage02" ( 2 0 -1 0 ( 128 0 0 ) ( 0 0 -96 ) )
@@ -1153,7 +1153,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( 832.00006 736 -64 ) ( 832.00006 736 -96 ) ( 832.00006 768 -96 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 0 176 0 ) ( 0 0 -160 ) )
   }
 
-  { // Brush 120
+  {
     ( 1120 288 32 ) ( 898 288 32 ) ( 644 288 -64 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 176 0 0 ) ( 0 0 -160 ) )
     ( 1120 32 32 ) ( 898 32 32 ) ( 898 288 32 ) "Textures/Frank/pavement" ( 2 0 0.25 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 644 32 -64 ) ( 644 288 -64 ) ( 898 288 32 ) "Textures/Frank/pavement" ( 2 0 0.25 0 ( 128 0 0 ) ( 0 -128 0 ) )
@@ -1333,7 +1333,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( -512 594 -224 ) ( -512 586 -240 ) ( -512 534 -240 ) "Textures/Frank/crete33" ( 2 0 0 0 ( 0 256 0 ) ( 0 0 -160 ) )
   }
 
-  { // Brush 140
+  {
     ( -768 594 -224 ) ( -768 586 -240 ) ( -768 624 -278 ) "Textures/Frank/crete33" ( 2 -0.125 0.2 0 ( 0 256 0 ) ( 0 0 -160 ) )
     ( -512 640 -270 ) ( -768 640 -270 ) ( -768 624 -278 ) "Textures/Frank/crete33" ( 2 0.125 0.4 0 ( 256 0 0 ) ( 0 -160 0 ) )
     ( -512 586 -240 ) ( -768 586 -240 ) ( -768 594 -224 ) "Textures/Frank/crete33" ( 2 0.125 0.2 0 ( 256 0 0 ) ( 0 0 -160 ) )
@@ -1515,7 +1515,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( 1280 896 -160 ) ( -736 896 -160 ) ( -736 896 288 ) "Textures/WilliH/rock01b" ( 2 0 0.125 0 ( 256 0 0 ) ( 0 0 -256 ) )
   }
 
-  { // Brush 160
+  {
     ( 256 -792.00006 -64 ) ( -32 -792.00006 -64 ) ( -32 -1504.0001 -64 ) "Textures/Frank/pavement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -32 -1504.0001 32 ) ( -32 -1504.0001 -64 ) ( -32 -792.00006 -64 ) "Textures/Frank/pavement" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
     ( 256 -1504.0001 -64 ) ( -32 -1504.0001 -64 ) ( -32 -1504.0001 32 ) "Textures/Frank/pavement" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
@@ -1703,7 +1703,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( -192 192 80 ) ( -192 160 80 ) ( -192 160 160 ) "Textures/Frank/crete33" ( 2 0.0625 0 0 ( 0 256 0 ) ( 0 0 -160 ) )
   }
 
-  { // Brush 180
+  {
     Group 0
     ( -64 224 160 ) ( -64 192 160 ) ( -96 192 160 ) "Textures/Frank/crete33" ( 2 0.75 0.2 0 ( 256 0 0 ) ( 0 -160 0 ) )
     ( -96 192 120 ) ( -64 192 120 ) ( -64 224 120 ) "Textures/Frank/crete33" ( 2 0.0625 0 0 ( 256 0 0 ) ( 0 -160 0 ) )
@@ -1886,7 +1886,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( -256 -1504.0001 32 ) ( -256 768 32 ) ( -32 768 32 ) "Textures/Frank/rock2" ( 2 0.5 1 0 ( 128 0 0 ) ( 0 -128 0 ) )
   }
 
-  { // Brush 200
+  {
     ( -256 -1504.0001 288 ) ( -256 768 288 ) ( -32 768 288 ) "Textures/Frank/marble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -256 768 256 ) ( -256 768 288 ) ( -256 -1504.0001 288 ) "Textures/Frank/marble" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
     ( -32 -1504.0001 256 ) ( -32 -1504.0001 288 ) ( -32 768 288 ) "Textures/Frank/marble" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
@@ -2065,7 +2065,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( 144 -776 -64 ) ( 128 -776 -64 ) ( 128 -776 256 ) "Textures/Kai/rtmg" ( 2 -0.727266 0 0 ( 176 0 0 ) ( 0 0 -160 ) )
   }
 
-  { // Brush 220
+  {
     ( 288 -792.00006 256 ) ( 288 -776 256 ) ( 480 -776 256 ) "Textures/Kai/rtmg" ( 2 -0.727266 0 0 ( 176 0 0 ) ( 0 -160 0 ) )
     ( 288 -776 80 ) ( 288 -792.00006 80 ) ( 480 -792.00006 80 ) "Textures/Kai/rtmg" ( 2 -0.727266 0 0 ( 176 0 0 ) ( 0 -160 0 ) )
     ( 288 -792.00006 80 ) ( 288 -776 80 ) ( 288 -776 256 ) "Textures/Kai/rtmg" ( 2 -0.727266 0 0 ( 0 176 0 ) ( 0 0 -160 ) )
@@ -2247,7 +2247,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( 768 -1152 32 ) ( 640 -1152 32 ) ( 640 -1152 96 ) "Textures/Frank/trimmtlpage02" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -96 ) )
   }
 
-  { // Brush 240
+  {
     ( -480 -768 -96 ) ( -256 -768 -96 ) ( -256 -512 -96 ) "Textures/Kai/rtmg" ( 2 0 -0.6 0 ( 176 0 0 ) ( 0 -160 0 ) )
     ( -256 -512 32 ) ( -256 -512 -96 ) ( -256 -768 -96 ) "Textures/Kai/rtmg" ( 2 0.545449 0 0 ( 0 176 0 ) ( 0 0 -160 ) )
     ( -256 -768 32 ) ( -256 -768 -96 ) ( -480 -768 -96 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 176 0 0 ) ( 0 0 -160 ) )
@@ -2426,7 +2426,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( 1504.0001 -928 -128 ) ( 1152 -928 -128 ) ( 1152 -928 288 ) "Textures/Kai/rtmg" ( 2 0.363633 0 0 ( 176 0 0 ) ( 0 0 -160 ) )
   }
 
-  { // Brush 260
+  {
     ( 1152 -512 64 ) ( 1152 480 64 ) ( 2080 480 64 ) "Textures/WilliH/rock01b" ( 2 0 0 0 ( 256 0 0 ) ( 0 -256 0 ) )
     ( 1152 480 32 ) ( 1152 -512 32 ) ( 2080 -512 32 ) "Textures/WilliH/rock01b" ( 2 0 0 0 ( 512 0 0 ) ( 0 -512 0 ) )
     ( 1152 -512 32 ) ( 1152 480 32 ) ( 1152 480 64 ) "Textures/WilliH/rock01b" ( 2 0 0 0 ( 0 256 0 ) ( 0 0 -256 ) )
@@ -2610,7 +2610,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( -560 896 8 ) ( -560 888 8 ) ( -560 888 256 ) "Textures/Frank/crete33" ( 2 -0.5 -0.575 0 ( 0 256 0 ) ( 0 0 -160 ) )
   }
 
-  { // Brush 280
+  {
     ( -224 888 256 ) ( -272 888 256 ) ( -272 896 256 ) "Textures/Frank/crete33" ( 2 -0.71875 0.8 0 ( 256 0 0 ) ( 0 -160 0 ) )
     ( -224 896 8 ) ( -272 896 8 ) ( -272 888 8 ) "Textures/Frank/crete33" ( 2 -0.71875 0.8 0 ( 256 0 0 ) ( 0 -160 0 ) )
     ( -224 888 8 ) ( -272 888 8 ) ( -272 888 256 ) "Textures/Frank/crete33" ( 2 -0.09375 -0.575 0 ( 256 0 0 ) ( 0 0 -160 ) )
@@ -2790,7 +2790,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( 1776 -448 -416.00003 ) ( 1776 416.00003 -416.00003 ) ( 1776 416.00003 -256 ) "Textures/Frank/rock2" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
   }
 
-  { // Brush 300
+  {
     ( 1280 -480 -128 ) ( 1280 -288 -128 ) ( 1440 -288 -128 ) "Textures/Frank/rock2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 1280 -288 -415 ) ( 1280 -480 -415 ) ( 1472 -480 -415 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 176 0 0 ) ( 0 -160 0 ) )
     ( 1280 -480 -415 ) ( 1280 -288 -415 ) ( 1280 -288 -128 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 0 176 0 ) ( 0 0 -160 ) )
@@ -2970,7 +2970,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( 1280 80 -338 ) ( 1280 34 -384 ) ( 782.00006 34 -384 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 176 0 0 ) ( 0 -160 0 ) )
   }
 
-  { // Brush 320
+  {
     ( 782.00006 -34 -384 ) ( 782.00006 -80 -384 ) ( 1280 -80 -384 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 176 0 0 ) ( 0 -160 0 ) )
     ( 782.00006 -80 -338 ) ( 782.00006 -80 -384 ) ( 782.00006 -34 -384 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 0 176 0 ) ( 0 0 -160 ) )
     ( 1280 -34 -384 ) ( 1280 -80 -384 ) ( 1280 -80 -338 ) "Textures/Kai/rtmg" ( 2 0 0 0 ( 0 176 0 ) ( 0 0 -160 ) )
@@ -3142,7 +3142,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( -452 520 -96 ) ( -432 520 -96 ) ( -432 540 -96 ) "Textures/Frank/pavement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
   }
 
-  { // Brush 340
+  {
     ( -492 520 -64 ) ( -512 520 -64 ) ( -512 540 -64 ) "Textures/Frank/pavement" ( 2 0.6875 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -512 540 -96 ) ( -512 540 -64 ) ( -512 520 -64 ) "Textures/Frank/crete33" ( 2 0.234375 0 0 ( 0 256 0 ) ( 0 0 -160 ) )
     ( -512 520 -96 ) ( -512 520 -64 ) ( -492 520 -64 ) "Textures/Frank/crete33" ( 2 0.234375 0 0 ( 256 0 0 ) ( 0 0 -160 ) )
@@ -3313,7 +3313,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( 1776 216 -136 ) ( 1280 216 -136 ) ( 1280 216 -128 ) "Textures/WilliH/fmet01" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
   }
 
-  { // Brush 360
+  {
     ( 1424.0001 240 -137 ) ( 1424.0001 256 -137 ) ( 1440 256 -137 ) "Textures/Kai/metal_bord2d" ( 2 1 0.25 0 ( 16 0 0 ) ( 0 -32 0 ) )
     ( 1424.0001 256 -415 ) ( 1424.0001 240 -415 ) ( 1440 240 -415 ) "Textures/Kai/metal_bord2d" ( 2 1 0.25 0 ( 16 0 0 ) ( 0 -32 0 ) )
     ( 1424.0001 240 -415 ) ( 1424.0001 256 -415 ) ( 1424.0001 256 -137 ) "Textures/Kai/metal_bord2d" ( 2 -0.5 0 0 ( 0 16 0 ) ( 0 0 -32 ) )
@@ -3489,7 +3489,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( 168.00002 -16 248.00002 ) ( 168.00002 16 248.00002 ) ( 216 16 248.00002 ) "Textures/Frank/metal_bord1a" ( 2 0.125 0.3125 0 ( 64 0 0 ) ( 0 -64 0 ) )
   }
 
-  { // Brush 380
+  {
     ( 616 -16 248.00002 ) ( 616 -16 240 ) ( 616 16 240 ) "Textures/Frank/metal_bord1a" ( 2 -0.375 0.15625 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( 664 16 248.00002 ) ( 664 16 240 ) ( 664 -16 240 ) "Textures/Frank/metal_bord1a" ( 2 -0.375 0.15625 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( 664 -16 248.00002 ) ( 664 -16 240 ) ( 616 -16 240 ) "Textures/Frank/metal_bord1a" ( 2 -0.3125 0.15625 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -3669,7 +3669,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( 832.00006 512 -288 ) ( 816 512 -288 ) ( 816 512 32 ) "Textures/Frank/crete33" ( 2 0 0 0 ( 256 0 0 ) ( 0 0 -160 ) )
   }
 
-  { // Brush 400
+  {
     ( 176 548 -16 ) ( 96 548 -16 ) ( 96 596 -16 ) "Textures/Frank/an_top" ( 2 0.8 -0.58332 0 ( 80 0 0 ) ( 0 -48 0 ) )
     ( 176 596 -64 ) ( 96 596 -64 ) ( 96 548 -64 ) "Textures/Frank/an_top" ( 2 0.8 -0.58332 0 ( 80 0 0 ) ( 0 -48 0 ) )
     ( 176 548 -64 ) ( 96 548 -64 ) ( 96 548 -16 ) "Textures/Frank/an_side" ( 2 0.8 0.66668 0 ( 80 0 0 ) ( 0 0 -48 ) )
@@ -3847,7 +3847,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( 1472 -896 160 ) ( 1152 -896 160 ) ( 1152 -896 256 ) "Textures/Kai/rtmg" ( 2 0 0.45 0 ( 176 0 0 ) ( 0 0 -160 ) )
   }
 
-  { // Brush 420
+  {
     ( 1280 -704 256 ) ( 1280 -512 256 ) ( 1472 -512 256 ) "Textures/Kai/rtmg" ( 2 0 0.2 0 ( 176 0 0 ) ( 0 -160 0 ) )
     ( 1280 -512 160 ) ( 1280 -704 160 ) ( 1472 -704 160 ) "Textures/Kai/pipes" ( 2 2.05 0 0 ( 80 0 0 ) ( 0 -80 0 ) )
     ( 1280 -704 160 ) ( 1280 -512 160 ) ( 1280 -512 256 ) "Textures/Kai/rtmg" ( 2 -0.090918 0.45 0 ( 0 176 0 ) ( 0 0 -160 ) )
@@ -4028,7 +4028,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( 768 -738 182 ) ( 768 -742.00006 182 ) ( 768 -742.00006 234 ) "Textures/Kai/vent_side" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
   }
 
-  { // Brush 440
+  {
     ( 740 -678 182 ) ( 768 -678 182 ) ( 768 -678 234 ) "Textures/Kai/vent_side" ( 2 0.25 0 -90 ( 0 0 64 ) ( 64 0 0 ) )
     ( 768 -682.00006 234 ) ( 740 -682.00006 234 ) ( 740 -678 234 ) "Textures/Kai/vent_side" ( 2 0.8125 -0.29168 0 ( 64 0 0 ) ( 0 -48 0 ) )
     ( 768 -678 182 ) ( 740 -678 182 ) ( 740 -682.00006 182 ) "Textures/Kai/vent_side" ( 2 0.8125 -0.29168 0 ( 64 0 0 ) ( 0 -48 0 ) )
@@ -4207,7 +4207,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( 380 200 -96 ) ( 360 200 -96 ) ( 360 180 -96 ) "Textures/Frank/pavement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
   }
 
-  { // Brush 460
+  {
     ( 380 120 -64 ) ( 360 120 -64 ) ( 360 140 -64 ) "Textures/Frank/pavement" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 360 140 -96 ) ( 360 140 -64 ) ( 360 120 -64 ) "Textures/Frank/crete33" ( 2 0.234375 0 0 ( 0 256 0 ) ( 0 0 -160 ) )
     ( 360 120 -96 ) ( 360 120 -64 ) ( 380 120 -64 ) "Textures/Frank/crete33" ( 2 0.234375 0 0 ( 256 0 0 ) ( 0 0 -160 ) )
@@ -4380,7 +4380,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( -381.00003 302 0 ) ( -381.00003 302 39 ) ( -379 302 39 ) "Textures/meta/clip" ( 2 0 0 -90 ( 0 0 16 ) ( 16 0 0 ) )
   }
 
-  { // Brush 480
+  {
     ( -334 635 39 ) ( -334 637 39 ) ( -264 637 39 ) "Textures/meta/clip" ( 2 0 0 -90 ( 0 16 0 ) ( 16 0 0 ) )
     ( -334 637 0 ) ( -334 635 0 ) ( -264 635 0 ) "Textures/meta/clip" ( 2 0 0 -90 ( 0 16 0 ) ( 16 0 0 ) )
     ( -334 635 0 ) ( -334 637 0 ) ( -334 637 39 ) "Textures/meta/clip" ( 2 0 0 -90 ( 0 0 16 ) ( 0 16 0 ) )
@@ -4548,7 +4548,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( -223.00002 -155 45 ) ( -223.00002 -155 33 ) ( -223.00002 -143 33 ) "Textures/Frank/metal_bord1b" ( 2 -0.2625 -0.117188 0 ( 0 80 0 ) ( 0 0 -128 ) )
   }
 
-  { // Brush 500
+  {
     ( -33 -404 33 ) ( -45 -404 33 ) ( -33 -404 45 ) "Textures/Frank/metal_bord1b" ( 2 -0.4375 -0.117188 0 ( 80 0 0 ) ( 0 0 -128 ) )
     ( -33 -392 45 ) ( -45 -392 33 ) ( -33 -392 33 ) "Textures/Frank/metal_bord1b" ( 2 -0.4375 -0.117188 0 ( 80 0 0 ) ( 0 0 -128 ) )
     ( -33 -404 45 ) ( -45 -404 33 ) ( -45 -392 33 ) "Textures/Frank/lightsmall1bon" ( 2 -0.0625 -0.375 0 ( 16 0 0 ) ( 0 -16 0 ) )
@@ -4712,7 +4712,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( -240 -768 32 ) ( -224 -784 32 ) ( -224 -784 192 ) "Textures/Frank/crete33" ( 2 0.375 0 0 ( 0 256 0 ) ( 0 0 -160 ) )
   }
 
-  { // Brush 520
+  {
     ( -256 -512 184 ) ( -256 -512 32 ) ( -256 -480 32 ) "Textures/Frank/crete33" ( 2 -0.125 0 0 ( 0 256 0 ) ( 0 0 -160 ) )
     ( -224 -480 32 ) ( -224 -496.00003 32 ) ( -224 -496.00003 184 ) "Textures/Frank/crete33" ( 2 -0.125 0 0 ( 0 256 0 ) ( 0 0 -160 ) )
     ( -256 -480 32 ) ( -256 -512 32 ) ( -240 -512 32 ) "Textures/Frank/crete33" ( 2 0 -0.6 0 ( 256 0 0 ) ( 0 -160 0 ) )
@@ -4880,7 +4880,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( -560 620 -329 ) ( -560 585 -364 ) ( -568 585 -364 ) "Textures/WilliH/fmet01" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
   }
 
-  { // Brush 540
+  {
     ( -568 586 -368 ) ( -568 585 -364 ) ( -568 535 -364 ) "Textures/WilliH/fmet01" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( -560 585 -364 ) ( -560 586 -368 ) ( -560 534 -368 ) "Textures/WilliH/fmet01" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( -568 585 -364 ) ( -568 586 -368 ) ( -560 586 -368 ) "Textures/WilliH/fmet01" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -5051,7 +5051,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( 1169 -150 -115 ) ( 1169 -150 -127.00001 ) ( 1169 -138 -127.00001 ) "Textures/Frank/metal_bord1b" ( 2 0.275 -0.242188 0 ( 0 80 0 ) ( 0 0 -128 ) )
   }
 
-  { // Brush 560
+  {
     ( 122 -1152 135 ) ( 122 -832.00006 135 ) ( 124.00001 -832.00006 135 ) "Textures/meta/clip" ( 2 0 0.5 -90 ( 0 16 0 ) ( 16 0 0 ) )
     ( 122 -832.00006 96 ) ( 122 -1152 96 ) ( 124.00001 -1152 96 ) "Textures/meta/clip" ( 2 -0.125 0.5 -90 ( 0 16 0 ) ( 16 0 0 ) )
     ( 122 -1152 96 ) ( 122 -832.00006 96 ) ( 122 -832.00006 135 ) "Textures/meta/clip" ( 2 0 -1.75 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -5231,7 +5231,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( -1320 -2080 184 ) ( -1328 -2080 184 ) ( -1328 -2016 184 ) "Textures/Kai/met2" ( 2 0.0625 -0.5625 -90 ( 0 64 0 ) ( 64 0 0 ) )
   }
 
-  { // Brush 580
+  {
     ( -1328 -2176 288 ) ( -1344.0001 -2176 288 ) ( -1344.0001 -2144 288 ) "Textures/Frank/crete33" ( 2 -0.5 -0.00625 0 ( 256 0 0 ) ( 0 -160 0 ) )
     ( -1328 -2144 32 ) ( -1344.0001 -2144 32 ) ( -1344.0001 -2176 32 ) "Textures/Frank/crete33" ( 2 -0.5 -0.00625 0 ( 256 0 0 ) ( 0 -160 0 ) )
     ( -1328 -2176 32 ) ( -1344.0001 -2176 32 ) ( -1344.0001 -2176 288 ) "Textures/Frank/crete33" ( 2 -0.496094 0 0 ( 256 0 0 ) ( 0 0 -160 ) )
@@ -5411,7 +5411,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( 800 -240 0 ) ( 784 -240 0 ) ( 784 -240 8 ) "Textures/Frank/rock2" ( 2 -0.25 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
   }
 
-  { // Brush 600
+  {
     ( -32 -240 24 ) ( -32 -120 24 ) ( -16 -120 24 ) "Textures/Frank/rock2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -32 -120 16 ) ( -32 -240 16 ) ( -16 -240 16 ) "Textures/Frank/rock2" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -32 -240 16 ) ( -32 -120 16 ) ( -32 -120 24 ) "Textures/Frank/metal_bord2a" ( 2 0 1 0 ( 0 64 0 ) ( 0 0 -16 ) )
@@ -5438,7 +5438,7 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
     ( -379 590 39 ) ( -334 635 39 ) ( -334 635 0 ) "Textures/meta/clip" ( 2 0 -0.1875 -90 ( 0 0 16 ) ( 16 0 0 ) )
   }
 
-TerrainDef    // Terrain 0
+TerrainDef
 {
   "Terrains/BPRockB_tx1.png"
   ( -1344 -4032 32 )
@@ -8750,169 +8750,169 @@ TerrainDef    // Terrain 0
 }
 }
 
-{ // Entity 1
+{
   classname "info_player_start"
   angles "0 0 0"
   origin "384 -1344 72"
 }
 
-{ // Entity 2
+{
   classname "info_player_start"
   angles "0 315 0"
   origin "1864 -344 -211"
 }
 
-{ // Entity 3
+{
   classname "info_player_start"
   angles "0 335 0"
   origin "-532 -62 65"
 }
 
-{ // Entity 4
+{
   classname "info_player_start"
   angles "0 90 0"
   origin "976 616 81"
 }
 
-{ // Entity 5
+{
   classname "weapon_handgrenade"
   angles "0 90 0"
   origin "-296 186 4"
 }
 
-{ // Entity 6
+{
   classname "weapon_9mmAR"
   angles "0 141 0"
   origin "61 -608 105"
 }
 
-{ // Entity 7
+{
   classname "ammo_9mmAR"
   angles "0 90 0"
   origin "64 -661 105"
 }
 
-{ // Entity 8
+{
   classname "ammo_ARgrenades"
   angles "0 270 0"
   origin "748 -967 146"
 }
 
-{ // Entity 9
+{
   classname "weapon_handgrenade"
   angles "0 90 0"
   origin "709 -304 187"
 }
 
-{ // Entity 10
+{
   classname "weapon_shotgun"
   angles "0 45 0"
   origin "1208 -409 -124"
 }
 
-{ // Entity 11
+{
   classname "ammo_buckshot"
   angles "0 45 0"
   origin "1257 -426 -124"
 }
 
-{ // Entity 12
+{
   classname "weapon_hornetgun"
   angles "0 106 0"
   origin "1515 377 -269"
 }
 
-{ // Entity 13
+{
   classname "weapon_handgrenade"
   angles "0 90 0"
   origin "1659 -428 -284"
 }
 
-{ // Entity 14
+{
   classname "info_player_start"
   angles "0 90 0"
   origin "0 -1392 104"
 }
 
-{ // Entity 15
+{
   classname "info_player_start"
   angles "0 90 0"
   origin "840 824 -14"
 }
 
-{ // Entity 16
+{
   classname "info_player_start"
   angles "0 270 0"
   origin "272 560 -296"
 }
 
-{ // Entity 17
+{
   classname "info_player_start"
   angles "0 90 0"
   origin "872 -784 72"
 }
 
-{ // Entity 18
+{
   classname "info_player_start"
   angles "0 90 0"
   origin "32 -296 136"
 }
 
-{ // Entity 19
+{
   classname "ammo_9mmAR"
   angles "0 100 0"
   origin "1076 -1400 41"
 }
 
-{ // Entity 20
+{
   classname "ammo_rpgclip"
   angles "0 90 0"
   origin "784 336 -60"
 }
 
-{ // Entity 21
+{
   classname "ammo_ARgrenades"
   angles "0 90 0"
   origin "400 256 -363"
 }
 
-{ // Entity 22
+{
   classname "ammo_9mmAR"
   angles "0 90 0"
   origin "996 792 -120"
 }
 
-{ // Entity 23
+{
   classname "weapon_shotgun"
   angles "0 333 0"
   origin "-504 -240 4"
 }
 
-{ // Entity 24
+{
   classname "ammo_buckshot"
   angles "0 285 0"
   origin "-504 -300 4"
 }
 
-{ // Entity 25
+{
   classname "weapon_9mmAR"
   angles "0 78 0"
   origin "1048 792 -120"
 }
 
-{ // Entity 26
+{
   classname "ammo_rpgclip"
   angles "0 90 0"
   origin "896 -640 48"
 }
 
-{ // Entity 27
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 528 -680 144 ) ( 528 -448 144 ) ( 624 -448 144 ) "Textures/Kai/grate03" ( 2 0 -1 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( 528 -448 136 ) ( 528 -680 136 ) ( 624 -680 136 ) "Textures/Kai/grate03" ( 2 0 -1 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( 528 -680 136 ) ( 528 -448 136 ) ( 528 -448 144 ) "Textures/WilliH/fmet01" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
@@ -8935,12 +8935,12 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 28
+{
   classname "func_water"
   rendertranslucency "220"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( 1280 384 -328 ) ( 1760 384 -328 ) ( 1760 -480 -328 ) "Textures/liquids/water1c" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( 1760 -480 -416.00003 ) ( 1760 -480 -328 ) ( 1760 384 -328 ) "Textures/liquids/water1c" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( 1280 384 -416.00003 ) ( 1760 384 -416.00003 ) ( 1760 384 -328 ) "Textures/liquids/water1c" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -8983,10 +8983,10 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 29
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( -488 524 -64 ) ( -488 532 -64 ) ( -456.00003 532 -64 ) "Textures/generic/_orange" ( 2 -0.5625 -0.875 -90 ( 0 16 0 ) ( 16 0 0 ) )
     ( -488 532 -352 ) ( -488 524 -352 ) ( -456.00003 524 -352 ) "Textures/generic/_orange" ( 2 -0.5625 -0.875 -90 ( 0 16 0 ) ( 16 0 0 ) )
     ( -456.00003 532 -352 ) ( -456.00003 524 -352 ) ( -456.00003 524 -64 ) "Textures/generic/_orange" ( 2 -0.625 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -8996,13 +8996,13 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 30
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( -488 520 -64 ) ( -488 524 -64 ) ( -456.00003 524 -64 ) "Textures/Kai/ladder_chrm" ( 2 -0.28125 -0.4375 -90 ( 0 32 0 ) ( 32 0 0 ) )
     ( -488 524 -352 ) ( -488 520 -352 ) ( -456.00003 520 -352 ) "Textures/Kai/ladder_chrm" ( 2 -0.28125 -0.4375 -90 ( 0 32 0 ) ( 32 0 0 ) )
     ( -456.00003 524 -352 ) ( -456.00003 520 -352 ) ( -456.00003 520 -64 ) "Textures/Kai/ladder_chrm" ( 2 -0.3125 0 0 ( 0 32 0 ) ( 0 0 -32 ) )
@@ -9012,13 +9012,13 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 31
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( -28 624 32 ) ( -32 624 32 ) ( -32 656 32 ) "Textures/Kai/ladder_chrm" ( 2 -0.0625 -0.6875 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( -28 656 -62.000004 ) ( -32 656 -62.000004 ) ( -32 624 -62.000004 ) "Textures/Kai/ladder_chrm" ( 2 0.78125 0.125 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( -28 624 -62.000004 ) ( -32 624 -62.000004 ) ( -32 624 32 ) "Textures/Kai/ladder_chrm" ( 2 -0.0625 -1 0 ( 32 0 0 ) ( 0 0 -32 ) )
@@ -9028,10 +9028,10 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 32
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( -20 624 32 ) ( -28 624 32 ) ( -28 656 32 ) "Textures/generic/_orange" ( 2 -0.125 -1.375 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -20 656 -62.000004 ) ( -28 656 -62.000004 ) ( -28 624 -62.000004 ) "Textures/generic/_orange" ( 2 1.5625 0.25 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( -20 624 -62.000004 ) ( -28 624 -62.000004 ) ( -28 624 32 ) "Textures/generic/_orange" ( 2 -0.125 -2 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -9041,10 +9041,10 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 33
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( 1164 624 31.000002 ) ( 1156 624 31.000002 ) ( 1156 656 31.000002 ) "Textures/generic/_orange" ( 2 1.8125 -0.4375 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 1164 656 -128 ) ( 1156 656 -128 ) ( 1156 624 -128 ) "Textures/generic/_orange" ( 2 1.8125 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 1164 624 -128 ) ( 1156 624 -128 ) ( 1156 624 31.000002 ) "Textures/generic/_orange" ( 2 1.8125 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -9054,13 +9054,13 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 34
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 1156 624 31.000002 ) ( 1152 624 31.000002 ) ( 1152 656 31.000002 ) "Textures/Kai/ladder_chrm" ( 2 0.90625 -0.21875 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( 1156 656 -128 ) ( 1152 656 -128 ) ( 1152 624 -128 ) "Textures/Kai/ladder_chrm" ( 2 0.90625 0 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( 1156 624 -128 ) ( 1152 624 -128 ) ( 1152 624 31.000002 ) "Textures/Kai/ladder_chrm" ( 2 0.90625 0 0 ( 32 0 0 ) ( 0 0 -32 ) )
@@ -9070,10 +9070,10 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 35
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( 624 500 32 ) ( 624 508.00003 32 ) ( 656 508.00003 32 ) "Textures/generic/_orange" ( 2 0.0625 -1.375 -90 ( 0 16 0 ) ( 16 0 0 ) )
     ( 624 508.00003 -64 ) ( 624 500 -64 ) ( 656 500 -64 ) "Textures/generic/_orange" ( 2 -0.125 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 624 500 -64 ) ( 624 508.00003 -64 ) ( 624 508.00003 32 ) "Textures/generic/_orange" ( 2 0.0625 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -9083,13 +9083,13 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 36
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 624 508.00003 32 ) ( 624 512 32 ) ( 656 512 32 ) "Textures/Kai/ladder_chrm" ( 2 0.03125 -0.6875 -90 ( 0 32 0 ) ( 32 0 0 ) )
     ( 624 512 -64 ) ( 624 508.00003 -64 ) ( 656 508.00003 -64 ) "Textures/Kai/ladder_chrm" ( 2 -0.0625 0 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( 624 508.00003 -64 ) ( 624 512 -64 ) ( 624 512 32 ) "Textures/Kai/ladder_chrm" ( 2 0.03125 0 0 ( 0 32 0 ) ( 0 0 -32 ) )
@@ -9099,10 +9099,10 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 37
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( 1788 232 -128 ) ( 1780 232 -128 ) ( 1780 264 -128 ) "Textures/generic/_orange" ( 2 -0.125 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 1788 264 -344 ) ( 1780 264 -344 ) ( 1780 232 -344 ) "Textures/generic/_orange" ( 2 -0.1875 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 1788 232 -344 ) ( 1780 232 -344 ) ( 1780 232 -128 ) "Textures/generic/_orange" ( 2 -0.125 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -9112,13 +9112,13 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 38
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 1780 232 -128 ) ( 1776 232 -128 ) ( 1776 264 -128 ) "Textures/Kai/ladder_chrm" ( 2 -0.5625 0 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( 1780 264 -344 ) ( 1776 264 -344 ) ( 1776 232 -344 ) "Textures/Kai/ladder_chrm" ( 2 -0.59375 0 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( 1780 232 -344 ) ( 1776 232 -344 ) ( 1776 232 -128 ) "Textures/Kai/ladder_chrm" ( 2 -0.5625 0 0 ( 32 0 0 ) ( 0 0 -32 ) )
@@ -9128,10 +9128,10 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 39
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( 372 144 -64 ) ( 364 144 -64 ) ( 364 176 -64 ) "Textures/generic/_orange" ( 2 -0.5625 -0.375 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 372 176 -339 ) ( 364 176 -339 ) ( 364 144 -339 ) "Textures/generic/_orange" ( 2 -0.5625 -0.375 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 372 144 -339 ) ( 364 144 -339 ) ( 364 144 -64 ) "Textures/generic/_orange" ( 2 -0.625 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -9141,13 +9141,13 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 40
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 364 144 -64 ) ( 360 144 -64 ) ( 360 176 -64 ) "Textures/Kai/ladder_chrm" ( 2 -0.28125 -0.1875 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( 364 176 -339 ) ( 360 176 -339 ) ( 360 144 -339 ) "Textures/Kai/ladder_chrm" ( 2 -0.28125 -0.1875 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( 364 144 -339 ) ( 360 144 -339 ) ( 360 144 -64 ) "Textures/Kai/ladder_chrm" ( 2 -0.3125 0 0 ( 32 0 0 ) ( 0 0 -32 ) )
@@ -9157,10 +9157,10 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 41
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( 1756 -16 -256 ) ( 1748 -16 -256 ) ( 1748 16 -256 ) "Textures/generic/_orange" ( 2 0.125 -1.5 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 1756 16 -408 ) ( 1748 16 -408 ) ( 1748 -16 -408 ) "Textures/generic/_orange" ( 2 0.3125 -1.5 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 1748 16 -408 ) ( 1756 16 -408 ) ( 1756 16 -256 ) "Textures/generic/_orange" ( 2 0.125 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -9170,13 +9170,13 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 42
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 1760 -16 -256 ) ( 1756 -16 -256 ) ( 1756 16 -256 ) "Textures/Kai/ladder_chrm" ( 2 0.0625 -0.75 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( 1760 16 -408 ) ( 1756 16 -408 ) ( 1756 -16 -408 ) "Textures/Kai/ladder_chrm" ( 2 0.15625 -0.75 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( 1756 16 -408 ) ( 1760 16 -408 ) ( 1760 16 -256 ) "Textures/Kai/ladder_chrm" ( 2 0.0625 0 0 ( 32 0 0 ) ( 0 0 -32 ) )
@@ -9186,13 +9186,13 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 43
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 352 -112 0 ) ( 352 -110 0 ) ( 384 -110 0 ) "Textures/Kai/ladder_chrm" ( 2 0 0.296875 0 ( 32 0 0 ) ( 0 -64 0 ) )
     ( 352 -110 -64 ) ( 352 -112 -64 ) ( 384 -112 -64 ) "Textures/Kai/ladder_chrm" ( 2 0.4375 -0.25 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( 384 -110 -64 ) ( 384 -112 -64 ) ( 384 -112 0 ) "Textures/Kai/ladder_chrm" ( 2 0.75 0 0 ( 0 64 0 ) ( 0 0 -32 ) )
@@ -9202,10 +9202,10 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 44
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( 352 -110 0 ) ( 352 -100 0 ) ( 384 -100 0 ) "Textures/generic/_orange" ( 2 0.8125 0.625 -90 ( 0 16 0 ) ( 16 0 0 ) )
     ( 352 -100 -64 ) ( 352 -110 -64 ) ( 384 -110 -64 ) "Textures/generic/_orange" ( 2 0.875 -0.5 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 384 -100 -64 ) ( 384 -110 -64 ) ( 384 -110 0 ) "Textures/generic/_orange" ( 2 0.8125 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -9215,10 +9215,10 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 45
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( 1484.0001 -376.00003 -128 ) ( 1476 -376.00003 -128 ) ( 1476 -344 -128 ) "Textures/generic/_orange" ( 2 1.875 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 1484.0001 -344 -344 ) ( 1476 -344 -344 ) ( 1476 -376.00003 -344 ) "Textures/generic/_orange" ( 2 1.8125 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 1484.0001 -376.00003 -344 ) ( 1476 -376.00003 -344 ) ( 1476 -376.00003 -128 ) "Textures/generic/_orange" ( 2 1.875 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -9228,13 +9228,13 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 46
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 1476 -376.00003 -128 ) ( 1472 -376.00003 -128 ) ( 1472 -344 -128 ) "Textures/Kai/ladder_chrm" ( 2 0.9375 0 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( 1476 -344 -344 ) ( 1472 -344 -344 ) ( 1472 -376.00003 -344 ) "Textures/Kai/ladder_chrm" ( 2 0.90625 0 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( 1476 -376.00003 -344 ) ( 1472 -376.00003 -344 ) ( 1472 -376.00003 -128 ) "Textures/Kai/ladder_chrm" ( 2 0.9375 0 0 ( 32 0 0 ) ( 0 0 -32 ) )
@@ -9244,10 +9244,10 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 47
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( 720 -380 0 ) ( 720 -372 0 ) ( 752.00006 -372 0 ) "Textures/generic/_orange" ( 2 -0.9375 -1.375 -90 ( 0 16 0 ) ( 16 0 0 ) )
     ( 720 -372 -64 ) ( 720 -380 -64 ) ( 752.00006 -380 -64 ) "Textures/generic/_orange" ( 2 -0.125 1 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 720 -380 -64 ) ( 720 -372 -64 ) ( 720 -372 0 ) "Textures/generic/_orange" ( 2 -0.9375 -2 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -9257,10 +9257,10 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 48
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( 656 -380 0 ) ( 656 -372 0 ) ( 688 -372 0 ) "Textures/generic/_orange" ( 2 -0.9375 0.625 -90 ( 0 16 0 ) ( 16 0 0 ) )
     ( 656 -372 -64 ) ( 656 -380 -64 ) ( 688 -380 -64 ) "Textures/generic/_orange" ( 2 -0.125 1 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 656 -380 -64 ) ( 656 -372 -64 ) ( 656 -372 0 ) "Textures/generic/_orange" ( 2 -0.9375 -2 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -9270,13 +9270,13 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 49
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 720 -372 0 ) ( 720 -368 0 ) ( 752.00006 -368 0 ) "Textures/Kai/ladder_chrm" ( 2 -0.46875 -0.6875 -90 ( 0 32 0 ) ( 32 0 0 ) )
     ( 720 -368 -64 ) ( 720 -372 -64 ) ( 752.00006 -372 -64 ) "Textures/Kai/ladder_chrm" ( 2 -0.0625 0.5 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( 720 -372 -64 ) ( 720 -368 -64 ) ( 720 -368 0 ) "Textures/Kai/ladder_chrm" ( 2 -0.46875 -1 0 ( 0 32 0 ) ( 0 0 -32 ) )
@@ -9286,13 +9286,13 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 50
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 656 -372 0 ) ( 656 -368 0 ) ( 688 -368 0 ) "Textures/Kai/ladder_chrm" ( 2 -0.46875 0.3125 -90 ( 0 32 0 ) ( 32 0 0 ) )
     ( 656 -368 -64 ) ( 656 -372 -64 ) ( 688 -372 -64 ) "Textures/Kai/ladder_chrm" ( 2 -0.0625 0.5 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( 656 -372 -64 ) ( 656 -368 -64 ) ( 656 -368 0 ) "Textures/Kai/ladder_chrm" ( 2 -0.46875 -1 0 ( 0 32 0 ) ( 0 0 -32 ) )
@@ -9302,10 +9302,10 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 51
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( 156 -488 199 ) ( 148 -488 199 ) ( 148 -456.00003 199 ) "Textures/generic/_orange" ( 2 0.75 0.125 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 156 -456.00003 9 ) ( 148 -456.00003 9 ) ( 148 -488 9 ) "Textures/generic/_orange" ( 2 0.5625 0.75 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 156 -488 9 ) ( 148 -488 9 ) ( 148 -488 199 ) "Textures/generic/_orange" ( 2 0.75 0.4375 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -9315,10 +9315,10 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 52
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( 252 -488 8 ) ( 244 -488 8 ) ( 244 -456.00003 8 ) "Textures/generic/_orange" ( 2 0.8125 0.125 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 252 -456.00003 -64 ) ( 244 -456.00003 -64 ) ( 244 -488 -64 ) "Textures/generic/_orange" ( 2 0.625 0.75 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 252 -488 -64 ) ( 244 -488 -64 ) ( 244 -488 8 ) "Textures/generic/_orange" ( 2 0.8125 0.5 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -9328,13 +9328,13 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 53
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 244 -488 8 ) ( 240 -488 8 ) ( 240 -456.00003 8 ) "Textures/Kai/ladder_chrm" ( 2 0.40625 0.0625 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( 244 -456.00003 -64 ) ( 240 -456.00003 -64 ) ( 240 -488 -64 ) "Textures/Kai/ladder_chrm" ( 2 0.3125 0.375 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( 244 -488 -64 ) ( 240 -488 -64 ) ( 240 -488 8 ) "Textures/Kai/ladder_chrm" ( 2 0.40625 0.25 0 ( 32 0 0 ) ( 0 0 -32 ) )
@@ -9344,13 +9344,13 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 54
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 149 -488 199 ) ( 145 -488 199 ) ( 145 -456.00003 199 ) "Textures/Kai/ladder_chrm" ( 2 0.375 0.0625 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( 149 -456.00003 9 ) ( 145 -456.00003 9 ) ( 145 -488 9 ) "Textures/Kai/ladder_chrm" ( 2 0.28125 0.375 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( 149 -488 9 ) ( 145 -488 9 ) ( 145 -488 199 ) "Textures/Kai/ladder_chrm" ( 2 0.375 0.21875 0 ( 32 0 0 ) ( 0 0 -32 ) )
@@ -9360,10 +9360,10 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 55
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( 524 -744 8 ) ( 516 -744 8 ) ( 516 -712.00006 8 ) "Textures/generic/_orange" ( 2 -0.875 -1.9375 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 524 -712.00006 -64 ) ( 516 -712.00006 -64 ) ( 516 -744 -64 ) "Textures/generic/_orange" ( 2 -0.8125 -1.25 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 516 -712.00006 -64 ) ( 524 -712.00006 -64 ) ( 524 -712.00006 8 ) "Textures/generic/_orange" ( 2 -0.875 0.5 0 ( 16 0 0 ) ( 0 0 -16 ) )
@@ -9373,13 +9373,13 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 56
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 528 -744 8 ) ( 524 -744 8 ) ( 524 -712.00006 8 ) "Textures/Kai/ladder_chrm" ( 2 -0.4375 -0.96875 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( 528 -712.00006 -64 ) ( 524 -712.00006 -64 ) ( 524 -744 -64 ) "Textures/Kai/ladder_chrm" ( 2 -0.40625 -0.625 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( 524 -712.00006 -64 ) ( 528 -712.00006 -64 ) ( 528 -712.00006 8 ) "Textures/Kai/ladder_chrm" ( 2 -0.4375 0.25 0 ( 32 0 0 ) ( 0 0 -32 ) )
@@ -9389,10 +9389,10 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 57
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( 688 -1164 96 ) ( 688 -1156 96 ) ( 720 -1156 96 ) "Textures/generic/_orange" ( 2 0.0625 0.625 -90 ( 0 16 0 ) ( 16 0 0 ) )
     ( 688 -1156 32 ) ( 688 -1164 32 ) ( 720 -1164 32 ) "Textures/generic/_orange" ( 2 -0.125 0 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 688 -1164 32 ) ( 688 -1156 32 ) ( 688 -1156 96 ) "Textures/generic/_orange" ( 2 0.0625 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -9402,13 +9402,13 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 58
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 688 -1156 96 ) ( 688 -1152 96 ) ( 720 -1152 96 ) "Textures/Kai/ladder_chrm" ( 2 0.03125 0.3125 -90 ( 0 32 0 ) ( 32 0 0 ) )
     ( 688 -1152 32 ) ( 688 -1156 32 ) ( 720 -1156 32 ) "Textures/Kai/ladder_chrm" ( 2 -0.0625 0 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( 688 -1156 32 ) ( 688 -1152 32 ) ( 688 -1152 96 ) "Textures/Kai/ladder_chrm" ( 2 0.03125 0 0 ( 0 32 0 ) ( 0 0 -32 ) )
@@ -9418,67 +9418,67 @@ TerrainDef    // Terrain 0
   }
 }
 
-{ // Entity 59
+{
   classname "monster_eagle"
   angles "0 41 0"
   origin "-384 -3456 424"
 }
 
-{ // Entity 60
+{
   classname "weapon_rpg"
   angles "0 60 0"
   origin "-1208 -1632 192"
 }
 
-{ // Entity 61
+{
   classname "weapon_9mmAR"
   angles "0 155 0"
   origin "-1240 -3928 224"
 }
 
-{ // Entity 62
+{
   classname "monster_butterfly"
   angles "0 90 0"
   origin "-1264 -1984 224"
 }
 
-{ // Entity 63
+{
   classname "monster_butterfly"
   angles "0 90 0"
   origin "-1296 -2064 160"
 }
 
-{ // Entity 64
+{
   classname "monster_butterfly"
   angles "0 90 0"
   origin "-104 -2624 168"
 }
 
-{ // Entity 65
+{
   classname "monster_butterfly"
   angles "0 90 0"
   origin "144 -2376 216"
 }
 
-{ // Entity 66
+{
   classname "monster_butterfly"
   angles "0 90 0"
   origin "672 -3648 232"
 }
 
-{ // Entity 67
+{
   classname "weapon_facehugger"
   angles "0 68 0"
   origin "-368 -3776 88"
 }
 
-{ // Entity 68
+{
   classname "weapon_handgrenade"
   angles "0 90 0"
   origin "512 -1568 64"
 }
 
-{ // Entity 69
+{
   classname "static_detail_model"
   angles "0 0 0"
   rendertranslucency "255"
@@ -9488,7 +9488,7 @@ TerrainDef    // Terrain 0
   origin "644 -1046 96"
 }
 
-{ // Entity 70
+{
   classname "static_detail_model"
   angles "15 27 0"
   rendertranslucency "255"
@@ -9498,7 +9498,7 @@ TerrainDef    // Terrain 0
   origin "-267 713 -63"
 }
 
-{ // Entity 71
+{
   classname "static_detail_model"
   angles "0 90 0"
   rendertranslucency "255"
@@ -9508,7 +9508,7 @@ TerrainDef    // Terrain 0
   origin "-268 688 -64"
 }
 
-{ // Entity 72
+{
   classname "static_detail_model"
   angles "0 0 0"
   rendertranslucency "255"
@@ -9518,7 +9518,7 @@ TerrainDef    // Terrain 0
   origin "-264 672 -64"
 }
 
-{ // Entity 73
+{
   classname "static_detail_model"
   angles "0 120 0"
   rendertranslucency "255"
@@ -9528,7 +9528,7 @@ TerrainDef    // Terrain 0
   origin "108 412 -64"
 }
 
-{ // Entity 74
+{
   classname "static_detail_model"
   angles "0 0 0"
   rendertranslucency "255"
@@ -9538,7 +9538,7 @@ TerrainDef    // Terrain 0
   origin "754 721 83"
 }
 
-{ // Entity 75
+{
   classname "static_detail_model"
   angles "270 180 0"
   rendertranslucency "255"
@@ -9548,7 +9548,7 @@ TerrainDef    // Terrain 0
   origin "830 581 133"
 }
 
-{ // Entity 76
+{
   classname "static_detail_model"
   angles "0 0 0"
   rendertranslucency "255"
@@ -9558,7 +9558,7 @@ TerrainDef    // Terrain 0
   origin "785 585 124"
 }
 
-{ // Entity 77
+{
   classname "static_detail_model"
   angles "0 90 0"
   rendertranslucency "255"
@@ -9568,7 +9568,7 @@ TerrainDef    // Terrain 0
   origin "780 669 125"
 }
 
-{ // Entity 78
+{
   classname "static_detail_model"
   angles "0 90 270"
   rendertranslucency "255"
@@ -9578,7 +9578,7 @@ TerrainDef    // Terrain 0
   origin "834 593 217"
 }
 
-{ // Entity 79
+{
   classname "static_detail_model"
   angles "0 0 0"
   rendertranslucency "255"
@@ -9588,7 +9588,7 @@ TerrainDef    // Terrain 0
   origin "245 722 83"
 }
 
-{ // Entity 80
+{
   classname "static_detail_model"
   angles "0 0 0"
   rendertranslucency "255"
@@ -9598,7 +9598,7 @@ TerrainDef    // Terrain 0
   origin "1215 721 83"
 }
 
-{ // Entity 81
+{
   classname "static_detail_model"
   angles "90 0 0"
   rendertranslucency "255"
@@ -9608,7 +9608,7 @@ TerrainDef    // Terrain 0
   origin "972 716 89"
 }
 
-{ // Entity 82
+{
   classname "static_detail_model"
   angles "0 0 0"
   rendertranslucency "255"
@@ -9618,7 +9618,7 @@ TerrainDef    // Terrain 0
   origin "1049 721 83"
 }
 
-{ // Entity 83
+{
   classname "static_detail_model"
   angles "0 0 0"
   rendertranslucency "255"
@@ -9628,7 +9628,7 @@ TerrainDef    // Terrain 0
   origin "891 721 83"
 }
 
-{ // Entity 84
+{
   classname "static_detail_model"
   angles "0 0 0"
   rendertranslucency "255"
@@ -9638,7 +9638,7 @@ TerrainDef    // Terrain 0
   origin "528 722 83"
 }
 
-{ // Entity 85
+{
   classname "static_detail_model"
   angles "90 0 0"
   rendertranslucency "255"
@@ -9648,7 +9648,7 @@ TerrainDef    // Terrain 0
   origin "677 716 89"
 }
 
-{ // Entity 86
+{
   classname "static_detail_model"
   angles "0 180 180"
   rendertranslucency "255"
@@ -9658,7 +9658,7 @@ TerrainDef    // Terrain 0
   origin "98 722 94"
 }
 
-{ // Entity 87
+{
   classname "static_detail_model"
   angles "0 180 270"
   rendertranslucency "255"
@@ -9668,7 +9668,7 @@ TerrainDef    // Terrain 0
   origin "104 722 7"
 }
 
-{ // Entity 88
+{
   classname "static_detail_model"
   angles "0 0 0"
   rendertranslucency "255"
@@ -9678,7 +9678,7 @@ TerrainDef    // Terrain 0
   origin "644 -848 96"
 }
 
-{ // Entity 89
+{
   classname "static_detail_model"
   angles "0 0 0"
   rendertranslucency "255"
@@ -9688,7 +9688,7 @@ TerrainDef    // Terrain 0
   origin "644 -914 96"
 }
 
-{ // Entity 90
+{
   classname "static_detail_model"
   angles "0 0 0"
   rendertranslucency "255"
@@ -9698,7 +9698,7 @@ TerrainDef    // Terrain 0
   origin "644 -980 96"
 }
 
-{ // Entity 91
+{
   classname "static_detail_model"
   angles "0 0 0"
   rendertranslucency "255"
@@ -9708,7 +9708,7 @@ TerrainDef    // Terrain 0
   origin "644 -1112 96"
 }
 
-{ // Entity 92
+{
   classname "static_detail_model"
   angles "0 0 0"
   rendertranslucency "255"
@@ -9718,7 +9718,7 @@ TerrainDef    // Terrain 0
   origin "123 -1120 96"
 }
 
-{ // Entity 93
+{
   classname "static_detail_model"
   angles "0 0 0"
   rendertranslucency "255"
@@ -9728,7 +9728,7 @@ TerrainDef    // Terrain 0
   origin "123 -1056 96"
 }
 
-{ // Entity 94
+{
   classname "static_detail_model"
   angles "0 0 0"
   rendertranslucency "255"
@@ -9738,7 +9738,7 @@ TerrainDef    // Terrain 0
   origin "123 -992 96"
 }
 
-{ // Entity 95
+{
   classname "static_detail_model"
   angles "0 0 0"
   rendertranslucency "255"
@@ -9748,7 +9748,7 @@ TerrainDef    // Terrain 0
   origin "123 -928 96"
 }
 
-{ // Entity 96
+{
   classname "static_detail_model"
   angles "0 0 0"
   rendertranslucency "255"
@@ -9758,7 +9758,7 @@ TerrainDef    // Terrain 0
   origin "123 -864 96"
 }
 
-{ // Entity 97
+{
   classname "static_detail_model"
   angles "0 270 0"
   rendertranslucency "255"
@@ -9768,7 +9768,7 @@ TerrainDef    // Terrain 0
   origin "0 -117 0"
 }
 
-{ // Entity 98
+{
   classname "static_detail_model"
   angles "0 270 0"
   rendertranslucency "255"
@@ -9778,7 +9778,7 @@ TerrainDef    // Terrain 0
   origin "64 -117 0"
 }
 
-{ // Entity 99
+{
   classname "static_detail_model"
   angles "0 270 0"
   rendertranslucency "255"
@@ -9788,7 +9788,7 @@ TerrainDef    // Terrain 0
   origin "128 -117 0"
 }
 
-{ // Entity 100
+{
   classname "static_detail_model"
   angles "0 270 0"
   rendertranslucency "255"
@@ -9798,7 +9798,7 @@ TerrainDef    // Terrain 0
   origin "192 -117 0"
 }
 
-{ // Entity 101
+{
   classname "static_detail_model"
   angles "0 270 0"
   rendertranslucency "255"
@@ -9808,7 +9808,7 @@ TerrainDef    // Terrain 0
   origin "256 -117 0"
 }
 
-{ // Entity 102
+{
   classname "static_detail_model"
   angles "0 270 0"
   rendertranslucency "255"
@@ -9818,7 +9818,7 @@ TerrainDef    // Terrain 0
   origin "320 -117 0"
 }
 
-{ // Entity 103
+{
   classname "static_detail_model"
   angles "0 270 0"
   rendertranslucency "255"
@@ -9828,7 +9828,7 @@ TerrainDef    // Terrain 0
   origin "800 -117 0"
 }
 
-{ // Entity 104
+{
   classname "static_detail_model"
   angles "0 270 0"
   rendertranslucency "255"
@@ -9838,7 +9838,7 @@ TerrainDef    // Terrain 0
   origin "736 -117 0"
 }
 
-{ // Entity 105
+{
   classname "static_detail_model"
   angles "0 270 0"
   rendertranslucency "255"
@@ -9848,7 +9848,7 @@ TerrainDef    // Terrain 0
   origin "672 -117 0"
 }
 
-{ // Entity 106
+{
   classname "static_detail_model"
   angles "0 270 0"
   rendertranslucency "255"
@@ -9858,7 +9858,7 @@ TerrainDef    // Terrain 0
   origin "608 -117 0"
 }
 
-{ // Entity 107
+{
   classname "static_detail_model"
   angles "0 270 0"
   rendertranslucency "255"
@@ -9868,7 +9868,7 @@ TerrainDef    // Terrain 0
   origin "544 -117 0"
 }
 
-{ // Entity 108
+{
   classname "static_detail_model"
   angles "0 270 0"
   rendertranslucency "255"
@@ -9878,7 +9878,7 @@ TerrainDef    // Terrain 0
   origin "480 -117 0"
 }
 
-{ // Entity 109
+{
   classname "static_detail_model"
   angles "0 270 0"
   rendertranslucency "255"
@@ -9888,7 +9888,7 @@ TerrainDef    // Terrain 0
   origin "416 -117 0"
 }
 
-{ // Entity 110
+{
   classname "static_detail_model"
   angles "0 300 0"
   rendertranslucency "255"
@@ -9898,7 +9898,7 @@ TerrainDef    // Terrain 0
   origin "1436 -308 -128"
 }
 
-{ // Entity 111
+{
   classname "static_detail_model"
   angles "0 225 0"
   rendertranslucency "255"
@@ -9908,7 +9908,7 @@ TerrainDef    // Terrain 0
   origin "-357 613 0"
 }
 
-{ // Entity 112
+{
   classname "static_detail_model"
   angles "0 180 0"
   rendertranslucency "255"
@@ -9918,7 +9918,7 @@ TerrainDef    // Terrain 0
   origin "1276 312 -128"
 }
 
-{ // Entity 113
+{
   classname "static_detail_model"
   angles "0 180 0"
   rendertranslucency "255"
@@ -9928,7 +9928,7 @@ TerrainDef    // Terrain 0
   origin "1276 186 -128"
 }
 
-{ // Entity 114
+{
   classname "static_detail_model"
   angles "0 180 0"
   rendertranslucency "255"
@@ -9938,7 +9938,7 @@ TerrainDef    // Terrain 0
   origin "1276 122 -128"
 }
 
-{ // Entity 115
+{
   classname "static_detail_model"
   angles "0 180 0"
   rendertranslucency "255"
@@ -9948,7 +9948,7 @@ TerrainDef    // Terrain 0
   origin "1276 58 -128"
 }
 
-{ // Entity 116
+{
   classname "static_detail_model"
   angles "0 180 0"
   rendertranslucency "255"
@@ -9958,7 +9958,7 @@ TerrainDef    // Terrain 0
   origin "1276 -6 -128"
 }
 
-{ // Entity 117
+{
   classname "static_detail_model"
   angles "0 180 0"
   rendertranslucency "255"
@@ -9968,7 +9968,7 @@ TerrainDef    // Terrain 0
   origin "1276 -70 -128"
 }
 
-{ // Entity 118
+{
   classname "static_detail_model"
   angles "0 180 0"
   rendertranslucency "255"
@@ -9978,7 +9978,7 @@ TerrainDef    // Terrain 0
   origin "1276 -134 -128"
 }
 
-{ // Entity 119
+{
   classname "static_detail_model"
   angles "0 180 0"
   rendertranslucency "255"
@@ -9988,7 +9988,7 @@ TerrainDef    // Terrain 0
   origin "1276 -262 -128"
 }
 
-{ // Entity 120
+{
   classname "static_detail_model"
   angles "0 90 0"
   rendertranslucency "255"
@@ -9998,7 +9998,7 @@ TerrainDef    // Terrain 0
   origin "1312 -292 -128"
 }
 
-{ // Entity 121
+{
   classname "static_detail_model"
   angles "0 90 0"
   rendertranslucency "255"
@@ -10008,7 +10008,7 @@ TerrainDef    // Terrain 0
   origin "1376 -292 -128"
 }
 
-{ // Entity 122
+{
   classname "static_detail_model"
   angles "0 180 0"
   rendertranslucency "255"
@@ -10018,7 +10018,7 @@ TerrainDef    // Terrain 0
   origin "1276 -198 -128"
 }
 
-{ // Entity 123
+{
   classname "static_detail_model"
   angles "0 270 0"
   rendertranslucency "255"
@@ -10028,7 +10028,7 @@ TerrainDef    // Terrain 0
   origin "-296 636 0"
 }
 
-{ // Entity 124
+{
   classname "static_detail_model"
   angles "0 180 0"
   rendertranslucency "255"
@@ -10038,7 +10038,7 @@ TerrainDef    // Terrain 0
   origin "-380 550 0"
 }
 
-{ // Entity 125
+{
   classname "static_detail_model"
   angles "0 180 0"
   rendertranslucency "255"
@@ -10048,7 +10048,7 @@ TerrainDef    // Terrain 0
   origin "-380 480 0"
 }
 
-{ // Entity 126
+{
   classname "static_detail_model"
   angles "0 180 0"
   rendertranslucency "255"
@@ -10058,7 +10058,7 @@ TerrainDef    // Terrain 0
   origin "-380 410 0"
 }
 
-{ // Entity 127
+{
   classname "static_detail_model"
   angles "0 180 0"
   rendertranslucency "255"
@@ -10068,7 +10068,7 @@ TerrainDef    // Terrain 0
   origin "-380 340 0"
 }
 
-{ // Entity 128
+{
   classname "static_detail_model"
   angles "0 90 0"
   rendertranslucency "255"
@@ -10078,7 +10078,7 @@ TerrainDef    // Terrain 0
   origin "-534 252 0"
 }
 
-{ // Entity 129
+{
   classname "static_detail_model"
   angles "0 90 0"
   rendertranslucency "255"
@@ -10088,7 +10088,7 @@ TerrainDef    // Terrain 0
   origin "-464 252 0"
 }
 
-{ // Entity 130
+{
   classname "static_detail_model"
   angles "0 45 0"
   rendertranslucency "255"

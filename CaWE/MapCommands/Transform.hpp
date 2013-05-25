@@ -27,7 +27,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/Vector3.hpp"
 
 
-class CommandSelectT;
 class MapDocumentT;
 class MapElementT;
 
@@ -48,12 +47,8 @@ class CommandTransformT : public CommandT
 
 
     /// The constructor to transform an array of map elements using a delta and a transform mode.
-    CommandTransformT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>& TransElems, TransModeT Mode, const Vector3fT& RefPoint, const Vector3fT& Amount, bool DoClone);
-    CommandTransformT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>& TransElems, const MatrixT& Matrix, bool DoClone);
-
-    /// Returns the array of cloned elements.
-    /// This method is used and called by the ToolSelectionT class.
-    const ArrayT<MapElementT*>& GetClones() const { return m_ClonedElems; }
+    CommandTransformT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>& TransElems, TransModeT Mode, const Vector3fT& RefPoint, const Vector3fT& Amount);
+    CommandTransformT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>& TransElems, const MatrixT& Matrix);
 
     /// The destructor.
     ~CommandTransformT();
@@ -71,13 +66,10 @@ class CommandTransformT : public CommandT
     MapDocumentT&              m_MapDoc;        ///< The map document that is (whose elements are) modified.
     const ArrayT<MapElementT*> m_TransElems;    ///< The map elements (of m_MapDoc) that are to be transformed.
     ArrayT<MapElementT*>       m_OldStates;     ///< The old states of the map elements, for the Undo() operation.
-    ArrayT<MapElementT*>       m_ClonedElems;   ///< Local references (pointers) to the cloned elements.
     const TransModeT           m_Mode;          ///< The kind of transformation to apply to the m_TransElems.
     const Vector3fT            m_RefPoint;      ///< Ignored for translations, the reference point for scales and rotations.
     const Vector3fT            m_Amount;        ///< The delta for translations, the scale factors for scales, the angles for rotations.
     const MatrixT              m_Matrix;        ///< The matrix for generic matrix transformations.
-    const bool                 m_DoClone;       ///< When false, the transformation is applied directly to the m_TransElems. When true, the m_TransElems are cloned and the transformation is applied to the clones.
-    CommandSelectT*            m_CommandSelect; ///< Subcommand used for changing the selection (after map elements have been cloned).
 };
 
 #endif

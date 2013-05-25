@@ -45,7 +45,7 @@ class GroupT
     void Save_cmap(std::ostream& OutFile, unsigned long GroupNr) const;
 
     ArrayT<MapElementT*> GetMembers(const MapDocumentT& MapDoc) const;  ///< Returns all map elements in this group.
-    bool                 HasMembers(const MapDocumentT& MapDoc) const;  ///< Returns whether this group has members (GetMembers().Size()>0, but more efficient).
+    bool                 HasMembers(const MapDocumentT& MapDoc) const;  ///< Returns whether this group has members (like `GetMembers().Size() > 0`, but more efficiently).
 
     wxString Name;
     wxColour Color;

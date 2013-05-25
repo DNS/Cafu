@@ -24,28 +24,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "../EntityClass.hpp"
 #include "../MapDocument.hpp"
-#include "../MapEntity.hpp"
+#include "../MapEntityBase.hpp"
+#include "../MapEntRepres.hpp"
 #include "../MapPrimitive.hpp"
-
-
-// An entity is deleted entirely if it is among the DeleteElems itself,
-// or if it is of solid class and all of its primitives are among the DeleteElems.
-static bool IsEntirelyDeleted(MapEntityT* Ent, const ArrayT<MapElementT*>& DeleteElems)
-{
-    // If the entity is among the elements to delete, it is deleted entirely.
-    if (DeleteElems.Find(Ent)>=0) return true;
-
-    // If the entity is non-solid (it has an origin and acts as a placeholder, e.g. a lightsource),
-    // and is not among the elements to delete, it is not deleted entirely.
-    if (!Ent->GetClass()->IsSolidClass() /*Entity->GetClass()->HasOrigin()*/) return false;
-
-    // The entity is not among the elements to delete, but it is solid.
-    // If all its primitives are among the elements to delete, the entity is deleted as well.
-    for (unsigned long PrimNr=0; PrimNr<Ent->GetPrimitives().Size(); PrimNr++)
-        if (DeleteElems.Find(Ent->GetPrimitives()[PrimNr])==-1) return false;
-
-    return true;
-}
 
 
 CommandDeleteT::CommandDeleteT(MapDocumentT& MapDoc, MapElementT* DeleteElem)
@@ -76,38 +57,42 @@ CommandDeleteT::CommandDeleteT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>&
 void CommandDeleteT::Init(const ArrayT<MapElementT*>& DeleteElems)
 {
     // Split the list of elements into a list of primitives and a list of entities.
-    // The lists are checked for duplicates and kept free of them as well.
-    for (unsigned long ElemNr=0; ElemNr<DeleteElems.Size(); ElemNr++)
+    // The lists are checked for duplicates (and kept free of them).
+    for (unsigned long ElemNr = 0; ElemNr < DeleteElems.Size(); ElemNr++)
     {
-        MapElementT*   Elem=DeleteElems[ElemNr];
-        MapPrimitiveT* Prim=dynamic_cast<MapPrimitiveT*>(Elem);
-        MapEntityT*    Ent =dynamic_cast<MapEntityT*>(Elem);
+        MapElementT* Elem = DeleteElems[ElemNr];
 
-        if (Prim)
+        if (Elem->GetType() == &MapEntRepresT::TypeInfo)
         {
-            MapEntityT* Parent=dynamic_cast<MapEntityT*>(Prim->GetParent());
+            wxASSERT(Elem->GetParent()->GetRepres() == Elem);
 
-            if (Parent && IsEntirelyDeleted(Parent, DeleteElems))
+            // Don't delete entity 0, the world.
+            if (Elem->GetParent()->IsWorld())
+                continue;
+
+            if (m_DeleteEnts.Find(Elem->GetParent()) == -1)
             {
-                // If the parent is a regular entity (not the world!) that is entirely deleted anyway,
-                // add the parent to the records instead of the individual primitive.
-                if (m_DeleteEnts.Find(Parent)==-1) m_DeleteEnts.PushBack(Parent);
+                m_DeleteEnts.PushBack(Elem->GetParent());
             }
-            else
-            {
-                if (m_DeletePrims.Find(Prim)==-1)
-                {
-                    m_DeletePrims.PushBack(Prim);
-                    m_DeletePrimsParents.PushBack(Prim->GetParent());
-                }
-            }
-            continue;
         }
-
-        if (Ent)
+        else
         {
-            if (m_DeleteEnts.Find(Ent)==-1) m_DeleteEnts.PushBack(Ent);
-            continue;
+            wxASSERT(Elem->GetParent()->GetRepres() != Elem);
+
+            // If the primitive's whole entity is deleted anyway, we can drop it here.
+            if (!Elem->GetParent()->IsWorld())
+                if (DeleteElems.Find(Elem->GetParent()->GetRepres()) >= 0)
+                    continue;
+
+            MapPrimitiveT* Prim = dynamic_cast<MapPrimitiveT*>(Elem);
+
+            wxASSERT(Prim);
+
+            if (m_DeletePrims.Find(Prim) == -1)
+            {
+                m_DeletePrims.PushBack(Prim);
+                m_DeletePrimsParents.PushBack(Prim->GetParent());
+            }
         }
     }
 
@@ -120,7 +105,7 @@ void CommandDeleteT::Init(const ArrayT<MapElementT*>& DeleteElems)
 
     for (unsigned long EntNr=0; EntNr<m_DeleteEnts.Size(); EntNr++)
     {
-        Unselect.PushBack(m_DeleteEnts[EntNr]);
+        Unselect.PushBack(m_DeleteEnts[EntNr]->GetRepres());
 
         for (unsigned long PrimNr=0; PrimNr<m_DeleteEnts[EntNr]->GetPrimitives().Size(); PrimNr++)
             Unselect.PushBack(m_DeleteEnts[EntNr]->GetPrimitives()[PrimNr]);
@@ -150,25 +135,25 @@ bool CommandDeleteT::Do()
     wxASSERT(!m_Done);
     if (m_Done) return false;
 
+    if (m_DeleteEnts.Size() == 0 && m_DeletePrims.Size() == 0)
+    {
+        // If there is nothing to delete, e.g. because only the world representation
+        // was selected (and dropped in Init()), bail out early.
+        return false;
+    }
+
     // Deselect any affected elements that are selected.
     m_CommandSelect->Do();
 
-    ArrayT<MapElementT*> DeletedElems;
-
     for (unsigned long EntNr=0; EntNr<m_DeleteEnts.Size(); EntNr++)
-    {
         m_MapDoc.Remove(m_DeleteEnts[EntNr]);
-        DeletedElems.PushBack(m_DeleteEnts[EntNr]);
-    }
 
     for (unsigned long PrimNr=0; PrimNr<m_DeletePrims.Size(); PrimNr++)
-    {
         m_MapDoc.Remove(m_DeletePrims[PrimNr]);
-        DeletedElems.PushBack(m_DeletePrims[PrimNr]);
-    }
 
     // Update all observers.
-    m_MapDoc.UpdateAllObservers_Deleted(DeletedElems);
+    m_MapDoc.UpdateAllObservers_Deleted(m_DeleteEnts);
+    m_MapDoc.UpdateAllObservers_Deleted(m_DeletePrims);
 
     m_Done=true;
     return true;
@@ -180,22 +165,15 @@ void CommandDeleteT::Undo()
     wxASSERT(m_Done);
     if (!m_Done) return;
 
-    ArrayT<MapElementT*> InsertedElems;
-
     for (unsigned long PrimNr=0; PrimNr<m_DeletePrims.Size(); PrimNr++)
-    {
         m_MapDoc.Insert(m_DeletePrims[PrimNr], m_DeletePrimsParents[PrimNr]);
-        InsertedElems.PushBack(m_DeletePrims[PrimNr]);
-    }
 
     for (unsigned long EntNr=0; EntNr<m_DeleteEnts.Size(); EntNr++)
-    {
         m_MapDoc.Insert(m_DeleteEnts[EntNr]);
-        InsertedElems.PushBack(m_DeleteEnts[EntNr]);
-    }
 
     // Update all observers.
-    m_MapDoc.UpdateAllObservers_Created(InsertedElems);
+    m_MapDoc.UpdateAllObservers_Created(m_DeletePrims);
+    m_MapDoc.UpdateAllObservers_Created(m_DeleteEnts);
 
     // Select the previously selected elements again.
     m_CommandSelect->Undo();

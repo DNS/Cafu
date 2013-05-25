@@ -3,10 +3,10 @@
 Version 13
 
 
-{ // Entity 0 (the world)
+{
   classname "worldspawn"
-  lightmap_patchsize "200.0"
   shlmap_patchsize "200.0"
+  lightmap_patchsize "200.0"
   wind_velocity "0.0"
   wind_velocity_var "0.0"
   precipitation_intensity "3"
@@ -16,7 +16,7 @@ Version 13
   fog_color "0 0 0"
   mru_mat_0 "Textures/Kai/cemento16"
 
-  { // Brush 0
+  {
     ( -80 -64 320 ) ( -80 -64 0 ) ( -80 128 0 ) "Textures/Q1/stone1_3" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( -80 128 320 ) ( -80 128 0 ) ( -64 128 0 ) "Textures/Q1/stone1_3" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
     ( -64 128 320 ) ( -64 128 0 ) ( -64 -64 0 ) "Textures/Q1/stone1_3" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
@@ -80,13 +80,13 @@ Version 13
   }
 }
 
-{ // Entity 1
+{
   classname "info_player_start"
   angles "0 90 0"
   origin "16 -16 56"
 }
 
-{ // Entity 2
+{
   classname "PointLightSource"
   angles "-0 90 -0"
   light_radius "197"
