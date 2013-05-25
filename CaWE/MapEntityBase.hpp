@@ -62,7 +62,7 @@ class MapEntityBaseT
 
     bool IsWorld() const;
 
-    virtual void SetClass(const EntityClassT* NewClass);
+    void SetClass(const EntityClassT* NewClass);
     const EntityClassT* GetClass() const { return m_Class; }
 
     Vector3fT GetOrigin() const;
@@ -75,8 +75,8 @@ class MapEntityBaseT
     const EntPropertyT* FindProperty     (const wxString& Key, int* Index=NULL) const;              ///< Find the property.
     int                 FindPropertyIndex(const wxString& Key) const;                               ///< Get the index of the property.
 
-    virtual void               SetAngles(const cf::math::AnglesfT& Angles);
-    virtual cf::math::AnglesfT GetAngles() const;
+    void               SetAngles(const cf::math::AnglesfT& Angles);
+    cf::math::AnglesfT GetAngles() const;
 
     const ArrayT<MapPrimitiveT*>& GetPrimitives() const { return m_Primitives; }
 

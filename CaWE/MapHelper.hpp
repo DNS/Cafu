@@ -41,6 +41,9 @@ class MapHelperT
     /// @param Helper   The helper to copy-construct this helper from.
     MapHelperT(const MapHelperT& Helper);
 
+    /// The virtual destructor, so that derived classes can be deleted via a MapHelperT pointer.
+    virtual ~MapHelperT() { }
+
     /// Returns the spatial bounding-box of this map element.
     virtual BoundingBox3fT GetBB() const=0;
 
