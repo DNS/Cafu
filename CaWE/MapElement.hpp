@@ -46,6 +46,16 @@ class MatrixT;
 cf::TypeSys::TypeInfoManT& GetMapElemTIM();
 
 
+/// This is the base class for all elements ("objects") that can exist in a map.
+///
+/// Generally, elements can exist stand-alone, without being assigned to a parent entity;
+/// they are intended to be fully functional even without a parent entity.
+/// Examples include newly created elements, elements in the clipboard, temporary copies (e.g. for preview
+/// rendering in Selection tool), and elements inside commands (e.g. state before or after a transform).
+/// For stand-alone elements, GetParent() returns `NULL`.
+///
+/// Usually though, elements are kept by an entity. The entity that an element is a part of can be learned
+/// with the GetParent() method.
 class MapElementT
 {
     public:
@@ -94,13 +104,13 @@ class MapElementT
     virtual void Save_cmap(std::ostream& OutFile, unsigned long ElemNr, const MapDocumentT& MapDoc) const;
 
 
-    /// Assigns the parent entity for this primitive.
-    void SetParent(MapEntityBaseT* Ent) { m_Parent = Ent; }
-
-    /// Returns the parent entity of this primitive.
-    /// The returned pointer can be NULL when the primitive is not anchored in the world
-    /// (this can happen when the primitive is kept in the clipboard, in a command, etc.).
+    /// Returns the entity that this element is a part of, or `NULL` if the element has no parent entity.
+    /// See the MapElementT class documentation for additional information.
     MapEntityBaseT* GetParent() const { return m_Parent; }
+
+    /// Sets the parent entity that is element is a part of.
+    /// See the MapElementT class documentation for additional information.
+    void SetParent(MapEntityBaseT* Ent) { m_Parent = Ent; }
 
 
     /// Returns whether this element is currently selected in the map document.

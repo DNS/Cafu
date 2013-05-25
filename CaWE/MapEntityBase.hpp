@@ -96,6 +96,11 @@ class MapEntityBaseT
 
     private:
 
+    friend class MapEntRepresT;             ///< For mutual construction and destruction.
+
+    /// The copy constructor that is used when a MapEntRepresT is copied.
+    MapEntityBaseT(const MapEntityBaseT& Ent, MapEntRepresT* Repres);
+
     MapDocumentT&          m_MapDoc;        ///< The document that contains, keeps and manages this world.
     const EntityClassT*    m_Class;         ///< The "entity class" of this entity.
     Vector3fT              m_Origin;        ///< The origin of this entity.

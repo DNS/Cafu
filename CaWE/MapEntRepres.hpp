@@ -29,16 +29,23 @@ class MapHelperT;
 
 
 /// This class provides a graphical representation of an entity in the Map Editor.
+/// Contrary to all other MapElementT-derived classes, the parent entity of a MapEntRepresT can never be `NULL`,
+/// because a representation cannot exist without the object that it represents.
 class MapEntRepresT : public MapElementT
 {
     public:
 
     /// The constructor.
-    MapEntRepresT();
+    MapEntRepresT(MapEntityBaseT* Parent);
 
     /// The copy constructor.
+    /// It copies the entire team, that is, the representation as well as the related parent entity.
+    /// The parent entity's primitives are however not copied.
     /// @param EntRepres   The entity representation to copy-construct the new instance from.
     MapEntRepresT(const MapEntRepresT& EntRepres);
+
+    /// The destructor.
+    ~MapEntRepresT();
 
     /// Called by the hosting entity instance whenever it has changed.
     void Update();

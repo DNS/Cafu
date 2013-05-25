@@ -46,10 +46,14 @@ const cf::TypeSys::TypeInfoT MapEntRepresT::TypeInfo(GetMapElemTIM(), "MapEntRep
 /*** End of TypeSys related definitions for this class. ***/
 
 
-MapEntRepresT::MapEntRepresT()
+MapEntRepresT::MapEntRepresT(MapEntityBaseT* Parent)
     : MapElementT(Options.colors.Entity),
       m_Helper(NULL)
 {
+    wxASSERT(Parent);
+    m_Parent = Parent;
+
+    Update();
 }
 
 
@@ -57,6 +61,27 @@ MapEntRepresT::MapEntRepresT(const MapEntRepresT& EntRepres)
     : MapElementT(EntRepres),
       m_Helper(NULL)
 {
+    // Create a new entity as a copy of EntRepres's entity and whose representation is `this`.
+    m_Parent = new MapEntityBaseT(*EntRepres.GetParent(), this);
+
+    Update();
+}
+
+
+MapEntRepresT::~MapEntRepresT()
+{
+    delete m_Helper;
+    m_Helper = NULL;
+
+    // Note that the *only* chance for m_Parent getting NULL is when the MapEntityBaseT dtor has set it so.
+    if (m_Parent)
+    {
+        // The parent's dtor must not in turn attempt to delete *us*.
+        m_Parent->m_Repres = NULL;
+
+        delete m_Parent;
+        m_Parent = NULL;
+    }
 }
 
 
@@ -65,7 +90,7 @@ void MapEntRepresT::Update()
     delete m_Helper;
     m_Helper = NULL;
 
-    if (!m_Parent) return;
+    wxASSERT(m_Parent);
 
     if (m_Parent->FindProperty("model"))
     {
@@ -106,7 +131,7 @@ wxColour MapEntRepresT::GetColor(bool ConsiderGroup) const
     if (m_Group && ConsiderGroup)
         return m_Group->Color;
 
-    if (m_Parent && m_Parent->GetClass())
+    if (m_Parent->GetClass())
         return m_Parent->GetClass()->GetColor();
 
     return m_Color;
