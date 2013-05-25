@@ -290,6 +290,16 @@ namespace
         }
 
         // For each element in NewEnts and NewPrims, add a pointer to NewElems.
+        for (unsigned long EntNr = 0; EntNr < NewEnts.Size(); EntNr++)
+        {
+            NewElems.PushBack(NewEnts[EntNr]->GetRepres());
+
+            for (unsigned long PrimNr = 0; PrimNr < NewEnts[EntNr]->GetPrimitives().Size(); PrimNr++)
+                NewElems.PushBack(NewEnts[EntNr]->GetPrimitives()[PrimNr]);
+        }
+
+        for (unsigned long PrimNr = 0; PrimNr < NewPrims.Size(); PrimNr++)
+            NewElems.PushBack(NewPrims[PrimNr]);
     }
 }
 
@@ -412,6 +422,16 @@ bool ToolSelectionT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
                 for (unsigned long ElemNr = 0; ElemNr < NewElems.Size(); ElemNr++)
                     m_TrafoBox.ApplyTrafo(NewElems[ElemNr]);
 
+                // Now finish the box transformation (makes m_TrafoBox.GetDragState() return TrafoBoxT::TH_NONE again).
+                m_TrafoBox.FinishTrafo();
+
+                // I don't understand exactly why, but we have to atomically set both the m_TrafoBox as well as the m_ToolState here
+                // (m_ToolState is set to TS_IDLE universally below again, which normally appears to be sufficient).
+                // However, it seems that somewhere in the call to SubmitCommand(), wxMSW finds an opportunity to dispatch more
+                // (mouse) events; so without the following line, we enter OnMouseMove2D() in m_ToolState TS_BOX_TRAFO while
+                // m_TrafoBox.GetDragState() yields the mismatching TH_NONE.
+                m_ToolState = TS_IDLE;
+
                 ArrayT<CommandT*> SubCommands;
 
                 if (NewEnts.Size() > 0)
@@ -443,17 +463,17 @@ bool ToolSelectionT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
             else
             {
                 TrafoCmd = m_TrafoBox.GetTrafoCommand(m_MapDoc);
+
+                // Now finish the box transformation (makes m_TrafoBox.GetDragState() return TrafoBoxT::TH_NONE again).
+                m_TrafoBox.FinishTrafo();
+
+                // I don't understand exactly why, but we have to atomically set both the m_TrafoBox as well as the m_ToolState here
+                // (m_ToolState is set to TS_IDLE universally below again, which normally appears to be sufficient).
+                // However, it seems that somewhere in the call to SubmitCommand(), wxMSW finds an opportunity to dispatch more
+                // (mouse) events; so without the following line, we enter OnMouseMove2D() in m_ToolState TS_BOX_TRAFO while
+                // m_TrafoBox.GetDragState() yields the mismatching TH_NONE.
+                m_ToolState = TS_IDLE;
             }
-
-            // Now finish the box transformation (makes m_TrafoBox.GetDragState() return TrafoBoxT::TH_NONE again).
-            m_TrafoBox.FinishTrafo();
-
-            // I don't understand exactly why, but we have to atomically set both the m_TrafoBox as well as the m_ToolState here
-            // (m_ToolState is set to TS_IDLE universally below again, which normally appears to be sufficient).
-            // However, it seems that somewhere in the call to SubmitCommand(), wxMSW finds an opportunity to dispatch more
-            // (mouse) events; so without the following line, we enter OnMouseMove2D() in m_ToolState TS_BOX_TRAFO while
-            // m_TrafoBox.GetDragState() yields the mismatching TH_NONE.
-            m_ToolState=TS_IDLE;
 
             if (TrafoCmd) m_MapDoc.GetHistory().SubmitCommand(TrafoCmd);
             break;
