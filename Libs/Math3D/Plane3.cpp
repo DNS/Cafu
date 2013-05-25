@@ -25,12 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Plane3.hpp"
 
-#if defined(_WIN32) && defined(_MSC_VER)
-    #if (_MSC_VER<1300)
-        #define for if (false) ; else for
-    #endif
-#endif
-
 
 template<class T> void Plane3T<T>::ConvexHull(const ArrayT< Vector3T<T> >& Points, ArrayT<Plane3T>& HullPlanes, ArrayT<unsigned long>* HullPlanesPIs, const T Epsilon)
 {

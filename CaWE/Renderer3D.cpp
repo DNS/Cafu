@@ -37,12 +37,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "wx/wx.h"
 
-#if defined(_WIN32) && defined(_MSC_VER)
-    #if (_MSC_VER<1300)
-        #define for if (false) ; else for
-    #endif
-#endif
-
 
 /// The global counter that indicates the number of the 3D video frame that is currently rendered.
 /// Copied into the map elements, it is used in order to avoid processing/rendering map elements twice.

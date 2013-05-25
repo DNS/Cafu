@@ -37,12 +37,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../../Mesh.hpp"
 #include "../../Common/OpenGLEx.hpp"
 
-#if defined(_WIN32) && defined (_MSC_VER)
-    #if (_MSC_VER<1300)
-        #define for if (false) ; else for
-    #endif
-#endif
-
 
 using namespace MatSys;
 

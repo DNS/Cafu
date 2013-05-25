@@ -23,13 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "DialogConsole.hpp"
 
 
-#if defined(_WIN32) && defined(_MSC_VER)
-    #if (_MSC_VER<1300)
-        #define for if (false) ; else for
-    #endif
-#endif
-
-
 BEGIN_EVENT_TABLE(ConsoleDialogT, wxPanel)
     EVT_TEXT_ENTER(ID_TEXTCTRL_INPUT, ConsoleDialogT::OnCommandInput)
     EVT_BUTTON(ID_BUTTON_CLEAR, ConsoleDialogT::OnClear)

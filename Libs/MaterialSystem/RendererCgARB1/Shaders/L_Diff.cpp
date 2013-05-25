@@ -27,9 +27,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #if defined(_WIN32) && defined(_MSC_VER)
     #define WIN32_LEAN_AND_MEAN
     #include <windows.h>
-    #if (_MSC_VER<1300)
-        #define for if (false) ; else for
-    #endif
 #endif
 
 // This is required for cg.h to get the function calling conventions (Win32 import/export/lib) right.

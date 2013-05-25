@@ -25,12 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Polygon.hpp"
 
-#if defined(_WIN32) && defined(_MSC_VER)
-    #if (_MSC_VER<1300)
-        #define for if (false) ; else for
-    #endif
-#endif
-
 
 template<class T> bool Polygon3T<T>::IsValid(const double RoundEpsilon, const double MinVertexDist) const
 {

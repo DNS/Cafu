@@ -45,12 +45,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/image.h"
 #include "wx/confbase.h"
 
-#if defined(_WIN32) && defined(_MSC_VER)
-    #if (_MSC_VER<1300)
-        #define for if (false) ; else for
-    #endif
-#endif
-
 
 const unsigned long EditSurfacePropsDialogT::ALL_FACES=0xFFFFFFFF;
 static const int PREVIEW_BITMAP_SIZE=128;

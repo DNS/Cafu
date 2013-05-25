@@ -51,9 +51,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <windows.h>
 #include <direct.h>
     #if defined(_MSC_VER)
-        #if (_MSC_VER<1300)
-        #define for if (false) ; else for
-    #endif
     #endif
 #else
 #include <dlfcn.h>

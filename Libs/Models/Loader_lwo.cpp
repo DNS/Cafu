@@ -32,12 +32,6 @@ extern "C"
 #include <cstring>      // For strdup().
 #include <map>
 
-#if defined(_WIN32) && defined (_MSC_VER)
-    #if (_MSC_VER<1300)
-        #define for if (false) ; else for
-    #endif
-#endif
-
 // For some reason, this one has not been defined in lwo2.h.
 #define ID_TXUV  LWID_('T','X','U','V')
 

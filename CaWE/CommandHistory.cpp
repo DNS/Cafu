@@ -22,12 +22,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Options.hpp"
 #include "CommandHistory.hpp"
 
-#if defined(_WIN32) && defined(_MSC_VER)
-    #if (_MSC_VER<1300)
-        #define for if (false) ; else for
-    #endif
-#endif
-
 
 namespace
 {

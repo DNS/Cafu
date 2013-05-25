@@ -92,10 +92,6 @@ extern "C"
 
 
 #if defined(_WIN32) && defined(_MSC_VER)
-    #if (_MSC_VER<1300)
-        #define for if (false) ; else for
-    #endif
-
     // Turn off warning 4355: "'this' : wird in Initialisierungslisten fuer Basisklasse verwendet".
     #pragma warning(disable:4355)
 #endif

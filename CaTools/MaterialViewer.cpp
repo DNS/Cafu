@@ -31,11 +31,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <direct.h>
-    #if defined(_MSC_VER)
-        #if (_MSC_VER<1300)
-        #define for if (false) ; else for
-    #endif
-    #endif
 #else
 #include <cstring>
 #include <dlfcn.h>

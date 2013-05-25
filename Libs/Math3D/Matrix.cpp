@@ -22,12 +22,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Matrix.hpp"
 #include "Quaternion.hpp"
 
-#if defined(_WIN32) && defined (_MSC_VER)
-    #if (_MSC_VER<1300)
-        #define for if (false) ; else for
-    #endif
-#endif
-
 
 MatrixT::MatrixT(const Vector3fT& t, const cf::math::QuaternionT<float>& q, const Vector3fT& s)
 {
