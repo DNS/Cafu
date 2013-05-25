@@ -3,25 +3,22 @@
 Version 13
 
 
-{ // Entity 0 (the world)
+{
   classname "worldspawn"
-  light "0"
-  MaxRange "4096"
-  startdark "0"
-  newunit "0"
   message "AEon's Canyon Tower"
-  fog_color "0 0 0"
+  shlmap_patchsize "200.0"
   lightmap_patchsize "200.0"
+  MaxRange "4096"
+  fog_color "0 0 0"
   wind_velocity "0.0"
   wind_velocity_var "0.0"
   precipitation_intensity "3"
   fog_density "0.0025"
   fog_start "0.0"
   fog_end "1.0"
-  shlmap_patchsize "200.0"
   mru_mat_0 "TechDemo/walls/wall-13b"
 
-  { // Brush 0
+  {
     ( 736 1056 0 ) ( 736 1056 -32 ) ( 1184 1056 -32 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
     ( 1184 1056 0 ) ( 1184 1056 -32 ) ( 1184 -32 -32 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( 1184 -32 0 ) ( 1184 -32 -32 ) ( 736 -32 -32 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -201,7 +198,7 @@ Version 13
     ( 272 -384 256 ) ( 272 -384 288 ) ( 240 -384 288 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -160 ) )
   }
 
-  { // Brush 20
+  {
     ( -704 -512 256 ) ( -704 -544 256 ) ( -736 -544 256 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -160 0 ) )
     ( -704 -672.00006 32 ) ( -704 -544 256 ) ( -704 -512 256 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -160 ) )
     ( -736 -672.00006 32 ) ( -736 -544 256 ) ( -704 -544 256 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -160 ) )
@@ -380,7 +377,7 @@ Version 13
     ( -1056 -224 288 ) ( -1056 -512 288 ) ( -1024 -512 288 ) "Textures/Kai/wallmarble" ( 2 0.75 -0.125 -90 ( 0 128 0 ) ( 160 0 0 ) )
   }
 
-  { // Brush 40
+  {
     ( -1024 -480 480 ) ( -1024 -512 480 ) ( -1184 -512 480 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -160 0 ) )
     ( -1024 -512 320 ) ( -1024 -512 480 ) ( -1024 -480 480 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -160 ) )
     ( -1184 -512 320 ) ( -1184 -512 480 ) ( -1024 -512 480 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -160 ) )
@@ -560,7 +557,7 @@ Version 13
     ( 1248 1536 64 ) ( 1216 1536 64 ) ( 1216 1088 64 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -160 0 ) )
   }
 
-  { // Brush 60
+  {
     ( 1088 1632 160 ) ( 1088 1536 160 ) ( 1056 1536 160 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -160 0 ) )
     ( 1088 1536 96 ) ( 1088 1536 160 ) ( 1088 1632 160 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -160 ) )
     ( 1056 1536 96 ) ( 1056 1536 160 ) ( 1088 1536 160 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -160 ) )
@@ -740,7 +737,7 @@ Version 13
     ( 1216 1120 96 ) ( 1216 1088 96 ) ( 1248 1088 96 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -160 0 ) )
   }
 
-  { // Brush 80
+  {
     ( 672.00006 1312 416.00003 ) ( 672.00006 1312 384 ) ( 640 1312 384 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -160 ) )
     ( 640 1312 416.00003 ) ( 640 1312 384 ) ( 640 1440 384 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -160 ) )
     ( 640 1440 416.00003 ) ( 640 1440 384 ) ( 672.00006 1440 384 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -160 ) )
@@ -920,7 +917,7 @@ Version 13
     ( 1024 1536 224 ) ( 960 1536 224 ) ( 960 1408 224 ) "Textures/Kai/wallmarble" ( 2 0 0 -90 ( 0 128 0 ) ( 160 0 0 ) )
   }
 
-  { // Brush 100
+  {
     ( 832.00006 1536 288 ) ( 832.00006 1568 288 ) ( 960 1568 288 ) "Textures/Kai/wallmarble" ( 2 0 0 -90 ( 0 128 0 ) ( 160 0 0 ) )
     ( 832.00006 1568 256 ) ( 832.00006 1568 288 ) ( 832.00006 1536 288 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -160 ) )
     ( 960 1568 256 ) ( 960 1568 288 ) ( 832.00006 1568 288 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -160 ) )
@@ -1100,7 +1097,7 @@ Version 13
     ( -1056 784 560 ) ( -1056 752.00006 560 ) ( -896 752.00006 576 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -160 0 ) )
   }
 
-  { // Brush 120
+  {
     ( -1024 784 576 ) ( -1024 752.00006 576 ) ( -1056 752.00006 576 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -160 0 ) )
     ( -1152 752.00006 352 ) ( -1024 752.00006 576 ) ( -1024 784 576 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -160 ) )
     ( -1184 752.00006 352 ) ( -1056 752.00006 576 ) ( -1024 752.00006 576 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -160 ) )
@@ -1279,7 +1276,7 @@ Version 13
     ( 960 -768 288 ) ( 960 -896 288 ) ( 992.00006 -896 288 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -160 0 ) )
   }
 
-  { // Brush 140
+  {
     ( 1088 -512 160 ) ( 1088 -512 128 ) ( 1088 -576 128 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( 1088 -576 160 ) ( 1088 -576 128 ) ( 960 -576 128 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
     ( 960 -576 160 ) ( 960 -576 128 ) ( 960 -512 128 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
@@ -1459,7 +1456,7 @@ Version 13
     ( 1312 -256 320 ) ( 1312 -256 352 ) ( 1280 -256 352 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -160 ) )
   }
 
-  { // Brush 160
+  {
     ( 1152 -512 352 ) ( 1152 -768 352 ) ( 1088 -768 352 ) "Textures/Kai/wallmarble" ( 2 0 0 -90 ( 0 128 0 ) ( 160 0 0 ) )
     ( 1152 -512 320 ) ( 1152 -768 320 ) ( 1152 -768 352 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -160 ) )
     ( 1088 -768 320 ) ( 1088 -768 352 ) ( 1152 -768 352 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -160 ) )
@@ -1639,7 +1636,7 @@ Version 13
     ( 1088 -768 32 ) ( 1088 -800 32 ) ( 1152 -800 32 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -160 0 ) )
   }
 
-  { // Brush 180
+  {
     ( 1312 0 352 ) ( 1312 -64 352 ) ( 1088 -64 352 ) "Textures/Kai/wallmarble" ( 2 0 0 -90 ( 0 128 0 ) ( 160 0 0 ) )
     ( 1312 0 320 ) ( 1312 -64 320 ) ( 1312 -64 352 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -160 ) )
     ( 1088 -64 320 ) ( 1088 -64 352 ) ( 1312 -64 352 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -160 ) )
@@ -1819,7 +1816,7 @@ Version 13
     ( -544 448 448 ) ( -544 416.00003 448 ) ( -448 416.00003 448 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -160 0 ) )
   }
 
-  { // Brush 200
+  {
     ( -288 544 512 ) ( -288 480 512 ) ( -416.00003 480 512 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -160 0 ) )
     ( -288 448 480 ) ( -288 480 512 ) ( -288 544 512 ) "Textures/Kai/wallmarble" ( 2 0 -0.1 0 ( 0 128 0 ) ( 0 0 -160 ) )
     ( -416.00003 448 480 ) ( -416.00003 480 512 ) ( -288 480 512 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -160 0 ) )
@@ -1999,7 +1996,7 @@ Version 13
     ( 672.00006 448 288 ) ( 672.00006 416.00003 288 ) ( 736 416.00003 288 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -160 0 ) )
   }
 
-  { // Brush 220
+  {
     ( 768 576 320 ) ( 768 448 320 ) ( 736 448 320 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -160 0 ) )
     ( 768 448 128 ) ( 768 448 320 ) ( 768 576 320 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -160 ) )
     ( 736 448 128 ) ( 736 448 320 ) ( 768 448 320 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -160 ) )
@@ -2177,7 +2174,7 @@ Version 13
     ( 96 32 128 ) ( 64 32 128 ) ( 64 -128 128 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -160 0 ) )
   }
 
-  { // Brush 240
+  {
     ( -32 -128 160 ) ( -64 -128 160 ) ( -64 32 160 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -160 0 ) )
     ( -96 -128 128 ) ( -64 -128 160 ) ( -32 -128 160 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -160 ) )
     ( -96 32 128 ) ( -64 32 160 ) ( -64 -128 160 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -160 0 ) )
@@ -2357,7 +2354,7 @@ Version 13
     ( -64 928 288 ) ( -96 928 288 ) ( -96 768 288 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -160 0 ) )
   }
 
-  { // Brush 260
+  {
     ( 64 768 160 ) ( 64 768 128 ) ( -64 768 128 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
     ( -64 768 160 ) ( -64 768 128 ) ( -64 1248 128 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( -64 1248 160 ) ( -64 1248 128 ) ( 64 1248 128 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -2535,7 +2532,7 @@ Version 13
     ( 128 416.00003 544 ) ( 128 384 544 ) ( 256 384 448 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -160 0 ) )
   }
 
-  { // Brush 280
+  {
     ( -96 608 576 ) ( -96 416.00003 576 ) ( -128 416.00003 576 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -160 0 ) )
     ( -96 416.00003 544 ) ( -96 416.00003 576 ) ( -96 608 576 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -160 ) )
     ( -128 416.00003 544 ) ( -128 416.00003 576 ) ( -96 416.00003 576 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -160 ) )
@@ -2715,7 +2712,7 @@ Version 13
     ( 976 -640 128 ) ( 976 -656 128 ) ( 1264 -656 128 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
   }
 
-  { // Brush 300
+  {
     ( 1264 -752.00006 160 ) ( 1264 -768 160 ) ( 976 -768 160 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( 1264 -768 128 ) ( 1264 -768 160 ) ( 1264 -752.00006 160 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( 976 -768 128 ) ( 976 -768 160 ) ( 1264 -768 160 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -2895,7 +2892,7 @@ Version 13
     ( -1056 1056 560 ) ( -1056 -32 560 ) ( -1024 -32 560 ) "Textures/Kai/wallmarble" ( 2 0 0 -90 ( 0 128 0 ) ( 160 0 0 ) )
   }
 
-  { // Brush 320
+  {
     ( -1024 -64 320 ) ( -1024 -192 320 ) ( -1040 -192 320 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -1024 -192 288 ) ( -1024 -192 320 ) ( -1024 -64 320 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( -1040 -192 288 ) ( -1040 -192 320 ) ( -1024 -192 320 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -3075,7 +3072,7 @@ Version 13
     ( 1152 -384 128 ) ( 1152 -512 128 ) ( 1168 -512 128 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
   }
 
-  { // Brush 340
+  {
     ( 1280 -384 160 ) ( 1280 -512 160 ) ( 1264 -512 160 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( 1280 -512 128 ) ( 1280 -512 160 ) ( 1280 -384 160 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( 1264 -512 128 ) ( 1264 -512 160 ) ( 1280 -512 160 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -3255,7 +3252,7 @@ Version 13
     ( -768 -32 0 ) ( -768 -672.00006 0 ) ( -1216 -672.00006 0 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
   }
 
-  { // Brush 360
+  {
     ( 544 -224 0 ) ( 544 -224 -32 ) ( 544 -672.00006 -32 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( 544 -672.00006 0 ) ( 544 -672.00006 -32 ) ( -768 -672.00006 -32 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
     ( -768 -672.00006 0 ) ( -768 -672.00006 -32 ) ( -768 -224 -32 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
@@ -3435,7 +3432,7 @@ Version 13
     ( 1152 -608 320 ) ( 1152 -640 320 ) ( 1280 -640 320 ) "Textures/Kai/wallmarble" ( 2 0 -0.1 0 ( 128 0 0 ) ( 0 -160 0 ) )
   }
 
-  { // Brush 380
+  {
     ( 1280 -768 352 ) ( 1280 -800 352 ) ( 960 -800 352 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -160 0 ) )
     ( 1280 -800 320 ) ( 1280 -800 352 ) ( 1280 -768 352 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -160 ) )
     ( 960 -800 320 ) ( 960 -800 352 ) ( 1280 -800 352 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -160 ) )
@@ -3615,7 +3612,7 @@ Version 13
     ( -944 1424.0001 384 ) ( -944 1328 384 ) ( -928 1328 384 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -160 0 ) )
   }
 
-  { // Brush 400
+  {
     ( -672.00006 1424.0001 416.00003 ) ( -672.00006 1328 416.00003 ) ( -688 1328 416.00003 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -160 0 ) )
     ( -672.00006 1328 384 ) ( -672.00006 1328 416.00003 ) ( -672.00006 1424.0001 416.00003 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -160 ) )
     ( -688 1328 384 ) ( -688 1328 416.00003 ) ( -672.00006 1328 416.00003 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -160 ) )
@@ -3795,7 +3792,7 @@ Version 13
     ( 960 1088 -32 ) ( 960 1056 -32 ) ( 1248 1056 -32 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -160 0 ) )
   }
 
-  { // Brush 420
+  {
     ( -1216 1504.0001 608 ) ( -1216 1088 608 ) ( -1248 1088 608 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 -160 0 ) )
     ( -1216 1088 128 ) ( -1216 1088 608 ) ( -1216 1504.0001 608 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -160 ) )
     ( -1248 1088 128 ) ( -1248 1088 608 ) ( -1216 1088 608 ) "Textures/Kai/wallmarble" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -160 ) )
@@ -3975,7 +3972,7 @@ Version 13
     ( 736 -640 84.00001 ) ( 736 -768 84.00001 ) ( 768 -768 84.00001 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
   }
 
-  { // Brush 440
+  {
     ( -1056 1472 208.00002 ) ( -1056 1344.0001 208.00002 ) ( -1088 1344.0001 208.00002 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -1056 1344.0001 160 ) ( -1056 1344.0001 208.00002 ) ( -1056 1472 208.00002 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( -1088 1344.0001 160 ) ( -1088 1344.0001 208.00002 ) ( -1056 1344.0001 208.00002 ) "Textures/Kai/suelo" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -4155,7 +4152,7 @@ Version 13
     ( -672.00006 1376 532 ) ( -672.00006 1374.0001 525 ) ( -672.00006 1372 525 ) "Textures/misc/e6basicstrip_ye" ( 2 0 0 0 ( 0 80 0 ) ( 0 0 -80 ) )
   }
 
-  { // Brush 460
+  {
     ( -680 1351 526 ) ( -680 1351 523 ) ( -680 1366 523 ) "Textures/misc/e6basicstrip_ye" ( 2 0 0 0 ( 0 80 0 ) ( 0 0 -80 ) )
     ( -672.00006 1351 523 ) ( -680 1351 523 ) ( -680 1351 526 ) "Textures/misc/e6basicstrip_ye" ( 2 0 0 0 ( 80 0 0 ) ( 0 0 -80 ) )
     ( -672.00006 1366 523 ) ( -680 1366 523 ) ( -680 1351 523 ) "Textures/misc/e6basicstrip_ye" ( 2 0 0 0 ( 80 0 0 ) ( 0 -80 0 ) )
@@ -4335,7 +4332,7 @@ Version 13
     ( -672.00006 1392 449 ) ( -672.00006 1382 426.00003 ) ( -672.00006 1378 426.00003 ) "Textures/misc/e6basicstrip_gr" ( 2 0 0 0 ( 0 80 0 ) ( 0 0 -128 ) )
   }
 
-  { // Brush 480
+  {
     ( -680 1373 441.00003 ) ( -680 1378 426.00003 ) ( -680 1382 426.00003 ) "Textures/misc/e6basicstrip_gr" ( 2 0 0 0 ( 0 80 0 ) ( 0 0 -128 ) )
     ( -672.00006 1378 426.00003 ) ( -680 1378 426.00003 ) ( -680 1373 441.00003 ) "Textures/misc/e6basicstrip_gr" ( 2 0 0 0 ( 80 0 0 ) ( 0 0 -128 ) )
     ( -672.00006 1382 426.00003 ) ( -680 1382 426.00003 ) ( -680 1378 426.00003 ) "Textures/misc/e6basicstrip_gr" ( 2 0 0 0 ( 80 0 0 ) ( 0 -128 0 ) )
@@ -4515,7 +4512,7 @@ Version 13
     ( 247 341.00003 240 ) ( 225 363 240 ) ( 157 295 240 ) "Textures/OldWAD/Signs/casign1a" ( 2 -0.671146 0.405937 89.99 ( -67.8703 -67.8943 0 ) ( -45.2629 45.2467 0 ) )
   }
 
-  { // Brush 500
+  {
     ( -48 232 168.00002 ) ( -48 264 168.00002 ) ( 48 264 168.00002 ) "Textures/OldWAD/Signs/casign1d" ( 2 -0.5 0.75 90 ( -96 0 0 ) ( 0 32 0 ) )
     ( -48 264 136 ) ( -48 264 168.00002 ) ( -48 232 168.00002 ) "Textures/OldWAD/Signs/casign1d" ( 2 0.0520833 -0.0625 0 ( 0 -192 0 ) ( 0 0 -64 ) )
     ( 48 264 136 ) ( 48 264 168.00002 ) ( -48 264 168.00002 ) "Textures/OldWAD/Signs/casign1d" ( 2 -0.5 -0.75 0 ( -96 0 0 ) ( 0 0 -32 ) )
@@ -4695,7 +4692,7 @@ Version 13
     ( -720 -896 -32 ) ( -1216 -896 -32 ) ( -1216 -896 608 ) "Textures/SkyDomes/PK_BrightDay2" ( 2 0 0 0 ( 512 0 0 ) ( 0 0 -512 ) )
   }
 
-  { // Brush 520
+  {
     ( -720 -896 32 ) ( -720 -672.00006 32 ) ( 544 -672.00006 32 ) "Textures/SkyDomes/PK_BrightDay2" ( 2 0 0 0 ( 512 0 0 ) ( 0 -512 0 ) )
     ( -720 -672.00006 -32 ) ( -720 -896 -32 ) ( 544 -896 -32 ) "Textures/SkyDomes/PK_BrightDay2" ( 2 0 0 0 ( 512 0 0 ) ( 0 -512 0 ) )
     ( -720 -896 -32 ) ( -720 -672.00006 -32 ) ( -720 -672.00006 32 ) "Textures/SkyDomes/PK_BrightDay2" ( 2 0 0 0 ( 0 512 0 ) ( 0 0 -512 ) )
@@ -4875,7 +4872,7 @@ Version 13
     ( 736 224 -32 ) ( 288 224 -32 ) ( 288 224 608 ) "Textures/SkyDomes/PK_BrightDay2" ( 2 0 0 0 ( 512 0 0 ) ( 0 0 -512 ) )
   }
 
-  { // Brush 540
+  {
     ( 256 352 608 ) ( 288 352 608 ) ( 288 224 608 ) "Textures/SkyDomes/PK_BrightDay2" ( 2 0 0 0 ( 512 0 0 ) ( 0 -512 0 ) )
     ( 128 224 -32 ) ( 288 224 -32 ) ( 288 352 -32 ) "Textures/SkyDomes/PK_BrightDay2" ( 2 0 0 0 ( 512 0 0 ) ( 0 -512 0 ) )
     ( 288 352 -32 ) ( 288 224 -32 ) ( 288 224 608 ) "Textures/SkyDomes/PK_BrightDay2" ( 2 0 0 0 ( 0 512 0 ) ( 0 0 -512 ) )
@@ -5055,7 +5052,7 @@ Version 13
     ( -384 416.00003 448 ) ( -384 480 512 ) ( -640 480 512 ) "Textures/SkyDomes/PK_BrightDay2" ( 2 0 0 0 ( 512 0 0 ) ( 0 -512 0 ) )
   }
 
-  { // Brush 560
+  {
     ( -640 544 512 ) ( -640 608 512 ) ( -384 608 512 ) "Textures/SkyDomes/PK_BrightDay2" ( 2 0 0 0 ( 512 0 0 ) ( 0 -512 0 ) )
     ( -640 608 448 ) ( -640 608 512 ) ( -640 544 512 ) "Textures/SkyDomes/PK_BrightDay2" ( 2 0 0 0 ( 0 512 0 ) ( 0 0 -512 ) )
     ( -384 544 512 ) ( -384 608 512 ) ( -384 608 448 ) "Textures/SkyDomes/PK_BrightDay2" ( 2 0 0 0 ( 0 512 0 ) ( 0 0 -512 ) )
@@ -5230,7 +5227,7 @@ Version 13
     ( 1264 -496.00003 128 ) ( 1168 -496.00003 128 ) ( 1168 -496.00003 160 ) "Textures/meta/clip" ( 2 -1 -1 0 ( 32 0 0 ) ( 0 0 -32 ) )
   }
 
-  { // Brush 580
+  {
     ( 976 -496.00003 160 ) ( 976 -400 160 ) ( 1072 -400 160 ) "Textures/meta/clip" ( 2 1 1 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( 976 -400 128 ) ( 976 -496.00003 128 ) ( 1072 -496.00003 128 ) "Textures/meta/clip" ( 2 1 1 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( 976 -496.00003 128 ) ( 976 -400 128 ) ( 976 -400 160 ) "Textures/meta/clip" ( 2 -1 -1 0 ( 0 32 0 ) ( 0 0 -32 ) )
@@ -5312,355 +5309,355 @@ Version 13
   }
 }
 
-{ // Entity 1
+{
   classname "info_player_start"
   angles "0 0 0"
   origin "1040 672 64"
 }
 
-{ // Entity 2
+{
   classname "info_player_start"
   angles "0 180 0"
   origin "160 -528 64"
 }
 
-{ // Entity 3
+{
   classname "info_player_start"
   angles "0 270 0"
   origin "0 1376 224"
 }
 
-{ // Entity 4
+{
   classname "info_player_start"
   angles "0 270 0"
   origin "-1040 352 384"
 }
 
-{ // Entity 5
+{
   classname "info_player_start"
   angles "0 60 0"
   origin "-1120 -576 224"
 }
 
-{ // Entity 6
+{
   classname "info_player_start"
   angles "0 0 0"
   origin "1120 -704 64"
 }
 
-{ // Entity 7
+{
   classname "info_player_start"
   angles "0 315 0"
   origin "1152 1152 128"
 }
 
-{ // Entity 8
+{
   classname "info_player_start"
   angles "0 30 0"
   origin "-1152 1152 336"
 }
 
-{ // Entity 9
+{
   classname "info_player_start"
   angles "0 0 0"
   origin "-160 352 384"
 }
 
-{ // Entity 10
+{
   classname "info_player_start"
   angles "0 0 0"
   origin "0 384 64"
 }
 
-{ // Entity 11
+{
   classname "weapon_handgrenade"
   angles "0 0 0"
   origin "-736 1312 480"
 }
 
-{ // Entity 12
+{
   classname "weapon_handgrenade"
   angles "0 0 0"
   origin "-736 1440 480"
 }
 
-{ // Entity 13
+{
   classname "weapon_handgrenade"
   angles "0 0 0"
   origin "-736 1376 480"
 }
 
-{ // Entity 14
+{
   classname "ammo_gausscells"
   angles "0 0 0"
   origin "-832 1376 480"
 }
 
-{ // Entity 15
+{
   classname "weapon_egon"
   angles "0 0 0"
   origin "704 512 240"
 }
 
-{ // Entity 16
+{
   classname "weapon_rpg"
   angles "0 0 0"
   origin "-832 -384 224"
 }
 
-{ // Entity 17
+{
   classname "ammo_rpg_rocket"
   angles "0 0 0"
   origin "-864 -608 224"
 }
 
-{ // Entity 18
+{
   classname "ammo_rpg_rocket"
   angles "0 0 0"
   origin "-800 -608 224"
 }
 
-{ // Entity 19
+{
   classname "weapon_shotgun"
   angles "0 0 0"
   origin "-1088 64 384"
 }
 
-{ // Entity 20
+{
   classname "ammo_shotgun_shells"
   angles "0 0 0"
   origin "-1088 960 384"
 }
 
-{ // Entity 21
+{
   classname "weapon_shotgun"
   angles "0 0 0"
   origin "1088 960 64"
 }
 
-{ // Entity 22
+{
   classname "ammo_shotgun_shells"
   angles "0 0 0"
   origin "1088 64 64"
 }
 
-{ // Entity 23
+{
   classname "ammo_ARgrenades"
   angles "0 0 0"
   origin "-640 -576 64"
 }
 
-{ // Entity 24
+{
   classname "ammo_9mmAR"
   angles "0 0 0"
   origin "0 -576 64"
 }
 
-{ // Entity 25
+{
   classname "weapon_9mmAR"
   angles "0 0 0"
   origin "448 -576 64"
 }
 
-{ // Entity 26
+{
   classname "ammo_357"
   angles "0 0 0"
   origin "-384 1440 224"
 }
 
-{ // Entity 27
+{
   classname "weapon_357handgun"
   angles "0 270 0"
   origin "384 1440 224"
 }
 
-{ // Entity 28
+{
   classname "weapon_hornetgun"
   angles "0 0 0"
   origin "1216 -704 256"
 }
 
-{ // Entity 29
+{
   classname "weapon_facehugger"
   angles "0 0 0"
   origin "784 -104 224"
 }
 
-{ // Entity 30
+{
   classname "weapon_crossbow"
   angles "0 90 0"
   origin "96 288 384"
 }
 
-{ // Entity 31
+{
   classname "ammo_crossbow_arrows"
   angles "0 0 0"
   origin "-120 736 224"
 }
 
-{ // Entity 32
+{
   classname "item_healthkit_small"
   angles "0 0 0"
   origin "-32 640 64"
 }
 
-{ // Entity 33
+{
   classname "item_healthkit_small"
   angles "0 0 0"
   origin "32 640 64"
 }
 
-{ // Entity 34
+{
   classname "item_armor_green"
   angles "0 0 0"
   origin "-224 512 64"
 }
 
-{ // Entity 35
+{
   classname "item_armor_green"
   angles "0 0 0"
   origin "224 512 64"
 }
 
-{ // Entity 36
+{
   classname "weapon_handgrenade"
   angles "0 0 0"
   origin "-64 288 384"
 }
 
-{ // Entity 37
+{
   classname "weapon_gauss"
   angles "0 0 0"
   origin "1184 1504 128"
 }
 
-{ // Entity 38
+{
   classname "weapon_handgrenade"
   angles "0 0 0"
   origin "0 1024 224"
 }
 
-{ // Entity 39
+{
   classname "weapon_handgrenade"
   angles "0 0 0"
   origin "0 -48 64"
 }
 
-{ // Entity 40
+{
   classname "ammo_9mmAR"
   angles "0 0 0"
   origin "-496 512 384"
 }
 
-{ // Entity 41
+{
   classname "ammo_9mmclip"
   angles "0 0 0"
   origin "512 512 144"
 }
 
-{ // Entity 42
+{
   classname "weapon_tripmine"
   angles "0 90 0"
   origin "832 -104 224"
 }
 
-{ // Entity 43
+{
   classname "weapon_handgrenade"
   angles "0 0 0"
   origin "832 -152 224"
 }
 
-{ // Entity 44
+{
   classname "item_armor_green"
   angles "0 0 0"
   origin "784 -152 224"
 }
 
-{ // Entity 45
+{
   classname "weapon_facehugger"
   angles "0 0 0"
   origin "616 -680 48"
 }
 
-{ // Entity 46
+{
   classname "weapon_tripmine"
   angles "0 90 0"
   origin "664 -680 48"
 }
 
-{ // Entity 47
+{
   classname "weapon_handgrenade"
   angles "0 0 0"
   origin "664 -728 48"
 }
 
-{ // Entity 48
+{
   classname "item_armor_green"
   angles "0 0 0"
   origin "616 -728 48"
 }
 
-{ // Entity 49
+{
   classname "weapon_facehugger"
   angles "0 0 0"
   origin "-1144 -104 32"
 }
 
-{ // Entity 50
+{
   classname "weapon_tripmine"
   angles "0 90 0"
   origin "-1096 -104 32"
 }
 
-{ // Entity 51
+{
   classname "weapon_handgrenade"
   angles "0 0 0"
   origin "-1096 -152 32"
 }
 
-{ // Entity 52
+{
   classname "item_armor_green"
   angles "0 0 0"
   origin "-1144 -152 32"
 }
 
-{ // Entity 53
+{
   classname "ammo_crossbow_arrows"
   angles "0 0 0"
   origin "832 -704 64"
 }
 
-{ // Entity 54
+{
   classname "ammo_ARgrenades"
   angles "0 0 0"
   origin "-80 1440 224"
 }
 
-{ // Entity 55
+{
   classname "ammo_ARgrenades"
   angles "0 0 0"
   origin "864 1184 128"
 }
 
-{ // Entity 56
+{
   classname "ammo_rpg_rocket"
   angles "0 0 0"
   origin "1024 -704 64"
 }
 
-{ // Entity 57
+{
   classname "ammo_rpg_rocket"
   angles "0 0 0"
   origin "1216 -704 64"
 }
 
-{ // Entity 58
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 1136 -512 288 ) ( 1136 -520 288 ) ( 1104 -520 288 ) "Textures/Kai/ladder_chrm" ( 2 0.5 -0.15625 0 ( 32 0 0 ) ( 0 -32 0 ) )
     ( 1136 -520 2 ) ( 1136 -520 288 ) ( 1136 -512 288 ) "Textures/Kai/ladder_chrm" ( 2 0.25 0 0 ( 0 32 0 ) ( 0 0 -32 ) )
     ( 1104 -520 2 ) ( 1104 -520 288 ) ( 1136 -520 288 ) "Textures/Kai/ladder_chrm" ( 2 0.5 0 0 ( 32 0 0 ) ( 0 0 -32 ) )
@@ -5670,13 +5667,13 @@ Version 13
   }
 }
 
-{ // Entity 59
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( -960 1232 480 ) ( -968 1232 480 ) ( -968 1264 480 ) "Textures/Kai/ladder_chrm" ( 2 0.5 -0.25 -90 ( 0 32 0 ) ( 32 0 0 ) )
     ( -968 1232 161 ) ( -968 1232 480 ) ( -960 1232 480 ) "Textures/Kai/ladder_chrm" ( 2 0.25 0 0 ( 32 0 0 ) ( 0 0 -32 ) )
     ( -968 1264 161 ) ( -968 1264 480 ) ( -968 1232 480 ) "Textures/Kai/ladder_chrm" ( 2 0.5 0 0 ( 0 32 0 ) ( 0 0 -32 ) )
@@ -5686,13 +5683,13 @@ Version 13
   }
 }
 
-{ // Entity 60
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( -688 1344.0001 412 ) ( -688 1344.0001 388 ) ( -928 1344.0001 388 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
     ( -928 1344.0001 412 ) ( -928 1344.0001 388 ) ( -928 1408 388 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( -928 1408 412 ) ( -928 1408 388 ) ( -688 1408 388 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -5702,13 +5699,13 @@ Version 13
   }
 }
 
-{ // Entity 61
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( -1104 1360 220 ) ( -1104 1360 196 ) ( -1200 1360 196 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
     ( -1200 1360 220 ) ( -1200 1360 196 ) ( -1200 1456 196 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( -1200 1456 220 ) ( -1200 1456 196 ) ( -1104 1456 196 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -5718,13 +5715,13 @@ Version 13
   }
 }
 
-{ // Entity 62
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( -784 1104 316 ) ( -784 1104 292 ) ( -944 1104 292 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
     ( -944 1104 316 ) ( -944 1104 292 ) ( -944 1200 292 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( -944 1200 316 ) ( -944 1200 292 ) ( -784 1200 292 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -5734,13 +5731,13 @@ Version 13
   }
 }
 
-{ // Entity 63
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( -1040 -176 316 ) ( -1040 -176 292 ) ( -1168 -176 292 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
     ( -1168 -176 316 ) ( -1168 -176 292 ) ( -1168 -80 292 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( -1168 -80 316 ) ( -1168 -80 292 ) ( -1040 -80 292 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -5750,13 +5747,13 @@ Version 13
   }
 }
 
-{ // Entity 64
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( -768 -624 156 ) ( -768 -624 148 ) ( -1168 -624 148 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
     ( -1168 -624 156 ) ( -1168 -624 148 ) ( -1168 -528 148 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( -1168 -528 156 ) ( -1168 -528 148 ) ( -768 -528 148 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -5766,13 +5763,13 @@ Version 13
   }
 }
 
-{ // Entity 65
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( -944 -80 62.000004 ) ( -944 -176 62.000004 ) ( -1168 -176 62.000004 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( -944 -176 50 ) ( -944 -176 62.000004 ) ( -944 -80 62.000004 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( -1168 -176 50 ) ( -1168 -176 62.000004 ) ( -944 -176 62.000004 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -5782,13 +5779,13 @@ Version 13
   }
 }
 
-{ // Entity 66
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 688 -752.00006 92 ) ( 688 -752.00006 68 ) ( 592 -752.00006 68 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
     ( 592 -752.00006 92 ) ( 592 -752.00006 68 ) ( 592 -656 68 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( 592 -656 92 ) ( 592 -656 68 ) ( 688 -656 68 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -5798,13 +5795,13 @@ Version 13
   }
 }
 
-{ // Entity 67
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 880 -752.00006 124.00001 ) ( 880 -752.00006 100 ) ( 784 -752.00006 100 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
     ( 784 -752.00006 124.00001 ) ( 784 -752.00006 100 ) ( 784 -656 100 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( 784 -656 124.00001 ) ( 784 -656 100 ) ( 880 -656 100 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -5814,13 +5811,13 @@ Version 13
   }
 }
 
-{ // Entity 68
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 1072 -496.00003 156 ) ( 1072 -496.00003 132 ) ( 976 -496.00003 132 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
     ( 976 -496.00003 156 ) ( 976 -496.00003 132 ) ( 976 -400 132 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( 976 -400 156 ) ( 976 -400 132 ) ( 1072 -400 132 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -5830,13 +5827,13 @@ Version 13
   }
 }
 
-{ // Entity 69
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 1264 -752.00006 156 ) ( 1264 -752.00006 132 ) ( 976 -752.00006 132 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
     ( 976 -752.00006 156 ) ( 976 -752.00006 132 ) ( 976 -656 132 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( 976 -656 156 ) ( 976 -656 132 ) ( 1264 -656 132 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -5846,13 +5843,13 @@ Version 13
   }
 }
 
-{ // Entity 70
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 1264 -496.00003 156 ) ( 1264 -496.00003 132 ) ( 1168 -496.00003 132 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
     ( 1168 -496.00003 156 ) ( 1168 -496.00003 132 ) ( 1168 -400 132 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( 1168 -400 156 ) ( 1168 -400 132 ) ( 1264 -400 132 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -5862,13 +5859,13 @@ Version 13
   }
 }
 
-{ // Entity 71
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 1264 -176 188.00002 ) ( 1264 -176 164 ) ( 1168 -176 164 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
     ( 1168 -176 188.00002 ) ( 1168 -176 164 ) ( 1168 -80 164 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( 1168 -80 188.00002 ) ( 1168 -80 164 ) ( 1264 -80 164 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -5878,13 +5875,13 @@ Version 13
   }
 }
 
-{ // Entity 72
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 864 -176 172 ) ( 864 -176 164 ) ( 752.00006 -176 164 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
     ( 752.00006 -176 172 ) ( 752.00006 -176 164 ) ( 752.00006 -80 164 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( 752.00006 -80 172 ) ( 752.00006 -80 164 ) ( 864 -80 164 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -5894,13 +5891,13 @@ Version 13
   }
 }
 
-{ // Entity 73
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 784 1104 108 ) ( 784 1104 84.00001 ) ( 528 1104 84.00001 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
     ( 528 1104 108 ) ( 528 1104 84.00001 ) ( 528 1200 84.00001 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( 528 1200 108 ) ( 528 1200 84.00001 ) ( 784 1200 84.00001 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -5910,13 +5907,13 @@ Version 13
   }
 }
 
-{ // Entity 74
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 624 1296 156 ) ( 624 1296 132 ) ( 528 1296 132 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
     ( 528 1296 156 ) ( 528 1296 132 ) ( 528 1456 132 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( 528 1456 156 ) ( 528 1456 132 ) ( 624 1456 132 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -5926,13 +5923,13 @@ Version 13
   }
 }
 
-{ // Entity 75
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 192 544 156 ) ( 192 480 156 ) ( -192 480 316 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
     ( 192 480 132 ) ( 192 480 156 ) ( 192 544 156 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( -192 480 292 ) ( -192 480 316 ) ( 192 480 156 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -5942,13 +5939,13 @@ Version 13
   }
 }
 
-{ // Entity 76
+{
   classname "func_wall"
   rendertranslucency "255"
   rendercolor "0 0 0"
   rendermode "2"
 
-  { // Brush 0
+  {
     ( 560 464 76 ) ( 560 464 52.000004 ) ( 464 464 52.000004 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
     ( 464 464 76 ) ( 464 464 52.000004 ) ( 464 560 52.000004 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
     ( 464 560 76 ) ( 464 560 52.000004 ) ( 560 560 52.000004 ) "Textures/OldWAD/{po_rustygrt" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
@@ -5958,12 +5955,12 @@ Version 13
   }
 }
 
-{ // Entity 77
+{
   classname "func_wall"
   rendertranslucency "100"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( 1216 1624.0001 160 ) ( 1216 1608 160 ) ( 1088 1608 160 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 1216 1544.0001 96 ) ( 1216 1608 160 ) ( 1216 1624.0001 160 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
     ( 1088 1544.0001 96 ) ( 1088 1608 160 ) ( 1216 1608 160 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
@@ -6108,12 +6105,12 @@ Version 13
   }
 }
 
-{ // Entity 78
+{
   classname "func_wall"
   rendertranslucency "100"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( 704 -640 280 ) ( 704 -768 280 ) ( 576 -768 280 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 704 -768 264 ) ( 704 -768 280 ) ( 704 -640 280 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
     ( 576 -768 264 ) ( 576 -768 280 ) ( 704 -768 280 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
@@ -6293,7 +6290,7 @@ Version 13
     ( 960 -416.00003 328 ) ( 960 -512 328 ) ( 1088 -512 328 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
   }
 
-  { // Brush 20
+  {
     ( 1088 -256 312 ) ( 1088 -384 312 ) ( 960 -384 312 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 1088 -384 296 ) ( 1088 -384 312 ) ( 1088 -256 312 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
     ( 960 -384 296 ) ( 960 -384 312 ) ( 1088 -384 312 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
@@ -6393,12 +6390,12 @@ Version 13
   }
 }
 
-{ // Entity 79
+{
   classname "func_wall"
   rendertranslucency "100"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -752.00006 -384 312 ) ( -752.00006 -480 312 ) ( -896 -480 312 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -752.00006 -480 296 ) ( -752.00006 -480 312 ) ( -752.00006 -384 312 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
     ( -896 -480 296 ) ( -896 -480 312 ) ( -752.00006 -480 312 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
@@ -6543,12 +6540,12 @@ Version 13
   }
 }
 
-{ // Entity 80
+{
   classname "func_wall"
   rendertranslucency "100"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( 32 1496 320 ) ( 32 1480 320 ) ( -32 1480 320 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 32 1480 192 ) ( 32 1480 320 ) ( 32 1496 320 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
     ( -32 1480 192 ) ( -32 1480 320 ) ( 32 1480 320 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
@@ -6728,7 +6725,7 @@ Version 13
     ( 256 1432 384 ) ( 256 1312 384 ) ( 320 1312 384 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
   }
 
-  { // Brush 20
+  {
     ( 256 1480 320 ) ( 256 1496 320 ) ( 320 1496 320 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 256 1496 192 ) ( 256 1496 320 ) ( 256 1480 320 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
     ( 320 1496 192 ) ( 320 1496 320 ) ( 256 1496 320 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
@@ -6747,12 +6744,12 @@ Version 13
   }
 }
 
-{ // Entity 81
+{
   classname "func_wall"
   rendertranslucency "100"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -544 536 512 ) ( -544 488 512 ) ( -576 488 512 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -544 456.00003 480 ) ( -544 488 512 ) ( -544 536 512 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 -0.125 0 ( 0 128 0 ) ( 0 0 -128 ) )
     ( -576 456.00003 480 ) ( -576 488 512 ) ( -544 488 512 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
@@ -6932,7 +6929,7 @@ Version 13
     ( 88 960 288 ) ( 72 960 288 ) ( 72 928 288 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
   }
 
-  { // Brush 20
+  {
     ( -40 928 320 ) ( -56 928 320 ) ( -56 960 320 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -88 928 288 ) ( -56 928 320 ) ( -40 928 320 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
     ( -88 960 288 ) ( -56 960 320 ) ( -56 928 320 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
@@ -7046,12 +7043,12 @@ Version 13
   }
 }
 
-{ // Entity 82
+{
   classname "func_wall"
   rendertranslucency "100"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( 896 240 288 ) ( 1056 240 264 ) ( 1056 16 264 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( 1056 240 248.00002 ) ( 1056 240 264 ) ( 896 240 288 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
     ( 1056 16 248.00002 ) ( 1056 16 264 ) ( 1056 240 264 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
@@ -7124,12 +7121,12 @@ Version 13
   }
 }
 
-{ // Entity 83
+{
   classname "func_wall"
   rendertranslucency "100"
   rendercolor "0 0 0"
 
-  { // Brush 0
+  {
     ( -528 -384 280 ) ( -528 -536 256 ) ( -720 -536 256 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 128 0 0 ) ( 0 -128 0 ) )
     ( -528 -536 240 ) ( -528 -536 256 ) ( -528 -384 280 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
     ( -720 -536 240 ) ( -720 -536 256 ) ( -528 -536 256 ) "Textures/OldWAD/po_glassdrkdrt" ( 2 0 0 0 ( 128 0 0 ) ( 0 0 -128 ) )
@@ -7220,10 +7217,10 @@ Version 13
   }
 }
 
-{ // Entity 84
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( -968 1232 480 ) ( -976 1232 480 ) ( -976 1264 480 ) "Textures/generic/_orange" ( 2 1 -0.5 -90 ( 0 16 0 ) ( 16 0 0 ) )
     ( -976 1232 161 ) ( -976 1232 480 ) ( -968 1232 480 ) "Textures/generic/_orange" ( 2 0.5 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
     ( -976 1264 161 ) ( -976 1264 480 ) ( -976 1232 480 ) "Textures/generic/_orange" ( 2 1 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
@@ -7233,10 +7230,10 @@ Version 13
   }
 }
 
-{ // Entity 85
+{
   classname "func_ladder"
 
-  { // Brush 0
+  {
     ( 1136 -520 288 ) ( 1136 -528 288 ) ( 1104 -528 288 ) "Textures/generic/_orange" ( 2 1 -0.3125 0 ( 16 0 0 ) ( 0 -16 0 ) )
     ( 1136 -528 2 ) ( 1136 -528 288 ) ( 1136 -520 288 ) "Textures/generic/_orange" ( 2 0.5 0 0 ( 0 16 0 ) ( 0 0 -16 ) )
     ( 1104 -528 2 ) ( 1104 -528 288 ) ( 1136 -528 288 ) "Textures/generic/_orange" ( 2 1 0 0 ( 16 0 0 ) ( 0 0 -16 ) )
