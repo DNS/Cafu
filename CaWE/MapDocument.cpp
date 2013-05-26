@@ -212,7 +212,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
     Ent->SetClass(WorldSpawnClass != NULL ? WorldSpawnClass : FindOrCreateUnknownClass("worldspawn", false /*HasOrigin*/));
 
     wxASSERT(ScriptRootEnt->GetApp().IsNull());
-    ScriptRootEnt->SetApp(new ComponentMapEntityT(Ent));
+    ScriptRootEnt->SetApp(new CompMapEntityT(Ent));
 
     ArrayT<MapElementT*> AllElems;
     GetAllElems(AllElems);
@@ -346,7 +346,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         while (EntNr < AllScriptEnts.Size() && EntNr < AllMapEnts.Size())
         {
             wxASSERT(AllScriptEnts[EntNr]->GetApp().IsNull());
-            AllScriptEnts[EntNr]->SetApp(new ComponentMapEntityT(AllMapEnts[EntNr]));
+            AllScriptEnts[EntNr]->SetApp(new CompMapEntityT(AllMapEnts[EntNr]));
             EntNr++;
         }
 
@@ -365,7 +365,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         while (EntNr < AllScriptEnts.Size())
         {
             wxASSERT(AllScriptEnts[EntNr]->GetApp().IsNull());
-            AllScriptEnts[EntNr]->SetApp(new ComponentMapEntityT(new MapEntityBaseT(*this)));
+            AllScriptEnts[EntNr]->SetApp(new CompMapEntityT(new MapEntityBaseT(*this)));
             EntNr++;
         }
 
@@ -373,7 +373,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         {
             IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
 
-            NewEnt->SetApp(new ComponentMapEntityT(AllMapEnts[EntNr]));
+            NewEnt->SetApp(new CompMapEntityT(AllMapEnts[EntNr]));
             m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
 
             EntNr++;
@@ -413,7 +413,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
 
             IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*Doc->m_ScriptWorld));
 
-            NewEnt->SetApp(new ComponentMapEntityT(Entity));
+            NewEnt->SetApp(new CompMapEntityT(Entity));
             ScriptRootEnt->AddChild(NewEnt);
         }
     }
@@ -475,7 +475,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
 
                 IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*Doc->m_ScriptWorld));
 
-                NewEnt->SetApp(new ComponentMapEntityT(Entity));
+                NewEnt->SetApp(new CompMapEntityT(Entity));
                 ScriptRootEnt->AddChild(NewEnt);
             }
             else
@@ -537,7 +537,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
 
             IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*Doc->m_ScriptWorld));
 
-            NewEnt->SetApp(new ComponentMapEntityT(Entity));
+            NewEnt->SetApp(new CompMapEntityT(Entity));
             ScriptRootEnt->AddChild(NewEnt);
         }
     }
@@ -893,7 +893,7 @@ const ArrayT<MapEntityBaseT*>& MapDocumentT::GetEntities() const
 
     for (unsigned long ChildNr = 0; ChildNr < AllChildren.Size(); ChildNr++)
     {
-        IntrusivePtrT<ComponentMapEntityT> CompMapEnt = dynamic_pointer_cast<ComponentMapEntityT>(AllChildren[ChildNr]->GetApp());
+        IntrusivePtrT<CompMapEntityT> CompMapEnt = dynamic_pointer_cast<CompMapEntityT>(AllChildren[ChildNr]->GetApp());
 
         Entities.PushBack(CompMapEnt->GetMapEntity());
     }
@@ -951,7 +951,7 @@ namespace
 
         for (unsigned long ChildNr = 0; ChildNr < AllChildren.Size(); ChildNr++)
         {
-            IntrusivePtrT<ComponentMapEntityT> CompMapEnt = dynamic_pointer_cast<ComponentMapEntityT>(AllChildren[ChildNr]->GetApp());
+            IntrusivePtrT<CompMapEntityT> CompMapEnt = dynamic_pointer_cast<CompMapEntityT>(AllChildren[ChildNr]->GetApp());
 
             wxASSERT(CompMapEnt != NULL);
             if (CompMapEnt->GetMapEntity() == FindMapEnt)
@@ -974,7 +974,7 @@ void MapDocumentT::Insert(MapEntityBaseT* Ent)
     // Insert Ent into the m_ScriptWorld.
     IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
 
-    NewEnt->SetApp(new ComponentMapEntityT(Ent));
+    NewEnt->SetApp(new CompMapEntityT(Ent));
     m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
 
     // Insert all primitives of Ent and Ent itself into the BSP tree.
@@ -992,7 +992,7 @@ void MapDocumentT::Insert(MapPrimitiveT* Prim, MapEntityBaseT* ParentEnt)
 
     if (ParentEnt == NULL)
     {
-        IntrusivePtrT<ComponentMapEntityT> CompMapEnt = dynamic_pointer_cast<ComponentMapEntityT>(m_ScriptWorld->GetRootEntity()->GetApp());
+        IntrusivePtrT<CompMapEntityT> CompMapEnt = dynamic_pointer_cast<CompMapEntityT>(m_ScriptWorld->GetRootEntity()->GetApp());
 
         wxASSERT(CompMapEnt != NULL);
         ParentEnt = CompMapEnt->GetMapEntity();
@@ -1011,7 +1011,7 @@ void MapDocumentT::Remove(MapEntityBaseT* Ent)
     if (Ent == NULL) return;
 
     IntrusivePtrT<cf::GameSys::EntityT> ScriptEnt  = Find(m_ScriptWorld, Ent);
-    IntrusivePtrT<ComponentMapEntityT>  CompMapEnt = dynamic_pointer_cast<ComponentMapEntityT>(ScriptEnt->GetApp());
+    IntrusivePtrT<CompMapEntityT>       CompMapEnt = dynamic_pointer_cast<CompMapEntityT>(ScriptEnt->GetApp());
 
     wxASSERT(ScriptEnt != NULL);                // Ent was not found? Should not happen!
     wxASSERT(ScriptEnt->GetParent() != NULL);   // Ent is the world?  Should not happen!

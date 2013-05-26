@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef CAFU_MAPEDITOR_COMPONENT_MAPEDITOR_HPP_INCLUDED
-#define CAFU_MAPEDITOR_COMPONENT_MAPEDITOR_HPP_INCLUDED
+#ifndef CAFU_MAPEDITOR_COMPONENT_MAP_ENTITY_HPP_INCLUDED
+#define CAFU_MAPEDITOR_COMPONENT_MAP_ENTITY_HPP_INCLUDED
 
 #include "GameSys/CompBase.hpp"
 
@@ -38,25 +38,25 @@ namespace MapEditor
     /// It is intended for use by the Map Editor application only, that is, as the "App" component of `cf::GameSys::EntityT`s.
     /// As such, it doesn't integrate with the TypeSys, and thus isn't available for scripting and whereever else we need
     /// the related meta-data.
-    class ComponentMapEntityT : public cf::GameSys::ComponentBaseT
+    class CompMapEntityT : public cf::GameSys::ComponentBaseT
     {
         public:
 
         /// The constructor.
-        ComponentMapEntityT(MapEntityBaseT* MapEnt);
+        CompMapEntityT(MapEntityBaseT* MapEnt);
 
         /// The copy constructor.
         /// @param Comp   The component to create a copy of.
-        ComponentMapEntityT(const ComponentMapEntityT& Comp);
+        CompMapEntityT(const CompMapEntityT& Comp);
 
         /// The destructor.
-        ~ComponentMapEntityT();
+        ~CompMapEntityT();
 
         MapEntityBaseT* GetMapEntity() { return m_MapEntity; }
         void SetMapEntity(MapEntityBaseT* MapEnt) { m_MapEntity = MapEnt; }
 
         // Base class overrides.
-        ComponentMapEntityT* Clone() const;
+        CompMapEntityT* Clone() const;
         const char* GetName() const { return "MapEntity"; }
         void Render() const;
 

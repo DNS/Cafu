@@ -33,32 +33,32 @@ extern "C"
 using namespace MapEditor;
 
 
-ComponentMapEntityT::ComponentMapEntityT(MapEntityBaseT* MapEnt)
+CompMapEntityT::CompMapEntityT(MapEntityBaseT* MapEnt)
     : ComponentBaseT(),
       m_MapEntity(MapEnt)
 {
 }
 
 
-ComponentMapEntityT::ComponentMapEntityT(const ComponentMapEntityT& Comp)
+CompMapEntityT::CompMapEntityT(const CompMapEntityT& Comp)
     : ComponentBaseT(Comp),
       m_MapEntity(Comp.m_MapEntity ? new MapEntityBaseT(*Comp.m_MapEntity) : NULL)
 {
 }
 
 
-ComponentMapEntityT::~ComponentMapEntityT()
+CompMapEntityT::~CompMapEntityT()
 {
     delete m_MapEntity;
 }
 
 
-ComponentMapEntityT* ComponentMapEntityT::Clone() const
+CompMapEntityT* CompMapEntityT::Clone() const
 {
-    return new ComponentMapEntityT(*this);
+    return new CompMapEntityT(*this);
 }
 
 
-void ComponentMapEntityT::Render() const
+void CompMapEntityT::Render() const
 {
 }
