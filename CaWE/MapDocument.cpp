@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrame.hpp"
 #include "ChildFrameViewWin.hpp"
 #include "Clipboard.hpp"
+#include "CompMapEntity.hpp"
 #include "DialogEditSurfaceProps.hpp"
 #include "DialogInspector.hpp"
 #include "EntityClass.hpp"
@@ -73,6 +74,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Group.hpp"
 #include "Camera.hpp"
 
+#include "GameSys/Entity.hpp"
+#include "GameSys/EntityCreateParams.hpp"
+#include "GameSys/World.hpp"
 #include "Math3D/Misc.hpp"
 #include "Templates/Array.hpp"
 #include "TextParser/TextParser.hpp"
@@ -95,6 +99,9 @@ extern "C"
     // Turn off warning 4355: "'this' : wird in Initialisierungslisten fuer Basisklasse verwendet".
     #pragma warning(disable:4355)
 #endif
+
+
+using namespace MapEditor;
 
 
 /*static*/ const unsigned int MapDocumentT::CMAP_FILE_VERSION=13;
@@ -177,7 +184,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
       SubjectT(),
       m_ChildFrame(NULL),
       m_FileName("New Map"),
-      m_Entities(),
+      m_ScriptWorld(NULL),
       m_BspTree(NULL),
       m_GameConfig(GameConfig),
       m_PlantDescrMan(std::string(m_GameConfig->ModDir)),
@@ -190,12 +197,21 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
       m_GridSpacing(Options.Grid.InitialSpacing),
       m_ShowGrid(true)
 {
-    m_Entities.PushBack(new MapEntityBaseT(*this));
+    m_ScriptWorld = new cf::GameSys::WorldT(
+        "MapEnt = world:new('EntityT', 'Map'); world:SetRootEntity(MapEnt);",
+        m_GameConfig->GetModelMan(),
+        cf::GameSys::WorldT::InitFlag_InlineCode | cf::GameSys::WorldT::InitFlag_InMapEditor);
+
+    IntrusivePtrT<cf::GameSys::EntityT> ScriptRootEnt = m_ScriptWorld->GetRootEntity();
+
+    MapEntityBaseT* Ent = new MapEntityBaseT(*this);
 
     const EntityClassT* WorldSpawnClass = GameConfig->FindClass("worldspawn");
     wxASSERT(WorldSpawnClass);
-    m_Entities[0]->SetClass(WorldSpawnClass!=NULL ? WorldSpawnClass : FindOrCreateUnknownClass("worldspawn", false /*HasOrigin*/));
+    Ent->SetClass(WorldSpawnClass != NULL ? WorldSpawnClass : FindOrCreateUnknownClass("worldspawn", false /*HasOrigin*/));
 
+    wxASSERT(ScriptRootEnt->GetApp().IsNull());
+    ScriptRootEnt->SetApp(new ComponentMapEntityT(Ent));
 
     ArrayT<MapElementT*> AllElems;
     GetAllElems(AllElems);
@@ -209,7 +225,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
       SubjectT(),
       m_ChildFrame(NULL),
       m_FileName(FileName),
-      m_Entities(),
+      m_ScriptWorld(NULL),
       m_BspTree(NULL),
       m_GameConfig(GameConfig),
       m_PlantDescrMan(std::string(m_GameConfig->ModDir)),
@@ -225,19 +241,31 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     // This sets the cursor to the busy cursor in its ctor, and back to the default cursor in the dtor.
     wxBusyCursor BusyCursor;
 
+
+    m_ScriptWorld = new cf::GameSys::WorldT(
+        "MapEnt = world:new('EntityT', 'Map'); world:SetRootEntity(MapEnt);",
+        m_GameConfig->GetModelMan(),
+        cf::GameSys::WorldT::InitFlag_InlineCode | cf::GameSys::WorldT::InitFlag_InMapEditor);
+
+    IntrusivePtrT<cf::GameSys::EntityT> ScriptRootEnt = m_ScriptWorld->GetRootEntity();
+
     MapEntityBaseT* World = new MapEntityBaseT(*this);
 
     const EntityClassT* WorldSpawnClass = GameConfig->FindClass("worldspawn");
     wxASSERT(WorldSpawnClass);
-    World->SetClass(WorldSpawnClass!=NULL ? WorldSpawnClass : FindOrCreateUnknownClass("worldspawn", false /*HasOrigin*/));
+    World->SetClass(WorldSpawnClass != NULL ? WorldSpawnClass : FindOrCreateUnknownClass("worldspawn", false /*HasOrigin*/));
 
-    m_Entities.PushBack(World);
+    wxASSERT(ScriptRootEnt->GetApp().IsNull());
+    ScriptRootEnt->SetApp(new ComponentMapEntityT(World));
+
 
     TextParserT TP(FileName.c_str(), "({})");
 
     if (TP.IsAtEOF())
     {
-        delete m_Entities[0];
+        delete m_ScriptWorld;
+        m_ScriptWorld = NULL;
+
         throw LoadErrorT();
     }
 
@@ -250,8 +278,12 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         {
             MapEntityBaseT* Entity = new MapEntityBaseT(*this);
 
-            Entity->Load_cmap(TP, *this, ProgressDialog, m_Entities.Size());
-            m_Entities.PushBack(Entity);
+            Entity->Load_cmap(TP, *this, ProgressDialog, ScriptRootEnt->GetChildren().Size() + 1);
+
+            IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
+
+            NewEnt->SetApp(new ComponentMapEntityT(Entity));
+            ScriptRootEnt->AddChild(NewEnt);
         }
     }
     catch (const TextParserT::ParseError&)
@@ -264,7 +296,9 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
             "and/or post at the Cafu support forums.", TP.GetReadPosByte(), TP.GetReadPosPercent()*100.0),
             wxString("Could not load ")+FileName, wxOK | wxICON_EXCLAMATION);
 
-        delete m_Entities[0];   //XXX TODO: Call Cleanup() method instead (same code as dtor).
+        delete m_ScriptWorld;   //XXX TODO: Call Cleanup() method instead (same code as dtor).
+        m_ScriptWorld = NULL;
+
         throw LoadErrorT();
     }
 
@@ -280,16 +314,13 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
 {
     // This sets the cursor to the busy cursor in its ctor, and back to the default cursor in the dtor.
     wxBusyCursor BusyCursor;
-
-    MapDocumentT* Doc=new MapDocumentT(GameConfig);
-    TextParserT   TP(FileName.c_str(), "({})");
+    TextParserT  TP(FileName.c_str(), "({})");
 
     if (TP.IsAtEOF())
-    {
-        delete Doc;
-        Doc=NULL;
         throw LoadErrorT();
-    }
+
+    MapDocumentT* Doc = new MapDocumentT(GameConfig);
+    IntrusivePtrT<cf::GameSys::EntityT> ScriptRootEnt = Doc->m_ScriptWorld->GetRootEntity();
 
     try
     {
@@ -300,8 +331,12 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         {
             MapEntityBaseT* Entity = new MapEntityBaseT(*Doc);
 
-            Entity->Load_HL1_map(TP, *Doc, ProgressDialog, Doc->m_Entities.Size());
-            Doc->m_Entities.PushBack(Entity);
+            Entity->Load_HL1_map(TP, *Doc, ProgressDialog, ScriptRootEnt->GetChildren().Size() + 1);
+
+            IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*Doc->m_ScriptWorld));
+
+            NewEnt->SetApp(new ComponentMapEntityT(Entity));
+            ScriptRootEnt->AddChild(NewEnt);
         }
     }
     catch (const TextParserT::ParseError&)
@@ -335,16 +370,13 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
 {
     // This sets the cursor to the busy cursor in its ctor, and back to the default cursor in the dtor.
     wxBusyCursor BusyCursor;
-
-    MapDocumentT* Doc=new MapDocumentT(GameConfig);
-    TextParserT TP(FileName.c_str(), "{}");
+    TextParserT  TP(FileName.c_str(), "{}");
 
     if (TP.IsAtEOF())
-    {
-        delete Doc;
-        Doc=NULL;
         throw LoadErrorT();
-    }
+
+    MapDocumentT* Doc = new MapDocumentT(GameConfig);
+    IntrusivePtrT<cf::GameSys::EntityT> ScriptRootEnt = Doc->m_ScriptWorld->GetRootEntity();
 
     try
     {
@@ -361,8 +393,12 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
             {
                 MapEntityBaseT* Entity = new MapEntityBaseT(*Doc);
 
-                Entity->Load_HL2_vmf(TP, *Doc, ProgressDialog, Doc->m_Entities.Size());
-                Doc->m_Entities.PushBack(Entity);
+                Entity->Load_HL2_vmf(TP, *Doc, ProgressDialog, ScriptRootEnt->GetChildren().Size() + 1);
+
+                IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*Doc->m_ScriptWorld));
+
+                NewEnt->SetApp(new ComponentMapEntityT(Entity));
+                ScriptRootEnt->AddChild(NewEnt);
             }
             else
             {
@@ -402,16 +438,13 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
 {
     // This sets the cursor to the busy cursor in its ctor, and back to the default cursor in the dtor.
     wxBusyCursor BusyCursor;
-
-    MapDocumentT* Doc=new MapDocumentT(GameConfig);
-    TextParserT   TP(FileName.c_str(), "({})");
+    TextParserT  TP(FileName.c_str(), "({})");
 
     if (TP.IsAtEOF())
-    {
-        delete Doc;
-        Doc=NULL;
         throw LoadErrorT();
-    }
+
+    MapDocumentT* Doc = new MapDocumentT(GameConfig);
+    IntrusivePtrT<cf::GameSys::EntityT> ScriptRootEnt = Doc->m_ScriptWorld->GetRootEntity();
 
     try
     {
@@ -422,8 +455,12 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         {
             MapEntityBaseT* Entity = new MapEntityBaseT(*Doc);
 
-            Entity->Load_D3_map(TP, *Doc, ProgressDialog, Doc->m_Entities.Size());
-            Doc->m_Entities.PushBack(Entity);
+            Entity->Load_D3_map(TP, *Doc, ProgressDialog, ScriptRootEnt->GetChildren().Size() + 1);
+
+            IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*Doc->m_ScriptWorld));
+
+            NewEnt->SetApp(new ComponentMapEntityT(Entity));
+            ScriptRootEnt->AddChild(NewEnt);
         }
     }
     catch (const TextParserT::ParseError&)
@@ -458,9 +495,6 @@ MapDocumentT::~MapDocumentT()
     delete m_BspTree;
     m_BspTree=NULL;
 
-    for (unsigned long EntNr=0; EntNr<m_Entities.Size(); EntNr++) delete m_Entities[EntNr];
-    m_Entities.Clear();
-
     for (unsigned long GroupNr=0; GroupNr<m_Groups.Size(); GroupNr++) delete m_Groups[GroupNr];
     m_Groups.Clear();
 
@@ -468,6 +502,9 @@ MapDocumentT::~MapDocumentT()
     m_UnknownEntClasses.Clear();
 
     m_Selection.Clear();
+
+    delete m_ScriptWorld;
+    m_ScriptWorld = NULL;
 }
 
 
@@ -512,10 +549,12 @@ bool MapDocumentT::OnSaveDocument(const wxString& FileName, bool IsAutoSave)
             m_Groups[GroupNr]->Save_cmap(OutFile, GroupNr);
 
         // Save entities.
-        for (unsigned long EntNr=0/*with world*/; EntNr<m_Entities.Size(); EntNr++)
+        const ArrayT<MapEntityBaseT*>& MapEntities = GetEntities();
+
+        for (unsigned long EntNr = 0/*with world*/; EntNr < MapEntities.Size(); EntNr++)
         {
-            const BoundingBox3fT* Intersecting=NULL;
-            const MapEntityBaseT* Ent=m_Entities[EntNr];
+            const BoundingBox3fT* Intersecting = NULL;
+            const MapEntityBaseT* Ent = MapEntities[EntNr];
 
             if (!Intersecting || Ent->GetElemsBB().Intersects(*Intersecting))
             {
@@ -590,11 +629,41 @@ bool MapDocumentT::Save()
 }
 
 
+const ArrayT<MapEntityBaseT*>& MapDocumentT::GetEntities() const
+{
+    /**************************************************************************************/
+    /*** TODO: This cannot stay like this!                                              ***/
+    /***   The method itself is obsolete (we have the m_ScriptWorld now instead),       ***/
+    /***   and the dangerous static variable below is only for backwards-compatibility! ***/
+    /**************************************************************************************/
+    static ArrayT<MapEntityBaseT*> Entities;
+
+    Entities.Overwrite();
+
+    IntrusivePtrT<cf::GameSys::EntityT> ScriptRootEnt = m_ScriptWorld->GetRootEntity();
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllChildren;
+
+    AllChildren.PushBack(ScriptRootEnt);
+    ScriptRootEnt->GetChildren(AllChildren, true);
+
+    for (unsigned long ChildNr = 0; ChildNr < AllChildren.Size(); ChildNr++)
+    {
+        IntrusivePtrT<ComponentMapEntityT> CompMapEnt = dynamic_pointer_cast<ComponentMapEntityT>(AllChildren[ChildNr]->GetApp());
+
+        Entities.PushBack(CompMapEnt->GetMapEntity());
+    }
+
+    return Entities;
+}
+
+
 void MapDocumentT::GetAllElems(ArrayT<MapElementT*>& Elems) const
 {
-    for (unsigned int EntNr = 0; EntNr < m_Entities.Size(); EntNr++)
+    const ArrayT<MapEntityBaseT*>& MapEntities = GetEntities();
+
+    for (unsigned int EntNr = 0; EntNr < MapEntities.Size(); EntNr++)
     {
-        MapEntityBaseT* Ent = m_Entities[EntNr];
+        MapEntityBaseT* Ent = MapEntities[EntNr];
 
         // Add the entity representation...
         Elems.PushBack(Ent->GetRepres());
@@ -626,14 +695,42 @@ const EntityClassT* MapDocumentT::FindOrCreateUnknownClass(const wxString& Name,
 }
 
 
+namespace
+{
+    IntrusivePtrT<cf::GameSys::EntityT> Find(cf::GameSys::WorldT* ScriptWorld, MapEntityBaseT* FindMapEnt)
+    {
+        ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllChildren;
+
+        AllChildren.PushBack(ScriptWorld->GetRootEntity());
+        ScriptWorld->GetRootEntity()->GetChildren(AllChildren, true);
+
+        for (unsigned long ChildNr = 0; ChildNr < AllChildren.Size(); ChildNr++)
+        {
+            IntrusivePtrT<ComponentMapEntityT> CompMapEnt = dynamic_pointer_cast<ComponentMapEntityT>(AllChildren[ChildNr]->GetApp());
+
+            wxASSERT(CompMapEnt != NULL);
+            if (CompMapEnt->GetMapEntity() == FindMapEnt)
+                return AllChildren[ChildNr];
+        }
+
+        return NULL;
+    }
+}
+
+
 void MapDocumentT::Insert(MapEntityBaseT* Ent)
 {
     wxASSERT(Ent!=NULL);
     if (Ent==NULL) return;
 
     // Should not have Ent already.
-    wxASSERT(m_Entities.Find(Ent)==-1);
-    m_Entities.PushBack(Ent);
+    wxASSERT(Find(m_ScriptWorld, Ent) == NULL);
+
+    // Insert Ent into the m_ScriptWorld.
+    IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
+
+    NewEnt->SetApp(new ComponentMapEntityT(Ent));
+    m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
 
     // Insert all primitives of Ent and Ent itself into the BSP tree.
     for (unsigned long PrimNr=0; PrimNr<Ent->GetPrimitives().Size(); PrimNr++)
@@ -648,8 +745,15 @@ void MapDocumentT::Insert(MapPrimitiveT* Prim, MapEntityBaseT* ParentEnt)
     wxASSERT(Prim!=NULL);
     if (Prim==NULL) return;
 
-    if (ParentEnt==NULL) ParentEnt=m_Entities[0];
-    wxASSERT(m_Entities.Find(ParentEnt)>=0);
+    if (ParentEnt == NULL)
+    {
+        IntrusivePtrT<ComponentMapEntityT> CompMapEnt = dynamic_pointer_cast<ComponentMapEntityT>(m_ScriptWorld->GetRootEntity()->GetApp());
+
+        wxASSERT(CompMapEnt != NULL);
+        ParentEnt = CompMapEnt->GetMapEntity();
+    }
+
+    wxASSERT(Find(m_ScriptWorld, ParentEnt) != NULL);
 
     ParentEnt->AddPrim(Prim);
     m_BspTree->Insert(Prim);
@@ -661,15 +765,20 @@ void MapDocumentT::Remove(MapEntityBaseT* Ent)
     wxASSERT(Ent != NULL);
     if (Ent == NULL) return;
 
-    const int Index = m_Entities.Find(Ent);
+    IntrusivePtrT<cf::GameSys::EntityT> ScriptEnt  = Find(m_ScriptWorld, Ent);
+    IntrusivePtrT<ComponentMapEntityT>  CompMapEnt = dynamic_pointer_cast<ComponentMapEntityT>(ScriptEnt->GetApp());
 
-    // -1 means not found, 0 means the world. Both should not happen.
-    wxASSERT(Index > 0);
-    if (Index > 0)
-    {
-        // Keeping the order helps when map files are diff'ed or manually compared.
-        m_Entities.RemoveAtAndKeepOrder(Index);
-    }
+    wxASSERT(ScriptEnt != NULL);                // Ent was not found? Should not happen!
+    wxASSERT(ScriptEnt->GetParent() != NULL);   // Ent is the world?  Should not happen!
+
+    if (ScriptEnt == NULL) return;
+    if (ScriptEnt->GetParent() == NULL) return;
+
+    // Do *NOT* delete the `Ent` instance when ScriptEnt is deleted,
+    // because when we get here, the caller (e.g. the Delete command) has taken ownership of `Ent`!
+    CompMapEnt->SetMapEntity(NULL);
+
+    ScriptEnt->GetParent()->RemoveChild(ScriptEnt);
 
     // Remove all primitives of Ent from the BSP tree.
     for (unsigned long PrimNr = 0; PrimNr < Ent->GetPrimitives().Size(); PrimNr++)
@@ -689,7 +798,7 @@ void MapDocumentT::Remove(MapPrimitiveT* Prim)
 
     // The first assert is actually redundant in the second, but keep it for clarity.
     wxASSERT(ParentEnt != NULL);
-    wxASSERT(m_Entities.Find(ParentEnt) >= 0);
+    wxASSERT(Find(m_ScriptWorld, ParentEnt) != NULL);
 
     if (ParentEnt != NULL)
     {
@@ -715,11 +824,12 @@ static bool IsElemInBox(const MapElementT* Elem, const BoundingBox3fT& Box, bool
 
 ArrayT<MapElementT*> MapDocumentT::GetElementsIn(const BoundingBox3fT& Box, bool InsideOnly, bool CenterOnly) const
 {
+    const ArrayT<MapEntityBaseT*>& MapEntities = GetEntities();
     ArrayT<MapElementT*> Result;
 
-    for (unsigned int EntNr = 0; EntNr < m_Entities.Size(); EntNr++)
+    for (unsigned int EntNr = 0; EntNr < MapEntities.Size(); EntNr++)
     {
-        MapEntityBaseT* Ent = m_Entities[EntNr];
+        MapEntityBaseT* Ent = MapEntities[EntNr];
 
         // Add the entity representation...
         if (IsElemInBox(Ent->GetRepres(), Box, InsideOnly, CenterOnly))
@@ -755,15 +865,16 @@ void MapDocumentT::SetSelection(const ArrayT<MapElementT*>& NewSelection)
 
 void MapDocumentT::GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const
 {
+    const ArrayT<MapEntityBaseT*>& MapEntities = GetEntities();
     std::map<EditorMaterialI*, int> UsedMatMap;
 
-    for (unsigned long EntNr=0; EntNr<m_Entities.Size(); EntNr++)
+    for (unsigned long EntNr = 0; EntNr < MapEntities.Size(); EntNr++)
     {
-        const ArrayT<MapPrimitiveT*>& Primitives=m_Entities[EntNr]->GetPrimitives();
+        const ArrayT<MapPrimitiveT*>& Primitives = MapEntities[EntNr]->GetPrimitives();
 
-        for (unsigned long PrimNr=0; PrimNr<Primitives.Size(); PrimNr++)
+        for (unsigned long PrimNr = 0; PrimNr < Primitives.Size(); PrimNr++)
         {
-            MapElementT* Prim=Primitives[PrimNr];
+            MapElementT* Prim = Primitives[PrimNr];
 
             MapBrushT* Brush=dynamic_cast<MapBrushT*>(Prim);
             if (Brush!=NULL)
@@ -967,7 +1078,7 @@ ArrayT<CommandT*> MapDocumentT::CreatePasteCommands(const Vector3fT& DeltaTransl
 
     if (NewPrims.Size() > 0)
     {
-        CommandAddPrimT* CmdAddPrim = new CommandAddPrimT(*this, NewPrims, m_Entities[0], "insert prims", false /*don't select*/);
+        CommandAddPrimT* CmdAddPrim = new CommandAddPrimT(*this, NewPrims, GetEntities()[0], "insert prims", false /*don't select*/);
 
         CmdAddPrim->Do();
         SubCommands.PushBack(CmdAddPrim);
@@ -1191,19 +1302,21 @@ void MapDocumentT::OnMapGotoPrimitive(wxCommandEvent& CE)
 
     if (GotoPrimDialog.ShowModal()!=wxID_OK) return;
 
-    if (GotoPrimDialog.m_EntityNumber>=int(m_Entities.Size()))
+    const ArrayT<MapEntityBaseT*>& MapEntities = GetEntities();
+
+    if (GotoPrimDialog.m_EntityNumber >= int(MapEntities.Size()))
     {
         wxMessageBox("The entity with the given index number does not exist.", "Goto Primitive");
         return;
     }
 
-    if (GotoPrimDialog.m_PrimitiveNumber>=int(m_Entities[GotoPrimDialog.m_EntityNumber]->GetPrimitives().Size()))
+    if (GotoPrimDialog.m_PrimitiveNumber >= int(MapEntities[GotoPrimDialog.m_EntityNumber]->GetPrimitives().Size()))
     {
         wxMessageBox("The primitive with the given index number does not exist (in the specified entity).", "Goto Primitive");
         return;
     }
 
-    MapPrimitiveT* Prim=m_Entities[GotoPrimDialog.m_EntityNumber]->GetPrimitives()[GotoPrimDialog.m_PrimitiveNumber];
+    MapPrimitiveT* Prim = MapEntities[GotoPrimDialog.m_EntityNumber]->GetPrimitives()[GotoPrimDialog.m_PrimitiveNumber];
 
     if (!Prim->IsVisible())
     {
@@ -1234,7 +1347,7 @@ void MapDocumentT::OnMapCheckForProblems(wxCommandEvent& CE)
 void MapDocumentT::OnMapProperties(wxCommandEvent& CE)
 {
     // Select the worldspawn entity, then open the inspector dialog.
-    m_History.SubmitCommand(CommandSelectT::Set(this, m_Entities[0]->GetRepres()));
+    m_History.SubmitCommand(CommandSelectT::Set(this, GetEntities()[0]->GetRepres()));
 
     GetChildFrame()->GetInspectorDialog()->ChangePage(1);
     GetChildFrame()->ShowPane(GetChildFrame()->GetInspectorDialog());
@@ -1709,7 +1822,7 @@ void MapDocumentT::OnToolsAssignPrimToWorld(wxCommandEvent& CE)
     // If there were no primitives among the selected map elements, quit here.
     if (SelPrimitives.Size()==0) return;
 
-    GetHistory().SubmitCommand(new CommandAssignPrimToEntT(*this, SelPrimitives, m_Entities[0]));
+    GetHistory().SubmitCommand(new CommandAssignPrimToEntT(*this, SelPrimitives, GetEntities()[0]));
 
     // This is very rare - only fires when a parent entity became empty, thus implicitly deleted, and was the last element in its group:
     // If there are any empty groups (usually as a result from the deletion), purge them now.
@@ -1926,16 +2039,17 @@ const BoundingBox3fT& MapDocumentT::GetMostRecentSelBB() const
 
 ArrayT<GroupT*> MapDocumentT::GetAbandonedGroups() const
 {
+    const ArrayT<MapEntityBaseT*>& MapEntities = GetEntities();
     ArrayT<GroupT*> EmptyGroups;
 
     for (unsigned long GroupNr=0; GroupNr<m_Groups.Size(); GroupNr++)
     {
         bool IsEmpty=true;
 
-        for (unsigned long EntNr=0; EntNr<m_Entities.Size(); EntNr++)
+        for (unsigned long EntNr = 0; EntNr < MapEntities.Size(); EntNr++)
         {
             // Check the entity first...
-            const MapEntityBaseT* Ent=m_Entities[EntNr];
+            const MapEntityBaseT* Ent = MapEntities[EntNr];
 
             if (Ent->GetRepres()->GetGroup() == m_Groups[GroupNr])
             {

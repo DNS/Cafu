@@ -39,6 +39,7 @@ class MapEntityBaseT;
 class MapPrimitiveT;
 class OrthoBspTreeT;
 class wxProgressDialog;
+namespace cf { namespace GameSys { class WorldT; } }
 
 
 struct PtsPointT
@@ -102,8 +103,8 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     ChildFrameT*                   GetChildFrame() const { return m_ChildFrame; }
     const wxString&                GetFileName() const   { return m_FileName; }
 
-    /// Returns all entities in the map. The world is always at index 0, followed by the "regular" entities.
-    const ArrayT<MapEntityBaseT*>& GetEntities() const { return m_Entities; }
+    /// Returns all entities that exist in this map. The world entity is always first at index 0, followed by an arbitrary number of "regular" entities.
+    const ArrayT<MapEntityBaseT*>& GetEntities() const;
 
     /// Adds all elements in this map (entity representations and primitives) to the given array.
     /// The `MapEntRepresT` instance of the world entity is always the first element that is added to the list.
@@ -173,7 +174,7 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
 
     ChildFrameT*                 m_ChildFrame;          ///< The child frame within which this document lives.
     wxString                     m_FileName;            ///< This documents file name.
-    ArrayT<MapEntityBaseT*>      m_Entities;            ///< All the entities that exist in this map. The world entity is always first at index 0, followed by an arbitrary number of regular entities.
+    cf::GameSys::WorldT*         m_ScriptWorld;         ///< The "script world" contains the entity hierarchy and their components. Each m_Entities member has a pointer to its related instance herein.
     OrthoBspTreeT*               m_BspTree;             ///< The BSP tree that spatially organizes the map elements in the m_MapWorld.
     GameConfigT*                 m_GameConfig;          ///< The game configuration that is used with this map.
     ArrayT<const EntityClassT*>  m_UnknownEntClasses;   ///< The entity classes that are used by entities loaded into this map but who are unknown/undefined in this game config. This list complements GameConfigT::m_EntityClasses.
