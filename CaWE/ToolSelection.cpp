@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "EntityClassVar.hpp"
 #include "GameConfig.hpp"
 #include "CommandHistory.hpp"
+#include "CompMapEntity.hpp"
 #include "DialogInspector.hpp"
 #include "MapDocument.hpp"
 #include "MapEntityBase.hpp"
@@ -51,6 +52,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "wx/wx.h"
 #include "wx/filename.h"
+
+
+using namespace MapEditor;
 
 
 // TODO:
@@ -243,7 +247,7 @@ bool ToolSelectionT::OnLMouseDown2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
 
 namespace
 {
-    void DeepCopy(const ArrayT<MapElementT*>& SourceElems, ArrayT<MapEntityBaseT*>& NewEnts, ArrayT<MapPrimitiveT*>& NewPrims, ArrayT<MapElementT*>& NewElems)
+    void DeepCopy(const ArrayT<MapElementT*>& SourceElems, ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& NewEnts, ArrayT<MapPrimitiveT*>& NewPrims, ArrayT<MapElementT*>& NewElems)
     {
         ArrayT<MapEntityBaseT*> SourceEnts;
 
@@ -259,7 +263,12 @@ namespace
                 // The new instance is referring to the same MapDoc as the source entity (ok),
                 // and to the same entity class (also ok).
                 // Note that we don't want the primitives of the source entity copied!
-                NewEnts.PushBack(new MapEntityBaseT(*Repres->GetParent(), false /*CopyPrims*/));
+                /*
+                 *
+                 *       TODO -- Must e.g. set a flag in the CompMapEntity to no copy the primitives!
+                 *
+                 */
+                NewEnts.PushBack(Repres->GetParent()->GetCompMapEntity()->GetEntity()->Clone());
             }
         }
 
@@ -274,7 +283,7 @@ namespace
 
                 if (EntNr >= 0)
                 {
-                    NewEnts[EntNr]->AddPrim(Prim->Clone());
+                    GetMapEnt(NewEnts[EntNr])->AddPrim(Prim->Clone());
                 }
                 else
                 {
@@ -286,10 +295,12 @@ namespace
         // For each element in NewEnts and NewPrims, add a pointer to NewElems.
         for (unsigned long EntNr = 0; EntNr < NewEnts.Size(); EntNr++)
         {
-            NewElems.PushBack(NewEnts[EntNr]->GetRepres());
+            IntrusivePtrT<CompMapEntityT> MapEnt = GetMapEnt(NewEnts[EntNr]);
 
-            for (unsigned long PrimNr = 0; PrimNr < NewEnts[EntNr]->GetPrimitives().Size(); PrimNr++)
-                NewElems.PushBack(NewEnts[EntNr]->GetPrimitives()[PrimNr]);
+            NewElems.PushBack(MapEnt->GetRepres());
+
+            for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
+                NewElems.PushBack(MapEnt->GetPrimitives()[PrimNr]);
         }
 
         for (unsigned long PrimNr = 0; PrimNr < NewPrims.Size(); PrimNr++)
@@ -407,9 +418,9 @@ bool ToolSelectionT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
 
             if (ME.ShiftDown())
             {
-                ArrayT<MapEntityBaseT*> NewEnts;
-                ArrayT<MapPrimitiveT*>  NewPrims;
-                ArrayT<MapElementT*>    NewElems;
+                ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > NewEnts;
+                ArrayT<MapPrimitiveT*>                        NewPrims;
+                ArrayT<MapElementT*>                          NewElems;
 
                 DeepCopy(m_MapDoc.GetSelection(), NewEnts, NewPrims, NewElems);
 
@@ -861,7 +872,7 @@ void ToolSelectionT::NotifySubjectChanged_Selection(SubjectT* Subject, const Arr
 }
 
 
-void ToolSelectionT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities)
+void ToolSelectionT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities)
 {
     // Clean-up the hit list.
     m_HitList.Overwrite();

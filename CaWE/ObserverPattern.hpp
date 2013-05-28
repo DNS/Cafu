@@ -33,6 +33,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Templates/Array.hpp"
 #include "Math3D/BoundingBox.hpp"
+#include "GameSys/Entity.hpp"
 
 #include "wx/string.h"
 
@@ -98,7 +99,7 @@ class ObserverT
     /// Notifies the observer that one or more entities have been created.
     /// @param Subject    The map document in which the entities have been created.
     /// @param Entities   List of created entities.
-    virtual void NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities) { }
+    virtual void NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities) { }
 
     /// Notifies the observer that one or more map primitives have been created.
     /// @param Subject      The map document in which the primitives have been created.
@@ -108,7 +109,7 @@ class ObserverT
     /// Notifies the observer that one or more entities have been deleted.
     /// @param Subject    The map document in which the entities have been deleted.
     /// @param Entities   List of deleted entities.
-    virtual void NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities) { }
+    virtual void NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities) { }
 
     /// Notifies the observer that one or more map primitives have been deleted.
     /// @param Subject      The map document in which the primitives have been deleted.
@@ -185,9 +186,9 @@ class SubjectT
     virtual void UpdateAllObservers(MapDocOtherDetailT OtherDetail);
     virtual void UpdateAllObservers_SelectionChanged(const ArrayT<MapElementT*>& OldSelection, const ArrayT<MapElementT*>& NewSelection);
     virtual void UpdateAllObservers_GroupsChanged();
-    virtual void UpdateAllObservers_Created(const ArrayT<MapEntityBaseT*>& Entities);
+    virtual void UpdateAllObservers_Created(const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities);
     virtual void UpdateAllObservers_Created(const ArrayT<MapPrimitiveT*>& Primitives);
-    virtual void UpdateAllObservers_Deleted(const ArrayT<MapEntityBaseT*>& Entites);
+    virtual void UpdateAllObservers_Deleted(const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entites);
     virtual void UpdateAllObservers_Deleted(const ArrayT<MapPrimitiveT*>& Primitives);
     virtual void UpdateAllObservers_Modified(const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail);
     virtual void UpdateAllObservers_Modified(const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const ArrayT<BoundingBox3fT>& OldBounds);

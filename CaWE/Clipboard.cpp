@@ -20,6 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Clipboard.hpp"
+#include "CompMapEntity.hpp"
 #include "MapEntityBase.hpp"
 #include "MapEntRepres.hpp"
 
@@ -51,7 +52,13 @@ void ClipboardT::CopyFrom(const ArrayT<MapElementT*>& Elems)
             // TODO: The new instance is referring to the original MapDoc and its entity classes!!!!!
 
             // Note that we don't want the primitives of the source entity copied!
-            m_Entities.PushBack(new MapEntityBaseT(*Repres->GetParent(), false /*CopyPrims*/));
+            /*
+             *
+             *       TODO -- Must e.g. set a flag in the CompMapEntity to no copy the primitives!
+             *
+             */
+            m_Entities.PushBack(Repres->GetParent()->GetCompMapEntity()->GetEntity()->Clone());
+            // m_Entities.PushBack(new MapEntityBaseT(*Repres->GetParent(), false /*CopyPrims*/));
         }
     }
 
@@ -66,7 +73,7 @@ void ClipboardT::CopyFrom(const ArrayT<MapElementT*>& Elems)
 
             if (EntNr >= 0)
             {
-                m_Entities[EntNr]->AddPrim(Prim->Clone());
+                GetMapEnt(m_Entities[EntNr])->AddPrim(Prim->Clone());
             }
             else
             {
@@ -81,7 +88,6 @@ void ClipboardT::Clear()
 {
     for (unsigned long EntNr = 0; EntNr < m_Entities.Size(); EntNr++)
     {
-        delete m_Entities[EntNr];
         m_Entities[EntNr] = NULL;
     }
 

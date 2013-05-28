@@ -221,13 +221,13 @@ void InspDlgEntityTreeT::NotifySubjectChanged_Selection(SubjectT* Subject, const
 }
 
 
-void InspDlgEntityTreeT::NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities)
+void InspDlgEntityTreeT::NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities)
 {
     UpdateEntityListBox();
 }
 
 
-void InspDlgEntityTreeT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities)
+void InspDlgEntityTreeT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities)
 {
     UpdateEntityListBox();
 }

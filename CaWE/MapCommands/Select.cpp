@@ -21,10 +21,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Select.hpp"
 
+#include "../CompMapEntity.hpp"
 #include "../MapDocument.hpp"
-#include "../MapEntityBase.hpp"
 #include "../MapEntRepres.hpp"
 #include "../MapPrimitive.hpp"
+
+
+using namespace MapEditor;
 
 
 CommandSelectT* CommandSelectT::Clear(MapDocumentT* MapDocument)
@@ -112,18 +115,18 @@ CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, MapElementT* MapE
 }
 
 
-CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, const ArrayT<MapEntityBaseT*>& Entities)
+CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities)
 {
     ArrayT<MapElementT*> Elems;
 
     for (unsigned long EntNr = 0; EntNr < Entities.Size(); EntNr++)
     {
-        MapEntityBaseT* Ent = Entities[EntNr];
+        IntrusivePtrT<CompMapEntityT> MapEnt = GetMapEnt(Entities[EntNr]);
 
-        Elems.PushBack(Ent->GetRepres());
+        Elems.PushBack(MapEnt->GetRepres());
 
-        for (unsigned long PrimNr = 0; PrimNr < Ent->GetPrimitives().Size(); PrimNr++)
-            Elems.PushBack(Ent->GetPrimitives()[PrimNr]);
+        for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
+            Elems.PushBack(MapEnt->GetPrimitives()[PrimNr]);
     }
 
     return CommandSelectT::Set(MapDocument, Elems);
@@ -141,18 +144,18 @@ CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, const ArrayT<MapP
 }
 
 
-CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, const ArrayT<MapEntityBaseT*>& Entities, const ArrayT<MapPrimitiveT*>& Primitives)
+CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities, const ArrayT<MapPrimitiveT*>& Primitives)
 {
     ArrayT<MapElementT*> Elems;
 
     for (unsigned long EntNr = 0; EntNr < Entities.Size(); EntNr++)
     {
-        MapEntityBaseT* Ent = Entities[EntNr];
+        IntrusivePtrT<CompMapEntityT> MapEnt = GetMapEnt(Entities[EntNr]);
 
-        Elems.PushBack(Ent->GetRepres());
+        Elems.PushBack(MapEnt->GetRepres());
 
-        for (unsigned long PrimNr = 0; PrimNr < Ent->GetPrimitives().Size(); PrimNr++)
-            Elems.PushBack(Ent->GetPrimitives()[PrimNr]);
+        for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
+            Elems.PushBack(MapEnt->GetPrimitives()[PrimNr]);
     }
 
     for (unsigned long PrimNr = 0; PrimNr < Primitives.Size(); PrimNr++)

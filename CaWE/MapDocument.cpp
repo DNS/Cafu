@@ -204,15 +204,14 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
         cf::GameSys::WorldT::InitFlag_InlineCode | cf::GameSys::WorldT::InitFlag_InMapEditor);
 
     IntrusivePtrT<cf::GameSys::EntityT> ScriptRootEnt = m_ScriptWorld->GetRootEntity();
-
-    MapEntityBaseT* Ent = new MapEntityBaseT(*this);
+    IntrusivePtrT<CompMapEntityT>       MapEnt        = new CompMapEntityT(*this);
 
     const EntityClassT* WorldSpawnClass = GameConfig->FindClass("worldspawn");
     wxASSERT(WorldSpawnClass);
-    Ent->SetClass(WorldSpawnClass != NULL ? WorldSpawnClass : FindOrCreateUnknownClass("worldspawn", false /*HasOrigin*/));
+    MapEnt->SetClass(WorldSpawnClass != NULL ? WorldSpawnClass : FindOrCreateUnknownClass("worldspawn", false /*HasOrigin*/));
 
     wxASSERT(ScriptRootEnt->GetApp().IsNull());
-    ScriptRootEnt->SetApp(new CompMapEntityT(Ent));
+    ScriptRootEnt->SetApp(MapEnt);
 
     ArrayT<MapElementT*> AllElems;
     GetAllElems(AllElems);
@@ -264,12 +263,12 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         throw cf::GameSys::WorldT::InitErrorT("The file could not be opened.");
     }
 
-    unsigned int            cmapFileVersion = 0;
-    ArrayT<MapEntityBaseT*> AllMapEnts;
+    unsigned int cmapFileVersion = 0;
+    ArrayT< IntrusivePtrT<CompMapEntityT> > AllMapEnts;
 
     try
     {
-        MapEntityBaseT* World = new MapEntityBaseT(*this);
+        IntrusivePtrT<CompMapEntityT> World = new CompMapEntityT(*this);
 
         const EntityClassT* WorldSpawnClass = GameConfig->FindClass("worldspawn");
         wxASSERT(WorldSpawnClass);
@@ -281,7 +280,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         // Load the entities.
         while (!TP.IsAtEOF())
         {
-            MapEntityBaseT* Entity = new MapEntityBaseT(*this);
+            IntrusivePtrT<CompMapEntityT> Entity = new CompMapEntityT(*this);
 
             Entity->Load_cmap(TP, *this, ProgressDialog, AllMapEnts.Size(), cmapFileVersion);
             AllMapEnts.PushBack(Entity);
@@ -296,12 +295,6 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
             "Please use a text editor to make sure that the file you tried to open is a proper cmap file,\n"
             "and/or post at the Cafu support forums.", TP.GetReadPosByte(), TP.GetReadPosPercent()*100.0),
             wxString("Could not load ")+FileName, wxOK | wxICON_EXCLAMATION);
-
-        for (unsigned int EntNr = 0; EntNr < AllMapEnts.Size(); EntNr++)
-        {
-            delete AllMapEnts[EntNr];
-            AllMapEnts[EntNr] = NULL;
-        }
 
         delete m_ScriptWorld;   //XXX TODO: Call Cleanup() method instead (same code as dtor).
         m_ScriptWorld = NULL;
@@ -346,7 +339,8 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         while (EntNr < AllScriptEnts.Size() && EntNr < AllMapEnts.Size())
         {
             wxASSERT(AllScriptEnts[EntNr]->GetApp().IsNull());
-            AllScriptEnts[EntNr]->SetApp(new CompMapEntityT(AllMapEnts[EntNr]));
+            AllScriptEnts[EntNr]->SetApp(AllMapEnts[EntNr]);
+
             EntNr++;
         }
 
@@ -364,16 +358,19 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
 
         while (EntNr < AllScriptEnts.Size())
         {
+            // There were more entities in the `.cent` file than in the `.cmap` file.
             wxASSERT(AllScriptEnts[EntNr]->GetApp().IsNull());
-            AllScriptEnts[EntNr]->SetApp(new CompMapEntityT(new MapEntityBaseT(*this)));
+            AllScriptEnts[EntNr]->SetApp(new CompMapEntityT(*this));
+
             EntNr++;
         }
 
         while (EntNr < AllMapEnts.Size())
         {
+            // There were more entities in the `.cmap` file than in the `.cent` file.
             IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
 
-            NewEnt->SetApp(new CompMapEntityT(AllMapEnts[EntNr]));
+            NewEnt->SetApp(AllMapEnts[EntNr]);
             m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
 
             EntNr++;
@@ -407,13 +404,13 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         // Load the entities.
         while (!TP.IsAtEOF())
         {
-            MapEntityBaseT* Entity = new MapEntityBaseT(*Doc);
+            IntrusivePtrT<CompMapEntityT> Entity = new CompMapEntityT(*Doc);
 
             Entity->Load_HL1_map(TP, *Doc, ProgressDialog, ScriptRootEnt->GetChildren().Size() + 1);
 
             IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*Doc->m_ScriptWorld));
 
-            NewEnt->SetApp(new CompMapEntityT(Entity));
+            NewEnt->SetApp(Entity);
             ScriptRootEnt->AddChild(NewEnt);
         }
     }
@@ -469,13 +466,13 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
             }
             else if (ChunkName=="entity")
             {
-                MapEntityBaseT* Entity = new MapEntityBaseT(*Doc);
+                IntrusivePtrT<CompMapEntityT> Entity = new CompMapEntityT(*Doc);
 
                 Entity->Load_HL2_vmf(TP, *Doc, ProgressDialog, ScriptRootEnt->GetChildren().Size() + 1);
 
                 IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*Doc->m_ScriptWorld));
 
-                NewEnt->SetApp(new CompMapEntityT(Entity));
+                NewEnt->SetApp(Entity);
                 ScriptRootEnt->AddChild(NewEnt);
             }
             else
@@ -531,13 +528,13 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         // Load the entities.
         while (!TP.IsAtEOF())
         {
-            MapEntityBaseT* Entity = new MapEntityBaseT(*Doc);
+            IntrusivePtrT<CompMapEntityT> Entity = new CompMapEntityT(*Doc);
 
             Entity->Load_D3_map(TP, *Doc, ProgressDialog, ScriptRootEnt->GetChildren().Size() + 1);
 
             IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*Doc->m_ScriptWorld));
 
-            NewEnt->SetApp(new CompMapEntityT(Entity));
+            NewEnt->SetApp(Entity);
             ScriptRootEnt->AddChild(NewEnt);
         }
     }
@@ -963,25 +960,24 @@ namespace
 }
 
 
-void MapDocumentT::Insert(MapEntityBaseT* Ent)
+void MapDocumentT::Insert(IntrusivePtrT<cf::GameSys::EntityT> Ent)
 {
-    wxASSERT(Ent!=NULL);
-    if (Ent==NULL) return;
+    wxASSERT(Ent != NULL);
+    if (Ent == NULL) return;
 
     // Should not have Ent already.
-    wxASSERT(Find(m_ScriptWorld, Ent) == NULL);
+    // wxASSERT(Find(m_ScriptWorld, Ent) == NULL);
 
     // Insert Ent into the m_ScriptWorld.
-    IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
-
-    NewEnt->SetApp(new CompMapEntityT(Ent));
-    m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
+    m_ScriptWorld->GetRootEntity()->AddChild(Ent);
 
     // Insert all primitives of Ent and Ent itself into the BSP tree.
-    for (unsigned long PrimNr=0; PrimNr<Ent->GetPrimitives().Size(); PrimNr++)
-        m_BspTree->Insert(Ent->GetPrimitives()[PrimNr]);
+    IntrusivePtrT<CompMapEntityT> MapEnt = GetMapEnt(Ent);
 
-    m_BspTree->Insert(Ent->GetRepres());
+    for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
+        m_BspTree->Insert(MapEnt->GetPrimitives()[PrimNr]);
+
+    m_BspTree->Insert(MapEnt->GetRepres());
 }
 
 
@@ -1005,32 +1001,28 @@ void MapDocumentT::Insert(MapPrimitiveT* Prim, MapEntityBaseT* ParentEnt)
 }
 
 
-void MapDocumentT::Remove(MapEntityBaseT* Ent)
+void MapDocumentT::Remove(IntrusivePtrT<cf::GameSys::EntityT> Ent)
 {
+    // Ent was not found? Should not happen!
     wxASSERT(Ent != NULL);
     if (Ent == NULL) return;
 
-    IntrusivePtrT<cf::GameSys::EntityT> ScriptEnt  = Find(m_ScriptWorld, Ent);
-    IntrusivePtrT<CompMapEntityT>       CompMapEnt = dynamic_pointer_cast<CompMapEntityT>(ScriptEnt->GetApp());
+    // Ent is the world (or not a part of it)? Should not happen!
+    wxASSERT(Ent->GetParent() != NULL);
+    if (Ent->GetParent() == NULL) return;
 
-    wxASSERT(ScriptEnt != NULL);                // Ent was not found? Should not happen!
-    wxASSERT(ScriptEnt->GetParent() != NULL);   // Ent is the world?  Should not happen!
-
-    if (ScriptEnt == NULL) return;
-    if (ScriptEnt->GetParent() == NULL) return;
-
-    // Do *NOT* delete the `Ent` instance when ScriptEnt is deleted,
-    // because when we get here, the caller (e.g. the Delete command) has taken ownership of `Ent`!
-    CompMapEnt->SetMapEntity(NULL);
-
-    ScriptEnt->GetParent()->RemoveChild(ScriptEnt);
+    // The caller (e.g. the Delete command) has taken ownership of `Ent`,
+    // that is, keeps another `IntrusivePtrT<cf::GameSys::EntityT>` to `Ent`.
+    Ent->GetParent()->RemoveChild(Ent);
 
     // Remove all primitives of Ent from the BSP tree.
-    for (unsigned long PrimNr = 0; PrimNr < Ent->GetPrimitives().Size(); PrimNr++)
-        m_BspTree->Remove(Ent->GetPrimitives()[PrimNr]);
+    IntrusivePtrT<CompMapEntityT> MapEnt = GetMapEnt(Ent);
+
+    for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
+        m_BspTree->Remove(MapEnt->GetPrimitives()[PrimNr]);
 
     // Remove the representation of Ent from the BSP tree.
-    m_BspTree->Remove(Ent->GetRepres());
+    m_BspTree->Remove(MapEnt->GetRepres());
 }
 
 
@@ -1259,32 +1251,33 @@ ArrayT<CommandT*> MapDocumentT::CreatePasteCommands(const Vector3fT& DeltaTransl
     const bool PrevLockMats = Options.general.LockingTextures;
     Options.general.LockingTextures = true;
 
-    const ArrayT<MapEntityBaseT*>& SrcEnts  = m_ChildFrame->GetMapClipboard().GetEntities();
-    const ArrayT<MapPrimitiveT*>&  SrcPrims = m_ChildFrame->GetMapClipboard().GetPrimitives();
+    const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& SrcEnts  = m_ChildFrame->GetMapClipboard().GetEntities();
+    const ArrayT<MapPrimitiveT*>&                        SrcPrims = m_ChildFrame->GetMapClipboard().GetPrimitives();
 
-    ArrayT<MapEntityBaseT*> NewEnts;
-    ArrayT<MapPrimitiveT*>  NewPrims;
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > NewEnts;
+    ArrayT<MapPrimitiveT*>                        NewPrims;
 
     for (unsigned int CopyNr = 0; CopyNr < NrOfCopies; CopyNr++)
     {
         for (unsigned long EntNr = 0; EntNr < SrcEnts.Size(); EntNr++)
         {
-            MapEntityBaseT* NewEnt = new MapEntityBaseT(*SrcEnts[EntNr]);
+            IntrusivePtrT<cf::GameSys::EntityT> NewEnt = SrcEnts[EntNr]->Clone(true);
+            IntrusivePtrT<CompMapEntityT>       MapEnt = GetMapEnt(NewEnt);
 
             if (TotalTranslation != Vector3fT())
             {
-                NewEnt->GetRepres()->TrafoMove(TotalTranslation);
+                MapEnt->GetRepres()->TrafoMove(TotalTranslation);
 
-                for (unsigned long PrimNr = 0; PrimNr < NewEnt->GetPrimitives().Size(); PrimNr++)
-                    NewEnt->GetPrimitives()[PrimNr]->TrafoMove(TotalTranslation);
+                for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
+                    MapEnt->GetPrimitives()[PrimNr]->TrafoMove(TotalTranslation);
             }
 
             if (TotalRotation != cf::math::AnglesfT())
             {
-                NewEnt->GetRepres()->TrafoRotate(NewEnt->GetRepres()->GetBB().GetCenter(), TotalRotation);
+                MapEnt->GetRepres()->TrafoRotate(MapEnt->GetRepres()->GetBB().GetCenter(), TotalRotation);
 
-                for (unsigned long PrimNr = 0; PrimNr < NewEnt->GetPrimitives().Size(); PrimNr++)
-                    NewEnt->GetPrimitives()[PrimNr]->TrafoRotate(NewEnt->GetPrimitives()[PrimNr]->GetBB().GetCenter(), TotalRotation);
+                for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
+                    MapEnt->GetPrimitives()[PrimNr]->TrafoRotate(MapEnt->GetPrimitives()[PrimNr]->GetBB().GetCenter(), TotalRotation);
             }
 
             NewEnts.PushBack(NewEnt);
@@ -1342,7 +1335,7 @@ ArrayT<CommandT*> MapDocumentT::CreatePasteCommands(const Vector3fT& DeltaTransl
 
             for (unsigned long EntNr = 0; EntNr < NewEnts.Size(); EntNr++)
             {
-                MapEntityBaseT* NewEnt = NewEnts[EntNr];
+                IntrusivePtrT<CompMapEntityT> NewEnt = GetMapEnt(NewEnts[EntNr]);
 
                 NewElems.PushBack(NewEnt->GetRepres());
 
@@ -1389,13 +1382,13 @@ void MapDocumentT::OnEditPaste(wxCommandEvent& CE)
 
 void MapDocumentT::OnEditPasteSpecial(wxCommandEvent& CE)
 {
-    const ArrayT<MapEntityBaseT*>& SrcEnts  = m_ChildFrame->GetMapClipboard().GetEntities();
-    const ArrayT<MapPrimitiveT*>&  SrcPrims = m_ChildFrame->GetMapClipboard().GetPrimitives();
+    const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& SrcEnts  = m_ChildFrame->GetMapClipboard().GetEntities();
+    const ArrayT<MapPrimitiveT*>&                        SrcPrims = m_ChildFrame->GetMapClipboard().GetPrimitives();
 
     BoundingBox3fT ClipboardBB;
 
     for (unsigned long EntNr = 0; EntNr < SrcEnts.Size(); EntNr++)
-        ClipboardBB.InsertValid(SrcEnts[EntNr]->GetElemsBB());
+        ClipboardBB.InsertValid(GetMapEnt(SrcEnts[EntNr])->GetElemsBB());
 
     for (unsigned long PrimNr = 0; PrimNr < SrcPrims.Size(); PrimNr++)
         ClipboardBB.InsertValid(SrcPrims[PrimNr]->GetBB());
@@ -2015,10 +2008,13 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
         ArrayT<CommandT*> SubCommands;
 
         // 1. Create a new entity.
-        MapEntityBaseT* NewEnt = new MapEntityBaseT(*this);
+        IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
+        IntrusivePtrT<CompMapEntityT>       MapEnt = new CompMapEntityT(*this);
 
-        NewEnt->SetOrigin(SnapToGrid(GetMostRecentSelBB().GetCenter(), false /*Toggle*/, -1 /*AxisNoSnap*/));
-        NewEnt->SetClass(NewEntityClass);
+        NewEnt->SetApp(MapEnt);
+
+        MapEnt->SetOrigin(SnapToGrid(GetMostRecentSelBB().GetCenter(), false /*Toggle*/, -1 /*AxisNoSnap*/));
+        MapEnt->SetClass(NewEntityClass);
 
         CommandNewEntityT* CmdNewEnt = new CommandNewEntityT(*this, NewEnt);
 
@@ -2026,7 +2022,7 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
         SubCommands.PushBack(CmdNewEnt);
 
         // 2. Assign the primitives to the new entity.
-        CommandAssignPrimToEntT* CmdAssignToEnt = new CommandAssignPrimToEntT(*this, SelPrimitives, NewEnt);
+        CommandAssignPrimToEntT* CmdAssignToEnt = new CommandAssignPrimToEntT(*this, SelPrimitives, MapEnt->GetMapEntity());
 
         CmdAssignToEnt->Do();
         SubCommands.PushBack(CmdAssignToEnt);
@@ -2215,8 +2211,8 @@ void MapDocumentT::OnUpdateToolsMaterialLock(wxUpdateUIEvent& UE)
 
 void MapDocumentT::OnUpdateEditPasteSpecial(wxUpdateUIEvent& UE)
 {
-    const ArrayT<MapEntityBaseT*>& SrcEnts  = m_ChildFrame->GetMapClipboard().GetEntities();
-    const ArrayT<MapPrimitiveT*>&  SrcPrims = m_ChildFrame->GetMapClipboard().GetPrimitives();
+    const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& SrcEnts  = m_ChildFrame->GetMapClipboard().GetEntities();
+    const ArrayT<MapPrimitiveT*>&                        SrcPrims = m_ChildFrame->GetMapClipboard().GetPrimitives();
 
     UE.Enable((SrcEnts.Size() > 0 || SrcPrims.Size() > 0) &&
               m_ChildFrame->GetToolManager().GetActiveToolType() != &ToolEditSurfaceT::TypeInfo);

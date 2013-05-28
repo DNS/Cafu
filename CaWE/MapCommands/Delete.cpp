@@ -22,11 +22,15 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Delete.hpp"
 #include "Select.hpp"
 
+#include "../CompMapEntity.hpp"
 #include "../EntityClass.hpp"
 #include "../MapDocument.hpp"
 #include "../MapEntityBase.hpp"
 #include "../MapEntRepres.hpp"
 #include "../MapPrimitive.hpp"
+
+
+using namespace MapEditor;
 
 
 CommandDeleteT::CommandDeleteT(MapDocumentT& MapDoc, MapElementT* DeleteElem)
@@ -70,9 +74,9 @@ void CommandDeleteT::Init(const ArrayT<MapElementT*>& DeleteElems)
             if (Elem->GetParent()->IsWorld())
                 continue;
 
-            if (m_DeleteEnts.Find(Elem->GetParent()) == -1)
+            if (m_DeleteEnts.Find(Elem->GetParent()->GetCompMapEntity()->GetEntity()) == -1)
             {
-                m_DeleteEnts.PushBack(Elem->GetParent());
+                m_DeleteEnts.PushBack(Elem->GetParent()->GetCompMapEntity()->GetEntity());
             }
         }
         else
@@ -105,10 +109,12 @@ void CommandDeleteT::Init(const ArrayT<MapElementT*>& DeleteElems)
 
     for (unsigned long EntNr=0; EntNr<m_DeleteEnts.Size(); EntNr++)
     {
-        Unselect.PushBack(m_DeleteEnts[EntNr]->GetRepres());
+        IntrusivePtrT<CompMapEntityT> MapEnt = GetMapEnt(m_DeleteEnts[EntNr]);
 
-        for (unsigned long PrimNr=0; PrimNr<m_DeleteEnts[EntNr]->GetPrimitives().Size(); PrimNr++)
-            Unselect.PushBack(m_DeleteEnts[EntNr]->GetPrimitives()[PrimNr]);
+        Unselect.PushBack(MapEnt->GetRepres());
+
+        for (unsigned long PrimNr=0; PrimNr<MapEnt->GetPrimitives().Size(); PrimNr++)
+            Unselect.PushBack(MapEnt->GetPrimitives()[PrimNr]);
     }
 
     m_CommandSelect=CommandSelectT::Remove(&m_MapDoc, Unselect);
@@ -121,8 +127,8 @@ CommandDeleteT::~CommandDeleteT()
 
     if (m_Done)
     {
-        for (unsigned long EntNr=0; EntNr<m_DeleteEnts.Size(); EntNr++)
-            delete m_DeleteEnts[EntNr];
+        // for (unsigned long EntNr=0; EntNr<m_DeleteEnts.Size(); EntNr++)
+        //     delete m_DeleteEnts[EntNr];
 
         for (unsigned long PrimNr=0; PrimNr<m_DeletePrims.Size(); PrimNr++)
             delete m_DeletePrims[PrimNr];

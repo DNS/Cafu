@@ -22,11 +22,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_MAPEDITOR_CLIPBOARD_HPP_INCLUDED
 #define CAFU_MAPEDITOR_CLIPBOARD_HPP_INCLUDED
 
-#include "Templates/Array.hpp"
+#include "GameSys/Entity.hpp"
 #include "Math3D/Vector3.hpp"
+#include "Templates/Array.hpp"
+
 
 class MapElementT;
-class MapEntityBaseT;
 class MapPrimitiveT;
 
 
@@ -44,7 +45,7 @@ namespace MapEditor
         void Clear();
         void SetOriginalCenter(const Vector3fT& Center) { m_OriginalCenter = Center; }
 
-        const ArrayT<MapEntityBaseT*>& GetEntities() const { return m_Entities; }
+        const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& GetEntities() const { return m_Entities; }
         const ArrayT<MapPrimitiveT*>& GetPrimitives() const { return m_Primitives; }
         const Vector3fT& GetOriginalCenter() const { return m_OriginalCenter; }
 
@@ -54,9 +55,9 @@ namespace MapEditor
         ClipboardT(const ClipboardT&);          ///< Use of the Copy    Constructor is not allowed.
         void operator = (const ClipboardT&);    ///< Use of the Assignment Operator is not allowed.
 
-        ArrayT<MapEntityBaseT*> m_Entities;
-        ArrayT<MapPrimitiveT*>  m_Primitives;
-        Vector3fT               m_OriginalCenter;
+        ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > m_Entities;
+        ArrayT<MapPrimitiveT*>                        m_Primitives;
+        Vector3fT                                     m_OriginalCenter;
     };
 }
 

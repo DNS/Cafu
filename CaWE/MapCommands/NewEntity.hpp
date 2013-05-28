@@ -23,11 +23,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_COMMAND_NEW_ENTITY_HPP_INCLUDED
 
 #include "../CommandPattern.hpp"
+#include "GameSys/Entity.hpp"
 
 
 class CommandSelectT;
 class MapDocumentT;
-class MapEntityBaseT;
 
 
 /// This commands inserts a new entity into the map.
@@ -39,13 +39,13 @@ class CommandNewEntityT : public CommandT
     /// @param MapDoc   Map document into which the entity is inserted.
     /// @param Entity   The entity to insert.
     /// @param SetSel   Whether the inserted entity should automatically be selected.
-    CommandNewEntityT(MapDocumentT& MapDoc, MapEntityBaseT* Entity, bool SetSel=true);
+    CommandNewEntityT(MapDocumentT& MapDoc, IntrusivePtrT<cf::GameSys::EntityT> Entity, bool SetSel=true);
 
     /// The constructor.
     /// @param MapDoc     Map document into which the entities are inserted.
     /// @param Entities   The entities to insert.
     /// @param SetSel     Whether the inserted entities should automatically be selected.
-    CommandNewEntityT(MapDocumentT& MapDoc, const ArrayT<MapEntityBaseT*>& Entities, bool SetSel=true);
+    CommandNewEntityT(MapDocumentT& MapDoc, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities, bool SetSel=true);
 
     /// The destructor.
     ~CommandNewEntityT();
@@ -58,10 +58,10 @@ class CommandNewEntityT : public CommandT
 
     private:
 
-    MapDocumentT&           m_MapDoc;
-    ArrayT<MapEntityBaseT*> m_Entities;
-    const bool              m_SetSel;
-    CommandSelectT*         m_CommandSelect;    ///< Subcommand for changing the selection.
+    MapDocumentT&                                 m_MapDoc;
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > m_Entities;
+    const bool                                    m_SetSel;
+    CommandSelectT*                               m_CommandSelect;  ///< Subcommand for changing the selection.
 };
 
 #endif

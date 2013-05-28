@@ -24,11 +24,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "../EntityClass.hpp"
 #include "../MapDocument.hpp"
-#include "../MapEntityBase.hpp"
 #include "../MapEntRepres.hpp"
 
 
-CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, MapEntityBaseT* Entity, bool SetSel)
+CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, IntrusivePtrT<cf::GameSys::EntityT> Entity, bool SetSel)
     : m_MapDoc(MapDoc),
       m_Entities(),
       m_SetSel(SetSel),
@@ -38,7 +37,7 @@ CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, MapEntityBaseT* Entit
 }
 
 
-CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, const ArrayT<MapEntityBaseT*>& Entities, bool SetSel)
+CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities, bool SetSel)
     : m_MapDoc(MapDoc),
       m_Entities(Entities),
       m_SetSel(SetSel),
@@ -49,9 +48,9 @@ CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, const ArrayT<MapEntit
 
 CommandNewEntityT::~CommandNewEntityT()
 {
-    if (!m_Done)
-        for (unsigned long EntNr = 0; EntNr < m_Entities.Size(); EntNr++)
-            delete m_Entities[EntNr];
+    // if (!m_Done)
+    //     for (unsigned long EntNr = 0; EntNr < m_Entities.Size(); EntNr++)
+    //         delete m_Entities[EntNr];
 
     delete m_CommandSelect;
 }
@@ -101,7 +100,7 @@ void CommandNewEntityT::Undo()
 wxString CommandNewEntityT::GetName() const
 {
     if (m_Entities.Size() == 1)
-        return "add \"" + m_Entities[0]->GetClass()->GetName() + "\" entity";
+        return "add new entity";
 
-    return wxString::Format("add %lu entities", m_Entities.Size());
+    return wxString::Format("add %lu new entities", m_Entities.Size());
 }

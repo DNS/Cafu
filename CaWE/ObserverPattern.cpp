@@ -75,7 +75,7 @@ void SubjectT::UpdateAllObservers_GroupsChanged()
         m_Observers[ObsNr]->NotifySubjectChanged_Groups(this);
 }
 
-void SubjectT::UpdateAllObservers_Created(const ArrayT<MapEntityBaseT*>& Entities)
+void SubjectT::UpdateAllObservers_Created(const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities)
 {
     for (unsigned long ObsNr = 0; ObsNr < m_Observers.Size(); ObsNr++)
         m_Observers[ObsNr]->NotifySubjectChanged_Created(this, Entities);
@@ -87,7 +87,7 @@ void SubjectT::UpdateAllObservers_Created(const ArrayT<MapPrimitiveT*>& Primitiv
         m_Observers[ObsNr]->NotifySubjectChanged_Created(this, Primitives);
 }
 
-void SubjectT::UpdateAllObservers_Deleted(const ArrayT<MapEntityBaseT*>& Entities)
+void SubjectT::UpdateAllObservers_Deleted(const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities)
 {
     for (unsigned long ObsNr = 0; ObsNr < m_Observers.Size(); ObsNr++)
         m_Observers[ObsNr]->NotifySubjectChanged_Deleted(this, Entities);

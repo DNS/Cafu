@@ -32,8 +32,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/txtstrm.h"
 
 
-MapEntityBaseT::MapEntityBaseT(MapDocumentT& MapDoc)
+MapEntityBaseT::MapEntityBaseT(MapDocumentT& MapDoc, MapEditor::CompMapEntityT* CompMapEnt)
     : m_MapDoc(MapDoc),
+      m_CompMapEnt(CompMapEnt),
       m_Class(NULL),
       m_Origin(),
       m_Properties(),
@@ -44,8 +45,9 @@ MapEntityBaseT::MapEntityBaseT(MapDocumentT& MapDoc)
 }
 
 
-MapEntityBaseT::MapEntityBaseT(const MapEntityBaseT& Ent, bool CopyPrims)
+MapEntityBaseT::MapEntityBaseT(const MapEntityBaseT& Ent, MapEditor::CompMapEntityT* CompMapEnt, bool CopyPrims)
     : m_MapDoc(Ent.m_MapDoc),
+      m_CompMapEnt(CompMapEnt),
       m_Class(Ent.m_Class),
       m_Origin(Ent.m_Origin),
       m_Properties(Ent.m_Properties),
@@ -68,6 +70,7 @@ MapEntityBaseT::MapEntityBaseT(const MapEntityBaseT& Ent, bool CopyPrims)
 
 MapEntityBaseT::MapEntityBaseT(const MapEntityBaseT& Ent, MapEntRepresT* Repres)
     : m_MapDoc(Ent.m_MapDoc),
+      m_CompMapEnt(NULL),   // ######### TODO! ############
       m_Class(Ent.m_Class),
       m_Origin(Ent.m_Origin),
       m_Properties(Ent.m_Properties),

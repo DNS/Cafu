@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/BoundingBox.hpp"
 
 
+namespace MapEditor { class CompMapEntityT; }
 class EntityClassT;
 class MapDocumentT;
 class MapEntRepresT;
@@ -37,15 +38,6 @@ class wxProgressDialog;
 class MapEntityBaseT
 {
     public:
-
-    /// The default constructor.
-    MapEntityBaseT(MapDocumentT& MapDoc);
-
-    /// The copy constructor for copying a base entity.
-    /// @param Ent         The base entity to copy-construct this base entity from.
-    /// @param CopyPrims   Whether the primitives of `Ent` should be copied into the new entity as well.
-    ///                    If `false`, the new entity will be created without any primitives.
-    MapEntityBaseT(const MapEntityBaseT& Ent, bool CopyPrims=true);
 
     /// The destructor.
     ~MapEntityBaseT();
@@ -59,6 +51,7 @@ class MapEntityBaseT
 
 
     MapDocumentT& GetDoc() const { return m_MapDoc; }
+    MapEditor::CompMapEntityT* GetCompMapEntity() { return m_CompMapEnt; }
 
     bool IsWorld() const;
 
@@ -97,16 +90,28 @@ class MapEntityBaseT
     private:
 
     friend class MapEntRepresT;             ///< For mutual construction and destruction.
+    friend class MapEditor::CompMapEntityT; ///< This class will be integrated into CompMapEntityT soon...
+
+    /// The default constructor.
+    MapEntityBaseT(MapDocumentT& MapDoc, MapEditor::CompMapEntityT* CompMapEnt);
+
+    /// The copy constructor for copying a base entity.
+    /// @param Ent         The base entity to copy-construct this base entity from.
+    /// @param CompMapEnt  The CompMapEntityT instance that contains this MapEntityBaseT instance.
+    /// @param CopyPrims   Whether the primitives of `Ent` should be copied into the new entity as well.
+    ///                    If `false`, the new entity will be created without any primitives.
+    MapEntityBaseT(const MapEntityBaseT& Ent, MapEditor::CompMapEntityT* CompMapEnt, bool CopyPrims=true);
 
     /// The copy constructor that is used when a MapEntRepresT is copied.
     MapEntityBaseT(const MapEntityBaseT& Ent, MapEntRepresT* Repres);
 
-    MapDocumentT&          m_MapDoc;        ///< The document that contains, keeps and manages this world.
-    const EntityClassT*    m_Class;         ///< The "entity class" of this entity.
-    Vector3fT              m_Origin;        ///< The origin of this entity.
-    ArrayT<EntPropertyT>   m_Properties;    ///< The concrete, instantiated properties for this entity, according to its entity class.
-    MapEntRepresT*         m_Repres;        ///< The graphical representation of this entity in the map.
-    ArrayT<MapPrimitiveT*> m_Primitives;    ///< The primitive, atomic elements of this entity (brushes, patches, terrains, models, plants, ...).
+    MapDocumentT&              m_MapDoc;        ///< The document that contains, keeps and manages this entity.
+    MapEditor::CompMapEntityT* m_CompMapEnt;    ///< The component that contains this MapEntityBaseT instance.
+    const EntityClassT*        m_Class;         ///< The "entity class" of this entity.
+    Vector3fT                  m_Origin;        ///< The origin of this entity.
+    ArrayT<EntPropertyT>       m_Properties;    ///< The concrete, instantiated properties for this entity, according to its entity class.
+    MapEntRepresT*             m_Repres;        ///< The graphical representation of this entity in the map.
+    ArrayT<MapPrimitiveT*>     m_Primitives;    ///< The primitive, atomic elements of this entity (brushes, patches, terrains, models, plants, ...).
 };
 
 #endif

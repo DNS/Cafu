@@ -21,8 +21,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ToolNewEntity.hpp"
 #include "Camera.hpp"
-#include "CursorMan.hpp"
 #include "CommandHistory.hpp"
+#include "CompMapEntity.hpp"
+#include "CursorMan.hpp"
 #include "GameConfig.hpp"
 #include "MapBrush.hpp"
 #include "MapDocument.hpp"
@@ -34,6 +35,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ToolManager.hpp"
 #include "ToolOptionsBars.hpp"
 #include "MapCommands/NewEntity.hpp"
+
+#include "GameSys/Entity.hpp"
+#include "GameSys/EntityCreateParams.hpp"
+
+
+using namespace MapEditor;
 
 
 /*** Begin of TypeSys related definitions for this class. ***/
@@ -86,10 +93,13 @@ bool ToolNewEntityT::OnLMouseDown2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
     wxASSERT(EntClass);
     if (!EntClass) return true;
 
-    MapEntityBaseT* NewEnt = new MapEntityBaseT(m_MapDoc);
+    IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(m_MapDoc.GetScriptWorld()));
+    IntrusivePtrT<CompMapEntityT>       MapEnt = new CompMapEntityT(m_MapDoc);
 
-    NewEnt->SetOrigin(WorldPos);
-    NewEnt->SetClass(EntClass);
+    NewEnt->SetApp(MapEnt);
+
+    MapEnt->SetOrigin(WorldPos);
+    MapEnt->SetClass(EntClass);
 
     m_MapDoc.GetHistory().SubmitCommand(new CommandNewEntityT(m_MapDoc, NewEnt));
 
@@ -135,14 +145,17 @@ bool ToolNewEntityT::OnLMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
         const MapFaceT& HitFace  = Brush->GetFaces()[Hits[0].FaceNr];
         const Plane3fT& HitPlane = HitFace.GetPlane();
         const Vector3fT HitPos   = HitPlane.GetIntersection(ViewWindow.GetCamera().Pos, ViewWindow.WindowToWorld(ME.GetPosition()), 0);
-        MapEntityBaseT* NewEnt   = new MapEntityBaseT(m_MapDoc);
 
-        NewEnt->SetClass(EntClass);
+        IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(m_MapDoc.GetScriptWorld()));
+        IntrusivePtrT<CompMapEntityT>       MapEnt = new CompMapEntityT(m_MapDoc);
 
-        const BoundingBox3fT EntBB   = NewEnt->GetRepres()->GetBB();
+        NewEnt->SetApp(MapEnt);
+        MapEnt->SetClass(EntClass);
+
+        const BoundingBox3fT EntBB   = MapEnt->GetRepres()->GetBB();
         const float          OffsetZ = (HitPlane.Normal.z > 0.0f) ? HitPos.z - EntBB.Min.z : EntBB.Max.z - HitPos.z;
 
-        NewEnt->SetOrigin(HitPos + HitPlane.Normal*(OffsetZ + 1.0f));   // The +1.0f is some additional epsilon for the OffsetZ.
+        MapEnt->SetOrigin(HitPos + HitPlane.Normal*(OffsetZ + 1.0f));   // The +1.0f is some additional epsilon for the OffsetZ.
 
         m_MapDoc.GetHistory().SubmitCommand(new CommandNewEntityT(m_MapDoc, NewEnt));
     }

@@ -281,7 +281,7 @@ void InspDlgEntityPropsT::NotifySubjectChanged_Selection(SubjectT* Subject, cons
 }
 
 
-void InspDlgEntityPropsT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities)
+void InspDlgEntityPropsT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities)
 {
     // No need to act on deleted objects.
     // If the deletion of an object changes the current selection the inspector is notified in the NotifySubjectChanged_Selection method.

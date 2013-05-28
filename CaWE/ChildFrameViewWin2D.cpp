@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrameViewWin2D.hpp"
 #include "AppCaWE.hpp"
 #include "ChildFrame.hpp"
+#include "CompMapEntity.hpp"
 #include "CursorMan.hpp"
 #include "GameConfig.hpp"
 #include "MapDocument.hpp"
@@ -33,6 +34,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Tool.hpp"
 #include "ToolManager.hpp"
 #include "wx/wx.h"
+
+
+using namespace MapEditor;
 
 
 // Information about coordinate systems:
@@ -163,12 +167,12 @@ void ViewWindow2DT::NotifySubjectChanged_Selection(SubjectT* Subject, const Arra
 }
 
 
-void ViewWindow2DT::NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities)
+void ViewWindow2DT::NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities)
 {
     BoundingBox3fT BB;
 
     for (unsigned long i = 0; i < Entities.Size(); i++)
-        BB.InsertValid(Entities[i]->GetElemsBB());
+        BB.InsertValid(GetMapEnt(Entities[i])->GetElemsBB());
 
     // Add an extra margin to the BB, because the angle lines and names of entities are rendered
     // outside of the entity bounding-box (24 is the length of the angle vector drawn in the 2D views).
@@ -190,7 +194,7 @@ void ViewWindow2DT::NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT
 }
 
 
-void ViewWindow2DT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities)
+void ViewWindow2DT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities)
 {
     NotifySubjectChanged_Created(Subject, Entities);
 }

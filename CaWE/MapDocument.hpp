@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/Angles.hpp"
 #include "Plants/PlantDescrMan.hpp"
 #include "Templates/Array.hpp"
+#include "Templates/Pointer.hpp"
 #include "SceneGraph/LightMapMan.hpp"
 
 
@@ -39,6 +40,7 @@ class MapEntityBaseT;
 class MapPrimitiveT;
 class OrthoBspTreeT;
 class wxProgressDialog;
+namespace cf { namespace GameSys { class EntityT; } }
 namespace cf { namespace GameSys { class WorldT; } }
 
 
@@ -99,6 +101,7 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     void                           SetChildFrame(ChildFrameT* ChildFrame) { m_ChildFrame=ChildFrame; }   // This should be in the ctor!
     ChildFrameT*                   GetChildFrame() const { return m_ChildFrame; }
     const wxString&                GetFileName() const   { return m_FileName; }
+    cf::GameSys::WorldT&           GetScriptWorld() { return *m_ScriptWorld; }
 
     /// Returns all entities that exist in this map. The world entity is always first at index 0, followed by an arbitrary number of "regular" entities.
     const ArrayT<MapEntityBaseT*>& GetEntities() const;
@@ -110,7 +113,7 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     /// Inserts the given entity into the map.
     /// Callers should never attempt to insert an element into the world in a way other than calling this method,
     /// as it also inserts the element into the internal BSP tree that is used for rendering and culling.
-    void Insert(MapEntityBaseT* Ent);
+    void Insert(IntrusivePtrT<cf::GameSys::EntityT> Ent);
 
     /// Inserts the given primitive into the map, as a child of the given entity (the world or a custom entity).
     /// Callers should never attempt to insert an element into the world in a way other than calling this method,
@@ -119,7 +122,7 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
 
     /// Removes the given entity from the map.
     /// The entity cannot be entity 0, the world.
-    void Remove(MapEntityBaseT* Ent);
+    void Remove(IntrusivePtrT<cf::GameSys::EntityT> Ent);
 
     /// Removes the given primitive from the map.
     void Remove(MapPrimitiveT* Prim);
