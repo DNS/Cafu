@@ -21,6 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "MapEntRepres.hpp"
 #include "ChildFrameViewWin2D.hpp"
+#include "CompMapEntity.hpp"
 #include "EntityClass.hpp"
 #include "LuaAux.hpp"
 #include "MapDocument.hpp"
@@ -32,6 +33,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Renderer3D.hpp"
 
 #include "Math3D/Matrix.hpp"
+
+
+using namespace MapEditor;
 
 
 /*** Begin of TypeSys related definitions for this class. ***/
@@ -48,7 +52,8 @@ const cf::TypeSys::TypeInfoT MapEntRepresT::TypeInfo(GetMapElemTIM(), "MapEntRep
 
 MapEntRepresT::MapEntRepresT(MapEntityBaseT* Parent)
     : MapElementT(Options.colors.Entity),
-      m_Helper(NULL)
+      m_Helper(NULL),
+      m_Cloned(NULL)
 {
     wxASSERT(Parent);
     m_Parent = Parent;
@@ -59,10 +64,16 @@ MapEntRepresT::MapEntRepresT(MapEntityBaseT* Parent)
 
 MapEntRepresT::MapEntRepresT(const MapEntRepresT& EntRepres)
     : MapElementT(EntRepres),
-      m_Helper(NULL)
+      m_Helper(NULL),
+      m_Cloned(NULL)
 {
-    // Create a new entity as a copy of EntRepres's entity and whose representation is `this`.
-    m_Parent = new MapEntityBaseT(*EntRepres.GetParent(), this);
+    /*
+     *
+     * TODO:  Make a shallow copy only!
+     *
+     */
+    m_Cloned = EntRepres.GetParent()->GetCompMapEntity()->GetEntity()->Clone();
+    m_Parent = GetMapEnt(m_Cloned)->GetMapEntity();
 
     Update();
 }
@@ -72,16 +83,6 @@ MapEntRepresT::~MapEntRepresT()
 {
     delete m_Helper;
     m_Helper = NULL;
-
-    // Note that the *only* chance for m_Parent getting NULL is when the MapEntityBaseT dtor has set it so.
-    if (m_Parent)
-    {
-        // The parent's dtor must not in turn attempt to delete *us*.
-        m_Parent->m_Repres = NULL;
-
-        delete m_Parent;
-        m_Parent = NULL;
-    }
 }
 
 
@@ -114,14 +115,28 @@ MapEntRepresT* MapEntRepresT::Clone() const
 
 void MapEntRepresT::Assign(const MapElementT* Elem)
 {
-    if (Elem==this) return;
+    if (Elem == this) return;
 
     MapElementT::Assign(Elem);
 
-    const MapEntRepresT* MapRepres=dynamic_cast<const MapEntRepresT*>(Elem);
-    wxASSERT(MapRepres!=NULL);
-    if (MapRepres==NULL) return;
+    const MapEntRepresT* MapRepres = dynamic_cast<const MapEntRepresT*>(Elem);
+    wxASSERT(MapRepres != NULL);
+    if (MapRepres == NULL) return;
 
+    /************************/
+    /*** TODO: Assign the other entity's stuff to ours! ***/
+    /*******************************/
+#if 0
+    MapEntityBaseT* ThisEnt  = GetParent();
+    MapEntityBaseT* OtherEnt = MapRepres->GetParent();
+
+    ThisEnt->GetTransform()->SetOrigin(OtherEnt->GetTransform()->GetOrigin());
+ // ThisEnt->GetTransform()->SetQuaternion(OtherEnt->GetTransform()->GetQuaternion());
+#endif
+
+    // Note the we're here concerned only with the entity itself, not with its primitives.
+    // This is intentional, because there are MapPrimitiveT classes elsewhere in the application
+    // that are dedicated to this purpose.
     Update();
 }
 

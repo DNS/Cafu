@@ -89,7 +89,6 @@ class MapEntityBaseT
 
     private:
 
-    friend class MapEntRepresT;             ///< For mutual construction and destruction.
     friend class MapEditor::CompMapEntityT; ///< This class will be integrated into CompMapEntityT soon...
 
     /// The default constructor.
@@ -101,9 +100,6 @@ class MapEntityBaseT
     /// @param CopyPrims   Whether the primitives of `Ent` should be copied into the new entity as well.
     ///                    If `false`, the new entity will be created without any primitives.
     MapEntityBaseT(const MapEntityBaseT& Ent, MapEditor::CompMapEntityT* CompMapEnt, bool CopyPrims=true);
-
-    /// The copy constructor that is used when a MapEntRepresT is copied.
-    MapEntityBaseT(const MapEntityBaseT& Ent, MapEntRepresT* Repres);
 
     MapDocumentT&              m_MapDoc;        ///< The document that contains, keeps and manages this entity.
     MapEditor::CompMapEntityT* m_CompMapEnt;    ///< The component that contains this MapEntityBaseT instance.

@@ -22,9 +22,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_MAP_ENTITY_REPRES_HPP_INCLUDED
 #define CAFU_MAP_ENTITY_REPRES_HPP_INCLUDED
 
-#include "MapPrimitive.hpp"
+#include "MapElement.hpp"
+#include "Templates/Pointer.hpp"
 
 
+namespace cf { namespace GameSys { class EntityT; } }
 class MapHelperT;
 
 
@@ -39,8 +41,15 @@ class MapEntRepresT : public MapElementT
     MapEntRepresT(MapEntityBaseT* Parent);
 
     /// The copy constructor.
-    /// It copies the entire team, that is, the representation as well as the related parent entity.
-    /// The parent entity's primitives are however not copied.
+    ///
+    /// When a MapEntRepresT is copied, the entity that it represents is copied as well.
+    /// (Only the entity itself is copied, but not its primitives.)
+    ///
+    /// The new entity instance is held by the new MapEntRepresT, and can be obtained via GetParent() as expected.
+    /// As a result, the new entity has *two* representations:
+    /// This one (that holds it), and the one that is held by it (in its CompMapEntityT component).
+    /// It is OK to delete this instance and to keep the created entity.
+    ///
     /// @param EntRepres   The entity representation to copy-construct the new instance from.
     MapEntRepresT(const MapEntRepresT& EntRepres);
 
@@ -81,7 +90,8 @@ class MapEntRepresT : public MapElementT
 
     private:
 
-    MapHelperT* m_Helper;
+    MapHelperT*                         m_Helper;
+    IntrusivePtrT<cf::GameSys::EntityT> m_Cloned;   ///< If the MapEntRepresT has been cloned, the related (cloned) entity instance is stored here. Note that we can *not* get rid of this variable by turning m_Parent into an IntrusivePtrT<>: Doing so would create a cycle and cause entity instances to never get freed, leaking memory.
 };
 
 #endif

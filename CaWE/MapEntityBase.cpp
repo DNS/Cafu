@@ -68,34 +68,14 @@ MapEntityBaseT::MapEntityBaseT(const MapEntityBaseT& Ent, MapEditor::CompMapEnti
 }
 
 
-MapEntityBaseT::MapEntityBaseT(const MapEntityBaseT& Ent, MapEntRepresT* Repres)
-    : m_MapDoc(Ent.m_MapDoc),
-      m_CompMapEnt(NULL),   // ######### TODO! ############
-      m_Class(Ent.m_Class),
-      m_Origin(Ent.m_Origin),
-      m_Properties(Ent.m_Properties),
-      m_Repres(Repres),     // Use the given instance for the representation.
-      m_Primitives()        // The primitives are intentionally *not* copied.
-{
-    wxASSERT(m_Repres);
-}
-
-
 MapEntityBaseT::~MapEntityBaseT()
 {
     // Delete all our primitives.
     for (unsigned long PrimNr=0; PrimNr<m_Primitives.Size(); PrimNr++)
         delete m_Primitives[PrimNr];
 
-    // Note that the *only* chance for m_Repres getting NULL is when the MapEntRepresT dtor has set it so.
-    if (m_Repres)
-    {
-        // m_Repres's dtor must not in turn attempt to delete *us*.
-        m_Repres->SetParent(NULL);
-
-        delete m_Repres;
-        m_Repres = NULL;
-    }
+    delete m_Repres;
+    m_Repres = NULL;
 }
 
 
