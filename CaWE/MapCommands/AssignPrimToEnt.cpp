@@ -46,7 +46,7 @@ CommandAssignPrimToEntT::CommandAssignPrimToEntT(MapDocumentT& MapDoc, const Arr
         // The primitive must have had a parent entity (and thus been in the world) before.
         wxASSERT(m_Prims[PrimNr]->GetParent()!=NULL);
 
-        m_PrevParents.PushBack(m_Prims[PrimNr]->GetParent()->GetCompMapEntity());
+        m_PrevParents.PushBack(m_Prims[PrimNr]->GetParent());
     }
 }
 
@@ -67,7 +67,7 @@ bool CommandAssignPrimToEntT::Do()
     for (unsigned long PrimNr=0; PrimNr<m_Prims.Size(); PrimNr++)
     {
         MapPrimitiveT*                Prim       = m_Prims[PrimNr];
-        IntrusivePtrT<CompMapEntityT> PrevParent = Prim->GetParent()->GetCompMapEntity();
+        IntrusivePtrT<CompMapEntityT> PrevParent = Prim->GetParent();
 
         // The primitive must have had a parent entity (and thus been in the world) before.
         wxASSERT(PrevParent!=NULL);

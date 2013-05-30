@@ -249,7 +249,7 @@ namespace
 {
     void DeepCopy(const ArrayT<MapElementT*>& SourceElems, ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& NewEnts, ArrayT<MapPrimitiveT*>& NewPrims, ArrayT<MapElementT*>& NewElems)
     {
-        ArrayT<MapEntityBaseT*> SourceEnts;
+        ArrayT< IntrusivePtrT<CompMapEntityT> > SourceEnts;
 
         // First pass: Consider the MapEntRepresT instances.
         for (unsigned long ElemNr = 0; ElemNr < SourceElems.Size(); ElemNr++)
@@ -268,7 +268,7 @@ namespace
                  *       TODO -- Must e.g. set a flag in the CompMapEntity to no copy the primitives!
                  *
                  */
-                NewEnts.PushBack(Repres->GetParent()->GetCompMapEntity()->GetEntity()->Clone());
+                NewEnts.PushBack(Repres->GetParent()->GetEntity()->Clone());
             }
         }
 
@@ -558,7 +558,7 @@ bool ToolSelectionT::OnMouseMove2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
                 // as the reference point for the transformation, not the transformation boxes center.
                 if (m_MapDoc.GetSelection().Size() == 1 && m_MapDoc.GetSelection()[0]->GetType() == &MapEntRepresT::TypeInfo)
                 {
-                    MapEntityBaseT* Entity = static_cast<MapEntRepresT*>(m_MapDoc.GetSelection()[0])->GetParent();
+                    IntrusivePtrT<CompMapEntityT> Entity = static_cast<MapEntRepresT*>(m_MapDoc.GetSelection()[0])->GetParent();
 
                     if (!Entity->GetClass()->IsSolidClass() /*Entity->GetClass()->HasOrigin()*/)
                     {
@@ -1037,7 +1037,7 @@ void ToolSelectionT::NudgeSelection(const AxesInfoT& AxesInfo, const wxKeyEvent&
 /// when the elements entity and group memberships are taken into account.
 void ToolSelectionT::GetToggleEffects(MapElementT* Elem, ArrayT<MapElementT*>& RemoveFromSel, ArrayT<MapElementT*>& AddToSel) const
 {
-    MapEntityBaseT* Entity = Elem->GetParent();
+    IntrusivePtrT<CompMapEntityT> Entity = Elem->GetParent();
 
     // If Prim belongs to a non-world entity, put all primitives of the entity into the appropriate lists.
     if (!Entity->IsWorld() /*&& m_OptionsBar->SelectWholeEntities() / TreatEntitiesAsGroups*/)

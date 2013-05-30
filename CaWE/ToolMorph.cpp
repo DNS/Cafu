@@ -43,6 +43,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapCommands/Select.hpp"
 
 
+using namespace MapEditor;
+
+
 /*** Begin of TypeSys related definitions for this class. ***/
 
 void* ToolMorphT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
@@ -411,9 +414,9 @@ void ToolMorphT::FinishDragMorphHandles()
     {
         if (!m_MorphPrims[MPNr]->IsModified()) continue;
 
-        MapPrimitiveT*  MapPrim       =const_cast<MapPrimitiveT*>(m_MorphPrims[MPNr]->GetMapPrim());
-        MapEntityBaseT* ParentEntity  =MapPrim->GetParent();
-        MapPrimitiveT*  MorphedMapPrim=m_MorphPrims[MPNr]->GetMorphedMapPrim();
+        MapPrimitiveT*                MapPrim        = const_cast<MapPrimitiveT*>(m_MorphPrims[MPNr]->GetMapPrim());
+        IntrusivePtrT<CompMapEntityT> ParentEntity   = MapPrim->GetParent();
+        MapPrimitiveT*                MorphedMapPrim = m_MorphPrims[MPNr]->GetMorphedMapPrim();
 
         if (!MorphedMapPrim) continue;
         wxASSERT(MapPrim->IsSelected());
@@ -426,7 +429,7 @@ void ToolMorphT::FinishDragMorphHandles()
         DelCmd->Do();
         Commands.PushBack(DelCmd);
 
-        CommandAddPrimT* AddPrimCmd=new CommandAddPrimT(m_MapDoc, MorphedMapPrim, ParentEntity->GetCompMapEntity(), "new prim", false /*don't set the selection*/);
+        CommandAddPrimT* AddPrimCmd=new CommandAddPrimT(m_MapDoc, MorphedMapPrim, ParentEntity, "new prim", false /*don't set the selection*/);
         AddPrimCmd->Do();
         Commands.PushBack(AddPrimCmd);
 

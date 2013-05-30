@@ -187,7 +187,7 @@ bool CommandMakeHollowT::Do()
 
         for (unsigned long WallNr=0; WallNr<Walls.Size(); WallNr++)
         {
-            m_MapDoc.Insert(Walls[WallNr], Brush->GetParent()->GetCompMapEntity());
+            m_MapDoc.Insert(Walls[WallNr], Brush->GetParent());
             WallElems.PushBack(Walls[WallNr]);
         }
     }

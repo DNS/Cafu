@@ -222,7 +222,7 @@ void InspDlgPrimitivePropsT::UpdateGrid()
     // Create a category for every selected map primitve and fill it with the primitves properties.
     for (unsigned long i = 0; i < SelectedPrimitives.Size(); i++)
     {
-        const int      EntityNr = m_MapDoc->GetEntities().Find(SelectedPrimitives[i]->GetParent()->GetCompMapEntity());
+        const int      EntityNr = m_MapDoc->GetEntities().Find(SelectedPrimitives[i]->GetParent());
         const int      ItemNr   = EntityNr >= 0 ? m_MapDoc->GetEntities()[EntityNr]->GetPrimitives().Find(SelectedPrimitives[i]) : -1;
         const wxString ItemStr  = wxString::Format(" (item %i in entity %i)", ItemNr, EntityNr);
 

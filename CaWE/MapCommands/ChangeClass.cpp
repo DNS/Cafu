@@ -52,7 +52,7 @@ bool CommandChangeClassT::Do()
     ArrayT<MapElementT*> MapElements;
     MapElements.PushBack(m_Entity->GetRepres());
 
-    // This is a bit hacky: Should have a separate UpdateAllObservers_* method that takes a (array-of-)MapEntityBaseT parameter!
+    // This is a bit hacky: Should have a separate UpdateAllObservers_* method that takes a (array-of-)IntrusivePtrT<CompMapEntityT> parameter!
     m_MapDoc.UpdateAllObservers_Modified(MapElements, MEMD_ENTITY_CLASS_CHANGED);
 
     m_Done=true;
@@ -73,7 +73,7 @@ void CommandChangeClassT::Undo()
     ArrayT<MapElementT*> MapElements;
     MapElements.PushBack(m_Entity->GetRepres());
 
-    // This is a bit hacky: Should have a separate UpdateAllObservers_* method that takes a (array-of-)MapEntityBaseT parameter!
+    // This is a bit hacky: Should have a separate UpdateAllObservers_* method that takes a (array-of-)IntrusivePtrT<CompMapEntityT> parameter!
     m_MapDoc.UpdateAllObservers_Modified(MapElements, MEMD_ENTITY_CLASS_CHANGED);
 
     m_Done=false;

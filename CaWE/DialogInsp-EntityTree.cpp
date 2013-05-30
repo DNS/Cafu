@@ -390,7 +390,7 @@ void InspDlgEntityTreeT::OnListBox_SelectionChanged(wxCommandEvent& Event)
     ArrayT<MapElementT*> EntitySelection;
 
     for (int SelNr=0; SelNr<NrOfSelections; SelNr++)
-        EntitySelection.PushBack(((MapEntityBaseT*)EntityListBox->GetClientData(SelEntries[SelNr]))->GetRepres());
+        EntitySelection.PushBack(((CompMapEntityT*)EntityListBox->GetClientData(SelEntries[SelNr]))->GetRepres());
 
     MapDoc->GetHistory().SubmitCommand(CommandSelectT::Set(MapDoc, EntitySelection));
 

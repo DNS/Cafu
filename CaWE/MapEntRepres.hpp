@@ -38,7 +38,7 @@ class MapEntRepresT : public MapElementT
     public:
 
     /// The constructor.
-    MapEntRepresT(MapEntityBaseT* Parent);
+    MapEntRepresT(IntrusivePtrT<MapEditor::CompMapEntityT> Parent);
 
     /// The copy constructor.
     ///

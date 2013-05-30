@@ -933,29 +933,6 @@ const EntityClassT* MapDocumentT::FindOrCreateUnknownClass(const wxString& Name,
 }
 
 
-namespace
-{
-    IntrusivePtrT<cf::GameSys::EntityT> Find(cf::GameSys::WorldT* ScriptWorld, MapEntityBaseT* FindMapEnt)
-    {
-        ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllChildren;
-
-        AllChildren.PushBack(ScriptWorld->GetRootEntity());
-        ScriptWorld->GetRootEntity()->GetChildren(AllChildren, true);
-
-        for (unsigned long ChildNr = 0; ChildNr < AllChildren.Size(); ChildNr++)
-        {
-            IntrusivePtrT<CompMapEntityT> CompMapEnt = dynamic_pointer_cast<CompMapEntityT>(AllChildren[ChildNr]->GetApp());
-
-            wxASSERT(CompMapEnt != NULL);
-            if (CompMapEnt->GetMapEntity() == FindMapEnt)
-                return AllChildren[ChildNr];
-        }
-
-        return NULL;
-    }
-}
-
-
 void MapDocumentT::Insert(IntrusivePtrT<cf::GameSys::EntityT> Ent)
 {
     wxASSERT(Ent != NULL);
@@ -1022,11 +999,11 @@ void MapDocumentT::Remove(MapPrimitiveT* Prim)
     wxASSERT(Prim != NULL);
     if (Prim == NULL) return;
 
-    MapEntityBaseT* ParentEnt = Prim->GetParent();
+    IntrusivePtrT<CompMapEntityT> ParentEnt = Prim->GetParent();
 
     // The first assert is actually redundant in the second, but keep it for clarity.
     wxASSERT(ParentEnt != NULL);
-    wxASSERT(Find(m_ScriptWorld, ParentEnt) != NULL);
+    // wxASSERT(Find(m_ScriptWorld, ParentEnt) != NULL);
 
     if (ParentEnt != NULL)
     {
@@ -1925,8 +1902,8 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
     ToolT*           NewEntityTool=m_ChildFrame->GetToolManager().GetTool(*GetToolTIM().FindTypeInfoByName("ToolNewEntityT")); if (!NewEntityTool) return;
     OptionsBar_NewEntityToolT* Bar=dynamic_cast<OptionsBar_NewEntityToolT*>(NewEntityTool->GetOptionsBar()); if (!Bar) return;
 
-    ArrayT<MapEntityBaseT*> SelEntities;    // All entities   that are in the selection.
-    ArrayT<MapPrimitiveT*>  SelPrimitives;  // All primitives that are in the selection.
+    ArrayT< IntrusivePtrT<CompMapEntityT> > SelEntities;    // All entities   that are in the selection.
+    ArrayT<MapPrimitiveT*>                  SelPrimitives;  // All primitives that are in the selection.
 
     for (unsigned long SelNr=0; SelNr<m_Selection.Size(); SelNr++)
     {
@@ -1989,7 +1966,7 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
 
     if (SelEntities[0]!=NULL)
     {
-        GetHistory().SubmitCommand(new CommandAssignPrimToEntT(*this, SelPrimitives, SelEntities[0]->GetCompMapEntity()));
+        GetHistory().SubmitCommand(new CommandAssignPrimToEntT(*this, SelPrimitives, SelEntities[0]));
     }
     else
     {

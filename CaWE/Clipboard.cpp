@@ -49,7 +49,7 @@ void ClipboardT::CopyFrom(const ArrayT<MapElementT*>& Elems)
 {
     Clear();
 
-    ArrayT<MapEntityBaseT*> SourceEnts;
+    ArrayT< IntrusivePtrT<CompMapEntityT> > SourceEnts;
 
     // First pass: Consider the MapEntRepresT instances.
     for (unsigned long ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
@@ -68,8 +68,7 @@ void ClipboardT::CopyFrom(const ArrayT<MapElementT*>& Elems)
              *       TODO -- Must e.g. set a flag in the CompMapEntity to no copy the primitives!
              *
              */
-            m_Entities.PushBack(Repres->GetParent()->GetCompMapEntity()->GetEntity()->Clone());
-            // m_Entities.PushBack(new MapEntityBaseT(*Repres->GetParent(), false /*CopyPrims*/));
+            m_Entities.PushBack(Repres->GetParent()->GetEntity()->Clone());
         }
     }
 

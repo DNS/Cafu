@@ -21,8 +21,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "MapElement.hpp"
 #include "ChildFrameViewWin2D.hpp"
+#include "CompMapEntity.hpp"
 #include "MapDocument.hpp"
-#include "MapEntityBase.hpp"
 #include "MapEntRepres.hpp"
 
 #include "TypeSys.hpp"
@@ -72,6 +72,16 @@ MapElementT::MapElementT(const MapElementT& Elem)
 }
 
 
+// We cannot define this destructor inline in the "MapElement.hpp" header file,
+// because the (Visual C++) compiler would then expect us to #include the "CompMapEntity.hpp" header
+// file in quasi every .cpp file in the application (or in "MapElement.hpp").
+// I don't know exactly why this is so, but obviously the inline definition triggers the instantiation
+// of the IntrusivePtrT<CompMapEntityT>, which in the header file is only forward-declared.
+MapElementT::~MapElementT()
+{
+}
+
+
 void MapElementT::Assign(const MapElementT* Elem)
 {
     if (Elem == this) return;
@@ -84,12 +94,18 @@ void MapElementT::Assign(const MapElementT* Elem)
 }
 
 
+void MapElementT::SetParent(const IntrusivePtrT<MapEditor::CompMapEntityT>& Ent)
+{
+    m_Parent = Ent;
+}
+
+
 wxColour MapElementT::GetColor(bool ConsiderGroup) const
 {
     if (m_Group && ConsiderGroup)
         return m_Group->Color;
 
-    if (m_Parent && !m_Parent->IsWorld())
+    if (m_Parent != NULL && !m_Parent->IsWorld())
         return m_Parent->GetRepres()->GetColor(false);
 
     // The primitive has no parent, or the parent is the world.

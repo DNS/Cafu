@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/Angles.hpp"
 #include "Math3D/BoundingBox.hpp"
 #include "Templates/Array.hpp"
+#include "Templates/Pointer.hpp"
 #include "TypeSys.hpp"
 
 #include "wx/string.h"
@@ -34,7 +35,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <ostream>
 
 
-class MapEntityBaseT;
+namespace MapEditor { class CompMapEntityT; }
 class Renderer2DT;
 class Renderer3DT;
 class TextParserT;
@@ -75,7 +76,7 @@ class MapElementT
     MapElementT(const MapElementT& Elem);
 
     /// The virtual destructor.
-    virtual ~MapElementT() { }
+    virtual ~MapElementT();
 
 
     /// The virtual copy constructor.
@@ -106,11 +107,11 @@ class MapElementT
 
     /// Returns the entity that this element is a part of, or `NULL` if the element has no parent entity.
     /// See the MapElementT class documentation for additional information.
-    MapEntityBaseT* GetParent() const { return m_Parent; }
+    const IntrusivePtrT<MapEditor::CompMapEntityT>& GetParent() const { return m_Parent; }
 
     /// Sets the parent entity that is element is a part of.
     /// See the MapElementT class documentation for additional information.
-    void SetParent(MapEntityBaseT* Ent) { m_Parent = Ent; }
+    void SetParent(const IntrusivePtrT<MapEditor::CompMapEntityT>& Ent);
 
 
     /// Returns whether this element is currently selected in the map document.
@@ -219,11 +220,11 @@ class MapElementT
 
     protected:
 
-    MapEntityBaseT* m_Parent;       ///< The entity that this element is a part of.
-    bool            m_IsSelected;   ///< Is this element currently selected in the map document?
-    wxColour        m_Color;        ///< The color of this element.
-    GroupT*         m_Group;        ///< The group this element is in, NULL if in no group.
-    unsigned int    m_FrameCount;   ///< The number of the frame in which this element was last rendered in a 3D view, used in order to avoid processing/rendering it twice.
+    IntrusivePtrT<MapEditor::CompMapEntityT> m_Parent;      ///< The entity that this element is a part of.
+    bool                                     m_IsSelected;  ///< Is this element currently selected in the map document?
+    wxColour                                 m_Color;       ///< The color of this element.
+    GroupT*                                  m_Group;       ///< The group this element is in, NULL if in no group.
+    unsigned int                             m_FrameCount;  ///< The number of the frame in which this element was last rendered in a 3D view, used in order to avoid processing/rendering it twice.
 };
 
 #endif

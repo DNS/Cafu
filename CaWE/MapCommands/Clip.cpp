@@ -80,13 +80,13 @@ bool CommandClipT::Do()
 
         if (Front)
         {
-            MapDoc.Insert(Front, Workpiece->GetParent()->GetCompMapEntity());
+            MapDoc.Insert(Front, Workpiece->GetParent());
             InsertedBrushes.PushBack(Front);
         }
 
         if (Back)
         {
-            MapDoc.Insert(Back, Workpiece->GetParent()->GetCompMapEntity());
+            MapDoc.Insert(Back, Workpiece->GetParent());
             InsertedBrushes.PushBack(Back);
         }
 

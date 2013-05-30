@@ -20,7 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "MapHelperBB.hpp"
-#include "MapEntityBase.hpp"
+#include "CompMapEntity.hpp"
 #include "MapEntRepres.hpp"
 #include "Options.hpp"
 #include "Renderer3D.hpp"

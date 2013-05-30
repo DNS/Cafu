@@ -50,12 +50,12 @@ const cf::TypeSys::TypeInfoT MapEntRepresT::TypeInfo(GetMapElemTIM(), "MapEntRep
 /*** End of TypeSys related definitions for this class. ***/
 
 
-MapEntRepresT::MapEntRepresT(MapEntityBaseT* Parent)
+MapEntRepresT::MapEntRepresT(IntrusivePtrT<MapEditor::CompMapEntityT> Parent)
     : MapElementT(Options.colors.Entity),
       m_Helper(NULL),
       m_Cloned(NULL)
 {
-    wxASSERT(Parent);
+    wxASSERT(Parent != NULL);
     m_Parent = Parent;
 
     Update();
@@ -72,8 +72,8 @@ MapEntRepresT::MapEntRepresT(const MapEntRepresT& EntRepres)
      * TODO:  Make a shallow copy only!
      *
      */
-    m_Cloned = EntRepres.GetParent()->GetCompMapEntity()->GetEntity()->Clone();
-    m_Parent = GetMapEnt(m_Cloned)->GetMapEntity();
+    m_Cloned = EntRepres.GetParent()->GetEntity()->Clone();
+    m_Parent = GetMapEnt(m_Cloned);
 
     Update();
 }
@@ -91,7 +91,7 @@ void MapEntRepresT::Update()
     delete m_Helper;
     m_Helper = NULL;
 
-    wxASSERT(m_Parent);
+    wxASSERT(m_Parent != NULL);
 
     if (m_Parent->FindProperty("model"))
     {
@@ -127,8 +127,8 @@ void MapEntRepresT::Assign(const MapElementT* Elem)
     /*** TODO: Assign the other entity's stuff to ours! ***/
     /*******************************/
 #if 0
-    MapEntityBaseT* ThisEnt  = GetParent();
-    MapEntityBaseT* OtherEnt = MapRepres->GetParent();
+    IntrusivePtrT<CompMapEntityT> ThisEnt  = GetParent();
+    IntrusivePtrT<CompMapEntityT> OtherEnt = MapRepres->GetParent();
 
     ThisEnt->GetTransform()->SetOrigin(OtherEnt->GetTransform()->GetOrigin());
  // ThisEnt->GetTransform()->SetQuaternion(OtherEnt->GetTransform()->GetQuaternion());

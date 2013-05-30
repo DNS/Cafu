@@ -268,7 +268,7 @@ void InspDlgEntityPropsT::NotifySubjectChanged_Selection(SubjectT* Subject, cons
 
         if (EntRepres)
         {
-            IntrusivePtrT<CompMapEntityT> Ent = EntRepres->GetParent()->GetCompMapEntity();
+            IntrusivePtrT<CompMapEntityT> Ent = EntRepres->GetParent();
 
             if (SelectedEntities.Find(Ent) == -1) SelectedEntities.PushBack(Ent);
             continue;
@@ -278,7 +278,7 @@ void InspDlgEntityPropsT::NotifySubjectChanged_Selection(SubjectT* Subject, cons
 
         if (Prim)
         {
-            IntrusivePtrT<CompMapEntityT> Ent = Prim->GetParent()->GetCompMapEntity();
+            IntrusivePtrT<CompMapEntityT> Ent = Prim->GetParent();
 
             if (SelectedEntities.Find(Ent) == -1) SelectedEntities.PushBack(Ent);
             continue;
@@ -584,7 +584,7 @@ void InspDlgEntityPropsT::UpdatePropertyGrid()
                     EntClassesList.Add(SelectedEntities[0]->GetClass()->GetName());
                 }
 
-                // Get entity (to check if it has primitive children) and exclude other MapEntityBaseT derivatives such as the world.
+                // Get entity (to check if it has primitive children) and make sure it's not the world.
                 if (!SelectedEntities[0]->IsWorld())
                 {
                     const ArrayT<const EntityClassT*>& Classes=MapDoc->GetGameConfig()->GetEntityClasses();

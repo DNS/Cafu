@@ -74,9 +74,9 @@ void CommandDeleteT::Init(const ArrayT<MapElementT*>& DeleteElems)
             if (Elem->GetParent()->IsWorld())
                 continue;
 
-            if (m_DeleteEnts.Find(Elem->GetParent()->GetCompMapEntity()->GetEntity()) == -1)
+            if (m_DeleteEnts.Find(Elem->GetParent()->GetEntity()) == -1)
             {
-                m_DeleteEnts.PushBack(Elem->GetParent()->GetCompMapEntity()->GetEntity());
+                m_DeleteEnts.PushBack(Elem->GetParent()->GetEntity());
             }
         }
         else
@@ -95,7 +95,7 @@ void CommandDeleteT::Init(const ArrayT<MapElementT*>& DeleteElems)
             if (m_DeletePrims.Find(Prim) == -1)
             {
                 m_DeletePrims.PushBack(Prim);
-                m_DeletePrimsParents.PushBack(Prim->GetParent()->GetCompMapEntity());
+                m_DeletePrimsParents.PushBack(Prim->GetParent());
             }
         }
     }

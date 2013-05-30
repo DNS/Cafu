@@ -156,7 +156,7 @@ bool CommandCarveT::Do()
 
 
             m_OriginalBrushes.PushBack(WorldBrushes[BrushNr]);          // The carve operation replaced this brush by...
-            m_Parents.PushBack(WorldBrushes[BrushNr]->GetParent()->GetCompMapEntity());
+            m_Parents.PushBack(WorldBrushes[BrushNr]->GetParent());
             m_CarvedBrushes.PushBack(Pieces);                           // ... this set of pieces (zero, one or many).
         }
     }

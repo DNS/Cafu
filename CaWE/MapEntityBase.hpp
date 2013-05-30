@@ -51,7 +51,6 @@ class MapEntityBaseT
 
 
     MapDocumentT& GetDoc() const { return m_MapDoc; }
-    MapEditor::CompMapEntityT* GetCompMapEntity() { return m_CompMapEnt; }
 
     bool IsWorld() const;
 

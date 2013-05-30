@@ -45,7 +45,7 @@ MapEntityBaseT::MapEntityBaseT(MapDocumentT& MapDoc, CompMapEntityT* CompMapEnt)
       m_Repres(NULL),
       m_Primitives()
 {
-    m_Repres = new MapEntRepresT(this);
+    m_Repres = new MapEntRepresT(this->m_CompMapEnt);
 }
 
 
@@ -64,11 +64,11 @@ MapEntityBaseT::MapEntityBaseT(const MapEntityBaseT& Ent, CompMapEntityT* CompMa
         for (unsigned long PrimNr = 0; PrimNr < Ent.m_Primitives.Size(); PrimNr++)
         {
             m_Primitives.PushBack(Ent.m_Primitives[PrimNr]->Clone());
-            m_Primitives[PrimNr]->SetParent(this);
+            m_Primitives[PrimNr]->SetParent(this->m_CompMapEnt);
         }
     }
 
-    m_Repres = new MapEntRepresT(this);
+    m_Repres = new MapEntRepresT(this->m_CompMapEnt);
 }
 
 
@@ -85,7 +85,7 @@ MapEntityBaseT::~MapEntityBaseT()
 
 bool MapEntityBaseT::IsWorld() const
 {
-    return m_MapDoc.GetEntities()[0]->GetMapEntity() == this;
+    return m_MapDoc.GetEntities()[0] == this->m_CompMapEnt;
 }
 
 
@@ -213,7 +213,7 @@ void MapEntityBaseT::SetAngles(const cf::math::AnglesfT& Angles)
 
 void MapEntityBaseT::AddPrim(MapPrimitiveT* Prim)
 {
-    Prim->SetParent(this);
+    Prim->SetParent(this->m_CompMapEnt);
 
     for (unsigned long PrimNr=0; PrimNr<m_Primitives.Size(); PrimNr++)
         if (m_Primitives[PrimNr]==Prim)
@@ -230,7 +230,7 @@ void MapEntityBaseT::RemovePrim(MapPrimitiveT* Prim)
 {
     const int Index=m_Primitives.Find(Prim);
 
-    wxASSERT(Prim->GetParent()==this);
+    wxASSERT(Prim->GetParent() == this->m_CompMapEnt);
     Prim->SetParent(NULL);
 
     wxASSERT(Index>=0);
@@ -281,7 +281,7 @@ ArrayT<EntPropertyT> MapEntityBaseT::CheckUniqueValues(bool Repair)
                     IntrusivePtrT<const CompMapEntityT> Ent     = m_MapDoc.GetEntities()[EntNr];
                     const EntPropertyT*                 EntProp = Ent->FindProperty("name");
 
-                    if (Ent != this->GetCompMapEntity() && EntProp && EntProp->Value == FoundProp->Value)
+                    if (Ent != this->m_CompMapEnt && EntProp && EntProp->Value == FoundProp->Value)
                     {
                         FoundEnt=Ent;
                         break;
@@ -315,7 +315,7 @@ ArrayT<EntPropertyT> MapEntityBaseT::CheckUniqueValues(bool Repair)
                     IntrusivePtrT<const CompMapEntityT> Ent     = m_MapDoc.GetEntities()[EntNr];
                     const EntPropertyT*                 EntProp = Ent->FindProperty("name");
 
-                    if (Ent != this->GetCompMapEntity() && EntProp && EntProp->Value == UniqueValue)
+                    if (Ent != this->m_CompMapEnt && EntProp && EntProp->Value == UniqueValue)
                     {
                         FoundEnt=Ent;
                         break;
@@ -327,7 +327,7 @@ ArrayT<EntPropertyT> MapEntityBaseT::CheckUniqueValues(bool Repair)
                     FindProperty("name", NULL, true)->Value=UniqueValue;
 
                     ArrayT< IntrusivePtrT<CompMapEntityT> > MapElements;
-                    MapElements.PushBack(this->GetCompMapEntity());
+                    MapElements.PushBack(this->m_CompMapEnt);
 
                     m_MapDoc.UpdateAllObservers_Modified(MapElements, MEMD_ENTITY_PROPERTY_MODIFIED, "name");
                     break;
