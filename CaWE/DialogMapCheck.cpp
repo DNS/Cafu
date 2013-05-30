@@ -20,6 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "AppCaWE.hpp"
+#include "CompMapEntity.hpp"
 #include "CommandHistory.hpp"
 #include "ParentFrame.hpp"
 #include "DialogMapCheck.hpp"
@@ -44,6 +45,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <typeinfo>
 
 
+using namespace MapEditor;
+
+
 /*
  * TODO:
  *   1. This dialog should be modeless and an observer of the world, just like our other dialogs/views/observers!
@@ -63,13 +67,13 @@ class MapCheckerT
     public:
 
     /// The constructor.
-    MapCheckerT(MapDocumentT& MapDoc, MapEntityBaseT* Ent) : m_MapDoc(MapDoc), m_Ent(Ent) { }
+    MapCheckerT(MapDocumentT& MapDoc, IntrusivePtrT<CompMapEntityT> Ent) : m_MapDoc(MapDoc), m_Ent(Ent) { }
 
     /// The virtual destructor.
     virtual ~MapCheckerT() { }
 
     /// Returns the entity that this checker is assigned to.
-    MapEntityBaseT* GetEnt() const { return m_Ent; }
+    IntrusivePtrT<CompMapEntityT> GetEnt() const { return m_Ent; }
 
     /// Returns whether this map checker has actually identified a problem with the entity it is assigned to.
     /// When false, there either never was a problem in the first place, or it has been fixed already.
@@ -90,8 +94,8 @@ class MapCheckerT
 
     protected:
 
-    MapDocumentT&   m_MapDoc;
-    MapEntityBaseT* m_Ent;
+    MapDocumentT&                 m_MapDoc;
+    IntrusivePtrT<CompMapEntityT> m_Ent;
 };
 
 
@@ -99,7 +103,7 @@ class MC_UnknownTargetT : public MapCheckerT
 {
     public:
 
-    MC_UnknownTargetT(MapDocumentT& MapDoc, MapEntityBaseT* Ent) : MapCheckerT(MapDoc, Ent) { }
+    MC_UnknownTargetT(MapDocumentT& MapDoc, IntrusivePtrT<CompMapEntityT> Ent) : MapCheckerT(MapDoc, Ent) { }
 
     bool HasProblem() const
     {
@@ -143,11 +147,11 @@ class MC_UndefinedClassOrKeysT : public MapCheckerT
 {
     public:
 
-    MC_UndefinedClassOrKeysT(MapDocumentT& MapDoc, MapEntityBaseT* Ent) : MapCheckerT(MapDoc, Ent) { }
+    MC_UndefinedClassOrKeysT(MapDocumentT& MapDoc, IntrusivePtrT<CompMapEntityT> Ent) : MapCheckerT(MapDoc, Ent) { }
 
     bool HasProblem() const
     {
-        if (!m_Ent) return false;
+        if (m_Ent == NULL) return false;
         if (!m_Ent->GetClass()->IsInGameConfig()) return true;
 
         return GetUndefKeys().Size()>0;   // This is inefficient...
@@ -155,12 +159,12 @@ class MC_UndefinedClassOrKeysT : public MapCheckerT
 
     bool CanFix() const
     {
-        return m_Ent && m_Ent->GetClass()->IsInGameConfig() && GetUndefKeys().Size()>0;
+        return m_Ent != NULL && m_Ent->GetClass()->IsInGameConfig() && GetUndefKeys().Size() > 0;
     }
 
     CommandT* GetFix() const
     {
-        if (!m_Ent) return NULL;
+        if (m_Ent == NULL) return NULL;
         if (!m_Ent->GetClass()->IsInGameConfig()) return NULL;
 
         const ArrayT<EntPropertyT>& Props=m_Ent->GetProperties();
@@ -185,7 +189,7 @@ class MC_UndefinedClassOrKeysT : public MapCheckerT
     {
         ArrayT<wxString> UndefKeys;
 
-        if (m_Ent)
+        if (m_Ent != NULL)
         {
             const ArrayT<EntPropertyT>& Props=m_Ent->GetProperties();
 
@@ -199,14 +203,14 @@ class MC_UndefinedClassOrKeysT : public MapCheckerT
 
     wxString GetInfo() const
     {
-        if (!m_Ent) return "";
+        if (m_Ent == NULL) return "";
 
         return m_Ent->GetClass()->IsInGameConfig() ? "Undefined entity keys." : "Undefined entity class.";
     }
 
     wxString GetHelpText() const
     {
-        if (!m_Ent) return "";
+        if (m_Ent == NULL) return "";
 
         if (!m_Ent->GetClass()->IsInGameConfig())
             return "The class \""+m_Ent->GetClass()->GetName()+"\" of this entity is undefined in the game configuration of this map.";
@@ -230,7 +234,7 @@ class MC_DuplicateKeysT : public MapCheckerT
 {
     public:
 
-    MC_DuplicateKeysT(MapDocumentT& MapDoc, MapEntityBaseT* Ent) : MapCheckerT(MapDoc, Ent) { }
+    MC_DuplicateKeysT(MapDocumentT& MapDoc, IntrusivePtrT<CompMapEntityT> Ent) : MapCheckerT(MapDoc, Ent) { }
 
     bool HasProblem() const
     {
@@ -277,7 +281,7 @@ class MC_EmptySolidEntityT : public MapCheckerT
 {
     public:
 
-    MC_EmptySolidEntityT(MapDocumentT& MapDoc, MapEntityBaseT* Ent) : MapCheckerT(MapDoc, Ent) { }
+    MC_EmptySolidEntityT(MapDocumentT& MapDoc, IntrusivePtrT<CompMapEntityT> Ent) : MapCheckerT(MapDoc, Ent) { }
 
     bool HasProblem() const
     {
@@ -293,7 +297,7 @@ class MC_WorldHasPlayerStartT : public MapCheckerT
 {
     public:
 
-    MC_WorldHasPlayerStartT(MapDocumentT& MapDoc, MapEntityBaseT* Ent) : MapCheckerT(MapDoc, Ent) { }
+    MC_WorldHasPlayerStartT(MapDocumentT& MapDoc, IntrusivePtrT<CompMapEntityT> Ent) : MapCheckerT(MapDoc, Ent) { }
 
     bool HasProblem() const
     {
@@ -381,7 +385,7 @@ void MapCheckDialogT::UpdateProblems()
 
     for (unsigned long EntNr = 0; EntNr < m_MapDoc.GetEntities().Size(); EntNr++)
     {
-        MapEntityBaseT* Ent = m_MapDoc.GetEntities()[EntNr];
+        IntrusivePtrT<CompMapEntityT> Ent = m_MapDoc.GetEntities()[EntNr];
 
         // IMPORTANT NOTE: Register at most ONE problem for each Ent.
         // This is supposed to avoid problems with CommandTs...
@@ -420,8 +424,8 @@ void MapCheckDialogT::OnListBoxProblemsSelChange(wxCommandEvent& Event)
         return;
     }
 
-    MapCheckerT*    Problem = m_Problems[SelectionNr];
-    MapEntityBaseT* ProbEnt = Problem->GetEnt();
+    MapCheckerT*                  Problem = m_Problems[SelectionNr];
+    IntrusivePtrT<CompMapEntityT> ProbEnt = Problem->GetEnt();
 
     ButtonFix->SetLabel(!Problem->HasProblem() ? "(is fixed)" : (Problem->CanFix() ? "Fix" : "(Can't fix)"));
     StaticTextProblemDescription->SetLabel(Problem->GetHelpText());
@@ -430,8 +434,8 @@ void MapCheckDialogT::OnListBoxProblemsSelChange(wxCommandEvent& Event)
     ButtonFix      ->Enable(Problem->HasProblem() && Problem->CanFix());
     ButtonFixAll   ->Enable(Problem->CanFix());
 
-    if (ProbEnt && !ProbEnt->IsWorld()) m_MapDoc.GetHistory().SubmitCommand(CommandSelectT::Set(&m_MapDoc, ProbEnt->GetRepres()));
-                                   else m_MapDoc.GetHistory().SubmitCommand(CommandSelectT::Clear(&m_MapDoc));
+    if (ProbEnt != NULL && !ProbEnt->IsWorld()) m_MapDoc.GetHistory().SubmitCommand(CommandSelectT::Set(&m_MapDoc, ProbEnt->GetRepres()));
+                                           else m_MapDoc.GetHistory().SubmitCommand(CommandSelectT::Clear(&m_MapDoc));
 }
 
 
@@ -441,8 +445,8 @@ void MapCheckDialogT::OnButtonGoToError(wxCommandEvent& Event)
 
     if (SelectionNr<0) return;
 
-    MapCheckerT*    Problem = m_Problems[SelectionNr];
-    MapEntityBaseT* ProbEnt = Problem->GetEnt();
+    MapCheckerT*                  Problem = m_Problems[SelectionNr];
+    IntrusivePtrT<CompMapEntityT> ProbEnt = Problem->GetEnt();
 
     // m_MapDoc.GetChildFrame()->GetToolManager().SetActiveTool(GetToolTIM().FindTypeInfoByName("ToolSelectionT"));
     m_MapDoc.GetChildFrame()->All2DViews_Center(ProbEnt->GetRepres()->GetBB().GetCenter());

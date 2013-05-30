@@ -26,6 +26,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../MapDocument.hpp"
 #include "../MapEntRepres.hpp"
 
+#include "GameSys/Entity.hpp"
+
 
 CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, IntrusivePtrT<cf::GameSys::EntityT> Entity, bool SetSel)
     : m_MapDoc(MapDoc),

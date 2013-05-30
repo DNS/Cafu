@@ -20,11 +20,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "SetProp.hpp"
+#include "../CompMapEntity.hpp"
 #include "../MapDocument.hpp"
-#include "../MapEntityBase.hpp"
 
 
-CommandSetPropertyT::CommandSetPropertyT(MapDocumentT& MapDoc, MapEntityBaseT* Ent, const wxString& Key, const wxString& NewValue)
+using namespace MapEditor;
+
+
+CommandSetPropertyT::CommandSetPropertyT(MapDocumentT& MapDoc, IntrusivePtrT<CompMapEntityT> Ent, const wxString& Key, const wxString& NewValue)
     : m_MapDoc(MapDoc),
       m_Ent(Ent),
       m_CreatedProp(!(Ent->FindProperty(Key))),
@@ -48,7 +51,7 @@ bool CommandSetPropertyT::Do()
     //
     // FIXME Note that when a property of multiple entities is modified, this observer notification is created
     // for EACH of these entities. We really should change the command to accept an array of entities...
-    ArrayT<MapEntityBaseT*> MapElements;
+    ArrayT< IntrusivePtrT<CompMapEntityT> > MapElements;
     MapElements.PushBack(m_Ent);
 
     m_MapDoc.UpdateAllObservers_Modified(MapElements, m_CreatedProp ? MEMD_ENTITY_PROPERTY_CREATED : MEMD_ENTITY_PROPERTY_MODIFIED, m_Key);
@@ -72,7 +75,7 @@ void CommandSetPropertyT::Undo()
         m_Ent->GetProperties().RemoveAtAndKeepOrder(m_Ent->FindPropertyIndex(m_Key));
     }
 
-    ArrayT<MapEntityBaseT*> MapElements;
+    ArrayT< IntrusivePtrT<CompMapEntityT> > MapElements;
     MapElements.PushBack(m_Ent);
 
     m_MapDoc.UpdateAllObservers_Modified(MapElements, m_CreatedProp ? MEMD_ENTITY_PROPERTY_DELETED : MEMD_ENTITY_PROPERTY_MODIFIED, m_Key);

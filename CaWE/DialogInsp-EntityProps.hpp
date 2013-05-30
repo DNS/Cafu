@@ -34,7 +34,6 @@ class wxPropertyCategory;
 class wxPGProperty;
 class wxStaticText;
 class MapDocumentT;
-class MapEntityBaseT;
 struct PropInfoT;
 
 
@@ -55,7 +54,7 @@ class InspDlgEntityPropsT : public wxPanel, public ObserverT
     // Implementation of the ObserverT interface.
     void NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<MapElementT*>& OldSelection, const ArrayT<MapElementT*>& NewSelection);
     void NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities);
-    void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities, MapElemModDetailE Detail, const wxString& Key);
+    void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> >& Entities, MapElemModDetailE Detail, const wxString& Key);
     void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail);
     void NotifySubjectDies(SubjectT* dyingSubject);
 
@@ -81,9 +80,9 @@ class InspDlgEntityPropsT : public wxPanel, public ObserverT
     wxMenu*                PopUpMenu;       ///< Context menu used to add or delete properties.
     wxStaticText*          SelectionText;   ///< Text that is displayed above the property grid. It shows the number of selected entities.
 
-    std::map<wxString, PropInfoT> CombinedPropInfos;        ///< The property infos of all selected entities combined.
-    wxPGProperty*                 LastRightClickedProperty; ///< The last property on which the user made a right click. Needed to process context menu events to the right property.
-    ArrayT<MapEntityBaseT*>       SelectedEntities;         ///< All currently selected entities in the map.
+    std::map<wxString, PropInfoT>                      CombinedPropInfos;         ///< The property infos of all selected entities combined.
+    wxPGProperty*                                      LastRightClickedProperty;  ///< The last property on which the user made a right click. Needed to process context menu events to the right property.
+    ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> > SelectedEntities;          ///< All currently selected entities in the map.
 
     bool IsRecursiveSelfNotify;
 

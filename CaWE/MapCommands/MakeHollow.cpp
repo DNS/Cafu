@@ -23,8 +23,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Delete.hpp"
 #include "Select.hpp"
 
+#include "../CompMapEntity.hpp"
 #include "../MapBrush.hpp"
 #include "../MapDocument.hpp"
+
+
+using namespace MapEditor;
 
 
 CommandMakeHollowT::CommandMakeHollowT(MapDocumentT& MapDoc, const float WallWidth, const ArrayT<MapElementT*>& Elems)
@@ -183,7 +187,7 @@ bool CommandMakeHollowT::Do()
 
         for (unsigned long WallNr=0; WallNr<Walls.Size(); WallNr++)
         {
-            m_MapDoc.Insert(Walls[WallNr], Brush->GetParent());
+            m_MapDoc.Insert(Walls[WallNr], Brush->GetParent()->GetCompMapEntity());
             WallElems.PushBack(Walls[WallNr]);
         }
     }

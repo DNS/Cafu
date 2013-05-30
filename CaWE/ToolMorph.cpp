@@ -23,9 +23,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Camera.hpp"
 #include "CursorMan.hpp"
 #include "CommandHistory.hpp"
+#include "CompMapEntity.hpp"
 #include "ParentFrame.hpp"
 #include "MapBrush.hpp"
 #include "MapDocument.hpp"
+#include "MapEntityBase.hpp"
 #include "MorphPrim.hpp"
 #include "ChildFrame.hpp"
 #include "ChildFrameViewWin2D.hpp"
@@ -424,7 +426,7 @@ void ToolMorphT::FinishDragMorphHandles()
         DelCmd->Do();
         Commands.PushBack(DelCmd);
 
-        CommandAddPrimT* AddPrimCmd=new CommandAddPrimT(m_MapDoc, MorphedMapPrim, ParentEntity, "new prim", false /*don't set the selection*/);
+        CommandAddPrimT* AddPrimCmd=new CommandAddPrimT(m_MapDoc, MorphedMapPrim, ParentEntity->GetCompMapEntity(), "new prim", false /*don't set the selection*/);
         AddPrimCmd->Do();
         Commands.PushBack(AddPrimCmd);
 

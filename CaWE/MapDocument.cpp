@@ -785,12 +785,12 @@ bool MapDocumentT::OnSaveDocument(const wxString& cmapFileName, bool IsAutoSave)
             m_Groups[GroupNr]->Save_cmap(cmapOutFile, GroupNr);
 
         // Save entities.
-        const ArrayT<MapEntityBaseT*>& MapEntities = GetEntities();
+        const ArrayT< IntrusivePtrT<CompMapEntityT> >& MapEntities = GetEntities();
 
         for (unsigned long EntNr = 0/*with world*/; EntNr < MapEntities.Size(); EntNr++)
         {
             const BoundingBox3fT* Intersecting = NULL;
-            const MapEntityBaseT* Ent = MapEntities[EntNr];
+            IntrusivePtrT<const CompMapEntityT> Ent = MapEntities[EntNr];
 
             if (!Intersecting || Ent->GetElemsBB().Intersects(*Intersecting))
             {
@@ -871,14 +871,14 @@ bool MapDocumentT::Save()
 }
 
 
-const ArrayT<MapEntityBaseT*>& MapDocumentT::GetEntities() const
+const ArrayT< IntrusivePtrT<CompMapEntityT> >& MapDocumentT::GetEntities() const
 {
     /**************************************************************************************/
     /*** TODO: This cannot stay like this!                                              ***/
     /***   The method itself is obsolete (we have the m_ScriptWorld now instead),       ***/
     /***   and the dangerous static variable below is only for backwards-compatibility! ***/
     /**************************************************************************************/
-    static ArrayT<MapEntityBaseT*> Entities;
+    static ArrayT< IntrusivePtrT<CompMapEntityT> > Entities;
 
     Entities.Overwrite();
 
@@ -889,11 +889,7 @@ const ArrayT<MapEntityBaseT*>& MapDocumentT::GetEntities() const
     ScriptRootEnt->GetChildren(AllChildren, true);
 
     for (unsigned long ChildNr = 0; ChildNr < AllChildren.Size(); ChildNr++)
-    {
-        IntrusivePtrT<CompMapEntityT> CompMapEnt = dynamic_pointer_cast<CompMapEntityT>(AllChildren[ChildNr]->GetApp());
-
-        Entities.PushBack(CompMapEnt->GetMapEntity());
-    }
+        Entities.PushBack(GetMapEnt(AllChildren[ChildNr]));
 
     return Entities;
 }
@@ -901,11 +897,11 @@ const ArrayT<MapEntityBaseT*>& MapDocumentT::GetEntities() const
 
 void MapDocumentT::GetAllElems(ArrayT<MapElementT*>& Elems) const
 {
-    const ArrayT<MapEntityBaseT*>& MapEntities = GetEntities();
+    const ArrayT< IntrusivePtrT<CompMapEntityT> >& MapEntities = GetEntities();
 
     for (unsigned int EntNr = 0; EntNr < MapEntities.Size(); EntNr++)
     {
-        MapEntityBaseT* Ent = MapEntities[EntNr];
+        IntrusivePtrT<CompMapEntityT> Ent = MapEntities[EntNr];
 
         // Add the entity representation...
         Elems.PushBack(Ent->GetRepres());
@@ -981,20 +977,15 @@ void MapDocumentT::Insert(IntrusivePtrT<cf::GameSys::EntityT> Ent)
 }
 
 
-void MapDocumentT::Insert(MapPrimitiveT* Prim, MapEntityBaseT* ParentEnt)
+void MapDocumentT::Insert(MapPrimitiveT* Prim, IntrusivePtrT<CompMapEntityT> ParentEnt)
 {
-    wxASSERT(Prim!=NULL);
-    if (Prim==NULL) return;
+    wxASSERT(Prim != NULL);
+    if (Prim == NULL) return;
 
-    if (ParentEnt == NULL)
-    {
-        IntrusivePtrT<CompMapEntityT> CompMapEnt = dynamic_pointer_cast<CompMapEntityT>(m_ScriptWorld->GetRootEntity()->GetApp());
+    wxASSERT(ParentEnt != NULL);
+    if (ParentEnt == NULL) return;
 
-        wxASSERT(CompMapEnt != NULL);
-        ParentEnt = CompMapEnt->GetMapEntity();
-    }
-
-    wxASSERT(Find(m_ScriptWorld, ParentEnt) != NULL);
+    // wxASSERT(Find(m_ScriptWorld, ParentEnt) != NULL);
 
     ParentEnt->AddPrim(Prim);
     m_BspTree->Insert(Prim);
@@ -1061,12 +1052,12 @@ static bool IsElemInBox(const MapElementT* Elem, const BoundingBox3fT& Box, bool
 
 ArrayT<MapElementT*> MapDocumentT::GetElementsIn(const BoundingBox3fT& Box, bool InsideOnly, bool CenterOnly) const
 {
-    const ArrayT<MapEntityBaseT*>& MapEntities = GetEntities();
+    const ArrayT< IntrusivePtrT<CompMapEntityT> >& MapEntities = GetEntities();
     ArrayT<MapElementT*> Result;
 
     for (unsigned int EntNr = 0; EntNr < MapEntities.Size(); EntNr++)
     {
-        MapEntityBaseT* Ent = MapEntities[EntNr];
+        IntrusivePtrT<CompMapEntityT> Ent = MapEntities[EntNr];
 
         // Add the entity representation...
         if (IsElemInBox(Ent->GetRepres(), Box, InsideOnly, CenterOnly))
@@ -1102,7 +1093,7 @@ void MapDocumentT::SetSelection(const ArrayT<MapElementT*>& NewSelection)
 
 void MapDocumentT::GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const
 {
-    const ArrayT<MapEntityBaseT*>& MapEntities = GetEntities();
+    const ArrayT< IntrusivePtrT<CompMapEntityT> >& MapEntities = GetEntities();
     std::map<EditorMaterialI*, int> UsedMatMap;
 
     for (unsigned long EntNr = 0; EntNr < MapEntities.Size(); EntNr++)
@@ -1540,7 +1531,7 @@ void MapDocumentT::OnMapGotoPrimitive(wxCommandEvent& CE)
 
     if (GotoPrimDialog.ShowModal()!=wxID_OK) return;
 
-    const ArrayT<MapEntityBaseT*>& MapEntities = GetEntities();
+    const ArrayT< IntrusivePtrT<CompMapEntityT> >& MapEntities = GetEntities();
 
     if (GotoPrimDialog.m_EntityNumber >= int(MapEntities.Size()))
     {
@@ -1998,7 +1989,7 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
 
     if (SelEntities[0]!=NULL)
     {
-        GetHistory().SubmitCommand(new CommandAssignPrimToEntT(*this, SelPrimitives, SelEntities[0]));
+        GetHistory().SubmitCommand(new CommandAssignPrimToEntT(*this, SelPrimitives, SelEntities[0]->GetCompMapEntity()));
     }
     else
     {
@@ -2022,7 +2013,7 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
         SubCommands.PushBack(CmdNewEnt);
 
         // 2. Assign the primitives to the new entity.
-        CommandAssignPrimToEntT* CmdAssignToEnt = new CommandAssignPrimToEntT(*this, SelPrimitives, MapEnt->GetMapEntity());
+        CommandAssignPrimToEntT* CmdAssignToEnt = new CommandAssignPrimToEntT(*this, SelPrimitives, MapEnt);
 
         CmdAssignToEnt->Do();
         SubCommands.PushBack(CmdAssignToEnt);
@@ -2280,7 +2271,7 @@ const BoundingBox3fT& MapDocumentT::GetMostRecentSelBB() const
 
 ArrayT<GroupT*> MapDocumentT::GetAbandonedGroups() const
 {
-    const ArrayT<MapEntityBaseT*>& MapEntities = GetEntities();
+    const ArrayT< IntrusivePtrT<CompMapEntityT> >& MapEntities = GetEntities();
     ArrayT<GroupT*> EmptyGroups;
 
     for (unsigned long GroupNr=0; GroupNr<m_Groups.Size(); GroupNr++)
@@ -2290,7 +2281,7 @@ ArrayT<GroupT*> MapDocumentT::GetAbandonedGroups() const
         for (unsigned long EntNr = 0; EntNr < MapEntities.Size(); EntNr++)
         {
             // Check the entity first...
-            const MapEntityBaseT* Ent = MapEntities[EntNr];
+            IntrusivePtrT<const CompMapEntityT> Ent = MapEntities[EntNr];
 
             if (Ent->GetRepres()->GetGroup() == m_Groups[GroupNr])
             {

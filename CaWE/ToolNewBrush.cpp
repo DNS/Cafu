@@ -20,6 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "ToolNewBrush.hpp"
+#include "CompMapEntity.hpp"
 #include "CursorMan.hpp"
 #include "GameConfig.hpp"
 #include "CommandHistory.hpp"

@@ -22,6 +22,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ObserverPattern.hpp"
 
 
+using namespace MapEditor;
+
+
 ObserverT::ObserverT()
 {
 }
@@ -114,7 +117,7 @@ void SubjectT::UpdateAllObservers_Modified(const ArrayT<MapElementT*>& MapElemen
 }
 
 
-void SubjectT::UpdateAllObservers_Modified(const ArrayT<MapEntityBaseT*>& Entities, MapElemModDetailE Detail, const wxString& Key)
+void SubjectT::UpdateAllObservers_Modified(const ArrayT< IntrusivePtrT<CompMapEntityT> >& Entities, MapElemModDetailE Detail, const wxString& Key)
 {
     for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
         m_Observers[ObsNr]->NotifySubjectChanged_Modified(this, Entities, Detail, Key);

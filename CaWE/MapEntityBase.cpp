@@ -20,6 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "MapEntityBase.hpp"
+#include "CompMapEntity.hpp"
 #include "EntityClass.hpp"
 #include "EntityClassVar.hpp"
 #include "LuaAux.hpp"
@@ -32,7 +33,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/txtstrm.h"
 
 
-MapEntityBaseT::MapEntityBaseT(MapDocumentT& MapDoc, MapEditor::CompMapEntityT* CompMapEnt)
+using namespace MapEditor;
+
+
+MapEntityBaseT::MapEntityBaseT(MapDocumentT& MapDoc, CompMapEntityT* CompMapEnt)
     : m_MapDoc(MapDoc),
       m_CompMapEnt(CompMapEnt),
       m_Class(NULL),
@@ -45,7 +49,7 @@ MapEntityBaseT::MapEntityBaseT(MapDocumentT& MapDoc, MapEditor::CompMapEntityT* 
 }
 
 
-MapEntityBaseT::MapEntityBaseT(const MapEntityBaseT& Ent, MapEditor::CompMapEntityT* CompMapEnt, bool CopyPrims)
+MapEntityBaseT::MapEntityBaseT(const MapEntityBaseT& Ent, CompMapEntityT* CompMapEnt, bool CopyPrims)
     : m_MapDoc(Ent.m_MapDoc),
       m_CompMapEnt(CompMapEnt),
       m_Class(Ent.m_Class),
@@ -81,7 +85,7 @@ MapEntityBaseT::~MapEntityBaseT()
 
 bool MapEntityBaseT::IsWorld() const
 {
-    return m_MapDoc.GetEntities()[0] == this;
+    return m_MapDoc.GetEntities()[0]->GetMapEntity() == this;
 }
 
 
@@ -266,18 +270,18 @@ ArrayT<EntPropertyT> MapEntityBaseT::CheckUniqueValues(bool Repair)
         if (ClassVars[i]->IsUnique() && ClassVars[i]->GetName()=="name")
         {
             // Remember current value.
-            EntPropertyT*         FoundProp=FindProperty("name");
-            const MapEntityBaseT* FoundEnt =NULL;
+            EntPropertyT*                       FoundProp = FindProperty("name");
+            IntrusivePtrT<const CompMapEntityT> FoundEnt  = NULL;
 
             // If value is set.
             if (FoundProp!=NULL)
             {
                 for (unsigned long EntNr=1/*skip world*/; EntNr<m_MapDoc.GetEntities().Size(); EntNr++)
                 {
-                    const MapEntityBaseT* Ent    =m_MapDoc.GetEntities()[EntNr];
-                    const EntPropertyT*   EntProp=Ent->FindProperty("name");
+                    IntrusivePtrT<const CompMapEntityT> Ent     = m_MapDoc.GetEntities()[EntNr];
+                    const EntPropertyT*                 EntProp = Ent->FindProperty("name");
 
-                    if (Ent!=this && EntProp && EntProp->Value==FoundProp->Value)
+                    if (Ent != this->GetCompMapEntity() && EntProp && EntProp->Value == FoundProp->Value)
                     {
                         FoundEnt=Ent;
                         break;
@@ -308,10 +312,10 @@ ArrayT<EntPropertyT> MapEntityBaseT::CheckUniqueValues(bool Repair)
 
                 for (EntNr=1/*skip world*/; EntNr<m_MapDoc.GetEntities().Size(); EntNr++)
                 {
-                    const MapEntityBaseT* Ent    =m_MapDoc.GetEntities()[EntNr];
-                    const EntPropertyT*   EntProp=Ent->FindProperty("name");
+                    IntrusivePtrT<const CompMapEntityT> Ent     = m_MapDoc.GetEntities()[EntNr];
+                    const EntPropertyT*                 EntProp = Ent->FindProperty("name");
 
-                    if (Ent!=this && EntProp && EntProp->Value==UniqueValue)
+                    if (Ent != this->GetCompMapEntity() && EntProp && EntProp->Value == UniqueValue)
                     {
                         FoundEnt=Ent;
                         break;
@@ -322,8 +326,8 @@ ArrayT<EntPropertyT> MapEntityBaseT::CheckUniqueValues(bool Repair)
                 {
                     FindProperty("name", NULL, true)->Value=UniqueValue;
 
-                    ArrayT<MapEntityBaseT*> MapElements;
-                    MapElements.PushBack(this);
+                    ArrayT< IntrusivePtrT<CompMapEntityT> > MapElements;
+                    MapElements.PushBack(this->GetCompMapEntity());
 
                     m_MapDoc.UpdateAllObservers_Modified(MapElements, MEMD_ENTITY_PROPERTY_MODIFIED, "name");
                     break;

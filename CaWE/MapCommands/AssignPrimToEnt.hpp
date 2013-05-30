@@ -23,12 +23,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_COMMAND_ASSIGN_PRIM_TO_ENTITY_HPP_INCLUDED
 
 #include "../CommandPattern.hpp"
+#include "Templates/Pointer.hpp"
 
 
+namespace MapEditor { class CompMapEntityT; }
 class CommandSelectT;
 class CommandDeleteT;
 class MapDocumentT;
-class MapEntityBaseT;
 class MapPrimitiveT;
 
 
@@ -41,7 +42,7 @@ class CommandAssignPrimToEntT : public CommandT
     /// @param MapDoc   The map document in which the action is performed.
     /// @param Prims    The primitives that are assigned to the given entity.
     /// @param Entity   The entity which all primitives are assigned to.
-    CommandAssignPrimToEntT(MapDocumentT& MapDoc, const ArrayT<MapPrimitiveT*>& Prims, MapEntityBaseT* Entity);
+    CommandAssignPrimToEntT(MapDocumentT& MapDoc, const ArrayT<MapPrimitiveT*>& Prims, IntrusivePtrT<MapEditor::CompMapEntityT> Entity);
 
     ~CommandAssignPrimToEntT();
 
@@ -53,12 +54,12 @@ class CommandAssignPrimToEntT : public CommandT
 
     private:
 
-    MapDocumentT&                m_MapDoc;
-    const ArrayT<MapPrimitiveT*> m_Prims;
-    ArrayT<MapEntityBaseT*>      m_PrevParents;
-    MapEntityBaseT*              m_Entity;
-    CommandSelectT*              m_CommandSelect;   ///< Subcommand used by this command to change the selection.
-    CommandDeleteT*              m_CommandDelete;   ///< Subcommand to remove empty entities resulting from this command.
+    MapDocumentT&                                      m_MapDoc;
+    const ArrayT<MapPrimitiveT*>                       m_Prims;
+    ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> > m_PrevParents;
+    IntrusivePtrT<MapEditor::CompMapEntityT>           m_Entity;
+    CommandSelectT*                                    m_CommandSelect;   ///< Subcommand used by this command to change the selection.
+    CommandDeleteT*                                    m_CommandDelete;   ///< Subcommand to remove empty entities resulting from this command.
 };
 
 #endif

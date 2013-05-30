@@ -23,10 +23,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_COMMAND_SET_PROP_HPP_INCLUDED
 
 #include "../CommandPattern.hpp"
+#include "Templates/Pointer.hpp"
 
 
+namespace MapEditor { class CompMapEntityT; }
 class MapDocumentT;
-class MapEntityBaseT;
 
 
 class CommandSetPropertyT : public CommandT
@@ -34,7 +35,7 @@ class CommandSetPropertyT : public CommandT
     public:
 
     /// Constructor to set the property of an entity (the property is created if not existent).
-    CommandSetPropertyT(MapDocumentT& MapDoc, MapEntityBaseT* Ent, const wxString& Key, const wxString& NewValue);
+    CommandSetPropertyT(MapDocumentT& MapDoc, IntrusivePtrT<MapEditor::CompMapEntityT> Ent, const wxString& Key, const wxString& NewValue);
 
     // Implementation of the CommandT interface.
     bool Do();
@@ -44,12 +45,12 @@ class CommandSetPropertyT : public CommandT
 
     private:
 
-    MapDocumentT&   m_MapDoc;
-    MapEntityBaseT* m_Ent;
-    const bool      m_CreatedProp;  ///< Determines if a property has been created to set the NewValue. Created properties need to be deleted on Undo() and not just reset to OldValue.
-    const wxString  m_Key;
-    const wxString  m_OldValue;     ///< Previous value of the changed entity key.
-    const wxString  m_NewValue;
+    MapDocumentT&                            m_MapDoc;
+    IntrusivePtrT<MapEditor::CompMapEntityT> m_Ent;
+    const bool                               m_CreatedProp; ///< Determines if a property has been created to set the NewValue. Created properties need to be deleted on Undo() and not just reset to OldValue.
+    const wxString                           m_Key;
+    const wxString                           m_OldValue;    ///< Previous value of the changed entity key.
+    const wxString                           m_NewValue;
 };
 
 #endif

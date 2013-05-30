@@ -20,6 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "DialogInsp-PrimitiveProps.hpp"
+#include "CompMapEntity.hpp"
 #include "MapBrush.hpp"
 #include "MapBezierPatch.hpp"
 #include "MapDocument.hpp"
@@ -219,11 +220,11 @@ void InspDlgPrimitivePropsT::UpdateGrid()
     static const wxColour HEADING_COLOR("#CCCCCC");
 
     // Create a category for every selected map primitve and fill it with the primitves properties.
-    for (unsigned long i=0; i<SelectedPrimitives.Size(); i++)
+    for (unsigned long i = 0; i < SelectedPrimitives.Size(); i++)
     {
-        const int      EntityNr=m_MapDoc->GetEntities().Find(SelectedPrimitives[i]->GetParent());
-        const int      ItemNr  =EntityNr>=0 ? m_MapDoc->GetEntities()[EntityNr]->GetPrimitives().Find(SelectedPrimitives[i]) : -1;
-        const wxString ItemStr =wxString::Format(" (item %i in entity %i)", ItemNr, EntityNr);
+        const int      EntityNr = m_MapDoc->GetEntities().Find(SelectedPrimitives[i]->GetParent()->GetCompMapEntity());
+        const int      ItemNr   = EntityNr >= 0 ? m_MapDoc->GetEntities()[EntityNr]->GetPrimitives().Find(SelectedPrimitives[i]) : -1;
+        const wxString ItemStr  = wxString::Format(" (item %i in entity %i)", ItemNr, EntityNr);
 
         if (dynamic_cast<MapBrushT*>(SelectedPrimitives[i])!=NULL)
         {

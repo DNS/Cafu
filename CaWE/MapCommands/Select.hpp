@@ -23,9 +23,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_COMMAND_SELECT_HPP_INCLUDED
 
 #include "../CommandPattern.hpp"
-#include "GameSys/Entity.hpp"
+#include "Templates/Pointer.hpp"
 
 
+namespace cf { namespace GameSys { class EntityT; } }
 class MapDocumentT;
 class MapElementT;
 class MapPrimitiveT;

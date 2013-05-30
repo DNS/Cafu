@@ -22,11 +22,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_MAPEDITOR_CLIPBOARD_HPP_INCLUDED
 #define CAFU_MAPEDITOR_CLIPBOARD_HPP_INCLUDED
 
-#include "GameSys/Entity.hpp"
 #include "Math3D/Vector3.hpp"
 #include "Templates/Array.hpp"
+#include "Templates/Pointer.hpp"
 
 
+namespace cf { namespace GameSys { class EntityT; } }
 class MapElementT;
 class MapPrimitiveT;
 
@@ -38,7 +39,7 @@ namespace MapEditor
     {
         public:
 
-        ClipboardT() { }
+        ClipboardT();
         ~ClipboardT();
 
         void CopyFrom(const ArrayT<MapElementT*>& Elems);

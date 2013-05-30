@@ -29,6 +29,16 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace MapEditor;
 
 
+// We cannot define this constructor inline in the "Clipboard.hpp" header file,
+// because the (Visual C++) compiler would then expect us to #include the "GameSys/Entity.hpp" header
+// file in quasi every .cpp file in the application (or in "Clipboard.hpp").
+// I don't know exactly why this is so, but obviously the inline definition triggers the instantiation
+// of the IntrusivePtrT<cf::GameSys::EntityT>, which in the header file are only forward-declared.
+ClipboardT::ClipboardT()
+{
+}
+
+
 ClipboardT::~ClipboardT()
 {
     Clear();

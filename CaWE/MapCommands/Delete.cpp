@@ -95,7 +95,7 @@ void CommandDeleteT::Init(const ArrayT<MapElementT*>& DeleteElems)
             if (m_DeletePrims.Find(Prim) == -1)
             {
                 m_DeletePrims.PushBack(Prim);
-                m_DeletePrimsParents.PushBack(Prim->GetParent());
+                m_DeletePrimsParents.PushBack(Prim->GetParent()->GetCompMapEntity());
             }
         }
     }

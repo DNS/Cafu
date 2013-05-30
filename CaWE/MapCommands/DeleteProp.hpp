@@ -24,10 +24,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "../CommandPattern.hpp"
 #include "../EntProperty.hpp"
+#include "Templates/Pointer.hpp"
 
 
+namespace MapEditor { class CompMapEntityT; }
 class MapDocumentT;
-class MapEntityBaseT;
 
 
 class CommandDeletePropertyT : public CommandT
@@ -35,10 +36,10 @@ class CommandDeletePropertyT : public CommandT
     public:
 
     /// Constructor to delete a property from an entity by key name.
-    CommandDeletePropertyT(MapDocumentT& MapDoc, MapEntityBaseT* Entity, const wxString& Key);
+    CommandDeletePropertyT(MapDocumentT& MapDoc, IntrusivePtrT<MapEditor::CompMapEntityT> Entity, const wxString& Key);
 
     /// Constructor to delete a property from an entity by key index.
-    CommandDeletePropertyT(MapDocumentT& MapDoc, MapEntityBaseT* Entity, int Index);
+    CommandDeletePropertyT(MapDocumentT& MapDoc, IntrusivePtrT<MapEditor::CompMapEntityT> Entity, int Index);
 
     // Implementation of the CommandT interface.
     bool Do();
@@ -48,10 +49,10 @@ class CommandDeletePropertyT : public CommandT
 
     private:
 
-    MapDocumentT&      m_MapDoc;
-    MapEntityBaseT*    m_Entity;
-    const int          m_Index;
-    const EntPropertyT m_PropBackup;
+    MapDocumentT&                            m_MapDoc;
+    IntrusivePtrT<MapEditor::CompMapEntityT> m_Entity;
+    const int                                m_Index;
+    const EntPropertyT                       m_PropBackup;
 };
 
 #endif

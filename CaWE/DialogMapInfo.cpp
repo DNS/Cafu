@@ -20,6 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "DialogMapInfo.hpp"
+#include "CompMapEntity.hpp"
 #include "EntityClass.hpp"
 #include "MapFace.hpp"
 #include "MapBrush.hpp"
@@ -28,6 +29,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapEntRepres.hpp"
 #include "Templates/Array.hpp"
 #include "EditorMaterial.hpp"
+
+
+using namespace MapEditor;
 
 
 // TODO:
@@ -42,7 +46,7 @@ MapInfoDialogT::MapInfoDialogT(MapDocumentT& MapDoc)
 
     for (unsigned long EntNr=0; EntNr<MapDoc.GetEntities().Size(); EntNr++)
     {
-        const MapEntityBaseT* Ent=MapDoc.GetEntities()[EntNr];
+        IntrusivePtrT<const CompMapEntityT> Ent = MapDoc.GetEntities()[EntNr];
 
         Stats[Ent->GetRepres()->GetType()]++;
 

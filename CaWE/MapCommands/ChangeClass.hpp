@@ -23,10 +23,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_COMMAND_CHANGE_CLASS_HPP_INCLUDED
 
 #include "../CommandPattern.hpp"
+#include "Templates/Pointer.hpp"
 
 
+namespace MapEditor { class CompMapEntityT; }
 class MapDocumentT;
-class MapEntityBaseT;
 class EntityClassT;
 class EntPropertyT;
 
@@ -39,7 +40,7 @@ class CommandChangeClassT : public CommandT
     /// @param MapDoc     The map document that the entity lives in.
     /// @param Entity     Cannot be NULL.
     /// @param NewClass   The new class for the entity.
-    CommandChangeClassT(MapDocumentT& MapDoc, MapEntityBaseT* Entity, const EntityClassT* NewClass);
+    CommandChangeClassT(MapDocumentT& MapDoc, IntrusivePtrT<MapEditor::CompMapEntityT> Entity, const EntityClassT* NewClass);
 
     // Implementation of the CommandT interface.
     bool Do();
@@ -49,11 +50,11 @@ class CommandChangeClassT : public CommandT
 
     private:
 
-    MapEntityBaseT*            m_Entity;
-    const ArrayT<EntPropertyT> m_PrevProps; ///< Changing the class of an entity can update (alter) the properties as well, so we need to remember previous properties for restoring them on Undo().
-    MapDocumentT&              m_MapDoc;
-    const EntityClassT*        m_NewClass;
-    const EntityClassT*        m_PrevClass;
+    IntrusivePtrT<MapEditor::CompMapEntityT> m_Entity;
+    const ArrayT<EntPropertyT>               m_PrevProps;   ///< Changing the class of an entity can update (alter) the properties as well, so we need to remember previous properties for restoring them on Undo().
+    MapDocumentT&                            m_MapDoc;
+    const EntityClassT*                      m_NewClass;
+    const EntityClassT*                      m_PrevClass;
 };
 
 #endif

@@ -31,16 +31,17 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /// Fortunately, these possibly tough problems can (and apparently must) be addressed by the concrete implementation classes of
 /// observers and subjects, not by the base classes that the Observer pattern describes and provided herein.
 
-#include "Templates/Array.hpp"
 #include "Math3D/BoundingBox.hpp"
-#include "GameSys/Entity.hpp"
+#include "Templates/Array.hpp"
+#include "Templates/Pointer.hpp"
 
 #include "wx/string.h"
 
 
+namespace cf { namespace GameSys { class EntityT; } }
+namespace MapEditor { class CompMapEntityT; }
 class SubjectT;
 class MapElementT;
-class MapEntityBaseT;
 class MapPrimitiveT;
 
 
@@ -143,7 +144,7 @@ class ObserverT
     ///                   Can be one of MEMD_ENTITY_PROPERTY_CREATED, MEMD_ENTITY_PROPERTY_DELETED, MEMD_ENTITY_PROPERTY_MODIFIED or MEMD_ENTITY_CLASS_CHANGED.
     /// @param Key        Holds the keyname of the changed property or an empty string if Detail is MEMD_ENTITY_CLASS_CHANGED.
     /// @todo move MEMD_ENTITY_CLASS_CHANGED into general modification method.
-    virtual void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities, MapElemModDetailE Detail, const wxString& Key) { }
+    virtual void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> >& Entities, MapElemModDetailE Detail, const wxString& Key) { }
     //@}
 
     //############################################
@@ -192,7 +193,7 @@ class SubjectT
     virtual void UpdateAllObservers_Deleted(const ArrayT<MapPrimitiveT*>& Primitives);
     virtual void UpdateAllObservers_Modified(const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail);
     virtual void UpdateAllObservers_Modified(const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const ArrayT<BoundingBox3fT>& OldBounds);
-    virtual void UpdateAllObservers_Modified(const ArrayT<MapEntityBaseT*>& Entities, MapElemModDetailE Detail, const wxString& Key);
+    virtual void UpdateAllObservers_Modified(const ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> >& Entities, MapElemModDetailE Detail, const wxString& Key);
     //############################################
     //# End of new observer notification methods #
     //############################################

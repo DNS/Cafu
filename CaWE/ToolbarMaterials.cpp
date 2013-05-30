@@ -21,6 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ToolbarMaterials.hpp"
 #include "ChildFrame.hpp"
+#include "CompMapEntity.hpp"
 #include "MapDocument.hpp"
 #include "MapEntityBase.hpp"
 #include "GameConfig.hpp"
@@ -32,6 +33,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialBrowser/MaterialBrowserDialog.hpp"
 
 #include "wx/image.h"
+
+
+using namespace MapEditor;
 
 
 static const int PREVIEW_BITMAP_SIZE=128;
@@ -86,8 +90,8 @@ MaterialsToolbarT::MaterialsToolbarT(wxWindow* Parent, MapDocumentT* MapDoc)
 
 
     // Load MRU materials from world.
-    const MapEntityBaseT* World   =m_MapDoc->GetEntities()[0];
-    bool                  FirstMat=true;   // The material is the first one to be inserted into the list (and becomes the default material).
+    IntrusivePtrT<const CompMapEntityT> World = m_MapDoc->GetEntities()[0];
+    bool FirstMat = true;   // The material is the first one to be inserted into the list (and becomes the default material).
 
     // Get up to 10 MRU materials.
     for (unsigned long MatNr=0; MatNr<10; MatNr++)

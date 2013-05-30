@@ -21,11 +21,15 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "AddPrim.hpp"
 #include "Select.hpp"
+#include "../CompMapEntity.hpp"
 #include "../MapDocument.hpp"
 #include "../MapPrimitive.hpp"
 
 
-CommandAddPrimT::CommandAddPrimT(MapDocumentT& MapDoc, MapPrimitiveT* AddPrim, MapEntityBaseT* Parent, wxString Name, bool SetSel)
+using namespace MapEditor;
+
+
+CommandAddPrimT::CommandAddPrimT(MapDocumentT& MapDoc, MapPrimitiveT* AddPrim, IntrusivePtrT<CompMapEntityT> Parent, wxString Name, bool SetSel)
     : m_MapDoc(MapDoc),
       m_AddPrims(),
       m_Parent(Parent),
@@ -39,7 +43,7 @@ CommandAddPrimT::CommandAddPrimT(MapDocumentT& MapDoc, MapPrimitiveT* AddPrim, M
 }
 
 
-CommandAddPrimT::CommandAddPrimT(MapDocumentT& MapDoc, const ArrayT<MapPrimitiveT*>& AddPrims, MapEntityBaseT* Parent, wxString Name, bool SetSel)
+CommandAddPrimT::CommandAddPrimT(MapDocumentT& MapDoc, const ArrayT<MapPrimitiveT*>& AddPrims, IntrusivePtrT<CompMapEntityT> Parent, wxString Name, bool SetSel)
     : m_MapDoc(MapDoc),
       m_AddPrims(AddPrims),
       m_Parent(Parent),

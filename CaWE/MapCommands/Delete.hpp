@@ -23,12 +23,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_COMMAND_DELETE_HPP_INCLUDED
 
 #include "../CommandPattern.hpp"
-#include "GameSys/Entity.hpp"
+#include "Templates/Pointer.hpp"
 
 
+namespace cf { namespace GameSys { class EntityT; } }
+namespace MapEditor { class CompMapEntityT; }
 class MapDocumentT;
 class MapElementT;
-class MapEntityBaseT;
 class MapPrimitiveT;
 class CommandSelectT;
 
@@ -56,11 +57,11 @@ class CommandDeleteT : public CommandT
 
     void Init(const ArrayT<MapElementT*>& DeleteElems);
 
-    MapDocumentT&                                 m_MapDoc;
-    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > m_DeleteEnts;         ///< The entities to delete.
-    ArrayT<MapPrimitiveT*>                        m_DeletePrims;        ///< The primitives to delete.
-    ArrayT<MapEntityBaseT*>                       m_DeletePrimsParents; ///< The parents of the above primitives (the world or any custom entity).
-    CommandSelectT*                               m_CommandSelect;      ///< The command that unselects all elements before they are deleted.
+    MapDocumentT&                                      m_MapDoc;
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >      m_DeleteEnts;          ///< The entities to delete.
+    ArrayT<MapPrimitiveT*>                             m_DeletePrims;         ///< The primitives to delete.
+    ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> > m_DeletePrimsParents;  ///< The parents of the above primitives (the world or any custom entity).
+    CommandSelectT*                                    m_CommandSelect;       ///< The command that unselects all elements before they are deleted.
 };
 
 #endif

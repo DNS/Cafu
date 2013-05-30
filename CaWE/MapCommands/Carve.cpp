@@ -22,9 +22,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Carve.hpp"
 #include "Delete.hpp"
 
+#include "../CompMapEntity.hpp"
 #include "../MapBrush.hpp"
 #include "../MapDocument.hpp"
 #include "../MapEntityBase.hpp"
+
+
+using namespace MapEditor;
 
 
 CommandCarveT::CommandCarveT(MapDocumentT& MapDoc, const ArrayT<const MapBrushT*>& Carvers)
@@ -69,7 +73,7 @@ bool CommandCarveT::Do()
 
         for (unsigned long EntNr=0; EntNr<m_MapDoc.GetEntities().Size(); EntNr++)
         {
-            const MapEntityBaseT* Ent=m_MapDoc.GetEntities()[EntNr];
+            IntrusivePtrT<const CompMapEntityT> Ent = m_MapDoc.GetEntities()[EntNr];
 
             for (unsigned long PrimNr=0; PrimNr<Ent->GetPrimitives().Size(); PrimNr++)
             {
@@ -152,7 +156,7 @@ bool CommandCarveT::Do()
 
 
             m_OriginalBrushes.PushBack(WorldBrushes[BrushNr]);          // The carve operation replaced this brush by...
-            m_Parents.PushBack(WorldBrushes[BrushNr]->GetParent());
+            m_Parents.PushBack(WorldBrushes[BrushNr]->GetParent()->GetCompMapEntity());
             m_CarvedBrushes.PushBack(Pieces);                           // ... this set of pieces (zero, one or many).
         }
     }

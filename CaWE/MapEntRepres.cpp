@@ -200,8 +200,8 @@ void MapEntRepresT::Render2D(Renderer2DT& Renderer) const
 
         if (TargetProp!=NULL)
         {
-            const ArrayT<MapEntityBaseT*>& Entities = Renderer.GetViewWin2D().GetMapDoc().GetEntities();
-            ArrayT<MapEntityBaseT*>        FoundEntities;
+            const ArrayT< IntrusivePtrT<CompMapEntityT> >& Entities = Renderer.GetViewWin2D().GetMapDoc().GetEntities();
+            ArrayT< IntrusivePtrT<CompMapEntityT> >        FoundEntities;
 
             for (unsigned long EntNr = 1/*skip world*/; EntNr < Entities.Size(); EntNr++)
             {

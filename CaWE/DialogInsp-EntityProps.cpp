@@ -20,6 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "DialogInsp-EntityProps.hpp"
+#include "CompMapEntity.hpp"
 #include "EntityClass.hpp"
 #include "EntityClassVar.hpp"
 #include "GameConfig.hpp"
@@ -37,6 +38,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapCommands/DeleteProp.hpp"
 #include "MapCommands/SetProp.hpp"
 #include "MapCommands/ChangeClass.hpp"
+
+
+using namespace MapEditor;
+
 
 /* Introduction to the Implementation:
  * ***********************************
@@ -259,20 +264,23 @@ void InspDlgEntityPropsT::NotifySubjectChanged_Selection(SubjectT* Subject, cons
     // Loop over the map selection in order to determine the list of selected entities.
     for (unsigned long i=0; i<NewSelection.Size(); i++)
     {
-        MapEntityBaseT* Ent=dynamic_cast<MapEntityBaseT*>(NewSelection[i]);
+        MapEntRepresT* EntRepres = dynamic_cast<MapEntRepresT*>(NewSelection[i]);
 
-        if (Ent)
+        if (EntRepres)
         {
-            if (SelectedEntities.Find(Ent)==-1) SelectedEntities.PushBack(Ent);
+            IntrusivePtrT<CompMapEntityT> Ent = EntRepres->GetParent()->GetCompMapEntity();
+
+            if (SelectedEntities.Find(Ent) == -1) SelectedEntities.PushBack(Ent);
             continue;
         }
 
-        MapPrimitiveT* Prim=dynamic_cast<MapPrimitiveT*>(NewSelection[i]);
+        MapPrimitiveT* Prim = dynamic_cast<MapPrimitiveT*>(NewSelection[i]);
 
         if (Prim)
         {
-            MapEntityBaseT* Ent=Prim->GetParent();
-            if (SelectedEntities.Find(Ent)==-1) SelectedEntities.PushBack(Ent);
+            IntrusivePtrT<CompMapEntityT> Ent = Prim->GetParent()->GetCompMapEntity();
+
+            if (SelectedEntities.Find(Ent) == -1) SelectedEntities.PushBack(Ent);
             continue;
         }
     }
@@ -288,7 +296,7 @@ void InspDlgEntityPropsT::NotifySubjectChanged_Deleted(SubjectT* Subject, const 
 }
 
 
-void InspDlgEntityPropsT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities, MapElemModDetailE Detail, const wxString& Key)
+void InspDlgEntityPropsT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<CompMapEntityT> >& Entities, MapElemModDetailE Detail, const wxString& Key)
 {
     if (IsRecursiveSelfNotify) return;
 
@@ -339,9 +347,9 @@ void InspDlgEntityPropsT::UpdatePropertyGrid()
 
     for (unsigned long EntNr=0; EntNr<SelectedEntities.Size(); EntNr++)
     {
-        const MapEntityBaseT*         Entity=SelectedEntities[EntNr];   // The currently considered entity.
-        const EntityClassT*           EntClass=Entity->GetClass();      // The class of the current entity as defined in the game config. Can be NULL if undefined in this game config.
-        std::map<wxString, PropInfoT> EntPropInfos;                     // The property infos for the current entity.
+        IntrusivePtrT<const CompMapEntityT> Entity = SelectedEntities[EntNr];   // The currently considered entity.
+        const EntityClassT*                 EntClass = Entity->GetClass();      // The class of the current entity as defined in the game config. Can be NULL if undefined in this game config.
+        std::map<wxString, PropInfoT>       EntPropInfos;                       // The property infos for the current entity.
 
         // Insert the special-case property "classname".
         EntPropInfos["classname"]=PropInfoT(NORMAL, true, false, NULL);
@@ -968,9 +976,9 @@ void InspDlgEntityPropsT::OnPropertyGridChanged(wxPropertyGridEvent& event)
             // Load all map entities.
             // We cannot call PropObjects[0]->CheckUniqueValues() here, since this method checks all values of the entity
             // for uniqueness so it would fail if another unique marked value is not unique.
-            for (unsigned long EntNr=1/*skip world*/; EntNr<MapDoc->GetEntities().Size(); EntNr++)
+            for (unsigned long EntNr = 1/*skip world*/; EntNr < MapDoc->GetEntities().Size(); EntNr++)
             {
-                MapEntityBaseT* Entity=MapDoc->GetEntities()[EntNr];
+                IntrusivePtrT<CompMapEntityT> Entity = MapDoc->GetEntities()[EntNr];
 
                       EntPropertyT*     Prop=Entity->FindProperty(Key);
                 const EntClassVarT* ClassVar=Entity->GetClass() ? Entity->GetClass()->FindVar(Key) : NULL;

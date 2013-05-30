@@ -136,7 +136,7 @@ ViewWindow2DT::ViewWindow2DT(wxWindow* Parent, ChildFrameT* ChildFrame, ViewType
     SetViewType(InitialViewType);   // Checks if InitialViewType (which was read from a config file) is valid. Also sets member m_AxesInfo.
 
     // Center on the center of the map.
-    const MapEntityBaseT* World = GetMapDoc().GetEntities()[0];
+    IntrusivePtrT<const CompMapEntityT> World = GetMapDoc().GetEntities()[0];
     CenterView(World->GetElemsBB().GetCenter());    // Calls SetScrollPos(), then Refresh().
 }
 
@@ -245,7 +245,7 @@ void ViewWindow2DT::NotifySubjectChanged_Modified(SubjectT* Subject, const Array
 }
 
 
-void ViewWindow2DT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities, MapElemModDetailE Detail, const wxString& Key)
+void ViewWindow2DT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<CompMapEntityT> >& Entities, MapElemModDetailE Detail, const wxString& Key)
 {
     if ((Detail==MEMD_ENTITY_PROPERTY_CREATED || Detail==MEMD_ENTITY_PROPERTY_DELETED || Detail==MEMD_ENTITY_PROPERTY_MODIFIED) && (Key=="angles" || Key=="name"))
     {

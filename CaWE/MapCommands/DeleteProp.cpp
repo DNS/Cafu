@@ -20,11 +20,15 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "DeleteProp.hpp"
+#include "../CompMapEntity.hpp"
 #include "../MapDocument.hpp"
 #include "../MapEntityBase.hpp"
 
 
-CommandDeletePropertyT::CommandDeletePropertyT(MapDocumentT& MapDoc, MapEntityBaseT* Entity, const wxString& Key)
+using namespace MapEditor;
+
+
+CommandDeletePropertyT::CommandDeletePropertyT(MapDocumentT& MapDoc, IntrusivePtrT<CompMapEntityT> Entity, const wxString& Key)
     : m_MapDoc(MapDoc),
       m_Entity(Entity),
       m_Index(Entity->FindPropertyIndex(Key)),
@@ -33,7 +37,7 @@ CommandDeletePropertyT::CommandDeletePropertyT(MapDocumentT& MapDoc, MapEntityBa
 }
 
 
-CommandDeletePropertyT::CommandDeletePropertyT(MapDocumentT& MapDoc, MapEntityBaseT* Entity, int Index)
+CommandDeletePropertyT::CommandDeletePropertyT(MapDocumentT& MapDoc, IntrusivePtrT<CompMapEntityT> Entity, int Index)
     : m_MapDoc(MapDoc),
       m_Entity(Entity),
       m_Index(Index),
@@ -53,7 +57,7 @@ bool CommandDeletePropertyT::Do()
 
     // FIXME Note that when a property of multiple entities is deleted, this observer notification is created
     // for EACH of these entities. We should change the command to accept an array of entities...
-    ArrayT<MapEntityBaseT*> MapElements;
+    ArrayT< IntrusivePtrT<CompMapEntityT> > MapElements;
     MapElements.PushBack(m_Entity);
 
     m_MapDoc.UpdateAllObservers_Modified(MapElements, MEMD_ENTITY_PROPERTY_DELETED, m_PropBackup.Key);
@@ -70,7 +74,7 @@ void CommandDeletePropertyT::Undo()
 
     m_Entity->GetProperties().InsertAt(m_Index, m_PropBackup);
 
-    ArrayT<MapEntityBaseT*> MapElements;
+    ArrayT< IntrusivePtrT<CompMapEntityT> > MapElements;
     MapElements.PushBack(m_Entity);
 
     m_MapDoc.UpdateAllObservers_Modified(MapElements, MEMD_ENTITY_PROPERTY_CREATED, m_PropBackup.Key);

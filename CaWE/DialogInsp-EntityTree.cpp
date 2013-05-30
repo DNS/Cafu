@@ -20,6 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "DialogInsp-EntityTree.hpp"
+#include "CompMapEntity.hpp"
 #include "EntityClass.hpp"
 #include "EntityClassVar.hpp"
 #include "GameConfig.hpp"
@@ -35,6 +36,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/confbase.h"
 #include "wx/statline.h"
 #include "wx/notebook.h"
+
+
+using namespace MapEditor;
 
 
 BEGIN_EVENT_TABLE(InspDlgEntityTreeT, wxPanel)
@@ -233,7 +237,7 @@ void InspDlgEntityTreeT::NotifySubjectChanged_Deleted(SubjectT* Subject, const A
 }
 
 
-void InspDlgEntityTreeT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapEntityBaseT*>& Entities, MapElemModDetailE Detail, const wxString& Key)
+void InspDlgEntityTreeT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<CompMapEntityT> >& Entities, MapElemModDetailE Detail, const wxString& Key)
 {
     UpdateEntityListBox();
 }
@@ -262,7 +266,7 @@ void InspDlgEntityTreeT::UpdateEntityListBox()
 
     for (unsigned long ChildNr=0/*with world*/; ChildNr<MapDoc->GetEntities().Size(); ChildNr++)
     {
-        MapEntityBaseT* NewEntity=MapDoc->GetEntities()[ChildNr];
+        IntrusivePtrT<CompMapEntityT> NewEntity = MapDoc->GetEntities()[ChildNr];
 
         if (!ShowSolidEntitiesCheckBox ->IsChecked() &&  NewEntity->GetClass()->IsSolidClass()) continue;
         if (!ShowPointEntitiesCheckBox ->IsChecked() && !NewEntity->GetClass()->IsSolidClass()) continue;
@@ -301,7 +305,7 @@ void InspDlgEntityTreeT::UpdateEntityListBox()
 
         if (NewEntity->FindProperty("name")!=NULL) NewEntityDescription+=" ("+NewEntity->FindProperty("name")->Value+")";
 
-        const int NewID=EntityListBox->Append(NewEntityDescription, NewEntity);
+        const int NewID = EntityListBox->Append(NewEntityDescription, NewEntity.get());
 
         // Select the selected entities also in the ListBox!
         if (NewEntity->GetRepres()->IsSelected()) EntityListBox->Select(NewID);

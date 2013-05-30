@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Select.hpp"
 #include "Delete.hpp"
 
+#include "../CompMapEntity.hpp"
 #include "../EntityClass.hpp"
 #include "../MapDocument.hpp"
 #include "../MapEntityBase.hpp"
@@ -30,7 +31,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../MapPrimitive.hpp"
 
 
-CommandAssignPrimToEntT::CommandAssignPrimToEntT(MapDocumentT& MapDoc, const ArrayT<MapPrimitiveT*>& Prims, MapEntityBaseT* Entity)
+using namespace MapEditor;
+
+
+CommandAssignPrimToEntT::CommandAssignPrimToEntT(MapDocumentT& MapDoc, const ArrayT<MapPrimitiveT*>& Prims, IntrusivePtrT<CompMapEntityT> Entity)
     : m_MapDoc(MapDoc),
       m_Prims(Prims),
       m_Entity(Entity),
@@ -42,7 +46,7 @@ CommandAssignPrimToEntT::CommandAssignPrimToEntT(MapDocumentT& MapDoc, const Arr
         // The primitive must have had a parent entity (and thus been in the world) before.
         wxASSERT(m_Prims[PrimNr]->GetParent()!=NULL);
 
-        m_PrevParents.PushBack(m_Prims[PrimNr]->GetParent());
+        m_PrevParents.PushBack(m_Prims[PrimNr]->GetParent()->GetCompMapEntity());
     }
 }
 
@@ -62,8 +66,8 @@ bool CommandAssignPrimToEntT::Do()
     // Assign all the primitives in our list to the new parent entity.
     for (unsigned long PrimNr=0; PrimNr<m_Prims.Size(); PrimNr++)
     {
-        MapPrimitiveT*  Prim      =m_Prims[PrimNr];
-        MapEntityBaseT* PrevParent=Prim->GetParent();
+        MapPrimitiveT*                Prim       = m_Prims[PrimNr];
+        IntrusivePtrT<CompMapEntityT> PrevParent = Prim->GetParent()->GetCompMapEntity();
 
         // The primitive must have had a parent entity (and thus been in the world) before.
         wxASSERT(PrevParent!=NULL);
@@ -91,7 +95,7 @@ bool CommandAssignPrimToEntT::Do()
 
         for (unsigned long EntNr=1/*skip world*/; EntNr<m_MapDoc.GetEntities().Size(); EntNr++)
         {
-            MapEntityBaseT* Ent=m_MapDoc.GetEntities()[EntNr];
+            IntrusivePtrT<CompMapEntityT> Ent = m_MapDoc.GetEntities()[EntNr];
 
             // If the entity is not the world, has no origin and is empty now, just delete it.
             if (Ent->GetClass()->IsSolidClass() /*!Ent->HasOrigin()*/ && Ent->GetPrimitives().Size()==0)
