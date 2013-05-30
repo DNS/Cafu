@@ -25,7 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "../CompMapEntity.hpp"
 #include "../MapDocument.hpp"
-#include "../MapEntityBase.hpp"
 
 
 CommandClipT::CommandClipT(MapDocumentT& MapDoc_, const ArrayT<ClipResultT*>& ClipResults_)

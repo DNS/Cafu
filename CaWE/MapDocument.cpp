@@ -31,7 +31,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "DialogMapCheck.hpp"
 #include "MapDocument.hpp"
 #include "MapBezierPatch.hpp"
-#include "MapEntityBase.hpp"
 #include "MapEntRepres.hpp"
 #include "MapModel.hpp"         // Only needed for some TypeInfo test...
 #include "MapPlant.hpp"         // Only needed for some TypeInfo test...

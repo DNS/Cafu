@@ -26,7 +26,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CursorMan.hpp"
 #include "GameConfig.hpp"
 #include "MapDocument.hpp"
-#include "MapEntityBase.hpp"
 #include "MapEntRepres.hpp"
 #include "MapPrimitive.hpp"
 #include "Options.hpp"

@@ -24,7 +24,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapBrush.hpp"
 #include "MapBezierPatch.hpp"
 #include "MapDocument.hpp"
-#include "MapEntityBase.hpp"
 #include "MapModel.hpp"
 #include "MapPlant.hpp"
 #include "MapTerrain.hpp"

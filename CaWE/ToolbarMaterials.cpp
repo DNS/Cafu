@@ -23,7 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrame.hpp"
 #include "CompMapEntity.hpp"
 #include "MapDocument.hpp"
-#include "MapEntityBase.hpp"
 #include "GameConfig.hpp"
 #include "EditorMaterial.hpp"
 #include "DialogReplaceMaterials.hpp"

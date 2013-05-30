@@ -23,7 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_MAPEDITOR_COMPONENT_MAP_ENTITY_HPP_INCLUDED
 
 #include "EntProperty.hpp"
-#include "MapEntityBase.hpp"
 #include "GameSys/CompBase.hpp"
 #include "GameSys/Entity.hpp"       // For GetMapEnt() only.
 #include "Math3D/Angles.hpp"
@@ -39,12 +38,6 @@ class wxProgressDialog;
 
 namespace MapEditor
 {
-    inline IntrusivePtrT<CompMapEntityT> GetMapEnt(IntrusivePtrT<cf::GameSys::EntityT> Entity)
-    {
-        return dynamic_pointer_cast<CompMapEntityT>(Entity->GetApp());
-    }
-
-
     /// This component houses the Map Editor specific parts of its entity.
     /// It is intended for use by the Map Editor application only, that is, as the "App" component of `cf::GameSys::EntityT`s.
     /// As such, it doesn't integrate with the TypeSys, and thus isn't available for scripting and whereever else we need
@@ -76,18 +69,18 @@ namespace MapEditor
         void Save_cmap(const MapDocumentT& MapDoc, std::ostream& OutFile, unsigned long EntityNr, const BoundingBox3fT* Intersecting) const;
 
 
-        MapDocumentT& GetDoc() const { return m_MapEntity->m_MapDoc; }
+        MapDocumentT& GetDoc() const { return m_MapDoc; }
 
         bool IsWorld() const;
 
         void SetClass(const EntityClassT* NewClass);
-        const EntityClassT* GetClass() const { return m_MapEntity->m_Class; }
+        const EntityClassT* GetClass() const { return m_Class; }
 
         Vector3fT GetOrigin() const;
         void SetOrigin(const Vector3fT& Origin);
 
-        const ArrayT<EntPropertyT>& GetProperties() const { return m_MapEntity->m_Properties; }
-              ArrayT<EntPropertyT>& GetProperties()       { return m_MapEntity->m_Properties; }
+        const ArrayT<EntPropertyT>& GetProperties() const { return m_Properties; }
+              ArrayT<EntPropertyT>& GetProperties()       { return m_Properties; }
 
         EntPropertyT*       FindProperty     (const wxString& Key, int* Index=NULL, bool Create=false); ///< Find the property.
         const EntPropertyT* FindProperty     (const wxString& Key, int* Index=NULL) const;              ///< Find the property.
@@ -96,12 +89,12 @@ namespace MapEditor
         void               SetAngles(const cf::math::AnglesfT& Angles);
         cf::math::AnglesfT GetAngles() const;
 
-        const ArrayT<MapPrimitiveT*>& GetPrimitives() const { return m_MapEntity->m_Primitives; }
+        const ArrayT<MapPrimitiveT*>& GetPrimitives() const { return m_Primitives; }
 
         void AddPrim(MapPrimitiveT* Prim);
         void RemovePrim(MapPrimitiveT* Prim);
 
-        MapEntRepresT* GetRepres() const { return m_MapEntity->m_Repres; }
+        MapEntRepresT* GetRepres() const { return m_Repres; }
 
         /// Returns the "overall" bounding-box of this entity.
         /// The returned bounding-box contains all elements (the representation and all primitives) of this entity.
@@ -114,8 +107,19 @@ namespace MapEditor
 
         private:
 
-        MapEntityBaseT* m_MapEntity;
+        MapDocumentT&              m_MapDoc;        ///< The document that contains, keeps and manages this entity.
+        const EntityClassT*        m_Class;         ///< The "entity class" of this entity.
+        Vector3fT                  m_Origin;        ///< The origin of this entity.
+        ArrayT<EntPropertyT>       m_Properties;    ///< The concrete, instantiated properties for this entity, according to its entity class.
+        MapEntRepresT*             m_Repres;        ///< The graphical representation of this entity in the map.
+        ArrayT<MapPrimitiveT*>     m_Primitives;    ///< The primitive, atomic elements of this entity (brushes, patches, terrains, models, plants, ...).
     };
+
+
+    inline IntrusivePtrT<CompMapEntityT> GetMapEnt(IntrusivePtrT<cf::GameSys::EntityT> Entity)
+    {
+        return dynamic_pointer_cast<CompMapEntityT>(Entity->GetApp());
+    }
 }
 
 #endif

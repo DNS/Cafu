@@ -20,18 +20,21 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "EditorMaterial.hpp"
+#include "CompMapEntity.hpp"
 #include "EntityClass.hpp"
 #include "GameConfig.hpp"
 #include "Load_MatReplMan.hpp"
 #include "MapBrush.hpp"
 #include "MapDocument.hpp"
-#include "MapEntityBase.hpp"
 #include "MapFace.hpp"
 
 #include "TextParser/TextParser.hpp"
 
 #include "wx/wx.h"
 #include "wx/progdlg.h"
+
+
+using namespace MapEditor;
 
 
 static unsigned long   MapFileVersion=0;
@@ -129,7 +132,7 @@ MapBrushT* MapBrushT::Create_HL1_map(TextParserT& TP, unsigned long EntityNr, un
 }
 
 
-void MapEntityBaseT::Load_HL1_map(TextParserT& TP, MapDocumentT& MapDoc, wxProgressDialog* ProgressDialog, unsigned long EntityNr)
+void CompMapEntityT::Load_HL1_map(TextParserT& TP, MapDocumentT& MapDoc, wxProgressDialog* ProgressDialog, unsigned long EntityNr)
 {
     static MatReplaceManT MatReplaceMan("HL1", MapDoc.GetGameConfig()->GetMatMan().GetMaterials());
 

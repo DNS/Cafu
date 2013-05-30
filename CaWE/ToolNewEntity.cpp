@@ -27,7 +27,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameConfig.hpp"
 #include "MapBrush.hpp"
 #include "MapDocument.hpp"
-#include "MapEntityBase.hpp"
 #include "MapEntRepres.hpp"
 #include "ChildFrame.hpp"
 #include "ChildFrameViewWin2D.hpp"

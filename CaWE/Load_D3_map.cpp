@@ -20,12 +20,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "EntityClass.hpp"
+#include "CompMapEntity.hpp"
 #include "GameConfig.hpp"
 #include "Options.hpp"
 #include "ParentFrame.hpp"
 #include "Load_MatReplMan.hpp"
 #include "MapDocument.hpp"
-#include "MapEntityBase.hpp"
 #include "MapFace.hpp"
 #include "MapBrush.hpp"
 #include "MapBezierPatch.hpp"
@@ -36,6 +36,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "wx/wx.h"
 #include "wx/progdlg.h"
+
+
+using namespace MapEditor;
 
 
 static MatReplaceManT* g_MatReplaceMan=NULL;
@@ -279,7 +282,7 @@ void MapBezierPatchT::Load_D3_map(TextParserT& TP, unsigned long patchDef, Edito
 }
 
 
-void MapEntityBaseT::Load_D3_map(TextParserT& TP, MapDocumentT& MapDoc, wxProgressDialog* ProgressDialog, unsigned long EntityNr)
+void CompMapEntityT::Load_D3_map(TextParserT& TP, MapDocumentT& MapDoc, wxProgressDialog* ProgressDialog, unsigned long EntityNr)
 {
     EditorMatManT& MatMan=MapDoc.GetGameConfig()->GetMatMan();
     static MatReplaceManT MatReplaceMan("Doom 3", MatMan.GetMaterials());

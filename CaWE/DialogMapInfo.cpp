@@ -25,7 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapFace.hpp"
 #include "MapBrush.hpp"
 #include "MapDocument.hpp"
-#include "MapEntityBase.hpp"
 #include "MapEntRepres.hpp"
 #include "Templates/Array.hpp"
 #include "EditorMaterial.hpp"

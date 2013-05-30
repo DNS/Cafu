@@ -21,7 +21,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Group.hpp"
 #include "MapDocument.hpp"
-#include "MapEntityBase.hpp"
 #include "MapPrimitive.hpp"
 #include "TextParser/TextParser.hpp"
 

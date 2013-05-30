@@ -27,7 +27,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ParentFrame.hpp"
 #include "MapBrush.hpp"
 #include "MapDocument.hpp"
-#include "MapEntityBase.hpp"
 #include "MorphPrim.hpp"
 #include "ChildFrame.hpp"
 #include "ChildFrameViewWin2D.hpp"

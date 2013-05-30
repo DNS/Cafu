@@ -21,12 +21,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "EntityClass.hpp"
 #include "EntityClassVar.hpp"
+#include "CompMapEntity.hpp"
 #include "LuaAux.hpp"
 #include "GameConfig.hpp"
 #include "MapBezierPatch.hpp"
 #include "MapBrush.hpp"
 #include "MapDocument.hpp"
-#include "MapEntityBase.hpp"
 #include "MapEntRepres.hpp"
 #include "MapFace.hpp"
 #include "MapModel.hpp"
@@ -44,6 +44,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "wx/wx.h"
 #include "wx/progdlg.h"
+
+
+using namespace MapEditor;
 
 
 static const double CAFU_ENG_SCALE=25.4;
@@ -639,7 +642,7 @@ namespace
 }
 
 
-void MapEntityBaseT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, wxProgressDialog* ProgressDialog, unsigned long EntityNr, unsigned int& cmapVersion)
+void CompMapEntityT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, wxProgressDialog* ProgressDialog, unsigned long EntityNr, unsigned int& cmapVersion)
 {
     if (EntityNr==0)
     {
@@ -819,7 +822,7 @@ void MapEntityBaseT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, wxProgress
 }
 
 
-void MapEntityBaseT::Save_cmap(const MapDocumentT& MapDoc, std::ostream& OutFile, unsigned long EntityNr, const BoundingBox3fT* Intersecting) const
+void CompMapEntityT::Save_cmap(const MapDocumentT& MapDoc, std::ostream& OutFile, unsigned long EntityNr, const BoundingBox3fT* Intersecting) const
 {
     // If it's a solid custom entity but doesn't have any primitives, don't save it.
     if (EntityNr>0 && m_Class->IsSolidClass() && m_Primitives.Size()==0)

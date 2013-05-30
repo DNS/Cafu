@@ -28,7 +28,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CompMapEntity.hpp"
 #include "DialogInspector.hpp"
 #include "MapDocument.hpp"
-#include "MapEntityBase.hpp"
 #include "MapEntRepres.hpp"
 #include "MapModel.hpp"
 #include "MapPlant.hpp"

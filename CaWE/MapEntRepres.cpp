@@ -25,7 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "EntityClass.hpp"
 #include "LuaAux.hpp"
 #include "MapDocument.hpp"
-#include "MapEntityBase.hpp"
 #include "MapHelperBB.hpp"
 #include "MapHelperModel.hpp"
 #include "Options.hpp"
