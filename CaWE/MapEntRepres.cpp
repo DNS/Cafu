@@ -121,20 +121,19 @@ void MapEntRepresT::Assign(const MapElementT* Elem)
     wxASSERT(MapRepres != NULL);
     if (MapRepres == NULL) return;
 
-    /************************/
-    /*** TODO: Assign the other entity's stuff to ours! ***/
-    /*******************************/
-#if 0
     IntrusivePtrT<CompMapEntityT> ThisEnt  = GetParent();
     IntrusivePtrT<CompMapEntityT> OtherEnt = MapRepres->GetParent();
 
-    ThisEnt->GetTransform()->SetOrigin(OtherEnt->GetTransform()->GetOrigin());
- // ThisEnt->GetTransform()->SetQuaternion(OtherEnt->GetTransform()->GetQuaternion());
-#endif
+    // Note that we're here concerned only with the entity itself, not with its primitives.
+    // This is intentional, because the primitives are handled explicitly elsewhere.
+    ThisEnt->SetClass(OtherEnt->GetClass());
+    ThisEnt->SetOrigin(OtherEnt->GetOrigin());
+    ThisEnt->GetProperties() = OtherEnt->GetProperties();
 
-    // Note the we're here concerned only with the entity itself, not with its primitives.
-    // This is intentional, because there are MapPrimitiveT classes elsewhere in the application
-    // that are dedicated to this purpose.
+ // ThisEnt->GetTransform()->SetOrigin(OtherEnt->GetTransform()->GetOrigin());
+ // ThisEnt->GetTransform()->SetQuaternion(OtherEnt->GetTransform()->GetQuaternion());
+
+    // Now that we (possibly) have a new class, update our helper.
     Update();
 }
 
