@@ -49,8 +49,20 @@ namespace MapEditor
         /// The constructor.
         CompMapEntityT(MapDocumentT& MapDoc);
 
-        /// The copy constructor.
-        /// @param Comp   The component to create a copy of.
+        /// The copy constructor. It creates a new component as a copy of another component.
+        ///
+        /// Note that the new map entity is created without any primitives, that is, the primitives are
+        /// intentionally *not* copied from `Comp`. This is because it is easy to call CopyPrimitives()
+        /// with the new instance if the user code wants to have the map primitives copied as well,
+        /// whereas the reverse would be very difficult to handle.
+        ///
+        /// (If primitives were copied per default, having them not copied when they are not wanted
+        /// would require another parameter to the copy constructor -- which had to be passed through by
+        /// the EntityT copy constructors and Clone() methods as well as by all Clone() methods in the
+        /// ComponentBaseT hierarchy. This would be difficult to understand and bother large amounts of
+        /// completely unrelated code.)
+        ///
+        /// @param Comp   The component to copy-construct this component from.
         CompMapEntityT(const CompMapEntityT& Comp);
 
         /// The destructor.
@@ -89,6 +101,7 @@ namespace MapEditor
         void               SetAngles(const cf::math::AnglesfT& Angles);
         cf::math::AnglesfT GetAngles() const;
 
+        void CopyPrimitives(const CompMapEntityT& MapEnt);  ///< Creates a copy of each primitive in MapEnt and adds it to this instance.
         const ArrayT<MapPrimitiveT*>& GetPrimitives() const { return m_Primitives; }
 
         void AddPrim(MapPrimitiveT* Prim);
@@ -107,12 +120,12 @@ namespace MapEditor
 
         private:
 
-        MapDocumentT&              m_MapDoc;        ///< The document that contains, keeps and manages this entity.
-        const EntityClassT*        m_Class;         ///< The "entity class" of this entity.
-        Vector3fT                  m_Origin;        ///< The origin of this entity.
-        ArrayT<EntPropertyT>       m_Properties;    ///< The concrete, instantiated properties for this entity, according to its entity class.
-        MapEntRepresT*             m_Repres;        ///< The graphical representation of this entity in the map.
-        ArrayT<MapPrimitiveT*>     m_Primitives;    ///< The primitive, atomic elements of this entity (brushes, patches, terrains, models, plants, ...).
+        MapDocumentT&          m_MapDoc;        ///< The document that contains, keeps and manages this entity.
+        const EntityClassT*    m_Class;         ///< The "entity class" of this entity.
+        Vector3fT              m_Origin;        ///< The origin of this entity.
+        ArrayT<EntPropertyT>   m_Properties;    ///< The concrete, instantiated properties for this entity, according to its entity class.
+        MapEntRepresT*         m_Repres;        ///< The graphical representation of this entity in the map.
+        ArrayT<MapPrimitiveT*> m_Primitives;    ///< The primitive, atomic elements of this entity (brushes, patches, terrains, models, plants, ...).
     };
 
 

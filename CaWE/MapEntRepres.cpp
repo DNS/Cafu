@@ -66,13 +66,12 @@ MapEntRepresT::MapEntRepresT(const MapEntRepresT& EntRepres)
       m_Helper(NULL),
       m_Cloned(NULL)
 {
-    /*
-     *
-     * TODO:  Make a shallow copy only!
-     *
-     */
-    m_Cloned = EntRepres.GetParent()->GetEntity()->Clone();
+    m_Cloned = EntRepres.GetParent()->GetEntity()->Clone(false /*Recursive?*/);
     m_Parent = GetMapEnt(m_Cloned);
+
+    // The entity was copied...
+    wxASSERT(m_Cloned->GetChildren().Size() == 0);    /// ... non-recursively,
+    wxASSERT(m_Parent->GetPrimitives().Size() == 0);  /// ... without any primitives.
 
     Update();
 }

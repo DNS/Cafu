@@ -60,14 +60,13 @@ void ClipboardT::CopyFrom(const ArrayT<MapElementT*>& Elems)
             SourceEnts.PushBack(Repres->GetParent());
 
             // TODO: The new instance is referring to the original MapDoc and its entity classes!!!!!
+            IntrusivePtrT<cf::GameSys::EntityT> NewEnt = Repres->GetParent()->GetEntity()->Clone(false /*Recursive?*/);
 
-            // Note that we don't want the primitives of the source entity copied!
-            /*
-             *
-             *       TODO -- Must e.g. set a flag in the CompMapEntity to no copy the primitives!
-             *
-             */
-            m_Entities.PushBack(Repres->GetParent()->GetEntity()->Clone());
+            // The entity was copied...
+            wxASSERT(NewEnt->GetChildren().Size() == 0);              /// ... non-recursively,
+            wxASSERT(GetMapEnt(NewEnt)->GetPrimitives().Size() == 0); /// ... without any primitives.
+
+            m_Entities.PushBack(NewEnt);
         }
     }
 

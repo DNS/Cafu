@@ -72,17 +72,20 @@ namespace cf
             /// @param Params   The creation parameters for the entity.
             EntityT(const EntityCreateParamsT& Params);
 
-            /// The copy constructor.
-            /// Copies an entity (optionally with all of its children recursively).
-            /// The parent of the copy is always NULL and it is up to the caller to put the copy into an entity hierarchy.
-            /// @param Entity      The entity to construct this entity from.
-            /// @param Recursive   Whether to recursively copy all children.
+            /// The copy constructor. It creates a new entity as a copy of another entity.
+            /// The parent of the copy is always `NULL`, and it is up to the caller to insert the copy
+            /// somewhere into an entity hierarchy.
+            ///
+            /// @param Entity      The entity to copy-construct this entity from.
+            /// @param Recursive   Whether to recursively copy all children as well.
             EntityT(const EntityT& Entity, bool Recursive=false);
 
             /// The virtual copy constructor.
             /// Callers can use this method to create a copy of this entity without knowing its concrete type.
-            /// Overrides in derived classes use a covariant return type to facilitate use when the concrete type is known.
-            /// @param Recursive   Whether to recursively clone all children of this entity.
+            /// Overrides in derived classes use a covariant return type to facilitate use when the concrete
+            /// type is known.
+            ///
+            /// @param Recursive   Whether to recursively clone all children of this entity as well.
             virtual EntityT* Clone(bool Recursive=false) const;
 
             /// The virtual destructor. Deletes this entity and all its children.

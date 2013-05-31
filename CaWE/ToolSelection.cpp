@@ -259,15 +259,15 @@ namespace
             {
                 SourceEnts.PushBack(Repres->GetParent());
 
-                // The new instance is referring to the same MapDoc as the source entity (ok),
+                // The new entity is referring to the same MapDoc as the source entity (ok),
                 // and to the same entity class (also ok).
-                // Note that we don't want the primitives of the source entity copied!
-                /*
-                 *
-                 *       TODO -- Must e.g. set a flag in the CompMapEntity to no copy the primitives!
-                 *
-                 */
-                NewEnts.PushBack(Repres->GetParent()->GetEntity()->Clone());
+                IntrusivePtrT<cf::GameSys::EntityT> NewEnt = Repres->GetParent()->GetEntity()->Clone(false /*Recursive?*/);
+
+                // The entity was copied...
+                wxASSERT(NewEnt->GetChildren().Size() == 0);              /// ... non-recursively,
+                wxASSERT(GetMapEnt(NewEnt)->GetPrimitives().Size() == 0); /// ... without any primitives.
+
+                NewEnts.PushBack(NewEnt);
             }
         }
 

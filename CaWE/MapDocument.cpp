@@ -1228,8 +1228,11 @@ ArrayT<CommandT*> MapDocumentT::CreatePasteCommands(const Vector3fT& DeltaTransl
     {
         for (unsigned long EntNr = 0; EntNr < SrcEnts.Size(); EntNr++)
         {
-            IntrusivePtrT<cf::GameSys::EntityT> NewEnt = SrcEnts[EntNr]->Clone(true);
+            IntrusivePtrT<cf::GameSys::EntityT> NewEnt = SrcEnts[EntNr]->Clone(true /*Recursive?*/);
             IntrusivePtrT<CompMapEntityT>       MapEnt = GetMapEnt(NewEnt);
+
+            // TODO: For MapEnt this works well, but it seems that we have to recurse into the children of NewEnt, too!
+            MapEnt->CopyPrimitives(*GetMapEnt(SrcEnts[EntNr]));
 
             if (TotalTranslation != Vector3fT())
             {

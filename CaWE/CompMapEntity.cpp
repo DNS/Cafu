@@ -34,18 +34,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace MapEditor;
 
 
-#if 0
-    /// The default constructor.
-    MapEntityBaseT(MapDocumentT& MapDoc, MapEditor::CompMapEntityT* CompMapEnt);
-
-    /// The copy constructor for copying a base entity.
-    /// @param Ent         The base entity to copy-construct this base entity from.
-    /// @param CopyPrims   Whether the primitives of `Ent` should be copied into the new entity as well.
-    ///                    If `false`, the new entity will be created without any primitives.
-    MapEntityBaseT(const MapEntityBaseT& Ent, bool CopyPrims=true);
-#endif
-
-
 CompMapEntityT::CompMapEntityT(MapDocumentT& MapDoc)
     : ComponentBaseT(),
       m_MapDoc(MapDoc),
@@ -68,16 +56,7 @@ CompMapEntityT::CompMapEntityT(const CompMapEntityT& Comp)
       m_Repres(NULL),
       m_Primitives()
 {
-    // Deep-copy all primitives of Comp.
- // if (CopyPrims)
-    {
-        for (unsigned long PrimNr = 0; PrimNr < Comp.m_Primitives.Size(); PrimNr++)
-        {
-            m_Primitives.PushBack(Comp.m_Primitives[PrimNr]->Clone());
-            m_Primitives[PrimNr]->SetParent(this);
-        }
-    }
-
+    // Note that the m_Primitives are intentionally *not* copied here!
     m_Repres = new MapEntRepresT(this);
 }
 
@@ -229,6 +208,16 @@ cf::math::AnglesfT CompMapEntityT::GetAngles() const
 void CompMapEntityT::SetAngles(const cf::math::AnglesfT& Angles)
 {
     FindProperty("angles", NULL, true)->Value=wxString::Format("%g %g %g", Angles[PITCH], Angles[YAW], Angles[ROLL]);
+}
+
+
+void CompMapEntityT::CopyPrimitives(const CompMapEntityT& MapEnt)
+{
+    for (unsigned long PrimNr = 0; PrimNr < MapEnt.m_Primitives.Size(); PrimNr++)
+    {
+        m_Primitives.PushBack(MapEnt.m_Primitives[PrimNr]->Clone());
+        m_Primitives[PrimNr]->SetParent(this);
+    }
 }
 
 
