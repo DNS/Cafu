@@ -127,10 +127,9 @@ void MapEntRepresT::Assign(const MapElementT* Elem)
     // Note that we're here concerned only with the entity itself, not with its primitives.
     // This is intentional, because the primitives are handled explicitly elsewhere.
     ThisEnt->SetClass(OtherEnt->GetClass());
-    ThisEnt->SetOrigin(OtherEnt->GetOrigin());
     ThisEnt->GetProperties() = OtherEnt->GetProperties();
 
- // ThisEnt->GetTransform()->SetOrigin(OtherEnt->GetTransform()->GetOrigin());
+    ThisEnt->GetEntity()->GetTransform()->SetOrigin(OtherEnt->GetOrigin());
  // ThisEnt->GetTransform()->SetQuaternion(OtherEnt->GetTransform()->GetQuaternion());
 
     // Now that we (possibly) have a new class, update our helper.
@@ -290,7 +289,7 @@ void MapEntRepresT::TrafoMove(const Vector3fT& Delta)
 {
     const Vector3fT Origin = m_Parent->GetOrigin();
 
-    m_Parent->SetOrigin(Origin + Delta);
+    m_Parent->GetEntity()->GetTransform()->SetOrigin(Origin + Delta);
 
     MapElementT::TrafoMove(Delta);
 }
@@ -323,7 +322,7 @@ void MapEntRepresT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::Angle
     if (fabs(NewAngles[YAW  ]) < 0.001f) NewAngles[YAW  ] = 0; if (NewAngles[YAW] < 0) NewAngles[YAW] += 360.0f;
     if (fabs(NewAngles[ROLL ]) < 0.001f) NewAngles[ROLL ] = 0;
 
-    m_Parent->SetOrigin(Origin);
+    m_Parent->GetEntity()->GetTransform()->SetOrigin(Origin);
     m_Parent->SetAngles(NewAngles);
 
     MapElementT::TrafoRotate(RefPoint, Angles);
@@ -334,7 +333,7 @@ void MapEntRepresT::TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale
 {
     const Vector3fT Origin = m_Parent->GetOrigin();
 
-    m_Parent->SetOrigin(RefPoint + (Origin - RefPoint).GetScaled(Scale));
+    m_Parent->GetEntity()->GetTransform()->SetOrigin(RefPoint + (Origin - RefPoint).GetScaled(Scale));
 
     MapElementT::TrafoScale(RefPoint, Scale);
 }
@@ -346,7 +345,7 @@ void MapEntRepresT::TrafoMirror(unsigned int NormalAxis, float Dist)
 
     Origin[NormalAxis] = Dist - (Origin[NormalAxis] - Dist);
 
-    m_Parent->SetOrigin(Origin);
+    m_Parent->GetEntity()->GetTransform()->SetOrigin(Origin);
 
     MapElementT::TrafoMirror(NormalAxis, Dist);
 }
@@ -356,7 +355,7 @@ void MapEntRepresT::Transform(const MatrixT& Matrix)
 {
     const Vector3fT Origin = m_Parent->GetOrigin();
 
-    m_Parent->SetOrigin(Matrix.Mul1(Origin));
+    m_Parent->GetEntity()->GetTransform()->SetOrigin(Matrix.Mul1(Origin));
 
     MapElementT::Transform(Matrix);
 }

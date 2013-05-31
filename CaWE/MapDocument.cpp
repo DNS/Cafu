@@ -219,19 +219,6 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
 }
 
 
-namespace
-{
-    /// Returns the entire hierarchy rooted at Entity in depth-first order.
-    void GetAll(IntrusivePtrT<cf::GameSys::EntityT> Entity, ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Result)
-    {
-        Result.PushBack(Entity);
-
-        for (unsigned int ChildNr = 0; ChildNr < Entity->GetChildren().Size(); ChildNr++)
-            GetAll(Entity->GetChildren()[ChildNr], Result);
-    }
-}
-
-
 MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDialog, const wxString& FileName)
     : wxEvtHandler(),
       SubjectT(),
@@ -316,8 +303,6 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     }
     else
     {
-        wxASSERT(cmapFileVersion >= 6);
-
         // Before `.cmap` file format version 14, related `.cent` files did not exist.
         m_ScriptWorld = new cf::GameSys::WorldT(
             "MapEnt = world:new('EntityT', 'Map'); world:SetRootEntity(MapEnt);",
@@ -326,56 +311,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     }
 
 
-    // Align the entities in the m_ScriptWorld and those in AllMapEnts with each other.
-    {
-        ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllScriptEnts;
-
-        GetAll(m_ScriptWorld->GetRootEntity(), AllScriptEnts);
-
-        unsigned int EntNr = 0;
-
-        // Sync as much as possible.
-        while (EntNr < AllScriptEnts.Size() && EntNr < AllMapEnts.Size())
-        {
-            wxASSERT(AllScriptEnts[EntNr]->GetApp().IsNull());
-            AllScriptEnts[EntNr]->SetApp(AllMapEnts[EntNr]);
-
-            EntNr++;
-        }
-
-        if (cmapFileVersion >= 14 && AllScriptEnts.Size() != AllMapEnts.Size())
-        {
-            const wxString s = wxString::Format(
-                "There are %lu entities in the `.cent` file and %lu entities in the `.cmap` file.\n\n"
-                "The problem will be fixed automatically, but as this is normally the result of "
-                "manual edits to one or both of these files (and can cause unexpected results), "
-                "you may wish to manually inspect the files in a text editor yourself.",
-                AllScriptEnts.Size(), AllMapEnts.Size());
-
-            wxMessageBox(s, "Mismatching entity counts");
-        }
-
-        while (EntNr < AllScriptEnts.Size())
-        {
-            // There were more entities in the `.cent` file than in the `.cmap` file.
-            wxASSERT(AllScriptEnts[EntNr]->GetApp().IsNull());
-            AllScriptEnts[EntNr]->SetApp(new CompMapEntityT(*this));
-
-            EntNr++;
-        }
-
-        while (EntNr < AllMapEnts.Size())
-        {
-            // There were more entities in the `.cmap` file than in the `.cent` file.
-            IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
-
-            NewEnt->SetApp(AllMapEnts[EntNr]);
-            m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
-
-            EntNr++;
-        }
-    }
-
+    PostLoadEntityAlign(cmapFileVersion, AllMapEnts);
 
     ArrayT<MapElementT*> AllElems;
     GetAllElems(AllElems);
@@ -394,23 +330,26 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         throw cf::GameSys::WorldT::InitErrorT("The file could not be opened.");
 
     MapDocumentT* Doc = new MapDocumentT(GameConfig);
-    IntrusivePtrT<cf::GameSys::EntityT> ScriptRootEnt = Doc->m_ScriptWorld->GetRootEntity();
+    ArrayT< IntrusivePtrT<CompMapEntityT> > AllMapEnts;
 
     try
     {
-        Doc->GetEntities()[0]->Load_HL1_map(TP, *Doc, ProgressDialog, 0);
+        IntrusivePtrT<CompMapEntityT> World = new CompMapEntityT(*Doc);
+
+        const EntityClassT* WorldSpawnClass = GameConfig->FindClass("worldspawn");
+        wxASSERT(WorldSpawnClass);
+        World->SetClass(WorldSpawnClass != NULL ? WorldSpawnClass : Doc->FindOrCreateUnknownClass("worldspawn", false /*HasOrigin*/));
+
+        World->Load_HL1_map(TP, *Doc, ProgressDialog, 0);
+        AllMapEnts.PushBack(World);
 
         // Load the entities.
         while (!TP.IsAtEOF())
         {
             IntrusivePtrT<CompMapEntityT> Entity = new CompMapEntityT(*Doc);
 
-            Entity->Load_HL1_map(TP, *Doc, ProgressDialog, ScriptRootEnt->GetChildren().Size() + 1);
-
-            IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*Doc->m_ScriptWorld));
-
-            NewEnt->SetApp(Entity);
-            ScriptRootEnt->AddChild(NewEnt);
+            Entity->Load_HL1_map(TP, *Doc, ProgressDialog, AllMapEnts.Size());
+            AllMapEnts.PushBack(Entity);
         }
     }
     catch (const TextParserT::ParseError&)
@@ -428,6 +367,8 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         throw cf::GameSys::WorldT::InitErrorT("The file could not be parsed.");
     }
 
+
+    Doc->PostLoadEntityAlign(0, AllMapEnts);
 
     ArrayT<MapElementT*> AllElems;
     Doc->GetAllElems(AllElems);
@@ -450,7 +391,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         throw cf::GameSys::WorldT::InitErrorT("The file could not be opened.");
 
     MapDocumentT* Doc = new MapDocumentT(GameConfig);
-    IntrusivePtrT<cf::GameSys::EntityT> ScriptRootEnt = Doc->m_ScriptWorld->GetRootEntity();
+    ArrayT< IntrusivePtrT<CompMapEntityT> > AllMapEnts;
 
     try
     {
@@ -461,18 +402,21 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
 
             if (ChunkName=="world")
             {
-                Doc->GetEntities()[0]->Load_HL2_vmf(TP, *Doc, ProgressDialog, 0);
+                IntrusivePtrT<CompMapEntityT> World = new CompMapEntityT(*Doc);
+
+                const EntityClassT* WorldSpawnClass = GameConfig->FindClass("worldspawn");
+                wxASSERT(WorldSpawnClass);
+                World->SetClass(WorldSpawnClass != NULL ? WorldSpawnClass : Doc->FindOrCreateUnknownClass("worldspawn", false /*HasOrigin*/));
+
+                World->Load_HL2_vmf(TP, *Doc, ProgressDialog, 0);
+                AllMapEnts.PushBack(World);
             }
             else if (ChunkName=="entity")
             {
                 IntrusivePtrT<CompMapEntityT> Entity = new CompMapEntityT(*Doc);
 
-                Entity->Load_HL2_vmf(TP, *Doc, ProgressDialog, ScriptRootEnt->GetChildren().Size() + 1);
-
-                IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*Doc->m_ScriptWorld));
-
-                NewEnt->SetApp(Entity);
-                ScriptRootEnt->AddChild(NewEnt);
+                Entity->Load_HL2_vmf(TP, *Doc, ProgressDialog, AllMapEnts.Size());
+                AllMapEnts.PushBack(Entity);
             }
             else
             {
@@ -497,6 +441,8 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     }
 
 
+    Doc->PostLoadEntityAlign(0, AllMapEnts);
+
     ArrayT<MapElementT*> AllElems;
     Doc->GetAllElems(AllElems);
 
@@ -518,23 +464,26 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         throw cf::GameSys::WorldT::InitErrorT("The file could not be opened.");
 
     MapDocumentT* Doc = new MapDocumentT(GameConfig);
-    IntrusivePtrT<cf::GameSys::EntityT> ScriptRootEnt = Doc->m_ScriptWorld->GetRootEntity();
+    ArrayT< IntrusivePtrT<CompMapEntityT> > AllMapEnts;
 
     try
     {
-        Doc->GetEntities()[0]->Load_D3_map(TP, *Doc, ProgressDialog, 0);
+        IntrusivePtrT<CompMapEntityT> World = new CompMapEntityT(*Doc);
+
+        const EntityClassT* WorldSpawnClass = GameConfig->FindClass("worldspawn");
+        wxASSERT(WorldSpawnClass);
+        World->SetClass(WorldSpawnClass != NULL ? WorldSpawnClass : Doc->FindOrCreateUnknownClass("worldspawn", false /*HasOrigin*/));
+
+        World->Load_D3_map(TP, *Doc, ProgressDialog, 0);
+        AllMapEnts.PushBack(World);
 
         // Load the entities.
         while (!TP.IsAtEOF())
         {
             IntrusivePtrT<CompMapEntityT> Entity = new CompMapEntityT(*Doc);
 
-            Entity->Load_D3_map(TP, *Doc, ProgressDialog, ScriptRootEnt->GetChildren().Size() + 1);
-
-            IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*Doc->m_ScriptWorld));
-
-            NewEnt->SetApp(Entity);
-            ScriptRootEnt->AddChild(NewEnt);
+            Entity->Load_D3_map(TP, *Doc, ProgressDialog, AllMapEnts.Size());
+            AllMapEnts.PushBack(Entity);
         }
     }
     catch (const TextParserT::ParseError&)
@@ -553,6 +502,8 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     }
 
 
+    Doc->PostLoadEntityAlign(0, AllMapEnts);
+
     ArrayT<MapElementT*> AllElems;
     Doc->GetAllElems(AllElems);
 
@@ -561,6 +512,141 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
 
     Doc->m_FileName=FileName;
     return Doc;
+}
+
+
+namespace
+{
+    /// Returns the entire hierarchy rooted at Entity in depth-first order.
+    void GetAll(IntrusivePtrT<cf::GameSys::EntityT> Entity, ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Result)
+    {
+        Result.PushBack(Entity);
+
+        for (unsigned int ChildNr = 0; ChildNr < Entity->GetChildren().Size(); ChildNr++)
+            GetAll(Entity->GetChildren()[ChildNr], Result);
+    }
+}
+
+
+/// Align the entities in the m_ScriptWorld and those in AllMapEnts with each other.
+void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const ArrayT< IntrusivePtrT<CompMapEntityT> >& AllMapEnts)
+{
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllScriptEnts;
+
+    GetAll(m_ScriptWorld->GetRootEntity(), AllScriptEnts);
+
+    unsigned int EntNr = 0;
+
+    // Sync as much as possible.
+    while (EntNr < AllScriptEnts.Size() && EntNr < AllMapEnts.Size())
+    {
+        wxASSERT(AllScriptEnts[EntNr]->GetApp().IsNull());
+        AllScriptEnts[EntNr]->SetApp(AllMapEnts[EntNr]);
+
+        EntNr++;
+    }
+
+    if (cmapFileVersion >= 14 && AllScriptEnts.Size() != AllMapEnts.Size())
+    {
+        const wxString s = wxString::Format(
+            "There are %lu entities in the `.cent` file and %lu entities in the `.cmap` file.\n\n"
+            "The problem will be fixed automatically, but as this is normally the result of "
+            "manual edits to one or both of these files (and can cause unexpected results), "
+            "you may wish to manually inspect the files in a text editor yourself.",
+            AllScriptEnts.Size(), AllMapEnts.Size());
+
+        wxMessageBox(s, "Mismatching entity counts");
+    }
+
+    while (EntNr < AllScriptEnts.Size())
+    {
+        // There were more entities in the `.cent` file than in the `.cmap` file.
+        IntrusivePtrT<CompMapEntityT> MapEnt = new CompMapEntityT(*this);
+        const EntityClassT* EntityClass = m_GameConfig->FindClass("info_generic");
+
+        MapEnt->SetClass(EntityClass ? EntityClass : FindOrCreateUnknownClass("info_generic", true));
+
+        wxASSERT(AllScriptEnts[EntNr]->GetApp().IsNull());
+        AllScriptEnts[EntNr]->SetApp(MapEnt);
+
+        EntNr++;
+    }
+
+    while (EntNr < AllMapEnts.Size())
+    {
+        // There were more entities in the `.cmap` file than in the `.cent` file.
+        IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
+        IntrusivePtrT<CompMapEntityT>       MapEnt = AllMapEnts[EntNr];
+
+        NewEnt->SetApp(MapEnt);
+        m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
+
+        const EntPropertyT* NameProp = MapEnt->FindProperty("name");
+        if (NameProp)
+        {
+            NewEnt->GetBasics()->SetEntityName(NameProp->Value.ToStdString());
+            MapEnt->RemoveProperty("name");
+        }
+
+        const EntPropertyT* OriginProp = MapEnt->FindProperty("origin");
+        if (OriginProp)
+        {
+            NewEnt->GetTransform()->SetOrigin(OriginProp->GetVector3f());
+            MapEnt->RemoveProperty("origin");
+        }
+        else
+        {
+            BoundingBox3fT BB;
+
+            for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
+                BB += MapEnt->GetPrimitives()[PrimNr]->GetBB();
+
+            if (BB.IsInited())
+                NewEnt->GetTransform()->SetOrigin(BB.GetCenter());
+        }
+
+#if 0
+        // Convert helpers into components.
+        bool HaveModelComponent = false;
+
+        for (unsigned long HelperNr = 0; HelperNr < MapEnt->GetClass()->GetHelpers().Size(); HelperNr++)
+        {
+            if (MapEnt->GetClass()->GetHelpers()[HelperNr]->Name == "model")
+            {
+                IntrusivePtrT<cf::GameSys::ComponentModelT> ModelComp = new cf::GameSys::ComponentModelT();
+
+                const EntPropertyT* ModelProp   = MapEnt->FindProperty("model");
+                const EntPropertyT* CollMdlProp = MapEnt->FindProperty("collisionModel");
+                const EntPropertyT* SequProp    = MapEnt->FindProperty("sequence");
+                const EntPropertyT* ScaleProp   = MapEnt->FindProperty("scale");
+                const EntPropertyT* GuiProp     = MapEnt->FindProperty("gui");
+
+                ModelComp->Set(
+                    ModelProp   ? ModelProp->Value.ToStdString()   : "",
+                    CollMdlProp ? CollMdlProp->Value.ToStdString() : "",    // Should this be in a separate "collision body" component of its own?
+                    SequProp    ? wxAtoi(SequProp->Value)          : 0,
+                    ScaleProp   ? wxAtof(ScaleProp->Value)         : 1.0f,
+                    GuiProp     ? GuiProp->Value.ToStdString()     : "");
+
+                NewEnt->AddComponent(ModelComp);
+                HaveModelComponent = true;
+                break;
+            }
+        }
+#endif
+
+        EntNr++;
+    }
+
+
+    // Convert entity properties (old-style) into entity components (new-style) as much as possible.
+    // This should be done in a manner that allows us to account for new components as they are developed.
+    // The key idea is to consider whether a (new-style) component for an (old-style) property already exists.
+    // If a related component does not yet exist, create one and initialize it from the value of the property.
+    // Otherwise, assume that the component has been created by this process before, and don't touch it.
+    // old-style properties are not(??) deleted
+    // Obviously, this works with optional components only -- Basics and Transform must immediately be handled above.
+    ;
 }
 
 
@@ -1981,9 +2067,9 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
         IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
         IntrusivePtrT<CompMapEntityT>       MapEnt = new CompMapEntityT(*this);
 
+        NewEnt->GetTransform()->SetOrigin(SnapToGrid(GetMostRecentSelBB().GetCenter(), false /*Toggle*/, -1 /*AxisNoSnap*/));
         NewEnt->SetApp(MapEnt);
 
-        MapEnt->SetOrigin(SnapToGrid(GetMostRecentSelBB().GetCenter(), false /*Toggle*/, -1 /*AxisNoSnap*/));
         MapEnt->SetClass(NewEntityClass);
 
         CommandNewEntityT* CmdNewEnt = new CommandNewEntityT(*this, NewEnt);

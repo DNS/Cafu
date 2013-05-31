@@ -199,21 +199,11 @@ void CompMapEntityT::Load_HL1_map(TextParserT& TP, MapDocumentT& MapDoc, wxProgr
     if (EntityNr>0)
     {
         int Index=-1;
-
-        // Set our origin from the "origin" property, then remove it from the properties list:
-        // the origin is a special-case that is not defined by the EntityClassDefs.lua scripts.
-        EntPropertyT* Prop=FindProperty("origin", &Index);
-        const bool    FoundOrigin=(Prop!=NULL);
-
-        if (Prop!=NULL)
-        {
-            SetOrigin(Prop->GetVector3f());
-            m_Properties.RemoveAtAndKeepOrder(Index);
-        }
+        const bool FoundOrigin = true;
 
         // Set our class from the "classname" property, and remove it as well:
         // just like the "origin" property, it is a special case wrt. the EntityClassDefs.lua scripts.
-        Prop=FindProperty("classname", &Index);
+        EntPropertyT* Prop = FindProperty("classname", &Index);
 
         if (Prop!=NULL && Prop->Value!="")
         {

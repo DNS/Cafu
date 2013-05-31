@@ -169,6 +169,8 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     MapDocumentT(const MapDocumentT&);          ///< Use of the Copy    Constructor is not allowed.
     void operator = (const MapDocumentT&);      ///< Use of the Assignment Operator is not allowed.
 
+    void PostLoadEntityAlign(unsigned int cmapFileVersion, const ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> >& AllMapEnts);
+
     ArrayT<CommandT*> CreatePasteCommands(const Vector3fT& DeltaTranslation=Vector3fT(), const cf::math::AnglesfT& DeltaRotation=cf::math::AnglesfT(),
         unsigned int NrOfCopies=1, bool PasteGrouped=false, bool CenterAtOriginals=false);
 

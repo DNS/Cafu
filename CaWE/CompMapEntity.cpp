@@ -38,7 +38,6 @@ CompMapEntityT::CompMapEntityT(MapDocumentT& MapDoc)
     : ComponentBaseT(),
       m_MapDoc(MapDoc),
       m_Class(NULL),
-      m_Origin(),
       m_Properties(),
       m_Repres(NULL),
       m_Primitives()
@@ -51,7 +50,6 @@ CompMapEntityT::CompMapEntityT(const CompMapEntityT& Comp)
     : ComponentBaseT(Comp),
       m_MapDoc(Comp.m_MapDoc),
       m_Class(Comp.m_Class),
-      m_Origin(Comp.m_Origin),
       m_Properties(Comp.m_Properties),
       m_Repres(NULL),
       m_Primitives()
@@ -114,22 +112,7 @@ void CompMapEntityT::SetClass(const EntityClassT* NewClass)
 
 Vector3fT CompMapEntityT::GetOrigin() const
 {
-    if (!m_Class->IsSolidClass()) return m_Origin;
-
-    // This is very similar to GetBB().GetCenter(), but without accounting for the helpers.
-    // The helpers GetBB() methods call m_ParentEntity->GetOrigin(), possibly creating an infinite recursion.
-    BoundingBox3fT BB;
-
-    for (unsigned long PrimNr=0; PrimNr<m_Primitives.Size(); PrimNr++)
-        BB+=m_Primitives[PrimNr]->GetBB();
-
-    return BB.IsInited() ? BB.GetCenter() : m_Origin;
-}
-
-
-void CompMapEntityT::SetOrigin(const Vector3fT& Origin)
-{
-    m_Origin=Origin;
+    return GetEntity()->GetTransform()->GetOrigin();
 }
 
 
@@ -185,6 +168,17 @@ int CompMapEntityT::FindPropertyIndex(const wxString& Key) const
             return PropNr;
 
     return -1;
+}
+
+
+void CompMapEntityT::RemoveProperty(const wxString& Key)
+{
+    for (unsigned long PropNr = 0; PropNr < m_Properties.Size(); PropNr++)
+        if (m_Properties[PropNr].Key == Key)
+        {
+            m_Properties.RemoveAtAndKeepOrder(PropNr);
+            return;
+        }
 }
 
 

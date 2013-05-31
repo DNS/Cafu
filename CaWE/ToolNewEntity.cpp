@@ -95,9 +95,9 @@ bool ToolNewEntityT::OnLMouseDown2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
     IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(m_MapDoc.GetScriptWorld()));
     IntrusivePtrT<CompMapEntityT>       MapEnt = new CompMapEntityT(m_MapDoc);
 
+    NewEnt->GetTransform()->SetOrigin(WorldPos);
     NewEnt->SetApp(MapEnt);
 
-    MapEnt->SetOrigin(WorldPos);
     MapEnt->SetClass(EntClass);
 
     m_MapDoc.GetHistory().SubmitCommand(new CommandNewEntityT(m_MapDoc, NewEnt));
@@ -154,7 +154,7 @@ bool ToolNewEntityT::OnLMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
         const BoundingBox3fT EntBB   = MapEnt->GetRepres()->GetBB();
         const float          OffsetZ = (HitPlane.Normal.z > 0.0f) ? HitPos.z - EntBB.Min.z : EntBB.Max.z - HitPos.z;
 
-        MapEnt->SetOrigin(HitPos + HitPlane.Normal*(OffsetZ + 1.0f));   // The +1.0f is some additional epsilon for the OffsetZ.
+        NewEnt->GetTransform()->SetOrigin(HitPos + HitPlane.Normal*(OffsetZ + 1.0f));   // The +1.0f is some additional epsilon for the OffsetZ.
 
         m_MapDoc.GetHistory().SubmitCommand(new CommandNewEntityT(m_MapDoc, NewEnt));
     }
