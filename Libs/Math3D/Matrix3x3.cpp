@@ -21,6 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Matrix3x3.hpp"
 #include "Angles.hpp"
+#include "Quaternion.hpp"
 
 
 using namespace cf::math;
@@ -28,6 +29,20 @@ using namespace cf::math;
 
 // The static identity instance of this matrix type.
 template<class T> const Matrix3x3T<T> Matrix3x3T<T>::Identity;
+
+
+template<class T> Matrix3x3T<T>::Matrix3x3T(const QuaternionT<T>& Quat)
+{
+    // This is the same code as in the related MatrixT constructor.
+    const T x = Quat.x;
+    const T y = Quat.y;
+    const T z = Quat.z;
+    const T w = Quat.w;
+
+    m[0][0] = 1 - 2 * y * y - 2 * z * z;   m[0][1] =     2 * x * y - 2 * w * z;   m[0][2] =     2 * x * z + 2 * w * y;
+    m[1][0] =     2 * x * y + 2 * w * z;   m[1][1] = 1 - 2 * x * x - 2 * z * z;   m[1][2] =     2 * y * z - 2 * w * x;
+    m[2][0] =     2 * x * z - 2 * w * y;   m[2][1] =     2 * y * z + 2 * w * x;   m[2][2] = 1 - 2 * x * x - 2 * y * y;
+}
 
 
 template<class T> Matrix3x3T<T>::Matrix3x3T(const AnglesT<T>& Angles)

@@ -77,6 +77,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/Entity.hpp"
 #include "GameSys/EntityCreateParams.hpp"
 #include "GameSys/World.hpp"
+#include "Math3D/Matrix3x3.hpp"     // For converting "angles" to Quaternions.
 #include "Math3D/Misc.hpp"
 #include "Templates/Array.hpp"
 #include "TextParser/TextParser.hpp"
@@ -603,6 +604,42 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
 
             if (BB.IsInited())
                 NewEnt->GetTransform()->SetOrigin(BB.GetCenter());
+        }
+
+        const EntPropertyT* AnglesProp = MapEnt->FindProperty("angles");
+        if (AnglesProp)
+        {
+            enum { PITCH = 0, YAW, ROLL };  // Nose up/down, Heading, Bank angle.
+
+            // Hard to believe as it is, but this is how we used to obtain an entity's local
+            // coordinate-system from a set of angles in the past.
+            // I cannot remember when or why the negation of the Pitch angle was introduced,
+            // but it was used and is needed in all three forms below, for Q1, Q2 and Q3.
+            Vector3fT Angles = AnglesProp->GetVector3f();
+            Angles[PITCH] = -Angles[PITCH];
+
+            const cf::math::QuaternionfT Q1(
+                cf::math::Matrix3x3fT::GetFromAngles_COMPAT(Angles));
+
+            const cf::math::QuaternionfT Q2(
+                cf::math::Matrix3x3fT::GetRotateZMatrix(Angles[YAW  ]) *
+                cf::math::Matrix3x3fT::GetRotateYMatrix(Angles[PITCH]) *
+                cf::math::Matrix3x3fT::GetRotateXMatrix(Angles[ROLL ]));
+
+            // Convert degrees to radian, as is needed for Euler() below.
+            Angles *= cf::math::AnglesfT::PI / 180.0;
+
+            const cf::math::QuaternionfT Q3 =
+                cf::math::QuaternionfT::Euler(Angles.x, Angles.y, Angles.z);
+
+            // Assert that Q1, Q2 and Q3 are equivalent to each other,
+            // in the sense that they all describe the same orientation.
+            wxASSERT(length(Q1 - Q2) < 0.001f || length(Q1 + Q2) < 0.001f);
+            wxASSERT(length(Q1 - Q3) < 0.001f || length(Q1 + Q3) < 0.001f);
+            wxASSERT(length(Q2 - Q3) < 0.001f || length(Q2 + Q3) < 0.001f);
+
+            NewEnt->GetTransform()->SetQuat(Q3);
+            MapEnt->RemoveProperty("angles");
         }
 
 #if 0

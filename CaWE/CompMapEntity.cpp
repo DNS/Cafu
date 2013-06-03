@@ -27,9 +27,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapEntRepres.hpp"
 #include "MapPrimitive.hpp"
 
-#include "wx/sstream.h"
-#include "wx/txtstrm.h"
-
 
 using namespace MapEditor;
 
@@ -179,29 +176,6 @@ void CompMapEntityT::RemoveProperty(const wxString& Key)
             m_Properties.RemoveAtAndKeepOrder(PropNr);
             return;
         }
-}
-
-
-cf::math::AnglesfT CompMapEntityT::GetAngles() const
-{
-    cf::math::AnglesfT  Angles;
-    const EntPropertyT* AnglesProp=FindProperty("angles");
-
-    if (AnglesProp!=NULL)
-    {
-        wxStringInputStream sis(AnglesProp->Value);
-        wxTextInputStream   tis(sis);
-
-        tis >> Angles[PITCH] >> Angles[YAW] >> Angles[ROLL];
-    }
-
-    return Angles;
-}
-
-
-void CompMapEntityT::SetAngles(const cf::math::AnglesfT& Angles)
-{
-    FindProperty("angles", NULL, true)->Value=wxString::Format("%g %g %g", Angles[PITCH], Angles[YAW], Angles[ROLL]);
 }
 
 

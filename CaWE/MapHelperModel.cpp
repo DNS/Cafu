@@ -81,7 +81,7 @@ BoundingBox3fT MapHelperModelT::GetBB() const
     UpdateModelCache();
 
     // TODO: Cache!
-    const cf::math::AnglesfT Angles = m_Repres.GetParent()->GetAngles();
+    const cf::math::Matrix3x3fT Mat(m_Repres.GetParent()->GetEntity()->GetTransform()->GetQuat());
 
     // The 3D bounds are the bounds of the oriented model's first sequence, so that frustum culling works properly in the 3D view.
     Vector3fT VerticesBB[8];
@@ -89,7 +89,7 @@ BoundingBox3fT MapHelperModelT::GetBB() const
 
     // Rotate all eight vertices.
     for (unsigned long VertexNr=0; VertexNr<8; VertexNr++)
-        VerticesBB[VertexNr]=VerticesBB[VertexNr].GetRotX(Angles[ROLL]).GetRotY(-Angles[PITCH]).GetRotZ(Angles[YAW]);
+        VerticesBB[VertexNr] = Mat.Mul(VerticesBB[VertexNr]);
 
     // Build a new BB of the rotated BB.
     BoundingBox3fT RotBB(VerticesBB[0]);
@@ -146,20 +146,16 @@ void MapHelperModelT::Render3D(Renderer3DT& Renderer) const
 
     if (ModelDist < float(Options.view3d.ModelDistance))
     {
-        const cf::math::AnglesfT Angles = m_Repres.GetParent()->GetAngles();
-        const float              CAFU_ENG_SCALE = 25.4f;
+        const MatrixT ModelToWorld =
+            MatSys::Renderer->GetMatrix(MatSys::RendererI::MODEL_TO_WORLD) *
+            MatrixT(Origin, m_Repres.GetParent()->GetEntity()->GetTransform()->GetQuat());
 
         MatSys::Renderer->SetCurrentAmbientLightColor(1.0f, 1.0f, 1.0f);
         MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
+        MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, ModelToWorld);
 
-        MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, Origin[0], Origin[1], Origin[2]);
-        MatSys::Renderer->RotateZ  (MatSys::RendererI::MODEL_TO_WORLD,  Angles[YAW  ]);
-        MatSys::Renderer->RotateY  (MatSys::RendererI::MODEL_TO_WORLD, -Angles[PITCH]);
-        MatSys::Renderer->RotateX  (MatSys::RendererI::MODEL_TO_WORLD,  Angles[ROLL ]);
-
-        Pose->Draw(-1 /*default skin*/, CAFU_ENG_SCALE*ModelDist);
-
-        const MatrixT ModelToWorld=MatSys::Renderer->GetMatrix(MatSys::RendererI::MODEL_TO_WORLD);
+        const float CAFU_ENG_SCALE = 25.4f;
+        Pose->Draw(-1 /*default skin*/, CAFU_ENG_SCALE * ModelDist);
 
         for (unsigned long GFNr=0; GFNr<m_Model->GetGuiFixtures().Size(); GFNr++)
         {
@@ -170,12 +166,12 @@ void MapHelperModelT::Render3D(Renderer3DT& Renderer) const
             if (Pose->GetGuiPlane(GFNr, GuiOrigin, GuiAxisX, GuiAxisY))
             {
                 // It's pretty easy to derive this matrix geometrically, see my TechArchive note from 2006-08-22.
-                MatrixT M(GuiAxisX.x/640.0f, GuiAxisY.x/480.0f, 0.0f, GuiOrigin.x,
-                          GuiAxisX.y/640.0f, GuiAxisY.y/480.0f, 0.0f, GuiOrigin.y,
-                          GuiAxisX.z/640.0f, GuiAxisY.z/480.0f, 0.0f, GuiOrigin.z,
-                                       0.0f,              0.0f, 0.0f,        1.0f);
+                const MatrixT M(GuiAxisX.x / 640.0f, GuiAxisY.x / 480.0f, 0.0f, GuiOrigin.x,
+                                GuiAxisX.y / 640.0f, GuiAxisY.y / 480.0f, 0.0f, GuiOrigin.y,
+                                GuiAxisX.z / 640.0f, GuiAxisY.z / 480.0f, 0.0f, GuiOrigin.z,
+                                               0.0f,                0.0f, 0.0f,        1.0f);
 
-                MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, ModelToWorld*M);
+                MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, ModelToWorld * M);
 
                 m_Guis[GFNr]->Render(true /*zLayerCoating*/);
             }

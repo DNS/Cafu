@@ -30,6 +30,7 @@ namespace cf
     namespace math
     {
         template<class T> class AnglesT;
+        template<class T> class QuaternionT;
 
 
         /// This class represents a generic 3x3 matrix.
@@ -71,6 +72,9 @@ namespace cf
                 m[1][0]=m10; m[1][1]=m11; m[1][2]=m12;
                 m[2][0]=m20; m[2][1]=m21; m[2][2]=m22;
             }
+
+            /// Constructor for creating a matrix from the given quaternion.
+            Matrix3x3T(const QuaternionT<T>& Quat);
 
             /// Creates a rotation matrix that corresponds to the three-step rotation described by the Angles.
             /// Refer to the description of the AnglesT class for more information on how the angles are understood.

@@ -130,7 +130,7 @@ void MapEntRepresT::Assign(const MapElementT* Elem)
     ThisEnt->GetProperties() = OtherEnt->GetProperties();
 
     ThisEnt->GetEntity()->GetTransform()->SetOrigin(OtherEnt->GetOrigin());
- // ThisEnt->GetTransform()->SetQuaternion(OtherEnt->GetTransform()->GetQuaternion());
+    ThisEnt->GetEntity()->GetTransform()->SetQuat(OtherEnt->GetEntity()->GetTransform()->GetQuat());
 
     // Now that we (possibly) have a new class, update our helper.
     Update();
@@ -219,9 +219,9 @@ void MapEntRepresT::Render2D(Renderer2DT& Renderer) const
     }
 
     // Render the coordinate axes of our local system.
-    if (IsSelected() && m_Parent->FindProperty("angles") != NULL)
+    if (IsSelected())
     {
-        Renderer.BasisVectors(m_Parent->GetOrigin(), cf::math::Matrix3x3fT::GetFromAngles_COMPAT(m_Parent->GetAngles()));
+        Renderer.BasisVectors(m_Parent->GetOrigin(), cf::math::Matrix3x3fT(m_Parent->GetEntity()->GetTransform()->GetQuat()));
     }
 
     // Render the helper.
@@ -233,9 +233,9 @@ void MapEntRepresT::Render2D(Renderer2DT& Renderer) const
 void MapEntRepresT::Render3D(Renderer3DT& Renderer) const
 {
     // Render the coordinate axes of our local system.
-    if (IsSelected() && m_Parent->FindProperty("angles") != NULL)
+    if (IsSelected())
     {
-        Renderer.BasisVectors(m_Parent->GetOrigin(), cf::math::Matrix3x3fT::GetFromAngles_COMPAT(m_Parent->GetAngles()));
+        Renderer.BasisVectors(m_Parent->GetOrigin(), cf::math::Matrix3x3fT(m_Parent->GetEntity()->GetTransform()->GetQuat()));
     }
 
     // Render the helper.
@@ -308,22 +308,13 @@ void MapEntRepresT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::Angle
 
     Origin += RefPoint;
 
+    const cf::math::AnglesfT AngRad = Angles * (cf::math::AnglesfT::PI / 180.0);
 
-    // Convert the existing orientation (expressed in m_Angles) and the additionally to be applied delta rotation
-    // (expressed in Angles) to 3x3 rotation matrixes (for backwards-compatibility, both conversions require extra code).
-    // Then multiply the matrices in order to obtain the new orientation, and convert that (again bw.-comp.) back to m_Angles.
-    const cf::math::Matrix3x3fT OldMatrix = cf::math::Matrix3x3fT::GetFromAngles_COMPAT(m_Parent->GetAngles());
-    const cf::math::Matrix3x3fT RotMatrix = cf::math::Matrix3x3fT::GetFromAngles_COMPAT(cf::math::AnglesfT(-Angles[1], Angles[2], Angles[0]));
-
-    cf::math::AnglesfT NewAngles = (RotMatrix*OldMatrix).ToAngles_COMPAT();
-
-    // Carefully round and normalize the angles.
-    if (fabs(NewAngles[PITCH]) < 0.001f) NewAngles[PITCH] = 0;
-    if (fabs(NewAngles[YAW  ]) < 0.001f) NewAngles[YAW  ] = 0; if (NewAngles[YAW] < 0) NewAngles[YAW] += 360.0f;
-    if (fabs(NewAngles[ROLL ]) < 0.001f) NewAngles[ROLL ] = 0;
+    const cf::math::QuaternionfT OldQuat = m_Parent->GetEntity()->GetTransform()->GetQuat();
+    const cf::math::QuaternionfT RotQuat = cf::math::QuaternionfT::Euler(-AngRad[1], AngRad[2], AngRad[0]);
 
     m_Parent->GetEntity()->GetTransform()->SetOrigin(Origin);
-    m_Parent->SetAngles(NewAngles);
+    m_Parent->GetEntity()->GetTransform()->SetQuat(OldQuat * RotQuat);
 
     MapElementT::TrafoRotate(RefPoint, Angles);
 }

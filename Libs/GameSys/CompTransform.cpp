@@ -39,24 +39,28 @@ const char* ComponentTransformT::DocClass =
 const cf::TypeSys::VarsDocT ComponentTransformT::DocVars[] =
 {
     { "Origin",      "The origin of the entity (in the coordinate system of its parent)." },
- // { "Orientation", "The orientation of the entity (in the coordinate system of its parent)." },
+    { "Orientation", "The orientation of the entity (in the coordinate system of its parent)." },
     { NULL, NULL }
 };
 
 
 ComponentTransformT::ComponentTransformT()
     : ComponentBaseT(),
-      m_Origin("Origin", Vector3fT(0.0f, 0.0f, 0.0f))
+      m_Origin("Origin", Vector3fT(0.0f, 0.0f, 0.0f)),
+      m_Quat("Orientation", Vector3fT(0.0f, 0.0f, 0.0f))
 {
     GetMemberVars().Add(&m_Origin);
+    GetMemberVars().Add(&m_Quat);
 }
 
 
 ComponentTransformT::ComponentTransformT(const ComponentTransformT& Comp)
     : ComponentBaseT(Comp),
-      m_Origin(Comp.m_Origin)
+      m_Origin(Comp.m_Origin),
+      m_Quat(Comp.m_Quat)
 {
     GetMemberVars().Add(&m_Origin);
+    GetMemberVars().Add(&m_Quat);
 }
 
 

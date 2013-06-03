@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_GAMESYS_COMPONENT_TRANSFORM_HPP_INCLUDED
 
 #include "CompBase.hpp"
+#include "Math3D/Quaternion.hpp"
 
 
 namespace cf
@@ -43,11 +44,22 @@ namespace cf
             /// @param Comp   The component to create a copy of.
             ComponentTransformT(const ComponentTransformT& Comp);
 
+            /// Returns the origin of the entity (in the coordinate system of its parent).
             const Vector3fT& GetOrigin() const { return m_Origin.Get(); }
-         // const AnglesfT& GetAngles() const { return m_Angles.Get(); }
 
+            /// Sets the origin of the entity (in the coordinate system of its parent).
             void SetOrigin(const Vector3fT& Origin) { m_Origin.Set(Origin); }
-         // void SetAngles(const AnglesfT& Angles) { m_Angles.Set(Angles); }
+
+            /// Returns the orientation of the entity (in the coordinate system of its parent).
+            /// The class keeps the orientation as the first three components (x, y, z) of a unit quaternion,
+            /// so the method has to convert appropriately.
+            const cf::math::QuaternionfT GetQuat() const { return cf::math::QuaternionfT::FromXYZ(m_Quat.Get()); }
+
+            /// Sets the orientation of the entity (in the coordinate system of its parent).
+            /// The class keeps the orientation as the first three components (x, y, z) of a unit quaternion,
+            /// so the method has to convert appropriately.
+            void SetQuat(const cf::math::QuaternionfT& Quat) { m_Quat.Set(Quat.GetXYZ()); }
+
 
             // Base class overrides.
             ComponentTransformT* Clone() const;
@@ -74,9 +86,7 @@ namespace cf
             private:
 
             TypeSys::VarT<Vector3fT> m_Origin;  ///< The origin of the entity (in the coordinate system of its parent).
-         // TypeSys::VarT<AnglesfT>  m_Angles;  ///< The orientation of the entity (in the coordinate system of its parent).
-         // TODO: The orientation should rather be kept in a *quaternion* (corresponding to a 3x3 rotation matrix; as e.g.
-         // in cmdl model code) in order to remove the ambiguity regarding the order of application of the invididual angles.
+            TypeSys::VarT<Vector3fT> m_Quat;    ///< The orientation of the entity (in the coordinate system of its parent).
         };
     }
 }

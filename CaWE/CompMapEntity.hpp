@@ -98,9 +98,6 @@ namespace MapEditor
         int                 FindPropertyIndex(const wxString& Key) const;                               ///< Get the index of the property.
         void                RemoveProperty(const wxString& Key);                                        ///< Remove this property.
 
-        void               SetAngles(const cf::math::AnglesfT& Angles);
-        cf::math::AnglesfT GetAngles() const;
-
         void CopyPrimitives(const CompMapEntityT& MapEnt);  ///< Creates a copy of each primitive in MapEnt and adds it to this instance.
         const ArrayT<MapPrimitiveT*>& GetPrimitives() const { return m_Primitives; }
 
